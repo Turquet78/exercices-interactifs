@@ -13326,7 +13326,7 @@ function recurrenceFormule(w, P){
   })()`, v => v === '', undefined);
 }
 
-/* ---------- 5.3.3 : la récurrence d'une formule ℓ + c × qⁿ, puis sa LIMITE ---------- */
+/* ---------- 5.6.3 (ex-5.3.3) : la récurrence d'une formule ℓ + c × qⁿ, puis sa LIMITE ---------- */
 /* Fiche « puissance et récurrence limite » (demande de Turquet, octobre 2026) :
    U0 = 6, U_{n+1} = (1/5)Un + 4, démontrer Un = 5 + 0,2^n, puis en déduire la
    limite. Les bords tenus : le tirage refait par sa propre arithmétique
@@ -13336,7 +13336,7 @@ function recurrenceFormule(w, P){
    fraction), chaque case jugée SEULE — la limite fausse ne fait pas payer la
    récurrence —, la case vide sans couleur, et le contexte du modèle. */
 function recurrenceLimite(w, P){
-  const nom='la récurrence d’une formule explicite, puis sa limite (5.3.3)';
+  const nom='la récurrence d’une formule explicite, puis sa limite (5.6.3)';
   const present = evaluer(w, "typeof startRL==='function' && typeof rlBuildQuestions==='function' && typeof genRL==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas la récurrence suivie de la limite');
@@ -13347,8 +13347,11 @@ function recurrenceLimite(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='recurrence-limite';
 
-    /* ---- 0. la place au menu : la partie « Récurrence et égalité », 5.3.3 ---- */
-    if(TEST_NUM['recurrence-limite']!=='5.3.3') vus.push('{recurrence-limite} porte le numéro '+TEST_NUM['recurrence-limite']+' au lieu de 5.3.3');
+    /* ---- 0. la place au menu : la partie « Limite de qⁿ », 5.6.3 (octobre 2026 ;
+       c'était 5.3.3, en « Récurrence et égalité ») ---- */
+    if(TEST_NUM['recurrence-limite']!=='5.6.3') vus.push('{recurrence-limite} porte le numéro '+TEST_NUM['recurrence-limite']+' au lieu de 5.6.3');
+    if(TEST_NUM['suite-auxiliaire-limite']!=='5.6.2') vus.push('{suite-auxiliaire-limite} porte le numéro '+TEST_NUM['suite-auxiliaire-limite']+' au lieu de 5.6.2');
+    if(TEST_NUM['suite-limite-puissance']!=='5.6.1') vus.push('{suite-limite-puissance} porte le numéro '+TEST_NUM['suite-limite-puissance']+' au lieu de 5.6.1');
 
     /* ---- 1. le tirage, refait par sa propre arithmétique ---- */
     for(let t=0;t<200 && vus.length<4;t++){

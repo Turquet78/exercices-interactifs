@@ -3013,7 +3013,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     </div>
   </section>
 
-  <!-- 5.1.5 SUITES — SUITE AUXILIAIRE ET LIMITE (fiche « limite, puissance et suite auxiliaire ») -->
+  <!-- 5.6.2 SUITES — SUITE AUXILIAIRE ET LIMITE (fiche « limite, puissance et suite auxiliaire ») -->
   <section class="screen" id="scr-sal">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="salModeTag"></span><span class="q-idx" id="salQIdx">Question 1 / 2</span></span>
@@ -3302,7 +3302,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=380;
+const APP_VERSION=381;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3575,9 +3575,9 @@ const THEMES=[
      vocabulaire (monotone, bornée, convergente) l'ouvre. Les notes portent l'IDENTIFIANT, pas le
      numéro : rien de ce qui est enregistré ne bouge. */
   { num:5, nom:'Suites', sous:[
-      { num:1, nom:'Suite auxiliaire',                  ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suite-auxiliaire-redaction','suite-auxiliaire-limite'] },
+      { num:1, nom:'Suite auxiliaire',                  ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suite-auxiliaire-redaction'] },
       { num:2, nom:'Récurrence et inégalité',           ids:['suites-encadrement','recurrence-encadrement','recurrence-complete','recurrence-redaction','suite-variation-recurrence','suite-variation-difference'] },
-      { num:3, nom:'Récurrence et égalité',             ids:['recurrence-formule','recurrence-fractions','recurrence-limite'] },
+      { num:3, nom:'Récurrence et égalité',             ids:['recurrence-formule','recurrence-fractions'] },
       { num:4, nom:'Théorème de convergence monotone',  ids:['suite-vocabulaire','suite-tcm-limite','suite-synthese-variations'] },
       /* Cinquième partie (demande de Turquet, septembre 2026) : « en terminale
          dans la partie suite créer un sous thème "algorithme" ». {suite-algo-seuil}
@@ -3585,8 +3585,11 @@ const THEMES=[
          défile au-delà du rang 10, algorithme Python à seuil (while) à compléter. */
       { num:5, nom:'Algorithme',                        ids:['suite-algo-seuil'] },
       /* Sixième partie (demande de Turquet, octobre 2026) : la fiche « limite
-         qⁿ » — lim Uₙ = …… avec …… —, {suite-limite-puissance}. */
-      { num:6, nom:'Limite de qⁿ',                      ids:['suite-limite-puissance'] }
+         qⁿ » — lim Uₙ = …… avec …… —, {suite-limite-puissance}. Puis (octobre
+         2026) « mettre le 5.1.5 et le 5.3.3 dans le thème 5.6 » : les deux
+         exercices qui finissent par une limite de qⁿ — {suite-auxiliaire-limite}
+         et {recurrence-limite} — la rejoignent, en 5.6.2 et 5.6.3. */
+      { num:6, nom:'Limite de qⁿ',                      ids:['suite-limite-puissance','suite-auxiliaire-limite','recurrence-limite'] }
     ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
@@ -14316,7 +14319,7 @@ function rfConseilCtx(){
    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse ; les deux lignes libres acceptent toute écriture ÉGALE, la dernière doit être la forme réduite. '
    +'Tu peux lui rappeler le bouton « Voir le rappel de cours » de cette fenêtre.';
 }
-/* ===== 5.3.3 RÉCURRENCE — FORMULE EXPLICITE PUIS LIMITE (fiche « puissance et
+/* ===== 5.6.3 RÉCURRENCE — FORMULE EXPLICITE PUIS LIMITE (fiche « puissance et
    récurrence limite », demande de Turquet, octobre 2026 : « créer un exercice
    comme le pdf, en rédigeant comme le 5.3.1 pour la récurrence ») =====
    On donne U0 et U_{n+1} = qU_n + b — q écrit en FRACTION 1/d comme sur la

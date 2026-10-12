@@ -3011,7 +3011,16 @@ dessous), « 40 − 20 − 10 » et l'ordre retourné « 30 − 40 » restent fa
 question 2 (Vₙ = k − Uₙ), c'est « 30 − 40 » qui passe. Exécuté dans
 Chromium sur les deux formes, neuf écritures chacune.
 
-**Puis la virgule du jeton est tombée dans le « avec » (5.6.1, v380).**
+**Le 5.1.5 et le 5.3.3 rejoignent la partie « Limite de qⁿ » (octobre 2026,
+v380).** Demande de Turquet : « mettre le 5.1.5 et le 5.3.3 dans le thème
+5.6 ». {suite-auxiliaire-limite} et {recurrence-limite} finissent tous deux
+par la limite d'une suite géométrique : ils deviennent 5.6.2 et 5.6.3, après
+{suite-limite-puissance} (5.6.1). Ils étaient en DERNIÈRE place de leur
+partie, si bien qu'aucun voisin n'est renuméroté. Les identifiants ne bougent
+pas — notes, devoirs et pauses suivent. Le banc principal tient les trois
+numéros du 5.6 (contrôle de {recurrence-limite}, section 0).
+
+**Puis la virgule du jeton est tombée dans le « avec » (5.6.1, v381).**
 Turquet a montré une capture : « 0<06<1 » rouge après « avec », pour
 U = 0,6ⁿ, et demandé d'accepter « 0 < 0.6 < 1 ». Le juge l'acceptait déjà —
 « 0<0.6<1 », « 0<0,6<1 », « -1<0.6<1 » tapés au clavier dans Chromium sont
