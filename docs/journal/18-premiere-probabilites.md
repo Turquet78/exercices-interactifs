@@ -418,3 +418,15 @@ d'une pause) et après la vérification en soutien.
 Vérifié dans Chromium : la liste propose « tout », le choix efface la case
 (fond `rgba(0,0,0,0)`, vitrine à 0,22), et une fois jugée juste elle reste
 effacée.
+
+## Un espace devant la parenthèse fermante de P(…) (3.1 à 3.4, v300)
+
+Demande de Turquet (octobre 2026) : « dans les écritures P(…), rajouter un
+espace devant la parenthèse fermante — pour les probabilités conditionnelles
+aussi ». L'évènement en italique de Fredoka (« C ») touchait la « ) ». Un
+espace est posé avant la « ) » partout où la page écrit le nom d'une
+probabilité : `pbNomHTML` (P(C), P_A(B) — le même nom sert les quatre
+exercices du thème), le nom repris dans l'explication `pbPourquoi`, et les
+noms à listes déroulantes de {lire-probabilites} et de la fiche (l'espace est
+HORS du `.pb-par`, dont la police à 1,45 em l'aurait élargi). Les textes
+envoyés au modèle ne changent pas.
