@@ -5481,7 +5481,7 @@ navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
 ## {python-for-couples} — BONUS : tous les couples d'entiers (a ; b) (6.6.12, Boucle for in range)
 
 **L'exercice 12 du carnet.** {python-for-couples} (Seconde, 6.6.12, APP_VERSION
-450 — 437 à 449 pris par les sessions voisines du même jour, et les 6.6.6
+451 — 437 à 450 pris par les sessions voisines du même jour, et les 6.6.6
 à 6.6.11 par {python-for-depart-fin}, {python-for-multiples},
 {python-trois-des}, {python-for-moyenne-notes}, {python-for-images} et
 {python-for-table} pendant les bancs —, demande de Turquet, octobre 2026 : « en seconde dans le sous-thème
