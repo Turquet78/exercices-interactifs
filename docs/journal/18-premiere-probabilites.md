@@ -438,7 +438,20 @@ Vérifié dans Chromium : la liste propose « tout », le choix efface la case
 (fond `rgba(0,0,0,0)`, vitrine à 0,22), et une fois jugée juste elle reste
 effacée.
 
-## v301 — au 3.4 puis au 3.2, les intersections se tirent
+## Un espace devant la parenthèse fermante de P(…) (3.1 à 3.4, v301)
+
+Demande de Turquet (octobre 2026) : « dans les écritures P(…), rajouter un
+espace devant la parenthèse fermante — pour les probabilités conditionnelles
+aussi ». L'évènement en italique de Fredoka (« C ») touchait la « ) ». Un
+espace est posé avant la « ) » partout où la page écrit le nom d'une
+probabilité : `pbNomHTML` (P(C), P_A(B) — le même nom sert les quatre
+exercices du thème), le nom repris dans l'explication `pbPourquoi`, le nom qui se
+recompose d'après la traduction du 3.2 (`pbNomVifMaj`), et les
+noms à listes déroulantes de {lire-probabilites} et de la fiche (l'espace est
+HORS du `.pb-par`, dont la police à 1,45 em l'aurait élargi). Les textes
+envoyés au modèle ne changent pas.
+
+## v302 — au 3.4 puis au 3.2, les intersections se tirent
 
 Demande de Turquet (octobre 2026) : « en première dans le 3.4 varier les
 intersections possibles pour les questions 5 et 6 ».
@@ -450,7 +463,7 @@ quelconque — douze couples possibles. Le tirage est rangé dans la question
 (`q.ev = [évènement, 'T']`, du JSON), et `pbItem` le lit avant `PB_ITEMS` :
 le juge, le nom écrit, la méthode sous une question fausse, la copie
 enregistrée et le contexte du modèle suivent sans rien changer. Une pause
-d'avant la v301 n'a pas `q.ev` et relit `PB_ITEMS` comme avant. Les quatre
+d'avant la v302 n'a pas `q.ev` et relit `PB_ITEMS` comme avant. Les quatre
 codes sont déjà écrits « A d'abord », ce que `pbInter` exige. Le 3.2, qui
 partage `PB_ITEMS`, n'a d'abord pas changé : la demande ne portait que sur le 3.4.
 
