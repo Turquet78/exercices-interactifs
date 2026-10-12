@@ -4157,6 +4157,7 @@ function exercices(suite){
     placerImage(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
+    recurrenceLimite(w, P);
     alphaSigne(w, P);
     etudeConvexite(w, P);
     etudeAlgoConvexite(w, P);
@@ -13318,6 +13319,117 @@ function recurrenceFormule(w, P){
       if(html.indexOf('^(')>=0) vus.push('le badge écrit encore « ^( » en toutes lettres : '+html); }
 
     currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- 5.3.3 : la récurrence d'une formule ℓ + c × qⁿ, puis sa LIMITE ---------- */
+/* Fiche « puissance et récurrence limite » (demande de Turquet, octobre 2026) :
+   U0 = 6, U_{n+1} = (1/5)Un + 4, démontrer Un = 5 + 0,2^n, puis en déduire la
+   limite. Les bords tenus : le tirage refait par sa propre arithmétique
+   (b = ℓ(1−q) ENTIER, u0 = ℓ + c), une question en FRACTION et une en DÉCIMAL
+   par séance, la copie de la fiche qui vaut le point, la forme réduite exigée
+   à la fin de l'hérédité (dans les deux ordres, × écrit ou non, base en
+   fraction), chaque case jugée SEULE — la limite fausse ne fait pas payer la
+   récurrence —, la case vide sans couleur, et le contexte du modèle. */
+function recurrenceLimite(w, P){
+  const nom='la récurrence d’une formule explicite, puis sa limite (5.3.3)';
+  const present = evaluer(w, "typeof startRL==='function' && typeof rlBuildQuestions==='function' && typeof genRL==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas la récurrence suivie de la limite');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='recurrence-limite';
+
+    /* ---- 0. la place au menu : la partie « Récurrence et égalité », 5.3.3 ---- */
+    if(TEST_NUM['recurrence-limite']!=='5.3.3') vus.push('{recurrence-limite} porte le numéro '+TEST_NUM['recurrence-limite']+' au lieu de 5.3.3');
+
+    /* ---- 1. le tirage, refait par sa propre arithmétique ---- */
+    for(let t=0;t<200 && vus.length<4;t++){
+      [true,false].forEach(function(fr){
+        const q=genRL(fr);
+        if(Math.abs(q.b - q.k*(1-q.a))>1e-9) vus.push('b ne vaut plus ℓ(1−q) : '+JSON.stringify(q));
+        if(!Number.isInteger(q.b)||q.b<1) vus.push('b n\\'est plus un entier ≥ 1 : '+JSON.stringify(q));
+        if(q.u0!==q.k+q.c || q.u0<1) vus.push('u0 ne vaut plus ℓ + c, ou n\\'est plus positif : '+JSON.stringify(q));
+        if(fr && (!q.d || Math.abs(q.a*q.d-1)>1e-12)) vus.push('la question en fraction n\\'a pas q = 1/d : '+JSON.stringify(q));
+        if(!fr && q.d) vus.push('la question en décimal porte un dénominateur : '+JSON.stringify(q));
+        if(!(q.a>0 && q.a<1)) vus.push('q hors de ]0 ; 1[ : la limite ne serait plus ℓ');
+      });
+    }
+    { const qs=rlBuildQuestions();
+      if(qs.length!==2 || !qs[0].d || qs[1].d) vus.push('la séance n\\'a plus une question en fraction puis une en décimal'); }
+
+    /* ---- montage : l'Exercice 1 de la fiche ---- */
+    const Q={a:0.2,d:5,k:5,b:4,c:1,u0:6,n0:0};
+    const IDS=['rl-par','rl-n0','rl-i1','rl-i2','rl-i3','rl-i4','rl-h1','rl-m1','rl-s1','rl-d1','rl-d2','rl-ccl','rl-l1','rl-l2','rl-l3','rl-l4'];
+    const BON={'rl-par':'recurrence','rl-n0':'0','rl-i1':'0','rl-i2':'0','rl-i3':'6','rl-i4':'vrai','rl-h1':'n','rl-m1':'n+1',
+      'rl-s1':'5+0,2^(n)','rl-d1':'1+0,2^(n+1)+4','rl-d2':'5+0,2^(n+1)','rl-ccl':'tout',
+      'rl-l1':'5+0,2^n','rl-l2':'5','rl-l3':'0','rl-l4':'dedans'};
+    let QQ=Q;
+    const poser=function(vals){
+      Object.assign(test,{kind:'rl', questions:[JSON.parse(JSON.stringify(QQ))], idx:0, score:0, answers:[], locked:false, startTime:Date.now(), maxScore:1});
+      renderRL();
+      IDS.forEach(function(id){ const el=document.getElementById(id);
+        if(el){ const v=vals[id]; el.value=(v===undefined||v===null)?'':String(v); } });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+
+    /* ---- 2. la copie de la fiche passe entière, vaut le point ---- */
+    poser(BON); checkRL();
+    { const pas=IDS.filter(function(id){ return peint(id)!=='vert'; });
+      if(pas.length) vus.push('la copie de la fiche ne passe pas entière : '+pas.join(','));
+      if(test.score!==1||!test.locked) vus.push('la copie de la fiche vaut '+test.score); }
+    if((document.getElementById('rlPrompt').textContent||'').indexOf('{')>=0) vus.push('l\\'énoncé affiche une accolade');
+
+    /* ---- 3. la forme réduite : l'autre ordre, la base en fraction acceptés ;
+       le développement recopié refusé ---- */
+    [['rl-d2','0,2^(n+1)+5'],['rl-d2','5+(1/5)^(n+1)'],['rl-s1','0,2^n+5']].forEach(function(p){
+      const v=Object.assign({},BON); v[p[0]]=p[1]; poser(v); checkRL();
+      if(test.score!==1) vus.push('l\\'écriture « '+p[1]+' » est refusée en '+p[0]); });
+    { const v=Object.assign({},BON); v['rl-d2']='1+0,2^(n+1)+4'; poser(v); checkRL();
+      if(peint('rl-d2')!=='rouge'||test.score!==0) vus.push('la ligne finale accepte le développement non réduit'); }
+
+    /* ---- 4. un coefficient devant la puissance : Exercice 3, 10 − 3 × 0,1^n ---- */
+    QQ={a:0.1,d:10,k:10,b:9,c:-3,u0:7,n0:0};
+    { const v=Object.assign({},BON,{'rl-i3':'7','rl-s1':'10-3×0,1^n','rl-d1':'1-3×0,1^(n+1)+9','rl-d2':'10-3×0,1^(n+1)',
+        'rl-l1':'10-3×0,1^n','rl-l2':'10'});
+      poser(v); checkRL();
+      if(test.score!==1) vus.push('la copie de l\\'Exercice 3 (10 − 3 × 0,1^n) ne vaut pas le point : '+IDS.filter(function(id){ return peint(id)!=='vert'; }).join(','));
+      v['rl-d2']='-3×0,1^(n+1)+10'; poser(v); checkRL();
+      if(test.score!==1) vus.push('« −3 × 0,1^(n+1) + 10 » est refusé');
+      v['rl-d2']='10-30,1^(n+1)'; poser(v); checkRL();
+      if(peint('rl-d2')!=='rouge') vus.push('« 10 − 30,1^(n+1) » est accepté');
+      v['rl-d2']='10-0,1^(n+1)'; poser(v); checkRL();
+      if(peint('rl-d2')!=='rouge') vus.push('le coefficient oublié est accepté'); }
+    QQ=Q;
+
+    /* ---- 5. la limite fausse rougit SEULE ---- */
+    { const v=Object.assign({},BON,{'rl-l2':'0','rl-l4':'pos'}); poser(v); checkRL();
+      if(peint('rl-l2')!=='rouge') vus.push('la limite fausse ne rougit pas');
+      if(test.score!==0) vus.push('une limite fausse vaut le point');
+      const autres=IDS.filter(function(id){ return ['rl-l2','rl-l4'].indexOf(id)<0 && peint(id)!=='vert'; });
+      if(autres.length) vus.push('la limite fausse fait payer la récurrence : '+autres.join(',')); }
+
+    /* ---- 6. la case vide : rien en soutien, sol en entraînement ---- */
+    currentMode='soutien';
+    { const v=Object.assign({},BON); delete v['rl-l3']; poser(v); checkRL();
+      if(peint('rl-l3')!=='rien') vus.push('en soutien, la case vide reçoit une couleur');
+      if(test.locked) vus.push('en soutien, une copie incomplète verrouille'); }
+    currentMode='train';
+    { const v=Object.assign({},BON); delete v['rl-s1']; poser(v); checkRL();
+      if(peint('rl-s1')!=='sol') vus.push('en entraînement, la case vide n\\'est pas remplie en sol'); }
+
+    /* ---- 7. le contexte du modèle ---- */
+    poser(BON);
+    { const c=rlConseilCtx();
+      if(c.indexOf('0,2')<0||c.indexOf('limite')<0) vus.push('le contexte du modèle ne porte pas l\\'énoncé');
+      if(c.indexOf('ANTI-RECOPIE')<0||c.indexOf('JAMAIS révéler')<0) vus.push('le contexte du modèle a perdu la clause de secret');
+      if(c.indexOf('Saisies actuelles')<0) vus.push('le contexte du modèle ne porte plus les saisies'); }
+
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
