@@ -714,7 +714,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-rvf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1515,6 +1515,44 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
   #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:76px} }
 @media(max-width:520px){ .sf-prod .sf-l{gap:3px} .sf-somme .sf-haut{gap:4px}
   #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px} }
+/* --- Thème 4 (octobre 2026) : les écrans portés de la Seconde -------------
+   Croiser les dénominateurs : la couleur et les flèches, RECOPIÉES de la
+   Seconde. Violet et orange, jamais vert, bleu ni rouge : ceux-là sont pris
+   par la correction. La couleur ne porte jamais seule : les flèches disent la
+   même chose. */
+:root{ --crd-a:#7C3AED; --crd-b:#C2410C; }
+#sfHost.crd{position:relative}
+#sfHost.crd .crd-a{color:var(--crd-a)}
+#sfHost.crd .crd-b{color:var(--crd-b)}
+/* Le liseré est posé sur l'ENVELOPPE (.sf-case) et non sur la case : posé sur
+   le math-field, il se battrait avec le cadre de la correction. */
+#sfHost.crd .sf-case.crd-recoit-a{box-shadow:0 0 0 2.5px var(--crd-a);border-radius:12px}
+#sfHost.crd .sf-case.crd-recoit-b{box-shadow:0 0 0 2.5px var(--crd-b);border-radius:12px}
+/* Les flèches, PAR-DESSUS, sans jamais intercepter un clic. */
+#sfHost.crd .crd-fleches{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+#sfHost.crd .pt-step{padding-bottom:78px}
+/* Multiplier, diviser : la mise en page de la somme, RECOPIÉE plutôt
+   qu'ajoutée aux sélecteurs de #sfHost — ce bloc-là est le même texte dans
+   les deux niveaux. Sans elle, le badge de correction se poserait DANS le
+   flux et élargirait le trait de fraction ; et la place se réserve sur la
+   CASE qui porte une correction, sans quoi le badge masque le « × » voisin. */
+#mltHost .f-fbar{width:auto;align-self:stretch;height:4px}
+#mltHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
+#mltHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:5px;font-size:calc(1.1rem * var(--tab-nb,1));white-space:nowrap}
+#mltHost .sf-prod:has(.mf-cor),#mltHost .f-frac-input:has(.mf-cor){margin-right:52px}
+#mltHost .sf-l .sf-case:has(.mf-cor){margin-right:46px}
+#mltHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15}
+#mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:92px}
+#mltHost .pt-row{flex-wrap:wrap}
+/* le calcul en tête de rangée, et la fraction réécrite au milieu, à la taille de la rangée */
+#mltHost .pt-row>.f-frac,#mltHost .pt-row>.f-grp>.f-frac{font-size:calc(2rem * var(--tab-nb,1))}
+#mltPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+@media(max-width:900px){ #mltHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1))}
+  #mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:76px} }
+@media(max-width:520px){ #mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:62px} }
+/* La simplification par étapes : le nombre divisé RECOPIE la fraction
+   d'avant, et s'écrit comme un nombre de la rangée. */
+.se-dvd{min-width:1ch;text-align:center}
 .fpm-ligne{display:flex;align-items:center;justify-content:center;gap:8px;}
 .fpm-const{font-family:"Fredoka";font-weight:600;font-size:calc(1.5rem * var(--tab-nb,1));color:var(--ink);white-space:nowrap;}
 /* Sur telephone, on redescend d'un cran : la case grandit toujours avec la reponse. */
@@ -2439,6 +2477,22 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     </div>
   </section>
 
+  <!-- FRACTIONS : MULTIPLIER, DIVISER (4.4, 4.5) — portés de la Seconde (5.6, 5.8) -->
+  <section class="screen" id="scr-mlt">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagMlt"></span><span class="q-idx" id="mltIdx">Question 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="mltLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="mltPrompt">Calcule le produit.</p>
+      <div class="mp-stage"><div style="width:100%" id="mltHost"></div></div>
+      <div class="mp-feedback" id="mltFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center">
+        <span id="mltActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkMltAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- FRACTIONS : RÉVISER LES QUATRE RÈGLES (4.1) — porté de la Seconde (5.11) -->
   <section class="screen" id="scr-rvf">
     <div class="test-top">
@@ -2713,7 +2767,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=306;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=307;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3168,6 +3222,12 @@ const TESTS={
   'probabilites-fiche': { name:'Probabilités : la fiche', icon:'\ud83d\udcdd', desc:'Le {lire-probabilites} sur une seule page, comme une fiche papier : le tableau reste en haut de l’écran, toutes les questions sont posées ensemble, et chaque réponse s’écrit sur une ligne : la probabilité, la fraction en lettres, puis celle des effectifs.', start:()=>startPBF() },
   /* {revision-fractions} (4.1) : porté de la Seconde (5.11), demande de Turquet, octobre 2026. */
   'revision-fractions': { name:'R\u00e9viser les quatre r\u00e8gles des fractions', icon:'\ud83d\udcda', desc:'Quatre r\u00e8gles des fractions \u00e0 r\u00e9viser vite\u00a0: m\u00eame d\u00e9nominateur, produit, d\u00e9nominateurs diff\u00e9rents, division. Pour chaque question, une petite r\u00e8gle \u00e0 choisir puis le r\u00e9sultat en fraction. Le bouton des tables est l\u00e0 si tu en as besoin.', start:()=>startRvf() },
+  /* Thème 4, octobre 2026 : les 5.2, 5.3, 5.6 et 5.8 de la Seconde, nombres de
+     1 à 5 et simplification par étapes (voir l'en-tête de startCRD). */
+  'croiser-denominateurs': { name:'Croiser les d\u00e9nominateurs', icon:'\u2716\ufe0f', desc:'Deux fractions \u00e0 mettre au m\u00eame d\u00e9nominateur : chaque case prend le d\u00e9nominateur de l\u2019AUTRE fraction. Des couleurs et deux fl\u00e8ches crois\u00e9es montrent d\u2019o\u00f9 vient chaque nombre, puis on termine la somme \u2014 et on simplifie si c\u2019est possible.', start:()=>startCRD() },
+  'somme-fractions-2': { name:'Additionner et soustraire deux fractions', icon:'\u2797', desc:'Mets les deux fractions au m\u00eame d\u00e9nominateur en compl\u00e9tant les multiplications, \u00e9cris la somme ou la diff\u00e9rence, donne la fraction obtenue, puis simplifie-la si elle se simplifie.', start:()=>startSF2() },
+  'multiplier-fractions': { name:'Multiplier deux fractions', icon:'\u2716\ufe0f', desc:'Sans mise au m\u00eame d\u00e9nominateur\u00a0: place les num\u00e9rateurs ensemble et les d\u00e9nominateurs ensemble, calcule, puis simplifie le r\u00e9sultat s\u2019il se simplifie.', start:()=>startMlt() },
+  'diviser-fractions': { name:'Diviser deux fractions', icon:'\u2797', desc:'Comme {multiplier-fractions}, avec un maillon de plus\u00a0: on transforme d\u2019abord la division en multiplication par l\u2019inverse, puis on multiplie et on simplifie.', start:()=>startDiv() },
   'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() }
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
@@ -3213,7 +3273,11 @@ const THEMES=[
      première dans un nouveau thème fraction ». Ajouté EN DERNIER, il ne
      renumérote rien. {somme-fractions} reste dans le calcul mental : un
      exercice ne vit que dans un thème, et ses notes portent l'IDENTIFIANT. */
-  { num:4, nom:'Fractions', ids:['revision-fractions'] }
+  /* Puis, le même mois : « mettre les exercices de seconde 5.2 ; 5.3 ; 5.6 ;
+     5.8 dans le thème fraction de première ». Ajoutés APRÈS le 4.1, ils ne
+     renumérotent rien. Le 5.3 de la Seconde s'appelle {somme-fractions}, déjà
+     pris ici par le 1.9 : le 4.3 porte donc un identifiant neuf. */
+  { num:4, nom:'Fractions', ids:['revision-fractions','croiser-denominateurs','somme-fractions-2','multiplier-fractions','diviser-fractions'] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
    fichier (côté prof, comptages, devoirs) ne connaît que celle-là et n'a pas à savoir
@@ -3333,7 +3397,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') startSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -3583,6 +3647,7 @@ function liveCheckCurrent(){
   else if(k==='syn') checkSynAnswer(true);
   else if(k==='sf') checkSFAnswer(true);
   else if(k==='rvf') checkRvfAnswer(true);
+  else if(k==='mlt') checkMltAnswer(true);
   else if(k==='evs') checkEvsAnswer(true);
   else if(k==='bsd') checkBsdAnswer(true);
 }
@@ -4261,7 +4326,7 @@ function afficherEcranDe(k){
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
     syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl], dbp:[dbpEcran(),renderDbp],
-    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest]
+    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest]
   };
   const e=table[k];
   if(!e) return false;
@@ -4497,7 +4562,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','rvf','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
+  const testScreens=['test','tm','rvf','mlt','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0 && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ['mode','results','dmenonce','s2lvl'].indexOf(ecranQuitte)<0) ecranAvantModes=ecranQuitte;
@@ -4884,6 +4949,8 @@ function restoreBoxes(boxes){
   });
   /* {revision-fractions} : les nombres divisés recopient des cases qu'on vient de remplir */
   if(test.kind==='rvf') rvfMiroirs();
+  /* la simplification par étapes du thème 4 : de même */
+  if(test.etapes && SE_CFG[test.kind]) seMiroirs(test.kind);
 }
 /* ---------- Enregistrement automatique du travail en cours (silencieux) ---------- */
 let recoveryRowId=null, recoveryBusy=false, recoveryDirty=false, recoveryClosed=false;
@@ -14002,13 +14069,18 @@ function sfPpcm(a,b){ return a/sfPgcd(a,b)*b; }
                       étape n'aurait pas de sens. Les deux conditions sont
                       indépendantes — 1/6 + 1/4 a bien 2 en commun, et donne
                       pourtant 5/12, irréductible. */
-function sfGen(opImpose, mode){
+/* LA BORNE DES NOMBRES DE DÉPART est un paramètre, 9 par défaut : le thème
+   « Fractions » de la Première tire de 1 à 5 (demande de Turquet, octobre
+   2026). Elle n'est jamais rangée dans la question — seuls les nombres le
+   sont. */
+function sfGen(opImpose, mode, max){
+  const M=max||9;
   for(let essai=0; essai<500; essai++){
     /* Pas de terme entier à simplifier : « 3 + 1/6 » passe par 3/1, et
        l'écran porte déjà quatre étapes. */
     const entier = (mode==='simplifier') ? false : Math.random()<0.28;   /* un terme sur quatre est un entier */
-    const d1 = entier && Math.random()<0.5 ? 1 : rand(2,9);
-    const d2 = (d1===1) ? rand(2,9) : (entier ? 1 : rand(2,9));
+    const d1 = entier && Math.random()<0.5 ? 1 : rand(2,M);
+    const d2 = (d1===1) ? rand(2,M) : (entier ? 1 : rand(2,M));
     if(d1===d2) continue;                            /* même dénominateur : plus rien à mettre au même */
     if(mode==='premiers' && (d1===1 || d2===1 || sfPgcd(d1,d2)!==1)) continue;
     /* Rien à écrire ici pour « simplifier » : des dénominateurs PREMIERS ENTRE
@@ -14019,7 +14091,7 @@ function sfGen(opImpose, mode){
        de plus n'aurait rien écarté, et un garde-fou qui n'écarte jamais rien
        fait croire qu'on vérifie quelque chose : le contrôle EXIGE la propriété
        sur le tirage, c'est là qu'elle est tenue. */
-    const n1=rand(1,9), n2=rand(1,9);
+    const n1=rand(1,M), n2=rand(1,M);
     const op = opImpose || (Math.random()<0.5 ? '+' : '−');
     const D=sfPpcm(d1,d2), k1=D/d1, k2=D/d2;
     const N1=n1*k1, N2=n2*k2;
@@ -14071,7 +14143,7 @@ function sfFracInner(numStr,denStr){
    même texte dans les deux niveaux, et chacun règle le sien. 6 en Première,
    4 en Seconde (demande de Turquet, août 2026). */
 const SF_NB=6;
-function sfBuildQuestions(mode){ const qs=[]; for(let i=0;i<SF_NB;i++) qs.push(distincte(qs, function(){ return sfGen(i%2===0?'+':'−', mode); })); return qs; }
+function sfBuildQuestions(mode, max){ const qs=[]; for(let i=0;i<SF_NB;i++) qs.push(distincte(qs, function(){ return sfGen(i%2===0?'+':'−', mode, max); })); return qs; }
 /* Le terme tel qu'il s'écrit : « 3 » pour un entier, « 3/4 » sinon. */
 /* Un ENTIER s'écrit avec la même encre qu'une fraction, et à la même hauteur.
    Écrit en « f-whole » (2rem, autre couleur), il dépassait des fractions
@@ -14091,7 +14163,11 @@ function sfTermeHTML(n,d){
 function sfCases(){
   const base=['sf-a1','sf-b1','sf-a2','sf-b2','sf-num1','sf-num2','sf-den'];
   const fin=['sf-fn','sf-fd'];
-  return (test && test.simp) ? base.concat(['sf-sn','sf-q1','sf-sd','sf-q2'],fin) : base.concat(fin);
+  /* La simplification PAR ÉTAPES (Première, thème Fractions) ajoute ses cases
+     au bout de la chaîne : elles sont lues à l'écran, leur nombre dépend de ce
+     que l'élève écrit (voir seIds). La Seconde ne pose jamais « test.etapes ». */
+  const etapes=(test && test.etapes && typeof seIds==='function') ? seIds('sf') : [];
+  return ((test && test.simp) ? base.concat(['sf-sn','sf-q1','sf-sd','sf-q2'],fin) : base.concat(fin)).concat(etapes);
 }
 function renderSFTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -14169,11 +14245,13 @@ function renderSFTest(){
        +(test.simp ? fEq(quotient()) : '')
        +fEq(frac('sf-fn','sf-fd'))
      +'</div></div>';
-  /* La décoration du croisement — couleurs et flèches — n'existe qu'en Seconde,
-     et ne s'applique qu'à l'exercice qui la demande. La ligne est la même dans
-     les deux fichiers : le moteur reste identique au caractère près, et la
-     Première, qui n'a pas cette fonction, ne s'en aperçoit jamais. */
+  /* La décoration du croisement — couleurs et flèches — ne s'applique qu'à
+     l'exercice qui la demande (la Seconde au 5.2, la Première au 4.2 depuis
+     octobre 2026). La ligne est la même dans les deux fichiers : le moteur
+     reste identique au caractère près. */
   if(test.crd && typeof crdDecorer==='function') crdDecorer(q);
+  /* De même pour la simplification par étapes, qui n'existe qu'en Première. */
+  if(test.etapes && typeof seMonte==='function') seMonte('sf', q);
   const order=sfCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkSFAnswer(); } }); });
@@ -14322,8 +14400,17 @@ function sfJuge(q){
   const promFn = !isNaN(fn) && fn>0 && fn%q.N===0;
   const promFd = !isNaN(fd) && fd>0 && fd%q.D===0;
   const accord = promFn && promFd && fn*q.D===q.N*fd;
-  const okFn = simp ? (!isNaN(fn) && fn===q.Nr) : (promFn && (!promFd || accord));
-  const okFd = simp ? (!isNaN(fd) && fd===q.Dr) : (promFd && (!promFn || accord));
+  /* LA SIMPLIFICATION PAR ÉTAPES (Première, thème Fractions, octobre 2026) :
+     quand la fraction obtenue sur le dénominateur commun RETENU se simplifie,
+     la dernière case l'attend telle quelle — c'est la chaîne qui suit qui la
+     simplifie, une division après l'autre (seJuge, propre à la Première). Le
+     dénominateur commun restant libre, la fraction à simplifier dépend de la
+     route : sur 1/2 + 1/4 passé par 8, c'est 6/8. */
+  const etapes = !!(test && test.etapes && typeof seJuge==='function');
+  const brut = etapes && Ns>0 && Dc>0 && sfPgcd(Ns,Dc)>1;
+  const okFn = simp ? (!isNaN(fn) && fn===q.Nr) : brut ? (!isNaN(fn) && fn===Ns) : (promFn && (!promFd || accord));
+  const okFd = simp ? (!isNaN(fd) && fd===q.Dr) : brut ? (!isNaN(fd) && fd===Dc) : (promFd && (!promFn || accord));
+  const se = etapes ? seJuge('sf', brut ? {n:Ns, d:Dc} : null) : null;
   const ok4 = okFn && okFd;
   /* Une case laissée vide n'est pas une erreur de calcul, et le dire autrement
      serait mentir : le message le nomme avant tout le reste. */
@@ -14338,7 +14425,7 @@ function sfJuge(q){
           prom1:prom1, prom2:prom2, D1:D1, D2:D2,
           /* Chaque case a son verdict : c'est ce que peint checkSFAnswer. */
           okN1:okN1, okN2:okN2, okDen:okDen, okSn:okSn, okSd:okSd,
-          okFn:okFn, okFd:okFd};
+          okFn:okFn, okFd:okFd, se:se};
 }
 /* La correction EN DIRECT du mode soutien. Elle ne juge un groupe qu'une fois
    TOUTES ses cases remplies, et c'est tout ce qui la sépare d'un piège : une
@@ -14367,11 +14454,14 @@ function sfLive(){
   col(['sf-num1','sf-num2','sf-den'],r.ok3);
   if(test.simp){ col(['sf-sn','sf-sd'],r.okS); col(['sf-q1','sf-q2'],r.okQ); }
   col(['sf-fn','sf-fd'],r.ok4);
+  if(r.se) r.se.cases.forEach(function(c){ col([c.id],c.ok); });
 }
 function checkSFAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
   if(live){ sfLive(); return; }
+  /* la chaîne de simplification suit ce qui est écrit AVANT d'être jugée */
+  if(test.etapes && typeof seMaj==='function') seMaj('sf', q);
   const r=sfJuge(q);
   /* Une case VIDE ne reçoit aucune couleur — elle n'est pas une erreur de
      calcul. En entraînement la correction l'écrit en vert juste après ; en
@@ -14391,11 +14481,12 @@ function checkSFAnswer(live){
   mark(['sf-num1'],r.okN1); mark(['sf-num2'],r.okN2); mark(['sf-den'],r.okDen);
   if(test.simp){ mark(['sf-sn'],r.okSn); mark(['sf-sd'],r.okSd); mark(['sf-q1','sf-q2'],r.okQ); }
   mark(['sf-fn'],r.okFn); mark(['sf-fd'],r.okFd);
+  if(r.se) r.se.cases.forEach(function(c){ mark([c.id],c.ok); });
   /* « r.vide » est indispensable ici : chaque étape se juge désormais sur les
      cases écrites, donc une copie à moitié remplie peut voir ses quatre
      verdicts au vert. Sans ce garde-fou elle vaudrait le point entier, et les
      cases laissées vides ne recevraient même pas la correction en vert. */
-  const allOk=r.ok1&&r.ok2&&r.ok3&&r.ok4&&(!test.simp||(r.okS&&r.okQ))&&!r.vide;
+  const allOk=r.ok1&&r.ok2&&r.ok3&&r.ok4&&(!test.simp||(r.okS&&r.okQ))&&(!r.se||r.se.ok)&&!r.vide;
   if(!allOk && isSoutien()){ soutienAgain('sfFeedback','sfActions','checkSFAnswer','sfHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('sfLiveScore').textContent=test.score;
@@ -14422,6 +14513,12 @@ function checkSFAnswer(live){
       corTrainDec('sf-q1', suivie ? r.g : q.D/q.Dr);
       corTrainDec('sf-q2', suivie ? r.g : q.D/q.Dr);
       corTrainFrac('sf-fn','sf-fd',q.Nr,q.Dr);
+    } else if(r.se){
+      /* la correction suit la route de l'élève : le calcul brut, puis chaque
+         étape de sa chaîne (un diviseur vide ou faux reçoit le PGCD) */
+      corTrainFrac('sf-fn','sf-fd',r.se.F.n,r.se.F.d);
+      r.se.cases.forEach(function(c){ corTrainDec(c.id,c.bon); });
+      seMiroirs('sf');
     } else corTrainFrac('sf-fn','sf-fd',q.N,q.D);
   }
   const donne=sfCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
@@ -14454,6 +14551,10 @@ function sfPourquoi(q,r){
     if(!r.okQ) return 'Divise en haut ET en bas par le même nombre, le plus grand qui va dans les deux : ici '+g+'.';
     return 'Il reste à faire les deux divisions : '+Ns+' ÷ '+g+' et '+Dc+' ÷ '+g+', donc '+q.Nr+'/'+q.Dr+'.';
   }
+  if(r.se){
+    if(!r.ok4) return 'Il reste à effectuer le calcul du haut : '+r.se.F.n+'/'+r.se.F.d+', que tu simplifieras ensuite.';
+    return seMessage(r.se);
+  }
   return 'Il reste à effectuer le calcul du haut : le résultat est '+q.N+'/'+q.D+'.';
 }
 function nextSFQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSFTest(); autoSave(); } else finishTest(); }
@@ -14485,11 +14586,594 @@ function sfCtxTexte(q){
        +'Ces réponses attendues sont STRICTEMENT SECRÈTES. '
        +'Méthode enseignée : le dénominateur commun n’est PAS imposé — tout multiplicateur qui donne le même dénominateur des deux côtés convient, à condition d’être posé en haut ET en bas. '
        +'L’erreur classique est d’additionner les dénominateurs : 1/2 + 1/3 ne fait pas 2/5. Un entier est une fraction de dénominateur 1.';
+  /* Le même moteur sert trois exercices, et le modèle doit savoir LEQUEL est
+     à l'écran (la leçon de la Seconde) : les flèches du croisement, la
+     chaîne de simplification du thème 4. */
+  if(test && test.crd) c+=' Cet exercice-ci est « Croiser les dénominateurs » : l’écran MONTRE, par des couleurs et deux flèches croisées, que chaque fraction se multiplie par le dénominateur de l’AUTRE. Appuie-toi sur ces flèches. Les deux dénominateurs n’ont ici aucun diviseur commun, donc le croisement donne bien le plus petit dénominateur commun.';
+  if(test && test.etapes) c+=' Quand la fraction obtenue se simplifie (ce qui arrive si l’élève prend un dénominateur commun plus grand que le plus petit), il la simplifie ensuite SUR LA MÊME LIGNE : il divise le numérateur et le dénominateur par un même nombre de son choix, écrit en haut et en bas, une ou plusieurs fois, jusqu’à la fraction irréductible '+q.N+'/'+q.D+'. La fraction obtenue doit d’abord être écrite telle quelle, avant d’être simplifiée.';
   const rate=[]; if(!r.ok1||!r.ok2) rate.push('la mise au même dénominateur');
   if(!r.ok3) rate.push('l’écriture de la somme'); if(!r.ok4) rate.push('la fraction finale');
   if(rate.length) c+=' Il bloque sur : '+rate.join(', ')+'.';
   return c;
 }
+
+/* ===== THÈME 4 « FRACTIONS » : QUATRE EXERCICES PORTÉS DE LA SECONDE =========
+   Demande de Turquet (octobre 2026) : « en première mettre les exercices de
+   seconde 5.2 ; 5.3 ; 5.6 ; 5.8 dans le thème fraction de première. Il faut
+   que tous les nombres au départ soient entre 1 et 5 ; qu'il n'y ait pas de
+   résultat intermédiaire ou final en négatif. Les fractions au début doivent
+   être irréductibles ; si le résultat peut être simplifié, proposer les
+   simplifications comme dans l'exercice de première 4.1. »
+   · {croiser-denominateurs} (4.2) et {somme-fractions-2} (4.3) : le moteur sf,
+     PARTAGÉ avec la Seconde au caractère près (un contrôle le tient). Le 5.3
+     de la Seconde s'appelle {somme-fractions}, mais cet identifiant vit déjà
+     ici, au 1.9 du calcul mental — un exercice ne vit que dans un thème, et
+     ses notes portent l'IDENTIFIANT : le 4.3 en prend donc un neuf.
+   · {multiplier-fractions} (4.4) et {diviser-fractions} (4.5) : le moteur mlt
+     de la Seconde, RECOPIÉ — il n'existait pas dans ce fichier —, avec ses
+     écarts nommés dans son en-tête.
+   Les quatre tirent leurs nombres de 1 à FRAC_MAX, et les quatre ont la
+   simplification par étapes du 4.1 (« test.etapes », seMonte et suivantes).
+   Aucun résultat négatif : sfGen écarte déjà toute différence négative (et
+   les numérateurs intermédiaires sont des produits d'entiers positifs) ; un
+   produit ou un quotient de fractions positives l'est aussi. */
+const FRAC_MAX=5;
+async function startCRD(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=sfBuildQuestions('premiers', FRAC_MAX);   /* dénominateurs premiers entre eux */
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'sf', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  /* « crd » et « etapes » voyagent avec le test : la pause enregistre tout
+     « test » sauf une courte liste, donc la reprise retrouve les flèches et
+     la chaîne de simplification sans rien de plus. */
+  test.crd=true; test.etapes=true;
+  test.qId='croiser-denominateurs';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('sf'); renderSFTest();
+}
+async function startSF2(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=sfBuildQuestions(undefined, FRAC_MAX);
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'sf', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.etapes=true;
+  test.qId='somme-fractions-2';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('sf'); renderSFTest();
+}
+/* « Recommencer » : le kind sf porte maintenant trois exercices. */
+function restartSF(){ (({'croiser-denominateurs':startCRD,'somme-fractions-2':startSF2})[test.qId]||startSF)(); }
+
+/* ===== CROISER LES DÉNOMINATEURS — la couleur et les flèches ================
+   Recopié de la Seconde (5.2) au mot près : voir son en-tête là-bas. Les
+   dénominateurs y sont premiers entre eux, si bien que le croisement donne le
+   plus petit dénominateur commun ; la correction accepte tout dénominateur
+   commun, et un dénominateur plus grand se SIMPLIFIE ensuite par étapes. */
+let crdRedessine=null;
+
+/* Où vont les flèches : de CHAQUE dénominateur de départ vers le bloc de
+   l'AUTRE fraction. On lit les positions dans la page plutôt que de les
+   calculer : un trait posé sur des coordonnées supposées se décale au premier
+   changement de police ou de largeur, et personne ne s'en aperçoit. */
+function crdPoints(){
+  const hote=$('sfHost'); if(!hote) return null;
+  const blocs=[...hote.querySelectorAll('.sf-prod')];
+  if(blocs.length<2) return null;
+  /* La SOURCE est le dénominateur écrit dans la ligne elle-même — le « 5 » de
+     « 5 × □ » —, et non celui de la fraction de départ, restée loin à gauche :
+     un trait qui traverse toute l'égalité passe sur le « = » et ne se lit plus.
+     La CIBLE est le bloc de l'autre fraction, dont les deux cases prennent
+     cette valeur. Les positions sont MESURÉES dans la page, jamais supposées :
+     un trait posé sur des coordonnées devinées se décale au premier changement
+     de police ou de largeur, et personne ne s'en aperçoit. */
+  const source=b=>{ const l=b.querySelectorAll('.sf-l'); return l.length>1?l[1].querySelector('.f-whole'):null; };
+  const s1=source(blocs[0]), s2=source(blocs[1]);
+  if(!s1 || !s2) return null;
+  const R=hote.getBoundingClientRect();
+  const bas=el=>{ const r=el.getBoundingClientRect();
+    return {x:(r.left+r.right)/2-R.left, y:r.bottom-R.top}; };
+  return {larg:R.width, haut:R.height,
+          s1:bas(s1), s2:bas(s2), b1:bas(blocs[0]), b2:bas(blocs[1])};
+}
+/* Une flèche courbe qui passe SOUS la ligne : elle part du dénominateur, plonge,
+   et remonte sur le bloc visé. Les deux se croisent au milieu — et ce croisement
+   est toute l'idée de l'exercice. Le creux suit l'écart, sinon deux flèches
+   courtes se superposeraient. */
+function crdArc(a,b,couleur,id){
+  const mx=(a.x+b.x)/2, creux=Math.max(26, Math.min(64, Math.abs(b.x-a.x)*0.28));
+  const my=Math.max(a.y,b.y)+creux;
+  return '<path d="M '+a.x.toFixed(1)+' '+(a.y+3).toFixed(1)
+       +' Q '+mx.toFixed(1)+' '+my.toFixed(1)+' '+b.x.toFixed(1)+' '+(b.y+5).toFixed(1)+'"'
+       +' fill="none" stroke="'+couleur+'" stroke-width="2.5" stroke-linecap="round"'
+       +' marker-end="url(#'+id+')" data-crd-arc="1"></path>';
+}
+function crdDessinerFleches(){
+  const hote=$('sfHost'); if(!hote) return;
+  const vieux=hote.querySelector('.crd-fleches'); if(vieux) vieux.remove();
+  const p=crdPoints(); if(!p || !p.larg) return;
+  const A=getComputedStyle(document.documentElement).getPropertyValue('--crd-a').trim()||'#7C3AED';
+  const B=getComputedStyle(document.documentElement).getPropertyValue('--crd-b').trim()||'#C2410C';
+  const pointe=(id,c)=>'<marker id="'+id+'" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5"'
+    +' markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="'+c+'"></path></marker>';
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('class','crd-fleches');
+  svg.setAttribute('viewBox','0 0 '+p.larg+' '+p.haut);
+  svg.setAttribute('width',p.larg); svg.setAttribute('height',p.haut);
+  svg.setAttribute('aria-hidden','true');
+  svg.innerHTML='<defs>'+pointe('crd-p1',A)+pointe('crd-p2',B)+'</defs>'
+    +crdArc(p.s1,p.b2,A,'crd-p1')      /* le dénominateur de la 1re va sur la 2de */
+    +crdArc(p.s2,p.b1,B,'crd-p2');     /* et réciproquement : les deux se croisent */
+  hote.appendChild(svg);
+}
+/* Les couleurs, posées APRÈS le rendu : le moteur partagé n'a pas à les
+   connaître, et il reste ainsi identique au caractère près dans les deux
+   fichiers. */
+function crdDecorer(q){
+  const hote=$('sfHost'); if(!hote) return;
+  hote.classList.add('crd');
+  const rangee=hote.querySelector('.pt-row'); if(!rangee) return;
+  /* La couleur ne porte JAMAIS seule : la consigne le dit en toutes lettres,
+     et les flèches le montrent. Un élève qui distingue mal les couleurs — ou un
+     écran mal réglé — doit pouvoir faire l'exercice quand même. */
+  const lab=hote.querySelector('.pt-lab');
+  if(lab) lab.innerHTML='\u2460 chaque case prend le d\u00e9nominateur de l\u2019AUTRE fraction '
+    +'\u2014 suis les fl\u00e8ches&nbsp;\u00b7 \u2461 \u00e9crire la '
+    +(q.op==='+'?'somme':'diff\u00e9rence')+' sur ce d\u00e9nominateur&nbsp;\u00b7 \u2462 la fraction finale';
+  const blocs=[...rangee.querySelectorAll('.sf-prod')];
+  /* Le dénominateur source prend sa couleur des DEUX côtés du « = » : l'élève
+     doit pouvoir suivre le même nombre de la fraction de départ jusqu'à la
+     ligne de calcul. */
+  const departs=[...rangee.querySelectorAll(':scope > .f-frac .sf-f .d')];
+  if(departs[0]) departs[0].classList.add('crd-a');
+  if(departs[1]) departs[1].classList.add('crd-b');
+  const srcLigne=b=>{ const l=b.querySelectorAll('.sf-l'); return l.length>1?l[1].querySelector('.f-whole'):null; };
+  if(blocs[0] && srcLigne(blocs[0])) srcLigne(blocs[0]).classList.add('crd-a');
+  if(blocs[1] && srcLigne(blocs[1])) srcLigne(blocs[1]).classList.add('crd-b');
+  /* le bloc de la PREMIÈRE fraction reçoit le dénominateur de la SECONDE */
+  if(blocs[0]) blocs[0].querySelectorAll('.sf-case').forEach(c=>c.classList.add('crd-recoit-b'));
+  if(blocs[1]) blocs[1].querySelectorAll('.sf-case').forEach(c=>c.classList.add('crd-recoit-a'));
+  /* Les flèches se redessinent quand la fenêtre change : elles sont posées sur
+     des positions MESURÉES, et une largeur qui bouge les laisserait de travers.
+     Un seul écouteur, remplacé à chaque rendu — sans quoi ils s'empileraient
+     question après question. */
+  if(crdRedessine) window.removeEventListener('resize', crdRedessine);
+  crdRedessine=function(){ if(test && test.crd && $('sfHost')) crdDessinerFleches(); };
+  window.addEventListener('resize', crdRedessine);
+  setTimeout(crdDessinerFleches, 60);
+  setTimeout(crdDessinerFleches, 240);   /* MathLive finit de poser ses cases */
+}
+
+/* ===== LA SIMPLIFICATION PAR ÉTAPES, SUR LES MOTEURS sf ET mlt ==============
+   Le geste du 4.1 {revision-fractions} (rvfSimpPas, rvfMajSimp…), porté aux
+   chaînes des exercices 4.2 à 4.5 : quand le résultat peut être simplifié,
+   la rangée continue sur la même ligne —
+       … = [a]/[b] = (a ÷ [k])/(b ÷ [k]) = [a′]/[b′] = …
+   · LE DIVISEUR EST AU CHOIX DE L'ÉLÈVE : tout entier > 1 qui divise le
+     numérateur ET le dénominateur est juste. Diviser 12/18 par 2 laisse 6/9,
+     qui se simplifie encore : une nouvelle étape s'ouvre alors, jusqu'à la
+     fraction irréductible. Un diviseur vide ou faux ferme la chaîne ; la
+     correction y écrit le PGCD, qui finit d'un coup.
+   · Le diviseur s'écrit deux fois (en haut et en bas) et se recopie.
+   · Les nombres divisés ne sont PAS écrits par la page : ils recopient la
+     fraction d'avant telle que l'élève l'a écrite (seMiroirs) — les écrire
+     donnerait la réponse des deux cases précédentes.
+   · LA FRACTION À SIMPLIFIER (« brut ») vient du moteur : P/Q pour un produit
+     ou un quotient, et pour une somme le calcul sur le dénominateur commun
+     RETENU par l'élève — il est libre, et sur 1/2 + 1/4 passé par 8, c'est
+     6/8 qui se simplifie. La chaîne peut donc apparaître ou disparaître
+     pendant que l'élève écrit (seMaj la redessine, en gardant ses saisies).
+   · La fraction brute et les diviseurs sont RANGÉS dans la question (q.sbrut,
+     q.sdiv : des chaînes, du JSON) — la reprise d'une pause redessine les
+     mêmes étapes AVANT que restoreBoxes() y remette les saisies.
+   Les cases sont celles du moteur (des math-field) : la chaîne se lit à la
+   taille de la rangée qu'elle prolonge. */
+const SE_CFG={
+  sf: {host:'sfHost',  pfx:'sf-e',  src:['sf-fn','sf-fd'],
+       brut:function(q){ const r=sfJuge(q); return r.se ? r.se.F : null; }},
+  mlt:{host:'mltHost', pfx:'mlt-e', src:['mlt-fn','mlt-fd'],
+       brut:function(q){ return mltPgcd(q.P,q.Q)>1 ? {n:q.P, d:q.Q} : null; }}
+};
+/* Les étapes, à partir de la fraction brute F et des diviseurs écrits : une
+   étape tant que la fraction se simplifie, et la chaîne s'arrête au premier
+   diviseur vide ou faux (dont l'étape mène alors, par le PGCD, au bout). */
+function sePas(F, sdiv){
+  const pas=[]; if(!F) return pas;
+  let G={n:F.n, d:F.d};
+  while(pas.length<12){
+    const g=gcd(G.n,G.d); if(g<=1) break;
+    const v=rvfLit((sdiv||[])[pas.length]), ok=v!==null && v>1 && g%v===0;
+    const suiv=ok?{n:G.n/v, d:G.d/v}:{n:G.n/g, d:G.d/g};
+    pas.push({F:G, g:g, suiv:suiv});
+    if(!ok) break;
+    G=suiv;
+  }
+  return pas;
+}
+function seBrut(q){ const m=/^(\d+)\/(\d+)$/.exec(String((q&&q.sbrut)||'')); return m?{n:+m[1], d:+m[2]}:null; }
+function seCaseHTML(id,cls,lab){ return '<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>'; }
+/* Une étape : la division en haut ET en bas, puis la fraction obtenue. Les
+   deux groupes portent « se-etape » : c'est par là qu'on les retire. */
+function seEtapeHTML(kind, i){
+  const s=SE_CFG[kind].pfx+i+'-';
+  const cote=function(c, cls, lab){ return '<span class="sf-l"><span class="f-whole se-dvd" id="'+s+'a'+c+'">…</span><span class="f-times">÷</span>'+seCaseHTML(s+'d'+c, cls, lab)+'</span>'; };
+  const tag=function(h){ return h.replace('<span class="f-grp"','<span class="f-grp se-etape"'); };
+  return tag(fEq('<span class="f-frac-input sf-prod">'+cote('n','f-num','diviseur du numérateur')+'<span class="f-fbar"></span>'+cote('d','f-den','diviseur du dénominateur')+'</span>'))
+    +tag(fEq('<span class="f-frac-input">'+seCaseHTML(s+'n','f-num','numérateur simplifié')+'<span class="f-fbar"></span>'+seCaseHTML(s+'d','f-den','dénominateur simplifié')+'</span>'));
+}
+/* Les cases dessinées, dans l'ordre d'écriture — sans la copie du diviseur,
+   qui suit toujours celui du haut. */
+function seIds(kind){
+  const c=SE_CFG[kind], h=c && $(c.host); if(!h) return [];
+  return [].map.call(h.querySelectorAll('.se-etape math-field[id]'), function(e){ return e.id; })
+    .filter(function(id){ return !/-dd$/.test(id); });
+}
+function seLitDiv(kind){
+  const sd=[], p=SE_CFG[kind].pfx;
+  for(let i=0;;i++){ const e=$(p+i+'-dn'); if(!e) break; sd.push(String(e.value==null?'':e.value).trim()); }
+  return sd;
+}
+/* Le verdict de chaque case de la chaîne, sur la fraction brute F. null
+   quand F ne se simplifie pas : il n'y a pas de chaîne. */
+function seJuge(kind, F){
+  if(!F || gcd(F.n,F.d)<=1) return null;
+  const s=SE_CFG[kind].pfx, pas=sePas(F, seLitDiv(kind)), cases=[];
+  const lu=function(id){ const e=$(id); return e ? rvfLit(e.value) : null; };
+  pas.forEach(function(p,i){ const b=s+i+'-';
+    ['dn','dd'].forEach(function(k){ const v=lu(b+k);
+      cases.push({id:b+k, kind:'div', bon:p.g, miroir:k==='dd', ok:v!==null && v>1 && p.g%v===0}); });
+    cases.push({id:b+'n', kind:'nb', bon:p.suiv.n, ok:lu(b+'n')===p.suiv.n});
+    cases.push({id:b+'d', kind:'nb', bon:p.suiv.d, ok:lu(b+'d')===p.suiv.d});
+  });
+  return {F:F, pas:pas, cases:cases, ok:cases.every(function(c){ return c.ok; })};
+}
+/* Les nombres divisés recopient la fraction d'avant (« … » tant qu'elle est vide). */
+function seMiroirs(kind){
+  const c=SE_CFG[kind]; if(!c) return;
+  for(let i=0;;i++){
+    const a=[$(c.pfx+i+'-an'), $(c.pfx+i+'-ad')]; if(!a[0] || !a[1]) break;
+    const src=i ? [c.pfx+(i-1)+'-n', c.pfx+(i-1)+'-d'] : c.src;
+    a.forEach(function(el,k){ const e=$(src[k]); const v=e ? String(e.value==null?'':e.value).trim() : '';
+      el.textContent=v==='' ? '…' : v; });
+  }
+}
+/* Redessine la chaîne au bout de la rangée, d'après q.sbrut et q.sdiv, en
+   gardant ce qui est écrit, ses couleurs et la case où l'on écrit. */
+function seDessine(kind, q){
+  const c=SE_CFG[kind], h=$(c.host), row=h && h.querySelector('.pt-row'); if(!row) return;
+  const garde={};
+  row.querySelectorAll('.se-etape math-field[id]').forEach(function(e){
+    garde[e.id]={v:String(e.value==null?'':e.value), cls:e.className, dis:!!e.disabled}; });
+  const act=document.activeElement, actId=act && act.id;
+  row.querySelectorAll('.se-etape').forEach(function(e){ e.remove(); });
+  const n=sePas(seBrut(q), q.sdiv).length;
+  let html=''; for(let i=0;i<n;i++) html+=seEtapeHTML(kind, i);
+  if(html) row.insertAdjacentHTML('beforeend', html);
+  if(typeof pmUpgrade==='function') pmUpgrade(row);
+  Object.keys(garde).forEach(function(id){ const e=$(id); if(!e) return;
+    if(garde[id].v!=='') e.value=garde[id].v; e.className=garde[id].cls; if(garde[id].dis) e.disabled=true; });
+  const e=actId && $(actId); if(e && e!==document.activeElement){ try{ e.focus(); }catch(x){} }
+  seMiroirs(kind);
+}
+/* Relit la fraction brute et les diviseurs ; redessine si la chaîne change. */
+function seMaj(kind, q){
+  const c=SE_CFG[kind]; if(!c || !q) return;
+  const F=c.brut(q), cle=F ? F.n+'/'+F.d : '';
+  q.sdiv=seLitDiv(kind);
+  const n=sePas(F, q.sdiv).length;
+  const dessinees=seIds(kind).filter(function(id){ return /-dn$/.test(id); }).length;
+  if((q.sbrut||'')===cle && dessinees===n) return;
+  q.sbrut=cle;
+  seDessine(kind, q);
+}
+/* Le rendu d'une question : l'intitulé gagne la simplification, la chaîne
+   rangée se redessine, et l'hôte écoute ce qui s'écrit (une seule fois : il
+   survit d'une question à l'autre). */
+function seMonte(kind, q){
+  const c=SE_CFG[kind], h=$(c.host); if(!h) return;
+  const lab=h.querySelector('.pt-lab');
+  if(lab && !lab.querySelector('.se-lab')) lab.insertAdjacentHTML('beforeend','<span class="se-lab">&nbsp;· puis simplifier, tant que la fraction se simplifie</span>');
+  /* À la première pose, la fraction brute se lit sur la question : un produit
+     qui se simplifie montre sa chaîne d'emblée, comme au 4.1 ; une somme, sur
+     des cases encore vides, ne la montre pas (sa route n'est pas choisie). */
+  if(q.sbrut===undefined){ const F=c.brut(q); q.sbrut=F ? F.n+'/'+F.d : ''; }
+  seDessine(kind, q);
+  if(!h.__se){ h.__se=true; h.addEventListener('input', function(ev){ seSaisie(kind, ev.target); }, true); }
+}
+function seSaisie(kind, el){
+  if(!test || !test.etapes || test.kind!==kind || test.locked) return;
+  const q=test.questions && test.questions[test.idx]; if(!q) return;
+  const m=/^(.*-e\d+-)d([nd])$/.exec((el && el.id) || '');
+  if(m){ const jum=$(m[1]+'d'+(m[2]==='n'?'d':'n')); if(jum && String(jum.value)!==String(el.value)) jum.value=el.value; }
+  seMaj(kind, q);
+  seMiroirs(kind);
+  if(isSoutien()) liveCheckCurrent();
+}
+/* Le message, dit avec les nombres : la fraction brute, son plus grand
+   diviseur commun, et la règle pour recommencer. */
+function seMessage(se){
+  const F=se.F, g=gcd(F.n,F.d);
+  return 'La fraction '+F.n+'/'+F.d+' se simplifie : on divise le numérateur ET le dénominateur par le même nombre. '
+    +F.n+'/'+F.d+' = ('+F.n+' ÷ '+g+')/('+F.d+' ÷ '+g+') = '+(F.n/g)+'/'+(F.d/g)
+    +' — en divisant par un nombre plus petit, on recommence tant que la fraction se simplifie encore.';
+}
+
+/* ===== EXERCICES : MULTIPLIER ET DIVISER DEUX FRACTIONS =====================
+   {multiplier-fractions} (4.4) et {diviser-fractions} (4.5), kind « mlt » :
+   le moteur de la Seconde (5.6 et 5.8), RECOPIÉ en octobre 2026 — voir
+   l'en-tête du thème 4, plus haut, et le journal des fractions. Le texte est
+   celui de la Seconde, sauf QUATRE écarts nommés :
+   ① les nombres de départ vont de 1 à FRAC_MAX, et les deux fractions de
+     départ sont irréductibles (« chaque fraction irréductible » n'était pas
+     écrit en Seconde : l'irréductibilité du PRODUIT l'impliquait) ;
+   ② le produit PEUT se simplifier — c'est la demande : la Seconde l'écartait
+     (« aucune simplification »), la Première le fait simplifier par étapes,
+     comme au 4.1. La case du résultat attend alors le produit brut P/Q, et la
+     chaîne qui suit le simplifie (« test.etapes », seJuge) ; un produit
+     irréductible garde la règle de la Seconde (toute fraction égale). Un
+     résultat ENTIER est écarté du tirage : « 2/1 » au bout de la chaîne ne se
+     lit pas comme une fraction simplifiée ;
+   ③ le tirage passe par distinctes() et lit dmNbQuestions(), comme tout
+     tirage de ce niveau : six questions, comme SF_NB ;
+   ④ pas de version « en rédigeant » ({multiplier-fractions-libre}) : la
+     demande ne la porte pas, et startDLL n'est pas recopié. */
+function mltPgcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; }
+function mltGen(){
+  for(let essai=0; essai<500; essai++){
+    const n1=rand(1,FRAC_MAX), d1=rand(2,FRAC_MAX), n2=rand(1,FRAC_MAX), d2=rand(2,FRAC_MAX);
+    if(mltPgcd(n1,d1)!==1 || mltPgcd(n2,d2)!==1) continue;   /* fractions de départ irréductibles (écart ①) */
+    const P=n1*n2, Q=d1*d2;
+    if(P%Q===0) continue;               /* un résultat entier — 1 tout rond compris : écart ② */
+    if(n1===1 && n2===1) continue;      /* « 1/3 × 1/5 » ne fait rien travailler en haut */
+    /* « a1 a2 / b1 b2 » sont les facteurs EFFECTIFS de la multiplication : ceux
+       que l'élève écrira dans les quatre cases. Pour un produit ce sont les
+       nombres de l'énoncé ; pour une division ce sont ceux de l'énoncé APRÈS
+       inversion de la seconde fraction. Les ranger ici est ce qui permet au
+       juge et au rendu d'être les mêmes pour les deux exercices — un moteur
+       recopié aurait fini par diverger sous les yeux de l'élève. */
+    return {n1:n1,d1:d1,n2:n2,d2:d2,a1:n1,a2:n2,b1:d1,b2:d2,P:P,Q:Q};
+  }
+  return {n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15};
+}
+/* DIVISER, C'EST MULTIPLIER PAR L'INVERSE — et l'exercice fait ÉCRIRE cette
+   transformation avant le produit (demande de Turquet, août 2026) :
+
+       n1/d1 ÷ n2/d2 = n1/d1 × d2/n2 = (n1 × d2)/(d1 × n2) = P/Q
+
+   n2 ne peut pas valoir 0 — on ne divise pas par zéro (rand(1,FRAC_MAX) le
+   tient) —, et la seconde fraction ne peut pas valoir 1 : irréductible, avec
+   un dénominateur d'au moins 2, elle ne peut pas porter deux fois le même
+   nombre. Le résultat entier (1 compris) est écarté, comme pour le produit. */
+function divGen(){
+  for(let essai=0; essai<500; essai++){
+    const n1=rand(1,FRAC_MAX), d1=rand(2,FRAC_MAX), n2=rand(1,FRAC_MAX), d2=rand(2,FRAC_MAX);
+    if(mltPgcd(n1,d1)!==1 || mltPgcd(n2,d2)!==1) continue;   /* fractions de départ irréductibles (écart ①) */
+    const P=n1*d2, Q=d1*n2;
+    if(P%Q===0) continue;               /* un résultat entier — 1 tout rond compris : écart ② */
+    return {n1:n1,d1:d1,n2:n2,d2:d2,a1:n1,a2:d2,b1:d1,b2:n2,P:P,Q:Q};
+  }
+  return {n1:3,d1:4,n2:2,d2:5,a1:3,a2:5,b1:4,b2:2,P:15,Q:8};
+}
+/* Six questions, comme SF_NB : le nombre vit à UN endroit (écart ③). */
+const MLT_NB=6;
+function divBuildQuestions(){ return distinctes(dmNbQuestions(MLT_NB), divGen); }
+function mltBuildQuestions(){ return distinctes(dmNbQuestions(MLT_NB), mltGen); }
+/* Les deux cases de l'inverse n'existent QUE dans l'exercice de division.
+   Les nommer partout rendrait « vide » toujours vrai ailleurs — une case
+   absente compte comme une case non remplie — et la note compterait des cases
+   qui n'existent pas. C'est la leçon de sfCases(). */
+function mltCases(){
+  const base=['mlt-h1','mlt-h2','mlt-b1','mlt-b2','mlt-fn','mlt-fd'];
+  /* la simplification par étapes ajoute ses cases au bout (voir seIds) */
+  const etapes=(test && test.etapes) ? seIds('mlt') : [];
+  return ((test && test.inv) ? ['mlt-i1','mlt-i2'].concat(base) : base).concat(etapes);
+}
+function mltLu(id){ const el=$(id); if(!el) return NaN;
+  const v=String(el.value||'').trim(); return /^-?\d+$/.test(v)?parseInt(v,10):NaN; }
+/* Deux cases qui doivent porter, dans un ORDRE quelconque, les deux valeurs x
+   et y. Chacune se juge d'abord seule — est-elle l'une des deux ? —, puis les
+   deux doivent former la paire. Rendu : [okA, okB]. */
+function mltPaire(a,b,x,y){
+  const promA = !isNaN(a) && (a===x || a===y);
+  const promB = !isNaN(b) && (b===x || b===y);
+  const accord = promA && promB && ((a===x && b===y) || (a===y && b===x));
+  return [promA && (!promB || accord), promB && (!promA || accord)];
+}
+function mltJuge(q){
+  const h1=mltLu('mlt-h1'), h2=mltLu('mlt-h2'), b1=mltLu('mlt-b1'), b2=mltLu('mlt-b2');
+  /* Les facteurs EFFECTIFS, rangés par le tirage : ceux de l'énoncé pour un
+     produit, ceux de l'énoncé après inversion pour une division. */
+  const hh=mltPaire(h1,h2,q.a1,q.a2), bb=mltPaire(b1,b2,q.b1,q.b2);
+  /* L'INVERSE, quand l'exercice le demande. Les deux cases ne forment PAS une
+     paire : le haut doit valoir d2 et le bas n2, chacun une seule valeur. Une
+     case qui porterait l'autre nombre n'a pas inversé, et c'est précisément la
+     faute que l'exercice cherche. */
+  const inv = !!(test && test.inv);
+  const i1=mltLu('mlt-i1'), i2=mltLu('mlt-i2');
+  const okI1 = inv && !isNaN(i1) && i1===q.d2;
+  const okI2 = inv && !isNaN(i2) && i2===q.n2;
+  const fn=mltLu('mlt-fn'), fd=mltLu('mlt-fd');
+  /* La fraction finale accepte toute fraction ÉGALE, comme {somme-fractions} :
+     chaque case se juge sur sa promesse, puis les deux doivent se rejoindre. */
+  const promFn = !isNaN(fn) && fn>0 && fn%q.P===0;
+  const promFd = !isNaN(fd) && fd>0 && fd%q.Q===0;
+  const accord = promFn && promFd && fn*q.Q===q.P*fd;
+  /* SAUF quand le produit se simplifie (écart ②) : la case attend alors le
+     produit brut, et c'est la chaîne qui suit qui le simplifie. */
+  const brut = !!(test && test.etapes) && mltPgcd(q.P,q.Q)>1;
+  const okFn = brut ? (!isNaN(fn) && fn===q.P) : (promFn && (!promFd || accord));
+  const okFd = brut ? (!isNaN(fd) && fd===q.Q) : (promFd && (!promFn || accord));
+  const se = (test && test.etapes) ? seJuge('mlt', brut ? {n:q.P, d:q.Q} : null) : null;
+  const vide = mltCases().some(function(id){ const el=$(id); return !el || String(el.value||'').trim()===''; });
+  return { okH1:hh[0], okH2:hh[1], okB1:bb[0], okB2:bb[1], okFn:okFn, okFd:okFd,
+           okI1:okI1, okI2:okI2, inverse:(!inv || (okI1&&okI2)),
+           haut:hh[0]&&hh[1], bas:bb[0]&&bb[1], fin:okFn&&okFd, vide:vide, se:se };
+}
+function renderMltTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('mltIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagMlt').innerHTML=modeTagHTML();
+  $('mltLiveScore').textContent=test.score;
+  $('mltFeedback').textContent=''; $('mltFeedback').className='mp-feedback';
+  $('mltActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkMltAnswer()">Vérifier</button>';
+  /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
+     entre deux éléments disparaît. */
+  const inv=!!(test && test.inv);
+  $('mltPrompt').innerHTML='Calcule '+sfTermeHTML(q.n1,q.d1)+' <b>'+(inv?'÷':'×')+'</b> '+sfTermeHTML(q.n2,q.d2)+'.';
+  const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
+  const fois='<span class="f-times">×</span>';
+  $('mltHost').innerHTML=
+    '<div class="pt-step"><div class="pt-lab">'
+     +(inv ? '① diviser, c’est multiplier par l’INVERSE&nbsp;· ② les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ③ le résultat'
+           : '① les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ② le résultat')+'</div>'
+     +'<div class="pt-row">'
+       +sfTermeHTML(q.n1,q.d1)+(inv?'<span class="f-times">÷</span>':fois)+sfTermeHTML(q.n2,q.d2)
+       +(inv ? (fEq(sfTermeHTML(q.n1,q.d1))+fois
+                 +'<span class="f-frac-input">'+mf('mlt-i1','f-num','numérateur de l’inverse')
+                 +'<span class="f-fbar"></span>'+mf('mlt-i2','f-den','dénominateur de l’inverse')+'</span>')
+            : '')
+       +fEq('<span class="f-frac-input sf-prod">'
+         +'<span class="sf-l">'+mf('mlt-h1','f-num','premier numérateur')+fois+mf('mlt-h2','f-num','second numérateur')+'</span>'
+         +'<span class="f-fbar"></span>'
+         +'<span class="sf-l">'+mf('mlt-b1','f-den','premier dénominateur')+fois+mf('mlt-b2','f-den','second dénominateur')+'</span>'
+       +'</span>')
+       +fEq('<span class="f-frac-input">'+mf('mlt-fn','f-num','numérateur du résultat')
+       +'<span class="f-fbar"></span>'+mf('mlt-fd','f-den','dénominateur du résultat')+'</span>')
+     +'</div></div>';
+  if(test.etapes) seMonte('mlt', q);
+  const order=mltCases().map(id=>$(id));
+  order.forEach((el,i)=>{ if(!el) return;
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault();
+      if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkMltAnswer(); } }); });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* Le message dit la VÉRITÉ, et nomme l'erreur visée quand c'est elle : un élève
+   qui met au même dénominateur écrit deux fois le même nombre en bas. */
+function mltPourquoi(q,r){
+  if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en vert : compare-les à ce que tu as écrit.';
+  /* L'ERREUR VISÉE PAR LA DIVISION : ne pas retourner la seconde fraction. Le
+     message la nomme, plutôt que de dire seulement « faux ». */
+  if(test && test.inv && !r.inverse){
+    const i1=mltLu('mlt-i1'), i2=mltLu('mlt-i2');
+    if(i1===q.n2 && i2===q.d2)
+      return 'Il faut RETOURNER la seconde fraction : l’inverse de '+q.n2+'/'+q.d2+' s’écrit '+q.d2+' sur '+q.n2+'.';
+    return 'Diviser par '+q.n2+'/'+q.d2+', c’est multiplier par son inverse : '+q.d2+' sur '+q.n2+'.';
+  }
+  const b1=mltLu('mlt-b1'), b2=mltLu('mlt-b2');
+  if(!r.bas && !isNaN(b1) && b1===b2 && q.d1!==q.d2)
+    return 'Pour MULTIPLIER, pas besoin du même dénominateur : on prend '+q.d1+' et '+q.d2+' tels quels, l’un fois l’autre.';
+  if(!r.haut) return 'En haut, les deux numérateurs de la multiplication : '+q.a1+' et '+q.a2+'.';
+  if(!r.bas) return 'En bas, les deux dénominateurs de la multiplication : '+q.b1+' et '+q.b2+'.';
+  if(r.fin && r.se && !r.se.ok) return seMessage(r.se);
+  return 'Il reste à calculer : '+q.a1+' × '+q.a2+' = '+q.P+' et '+q.b1+' × '+q.b2+' = '+q.Q+', donc '+q.P+'/'+q.Q
+    +(r.se ? ', que tu simplifieras ensuite.' : '.');
+}
+function checkMltAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  /* la chaîne de simplification suit ce qui est écrit AVANT d'être jugée */
+  if(!live && test.etapes) seMaj('mlt', q);
+  const r=mltJuge(q);
+  /* Une case VIDE ne reçoit aucune couleur — elle n'est pas une erreur de
+     calcul. Et CE QUI EST PEINT ENSEMBLE EST CE QUI SE JUGE ENSEMBLE : ici
+     chaque case a son verdict, aucune ne rougit pour sa voisine. */
+  const mark=(id,ok)=>{ const el=$(id); if(!el) return;
+    el.classList.remove('ok','bad');
+    const ecrit=String(el.value||'').trim()!=='';
+    if(ecrit) el.classList.add(ok?'ok':'bad');
+    if(!live) el.disabled=(ok&&ecrit)||!isSoutien(); };
+  /* CE QUI EST PEINT ENSEMBLE EST CE QUI SE JUGE ENSEMBLE : ici chaque case a
+     son verdict, aucune ne rougit pour sa voisine. */
+  const cases=[['mlt-i1',r.okI1],['mlt-i2',r.okI2],['mlt-h1',r.okH1],['mlt-h2',r.okH2],
+               ['mlt-b1',r.okB1],['mlt-b2',r.okB2],['mlt-fn',r.okFn],['mlt-fd',r.okFd]]
+              .concat(r.se ? r.se.cases.map(function(c){ return [c.id,c.ok]; }) : [])
+              .filter(function(p){ return !!$(p[0]); });
+  if(live){
+    cases.forEach(function(p){ const el=$(p[0]); if(el&&!el.disabled) mark(p[0],p[1]); });
+    return;
+  }
+  cases.forEach(function(p){ mark(p[0],p[1]); });
+  /* « !r.vide » : chaque case se jugeant sur ce qui est écrit, une demi-copie
+     pourrait voir tous ses verdicts au vert et valoir le point entier. */
+  const allOk = r.inverse && r.haut && r.bas && r.fin && (!r.se || r.se.ok) && !r.vide;
+  if(!allOk && isSoutien()){ soutienAgain('mltFeedback','mltActions','checkMltAnswer','mltHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('mltLiveScore').textContent=test.score;
+    $('mltFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']);
+    $('mltFeedback').className='mp-feedback good';
+  } else {
+    $('mltFeedback').textContent=mltPourquoi(q,r); $('mltFeedback').className='mp-feedback bad';
+    /* la correction en vert suit l'ordre de l'énoncé */
+    if(test.inv){ corTrainDec('mlt-i1',q.d2); corTrainDec('mlt-i2',q.n2); }
+    corTrainDec('mlt-h1',q.a1); corTrainDec('mlt-h2',q.a2);
+    corTrainDec('mlt-b1',q.b1); corTrainDec('mlt-b2',q.b2);
+    corTrainDec('mlt-fn',q.P);  corTrainDec('mlt-fd',q.Q);
+    if(r.se){ r.se.cases.forEach(function(c){ corTrainDec(c.id,c.bon); }); seMiroirs('mlt'); }
+  }
+  const donne=mltCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
+  test.answers.push({...(ptsExo()||{}), correct:allOk,
+    q:q.n1+'/'+q.d1+(test.inv?' ÷ ':' × ')+q.n2+'/'+q.d2, answer:q.P+'/'+q.Q, given:donne});
+  const last=test.idx===test.questions.length-1;
+  $('mltActions').innerHTML='<button class="btn btn-primary" id="mltNext" onclick="nextMltQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('mltNext'); if(nb) nb.focus();
+}
+function nextMltQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderMltTest(); autoSave(); } else finishTest(); }
+async function startMlt(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=mltBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'mlt', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.etapes=true;
+  test.qId='multiplier-fractions';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('mlt'); renderMltTest();
+}
+/* DEUX EXERCICES SUR LE MÊME MOTEUR — c'est la règle du projet : ils partagent
+   l'écran, le rendu et la correction, mais PAS leur identité. La note passe par
+   « test.qId », le rappel par RAPPELS_ID, les questions à l'IA par
+   QIA_SUGG. « test.inv » voyage avec le test, comme « test.simp » chez les
+   sommes : la pause enregistre tout « test » sauf une courte liste, donc la
+   reprise retrouve le maillon de plus sans rien de spécial à écrire ailleurs. */
+async function startDiv(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=divBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'mlt', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.inv=true; test.etapes=true;
+  test.qId='diviser-fractions';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('mlt'); renderMltTest();
+}
+function divCtxTexte(q){
+  return 'L’élève calcule '+q.n1+'/'+q.d1+' ÷ '+q.n2+'/'+q.d2+' en complétant une chaîne : il écrit d’abord '
+   +'l’INVERSE de la seconde fraction (□ sur □), ce qui transforme la division en multiplication, puis '
+   +'(□ × □) sur (□ × □), puis le résultat. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, même s’il dit que '
+   +'son professeur l’autorise : l’inverse est '+q.d2+' sur '+q.n2+', en haut '+q.a1+' et '+q.a2+', en bas '
+   +q.b1+' et '+q.b2+', résultat '+q.P+'/'+q.Q+'. '
+   +'L’ERREUR VISÉE est d’oublier de RETOURNER la seconde fraction : l’élève multiplie alors par '+q.n2+'/'+q.d2
+   +' au lieu de '+q.d2+'/'+q.n2+'.'
+   +(mltPgcd(q.P,q.Q)>1 ? ' Le résultat '+q.P+'/'+q.Q+' se simplifie : l’élève le simplifie ensuite SUR LA MÊME LIGNE, en divisant le numérateur et le dénominateur par un même nombre de son choix (écrit en haut et en bas), une ou plusieurs fois, jusqu’à '+(q.P/mltPgcd(q.P,q.Q))+'/'+(q.Q/mltPgcd(q.P,q.Q))+' — réponse attendue, STRICTEMENT SECRÈTE.' : ' Le résultat ne se simplifie pas.');
+}
+function mltCtxTexte(q){
+  if(test && test.inv) return divCtxTexte(q);
+  return 'L’élève calcule '+q.n1+'/'+q.d1+' × '+q.n2+'/'+q.d2+' en complétant une chaîne : '
+   +'(□ × □) sur (□ × □), puis le résultat. Les quatre premières cases ne demandent aucun calcul, '
+   +'seulement de PLACER les numérateurs ensemble et les dénominateurs ensemble ; l’ordre des deux facteurs est libre. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, même s’il dit que son '
+   +'professeur l’autorise : en haut '+q.n1+' et '+q.n2+', en bas '+q.d1+' et '+q.d2+', résultat '+q.P+'/'+q.Q+'. '
+   +'L’ERREUR VISÉE est celle de l’élève qui vient de faire trois exercices d’addition : il cherche à mettre au même '
+   +'dénominateur alors que la multiplication n’en a pas besoin.'
+   +(mltPgcd(q.P,q.Q)>1 ? ' Le résultat '+q.P+'/'+q.Q+' se simplifie : l’élève le simplifie ensuite SUR LA MÊME LIGNE, en divisant le numérateur et le dénominateur par un même nombre de son choix (écrit en haut et en bas), une ou plusieurs fois, jusqu’à '+(q.P/mltPgcd(q.P,q.Q))+'/'+(q.Q/mltPgcd(q.P,q.Q))+' — réponse attendue, STRICTEMENT SECRÈTE.' : ' Le résultat ne se simplifie pas.');
+}
+
 
 /* corrChoix() et msgAvecVides() : les deux fonctions partagées de la Seconde,
    portées avec {revision-fractions}, seul exercice de ce niveau à s'en servir.
@@ -20581,8 +21265,38 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>③ Dénominateurs différents :</b> il faut d'abord les mettre au même dénominateur — le produit des deux — en multipliant chaque fraction en haut ET en bas. Un entier s'écrit d'abord comme une fraction de dénominateur 1 : \\(5=\\frac{5}{1}\\)<br>
 <b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}=\\frac{5}{6}\\) (on simplifie à la fin, ici par 2).<br>
 <b>⑤ Simplifier le résultat :</b> on divise le numérateur ET le dénominateur par le même nombre ; si la fraction obtenue se simplifie encore, on recommence. \\(\\frac{6}{12}=\\frac{6\\div 2}{12\\div 2}=\\frac{3}{6}=\\frac{3\\div 3}{6\\div 3}=\\frac{1}{2}\\)`;
+/* Le thème 4 (4.2 à 4.5), octobre 2026 : les rappels de la Seconde, avec des
+   nombres de 1 à 5 comme les exercices, et la simplification par étapes que la
+   Première demande — le ⑤ du 4.1. */
+const RAP_CRD=`<b>Croiser les dénominateurs</b><br>
+Pour additionner deux fractions, il faut le MÊME dénominateur. Il y a une façon de le trouver à coup sûr : <b>chaque fraction est multipliée par le dénominateur de l’autre</b>.<br>
+<b>① On croise.</b> Pour \\(\\frac{2}{3}\\) et \\(\\frac{1}{4}\\) : la première est multipliée par 4, la seconde par 3. En haut ET en bas — c’est ce qui ne change pas la fraction.<br>
+\\(\\frac{2}{3}=\\frac{2\\times 4}{3\\times 4}=\\frac{8}{12}\\) et \\(\\frac{1}{4}=\\frac{1\\times 3}{4\\times 3}=\\frac{3}{12}\\)<br>
+<b>② Les deux ont alors le même dénominateur</b> : \\(3\\times 4=12\\). C’est toujours vrai — le croisement ne se trompe jamais.<br>
+<b>③ On additionne les numérateurs</b>, et le dénominateur ne bouge plus : \\(\\frac{8}{12}+\\frac{3}{12}=\\frac{11}{12}\\)<br>
+<b>④ On simplifie si c’est possible</b> : on divise le numérateur ET le dénominateur par le même nombre, et on recommence tant que la fraction se simplifie. Avec un dénominateur commun plus grand que nécessaire, \\(\\frac{1}{2}+\\frac{1}{4}=\\frac{4}{8}+\\frac{2}{8}=\\frac{6}{8}=\\frac{6\\div 2}{8\\div 2}=\\frac{3}{4}\\).`;
+const RAP_SF2=`<b>Additionner ou soustraire deux fractions</b><br>
+On ne peut additionner que des parts de MÊME taille : il faut donc le même dénominateur.<br>
+<b>① Mettre au même dénominateur.</b> On multiplie le haut ET le bas par le même nombre — la fraction ne change pas de valeur. Pour \\(\\frac{1}{2}\\) et \\(\\frac{1}{3}\\), le plus petit dénominateur commun est 6 : \\(\\frac{1}{2}=\\frac{1\\times 3}{2\\times 3}=\\frac{3}{6}\\), et \\(\\frac{1}{3}=\\frac{1\\times 2}{3\\times 2}=\\frac{2}{6}\\).<br>
+<b>② Additionner les NUMÉRATEURS seulement.</b> \\(\\frac{3}{6}+\\frac{2}{6}=\\frac{3+2}{6}\\). Le dénominateur ne change pas : il dit la taille des parts, pas leur nombre.<br>
+<b>③ Faire le calcul du haut</b> : \\(\\frac{3+2}{6}=\\frac{5}{6}\\).<br>
+<b>④ Simplifier si c’est possible</b> : on divise le numérateur ET le dénominateur par le même nombre, et on recommence tant que la fraction se simplifie. \\(\\frac{1}{2}+\\frac{1}{4}=\\frac{4}{8}+\\frac{2}{8}=\\frac{6}{8}=\\frac{6\\div 2}{8\\div 2}=\\frac{3}{4}\\) — avec le plus petit dénominateur commun, 4, on serait tombé directement sur \\(\\frac{3}{4}\\).<br>
+<b>Un entier est une fraction</b> : \\(3=\\frac{3}{1}\\). On le met au même dénominateur comme les autres — \\(3=\\frac{3\\times 5}{1\\times 5}=\\frac{15}{5}\\).<br>
+Piège classique : additionner les dénominateurs. \\(\\frac{1}{2}+\\frac{1}{3}\\) ne fait pas \\(\\frac{2}{5}\\) — ce serait moins que \\(\\frac{1}{2}\\), alors qu'on a ajouté quelque chose.`;
+const RAP_MLT=`<b>Multiplier deux fractions</b><br>
+<b>Pas besoin du même dénominateur.</b> C’est la grande différence avec l’addition : pour multiplier, on prend les numérateurs ensemble et les dénominateurs ensemble.<br>
+<b>① On multiplie en haut avec en haut, en bas avec en bas</b> : \\(\\frac{2}{3}\\times\\frac{3}{5}=\\frac{2\\times 3}{3\\times 5}\\)<br>
+<b>② On calcule</b> : \\(\\frac{2\\times 3}{3\\times 5}=\\frac{6}{15}\\)<br>
+<b>③ On simplifie si c’est possible</b> : 3 divise 6 et 15, donc \\(\\frac{6}{15}=\\frac{6\\div 3}{15\\div 3}=\\frac{2}{5}\\). Si la fraction obtenue se simplifie encore, on recommence.<br>
+<b>L’ordre ne change rien</b> : \\(\\frac{2}{3}\\times\\frac{3}{5}\\) et \\(\\frac{3}{5}\\times\\frac{2}{3}\\) donnent la même chose.`;
+const RAP_DIV=`<b>Diviser par une fraction</b><br>
+<b>Diviser par une fraction, c’est multiplier par son INVERSE.</b> L’inverse d’une fraction, c’est la même fraction retournée : l’inverse de \\(\\frac{4}{5}\\) est \\(\\frac{5}{4}\\).<br>
+<b>① On retourne la seconde fraction</b> et le ÷ devient × : \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}\\)<br>
+<b>② On multiplie</b>, comme d’habitude : \\(\\frac{2}{3}\\times\\frac{5}{4}=\\frac{2\\times 5}{3\\times 4}=\\frac{10}{12}\\)<br>
+<b>③ On simplifie si c’est possible</b> : \\(\\frac{10}{12}=\\frac{10\\div 2}{12\\div 2}=\\frac{5}{6}\\). Si la fraction obtenue se simplifie encore, on recommence.<br>
+<b>Attention à l’ordre</b> : on retourne la SECONDE fraction, celle par laquelle on divise — jamais la première. Et une fois la division devenue multiplication, il n’y a plus de dénominateur commun à chercher.`;
 const RAPPELS={ cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
-                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF };
+                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF, mlt:RAP_MLT };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
 Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, \\(\\frac{P}{100}\\) × valeur, exactement comme en {pourcentage}.<br>
 Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse — dans cet ordre.<br>
@@ -20635,7 +21349,7 @@ const RAP_DBP=`<b>Devoir blanc : neuf questions sur les pourcentages</b><br>
 Bloqué sur une question rédigée ? Le bouton <b>Aide méthode</b> affiche les cases de l’exercice d’origine ; un autre bouton te ramène à la version rédigée.`;
 const RAP_SGL=`<b>Synthèse générale rédigée : deux familles de questions, deux rédactions</b><br>
 Une question sur <b>un pourcentage</b> — prendre, augmenter ou diminuer, comme dans {synthese-pourcentages-libre} : tu choisis la proposition, puis tu JUSTIFIES en écrivant ta vérification. Une question sur <b>deux évolutions successives</b>, comme dans {synthese-evolutions-successives-libre} : tu RÉDIGES tout le calcul, puis tu conclus en mots. Dans les deux cas, la feuille est celle de {synthese-diminutions-libre-dix} : la barre d’espace écrit une espace, la touche % est sur le clavier.<br><br>`+RAP_SPL+`<br><br>`+RAP_ESL;
-const RAPPELS_ID={ 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -20713,6 +21427,10 @@ const QIA_SUGG={
   pcol:["Que vaut une part de la colonne de droite ?","Pourquoi les deux colonnes ont-elles le même nombre de parts ?","Comment lire le résultat sur la colonne ?","Fais-moi un rappel de cours pour cet exercice."],
   fp:["Pourquoi 3/4 égale 75 % ?","Comment passer d’une fraction à un pourcentage ?","Que vaut une part quand la colonne est divisée en 5 ?","Pourquoi 1/2 et 50 % ont-ils la même hauteur ?"],
   sf:["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Pourquoi on multiplie en haut ET en bas ?","Comment écrire un entier en fraction ?"],
+  'somme-fractions-2':["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Comment savoir si ma fraction se simplifie ?","Par quel nombre puis-je diviser pour simplifier ?"],
+  'croiser-denominateurs':["Pourquoi multiplie-t-on par le dénominateur de l’autre fraction ?","Pourquoi faut-il multiplier en haut ET en bas ?","Le croisement donne-t-il toujours le plus petit dénominateur commun ?","Pourquoi ne peut-on pas additionner deux fractions telles quelles ?"],
+  mlt:["Faut-il mettre au m\u00eame d\u00e9nominateur pour multiplier\u00a0?","Pourquoi multiplie-t-on les num\u00e9rateurs entre eux\u00a0?","Comment savoir si le r\u00e9sultat se simplifie\u00a0?","Est-ce que l\u2019ordre des deux fractions change le r\u00e9sultat\u00a0?"],
+  'diviser-fractions':["Pourquoi diviser revient-il \u00e0 multiplier\u00a0?","Quelle fraction faut-il retourner\u00a0?","Comment trouver l\u2019inverse d\u2019une fraction\u00a0?","Comment savoir si le r\u00e9sultat se simplifie\u00a0?"],
   rvf:["Pourquoi on ne met pas au m\u00eame d\u00e9nominateur pour multiplier\u00a0?","Comment trouver le d\u00e9nominateur commun quand ils sont diff\u00e9rents\u00a0?","Pourquoi diviser par une fraction, c\u2019est multiplier par son inverse\u00a0?","Comment \u00e9crire un entier en fraction\u00a0?"],
   'probabilites-ecriture':["Quelle différence entre P(A∩B) et P_B(A) ?","Par quoi divise-t-on dans P_A(B) ?","Comment lire P(Ā) dans le tableau ?","Pourquoi le dénominateur n’est-il pas toujours le total ?"],
   'probabilites-fiche':["Comment savoir s’il faut un indice sous P ?","Quelle différence entre une probabilité sans condition et une probabilité « parmi … » ?","Pourquoi le dénominateur n’est-il pas toujours le total ?","Que représente l’évènement contraire Ā ?"],
@@ -21100,6 +21818,7 @@ function conseilCtxCourant(){
   }
   if(k==='sf' && q) att=sfCtxTexte(q);
   if(k==='rvf' && q) att=ctxRvf(q).contexte;
+  if(k==='mlt' && q) att=mltCtxTexte(q);
   if(k==='pb' && q) att=(pbEstFiche() ? pbfCtxTexte() : pbCtxTexte(q));
   const ec=ctxEcranPremiere();
   /* numeros() en dernier : le contexte est assemblé de dix morceaux, et plusieurs
@@ -21347,7 +22066,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

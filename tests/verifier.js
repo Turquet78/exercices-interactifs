@@ -4260,6 +4260,7 @@ function exercices(suite){
     pythonInverserLettres(w, P);
     pythonMoyenneNotes(w, P);
     pythonForRenommer(w, P);
+    pythonTroisDes(w, P);
     pythonForDepartFin(w, P);
     pythonForImages(w, P);
     pythonChaines(w, P);
@@ -4312,6 +4313,7 @@ function exercices(suite){
     }
     simplifierBarres(w, P);
     multiplierFractions(w, P);
+    fractionsEtapes(w, P);
     synthesePourcentage(w, P);
     synthesePourcentageMethode(w, P);
     syntheseLibrePourcentage(w, P);
@@ -7463,6 +7465,13 @@ function sommeFractions(w, P){
      · une case juste ne rougit pas pour sa voisine, et on lit la COULEUR
        peinte, pas seulement le verdict — c'est la leçon du jour ;
      · l'erreur VISÉE (mettre au même dénominateur) est nommée par le message. */
+/* Puis la Première l'a reçu (4.4 et 4.5, octobre 2026) : ce qui diffère d'un
+   niveau à l'autre se DÉCLARE dans le profil (multiplierFractions) — la borne
+   des nombres de départ (9 en Seconde, 5 en Première), le produit qui PEUT se
+   simplifier (la Première le fait simplifier par étapes : le bord « le
+   produit est irréductible » y devient « les fractions de départ sont
+   irréductibles et le résultat n'est pas entier »), et la version rédigée,
+   que seule la Seconde a. Un niveau qui a l'exercice sans le déclarer rougit. */
 function multiplierFractions(w, P){
   const present = evaluer(w, "typeof startMlt==='function' && typeof mltGen==='function'");
   if(!present.ok || !present.valeur){
@@ -7470,7 +7479,15 @@ function multiplierFractions(w, P){
       'ce niveau n\'a pas les exercices de multiplication de fractions');
     return;
   }
-  verifierEval(w, 'multiplier deux fractions : l\'ordre est libre, et le produit ne se simplifie pas', `(function(){
+  const R = P.multiplierFractions;
+  if(!R){
+    verifier('multiplier deux fractions : l\'ordre est libre, et le produit ne se simplifie pas', false,
+      'ce niveau a l\'exercice, mais son profil ne déclare pas multiplierFractions (borne, simplification, version rédigée)');
+    return;
+  }
+  verifierEval(w, R.simplifier ? 'multiplier deux fractions : l\'ordre est libre, et le produit se simplifie par étapes'
+                               : 'multiplier deux fractions : l\'ordre est libre, et le produit ne se simplifie pas', `(function(){
+    const MAX=${R.max}, SIMPLIFIER=${!!R.simplifier};
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='multiplier-fractions';
@@ -7485,7 +7502,10 @@ function multiplierFractions(w, P){
          2/3 × 3/2 a ses deux fractions irréductibles et donne 6/6. C'est bien
          le PRODUIT qu'il faut tester — sinon l'élève qui simplifie, ce qui est
          juste, écrirait une fraction comptée fausse. */
-      if(pgcd(q.P,q.Q)!==1){ vus.push(eti+' : le produit '+q.P+'/'+q.Q+' se simplifie encore'); break; }
+      if(!SIMPLIFIER && pgcd(q.P,q.Q)!==1){ vus.push(eti+' : le produit '+q.P+'/'+q.Q+' se simplifie encore'); break; }
+      if(SIMPLIFIER && (pgcd(q.n1,q.d1)!==1 || pgcd(q.n2,q.d2)!==1)){ vus.push(eti+' : une fraction de départ est réductible'); break; }
+      if(SIMPLIFIER && q.P%q.Q===0){ vus.push(eti+' : le produit '+q.P+'/'+q.Q+' est un entier'); break; }
+      if([q.n1,q.d1,q.n2,q.d2].some(function(x){ return x>MAX; })){ vus.push(eti+' : un nombre de départ dépasse '+MAX); break; }
       if(q.P===q.Q){ vus.push(eti+' : le produit vaut 1 tout rond'); break; }
       if(q.d1<2 || q.d2<2){ vus.push(eti+' : un dénominateur vaut '+Math.min(q.d1,q.d2)); break; }
       if(q.n1<1 || q.n2<1){ vus.push(eti+' : un numérateur est nul ou négatif'); break; }
@@ -7595,7 +7615,10 @@ function multiplierFractions(w, P){
         if(g.a1!==g.n1 || g.a2!==g.d2 || g.b1!==g.d1 || g.b2!==g.n2){
           vus.push(eti+' : les facteurs rangés ne sont pas ceux de la fraction INVERSÉE'); break; }
         if(g.P!==g.n1*g.d2 || g.Q!==g.d1*g.n2){ vus.push(eti+' : le quotient rangé ne suit pas les facteurs'); break; }
-        if(pgcd(g.P,g.Q)!==1){ vus.push(eti+' : le quotient '+g.P+'/'+g.Q+' se simplifie encore'); break; }
+        if(!SIMPLIFIER && pgcd(g.P,g.Q)!==1){ vus.push(eti+' : le quotient '+g.P+'/'+g.Q+' se simplifie encore'); break; }
+        if(SIMPLIFIER && (pgcd(g.n1,g.d1)!==1 || pgcd(g.n2,g.d2)!==1)){ vus.push(eti+' : une fraction de départ est réductible'); break; }
+        if(SIMPLIFIER && g.P%g.Q===0){ vus.push(eti+' : le quotient '+g.P+'/'+g.Q+' est un entier'); break; }
+        if([g.n1,g.d1,g.n2,g.d2].some(function(x){ return x>MAX; })){ vus.push(eti+' : un nombre de départ dépasse '+MAX); break; }
         if(g.n2===0){ vus.push(eti+' : on divise par zéro'); break; }
         if(g.n2===g.d2){ vus.push(eti+' : on divise par 1, il n\\'y a rien à faire'); break; }
         if(g.P===g.Q){ vus.push(eti+' : le quotient vaut 1 tout rond'); break; }
@@ -7663,7 +7686,10 @@ function multiplierFractions(w, P){
     }
 
     /* ---- 6. LE LIBRE : les mêmes nombres, et la règle envoyée au modèle --- */
-    if(typeof startMLL!=='function' || typeof mllAttenduIA!=='function'){
+    if(!${!!R.libre}){
+      /* le profil dit que ce niveau n'a pas la version rédigée : l'avoir quand même serait une déclaration morte */
+      if(typeof startMLL==='function') vus.push('le profil dit « pas de version rédigée », et la page a startMLL');
+    } else if(typeof startMLL!=='function' || typeof mllAttenduIA!=='function'){
       vus.push('l\\'exercice en saisie libre est absent');
     } else {
       for(let i=0;i<200;i++){
@@ -7702,6 +7728,189 @@ function multiplierFractions(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---------- Le thème 4 « Fractions » de la Première : 4.2 à 4.5 ------------
+   Demande de Turquet (octobre 2026) : « mettre les exercices de seconde 5.2 ;
+   5.3 ; 5.6 ; 5.8 dans le thème fraction de première ; tous les nombres au
+   départ entre 1 et 5 ; pas de résultat intermédiaire ou final négatif ; les
+   fractions au début irréductibles ; si le résultat peut être simplifié,
+   proposer les simplifications comme dans l'exercice de première 4.1 ».
+   Déclaré par le profil (fractionsEtapes) ; la Seconde, qui garde ses
+   exercices tels quels, s'y affiche « non applicable ».
+   TROIS mesures, et chacune passe par le démarreur RÉEL de l'exercice —
+   jamais par le tirage seul : c'est le démarreur qui choisit la borne et pose
+   « test.etapes », et un tirage juste branché sur un démarreur qui l'oublie
+   ne se verrait pas.
+   ① LE TIRAGE, sur deux cents séances par exercice : chaque nombre de départ
+     entre 1 et la borne (et la borne ATTEINTE, sans quoi la mesure ne
+     mesurerait qu'un tirage trop étroit), les fractions de départ
+     irréductibles, et aucun nombre intermédiaire ou final négatif ou nul —
+     recalculé ICI, par une arithmétique propre : multiplicateurs du plus
+     petit dénominateur commun, numérateurs mis au même, résultat ; produit
+     et quotient. Un produit qui se simplifie doit SORTIR au moins une fois,
+     sans quoi la chaîne ne serait jamais exercée.
+   ② LA SOMME, par de vrais évènements « input » : sur le plus petit
+     dénominateur commun (1/2 + 1/4 = 2/4 + 1/4 = 3/4) aucune chaîne ; par 8,
+     la fraction obtenue 6/8 ouvre une étape, le diviseur se recopie, 2 la
+     ferme ; par 16, 12/16 ÷ 2 = 6/8 en ouvre une seconde. La copie juste vaut
+     le point, la réponse enregistrée garde toute la ligne, un diviseur faux
+     rougit et sa correction écrit le PGCD, un diviseur vide ne rougit pas, et
+     la reprise redessine les mêmes étapes.
+   ③ LE PRODUIT ET LE QUOTIENT : 2/3 × 3/5 = 6/15 montre sa chaîne d'emblée
+     (la fraction brute ne dépend que de l'énoncé), 2/3 × 1/5 = 2/15 n'en a
+     pas, et 2/3 ÷ 4/5 = 10/12 se simplifie par 2. Le message nomme la
+     simplification quand c'est elle qui manque. */
+function fractionsEtapes(w, P){
+  const R = P.fractionsEtapes;
+  const nom = 'le thème Fractions : nombres de 1 à ' + (R ? R.max : '?') + ', rien de négatif, et la simplification par étapes';
+  if(!R){
+    ignorer('le thème Fractions : nombres bornés, rien de négatif, et la simplification par étapes',
+      'ce niveau ne porte pas les exercices de fractions à simplification par étapes');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], MAX=${R.max}, IDS=${JSON.stringify(R.exercices)};
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+
+    /* ---- ① le tirage, par les démarreurs ---------------------------------- */
+    let reductible=0;
+    for(const id of IDS){
+      if(!TESTS[id] || !TEST_NUM[id]){ vus.push(id+' : absent du menu'); continue; }
+      let vuMax=false, faute='';
+      for(let t=0;t<200 && !faute;t++){
+        currentTestId=id; TESTS[id].start();
+        if(test.qId!==id) faute='la note part sous « '+test.qId+' »';
+        else if(!test.etapes) faute='le démarreur ne pose pas la simplification par étapes';
+        (test.questions||[]).forEach(function(q){
+          if(faute) return;
+          const eti=q.n1+'/'+q.d1+' '+(q.op||(test.inv?'÷':'×'))+' '+q.n2+'/'+q.d2;
+          const ent=[q.n1,q.n2], den=[q.d1,q.d2];
+          if(ent.concat(den).some(function(x){ return !(x>=1 && x<=MAX); })){ faute=eti+' : un nombre de départ sort de 1 à '+MAX; return; }
+          if(ent.concat(den).indexOf(MAX)>=0) vuMax=true;
+          if(pgcd(q.n1,q.d1)!==1 || pgcd(q.n2,q.d2)!==1){ faute=eti+' : une fraction de départ est réductible'; return; }
+          if(test.kind==='sf'){
+            const D=q.d1*q.d2/pgcd(q.d1,q.d2), A=q.n1*(D/q.d1), B=q.n2*(D/q.d2);
+            const N=(q.op==='+')?A+B:A-B;
+            if(!(A>0 && B>0 && N>0)){ faute=eti+' : un nombre intermédiaire ou final est négatif ou nul ('+A+', '+B+', '+N+'/'+D+')'; return; }
+            if(N*q.D!==q.N*D){ faute=eti+' : l’énoncé annonce '+q.N+'/'+q.D+', le calcul donne '+N+'/'+D; return; }
+            if(id==='croiser-denominateurs' && pgcd(q.d1,q.d2)!==1){ faute=eti+' : les dénominateurs ne sont pas premiers entre eux'; return; }
+          } else {
+            const a=test.inv?q.d2:q.n2, b=test.inv?q.n2:q.d2, Pn=q.n1*a, Qd=q.d1*b;
+            if(!(Pn>0 && Qd>0)){ faute=eti+' : le résultat est négatif ou nul'; return; }
+            if(Pn!==q.P || Qd!==q.Q){ faute=eti+' : le résultat rangé '+q.P+'/'+q.Q+' ne suit pas le calcul '+Pn+'/'+Qd; return; }
+            if(Pn%Qd===0){ faute=eti+' : le résultat est un entier'; return; }
+            if(pgcd(Pn,Qd)>1) reductible++;
+          }
+        });
+      }
+      if(faute) vus.push(id+' : '+faute);
+      else if(!vuMax) vus.push(id+' : aucun nombre de départ ne vaut jamais '+MAX+' en 200 séances — la borne reste hors d’atteinte');
+    }
+    if(!vus.length && !reductible) vus.push('aucun produit ni quotient ne se simplifie en 400 séances : la chaîne n’est jamais exercée');
+
+    const $$=function(id){ return document.getElementById(id); };
+    const tape=function(id,v){ const el=$$(id); if(!el){ vus.push('pas de case '+id); return; } el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
+    const peint=function(id){ const el=$$(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const der=function(){ return test.answers[test.answers.length-1]; };
+
+    /* ---- ② la somme : 1/2 + 1/4 --------------------------------------------- */
+    if(IDS.indexOf('somme-fractions-2')>=0){
+      currentTestId='somme-fractions-2'; TESTS['somme-fractions-2'].start();
+      const neuve=function(){ return {n1:1,d1:2,n2:1,d2:4,op:'+',D:4,k1:2,k2:1,N1:2,N2:1,N:3,Nr:3,Dr:4}; };
+      const route=function(m1,m2){ tape('sf-a1',m1); tape('sf-b1',m1); tape('sf-a2',m2); tape('sf-b2',m2);
+        tape('sf-num1',m1); tape('sf-num2',m2); tape('sf-den',2*m1); };
+      const pose=function(){ test.questions=[neuve()]; test.idx=0; test.locked=false; renderSFTest(); };
+      /* a) le plus petit dénominateur commun : rien à simplifier */
+      pose();
+      if($$('sf-e0-dn')) vus.push('somme : une étape de simplification s’affiche avant que l’élève ait écrit quoi que ce soit');
+      const lab=document.querySelector('#sfHost .pt-lab');
+      if(!lab || !/simplifier/.test(lab.textContent)) vus.push('somme : aucun libellé n’annonce la simplification');
+      route(2,1); tape('sf-fn',3); tape('sf-fd',4);
+      if($$('sf-e0-dn')) vus.push('somme : 3/4 est irréductible, et une simplification est demandée');
+      checkSFAnswer();
+      if(!der() || !der().correct) vus.push('somme : 1/2 + 1/4 = 2/4 + 1/4 = 3/4 est compté faux');
+      /* b) par 8 : 6/8, une étape */
+      pose(); route(4,2);
+      tape('sf-fn',6); tape('sf-fd',8);
+      if(!$$('sf-e0-dn')) vus.push('somme : par le dénominateur 8, la fraction 6/8 n’ouvre aucune étape de simplification');
+      else {
+        if(($$('sf-e0-an')||{}).textContent!=='6' || ($$('sf-e0-ad')||{}).textContent!=='8') vus.push('somme : les nombres divisés ne recopient pas 6/8');
+        tape('sf-e0-dn',2);
+        if(($$('sf-e0-dd')||{}).value!=='2') vus.push('somme : le diviseur écrit en haut ne se recopie pas en bas');
+        if($$('sf-e1-dn')) vus.push('somme : 6/8 ÷ 2 = 3/4 est irréductible, et une étape de plus s’ouvre');
+        if(($$('sf-fn')||{}).value!=='6') vus.push('somme : ouvrir une étape a effacé la fraction obtenue');
+        tape('sf-e0-n',3); tape('sf-e0-d',4);
+        checkSFAnswer();
+        if(!der() || !der().correct) vus.push('somme : 1/2 + 1/4 = 4/8 + 2/8 = 6/8 = 3/4 est compté faux');
+        else if(!/3 4$/.test(der().given)) vus.push('somme : la réponse enregistrée ne finit pas par la fraction simplifiée : '+der().given);
+      }
+      /* c) par 16 : 12/16 ÷ 2 = 6/8 se simplifie encore */
+      pose(); route(8,4); tape('sf-fn',12); tape('sf-fd',16); tape('sf-e0-dn',2);
+      if(!$$('sf-e1-dn')) vus.push('somme : 12/16 ÷ 2 = 6/8 se simplifie encore, et aucune nouvelle étape ne s’ouvre');
+      tape('sf-e0-n',6); tape('sf-e0-d',8); tape('sf-e1-dd',2); tape('sf-e1-n',3); tape('sf-e1-d',4);
+      if(($$('sf-e1-dn')||{}).value!=='2') vus.push('somme : le diviseur écrit en bas ne se recopie pas en haut');
+      checkSFAnswer();
+      if(!der() || !der().correct) vus.push('somme : 12/16 = 6/8 = 3/4 (÷2 puis ÷2) est compté faux');
+      /* d) la fraction simplifiée d'emblée ne suffit pas : la ligne demande le calcul tel quel */
+      pose(); route(4,2); tape('sf-fn',3); tape('sf-fd',4);
+      checkSFAnswer();
+      if(der() && der().correct) vus.push('somme : par le dénominateur 8, écrire 3/4 au lieu de 6/8 est compté juste — la chaîne n’a plus d’objet');
+      if(peint('sf-e0-dn')==='faux') vus.push('somme : un diviseur laissé vide rougit');
+      /* e) un diviseur qui ne divise pas : rouge, et la correction écrit 2 */
+      pose(); route(4,2); tape('sf-fn',6); tape('sf-fd',8); tape('sf-e0-dn',3); tape('sf-e0-n',2); tape('sf-e0-d',3);
+      checkSFAnswer();
+      if(der() && der().correct) vus.push('somme : le diviseur 3 de 6/8 est compté juste');
+      if(peint('sf-e0-dn')!=='faux') vus.push('somme : le diviseur 3 est peint '+peint('sf-e0-dn'));
+      const cor=$$('sf-e0-dn') && $$('sf-e0-dn').nextElementSibling;
+      if(!cor || cor.textContent!=='2') vus.push('somme : la correction du diviseur ne montre pas 2');
+      if(!/simplifie/.test(($$('sfFeedback')||{}).textContent||'')) vus.push('somme : le message ne nomme pas la simplification : « '+(($$('sfFeedback')||{}).textContent||'')+' »');
+      /* f) la reprise : la fraction brute et les diviseurs rangés redessinent les mêmes étapes */
+      pose(); route(8,4); tape('sf-fn',12); tape('sf-fd',16); tape('sf-e0-dn',2);
+      const qr=test.questions[0];
+      renderSFTest();
+      if(!$$('sf-e1-dn')) vus.push('somme : après un redessin (reprise), la seconde étape a disparu');
+      if(qr.sbrut!=='12/16' || !qr.sdiv || qr.sdiv[0]!=='2') vus.push('somme : rangé dans la question : '+qr.sbrut+' '+JSON.stringify(qr.sdiv));
+    }
+
+    /* ---- ③ le produit et le quotient --------------------------------------- */
+    if(IDS.indexOf('multiplier-fractions')>=0){
+      currentTestId='multiplier-fractions'; TESTS['multiplier-fractions'].start();
+      const pose=function(q){ test.questions=[q]; test.idx=0; test.locked=false; renderMltTest(); };
+      pose({n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15});
+      if(!$$('mlt-e0-dn')) vus.push('produit : 6/15 se simplifie, et aucune étape n’est posée d’emblée');
+      if($$('mlt-e1-dn')) vus.push('produit : 6/15 n’a besoin que d’une étape au départ');
+      tape('mlt-h1',2); tape('mlt-h2',3); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',6); tape('mlt-fd',15);
+      if(($$('mlt-e0-an')||{}).textContent!=='6') vus.push('produit : le nombre divisé ne recopie pas 6');
+      tape('mlt-e0-dn',3); tape('mlt-e0-n',2); tape('mlt-e0-d',5);
+      checkMltAnswer();
+      if(!der() || !der().correct) vus.push('produit : 2/3 × 3/5 = (2×3)/(3×5) = 6/15 = 2/5 est compté faux');
+      pose({n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15});
+      tape('mlt-h1',2); tape('mlt-h2',3); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',6); tape('mlt-fd',15);
+      checkMltAnswer();
+      if(der() && der().correct) vus.push('produit : la simplification laissée vide vaut le point');
+      if(peint('mlt-e0-dn')!=='correction') vus.push('produit : le diviseur laissé vide ne reçoit pas la correction ('+peint('mlt-e0-dn')+')');
+      pose({n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15});
+      tape('mlt-h1',2); tape('mlt-h2',3); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',6); tape('mlt-fd',15);
+      tape('mlt-e0-dn',2); tape('mlt-e0-n',3); tape('mlt-e0-d',7);
+      checkMltAnswer();
+      if(der() && der().correct) vus.push('produit : le diviseur 2 de 6/15 est compté juste');
+      if(!/simplifie/.test(($$('mltFeedback')||{}).textContent||'')) vus.push('produit : le message ne nomme pas la simplification : « '+(($$('mltFeedback')||{}).textContent||'')+' »');
+      pose({n1:2,d1:3,n2:1,d2:5,a1:2,a2:1,b1:3,b2:5,P:2,Q:15});
+      if($$('mlt-e0-dn')) vus.push('produit : 2/15 est irréductible, et une simplification est demandée');
+    }
+    if(IDS.indexOf('diviser-fractions')>=0){
+      currentTestId='diviser-fractions'; TESTS['diviser-fractions'].start();
+      test.questions=[{n1:2,d1:3,n2:4,d2:5,a1:2,a2:5,b1:3,b2:4,P:10,Q:12}]; test.idx=0; test.locked=false; renderMltTest();
+      [['mlt-i1',5],['mlt-i2',4],['mlt-h1',2],['mlt-h2',5],['mlt-b1',3],['mlt-b2',4],['mlt-fn',10],['mlt-fd',12],['mlt-e0-dn',2],['mlt-e0-n',5],['mlt-e0-d',6]]
+        .forEach(function(p){ tape(p[0],p[1]); });
+      checkMltAnswer();
+      if(!der() || !der().correct) vus.push('quotient : 2/3 ÷ 4/5 = 2/3 × 5/4 = 10/12 = 5/6 est compté faux');
+    }
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 /* {pourcentage-synthese} (Première 2.1.6) — la synthèse de {pourcentage},
    {pourcentage-depart} et {pourcentage-taux} sur le moteur pctq. Ses bords :
      · le tirage mêle les TROIS types, chacun au moins une fois, et l'ordre
@@ -25685,7 +25894,7 @@ function pythonProgrammeCalcul(w, P){
   verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
-/* {python-for-oui-non} (Seconde, 6.6.3, derrière {python-for-range} et {python-for-nom}) : la fiche « Exercice 4 » — a)
+/* {python-for-oui-non} (Seconde, 6.6.4 — 6.6.3 à sa création —, derrière {python-for-range}, {python-for-renommer} et {python-for-nom}) : la fiche « Exercice 4 » — a)
    exécuter for k in range (9): print ("oui") puis print("non"), b) expliquer
    pourquoi « oui » est répété et « non » une seule fois. Le troisième exercice
    du sous-thème 6.6 « Boucle for in range ». L'explication est jugée par le
@@ -25700,12 +25909,13 @@ function pythonForOuiNon(w, P){
     verifier(nom, false, 'startPFO / pfoBuildQuestions / pfoVerdict introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
-  verifierEval(w, 'il suit {python-for-range} et {python-for-nom} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-for-range}, {python-for-renommer} et {python-for-nom} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle for in range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="python-for-nom"||st.ids[2]!=="${ID}") vus.push("il ne suit pas {python-for-range} puis {python-for-nom} : "+st.ids.join(","));
-    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.2") vus.push("les deux premiers du 6.6 ont bougé");
+    /* {python-for-renommer} (l'exercice 2 du carnet) est passé en 6.6.2, dans l'ordre du carnet */
+    else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="python-for-renommer"||st.ids[2]!=="python-for-nom"||st.ids[3]!=="${ID}") vus.push("il ne suit pas {python-for-range}, {python-for-renommer} puis {python-for-nom} : "+st.ids.join(","));
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3") vus.push("les trois premiers du 6.6 ont bougé");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -27056,14 +27266,14 @@ function pythonForDepartFin(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il est le sixième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-renommer}, et rien d’autre ne bouge', `(function(){
+  /* il fermait le sous-thème ; {python-trois-des} (6.6.7) est venu derrière lui, sans rien renuméroter */
+  verifierEval(w, 'il est le sixième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-erreur}, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
-    /* il fermait le sous-thème ; {python-for-images} (6.6.7) est venu derrière lui, sans rien renuméroter */
-    else if(st.ids[5]!=="${ID}"||st.ids[4]!=="python-for-renommer") vus.push("il n’est pas le sixième du sous-thème, derrière {python-for-renommer} : "+st.ids.join(","));
+    else if(st.ids[5]!=="${ID}"||st.ids[4]!=="python-for-erreur") vus.push("il n’est pas le sixième du sous-thème, derrière {python-for-erreur} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(!RAPPELS.pfd) vus.push("pas de rappel");
     return vus.join(" | ");
@@ -27190,7 +27400,7 @@ function pythonForDepartFin(w, P){
   })()`, v => v === '');
 }
 
-/* {python-for-renommer} (Seconde, 6.6.5, sous-thème « Boucle for in range ») :
+/* {python-for-renommer} (Seconde, 6.6.2 — 6.6.5 à sa création —, sous-thème « Boucle for in range ») :
    l'exercice 2 du carnet sur la boucle — le dessin, la définition de
    for nombre in range ( fin ), puis a) compléter range pour afficher les
    entiers de 0 à 9, b) renommer la variable, c) « Cela change-t-il le
@@ -27213,15 +27423,14 @@ function pythonForRenommer(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il est le cinquième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-erreur}, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-for-range} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', dans l’ordre du carnet', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle/i.test(st.nom)||!/range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
-    /* il fermait le sous-thème ; {python-for-depart-fin} (6.6.6) est venu derrière lui, sans rien renuméroter */
-    else if(st.ids[4]!=="${ID}"||st.ids[3]!=="python-for-erreur") vus.push("il n’est pas le cinquième du sous-thème, derrière {python-for-erreur} : "+st.ids.join(","));
+    else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="${ID}") vus.push("il n’est pas le deuxième du sous-thème, derrière {python-for-range} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.2"||TEST_NUM["python-for-oui-non"]!=="6.6.3"||TEST_NUM["python-for-erreur"]!=="6.6.4") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5") vus.push("les autres exercices du 6.6 ne sont pas à leur place");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
@@ -27986,7 +28195,7 @@ function pythonInputPrix(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
-/* {python-for-images} (Seconde, 6.6.7, BONUS) : l'exercice 10 du carnet — la
+/* {python-for-images} (Seconde, 6.6.8, BONUS) : l'exercice 10 du carnet — la
    photo de l'élève penché sur son clavier, puis « Soit la fonction f(x) =
    x² − 6x + 3 ; faire un programme qui affiche les images pour x = 0 puis
    0,1 … jusqu'à 1 ». Le contrôle tient la place au menu (il ferme le 6.6,
@@ -28009,14 +28218,14 @@ function pythonForImages(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-depart-fin}, « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-trois-des}, « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-for-depart-fin") vus.push("il ne ferme pas le sous-thème derrière {python-for-depart-fin} : "+st.ids.join(","));
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-trois-des") vus.push("il ne ferme pas le sous-thème derrière {python-trois-des} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.2"||TEST_NUM["python-for-oui-non"]!=="6.6.3"||TEST_NUM["python-for-erreur"]!=="6.6.4"||TEST_NUM["python-for-renommer"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-trois-des"]!=="6.6.7") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+TESTS["${ID}"].name);
@@ -28189,7 +28398,7 @@ function pythonForImages(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
-/* {python-for-nom} (Seconde, 6.6.2 — 6.6.1 à sa création) : l'exercice 5 du carnet — les deux
+/* {python-for-nom} (Seconde, 6.6.3 — 6.6.1 à sa création, puis 6.6.2) : l'exercice 5 du carnet — les deux
    serpents, la bulle « Bonjour » ×4. Afficher 8 fois son nom et prénom avec
    une boucle for. Le contrôle tient la place au menu (il ouvre le sous-thème
    6.6 « Boucle for in range », ajouté en dernier : rien d'autre ne bouge), la
@@ -28211,12 +28420,12 @@ function pythonForNom(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il suit {python-for-range} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-for-range} et {python-for-renommer} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
     /* l'ordre du carnet : la définition ({python-for-range}, exercice 1) devant, puis celui-ci (exercice 5) */
-    else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="${ID}") vus.push("il ne suit pas la définition : "+st.ids.join(","));
+    else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="python-for-renommer"||st.ids[2]!=="${ID}") vus.push("il ne suit pas {python-for-range} puis {python-for-renommer} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -28380,7 +28589,7 @@ function pythonForNom(w, P){
    fausse et vide, le soutien qui explique sans révéler, puis compare à un
    vrai CPython ce que le modèle affiche. Aucun accent grave ni antislash
    littéral dans le code évalué. */
-/* {python-for-erreur} (Seconde, 6.6.4) : l'exercice 3 du carnet — le serpent
+/* {python-for-erreur} (Seconde, 6.6.5 — 6.6.4 à sa création) : l'exercice 3 du carnet — le serpent
    étourdi, un programme faux à EXÉCUTER, puis « Il y a une erreur car … ».
    Le juge est le modèle (action 'verif') : le banc joue son verdict par
    pfeVerdict, sans attendre la promesse. */
@@ -28394,15 +28603,15 @@ function pythonForErreur(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il est le quatrième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', dernier sous-thème du thème, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il est le cinquième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', dernier sous-thème du thème, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
-    /* il fermait le sous-thème ; {python-for-renommer} (6.6.5) est venu derrière lui, sans rien renuméroter */
-    else if(st.ids[3]!=="${ID}") vus.push("il n’est pas le quatrième du sous-thème : "+st.ids.join(","));
+    /* il fermait le sous-thème ; {python-for-renommer} est passé devant lui en 6.6.2 (ordre du carnet) : il est le cinquième */
+    else if(st.ids[4]!=="${ID}") vus.push("il n’est pas le cinquième du sous-thème : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-nom"]!=="6.6.2"||TEST_NUM["python-for-range"]!=="6.6.1") vus.push("{python-for-nom} a bougé : "+TEST_NUM["python-for-nom"]);
+    if(TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-range"]!=="6.6.1") vus.push("{python-for-nom} a bougé : "+TEST_NUM["python-for-nom"]);
     if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -28479,6 +28688,161 @@ function pythonForErreur(w, P){
   const ref = pythonExecuter(cmd, [prog.valeur, prog.valeur.replace('( 9 )', '( 9 ):')]);
   const attendu = Array.from({length:9}, (_, k) => 'valeur= ' + k + '\n').join('');
   verifier(nomPy, ref[0] === 'ERREUR:SyntaxError' && ref[1] === attendu, JSON.stringify(ref));
+}
+
+/* {python-trois-des} (Seconde, 6.6.7, BONUS) : l'exercice 13 du carnet — les
+   résultats de trois dés, puis compter les totaux de 9, puis ceux au-dessus de
+   12. Trois étapes sur le même écran, trois juges qui lisent la console. */
+function pythonTroisDes(w, P){
+  const nom = '{python-trois-des} : les résultats de trois dés';
+  if(!P.pythonTroisDes){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des trois dés'); return; }
+  const ID = P.pythonTroisDes.exercice, NUM = P.pythonTroisDes.numero;
+  const present = evaluer(w, "typeof startPTDS==='function' && typeof ptdsJugeA==='function' && typeof ptdsJugeB==='function' && typeof ptdsJugeC==='function' && typeof checkPTDS==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPTDS / ptdsJugeA / ptdsJugeB / ptdsJugeC / checkPTDS introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+  const B3 = 'for a in range(1,7):\n    for b in range(1,7):\n        for c in range(1,7):\n';
+  const J = JSON.stringify;
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il est le septième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', BONUS dans son titre, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
+    if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
+    /* il fermait le sous-thème ; {python-for-images} (6.6.8) est venu derrière lui, sans rien renuméroter */
+    else if(st.ids[6]!=="${ID}") vus.push("il n’est pas le septième du sous-thème : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+(TESTS["${ID}"]&&TESTS["${ID}"].name));
+    if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. l'écran, tenu aux consignes du sous-thème Input ---- */
+  verifierEval(w, 'l’écran : le dessin d’abord, aucune définition ni coup de pouce, la question a) de la fiche en tête de son cadre, une console VIDE avant « Exécuter », « Vérifier » fermé avant l’exécution, le b) fermé avant le a)', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPTDS();
+    const vus=[], NL=String.fromCharCode(10);
+    const net=function(t){ return t.split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.questions.length!==1||test.maxScore!==3) vus.push("séance de "+test.questions.length+" question(s), barème "+test.maxScore);
+    const ecr=document.getElementById("scr-ptds"), img=ecr.querySelector("#ptdsFig img.ptds-img");
+    if(!img||!/^data:image\\/webp/.test(img.getAttribute("src")||"")) vus.push("pas de dessin de la fiche");
+    const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
+    if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
+    if(ecr.querySelector(".py-avant:not(:empty),.pyp-regle,.pyi-cours,.pii-def,details.pyd-pouce")) vus.push("une définition ou un coup de pouce sur l’écran");
+    const ti=document.querySelector("#ptdsEtapeA .pyn-titre");
+    if(!ti||net(ti.textContent)!=="✏️ a) Faire un programme qui affiche tous les résultats possibles si on lance 3 dés à six faces.") vus.push("l’énoncé du a) : "+JSON.stringify(ti&&net(ti.textContent)));
+    if(!ti||!ti.querySelector("b")||ti.querySelector("b").textContent!=="Faire") vus.push("le verbe du a) n’est pas en gras");
+    if(document.getElementById("ptdsEtapeB")) vus.push("le b) est ouvert avant le a)");
+    const c=document.getElementById("ptdsConsoleA");
+    if(!c||c.textContent!==""||getComputedStyle(c,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide avant l’exécution");
+    const v=document.getElementById("ptdsValidate");
+    if(!v||!v.disabled) vus.push("« Vérifier » est ouvert avant l’exécution");
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.ptds||"";
+    if(!/a\\) Faire un programme/.test(rap.textContent)||!/au-dessus de 12/.test(rap.textContent)) vus.push("le rappel : "+JSON.stringify(rap.textContent));
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPtds(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. les trois juges, sur des copies justes et fausses ---- */
+  const copies = [
+    ['a', B3 + '            print(a, b, c)', true],
+    ['a', B3 + '            print(a, b, c, a+b+c)', true],
+    ['a', B3 + '            print(str(a)+str(b)+str(c))', true],
+    ['a', 'for i in range(1,7):\n  for j in range(1,7):\n    for k in range(1,7):\n      print("(",i,",",j,",",k,")")', true],
+    ['a', 'for a in range(6):\n    for b in range(6):\n        for c in range(6):\n            print(a, b, c)', /0/],
+    ['a', 'for a in range(1,6):\n    for b in range(1,6):\n        for c in range(1,6):\n            print(a, b, c)', /le 6/],
+    ['a', 'for a in range(1,7):\n    for b in range(1,7):\n        print(a, b)', /deux dés/],
+    ['a', B3 + '            print(a+b+c)', /total/],
+    ['a', B3 + '            print(a, b, c)\n            print(a, b, c)', /plusieurs fois/],
+    ['a', 'for a in range(1,7):\n    print(a, a, a)', /il en manque/],
+    ['a', 'for a in range(1,7)\n    print(a)', /erreur/],
+    ['a', '', 'vide'],
+    ['b', 'n = 0\n' + B3 + '            print(a, b, c)\n            if a+b+c == 9:\n                n = n + 1\nprint(n)', true],
+    ['b', 'n = 0\n' + B3 + '            if a+b+c == 9:\n                n += 1\nprint("total 9 :", n, "fois")\nprint("probabilité", n/216)', 'proba'],
+    ['b', 'n = 0\n' + B3 + '            if a+b+c == 9:\n                n += 1\nprint(n, "/ 216")', 'proba'],
+    ['b', B3 + '            print(a, b, c)\nprint(25)', /COMPTER/],
+    ['b', 'n = 0\n' + B3 + '            if a+b+c == 9:\n                n = n + 1\n            print(n)', /chaque tour/],
+    ['b', B3 + '            n = 0\n            if a+b+c == 9:\n                n = n + 1\nprint(n)', /0/],
+    ['b', 'n = 0\n' + B3 + '            n = n + 1\nprint(n)', /TOUS/],
+    ['b', 'n = 0\n' + B3 + '            if a+b+c == 10:\n                n = n + 1\nprint(n)', /trouve 27/],
+    ['b', B3 + '            print(a, b, c)', 'vide'],
+    ['c', 'n = 0\nm = 0\n' + B3 + '            if a+b+c == 9:\n                n = n + 1\n            if a+b+c >= 12:\n                m = m + 1\nprint(n)\nprint(m, m/216)', 'proba'],
+    ['c', 'm = 0\n' + B3 + '            if a+b+c > 12:\n                m = m + 1\nprint("au-dessus de 12 :", m)', true],
+    ['c', 'n = 0\n' + B3 + '            if a+b+c == 9:\n                n = n + 1\nprint(n)', /pas le nombre|n’affiche pas/],
+    ['c', 'print(81)', /COMPTER/],
+  ];
+  verifierEval(w, 'les trois juges : ' + copies.length + ' copies, justes (dés écrits de plusieurs façons, au moins 12 ou au-dessus de 12) et fausses, chacune avec son mot ; la probabilité reconnue sans changer la note', `(function(){
+    const C=${J(copies.map(c => [c[0], c[1], c[2] instanceof RegExp ? {re:c[2].source} : c[2]]))}, vus=[];
+    const dep={a:"", b:ptdsModeleA(), c:ptdsModeleB()};
+    C.forEach(function(c, i){
+      const j=c[0]==="a"?ptdsJugeA(c[1]):(c[0]==="b"?ptdsJugeB(c[1], ${J(B3 + '            print(a, b, c)')}):ptdsJugeC(c[1], dep.c));
+      const att=c[2];
+      if(att===true){ if(!j.ok) vus.push(c[0]+")#"+i+" refusé : "+j.diag); }
+      else if(att==="proba"){ if(!j.ok||!j.proba) vus.push(c[0]+")#"+i+" probabilité non vue : "+JSON.stringify(j)); }
+      else if(att==="vide"){ if(!j.vide) vus.push(c[0]+")#"+i+" pas vu vide"); }
+      else if(j.ok||j.vide||!new RegExp(att.re).test(j.diag)) vus.push(c[0]+")#"+i+" : "+JSON.stringify(j));
+    });
+    const s=ptdsJugeC(${J('m = 0\n' + B3 + '            if a+b+c > 12:\n                m = m + 1\nprint(m)')}, dep.c);
+    if(s.compte!==56||!/strictement/.test(ptdsBravo("c", s))) vus.push("au-dessus de 12 strictement n’est pas nommé");
+    if(ptdsJugeB(${J('n = 0\n' + B3 + '            if a+b+c == 9:\n                n = n + 1\nprint(n)')}, "").proba) vus.push("une probabilité vue là où il n’y en a pas");
+    ["a","b","c"].forEach(function(e){ const j=e==="a"?ptdsJugeA(PTDS_MODELES[e]()):PTDS_JUGES[e](PTDS_MODELES[e](), dep[e]); if(!j.ok) vus.push("le modèle du "+e+") est refusé : "+j.diag); if(e!=="a"&&!j.proba) vus.push("le modèle du "+e+") n’affiche pas la probabilité"); });
+    return vus.slice(0,6).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le trajet a) → b) → c), en entraînement puis en soutien ---- */
+  verifierEval(w, 'le trajet : « Vérifier » s’ouvre après l’exécution, le juste bleu, le b) s’ouvre sur le programme de l’élève, le faux rougit avec la correction verte et le c) s’ouvre sur la correction, une cellule laissée telle qu’elle s’ouvre ne rougit pas, trois cases, une note ; en soutien, le faux se reprend sans rien révéler ; la reprise', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    const vus=[];
+    const ecrire=function(e, src){ const t=document.getElementById("ptds-"+e); t.value=src; t.dispatchEvent(new Event("input",{bubbles:true})); return t; };
+    startPTDS();
+    let t=ecrire("a", ptdsModeleA());
+    checkPTDS(); if(t.classList.contains("ok")||t.classList.contains("bad")) vus.push("a) vérifié sans exécution");
+    ptdsExecuter("a");
+    if((document.getElementById("ptdsConsoleA").textContent.split(String.fromCharCode(10))).length!==216) vus.push("la console du a) ne montre pas 216 lignes");
+    if(document.getElementById("ptdsValidate").disabled) vus.push("« Vérifier » reste fermé après l’exécution");
+    checkPTDS();
+    if(!t.classList.contains("ok")||test.score!==1) vus.push("a) juste non compté");
+    ptdsVers("b"); t=document.getElementById("ptds-b");
+    if(!t||t.value!==ptdsModeleA()) vus.push("le b) ne s’ouvre pas sur le programme de l’élève");
+    ptdsExecuter("b"); checkPTDS();
+    if(t.classList.contains("bad")||test.questions[0].bOk!==null) vus.push("la cellule laissée telle qu’elle s’ouvre rougit");
+    t=ecrire("b", ${J(B3 + '            print(a, b, c)\nprint(24)')}); ptdsExecuter("b"); checkPTDS();
+    if(!t.classList.contains("bad")||!document.querySelector("#ptdsModeleB .sol")) vus.push("b) faux : pas rouge, ou pas de correction verte");
+    ptdsVers("c"); t=document.getElementById("ptds-c");
+    if(!t||t.value!==ptdsModeleB()) vus.push("le c) ne s’ouvre pas sur la correction du b)");
+    if(document.getElementById("ptds-a").classList.contains("ok")!==true) vus.push("le a) a perdu son bleu");
+    t=ecrire("c", ptdsModeleC()); ptdsExecuter("c"); checkPTDS();
+    if(!t.classList.contains("ok")||test.score!==2||!test.locked||test.answers.length!==1||test.answers[0].correct!==false) vus.push("fin : score "+test.score+", "+test.answers.length+" réponse(s)");
+    if(!document.getElementById("ptdsNext")) vus.push("pas de bouton pour finir");
+    if(document.querySelectorAll("#scr-ptds .pts-case").length!==3) vus.push("pas trois cases notées");
+    /* la reprise : l'écran se redessine d'après la question */
+    renderPTDS();
+    if(!document.getElementById("ptds-c").classList.contains("ok")||!document.getElementById("ptds-b").classList.contains("bad")||!document.getElementById("ptdsNext")) vus.push("la reprise ne retrouve pas l’écran");
+    currentMode="soutien"; startPTDS();
+    t=ecrire("a", ${J('for a in range(6):\n    for b in range(6):\n        for c in range(6):\n            print(a, b, c)')}); ptdsExecuter("a"); checkPTDS();
+    if(!t.classList.contains("bad")||t.readOnly||document.querySelector("#ptdsModeleA .sol")||test.questions[0].aOk!==null) vus.push("soutien : le faux ne se reprend pas, ou la correction est révélée");
+    t=ecrire("a", ptdsModeleA());
+    if(t.classList.contains("bad")) vus.push("soutien : retaper n’efface pas le rouge");
+    ptdsExecuter("a"); checkPTDS();
+    if(!t.classList.contains("ok")||test.score!==1) vus.push("soutien : la copie corrigée n’est pas comptée");
+    currentMode="train";
+    return vus.slice(0,6).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. la seconde méthode : CPython affiche la même chose ---- */
+  const nomPy = 'les programmes de la correction de {python-trois-des} affichent dans la page ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : les programmes n\'ont été comparés à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const m = evaluer(w, '[ptdsModeleA(), ptdsModeleB(), ptdsModeleC()].map(function(p){ return {p:p, out:pyRun(p).out}; })');
+  if(!m.ok){ verifier(nomPy, false, m.erreur); return; }
+  const ref = pythonExecuter(cmd, m.valeur.map(x => x.p));
+  const ecarts = m.valeur.map((x, i) => x.out === ref[i] ? '' : 'programme ' + i + ' : ' + J(x.out.slice(-120)) + ' ≠ ' + J(String(ref[i]).slice(-120))).filter(Boolean);
+  verifier(nomPy, ecarts.length === 0 && /: 81\n/.test(ref[2]) && /: 25\n/.test(ref[1]), ecarts.join(' | ') || J(ref[2].slice(-200)));
 }
 
 function pythonInputDuree(w, P){

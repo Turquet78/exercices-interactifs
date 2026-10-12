@@ -5153,12 +5153,96 @@ bornes tirées par `distinctes()` parmi huit autres (`PFD_BORNES`) ;
 portes, la case juste bleue à côté d'une fausse, les trous vides jamais
 rougis, le soutien, la reprise.
 
+**Puis l'ordre du carnet** (APP_VERSION 439 — 436 à 438 pris sur `main` pendant les bancs —, demande de Turquet, octobre
+2026 : « mets-le dans l'ordre du carnet, en 6.6.2 »). {python-for-renommer},
+l'exercice 2 du carnet, passe de 6.6.5 à 6.6.2, juste derrière
+{python-for-range} (l'exercice 1). Les trois suivants reculent d'un rang :
+{python-for-nom} 6.6.3, {python-for-oui-non} 6.6.4, {python-for-erreur} 6.6.5.
+Les notes portent l'identifiant et ne bougent pas. Les quatre contrôles de place
+(un par exercice déplacé, et celui-ci) épinglent le nouvel ordre, et
+`tests/profils.js` porte les nouveaux numéros.
+Pendant ces bancs, {python-for-depart-fin} (l'exercice 6 du carnet) a été
+fusionné en 6.6.6. Il ferme le sous-thème, derrière {python-for-erreur} : son
+contrôle exigeait qu'il suive {python-for-renommer}, alors en 6.6.5 ; il exige
+désormais de suivre {python-for-erreur}, et {python-for-renommer} en 6.6.2.
+
 ---
 
-## {python-for-images} — les images de f de dixième en dixième (6.6.7, Boucle for in range, BONUS)
+## {python-trois-des} — les résultats de trois dés (6.6.7, Boucle for in range, BONUS)
+
+**L'exercice 13 du carnet.** {python-trois-des} (Seconde, 6.6.7, APP_VERSION
+445 — 437 à 444 pris ou réservés par les sessions voisines du même jour —, demande de Turquet, octobre 2026 : « en seconde dans le sous thème
+"boucle for in range", créer un exercice qui suit les images jointes ;
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre ») : la jeune femme à
+lunettes devant son ordinateur, puis a) « **Faire** un programme qui affiche
+tous les résultats possibles si on lance 3 dés à six faces », b)
+« **Compléter** le programme pour qu'il compte le nombre de fois où le total
+des points vaut 9 » (« S'il affiche la probabilité d'avoir 9 points c'est
+encore mieux ! »), c) la même chose pour « au-dessus de 12 » (« … la
+probabilité d'avoir au moins 12 points … »). Il ferme le 6.6, derrière
+{python-for-depart-fin}, fusionné en 6.6.6 pendant ses bancs : rien n'est
+renuméroté. « Bonus » est dans le titre
+(`TESTS.name`, « Bonus : les résultats de trois dés ») et en tête de la
+description, comme au 6.5. Coquilles corrigées, rien d'ajouté : « dés »,
+« où », « au-dessus ».
+
+**La présentation est celle du 6.6.5** : le dessin seul EN PREMIER
+(`#ptdsFig`, découpé dans la capture, détouré depuis les bords, WebP de 8 Ko,
+`PTDS_IMG`), puis les trois étapes sur le même écran, chacune dans son cadre
+`.pyn-etape` ouvert par SA question (le verbe en gras, comme la fiche), les
+deux « encore mieux » en puces dessous ; une étape gardée quand la suivante
+s'ouvre (« Passer au b) »). La fiche n'a ni définition ni coup de pouce :
+l'écran n'en ajoute pas (exception déclarée, `pythonAvant.sans`), et le rappel
+(`RAP_PTDS`) ne redit que les trois consignes. Les consoles vides restent des
+cadres vides (`#ptdsConsoleA/B/C` rejoignent `content:none`) ; pleines, elles
+défilent dans leur cadre (216 lignes).
+
+**L'exécution est celle de `pyRun`**, qui connaît les blocs (trois `for`
+imbriqués, `if`) : 216 tours. Chaque étape a sa cellule (Tab = 4 espaces,
+Entrée après « : » décale, le retrait du carnet Jupyter), son « Exécuter » et
+sa console ; « Vérifier » ne s'ouvre que sur le programme exécuté tel qu'il
+est écrit. Le b) s'ouvre sur le programme du a) — celui de l'élève s'il était
+juste, la correction sinon —, le c) sur celui du b) : « Compléter le
+programme ». Une cellule laissée telle qu'elle s'ouvre est une copie vide,
+redemandée sans rougir.
+
+**Les juges lisent la console.** a) une ligne qui porte trois dés (séparés,
+entre parenthèses, collés « 126 », ou suivis de leur total) est un résultat :
+il en faut 216, différents, de 1 à 6. Nommés : un 0 (`range(6)`), un 7, le 6
+manquant (`range(1,6)`), deux dés, le total seul, des doublons, des résultats
+manquants. Trois chiffres collés ne sont des dés que dans une LISTE (vingt
+lignes au moins) : le banc l'a montré, un compteur seul qui affiche « 216 »
+se lisait comme le résultat 2, 1, 6. b) un nombre affiché HORS des lignes de dés vaut 25. c) 81 (au
+moins 12) ou 56 (strictement au-dessus de 12) : **la fiche dit les deux** —
+« au-dessus de 12 » dans la question, « au moins 12 » dans la probabilité —,
+les deux sont justes, et le message dit lequel a été compté (la correction
+verte prend « au moins 12 », celui de la probabilité). Nommés : le nombre
+attendu écrit dans le programme (il faut le COMPTER), le compteur affiché à
+chaque tour, le compteur à 0 (remis à zéro dans la boucle), le compteur qui
+compte tout (pas de if), un autre total. **La probabilité est « encore
+mieux »** : elle ne change pas la note ; reconnue en décimal, en pourcentage
+ou en fraction (`25 / 216`), le message le dit, ou propose de l'ajouter.
+
+**La séance** : une seule question, la fiche — rien à tirer (le motif du
+6.6.4), trois cases (une par étape). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. En soutien, le faux se
+reprend sans rien révéler. Banc jsdom (`pythonTroisDes`) : la place et le
+titre, l'écran (dessin d'abord, aucune définition, console vide, b) fermé),
+25 copies jugées chacune avec son mot, le trajet a) → b) → c) et la reprise,
+le soutien, et les trois programmes de la correction comparés à un vrai
+CPython. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-for-images} — les images de f de dixième en dixième (6.6.8, Boucle for in range, BONUS)
 
 **L'exercice 10 du carnet sur la boucle.** {python-for-images} (Seconde,
-6.6.7, APP_VERSION 439 — la 437 prise sur `main` par le 6.6.6, la 438 par une autre branche —, demande de Turquet, octobre 2026 : « en seconde dans
+6.6.8, APP_VERSION 446 — de 437 à 445, toutes prises sur `main` pendant ses bancs —, demande de Turquet, octobre 2026 : « en seconde dans
 le sous-thème "boucle for in range", créer un exercice qui suit les images
 jointes ; respecter les consignes de présentation des autres exercices d'algo
 du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
@@ -5170,12 +5254,13 @@ Faire un programme qui affiche les images pour x = 0 puis 0,1 puis 0,2 … de
 dixième en dixième jusqu'à 1, de la façon suivante : L'image de 0 par f est
 … », et deux coups de pouce. Écrit en 6.6.6, il a croisé à la fusion de `main`
 {python-for-depart-fin}, mis en ligne pendant ses bancs sous le même numéro :
-l'exercice en ligne garde sa place, celui-ci ferme le sous-thème en 6.6.7, et
-le contrôle de {python-for-depart-fin}, qui exigeait de FERMER le 6.6, exige
-désormais d'en être le sixième. Rien n'est renuméroté.
+l'exercice en ligne garde sa place, puis, à la fusion suivante, {python-trois-des}
+(6.6.7, autre BONUS) : celui-ci ferme le sous-thème en 6.6.8, et les
+contrôles des deux exercices en ligne, qui exigeaient chacun de FERMER le 6.6,
+exigent désormais leur rang (sixième, septième). Rien n'est renuméroté.
 
-**« Bonus » est dans le TITRE** (`TESTS[…].name` commence par « Bonus : ») :
-c'est le premier exercice dont le nom le porte — ceux du 6.4 et du 6.5 ne le
+**« Bonus » est dans le TITRE** (`TESTS[…].name` commence par « Bonus : »),
+comme {python-trois-des} juste devant lui — ceux du 6.4 et du 6.5 ne le
 disaient que dans leur description, et le sous-thème dans son nom. Le
 contrôle l'exige.
 
