@@ -5108,7 +5108,7 @@ deux modes.
 ## {python-for-depart-fin} — for … in range ( départ , fin ) (6.6.6, Boucle for in range)
 
 **L'exercice 6 du carnet sur la boucle.** {python-for-depart-fin} (Seconde,
-6.6.6, APP_VERSION 436, demande de Turquet, octobre 2026 : « en seconde dans
+6.6.6, APP_VERSION 437 — la 436 prise sur `main` par le 6.6.1 pendant les bancs —, demande de Turquet, octobre 2026 : « en seconde dans
 le sous thème "boucle for in range", créer un exercice qui suit les images
 jointes ; respecter les consignes de présentation des autres exercices d'algo
 du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
