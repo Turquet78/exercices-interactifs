@@ -1333,8 +1333,9 @@ module.exports = {
     pythonInputDureeSecondes: { exercice: 'python-input-duree-secondes', nb: 3, numero: '6.5.3' },
     /* {python-for-erreur} (6.6.4, dernier du sous-thème, sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 3 du carnet — exécuter un
-       programme faux, puis expliquer l'erreur (juge : le modèle). Une seule
-       question, la fiche : rien à tirer. */
+       programme faux, puis expliquer l'erreur (juge : le modèle). Trois
+       questions fixes, une faute chacune (deux-points, décalage, i au lieu
+       de k) : rien à tirer. */
     pythonForErreur: { exercice: 'python-for-erreur', numero: '6.6.5' },
     /* {python-for-table} (6.6.11, dernier du sous-thème « Boucle for in range »,
        demande de Turquet, octobre 2026) : l'exercice 8 du carnet — a) la
