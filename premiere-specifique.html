@@ -15202,7 +15202,7 @@ function pbInter(y,x){
 }
 function pbEff(q,c){ return pbValeurs(q.n)[PB_CASE[c]]; }
 function pbNomHTML(y,x){
-  return '<span class="pb-nom"><i class="pb-P">P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+')</span>';
+  return '<span class="pb-nom"><i class="pb-P">P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+' )</span>';
 }
 /* Les cases d'une question, et ce qu'on attend dans chacune. */
 function pbAttendus(q){
@@ -15286,7 +15286,7 @@ function pbAffMaj(){
 function pbNomVifMaj(){
   const el=$('pbNomVif'); if(!el) return;
   const y=pbLu('pb-s1'), x=pbLu('pb-s2'), vide='<span class="pb-rien">…</span>';
-  el.innerHTML='<i class="pb-P">P</i>'+(x==='T' ? '' : '<sub>'+(x ? pbHTML(x) : vide)+'</sub>')+'('+(y ? pbHTML(y) : vide)+')';
+  el.innerHTML='<i class="pb-P">P</i>'+(x==='T' ? '' : '<sub>'+(x ? pbHTML(x) : vide)+'</sub>')+'('+(y ? pbHTML(y) : vide)+' )';
 }
 function pbMf(id, lab){ return '<span class="pb-case"><math-field class="dexp-mf pm-mf" id="'+id+'" aria-label="'+esc(lab)+'"></math-field></span>'; }
 /* Le tableau. « saisie » : les cases inconnues deviennent des cases à
@@ -15390,7 +15390,7 @@ function renderPBTest(){
     const parmi='<span class="pb-parmi">parmi</span>';
     const nom = q.t==='p' ? '<span class="pb-nom" id="pbNomVif"></span>'
       : '<span class="pb-nom"><i class="pb-P">P</i><span class="pb-ind">'+pbSel(q,'pb-px',optsInd,'indice de P : la condition, ou rien','pb-lettres')+'</span>'
-      +'<span class="pb-par">(</span>'+s('pb-py','entre parenthèses : l’évènement dont on veut la probabilité')+'<span class="pb-par">)</span></span>';
+      +'<span class="pb-par">(</span>'+s('pb-py','entre parenthèses : l’évènement dont on veut la probabilité')+' <span class="pb-par">)</span></span>';
     $('pbHost').innerHTML=
       '<div class="pt-step">'+pbTableHTML(q,false)+'</div>'
      +'<div class="pt-step pb-enonce-ici" id="pbEnonceIci"></div>'
@@ -15431,7 +15431,7 @@ function pbPourquoi(q){
   }
   const C=PB_CTX[q.ci]||PB_CTX[0], y=pbItem(q)[0], x=pbItem(q)[1], s6=pbInter(y,x);
   /* {lire-probabilites} : d'abord la TRADUCTION de la phrase */
-  const nomTxt='<i>P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+')';
+  const nomTxt='<i>P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+' )';
   const trad = (q.t!=='lp' && q.t!=='p') ? ''
     : x==='T' ? 'Aucune condition dans la phrase (« dans '+pbNom(C)+' ») : P n’a pas d’indice, on écrit '+nomTxt+'. '
               : '« Parmi », « sachant que », « on choisit … qui … » : c’est la CONDITION, elle s’écrit en bas de P — '+nomTxt+'. ';
@@ -15581,7 +15581,7 @@ function renderPBFiche(){
       +'</div>';
     const nom = q.t==='nom' ? pbNomHTML(pbItem(q)[0], pbItem(q)[1])
       : '<span class="pb-nom"><i class="pb-P">P</i><span class="pb-ind">'+pbSel(q,'pb-px-'+i,optsInd,'question '+(i+1)+' : indice de P, la condition ou tout','pb-lettres')+'</span>'
-      +'<span class="pb-par">(</span>'+s('pb-py','question '+(i+1)+' : l’évènement dont on veut la probabilité')+'<span class="pb-par">)</span></span>';
+      +'<span class="pb-par">(</span>'+s('pb-py','question '+(i+1)+' : l’évènement dont on veut la probabilité')+' <span class="pb-par">)</span></span>';
     return '<div class="pbf-sol">'+nom
       +fEq('<span class="f-frac-input"><span class="pb-l">'+s('pb-s6','question '+(i+1)+' : numérateur en lettres')+'</span>'
            +'<span class="f-fbar"></span><span class="pb-l">'+s('pb-s7','question '+(i+1)+' : dénominateur en lettres')+'</span></span>')
