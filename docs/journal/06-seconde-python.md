@@ -5478,6 +5478,81 @@ navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
 
 ---
 
+## {python-tables-multiplication} — afficher les tables de 2 à 9 (6.6.12, Boucle for in range, BONUS)
+
+**L'exercice 12 du carnet.** {python-tables-multiplication} (Seconde, 6.6.12,
+APP_VERSION 455 — 6.6.6 à 6.6.11 et les versions 437 à 449 pris sur `main`
+pendant les bancs, par {python-for-depart-fin}, {python-for-multiples},
+{python-trois-des}, {python-for-moyenne-notes}, {python-for-images},
+{python-for-table} et la Première —, demande de Turquet, octobre 2026 : « en seconde dans le sous
+thème "boucle for in range", créer un exercice qui suit les images jointes ;
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre ») : le bandeau
+« JUST CODE IT. », puis « **Faire** un programme qui affiche toutes les tables
+de **la table de 2 jusqu'à la table de 9** », et UN coup de pouce — « On
+pourra utiliser une double boucle », `for l in range ( 2 , 10 ):`, puis,
+décalés, `for k in range ( 1 , 10 ):` et `print (...`, au caractère près.
+Il vient derrière {python-for-table} (6.6.11) : rien n'est renuméroté. Le
+contrôle de {python-for-table} exigeait de FERMER le sous-thème : il exige
+désormais de suivre {python-for-images}. Six fusions de `main` en une
+journée : à chaque fois, une session voisine avait mis en ligne le numéro et
+la version d'ici. Les dernières ont été REFAITES à partir des fichiers de
+`main` (l'écran et le moteur, copiés du même {python-for-nom} que ceux des
+voisins, s'entremêlaient ligne à ligne dans la fusion automatique) ; la
+version a sauté à 455 pour ne plus heurter celles que les sessions voisines
+prennent une à une ; et le contrôle d'ici n'exige plus de FERMER le 6.6,
+seulement de suivre {python-for-table} : le sous-thème grandit chaque jour. Pendant les
+bancs, {python-for-renommer} est passé en 6.6.2 (l'ordre du carnet) : le
+contrôle d'ici épingle ce nouvel ordre. « Bonus » est dans le NOM (`TESTS`), le
+titre que montrent le menu et le bilan — le sous-thème « Bonus » (6.4) n'a pas
+été choisi : la demande nomme le 6.6.
+
+**Le moteur est celui du 6.6.2** ({python-for-nom}) : le dessin seul dans
+`#pmtInstr` (découpé dans la capture — le fond noir est le sien, rien à
+détourer —, WebP de 10 Ko, `PMT_IMG`) ; la question dans un cadre
+`.pyn-etape`, en gras, qui enveloppe le coup de pouce replié, la cellule,
+« Exécuter » et la console ; aucune définition (exception déclarée,
+`pythonAvant.sans`) ; la cellule sans texte d'attente et la console vide
+(`#pmtConsole` rejoint la règle `content:none`). Le rappel (`RAP_PMT`) ne dit
+que le coup de pouce. « jusqu'a » est corrigé en « jusqu'à » (les coquilles
+se corrigent, rien ne s'ajoute). Pas de bouton des tables : il donnerait la
+console attendue (`TABLES_SANS`).
+
+**L'interpréteur sait déjà les for imbriqués** : `ptrDerouler` (6.4.5) déroule
+le for du dehors, et celui du dedans devient à son tour le premier for de
+tête — 8 + 72 = 80 tours, loin de `PTR_MAX_TOURS`.
+
+**Le juge (`pmtDiag`) lit ce que la console affiche**, ligne par ligne : un
+calcul (trois nombres, le produit en dernier — « 2 x 3 = 6 », « 2 * 3 = 6 »,
+« 3 x 2 = 6 » passent), un produit seul, ou la table entière sur une ligne
+(ses neuf produits) ; une ligne sans calcul (« Table de 2 ») est un titre, et
+passe. Les tables de 2 à 9, dans l'ordre, chacune de 1 à 9 — **ou de 1 à 10**,
+la table apprise à l'école : ce n'est pas une faute, c'est un arbitrage nommé.
+Nommés, en essayant chaque borne de range décalée d'un cran : la table de 1 ou
+de 3 en tête, celle de 8 ou de 10 en dernier, le multiplicateur 0, l'arrêt à
+« x 8 », les deux boucles échangées (les calculs rangés par multiplicateur) ;
+puis le résultat faux (l'addition l + k est nommée), le calcul sans résultat,
+rien d'affiché, un input, les erreurs de boucle du 6.4.5, et les 72 print à
+la main (il faut une boucle for). Sinon, la première ligne qui s'écarte est
+citée à côté de celle qu'on attendait.
+
+**La séance est la fiche, et elle seule** : une question, rien à tirer — ni
+`distinctes()` ni `dmNbQuestions()`, comme {python-for-erreur}. Le programme
+voyage dans `q.prog` et compte pour une case (`pts-case`). Pas de correction
+au fil de la frappe (`soutienEnDirect.sans`). Banc jsdom
+(`pythonForTables`, déclaré dans `tests/profils.js`) : la place et « Bonus »
+dans le nom, le juge sur sept copies justes et quinze fausses (chacune avec le
+mot qui la nomme), l'écran tenu aux consignes (dessin seul, énoncé et coup de
+pouce au caractère près, cellule et console vides), la copie juste, fausse,
+vide, le soutien qui explique sans révéler, et le modèle comparé à un vrai
+CPython. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
+
+---
+
 ## {python-if-cinema} — le prix d'une place de cinéma (6.7.1, Condition if else, BONUS)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
@@ -5494,9 +5569,9 @@ résultat dans la variable entière age ; si l'age est plus petit que 18 alors
 il affiche "Tu dois payer 6 €. " et sinon il affiche "Tu dois payer 9€." ».
 
 **Le sous-thème 6.7 « Condition if else » n'existait pas : il est né avec
-cet exercice**, ajouté EN DERNIER au thème 6 — rien n'est renuméroté. Sept
-contrôles d'exercices du 6.6 (dont celui de {python-for-table}, arrivé par
-une fusion de `main`) exigeaient que le 6.6 soit le DERNIER
+cet exercice**, ajouté EN DERNIER au thème 6 — rien n'est renuméroté. Huit
+contrôles d'exercices du 6.6 (dont ceux de {python-for-table} et de
+{python-tables-multiplication}, arrivés par des fusions de `main`) exigeaient que le 6.6 soit le DERNIER
 sous-thème du thème : ils exigent désormais qu'il reste le SIXIÈME, ce qui
 était leur intention (rien ne doit bouger devant), et le contrôle du 6.7.1
 reprend l'exigence « dernier » pour lui.
