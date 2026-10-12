@@ -108,7 +108,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-for-nom':'pfn', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
+               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-for-nom':'pfn', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -899,7 +899,7 @@ module.exports = {
        fini, et le juger à chaque changement de lettre serait absurde. */
     /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
        avec leurs exercices — voir le profil de la Première. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pgc', 'prc', 'pkg', 'pfn', 'phm', 'pvo', 'pdu', 'pbl', 'pmn', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pgc', 'prc', 'pkg', 'pfn', 'phm', 'pvo', 'pdu', 'pbl', 'pmn', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1105,7 +1105,7 @@ module.exports = {
        du code proposé au choix de l'élève — pas l'inconnue d'une équation. */
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
-                  sans: ['definitions-ensembles', 'intervalles', 'intervalles-inegalite',
+                  sans: ['python-for-range', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
@@ -1280,12 +1280,12 @@ module.exports = {
        que le programme AFFICHE. « nb » est la seconde source du compte
        (la page a PKG_NB). */
     pythonInputPrix: { exercice: 'python-input-prix', nb: 3, numero: '6.3.9' },
-    /* {python-for-nom} (6.6.1, sous-thème « Boucle for in range », demande
+    /* {python-for-nom} (6.6.2 — 6.6.1 à sa création, avant que {python-for-range}, la fiche de la définition, ne passe devant ; sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 5 du carnet — afficher 8 fois
        son nom et son prénom avec une boucle for. Le juge lit ce que le
        programme AFFICHE. « nb » est la seconde source du compte (la page a
        PFN_NB). */
-    pythonForNom: { exercice: 'python-for-nom', nb: 3, numero: '6.6.1' },
+    pythonForNom: { exercice: 'python-for-nom', nb: 3, numero: '6.6.2' },
     /* {python-input-duree} (6.5.1, sous-thème « Bonus : input », demande de
        Turquet, octobre 2026) : l'exercice 11 du carnet — demander une durée
        en minutes et l'afficher en heures et minutes (// et %). La fiche ne
@@ -1734,6 +1734,13 @@ module.exports = {
        réponses du b) et du c). */
     pythonChaineLen: { exercice: 'python-chaine-len', nb: 3, numero: '6.4.1',
       fiche: { chaine: 'abcdefghijklmnopq', sortie: '17\na\nb\nq', b: 'nombre', c: ['c1', 'c2', 'dernier'] } },
+    /* {python-for-range} (6.6.1, sous-thème « Boucle for in range », demande
+       de Turquet, octobre 2026) : la SECONDE source de la séance (la page a
+       PFR_NB) et de la fiche — la définition mot pour mot, ce que la console
+       affiche, et les deux bornes. */
+    pythonForRange: { exercice: 'python-for-range', nb: 3, numero: '6.6.1',
+      fiche: { definition: '⚠ Définition d’une boucle for … in range (…) for nombre in range ( 5 ): se traduit par Pour nombre allant jusqu’à ( 5 ).',
+               sortie: 'valeur= 0\nvaleur= 1\nvaleur= 2\nvaleur= 3\nvaleur= 4', de: '0', a: '4' } },
     pythonPhrasesMemoire: { exercice: 'python-phrases-memoire', nb: 3,
       fiche: { prog: ['a = 10', 'b = 2', 'c = b'], memoire: [['a', '10'], ['b', '2'], ['c', '2']], cases: 4 } },
     echangerParLettres: { exercice: 'python-echange-par-lettres', nb: 3,
@@ -2077,6 +2084,9 @@ module.exports = {
           pose: "test.questions=[{a:2,b:-1}]; test.idx=0; renderECV();", cases: 3 },
         { exercice: 'suite-vocabulaire',    ecran: 'svq', kind: 'svq',
           pose: "test.questions=[{fam:'decconv',L:1,A:3,q:0.8,rep:{}}]; test.idx=0; renderSVQ();", cases: 1 },
+        /* le 5.6.1 (fiche « limite qⁿ ») : la limite, et les deux limites du « car … et … » */
+        { exercice: 'suite-limite-puissance', ecran: 'lqn', kind: 'lqn',
+          pose: "test.questions=[{fam:'prod',q:3,r:0.25,a:1}]; test.idx=0; renderLQN();", cases: 3 },
       ],
       /* et le banc NAVIGATEUR tape « inf » dans la case de cet exercice-là,
          puis clique le bouton ∞ : jsdom pose une chaîne, seul un vrai MathLive
@@ -2214,10 +2224,11 @@ module.exports = {
                         'results','teacher-login','teacher',
                         /* choix du niveau de « Signe du second degré » : un menu, pas un exercice */
                         's2lvl'],
-    /* Le thème des Suites est découpé en cinq parties (septembre 2026, la
-       cinquième — Algorithme — ajoutée le même mois) : le banc navigateur
-       clique les deux étages comme le ferait un élève. */
-    menu: { theme: 5, parties: 5, exercice: 'suite-explicite' },
+    /* Le thème des Suites est découpé en six parties (septembre 2026, la
+       cinquième — Algorithme — ajoutée le même mois ; la sixième — Limite de
+       qⁿ — en octobre 2026) : le banc navigateur clique les deux étages comme
+       le ferait un élève. */
+    menu: { theme: 5, parties: 6, exercice: 'suite-explicite' },
     niveau: 'Terminale',
     /* .tvi-instr n'est PAS un énoncé : c'est la consigne de travail qui suit
        (« Rédige la justification : »). L'application elle-même les distingue,
