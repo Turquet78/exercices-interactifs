@@ -1757,8 +1757,11 @@ module.exports = {
     /* {python-for-range} (6.6.1, sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : la SECONDE source de la séance (la page a
        PFR_NB) et de la fiche — la définition mot pour mot, ce que la console
-       affiche, et les deux bornes. */
-    pythonForRange: { exercice: 'python-for-range', nb: 3, numero: '6.6.1',
+       affiche, et les deux bornes. Puis la séance est passée à QUATRE
+       questions : les deux premières dans l'ordre de la fiche, les deux
+       dernières inversées (compléter les cases AVANT d'exécuter) —
+       `inversees`. */
+    pythonForRange: { exercice: 'python-for-range', nb: 4, inversees: [false, false, true, true], numero: '6.6.1',
       fiche: { definition: '⚠ Définition d’une boucle for … in range (…) for nombre in range ( 5 ): se traduit par Pour nombre allant jusqu’à ( 5 ).',
                sortie: 'valeur= 0\nvaleur= 1\nvaleur= 2\nvaleur= 3\nvaleur= 4', de: '0', a: '4' } },
     pythonPhrasesMemoire: { exercice: 'python-phrases-memoire', nb: 3,
