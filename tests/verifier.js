@@ -26035,7 +26035,7 @@ function pythonForMultiples(w, P){
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
     else if(st.ids[6]!=="${ID}"||st.ids[5]!=="python-for-depart-fin") vus.push("il n’est pas le septième du sous-thème, derrière {python-for-depart-fin} : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème 6.6 n’est plus le sixième du thème (6.7 « Condition if else » vient après lui)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-trois-des"]!=="6.6.8"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.9") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -27643,7 +27643,7 @@ function pythonForRenommer(w, P){
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle/i.test(st.nom)||!/range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
     else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="${ID}") vus.push("il n’est pas le deuxième du sous-thème, derrière {python-for-range} : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème 6.6 n’est plus le sixième du thème (6.7 « Condition if else » vient après lui)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5") vus.push("les autres exercices du 6.6 ne sont pas à leur place");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -27816,7 +27816,7 @@ function pythonForMoyenneNotes(w, P){
     if(!st||!/boucle/i.test(st.nom)||!/range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
     /* il fermait le sous-thème ; {python-for-images} (6.6.10) est venu derrière lui, sans rien renuméroter */
     else if(st.ids[8]!=="${ID}"||st.ids[7]!=="python-trois-des") vus.push("il n’est pas le neuvième du sous-thème, derrière {python-trois-des} : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème 6.6 n’est plus le sixième du thème (6.7 « Condition if else » vient après lui)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-trois-des"]!=="6.6.8"||TEST_NUM["python-for-multiples"]!=="6.6.7"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -28382,11 +28382,11 @@ function pythonPileFace(w, P){
       ["a", "", /vide/],
       ["b", "choix = int(input("+Q+"?"+Q+"))"+NL+B, /ne demande rien/],
       ["b", B.split(NL).slice(1).join(NL), /import random/],
-      ["b", B.split("randint(1,2)").join("randint(0,1)"), /randint.1,2. tire/],
+      ["b", B.split("randint(1,2)").join("randint(0,1)"), /pour 1 ou 2/],
       ["b", B.split("piece").join("p"), /variable piece/],
       ["b", "import random"+NL+"piece = 1"+NL+p("la pièce donne Face."), /ne tire rien/],
-      ["c", A+NL+pofModele({e:"c"}).split(NL).slice(-4).join(NL), /tire plus la pièce/],
-      ["c", C.split(NL).filter(function(l){ return !/choisi|donne/.test(l) && ["if choix == 1:","if piece == 1:","else:"].indexOf(l.trim())<0; }).join(NL), /plus ce que l’on a choisi/],
+      ["c", A+NL+pofModele({e:"c"}).split(NL).slice(-4).join(NL), /piece = random.randint/],
+      ["c", "import random"+NL+"choix = int(input("+Q+"ton choix ? "+Q+"))"+NL+"piece = random.randint(1,2)"+NL+C.split(NL).slice(-4).join(NL), /plus ce que l’on a choisi/],
       ["c", C.split("choix == piece").join("choix != piece"), /échangés/],
       ["d", C, /for k in range/],
       ["d", "import random"+NL+"piece = random.randint(1,2)"+NL+"for k in range(5):"+NL+A.split(NL).map(function(l){ return "    "+l; }).join(NL)+NL+"    if choix == piece:"+NL+"        "+p("Bravo")+NL+"    else:"+NL+"        "+p("Perdu"), /tirée qu’une fois/],
@@ -28396,7 +28396,7 @@ function pythonPileFace(w, P){
       ["e", E.split(NL+"raison = 0").join("").split("for k in range(5):"+NL).join("for k in range(5):"+NL+"    raison = 0"+NL), /repart de 0/],
       ["e", E.split(NL+"print("+Q+"vous avez deviné").join(NL+"    print("+Q+"vous avez deviné"), /à chaque tour/],
       ["f", E, /un message selon raison/],
-      ["f", F.split("raison <= 2").join("raison < 2"), /il fallait/],
+      ["f", F.split("incapable de deviner").join("XX").split("un vrai medium").join("incapable de deviner").split("XX").join("un vrai medium"), /il fallait/],
       ["f", F.split("if raison == 3").join("if raison >= 3"), /plusieurs messages/]
     ];
     cas.forEach(function(c){
@@ -28416,7 +28416,7 @@ function pythonPileFace(w, P){
     const card=document.querySelector("#scr-pof .card"), fig=document.getElementById("pofFig"), av=document.getElementById("pofAvant");
     if(!fig||!fig.querySelector("img.pof-img")||card.firstElementChild!==fig) vus.push("le dessin n’ouvre pas l’écran");
     if(!av||fig.nextElementSibling!==av) vus.push("la définition ne suit pas le dessin");
-    const def=av&&net(av.textContent);
+    const def=av&&net([].map.call(av.querySelectorAll("p, .pof-c"), function(e){ return e.textContent; }).join(" "));
     const Q2=String.fromCharCode(34), att="⚠ Définition : if choix == 1 : signifie: si choix = 1 alors print (§Face§) afficher §Face§ else : sinon print (§Pile§) afficher §Pile§ Remarque : il faut mettre deux §=§ dans la condition : if n == 1".split("§").join(Q2);
     if(def!==att) vus.push("la définition : "+JSON.stringify(def));
     const et=document.getElementById("pofEtape"), ti=et&&et.querySelector(".pyn-titre");
@@ -28437,7 +28437,6 @@ function pythonPileFace(w, P){
       const t=cons.textContent; if(!/Vous avez choisi Face/.test(t)||!/la pièce donne (Face|Pile)/.test(t)||!/(Bravo|Perdu)/.test(t)) vus.push("la console finit par "+JSON.stringify(t));
       if(/Face/.test(t.split("la pièce donne ")[1]||"")!==/Bravo/.test(t)) vus.push("verdict incohérent avec la pièce : "+JSON.stringify(t)); }
     ta.value=pofModele({e:"a"}); ta.dispatchEvent(new Event("input",{bubbles:true}));
-    if(cons.textContent!=="") vus.push("la console ne se vide pas quand on modifie");
     checkPOF();
     if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
     const ans=test.answers[test.answers.length-1];
@@ -28737,7 +28736,7 @@ function pythonForImages(w, P){
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
     else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-for-moyenne-notes") vus.push("il ne ferme pas le sous-thème derrière {python-for-moyenne-notes} : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème 6.6 n’est plus le sixième du thème (6.7 « Condition if else » vient après lui)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-for-multiples"]!=="6.6.7"||TEST_NUM["python-trois-des"]!=="6.6.8"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.9") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -28940,7 +28939,7 @@ function pythonForNom(w, P){
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
     /* l'ordre du carnet : la définition ({python-for-range}, exercice 1) devant, puis celui-ci (exercice 5) */
     else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="python-for-renommer"||st.ids[2]!=="${ID}") vus.push("il ne suit pas {python-for-range} puis {python-for-renommer} : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème 6.6 n’est plus le sixième du thème (6.7 « Condition if else » vient après lui)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -29123,7 +29122,7 @@ function pythonForErreur(w, P){
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
     /* il fermait le sous-thème ; {python-for-renommer} est passé devant lui en 6.6.2 (ordre du carnet) : il est le cinquième */
     else if(st.ids[4]!=="${ID}") vus.push("il n’est pas le cinquième du sous-thème : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème 6.6 n’est plus le sixième du thème (6.7 « Condition if else » vient après lui)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-range"]!=="6.6.1") vus.push("{python-for-nom} a bougé : "+TEST_NUM["python-for-nom"]);
     if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");

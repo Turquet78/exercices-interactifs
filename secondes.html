@@ -37715,6 +37715,7 @@ function pofDiagBoucle(src, e, non){
     const n=pofGagnes(essais[k]).filter(function(z){ return z==='B'; }).length, env=x[k].r.env;
     if(!env.raison) return non('Il faut une variable raison = 0 au début du programme, avant la boucle.');
     if(env.raison.t!=='int' || env.raison.v!==n){
+      if(/^[ \t]+raison\s*=\s*0\s*$/m.test(src)) return non('raison repart de 0 à chaque tour : raison = 0 doit être AVANT la boucle, au bord gauche, pas dedans.');
       if(env.raison.v===0) return non('raison reste à 0 : sous le if choix == piece, il faut augmenter raison de 1 — raison = raison + 1.');
       if(n>1 && env.raison.v<=1) return non('raison repart de 0 à chaque tour : raison = 0 doit être AVANT la boucle, pas dedans.');
       return non('Avec '+n+' bonne'+(n>1?'s':'')+' réponse'+(n>1?'s':'')+' sur 5, raison vaut '+pyRep(env.raison)+' à la fin : raison = raison + 1 ne doit se faire que quand choix == piece.');
