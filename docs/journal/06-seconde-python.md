@@ -4987,3 +4987,15 @@ l'écran (dessin en premier, aucun encadré ni coup de pouce, énoncé, programm
 au caractère près, console vide, l'erreur affichée à l'exécution), les
 verdicts dans les deux modes, et fait refuser le programme par un vrai
 CPython : SyntaxError d'abord, NameError une fois les deux-points remis.
+
+**Puis le programme n'a plus porté qu'UNE faute** (demande de Turquet,
+octobre 2026, version 434 : « dans le programme de l'énoncé, remplacer la
+variable valeur par la variable k ; on doit avoir `print ("valeur=", k )` »).
+La seconde ligne affiche désormais `k`, la variable de la boucle : `nombre`,
+jamais défini, a disparu, et avec lui la seconde faute. Le juge du modèle
+n'attend plus que les deux-points (une explication qui accuse `k` est
+refusée), la correction verte ne nomme plus qu'eux, et le contexte de l'aide
+ne parle plus de variable sans valeur. Le contrôle suit : le programme au
+caractère près, une correction qui ne nomme plus `nombre`, et CPython refuse
+le programme (SyntaxError) puis, les deux-points remis, l'exécute et affiche
+`valeur= 0` à `valeur= 8`.
