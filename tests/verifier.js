@@ -25381,7 +25381,7 @@ function pythonChaineLen(w, P){
     /* 6.4 n'est plus le dernier depuis « Bonus : input » (6.5) : il est le quatrième */
     const st=th&&th.sous&&th.sous[3];
     if(!st||st.num!==4||st.nom!=="Bonus") vus.push("le quatrième sous-thème n’est pas 6.4 Bonus : "+(st&&st.nom));
-    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-samoussa")+1||st.ids[0]!=="python-samoussa") vus.push("il ne suit pas {python-samoussa} : "+st.ids.join(","));
+    else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -25556,7 +25556,7 @@ function pythonForRange(w, P){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous[5];
     if(!st||st.num!==6||!/boucle for in range/i.test(st.nom)) vus.push("le sixième sous-thème n’est pas 6.6 Boucle for in range : "+(st&&st.nom));
-    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-samoussa")+1||st.ids[0]!=="python-samoussa") vus.push("il ne suit pas {python-samoussa} : "+st.ids.join(","));
+    else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -28732,7 +28732,7 @@ function pythonSamoussa(w, P){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
     if(!st||st.nom!=="Condition if else") vus.push("pas de sous-thème 6.7 Condition if else");
-    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-samoussa")+1||st.ids[0]!=="python-samoussa") vus.push("il ne suit pas {python-samoussa} : "+st.ids.join(","));
+    else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-images"]!=="6.6.10"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -29954,7 +29954,7 @@ function pythonInputDuree(w, P){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===5; });
     if(!st||!/bonus/i.test(st.nom)||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
-    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-samoussa")+1||st.ids[0]!=="python-samoussa") vus.push("il ne suit pas {python-samoussa} : "+st.ids.join(","));
+    else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
     /* il fut le dernier du thème ; le 6.6 « Boucle for in range » est venu derrière lui, sans rien renuméroter */
     if(th&&th.sous&&st&&(th.sous.indexOf(st)<1||th.sous[th.sous.indexOf(st)-1].num!==4)) vus.push("le sous-thème ne suit pas le sous-thème « Bonus »");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
