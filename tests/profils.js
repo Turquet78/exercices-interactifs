@@ -109,7 +109,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-for-nom':'pfn', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
+               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-for-nom':'pfn', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-renommer':'pfv', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -920,7 +920,7 @@ module.exports = {
        fini, et le juger à chaque changement de lettre serait absurde. */
     /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
        avec leurs exercices — voir le profil de la Première. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pkg', 'pfn', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pkg', 'pfn', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1130,7 +1130,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-for-oui-non', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-input', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-chaines', 'python-input-int', 'python-input-calcul', 'python-input-float', 'python-input-somme', 'python-input-moyenne', 'python-input-rectangle', 'python-input-duree', 'python-input-prix', 'python-for-erreur', 'python-for-nom', 'python-input-evolution', 'python-input-duree-secondes', 'python-inverser-lettres', 'python-moyenne-notes', 'python-remplacer-lettre', 'python-triangle-etoiles', 'python-programme-calcul', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables', 'python-echange-par-lettres', 'python-phrases-memoire', 'python-input-reponse', 'python-chaine-len', 'python-chaine-tirets'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-for-oui-non', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-input', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-chaines', 'python-input-int', 'python-input-calcul', 'python-input-float', 'python-input-somme', 'python-input-moyenne', 'python-input-rectangle', 'python-input-duree', 'python-input-prix', 'python-for-erreur', 'python-for-nom', 'python-input-evolution', 'python-input-duree-secondes', 'python-inverser-lettres', 'python-for-renommer', 'python-moyenne-notes', 'python-remplacer-lettre', 'python-triangle-etoiles', 'python-programme-calcul', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables', 'python-echange-par-lettres', 'python-phrases-memoire', 'python-input-reponse', 'python-chaine-len', 'python-chaine-tirets'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -1348,6 +1348,11 @@ module.exports = {
        le nombre de notes, puis chaque note dans une boucle, et afficher leur
        moyenne. « nb » est la seconde source du compte (la page a PMN_NB). */
     pythonMoyenneNotes: { exercice: 'python-moyenne-notes', nb: 3, numero: '6.5.4' },
+    /* {python-for-renommer} (6.6.5, sous-thème « Boucle for in range », demande
+       de Turquet, octobre 2026) : l'exercice 2 du carnet sur la boucle —
+       a) compléter range, b) renommer la variable, c) le résultat change-t-il ?
+       « nb » est la seconde source du compte (la page a PFV_NB). */
+    pythonForRenommer: { exercice: 'python-for-renommer', nb: 3, numero: '6.6.5' },
     /* {python-chaines} (6.1.14, demande de Turquet, octobre 2026) : les
        exercices 21 et 22 du carnet — a) exécuter un programme qui concatène
        et répète, b) compléter un programme pour qu'il affiche 10 fois le nom
@@ -1770,8 +1775,11 @@ module.exports = {
     /* {python-for-range} (6.6.1, sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : la SECONDE source de la séance (la page a
        PFR_NB) et de la fiche — la définition mot pour mot, ce que la console
-       affiche, et les deux bornes. */
-    pythonForRange: { exercice: 'python-for-range', nb: 3, numero: '6.6.1',
+       affiche, et les deux bornes. Puis la séance est passée à QUATRE
+       questions : les deux premières dans l'ordre de la fiche, les deux
+       dernières inversées (compléter les cases AVANT d'exécuter) —
+       `inversees`. */
+    pythonForRange: { exercice: 'python-for-range', nb: 4, inversees: [false, false, true, true], numero: '6.6.1',
       fiche: { definition: '⚠ Définition d’une boucle for … in range (…) for nombre in range ( 5 ): se traduit par Pour nombre allant jusqu’à ( 5 ).',
                sortie: 'valeur= 0\nvaleur= 1\nvaleur= 2\nvaleur= 3\nvaleur= 4', de: '0', a: '4' } },
     pythonPhrasesMemoire: { exercice: 'python-phrases-memoire', nb: 3,
@@ -2126,6 +2134,11 @@ module.exports = {
          montre qu'un raccourci et une touche écrivent. */
       navigateur: { exercice: 'limites-graphiques', mode: 'train', case: 'lg-lim0',
                     bouton: '#lg-lim0 + button.lg-inf' },
+      /* et le jeton « , » de la rangée générique, l'élève posé dans une case de
+         TEXTE voisine (le « avec » du 5.6.1) : la virgule doit y tomber, pas
+         dans le champ mathématique d'à côté (octobre 2026). */
+      jetonTexte: { exercice: 'suite-limite-puissance', case: 'lqn-avec',
+                    pose: "test.questions=[{fam:'p',q:0.6}]; test.idx=0; renderLQN();" },
     },
 
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
