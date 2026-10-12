@@ -5153,12 +5153,25 @@ bornes tirées par `distinctes()` parmi huit autres (`PFD_BORNES`) ;
 portes, la case juste bleue à côté d'une fausse, les trous vides jamais
 rougis, le soutien, la reprise.
 
+**Puis l'ordre du carnet** (APP_VERSION 439 — 436 à 438 pris sur `main` pendant les bancs —, demande de Turquet, octobre
+2026 : « mets-le dans l'ordre du carnet, en 6.6.2 »). {python-for-renommer},
+l'exercice 2 du carnet, passe de 6.6.5 à 6.6.2, juste derrière
+{python-for-range} (l'exercice 1). Les trois suivants reculent d'un rang :
+{python-for-nom} 6.6.3, {python-for-oui-non} 6.6.4, {python-for-erreur} 6.6.5.
+Les notes portent l'identifiant et ne bougent pas. Les quatre contrôles de place
+(un par exercice déplacé, et celui-ci) épinglent le nouvel ordre, et
+`tests/profils.js` porte les nouveaux numéros.
+Pendant ces bancs, {python-for-depart-fin} (l'exercice 6 du carnet) a été
+fusionné en 6.6.6. Il ferme le sous-thème, derrière {python-for-erreur} : son
+contrôle exigeait qu'il suive {python-for-renommer}, alors en 6.6.5 ; il exige
+désormais de suivre {python-for-erreur}, et {python-for-renommer} en 6.6.2.
+
 ---
 
 ## {python-for-multiples} — les multiples avec une boucle for (6.6.7, Boucle for in range)
 
 **L'exercice 7 du carnet sur la boucle.** {python-for-multiples} (Seconde,
-6.6.7, APP_VERSION 439 — 437 et 438 pris sur `main` pendant les bancs, demande de Turquet, octobre 2026 : « en seconde dans
+6.6.7, APP_VERSION 440 — 437 à 439 pris sur `main` pendant les bancs, demande de Turquet, octobre 2026 : « en seconde dans
 le sous theme "bloucle for in range", créer un exercice qui suit les images
 jointes. Il faudra respecter les consignes de présentation des autres
 exercices d'algo du sous thème "input". mettre le dessin en premier, dans la
@@ -5173,11 +5186,13 @@ de **0** à **50** ». Il ferme le sous-thème 6.6, derrière
 {python-for-depart-fin} : rien n'est renuméroté. **Écrit d'abord en 6.6.6,
 v437** : pendant ses bancs, {python-for-depart-fin} a pris ce numéro et
 cette version sur `main` (puis la v438 est partie avec la Première). La
-fusion a repris les fichiers de `main` et y a rejoué l'exercice, en 6.6.7 et
-v439 ; le contrôle de {python-for-depart-fin} exigeait de FERMER le 6.6, il
-exige d'en être le sixième.
+fusion a repris les fichiers de `main` et y a rejoué l'exercice, en 6.6.7 ;
+puis l'ordre du carnet ({python-for-renommer} en 6.6.2) a pris la v439 : la
+version passe à 440. Le 7 du carnet vient après le 6 : il reste en 6.6.7, et
+le contrôle de {python-for-depart-fin}, qui exigeait de FERMER le 6.6, exige
+d'en être le sixième, derrière {python-for-erreur}.
 
-**La présentation est celle du 6.6.4 et du 6.6.5** : le dessin seul dans
+**La présentation est celle de {python-for-erreur} et de {python-for-renommer}** : le dessin seul dans
 l'énoncé du haut (découpé dans la capture, détouré depuis les bords, WebP de
 9 Ko en `data:`, `PFM_IMG`), puis les trois étapes sur le MÊME écran, chacune
 dans son cadre `.pyn-etape` ouvert par SA question en gras, gardée quand la
@@ -5187,7 +5202,7 @@ ne porte que le programme de la fiche. Les deux consoles vides restent des
 cadres vides (`#pfmConsole`, `#pfmConsoleC` rejoignent `content:none`), et
 la cellule du c) n'a pas de texte d'attente. « Executer » reçoit son accent.
 
-**a) est une porte, pas une note** (le motif du 6.6.3) : « Vérifier » est
+**a) est une porte, pas une note** (le motif de {python-for-oui-non}) : « Vérifier » est
 fermé, et le b) ne s'ouvre qu'après l'exécution. **b) est jugé par le
 modèle** (action `verif`) : la règle de décision porte l'idée — le programme
 affiche les multiples de 2 (2*k, le double de k, les nombres pairs) ; les
@@ -5212,51 +5227,3 @@ tenu aux consignes, ce qui part au modèle, le trajet a) → b) → c) et la not
 à deux cases, le faux dans les deux modes, la reprise, et les programmes
 comparés à un vrai CPython. Pas de section propre au banc navigateur : la
 visite universelle (section 9) l'ouvre dans les deux modes.
-=======
-## {python-for-depart-fin} — for … in range ( départ , fin ) (6.6.7, Boucle for in range)
-
-**L'exercice 6 du carnet sur la boucle.** {python-for-depart-fin} (Seconde,
-6.6.7, APP_VERSION 439 — 437 et 438 pris sur `main` pendant les bancs — la 436 prise sur `main` par le 6.6.1 pendant les bancs —, demande de Turquet, octobre 2026 : « en seconde dans
-le sous thème "boucle for in range", créer un exercice qui suit les images
-jointes ; respecter les consignes de présentation des autres exercices d'algo
-du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
-rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
-couleurs et présentations des exercices du sous-thème input ; ne rien écrire
-dans le cadre de la console ») : le serpent à lunettes qui écrit, la
-définition de `for nombre in range (départ , fin)` et son exemple
-`range ( 3 , 10 )`, puis a) compléter `for k in range ( … , … ):` /
-`print (k)` pour afficher les entiers de 5 à 15, b) le même programme pour
-les entiers de 1 à 9. Il ferme le sous-thème derrière {python-for-renommer},
-préfixe `pfd` : rien n'est renuméroté, et le contrôle du 6.6.5 exige
-désormais qu'il soit le cinquième, plus le dernier.
-
-**Le moteur est celui du 6.6.5**, allégé de ce que la fiche n'a pas : le
-dessin en tête (`#pfdFig`, découpé dans la capture, détouré par remplissage
-depuis les bords — les blancs des yeux restent —, WebP de 10 Ko, `PFD_IMG`),
-la définition dans `#pfdAvant` (le cadre orange, les deux puces de la fiche
-et RIEN d'autre : ni « Traduction », ni remarques), puis l'énoncé et les deux
-étapes dans leurs cadres `.pyn-etape`. **La fiche n'a aucun coup de pouce :
-l'exercice n'en a pas**, et le contrôle refuse qu'il en apparaisse un. Les
-consoles vides restent des cadres vides (`#pfdConsoleA`, `#pfdConsoleB`
-rejoignent `content:none`). Le `print (k)` est décalé de 4 espaces, comme la
-capture.
-
-**Deux trous dans la ligne du `for`, et chacun est une CASE** — quatre cases
-par question. Chaque trou est jugé SEUL, sur sa valeur lue par l'interpréteur
-(`15+1` vaut 16) : un départ juste reste bleu à côté d'une fin fausse, qui
-rougit avec sa correction verte. Le programme est aussi EXÉCUTÉ pour nommer
-l'erreur : 15 au lieu de 16 (le piège : il manque la dernière valeur), 17
-(une valeur de trop), un départ décalé, un décimal (ENTIERS), une lettre
-(NOMBRES), des bornes inversées (la boucle ne tourne pas). Un trou vide ne
-rougit pas : l'étape est redemandée. « Vérifier » ne s'ouvre que sur la ligne
-exécutée telle qu'elle est écrite ; en soutien, le faux est redemandé sans
-correction.
-
-**La séance** : la fiche épinglée (5 à 15, puis 1 à 9), puis des paires de
-bornes tirées par `distinctes()` parmi huit autres (`PFD_BORNES`) ;
-`dmNbQuestions()` l'allonge. Pas de correction au fil de la frappe
-(`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
-(`pythonForDepartFin`, déclaré dans `tests/profils.js`) : la place, le tirage
-(300 séances), le juge, l'écran tenu aux consignes, le trajet a) → b) et ses
-portes, la case juste bleue à côté d'une fausse, les trous vides jamais
-rougis, le soutien, la reprise.
