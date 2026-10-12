@@ -451,7 +451,40 @@ noms à listes déroulantes de {lire-probabilites} et de la fiche (l'espace est
 HORS du `.pb-par`, dont la police à 1,45 em l'aurait élargi). Les textes
 envoyés au modèle ne changent pas.
 
-Puis (v302) : « le faire aussi dans le 3.2 ». Le 3.2 avait bien l'espace —
+## v302 — au 3.4 puis au 3.2, les intersections se tirent
+
+Demande de Turquet (octobre 2026) : « en première dans le 3.4 varier les
+intersections possibles pour les questions 5 et 6 ».
+
+Elles étaient toujours P(A∩B) et P(A∩B̄), les deux entrées sans condition de
+`PB_ITEMS`. `pbeSeance` les tire désormais parmi les QUATRE cases du milieu
+(`PBE_INTER` : A∩B, A∩B̄, Ā∩B, Ā∩B̄), deux différentes, dans un ordre
+quelconque — douze couples possibles. Le tirage est rangé dans la question
+(`q.ev = [évènement, 'T']`, du JSON), et `pbItem` le lit avant `PB_ITEMS` :
+le juge, le nom écrit, la méthode sous une question fausse, la copie
+enregistrée et le contexte du modèle suivent sans rien changer. Une pause
+d'avant la v302 n'a pas `q.ev` et relit `PB_ITEMS` comme avant. Les quatre
+codes sont déjà écrits « A d'abord », ce que `pbInter` exige. Le 3.2, qui
+partage `PB_ITEMS`, n'a d'abord pas changé : la demande ne portait que sur le 3.4.
+
+Vérifié dans Chromium : 200 séances tirées, les douze couples sortent, jamais
+deux fois la même intersection ; une séance forcée sur P(Ḡ∩L̄) et P(Ḡ∩L)
+s'affiche sur une ligne, barres en place, et ses réponses attendues sont la
+bonne case du tableau sur le total.
+
+**Puis le 3.2 a suivi, dans la même version** (« dans le 3.2 aussi, varier
+les intersections »). Ses deux probabilités d'intersection, posées EN MOTS
+(« d'être mineur et de ne pas faire de compétition »), se tirent de la même
+façon. Le tirage vit dans une seule fonction, `pbInterTirees()`, que lisent
+`pbSeance` (3.2) et `pbeSeance` (3.4) ; `lpEnonce` passe par `pbItem` et dit
+donc la bonne intersection. Le tirage se fait HORS de la fabrique passée à
+`distincte()` : celle-ci la rappelle quand une question en reprend une
+autre, et un compteur avancé dedans aurait sauté une intersection, ou
+donné deux fois la même. Vérifié dans Chromium : 300 séances de chaque
+exercice, douze couples, jamais de doublon ; une question du 3.2 forcée sur
+Ā∩B̄ s'énonce juste et attend la bonne case sur le total.
+
+Puis (v303) : « le faire aussi dans le 3.2 ». Le 3.2 avait bien l'espace —
 mesuré dans Chromium, 13 à 14 px dans les deux exercices —, mais il ne se
 VOYAIT pas : le capot d'un T ou d'un V en italique déborde à droite et
 recouvre l'espace ; un L, au 3.1, n'a rien qui dépasse. La « ) » porte donc
