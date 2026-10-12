@@ -4162,6 +4162,7 @@ function exercices(suite){
     etudeAlgoConvexite(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
+    suiteAuxiliaireLimite(w, P);
     suiteTcmLimite(w, P);
     suiteAlgoSeuil(w, P);
     recurrenceFractions(w, P);
@@ -4230,6 +4231,7 @@ function exercices(suite){
     pythonInputFloat(w, P);
     pythonInputSomme(w, P);
     pythonInputPrix(w, P);
+    pythonForNom(w, P);
     pythonInputEvolution(w, P);
     pythonInputDuree(w, P);
     pythonInputDureeSecondes(w, P);
@@ -11039,6 +11041,107 @@ function phraseCouleurs(w){
     appels >= 6 && enDur === 1,
     appels + ' appel(s), et la phrase est écrite en toutes lettres ' + enDur +
     ' fois (1 attendu : la fonction elle-même)');
+}
+
+/* {suite-auxiliaire-limite} : la fiche « limite, puissance et suite
+   auxiliaire », rédigée comme le {suite-auxiliaire} — chaque case est un champ
+   mathématique (en jsdom, sa valeur se pose dans .value : salRaw la lit). */
+function suiteAuxiliaireLimite(w, P){
+  const present = evaluer(w, "typeof startSAL==='function' && typeof salSols==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la suite auxiliaire et limite : le tirage, puis la copie juste des deux formes',
+      'ce niveau n\'a pas l\'exercice de la suite auxiliaire et limite');
+    return;
+  }
+  verifierEval(w, 'la suite auxiliaire et limite : le tirage, puis la copie juste des deux formes', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='suite-auxiliaire-limite'; test.kind='sal';
+    const ent=function(x){ return Math.abs(x-Math.round(x))<1e-9; };
+
+    /* ---- 1. LE TIRAGE : 0 < a < 1, b et a·k entiers, U0 ≠ k, et la chaîne
+       de la fiche refaite par sa propre arithmétique ---------------------- */
+    for(let t=0;t<400;t++){
+      ['moins','plus'].forEach(function(f){
+        const q=salTirer(f), V=salVal(q);
+        if(!(q.a>0 && q.a<1)) vus.push('tirage : raison '+q.a+' hors de ]0 ; 1[ — pas de limite finie');
+        if(!ent(V.b)) vus.push('tirage : b = '+V.b+' n’est pas entier');
+        if(!ent(V.ak)) vus.push('tirage : a·k = '+V.ak+' n’est pas entier');
+        if(q.u0===q.k) vus.push('tirage : U0 = k, la suite (Vn) est nulle');
+        if(q.u0<0) vus.push('tirage : U0 négatif');
+        const u=3.7, vn=(f==='moins')?u-q.k:q.k-u, un1=q.a*u+V.b, vn1=(f==='moins')?un1-q.k:q.k-un1;
+        if(Math.abs(vn1-q.a*vn)>1e-9) vus.push('tirage : V(n+1) ≠ a×V(n) pour la forme '+f);
+      });
+    }
+    /* et le démarreur tire bien les DEUX formes de la fiche, dans l'ordre */
+    test.questions=null;
+    const corps=String(startSAL).replace(/\\/\\*[\\s\\S]*?\\*\\//g,'');
+    if(corps.indexOf("'moins'")<0 || corps.indexOf("'plus'")<0) vus.push('startSAL ne tire pas les deux formes de la fiche');
+
+    const poser=function(id,v){ const e=document.getElementById(id); if(e) e.value=v; };
+    const rouges=function(){ return SAL_ORDER.filter(function(id){ const e=document.getElementById(id); return e && e.classList.contains('bad'); }); };
+    const remplir=function(q, sols){ SAL_ORDER.forEach(function(id){ poser(id, SAL_CHOIX[id] || sols[id]); }); };
+
+    /* ---- 2. LES DEUX EXERCICES DE LA FICHE, épinglés : U0 = 40, a = 0,8, b = 7, k = 35 */
+    [['moins',5],['plus',-5]].forEach(function(c){
+      const q={forme:c[0], a:0.8, k:35, u0:40}, V=salVal(q);
+      if(V.b!==7) vus.push('la fiche : b vaut '+V.b+' au lieu de 7');
+      if(V.ak!==28) vus.push('la fiche : a·k vaut '+V.ak+' au lieu de 28');
+      if(V.V0!==c[1]) vus.push('la fiche ('+c[0]+') : V0 vaut '+V.V0+' au lieu de '+c[1]);
+      /* copie vide : rien ne rougit, et la page demande de compléter */
+      test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
+      show('sal'); renderSAL(); checkSAL();
+      if(rouges().length) vus.push(c[0]+', copie vide : '+rouges().join(', ')+' rougissent');
+      if(!/Complète au moins une case/.test(document.getElementById('salFeedback').textContent)) vus.push(c[0]+', copie vide : le message ne demande pas de compléter');
+      /* la copie de la correction vaut le point, chaque case juste */
+      remplir(q, salSols(q)); test.locked=false; checkSAL();
+      if(rouges().length) vus.push(c[0]+', copie juste : '+rouges().join(', ')+' rougissent');
+      if(test.score!==1) vus.push(c[0]+', copie juste : le point n’est pas accordé');
+    });
+
+    /* ---- 3. LA COPIE DE LA FICHE, telle qu'un élève l'écrit ------------- */
+    const fiche={
+      moins:{'sal-f1':'U_{n+1}-35','sal-f2':'0{,}8U_n+7-35','sal-f3':'0{,}8U_n-28','sal-n1':'0{,}8U_n','sal-n2':'28','sal-p1':'U_n','sal-p2':'35',
+             'sal-b1':'U_0-35','sal-b2':'5','sal-q':'0{,}8','sal-c':'5\\\\times0{,}8^{n}','sal-d1':'V_n+35','sal-d2':'5\\\\times0{,}8^{n}+35',
+             'sal-e1':'5\\\\times0{,}8^{n}+35','sal-e2':'35','sal-e3':'0'},
+      /* forme 2 : la paire écrite DANS L'AUTRE ORDRE — le nombre d'abord */
+      plus:{'sal-f1':'35-U_{n+1}','sal-f2':'35-\\\\left(0{,}8U_n+7\\\\right)','sal-f3':'28-0{,}8U_n','sal-n1':'28','sal-n2':'-0{,}8U_n','sal-p1':'35','sal-p2':'-U_n',
+             'sal-b1':'35-U_0','sal-b2':'-5','sal-q':'0{,}8','sal-c':'-5\\\\times0{,}8^{n}','sal-d1':'35-V_n','sal-d2':'35+5\\\\times0{,}8^{n}',
+             'sal-e1':'35+5\\\\times0{,}8^{n}','sal-e2':'35','sal-e3':'0'}
+    };
+    ['moins','plus'].forEach(function(f){
+      const q={forme:f, a:0.8, k:35, u0:40};
+      test.questions=[q]; test.idx=0; test.score=0; test.locked=false; renderSAL();
+      remplir(q, fiche[f]); checkSAL();
+      if(rouges().length) vus.push('la fiche ('+f+') : '+rouges().join(', ')+' rougissent sur la copie de l’élève');
+    });
+
+    /* ---- 4. LES ERREURS DE LA FICHE rougissent : le signe oublié, le même terme deux fois */
+    /* en SOUTIEN : la vérification s'arrête avant la correction, le rouge reste visible */
+    currentMode='soutien';
+    const q2={forme:'plus', a:0.8, k:35, u0:40};
+    test.questions=[q2]; test.idx=0; test.score=0; test.locked=false; renderSAL();
+    remplir(q2, fiche.plus);
+    poser('sal-f2','35-0{,}8U_n+7');          /* la parenthèse oubliée : − 7 devenu + 7 */
+    poser('sal-n1','-0{,}8U_n'); poser('sal-n2','-0{,}8U_n');   /* le même terme deux fois */
+    checkSAL();
+    const r=rouges();
+    if(r.indexOf('sal-f2')<0) vus.push('la parenthèse oubliée (35 − 0,8Un + 7) ne rougit pas');
+    if(r.indexOf('sal-n2')<0) vus.push('le même terme écrit deux fois dans la paire ne rougit pas');
+    if(r.indexOf('sal-n1')>=0) vus.push('le premier terme de la paire, juste, rougit');
+    if(r.indexOf('sal-f1')>=0) vus.push('une case juste rougit parce qu’une autre est fausse');
+    if(test.score!==0) vus.push('une copie fausse a reçu le point');
+    /* en ENTRAÎNEMENT, la même copie reçoit la correction, en vert, sur la case fausse */
+    currentMode='train';
+    test.questions=[q2]; test.idx=0; test.score=0; test.locked=false; renderSAL();
+    remplir(q2, fiche.plus); poser('sal-n1','-0{,}8U_n'); poser('sal-n2','-0{,}8U_n');
+    const n2=document.getElementById('sal-n2');
+    if(n2) n2.setValue=function(v){ this.value=v; };   /* jsdom : pas de MathLive, la correction s'écrit dans .value */
+    checkSAL();
+    if(!n2 || !n2.classList.contains('sol') || n2.classList.contains('bad')) vus.push('la case fausse n’a pas reçu la correction');
+    if(n2 && n2.value!=='28') vus.push('la correction de la paire n’est pas le terme manquant (28) : '+(n2&&n2.value));
+    return vus.join(' ; ');
+  })()`, function(v){ return v===''; });
 }
 
 function suiteAuxiliaireCompleter(w, P){
@@ -25284,9 +25387,9 @@ function pythonProgrammeCalcul(w, P){
   verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
-/* {python-for-oui-non} (Seconde, 6.6.1) : la fiche « Exercice 4 » — a)
+/* {python-for-oui-non} (Seconde, 6.6.2, derrière {python-for-nom}) : la fiche « Exercice 4 » — a)
    exécuter for k in range (9): print ("oui") puis print("non"), b) expliquer
-   pourquoi « oui » est répété et « non » une seule fois. Le premier exercice
+   pourquoi « oui » est répété et « non » une seule fois. Le deuxième exercice
    du sous-thème 6.6 « Boucle for in range ». L'explication est jugée par le
    modèle : le banc exerce l'envoi (ce qui part) et le verdict (pfoVerdict),
    sans réseau. */
@@ -25299,12 +25402,12 @@ function pythonForOuiNon(w, P){
     verifier(nom, false, 'startPFO / pfoBuildQuestions / pfoVerdict introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
-  verifierEval(w, 'il ouvre le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-for-nom} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle for in range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
-    if(th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier");
+    else if(st.ids[0]!=="python-for-nom"||st.ids[1]!=="${ID}") vus.push("il ne suit pas {python-for-nom} : "+st.ids.join(","));
+    if(TEST_NUM["python-for-nom"]!=="6.6.1") vus.push("{python-for-nom} a bougé");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -27252,6 +27355,184 @@ function pythonInputPrix(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-for-nom} (Seconde, 6.6.1) : l'exercice 5 du carnet — les deux
+   serpents, la bulle « Bonjour » ×4. Afficher 8 fois son nom et prénom avec
+   une boucle for. Le contrôle tient la place au menu (il ouvre le sous-thème
+   6.6 « Boucle for in range », ajouté en dernier : rien d'autre ne bouge), la
+   fiche épinglée et le tirage, le juge — qui ne lit que ce que le programme
+   AFFICHE — sur des copies justes et fausses, chacune avec le mot qui la
+   nomme, l'écran tenu aux consignes du sous-thème Input (le dessin seul en
+   tête, l'énoncé en gras dans son cadre, le coup de pouce seul et replié,
+   aucune définition, la cellule et la console vides, le rappel réduit au
+   coup de pouce), la copie juste, fausse et vide, le soutien qui explique
+   sans révéler, puis compare à un vrai CPython ce que les modèles affichent.
+   Aucun accent grave ni antislash littéral dans le code évalué. */
+function pythonForNom(w, P){
+  const nom = '{python-for-nom} : afficher 8 fois son nom et prénom';
+  if(!P.pythonForNom){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la boucle for'); return; }
+  const ID = P.pythonForNom.exercice, NB = P.pythonForNom.nb, NUM = P.pythonForNom.numero;
+  const present = evaluer(w, "typeof startPFN==='function' && typeof pfnDiag==='function' && typeof pfnBuildQuestions==='function' && typeof ptrDerouler==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPFN / pfnDiag / pfnBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ouvre le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
+    if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
+    else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
+    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (8 fois), puis d’autres nombres distincts ; le modèle de chacune passe au juge, chaque nombre sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pfnBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      if(pfnFois(qs[0])!==8){ vus.push("la fiche n’ouvre pas la séance : "+pfnFois(qs[0])); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois le même nombre : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PFN_FOIS.forEach(function(_, i){ const d=pfnDiag(pfnModele({s:i}),{s:i}); if(!d.ok) vus.push("le modèle "+i+" : "+d.dits.join(" ")); });
+    if(new Set(PFN_FOIS).size!==PFN_FOIS.length) vus.push("deux nombres égaux dans PFN_FOIS");
+    if(Object.keys(vues).length!==PFN_FOIS.length) vus.push("des nombres ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte toute boucle juste (range(8), range(1,9), un corps sur la ligne du for, une variable) et nomme chaque défaut — rien d’affiché, une ligne de trop ou de moins, le numéro du tour, des lignes vides, le nom seul, tout sur une ligne, les print à la main, un input, la boucle sans décalage ou sans deux-points, guillemets typographiques, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0,prog:""};
+    const pr=function(t){ return "print("+Q+t+Q+")"; };
+    const justes=[pfnModele(q),
+                  "for k in range(1,9):"+NL+"    "+pr("Dupont Léa"),
+                  "for i in range(8): "+pr("Léa Dupont"),
+                  "nom = "+Q+"Dupont"+Q+NL+"prenom = "+A+"Léa"+A+NL+"for k in range(8):"+NL+"  print(nom, prenom)",
+                  "# mon nom"+NL+"for k in range(0,8):"+NL+NL+"    print("+A+"Jean-Pierre Martin"+A+")"+NL];
+    justes.forEach(function(p){ const d=pfnDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const huit=[]; for(let k=0;k<8;k++) huit.push(pr("Léa Dupont"));
+    const cas=[
+      ["for k in range(8):"+NL+"    x = 1", /n’affiche rien/],
+      ["for k in range(1,8):"+NL+"    "+pr("Léa Dupont"), /7 fois/],
+      ["for k in range(9):"+NL+"    "+pr("Léa Dupont"), /9 fois/],
+      ["for k in range(1,9):"+NL+"    print(k, "+Q+"Léa Dupont"+Q+")", /numéro du tour/],
+      ["for k in range(8):"+NL+"    "+pr("Léa Dupont")+NL+"    print()", /lignes vides/],
+      ["for k in range(8):"+NL+"    "+pr("Léa"), /nom ET ton prénom/],
+      [pr("Léa Dupont Léa Dupont Léa Dupont Léa Dupont Léa Dupont Léa Dupont Léa Dupont Léa Dupont"), /UNE ligne/],
+      [huit.join(NL), /boucle for/],
+      ["nom = input("+Q+"Nom ? "+Q+")"+NL+"for k in range(8):"+NL+"    print(nom)", /rien à demander/],
+      ["for k in range(8):"+NL+pr("Léa Dupont"), /décalées/],
+      ["for k in range(8)"+NL+"    "+pr("Léa Dupont"), /deux-points/],
+      ["for k in range(8):"+NL+"    print(Léa Dupont)", /guillemets|Python s’arrête/],
+      ["for k in range(8):"+NL+"    print(“Léa Dupont”)", /guillemets/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pfnDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input, et la copie juste ---- */
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni encadré au-dessus, l’énoncé de la fiche en gras dans son cadre avec le coup de pouce replié, la cellule et la console VIDES, « Exécuter » ; le rappel ne dit que le coup de pouce ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFN();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
+    const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("pfnInstr"), img=en&&en.querySelector("img.pfn-img");
+    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
+    if(document.querySelector("#scr-pfn .py-avant,#scr-pfn .pyp-regle,#scr-pfn .pyi-cours")) vus.push("un encadré de définition sur l’écran");
+    const et=document.getElementById("pfnEtape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!ti||net(ti.textContent)!=="✏️ Faire un programme dans la cellule ci-dessous pour qu’il affiche 8 fois votre Nom et prénom.") vus.push("l’énoncé de la question : "+(ti&&ti.textContent));
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    ["pfn-prog","pfnRun","pfnConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const pouces=document.querySelectorAll("#pfnEtape details.pyd-pouce");
+    if(pouces.length!==1) vus.push(pouces.length+" coup(s) de pouce");
+    else {
+      if(pouces[0].open) vus.push("coup de pouce déplié d’emblée");
+      const t=net(pouces[0].querySelector("p").textContent);
+      if(t!=="Pour compter de 1 à 8 utiliser l’instruction :for k in range (1,9): ...") vus.push("le coup de pouce : "+JSON.stringify(t));
+    }
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pfn||"";
+    if(net(rap.textContent)!=="Afficher 8 fois son nom et prénom Pour compter de 1 à 8 utiliser l’instruction : for k in range (1,9): ...") vus.push("le rappel : "+JSON.stringify(rap.textContent));
+    const ta=document.getElementById("pfn-prog"), cons=document.getElementById("pfnConsole");
+    if(ta.value!==""||ta.getAttribute("placeholder")) vus.push("la cellule n’est pas vide");
+    if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide : "+JSON.stringify(cons.textContent+getComputedStyle(cons,"::before").content));
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value=pfnModele(q);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    pfnExecuter();
+    if(cons.textContent.split(NL).length!==8||cons.textContent.split(NL).some(function(l){ return l!=="Martin Camille"; })) vus.push("la console : "+JSON.stringify(cons.textContent));
+    checkPFN();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPFN();
+    if(test.idx!==1||document.getElementById("pfn-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    const N1=pfnFois(test.questions[1]);
+    if(net(document.getElementById("pfnEtape").textContent).indexOf("affiche "+N1+" fois")<0) vus.push("l’énoncé de la question 2 ne suit pas son nombre");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFN();
+    let ta=document.getElementById("pfn-prog");
+    ta.value="for k in range(3):"+NL+"    print("+Q+"Léa Dupont"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPFN();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pfnModele .sol");
+    if(!mod||mod.textContent!==pfnModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    nextPFN(); ta=document.getElementById("pfn-prog");
+    checkPFN();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pfnModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPFN(); ta=document.getElementById("pfn-prog");
+    checkPFN();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="for k in range(1,9):"+NL+"    print(k, "+Q+"Léa Dupont"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPFN();
+    const fb=document.getElementById("pfnFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/numéro du tour/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pfnModele .sol")||fb.indexOf("Martin Camille")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPfn(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ---- */
+  const nomPy = 'ce que les modèles de {python-for-nom} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify(PFN_FOIS.map(function(_, i){ const src=pfnModele({s:i}); return [src, ptrRun(src).out]; }))`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src]) => src));
+  const ecarts = [];
+  liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* {python-input-duree} (Seconde, 6.5.1) : l'exercice 11 du carnet — les deux
    serpents. Demander une durée en minutes, l'afficher en heures et minutes.
    Le contrôle tient la place au menu (il ouvre le sous-thème 6.5 « Bonus :
@@ -27279,8 +27560,8 @@ function pythonInputDuree(w, P){
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===5; });
     if(!st||!/bonus/i.test(st.nom)||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
     else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
-    /* il était le DERNIER ; depuis {python-for-oui-non} (6.6, ajouté derrière), il est le CINQUIÈME — ce qui tient la même chose : rien ne l’a renuméroté */
-    if(th&&th.sous&&th.sous[4]!==st) vus.push("le sous-thème n’est pas le cinquième du thème");
+    /* il fut le dernier du thème ; le 6.6 « Boucle for in range » est venu derrière lui, sans rien renuméroter */
+    if(th&&th.sous&&st&&(th.sous.indexOf(st)<1||th.sous[th.sous.indexOf(st)-1].num!==4)) vus.push("le sous-thème ne suit pas le sous-thème « Bonus »");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");

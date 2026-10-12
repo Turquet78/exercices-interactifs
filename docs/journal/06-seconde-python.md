@@ -4810,10 +4810,10 @@ nom.
 
 ---
 
-## {python-for-oui-non} — « oui » répété, « non » une seule fois (6.6.1, Boucle for in range)
+## {python-for-oui-non} — « oui » répété, « non » une seule fois (6.6.2, Boucle for in range)
 
 **Le sous-thème « Boucle for in range », et la fiche « Exercice 4 ».**
-{python-for-oui-non} (Seconde, 6.6.1, APP_VERSION 429, demande de Turquet,
+{python-for-oui-non} (Seconde, 6.6.2, APP_VERSION 430, demande de Turquet,
 octobre 2026 : « en seconde dans le sous thème "boucle for in range", créer
 un exercice qui suit les images jointes. Il faudra respecter les consignes de
 présentation des autres exercices d'algo du sous-thème "input". mettre le
@@ -4823,8 +4823,13 @@ console ») : a) « Exécuter le programme ci-dessous » — `for k in range (9)
 `print ("oui")` décalé, `print("non")` au bord —, b) « Expliquer pourquoi
 "oui" est répété plusieurs fois et "non" une seule fois ! », avec la cellule
 de réponse « Votre réponse ✍ : "non" est répété une seule fois car .... ».
-Le sous-thème n'existait pas : il devient 6.6, ajouté EN DERNIER — rien n'est
-renuméroté.
+Le sous-thème n'existait pas au départ de la branche : il y était 6.6, ajouté
+EN DERNIER. **Pendant les bancs, {python-for-nom} a créé le MÊME sous-thème
+sur `main`** (même nom, même numéro 6.6, même v429) : à la fusion, celui-ci
+le rejoint en 6.6.2, derrière lui — rien d'autre n'est renuméroté, la version
+passe à 430, et le contrôle exige désormais l'ordre ({python-for-nom} en
+6.6.1, celui-ci en 6.6.2). DISPATCH, `testScreens` et la liste des rendus
+enveloppés avaient perdu leur entrée `pfo` dans la résolution : rétablie.
 
 **Les consignes du sous-thème Input** : chaque question en gras en tête de son
 cadre `.pyn-etape` ; le b) ne s'ouvre qu'après l'exécution et le a) reste au
@@ -4856,3 +4861,39 @@ programme affiche, l'écran (console vide, b) fermé avant l'exécution), ce qui
 part au modèle, les verdicts juste, faux, indisponible et en soutien. Pas de
 section propre au banc navigateur : la visite universelle (section 9) l'ouvre
 dans les deux modes.
+## {python-for-nom} — afficher 8 fois son nom et prénom (6.6.1, boucle for in range)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème boucle
+for in range, créer un exercice qui suit l'image jointe […] respecter les
+consignes de présentation des autres exercices d'algo du sous-thème input.
+Mettre le dessin en premier, dans la définition ne rien rajouter de plus
+ainsi que dans les coups de pouce éventuels […] ne rien écrire dans le cadre
+de la console. » C'est l'« Exercice 5 » du carnet : les deux serpents, la
+bulle « Bonjour » quatre fois, puis « Faire un programme dans la cellule
+ci-dessous pour qu'il affiche 8 fois votre Nom et prénom », et un coup de
+pouce replié. Le sous-thème n'existait pas : il est ajouté EN DERNIER au
+thème 6 (6.6 « Boucle for in range ») — rien n'est renuméroté.
+
+**La présentation est celle du 6.3.9** ({python-input-prix}) : le dessin
+seul dans `#pfnInstr` (découpé dans la capture, détouré depuis les bords,
+WebP de 14 Ko en `data:`, `PFN_IMG`) ; la question dans un cadre
+`.pyn-etape`, en gras, qui enveloppe le coup de pouce, la cellule,
+« Exécuter » et la console ; aucune définition (exception déclarée,
+`pythonAvant.sans`) ; la cellule sans texte d'attente et la console vide
+(`#pfnConsole` rejoint la règle `content:none`).
+
+**Le coup de pouce n'était pas lisible sur la capture** (replié) : il
+reprend, au nombre de la question, celui de la même série de fiches au 6.4.5
+— « Pour compter de 1 à 8 utiliser l'instruction : for k in range (1,9): … ».
+Le rappel (`RAP_PFN`) ne dit que lui. À remplacer mot pour mot si la fiche
+dit autre chose.
+
+**L'interpréteur est celui du 6.4.5** : `ptrDerouler` déroule la boucle,
+`pyRun` exécute. **Le juge (`pfnDiag`) lit ce que la console affiche** :
+N lignes, toutes pareilles, d'au moins deux mots (le nom ET le prénom), et
+une boucle for dans le programme — les N print à la main sont refusés en le
+disant. Nommés : rien d'affiché, une ligne de trop ou de moins, le numéro du
+tour, des lignes vides, le nom seul, tout sur une ligne, un input, les
+erreurs de boucle. La séance : la fiche épinglée (8 fois), puis d'autres
+nombres tirés par `distinctes()`. Contrôle : `pythonForNom` (banc
+principal), modèles comparés à un vrai CPython.
