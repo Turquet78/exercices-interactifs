@@ -51,7 +51,7 @@ const RAPPELS_PREMIERE = `(function(){
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
     'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd','synthese-evolutions-successives':'ess',
-    'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf','tableau-probabilites':'pb','lire-probabilites':'pb','probabilites-fiche':'pb','probabilites-ecriture':'pb' };
+    'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf','tableau-probabilites':'pb','lire-probabilites':'pb','probabilites-fiche':'pb','probabilites-ecriture':'pb','revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     /* un exercice peut avoir SON rappel, indépendant du kind : deux exercices
@@ -211,6 +211,10 @@ module.exports = {
        qu'aucune ne vire au rouge en chemin — une paire de multiplicateurs ne se
        juge pas à moitié écrite —, puis mesure l'alignement des termes. */
     sommeFractions: { exercice: 'somme-fractions' },
+    /* {revision-fractions} (4.1), porté de la Seconde (octobre 2026) : les
+       nombres de départ vont de 1 à 5 (consigne de Turquet — RVF_MAX dans la
+       page, deux sources), et la note se compte par question parfaite. */
+    revisionFractions: { num: '4.1', max: 5, bareme: 'questions' },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
        de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
@@ -760,6 +764,9 @@ module.exports = {
        qu'aucune ne vire au rouge en chemin — une paire de multiplicateurs ne se
        juge pas à moitié écrite —, puis mesure l'alignement des termes. */
     sommeFractions: { exercice: 'somme-fractions' },
+    /* {revision-fractions} (5.11) : un chiffre de 1 à 9 (RVF_MAX dans la
+       page), et le barème compte les CASES — finishTest lit maxScore. */
+    revisionFractions: { num: '5.11', max: 9, bareme: 'cases' },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
        de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
@@ -2076,6 +2083,9 @@ module.exports = {
           pose: "test.questions=[{a:2,b:-1}]; test.idx=0; renderECV();", cases: 3 },
         { exercice: 'suite-vocabulaire',    ecran: 'svq', kind: 'svq',
           pose: "test.questions=[{fam:'decconv',L:1,A:3,q:0.8,rep:{}}]; test.idx=0; renderSVQ();", cases: 1 },
+        /* le 5.6.1 (fiche « limite qⁿ ») : la limite, et les deux limites du « car … et … » */
+        { exercice: 'suite-limite-puissance', ecran: 'lqn', kind: 'lqn',
+          pose: "test.questions=[{fam:'prod',q:3,r:0.25,a:1}]; test.idx=0; renderLQN();", cases: 3 },
       ],
       /* et le banc NAVIGATEUR tape « inf » dans la case de cet exercice-là,
          puis clique le bouton ∞ : jsdom pose une chaîne, seul un vrai MathLive
@@ -2213,10 +2223,11 @@ module.exports = {
                         'results','teacher-login','teacher',
                         /* choix du niveau de « Signe du second degré » : un menu, pas un exercice */
                         's2lvl'],
-    /* Le thème des Suites est découpé en cinq parties (septembre 2026, la
-       cinquième — Algorithme — ajoutée le même mois) : le banc navigateur
-       clique les deux étages comme le ferait un élève. */
-    menu: { theme: 5, parties: 5, exercice: 'suite-explicite' },
+    /* Le thème des Suites est découpé en six parties (septembre 2026, la
+       cinquième — Algorithme — ajoutée le même mois ; la sixième — Limite de
+       qⁿ — en octobre 2026) : le banc navigateur clique les deux étages comme
+       le ferait un élève. */
+    menu: { theme: 5, parties: 6, exercice: 'suite-explicite' },
     niveau: 'Terminale',
     /* .tvi-instr n'est PAS un énoncé : c'est la consigne de travail qui suit
        (« Rédige la justification : »). L'application elle-même les distingue,
