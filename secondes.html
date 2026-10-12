@@ -45499,13 +45499,18 @@ function sfPpcm(a,b){ return a/sfPgcd(a,b)*b; }
                       étape n'aurait pas de sens. Les deux conditions sont
                       indépendantes — 1/6 + 1/4 a bien 2 en commun, et donne
                       pourtant 5/12, irréductible. */
-function sfGen(opImpose, mode){
+/* LA BORNE DES NOMBRES DE DÉPART est un paramètre, 9 par défaut : le thème
+   « Fractions » de la Première tire de 1 à 5 (demande de Turquet, octobre
+   2026). Elle n'est jamais rangée dans la question — seuls les nombres le
+   sont. */
+function sfGen(opImpose, mode, max){
+  const M=max||9;
   for(let essai=0; essai<500; essai++){
     /* Pas de terme entier à simplifier : « 3 + 1/6 » passe par 3/1, et
        l'écran porte déjà quatre étapes. */
     const entier = (mode==='simplifier') ? false : Math.random()<0.28;   /* un terme sur quatre est un entier */
-    const d1 = entier && Math.random()<0.5 ? 1 : rand(2,9);
-    const d2 = (d1===1) ? rand(2,9) : (entier ? 1 : rand(2,9));
+    const d1 = entier && Math.random()<0.5 ? 1 : rand(2,M);
+    const d2 = (d1===1) ? rand(2,M) : (entier ? 1 : rand(2,M));
     if(d1===d2) continue;                            /* même dénominateur : plus rien à mettre au même */
     if(mode==='premiers' && (d1===1 || d2===1 || sfPgcd(d1,d2)!==1)) continue;
     /* Rien à écrire ici pour « simplifier » : des dénominateurs PREMIERS ENTRE
@@ -45516,7 +45521,7 @@ function sfGen(opImpose, mode){
        de plus n'aurait rien écarté, et un garde-fou qui n'écarte jamais rien
        fait croire qu'on vérifie quelque chose : le contrôle EXIGE la propriété
        sur le tirage, c'est là qu'elle est tenue. */
-    const n1=rand(1,9), n2=rand(1,9);
+    const n1=rand(1,M), n2=rand(1,M);
     const op = opImpose || (Math.random()<0.5 ? '+' : '−');
     const D=sfPpcm(d1,d2), k1=D/d1, k2=D/d2;
     const N1=n1*k1, N2=n2*k2;
@@ -45569,7 +45574,7 @@ function sfFracInner(numStr,denStr){
    (demande de Turquet, août 2026 — les huit exercices de fractions 4.2 à 4.9),
    6 en Première. */
 const SF_NB=4;
-function sfBuildQuestions(mode){ const qs=[]; for(let i=0;i<SF_NB;i++) qs.push(distincte(qs, function(){ return sfGen(i%2===0?'+':'−', mode); })); return qs; }
+function sfBuildQuestions(mode, max){ const qs=[]; for(let i=0;i<SF_NB;i++) qs.push(distincte(qs, function(){ return sfGen(i%2===0?'+':'−', mode, max); })); return qs; }
 /* Le terme tel qu'il s'écrit : « 3 » pour un entier, « 3/4 » sinon. */
 /* Un ENTIER s'écrit avec la même encre qu'une fraction, et à la même hauteur.
    Écrit en « f-whole » (2rem, autre couleur), il dépassait des fractions
@@ -45589,7 +45594,11 @@ function sfTermeHTML(n,d){
 function sfCases(){
   const base=['sf-a1','sf-b1','sf-a2','sf-b2','sf-num1','sf-num2','sf-den'];
   const fin=['sf-fn','sf-fd'];
-  return (test && test.simp) ? base.concat(['sf-sn','sf-q1','sf-sd','sf-q2'],fin) : base.concat(fin);
+  /* La simplification PAR ÉTAPES (Première, thème Fractions) ajoute ses cases
+     au bout de la chaîne : elles sont lues à l'écran, leur nombre dépend de ce
+     que l'élève écrit (voir seIds). La Seconde ne pose jamais « test.etapes ». */
+  const etapes=(test && test.etapes && typeof seIds==='function') ? seIds('sf') : [];
+  return ((test && test.simp) ? base.concat(['sf-sn','sf-q1','sf-sd','sf-q2'],fin) : base.concat(fin)).concat(etapes);
 }
 function renderSFTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -45667,11 +45676,13 @@ function renderSFTest(){
        +(test.simp ? fEq(quotient()) : '')
        +fEq(frac('sf-fn','sf-fd'))
      +'</div></div>';
-  /* La décoration du croisement — couleurs et flèches — n'existe qu'en Seconde,
-     et ne s'applique qu'à l'exercice qui la demande. La ligne est la même dans
-     les deux fichiers : le moteur reste identique au caractère près, et la
-     Première, qui n'a pas cette fonction, ne s'en aperçoit jamais. */
+  /* La décoration du croisement — couleurs et flèches — ne s'applique qu'à
+     l'exercice qui la demande (la Seconde au 5.2, la Première au 4.2 depuis
+     octobre 2026). La ligne est la même dans les deux fichiers : le moteur
+     reste identique au caractère près. */
   if(test.crd && typeof crdDecorer==='function') crdDecorer(q);
+  /* De même pour la simplification par étapes, qui n'existe qu'en Première. */
+  if(test.etapes && typeof seMonte==='function') seMonte('sf', q);
   const order=sfCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkSFAnswer(); } }); });
@@ -45820,8 +45831,17 @@ function sfJuge(q){
   const promFn = !isNaN(fn) && fn>0 && fn%q.N===0;
   const promFd = !isNaN(fd) && fd>0 && fd%q.D===0;
   const accord = promFn && promFd && fn*q.D===q.N*fd;
-  const okFn = simp ? (!isNaN(fn) && fn===q.Nr) : (promFn && (!promFd || accord));
-  const okFd = simp ? (!isNaN(fd) && fd===q.Dr) : (promFd && (!promFn || accord));
+  /* LA SIMPLIFICATION PAR ÉTAPES (Première, thème Fractions, octobre 2026) :
+     quand la fraction obtenue sur le dénominateur commun RETENU se simplifie,
+     la dernière case l'attend telle quelle — c'est la chaîne qui suit qui la
+     simplifie, une division après l'autre (seJuge, propre à la Première). Le
+     dénominateur commun restant libre, la fraction à simplifier dépend de la
+     route : sur 1/2 + 1/4 passé par 8, c'est 6/8. */
+  const etapes = !!(test && test.etapes && typeof seJuge==='function');
+  const brut = etapes && Ns>0 && Dc>0 && sfPgcd(Ns,Dc)>1;
+  const okFn = simp ? (!isNaN(fn) && fn===q.Nr) : brut ? (!isNaN(fn) && fn===Ns) : (promFn && (!promFd || accord));
+  const okFd = simp ? (!isNaN(fd) && fd===q.Dr) : brut ? (!isNaN(fd) && fd===Dc) : (promFd && (!promFn || accord));
+  const se = etapes ? seJuge('sf', brut ? {n:Ns, d:Dc} : null) : null;
   const ok4 = okFn && okFd;
   /* Une case laissée vide n'est pas une erreur de calcul, et le dire autrement
      serait mentir : le message le nomme avant tout le reste. */
@@ -45836,7 +45856,7 @@ function sfJuge(q){
           prom1:prom1, prom2:prom2, D1:D1, D2:D2,
           /* Chaque case a son verdict : c'est ce que peint checkSFAnswer. */
           okN1:okN1, okN2:okN2, okDen:okDen, okSn:okSn, okSd:okSd,
-          okFn:okFn, okFd:okFd};
+          okFn:okFn, okFd:okFd, se:se};
 }
 /* La correction EN DIRECT du mode soutien. Elle ne juge un groupe qu'une fois
    TOUTES ses cases remplies, et c'est tout ce qui la sépare d'un piège : une
@@ -45865,11 +45885,14 @@ function sfLive(){
   col(['sf-num1','sf-num2','sf-den'],r.ok3);
   if(test.simp){ col(['sf-sn','sf-sd'],r.okS); col(['sf-q1','sf-q2'],r.okQ); }
   col(['sf-fn','sf-fd'],r.ok4);
+  if(r.se) r.se.cases.forEach(function(c){ col([c.id],c.ok); });
 }
 function checkSFAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
   if(live){ sfLive(); return; }
+  /* la chaîne de simplification suit ce qui est écrit AVANT d'être jugée */
+  if(test.etapes && typeof seMaj==='function') seMaj('sf', q);
   const r=sfJuge(q);
   /* Une case VIDE ne reçoit aucune couleur — elle n'est pas une erreur de
      calcul. En entraînement la correction l'écrit en vert juste après ; en
@@ -45889,11 +45912,12 @@ function checkSFAnswer(live){
   mark(['sf-num1'],r.okN1); mark(['sf-num2'],r.okN2); mark(['sf-den'],r.okDen);
   if(test.simp){ mark(['sf-sn'],r.okSn); mark(['sf-sd'],r.okSd); mark(['sf-q1','sf-q2'],r.okQ); }
   mark(['sf-fn'],r.okFn); mark(['sf-fd'],r.okFd);
+  if(r.se) r.se.cases.forEach(function(c){ mark([c.id],c.ok); });
   /* « r.vide » est indispensable ici : chaque étape se juge désormais sur les
      cases écrites, donc une copie à moitié remplie peut voir ses quatre
      verdicts au vert. Sans ce garde-fou elle vaudrait le point entier, et les
      cases laissées vides ne recevraient même pas la correction en vert. */
-  const allOk=r.ok1&&r.ok2&&r.ok3&&r.ok4&&(!test.simp||(r.okS&&r.okQ))&&!r.vide;
+  const allOk=r.ok1&&r.ok2&&r.ok3&&r.ok4&&(!test.simp||(r.okS&&r.okQ))&&(!r.se||r.se.ok)&&!r.vide;
   if(!allOk && isSoutien()){ soutienAgain('sfFeedback','sfActions','checkSFAnswer','sfHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('sfLiveScore').textContent=test.score;
@@ -45920,6 +45944,12 @@ function checkSFAnswer(live){
       corTrainDec('sf-q1', suivie ? r.g : q.D/q.Dr);
       corTrainDec('sf-q2', suivie ? r.g : q.D/q.Dr);
       corTrainFrac('sf-fn','sf-fd',q.Nr,q.Dr);
+    } else if(r.se){
+      /* la correction suit la route de l'élève : le calcul brut, puis chaque
+         étape de sa chaîne (un diviseur vide ou faux reçoit le PGCD) */
+      corTrainFrac('sf-fn','sf-fd',r.se.F.n,r.se.F.d);
+      r.se.cases.forEach(function(c){ corTrainDec(c.id,c.bon); });
+      seMiroirs('sf');
     } else corTrainFrac('sf-fn','sf-fd',q.N,q.D);
   }
   const donne=sfCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
@@ -45951,6 +45981,10 @@ function sfPourquoi(q,r){
     if(!r.okS) return 'Recopie la fraction que tu viens d’obtenir : '+Ns+' sur '+Dc+'.';
     if(!r.okQ) return 'Divise en haut ET en bas par le même nombre, le plus grand qui va dans les deux : ici '+g+'.';
     return 'Il reste à faire les deux divisions : '+Ns+' ÷ '+g+' et '+Dc+' ÷ '+g+', donc '+q.Nr+'/'+q.Dr+'.';
+  }
+  if(r.se){
+    if(!r.ok4) return 'Il reste à effectuer le calcul du haut : '+r.se.F.n+'/'+r.se.F.d+', que tu simplifieras ensuite.';
+    return seMessage(r.se);
   }
   return 'Il reste à effectuer le calcul du haut : le résultat est '+q.N+'/'+q.D+'.';
 }

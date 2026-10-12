@@ -4311,6 +4311,7 @@ function exercices(suite){
     }
     simplifierBarres(w, P);
     multiplierFractions(w, P);
+    fractionsEtapes(w, P);
     synthesePourcentage(w, P);
     synthesePourcentageMethode(w, P);
     syntheseLibrePourcentage(w, P);
@@ -7462,6 +7463,13 @@ function sommeFractions(w, P){
      · une case juste ne rougit pas pour sa voisine, et on lit la COULEUR
        peinte, pas seulement le verdict — c'est la leçon du jour ;
      · l'erreur VISÉE (mettre au même dénominateur) est nommée par le message. */
+/* Puis la Première l'a reçu (4.4 et 4.5, octobre 2026) : ce qui diffère d'un
+   niveau à l'autre se DÉCLARE dans le profil (multiplierFractions) — la borne
+   des nombres de départ (9 en Seconde, 5 en Première), le produit qui PEUT se
+   simplifier (la Première le fait simplifier par étapes : le bord « le
+   produit est irréductible » y devient « les fractions de départ sont
+   irréductibles et le résultat n'est pas entier »), et la version rédigée,
+   que seule la Seconde a. Un niveau qui a l'exercice sans le déclarer rougit. */
 function multiplierFractions(w, P){
   const present = evaluer(w, "typeof startMlt==='function' && typeof mltGen==='function'");
   if(!present.ok || !present.valeur){
@@ -7469,7 +7477,15 @@ function multiplierFractions(w, P){
       'ce niveau n\'a pas les exercices de multiplication de fractions');
     return;
   }
-  verifierEval(w, 'multiplier deux fractions : l\'ordre est libre, et le produit ne se simplifie pas', `(function(){
+  const R = P.multiplierFractions;
+  if(!R){
+    verifier('multiplier deux fractions : l\'ordre est libre, et le produit ne se simplifie pas', false,
+      'ce niveau a l\'exercice, mais son profil ne déclare pas multiplierFractions (borne, simplification, version rédigée)');
+    return;
+  }
+  verifierEval(w, R.simplifier ? 'multiplier deux fractions : l\'ordre est libre, et le produit se simplifie par étapes'
+                               : 'multiplier deux fractions : l\'ordre est libre, et le produit ne se simplifie pas', `(function(){
+    const MAX=${R.max}, SIMPLIFIER=${!!R.simplifier};
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='multiplier-fractions';
@@ -7484,7 +7500,10 @@ function multiplierFractions(w, P){
          2/3 × 3/2 a ses deux fractions irréductibles et donne 6/6. C'est bien
          le PRODUIT qu'il faut tester — sinon l'élève qui simplifie, ce qui est
          juste, écrirait une fraction comptée fausse. */
-      if(pgcd(q.P,q.Q)!==1){ vus.push(eti+' : le produit '+q.P+'/'+q.Q+' se simplifie encore'); break; }
+      if(!SIMPLIFIER && pgcd(q.P,q.Q)!==1){ vus.push(eti+' : le produit '+q.P+'/'+q.Q+' se simplifie encore'); break; }
+      if(SIMPLIFIER && (pgcd(q.n1,q.d1)!==1 || pgcd(q.n2,q.d2)!==1)){ vus.push(eti+' : une fraction de départ est réductible'); break; }
+      if(SIMPLIFIER && q.P%q.Q===0){ vus.push(eti+' : le produit '+q.P+'/'+q.Q+' est un entier'); break; }
+      if([q.n1,q.d1,q.n2,q.d2].some(function(x){ return x>MAX; })){ vus.push(eti+' : un nombre de départ dépasse '+MAX); break; }
       if(q.P===q.Q){ vus.push(eti+' : le produit vaut 1 tout rond'); break; }
       if(q.d1<2 || q.d2<2){ vus.push(eti+' : un dénominateur vaut '+Math.min(q.d1,q.d2)); break; }
       if(q.n1<1 || q.n2<1){ vus.push(eti+' : un numérateur est nul ou négatif'); break; }
@@ -7594,7 +7613,10 @@ function multiplierFractions(w, P){
         if(g.a1!==g.n1 || g.a2!==g.d2 || g.b1!==g.d1 || g.b2!==g.n2){
           vus.push(eti+' : les facteurs rangés ne sont pas ceux de la fraction INVERSÉE'); break; }
         if(g.P!==g.n1*g.d2 || g.Q!==g.d1*g.n2){ vus.push(eti+' : le quotient rangé ne suit pas les facteurs'); break; }
-        if(pgcd(g.P,g.Q)!==1){ vus.push(eti+' : le quotient '+g.P+'/'+g.Q+' se simplifie encore'); break; }
+        if(!SIMPLIFIER && pgcd(g.P,g.Q)!==1){ vus.push(eti+' : le quotient '+g.P+'/'+g.Q+' se simplifie encore'); break; }
+        if(SIMPLIFIER && (pgcd(g.n1,g.d1)!==1 || pgcd(g.n2,g.d2)!==1)){ vus.push(eti+' : une fraction de départ est réductible'); break; }
+        if(SIMPLIFIER && g.P%g.Q===0){ vus.push(eti+' : le quotient '+g.P+'/'+g.Q+' est un entier'); break; }
+        if([g.n1,g.d1,g.n2,g.d2].some(function(x){ return x>MAX; })){ vus.push(eti+' : un nombre de départ dépasse '+MAX); break; }
         if(g.n2===0){ vus.push(eti+' : on divise par zéro'); break; }
         if(g.n2===g.d2){ vus.push(eti+' : on divise par 1, il n\\'y a rien à faire'); break; }
         if(g.P===g.Q){ vus.push(eti+' : le quotient vaut 1 tout rond'); break; }
@@ -7662,7 +7684,10 @@ function multiplierFractions(w, P){
     }
 
     /* ---- 6. LE LIBRE : les mêmes nombres, et la règle envoyée au modèle --- */
-    if(typeof startMLL!=='function' || typeof mllAttenduIA!=='function'){
+    if(!${!!R.libre}){
+      /* le profil dit que ce niveau n'a pas la version rédigée : l'avoir quand même serait une déclaration morte */
+      if(typeof startMLL==='function') vus.push('le profil dit « pas de version rédigée », et la page a startMLL');
+    } else if(typeof startMLL!=='function' || typeof mllAttenduIA!=='function'){
       vus.push('l\\'exercice en saisie libre est absent');
     } else {
       for(let i=0;i<200;i++){
@@ -7701,6 +7726,189 @@ function multiplierFractions(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---------- Le thème 4 « Fractions » de la Première : 4.2 à 4.5 ------------
+   Demande de Turquet (octobre 2026) : « mettre les exercices de seconde 5.2 ;
+   5.3 ; 5.6 ; 5.8 dans le thème fraction de première ; tous les nombres au
+   départ entre 1 et 5 ; pas de résultat intermédiaire ou final négatif ; les
+   fractions au début irréductibles ; si le résultat peut être simplifié,
+   proposer les simplifications comme dans l'exercice de première 4.1 ».
+   Déclaré par le profil (fractionsEtapes) ; la Seconde, qui garde ses
+   exercices tels quels, s'y affiche « non applicable ».
+   TROIS mesures, et chacune passe par le démarreur RÉEL de l'exercice —
+   jamais par le tirage seul : c'est le démarreur qui choisit la borne et pose
+   « test.etapes », et un tirage juste branché sur un démarreur qui l'oublie
+   ne se verrait pas.
+   ① LE TIRAGE, sur deux cents séances par exercice : chaque nombre de départ
+     entre 1 et la borne (et la borne ATTEINTE, sans quoi la mesure ne
+     mesurerait qu'un tirage trop étroit), les fractions de départ
+     irréductibles, et aucun nombre intermédiaire ou final négatif ou nul —
+     recalculé ICI, par une arithmétique propre : multiplicateurs du plus
+     petit dénominateur commun, numérateurs mis au même, résultat ; produit
+     et quotient. Un produit qui se simplifie doit SORTIR au moins une fois,
+     sans quoi la chaîne ne serait jamais exercée.
+   ② LA SOMME, par de vrais évènements « input » : sur le plus petit
+     dénominateur commun (1/2 + 1/4 = 2/4 + 1/4 = 3/4) aucune chaîne ; par 8,
+     la fraction obtenue 6/8 ouvre une étape, le diviseur se recopie, 2 la
+     ferme ; par 16, 12/16 ÷ 2 = 6/8 en ouvre une seconde. La copie juste vaut
+     le point, la réponse enregistrée garde toute la ligne, un diviseur faux
+     rougit et sa correction écrit le PGCD, un diviseur vide ne rougit pas, et
+     la reprise redessine les mêmes étapes.
+   ③ LE PRODUIT ET LE QUOTIENT : 2/3 × 3/5 = 6/15 montre sa chaîne d'emblée
+     (la fraction brute ne dépend que de l'énoncé), 2/3 × 1/5 = 2/15 n'en a
+     pas, et 2/3 ÷ 4/5 = 10/12 se simplifie par 2. Le message nomme la
+     simplification quand c'est elle qui manque. */
+function fractionsEtapes(w, P){
+  const R = P.fractionsEtapes;
+  const nom = 'le thème Fractions : nombres de 1 à ' + (R ? R.max : '?') + ', rien de négatif, et la simplification par étapes';
+  if(!R){
+    ignorer('le thème Fractions : nombres bornés, rien de négatif, et la simplification par étapes',
+      'ce niveau ne porte pas les exercices de fractions à simplification par étapes');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], MAX=${R.max}, IDS=${JSON.stringify(R.exercices)};
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+
+    /* ---- ① le tirage, par les démarreurs ---------------------------------- */
+    let reductible=0;
+    for(const id of IDS){
+      if(!TESTS[id] || !TEST_NUM[id]){ vus.push(id+' : absent du menu'); continue; }
+      let vuMax=false, faute='';
+      for(let t=0;t<200 && !faute;t++){
+        currentTestId=id; TESTS[id].start();
+        if(test.qId!==id) faute='la note part sous « '+test.qId+' »';
+        else if(!test.etapes) faute='le démarreur ne pose pas la simplification par étapes';
+        (test.questions||[]).forEach(function(q){
+          if(faute) return;
+          const eti=q.n1+'/'+q.d1+' '+(q.op||(test.inv?'÷':'×'))+' '+q.n2+'/'+q.d2;
+          const ent=[q.n1,q.n2], den=[q.d1,q.d2];
+          if(ent.concat(den).some(function(x){ return !(x>=1 && x<=MAX); })){ faute=eti+' : un nombre de départ sort de 1 à '+MAX; return; }
+          if(ent.concat(den).indexOf(MAX)>=0) vuMax=true;
+          if(pgcd(q.n1,q.d1)!==1 || pgcd(q.n2,q.d2)!==1){ faute=eti+' : une fraction de départ est réductible'; return; }
+          if(test.kind==='sf'){
+            const D=q.d1*q.d2/pgcd(q.d1,q.d2), A=q.n1*(D/q.d1), B=q.n2*(D/q.d2);
+            const N=(q.op==='+')?A+B:A-B;
+            if(!(A>0 && B>0 && N>0)){ faute=eti+' : un nombre intermédiaire ou final est négatif ou nul ('+A+', '+B+', '+N+'/'+D+')'; return; }
+            if(N*q.D!==q.N*D){ faute=eti+' : l’énoncé annonce '+q.N+'/'+q.D+', le calcul donne '+N+'/'+D; return; }
+            if(id==='croiser-denominateurs' && pgcd(q.d1,q.d2)!==1){ faute=eti+' : les dénominateurs ne sont pas premiers entre eux'; return; }
+          } else {
+            const a=test.inv?q.d2:q.n2, b=test.inv?q.n2:q.d2, Pn=q.n1*a, Qd=q.d1*b;
+            if(!(Pn>0 && Qd>0)){ faute=eti+' : le résultat est négatif ou nul'; return; }
+            if(Pn!==q.P || Qd!==q.Q){ faute=eti+' : le résultat rangé '+q.P+'/'+q.Q+' ne suit pas le calcul '+Pn+'/'+Qd; return; }
+            if(Pn%Qd===0){ faute=eti+' : le résultat est un entier'; return; }
+            if(pgcd(Pn,Qd)>1) reductible++;
+          }
+        });
+      }
+      if(faute) vus.push(id+' : '+faute);
+      else if(!vuMax) vus.push(id+' : aucun nombre de départ ne vaut jamais '+MAX+' en 200 séances — la borne reste hors d’atteinte');
+    }
+    if(!vus.length && !reductible) vus.push('aucun produit ni quotient ne se simplifie en 400 séances : la chaîne n’est jamais exercée');
+
+    const $$=function(id){ return document.getElementById(id); };
+    const tape=function(id,v){ const el=$$(id); if(!el){ vus.push('pas de case '+id); return; } el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
+    const peint=function(id){ const el=$$(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const der=function(){ return test.answers[test.answers.length-1]; };
+
+    /* ---- ② la somme : 1/2 + 1/4 --------------------------------------------- */
+    if(IDS.indexOf('somme-fractions-2')>=0){
+      currentTestId='somme-fractions-2'; TESTS['somme-fractions-2'].start();
+      const neuve=function(){ return {n1:1,d1:2,n2:1,d2:4,op:'+',D:4,k1:2,k2:1,N1:2,N2:1,N:3,Nr:3,Dr:4}; };
+      const route=function(m1,m2){ tape('sf-a1',m1); tape('sf-b1',m1); tape('sf-a2',m2); tape('sf-b2',m2);
+        tape('sf-num1',m1); tape('sf-num2',m2); tape('sf-den',2*m1); };
+      const pose=function(){ test.questions=[neuve()]; test.idx=0; test.locked=false; renderSFTest(); };
+      /* a) le plus petit dénominateur commun : rien à simplifier */
+      pose();
+      if($$('sf-e0-dn')) vus.push('somme : une étape de simplification s’affiche avant que l’élève ait écrit quoi que ce soit');
+      const lab=document.querySelector('#sfHost .pt-lab');
+      if(!lab || !/simplifier/.test(lab.textContent)) vus.push('somme : aucun libellé n’annonce la simplification');
+      route(2,1); tape('sf-fn',3); tape('sf-fd',4);
+      if($$('sf-e0-dn')) vus.push('somme : 3/4 est irréductible, et une simplification est demandée');
+      checkSFAnswer();
+      if(!der() || !der().correct) vus.push('somme : 1/2 + 1/4 = 2/4 + 1/4 = 3/4 est compté faux');
+      /* b) par 8 : 6/8, une étape */
+      pose(); route(4,2);
+      tape('sf-fn',6); tape('sf-fd',8);
+      if(!$$('sf-e0-dn')) vus.push('somme : par le dénominateur 8, la fraction 6/8 n’ouvre aucune étape de simplification');
+      else {
+        if(($$('sf-e0-an')||{}).textContent!=='6' || ($$('sf-e0-ad')||{}).textContent!=='8') vus.push('somme : les nombres divisés ne recopient pas 6/8');
+        tape('sf-e0-dn',2);
+        if(($$('sf-e0-dd')||{}).value!=='2') vus.push('somme : le diviseur écrit en haut ne se recopie pas en bas');
+        if($$('sf-e1-dn')) vus.push('somme : 6/8 ÷ 2 = 3/4 est irréductible, et une étape de plus s’ouvre');
+        if(($$('sf-fn')||{}).value!=='6') vus.push('somme : ouvrir une étape a effacé la fraction obtenue');
+        tape('sf-e0-n',3); tape('sf-e0-d',4);
+        checkSFAnswer();
+        if(!der() || !der().correct) vus.push('somme : 1/2 + 1/4 = 4/8 + 2/8 = 6/8 = 3/4 est compté faux');
+        else if(!/3 4$/.test(der().given)) vus.push('somme : la réponse enregistrée ne finit pas par la fraction simplifiée : '+der().given);
+      }
+      /* c) par 16 : 12/16 ÷ 2 = 6/8 se simplifie encore */
+      pose(); route(8,4); tape('sf-fn',12); tape('sf-fd',16); tape('sf-e0-dn',2);
+      if(!$$('sf-e1-dn')) vus.push('somme : 12/16 ÷ 2 = 6/8 se simplifie encore, et aucune nouvelle étape ne s’ouvre');
+      tape('sf-e0-n',6); tape('sf-e0-d',8); tape('sf-e1-dd',2); tape('sf-e1-n',3); tape('sf-e1-d',4);
+      if(($$('sf-e1-dn')||{}).value!=='2') vus.push('somme : le diviseur écrit en bas ne se recopie pas en haut');
+      checkSFAnswer();
+      if(!der() || !der().correct) vus.push('somme : 12/16 = 6/8 = 3/4 (÷2 puis ÷2) est compté faux');
+      /* d) la fraction simplifiée d'emblée ne suffit pas : la ligne demande le calcul tel quel */
+      pose(); route(4,2); tape('sf-fn',3); tape('sf-fd',4);
+      checkSFAnswer();
+      if(der() && der().correct) vus.push('somme : par le dénominateur 8, écrire 3/4 au lieu de 6/8 est compté juste — la chaîne n’a plus d’objet');
+      if(peint('sf-e0-dn')==='faux') vus.push('somme : un diviseur laissé vide rougit');
+      /* e) un diviseur qui ne divise pas : rouge, et la correction écrit 2 */
+      pose(); route(4,2); tape('sf-fn',6); tape('sf-fd',8); tape('sf-e0-dn',3); tape('sf-e0-n',2); tape('sf-e0-d',3);
+      checkSFAnswer();
+      if(der() && der().correct) vus.push('somme : le diviseur 3 de 6/8 est compté juste');
+      if(peint('sf-e0-dn')!=='faux') vus.push('somme : le diviseur 3 est peint '+peint('sf-e0-dn'));
+      const cor=$$('sf-e0-dn') && $$('sf-e0-dn').nextElementSibling;
+      if(!cor || cor.textContent!=='2') vus.push('somme : la correction du diviseur ne montre pas 2');
+      if(!/simplifie/.test(($$('sfFeedback')||{}).textContent||'')) vus.push('somme : le message ne nomme pas la simplification : « '+(($$('sfFeedback')||{}).textContent||'')+' »');
+      /* f) la reprise : la fraction brute et les diviseurs rangés redessinent les mêmes étapes */
+      pose(); route(8,4); tape('sf-fn',12); tape('sf-fd',16); tape('sf-e0-dn',2);
+      const qr=test.questions[0];
+      renderSFTest();
+      if(!$$('sf-e1-dn')) vus.push('somme : après un redessin (reprise), la seconde étape a disparu');
+      if(qr.sbrut!=='12/16' || !qr.sdiv || qr.sdiv[0]!=='2') vus.push('somme : rangé dans la question : '+qr.sbrut+' '+JSON.stringify(qr.sdiv));
+    }
+
+    /* ---- ③ le produit et le quotient --------------------------------------- */
+    if(IDS.indexOf('multiplier-fractions')>=0){
+      currentTestId='multiplier-fractions'; TESTS['multiplier-fractions'].start();
+      const pose=function(q){ test.questions=[q]; test.idx=0; test.locked=false; renderMltTest(); };
+      pose({n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15});
+      if(!$$('mlt-e0-dn')) vus.push('produit : 6/15 se simplifie, et aucune étape n’est posée d’emblée');
+      if($$('mlt-e1-dn')) vus.push('produit : 6/15 n’a besoin que d’une étape au départ');
+      tape('mlt-h1',2); tape('mlt-h2',3); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',6); tape('mlt-fd',15);
+      if(($$('mlt-e0-an')||{}).textContent!=='6') vus.push('produit : le nombre divisé ne recopie pas 6');
+      tape('mlt-e0-dn',3); tape('mlt-e0-n',2); tape('mlt-e0-d',5);
+      checkMltAnswer();
+      if(!der() || !der().correct) vus.push('produit : 2/3 × 3/5 = (2×3)/(3×5) = 6/15 = 2/5 est compté faux');
+      pose({n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15});
+      tape('mlt-h1',2); tape('mlt-h2',3); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',6); tape('mlt-fd',15);
+      checkMltAnswer();
+      if(der() && der().correct) vus.push('produit : la simplification laissée vide vaut le point');
+      if(peint('mlt-e0-dn')!=='correction') vus.push('produit : le diviseur laissé vide ne reçoit pas la correction ('+peint('mlt-e0-dn')+')');
+      pose({n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15});
+      tape('mlt-h1',2); tape('mlt-h2',3); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',6); tape('mlt-fd',15);
+      tape('mlt-e0-dn',2); tape('mlt-e0-n',3); tape('mlt-e0-d',7);
+      checkMltAnswer();
+      if(der() && der().correct) vus.push('produit : le diviseur 2 de 6/15 est compté juste');
+      if(!/simplifie/.test(($$('mltFeedback')||{}).textContent||'')) vus.push('produit : le message ne nomme pas la simplification : « '+(($$('mltFeedback')||{}).textContent||'')+' »');
+      pose({n1:2,d1:3,n2:1,d2:5,a1:2,a2:1,b1:3,b2:5,P:2,Q:15});
+      if($$('mlt-e0-dn')) vus.push('produit : 2/15 est irréductible, et une simplification est demandée');
+    }
+    if(IDS.indexOf('diviser-fractions')>=0){
+      currentTestId='diviser-fractions'; TESTS['diviser-fractions'].start();
+      test.questions=[{n1:2,d1:3,n2:4,d2:5,a1:2,a2:5,b1:3,b2:4,P:10,Q:12}]; test.idx=0; test.locked=false; renderMltTest();
+      [['mlt-i1',5],['mlt-i2',4],['mlt-h1',2],['mlt-h2',5],['mlt-b1',3],['mlt-b2',4],['mlt-fn',10],['mlt-fd',12],['mlt-e0-dn',2],['mlt-e0-n',5],['mlt-e0-d',6]]
+        .forEach(function(p){ tape(p[0],p[1]); });
+      checkMltAnswer();
+      if(!der() || !der().correct) vus.push('quotient : 2/3 ÷ 4/5 = 2/3 × 5/4 = 10/12 = 5/6 est compté faux');
+    }
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 /* {pourcentage-synthese} (Première 2.1.6) — la synthèse de {pourcentage},
    {pourcentage-depart} et {pourcentage-taux} sur le moteur pctq. Ses bords :
      · le tirage mêle les TROIS types, chacun au moins une fois, et l'ordre
