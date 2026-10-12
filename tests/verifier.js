@@ -4265,6 +4265,7 @@ function exercices(suite){
     pythonForMultiples(w, P);
     pythonForMoyenneNotes(w, P);
     pythonForImages(w, P);
+    pythonIfCinema(w, P);
     pythonChaines(w, P);
     pythonChaineLen(w, P);
     pythonForRange(w, P);
@@ -26034,7 +26035,7 @@ function pythonForMultiples(w, P){
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
     else if(st.ids[6]!=="${ID}"||st.ids[5]!=="python-for-depart-fin") vus.push("il n’est pas le septième du sous-thème, derrière {python-for-depart-fin} : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est plus le sixième du thème");    /* le 6.7 « Condition if else » est venu derrière lui */
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-trois-des"]!=="6.6.8"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.9") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -27642,7 +27643,7 @@ function pythonForRenommer(w, P){
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle/i.test(st.nom)||!/range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
     else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="${ID}") vus.push("il n’est pas le deuxième du sous-thème, derrière {python-for-range} : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est plus le sixième du thème");    /* le 6.7 « Condition if else » est venu derrière lui */
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5") vus.push("les autres exercices du 6.6 ne sont pas à leur place");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -27815,7 +27816,7 @@ function pythonForMoyenneNotes(w, P){
     if(!st||!/boucle/i.test(st.nom)||!/range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
     /* il fermait le sous-thème ; {python-for-images} (6.6.10) est venu derrière lui, sans rien renuméroter */
     else if(st.ids[8]!=="${ID}"||st.ids[7]!=="python-trois-des") vus.push("il n’est pas le neuvième du sous-thème, derrière {python-trois-des} : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est plus le sixième du thème");    /* le 6.7 « Condition if else » est venu derrière lui */
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-trois-des"]!=="6.6.8"||TEST_NUM["python-for-multiples"]!=="6.6.7"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -28499,6 +28500,216 @@ function pythonInputPrix(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-if-cinema} (Seconde, 6.7.1, BONUS) : l'exercice 2 du carnet — le
+   serpent au cinéma, puis « Le prix d'une place de cinéma est de 6 € pour les
+   mineurs et de 9 € pour les majeurs ; faire un programme qui demande l'âge
+   … si l'age est plus petit que 18 alors … sinon … ». Le contrôle tient la
+   place au menu (il ouvre le sous-thème 6.7 « Condition if else », né avec
+   lui, dernier du thème ; rien d'autre ne bouge ; « Bonus » dans le titre),
+   la fiche épinglée et le tirage, le juge sur des copies justes et fausses,
+   chacune avec le mot qui la nomme, l'écran tenu aux consignes du sous-thème
+   Input (le dessin seul en tête, l'énoncé de la fiche en gras dans son
+   cadre, aucun coup de pouce, aucune définition, la cellule et la console
+   vides), le dialogue de la console, la copie juste, fausse et vide, le
+   soutien qui explique sans révéler, puis compare à un vrai CPython ce que
+   les modèles affichent. Aucun accent grave ni antislash littéral dans le
+   code évalué. */
+function pythonIfCinema(w, P){
+  const nom = '{python-if-cinema} : le prix d’une place de cinéma';
+  if(!P.pythonIfCinema){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du cinéma'); return; }
+  const ID = P.pythonIfCinema.exercice, NB = P.pythonIfCinema.nb, NUM = P.pythonIfCinema.numero;
+  const present = evaluer(w, "typeof startPCI==='function' && typeof pciDiag==='function' && typeof pciBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPCI / pciDiag / pciBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ouvre le sous-thème 6.7 « Condition if else », dernier du thème, numéroté ' + NUM + ', « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
+    if(!st||st.nom!=="Condition if else") vus.push("pas de sous-thème 6.7 Condition if else");
+    else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
+    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(th&&th.sous&&(th.sous.length!==7||th.sous[5].num!==6||th.sous[5].nom!=="Boucle for in range")) vus.push("les sous-thèmes d’avant ont bougé");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-images"]!=="6.6.10"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+TESTS["${ID}"].name);
+    if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (6 € et 9 €), puis d’autres prix distincts ; le modèle de chacune passe au juge, chaque paire de prix sort ; 18 ans est parmi les âges du juge (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pciBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S0=pciSit(qs[0]); if(S0.mi!==6||S0.ma!==9){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois les mêmes prix : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PCI_PRIX.forEach(function(p, i){ const d=pciDiag(pciModele({s:i}),{s:i}); if(!d.ok) vus.push("le modèle "+i+" : "+d.dits.join(" ")); if(!(p[0]<p[1])) vus.push("les mineurs ne paient pas moins : "+p); });
+    if(new Set(PCI_PRIX.map(String)).size!==PCI_PRIX.length) vus.push("deux paires égales dans PCI_PRIX");
+    if(Object.keys(vues).length!==PCI_PRIX.length) vus.push("des prix ne sortent jamais : "+Object.keys(vues).join(","));
+    if(PCI_AGES.indexOf(18)<0||!PCI_AGES.some(function(a){ return a<18; })||!PCI_AGES.some(function(a){ return a>18; })) vus.push("les âges du juge : "+PCI_AGES);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte toute écriture juste (autre question, age >= 18 inversé, elif, deux if, « euros », sans le point, des virgules dans le print) et nomme chaque défaut — int oublié, float, la réponse hors de age, l’input muet, aucune question, deux questions, age <= 18, les prix échangés, le même prix à tout âge, les deux phrases, une autre phrase, rien d’affiché à un âge, les deux-points, le retrait, else sans if, « si », un autre prix, pas de if, guillemets typographiques, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), TAB=String.fromCharCode(9), Q=String.fromCharCode(34), q={s:0,prog:""};
+    const AGE="age = int(input("+Q+"Quel est ton âge ? "+Q+"))"+NL;
+    const pr=function(t){ return "print("+Q+t+Q+")"; };
+    const si=function(cond, a, b){ return AGE+"if "+cond+":"+NL+"    "+a+NL+"else:"+NL+"    "+b; };
+    const P6=pr("Tu dois payer 6 €. "), P9=pr("Tu dois payer 9€.");
+    const justes=[pciModele(q),
+                  si("age < 18", P6, P9),
+                  si("age >= 18", P9, P6),
+                  AGE+"if age < 18:"+NL+"    "+P6+NL+"elif age >= 18:"+NL+"    "+P9,
+                  AGE+"if age < 18:"+NL+"    "+P6+NL+"if age >= 18:"+NL+"    "+P9,
+                  si("age<18", pr("Tu dois payer 6 euros"), pr("Tu dois payer 9 euros")),
+                  si("age < 18", "print("+Q+"Tu dois payer"+Q+", 6, "+Q+"€."+Q+")", "print("+Q+"Tu dois payer"+Q+", 9, "+Q+"€."+Q+")"),
+                  "# le cinéma"+NL+"age=int(input("+Q+"Ton âge : "+Q+"))"+NL+NL+"if age < 18 :"+NL+TAB+"print("+Q+"Tu dois payer 6 €"+Q+")"+NL+"else :"+NL+TAB+"print("+Q+"Tu dois payer 9 €"+Q+")"+NL];
+    justes.forEach(function(p){ const d=pciDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[
+      ["age = input("+Q+"Âge ? "+Q+")"+NL+"if age < 18:"+NL+"    "+P6+NL+"else:"+NL+"    "+P9, /TEXTE/],
+      ["age = float(input("+Q+"Âge ? "+Q+"))"+NL+"if age < 18:"+NL+"    "+P6+NL+"else:"+NL+"    "+P9, /ENTIER/],
+      ["a = int(input("+Q+"Âge ? "+Q+"))"+NL+"if a < 18:"+NL+"    "+P6+NL+"else:"+NL+"    "+P9, /variable age/],
+      ["age = int(input())"+NL+"if age < 18:"+NL+"    "+P6+NL+"else:"+NL+"    "+P9, /pas de question/],
+      ["age = 15"+NL+"if age < 18:"+NL+"    "+P6+NL+"else:"+NL+"    "+P9, /aucune question/],
+      [AGE+"n = input("+Q+"Nom ? "+Q+")"+NL+P6, /plus d’une question/],
+      [si("age <= 18", P6, P9), /18 n’est pas plus petit/],
+      [si("age < 18", P9, P6), /échangés/],
+      [si("age < 18", P6, P6), /toujours le même prix/],
+      [AGE+"if age < 18:"+NL+"    "+P6+NL+P9, /2 phrases/],
+      [si("age < 18", pr("Prix : 6 €"), pr("Prix : 9 €")), /phrase n’est pas celle/],
+      [AGE+"if age < 18:"+NL+"    "+P6, /n’affiche rien/],
+      [AGE+"if age < 18"+NL+"    "+P6+NL+"else:"+NL+"    "+P9, /deux-points/],
+      [AGE+"if age < 18:"+NL+P6+NL+"else:"+NL+P9, /décalées/],
+      [AGE+"else:"+NL+"    "+P9, /sans « if »/],
+      [AGE+"si age < 18:"+NL+"    "+P6, /if/],
+      [si("age < 18", pr("Tu dois payer 7 €."), P9), /il fallait « Tu dois payer 6 €. »/],
+      [AGE+"n = age"+NL+"while age < 18:"+NL+"    "+P6+NL+"    age = 100"+NL+"while n >= 18:"+NL+"    "+P9+NL+"    n = 0", /un test/],
+      ["age = int(input(“Âge ?”))", /guillemets/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      let d; try{ d=pciDiag(c[0],q); }catch(e){ vus.push("le juge lève : "+e.message+" sur "+JSON.stringify(c[0])); return; }
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    if(!pciDiag("",q).vide) vus.push("la copie vide n’est pas reconnue");
+    const q2={s:2}; if(!pciDiag(pciModele(q2),q2).ok||pciDiag(pciModele(q),q2).ok) vus.push("le juge ne suit pas les prix de la question");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input, le dialogue, et la copie juste ---- */
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni coup de pouce, l’énoncé de la fiche mot pour mot en gras dans son cadre, la cellule et la console VIDES, « Exécuter » qui pose la question dans la console ; le rappel ne redit que la consigne ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPCI();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const ecr=document.getElementById("scr-pci"), en=document.getElementById("pciInstr"), img=en&&en.querySelector("img.pci-img");
+    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
+    const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
+    if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
+    if(document.querySelector("#scr-pci .py-avant,#scr-pci .pyp-regle,#scr-pci .pyi-cours,#scr-pci .pii-def")) vus.push("un encadré de définition sur l’écran");
+    if(document.querySelector("#scr-pci details")) vus.push("un coup de pouce que la fiche n’a pas");
+    const et=document.getElementById("pciEtape"), ti=et&&et.querySelector(".pyn-titre");
+    const attendu="✏️ Le prix d’une place de cinéma est de 6 € pour les mineurs et de 9 € pour les majeurs. Faire un programme Qui demande l’âge de l’utilisateur et qui met le résultat dans la variable entière age. Si l’age est plus petit que 18 Alors il affiche "+Q+"Tu dois payer 6 €. "+Q+" et sinon il affiche "+Q+"Tu dois payer 9€."+Q;
+    if(!ti||net(ti.textContent)!==attendu) vus.push("l’énoncé : "+(ti&&JSON.stringify(net(ti.textContent))));
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    if(!ti||ti.querySelectorAll("li").length!==2||!ti.querySelector("hr")) vus.push("les deux puces séparées par un trait");
+    ["pci-prog","pciRun","pciConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pci||"";
+    if(net(rap.textContent)!=="Le prix d’une place de cinéma "+attendu.slice(3).replace("Faire un programme Qui","Faire un programme - Qui").replace(" Si l’age"," - Si l’age")) vus.push("le rappel : "+JSON.stringify(net(rap.textContent)));
+    const ta=document.getElementById("pci-prog"), cons=document.getElementById("pciConsole");
+    if(ta.value!==""||ta.getAttribute("placeholder")) vus.push("la cellule n’est pas vide");
+    if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide : "+JSON.stringify(cons.textContent+getComputedStyle(cons,"::before").content));
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value=pciModele(q);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    pciExecuter();
+    const rep=document.getElementById("pci-rep");
+    if(!rep||cons.textContent.indexOf("Quel est ton âge ? ")!==0) vus.push("la console ne pose pas la question : "+JSON.stringify(cons.textContent));
+    else {
+      rep.value="16"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+      if(cons.textContent!=="Quel est ton âge ? 16"+NL+"Tu dois payer 6 €.") vus.push("la console après la réponse : "+JSON.stringify(cons.textContent));
+    }
+    checkPCI();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    if(cons.textContent.indexOf("(la page a répondu « 18 »)")<0||cons.textContent.indexOf("Tu dois payer 9 €.")<0) vus.push("la console de la vérification : "+JSON.stringify(cons.textContent));
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPCI();
+    if(test.idx!==1||document.getElementById("pci-prog").value!==""||document.getElementById("pciConsole").textContent!=="") vus.push("la question suivante ne s’ouvre pas sur une zone et une console vides");
+    const S1=pciSit(test.questions[1]), t1=net(document.querySelector("#pciEtape .pyn-titre").textContent);
+    if(t1.indexOf("est de "+S1.mi+" € pour les mineurs et de "+S1.ma+" € pour les majeurs")<0||t1.indexOf("Tu dois payer "+S1.ma+"€.")<0) vus.push("l’énoncé de la question 2 ne suit pas ses prix : "+t1);
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPCI();
+    let ta=document.getElementById("pci-prog");
+    ta.value="age = int(input("+Q+"Âge ? "+Q+"))"+NL+"if age <= 18:"+NL+"    print("+Q+"Tu dois payer 6 €."+Q+")"+NL+"else:"+NL+"    print("+Q+"Tu dois payer 9 €."+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPCI();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pciModele .sol");
+    if(!mod||mod.textContent!==pciModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    nextPCI(); ta=document.getElementById("pci-prog");
+    checkPCI();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pciModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPCI(); ta=document.getElementById("pci-prog");
+    checkPCI();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="age = input("+Q+"Âge ? "+Q+")"+NL+"if age < 18:"+NL+"    print("+Q+"Tu dois payer 6 €."+Q+")"+NL+"else:"+NL+"    print("+Q+"Tu dois payer 9 €."+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPCI();
+    const fb=document.getElementById("pciFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/TEXTE/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pciModele .sol")||fb.indexOf("else:")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPci(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ----
+     input est remplacé, côté CPython, par une fonction qui rend la réponse
+     sans écrire la question. */
+  const nomPy = 'ce que les modèles de {python-if-cinema} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PCI_PRIX.forEach(function(_, i){ PCI_AGES.concat([0, 99]).forEach(function(a){
+      const src=pciModele({s:i}), r=pyRun(src,[String(a)]);
+      res.push([src, [String(a)], r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* {python-for-images} (Seconde, 6.6.10, BONUS) : l'exercice 10 du carnet — la
    photo de l'élève penché sur son clavier, puis « Soit la fonction f(x) =
    x² − 6x + 3 ; faire un programme qui affiche les images pour x = 0 puis
@@ -28527,7 +28738,7 @@ function pythonForImages(w, P){
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
     else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-for-moyenne-notes") vus.push("il ne ferme pas le sous-thème derrière {python-for-moyenne-notes} : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est plus le sixième du thème");    /* le 6.7 « Condition if else » est venu derrière lui */
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-for-multiples"]!=="6.6.7"||TEST_NUM["python-trois-des"]!=="6.6.8"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.9") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -28730,7 +28941,7 @@ function pythonForNom(w, P){
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
     /* l'ordre du carnet : la définition ({python-for-range}, exercice 1) devant, puis celui-ci (exercice 5) */
     else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="python-for-renommer"||st.ids[2]!=="${ID}") vus.push("il ne suit pas {python-for-range} puis {python-for-renommer} : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est plus le sixième du thème");    /* le 6.7 « Condition if else » est venu derrière lui */
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -28913,7 +29124,7 @@ function pythonForErreur(w, P){
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
     /* il fermait le sous-thème ; {python-for-renommer} est passé devant lui en 6.6.2 (ordre du carnet) : il est le cinquième */
     else if(st.ids[4]!=="${ID}") vus.push("il n’est pas le cinquième du sous-thème : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est plus le sixième du thème");    /* le 6.7 « Condition if else » est venu derrière lui */
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-range"]!=="6.6.1") vus.push("{python-for-nom} a bougé : "+TEST_NUM["python-for-nom"]);
     if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
