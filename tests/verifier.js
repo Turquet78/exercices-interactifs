@@ -38492,7 +38492,14 @@ function sommeFractionsLibre(w, P){
    gagné une étape intermédiaire en septembre 2026 (rvfExtra) : voir
    docs/journal/07-fractions.md. Les valeurs attendues sont recalculées ICI
    par une arithmétique indépendante — jamais en rappelant rvfReponse ou
-   rvfExtra pour se juger elles-mêmes. */
+   rvfExtra pour se juger elles-mêmes.
+   Puis la Première l'a reçu (4.1, octobre 2026) : ce qui diffère d'un niveau
+   à l'autre se DÉCLARE dans le profil (revisionFractions) — le numéro, la
+   borne des nombres de départ (9 en Seconde, 5 en Première) et le barème
+   (« cases » en Seconde, où finishTest lit maxScore ; « questions » en
+   Première, où la note se compte par question parfaite). Un niveau qui a
+   l'exercice sans le déclarer rougit : un contrôle qui ne sait pas ce qu'il
+   mesure ne mesure rien. */
 function revisionFractions(w, P){
   const present = evaluer(w, "typeof startRvf==='function' && typeof rvfCases==='function' && typeof rvfExtra==='function' && typeof rvfEtapes==='function'");
   if(!present.ok || !present.valeur){
@@ -38500,14 +38507,40 @@ function revisionFractions(w, P){
       'ce niveau n\'a pas l\'exercice de révision des fractions');
     return;
   }
+  const R = P.revisionFractions;
+  if(!R){
+    verifier('réviser les quatre règles des fractions : les étapes intermédiaires et le barème', false,
+      'ce niveau a l\'exercice, mais son profil ne déclare pas revisionFractions (numéro, borne, barème)');
+    return;
+  }
+  /* LA BORNE DES NOMBRES DE DÉPART : trois cents séances tirées, chaque
+     nombre lu sur la question — dénominateurs de 2 à max, numérateurs de 1 à
+     max, entiers de 2 à max. La page dit sa borne (RVF_MAX) ; le banc la
+     compare à la sienne, puis mesure les tirages : deux sources. */
+  verifierEval(w, 'réviser les quatre règles des fractions : les nombres de départ vont de 1 à ' + R.max, `(function(){
+    const vus=[], MAX=${R.max};
+    if(typeof RVF_MAX==='undefined' || RVF_MAX!==MAX) vus.push('RVF_MAX vaut '+(typeof RVF_MAX==='undefined'?'(absent)':RVF_MAX)+' au lieu de '+MAX);
+    let vuMax=false;
+    for(let s=0;s<300 && vus.length<4;s++){
+      rvfBuildQuestions().forEach(function(q){
+        ['d','d1','d2'].forEach(function(k){ if(k in q){ if(!(q[k]>=2 && q[k]<=MAX)) vus.push(q.type+' : dénominateur '+k+'='+q[k]); if(q[k]===MAX) vuMax=true; } });
+        ['n','n1','n2'].forEach(function(k){ if(k in q && !(q[k]>=1 && q[k]<=MAX)) vus.push(q.type+' : numérateur '+k+'='+q[k]); });
+        if('k' in q && !(q.k>=2 && q.k<=MAX)) vus.push(q.type+' : entier k='+q.k);
+      });
+    }
+    if(!vus.length && !vuMax) vus.push('aucun dénominateur ne vaut jamais '+MAX+' en 300 séances : la borne reste hors d’atteinte');
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  const BAREME = (R.bareme === 'questions') ? 8 : 42;
   verifierEval(w, 'réviser les quatre règles des fractions : les étapes intermédiaires et le barème', `(function(){
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='revision-fractions';
 
     /* ---- 0. la place, et le bouton des tables (on multiplie, ici) --------- */
-    if(TEST_NUM['revision-fractions']!=='5.11') vus.push('numéro '+TEST_NUM['revision-fractions']+' au lieu de 5.11');
-    if(TABLES_SANS.indexOf('revision-fractions')>=0) vus.push("le bouton des tables est retiré, alors qu'on multiplie dans cet exercice");
+    if(TEST_NUM['revision-fractions']!=='${R.num}') vus.push('numéro '+TEST_NUM['revision-fractions']+' au lieu de ${R.num}');
+    if(typeof TABLES_SANS!=='undefined' && TABLES_SANS.indexOf('revision-fractions')>=0) vus.push("le bouton des tables est retiré, alors qu'on multiplie dans cet exercice");
 
     /* ---- 1. la phrase de mult-entier porte le dénominateur 1 -------------- */
     const rMult=RVF_REGLES['mult-entier'];
@@ -38554,7 +38587,7 @@ function revisionFractions(w, P){
 
     /* ---- 3. le rendu, le libellé d'étape, et la copie juste, par le BOUTON */
     startRvf();
-    if(test.maxScore!==42) vus.push('barème de '+test.maxScore+' au lieu de 42 (3+3+3+4+11+8+5+5)');
+    if(test.maxScore!==${BAREME}) vus.push('barème de '+test.maxScore+' au lieu de ${BAREME} (${R.bareme === 'questions' ? 'un point par question' : '3+3+3+4+11+8+5+5'})');
     test.questions=RVF_ORDRE.map(function(type){ return FIXES[type]; });
     for(let i=0;i<RVF_ORDRE.length && !vus.length;i++){
       const type=RVF_ORDRE[i], att=ATTENDU[type];
@@ -38575,7 +38608,7 @@ function revisionFractions(w, P){
       if(!der || !der.correct) vus.push(type+' : la copie juste est comptée fausse');
     }
     if(vus.length) return vus.slice(0,6).join(' | ');
-    if(test.score!==42) vus.push('score '+test.score+' au lieu de 42, sur une copie entièrement juste des huit questions');
+    if(test.score!==${BAREME}) vus.push('score '+test.score+' au lieu de ${BAREME}, sur une copie entièrement juste des huit questions');
 
     /* ---- 4. mult-entier : la case du dénominateur est bien DEMANDÉE (vide
        au départ), et une mauvaise valeur la peint en rouge — la correction
