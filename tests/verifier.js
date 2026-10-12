@@ -28807,7 +28807,7 @@ function pythonIfElse(w, P){
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     /* textContent colle les blocs : un espace après chaque puce, paragraphe et cellule de la définition */
-    const lit=function(el){ const c=el.cloneNode(true); c.querySelectorAll("li,p,ul,div,.pce-def-g>span").forEach(function(e){ e.appendChild(document.createTextNode(" ")); }); return net(c.textContent); };
+    const lit=function(el){ const c=el.cloneNode(true); c.querySelectorAll("li,p,ul,div,.pce-def-g>span").forEach(function(e){ e.insertBefore(document.createTextNode(" "), e.firstChild); e.appendChild(document.createTextNode(" ")); }); return net(c.textContent); };
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const ecr=document.getElementById("scr-pce"), img=ecr.querySelector("#pceFig img.pce-img");
     if(!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("pas de dessin");
