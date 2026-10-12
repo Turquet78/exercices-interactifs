@@ -5018,7 +5018,7 @@ le programme (SyntaxError) puis, les deux-points remis, l'exécute et affiche
 `valeur= 0` à `valeur= 8`.
 
 **Puis l'exercice a posé TROIS programmes faux** (Seconde, 6.6.4 au moment de la demande) (demande de Turquet, octobre
-2026, version 447 — 439 à 446 pris sur `main` pendant les bancs, et l'exercice passé entre-temps en 6.6.5 : « faire aussi une question où l'erreur est qu'il n'y a pas
+2026, version 448 — 439 à 447 pris sur `main` pendant les bancs, et l'exercice passé entre-temps en 6.6.5 : « faire aussi une question où l'erreur est qu'il n'y a pas
 de décalage après le "for in range :", et une autre question où l'erreur est
 que k est la variable du for et i est la variable dans la ligne du print »).
 La séance passe à trois questions, toujours dans le même ordre : la fiche
