@@ -450,3 +450,12 @@ recompose d'après la traduction du 3.2 (`pbNomVifMaj`), et les
 noms à listes déroulantes de {lire-probabilites} et de la fiche (l'espace est
 HORS du `.pb-par`, dont la police à 1,45 em l'aurait élargi). Les textes
 envoyés au modèle ne changent pas.
+
+Puis (v302) : « le faire aussi dans le 3.2 ». Le 3.2 avait bien l'espace —
+mesuré dans Chromium, 13 à 14 px dans les deux exercices —, mais il ne se
+VOYAIT pas : le capot d'un T ou d'un V en italique déborde à droite et
+recouvre l'espace ; un L, au 3.1, n'a rien qui dépasse. La « ) » porte donc
+désormais une correction d'italique en plus de l'espace (`.pb-fp`,
+`margin-left:.15em`), dans les trois écritures du nom (`pbNomHTML`,
+`pbNomVifMaj`, `pbPourquoi`). Les noms à listes déroulantes n'en ont pas
+besoin : une case n'a pas de capot qui dépasse.
