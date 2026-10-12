@@ -5344,12 +5344,79 @@ visite universelle (section 9) l'ouvre dans les deux modes.
 
 ---
 
-## {python-tables-multiplication} — afficher les tables de 2 à 9 (6.6.10, Boucle for in range, BONUS)
+## {python-for-images} — les images de f de dixième en dixième (6.6.10, Boucle for in range, BONUS)
 
-**L'exercice 12 du carnet.** {python-tables-multiplication} (Seconde, 6.6.10,
-APP_VERSION 448 — 6.6.6 à 6.6.9 et les versions 437 à 447 pris sur `main`
+**L'exercice 10 du carnet sur la boucle.** {python-for-images} (Seconde,
+6.6.10, APP_VERSION 448 — de 437 à 447, toutes prises sur `main` pendant ses bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+le sous-thème "boucle for in range", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre ») : la photo de
+l'élève penché sur son clavier, puis « Soit la fonction f(x) = x² − 6x + 3.
+Faire un programme qui affiche les images pour x = 0 puis 0,1 puis 0,2 … de
+dixième en dixième jusqu'à 1, de la façon suivante : L'image de 0 par f est
+… », et deux coups de pouce. Écrit en 6.6.6, il a croisé à la fusion de `main`
+{python-for-depart-fin}, mis en ligne pendant ses bancs sous le même numéro :
+l'exercice en ligne garde sa place, puis {python-trois-des}, {python-for-moyenne-notes} et
+{python-for-multiples} (inséré en 6.6.7, il a décalé les deux autres en 6.6.8
+et 6.6.9) : celui-ci ferme le sous-thème en 6.6.10, et les contrôles des
+exercices en ligne qui exigeaient de FERMER le 6.6 exigent désormais leur rang. Rien n'est renuméroté.
+
+**« Bonus » est dans le TITRE** (`TESTS[…].name` commence par « Bonus : »),
+comme {python-trois-des} et {python-for-moyenne-notes} devant lui — ceux du 6.4 et du 6.5 ne le
+disaient que dans leur description, et le sous-thème dans son nom. Le
+contrôle l'exige.
+
+**La présentation est celle de {python-for-nom}** : la photo seule dans
+`#pfiInstr` (découpée dans la capture, WebP de 9 Ko, `PFI_IMG`) ; la
+question dans un cadre `.pyn-etape`, en gras, qui enveloppe les coups de
+pouce, la cellule, « Exécuter » et la console ; la fonction en grand,
+centrée, comme sur la fiche (`.pfi-fonction`, les lettres en `<i>`) ; la
+sortie attendue en chasse fixe (`pre.pfi-sortie`, au caractère près, le
+double espace de « 1  par » compris). Aucune définition (exception
+déclarée, `pythonAvant.sans`) ; la console vide reste un cadre vide
+(`#pfiConsole` rejoint `content:none`). **Les deux coups de pouce sont
+ceux de la fiche, mot pour mot** — seul « bloucle » est corrigé —, en chasse
+fixe comme sur la capture, le code du second colorié comme le carnet
+(`for`, `in`, `range` en vert gras, `=` et `/` en violet) ; le rappel
+(`RAP_PFI`) ne dit qu'eux.
+
+**Le juge (`pfiDiag`) lit les NOMBRES affichés, jamais le texte** :
+l'interpréteur du 6.4.5 a les flottants de CPython (`0.2**2-6*0.2+3` →
+`1.8399999999999999`), si bien qu'une comparaison de texte refuserait
+`x*x`, juste. Il faut 11 lignes ; la k-ième donne k/10 (premier nombre) puis
+son image (dernier nombre), à 10⁻⁶ près, dans la phrase de la fiche
+(« L'image de # par f est # », l'apostrophe, les espaces et un « : » final
+tolérés) ; et une boucle `for` dans le programme. Nommés : `range(10)` qui
+s'arrête à 0.9, `x` non divisé par 10 (de 0 à 10), `x*2` pris pour le carré,
+une mauvaise image, l'image sans son `x`, la phrase absente, les lignes
+vides, les 11 print à la main ; et avant l'exécution, `^` ou `²` pour le
+carré, `6x` sans `*`, `range` à pas décimal, `round(…, 2)`, `def` et `while`
+— que cette page n'exécute pas : le dire vaut mieux qu'une IndentationError
+qui accuse le décalage —, `f(x)` sans fonction, un `input`.
+
+**La séance** : la fiche épinglée (x² − 6x + 3), puis d'autres fonctions
+du second degré (`PFI_F`, `[a, b, c]`) tirées par `distinctes()` ;
+`dmNbQuestions()` l'allonge. Le programme voyage dans `q.prog` et compte
+pour UNE case (`pts-case`). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Contrôle :
+`pythonForImages` (banc principal) — la place, le titre, le tirage
+(300 séances), le juge sur 5 copies justes et 19 fausses, chacune avec le
+mot qui la nomme, l'écran tenu aux consignes, les copies juste, fausse et
+vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
+CPython. La visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-tables-multiplication} — afficher les tables de 2 à 9 (6.6.11, Boucle for in range, BONUS)
+
+**L'exercice 12 du carnet.** {python-tables-multiplication} (Seconde, 6.6.11,
+APP_VERSION 449 — 6.6.6 à 6.6.10 et les versions 437 à 448 pris sur `main`
 pendant les bancs, par {python-for-depart-fin}, {python-for-multiples},
-{python-trois-des}, {python-for-moyenne-notes} et la Première —, demande de Turquet, octobre 2026 : « en seconde dans le sous
+{python-trois-des}, {python-for-moyenne-notes}, {python-for-images} et la
+Première —, demande de Turquet, octobre 2026 : « en seconde dans le sous
 thème "boucle for in range", créer un exercice qui suit les images jointes ;
 respecter les consignes de présentation des autres exercices d'algo du
 sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
@@ -5360,9 +5427,14 @@ dans le cadre de la console ; mettre bonus dans le titre ») : le bandeau
 de **la table de 2 jusqu'à la table de 9** », et UN coup de pouce — « On
 pourra utiliser une double boucle », `for l in range ( 2 , 10 ):`, puis,
 décalés, `for k in range ( 1 , 10 ):` et `print (...`, au caractère près.
-Il ferme le 6.6, derrière {python-for-moyenne-notes} : rien n'est renuméroté.
-Le contrôle de {python-for-moyenne-notes} exigeait de FERMER le sous-thème :
-il exige désormais d'en être le neuvième, derrière {python-trois-des}. Pendant les
+Il ferme le 6.6, derrière {python-for-images} : rien n'est renuméroté.
+Le contrôle de {python-for-images} exigeait de FERMER le sous-thème : il
+exige désormais d'en être le dixième, derrière {python-for-moyenne-notes}.
+Cinq fusions de `main` en une journée : à chaque fois, une session voisine
+avait mis en ligne le numéro et la version d'ici ; la dernière a été
+REFAITE à partir des fichiers de `main` (l'écran et le moteur, copiés du
+même {python-for-nom} que {python-for-images}, s'entremêlaient ligne à ligne
+dans la fusion automatique). Pendant les
 bancs, {python-for-renommer} est passé en 6.6.2 (l'ordre du carnet) : le
 contrôle d'ici épingle ce nouvel ordre. « Bonus » est dans le NOM (`TESTS`), le
 titre que montrent le menu et le bilan — le sous-thème « Bonus » (6.4) n'a pas
