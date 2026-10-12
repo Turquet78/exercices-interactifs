@@ -869,7 +869,7 @@ navigateur s'y connecte toujours (`page.fill`). Tenu par deux bords dans
 style calculé (`webkitTextSecurity` = `disc`, type `text`).
 
 **Le décor d'Halloween, en Seconde seulement (demande de Turquet, octobre
-2026, v450).** Ciel de nuit, guirlande de citrouilles, chauves-souris, toile
+2026, v456).** Ciel de nuit, guirlande de citrouilles, chauves-souris, toile
 d'araignée dans le coin des cadres, boutons d'action orange. Il s'allume TOUT
 SEUL du 15 octobre au 2 novembre (script `#decor-halloween`, juste avant
 `#italiquer-x`) : hors de ces dates le script rend la main sans rien poser, et
