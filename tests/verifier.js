@@ -25354,14 +25354,15 @@ function pythonForOuiNon(w, P){
     const ta=document.getElementById("pfo-exp");
     if(!ta||!ta.classList.contains("pts-case")) vus.push("l’explication n’est pas une pts-case");
     /* vide : ne part pas, ne rougit pas */
-    const avant=sb.functions.invoke; let envoye=null;
-    sb.functions.invoke=function(n,o){ envoye=o&&o.body; return new Promise(function(){}); };
+    /* le banc n'a pas forcément lancé initSupabase : un double le temps de l'envoi */
+    const sbAvant=sb; let envoye=null;
+    sb={functions:{invoke:function(n,o){ envoye=o&&o.body; return new Promise(function(){}); }}};
     checkPFO();
     if(envoye||ta.classList.contains("bad")||test.locked) vus.push("l’explication vide part ou rougit");
     ta.value="print non n’est pas décalé, il n’est pas dans la boucle";
     ta.dispatchEvent(new Event("input",{bubbles:true}));
     checkPFO();
-    sb.functions.invoke=avant;
+    sb=sbAvant;
     if(!envoye||envoye.action!=="verif"||envoye.reponse!==ta.value.trim()||!/RÈGLE DE DÉCISION/.test(envoye.attendu)||!/range \\(9\\)/.test(envoye.question)) vus.push("ce qui part au modèle : "+JSON.stringify(envoye));
     test.pfoBusy=false;
     pfoVerdict({correct:true, feedback:"Bravo"}, ta.value.trim());
