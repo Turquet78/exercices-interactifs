@@ -4230,6 +4230,7 @@ function exercices(suite){
     pythonInputFloat(w, P);
     pythonInputSomme(w, P);
     pythonInputPrix(w, P);
+    pythonForNom(w, P);
     pythonInputEvolution(w, P);
     pythonInputDuree(w, P);
     pythonInputDureeSecondes(w, P);
@@ -27138,6 +27139,184 @@ function pythonInputPrix(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-for-nom} (Seconde, 6.6.1) : l'exercice 5 du carnet — les deux
+   serpents, la bulle « Bonjour » ×4. Afficher 8 fois son nom et prénom avec
+   une boucle for. Le contrôle tient la place au menu (il ouvre le sous-thème
+   6.6 « Boucle for in range », ajouté en dernier : rien d'autre ne bouge), la
+   fiche épinglée et le tirage, le juge — qui ne lit que ce que le programme
+   AFFICHE — sur des copies justes et fausses, chacune avec le mot qui la
+   nomme, l'écran tenu aux consignes du sous-thème Input (le dessin seul en
+   tête, l'énoncé en gras dans son cadre, le coup de pouce seul et replié,
+   aucune définition, la cellule et la console vides, le rappel réduit au
+   coup de pouce), la copie juste, fausse et vide, le soutien qui explique
+   sans révéler, puis compare à un vrai CPython ce que les modèles affichent.
+   Aucun accent grave ni antislash littéral dans le code évalué. */
+function pythonForNom(w, P){
+  const nom = '{python-for-nom} : afficher 8 fois son nom et prénom';
+  if(!P.pythonForNom){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la boucle for'); return; }
+  const ID = P.pythonForNom.exercice, NB = P.pythonForNom.nb, NUM = P.pythonForNom.numero;
+  const present = evaluer(w, "typeof startPFN==='function' && typeof pfnDiag==='function' && typeof pfnBuildQuestions==='function' && typeof ptrDerouler==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPFN / pfnDiag / pfnBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ouvre le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
+    if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
+    else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
+    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (8 fois), puis d’autres nombres distincts ; le modèle de chacune passe au juge, chaque nombre sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pfnBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      if(pfnFois(qs[0])!==8){ vus.push("la fiche n’ouvre pas la séance : "+pfnFois(qs[0])); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois le même nombre : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PFN_FOIS.forEach(function(_, i){ const d=pfnDiag(pfnModele({s:i}),{s:i}); if(!d.ok) vus.push("le modèle "+i+" : "+d.dits.join(" ")); });
+    if(new Set(PFN_FOIS).size!==PFN_FOIS.length) vus.push("deux nombres égaux dans PFN_FOIS");
+    if(Object.keys(vues).length!==PFN_FOIS.length) vus.push("des nombres ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte toute boucle juste (range(8), range(1,9), un corps sur la ligne du for, une variable) et nomme chaque défaut — rien d’affiché, une ligne de trop ou de moins, le numéro du tour, des lignes vides, le nom seul, tout sur une ligne, les print à la main, un input, la boucle sans décalage ou sans deux-points, guillemets typographiques, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0,prog:""};
+    const pr=function(t){ return "print("+Q+t+Q+")"; };
+    const justes=[pfnModele(q),
+                  "for k in range(1,9):"+NL+"    "+pr("Dupont Léa"),
+                  "for i in range(8): "+pr("Léa Dupont"),
+                  "nom = "+Q+"Dupont"+Q+NL+"prenom = "+A+"Léa"+A+NL+"for k in range(8):"+NL+"  print(nom, prenom)",
+                  "# mon nom"+NL+"for k in range(0,8):"+NL+NL+"    print("+A+"Jean-Pierre Martin"+A+")"+NL];
+    justes.forEach(function(p){ const d=pfnDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const huit=[]; for(let k=0;k<8;k++) huit.push(pr("Léa Dupont"));
+    const cas=[
+      ["for k in range(8):"+NL+"    x = 1", /n’affiche rien/],
+      ["for k in range(1,8):"+NL+"    "+pr("Léa Dupont"), /7 fois/],
+      ["for k in range(9):"+NL+"    "+pr("Léa Dupont"), /9 fois/],
+      ["for k in range(1,9):"+NL+"    print(k, "+Q+"Léa Dupont"+Q+")", /numéro du tour/],
+      ["for k in range(8):"+NL+"    "+pr("Léa Dupont")+NL+"    print()", /lignes vides/],
+      ["for k in range(8):"+NL+"    "+pr("Léa"), /nom ET ton prénom/],
+      [pr("Léa Dupont Léa Dupont Léa Dupont Léa Dupont Léa Dupont Léa Dupont Léa Dupont Léa Dupont"), /UNE ligne/],
+      [huit.join(NL), /boucle for/],
+      ["nom = input("+Q+"Nom ? "+Q+")"+NL+"for k in range(8):"+NL+"    print(nom)", /rien à demander/],
+      ["for k in range(8):"+NL+pr("Léa Dupont"), /décalées/],
+      ["for k in range(8)"+NL+"    "+pr("Léa Dupont"), /deux-points/],
+      ["for k in range(8):"+NL+"    print(Léa Dupont)", /guillemets|Python s’arrête/],
+      ["for k in range(8):"+NL+"    print(“Léa Dupont”)", /guillemets/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pfnDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input, et la copie juste ---- */
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni encadré au-dessus, l’énoncé de la fiche en gras dans son cadre avec le coup de pouce replié, la cellule et la console VIDES, « Exécuter » ; le rappel ne dit que le coup de pouce ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFN();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
+    const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("pfnInstr"), img=en&&en.querySelector("img.pfn-img");
+    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
+    if(document.querySelector("#scr-pfn .py-avant,#scr-pfn .pyp-regle,#scr-pfn .pyi-cours")) vus.push("un encadré de définition sur l’écran");
+    const et=document.getElementById("pfnEtape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!ti||net(ti.textContent)!=="✏️ Faire un programme dans la cellule ci-dessous pour qu’il affiche 8 fois votre Nom et prénom.") vus.push("l’énoncé de la question : "+(ti&&ti.textContent));
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    ["pfn-prog","pfnRun","pfnConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const pouces=document.querySelectorAll("#pfnEtape details.pyd-pouce");
+    if(pouces.length!==1) vus.push(pouces.length+" coup(s) de pouce");
+    else {
+      if(pouces[0].open) vus.push("coup de pouce déplié d’emblée");
+      const t=net(pouces[0].querySelector("p").textContent);
+      if(t!=="Pour compter de 1 à 8 utiliser l’instruction :for k in range (1,9): ...") vus.push("le coup de pouce : "+JSON.stringify(t));
+    }
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pfn||"";
+    if(net(rap.textContent)!=="Afficher 8 fois son nom et prénom Pour compter de 1 à 8 utiliser l’instruction : for k in range (1,9): ...") vus.push("le rappel : "+JSON.stringify(rap.textContent));
+    const ta=document.getElementById("pfn-prog"), cons=document.getElementById("pfnConsole");
+    if(ta.value!==""||ta.getAttribute("placeholder")) vus.push("la cellule n’est pas vide");
+    if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide : "+JSON.stringify(cons.textContent+getComputedStyle(cons,"::before").content));
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value=pfnModele(q);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    pfnExecuter();
+    if(cons.textContent.split(NL).length!==8||cons.textContent.split(NL).some(function(l){ return l!=="Martin Camille"; })) vus.push("la console : "+JSON.stringify(cons.textContent));
+    checkPFN();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPFN();
+    if(test.idx!==1||document.getElementById("pfn-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    const N1=pfnFois(test.questions[1]);
+    if(net(document.getElementById("pfnEtape").textContent).indexOf("affiche "+N1+" fois")<0) vus.push("l’énoncé de la question 2 ne suit pas son nombre");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFN();
+    let ta=document.getElementById("pfn-prog");
+    ta.value="for k in range(3):"+NL+"    print("+Q+"Léa Dupont"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPFN();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pfnModele .sol");
+    if(!mod||mod.textContent!==pfnModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    nextPFN(); ta=document.getElementById("pfn-prog");
+    checkPFN();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pfnModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPFN(); ta=document.getElementById("pfn-prog");
+    checkPFN();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="for k in range(1,9):"+NL+"    print(k, "+Q+"Léa Dupont"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPFN();
+    const fb=document.getElementById("pfnFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/numéro du tour/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pfnModele .sol")||fb.indexOf("Martin Camille")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPfn(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ---- */
+  const nomPy = 'ce que les modèles de {python-for-nom} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify(PFN_FOIS.map(function(_, i){ const src=pfnModele({s:i}); return [src, ptrRun(src).out]; }))`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src]) => src));
+  const ecarts = [];
+  liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* {python-input-duree} (Seconde, 6.5.1) : l'exercice 11 du carnet — les deux
    serpents. Demander une durée en minutes, l'afficher en heures et minutes.
    Le contrôle tient la place au menu (il ouvre le sous-thème 6.5 « Bonus :
@@ -27165,7 +27344,8 @@ function pythonInputDuree(w, P){
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===5; });
     if(!st||!/bonus/i.test(st.nom)||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
     else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    /* il fut le dernier du thème ; le 6.6 « Boucle for in range » est venu derrière lui, sans rien renuméroter */
+    if(th&&th.sous&&st&&(th.sous.indexOf(st)<1||th.sous[th.sous.indexOf(st)-1].num!==4)) vus.push("le sous-thème ne suit pas le sous-thème « Bonus »");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
