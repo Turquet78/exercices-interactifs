@@ -437,3 +437,24 @@ d'une pause) et après la vérification en soutien.
 Vérifié dans Chromium : la liste propose « tout », le choix efface la case
 (fond `rgba(0,0,0,0)`, vitrine à 0,22), et une fois jugée juste elle reste
 effacée.
+
+## v301 — au 3.4, les questions 5 et 6 tirent leurs intersections
+
+Demande de Turquet (octobre 2026) : « en première dans le 3.4 varier les
+intersections possibles pour les questions 5 et 6 ».
+
+Elles étaient toujours P(A∩B) et P(A∩B̄), les deux entrées sans condition de
+`PB_ITEMS`. `pbeSeance` les tire désormais parmi les QUATRE cases du milieu
+(`PBE_INTER` : A∩B, A∩B̄, Ā∩B, Ā∩B̄), deux différentes, dans un ordre
+quelconque — douze couples possibles. Le tirage est rangé dans la question
+(`q.ev = [évènement, 'T']`, du JSON), et `pbItem` le lit avant `PB_ITEMS` :
+le juge, le nom écrit, la méthode sous une question fausse, la copie
+enregistrée et le contexte du modèle suivent sans rien changer. Une pause
+d'avant la v301 n'a pas `q.ev` et relit `PB_ITEMS` comme avant. Les quatre
+codes sont déjà écrits « A d'abord », ce que `pbInter` exige. Le 3.2, qui
+partage `PB_ITEMS`, ne change pas : la demande ne portait que sur le 3.4.
+
+Vérifié dans Chromium : 200 séances tirées, les douze couples sortent, jamais
+deux fois la même intersection ; une séance forcée sur P(Ḡ∩L̄) et P(Ḡ∩L)
+s'affiche sur une ligne, barres en place, et ses réponses attendues sont la
+bonne case du tableau sur le total.

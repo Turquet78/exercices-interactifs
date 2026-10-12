@@ -2670,7 +2670,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=300;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=301;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -14544,7 +14544,10 @@ const LP_ITEMS=[['B','T'],['A','T'],['nB','T'],['nA','T'],['B','A'],['nB','A'],[
    AUTREMENT — y deviendrait la cinquième recopiée : c'est P_B(A), le
    renversement à ne pas confondre avec elle. */
 const LN_ITEMS=[['B','T'],['A','T'],['nB','T'],['nA','T'],['B','A'],['nB','A'],['A','B'],['B','nA']];
-function pbItem(q){ return (q.t==='lp' ? LP_ITEMS : q.t==='ln' ? LN_ITEMS : PB_ITEMS)[q.it]; }
+/* Une question peut porter sa probabilité ELLE-MÊME (q.ev = [évènement,
+   univers]) : c'est le cas des intersections tirées du 3.4 (pbeSeance). Une
+   pause d'avant la v301 n'a pas q.ev et relit PB_ITEMS. */
+function pbItem(q){ return q.ev || (q.t==='lp' ? LP_ITEMS : q.t==='ln' ? LN_ITEMS : PB_ITEMS)[q.it]; }
 /* n = [A∩B, Ā∩B, A∩B̄, Ā∩B̄] — les quatre cases du milieu. */
 function pbValeurs(n){
   return [n[0], n[1], n[0]+n[1], n[2], n[3], n[2]+n[3], n[0]+n[2], n[1]+n[3], n[0]+n[1]+n[2]+n[3]];
@@ -15001,10 +15004,19 @@ async function startLP(){
    en lettres = fraction des effectifs. Même page que le 3.3 (pbEstFiche),
    mêmes cases, même juge. Sur un écran large, deux colonnes de lignes. */
 function pbEstFiche(){ return test.qId==='probabilites-fiche' || test.qId==='probabilites-ecriture'; }
+/* Les questions 5 et 6 — les deux intersections sans condition — ne sont
+   plus toujours P(A∩B) et P(A∩B̄) : elles se tirent parmi les QUATRE cases
+   du milieu du tableau, deux différentes, dans un ordre quelconque (demande
+   de Turquet, octobre 2026 : « varier les intersections possibles pour les
+   questions 5 et 6 »). Le tirage est rangé dans la question (q.ev). */
+const PBE_INTER=['A.B','A.nB','nA.B','nA.nB'];
 function pbeSeance(){
-  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[];
-  for(let it=0; it<PB_ITEMS.length; it++)
-    qs.push(distincte(qs, ()=>({ t:'nom', it:it, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], inter=qdMelanger(PBE_INTER.slice());
+  let ii=0;
+  for(let it=0; it<PB_ITEMS.length; it++){
+    const ev = (PB_ITEMS[it][1]==='T' && PB_ITEMS[it][0].indexOf('.')>=0) ? [inter[ii++],'T'] : null;
+    qs.push(distincte(qs, ()=>Object.assign({ t:'nom', it:it }, ev ? { ev:ev } : {}, { n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+  }
   return qs;
 }
 function pbfAttendus(q, i){
