@@ -2713,7 +2713,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=302;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=303;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -15090,7 +15090,10 @@ const LP_ITEMS=[['B','T'],['A','T'],['nB','T'],['nA','T'],['B','A'],['nB','A'],[
    AUTREMENT — y deviendrait la cinquième recopiée : c'est P_B(A), le
    renversement à ne pas confondre avec elle. */
 const LN_ITEMS=[['B','T'],['A','T'],['nB','T'],['nA','T'],['B','A'],['nB','A'],['A','B'],['B','nA']];
-function pbItem(q){ return (q.t==='lp' ? LP_ITEMS : q.t==='ln' ? LN_ITEMS : PB_ITEMS)[q.it]; }
+/* Une question peut porter sa probabilité ELLE-MÊME (q.ev = [évènement,
+   univers]) : c'est le cas des intersections tirées du 3.3 et du 3.2 (pbInterTirees). Une
+   pause d'avant la v302 n'a pas q.ev et relit PB_ITEMS. */
+function pbItem(q){ return q.ev || (q.t==='lp' ? LP_ITEMS : q.t==='ln' ? LN_ITEMS : PB_ITEMS)[q.it]; }
 /* n = [A∩B, Ā∩B, A∩B̄, Ā∩B̄] — les quatre cases du milieu. */
 function pbValeurs(n){
   return [n[0], n[1], n[0]+n[1], n[2], n[3], n[2]+n[3], n[0]+n[2], n[1]+n[3], n[0]+n[1]+n[2]+n[3]];
@@ -15114,6 +15117,23 @@ function pbTableau(){
   /* les quatre cases du milieu sont toujours un jeu valable : la liste n'est jamais vide */
   return { n:n, k:pick(jeux) };
 }
+/* Les deux intersections sans condition de PB_ITEMS — P(A∩B) et P(A∩B̄) —
+   ne sortent plus toujours telles quelles : au 3.3 comme au 3.2, elles se
+   tirent parmi les QUATRE cases du milieu du tableau, deux différentes, dans
+   un ordre quelconque (demandes de Turquet, octobre 2026 : « varier les
+   intersections possibles pour les questions 5 et 6 », puis « dans le 3.2
+   aussi », le 3.3 d'aujourd'hui). Le tirage est rangé dans la question (q.ev), que pbItem lit
+   avant PB_ITEMS. pbInterTirees() rend, pour l'indice d'un item, ce qu'il
+   faut ajouter à sa question : { ev } pour une intersection, rien sinon. */
+const PB_INTER=['A.B','A.nB','nA.B','nA.nB'];
+function pbInterTirees(){
+  const inter=qdMelanger(PB_INTER.slice());
+  let ii=0;
+  return function(it){
+    const e=PB_ITEMS[it];
+    return (e && e[1]==='T' && e[0].indexOf('.')>=0) ? { ev:[inter[ii++],'T'] } : {};
+  };
+}
 /* Depuis la v290, les douze probabilités se posent EN MOTS, comme au 3.1
    (demande de Turquet, octobre 2026 : « tout ce qui est similaire au 3.1
    fait de la même façon ») : chacune tire sa tournure (q.v). Les six
@@ -15122,9 +15142,10 @@ function pbTableau(){
 function pbSeance(){
   const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], tc=qdMelanger([0,1,2,3,0,1,2,3]);
   let ic=0;
+  const ev=pbInterTirees();
   for(let it=-1; it<PB_ITEMS.length; it++){
-    const v = it<0 ? 0 : (PB_ITEMS[it][1]==='T' ? rand(0,2) : tc[ic++]);
-    qs.push(distincte(qs, ()=>({ t:(it<0?'tab':'p'), it:it, v:v, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+    const v = it<0 ? 0 : (PB_ITEMS[it][1]==='T' ? rand(0,2) : tc[ic++]), e=ev(it);
+    qs.push(distincte(qs, ()=>Object.assign({ t:(it<0?'tab':'p'), it:it }, e, { v:v, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
   }
   return qs;
 }
@@ -15548,9 +15569,11 @@ async function startLP(){
    mêmes cases, même juge. Sur un écran large, deux colonnes de lignes. */
 function pbEstFiche(){ return test.qId==='probabilites-fiche' || test.qId==='probabilites-ecriture'; }
 function pbeSeance(){
-  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[];
-  for(let it=0; it<PB_ITEMS.length; it++)
-    qs.push(distincte(qs, ()=>({ t:'nom', it:it, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], ev=pbInterTirees();
+  for(let it=0; it<PB_ITEMS.length; it++){
+    const e=ev(it);   /* hors de la fabrique : distincte() peut la rappeler */
+    qs.push(distincte(qs, ()=>Object.assign({ t:'nom', it:it }, e, { n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+  }
   return qs;
 }
 function pbfAttendus(q, i){
