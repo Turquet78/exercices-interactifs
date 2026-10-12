@@ -4808,12 +4808,51 @@ accolades d'une carte ne soient qu'un ensemble (« … » ou « ; », jamais
 `note+0`, qui se sert de la variable : il nomme maintenant un CALCUL autour du
 nom.
 
+## {python-for-nom} — afficher 8 fois son nom et prénom (6.6.2 — 6.6.1 à sa fusion —, boucle for in range)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème boucle
+for in range, créer un exercice qui suit l'image jointe […] respecter les
+consignes de présentation des autres exercices d'algo du sous-thème input.
+Mettre le dessin en premier, dans la définition ne rien rajouter de plus
+ainsi que dans les coups de pouce éventuels […] ne rien écrire dans le cadre
+de la console. » C'est l'« Exercice 5 » du carnet : les deux serpents, la
+bulle « Bonjour » quatre fois, puis « Faire un programme dans la cellule
+ci-dessous pour qu'il affiche 8 fois votre Nom et prénom », et un coup de
+pouce replié. Le sous-thème n'existait pas : il est ajouté EN DERNIER au
+thème 6 (6.6 « Boucle for in range ») — rien n'est renuméroté.
+
+**La présentation est celle du 6.3.9** ({python-input-prix}) : le dessin
+seul dans `#pfnInstr` (découpé dans la capture, détouré depuis les bords,
+WebP de 14 Ko en `data:`, `PFN_IMG`) ; la question dans un cadre
+`.pyn-etape`, en gras, qui enveloppe le coup de pouce, la cellule,
+« Exécuter » et la console ; aucune définition (exception déclarée,
+`pythonAvant.sans`) ; la cellule sans texte d'attente et la console vide
+(`#pfnConsole` rejoint la règle `content:none`).
+
+**Le coup de pouce n'était pas lisible sur la capture** (replié) : il
+reprend, au nombre de la question, celui de la même série de fiches au 6.4.5
+— « Pour compter de 1 à 8 utiliser l'instruction : for k in range (1,9): … ».
+Le rappel (`RAP_PFN`) ne dit que lui. À remplacer mot pour mot si la fiche
+dit autre chose.
+
+**L'interpréteur est celui du 6.4.5** : `ptrDerouler` déroule la boucle,
+`pyRun` exécute. **Le juge (`pfnDiag`) lit ce que la console affiche** :
+N lignes, toutes pareilles, d'au moins deux mots (le nom ET le prénom), et
+une boucle for dans le programme — les N print à la main sont refusés en le
+disant. Nommés : rien d'affiché, une ligne de trop ou de moins, le numéro du
+tour, des lignes vides, le nom seul, tout sur une ligne, un input, les
+erreurs de boucle. La séance : la fiche épinglée (8 fois), puis d'autres
+nombres tirés par `distinctes()`. Contrôle : `pythonForNom` (banc
+principal), modèles comparés à un vrai CPython.
+
+---
+
 ---
 
 ## {python-for-range} — la boucle for … in range (6.6.1, Boucle for in range)
 
 **Le sous-thème « Boucle for in range », et l'exercice 2 du carnet sur la
-boucle.** {python-for-range} (Seconde, 6.6.1, APP_VERSION 429, demande de
+boucle.** {python-for-range} (Seconde, 6.6.1, APP_VERSION 430 — 429 pris sur `main` pendant les bancs —, demande de
 Turquet, octobre 2026 : « en seconde dans le sous thème "boucle for in
 range", créer un exercice qui suit les images jointes ; respecter les
 consignes de présentation des autres exercices d'algo du sous-thème input ;
@@ -4825,10 +4864,13 @@ cadre de la console ») : les deux serpents (« Tu vas la boucler ? » /
 compléter `for nombre in range ( … ):` pour afficher les entiers de 0 à 9,
 b) renommer la variable `nombre` en `k` (deux coups de pouce repliés), c)
 « Cela change-t-il le résultat du programme ? » et sa case « Votre
-réponse ✍️ ». Le sous-thème n'existait pas : il est le 6.6, ajouté EN DERNIER
-— rien n'est renuméroté. Le contrôle du 6.5.1 exigeait que 6.5 soit le
-DERNIER sous-thème ; il exige désormais qu'il soit le CINQUIÈME, ce qui tenait
-la même chose.
+réponse ✍️ ». Écrit sur une branche où le sous-thème 6.6 n'existait pas
+encore, il l'a trouvé sur `main` à la fusion : {python-for-nom}, l'exercice 5
+du carnet, y était déjà en 6.6.1. **Celui-ci passe DEVANT, en 6.6.1, et
+{python-for-nom} devient 6.6.2** — l'ordre du carnet est celui de la
+découverte (la définition et un programme donné avant un programme à
+écrire), le choix déjà fait au 6.3.1. Les notes portent l'identifiant et ne
+bougent pas ; le contrôle du 6.6.2 exige désormais de suivre celui-ci.
 
 **Le moteur est celui du 6.3.1** ({python-input-reponse}) : le dessin en tête
 (`#pfrFig`, découpé dans la capture, détouré, WebP de 16 Ko, `PFR_IMG`), puis
