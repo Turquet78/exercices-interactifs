@@ -4238,6 +4238,7 @@ function exercices(suite){
     pythonInputDureeSecondes(w, P);
     pythonForErreur(w, P);
     pythonForTable(w, P);
+    pythonIfPlusGrand(w, P);
     pythonChaineTirets(w, P);
     pythonRemplacerLettre(w, P);
     pythonPasAPas(w, P);
@@ -29322,6 +29323,177 @@ function pythonTroisDes(w, P){
   const ref = pythonExecuter(cmd, m.valeur.map(x => x.p));
   const ecarts = m.valeur.map((x, i) => x.out === ref[i] ? '' : 'programme ' + i + ' : ' + J(x.out.slice(-120)) + ' ≠ ' + J(String(ref[i]).slice(-120))).filter(Boolean);
   verifier(nomPy, ecarts.length === 0 && /: 81\n/.test(ref[2]) && /: 25\n/.test(ref[1]), ecarts.join(' | ') || J(ref[2].slice(-200)));
+}
+
+/* {python-if-plus-grand} (Seconde, 6.7.1) : l'exercice 8 du carnet, BONUS —
+   la photo, puis « Faire un programme qui demande 3 nombres décimaux et qui
+   affiche le plus grand des trois nombres. » Le contrôle tient la place au
+   menu (il ouvre le sous-thème 6.7 « Condition if else », derrière la
+   « Boucle for in range », rien d'autre ne bouge), le mot « Bonus » du
+   titre, le juge sur des copies justes et fausses — chacune avec le mot qui
+   la nomme —, l'écran (la photo d'abord, aucune définition, aucun coup de
+   pouce, la console vide), le dialogue de la console, la copie juste,
+   fausse et vide, le soutien qui explique sans révéler, puis compare à un
+   vrai CPython ce que le modèle affiche. */
+function pythonIfPlusGrand(w, P){
+  const nom = '{python-if-plus-grand} : le plus grand de trois nombres';
+  if(!P.pythonIfPlusGrand){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du plus grand de trois nombres'); return; }
+  const ID = P.pythonIfPlusGrand.exercice, NUM = P.pythonIfPlusGrand.numero;
+  const present = evaluer(w, "typeof startPGT==='function' && typeof pgtDiag==='function' && typeof pgtBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPGT / pgtDiag / pgtBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu, et le mot « Bonus » ---- */
+  verifierEval(w, 'il ouvre le sous-thème 6.7 « Condition if else », numéroté ' + NUM + ', juste derrière « Boucle for in range », son titre dit « Bonus », et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
+    if(!st||!/condition/i.test(st.nom)||!/if/.test(st.nom)||!/else/.test(st.nom)) vus.push("pas de sous-thème 6.7 Condition if else");
+    else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
+    if(th&&th.sous&&st&&(th.sous.indexOf(st)<1||th.sous[th.sous.indexOf(st)-1].num!==6)) vus.push("le sous-thème ne suit pas « Boucle for in range »");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-table"]!=="6.6.11"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("le titre ne dit pas Bonus : "+TESTS["${ID}"].name);
+    const qs=pgtBuildQuestions();
+    if(qs.length!==1||qs[0].prog!=="") vus.push("la séance n’est pas la fiche seule, programme vide");
+    if(!pgtDiag(pgtModele()).ok) vus.push("le modèle est refusé : "+pgtDiag(pgtModele()).dits.join(" "));
+    if(!PGT_EX.some(function(r){ return new Set(r).size<3; })) vus.push("aucun triplet du juge n’a deux nombres égaux");
+    [0,1,2].forEach(function(i){ if(!PGT_EX.some(function(r){ return new Set(r).size===3 && Number(r[i])===Math.max.apply(null,r.map(Number)); })) vus.push("le plus grand n’est jamais en place "+(i+1)); });
+    if(!PGT_EX.some(function(r){ const t=r.slice().sort()[2]; return Number(t)!==Math.max.apply(null,r.map(Number)); })) vus.push("aucun triplet ne trahit la comparaison de textes");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. le juge ---- */
+  verifierEval(w, 'le juge accepte toute écriture juste (if/elif/else, trois if et >=, une variable du plus grand, phrase ou nombre seul) et nomme chaque défaut — int, float oublié, max, questions en trop ou en moins, input muet, rien d’affiché, plusieurs nombres, égalité oubliée, condition fausse, guillemets typographiques, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), T="    ";
+    const I=function(f){ return ["a","b","c"].map(function(v, i){ return v+" = "+f+"(input("+Q+"Nombre "+(i+1)+" ? "+Q+"))"; }).join(NL)+NL; };
+    const F=I("float");
+    const justes=[pgtModele(),
+      F+"if a >= b and a >= c:"+NL+T+"print(a)"+NL+"if b > a and b >= c:"+NL+T+"print(b)"+NL+"if c > a and c > b:"+NL+T+"print(c)",
+      F+"g = a"+NL+"if b > g:"+NL+T+"g = b"+NL+"if c > g:"+NL+T+"g = c"+NL+"print("+Q+"Le plus grand des 3 nombres est"+Q+", g)",
+      F+"if a > b:"+NL+T+"if a > c:"+NL+T+T+"print(a)"+NL+T+"else:"+NL+T+T+"print(c)"+NL+"else:"+NL+T+"if b > c:"+NL+T+T+"print(b)"+NL+T+"else:"+NL+T+T+"print(c)",
+      "x = float(input("+A+"x ? "+A+"))"+NL+"y = float(input("+A+"y ? "+A+"))"+NL+"z = float(input("+A+"z ? "+A+"))"+NL+"if x>=y and x>=z: print("+Q+"max ="+Q+", x)"+NL+"elif y>=z: print("+Q+"max ="+Q+", y)"+NL+"else: print("+Q+"max ="+Q+", z)"];
+    justes.forEach(function(p){ const r=pgtDiag(p); if(!r.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+r.dits.join(" ")); });
+    const S=function(f){ return f+"if a >= b and a >= c:"+NL+T+"print(a)"+NL+"elif b >= c:"+NL+T+"print(b)"+NL+"else:"+NL+T+"print(c)"; };
+    const cas=[
+      [S(I("int")), /int\\(…\\) ne sait pas lire/],
+      [S(I("")), /TOUJOURS un texte/],
+      [F+"print(max(a, b, c))", /max/],
+      [S(F+"d = float(input("+Q+"Encore ? "+Q+"))"+NL), /plus de trois questions/],
+      ["a = float(input("+Q+"a ? "+Q+"))"+NL+"b = float(input("+Q+"b ? "+Q+"))"+NL+"if a >= b:"+NL+T+"print(a)"+NL+"else:"+NL+T+"print(b)", /deux questions/],
+      ["print(9.25)", /aucune question/],
+      [S("a = float(input())"+NL+"b = float(input("+Q+"b ? "+Q+"))"+NL+"c = float(input("+Q+"c ? "+Q+"))"+NL), /pas de question/],
+      [F+"g = a", /n’affiche rien/],
+      [F+"print(a, b, c)"+NL+"if a >= b and a >= c:"+NL+T+"print(a)"+NL+"elif b >= c:"+NL+T+"print(b)"+NL+"else:"+NL+T+"print(c)", /que le plus grand/],
+      [F+"if a > b and a > c:"+NL+T+"print(a)"+NL+"elif b > a and b > c:"+NL+T+"print(b)"+NL+"else:"+NL+T+"print(c)", /égalité/],
+      [F+"if a > b:"+NL+T+"print(a)"+NL+"elif b > c:"+NL+T+"print(b)"+NL+"else:"+NL+T+"print(c)", /Vérifie tes conditions/],
+      ["a = float(input(«a»))", /guillemets/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const r=pgtDiag(c[0]);
+      if(r.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(r.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+r.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. l'écran, tenu aux consignes du sous-thème Input, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : la photo de la fiche d’abord, aucune définition ni coup de pouce, l’énoncé de la fiche en gras dans son cadre, la cellule, « Exécuter » et la console vide ; le rappel ne dit que la consigne ; « Exécuter » pose les trois questions, Entrée affiche le résultat ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPGT();
+    const vus=[], NL=String.fromCharCode(10);
+    const net=function(t){ return t.split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.maxScore!==1||test.questions.length!==1) vus.push("barème "+test.maxScore+", "+test.questions.length+" question(s)");
+    const en=document.getElementById("pgtInstr"), imgs=en?en.querySelectorAll("img"):[];
+    if(!en||!en.classList.contains("mp-instr")||imgs.length!==1||!imgs[0].classList.contains("pgt-img")||!/^data:image\\/webp/.test(imgs[0].getAttribute("src")||"")) vus.push("l’écran n’a pas la photo de la fiche");
+    if(en&&net(en.textContent)!=="") vus.push("du texte à côté du dessin : "+JSON.stringify(net(en.textContent)));
+    if(document.querySelector("#scr-pgt .py-avant,#scr-pgt .pyp-regle,#scr-pgt .pyi-cours")) vus.push("un encadré de définition sur l’écran");
+    if(document.querySelector("#scr-pgt details.pyd-pouce")) vus.push("un coup de pouce sur l’écran");
+    const et=document.getElementById("pgtEtape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!ti||net(ti.textContent)!=="✏️ Faire un programme qui demande 3 nombres décimaux et qui affiche le plus grand des trois nombres.") vus.push("l’énoncé de la question : "+JSON.stringify(ti&&net(ti.textContent)));
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    ["pgt-prog","pgtRun","pgtConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const cons=document.getElementById("pgtConsole"), ta=document.getElementById("pgt-prog");
+    if(cons.textContent!=="") vus.push("la console n’est pas vide : "+JSON.stringify(cons.textContent));
+    if(ta.getAttribute("placeholder")) vus.push("la cellule a un texte d’attente");
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pgt||"";
+    if(net(rap.textContent)!=="Le plus grand de trois nombres Faire un programme qui demande 3 nombres décimaux et qui affiche le plus grand des trois nombres.") vus.push("le rappel : "+JSON.stringify(rap.textContent));
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value=pgtModele();
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(test.questions[0].prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    pgtExecuter();
+    ["2.5","11.75","7"].forEach(function(v, i){
+      const r=document.getElementById("pgt-rep");
+      if(!r||!cons.contains(r)){ vus.push("la console ne demande pas la réponse "+(i+1)); return; }
+      r.value=v; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+    });
+    if(document.getElementById("pgt-rep")) vus.push("la case reste après la dernière réponse");
+    if(cons.textContent.split(NL).pop()!=="Le plus grand est 11.75") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPGT();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), T="    ";
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPGT();
+    let ta=document.getElementById("pgt-prog");
+    ta.value="a = int(input("+Q+"a ? "+Q+"))"+NL+"print(a)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPGT();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pgtModele .sol");
+    if(!mod||mod.textContent!==pgtModele()) vus.push("pas de modèle vert sous la copie fausse");
+    if(!document.getElementById("pgtConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    startPGT(); ta=document.getElementById("pgt-prog");
+    checkPGT();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pgtModele()) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPGT(); ta=document.getElementById("pgt-prog");
+    checkPGT();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value=["a","b","c"].map(function(v){ return v+" = float(input("+Q+v+" ? "+Q+"))"; }).join(NL)+NL+"if a > b and a > c:"+NL+T+"print(a)"+NL+"elif b > a and b > c:"+NL+T+"print(b)"+NL+"else:"+NL+T+"print(c)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPGT();
+    const fb=document.getElementById("pgtFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/égalité/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pgtModele .sol")||fb.indexOf("Le plus grand est")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPgt(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. la seconde méthode : CPython, sur le modèle ---- */
+  const nomPy = 'ce que le modèle de {python-if-plus-grand} affiche est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PGT_EX.concat([["0.1","0.2","0.3"],["7","7","7"],["-0.5","0","1e3"]]).forEach(function(p){
+      const src=pgtModele(), r=pyRun(src,p.slice());
+      res.push([src, p, r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'le modèle ne s\'exécute pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
 function pythonInputDuree(w, P){

@@ -5453,3 +5453,50 @@ coups de pouce repliés au a) et aucun au b), cellules et consoles vides,
 rappel réduit aux coups de pouce), les copies juste, fausse, vide et mixte,
 le soutien, et les modèles comparés à CPython. Pas de section propre au banc
 navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+## {python-if-plus-grand} — le plus grand de trois nombres (6.7.1, Condition if else, BONUS)
+
+**L'exercice 8 du carnet, rubrique « 3/ Bonus ».** {python-if-plus-grand}
+(Seconde, 6.7.1, demande de Turquet, octobre 2026 : « en seconde dans le
+sous-thème "condition if else", créer un exercice qui suit les images
+jointes […] respecter les consignes de présentation des autres exercices
+d'algo du sous-thème "input" […] mettre le dessin en premier, dans la
+définition ne rien rajouter de plus ainsi que dans les coups de pouce […] ne
+rien écrire dans le cadre de la console. Mettre bonus dans le titre »). La
+photo (un homme penché sur son clavier), puis « Faire un programme qui
+demande 3 nombres décimaux et qui affiche le plus grand des trois nombres. »
+Préfixe `pgt`. Le sous-thème « Condition if else » n'existait pas : il est
+créé en 6.7, ajouté EN DERNIER au thème 6 — rien n'est renuméroté.
+
+**La présentation du sous-thème Input.** La photo, découpée dans la capture
+(WebP de 9 Ko, `PGT_IMG`, URL data:), est l'énoncé du haut, et lui seul ;
+l'énoncé de la fiche, en gras, ouvre le cadre `.pyn-etape` qui enveloppe la
+cellule, « Exécuter » et la console ; `#pgtConsole` rejoint la règle
+`content:none` ; la cellule n'a pas de texte d'attente. La fiche n'a NI
+définition NI coup de pouce : aucun encadré, aucun `details.pyd-pouce`
+(exception déclarée, `pythonAvant.sans`), et `RAP_PGT` ne redit que la
+consigne. Le titre dit « Bonus : le plus grand de trois nombres », comme les
+autres bonus de la Seconde (le mot s'écrit, le barème ne change pas).
+
+**Le juge exécute la copie** (`pgtDiag`) sous six triplets que l'élève ne
+connaît pas (`PGT_EX`) : le plus grand en tête, au milieu, à la fin, trois
+négatifs, deux égaux en tête, deux égaux aux bords. Il faut trois input avec
+leur question, et que, des nombres TAPÉS, la sortie n'affiche que le plus
+grand — « le plus grand des 3 nombres est 9.25 » est juste, aucun nombre tapé
+n'est entier. Nommés : `int` (« int(…) ne sait pas lire 4.5 »), `float`
+oublié (des TEXTES comparés : "9.5" passe devant "12.5" — le triplet 12.5 /
+7.75 / 9.5 le trahit), `max(…)` (que l'interpréteur ne prend d'ailleurs pas
+en charge), trop ou trop peu de questions, l'input muet, rien d'affiché,
+plusieurs nombres affichés, l'égalité oubliée (`>` au lieu de `>=`, nommée
+quand SEULS les triplets à égalité échouent), une condition fausse (le
+classique `if a > b … elif b > c …`, que 5.5 / 1.25 / 9.75 trahit). Une
+seule question, la fiche : pas de tirage, ni `distinctes()` ni
+`dmNbQuestions()`.
+
+**Bancs.** jsdom (`pythonIfPlusGrand`, déclaré dans `tests/profils.js`) : la
+place et le mot « Bonus », la couverture des triplets (chaque place du plus
+grand, une égalité, la comparaison de textes trahie), le juge (5 copies
+justes, 13 fausses chacune avec son mot), l'écran tenu aux consignes, le
+dialogue de la console sur trois réponses, les copies juste, fausse et vide,
+le soutien qui ne révèle rien, et le modèle comparé à CPython sur neuf
+triplets. La visite universelle (section 9) l'ouvre dans les deux modes.
