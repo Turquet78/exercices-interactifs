@@ -4254,6 +4254,7 @@ function exercices(suite){
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
     pythonTriangle(w, P);
+    pythonForOuiNon(w, P);
     pythonProgrammeCalcul(w, P);
     pythonInputRectangle(w, P);
     pythonInverserLettres(w, P);
@@ -25647,6 +25648,119 @@ function pythonProgrammeCalcul(w, P){
   verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-for-oui-non} (Seconde, 6.6.3, derrière {python-for-range} et {python-for-nom}) : la fiche « Exercice 4 » — a)
+   exécuter for k in range (9): print ("oui") puis print("non"), b) expliquer
+   pourquoi « oui » est répété et « non » une seule fois. Le troisième exercice
+   du sous-thème 6.6 « Boucle for in range ». L'explication est jugée par le
+   modèle : le banc exerce l'envoi (ce qui part) et le verdict (pfoVerdict),
+   sans réseau. */
+function pythonForOuiNon(w, P){
+  const nom = '{python-for-oui-non} : « oui » répété, « non » une seule fois';
+  if(!P.pythonForOuiNon){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la boucle for'); return; }
+  const ID = P.pythonForOuiNon.exercice, NB = P.pythonForOuiNon.nb, NUM = P.pythonForOuiNon.numero;
+  const present = evaluer(w, "typeof startPFO==='function' && typeof pfoBuildQuestions==='function' && typeof pfoVerdict==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPFO / pfoBuildQuestions / pfoVerdict introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  verifierEval(w, 'il suit {python-for-range} et {python-for-nom} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
+    if(!st||!/boucle for in range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
+    else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="python-for-nom"||st.ids[2]!=="${ID}") vus.push("il ne suit pas {python-for-range} puis {python-for-nom} : "+st.ids.join(","));
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.2") vus.push("les deux premiers du 6.6 ont bougé");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(!RAPPELS.pfo||!/range \\(9\\)/.test(RAPPELS.pfo)) vus.push("le rappel ne porte pas le programme de la fiche");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche d’abord (9, « oui », « non »), puis un programme distinct ; chacun s’exécute et affiche n fois le premier mot puis une fois le second (300 séances)', `(function(){
+    const vus=[], NL=String.fromCharCode(10);
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pfoBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S0=pfoSit(qs[0]);
+      if(S0.n!==9||S0.a!=="oui"||S0.b!=="non"){ vus.push("la fiche n’ouvre pas la séance"); break; }
+      if(new Set(qs.map(function(q){ return q.s; })).size!==qs.length){ vus.push("deux fois le même programme"); break; }
+    }
+    PFO_SITUATIONS.forEach(function(S, i){
+      const x=ptrEssai(pfoProg({s:i}));
+      const att=[]; for(let k=0;k<S.n;k++) att.push(S.a); att.push(S.b);
+      if(x.err||x.r.out!==att.join(NL)+NL) vus.push("programme "+i+" : "+JSON.stringify(x.err?x.err.message:x.r.out));
+    });
+    if(pfoProg({s:0})!=="for k in range (9):"+NL+"    print ("+String.fromCharCode(34)+"oui"+String.fromCharCode(34)+")"+NL+"print("+String.fromCharCode(34)+"non"+String.fromCharCode(34)+")") vus.push("le programme n’est pas celui de la fiche");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'l’écran : le a) en gras dans son cadre, la console VIDE avant l’exécution, aucune définition ni coup de pouce ; « Exécuter » remplit la console et ouvre le b), qui garde le a) au-dessus ; l’explication part au modèle avec la règle de décision ; le verdict juste vaut 1 case bleue', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFO();
+    const vus=[], NL=String.fromCharCode(10);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const ta0=document.querySelector("#pfoEtapeA .pyn-titre");
+    if(!ta0||!/a\\) Exécuter le programme ci-dessous/.test(ta0.textContent)) vus.push("l’énoncé du a) : "+(ta0&&ta0.textContent));
+    const cons=document.getElementById("pfoConsole");
+    if(!cons||cons.textContent!==""||!document.getElementById("pfoEtapeA").contains(cons)) vus.push("la console n’est pas un cadre vide dans le a)");
+    if(document.querySelector("#pfoHost details.pyd-pouce, #pfoHost .pyp-regle, #pfoHost .py-hint")) vus.push("un coup de pouce ou un cours est écrit sur l’écran");
+    if((document.getElementById("pfoAvant").textContent||"").trim()) vus.push("une définition est écrite");
+    if(document.getElementById("pfoEtapeB")||document.getElementById("pfo-exp")) vus.push("le b) est ouvert avant l’exécution");
+    const v0=document.getElementById("pfoValidate"); if(!v0||!v0.disabled) vus.push("Vérifier est actif avant l’exécution");
+    pfoExecuter();
+    const att=[]; for(let k=0;k<9;k++) att.push("oui"); att.push("non");
+    if(document.getElementById("pfoConsole").textContent!==att.join(NL)) vus.push("la console : "+JSON.stringify(document.getElementById("pfoConsole").textContent));
+    if(!document.getElementById("pfoEtapeA")) vus.push("le a) a disparu");
+    const tb=document.querySelector("#pfoEtapeB .pyn-titre");
+    if(!tb||!/b\\) Expliquer pourquoi "oui" est répété plusieurs fois et "non" une seule fois/.test(tb.textContent)) vus.push("l’énoncé du b) : "+(tb&&tb.textContent));
+    const ph=document.querySelector("#pfoEtapeB .pfo-phrase");
+    if(!ph||ph.textContent!=='"non" est répété une seule fois car') vus.push("le début de phrase : "+(ph&&ph.textContent));
+    const ta=document.getElementById("pfo-exp");
+    if(!ta||!ta.classList.contains("pts-case")) vus.push("l’explication n’est pas une pts-case");
+    /* vide : ne part pas, ne rougit pas */
+    /* le banc n'a pas forcément lancé initSupabase : un double le temps de l'envoi */
+    const sbAvant=sb; let envoye=null;
+    sb={functions:{invoke:function(n,o){ envoye=o&&o.body; return new Promise(function(){}); }}};
+    checkPFO();
+    if(envoye||ta.classList.contains("bad")||test.locked) vus.push("l’explication vide part ou rougit");
+    ta.value="print non n’est pas décalé, il n’est pas dans la boucle";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPFO();
+    sb=sbAvant;
+    if(!envoye||envoye.action!=="verif"||envoye.reponse!==ta.value.trim()||!/RÈGLE DE DÉCISION/.test(envoye.attendu)||!/range \\(9\\)/.test(envoye.question)) vus.push("ce qui part au modèle : "+JSON.stringify(envoye));
+    test.pfoBusy=false;
+    pfoVerdict({correct:true, feedback:"Bravo"}, ta.value.trim());
+    if(!ta.classList.contains("ok")||test.score!==1||!test.locked) vus.push("le verdict juste : "+ta.className+", note "+test.score);
+    if(document.getElementById("pfoFeedback").className.indexOf("good")<0) vus.push("le commentaire juste n’est pas vert");
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPFO();
+    if(test.idx!==1||document.getElementById("pfo-exp")||document.getElementById("pfoConsole").textContent!=="") vus.push("la question suivante ne repart pas du a)");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'le verdict faux rougit et écrit en vert une réponse qui convient ; en soutien il rougit sans rien révéler et la question reste ouverte ; une vérification indisponible ne juge rien', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFO(); pfoExecuter();
+    let ta=document.getElementById("pfo-exp"); ta.value="parce que";
+    pfoVerdict(null, "parce que");
+    if(test.locked||ta.classList.contains("bad")) vus.push("vérification indisponible : la question est jugée");
+    pfoVerdict({correct:false, feedback:"Pas encore"}, "parce que");
+    if(!ta.classList.contains("bad")||!test.locked) vus.push("le verdict faux ne rougit pas");
+    const mod=document.querySelector("#pfoModele .sol");
+    if(!mod||!/n’est pas dans la boucle/.test(mod.textContent)) vus.push("pas de réponse verte");
+    if(test.score!==0) vus.push("le faux compte");
+    currentMode="soutien"; startPFO(); pfoExecuter(); ta=document.getElementById("pfo-exp"); ta.value="parce que";
+    pfoVerdict({correct:false, feedback:"Pas encore"}, "parce que");
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : le faux ne rougit pas, ou verrouille");
+    if(document.querySelector("#pfoModele .sol")) vus.push("soutien : la réponse est révélée");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPfo(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
 /* {python-triangle-etoiles} (Seconde, 6.4.5) : l'exercice 23 du carnet — le
    programme le plus court possible qui affiche un triangle d'étoiles de
    taille 10 ou plus. Le contrôle tient la place au menu (il suit
@@ -27693,7 +27807,7 @@ function pythonForNom(w, P){
    fausse et vide, le soutien qui explique sans révéler, puis compare à un
    vrai CPython ce que le modèle affiche. Aucun accent grave ni antislash
    littéral dans le code évalué. */
-/* {python-for-erreur} (Seconde, 6.6.3) : l'exercice 3 du carnet — le serpent
+/* {python-for-erreur} (Seconde, 6.6.4) : l'exercice 3 du carnet — le serpent
    étourdi, un programme faux à EXÉCUTER, puis « Il y a une erreur car … ».
    Le juge est le modèle (action 'verif') : le banc joue son verdict par
    pfeVerdict, sans attendre la promesse. */
@@ -27707,11 +27821,11 @@ function pythonForErreur(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il suit {python-for-nom} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', dernier du thème, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', dernier du thème, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-for-nom")+1||st.ids.indexOf("python-for-nom")<0) vus.push("il ne suit pas {python-for-nom} : "+st.ids.join(","));
+    else if(st.ids[st.ids.length-1]!=="${ID}") vus.push("il ne ferme pas le sous-thème : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-nom"]!=="6.6.2"||TEST_NUM["python-for-range"]!=="6.6.1") vus.push("{python-for-nom} a bougé : "+TEST_NUM["python-for-nom"]);
