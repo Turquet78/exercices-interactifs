@@ -6589,13 +6589,14 @@ async function parcours(page, N){
         await s.page.keyboard.type(String(v), { delay: 20 });
         await s.page.waitForTimeout(120);
       };
-      const lit = () => s.page.evaluate(() => {
-        const v = id => { const e = document.getElementById(id); return e ? String(e.value) : null; };
-        const t = id => { const e = document.getElementById(id); return e ? e.textContent : null; };
-        return { e0: !!document.getElementById('sf-e0-dn') || !!document.getElementById('mlt-e0-dn'),
-                 e1: !!document.getElementById('sf-e1-dn') || !!document.getElementById('mlt-e1-dn'),
-                 dd: v('sf-e0-dd') || v('mlt-e0-dd'), an: t('sf-e0-an') || t('mlt-e0-an'), ad: t('sf-e0-ad') || t('mlt-e0-ad') };
-      });
+      /* « p » nomme le moteur lu : l'écran de la somme reste dans la page
+         quand on passe au produit, et ses cases y gardent leurs valeurs. */
+      const lit = p => s.page.evaluate(p => {
+        const v = id => { const e = document.getElementById(p + id); return e ? String(e.value) : null; };
+        const t = id => { const e = document.getElementById(p + id); return e ? e.textContent : null; };
+        return { e0: !!document.getElementById(p + 'e0-dn'), e1: !!document.getElementById(p + 'e1-dn'),
+                 dd: v('e0-dd'), an: t('e0-an'), ad: t('e0-ad') };
+      }, p);
       const verdict = () => s.page.evaluate(() => {
         const d = test.answers[test.answers.length - 1];
         return { juste: !!(d && d.correct), rouges: [...document.querySelectorAll('.screen.on .bad')].map(e => e.id || e.className) };
@@ -6608,14 +6609,14 @@ async function parcours(page, N){
         await s.page.waitForTimeout(1200);
         await s.page.evaluate(() => { test.questions[test.idx] = {n1:1,d1:2,n2:1,d2:4,op:'+',D:4,k1:2,k2:1,N1:2,N2:1,N:3,Nr:3,Dr:4}; renderSFTest(); });
         await s.page.waitForTimeout(700);
-        if((await lit()).e0) dits.push('somme : une étape s’affiche avant que l’élève ait écrit');
+        if((await lit('sf-')).e0) dits.push('somme : une étape s’affiche avant que l’élève ait écrit');
         for(const [id, v] of [['sf-a1',4],['sf-b1',4],['sf-a2',2],['sf-b2',2],['sf-num1',4],['sf-num2',2],['sf-den',8],['sf-fn',6],['sf-fd',8]]) await tape(id, v);
-        let l = await lit();
+        let l = await lit('sf-');
         if(!l.e0) dits.push('somme : par le dénominateur 8, la fraction 6/8 n’ouvre aucune étape');
         else {
           if(l.an !== '6' || l.ad !== '8') dits.push('somme : les nombres divisés ne recopient pas 6/8 (' + l.an + '/' + l.ad + ')');
           await tape('sf-e0-dn', 2);
-          l = await lit();
+          l = await lit('sf-');
           if(l.dd !== '2') dits.push('somme : le diviseur tapé en haut ne se recopie pas en bas (' + l.dd + ')');
           if(l.e1) dits.push('somme : 3/4 est irréductible, et une étape de plus s’ouvre');
           await tape('sf-e0-n', 3); await tape('sf-e0-d', 4);
@@ -6634,9 +6635,9 @@ async function parcours(page, N){
         await s.page.waitForTimeout(1200);
         await s.page.evaluate(() => { test.questions[test.idx] = {n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15}; delete test.questions[test.idx].sbrut; renderMltTest(); });
         await s.page.waitForTimeout(700);
-        if(!(await lit()).e0) dits.push('produit : 6/15 se simplifie, et aucune étape n’est posée d’emblée');
+        if(!(await lit('mlt-')).e0) dits.push('produit : 6/15 se simplifie, et aucune étape n’est posée d’emblée');
         for(const [id, v] of [['mlt-h1',2],['mlt-h2',3],['mlt-b1',3],['mlt-b2',5],['mlt-fn',6],['mlt-fd',15],['mlt-e0-dd',3],['mlt-e0-n',2],['mlt-e0-d',5]]) await tape(id, v);
-        const l = await lit();
+        const l = await lit('mlt-');
         if(l.an !== '6' || l.ad !== '15') dits.push('produit : les nombres divisés ne recopient pas 6/15 (' + l.an + '/' + l.ad + ')');
         const haut = await s.page.evaluate(() => { const e = document.getElementById('mlt-e0-dn'); return e ? String(e.value) : null; });
         if(haut !== '3') dits.push('produit : le diviseur tapé en bas ne se recopie pas en haut (' + haut + ')');
