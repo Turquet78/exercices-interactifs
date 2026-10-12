@@ -2888,3 +2888,36 @@ juste après le signe — défaut antérieur à la réorganisation, vert à la
 passe précédente. Le même motif (`<span class="tg-eq">=</span> '+txInp(…)`)
 vivait sur sept lignes de la famille tx/ec/asg/ecv : toutes passent par
 `tEq()`.
+
+**La formule ℓ + c × qⁿ démontrée, puis sa LIMITE — le 5.3.3.**
+{recurrence-limite} (Terminale, fiche « puissance et récurrence limite »,
+demande de Turquet, octobre 2026 : « créer un exercice comme le pdf, en
+rédigeant comme le 5.3.1 pour la récurrence ») ferme la partie « Récurrence et
+égalité ». La fiche porte deux choses que le 5.3.1 n'avait pas : un
+COEFFICIENT devant la puissance (4 + 2 × 0,25ⁿ, 10 − 3 × 0,1ⁿ,
+20 − 10 × 0,95ⁿ) et une question b) — « en déduire la limite », la ligne de la
+fiche recopiée telle quelle : Uₙ = …… donc lim Uₙ = …… car lim qⁿ = …… avec
+…… (−1 < q < 1, une liste). La récurrence suit le squelette du 5.3.1 case pour
+case, précédée du « On le démontre par …… » de la fiche (une liste).
+**Les juges sont ceux du 5.3.1, appelés tels quels** (rfValEq, rfReveal,
+rfClean) : même lecture des expressions, pas la même identité — `kind` 'rl',
+`#scr-rl`, RAPPELS.rl, QIA_SUGG.rl. Seule la forme réduite a son propre juge
+(rlRedOk) : ℓ ± |c| × q^(n+1), dans les deux ordres, le « × » écrit ou
+sous-entendu, la base en décimal OU en fraction — l'énoncé écrit 1/5, l'élève
+a le droit d'écrire (1/5)^(n+1). Le « × » est retiré AVANT de comparer la
+forme : « 3 × 0,1 » et « 30,1 » s'écrivent alors pareil, mais la valeur est
+jugée d'abord et « 30,1^(n+1) » est faux bien avant — le contrôle l'exige.
+**Le tirage part de l'arrivée**, comme au 5.3.1 : ℓ et q choisis pour que
+b = ℓ(1 − q) soit entier, U₀ = ℓ + c positif. Une séance = une question où q
+s'écrit en FRACTION 1/d (empilée par MathLive, comme les exercices 1 à 3 de la
+fiche) et une où il s'écrit en DÉCIMAL (0,75 à 0,95, comme l'exercice 4) : deux
+familles, jamais deux fois la même question. La chaîne écrit alors
+« Uₙ₊₁ = ⅕ Uₙ + 4 = 0,2 × ( … ) + 4 », le passage de la fiche.
+**La limite fausse ne fait pas payer la récurrence** : chaque case est jugée
+seule, et le contrôle (`recurrenceLimite`, banc principal) le vérifie, avec la
+copie des exercices 1 et 3 de la fiche, le coefficient oublié qui rougit, la
+case vide sans couleur en soutien et remplie en sol en entraînement, et la
+clause de secret du contexte du modèle.
+Un piège attrapé au premier passage du banc : la description citait « le
+5.3.1 » — un numéro écrit en dur dans un texte vu par l'élève, que le prochain
+découpage du menu aurait rendu faux. Elle nomme l'exercice.
