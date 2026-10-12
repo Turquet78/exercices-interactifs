@@ -28523,11 +28523,11 @@ function pythonForImages(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-moyenne-notes}, « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-for-moyenne-notes} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-for-moyenne-notes") vus.push("il ne ferme pas le sous-thème derrière {python-for-moyenne-notes} : "+st.ids.join(","));
+    else if(st.ids[9]!=="${ID}"||st.ids[8]!=="python-for-moyenne-notes") vus.push("il ne suit pas {python-for-moyenne-notes} en 6.6.10 : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-for-multiples"]!=="6.6.7"||TEST_NUM["python-trois-des"]!=="6.6.8"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.9") vus.push("les exercices du 6.6 déjà en ligne ont bougé");

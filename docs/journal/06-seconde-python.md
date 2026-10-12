@@ -5423,7 +5423,9 @@ coup de pouce. Préfixe `ptm`. Il ferme le sous-thème, en 6.6.11, derrière
 ajouté cinq exercices pendant le travail (trois fusions de `main`, la version
 passée de 437 à 449) ; chaque fois, la page de `main` a été reprise TELLE
 QUELLE et l'exercice y a été réinséré, plutôt que de démêler des conflits où
-deux blocs ajoutés au même endroit s'entrelaçaient.
+deux blocs ajoutés au même endroit s'entrelaçaient. Le contrôle de
+{python-for-images}, qui exigeait de FERMER le sous-thème, exige désormais
+sa place (6.6.10, derrière {python-for-moyenne-notes}).
 
 **Deux choix demandés à Turquet, pas devinés.** La capture n'avait AUCUN
 dessin : le serpent qui tape un programme (`PHM_IMG`, du 6.5.3) est repris
