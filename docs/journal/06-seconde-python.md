@@ -5793,7 +5793,81 @@ fausses, chacune avec le mot qui la nomme, l'écran tenu aux consignes, le
 dialogue de la console, les copies juste, fausse et vide, le soutien qui ne
 révèle rien, et les modèles comparés à un vrai CPython.
 
-### {python-if-frais-port} — 6.7.4, les frais de port (sous-thème « Condition if else », v463)
+---
+
+## {python-if-cinema} — le prix d'une place de cinéma (6.7.4, Condition if else, BONUS)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
+condition if else, créer un exercice qui suit les images jointes ; respecter
+les consignes de présentation des autres exercices d'algo du sous-thème
+input ; mettre le dessin en premier ; dans la définition ne rien rajouter de
+plus, ainsi que dans les coups de pouce éventuels ; respecter les couleurs et
+présentations des exercices du sous-thème input ; ne rien écrire dans le
+cadre de la console ; mettre bonus dans le titre. » C'est l'« Exercice 2 »
+du carnet : le serpent au cinéma (« L'acteur est trop beau ! »), puis « Le
+prix d'une place de cinéma est de 6 € pour les mineurs et de 9 € pour les
+majeurs. Faire un programme qui demande l'âge de l'utilisateur et qui met le
+résultat dans la variable entière age ; si l'age est plus petit que 18 alors
+il affiche "Tu dois payer 6 €. " et sinon il affiche "Tu dois payer 9€." ».
+
+**Le sous-thème 6.7 « Condition if else » n'existait pas quand cet exercice
+a été écrit : il l'a créé, en 6.7.1. Mais {python-samoussa}, {python-if-else}
+puis {python-if-plus-grand}, écrits en même temps dans d'autres branches, l'ont
+créé eux aussi, et ont été fusionnés les premiers — chaque fois juste avant la
+fusion de celui-ci.** Ce qui est en ligne ne se renumérote pas :
+{python-if-else} ouvre le 6.7, {python-samoussa} le suit en 6.7.2,
+{python-if-plus-grand} en 6.7.3, le cinéma passe en 6.7.4 (APP_VERSION 463 ;
+451, 457, 460, 461 puis 462 pris sur `main` pendant les bancs). Les exercices du 6.7 avaient été bâtis sur le même modèle
+({python-input-prix}) : git a entrelacé leurs blocs ligne à ligne, si bien
+que la fusion n'a pas été résolue conflit par conflit — les quatre fichiers
+ont été repris de `main`, et le cinéma regreffé pièce par pièce depuis la
+branche, chaque pièce vérifiée identique à sa source. Huit contrôles
+d'exercices du 6.6 exigeaient que le 6.6 soit le DERNIER sous-thème : ils
+exigent qu'il reste le SIXIÈME (la même adaptation a été faite des deux
+côtés).
+
+**La présentation est celle de {python-for-images}** : le dessin seul dans
+`#pciInstr` (découpé dans la capture, WebP de 17 Ko, `PCI_IMG`) ; l'énoncé
+de la fiche, mot pour mot (« l'age » sans accent compris, et les espaces des
+deux phrases à afficher, « 6 €. " » et « 9€." »), dans un cadre `.pyn-etape`
+en gras qui enveloppe la cellule, « Exécuter » et la console ; ses deux
+puces séparées par un trait, comme sur la fiche. **La fiche n'a ni
+définition ni coup de pouce : l'écran n'en a pas** (exception déclarée,
+`pythonAvant.sans`), et le rappel (`RAP_PCI`) ne redit que la consigne. La
+console vide reste un cadre vide (`#pciConsole` rejoint `content:none`).
+
+**Le dialogue est celui de {python-input-prix}** : « Exécuter » pose la
+question du programme dans la console, l'élève y tape l'âge et Entrée. À la
+vérification, la console montre deux des exécutions du juge : 15 ans, puis
+la frontière, 18 ans.
+
+**Le juge (`pciDiag`) exécute la copie sous quatre âges** (`PCI_AGES` : 15,
+30, 17, 18) : une question, rangée dans `age`, ENTIÈRE ; à chaque âge UNE
+phrase, « Tu dois payer N € » — lue réduite à ses lettres et chiffres, si
+bien que « 9€. », « 9 €. », « 9 euros » et `print("Tu dois payer", 9, "€.")`
+valent pareil ; et un `if` dans le programme. **18 ans est la frontière :
+à 18 ans on est majeur**, et c'est l'âge qui trahit `age <= 18`. Nommés :
+`int` oublié (Python ne compare pas un texte à 18), `float` à la place, la
+réponse hors de `age`, l'input muet, aucune ou deux questions, `age <= 18`,
+les prix échangés, le même prix à tout âge, les deux phrases à la fois (le
+`else` oublié ou le print sorti du bloc), une autre phrase, rien d'affiché à
+un âge, un autre prix ; « si », « sinon », « alors » écrits en français ; et
+les erreurs d'écriture d'un `if` (les deux-points, le retrait, un `else`
+sans `if`) dans les mots de l'interpréteur.
+
+**La séance** : la fiche épinglée (6 € et 9 €), puis d'autres prix
+(`PCI_PRIX`, `[mineurs, majeurs]`) tirés par `distinctes()` ;
+`dmNbQuestions()` l'allonge. Le programme voyage dans `q.prog` et compte
+pour UNE case (`pts-case`). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Contrôle :
+`pythonIfCinema` (banc principal) — la place, le titre, le tirage
+(300 séances), le juge sur 8 copies justes et 20 fausses, chacune avec le
+mot qui la nomme, l'écran tenu aux consignes, le dialogue de la console, les
+copies juste, fausse et vide, le soutien qui ne révèle rien, et les modèles
+comparés à un vrai CPython. La visite universelle (section 9) l'ouvre dans
+les deux modes.
+
+### {python-if-frais-port} — 6.7.5, les frais de port (sous-thème « Condition if else », v464)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
 "condition if else", créer un exercice qui suit les images jointes ;
@@ -5803,8 +5877,8 @@ rien rajouter de plus, ainsi que dans les coups de pouce éventuels ;
 respecter les couleurs et présentations des exercices du sous-thème input ;
 ne rien écrire dans le cadre de la console ». Créé le même jour que
 {python-if-else} (6.7.1), {python-samoussa} (6.7.2) et
-{python-if-plus-grand} (6.7.3) : il les suit, en 6.7.4 — rien n'est
-renuméroté.
+{python-if-plus-grand} (6.7.3), puis {python-if-cinema} (6.7.4) : il les
+suit, en 6.7.5 — rien n'est renuméroté.
 
 **La fiche** (« Exercice 4 ») : si la commande est inférieure à 100 €, 10 €
 de frais de port, sinon ils sont offerts ; demander le montant dans
