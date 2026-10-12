@@ -29282,7 +29282,7 @@ function pythonForErreur(w, P){
     startPFE();
     const vus=[], NL=String.fromCharCode(10);
     const net=function(t){ return t.split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
-    if(test.questions.length!==1||test.maxScore!==1) vus.push("séance de "+test.questions.length+" question(s), barème "+test.maxScore);
+    if(test.questions.length!==3||test.maxScore!==3) vus.push("séance de "+test.questions.length+" question(s), barème "+test.maxScore);
     const ecr=document.getElementById("scr-pfe"), en=document.getElementById("pfeInstr"), img=en&&en.querySelector("img.pfe-img");
     if(!img||!/^data:image\\/webp/.test(img.getAttribute("src")||"")||!/Houlàlla/.test(img.getAttribute("alt")||"")) vus.push("pas de dessin de la fiche");
     const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
@@ -29301,6 +29301,24 @@ function pythonForErreur(w, P){
     pfeExecuter();
     if(!/deux-points/.test(c.textContent)||!c.classList.contains("py-err")) vus.push("« Exécuter » ne montre pas l’erreur : "+JSON.stringify(c.textContent));
     if(!/STRICTEMENT SECRÈTE/.test(ctxPfe(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    /* les deux questions ajoutées (octobre 2026) : le print collé à gauche, puis i sous un for k */
+    const progs=[null,'for k  in range ( 9 ):'+NL+'print ("valeur=", k )','for k  in range ( 9 ):'+NL+'   print ("valeur=", i )'];
+    const erreurs=[null,/IndentationError.*décalées/,/NameError.*« i » n’existe pas/];
+    const fautes=[null,/décalée/,/s’appelle k.*affiche i/];
+    [1,2].forEach(function(i){
+      test.idx=i; renderPFE();
+      if(document.getElementById("pfeIdx").textContent!=="Question "+(i+1)+" / 3") vus.push("numéro de question "+(i+1));
+      const p=document.getElementById("pfeProg");
+      if(!p||p.textContent!==progs[i]) vus.push("le programme "+(i+1)+" : "+JSON.stringify(p&&p.textContent));
+      const cc=document.getElementById("pfeConsole");
+      if(cc.textContent!=="") vus.push("la console "+(i+1)+" n’est pas vide avant l’exécution");
+      pfeExecuter();
+      if(!erreurs[i].test(cc.textContent)||!cc.classList.contains("py-err")) vus.push("« Exécuter » ne montre pas l’erreur "+(i+1)+" : "+JSON.stringify(cc.textContent));
+      if(!erreurs[i].test(pfeEnonceIA(test.questions[i]))||!fautes[i].test(pfeQ(test.questions[i]).faute)) vus.push("l’IA ne lit pas la console ou la faute de la question "+(i+1));
+      if(/deux-points/.test(pfeQ(test.questions[i]).correction)) vus.push("la correction "+(i+1)+" parle des deux-points");
+    });
+    /* une pause d'avant (une question, sans q.t) reprend la fiche */
+    if(pfeQ({exp:""}).prog!==PFE_PROG) vus.push("une question sans q.t ne reprend pas la fiche");
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
@@ -29336,18 +29354,21 @@ function pythonForErreur(w, P){
   })()`, v => v === '');
 
   /* ---- 4. la seconde méthode : CPython refuse le programme, et pour la même raison ---- */
-  const nomPy = 'le programme de {python-for-erreur} est refusé par un vrai CPython pour les deux-points, et l’accepte une fois les deux-points remis';
+  const nomPy = 'les trois programmes de {python-for-erreur} sont refusés par un vrai CPython, chacun pour SA faute (deux-points, décalage, i), et acceptés une fois la faute corrigée';
   const cmd = pythonDisponible();
   if(!cmd){
     if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : le programme n\'a été comparé à RIEN');
     else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
     return;
   }
-  const prog = evaluer(w, 'PFE_PROG');
-  if(!prog.ok){ verifier(nomPy, false, prog.erreur); return; }
-  const ref = pythonExecuter(cmd, [prog.valeur, prog.valeur.replace('( 9 )', '( 9 ):')]);
+  const progs = evaluer(w, 'JSON.stringify(PFE_QS.map(function(d){ return d.prog; }))');
+  if(!progs.ok){ verifier(nomPy, false, progs.erreur); return; }
+  const [p0, p1, p2] = JSON.parse(progs.valeur);
+  const ref = pythonExecuter(cmd, [p0, p0.replace('( 9 )', '( 9 ):'), p1, p1.replace('\nprint', '\n   print'), p2, p2.replace(', i )', ', k )')]);
   const attendu = Array.from({length:9}, (_, k) => 'valeur= ' + k + '\n').join('');
-  verifier(nomPy, ref[0] === 'ERREUR:SyntaxError' && ref[1] === attendu, JSON.stringify(ref));
+  verifier(nomPy, ref[0] === 'ERREUR:SyntaxError' && ref[1] === attendu
+    && ref[2] === 'ERREUR:IndentationError' && ref[3] === attendu
+    && ref[4] === 'ERREUR:NameError' && ref[5] === attendu, JSON.stringify(ref));
 }
 
 /* {python-trois-des} (Seconde, 6.6.8 — 6.6.7 à sa création, avant que {python-for-multiples}, l'exercice 7 du carnet, ne passe devant —, BONUS) : l'exercice 13 du carnet — les
