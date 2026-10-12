@@ -3315,6 +3315,68 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 /* L'enveloppe d'un tableau qui défile reçoit le focus (A7, script #defilants) :
    elle montre qu'elle l'a. */
 [data-defile]:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+  /* ===== DÉCOR D'HALLOWEEN (demande de Turquet, octobre 2026) =====
+     Allumé par le script #decor-halloween du 15 octobre au 2 novembre, sous
+     body.halloween ; l'élève l'éteint par le bouton 🎃 de l'en-tête. Il ne
+     touche à AUCUNE encre de verdict (--blue, --red, --green restent) : le
+     fond, l'en-tête, les cadres et les boutons d'action seulement. Et il ne
+     change le POSITIONNEMENT de rien — la toile et le fantôme sont des images
+     de fond, le ciel est sous la page (z-index:-1) : un position:relative posé
+     sur .card aurait déplacé tout ce qui s'y accroche en absolu. */
+  body.halloween{
+    --hw-nuit:#1B1030; --hw-nuit-2:#2A1747; --hw-citrouille:#F07A1A; --hw-citrouille-f:#C25A0A;
+    --hw-violet:#7B3FC4; --hw-lune:#FFF4C9;
+    background-color:var(--hw-nuit);
+    background-image:
+      radial-gradient(circle at 6% 90%, var(--hw-lune) 0 46px, rgba(255,244,201,.18) 47px 70px, transparent 71px),
+      linear-gradient(rgba(240,122,26,.10) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(240,122,26,.10) 1px,transparent 1px),
+      linear-gradient(180deg,var(--hw-nuit) 0%,var(--hw-nuit-2) 100%);
+    background-size:auto,28px 28px,28px 28px,auto;
+    background-attachment:fixed;
+  }
+  body.halloween::before{
+    content:"🎃 🦇 🎃 👻 🎃 🦇 🎃 🕸️ 🎃 🦇 🎃 👻 🎃 🦇 🎃 🕸️ 🎃 🦇 🎃 👻 🎃";
+    display:block;text-align:center;white-space:nowrap;overflow:hidden;
+    font-size:22px;letter-spacing:6px;padding:6px 0 2px;
+    background:linear-gradient(180deg,#0E0819,transparent);
+  }
+  .hw-ciel{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+  .hw-ciel span{position:absolute;font-size:26px;opacity:.85;animation:hw-vol 18s linear infinite}
+  .hw-ciel span:nth-child(1){top:9%}
+  .hw-ciel span:nth-child(2){top:22%;font-size:18px;animation-duration:24s;animation-delay:-8s}
+  .hw-ciel span:nth-child(3){top:61%;font-size:22px;animation-duration:30s;animation-delay:-15s}
+  @keyframes hw-vol{from{left:-60px;transform:translateY(0)}25%{transform:translateY(-18px)}50%{transform:translateY(8px)}75%{transform:translateY(-10px)}to{left:110vw;transform:translateY(0)}}
+  @media (prefers-reduced-motion:reduce){ .hw-ciel{display:none} }
+  body.halloween .mast .logo{background:radial-gradient(circle at 35% 30%,#FFA94D,var(--hw-citrouille) 55%,var(--hw-citrouille-f));border-radius:50% 50% 46% 46%}
+  body.halloween .mast h1{color:#FFE7CC;text-shadow:0 2px 0 #000}
+  body.halloween .mast h1::after{content:" 🎃"}
+  body.halloween .mast .sub{color:#CDB8EE}
+  body.halloween #appVer{color:#FFB36B!important}
+  body.halloween .card{border-color:#F5C79A;box-shadow:0 0 0 3px rgba(240,122,26,.25),0 18px 40px rgba(0,0,0,.45);
+    background:no-repeat top right/86px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23a99bb8' stroke-width='1.2'%3E%3Cpath d='M100 0L20 0M100 0L30 40M100 0L60 70M100 0L100 80'/%3E%3Cpath d='M82 0Q84 10 92 13Q98 15 100 20M62 0Q64 18 76 26Q90 34 100 42M42 0Q46 26 64 40Q82 54 100 62'/%3E%3C/svg%3E"),var(--surface)}
+  body.halloween .btn-primary{background:var(--hw-citrouille);box-shadow:0 6px 0 var(--hw-citrouille-f)}
+  body.halloween .btn-primary:hover{background:#FF8C2E}
+  body.halloween .btn-primary:active{box-shadow:0 2px 0 var(--hw-citrouille-f)}
+  body.halloween h2.title{color:#3B1A66}
+  body.halloween .choice{border-color:#D9C6F2;background:linear-gradient(180deg,#fff 70%,#FFF4EA)}
+  body.halloween .choice:hover{border-color:var(--hw-citrouille);
+    background:no-repeat right 12px bottom 8px/22px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='20' font-size='20'%3E👻%3C/text%3E%3C/svg%3E"),linear-gradient(180deg,#fff 70%,#FFF4EA)}
+  /* ce qui s'écrit HORS des cadres, directement sur la nuit */
+  body.halloween .exo-title .exo-name{color:#FFE7CC}
+  body.halloween .exo-title .exo-num{background:var(--hw-violet)}
+  body.halloween .q-idx{color:#CDB8EE}
+  .hw-bascule{font-size:20px;line-height:1;background:none;border:1.5px solid rgba(240,122,26,.6);border-radius:999px;padding:4px 9px;cursor:pointer;flex:none}
+  body:not(.halloween) .hw-bascule{filter:grayscale(1);opacity:.6}
+  /* Sur un PETIT TÉLÉPHONE, le bouton 🎃 et la citrouille du titre poussaient
+     l'en-tête hors de l'écran (320 px : la page débordait de 47 px, et la
+     pastille du professeur emportait « Se déconnecter » — trouvé par le banc
+     navigateur, saison forcée). L'en-tête passe à la ligne plutôt que de
+     déborder, et le titre rend sa citrouille. */
+  .mast:has(> .hw-bascule){flex-wrap:wrap}
+  .mast:has(> .hw-bascule) > div:not(.logo):not(.spacer){flex:1 1 180px;min-width:0}
+  @media (max-width:480px){ body.halloween .mast h1::after{content:none} }
+  @media print{ body.halloween{background:#fff} body.halloween::before,.hw-ciel,.hw-bascule{display:none} }
 </style>
 </head>
 
@@ -56259,6 +56321,27 @@ window.mlDexp = {
   showShortcuts(){ if(!helpWin) return false; helpWin.classList.toggle("open"); return true; }
 };
 customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
+</script>
+<script id="decor-halloween">
+/* Le décor d'Halloween : allumé du 15 octobre au 2 novembre, sans rien à
+   retirer ensuite ; hors de ces dates, ce script ne pose rien du tout. Le
+   bouton 🎃 de l'en-tête l'éteint ou le rallume, et le choix est retenu
+   (localStorage, enveloppé : une navigation privée le refuse sans bruit). */
+(function(){
+  var d=new Date(), m=d.getMonth()+1, j=d.getDate();
+  if(!((m===10&&j>=15)||(m===11&&j<=2))) return;
+  var choix=null; try{ choix=localStorage.getItem('decor-halloween'); }catch(e){}
+  var ciel=document.createElement('div'); ciel.className='hw-ciel'; ciel.setAttribute('aria-hidden','true');
+  ciel.innerHTML='<span>🦇</span><span>🦇</span><span>🦇</span>';
+  document.body.prepend(ciel);
+  function poser(on){ document.body.classList.toggle('halloween',on); ciel.hidden=!on; }
+  var b=document.createElement('button'); b.type='button'; b.className='hw-bascule';
+  b.title='Décor d’Halloween'; b.setAttribute('aria-label','Allumer ou éteindre le décor d’Halloween'); b.textContent='🎃';
+  b.onclick=function(){ var on=!document.body.classList.contains('halloween'); poser(on);
+    try{ localStorage.setItem('decor-halloween',on?'1':'0'); }catch(e){} };
+  var mast=document.querySelector('.mast'); if(mast) mast.appendChild(b);
+  poser(choix!=='0');
+})();
 </script>
 <script id="italiquer-x">
 /* L'INCONNUE « x » S'ÉCRIT TOUJOURS EN ITALIQUE ARRONDI — filet de sécurité.
