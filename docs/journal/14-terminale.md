@@ -2975,8 +2975,8 @@ choix de {suite-algo-seuil}, dont la condition « u > 0.5 » s'écrit déjà au
 clavier du système. Le juge `lqnAvecOK` ÉVALUE l'inégalité au lieu de la
 comparer au caractère près : « 1,3 > 1 », « 1 < 1,3 », « −1 < 0,7 < 1 »,
 « 1 > 0,7 > −1 », « −1 < 5/7 < 1 » sont justes, et « 0 < 0,7 < 1 » aussi —
-vrai, et suffisant pour une base positive (arbitrage à confirmer par
-Turquet). Deux refus : le nombre écrit doit être LA base de la puissance
+vrai, et suffisant pour une base positive (confirmé par Turquet le jour
+même : « accepte aussi 0 < 0,7 < 1, c'est bien »). Deux refus : le nombre écrit doit être LA base de la puissance
 (« 2 > 1 » ne justifie pas 1,3ⁿ), et l'inégalité doit être STRICTE (q ≥ 1
 laisse passer q = 1).
 
