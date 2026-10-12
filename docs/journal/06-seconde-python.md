@@ -5153,7 +5153,7 @@ bornes tirées par `distinctes()` parmi huit autres (`PFD_BORNES`) ;
 portes, la case juste bleue à côté d'une fausse, les trous vides jamais
 rougis, le soutien, la reprise.
 
-**Puis l'ordre du carnet** (APP_VERSION 438 — 436 et 437 pris sur `main` pendant les bancs —, demande de Turquet, octobre
+**Puis l'ordre du carnet** (APP_VERSION 439 — 436 à 438 pris sur `main` pendant les bancs —, demande de Turquet, octobre
 2026 : « mets-le dans l'ordre du carnet, en 6.6.2 »). {python-for-renommer},
 l'exercice 2 du carnet, passe de 6.6.5 à 6.6.2, juste derrière
 {python-for-range} (l'exercice 1). Les trois suivants reculent d'un rang :
