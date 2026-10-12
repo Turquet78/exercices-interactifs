@@ -4236,6 +4236,7 @@ function exercices(suite){
     pythonInputEvolution(w, P);
     pythonInputDuree(w, P);
     pythonInputDureeSecondes(w, P);
+    pythonForErreur(w, P);
     pythonChaineTirets(w, P);
     pythonRemplacerLettre(w, P);
     pythonPasAPas(w, P);
@@ -27806,6 +27807,105 @@ function pythonForNom(w, P){
    fausse et vide, le soutien qui explique sans révéler, puis compare à un
    vrai CPython ce que le modèle affiche. Aucun accent grave ni antislash
    littéral dans le code évalué. */
+/* {python-for-erreur} (Seconde, 6.6.4) : l'exercice 3 du carnet — le serpent
+   étourdi, un programme faux à EXÉCUTER, puis « Il y a une erreur car … ».
+   Le juge est le modèle (action 'verif') : le banc joue son verdict par
+   pfeVerdict, sans attendre la promesse. */
+function pythonForErreur(w, P){
+  const nom = '{python-for-erreur} : une boucle for qui ne marche pas';
+  if(!P.pythonForErreur){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la boucle for fausse'); return; }
+  const ID = P.pythonForErreur.exercice, NUM = P.pythonForErreur.numero;
+  const present = evaluer(w, "typeof startPFE==='function' && typeof pfeVerdict==='function' && typeof checkPFE==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPFE / pfeVerdict / checkPFE introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', dernier du thème, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
+    if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
+    else if(st.ids[st.ids.length-1]!=="${ID}") vus.push("il ne ferme pas le sous-thème : "+st.ids.join(","));
+    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-nom"]!=="6.6.2"||TEST_NUM["python-for-range"]!=="6.6.1") vus.push("{python-for-nom} a bougé : "+TEST_NUM["python-for-nom"]);
+    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. l'écran, tenu aux consignes du sous-thème Input ---- */
+  verifierEval(w, 'l’écran : le dessin d’abord, aucune définition ni coup de pouce, l’énoncé de la fiche en gras dans son cadre avec le programme au caractère près, une console VIDE avant « Exécuter » ; « Exécuter » y montre l’erreur des deux-points', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFE();
+    const vus=[], NL=String.fromCharCode(10);
+    const net=function(t){ return t.split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.questions.length!==1||test.maxScore!==1) vus.push("séance de "+test.questions.length+" question(s), barème "+test.maxScore);
+    const ecr=document.getElementById("scr-pfe"), en=document.getElementById("pfeInstr"), img=en&&en.querySelector("img.pfe-img");
+    if(!img||!/^data:image\\/webp/.test(img.getAttribute("src")||"")||!/Houlàlla/.test(img.getAttribute("alt")||"")) vus.push("pas de dessin de la fiche");
+    const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
+    if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
+    if(ecr.querySelector(".py-avant:not(:empty),.pyp-regle,.pyi-cours,details.pyd-pouce")) vus.push("une définition ou un coup de pouce sur l’écran");
+    const et=document.getElementById("pfeEtape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!ti||net(ti.textContent)!=="✏️ Exécuter le programme ci-dessous et expliquer pourquoi il y a une erreur !") vus.push("l’énoncé : "+JSON.stringify(ti&&net(ti.textContent)));
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    const pr=document.getElementById("pfeProg");
+    if(!pr||pr.textContent!=='for k  in range ( 9 )'+NL+'   print ("valeur=", nombre )') vus.push("le programme : "+JSON.stringify(pr&&pr.textContent));
+    ["pfeProg","pfeRun","pfeConsole","pfe-exp"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const c=document.getElementById("pfeConsole");
+    if(c.textContent!==""||getComputedStyle(c,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide avant l’exécution");
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pfe||"";
+    if(net(rap.textContent)!=="Une erreur dans une boucle for Exécuter le programme et expliquer pourquoi il y a une erreur !") vus.push("le rappel : "+JSON.stringify(rap.textContent));
+    pfeExecuter();
+    if(!/deux-points/.test(c.textContent)||!c.classList.contains("py-err")) vus.push("« Exécuter » ne montre pas l’erreur : "+JSON.stringify(c.textContent));
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPfe(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le verdict : vide redemandé, juste en bleu, faux en rouge avec la correction verte ---- */
+  verifierEval(w, 'la réponse vide n’est ni envoyée ni peinte ; le verdict du modèle peint ok ou bad, la correction verte nomme les deux fautes ; en soutien, l’explication fausse se reprend sans correction', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    const vus=[]; let envois=0;
+    sb.functions={ invoke:function(){ envois++; return new Promise(function(){}); } };
+    startPFE(); let ta=document.getElementById("pfe-exp");
+    checkPFE();
+    if(envois||ta.classList.contains("bad")||test.locked) vus.push("la réponse vide est envoyée, peinte ou verrouille");
+    ta.value="il manque les deux points"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    pfeVerdict({correct:true, feedback:"Bravo."});
+    if(!ta.classList.contains("ok")||test.score!==1||!test.locked||test.answers.length!==1||test.answers[0].correct!==true) vus.push("la réponse juste n’est pas comptée");
+    if(!/\\bgood\\b/.test(document.getElementById("pfeFeedback").className)) vus.push("le retour juste n’est pas vert");
+    startPFE(); ta=document.getElementById("pfe-exp");
+    ta.value="à cause des espaces"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    pfeVerdict({correct:false, feedback:"Pas encore."});
+    const cor=document.querySelector("#pfeModele .sol");
+    if(!ta.classList.contains("bad")||test.score!==0||!test.locked) vus.push("entraînement : la réponse fausse ne rougit pas ou ne verrouille pas");
+    if(!cor||!/deux-points/.test(cor.textContent)||!/nombre/.test(cor.textContent)) vus.push("pas de correction verte nommant les deux fautes");
+    if(!document.getElementById("pfeNext")) vus.push("pas de bouton pour finir");
+    currentMode="soutien"; startPFE(); ta=document.getElementById("pfe-exp");
+    ta.value="à cause des espaces"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    pfeVerdict({correct:false, feedback:"Pas encore."});
+    if(!ta.classList.contains("bad")||test.locked||document.querySelector("#pfeModele .sol")) vus.push("soutien : la réponse fausse ne se reprend pas, ou la correction est révélée");
+    ta.value="à cause des espaces !"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(ta.classList.contains("bad")) vus.push("soutien : retaper n’efface pas le rouge");
+    pfeVerdict(null);
+    if(test.locked||ta.classList.contains("ok")||ta.classList.contains("bad")) vus.push("une panne du modèle compte un verdict");
+    currentMode="train";
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. la seconde méthode : CPython refuse le programme, et pour la même raison ---- */
+  const nomPy = 'le programme de {python-for-erreur} est refusé par un vrai CPython — d’abord pour les deux-points, puis pour « nombre »';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : le programme n\'a été comparé à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const prog = evaluer(w, 'PFE_PROG');
+  if(!prog.ok){ verifier(nomPy, false, prog.erreur); return; }
+  const ref = pythonExecuter(cmd, [prog.valeur, prog.valeur.replace('( 9 )', '( 9 ):')]);
+  verifier(nomPy, ref[0] === 'ERREUR:SyntaxError' && ref[1] === 'ERREUR:NameError', JSON.stringify(ref));
+}
+
 function pythonInputDuree(w, P){
   const nom = '{python-input-duree} : une durée en heures et minutes';
   if(!P.pythonInputDuree){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des durées'); return; }
@@ -27816,7 +27916,7 @@ function pythonInputDuree(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ouvre le sous-thème 6.5 « Bonus : input », numéroté ' + NUM + ', derrière le sous-thème « Bonus », et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il ouvre le sous-thème 6.5 « Bonus : input », numéroté ' + NUM + ', juste derrière le sous-thème « Bonus », et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===5; });
     if(!st||!/bonus/i.test(st.nom)||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
