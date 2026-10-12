@@ -5551,7 +5551,7 @@ vide, le soutien qui explique sans révéler, et le modèle comparé à un vrai
 CPython. Pas de section propre au banc navigateur : la visite universelle
 (section 9) l'ouvre dans les deux modes.
 
-### {python-if-frais-port} — 6.7.1, les frais de port (sous-thème « Condition if else », v456)
+### {python-if-frais-port} — 6.7.1, les frais de port (sous-thème « Condition if else », v457)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
 "condition if else", créer un exercice qui suit les images jointes ;
