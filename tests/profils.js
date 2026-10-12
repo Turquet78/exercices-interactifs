@@ -902,7 +902,7 @@ module.exports = {
        fini, et le juger à chaque changement de lettre serait absurde. */
     /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
        avec leurs exercices — voir le profil de la Première. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pkg', 'pfn', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pkg', 'pfn', 'ptm', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1170,6 +1170,7 @@ module.exports = {
       'python-for-nom': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que le coup de pouce (le for k in range), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait la boucle à écrire',
       'python-input-prix': 'la fiche n\u2019a pas de définition : son étiquette (le dessin, les deux prix au kilo) est l\u2019énoncé, et son rappel ne reprend que la formule du coup de pouce — l\u2019écrire avant l\u2019énoncé donnerait le calcul à écrire',
       'python-for-erreur': 'la fiche n\u2019a ni définition ni coup de pouce : son rappel ne redit que la consigne, et l\u2019erreur à expliquer est la réponse attendue',
+      'python-for-table': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que les deux coups de pouce (la boucle de 1 à 9, le print), qui restent REPLIÉS sous l\u2019énoncé — les écrire avant lui donnerait le programme à écrire',
       'python-input-duree': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (les trois calculs à essayer), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait les calculs à écrire',
       'python-input-evolution': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (le bloc if evolution==0), déjà proposé sous l\u2019énoncé — l\u2019écrire avant lui donnerait le premier tiers du programme',
       'python-inverser-lettres': 'comme le 6.4.2 : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
@@ -1313,6 +1314,11 @@ module.exports = {
        programme faux, puis expliquer l'erreur (juge : le modèle). Une seule
        question, la fiche : rien à tirer. */
     pythonForErreur: { exercice: 'python-for-erreur', numero: '6.6.4' },
+    /* {python-for-table} (6.6.6, dernier du sous-thème « Boucle for in range »,
+       demande de Turquet, octobre 2026) : l'exercice 8 du carnet — a) la
+       table de 3, b) la table de 7, avec une boucle for. Le juge lit ce que
+       le programme AFFICHE. Une seule question (la fiche), deux cases. */
+    pythonForTable: { exercice: 'python-for-table', numero: '6.6.6' },
     /* {python-inverser-lettres} (6.4.4, sous-thème « Bonus », derrière
        {python-chaine-len}, {python-chaine-tirets} et {python-remplacer-lettre} ;
        demande de Turquet, octobre 2026) : l'exercice 29 du carnet — inverser
