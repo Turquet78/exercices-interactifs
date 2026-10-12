@@ -483,3 +483,12 @@ autre, et un compteur avancé dedans aurait sauté une intersection, ou
 donné deux fois la même. Vérifié dans Chromium : 300 séances de chaque
 exercice, douze couples, jamais de doublon ; une question du 3.2 forcée sur
 Ā∩B̄ s'énonce juste et attend la bonne case sur le total.
+
+Puis (v303) : « le faire aussi dans le 3.2 ». Le 3.2 avait bien l'espace —
+mesuré dans Chromium, 13 à 14 px dans les deux exercices —, mais il ne se
+VOYAIT pas : le capot d'un T ou d'un V en italique déborde à droite et
+recouvre l'espace ; un L, au 3.1, n'a rien qui dépasse. La « ) » porte donc
+désormais une correction d'italique en plus de l'espace (`.pb-fp`,
+`margin-left:.15em`), dans les trois écritures du nom (`pbNomHTML`,
+`pbNomVifMaj`, `pbPourquoi`). Les noms à listes déroulantes n'en ont pas
+besoin : une case n'a pas de capot qui dépasse.

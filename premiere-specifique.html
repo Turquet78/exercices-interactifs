@@ -1299,6 +1299,9 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .pb-rien{font-family:"Nunito";font-style:italic;font-weight:700;font-size:.8em}
 /* le « P » italique penche vers sa parenthèse : on l'en écarte */
 i.pb-P{margin-right:.14em}
+/* la « ) » de P(…) : l'espace, PLUS une correction d'italique — le capot d'un T
+   ou d'un V penché déborde à droite et mangeait l'espace seul (3.2, v303) */
+.pb-fp{margin-left:.15em}
 /* la vitrine posée sur une liste de lettres (voir pbAffMaj) : la liste garde
    son cadre et ses couleurs, son texte devient transparent, et l'écriture de
    la page se lit par-dessus, de la même encre que la liste */
@@ -2713,7 +2716,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=302;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=303;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -15223,7 +15226,7 @@ function pbInter(y,x){
 }
 function pbEff(q,c){ return pbValeurs(q.n)[PB_CASE[c]]; }
 function pbNomHTML(y,x){
-  return '<span class="pb-nom"><i class="pb-P">P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+' )</span>';
+  return '<span class="pb-nom"><i class="pb-P">P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+' <span class="pb-fp">)</span></span>';
 }
 /* Les cases d'une question, et ce qu'on attend dans chacune. */
 function pbAttendus(q){
@@ -15307,7 +15310,7 @@ function pbAffMaj(){
 function pbNomVifMaj(){
   const el=$('pbNomVif'); if(!el) return;
   const y=pbLu('pb-s1'), x=pbLu('pb-s2'), vide='<span class="pb-rien">…</span>';
-  el.innerHTML='<i class="pb-P">P</i>'+(x==='T' ? '' : '<sub>'+(x ? pbHTML(x) : vide)+'</sub>')+'('+(y ? pbHTML(y) : vide)+' )';
+  el.innerHTML='<i class="pb-P">P</i>'+(x==='T' ? '' : '<sub>'+(x ? pbHTML(x) : vide)+'</sub>')+'('+(y ? pbHTML(y) : vide)+' <span class="pb-fp">)</span>';
 }
 function pbMf(id, lab){ return '<span class="pb-case"><math-field class="dexp-mf pm-mf" id="'+id+'" aria-label="'+esc(lab)+'"></math-field></span>'; }
 /* Le tableau. « saisie » : les cases inconnues deviennent des cases à
@@ -15452,7 +15455,7 @@ function pbPourquoi(q){
   }
   const C=PB_CTX[q.ci]||PB_CTX[0], y=pbItem(q)[0], x=pbItem(q)[1], s6=pbInter(y,x);
   /* {lire-probabilites} : d'abord la TRADUCTION de la phrase */
-  const nomTxt='<i>P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+' )';
+  const nomTxt='<i>P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+' <span class="pb-fp">)</span>';
   const trad = (q.t!=='lp' && q.t!=='p') ? ''
     : x==='T' ? 'Aucune condition dans la phrase (« dans '+pbNom(C)+' ») : P n’a pas d’indice, on écrit '+nomTxt+'. '
               : '« Parmi », « sachant que », « on choisit … qui … » : c’est la CONDITION, elle s’écrit en bas de P — '+nomTxt+'. ';
