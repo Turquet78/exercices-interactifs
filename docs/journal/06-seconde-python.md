@@ -5621,10 +5621,73 @@ dialogue de la console, les copies juste, fausse et vide, le soutien qui ne
 révèle rien, et les modèles comparés à un vrai CPython. La visite
 universelle (section 9) l'ouvre dans les deux modes.
 
+---
+
+## {python-for-couples} — BONUS : tous les couples d'entiers (a ; b) (6.6.13, Boucle for in range)
+
+**L'exercice 12 du carnet.** {python-for-couples} (Seconde, 6.6.13, APP_VERSION
+460 — 437 à 455 pris par les sessions voisines du même jour, et les 6.6.6
+à 6.6.12 par {python-for-depart-fin}, {python-for-multiples},
+{python-trois-des}, {python-for-moyenne-notes}, {python-for-images},
+{python-for-table} et {python-tables-multiplication} pendant les bancs ;
+la 460 est prise large, pour ne plus courir après —, demande de Turquet, octobre 2026 : « en seconde dans le sous-thème
+"boucle for in range", créer un exercice qui suit les images jointes ;
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre ») : « **Faire** un
+programme qui affiche tous les couples d'entiers possibles ( a ; b ) avec a et
+b entre 0 et 2 », l'exemple de la fiche ((0 ; 0), (1 ; 0), (2 ; 0), (0 ; 1),
+(1 ; 1) … jusqu'à (2 ; 2)) et un coup de pouce : « On pourra utiliser une
+double boucle » et son squelette `for l in range ( 3 ):` / `for k in range ( 3 ):`
+/ `print (...`. Il suit {python-tables-multiplication} dans le sous-thème 6.6, et son
+contrôle exige de le SUIVRE, pas de fermer le sous-thème : un exercice
+ajouté derrière lui ne le casse pas. Le titre commence par « Bonus : », comme les descriptions des
+exercices bonus du thème — et le contrôle l'exige.
+
+**La présentation est celle du 6.6.3** ({python-for-nom}) : la question en
+gras dans son cadre `.pyn-etape`, qui enveloppe l'exemple (dans la mise en
+page en chasse fixe de la fiche, `.pfc-exemple`), le coup de pouce replié
+vert clair (`pyPoucesHTML`, son squelette dans `.pvo-pouce-code`), la cellule
+sans texte d'attente, « Exécuter » et la console — vide, `#pfcConsole` rejoint
+la règle `content:none`. **LA CAPTURE N'A NI DESSIN NI DÉFINITION** (seul le
+crayon de l'en-tête de la fiche) : l'écran n'en a pas, l'énoncé du haut reste
+vide et se masque (`.mp-instr:empty`), l'exception est déclarée
+(`pythonAvant.sans`), et le rappel (`RAP_PFC`) ne redit que le coup de pouce.
+Coquilles corrigées, rien d'ajouté : « couples d'entiers possibles »,
+« (2 ; 2) ».
+
+**Le juge (`pfcDiag`) lit ce que la console AFFICHE**, sans exiger l'ordre de
+l'exemple (c'est un exemple) ni les parenthèses : une ligne par couple, deux
+entiers par ligne, chaque couple de l'intervalle une fois et une seule. Le
+programme doit contenir une boucle for — les neuf print à la main sont
+refusés en le disant ; une boucle simple (`print(i%3, i//3)`) passe, la fiche
+dit « on POURRA ». Nommés : rien d'affiché, tout sur une ligne, `"(k ; l)"`
+entre guillemets (affiché tel quel), une ligne sans couple, un couple hors de
+l'intervalle, un couple en double, des couples manquants (un est cité, avec le
+compte), un input, une variable inconnue (`print(a, b)` sous `for k`/`for l`),
+les erreurs de boucle du 6.4.5. L'interpréteur est celui du 6.4.5 :
+`ptrDerouler` déroule la boucle extérieure, puis l'intérieure au tour suivant
+— rien n'est ajouté.
+
+**La séance** : la fiche épinglée (de 0 à 2), puis d'autres bornes (`PFC_BORNES`
+: 0–3, 1–3, 1–4, 0–4, 2–5) tirées par `distinctes()` ; `dmNbQuestions()`
+l'allonge. L'exemple et le coup de pouce suivent les bornes (`range ( 1,4 )`
+quand on part de 1). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonForCouples`) : la place et le titre « Bonus », le tirage (300
+séances), le juge sur cinq copies justes et quinze fausses, l'écran tenu aux
+consignes, la copie juste, fausse et vide, le soutien qui ne révèle rien, et
+les modèles comparés à un vrai CPython. Pas de section propre au banc
+navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
 ## {python-if-else} — la condition if … else (6.7.1, Condition if else)
 
 **Un sous-thème neuf, et la fiche « 1/ Définition d'une condition if age <
-18 : … else … ».** {python-if-else} (Seconde, 6.7.1, APP_VERSION 458 — 449 à 457 pris sur `main` pendant les bancs —, demande
+18 : … else … ».** {python-if-else} (Seconde, 6.7.1, APP_VERSION 461 — 449 à 460 pris sur `main` pendant les bancs —, demande
 de Turquet, octobre 2026 : « en seconde dans le sous thème "condition if
 else", créer un exercice qui suit les images jointes. Il faudra respecter
 les consignes de présentation des autres exercices d'algo du sous-thème
