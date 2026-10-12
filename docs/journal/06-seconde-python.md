@@ -4886,4 +4886,4 @@ identifiants et les kinds (`pfn`, `pfr`) ne se touchaient pas ; la fusion a
 gardé UN sous-thème, et **l'ordre du carnet a décidé**, comme au 6.3 : la
 définition en 6.6.1, {python-for-nom} en 6.6.2 — les notes portent
 l'identifiant et ne bougent pas. Son contrôle épingle désormais 6.6.2 et exige
-la définition devant lui. Version 430.
+la définition devant lui. Version 431 (la 430 a été prise sur `main` pendant les bancs).
