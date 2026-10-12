@@ -4162,6 +4162,7 @@ function exercices(suite){
     etudeAlgoConvexite(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
+    suiteAuxiliaireLimite(w, P);
     suiteTcmLimite(w, P);
     suiteAlgoSeuil(w, P);
     recurrenceFractions(w, P);
@@ -11038,6 +11039,107 @@ function phraseCouleurs(w){
     appels >= 6 && enDur === 1,
     appels + ' appel(s), et la phrase est écrite en toutes lettres ' + enDur +
     ' fois (1 attendu : la fonction elle-même)');
+}
+
+/* {suite-auxiliaire-limite} : la fiche « limite, puissance et suite
+   auxiliaire », rédigée comme le {suite-auxiliaire} — chaque case est un champ
+   mathématique (en jsdom, sa valeur se pose dans .value : salRaw la lit). */
+function suiteAuxiliaireLimite(w, P){
+  const present = evaluer(w, "typeof startSAL==='function' && typeof salSols==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la suite auxiliaire et limite : le tirage, puis la copie juste des deux formes',
+      'ce niveau n\'a pas l\'exercice de la suite auxiliaire et limite');
+    return;
+  }
+  verifierEval(w, 'la suite auxiliaire et limite : le tirage, puis la copie juste des deux formes', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='suite-auxiliaire-limite'; test.kind='sal';
+    const ent=function(x){ return Math.abs(x-Math.round(x))<1e-9; };
+
+    /* ---- 1. LE TIRAGE : 0 < a < 1, b et a·k entiers, U0 ≠ k, et la chaîne
+       de la fiche refaite par sa propre arithmétique ---------------------- */
+    for(let t=0;t<400;t++){
+      ['moins','plus'].forEach(function(f){
+        const q=salTirer(f), V=salVal(q);
+        if(!(q.a>0 && q.a<1)) vus.push('tirage : raison '+q.a+' hors de ]0 ; 1[ — pas de limite finie');
+        if(!ent(V.b)) vus.push('tirage : b = '+V.b+' n’est pas entier');
+        if(!ent(V.ak)) vus.push('tirage : a·k = '+V.ak+' n’est pas entier');
+        if(q.u0===q.k) vus.push('tirage : U0 = k, la suite (Vn) est nulle');
+        if(q.u0<0) vus.push('tirage : U0 négatif');
+        const u=3.7, vn=(f==='moins')?u-q.k:q.k-u, un1=q.a*u+V.b, vn1=(f==='moins')?un1-q.k:q.k-un1;
+        if(Math.abs(vn1-q.a*vn)>1e-9) vus.push('tirage : V(n+1) ≠ a×V(n) pour la forme '+f);
+      });
+    }
+    /* et le démarreur tire bien les DEUX formes de la fiche, dans l'ordre */
+    test.questions=null;
+    const corps=String(startSAL).replace(/\\/\\*[\\s\\S]*?\\*\\//g,'');
+    if(corps.indexOf("'moins'")<0 || corps.indexOf("'plus'")<0) vus.push('startSAL ne tire pas les deux formes de la fiche');
+
+    const poser=function(id,v){ const e=document.getElementById(id); if(e) e.value=v; };
+    const rouges=function(){ return SAL_ORDER.filter(function(id){ const e=document.getElementById(id); return e && e.classList.contains('bad'); }); };
+    const remplir=function(q, sols){ SAL_ORDER.forEach(function(id){ poser(id, SAL_CHOIX[id] || sols[id]); }); };
+
+    /* ---- 2. LES DEUX EXERCICES DE LA FICHE, épinglés : U0 = 40, a = 0,8, b = 7, k = 35 */
+    [['moins',5],['plus',-5]].forEach(function(c){
+      const q={forme:c[0], a:0.8, k:35, u0:40}, V=salVal(q);
+      if(V.b!==7) vus.push('la fiche : b vaut '+V.b+' au lieu de 7');
+      if(V.ak!==28) vus.push('la fiche : a·k vaut '+V.ak+' au lieu de 28');
+      if(V.V0!==c[1]) vus.push('la fiche ('+c[0]+') : V0 vaut '+V.V0+' au lieu de '+c[1]);
+      /* copie vide : rien ne rougit, et la page demande de compléter */
+      test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
+      show('sal'); renderSAL(); checkSAL();
+      if(rouges().length) vus.push(c[0]+', copie vide : '+rouges().join(', ')+' rougissent');
+      if(!/Complète au moins une case/.test(document.getElementById('salFeedback').textContent)) vus.push(c[0]+', copie vide : le message ne demande pas de compléter');
+      /* la copie de la correction vaut le point, chaque case juste */
+      remplir(q, salSols(q)); test.locked=false; checkSAL();
+      if(rouges().length) vus.push(c[0]+', copie juste : '+rouges().join(', ')+' rougissent');
+      if(test.score!==1) vus.push(c[0]+', copie juste : le point n’est pas accordé');
+    });
+
+    /* ---- 3. LA COPIE DE LA FICHE, telle qu'un élève l'écrit ------------- */
+    const fiche={
+      moins:{'sal-f1':'U_{n+1}-35','sal-f2':'0{,}8U_n+7-35','sal-f3':'0{,}8U_n-28','sal-n1':'0{,}8U_n','sal-n2':'28','sal-p1':'U_n','sal-p2':'35',
+             'sal-b1':'U_0-35','sal-b2':'5','sal-q':'0{,}8','sal-c':'5\\\\times0{,}8^{n}','sal-d1':'V_n+35','sal-d2':'5\\\\times0{,}8^{n}+35',
+             'sal-e1':'5\\\\times0{,}8^{n}+35','sal-e2':'35','sal-e3':'0'},
+      /* forme 2 : la paire écrite DANS L'AUTRE ORDRE — le nombre d'abord */
+      plus:{'sal-f1':'35-U_{n+1}','sal-f2':'35-\\\\left(0{,}8U_n+7\\\\right)','sal-f3':'28-0{,}8U_n','sal-n1':'28','sal-n2':'-0{,}8U_n','sal-p1':'35','sal-p2':'-U_n',
+             'sal-b1':'35-U_0','sal-b2':'-5','sal-q':'0{,}8','sal-c':'-5\\\\times0{,}8^{n}','sal-d1':'35-V_n','sal-d2':'35+5\\\\times0{,}8^{n}',
+             'sal-e1':'35+5\\\\times0{,}8^{n}','sal-e2':'35','sal-e3':'0'}
+    };
+    ['moins','plus'].forEach(function(f){
+      const q={forme:f, a:0.8, k:35, u0:40};
+      test.questions=[q]; test.idx=0; test.score=0; test.locked=false; renderSAL();
+      remplir(q, fiche[f]); checkSAL();
+      if(rouges().length) vus.push('la fiche ('+f+') : '+rouges().join(', ')+' rougissent sur la copie de l’élève');
+    });
+
+    /* ---- 4. LES ERREURS DE LA FICHE rougissent : le signe oublié, le même terme deux fois */
+    /* en SOUTIEN : la vérification s'arrête avant la correction, le rouge reste visible */
+    currentMode='soutien';
+    const q2={forme:'plus', a:0.8, k:35, u0:40};
+    test.questions=[q2]; test.idx=0; test.score=0; test.locked=false; renderSAL();
+    remplir(q2, fiche.plus);
+    poser('sal-f2','35-0{,}8U_n+7');          /* la parenthèse oubliée : − 7 devenu + 7 */
+    poser('sal-n1','-0{,}8U_n'); poser('sal-n2','-0{,}8U_n');   /* le même terme deux fois */
+    checkSAL();
+    const r=rouges();
+    if(r.indexOf('sal-f2')<0) vus.push('la parenthèse oubliée (35 − 0,8Un + 7) ne rougit pas');
+    if(r.indexOf('sal-n2')<0) vus.push('le même terme écrit deux fois dans la paire ne rougit pas');
+    if(r.indexOf('sal-n1')>=0) vus.push('le premier terme de la paire, juste, rougit');
+    if(r.indexOf('sal-f1')>=0) vus.push('une case juste rougit parce qu’une autre est fausse');
+    if(test.score!==0) vus.push('une copie fausse a reçu le point');
+    /* en ENTRAÎNEMENT, la même copie reçoit la correction, en vert, sur la case fausse */
+    currentMode='train';
+    test.questions=[q2]; test.idx=0; test.score=0; test.locked=false; renderSAL();
+    remplir(q2, fiche.plus); poser('sal-n1','-0{,}8U_n'); poser('sal-n2','-0{,}8U_n');
+    const n2=document.getElementById('sal-n2');
+    if(n2) n2.setValue=function(v){ this.value=v; };   /* jsdom : pas de MathLive, la correction s'écrit dans .value */
+    checkSAL();
+    if(!n2 || !n2.classList.contains('sol') || n2.classList.contains('bad')) vus.push('la case fausse n’a pas reçu la correction');
+    if(n2 && n2.value!=='28') vus.push('la correction de la paire n’est pas le terme manquant (28) : '+(n2&&n2.value));
+    return vus.join(' ; ');
+  })()`, function(v){ return v===''; });
 }
 
 function suiteAuxiliaireCompleter(w, P){
