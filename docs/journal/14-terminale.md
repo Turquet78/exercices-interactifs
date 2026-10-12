@@ -2932,3 +2932,7 @@ erreur JavaScript. Elle a montré un défaut au premier essai : la définition
 de la suite, centrée dans un conteneur FLEX, faisait retomber ses indices et
 exposants nus sur la ligne (« U n = 1,2 n ») — le piège connu de
 docs/journal/11. `.lqn-def` est un bloc centré.
+Le banc navigateur a rougi une fois, sur « le clavier mathématique est
+atteignable sur tout écran à champ mathématique » : `renderLQN` manquait à la
+liste des rendus enveloppés en fin de fichier (le point 9 des branchements),
+et l'écran n'avait donc pas la rangée « Insérer » ni son bouton ⌨️. Ajouté.
