@@ -30564,10 +30564,10 @@ function pythonTroisDes(w, P){
   verifier(nomPy, ecarts.length === 0 && /: 81\n/.test(ref[2]) && /: 25\n/.test(ref[1]), ecarts.join(' | ') || J(ref[2].slice(-200)));
 }
 
-/* {python-if-plus-grand-trois} (Seconde, 6.7.4) : l'exercice 8 du carnet, BONUS —
+/* {python-if-plus-grand-trois} (Seconde, 6.7.5) : l'exercice 8 du carnet, BONUS —
    la photo, puis « Faire un programme qui demande 3 nombres décimaux et qui
    affiche le plus grand des trois nombres. » Le contrôle tient la place au
-   menu (il suit {python-if-plus-grand} dans le sous-thème 6.7 « Condition if
+   menu (il suit {python-if-cinema} dans le sous-thème 6.7 « Condition if
    else », dernier du thème, rien d'autre ne bouge), le mot « Bonus » du
    titre, le juge sur des copies justes et fausses — chacune avec le mot qui
    la nomme —, l'écran (la photo d'abord, aucune définition, aucun coup de
@@ -30584,14 +30584,14 @@ function pythonIfPlusGrandTrois(w, P){
   }
 
   /* ---- 1. la place au menu, et le mot « Bonus » ---- */
-  verifierEval(w, 'il ouvre le sous-thème 6.7 « Condition if else », numéroté ' + NUM + ', juste derrière « Boucle for in range », son titre dit « Bonus », et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il ferme le sous-thème 6.7 « Condition if else » derrière {python-if-cinema}, numéroté ' + NUM + ', dernier sous-thème du thème, son titre dit « Bonus », et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
     if(!st||!/condition/i.test(st.nom)||!/if/.test(st.nom)||!/else/.test(st.nom)) vus.push("pas de sous-thème 6.7 Condition if else");
-    else if(st.ids[st.ids.indexOf("${ID}")-1]!=="python-if-plus-grand") vus.push("il ne suit pas {python-if-plus-grand} : "+st.ids.join(","));
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-if-cinema") vus.push("il ne ferme pas le sous-thème derrière {python-if-cinema} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-for-table"]!=="6.6.11"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-for-table"]!=="6.6.11"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("le titre ne dit pas Bonus : "+TESTS["${ID}"].name);
     const qs=pgtBuildQuestions();
