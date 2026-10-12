@@ -2921,3 +2921,33 @@ clause de secret du contexte du modèle.
 Un piège attrapé au premier passage du banc : la description citait « le
 5.3.1 » — un numéro écrit en dur dans un texte vu par l'élève, que le prochain
 découpage du menu aurait rendu faux. Elle nomme l'exercice.
+
+**La limite d'une suite par sa suite auxiliaire : {suite-auxiliaire-limite}
+(5.1.5, octobre 2026, v376).** Demande de Turquet, sur la fiche « limite,
+puissance et suite auxiliaire » : « créer un exercice en terminale comme le
+pdf, en rédigeant comme le 5.1.2 pour la suite auxiliaire ». La fiche porte
+deux exercices sur la même suite (U₀ = 40, Uₙ₊₁ = 0,8 Uₙ + 7) : Vₙ = Uₙ − 35,
+puis Vₙ = 35 − Uₙ — l'ordre retourné, celui où l'on oublie la parenthèse en
+remplaçant Uₙ₊₁ derrière un « − ». La séance en fait ses deux questions,
+dans cet ordre.
+**La rédaction est celle du 5.1.2** : chaque case est un champ MathLive où
+l'élève écrit l'expression entière (`V_{n+1} = [U_{n+1} − k] = [aUₙ + b − k]
+= [réduite]`), jugée par le moteur de {suite-auxiliaire} (`SA._t` : toute
+écriture équivalente passe, évaluée en plusieurs points). Ce que la fiche
+ajoute : la factorisation s'écrit en DEUX fractions sur a, séparées par le
+signe de la fiche (« − » à la question 1, « + » à la question 2), puis
+a(… ∓ …) ; et une partie d) conclut sur la limite — Uₙ, lim Uₙ, lim qⁿ, et la
+justification « −1 < q < 1 » qui se CHOISIT dans un menu.
+**La paire de la question 2 est sans ordre** : a(−a·Uₙ/a + a·k/a) et
+a(a·k/a + (−a·Uₙ)/a) sont justes l'un et l'autre, mais le même terme écrit
+deux fois est faux pour la seconde case. À la correction, la case fausse
+reçoit le terme que l'élève n'a PAS écrit. À la question 1, le « − » posé par
+la page fixe l'ordre.
+**Le tirage part de k** (le point fixe) et en dérive b = k(1 − a) : a dans
+{0,5 ; 0,6 ; 0,75 ; 0,8 ; 0,9 ; 0,95}, k multiple du pas qui rend b et a·k
+entiers, U₀ ≠ k. Le contrôle jsdom refait la chaîne V(n+1) = a·V(n) par sa
+propre arithmétique sur 800 tirages, épingle les deux exercices de la fiche
+(b = 7, a·k = 28, V₀ = ±5), passe la copie de la fiche avec la paire dans
+l'autre ordre, et fait rougir la parenthèse oubliée (35 − 0,8Uₙ + 7) et le
+terme doublé. Correction comme au 5.1.2 : une case fausse est remplacée par
+la bonne réponse, en vert, et la phrase dit « inscrites en vert ».
