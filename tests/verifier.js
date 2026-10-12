@@ -4260,6 +4260,7 @@ function exercices(suite){
     pythonInverserLettres(w, P);
     pythonMoyenneNotes(w, P);
     pythonForRenommer(w, P);
+    pythonForDepartFin(w, P);
     pythonChaines(w, P);
     pythonChaineLen(w, P);
     pythonForRange(w, P);
@@ -27241,6 +27242,160 @@ function pythonInverserLettres(w, P){
   verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-for-depart-fin} (Seconde, 6.6.6, sous-thème « Boucle for in range ») :
+   l'exercice 6 du carnet — le dessin, la définition de
+   for nombre in range ( départ , fin ), puis a) compléter
+   for k in range ( … , … ) pour afficher les entiers de 5 à 15, b) de 1 à 9.
+   Le contrôle tient la place au menu (il ferme le 6.6 : rien ne bouge), la
+   fiche épinglée et le tirage, le juge sur des copies justes et fausses —
+   chacune avec le mot qui la nomme, chaque trou jugé SEUL —, l'écran tenu aux
+   consignes du sous-thème Input (dessin d'abord, définition mot pour mot,
+   aucun coup de pouce, console vide sans texte), le trajet a) → b) avec ses
+   portes, la case juste qui reste bleue à côté d'une fausse, la case vide
+   jamais rougie, le soutien qui redemande sans révéler, et la reprise. */
+function pythonForDepartFin(w, P){
+  const nom = '{python-for-depart-fin} : for … in range ( départ , fin )';
+  if(!P.pythonForDepartFin){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la boucle for à départ'); return; }
+  const ID = P.pythonForDepartFin.exercice, NB = P.pythonForDepartFin.nb, NUM = P.pythonForDepartFin.numero;
+  const present = evaluer(w, "typeof startPFD==='function' && typeof pfdJuge==='function' && typeof pfdBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPFD / pfdJuge / pfdBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-renommer}, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
+    if(!st||!/boucle/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-for-renommer") vus.push("il ne ferme pas le sous-thème derrière {python-for-renommer} : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(!RAPPELS.pfd) vus.push("pas de rappel");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (de 5 à 15, puis de 1 à 9), puis des questions distinctes ; chaque paire de bornes sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pfdBuildQuestions();
+      if(qs.length!==${NB}) vus.push(qs.length+" questions");
+      if(pfdBornes(qs[0],"a").join()!=="5,15"||pfdBornes(qs[0],"b").join()!=="1,9") vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(qs[0]));
+      const cles=qs.map(function(q){ return q.a+"/"+q.b; });
+      if(cles.some(function(c,i){ return cles.indexOf(c)!==i; })) vus.push("deux fois la même question : "+cles.join(" "));
+      qs.slice(1).forEach(function(q){ if(q.a===q.b) vus.push("a) et b) identiques"); if(q.a<2||q.b<2) vus.push("la fiche tirée à nouveau"); vues[q.a]=1; vues[q.b]=1; });
+      if(qs.some(function(q){ return q.etape!=="a"||q.aOk!==null||q.bOk!==null; })) vus.push("une question ne part pas de l’étape a)");
+    }
+    if(Object.keys(vues).length!==PFD_BORNES.length-2) vus.push("des bornes ne sortent jamais : "+Object.keys(vues).join(","));
+    PFD_BORNES.forEach(function(b){ if(!(b[0]<b[1])) vus.push("bornes à l’envers : "+b); });
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge : 5 , 16 passe (15+1 aussi) ; 15 (le piège), 17, 4, 6, un décimal, une lettre, des bornes inversées sont nommés ; chaque trou est jugé seul ; un trou vide est une copie vide', `(function(){
+    const vus=[], q={a:0,b:1};
+    [["5","16"],[" 5 ","15+1"],["5","16 "]].forEach(function(t){ const j=pfdJuge(q,"a",t[0],t[1]); if(!j.ok||!j.ok1||!j.ok2) vus.push("refusé : "+t+" — "+j.diag); });
+    [[["5","15"],/manque la derni.re valeur, 15/,true,false],[["5","17"],/une valeur de trop/,true,false],[["4","16"],/commence . 4/,false,true],[["6","16"],/commence . 6/,false,true],
+     [["5","15.5"],/ENTIERS/,true,false],[["a","16"],/NOMBRES/,false,true],[["16","5"],/n.affiche rien/,false,false],[["4","15"],/commence . 4.*manque/,false,false]].forEach(function(c){
+      const j=pfdJuge(q,"a",c[0][0],c[0][1]);
+      if(j.ok||j.vide||!c[1].test(j.diag)||j.ok1!==c[2]||j.ok2!==c[3]) vus.push(c[0]+" : "+JSON.stringify(j)); });
+    if(!pfdJuge(q,"a","5","").vide||!pfdJuge(q,"a","","16").vide||!pfdJuge(q,"a"," ","  ").vide) vus.push("un trou vide n’est pas une copie vide");
+    if(!pfdJuge(q,"b","1","10").ok) vus.push("b) de la fiche refusé");
+    const q2={a:3,b:7}; ["a","b"].forEach(function(e){ const b=pfdBornes(q2,e); if(!pfdJuge(q2,e,String(b[0]),String(b[1]+1)).ok) vus.push("une question tirée refuse sa réponse"); });
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input ---- */
+  verifierEval(w, 'l’écran : le dessin d’abord, puis la définition de la fiche mot pour mot (2 puces), puis l’énoncé ; le a) seul, en gras dans son cadre, deux trous dans la ligne de code, aucun coup de pouce, « Vérifier » fermé, console vide sans texte', `(function(){
+    currentEleve={id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPFD();
+    const vus=[], fig=document.querySelector("#pfdFig img"), def=document.querySelector("#pfdAvant .pii-def"), en=document.getElementById("pfdInstr");
+    if(!fig||!/^data:image.webp/.test(fig.getAttribute("src")||"")) vus.push("pas de dessin de la fiche");
+    if(!def) vus.push("pas de définition");
+    else {
+      if(fig&&!(fig.compareDocumentPosition(def)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas avant la définition");
+      if(!(def.compareDocumentPosition(en)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("la définition n’est pas avant l’énoncé");
+      if(def.querySelectorAll("li").length!==2) vus.push(def.querySelectorAll("li").length+" puces");
+      const t=def.textContent.split(String.fromCharCode(160)).join(" ").replace(/ +/g," ");
+      ["Définition for nombre in range (départ , fin) :","fait varier la variable nombre des entiers de départ à fin -1.","Par exemple, for nombre in range ( 3 , 10 ) : fait varier la variable nombre des entiers de 3 à 10-1 = 9."].forEach(function(m){ if(t.indexOf(m)<0) vus.push("la définition ne dit pas : "+m); });
+      if(/Remarque|Traduction/.test(t)) vus.push("la définition dit plus que la fiche");
+    }
+    if(document.getElementById("pfdEtapeB")) vus.push("b) ouvert d’emblée");
+    const ta=document.querySelector("#pfdEtapeA .pyn-titre");
+    if(!ta||!/Compléter le programme/.test(ta.textContent)||!/de 5 à 15/.test(ta.textContent)) vus.push("l’énoncé du a) n’est pas dans son cadre");
+    if(document.querySelectorAll("#pfdEtapeA .pch-l input").length!==2) vus.push("pas deux trous dans la ligne du for");
+    if(document.querySelector("#scr-pfd .pyd-pouce")) vus.push("un coup de pouce que la fiche n’a pas");
+    if(!document.getElementById("pfdValidate").disabled) vus.push("« Vérifier » ouvert d’emblée");
+    if(document.querySelector("#scr-pfd .py-hint")) vus.push("une consigne à côté d’un bouton");
+    if(document.getElementById("pfdConsoleA").textContent) vus.push("la console porte un texte");
+    const css=[].map.call(document.styleSheets,function(sh){ try{ return [].map.call(sh.cssRules,function(r){ return r.cssText; }).join(" "); }catch(e){ return ""; } }).join(" ");
+    if(!/#pfdConsoleA:empty::before[^}]*content: none/.test(css)) vus.push("la console vide porte un texte d’attente");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le trajet a) → b), copie juste ---- */
+  verifierEval(w, 'le trajet : a) s’exécute, « Vérifier » ne s’ouvre que sur la ligne exécutée telle qu’elle est écrite ; b) s’ouvre sous le a) gardé ; quatre cases bleues, 4 points', `(function(){
+    currentEleve={id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPFD();
+    const vus=[], NL=String.fromCharCode(10);
+    const pose=function(id,v){ const el=document.getElementById(id); el.value=v; el.dispatchEvent(new Event("input")); };
+    pose("pfd-a1","5"); pose("pfd-a2","16");
+    if(!document.getElementById("pfdValidate").disabled) vus.push("« Vérifier » ouvert avant l’exécution");
+    pfdExecEtape();
+    const ca=document.getElementById("pfdConsoleA").textContent.split(NL);
+    if(ca.length!==11||ca[0]!=="5"||ca[10]!=="15") vus.push("la console du a) : "+ca.join(","));
+    if(document.getElementById("pfdValidate").disabled) vus.push("« Vérifier » fermé après l’exécution");
+    pose("pfd-a2","17");
+    if(!document.getElementById("pfdValidate").disabled) vus.push("« Vérifier » ouvert sur une ligne modifiée");
+    if(document.getElementById("pfdConsoleA").textContent) vus.push("la console garde une exécution périmée");
+    pose("pfd-a2","16"); pfdExecEtape(); checkPFD();
+    if(!document.getElementById("pfd-a1").classList.contains("ok")||!document.getElementById("pfd-a2").classList.contains("ok")) vus.push("a) juste non bleu");
+    if(!document.getElementById("pfdSuite")) vus.push("pas de « Passer au b) »");
+    pfdVers();
+    if(!document.querySelector("#pfdEtapeA .pyn-titre")) vus.push("l’énoncé du a) a disparu au b)");
+    const tb=document.querySelector("#pfdEtapeB .pyn-titre"); if(!tb||!/de 1 à 9/.test(tb.textContent)) vus.push("l’énoncé du b)");
+    pose("pfd-b1","1"); pose("pfd-b2","10"); pfdExecEtape(); checkPFD();
+    if(test.score!==4) vus.push("score "+test.score);
+    if(document.querySelectorAll("#pfdHost .ok").length!==4) vus.push(document.querySelectorAll("#pfdHost .ok").length+" cases bleues");
+    if(document.querySelectorAll("#pfdHost .bad").length) vus.push("du rouge sur une copie juste");
+    if(!test.answers.length||!test.answers[0].correct) vus.push("la réponse enregistrée n’est pas juste");
+    else if(test.answers[0].cases!==4||test.answers[0].justes!==4) vus.push("la note affichée compte "+test.answers[0].justes+" sur "+test.answers[0].cases);
+    if(!document.getElementById("pfdNext")) vus.push("pas de « Question suivante »");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. copie fausse, cases vides, soutien, reprise ---- */
+  verifierEval(w, 'la case juste reste bleue à côté d’une fausse corrigée en vert, un trou vide ne rougit jamais, le soutien redemande sans révéler, et la reprise rouvre l’étape telle qu’elle était', `(function(){
+    const vus=[];
+    const pose=function(id,v){ const el=document.getElementById(id); el.value=v; el.dispatchEvent(new Event("input")); };
+    currentEleve={id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPFD();
+    pose("pfd-a1","5"); pfdExecEtape(); checkPFD();
+    if(document.querySelector("#pfdHost .bad")) vus.push("trou vide rougi");
+    if(test.questions[0].aOk!==null) vus.push("étape au trou vide jugée");
+    pose("pfd-a2","15"); pfdExecEtape(); checkPFD();
+    const cor=document.querySelector("#pfdEtapeA .mf-cor");
+    if(!document.getElementById("pfd-a1").classList.contains("ok")) vus.push("le départ juste n’est pas bleu à côté d’une fin fausse");
+    if(!document.getElementById("pfd-a2").classList.contains("bad")||!cor||cor.textContent!=="16") vus.push("fin fausse sans correction verte");
+    if(test.score!==1) vus.push("score "+test.score);
+    /* soutien */
+    currentMode="soutien"; startPFD();
+    pose("pfd-a1","5"); pose("pfd-a2","17"); pfdExecEtape(); checkPFD();
+    if(!document.getElementById("pfd-a2").classList.contains("bad")) vus.push("soutien : fin fausse non rougie");
+    if(!document.getElementById("pfd-a1").classList.contains("ok")) vus.push("soutien : départ juste non bleu");
+    if(document.querySelector("#pfdEtapeA .mf-cor")) vus.push("soutien : correction écrite");
+    if(test.questions[0].aOk!==null||document.getElementById("pfdEtapeB")) vus.push("soutien : l’étape avance sur un faux");
+    pose("pfd-a2","16"); pfdExecEtape(); checkPFD();
+    if(!test.questions[0].aOk||!test.questions[0].aOk[0]||!test.questions[0].aOk[1]) vus.push("soutien : la correction n’est pas acceptée");
+    /* reprise : l'étape b) en cours */
+    pfdVers(); pose("pfd-b1","1");
+    const sauve=JSON.parse(JSON.stringify(test.questions));
+    test.questions=sauve; afficherEcranDe("pfd");
+    if(!document.getElementById("pfdEtapeB")||document.getElementById("pfd-b1").value!=="1") vus.push("reprise : le b) n’est pas rouvert tel quel");
+    if(!document.getElementById("pfd-a1").classList.contains("ok")||!document.getElementById("pfd-a1").disabled) vus.push("reprise : le a) n’est pas figé en bleu");
+    if(!document.getElementById("pfdValidate")||!document.getElementById("pfdValidate").disabled) vus.push("reprise : « Vérifier » ouvert sans exécution");
+    return vus.join(" | ");
+  })()`, v => v === '');
+}
+
 /* {python-for-renommer} (Seconde, 6.6.5, sous-thème « Boucle for in range ») :
    l'exercice 2 du carnet sur la boucle — le dessin, la définition de
    for nombre in range ( fin ), puis a) compléter range pour afficher les
@@ -27264,11 +27419,12 @@ function pythonForRenommer(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-erreur}, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il est le cinquième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-erreur}, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle/i.test(st.nom)||!/range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-for-erreur") vus.push("il ne ferme pas le sous-thème derrière {python-for-erreur} : "+st.ids.join(","));
+    /* il fermait le sous-thème ; {python-for-depart-fin} (6.6.6) est venu derrière lui, sans rien renuméroter */
+    else if(st.ids[4]!=="${ID}"||st.ids[3]!=="python-for-erreur") vus.push("il n’est pas le cinquième du sous-thème, derrière {python-for-erreur} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.2"||TEST_NUM["python-for-oui-non"]!=="6.6.3"||TEST_NUM["python-for-erreur"]!=="6.6.4") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
