@@ -1133,7 +1133,7 @@
   .pch-in.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
   .pch-in.sol{color:var(--green);background:var(--green-soft);border-color:var(--green)}
   #pchHost .mf-cor{margin:0 4px;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600;white-space:pre}
-  /* {python-for-renommer} (6.6.5) : le dessin de la fiche en tête de l'écran ; la
+  /* {python-for-renommer} (6.6.2) : le dessin de la fiche en tête de l'écran ; la
      définition dans le cadre orange, ses puces séparées par un trait comme le
      carnet ; le trou du a) dans la ligne de code ; « Votre réponse » du c) dans
      un cadre gris, comme la cellule du carnet, la case à la taille du texte. */
@@ -5989,7 +5989,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=439;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=440;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6873,7 +6873,7 @@ const THEMES=[
       { num:5, nom:'Bonus : input',       ids:['python-input-duree','python-input-evolution','python-input-duree-secondes','python-moyenne-notes'] },
       /* Le sous-thème « Boucle for in range » (demande de Turquet, octobre
          2026) : ajouté EN DERNIER, il ne renumérote rien. */
-      { num:6, nom:'Boucle for in range', ids:['python-for-range','python-for-nom','python-for-oui-non','python-for-erreur','python-for-renommer','python-for-depart-fin','python-for-images'] }
+      { num:6, nom:'Boucle for in range', ids:['python-for-range','python-for-renommer','python-for-nom','python-for-oui-non','python-for-erreur','python-for-depart-fin','python-for-images'] }
   ] },
   /* Le thème des RAPPELS (demande de Turquet, septembre 2026) : les bases du
      collège qu'on reprend en début de Seconde. Ajouté EN DERNIER, il ne
@@ -35170,7 +35170,7 @@ function ctxPmn(q){
 }
 
 /* ---------- Exercice : renommer la variable d'une boucle for … in range (Python) ----------
-   {python-for-renommer} (Seconde, 6.6.5, demande de Turquet, octobre 2026 : « en
+   {python-for-renommer} (Seconde, 6.6.2, demande de Turquet, octobre 2026 : « en
    seconde dans le sous thème "boucle for in range", créer un exercice qui
    suit les images jointes ; respecter les consignes de présentation des
    autres exercices d'algo du sous-thème input ; mettre le dessin en premier ;
@@ -35181,8 +35181,10 @@ function ctxPmn(q){
    a) compléter for nombre in range ( … ) pour afficher les entiers de 0 à 9,
    b) renommer la variable nombre en k — deux coups de pouce repliés,
    c) « Cela change-t-il le résultat du programme ? ».
-   Il ferme le sous-thème 6.6 « Boucle for in range », derrière
-   {python-for-erreur} : rien n'est renuméroté. (Écrit d'abord sous
+   Il est le 6.6.2, dans l'ordre du carnet (demande de Turquet, octobre
+   2026 : « mets-le dans l'ordre du carnet, en 6.6.2 ») : publié d'abord en
+   6.6.5, il est passé derrière l'exercice 1 ; les trois suivants reculent
+   d'un rang, leurs notes portent l'identifiant et ne bougent pas. (Écrit d'abord sous
    l'identifiant python-for-range, déjà pris en ligne par l'exercice 1 du
    carnet pendant ses bancs : renommé, préfixe pfv.)
 
