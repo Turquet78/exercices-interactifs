@@ -5621,7 +5621,131 @@ dialogue de la console, les copies juste, fausse et vide, le soutien qui ne
 révèle rien, et les modèles comparés à un vrai CPython. La visite
 universelle (section 9) l'ouvre dans les deux modes.
 
-### {python-if-frais-port} — 6.7.2, les frais de port (sous-thème « Condition if else », v458)
+---
+
+## {python-for-couples} — BONUS : tous les couples d'entiers (a ; b) (6.6.13, Boucle for in range)
+
+**L'exercice 12 du carnet.** {python-for-couples} (Seconde, 6.6.13, APP_VERSION
+460 — 437 à 455 pris par les sessions voisines du même jour, et les 6.6.6
+à 6.6.12 par {python-for-depart-fin}, {python-for-multiples},
+{python-trois-des}, {python-for-moyenne-notes}, {python-for-images},
+{python-for-table} et {python-tables-multiplication} pendant les bancs ;
+la 460 est prise large, pour ne plus courir après —, demande de Turquet, octobre 2026 : « en seconde dans le sous-thème
+"boucle for in range", créer un exercice qui suit les images jointes ;
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre ») : « **Faire** un
+programme qui affiche tous les couples d'entiers possibles ( a ; b ) avec a et
+b entre 0 et 2 », l'exemple de la fiche ((0 ; 0), (1 ; 0), (2 ; 0), (0 ; 1),
+(1 ; 1) … jusqu'à (2 ; 2)) et un coup de pouce : « On pourra utiliser une
+double boucle » et son squelette `for l in range ( 3 ):` / `for k in range ( 3 ):`
+/ `print (...`. Il suit {python-tables-multiplication} dans le sous-thème 6.6, et son
+contrôle exige de le SUIVRE, pas de fermer le sous-thème : un exercice
+ajouté derrière lui ne le casse pas. Le titre commence par « Bonus : », comme les descriptions des
+exercices bonus du thème — et le contrôle l'exige.
+
+**La présentation est celle du 6.6.3** ({python-for-nom}) : la question en
+gras dans son cadre `.pyn-etape`, qui enveloppe l'exemple (dans la mise en
+page en chasse fixe de la fiche, `.pfc-exemple`), le coup de pouce replié
+vert clair (`pyPoucesHTML`, son squelette dans `.pvo-pouce-code`), la cellule
+sans texte d'attente, « Exécuter » et la console — vide, `#pfcConsole` rejoint
+la règle `content:none`. **LA CAPTURE N'A NI DESSIN NI DÉFINITION** (seul le
+crayon de l'en-tête de la fiche) : l'écran n'en a pas, l'énoncé du haut reste
+vide et se masque (`.mp-instr:empty`), l'exception est déclarée
+(`pythonAvant.sans`), et le rappel (`RAP_PFC`) ne redit que le coup de pouce.
+Coquilles corrigées, rien d'ajouté : « couples d'entiers possibles »,
+« (2 ; 2) ».
+
+**Le juge (`pfcDiag`) lit ce que la console AFFICHE**, sans exiger l'ordre de
+l'exemple (c'est un exemple) ni les parenthèses : une ligne par couple, deux
+entiers par ligne, chaque couple de l'intervalle une fois et une seule. Le
+programme doit contenir une boucle for — les neuf print à la main sont
+refusés en le disant ; une boucle simple (`print(i%3, i//3)`) passe, la fiche
+dit « on POURRA ». Nommés : rien d'affiché, tout sur une ligne, `"(k ; l)"`
+entre guillemets (affiché tel quel), une ligne sans couple, un couple hors de
+l'intervalle, un couple en double, des couples manquants (un est cité, avec le
+compte), un input, une variable inconnue (`print(a, b)` sous `for k`/`for l`),
+les erreurs de boucle du 6.4.5. L'interpréteur est celui du 6.4.5 :
+`ptrDerouler` déroule la boucle extérieure, puis l'intérieure au tour suivant
+— rien n'est ajouté.
+
+**La séance** : la fiche épinglée (de 0 à 2), puis d'autres bornes (`PFC_BORNES`
+: 0–3, 1–3, 1–4, 0–4, 2–5) tirées par `distinctes()` ; `dmNbQuestions()`
+l'allonge. L'exemple et le coup de pouce suivent les bornes (`range ( 1,4 )`
+quand on part de 1). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonForCouples`) : la place et le titre « Bonus », le tirage (300
+séances), le juge sur cinq copies justes et quinze fausses, l'écran tenu aux
+consignes, la copie juste, fausse et vide, le soutien qui ne révèle rien, et
+les modèles comparés à un vrai CPython. Pas de section propre au banc
+navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-if-else} — la condition if … else (6.7.1, Condition if else)
+
+**Un sous-thème neuf, et la fiche « 1/ Définition d'une condition if age <
+18 : … else … ».** {python-if-else} (Seconde, 6.7.1, APP_VERSION 461 — 449 à 460 pris sur `main` pendant les bancs —, demande
+de Turquet, octobre 2026 : « en seconde dans le sous thème "condition if
+else", créer un exercice qui suit les images jointes. Il faudra respecter
+les consignes de présentation des autres exercices d'algo du sous-thème
+"input". mettre le dessin en premier, dans la définition ne rien rajouter
+de plus ainsi que dans les coups de pouce éventuels […] ne rien écrire dans
+le cadre de la console » ; « mettre bonus dans le titre », aussitôt repris :
+« ne pas écrire bonus dans le titre »). Le sous-thème 6.7 « Condition if
+else » n'existait pas au départ de la branche ; **pendant les bancs,
+{python-samoussa} l'a créé sur `main`** (même nom, même numéro). À la
+fusion, la fiche « 1/ Définition » l'ouvre en 6.7.1, et {python-samoussa}
+passe en 6.7.2 — son contrôle de place exige désormais de suivre
+celui-ci ; rien d'autre n'est renuméroté.
+
+**La présentation est celle du 6.6.6** : le dessin de la fiche (le serpent
+boudeur, « Si tu travailles alors je suis content sinon je fais la tête »,
+découpé tel quel avec son fond crème, WebP de 16 Ko, `PCE_IMG`) dans
+`#pceFig`, EN PREMIER et à chaque question ; la définition dans `#pceAvant`
+(le cadre orange `.pii-def`), au PREMIER écran seulement, en ses deux
+colonnes comme la capture — le code colorié (if/else en vert gras, `<` en
+violet, 18 en vert, les textes en rouge), « signifie: », la traduction
+si … alors … sinon. Rien n'y est ajouté ; seule la coquille « Tu est
+mineur. » du côté Python devient « Tu es mineur. », comme sa traduction.
+Puis la question dans un cadre `.pyn-etape` EN GRAS (« Faire un programme »,
+les deux puces, « Rappel: … = int ( input (" ... ")) »), qui enveloppe les
+DEUX coups de pouce repliés (mot pour mot, à la variable et au seuil de la
+question), la cellule, « Exécuter » et la console. Cellule sans texte
+d'attente, console vide (`#pceConsole` rejoint `content:none`). La console
+pose la question du programme et l'élève y répond (le dialogue du 6.3.4).
+Le rappel (`RAP_PCE`) ne dit que la définition.
+
+**Le juge (`pceDiag`) EXÉCUTE la copie sous quatre réponses** que l'élève ne
+voit pas : seuil − 3, seuil − 1, le seuil, seuil + 5. Il exige un input rangé
+dans la variable de la question, ENTIER, avec sa question ; un `if` et un
+`else` ; et à chaque exécution UNE ligne, la bonne phrase (casse, espaces,
+guillemets et point final indifférents). Nommés : `If`/`Else` en majuscule,
+`=` dans le if, input sans int (« Python ne compare pas un texte avec
+18 »), float, aucune ou deux questions, la mauvaise variable, l'invite
+vide, les guillemets typographiques, les deux phrases affichées (print hors
+du bloc), rien affiché au-dessus du seuil (le else oublié), les phrases
+inversées, `<=` (le seuil dit « mineur »), un autre nombre dans la
+condition, une phrase fausse, et la copie juste écrite avec deux if sans
+else. À la vérification, la console montre l'exécution sur la réponse qui
+a trahi la copie (« la page a répondu « 18 » »).
+
+**La séance** : la fiche épinglée (age, 18), puis d'autres situations
+(`PCE_SITUATIONS` : note/10, taille/140, température/0, heure/12,
+points/100) tirées par `distinctes()` ; `dmNbQuestions()` l'allonge. Le
+programme voyage dans `q.prog` et compte pour UNE case. Pas de correction
+au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables.
+Contrôle : `pythonIfElse` (banc principal) — la place, le titre sans
+« Bonus », le tirage (300 séances), le juge sur 4 copies justes et 17
+fausses, l'écran (dessin en premier, définition et énoncé mot pour mot,
+coups de pouce repliés, cellule et console vides, la console qui pose la
+question), les copies juste, fausse et vide, le soutien qui ne révèle rien,
+et les modèles comparés à un vrai CPython sous les quatre réponses (un
+`input` de remplacement écrit la réponse, comme la console de la page).
+
+### {python-if-frais-port} — 6.7.3, les frais de port (sous-thème « Condition if else », v462)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
 "condition if else", créer un exercice qui suit les images jointes ;
@@ -5630,8 +5754,8 @@ sous-thème "input" ; mettre le dessin en premier ; dans la définition ne
 rien rajouter de plus, ainsi que dans les coups de pouce éventuels ;
 respecter les couleurs et présentations des exercices du sous-thème input ;
 ne rien écrire dans le cadre de la console ». Créé le même jour que
-{python-samoussa}, qui a ouvert le sous-thème 6.7 : il le suit, en 6.7.2 —
-rien n'est renuméroté.
+{python-if-else} (6.7.1) et {python-samoussa} (6.7.2) : il les suit, en
+6.7.3 — rien n'est renuméroté.
 
 **La fiche** (« Exercice 4 ») : si la commande est inférieure à 100 €, 10 €
 de frais de port, sinon ils sont offerts ; demander le montant dans
