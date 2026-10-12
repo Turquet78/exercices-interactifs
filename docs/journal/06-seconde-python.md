@@ -5152,3 +5152,16 @@ bornes tirées par `distinctes()` parmi huit autres (`PFD_BORNES`) ;
 (300 séances), le juge, l'écran tenu aux consignes, le trajet a) → b) et ses
 portes, la case juste bleue à côté d'une fausse, les trous vides jamais
 rougis, le soutien, la reprise.
+
+**Puis l'ordre du carnet** (APP_VERSION 439 — 436 à 438 pris sur `main` pendant les bancs —, demande de Turquet, octobre
+2026 : « mets-le dans l'ordre du carnet, en 6.6.2 »). {python-for-renommer},
+l'exercice 2 du carnet, passe de 6.6.5 à 6.6.2, juste derrière
+{python-for-range} (l'exercice 1). Les trois suivants reculent d'un rang :
+{python-for-nom} 6.6.3, {python-for-oui-non} 6.6.4, {python-for-erreur} 6.6.5.
+Les notes portent l'identifiant et ne bougent pas. Les quatre contrôles de place
+(un par exercice déplacé, et celui-ci) épinglent le nouvel ordre, et
+`tests/profils.js` porte les nouveaux numéros.
+Pendant ces bancs, {python-for-depart-fin} (l'exercice 6 du carnet) a été
+fusionné en 6.6.6. Il ferme le sous-thème, derrière {python-for-erreur} : son
+contrôle exigeait qu'il suive {python-for-renommer}, alors en 6.6.5 ; il exige
+désormais de suivre {python-for-erreur}, et {python-for-renommer} en 6.6.2.
