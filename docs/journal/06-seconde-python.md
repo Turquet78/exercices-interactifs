@@ -5105,10 +5105,60 @@ deux modes.
 
 ---
 
-## {python-trois-des} — les résultats de trois dés (6.6.6, Boucle for in range, BONUS)
+## {python-for-depart-fin} — for … in range ( départ , fin ) (6.6.6, Boucle for in range)
 
-**L'exercice 13 du carnet.** {python-trois-des} (Seconde, 6.6.6, APP_VERSION
-438 (437 réservée par une PR voisine), demande de Turquet, octobre 2026 : « en seconde dans le sous thème
+**L'exercice 6 du carnet sur la boucle.** {python-for-depart-fin} (Seconde,
+6.6.6, APP_VERSION 437 — la 436 prise sur `main` par le 6.6.1 pendant les bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+le sous thème "boucle for in range", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ») : le serpent à lunettes qui écrit, la
+définition de `for nombre in range (départ , fin)` et son exemple
+`range ( 3 , 10 )`, puis a) compléter `for k in range ( … , … ):` /
+`print (k)` pour afficher les entiers de 5 à 15, b) le même programme pour
+les entiers de 1 à 9. Il ferme le sous-thème derrière {python-for-renommer},
+préfixe `pfd` : rien n'est renuméroté, et le contrôle du 6.6.5 exige
+désormais qu'il soit le cinquième, plus le dernier.
+
+**Le moteur est celui du 6.6.5**, allégé de ce que la fiche n'a pas : le
+dessin en tête (`#pfdFig`, découpé dans la capture, détouré par remplissage
+depuis les bords — les blancs des yeux restent —, WebP de 10 Ko, `PFD_IMG`),
+la définition dans `#pfdAvant` (le cadre orange, les deux puces de la fiche
+et RIEN d'autre : ni « Traduction », ni remarques), puis l'énoncé et les deux
+étapes dans leurs cadres `.pyn-etape`. **La fiche n'a aucun coup de pouce :
+l'exercice n'en a pas**, et le contrôle refuse qu'il en apparaisse un. Les
+consoles vides restent des cadres vides (`#pfdConsoleA`, `#pfdConsoleB`
+rejoignent `content:none`). Le `print (k)` est décalé de 4 espaces, comme la
+capture.
+
+**Deux trous dans la ligne du `for`, et chacun est une CASE** — quatre cases
+par question. Chaque trou est jugé SEUL, sur sa valeur lue par l'interpréteur
+(`15+1` vaut 16) : un départ juste reste bleu à côté d'une fin fausse, qui
+rougit avec sa correction verte. Le programme est aussi EXÉCUTÉ pour nommer
+l'erreur : 15 au lieu de 16 (le piège : il manque la dernière valeur), 17
+(une valeur de trop), un départ décalé, un décimal (ENTIERS), une lettre
+(NOMBRES), des bornes inversées (la boucle ne tourne pas). Un trou vide ne
+rougit pas : l'étape est redemandée. « Vérifier » ne s'ouvre que sur la ligne
+exécutée telle qu'elle est écrite ; en soutien, le faux est redemandé sans
+correction.
+
+**La séance** : la fiche épinglée (5 à 15, puis 1 à 9), puis des paires de
+bornes tirées par `distinctes()` parmi huit autres (`PFD_BORNES`) ;
+`dmNbQuestions()` l'allonge. Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonForDepartFin`, déclaré dans `tests/profils.js`) : la place, le tirage
+(300 séances), le juge, l'écran tenu aux consignes, le trajet a) → b) et ses
+portes, la case juste bleue à côté d'une fausse, les trous vides jamais
+rougis, le soutien, la reprise.
+
+---
+
+## {python-trois-des} — les résultats de trois dés (6.6.7, Boucle for in range, BONUS)
+
+**L'exercice 13 du carnet.** {python-trois-des} (Seconde, 6.6.7, APP_VERSION
+445 — 437 à 444 pris ou réservés par les sessions voisines du même jour —, demande de Turquet, octobre 2026 : « en seconde dans le sous thème
 "boucle for in range", créer un exercice qui suit les images jointes ;
 respecter les consignes de présentation des autres exercices d'algo du
 sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
@@ -5121,7 +5171,8 @@ tous les résultats possibles si on lance 3 dés à six faces », b)
 des points vaut 9 » (« S'il affiche la probabilité d'avoir 9 points c'est
 encore mieux ! »), c) la même chose pour « au-dessus de 12 » (« … la
 probabilité d'avoir au moins 12 points … »). Il ferme le 6.6, derrière
-{python-for-renommer} : rien n'est renuméroté. « Bonus » est dans le titre
+{python-for-depart-fin}, fusionné en 6.6.6 pendant ses bancs : rien n'est
+renuméroté. « Bonus » est dans le titre
 (`TESTS.name`, « Bonus : les résultats de trois dés ») et en tête de la
 description, comme au 6.5. Coquilles corrigées, rien d'ajouté : « dés »,
 « où », « au-dessus ».

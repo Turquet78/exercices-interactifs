@@ -4261,6 +4261,7 @@ function exercices(suite){
     pythonMoyenneNotes(w, P);
     pythonForRenommer(w, P);
     pythonTroisDes(w, P);
+    pythonForDepartFin(w, P);
     pythonChaines(w, P);
     pythonChaineLen(w, P);
     pythonForRange(w, P);
@@ -4311,6 +4312,7 @@ function exercices(suite){
     }
     simplifierBarres(w, P);
     multiplierFractions(w, P);
+    fractionsEtapes(w, P);
     synthesePourcentage(w, P);
     synthesePourcentageMethode(w, P);
     syntheseLibrePourcentage(w, P);
@@ -7462,6 +7464,13 @@ function sommeFractions(w, P){
      · une case juste ne rougit pas pour sa voisine, et on lit la COULEUR
        peinte, pas seulement le verdict — c'est la leçon du jour ;
      · l'erreur VISÉE (mettre au même dénominateur) est nommée par le message. */
+/* Puis la Première l'a reçu (4.4 et 4.5, octobre 2026) : ce qui diffère d'un
+   niveau à l'autre se DÉCLARE dans le profil (multiplierFractions) — la borne
+   des nombres de départ (9 en Seconde, 5 en Première), le produit qui PEUT se
+   simplifier (la Première le fait simplifier par étapes : le bord « le
+   produit est irréductible » y devient « les fractions de départ sont
+   irréductibles et le résultat n'est pas entier »), et la version rédigée,
+   que seule la Seconde a. Un niveau qui a l'exercice sans le déclarer rougit. */
 function multiplierFractions(w, P){
   const present = evaluer(w, "typeof startMlt==='function' && typeof mltGen==='function'");
   if(!present.ok || !present.valeur){
@@ -7469,7 +7478,15 @@ function multiplierFractions(w, P){
       'ce niveau n\'a pas les exercices de multiplication de fractions');
     return;
   }
-  verifierEval(w, 'multiplier deux fractions : l\'ordre est libre, et le produit ne se simplifie pas', `(function(){
+  const R = P.multiplierFractions;
+  if(!R){
+    verifier('multiplier deux fractions : l\'ordre est libre, et le produit ne se simplifie pas', false,
+      'ce niveau a l\'exercice, mais son profil ne déclare pas multiplierFractions (borne, simplification, version rédigée)');
+    return;
+  }
+  verifierEval(w, R.simplifier ? 'multiplier deux fractions : l\'ordre est libre, et le produit se simplifie par étapes'
+                               : 'multiplier deux fractions : l\'ordre est libre, et le produit ne se simplifie pas', `(function(){
+    const MAX=${R.max}, SIMPLIFIER=${!!R.simplifier};
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='multiplier-fractions';
@@ -7484,7 +7501,10 @@ function multiplierFractions(w, P){
          2/3 × 3/2 a ses deux fractions irréductibles et donne 6/6. C'est bien
          le PRODUIT qu'il faut tester — sinon l'élève qui simplifie, ce qui est
          juste, écrirait une fraction comptée fausse. */
-      if(pgcd(q.P,q.Q)!==1){ vus.push(eti+' : le produit '+q.P+'/'+q.Q+' se simplifie encore'); break; }
+      if(!SIMPLIFIER && pgcd(q.P,q.Q)!==1){ vus.push(eti+' : le produit '+q.P+'/'+q.Q+' se simplifie encore'); break; }
+      if(SIMPLIFIER && (pgcd(q.n1,q.d1)!==1 || pgcd(q.n2,q.d2)!==1)){ vus.push(eti+' : une fraction de départ est réductible'); break; }
+      if(SIMPLIFIER && q.P%q.Q===0){ vus.push(eti+' : le produit '+q.P+'/'+q.Q+' est un entier'); break; }
+      if([q.n1,q.d1,q.n2,q.d2].some(function(x){ return x>MAX; })){ vus.push(eti+' : un nombre de départ dépasse '+MAX); break; }
       if(q.P===q.Q){ vus.push(eti+' : le produit vaut 1 tout rond'); break; }
       if(q.d1<2 || q.d2<2){ vus.push(eti+' : un dénominateur vaut '+Math.min(q.d1,q.d2)); break; }
       if(q.n1<1 || q.n2<1){ vus.push(eti+' : un numérateur est nul ou négatif'); break; }
@@ -7594,7 +7614,10 @@ function multiplierFractions(w, P){
         if(g.a1!==g.n1 || g.a2!==g.d2 || g.b1!==g.d1 || g.b2!==g.n2){
           vus.push(eti+' : les facteurs rangés ne sont pas ceux de la fraction INVERSÉE'); break; }
         if(g.P!==g.n1*g.d2 || g.Q!==g.d1*g.n2){ vus.push(eti+' : le quotient rangé ne suit pas les facteurs'); break; }
-        if(pgcd(g.P,g.Q)!==1){ vus.push(eti+' : le quotient '+g.P+'/'+g.Q+' se simplifie encore'); break; }
+        if(!SIMPLIFIER && pgcd(g.P,g.Q)!==1){ vus.push(eti+' : le quotient '+g.P+'/'+g.Q+' se simplifie encore'); break; }
+        if(SIMPLIFIER && (pgcd(g.n1,g.d1)!==1 || pgcd(g.n2,g.d2)!==1)){ vus.push(eti+' : une fraction de départ est réductible'); break; }
+        if(SIMPLIFIER && g.P%g.Q===0){ vus.push(eti+' : le quotient '+g.P+'/'+g.Q+' est un entier'); break; }
+        if([g.n1,g.d1,g.n2,g.d2].some(function(x){ return x>MAX; })){ vus.push(eti+' : un nombre de départ dépasse '+MAX); break; }
         if(g.n2===0){ vus.push(eti+' : on divise par zéro'); break; }
         if(g.n2===g.d2){ vus.push(eti+' : on divise par 1, il n\\'y a rien à faire'); break; }
         if(g.P===g.Q){ vus.push(eti+' : le quotient vaut 1 tout rond'); break; }
@@ -7662,7 +7685,10 @@ function multiplierFractions(w, P){
     }
 
     /* ---- 6. LE LIBRE : les mêmes nombres, et la règle envoyée au modèle --- */
-    if(typeof startMLL!=='function' || typeof mllAttenduIA!=='function'){
+    if(!${!!R.libre}){
+      /* le profil dit que ce niveau n'a pas la version rédigée : l'avoir quand même serait une déclaration morte */
+      if(typeof startMLL==='function') vus.push('le profil dit « pas de version rédigée », et la page a startMLL');
+    } else if(typeof startMLL!=='function' || typeof mllAttenduIA!=='function'){
       vus.push('l\\'exercice en saisie libre est absent');
     } else {
       for(let i=0;i<200;i++){
@@ -7701,6 +7727,189 @@ function multiplierFractions(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---------- Le thème 4 « Fractions » de la Première : 4.2 à 4.5 ------------
+   Demande de Turquet (octobre 2026) : « mettre les exercices de seconde 5.2 ;
+   5.3 ; 5.6 ; 5.8 dans le thème fraction de première ; tous les nombres au
+   départ entre 1 et 5 ; pas de résultat intermédiaire ou final négatif ; les
+   fractions au début irréductibles ; si le résultat peut être simplifié,
+   proposer les simplifications comme dans l'exercice de première 4.1 ».
+   Déclaré par le profil (fractionsEtapes) ; la Seconde, qui garde ses
+   exercices tels quels, s'y affiche « non applicable ».
+   TROIS mesures, et chacune passe par le démarreur RÉEL de l'exercice —
+   jamais par le tirage seul : c'est le démarreur qui choisit la borne et pose
+   « test.etapes », et un tirage juste branché sur un démarreur qui l'oublie
+   ne se verrait pas.
+   ① LE TIRAGE, sur deux cents séances par exercice : chaque nombre de départ
+     entre 1 et la borne (et la borne ATTEINTE, sans quoi la mesure ne
+     mesurerait qu'un tirage trop étroit), les fractions de départ
+     irréductibles, et aucun nombre intermédiaire ou final négatif ou nul —
+     recalculé ICI, par une arithmétique propre : multiplicateurs du plus
+     petit dénominateur commun, numérateurs mis au même, résultat ; produit
+     et quotient. Un produit qui se simplifie doit SORTIR au moins une fois,
+     sans quoi la chaîne ne serait jamais exercée.
+   ② LA SOMME, par de vrais évènements « input » : sur le plus petit
+     dénominateur commun (1/2 + 1/4 = 2/4 + 1/4 = 3/4) aucune chaîne ; par 8,
+     la fraction obtenue 6/8 ouvre une étape, le diviseur se recopie, 2 la
+     ferme ; par 16, 12/16 ÷ 2 = 6/8 en ouvre une seconde. La copie juste vaut
+     le point, la réponse enregistrée garde toute la ligne, un diviseur faux
+     rougit et sa correction écrit le PGCD, un diviseur vide ne rougit pas, et
+     la reprise redessine les mêmes étapes.
+   ③ LE PRODUIT ET LE QUOTIENT : 2/3 × 3/5 = 6/15 montre sa chaîne d'emblée
+     (la fraction brute ne dépend que de l'énoncé), 2/3 × 1/5 = 2/15 n'en a
+     pas, et 2/3 ÷ 4/5 = 10/12 se simplifie par 2. Le message nomme la
+     simplification quand c'est elle qui manque. */
+function fractionsEtapes(w, P){
+  const R = P.fractionsEtapes;
+  const nom = 'le thème Fractions : nombres de 1 à ' + (R ? R.max : '?') + ', rien de négatif, et la simplification par étapes';
+  if(!R){
+    ignorer('le thème Fractions : nombres bornés, rien de négatif, et la simplification par étapes',
+      'ce niveau ne porte pas les exercices de fractions à simplification par étapes');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], MAX=${R.max}, IDS=${JSON.stringify(R.exercices)};
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+
+    /* ---- ① le tirage, par les démarreurs ---------------------------------- */
+    let reductible=0;
+    for(const id of IDS){
+      if(!TESTS[id] || !TEST_NUM[id]){ vus.push(id+' : absent du menu'); continue; }
+      let vuMax=false, faute='';
+      for(let t=0;t<200 && !faute;t++){
+        currentTestId=id; TESTS[id].start();
+        if(test.qId!==id) faute='la note part sous « '+test.qId+' »';
+        else if(!test.etapes) faute='le démarreur ne pose pas la simplification par étapes';
+        (test.questions||[]).forEach(function(q){
+          if(faute) return;
+          const eti=q.n1+'/'+q.d1+' '+(q.op||(test.inv?'÷':'×'))+' '+q.n2+'/'+q.d2;
+          const ent=[q.n1,q.n2], den=[q.d1,q.d2];
+          if(ent.concat(den).some(function(x){ return !(x>=1 && x<=MAX); })){ faute=eti+' : un nombre de départ sort de 1 à '+MAX; return; }
+          if(ent.concat(den).indexOf(MAX)>=0) vuMax=true;
+          if(pgcd(q.n1,q.d1)!==1 || pgcd(q.n2,q.d2)!==1){ faute=eti+' : une fraction de départ est réductible'; return; }
+          if(test.kind==='sf'){
+            const D=q.d1*q.d2/pgcd(q.d1,q.d2), A=q.n1*(D/q.d1), B=q.n2*(D/q.d2);
+            const N=(q.op==='+')?A+B:A-B;
+            if(!(A>0 && B>0 && N>0)){ faute=eti+' : un nombre intermédiaire ou final est négatif ou nul ('+A+', '+B+', '+N+'/'+D+')'; return; }
+            if(N*q.D!==q.N*D){ faute=eti+' : l’énoncé annonce '+q.N+'/'+q.D+', le calcul donne '+N+'/'+D; return; }
+            if(id==='croiser-denominateurs' && pgcd(q.d1,q.d2)!==1){ faute=eti+' : les dénominateurs ne sont pas premiers entre eux'; return; }
+          } else {
+            const a=test.inv?q.d2:q.n2, b=test.inv?q.n2:q.d2, Pn=q.n1*a, Qd=q.d1*b;
+            if(!(Pn>0 && Qd>0)){ faute=eti+' : le résultat est négatif ou nul'; return; }
+            if(Pn!==q.P || Qd!==q.Q){ faute=eti+' : le résultat rangé '+q.P+'/'+q.Q+' ne suit pas le calcul '+Pn+'/'+Qd; return; }
+            if(Pn%Qd===0){ faute=eti+' : le résultat est un entier'; return; }
+            if(pgcd(Pn,Qd)>1) reductible++;
+          }
+        });
+      }
+      if(faute) vus.push(id+' : '+faute);
+      else if(!vuMax) vus.push(id+' : aucun nombre de départ ne vaut jamais '+MAX+' en 200 séances — la borne reste hors d’atteinte');
+    }
+    if(!vus.length && !reductible) vus.push('aucun produit ni quotient ne se simplifie en 400 séances : la chaîne n’est jamais exercée');
+
+    const $$=function(id){ return document.getElementById(id); };
+    const tape=function(id,v){ const el=$$(id); if(!el){ vus.push('pas de case '+id); return; } el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
+    const peint=function(id){ const el=$$(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const der=function(){ return test.answers[test.answers.length-1]; };
+
+    /* ---- ② la somme : 1/2 + 1/4 --------------------------------------------- */
+    if(IDS.indexOf('somme-fractions-2')>=0){
+      currentTestId='somme-fractions-2'; TESTS['somme-fractions-2'].start();
+      const neuve=function(){ return {n1:1,d1:2,n2:1,d2:4,op:'+',D:4,k1:2,k2:1,N1:2,N2:1,N:3,Nr:3,Dr:4}; };
+      const route=function(m1,m2){ tape('sf-a1',m1); tape('sf-b1',m1); tape('sf-a2',m2); tape('sf-b2',m2);
+        tape('sf-num1',m1); tape('sf-num2',m2); tape('sf-den',2*m1); };
+      const pose=function(){ test.questions=[neuve()]; test.idx=0; test.locked=false; renderSFTest(); };
+      /* a) le plus petit dénominateur commun : rien à simplifier */
+      pose();
+      if($$('sf-e0-dn')) vus.push('somme : une étape de simplification s’affiche avant que l’élève ait écrit quoi que ce soit');
+      const lab=document.querySelector('#sfHost .pt-lab');
+      if(!lab || !/simplifier/.test(lab.textContent)) vus.push('somme : aucun libellé n’annonce la simplification');
+      route(2,1); tape('sf-fn',3); tape('sf-fd',4);
+      if($$('sf-e0-dn')) vus.push('somme : 3/4 est irréductible, et une simplification est demandée');
+      checkSFAnswer();
+      if(!der() || !der().correct) vus.push('somme : 1/2 + 1/4 = 2/4 + 1/4 = 3/4 est compté faux');
+      /* b) par 8 : 6/8, une étape */
+      pose(); route(4,2);
+      tape('sf-fn',6); tape('sf-fd',8);
+      if(!$$('sf-e0-dn')) vus.push('somme : par le dénominateur 8, la fraction 6/8 n’ouvre aucune étape de simplification');
+      else {
+        if(($$('sf-e0-an')||{}).textContent!=='6' || ($$('sf-e0-ad')||{}).textContent!=='8') vus.push('somme : les nombres divisés ne recopient pas 6/8');
+        tape('sf-e0-dn',2);
+        if(($$('sf-e0-dd')||{}).value!=='2') vus.push('somme : le diviseur écrit en haut ne se recopie pas en bas');
+        if($$('sf-e1-dn')) vus.push('somme : 6/8 ÷ 2 = 3/4 est irréductible, et une étape de plus s’ouvre');
+        if(($$('sf-fn')||{}).value!=='6') vus.push('somme : ouvrir une étape a effacé la fraction obtenue');
+        tape('sf-e0-n',3); tape('sf-e0-d',4);
+        checkSFAnswer();
+        if(!der() || !der().correct) vus.push('somme : 1/2 + 1/4 = 4/8 + 2/8 = 6/8 = 3/4 est compté faux');
+        else if(!/3 4$/.test(der().given)) vus.push('somme : la réponse enregistrée ne finit pas par la fraction simplifiée : '+der().given);
+      }
+      /* c) par 16 : 12/16 ÷ 2 = 6/8 se simplifie encore */
+      pose(); route(8,4); tape('sf-fn',12); tape('sf-fd',16); tape('sf-e0-dn',2);
+      if(!$$('sf-e1-dn')) vus.push('somme : 12/16 ÷ 2 = 6/8 se simplifie encore, et aucune nouvelle étape ne s’ouvre');
+      tape('sf-e0-n',6); tape('sf-e0-d',8); tape('sf-e1-dd',2); tape('sf-e1-n',3); tape('sf-e1-d',4);
+      if(($$('sf-e1-dn')||{}).value!=='2') vus.push('somme : le diviseur écrit en bas ne se recopie pas en haut');
+      checkSFAnswer();
+      if(!der() || !der().correct) vus.push('somme : 12/16 = 6/8 = 3/4 (÷2 puis ÷2) est compté faux');
+      /* d) la fraction simplifiée d'emblée ne suffit pas : la ligne demande le calcul tel quel */
+      pose(); route(4,2); tape('sf-fn',3); tape('sf-fd',4);
+      checkSFAnswer();
+      if(der() && der().correct) vus.push('somme : par le dénominateur 8, écrire 3/4 au lieu de 6/8 est compté juste — la chaîne n’a plus d’objet');
+      if(peint('sf-e0-dn')==='faux') vus.push('somme : un diviseur laissé vide rougit');
+      /* e) un diviseur qui ne divise pas : rouge, et la correction écrit 2 */
+      pose(); route(4,2); tape('sf-fn',6); tape('sf-fd',8); tape('sf-e0-dn',3); tape('sf-e0-n',2); tape('sf-e0-d',3);
+      checkSFAnswer();
+      if(der() && der().correct) vus.push('somme : le diviseur 3 de 6/8 est compté juste');
+      if(peint('sf-e0-dn')!=='faux') vus.push('somme : le diviseur 3 est peint '+peint('sf-e0-dn'));
+      const cor=$$('sf-e0-dn') && $$('sf-e0-dn').nextElementSibling;
+      if(!cor || cor.textContent!=='2') vus.push('somme : la correction du diviseur ne montre pas 2');
+      if(!/simplifie/.test(($$('sfFeedback')||{}).textContent||'')) vus.push('somme : le message ne nomme pas la simplification : « '+(($$('sfFeedback')||{}).textContent||'')+' »');
+      /* f) la reprise : la fraction brute et les diviseurs rangés redessinent les mêmes étapes */
+      pose(); route(8,4); tape('sf-fn',12); tape('sf-fd',16); tape('sf-e0-dn',2);
+      const qr=test.questions[0];
+      renderSFTest();
+      if(!$$('sf-e1-dn')) vus.push('somme : après un redessin (reprise), la seconde étape a disparu');
+      if(qr.sbrut!=='12/16' || !qr.sdiv || qr.sdiv[0]!=='2') vus.push('somme : rangé dans la question : '+qr.sbrut+' '+JSON.stringify(qr.sdiv));
+    }
+
+    /* ---- ③ le produit et le quotient --------------------------------------- */
+    if(IDS.indexOf('multiplier-fractions')>=0){
+      currentTestId='multiplier-fractions'; TESTS['multiplier-fractions'].start();
+      const pose=function(q){ test.questions=[q]; test.idx=0; test.locked=false; renderMltTest(); };
+      pose({n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15});
+      if(!$$('mlt-e0-dn')) vus.push('produit : 6/15 se simplifie, et aucune étape n’est posée d’emblée');
+      if($$('mlt-e1-dn')) vus.push('produit : 6/15 n’a besoin que d’une étape au départ');
+      tape('mlt-h1',2); tape('mlt-h2',3); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',6); tape('mlt-fd',15);
+      if(($$('mlt-e0-an')||{}).textContent!=='6') vus.push('produit : le nombre divisé ne recopie pas 6');
+      tape('mlt-e0-dn',3); tape('mlt-e0-n',2); tape('mlt-e0-d',5);
+      checkMltAnswer();
+      if(!der() || !der().correct) vus.push('produit : 2/3 × 3/5 = (2×3)/(3×5) = 6/15 = 2/5 est compté faux');
+      pose({n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15});
+      tape('mlt-h1',2); tape('mlt-h2',3); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',6); tape('mlt-fd',15);
+      checkMltAnswer();
+      if(der() && der().correct) vus.push('produit : la simplification laissée vide vaut le point');
+      if(peint('mlt-e0-dn')!=='correction') vus.push('produit : le diviseur laissé vide ne reçoit pas la correction ('+peint('mlt-e0-dn')+')');
+      pose({n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15});
+      tape('mlt-h1',2); tape('mlt-h2',3); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',6); tape('mlt-fd',15);
+      tape('mlt-e0-dn',2); tape('mlt-e0-n',3); tape('mlt-e0-d',7);
+      checkMltAnswer();
+      if(der() && der().correct) vus.push('produit : le diviseur 2 de 6/15 est compté juste');
+      if(!/simplifie/.test(($$('mltFeedback')||{}).textContent||'')) vus.push('produit : le message ne nomme pas la simplification : « '+(($$('mltFeedback')||{}).textContent||'')+' »');
+      pose({n1:2,d1:3,n2:1,d2:5,a1:2,a2:1,b1:3,b2:5,P:2,Q:15});
+      if($$('mlt-e0-dn')) vus.push('produit : 2/15 est irréductible, et une simplification est demandée');
+    }
+    if(IDS.indexOf('diviser-fractions')>=0){
+      currentTestId='diviser-fractions'; TESTS['diviser-fractions'].start();
+      test.questions=[{n1:2,d1:3,n2:4,d2:5,a1:2,a2:5,b1:3,b2:4,P:10,Q:12}]; test.idx=0; test.locked=false; renderMltTest();
+      [['mlt-i1',5],['mlt-i2',4],['mlt-h1',2],['mlt-h2',5],['mlt-b1',3],['mlt-b2',4],['mlt-fn',10],['mlt-fd',12],['mlt-e0-dn',2],['mlt-e0-n',5],['mlt-e0-d',6]]
+        .forEach(function(p){ tape(p[0],p[1]); });
+      checkMltAnswer();
+      if(!der() || !der().correct) vus.push('quotient : 2/3 ÷ 4/5 = 2/3 × 5/4 = 10/12 = 5/6 est compté faux');
+    }
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 /* {pourcentage-synthese} (Première 2.1.6) — la synthèse de {pourcentage},
    {pourcentage-depart} et {pourcentage-taux} sur le moteur pctq. Ses bords :
      · le tirage mêle les TROIS types, chacun au moins une fois, et l'ordre
@@ -27034,6 +27243,161 @@ function pythonInverserLettres(w, P){
   verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-for-depart-fin} (Seconde, 6.6.6, sous-thème « Boucle for in range ») :
+   l'exercice 6 du carnet — le dessin, la définition de
+   for nombre in range ( départ , fin ), puis a) compléter
+   for k in range ( … , … ) pour afficher les entiers de 5 à 15, b) de 1 à 9.
+   Le contrôle tient la place au menu (il ferme le 6.6 : rien ne bouge), la
+   fiche épinglée et le tirage, le juge sur des copies justes et fausses —
+   chacune avec le mot qui la nomme, chaque trou jugé SEUL —, l'écran tenu aux
+   consignes du sous-thème Input (dessin d'abord, définition mot pour mot,
+   aucun coup de pouce, console vide sans texte), le trajet a) → b) avec ses
+   portes, la case juste qui reste bleue à côté d'une fausse, la case vide
+   jamais rougie, le soutien qui redemande sans révéler, et la reprise. */
+function pythonForDepartFin(w, P){
+  const nom = '{python-for-depart-fin} : for … in range ( départ , fin )';
+  if(!P.pythonForDepartFin){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la boucle for à départ'); return; }
+  const ID = P.pythonForDepartFin.exercice, NB = P.pythonForDepartFin.nb, NUM = P.pythonForDepartFin.numero;
+  const present = evaluer(w, "typeof startPFD==='function' && typeof pfdJuge==='function' && typeof pfdBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPFD / pfdJuge / pfdBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  /* il fermait le sous-thème ; {python-trois-des} (6.6.7) est venu derrière lui, sans rien renuméroter */
+  verifierEval(w, 'il est le sixième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-renommer}, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
+    if(!st||!/boucle/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
+    else if(st.ids[5]!=="${ID}"||st.ids[4]!=="python-for-renommer") vus.push("il n’est pas le sixième du sous-thème, derrière {python-for-renommer} : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(!RAPPELS.pfd) vus.push("pas de rappel");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (de 5 à 15, puis de 1 à 9), puis des questions distinctes ; chaque paire de bornes sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pfdBuildQuestions();
+      if(qs.length!==${NB}) vus.push(qs.length+" questions");
+      if(pfdBornes(qs[0],"a").join()!=="5,15"||pfdBornes(qs[0],"b").join()!=="1,9") vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(qs[0]));
+      const cles=qs.map(function(q){ return q.a+"/"+q.b; });
+      if(cles.some(function(c,i){ return cles.indexOf(c)!==i; })) vus.push("deux fois la même question : "+cles.join(" "));
+      qs.slice(1).forEach(function(q){ if(q.a===q.b) vus.push("a) et b) identiques"); if(q.a<2||q.b<2) vus.push("la fiche tirée à nouveau"); vues[q.a]=1; vues[q.b]=1; });
+      if(qs.some(function(q){ return q.etape!=="a"||q.aOk!==null||q.bOk!==null; })) vus.push("une question ne part pas de l’étape a)");
+    }
+    if(Object.keys(vues).length!==PFD_BORNES.length-2) vus.push("des bornes ne sortent jamais : "+Object.keys(vues).join(","));
+    PFD_BORNES.forEach(function(b){ if(!(b[0]<b[1])) vus.push("bornes à l’envers : "+b); });
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge : 5 , 16 passe (15+1 aussi) ; 15 (le piège), 17, 4, 6, un décimal, une lettre, des bornes inversées sont nommés ; chaque trou est jugé seul ; un trou vide est une copie vide', `(function(){
+    const vus=[], q={a:0,b:1};
+    [["5","16"],[" 5 ","15+1"],["5","16 "]].forEach(function(t){ const j=pfdJuge(q,"a",t[0],t[1]); if(!j.ok||!j.ok1||!j.ok2) vus.push("refusé : "+t+" — "+j.diag); });
+    [[["5","15"],/manque la derni.re valeur, 15/,true,false],[["5","17"],/une valeur de trop/,true,false],[["4","16"],/commence . 4/,false,true],[["6","16"],/commence . 6/,false,true],
+     [["5","15.5"],/ENTIERS/,true,false],[["a","16"],/NOMBRES/,false,true],[["16","5"],/n.affiche rien/,false,false],[["4","15"],/commence . 4.*manque/,false,false]].forEach(function(c){
+      const j=pfdJuge(q,"a",c[0][0],c[0][1]);
+      if(j.ok||j.vide||!c[1].test(j.diag)||j.ok1!==c[2]||j.ok2!==c[3]) vus.push(c[0]+" : "+JSON.stringify(j)); });
+    if(!pfdJuge(q,"a","5","").vide||!pfdJuge(q,"a","","16").vide||!pfdJuge(q,"a"," ","  ").vide) vus.push("un trou vide n’est pas une copie vide");
+    if(!pfdJuge(q,"b","1","10").ok) vus.push("b) de la fiche refusé");
+    const q2={a:3,b:7}; ["a","b"].forEach(function(e){ const b=pfdBornes(q2,e); if(!pfdJuge(q2,e,String(b[0]),String(b[1]+1)).ok) vus.push("une question tirée refuse sa réponse"); });
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input ---- */
+  verifierEval(w, 'l’écran : le dessin d’abord, puis la définition de la fiche mot pour mot (2 puces), puis l’énoncé ; le a) seul, en gras dans son cadre, deux trous dans la ligne de code, aucun coup de pouce, « Vérifier » fermé, console vide sans texte', `(function(){
+    currentEleve={id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPFD();
+    const vus=[], fig=document.querySelector("#pfdFig img"), def=document.querySelector("#pfdAvant .pii-def"), en=document.getElementById("pfdInstr");
+    if(!fig||!/^data:image.webp/.test(fig.getAttribute("src")||"")) vus.push("pas de dessin de la fiche");
+    if(!def) vus.push("pas de définition");
+    else {
+      if(fig&&!(fig.compareDocumentPosition(def)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas avant la définition");
+      if(!(def.compareDocumentPosition(en)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("la définition n’est pas avant l’énoncé");
+      if(def.querySelectorAll("li").length!==2) vus.push(def.querySelectorAll("li").length+" puces");
+      const t=def.textContent.split(String.fromCharCode(160)).join(" ").replace(/ +/g," ");
+      ["Définition for nombre in range (départ , fin) :","fait varier la variable nombre des entiers de départ à fin -1.","Par exemple, for nombre in range ( 3 , 10 ) : fait varier la variable nombre des entiers de 3 à 10-1 = 9."].forEach(function(m){ if(t.indexOf(m)<0) vus.push("la définition ne dit pas : "+m); });
+      if(/Remarque|Traduction/.test(t)) vus.push("la définition dit plus que la fiche");
+    }
+    if(document.getElementById("pfdEtapeB")) vus.push("b) ouvert d’emblée");
+    const ta=document.querySelector("#pfdEtapeA .pyn-titre");
+    if(!ta||!/Compléter le programme/.test(ta.textContent)||!/de 5 à 15/.test(ta.textContent)) vus.push("l’énoncé du a) n’est pas dans son cadre");
+    if(document.querySelectorAll("#pfdEtapeA .pch-l input").length!==2) vus.push("pas deux trous dans la ligne du for");
+    if(document.querySelector("#scr-pfd .pyd-pouce")) vus.push("un coup de pouce que la fiche n’a pas");
+    if(!document.getElementById("pfdValidate").disabled) vus.push("« Vérifier » ouvert d’emblée");
+    if(document.querySelector("#scr-pfd .py-hint")) vus.push("une consigne à côté d’un bouton");
+    if(document.getElementById("pfdConsoleA").textContent) vus.push("la console porte un texte");
+    const css=[].map.call(document.styleSheets,function(sh){ try{ return [].map.call(sh.cssRules,function(r){ return r.cssText; }).join(" "); }catch(e){ return ""; } }).join(" ");
+    if(!/#pfdConsoleA:empty::before[^}]*content: none/.test(css)) vus.push("la console vide porte un texte d’attente");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le trajet a) → b), copie juste ---- */
+  verifierEval(w, 'le trajet : a) s’exécute, « Vérifier » ne s’ouvre que sur la ligne exécutée telle qu’elle est écrite ; b) s’ouvre sous le a) gardé ; quatre cases bleues, 4 points', `(function(){
+    currentEleve={id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPFD();
+    const vus=[], NL=String.fromCharCode(10);
+    const pose=function(id,v){ const el=document.getElementById(id); el.value=v; el.dispatchEvent(new Event("input")); };
+    pose("pfd-a1","5"); pose("pfd-a2","16");
+    if(!document.getElementById("pfdValidate").disabled) vus.push("« Vérifier » ouvert avant l’exécution");
+    pfdExecEtape();
+    const ca=document.getElementById("pfdConsoleA").textContent.split(NL);
+    if(ca.length!==11||ca[0]!=="5"||ca[10]!=="15") vus.push("la console du a) : "+ca.join(","));
+    if(document.getElementById("pfdValidate").disabled) vus.push("« Vérifier » fermé après l’exécution");
+    pose("pfd-a2","17");
+    if(!document.getElementById("pfdValidate").disabled) vus.push("« Vérifier » ouvert sur une ligne modifiée");
+    if(document.getElementById("pfdConsoleA").textContent) vus.push("la console garde une exécution périmée");
+    pose("pfd-a2","16"); pfdExecEtape(); checkPFD();
+    if(!document.getElementById("pfd-a1").classList.contains("ok")||!document.getElementById("pfd-a2").classList.contains("ok")) vus.push("a) juste non bleu");
+    if(!document.getElementById("pfdSuite")) vus.push("pas de « Passer au b) »");
+    pfdVers();
+    if(!document.querySelector("#pfdEtapeA .pyn-titre")) vus.push("l’énoncé du a) a disparu au b)");
+    const tb=document.querySelector("#pfdEtapeB .pyn-titre"); if(!tb||!/de 1 à 9/.test(tb.textContent)) vus.push("l’énoncé du b)");
+    pose("pfd-b1","1"); pose("pfd-b2","10"); pfdExecEtape(); checkPFD();
+    if(test.score!==4) vus.push("score "+test.score);
+    if(document.querySelectorAll("#pfdHost .ok").length!==4) vus.push(document.querySelectorAll("#pfdHost .ok").length+" cases bleues");
+    if(document.querySelectorAll("#pfdHost .bad").length) vus.push("du rouge sur une copie juste");
+    if(!test.answers.length||!test.answers[0].correct) vus.push("la réponse enregistrée n’est pas juste");
+    else if(test.answers[0].cases!==4||test.answers[0].justes!==4) vus.push("la note affichée compte "+test.answers[0].justes+" sur "+test.answers[0].cases);
+    if(!document.getElementById("pfdNext")) vus.push("pas de « Question suivante »");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. copie fausse, cases vides, soutien, reprise ---- */
+  verifierEval(w, 'la case juste reste bleue à côté d’une fausse corrigée en vert, un trou vide ne rougit jamais, le soutien redemande sans révéler, et la reprise rouvre l’étape telle qu’elle était', `(function(){
+    const vus=[];
+    const pose=function(id,v){ const el=document.getElementById(id); el.value=v; el.dispatchEvent(new Event("input")); };
+    currentEleve={id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPFD();
+    pose("pfd-a1","5"); pfdExecEtape(); checkPFD();
+    if(document.querySelector("#pfdHost .bad")) vus.push("trou vide rougi");
+    if(test.questions[0].aOk!==null) vus.push("étape au trou vide jugée");
+    pose("pfd-a2","15"); pfdExecEtape(); checkPFD();
+    const cor=document.querySelector("#pfdEtapeA .mf-cor");
+    if(!document.getElementById("pfd-a1").classList.contains("ok")) vus.push("le départ juste n’est pas bleu à côté d’une fin fausse");
+    if(!document.getElementById("pfd-a2").classList.contains("bad")||!cor||cor.textContent!=="16") vus.push("fin fausse sans correction verte");
+    if(test.score!==1) vus.push("score "+test.score);
+    /* soutien */
+    currentMode="soutien"; startPFD();
+    pose("pfd-a1","5"); pose("pfd-a2","17"); pfdExecEtape(); checkPFD();
+    if(!document.getElementById("pfd-a2").classList.contains("bad")) vus.push("soutien : fin fausse non rougie");
+    if(!document.getElementById("pfd-a1").classList.contains("ok")) vus.push("soutien : départ juste non bleu");
+    if(document.querySelector("#pfdEtapeA .mf-cor")) vus.push("soutien : correction écrite");
+    if(test.questions[0].aOk!==null||document.getElementById("pfdEtapeB")) vus.push("soutien : l’étape avance sur un faux");
+    pose("pfd-a2","16"); pfdExecEtape(); checkPFD();
+    if(!test.questions[0].aOk||!test.questions[0].aOk[0]||!test.questions[0].aOk[1]) vus.push("soutien : la correction n’est pas acceptée");
+    /* reprise : l'étape b) en cours */
+    pfdVers(); pose("pfd-b1","1");
+    const sauve=JSON.parse(JSON.stringify(test.questions));
+    test.questions=sauve; afficherEcranDe("pfd");
+    if(!document.getElementById("pfdEtapeB")||document.getElementById("pfd-b1").value!=="1") vus.push("reprise : le b) n’est pas rouvert tel quel");
+    if(!document.getElementById("pfd-a1").classList.contains("ok")||!document.getElementById("pfd-a1").disabled) vus.push("reprise : le a) n’est pas figé en bleu");
+    if(!document.getElementById("pfdValidate")||!document.getElementById("pfdValidate").disabled) vus.push("reprise : « Vérifier » ouvert sans exécution");
+    return vus.join(" | ");
+  })()`, v => v === '');
+}
+
 /* {python-for-renommer} (Seconde, 6.6.5, sous-thème « Boucle for in range ») :
    l'exercice 2 du carnet sur la boucle — le dessin, la définition de
    for nombre in range ( fin ), puis a) compléter range pour afficher les
@@ -27057,11 +27421,11 @@ function pythonForRenommer(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  /* il fermait le sous-thème ; {python-trois-des} (6.6.6) est venu derrière lui, sans rien renuméroter */
   verifierEval(w, 'il est le cinquième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-erreur}, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle/i.test(st.nom)||!/range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
+    /* il fermait le sous-thème ; {python-for-depart-fin} (6.6.6) est venu derrière lui, sans rien renuméroter */
     else if(st.ids[4]!=="${ID}"||st.ids[3]!=="python-for-erreur") vus.push("il n’est pas le cinquième du sous-thème, derrière {python-for-erreur} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
@@ -28122,7 +28486,7 @@ function pythonForErreur(w, P){
   verifier(nomPy, ref[0] === 'ERREUR:SyntaxError' && ref[1] === attendu, JSON.stringify(ref));
 }
 
-/* {python-trois-des} (Seconde, 6.6.6, BONUS) : l'exercice 13 du carnet — les
+/* {python-trois-des} (Seconde, 6.6.7, BONUS) : l'exercice 13 du carnet — les
    résultats de trois dés, puis compter les totaux de 9, puis ceux au-dessus de
    12. Trois étapes sur le même écran, trois juges qui lisent la console. */
 function pythonTroisDes(w, P){
@@ -28141,7 +28505,7 @@ function pythonTroisDes(w, P){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids.length!==6) vus.push("il ne ferme pas le sous-thème, sixième : "+st.ids.join(","));
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids.length!==7) vus.push("il ne ferme pas le sous-thème, septième : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+(TESTS["${ID}"]&&TESTS["${ID}"].name));
