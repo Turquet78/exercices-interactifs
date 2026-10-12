@@ -514,3 +514,43 @@ Vérifié dans Chromium, MathLive chargé : 300 séances, toujours onze
 questions, les douze couples sortent, jamais deux fois la même ; une
 question forcée sur Ḡ∩L̄ remplie juste donne ses neuf cases bleues,
 « Excellent ! » et 6 sur 27, la bonne case sur le total.
+
+## v306 — sept probabilités partout, les contraires avant le tableau
+
+Demande de Turquet (octobre 2026) : « en première dans le 3.1 enlever la
+phrase à compléter avant P(…) = … De plus dans tous les exercices de proba
+en 1ère il doit y avoir deux probabilités de la forme P(…) =, deux de la
+forme P(… ∩ …), et trois de la forme P_…(…). De plus dans le 3.1 et 3.3
+demande de compléter les évènements contraires avant d'afficher le tableau.
+Dans le 3.4 enlever les phrases à compléter pour les évènements contraires. »
+
+**Sept probabilités, un seul tirage** (`pbSeptTirees`), que lisent les quatre
+séances (`lnSeance` 3.1, `pbeSeance` 3.2, `pbSeance` 3.3, `lpSeance` 3.4) :
+deux évènements simples différents parmi A, Ā, B, B̄ ; deux intersections
+différentes parmi les quatre cases du milieu (`PB_INTER`) ; trois
+conditionnelles différentes parmi les huit (`PB_CONDS` : l'indice est un
+évènement simple, l'évènement entre parenthèses un évènement simple de
+l'autre critère). Dans cet ordre, chacune rangée dans sa question
+(`q.ev`, `it:'ev'`) : `pbItem` lit `q.ev` d'abord, si bien que le juge, le
+nom écrit, la méthode, la copie enregistrée et le contexte du modèle suivent
+sans rien changer. Les tables `LN_ITEMS`, `LP_ITEMS`, `PB_ITEMS` restent pour
+les pauses d'avant, qui les relisent par `q.it`. `pbInterTirees` et les
+constantes du 3.1 (`LN_NB_INTER`…) sont parties : plus rien ne les lisait.
+Au 3.3 et au 3.4, les trois conditionnelles prennent trois tournures
+différentes parmi les quatre ; les simples et les intersections en tirent
+une parmi trois.
+
+**Les séances.**
+- 3.1 : les phrases contraires, puis les sept probabilités — 8 questions.
+- 3.2 : les sept probabilités — 7 questions.
+- 3.3 : les phrases contraires, puis le tableau à compléter, puis les sept
+  probabilités — 9 questions. La question du tableau ne porte plus les
+  phrases (`pbAttendus` du type `tab` n'attend plus `pb-ca`, `pb-cb`).
+- 3.4 : les sept probabilités en mots, sans phrases contraires — 7 questions.
+
+**Les contraires avant le tableau** (3.1, 3.3) : la question `phr` ne dessine
+plus le tableau ; il apparaît à la question suivante. Au 3.1, la phrase
+« P(…) est la probabilité d'avoir … parmi … » a quitté l'écran : la question
+commence au tableau, puis la ligne P(…) = … parmi … / parmi … = lettres =
+effectifs ; ses deux listes (`pb-s1`, `pb-s2`) ne sont plus attendues pour le
+type `ln` — une pause d'avant la v306 se reprend avec le nouvel écran.
