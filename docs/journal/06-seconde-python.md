@@ -4852,7 +4852,7 @@ principal), modèles comparés à un vrai CPython.
 ## {python-for-range} — la boucle for … in range (6.6.1, Boucle for in range)
 
 **Le sous-thème « Boucle for in range », et l'exercice 2 du carnet sur la
-boucle.** {python-for-range} (Seconde, 6.6.1, APP_VERSION 430 — 429 pris sur `main` pendant les bancs —, demande de
+boucle.** {python-for-range} (Seconde, 6.6.1, APP_VERSION 431 — 429 et 430 pris sur `main` pendant les bancs —, demande de
 Turquet, octobre 2026 : « en seconde dans le sous thème "boucle for in
 range", créer un exercice qui suit les images jointes ; respecter les
 consignes de présentation des autres exercices d'algo du sous-thème input ;
