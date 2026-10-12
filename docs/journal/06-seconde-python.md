@@ -5342,9 +5342,75 @@ tenu aux consignes, ce qui part au modèle, le trajet a) → b) → c) et la not
 comparés à un vrai CPython. Pas de section propre au banc navigateur : la
 visite universelle (section 9) l'ouvre dans les deux modes.
 
-## {python-for-table} — la table de 3, puis la table de 7 (6.6.10, Boucle for in range)
+---
 
-**L'exercice 8 du carnet.** {python-for-table} (Seconde, 6.6.10, demande de
+## {python-for-images} — les images de f de dixième en dixième (6.6.10, Boucle for in range, BONUS)
+
+**L'exercice 10 du carnet sur la boucle.** {python-for-images} (Seconde,
+6.6.10, APP_VERSION 448 — de 437 à 447, toutes prises sur `main` pendant ses bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+le sous-thème "boucle for in range", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre ») : la photo de
+l'élève penché sur son clavier, puis « Soit la fonction f(x) = x² − 6x + 3.
+Faire un programme qui affiche les images pour x = 0 puis 0,1 puis 0,2 … de
+dixième en dixième jusqu'à 1, de la façon suivante : L'image de 0 par f est
+… », et deux coups de pouce. Écrit en 6.6.6, il a croisé à la fusion de `main`
+{python-for-depart-fin}, mis en ligne pendant ses bancs sous le même numéro :
+l'exercice en ligne garde sa place, puis {python-trois-des}, {python-for-moyenne-notes} et
+{python-for-multiples} (inséré en 6.6.7, il a décalé les deux autres en 6.6.8
+et 6.6.9) : celui-ci ferme le sous-thème en 6.6.10, et les contrôles des
+exercices en ligne qui exigeaient de FERMER le 6.6 exigent désormais leur rang. Rien n'est renuméroté.
+
+**« Bonus » est dans le TITRE** (`TESTS[…].name` commence par « Bonus : »),
+comme {python-trois-des} et {python-for-moyenne-notes} devant lui — ceux du 6.4 et du 6.5 ne le
+disaient que dans leur description, et le sous-thème dans son nom. Le
+contrôle l'exige.
+
+**La présentation est celle de {python-for-nom}** : la photo seule dans
+`#pfiInstr` (découpée dans la capture, WebP de 9 Ko, `PFI_IMG`) ; la
+question dans un cadre `.pyn-etape`, en gras, qui enveloppe les coups de
+pouce, la cellule, « Exécuter » et la console ; la fonction en grand,
+centrée, comme sur la fiche (`.pfi-fonction`, les lettres en `<i>`) ; la
+sortie attendue en chasse fixe (`pre.pfi-sortie`, au caractère près, le
+double espace de « 1  par » compris). Aucune définition (exception
+déclarée, `pythonAvant.sans`) ; la console vide reste un cadre vide
+(`#pfiConsole` rejoint `content:none`). **Les deux coups de pouce sont
+ceux de la fiche, mot pour mot** — seul « bloucle » est corrigé —, en chasse
+fixe comme sur la capture, le code du second colorié comme le carnet
+(`for`, `in`, `range` en vert gras, `=` et `/` en violet) ; le rappel
+(`RAP_PFI`) ne dit qu'eux.
+
+**Le juge (`pfiDiag`) lit les NOMBRES affichés, jamais le texte** :
+l'interpréteur du 6.4.5 a les flottants de CPython (`0.2**2-6*0.2+3` →
+`1.8399999999999999`), si bien qu'une comparaison de texte refuserait
+`x*x`, juste. Il faut 11 lignes ; la k-ième donne k/10 (premier nombre) puis
+son image (dernier nombre), à 10⁻⁶ près, dans la phrase de la fiche
+(« L'image de # par f est # », l'apostrophe, les espaces et un « : » final
+tolérés) ; et une boucle `for` dans le programme. Nommés : `range(10)` qui
+s'arrête à 0.9, `x` non divisé par 10 (de 0 à 10), `x*2` pris pour le carré,
+une mauvaise image, l'image sans son `x`, la phrase absente, les lignes
+vides, les 11 print à la main ; et avant l'exécution, `^` ou `²` pour le
+carré, `6x` sans `*`, `range` à pas décimal, `round(…, 2)`, `def` et `while`
+— que cette page n'exécute pas : le dire vaut mieux qu'une IndentationError
+qui accuse le décalage —, `f(x)` sans fonction, un `input`.
+
+**La séance** : la fiche épinglée (x² − 6x + 3), puis d'autres fonctions
+du second degré (`PFI_F`, `[a, b, c]`) tirées par `distinctes()` ;
+`dmNbQuestions()` l'allonge. Le programme voyage dans `q.prog` et compte
+pour UNE case (`pts-case`). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Contrôle :
+`pythonForImages` (banc principal) — la place, le titre, le tirage
+(300 séances), le juge sur 5 copies justes et 19 fausses, chacune avec le
+mot qui la nomme, l'écran tenu aux consignes, les copies juste, fausse et
+vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
+CPython. La visite universelle (section 9) l'ouvre dans les deux modes.
+
+## {python-for-table} — la table de 3, puis la table de 7 (6.6.11, Boucle for in range)
+
+**L'exercice 8 du carnet.** {python-for-table} (Seconde, 6.6.11, demande de
 Turquet, octobre 2026, avec la même consigne que les autres fiches du
 sous-thème : présentation du sous-thème Input, dessin en premier, rien
 d'ajouté à la définition ni aux coups de pouce, rien dans la console). a)
@@ -5352,11 +5418,12 @@ d'ajouté à la définition ni aux coups de pouce, rien dans la console). a)
 de la fiche à chasse fixe (« 3 fois 1 est égal à 3 » … « ainsi de suite » …
 « 3 fois 9 est égal à 27 »), deux coups de pouce repliés (la boucle de 1 à
 9, le print) ; b) « Faire un programme qui affiche la table de 7 », sans
-coup de pouce. Préfixe `ptm`. Il ferme le sous-thème, en 6.6.10, derrière
-{python-for-moyenne-notes} : rien n'est renuméroté — `main` avait réordonné
-le 6.6 et ajouté quatre exercices pendant le travail ; le contrôle de
-{python-for-moyenne-notes}, qui exigeait de FERMER le sous-thème, exige
-désormais sa place (6.6.9, derrière {python-trois-des}). Version 448.
+coup de pouce. Préfixe `ptm`. Il ferme le sous-thème, en 6.6.11, derrière
+{python-for-images} : rien n'est renuméroté — `main` a réordonné le 6.6 et
+ajouté cinq exercices pendant le travail (trois fusions de `main`, la version
+passée de 437 à 449) ; chaque fois, la page de `main` a été reprise TELLE
+QUELLE et l'exercice y a été réinséré, plutôt que de démêler des conflits où
+deux blocs ajoutés au même endroit s'entrelaçaient.
 
 **Deux choix demandés à Turquet, pas devinés.** La capture n'avait AUCUN
 dessin : le serpent qui tape un programme (`PHM_IMG`, du 6.5.3) est repris
