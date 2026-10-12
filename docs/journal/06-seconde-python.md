@@ -5017,6 +5017,28 @@ caractère près, une correction qui ne nomme plus `nombre`, et CPython refuse
 le programme (SyntaxError) puis, les deux-points remis, l'exécute et affiche
 `valeur= 0` à `valeur= 8`.
 
+**Puis l'exercice a posé TROIS programmes faux** (Seconde, 6.6.4 au moment de la demande) (demande de Turquet, octobre
+2026, version 450 — 439 à 449 pris sur `main` pendant les bancs, et l'exercice passé entre-temps en 6.6.5 : « faire aussi une question où l'erreur est qu'il n'y a pas
+de décalage après le "for in range :", et une autre question où l'erreur est
+que k est la variable du for et i est la variable dans la ligne du print »).
+La séance passe à trois questions, toujours dans le même ordre : la fiche
+(les deux-points), puis `for k  in range ( 9 ):` / `print ("valeur=", k )`
+collé à gauche (IndentationError), puis `for k  in range ( 9 ):` /
+`   print ("valeur=", i )` (NameError). Chaque programme ne porte QU'UNE faute :
+les deux nouveaux ont leurs deux-points, sans quoi CPython s'arrêterait à
+eux et la question redeviendrait la première. Trois programmes fixes, tous
+différents : toujours ni `distinctes()` ni `dmNbQuestions()`. Les données de
+chaque question (programme, faute, règle du juge, fausses pistes, correction)
+vivent dans `PFE_QS` ; la question ne range que l'indice `q.t`, et une pause
+d'avant, sans `q.t`, reprend la fiche. L'énoncé envoyé au modèle et le
+contexte de l'aide ne recopient plus un message de console écrit à la main :
+ils lisent ce que `pyRun` répond (`pfeConsoleTexte`), donc ce que l'élève a vu.
+Le contrôle suit : séance de 3, barème 3, chaque programme au caractère près,
+sa console vide puis son erreur, une correction qui ne parle plus des
+deux-points hors de la fiche, et CPython refuse chacun des trois pour SA faute
+(SyntaxError, IndentationError, NameError) puis, la faute corrigée, affiche
+`valeur= 0` à `valeur= 8`.
+
 ---
 
 ## {python-for-renommer} — renommer la variable d'une boucle for (6.6.5, Boucle for in range)
@@ -5407,6 +5429,52 @@ pour UNE case (`pts-case`). Pas de correction au fil de la frappe
 mot qui la nomme, l'écran tenu aux consignes, les copies juste, fausse et
 vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
 CPython. La visite universelle (section 9) l'ouvre dans les deux modes.
+
+## {python-for-table} — la table de 3, puis la table de 7 (6.6.11, Boucle for in range)
+
+**L'exercice 8 du carnet.** {python-for-table} (Seconde, 6.6.11, demande de
+Turquet, octobre 2026, avec la même consigne que les autres fiches du
+sous-thème : présentation du sous-thème Input, dessin en premier, rien
+d'ajouté à la définition ni aux coups de pouce, rien dans la console). a)
+« Faire un programme qui affiche la table de 3 comme ci-dessous », l'exemple
+de la fiche à chasse fixe (« 3 fois 1 est égal à 3 » … « ainsi de suite » …
+« 3 fois 9 est égal à 27 »), deux coups de pouce repliés (la boucle de 1 à
+9, le print) ; b) « Faire un programme qui affiche la table de 7 », sans
+coup de pouce. Préfixe `ptm`. Il ferme le sous-thème, en 6.6.11, derrière
+{python-for-images} : rien n'est renuméroté — `main` a réordonné le 6.6 et
+ajouté cinq exercices pendant le travail (trois fusions de `main`, la version
+passée de 437 à 449) ; chaque fois, la page de `main` a été reprise TELLE
+QUELLE et l'exercice y a été réinséré, plutôt que de démêler des conflits où
+deux blocs ajoutés au même endroit s'entrelaçaient. Le contrôle de
+{python-for-images}, qui exigeait de FERMER le sous-thème, exige désormais
+sa place (6.6.10, derrière {python-for-moyenne-notes}).
+
+**Deux choix demandés à Turquet, pas devinés.** La capture n'avait AUCUN
+dessin : le serpent qui tape un programme (`PHM_IMG`, du 6.5.3) est repris
+— l'image est réutilisée, pas recopiée. Et a) et b) sont sur le MÊME écran,
+comme sur la fiche : une seule question, deux cases (`pts-case`), deux
+cellules, deux « Exécuter », deux consoles. Pas de tirage, donc ni
+`distinctes()` ni `dmNbQuestions()` — la leçon du 6.6.4.
+
+**Le juge lit ce que la console AFFICHE** (`ptmDiag`, par table) : neuf
+lignes « t fois k est égal à t×k », k de 1 à 9, lues sans accents, sans
+majuscules ni espaces doublés — `print("3 fois ", k, …)`, le coup de pouce
+de la fiche, en écrit deux, et c'est juste. Puis une boucle `for` exigée.
+Nommés : rien d'affiché, la table qui commence à 0 (`range(10)`), qui
+s'arrête à 8 (`range(1,9)` — « range s'arrête AVANT »), l'autre table (la
+table de 3 recopiée au b)), un résultat faux, une ligne qui n'a pas la forme
+de la fiche, des lignes vides, les neuf print à la main, un input, et les
+erreurs de boucle du 6.4.5. Une partie juste reste BLEUE à côté d'une
+fausse ; une cellule vide reçoit le modèle en vert sans rougir ; en soutien,
+le diagnostic de chaque partie s'affiche, préfixé a) ou b), sans le modèle.
+
+**Bancs.** jsdom (`pythonForTable`, déclaré dans `tests/profils.js`) : la
+place, le juge (3 copies justes, 11 fausses chacune avec son mot), l'écran
+tenu aux consignes (dessin seul en tête, deux cadres en gras, l'exemple, deux
+coups de pouce repliés au a) et aucun au b), cellules et consoles vides,
+rappel réduit aux coups de pouce), les copies juste, fausse, vide et mixte,
+le soutien, et les modèles comparés à CPython. Pas de section propre au banc
+navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
 
 ---
 

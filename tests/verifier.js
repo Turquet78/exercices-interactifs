@@ -4237,6 +4237,7 @@ function exercices(suite){
     pythonInputDuree(w, P);
     pythonInputDureeSecondes(w, P);
     pythonForErreur(w, P);
+    pythonForTable(w, P);
     pythonChaineTirets(w, P);
     pythonRemplacerLettre(w, P);
     pythonPasAPas(w, P);
@@ -28733,11 +28734,11 @@ function pythonForImages(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-moyenne-notes}, « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-for-moyenne-notes} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-for-moyenne-notes") vus.push("il ne ferme pas le sous-thème derrière {python-for-moyenne-notes} : "+st.ids.join(","));
+    else if(st.ids[9]!=="${ID}"||st.ids[8]!=="python-for-moyenne-notes") vus.push("il ne suit pas {python-for-moyenne-notes} en 6.6.10 : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est plus le sixième du thème");    /* le 6.7 « Condition if else » est venu derrière lui */
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-for-multiples"]!=="6.6.7"||TEST_NUM["python-trois-des"]!=="6.6.8"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.9") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
@@ -29092,6 +29093,180 @@ function pythonForNom(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-for-table} (Seconde, 6.6.11) : l'exercice 8 du carnet — a) la table
+   de 3, b) la table de 7, avec une boucle for. Le contrôle tient la place au
+   menu (il ferme le sous-thème 6.6 en 6.6.11, rien d'autre ne bouge), la séance d'une
+   question à deux cases, le juge — qui ne lit que ce que le programme
+   AFFICHE — sur des copies justes et fausses, chacune avec le mot qui la
+   nomme, l'écran tenu aux consignes du sous-thème Input (le dessin seul en
+   tête, chaque partie en gras dans son cadre, l'exemple de la fiche, les deux
+   coups de pouce repliés au a) et aucun au b), aucune définition, cellules et
+   consoles vides, le rappel réduit aux coups de pouce), les copies juste,
+   fausse et vide, le soutien qui explique sans révéler, puis compare à un vrai
+   CPython ce que les modèles affichent.
+   Aucun accent grave ni antislash littéral dans le code évalué. */
+function pythonForTable(w, P){
+  const nom = '{python-for-table} : la table de 3, puis la table de 7';
+  if(!P.pythonForTable){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des tables'); return; }
+  const ID = P.pythonForTable.exercice, NUM = P.pythonForTable.numero;
+  const present = evaluer(w, "typeof startPTM==='function' && typeof ptmDiag==='function' && typeof ptmBuildQuestions==='function' && typeof ptrRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPTM / ptmDiag / ptmBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-images}, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
+    if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-for-images") vus.push("il ne ferme pas le sous-thème derrière {python-for-images} : "+st.ids.join(","));
+    if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est plus le sixième du thème");    /* le 6.7 « Condition if else » est venu derrière lui */
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-for-multiples"]!=="6.6.7"||TEST_NUM["python-trois-des"]!=="6.6.8"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.9"||TEST_NUM["python-for-images"]!=="6.6.10") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. le juge ---- */
+  verifierEval(w, 'le juge accepte toute boucle juste (les modèles, le print du coup de pouce, range(9) et k+1, une variable de table) et nomme chaque défaut — rien d’affiché, la table qui commence à 0, qui s’arrête à 8, une autre table, un résultat faux, une ligne mal écrite, les print à la main, un input, la boucle sans deux-points, guillemets typographiques, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    const pr=function(t){ return "print("+Q+t+Q+")"; };
+    [3,7].forEach(function(t){ const d=ptmDiag(ptmModele(t),t); if(!d.ok) vus.push("le modèle "+t+" : "+d.dits.join(" ")); });
+    const justes=[
+      [ "for k in range ( 1 , 10 ):"+NL+"    print ("+Q+"3 fois "+Q+", k , "+Q+"est égal à"+Q+" , 3 * k )", 3],
+      [ "for i in range(9):"+NL+"  print("+Q+"7 fois"+Q+", i+1, "+Q+"est égal à"+Q+", 7*(i+1))", 7],
+      [ "t = 7"+NL+"for k in range(1,10):"+NL+NL+"    r = t * k"+NL+"    print(t, "+Q+"fois"+Q+", k, "+Q+"est egal a"+Q+", r)", 7]
+    ];
+    justes.forEach(function(c){ const d=ptmDiag(c[0],c[1]); if(!d.ok) vus.push("refusé : "+JSON.stringify(c[0])+" — "+d.dits.join(" ")); });
+    const neuf=[]; for(let k=1;k<=9;k++) neuf.push(pr("3 fois "+k+" est égal à "+(3*k)));
+    const cas=[
+      ["for k in range(1,10):"+NL+"    x = 3 * k", 3, /n’affiche rien/],
+      ["for k in range(10):"+NL+"    print("+Q+"3 fois"+Q+", k, "+Q+"est égal à"+Q+", 3 * k)", 3, /commence par/],
+      ["for k in range(1,9):"+NL+"    print("+Q+"3 fois"+Q+", k, "+Q+"est égal à"+Q+", 3 * k)", 3, /s’arrête à/],
+      [ptmModele(3), 7, /table de 3 : il faut la table de 7/],
+      ["for k in range(1,10):"+NL+"    print("+Q+"7 fois"+Q+", k, "+Q+"est égal à"+Q+", 7 + k)", 7, /est faux/],
+      ["for k in range(1,10):"+NL+"    print(3 * k)", 3, /forme demandée/],
+      [neuf.join(NL), 3, /boucle for/],
+      ["n = input("+Q+"Table ? "+Q+")", 3, /rien à demander/],
+      ["for k in range(1,10)"+NL+"    print("+Q+"3 fois"+Q+", k, "+Q+"est égal à"+Q+", 3 * k)", 3, /deux-points/],
+      ["for k in range(1,10):"+NL+"    print(“3 fois”, k)", 3, /guillemets/],
+      ["", 3, /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=ptmDiag(c[0],c[1]);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[2].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. l'écran, tenu aux consignes du sous-thème Input, et la copie juste ---- */
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition, a) et b) en gras chacun dans son cadre, l’exemple de la fiche, deux coups de pouce repliés au a) et aucun au b), cellules et consoles VIDES ; le rappel ne dit que les coups de pouce ; la copie juste vaut 2', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPTM();
+    const vus=[], NL=String.fromCharCode(10);
+    const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.questions.length!==1||test.maxScore!==2) vus.push("séance de "+test.questions.length+", barème "+test.maxScore);
+    const en=document.getElementById("ptmInstr"), img=en&&en.querySelector("img.ptm-img");
+    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
+    if(document.querySelector("#scr-ptm .py-avant,#scr-ptm .pyp-regle,#scr-ptm .pyi-cours")) vus.push("un encadré de définition sur l’écran");
+    const A=document.getElementById("ptmEtapeA"), B=document.getElementById("ptmEtapeB");
+    const tA=A&&A.querySelector(".pyn-titre"), tB=B&&B.querySelector(".pyn-titre");
+    if(!tA||net(tA.textContent)!=="✏️ a) Faire un programme qui affiche la table de 3 comme ci-dessous :") vus.push("l’énoncé du a) : "+(tA&&tA.textContent));
+    if(!tB||net(tB.textContent)!=="✏️ b) Faire un programme qui affiche la table de 7.") vus.push("l’énoncé du b) : "+(tB&&tB.textContent));
+    [tA,tB].forEach(function(t){ if(t&&getComputedStyle(t).fontWeight<600&&getComputedStyle(t).fontWeight!=="bold") vus.push("un énoncé n’est pas en gras"); });
+    const exe=A&&A.querySelector(".ptm-sortie");
+    if(!exe||exe.textContent.split(NL)[0].replace(/ +/g," ")!=="3 fois 1 est égal à 3"||exe.textContent.indexOf("ainsi de suite")<0||!/3 fois 9 est égal à +27$/.test(exe.textContent)) vus.push("l’exemple de la fiche : "+(exe&&JSON.stringify(exe.textContent)));
+    ["A","B"].forEach(function(c){ ["ptm-prog"+c,"ptmRun"+c,"ptmConsole"+c].forEach(function(id){ const et=c==="A"?A:B; if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de sa partie"); }); });
+    const pA=document.querySelectorAll("#ptmEtapeA details.pyd-pouce"), pB=document.querySelectorAll("#ptmEtapeB details.pyd-pouce");
+    if(pB.length) vus.push("un coup de pouce au b)");
+    if(pA.length!==2) vus.push(pA.length+" coup(s) de pouce au a)");
+    else {
+      if(pA[0].open||pA[1].open) vus.push("coup de pouce déplié d’emblée");
+      const t1=net(pA[0].querySelector("p").textContent), t2=net(pA[1].querySelector("p").textContent);
+      if(t1!=="On pourra utiliser une boucle qui va de 1 à 9.for k in range ( 1 , 10 ):") vus.push("le coup de pouce 1 : "+JSON.stringify(t1));
+      if(t2!=="pour l’affichage : print ("+String.fromCharCode(34)+"3 fois "+String.fromCharCode(34)+", k , "+String.fromCharCode(34)+"est égal à"+String.fromCharCode(34)+" , 3 * k )") vus.push("le coup de pouce 2 : "+JSON.stringify(t2));
+    }
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.ptm||"";
+    if(net(rap.textContent).indexOf("Afficher la table de 3, puis la table de 7 On pourra utiliser une boucle qui va de 1 à 9 : for k in range ( 1 , 10 ): Pour l’affichage : print")!==0) vus.push("le rappel : "+JSON.stringify(rap.textContent));
+    ["A","B"].forEach(function(c){
+      const ta=document.getElementById("ptm-prog"+c), cons=document.getElementById("ptmConsole"+c);
+      if(ta.value!==""||ta.getAttribute("placeholder")) vus.push("la cellule "+c+" n’est pas vide");
+      if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console "+c+" n’est pas vide : "+JSON.stringify(cons.textContent+getComputedStyle(cons,"::before").content));
+      if(!ta.classList.contains("pts-case")) vus.push("le programme "+c+" n’est pas une pts-case");
+      ta.value=ptmModele(c==="A"?3:7);
+      ta.dispatchEvent(new Event("input",{bubbles:true}));
+      if(test.questions[0]["prog"+c]!==ta.value) vus.push("le programme "+c+" ne voyage pas dans la question");
+      ptmExecuter(c);
+      const l=cons.textContent.split(NL), t=c==="A"?3:7;
+      if(l.length!==9||l[0]!==t+" fois 1 est égal à "+t||l[8]!==t+" fois 9 est égal à "+(9*t)) vus.push("la console "+c+" : "+JSON.stringify(cons.textContent));
+    });
+    checkPTM();
+    ["A","B"].forEach(function(c){ if(!document.getElementById("ptm-prog"+c).classList.contains("ok")) vus.push("la copie juste "+c+" n’est pas ok"); });
+    if(test.score!==2) vus.push("note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==2||ans.justes!==2||!ans.correct) vus.push("la note ne compte pas 2 cases justes : "+JSON.stringify(ans));
+    if(!document.getElementById("ptmNext")||!/résultats/.test(document.getElementById("ptmNext").textContent)) vus.push("pas de bouton vers les résultats");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert, la juste reste bleue à côté ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPTM();
+    let a=document.getElementById("ptm-progA"), b=document.getElementById("ptm-progB");
+    a.value="for k in range(1,9):"+NL+"    print("+Q+"3 fois"+Q+", k, "+Q+"est égal à"+Q+", 3 * k)";
+    a.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPTM();
+    if(!a.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#ptmModeleA .sol");
+    if(!mod||mod.textContent!==ptmModele(3)) vus.push("pas de modèle vert sous la copie fausse");
+    if(b.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!b.classList.contains("sol")||b.value!==ptmModele(7)) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    if(test.score!==0) vus.push("note "+test.score);
+    startPTM(); a=document.getElementById("ptm-progA"); b=document.getElementById("ptm-progB");
+    a.value=ptmModele(3); a.dispatchEvent(new Event("input",{bubbles:true}));
+    b.value=ptmModele(3); b.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPTM();
+    if(!a.classList.contains("ok")||a.classList.contains("bad")) vus.push("la copie juste du a) ne reste pas bleue quand le b) est faux");
+    if(!b.classList.contains("bad")||test.score!==1) vus.push("le b) faux : "+b.className+", note "+test.score);
+    currentMode="soutien"; startPTM(); a=document.getElementById("ptm-progA"); b=document.getElementById("ptm-progB");
+    checkPTM();
+    if(a.classList.contains("bad")||b.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    a.value="for k in range(10):"+NL+"    print("+Q+"3 fois"+Q+", k, "+Q+"est égal à"+Q+", 3 * k)";
+    a.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPTM();
+    const fb=document.getElementById("ptmFeedback").textContent;
+    if(!a.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(b.classList.contains("bad")) vus.push("soutien : le b) vide rougit");
+    if(!/commence par/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#ptmModeleA .sol,#ptmModeleB .sol")||fb.indexOf("range(1,10):")>=0&&fb.indexOf("print(")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPtm(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. la seconde méthode : CPython, sur les modèles ---- */
+  const nomPy = 'ce que les modèles de {python-for-table} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify([3,7].map(function(t){ const src=ptmModele(t); return [src, ptrRun(src).out]; }))`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src]) => src));
+  const ecarts = [];
+  liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* {python-input-duree} (Seconde, 6.5.1) : l'exercice 11 du carnet — les deux
    serpents. Demander une durée en minutes, l'afficher en heures et minutes.
    Le contrôle tient la place au menu (il ouvre le sous-thème 6.5 « Bonus :
@@ -29137,7 +29312,7 @@ function pythonForErreur(w, P){
     startPFE();
     const vus=[], NL=String.fromCharCode(10);
     const net=function(t){ return t.split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
-    if(test.questions.length!==1||test.maxScore!==1) vus.push("séance de "+test.questions.length+" question(s), barème "+test.maxScore);
+    if(test.questions.length!==3||test.maxScore!==3) vus.push("séance de "+test.questions.length+" question(s), barème "+test.maxScore);
     const ecr=document.getElementById("scr-pfe"), en=document.getElementById("pfeInstr"), img=en&&en.querySelector("img.pfe-img");
     if(!img||!/^data:image\\/webp/.test(img.getAttribute("src")||"")||!/Houlàlla/.test(img.getAttribute("alt")||"")) vus.push("pas de dessin de la fiche");
     const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
@@ -29156,6 +29331,24 @@ function pythonForErreur(w, P){
     pfeExecuter();
     if(!/deux-points/.test(c.textContent)||!c.classList.contains("py-err")) vus.push("« Exécuter » ne montre pas l’erreur : "+JSON.stringify(c.textContent));
     if(!/STRICTEMENT SECRÈTE/.test(ctxPfe(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    /* les deux questions ajoutées (octobre 2026) : le print collé à gauche, puis i sous un for k */
+    const progs=[null,'for k  in range ( 9 ):'+NL+'print ("valeur=", k )','for k  in range ( 9 ):'+NL+'   print ("valeur=", i )'];
+    const erreurs=[null,/IndentationError.*décalées/,/NameError.*« i » n’existe pas/];
+    const fautes=[null,/décalée/,/s’appelle k.*affiche i/];
+    [1,2].forEach(function(i){
+      test.idx=i; renderPFE();
+      if(document.getElementById("pfeIdx").textContent!=="Question "+(i+1)+" / 3") vus.push("numéro de question "+(i+1));
+      const p=document.getElementById("pfeProg");
+      if(!p||p.textContent!==progs[i]) vus.push("le programme "+(i+1)+" : "+JSON.stringify(p&&p.textContent));
+      const cc=document.getElementById("pfeConsole");
+      if(cc.textContent!=="") vus.push("la console "+(i+1)+" n’est pas vide avant l’exécution");
+      pfeExecuter();
+      if(!erreurs[i].test(cc.textContent)||!cc.classList.contains("py-err")) vus.push("« Exécuter » ne montre pas l’erreur "+(i+1)+" : "+JSON.stringify(cc.textContent));
+      if(!erreurs[i].test(pfeEnonceIA(test.questions[i]))||!fautes[i].test(pfeQ(test.questions[i]).faute)) vus.push("l’IA ne lit pas la console ou la faute de la question "+(i+1));
+      if(/deux-points/.test(pfeQ(test.questions[i]).correction)) vus.push("la correction "+(i+1)+" parle des deux-points");
+    });
+    /* une pause d'avant (une question, sans q.t) reprend la fiche */
+    if(pfeQ({exp:""}).prog!==PFE_PROG) vus.push("une question sans q.t ne reprend pas la fiche");
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
@@ -29191,18 +29384,21 @@ function pythonForErreur(w, P){
   })()`, v => v === '');
 
   /* ---- 4. la seconde méthode : CPython refuse le programme, et pour la même raison ---- */
-  const nomPy = 'le programme de {python-for-erreur} est refusé par un vrai CPython pour les deux-points, et l’accepte une fois les deux-points remis';
+  const nomPy = 'les trois programmes de {python-for-erreur} sont refusés par un vrai CPython, chacun pour SA faute (deux-points, décalage, i), et acceptés une fois la faute corrigée';
   const cmd = pythonDisponible();
   if(!cmd){
     if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : le programme n\'a été comparé à RIEN');
     else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
     return;
   }
-  const prog = evaluer(w, 'PFE_PROG');
-  if(!prog.ok){ verifier(nomPy, false, prog.erreur); return; }
-  const ref = pythonExecuter(cmd, [prog.valeur, prog.valeur.replace('( 9 )', '( 9 ):')]);
+  const progs = evaluer(w, 'JSON.stringify(PFE_QS.map(function(d){ return d.prog; }))');
+  if(!progs.ok){ verifier(nomPy, false, progs.erreur); return; }
+  const [p0, p1, p2] = JSON.parse(progs.valeur);
+  const ref = pythonExecuter(cmd, [p0, p0.replace('( 9 )', '( 9 ):'), p1, p1.replace('\nprint', '\n   print'), p2, p2.replace(', i )', ', k )')]);
   const attendu = Array.from({length:9}, (_, k) => 'valeur= ' + k + '\n').join('');
-  verifier(nomPy, ref[0] === 'ERREUR:SyntaxError' && ref[1] === attendu, JSON.stringify(ref));
+  verifier(nomPy, ref[0] === 'ERREUR:SyntaxError' && ref[1] === attendu
+    && ref[2] === 'ERREUR:IndentationError' && ref[3] === attendu
+    && ref[4] === 'ERREUR:NameError' && ref[5] === attendu, JSON.stringify(ref));
 }
 
 /* {python-trois-des} (Seconde, 6.6.8 — 6.6.7 à sa création, avant que {python-for-multiples}, l'exercice 7 du carnet, ne passe devant —, BONUS) : l'exercice 13 du carnet — les
