@@ -5102,3 +5102,33 @@ justes sur 2 » sur une copie qui en vaut 3 — vu en OUVRANT la page, et le
 banc l'exige désormais. Pas de section
 propre au banc navigateur : la visite universelle (section 9) l'ouvre dans les
 deux modes.
+
+**La moyenne de N notes, une seconde fois : le 6.6.6, « Bonus ».**
+{python-for-moyenne-notes} (Seconde, 6.6.6, version 437, demande de Turquet,
+octobre 2026 : « en seconde dans le sous thème "boucle for in range", créer un
+exercice qui suit les images jointes ; respecter les consignes de
+présentation des autres exercices d'algo du sous-thème input ; mettre le
+dessin en premier ; dans la définition ne rien rajouter de plus ainsi que
+dans les coups de pouce ; ne rien écrire dans le cadre de la console ; mettre
+bonus dans le titre »). L'image est la fiche « Exercice 11 » — la même que
+celle du 6.5.4 ({python-moyenne-notes}). Le 6.5.4 reste en ligne, intact :
+l'exercice neuf est une IDENTITÉ de plus sur le MÊME moteur (kind `pmn`, le
+motif du 6.3.3/6.3.5), distinguée par `q.f=1` dans chaque question — elle part
+en base avec elles, la reprise d'une pause la retrouve sans rien déclarer. La
+note passe par `currentTestId`, le rappel par `RAPPELS_ID` (`RAP_PFM`).
+
+Ce qui change sous `q.f` : aucune consigne au-dessus de la fiche (le 6.5.4
+écrit « Le programme demande des notes… », phrase AJOUTÉE — `#pmnInstr` est
+caché) ; « Faire un programme » en gras, comme la fiche ; les coups de pouce
+MOT POUR MOT (`pfmPoucesHTML`), `range (N)` du second compris — seul
+l'`input ( "ta note",k,"?")` est récrit `"ta note "+str(k)+" ?"`, parce que
+CPython le refuse et que l'élève qui le recopie échouerait (voir le 6.5.4) ;
+et la vérification n'écrit RIEN dans la console (le 6.5.4 y rejoue
+l'exécution du juge, « (la page a répondu …) ») : seul « Exécuter » y écrit,
+et une case de dialogue encore ouverte est désactivée. La fiche n'a pas de
+dessin : il n'y en a pas en tête. Le titre commence par « Bonus ». Banc jsdom
+(`pythonForMoyenneNotes`) : la place (il ferme le 6.6 derrière
+{python-for-renommer}, rien ne bouge — le contrôle du 6.6.5 passe de « il
+ferme » à « il est le cinquième »), l'écran et les coups de pouce au
+caractère près, le programme des coups de pouce accepté par le juge, juste,
+faux, vide, et la console laissée vide par la vérification.

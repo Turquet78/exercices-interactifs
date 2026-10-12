@@ -637,6 +637,8 @@
   .py-console{min-height:46px;background:#fff;border:1.5px dashed var(--line);border-radius:10px;padding:10px 16px}
   .py-console.py-exec{border-style:solid;border-color:#6c8ebf;background:#f4f8ff}
   .py-console:empty::before{content:"(rien pour l’instant : exécute le programme)";color:var(--ink-soft);font-family:"Nunito",system-ui,sans-serif;font-size:.92rem;white-space:normal}
+  /* {python-for-moyenne-notes} (6.6.6) : aucune consigne au-dessus de la fiche — le cadre vide ne se dessine pas. */
+  #pmnInstr[hidden]{display:none}
   /* Sous-thème 6.3 « Input » : la console vide reste vide (demande de Turquet, octobre 2026). */
   #pyiConsole:empty::before,#piaConsole:empty::before,#pmyConsole:empty::before,#ptrConsole:empty::before,#pfoConsole:empty::before,#pgcConsole:empty::before,#prcConsole:empty::before,#pkgConsole:empty::before,#pfnConsole:empty::before,#phmConsole:empty::before,#pvoConsole:empty::before,#pduConsole:empty::before,#pfeConsole:empty::before,#pblConsole:empty::before,#pmnConsole:empty::before,#pfvConsoleA:empty::before,#pfvConsoleB:empty::before,#prlConsole:empty::before,#pisConsole:empty::before,#pttConsole:empty::before,[id^="pynConsole"]:empty::before,[id^="piiCons"]:empty::before,[id^="pchCons"]:empty::before,#pclConsole:empty::before,#pfrConsole:empty::before{content:none}
   .py-fin{display:inline-flex;align-items:center;gap:2px}
@@ -5938,7 +5940,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=436;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=437;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6713,6 +6715,8 @@ const TESTS={
   'python-input-evolution': { name:'Prix de d\u00e9part, prix d\u2019arriv\u00e9e ou pourcentage d\u2019\u00e9volution', icon:'\ud83d\udef4', desc:'Bonus\u00a0: \u00e9cris un programme qui demande un prix de d\u00e9part, un prix d\u2019arriv\u00e9e et un pourcentage d\u2019\u00e9volution \u2014 on tape 0 pour la donn\u00e9e qu\u2019on n\u2019a pas \u2014 et qui calcule celle qui manque avec des if. Ex\u00e9cute-le\u00a0: la console te pose les questions.', start:()=>startPVO() },
   'python-input-duree-secondes': { name:'Une dur\u00e9e en heures, minutes et secondes', icon:'\u23f1\ufe0f', desc:'Bonus\u00a0: \u00e9cris un programme qui demande une dur\u00e9e en secondes et qui l\u2019affiche en heures, minutes et secondes \u2014 3730 secondes, c\u2019est 1 heure, 2 minutes et 10 secondes. Ex\u00e9cute-le pour voir ce qu\u2019il affiche.', start:()=>startPHM() },
   'python-moyenne-notes': { name:'La moyenne de N notes', icon:'\ud83d\udcca', desc:'Bonus\u00a0: \u00e9cris un programme qui demande combien de notes, puis chaque note, et affiche leur moyenne \u2014 avec input et une boucle for. Ex\u00e9cute-le pour lui r\u00e9pondre.', start:()=>startPMN() },
+  /* {python-for-moyenne-notes} (6.6.6) : la fiche « Exercice 11 » du carnet — le moteur et le juge du 6.5.4 */
+  'python-for-moyenne-notes': { name:'Bonus\u00a0: la moyenne de N notes', icon:'\ud83d\udcca', desc:'Bonus\u00a0: \u00e9cris un programme qui demande combien de notes, puis chaque note, et affiche leur moyenne \u2014 avec input et une boucle for \u2026 in range(\u2026). Ex\u00e9cute-le pour lui r\u00e9pondre.', start:()=>startPFM() },
   'python-for-renommer': { name:'Renommer la variable d\u2019une boucle for', icon:'\ud83d\udd01', desc:'La boucle for nombre in range ( fin ) fait varier nombre de 0 \u00e0 fin - 1. a) Compl\u00e8te le programme pour qu\u2019il affiche les entiers de 0 \u00e0 9\u00a0; b) renomme la variable\u00a0; c) dis si cela change le r\u00e9sultat.', start:()=>startPFV() },
   'python-remplacer-lettre': { name:'Remplacer la premi\u00e8re lettre par "*"', icon:'\u2b50', desc:'Fais un programme qui remplace la premi\u00e8re lettre d\u2019une cha\u00eene par "*" : "gaston" devient "*aston". On reconstruit la cha\u00eene lettre par lettre, avec une boucle for.', start:()=>startPRL() },
   'python-for-range': { name:'La boucle for \u2026 in range(\u2026)', icon:'\ud83d\udd01', desc:'Ex\u00e9cute un programme qui r\u00e9p\u00e8te un print avec une boucle for \u2026 in range(\u2026), puis explique de quelle valeur \u00e0 quelle valeur varie la variable de la boucle ; puis, l\u2019inverse : pr\u00e9vois d\u2019abord, et ex\u00e9cute pour v\u00e9rifier.', start:()=>startPFR() },
@@ -6819,7 +6823,7 @@ const THEMES=[
       { num:5, nom:'Bonus : input',       ids:['python-input-duree','python-input-evolution','python-input-duree-secondes','python-moyenne-notes'] },
       /* Le sous-thème « Boucle for in range » (demande de Turquet, octobre
          2026) : ajouté EN DERNIER, il ne renumérote rien. */
-      { num:6, nom:'Boucle for in range', ids:['python-for-range','python-for-nom','python-for-oui-non','python-for-erreur','python-for-renommer'] }
+      { num:6, nom:'Boucle for in range', ids:['python-for-range','python-for-nom','python-for-oui-non','python-for-erreur','python-for-renommer','python-for-moyenne-notes'] }
   ] },
   /* Le thème des RAPPELS (demande de Turquet, septembre 2026) : les bases du
      collège qu'on reprend en début de Seconde. Ajouté EN DERNIER, il ne
@@ -9156,6 +9160,11 @@ Pour trouver la position de la lettre symétrique de la position k on doit calcu
 const RAP_PMN=`<b>La moyenne de N notes</b><br>
 Pour compter de 1 à N utilise l’instruction : <code class="inline">for k in range (1,N+1):</code> <code class="inline">note = float(input("Ta note " + str(k) + " ? "))</code><br>
 Pour calculer la somme des notes mettre <code class="inline">somme = 0</code> <code class="inline">for k in range (1,N+1):</code> <code class="inline">note = float(input("Ta note " + str(k) + " ? "))</code> <code class="inline">somme = somme + note</code>`;
+/* {python-for-moyenne-notes} (6.6.6) : les deux coups de pouce de la fiche,
+   mot pour mot — seul l'input est écrit comme Python l'accepte (voir pfmPoucesHTML). */
+const RAP_PFM=`<b>La moyenne de N notes</b><br>
+Pour compter de 1 à N utilise l’instruction : <code class="inline">for k in range (1,N+1):</code> <code class="inline">note=float(input ( "ta note "+str(k)+" ?"))</code><br>
+Pour calculer la somme des notes mettre <code class="inline">somme = 0</code> <code class="inline">for k in range (N):</code> <code class="inline">note = float (input ( "ta note "+str(k)+" ?") )</code> <code class="inline">somme = somme + note</code>`;
 /* {python-for-renommer} : la définition de la fiche, MOT POUR MOT — rien n'y
    est ajouté (demande de Turquet, octobre 2026). */
 const RAP_PFV=`<b>Définition <code class="inline">for</code> nombre <code class="inline">in range</code> ( fin ) : ⟺ Traduction : Pour nombre allant jusqu’à fin.</b><br>
@@ -9442,7 +9451,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 const RAPPELS={ pgc:RAP_PGC, pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
   pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, tdc:RAP_TDC, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pfr:RAP_PFR, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, pfo:RAP_PFO, prc:RAP_PRC, pkg:RAP_PKG, pfn:RAP_PFN, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pfe:RAP_PFE, pbl:RAP_PBL, pmn:RAP_PMN, pfv:RAP_PFV, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
-const RAPPELS_ID={ 'python-input-float':RAP_PIF, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'pourcentages-problemes-sans-aide':RAP_PPS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
+const RAPPELS_ID={ 'python-input-float':RAP_PIF, 'python-for-moyenne-notes':RAP_PFM, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'pourcentages-problemes-sans-aide':RAP_PPS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -9567,7 +9576,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    que 3² = 9 et 4² = 16.
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
-const TABLES_SANS=['python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-input-prix','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
+const TABLES_SANS=['python-for-moyenne-notes','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-input-prix','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
                    'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi','tableau-proportions-trois-colonnes','tableau-proportions-trois-colonnes-directes','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
@@ -34814,9 +34823,9 @@ function ctxPbl(q){
 const PMN_NB=3;
 const PMN_EXEMPLES=[[12,8,16],[15,10],[10,14,9,11],[13,9,17],[7,12,14,11,16],[17,11.5],[9,13,8,14],[16,14,18],[6,10,11,9,14]];
 const PMN_JUGE=[[10,15,9,13],[13.5,7]];
-function pmnBuildQuestions(){
+function pmnBuildQuestions(f){
   const n=Math.min(dmNbQuestions(PMN_NB), PMN_EXEMPLES.length);
-  return distinctes(n, function(_, i){ return {e:i===0?0:rand(1,PMN_EXEMPLES.length-1), prog:''}; });
+  return distinctes(n, function(_, i){ const q={e:i===0?0:rand(1,PMN_EXEMPLES.length-1), prog:''}; if(f) q.f=1; return q; });
 }
 function pmnNotes(q){ return PMN_EXEMPLES[q.e]||PMN_EXEMPLES[0]; }
 function pmnMoy(notes){ return notes.reduce(function(s,x){ return s+x; },0)/notes.length; }
@@ -34928,7 +34937,7 @@ function pmnEnonceHTML(q){
   const li=['Tu as combien de notes ? '+notes.length]
     .concat(notes.map(function(x,i){ return 'Ta note '+(i+1)+' ? '+pmnNb(x); }))
     .concat(['Ta moyenne est de '+pmnNb(pmnMoy(notes))+'.']);
-  return 'Faire un programme qui fonctionne comme l’exemple ci-dessous&nbsp;:'
+  return (q.f?'<b>Faire un programme</b>':'Faire un programme')+' qui fonctionne comme l’exemple ci-dessous&nbsp;:'
     +'<ul class="pyd-puces">'+li.map(function(s){ return '<li>'+esc(s)+'</li>'; }).join('')+'</ul>';
 }
 /* Les deux coups de pouce de la fiche — l'input corrigé (un seul texte) et le
@@ -34940,11 +34949,24 @@ function pmnPoucesHTML(){
     ['coup de pouce 2', 'Pour calculer la somme des notes mettre<br><code>somme = 0</code><br><code>for k in range (1,N+1):</code><br><code>'+ind+'note = float(input("Ta note " + str(k) + " ? "))</code><br><code>'+ind+'somme = somme + note</code>']
   ]);
 }
+/* Les deux coups de pouce de {python-for-moyenne-notes}, MOT POUR MOT (demande
+   de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus,
+   ainsi que dans les coups de pouce ») — range (N) compris. Seul l'input est
+   récrit : la fiche écrit input ( "ta note",k,"?"), la forme de print, et
+   CPython lève TypeError ; recopié tel quel, il ferait échouer l'élève qui le
+   suit. "ta note "+str(k)+" ?" pose la même question. */
+function pfmPoucesHTML(){
+  const ind='&nbsp;&nbsp;&nbsp;&nbsp;';
+  return pyPoucesHTML([
+    ['coup de pouce 1', 'Pour compter de 1 à N utilise l’instruction:<br><br><code>for k in range (1,N+1):</code><br><code>'+ind+'note=float(input ( "ta note "+str(k)+" ?"))</code>'],
+    ['coup de pouce 2', 'Pour calculer la somme des notes mettre<br><br><code>somme = 0</code><br><br><code>for k in range (N):</code><br><code>'+ind+'note = float (input ( "ta note "+str(k)+" ?") )</code><br><code>'+ind+'somme = somme + note</code>']
+  ]);
+}
 
 /* ---- 3. Cycle de vie ---- */
-async function startPMN(){
+async function startPMN(f){
   if(!currentEleve){ accueil(); return; }
-  const qs=pmnBuildQuestions();
+  const qs=pmnBuildQuestions(f);
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'pmn', questions:qs, idx:0, score:0,
@@ -34953,19 +34975,23 @@ async function startPMN(){
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('pmn'); renderPMN();
 }
+/* {python-for-moyenne-notes} (6.6.6) : la même fiche, le même juge — q.f=1 dans
+   chaque question (elle part en base, la reprise la retrouve). */
+async function startPFM(){ return startPMN(1); }
 let _pmnSaveTimer=null, _pmnRep=null;
 function renderPMN(){
   const q=test.questions[test.idx]; test.locked=false; _pmnRep=null;
   $('pmnIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPMN').innerHTML=modeTagHTML();
   $('pmnLiveScore').textContent=test.score;
-  $('pmnInstr').innerHTML='Le programme demande des notes, puis affiche leur moyenne.';
+  $('pmnInstr').innerHTML=q.f?'':'Le programme demande des notes, puis affiche leur moyenne.';
+  $('pmnInstr').hidden=!!q.f;
   $('pmnFeedback').textContent=''; $('pmnFeedback').className='mp-feedback';
   $('pmnActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pmnValidate" onclick="checkPMN()">Vérifier</button>';
   $('pmnHost').innerHTML=
     '<div class="py-cell">'
     +'<div class="pyn-etape" id="pmnEtape"><div class="pyn-titre">✏️ '+pmnEnonceHTML(q)+'</div>'
-    +pmnPoucesHTML()
+    +(q.f?pfmPoucesHTML():pmnPoucesHTML())
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pmn-prog" class="pyp-edit pts-case" rows="7" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python"></textarea>'
     +'<div class="py-runrow"><button class="btn btn-ghost" id="pmnRun" type="button" onclick="pmnExecuter()">▶ Exécuter mon programme</button></div>'
@@ -35056,7 +35082,8 @@ function checkPMN(live){
   const q=test.questions[test.idx], ta=$('pmn-prog'); if(!q||!ta) return;
   const src=ta.value; q.prog=src;
   const d=pmnDiag(src, q);
-  pmnAfficherJuge(src, q);
+  if(!q.f) pmnAfficherJuge(src, q);   /* 6.6.6 : la page n'écrit rien dans la console — seul « Exécuter » y écrit */
+  else { _pmnRep=null; const r=$('pmn-rep'); if(r) r.disabled=true; }
   ta.classList.remove('ok','bad','sol');
   const fb=$('pmnFeedback');
   if(!d.ok && isSoutien()){
