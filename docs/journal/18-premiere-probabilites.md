@@ -450,3 +450,11 @@ recompose d'après la traduction du 3.2 (`pbNomVifMaj`), et les
 noms à listes déroulantes de {lire-probabilites} et de la fiche (l'espace est
 HORS du `.pb-par`, dont la police à 1,45 em l'aurait élargi). Les textes
 envoyés au modèle ne changent pas.
+
+## Ordre du thème 3 revu (v302)
+
+Demande de Turquet, octobre 2026 : « mettre le 3.4 entre le 3.1 et 3.2 ».
+{probabilites-ecriture} devient 3.2, {tableau-probabilites} 3.3 et
+{probabilites-fiche} 3.4. Seul l'ordre de `THEMES` change : les notes et les
+devoirs portent l'identifiant, et les numéros cités dans ce journal restent
+ceux de leur époque.
