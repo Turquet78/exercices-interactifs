@@ -4289,6 +4289,7 @@ function exercices(suite){
     pythonIfElse(w, P);
     pythonForTables(w, P);
     pythonSamoussa(w, P);
+    pythonIfPlusGrand(w, P);
     pythonChaines(w, P);
     pythonChaineLen(w, P);
     pythonForRange(w, P);
@@ -29154,6 +29155,208 @@ function pythonIfElse(w, P){
 }
 
 
+/* {python-if-plus-grand} (Seconde, 6.7.3) : l'exercice 5 du carnet — les deux
+   serpents, « Je suis le plus grand ! ». Demander deux nombres décimaux dans
+   x et y, afficher le plus grand avec if … else. Le contrôle tient la place
+   au menu (derrière {python-if-else} et {python-samoussa} dans le sous-thème 6.7 « Condition if
+   else » : rien d'autre ne bouge), la fiche épinglée et le tirage, le juge
+   — qui ne lit que ce que le programme AFFICHE, sous quatre paires de
+   réponses — sur des copies justes et fausses, chacune avec le mot qui la
+   nomme, l'écran tenu aux consignes du sous-thème Input (le dessin seul en
+   tête, l'énoncé en gras dans son cadre avec son Rappel, les deux coups de
+   pouce repliés, aucune définition, la cellule et la console vides), le
+   dialogue de la console, la copie juste, fausse et vide, le soutien qui
+   explique sans révéler, puis compare à un vrai CPython ce que les modèles
+   affichent. Aucun accent grave ni antislash littéral dans le code évalué. */
+function pythonIfPlusGrand(w, P){
+  const nom = '{python-if-plus-grand} : le plus grand des deux nombres';
+  if(!P.pythonIfPlusGrand){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du if … else'); return; }
+  const ID = P.pythonIfPlusGrand.exercice, NB = P.pythonIfPlusGrand.nb, NUM = P.pythonIfPlusGrand.numero;
+  const present = evaluer(w, "typeof startPXY==='function' && typeof pxyDiag==='function' && typeof pxyBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPXY / pxyDiag / pxyBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il suit {python-if-else} et {python-samoussa} dans le sous-thème 6.7 « Condition if else », numéroté ' + NUM + ', dernier du thème, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
+    if(!st||st.nom!=="Condition if else") vus.push("pas de sous-thème 6.7 Condition if else");
+    else if(st.ids[0]!=="python-if-else"||st.ids[1]!=="python-samoussa"||st.ids[2]!=="${ID}") vus.push("il ne suit pas {python-if-else} puis {python-samoussa} : "+st.ids.join(","));
+    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-images"]!=="6.6.10"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (x et y), puis d’autres variables distinctes ; le modèle de chacune passe au juge, chaque paire sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pxyBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S=pxySit(qs[0]);
+      if(S.a!=="x"||S.b!=="y"){ vus.push("la fiche n’ouvre pas la séance : "+S.a+S.b); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois les mêmes variables : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PXY_VARS.forEach(function(_, i){ const d=pxyDiag(pxyModele({s:i}),{s:i}); if(!d.ok) vus.push("le modèle "+i+" : "+d.dits.join(" ")); });
+    if(Object.keys(vues).length!==PXY_VARS.length) vus.push("des paires ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte tout programme juste (le modèle, le if à l’envers, >=, le print du nombre seul, la question sur la ligne du if) et nomme chaque défaut — float oublié, int, une ou trois questions, l’input muet, une autre variable, les deux nombres affichés, le plus petit affiché, la variable entre guillemets, une seule branche juste, rien d’affiché, la virgule, guillemets typographiques, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0,prog:""};
+    const i1="x = float(input("+Q+"Premier ? "+Q+"))", i2="y = float(input("+Q+"Second ? "+Q+"))", tete=i1+NL+i2+NL;
+    const si=function(c, a, b){ return tete+"if "+c+":"+NL+"    print("+a+")"+NL+"else:"+NL+"    print("+b+")"; };
+    const justes=[pxyModele(q),
+                  si("x > y", "x", "y"),
+                  si("x >= y", Q+"le plus grand est"+Q+", x", Q+"le plus grand est"+Q+", y"),
+                  tete+"if x < y : print(y)"+NL+"else : print(x)",
+                  "# deux nombres"+NL+tete+NL+"if y > x:"+NL+NL+"    print("+Q+"Le plus grand :"+Q+", y)"+NL+"else:"+NL+"    print("+Q+"Le plus grand :"+Q+", x)"+NL];
+    justes.forEach(function(p){ const d=pxyDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[
+      ["x = input("+Q+"Premier ? "+Q+")"+NL+"y = input("+Q+"Second ? "+Q+")"+NL+"if x < y:"+NL+"    print(y)"+NL+"else:"+NL+"    print(x)", /TEXTE|float/],
+      ["x = int(input("+Q+"Premier ? "+Q+"))"+NL+"y = int(input("+Q+"Second ? "+Q+"))"+NL+"if x < y:"+NL+"    print(y)"+NL+"else:"+NL+"    print(x)", /ENTIER/],
+      [i1+NL+"if x < 3:"+NL+"    print(x)", /qu’une question/],
+      [tete+"z = float(input("+Q+"Troisième ? "+Q+"))"+NL+"print(x)", /plus de deux questions/],
+      ["x = float(input())"+NL+i2+NL+"print(x)", /pas de question/],
+      ["a = float(input("+Q+"Premier ? "+Q+"))"+NL+"b = float(input("+Q+"Second ? "+Q+"))"+NL+"if a < b:"+NL+"    print(b)"+NL+"else:"+NL+"    print(a)", /variable x/],
+      [tete+"print(x, y)", /les deux nombres/],
+      [si("x < y", "x", "y"), /plus PETIT/],
+      [si("x < y", Q+"y"+Q, Q+"x"+Q), /entre guillemets/],
+      [si("x < y", "y", "y"), /ce n’est pas le plus grand/],
+      [tete+"if x < y:"+NL+"    z = y", /n’affiche rien/],
+      [tete+"if x < 3,5:"+NL+"    print(y)", /POINT/],
+      [tete+"print(“x”)", /guillemets/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pxyDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input, et la copie juste ---- */
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni encadré au-dessus, l’énoncé de la fiche (et son Rappel) en gras dans son cadre avec deux coups de pouce repliés, la cellule et la console VIDES, le dialogue d’« Exécuter » ; le rappel ne dit que celui de la fiche ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPXY();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
+    const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("pxyInstr"), img=en&&en.querySelector("img.pxy-img");
+    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
+    if(document.querySelector("#scr-pxy .py-avant,#scr-pxy .pyp-regle,#scr-pxy .pyi-cours")) vus.push("un encadré de définition sur l’écran");
+    const et=document.getElementById("pxyEtape"), ti=et&&et.querySelector(".pyn-titre");
+    const attendu="✏️ Écrire un programme : Qui demande deux nombres décimaux que l’on mettra dans les variables x et y. Puis qui affiche le plus grand des deux nombres. Tester plusieurs fois votre programme. Rappel : Pour demander un nombre décimal il faut mettre : = float(input("+String.fromCharCode(34)+"... texte de la question ..."+String.fromCharCode(34)+"))";
+    /* les puces se suivent sans espace dans textContent : on compare sans les espaces */
+    const serre=function(s){ return net(s).replace(/ /g,""); };
+    if(!ti||serre(ti.textContent)!==serre(attendu)) vus.push("l’énoncé de la question : "+(ti&&net(ti.textContent)));
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    ["pxy-prog","pxyRun","pxyConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const pouces=document.querySelectorAll("#pxyEtape details.pyd-pouce");
+    if(pouces.length!==2) vus.push(pouces.length+" coup(s) de pouce");
+    else {
+      if(pouces[0].open||pouces[1].open) vus.push("coup de pouce déplié d’emblée");
+      const t1=net(pouces[0].querySelector("p").textContent), t2=net(pouces[1].querySelector("p").textContent);
+      if(net(pouces[0].querySelector("summary").textContent)!=="coup de pouce 1"||net(pouces[1].querySelector("summary").textContent)!=="coup de pouce 2") vus.push("les titres des coups de pouce");
+      if(t1.indexOf("x = float(input(")!==0||t1.indexOf("y = float(input(")<0) vus.push("le coup de pouce 1 : "+JSON.stringify(t1));
+      if(t2.indexOf("if x < y :")!==0||t2.indexOf("else :")<0||t2.split("le plus grand est").length!==3) vus.push("le coup de pouce 2 : "+JSON.stringify(t2));
+    }
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pxy||"";
+    if(net(rap.textContent)!=="Le plus grand des deux nombres Pour demander un nombre décimal il faut mettre : = float(input("+String.fromCharCode(34)+"... texte de la question ..."+String.fromCharCode(34)+"))") vus.push("le rappel : "+JSON.stringify(rap.textContent));
+    const ta=document.getElementById("pxy-prog"), cons=document.getElementById("pxyConsole");
+    if(ta.value!==""||ta.getAttribute("placeholder")) vus.push("la cellule n’est pas vide");
+    if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide : "+JSON.stringify(cons.textContent+getComputedStyle(cons,"::before").content));
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value=pxyModele(q);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    /* le dialogue : deux questions, deux réponses tapées, le plus grand affiché */
+    pxyExecuter();
+    let rep=document.getElementById("pxy-rep");
+    if(!rep||cons.textContent.indexOf("Premier nombre ? ")<0) vus.push("la console ne pose pas la première question : "+JSON.stringify(cons.textContent));
+    else {
+      rep.value="4.5"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+      rep=document.getElementById("pxy-rep");
+      if(!rep) vus.push("la console ne pose pas la seconde question");
+      else { rep.value="7.25"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); }
+      if(cons.textContent.split(NL).pop()!=="Le plus grand est 7.25") vus.push("la console : "+JSON.stringify(cons.textContent));
+    }
+    checkPXY();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPXY();
+    if(test.idx!==1||document.getElementById("pxy-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    const S1=pxySit(test.questions[1]);
+    if(net(document.getElementById("pxyEtape").textContent).indexOf("les variables "+S1.a+" et "+S1.b+".")<0) vus.push("l’énoncé de la question 2 ne suit pas ses variables");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPXY();
+    let ta=document.getElementById("pxy-prog");
+    ta.value="x = float(input("+Q+"? "+Q+"))"+NL+"y = float(input("+Q+"? "+Q+"))"+NL+"print(x, y)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPXY();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pxyModele .sol");
+    if(!mod||mod.textContent!==pxyModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    nextPXY(); ta=document.getElementById("pxy-prog");
+    checkPXY();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pxyModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPXY(); ta=document.getElementById("pxy-prog");
+    checkPXY();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="x = float(input("+Q+"? "+Q+"))"+NL+"y = float(input("+Q+"? "+Q+"))"+NL+"print(x, y)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPXY();
+    const fb=document.getElementById("pxyFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/les deux nombres/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pxyModele .sol")||fb.indexOf("Premier nombre")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPxy(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ----
+     input est remplacé, côté CPython, par une fonction qui rend les réponses
+     l'une après l'autre sans écrire la question. */
+  const nomPy = 'ce que les modèles de {python-if-plus-grand} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PXY_VARS.forEach(function(_, i){ PXY_EX.concat([[0.1, 0.2], [100, 7.5]]).forEach(function(p){
+      const src=pxyModele({s:i}), r=pyRun(src,[String(p[0]),String(p[1])]);
+      res.push([src, [String(p[0]),String(p[1])], r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* {python-for-nom} (Seconde, 6.6.3 — 6.6.1 à sa création, puis 6.6.2) : l'exercice 5 du carnet — les deux
    serpents, la bulle « Bonjour » ×4. Afficher 8 fois son nom et prénom avec
    une boucle for. Le contrôle tient la place au menu (il ouvre le sous-thème
@@ -29884,7 +30087,7 @@ function pythonForErreur(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il est le cinquième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', dernier sous-thème du thème, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il est le cinquième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', sixième sous-thème du thème, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
