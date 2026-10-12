@@ -1399,7 +1399,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
    du moteur (3.1, 3.2, 3.3) ; la vitrine (.pb-aff) suit la même taille. */
 #pbHost .pb-ind .pb-sel,#pbHost .pb-ind .pb-aff{width:52px;height:30px;font-size:calc(.95rem * var(--tab-nb,1))}
 #pbHost .pb-ind .pb-sel{padding:0 2px;border-radius:8px}
-/* 3.3 : l'indice « tout » choisi — la case devient transparente, presque
+/* 3.2 et 3.3 : l'indice « tout » choisi — la case devient transparente, presque
    invisible (voir pbAffMaj) ; elle reste cliquable pour changer d'avis */
 #pbHost .pb-case.pb-transp .pb-sel{background:transparent;border-color:rgba(187,208,247,.35);box-shadow:none}
 #pbHost .pb-case.pb-transp .pb-aff{opacity:.22}
@@ -2670,7 +2670,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=299;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=300;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -14636,9 +14636,9 @@ function pbLettre(e){
   const q=test.questions && test.questions[0], C=q && PB_CTX[q.ci];
   return (C && C.let && C.let[e]) || e;
 }
-/* L'indice VIDE de P se dit « rien » au 3.1 ; sur la fiche (3.3) il se dit
-   « tout » — on prend parmi tout (demande de Turquet, octobre 2026). */
-function pbRien(){ return (typeof test!=='undefined' && test.qId==='probabilites-fiche') ? 'tout' : 'rien'; }
+/* L'indice VIDE de P se dit « tout » — on prend parmi tout — au 3.2 et sur
+   la fiche du 3.3 (demandes de Turquet, octobre 2026) ; « rien » ailleurs. */
+function pbRien(){ return (typeof test!=='undefined' && (test.qId==='probabilites-fiche' || test.qId==='tableau-probabilites')) ? 'tout' : 'rien'; }
 function pbTxt(c){ return c==='0' ? pbRien() : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? pbLettre(e.charAt(1))+'̅' : pbLettre(e)).join(' ∩ '); }
 function pbHTML(c){ return c==='0' ? '<span class="pb-rien">'+pbRien()+'</span>' : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? '<i class="pb-bar">'+pbLettre(e.charAt(1))+'</i>' : '<i>'+pbLettre(e)+'</i>').join(' ∩ '); }
 /* Le tableau et la méthode en texte, pour le modèle : avec les lettres de la séance. */
@@ -14825,7 +14825,7 @@ function renderPBTest(){
     const optsInd=['0','A','nA','B','nB'].map(e=>({ v:e, t:pbTxt(e) }));
     const s=(id,lab)=>pbSel(q,id,opts,lab,'pb-lettres');
     const parmi='<span class="pb-parmi">parmi</span>';
-    const nom='<span class="pb-nom"><i class="pb-P">P</i><span class="pb-ind">'+pbSel(q,'pb-px',optsInd,'indice de P : la condition, ou rien','pb-lettres')+'</span>'
+    const nom='<span class="pb-nom"><i class="pb-P">P</i><span class="pb-ind">'+pbSel(q,'pb-px',optsInd,'indice de P : la condition, ou '+pbRien(),'pb-lettres')+'</span>'
       +'<span class="pb-par">(</span>'+s('pb-py','entre parenthèses : l’évènement dont on veut la probabilité')+'<span class="pb-par">)</span></span>';
     $('pbHost').innerHTML=
       '<div class="pt-step">'+pbTableHTML(q,false)+'</div>'
@@ -14844,6 +14844,9 @@ function renderPBTest(){
      +'</div>';
     pbPlacerEnonce(true);
   }
+  /* la vitrine des listes, et la case « tout » effacée (3.2), dès l'affichage :
+     une reprise de pause rend les choix déjà faits */
+  pbAffMaj();
 }
 /* Ce que l'élève a mis dans une case : la valeur de la liste, ou le nombre
    écrit (pmPlain, le lecteur qui retire les résidus de MathLive). */
@@ -14891,6 +14894,7 @@ function checkPBAnswer(live){
       el.classList.remove('ok','bad','sol');
       if(pbLu(id)!=='') el.classList.add(verd[id]?'ok':'bad');
       el.disabled=verd[id]; });
+    pbAffMaj();
     if(!allOk){ soutienAgain('pbFeedback','pbActions','checkPBAnswer','pbHost'); return; }
   } else {
     /* la convention commune : juste en BLEU, faux en ROUGE avec la bonne
@@ -15163,7 +15167,7 @@ function pbCtxTexte(q){
     const y=pbItem(q)[0], x=pbItem(q)[1];
     c+='La question est posée EN MOTS : « '+lpEnonce(q)+' ». L’élève doit d’abord la traduire : '
       +'« dans '+pbNom(C)+' » = pas de condition, P sans indice ; « parmi … », « sachant que … », « on choisit … qui … » = la condition, écrite en indice de P. '
-      +'Il choisit l’indice de P (ou « rien ») et l’évènement entre parenthèses dans des listes ; une intersection se dit avec « et ». ';
+      +'Il choisit l’indice de P (ou « '+pbRien()+' » sans condition) et l’évènement entre parenthèses dans des listes ; une intersection se dit avec « et ». ';
     c+='L’élève calcule '+(x==='T' ? 'P('+pbTxt(y)+')' : 'P_'+pbTxt(x)+'('+pbTxt(y)+')')
       +' : il écrit « la probabilité d’avoir … parmi … » avec des lettres choisies dans une liste ('+PB_EVTS.map(pbTxt).join(', ')+'), '
       +'puis la fraction « … parmi … / parmi … », la fraction en lettres, et enfin la fraction des EFFECTIFS du tableau, sans la simplifier. ';

@@ -418,3 +418,14 @@ d'une pause) et après la vérification en soutien.
 Vérifié dans Chromium : la liste propose « tout », le choix efface la case
 (fond `rgba(0,0,0,0)`, vitrine à 0,22), et une fois jugée juste elle reste
 effacée.
+
+**Puis le 3.2 a suivi (v300).** « Fais pareil pour le 3.2 » : `pbRien()`
+rend « tout » aussi pour `tableau-probabilites`, et la même classe
+`pb-transp` efface la case. Le 3.2 redessine son écran à chaque question,
+donc `renderPBTest()` appelle maintenant `pbAffMaj()` en fin de rendu — une
+reprise de pause retrouve la case effacée —, et la vérification en soutien
+aussi. Le contexte envoyé au modèle dit « tout ». Seul le 3.1 dit encore
+« rien » dans le code, mais il n'a plus de liste d'indice depuis la v296 :
+le mot n'y paraît plus à l'écran. Vérifié dans Chromium : liste « tout »,
+case effacée, toujours effacée après un redessin et après une vérification
+juste.
