@@ -35697,6 +35697,7 @@ function ptdsJugeCompte(src, depart, attendus, interdits, quoi){
   const bon=attendus.find(function(v){ return vals.indexOf(v)>=0; });
   if(bon!=null) return {ok:true, vide:false, diag:'', compte:bon, proba:ptdsProba(L.autres, bon)};
   const cand=vals.filter(function(v){ return interdits.indexOf(v)<0; });
+  if(!cand.length && vals.indexOf(PTDS_NB_RESULTATS)>=0) return {ok:false, vide:false, diag:'Ton compteur compte TOUS les résultats : il ne doit augmenter que si '+quoi+' (avec un if).'};
   if(!L.autres.length || !cand.length) return {ok:false, vide:false, diag:'Ton programme n’affiche pas le nombre de fois où '+quoi+' : affiche ton compteur après les boucles.'};
   const v=cand[cand.length-1];
   if(v===0) return {ok:false, vide:false, diag:'Ton compteur affiche 0 : il doit partir de 0 AVANT les boucles, et augmenter de 1 chaque fois que '+quoi+'.'};

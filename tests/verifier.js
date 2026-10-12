@@ -28273,7 +28273,7 @@ function pythonTroisDes(w, P){
   if(!m.ok){ verifier(nomPy, false, m.erreur); return; }
   const ref = pythonExecuter(cmd, m.valeur.map(x => x.p));
   const ecarts = m.valeur.map((x, i) => x.out === ref[i] ? '' : 'programme ' + i + ' : ' + J(x.out.slice(-120)) + ' ≠ ' + J(String(ref[i]).slice(-120))).filter(Boolean);
-  verifier(nomPy, ecarts.length === 0 && /81 /.test(ref[2]) && /: 25\n/.test(ref[1]), ecarts.join(' | ') || J(ref[2].slice(-200)));
+  verifier(nomPy, ecarts.length === 0 && /: 81\n/.test(ref[2]) && /: 25\n/.test(ref[1]), ecarts.join(' | ') || J(ref[2].slice(-200)));
 }
 
 function pythonInputDuree(w, P){
