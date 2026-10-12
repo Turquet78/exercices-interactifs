@@ -27278,7 +27278,8 @@ function pythonInputDuree(w, P){
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===5; });
     if(!st||!/bonus/i.test(st.nom)||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
     else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    /* il était le DERNIER ; depuis {python-for-oui-non} (6.6, ajouté derrière), il est le CINQUIÈME — ce qui tient la même chose : rien ne l’a renuméroté */
+    if(th&&th.sous&&th.sous[4]!==st) vus.push("le sous-thème n’est pas le cinquième du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
