@@ -1300,8 +1300,50 @@ numéro, borne, barème), et une seconde mesure tire trois cents séances pour
 lire chaque nombre de départ contre la borne — et exige que la borne soit
 atteinte, sans quoi elle ne mesurerait qu'un tirage trop étroit.
 
+**Puis, en Première, le résultat du 4.1 s'est SIMPLIFIÉ, sur la même ligne
+— octobre 2026** (demande de Turquet : « quand le résultat peut être
+simplifié, demander à l'élève de compléter la division qui apparaîtra au
+numérateur et au dénominateur du résultat ; s'il rentre un diviseur au
+numérateur, l'écrire au dénominateur et inversement, et demander la fraction
+simplifiée sur la même ligne d'égalité. Si le résultat peut être encore
+simplifié, recommencer le processus »). La Seconde (5.11) n'a pas changé.
+La rangée continue : `… = [a]/[b] = (a ÷ [k])/(b ÷ [k]) = [a′]/[b′] = …`.
+
+* **Le diviseur est au choix de l'élève** : tout entier > 1 qui divise le
+  numérateur ET le dénominateur est juste (case `kind:'div'`, `bon` = le
+  PGCD, qui ne sert qu'à la correction). Diviser 6/12 par 2 est juste et
+  laisse 3/6 : une nouvelle étape s'ouvre alors (`rvfMajSimp`, qui redessine
+  la rangée en gardant toutes les saisies et la case où l'on écrit), jusqu'à
+  la fraction irréductible. Un diviseur vide ou faux ferme la chaîne ; la
+  correction y écrit le PGCD, qui finit d'un coup.
+* **Le diviseur s'écrit deux fois, et se recopie** (`rvf-sI-dn` ↔
+  `rvf-sI-dd`) ; l'ordre d'ENTRÉE saute la copie.
+* **Les nombres divisés ne sont PAS écrits par la page** : ils recopient la
+  fraction d'avant telle que l'élève l'a écrite (`rvfMiroirs`, « … » tant
+  qu'elle est vide). Les écrire aurait donné la réponse des deux cases
+  précédentes. `restoreBoxes()` rappelle `rvfMiroirs()` après une reprise.
+* **Les diviseurs sont RANGÉS dans la question** (`q.sdiv`, des chaînes) :
+  le nombre d'étapes dépend de ce que l'élève a écrit, et la reprise d'une
+  pause doit redessiner les mêmes étapes AVANT que `restoreBoxes()` y remette
+  les saisies — rangés ailleurs, les cases de la seconde étape n'existeraient
+  pas encore au moment d'être remplies.
+* **Le résultat brut devient une étape** : quand il se simplifie,
+  `rvf-num`/`rvf-den` attendent le calcul direct (l'égalité de fractions
+  n'y est plus acceptée — la simplification qui suit la fait). Un résultat
+  irréductible garde l'ancienne règle, et aucune étape.
+* Le libellé gagne « simplifier », même pour les trois types à une seule
+  case ; l'énoncé, le rappel (⑤), le pourquoi et le contexte du modèle le
+  disent aussi.
+
+Contrôle : « le résultat se simplifie par étapes » (`tests/verifier.js`,
+déclaré par `revisionFractions.simplifier` dans `tests/profils.js`) — deux
+temps (÷2 puis ÷3), un temps (÷6), un diviseur faux (rouge, correction 6), un
+diviseur vide (ne rougit pas), la reprise (`q.sdiv`), et un résultat
+irréductible sans étape. Éprouvé par sabotage : la chaîne arrêtée après la
+première division rougit sur six points.
+
 **Puis la Première a perdu ses nombres négatifs — 4.1, quatrième écart
-(octobre 2026, v303).** Demande de Turquet : « ne pas avoir de résultat
+(octobre 2026, v304).** Demande de Turquet : « ne pas avoir de résultat
 intermédiaire ou final négatif ». Deux types en donnaient. {meme-sub} tirait
 deux numérateurs DISTINCTS, dans n'importe quel ordre : 1/5 − 4/5 sortait une
 fois sur deux. Il tire désormais n1 > n2. {diff-sub-entier} était pire : sur
