@@ -214,7 +214,7 @@ module.exports = {
     /* {revision-fractions} (4.1), porté de la Seconde (octobre 2026) : les
        nombres de départ vont de 1 à 5 (consigne de Turquet — RVF_MAX dans la
        page, deux sources), et la note se compte par question parfaite. */
-    revisionFractions: { num: '4.1', max: 5, bareme: 'questions' },
+    revisionFractions: { num: '4.1', max: 5, bareme: 'questions', simplifier: true },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
        de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
@@ -766,7 +766,7 @@ module.exports = {
     sommeFractions: { exercice: 'somme-fractions' },
     /* {revision-fractions} (5.11) : un chiffre de 1 à 9 (RVF_MAX dans la
        page), et le barème compte les CASES — finishTest lit maxScore. */
-    revisionFractions: { num: '5.11', max: 9, bareme: 'cases' },
+    revisionFractions: { num: '5.11', max: 9, bareme: 'cases', simplifier: false },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
        de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
