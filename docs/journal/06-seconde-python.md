@@ -5237,14 +5237,44 @@ le soutien, et les trois programmes de la correction comparés à un vrai
 CPython. Pas de section propre au banc navigateur : la visite universelle
 (section 9) l'ouvre dans les deux modes.
 
+**La moyenne de N notes, une seconde fois : le 6.6.8, « Bonus ».**
+{python-for-moyenne-notes} (Seconde, 6.6.8, version 437 puis 446 — les fusions de `main` ont apporté le 6.6.6 {python-for-depart-fin}, l'ordre du carnet ({python-for-renommer} en 6.6.2), le 6.6.7 {python-trois-des} et les versions 438 à 445 —, demande de Turquet,
+octobre 2026 : « en seconde dans le sous thème "boucle for in range", créer un
+exercice qui suit les images jointes ; respecter les consignes de
+présentation des autres exercices d'algo du sous-thème input ; mettre le
+dessin en premier ; dans la définition ne rien rajouter de plus ainsi que
+dans les coups de pouce ; ne rien écrire dans le cadre de la console ; mettre
+bonus dans le titre »). L'image est la fiche « Exercice 11 » — la même que
+celle du 6.5.4 ({python-moyenne-notes}). Le 6.5.4 reste en ligne, intact :
+l'exercice neuf est une IDENTITÉ de plus sur le MÊME moteur (kind `pmn`, le
+motif du 6.3.3/6.3.5), distinguée par `q.f=1` dans chaque question — elle part
+en base avec elles, la reprise d'une pause la retrouve sans rien déclarer. La
+note passe par `currentTestId`, le rappel par `RAPPELS_ID` (`RAP_PFM`).
+
+Ce qui change sous `q.f` : aucune consigne au-dessus de la fiche (le 6.5.4
+écrit « Le programme demande des notes… », phrase AJOUTÉE — `#pmnInstr` est
+caché) ; « Faire un programme » en gras, comme la fiche ; les coups de pouce
+MOT POUR MOT (`pfmPoucesHTML`), `range (N)` du second compris — seul
+l'`input ( "ta note",k,"?")` est récrit `"ta note "+str(k)+" ?"`, parce que
+CPython le refuse et que l'élève qui le recopie échouerait (voir le 6.5.4) ;
+et la vérification n'écrit RIEN dans la console (le 6.5.4 y rejoue
+l'exécution du juge, « (la page a répondu …) ») : seul « Exécuter » y écrit,
+et une case de dialogue encore ouverte est désactivée. La fiche n'a pas de
+dessin : il n'y en a pas en tête. Le titre commence par « Bonus ». Banc jsdom
+(`pythonForMoyenneNotes`) : la place (il ferme le 6.6 derrière
+{python-trois-des}, rien ne bouge — le contrôle du 6.6.7 passe de « il
+ferme » à « il est le septième »), l'écran et les coups de pouce au
+caractère près, le programme des coups de pouce accepté par le juge, juste,
+faux, vide, et la console laissée vide par la vérification.
+
 ---
 
-## {python-tables-multiplication} — afficher les tables de 2 à 9 (6.6.8, Boucle for in range, BONUS)
+## {python-tables-multiplication} — afficher les tables de 2 à 9 (6.6.9, Boucle for in range, BONUS)
 
-**L'exercice 12 du carnet.** {python-tables-multiplication} (Seconde, 6.6.8,
-APP_VERSION 446 — 6.6.6, 6.6.7 et les versions 437 à 445 pris sur `main`
-pendant les bancs, par {python-for-depart-fin}, {python-trois-des} et la
-Première —, demande de Turquet, octobre 2026 : « en seconde dans le sous
+**L'exercice 12 du carnet.** {python-tables-multiplication} (Seconde, 6.6.9,
+APP_VERSION 447 — 6.6.6 à 6.6.8 et les versions 437 à 446 pris sur `main`
+pendant les bancs, par {python-for-depart-fin}, {python-trois-des},
+{python-for-moyenne-notes} et la Première —, demande de Turquet, octobre 2026 : « en seconde dans le sous
 thème "boucle for in range", créer un exercice qui suit les images jointes ;
 respecter les consignes de présentation des autres exercices d'algo du
 sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
@@ -5255,9 +5285,9 @@ dans le cadre de la console ; mettre bonus dans le titre ») : le bandeau
 de **la table de 2 jusqu'à la table de 9** », et UN coup de pouce — « On
 pourra utiliser une double boucle », `for l in range ( 2 , 10 ):`, puis,
 décalés, `for k in range ( 1 , 10 ):` et `print (...`, au caractère près.
-Il ferme le 6.6, derrière {python-trois-des} : rien n'est renuméroté. Le
-contrôle de {python-trois-des} exigeait de FERMER le sous-thème (et qu'il ait
-sept exercices) : il exige désormais d'en être le septième. Pendant les
+Il ferme le 6.6, derrière {python-for-moyenne-notes} : rien n'est renuméroté.
+Le contrôle de {python-for-moyenne-notes} exigeait de FERMER le sous-thème :
+il exige désormais d'en être le huitième, derrière {python-trois-des}. Pendant les
 bancs, {python-for-renommer} est passé en 6.6.2 (l'ordre du carnet) : le
 contrôle d'ici épingle ce nouvel ordre. « Bonus » est dans le NOM (`TESTS`), le
 titre que montrent le menu et le bilan — le sous-thème « Bonus » (6.4) n'a pas
