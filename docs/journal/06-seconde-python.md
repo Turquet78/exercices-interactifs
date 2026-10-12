@@ -3208,7 +3208,7 @@ l'allonge jusqu'à six. Le dialogue de la console est celui du 6.3.2 (la case
 tablette. Pas de correction au fil de la frappe (`soutienEnDirect.sans`).
 Banc jsdom (`pythonInputCalcul`) : la place, la fiche et le tirage (300
 séances, chaque situation sort, chaque modèle passe), le juge sur quatre
-copies justes et quinze fausses chacune avec son mot, le dialogue joué au
+copies justes et seize fausses chacune avec son mot, le dialogue joué au
 clavier, les copies juste, fausse et vide, le soutien qui ne révèle rien, et
 les modèles comparés à un vrai CPython. Pas de section propre au banc
 navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
@@ -4206,7 +4206,7 @@ allonge. Une case (`pts-case`), pas de correction au fil de la frappe
 jet, et vu en OUVRANT la page : la liste de `tests/profils.js` n'est que la
 seconde source, la page a la sienne). Banc jsdom
 (`pythonTriangle`) : la place, la fiche et le tirage (300 séances), le juge
-sur six copies justes et quinze fausses chacune avec son mot, l'écran et les
+sur six copies justes et seize fausses chacune avec son mot, l'écran et les
 consignes du sous-thème Input, Tab et Entrée, la copie juste tapée, fausse et
 vide, le soutien qui ne révèle rien, et quatorze programmes déroulés comparés
 à un vrai CPython — boucles imbriquées, pas négatif et erreurs d'indentation
@@ -4340,7 +4340,7 @@ que le réglage « Questions » allonge. Une case (`pts-case`), pas de correctio
 au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables
 (`TABLES_SANS`, et sa seconde source dans `tests/profils.js`). Banc jsdom
 (`pythonProgrammeCalcul`) : la place, la fiche et le tirage (300 séances), le
-juge sur huit copies justes et quinze fausses chacune avec son mot, l'écran,
+juge sur huit copies justes et seize fausses chacune avec son mot, l'écran,
 la copie juste tapée et exécutée, fausse et vide, le soutien qui ne révèle ni
 le modèle ni le résultat, et les modèles comparés à un vrai CPython. Pas de
 section propre au banc navigateur : la visite universelle (section 9) l'ouvre
@@ -4538,7 +4538,7 @@ fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables
 (`TABLES_SANS` ET `tablesAide.sans` : oublier la seconde a fait rougir le banc
 navigateur, « sans bouton alors qu'il devrait l'avoir »). Banc jsdom
 (`pythonInputDureeSecondes`) : la place, le tirage (300 séances), le juge sur
-quatre copies justes et quinze fausses chacune avec son mot, l'écran (encadré
+quatre copies justes et seize fausses chacune avec son mot, l'écran (encadré
 avant l'énoncé, dessin, énoncé en gras dans son cadre, aucun coup de pouce),
 le dialogue joué au clavier, les copies juste, fausse et vide, le soutien qui
 ne révèle rien, et le modèle comparé à un vrai CPython. Pas de section propre
@@ -5102,3 +5102,67 @@ justes sur 2 » sur une copie qui en vaut 3 — vu en OUVRANT la page, et le
 banc l'exige désormais. Pas de section
 propre au banc navigateur : la visite universelle (section 9) l'ouvre dans les
 deux modes.
+
+---
+
+## {python-for-images} — les images de x par f, de 0 à 10 (6.6.6, Boucle for in range)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème "boucle
+for in range", créer un exercice qui suit les images jointes. Il faudra
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème "input". Mettre le dessin en premier, dans la définition ne rien
+rajouter de plus ainsi que dans les coups de pouce éventuels. Respecter les
+couleurs et présentations des exercices du sous-thème input. Ne rien écrire
+dans le cadre de la console. » C'est l'« Exercice 9 » du carnet : le serpent
+qui nargue (« Y a plus dur ? »), « Soit la fonction f(x) = x² − 6x + 3. »,
+« **Faire** un programme qui affiche les images **pour x allant de 0 à 10**
+de la façon suivante : », l'exemple en chasse fixe (« L'image de 0 par f est
+3 », « L'image de 1 par f est -2 », « ... ainsi de suite », « L'image de 10
+par f est 43 »), la remarque (« Vous pouvez essayer pour x allant de 0 à
+50. »), puis TROIS coups de pouce repliés et la cellule. Il suit
+{python-for-renommer} en 6.6.6 : rien n'est renuméroté ; le contrôle du 6.6.5,
+qui exigeait de fermer le sous-thème, exige désormais d'être le cinquième.
+Version 437.
+
+**La présentation est celle du 6.6.2** ({python-for-nom}) : le dessin seul
+dans `#pfiInstr` (découpé dans la capture, détouré depuis les bords, WebP de
+11 Ko en `data:`, `PFI_IMG`) ; la question dans un cadre `.pyn-etape`, en
+gras, qui enveloppe l'exemple, la remarque, les coups de pouce, la cellule,
+« Exécuter » et la console. La fonction s'écrit en grand, centrée et sans
+gras, comme sur la fiche (`.pfi-f`, `<i>x</i>`) ; l'exemple garde sa chasse
+fixe et son retrait (`.pfi-ex`). Aucune définition (exception déclarée,
+`pythonAvant.sans`) ; cellule sans texte d'attente, console vide
+(`#pfiConsole` rejoint la règle `content:none`).
+
+**Les coups de pouce sont ceux de la fiche, mot pour mot** — y compris
+`pour l'affichage:  print ("l'image de ", x , "par f est" , ...  )` et
+`le calcul de f est:  x**2-6*x+3`, en chasse fixe comme sur la capture. Le
+« for x in range ( 11 ): » du premier est dans un `<code>` : écrit en texte, le
+filet `italiquerX` aurait penché le x d'une instruction Python. Le rappel
+(`RAP_PFI`) ne redit que les trois coups de pouce.
+
+**Le juge (`pfiDiag`) lit ce que la console affiche** (moteur du 6.4.5,
+`ptrDerouler` puis `pyRun`) : une ligne par valeur de x, de 0 à n, « L'image
+de x par f est f(x) ». Les NOMBRES se lisent exactement, signe compris
+(`pyTexteProche` compare les chiffres mais pas le « - » : « 2 » pour « -2 »
+serait passé — d'où la lecture des nombres à part) ; le TEXTE autour a la
+tolérance du thème, sans la casse (le coup de pouce écrit « l'image »,
+l'exemple « L'image »), et la page nomme ce qu'elle a toléré. Les lignes
+vides ne comptent pas. Nommés : rien d'affiché, x jusqu'à 9 (range(10)) ou
+jusqu'à 50 (la remarque invite à essayer : la vérification attend la borne de
+l'énoncé, et le dit), x depuis 1, une image fausse (le calcul de la fiche
+rappelé, x² = x**2), la lettre x entre guillemets, l'image seule, une autre
+phrase, `x^2` (le ^ de Python n'est pas une puissance), les onze print à la main, un input, un texte + un nombre, les erreurs
+de boucle. `def` n'existe pas dans l'interpréteur : aucun coup de pouce n'y
+mène.
+
+**La séance** : la fiche épinglée (x² − 6x + 3, de 0 à 10), puis d'autres
+fonctions x² + bx + c (|b| ≥ 2, pour que « bx » s'écrive `b*x`) et d'autres
+bornes, tirées par `distinctes()` ; `dmNbQuestions()` l'allonge. L'exemple et
+les coups de pouce 1 et 3 suivent la question ; le coup de pouce 2 et la
+remarque ne changent pas. Une case (`pts-case`), pas de correction au fil de
+la frappe (`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonForImages`) : la place, le tirage (300 séances), le juge sur quatre
+copies justes et seize fausses, l'écran (dessin seul, énoncé, exemple,
+remarque, trois coups de pouce mot pour mot, rappel), la copie juste, fausse
+et vide, le soutien qui ne révèle rien, et les modèles comparés à CPython.
