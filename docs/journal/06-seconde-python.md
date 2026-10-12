@@ -5682,10 +5682,195 @@ consignes, la copie juste, fausse et vide, le soutien qui ne révèle rien, et
 les modèles comparés à un vrai CPython. Pas de section propre au banc
 navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
 
-## {python-if-location} — je loue une voiture (6.7.2, Condition if else)
+---
+
+## {python-if-else} — la condition if … else (6.7.1, Condition if else)
+
+**Un sous-thème neuf, et la fiche « 1/ Définition d'une condition if age <
+18 : … else … ».** {python-if-else} (Seconde, 6.7.1, APP_VERSION 461 — 449 à 460 pris sur `main` pendant les bancs —, demande
+de Turquet, octobre 2026 : « en seconde dans le sous thème "condition if
+else", créer un exercice qui suit les images jointes. Il faudra respecter
+les consignes de présentation des autres exercices d'algo du sous-thème
+"input". mettre le dessin en premier, dans la définition ne rien rajouter
+de plus ainsi que dans les coups de pouce éventuels […] ne rien écrire dans
+le cadre de la console » ; « mettre bonus dans le titre », aussitôt repris :
+« ne pas écrire bonus dans le titre »). Le sous-thème 6.7 « Condition if
+else » n'existait pas au départ de la branche ; **pendant les bancs,
+{python-samoussa} l'a créé sur `main`** (même nom, même numéro). À la
+fusion, la fiche « 1/ Définition » l'ouvre en 6.7.1, et {python-samoussa}
+passe en 6.7.2 — son contrôle de place exige désormais de suivre
+celui-ci ; rien d'autre n'est renuméroté.
+
+**La présentation est celle du 6.6.6** : le dessin de la fiche (le serpent
+boudeur, « Si tu travailles alors je suis content sinon je fais la tête »,
+découpé tel quel avec son fond crème, WebP de 16 Ko, `PCE_IMG`) dans
+`#pceFig`, EN PREMIER et à chaque question ; la définition dans `#pceAvant`
+(le cadre orange `.pii-def`), au PREMIER écran seulement, en ses deux
+colonnes comme la capture — le code colorié (if/else en vert gras, `<` en
+violet, 18 en vert, les textes en rouge), « signifie: », la traduction
+si … alors … sinon. Rien n'y est ajouté ; seule la coquille « Tu est
+mineur. » du côté Python devient « Tu es mineur. », comme sa traduction.
+Puis la question dans un cadre `.pyn-etape` EN GRAS (« Faire un programme »,
+les deux puces, « Rappel: … = int ( input (" ... ")) »), qui enveloppe les
+DEUX coups de pouce repliés (mot pour mot, à la variable et au seuil de la
+question), la cellule, « Exécuter » et la console. Cellule sans texte
+d'attente, console vide (`#pceConsole` rejoint `content:none`). La console
+pose la question du programme et l'élève y répond (le dialogue du 6.3.4).
+Le rappel (`RAP_PCE`) ne dit que la définition.
+
+**Le juge (`pceDiag`) EXÉCUTE la copie sous quatre réponses** que l'élève ne
+voit pas : seuil − 3, seuil − 1, le seuil, seuil + 5. Il exige un input rangé
+dans la variable de la question, ENTIER, avec sa question ; un `if` et un
+`else` ; et à chaque exécution UNE ligne, la bonne phrase (casse, espaces,
+guillemets et point final indifférents). Nommés : `If`/`Else` en majuscule,
+`=` dans le if, input sans int (« Python ne compare pas un texte avec
+18 »), float, aucune ou deux questions, la mauvaise variable, l'invite
+vide, les guillemets typographiques, les deux phrases affichées (print hors
+du bloc), rien affiché au-dessus du seuil (le else oublié), les phrases
+inversées, `<=` (le seuil dit « mineur »), un autre nombre dans la
+condition, une phrase fausse, et la copie juste écrite avec deux if sans
+else. À la vérification, la console montre l'exécution sur la réponse qui
+a trahi la copie (« la page a répondu « 18 » »).
+
+**La séance** : la fiche épinglée (age, 18), puis d'autres situations
+(`PCE_SITUATIONS` : note/10, taille/140, température/0, heure/12,
+points/100) tirées par `distinctes()` ; `dmNbQuestions()` l'allonge. Le
+programme voyage dans `q.prog` et compte pour UNE case. Pas de correction
+au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables.
+Contrôle : `pythonIfElse` (banc principal) — la place, le titre sans
+« Bonus », le tirage (300 séances), le juge sur 4 copies justes et 17
+fausses, l'écran (dessin en premier, définition et énoncé mot pour mot,
+coups de pouce repliés, cellule et console vides, la console qui pose la
+question), les copies juste, fausse et vide, le soutien qui ne révèle rien,
+et les modèles comparés à un vrai CPython sous les quatre réponses (un
+`input` de remplacement écrit la réponse, comme la console de la page).
+
+## {python-if-plus-grand} — le plus grand des deux nombres (6.7.3, Condition if else)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous thème
+"condition if else", créer un exercice qui suit les images jointes […]
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème "input". Mettre le dessin en premier, dans la définition ne rien
+rajouter de plus ainsi que dans les coups de pouce éventuels […] ne rien
+écrire dans le cadre de la console. » Le sous-thème n'existait pas quand
+l'exercice a été écrit, et une autre branche l'a créé en même temps avec
+{python-samoussa}, puis {python-if-else} est venu l'ouvrir : à la fusion,
+celui-ci passe **derrière eux, en 6.7.3** — rien n'est renuméroté.
+
+**La présentation est celle de {python-for-nom}** : le dessin seul dans
+`#pxyInstr` (les deux serpents, « Je suis le plus grand ! », découpé dans la
+capture, le fond crème rendu transparent depuis les bords, WebP de 19 Ko,
+`PXY_IMG`) ; la question dans un cadre `.pyn-etape`, en gras, qui enveloppe
+les deux coups de pouce, la cellule, « Exécuter » et la console. **L'énoncé
+est celui de la fiche, mot pour mot**, son « Rappel » compris (il fait partie
+de l'exercice, pas d'une définition : sa ligne garde les graisses de la
+fiche, `.pxy-rappel`). Deux coquilles corrigées, rien d'ajouté : « un nombre
+décimal » (la fiche écrit « décimale ») et la parenthèse fermante qui
+manquait au coup de pouce 1. Aucune définition (exception déclarée,
+`pythonAvant.sans`), le rappel de cours (`RAP_PXY`) ne redit que le Rappel
+de la fiche ; la console vide reste un cadre vide (`#pxyConsole` rejoint
+`content:none`).
+
+**Le juge (`pxyDiag`) « teste plusieurs fois » à la place de l'élève** :
+la copie s'exécute sous quatre paires (`PXY_EX`) — le plus grand en second,
+en premier, deux négatifs, deux égaux. Il faut deux `input` avec leur
+question, les réponses rangées EN NOMBRES dans les deux variables de
+l'énoncé, et une sortie qui porte le plus grand et jamais le plus petit (le
+texte de la phrase est libre, le nombre seul suffit). Nommés : `float`
+oublié (la variable contient un texte), `int` (3.5 refusé), la virgule
+française, une ou trois questions, l'input muet, une autre variable que
+celle de l'énoncé, les deux nombres affichés, le plus petit affiché, la
+variable entre guillemets, un print juste dans une seule branche, rien
+d'affiché, les guillemets typographiques.
+
+**La séance** : la fiche épinglée (`x` et `y`), puis d'autres paires de
+variables (`PXY_VARS`) tirées par `distinctes()` ; `dmNbQuestions()`
+l'allonge. Le programme voyage dans `q.prog` et compte pour UNE case
+(`pts-case`). Pas de correction au fil de la frappe (`soutienEnDirect.sans`),
+pas de bouton des tables. Contrôle : `pythonIfPlusGrand` (banc principal) —
+la place, le tirage (300 séances), le juge sur 5 copies justes et 14
+fausses, chacune avec le mot qui la nomme, l'écran tenu aux consignes, le
+dialogue de la console, les copies juste, fausse et vide, le soutien qui ne
+révèle rien, et les modèles comparés à un vrai CPython.
+
+---
+
+## {python-if-cinema} — le prix d'une place de cinéma (6.7.4, Condition if else, BONUS)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
+condition if else, créer un exercice qui suit les images jointes ; respecter
+les consignes de présentation des autres exercices d'algo du sous-thème
+input ; mettre le dessin en premier ; dans la définition ne rien rajouter de
+plus, ainsi que dans les coups de pouce éventuels ; respecter les couleurs et
+présentations des exercices du sous-thème input ; ne rien écrire dans le
+cadre de la console ; mettre bonus dans le titre. » C'est l'« Exercice 2 »
+du carnet : le serpent au cinéma (« L'acteur est trop beau ! »), puis « Le
+prix d'une place de cinéma est de 6 € pour les mineurs et de 9 € pour les
+majeurs. Faire un programme qui demande l'âge de l'utilisateur et qui met le
+résultat dans la variable entière age ; si l'age est plus petit que 18 alors
+il affiche "Tu dois payer 6 €. " et sinon il affiche "Tu dois payer 9€." ».
+
+**Le sous-thème 6.7 « Condition if else » n'existait pas quand cet exercice
+a été écrit : il l'a créé, en 6.7.1. Mais {python-samoussa}, {python-if-else}
+puis {python-if-plus-grand}, écrits en même temps dans d'autres branches, l'ont
+créé eux aussi, et ont été fusionnés les premiers — chaque fois juste avant la
+fusion de celui-ci.** Ce qui est en ligne ne se renumérote pas :
+{python-if-else} ouvre le 6.7, {python-samoussa} le suit en 6.7.2,
+{python-if-plus-grand} en 6.7.3, le cinéma passe en 6.7.4 (APP_VERSION 463 ;
+451, 457, 460, 461 puis 462 pris sur `main` pendant les bancs). Les exercices du 6.7 avaient été bâtis sur le même modèle
+({python-input-prix}) : git a entrelacé leurs blocs ligne à ligne, si bien
+que la fusion n'a pas été résolue conflit par conflit — les quatre fichiers
+ont été repris de `main`, et le cinéma regreffé pièce par pièce depuis la
+branche, chaque pièce vérifiée identique à sa source. Huit contrôles
+d'exercices du 6.6 exigeaient que le 6.6 soit le DERNIER sous-thème : ils
+exigent qu'il reste le SIXIÈME (la même adaptation a été faite des deux
+côtés).
+
+**La présentation est celle de {python-for-images}** : le dessin seul dans
+`#pciInstr` (découpé dans la capture, WebP de 17 Ko, `PCI_IMG`) ; l'énoncé
+de la fiche, mot pour mot (« l'age » sans accent compris, et les espaces des
+deux phrases à afficher, « 6 €. " » et « 9€." »), dans un cadre `.pyn-etape`
+en gras qui enveloppe la cellule, « Exécuter » et la console ; ses deux
+puces séparées par un trait, comme sur la fiche. **La fiche n'a ni
+définition ni coup de pouce : l'écran n'en a pas** (exception déclarée,
+`pythonAvant.sans`), et le rappel (`RAP_PCI`) ne redit que la consigne. La
+console vide reste un cadre vide (`#pciConsole` rejoint `content:none`).
+
+**Le dialogue est celui de {python-input-prix}** : « Exécuter » pose la
+question du programme dans la console, l'élève y tape l'âge et Entrée. À la
+vérification, la console montre deux des exécutions du juge : 15 ans, puis
+la frontière, 18 ans.
+
+**Le juge (`pciDiag`) exécute la copie sous quatre âges** (`PCI_AGES` : 15,
+30, 17, 18) : une question, rangée dans `age`, ENTIÈRE ; à chaque âge UNE
+phrase, « Tu dois payer N € » — lue réduite à ses lettres et chiffres, si
+bien que « 9€. », « 9 €. », « 9 euros » et `print("Tu dois payer", 9, "€.")`
+valent pareil ; et un `if` dans le programme. **18 ans est la frontière :
+à 18 ans on est majeur**, et c'est l'âge qui trahit `age <= 18`. Nommés :
+`int` oublié (Python ne compare pas un texte à 18), `float` à la place, la
+réponse hors de `age`, l'input muet, aucune ou deux questions, `age <= 18`,
+les prix échangés, le même prix à tout âge, les deux phrases à la fois (le
+`else` oublié ou le print sorti du bloc), une autre phrase, rien d'affiché à
+un âge, un autre prix ; « si », « sinon », « alors » écrits en français ; et
+les erreurs d'écriture d'un `if` (les deux-points, le retrait, un `else`
+sans `if`) dans les mots de l'interpréteur.
+
+**La séance** : la fiche épinglée (6 € et 9 €), puis d'autres prix
+(`PCI_PRIX`, `[mineurs, majeurs]`) tirés par `distinctes()` ;
+`dmNbQuestions()` l'allonge. Le programme voyage dans `q.prog` et compte
+pour UNE case (`pts-case`). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Contrôle :
+`pythonIfCinema` (banc principal) — la place, le titre, le tirage
+(300 séances), le juge sur 8 copies justes et 20 fausses, chacune avec le
+mot qui la nomme, l'écran tenu aux consignes, le dialogue de la console, les
+copies juste, fausse et vide, le soutien qui ne révèle rien, et les modèles
+comparés à un vrai CPython. La visite universelle (section 9) l'ouvre dans
+les deux modes.
+
+## {python-if-location} — je loue une voiture (6.7.5, Condition if else)
 
 **L'exercice 6 du carnet sur la condition.** {python-if-location} (Seconde,
-6.7.2, APP_VERSION 461 — 449 à 460 prises sur `main` pendant ses bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+6.7.5, APP_VERSION 464 — 449 à 463 prises sur `main` pendant ses bancs —, demande de Turquet, octobre 2026 : « en seconde dans
 le sous-thème "condition if else", créer un exercice qui suit les images
 jointes ; respecter les consignes de présentation des autres exercices d'algo
 du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
@@ -5697,8 +5882,9 @@ kilomètres, 0,70 €/km au-delà —, puis « Écrire un programme en python qu
 demande le nombre entier de kilomètres dans la variable `kilometre`, calcule
 le prix dans la variable `prix` par un if puis un else, et l'affiche ; quatre
 coups de pouce. Le sous-thème 6.7 « Condition if else » a été créé sur `main` pendant ses
-bancs, avec {python-samoussa} : celui-ci le rejoint en 6.7.2 — rien n'est
-renuméroté.
+bancs, et quatre exercices y sont entrés ({python-if-else}, {python-samoussa},
+{python-if-plus-grand}, {python-if-cinema}) : celui-ci le ferme en 6.7.5 —
+rien n'est renuméroté.
 
 **La présentation est celle du 6.3.9 et du 6.6.10** : le dessin seul dans
 `#ploInstr` (découpé dans la capture, 376 × 376, WebP de 17 Ko, `PLO_IMG`) ;
