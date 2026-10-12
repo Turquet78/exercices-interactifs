@@ -1301,7 +1301,7 @@ lire chaque nombre de départ contre la borne — et exige que la borne soit
 atteinte, sans quoi elle ne mesurerait qu'un tirage trop étroit.
 
 **Puis la Première a perdu ses nombres négatifs — 4.1, quatrième écart
-(octobre 2026, v302).** Demande de Turquet : « ne pas avoir de résultat
+(octobre 2026, v303).** Demande de Turquet : « ne pas avoir de résultat
 intermédiaire ou final négatif ». Deux types en donnaient. {meme-sub} tirait
 deux numérateurs DISTINCTS, dans n'importe quel ordre : 1/5 − 4/5 sortait une
 fois sur deux. Il tire désormais n1 > n2. {diff-sub-entier} était pire : sur
