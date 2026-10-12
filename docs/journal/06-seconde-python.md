@@ -5556,7 +5556,7 @@ CPython. Pas de section propre au banc navigateur : la visite universelle
 ## {python-samoussa} — le prix des samoussas (6.7.1, Condition if else)
 
 **L'exercice 3 du carnet sur la condition.** {python-samoussa} (Seconde,
-6.7.1, APP_VERSION 456 — 449 à 455 pris sur `main` pendant les bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+6.7.1, APP_VERSION 457 — 449 à 456 pris sur `main` pendant les bancs —, demande de Turquet, octobre 2026 : « en seconde dans
 le sous-thème "condition if else", créer un exercice qui suit les images
 jointes ; respecter les consignes de présentation des autres exercices d'algo
 du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
