@@ -5681,3 +5681,66 @@ séances), le juge sur cinq copies justes et quinze fausses, l'écran tenu aux
 consignes, la copie juste, fausse et vide, le soutien qui ne révèle rien, et
 les modèles comparés à un vrai CPython. Pas de section propre au banc
 navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-if-else} — la condition if … else (6.7.1, Condition if else)
+
+**Un sous-thème neuf, et la fiche « 1/ Définition d'une condition if age <
+18 : … else … ».** {python-if-else} (Seconde, 6.7.1, APP_VERSION 461 — 449 à 460 pris sur `main` pendant les bancs —, demande
+de Turquet, octobre 2026 : « en seconde dans le sous thème "condition if
+else", créer un exercice qui suit les images jointes. Il faudra respecter
+les consignes de présentation des autres exercices d'algo du sous-thème
+"input". mettre le dessin en premier, dans la définition ne rien rajouter
+de plus ainsi que dans les coups de pouce éventuels […] ne rien écrire dans
+le cadre de la console » ; « mettre bonus dans le titre », aussitôt repris :
+« ne pas écrire bonus dans le titre »). Le sous-thème 6.7 « Condition if
+else » n'existait pas au départ de la branche ; **pendant les bancs,
+{python-samoussa} l'a créé sur `main`** (même nom, même numéro). À la
+fusion, la fiche « 1/ Définition » l'ouvre en 6.7.1, et {python-samoussa}
+passe en 6.7.2 — son contrôle de place exige désormais de suivre
+celui-ci ; rien d'autre n'est renuméroté.
+
+**La présentation est celle du 6.6.6** : le dessin de la fiche (le serpent
+boudeur, « Si tu travailles alors je suis content sinon je fais la tête »,
+découpé tel quel avec son fond crème, WebP de 16 Ko, `PCE_IMG`) dans
+`#pceFig`, EN PREMIER et à chaque question ; la définition dans `#pceAvant`
+(le cadre orange `.pii-def`), au PREMIER écran seulement, en ses deux
+colonnes comme la capture — le code colorié (if/else en vert gras, `<` en
+violet, 18 en vert, les textes en rouge), « signifie: », la traduction
+si … alors … sinon. Rien n'y est ajouté ; seule la coquille « Tu est
+mineur. » du côté Python devient « Tu es mineur. », comme sa traduction.
+Puis la question dans un cadre `.pyn-etape` EN GRAS (« Faire un programme »,
+les deux puces, « Rappel: … = int ( input (" ... ")) »), qui enveloppe les
+DEUX coups de pouce repliés (mot pour mot, à la variable et au seuil de la
+question), la cellule, « Exécuter » et la console. Cellule sans texte
+d'attente, console vide (`#pceConsole` rejoint `content:none`). La console
+pose la question du programme et l'élève y répond (le dialogue du 6.3.4).
+Le rappel (`RAP_PCE`) ne dit que la définition.
+
+**Le juge (`pceDiag`) EXÉCUTE la copie sous quatre réponses** que l'élève ne
+voit pas : seuil − 3, seuil − 1, le seuil, seuil + 5. Il exige un input rangé
+dans la variable de la question, ENTIER, avec sa question ; un `if` et un
+`else` ; et à chaque exécution UNE ligne, la bonne phrase (casse, espaces,
+guillemets et point final indifférents). Nommés : `If`/`Else` en majuscule,
+`=` dans le if, input sans int (« Python ne compare pas un texte avec
+18 »), float, aucune ou deux questions, la mauvaise variable, l'invite
+vide, les guillemets typographiques, les deux phrases affichées (print hors
+du bloc), rien affiché au-dessus du seuil (le else oublié), les phrases
+inversées, `<=` (le seuil dit « mineur »), un autre nombre dans la
+condition, une phrase fausse, et la copie juste écrite avec deux if sans
+else. À la vérification, la console montre l'exécution sur la réponse qui
+a trahi la copie (« la page a répondu « 18 » »).
+
+**La séance** : la fiche épinglée (age, 18), puis d'autres situations
+(`PCE_SITUATIONS` : note/10, taille/140, température/0, heure/12,
+points/100) tirées par `distinctes()` ; `dmNbQuestions()` l'allonge. Le
+programme voyage dans `q.prog` et compte pour UNE case. Pas de correction
+au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables.
+Contrôle : `pythonIfElse` (banc principal) — la place, le titre sans
+« Bonus », le tirage (300 séances), le juge sur 4 copies justes et 17
+fausses, l'écran (dessin en premier, définition et énoncé mot pour mot,
+coups de pouce repliés, cellule et console vides, la console qui pose la
+question), les copies juste, fausse et vide, le soutien qui ne révèle rien,
+et les modèles comparés à un vrai CPython sous les quatre réponses (un
+`input` de remplacement écrit la réponse, comme la console de la page).
