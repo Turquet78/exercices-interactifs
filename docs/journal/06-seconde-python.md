@@ -5684,7 +5684,116 @@ navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
 
 ---
 
-## Jouons à pile ou face — {python-pile-face} (6.7.2, Condition if else)
+## {python-if-else} — la condition if … else (6.7.1, Condition if else)
+
+**Un sous-thème neuf, et la fiche « 1/ Définition d'une condition if age <
+18 : … else … ».** {python-if-else} (Seconde, 6.7.1, APP_VERSION 461 — 449 à 460 pris sur `main` pendant les bancs —, demande
+de Turquet, octobre 2026 : « en seconde dans le sous thème "condition if
+else", créer un exercice qui suit les images jointes. Il faudra respecter
+les consignes de présentation des autres exercices d'algo du sous-thème
+"input". mettre le dessin en premier, dans la définition ne rien rajouter
+de plus ainsi que dans les coups de pouce éventuels […] ne rien écrire dans
+le cadre de la console » ; « mettre bonus dans le titre », aussitôt repris :
+« ne pas écrire bonus dans le titre »). Le sous-thème 6.7 « Condition if
+else » n'existait pas au départ de la branche ; **pendant les bancs,
+{python-samoussa} l'a créé sur `main`** (même nom, même numéro). À la
+fusion, la fiche « 1/ Définition » l'ouvre en 6.7.1, et {python-samoussa}
+passe en 6.7.2 — son contrôle de place exige désormais de suivre
+celui-ci ; rien d'autre n'est renuméroté.
+
+**La présentation est celle du 6.6.6** : le dessin de la fiche (le serpent
+boudeur, « Si tu travailles alors je suis content sinon je fais la tête »,
+découpé tel quel avec son fond crème, WebP de 16 Ko, `PCE_IMG`) dans
+`#pceFig`, EN PREMIER et à chaque question ; la définition dans `#pceAvant`
+(le cadre orange `.pii-def`), au PREMIER écran seulement, en ses deux
+colonnes comme la capture — le code colorié (if/else en vert gras, `<` en
+violet, 18 en vert, les textes en rouge), « signifie: », la traduction
+si … alors … sinon. Rien n'y est ajouté ; seule la coquille « Tu est
+mineur. » du côté Python devient « Tu es mineur. », comme sa traduction.
+Puis la question dans un cadre `.pyn-etape` EN GRAS (« Faire un programme »,
+les deux puces, « Rappel: … = int ( input (" ... ")) »), qui enveloppe les
+DEUX coups de pouce repliés (mot pour mot, à la variable et au seuil de la
+question), la cellule, « Exécuter » et la console. Cellule sans texte
+d'attente, console vide (`#pceConsole` rejoint `content:none`). La console
+pose la question du programme et l'élève y répond (le dialogue du 6.3.4).
+Le rappel (`RAP_PCE`) ne dit que la définition.
+
+**Le juge (`pceDiag`) EXÉCUTE la copie sous quatre réponses** que l'élève ne
+voit pas : seuil − 3, seuil − 1, le seuil, seuil + 5. Il exige un input rangé
+dans la variable de la question, ENTIER, avec sa question ; un `if` et un
+`else` ; et à chaque exécution UNE ligne, la bonne phrase (casse, espaces,
+guillemets et point final indifférents). Nommés : `If`/`Else` en majuscule,
+`=` dans le if, input sans int (« Python ne compare pas un texte avec
+18 »), float, aucune ou deux questions, la mauvaise variable, l'invite
+vide, les guillemets typographiques, les deux phrases affichées (print hors
+du bloc), rien affiché au-dessus du seuil (le else oublié), les phrases
+inversées, `<=` (le seuil dit « mineur »), un autre nombre dans la
+condition, une phrase fausse, et la copie juste écrite avec deux if sans
+else. À la vérification, la console montre l'exécution sur la réponse qui
+a trahi la copie (« la page a répondu « 18 » »).
+
+**La séance** : la fiche épinglée (age, 18), puis d'autres situations
+(`PCE_SITUATIONS` : note/10, taille/140, température/0, heure/12,
+points/100) tirées par `distinctes()` ; `dmNbQuestions()` l'allonge. Le
+programme voyage dans `q.prog` et compte pour UNE case. Pas de correction
+au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables.
+Contrôle : `pythonIfElse` (banc principal) — la place, le titre sans
+« Bonus », le tirage (300 séances), le juge sur 4 copies justes et 17
+fausses, l'écran (dessin en premier, définition et énoncé mot pour mot,
+coups de pouce repliés, cellule et console vides, la console qui pose la
+question), les copies juste, fausse et vide, le soutien qui ne révèle rien,
+et les modèles comparés à un vrai CPython sous les quatre réponses (un
+`input` de remplacement écrit la réponse, comme la console de la page).
+
+## {python-if-plus-grand} — le plus grand des deux nombres (6.7.3, Condition if else)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous thème
+"condition if else", créer un exercice qui suit les images jointes […]
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème "input". Mettre le dessin en premier, dans la définition ne rien
+rajouter de plus ainsi que dans les coups de pouce éventuels […] ne rien
+écrire dans le cadre de la console. » Le sous-thème n'existait pas quand
+l'exercice a été écrit, et une autre branche l'a créé en même temps avec
+{python-samoussa}, puis {python-if-else} est venu l'ouvrir : à la fusion,
+celui-ci passe **derrière eux, en 6.7.3** — rien n'est renuméroté.
+
+**La présentation est celle de {python-for-nom}** : le dessin seul dans
+`#pxyInstr` (les deux serpents, « Je suis le plus grand ! », découpé dans la
+capture, le fond crème rendu transparent depuis les bords, WebP de 19 Ko,
+`PXY_IMG`) ; la question dans un cadre `.pyn-etape`, en gras, qui enveloppe
+les deux coups de pouce, la cellule, « Exécuter » et la console. **L'énoncé
+est celui de la fiche, mot pour mot**, son « Rappel » compris (il fait partie
+de l'exercice, pas d'une définition : sa ligne garde les graisses de la
+fiche, `.pxy-rappel`). Deux coquilles corrigées, rien d'ajouté : « un nombre
+décimal » (la fiche écrit « décimale ») et la parenthèse fermante qui
+manquait au coup de pouce 1. Aucune définition (exception déclarée,
+`pythonAvant.sans`), le rappel de cours (`RAP_PXY`) ne redit que le Rappel
+de la fiche ; la console vide reste un cadre vide (`#pxyConsole` rejoint
+`content:none`).
+
+**Le juge (`pxyDiag`) « teste plusieurs fois » à la place de l'élève** :
+la copie s'exécute sous quatre paires (`PXY_EX`) — le plus grand en second,
+en premier, deux négatifs, deux égaux. Il faut deux `input` avec leur
+question, les réponses rangées EN NOMBRES dans les deux variables de
+l'énoncé, et une sortie qui porte le plus grand et jamais le plus petit (le
+texte de la phrase est libre, le nombre seul suffit). Nommés : `float`
+oublié (la variable contient un texte), `int` (3.5 refusé), la virgule
+française, une ou trois questions, l'input muet, une autre variable que
+celle de l'énoncé, les deux nombres affichés, le plus petit affiché, la
+variable entre guillemets, un print juste dans une seule branche, rien
+d'affiché, les guillemets typographiques.
+
+**La séance** : la fiche épinglée (`x` et `y`), puis d'autres paires de
+variables (`PXY_VARS`) tirées par `distinctes()` ; `dmNbQuestions()`
+l'allonge. Le programme voyage dans `q.prog` et compte pour UNE case
+(`pts-case`). Pas de correction au fil de la frappe (`soutienEnDirect.sans`),
+pas de bouton des tables. Contrôle : `pythonIfPlusGrand` (banc principal) —
+la place, le tirage (300 séances), le juge sur 5 copies justes et 14
+fausses, chacune avec le mot qui la nomme, l'écran tenu aux consignes, le
+dialogue de la console, les copies juste, fausse et vide, le soutien qui ne
+révèle rien, et les modèles comparés à un vrai CPython.
+
+## Jouons à pile ou face — {python-pile-face} (6.7.4, Condition if else)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous theme
 "condition if else", créer un exercice qui suit les images jointes […]
@@ -5693,9 +5802,9 @@ thème "input". mettre le dessin en premier, dans la définition ne rien
 rajouter de plus ainsi que dans les coups de pouces eventuels […] ne rien
 écrire dans le cadre de la console. » La fiche est l'« Exercice 7 » du
 carnet, envoyée en trois fois (a), puis b) à e), puis f)). Créé en même temps
-que {python-samoussa} (l'exercice 3 du carnet), qui a ouvert le sous-thème
-6.7 sur `main` pendant les bancs : il le suit, en 6.7.2 (APP_VERSION 461 —
-449 à 460 pris sur `main`), rien n'est renuméroté. Les contrôles du 6.6 qui
+que {python-if-else}, {python-samoussa} et {python-if-plus-grand}, qui ont
+ouvert le sous-thème 6.7 sur `main` pendant les bancs : il le ferme, en 6.7.4
+(APP_VERSION 463 — 449 à 462 pris sur `main`), rien n'est renuméroté. Les contrôles du 6.6 qui
 exigeaient « le dernier sous-thème » avaient été corrigés des deux côtés :
 c'est la version de `main` qui reste.
 
