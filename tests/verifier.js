@@ -26022,9 +26022,9 @@ function pythonForMultiples(w, P){
   const nom = '{python-for-multiples} : les multiples avec une boucle for';
   if(!P.pythonForMultiples){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la boucle for'); return; }
   const ID = P.pythonForMultiples.exercice, NB = P.pythonForMultiples.nb, NUM = P.pythonForMultiples.numero;
-  const present = evaluer(w, "typeof startPFM==='function' && typeof pfmBuildQuestions==='function' && typeof pfmDiag==='function' && typeof pfmVerdictB==='function'");
+  const present = evaluer(w, "typeof startPFQ==='function' && typeof pfqBuildQuestions==='function' && typeof pfqDiag==='function' && typeof pfqVerdictB==='function'");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'startPFM / pfmBuildQuestions / pfmDiag / pfmVerdictB introuvables alors que tests/profils.js déclare l\'exercice'); return;
+    verifier(nom, false, 'startPFQ / pfqBuildQuestions / pfqDiag / pfqVerdictB introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
   /* ---- 1. la place au menu ---- */
@@ -26039,7 +26039,7 @@ function pythonForMultiples(w, P){
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
-    if(!RAPPELS.pfm||RAPPELS.pfm.indexOf("range ( 11 )")<0||RAPPELS.pfm.indexOf("print (2*k)")<0) vus.push("le rappel ne porte pas le programme de la fiche");
+    if(!RAPPELS.pfq||RAPPELS.pfq.indexOf("range ( 11 )")<0||RAPPELS.pfq.indexOf("print (2*k)")<0) vus.push("le rappel ne porte pas le programme de la fiche");
     return vus.join(" | ");
   })()`, v => v === '');
 
@@ -26047,21 +26047,21 @@ function pythonForMultiples(w, P){
   verifierEval(w, 'la séance : ' + NB + ' questions, la fiche d’abord (range ( 11 ), 2*k ; les multiples de 5 de 0 à 50), puis des situations distinctes ; chaque programme du a) s’exécute et affiche les multiples annoncés (300 séances)', `(function(){
     const vus=[], NL=String.fromCharCode(10);
     for(let s=0;s<300&&vus.length<4;s++){
-      const qs=pfmBuildQuestions();
+      const qs=pfqBuildQuestions();
       if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
-      const S0=pfmSit(qs[0]);
+      const S0=pfqSit(qs[0]);
       if(S0.n!==11||S0.a!==2||S0.m!==5||S0.f!==50){ vus.push("la fiche n’ouvre pas la séance"); break; }
       if(new Set(qs.map(function(q){ return q.s; })).size!==qs.length){ vus.push("deux fois la même situation"); break; }
       if(qs.some(function(q){ return q.vu!==false||q.bOk!==null||q.cOk!==null||q.etape!=="b"; })){ vus.push("une question ne part pas du a)"); break; }
     }
-    PFM_SITUATIONS.forEach(function(S, i){
-      const q={s:i}, x=ptrEssai(pfmProg(q));
-      if(x.err||x.r.out!==pfmAffichesA(q).join(NL)+NL) vus.push("programme "+i+" : "+JSON.stringify(x.err?x.err.message:x.r.out));
+    PFQ_SITUATIONS.forEach(function(S, i){
+      const q={s:i}, x=ptrEssai(pfqProg(q));
+      if(x.err||x.r.out!==pfqAffichesA(q).join(NL)+NL) vus.push("programme "+i+" : "+JSON.stringify(x.err?x.err.message:x.r.out));
       if(S.a===S.m) vus.push("situation "+i+" : le c) demande les multiples du a)");
       if(S.f%S.m!==0) vus.push("situation "+i+" : "+S.f+" n’est pas un multiple de "+S.m);
-      if(!pfmDiag(pfmModeleC(q), q).ok) vus.push("situation "+i+" : le programme modèle du c) est refusé");
+      if(!pfqDiag(pfqModeleC(q), q).ok) vus.push("situation "+i+" : le programme modèle du c) est refusé");
     });
-    if(pfmProg({s:0})!=="for k in range ( 11 ):"+NL+"    print (2*k)") vus.push("le programme n’est pas celui de la fiche : "+JSON.stringify(pfmProg({s:0})));
+    if(pfqProg({s:0})!=="for k in range ( 11 ):"+NL+"    print (2*k)") vus.push("le programme n’est pas celui de la fiche : "+JSON.stringify(pfqProg({s:0})));
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
@@ -26069,7 +26069,7 @@ function pythonForMultiples(w, P){
   verifierEval(w, 'le juge du c) : les copies justes passent (range ( 11 ) et 5*k, range(0,51,5), une phrase autour du nombre), chaque copie fausse est refusée avec le mot qui la nomme, la cellule vide est une copie vide', `(function(){
     const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0};
     ["for k in range ( 11 ):"+NL+"    print (5*k)", "for k in range(0,51,5):"+NL+"    print(k)", "for i in range(11):"+NL+"    print(i*5)", "for k in range(11):"+NL+"    print("+Q+"multiple :"+Q+", 5*k)"].forEach(function(t){
-      const d=pfmDiag(t, q); if(!d.ok) vus.push("refusé : "+JSON.stringify(t)+" — "+d.dits.join(" ")); });
+      const d=pfqDiag(t, q); if(!d.ok) vus.push("refusé : "+JSON.stringify(t)+" — "+d.dits.join(" ")); });
     let main=""; for(let k=0;k<=10;k++) main+="print("+(5*k)+")"+NL;
     [[ "for k in range(10):"+NL+"    print(5*k)", /il manque 50/ ],
      [ "for k in range(12):"+NL+"    print(5*k)", /une valeur de trop/ ],
@@ -26081,80 +26081,80 @@ function pythonForMultiples(w, P){
      [ "for k in range(11):"+NL+"    print(k)", /multiples de 5/ ],
      [ "for k in range(11):"+NL+"    x = 5*k", /n’affiche rien/ ],
      [ main, /une boucle for/ ]].forEach(function(c){
-      const d=pfmDiag(c[0], q); if(d.ok||d.vide||!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" : "+JSON.stringify(d)); });
-    if(!pfmDiag("  "+NL, q).vide) vus.push("la cellule vide n’est pas une copie vide");
+      const d=pfqDiag(c[0], q); if(d.ok||d.vide||!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" : "+JSON.stringify(d)); });
+    if(!pfqDiag("  "+NL, q).vide) vus.push("la cellule vide n’est pas une copie vide");
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
   /* ---- 4. l'écran, tenu aux consignes du sous-thème Input ---- */
   verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni coup de pouce ; le a) seul, en gras dans son cadre, la console VIDE, « Vérifier » fermé ; « Exécuter » remplit la console et ouvre le b) sous le a) ; l’explication vide ne part pas, l’explication part au modèle avec la règle de décision', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
-    startPFM();
+    startPFQ();
     const vus=[], NL=String.fromCharCode(10);
     if(test.maxScore!==2*${NB}) vus.push("barème "+test.maxScore);
-    const ins=document.getElementById("pfmInstr"), fig=ins&&ins.querySelector("img");
+    const ins=document.getElementById("pfqInstr"), fig=ins&&ins.querySelector("img");
     if(!fig||!/^data:image.webp/.test(fig.getAttribute("src")||"")||!/0, 5, 10, 15/.test(fig.alt)) vus.push("pas de dessin de la fiche en tête");
     if(ins&&(ins.textContent||"").trim()) vus.push("l’énoncé du haut porte du texte : "+ins.textContent.trim());
-    if(document.querySelector("#scr-pfm .py-avant, #scr-pfm .pii-def, #pfmHost details.pyd-pouce, #pfmHost .pyp-regle, #scr-pfm .py-hint")) vus.push("une définition, un coup de pouce ou une consigne est écrit sur l’écran");
-    const ta0=document.querySelector("#pfmEtapeA .pyn-titre");
+    if(document.querySelector("#scr-pfq .py-avant, #scr-pfq .pii-def, #pfqHost details.pyd-pouce, #pfqHost .pyp-regle, #scr-pfq .py-hint")) vus.push("une définition, un coup de pouce ou une consigne est écrit sur l’écran");
+    const ta0=document.querySelector("#pfqEtapeA .pyn-titre");
     if(!ta0||ta0.textContent.trim()!=="✏️ a) Exécuter le nouveau programme ci-dessous."||!ta0.querySelector("b")) vus.push("l’énoncé du a) : "+(ta0&&ta0.textContent));
-    if(!document.querySelector("#pfmEtapeA .py-code")||document.querySelector("#pfmEtapeA .py-code").textContent!=="for k in range ( 11 ):"+NL+"    print (2*k)") vus.push("le programme du a) n’est pas celui de la fiche");
-    const cons=document.getElementById("pfmConsole");
-    if(!cons||cons.textContent!==""||!document.getElementById("pfmEtapeA").contains(cons)) vus.push("la console n’est pas un cadre vide dans le a)");
-    if(document.getElementById("pfmEtapeB")||document.getElementById("pfmEtapeC")) vus.push("le b) ou le c) est ouvert avant l’exécution");
-    const v0=document.getElementById("pfmValidate"); if(!v0||!v0.disabled) vus.push("Vérifier est actif avant l’exécution");
-    pfmExecuter();
+    if(!document.querySelector("#pfqEtapeA .py-code")||document.querySelector("#pfqEtapeA .py-code").textContent!=="for k in range ( 11 ):"+NL+"    print (2*k)") vus.push("le programme du a) n’est pas celui de la fiche");
+    const cons=document.getElementById("pfqConsole");
+    if(!cons||cons.textContent!==""||!document.getElementById("pfqEtapeA").contains(cons)) vus.push("la console n’est pas un cadre vide dans le a)");
+    if(document.getElementById("pfqEtapeB")||document.getElementById("pfqEtapeC")) vus.push("le b) ou le c) est ouvert avant l’exécution");
+    const v0=document.getElementById("pfqValidate"); if(!v0||!v0.disabled) vus.push("Vérifier est actif avant l’exécution");
+    pfqExecuter();
     const att=[]; for(let k=0;k<=10;k++) att.push(String(2*k));
-    if(document.getElementById("pfmConsole").textContent!==att.join(NL)) vus.push("la console : "+JSON.stringify(document.getElementById("pfmConsole").textContent));
-    if(!document.getElementById("pfmEtapeA")||document.getElementById("pfmRun")) vus.push("le a) a disparu, ou garde son bouton");
-    const tb=document.querySelector("#pfmEtapeB .pyn-titre");
+    if(document.getElementById("pfqConsole").textContent!==att.join(NL)) vus.push("la console : "+JSON.stringify(document.getElementById("pfqConsole").textContent));
+    if(!document.getElementById("pfqEtapeA")||document.getElementById("pfqRun")) vus.push("le a) a disparu, ou garde son bouton");
+    const tb=document.querySelector("#pfqEtapeB .pyn-titre");
     if(!tb||tb.textContent.trim()!=="✏️ b) Expliquer ce que fait ce programme.") vus.push("l’énoncé du b) : "+(tb&&tb.textContent));
-    const am=document.querySelector("#pfmEtapeB .pfm-amorce");
+    const am=document.querySelector("#pfqEtapeB .pfq-amorce");
     if(!am||!/^Votre réponse ✍️/.test(am.textContent)) vus.push("pas de « Votre réponse ✍️ »");
-    if(document.getElementById("pfmEtapeC")) vus.push("le c) est ouvert avant le b)");
-    const ta=document.getElementById("pfm-exp");
+    if(document.getElementById("pfqEtapeC")) vus.push("le c) est ouvert avant le b)");
+    const ta=document.getElementById("pfq-exp");
     if(!ta||!ta.classList.contains("pts-case")) vus.push("l’explication n’est pas une pts-case");
     const sbAvant=sb; let envoye=null;
     sb={functions:{invoke:function(n,o){ envoye=o&&o.body; return new Promise(function(){}); }}};
-    checkPFM();
-    if(envoye||ta.classList.contains("bad")||test.pfmBusy) vus.push("l’explication vide part ou rougit");
+    checkPFQ();
+    if(envoye||ta.classList.contains("bad")||test.pfqBusy) vus.push("l’explication vide part ou rougit");
     ta.value="il affiche les nombres pairs de 0 à 20";
     ta.dispatchEvent(new Event("input",{bubbles:true}));
-    checkPFM();
+    checkPFQ();
     sb=sbAvant;
     if(!envoye||envoye.action!=="verif"||envoye.reponse!==ta.value||!/RÈGLE DE DÉCISION/.test(envoye.attendu)||!/range \\( 11 \\)/.test(envoye.question)) vus.push("ce qui part au modèle : "+JSON.stringify(envoye));
-    test.pfmBusy=false;
+    test.pfqBusy=false;
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
   /* ---- 5. le trajet b) → c), la note ---- */
   verifierEval(w, 'le trajet : le b) juste se peint en bleu et ouvre « Passer au c) » ; le c) vide est redemandé sans rougir ; le c) juste vaut sa case ; la note compte 2 cases sur 2 ; la question suivante repart du a)', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
-    startPFM(); pfmExecuter();
-    const vus=[], NL=String.fromCharCode(10), ta=document.getElementById("pfm-exp");
+    startPFQ(); pfqExecuter();
+    const vus=[], NL=String.fromCharCode(10), ta=document.getElementById("pfq-exp");
     ta.value="les multiples de 2"; ta.dispatchEvent(new Event("input",{bubbles:true}));
-    pfmVerdictB({correct:true, feedback:"Bravo"}, ta.value);
+    pfqVerdictB({correct:true, feedback:"Bravo"}, ta.value);
     if(!ta.classList.contains("ok")||!ta.readOnly||test.score!==1) vus.push("le b) juste : "+ta.className+", note "+test.score);
-    if(document.getElementById("pfmFeedback").className.indexOf("good")<0) vus.push("le commentaire juste n’est pas vert");
-    if(!document.getElementById("pfmSuite")) vus.push("pas de « Passer au c) »");
-    pfmVersC();
-    const tc0=document.querySelector("#pfmEtapeC .pyn-titre");
+    if(document.getElementById("pfqFeedback").className.indexOf("good")<0) vus.push("le commentaire juste n’est pas vert");
+    if(!document.getElementById("pfqSuite")) vus.push("pas de « Passer au c) »");
+    pfqVersC();
+    const tc0=document.querySelector("#pfqEtapeC .pyn-titre");
     if(!tc0||!/c\\) Faire un programme dans la cellule ci-dessous qui affiche tous les multiples de 5 de 0 à 50\\./.test(tc0.textContent)) vus.push("l’énoncé du c) : "+(tc0&&tc0.textContent));
-    if(!document.getElementById("pfmEtapeA")||!document.getElementById("pfmEtapeB")||!document.getElementById("pfm-exp").classList.contains("ok")) vus.push("le a) et le b) ne restent pas au-dessus, peints");
-    const tc=document.getElementById("pfm-prog");
+    if(!document.getElementById("pfqEtapeA")||!document.getElementById("pfqEtapeB")||!document.getElementById("pfq-exp").classList.contains("ok")) vus.push("le a) et le b) ne restent pas au-dessus, peints");
+    const tc=document.getElementById("pfq-prog");
     if(!tc||tc.value!==""||tc.getAttribute("placeholder")) vus.push("la cellule du c) n’est pas vide, ou porte un texte d’attente");
-    if(document.getElementById("pfmConsoleC").textContent!=="") vus.push("la console du c) n’est pas vide");
-    checkPFM();
+    if(document.getElementById("pfqConsoleC").textContent!=="") vus.push("la console du c) n’est pas vide");
+    checkPFQ();
     if(tc.classList.contains("bad")||test.locked) vus.push("la cellule vide rougit ou verrouille");
     tc.value="for k in range ( 11 ):"+NL+"    print (5*k)"; tc.dispatchEvent(new Event("input",{bubbles:true}));
-    pfmExecuterC();
-    if(document.getElementById("pfmConsoleC").textContent.split(NL).length!==11) vus.push("la console du c) : "+document.getElementById("pfmConsoleC").textContent);
-    checkPFM();
+    pfqExecuterC();
+    if(document.getElementById("pfqConsoleC").textContent.split(NL).length!==11) vus.push("la console du c) : "+document.getElementById("pfqConsoleC").textContent);
+    checkPFQ();
     if(!tc.classList.contains("ok")||test.score!==2||!test.locked) vus.push("le c) juste : "+tc.className+", note "+test.score);
     const ans=test.answers[test.answers.length-1];
     if(!ans||ans.cases!==2||ans.justes!==2||!ans.correct) vus.push("la note ne compte pas 2 cases justes : "+JSON.stringify(ans));
-    nextPFM();
-    if(test.idx!==1||document.getElementById("pfm-exp")||document.getElementById("pfmConsole").textContent!=="") vus.push("la question suivante ne repart pas du a)");
+    nextPFQ();
+    if(test.idx!==1||document.getElementById("pfq-exp")||document.getElementById("pfqConsole").textContent!=="") vus.push("la question suivante ne repart pas du a)");
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
@@ -26162,39 +26162,39 @@ function pythonForMultiples(w, P){
   verifierEval(w, 'le faux : en entraînement le b) et le c) faux rougissent et la correction s’écrit en vert ; en soutien ils rougissent sans rien révéler et restent ouverts ; une vérification indisponible ne juge rien ; la reprise redessine l’étape', `(function(){
     const vus=[], NL=String.fromCharCode(10);
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
-    startPFM(); pfmExecuter();
-    let ta=document.getElementById("pfm-exp"); ta.value="il fait une boucle";
-    pfmVerdictB(null, ta.value);
+    startPFQ(); pfqExecuter();
+    let ta=document.getElementById("pfq-exp"); ta.value="il fait une boucle";
+    pfqVerdictB(null, ta.value);
     if(test.questions[0].bOk!==null||ta.classList.contains("bad")) vus.push("vérification indisponible : le b) est jugé");
-    pfmVerdictB({correct:false, feedback:"Pas encore"}, ta.value);
+    pfqVerdictB({correct:false, feedback:"Pas encore"}, ta.value);
     if(!ta.classList.contains("bad")||!ta.readOnly) vus.push("le b) faux ne rougit pas");
-    const mb=document.querySelector("#pfmModeleB .sol");
+    const mb=document.querySelector("#pfqModeleB .sol");
     if(!mb||!/multiples de 2 de 0 à 20/.test(mb.textContent)) vus.push("pas d’explication verte");
     if(test.score!==0) vus.push("le faux compte");
-    pfmVersC();
-    let tc=document.getElementById("pfm-prog"); tc.value="for k in range(10):"+NL+"    print(5*k)";
-    checkPFM();
+    pfqVersC();
+    let tc=document.getElementById("pfq-prog"); tc.value="for k in range(10):"+NL+"    print(5*k)";
+    checkPFQ();
     if(!tc.classList.contains("bad")||!test.locked) vus.push("le c) faux ne rougit pas");
-    const mc=document.querySelector("#pfmModeleC .sol");
+    const mc=document.querySelector("#pfqModeleC .sol");
     if(!mc||mc.textContent!=="for k in range ( 11 ):"+NL+"    print (5*k)") vus.push("pas de programme vert");
-    if(!/il manque 50/.test(document.getElementById("pfmFeedback").textContent)) vus.push("l’erreur n’est pas nommée");
+    if(!/il manque 50/.test(document.getElementById("pfqFeedback").textContent)) vus.push("l’erreur n’est pas nommée");
     const ans=test.answers[test.answers.length-1];
     if(!ans||ans.cases!==2||ans.justes!==0||ans.correct) vus.push("la note du faux : "+JSON.stringify(ans));
     /* la reprise : la question est rangée en JSON, et se redessine telle quelle */
     const sauve=JSON.parse(JSON.stringify(test.questions[0]));
-    test.questions[0]=sauve; renderPFM();
-    if(!document.getElementById("pfm-exp").classList.contains("bad")||!document.getElementById("pfm-prog").classList.contains("bad")||!document.getElementById("pfmNext")) vus.push("la reprise ne redessine pas la question finie");
-    currentMode="soutien"; startPFM(); pfmExecuter(); ta=document.getElementById("pfm-exp"); ta.value="il fait une boucle";
-    pfmVerdictB({correct:false, feedback:"Pas encore"}, ta.value);
+    test.questions[0]=sauve; renderPFQ();
+    if(!document.getElementById("pfq-exp").classList.contains("bad")||!document.getElementById("pfq-prog").classList.contains("bad")||!document.getElementById("pfqNext")) vus.push("la reprise ne redessine pas la question finie");
+    currentMode="soutien"; startPFQ(); pfqExecuter(); ta=document.getElementById("pfq-exp"); ta.value="il fait une boucle";
+    pfqVerdictB({correct:false, feedback:"Pas encore"}, ta.value);
     if(!ta.classList.contains("bad")||ta.readOnly||test.questions[0].bOk!==null) vus.push("soutien : le b) faux ne rougit pas, ou se fige");
-    if(document.querySelector("#pfmModeleB .sol")) vus.push("soutien : l’explication est révélée");
+    if(document.querySelector("#pfqModeleB .sol")) vus.push("soutien : l’explication est révélée");
     ta.value="les multiples de 2"; ta.dispatchEvent(new Event("input",{bubbles:true}));
     if(ta.classList.contains("bad")) vus.push("soutien : retaper ne retire pas le rouge");
-    pfmVerdictB({correct:true, feedback:"Bravo"}, ta.value); pfmVersC();
-    tc=document.getElementById("pfm-prog"); tc.value="for k in range(1,11):"+NL+"    print(5*k)";
-    checkPFM();
-    if(!tc.classList.contains("bad")||test.locked||document.querySelector("#pfmModeleC .sol")) vus.push("soutien : le c) faux se fige ou se révèle");
-    if(!/STRICTEMENT SECRÈTES/.test(ctxPfm(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    pfqVerdictB({correct:true, feedback:"Bravo"}, ta.value); pfqVersC();
+    tc=document.getElementById("pfq-prog"); tc.value="for k in range(1,11):"+NL+"    print(5*k)";
+    checkPFQ();
+    if(!tc.classList.contains("bad")||test.locked||document.querySelector("#pfqModeleC .sol")) vus.push("soutien : le c) faux se fige ou se révèle");
+    if(!/STRICTEMENT SECRÈTES/.test(ctxPfq(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
     currentMode="train";
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
@@ -26210,7 +26210,7 @@ function pythonForMultiples(w, P){
   }
   const paires = evaluer(w, `JSON.stringify((function(){
     const res=[];
-    PFM_SITUATIONS.forEach(function(S, i){ const q={s:i}; [pfmProg(q), pfmModeleC(q)].forEach(function(src){ res.push([src, ptrRun(src).out]); }); });
+    PFQ_SITUATIONS.forEach(function(S, i){ const q={s:i}; [pfqProg(q), pfqModeleC(q)].forEach(function(src){ res.push([src, ptrRun(src).out]); }); });
     return res;
   })())`);
   if(!paires.ok){ verifier(nomPy, false, 'les programmes ne s\'exécutent pas : ' + paires.erreur); return; }
