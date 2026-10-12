@@ -2999,3 +2999,14 @@ Le banc navigateur a rougi une fois, sur « le clavier mathématique est
 atteignable sur tout écran à champ mathématique » : `renderLQN` manquait à la
 liste des rendus enveloppés en fin de fichier (le point 9 des branchements),
 et l'écran n'avait donc pas la rangée « Insérer » ni son bouton ⌨️. Ajouté.
+
+**Puis V₀ s'est écrit avec la VALEUR de U₀ (5.1.5, v379).** Demande de
+Turquet : à la première ligne de « V₀ = … », l'élève qui écrit « 40 − 30 »
+(U₀ = 40, Vₙ = Uₙ − 30) fait exactement la soustraction du problème, et la
+case le rougissait — elle n'acceptait que l'expression en U₀. Elle accepte
+désormais une constante qui vaut V₀, écrite avec un signe moins et avec
+EXACTEMENT les deux nombres U₀ et k, et eux seuls : « 40 − 30 », « −30 + 40 »,
+« (40) − 30 » passent ; « 10 » (le résultat nu, qui est la case d'en
+dessous), « 40 − 20 − 10 » et l'ordre retourné « 30 − 40 » restent faux. À la
+question 2 (Vₙ = k − Uₙ), c'est « 30 − 40 » qui passe. Exécuté dans
+Chromium sur les deux formes, neuf écritures chacune.

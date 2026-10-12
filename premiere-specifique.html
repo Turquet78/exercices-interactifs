@@ -1271,7 +1271,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .ac-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
 .ac-sel:disabled{opacity:1;cursor:default}
 @media(max-width:560px){ .ac-phrase,.ac-c,.ac-sel{font-size:calc(1.15rem * var(--tab-nb,1))} .ac-sel{width:120px} }
-/* {tableau-probabilites} (3.2) et {lire-probabilites} (3.1) : le tableau à double entrée, les phrases et
+/* {tableau-probabilites} (3.3) et {lire-probabilites} (3.1) : le tableau à double entrée, les phrases et
    les fractions de lettres. Les nombres écrits du tableau et les cases où
    l'élève écrit ont la MÊME taille (1,5 rem) : une case plus petite que ses
    voisines passerait pour une note en bas de page. Les listes de lettres
@@ -1367,7 +1367,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* les phrases contraires : la liste prend la largeur de sa plus longue fin de phrase */
 .pb-sel.pb-mots{width:auto;min-width:96px;padding:0 14px;font-size:calc(1.1rem * var(--tab-nb,1))}
 @media(max-width:560px){ .pb-aff{width:84px;font-size:calc(1.1rem * var(--tab-nb,1))} .pb-tab th,.pb-tab td{padding:4px 5px} .pb-tab th{font-size:calc(.82rem * var(--tab-nb,1))} .pb-tab td{min-width:52px} .pb-phrase .mf-cor{white-space:normal} .pb-sel{width:84px;font-size:calc(1.1rem * var(--tab-nb,1))} }
-/* {probabilites-fiche} (3.3) : le 3.1 présenté COMME UNE FICHE PAPIER —
+/* {probabilites-fiche} (3.4) : le 3.1 présenté COMME UNE FICHE PAPIER —
    toutes les questions sur une page, chaque réponse rédigée sur UNE ligne,
    et le tableau TOUJOURS À L'ÉCRAN : il reste collé en haut pendant que la
    page défile (sticky). Les cases sont un peu plus petites qu'au 3.1, pour
@@ -1401,7 +1401,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #pbHost .pbf-q math-field.pm-mf{font-size:calc(1.3rem * var(--tab-nb,1));min-width:46px}
 #pbHost .pbf-q .f-fbar{height:3px}
 #pbHost .pbf-q .f-eq{font-size:calc(1.3rem * var(--tab-nb,1))}
-/* {probabilites-ecriture} (3.4) : la ligne SANS phrase — numéro, nom écrit
+/* {probabilites-ecriture} (3.2) : la ligne SANS phrase — numéro, nom écrit
    par la page, = lettres = effectifs. Sur un écran large, deux colonnes :
    chaque ligne fait moins de 400 px, une colonne gâcherait la moitié de
    l'écran. */
@@ -1423,10 +1423,10 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* LA CASE DE L'INDICE DE P EST PLUS ÉTROITE ET PLUS PETITE que les autres
    (demande de Turquet, octobre 2026, v294) : c'est un indice, il s'écrit en
    petit sous la ligne, comme sur papier. Elle vaut pour les trois exercices
-   du moteur (3.1, 3.2, 3.3) ; la vitrine (.pb-aff) suit la même taille. */
+   du moteur (3.1, 3.3, 3.4) ; la vitrine (.pb-aff) suit la même taille. */
 #pbHost .pb-ind .pb-sel,#pbHost .pb-ind .pb-aff{width:52px;height:30px;font-size:calc(.95rem * var(--tab-nb,1))}
 #pbHost .pb-ind .pb-sel{padding:0 2px;border-radius:8px}
-/* 3.3 : l'indice « tout » choisi — la case devient transparente, presque
+/* 3.4 : l'indice « tout » choisi — la case devient transparente, presque
    invisible (voir pbAffMaj) ; elle reste cliquable pour changer d'avis */
 #pbHost .pb-case.pb-transp .pb-sel{background:transparent;border-color:rgba(187,208,247,.35);box-shadow:none}
 #pbHost .pb-case.pb-transp .pb-aff{opacity:.22}
@@ -2446,7 +2446,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
       <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="rvfLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr">Pour chaque question, choisis d&rsquo;abord la <b>r&egrave;gle</b>, puis compl&egrave;te le r&eacute;sultat en <b>fraction</b>. Une seule fraction &agrave; chaque fois, jamais r&eacute;duite plus qu&rsquo;il ne faut.</p>
+      <p class="mp-instr">Pour chaque question, choisis d&rsquo;abord la <b>r&egrave;gle</b>, puis compl&egrave;te le r&eacute;sultat en <b>fraction</b>. Si ce r&eacute;sultat peut se <b>simplifier</b>, compl&egrave;te la division du num&eacute;rateur et du d&eacute;nominateur par le m&ecirc;me nombre, puis &eacute;cris la fraction simplifi&eacute;e &mdash; et recommence tant qu&rsquo;elle se simplifie encore.</p>
       <div class="mp-stage"><div style="width:100%" id="rvfHost"></div></div>
       <div class="mp-feedback" id="rvfFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
@@ -2455,7 +2455,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     </div>
   </section>
 
-  <!-- TEST : PROBABILITÉS — {lire-probabilites} (3.1), TABLEAU À DOUBLE ENTRÉE (3.2) et {probabilites-fiche} (3.3), un même écran -->
+  <!-- TEST : PROBABILITÉS — {lire-probabilites} (3.1), TABLEAU À DOUBLE ENTRÉE (3.3) et {probabilites-fiche} (3.4), un même écran -->
   <section class="screen" id="scr-pbtest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPb"></span><span class="q-idx" id="pbIdx">Question 1 / 13</span></span>
@@ -2713,7 +2713,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=302;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=303;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3206,7 +3206,9 @@ const THEMES=[
   ] },
   /* Demande de Turquet, octobre 2026 : le tableau à double entrée de sa fiche
      « proba 1 ». */
-  { num:3, nom:'Probabilit\u00e9s', ids:['lire-probabilites','tableau-probabilites','probabilites-fiche','probabilites-ecriture'] },
+  /* Ordre revu par Turquet, octobre 2026 : {probabilites-ecriture} (d'abord
+     3.4) remonte entre {lire-probabilites} et {tableau-probabilites}. */
+  { num:3, nom:'Probabilit\u00e9s', ids:['lire-probabilites','probabilites-ecriture','tableau-probabilites','probabilites-fiche'] },
   /* Demande de Turquet, octobre 2026 : « mettre l'exercice de seconde 5.11 en
      première dans un nouveau thème fraction ». Ajouté EN DERNIER, il ne
      renumérote rien. {somme-fractions} reste dans le calcul mental : un
@@ -4880,6 +4882,8 @@ function restoreBoxes(boxes){
     if(id.charAt(0)==='#'){ const el=sansId[parseInt(id.slice(1),10)]; if(el) el.value=boxes[id]; return; }
     const el=$(id); if(el && (el.tagName==='INPUT'||el.tagName==='MATH-FIELD')){ el.value=boxes[id]; }
   });
+  /* {revision-fractions} : les nombres divisés recopient des cases qu'on vient de remplir */
+  if(test.kind==='rvf') rvfMiroirs();
 }
 /* ---------- Enregistrement automatique du travail en cours (silencieux) ---------- */
 let recoveryRowId=null, recoveryBusy=false, recoveryDirty=false, recoveryClosed=false;
@@ -14592,6 +14596,9 @@ function msgAvecVides(subs, pourquoi){
    Turquet, octobre 2026, pour tous les calculs de fractions de la Seconde et
    de la Première) : « 6/8 + 3/8 » ne sort plus. Le résultat, lui, reste le
    calcul direct, non simplifié, comme avant (rvfReponse).
+   PUIS LA PREMIÈRE A DEMANDÉ LA SIMPLIFICATION (Turquet, octobre 2026) : un
+   résultat réductible se simplifie ensuite sur la même ligne, par une ou
+   plusieurs divisions dont l'élève choisit le diviseur — voir rvfSimpPas().
 
    ON RANGE LES NOMBRES TIRÉS, JAMAIS LA RÉPONSE : rvfReponse() la recalcule à
    chaque correction, comme relLignes() le fait pour {additionner-relatifs} —
@@ -14719,17 +14726,19 @@ function rvfGauche(q){
 /* Le libellé des étapes — seulement pour les cinq types qui en ont deux : les
    trois autres gardent leur unique case, sans rien au-dessus pour l'annoncer. */
 function rvfLabel(q){
+  let e;
   switch(q.type){
-    case 'mult-entier':
-      return '① l’entier écrit comme une fraction de dénominateur 1&nbsp;· ② le résultat';
-    case 'diff-sub-entier':
-      return '① l’entier écrit comme une fraction de dénominateur 1&nbsp;· ② mettre au même dénominateur&nbsp;· ③ effectuer les produits&nbsp;· ④ le résultat';
-    case 'diff-add':
-      return '① mettre au même dénominateur (produit des deux)&nbsp;· ② effectuer les produits&nbsp;· ③ le résultat';
-    case 'div-1': case 'div-2':
-      return '① diviser, c’est multiplier par l’inverse&nbsp;· ② le résultat';
-    default: return '';
+    case 'mult-entier': e=['l’entier écrit comme une fraction de dénominateur 1','le résultat']; break;
+    case 'diff-sub-entier': e=['l’entier écrit comme une fraction de dénominateur 1','mettre au même dénominateur','effectuer les produits','le résultat']; break;
+    case 'diff-add': e=['mettre au même dénominateur (produit des deux)','effectuer les produits','le résultat']; break;
+    case 'div-1': case 'div-2': e=['diviser, c’est multiplier par l’inverse','le résultat']; break;
+    default: e=['le résultat'];
   }
+  /* Un résultat qui se simplifie gagne son étape — et alors même les types à
+     une seule case reçoivent un libellé : la rangée a deux temps. */
+  if(rvfReductible(q)) e=e.concat(['simplifier : diviser en haut ET en bas par le même nombre']);
+  else if(e.length<2) return '';
+  return e.map(function(t,i){ return '①②③④⑤⑥⑦'.charAt(i)+' '+t; }).join('&nbsp;· ');
 }
 /* Une case-input isolée, enveloppée comme rvf-num/rvf-den : c'est cette
    enveloppe (.sf-case) qui reçoit le badge de correction hors du flux. */
@@ -14764,10 +14773,79 @@ function rvfInverseCaseHTML(){
    cinq types qui en ont une — le maillon qui montre l'étape, puis le
    résultat final. Les trois autres gardent exactement l'ancien rendu : le
    calcul, puis la fraction à compléter. */
+/* ===== LA SIMPLIFICATION DU RÉSULTAT — Première seulement ===================
+   Demande de Turquet (octobre 2026) : « quand le résultat peut être simplifié,
+   demander à l'élève de compléter la division qui apparaîtra au numérateur et
+   au dénominateur du résultat ; s'il rentre un diviseur au numérateur,
+   l'écrire au dénominateur et inversement, et demander la fraction simplifiée
+   sur la même ligne d'égalité. Si le résultat peut être encore simplifié,
+   recommencer le processus. »
+   La rangée continue donc : … = a/b = (a ÷ [k])/(b ÷ [k]) = [a′]/[b′] = …
+   LE DIVISEUR EST AU CHOIX DE L'ÉLÈVE : tout entier > 1 qui divise à la fois
+   le numérateur et le dénominateur est juste. Diviser par 2 un 12/18 est
+   juste, et laisse 6/9, qui se simplifie encore : une nouvelle étape s'ouvre
+   alors sur la même ligne, et ainsi de suite jusqu'à la fraction
+   irréductible. Le nombre d'étapes dépend donc de ce que l'élève a écrit —
+   ses diviseurs sont RANGÉS dans la question (q.sdiv, des chaînes : du JSON),
+   pour que la reprise d'une pause et le rejeu redessinent les mêmes étapes
+   avant que restoreBoxes() n'y remette les saisies.
+   Un diviseur vide ou faux arrête la chaîne : la correction y écrit le PGCD,
+   qui mène d'un coup à la fraction irréductible.
+   Les nombres divisés (a, b) ne sont PAS écrits par la page : ils recopient
+   ce que l'élève a écrit dans la fraction d'avant (rvfMiroirs) — les écrire
+   aurait donné la réponse des deux cases précédentes.
+   Le résultat brut (rvf-num/rvf-den) devient alors une étape comme les
+   autres : il attend le calcul direct, sans simplification — c'est la
+   simplification qui suit qui la fait. */
+function rvfReductible(q){ const r=rvfReponse(q); return gcd(r.num,r.den)>1; }
+function rvfSimpPas(q){
+  const r=rvfReponse(q), sd=q.sdiv||[], pas=[];
+  let F={n:r.num, d:r.den};
+  while(pas.length<12){
+    const g=gcd(F.n,F.d); if(g<=1) break;
+    const v=rvfLit(sd[pas.length]), ok=v!==null && v>1 && g%v===0;
+    const suiv=ok?{n:F.n/v, d:F.d/v}:{n:F.n/g, d:F.d/g};
+    pas.push({F:F, g:g, suiv:suiv});
+    if(!ok) break;
+    F=suiv;
+  }
+  return pas;
+}
+function rvfSimpHTML(i){
+  const cote=function(c, cls, lab){ return '<span class="sf-l"><span class="f-whole rvf-dvd" id="rvf-s'+i+'-a'+c+'">…</span><span class="f-times">÷</span>'+rvfCaseHTML('rvf-s'+i+'-d'+c, cls, lab)+'</span>'; };
+  return fEq('<span class="f-frac-input sf-prod">'+cote('n','f-num','diviseur du numérateur')+'<span class="f-fbar"></span>'+cote('d','f-den','diviseur du dénominateur')+'</span>')
+    +fEq(rvfFracHTML('rvf-s'+i+'-n','rvf-s'+i+'-d'));
+}
+/* Les nombres divisés recopient la fraction d'avant, telle que l'élève l'a
+   écrite (« … » tant qu'elle est vide). */
+function rvfMiroirs(){
+  const q=test.questions && test.questions[test.idx]; if(!q || test.kind!=='rvf') return;
+  rvfSimpPas(q).forEach(function(p,i){
+    const src=i?['rvf-s'+(i-1)+'-n','rvf-s'+(i-1)+'-d']:['rvf-num','rvf-den'];
+    ['n','d'].forEach(function(c,k){ const a=$('rvf-s'+i+'-a'+c), e=$(src[k]); if(!a) return;
+      const v=e?String(e.value).trim():''; a.textContent=v===''?'…':v.replace(/^-/,'−'); });
+  });
+}
+/* Relit les diviseurs à l'écran ; si le nombre d'étapes change, redessine
+   la rangée en gardant tout ce qui est écrit et la case où l'on écrit. */
+function rvfMajSimp(q){
+  if(!rvfReductible(q)) return;
+  const sd=[]; for(let i=0;;i++){ const e=$('rvf-s'+i+'-dn'); if(!e) break; sd.push(String(e.value).trim()); }
+  q.sdiv=sd;
+  if(rvfSimpPas(q).length===sd.length) return;
+  const vals={}; document.querySelectorAll('#rvfHost input[id], #rvfHost select[id]').forEach(function(e){ vals[e.id]=e.value; });
+  const act=document.activeElement, actId=act && act.id, pos=act && act.selectionStart;
+  rvfMonte(q);
+  Object.keys(vals).forEach(function(id){ const e=$(id); if(e) e.value=vals[id]; });
+  const e=actId && $(actId); if(e){ try{ e.focus(); if(pos!=null) e.setSelectionRange(pos,pos); }catch(x){} }
+  rvfMiroirs();
+  if(isSoutien()) checkRvfAnswer(true);
+}
 function rvfEtapes(q){
   const t=function(n,d){ return sfTermeHTML(n,d); };
   const op=function(s){ return '<span class="f-times">'+s+'</span>'; };
-  const finale=fEq(rvfFracHTML('rvf-num','rvf-den'));
+  const finale=fEq(rvfFracHTML('rvf-num','rvf-den'))
+    +(rvfReductible(q)?rvfSimpPas(q).map(function(p,i){ return rvfSimpHTML(i); }).join(''):'');
   switch(q.type){
     case 'mult-entier':
       return t(q.n,q.d)+op('×')+t(q.k,1)
@@ -14841,7 +14919,10 @@ function rvfCases(q){
   const r=rvfReponse(q);
   return [{id:'rvf-regle', kind:'sel', bon:RVF_REGLES[q.type].opts[0][0]}]
     .concat(rvfExtra(q).map(function(c){ return {id:c.id, kind:'nb', bon:c.bon}; }))
-    .concat([{id:'rvf-num', kind:'nb', bon:r.num}, {id:'rvf-den', kind:'nb', bon:r.den}]);
+    .concat([{id:'rvf-num', kind:'nb', bon:r.num}, {id:'rvf-den', kind:'nb', bon:r.den}])
+    .concat(rvfReductible(q)?[].concat.apply([], rvfSimpPas(q).map(function(p,i){ const s='rvf-s'+i+'-';
+      return [{id:s+'dn', kind:'div', bon:p.g}, {id:s+'dd', kind:'div', bon:p.g, miroir:true},
+              {id:s+'n', kind:'nb', bon:p.suiv.n}, {id:s+'d', kind:'nb', bon:p.suiv.d}]; })):[]);
 }
 /* « 5 », « +5 », « -1 », « −1 » : comme relLit, le signe + est facultatif
    devant un positif. */
@@ -14852,6 +14933,10 @@ function rvfLit(v){
 }
 function rvfJuste(c, el, q){
   if(!el) return false;
+  if(c.kind==='div'){   /* tout diviseur commun > 1 est juste ; c.bon est le PGCD */
+    const k=rvfLit(el.value);
+    return k!==null && k>1 && c.bon%k===0;
+  }
   if(c.kind==='nb'){
     const n=rvfLit(el.value); if(n===null) return false;
     if(n===c.bon) return true;
@@ -14860,7 +14945,7 @@ function rvfJuste(c, el, q){
        geste enseigné trois exercices plus haut, était compté faux sur ses
        deux cases. Les étapes intermédiaires, elles, gardent la forme brute
        de la règle : c'est elle que l'exercice fait écrire. */
-    if(q && (c.id==='rvf-num'||c.id==='rvf-den')) return rvfResultatEgal(q);
+    if(q && (c.id==='rvf-num'||c.id==='rvf-den') && !rvfReductible(q)) return rvfResultatEgal(q);
     return false;
   }
   return el.value===c.bon;
@@ -14877,6 +14962,11 @@ function renderRvfTest(){
   $('rvfLiveScore').textContent=test.score;
   $('rvfFeedback').textContent=''; $('rvfFeedback').className='mp-feedback';
   $('rvfActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkRvfAnswer()">Vérifier</button>';
+  rvfMonte(q);
+}
+/* La rangée et ses écouteurs — redessinée seule par rvfMajSimp() quand une
+   étape de simplification s'ouvre ou se ferme. */
+function rvfMonte(q){
   const vide='<option value="" selected disabled>?</option>';
   const regle=RVF_REGLES[q.type];
   const label=rvfLabel(q);
@@ -14892,17 +14982,31 @@ function renderRvfTest(){
   /* ENTRÉE avance à la case suivante, comme sf/mlt — nécessaire depuis que
      certaines questions posent plus de deux cases : valider dès la première
      case remplie aurait empêché d'écrire les suivantes. */
-  const ordre=rvfCases(q).map(function(c){ return $(c.id); });
-  rvfCases(q).forEach(function(c,i){ const el=$(c.id); if(!el) return;
-    el.addEventListener(c.kind==='nb'?'input':'change', function(){ if(isSoutien()) checkRvfAnswer(true);
+  /* Le diviseur s'écrit deux fois : ce qui est tapé en haut se recopie en
+     bas, et inversement. L'ordre d'ENTRÉE saute la copie, et se relit à
+     chaque appui — une étape a pu s'ouvrir entre-temps. */
+  rvfCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
+    el.addEventListener(c.kind==='sel'?'change':'input', function(){
+      if(c.kind==='div'){ const jum=$(c.id.replace(/d[nd]$/, c.miroir?'dn':'dd')); if(jum) jum.value=el.value; rvfMajSimp(q); }
+      rvfMiroirs();
+      if(isSoutien()) checkRvfAnswer(true);
       clearTimeout(test.rvfSave); test.rvfSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault();
-      if(i<ordre.length-1 && ordre[i+1]) ordre[i+1].focus(); else checkRvfAnswer(); } });
+      const ordre=rvfCases(q).filter(function(x){ return !x.miroir; }).map(function(x){ return x.id; });
+      const i=ordre.indexOf(c.miroir?c.id.replace(/dd$/,'dn'):c.id), suiv=i>=0 && i<ordre.length-1 && $(ordre[i+1]);
+      if(suiv) suiv.focus(); else checkRvfAnswer(); } });
   });
+  rvfMiroirs();
 }
 /* Le pourquoi, dit avec les nombres de la question — jamais la règle
    récitée seule. */
 function rvfPourquoi(q){
+  const r=rvfReponse(q), g=gcd(r.num,r.den);
+  return rvfPourquoiCalcul(q)+(g>1?' Puis on simplifie : on divise le numérateur ET le dénominateur par le même nombre. '
+    +r.num+'/'+r.den+' = ('+r.num+' ÷ '+g+')/('+r.den+' ÷ '+g+') = '+(r.num/g)+'/'+(r.den/g)
+    +' — en divisant par un nombre plus petit, on recommence tant que la fraction se simplifie encore.':'');
+}
+function rvfPourquoiCalcul(q){
   const r=rvfReponse(q);
   switch(q.type){
     case 'meme-add': return 'Le dénominateur ne bouge pas quand les deux fractions l’ont déjà en commun : on additionne seulement les numérateurs. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
@@ -14917,6 +15021,7 @@ function rvfPourquoi(q){
 function checkRvfAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
+  if(!live) rvfMajSimp(q);
   const cases=rvfCases(q);
   if(live){   /* soutien : on ne juge que les cases déjà remplies */
     if(!isSoutien()) return;
@@ -14933,6 +15038,7 @@ function checkRvfAnswer(live){
   /* chaque case a son verdict : une case juste ne rougit pas pour sa
      voisine, et une case vide reçoit la correction en vert (corrChoix) */
   subs.forEach(function(s){ corrChoix(s.el, s.c.bon, s.ok); });
+  rvfMiroirs();
   if(!allOk && isSoutien()){ soutienAgain('rvfFeedback','rvfActions','checkRvfAnswer','rvfHost'); return; }
   test.locked=true;
   /* La note de ce niveau se compte par question PARFAITE (voir l'en-tête) ;
@@ -14944,8 +15050,9 @@ function checkRvfAnswer(live){
   else { $('rvfFeedback').textContent=msgAvecVides(subs, rvfPourquoi(q)); $('rvfFeedback').className='mp-feedback bad'; }
   test.answers.push({...(ptsExo()||{}),correct:allOk,
     q:rvfTexte(q)+' = ?',
-    answer:rvfTexte(q)+' = '+r.num+'/'+r.den,
-    given:(function(){ const n=$('rvf-num'), d=$('rvf-den');
+    answer:rvfTexte(q)+' = '+r.num+'/'+r.den+(rvfReductible(q)?' = '+(r.num/gcd(r.num,r.den))+'/'+(r.den/gcd(r.num,r.den)):''),
+    given:(function(){ const pas=rvfReductible(q)?rvfSimpPas(q):[], s='rvf-s'+(pas.length-1)+'-';
+      const n=$(pas.length?s+'n':'rvf-num'), d=$(pas.length?s+'d':'rvf-den');
       const nv=(n&&String(n.value).trim()!=='')?n.value:'?', dv=(d&&String(d.value).trim()!=='')?d.value:'?';
       return rvfTexte(q)+' = '+nv+'/'+dv; })()});
   const last=test.idx===test.questions.length-1;
@@ -14974,7 +15081,8 @@ function ctxRvf(q){
   let c='L’élève révise une règle des fractions parmi quatre (même dénominateur, produit, dénominateurs différents, division), question '+(RVF_ORDRE.indexOf(q.type)+1)+' sur 8. '
    +'Consigne affichée : « '+regle.texte+' », avec trois choix possibles. '
    +'Calcul affiché : '+rvfTexte(q)+' = ? '
-   +'Réponses attendues, STRICTEMENT SECRÈTES : la règle est « '+regle.opts[0][1]+' » ; le résultat est '+r.num+'/'+r.den+'. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES : la règle est « '+regle.opts[0][1]+' » ; le résultat est '+r.num+'/'+r.den
+   +(rvfReductible(q)?', que l’élève doit ensuite simplifier sur la même ligne (diviseur commun écrit en haut et en bas, une ou plusieurs fois) jusqu’à '+(r.num/gcd(r.num,r.den))+'/'+(r.den/gcd(r.num,r.den)):'')+'. '
    +'Méthode enseignée : '+rvfPourquoi(q);
   if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
   return {nombre:'', contexte:c};
@@ -15089,7 +15197,7 @@ const LP_ITEMS=[['B','T'],['A','T'],['nB','T'],['nA','T'],['B','A'],['nB','A'],[
    renversement à ne pas confondre avec elle. */
 const LN_ITEMS=[['B','T'],['A','T'],['nB','T'],['nA','T'],['B','A'],['nB','A'],['A','B'],['B','nA']];
 /* Une question peut porter sa probabilité ELLE-MÊME (q.ev = [évènement,
-   univers]) : c'est le cas des intersections tirées du 3.2 et du 3.4 (pbInterTirees). Une
+   univers]) : c'est le cas des intersections tirées du 3.3 et du 3.2 (pbInterTirees). Une
    pause d'avant la v302 n'a pas q.ev et relit PB_ITEMS. */
 function pbItem(q){ return q.ev || (q.t==='lp' ? LP_ITEMS : q.t==='ln' ? LN_ITEMS : PB_ITEMS)[q.it]; }
 /* n = [A∩B, Ā∩B, A∩B̄, Ā∩B̄] — les quatre cases du milieu. */
@@ -15116,11 +15224,11 @@ function pbTableau(){
   return { n:n, k:pick(jeux) };
 }
 /* Les deux intersections sans condition de PB_ITEMS — P(A∩B) et P(A∩B̄) —
-   ne sortent plus toujours telles quelles : au 3.2 comme au 3.4, elles se
+   ne sortent plus toujours telles quelles : au 3.3 comme au 3.2, elles se
    tirent parmi les QUATRE cases du milieu du tableau, deux différentes, dans
    un ordre quelconque (demandes de Turquet, octobre 2026 : « varier les
    intersections possibles pour les questions 5 et 6 », puis « dans le 3.2
-   aussi »). Le tirage est rangé dans la question (q.ev), que pbItem lit
+   aussi », le 3.3 d'aujourd'hui). Le tirage est rangé dans la question (q.ev), que pbItem lit
    avant PB_ITEMS. pbInterTirees() rend, pour l'indice d'un item, ce qu'il
    faut ajouter à sa question : { ev } pour une intersection, rien sinon. */
 const PB_INTER=['A.B','A.nB','nA.B','nA.nB'];
@@ -15556,7 +15664,7 @@ async function startLP(){
    revérifie jusqu'à ce que tout soit juste, comme une question du 3.1.
    Chaque case se juge seule : une case juste ne rougit jamais pour une
    voisine. */
-/* {probabilites-ecriture} (3.4) : la fiche du 3.3 SANS PHRASE (demande de
+/* {probabilites-ecriture} (3.2, d'abord 3.4) : la fiche du 3.4 SANS PHRASE (demande de
    Turquet, octobre 2026 : « une version 3.4 de cet exercice sans question
    avec du texte, avec P(A), P(Ā), P(A∩B), P_A(B)… et la même ligne, qui
    tient sur une même ligne à l'écran »). Les douze probabilités du 3.2
@@ -20441,12 +20549,14 @@ const RAP_LN=`<b>Lire une probabilité</b><br>
 \\(P_G(L)=\\dfrac{L \\text{ parmi } G}{\\text{parmi } G}=\\dfrac{G\\cap L}{G}\\), par exemple \\(\\dfrac{4}{9}\\) s’il y a 4 garçons à lunettes parmi les 9 garçons.<br>
 <b>Lire le nom.</b> Ce qui est entre les parenthèses va avant « parmi » ; ce qui est en indice va après. Sans indice, c’est « parmi tout ».<br>
 Piège classique : confondre \\(P_G(L)\\) et \\(P_L(G)\\) — le dénominateur est l’effectif de l’INDICE.`;
-/* {revision-fractions} (4.1) : le rappel de la Seconde, au mot près. */
+/* {revision-fractions} (4.1) : le rappel de la Seconde, au mot près — plus le ⑤,
+   la simplification par étapes que la Première demande (octobre 2026). */
 const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>① Même dénominateur :</b> on garde ce dénominateur, et on additionne ou on soustrait seulement les numérateurs. \\(\\frac{2}{5}+\\frac{1}{5}=\\frac{3}{5}\\)<br>
 <b>② Multiplier deux fractions :</b> numérateur fois numérateur, dénominateur fois dénominateur — et on NE met JAMAIS au même dénominateur, même si l'un des deux facteurs est un nombre entier. \\(\\frac{2}{3}\\times\\frac{4}{5}=\\frac{8}{15}\\) ; \\(\\frac{2}{3}\\times 4=\\frac{8}{3}\\) (le dénominateur ne change pas).<br>
 <b>③ Dénominateurs différents :</b> il faut d'abord les mettre au même dénominateur — le produit des deux — en multipliant chaque fraction en haut ET en bas. Un entier s'écrit d'abord comme une fraction de dénominateur 1 : \\(5=\\frac{5}{1}\\)<br>
-<b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}=\\frac{5}{6}\\) (on simplifie à la fin, ici par 2).`;
+<b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}=\\frac{5}{6}\\) (on simplifie à la fin, ici par 2).<br>
+<b>⑤ Simplifier le résultat :</b> on divise le numérateur ET le dénominateur par le même nombre ; si la fraction obtenue se simplifie encore, on recommence. \\(\\frac{6}{12}=\\frac{6\\div 2}{12\\div 2}=\\frac{3}{6}=\\frac{3\\div 3}{6\\div 3}=\\frac{1}{2}\\)`;
 const RAPPELS={ cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
                 mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>

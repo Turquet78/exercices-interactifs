@@ -4236,6 +4236,7 @@ function exercices(suite){
     pythonInputEvolution(w, P);
     pythonInputDuree(w, P);
     pythonInputDureeSecondes(w, P);
+    pythonForErreur(w, P);
     pythonChaineTirets(w, P);
     pythonRemplacerLettre(w, P);
     pythonPasAPas(w, P);
@@ -26998,7 +26999,7 @@ function pythonInverserLettres(w, P){
   verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
-/* {python-for-renommer} (Seconde, 6.6.4, sous-thème « Boucle for in range ») :
+/* {python-for-renommer} (Seconde, 6.6.5, sous-thème « Boucle for in range ») :
    l'exercice 2 du carnet sur la boucle — le dessin, la définition de
    for nombre in range ( fin ), puis a) compléter range pour afficher les
    entiers de 0 à 9, b) renommer la variable, c) « Cela change-t-il le
@@ -27021,14 +27022,14 @@ function pythonForRenommer(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-oui-non}, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-erreur}, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle/i.test(st.nom)||!/range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-for-oui-non") vus.push("il ne ferme pas le sous-thème derrière {python-for-oui-non} : "+st.ids.join(","));
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-for-erreur") vus.push("il ne ferme pas le sous-thème derrière {python-for-erreur} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.2"||TEST_NUM["python-for-oui-non"]!=="6.6.3") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.2"||TEST_NUM["python-for-oui-non"]!=="6.6.3"||TEST_NUM["python-for-erreur"]!=="6.6.4") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
@@ -27984,6 +27985,106 @@ function pythonForNom(w, P){
    fausse et vide, le soutien qui explique sans révéler, puis compare à un
    vrai CPython ce que le modèle affiche. Aucun accent grave ni antislash
    littéral dans le code évalué. */
+/* {python-for-erreur} (Seconde, 6.6.4) : l'exercice 3 du carnet — le serpent
+   étourdi, un programme faux à EXÉCUTER, puis « Il y a une erreur car … ».
+   Le juge est le modèle (action 'verif') : le banc joue son verdict par
+   pfeVerdict, sans attendre la promesse. */
+function pythonForErreur(w, P){
+  const nom = '{python-for-erreur} : une boucle for qui ne marche pas';
+  if(!P.pythonForErreur){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la boucle for fausse'); return; }
+  const ID = P.pythonForErreur.exercice, NUM = P.pythonForErreur.numero;
+  const present = evaluer(w, "typeof startPFE==='function' && typeof pfeVerdict==='function' && typeof checkPFE==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPFE / pfeVerdict / checkPFE introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il est le quatrième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', dernier sous-thème du thème, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
+    if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
+    /* il fermait le sous-thème ; {python-for-renommer} (6.6.5) est venu derrière lui, sans rien renuméroter */
+    else if(st.ids[3]!=="${ID}") vus.push("il n’est pas le quatrième du sous-thème : "+st.ids.join(","));
+    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-nom"]!=="6.6.2"||TEST_NUM["python-for-range"]!=="6.6.1") vus.push("{python-for-nom} a bougé : "+TEST_NUM["python-for-nom"]);
+    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. l'écran, tenu aux consignes du sous-thème Input ---- */
+  verifierEval(w, 'l’écran : le dessin d’abord, aucune définition ni coup de pouce, l’énoncé de la fiche en gras dans son cadre avec le programme au caractère près, une console VIDE avant « Exécuter » ; « Exécuter » y montre l’erreur des deux-points', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFE();
+    const vus=[], NL=String.fromCharCode(10);
+    const net=function(t){ return t.split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.questions.length!==1||test.maxScore!==1) vus.push("séance de "+test.questions.length+" question(s), barème "+test.maxScore);
+    const ecr=document.getElementById("scr-pfe"), en=document.getElementById("pfeInstr"), img=en&&en.querySelector("img.pfe-img");
+    if(!img||!/^data:image\\/webp/.test(img.getAttribute("src")||"")||!/Houlàlla/.test(img.getAttribute("alt")||"")) vus.push("pas de dessin de la fiche");
+    const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
+    if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
+    if(ecr.querySelector(".py-avant:not(:empty),.pyp-regle,.pyi-cours,details.pyd-pouce")) vus.push("une définition ou un coup de pouce sur l’écran");
+    const et=document.getElementById("pfeEtape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!ti||net(ti.textContent)!=="✏️ Exécuter le programme ci-dessous et expliquer pourquoi il y a une erreur !") vus.push("l’énoncé : "+JSON.stringify(ti&&net(ti.textContent)));
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    const pr=document.getElementById("pfeProg");
+    if(!pr||pr.textContent!=='for k  in range ( 9 )'+NL+'   print ("valeur=", nombre )') vus.push("le programme : "+JSON.stringify(pr&&pr.textContent));
+    ["pfeProg","pfeRun","pfeConsole","pfe-exp"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const c=document.getElementById("pfeConsole");
+    if(c.textContent!==""||getComputedStyle(c,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide avant l’exécution");
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pfe||"";
+    if(net(rap.textContent)!=="Une erreur dans une boucle for Exécuter le programme et expliquer pourquoi il y a une erreur !") vus.push("le rappel : "+JSON.stringify(rap.textContent));
+    pfeExecuter();
+    if(!/deux-points/.test(c.textContent)||!c.classList.contains("py-err")) vus.push("« Exécuter » ne montre pas l’erreur : "+JSON.stringify(c.textContent));
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPfe(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le verdict : vide redemandé, juste en bleu, faux en rouge avec la correction verte ---- */
+  verifierEval(w, 'la réponse vide n’est ni envoyée ni peinte ; le verdict du modèle peint ok ou bad, la correction verte nomme les deux fautes ; en soutien, l’explication fausse se reprend sans correction', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    const vus=[]; let envois=0;
+    sb.functions={ invoke:function(){ envois++; return new Promise(function(){}); } };
+    startPFE(); let ta=document.getElementById("pfe-exp");
+    checkPFE();
+    if(envois||ta.classList.contains("bad")||test.locked) vus.push("la réponse vide est envoyée, peinte ou verrouille");
+    ta.value="il manque les deux points"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    pfeVerdict({correct:true, feedback:"Bravo."});
+    if(!ta.classList.contains("ok")||test.score!==1||!test.locked||test.answers.length!==1||test.answers[0].correct!==true) vus.push("la réponse juste n’est pas comptée");
+    if(!/\\bgood\\b/.test(document.getElementById("pfeFeedback").className)) vus.push("le retour juste n’est pas vert");
+    startPFE(); ta=document.getElementById("pfe-exp");
+    ta.value="à cause des espaces"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    pfeVerdict({correct:false, feedback:"Pas encore."});
+    const cor=document.querySelector("#pfeModele .sol");
+    if(!ta.classList.contains("bad")||test.score!==0||!test.locked) vus.push("entraînement : la réponse fausse ne rougit pas ou ne verrouille pas");
+    if(!cor||!/deux-points/.test(cor.textContent)||!/nombre/.test(cor.textContent)) vus.push("pas de correction verte nommant les deux fautes");
+    if(!document.getElementById("pfeNext")) vus.push("pas de bouton pour finir");
+    currentMode="soutien"; startPFE(); ta=document.getElementById("pfe-exp");
+    ta.value="à cause des espaces"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    pfeVerdict({correct:false, feedback:"Pas encore."});
+    if(!ta.classList.contains("bad")||test.locked||document.querySelector("#pfeModele .sol")) vus.push("soutien : la réponse fausse ne se reprend pas, ou la correction est révélée");
+    ta.value="à cause des espaces !"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(ta.classList.contains("bad")) vus.push("soutien : retaper n’efface pas le rouge");
+    pfeVerdict(null);
+    if(test.locked||ta.classList.contains("ok")||ta.classList.contains("bad")) vus.push("une panne du modèle compte un verdict");
+    currentMode="train";
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. la seconde méthode : CPython refuse le programme, et pour la même raison ---- */
+  const nomPy = 'le programme de {python-for-erreur} est refusé par un vrai CPython — d’abord pour les deux-points, puis pour « nombre »';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : le programme n\'a été comparé à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const prog = evaluer(w, 'PFE_PROG');
+  if(!prog.ok){ verifier(nomPy, false, prog.erreur); return; }
+  const ref = pythonExecuter(cmd, [prog.valeur, prog.valeur.replace('( 9 )', '( 9 ):')]);
+  verifier(nomPy, ref[0] === 'ERREUR:SyntaxError' && ref[1] === 'ERREUR:NameError', JSON.stringify(ref));
+}
+
 function pythonInputDuree(w, P){
   const nom = '{python-input-duree} : une durée en heures et minutes';
   if(!P.pythonInputDuree){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des durées'); return; }
@@ -27994,7 +28095,7 @@ function pythonInputDuree(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ouvre le sous-thème 6.5 « Bonus : input », numéroté ' + NUM + ', derrière le sous-thème « Bonus », et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il ouvre le sous-thème 6.5 « Bonus : input », numéroté ' + NUM + ', juste derrière le sous-thème « Bonus », et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===5; });
     if(!st||!/bonus/i.test(st.nom)||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
@@ -39084,6 +39185,86 @@ function revisionFractions(w, P){
     if(peint('rvf-a1')!=='vert' || peint('rvf-num')!=='vert') vus.push("diff-add : une case juste rougit à côté d'une case vide");
 
     return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* LA SIMPLIFICATION DU RÉSULTAT (Première, octobre 2026) : le diviseur
+     écrit en haut se recopie en bas et inversement, tout diviseur commun est
+     juste, et une fraction qui se simplifie ENCORE ouvre une nouvelle étape
+     sur la même ligne. Les saisies passent par de vrais évènements « input » :
+     c'est eux qui ouvrent les étapes. */
+  if(!R.simplifier){
+    ignorer('réviser les quatre règles des fractions : le résultat se simplifie par étapes',
+      'ce niveau ne demande pas de simplifier le résultat');
+    return;
+  }
+  verifierEval(w, 'réviser les quatre règles des fractions : le résultat se simplifie par étapes', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='revision-fractions';
+    const $$=function(id){ return document.getElementById(id); };
+    const tape=function(id,v){ const el=$$(id); if(!el){ vus.push('pas de case '+id); return; } el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
+    const peint=function(id){ const el=$$(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    startRvf();
+    /* 2/3 × 3/4 = 6/12, qui se simplifie par 6 */
+    const neuve=function(){ return {type:'mult-frac', d1:3, d2:4, n1:2, n2:3}; };
+    const base=function(){ $$('rvf-regle').value='non'; tape('rvf-num',6); tape('rvf-den',12); };
+
+    /* ① en deux temps : ÷2, puis ÷3 */
+    test.questions=[neuve()]; test.idx=0; renderRvfTest();
+    const lab=document.querySelector('#rvfHost .pt-lab');
+    if(!lab || !/simplifier/.test(lab.textContent)) vus.push("6/12 : aucun libellé n'annonce la simplification");
+    if(!$$('rvf-s0-dn') || $$('rvf-s1-dn')) vus.push('6/12 : il faut exactement une étape de simplification au départ');
+    if($$('rvf-s0-an') && $$('rvf-s0-an').textContent!=='…') vus.push('le nombre divisé est écrit avant que l’élève ait écrit le résultat : '+$$('rvf-s0-an').textContent);
+    base();
+    if(($$('rvf-s0-an')||{}).textContent!=='6' || ($$('rvf-s0-ad')||{}).textContent!=='12') vus.push('les nombres divisés ne recopient pas 6/12');
+    tape('rvf-s0-dn',2);
+    if(($$('rvf-s0-dd')||{}).value!=='2') vus.push('le diviseur écrit en haut ne se recopie pas en bas');
+    if(!$$('rvf-s1-dn')) vus.push('6/12 ÷ 2 = 3/6 se simplifie encore, et aucune nouvelle étape ne s’ouvre');
+    if(($$('rvf-num')||{}).value!=='6') vus.push('ouvrir une étape a effacé le résultat');
+    tape('rvf-s0-n',3); tape('rvf-s0-d',6);
+    tape('rvf-s1-dd',3);
+    if(($$('rvf-s1-dn')||{}).value!=='3') vus.push('le diviseur écrit en bas ne se recopie pas en haut');
+    if($$('rvf-s2-dn')) vus.push('3/6 ÷ 3 = 1/2 est irréductible, et une étape de plus s’ouvre');
+    tape('rvf-s1-n',1); tape('rvf-s1-d',2);
+    checkRvfAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('6/12 = 3/6 = 1/2 (÷2 puis ÷3) est compté faux');
+    if(der && !/= 1\\/2$/.test(der.given)) vus.push('la réponse enregistrée n’est pas la fraction simplifiée : '+(der&&der.given));
+
+    /* ② d'un coup : ÷6 */
+    test.questions=[neuve()]; renderRvfTest(); base();
+    tape('rvf-s0-dd',6);
+    if($$('rvf-s1-dn')) vus.push('6/12 ÷ 6 est irréductible, et une étape de plus s’ouvre');
+    tape('rvf-s0-n',1); tape('rvf-s0-d',2);
+    checkRvfAnswer(); der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('6/12 = 1/2 (÷6) est compté faux');
+
+    /* ③ un diviseur qui ne divise pas : rouge, la correction montre 6 */
+    test.questions=[neuve()]; renderRvfTest(); base();
+    tape('rvf-s0-dn',5); tape('rvf-s0-n',1); tape('rvf-s0-d',2);
+    checkRvfAnswer(); der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('le diviseur 5 de 6/12 est compté juste');
+    if(peint('rvf-s0-dn')!=='faux') vus.push('le diviseur 5 est peint '+peint('rvf-s0-dn'));
+    const cor=$$('rvf-s0-dn') && $$('rvf-s0-dn').nextElementSibling;
+    if(!cor || cor.textContent!=='6') vus.push('la correction du diviseur ne montre pas 6');
+
+    /* ④ simplifier dès le résultat brut ne suffit plus : la ligne le demande */
+    test.questions=[neuve()]; renderRvfTest(); $$('rvf-regle').value='non';
+    tape('rvf-num',1); tape('rvf-den',2);
+    checkRvfAnswer();
+    if(peint('rvf-s0-dn')==='faux') vus.push('un diviseur laissé vide rougit');
+
+    /* ⑤ la reprise : les diviseurs rangés redessinent les mêmes étapes */
+    test.questions=[neuve()]; renderRvfTest(); base(); tape('rvf-s0-dn',2);
+    renderRvfTest();
+    if(!$$('rvf-s1-dn')) vus.push('après un redessin (reprise), la seconde étape a disparu');
+    if(JSON.stringify(test.questions[0].sdiv)!=='["2"]') vus.push('diviseurs rangés : '+JSON.stringify(test.questions[0].sdiv));
+
+    /* ⑥ un résultat irréductible n'a aucune étape de simplification */
+    test.questions=[{type:'mult-frac', d1:3, d2:5, n1:2, n2:1}]; renderRvfTest();
+    if($$('rvf-s0-dn')) vus.push('2/15 est irréductible, et une simplification est demandée');
+    return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
 

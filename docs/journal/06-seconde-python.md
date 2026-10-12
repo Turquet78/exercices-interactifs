@@ -4943,12 +4943,57 @@ définition en 6.6.1, {python-for-nom} en 6.6.2 — les notes portent
 l'identifiant et ne bougent pas. Son contrôle épingle désormais 6.6.2 et exige
 la définition devant lui. Version 431 (la 430 a été prise sur `main` pendant les bancs).
 
+**Le sous-thème 6.6 « Boucle for in range » pose ensuite un programme FAUX —
+l'exercice 3 du carnet.** {python-for-erreur} (Seconde, 6.6.4, demande de
+Turquet, octobre 2026 : « en seconde dans le sous-thème "boucle for in range",
+créer un exercice qui suit les images jointes ; respecter les consignes de
+présentation des autres exercices d'algo du sous-thème input ; mettre le
+dessin en premier ; dans la définition ne rien rajouter de plus, ainsi que
+dans les coups de pouce éventuels ; ne rien écrire dans le cadre de la
+console »). Le sous-thème a été ouvert LE MÊME MATIN, dans d'autres sessions,
+par {python-for-nom}, {python-for-range} et {python-for-oui-non} (6.6.1 à
+6.6.3 aujourd'hui) : celui-ci les suit en 6.6.4 — quatre collisions résolues
+à la fusion de main (les versions 429 à 432 ont été prises pendant les
+contrôles), rien d'autre n'est renuméroté, et la version passe à 433. La fiche : le serpent étourdi (« Houlàlla »), puis
+« **Exécuter** le programme ci-dessous et expliquer pourquoi il y a une
+erreur ! », le programme `for k  in range ( 9 )` / `print ("valeur=", nombre )`
+au caractère près (les doubles espaces compris), et la cellule « Votre
+réponse ✍ : Il y a une erreur car … » (« Il y une » corrigé — les coquilles
+se corrigent, rien ne s'ajoute).
+
+Les consignes du sous-thème Input sont tenues telles quelles : le dessin en
+tête de l'écran (détouré, WebP de 18 Ko, une URL data:), l'énoncé EN GRAS dans
+un cadre `.pyn-etape` qui enveloppe le programme, « Exécuter », la console et
+la réponse ; la console vide reste un cadre vide (`#pfeConsole` rejoint la
+règle `content:none`). LA FICHE N'A NI DÉFINITION NI COUP DE POUCE : aucun
+encadré au-dessus (exception déclarée, `pythonAvant.sans`), aucun coup de
+pouce sous l'énoncé, et le rappel obligatoire (`RAP_PFE`) ne redit que la
+consigne.
+
+Le programme porte DEUX fautes, et `pyRun` les voit dans l'ordre de CPython :
+les deux-points absents (la console dit « il manque les deux-points « : » à
+la fin de la ligne for »), puis `nombre`, qui n'a jamais reçu de valeur
+(NameError une fois les deux-points remis). LE JUGE EST LE MODÈLE (action
+`verif`, comme {python-echange-variables}) : il n'y a rien à calculer, une
+idée à reconnaître dans une phrase. L'explication est juste si elle nomme
+l'UNE des deux fautes ; la correction, verte, nomme les deux. Une réponse vide
+est redemandée sans être envoyée ni peinte ; une panne du modèle ne compte
+aucun verdict. Le verdict s'applique dans `pfeVerdict`, à part de l'appel :
+le banc le joue sans attendre de promesse. Une seule question — la fiche — :
+rien à tirer, donc ni `distinctes()` ni `dmNbQuestions()`.
+
+Le contrôle (`pythonForErreur`, banc principal) tient la place au menu,
+l'écran (dessin en premier, aucun encadré ni coup de pouce, énoncé, programme
+au caractère près, console vide, l'erreur affichée à l'exécution), les
+verdicts dans les deux modes, et fait refuser le programme par un vrai
+CPython : SyntaxError d'abord, NameError une fois les deux-points remis.
+
 ---
 
-## {python-for-renommer} — renommer la variable d'une boucle for (6.6.4, Boucle for in range)
+## {python-for-renommer} — renommer la variable d'une boucle for (6.6.5, Boucle for in range)
 
 **L'exercice 2 du carnet sur la boucle.** {python-for-renommer} (Seconde,
-6.6.4, APP_VERSION 433, demande de Turquet, octobre 2026 : « en seconde dans
+6.6.5, APP_VERSION 434 — 433 pris sur `main` pendant les bancs —, demande de Turquet, octobre 2026 : « en seconde dans
 le sous thème "boucle for in range", créer un exercice qui suit les images
 jointes ; respecter les consignes de présentation des autres exercices d'algo
 du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
@@ -4970,8 +5015,9 @@ portent l'identifiant. La branche a donc repris les fichiers de `main` et y a
 REJOUÉ son exercice sous un nom libre — `python-for-renommer`, préfixe `pfv`
 (`pfv` n'apparaissait dans la page qu'au milieu d'images encodées ; le
 renommage les a mises de côté avant de remplacer, pour ne pas les abîmer).
-Ce qui est en ligne garde sa place : il ferme le sous-thème, en 6.6.4,
-derrière {python-for-oui-non}. Un identifiant se vérifie sur `main` AVANT la
+Ce qui est en ligne garde sa place : il ferme le sous-thème, en 6.6.5,
+derrière {python-for-oui-non} et {python-for-erreur} (6.6.4, fusionné pendant ces
+bancs-là ; son contrôle exigeait de FERMER le 6.6, il exige d'en être le quatrième). Un identifiant se vérifie sur `main` AVANT la
 poussée, pas seulement le numéro de version.
 
 **Le moteur est celui du 6.3.1** ({python-input-reponse}) : le dessin en tête

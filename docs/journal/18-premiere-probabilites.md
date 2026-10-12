@@ -483,3 +483,11 @@ autre, et un compteur avancé dedans aurait sauté une intersection, ou
 donné deux fois la même. Vérifié dans Chromium : 300 séances de chaque
 exercice, douze couples, jamais de doublon ; une question du 3.2 forcée sur
 Ā∩B̄ s'énonce juste et attend la bonne case sur le total.
+
+## Ordre du thème 3 revu (v303)
+
+Demande de Turquet, octobre 2026 : « mettre le 3.4 entre le 3.1 et 3.2 ».
+{probabilites-ecriture} devient 3.2, {tableau-probabilites} 3.3 et
+{probabilites-fiche} 3.4. Seul l'ordre de `THEMES` change : les notes et les
+devoirs portent l'identifiant, et les numéros cités dans ce journal restent
+ceux de leur époque.
