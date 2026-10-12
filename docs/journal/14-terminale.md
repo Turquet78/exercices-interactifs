@@ -3019,3 +3019,18 @@ par la limite d'une suite géométrique : ils deviennent 5.6.2 et 5.6.3, après
 partie, si bien qu'aucun voisin n'est renuméroté. Les identifiants ne bougent
 pas — notes, devoirs et pauses suivent. Le banc principal tient les trois
 numéros du 5.6 (contrôle de {recurrence-limite}, section 0).
+
+**Puis la virgule du jeton est tombée dans le « avec » (5.6.1, v381).**
+Turquet a montré une capture : « 0<06<1 » rouge après « avec », pour
+U = 0,6ⁿ, et demandé d'accepter « 0 < 0.6 < 1 ». Le juge l'acceptait déjà —
+« 0<0.6<1 », « 0<0,6<1 », « -1<0.6<1 » tapés au clavier dans Chromium sont
+justes. La panne était ailleurs : la case « avec » est une case de TEXTE, et
+le jeton « , » de la rangée « Insérer » (`pmInsert`) n'écrivait que dans un
+champ MathLive — la virgule partait dans la case de limite d'à côté, et
+l'élève voyait son « 0,6 » devenu « 06 ». `pmInsert` écrit désormais dans la
+case de texte où l'élève est posé (« , » et « − » tels quels, la fraction en
+« / »), et lève « input » pour que la case s'élargisse et que le soutien
+corrige en direct. « 06 » reste faux : ce n'est pas 0,6.
+Le banc navigateur (6 tricies duodecies) clique le VRAI jeton, l'élève posé
+dans « avec » après « 0<0 », et exige « 0<0,6<1 » dans la case, les champs
+mathématiques intacts, et le juge d'accord (`casesLimite.jetonTexte`).
