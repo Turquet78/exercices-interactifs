@@ -9270,10 +9270,10 @@ const RAP_PFN=`<b>Afficher 8 fois son nom et prénom</b><br>
 Pour compter de <code class="inline">1</code> à <code class="inline">8</code> utiliser l’instruction : <code class="inline">for k in range (1,9):</code> <code class="inline">...</code>`;
 /* Le rappel de {python-for-images} : les deux coups de pouce de la fiche, sans une phrase de plus. */
 const RAP_PFI=`<b>Les images de f de dixième en dixième</b><br>
-Avec une boucle on a <code class="inline">x</code> : 0 ; 1 ; 2 ; 3 ; 4 ; 5 ; 6 ; 7 ; 8 ; 9 ; 10<br>
-On calcule <code class="inline">x/10</code> qui fait : 0 ; 0.1 ; 0.2 ; 0.3 ; 0.4 ; 0.5 ; 0.6 ; 0.7 ; 0.8 ; 0.9 ; 1<br>
+Avec une boucle on a <code class="inline">x</code> : <code class="inline">0 ; 1 ; 2 ; 3 ; 4 ; 5 ; 6 ; 7 ; 8 ; 9 ; 10</code><br>
+On calcule <code class="inline">x/10</code> qui fait : <code class="inline">0 ; 0.1 ; 0.2 ; 0.3 ; 0.4 ; 0.5 ; 0.6 ; 0.7 ; 0.8 ; 0.9 ; 1</code><br>
 <code class="inline">for x in range ( 11 ):</code> <code class="inline">x=x/10</code><br>
-Fait varier <code class="inline">x</code> de : 0 ; 0.1 ; 0.2 ; 0.3 ; 0.4 ; 0.5 ; 0.6 ; 0.7 ; 0.8 ; 0.9 ; 1`;
+Fait varier <code class="inline">x</code> de : <code class="inline">0 ; 0.1 ; 0.2 ; 0.3 ; 0.4 ; 0.5 ; 0.6 ; 0.7 ; 0.8 ; 0.9 ; 1</code>`;
 const RAP_PKG=`<b>Le prix des pommes et des tomates</b><br>
 Formule : <code class="inline">Prix total = poids des pommes * 3,62 + poids des tomates * 5,57</code>`;
 /* Le rappel de {python-input-evolution} : le coup de pouce de la fiche, sans une phrase de plus. */
@@ -36877,7 +36877,7 @@ function pfiDiag(src, q){
   }
   const phrase=L.every(function(l){
     const t=l.replace(PFI_NOMBRE, '#').replace(/[’`]/g, '\'').replace(/\s+/g, ' ').trim().toLowerCase();
-    return /^(l ?' ?)?image de # par f est( ?[:=])? #( ?\.+)?$/.test(t);
+    return /^(l ?'? ?)?image de # par f est( ?[:=])? #( ?\.+)?$/.test(t);
   });
   if(!phrase) return non('Chaque ligne doit s’écrire de la façon suivante : L’image de 0.1 par f est …');
   const boucle=src.split('\n').some(function(l){ return ptrUtile(l) && /^\s*for\b/.test(l); });
