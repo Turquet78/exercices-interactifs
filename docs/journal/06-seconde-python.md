@@ -5407,3 +5407,53 @@ pour UNE case (`pts-case`). Pas de correction au fil de la frappe
 mot qui la nomme, l'écran tenu aux consignes, les copies juste, fausse et
 vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
 CPython. La visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-if-plus-grand} — le plus grand des deux nombres (6.7.1, Condition if else)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous thème
+"condition if else", créer un exercice qui suit les images jointes […]
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème "input". Mettre le dessin en premier, dans la définition ne rien
+rajouter de plus ainsi que dans les coups de pouce éventuels […] ne rien
+écrire dans le cadre de la console. » Le sous-thème n'existait pas : il est
+créé, **6.7 « Condition if else », ajouté EN DERNIER** au thème —
+rien n'est renuméroté. Les contrôles des exercices du 6.6 qui exigeaient que
+leur sous-thème soit le DERNIER exigent désormais qu'il soit le SIXIÈME.
+
+**La présentation est celle de {python-for-nom}** : le dessin seul dans
+`#pxyInstr` (les deux serpents, « Je suis le plus grand ! », découpé dans la
+capture, le fond crème rendu transparent depuis les bords, WebP de 19 Ko,
+`PXY_IMG`) ; la question dans un cadre `.pyn-etape`, en gras, qui enveloppe
+les deux coups de pouce, la cellule, « Exécuter » et la console. **L'énoncé
+est celui de la fiche, mot pour mot**, son « Rappel » compris (il fait partie
+de l'exercice, pas d'une définition : sa ligne garde les graisses de la
+fiche, `.pxy-rappel`). Deux coquilles corrigées, rien d'ajouté : « un nombre
+décimal » (la fiche écrit « décimale ») et la parenthèse fermante qui
+manquait au coup de pouce 1. Aucune définition (exception déclarée,
+`pythonAvant.sans`), le rappel de cours (`RAP_PXY`) ne redit que le Rappel
+de la fiche ; la console vide reste un cadre vide (`#pxyConsole` rejoint
+`content:none`).
+
+**Le juge (`pxyDiag`) « teste plusieurs fois » à la place de l'élève** :
+la copie s'exécute sous quatre paires (`PXY_EX`) — le plus grand en second,
+en premier, deux négatifs, deux égaux. Il faut deux `input` avec leur
+question, les réponses rangées EN NOMBRES dans les deux variables de
+l'énoncé, et une sortie qui porte le plus grand et jamais le plus petit (le
+texte de la phrase est libre, le nombre seul suffit). Nommés : `float`
+oublié (la variable contient un texte), `int` (3.5 refusé), la virgule
+française, une ou trois questions, l'input muet, une autre variable que
+celle de l'énoncé, les deux nombres affichés, le plus petit affiché, la
+variable entre guillemets, un print juste dans une seule branche, rien
+d'affiché, les guillemets typographiques.
+
+**La séance** : la fiche épinglée (`x` et `y`), puis d'autres paires de
+variables (`PXY_VARS`) tirées par `distinctes()` ; `dmNbQuestions()`
+l'allonge. Le programme voyage dans `q.prog` et compte pour UNE case
+(`pts-case`). Pas de correction au fil de la frappe (`soutienEnDirect.sans`),
+pas de bouton des tables. Contrôle : `pythonIfPlusGrand` (banc principal) —
+la place, le tirage (300 séances), le juge sur 5 copies justes et 14
+fausses, chacune avec le mot qui la nomme, l'écran tenu aux consignes, le
+dialogue de la console, les copies juste, fausse et vide, le soutien qui ne
+révèle rien, et les modèles comparés à un vrai CPython.
