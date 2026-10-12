@@ -225,6 +225,25 @@ function structure(){
       manque.length === 0, manque.join(' | '));
   }
 
+  /* CHAQUE ÉCRAN SE FERME AVANT QUE LE SUIVANT S'OUVRE (octobre 2026). Une
+     fusion de main a laissé l'écran de {python-if-else} sans son
+     </div></div></section> : tous les écrans écrits après lui sont devenus
+     ses ENFANTS, et cachés avec lui — la porte du professeur avec eux. Le
+     navigateur referme la balise en silence, jsdom aussi : seul le banc
+     navigateur l'a vu, et loin de l'exercice, au bouton « Quitter » de la
+     porte du professeur. Une section ouverte dans une autre est nommée ici,
+     par sa ligne. */
+  {
+    const imbriques = []; let ouverte = null;
+    for(const m of s.matchAll(/<section\b[^>]*>|<\/section>/g)){
+      if(m[0][1] === '/'){ ouverte = null; continue; }
+      if(ouverte) imbriques.push((ouverte.tag.match(/id="([^"]+)"/) || [,'?'])[1] + ' (ligne ' + ligneDe(ouverte.index) + ') n’est pas fermée avant la ligne ' + ligneDe(m.index));
+      ouverte = { index: m.index, tag: m[0] };
+    }
+    verifier('chaque <section> se ferme avant que la suivante s’ouvre (aucun écran caché dans un autre)',
+      imbriques.length === 0, imbriques.slice(0, 3).join(' | '));
+  }
+
   /* Supabase renvoie ses erreurs sans lever d'exception : tout appel doit les
      examiner. Deux façons de passer à côté, et le banc ne voyait que la
      première — l'insertion de la note de fin de test échappait au compte. */
