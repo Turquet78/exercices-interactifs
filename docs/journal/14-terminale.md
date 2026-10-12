@@ -2952,7 +2952,55 @@ l'autre ordre, et fait rougir la parenthèse oubliée (35 − 0,8Uₙ + 7) et le
 terme doublé. Correction comme au 5.1.2 : une case fausse est remplacée par
 la bonne réponse, en vert, et la phrase dit « inscrites en vert ».
 
-**Puis V₀ s'est écrit avec la VALEUR de U₀ (5.1.5, v378).** Demande de
+**{suite-limite-puissance} (5.6.1) : LA FICHE « LIMITE qⁿ » — « lim Uₙ = ……
+avec …… » (octobre 2026, v378).** Demande de Turquet : « créer un exercice
+comme le pdf joint. *avec ……* signifie qu'il faut préciser comment est la base
+de la puissance, par exemple *avec 2 > 1* ou *avec −1 < 0,5 < 1* ». Une
+sixième partie du thème des Suites, *Limite de qⁿ* (ajoutée en FIN de thème :
+aucun numéro existant ne bouge).
+
+**Le tirage** : huit questions, une par famille, dans l'ordre de la fiche —
+qⁿ seul (a, b), k × qⁿ (c à g), a + k × qⁿ (h), a / (b + qⁿ) avec « car lim qⁿ
+= … » (i, n, o), (a + qⁿ) / (b + qⁿ) (j, k), k × (p/r)ⁿ + c, la base en
+FRACTION (l, m), puis les deux produits où la fiche remplace le « avec » par
+deux limites (« car lim 3ⁿ = … et lim 0,25ⁿ = … », p, q). Bases POSITIVES
+comme sur la fiche ; une limite finie tirée DÉCIMALE (dénominateur 1, 2, 4
+ou 5 — le 3/5 de la fiche vaut 0,6) et acceptée aussi en fraction. Les huit
+passent par `distinctes()`.
+
+**Le « avec » est une case de TEXTE**, pas un champ mathématique : le clavier
+de la Terminale n'a ni « < » ni « > », et le lui ajouter touchait toutes ses
+formes (tablette, téléphone, limites) que des contrôles comparent. C'est le
+choix de {suite-algo-seuil}, dont la condition « u > 0.5 » s'écrit déjà au
+clavier du système. Le juge `lqnAvecOK` ÉVALUE l'inégalité au lieu de la
+comparer au caractère près : « 1,3 > 1 », « 1 < 1,3 », « −1 < 0,7 < 1 »,
+« 1 > 0,7 > −1 », « −1 < 5/7 < 1 » sont justes, et « 0 < 0,7 < 1 » aussi —
+vrai, et suffisant pour une base positive (confirmé par Turquet le jour
+même : « accepte aussi 0 < 0,7 < 1, c'est bien »). Deux refus : le nombre écrit doit être LA base de la puissance
+(« 2 > 1 » ne justifie pas 1,3ⁿ), et l'inégalité doit être STRICTE (q ≥ 1
+laisse passer q = 1).
+
+**Les limites passent par `limHTML` / `limLire` / `lgLimOK`**, comme toutes
+les cases de limite de la page : même clavier qu'au 3.5, ∞ signé exigé, avis
+`limAvisSigne` quand un ∞ nu est écrit. `lqnLimOK` n'ajoute qu'une chose :
+une limite finie écrite en fraction (« \frac{3}{5} », rendue « (3)/(5) »)
+s'évalue avant d'être jugée. L'exercice est déclaré dans `casesLimite` du
+profil, et le menu du banc navigateur passe à six parties.
+
+**Exécuté avant livraison** : une sonde Playwright a fait les huit questions
+à 1280 et à 390 px (une sur deux juste, une sur deux avec la limite fausse et
+le reste vide) — les cases justes en bleu, la fausse en rouge, les vides
+complétées en vert, la note 4/8 et l'écran des résultats au bout, aucune
+erreur JavaScript. Elle a montré un défaut au premier essai : la définition
+de la suite, centrée dans un conteneur FLEX, faisait retomber ses indices et
+exposants nus sur la ligne (« U n = 1,2 n ») — le piège connu de
+docs/journal/11. `.lqn-def` est un bloc centré.
+Le banc navigateur a rougi une fois, sur « le clavier mathématique est
+atteignable sur tout écran à champ mathématique » : `renderLQN` manquait à la
+liste des rendus enveloppés en fin de fichier (le point 9 des branchements),
+et l'écran n'avait donc pas la rangée « Insérer » ni son bouton ⌨️. Ajouté.
+
+**Puis V₀ s'est écrit avec la VALEUR de U₀ (5.1.5, v379).** Demande de
 Turquet : à la première ligne de « V₀ = … », l'élève qui écrit « 40 − 30 »
 (U₀ = 40, Vₙ = Uₙ − 30) fait exactement la soustraction du problème, et la
 case le rougissait — elle n'acceptait que l'expression en U₀. Elle accepte
