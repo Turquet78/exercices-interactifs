@@ -2713,7 +2713,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=304;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=305;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -15277,13 +15277,25 @@ function lpSeance(){
   return qs;
 }
 /* {lire-probabilites} (3.1, v296) : les phrases contraires, puis les huit
-   probabilités, chacune DONNÉE par son nom (q.t = 'ln') — demande de
+   probabilités (dix depuis la v305), chacune DONNÉE par son nom (q.t = 'ln') — demande de
    Turquet, octobre 2026 : « Déterminer la probabilité demandée », puis
    « P(A) est la probabilité d'avoir … parmi … », puis P(A) = … */
+/* Depuis la v305, deux INTERSECTIONS s'ajoutent aux huit, juste après les
+   quatre probabilités sans condition (demande de Turquet, octobre 2026 :
+   « dans le 3.1 aussi, varier les intersections », réponse « ajouter 2
+   intersections ») : deux différentes parmi les quatre cases du milieu
+   (pbInterTirees, comme au 3.2 et au 3.4), rangées dans la question (q.ev).
+   LN_ITEMS ne bouge pas : une pause d'avant la v305 y relit ses huit
+   questions par leur indice. Une intersection porte it:'inter' — son
+   indice ne désigne rien, c'est q.ev qui la dit. */
+const LN_NB_INTER=2, LN_INTER_APRES=3;
 function lnSeance(){
-  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[];
-  for(let it=-1; it<LN_ITEMS.length; it++)
-    qs.push(distincte(qs, ()=>({ t:(it<0?'phr':'ln'), it:it, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], inter=qdMelanger(PB_INTER.slice()).slice(0,LN_NB_INTER);
+  const pose=(o)=>qs.push(distincte(qs, ()=>Object.assign(o, { n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+  for(let it=-1; it<LN_ITEMS.length; it++){
+    pose({ t:(it<0?'phr':'ln'), it:it });
+    if(it===LN_INTER_APRES) inter.forEach(e=>pose({ t:'ln', it:'inter', ev:[e,'T'] }));
+  }
   return qs;
 }
 /* « de » devant l'infinitif : « d'être », « d'avoir », « de prendre ». */
