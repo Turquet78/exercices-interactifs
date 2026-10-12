@@ -39074,6 +39074,31 @@ function revisionFractions(w, P){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 
+  /* AUCUN NOMBRE NÉGATIF, quand le profil le déclare (Première, octobre
+     2026 : « ne pas avoir de résultat intermédiaire ou final négatif ») :
+     trois cents séances, chaque case attendue lue — étapes et résultat —,
+     plus la fraction finale recalculée ICI, indépendamment de rvfReponse. */
+  if(R.positif){
+    verifierEval(w, 'réviser les quatre règles des fractions : aucun résultat intermédiaire ou final négatif', `(function(){
+      const vus=[];
+      const ind=function(q){ switch(q.type){
+        case 'meme-add': return q.n1+q.n2; case 'meme-sub': return q.n1-q.n2;
+        case 'mult-frac': return q.n1*q.n2; case 'mult-entier': return q.n*q.k;
+        case 'diff-add': return q.n1*q.d2+q.n2*q.d1; case 'diff-sub-entier': return q.k*q.d1-q.n1;
+        default: return q.n1*q.d2; } };
+      for(let s=0;s<300 && vus.length<4;s++){
+        rvfBuildQuestions().forEach(function(q){
+          if(!(ind(q)>0)) vus.push(q.type+' '+JSON.stringify(q)+' : résultat de numérateur '+ind(q));
+          rvfCases(q).forEach(function(c){ if(c.kind==='nb' && !(c.bon>0)) vus.push(q.type+' '+JSON.stringify(q)+' : la case '+c.id+' attend '+c.bon); });
+        });
+      }
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
+  } else {
+    ignorer('réviser les quatre règles des fractions : aucun résultat intermédiaire ou final négatif',
+      'ce niveau garde ses soustractions à résultat négatif (profil sans « positif »)');
+  }
+
   const BAREME = (R.bareme === 'questions') ? 8 : 42;
   verifierEval(w, 'réviser les quatre règles des fractions : les étapes intermédiaires et le barème', `(function(){
     const vus=[];
@@ -39110,7 +39135,7 @@ function revisionFractions(w, P){
       'mult-frac':      {num:2,  den:15, extra:[]},
       'mult-entier':    {num:6,  den:5,  extra:[['rvf-kden',1]]},
       'diff-add':       {num:11, den:15, extra:[['rvf-a1',5],['rvf-b1',5],['rvf-a2',3],['rvf-b2',3],['rvf-p1n',5],['rvf-p1d',15],['rvf-p2n',6],['rvf-p2d',15]]},
-      'diff-sub-entier':{num:-3, den:4,  extra:[['rvf-kden',1],['rvf-ka',4],['rvf-kb',4],['rvf-kpn',4],['rvf-kpd',4]]},
+      'diff-sub-entier':{num:${R.positif ? 3 : -3}, den:4,  extra:[['rvf-kden',1],['rvf-ka',4],['rvf-kb',4],['rvf-kpn',4],['rvf-kpd',4]]},
       'div-1':          {num:10, den:3,  extra:[['rvf-inv-n',5],['rvf-inv-d',1]]},
       'div-2':          {num:21, den:8,  extra:[['rvf-inv-n',7],['rvf-inv-d',4]]}
     };
