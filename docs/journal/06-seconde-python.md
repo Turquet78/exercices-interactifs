@@ -5266,3 +5266,78 @@ dessin : il n'y en a pas en tête. Le titre commence par « Bonus ». Banc jsdom
 ferme » à « il est le septième »), l'écran et les coups de pouce au
 caractère près, le programme des coups de pouce accepté par le juge, juste,
 faux, vide, et la console laissée vide par la vérification.
+
+---
+
+## {python-for-multiples} — les multiples avec une boucle for (6.6.7, Boucle for in range)
+
+**L'exercice 7 du carnet sur la boucle.** {python-for-multiples} (Seconde,
+6.6.7, APP_VERSION 447 — 437 à 446 pris sur `main` pendant les bancs, demande de Turquet, octobre 2026 : « en seconde dans
+le sous theme "bloucle for in range", créer un exercice qui suit les images
+jointes. Il faudra respecter les consignes de présentation des autres
+exercices d'algo du sous thème "input". mettre le dessin en premier, dans la
+définition ne rien rajouter de plus ainsi que dans les coups de pouces
+éventuels. respecter les couleur et présentations des exercices du sous theme
+input. ne rien écrire dans le cadre de la console. ») : le serpent qui compte
+« 0, 5, 10, 15 », puis a) « **Exécuter** le nouveau programme ci-dessous » —
+`for k in range ( 11 ):` / `print (2*k)` —, b) « Expliquer ce que fait ce
+programme. » et sa cellule « Votre réponse ✍ : », c) « **Faire** un
+programme dans la cellule ci-dessous qui affiche **tous les multiples de 5**
+de **0** à **50** ». Il ferme le sous-thème 6.6, derrière
+{python-for-depart-fin} : rien n'est renuméroté. **Écrit d'abord en 6.6.6,
+v437** : pendant ses bancs, {python-for-depart-fin} a pris ce numéro et
+cette version sur `main` (puis la v438 est partie avec la Première). La
+fusion a repris les fichiers de `main` et y a rejoué l'exercice, en 6.6.7 ;
+puis l'ordre du carnet ({python-for-renommer} en 6.6.2) a pris la v439 : la
+version passe à 440. Le 7 du carnet vient après le 6 : il reste en 6.6.7, et
+le contrôle de {python-for-depart-fin}, qui exigeait de FERMER le 6.6, exige
+d'en être le sixième, derrière {python-for-erreur}.
+**Puis une troisième rencontre, et l'ordre du carnet a décidé encore** :
+{python-trois-des} (l'exercice 13 du carnet, BONUS) a été fusionné en 6.6.7,
+v445, pendant les bancs. Le 7 du carnet vient avant le 13 : celui-ci prend
+6.6.7, {python-trois-des} recule en 6.6.8 — les notes portent l'identifiant
+et ne bougent pas —, et la version passe à 446. Le contrôle de
+{python-trois-des} exigeait de fermer le 6.6 en SEPTIÈME : il exige de le
+fermer en huitième, derrière celui-ci ; celui-ci exige d'être le septième,
+entre {python-for-depart-fin} et {python-trois-des}.
+**Et une quatrième** : {python-for-moyenne-notes} (l'exercice 11 du carnet,
+BONUS) est entré dans le 6.6 en 6.6.8, v446, derrière {python-trois-des}.
+Celui-ci ne réordonne pas les deux bonus entre eux — ce n'était pas
+demandé — : il prend 6.6.7, et les deux bonus reculent d'un rang
+({python-trois-des} 6.6.8, {python-for-moyenne-notes} 6.6.9). Version 447. **Et le préfixe a changé** : {python-for-moyenne-notes} avait pris `pfm` (`startPFM`, `RAP_PFM`) sur `main` ; à la fusion, la page déclarait deux fois `RAP_PFM` et ne s'ouvrait plus — le banc l'a dit avant toute poussée. Celui-ci passe au préfixe `pfq`, qui n'apparaissait nulle part. Un préfixe se vérifie sur `main` au moment de la FUSION, pas seulement à la création.
+
+**La présentation est celle de {python-for-erreur} et de {python-for-renommer}** : le dessin seul dans
+l'énoncé du haut (découpé dans la capture, détouré depuis les bords, WebP de
+9 Ko en `data:`, `PFQ_IMG`), puis les trois étapes sur le MÊME écran, chacune
+dans son cadre `.pyn-etape` ouvert par SA question en gras, gardée quand la
+suivante s'ouvre. La fiche n'a ni définition ni coup de pouce : l'écran n'en
+a aucun (exception nommée de `pythonAvant.sans`), et le rappel (`RAP_PFQ`)
+ne porte que le programme de la fiche. Les deux consoles vides restent des
+cadres vides (`#pfqConsole`, `#pfqConsoleC` rejoignent `content:none`), et
+la cellule du c) n'a pas de texte d'attente. « Executer » reçoit son accent.
+
+**a) est une porte, pas une note** (le motif de {python-for-oui-non}) : « Vérifier » est
+fermé, et le b) ne s'ouvre qu'après l'exécution. **b) est jugé par le
+modèle** (action `verif`) : la règle de décision porte l'idée — le programme
+affiche les multiples de 2 (2*k, le double de k, les nombres pairs) ; les
+bornes ne sont pas exigées, mais une borne donnée doit être juste. Une
+explication vide ne part pas et ne rougit pas ; le verdict s'applique dans
+`pfqVerdictB`, que le banc joue sans réseau. **c) est jugé en exécutant**
+(`pfqDiag`, le moteur du 6.4.5) : la console doit afficher 0, 5, …, 50, un par
+ligne, et le programme répéter par une boucle for. `range ( 11 )` avec `5*k`,
+`range(0,51,5)`, une phrase autour du nombre passent. Nommés : rien
+d'affiché, 50 manquant (le piège de range), une valeur de trop, 0 oublié,
+le programme du a) recopié, des nombres à virgule, les onze print à la main.
+Une cellule vide est redemandée sans rougir. Chaque étape se vérifie seule,
+puis ouvre la suivante (« Passer au c) ») : deux cases par question.
+
+**La séance** : la fiche épinglée (range ( 11 ), 2*k ; les multiples de 5 de
+0 à 50), puis d'autres situations (`PFQ_SITUATIONS`, jamais le même
+multiplicateur au a) et au c)) tirées par `distinctes()` ; `dmNbQuestions()`
+l'allonge. Pas de correction au fil de la frappe (`soutienEnDirect.sans`),
+pas de bouton des tables. Banc jsdom (`pythonForMultiples`) : la place, la
+séance (300 séances), le juge du c) sur des copies justes et fausses, l'écran
+tenu aux consignes, ce qui part au modèle, le trajet a) → b) → c) et la note
+à deux cases, le faux dans les deux modes, la reprise, et les programmes
+comparés à un vrai CPython. Pas de section propre au banc navigateur : la
+visite universelle (section 9) l'ouvre dans les deux modes.
