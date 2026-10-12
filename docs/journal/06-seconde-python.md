@@ -5553,7 +5553,77 @@ CPython. Pas de section propre au banc navigateur : la visite universelle
 
 ---
 
-## {python-if-cinema} — le prix d'une place de cinéma (6.7.1, Condition if else, BONUS)
+## {python-samoussa} — le prix des samoussas (6.7.1, Condition if else)
+
+**L'exercice 3 du carnet sur la condition.** {python-samoussa} (Seconde,
+6.7.1, APP_VERSION 457 — 449 à 456 pris sur `main` pendant les bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+le sous-thème "condition if else", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre », puis, pendant le
+travail : « ne pas écrire bonus dans le titre ») : le serpent « Donne à mouin
+un samoussa », puis « Le prix d'un samoussa est de 1.20 € si on en prend
+moins de 10 et il est de 0.80 € à partir de 10 samoussas. Faire un
+programme » et ses trois puces (l'input dans la variable entière `nombre`,
+le Si … Alors, le sinon), et trois coups de pouce. **Le sous-thème 6.7
+« Condition if else » n'existait pas** : il est créé EN DERNIER dans le
+thème, rien n’est renuméroté. Les neuf contrôles du 6.6 qui exigeaient que
+leur sous-thème soit « le dernier du thème » exigent désormais qu'il soit le
+sixième. **Pas de « Bonus »** : ni dans le titre, ni dans la description ;
+le contrôle l'exige (le contraire du 6.6.10).
+
+**La présentation est celle de {python-for-images}** : le dessin seul dans
+`#psmInstr` (découpé dans la capture, détouré depuis les bords, WebP de
+17 Ko, `PSM_IMG`) ; l'énoncé dans un cadre `.pyn-etape`, en gras, qui
+enveloppe les coups de pouce, la cellule, « Exécuter » et la console. Le
+texte est celui de la fiche — « 1.20 € » avec son point, comme elle l'écrit —,
+seule coquille corrigée : « le nombre de samoussas ». Aucune définition
+(exception déclarée, `pythonAvant.sans`) ; la console vide reste un cadre
+vide (`#psmConsole` rejoint `content:none`). **Les trois coups de pouce sont
+ceux de la fiche, mot pour mot** : les deux premiers en chasse fixe,
+coloriés comme le carnet (`int`, `input`, `if`, `else`, `print` en vert
+gras, les chaînes en rouge, `=`, `<` et les points de suspension en violet),
+le troisième en phrases, ses formules en gras. Le rappel (`RAP_PSM`) ne dit
+qu'eux.
+
+**L'exécution est celle de `pyRun`**, qui sait `if / elif / else` depuis le
+6.4 ; la console pose la question du programme et l'élève y répond (le
+dialogue du 6.3.9). Tab décale de quatre espaces, Entrée après « : » décale
+la ligne suivante (`psmTouche`, le geste de `pfnTouche`, mais qui enregistre
+dans SA question).
+
+**Le juge (`psmDiag`) lit le prix AFFICHÉ** sous quatre réponses que l'élève
+ne connaît pas (`psmEx` : sous le seuil, le seuil lui-même, au-dessus, juste
+sous le seuil), à 1e-6 près — le prix seul ou avec une phrase, `1.2` ou
+`1.20`, `elif` au lieu de `else`, tout passe. La fiche NOMME ses variables :
+la réponse va dans `nombre`, entière (`int`), le prix dans `prix`. Nommés :
+`float` au lieu de `int`, l'input sans `int` (le texte qu'on ne compare pas),
+`1,20`, `=` dans le test, `If` en majuscule, pas de `if`, un cas qui
+n'affiche rien (un print oublié dans une branche), le seuil compté du mauvais
+côté (`<= 10` : 10 samoussas coûtent déjà 0.80 €), les prix échangés,
+toujours le même prix, le prix d'UN samoussa, `"prix"` entre guillemets, le
+prix non rangé dans `prix`, deux input, `round`, `nombre` renommé, les
+deux-points et le retrait.
+
+**La séance** : la fiche épinglée (1.20 €, 0.80 €, 10), puis d'autres prix et
+d'autres seuils (`PSM_PRIX`, `[prix sous le seuil, prix à partir du seuil,
+seuil]`, seuil ≥ 5 pour qu'on puisse juger en dessous) tirés par
+`distinctes()` ; `dmNbQuestions()` l'allonge. Énoncé et coups de pouce
+suivent les prix de la question ; le rappel garde ceux de la fiche. Le
+programme voyage dans `q.prog` et compte pour UNE case (`pts-case`). Pas de
+correction au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des
+tables. Contrôle : `pythonSamoussa` (banc principal) — la place et le titre
+sans « Bonus », le tirage (300 séances), le juge sur 5 copies justes et 21
+fausses, chacune avec le mot qui la nomme, l'écran tenu aux consignes, le
+dialogue de la console, les copies juste, fausse et vide, le soutien qui ne
+révèle rien, et les modèles comparés à un vrai CPython. La visite
+universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-if-cinema} — le prix d'une place de cinéma (6.7.2, Condition if else, BONUS)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
 condition if else, créer un exercice qui suit les images jointes ; respecter
@@ -5568,13 +5638,20 @@ majeurs. Faire un programme qui demande l'âge de l'utilisateur et qui met le
 résultat dans la variable entière age ; si l'age est plus petit que 18 alors
 il affiche "Tu dois payer 6 €. " et sinon il affiche "Tu dois payer 9€." ».
 
-**Le sous-thème 6.7 « Condition if else » n'existait pas : il est né avec
-cet exercice**, ajouté EN DERNIER au thème 6 — rien n'est renuméroté. Huit
-contrôles d'exercices du 6.6 (dont ceux de {python-for-table} et de
-{python-tables-multiplication}, arrivés par des fusions de `main`) exigeaient que le 6.6 soit le DERNIER
-sous-thème du thème : ils exigent désormais qu'il reste le SIXIÈME, ce qui
-était leur intention (rien ne doit bouger devant), et le contrôle du 6.7.1
-reprend l'exigence « dernier » pour lui.
+**Le sous-thème 6.7 « Condition if else » n'existait pas quand cet exercice
+a été écrit : il l'a créé, en 6.7.1. Mais {python-samoussa}, écrit en même
+temps dans une autre branche, l'a créé lui aussi, et il a été fusionné le
+premier — juste avant la fusion de celui-ci.** Ce qui est en ligne ne se
+renumérote pas : {python-samoussa} garde le 6.7.1, le cinéma passe en
+6.7.2, derrière lui (APP_VERSION 458 ; 451 puis 457 pris sur `main` pendant
+les bancs). Les deux exercices avaient été bâtis sur le même modèle
+({python-input-prix}) : git a entrelacé leurs blocs ligne à ligne, si bien
+que la fusion n'a pas été résolue conflit par conflit — les quatre fichiers
+ont été repris de `main`, et le cinéma regreffé pièce par pièce depuis la
+branche, chaque pièce vérifiée identique à sa source. Huit contrôles
+d'exercices du 6.6 exigeaient que le 6.6 soit le DERNIER sous-thème : ils
+exigent qu'il reste le SIXIÈME (la même adaptation a été faite des deux
+côtés).
 
 **La présentation est celle de {python-for-images}** : le dessin seul dans
 `#pciInstr` (découpé dans la capture, WebP de 17 Ko, `PCI_IMG`) ; l'énoncé
