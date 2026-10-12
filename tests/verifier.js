@@ -27849,7 +27849,7 @@ function pythonForErreur(w, P){
     if(!ti||net(ti.textContent)!=="✏️ Exécuter le programme ci-dessous et expliquer pourquoi il y a une erreur !") vus.push("l’énoncé : "+JSON.stringify(ti&&net(ti.textContent)));
     if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
     const pr=document.getElementById("pfeProg");
-    if(!pr||pr.textContent!=='for k  in range ( 9 )'+NL+'   print ("valeur=", nombre )') vus.push("le programme : "+JSON.stringify(pr&&pr.textContent));
+    if(!pr||pr.textContent!=='for k  in range ( 9 )'+NL+'   print ("valeur=", k )') vus.push("le programme : "+JSON.stringify(pr&&pr.textContent));
     ["pfeProg","pfeRun","pfeConsole","pfe-exp"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
     const c=document.getElementById("pfeConsole");
     if(c.textContent!==""||getComputedStyle(c,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide avant l’exécution");
@@ -27862,7 +27862,7 @@ function pythonForErreur(w, P){
   })()`, v => v === '');
 
   /* ---- 3. le verdict : vide redemandé, juste en bleu, faux en rouge avec la correction verte ---- */
-  verifierEval(w, 'la réponse vide n’est ni envoyée ni peinte ; le verdict du modèle peint ok ou bad, la correction verte nomme les deux fautes ; en soutien, l’explication fausse se reprend sans correction', `(function(){
+  verifierEval(w, 'la réponse vide n’est ni envoyée ni peinte ; le verdict du modèle peint ok ou bad, la correction verte nomme la faute ; en soutien, l’explication fausse se reprend sans correction', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     const vus=[]; let envois=0;
     sb.functions={ invoke:function(){ envois++; return new Promise(function(){}); } };
@@ -27878,7 +27878,7 @@ function pythonForErreur(w, P){
     pfeVerdict({correct:false, feedback:"Pas encore."});
     const cor=document.querySelector("#pfeModele .sol");
     if(!ta.classList.contains("bad")||test.score!==0||!test.locked) vus.push("entraînement : la réponse fausse ne rougit pas ou ne verrouille pas");
-    if(!cor||!/deux-points/.test(cor.textContent)||!/nombre/.test(cor.textContent)) vus.push("pas de correction verte nommant les deux fautes");
+    if(!cor||!/deux-points/.test(cor.textContent)||/nombre/.test(cor.textContent)) vus.push("pas de correction verte nommant la faute, ou elle nomme encore « nombre »");
     if(!document.getElementById("pfeNext")) vus.push("pas de bouton pour finir");
     currentMode="soutien"; startPFE(); ta=document.getElementById("pfe-exp");
     ta.value="à cause des espaces"; ta.dispatchEvent(new Event("input",{bubbles:true}));
@@ -27893,7 +27893,7 @@ function pythonForErreur(w, P){
   })()`, v => v === '');
 
   /* ---- 4. la seconde méthode : CPython refuse le programme, et pour la même raison ---- */
-  const nomPy = 'le programme de {python-for-erreur} est refusé par un vrai CPython — d’abord pour les deux-points, puis pour « nombre »';
+  const nomPy = 'le programme de {python-for-erreur} est refusé par un vrai CPython pour les deux-points, et l’accepte une fois les deux-points remis';
   const cmd = pythonDisponible();
   if(!cmd){
     if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : le programme n\'a été comparé à RIEN');
@@ -27903,7 +27903,8 @@ function pythonForErreur(w, P){
   const prog = evaluer(w, 'PFE_PROG');
   if(!prog.ok){ verifier(nomPy, false, prog.erreur); return; }
   const ref = pythonExecuter(cmd, [prog.valeur, prog.valeur.replace('( 9 )', '( 9 ):')]);
-  verifier(nomPy, ref[0] === 'ERREUR:SyntaxError' && ref[1] === 'ERREUR:NameError', JSON.stringify(ref));
+  const attendu = Array.from({length:9}, (_, k) => 'valeur= ' + k + '\n').join('');
+  verifier(nomPy, ref[0] === 'ERREUR:SyntaxError' && ref[1] === attendu, JSON.stringify(ref));
 }
 
 function pythonInputDuree(w, P){
@@ -38895,6 +38896,31 @@ function revisionFractions(w, P){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 
+  /* AUCUN NOMBRE NÉGATIF, quand le profil le déclare (Première, octobre
+     2026 : « ne pas avoir de résultat intermédiaire ou final négatif ») :
+     trois cents séances, chaque case attendue lue — étapes et résultat —,
+     plus la fraction finale recalculée ICI, indépendamment de rvfReponse. */
+  if(R.positif){
+    verifierEval(w, 'réviser les quatre règles des fractions : aucun résultat intermédiaire ou final négatif', `(function(){
+      const vus=[];
+      const ind=function(q){ switch(q.type){
+        case 'meme-add': return q.n1+q.n2; case 'meme-sub': return q.n1-q.n2;
+        case 'mult-frac': return q.n1*q.n2; case 'mult-entier': return q.n*q.k;
+        case 'diff-add': return q.n1*q.d2+q.n2*q.d1; case 'diff-sub-entier': return q.k*q.d1-q.n1;
+        default: return q.n1*q.d2; } };
+      for(let s=0;s<300 && vus.length<4;s++){
+        rvfBuildQuestions().forEach(function(q){
+          if(!(ind(q)>0)) vus.push(q.type+' '+JSON.stringify(q)+' : résultat de numérateur '+ind(q));
+          rvfCases(q).forEach(function(c){ if(c.kind==='nb' && !(c.bon>0)) vus.push(q.type+' '+JSON.stringify(q)+' : la case '+c.id+' attend '+c.bon); });
+        });
+      }
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
+  } else {
+    ignorer('réviser les quatre règles des fractions : aucun résultat intermédiaire ou final négatif',
+      'ce niveau garde ses soustractions à résultat négatif (profil sans « positif »)');
+  }
+
   const BAREME = (R.bareme === 'questions') ? 8 : 42;
   verifierEval(w, 'réviser les quatre règles des fractions : les étapes intermédiaires et le barème', `(function(){
     const vus=[];
@@ -38931,7 +38957,7 @@ function revisionFractions(w, P){
       'mult-frac':      {num:2,  den:15, extra:[]},
       'mult-entier':    {num:6,  den:5,  extra:[['rvf-kden',1]]},
       'diff-add':       {num:11, den:15, extra:[['rvf-a1',5],['rvf-b1',5],['rvf-a2',3],['rvf-b2',3],['rvf-p1n',5],['rvf-p1d',15],['rvf-p2n',6],['rvf-p2d',15]]},
-      'diff-sub-entier':{num:-3, den:4,  extra:[['rvf-kden',1],['rvf-ka',4],['rvf-kb',4],['rvf-kpn',4],['rvf-kpd',4]]},
+      'diff-sub-entier':{num:${R.positif ? 3 : -3}, den:4,  extra:[['rvf-kden',1],['rvf-ka',4],['rvf-kb',4],['rvf-kpn',4],['rvf-kpd',4]]},
       'div-1':          {num:10, den:3,  extra:[['rvf-inv-n',5],['rvf-inv-d',1]]},
       'div-2':          {num:21, den:8,  extra:[['rvf-inv-n',7],['rvf-inv-d',4]]}
     };
