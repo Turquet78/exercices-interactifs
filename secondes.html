@@ -4806,8 +4806,9 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
     <div class="card">
       <!-- Le dessin de la fiche ouvre l'exercice, avant la définition (demande de Turquet, octobre 2026). -->
-      <div class="mp-instr pyi-instr" id="pofFig"></div>
+      <div class="pof-fig" id="pofFig"></div>
       <div class="py-avant" id="pofAvant"></div>
+      <p class="mp-instr" id="pofInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="pofHost"></div></div>
       <div class="mp-feedback" id="pofFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
@@ -37835,8 +37836,9 @@ function renderPOF(){
   $('pofIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPOF').innerHTML=modeTagHTML();
   $('pofLiveScore').textContent=test.score;
-  $('pofFig').innerHTML='<div class="pof-fig">'+pofFigHTML(q)+'</div>';
+  $('pofFig').innerHTML=pofFigHTML(q);
   pyAvant('pof', pofDefHTML());
+  $('pofInstr').innerHTML='Jouons à pile ou face&nbsp;: question '+pofEtape(q)+').';
   $('pofFeedback').textContent=''; $('pofFeedback').className='mp-feedback';
   $('pofActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pofValidate" onclick="checkPOF()">Vérifier</button>';
   const e=pofEtape(q);
