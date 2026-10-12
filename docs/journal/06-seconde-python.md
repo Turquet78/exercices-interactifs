@@ -5407,3 +5407,64 @@ pour UNE case (`pts-case`). Pas de correction au fil de la frappe
 mot qui la nomme, l'écran tenu aux consignes, les copies juste, fausse et
 vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
 CPython. La visite universelle (section 9) l'ouvre dans les deux modes.
+
+## {python-if-location} — je loue une voiture (6.7.1, Condition if else)
+
+**L'exercice 6 du carnet sur la condition.** {python-if-location} (Seconde,
+6.7.1, APP_VERSION 449, demande de Turquet, octobre 2026 : « en seconde dans
+le sous-thème "condition if else", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ») : le serpent qui tend la clé (« Je loue une
+voiture »), le tarif — 100 € la journée, 0,40 €/km pour les 50 premiers
+kilomètres, 0,70 €/km au-delà —, puis « Écrire un programme en python qui »
+demande le nombre entier de kilomètres dans la variable `kilometre`, calcule
+le prix dans la variable `prix` par un if puis un else, et l'affiche ; quatre
+coups de pouce. Le sous-thème n'existait pas : il est ajouté EN DERNIER au
+thème 6 (6.7 « Condition if else ») — rien n'est renuméroté.
+
+**La présentation est celle du 6.3.9 et du 6.6.10** : le dessin seul dans
+`#ploInstr` (découpé dans la capture, 376 × 376, WebP de 17 Ko, `PLO_IMG`) ;
+la question dans un cadre `.pyn-etape`, en gras : le tarif à puces, le trait
+qui le sépare du programme sur la fiche (`.plo-sep`), puis les trois puces ;
+les quatre coups de pouce repliés, la cellule, « Exécuter » et la console.
+Aucune définition (exception déclarée, `pythonAvant.sans`) ; la console vide
+reste un cadre vide (`#ploConsole` rejoint `content:none`). Dans la cellule,
+Tab et Entrée après « : » décalent (`pfnTouche`).
+
+**Les quatre coups de pouce sont ceux de la fiche** — le code du premier et
+du second en chasse fixe, colorié comme le carnet (`if`, `else`, `int`,
+`input` en vert gras, `<` et `= ....` en violet, les textes en rouge) ; le
+rappel (`RAP_PLO`) ne dit qu'eux. **Deux coquilles corrigées, et seulement
+elles** : la parenthèse fermante qui manquait au premier (`int (input ( "…" )`
+ne s'exécute pas), et le quatrième, qui écrivait `0.7 * ( 50 - kilometre )`
+— un prix qui BAISSE au-delà de 50 km : c'est `( kilometre - 50 )`, les
+« kilomètres restants » du troisième. Dans l'énoncé, « il calcul » devient
+« il calcule » ; les noms de variables restent `kilometre` et `prix`.
+
+**Le juge (`ploDiag`) exécute la copie sous trois kilométrages** (`ploKm` :
+le seuil − 13, puis + 37 et + 150) et lit la variable `prix` ET la console
+(à 10⁻⁶ près : `0.7*70` vaut `48.99999999999999`, ici comme dans CPython).
+Les noms `kilometre` et `prix` sont imposés par la fiche, il les exige ; il
+faut un `if` et un `else`. `<=` au lieu de `<` passe (au seuil les deux
+formules donnent le même prix), `float(input(…))` aussi. Nommés : la
+conversion oubliée, la virgule française, aucun input, pas de if, pas de
+else, deux questions, l'input muet, `kilometre` ou `prix` absents, le prix
+non affiché, `( 50 - kilometre )`, la même formule dans les deux branches,
+tous les kilomètres au second tarif, les premiers kilomètres oubliés, le if
+faux, le prix fixe, le else faux — en donnant le kilométrage tapé et ce que
+la copie a calculé, jamais le prix attendu.
+
+**La séance** : la fiche épinglée (100 € ; 0,40 € ; 50 km ; 0,70 €), puis
+d'autres tarifs (`PLO_TARIFS`) tirés par `distinctes()` ; `dmNbQuestions()`
+l'allonge. L'énoncé et les coups de pouce suivent le tarif de la question.
+Le programme voyage dans `q.prog` et compte pour UNE case (`pts-case`). Pas
+de correction au fil de la frappe (`soutienEnDirect.sans`), pas de bouton
+des tables. Contrôle : `pythonIfLocation` (banc principal) — la place, le
+tirage (300 séances), le juge sur 4 copies justes et 19 fausses, chacune avec
+le mot qui la nomme, l'écran tenu aux consignes, le dialogue de la console,
+les copies juste, fausse et vide, le soutien qui ne révèle rien, et les
+modèles comparés à un vrai CPython. La visite universelle (section 9)
+l'ouvre dans les deux modes.
