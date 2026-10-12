@@ -51,7 +51,8 @@ const RAPPELS_PREMIERE = `(function(){
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
     'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd','synthese-evolutions-successives':'ess',
-    'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf','tableau-probabilites':'pb','lire-probabilites':'pb','probabilites-fiche':'pb','probabilites-ecriture':'pb','revision-fractions':'rvf' };
+    'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf','tableau-probabilites':'pb','lire-probabilites':'pb','probabilites-fiche':'pb','probabilites-ecriture':'pb','revision-fractions':'rvf',
+    'croiser-denominateurs':'sf','somme-fractions-2':'sf','multiplier-fractions':'mlt','diviser-fractions':'mlt' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     /* un exercice peut avoir SON rappel, indépendant du kind : deux exercices
@@ -218,6 +219,19 @@ module.exports = {
        négatif (demande de Turquet, octobre 2026) ; la soustraction de
        l'entier s'écrit donc « k − n1/d1 ». La Seconde garde ses négatifs. */
     revisionFractions: { num: '4.1', max: 5, bareme: 'questions', positif: true, simplifier: true },
+    /* Le thème 4 a reçu, le même mois, les 5.2, 5.3, 5.6 et 5.8 de la Seconde
+       (« tous les nombres au départ entre 1 et 5 ; pas de résultat
+       intermédiaire ou final négatif ; si le résultat peut être simplifié,
+       proposer les simplifications comme au 4.1 »). FRAC_MAX dans la page,
+       ici la borne : deux sources. */
+    fractionsEtapes: { max: 5, exercices: ['croiser-denominateurs', 'somme-fractions-2', 'multiplier-fractions', 'diviser-fractions'] },
+    /* {multiplier-fractions} et {diviser-fractions} (4.4, 4.5) : le moteur de
+       la Seconde, nombres de 1 à 5, produit qui se SIMPLIFIE par étapes, sans
+       la version rédigée. */
+    multiplierFractions: { max: 5, simplifier: true, libre: false },
+    /* {croiser-denominateurs} (4.2) : les flèches de la Seconde, recopiées —
+       le banc navigateur mesure ce que l'élève VOIT. */
+    croisement: { exercice: 'croiser-denominateurs' },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
        de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
@@ -770,6 +784,10 @@ module.exports = {
     /* {revision-fractions} (5.11) : un chiffre de 1 à 9 (RVF_MAX dans la
        page), et le barème compte les CASES — finishTest lit maxScore. */
     revisionFractions: { num: '5.11', max: 9, bareme: 'cases', simplifier: false },
+    /* {multiplier-fractions} (5.6) : un chiffre de 1 à 9, un produit TOUJOURS
+       irréductible (« aucune simplification », août 2026), et la version
+       rédigée {multiplier-fractions-libre}. */
+    multiplierFractions: { max: 9, simplifier: false, libre: true },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
        de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
