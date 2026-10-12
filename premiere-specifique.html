@@ -14545,7 +14545,7 @@ const LP_ITEMS=[['B','T'],['A','T'],['nB','T'],['nA','T'],['B','A'],['nB','A'],[
    renversement à ne pas confondre avec elle. */
 const LN_ITEMS=[['B','T'],['A','T'],['nB','T'],['nA','T'],['B','A'],['nB','A'],['A','B'],['B','nA']];
 /* Une question peut porter sa probabilité ELLE-MÊME (q.ev = [évènement,
-   univers]) : c'est le cas des intersections tirées du 3.4 (pbeSeance). Une
+   univers]) : c'est le cas des intersections tirées du 3.2 et du 3.4 (pbInterTirees). Une
    pause d'avant la v301 n'a pas q.ev et relit PB_ITEMS. */
 function pbItem(q){ return q.ev || (q.t==='lp' ? LP_ITEMS : q.t==='ln' ? LN_ITEMS : PB_ITEMS)[q.it]; }
 /* n = [A∩B, Ā∩B, A∩B̄, Ā∩B̄] — les quatre cases du milieu. */
@@ -14571,6 +14571,23 @@ function pbTableau(){
   /* les quatre cases du milieu sont toujours un jeu valable : la liste n'est jamais vide */
   return { n:n, k:pick(jeux) };
 }
+/* Les deux intersections sans condition de PB_ITEMS — P(A∩B) et P(A∩B̄) —
+   ne sortent plus toujours telles quelles : au 3.2 comme au 3.4, elles se
+   tirent parmi les QUATRE cases du milieu du tableau, deux différentes, dans
+   un ordre quelconque (demandes de Turquet, octobre 2026 : « varier les
+   intersections possibles pour les questions 5 et 6 », puis « dans le 3.2
+   aussi »). Le tirage est rangé dans la question (q.ev), que pbItem lit
+   avant PB_ITEMS. pbInterTirees() rend, pour l'indice d'un item, ce qu'il
+   faut ajouter à sa question : { ev } pour une intersection, rien sinon. */
+const PB_INTER=['A.B','A.nB','nA.B','nA.nB'];
+function pbInterTirees(){
+  const inter=qdMelanger(PB_INTER.slice());
+  let ii=0;
+  return function(it){
+    const e=PB_ITEMS[it];
+    return (e && e[1]==='T' && e[0].indexOf('.')>=0) ? { ev:[inter[ii++],'T'] } : {};
+  };
+}
 /* Depuis la v290, les douze probabilités se posent EN MOTS, comme au 3.1
    (demande de Turquet, octobre 2026 : « tout ce qui est similaire au 3.1
    fait de la même façon ») : chacune tire sa tournure (q.v). Les six
@@ -14579,9 +14596,10 @@ function pbTableau(){
 function pbSeance(){
   const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], tc=qdMelanger([0,1,2,3,0,1,2,3]);
   let ic=0;
+  const ev=pbInterTirees();
   for(let it=-1; it<PB_ITEMS.length; it++){
-    const v = it<0 ? 0 : (PB_ITEMS[it][1]==='T' ? rand(0,2) : tc[ic++]);
-    qs.push(distincte(qs, ()=>({ t:(it<0?'tab':'p'), it:it, v:v, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+    const v = it<0 ? 0 : (PB_ITEMS[it][1]==='T' ? rand(0,2) : tc[ic++]), e=ev(it);
+    qs.push(distincte(qs, ()=>Object.assign({ t:(it<0?'tab':'p'), it:it }, e, { v:v, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
   }
   return qs;
 }
@@ -15004,18 +15022,11 @@ async function startLP(){
    en lettres = fraction des effectifs. Même page que le 3.3 (pbEstFiche),
    mêmes cases, même juge. Sur un écran large, deux colonnes de lignes. */
 function pbEstFiche(){ return test.qId==='probabilites-fiche' || test.qId==='probabilites-ecriture'; }
-/* Les questions 5 et 6 — les deux intersections sans condition — ne sont
-   plus toujours P(A∩B) et P(A∩B̄) : elles se tirent parmi les QUATRE cases
-   du milieu du tableau, deux différentes, dans un ordre quelconque (demande
-   de Turquet, octobre 2026 : « varier les intersections possibles pour les
-   questions 5 et 6 »). Le tirage est rangé dans la question (q.ev). */
-const PBE_INTER=['A.B','A.nB','nA.B','nA.nB'];
 function pbeSeance(){
-  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], inter=qdMelanger(PBE_INTER.slice());
-  let ii=0;
+  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], ev=pbInterTirees();
   for(let it=0; it<PB_ITEMS.length; it++){
-    const ev = (PB_ITEMS[it][1]==='T' && PB_ITEMS[it][0].indexOf('.')>=0) ? [inter[ii++],'T'] : null;
-    qs.push(distincte(qs, ()=>Object.assign({ t:'nom', it:it }, ev ? { ev:ev } : {}, { n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+    const e=ev(it);   /* hors de la fabrique : distincte() peut la rappeler */
+    qs.push(distincte(qs, ()=>Object.assign({ t:'nom', it:it }, e, { n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
   }
   return qs;
 }

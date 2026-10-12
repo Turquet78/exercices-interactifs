@@ -438,7 +438,7 @@ Vérifié dans Chromium : la liste propose « tout », le choix efface la case
 (fond `rgba(0,0,0,0)`, vitrine à 0,22), et une fois jugée juste elle reste
 effacée.
 
-## v301 — au 3.4, les questions 5 et 6 tirent leurs intersections
+## v301 — au 3.4 puis au 3.2, les intersections se tirent
 
 Demande de Turquet (octobre 2026) : « en première dans le 3.4 varier les
 intersections possibles pour les questions 5 et 6 ».
@@ -452,9 +452,21 @@ le juge, le nom écrit, la méthode sous une question fausse, la copie
 enregistrée et le contexte du modèle suivent sans rien changer. Une pause
 d'avant la v301 n'a pas `q.ev` et relit `PB_ITEMS` comme avant. Les quatre
 codes sont déjà écrits « A d'abord », ce que `pbInter` exige. Le 3.2, qui
-partage `PB_ITEMS`, ne change pas : la demande ne portait que sur le 3.4.
+partage `PB_ITEMS`, n'a d'abord pas changé : la demande ne portait que sur le 3.4.
 
 Vérifié dans Chromium : 200 séances tirées, les douze couples sortent, jamais
 deux fois la même intersection ; une séance forcée sur P(Ḡ∩L̄) et P(Ḡ∩L)
 s'affiche sur une ligne, barres en place, et ses réponses attendues sont la
 bonne case du tableau sur le total.
+
+**Puis le 3.2 a suivi, dans la même version** (« dans le 3.2 aussi, varier
+les intersections »). Ses deux probabilités d'intersection, posées EN MOTS
+(« d'être mineur et de ne pas faire de compétition »), se tirent de la même
+façon. Le tirage vit dans une seule fonction, `pbInterTirees()`, que lisent
+`pbSeance` (3.2) et `pbeSeance` (3.4) ; `lpEnonce` passe par `pbItem` et dit
+donc la bonne intersection. Le tirage se fait HORS de la fabrique passée à
+`distincte()` : celle-ci la rappelle quand une question en reprend une
+autre, et un compteur avancé dedans aurait sauté une intersection, ou
+donné deux fois la même. Vérifié dans Chromium : 300 séances de chaque
+exercice, douze couples, jamais de doublon ; une question du 3.2 forcée sur
+Ā∩B̄ s'énonce juste et attend la bonne case sur le total.
