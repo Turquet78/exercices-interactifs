@@ -20524,7 +20524,8 @@ async function startSAL(){
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='suite-auxiliaire-limite'; test.kind='sal';
-  test.questions=distinctes(2, function(_,i){ return salTirer(i===0?'moins':'plus'); });
+  /* deux questions, les deux formes de la fiche ; un devoir peut allonger la séance, les formes alternent */
+  test.questions=distinctes(dmNbQuestions(2), function(_,i){ return salTirer(i%2===0?'moins':'plus'); });
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   test.maxScore=test.questions.length;
   show('sal'); renderSAL();
