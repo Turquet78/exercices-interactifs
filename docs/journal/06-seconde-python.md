@@ -4810,6 +4810,61 @@ nom.
 
 ---
 
+## {python-for-oui-non} — « oui » répété, « non » une seule fois (6.6.3, Boucle for in range)
+
+**Le sous-thème « Boucle for in range », et la fiche « Exercice 4 ».**
+{python-for-oui-non} (Seconde, 6.6.3, APP_VERSION 432 — 429 à 431 pris sur `main` pendant les bancs —, demande de Turquet,
+octobre 2026 : « en seconde dans le sous thème "boucle for in range", créer
+un exercice qui suit les images jointes. Il faudra respecter les consignes de
+présentation des autres exercices d'algo du sous-thème "input". mettre le
+dessin en premier, dans la définition ne rien rajouter de plus ainsi que dans
+les coups de pouce éventuels […] ne rien écrire dans le cadre de la
+console ») : a) « Exécuter le programme ci-dessous » — `for k in range (9):`,
+`print ("oui")` décalé, `print("non")` au bord —, b) « Expliquer pourquoi
+"oui" est répété plusieurs fois et "non" une seule fois ! », avec la cellule
+de réponse « Votre réponse ✍ : "non" est répété une seule fois car .... ».
+Le sous-thème n'existait pas au départ de la branche : il y était 6.6, ajouté
+EN DERNIER. **Pendant les bancs, {python-for-nom} a créé le MÊME sous-thème
+sur `main`** (même nom, même numéro 6.6, même v429) : à la fusion, celui-ci
+le rejoint en 6.6.2, derrière lui — rien d'autre n'est renuméroté, la version
+passe à 431 (430 pris à son tour sur `main` entre-temps), et le contrôle exige désormais l'ordre ({python-for-nom} en
+6.6.1, celui-ci en 6.6.2). DISPATCH, `testScreens` et la liste des rendus
+enveloppés avaient perdu leur entrée `pfo` dans la résolution : rétablie.
+**Puis une troisième session, la même matinée** : {python-for-range} (la fiche
+« Définition d'une boucle for … in range ») a pris 6.6.1 sur `main` et poussé
+{python-for-nom} en 6.6.2. Celui-ci passe en **6.6.3**, version 432, et son
+contrôle exige l'ordre des trois (définition, nom, puis oui/non).
+
+**Les consignes du sous-thème Input** : chaque question en gras en tête de son
+cadre `.pyn-etape` ; le b) ne s'ouvre qu'après l'exécution et le a) reste au
+dessus, figé (le motif du 6.3.1) ; « Vérifier » est fermé avant ; aucune
+consigne au bouton ; la console reste un cadre VIDE avant l'exécution
+(`#pfoConsole` rejoint `content:none`). La capture n'a pas de dessin (seul le
+crayon des cadres de la fiche) : l'écran n'en a pas. La fiche n'a ni
+définition ni coup de pouce : l'écran n'en a aucun (exception nommée de
+`pythonAvant.sans`), et le rappel obligatoire (`RAP_PFO`) ne porte que le
+programme de la fiche.
+
+**L'exécution passe par le moteur du 6.4.5** (`ptrEssai` : boucles déroulées,
+puis `pyRun`) — rien n'est ajouté à l'interpréteur. **Le b) est jugé par le
+modèle** (action `verif`, le motif du 6.2.5) : une explication en mots ne se
+juge pas à la règle. La règle de décision porte l'idée — la ligne de « non »
+n'est pas décalée, donc hors de la boucle, après elle — tolérante à la
+formulation ; une raison fausse ou vide de sens est refusée. Une explication
+vide ne part pas et ne rougit pas. Faux en entraînement : la case rougit, et
+une réponse qui convient s'écrit en vert dessous ; en soutien : rouge, rien
+de révélé, la question reste ouverte. L'application du verdict est une
+fonction à part (`pfoVerdict`) pour que le banc l'exerce sans réseau.
+
+**La séance** : la fiche épinglée (9, « oui », « non »), puis un programme
+tiré par `distinctes()` — un autre nombre de tours, deux autres mots
+(`PFO_SITUATIONS`) ; `dmNbQuestions()` l'allonge. Pas de correction au fil
+de la frappe (`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonForOuiNon`) : la place, le tirage (300 séances) et ce que chaque
+programme affiche, l'écran (console vide, b) fermé avant l'exécution), ce qui
+part au modèle, les verdicts juste, faux, indisponible et en soutien. Pas de
+section propre au banc navigateur : la visite universelle (section 9) l'ouvre
+dans les deux modes.
 **La boucle for … in range(…) — un sous-thème neuf, et la fiche « 1/ Définition ».**
 {python-for-range} (Seconde, 6.6.1, demande de Turquet, octobre 2026 : « en
 seconde dans algo créer un sous-thème "boucle for in range", et créer un
