@@ -5266,6 +5266,7 @@ dessin : il n'y en a pas en tête. Le titre commence par « Bonus ». Banc jsdom
 ferme » à « il est le septième »), l'écran et les coups de pouce au
 caractère près, le programme des coups de pouce accepté par le juge, juste,
 faux, vide, et la console laissée vide par la vérification.
+
 ---
 
 ## {python-for-images} — les images de f de dixième en dixième (6.6.9, Boucle for in range, BONUS)
