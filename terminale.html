@@ -886,7 +886,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-sag,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-eav{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-sag,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-eav,#scr-sal{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -1812,6 +1812,9 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
 .sa-pstretch{align-self:stretch;position:relative;width:11px;flex:none;color:var(--ink);min-height:1.6em}
 .sa-pstretch svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .sa-pgrp{display:inline-flex;align-items:center;gap:10px}
+/* {suite-auxiliaire-limite} : « lim » et son « n → +∞ » écrit dessous, comme au tableau */
+.sal-lim{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;margin-right:2px}
+.sal-lim-s{font-size:.62em;font-weight:700;white-space:nowrap}
 .su-q .su-eq{font-weight:800;}
 .su-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.86em;line-height:1.2;margin:0 3px;}
 .su-frac .fb{align-self:stretch;height:1.8px;background:currentColor;border-radius:1px;margin:1px 0;}
@@ -2972,6 +2975,54 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     </div>
   </section>
 
+  <!-- 5.1.5 SUITES — SUITE AUXILIAIRE ET LIMITE (fiche « limite, puissance et suite auxiliaire ») -->
+  <section class="screen" id="scr-sal">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="salModeTag"></span><span class="q-idx" id="salQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="salLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="salPrompt"></p>
+      <p class="sa-aux" id="salAux"></p>
+
+      <div class="sa-jetons">
+        <span class="sa-jlab">Insérer&nbsp;:</span>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="salInsert('U_{n+1}')"><i>U</i><sub><i>n</i>+1</sub></button>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="salInsert('U_n')"><i>U</i><sub><i>n</i></sub></button>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="salInsert('U_0')"><i>U</i><sub>0</sub></button>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="salInsert('V_n')"><i>V</i><sub><i>n</i></sub></button>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="salInsert('n')"><i>n</i></button>
+        <span class="sa-jsp"></span>
+        <button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="salKB()" title="Clavier mathématique à l'écran" aria-label="Afficher ou masquer le clavier mathématique">⌨️</button>
+        <button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="salMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">☰</button>
+      </div>
+
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">a)</span> <span id="salTitreA"></span></p>
+        <div class="sa-ladder" id="salLadderA"></div>
+      </div>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">b)</span> En déduire <i>V<sub>n</sub></i> en fonction de <i>n</i>.</p>
+        <p class="sa-goald" id="salGoalB"></p>
+        <div class="sa-ladder" id="salLadderB"></div>
+        <div class="sa-inline" id="salRowB3"></div>
+        <div class="sa-inline" id="salRowB4"></div>
+      </div>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">c)</span> En déduire <i>U<sub>n</sub></i> en fonction de <i>V<sub>n</sub></i>, puis de <i>n</i>.</p>
+        <p class="sa-goald" id="salGoalC"></p>
+        <div class="sa-ladder" id="salLadderC"></div>
+      </div>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">d)</span> En déduire la limite de la suite (<i>U<sub>n</sub></i>).</p>
+        <div class="sa-ladder" id="salLadderD"></div>
+      </div>
+
+      <div class="mp-feedback" id="salFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="salActions"></div>
+    </div>
+  </section>
+
   <!-- RÉSULTATS -->
   <section class="screen" id="scr-results">
     <div class="card">
@@ -3213,7 +3264,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=375;
+const APP_VERSION=376;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3428,6 +3479,7 @@ const TESTS={
   'recurrence-complete': { name:'R\u00e9currence \u2014 conjecturer puis d\u00e9montrer', icon:'\ud83e\udded', desc:'La fiche compl\u00e8te : calcule les premiers termes au dixi\u00e8me pr\u00e8s, lis les termes affich\u00e9s par le programme et conjecture (sens, limite, majorant, minorant), puis d\u00e9montre 0 \u2264 U\u2099 \u2264 M par r\u00e9currence \u2014 initialisation, vocabulaire de l\u2019h\u00e9r\u00e9dit\u00e9 (on suppose\u2026 on montre\u2026) et cha\u00eene d\u2019encadrements comme au {suites-encadrement}.', start:()=>startREC() },
   'recurrence-redaction': { name:'R\u00e9currence \u2014 r\u00e9diger la d\u00e9monstration', icon:'\u270d\ufe0f', desc:'Les \u00e9nonc\u00e9s du {recurrence-encadrement}, mais plus une seule case : tu \u00e9cris la d\u00e9monstration ENTI\u00c8RE dans la feuille, comme sur ta copie \u2014 initialisation v\u00e9rifi\u00e9e et conclue, vocabulaire de l\u2019h\u00e9r\u00e9dit\u00e9 (\u00ab on suppose\u2026 on montre\u2026 \u00bb), justification par la croissance de f. La page relit la structure, l\u2019IA relit le calcul : ce qui va s\u2019\u00e9crit en vert, ce qui manque en rouge.', start:()=>startRR() },
   'suite-auxiliaire-redaction': { name:'Suite auxiliaire \u2014 r\u00e9diger les r\u00e9ponses', icon:'\ud83d\udcdd', desc:'Les suites auxiliaires du {suite-auxiliaire-2}, mais tu R\u00c9DIGES tout : le coefficient de U\u2099 est une baisse (de 5 % \u00e0 45 %), et chaque question a sa feuille libre, comme dans {recurrence-redaction} \u2014 la cha\u00eene qui m\u00e8ne \u00e0 V\u2099\u208a\u2081 = coefficient \u00d7 V\u2099, le calcul de V\u2080, la nature de la suite (V\u2099), puis U\u2099 en fonction de n. La page relit la structure, l\u2019IA relit le calcul.', start:()=>startSAR() },
+  'suite-auxiliaire-limite': { name:'Suite auxiliaire et limite', icon:'\ud83c\udfaf', desc:'U\u2099\u208a\u2081 = a\u00b7U\u2099 + b avec 0 < a < 1, et la suite auxiliaire V\u2099 = U\u2099 \u2212 k ou k \u2212 U\u2099 : montre que (V\u2099) est g\u00e9om\u00e9trique en factorisant par a, d\u00e9duis-en V\u2099 puis U\u2099 en fonction de n, et conclus sur la limite de (U\u2099) \u2014 comme sur la fiche.', start:()=>startSAL() },
   'suite-auxiliaire-2': { name:'Suites \u2014 suite auxiliaire \u00e0 compl\u00e9ter', icon:'\u270f\ufe0f', desc:'La m\u00eame d\u00e9monstration que {suite-auxiliaire}, mais guid\u00e9e\u00a0: chaque case attend simplement un NOMBRE ou un MOT. La page \u00e9crit les signes et les symboles, tu poses les nombres \u2014 comme sur la fiche papier.', start:()=>startSA2() },
   'recurrence-fractions': { name:'R\u00e9currence \u2014 la formule explicite en fraction', icon:'n+3', desc:'La fiche \u00ab r\u00e9currence et fractions \u00bb : une suite U\u2099\u208a\u2081 = (3U\u2099 \u2212 1)/(U\u2099 + 1) et sa formule explicite U\u2099 = (n+3)/(n+1). a) Tu v\u00e9rifies la formule sur U\u2080, U\u2081, U\u2082 par les deux voies ; b) tu la d\u00e9montres par r\u00e9currence \u2014 initialisation, hypoth\u00e8se, but, puis la cha\u00eene de calcul \u00e9tape par \u00e9tape : la formule de U\u2099 plac\u00e9e dans la r\u00e9currence, le m\u00eame d\u00e9nominateur, les simplifications, et on doit retrouver la formule au rang n+1.', start:()=>startRFR() },
   'suite-variation-recurrence': { name:'Suites \u2014 sens de variation et r\u00e9currence', icon:'\ud83d\udcc9', desc:'La fiche enti\u00e8re, sur une suite U\u2099\u208a\u2081 = f\u2009(U\u2099)\u00a0: a) trace les 3 premiers termes en escalier sur le graphique, b) calcule U\u2081, c) conjecture le sens de variation et la limite, d) \u00e9tudie les variations de f, puis e) d\u00e9montre par r\u00e9currence l\u2019encadrement qui dit \u00e0 la fois que la suite est monotone et born\u00e9e \u2014 la cha\u00eene du {recurrence-encadrement}, avec f croissante pour conserver les in\u00e9galit\u00e9s.', start:()=>startSVR() },
@@ -3483,7 +3535,7 @@ const THEMES=[
      vocabulaire (monotone, bornée, convergente) l'ouvre. Les notes portent l'IDENTIFIANT, pas le
      numéro : rien de ce qui est enregistré ne bouge. */
   { num:5, nom:'Suites', sous:[
-      { num:1, nom:'Suite auxiliaire',                  ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suite-auxiliaire-redaction'] },
+      { num:1, nom:'Suite auxiliaire',                  ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suite-auxiliaire-redaction','suite-auxiliaire-limite'] },
       { num:2, nom:'Récurrence et inégalité',           ids:['suites-encadrement','recurrence-encadrement','recurrence-complete','recurrence-redaction','suite-variation-recurrence','suite-variation-difference'] },
       { num:3, nom:'Récurrence et égalité',             ids:['recurrence-formule','recurrence-fractions'] },
       { num:4, nom:'Théorème de convergence monotone',  ids:['suite-vocabulaire','suite-tcm-limite','suite-synthese-variations'] },
@@ -3678,7 +3730,7 @@ document.addEventListener('keydown', navCases);
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-dexp','scr-lr','scr-ec','scr-asg','scr-ecv','scr-cvx','scr-eav'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-dexp','scr-lr','scr-ec','scr-asg','scr-ecv','scr-cvx','scr-eav','scr-sal'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -4144,6 +4196,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='eav' && test.questions && test.questions[test.idx]){ c=eavConseilCtx(); }
   else if(test && test.kind==='rr' && test.questions && test.questions[test.idx]){ c=rrConseilCtx(); }
   else if(test && test.kind==='sar' && test.questions && test.questions[test.idx]){ c=sarConseilCtx(); }
+  else if(test && test.kind==='sal' && test.questions && test.questions[test.idx]){ c=salConseilCtx(); }
   else if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
     const q=test.questions[test.idx], rep=dexp2Read();
     c='Exercice : dériver f(x) = '+dqFxPlain(q)+", puis donner f'(x) SOUS FORME FACTORISÉE (e^(kx) mis en facteur au numérateur), en appliquant la formule (u/v)' = (u'\u00b7v \u2212 u\u00b7v')/v\u00b2. Démarche attendue à conseiller : poser u = numérateur, v = dénominateur, puis u' et v' ; écrire (u'\u00b7v \u2212 u\u00b7v')/v\u00b2 ; DÉVELOPPER le numérateur et réduire ; puis factoriser le numérateur par e^(kx). Cette démarche est un CONSEIL de méthode : si l'élève factorise directement sans développer, ou laisse le dénominateur sous forme développée, ce n'est PAS une erreur \u2014 ne le lui reproche pas. La dérivée correcte factorisée est : "+dqDfPlain(q)+" ou, de façon équivalente, "+dqDfPlainAlt(q)+" (l'ordre des facteurs du numérateur est indifférent ; le dénominateur peut s'écrire ("+q.vStr+")^2 ou développé : les deux sont justes).";
@@ -5093,7 +5146,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], sag:['sag',renderSAG], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], eav:['eav',renderEAV] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], sag:['sag',renderSAG], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5216,7 +5269,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','sag','enc','rec','ef','eq','rc','rf','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','eav'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','sag','enc','rec','ef','eq','rc','rf','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','eav','sal'];
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
@@ -17909,6 +17962,11 @@ const RAP_SA=
 +'<p><i>V</i><sub>0</sub> se calcule avec la d\u00e9finition de <i>V<sub>n</sub></i> et la valeur de <i>U</i><sub>0</sub>.</p>'
 +'<p>Formule du cours : <b><i>V<sub>n</sub></i> = <i>V</i><sub>0</sub> \u00d7 <i>q</i><sup><i>n</i></sup></b>.</p>'
 +'<p>Retour \u00e0 <i>U<sub>n</sub></i> : isoler <i>U<sub>n</sub></i> dans la d\u00e9finition de <i>V<sub>n</sub></i>, puis remplacer <i>V<sub>n</sub></i> par son expression en fonction de <i>n</i>.</p></div>';
+/* {suite-auxiliaire-limite} : la leçon de la suite auxiliaire, plus la limite de qⁿ */
+const RAP_SAL=RAP_SA.replace(/<\/div>$/,'')
++'<div class="rap-t">Limite de (U<sub>n</sub>)</div>'
++'<p>Si <b>\u22121 &lt; <i>q</i> &lt; 1</b>, alors <b>lim <i>q</i><sup><i>n</i></sup> = 0</b> quand <i>n</i> \u2192 +\u221e (si <i>q</i> &gt; 1, <i>q</i><sup><i>n</i></sup> \u2192 +\u221e).</p>'
++'<p>Avec <i>U<sub>n</sub></i> = <i>V</i><sub>0</sub> \u00d7 <i>q</i><sup><i>n</i></sup> + <i>k</i> : le produit <i>V</i><sub>0</sub> \u00d7 <i>q</i><sup><i>n</i></sup> tend vers 0, donc <i>U<sub>n</sub></i> tend vers <i>k</i>.</p></div>';
 const RAP_DER=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 d\u00e9riv\u00e9es usuelles</h4>'
 +'<p>D\u00e9riv\u00e9es \u00e0 conna\u00eetre :</p><ul>'
@@ -18183,7 +18241,7 @@ const RAP_SSV=`<b>Synthèse : variations d’une suite U<sub>n+1</sub> = f (U<su
 • <b>Le signe de U<sub>n+1</sub> − U<sub>n</sub></b> : on met tout sur le même dénominateur — on multiplie U<sub>n</sub> en haut ET en bas par ce dénominateur. Il reste un quotient dont le numérateur est un trinôme du second degré : son signe se lit sur la position de U<sub>n</sub> par rapport à ses deux racines, et le dénominateur, lui, est positif.<br>
 • <b>Le théorème de convergence monotone</b> : une suite <b>croissante et majorée</b> converge ; une suite <b>décroissante et minorée</b> converge aussi. C’est la borne du BON côté qui compte.<br>
 • <b>La limite, par produit en croix</b> : U<sub>n</sub> et U<sub>n+1</sub> ont la MÊME limite ℓ. On remplace les deux par ℓ dans la relation, puis on chasse le dénominateur : \(\ell=\frac{a\ell-p}{\ell+c}\) devient ℓ(ℓ + <i>c</i>) = <i>a</i>ℓ − <i>p</i>, c’est-à-dire une équation du second degré, avec en général <b>deux</b> solutions. C’est l’ENCADREMENT démontré à la récurrence qui dit laquelle garder : la limite est du même côté que tous les termes de la suite.`;
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, sag:RAP_SAG, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, sag:RAP_SAG, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -20428,6 +20486,319 @@ function saLiveCheck(id){ return FICHE_SA.liveCheck(id); }   /* delegue au kit *
 function saNavListe(){ return FICHE_SA.navListe(); }
 function saNavSuiv(el,dir){ return FICHE_SA.navSuiv(el,dir); }
 function nextSA(){ if(test.idx<test.questions.length-1){ test.idx++; renderSA(); } else finishTest(); }
+
+/* ====================== TEST : Suite auxiliaire et limite (kind 'sal') ======================
+   Repris de la fiche « limite, puissance et suite auxiliaire » (demande de
+   Turquet, octobre 2026 : « créer un exercice comme le pdf, en rédigeant comme
+   le 5.1.2 pour la suite auxiliaire »). Deux questions, les deux exercices de
+   la fiche : la même suite Uₙ₊₁ = a·Uₙ + b, et la suite auxiliaire
+   Vₙ = Uₙ − k (question 1), puis Vₙ = k − Uₙ (question 2) — l'ordre
+   retourné, celui où l'élève se trompe de signe.
+   LA RÉDACTION EST CELLE DU 5.1.2 : chaque case est un champ mathématique où
+   l'élève écrit l'expression entière, jugée par le moteur de {suite-auxiliaire}
+   (SA._t : toute écriture équivalente passe, Uₙ₊₁ distingué de Uₙ + 1). Ce
+   qui est NEUF vient de la fiche : la factorisation s'écrit en DEUX fractions
+   sur a, que la page sépare du signe de la fiche (« − » à la question 1,
+   « + » à la question 2), et une partie d) conclut sur la LIMITE de (Uₙ) —
+   lim qⁿ = 0 parce que −1 < q < 1, la justification se CHOISIT.
+   Le tirage part de k, le point fixe, et en dérive b = k(1 − a) : la leçon du
+   5.1.4 — tirer depuis l'arrivée. 0 < a < 1 (sans quoi il n'y a pas de limite
+   finie), b et a·k sont des ENTIERS, U₀ ≠ k (sans quoi Vₙ est nulle et la
+   suite n'est pas géométrique au sens de l'exercice). La question ne porte
+   que forme, a, k et U₀ : tout le reste se recalcule (salVal), l'énoncé ne
+   peut pas contredire sa correction. */
+const SAL_A=[[0.5,2],[0.6,5],[0.75,4],[0.8,5],[0.9,10],[0.95,20]];   /* [a, pas de k] : b = k(1 − a) et a·k entiers */
+function salTirer(forme){
+  const p=pick(SAL_A), a=p[0], k=p[1]*rand(Math.ceil(10/p[1]), Math.floor(80/p[1]));
+  let d=0; while(d===0) d=rand(-6,6)*pick([1,2,5]);
+  if(k+d<0) d=-d;
+  return { forme:forme, a:a, k:k, u0:k+d };
+}
+/* Les valeurs dérivées — calculées, jamais rangées. */
+function salVal(q){
+  const r=x=>Math.round(x*1e6)/1e6, m=(q.forme==='moins');
+  return { m:m, b:r(q.k*(1-q.a)), ak:r(q.a*q.k), V0:r(m?q.u0-q.k:q.k-q.u0) };
+}
+async function startSAL(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='suite-auxiliaire-limite'; test.kind='sal';
+  test.questions=distinctes(2, function(_,i){ return salTirer(i===0?'moins':'plus'); });
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.maxScore=test.questions.length;
+  show('sal'); renderSAL();
+}
+const SAL_ORDER=['sal-f1','sal-f2','sal-f3','sal-n1','sal-n2','sal-p1','sal-p2','sal-b1','sal-b2','sal-type','sal-q','sal-c','sal-d1','sal-d2','sal-e1','sal-e2','sal-e3','sal-just'];
+const SAL_CHOIX={ 'sal-type':'geo', 'sal-just':'borne' };
+let salLastMF=null;
+const FICHE_SAL=creerFicheCases({
+  kind:'sal', ordre:()=>SAL_ORDER, ok:id=>salOk(id), brut:id=>salRaw(id),
+  actions:'#salActions', suivreFocus:el=>{ salLastMF=el; }
+});
+function salRaw(id){
+  const el=$(id); if(!el) return '';
+  if(el.tagName==='SELECT') return el.value||'';
+  try{ return saClean(String(el.getValue?el.getValue():el.value||'')); }catch(e){ return ''; }
+}
+/* Les attendus, case par case : une fonction de la variable que la case peut
+   contenir (w = Uₙ₊₁, x = Uₙ, y = U₀, v = Vₙ, n), ou une constante. */
+function salAttendus(q){
+  const V=salVal(q), a=q.a, k=q.k, s=V.m?1:-1, T=SA._t;
+  const fn=(f,env,vars)=>raw=>T.checkFn(raw,f,env(),vars);
+  const cst=c=>raw=>T.checkConst(raw,c);
+  const un=e=>s*V.V0*Math.pow(a,e.n)+k;   /* Uₙ = V₀·aⁿ + k (moins) ou k − V₀·aⁿ (plus) */
+  return {
+    'sal-f1':fn(e=>s*(e.w-k), T.envsXW, ['w']),
+    'sal-f2':fn(e=>s*(a*e.x+V.b-k), T.envsX, ['x']),
+    'sal-f3':fn(e=>s*(a*e.x-V.ak), T.envsX, ['x']),
+    /* les deux termes de la parenthèse, tels qu'ils s'écrivent APRÈS le signe
+       que pose la page : a(a·Uₙ/a − a·k/a) puis a(−a·Uₙ/a + a·k/a) */
+    n:[fn(e=>s*a*e.x, T.envsX, ['x']), cst(V.ak)],
+    p:[fn(e=>s*e.x, T.envsX, ['x']), cst(k)],
+    'sal-b1':fn(e=>s*(e.y-k), T.envsY, ['y']),
+    'sal-b2':cst(V.V0),
+    'sal-q':cst(a),
+    'sal-c':fn(e=>V.V0*Math.pow(a,e.n), T.envsN, ['n']),
+    'sal-d1':fn(e=>s*e.v+k, T.envsV, ['v']),
+    'sal-d2':fn(un, T.envsN, ['n']),
+    'sal-e1':fn(un, T.envsN, ['n']),
+    'sal-e2':cst(k),
+    'sal-e3':cst(0)
+  };
+}
+/* LA PAIRE DE FRACTIONS. À la question 1, la fiche écrit
+   a(a·Uₙ/a − a·k/a) : l'ordre est imposé par le « − ». À la question 2, elle
+   écrit a(…/a + …/a) : −a·Uₙ et a·k peuvent venir dans les deux ordres, et
+   l'élève qui écrit d'abord le nombre a raison. Le signe s'écrit DANS la case
+   (« −0,8U_n ») : la page ne pose que celui de la fiche. Une case juste sur
+   un terme déjà pris par sa voisine est fausse — deux fois « 28 » ne font
+   pas la factorisation. */
+function salPaire(q, pre, id){
+  const J=salAttendus(q)[pre], i=(id===('sal-'+pre+'1'))?0:1;
+  const raw=[salRaw('sal-'+pre+'1'), salRaw('sal-'+pre+'2')];
+  if(salVal(q).m) return J[i](raw[i]);
+  const quel=r=>J[0](r)?0:(J[1](r)?1:-1);
+  const m0=quel(raw[0]), m1=quel(raw[1]);
+  if(i===0) return m0>=0;
+  return m1>=0 && m1!==m0;
+}
+function salOk(id){
+  const q=test.questions[test.idx]; if(!q) return false;
+  if(SAL_CHOIX[id]) return salRaw(id)===SAL_CHOIX[id];
+  if(/^sal-[np][12]$/.test(id)) return salPaire(q, id.charAt(4), id);
+  const f=salAttendus(q)[id];
+  return !!(f && f(salRaw(id)));
+}
+/* Les écritures de la correction (LaTeX, comme les cases). */
+function salSols(q){
+  const V=salVal(q), L=SA.lx, a=L(q.a), k=L(q.k), ak=L(V.ak), aP='\\left('+a+'\\right)^{n}';
+  const pV0=(V.V0<0?'\\left('+L(V.V0)+'\\right)':L(V.V0));
+  const c=L(V.V0)+'\\times '+aP;
+  if(V.m) return {
+    'sal-f1':'U_{n+1}-'+k, 'sal-f2':a+'U_n+'+L(V.b)+'-'+k, 'sal-f3':a+'U_n-'+ak,
+    'sal-n1':a+'U_n', 'sal-n2':ak, 'sal-p1':'U_n', 'sal-p2':k,
+    'sal-b1':'U_0-'+k, 'sal-b2':L(V.V0), 'sal-q':a, 'sal-c':c,
+    'sal-d1':'V_n+'+k, 'sal-d2':c+'+'+k, 'sal-e1':c+'+'+k, 'sal-e2':k, 'sal-e3':'0'
+  };
+  return {
+    'sal-f1':k+'-U_{n+1}', 'sal-f2':k+'-\\left('+a+'U_n+'+L(V.b)+'\\right)', 'sal-f3':'-'+a+'U_n+'+ak,
+    'sal-n1':'-'+a+'U_n', 'sal-n2':ak, 'sal-p1':'-U_n', 'sal-p2':k,
+    'sal-b1':k+'-U_0', 'sal-b2':L(V.V0), 'sal-q':a, 'sal-c':c,
+    'sal-d1':k+'-V_n', 'sal-d2':k+'-'+pV0+'\\times '+aP, 'sal-e1':k+'-'+pV0+'\\times '+aP, 'sal-e2':k, 'sal-e3':'0'
+  };
+}
+function salActiveMF(){
+  const a=document.activeElement;
+  if(a && a.tagName==='MATH-FIELD' && a.closest && a.closest('#scr-sal')) return a;
+  if(salLastMF && document.contains(salLastMF)) return salLastMF;
+  return document.querySelector('#scr-sal math-field.sa-mf');
+}
+function salInsert(lxTok){
+  const t=salActiveMF(); if(!t || t.readOnly) return;
+  try{ t.executeCommand(['insert', lxTok]); t.focus(); }catch(e){}
+}
+function salKB(){
+  const vk=window.mathVirtualKeyboard; if(!vk) return;
+  if(vk.visible){ vk.hide(); const ae=document.activeElement; if(ae && ae.tagName==='MATH-FIELD') ae.blur(); return; }
+  const t=salActiveMF(); if(t && !t.readOnly){ try{ t.focus(); }catch(e){} }
+  try{ vk.show(); }catch(e){}
+}
+function salMenu(){
+  if(window.mlDexp && window.mlDexp.showShortcuts && window.mlDexp.showShortcuts()) return;
+  const t=salActiveMF(); if(!t) return;
+  try{ t.focus(); }catch(e){}
+  try{ if(typeof t.showMenu==='function'){ t.showMenu(); return; } }catch(e){}
+}
+function salMF(id, w){ return FICHE_SAL.mf(id, 'dexp-mf sa-mf'+(w==='w'?' sa-mf-w':w==='sm'?' sa-mf-sm':'')); }
+function salSel(id, opts){
+  const sel=document.createElement('select'); sel.className='tvi-sel'; sel.id=id;
+  sel.innerHTML='<option value="">…</option>'+opts.map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('');
+  sel.addEventListener('change',()=>{
+    if(!isSoutien()||test.locked) return;
+    sel.classList.remove('ok','bad');
+    if(sel.value!=='') sel.classList.add(sel.value===SAL_CHOIX[id]?'ok':'bad');
+  });
+  FICHE_SAL.brancherSelect(sel);
+  return sel;
+}
+/* « lim » et son « n → +∞ » dessous, comme au tableau */
+function salLim(){ return '<span class="sal-lim">lim<span class="sal-lim-s"><i>n</i>→+∞</span></span>'; }
+/* la fraction « case sur a » de la factorisation */
+function salFrac(id, aH){
+  const fr=document.createElement('span'); fr.className='sa-vfrac';
+  fr.appendChild(salMF(id,'sm'));
+  const bar=document.createElement('span'); bar.className='bar'; fr.appendChild(bar);
+  const den=document.createElement('span'); den.className='den'; den.innerHTML=aH; fr.appendChild(den);
+  return fr;
+}
+function salDefV(q){ return salVal(q).m ? SA_VN+' = '+SA_UN+' − '+SA.fmtH(q.k) : SA_VN+' = '+SA.fmtH(q.k)+' − '+SA_UN; }
+function renderSAL(){
+  const q=test.questions[test.idx], V=salVal(q), F=SA.fmtH, aH=F(q.a), op=V.m?'−':'+';
+  test.locked=false; salLastMF=null;
+  $('salQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('salModeTag').innerHTML=modeTagHTML();
+  $('salLiveScore').textContent=test.score;
+  $('salFeedback').textContent=''; $('salFeedback').className='mp-feedback';
+  $('salActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSAL()">Vérifier</button>';
+  $('salPrompt').innerHTML='Soit <b>('+SA_UN+')</b> la suite définie par&nbsp;: <b>'+saUH('0')+' = '+F(q.u0)+'</b> et, pour tout entier naturel <i>n</i>, <b>'+SA_UN1+' = '+aH+' '+SA_UN+SA.sgnH(V.b)+'</b>.';
+  $('salAux').innerHTML='Soit la <b>suite ('+SA_VN+')</b> définie par&nbsp;: <b>'+salDefV(q)+'</b>.';
+  $('salTitreA').innerHTML='Montrer que la suite ('+SA_VN+') est <b>géométrique de raison '+aH+'</b>.';
+  /* a) l'échelle de la fiche — les « = » dans la colonne sa-leq */
+  const L=$('salLadderA'); L.innerHTML='';
+  const ligne=(tete, el, note)=>{ const r=saRow(); r.appendChild(tEqN(saStat(tete,'sa-leq'), el)); if(note) r.appendChild(saNote(note)); L.appendChild(r); return r; };
+  ligne(SA_VN1+' =', salMF('sal-f1','w'), 'utiliser la définition de ('+SA_VN+') au rang <i>n</i>+1');
+  ligne('=', salMF('sal-f2','w'), 'remplacer '+SA_UN1+' (relation de récurrence)');
+  ligne('=', salMF('sal-f3','w'), 'réduire l’expression');
+  const r4=saRow(); r4.appendChild(saStat('=','sa-leq')); r4.appendChild(saStat(aH));
+  const g4=document.createElement('span'); g4.className='sa-pgrp';
+  g4.appendChild(saParen(false));
+  g4.appendChild(salFrac('sal-n1',aH)); g4.appendChild(saStat(op));
+  g4.appendChild(salFrac('sal-n2',aH));
+  g4.appendChild(saParen(true));
+  r4.appendChild(g4); r4.appendChild(saNote('factoriser par '+aH)); L.appendChild(r4);
+  const r5=saRow(); r5.appendChild(saStat('=','sa-leq')); r5.appendChild(saStat(aH));
+  const g5=document.createElement('span'); g5.className='sa-pgrp';
+  g5.appendChild(saParen(false));
+  g5.appendChild(salMF('sal-p1','sm')); g5.appendChild(saStat(op)); g5.appendChild(salMF('sal-p2','sm'));
+  g5.appendChild(saParen(true));
+  r5.appendChild(g5); r5.appendChild(saNote('simplifier les fractions')); L.appendChild(r5);
+  const r6=saRow(); r6.appendChild(saStat('=','sa-leq')); r6.appendChild(saStat(aH+' × '+SA_VN,'blue'));
+  r6.appendChild(saNote('la parenthèse est '+SA_VN+'&nbsp;: ('+SA_VN+') est géométrique de raison '+aH));
+  L.appendChild(r6);
+  /* b) */
+  $('salGoalB').innerHTML='Comme <span class="sa-m">'+salDefV(q)+'</span>, on a&nbsp;:';
+  const B=$('salLadderB'); B.innerHTML='';
+  const rb1=saRow(); rb1.appendChild(tEqN(saStat(SA_V0+' =','sa-leq'), salMF('sal-b1','w'))); rb1.appendChild(saNote('exprimer en fonction de '+saUH('0'))); B.appendChild(rb1);
+  const rb2=saRow(); rb2.appendChild(tEqN(saStat('=','sa-leq'), salMF('sal-b2','sm'))); rb2.appendChild(saNote('calculer la valeur de '+SA_V0)); B.appendChild(rb2);
+  const C1=$('salRowB3'); C1.innerHTML='';
+  const tx=h=>{ const s=document.createElement('span'); s.className='sa-txt'; s.innerHTML=h; return s; };
+  C1.appendChild(tx('Comme ('+SA_VN+') est&nbsp;'));
+  C1.appendChild(salSel('sal-type',[['arith','arithmétique'],['geo','géométrique']]));
+  C1.appendChild(tx('&nbsp;de raison&nbsp;'));
+  C1.appendChild(salMF('sal-q','sm'));
+  C1.appendChild(tx('&nbsp;:'));
+  const C2=$('salRowB4'); C2.innerHTML='';
+  C2.appendChild(tEqN(saStat(SA_VN+' = '+SA_V0+' × <i>q</i><sup><i>n</i></sup> ='), salMF('sal-c','w')));
+  C2.appendChild(saNote('remplacer '+SA_V0+' et <i>q</i> par leurs valeurs'));
+  /* c) */
+  $('salGoalC').innerHTML='Comme <span class="sa-m">'+salDefV(q)+'</span>, on a&nbsp;:';
+  const D=$('salLadderC'); D.innerHTML='';
+  const d1=saRow(); d1.appendChild(tEqN(saStat(SA_UN+' =','sa-leq'), salMF('sal-d1','w'))); d1.appendChild(saNote('exprimer en fonction de '+SA_VN)); D.appendChild(d1);
+  const d2=saRow(); d2.appendChild(tEqN(saStat('=','sa-leq'), salMF('sal-d2','w'))); d2.appendChild(saNote('exprimer en fonction de <i>n</i>')); D.appendChild(d2);
+  /* d) la limite */
+  const E=$('salLadderD'); E.innerHTML='';
+  const e1=saRow(); e1.appendChild(tEqN(saStat(SA_UN+' =','sa-leq'), salMF('sal-e1','w'))); e1.appendChild(saNote('l’expression trouvée au c)')); E.appendChild(e1);
+  const e2=document.createElement('div'); e2.className='sa-inline sal-limrow';
+  e2.appendChild(tx('donc&nbsp;'));
+  e2.appendChild(tEqN(saStat(salLim()+' '+SA_UN+' ='), salMF('sal-e2','sm')));
+  e2.appendChild(tx('&nbsp;car&nbsp;'));
+  e2.appendChild(tEqN(saStat(salLim()+' '+aH+'<sup><i>n</i></sup> ='), salMF('sal-e3','sm')));
+  e2.appendChild(tx('&nbsp;avec&nbsp;'));
+  e2.appendChild(salSel('sal-just',[['pos','0 &lt; '+aH],['borne','−1 &lt; '+aH+' &lt; 1'],['sup','1 &lt; '+aH]]));
+  E.appendChild(e2);
+  if(window.mlDexp) window.mlDexp.upgrade($('scr-sal'));
+}
+function checkSAL(){
+  if(test.locked) return;
+  const q=test.questions[test.idx], fb=$('salFeedback');
+  if(SAL_ORDER.every(id=>salRaw(id)==='')){
+    fb.textContent='Complète au moins une case avant de vérifier.'; fb.className='mp-feedback'; return;
+  }
+  const v={}; let allOk=true;
+  SAL_ORDER.forEach(id=>{ v[id]=salOk(id); if(!v[id]) allOk=false; });
+  const setEdit=(el,on)=>{ if(!el) return; if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=!on; }catch(e){} } else el.disabled=!on; };
+  const vide=id=>!v[id] && salRaw(id)==='';
+  SAL_ORDER.forEach(id=>{ const el=$(id); if(!el) return;
+    el.classList.remove('ok','bad','sol');
+    if(vide(id) && isSoutien()){ setEdit(el, true); return; }   /* une case vide ne rougit jamais */
+    el.classList.add(v[id]?'ok':'bad');
+    setEdit(el, !v[id] && isSoutien()); });
+  if(!allOk && isSoutien()){
+    fb.textContent=SAL_ORDER.some(vide)
+      ? 'Presque ! Corrige les cases en rouge et complète celles qui manquent, puis revérifie.'
+      : 'Presque ! Corrige les cases en rouge, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('salActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSAL()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  const V=salVal(q), N=SA.numStr;
+  if(allOk){
+    test.score++; $('salLiveScore').textContent=test.score;
+    fb.textContent=pick(['Parfait !','Excellent !','Très bien, démonstration complète !','Bravo !']);
+    fb.className='mp-feedback good';
+  } else {
+    const F=SA.fmtH;
+    fb.innerHTML='Quelques erreurs — les bonnes réponses ont été inscrites en vert.<br>'
+      +'Méthode : partir de '+SA_VN1+' = '+(V.m?SA_UN1+' − '+F(q.k):F(q.k)+' − '+SA_UN1)+', remplacer '+SA_UN1+', réduire, puis factoriser par '+F(q.a)+'. '
+      +'Ensuite '+SA_V0+' se calcule avec '+saUH('0')+', '+SA_VN+' = '+SA_V0+' × <i>q</i><sup><i>n</i></sup>, on isole '+SA_UN+' ; et comme −1 &lt; '+F(q.a)+' &lt; 1, '+F(q.a)+'<sup><i>n</i></sup> tend vers 0.';
+    fb.className='mp-feedback bad';
+    const sols=salSols(q);
+    /* la paire de la question 2 : on complète avec le terme que l'élève n'a PAS écrit */
+    if(!V.m) ['n','p'].forEach(pre=>{
+      const i1='sal-'+pre+'1', i2='sal-'+pre+'2';
+      if(v[i1] && !v[i2]){ const J=salAttendus(q)[pre]; if(J[1](salRaw(i1))){ sols[i2]=sols[i1]; } }
+      else if(!v[i1] && v[i2]){ const J=salAttendus(q)[pre]; if(J[0](salRaw(i2))){ sols[i1]=sols[i2]; } }
+    });
+    SAL_ORDER.forEach(id=>{
+      const el=$(id); if(!el) return;
+      if(!v[id]){
+        if(el.tagName==='SELECT') el.value=SAL_CHOIX[id];
+        else { try{ if(el.setValue) el.setValue(sols[id]); }catch(e){} }
+        el.classList.remove('bad'); el.classList.add('sol');
+      }
+      setEdit(el,false);
+    });
+  }
+  test.answers.push({...(ptsExo()||{}),
+    q:'U(n+1) = '+N(q.a)+'·U(n) + '+N(V.b)+' avec U0 = '+N(q.u0)+' ; V(n) = '+(V.m?'U(n) − '+N(q.k):N(q.k)+' − U(n)')+' — V0 = '+N(V.V0)+', V(n) = '+N(V.V0)+'×('+N(q.a)+')^n, lim U(n) = '+N(q.k),
+    answer:'suite auxiliaire et limite', given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('salActions').innerHTML='<button class="btn btn-primary" onclick="nextSAL()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextSAL(){ if(test.idx<test.questions.length-1){ test.idx++; renderSAL(); } else finishTest(); }
+function salLu(id){
+  const el=$(id); if(!el) return '(vide)';
+  if(el.tagName==='SELECT'){ const o=el.options[el.selectedIndex]; return el.value===''?'(vide)':'« '+(o?o.textContent:'')+' »'; }
+  const s=dexpCellCtx(id); return s===null?'(vide)':s;
+}
+function salConseilCtx(){
+  const q=test.questions[test.idx], V=salVal(q), N=SA.numStr;
+  const def=V.m?'V(n) = U(n) − '+N(q.k):'V(n) = '+N(q.k)+' − U(n)';
+  const lab=[['a) V(n+1) avec U(n+1)','sal-f1'],['a) après remplacement','sal-f2'],['a) réduite','sal-f3'],['a) 1er numérateur sur '+N(q.a),'sal-n1'],['a) 2e numérateur sur '+N(q.a),'sal-n2'],['a) 1er terme simplifié','sal-p1'],['a) 2e terme simplifié','sal-p2'],
+    ['b) V0 avec U0','sal-b1'],['b) valeur de V0','sal-b2'],['b) nature','sal-type'],['b) raison','sal-q'],['b) V(n) en fonction de n','sal-c'],
+    ['c) U(n) avec V(n)','sal-d1'],['c) U(n) avec n','sal-d2'],['d) U(n)','sal-e1'],['d) limite de U(n)','sal-e2'],['d) limite de q^n','sal-e3'],['d) justification','sal-just']];
+  const etat=lab.map(p=>p[0]+' : '+salLu(p[1])).join(' ; ');
+  return 'Exercice « Suite auxiliaire et limite » (fiche à trous, chaque case est un champ mathématique). Énoncé : U0 = '+N(q.u0)+', U(n+1) = '+N(q.a)+'·U(n) + '+N(V.b)+', '+def+'. '
+   +'a) montrer que (V(n)) est géométrique de raison '+N(q.a)+' : V(n+1) avec U(n+1), remplacement par la récurrence, forme réduite, factorisation par '+N(q.a)+' en deux fractions séparées par un « '+(V.m?'−':'+')+' » écrit par la page (le signe d’un terme s’écrit dans sa case), puis simplification ; b) V0, nature et raison (menu + case), V(n) en fonction de n ; c) U(n) en fonction de V(n) puis de n ; d) U(n), sa limite, la limite de q^n et la justification (menu). '
+   +'Réponses attendues, à ne JAMAIS révéler : V0 = '+N(V.V0)+' ; V(n) = '+N(V.V0)+' × '+N(q.a)+'^n ; U(n) = '+(V.m?N(V.V0)+' × '+N(q.a)+'^n + '+N(q.k):N(q.k)+' − ('+N(V.V0)+') × '+N(q.a)+'^n')+' ; limite '+N(q.k)+' car '+N(q.a)+'^n → 0 (−1 < '+N(q.a)+' < 1). '
+   +'Saisies actuelles de l’élève (« (vide) » = case non remplie) : '+etat+'. '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne aucun nombre de cet exercice ni aucune ligne toute faite. '
+   +'Méthode : définition de V au rang n+1 ; remplacer U(n+1) en mettant des parenthèses quand un « − » les précède ; regrouper les nombres ; diviser chaque terme par la raison pour factoriser ; V(n) = V0 × q^n ; isoler U(n) ; si −1 < q < 1, q^n tend vers 0. '
+   +'Tu peux lui rappeler qu’il trouve le cours complet avec le bouton « Voir le rappel de cours » de cette fenêtre. '
+   +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
 
 /* ====================== TEST : Suite auxiliaire — à compléter ======================
    Repris de la fiche « Exercice suite Vn » (demande de Turquet, août 2026). C'est la
@@ -25810,6 +26181,7 @@ const QIA_SUGG={
   ecv:["Comment savoir si f est convexe ou concave ?","C\u2019est quoi, un point d\u2019inflexion ?","Pourquoi la courbe est-elle sous ses tangentes quand f est concave ?","Comment trouver l\u2019\u00e9quation de la tangente en 0 ?"],
   asg:["Comment conjecturer une limite sur la courbe ?","Pourquoi e\u207b\u02e3 est-il toujours strictement positif ?","Pourquoi la solution \u03b1 est-elle unique ?","Comment d\u00e9duire le signe de f \u00e0 partir de \u03b1 ?"],
   rr:["Faire un rappel de cours pour cet exercice.","Comment r\u00e9dige-t-on une r\u00e9currence ?","Que faut-il \u00e9crire dans l\u2019initialisation ?","Quelle diff\u00e9rence entre \u00ab on suppose \u00bb et \u00ab on montre \u00bb ?","Pourquoi faut-il justifier que f est croissante ?"],
+  sal:["Faire un rappel de cours pour cet exercice.","Comment factoriser par la raison avec deux fractions ?","Pourquoi met-on des parenthèses quand on remplace U\u2099\u208a\u2081 après un « \u2212 » ?","Pourquoi q\u207f tend-il vers 0 ?"],
   sar:["Faire un rappel de cours pour cet exercice.","Comment d\u00e9marre-t-on la question a) ?","\u00c0 quoi sert la suite auxiliaire V\u2099 ?","Comment passe-t-on de V\u2099 \u00e0 U\u2099 ?"],
   eq:["Comment trouver une valeur interdite ?","Quelle est la formule de la d\u00e9riv\u00e9e d\u2019un quotient ?","Pourquoi le signe de f\u2032 est-il celui de son num\u00e9rateur ?","Que signifie la double barre dans le tableau ?"],
   ef:["Pourquoi e\u02e3 est-il toujours strictement positif ?","Comment trouver le signe d\u2019un produit ?","Quel est le lien entre le signe de f\u2032 et les variations de f ?","O\u00f9 f admet-elle un extremum ?"],
@@ -27071,7 +27443,7 @@ function kbVarsFor(id){
   if(id === 'recurrence-redaction') return [KB_USQ, KB_N,
     {latex:"\\le",tooltip:"inférieur ou égal"},{latex:"\\ge",tooltip:"supérieur ou égal"},
     {latex:"<",tooltip:"strictement inférieur"},{latex:">",tooltip:"strictement supérieur"}];
-  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-formule' || id === 'recurrence-complete' || id === 'suite-auxiliaire-redaction' || id === 'suite-variation-difference') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
+  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-formule' || id === 'recurrence-complete' || id === 'suite-auxiliaire-redaction' || id === 'suite-auxiliaire-limite' || id === 'suite-variation-difference') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
   /* 2.2.4 : la dérivée se démontre EN LITTÉRAL (u = ax + b) — les lettres a et b sur le clavier A */
   if(id === 'etude-algo-convexite') return [{latex:"f"},{latex:"x"},{latex:"a"},{latex:"b"}];
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
