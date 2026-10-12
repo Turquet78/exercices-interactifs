@@ -3359,6 +3359,14 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   body.halloween .q-idx{color:#CDB8EE}
   .hw-bascule{font-size:20px;line-height:1;background:none;border:1.5px solid rgba(240,122,26,.6);border-radius:999px;padding:4px 9px;cursor:pointer;flex:none}
   body:not(.halloween) .hw-bascule{filter:grayscale(1);opacity:.6}
+  /* Sur un PETIT TÉLÉPHONE, le bouton 🎃 et la citrouille du titre poussaient
+     l'en-tête hors de l'écran (320 px : la page débordait de 47 px, et la
+     pastille du professeur emportait « Se déconnecter » — trouvé par le banc
+     navigateur, saison forcée). L'en-tête passe à la ligne plutôt que de
+     déborder, et le titre rend sa citrouille. */
+  .mast:has(> .hw-bascule){flex-wrap:wrap}
+  .mast:has(> .hw-bascule) > div:not(.logo):not(.spacer){flex:1 1 180px;min-width:0}
+  @media (max-width:480px){ body.halloween .mast h1::after{content:none} }
   @media print{ body.halloween{background:#fff} body.halloween::before,.hw-ciel,.hw-bascule{display:none} }
 </style>
 </head>

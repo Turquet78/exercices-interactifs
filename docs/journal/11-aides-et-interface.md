@@ -891,3 +891,13 @@ limites, tenues EXPRÈS :
 Les animations disparaissent sous `prefers-reduced-motion`, et le décor à
 l'impression. Le banc navigateur a été rejoué deux fois : à la date du jour
 (décor absent) et sur une copie où la saison était forcée (décor posé).
+**Et le banc navigateur, saison forcée, a trouvé ce que l'aperçu ne montrait
+pas** : sur un téléphone de 320 px, le bouton 🎃 et la citrouille du titre
+poussaient l'en-tête hors de l'écran — la page débordait de 47 px, et c'est le
+contrôle de la liste des élèves (« les trois boutons d'un élève restent
+atteignables ») qui l'a dit. L'en-tête qui porte le bouton passe désormais à la
+ligne (`.mast:has(> .hw-bascule){flex-wrap:wrap}`, le bloc du titre en
+`flex:1 1 180px`), et sous 480 px le titre rend sa citrouille. La leçon vaut
+pour tout décor SAISONNIER : la CI le joue hors saison, donc décor ABSENT — un
+banc à la date du jour ne le voit jamais ; c'est la copie à saison forcée qui
+le mesure.
