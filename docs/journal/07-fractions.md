@@ -1366,7 +1366,7 @@ La copie juste fixe du contrôle des étapes (1 − 1/4) attend 3/4 en Première
 −3/4 en Seconde — la même fixture, lue selon le profil.
 
 **Puis le thème 4 de la Première a reçu quatre exercices de la Seconde —
-4.2 à 4.5 (octobre 2026, Première v307, Seconde v437).** Demande de Turquet :
+4.2 à 4.5 (octobre 2026, Première v307, Seconde v438).** Demande de Turquet :
 « en première mettre les exercices de seconde 5.2 ; 5.3 ; 5.6 ; 5.8 dans le
 thème fraction de première. Il faut que tous les nombres au départ soient
 entre 1 et 5 ; qu'il n'y ait pas de résultat intermédiaire ou final en
