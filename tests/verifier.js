@@ -26755,6 +26755,7 @@ function pythonForRange(w, P){
     if(document.querySelectorAll("#pfrHost .ok").length!==3) vus.push(document.querySelectorAll("#pfrHost .ok").length+" cases bleues");
     if(document.querySelectorAll("#pfrHost .bad").length) vus.push("du rouge sur une copie juste");
     if(!test.answers.length||!test.answers[0].correct) vus.push("la réponse enregistrée n’est pas juste");
+    else if(test.answers[0].cases!==3||test.answers[0].justes!==3) vus.push("la note affichée compte "+test.answers[0].justes+" cases justes sur "+test.answers[0].cases+" au lieu de 3 sur 3");
     if(!document.getElementById("pfrNext")) vus.push("pas de « Question suivante »");
     return vus.join(" | ");
   })()`, v => v === '');
