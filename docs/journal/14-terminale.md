@@ -3034,3 +3034,26 @@ corrige en direct. « 06 » reste faux : ce n'est pas 0,6.
 Le banc navigateur (6 tricies duodecies) clique le VRAI jeton, l'élève posé
 dans « avec » après « 0<0 », et exige « 0<0,6<1 » dans la case, les champs
 mathématiques intacts, et le juge d'accord (`casesLimite.jetonTexte`).
+
+**Puis le « avec » est devenu un MENU « car », et 4ⁿ a eu sa limite (5.6.1,
+v382).** Demande de Turquet, sur une capture de la question 8 (Uₙ = 4ⁿ ×
+(5 + 0,95ⁿ)/(5 + 0,8ⁿ)) : « il manque la limite de 4ⁿ » — la famille
+`prodq` demandait les limites des deux puissances de la fraction, jamais
+celle du facteur qui donne +∞. Elle en demande désormais trois (`l1` = 4ⁿ,
+`l2`, `l3`). Puis : « remplacer les *avec* par *car* », et laisser l'élève
+CHOISIR la condition parmi « q > 0 ; q > 1 ; q < 1 ; −1 < q < 1 ; q > −1 ».
+La case de texte et son juge `lqnAvecOK` disparaissent : chaque puissance
+dont la limite est demandée reçoit, sur la rangée suivante, « car [menu] »
+(« car lim 4ⁿ = +∞ / car 4 > 1 ») ; les familles qui ne demandent aucune
+limite intermédiaire gardent un seul menu, sous la limite. Les options
+s'écrivent avec LA base (« −1 < 0,95 < 1 », « 5/7 > 0 »), et une seule est
+juste : la condition du théorème — « 0,95 < 1 » et « 0,95 > 0 » sont vrais,
+mais ne suffisent pas. Le menu est sur SA rangée, pas au bout de la limite :
+à 390 px, posé au bout, il repliait la rangée. Exécuté dans Chromium à 1280
+et 390 px : copie juste en bleu, choix faux en rouge avec la bonne condition
+écrite à côté, menus vides complétés en vert, aucune erreur JavaScript.
+Le contrôle du jeton « , » dans une case de texte (6 tricies duodecies),
+posé la veille sur la case « avec », a perdu son témoin avec elle : il vise
+désormais la case « Majorée par … » de {suite-vocabulaire} (5.4.1), case de
+texte voisine d'un champ de limite, et le profil nomme ce qu'on tape, ce
+qu'on attend et le juge qui relit (`casesLimite.jetonTexte`).

@@ -10678,7 +10678,9 @@ async function parcours(page, N){
          que dans un champ MathLive : l'élève posé dans le « avec » du 5.6.1
          touchait « , » et la virgule partait dans la case de limite — il
          voyait « 0<06<1 » rougir. On CLIQUE le vrai jeton, et on regarde où
-         la virgule tombe. */
+         la virgule tombe. Le témoin, ce qu'on tape et le juge sont ceux du
+         profil : le « avec » est devenu un menu (v382), le contrôle a changé
+         de case sans changer de bord. */
       const J = P.casesLimite.jetonTexte;
       if(J){
         await s.page.evaluate(id => openTest(id), J.exercice);
@@ -10689,17 +10691,17 @@ async function parcours(page, N){
         await s.page.waitForTimeout(600);
         await s.page.evaluate(() => pmJetons());
         await s.page.click('#' + J.case);
-        await s.page.keyboard.type('0<0');
+        await s.page.keyboard.type(J.avant);
         const avantMF = await s.page.evaluate(() => [...document.querySelectorAll('.screen.on math-field')].map(m => m.getValue()).join('|'));
         await s.page.click('.screen.on .pm-jetons button[aria-label="Insérer une virgule"]');
-        await s.page.keyboard.type('6<1');
-        const jt = await s.page.evaluate(([id, av]) => ({
+        await s.page.keyboard.type(J.apres);
+        const jt = await s.page.evaluate(([id, av, juge]) => ({
           lu: document.getElementById(id).value,
           mf: [...document.querySelectorAll('.screen.on math-field')].map(m => m.getValue()).join('|') === av,
-          juge: lqnAvecOK(0.6, document.getElementById(id).value),
-        }), [J.case, avantMF]);
+          juge: (0, eval)(juge)(document.getElementById(id).value),
+        }), [J.case, avantMF, J.juge]);
         verifier('le jeton « , » tombe dans la case de texte où l\'élève écrit',
-          jt.lu === '0<0,6<1' && jt.mf && jt.juge,
+          jt.lu === J.attendu && jt.mf && jt.juge,
           'case : ' + JSON.stringify(jt.lu) + ', champs mathématiques intacts : ' + jt.mf + ', juge : ' + jt.juge);
       } else {
         ignorer('le jeton « , » tombe dans la case de texte où l\'élève écrit',
