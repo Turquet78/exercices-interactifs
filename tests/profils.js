@@ -2112,7 +2112,7 @@ module.exports = {
           pose: "test.questions=[{a:2,b:-1}]; test.idx=0; renderECV();", cases: 3 },
         { exercice: 'suite-vocabulaire',    ecran: 'svq', kind: 'svq',
           pose: "test.questions=[{fam:'decconv',L:1,A:3,q:0.8,rep:{}}]; test.idx=0; renderSVQ();", cases: 1 },
-        /* le 5.6.1 (fiche « limite qⁿ ») : la limite, et les deux limites du « car … et … » */
+        /* le 5.6.1 (fiche « limite qⁿ ») : la limite, et les deux limites du « car … et … » (chacune suivie de son menu « car ») */
         { exercice: 'suite-limite-puissance', ecran: 'lqn', kind: 'lqn',
           pose: "test.questions=[{fam:'prod',q:3,r:0.25,a:1}]; test.idx=0; renderLQN();", cases: 3 },
       ],
@@ -2122,10 +2122,15 @@ module.exports = {
       navigateur: { exercice: 'limites-graphiques', mode: 'train', case: 'lg-lim0',
                     bouton: '#lg-lim0 + button.lg-inf' },
       /* et le jeton « , » de la rangée générique, l'élève posé dans une case de
-         TEXTE voisine (le « avec » du 5.6.1) : la virgule doit y tomber, pas
-         dans le champ mathématique d'à côté (octobre 2026). */
-      jetonTexte: { exercice: 'suite-limite-puissance', case: 'lqn-avec',
-                    pose: "test.questions=[{fam:'p',q:0.6}]; test.idx=0; renderLQN();" },
+         TEXTE voisine d'un champ mathématique : la virgule doit y tomber, pas
+         dans le champ d'à côté (octobre 2026). Le témoin était le « avec » du
+         5.6.1, devenu un menu en v382 ; c'est désormais le « Majorée par » de
+         {suite-vocabulaire}, à côté de sa case de limite. On tape « avant »,
+         on clique « , », on tape « apres » : la case doit lire « attendu », et
+         le juge de l'exercice l'accepter. */
+      jetonTexte: { exercice: 'suite-vocabulaire', case: 'svq-maj',
+                    pose: "test.questions=[{fam:'decconv',L:1,A:3,q:0.8,rep:{maj:true}}]; test.idx=0; renderSVQ();",
+                    avant: '3', apres: '5', attendu: '3,5', juge: 'v => svqLireNb(v) === 3.5' },
     },
 
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
