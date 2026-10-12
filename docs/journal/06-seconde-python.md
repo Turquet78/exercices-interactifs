@@ -5150,7 +5150,9 @@ redemandée sans rougir.
 entre parenthèses, collés « 126 », ou suivis de leur total) est un résultat :
 il en faut 216, différents, de 1 à 6. Nommés : un 0 (`range(6)`), un 7, le 6
 manquant (`range(1,6)`), deux dés, le total seul, des doublons, des résultats
-manquants. b) un nombre affiché HORS des lignes de dés vaut 25. c) 81 (au
+manquants. Trois chiffres collés ne sont des dés que dans une LISTE (vingt
+lignes au moins) : le banc l'a montré, un compteur seul qui affiche « 216 »
+se lisait comme le résultat 2, 1, 6. b) un nombre affiché HORS des lignes de dés vaut 25. c) 81 (au
 moins 12) ou 56 (strictement au-dessus de 12) : **la fiche dit les deux** —
 « au-dessus de 12 » dans la question, « au moins 12 » dans la probabilité —,
 les deux sont justes, et le message dit lequel a été compté (la correction

@@ -35632,12 +35632,20 @@ function ptdsDes(l){
   const de=function(v){ return Number.isInteger(v) && v>=0 && v<=7; };
   if(n.length>=3 && n.length<=4 && de(n[0]) && de(n[1]) && de(n[2]) && (n.length===3 || n[3]===n[0]+n[1]+n[2])) return n.slice(0,3);
   const m=t.match(/^\D*\b([0-7])([0-7])([0-7])\b\D*$/);
-  return m?[+m[1],+m[2],+m[3]]:null;
+  return m?Object.assign([+m[1],+m[2],+m[3]], {colle:true}):null;
 }
+/* Trois chiffres collés ne sont des dés que dans une LISTE de dés : un
+   compteur seul qui affiche « 216 » n'est pas le résultat 2, 1, 6. */
+const PTDS_COLLES_MIN=20;
 function ptdsLire(out){
   const lignes=String(out||'').split('\n').map(function(x){ return x.trim(); }).filter(Boolean);
+  const vus=lignes.map(ptdsDes), colles=vus.filter(function(d){ return d&&d.colle; }).length;
   const des=[], autres=[];
-  lignes.forEach(function(l){ const d=ptdsDes(l); if(d) des.push(d); else if(ptdsNombres(l).length) autres.push(l); });
+  lignes.forEach(function(l, i){
+    const d=vus[i];
+    if(d && (!d.colle || colles>=PTDS_COLLES_MIN)) des.push(d.slice(0,3));
+    else if(ptdsNombres(l).length) autres.push(l);
+  });
   return {lignes:lignes, des:des, autres:autres};
 }
 function ptdsHorsCommentaires(src){ return String(src||'').replace(/#[^\n]*/g,''); }
