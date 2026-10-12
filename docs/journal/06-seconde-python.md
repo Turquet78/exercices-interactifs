@@ -4807,3 +4807,77 @@ accolades d'une carte ne soient qu'un ensemble (« … » ou « ; », jamais
 « = »). Et `pyvDiag` disait « la valeur est recopiée à la main » devant
 `note+0`, qui se sert de la variable : il nomme maintenant un CALCUL autour du
 nom.
+
+---
+
+## {python-for-range} — la boucle for … in range (6.6.1, Boucle for in range)
+
+**Le sous-thème « Boucle for in range », et l'exercice 2 du carnet sur la
+boucle.** {python-for-range} (Seconde, 6.6.1, APP_VERSION 429, demande de
+Turquet, octobre 2026 : « en seconde dans le sous thème "boucle for in
+range", créer un exercice qui suit les images jointes ; respecter les
+consignes de présentation des autres exercices d'algo du sous-thème input ;
+mettre le dessin en premier ; dans la définition ne rien rajouter de plus,
+ainsi que dans les coups de pouce éventuels ; respecter les couleurs et
+présentations des exercices du sous-thème input ; ne rien écrire dans le
+cadre de la console ») : les deux serpents (« Tu vas la boucler ? » /
+« Pfff… »), la définition de `for nombre in range ( fin )`, puis a)
+compléter `for nombre in range ( … ):` pour afficher les entiers de 0 à 9,
+b) renommer la variable `nombre` en `k` (deux coups de pouce repliés), c)
+« Cela change-t-il le résultat du programme ? » et sa case « Votre
+réponse ✍️ ». Le sous-thème n'existait pas : il est le 6.6, ajouté EN DERNIER
+— rien n'est renuméroté. Le contrôle du 6.5.1 exigeait que 6.5 soit le
+DERNIER sous-thème ; il exige désormais qu'il soit le CINQUIÈME, ce qui tenait
+la même chose.
+
+**Le moteur est celui du 6.3.1** ({python-input-reponse}) : le dessin en tête
+(`#pfrFig`, découpé dans la capture, détouré, WebP de 16 Ko, `PFR_IMG`), puis
+la définition dans `#pfrAvant` (le cadre orange `.pii-def`, à puces séparées
+d'un trait comme le carnet), puis l'énoncé, puis les trois étapes sur le MÊME
+écran, chacune dans son cadre `.pyn-etape` ouvert par SA question en gras,
+gardée quand la suivante s'ouvre. Le dessin et la définition à la question 1
+seulement. Aucune consigne au bouton ; les deux consoles vides restent des
+cadres vides (`#pfrConsoleA`, `#pfrConsoleB` rejoignent `content:none`).
+**La définition est celle de la fiche, mot pour mot** (`pfrDefHTML`, et le
+rappel `RAP_PFR`) ; seules les coquilles sont corrigées (« décaller »,
+« instuction », « a la fin »), le « <> » du titre est écrit « ⟺ », et le
+`for ... in range ( ... )` du schéma de la remarque 2 reçoit ses deux-points,
+que la remarque 1 exige.
+
+**Les coups de pouce de la fiche étaient REPLIÉS sur la capture** : leur texte
+n'était pas visible. Ils disent le strict nécessaire — 1 : remplacer `nombre`
+par `k` dans la ligne du `for` et dans le `print` ; 2 : les deux lignes du
+programme, la borne de range en pointillés. À remplacer par le texte du
+carnet dès qu'il est fourni.
+
+**Chaque étape se vérifie seule, puis ouvre la suivante** (« Passer au b) ») :
+une case juste ne rougit jamais à cause d'une autre. Trois cases notées par
+question. **a)** le trou est DANS la ligne de code (`.pch-in`) ; le juge
+exécute la ligne complétée et lit les valeurs affichées — `10` et `0, 10`
+passent. Nommés : 9 (le piège : il manque la dernière valeur), 11, un départ à
+1, une lettre, un décimal, 0. **b)** la cellule s'ouvre sur le programme JUSTE
+du a) (le a) est déjà vérifié et corrigé : rien n'est donné) — c'est un écart
+assumé à la capture, dont la cellule portait `range ( 9 )` : avec 9, le c)
+aurait comparé deux résultats différents pour une autre raison que le nom. La
+cellule laissée telle qu'elle s'ouvre est une copie VIDE, redemandée sans
+rougir. Le juge exécute : même sortie qu'au a), `nombre` disparu partout (hors
+des chaînes), la variable du `for` s'appelle `k`. Nommés : le renommage d'un
+seul côté (dans un sens et dans l'autre), la majuscule, un autre nom, `"k"`
+entre guillemets, range modifié, le retrait oublié. Tab écrit 3 espaces et
+Entrée après « : » décale de 3 — la remarque 2. **c)** « Votre réponse » est
+un texte libre, jugé SUR PLACE, sans modèle : « non », « ça ne change rien »,
+« pareil », « la même chose » sont justes, « oui » est faux, une réponse qui
+ne dit ni l'un ni l'autre est redemandée sans rougir.
+
+**La séance** : la fiche épinglée (de 0 à 9, `nombre` devient `k`), puis
+d'autres bornes (5 à 15) et d'autres noms (`i`, `n`, `j`, `compteur`, `p` —
+jamais `x`, que le filet italiquerait) tirés par `distinctes()` ;
+`dmNbQuestions()` l'allonge. Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonForRange`, déclaré dans `tests/profils.js`) : la place, le tirage
+(300 séances), les trois juges, l'écran tenu aux consignes (dessin avant la
+définition, définition avant l'énoncé, quatre puces), le trajet a) → b) → c)
+et ses portes, la copie fausse corrigée en vert, les cases vides jamais
+rougies, le soutien qui redemande sans révéler, et la reprise. Pas de section
+propre au banc navigateur : la visite universelle (section 9) l'ouvre dans les
+deux modes.
