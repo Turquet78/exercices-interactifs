@@ -4999,3 +4999,89 @@ ne parle plus de variable sans valeur. Le contrôle suit : le programme au
 caractère près, une correction qui ne nomme plus `nombre`, et CPython refuse
 le programme (SyntaxError) puis, les deux-points remis, l'exécute et affiche
 `valeur= 0` à `valeur= 8`.
+
+---
+
+## {python-for-renommer} — renommer la variable d'une boucle for (6.6.5, Boucle for in range)
+
+**L'exercice 2 du carnet sur la boucle.** {python-for-renommer} (Seconde,
+6.6.5, APP_VERSION 435 — 433 et 434 pris sur `main` pendant les bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+le sous thème "boucle for in range", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ») : les deux serpents (« Tu vas la boucler ? » /
+« Pfff… »), la définition de `for nombre in range ( fin )`, puis a)
+compléter `for nombre in range ( … ):` pour afficher les entiers de 0 à 9, b)
+renommer la variable `nombre` en `k` (deux coups de pouce repliés), c) « Cela
+change-t-il le résultat du programme ? » et sa case « Votre réponse ✍️ ».
+
+**QUATRE SESSIONS ONT OUVERT LE 6.6 LE MÊME MATIN — ET DEUX ONT PRIS LE MÊME
+IDENTIFIANT.** Celle-ci avait écrit son exercice sous `python-for-range`,
+préfixe `pfr`, sur une branche où le 6.6 n'existait pas. Pendant ses bancs,
+une autre session a mis en ligne l'exercice 1 du carnet (la fiche « 1/
+Définition ») sous le MÊME identifiant et le MÊME préfixe. La fusion aurait
+remplacé l'exercice en ligne par celui-ci, ses notes comprises : les notes
+portent l'identifiant. La branche a donc repris les fichiers de `main` et y a
+REJOUÉ son exercice sous un nom libre — `python-for-renommer`, préfixe `pfv`
+(`pfv` n'apparaissait dans la page qu'au milieu d'images encodées ; le
+renommage les a mises de côté avant de remplacer, pour ne pas les abîmer).
+Ce qui est en ligne garde sa place : il ferme le sous-thème, en 6.6.5,
+derrière {python-for-oui-non} et {python-for-erreur} (6.6.4, fusionné pendant ces
+bancs-là ; son contrôle exigeait de FERMER le 6.6, il exige d'en être le quatrième). Un identifiant se vérifie sur `main` AVANT la
+poussée, pas seulement le numéro de version.
+
+**Le moteur est celui du 6.3.1** ({python-input-reponse}) : le dessin en tête
+(`#pfvFig`, découpé dans la capture, détouré, WebP de 16 Ko, `PFV_IMG`), puis
+la définition dans `#pfvAvant` (le cadre orange `.pii-def`, à puces séparées
+d'un trait comme le carnet), puis l'énoncé, puis les trois étapes sur le MÊME
+écran, chacune dans son cadre `.pyn-etape` ouvert par SA question en gras,
+gardée quand la suivante s'ouvre. Le dessin et la définition à la question 1
+seulement. Aucune consigne au bouton ; les deux consoles vides restent des
+cadres vides (`#pfvConsoleA`, `#pfvConsoleB` rejoignent `content:none`).
+**La définition est celle de la fiche, mot pour mot** (`pfvDefHTML`, et le
+rappel `RAP_PFV`) ; seules les coquilles sont corrigées (« décaller »,
+« instuction », « a la fin »), le « <> » du titre est écrit « ⟺ », et le
+`for ... in range ( ... )` du schéma de la remarque 2 reçoit ses deux-points,
+que la remarque 1 exige.
+
+**Les coups de pouce de la fiche étaient REPLIÉS sur la capture** : leur texte
+n'était pas visible. Ils disent le strict nécessaire — 1 : remplacer `nombre`
+par `k` dans la ligne du `for` et dans le `print` ; 2 : les deux lignes du
+programme, la borne de range en pointillés. À remplacer par le texte du
+carnet dès qu'il est fourni.
+
+**Chaque étape se vérifie seule, puis ouvre la suivante** (« Passer au b) ») :
+une case juste ne rougit jamais à cause d'une autre. Trois cases notées par
+question. **a)** le trou est DANS la ligne de code (`.pch-in`) ; le juge
+exécute la ligne complétée et lit les valeurs affichées — `10` et `0, 10`
+passent. Nommés : 9 (le piège : il manque la dernière valeur), 11, un départ à
+1, une lettre, un décimal, 0. **b)** la cellule s'ouvre sur le programme JUSTE
+du a) (le a) est déjà vérifié et corrigé : rien n'est donné) — c'est un écart
+assumé à la capture, dont la cellule portait `range ( 9 )` : avec 9, le c)
+aurait comparé deux résultats différents pour une autre raison que le nom. La
+cellule laissée telle qu'elle s'ouvre est une copie VIDE, redemandée sans
+rougir. Le juge exécute : même sortie qu'au a), `nombre` disparu partout (hors
+des chaînes), la variable du `for` s'appelle `k`. Nommés : le renommage d'un
+seul côté (dans un sens et dans l'autre), la majuscule, un autre nom, `"k"`
+entre guillemets, range modifié, le retrait oublié. Tab écrit 3 espaces et
+Entrée après « : » décale de 3 — la remarque 2. **c)** « Votre réponse » est
+un texte libre, jugé SUR PLACE, sans modèle : « non », « ça ne change rien »,
+« pareil », « la même chose » sont justes, « oui » est faux, une réponse qui
+ne dit ni l'un ni l'autre est redemandée sans rougir.
+
+**La séance** : la fiche épinglée (de 0 à 9, `nombre` devient `k`), puis
+d'autres bornes (5 à 15) et d'autres noms (`i`, `n`, `j`, `compteur`, `p` —
+jamais `x`, que le filet italiquerait) tirés par `distinctes()` ;
+`dmNbQuestions()` l'allonge. Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonForRenommer`, déclaré dans `tests/profils.js`) : la place, le tirage
+(300 séances), les trois juges, l'écran tenu aux consignes (dessin avant la
+définition, définition avant l'énoncé, quatre puces), le trajet a) → b) → c)
+et ses portes, la copie fausse corrigée en vert, les cases vides jamais
+rougies, le soutien qui redemande sans révéler, et la reprise. La cellule du b) porte `pts-case` : sans elle, la note affichée disait « 2 cases
+justes sur 2 » sur une copie qui en vaut 3 — vu en OUVRANT la page, et le
+banc l'exige désormais. Pas de section
+propre au banc navigateur : la visite universelle (section 9) l'ouvre dans les
+deux modes.
