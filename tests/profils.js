@@ -109,7 +109,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-for-nom':'pfn', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
+               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-for-nom':'pfn', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -861,7 +861,7 @@ module.exports = {
     /* Les exercices de rapidité portés de la Première : pas d'aide IA, comme là-bas.
        Et le 4.6.7, SANS AUCUNE AIDE par demande (Turquet, octobre 2026 : « il ne
        faut aucune aide ») — AIDE_SANS dans la page. */
-    aideIA: { sans: ['tables-multiplication', 'tables-multiplication-2', 'calcul-mental', 'tableau-proportions-trois-colonnes-directes'] },
+    aideIA: { sans: ['python-if-location', 'tables-multiplication', 'tables-multiplication-2', 'calcul-mental', 'tableau-proportions-trois-colonnes-directes'] },
     /* Les poses du calcul mental, portées de la Première avec leurs contrôles
        — voir le profil de la Première pour la doctrine. */
     operationPosee: { exercice: 'addition-soustraction', hote: 'aspHost' },
@@ -920,7 +920,7 @@ module.exports = {
        fini, et le juger à chaque changement de lettre serait absurde. */
     /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
        avec leurs exercices — voir le profil de la Première. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pkg', 'pfn', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfq', 'pfi', 'plo', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pkg', 'pfn', 'pmt', 'ptm', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfq', 'pfi', 'plo', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1126,7 +1126,7 @@ module.exports = {
        du code proposé au choix de l'élève — pas l'inconnue d'une équation. */
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
-                  sans: ['python-if-location', 'python-for-range', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
+                  sans: ['python-for-range', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
@@ -1189,7 +1189,9 @@ module.exports = {
       'python-for-images': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que les deux coups de pouce (range(11) puis x=x/10), qui restent REPLIÉS sous l\u2019énoncé — les écrire avant lui donnerait la boucle à écrire',
       'python-for-nom': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que le coup de pouce (le for k in range), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait la boucle à écrire',
       'python-input-prix': 'la fiche n\u2019a pas de définition : son étiquette (le dessin, les deux prix au kilo) est l\u2019énoncé, et son rappel ne reprend que la formule du coup de pouce — l\u2019écrire avant l\u2019énoncé donnerait le calcul à écrire',
+      'python-tables-multiplication': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (la double boucle), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait le programme (demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus »)',
       'python-for-erreur': 'la fiche n\u2019a ni définition ni coup de pouce : son rappel ne redit que la consigne, et l\u2019erreur à expliquer est la réponse attendue',
+      'python-for-table': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que les deux coups de pouce (la boucle de 1 à 9, le print), qui restent REPLIÉS sous l\u2019énoncé — les écrire avant lui donnerait le programme à écrire',
       'python-for-multiples': 'la fiche n\u2019a ni définition ni coup de pouce (demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus ») : l\u2019énoncé du haut est son dessin, et son rappel ne porte que le programme de la fiche',
       'python-trois-des': 'la fiche (l\u2019exercice 13 du carnet) n\u2019a ni définition ni coup de pouce : l\u2019énoncé du haut est son dessin, et son rappel ne redit que les consignes a), b) et c)',
       'python-input-duree': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (les trois calculs à essayer), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait les calculs à écrire',
@@ -1333,9 +1335,21 @@ module.exports = {
     pythonInputDureeSecondes: { exercice: 'python-input-duree-secondes', nb: 3, numero: '6.5.3' },
     /* {python-for-erreur} (6.6.4, dernier du sous-thème, sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 3 du carnet — exécuter un
-       programme faux, puis expliquer l'erreur (juge : le modèle). Une seule
-       question, la fiche : rien à tirer. */
+       programme faux, puis expliquer l'erreur (juge : le modèle). Trois
+       questions fixes, une faute chacune (deux-points, décalage, i au lieu
+       de k) : rien à tirer. */
     pythonForErreur: { exercice: 'python-for-erreur', numero: '6.6.5' },
+    /* {python-for-table} (6.6.11, dernier du sous-thème « Boucle for in range »,
+       demande de Turquet, octobre 2026) : l'exercice 8 du carnet — a) la
+       table de 3, b) la table de 7, avec une boucle for. Le juge lit ce que
+       le programme AFFICHE. Une seule question (la fiche), deux cases. */
+    pythonForTable: { exercice: 'python-for-table', numero: '6.6.11' },
+    /* {python-tables-multiplication} (6.6.12, BONUS, derrière {python-for-table}, dans le sous-thème
+       « Boucle for in range », demande de Turquet, octobre 2026) :
+       l'exercice 12 du carnet — afficher les tables de 2 à 9 avec une double
+       boucle for. Le juge lit ce que le programme AFFICHE. Une seule
+       question, la fiche : rien à tirer. */
+    pythonForTables: { exercice: 'python-tables-multiplication', numero: '6.6.12' },
     /* {python-inverser-lettres} (6.4.4, sous-thème « Bonus », derrière
        {python-chaine-len}, {python-chaine-tirets} et {python-remplacer-lettre} ;
        demande de Turquet, octobre 2026) : l'exercice 29 du carnet — inverser
