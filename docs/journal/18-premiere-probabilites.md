@@ -491,3 +491,26 @@ Demande de Turquet, octobre 2026 : « mettre le 3.4 entre le 3.1 et 3.2 ».
 {probabilites-fiche} 3.4. Seul l'ordre de `THEMES` change : les notes et les
 devoirs portent l'identifiant, et les numéros cités dans ce journal restent
 ceux de leur époque.
+
+## v304 — le 3.1 gagne deux intersections
+
+Demande de Turquet (octobre 2026) : « dans le 3.1 aussi, varier les
+intersections ». {lire-probabilites} n'en posait AUCUNE — ses huit questions
+(`LN_ITEMS`) sont quatre probabilités simples et quatre conditionnelles. À la
+question « varier, ajouter ou remplacer ? », la réponse a été « ajouter 2
+intersections ». La séance passe donc de neuf écrans à onze : les phrases
+contraires, P(B), P(A), P(B̄), P(Ā), puis DEUX intersections tirées parmi les
+quatre cases du milieu (`PB_INTER`, deux différentes, ordre quelconque),
+puis les quatre conditionnelles.
+
+`LN_ITEMS` ne bouge pas : une pause d'avant la v304 y relit ses huit
+questions par leur indice. Une intersection porte `it:'inter'` et `q.ev` ;
+`pbItem` lit `q.ev` d'abord, si bien que le nom écrit, « P(Ḡ∩L̄) est la
+probabilité d'avoir … parmi … » (réponse : Ḡ∩L̄ parmi tout), le juge, la
+méthode, la copie enregistrée et le contexte du modèle suivent sans rien
+changer. `maxScore` vaut la longueur de la séance : onze.
+
+Vérifié dans Chromium, MathLive chargé : 300 séances, toujours onze
+questions, les douze couples sortent, jamais deux fois la même ; une
+question forcée sur Ḡ∩L̄ remplie juste donne ses neuf cases bleues,
+« Excellent ! » et 6 sur 27, la bonne case sur le total.
