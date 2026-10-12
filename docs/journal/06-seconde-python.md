@@ -4839,3 +4839,51 @@ tirés par `distinctes()`, n de 3 à 9, jamais la variable « x » ; le réglage
 « Questions » d'un devoir l'allonge.
 **Le dessin dit « 0,1,2,3,4,5 » alors que range(5) s'arrête à 4** : c'est le
 dessin de la fiche, posé tel quel à la demande ; il est signalé à Turquet.
+
+## {python-for-nom} — afficher 8 fois son nom et prénom (6.6.1, boucle for in range)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème boucle
+for in range, créer un exercice qui suit l'image jointe […] respecter les
+consignes de présentation des autres exercices d'algo du sous-thème input.
+Mettre le dessin en premier, dans la définition ne rien rajouter de plus
+ainsi que dans les coups de pouce éventuels […] ne rien écrire dans le cadre
+de la console. » C'est l'« Exercice 5 » du carnet : les deux serpents, la
+bulle « Bonjour » quatre fois, puis « Faire un programme dans la cellule
+ci-dessous pour qu'il affiche 8 fois votre Nom et prénom », et un coup de
+pouce replié. Le sous-thème n'existait pas : il est ajouté EN DERNIER au
+thème 6 (6.6 « Boucle for in range ») — rien n'est renuméroté.
+
+**La présentation est celle du 6.3.9** ({python-input-prix}) : le dessin
+seul dans `#pfnInstr` (découpé dans la capture, détouré depuis les bords,
+WebP de 14 Ko en `data:`, `PFN_IMG`) ; la question dans un cadre
+`.pyn-etape`, en gras, qui enveloppe le coup de pouce, la cellule,
+« Exécuter » et la console ; aucune définition (exception déclarée,
+`pythonAvant.sans`) ; la cellule sans texte d'attente et la console vide
+(`#pfnConsole` rejoint la règle `content:none`).
+
+**Le coup de pouce n'était pas lisible sur la capture** (replié) : il
+reprend, au nombre de la question, celui de la même série de fiches au 6.4.5
+— « Pour compter de 1 à 8 utiliser l'instruction : for k in range (1,9): … ».
+Le rappel (`RAP_PFN`) ne dit que lui. À remplacer mot pour mot si la fiche
+dit autre chose.
+
+**L'interpréteur est celui du 6.4.5** : `ptrDerouler` déroule la boucle,
+`pyRun` exécute. **Le juge (`pfnDiag`) lit ce que la console affiche** :
+N lignes, toutes pareilles, d'au moins deux mots (le nom ET le prénom), et
+une boucle for dans le programme — les N print à la main sont refusés en le
+disant. Nommés : rien d'affiché, une ligne de trop ou de moins, le numéro du
+tour, des lignes vides, le nom seul, tout sur une ligne, un input, les
+erreurs de boucle. La séance : la fiche épinglée (8 fois), puis d'autres
+nombres tirés par `distinctes()`. Contrôle : `pythonForNom` (banc
+principal), modèles comparés à un vrai CPython.
+
+**Puis les deux exercices du 6.6 se sont rencontrés** (octobre 2026) : deux
+sessions ont créé le sous-thème « Boucle for in range » le même jour —
+{python-for-nom} (l'« Exercice 5 » du carnet) a été fusionné pendant que
+{python-for-range} (la fiche « 1/ Définition » et son « Exercice 1 ») passait
+ses bancs, avec le même numéro 6.6.1 et la même `APP_VERSION` 429. Les
+identifiants et les kinds (`pfn`, `pfr`) ne se touchaient pas ; la fusion a
+gardé UN sous-thème, et **l'ordre du carnet a décidé**, comme au 6.3 : la
+définition en 6.6.1, {python-for-nom} en 6.6.2 — les notes portent
+l'identifiant et ne bougent pas. Son contrôle épingle désormais 6.6.2 et exige
+la définition devant lui. Version 430.
