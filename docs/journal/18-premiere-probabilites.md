@@ -492,7 +492,7 @@ Demande de Turquet, octobre 2026 : « mettre le 3.4 entre le 3.1 et 3.2 ».
 devoirs portent l'identifiant, et les numéros cités dans ce journal restent
 ceux de leur époque.
 
-## v304 — le 3.1 gagne deux intersections
+## v305 — le 3.1 gagne deux intersections
 
 Demande de Turquet (octobre 2026) : « dans le 3.1 aussi, varier les
 intersections ». {lire-probabilites} n'en posait AUCUNE — ses huit questions
@@ -503,7 +503,7 @@ contraires, P(B), P(A), P(B̄), P(Ā), puis DEUX intersections tirées parmi les
 quatre cases du milieu (`PB_INTER`, deux différentes, ordre quelconque),
 puis les quatre conditionnelles.
 
-`LN_ITEMS` ne bouge pas : une pause d'avant la v304 y relit ses huit
+`LN_ITEMS` ne bouge pas : une pause d'avant la v305 y relit ses huit
 questions par leur indice. Une intersection porte `it:'inter'` et `q.ev` ;
 `pbItem` lit `q.ev` d'abord, si bien que le nom écrit, « P(Ḡ∩L̄) est la
 probabilité d'avoir … parmi … » (réponse : Ḡ∩L̄ parmi tout), le juge, la
