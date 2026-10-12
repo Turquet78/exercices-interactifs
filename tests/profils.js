@@ -109,7 +109,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-samoussa':'psm', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
+               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -920,7 +920,7 @@ module.exports = {
        fini, et le juger à chaque changement de lettre serait absurde. */
     /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
        avec leurs exercices — voir le profil de la Première. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pkg', 'pfn', 'pxy', 'pmt', 'ptm', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'psm', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pkg', 'pfn', 'pxy', 'pmt', 'ptm', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'pce', 'psm', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1126,7 +1126,7 @@ module.exports = {
        du code proposé au choix de l'élève — pas l'inconnue d'une équation. */
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
-                  sans: ['python-if-plus-grand', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
+                  sans: ['python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
@@ -1409,18 +1409,23 @@ module.exports = {
        dixième. Le juge lit ce que le programme AFFICHE. « nb » est la seconde
        source du compte (la page a PFI_NB). */
     pythonForImages: { exercice: 'python-for-images', nb: 3, numero: '6.6.10' },
-    /* {python-samoussa} (6.7.1, il ouvre le sous-thème « Condition if else »,
+    /* {python-samoussa} (6.7.2 — 6.7.1 à sa création, puis {python-if-else} est passé devant —, sous-thème « Condition if else »,
        demande de Turquet, octobre 2026) : l'exercice 3 du carnet — le prix
        des samoussas, 1.20 € sous 10, 0.80 € à partir de 10. Le juge lit le
        prix AFFICHÉ sous quatre réponses. « nb » est la seconde source du
        compte (la page a PSM_NB). */
-    pythonSamoussa: { exercice: 'python-samoussa', nb: 3, numero: '6.7.1' },
-    /* {python-if-plus-grand} (6.7.2, derrière {python-samoussa}, sous-thème « Condition if else », demande
+    pythonSamoussa: { exercice: 'python-samoussa', nb: 3, numero: '6.7.2' },
+    /* {python-if-else} (6.7.1, devant {python-samoussa} : la fiche « 1/
+       Définition d'une condition if age < 18 : … else … » ouvre le sous-thème)
+       — demander l'âge, afficher mineur ou majeur. Le juge EXÉCUTE la copie
+       sous quatre réponses. « nb » est la seconde source du compte (PCE_NB). */
+    pythonIfElse: { exercice: 'python-if-else', nb: 3, numero: '6.7.1' },
+    /* {python-if-plus-grand} (6.7.3, derrière {python-if-else} et {python-samoussa}, sous-thème « Condition if else », demande
        de Turquet, octobre 2026) : l'exercice 5 du carnet — demander deux
        nombres décimaux, afficher le plus grand avec if … else. Le juge lit
        ce que le programme AFFICHE. « nb » est la seconde source du compte (la
        page a PXY_NB). */
-    pythonIfPlusGrand: { exercice: 'python-if-plus-grand', nb: 3, numero: '6.7.2' },
+    pythonIfPlusGrand: { exercice: 'python-if-plus-grand', nb: 3, numero: '6.7.3' },
     /* {python-chaines} (6.1.14, demande de Turquet, octobre 2026) : les
        exercices 21 et 22 du carnet — a) exécuter un programme qui concatène
        et répète, b) compléter un programme pour qu'il affiche 10 fois le nom
