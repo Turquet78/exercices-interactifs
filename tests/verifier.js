@@ -28609,7 +28609,7 @@ function pythonIfLocation(w, P){
     if(document.querySelector("#scr-plo .py-avant,#scr-plo .pyp-regle,#scr-plo .pyi-cours,#scr-plo .pii-def")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("ploEtape"), ti=et&&et.querySelector(".pyn-titre");
     const tt=ti?plat(ti.textContent):"";
-    if(!/^✏️ Une société de location de voiture propose le tarif suivant : 100 € la journée auxquels il faut rajouter 0,40 €\\/km pour les 50 premiers kilomètres et 0,70 €\\/km au-delà\\. Écrire un programme en python qui :/.test(tt)||ti.querySelectorAll("li").length!==4) vus.push("l’énoncé de la question : "+tt);
+    if(!/^✏️ Une société de location de voiture propose le tarif suivant : ?100 € la journée auxquels il faut rajouter 0,40 €\\/km pour les 50 premiers kilomètres et 0,70 €\\/km au-delà\\. ?Écrire un programme en python qui :/.test(tt)||ti.querySelectorAll("li").length!==4) vus.push("l’énoncé de la question : "+tt);
     if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
     ["plo-prog","ploRun","ploConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
     const pouces=document.querySelectorAll("#ploEtape details.pyd-pouce");
