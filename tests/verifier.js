@@ -25135,7 +25135,7 @@ function pythonForRange(w, P){
     if(!def) vus.push("pas de définition");
     else {
       if(img&&!(img.compareDocumentPosition(def)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas en premier");
-      const t=def.textContent.replace(/\\s+/g," ").trim();
+      const t=[].map.call(def.querySelectorAll("p"), function(p){ return p.textContent; }).join(" ").replace(/\\s+/g," ").trim();
       if(t!==${J(F.definition)}) vus.push("la définition : "+t);
     }
     if(document.querySelector("#scr-pfr .pyd-pouce, #scr-pfr details")) vus.push("un coup de pouce est ajouté");
