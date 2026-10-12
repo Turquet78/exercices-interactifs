@@ -4263,6 +4263,7 @@ function exercices(suite){
     pythonTroisDes(w, P);
     pythonForDepartFin(w, P);
     pythonForMultiples(w, P);
+    pythonForMoyenneNotes(w, P);
     pythonChaines(w, P);
     pythonChaineLen(w, P);
     pythonForRange(w, P);
@@ -26008,7 +26009,7 @@ function pythonForOuiNon(w, P){
   })()`, v => v === '');
 }
 
-/* {python-for-multiples} (Seconde, 6.6.7, sous-thème « Boucle for in range », devant {python-trois-des}) :
+/* {python-for-multiples} (Seconde, 6.6.7, sous-thème « Boucle for in range », devant les deux bonus) :
    l'exercice 7 du carnet — a) exécuter for k in range ( 11 ): print (2*k),
    b) expliquer ce que fait ce programme (juge : le modèle — le banc exerce ce
    qui part et le verdict, sans réseau), c) faire un programme qui affiche les
@@ -26027,14 +26028,14 @@ function pythonForMultiples(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il est le septième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-depart-fin} et devant {python-trois-des} (l’ordre du carnet), et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il est le septième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-depart-fin} et devant les deux bonus (l’ordre du carnet), et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids[6]!=="${ID}"||st.ids[5]!=="python-for-depart-fin"||st.ids[7]!=="python-trois-des") vus.push("il n’est pas le septième du sous-thème, entre {python-for-depart-fin} et {python-trois-des} : "+st.ids.join(","));
+    else if(st.ids[6]!=="${ID}"||st.ids[5]!=="python-for-depart-fin") vus.push("il n’est pas le septième du sous-thème, derrière {python-for-depart-fin} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-trois-des"]!=="6.6.8") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-trois-des"]!=="6.6.8"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.9") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
@@ -27478,7 +27479,7 @@ function pythonForDepartFin(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  /* il fermait le sous-thème ; {python-trois-des} puis {python-for-multiples} sont venus derrière lui, sans rien renuméroter */
+  /* il fermait le sous-thème ; d'autres exercices sont venus derrière lui, sans rien renuméroter */
   verifierEval(w, 'il est le sixième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-erreur}, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
@@ -27786,6 +27787,95 @@ function pythonForRenommer(w, P){
     if(!document.getElementById("pfv-a").classList.contains("ok")||!document.getElementById("pfv-a").disabled) vus.push("reprise : le a) n’est pas figé en bleu");
     if(!document.getElementById("pfvValidate")||!document.getElementById("pfvValidate").disabled) vus.push("reprise : « Vérifier » ouvert sans exécution");
     return vus.join(" | ");
+  })()`, v => v === '');
+}
+
+/* {python-for-moyenne-notes} (Seconde, 6.6.9 — 6.6.8 à sa création —, sous-thème « Boucle for in
+   range ») : la fiche « Exercice 11 » du carnet — la même que le 6.5.4, avec
+   son moteur et son juge (kind pmn, q.f=1), présentée comme le sous-thème
+   Input : aucune consigne au-dessus, « Faire un programme » en gras, les deux
+   coups de pouce MOT POUR MOT (range (N) compris ; seul l'input est écrit à
+   un texte), et la page n'écrit RIEN dans la console : seul « Exécuter » y
+   écrit. Le juge, déjà éprouvé par la section du 6.5.4, n'est rejoué ici que
+   sur une copie juste, une fausse et une vide. */
+function pythonForMoyenneNotes(w, P){
+  const nom = '{python-for-moyenne-notes} : la moyenne de N notes, dans le sous-thème de la boucle for';
+  if(!P.pythonForMoyenneNotes){ ignorer(nom, 'ce niveau n\'a pas l\'exercice bonus des notes du sous-thème for'); return; }
+  const ID = P.pythonForMoyenneNotes.exercice, NB = P.pythonForMoyenneNotes.nb, NUM = P.pythonForMoyenneNotes.numero;
+  const present = evaluer(w, "typeof startPFM==='function' && typeof startPMN==='function' && typeof pmnDiag==='function' && typeof pfmPoucesHTML==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPFM / pmnDiag / pfmPoucesHTML introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-trois-des}, son titre dit « Bonus », et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
+    if(!st||!/boucle/i.test(st.nom)||!/range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-trois-des") vus.push("il ne ferme pas le sous-thème derrière {python-trois-des} : "+st.ids.join(","));
+    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-trois-des"]!=="6.6.8"||TEST_NUM["python-for-multiples"]!=="6.6.7"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("le titre ne dit pas Bonus : "+TESTS["${ID}"].name);
+    if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
+    if(!RAPPELS_ID["${ID}"]) vus.push("pas de rappel propre");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. l'écran ---- */
+  verifierEval(w, 'l’écran : aucune consigne au-dessus, l’énoncé de la fiche (« Faire un programme » en gras) en tête du cadre de la cellule, les deux coups de pouce repliés mot pour mot, aucun encadré de cours, une console vide ; la séance a ' + NB + ' questions, la fiche d’abord', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFM();
+    const vus=[], Q=String.fromCharCode(34);
+    if(test.kind!=="pmn"||test.questions.length!==${NB}||test.maxScore!==${NB}) vus.push("séance "+test.kind+" de "+test.questions.length+" questions");
+    if(!test.questions.every(function(q){ return q.f===1; })) vus.push("une question n’a pas q.f");
+    if(pmnNotes(test.questions[0]).join(",")!=="12,8,16") vus.push("la fiche n’ouvre pas la séance");
+    const ins=document.getElementById("pmnInstr");
+    if(ins.textContent.trim()!==""||!ins.hidden) vus.push("une consigne est posée au-dessus de la fiche : "+ins.textContent);
+    const et=document.querySelector("#pmnHost .pyn-etape"), ti=et&&et.querySelector(".pyn-titre");
+    const tt=ti?ti.textContent.replace(/\\u00a0/g," "):"";
+    ["Faire un programme qui fonctionne comme l’exemple ci-dessous :","Tu as combien de notes ? 3","Ta note 1 ? 12","Ta note 2 ? 8","Ta note 3 ? 16","Ta moyenne est de 12."].forEach(function(s){ if(tt.indexOf(s)<0) vus.push("l’énoncé n’a pas « "+s+" »"); });
+    const b=ti&&ti.querySelector("b");
+    if(!b||b.textContent!=="Faire un programme") vus.push("« Faire un programme » n’est pas en gras");
+    if(document.querySelector("#scr-pmn .pyi-cours, #scr-pmn .pyp-regle, #scr-pmn .pii-def")) vus.push("un encadré de cours a été ajouté");
+    const pouces=document.querySelectorAll("#pmnHost details.pyd-pouce");
+    const att=["coup de pouce 1Pour compter de 1 à N utilise l’instruction:for k in range (1,N+1):    note=float(input ( "+Q+"ta note "+Q+"+str(k)+"+Q+" ?"+Q+"))",
+               "coup de pouce 2Pour calculer la somme des notes mettresomme = 0for k in range (N):    note = float (input ( "+Q+"ta note "+Q+"+str(k)+"+Q+" ?"+Q+") )    somme = somme + note"];
+    if(pouces.length!==2) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d,i){
+      if(d.open) vus.push("coup de pouce déplié d’emblée");
+      const t=d.textContent.replace(/\\u00a0/g," ");
+      if(t!==att[i]) vus.push("coup de pouce "+(i+1)+" : "+JSON.stringify(t));
+    });
+    const cons=document.getElementById("pmnConsole");
+    if(cons.textContent!==""||!et||!et.contains(cons)) vus.push("la console n’est pas vide, ou hors du cadre");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. juste, faux, vide : et la console reste à l'élève ---- */
+  verifierEval(w, 'les coups de pouce assemblés passent au juge ; la copie juste vaut 1, la fausse rougit et reçoit le modèle vert dessous, la vide ne rougit pas ; la vérification n’écrit RIEN dans la console', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFM();
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    const pouces=["N = int(input("+Q+"Tu as combien de notes ? "+Q+"))","somme = 0","for k in range (1,N+1):","    note=float(input ( "+Q+"ta note "+Q+"+str(k)+"+Q+" ?"+Q+"))","    somme = somme + note","print("+Q+"Ta moyenne est de"+Q+", somme / N)"].join(NL);
+    if(!pmnDiag(pouces, test.questions[0]).ok) vus.push("le programme des coups de pouce est refusé : "+pmnDiag(pouces, test.questions[0]).dits.join(" "));
+    let ta=document.getElementById("pmn-prog");
+    ta.value=pouces; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPMN();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    if(document.getElementById("pmnConsole").textContent!=="") vus.push("la vérification écrit dans la console : "+JSON.stringify(document.getElementById("pmnConsole").textContent));
+    nextPMN(); ta=document.getElementById("pmn-prog");
+    if(!test.questions[1].f) vus.push("la question 2 perd q.f");
+    ta.value="print("+Q+"Ta moyenne est de 12."+Q+")"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPMN();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    if(!document.querySelector("#pmnModele .sol")) vus.push("pas de modèle vert sous la copie fausse");
+    if(document.getElementById("pmnConsole").textContent!=="") vus.push("la vérification de la copie fausse écrit dans la console");
+    nextPMN(); ta=document.getElementById("pmn-prog");
+    checkPMN();
+    if(ta.classList.contains("bad")||!ta.classList.contains("sol")) vus.push("la copie vide : "+ta.className);
+    return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 }
 
@@ -28714,11 +28804,12 @@ function pythonTroisDes(w, P){
   const J = JSON.stringify;
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.6 « Boucle for in range », huitième, numéroté ' + NUM + ', BONUS dans son titre, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il est le septième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', BONUS dans son titre, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids.length!==8||st.ids[6]!=="python-for-multiples") vus.push("il ne ferme pas le sous-thème, huitième, derrière {python-for-multiples} : "+st.ids.join(","));
+    /* il fermait le sous-thème ; {python-for-moyenne-notes} (6.6.8) est venu derrière lui, sans rien renuméroter */
+    else if(st.ids[7]!=="${ID}"||st.ids[6]!=="python-for-multiples") vus.push("il n’est pas le huitième du sous-thème, derrière {python-for-multiples} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+(TESTS["${ID}"]&&TESTS["${ID}"].name));
