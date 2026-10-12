@@ -5102,3 +5102,60 @@ justes sur 2 » sur une copie qui en vaut 3 — vu en OUVRANT la page, et le
 banc l'exige désormais. Pas de section
 propre au banc navigateur : la visite universelle (section 9) l'ouvre dans les
 deux modes.
+
+---
+
+## {python-for-multiples} — les multiples avec une boucle for (6.6.6, Boucle for in range)
+
+**L'exercice 7 du carnet sur la boucle.** {python-for-multiples} (Seconde,
+6.6.6, APP_VERSION 437, demande de Turquet, octobre 2026 : « en seconde dans
+le sous theme "bloucle for in range", créer un exercice qui suit les images
+jointes. Il faudra respecter les consignes de présentation des autres
+exercices d'algo du sous thème "input". mettre le dessin en premier, dans la
+définition ne rien rajouter de plus ainsi que dans les coups de pouces
+éventuels. respecter les couleur et présentations des exercices du sous theme
+input. ne rien écrire dans le cadre de la console. ») : le serpent qui compte
+« 0, 5, 10, 15 », puis a) « **Exécuter** le nouveau programme ci-dessous » —
+`for k in range ( 11 ):` / `print (2*k)` —, b) « Expliquer ce que fait ce
+programme. » et sa cellule « Votre réponse ✍ : », c) « **Faire** un
+programme dans la cellule ci-dessous qui affiche **tous les multiples de 5**
+de **0** à **50** ». Il ferme le sous-thème 6.6, derrière
+{python-for-renommer} : rien n'est renuméroté (le contrôle de
+{python-for-renommer} exigeait de FERMER le 6.6 ; il exige d'en être le
+cinquième).
+
+**La présentation est celle du 6.6.4 et du 6.6.5** : le dessin seul dans
+l'énoncé du haut (découpé dans la capture, détouré depuis les bords, WebP de
+9 Ko en `data:`, `PFM_IMG`), puis les trois étapes sur le MÊME écran, chacune
+dans son cadre `.pyn-etape` ouvert par SA question en gras, gardée quand la
+suivante s'ouvre. La fiche n'a ni définition ni coup de pouce : l'écran n'en
+a aucun (exception nommée de `pythonAvant.sans`), et le rappel (`RAP_PFM`)
+ne porte que le programme de la fiche. Les deux consoles vides restent des
+cadres vides (`#pfmConsole`, `#pfmConsoleC` rejoignent `content:none`), et
+la cellule du c) n'a pas de texte d'attente. « Executer » reçoit son accent.
+
+**a) est une porte, pas une note** (le motif du 6.6.3) : « Vérifier » est
+fermé, et le b) ne s'ouvre qu'après l'exécution. **b) est jugé par le
+modèle** (action `verif`) : la règle de décision porte l'idée — le programme
+affiche les multiples de 2 (2*k, le double de k, les nombres pairs) ; les
+bornes ne sont pas exigées, mais une borne donnée doit être juste. Une
+explication vide ne part pas et ne rougit pas ; le verdict s'applique dans
+`pfmVerdictB`, que le banc joue sans réseau. **c) est jugé en exécutant**
+(`pfmDiag`, le moteur du 6.4.5) : la console doit afficher 0, 5, …, 50, un par
+ligne, et le programme répéter par une boucle for. `range ( 11 )` avec `5*k`,
+`range(0,51,5)`, une phrase autour du nombre passent. Nommés : rien
+d'affiché, 50 manquant (le piège de range), une valeur de trop, 0 oublié,
+le programme du a) recopié, des nombres à virgule, les onze print à la main.
+Une cellule vide est redemandée sans rougir. Chaque étape se vérifie seule,
+puis ouvre la suivante (« Passer au c) ») : deux cases par question.
+
+**La séance** : la fiche épinglée (range ( 11 ), 2*k ; les multiples de 5 de
+0 à 50), puis d'autres situations (`PFM_SITUATIONS`, jamais le même
+multiplicateur au a) et au c)) tirées par `distinctes()` ; `dmNbQuestions()`
+l'allonge. Pas de correction au fil de la frappe (`soutienEnDirect.sans`),
+pas de bouton des tables. Banc jsdom (`pythonForMultiples`) : la place, la
+séance (300 séances), le juge du c) sur des copies justes et fausses, l'écran
+tenu aux consignes, ce qui part au modèle, le trajet a) → b) → c) et la note
+à deux cases, le faux dans les deux modes, la reprise, et les programmes
+comparés à un vrai CPython. Pas de section propre au banc navigateur : la
+visite universelle (section 9) l'ouvre dans les deux modes.
