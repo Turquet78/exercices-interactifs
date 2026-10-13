@@ -247,7 +247,11 @@ module.exports = {
        nombres ne dépassent pas 6 et sont positifs ; si on peut simplifier la
        fraction à la fin, présenter comme au 4.1 ». La borne 6 porte sur le
        PRODUIT (précisé par Turquet : le croisement la dépasse par
-       construction). FRAC_MAX et SPF_INTER dans la page, ici les bornes. */
+       construction). FRAC_MAX et SPF_INTER dans la page, ici les bornes.
+       Puis (octobre 2026) : une SOUSTRACTION une paire sur deux, au résultat
+       positif ; le calcul rangé en colonnes, le « = » en tête de chaque ligne
+       (mesuré dans le banc navigateur) ; et après chaque guidée, une question
+       RÉDIGÉE sur la même page, comme au 4.3 (sommeProduitRedigee). */
     sommeProduit: { max: 5, inter: 6 },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
