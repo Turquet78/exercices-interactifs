@@ -1,11 +1,11 @@
 # Seconde — le thème 8, Vecteurs
 
-**Le thème vient EN DERNIER** (thème 8, v472) : un thème ajouté à la fin ne
+**Le thème vient EN DERNIER** (thème 8, v473) : un thème ajouté à la fin ne
 renumérote rien — les sept premiers gardent leurs numéros, et aucun renvoi
 {identifiant} ne bouge. Le contrôle de l'exercice relit les numéros de 2.1,
 5.1, 6.1.1, 7.1 et 7.8 pour le prouver.
 
-## {translation-grille} — image d'un point par une translation (8.1, v472)
+## {translation-grille} — image d'un point par une translation (8.1, v473)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
 l'image », une fiche papier. En haut, huit vecteurs dessinés, v₁ à v₈ : vers
