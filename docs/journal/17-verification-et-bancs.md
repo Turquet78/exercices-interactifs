@@ -267,3 +267,21 @@ encore), le schéma à cases de {pourcentages-problemes} (178 s, 600 rendus), et
 le rejeu des séances lui-même, cinq minutes pour quarante tours. Toutes les
 durées ici sont celles d'une machine qui jouait deux bancs à la fois ;
 l'action GitHub, une machine par banc, fera mieux.
+
+**Puis l'action a donné la mesure propre, et le répit s'est allongé à 1,2 s.**
+Sur la pull request #626, une machine par banc : jsdom de la Seconde 7 min 07
+au lieu de 21 min 40, Première 1 min 35, Terminale 4 min 16 ; navigateur de
+la Seconde 15 min 50 au lieu de 20, Première 9 min 48, Terminale 8 min 33 —
+l'action entière en seize minutes au lieu de vingt-sept. Mais sur la machine
+de la session, les trois bancs navigateur joués de front avec le banc jsdom,
+le 4.6 de la Première a rougi une fois : « 1/2 + 1/2 × 3/2 = 10/8 = 5/4, tapé
+au clavier, est compté faux ». Le script module de la page pose, APRÈS
+l'enregistrement de `<math-field>` que l'attente de condition guette, des
+réglages différés par `setTimeout` — les raccourcis de frappe à 0 et 350 ms,
+le menu, l'ajustement du clavier jusqu'à 620 ms. À 400 ms de répit, sur une
+machine chargée, la frappe partait avant les raccourcis ; l'ancien délai de
+3,5 s les couvrait sans le savoir. Le répit passe à 1,2 s : les 118
+ouvertures de la Seconde coûtent 1,6 minute de plus qu'à 400 ms, et 4,5 de
+moins qu'avant. Une attente de condition n'attend que ce qu'elle nomme — ce
+que le script fait ensuite, différé, reste à couvrir par le répit, et c'est
+écrit à côté de lui.
