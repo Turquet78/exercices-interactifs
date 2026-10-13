@@ -299,10 +299,11 @@
   .pin-input{width:170px;text-align:center;letter-spacing:.4em;font-family:"Fredoka";font-weight:600;font-size:1.5rem;border:1.5px solid var(--line);border-radius:13px;padding:11px 12px;background:#fff;color:var(--ink)}
   /* Le code de l'élève se tape MASQUÉ (audit d'octobre 2026, T10) : en classe, il
      s'affichait en clair sur l'écran du voisin. Masqué par la feuille de styles
-     et non par type="password" : le formulaire de connexion n'a pas
-     d'identifiant (le prénom est un bouton), Chrome irait en chercher un
-     ailleurs et proposerait d'ENREGISTRER le code d'un élève sur un poste
-     partagé — le piège « Sans balise <form> » du journal 11. */
+     et non par type="password" : le formulaire de connexion n'offre aucun
+     identifiant au sens de Chrome (le prénom est un champ texte en
+     autocomplete="off", dans un <form autocomplete="off">), Chrome irait en
+     chercher un ailleurs et proposerait d'ENREGISTRER le code d'un élève sur
+     un poste partagé — le piège « Sans balise <form> » du journal 11. */
   #loginPin{-webkit-text-security:disc}
 
   .hello{font-family:"Fredoka";font-weight:600;font-size:1.7rem;margin:0 0 2px}
@@ -1902,13 +1903,22 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
         <button id="segCr" onclick="loginMode('cr')">Créer mon compte</button>
       </div>
 
+      <!-- L'ÉLÈVE TAPE SON PRÉNOM : la liste des prénoms de la classe ne
+           s'affiche plus (décision de Turquet, octobre 2026). Elle se lisait
+           SANS COMPTE — des prénoms de mineurs, et les clés dont l'adresse de
+           connexion est dérivée — et la migration 009 ferme cette lecture.
+           Les deux champs sont toujours visibles, prénom puis code ; aucun
+           focus automatique : sur tablette, il ferait monter le clavier du
+           système avant tout geste. -->
       <form id="modeCo" onsubmit="return false" autocomplete="off">
-        <label class="lab">Choisis ton prénom</label>
-        <div class="chips" id="nameChips"></div>
-        <div id="pinRow" hidden style="margin-top:14px">
+        <div class="field">
+          <label class="lab" for="loginPrenom">Ton prénom</label>
+          <input class="text-input" id="loginPrenom" maxlength="24" placeholder="Ex. : Léa" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="words" enterkeyhint="next">
+        </div>
+        <div id="pinRow">
           <label class="lab" for="loginPin">Ton code à 6 chiffres</label>
           <div class="row">
-            <input class="pin-input" id="loginPin" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off">
+            <input class="pin-input" id="loginPin" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off" enterkeyhint="go">
             <button type="button" class="btn btn-primary" onclick="connexionEleve()">Entrer</button>
           </div>
         </div>
@@ -3304,7 +3314,12 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=383;
+const APP_VERSION=384;
+/* La version qui a apporté la connexion par prénom tapé (migration 009). Les
+   numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
+   elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
+   Elle ne bouge plus — c'est APP_VERSION qui avance. */
+const VERSION_CONNEXION_PRENOM=384;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3464,7 +3479,7 @@ function normalizeCfg(cfg){
   delete cfg.devoir;
   return cfg;
 }
-let sb=null, currentEleve=null, selectedEleve=null, cfg=null;
+let sb=null, currentEleve=null, cfg=null;
 const test={kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false};
 /* Un double-clic sur le bouton de la derniere question appelait finish... deux fois :
    deux lignes en base pour le meme test. Le verrou est cale sur test.startTime, qui
@@ -3695,7 +3710,10 @@ function navCasesListe(){
       if(t!=='text' && t!=='number') return;
     }
     let a=el, cache=false;
-    while(a && a!==scr){ if(a.style && a.style.display==='none'){ cache=true; break; } a=a.parentElement; }
+    /* masqué par style.display OU par l'attribut hidden : le formulaire
+       « Créer mon compte » de l'écran de connexion est caché par hidden, et
+       Entrée dans le prénom ne doit pas y envoyer le focus */
+    while(a && a!==scr){ if((a.style && a.style.display==='none') || a.hidden){ cache=true; break; } a=a.parentElement; }
     if(!cache) out.push(el);
   });
   return out;
@@ -5443,7 +5461,7 @@ async function reprendreSessionProf(){
   show('teacher'); loadSettingsIntoForm(); teacherTab('results');
 }
 function estEcranActif(nom){ const e=$('scr-'+nom); return !!e && e.classList.contains('on'); }
-function accueil(){ show('login'); renderLoginNames(); }
+function accueil(){ show('login'); preparerConnexion(); }
 function demarrer(){ if(entreeProfDemandee()) ouvrirEntreeProf(); else accueil(); }
 try{ window.addEventListener('hashchange',()=>{ if(entreeProfDemandee()) ouvrirEntreeProf(); }); }catch(e){}
 
@@ -5463,37 +5481,108 @@ function loginMode(m){
   $('modeCo').hidden=(m!=='co');
   $('modeCr').hidden=(m!=='cr');
 }
-async function renderLoginNames(){
-  loginMode('co'); selectedEleve=null; $('pinRow').hidden=true;
-  const box=$('nameChips'); box.innerHTML='<span class="muted">Chargement…</span>';
-  try{
-    /* select('*') rapportait aussi la colonne des codes : toute la classe
-       lisible dans l'onglet Réseau. On ne demande plus que ce qui s'affiche. */
-    const {data,error}=await sb.from('eleves').select('id,prenom,cle').order('prenom');
-    if(error)throw error;
-    if(!data.length){ box.innerHTML='<span class="muted">Aucun compte pour l\'instant. Crée le tien avec « Créer mon compte ».</span>'; return; }
-    box.innerHTML='';
-    data.forEach(e=>{
-      const b=document.createElement('button');
-      b.className='chip'; b.textContent=e.prenom;
-      b.onclick=()=>{ selectedEleve=e;
-        document.querySelectorAll('#nameChips .chip').forEach(c=>c.classList.remove('sel'));
-        b.classList.add('sel'); $('pinRow').hidden=false; $('loginPin').value=''; setTimeout(()=>$('loginPin').focus(),60);
-      };
-      box.appendChild(b);
-    });
-  }catch(e){ box.innerHTML='<span class="muted">Connexion impossible. Vérifie ta configuration.</span>'; }
+/* L'ÉLÈVE TAPE SON PRÉNOM, LA LISTE DE LA CLASSE NE S'AFFICHE PLUS (décision
+   de Turquet, octobre 2026). Les pastilles de prénoms se lisaient sans compte :
+   la politique « liste » de la table des élèves était ouverte à anon, et avec
+   les prénoms partaient les clés dont l'adresse de connexion est dérivée. La
+   migration 009 ferme cette lecture. Avant la connexion, la page n'obtient
+   plus que les clés DU prénom tapé, par la fonction SQL cles_de_connexion —
+   et rien d'autre.
+   Aucun focus automatique à l'ouverture : sur tablette, il ferait monter le
+   clavier du système avant tout geste. */
+function preparerConnexion(){
+  loginMode('co');
+  const p=$('loginPrenom'); if(p) p.value='';
+  const c=$('loginPin'); if(c) c.value='';
+}
+/* LA MÊME NORMALISATION QUE public.normaliser_prenom EN SQL (migration 009) :
+   minuscules, accents retirés, espaces réduits à un. « Léa », « lea » et
+   « LÉA  » désignent le même compte — l'élève qui tape son prénom sans accent
+   sur une tablette doit entrer quand même. Les deux écritures doivent rester
+   ÉQUIVALENTES : celle-ci sert au repli et à la création de compte, l'autre
+   à la fonction SQL ; si elles divergeaient, un prénom passerait d'un côté et
+   pas de l'autre. */
+function normaliserPrenom(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/\s+/g,' '); }
+/* Les clés de connexion d'un prénom : { data:[…], error }. La fonction SQL
+   cles_de_connexion (migration 009) rend les clés des élèves de CE niveau
+   dont le prénom normalisé est celui demandé — cinq au plus, triées. Un
+   prénom vide ne demande rien.
+   LE REPLI, ET POURQUOI IL EXISTE. Tant que la migration 009 n'est pas jouée
+   sur le projet, la fonction n'existe pas : PostgREST répond 404 et
+   supabase-js rend error.code === 'PGRST202'. Dans ce cas, et dans ce cas
+   SEULEMENT, la page relit la liste comme avant — select('cle,prenom'), puis
+   le filtre dans la page — ce qui marche tant que l'ancienne politique
+   ouverte est là. Dès que la 009 est passée, la fonction répond et le repli
+   n'est plus appelé ; s'il l'était, la liste fermée ne rendrait plus rien.
+   Toute AUTRE erreur remonte telle quelle : un repli pris sur n'importe
+   quelle erreur relirait la liste entière à chaque incident, et personne ne
+   verrait que la fonction est en panne.
+   ORDRE IMPÉRATIF : LA PAGE D'ABORD EN LIGNE, LA MIGRATION ENSUITE. L'inverse
+   coupe la connexion de tout le monde — l'ancienne page demande une liste que
+   la base vient de fermer. */
+async function clesDuPrenom(prenom){
+  const voulu=normaliserPrenom(prenom);
+  if(!voulu) return {data:[],error:null};
+  const {data,error}=await sb.rpc('cles_de_connexion',{niveau:NIVEAU,prenom});
+  if(!error) return {data:(data||[]).map(String),error:null};
+  if(error.code!=='PGRST202'){
+    /* Toute autre erreur remonte — et s'écrit en console : une fonction en
+       panne (droit retiré, search_path cassé) doit se lire sans ouvrir
+       l'onglet Réseau. */
+    try{ console.warn('cles_de_connexion :', error.code, error.message); }catch(e){}
+    return {data:null,error};
+  }
+  const {data:liste,error:errListe}=await sb.from('eleves').select('cle,prenom');
+  if(errListe) return {data:null,error:errListe};
+  return {data:(liste||[]).filter(e=>normaliserPrenom(e.prenom)===voulu).map(e=>String(e.cle)).sort().slice(0,5),error:null};
 }
 async function connexionEleve(){
-  if(!selectedEleve){ toast('Choisis ton prénom'); return; }
+  const prenom=val('loginPrenom').trim();
+  if(!prenom){ toast('Écris ton prénom'); $('loginPrenom').focus(); return; }
   const pin=val('loginPin').trim();
+  if(!pin){ toast('Écris ton code'); $('loginPin').focus(); return; }
+  const {data:cles,error}=await clesDuPrenom(prenom);
+  if(error){ toast('Connexion impossible — réessaie','err'); return; }
+  if(!cles.length){ toast('Prénom inconnu : vérifie l\'orthographe, ou crée ton compte','err'); $('loginPrenom').focus(); return; }
   /* Le code n'est plus comparé ici : cette page ne le connaît pas. Supabase
      le vérifie, et lui seul détient de quoi le faire. Tant que la comparaison
      était faite dans le navigateur, deux lignes dans la console suffisaient à
-     entrer sous n'importe quel prénom. */
-  const {error}=await sb.auth.signInWithPassword({email:courrielDe(selectedEleve.cle),password:motDePasseDe(pin)});
-  if(error){ toast('Code incorrect','err'); $('loginPin').value=''; $('loginPin').focus(); return; }
-  currentEleve=selectedEleve; await ouvrirEspace();
+     entrer sous n'importe quel prénom.
+     Deux élèves peuvent porter le même prénom : chaque clé est essayée dans
+     l'ordre, et c'est le code qui départage. */
+  for(const cle of cles){
+    const {error:errCo}=await sb.auth.signInWithPassword({email:courrielDe(cle),password:motDePasseDe(pin)});
+    if(errCo){
+      /* Seul un CODE REFUSÉ passe à la clé suivante. Une limitation de cadence
+         (429 — une classe entière derrière l'adresse de l'établissement), une
+         coupure réseau, un compte non confirmé ne sont pas un code faux :
+         dire « Code incorrect », vider la case et faire retaper aggraverait
+         la cadence. On s'arrête, on le dit, et le code reste dans sa case.
+         Pas « tout statut 400 » : un compte non confirmé (400,
+         email_not_confirmed) ou une adresse refusée répondent 400 aussi, et
+         ne sont pas un code faux — seul invalid_credentials l'est. */
+      const refus=errCo.code==='invalid_credentials'||/invalid login credentials/i.test(errCo.message||'');
+      if(refus) continue;
+      try{ console.warn('connexion :', errCo.status, errCo.code, errCo.message); }catch(e){}
+      toast('Connexion impossible — réessaie dans une minute','err'); return;
+    }
+    /* Connecté : on relit SA ligne. La table n'est lisible qu'une fois
+       connecté, et c'est cette ligne qui porte l'identifiant sous lequel ses
+       notes s'enregistrent. Un compte sans ligne — un élève retiré de la table
+       mais pas de l'authentification — n'entre pas, et la session se referme. */
+    const {data:ligne,error:errLigne}=await sb.from('eleves').select('id,prenom,cle').eq('cle',cle).single();
+    if(errLigne||!ligne){
+      /* La session se referme : un compte sans ligne ne doit pas rester
+         connecté sur un poste partagé. Si la fermeture échoue, on le dit —
+         c'est l'élève suivant qui en hériterait. */
+      const {error:errSortie}=await sb.auth.signOut();
+      toast(errSortie ? 'Compte introuvable — ferme l\'onglet et préviens ton professeur'
+                      : 'Compte introuvable — préviens ton professeur','err');
+      return;
+    }
+    currentEleve=ligne; await ouvrirEspace(); return;
+  }
+  toast('Code incorrect','err'); $('loginPin').value=''; $('loginPin').focus();
 }
 /* Un code donne par le professeur est tire au hasard : il ne se retient pas.
    L'eleve doit pouvoir le remplacer par le sien. Aucune fonction Edge ici —
@@ -5515,7 +5604,7 @@ async function relireMarqueurCode(){
    a sa premiere connexion. Pas un bouton qu'il pourrait ignorer — une demande
    qui barre l'entree tant qu'elle n'a pas aboutie.
    Trois issues, et l'appelant les traite differemment :
-     'reconnexion' le code est change — on le renvoie a l'ecran des prenoms
+     'reconnexion' le code est change — on le renvoie a l'ecran de connexion
                    pour qu'il se reconnecte AVEC. Il verifie ainsi tout de
                    suite qu'il l'a retenu, plutot que de s'en apercevoir le
                    lendemain (decision de Turquet, aout 2026).
@@ -5561,9 +5650,14 @@ async function creerCompte(){
   if(!new RegExp('^\\d{'+CHIFFRES_CODE+'}$').test(pin)){ toast('Le code doit avoir '+CHIFFRES_CODE+' chiffres'); return; }
   if(pin!==pin2){ toast('Les deux codes sont différents','err'); return; }
   try{
-    const {data:exist,error:errExist}=await sb.from('eleves').select('id').ilike('prenom',prenom);
+    /* LA SEULE PORTE AVANT CONNEXION, et elle ignore accents et majuscules —
+       comme l'écran de connexion, par la même fonction SQL. Un second « Léa »
+       écrit « lea » ne se distinguerait plus de la première au moment
+       d'entrer : il est refusé ici. L'ancien ilike('prenom') ne voyait pas
+       l'accent, et la table n'est de toute façon plus lisible sans compte. */
+    const {data:exist,error:errExist}=await clesDuPrenom(prenom);
     if(errExist){ toast('Vérification du prénom impossible — réessaie','err'); return; }
-    if(exist&&exist.length){ toast('Ce prénom existe déjà — connecte-toi','err'); return; }
+    if(exist.length){ toast('Ce prénom existe déjà — connecte-toi','err'); return; }
     /* On tire une CLÉ, pas un identifiant de ligne : « id » n'a pas le même
        type d'un niveau à l'autre — uuid ici, bigint en Première — et y écrire
        un uuid cassait la création de compte là-bas. La base produit « id »
@@ -26784,6 +26878,8 @@ document.addEventListener('input',e=>{
   if(!currentEleve||!(currentMode==='train'||currentMode==='soutien')||!t||t.tagName!=='INPUT'||!t.closest('.screen.on')) return;
   clearTimeout(_draftSaveTimer); _draftSaveTimer=setTimeout(autoSave,1200);
 });
+/* Enter dans le prénom passe au code ; Enter dans le code entre. */
+$('loginPrenom').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('loginPin').focus();}});
 $('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();connexionEleve();}});
 /* L'identifiant est celui du compte Supabase du professeur. Il est posé depuis
    la constante, jamais recopié : deux écritures qui divergent, c'est le défaut

@@ -213,6 +213,311 @@ l'idempotence — et sa sortie sur le vrai projet est un DIAGNOSTIC : « 0 sans
 lien » partout veut dire que la cause est ailleurs (session expirée, par
 exemple), pas que le script a échoué.
 
+**La liste des prénoms ne se lit plus sans être connecté.** La migration 001
+avait posé sur `eleves`, `eleves_1ere` et `eleves_2nde` une politique
+`p_<table>_liste` « for select to anon, authenticated using (true) », avec
+pour toute défense ce commentaire de son étape 4 : « la liste des prénoms
+doit rester lisible sans être connecté, c'est l'écran de connexion qui la
+demande ». C'était vrai : l'écran affichait les prénoms de la classe en
+pastilles (`#nameChips`, `renderLoginNames()`), l'élève cliquait la sienne et
+tapait son code. Et c'était le prix : la clé anonyme de Supabase est dans la
+page, donc n'importe qui, sans compte, depuis n'importe où sur Internet,
+lisait les prénoms de trois classes de mineurs — et la colonne `cle` avec eux,
+dont l'adresse de connexion `<cle>@DOMAINE_COMPTES` est dérivée : la moitié de
+l'identifiant, offerte, il ne restait qu'un code à six chiffres à deviner.
+Décision de Turquet (octobre 2026, premier point de « on peut faire quoi
+d'autre ») : cette lecture se ferme.
+**Le dessin : l'élève TAPE son prénom, et la page n'obtient que ce qu'il faut
+pour le connecter.** Un champ texte `#loginPrenom` remplace les pastilles
+(Seconde v483, Première v317, Terminale v384 — même diff mot pour mot, seules
+la table et la version diffèrent). La page appelle
+`sb.rpc('cles_de_connexion', { niveau: NIVEAU, prenom })` ; la fonction SQL
+(migration 009) est `security definer`, comme `est_prof()` — elle lit la table
+SANS repasser par la RLS, sans quoi le visiteur qui l'appelle ne verrait plus
+rien — et rend les clés d'UN prénom exact, cinq au plus, triées : ni
+l'identifiant, ni le prénom, ni la liste, et son type de retour (`setof text`)
+est la preuve que rien d'autre ne peut en sortir. « Exact » se lit sans
+accent, sans casse et sans espace double : `normaliserPrenom` dans la page
+(NFD, combinants retirés, `toLowerCase`, `trim`, espaces réduits) et
+`public.normaliser_prenom` en SQL DOIVENT rester équivalentes : l'une sert au
+repli et à la création de compte, l'autre à la fonction ; si elles
+divergeaient, un prénom passerait d'un côté et pas de l'autre. **Et elles
+divergeaient** : la première table SQL ne traduisait que les accents du
+français, et la relecture a mesuré onze écarts sur trente et un prénoms —
+« seyma » pour Şeyma, « natasa » pour Nataša, « nguyen » pour Nguyễn entraient
+avant la migration (repli, filtré par la page) et auraient lu « Prénom
+inconnu » après ; une tabulation ou un insécable en bordure, que `trim()`
+retire, restaient en SQL. Une table de `translate` GÉNÉRÉE depuis NFD a
+suivi — et la seconde relecture l'a prise en défaut à son tour, en balayant
+le plan de base entier : une table traduit le précomposé, elle ne retire pas
+un accent DÉJÀ décomposé (« e » suivi d'un accent combinant, ce qu'un collage
+produit), ni Ǿ et ǣ, ni ё et έ. La règle est donc celle de la page, mot pour
+mot, par ce que PostgreSQL sait faire depuis sa version 13 : `normalize(p,
+NFD)`, puis les combinants U+0300 à U+036F retirés ; il ne reste que les
+minuscules, où `lower()` dépend de la locale du serveur — une table de 772
+majuscules non décomposables (Ł, Ø, Æ, les capitales grecques et
+cyrilliques…) vers leur minuscule l'en affranchit, et `lower()` ne traite
+plus que l'ASCII. Les blancs sont ceux que `\s` et `trim()` voient en
+JavaScript, insécable compris ; on réduit, puis on rogne. Zéro divergence
+sur le plan de base, en émulation, locale « C » comprise. Et la règle a gagné
+son contrôle : le banc de la base RELIT `normaliserPrenom` dans les trois
+pages et `normaliser` dans le double, les exécute dans Node sur trente-trois
+sondes (« Ayşe », « Nguyễn », « İsmail », « Chloé » dont l'accent est
+décomposé, « Ǿystein », « Ёлена », « ŁUKASZ », « Alice » suivi d'une
+tabulation, un insécable, trois espaces) et exige, sonde par sonde, le
+résultat que rend `normaliser_prenom` sur la base jetable (« secondes.html
+normalise le prénom comme la base », et ses trois jumeaux) — avec un bord qui
+le garde honnête : la moitié au moins des sondes doit changer sous la règle,
+sinon il le dit. La page essaie
+son code sur chaque clé rendue — deux homonymes dans une classe, c'est
+courant, et c'est le code qui départage —, puis, connectée, relit SA ligne
+(`.select('id,prenom,cle').eq('cle', cle).single()`) : c'est elle qui porte
+l'identifiant sous lequel ses notes s'enregistrent. Un compte sans ligne
+referme sa session et lit « Compte introuvable — préviens ton professeur »
+(cette branche-là n'est tenue par aucun contrôle, et le dire vaut mieux que
+de le taire). Et seul un CODE REFUSÉ (statut 400, `invalid_credentials`)
+passe à la clé suivante : une limitation de cadence — 429, le seul rempart
+devant les codes, et une classe entière derrière l'adresse de
+l'établissement —, une coupure, un compte non confirmé ne sont pas un code
+faux ; dire « Code incorrect », vider la case et faire retaper aggraverait la
+cadence. La page s'arrête, écrit « Connexion impossible — réessaie dans une
+minute », garde le code dans sa case, et le dit en console (« une erreur de
+cadence n'est pas un code faux : la page s'arrête à la première clé, le dit
+et garde le code », le double sait rendre 429 par `window.__faux.cadence`).
+Pas « tout statut 400 » — la seconde relecture l'a vu : un compte non
+confirmé répond 400 aussi (`email_not_confirmed`, le réglage de confirmation
+par courriel qu'aucun banc ne voit), et lisait « Code incorrect », case
+vidée ; seul `invalid_credentials` est un code faux (« un compte non
+confirmé n'est pas un code faux : pas de « Code incorrect », et le code
+reste », `window.__faux.nonConfirme`). Et les homonymes — la raison d'être
+de la boucle sur les clés — n'étaient exercés par aucun banc : un seul élève
+semé, un `break` après le premier refus passait tout ; la section 3 sème
+maintenant un second « Contrôle » à un autre code (« deux homonymes : c'est
+le code qui départage, et la seconde clé entre après le refus de la
+première »), et le contrôle de cadence mesure alors vraiment l'arrêt à la
+première clé. Les avertissements que la page écrit en console sont tenus
+aussi : le banc navigateur les collecte (`s.avertissements`) et les exige
+sur la panne et la cadence. La fonction ne rend jamais une
+clé VIDE non plus (`and e.cle is not null`) : une ligne créée à la main sans
+clé aurait donné un « null » que la page aurait changé en adresse « null@… »
+(« la fonction ne rend jamais une clé vide »). La création de compte passe par la même porte :
+`creerCompte()` demandait `ilike('prenom')`, qui ne voyait pas l'accent et
+lisait une table désormais fermée ; elle demande `clesDuPrenom()`, et un
+second « Léa » écrit « lea » est refusé — sinon les deux se confondraient à
+la connexion. Côté base, la politique garde son NOM (`p_<table>_liste`,
+d'autres scripts peuvent le citer) et perd `anon` : remplacée, pas doublée,
+parce que deux permissives se combinent par un OU (la leçon de la 002).
+**Un élève CONNECTÉ lit donc toujours la liste entière de sa classe**, et
+c'est nommé plutôt que glissé : le tableau du professeur, les signalements et
+le bilan lisent `eleves….id, prenom` pour nommer chaque ligne. Restreindre
+l'élève à sa propre ligne est l'étape suivante, NON FAITE, et la raison de ne
+pas la faire en passant est au paragraphe précédent : après une restauration,
+les lignes dé-reliées (`user_id` vide) ne seraient plus lisibles par leur
+propriétaire, et la connexion ÉCHOUERAIT — « Compte introuvable » à toute une
+classe — au lieu de refuser en silence geste par geste jusqu'au reliage.
+Passer d'un refus muet à une porte fermée se décide ; ça ne s'hérite pas
+d'une migration qui parlait d'autre chose.
+**L'ORDRE EST IMPÉRATIF : LA PAGE D'ABORD EN LIGNE, LA MIGRATION ENSUITE** —
+l'inverse des 003, 007 et 008, et pour une raison qui ne se devine pas. Tant
+que la 009 n'est pas jouée, la fonction n'existe pas : PostgREST répond 404,
+supabase-js rend `error.code === 'PGRST202'`, et dans ce cas, et dans ce cas
+SEULEMENT, `clesDuPrenom()` se replie sur l'ancienne lecture —
+`select('cle,prenom')` puis le filtre dans la page — qui marche tant que
+l'ancienne politique est là. Dès que la 009 est passée, la fonction répond et
+le repli n'est plus appelé : il s'éteint tout seul, il ne reste rien à
+retirer. Dans l'autre ordre, l'ancienne page demanderait, avant toute
+authentification, une liste que la base vient de fermer : « Aucun compte pour
+l'instant » à trois classes, personne n'entre. Et le repli a DEUX bords, n'en
+tenir qu'un ne tient rien : s'il disparaissait, la page mise en ligne avant
+la migration ne connecterait plus personne ; s'il se prenait sur TOUTE
+erreur, chaque incident de la fonction relirait la liste entière sans que
+personne ne voie la panne — c'est pourquoi la garde
+`if(error.code!=='PGRST202')` PRÉCÈDE le repli, qu'un contrôle de source
+exige cet ordre, et qu'un contrôle d'exécution le double : sous
+`window.__faux.panne`, le rpc du double rend une erreur qui n'est pas
+PGRST202, et la page ne doit ni relire la liste, ni tenter une connexion
+(« une panne de la fonction SQL n'ouvre ni le repli ni une connexion, et le
+dit ») — et elle l'écrit en console, pour que la panne se lise sans ouvrir
+l'onglet Réseau.
+**Ce que chaque banc tient.** Le banc de la BASE (`npm run test:base`), seul
+à voir les règles d'accès, rejoue la 009 (« 009 s'applique, et son contrôle
+final ne trouve rien à redire », « 009 ferme la liste sur les trois tables
+d'élèves », « plus aucune politique de lecture des élèves ne nomme anon »,
+« elle REMPLACE la politique de lecture au lieu d'en ajouter une seconde »,
+« la fonction de connexion existe et lit SANS la RLS (security definer) »,
+« elle verrouille son search_path », « et le visiteur a le droit de
+l'appeler : c'est tout ce qu'il lui reste », « rejouer 009 ne fait plus
+rien »), puis met le banc des rôles dans la peau du VISITEUR : « il ne voit
+PLUS la liste des prénoms (0) », « il obtient la clé d'un prénom qu'il
+connaît, et elle seule (cle-alice) » — « et elle seule » est le bord qui
+compte, une fonction qui rendrait toute la colonne passerait le précédent
+sans peine —, « sans accent ni majuscule, le prénom se reconnaît quand même
+(cle-chloe|cle-alice|cle-chloe) » (« CHLOE », «   alice  », « CHLOÉ »), « un
+prénom inconnu ne rend rien (0) », « un prénom vide ne rend rien (0) », « un
+niveau inconnu est refusé », « la fonction ne rend que des clés : ni prénom
+ni identifiant (text (setof)) » ; du PROFESSEUR : « il voit la liste des
+prénoms de sa classe (3) » ; et il éprouve les deux retours en arrière les
+plus tentants, « détectée : la liste des élèves redevient lisible sans
+connexion » (remettre `anon` sur la politique « pour que l'ancienne page
+marche encore ») et « détectée : la fonction de connexion perd SECURITY
+DEFINER » (par `alter function … security invoker` : même corps, mêmes
+droits, seul l'attribut change, pour que le banc ne rougisse que de la bonne
+cause). ET LA CAUSE EST ÉCRITE : la relecture a retiré la 009 de la boucle
+des mutations, et huit mutations sont restées « détectées » — pour une
+fonction absente, pas pour la faille jouée ; un banc vert sur huit détections
+qui ne mesuraient rien. Chaque mutation porte donc la ligne ÉCHEC qu'elle
+doit produire (« il ne voit aucune note (2) », « elle ne peut pas noter à la
+place de Bob », … « il obtient la clé d'un prénom qu'il connaît, et elle
+seule (∅) »), une erreur « does not exist » n'est jamais une détection, et
+une mutation sans cause attendue rougit d'elle-même. La démonstration « sans 002, rien ne protège » joue désormais 001
+PUIS 009 avant le banc des rôles, sinon l'échec viendrait d'une fonction
+absente et ne démontrerait rien : « 009 refuse de se déclarer faite tant que
+la porte de 002 est ouverte, et la nomme » et « et c'est bien la liste
+ouverte qui le fait rougir, pas une fonction absente » tiennent la bonne
+cause. Le banc NAVIGATEUR (section 3) tape le prénom de contrôle au lieu de
+cliquer une pastille, et exige : « un prénom inconnu ne tente aucune
+connexion, et le dit », « le prénom se reconnaît sans accent ni majuscule »
+(« CONTROLE » pour « Contrôle » — et le contrôle rougit aussi si le prénom de
+contrôle n'avait ni accent ni minuscule : il ne mesurerait rien), « sans la
+fonction SQL, la page se replie sur l'ancienne liste et y reconnaît le prénom
+sans accent — tant que la 009 n'est pas jouée » (`window.__faux.sansRpc =
+true` fait répondre PGRST202 à tout `rpc` du double : la fonction a été
+demandée, la liste lue, l'élève entré — les trois pas ; et le prénom y est
+tapé « CONTROLE », parce que dans le repli c'est la normalisation de la PAGE
+qui filtre, et qu'une première version tapait le prénom exact — une page qui
+ne normalisait plus passait tout le banc, sabotage prouvé par la relecture),
+« une panne de la fonction SQL n'ouvre ni le repli ni une connexion, et le
+dit », « une erreur de cadence n'est pas un code faux : la page le dit et
+garde le code », « un prénom déjà pris, même écrit sans accent, ne crée pas
+de second compte », « avant la connexion, la page ne lit aucune ligne de la
+table des élèves » (un `rpc cles_de_connexion` avant le premier `signIn`,
+aucun `select` sur la table avant lui ; sans `signIn` au journal, « le
+contrôle n'a rien mesuré »). Chaque retour à l'état de départ y est
+inconditionnel (`logout()` ramène de n'importe quel écran) : un retour qui
+dépendait de l'écran lu 500 ms plus tôt avait fait avorter tout le banc sur
+un clic de trente secondes vers un bouton caché, pendant un sabotage. Le banc PRINCIPAL lit la source — « l'écran de
+connexion n'affiche plus de liste de prénoms » : plus de `#nameChips`,
+`#loginPrenom` en `autocomplete="off"` dans le `<form id="modeCo"
+autocomplete="off">`, `connexionEleve()` et `creerCompte()` passent par
+`clesDuPrenom()`, qui appelle `sb.rpc('cles_de_connexion', { niveau:
+NIVEAU, … })`, le repli `select('cle,prenom')` EXISTE et la garde PGRST202 le
+PRÉCÈDE — et il exécute la connexion dans jsdom, le double de Supabase
+injecté à la place de supabase-js (« 2 ter », « la connexion par prénom
+ouvre l'espace sans lire la table avant le signIn », puis un second passage
+sous `sansRpc` avec « CONTROLE » : « et sans la fonction SQL, le repli
+reconnaît le prénom tapé sans accent (jsdom) ») ; et il relit les numéros que
+la migration et sa notice citent pour cette page : « les numéros de version
+cités par la migration 009 et sa notice ne dépassent pas celui de la page »
+— par une constante de la page, `VERSION_CONNEXION_PRENOM`, le numéro qui a
+apporté le champ et ne bouge plus quand `APP_VERSION` avance : chaque mention
+doit lui être ÉGALE (trop haut, Turquet attendrait une version qui n'arrive
+jamais ; trop bas, il croirait une page en ligne déjà passée au champ), et
+la constante ne dépasse pas la page. Éprouvé : « Seconde v484 » glissé
+dans l'en-tête de la 009 — « ✗ les numéros de version cités par la migration
+009 et sa notice sont ceux de la page → supabase/migrations/009_connexion_
+sans_liste.sql cite Seconde v484 au lieu de v483 ». Le double
+(`tests/faux-supabase.js`) a gagné `rpc(nom, args)` pour cela : il
+journalise l'appel, rend pour `cles_de_connexion` ce que rend la fonction,
+`PGRST202` pour un nom inconnu — et pour tout appel sous `sansRpc`.
+**Éprouvé par sabotage, chaque bord par sa ligne rouge.** Base : la politique
+remise `to anon, authenticated` dans la 009 — « ✗ 009 s'applique, et son
+contrôle final ne trouve rien à redire → … ERROR: la liste des prénoms reste
+lisible sans connexion : eleves.p_eleves_liste (pour anon+authenticated) —
+jouez 002 si cette politique n'est pas à vous », et avec elle « plus aucune
+politique de lecture des élèves ne nomme anon → 3 politique(s) encore
+ouverte(s) aux visiteurs » et « il ne voit PLUS la liste des prénoms (3) » ;
+`security definer` retiré — « … n'est pas SECURITY DEFINER : elle ne
+rendrait rien à un visiteur », « la fonction de connexion existe et lit SANS
+la RLS (security definer) → false|search_path=public, pg_temp|true », « il
+obtient la clé d'un prénom qu'il connaît, et elle seule (∅) » ; le filtre de
+prénom remplacé par `where $1 is not null` — « il obtient la clé d'un prénom
+qu'il connaît, et elle seule (cle-alice,cle-bob,cle-chloe) » ; l'attente du
+visiteur remise à `n = 3` — « il ne voit PLUS la liste des prénoms (0) », et
+le second bord avec : « détectée : la liste des élèves redevient lisible sans
+connexion → le banc est resté vert alors que la base est ouverte ». Pages
+(sur la Seconde) : un `select('id,prenom')` glissé en tête de
+`connexionEleve()` — navigateur « ✗ avant la connexion, la page ne lit
+aucune ligne de la table des élèves → 1 lecture(s) de eleves_2nde avant la
+connexion : select(id,prenom) », et le jsdom « ✗ la connexion par prénom
+ouvre l'espace sans lire la table avant le signIn » avec le même message ;
+le repli retiré — navigateur « → aucune lecture select('cle,prenom') de
+eleves_2nde : la page ne se replie pas (écran atteint : scr-login) »,
+source « → le repli sur l'ancienne liste (select('cle,prenom')) a disparu :
+mise en ligne avant la migration 009, la page ne connecterait plus
+personne » ; la garde PGRST202 retirée — source « → le repli se prend sur
+TOUTE erreur, pas seulement sur PGRST202 : une panne de la fonction relirait
+la liste entière sans que rien ne le dise » ; l'ancien `ilike` remis dans
+`creerCompte()` — « ✗ un prénom déjà pris, même écrit sans accent, ne crée
+pas de second compte → 1 inscription(s) : un second compte a été créé sous le
+même prénom ». Remise en état vérifiée chaque fois (`cmp`, `md5sum -c`).
+Puis, après la relecture, sur des COPIES de la Seconde dans le scratchpad
+(section 3 seule, une minute chacune) : la page qui ne normalise plus (plus
+de NFD) — « ✗ sans la fonction SQL, la page se replie sur l'ancienne liste et
+y reconnaît le prénom sans accent — tant que la 009 n'est pas jouée → écran
+atteint : scr-login », le contrôle que la relecture avait vu passer au vert
+sur ce même sabotage tant qu'il tapait le prénom exact ; toute erreur de
+connexion traitée comme un code faux — « ✗ une erreur de cadence n'est pas un
+code faux : la page le dit et garde le code → le code a été effacé («  ») » ;
+le repli pris sur toute erreur — « ✗ une panne de la fonction SQL n'ouvre ni
+le repli ni une connexion, et le dit → écran atteint : scr-space ». Un seul
+rouge par sabotage, sur le contrôle visé, les 48 autres verts. Côté base, la
+boucle des mutations joue elle-même ses sabotages, et la 009 est confiée à
+un propriétaire sans droit de traverser la RLS — « 009 refuse une fonction
+dont le propriétaire ne traverse pas la RLS — mesuré, pas lu sur
+l'attribut » — avant d'être rendue à postgres.
+**Et la première exécution du banc de la base a trouvé un piège que personne
+n'avait écrit** : « il ne peut pas poser de note » insérait par
+`insert … select … from eleves_2nde` sous `anon` — qui n'y voit plus rien
+depuis la 009 : zéro ligne insérée, aucun refus, contrôle rouge sans avoir
+rien mesuré, et les neuf mutations « détectées » pour cette seule raison. UN
+`insert … select` QUI PASSE PAR UNE TABLE FERMÉE N'INSÈRE RIEN ET N'EST
+REFUSÉ PAR RIEN : l'identifiant d'Alice se lit désormais en superutilisateur
+AVANT `set local role anon`, et l'insert le présente en dur — la seule façon
+de PRÉSENTER une ligne à la politique d'écriture, et donc d'obtenir d'elle un
+refus.
+**Ce qu'aucun banc ne voit** : le projet réel. Que la 009 y soit jouée, et
+dans le bon ordre — Turquet la colle à la main dans l'éditeur SQL, après
+avoir VU le champ « Ton prénom » sur les trois pages en ligne
+(`supabase/LISEZMOI.md`, 3 nonies). Le repère est l'écran, pas un numéro :
+les numéros cités d'abord (v480, v316) étaient faux avant même la mise en
+ligne, `main` ayant avancé pendant le travail — et « v316 » désignait une
+Première EN LIGNE qui ne connaissait pas la fonction. Que le cache de schéma
+de PostgREST connaisse la fonction une fois créée : le fichier lui demande de
+se recharger (`notify pgrst, 'reload schema'`), Supabase le fait aussi de
+lui-même, mais pas à la seconde, et pendant cette fenêtre la page se replie
+sur une liste fermée — « Prénom inconnu » à tout le monde, et il faut
+attendre, pas rejouer. Que supabase-js rende bien `PGRST202` sur une fonction
+absente, et que `.single()` après `signIn` passe sous la politique
+`authenticated`. Que `security definer` y traverse la RLS, le `postgres` de
+Supabase n'étant pas superutilisateur : le fichier ne se contente plus de
+lire l'attribut, il MESURE — il prend le rôle `anon`, demande un prénom
+présent dans chaque table, et échoue si la fonction ne rend rien ; la
+relecture avait montré que l'attribut seul passait au vert sur une base où la
+fonction, confiée à un propriétaire sans droit de traverser la RLS, ne
+rendait rien à personne. Une table vide, ou un rôle qu'on ne peut pas
+prendre, se déclare dans la sortie — et la seconde relecture a resserré la
+mesure deux fois : le témoin est un prénom que la fonction PEUT rendre (une
+ligne au prénom blanc mais à clé, créée à la main, se classait première et
+bloquait la migration entière en accusant la RLS), et seule la prise de rôle
+est protégée par le gestionnaire d'exception — une erreur de droit levée
+DANS la fonction fait échouer le fichier au lieu de se déguiser en « rôle
+impossible à prendre » (« 009 échoue sur une fonction dont le propriétaire
+n'a aucun droit, au lieu de se déclarer faite »). Le rejeu se mesure sur des
+tables pleines, comme sur le projet (« et rejouée sur des tables pleines,
+elle mesure encore son effet trois fois »). Et ce qui RESTE ouvert, nommé : un
+visiteur peut toujours demander si « Léa » a un compte dans une classe, cinq
+clés à la fois — la fonction est un oracle d'existence, sans autre cadence
+que celle de PostgREST ; le code, lui, reste vérifié par Supabase seul, et sa
+limitation de cadence reste le seul rempart (paragraphe « Les codes font
+6 chiffres »). Les paragraphes plus haut qui disent que « le prénom n'est pas
+un secret — l'écran de connexion l'affiche sans être connecté » (« Renommer
+un élève ne passe PAS par la fonction Edge »), que « deux prénoms identiques
+ne se distinguent plus sur l'écran de connexion » (« Le contrôle de doublon
+laisse passer l'élève LUI-MÊME »), et le commentaire de l'étape 4 de la
+migration 001, racontent l'état d'avant octobre 2026 : ce qu'ils enseignent —
+le renommage sans la fonction Edge, le doublon refusé à la création — reste
+vrai, seul l'écran a changé.
+
 **Le plan gratuit de Supabase ne sauvegarde rien.** L'action
 `.github/workflows/sauvegarde.yml` exporte les données chaque nuit du samedi au
 dimanche, les chiffre et les conserve 90 jours. Le chiffrement est

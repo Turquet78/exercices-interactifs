@@ -113,8 +113,8 @@ l'écran — et c'est précisément ce qui a causé la panne v46, où `25/100`
 s'affichait « 10025 ».
 
 `npm run test:navigateur` (`tests/navigateur.js`) ouvre un vrai Chromium, exécute
-le **vrai** MathLive, connecte un élève en cliquant sur son prénom, fait
-l'exercice question par question et regarde ce qui s'affiche. Il vérifie
+le **vrai** MathLive, connecte un élève en tapant son prénom et son code,
+fait l'exercice question par question et regarde ce qui s'affiche. Il vérifie
 notamment qu'une fraction se rend bien **numérateur au-dessus du dénominateur**,
 en comparant les positions à l'écran : la panne v46 y est enfin couverte pour de
 bon, et non plus par la seule présence de la feuille de styles.

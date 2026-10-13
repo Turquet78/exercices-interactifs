@@ -512,6 +512,128 @@ nombre de questions et n'ont jamais mal noté.
 parfaite remise à 100 %, la copie fautive laissée et nommée, la note partielle
 et le brouillon de pause épargnés, l'idempotence et le retour arrière.
 
+---
+
+## 3 nonies. La connexion sans la liste des prénoms (1 min)
+
+Collez **`migrations/009_connexion_sans_liste.sql`** dans l'éditeur SQL et
+exécutez-le. **Collez le fichier ENTIER.**
+
+**À jouer APRÈS la mise en ligne de la version qui la connaît, et pas
+avant.** C'est l'inverse des 003, 007 et 008, et la raison ne se devine pas :
+l'ancien écran de connexion demandait la **liste des prénoms** avant toute
+authentification, et cette migration ferme précisément cette lecture. Jouée
+trop tôt, elle coupe la connexion de **tout le monde** — l'ancienne page
+afficherait « Aucun compte pour l'instant » à une classe entière.
+
+**Le repère à lire est l'écran de connexion lui-même**, sur les trois pages en
+ligne : la page qui connaît cette migration demande de **taper son prénom**
+(un champ « Ton prénom », puis le code). Tant que vous voyez des **pastilles de
+prénoms** à cliquer sur l'une des trois pages, ne collez pas ce fichier. Les
+numéros qui l'ont apportée — Seconde v483, Première v317, Terminale v384 —
+valent « ce numéro ou plus » ; un numéro recopié peut se tromper (c'est arrivé
+avant même la mise en ligne), le champ, non. GitHub Pages peut servir
+l'ancienne page quelques minutes encore après la fusion : si vous voyez le
+champ, attendez dix minutes de plus avant de coller.
+
+Dans le bon ordre, il n'y a aucun risque : tant que la migration n'est pas
+jouée, la nouvelle page **se replie d'elle-même** sur l'ancienne liste
+(Supabase répond « fonction inconnue », code `PGRST202`, et la page lit la
+liste comme avant). Ce repli **s'éteint tout seul** dès que le fichier est
+passé : il ne reste rien à retirer, ni dans la page, ni dans la base.
+
+### Ce qu'elle pose
+
+La migration 001 laissait un visiteur lire la liste des prénoms — et la **clé**
+de chacun, dont l'adresse de connexion est dérivée —, parce que l'écran de
+connexion l'affichait. C'était le prix, et il était trop haut pour trois
+classes de mineurs (décision de Turquet, octobre 2026). L'élève **tape**
+désormais son prénom, et la page n'obtient que ce qu'il faut pour le
+connecter.
+
+- **`normaliser_prenom(text)`** : minuscules, espaces rognés, accents retirés
+  — « Chloé », « chloe » et « CHLOÉ  » sont le même prénom, « Ayşe » et
+  « ayse » aussi. C'est la règle exacte de la page (`normalize(…, NFD)` de
+  PostgreSQL, puis les signes combinants retirés), et le banc exige que les
+  deux rendent la même chose sur les mêmes prénoms.
+- **`cles_de_connexion(niveau, prenom)`** : la ou les clés des élèves du niveau
+  qui portent ce prénom, **cinq au plus**, et **rien d'autre** — ni
+  l'identifiant, ni le prénom, ni la liste. Elle est `security definer` : elle
+  lit la table **sans repasser par la RLS**, comme `est_prof()`, sans quoi le
+  visiteur qui l'appelle ne verrait rien. Un visiteur n'obtient plus que ce
+  qu'il savait déjà, traduit en ce qu'il lui faut pour tenter un code — et le
+  code reste vérifié par Supabase seul.
+- Sur `eleves`, `eleves_1ere`, `eleves_2nde` : la politique **`p_<table>_liste`**
+  est **remplacée** par la même, pour `authenticated` seul. Le nom ne change
+  pas, seul `anon` disparaît. Remplacée, pas doublée : deux politiques
+  permissives se combinent par un OU (la leçon de la 002).
+
+Elle se termine par un contrôle qui **échoue bruyamment** si une politique de
+lecture d'une table d'élèves nomme encore `anon`, si une table porte plus d'une
+politique de lecture, si la fonction manque ou n'est pas `security definer`, ou
+si `anon` n'a pas le droit de l'appeler. Elle est **idempotente**, et un niveau
+dont la table manque est signalé et sauté.
+
+Pour vérifier :
+
+```sql
+select tablename, policyname, roles from pg_policies
+where schemaname='public' and tablename like 'eleves%' and cmd='SELECT';
+```
+
+→ **trois lignes**, toutes `{authenticated}`.
+
+### Ce qu'elle ne donne pas, et c'est voulu
+
+**Un élève connecté lit toujours la liste entière de sa classe.** Votre
+tableau, les signalements et le bilan en ont besoin — ils nomment chaque ligne
+par son élève. Restreindre l'élève connecté à sa propre ligne est une étape
+possible plus tard, **nommée ici comme non faite**.
+
+**Les scripts à clé de service ne sont pas concernés** — `sauvegarde.mjs`,
+`relier-comptes.sql`, la fonction Edge `admin-eleve` : ils traversent la RLS,
+qu'une politique soit là ou non.
+
+**Il reste un résidu, nommé plutôt que caché.** Un visiteur peut demander si
+« Léa » a un compte dans une classe et obtenir ses clés — cinq au plus par
+appel ; au-delà de cinq homonymes, les suivants ne sortent pas et ne peuvent
+pas se connecter par cet écran. C'est un oracle d'existence par prénom : bien
+moins que la liste entière d'avant, mais pas rien. Le code reste le seul
+secret, vérifié par Supabase seul, sous sa limitation de cadence. Un
+durcissement possible, **non fait** : `revoke select on public.eleves,
+public.eleves_1ere, public.eleves_2nde from anon` — la fonction n'en a pas
+besoin, et une politique `anon` recréée un jour dans la console ne rouvrirait
+plus rien.
+
+**Si l'écran répond « Prénom inconnu » à tout le monde dans la minute qui
+suit**, c'est le cache de schéma de PostgREST, qui ne connaît pas encore la
+fonction : le fichier lui demande de se recharger (`notify pgrst`), Supabase
+le fait aussi de lui-même, mais pas à la seconde. Attendez, ne rejouez rien.
+
+### Ce que le banc voit
+
+Celle-ci est du SQL ordinaire : `npm run test:base` la rejoue en entier, puis
+met le banc dans la peau d'un **visiteur** : il ne voit plus la liste, il
+obtient la clé d'un prénom qu'il connaît **et elle seule**, jamais une clé
+vide, « CHLOE » et « CHLOÉ » retrouvent Chloé, un prénom inconnu ou vide ne
+rend rien, un niveau inconnu est refusé, et la fonction ne rend que des
+`text`. Le professeur, lui, voit encore sa liste. Le banc relit aussi la
+fonction de normalisation des trois pages et l'exécute sur les mêmes sondes
+que la base — « Ayşe », « Nguyễn », une tabulation, un insécable — et exige le
+même résultat : la page et la base **doivent** reconnaître les mêmes prénoms.
+Il éprouve enfin les deux retours en arrière les plus tentants : remettre
+`anon` sur la politique de la liste, et retirer `security definer` à la
+fonction — chacun **doit** le faire rougir, et **pour la bonne cause** : la
+ligne d'échec attendue est écrite pour chaque mutation.
+
+Le fichier lui-même se termine par une mesure, pas une affirmation : il prend
+le rôle `anon`, demande un prénom présent dans chaque table, et **échoue** si
+la fonction ne rend rien — c'est le seul contrôle qui tourne sur le projet
+réel. Une table vide, ou un rôle qu'il ne peut pas prendre, se déclare dans
+sa sortie au lieu de passer au vert ; une erreur de droit levée dans la
+fonction elle-même fait échouer le fichier, elle ne se déguise pas en « rôle
+impossible à prendre ».
+
 ## 4. Vous déclarer professeur (1 min)
 
 Toujours dans **SQL Editor**, avec l'UUID de l'étape 2 :
@@ -624,7 +746,7 @@ la page lui demande d'en choisir un **avant de le laisser entrer**. Pas un
 bouton qu'il pourrait ignorer : une demande qui barre l'entrée. S'il renonce,
 la session se referme et il revient à l'accueil.
 
-**Une fois son code choisi, il est renvoyé à l'écran des prénoms** et doit se
+**Une fois son code choisi, il est renvoyé à l'écran de connexion** et doit se
 reconnecter avec. C'est voulu : il vérifie ainsi tout de suite qu'il l'a bien
 retenu, au lieu de s'en apercevoir le lendemain, seul devant son écran. La
 session est réellement refermée avant le renvoi — sans quoi l'élève suivant sur
