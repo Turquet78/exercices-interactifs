@@ -960,4 +960,13 @@ et la largeur de la page se compare AVEC et SANS décor, pas à l'écran, parce
 que le 6.3.7 déborde déjà de 35 px à 360 px, décor éteint — un `<code>` de
 son énoncé (« "la moyenne est de :" ») que rien ne fait plier —, défaut
 d'avant les serpents, vu en les mesurant, nommé ici et pas corrigé dans ce
-chantier.
+chantier. **Et la CI a trouvé ce que le banc local ne voyait pas** : Nunito
+n'est servie à aucun banc, et le repli n'est pas le même — Inter ici, DejaVu
+Sans (plus large) sur le serveur de GitHub —, si bien que trois bulles de
+vingt caractères passaient en local et débordaient là-bas (« Moi : 666 ans.
+BOUH ! », « sans les bandelettes. », « Pommes et tomates… »). Trois réponses,
+qu'il faut toutes : les bulles s'écrivent en lignes COURTES (jusqu'à trois
+lignes de 17 caractères au plus, tenu par le banc jsdom), dans un cadre plus
+large et une police de 11 ; et le banc navigateur mesure le texte dans
+DejaVu Sans — la plus large des polices de repli connues, installée des deux
+côtés — avant de le comparer au cadre, pour voir ici ce que la CI verra.

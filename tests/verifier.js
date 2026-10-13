@@ -24941,6 +24941,8 @@ function serpentsHalloween(w, P){
       if(!d){ vus.push(id+" : pas d’entrée HW_SERPENTS"); return; }
       if(vars[d.v]) vus.push(id+" : le déguisement « "+d.v+" » sert déjà à "+vars[d.v]); vars[d.v]=id;
       if(!d.bulle||!d.bulle[0]||!d.bulle[1]) vus.push(id+" : bulle incomplète");
+      /* des lignes COURTES : la police n'est pas sûre (le repli de la CI est plus large que Nunito) */
+      if(d.bulle&&(d.bulle.length>3||d.bulle.some(function(l){ return l.length>17; }))) vus.push(id+" : bulle trop longue pour son cadre (3 lignes de 17 caractères au plus) : "+d.bulle.join(" / "));
       if(!d.alt||d.alt.length<30||d.alt.indexOf("serpent")<0) vus.push(id+" : texte de remplacement absent ou muet");
       if(d.bulle&&/(^|[^a-zA-Z])x([^a-zA-Z]|$)/.test(d.bulle.join(" "))) vus.push(id+" : un « x » isolé dans la bulle, que le filet italiquerX voudrait pencher");
       const h=hwSerpentHTML(id);

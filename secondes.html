@@ -10085,15 +10085,15 @@ function pyAvant(k, html){ const el=$(k+'Avant'); if(el) el.innerHTML=html||''; 
    suivent le décor et son bouton 🎃, pas la date. Un exercice ajouté au
    sous-thème 6.3 doit gagner son entrée ici : le banc l'exige. */
 const HW_SERPENTS={
-  'python-input-reponse':  { v:'sorciere',   bulle:['Ton prénom…','pour mon grimoire !'],      alt:'un serpent sorcier, chapeau pointu et balai, dit : « Ton prénom… pour mon grimoire ! »' },
+  'python-input-reponse':  { v:'sorciere',   bulle:['Ton prénom, pour','mon grimoire !'],      alt:'un serpent sorcier, chapeau pointu et balai, dit : « Ton prénom… pour mon grimoire ! »' },
   'python-input':          { v:'vampire',    bulle:['Deux questions,','ou je te mords !'],      alt:'un serpent vampire, cape et crocs, les yeux rouges, dit : « Deux questions, ou je te mords ! »' },
-  'python-input-int':      { v:'fantome',    bulle:['Quel âge as-tu ?','Moi : 666 ans. BOUH !'], alt:'un serpent déguisé en fantôme, sous un drap blanc, dit : « Quel âge as-tu ? Moi : 666 ans. BOUH ! »' },
-  'python-input-calcul':   { v:'citrouille', bulle:['Un nombre entier,','avant minuit…'],       alt:'un serpent à côté d’une citrouille sculptée, qui dit : « Un nombre entier, avant minuit… »' },
-  'python-input-float':    { v:'momie',      bulle:['Ma taille ? 1.75 m…','sans les bandelettes.'], alt:'un serpent momie, enroulé de bandelettes, dit : « Ma taille ? 1.75 m… sans les bandelettes. »' },
-  'python-input-somme':    { v:'squelette',  bulle:['Additionne mes os :','2.5 + 3.5…'],         alt:'un squelette de serpent, crâne et côtes, dit : « Additionne mes os : 2.5 + 3.5… »' },
-  'python-input-moyenne':  { v:'zombie',     bulle:['La moyenne de','mes deux cerveaux ?'],      alt:'un serpent zombie, un œil pendant et des points de suture, dit : « La moyenne de mes deux cerveaux ? »' },
-  'python-input-rectangle':{ v:'araignee',   bulle:['L’araignée veut','l’aire de sa toile !'],   alt:'un serpent effrayé par une araignée qui descend de sa toile ; il dit : « L’araignée veut l’aire de sa toile ! »' },
-  'python-input-prix':     { v:'diable',     bulle:['Pommes et tomates…','à prix d’enfer !'],    alt:'un serpent diable, cornes rouges et fourche, dit : « Pommes et tomates… à prix d’enfer ! »' }
+  'python-input-int':      { v:'fantome',    bulle:['Quel âge as-tu ?','Moi : 666 ans.','BOUH !'], alt:'un serpent déguisé en fantôme, sous un drap blanc, dit : « Quel âge as-tu ? Moi : 666 ans. BOUH ! »' },
+  'python-input-calcul':   { v:'citrouille', bulle:['Un nombre entier','avant minuit…'],       alt:'un serpent à côté d’une citrouille sculptée, qui dit : « Un nombre entier, avant minuit… »' },
+  'python-input-float':    { v:'momie',      bulle:['Ma taille ?','1.75 m… sans','les bandelettes.'], alt:'un serpent momie, enroulé de bandelettes, dit : « Ma taille ? 1.75 m… sans les bandelettes. »' },
+  'python-input-somme':    { v:'squelette',  bulle:['Additionne','mes os :','2.5 + 3.5…'],         alt:'un squelette de serpent, crâne et côtes, dit : « Additionne mes os : 2.5 + 3.5… »' },
+  'python-input-moyenne':  { v:'zombie',     bulle:['La moyenne de','mes deux','cerveaux ?'],      alt:'un serpent zombie, un œil pendant et des points de suture, dit : « La moyenne de mes deux cerveaux ? »' },
+  'python-input-rectangle':{ v:'araignee',   bulle:['L’araignée veut','l’aire de','sa toile !'],   alt:'un serpent effrayé par une araignée qui descend de sa toile ; il dit : « L’araignée veut l’aire de sa toile ! »' },
+  'python-input-prix':     { v:'diable',     bulle:['Pommes, tomates…','à prix d’enfer !'],    alt:'un serpent diable, cornes rouges et fourche, dit : « Pommes et tomates… à prix d’enfer ! »' }
 };
 function hwSerpentSVG(v, bulle){
   /* le corps : une seule courbe, tracée trois fois (contour, vert, ventre) ; la tête au bout, regard vers la bulle */
@@ -10180,9 +10180,12 @@ function hwSerpentSVG(v, bulle){
       break;
     default: serpent=normal();
   }
-  const bulleSVG='<path class="hw-bulle" d="M134 8 H 262 Q 268 8 268 14 V 54 Q 268 60 262 60 H 158 L 140 74 L 146 60 H 134 Q 128 60 128 54 V 14 Q 128 8 134 8 Z" fill="#fff" stroke="#2a2a2a" stroke-width="2" stroke-linejoin="round"/>'
-    +'<text class="hw-bulle-texte" x="198" y="30" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1d1230">'+bulle[0]+'</text>'
-    +'<text class="hw-bulle-texte" x="198" y="48" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1d1230">'+(bulle[1]||'')+'</text>';
+  /* La bulle : deux ou trois lignes COURTES (16 caractères au plus), centrées
+     dans un cadre large — la police de la page n'est pas sûre (Nunito, ou le
+     repli du système : sur le serveur de la CI, un repli plus large a fait
+     déborder trois bulles écrites en lignes de vingt caractères). */
+  const n=bulle.length, lignes=bulle.map((l,i)=>'<text class="hw-bulle-texte" x="195" y="'+(40+(i-(n-1)/2)*14)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#1d1230">'+l+'</text>').join('');
+  const bulleSVG='<path class="hw-bulle" d="M128 6 H 262 Q 268 6 268 12 V 60 Q 268 66 262 66 H 158 L 140 80 L 146 66 H 128 Q 122 66 122 60 V 12 Q 122 6 128 6 Z" fill="#fff" stroke="#2a2a2a" stroke-width="2" stroke-linejoin="round"/>'+lignes;
   return '<svg class="hw-svg" viewBox="0 0 272 216" width="272" height="216" aria-hidden="true" focusable="false">'+fond+serpent+dessus+bulleSVG+'</svg>';
 }
 function hwSerpentHTML(id){

@@ -13141,7 +13141,14 @@ async function parcours(page, N){
              et les crocs blancs du vampire sont aussi des <text> et des <path fill="#fff"> */
           const textes = svg ? [...svg.querySelectorAll('text.hw-bulle-texte')] : [];
           const bulle = svg ? svg.querySelector('path.hw-bulle') : null, rb = bulle ? bulle.getBBox() : null;
+          /* la bulle se mesure dans la police de REPLI la plus large qu'on connaisse
+             (DejaVu Sans, celle du serveur de la CI) : Nunito n'est pas servie aux
+             bancs, et le repli local (Inter) est plus étroit — trois bulles passaient
+             ici et débordaient là-bas */
+          const policeAvant = svg ? svg.style.fontFamily : '';
+          if(svg) svg.style.fontFamily = '"DejaVu Sans", sans-serif';
           const deborde = textes.filter(t => { const b = t.getBBox(); return rb && (b.x < rb.x + 2 || b.x + b.width > rb.x + rb.width - 2); }).map(t => t.textContent);
+          if(svg) svg.style.fontFamily = policeAvant;
           return { ecran: on.id, variante: fig.getAttribute('data-hw'), largeur: rf.width, hauteur: rf.height,
                    svgH: svg ? svg.getBoundingClientRect().height : 0, imgL: ri ? ri.width : 0,
                    dansCarte: !!rc && rf.left >= rc.left - 1 && rf.right <= rc.right + 1,
