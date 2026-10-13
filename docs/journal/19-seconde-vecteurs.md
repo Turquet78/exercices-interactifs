@@ -4,7 +4,7 @@
 fin ne renumérote rien, les sept premiers gardent leurs numéros et aucun
 renvoi {identifiant} ne bouge.
 
-## {vecteurs-egaux} — retrouver les vecteurs égaux dans une figure (8.1, v472)
+## {vecteurs-egaux} — retrouver les vecteurs égaux dans une figure (8.1, v473)
 
 **La demande** (Turquet, octobre 2026, d'après une fiche papier « Retrouver
 les vecteurs égaux dans la figure ») : un rectangle quadrillé de ses milieux
