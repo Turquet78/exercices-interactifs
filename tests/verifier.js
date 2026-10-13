@@ -26085,7 +26085,7 @@ function pythonForMultiples(w, P){
       const S0=pfqSit(qs[0]);
       if(S0.n!==11||S0.a!==2||S0.m!==5||S0.f!==50){ vus.push("la fiche n’ouvre pas la séance"); break; }
       if(new Set(qs.map(function(q){ return q.s; })).size!==qs.length){ vus.push("deux fois la même situation"); break; }
-      if(qs.some(function(q){ return q.vu!==false||q.bOk!==null||q.cOk!==null||q.etape!=="b"; })){ vus.push("une question ne part pas du a)"); break; }
+      if(qs.some(function(q){ return q.vu!==false||q.bOk!==null||q.cOk!==null||q.etape!==undefined; })){ vus.push("une question ne part pas d’une page vierge"); break; }
     }
     PFQ_SITUATIONS.forEach(function(S, i){
       const q={s:i}, x=ptrEssai(pfqProg(q));
