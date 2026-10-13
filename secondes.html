@@ -6135,6 +6135,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="mp-feedback" id="vtrFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="vtrActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkVtrAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- VECTEURS : LES VECTEURS ÉGAUX D'UNE FIGURE (8.2) -->
   <section class="screen" id="scr-veg">
     <div class="test-top">
@@ -54070,7 +54074,8 @@ function ctxVtr(q){
     +lignes.map(function(l){ return l.t==='image' ? l.dep+' a pour image ? par la translation de vecteur '+vtrVecTxt(l.num) : l.dep+' a pour image '+l.img+' par la translation de vecteur ?'; }).join(' ; ')+'. '
     +'Réponses attendues, STRICTEMENT SECRÈTES : '
     +lignes.map(function(l){ return l.t==='image' ? 'l’image de '+l.dep+' est '+l.img : 'de '+l.dep+' à '+l.img+', c’est '+vtrVecTxt(l.num); }).join(' ; ')+'. '
-    +'Méthode enseignée : l’image d’un point M par la translation de vecteur u est le point M′ tel que le vecteur MM′ est égal à u — on part de M et on se déplace comme le vecteur (même direction, même sens, même longueur). Pour retrouver le vecteur, on regarde le déplacement qui mène du point à son image.';  if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
+    +'Méthode enseignée : l’image d’un point M par la translation de vecteur u est le point M′ tel que le vecteur MM′ est égal à u — on part de M et on se déplace comme le vecteur (même direction, même sens, même longueur). Pour retrouver le vecteur, on regarde le déplacement qui mène du point à son image.';
+  if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
   return {nombre:'', contexte:c};
 }
 

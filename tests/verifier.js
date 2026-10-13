@@ -18709,7 +18709,8 @@ function translationGrille(w, P){
     if(peint('vtr-i-2')!=='rouge') vus.push('en soutien, la lettre fausse n\\'est pas peinte en rouge au fil de la saisie');
     if(peint('vtr-i-0')!=='vert') vus.push('en soutien, la lettre juste n\\'est pas peinte en bleu (ok) au fil de la saisie');
     if(test.locked) vus.push('la correction en direct verrouille la page');
-    currentMode='train';    return vus.join(' | ');
+    currentMode='train';
+    return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
 
