@@ -422,6 +422,21 @@ la liste entière sans que rien ne le dise » ; l'ancien `ilike` remis dans
 `creerCompte()` — « ✗ un prénom déjà pris, même écrit sans accent, ne crée
 pas de second compte → 1 inscription(s) : un second compte a été créé sous le
 même prénom ». Remise en état vérifiée chaque fois (`cmp`, `md5sum -c`).
+Puis, après la relecture, sur des COPIES de la Seconde dans le scratchpad
+(section 3 seule, une minute chacune) : la page qui ne normalise plus (plus
+de NFD) — « ✗ sans la fonction SQL, la page se replie sur l'ancienne liste et
+y reconnaît le prénom sans accent — tant que la 009 n'est pas jouée → écran
+atteint : scr-login », le contrôle que la relecture avait vu passer au vert
+sur ce même sabotage tant qu'il tapait le prénom exact ; toute erreur de
+connexion traitée comme un code faux — « ✗ une erreur de cadence n'est pas un
+code faux : la page le dit et garde le code → le code a été effacé («  ») » ;
+le repli pris sur toute erreur — « ✗ une panne de la fonction SQL n'ouvre ni
+le repli ni une connexion, et le dit → écran atteint : scr-space ». Un seul
+rouge par sabotage, sur le contrôle visé, les 48 autres verts. Côté base, la
+boucle des mutations joue elle-même ses sabotages, et la 009 est confiée à
+un propriétaire sans droit de traverser la RLS — « 009 refuse une fonction
+dont le propriétaire ne traverse pas la RLS — mesuré, pas lu sur
+l'attribut » — avant d'être rendue à postgres.
 **Et la première exécution du banc de la base a trouvé un piège que personne
 n'avait écrit** : « il ne peut pas poser de note » insérait par
 `insert … select … from eleves_2nde` sous `anon` — qui n'y voit plus rien
