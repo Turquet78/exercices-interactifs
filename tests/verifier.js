@@ -11278,7 +11278,10 @@ function etudeExponentielle(w, P){
    Turquet, octobre 2026 : « en seconde créer un exercice comme le pdf
    joint », la fiche 2 sur les vecteurs). Six bords :
      · le tirage est LISIBLE et JSON : deux formes ('u' la flèche, 'ab' les
-       deux points), un chemin d'au moins deux carreaux, tous les points dans
+       deux points) qui ALTERNENT — question 1 la flèche, question 2 les
+       points, et ainsi de suite (demande de Turquet, octobre 2026 : un tirage
+       au sort par question donnait des séances sans AB) —, un chemin d'au
+       moins deux carreaux, tous les points dans
        le quadrillage, deux à deux NON VOISINS, aucun sur la flèche u⃗, et
        RIEN d'autre que forme, vec, o, src et rep dans la question — rep
        vide au tirage ;
@@ -11312,7 +11315,8 @@ function translationQuadrillage(w, P){
     currentTestId=D.exercice;
     if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
 
-    /* 1. le tirage : lisible, JSON, deux formes, rien d'autre dans la question */
+    /* 1. le tirage : lisible, JSON, les deux formes en alternance (u, ab, u,
+       ab…), rien d'autre dans la question */
     const formes={};
     const voisins=function(p,r){ return Math.abs(p[0]-r[0])<=1 && Math.abs(p[1]-r[1])<=1; };
     for(let t=0;t<200 && !vus.length;t++){
@@ -11322,6 +11326,7 @@ function translationQuadrillage(w, P){
         const cles=Object.keys(q).filter(function(k){ return ['forme','vec','o','src','rep'].indexOf(k)<0; });
         if(cles.length) vus.push('la question range autre chose que forme, vec, o, src et rep : '+cles.join(','));
         if(q.forme!=='u' && q.forme!=='ab') vus.push('forme inconnue : '+q.forme);
+        else if(q.forme!==(qi%2===0?'u':'ab')) vus.push('les formes n\\'alternent pas : la question '+(qi+1)+' est en forme '+q.forme+' (attendu '+(qi%2===0?'u':'ab')+' — u, ab, u, ab…)');
         formes[q.forme]=1;
         if(!Array.isArray(q.rep) || q.rep.length!==D.images || q.rep.some(function(r){ return r!==null; })) vus.push('le tirage pose une réponse à la place de l\\'élève');
         if(Math.abs(q.vec[0])+Math.abs(q.vec[1])<2) vus.push('un chemin de moins de deux carreaux : '+q.vec.join(','));
@@ -11342,6 +11347,13 @@ function translationQuadrillage(w, P){
       });
     }
     if(!vus.length && !(formes.u && formes.ab)) vus.push('une des deux formes ne sort jamais en 200 tirages : '+Object.keys(formes).join(','));
+    /* le nombre de questions d'un devoir ne casse pas l'alternance (le réglage
+       peut être impair) : cinq questions font u, ab, u, ab, u */
+    if(!vus.length && typeof trlFabrique==='function'){
+      const cinq=distinctes(5, function(_,i){ return trlFabrique(i%2===0?'u':'ab'); });
+      const suite=cinq.map(function(q){ return q.forme; }).join(',');
+      if(suite!=='u,ab,u,ab,u') vus.push('cinq questions tirées dans l\\'ordre donnent « '+suite+' » au lieu de « u,ab,u,ab,u »');
+    }
     if(vus.length) return vus.slice(0,4).join(' | ');
 
     /* montage : une question CHOISIE (forme u, chemin 3 à droite et 2 vers le bas) */

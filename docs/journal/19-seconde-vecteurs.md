@@ -324,6 +324,21 @@ C, D et E). Trois images par question, quatre questions par séance
 `v` est la tournure, que la clé écarte, et deux questions aux vecteurs
 différents auraient passé pour la même.
 
+**Puis les deux formes ont ALTERNÉ** (v480, demande de Turquet, octobre 2026 :
+« en seconde dans le 8.4, il faut alterner une question avec un vecteur u et
+une autre avec le vecteur AB »). Chaque question tirait sa forme au sort
+(`pick(['u','ab'])`) : une séance de quatre questions pouvait n'avoir que des
+flèches, ou que des points — une chance sur huit, assez pour qu'un élève ne
+voie jamais la seconde moitié de la fiche. La forme se lit désormais sur
+l'INDEX de la question (`trlForme(i)` : u aux rangs pairs, AB aux rangs
+impairs), passée à `trlFabrique(forme)` par `distinctes()` — par l'index, pas
+par un compteur, pour qu'une question retirée comme doublon ne décale pas
+l'alternance (le motif des pourcentages, `incs[i%incs.length]`). Le secours du
+vivier épuisé rend lui aussi une question de la forme demandée. Le contrôle du
+banc principal, qui se contentait de voir sortir les deux formes en deux cents
+séances, exige l'ordre u, ab, u, ab sur chaque séance tirée, et u, ab, u, ab, u
+sur cinq questions — le réglage « Questions » d'un devoir peut être impair.
+
 **Le tirage est garanti LISIBLE, et le contrôle le relit sur deux cents
 séances.** Tous les points — les trois sources, leurs trois images, et A et B
 ou les deux bouts de la flèche — sont dans le quadrillage (13 colonnes sur 9

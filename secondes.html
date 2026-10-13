@@ -6616,7 +6616,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=479;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=480;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -13348,16 +13348,22 @@ function trlChemin(q){
   if(dy) m.push(c(Math.abs(dy))+' vers le '+(dy>0?'haut':'bas'));
   return m.join(' et ');
 }
-/* Le tirage d'UNE question. Les points sont deux à deux NON VOISINS (distance
-   de Tchebychev ≥ 2) : deux étiquettes côte à côte se liraient l'une sur
-   l'autre. Pour la forme 'u', aucun point ne tombe sur la flèche — ses nœuds
-   intermédiaires se comptent par le pgcd des composantes. */
-function trlFabrique(){
+/* Le tirage d'UNE question, dans la forme DEMANDÉE ('u' ou 'ab') : les deux
+   formes ALTERNENT dans la séance (demande de Turquet, octobre 2026 : « il
+   faut alterner une question avec un vecteur u et une autre avec le vecteur
+   AB ») — question 1 la flèche u⃗, question 2 les points A et B, et ainsi de
+   suite ; un tirage au sort par question pouvait donner quatre fois la même
+   forme. Les points sont deux à deux NON VOISINS (distance de Tchebychev ≥ 2) :
+   deux étiquettes côte à côte se liraient l'une sur l'autre. Pour la forme
+   'u', aucun point ne tombe sur la flèche — ses nœuds intermédiaires se
+   comptent par le pgcd des composantes. */
+function trlForme(i){ return i%2===0 ? 'u' : 'ab'; }
+function trlFabrique(forme){
+  forme = forme==='ab' ? 'ab' : 'u';
   const W=TRL_W, H=TRL_H;
   const dans=p=>p[0]>=0&&p[0]<=W&&p[1]>=0&&p[1]<=H;
   const voisins=(p,r)=>Math.abs(p[0]-r[0])<=1&&Math.abs(p[1]-r[1])<=1;
   for(let att=0; att<500; att++){
-    const forme=pick(['u','ab']);
     const dx=rand(-5,5), dy=rand(-4,4);
     if(Math.abs(dx)+Math.abs(dy)<2) continue;
     const vec=[dx,dy];
@@ -13384,8 +13390,11 @@ function trlFabrique(){
     if(!ok) continue;
     return {forme:forme, vec:vec, o:o, src:src, rep:[null,null,null]};
   }
-  /* vivier épuisé (jamais vu) : une question sûre plutôt qu'une page figée */
-  return {forme:'u', vec:[3,-2], o:[1,7], src:[[1,4],[5,6],[8,3]], rep:[null,null,null]};
+  /* vivier épuisé (jamais vu) : une question sûre, DANS LA FORME DEMANDÉE
+     (l'alternance tient même ici), plutôt qu'une page figée */
+  return forme==='ab'
+    ? {forme:'ab', vec:[-2,3], o:[9,1], src:[[3,1],[6,2],[11,4]], rep:[null,null,null]}
+    : {forme:'u', vec:[3,-2], o:[1,7], src:[[1,4],[5,6],[8,3]], rep:[null,null,null]};
 }
 function trlSVG(q, verdict){
   const M=24, C=30, W=TRL_W, H=TRL_H;
@@ -13440,7 +13449,9 @@ function trlNoeud(svg, ev){
   return {x:x, y:y};
 }
 function startTrl(){
-  const qs=distinctes(dmNbQuestions(TRL_NB), trlFabrique);
+  /* par l'index : la forme alterne (u, AB, u, AB…), et distinctes() peut
+     retirer une question sans décaler l'alternance */
+  const qs=distinctes(dmNbQuestions(TRL_NB), (_,i)=>trlFabrique(trlForme(i)));
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
   Object.assign(test,{kind:'trl', questions:qs, idx:0, score:0, maxScore:qs.length*3, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false, trlSel:0});
