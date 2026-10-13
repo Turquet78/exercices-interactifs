@@ -6682,6 +6682,28 @@ async function parcours(page, N){
         const r = await verdict();
         if(!r.juste) dits.push('produit : 2/3 × 3/5 = 6/15 = 2/5, tapé au clavier, est compté faux');
         if(r.rouges.length) dits.push('produit : des cases rougissent sur une copie juste : ' + r.rouges.slice(0, 4).join(', '));
+        /* sa question RÉDIGÉE (octobre 2026) : elle s'ouvre sous la guidée, la
+           feuille commence par le produit suivi de « = », et 2/3 × 3/5 = 6/15
+           = 2/5 vaut le point — le résultat simplifié est exigé. */
+        const zr = await s.page.evaluate(() => {
+          if(!(test.questions[1] && test.questions[1].redac) || test.idx !== 1) return null;
+          test.questions[1] = {n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15,redac:true};
+          sfrAfficher(test.questions[1]);
+          const zone = document.getElementById('mltrZone'), mf = zone && zone.querySelector('math-field');
+          return { vue: !!(zone && !zone.hidden && zone.offsetHeight > 0), guidee: !!document.getElementById('mlt-h1'), depart: mf ? mf.getValue() : null };
+        });
+        if(!zr) dits.push('produit : aucune question rédigée ne s’ouvre après la guidée');
+        else {
+          if(!zr.vue) dits.push('produit rédigé : la zone ne s’affiche pas');
+          if(!zr.guidee) dits.push('produit rédigé : la question guidée a disparu de l’écran');
+          if(!/=\s*$/.test(zr.depart || '')) dits.push('produit rédigé : la feuille ne commence pas par le produit suivi de « = » (' + zr.depart + ')');
+          await s.page.evaluate(() => { document.querySelector('#mltrZone math-field').setValue(test.sfrDepart + '\\frac{6}{15}=\\frac{2}{5}'); checkSFR(); });
+          await s.page.waitForTimeout(1500);
+          const v = await s.page.evaluate(() => { const d = test.answers[test.answers.length - 1];
+            return { juste: !!(d && d.correct && /rédigé/.test(d.q)), suite: !!document.getElementById('mltrNext') }; });
+          if(!v.juste) dits.push('produit rédigé : 2/3 × 3/5 = 6/15 = 2/5 est compté faux');
+          if(!v.suite) dits.push('produit rédigé : aucun bouton « Question suivante »');
+        }
       }
       /* ③ LA SOMME AVEC UN PRODUIT DEDANS (4.6), EN COLONNES, PUIS RÉDIGÉE
          (demande de Turquet, octobre 2026 : « placer les signes "=" en début
@@ -6763,25 +6785,41 @@ async function parcours(page, N){
         if(!r3.juste) dits.push('4.6 : 1/2 + 1/2 × 3/2 = 10/8 = 5/4, tapé au clavier, est compté faux');
         if(r3.rouges.length) dits.push('4.6 : des cases rougissent sur une copie juste : ' + r3.rouges.slice(0, 4).join(', '));
         const z = await s.page.evaluate(() => {
-          const zone = document.getElementById('sprZone'), mf = zone && zone.querySelector('math-field');
+          const zone = document.getElementById('spfrZone'), mf = zone && zone.querySelector('math-field');
           return { vue: !!(zone && !zone.hidden && zone.offsetHeight > 0), guidee: !!document.getElementById('spf-h1'),
                    depart: mf ? mf.getValue() : null, idx: test.idx };
         });
         if(!z.vue) dits.push('4.6 rédigée : la zone ne s’affiche pas après la question guidée');
         if(!z.guidee) dits.push('4.6 rédigée : la question guidée a disparu de l’écran');
         if(!/=\s*$/.test(z.depart || '') || !/-/.test(z.depart || '')) dits.push('4.6 rédigée : la feuille ne commence pas par la soustraction suivie de « = » (' + z.depart + ')');
-        await s.page.evaluate(() => { const mf = document.querySelector('#sprZone math-field');
-          mf.setValue(test.sprDepart + '\\frac{3}{2}-\\frac{3}{4}=\\frac{6}{4}-\\frac{3}{4}=\\frac{3}{4}'); });
-        await s.page.evaluate(() => checkSpr());
+        await s.page.evaluate(() => { const mf = document.querySelector('#spfrZone math-field');
+          mf.setValue(test.sfrDepart + '\\frac{3}{2}-\\frac{3}{4}=\\frac{6}{4}-\\frac{3}{4}=\\frac{3}{4}'); });
+        await s.page.evaluate(() => checkSFR());
         await s.page.waitForTimeout(1500);
         const v3 = await s.page.evaluate(() => { const d = test.answers[test.answers.length - 1];
-          return { juste: !!(d && d.correct && /rédigé/.test(d.q)), suite: !!document.getElementById('sprNext') }; });
+          return { juste: !!(d && d.correct && /rédigé/.test(d.q)), suite: !!document.getElementById('spfrNext') }; });
         if(!v3.juste) dits.push('4.6 rédigée : 3/2 − 1/2×3/2 = 3/2 − 3/4 = 6/4 − 3/4 = 3/4 est compté faux');
         if(!v3.suite) dits.push('4.6 rédigée : aucun bouton « Question suivante » après la vérification');
         await s.page.evaluate(() => nextSpfQuestion());
         await s.page.waitForTimeout(400);
-        if(await s.page.evaluate(() => { const zz = document.getElementById('sprZone'); return !!(zz && !zz.hidden); }))
+        if(await s.page.evaluate(() => { const zz = document.getElementById('spfrZone'); return !!(zz && !zz.hidden); }))
           dits.push('4.6 rédigée : la zone reste affichée sur la question guidée suivante');
+      
+        /* et la REPRISE : une pause posée sur une rédigée redessine la rédaction seule */
+        const zp = await s.page.evaluate(() => {
+          test.questions[test.idx] = {a:1,b:4,c:1,d:2,e:5,f:3,op:'+',P1:5,Q1:6,N:26,D:24,Nr:13,Dr:12,redac:true};
+          renderSpfTest();
+          const zone = document.getElementById('spfrZone'), mf = zone && zone.querySelector('math-field');
+          return { vue: !!(zone && !zone.hidden && zone.offsetHeight > 0), guidee: !!document.getElementById('spf-h1'), depart: mf ? mf.getValue() : null };
+        });
+        await s.page.waitForTimeout(500);
+        if(!zp.vue) dits.push('4.6 : la reprise sur une question rédigée ne la redessine pas');
+        if(zp.guidee) dits.push('4.6 : à la reprise sur une rédigée, les cases de la guidée réapparaissent');
+        if(!/=\s*$/.test(zp.depart || '')) dits.push('4.6 rédigée (reprise) : la feuille ne commence pas par le calcul suivi de « = » (' + zp.depart + ')');
+        await s.page.evaluate(() => { document.querySelector('#spfrZone math-field').setValue(test.sfrDepart + '\\frac{1}{4}+\\frac{5}{6}=\\frac{6}{24}+\\frac{20}{24}=\\frac{26}{24}=\\frac{13}{12}'); checkSFR(); });
+        await s.page.waitForTimeout(1500);
+        const vr = await s.page.evaluate(() => { const d = test.answers[test.answers.length - 1]; return !!(d && d.correct && /rédigé/.test(d.q)); });
+        if(!vr) dits.push('4.6 rédigée : 1/4 + 1/2 × 5/3 = 1/4 + 5/6 = 6/24 + 20/24 = 26/24 = 13/12 est comptée fausse');
       }
       verifier('la simplification par étapes s\'ouvre en écrivant, et la copie juste vaut le point',
         dits.length === 0, dits.slice(0, 3).join(' | '));

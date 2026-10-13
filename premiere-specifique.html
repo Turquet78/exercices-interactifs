@@ -1469,12 +1469,11 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
    étage et une fraction à deux n'ont pas le même milieu, et le signe tombait
    15 px au-dessus du trait. Une rangée flex les centre tous sur la même ligne. */
 #sfPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
-/* La question RÉDIGÉE du 4.3 (octobre 2026) se pose sous la question guidée,
+/* La question RÉDIGÉE des 4.3 à 4.6 (octobre 2026) se pose sous la question guidée,
    sur le même écran : la même règle de rangée pour son énoncé, et un filet qui
-   sépare les deux temps de l'exercice. Le 4.6 l'a suivie le même mois
-   (#sprPrompt, #sprZone), avec la même zone. */
-#sfrPrompt,#sprPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
-#sfrPrompt .sfl-suite,#sprPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
+   sépare les deux temps de l'exercice. */
+#sfrPrompt,#mltrPrompt,#spfrPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+#sfrPrompt .sfl-suite,#mltrPrompt .sfl-suite,#spfrPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
 .sfr-zone{margin-top:18px;padding-top:14px;border-top:2px dashed var(--line)}
 .sf-prod{align-items:stretch}
 .sf-prod .sf-l{display:inline-flex;align-items:center;gap:6px;justify-content:center}
@@ -2526,7 +2525,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
       <div class="row" style="justify-content:center">
         <span id="sfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSFAnswer()">Vérifier</button></span>
       </div>
-      <!-- 4.3 : la question rédigée, posée sous la question guidée (sfrMonte) -->
+      <!-- la question rédigée, posée sous la question guidée (sfrMonte) -->
       <div class="sfr-zone" id="sfrZone" hidden></div>
     </div>
   </section>
@@ -2544,6 +2543,8 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
       <div class="row" style="justify-content:center">
         <span id="mltActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkMltAnswer()">V&eacute;rifier</button></span>
       </div>
+      <!-- la question rédigée, posée sous la question guidée (sfrMonte) -->
+      <div class="sfr-zone" id="mltrZone" hidden></div>
     </div>
   </section>
 
@@ -2560,8 +2561,8 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
       <div class="row" style="justify-content:center">
         <span id="spfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSpfAnswer()">V&eacute;rifier</button></span>
       </div>
-      <!-- 4.6 : la question rédigée, posée sous la question guidée (sprMonte) -->
-      <div class="sfr-zone" id="sprZone" hidden></div>
+      <!-- la question rédigée, posée sous la question guidée (sfrMonte) -->
+      <div class="sfr-zone" id="spfrZone" hidden></div>
     </div>
   </section>
 
@@ -2839,7 +2840,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=310;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=311;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3298,8 +3299,8 @@ const TESTS={
      1 à 5 et simplification par étapes (voir l'en-tête de startCRD). */
   'croiser-denominateurs': { name:'Croiser les d\u00e9nominateurs', icon:'\u2716\ufe0f', desc:'Deux fractions \u00e0 mettre au m\u00eame d\u00e9nominateur : chaque case prend le d\u00e9nominateur de l\u2019AUTRE fraction. Des couleurs et deux fl\u00e8ches crois\u00e9es montrent d\u2019o\u00f9 vient chaque nombre, puis on termine la somme \u2014 et on simplifie si c\u2019est possible.', start:()=>startCRD() },
   'somme-fractions-2': { name:'Additionner et soustraire deux fractions', icon:'\u2797', desc:'Mets les deux fractions au m\u00eame d\u00e9nominateur en compl\u00e9tant les multiplications, \u00e9cris la somme ou la diff\u00e9rence, donne la fraction obtenue, puis simplifie-la si elle se simplifie. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startSF2() },
-  'multiplier-fractions': { name:'Multiplier deux fractions', icon:'\u2716\ufe0f', desc:'Sans mise au m\u00eame d\u00e9nominateur\u00a0: place les num\u00e9rateurs ensemble et les d\u00e9nominateurs ensemble, calcule, puis simplifie le r\u00e9sultat s\u2019il se simplifie.', start:()=>startMlt() },
-  'diviser-fractions': { name:'Diviser deux fractions', icon:'\u2797', desc:'Comme {multiplier-fractions}, avec un maillon de plus\u00a0: on transforme d\u2019abord la division en multiplication par l\u2019inverse, puis on multiplie et on simplifie.', start:()=>startDiv() },
+  'multiplier-fractions': { name:'Multiplier deux fractions', icon:'\u2716\ufe0f', desc:'Sans mise au m\u00eame d\u00e9nominateur\u00a0: place les num\u00e9rateurs ensemble et les d\u00e9nominateurs ensemble, calcule, puis simplifie le r\u00e9sultat s\u2019il se simplifie.\u00a0Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startMlt() },
+  'diviser-fractions': { name:'Diviser deux fractions', icon:'\u2797', desc:'Comme {multiplier-fractions}, avec un maillon de plus\u00a0: on transforme d\u2019abord la division en multiplication par l\u2019inverse, puis on multiplie et on simplifie.\u00a0Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startDiv() },
   /* Octobre 2026 : le 5.12 de la Seconde, nombres de 1 à 5, produit borné à 6
      et simplification par étapes (voir l'en-tête de startSpf). */
   'somme-produit-fractions': { name:'Une somme avec un produit dedans', icon:'\u2795', desc:'a/b + c/d\u00d7e/f, ou a/b \u2212 c/d\u00d7e/f\u00a0: la multiplication se calcule D\u2019ABORD, puis la somme (ou la diff\u00e9rence, toujours positive) se termine en croisant les d\u00e9nominateurs \u2014 et on simplifie la fraction finale si elle se simplifie. Une \u00e9tape par ligne, le \u00ab\u00a0=\u00a0\u00bb en t\u00eate. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startSpf() },
@@ -14925,32 +14926,52 @@ function libreSecours(j){
     : 'Il y a une égalité fausse dans ton calcul : « '+String(j.morceau||'').slice(0,80)+' » ne vaut pas le reste. Vérifie ce morceau.';
 }
 
-/* ===== 4.3 : LA QUESTION RÉDIGÉE, SOUS LA QUESTION GUIDÉE ===================
+/* ===== LA QUESTION RÉDIGÉE, SOUS LA QUESTION GUIDÉE (4.3 à 4.6) =============
    Demande de Turquet (octobre 2026) : « en première dans le 4.3 ; après avoir
    fait une question, poser sur la même page une nouvelle question avec les
    mêmes critères mais où il faut rédiger la solution comme dans l'exercice
    5.5 en seconde ; on mettra un "=" derrière le calcul proposé dans la case
-   de la rédaction. »
+   de la rédaction. » Puis, le même mois : « faire la même chose pour les
+   4.4 ; 4.5 et 4.6 en première ».
+   UN SEUL MODULE pour les trois moteurs (sf, mlt, spf) : RED_CFG dit où vit
+   chaque écran, redMath() dit la mathématique de chaque exercice. Les noms
+   sfr… sont restés ceux du 4.3 : le moteur sf, partagé au caractère près avec
+   la Seconde, les appelle par ces noms-là.
    · LES QUESTIONS VONT PAR PAIRES dans test.questions : une guidée, puis une
-     rédigée (q.redac), tirées par le même sfGen, avec la même borne et la
-     même opération — « les mêmes critères » —, et toutes distinctes. Chacune
-     vaut un point et porte sa réponse : la note, la pause, la reprise et la
-     coupe d'un devoir suivent la liste sans rien savoir des paires.
-   · LA RÉDIGÉE S'OUVRE SOUS LA GUIDÉE, sur le même écran : checkSFAnswer
-     appelle sfrMonte une fois la guidée notée, au lieu de proposer « Question
-     suivante ». La guidée reste affichée au-dessus, corrigée.
-   · LA FEUILLE est celle du 5.5 de la Seconde (mlFeuille, déjà ici pour le
-     2.1.7) ; sa première ligne porte la somme SUIVIE DE « = », modifiable,
-     et les suivantes un « = ».
-   · LE JUGE est celui du 5.5, recopié tel quel (libreJuge et ses voisines,
-     plus haut) : la page juge en entiers exacts, le modèle ne fait que
-     rédiger le commentaire sur le verdict qu'on lui donne. Il exige l'étape
-     du même dénominateur et un résultat irréductible — un élève qui prend un
-     dénominateur commun plus grand que le plus petit doit donc simplifier,
-     comme dans la chaîne du 4.3. */
+     rédigée (q.redac), tirées par le même générateur — « les mêmes
+     critères » —, et toutes distinctes. Chacune vaut un point et porte sa
+     réponse : la note, la pause, la reprise et la coupe d'un devoir suivent
+     la liste sans rien savoir des paires. Le réglage « Questions » d'un
+     devoir compte les questions, rédigées comprises (redPaires).
+   · LA RÉDIGÉE S'OUVRE SOUS LA GUIDÉE, sur le même écran : la correction
+     de la guidée appelle sfrMonte une fois la guidée notée, au lieu de
+     proposer « Question suivante ». La guidée reste affichée au-dessus.
+   · LA FEUILLE est celle du 5.5 de la Seconde (mlFeuille) ; sa première
+     ligne porte le calcul SUIVI DE « = », modifiable.
+   · LE JUGE est celui de la Seconde, recopié tel quel (libreJuge et ses
+     voisines, plus haut ; pfJuge du 5.10 pour le 4.6, sous le nom spfrJuge) :
+     la page juge en entiers exacts, le modèle ne fait que rédiger le
+     commentaire. Le RÉSULTAT FINAL doit être IRRÉDUCTIBLE partout
+     (redIrreductible) : c'est le « simplifier si on peut » des quatre
+     exercices guidés, dit cette fois sans cases. */
 let sfrFeuille=null;
-/* Les paires : 2 × SF_NB questions, l'opération alterne d'une PAIRE à l'autre
-   (la guidée et sa rédigée posent la même). */
+/* Où vit chaque écran. « r » préfixe les éléments de la zone rédigée : les
+   trois zones sont dans la page en même temps, leurs identifiants ne doivent
+   pas se croiser. */
+const RED_CFG={
+  sf: { r:'sfr',  idx:'sfIdx',  tag:'modeTagSF',  score:'sfLiveScore',  prompt:'sfPrompt',  host:'sfHost',  fb:'sfFeedback',  act:'sfActions',  next:'nextSFQuestion' },
+  mlt:{ r:'mltr', idx:'mltIdx', tag:'modeTagMlt', score:'mltLiveScore', prompt:'mltPrompt', host:'mltHost', fb:'mltFeedback', act:'mltActions', next:'nextMltQuestion' },
+  spf:{ r:'spfr', idx:'spfIdx', tag:'modeTagSpf', score:'spfLiveScore', prompt:'spfPrompt', host:'spfHost', fb:'spfFeedback', act:'spfActions', next:'nextSpfQuestion' }
+};
+/* Les paires, pour un générateur quelconque. Le réglage « Questions » d'un
+   devoir compte les questions rédigées comme les autres : k questions
+   tirent ⌈k/2⌉ paires, et la coupe générique en garde k. */
+function redPaires(nbParDefaut, gen){
+  const paires=Math.ceil(dmNbQuestions(2*nbParDefaut)/2);
+  return distinctes(2*paires, gen).map(function(q,i){ return (i%2) ? Object.assign(q,{redac:true}) : q; });
+}
+/* Le 4.3 : l'opération alterne d'une PAIRE à l'autre (la guidée et sa
+   rédigée posent la même). */
 function sfrBuildQuestions(){
   const qs=[];
   for(let i=0;i<2*SF_NB;i++){
@@ -14966,98 +14987,229 @@ function sfrLatexSomme(q){
   return t(q.n1,q.d1)+(q.op==='+'?'+':'-')+t(q.n2,q.d2);
 }
 function sfrTexte(q){ const t=(n,d)=> (d===1) ? String(n) : (n+'/'+d); return t(q.n1,q.d1)+' '+q.op+' '+t(q.n2,q.d2); }
-/* Appelée par checkSFAnswer, la guidée notée : ouvre la rédigée qui la suit. */
-function sfrMonte(){
-  const nq=test.questions[test.idx+1];
-  if(!nq || !nq.redac) return false;
-  test.idx++;
-  $('sfActions').innerHTML='';
-  sfrAfficher(nq);
-  autoSave();
-  return true;
+/* LE RÉSULTAT FINAL DOIT ÊTRE IRRÉDUCTIBLE. libreJuge l'exige déjà pour une
+   somme ; pour un produit, un quotient ou une somme avec un produit dedans,
+   le juge de la Seconde ne regarde que la VALEUR — en Seconde le résultat
+   tombait toujours irréductible. Ici il peut se simplifier : une copie juste
+   qui s'arrête sur 6/15 n'est pas finie. */
+function redIrreductible(j, rep){
+  if(!j || !j.sait || !j.correct) return j;
+  const ms=librePieces(rep), fin=ms.length ? libreFracSimple(ms[ms.length-1]) : null;
+  if(fin && fin.d>0 && libreGcd(fin.n,fin.d)!==1) return {sait:true, correct:false, motif:'simplifier'};
+  return j;
 }
-/* Appelée en tête de renderSFTest. Une question guidée : la zone se vide, et
-   le moteur dessine. Une rédigée — la reprise après une pause posée sur
-   elle — : la guidée qui la précédait est déjà notée, seule la rédaction se
-   montre. */
-function sfrRendu(){
-  const q=test.questions[test.idx], z=$('sfrZone');
-  if(!q || !q.redac){ if(z){ z.hidden=true; z.innerHTML=''; } sfrFeuille=null; return false; }
-  test.locked=true;    /* le moteur guidé n'a plus rien à corriger sur cet écran */
-  $('modeTagSF').innerHTML=modeTagHTML();
-  $('sfLiveScore').textContent=test.score;
-  $('sfPrompt').textContent='La question guidée est faite : rédige maintenant celle-ci.';
-  $('sfHost').innerHTML=''; $('sfFeedback').textContent=''; $('sfFeedback').className='mp-feedback';
-  $('sfActions').innerHTML='';
-  sfrAfficher(q);
-  return true;
+/* Le juge du 5.10 de la Seconde (pfJuge), recopié tel quel sous un autre nom
+   — pf… nomme ici les blocs du croisement. Chaque morceau doit valoir le
+   produit intermédiaire P1/Q1 OU la réponse finale P/Q ; le DERNIER doit être
+   la réponse ; l'étape du même dénominateur est exigée. */
+function spfrJuge(q, rep){
+  const ms=librePieces(rep);
+  if(ms.length<2) return {sait:false};
+  const vals=[];
+  for(let i=0;i<ms.length;i++){ const v=libreEval(ms[i]); if(!v) return {sait:false}; vals.push(v); }
+  for(let i=0;i<ms.length;i++){
+    const okFinal=vals[i].p*q.Q===q.P*vals[i].q;
+    const okProduit=vals[i].p*q.Q1===q.P1*vals[i].q;
+    if(!okFinal && !okProduit) return {sait:true, correct:false, motif:'egalite', morceau:ms[i]};
+  }
+  const fin=libreFracSimple(ms[ms.length-1]);
+  if(!fin || fin.d<=0 || fin.n<0) return {sait:false};
+  if(fin.n*q.Q!==q.P*fin.d) return {sait:true, correct:false, motif:'resultat'};
+  let etape=false;
+  for(let i=0;i<ms.length && !etape;i++) etape=libreEtapeMemeDeno(ms[i]);
+  if(!etape) return {sait:false};
+  return {sait:true, correct:true};
 }
-function sfrAfficher(q){
-  test.sfrBusy=false; test.sfrFini=false;
-  $('sfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
-  const z=$('sfrZone'); if(!z) return;
-  z.hidden=false;
-  /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
-     entre deux éléments disparaît. */
-  z.innerHTML='<p class="mp-instr enonce-suite" id="sfrPrompt">À toi de rédiger : calcule '+sfTermeHTML(q.n1,q.d1)+' <b>'+q.op+'</b> '+sfTermeHTML(q.n2,q.d2)
-      +'.<span class="sfl-suite">Donne le résultat sous forme de fraction irréductible.</span></p>'
-    +'<div class="dexp2-sheet" id="sfrSheet"></div>'
-    +'<p class="dexp-hint">Écris ton calcul à la suite du « = », une étape par ligne ou tout à la suite. '
-    +'<b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. '
-    +'Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d’espace</b> en sort. '
-    +'Il faut écrire l’étape où les deux fractions ont le même dénominateur, puis un résultat simplifié.</p>'
-    +'<div class="mp-feedback" id="sfrFeedback" aria-live="polite"></div>'
-    +'<div class="row" style="justify-content:center"><span id="sfrBoutons" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center">'
-    +'<button class="btn btn-primary" type="button" onclick="checkSFR()">Vérifier</button></span></div>';
-  sfrFeuille=mlFeuille({ conteneur:'sfrSheet', mode:'calcul', prefixes:{premiere:'',suite:'='}, prefixesTexte:{premiere:'',suite:'='} });
-  /* LA SOMME EST TAPÉE DANS LE CHAMP, SUIVIE DE « = » (la demande) : l'élève
-     écrit à la suite, et peut la modifier. On retient ce point de départ :
-     une copie où rien n'a été ajouté n'est pas un calcul. */
-  test.sfrDepart=sfrLatexSomme(q)+'=';
-  try{ sfrFeuille.lignes[0].mf.setValue(test.sfrDepart); }catch(e){}
-  setTimeout(function(){
-    try{ z.scrollIntoView({block:'nearest', behavior:'smooth'}); }catch(e){}
-    try{ const m=sfrFeuille.lignes[0].mf; m.focus(); m.executeCommand('moveToMathfieldEnd'); }catch(e){}
-  },60);
+/* Le verdict du juge, dit au modèle, et la phrase de secours : celles de la
+   Seconde (libreVerdictIA, libreSecours), plus les deux motifs du 4.6. */
+function redVerdictIA(j, m){
+  if(!j || !j.sait) return '';
+  if(j.correct || j.motif==='simplifier' || (j.motif==='egalite' && !m.produit)) return libreVerdictIA(j);
+  let v='\n\nVERDICT DÉJÀ CALCULÉ PAR LA PAGE. Elle a vérifié chaque égalité EN ENTIERS, sans virgule flottante : ce verdict est sûr et s’impose. « correct » vaut false.';
+  v+= (j.motif==='resultat')
+    ? ' Ce qui cloche : le résultat final n’est pas '+m.final+'.'
+    : ' Ce qui cloche : l’égalité « '+String(j.morceau||'').slice(0,80)+' » ne vaut ni le produit '+m.produit+' ni le résultat final — c’est probablement une addition faite avant la multiplication.';
+  v+=' Ton rôle est de RÉDIGER le feedback conforme à ce verdict et aux consignes de la règle. Si ton propre calcul te dit autre chose, c’est ton calcul qui se trompe : ne conteste jamais ce verdict.';
+  return v;
 }
-function sfrEnonceIA(q){
-  return 'Exercice de mathématiques de Première (France). L’élève doit calculer '+sfrTexte(q)
-   +', et donner le résultat sous forme de fraction IRRÉDUCTIBLE. Il écrit son calcul LUI-MÊME dans une feuille de calcul.'
-   +' La première ligne contient déjà « '+sfrTexte(q)+' = », qu’il complète à la suite du « = ».'
-   +'\n\nDEUX FAÇONS D’ÉCRIRE, ÉGALEMENT CORRECTES, et il peut aussi les MÉLANGER :'
+function redSecours(j, m){
+  if(j.correct || j.motif==='simplifier' || (j.motif==='egalite' && !m.produit)) return libreSecours(j);
+  return (j.motif==='resultat')
+    ? 'Ton calcul contient une erreur : le résultat final n’est pas correct. Revérifie tes calculs.'
+    : 'Il y a une égalité fausse dans ton calcul : « '+String(j.morceau||'').slice(0,80)+' » ne correspond ni au produit ni au résultat final. As-tu bien calculé la multiplication AVANT d’additionner ?';
+}
+/* Les deux façons d'écrire, dites au modèle de la même manière partout. */
+function redFacons(texte){
+  return '\n\nDEUX FAÇONS D’ÉCRIRE, ÉGALEMENT CORRECTES, et il peut aussi les MÉLANGER :'
    +'\n· une étape par ligne — les lignes suivantes sont alors précédées de « = » ;'
-   +'\n· ou tout à la suite sur une seule ligne, en enchaînant les « = » : « '+sfrTexte(q)+' = … = … ».'
+   +'\n· ou tout à la suite sur une seule ligne, en enchaînant les « = » : « '+texte+' = … = … ».'
    +'\nCe qui compte est la CHAÎNE D’ÉGALITÉS, pas la mise en page : ne refuse JAMAIS une copie au motif qu’elle tient sur une seule ligne, ni parce qu’elle est répartie sur plusieurs.'
    +' Un « = » en fin de ligne suivi d’un « = » en tête de la ligne suivante n’est qu’un seul « = ».'
    +' Les fractions sont écrites en texte, sous la forme « a/b » ; un entier est une fraction de dénominateur 1.';
 }
-/* La règle de décision : celle du 5.5 de la Seconde. Le résultat du 4.3 est
-   irréductible sur le plus petit dénominateur commun ; il ne se simplifie
-   que si l'élève en prend un plus grand. */
-function sfrAttenduIA(q){
-  const D=q.D;
-  return 'RÉSULTAT ATTENDU : '+q.Nr+'/'+q.Dr+', fraction irréductible.'
-   +' Le plus petit dénominateur commun est '+D+' ; sur ce dénominateur le calcul s’écrit '
-   +q.N1+'/'+D+' '+q.op+' '+q.N2+'/'+D+', ce qui donne '+q.N+'/'+D+', déjà irréductible. Un élève qui prend un dénominateur commun plus grand obtient une fraction égale, qu’il doit alors simplifier.'
-   +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
-   +'\n1. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE. Au moins une ligne montre les DEUX fractions portant le MÊME dénominateur — par exemple '+q.N1+'/'+D+' '+q.op+' '+q.N2+'/'+D+'. Une ligne qui montre les multiplications, du genre ('+q.n1+'×k)/('+q.d1+'×k) '+q.op+' ('+q.n2+'×k2)/('+q.d2+'×k2), compte aussi. LE DÉNOMINATEUR COMMUN N’EST PAS IMPOSÉ : tout multiple commun convient — '+(2*D)+' aussi bien que '+D+' — pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ même si son résultat est juste.'
-   +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ. La DERNIÈRE expression du calcul — ce qui est écrit après le tout dernier « = » — vaut '+q.Nr+'/'+q.Dr+' et est écrite sous forme irréductible. S’arrêter sur une fraction égale mais réductible est REFUSÉ : le travail n’est pas terminé.'
-   +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = », à l’intérieur d’une ligne comme d’une ligne à l’autre : chaque morceau doit valoir '+q.Nr+'/'+q.Dr+'. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE est fausse.'
-   +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Une ligne vide est ignorée. Répéter la somme de départ ne compte pas comme une étape, mais ne rend rien faux non plus.'
-   +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
+function redConsignesFeedback(finale){
+  return '\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
    +' Si tout est juste : félicite, et nomme ce qui est bien fait.'
-   +' S’il manque l’étape du même dénominateur : dis-le, et rappelle qu’on n’additionne deux fractions que lorsqu’elles ont le même dénominateur — sans écrire le calcul à sa place.'
    +' Si le calcul est bon mais le résultat non simplifié : dis que c’est juste mais pas fini, et demande de chercher un nombre qui divise le numérateur ET le dénominateur — SANS donner ce nombre.'
    +' Si une ligne est fausse : dis LAQUELLE et ce qui cloche.'
-   +' NE DONNE JAMAIS la fraction '+q.Nr+'/'+q.Dr+' quand la réponse est refusée : l’élève doit pouvoir réessayer.'
+   +' NE DONNE JAMAIS la fraction '+finale+' quand la réponse est refusée : l’élève doit pouvoir réessayer.'
    + LANGUE_SIMPLE;
+}
+/* LA MATHÉMATIQUE DE CHAQUE EXERCICE, en un seul endroit : l'énoncé (texte,
+   LaTeX, écran), le juge, et ce que le modèle lit. */
+function redMath(q){
+  const tx=(n,d)=> (d===1) ? String(n) : (n+'/'+d);
+  const ent='Exercice de mathématiques de Première (France). ';
+  if(test.kind==='mlt'){
+    const inv=!!test.inv, g=libreGcd(q.P,q.Q), Pr=q.P/g, Qr=q.Q/g, op=inv?'÷':'×';
+    const texte=tx(q.n1,q.d1)+' '+op+' '+tx(q.n2,q.d2), finale=Pr+'/'+Qr;
+    return {
+      texte:texte, final:finale, produit:null,
+      latex:'\\frac{'+q.n1+'}{'+q.d1+'}'+(inv?'\\div ':'\\times ')+'\\frac{'+q.n2+'}{'+q.d2+'}',
+      html:sfTermeHTML(q.n1,q.d1)+' <b>'+op+'</b> '+sfTermeHTML(q.n2,q.d2),
+      consigne: inv ? 'Écris l’étape où la division devient une multiplication par l’inverse, puis donne le résultat simplifié.'
+                    : 'Multiplie les numérateurs ensemble et les dénominateurs ensemble, puis donne le résultat simplifié.',
+      juge:function(rep){ return redIrreductible(libreJuge(q, rep, inv?'dll':'mll'), rep); },
+      enonceIA: ent+'L’élève doit calculer '+texte+', et donner le résultat sous forme de fraction IRRÉDUCTIBLE. Il écrit son calcul LUI-MÊME dans une feuille de calcul.'
+        +' La première ligne contient déjà « '+texte+' = », qu’il complète à la suite du « = ».'+redFacons(texte),
+      attenduIA: 'RÉSULTAT ATTENDU : '+finale+', fraction irréductible.'
+        +(inv ? ' Diviser par '+q.n2+'/'+q.d2+', c’est multiplier par son INVERSE '+q.d2+'/'+q.n2+' : '+texte+' = '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+' = ('+q.a1+'×'+q.a2+')/('+q.b1+'×'+q.b2+') = '+q.P+'/'+q.Q
+              : ' On multiplie les numérateurs ensemble et les dénominateurs ensemble : '+texte+' = ('+q.n1+'×'+q.n2+')/('+q.d1+'×'+q.d2+') = '+q.P+'/'+q.Q)
+        +(g>1 ? ', qui se simplifie en '+finale+'.' : ', déjà irréductible.')
+        +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les conditions sont réunies.'
+        +(inv ? '\n1. LA MULTIPLICATION PAR L’INVERSE EST ÉCRITE. Au moins une ligne montre '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+' (les deux facteurs dans un ordre ou dans l’autre). Un élève qui oublie de RETOURNER la seconde fraction se trompe : c’est la faute que l’exercice cherche.'
+              : '\n1. PAS DE MISE AU MÊME DÉNOMINATEUR : elle n’est pas fausse si elle est bien menée, mais la multiplication n’en a pas besoin. Écrire l’étape (numérateurs ensemble)/(dénominateurs ensemble) est recommandé.')
+        +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ. La DERNIÈRE expression du calcul vaut '+finale+' et est écrite sous forme irréductible. S’arrêter sur une fraction égale mais réductible est REFUSÉ : le travail n’est pas terminé.'
+        +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = » : chaque morceau doit valoir '+finale+'. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE est fausse.'
+        +'\nL’ordre des facteurs, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance.'
+        +redConsignesFeedback(finale),
+      ctx:'L’élève calcule '+texte+' en écrivant LUI-MÊME son calcul dans une feuille, sans aucune case : la première ligne porte déjà « '+texte+' = », il écrit à la suite. '
+        +(inv ? 'Il doit transformer la division en multiplication par l’INVERSE de la seconde fraction, puis multiplier, ' : 'Il multiplie les numérateurs ensemble et les dénominateurs ensemble, sans mise au même dénominateur, ')
+        +'et donner le résultat sous forme irréductible. Réponse attendue, STRICTEMENT SECRÈTE : '+finale+'. Juste au-dessus, il vient de faire la même sorte de calcul, guidé par des cases.'
+    };
+  }
+  if(test.kind==='spf'){
+    /* q.op : « + » ou « − » (octobre 2026) — la différence est positive, le tirage y veille */
+    const g=libreGcd(q.N,q.D), Nr=q.N/g, Dr=q.D/g, finale=Nr+'/'+Dr, produit=q.P1+'/'+q.Q1;
+    const moins=(q.op==='−'), op=moins?'−':'+', somme=moins?'différence':'somme', additionner=moins?'soustraire':'additionner', addition=moins?'soustraction':'addition';
+    const texte=tx(q.a,q.b)+' '+op+' '+tx(q.c,q.d)+' × '+tx(q.e,q.f);
+    const vue={P:Nr, Q:Dr, P1:q.P1, Q1:q.Q1};
+    return {
+      texte:texte, final:finale, produit:produit,
+      latex:'\\frac{'+q.a+'}{'+q.b+'}'+(moins?'-':'+')+'\\frac{'+q.c+'}{'+q.d+'}\\times \\frac{'+q.e+'}{'+q.f+'}',
+      html:sfTermeHTML(q.a,q.b)+' <b>'+op+'</b> '+sfTermeHTML(q.c,q.d)+' <b>×</b> '+sfTermeHTML(q.e,q.f),
+      consigne:'Calcule le produit avant l’'+addition+', écris l’étape où les deux fractions ont le même dénominateur, puis donne le résultat simplifié.',
+      juge:function(rep){ return redIrreductible(spfrJuge(vue, rep), rep); },
+      enonceIA: ent+'L’élève doit calculer '+texte+', en respectant les PRIORITÉS OPÉRATOIRES — la multiplication avant l’'+addition+' —, et donner le résultat sous forme de fraction IRRÉDUCTIBLE. Il écrit son calcul LUI-MÊME dans une feuille de calcul.'
+        +' La première ligne contient déjà « '+texte+' = », qu’il complète à la suite du « = ».'+redFacons(texte),
+      attenduIA: 'RÉSULTAT ATTENDU : '+finale+', fraction irréductible. Le produit vaut '+tx(q.c,q.d)+' × '+tx(q.e,q.f)+' = '+produit+' ; la '+somme+' '+tx(q.a,q.b)+' '+op+' '+produit+' vaut '+q.N+'/'+q.D
+        +(g>1 ? ', qui se simplifie en '+finale+'.' : ', déjà irréductible.')
+        +'\n\nLE PRODUIT INTERMÉDIAIRE, s’il est isolé sur sa propre ligne, vaut '+produit+' : une ligne qui vaut CE nombre est une étape de calcul, pas une égalité fausse.'
+        +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les QUATRE conditions sont réunies.'
+        +'\n1. LA PRIORITÉ EST RESPECTÉE : LE PRODUIT EST CALCULÉ AVANT LA '+somme.toUpperCase()+'. Une ligne qui ne vaut ni '+produit+' ni le résultat final trahit une '+addition+' faite avant la multiplication : refuse, et dis que la multiplication se fait D’ABORD.'
+        +'\n2. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE, APRÈS le produit — par exemple ('+q.a+'×'+q.Q1+')/('+q.b+'×'+q.Q1+') '+op+' ('+q.P1+'×'+q.b+')/('+q.Q1+'×'+q.b+'). Tout dénominateur commun convient, pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ.'
+        +'\n3. LE RÉSULTAT FINAL EST SIMPLIFIÉ : la DERNIÈRE expression vaut '+finale+' et est écrite sous forme irréductible.'
+        +'\n4. AUCUNE ÉGALITÉ FAUSSE : en dehors du produit intermédiaire, chaque morceau vaut '+finale+'.'
+        +redConsignesFeedback(finale),
+      ctx:'L’élève calcule '+texte+' en écrivant LUI-MÊME son calcul dans une feuille, sans aucune case : la première ligne porte déjà « '+texte+' = », il écrit à la suite. '
+        +'Il doit calculer le produit D’ABORD, puis mettre au même dénominateur, '+additionner+', et donner le résultat sous forme irréductible. '
+        +'Réponses attendues, STRICTEMENT SECRÈTES : le produit vaut '+produit+', le résultat '+finale+'. Juste au-dessus, il vient de faire la même sorte de calcul, guidé par des cases.'
+    };
+  }
+  /* le 4.3 : une somme ou une différence */
+  const D=q.D, texte=sfrTexte(q), finale=q.Nr+'/'+q.Dr;
+  return {
+    texte:texte, final:finale, produit:null,
+    latex:sfrLatexSomme(q),
+    html:sfTermeHTML(q.n1,q.d1)+' <b>'+q.op+'</b> '+sfTermeHTML(q.n2,q.d2),
+    consigne:'Il faut écrire l’étape où les deux fractions ont le même dénominateur, puis un résultat simplifié.',
+    juge:function(rep){ return libreJuge(q, rep, 'sfl'); },
+    enonceIA: ent+'L’élève doit calculer '+texte+', et donner le résultat sous forme de fraction IRRÉDUCTIBLE. Il écrit son calcul LUI-MÊME dans une feuille de calcul.'
+      +' La première ligne contient déjà « '+texte+' = », qu’il complète à la suite du « = ».'+redFacons(texte),
+    attenduIA: 'RÉSULTAT ATTENDU : '+finale+', fraction irréductible.'
+      +' Le plus petit dénominateur commun est '+D+' ; sur ce dénominateur le calcul s’écrit '
+      +q.N1+'/'+D+' '+q.op+' '+q.N2+'/'+D+', ce qui donne '+q.N+'/'+D+', déjà irréductible. Un élève qui prend un dénominateur commun plus grand obtient une fraction égale, qu’il doit alors simplifier.'
+      +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
+      +'\n1. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE. Au moins une ligne montre les DEUX fractions portant le MÊME dénominateur — par exemple '+q.N1+'/'+D+' '+q.op+' '+q.N2+'/'+D+'. Une ligne qui montre les multiplications, du genre ('+q.n1+'×k)/('+q.d1+'×k) '+q.op+' ('+q.n2+'×k2)/('+q.d2+'×k2), compte aussi. LE DÉNOMINATEUR COMMUN N’EST PAS IMPOSÉ : tout multiple commun convient — '+(2*D)+' aussi bien que '+D+' — pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ même si son résultat est juste.'
+      +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ. La DERNIÈRE expression du calcul — ce qui est écrit après le tout dernier « = » — vaut '+finale+' et est écrite sous forme irréductible. S’arrêter sur une fraction égale mais réductible est REFUSÉ : le travail n’est pas terminé.'
+      +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = », à l’intérieur d’une ligne comme d’une ligne à l’autre : chaque morceau doit valoir '+finale+'. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE est fausse.'
+      +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Une ligne vide est ignorée. Répéter la somme de départ ne compte pas comme une étape, mais ne rend rien faux non plus.'
+      +' S’il manque l’étape du même dénominateur : dis-le dans le feedback, et rappelle qu’on n’additionne deux fractions que lorsqu’elles ont le même dénominateur — sans écrire le calcul à sa place.'
+      +redConsignesFeedback(finale),
+    ctx:'L’élève calcule '+texte+' en écrivant LUI-MÊME son calcul dans une feuille, sans aucune case à compléter : '
+      +'la première ligne porte déjà « '+texte+' = », il écrit à la suite, et les lignes suivantes commencent par « = ». '
+      +'Il doit écrire au moins une étape où les deux fractions ont le MÊME dénominateur, puis donner le résultat sous forme de fraction irréductible. '
+      +'Le plus petit dénominateur commun est '+q.D+', la somme y vaut '+q.N+'/'+q.D+', et le résultat irréductible est '+finale+'. '
+      +'Ces réponses attendues sont STRICTEMENT SECRÈTES. '
+      +'Méthode enseignée : le dénominateur commun n’est PAS imposé — tout multiple commun convient, à condition de multiplier en haut ET en bas ; '
+      +'un dénominateur plus grand donne une fraction qu’il faut ensuite simplifier. Juste au-dessus, l’élève vient de faire la même sorte de calcul, guidé par des cases.'
+  };
+}
+/* Appelée par la correction de la guidée, une fois notée : ouvre la rédigée
+   qui la suit. */
+function sfrMonte(){
+  const cfg=RED_CFG[test.kind], nq=test.questions[test.idx+1];
+  if(!cfg || !nq || !nq.redac) return false;
+  test.idx++;
+  $(cfg.act).innerHTML='';
+  sfrAfficher(nq);
+  autoSave();
+  return true;
+}
+/* Appelée en tête du rendu de chaque moteur. Une question guidée : la zone se
+   vide, et le moteur dessine. Une rédigée — la reprise après une pause posée
+   sur elle — : la guidée qui la précédait est déjà notée, seule la rédaction
+   se montre. */
+function sfrRendu(){
+  const cfg=RED_CFG[test.kind]; if(!cfg) return false;
+  const q=test.questions[test.idx], z=$(cfg.r+'Zone');
+  if(!q || !q.redac){ if(z){ z.hidden=true; z.innerHTML=''; } sfrFeuille=null; return false; }
+  test.locked=true;    /* le moteur guidé n'a plus rien à corriger sur cet écran */
+  $(cfg.tag).innerHTML=modeTagHTML();
+  $(cfg.score).textContent=test.score;
+  $(cfg.prompt).textContent='La question guidée est faite : rédige maintenant celle-ci.';
+  $(cfg.host).innerHTML=''; $(cfg.fb).textContent=''; $(cfg.fb).className='mp-feedback';
+  $(cfg.act).innerHTML='';
+  sfrAfficher(q);
+  return true;
+}
+function sfrAfficher(q){
+  const cfg=RED_CFG[test.kind]; if(!cfg) return;
+  const m=redMath(q), r=cfg.r;
+  test.sfrBusy=false; test.sfrFini=false;
+  $(cfg.idx).textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  const z=$(r+'Zone'); if(!z) return;
+  z.hidden=false;
+  /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
+     entre deux éléments disparaît. */
+  z.innerHTML='<p class="mp-instr enonce-suite" id="'+r+'Prompt">À toi de rédiger : calcule '+m.html
+      +'.<span class="sfl-suite">Donne le résultat sous forme de fraction irréductible.</span></p>'
+    +'<div class="dexp2-sheet" id="'+r+'Sheet"></div>'
+    +'<p class="dexp-hint">Écris ton calcul à la suite du « = », une étape par ligne ou tout à la suite. '
+    +'<b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. '
+    +'Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d’espace</b> en sort. '+m.consigne+'</p>'
+    +'<div class="mp-feedback" id="'+r+'Feedback" aria-live="polite"></div>'
+    +'<div class="row" style="justify-content:center"><span id="'+r+'Boutons" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center">'
+    +'<button class="btn btn-primary" type="button" onclick="checkSFR()">Vérifier</button></span></div>';
+  sfrFeuille=mlFeuille({ conteneur:r+'Sheet', mode:'calcul', prefixes:{premiere:'',suite:'='}, prefixesTexte:{premiere:'',suite:'='} });
+  /* LE CALCUL EST TAPÉ DANS LE CHAMP, SUIVI DE « = » (la demande) : l'élève
+     écrit à la suite, et peut le modifier. On retient ce point de départ :
+     une copie où rien n'a été ajouté n'est pas un calcul. */
+  test.sfrDepart=m.latex+'=';
+  try{ sfrFeuille.lignes[0].mf.setValue(test.sfrDepart); }catch(e){}
+  setTimeout(function(){
+    try{ z.scrollIntoView({block:'nearest', behavior:'smooth'}); }catch(e){}
+    try{ const mf=sfrFeuille.lignes[0].mf; mf.focus(); mf.executeCommand('moveToMathfieldEnd'); }catch(e){}
+  },60);
 }
 async function checkSFR(){
   if(test.sfrFini || test.sfrBusy) return;
-  const q=test.questions[test.idx], fb=$('sfrFeedback');
-  if(!q || !q.redac || !fb) return;
+  const cfg=RED_CFG[test.kind], q=test.questions[test.idx];
+  if(!cfg || !q || !q.redac) return;
+  const r=cfg.r, fb=$(r+'Feedback'); if(!fb) return;
+  const m=redMath(q);
   const rep=(sfrFeuille?sfrFeuille.lire():'').trim();
-  /* La première ligne CONTIENT déjà la somme et son « = » : on compare à ce
+  /* La première ligne CONTIENT déjà le calcul et son « = » : on compare à ce
      point de départ, jamais au vide. */
   let intact=false;
   try{
@@ -15067,52 +15219,44 @@ async function checkSFR(){
   if(!rep || intact){ fb.textContent='Écris d’abord ton calcul, à la suite du « = ».'; fb.className='mp-feedback bad';
     if(sfrFeuille && sfrFeuille.lignes[0]) sfrFeuille.lignes[0].mf.focus(); return; }
   test.sfrBusy=true;
-  $('sfrBoutons').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  $(r+'Boutons').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
   fb.textContent='Je lis ton calcul…'; fb.className='mp-feedback muted';
-  const juge=libreJuge(q, rep, 'sfl');
+  const juge=m.juge(rep);
   let res=null;
   try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id,
-      action:'verif', question:sfrEnonceIA(q)+libreVerdictIA(juge), attendu:sfrAttenduIA(q), reponse:rep, balises:true } });
-    if(r.error) throw r.error; res=r.data;
+    const rr=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id,
+      action:'verif', question:m.enonceIA+redVerdictIA(juge, m), attendu:m.attenduIA, reponse:rep, balises:true } });
+    if(rr.error) throw rr.error; res=rr.data;
   }catch(e){ res=null; }
   test.sfrBusy=false;
-  if((!res || res.error) && juge.sait) res={ correct:juge.correct, feedback:libreSecours(juge) };
+  if((!res || res.error) && juge.sait) res={ correct:juge.correct, feedback:redSecours(juge, m) };
   if(!res || res.error){
     fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
     fb.className='mp-feedback bad';
-    $('sfrBoutons').innerHTML='<button class="btn btn-primary" onclick="checkSFR()">Vérifier</button>';
+    $(r+'Boutons').innerHTML='<button class="btn btn-primary" onclick="checkSFR()">Vérifier</button>';
     return;
   }
   /* Le verdict du juge PRIME, et la prose d'un modèle qui le contredit est
      remplacée par la phrase du juge (la règle du 5.5). */
-  if(juge.sait && (res.correct===true)!==juge.correct) res={ correct:juge.correct, feedback:libreSecours(juge) };
+  if(juge.sait && (res.correct===true)!==juge.correct) res={ correct:juge.correct, feedback:redSecours(juge, m) };
   const correct=juge.sait ? juge.correct : (res.correct===true);
   fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   if(isSoutien() && !correct){
-    $('sfrBoutons').innerHTML='<button class="btn btn-primary" onclick="checkSFR()">Revérifier</button>';
+    $(r+'Boutons').innerHTML='<button class="btn btn-primary" onclick="checkSFR()">Revérifier</button>';
     if(sfrFeuille && sfrFeuille.lignes.length) sfrFeuille.lignes[sfrFeuille.lignes.length-1].mf.focus();
     return;
   }
   test.sfrFini=true; if(sfrFeuille) sfrFeuille.verrouiller();
-  if(correct){ test.score++; $('sfLiveScore').textContent=test.score; }
+  if(correct){ test.score++; $(cfg.score).textContent=test.score; }
   /* Pas de ptsExo() : l'écran porte encore les cases peintes de la guidée,
      qui ne sont pas cette réponse-ci. Une rédaction vaut tout ou rien. */
-  test.answers.push({correct:correct, q:sfrTexte(q)+' (rédigé)', answer:q.Nr+'/'+q.Dr, given:rep});
+  test.answers.push({correct:correct, q:m.texte+' (rédigé)', answer:m.final, given:rep});
   const last=test.idx===test.questions.length-1;
-  $('sfrBoutons').innerHTML='<button class="btn btn-primary" id="sfrNext" onclick="nextSFQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
-  const nb=$('sfrNext'); if(nb) nb.focus();
+  $(r+'Boutons').innerHTML='<button class="btn btn-primary" id="'+r+'Next" onclick="'+cfg.next+'()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$(r+'Next'); if(nb) nb.focus();
 }
 /* Ce que les deux aides savent de la question rédigée. */
-function sfrCtxTexte(q){
-  return 'L’élève calcule '+sfrTexte(q)+' en écrivant LUI-MÊME son calcul dans une feuille, sans aucune case à compléter : '
-   +'la première ligne porte déjà « '+sfrTexte(q)+' = », il écrit à la suite, et les lignes suivantes commencent par « = ». '
-   +'Il doit écrire au moins une étape où les deux fractions ont le MÊME dénominateur, puis donner le résultat sous forme de fraction irréductible. '
-   +'Le plus petit dénominateur commun est '+q.D+', la somme y vaut '+q.N+'/'+q.D+', et le résultat irréductible est '+q.Nr+'/'+q.Dr+'. '
-   +'Ces réponses attendues sont STRICTEMENT SECRÈTES. '
-   +'Méthode enseignée : le dénominateur commun n’est PAS imposé — tout multiple commun convient, à condition de multiplier en haut ET en bas ; '
-   +'un dénominateur plus grand donne une fraction qu’il faut ensuite simplifier. Juste au-dessus, l’élève vient de faire la même sorte de calcul, guidé par des cases.';
-}
+function sfrCtxTexte(q){ return redMath(q).ctx; }
 
 /* ===== CROISER LES DÉNOMINATEURS — la couleur et les flèches ================
    Recopié de la Seconde (5.2) au mot près : voir son en-tête là-bas. Les
@@ -15429,8 +15573,11 @@ function divGen(){
 }
 /* Six questions, comme SF_NB : le nombre vit à UN endroit (écart ③). */
 const MLT_NB=6;
-function divBuildQuestions(){ return distinctes(dmNbQuestions(MLT_NB), divGen); }
-function mltBuildQuestions(){ return distinctes(dmNbQuestions(MLT_NB), mltGen); }
+/* Des PAIRES depuis octobre 2026 : chaque question guidée est suivie d'une
+   question rédigée (redPaires, voir « la question rédigée, sous la question
+   guidée »). Six paires, donc douze questions. */
+function divBuildQuestions(){ return redPaires(MLT_NB, divGen); }
+function mltBuildQuestions(){ return redPaires(MLT_NB, mltGen); }
 /* Les deux cases de l'inverse n'existent QUE dans l'exercice de division.
    Les nommer partout rendrait « vide » toujours vrai ailleurs — une case
    absente compte comme une case non remplie — et la note compterait des cases
@@ -15483,6 +15630,8 @@ function mltJuge(q){
            haut:hh[0]&&hh[1], bas:bb[0]&&bb[1], fin:okFn&&okFd, vide:vide, se:se };
 }
 function renderMltTest(){
+  /* la question rédigée se dessine sous la guidée (sfrRendu, 4.3 à 4.6) */
+  if(test.redac && sfrRendu()) return;
   const q=test.questions[test.idx]; test.locked=false;
   $('mltIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagMlt').innerHTML=modeTagHTML();
@@ -15586,6 +15735,8 @@ function checkMltAnswer(live){
   const donne=mltCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
   test.answers.push({...(ptsExo()||{}), correct:allOk,
     q:q.n1+'/'+q.d1+(test.inv?' ÷ ':' × ')+q.n2+'/'+q.d2, answer:q.P+'/'+q.Q, given:donne});
+  /* la question rédigée qui suit s'ouvre ICI, sous celle-ci */
+  if(test.redac && sfrMonte()) return;
   const last=test.idx===test.questions.length-1;
   $('mltActions').innerHTML='<button class="btn btn-primary" id="mltNext" onclick="nextMltQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('mltNext'); if(nb) nb.focus();
@@ -15593,12 +15744,13 @@ function checkMltAnswer(live){
 function nextMltQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderMltTest(); autoSave(); } else finishTest(); }
 async function startMlt(){
   if(!currentEleve){ accueil(); return; }
+  /* des PAIRES : une guidée, puis une rédigée (redPaires) */
   const qs=mltBuildQuestions();
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'mlt', questions:qs, idx:0, score:0, maxScore:qs.length,
     answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
-  test.etapes=true;
+  test.etapes=true; test.redac=true;
   test.qId='multiplier-fractions';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('mlt'); renderMltTest();
@@ -15611,12 +15763,13 @@ async function startMlt(){
    reprise retrouve le maillon de plus sans rien de spécial à écrire ailleurs. */
 async function startDiv(){
   if(!currentEleve){ accueil(); return; }
+  /* des PAIRES : une guidée, puis une rédigée (redPaires) */
   const qs=divBuildQuestions();
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'mlt', questions:qs, idx:0, score:0, maxScore:qs.length,
     answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
-  test.inv=true; test.etapes=true;
+  test.inv=true; test.etapes=true; test.redac=true;
   test.qId='diviser-fractions';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('mlt'); renderMltTest();
@@ -15697,8 +15850,10 @@ function mltCtxTexte(q){
      peintre et sa correction sont restés ceux de la Seconde, au mot près ;
    ⑧ APRÈS CHAQUE QUESTION GUIDÉE, UNE QUESTION RÉDIGÉE SUR LA MÊME PAGE
      (même demande : « il faut sur la même page une autre question où il faut
-     rédiger la solution comme dans l'exercice 4.3 ») : voir « spr » plus bas,
-     le calque du « sfr » du 4.3.
+     rédiger la solution comme dans l'exercice 4.3 ») : le module commun des
+     4.3 à 4.6 (RED_CFG, redMath, sfrRendu, sfrMonte — voir « la question
+     rédigée, sous la question guidée »). Sa branche « spf » lit q.op : la
+     soustraction s'y rédige comme la somme.
    Les lecteurs pfLu/pfPaire/pfMult/pfVide et le juge pfCroixJuge sont ceux de
    la Seconde, recopiés pour ce seul exercice : les autres exercices de la
    famille (H, I, J, la triple somme) ne sont pas en Première. */
@@ -15799,9 +15954,12 @@ const SPF_INTER=6;
    pose pas. Avec des dénominateurs d'au moins 2 et un produit borné à 6, il
    ne reste que des produits sur 4 ou sur 6 (1/2 × 3/2, 5/2 × 1/3…) : la
    variété vient de la première fraction. « op » est « + » ou « − » ; absent,
-   il se tire (écart ⑥). Une différence doit rester STRICTEMENT positive. */
-function spfGen(op){
-  op = (op==='−' || op==='-') ? '−' : (op==='+' ? '+' : pick(['+','−']));
+   il suit le RANG « i » de la question dans la séance — distinctes() le
+   passe au tirage —, une opération par PAIRE guidée + rédigée (écart ⑥) ;
+   sans rang non plus, il se tire. Une différence doit rester STRICTEMENT
+   positive. */
+function spfGen(op, i){
+  op = (op==='−' || op==='-') ? '−' : (op==='+' ? '+' : (typeof i==='number' ? ((Math.floor(i/2)%2===0)?'+':'−') : pick(['+','−'])));
   for(let essai=0; essai<4000; essai++){
     const a=rand(1,FRAC_MAX), b=rand(2,FRAC_MAX), c=rand(1,FRAC_MAX), d=rand(2,FRAC_MAX), e=rand(1,FRAC_MAX), f=rand(2,FRAC_MAX);
     if(gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1) continue;   /* fractions de départ irréductibles (écart ①) */
@@ -15821,21 +15979,10 @@ function spfGen(op){
                     : {a:3,b:2,c:1,d:2,e:3,f:2,op:'−',P1:3,Q1:4,N:6,D:8,Nr:3,Dr:4};
 }
 const SPF_NB=4;
-/* LA SÉANCE VA PAR PAIRES (écart ⑧, le calque de sfrBuildQuestions) : une
-   question guidée, puis une rédigée (q.redac) aux mêmes critères — la même
-   opération, le même tirage — et toutes distinctes. L'opération alterne d'une
-   paire à l'autre : la Première voit toujours les deux. Le réglage
-   « Questions » d'un devoir compte les questions une à une, guidées et
-   rédigées ensemble (par défaut 2 × SPF_NB) ; un nombre impair laisse la
-   dernière guidée sans rédigée, et la séance s'arrête là. */
-function spfBuildQuestions(){
-  const n=dmNbQuestions(2*SPF_NB), qs=[];
-  for(let i=0;i<n;i++){
-    const op=(Math.floor(i/2)%2===0)?'+':'−';
-    qs.push(distincte(qs, function(){ return spfGen(op); }));
-  }
-  return qs.map(function(q,i){ return (i%2) ? Object.assign(q,{redac:true}) : q; });
-}
+/* des PAIRES : quatre guidées, quatre rédigées (redPaires, écart ⑧). Le
+   tirage reçoit le rang de chaque question : l'opération alterne d'une
+   paire à l'autre, la guidée et sa rédigée posent la même (écart ⑥). */
+function spfBuildQuestions(){ return redPaires(SPF_NB, spfGen); }
 /* le résultat se simplifie-t-il ? — la chaîne du 4.1 ne naît que dans ce cas */
 function spfBrut(q){ return gcd(q.N,q.D)>1; }
 function spfTexte(q){ return q.a+'/'+q.b+' '+(q.op==='−'?'−':'+')+' '+q.c+'/'+q.d+' × '+q.e+'/'+q.f; }
@@ -15844,9 +15991,8 @@ function spfCases(){
   return ['spf-h1','spf-h2','spf-b1','spf-b2','spf-pn','spf-pd'].concat(pfCroixCases('spf-x')).concat(etapes);
 }
 function renderSpfTest(){
-  /* La question RÉDIGÉE se dessine sous la question guidée, sur le même
-     écran (sprRendu) — écart ⑧. */
-  if(test.redac && sprRendu()) return;
+  /* la question rédigée se dessine sous la guidée (sfrRendu, 4.3 à 4.6) */
+  if(test.redac && sfrRendu()) return;
   const q=test.questions[test.idx]; test.locked=false;
   $('spfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagSpf').innerHTML=modeTagHTML();
@@ -15946,8 +16092,8 @@ function checkSpfAnswer(live){
   const g=gcd(q.N,q.D);
   test.answers.push({...(ptsExo()||{}),correct:allOk,
     q:spfTexte(q), answer:q.N+'/'+q.D+(g>1?' = '+(q.N/g)+'/'+(q.D/g):''), given:donne});
-  /* La question rédigée qui suit s'ouvre ICI, sous celle-ci (écart ⑧). */
-  if(test.redac && sprMonte()) return;
+  /* la question rédigée qui suit s'ouvre ICI, sous celle-ci */
+  if(test.redac && sfrMonte()) return;
   const last=test.idx===test.questions.length-1;
   $('spfActions').innerHTML='<button class="btn btn-primary" id="spfNext" onclick="nextSpfQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('spfNext'); if(nb) nb.focus();
@@ -15975,180 +16121,6 @@ function ctxSpf(q){
    +'L’ERREUR VISÉE est celle de l’élève qui '+(moins?'soustrait '+q.c+'/'+q.d+' de '+q.a+'/'+q.b:'additionne '+q.a+'/'+q.b+' et '+q.c+'/'+q.d)+' AVANT de multiplier par '+q.e+'/'+q.f+', en oubliant la priorité des opérations.'
    +(moins ? ' La différence est positive : le tirage y veille.' : '');
   return {nombre:'', contexte:c};
-}
-
-/* ===== 4.6 : LA QUESTION RÉDIGÉE, SOUS LA QUESTION GUIDÉE ===================
-   Demande de Turquet (octobre 2026) : « il faut sur la même page une autre
-   question où il faut rédiger la solution comme dans l'exercice 4.3 de
-   première ». C'est le calque du « sfr » du 4.3 (plus haut) : les mêmes
-   gestes, sur le kind « spf ».
-   · LES QUESTIONS VONT PAR PAIRES dans test.questions (spfBuildQuestions) :
-     une guidée, puis une rédigée (q.redac), tirées par le même spfGen avec la
-     même opération. Chacune vaut un point et porte sa réponse.
-   · LA RÉDIGÉE S'OUVRE SOUS LA GUIDÉE, sur le même écran : checkSpfAnswer
-     appelle sprMonte une fois la guidée notée. La guidée reste affichée
-     au-dessus, corrigée.
-   · LA FEUILLE est mlFeuille ; sa première ligne porte le calcul SUIVI DE
-     « = », modifiable, et les suivantes un « = ».
-   · LE JUGE est celui du 4.3 (libreJuge, genre « sfl ») : la page juge en
-     entiers exacts — le produit calculé avant la somme, parce que son
-     évaluateur connaît la priorité des opérations : « 1/2 + 1/2×3/2 » vaut
-     5/4, et la copie qui additionne d'abord écrit une égalité FAUSSE, que le
-     juge nomme. Il exige l'étape du même dénominateur et un résultat
-     irréductible ; le modèle ne fait que rédiger le commentaire. */
-let sprFeuille=null;
-/* Le calcul de l'énoncé en LaTeX, tel que l'élève l'aurait tapé (le moins
-   ordinaire, pas le « − » typographique, que MathLive lirait comme du texte). */
-function sprLatex(q){
-  const t=(n,d)=>'\\frac{'+n+'}{'+d+'}';
-  return t(q.a,q.b)+(q.op==='−'?'-':'+')+t(q.c,q.d)+'\\times'+t(q.e,q.f);
-}
-/* Appelée par checkSpfAnswer, la guidée notée : ouvre la rédigée qui la suit. */
-function sprMonte(){
-  const nq=test.questions[test.idx+1];
-  if(!nq || !nq.redac) return false;
-  test.idx++;
-  $('spfActions').innerHTML='';
-  sprAfficher(nq);
-  autoSave();
-  return true;
-}
-/* Appelée en tête de renderSpfTest. Une question guidée : la zone se vide, et
-   le moteur dessine. Une rédigée — la reprise après une pause posée sur
-   elle — : la guidée qui la précédait est déjà notée, seule la rédaction se
-   montre. */
-function sprRendu(){
-  const q=test.questions[test.idx], z=$('sprZone');
-  if(!q || !q.redac){ if(z){ z.hidden=true; z.innerHTML=''; } sprFeuille=null; return false; }
-  test.locked=true;    /* le moteur guidé n'a plus rien à corriger sur cet écran */
-  $('modeTagSpf').innerHTML=modeTagHTML();
-  $('spfLiveScore').textContent=test.score;
-  $('spfPrompt').textContent='La question guidée est faite : rédige maintenant celle-ci.';
-  $('spfHost').innerHTML=''; $('spfFeedback').textContent=''; $('spfFeedback').className='mp-feedback';
-  $('spfActions').innerHTML='';
-  sprAfficher(q);
-  return true;
-}
-function sprAfficher(q){
-  test.sprBusy=false; test.sprFini=false;
-  $('spfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
-  const z=$('sprZone'); if(!z) return;
-  z.hidden=false;
-  /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
-     entre deux éléments disparaît. */
-  z.innerHTML='<p class="mp-instr enonce-suite" id="sprPrompt">À toi de rédiger : calcule '+sfTermeHTML(q.a,q.b)+' <b>'+(q.op==='−'?'−':'+')+'</b> '+sfTermeHTML(q.c,q.d)+' <b>×</b> '+sfTermeHTML(q.e,q.f)
-      +'.<span class="sfl-suite">Donne le résultat sous forme de fraction irréductible.</span></p>'
-    +'<div class="dexp2-sheet" id="sprSheet"></div>'
-    +'<p class="dexp-hint">Écris ton calcul à la suite du « = », une étape par ligne ou tout à la suite. '
-    +'<b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. '
-    +'Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d’espace</b> en sort, <b>*</b> fait un ×. '
-    +'Il faut calculer le produit d’abord, écrire l’étape où les deux fractions ont le même dénominateur, puis un résultat simplifié.</p>'
-    +'<div class="mp-feedback" id="sprFeedback" aria-live="polite"></div>'
-    +'<div class="row" style="justify-content:center"><span id="sprBoutons" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center">'
-    +'<button class="btn btn-primary" type="button" onclick="checkSpr()">Vérifier</button></span></div>';
-  sprFeuille=mlFeuille({ conteneur:'sprSheet', mode:'calcul', prefixes:{premiere:'',suite:'='}, prefixesTexte:{premiere:'',suite:'='} });
-  /* LE CALCUL EST TAPÉ DANS LE CHAMP, SUIVI DE « = » : l'élève écrit à la
-     suite, et peut le modifier. On retient ce point de départ : une copie où
-     rien n'a été ajouté n'est pas un calcul. */
-  test.sprDepart=sprLatex(q)+'=';
-  try{ sprFeuille.lignes[0].mf.setValue(test.sprDepart); }catch(e){}
-  setTimeout(function(){
-    try{ z.scrollIntoView({block:'nearest', behavior:'smooth'}); }catch(e){}
-    try{ const m=sprFeuille.lignes[0].mf; m.focus(); m.executeCommand('moveToMathfieldEnd'); }catch(e){}
-  },60);
-}
-function sprEnonceIA(q){
-  return 'Exercice de mathématiques de Première (France). L’élève doit calculer '+spfTexte(q)
-   +' — une '+(q.op==='−'?'différence':'somme')+' dont le second terme est un PRODUIT de deux fractions —, et donner le résultat sous forme de fraction IRRÉDUCTIBLE. Il écrit son calcul LUI-MÊME dans une feuille de calcul.'
-   +' La première ligne contient déjà « '+spfTexte(q)+' = », qu’il complète à la suite du « = ».'
-   +'\n\nDEUX FAÇONS D’ÉCRIRE, ÉGALEMENT CORRECTES, et il peut aussi les MÉLANGER :'
-   +'\n· une étape par ligne — les lignes suivantes sont alors précédées de « = » ;'
-   +'\n· ou tout à la suite sur une seule ligne, en enchaînant les « = » : « '+spfTexte(q)+' = … = … ».'
-   +'\nCe qui compte est la CHAÎNE D’ÉGALITÉS, pas la mise en page : ne refuse JAMAIS une copie au motif qu’elle tient sur une seule ligne, ni parce qu’elle est répartie sur plusieurs.'
-   +' Un « = » en fin de ligne suivi d’un « = » en tête de la ligne suivante n’est qu’un seul « = ».'
-   +' Les fractions sont écrites en texte, sous la forme « a/b » ; un entier est une fraction de dénominateur 1 ; le produit s’écrit avec × ou *.';
-}
-/* La règle de décision : celle du 4.3, avec le produit à calculer D'ABORD. */
-function sprAttenduIA(q){
-  const D=q.D, opm=(q.op==='−'?'−':'+'), N1=q.a*q.Q1, N2=q.P1*q.b, g=gcd(q.N,q.D);
-  return 'RÉSULTAT ATTENDU : '+q.Nr+'/'+q.Dr+', fraction irréductible.'
-   +' Le produit '+q.c+'/'+q.d+' × '+q.e+'/'+q.f+' vaut '+q.P1+'/'+q.Q1+' et se calcule AVANT la '+(q.op==='−'?'soustraction':'addition')+' (priorité des opérations).'
-   +' Le plus petit dénominateur commun de '+q.a+'/'+q.b+' et '+q.P1+'/'+q.Q1+' est '+D+' ; sur ce dénominateur le calcul s’écrit '
-   +N1+'/'+D+' '+opm+' '+N2+'/'+D+', ce qui donne '+q.N+'/'+D+(g>1?', qui se simplifie en '+q.Nr+'/'+q.Dr:', déjà irréductible')+'. Un élève qui prend un dénominateur commun plus grand obtient une fraction égale, qu’il doit alors simplifier.'
-   +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
-   +'\n1. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE. Au moins une ligne montre les DEUX fractions portant le MÊME dénominateur — par exemple '+N1+'/'+D+' '+opm+' '+N2+'/'+D+'. Une ligne qui montre les multiplications, du genre ('+q.a+'×k)/('+q.b+'×k) '+opm+' ('+q.P1+'×k2)/('+q.Q1+'×k2), compte aussi. LE DÉNOMINATEUR COMMUN N’EST PAS IMPOSÉ : tout multiple commun convient — '+(2*D)+' aussi bien que '+D+' — pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ même si son résultat est juste.'
-   +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ. La DERNIÈRE expression du calcul — ce qui est écrit après le tout dernier « = » — vaut '+q.Nr+'/'+q.Dr+' et est écrite sous forme irréductible. S’arrêter sur une fraction égale mais réductible est REFUSÉ : le travail n’est pas terminé.'
-   +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = », à l’intérieur d’une ligne comme d’une ligne à l’autre : chaque morceau doit valoir '+q.Nr+'/'+q.Dr+'. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE est fausse. L’ERREUR CLASSIQUE est de '+(q.op==='−'?'soustraire':'additionner')+' '+q.a+'/'+q.b+' et '+q.c+'/'+q.d+' AVANT de multiplier par '+q.e+'/'+q.f+' : la première égalité est alors fausse, et on le dit en rappelant que la multiplication se calcule avant.'
-   +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Une ligne vide est ignorée. Répéter le calcul de départ ne compte pas comme une étape, mais ne rend rien faux non plus. Écrire ou non la ligne « '+q.a+'/'+q.b+' '+opm+' '+q.P1+'/'+q.Q1+' » est libre.'
-   +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
-   +' Si tout est juste : félicite, et nomme ce qui est bien fait.'
-   +' S’il manque l’étape du même dénominateur : dis-le, et rappelle qu’on n’additionne ou ne soustrait deux fractions que lorsqu’elles ont le même dénominateur — sans écrire le calcul à sa place.'
-   +' Si le calcul est bon mais le résultat non simplifié : dis que c’est juste mais pas fini, et demande de chercher un nombre qui divise le numérateur ET le dénominateur — SANS donner ce nombre.'
-   +' Si une ligne est fausse : dis LAQUELLE et ce qui cloche.'
-   +' NE DONNE JAMAIS la fraction '+q.Nr+'/'+q.Dr+' ni le produit '+q.P1+'/'+q.Q1+' quand la réponse est refusée : l’élève doit pouvoir réessayer.'
-   + LANGUE_SIMPLE;
-}
-async function checkSpr(){
-  if(test.sprFini || test.sprBusy) return;
-  const q=test.questions[test.idx], fb=$('sprFeedback');
-  if(!q || !q.redac || !fb) return;
-  const rep=(sprFeuille?sprFeuille.lire():'').trim();
-  /* La première ligne CONTIENT déjà le calcul et son « = » : on compare à ce
-     point de départ, jamais au vide. */
-  let intact=false;
-  try{
-    const l=sprFeuille.lignes;
-    intact = l.length===1 && l[0].mf.getValue().replace(/\s/g,'')===String(test.sprDepart||'').replace(/\s/g,'');
-  }catch(e){}
-  if(!rep || intact){ fb.textContent='Écris d’abord ton calcul, à la suite du « = ».'; fb.className='mp-feedback bad';
-    if(sprFeuille && sprFeuille.lignes[0]) sprFeuille.lignes[0].mf.focus(); return; }
-  test.sprBusy=true;
-  $('sprBoutons').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
-  fb.textContent='Je lis ton calcul…'; fb.className='mp-feedback muted';
-  const juge=libreJuge(q, rep, 'sfl');
-  let res=null;
-  try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id,
-      action:'verif', question:sprEnonceIA(q)+libreVerdictIA(juge), attendu:sprAttenduIA(q), reponse:rep, balises:true } });
-    if(r.error) throw r.error; res=r.data;
-  }catch(e){ res=null; }
-  test.sprBusy=false;
-  if((!res || res.error) && juge.sait) res={ correct:juge.correct, feedback:libreSecours(juge) };
-  if(!res || res.error){
-    fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
-    fb.className='mp-feedback bad';
-    $('sprBoutons').innerHTML='<button class="btn btn-primary" onclick="checkSpr()">Vérifier</button>';
-    return;
-  }
-  /* Le verdict du juge PRIME, et la prose d'un modèle qui le contredit est
-     remplacée par la phrase du juge (la règle du 5.5 de la Seconde). */
-  if(juge.sait && (res.correct===true)!==juge.correct) res={ correct:juge.correct, feedback:libreSecours(juge) };
-  const correct=juge.sait ? juge.correct : (res.correct===true);
-  fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb '+(correct?'good':'bad');
-  if(isSoutien() && !correct){
-    $('sprBoutons').innerHTML='<button class="btn btn-primary" onclick="checkSpr()">Revérifier</button>';
-    if(sprFeuille && sprFeuille.lignes.length) sprFeuille.lignes[sprFeuille.lignes.length-1].mf.focus();
-    return;
-  }
-  test.sprFini=true; if(sprFeuille) sprFeuille.verrouiller();
-  if(correct){ test.score++; $('spfLiveScore').textContent=test.score; }
-  /* Pas de ptsExo() : l'écran porte encore les cases peintes de la guidée,
-     qui ne sont pas cette réponse-ci. Une rédaction vaut tout ou rien. */
-  test.answers.push({correct:correct, q:spfTexte(q)+' (rédigé)', answer:q.Nr+'/'+q.Dr, given:rep});
-  const last=test.idx===test.questions.length-1;
-  $('sprBoutons').innerHTML='<button class="btn btn-primary" id="sprNext" onclick="nextSpfQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
-  const nb=$('sprNext'); if(nb) nb.focus();
-}
-/* Ce que les deux aides savent de la question rédigée. */
-function sprCtxTexte(q){
-  const moins=(q.op==='−');
-  return 'L’élève calcule '+spfTexte(q)+' en écrivant LUI-MÊME son calcul dans une feuille, sans aucune case à compléter : '
-   +'la première ligne porte déjà « '+spfTexte(q)+' = », il écrit à la suite, et les lignes suivantes commencent par « = ». '
-   +'Il doit calculer le produit D’ABORD (priorité des opérations), écrire au moins une étape où les deux fractions ont le MÊME dénominateur, puis donner le résultat sous forme de fraction irréductible. '
-   +'Le produit vaut '+q.P1+'/'+q.Q1+', le plus petit dénominateur commun est '+q.D+', la '+(moins?'différence':'somme')+' y vaut '+q.N+'/'+q.D+', et le résultat irréductible est '+q.Nr+'/'+q.Dr+'. '
-   +'Ces réponses attendues sont STRICTEMENT SECRÈTES. '
-   +'Méthode enseignée : le dénominateur commun n’est PAS imposé — tout multiple commun convient, à condition de multiplier en haut ET en bas ; '
-   +'un dénominateur plus grand donne une fraction qu’il faut ensuite simplifier. L’erreur visée est d’'+(moins?'effectuer la soustraction':'additionner')+' avant de multiplier. Juste au-dessus, l’élève vient de faire la même sorte de calcul, guidé par des cases.';
 }
 
 /* corrChoix() et msgAvecVides() : les deux fonctions partagées de la Seconde,
@@ -22804,10 +22776,10 @@ function conseilCtxCourant(){
   } else if(k==='tm' && q){
     att='Exercice de rapidité sur les tables de multiplication : '+TM_SECONDES+' secondes par produit. Ne donne aucun produit de l’exercice en cours ; parle de méthode et de mémorisation.';
   }
-  if(k==='sf' && q) att=(q.redac && typeof sfrCtxTexte==='function') ? sfrCtxTexte(q) : sfCtxTexte(q);
+  if(k==='sf' && q) att=q.redac ? sfrCtxTexte(q) : sfCtxTexte(q);
   if(k==='rvf' && q) att=ctxRvf(q).contexte;
-  if(k==='mlt' && q) att=mltCtxTexte(q);
-  if(k==='spf' && q) att=(q.redac && typeof sprCtxTexte==='function') ? sprCtxTexte(q) : ctxSpf(q).contexte;
+  if(k==='mlt' && q) att=q.redac ? sfrCtxTexte(q) : mltCtxTexte(q);
+  if(k==='spf' && q) att=q.redac ? sfrCtxTexte(q) : ctxSpf(q).contexte;
   if(k==='pb' && q) att=(pbEstFiche() ? pbfCtxTexte() : pbCtxTexte(q));
   const ec=ctxEcranPremiere();
   /* numeros() en dernier : le contexte est assemblé de dix morceaux, et plusieurs

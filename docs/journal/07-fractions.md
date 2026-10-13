@@ -1517,25 +1517,75 @@ feuille commence par la somme suivie de « = », qu'une copie juste
 (1/2 + 1/3 = 3/6 + 2/6 = 5/6) vaut le point, et que la zone disparaît à la
 guidée suivante.
 
-**Puis le 4.6 a reçu une soustraction, ses colonnes et sa question RÉDIGÉE
-(octobre 2026, Première v310).** Demande de Turquet : « dans le 4.6 en
-première, il est possible d'avoir une soustraction au lieu d'une addition,
-mais le résultat doit être positif. De plus placer les signes "=" en début
-de ligne et afficher les cases à remplir en dessous verticalement des
-nombres du dessus correspondants au mieux. De plus il faut sur la même page
-une autre question où il faut rédiger la solution comme dans l'exercice 4.3
-de première. »
+**Puis les 4.4, 4.5 et 4.6 de la Première ont reçu la même question
+rédigée (octobre 2026, Première v310).** Demande de Turquet : « faire la
+même chose pour les 4.4 ; 4.5 et 4.6 en première ».
+
+* **Un seul module pour trois moteurs** (sf, mlt, spf) : `RED_CFG` dit où vit
+  chaque écran (les éléments de la zone portent le préfixe `sfr`, `mltr` ou
+  `spfr` — les trois zones sont dans la page en même temps), `redMath(q)` dit
+  la mathématique de chaque exercice : l'énoncé (texte, LaTeX, écran), le
+  juge, et ce que lit le modèle. Les noms `sfr…` sont restés ceux du 4.3 :
+  le moteur sf, partagé au caractère près avec la Seconde, les appelle ainsi.
+  Les moteurs mlt et spf, propres à la Première, ont reçu les deux mêmes
+  lignes gardées (`sfrRendu` en tête du rendu, `sfrMonte` après la note).
+* **Les paires passent par `redPaires(n, générateur)`** :
+  `mltBuildQuestions`, `divBuildQuestions` et `spfBuildQuestions` tirent
+  désormais 12, 12 et 8 questions. **Le réglage « Questions » d'un devoir
+  compte les rédigées** : k questions tirent ⌈k/2⌉ paires, et la coupe
+  générique en garde k — c'est ce qui laisse passer le contrôle « la séance
+  s'allonge exactement de deux ».
+* **Le résultat final doit être irréductible partout** (`redIrreductible`).
+  Le juge de la Seconde ne regardait que la VALEUR pour un produit ou un
+  quotient — en Seconde le résultat tombait toujours irréductible. Ici
+  2/3 × 3/5 = 6/15 doit aller jusqu'à 2/5.
+* **Le 4.5 exige l'inverse écrit** (`libreJuge`, genre « dll ») : sans lui le
+  juge s'abstient et le modèle décide, comme en Seconde.
+* **Le 4.6 prend le juge du 5.10 de la Seconde** (`pfJuge`, recopié sous le
+  nom `spfrJuge`) : une ligne qui vaut le produit intermédiaire n'est pas une
+  égalité fausse, une addition faite avant la multiplication l'est ; l'étape
+  du même dénominateur est exigée.
+
+Contrôles : « les questions rédigées des 4.3 à 4.6 » (`tests/verifier.js`,
+`fractionsRedigees`) lance les quatre démarreurs réels — alternance des
+paires, nombre de questions, zone présente sur l'écran — puis écrit une
+copie à la main par bord de chaque juge (juste, arrêtée sur une fraction
+réductible, égalité fausse, quotient sans inverse, produit isolé sur sa
+ligne, addition avant la multiplication), et vérifie qu'un devoir réglé à 5
+questions en tire 6 pour en garder 5. Le banc navigateur (« 6 terdecies
+bis ») ouvre la rédigée du produit sous sa guidée, et celle du 4.6 par la
+reprise d'une pause, et y fait compter une copie juste.
+
+**Puis le 4.6 a reçu une soustraction et ses colonnes (octobre 2026,
+Première v311).** Demande de Turquet : « dans le 4.6 en première, il est
+possible d'avoir une soustraction au lieu d'une addition, mais le résultat
+doit être positif. De plus placer les signes "=" en début de ligne et
+afficher les cases à remplir en dessous verticalement des nombres du dessus
+correspondants au mieux. De plus il faut sur la même page une autre question
+où il faut rédiger la solution comme dans l'exercice 4.3 de première. » Le
+troisième point était déjà en ligne, par le module commun du paragraphe
+précédent (v310) : la branche « spf » de `redMath` a seulement appris à lire
+`q.op`. Deux branches avaient travaillé en même temps sur la même page ; la
+fusion a gardé le module commun, et jeté le calque que l'autre avait écrit.
 
 * **L'opération vit dans la question (`q.op`, « + » ou « − »)** et alterne
-  d'une paire à l'autre. `spfGen(op)` écarte toute différence négative ou
-  nulle — « le résultat doit être positif » —, et le croisement ne soustrait
-  donc jamais au-dessous de zéro non plus (N1 − N2 = N > 0). Le juge, le
-  peintre et la correction du croisement (`pfCroixJuge`, `pfCroixPeindre`,
-  `pfCroixCorrection`) savaient déjà soustraire : ils venaient de la Seconde
-  avec leur `op`, que le 5.12 n'appelait qu'avec « + ». Le message « il
-  reste à additionner » dit « soustraire » quand il faut ; le libellé des
-  étapes, l'énoncé, le contexte envoyé à l'aide et le rappel de cours
-  (`RAP_SPF`) nomment la différence.
+  d'une paire à l'autre : `spfGen(op, i)` lit le rang que `distinctes()` lui
+  passe, si bien que `redPaires(SPF_NB, spfGen)` n'a rien à savoir — la
+  guidée et sa rédigée posent la même opération. Le tirage écarte toute
+  différence négative ou nulle — « le résultat doit être positif » —, et le
+  croisement ne soustrait donc jamais au-dessous de zéro non plus
+  (N1 − N2 = N > 0). Le juge, le peintre et la correction du croisement
+  (`pfCroixJuge`, `pfCroixPeindre`, `pfCroixCorrection`) savaient déjà
+  soustraire : ils venaient de la Seconde avec leur `op`, que le 5.12
+  n'appelait qu'avec « + ». Le message « il reste à additionner » dit
+  « soustraire » quand il faut ; le libellé des étapes, l'énoncé, le
+  contexte envoyé à l'aide, la branche « spf » de `redMath` (énoncé, LaTeX,
+  règle, contexte de la rédigée) et le rappel de cours (`RAP_SPF`) nomment
+  la différence. La question porte aussi `Nr`/`Dr`, sa forme irréductible.
+  Le juge de la rédigée (`spfrJuge`) n'a pas bougé : il compare des VALEURS,
+  et « 3/2 − 1/2×3/2 » vaut 3/4 pour `libreEval`, qui connaît la priorité
+  des opérations — la copie qui soustrait avant de multiplier écrit une
+  égalité fausse, que le juge nomme.
 * **Le calcul se lit EN COLONNES.** La rangée `.pt-row` de `#spfHost` est
   une GRILLE de quatre colonnes — le « = », le premier terme, le signe, le
   second terme —, une ligne par étape, `align-items`/`justify-items` au
@@ -1554,19 +1604,6 @@ de première. »
   morceau à colonne fixée recule (le « = » de la colonne 1 après un second
   terme de la colonne 4), et c'est ce qui range les étapes sans qu'aucune
   ligne soit déclarée.
-* **La question rédigée est le calque du 4.3** (`spr…`, le « sfr » du 4.3
-  sur le kind « spf ») : les paires guidée + rédigée dans `test.questions`
-  (`spfBuildQuestions`, `dmNbQuestions(2 × SPF_NB)` questions, une impaire
-  laissant la dernière guidée seule), `sprMonte` appelée par `checkSpfAnswer`
-  une fois la guidée notée, `sprRendu` en tête de `renderSpfTest` pour la
-  reprise, la feuille `mlFeuille` dont la première ligne porte le calcul
-  suivi de « = » (`sprLatex`, le « − » ordinaire et `\times`). Le JUGE est
-  `libreJuge`, genre « sfl », SANS retouche : son évaluateur connaît la
-  priorité des opérations (« 2/3 + 1/2×3/2 » vaut 17/12), si bien que la
-  copie qui additionne AVANT de multiplier écrit une égalité fausse, que le
-  juge nomme — l'erreur visée de l'exercice est tenue par le juge local, pas
-  par le modèle. La question porte `Nr`/`Dr` (la forme irréductible), que le
-  juge lit. L'aide connaît la rédigée (`sprCtxTexte`).
 
 Contrôles : le contrôle du tirage (`tests/verifier.js`, « nombres de 1 à 5,
 produit borné à 6… ») exige les DEUX opérations en deux cents séances, le
@@ -1574,16 +1611,13 @@ résultat recalculé selon l'opération et strictement positif, `Nr`/`Dr`
 rangés, les paires guidée PUIS rédigée de la même opération ; il joue la
 soustraction 3/2 − 1/2 × 3/2 = 6/8 = 3/4 par de vrais évènements « input »,
 et refuse 18/8 (additionné) avec le mot « soustraire » ; il compte les « = »
-de la grille et vérifie que la ligne de l'énoncé n'en a pas. Un second
-contrôle, asynchrone (`sommeProduitRedigee`, chaîné après les fractions
-irréductibles), joue la rédigée sous un modèle stubbé qui se trompe : la
-copie juste vaut le point, la soustraction aussi, l'erreur de priorité est
-refusée sur son égalité fausse même quand le modèle l'acceptait, le résultat
-non simplifié est refusé, sans l'étape du même dénominateur le modèle décide,
-la feuille intacte n'appelle rien, le soutien rouvre la feuille, la reprise ne
-montre que la rédaction, la guidée suivante referme la zone. Le banc
+de la grille et vérifie que la ligne de l'énoncé n'en a pas. Le contrôle des
+rédigées (`fractionsRedigees`) juge une soustraction rédigée juste, refuse
+6/4 + 3/4 = 9/4 et la soustraction faite avant la multiplication, et relit
+l'énoncé, le LaTeX, la règle et le contexte de la soustraction. Le banc
 navigateur (« 6 terdecies bis », ③) MESURE la grille : chaque « = » est le
 premier morceau de sa ligne, les centres des premiers termes, des signes et
 des seconds termes tombent sur la même verticale à 2 px près, huit lignes,
 rien ne déborde ; puis il tape la copie au clavier, ouvre la rédigée, y écrit
-une soustraction juste et referme la zone.
+une soustraction juste, referme la zone, et rejoue la reprise sur une
+rédigée.
