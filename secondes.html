@@ -3600,6 +3600,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   .mast:has(> .hw-bascule) > div:not(.logo):not(.spacer){flex:1 1 180px;min-width:0}
   @media (max-width:480px){ body.halloween .mast h1::after{content:none} }
   @media print{ body.halloween{background:#fff} body.halloween::before,.hw-ciel,.hw-bascule{display:none} }
+  /* Les SERPENTS D'HALLOWEEN du sous-thème « Input » (6.3) : un <figure>
+     posé à côté du dessin de la fiche, caché hors décor, montré sous
+     body.halloween ; le cadre du dessin passe alors à la ligne quand les
+     deux ne tiennent pas côte à côte (téléphone). Les yeux rouges du vampire
+     et du diable battent — la règle prefers-reduced-motion du haut les fige. */
+  .hw-serpent{display:none;margin:0;max-width:100%}
+  body.halloween .hw-serpent{display:flex;justify-content:center;align-items:center}
+  .hw-serpent .hw-svg{width:250px;max-width:100%;height:auto;font-family:inherit}
+  body.halloween .pyn-fig,body.halloween .pyi-fig,body.halloween .pii-fig,body.halloween .pia-fig,body.halloween .pis-fig,body.halloween .pmy-fig,body.halloween .prc-fig,body.halloween .pkg-fig{flex-wrap:wrap;align-items:center;gap:6px 18px}
+  @keyframes hw-oeil{0%,100%{opacity:.35}50%{opacity:1}}
+  body.halloween .hw-svg .hw-lueur{animation:hw-oeil 1.4s ease-in-out infinite}
+  @media print{ .hw-serpent{display:none} }
 </style>
 </head>
 
@@ -6604,7 +6616,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=478;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=479;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -10371,6 +10383,125 @@ function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (tes
    le banc navigateur exige, sur chaque exercice du thème, qu'il soit rempli et
    posé AU-DESSUS de l'énoncé. */
 function pyAvant(k, html){ const el=$(k+'Avant'); if(el) el.innerHTML=html||''; }
+/* ===== LES SERPENTS D'HALLOWEEN DU SOUS-THÈME « INPUT » (6.3) =====
+   Demande de Turquet, octobre 2026 : « mettre dans les algo de seconde, pour
+   le sous-thème input, des serpents comme ceux des exercices d'algo, en
+   rapport avec Halloween ; ils peuvent faire peur ». Neuf serpents dessinés
+   en SVG (sorcier, vampire, fantôme, citrouille, momie, squelette, zombie,
+   araignée, diable), chacun avec une bulle qui parle de SON exercice. Ils
+   se posent À CÔTÉ du dessin de la fiche — jamais à sa place : la fiche est
+   le dessin de Turquet, et ses contrôles la tiennent — et ne s'AFFICHENT
+   que sous body.halloween (la feuille de styles les cache sinon) : ils
+   suivent le décor et son bouton 🎃, pas la date. Un exercice ajouté au
+   sous-thème 6.3 doit gagner son entrée ici : le banc l'exige. */
+const HW_SERPENTS={
+  'python-input-reponse':  { v:'sorciere',   bulle:['Ton prénom, pour','mon grimoire !'],      alt:'un serpent sorcier, chapeau pointu et balai, dit : « Ton prénom… pour mon grimoire ! »' },
+  'python-input':          { v:'vampire',    bulle:['Deux questions,','ou je te mords !'],      alt:'un serpent vampire, cape et crocs, les yeux rouges, dit : « Deux questions, ou je te mords ! »' },
+  'python-input-int':      { v:'fantome',    bulle:['Quel âge as-tu ?','Moi : 666 ans.','BOUH !'], alt:'un serpent déguisé en fantôme, sous un drap blanc, dit : « Quel âge as-tu ? Moi : 666 ans. BOUH ! »' },
+  'python-input-calcul':   { v:'citrouille', bulle:['Un nombre entier','avant minuit…'],       alt:'un serpent à côté d’une citrouille sculptée, qui dit : « Un nombre entier, avant minuit… »' },
+  'python-input-float':    { v:'momie',      bulle:['Ma taille ?','1.75 m… sans','les bandelettes.'], alt:'un serpent momie, enroulé de bandelettes, dit : « Ma taille ? 1.75 m… sans les bandelettes. »' },
+  'python-input-somme':    { v:'squelette',  bulle:['Additionne','mes os :','2.5 + 3.5…'],         alt:'un squelette de serpent, crâne et côtes, dit : « Additionne mes os : 2.5 + 3.5… »' },
+  'python-input-moyenne':  { v:'zombie',     bulle:['La moyenne de','mes deux','cerveaux ?'],      alt:'un serpent zombie, un œil pendant et des points de suture, dit : « La moyenne de mes deux cerveaux ? »' },
+  'python-input-rectangle':{ v:'araignee',   bulle:['L’araignée veut','l’aire de','sa toile !'],   alt:'un serpent effrayé par une araignée qui descend de sa toile ; il dit : « L’araignée veut l’aire de sa toile ! »' },
+  'python-input-prix':     { v:'diable',     bulle:['Pommes, tomates…','à prix d’enfer !'],    alt:'un serpent diable, cornes rouges et fourche, dit : « Pommes et tomates… à prix d’enfer ! »' }
+};
+function hwSerpentSVG(v, bulle){
+  /* le corps : une seule courbe, tracée trois fois (contour, vert, ventre) ; la tête au bout, regard vers la bulle */
+  const P='M18 192 C 10 212, 62 214, 80 196 C 98 178, 60 160, 48 172 C 36 184, 60 198, 100 194 C 146 190, 150 164, 126 146 C 104 130, 88 112, 98 92';
+  const corps=(vert,contour,ventre)=>'<path d="'+P+'" fill="none" stroke="'+contour+'" stroke-width="30" stroke-linecap="round"/>'
+    +'<path d="'+P+'" fill="none" stroke="'+vert+'" stroke-width="24" stroke-linecap="round"/>'
+    +(ventre?'<path d="'+P+'" fill="none" stroke="'+ventre+'" stroke-width="8" stroke-linecap="round" opacity=".9"/>':'');
+  const taches=(c)=>'<g fill="'+c+'"><ellipse cx="40" cy="203" rx="5" ry="3.5"/><ellipse cx="66" cy="178" rx="4" ry="3"/><ellipse cx="86" cy="196" rx="5" ry="3.5"/><ellipse cx="132" cy="178" rx="5" ry="3.5"/><ellipse cx="120" cy="140" rx="4" ry="3"/><ellipse cx="98" cy="112" rx="4" ry="3"/></g>';
+  const tete=(vert,contour)=>'<ellipse cx="104" cy="86" rx="27" ry="20" fill="'+vert+'" stroke="'+contour+'" stroke-width="3"/>';
+  const yeux=(pupille,iris)=>'<g><circle cx="94" cy="76" r="8" fill="#fff" stroke="#2a2a2a" stroke-width="1.5"/><circle cx="114" cy="76" r="8" fill="#fff" stroke="#2a2a2a" stroke-width="1.5"/>'
+    +'<circle cx="96" cy="77" r="3.6" fill="'+pupille+'"/><circle cx="116" cy="77" r="3.6" fill="'+pupille+'"/>'
+    +(iris?'<circle class="hw-lueur" cx="96" cy="77" r="6" fill="none" stroke="'+iris+'" stroke-width="2" opacity=".8"/><circle class="hw-lueur" cx="116" cy="77" r="6" fill="none" stroke="'+iris+'" stroke-width="2" opacity=".8"/>':'')+'</g>';
+  const bouche='<path d="M106 94 Q118 100 128 92" fill="none" stroke="#2a2a2a" stroke-width="2" stroke-linecap="round"/>';
+  const langue='<path d="M131 88 L146 84 M142 85 L148 80 M142 85 L149 88" fill="none" stroke="#D63447" stroke-width="2.5" stroke-linecap="round"/>';
+  const V='#64B445', C='#2F5E1E', B='#E9EFAE';
+  let fond='', dessus='', serpent;
+  const normal=()=>corps(V,C,B)+taches(C)+tete(V,C)+yeux('#111')+bouche+langue;
+  switch(v){
+    case 'sorciere':
+      fond='<path d="M14 96 L58 182" stroke="#8B5A2B" stroke-width="5" stroke-linecap="round"/><path d="M50 170 L74 208 L36 200 Z" fill="#E0B23A" stroke="#9A7420" stroke-width="2" stroke-linejoin="round"/><path d="M46 176 L50 200 M56 182 L66 204" stroke="#9A7420" stroke-width="1.5"/>';
+      serpent=normal();
+      dessus='<path d="M74 70 C 86 48, 94 40, 100 14 C 112 30, 108 44, 134 70 Z" fill="#1d1230"/><ellipse cx="104" cy="70" rx="40" ry="7" fill="#1d1230"/><path d="M84 62 L124 62 L128 70 L80 70 Z" fill="#7B3FC4"/><rect x="100" y="60" width="9" height="11" rx="1.5" fill="#F2C94C" stroke="#7a5a00" stroke-width="1"/>'
+        +'<text x="30" y="40" font-size="16" fill="#F2C94C">✦</text><text x="150" y="110" font-size="12" fill="#F2C94C">✦</text>';
+      break;
+    case 'vampire':
+      fond='<path d="M54 96 C 30 130, 28 178, 60 206 L 150 206 C 182 178, 178 130, 154 96 Z" fill="#1d1230"/><path d="M66 100 C 48 132, 50 172, 74 200 L 136 200 C 160 172, 160 132, 142 100 Z" fill="#A4161A"/>'
+        +'<path d="M58 100 L 78 58 L 98 96 Z M150 100 L 130 58 L 110 96 Z" fill="#1d1230"/>'
+        +'<path d="M186 40 c6 8 14 8 20 0 c-2 8 -8 10 -10 16 c-2 -6 -8 -8 -10 -16 z" fill="#1d1230"/>';
+      serpent=corps(V,C,B)+taches(C)+tete(V,C)+'<path d="M82 74 Q104 56 126 74 Q104 68 82 74 Z" fill="#1d1230"/>'+yeux('#C1121F','#FF4D4D')+bouche
+        +'<path d="M110 96 l3 11 l3 -10 z M120 96 l3 10 l3 -10 z" fill="#fff" stroke="#333" stroke-width=".7"/>';
+      dessus='';
+      break;
+    case 'fantome':
+      serpent=corps(V,C,B)+taches(C);
+      dessus='<path d="M62 100 C 62 44, 146 44, 146 100 L 146 154 L 132 144 L 118 156 L 104 144 L 90 156 L 76 144 L 62 154 Z" fill="#F8F7F0" stroke="#9A97A8" stroke-width="2"/>'
+        +'<ellipse cx="90" cy="82" rx="8" ry="11" fill="#111"/><ellipse cx="118" cy="82" rx="8" ry="11" fill="#111"/><circle cx="92" cy="84" r="3.5" fill="#fff"/><circle cx="120" cy="84" r="3.5" fill="#fff"/>'
+        +'<ellipse cx="104" cy="110" rx="7" ry="10" fill="#111"/>'
+        +'<path d="M104 120 L108 138 M106 132 L112 136 M106 132 L104 140" fill="none" stroke="#D63447" stroke-width="2.5" stroke-linecap="round"/>';
+      break;
+    case 'citrouille':
+      fond='<ellipse cx="190" cy="176" rx="44" ry="34" fill="#F07A1A" stroke="#C25A0A" stroke-width="3"/><path d="M168 146 C 160 170, 160 190, 170 206 M190 142 L190 210 M212 146 C 220 170, 220 190, 210 206" fill="none" stroke="#C25A0A" stroke-width="2.5"/>'
+        +'<path d="M188 146 C 186 134, 190 126, 198 124 L 202 132 C 196 132, 194 138, 194 146 Z" fill="#3E7D2A"/>'
+        +'<path d="M166 170 L 182 158 L 184 174 Z M214 170 L 198 158 L 196 174 Z" fill="#FFE26B"/><path d="M164 186 L 174 180 L 180 190 L 188 180 L 196 190 L 204 180 L 212 188 L 206 200 L 196 194 L 188 202 L 178 194 L 170 200 Z" fill="#FFE26B"/>';
+      serpent=normal();
+      break;
+    case 'momie':
+      serpent=corps('#D9D2B4','#7A7360','')+'<path d="'+P+'" fill="none" stroke="#F1EBD2" stroke-width="24" stroke-linecap="butt" stroke-dasharray="7 6"/>'
+        +tete('#D9D2B4','#7A7360')+'<g fill="#F1EBD2" stroke="#9c9478" stroke-width="1"><path d="M76 72 L134 66 L134 74 L76 80 Z"/><path d="M76 86 L132 92 L132 100 L76 94 Z"/><path d="M80 100 L128 104 L126 108 L80 106 Z"/></g>'
+        +'<circle cx="96" cy="80" r="8" fill="#fff" stroke="#2a2a2a" stroke-width="1.5"/><circle cx="98" cy="81" r="3.6" fill="#111"/>'
+        +'<path d="M131 90 L146 86 M142 87 L148 82 M142 87 L149 90" fill="none" stroke="#D63447" stroke-width="2.5" stroke-linecap="round"/>'
+        +'<path d="M30 190 C 20 200, 10 196, 6 206" fill="none" stroke="#F1EBD2" stroke-width="5" stroke-linecap="round"/>';
+      break;
+    case 'squelette':
+      serpent='<path d="'+P+'" fill="none" stroke="#8A8474" stroke-width="28" stroke-linecap="butt" stroke-dasharray="6 6"/><path d="'+P+'" fill="none" stroke="#F4F1E8" stroke-width="24" stroke-linecap="butt" stroke-dasharray="4 8" stroke-dashoffset="-1"/>'
+        +'<path d="'+P+'" fill="none" stroke="#8A8474" stroke-width="9" stroke-linecap="round"/><path d="'+P+'" fill="none" stroke="#F4F1E8" stroke-width="6" stroke-linecap="round"/>'
+        +'<ellipse cx="104" cy="86" rx="27" ry="21" fill="#F4F1E8" stroke="#8A8474" stroke-width="2.5"/>'
+        +'<ellipse cx="94" cy="80" rx="8" ry="9" fill="#111"/><ellipse cx="116" cy="80" rx="8" ry="9" fill="#111"/><path d="M104 90 l-4 8 h8 z" fill="#111"/>'
+        +'<path d="M86 100 L124 100 M92 100 v6 M100 100 v7 M108 100 v7 M116 100 v6" fill="none" stroke="#333" stroke-width="1.5"/>'
+        +'<path d="M131 92 L146 88 M142 89 L148 84 M142 89 L149 92" fill="none" stroke="#D63447" stroke-width="2.5" stroke-linecap="round"/>';
+      break;
+    case 'zombie':
+      serpent=corps('#8FA86A','#3F4F2C','#C9CFA0')+taches('#55663A')+'<path d="M58 170 l8 8 M62 166 l-4 4 M66 176 l-4 4 M118 140 l8 8 M122 136 l-4 4 M126 146 l-4 4" stroke="#2a2a2a" stroke-width="1.8" stroke-linecap="round"/>'
+        +tete('#8FA86A','#3F4F2C')+'<path d="M80 92 l10 -6 M83 86 l3 6 M88 84 l3 6" stroke="#2a2a2a" stroke-width="1.8" stroke-linecap="round"/>'
+        +'<circle cx="94" cy="76" r="8" fill="#fff" stroke="#2a2a2a" stroke-width="1.5"/><circle cx="96" cy="77" r="3.6" fill="#111"/>'
+        +'<circle cx="114" cy="76" r="5" fill="#2a2a2a"/><path d="M114 80 C 116 92, 122 98, 124 110" fill="none" stroke="#B3392D" stroke-width="2"/><circle cx="124" cy="114" r="7.5" fill="#fff" stroke="#2a2a2a" stroke-width="1.5"/><circle cx="125" cy="115" r="3.4" fill="#111"/>'
+        +'<path d="M106 94 Q116 102 128 94" fill="none" stroke="#5B2A86" stroke-width="2.5" stroke-linecap="round"/><path d="M118 98 q2 8 0 12" stroke="#A3D977" stroke-width="2.5" stroke-linecap="round"/>';
+      break;
+    case 'araignee':
+      fond='<path d="M0 0 L60 0 M0 0 L0 60 M0 0 L44 44 M0 0 L22 58 M0 0 L58 22 M10 36 Q18 24 36 10 M20 52 Q30 36 52 20" fill="none" stroke="#a99bb8" stroke-width="1.2"/>'
+        +'<path d="M160 0 V 70" stroke="#555" stroke-width="1.5"/>';
+      serpent=corps(V,C,B)+taches(C)+tete(V,C)
+        +'<circle cx="94" cy="74" r="10" fill="#fff" stroke="#2a2a2a" stroke-width="1.5"/><circle cx="114" cy="74" r="10" fill="#fff" stroke="#2a2a2a" stroke-width="1.5"/><circle cx="97" cy="75" r="4" fill="#111"/><circle cx="117" cy="75" r="4" fill="#111"/>'
+        +'<ellipse cx="116" cy="96" rx="6" ry="7" fill="#2a2a2a"/>'
+        +'<path d="M86 60 l-8 -5 M122 60 l8 -5" stroke="#2a2a2a" stroke-width="2.5" stroke-linecap="round"/>';
+      dessus='<g stroke="#222" stroke-width="2" stroke-linecap="round" fill="none"><path d="M152 78 l-14 -8 M152 82 l-16 2 M152 86 l-14 10 M168 78 l14 -8 M168 82 l16 2 M168 86 l14 10"/></g>'
+        +'<circle cx="160" cy="70" r="6" fill="#222"/><circle cx="160" cy="84" r="10" fill="#222"/><circle cx="157" cy="68" r="1.6" fill="#FF3B3B"/><circle cx="163" cy="68" r="1.6" fill="#FF3B3B"/>';
+      break;
+    case 'diable':
+      fond='<path d="M170 110 V 200" stroke="#5a2a0a" stroke-width="4" stroke-linecap="round"/><path d="M156 112 V 96 Q156 90 162 90 V 112 M170 108 V 86 M184 112 V 96 Q184 90 178 90 V 112 M156 112 H 184" fill="none" stroke="#B3392D" stroke-width="4" stroke-linecap="round"/><path d="M160 90 l2 -8 M170 86 l0 -8 M180 90 l-2 -8" stroke="#B3392D" stroke-width="3" stroke-linecap="round"/>'
+        +'<path d="M200 206 C 196 190, 206 184, 204 170 C 214 182, 218 196, 212 206 Z M222 206 C 218 196, 226 190, 224 180 C 232 190, 234 200, 228 206 Z" fill="#F07A1A"/><path d="M204 206 C 202 196, 208 192, 206 184 C 212 192, 212 200, 208 206 Z" fill="#FFE26B"/>';
+      serpent=corps(V,C,B)+taches(C)+'<path d="M22 196 L 0 180 L 6 208 Z" fill="#B3392D" stroke="#7a1f14" stroke-width="1.5" stroke-linejoin="round"/>'+tete(V,C)+yeux('#C1121F','#FF4D4D')
+        +'<path d="M106 94 Q118 102 130 92" fill="none" stroke="#2a2a2a" stroke-width="2" stroke-linecap="round"/>'+langue
+        +'<path d="M84 70 C 78 58, 80 50, 84 44 C 90 52, 92 60, 90 68 Z M124 70 C 130 58, 128 50, 124 44 C 118 52, 116 60, 118 68 Z" fill="#B3392D" stroke="#7a1f14" stroke-width="1.5"/>';
+      break;
+    default: serpent=normal();
+  }
+  /* La bulle : deux ou trois lignes COURTES (16 caractères au plus), centrées
+     dans un cadre large — la police de la page n'est pas sûre (Nunito, ou le
+     repli du système : sur le serveur de la CI, un repli plus large a fait
+     déborder trois bulles écrites en lignes de vingt caractères). */
+  const n=bulle.length, lignes=bulle.map((l,i)=>'<text class="hw-bulle-texte" x="195" y="'+(40+(i-(n-1)/2)*14)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#1d1230">'+l+'</text>').join('');
+  const bulleSVG='<path class="hw-bulle" d="M128 6 H 262 Q 268 6 268 12 V 60 Q 268 66 262 66 H 158 L 140 80 L 146 66 H 128 Q 122 66 122 60 V 12 Q 122 6 128 6 Z" fill="#fff" stroke="#2a2a2a" stroke-width="2" stroke-linejoin="round"/>'+lignes;
+  return '<svg class="hw-svg" viewBox="0 0 272 216" width="272" height="216" aria-hidden="true" focusable="false">'+fond+serpent+dessus+bulleSVG+'</svg>';
+}
+function hwSerpentHTML(id){
+  const s=HW_SERPENTS[id]; if(!s) return '';
+  return '<figure class="hw-serpent" data-hw="'+s.v+'" role="img" aria-label="'+s.alt+'">'+hwSerpentSVG(s.v, s.bulle)+'</figure>';
+}
 function pyRappelAvantHTML(k){
   const r=RAPPELS_ID[currentTestId] || RAPPELS[k];
   return (test && test.idx===0 && r) ? '<div class="py-rappel">'+rapMaths(numeros(r))+'</div>' : '';
@@ -33521,7 +33652,7 @@ function pyiEnonceHTML(q){
    octobre 2026), le motif de PII_IMG. Décoratif, sans texte : alt vide. Au
    PREMIER écran seulement, au-dessus de la définition d'input. */
 const PYI_IMG='dessins/secondes/python-input.webp';
-function pyiFigHTML(){ return '<div class="pyi-fig"><img class="pyi-img" src="'+PYI_IMG+'" alt="" width="240" height="234"></div>'; }
+function pyiFigHTML(){ return '<div class="pyi-fig"><img class="pyi-img" src="'+PYI_IMG+'" alt="" width="240" height="234">'+hwSerpentHTML('python-input')+'</div>'; }
 function pyiCoursHTML(){
   return '<div class="pyp-regle pyi-cours"><b><code>input("…")</code> pose une question</b> : Python affiche le texte entre guillemets, ATTEND que l’utilisateur tape sa réponse et appuie sur Entrée, puis range cette réponse dans la variable à gauche du <code>=</code>.'
     +'<span class="pyp-ex"><code>ville = input("Ville ? ")</code> — si l’on répond Paris, la variable <code>ville</code> contient le texte <code>Paris</code>.</span></div>';
@@ -33830,7 +33961,7 @@ function piaDiag(src, q){
 /* ---- 2. L'écran ---- */
 /* L'énoncé du carnet, à puces — écrit par le rendu, depuis la question. */
 function piaFigureHTML(){
-  return '<div class="pia-fig"><img class="pia-img" src="'+PIA_IMG+'" alt="un serpent, un bandeau sur la tête, concentré devant son ordinateur" width="367" height="278"></div>';
+  return '<div class="pia-fig"><img class="pia-img" src="'+PIA_IMG+'" alt="un serpent, un bandeau sur la tête, concentré devant son ordinateur" width="367" height="278">'+hwSerpentHTML('python-input-calcul')+'</div>';
 }
 function piaEnonceHTML(q){
   const S=piaSit(q);
@@ -34139,7 +34270,7 @@ function pmyDiag(src, q){
    fichier de dessins/secondes/ comme PKG_IMG et PDU_IMG (octobre 2026). */
 const PMY_IMG='dessins/secondes/python-input-moyenne.webp';
 function pmyDessinHTML(){
-  return '<div class="pmy-fig"><img class="pmy-img" src="'+PMY_IMG+'" alt="deux serpents ; l’un demande : « Comment ça va ? », l’autre répond : « C’est variable ! »" width="348" height="279"></div>';
+  return '<div class="pmy-fig"><img class="pmy-img" src="'+PMY_IMG+'" alt="deux serpents ; l’un demande : « Comment ça va ? », l’autre répond : « C’est variable ! »" width="348" height="279">'+hwSerpentHTML('python-input-moyenne')+'</div>';
 }
 /* L'énoncé du carnet, à puces — écrit par le rendu, depuis la question. */
 function pmyEnonceHTML(q){
@@ -35343,7 +35474,7 @@ function prcDiag(src, q){
 const PRC_IMG='dessins/secondes/python-input-rectangle.webp';
 function prcFigureHTML(){
   return '<figure class="prc-fig" aria-label="un serpent qui s’interroge devant un rectangle, sa longueur et sa largeur">'
-    +'<img class="prc-img" src="'+PRC_IMG+'" alt="un serpent qui s’interroge devant un rectangle : « Longueur » au-dessus, « Largeur » sur le côté" width="449" height="275"></figure>';
+    +'<img class="prc-img" src="'+PRC_IMG+'" alt="un serpent qui s’interroge devant un rectangle : « Longueur » au-dessus, « Largeur » sur le côté" width="449" height="275">'+hwSerpentHTML('python-input-rectangle')+'</figure>';
 }
 /* L'énoncé du carnet, à puces — écrit par le rendu, depuis la question. */
 function prcEnonceHTML(q){
@@ -38361,7 +38492,7 @@ function pisDiag(src, q){
 /* ---- 2. L'écran ---- */
 /* Le dessin de la fiche, au-dessus de l'énoncé — à chaque question, comme les autres fiches du sous-thème. */
 function pisDessinHTML(){
-  return '<div class="pis-fig"><img class="pis-img" src="'+PIS_IMG+'" alt="un serpent qui lève les bras, tout content, sous des feux d’artifice" width="274" height="376"></div>';
+  return '<div class="pis-fig"><img class="pis-img" src="'+PIS_IMG+'" alt="un serpent qui lève les bras, tout content, sous des feux d’artifice" width="274" height="376">'+hwSerpentHTML('python-input-somme')+'</div>';
 }
 /* L'énoncé du carnet, à puces — écrit par le rendu, depuis la question. */
 function pisEnonceHTML(q){
@@ -38651,7 +38782,7 @@ function pkgDiag(src, q){
 function pkgEtiquetteHTML(q){
   const S=pkgSit(q);
   return '<div class="pkg-fig"><img class="pkg-img" src="'+PKG_IMG+'" alt="un serpent qui porte un panier de pommes et de tomates" width="226" height="248">'
-    +'<div class="pkg-prix"><p>1 kg de pomme <br>= '+pkgEuro(S.pa)+'&nbsp;€</p><p>1 kg de tomate <br>= '+pkgEuro(S.pt)+'&nbsp;€</p></div></div>';
+    +'<div class="pkg-prix"><p>1 kg de pomme <br>= '+pkgEuro(S.pa)+'&nbsp;€</p><p>1 kg de tomate <br>= '+pkgEuro(S.pt)+'&nbsp;€</p></div>'+hwSerpentHTML('python-input-prix')+'</div>';
 }
 /* L'énoncé du carnet, à puces, mot pour mot. */
 function pkgEnonceHTML(){
@@ -44892,7 +45023,7 @@ function renderPYN(){
   $('pynLiveScore').textContent=test.score;
   $('pynFeedback').textContent=''; $('pynFeedback').className='mp-feedback';
   const etapes=['a','b','c'], k=etapes.indexOf(q.etape);
-  $('pynFig').innerHTML=test.idx===0?pynEtiquetteHTML():'';
+  $('pynFig').innerHTML=test.idx===0?pynEtiquetteHTML()+hwSerpentHTML('python-input-reponse'):'';
   pyAvant('pyn', test.idx===0?pynCoursHTML():'');
   let h='<div class="py-cell">'
     +pynEtapeHTML(q, 'a', pynProgHTML([pynLigneInput(q)])
@@ -48569,8 +48700,8 @@ function piiJuge(q, type, ligne, v){
    qui partage ce moteur (q.f) mais pas cette fiche. */
 const PII_IMG='dessins/secondes/python-input-int.webp';
 function piiFigHTML(q){
-  if(q&&q.f) return '<div class="pii-fig"><img class="pii-img pif-img" src="'+PIF_IMG+'" alt="deux serpents ; l’un demande : « Quelle est ta taille ? » ; l’autre répond : « T’en n’as pas marre de poser des questions. », une boîte « taille » à côté de lui" width="297" height="277"></div>';
-  return '<div class="pii-fig"><img class="pii-img" src="'+PII_IMG+'" alt="deux serpents ; l’un demande : « Quel est ton âge ? » ; l’autre répond : « Je mets ma réponse dans la variable age. », à côté d’une boîte marquée age" width="409" height="267"></div>';
+  if(q&&q.f) return '<div class="pii-fig"><img class="pii-img pif-img" src="'+PIF_IMG+'" alt="deux serpents ; l’un demande : « Quelle est ta taille ? » ; l’autre répond : « T’en n’as pas marre de poser des questions. », une boîte « taille » à côté de lui" width="297" height="277">'+hwSerpentHTML('python-input-float')+'</div>';
+  return '<div class="pii-fig"><img class="pii-img" src="'+PII_IMG+'" alt="deux serpents ; l’un demande : « Quel est ton âge ? » ; l’autre répond : « Je mets ma réponse dans la variable age. », à côté d’une boîte marquée age" width="409" height="267">'+hwSerpentHTML('python-input-int')+'</div>';
 }
 function piiDefHTML(q){
   if(q&&q.f) return '<div class="pii-def"><p class="pii-def-t">⚠ Définition</p>'

@@ -3592,6 +3592,14 @@ montre plus le cours — l'élève l'a lu à la question 1, et le bouton d'aide
 garde le rappel. Contrôle : le banc principal ({python-input-float}) rend la
 question 2 et exige qu'aucune définition n'y figure.
 
+**Puis les neuf exercices du 6.3 ont reçu un SERPENT D'HALLOWEEN** (demande
+de Turquet, octobre 2026, v479), posé à côté du dessin de leur fiche, dessiné
+en SVG par la page et visible sous le décor seulement. La chronique entière
+— les déguisements, la bulle de chacun, le choix « à côté, jamais à la
+place », le suivi du décor plutôt que de la date, et les deux bancs qui les
+tiennent — est avec le décor d'Halloween dans
+`docs/journal/11-aides-et-interface.md` (« Puis les SERPENTS D'HALLOWEEN »).
+
 **Puis le 6.3.3 a montré ce qui restait** (« en seconde dans le 6.3.3 il
 fallait supprimer les textes comme sur le pdf joint », octobre 2026). Le
 passage précédent avait déclaré la définition `pii-def` « pas touchée » ; le
