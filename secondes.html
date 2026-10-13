@@ -9403,12 +9403,15 @@ const RAP_ASX=`<b>Des nombres aux lettres</b><br>
 <b>Avec une lettre, c'est pareil</b> : la lettre <i>x</i> représente un nombre, et ces règles valent pour TOUS les nombres. Donc <i>x</i>² = <i>x</i> × <i>x</i> ; 2<i>x</i> = <i>x</i> + <i>x</i> ; \\(\\frac{x}{x}\\) = 1 (si <i>x</i> ≠ 0) ; <i>x</i> − <i>x</i> = 0.`;
 /* Le rappel de {vecteurs-egaux} tient en trois lignes : la fiche demandait
    « sans faire de rappel », et c'est l'ÉCRAN qui n'en montre pas — derrière
-   le bouton d'aide, tout exercice en a un. */
+   le bouton d'aide, tout exercice en a un. Les vecteurs s'y écrivent avec la
+   flèche en CSS de l'exercice (.veg-vec), pas en \\(…\\) : le contrôle des
+   rappels attend une FRACTION empilée derrière toute formule, et une formule
+   sans fraction y passerait pour une formule muette. */
 const RAP_VEG=`<b>Vecteurs égaux</b><br>
 Deux vecteurs sont <b>égaux</b> quand ils ont la <b>même direction</b>, le <b>même sens</b> et la <b>même longueur</b>.<br>
-<b>①</b> \\(\\overrightarrow{AB}=\\overrightarrow{CD}\\) revient à dire que <b>ABDC est un parallélogramme</b> — on lit les lettres en tournant autour du parallélogramme : A, B, puis D, puis C (pas ABCD).<br>
-<b>②</b> \\(\\overrightarrow{AB}=\\overrightarrow{BC}\\) revient à dire que <b>B est le milieu de [AC]</b>.<br>
-<b>③</b> \\(\\overrightarrow{AB}=\\overrightarrow{AC}\\) revient à dire que <b>B et C sont confondus</b>.`;
+<b>①</b> <span class="veg-vec">AB</span> = <span class="veg-vec">CD</span> revient à dire que <b>ABDC est un parallélogramme</b> — on lit les lettres en tournant autour du parallélogramme : A, B, puis D, puis C (pas ABCD).<br>
+<b>②</b> <span class="veg-vec">AB</span> = <span class="veg-vec">BC</span> revient à dire que <b>B est le milieu de [AC]</b>.<br>
+<b>③</b> <span class="veg-vec">AB</span> = <span class="veg-vec">AC</span> revient à dire que <b>B et C sont confondus</b>.`;
 
 /* Un rappel par kind ; RAPPELS_ID l'emporte quand deux exercices partagent un
    kind (les deux niveaux d'ensembles passent tous deux par kind 'ens'). */
