@@ -934,6 +934,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   .dl-title{font-family:"Fredoka";font-weight:600;font-size:1.12rem}
   .dm-cell{font-size:.76rem;font-weight:700;padding:2px 9px;border-radius:999px}
   .dm-cell.done{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2}
+  .dm-cell.encours{color:#8a6d12;background:#FCEFD8;border:1px dashed #d9b85c}
   .dm-cell.todo{color:var(--ink-soft);background:#fff;border:1px solid var(--line)}
   .dl-go{font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--blue);align-self:flex-end}
   .dl-list{display:flex;flex-direction:column;gap:14px}
@@ -2860,7 +2861,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=312;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=313;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4747,7 +4748,9 @@ function dmVerrouille(dev, testId){
     if(exos[i].id===testId) return false;      /* lui-même, ou placé avant le premier non-fait */
     if(dmEstBonus(exos[i])) continue;          /* un bonus non fait ne bloque pas la suite */
     const nd=noteDevoirExo(dmBest(dev.id,exos[i].id,'soutien'), dmBest(dev.id,exos[i].id,'train'), exos[i].smax);
-    if(!nd.fait) return true;                  /* un exercice AVANT lui n'est pas fait */
+    /* un brouillon en cours compte pour la note, pas pour l'ordre : tant que
+       l'exercice d'avant n'est pas mené au bout, le suivant reste fermé */
+    if(!nd.termine) return true;               /* un exercice AVANT lui n'est pas terminé */
   }
   return false;
 }
@@ -4757,7 +4760,38 @@ function dmVerrouille(dev, testId){
    toutes, la meilleure l'emporte, comme partout ailleurs dans l'application.
    Les ignorer aurait fait disparaître d'un devoir des notes réellement
    obtenues. */
-function dmBest(did,id,m){ let b=null; (mesResultats||[]).forEach(r=>{ if(!isPaused(r)&&testIdOf(r)===id&&modeOf(r)===m&&r.details&&!Array.isArray(r.details)&&r.details.dm===did){ if(b==null||r.percent>b.percent) b=r; } }); return b; }
+/* UN BROUILLON ÉTIQUETÉ D'UN DEVOIR VAUT UNE NOTE PROVISOIRE (demande de
+   Turquet, octobre 2026 : « en Seconde je n'ai quasiment aucune note pour les
+   fiches de travail alors qu'ils ont travaillé en classe »). Pendant un
+   exercice, la page enregistre un brouillon automatique — la ligne « en
+   pause » — étiqueté du devoir, avec le score en cours. Un élève qui ferme
+   l'onglet à la sonnerie sans « Voir mes résultats » ni « Pause » ne laisse
+   que ce brouillon, et il ne comptait nulle part : quarante minutes de
+   travail, et la fiche disait « — / 20 ». Le brouillon vaut désormais ce que
+   vaut la note partielle posée par le bouton « Pause » — même règle, même
+   barème : rien de validé, pas de note ; sinon le score sur le barème ENTIER.
+   La ligne rendue est une COPIE marquée enCours : la ligne de la base ne
+   bouge pas, et l'écran sait dire « provisoire ». */
+function dmNoteBrouillon(r){
+  const d=r&&r.details;
+  if(!isPaused(r)||!d||!d.dm) return null;
+  const faites=Array.isArray(d.answers)?d.answers.length:0;
+  if(!faites) return null;                                  /* rien de validé : pas de note — la règle de la pause */
+  const total=r.total||0;                             /* le nombre de questions, comme finishTest et la pause de ce niveau */
+  if(!total) return null;
+  const nbQ=Array.isArray(d.questions)?d.questions.length:(r.total||0);
+  return Object.assign({}, r, { percent:Math.min(100,Math.round((r.score||0)/total*100)), enCours:true, faites:faites, nbQ:nbQ });
+}
+/* La ligne qui compte pour UN exercice d'UN devoir dans UN mode : une note
+   terminée telle quelle, un brouillon étiqueté par sa note provisoire, rien
+   sinon. Entonnoir partagé par l'écran de l'élève (dmBest) et le bilan du
+   professeur (dmMeilleur) — deux définitions auraient donné deux notes. */
+function dmCandidat(r, devoirId, exoId, mode){
+  if(testIdOf(r)!==exoId||modeOf(r)!==mode) return null;
+  const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==devoirId) return null;
+  return isPaused(r) ? dmNoteBrouillon(r) : r;
+}
+function dmBest(did,id,m){ let b=null; (mesResultats||[]).forEach(r=>{ const c=dmCandidat(r,did,id,m); if(c&&(b==null||c.percent>b.percent)) b=c; }); return b; }
 function noteDevoirExo(bestSoutien, bestEntrain, smax){
   /* Le plafond du soutien se règle PAR EXERCICE du devoir (demande de Turquet,
      août 2026) : 5/10 par défaut, jusqu'à 10/10. Hors devoir, rien ne passe le
@@ -4766,8 +4800,14 @@ function noteDevoirExo(bestSoutien, bestEntrain, smax){
   const s = bestSoutien ? (bestSoutien.percent/100*plafond) : 0;
   const e = bestEntrain ? (bestEntrain.percent/100*10) : 0;
   const soutienFait = !!bestSoutien;
-  const note = (e > s || !soutienFait) ? e : s;
-  return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain) };
+  const parEntrain = (e > s || !soutienFait);
+  const note = parEntrain ? e : s;
+  /* « termine » : au moins un essai mené au bout (ou mis en pause par le
+     bouton) — c'est lui que lit l'ordre imposé des fiches ; « provisoire » :
+     la note retenue vient d'un brouillon en cours, et l'écran le dit. */
+  const termine = !!(bestSoutien&&!bestSoutien.enCours) || !!(bestEntrain&&!bestEntrain.enCours);
+  const provisoire = parEntrain ? !!(bestEntrain&&bestEntrain.enCours) : !!(bestSoutien&&bestSoutien.enCours);
+  return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain), termine, provisoire };
 }
 function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
 /* LA NOTE D'UN DEVOIR À EXERCICES BONUS (demande de Turquet, août 2026) : un
@@ -4964,7 +5004,7 @@ function renderDevoirDetail(devoirId){
     const verrou=ordreImpose&&bloque&&!bonus;
     if(ordreImpose&&!nd.fait&&!bonus) bloque=true;
     /* la note d'un BONUS s'affiche sur 1 : c'est ce qu'il vaut dans le total */
-    const badge=nd.fait?`<span class="ex-bilan done">${bonus?'Bonus : '+fmtNote(nd.note/10)+' / 1':'Note : '+fmtNote(nd.note)+' / 10'}</span>`
+    const badge=nd.fait?`<span class="ex-bilan done">${bonus?'Bonus : '+fmtNote(nd.note/10)+' / 1':(nd.provisoire?'Note provisoire : ':'Note : ')+fmtNote(nd.note)+' / 10'}</span>`
                        :`<span class="ex-bilan todo">${bonus?'Bonus · à faire':'À faire'}</span>`;
     /* Le devoir peut demander une séance plus longue : la carte le dit, sinon
        l'élève lirait « 10 produits » dans la description et en trouverait 20. */
@@ -19593,15 +19633,6 @@ async function deleteDM(id){
     toast(dmGenre==='fiche'?'Fiche supprimée':'Devoir supprimé','ok'); renderDevoirsAdmin();
   }catch(e){ toast('Suppression impossible','err'); }
 }
-function dmBestFor(rows,eid,did,id,m){
-  let b=null;
-  (rows||[]).forEach(r=>{
-    if(r.eleve_id!==eid||isPaused(r)||testIdOf(r)!==id||modeOf(r)!==m) return;
-    const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==did) return;
-    if(b==null||r.percent>b.percent) b=r;
-  });
-  return b;
-}
 /* ══ ARCHIVER PLUTÔT QUE DÉTRUIRE ══════════════════════════════════════════
    « Je voudrais pouvoir supprimer un devoir sans perdre les notes » (demande
    de Turquet, août 2026). Supprimer n'effaçait déjà AUCUNE ligne de notes — le
@@ -19762,9 +19793,11 @@ async function dmMarquerArchive(id, archive){
 function dmMeilleur(rows, eleveId, devoirId, exoId, mode){
   let b=null;
   (rows||[]).forEach(function(r){
-    if(r.eleve_id!==eleveId||isPaused(r)||testIdOf(r)!==exoId||modeOf(r)!==mode) return;
-    const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==devoirId) return;
-    if(b==null||r.percent>b.percent) b=r;
+    if(r.eleve_id!==eleveId) return;
+    /* un brouillon étiqueté compte par sa note provisoire — dmCandidat, le
+       même entonnoir que l'écran de l'élève */
+    const c=dmCandidat(r, devoirId, exoId, mode); if(!c) return;
+    if(b==null||c.percent>b.percent) b=c;
   });
   return b;
 }
@@ -20006,7 +20039,7 @@ function dmStudentDetail(eid,prenom){
   const rows=dmNoteDevoir(d, eid, dmResRows||[]).exd.map(x=>{
     const px=x.ex, bs=x.bs, be=x.be, nd=x.nd;
     const bonus=dmEstBonus(px);
-    const cells=(px.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const lbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${lbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${lbl} à faire</span>`; }).join(' ');
+    const cells=(px.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const lbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell ${r.enCours?'encours':'done'}">${lbl} ${r.enCours?'en cours · '+r.faites+'/'+r.nbQ+' q · ':''}${r.percent}%</span>`:`<span class="dm-cell todo">${lbl} à faire</span>`; }).join(' ');
     const nb=nd.fait?`<span class="dm-note">${bonus?fmtNote(nd.note/10)+' / 1':fmtNote(nd.note)+' / 10'}</span>`:`<span class="dm-note none">— / ${bonus?'1':'10'}</span>`;
     return `<tr><td class="name">${bonus?'\u2b50 ':''}${esc(testLabel(px.id))}</td><td>${cells}</td><td>${nb}</td></tr>`;
   }).join('');

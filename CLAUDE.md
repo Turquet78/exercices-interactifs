@@ -225,6 +225,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Un élève connecté dans un autre onglet CHASSE la session du professeur, et la base répond 42501.**
 - **L'écran du bilan ne bouge plus quand le professeur pose une note.**
 - **Et la note du DEVOIR ENTIER est une note, elle aussi.**
+- **Un brouillon étiqueté d'un devoir vaut une NOTE PROVISOIRE — et le bilan le dit « en cours ».** Un exercice fermé à la sonnerie sans « Voir mes résultats » ne laissait que son brouillon, compté nulle part.
 
 ### Aides, rappels, mise en page et navigation
 
