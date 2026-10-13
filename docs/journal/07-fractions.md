@@ -1838,3 +1838,8 @@ des couleurs (sans quoi la dispense ne dispense de rien), et le témoin hors
 thème sur l'écran partagé — le 1.9 — garde ses nombres en couleur : le noir ne
 déborde pas du thème. Le noir se mesure, il ne se devine pas : les trois
 canaux sous 24, ce qui refuse `--ink` (30, 42, 74) comme le bleu nuit.
+Éprouvé par sabotage des deux côtés, en une seule exécution : la règle du
+fond de `.f-fbar` retirée (32 écarts, chaque trait de la rangée nommé « en
+rgb(30, 42, 74) au lieu de noir », du 4.1 au 4.6, à l'ouverture comme après
+la vérification) et un sélecteur trop large qui noircissait `#scr-sf` entier
+(« 1.9 : 0 nombre(s) en couleur sur 18 »).
