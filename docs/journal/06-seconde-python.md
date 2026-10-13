@@ -5364,7 +5364,7 @@ tenu aux consignes, ce qui part au modèle, le trajet a) → b) → c) et la not
 comparés à un vrai CPython. Pas de section propre au banc navigateur : la
 visite universelle (section 9) l'ouvre dans les deux modes.
 
-**Puis tout l'exercice sur une seule page** (APP_VERSION 468, demande de
+**Puis tout l'exercice sur une seule page** (APP_VERSION 469 — la 468 prise sur `main` par {python-for-images-entiers} pendant les bancs —, demande de
 Turquet, octobre 2026 : « en seconde dans le 6.6.7, faire tout l'exercice sur
 une seule page ») : a), b) et c) sont à l'écran dès l'ouverture, comme sur la
 fiche, et UN SEUL « Vérifier » corrige le b) et le c) ensemble. Les portes ont
