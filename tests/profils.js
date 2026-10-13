@@ -52,7 +52,8 @@ const RAPPELS_PREMIERE = `(function(){
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
     'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd','synthese-evolutions-successives':'ess',
     'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf','tableau-probabilites':'pb','lire-probabilites':'pb','probabilites-fiche':'pb','probabilites-ecriture':'pb','revision-fractions':'rvf',
-    'croiser-denominateurs':'sf','somme-fractions-2':'sf','multiplier-fractions':'mlt','diviser-fractions':'mlt' };
+    'croiser-denominateurs':'sf','somme-fractions-2':'sf','multiplier-fractions':'mlt','diviser-fractions':'mlt',
+    'somme-produit-fractions':'spf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     /* un exercice peut avoir SON rappel, indépendant du kind : deux exercices
@@ -232,6 +233,13 @@ module.exports = {
     /* {croiser-denominateurs} (4.2) : les flèches de la Seconde, recopiées —
        le banc navigateur mesure ce que l'élève VOIT. */
     croisement: { exercice: 'croiser-denominateurs' },
+    /* {somme-produit-fractions} (4.6), le 5.12 de la Seconde (octobre 2026) :
+       « les nombres entre 1 et 5 ; dans les fractions intermédiaires les
+       nombres ne dépassent pas 6 et sont positifs ; si on peut simplifier la
+       fraction à la fin, présenter comme au 4.1 ». La borne 6 porte sur le
+       PRODUIT (précisé par Turquet : le croisement la dépasse par
+       construction). FRAC_MAX et SPF_INTER dans la page, ici les bornes. */
+    sommeProduit: { max: 5, inter: 6 },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
        de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
