@@ -17448,6 +17448,50 @@ function vecteursEgauxTableau(w, P){
       figs.forEach(function(f,i){ if(!/<svg/.test(f.html)) vus.push(q.fam+' figure '+i+' : pas de dessin');
         q.L.forEach(function(l){ if(f.html.indexOf('>'+l+'<')<0 && f.html.indexOf('>'+l+' = ')<0 && f.html.indexOf('= '+l+'<')<0) vus.push(q.fam+' figure '+i+' : la lettre '+l+' n\\'est pas écrite'); }); });
       if(new Set(figs.map(function(f){ return f.html; })).size!==3) vus.push(q.fam+' : deux figures identiques');
+      /* Un piège dessiné est faux PAR SES POINTS : avec les mêmes points et une
+         flèche retournée, UKAH restait un parallélogramme et J le milieu de
+         [RA] sous les yeux de l'élève — deux figures « justes » sur trois
+         (Turquet, octobre 2026). Chaque dessin est relu ici : ses points (les
+         cercles), ses lettres (le texte le plus proche de chaque point) et ses
+         flèches (le trait et la pointe) ; la configuration de la ligne doit
+         être vraie sur les points de la bonne figure SEULEMENT, et chaque
+         flèche doit joindre deux points nommés. */
+      const lire=function(html){
+        const pts=[]; let m; const rc=/<circle cx="([\\d.]+)" cy="([\\d.]+)"/g;
+        while((m=rc.exec(html))) pts.push({x:+m[1], y:+m[2], l:''});
+        const rt=/<text x="([\\d.]+)" y="([\\d.]+)"[^>]*>([^<]+)<\\/text>/g;
+        while((m=rt.exec(html))){ const tx=+m[1], ty=+m[2]; let best=null, bd=1e9;
+          pts.forEach(function(p){ const d=Math.hypot(p.x-tx, p.y-ty); if(d<bd){ bd=d; best=p; } });
+          if(best) best.l+=m[3].replace(/[^A-Z]/g,''); }
+        const fl=[]; const rl=/<line x1="([\\d.]+)" y1="([\\d.]+)"/g; const rp=/<polygon points="([\\d.]+),([\\d.]+) /g;
+        const deps=[], tips=[]; while((m=rl.exec(html))) deps.push({x:+m[1], y:+m[2]}); while((m=rp.exec(html))) tips.push({x:+m[1], y:+m[2]});
+        deps.forEach(function(d,i){ if(tips[i]) fl.push({de:d, a:tips[i]}); });
+        const P={}; pts.forEach(function(p){ p.l.split('').forEach(function(l){ P[l]=p; }); });
+        return {pts:pts, P:P, fl:fl};
+      };
+      const pres=function(p,x,y){ return Math.hypot(p.x-x, p.y-y)<1.5; };
+      const A=q.L[0], B=q.L[1], C=q.L[2], D=q.L[3];
+      figs.forEach(function(f,i){
+        const g=lire(f.html);
+        q.L.forEach(function(l){ if(!g.P[l]) vus.push(q.fam+' figure '+i+' : la lettre '+l+' n\\'est posée près d\\'aucun point'); });
+        if(q.L.some(function(l){ return !g.P[l]; })) return;
+        g.fl.forEach(function(v){
+          if(!g.pts.some(function(p){ return pres(p,v.de.x,v.de.y); }) || !g.pts.some(function(p){ return pres(p,v.a.x,v.a.y); }))
+            vus.push(q.fam+' figure '+i+' : une flèche ne joint pas deux points nommés'); });
+        if(g.fl.length<1) vus.push(q.fam+' figure '+i+' : aucune flèche');
+        const pa=g.P[A], pb=g.P[B], pc=g.P[C], pd=g.P[D];
+        const vraie = q.fam==='par' ? pres({x:pb.x-pa.x, y:pb.y-pa.y}, pd.x-pc.x, pd.y-pc.y)   /* AB = CD : ABDC parallélogramme */
+                    : q.fam==='mil' ? pres(pb, (pa.x+pc.x)/2, (pa.y+pc.y)/2)                   /* B milieu de [AC] */
+                    :                 pres(pb, pc.x, pc.y);                                     /* B = C */
+        if(i===0 && !vraie) vus.push(q.fam+' figure 0 : les points ne vérifient pas la configuration');
+        if(i>0 && vraie) vus.push(q.fam+' figure '+i+' : les points du piège vérifient la configuration (un élève y verrait une seconde bonne figure)');
+        if(q.fam==='par' && g.fl.length===2){
+          const ang=function(v){ return Math.atan2(v.a.y-v.de.y, v.a.x-v.de.x); };
+          let d=Math.abs(ang(g.fl[0])-ang(g.fl[1])); if(d>Math.PI) d=2*Math.PI-d;
+          if(i===2 && d<Math.PI/6) vus.push('par figure 2 : les flèches « non parallèles » ne font que '+Math.round(d*180/Math.PI)+'°, l\\'élève y voit un parallélogramme');
+          if(i<2 && d>0.01) vus.push('par figure '+i+' : les deux flèches ne sont pas parallèles');
+        }
+      });
     });
     if(vus.length) return vus.slice(0,4).join(' | ');
     /* ---- 3. la correction, par le BOUTON ---------------------------------- */
