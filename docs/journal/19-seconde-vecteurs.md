@@ -557,7 +557,7 @@ coupe le barème avec elle. Le nœud posé est une `pts-case` (le bloc de la
 consigne b), peint `ok`, `bad` ou `sol`) : la note affichée compte bien
 trois cases, pas deux.
 
-## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v480)
+## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v481)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
 le 8.5, où il faut placer un quatrième point pour avoir une égalité
