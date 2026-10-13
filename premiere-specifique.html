@@ -1600,6 +1600,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
   --fx-l:auto;                     /* une case suit son contenu */
   --fx-res:62px;                   /* la place du badge de correction, à côté d'une case */
   --fx-res-l:52px;
+  --fx-encre:#000;                 /* L'ENCRE de ce que la page écrit : noire (bloc « … ET ELLE EST NOIRE », plus bas) */
 }
 @media (pointer:coarse) and (min-width:600px){ .screen[data-theme="Fractions"]{--tab-nb:.85} }
 @media(max-width:520px){ .screen[data-theme="Fractions"]{--fx-base:1.25rem} }
@@ -1614,6 +1615,40 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 .screen[data-theme="Fractions"] .dexp2-prefix,.screen[data-theme="Fractions"] .dexp2-sheet math-field.dexp-mf{
   font-family:var(--fx-police);font-weight:var(--fx-graisse);font-size:calc(var(--fx-base) * var(--tab-nb,1))}
 .screen[data-theme="Fractions"] math-field.pm-mf{line-height:1.1}
+/* ===== … ET ELLE EST NOIRE (demande de Turquet, octobre 2026 : « pour tous
+   les exercices dans le thème fraction, sauf le 4.2, tous les nombres et les
+   barres de fractions soient écrits en noir dans les énoncés et les exercices,
+   sauf dans les cases »).
+   Avant, quatre encres se croisaient sur le même calcul : les fractions de
+   l'énoncé et de la rangée en bleu nuit (.f-frac, .sf-times : --blue-dark),
+   le « = », les entiers et le trait de fraction dans l'encre de la page
+   (--ink, un bleu sombre), et le signe de l'énoncé en ROUGE — la règle
+   « .mp-instr b » qui souligne les mots importants prenait le « + » avec eux.
+   Désormais tout ce que la PAGE écrit est noir, --fx-encre : les nombres, les
+   signes, les traits de fraction (le fond du trait .f-fbar ; celui de .sf-f
+   est en currentColor et suit le texte), le « = » qui ouvre la feuille rédigée.
+   LES CASES N'EN SONT PAS : ce que l'élève y écrit garde son bleu, et la
+   vérification garde ses couleurs — juste en bleu, faux en rouge, correction
+   en vert (le badge .mf-cor est une correction : il reste vert). Les mots en
+   gras de l'énoncé du 4.1 restent rouges : ce sont des mots, pas des nombres.
+   LE 4.2 EST L'EXCEPTION, NOMMÉE par data-exo (que show() écrit sur l'écran
+   avec data-theme) : ses dénominateurs se colorent en violet et en orange pour
+   dire où va chacun, et l'exercice garde son écriture entière — deux sources,
+   le profil (encreFractions.noir.sauf) et ce sélecteur.
+   Le contrôle (banc navigateur, « 6 terdecies ter ») relit la couleur de
+   chaque nombre, signe et trait qu'il relève, exige le noir partout sauf sur
+   l'exercice dispensé, et tient les deux autres bords : le 4.2 garde ses
+   couleurs, le témoin hors thème sur l'écran partagé garde les siennes. */
+.screen[data-theme="Fractions"]:not([data-exo="croiser-denominateurs"]) .f-frac,
+.screen[data-theme="Fractions"]:not([data-exo="croiser-denominateurs"]) .sf-f,
+.screen[data-theme="Fractions"]:not([data-exo="croiser-denominateurs"]) .f-whole,
+.screen[data-theme="Fractions"]:not([data-exo="croiser-denominateurs"]) .f-eq,
+.screen[data-theme="Fractions"]:not([data-exo="croiser-denominateurs"]) .f-times,
+.screen[data-theme="Fractions"]:not([data-exo="croiser-denominateurs"]) .sf-times,
+.screen[data-theme="Fractions"]:not([data-exo="croiser-denominateurs"]) .spf-op,
+.screen[data-theme="Fractions"]:not([data-exo="croiser-denominateurs"]) .mp-instr .f-frac~b,
+.screen[data-theme="Fractions"]:not([data-exo="croiser-denominateurs"]) .dexp2-prefix{color:var(--fx-encre)}
+.screen[data-theme="Fractions"]:not([data-exo="croiser-denominateurs"]) .f-fbar{background:var(--fx-encre)}
 /* la case : un cadre resserré, large comme son contenu (la mesure du 4.6, octobre
    2026), et de la MÊME hauteur qu'elle soit un champ MathLive ou un <input> (4.1) */
 .screen[data-theme="Fractions"] math-field.pm-mf.f-num,.screen[data-theme="Fractions"] math-field.pm-mf.f-den{width:auto;min-width:40px;height:auto;min-height:var(--fx-case);border-radius:9px;border-width:1.5px;padding:0 2px}
@@ -2907,7 +2942,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=315;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=316;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
