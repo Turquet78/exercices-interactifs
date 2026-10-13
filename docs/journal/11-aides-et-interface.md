@@ -901,3 +901,54 @@ ligne (`.mast:has(> .hw-bascule){flex-wrap:wrap}`, le bloc du titre en
 pour tout décor SAISONNIER : la CI le joue hors saison, donc décor ABSENT — un
 banc à la date du jour ne le voit jamais ; c'est la copie à saison forcée qui
 le mesure.
+
+**Les dessins vivent en FICHIERS, jamais en base64 dans la page.** Jusqu'en
+octobre 2026, chaque dessin d'exercice — le serpent du thème Python, le
+schéma-bilan des ensembles de nombres — était écrit dans `secondes.html` en
+URL `data:`, « pour que la page reste un seul fichier » : trente-trois
+commentaires le disaient, et une trentaine de contrôles l'exigeaient (« jamais
+un chemin de fichier »). À quarante-trois dessins, cela faisait 770 Ko sur
+4,9 Mo — 16 % du fichier —, téléchargés et analysés par chaque élève à chaque
+ouverture, y compris pour un exercice de fractions qui n'en montre aucun ; le
+base64 se compresse mal, et la page pesait 1,76 Mo compressée. Mesurée dans un
+vrai Chromium, réseau coupé, processeur ralenti quatre fois comme une tablette
+d'entrée de gamme, elle mettait 3,2 s à devenir interactive, contre 0,6 s pour
+la Première. Décision de Turquet (« sors les images de la Seconde dans des
+fichiers » ; APP_VERSION 471 → 472) : les dessins vivent dans `dessins/secondes/<identifiant>.webp`
+(le mode d'emploi est dans `dessins/LISEZMOI.md`), référencés par un chemin
+RELATIF — la constante `PXX_IMG` garde son nom et tous ses usages, seule sa
+valeur change —, et un dessin ne part au navigateur que quand son exercice
+s'ouvre. La page passe de 4,94 à 4,17 Mo, et de 1,76 à 1,05 Mo compressée.
+Rien d'autre ne bouge : un chemin relatif se résout contre l'adresse de la
+page, sur GitHub Pages, sur l'aperçu Netlify et en `file://` dans le banc,
+comme les icônes du dossier `icones/` depuis le premier jour ; le service
+worker laisse passer les requêtes d'images sans intermédiaire, et le
+schéma-bilan, seul dessin posé en HTML statique, reste chargé avec la page —
+23 Ko, et un `loading="lazy"` sur un élément caché aurait rendu son
+chargement dépendant du moment où le bilan s'ouvre.
+
+**Quatre bords, et il les faut tous, tenus sur les TROIS niveaux sans rien
+déclarer.** Au banc jsdom (section 1, structure du fichier) : aucune image en
+base64 ne reste dans la page — un exercice ajouté demain avec son dessin en
+`data:` rougit le jour même ; chaque fichier référencé existe dans le dépôt —
+jsdom ne charge pas les images, un fichier manquant ne rougirait nulle part
+ailleurs là ; aucun fichier du dossier n'est orphelin — un dessin qu'aucune
+page ne référence est un poids mort qu'on croit vivant. Au banc navigateur
+(section 9, chaque exercice dans les deux modes, au premier écran et après
+les écrans de départ) : chaque dessin est RÉELLEMENT chargé — `decode()`
+attend l'image et rejette si le fichier manque, `naturalWidth` tranche —,
+parce qu'un fichier manquant ne s'affiche que comme un cadre vide portant son
+`alt`, et que seul un vrai navigateur le voit. Le profil du niveau
+(`dessins`, `tests/profils.js`) déclare le dossier : c'est le bord opposé —
+un niveau qui déclare des dessins doit en offrir au banc, un niveau qui n'en
+déclare pas s'affiche « non applicable » plutôt que d'être tu. Éprouvé avant
+même l'extraction : sur la page encore intacte, le contrôle jsdom a rougi sur
+les 43 images (« 43 image(s) : ligne 3627, ligne 32865… ») et sur « le profil
+déclare des dessins et la page n'en référence aucun ». Les commentaires de la
+page et les contrôles par exercice qui disaient « jamais un chemin de
+fichier » ont été réécrits — un commentaire qui contredit le code est pire
+qu'aucun —, et les paragraphes plus anciens de ce journal qui racontent « une
+URL `data:` — la page reste un fichier unique » racontent l'histoire avec la
+convention de leur époque : le motif d'un dessin (découpé, détouré, WebP de
+10 à 20 Ko, posé en tête de l'exercice) reste vrai, seul son rangement a
+changé.
