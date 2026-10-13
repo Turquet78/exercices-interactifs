@@ -1066,3 +1066,53 @@ laissent 9 / 10 sur la page et dans la liste, la carte de l'exercice fait
 reste ouvrable, la phrase est écrite et l'ancienne a disparu. Le bord opposé —
 un seul essai à 40 % s'affiche 4 / 10 — prouve que la page lit bien les
 résultats : sans lui, un 9 venu de n'importe où passerait le contrôle.
+
+**Un brouillon étiqueté d'un devoir vaut une NOTE PROVISOIRE — et le bilan le
+dit « en cours ».** Signalé par Turquet (octobre 2026) : « en Seconde je n'ai
+quasiment aucune note pour les fiches de travail alors qu'ils ont travaillé en
+classe » — et « ils l'ont fait dans la fiche pourtant ». Le code
+d'enregistrement était juste de bout en bout : depuis la fiche, chaque chemin
+(fin normale, pause, tous les exercices Python) écrivait l'identifiant de la
+fiche dans la note. Ce qui manquait n'était pas l'étiquette, c'était la FIN.
+Pendant un exercice, la page écrit un brouillon automatique en base — la ligne
+« en pause » de `recoveryPayload()`, étiquetée du devoir, avec le score en
+cours, le tirage et les réponses validées. Une vraie note n'était écrite qu'à
+deux moments : « Voir mes résultats » à la dernière question, ou le bouton
+« Pause », qui pose une note partielle. Un élève qui ferme l'onglet à la
+sonnerie ne passe par aucun des deux : quarante minutes de travail, un
+brouillon qui le prouve, et la fiche disait « — / 20 ». Sur des exercices
+Python, longs, à une ou deux questions, c'était la majorité d'une classe.
+Pire : la légende du bilan disait « nombre d'exercices commencés » alors
+qu'il ne comptait que les terminés — et l'export CSV écartait les brouillons
+aussi, si bien que le professeur n'avait AUCUN moyen de voir le travail en
+cours.
+**La règle est celle de la pause, à un détail près** : un brouillon où rien
+n'est validé ET aucun point gagné ne reçoit rien ; sinon le score en cours sur
+le barème ENTIER. Le détail : une question à plusieurs parties (Python) ne
+range sa réponse qu'à la dernière partie, mais son score avance à chaque
+partie juste — un point suffit donc, là où la pause exigeait une réponse
+rangée
+(`dmNoteBrouillon`, le barème de chaque niveau : `maxScore` en Seconde, le
+nombre de questions ailleurs — exactement ce que lit son `finishTest`). La
+ligne rendue est une COPIE marquée `enCours`, la ligne de la base ne bouge
+pas. **UN SEUL entonnoir, `dmCandidat`**, dit quelle ligne compte pour un
+exercice d'un devoir dans un mode : l'écran de l'élève (`dmBest`) et le bilan
+du professeur (`dmMeilleur`, texte identique dans les trois fichiers) le
+lisent tous deux — deux définitions auraient donné deux notes. La copie morte
+de la Première (`dmBestFor`, jamais appelée, l'ancienne règle recopiée) est
+partie.
+**L'ordre imposé des fiches ne s'en contente pas.** `noteDevoirExo` rend
+maintenant `termine` (un essai mené au bout, ou mis en pause par le bouton) à
+côté de `fait`, et `dmVerrouille` lit `termine` : un brouillon sur le premier
+exercice ne débloque pas le deuxième. Sans cela, le verrou se serait ouvert
+en silence à la première réponse validée — le bouton « Pause » ouvrait déjà,
+mais il se clique. Et `provisoire` dit que la note retenue vient d'un
+brouillon : l'élève lit « Note provisoire : 6 / 10 », le professeur une
+cellule « Entr. en cours · 3/5 q · 60% » en pointillé, et la légende du bilan
+dit la règle. En Terminale, une note POSÉE n'est jamais provisoire.
+**Le contrôle tient les quatre bords** (`brouillonProvisoire`, banc principal,
+les trois niveaux) : l'élève lit la note provisoire et un brouillon vide ne
+reçoit rien ; le professeur lit la même note et « en cours » ; le verrou
+reste fermé ; et le bord opposé, une note TERMINÉE à 80 % l'emporte et n'est
+plus dite provisoire. Les brouillons déjà en base comptent dès la mise en
+ligne : aucune réparation à jouer, la règle les relit tels qu'ils sont.
