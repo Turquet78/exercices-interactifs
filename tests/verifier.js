@@ -6409,7 +6409,7 @@ function devoirPapierClique(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('le devoir sur papier : un choix de la page des modes, et l\'envoi se confirme',
       'ce niveau n\'a pas le choix « sur papier » des devoirs');
-    return longueurContexteIA(w, () => contexteChaqueExercice(w, () => questionsDistinctes(w, apres)));
+    return longueurContexteIA(w, () => rejouerDansUneFenetreNeuve(apres));
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -6642,8 +6642,22 @@ function devoirPapierClique(w, apres){
     const nom='le devoir sur papier : un choix de la page des modes, et l\'envoi se confirme';
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
-    longueurContexteIA(w, () => contexteChaqueExercice(w, () => questionsDistinctes(w, apres)));
+    longueurContexteIA(w, () => rejouerDansUneFenetreNeuve(apres));
   });
+}
+/* LES REJEUX DE SÉANCES TOURNENT DANS UNE FENÊTRE NEUVE (octobre 2026). Les
+   trois contrôles qui suivent démarrent chaque exercice du menu des dizaines
+   de fois — 7 160 séances pour la Seconde. Ils le faisaient dans la fenêtre
+   qui venait d'encaisser toute la section 4 : mesuré au relevé horodaté,
+   « aucune séance ne pose deux fois la même question » y coûtait quatorze
+   minutes, quand une fenêtre fraîche démarre les 183 exercices en 7,8 s par
+   tour, soit cinq minutes pour quarante tours — la fenêtre usée est près de
+   trois fois plus lente par démarrage. Une fenêtre neuve coûte le chargement
+   de la page (une seconde et quelques) et rend tout le reste. Les trois
+   contrôles posent eux-mêmes leur élève, leur mode et leur devoir : ils ne
+   dépendent de rien de ce que la fenêtre précédente portait. */
+function rejouerDansUneFenetreNeuve(apres){
+  charger(CIBLE, w2 => contexteChaqueExercice(w2, () => questionsDistinctes(w2, apres)));
 }
 function longueurContexteIA(w, apres){
   let maxCtx;

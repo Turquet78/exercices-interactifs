@@ -317,6 +317,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **La même erreur, huit fois, n'est pas huit mesures.**
 - **Deux bancs jsdom ne se lancent pas EN MÊME TEMPS.**
 - **Puis les trois bancs jsdom ont joué de front, chacun dans son dossier temporaire.**
+- **Puis la Seconde a rendu dix minutes à chacun de ses deux bancs — mesurées contrôle par contrôle, jamais devinées.**
 - **Un bug trouvé devient un contrôle.**
 - **Une clé écrite deux fois dans `tests/profils.js` ne casse rien — elle gagne.**
 - **Un NUMÉRO de section du banc ne désigne qu'une section — et un en-tête qui n'imprime pas son titre est pire qu'un titre absent.**
