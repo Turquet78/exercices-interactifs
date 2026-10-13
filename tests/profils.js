@@ -319,7 +319,7 @@ module.exports = {
     /* Le nombre de questions des exercices du moteur sf — DEUX sources : la
        page a sa constante SF_NB, le banc compare à celle-ci. 6 en Première,
        4 en Seconde (demande de Turquet, août 2026). */
-    nbQuestionsFractions: { sf: 6 },
+    nbQuestionsFractions: { sf: 6, mlt: 12, spf: 8 },   /* 4.4 à 4.6 : paires guidée + rédigée (octobre 2026) */
     /* 4 questions du 2.1.3 au 2.1.7 (demande de Turquet, août 2026), et
        {pourcentage-dix} (2.1.8, même tirage, troisième méthode par 10 %,
        septembre 2026) — DEUX sources : la page a PCT_NB et QD_NB, le banc
