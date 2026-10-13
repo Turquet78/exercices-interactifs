@@ -6682,6 +6682,49 @@ async function parcours(page, N){
         const r = await verdict();
         if(!r.juste) dits.push('produit : 2/3 × 3/5 = 6/15 = 2/5, tapé au clavier, est compté faux');
         if(r.rouges.length) dits.push('produit : des cases rougissent sur une copie juste : ' + r.rouges.slice(0, 4).join(', '));
+        /* sa question RÉDIGÉE (octobre 2026) : elle s'ouvre sous la guidée, la
+           feuille commence par le produit suivi de « = », et 2/3 × 3/5 = 6/15
+           = 2/5 vaut le point — le résultat simplifié est exigé. */
+        const zr = await s.page.evaluate(() => {
+          if(!(test.questions[1] && test.questions[1].redac) || test.idx !== 1) return null;
+          test.questions[1] = {n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15,redac:true};
+          sfrAfficher(test.questions[1]);
+          const zone = document.getElementById('mltrZone'), mf = zone && zone.querySelector('math-field');
+          return { vue: !!(zone && !zone.hidden && zone.offsetHeight > 0), guidee: !!document.getElementById('mlt-h1'), depart: mf ? mf.getValue() : null };
+        });
+        if(!zr) dits.push('produit : aucune question rédigée ne s’ouvre après la guidée');
+        else {
+          if(!zr.vue) dits.push('produit rédigé : la zone ne s’affiche pas');
+          if(!zr.guidee) dits.push('produit rédigé : la question guidée a disparu de l’écran');
+          if(!/=\s*$/.test(zr.depart || '')) dits.push('produit rédigé : la feuille ne commence pas par le produit suivi de « = » (' + zr.depart + ')');
+          await s.page.evaluate(() => { document.querySelector('#mltrZone math-field').setValue(test.sfrDepart + '\\frac{6}{15}=\\frac{2}{5}'); checkSFR(); });
+          await s.page.waitForTimeout(1500);
+          const v = await s.page.evaluate(() => { const d = test.answers[test.answers.length - 1];
+            return { juste: !!(d && d.correct && /rédigé/.test(d.q)), suite: !!document.getElementById('mltrNext') }; });
+          if(!v.juste) dits.push('produit rédigé : 2/3 × 3/5 = 6/15 = 2/5 est compté faux');
+          if(!v.suite) dits.push('produit rédigé : aucun bouton « Question suivante »');
+        }
+      }
+      /* ③ la somme avec un produit dedans (4.6) : sa question RÉDIGÉE, par la
+         REPRISE — une pause posée sur elle redessine la rédaction seule. */
+      if(await s.page.evaluate(() => !!TESTS['somme-produit-fractions'])){
+        await s.page.evaluate(() => openTest('somme-produit-fractions'));
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        const zp = await s.page.evaluate(() => {
+          test.questions[1] = {a:1,b:4,c:1,d:2,e:5,f:3,P1:5,Q1:6,N:26,D:24,redac:true};
+          test.idx = 1; renderSpfTest();
+          const zone = document.getElementById('spfrZone'), mf = zone && zone.querySelector('math-field');
+          return { vue: !!(zone && !zone.hidden && zone.offsetHeight > 0), depart: mf ? mf.getValue() : null };
+        });
+        await s.page.waitForTimeout(500);
+        if(!zp.vue) dits.push('somme avec produit : la reprise sur une question rédigée ne la redessine pas');
+        if(!/=\s*$/.test(zp.depart || '')) dits.push('somme avec produit rédigée : la feuille ne commence pas par le calcul suivi de « = » (' + zp.depart + ')');
+        await s.page.evaluate(() => { document.querySelector('#spfrZone math-field').setValue(test.sfrDepart + '\\frac{1}{4}+\\frac{5}{6}=\\frac{6}{24}+\\frac{20}{24}=\\frac{26}{24}=\\frac{13}{12}'); checkSFR(); });
+        await s.page.waitForTimeout(1500);
+        const v = await s.page.evaluate(() => { const d = test.answers[test.answers.length - 1]; return !!(d && d.correct && /rédigé/.test(d.q)); });
+        if(!v) dits.push('somme avec produit rédigée : 1/4 + 1/2 × 5/3 = 1/4 + 5/6 = 6/24 + 20/24 = 26/24 = 13/12 est comptée fausse');
       }
       verifier('la simplification par étapes s\'ouvre en écrivant, et la copie juste vaut le point',
         dits.length === 0, dits.slice(0, 3).join(' | '));
