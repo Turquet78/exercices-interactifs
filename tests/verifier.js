@@ -21101,13 +21101,13 @@ function brouillonProvisoire(w, apres){
       const lignes=[brouillon('b1','dm_br',A,3), brouillon('b2','dm_br',B,0)];
       if(${ORDRE}) lignes.push(brouillon('b3','fc_br',A,3));
       window.__faux.semer('${TR}', lignes);
-      const page=function(){ return ((document.getElementById('devoirsBody')||{}).textContent||'').replace(/\s+/g,' '); };
+      const page=function(){ return ((document.getElementById('devoirsBody')||{}).textContent||'').replace(/\\s+/g,' '); };
 
       /* 1. L'ÉLÈVE */
       await ouvrirDevoirDetail('dm_br');
       let t=page();
-      if(!/Note provisoire : 6 \/ 10/.test(t)) vus.push('la page de l\'élève ne dit pas « Note provisoire : 6 / 10 » pour le brouillon à 3/5 : '+t.slice(0,220));
-      if((t.match(/Note provisoire/g)||[]).length!==1) vus.push('un brouillon où rien n\'est validé reçoit une note');
+      if(!/Note provisoire : 6 \\/ 10/.test(t)) vus.push('la page de l\\'élève ne dit pas « Note provisoire : 6 / 10 » pour le brouillon à 3/5 : '+t.slice(0,220));
+      if((t.match(/Note provisoire/g)||[]).length!==1) vus.push('un brouillon où rien n\\'est validé reçoit une note');
       const nA=noteDevoirExo(dmBest('dm_br',A,'soutien'), dmBest('dm_br',A,'train'));
       const nB=noteDevoirExo(dmBest('dm_br',B,'soutien'), dmBest('dm_br',B,'train'));
       if(!nA.fait||!nA.provisoire||nA.termine||Math.round(nA.note*10)!==60)
@@ -21130,19 +21130,19 @@ function brouillonProvisoire(w, apres){
       sb=sbDouble;
       await renderDevoirResultats();
       await new Promise(function(r){ setTimeout(r,60); });
-      const bilan=((document.getElementById('dmResults')||{}).textContent||'').replace(/\s+/g,' ');
-      if(!/en cours · 3\/5 q · 60%/.test(bilan)) vus.push('le bilan du professeur ne dit pas « en cours · 3/5 q · 60% » : '+bilan.slice(0,260));
-      if(!/6 \/ 20/.test(bilan)) vus.push('le bilan du professeur ne compte pas la note provisoire (6 / 20 attendu) : '+bilan.slice(0,260));
+      const bilan=((document.getElementById('dmResults')||{}).textContent||'').replace(/\\s+/g,' ');
+      if(!/en cours · 3\\/5 q · 60%/.test(bilan)) vus.push('le bilan du professeur ne dit pas « en cours · 3/5 q · 60% » : '+bilan.slice(0,260));
+      if(!/6 \\/ 20/.test(bilan)) vus.push('le bilan du professeur ne compte pas la note provisoire (6 / 20 attendu) : '+bilan.slice(0,260));
 
       /* 3. L'ORDRE */
       if(${ORDRE}){
         await ouvrirDevoirDetail('fc_br');
         const fiche=(mesDevoirs||[]).find(function(d){ return d.id==='fc_br'; });
-        if(!fiche) vus.push('la fiche témoin n\'arrive pas chez l\'élève');
+        if(!fiche) vus.push('la fiche témoin n\\'arrive pas chez l\\'élève');
         else {
           if(!dmVerrouille(fiche,B)) vus.push('un brouillon sur le premier exercice de la fiche débloque le deuxième');
-          if(dmVerrouille(fiche,A)) vus.push('l\'exercice en cours est verrouillé');
-          if(!/Note provisoire : 6 \/ 10/.test(page())) vus.push('la page de la fiche ne montre pas la note provisoire');
+          if(dmVerrouille(fiche,A)) vus.push('l\\'exercice en cours est verrouillé');
+          if(!/Note provisoire : 6 \\/ 10/.test(page())) vus.push('la page de la fiche ne montre pas la note provisoire');
         }
       }
 
@@ -21150,7 +21150,7 @@ function brouillonProvisoire(w, apres){
       window.__faux.semer('${TR}', lignes.concat([{id:'t1',eleve_id:'e-controle',score:4,total:5,percent:80,duration_sec:300,created_at:'2026-10-13T10:00:00Z',details:{test:A,mode:'train',dm:'dm_br'}}]));
       await ouvrirDevoirDetail('dm_br');
       t=page();
-      if(!/Note : 8 \/ 10/.test(t)||/provisoire/.test(t)) vus.push('une note terminée à 80 % ne remplace pas le brouillon, ou reste dite provisoire : '+t.slice(0,220));
+      if(!/Note : 8 \\/ 10/.test(t)||/provisoire/.test(t)) vus.push('une note terminée à 80 % ne remplace pas le brouillon, ou reste dite provisoire : '+t.slice(0,220));
       const nT=noteDevoirExo(dmBest('dm_br',A,'soutien'), dmBest('dm_br',A,'train'));
       if(!nT.termine||nT.provisoire) vus.push('après une note terminée, la définition dit encore non terminé ou provisoire');
     } finally { toast=vraiToast; sb=sbDouble; currentDM=null; if(typeof dmGenre!=='undefined') dmGenre='dm'; }
