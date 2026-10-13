@@ -6187,6 +6187,9 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="row" style="justify-content:center">
         <span id="vtrActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkVtrAnswer()">V&eacute;rifier</button></span>
       </div>
+    </div>
+  </section>
+
   <!-- VECTEURS : LE QUATRIÈME POINT D'UN PARALLÉLOGRAMME (8.3) -->
   <section class="screen" id="scr-vec">
     <div class="card lv-card">
@@ -53942,7 +53945,7 @@ function ctxRpd(q){
    La sélection vit dans la question (q.selD) : elle part avec la pause et
    revient avec la reprise, comme les cibles de {solutions-graphique}. */
 const VEC_N=9;                       /* carreaux par côté : les nœuds vont de 0 à 9 */
-const VEC_CELL=34, VEC_PAD=16;       /* un carreau en unités SVG, et la marge autour */
+const VEC_CELL=34, VEC_PAD=20;       /* un carreau en unités SVG, et la marge autour — assez large pour la lettre d’un point posé sur un bord */
 /* D, jamais rangé : recalculé là où l'on corrige, d'après la forme. */
 function vecQuatrieme(q){
   return q.forme==='ABDC'
