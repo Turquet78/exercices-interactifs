@@ -21066,9 +21066,12 @@ function ordreDesDevoirs(w, apres){
        provisoire. */
 function brouillonProvisoire(w, apres){
   const nom='un brouillon étiqueté d\'un devoir compte comme une note provisoire : l\'élève, le professeur, et pas l\'ordre';
-  const present = evaluer(w, "typeof dmCandidat==='function' && typeof dmNoteDevoir==='function' && typeof ouvrirDevoirDetail==='function' && typeof renderDevoirResultats==='function'");
+  /* le bilan du professeur se rend par renderDevoirResultats() (Seconde,
+     Terminale) ou renderDmResults() (Première) — le motif du contrôle de
+     l'archivage, juste au-dessus */
+  const present = evaluer(w, "typeof dmCandidat==='function' && typeof dmNoteDevoir==='function' && typeof ouvrirDevoirDetail==='function' && (typeof renderDevoirResultats==='function' || typeof renderDmResults==='function')");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'dmCandidat, dmNoteDevoir, ouvrirDevoirDetail ou renderDevoirResultats manque');
+    verifier(nom, false, 'dmCandidat, dmNoteDevoir, ouvrirDevoirDetail ou le rendu du bilan (renderDevoirResultats / renderDmResults) manque');
     return noteFicheSur20(w, apres);
   }
   const src = lire(CIBLE);
@@ -21128,7 +21131,7 @@ function brouillonProvisoire(w, apres){
       ${LISTE}=[{id:'dm_br',num:1,actif:true,titre:'Devoir brouillon',cours:'',exercices:deux(),notes:{},notesDevoir:{}}];
       dmSelId='dm_br'; if(typeof dmGenre!=='undefined') dmGenre='dm';
       sb=sbDouble;
-      await renderDevoirResultats();
+      if(typeof renderDevoirResultats==='function') await renderDevoirResultats(); else await renderDmResults();
       await new Promise(function(r){ setTimeout(r,60); });
       const bilan=((document.getElementById('dmResults')||{}).textContent||'').replace(/\\s+/g,' ');
       if(!/en cours · 3\\/5 q · 60%/.test(bilan)) vus.push('le bilan du professeur ne dit pas « en cours · 3/5 q · 60% » : '+bilan.slice(0,260));
