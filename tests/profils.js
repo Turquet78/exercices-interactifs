@@ -1195,7 +1195,7 @@ module.exports = {
       'python-chaine-len': 'l\u2019élève découvre en exécutant ce que représentent len(chaine) et chaine[i] : leur définition est la réponse attendue',
       'python-samoussa': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que les trois coups de pouce (l\u2019input, le if / else, les deux formules) — demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus ».',
       'python-if-location': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que les quatre coups de pouce (l\u2019input, le if et le else, les deux formules), qui restent REPLIÉS sous l\u2019énoncé — les écrire avant lui donnerait le programme à écrire',
-      'python-if-cinema': 'la fiche n\u2019a ni définition ni coup de pouce : l\u2019énoncé du haut est son dessin, et son rappel ne redit que la consigne — le test si … alors … sinon est ce que l\u2019élève doit écrire',
+      'python-if-cinema': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel redit la consigne puis les deux coups de pouce (l\u2019input, le squelette du if / else), qui restent REPLIÉS sous l\u2019énoncé — le test si … alors … sinon est ce que l\u2019élève doit écrire',
       'python-for-images': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que les deux coups de pouce (range(11) puis x=x/10), qui restent REPLIÉS sous l\u2019énoncé — les écrire avant lui donnerait la boucle à écrire',
       'python-if-plus-grand-trois': 'la fiche (l\u2019exercice 8 du carnet) n\u2019a ni définition ni coup de pouce (demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus ») : l\u2019énoncé du haut est son dessin, et son rappel ne redit que la consigne',
       'python-if-plus-grand': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, son « Rappel » (le float(input(…))) fait partie de l\u2019énoncé, et les deux coups de pouce restent REPLIÉS sous lui — les écrire avant donnerait le programme à écrire',
@@ -1454,7 +1454,8 @@ module.exports = {
        compte (la page a PSM_NB). */
     pythonSamoussa: { exercice: 'python-samoussa', nb: 3, numero: '6.7.2' },
     /* {python-if-cinema} (6.7.4, derrière {python-if-plus-grand}, sous-thème
-       « Condition if else », demande de Turquet, octobre 2026, BONUS) :
+       « Condition if else », demande de Turquet, octobre 2026 ; « Bonus » retiré
+       du titre et deux coups de pouce ajoutés le même mois) :
        l'exercice 2 du carnet — le prix d'une place de cinéma, 6 € pour les
        mineurs, 9 € pour les majeurs. Le juge exécute la copie sous quatre
        âges, 18 compris. « nb » est la seconde source du compte (la page a
