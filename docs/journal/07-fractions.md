@@ -1713,7 +1713,7 @@ cases » (la chaîne de 14/8 restait posée sous 7/4), et la route par 6 rangeai
 16/12 au lieu de 8/6.
 
 **Puis le thème 4 de la Première s'est écrit d'UNE SEULE ENCRE (octobre
-2026, Première v314).** Demande de Turquet : « en première je veux que pour
+2026, Première v315).** Demande de Turquet : « en première je veux que pour
 tous les exercices dans le thème fraction, les nombres aient la même taille
 et la même police, de l'énoncé jusqu'à la fin de l'exercice, et pour les
 cases à remplir aussi ». Trois écritures se croisaient sur le même écran,
