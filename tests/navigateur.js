@@ -85,7 +85,7 @@ function servirRacine(){
   const http = require('http');
   const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
                   '.webmanifest': 'application/manifest+json', '.json': 'application/json',
-                  '.png': 'image/png', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
+                  '.png': 'image/png', '.webp': 'image/webp', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
   const prises = new Set();
   const serveur = http.createServer((req, res) => {
     let fichier;
@@ -11256,6 +11256,8 @@ async function parcours(page, N){
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
       /* 1. LES DEUX COLONNES, LE NOM ÉCRIT, LA CASE UNIQUE */
+      /* un dessin en FICHIER arrive un instant après le rendu : on attend son décodage avant de lire naturalWidth (octobre 2026) */
+      await s.page.evaluate(() => Promise.all([...document.querySelectorAll('section.screen.on img[src^="dessins/"]')].map(i => i.decode().catch(() => {}))));
       const vu = await s.page.evaluate(() => {
         const host = document.getElementById('pvmHost');
         const cols = [...host.querySelectorAll('.pap-col')], prog = host.querySelector('.pyx-prog');
@@ -11283,7 +11285,7 @@ async function parcours(page, N){
                  /* le dessin en tête : premier enfant de la carte, réellement chargé (naturalWidth) */
                  fig: (() => { const f = document.getElementById('pvmFig'), img = f && f.querySelector('img.pvm-img');
                    return { premier: !!f && f.parentElement.firstElementChild === f,
-                            data: !!img && /^data:image/.test(img.getAttribute('src') || ''),
+                            fichier: !!img && /^dessins\/secondes\/[a-z0-9-]+\.webp$/.test(img.getAttribute('src') || ''),
                             charge: !!img && img.complete && img.naturalWidth > 0,
                             large: img ? img.getBoundingClientRect().width : 0 }; })() };
       });
@@ -11314,13 +11316,13 @@ async function parcours(page, N){
       verifier('les deux colonnes rendues côte à côte, le NOM de la case ÉCRIT (aucune liste) et une seule case à la chasse du code',
         !dits.length, dits.slice(0, 3).join(' | '));
       /* 1 bis. LE DESSIN EN TÊTE DE L'ÉCRAN (demande de Turquet, octobre 2026) : premier
-         enfant de la carte, image embarquée, chargée, et visible (≥ 120 px de large) */
+         enfant de la carte, image en fichier (dessins/secondes/), chargée, et visible (≥ 120 px de large) */
       const fig = vu.fig, fd = [];
       if(!fig.premier) fd.push('le dessin n\'est pas le premier élément de la carte');
-      if(!fig.data) fd.push('pas d\'image embarquée');
+      if(!fig.fichier) fd.push('pas de dessin en fichier dans dessins/secondes/');
       if(!fig.charge) fd.push('image non chargée');
       if(!(fig.large >= 120)) fd.push('largeur ' + Math.round(fig.large) + ' px');
-      verifier('le dessin du serpent « Trop facile ! » ouvre l\'écran : premier dans la carte, embarqué, chargé et visible',
+      verifier('le dessin du serpent « Trop facile ! » ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
         !fd.length, fd.join(' | '));
       /* 2. LA VALEUR SE TAPE POUR DE VRAI, et le verdict s'encre en BLEU */
       const bons = await s.page.evaluate(() => { const q = test.questions[test.idx];
@@ -11447,6 +11449,8 @@ async function parcours(page, N){
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
       /* 1. LA FICHE ÉPINGLÉE, AVEC SA LIGNE DE CALCUL VISIBLE */
+      /* un dessin en FICHIER arrive un instant après le rendu : on attend son décodage avant de lire naturalWidth (octobre 2026) */
+      await s.page.evaluate(() => Promise.all([...document.querySelectorAll('section.screen.on img[src^="dessins/"]')].map(i => i.decode().catch(() => {}))));
       const vu = await s.page.evaluate(() => {
         const host = document.getElementById('ppcHost');
         const lignes = [...host.querySelectorAll('.pyx-ligne')];
@@ -11459,7 +11463,7 @@ async function parcours(page, N){
                  /* le dessin de la fiche : en TÊTE de la carte, réellement chargé (naturalWidth) */
                  fig: (() => { const f = document.getElementById('ppcFig'), img = f && f.querySelector('img.ppc-img');
                    return { premier: !!f && f.parentElement.firstElementChild === f,
-                            data: !!img && /^data:image/.test(img.getAttribute('src') || ''),
+                            fichier: !!img && /^dessins\/secondes\/[a-z0-9-]+\.webp$/.test(img.getAttribute('src') || ''),
                             charge: !!img && img.complete && img.naturalWidth > 0,
                             large: img ? img.getBoundingClientRect().width : 0 }; })() };
       });
@@ -11473,13 +11477,13 @@ async function parcours(page, N){
       verifier('la fiche épinglée (a = 10, b = 2, c = a+b) est rendue, avec le nom de la case ÉCRIT',
         !dits.length, dits.slice(0, 3).join(' | '));
       /* 1 bis. LE DESSIN EN TÊTE DE L'ÉCRAN (demande de Turquet, octobre 2026) : premier
-         enfant de la carte, image embarquée, chargée, et visible (≥ 120 px de large) */
+         enfant de la carte, image en fichier (dessins/secondes/), chargée, et visible (≥ 120 px de large) */
       const fig = vu.fig, fd = [];
       if(!fig.premier) fd.push('le dessin n\'est pas le premier élément de la carte');
-      if(!fig.data) fd.push('pas d\'image embarquée');
+      if(!fig.fichier) fd.push('pas de dessin en fichier dans dessins/secondes/');
       if(!fig.charge) fd.push('image non chargée');
       if(!(fig.large >= 120)) fd.push('largeur ' + Math.round(fig.large) + ' px');
-      verifier('le dessin du serpent au champagne ouvre l\'écran : premier dans la carte, embarqué, chargé et visible',
+      verifier('le dessin du serpent au champagne ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
         !fd.length, fd.join(' | '));
       /* 2. LES DEUX LIGNES LITTÉRALES SE TAPENT ET SE JUGENT COMME AVANT */
       for(let k = 0; k < nL - 1; k++){
@@ -11550,6 +11554,8 @@ async function parcours(page, N){
       await s.page.waitForTimeout(900);
       const dits = [];
       /* 1. LA FICHE ÉPINGLÉE, SES QUATRE LIGNES, LES DEUX COLONNES ET LE ▶ */
+      /* un dessin en FICHIER arrive un instant après le rendu : on attend son décodage avant de lire naturalWidth (octobre 2026) */
+      await s.page.evaluate(() => Promise.all([...document.querySelectorAll('section.screen.on img[src^="dessins/"]')].map(i => i.decode().catch(() => {}))));
       const vu = await s.page.evaluate(() => {
         const host = document.getElementById('ppdHost');
         const cols = [...host.querySelectorAll('.pap-col')];
@@ -11566,11 +11572,11 @@ async function parcours(page, N){
                  bilan: !!host.querySelector('.ppd-bilan'),
                  /* le dessin en tête (octobre 2026), la même mesure qu'au
                     6.2.5 : RENDU — décodé, haut de plus de 100 px, posé AVANT
-                    la consigne — et jamais un chemin de fichier */
+                    la consigne — un fichier de dessins/secondes/ (octobre 2026) */
                  fig: (() => {
                    const img = document.querySelector('#scr-ppd img.ppd-img'), ins = document.querySelector('#scr-ppd .mp-instr');
                    if(!img) return 'absent';
-                   if(!/^data:image\//.test(img.getAttribute('src') || '')) return 'src ' + String(img.getAttribute('src')).slice(0, 30);
+                   if(!/^dessins\/secondes\/[a-z0-9-]+\.webp$/.test(img.getAttribute('src') || '')) return 'src ' + String(img.getAttribute('src')).slice(0, 30);
                    if(!img.complete || !img.naturalWidth) return 'non décodé';
                    const h = img.getBoundingClientRect().height;
                    if(h < 100) return 'haut de ' + Math.round(h) + ' px';
@@ -11676,6 +11682,8 @@ async function parcours(page, N){
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
       /* 1. LA FICHE ÉPINGLÉE DU PDF, CINQ LIGNES, LE NOM ÉCRIT */
+      /* un dessin en FICHIER arrive un instant après le rendu : on attend son décodage avant de lire naturalWidth (octobre 2026) */
+      await s.page.evaluate(() => Promise.all([...document.querySelectorAll('section.screen.on img[src^="dessins/"]')].map(i => i.decode().catch(() => {}))));
       const vu = await s.page.evaluate(() => {
         const host = document.getElementById('pevHost');
         const lignes = [...host.querySelectorAll('.pyx-ligne')];
@@ -11688,12 +11696,12 @@ async function parcours(page, N){
                  bilan: !!host.querySelector('.pev-bilan'),
                  exp: !!document.getElementById('pev-exp'),
                  /* le dessin en tête (octobre 2026) : RENDU — décodé, haut de
-                    plus de 100 px, posé AVANT la consigne — et jamais un
-                    chemin de fichier, la page reste un seul fichier */
+                    plus de 100 px, posé AVANT la consigne — un fichier de
+                    dessins/secondes/ (octobre 2026 : les dessins vivent en fichiers) */
                  fig: (() => {
                    const img = document.querySelector('#scr-pev img.pev-img'), ins = document.querySelector('#scr-pev .mp-instr');
                    if(!img) return 'absent';
-                   if(!/^data:image\//.test(img.getAttribute('src') || '')) return 'src ' + String(img.getAttribute('src')).slice(0, 30);
+                   if(!/^dessins\/secondes\/[a-z0-9-]+\.webp$/.test(img.getAttribute('src') || '')) return 'src ' + String(img.getAttribute('src')).slice(0, 30);
                    if(!img.complete || !img.naturalWidth) return 'non décodé';
                    const h = img.getBoundingClientRect().height;
                    if(h < 100) return 'haut de ' + Math.round(h) + ' px';
@@ -11920,19 +11928,21 @@ async function parcours(page, N){
         !dits.length, dits.slice(0, 3).join(' | '));
       /* 1 bis. LE DESSIN DE LA FICHE EN TÊTE DE L'EXERCICE (demande de Turquet,
          octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.6
-         au début ») : un vrai dessin (données embarquées), RENDU (une largeur
+         au début ») : un vrai dessin (un fichier de dessins/secondes/), RENDU (une largeur
          mesurée, pas un alt sur une image cassée), posé après le rappel et
          AVANT la consigne et le programme — pas en bas de page. */
+      /* un dessin en FICHIER arrive un instant après le rendu : on attend son décodage avant de lire naturalWidth (octobre 2026) */
+      await s.page.evaluate(() => Promise.all([...document.querySelectorAll('section.screen.on img[src^="dessins/"]')].map(i => i.decode().catch(() => {}))));
       const fig = await s.page.evaluate(() => {
         const i = document.querySelector('#ppmFig img.ppm-img'), av = document.getElementById('ppmAvant'),
               instr = document.querySelector('#scr-ppm .mp-instr'), host = document.getElementById('ppmHost');
         if(!i) return { absent: true };
         const apres = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
-        return { src: (i.getAttribute('src') || '').slice(0, 16), largeur: i.getBoundingClientRect().width,
+        return { src: (i.getAttribute('src') || '').slice(0, 60), largeur: i.getBoundingClientRect().width,
                  naturelle: i.naturalWidth, apresRappel: apres(av, i), avantConsigne: apres(i, instr) && apres(i, host) };
       });
       verifier('le dessin de la fiche est en tête de l\'exercice, rendu, après le rappel et avant la consigne',
-        !fig.absent && /^data:image\//.test(fig.src) && fig.largeur > 100 && fig.naturelle > 0 && fig.apresRappel && fig.avantConsigne,
+        !fig.absent && /^dessins\/secondes\/[a-z0-9-]+\.webp$/.test(fig.src) && fig.largeur > 100 && fig.naturelle > 0 && fig.apresRappel && fig.avantConsigne,
         JSON.stringify(fig));
       /* 2. UNE PRÉDICTION VIDE EST REDEMANDÉE, JAMAIS JUGÉE */
       await s.page.click('#ppmGuessValidate');
@@ -12565,6 +12575,46 @@ async function parcours(page, N){
       const idsAvant = idsPython.filter(id => !avantSans[id]);
       const sansAvant = []; let nAvant = 0;
       const sansClavierLim = []; let nLimCases = 0;
+      /* CHAQUE DESSIN EST UN FICHIER DE dessins/, ET IL EST RÉELLEMENT CHARGÉ
+         (décision de Turquet, octobre 2026 : les 43 images de la Seconde
+         quittent la page, qui pesait 4,9 Mo dont 770 Ko de base64 — chaque
+         élève les téléchargeait et les analysait à chaque ouverture, même
+         pour un exercice de fractions). Mesuré sur chaque écran visité, dans
+         les deux modes, au premier écran et après les écrans de départ : un
+         fichier manquant s'affiche comme un cadre vide portant son alt, et
+         RIEN d'autre ne le verrait — le banc jsdom ne charge pas les images,
+         il vérifie seulement que le fichier existe. Un dessin resté en
+         base64 est nommé aussi : la règle vaut partout, et le banc jsdom la
+         tient par ailleurs sur le texte de la page. decode() attend que
+         l'image soit chargée, et REJETTE si le fichier manque : naturalWidth
+         tranche ensuite. Un exercice ajouté demain est couvert sans rien
+         déclarer. */
+      const dessinsCasses = []; let nDessins = 0; const dessinsVus = new Set(), srcCassesVisite = new Set();
+      const releverDessins = async (id, mode, moment) => {
+        const vus = await s.page.evaluate(async () => {
+          const on = document.querySelector('section.screen.on');
+          if(!on) return [];
+          const out = [];
+          for(const i of on.querySelectorAll('img[src]')){
+            const src = i.getAttribute('src') || '';
+            if(/^data:image/i.test(src)){ out.push({ src: src.slice(0, 24) + '…', etat: 'embarqué en base64 au lieu d’un fichier' }); continue; }
+            if(!/^dessins\//.test(src)) continue;
+            try { await i.decode(); } catch(e){ /* fichier absent : naturalWidth restera 0 */ }
+            out.push({ src, etat: (i.complete && i.naturalWidth > 0) ? '' : 'non chargé (fichier absent ?)' });
+          }
+          return out;
+        });
+        if(!vus.length) return;
+        const num = await s.page.evaluate(i => TEST_NUM[i], id);
+        for(const d of vus){
+          if(!d.etat){ nDessins++; continue; }
+          srcCassesVisite.add(d.src);
+          const cle = id + '|' + mode + '|' + d.src;
+          if(dessinsVus.has(cle)) continue;
+          dessinsVus.add(cle);
+          dessinsCasses.push(num + ' ' + id + ' (' + mode + ', ' + moment + ') ' + d.src + ' — ' + d.etat);
+        }
+      };
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -12587,6 +12637,7 @@ async function parcours(page, N){
           }, mode);
           if(!pris){ sansMode.push(id + '/' + mode); continue; }
           await s.page.waitForTimeout(650);
+          await releverDessins(id, mode, 'premier écran');
           if(idsAvant.indexOf(id) >= 0){
             const av = await s.page.evaluate(() => {
               const on = document.querySelector('section.screen.on');
@@ -12635,6 +12686,7 @@ async function parcours(page, N){
             if(!passe) break;
             await s.page.waitForTimeout(700);
           }
+          await releverDessins(id, mode, 'après les écrans de départ');
           const vu = await s.page.evaluate(() => {
             const on = document.querySelector('section.screen.on');
             if(!on) return {ia: false, ecran: '(aucun)'};
@@ -13057,6 +13109,41 @@ async function parcours(page, N){
       else
         ignorer('des cases de limite sont bien posées (le contrôle du clavier mesure quelque chose)',
           'ce niveau ne pose aucune case de limite');
+      /* ET LES DESSINS POSÉS HORS DES ÉCRANS D'EXERCICE : le schéma-bilan des
+         ensembles de nombres vit dans une modale (#bilanModal), hors de toute
+         section.screen — la visite ne le voit pas. Une fois la visite finie,
+         on relit le document ENTIER : tout <img> qui désigne dessins/ doit
+         être décodé, celui-là compris, et ceux des écrans déjà rendus avec. */
+      {
+        const partout = await s.page.evaluate(async () => {
+          const imgs = [...document.querySelectorAll('img[src^="dessins/"]')], casses = [];
+          let charges = 0;
+          for(const i of imgs){
+            try { await i.decode(); } catch(e){ /* fichier absent : naturalWidth restera 0 */ }
+            if(i.complete && i.naturalWidth > 0) charges++; else casses.push(i.getAttribute('src'));
+          }
+          return { charges, casses: [...new Set(casses)] };
+        });
+        /* un dessin cassé déjà nommé par la visite ne l'est pas une seconde
+           fois sous une étiquette qui le dirait « hors écran » */
+        partout.casses.filter(src => !srcCassesVisite.has(src))
+          .forEach(src => dessinsCasses.push('(document entier, hors écran visité) ' + src + ' — non chargé (fichier absent ?)'));
+        nDessins += partout.charges;
+      }
+      /* le COMPTE et la liste ENTIÈRE : un dessin cassé de plus ne doit pas
+         se cacher derrière les trois premiers */
+      verifier('chaque dessin d\'un exercice est un fichier de dessins/, réellement chargé',
+        dessinsCasses.length === 0, dessinsCasses.length + ' cas — ' + dessinsCasses.join(' | '));
+      /* LE BORD OPPOSÉ : un contrôle qui n'a rien à mesurer ne mesure rien, et
+         doit le dire. Le niveau qui DÉCLARE des dessins (tests/profils.js,
+         « dessins ») doit en offrir au banc ; celui qui n'en déclare pas
+         s'affiche « non applicable » plutôt que d'être tu. */
+      if(P.dessins)
+        verifier('des dessins ont bien été relevés (le contrôle des dessins mesure quelque chose)',
+          nDessins > 0, nDessins + ' dessin(s) relevé(s) sur toute la visite');
+      else
+        ignorer('des dessins ont bien été relevés (le contrôle des dessins mesure quelque chose)',
+          'ce niveau ne déclare aucun dessin (mesuré : ' + nDessins + ')');
       /* Une étiquette de courbe posée SUR sa courbe se lit barrée (capture de
          Turquet, 5.4, septembre 2026) : mesurée ici sur toute étiquette de tout
          dessin visité, contre les courbes RENDUES. */
