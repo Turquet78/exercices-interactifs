@@ -301,6 +301,53 @@ message parle de longueur), une case vide (correction FB, jamais rouge, le
 message nomme le manque), la copie entièrement vide (rien de rouge), le
 barème égal au total des cases de la séance, `qId`.
 
+**Puis le TOTAL des cases est devenu la consigne : de 10 à 12 vecteurs à
+trouver par figure (v480).** Turquet, octobre 2026 : « pour l'exercice 8.3,
+il faudrait entre 10 et 12 vecteurs à trouver pour chaque dessin ». La fiche
+posait cinq lignes quel que soit leur total, et le total allait de 10 sur
+l'hexagone à 16 sur le rectangle — et le triangle des milieux, avec ses six
+familles (2 2 2 1 1 1), ne pouvait pas dépasser 9. `VEG_CASES` (`[10,12]`)
+porte la consigne ; `VEG_LIGNES` n'est plus un nombre mais deux bornes
+(`[4,6]`) : jamais deux lignes de cinq cases pour faire le compte, jamais dix
+lignes d'une case. Le tirage (`vegGenQuestion`) est une recherche en
+profondeur dans l'ordre tiré des familles : la première combinaison qui tient
+les deux bornes, sans famille ET son opposée. **Et l'ordre tiré a dû
+changer avec lui** : le rang « taille + hasard » d'avant, qui suffisait quand
+on prenait les cinq premières, faisait sortir 5 + 5 + 1 + 1 neuf fois sur dix
+sur le rectangle, le carré et le parallélogramme dès que le total a été
+borné — le prototype sous Node l'a mesuré sur 3 000 séances. Le rang est
+désormais un tirage pondéré par le nombre de cases (`Math.pow(Math.random(),
+1/cases)`) : une famille de cinq cases passe en tête cinq fois plus souvent
+qu'une famille d'une case, et le rectangle sort vingt-cinq combinaisons
+différentes au lieu de quatre.
+
+**Trois figures ont gagné des points, parce que le prototype a d'abord
+compté** ce que chacune pouvait donner (familles sans leurs opposées, cases
+par famille, nombre de combinaisons de 4 à 6 lignes faisant 10 à 12) :
+le triangle des milieux plafonnait à 9, l'hexagone et le trapèze
+n'atteignaient 12 qu'en posant leurs six familles à chaque fois. Le
+triangle ABLC est devenu **un triangle partagé deux fois en quatre** — ABC,
+le triangle DEF de ses milieux, le triangle GHI des milieux de DEF — neuf
+points, neuf familles (2 2 2 2 2 2 1 1 1) ; l'identifiant `triMilieux` ne
+change pas, seuls ses points changent. **L'hexagone a reçu G, H, I, les
+milieux de trois rayons sur six** ([OA], [OC], [OE]) : douze familles
+(3 3 3 2 2 2 et six à une case). **Le trapèze a reçu H et I, les milieux de
+ses côtés obliques** : huit familles. Leurs places sont écrites (`etq`) là où
+le calcul se trompe, et la capture l'a montré une fois de plus : le H du
+triangle, milieu de [EF], est à la hauteur du centre de la boîte — « du côté
+opposé au centre » le posait SUR son trait, à gauche du point. Les trois
+figures ont été capturées dans Chromium, à l'endroit et retournées.
+
+**Le contrôle a suivi la consigne** (`tests/verifier.js`) : `VEG_CASES` vaut
+`[10,12]` — la demande elle-même, écrite en dur, pour qu'un réglage qui
+dérive se voie — ; pour chaque forme, une table des totaux atteignables par
+nombre de lignes dit si une combinaison existe dans les bornes, et nomme
+les cases par famille quand elle n'existe pas ; sur 300 séances, chaque
+figure compte de 10 à 12 vecteurs à trouver, relus depuis la seconde
+écriture des familles, en 4 à 6 lignes. Le rejeu de la fiche (seize cases,
+cinq lignes) reste tel quel : il éprouve le juge, pas le tirage, et pose ses
+lignes à la main.
+
 ## {translation-quadrillage} — déplacer un point en suivant le chemin u⃗ (8.4, v476)
 
 **La demande** (Turquet, octobre 2026, une autre conversation que celle du 8.1 :
