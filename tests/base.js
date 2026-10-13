@@ -171,17 +171,33 @@ const r2 = psql('banc', ['-f', MIG], true);
 bilan('la rejouer ne casse rien', !r2.erreur, r2.erreur);
 
 /* ---------------------------------------------------------------------------
-   1 bis. La démonstration : 001 SEULE ne protège rien
+   1 bis. La démonstration : SANS 002, rien ne protège
    -------------------------------------------------------------------------
    PostgreSQL combine les politiques permissives par un OU. Les neuf politiques
    « for all using(true) » que portait le projet annulent donc toutes celles que
-   001 pose à côté. Ce contrôle l'exige plutôt que de l'affirmer : joué après la
-   seule migration 001, le banc des rôles DOIT échouer. S'il passait, c'est que
-   ce banc ne mesure pas ce qu'il croit mesurer. */
-const avec001 = psql('banc', ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
-bilan('avec 001 seule, la protection ne tient PAS (c\'est ce qui justifie 002)',
-  !!avec001.erreur,
+   001 pose à côté. Ce contrôle l'exige plutôt que de l'affirmer : joué sans la
+   migration 002, le banc des rôles DOIT échouer. S'il passait, c'est que ce
+   banc ne mesure pas ce qu'il croit mesurer.
+   On joue AUSSI la 009 avant lui, et c'est voulu : depuis qu'elle existe, le
+   banc des rôles appelle cles_de_connexion(), et sans elle il échouerait de
+   toute façon — « fonction inconnue » —, ce qui ne démontrerait rien sur les
+   politiques ouvertes. Avec 001 + 009 et sans 002, la seule chose qui laisse
+   le visiteur lire la liste est la porte que 002 ferme : l'échec a la bonne
+   cause, et on vérifie laquelle. La 009 elle-même refuse cette base — son
+   contrôle final nomme la politique ouverte — et c'est un second bord mesuré
+   ici, pas un échec toléré en silence. */
+const MIG9 = path.join(RACINE, 'supabase/migrations/009_connexion_sans_liste.sql');
+const s9seule = psql('banc', ['-f', MIG9], true);
+bilan('009 refuse de se déclarer faite tant que la porte de 002 est ouverte, et la nomme',
+  !!s9seule.erreur && /reste lisible sans connexion : eleves\.acces classe - eleves \(pour anon\)/.test(String(s9seule.erreur)),
+  s9seule.erreur ? String(s9seule.erreur).split('\n').filter(l => /ERROR|ERREUR/.test(l)).join(' ') : '009 est passée sans rien dire');
+const sans002 = psql('banc', ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
+bilan('sans 002, la protection ne tient PAS (c\'est ce qui justifie 002)',
+  !!sans002.erreur,
   'le banc des rôles est passé alors que les politiques ouvertes sont encore là');
+bilan('et c\'est bien la liste ouverte qui le fait rougir, pas une fonction absente',
+  /ÉCHEC : il ne voit PLUS la liste des prénoms \(3\)/.test(String(sans002.erreur || '')),
+  (String(sans002.erreur || '').match(/ÉCHEC : .*|ERROR: .*/) || ['aucune ligne ÉCHEC'])[0]);
 
 /* On repart d'une base neuve : le banc des rôles vient d'y écrire. */
 monter('banc');
@@ -283,6 +299,59 @@ const r8 = psql('banc', ['-f', MIG8], true);
 bilan('rejouer 008 ne fait plus rien', !r8.erreur, r8.erreur);
 
 /* ---------------------------------------------------------------------------
+   1 sexies. La migration 009 — la connexion sans la liste des prénoms
+   -------------------------------------------------------------------------
+   La 001 laissait un visiteur lire la liste des prénoms — et la clé de
+   chacun — parce que l'écran de connexion l'affichait avant toute
+   authentification. La 009 ferme cette lecture : l'élève tape son prénom, et
+   une fonction SECURITY DEFINER lui rend la ou les clés de ce prénom, cinq au
+   plus, rien d'autre. Ici on vérifie que la migration a travaillé sur les
+   TROIS tables, qu'elle a REMPLACÉ la politique au lieu d'en ajouter une
+   (la leçon de la 002 : deux permissives se combinent par un OU), et que la
+   fonction a les trois propriétés sans lesquelles l'écran serait muet —
+   elle existe, elle lit sans la RLS, le visiteur peut l'appeler. Le contrôle
+   des rôles, plus bas, exerce ensuite ce que chacun obtient d'elle. */
+/* Tolérant, exprès : la 009 porte son propre contrôle final, et quand il
+   refuse — une politique qui nomme encore anon, une fonction sans security
+   definer — c'est une ligne rouge qui doit le dire, pas un banc qui s'arrête
+   net sur « psql a échoué ». Les contrôles qui suivent mesurent alors sur
+   l'état réellement laissé par la migration. */
+const r9a = psql('banc', ['-f', MIG9], true);
+bilan('009 s\'applique, et son contrôle final ne trouve rien à redire',
+  !r9a.erreur, String(r9a.erreur || '').split('\n').filter(l => /ERROR|ERREUR/.test(l)).join(' '));
+const s9 = String(r9a.erreur || r9a);
+bilan('009 ferme la liste sur les trois tables d\'élèves',
+  (s9.match(/: connexion sans liste/g) || []).length === 3,
+  (s9.match(/: connexion sans liste/g) || []).length + ' table(s) sur 3');
+const anon9 = psql('banc', ['-tAc',
+  `select count(*) from pg_policies
+    where schemaname='public' and tablename like 'eleves%'
+      and cmd in ('SELECT','ALL') and roles::text[] && array['anon','public']`]).trim();
+bilan('plus aucune politique de lecture des élèves ne nomme anon',
+  anon9 === '0', anon9 + ' politique(s) encore ouverte(s) aux visiteurs');
+const nbLect9 = psql('banc', ['-tAc',
+  `select count(*) from pg_policies
+    where schemaname='public' and tablename in ('eleves','eleves_1ere','eleves_2nde') and cmd='SELECT'`]).trim();
+bilan('elle REMPLACE la politique de lecture au lieu d\'en ajouter une seconde',
+  nbLect9 === '3', nbLect9 + ' politique(s) de lecture pour 3 tables');
+/* Une requête qui ne CASSE pas si la fonction manque : « absente » est une
+   réponse, pas une exception, et le banc continue de mesurer le reste. */
+const fn9 = psql('banc', ['-tAc',
+  `select coalesce((select prosecdef::text || '|' || coalesce(array_to_string(proconfig, ';'), '')
+                           || '|' || has_function_privilege('anon', p.oid, 'execute')::text
+                      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                     where n.nspname = 'public' and p.proname = 'cles_de_connexion'), 'absente')`]).trim();
+bilan('la fonction de connexion existe et lit SANS la RLS (security definer)',
+  /^true\|/.test(fn9), fn9);
+bilan('elle verrouille son search_path',
+  /\|search_path=[^|]+\|/.test(fn9), fn9);
+bilan('et le visiteur a le droit de l\'appeler : c\'est tout ce qu\'il lui reste',
+  /\|true$/.test(fn9), fn9);
+const r9 = psql('banc', ['-f', MIG9], true);
+bilan('rejouer 009 ne fait plus rien', !r9.erreur,
+  String(r9.erreur || '').split('\n').filter(l => /ERROR|ERREUR/.test(l)).join(' '));
+
+/* ---------------------------------------------------------------------------
    2. Ce que chaque rôle peut réellement faire
    ------------------------------------------------------------------------- */
 console.log('\n2. CE QUE CHAQUE RÔLE OBTIENT DE LA BASE');
@@ -350,6 +419,21 @@ const MUTATIONS = [
        for update to authenticated
        using (exists (select 1 from public.eleves_2nde e where e.id = eleve_id and e.user_id = auth.uid()))
        with check (exists (select 1 from public.eleves_2nde e where e.id = eleve_id and e.user_id = auth.uid()))`]],
+  /* Le retour en arrière le plus tentant : remettre « anon » sur la politique
+     de la liste, comme en 001 — « pour que l'ancienne page marche encore ».
+     C'est exactement la lecture que la 009 ferme : les prénoms de trois
+     classes de mineurs et la clé de chacun, sans compte. */
+  ['la liste des élèves redevient lisible sans connexion',
+   ['drop policy p_eleves_2nde_liste on public.eleves_2nde',
+    'create policy p_eleves_2nde_liste on public.eleves_2nde for select to anon, authenticated using (true)']],
+  /* L'autre bord, et il est muet : sans SECURITY DEFINER, la fonction de
+     connexion s'exécute comme le visiteur qui l'appelle, et la RLS qu'on
+     vient de fermer ne lui rend plus rien — pas d'erreur, une liste vide, et
+     « prénom inconnu » pour toute la classe. ALTER FUNCTION ne touche qu'à
+     cet attribut : même corps, mêmes droits, pour que le banc ne rougisse
+     que de la bonne cause. */
+  ['la fonction de connexion perd SECURITY DEFINER',
+   ['alter function public.cles_de_connexion(text, text) security invoker']],
 ];
 MUTATIONS.forEach(([nom, sqls], i) => {
   const bd = 'mut' + i;
@@ -359,6 +443,11 @@ MUTATIONS.forEach(([nom, sqls], i) => {
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/003_signalements.sql')]);
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/004_pause_de_l_eleve.sql')]);
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/008_reponse_au_signalement.sql')]);
+  /* La 009 est jouée PARTOUT où le banc des rôles l'est : sans elle, la
+     fonction de connexion manque, et chaque mutation serait « détectée »
+     pour cette seule raison — un banc qui rougit pour une mauvaise cause
+     est un mensonge qui rassure. */
+  psql(bd, ['-f', MIG9]);
   sqls.forEach(q => psql(bd, ['-c', q]));
   const r = psql(bd, ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
   bilan('détectée : ' + nom, !!r.erreur, r.erreur ? '' : 'le banc est resté vert alors que la base est ouverte');

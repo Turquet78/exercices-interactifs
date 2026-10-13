@@ -30,6 +30,13 @@ window.__faux = {
   journal: [],
   panne: false,
   refusMuet: false,
+  /* Poser window.__faux.sansRpc = true fait répondre PGRST202 à TOUT rpc : c'est
+     la base d'AVANT la migration 009, où la fonction cles_de_connexion n'existe
+     pas encore et où PostgREST ne la trouve pas dans son cache de schéma.
+     C'est le seul moyen d'éprouver le repli de la page sur l'ancienne liste
+     des prénoms — le repli qui tient la connexion tant que la 009 n'est pas
+     jouée, et qui ne doit se prendre sur AUCUNE autre erreur. */
+  sansRpc: false,
   suivant: 1,
   /* Les comptes tiennent le rôle de auth.users : c'est là que vivent les codes
      depuis qu'ils ont quitté la table des élèves. Le double les compare
@@ -199,6 +206,35 @@ window.supabase = {
           delete(){ return requete(nom, 'delete'); },
           upsert(charge){ return requete(nom, 'upsert', charge); },
         };
+      },
+      /* rpc imite l'appel d'une fonction SQL par PostgREST. Une seule est
+         connue, cles_de_connexion (migration 009) : les clés des élèves de la
+         table du niveau dont le prénom normalisé — même règle que
+         normaliserPrenom dans la page : minuscules, sans accent, espaces
+         réduits — est celui demandé, triées, cinq au plus. C'est par elle que
+         l'écran de connexion retrouve un élève depuis que la liste des prénoms
+         ne se lit plus sans compte. Un niveau inconnu est une erreur, comme le
+         raise exception de la fonction. Un nom de fonction inconnu rend ce que
+         rend PostgREST quand la fonction n'est pas dans son cache de schéma :
+         le code PGRST202 — et sansRpc = true le rend à TOUT appel, pour jouer
+         la base d'avant la migration. Chaque appel est journalisé, ce qui
+         permet d'exiger qu'il ait eu lieu AVANT toute lecture de la table. */
+      rpc(nom, args){
+        F.journal.push({ op: 'rpc', table: nom, args: Object.assign({}, args || {}) });
+        if(F.sansRpc || nom !== 'cles_de_connexion'){
+          return Promise.resolve({ data: null, error: { code: 'PGRST202',
+            message: 'Could not find the function public.' + nom + ' in the schema cache' } });
+        }
+        const TABLES = { secondes: 'eleves_2nde', premiere: 'eleves_1ere', terminale: 'eleves' };
+        const table = TABLES[args && args.niveau];
+        if(!table) return Promise.resolve({ data: null, error: { message: 'niveau inconnu' } });
+        const normaliser = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase().trim().replace(/\s+/g, ' ');
+        const voulu = normaliser(args.prenom);
+        if(!voulu) return Promise.resolve({ data: [], error: null });
+        const cles = F.lignes(table).filter(l => normaliser(l.prenom) === voulu)
+          .map(l => String(l.cle)).sort().slice(0, 5);
+        return Promise.resolve({ data: cles, error: null });
       },
       /* auth reproduit ce que fait Supabase : il détient les codes, il les
          compare, et il est le seul à pouvoir le faire. La page, elle, ne peut

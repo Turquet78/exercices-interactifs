@@ -512,6 +512,89 @@ nombre de questions et n'ont jamais mal noté.
 parfaite remise à 100 %, la copie fautive laissée et nommée, la note partielle
 et le brouillon de pause épargnés, l'idempotence et le retour arrière.
 
+---
+
+## 3 nonies. La connexion sans la liste des prénoms (1 min)
+
+Collez **`migrations/009_connexion_sans_liste.sql`** dans l'éditeur SQL et
+exécutez-le. **Collez le fichier ENTIER.**
+
+**À jouer APRÈS la mise en ligne de la version qui la connaît — Seconde v480,
+Première v316, Terminale v384 —, et pas avant.** C'est l'inverse des 003, 007
+et 008, et la raison ne se devine pas : l'ancien écran de connexion demandait
+la **liste des prénoms** avant toute authentification, et cette migration ferme
+précisément cette lecture. Jouée trop tôt, elle coupe la connexion de **tout le
+monde** — l'ancienne page afficherait « Aucun compte pour l'instant » à une
+classe entière. Attendez de **lire ces numéros** dans l'en-tête des trois pages
+en ligne, puis collez.
+
+Dans le bon ordre, il n'y a aucun risque : tant que la migration n'est pas
+jouée, la nouvelle page **se replie d'elle-même** sur l'ancienne liste
+(Supabase répond « fonction inconnue », code `PGRST202`, et la page lit la
+liste comme avant). Ce repli **s'éteint tout seul** dès que le fichier est
+passé : il ne reste rien à retirer, ni dans la page, ni dans la base.
+
+### Ce qu'elle pose
+
+La migration 001 laissait un visiteur lire la liste des prénoms — et la **clé**
+de chacun, dont l'adresse de connexion est dérivée —, parce que l'écran de
+connexion l'affichait. C'était le prix, et il était trop haut pour trois
+classes de mineurs (décision de Turquet, octobre 2026). L'élève **tape**
+désormais son prénom, et la page n'obtient que ce qu'il faut pour le
+connecter.
+
+- **`normaliser_prenom(text)`** : minuscules, espaces rognés, accents retirés
+  — « Chloé », « chloe » et « CHLOÉ  » sont le même prénom. La page applique la
+  même règle de son côté.
+- **`cles_de_connexion(niveau, prenom)`** : la ou les clés des élèves du niveau
+  qui portent ce prénom, **cinq au plus**, et **rien d'autre** — ni
+  l'identifiant, ni le prénom, ni la liste. Elle est `security definer` : elle
+  lit la table **sans repasser par la RLS**, comme `est_prof()`, sans quoi le
+  visiteur qui l'appelle ne verrait rien. Un visiteur n'obtient plus que ce
+  qu'il savait déjà, traduit en ce qu'il lui faut pour tenter un code — et le
+  code reste vérifié par Supabase seul.
+- Sur `eleves`, `eleves_1ere`, `eleves_2nde` : la politique **`p_<table>_liste`**
+  est **remplacée** par la même, pour `authenticated` seul. Le nom ne change
+  pas, seul `anon` disparaît. Remplacée, pas doublée : deux politiques
+  permissives se combinent par un OU (la leçon de la 002).
+
+Elle se termine par un contrôle qui **échoue bruyamment** si une politique de
+lecture d'une table d'élèves nomme encore `anon`, si une table porte plus d'une
+politique de lecture, si la fonction manque ou n'est pas `security definer`, ou
+si `anon` n'a pas le droit de l'appeler. Elle est **idempotente**, et un niveau
+dont la table manque est signalé et sauté.
+
+Pour vérifier :
+
+```sql
+select tablename, policyname, roles from pg_policies
+where schemaname='public' and tablename like 'eleves%' and cmd='SELECT';
+```
+
+→ **trois lignes**, toutes `{authenticated}`.
+
+### Ce qu'elle ne donne pas, et c'est voulu
+
+**Un élève connecté lit toujours la liste entière de sa classe.** Votre
+tableau, les signalements et le bilan en ont besoin — ils nomment chaque ligne
+par son élève. Restreindre l'élève connecté à sa propre ligne est une étape
+possible plus tard, **nommée ici comme non faite**.
+
+**Les scripts à clé de service ne sont pas concernés** — `sauvegarde.mjs`,
+`relier-comptes.sql`, la fonction Edge `admin-eleve` : ils traversent la RLS,
+qu'une politique soit là ou non.
+
+### Ce que le banc voit
+
+Celle-ci est du SQL ordinaire : `npm run test:base` la rejoue en entier, puis
+met le banc dans la peau d'un **visiteur** : il ne voit plus la liste, il
+obtient la clé d'un prénom qu'il connaît **et elle seule**, « CHLOE » et
+« CHLOÉ » retrouvent Chloé, un prénom inconnu ou vide ne rend rien, un niveau
+inconnu est refusé, et la fonction ne rend que des `text`. Le professeur, lui,
+voit encore sa liste. Le banc éprouve aussi les deux retours en arrière les
+plus tentants : remettre `anon` sur la politique de la liste, et retirer
+`security definer` à la fonction — chacun **doit** le faire rougir.
+
 ## 4. Vous déclarer professeur (1 min)
 
 Toujours dans **SQL Editor**, avec l'UUID de l'étape 2 :

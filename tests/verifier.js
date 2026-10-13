@@ -896,10 +896,12 @@ function structure(){
   /* LE CODE DE CONNEXION SE TAPE MASQUÉ (audit d'octobre 2026, T10) — en
      classe, il s'affichait sur l'écran du voisin. Et masqué par la feuille de
      styles, PAS par type="password" : le formulaire de l'élève n'offre aucun
-     identifiant (le prénom est un bouton), Chrome irait le chercher ailleurs
-     et proposerait d'enregistrer le code d'un élève sur un poste partagé (le
-     piège « Sans balise <form> »). Les deux bords : masqué, et pas en
-     password ; le pavé numérique, lui, ne s'attache qu'aux cases numeric. */
+     identifiant au sens de Chrome (le prénom est un champ texte en
+     autocomplete="off", dans un <form autocomplete="off">), Chrome irait le
+     chercher ailleurs et proposerait d'enregistrer le code d'un élève sur un
+     poste partagé (le piège « Sans balise <form> »). Les deux bords : masqué,
+     et pas en password ; le pavé numérique, lui, ne s'attache qu'aux cases
+     numeric. */
   {
     const pin = (s.match(/<input[^>]*id="loginPin"[^>]*>/) || [''])[0];
     const regle = /#loginPin\{[^}]*-webkit-text-security:\s*disc/.test(s);
@@ -909,6 +911,47 @@ function structure(){
         : !regle ? 'aucune règle « #loginPin{-webkit-text-security:disc} » : le code s’affiche en clair'
         : /type="password"/.test(pin) ? 'loginPin est en type="password" : Chrome proposera d’enregistrer le code'
         : 'loginPin a perdu inputmode="numeric" : le pavé numérique ne s’y attache plus');
+  }
+
+  /* L'ÉCRAN DE CONNEXION N'AFFICHE PLUS DE LISTE DE PRÉNOMS (décision de
+     Turquet, octobre 2026). Les pastilles se lisaient sans compte — des
+     prénoms de mineurs, et les clés dont l'adresse de connexion est dérivée.
+     L'élève TAPE son prénom, et la page obtient ses clés par la fonction SQL
+     cles_de_connexion (migration 009), qui ferme la lecture anonyme de la
+     table. Tant que la migration n'est pas jouée, la fonction n'existe pas
+     (PGRST202) et la page se replie sur l'ancienne liste. DEUX BORDS sur ce
+     repli, et n'en tenir qu'un ne tient rien : s'il DISPARAISSAIT, la page
+     mise en ligne avant la migration ne connecterait plus personne ; s'il se
+     prenait sur TOUTE erreur, chaque incident de la fonction relirait la
+     liste entière, et personne ne verrait la panne. L'ordre est impératif :
+     la page d'abord en ligne, la migration ensuite. Et la création de compte
+     passe par la même porte : un second « Léa » écrit « lea » doit y être
+     refusé, sinon les deux se confondent à la connexion. */
+  {
+    const champ = (s.match(/<input[^>]*id="loginPrenom"[^>]*>/) || [''])[0];
+    const formulaire = (s.match(/<form id="modeCo"[\s\S]*?<\/form>/) || [''])[0];
+    const fCo = (s.match(/^async function connexionEleve\(\)\{[\s\S]*?\n\}/m) || [''])[0];
+    const fCr = (s.match(/^async function creerCompte\(\)\{[\s\S]*?\n\}/m) || [''])[0];
+    const fCles = (s.match(/^async function clesDuPrenom\([^)]*\)\{[\s\S]*?\n\}/m) || [''])[0];
+    const appelRpc = /sb\.rpc\(\s*'cles_de_connexion'\s*,\s*\{\s*niveau\s*:\s*NIVEAU\b/.test(fCles);
+    const iGarde = fCles.search(/if\(\s*error\.code\s*!==\s*'PGRST202'\s*\)\s*return\b/);
+    const iRepli = fCles.search(/sb\.from\('[^']+'\)\.select\('cle,prenom'\)/);
+    const defaut =
+        /id="nameChips"/.test(s) ? 'la liste des prénoms (#nameChips) est encore dans la page'
+      : !champ ? 'aucun champ #loginPrenom : l’élève ne peut pas taper son prénom'
+      : !/autocomplete="off"/.test(champ) ? '#loginPrenom n’est pas en autocomplete="off"'
+      : formulaire.indexOf('id="loginPrenom"') < 0 || !/autocomplete="off"/.test(formulaire.split('>')[0])
+          ? '#loginPrenom n’est pas dans le <form id="modeCo" autocomplete="off">'
+      : !fCo ? 'connexionEleve() introuvable'
+      : !/\bclesDuPrenom\(/.test(fCo) ? 'connexionEleve() ne passe pas par clesDuPrenom()'
+      : !fCles ? 'clesDuPrenom() introuvable'
+      : !appelRpc ? 'clesDuPrenom() n’appelle pas sb.rpc(\'cles_de_connexion\', { niveau: NIVEAU, … })'
+      : iRepli < 0 ? 'le repli sur l’ancienne liste (select(\'cle,prenom\')) a disparu : mise en ligne avant la migration 009, la page ne connecterait plus personne'
+      : iGarde < 0 || iGarde > iRepli ? 'le repli se prend sur TOUTE erreur, pas seulement sur PGRST202 : une panne de la fonction relirait la liste entière sans que rien ne le dise'
+      : !fCr ? 'creerCompte() introuvable'
+      : !/\bclesDuPrenom\(/.test(fCr) ? 'creerCompte() ne vérifie pas le prénom par clesDuPrenom() : un second « Léa » écrit « lea » passerait'
+      : '';
+    verifier('l’écran de connexion n’affiche plus de liste de prénoms', defaut === '', defaut);
   }
 
   /* L'ÉLÈVE DOIT ÊTRE PRÉVENU DE NOTER SON CODE, AUX DEUX ENDROITS où il s'en
@@ -1233,6 +1276,58 @@ function demarrage(suite){
       return sans.join(', ');
     })()`, v => v === '', 'exercice(s) sans start()');
     branchements(w);
+    connexionParPrenom(w, suite);
+  });
+}
+
+/* ---------- 2 ter. La connexion par prénom, exécutée dans jsdom ------------
+   Le contrôle de source de la section 1 lit que connexionEleve passe par
+   clesDuPrenom et que le repli ne se prend que sur PGRST202 ; celui-ci
+   EXÉCUTE la connexion, avec le double de Supabase du banc navigateur
+   (tests/faux-supabase.js) injecté à la place de supabase-js, que jsdom ne
+   charge pas : un élève semé, son compte, les deux champs remplis — le prénom
+   en MAJUSCULES SANS ACCENT, pour que la normalisation soit du voyage —, puis
+   connexionEleve() attendue. Ce qu'on exige : l'espace s'ouvre, currentEleve
+   porte la ligne relue, et AUCUN select sur la table des élèves n'a précédé
+   le signIn — c'est la lecture que la migration 009 ferme. Le banc
+   navigateur tient le même bord dans un vrai Chromium ; ici il coûte une
+   seconde et tourne sans Chromium. Il passe la main à la section 3 depuis
+   son rappel : un contrôle asynchrone lancé avant suite() aurait imprimé son
+   verdict au milieu de la section suivante. */
+function connexionParPrenom(w, suite){
+  const INTITULE = 'la connexion par prénom ouvre l’espace sans lire la table avant le signIn';
+  let faux = '';
+  try{ faux = fs.readFileSync(path.join(__dirname, 'faux-supabase.js'), 'utf8'); }catch(e){}
+  const prep = faux ? evaluer(w, faux) : { ok:false, erreur:'tests/faux-supabase.js illisible' };
+  if(!prep.ok){ verifier(INTITULE, false, 'le double de Supabase ne se charge pas : ' + prep.erreur); return suite(); }
+  evalPromis(w, `(async function(){
+    const F=window.__faux, table=${JSON.stringify(P.tableEleves)};
+    F.semer(table,[{id:'eleve-jsdom',prenom:'Contrôle',cle:'cle-jsdom',user_id:'compte-jsdom'}]);
+    F.semerCompte(courrielDe('cle-jsdom'),motDePasseDe('123456'),'compte-jsdom');
+    const sbSauve=sb, eleveSauve=currentEleve;
+    sb=window.supabase.createClient();
+    try{
+      show('login'); preparerConnexion();
+      document.getElementById('loginPrenom').value='CONTROLE';
+      document.getElementById('loginPin').value='123456';
+      await connexionEleve();
+      await new Promise(function(r){ setTimeout(r,0); });
+      const j=F.journal, i=j.findIndex(function(e){ return e.op==='signIn'; });
+      const avant=i<0?j:j.slice(0,i);
+      const lectures=avant.filter(function(e){ return e.op==='select'&&e.table===table; }).map(function(e){ return 'select('+e.colonnes+')'; });
+      const rpc=avant.filter(function(e){ return e.op==='rpc'&&e.table==='cles_de_connexion'; }).length;
+      const ecran=((document.querySelector('.screen.on')||{}).id)||'(aucun)';
+      const prenomVu=currentEleve&&currentEleve.prenom;
+      if(i<0) return 'aucune connexion tentée : le contrôle n\\'a rien mesuré';
+      if(lectures.length) return lectures.length+' lecture(s) de '+table+' avant la connexion : '+lectures.join(', ');
+      if(!rpc) return 'aucun appel rpc cles_de_connexion avant la connexion';
+      if(!j[i].ok) return 'le serveur a refusé le code semé : rien d\\'autre n\\'est mesurable';
+      if(ecran!=='scr-space') return 'écran atteint : '+ecran;
+      if(prenomVu!=='Contrôle') return 'currentEleve ne porte pas la ligne relue : '+JSON.stringify(prenomVu);
+      return '';
+    } finally { sb=sbSauve; currentEleve=eleveSauve; show('login'); }
+  })()`, r => {
+    verifier(INTITULE, r.ok && r.valeur === '', r.ok ? r.valeur : 'erreur JavaScript : ' + r.erreur);
     suite();
   });
 }
