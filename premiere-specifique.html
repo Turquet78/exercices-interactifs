@@ -1541,21 +1541,41 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
    qu'ajoutée aux sélecteurs de #sfHost — ce bloc-là est le même texte dans
    les deux niveaux. Sans elle, le badge de correction se poserait DANS le
    flux et élargirait le trait de fraction ; et la place se réserve sur la
-   CASE qui porte une correction, sans quoi le badge masque le « × » voisin. */
-#mltHost .f-fbar{width:auto;align-self:stretch;height:4px}
+   CASE qui porte une correction, sans quoi le badge masque le « × » voisin.
+   Les TAILLES, elles, sont dans le bloc « cases réduites » qui suit. */
 #mltHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
-#mltHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:5px;font-size:calc(1.1rem * var(--tab-nb,1));white-space:nowrap}
-#mltHost .sf-prod:has(.mf-cor),#mltHost .f-frac-input:has(.mf-cor){margin-right:52px}
-#mltHost .sf-l .sf-case:has(.mf-cor){margin-right:46px}
-#mltHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15}
-#mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:92px}
+#mltHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);white-space:nowrap}
 #mltHost .pt-row{flex-wrap:wrap}
-/* le calcul en tête de rangée, et la fraction réécrite au milieu, à la taille de la rangée */
-#mltHost .pt-row>.f-frac,#mltHost .pt-row>.f-grp>.f-frac{font-size:calc(2rem * var(--tab-nb,1))}
 #mltPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
-@media(max-width:900px){ #mltHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1))}
-  #mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:76px} }
-@media(max-width:520px){ #mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:62px} }
+/* ===== CASES RÉDUITES : 4.3, 4.4 ET 4.5 (demande de Turquet, octobre 2026 :
+   « réduire la taille des cases où l'on doit placer des nombres à l'écran »)
+   — la mesure du 4.6 (#spfHost, plus bas), reprise au chiffre près. La règle
+   de tout exercice veut que la case ait la taille des nombres qui l'entourent :
+   c'est donc TOUTE la rangée qui descend d'un cran (1,45 rem au lieu de 2),
+   chiffres, signes et cases ensemble, et le cadre de la case se resserre
+   (36 px de haut au lieu de 46, largeur au contenu).
+   LE 4.3 PARTAGE SON ÉCRAN avec le 4.2 et le 1.9 (#sfHost, moteur sf identique
+   à la Seconde au caractère près : pas une classe de plus dans son rendu). La
+   règle se pose donc sur l'ÉCRAN, par l'exercice qu'il porte — show() écrit
+   l'identifiant dans data-exo —, et ne touche ni le 4.2 ni le 1.9, qui
+   gardent leurs cases pleines. Un contrôle du banc navigateur (« 6 terdecies
+   ter ») mesure les deux bords : les cases réduites plus petites que celles
+   du 4.2, et celles du 4.2 restées à leur taille. */
+#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-fbar,#mltHost .f-fbar{height:3px}
+#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-case .mf-cor,#mltHost .sf-case .mf-cor{margin-left:4px;font-size:calc(.95rem * var(--tab-nb,1))}
+#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-prod:has(.mf-cor),#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-somme:has(.mf-cor),#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-frac-input:has(.mf-cor),#mltHost .sf-prod:has(.mf-cor),#mltHost .sf-somme:has(.mf-cor),#mltHost .f-frac-input:has(.mf-cor){margin-right:40px}
+#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-l .sf-case:has(.mf-cor),#mltHost .sf-l .sf-case:has(.mf-cor){margin-right:34px}
+#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-haut .sf-case:has(.mf-cor),#mltHost .sf-haut .sf-case:has(.mf-cor){margin-right:40px}
+#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-whole,#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-eq,#mltHost .f-whole,#mltHost .f-eq{font-size:calc(1.45rem * var(--tab-nb,1))}
+#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-times,#mltHost .f-times{font-size:calc(1.15rem * var(--tab-nb,1))}
+#scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf,#mltHost math-field.pm-mf{font-size:calc(1.4rem * var(--tab-nb,1));line-height:1.1}
+#scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf.f-num,#scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf.f-den,#mltHost math-field.pm-mf.f-num,#mltHost math-field.pm-mf.f-den{width:auto;min-width:40px;height:auto;min-height:36px;border-radius:9px;border-width:1.5px;padding:0 2px}
+#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-l .f-num,#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-l .f-den,#mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:auto}
+/* le calcul en tête de rangée, et la fraction réécrite au milieu, à la taille de la rangée */
+#scr-sf[data-exo="somme-fractions-2"] #sfHost .pt-row>.f-frac,#scr-sf[data-exo="somme-fractions-2"] #sfHost .pt-row>.f-grp>.f-frac,#mltHost .pt-row>.f-frac,#mltHost .pt-row>.f-grp>.f-frac{font-size:calc(1.45rem * var(--tab-nb,1))}
+@media(max-width:520px){ #scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf,#mltHost math-field.pm-mf{font-size:calc(1.2rem * var(--tab-nb,1))}
+  #scr-sf[data-exo="somme-fractions-2"] #sfHost .f-whole,#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-eq,#scr-sf[data-exo="somme-fractions-2"] #sfHost .pt-row>.f-frac,#scr-sf[data-exo="somme-fractions-2"] #sfHost .pt-row>.f-grp>.f-frac,#mltHost .f-whole,#mltHost .f-eq,#mltHost .pt-row>.f-frac,#mltHost .pt-row>.f-grp>.f-frac{font-size:calc(1.25rem * var(--tab-nb,1))}
+  #scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf.f-num,#scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf.f-den,#mltHost math-field.pm-mf.f-num,#mltHost math-field.pm-mf.f-den{min-width:34px;min-height:32px} }
 /* {somme-produit-fractions} (4.6) : la mise en page de la Seconde, avec des
    CASES PLUS PETITES (demande de Turquet, octobre 2026 : « les cases où l'on
    place des nombres doivent être plus petites à l'écran »). La rangée est la
@@ -2819,7 +2839,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=310;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=311;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4634,6 +4654,13 @@ function show(name){
       console.warn('RÈGLE : aucun rappel de cours pour « '+currentTestId+' » (kind '+(test&&test.kind)+'). Ajouter une entrée dans RAPPELS.');
     try{ iaBoutons($('scr-'+name)); }catch(e){}
     const sec=$('scr-'+name);
+    /* L'IDENTIFIANT DE L'EXERCICE, SUR SON ÉCRAN : un écran partagé par
+       plusieurs exercices (#scr-sf porte le 1.9, le 4.2 et le 4.3) peut
+       ainsi se régler PAR EXERCICE dans la feuille de styles — les cases
+       réduites du 4.3 (octobre 2026) —, sans qu'un moteur partagé avec la
+       Seconde ait une classe de plus à poser. Écrit ici, il suit la reprise
+       après une pause comme le démarrage : les deux passent par show(). */
+    sec.dataset.exo=currentTestId||'';
     let t=sec.querySelector('.exo-title');
     if(!t){ t=document.createElement('div'); t.className='exo-title'; sec.insertBefore(t, sec.firstChild); }
     const n=testNum(currentTestId);
