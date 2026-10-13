@@ -1908,14 +1908,18 @@
   .vtr-svg text{font-family:"Fredoka";font-weight:600;font-size:17px;fill:var(--blue-dark)}
   .vtr-svg text.vtr-vl{font-family:"Times New Roman",serif;font-style:italic;font-size:19px}
   .vtr-svg text.vtr-vl tspan{font-size:12px;font-style:normal;font-family:"Fredoka"}
-  .vtr-lignes{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:12px 22px;width:100%;max-width:980px;margin:0 auto}
+  /* une ligne par rangée, comme le tableau de la fiche : la phrase entière
+     tient sur une ligne, et la fin « par la translation de vecteur v₁ » ne se
+     sépare jamais de son vecteur (.vtr-ph) */
+  .vtr-lignes{display:flex;flex-direction:column;gap:10px;width:100%;max-width:780px;margin:0 auto}
+  .vtr-ph{white-space:nowrap}
   .vtr-l{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;border:1.5px solid #D6E2F8;border-radius:14px;padding:8px 14px;background:#FBFCFF;font-family:"Fredoka";font-weight:500;font-size:1.08rem;color:var(--ink)}
   .vtr-pt{font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);min-width:1.2em;text-align:center}
   .vtr-vec{font-family:"Times New Roman",serif;font-style:italic;font-weight:600;color:var(--blue-dark);white-space:nowrap}
   .vtr-l .vtr-vec{font-size:1.45rem}
   .vtr-vec sub{font-style:normal;font-size:.62em;font-family:"Fredoka";font-weight:600}
   .vtr-fl{position:relative;display:inline-block;padding-top:.2em}
-  .vtr-fl::before{content:"\2192";position:absolute;left:50%;top:-.42em;transform:translateX(-50%);font-size:.72em;font-style:normal;line-height:1}
+  .vtr-fl::before{content:"\2192";position:absolute;left:58%;top:-.42em;transform:translateX(-50%);font-size:.72em;font-style:normal;line-height:1}
   .vtr-in{width:64px;min-width:0;height:48px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none;text-transform:uppercase}
   .vtr-in:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
   .vtr-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue)}
@@ -1923,7 +1927,7 @@
   .vtr-in.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
   #scr-vtr .plc-sel.vtr-sel{width:88px;font-family:"Times New Roman",serif;font-style:italic;font-size:1.3rem;padding:0}
   #scr-vtr .mf-cor.vtr-x{font-family:"Times New Roman",serif;font-style:italic}
-  @media(max-width:520px){ .vtr-lignes{grid-template-columns:1fr} .vtr-l{padding:8px 10px;gap:6px 8px} .vtr-figs{gap:10px} }
+  @media(max-width:520px){ .vtr-l{padding:8px 10px;gap:6px 8px} .vtr-figs{gap:10px} }
   /* ---- Somme et produit de deux relatifs (7.4, thème Calcul littéral) ----
      Une paire de relatifs par bloc, et deux lignes : leur SOMME, puis leur
      PRODUIT. Les deux calculs sont indépendants — on alterne les règles, pas
@@ -53926,7 +53930,7 @@ function renderVtrTest(){
     h+='<div class="vtr-l"><span class="vtr-pt">'+l.dep+'</span><span>a pour image</span>';
     if(l.t==='image'){
       h+='<input class="vtr-in" id="vtr-i-'+l.i+'" type="text" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="l’image de '+l.dep+' par la translation de vecteur v'+l.num+'">'
-        +'<span>par la translation de vecteur</span>'+vtrVecHTML(l.num);
+        +'<span class="vtr-ph">par la translation de vecteur '+vtrVecHTML(l.num)+'</span>';
     } else {
       h+='<span class="vtr-pt">'+l.img+'</span><span>par la translation de vecteur</span>'
         +'<select class="plc-sel vtr-sel" id="vtr-v-'+l.i+'" aria-label="le vecteur de la translation qui envoie '+l.dep+' sur '+l.img+'">'+vide+opts+'</select>';
