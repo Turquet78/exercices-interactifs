@@ -1596,3 +1596,69 @@ parce qu'un sélecteur trop large (`#sfHost` nu) réduirait le 4.2 sans que
 le premier bord ne bouge — c'est le second qui l'attraperait. Éprouvé par
 sabotage : la ligne `data-exo` retirée de `show()`, le 4.3 garde ses
 grandes cases et le contrôle rougit sur lui seul.
+
+**Puis le 4.6 a reçu une soustraction et ses colonnes (octobre 2026,
+Première v312).** Demande de Turquet : « dans le 4.6 en première, il est
+possible d'avoir une soustraction au lieu d'une addition, mais le résultat
+doit être positif. De plus placer les signes "=" en début de ligne et
+afficher les cases à remplir en dessous verticalement des nombres du dessus
+correspondants au mieux. De plus il faut sur la même page une autre question
+où il faut rédiger la solution comme dans l'exercice 4.3 de première. » Le
+troisième point était déjà en ligne, par le module commun du paragraphe
+précédent (v310) : la branche « spf » de `redMath` a seulement appris à lire
+`q.op`. Deux branches avaient travaillé en même temps sur la même page ; la
+fusion a gardé le module commun, et jeté le calque que l'autre avait écrit.
+
+* **L'opération vit dans la question (`q.op`, « + » ou « − »)** et alterne
+  d'une paire à l'autre : `spfGen(op, i)` lit le rang que `distinctes()` lui
+  passe, si bien que `redPaires(SPF_NB, spfGen)` n'a rien à savoir — la
+  guidée et sa rédigée posent la même opération. Le tirage écarte toute
+  différence négative ou nulle — « le résultat doit être positif » —, et le
+  croisement ne soustrait donc jamais au-dessous de zéro non plus
+  (N1 − N2 = N > 0). Le juge, le peintre et la correction du croisement
+  (`pfCroixJuge`, `pfCroixPeindre`, `pfCroixCorrection`) savaient déjà
+  soustraire : ils venaient de la Seconde avec leur `op`, que le 5.12
+  n'appelait qu'avec « + ». Le message « il reste à additionner » dit
+  « soustraire » quand il faut ; le libellé des étapes, l'énoncé, le
+  contexte envoyé à l'aide, la branche « spf » de `redMath` (énoncé, LaTeX,
+  règle, contexte de la rédigée) et le rappel de cours (`RAP_SPF`) nomment
+  la différence. La question porte aussi `Nr`/`Dr`, sa forme irréductible.
+  Le juge de la rédigée (`spfrJuge`) n'a pas bougé : il compare des VALEURS,
+  et « 3/2 − 1/2×3/2 » vaut 3/4 pour `libreEval`, qui connaît la priorité
+  des opérations — la copie qui soustrait avant de multiplier écrit une
+  égalité fausse, que le juge nomme.
+* **Le calcul se lit EN COLONNES.** La rangée `.pt-row` de `#spfHost` est
+  une GRILLE de quatre colonnes — le « = », le premier terme, le signe, le
+  second terme —, une ligne par étape, `align-items`/`justify-items` au
+  centre : la case tombe sous le nombre qu'elle remplace, « au mieux », et le
+  « = » ouvre chaque ligne. La ligne de l'énoncé n'en a pas (sa première
+  colonne reste vide). Les étapes à un seul terme — la somme, la fraction
+  obtenue, la simplification — se posent dans la colonne du premier terme.
+  Le HTML ne fait que NOMMER la colonne de chaque morceau (`spf-eq`,
+  `spf-t1`, `spf-op`, `spf-t2`, posés par `spfCol`) ; `pfCroixHTML` écrit
+  désormais ces trois lignes-là plutôt que la rangée de la Seconde — son
+  juge n'a pas bougé d'une lettre. La simplification par étapes
+  (`seEtapeHTML`) rend des groupes « = fraction » (`.f-grp.se-etape`) :
+  `display:contents` les efface et leurs deux enfants prennent les colonnes 1
+  et 2 — le moteur partagé n'a rien eu à apprendre. Un piège de grille à
+  connaître : le placement automatique ouvre une nouvelle ligne dès qu'un
+  morceau à colonne fixée recule (le « = » de la colonne 1 après un second
+  terme de la colonne 4), et c'est ce qui range les étapes sans qu'aucune
+  ligne soit déclarée.
+
+Contrôles : le contrôle du tirage (`tests/verifier.js`, « nombres de 1 à 5,
+produit borné à 6… ») exige les DEUX opérations en deux cents séances, le
+résultat recalculé selon l'opération et strictement positif, `Nr`/`Dr`
+rangés, les paires guidée PUIS rédigée de la même opération ; il joue la
+soustraction 3/2 − 1/2 × 3/2 = 6/8 = 3/4 par de vrais évènements « input »,
+et refuse 18/8 (additionné) avec le mot « soustraire » ; il compte les « = »
+de la grille et vérifie que la ligne de l'énoncé n'en a pas. Le contrôle des
+rédigées (`fractionsRedigees`) juge une soustraction rédigée juste, refuse
+6/4 + 3/4 = 9/4 et la soustraction faite avant la multiplication, et relit
+l'énoncé, le LaTeX, la règle et le contexte de la soustraction. Le banc
+navigateur (« 6 terdecies bis », ③) MESURE la grille : chaque « = » est le
+premier morceau de sa ligne, les centres des premiers termes, des signes et
+des seconds termes tombent sur la même verticale à 2 px près, huit lignes,
+rien ne déborde ; puis il tape la copie au clavier, ouvre la rédigée, y écrit
+une soustraction juste, referme la zone, et rejoue la reprise sur une
+rédigée.
