@@ -226,12 +226,15 @@ module.exports = {
        proposer les simplifications comme au 4.1 »). FRAC_MAX dans la page,
        ici la borne : deux sources. */
     fractionsEtapes: { max: 5, exercices: ['croiser-denominateurs', 'somme-fractions-2', 'multiplier-fractions', 'diviser-fractions'] },
-    /* Les cases RÉDUITES du thème 4 (demande de Turquet, octobre 2026 : le 4.6
-       d'abord, puis « 4.3 ; 4.4 ; 4.5 »). Le témoin partage l'écran et le
-       moteur du 4.3 et garde ses cases pleines : le banc navigateur mesure les
-       deux bords (« 6 terdecies ter »). */
-    casesReduites: { temoin: 'croiser-denominateurs',
-                     exercices: ['somme-fractions-2', 'multiplier-fractions', 'diviser-fractions', 'somme-produit-fractions'] },
+    /* Le thème 4 s'écrit d'UNE SEULE ENCRE (demande de Turquet, octobre 2026 :
+       « les nombres aient la même taille et la même police, de l'énoncé
+       jusqu'à la fin de l'exercice, et pour les cases à remplir aussi ») — elle
+       remplace les cases réduites du 4.3 au 4.6. La police et la taille vivent
+       dans la page (bloc « UNE SEULE ENCRE »), ici leur copie : deux sources.
+       Le témoin partage l'écran du 4.2 et du 4.3 sans être du thème, et garde
+       ses cases pleines : le banc navigateur mesure les deux bords
+       (« 6 terdecies ter »). */
+    encreFractions: { theme: 'Fractions', police: 'Fredoka', rem: 1.45, temoin: 'somme-fractions' },
     /* {multiplier-fractions} et {diviser-fractions} (4.4, 4.5) : le moteur de
        la Seconde, nombres de 1 à 5, produit qui se SIMPLIFIE par étapes, sans
        la version rédigée. */
@@ -489,6 +492,14 @@ module.exports = {
                          les fractions de l'énoncé — il est donc nommé ici plutôt que
                          tu, sans quoi le contrôle rougirait sur un écran voulu. */
                       hors: ['.dexp2-prefix'],
+                      /* Le thème FRACTIONS écrit ses nombres d'une seule taille « de
+                         l'énoncé jusqu'à la fin » (demande de Turquet, octobre 2026,
+                         encreFractions ci-dessous) : sur tablette, son énoncé descend
+                         donc du même cran que sa rangée. Le facteur y est posé une
+                         seconde fois, sur l'écran entier du thème, à la même valeur et
+                         sous la même requête média — l'exception déclarée à « après
+                         l'énoncé », que le banc jsdom vérifie telle quelle. */
+                      ecransEntiers: ['Fractions'],
                       exercice: 'pourcentage', champ: '#p3', ecriture: '.f-whole', enonce: '#pPrompt' },
     /* Le clavier mathématique à l'écran (buildKbTerm) : sa touche « ⏎ » VALIDE
        — commit, l'événement « change » : une ligne de plus dans la feuille du

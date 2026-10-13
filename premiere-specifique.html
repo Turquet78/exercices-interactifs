@@ -1337,15 +1337,12 @@ i.pb-P{margin-right:.14em}
 .rel-regle .plc-sel{width:auto;min-width:300px;padding:0 14px}
 @media(max-width:520px){ .rel-regle .plc-sel{min-width:0;width:100%} }
 #rvfHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
-#rvfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:5px;font-size:calc(1.1rem * var(--tab-nb,1));white-space:nowrap}
-#rvfHost .f-fbar{width:auto;align-self:stretch;height:4px}
-#rvfHost .sf-prod:has(.mf-cor),#rvfHost .f-frac-input:has(.mf-cor){margin-right:52px}
-#rvfHost .sf-l .sf-case:has(.mf-cor){margin-right:46px}
+#rvfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);white-space:nowrap}
+#rvfHost .f-fbar{width:auto;align-self:stretch}
 #rvfHost .pt-row{flex-wrap:wrap}
-/* Les fractions DONNÉES de la rangée à la taille de ses nombres et de ses
-   cases, comme #sfHost : sans cette règle, « 3/2 − 5 » s'écrivait deux fois
-   plus petit que le « 5 × » de la case voisine (vu à l'écran, octobre 2026). */
-#rvfHost .pt-row>.f-frac,#rvfHost .pt-row>.f-grp>.f-frac{font-size:calc(2rem * var(--tab-nb,1))}
+/* Les TAILLES et la POLICE de cet écran — fractions données, cases,
+   badges, trait — sont celles du thème Fractions, déclarées une fois dans
+   le bloc « UNE SEULE ENCRE » plus bas : ce fichier n'en écrit aucune ici. */
 #rvfHost .f-num.sol,#rvfHost .f-den.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
 /* LA BARRE DE Ā ET B̄ EST UN TRAIT DESSINÉ, pas un « overline » de texte
    (signalé par Turquet, octobre 2026, capture : « on ne voit pas bien les
@@ -1485,11 +1482,11 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* Le trait suit la LARGEUR de la ligne, il n'a pas la sienne : « 5 × [case] »
    est bien plus large que 82 px, et un trait plus court que ce qu'il sépare ne
    se lit plus comme une barre de fraction. */
-#sfHost .f-fbar{width:auto;align-self:stretch;height:4px}
+#sfHost .f-fbar{width:auto;align-self:stretch;height:var(--fx-trait,4px)}
 /* L'enveloppe d'une case, et le badge de correction qu'elle porte : posé HORS
    du flux, il ne déplace plus ni le trait ni la colonne. */
 #sfHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
-#sfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:5px;font-size:calc(1.1rem * var(--tab-nb,1));white-space:nowrap}
+#sfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:5px;font-size:calc(var(--fx-base,1.1rem) * var(--tab-nb,1));white-space:nowrap}
 /* De l'air autour du signe de l'étape ② : la correction du premier numérateur
    se pose à sa droite, et sans place elle recouvrait le signe et le numérateur
    suivant — la bonne réponse était affichée ET illisible. La place n'est prise
@@ -1503,25 +1500,31 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
    il faut donc réserver au niveau du GROUPE (la fraction entière), et pas
    seulement entre les deux numérateurs. Posée sur la case, la marge élargirait
    le trait de fraction au lieu d'écarter le voisin. */
-#sfHost .sf-haut .sf-case:has(.mf-cor){margin-right:56px}
-#sfHost .sf-prod:has(.mf-cor),#sfHost .sf-somme:has(.mf-cor){margin-right:52px}
+#sfHost .sf-haut .sf-case:has(.mf-cor){margin-right:var(--fx-res,56px)}
+#sfHost .sf-prod:has(.mf-cor),#sfHost .sf-somme:has(.mf-cor){margin-right:var(--fx-res,52px)}
 /* Une case où l'élève écrit un nombre s'écrit en MODE MATH et à la MÊME TAILLE
    que les nombres qui l'entourent (décision de Turquet, août 2026, valable pour
    tout exercice à saisie). C'est 1,9rem, comme les écrans de pourcentage de la
    Première : les chiffres voisins (.f-whole) sont à 2rem, et une case à 1,05rem
    se lisait comme une note de bas de page au milieu d'un calcul.
    La largeur suit la taille : à 62 px, une réponse à deux chiffres débordait. */
-#sfHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15}
+/* CET ÉCRAN EST PARTAGÉ : le 1.9 (calcul mental) y garde ces tailles, le 4.2
+   et le 4.3 (thème Fractions) y reçoivent les leurs par les variables --fx…,
+   posées sur l'écran par le thème (bloc « UNE SEULE ENCRE », plus bas). Une
+   règle à identifiant gagne sur toute règle de classe : c'est donc ELLE qui
+   lit la variable, sa propre valeur en repli — et c'est elle qui multiplie
+   par le facteur de la tablette, comme toute règle de taille. */
+#sfHost math-field.pm-mf{font-size:calc(var(--fx-base,1.9rem) * var(--tab-nb,1));line-height:1.15}
 /* Le calcul écrit en TÊTE de rangée a la taille de la rangée (demande de
    Turquet, août 2026, née en Seconde — l'écran des sommes est le MÊME) :
    « .f-frac » vaut 1,45 rem partout ailleurs. */
-#sfHost .pt-row>.f-frac,#sfHost .pt-row>.f-grp>.f-frac{font-size:calc(2rem * var(--tab-nb,1))}
-#sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:92px}
+#sfHost .pt-row>.f-frac,#sfHost .pt-row>.f-grp>.f-frac{font-size:calc(var(--fx-base,2rem) * var(--tab-nb,1))}
+#sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:var(--fx-l,92px)}
 #sfHost .pt-row{flex-wrap:wrap}
-@media(max-width:900px){ #sfHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1))}
-  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:76px} }
+@media(max-width:900px){ #sfHost math-field.pm-mf{font-size:calc(var(--fx-base,1.5rem) * var(--tab-nb,1))}
+  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:var(--fx-l,76px)} }
 @media(max-width:520px){ .sf-prod .sf-l{gap:3px} .sf-somme .sf-haut{gap:4px}
-  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px} }
+  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:var(--fx-l,62px)} }
 /* --- Thème 4 (octobre 2026) : les écrans portés de la Seconde -------------
    Croiser les dénominateurs : la couleur et les flèches, RECOPIÉES de la
    Seconde. Violet et orange, jamais vert, bleu ni rouge : ceux-là sont pris
@@ -1541,61 +1544,107 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* Multiplier, diviser : la mise en page de la somme, RECOPIÉE plutôt
    qu'ajoutée aux sélecteurs de #sfHost — ce bloc-là est le même texte dans
    les deux niveaux. Sans elle, le badge de correction se poserait DANS le
-   flux et élargirait le trait de fraction ; et la place se réserve sur la
-   CASE qui porte une correction, sans quoi le badge masque le « × » voisin.
-   Les TAILLES, elles, sont dans le bloc « cases réduites » qui suit. */
+   flux et élargirait le trait de fraction. Les TAILLES, elles, sont celles
+   du thème (bloc « UNE SEULE ENCRE », juste en dessous). */
 #mltHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
 #mltHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);white-space:nowrap}
+#mltHost .f-fbar{width:auto;align-self:stretch}
 #mltHost .pt-row{flex-wrap:wrap}
 #mltPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
-/* ===== CASES RÉDUITES : 4.3, 4.4 ET 4.5 (demande de Turquet, octobre 2026 :
-   « réduire la taille des cases où l'on doit placer des nombres à l'écran »)
-   — la mesure du 4.6 (#spfHost, plus bas), reprise au chiffre près. La règle
-   de tout exercice veut que la case ait la taille des nombres qui l'entourent :
-   c'est donc TOUTE la rangée qui descend d'un cran (1,45 rem au lieu de 2),
-   chiffres, signes et cases ensemble, et le cadre de la case se resserre
-   (36 px de haut au lieu de 46, largeur au contenu).
-   LE 4.3 PARTAGE SON ÉCRAN avec le 4.2 et le 1.9 (#sfHost, moteur sf identique
-   à la Seconde au caractère près : pas une classe de plus dans son rendu). La
-   règle se pose donc sur l'ÉCRAN, par l'exercice qu'il porte — show() écrit
-   l'identifiant dans data-exo —, et ne touche ni le 4.2 ni le 1.9, qui
-   gardent leurs cases pleines. Un contrôle du banc navigateur (« 6 terdecies
-   ter ») mesure les deux bords : les cases réduites plus petites que celles
-   du 4.2, et celles du 4.2 restées à leur taille. */
-#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-fbar,#mltHost .f-fbar{height:3px}
-#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-case .mf-cor,#mltHost .sf-case .mf-cor{margin-left:4px;font-size:calc(.95rem * var(--tab-nb,1))}
-#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-prod:has(.mf-cor),#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-somme:has(.mf-cor),#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-frac-input:has(.mf-cor),#mltHost .sf-prod:has(.mf-cor),#mltHost .sf-somme:has(.mf-cor),#mltHost .f-frac-input:has(.mf-cor){margin-right:40px}
-#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-l .sf-case:has(.mf-cor),#mltHost .sf-l .sf-case:has(.mf-cor){margin-right:34px}
-#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-haut .sf-case:has(.mf-cor),#mltHost .sf-haut .sf-case:has(.mf-cor){margin-right:40px}
-#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-whole,#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-eq,#mltHost .f-whole,#mltHost .f-eq{font-size:calc(1.45rem * var(--tab-nb,1))}
-#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-times,#mltHost .f-times{font-size:calc(1.15rem * var(--tab-nb,1))}
-#scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf,#mltHost math-field.pm-mf{font-size:calc(1.4rem * var(--tab-nb,1));line-height:1.1}
-#scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf.f-num,#scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf.f-den,#mltHost math-field.pm-mf.f-num,#mltHost math-field.pm-mf.f-den{width:auto;min-width:40px;height:auto;min-height:36px;border-radius:9px;border-width:1.5px;padding:0 2px}
-#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-l .f-num,#scr-sf[data-exo="somme-fractions-2"] #sfHost .sf-l .f-den,#mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:auto}
-/* le calcul en tête de rangée, et la fraction réécrite au milieu, à la taille de la rangée */
-#scr-sf[data-exo="somme-fractions-2"] #sfHost .pt-row>.f-frac,#scr-sf[data-exo="somme-fractions-2"] #sfHost .pt-row>.f-grp>.f-frac,#mltHost .pt-row>.f-frac,#mltHost .pt-row>.f-grp>.f-frac{font-size:calc(1.45rem * var(--tab-nb,1))}
-@media(max-width:520px){ #scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf,#mltHost math-field.pm-mf{font-size:calc(1.2rem * var(--tab-nb,1))}
-  #scr-sf[data-exo="somme-fractions-2"] #sfHost .f-whole,#scr-sf[data-exo="somme-fractions-2"] #sfHost .f-eq,#scr-sf[data-exo="somme-fractions-2"] #sfHost .pt-row>.f-frac,#scr-sf[data-exo="somme-fractions-2"] #sfHost .pt-row>.f-grp>.f-frac,#mltHost .f-whole,#mltHost .f-eq,#mltHost .pt-row>.f-frac,#mltHost .pt-row>.f-grp>.f-frac{font-size:calc(1.25rem * var(--tab-nb,1))}
-  #scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf.f-num,#scr-sf[data-exo="somme-fractions-2"] #sfHost math-field.pm-mf.f-den,#mltHost math-field.pm-mf.f-num,#mltHost math-field.pm-mf.f-den{min-width:34px;min-height:32px} }
-/* {somme-produit-fractions} (4.6) : la mise en page de la Seconde, avec des
-   CASES PLUS PETITES (demande de Turquet, octobre 2026 : « les cases où l'on
-   place des nombres doivent être plus petites à l'écran »). La chaîne est la
-   plus longue du thème — produit, croisement, somme, puis la simplification —
-   et la case garde la taille des nombres qui l'entourent (règle de tout
-   exercice) : c'est donc TOUT le calcul qui descend d'un cran, chiffres,
-   signes et cases ensemble, et le cadre de la case se resserre. */
-#spfHost .f-fbar{width:auto;align-self:stretch;height:3px}
+/* ===== UNE SEULE ENCRE POUR LE THÈME FRACTIONS (demande de Turquet, octobre
+   2026 : « pour tous les exercices dans le thème fraction, les nombres aient
+   la même taille et la même police, de l'énoncé jusqu'à la fin de l'exercice,
+   et pour les cases à remplir aussi »).
+   Avant, trois écritures se croisaient sur le même écran : l'énoncé écrivait
+   ses fractions en Fredoka à 1,33 rem entre des mots en Nunito, la rangée en
+   Fredoka à 2 rem (4.1, 4.2) ou 1,45 rem (4.3 à 4.6), et les cases MathLive en
+   Nunito gras (la règle injectée dans chaque case, FIELD_FIX_CSS) ; la feuille
+   de la question rédigée écrivait à 2 rem, le badge de correction à 0,95 rem.
+   Désormais TOUT ce qui porte un nombre ou un signe du calcul — l'énoncé, la
+   rangée (le « + » du 4.6 compris, b.spf-op), les cases, la chaîne de
+   simplification, le badge de correction, le préfixe « = » et le champ de la
+   feuille rédigée — s'écrit en Fredoka 600 à UNE taille, --fx-base, déclarée
+   UNE fois ci-dessous.
+   LA POLICE ENTRE DANS LES CASES par une variable : la règle injectée dans
+   chaque case MathLive lit --mf-police et --mf-graisse (FIELD_FIX_CSS), que
+   les propriétés personnalisées traversent la frontière du shadow DOM ; hors
+   de ce thème, elles sont absentes et la case garde son Nunito gras.
+   L'ÉCRAN PORTE LE THÈME : show() écrit le nom du thème de l'exercice dans
+   data-theme (comme il écrit déjà l'identifiant dans data-exo) — #scr-sf est
+   partagé avec le 1.9, qui n'est pas du thème et garde ses tailles pleines ;
+   un exercice ajouté demain au thème reçoit l'encre sans rien déclarer, sur
+   un écran neuf comme sur un écran partagé. Les règles à IDENTIFIANT de
+   #sfHost gagneraient sur celles-ci : elles lisent donc les variables --fx…
+   (voir plus haut) ; les écrans propres au thème (rvf, mlt, spf) n'écrivent
+   plus aucune taille.
+   Le facteur de la TABLETTE (--tab-nb) se pose ici AUSSI sur l'écran entier,
+   à la même valeur que sur le stage : l'énoncé doit descendre du même cran
+   que la rangée, sinon ses nombres ne seraient plus « de la même taille » —
+   c'est l'exception, déclarée (chaineTablette.ecransEntiers dans
+   tests/profils.js), à « après l'énoncé ». Chaque règle de taille multiplie
+   elle-même --fx-base par le facteur, comme toute case à nombres de ce
+   fichier. Sur téléphone, la taille de base descend d'un cran, et tout suit.
+   Le contrôle vit dans le banc navigateur (« 6 terdecies ter ») : il relève
+   police et taille de CHAQUE nombre et signe de chaque exercice du thème — à
+   l'ouverture, après l'ouverture de la question rédigée, après une
+   vérification qui pose un badge — et exige une seule encre ; puis mesure
+   le 1.9, témoin hors thème, qui garde ses cases pleines. */
+.screen[data-theme="Fractions"]{
+  --fx-police:"Fredoka",ui-rounded,system-ui,sans-serif;
+  --fx-graisse:600;
+  --fx-base:1.45rem;               /* LA taille ; chaque règle la multiplie par le facteur de la tablette */
+  --mf-police:var(--fx-police);    /* lues DANS les cases MathLive (FIELD_FIX_CSS) */
+  --mf-graisse:var(--fx-graisse);
+  --fx-case:42px;                  /* la hauteur d'une case, bord compris — la hauteur naturelle d'une case MathLive à cette taille, donnée aussi aux cases <input> du 4.1 */
+  --fx-trait:3px;                  /* le trait de fraction d'une rangée */
+  --fx-l:auto;                     /* une case suit son contenu */
+  --fx-res:62px;                   /* la place du badge de correction, à côté d'une case */
+  --fx-res-l:52px;
+}
+@media (pointer:coarse) and (min-width:600px){ .screen[data-theme="Fractions"]{--tab-nb:.85} }
+@media(max-width:520px){ .screen[data-theme="Fractions"]{--fx-base:1.25rem} }
+/* tout ce qui écrit un nombre ou un signe du calcul : une police, une graisse, une taille */
+.screen[data-theme="Fractions"] .f-frac,.screen[data-theme="Fractions"] .sf-f,
+.screen[data-theme="Fractions"] .f-whole,.screen[data-theme="Fractions"] .f-eq,
+.screen[data-theme="Fractions"] .f-times,.screen[data-theme="Fractions"] .sf-times,
+.screen[data-theme="Fractions"] .spf-op,.screen[data-theme="Fractions"] .mp-instr .f-frac~b,
+.screen[data-theme="Fractions"] input.f-num,.screen[data-theme="Fractions"] input.f-den,
+.screen[data-theme="Fractions"] math-field.pm-mf,
+.screen[data-theme="Fractions"] .mf-cor,
+.screen[data-theme="Fractions"] .dexp2-prefix,.screen[data-theme="Fractions"] .dexp2-sheet math-field.dexp-mf{
+  font-family:var(--fx-police);font-weight:var(--fx-graisse);font-size:calc(var(--fx-base) * var(--tab-nb,1))}
+.screen[data-theme="Fractions"] math-field.pm-mf{line-height:1.1}
+/* la case : un cadre resserré, large comme son contenu (la mesure du 4.6, octobre
+   2026), et de la MÊME hauteur qu'elle soit un champ MathLive ou un <input> (4.1) */
+.screen[data-theme="Fractions"] math-field.pm-mf.f-num,.screen[data-theme="Fractions"] math-field.pm-mf.f-den{width:auto;min-width:40px;height:auto;min-height:var(--fx-case);border-radius:9px;border-width:1.5px;padding:0 2px}
+.screen[data-theme="Fractions"] input.f-num,.screen[data-theme="Fractions"] input.f-den{width:48px;height:auto;min-height:var(--fx-case);border-radius:9px;border-width:1.5px;padding:0 2px}
+.screen[data-theme="Fractions"] .sf-l .f-num,.screen[data-theme="Fractions"] .sf-l .f-den{width:var(--fx-l)}
+.screen[data-theme="Fractions"] .f-fbar{height:var(--fx-trait)}
+/* le badge de correction, hors du flux, et la place qu'il prend LÀ OÙ il existe */
+.screen[data-theme="Fractions"] .sf-case .mf-cor{margin-left:4px}
+.screen[data-theme="Fractions"] .sf-prod:has(.mf-cor),.screen[data-theme="Fractions"] .sf-somme:has(.mf-cor),.screen[data-theme="Fractions"] .f-frac-input:has(.mf-cor){margin-right:var(--fx-res)}
+.screen[data-theme="Fractions"] .sf-l .sf-case:has(.mf-cor){margin-right:var(--fx-res-l)}
+.screen[data-theme="Fractions"] .sf-haut .sf-case:has(.mf-cor){margin-right:var(--fx-res)}
+@media(max-width:520px){
+  .screen[data-theme="Fractions"]{--fx-case:36px}
+  .screen[data-theme="Fractions"] math-field.pm-mf.f-num,.screen[data-theme="Fractions"] math-field.pm-mf.f-den{min-width:34px}
+  .screen[data-theme="Fractions"] input.f-num,.screen[data-theme="Fractions"] input.f-den{width:42px} }
+/* {somme-produit-fractions} (4.6) : la mise en page de la Seconde. C'est lui
+   qui a reçu le premier les CASES PLUS PETITES (demande de Turquet, octobre
+   2026) ; sa mesure est devenue celle de tout le thème — bloc « UNE SEULE
+   ENCRE » ci-dessus, qui porte désormais toutes les tailles. */
+#spfHost .f-fbar{width:auto;align-self:stretch}
 #spfHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
-#spfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:4px;font-size:calc(.95rem * var(--tab-nb,1));white-space:nowrap}
-#spfHost .sf-prod:has(.mf-cor),#spfHost .f-frac-input:has(.mf-cor){margin-right:40px}
-#spfHost .sf-l .sf-case:has(.mf-cor){margin-right:34px}
-#spfHost .sf-somme .sf-haut .sf-case:has(.mf-cor){margin-right:40px}
-#spfHost .f-whole,#spfHost .f-eq{font-size:calc(1.45rem * var(--tab-nb,1))}
-#spfHost .f-times{font-size:calc(1.15rem * var(--tab-nb,1))}
-#spfHost math-field.pm-mf{font-size:calc(1.4rem * var(--tab-nb,1));line-height:1.1}
-#spfHost math-field.pm-mf.f-num,#spfHost math-field.pm-mf.f-den{width:auto;min-width:40px;height:auto;min-height:36px;border-radius:9px;border-width:1.5px;padding:0 2px}
-#spfHost .sf-l .f-num,#spfHost .sf-l .f-den{width:auto}
-#spfHost .f-frac{font-size:calc(1.45rem * var(--tab-nb,1))}
+#spfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);white-space:nowrap}
+#spfHost .pt-row{flex-wrap:wrap}
+#spfPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+/* {somme-produit-fractions} (4.6) : la mise en page de la Seconde. C'est lui
+   qui a reçu le premier les CASES PLUS PETITES (demande de Turquet, octobre
+   2026) ; sa mesure est devenue celle de tout le thème — bloc « UNE SEULE
+   ENCRE » ci-dessus, qui porte désormais toutes les tailles. */
+#spfHost .f-fbar{width:auto;align-self:stretch}
+#spfHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
+#spfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);white-space:nowrap}
 /* Puis le calcul s'est rangé EN COLONNES (demande de Turquet, octobre 2026 :
    « placer les signes "=" en début de ligne et afficher les cases à remplir
    en dessous verticalement des nombres du dessus correspondants au mieux ») :
@@ -1618,10 +1667,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #spfHost .pt-row>.f-grp>.f-eq{grid-column:1}
 #spfHost .pt-row>.f-grp>.f-frac-input{grid-column:2}
 #spfPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
-@media(max-width:520px){ #spfHost math-field.pm-mf{font-size:calc(1.2rem * var(--tab-nb,1))}
-  #spfHost .f-whole,#spfHost .f-eq,#spfHost .f-frac{font-size:calc(1.25rem * var(--tab-nb,1))}
-  #spfHost .pt-row{column-gap:8px;row-gap:10px}
-  #spfHost math-field.pm-mf.f-num,#spfHost math-field.pm-mf.f-den{min-width:34px;min-height:32px} }
+@media(max-width:520px){ #spfHost .pt-row{column-gap:8px;row-gap:10px} }
 /* La simplification par étapes : le nombre divisé RECOPIE la fraction
    d'avant, et s'écrit comme un nombre de la rangée. */
 .se-dvd{min-width:1ch;text-align:center}
@@ -2861,7 +2907,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=314;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=315;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4688,6 +4734,19 @@ function show(name){
        Seconde ait une classe de plus à poser. Écrit ici, il suit la reprise
        après une pause comme le démarrage : les deux passent par show(). */
     sec.dataset.exo=currentTestId||'';
+    /* ET LE THÈME DE L'EXERCICE, par son nom : la feuille de styles règle une
+       encre par THÈME (les Fractions, octobre 2026), et un exercice ajouté
+       demain au thème la reçoit sans rien déclarer. */
+    const th=THEMES.find(function(t){ return t.ids.indexOf(currentTestId)>=0; });
+    sec.dataset.theme=th?th.nom:'';
+    /* LA ZONE DE LA QUESTION RÉDIGÉE (4.3 à 4.6) SE FERME EN ARRIVANT sur un
+       exercice qui ne rédige rien : #scr-sf sert aussi au 1.9 et au 4.2, et la
+       zone ouverte par le 4.3 y restait affichée sous leur rangée, avec la
+       feuille du calcul précédent (vu en octobre 2026, en relevant l'encre du
+       thème). Seul sfrRendu la fermait, et seul un exercice à rédaction
+       l'appelle. Le test est déjà posé quand show() s'exécute : les démarreurs
+       et la reprise le remplissent avant d'afficher l'écran. */
+    if(!(test && test.redac)) sec.querySelectorAll('.sfr-zone').forEach(function(z){ z.hidden=true; z.innerHTML=''; });
     let t=sec.querySelector('.exo-title');
     if(!t){ t=document.createElement('div'); t.className='exo-title'; sec.insertBefore(t, sec.firstChild); }
     const n=testNum(currentTestId);
@@ -16114,7 +16173,10 @@ function renderSpfTest(){
   $('spfFeedback').textContent=''; $('spfFeedback').className='mp-feedback';
   $('spfActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkSpfAnswer()">Vérifier</button>';
   const moins=(q.op==='−');
-  $('spfPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>'+(moins?'−':'+')+'</b> '+sfTermeHTML(q.c,q.d)+' <b>×</b> '+sfTermeHTML(q.e,q.f)+'.';
+  /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
+     entre deux éléments disparaît, et « Calcule1/5+1/2×5/3 » se collait (vu en
+     octobre 2026, quand les nombres de l'énoncé ont pris la taille de la rangée). */
+  $('spfPrompt').innerHTML='Calcule\u00a0'+sfTermeHTML(q.a,q.b)+'\u00a0<b>'+(moins?'−':'+')+'</b>\u00a0'+sfTermeHTML(q.c,q.d)+'\u00a0<b>×</b>\u00a0'+sfTermeHTML(q.e,q.f)+'.';
   const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
   const fois='<span class="f-times">×</span>';
   const t1=spfCol('spf-t1', sfTermeHTML(q.a,q.b));
@@ -23355,7 +23417,12 @@ const FIELD_FIX_CSS =
   ".ML__sqrt-line.ML__sqrt-line::before{margin-left:-0.08em;min-height:max(1.5px,0.05em);}" +
   ".ML__virtual-keyboard-toggle,.ML__menu-toggle{display:none !important;}" +
   ".ML__contains-highlight{background:transparent !important;}" +
-  ".ML__cmr{font-family:'Nunito',ui-rounded,system-ui,sans-serif !important;font-weight:700;}" +
+  /* La police des chiffres se lit dans une variable, que les propriétés
+     personnalisées traversent la frontière du shadow DOM : le thème Fractions
+     de ce niveau y écrit la sienne (--mf-police, --mf-graisse, voir le bloc
+     « UNE SEULE ENCRE » de la feuille de styles) ; partout ailleurs, Nunito
+     gras comme avant. */
+  ".ML__cmr{font-family:var(--mf-police,'Nunito',ui-rounded,system-ui,sans-serif) !important;font-weight:var(--mf-graisse,700);}" +
   "textarea{font-size:16px !important;}";
 
 let lastMf = null;

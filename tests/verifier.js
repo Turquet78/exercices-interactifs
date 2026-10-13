@@ -16651,12 +16651,30 @@ function chaineTablette(w, P){
   const taille = r => /font-size:/.test(r.corps);
   /* 1. le facteur : déclaré à UN seul endroit, sur ce qui vient APRÈS l'énoncé,
      sous la requête média d'une tablette, et à la valeur que le profil déclare. */
-  const poses = regles.filter(r => /--tab-nb\s*:/.test(r.corps));
+  const toutes = regles.filter(r => /--tab-nb\s*:/.test(r.corps));
+  /* UN ÉCRAN ENTIER PEUT PORTER LE FACTEUR, énoncé compris — déclaré. Le thème
+     Fractions de la Première (octobre 2026) écrit ses nombres d'une seule
+     taille « de l'énoncé jusqu'à la fin » : sur tablette, l'énoncé y descend
+     donc du même cran que la rangée, par une pose sur l'écran du thème
+     (.screen[data-theme="…"]), à la MÊME valeur et sous la MÊME requête média
+     que le stage. Tout autre écran reste à « après l'énoncé ». */
+  const entiers = T.ecransEntiers || [];
+  const selEcran = nom => '.screen[data-theme="' + nom + '"]';
+  const posesEcran = toutes.filter(r => entiers.some(nom => r.sel.trim() === selEcran(nom)));
+  const poses = toutes.filter(r => posesEcran.indexOf(r) < 0);
+  const surEcranEntier = r => entiers.some(nom => r.sel.indexOf(selEcran(nom)) >= 0);
+  for(const nom of entiers) if(!posesEcran.some(r => r.sel.trim() === selEcran(nom)))
+    pbs.push('le profil déclare l\'écran entier du thème « ' + nom + ' », mais aucune règle « ' + selEcran(nom) + ' » ne pose --tab-nb');
   if(!poses.length) pbs.push('aucune règle ne pose --tab-nb : rien ne réduit la chaîne sur tablette');
   else if(poses.length > 1) pbs.push(poses.length + ' déclarations de --tab-nb au lieu d\'une seule (' + poses.map(r => r.sel).join(' ; ')
     + ') : la plus profonde l\'emporterait sans que rien ne le dise');
   else{
     const pose = poses[0];
+    for(const r of posesEcran){
+      if((r.media || '') !== (pose.media || '')) pbs.push('« ' + r.sel.trim() + ' » pose le facteur sous « ' + (r.media || 'aucune requête média') + '», le stage sous « ' + (pose.media || 'aucune') + ' »');
+      const a = /--tab-nb\s*:\s*([\d.]+)/.exec(r.corps), b = /--tab-nb\s*:\s*([\d.]+)/.exec(pose.corps);
+      if(!a || !b || a[1] !== b[1]) pbs.push('« ' + r.sel.trim() + ' » pose le facteur ' + (a ? a[1] : '?') + ' quand le stage pose ' + (b ? b[1] : '?'));
+    }
     if(/^(:root|html|body|\*)$/.test(pose.sel.trim()))
       pbs.push('le facteur est posé sur « ' + pose.sel.trim() + ' » : il emporterait l\'énoncé, les boutons et toute la page');
     else if(pose.sel.indexOf('.mp-stage') < 0)
@@ -16695,13 +16713,16 @@ function chaineTablette(w, P){
     if(muettes.length) pbs.push('« ' + cl + ' » garde sa taille sur tablette (' + muettes.map(r => r.sel.slice(0, 40)).join(' ; ') + ') : la case rétrécirait seule');
   }
   /* 4. le bord opposé : l'énoncé ne rétrécit pas avec la chaîne */
-  const enonce = regles.filter(r => /\.mp-instr|\.enonce\b/.test(r.sel) && porte(r));
+  const enonce = regles.filter(r => /\.mp-instr|\.enonce\b/.test(r.sel) && porte(r) && !surEcranEntier(r));
   if(enonce.length) pbs.push('l\'énoncé porte le facteur (' + enonce.map(r => r.sel.slice(0, 40)).join(' ; ') + ') : la demande dit « après l\'énoncé »');
   verifier(nom, pbs.length === 0, pbs.join(' | '));
   /* Ce qui est DÉCLARÉ hors du contrôle est nommé à l'écran, jamais tu. */
   if(!pbs.length && (T.hors || []).length)
     console.log('   · écritures déclarées hors de ce contrôle : ' + T.hors.join(', ')
       + ' — la feuille de rédaction libre a sa propre règle de tablette');
+  if(!pbs.length && entiers.length)
+    console.log('   · écran(s) entier(s) portant le facteur, énoncé compris : ' + entiers.map(selEcran).join(', ')
+      + ' — un thème dont les nombres ont une seule taille de l\'énoncé à la fin');
 }
 
 /* ---------- Sur tablette, la police de la page est réduite — par une seule règle ---------- */
