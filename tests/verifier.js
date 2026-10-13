@@ -4241,6 +4241,7 @@ function exercices(suite){
     reduireProduit(w, P);
     translationGrille(w, P);
     vecteursEgauxTableau(w, P);
+    vecteursEgaux(w, P);
     tableauProportions(w, P);
     tableauProportionsLettres(w, P);
     tableauProportionsTirees(w, P);
@@ -7893,7 +7894,19 @@ function multiplierFractions(w, P){
      et la SOUSTRACTION 3/2 − 1/2 × 3/2 = 6/4 − 3/4 = 6/8 = 3/4 vaut le point,
      quand 12/8 + 6/8 = 18/8 (additionné au lieu de soustrait) ne le vaut pas
      et le message dit « soustraire ». La ligne de l'énoncé n'ouvre pas sur un
-     « = », chaque étape si — la grille elle-même se mesure dans le navigateur. */
+     « = », chaque étape si — la grille elle-même se mesure dans le navigateur.
+   ③ LE DÉNOMINATEUR COMMUN EST LIBRE (demande de Turquet, octobre 2026 :
+     « accepter la méthode où l'élève met un dénominateur commun plus petit »,
+     sur une capture de 1/2 + 1/2 × 5/2 où 2/4 + 5/4 rougissait) : passé par
+     4, 2/4 + 5/4 = 7/4 vaut le point, aucune case ne rougit, et la chaîne —
+     posée d'emblée pour 14/8 — disparaît, 7/4 étant irréductible ; passé par
+     6, 1/2 + 5/6 = 3/6 + 5/6 = 8/6 = 4/3 montre une chaîne d'une étape (la
+     fraction brute rangée est 8/6, celle de la route), et 4/3 écrit tel quel
+     ne vaut pas le point ; une paire qui ne mène nulle part (×3 sous 1/2 :
+     6 n'est pas un multiple de 4) rougit seule, sa voisine ×1 reste bleue, le
+     message et la correction suivent la route de l'élève (sur 4, × 2) ; deux
+     paires qui tiennent chacune sans se rejoindre (×4 et ×1 : 8 et 4)
+     rougissent toutes les deux. */
 function sommeProduitFractions(w, P){
   const R = P.sommeProduit;
   const nom = '{somme-produit-fractions} : nombres de 1 à ' + (R ? R.max : '?') + ', produit borné à ' + (R ? R.inter : '?') + ', et la simplification par étapes';
@@ -8038,6 +8051,68 @@ function sommeProduitFractions(w, P){
     if(der() && der().correct) vus.push('12/8 + 6/8 = 18/8 est compté juste sur une soustraction');
     if(peint('spf-x-rn')!=='faux') vus.push('18/8 au lieu de 6/8 : le numérateur est peint '+peint('spf-x-rn'));
     if(!/soustraire/.test(($$('spfFeedback')||{}).textContent||'')) vus.push('le message d’une soustraction manquée ne dit pas « soustraire » : « '+(($$('spfFeedback')||{}).textContent||'')+' »');
+
+    /* ---- ③ le dénominateur commun est libre ---------------------------------- */
+    const fb=function(){ return ($$('spfFeedback')||{}).textContent||''; };
+    const produit=function(q){ [['spf-h1',q.c],['spf-h2',q.e],['spf-b1',q.d],['spf-b2',q.f],['spf-pn',q.P1],['spf-pd',q.Q1]].forEach(function(p){ tape(p[0],p[1]); }); };
+    /* la route par Dc, après le produit ; rn/rd si on les donne */
+    const route=function(q,Dc,rn,rd){
+      produit(q);
+      [['spf-x-a1',Dc/q.b],['spf-x-b1',Dc/q.b],['spf-x-a2',Dc/q.Q1],['spf-x-b2',Dc/q.Q1],
+       ['spf-x-n1',q.a*(Dc/q.b)],['spf-x-n2',q.P1*(Dc/q.Q1)],['spf-x-d',Dc]].forEach(function(p){ tape(p[0],p[1]); });
+      if(rn!==undefined){ tape('spf-x-rn',rn); tape('spf-x-rd',rd); }
+    };
+    const CX=['spf-x-a1','spf-x-b1','spf-x-a2','spf-x-b2','spf-x-n1','spf-x-n2','spf-x-d','spf-x-rn','spf-x-rd'];
+    /* la capture : 1/2 + 1/2 × 5/2 = 1/2 + 5/4, passé par 4 */
+    const Q5={a:1,b:2,c:1,d:2,e:5,f:2,op:'+',P1:5,Q1:4,N:14,D:8,Nr:7,Dr:4};
+    pose(Q5);
+    if(!$$('spf-e0-dn')) vus.push('14/8 (le croisement) se simplifie, et aucune étape n’est posée d’emblée');
+    route(Q5,4,7,4);
+    if($$('spf-e0-dn')) vus.push('passé par 4, 7/4 est irréductible, et la chaîne reste posée');
+    checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('1/2 + 5/4 = 2/4 + 5/4 = 7/4 (dénominateur commun 4) est compté faux : « '+fb()+' »');
+    (function(){ const pas=CX.filter(function(i){ return peint(i)!=='juste'; }); if(pas.length) vus.push('sur la route par 4, des cases ne sont pas bleues : '+pas.map(function(i){ return i+'='+peint(i); }).join(' ')); })();
+    /* la soustraction par le même chemin : 3/2 − 5/4 = 6/4 − 5/4 = 1/4 */
+    const Q7={a:3,b:2,c:1,d:2,e:5,f:2,op:'−',P1:5,Q1:4,N:2,D:8,Nr:1,Dr:4};
+    pose(Q7); route(Q7,4,1,4); checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('3/2 − 5/4 = 6/4 − 5/4 = 1/4 (dénominateur commun 4) est compté faux : « '+fb()+' »');
+    /* la route par 6, dont le résultat se simplifie : 1/2 + 5/2 × 1/3 = 1/2 + 5/6 = 3/6 + 5/6 = 8/6 = 4/3 */
+    const Q6={a:1,b:2,c:5,d:2,e:1,f:3,op:'+',P1:5,Q1:6,N:16,D:12,Nr:4,Dr:3};
+    pose(Q6); route(Q6,6,8,6);
+    if(!$$('spf-e0-dn')) vus.push('passé par 6, 8/6 se simplifie, et aucune étape n’est posée');
+    if(test.questions[0].sbrut!=='8/6') vus.push('la fraction brute rangée sur la route par 6 n’est pas 8/6 : '+test.questions[0].sbrut);
+    if(($$('spf-e0-an')||{}).textContent!=='8' || ($$('spf-e0-ad')||{}).textContent!=='6') vus.push('les nombres divisés ne recopient pas 8/6');
+    tape('spf-e0-dn',2); tape('spf-e0-n',4); tape('spf-e0-d',3);
+    checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('1/2 + 5/6 = 3/6 + 5/6 = 8/6 = 4/3 est compté faux : « '+fb()+' »');
+    pose(Q6); route(Q6,6,4,3); checkSpfAnswer();
+    if(der() && der().correct) vus.push('passé par 6, écrire 4/3 au lieu de 8/6 est compté juste — la chaîne n’a plus d’objet');
+    if(peint('spf-x-rn')!=='faux') vus.push('passé par 6, 4/3 au lieu de 8/6 : le numérateur est peint '+peint('spf-x-rn'));
+    /* une paire qui ne mène nulle part, sa voisine qui tient : ×3 sous 1/2, ×1 sous 5/4, le reste juste sur 4 */
+    pose(Q5); route(Q5,4,7,4); tape('spf-x-a1',3); tape('spf-x-b1',3);
+    checkSpfAnswer();
+    if(der() && der().correct) vus.push('×3 sous 1/2 est compté juste');
+    if(peint('spf-x-a1')!=='faux' || peint('spf-x-b1')!=='faux') vus.push('×3 sous 1/2 (vers 6, qui n’est pas un multiple de 4) est peint '+peint('spf-x-a1')+' '+peint('spf-x-b1'));
+    if(peint('spf-x-a2')!=='juste' || peint('spf-x-b2')!=='juste') vus.push('×1 sous 5/4, qui tient seul, est peint '+peint('spf-x-a2')+' '+peint('spf-x-b2'));
+    (function(){ const pas=['spf-x-n1','spf-x-n2','spf-x-d','spf-x-rn','spf-x-rd'].filter(function(i){ return peint(i)!=='juste'; }); if(pas.length) vus.push('à côté d’un ×3 faux, la suite de la route par 4 rougit : '+pas.join(' ')); })();
+    if(!/sur 4, c’est × 2/.test(fb())) vus.push('le message ne suit pas la route de l’élève (sur 4, × 2) : « '+fb()+' »');
+    (function(){ const el=$$('spf-x-a1'), c=el && el.nextElementSibling; if(!c || !/mf-cor/.test(c.className) || c.textContent!=='2') vus.push('la correction de ×3 ne suit pas la route de l’élève (× 2) : '+(c?c.textContent:'rien')); })();
+    if($$('spf-e0-dn')) vus.push('sur la route par 4, une chaîne est posée à 7/4');
+    /* la route n'est dite que par une paire : la correction la suit sur les cases vides */
+    pose(Q5); produit(Q5); tape('spf-x-a2',1); tape('spf-x-b2',1);
+    checkSpfAnswer();
+    if(peint('spf-x-a2')!=='juste') vus.push('×1 sous 5/4, seul écrit, est peint '+peint('spf-x-a2'));
+    [['spf-x-a1','2'],['spf-x-n1','2'],['spf-x-n2','5'],['spf-x-d','4'],['spf-x-rn','7'],['spf-x-rd','4']].forEach(function(p){
+      if(peint(p[0])!=='correction' || ($$(p[0])||{}).value!==p[1]) vus.push('la correction ne suit pas la route par 4 : '+p[0]+' = '+(($$(p[0])||{}).value)+' ('+peint(p[0])+')'); });
+    if($$('spf-e0-dn')) vus.push('sur la route par 4, la correction pose une chaîne à 7/4');
+    /* deux paires qui tiennent chacune, sans se rejoindre : ×4 (8) et ×1 (4) */
+    pose(Q5); produit(Q5); tape('spf-x-a1',4); tape('spf-x-b1',4); tape('spf-x-a2',1); tape('spf-x-b2',1);
+    checkSpfAnswer();
+    if(peint('spf-x-a1')!=='faux' || peint('spf-x-a2')!=='faux') vus.push('×4 et ×1 (8 et 4) ne se rejoignent pas, et sont peints '+peint('spf-x-a1')+' et '+peint('spf-x-a2'));
+    /* sur des cases vides, la correction reste celle du croisement */
+    pose(Q5); produit(Q5); checkSpfAnswer();
+    if(($$('spf-x-d')||{}).value!=='8') vus.push('sans route choisie, la correction n’écrit pas le croisement (8) : '+(($$('spf-x-d')||{}).value));
+    if(peint('spf-e0-dn')!=='correction') vus.push('sans route choisie, la chaîne de 14/8 ne reçoit pas sa correction ('+peint('spf-e0-dn')+')');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -19029,6 +19104,162 @@ function translationGrille(w, P){
     if(peint('vtr-i-0')!=='vert') vus.push('en soutien, la lettre juste n\\'est pas peinte en bleu (ok) au fil de la saisie');
     if(test.locked) vus.push('la correction en direct verrouille la page');
     currentMode='train';
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {vecteurs-egaux} — thème 8 « Vecteurs », 8.3 : une figure (un rectangle et
+   ses milieux, un carré, un parallélogramme, deux triangles, un hexagone, un
+   trapèze), cinq lignes « AB = … = … », et l'élève écrit tous les vecteurs
+   égaux au vecteur de tête. Les familles de vecteurs égaux sont
+   reconstruites ICI, depuis les coordonnées des figures, par une écriture
+   indépendante de vegClasses — jamais les fonctions de la page qui corrigent. */
+function vecteursEgaux(w, P){
+  const present = evaluer(w, "typeof startVeg==='function' && typeof vegLignes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('vecteurs égaux dans une figure : les figures, le tirage, la correction et la place dans le thème Vecteurs',
+      'ce niveau n\'a pas l\'exercice des vecteurs égaux');
+    return;
+  }
+  verifierEval(w, 'vecteurs égaux dans une figure : les figures, le tirage, la correction et la place dans le thème Vecteurs', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='vecteurs-egaux';
+
+    /* ---- 0. la place : 8.1, le thème 7 immobile ; pas de bouton des tables */
+    const th=THEMES.find(function(t){ return t.num===8; });
+    if(!th || !/Vecteurs/i.test(th.nom) || th.ids.indexOf('vecteurs-egaux')<0)
+      vus.push('l’exercice n’est pas dans le thème 8 « Vecteurs »');
+    if(TEST_NUM['vecteurs-egaux']!=='8.3') vus.push('numéro '+TEST_NUM['vecteurs-egaux']+' au lieu de 8.3');
+    if(TEST_NUM['vecteurs-egaux-tableau']!=='8.2') vus.push('le 8.2 (tableau des vecteurs égaux) a bougé');
+    if(TEST_NUM['translation-grille']!=='8.1') vus.push('le 8.1 (translation) a bougé');
+    if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['reduire-produit']!=='7.8') vus.push('un exercice du thème 7 a bougé');
+    if(TABLES_SANS.indexOf('vecteurs-egaux')<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+
+    /* ---- 1. les figures, relues ici : des familles de vecteurs égaux par
+            déplacement, calculées sans vegClasses ---- */
+    const cle=function(dx,dy){ return (Math.round(dx*1000)/1000)+','+(Math.round(dy*1000)/1000); };
+    const familles=function(pts){
+      const noms=Object.keys(pts), f={};
+      noms.forEach(function(p){ noms.forEach(function(r){ if(p===r) return;
+        const k=cle(pts[r][0]-pts[p][0], pts[r][1]-pts[p][1]);
+        (f[k]=f[k]||[]).push(p+r); }); });
+      return f;
+    };
+    const retourne=function(id, fx, fy){ const pts={}; Object.keys(VEG_FIGURES[id].pts).forEach(function(n){ pts[n]=[VEG_FIGURES[id].pts[n][0]*fx, VEG_FIGURES[id].pts[n][1]*fy]; }); return pts; };
+    if(VEG_FIG_IDS.length<5) vus.push(VEG_FIG_IDS.length+' forme(s) seulement : la consigne demande des formes variées');
+    VEG_FIG_IDS.forEach(function(id){
+      const fig=VEG_FIGURES[id], noms=Object.keys(fig.pts);
+      if(noms.length<6) vus.push(id+' : '+noms.length+' points seulement');
+      if(noms.some(function(n){ return !/^[A-Z]$/.test(n); })) vus.push(id+' : un point n’est pas une lettre majuscule');
+      const cles={}; noms.forEach(function(n){ const k=cle(fig.pts[n][0],fig.pts[n][1]); if(cles[k]) vus.push(id+' : '+n+' et '+cles[k]+' sont au même endroit'); cles[k]=n; });
+      (fig.traits||[]).forEach(function(t){ if(!fig.pts[t[0]] || !fig.pts[t[1]] || t[0]===t[1]) vus.push(id+' : trait ['+t.join('')+'] sans ses deux points'); });
+      if(!(fig.traits||[]).length) vus.push(id+' : aucun trait');
+      const f=familles(fig.pts), bonnes=Object.keys(f).filter(function(k){ return f[k].length>=2 && f[k].length<=6; });
+      const nonOpp=[]; bonnes.forEach(function(k){ const d=k.split(','); const opp=cle(-parseFloat(d[0]),-parseFloat(d[1])); if(nonOpp.indexOf(opp)<0) nonOpp.push(k); });
+      if(nonOpp.length<VEG_LIGNES) vus.push(id+' : '+nonOpp.length+' famille(s) de vecteurs égaux (sans leurs opposées) pour '+VEG_LIGNES+' lignes');
+    });
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 2. le tirage ---------------------------------------------------- */
+    const formes={};
+    for(let i=0;i<300 && !vus.length;i++){
+      const qs=vegBuildQuestions();
+      if(qs.length!==VEG_NB){ vus.push(qs.length+' figures au lieu de '+VEG_NB); break; }
+      const figs=qs.map(function(q){ return q.fig; });
+      if(new Set(figs).size!==figs.length) vus.push('deux figures de la même forme dans une séance : '+figs.join(', '));
+      qs.forEach(function(q){
+        formes[q.fig]=true;
+        if(!VEG_FIGURES[q.fig]) vus.push('forme inconnue '+q.fig);
+        if((q.fx!==1 && q.fx!==-1) || (q.fy!==1 && q.fy!==-1)) vus.push('retournement hors de ±1');
+        if(q.lignes.length!==VEG_LIGNES) vus.push(q.fig+' : '+q.lignes.length+' lignes au lieu de '+VEG_LIGNES);
+        const pts=retourne(q.fig, q.fx, q.fy), f=familles(pts), ls=vegLignes(q), vusDep=[];
+        ls.forEach(function(l, k){
+          const dep=q.lignes[k].dep;
+          if(!/^[A-Z]{2}$/.test(dep) || dep[0]===dep[1] || !pts[dep[0]] || !pts[dep[1]]){ vus.push(q.fig+' : vecteur de tête « '+dep+' » illisible'); return; }
+          const d=cle(pts[dep[1]][0]-pts[dep[0]][0], pts[dep[1]][1]-pts[dep[0]][1]);
+          const attendu=(f[d]||[]).filter(function(v){ return v!==dep; }).sort().join(' ');
+          if(l.att.slice().sort().join(' ')!==attendu) vus.push(q.fig+' : '+dep+' attend « '+l.att.join(' ')+' » au lieu de « '+attendu+' »');
+          if(l.n<1) vus.push(q.fig+' : '+dep+' n’a aucun vecteur égal — la consigne en veut au moins un');
+          if(l.n>5) vus.push(q.fig+' : '+dep+' a '+l.n+' cases, plus que la fiche');
+          if(k>0 && ls[k-1].n<l.n) vus.push(q.fig+' : les lignes ne vont pas du plus de cases au moins');
+          const dd=d.split(','), opp=cle(-parseFloat(dd[0]),-parseFloat(dd[1]));
+          if(vusDep.indexOf(d)>=0) vus.push(q.fig+' : deux lignes pour la même famille ('+dep+')');
+          if(vusDep.indexOf(opp)>=0) vus.push(q.fig+' : une ligne et son opposée ('+dep+')');
+          vusDep.push(d);
+        });
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    const absentes=VEG_FIG_IDS.filter(function(id){ return !formes[id]; });
+    if(absentes.length) vus.push('en 300 séances, jamais tirée : '+absentes.join(', '));
+
+    /* ---- 3. la correction, par le BOUTON, sur la figure de la fiche ------ */
+    startVeg();
+    const FICHE={fig:'rect9', fx:1, fy:1, lignes:[{dep:'AB'},{dep:'FK'},{dep:'CD'},{dep:'IE'},{dep:'HC'}]};
+    test.questions[0]=FICHE; test.idx=0;
+    const ATT={ 'AB':['BC','EF','FG','IJ','JK'], 'FK':['AF','EJ','BG'], 'CD':['DH','HI'], 'IE':['EA','JF','FB','KG','GC'], 'HC':['ID'] };
+    const ls=vegLignes(FICHE);
+    ls.forEach(function(l){ if(l.att.slice().sort().join(' ')!==ATT[l.dep].slice().sort().join(' ')) vus.push('la fiche : '+l.dep+' attend « '+l.att.join(' ')+' »'); });
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    const JUSTE={}; ls.forEach(function(l){ ATT[l.dep].forEach(function(v,j){ JUSTE['veg-'+l.i+'-'+j]=v; }); });
+    const IDS=Object.keys(JUSTE);
+    const poser=function(vals){
+      test.locked=false; renderVegTest();
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    poser({});
+    if(IDS.length!==16) vus.push(IDS.length+' cases au lieu de 16');
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la fiche manque à l’écran';
+    if(!document.querySelector('#vegHost svg')) vus.push('aucune figure dessinée');
+    const lettres=[...document.querySelectorAll('#vegHost svg text')].map(function(t){ return t.textContent.trim(); }).sort().join('');
+    if(lettres!=='ABCDEFGHIJK') vus.push('les lettres du dessin sont « '+lettres+' » au lieu de ABCDEFGHIJK');
+    /* la copie juste, dans l’ordre de la fiche */
+    poser(JUSTE); checkVegAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    const nonVerts=IDS.filter(function(id){ return peint(id)!=='vert'; });
+    if(nonVerts.length) vus.push('la copie juste n’est pas entièrement juste : '+nonVerts.join(', '));
+    if(!der || der.cases!==16) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 16');
+    /* la même copie, dans un autre ordre et en minuscules */
+    const MELANGE=Object.assign({}, JUSTE, {'veg-0-0':'jk','veg-0-4':'bc','veg-1-0':'bg','veg-1-2':'af'});
+    poser(MELANGE); checkVegAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste dans un autre ordre, en minuscules, est comptée fausse');
+    /* LE PIÈGE : BA pour AB — l’opposé, et le message le dit */
+    poser(Object.assign({}, JUSTE, {'veg-0-1':'BA'})); checkVegAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('BA est accepté comme égal à AB');
+    if(peint('veg-0-1')!=='rouge') vus.push('BA est peint en '+peint('veg-0-1'));
+    ['veg-0-0','veg-0-2','veg-0-3','veg-0-4','veg-1-0'].forEach(function(id){ if(peint(id)!=='vert') vus.push('une case juste rougit à côté du piège : '+id); });
+    const fb=document.getElementById('vegFeedback').textContent;
+    if(!/oppos/i.test(fb) || !/sens/i.test(fb)) vus.push('le message ne dit pas que BA est l’opposé de AB : « '+fb.slice(0,80)+' »');
+    const badge=document.getElementById('veg-0-1').nextElementSibling;
+    if(!badge || !/mf-cor/.test(badge.className) || ATT.AB.indexOf(badge.textContent.trim())<0) vus.push('la correction de BA n’écrit pas un vecteur égal à AB');
+    /* un vecteur écrit deux fois : la seconde case est fausse, la première juste */
+    poser(Object.assign({}, JUSTE, {'veg-0-2':'BC'})); checkVegAnswer();
+    if(peint('veg-0-0')!=='vert' || peint('veg-0-2')!=='rouge') vus.push('BC écrit deux fois : '+peint('veg-0-0')+' puis '+peint('veg-0-2'));
+    if(!/deux fois/.test(document.getElementById('vegFeedback').textContent)) vus.push('le message ne dit pas que BC est écrit deux fois');
+    /* colinéaire, pas égal : AC pour AB */
+    poser(Object.assign({}, JUSTE, {'veg-0-3':'AC'})); checkVegAnswer();
+    if(peint('veg-0-3')!=='rouge') vus.push('AC pour AB est peint en '+peint('veg-0-3'));
+    if(!/longueur/.test(document.getElementById('vegFeedback').textContent)) vus.push('le message ne parle pas de la longueur pour AC');
+    /* une case vide ne rougit pas, et reçoit un vecteur qui manquait */
+    poser(Object.assign({}, JUSTE, {'veg-3-2':''})); checkVegAnswer();
+    if(peint('veg-3-2')!=='bleu') vus.push('case vide veg-3-2 peinte en '+peint('veg-3-2'));
+    if(document.getElementById('veg-3-2').value!=='FB') vus.push('la correction de la case vide écrit « '+document.getElementById('veg-3-2').value+' » au lieu de FB');
+    if(!/manquait/.test(document.getElementById('vegFeedback').textContent)) vus.push('le message ne nomme pas la case manquante');
+    /* une copie entièrement vide : tout en correction, rien de rouge */
+    poser({}); checkVegAnswer();
+    const rouges=IDS.filter(function(id){ return peint(id)==='rouge'; });
+    if(rouges.length) vus.push('copie vide : '+rouges.length+' case(s) rouge(s)');
+    /* le barème : une séance tirée vaut le total de ses cases */
+    startVeg();
+    const total=test.questions.reduce(function(a,q){ return a+vegLignes(q).reduce(function(b,l){ return b+l.n; },0); },0);
+    if(test.maxScore!==total) vus.push('barème de '+test.maxScore+' au lieu de '+total);
+    if(test.qId!=='vecteurs-egaux') vus.push('qId « '+test.qId+' »');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
