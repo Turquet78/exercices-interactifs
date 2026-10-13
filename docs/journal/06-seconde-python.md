@@ -5237,7 +5237,7 @@ le soutien, et les trois programmes de la correction comparés à un vrai
 CPython. Pas de section propre au banc navigateur : la visite universelle
 (section 9) l'ouvre dans les deux modes.
 
-## {python-for-images} — les images de x par f, de 0 à 10 (6.6.8, Boucle for in range)
+## {python-for-images-entiers} — les images de x par f, de 0 à 10 (6.6.8, Boucle for in range)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème "boucle
 for in range", créer un exercice qui suit les images jointes. Il faudra
@@ -5264,23 +5264,23 @@ a de nouveau tranché : celui-ci passe en 6.6.8, version 446, et le contrôle du
 exigeaient chacun de fermer le sous-thème, exigent désormais leur rang.
 
 **La présentation est celle du 6.6.2** ({python-for-nom}) : le dessin seul
-dans `#pfiInstr` (découpé dans la capture, détouré depuis les bords, WebP de
-11 Ko en `data:`, `PFI_IMG`) ; la question dans un cadre `.pyn-etape`, en
+dans `#pfkInstr` (découpé dans la capture, détouré depuis les bords, WebP de
+11 Ko en `data:`, `PFK_IMG`) ; la question dans un cadre `.pyn-etape`, en
 gras, qui enveloppe l'exemple, la remarque, les coups de pouce, la cellule,
 « Exécuter » et la console. La fonction s'écrit en grand, centrée et sans
-gras, comme sur la fiche (`.pfi-f`, `<i>x</i>`) ; l'exemple garde sa chasse
-fixe et son retrait (`.pfi-ex`). Aucune définition (exception déclarée,
+gras, comme sur la fiche (`.pfk-f`, `<i>x</i>`) ; l'exemple garde sa chasse
+fixe et son retrait (`.pfk-ex`). Aucune définition (exception déclarée,
 `pythonAvant.sans`) ; cellule sans texte d'attente, console vide
-(`#pfiConsole` rejoint la règle `content:none`).
+(`#pfkConsole` rejoint la règle `content:none`).
 
 **Les coups de pouce sont ceux de la fiche, mot pour mot** — y compris
 `pour l'affichage:  print ("l'image de ", x , "par f est" , ...  )` et
 `le calcul de f est:  x**2-6*x+3`, en chasse fixe comme sur la capture. Le
 « for x in range ( 11 ): » du premier est dans un `<code>` : écrit en texte, le
 filet `italiquerX` aurait penché le x d'une instruction Python. Le rappel
-(`RAP_PFI`) ne redit que les trois coups de pouce.
+(`RAP_PFK`) ne redit que les trois coups de pouce.
 
-**Le juge (`pfiDiag`) lit ce que la console affiche** (moteur du 6.4.5,
+**Le juge (`pfkDiag`) lit ce que la console affiche** (moteur du 6.4.5,
 `ptrDerouler` puis `pyRun`) : une ligne par valeur de x, de 0 à n, « L'image
 de x par f est f(x) ». Les NOMBRES se lisent exactement, signe compris
 (`pyTexteProche` compare les chiffres mais pas le « - » : « 2 » pour « -2 »
@@ -5301,7 +5301,7 @@ bornes, tirées par `distinctes()` ; `dmNbQuestions()` l'allonge. L'exemple et
 les coups de pouce 1 et 3 suivent la question ; le coup de pouce 2 et la
 remarque ne changent pas. Une case (`pts-case`), pas de correction au fil de
 la frappe (`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
-(`pythonForImages`) : la place, le tirage (300 séances), le juge sur quatre
+(`pythonForImagesEntiers`) : la place, le tirage (300 séances), le juge sur quatre
 copies justes et seize fausses, l'écran (dessin seul, énoncé, exemple,
 remarque, trois coups de pouce mot pour mot, rappel), la copie juste, fausse
 et vide, le soutien qui ne révèle rien, et les modèles comparés à CPython.
