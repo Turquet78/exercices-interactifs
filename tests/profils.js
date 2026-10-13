@@ -875,6 +875,11 @@ module.exports = {
        dans un vrai navigateur. « nb » est la seconde source du compte (la page
        a TRL_NB), « images » celle du nombre de points à déplacer par question. */
     translationQuadrillage: { exercice: 'translation-quadrillage', numero: '8.4', nb: 4, images: 3 },
+    /* {parallelogramme-point} (8.5, thème « Vecteurs », demande de Turquet,
+       octobre 2026) : trois questions dans l'ordre — le nœud D, la phrase du
+       chemin, l'égalité de vecteurs —, chacune vérifiée avant la suivante.
+       « nb » est la seconde source du compte (la page tire dmNbQuestions(6)). */
+    parallelogrammePoint: { exercice: 'parallelogramme-point', numero: '8.5', nb: 6 },
     /* {egalite-vectorielle-point} (8.6, demande de Turquet, octobre 2026 :
        « comme le 8.5 ») : le point manquant se pose au clic sur un nœud, le nom
        du parallélogramme se tape. « nb » est la seconde source du compte (la
