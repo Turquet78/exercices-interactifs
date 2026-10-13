@@ -4569,6 +4569,10 @@ function cardHTML(icon,title,desc,onclick,extraClass,lockMsg,badge){
     <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(numeros(desc))}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
 }
 let mesResultats=[], mesDevoirs=[];
+/* les brouillons « en pause » étiquetés d'un devoir, rangés À PART : tous les
+   lecteurs de mesResultats supposent des notes terminées, seul dmBest lit
+   ceux-ci, par leur note provisoire (dmNoteBrouillon) */
+let mesBrouillons=[];
 function bestModeExo(id, modes){
   let b=null;
   (mesResultats||[]).forEach(r=>{ if(isPaused(r)||testIdOf(r)!==id||modes.indexOf(modeOf(r))<0) return; if(b==null||r.percent>b.percent) b=r; });
@@ -6138,9 +6142,10 @@ async function lireToutes(faire){
 async function chargerMesResultats(){
   try{
     const {data,error}=await lireToutes(()=>sb.from('resultats').select('*').eq('eleve_id',currentEleve.id));
-    if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; return mesResultats; }
+    if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; mesBrouillons=[]; return mesResultats; }
     mesResultats=(data||[]).filter(r=>!isPaused(r));
-  }catch(e){ mesResultats=[]; }
+    mesBrouillons=(data||[]).filter(r=>isPaused(r)&&r.details&&!Array.isArray(r.details)&&r.details.dm);
+  }catch(e){ mesResultats=[]; mesBrouillons=[]; }
   return mesResultats;
 }
 async function openThemes(){
@@ -6246,7 +6251,7 @@ function dmCandidat(r, devoirId, exoId, mode){
   const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==devoirId) return null;
   return isPaused(r) ? dmNoteBrouillon(r) : r;
 }
-function dmBest(did,id,m){ let b=null; (mesResultats||[]).forEach(r=>{ const c=dmCandidat(r,did,id,m); if(c&&(b==null||c.percent>b.percent)) b=c; }); return b; }
+function dmBest(did,id,m){ let b=null; (mesResultats||[]).concat(mesBrouillons||[]).forEach(r=>{ const c=dmCandidat(r,did,id,m); if(c&&(b==null||c.percent>b.percent)) b=c; }); return b; }
 /* Note d'un exercice de devoir. Soutien vaut 5 pts (5×%), entraînement vaut 10 pts (10×%).
    Note /10 = points d'entraînement si (entraînement > soutien) OU si le soutien n'a pas été fait ;
    sinon points du soutien (au max 5). */

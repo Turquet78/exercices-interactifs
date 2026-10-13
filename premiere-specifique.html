@@ -3409,6 +3409,10 @@ let ecranAvantModes=null;
    null = passage unique, et la note s'enregistre alors sans « passe » — les
    devoirs déjà rendus gardent exactement la forme qu'ils avaient. */
 let mesResultats=[], mesDevoirs=[];
+/* les brouillons « en pause » étiquetés d'un devoir, rangés À PART : tous les
+   lecteurs de mesResultats supposent des notes terminées, seul dmBest lit
+   ceux-ci, par leur note provisoire (dmNoteBrouillon) */
+let mesBrouillons=[];
 /* Ce que la dernière lecture des réglages a obtenu — voir loadConfig().
    Déclaré ICI, en tête, et non près de loadConfig : devoirsVideHTML() le lit
    huit cents lignes plus haut, et une déclaration posée après son premier
@@ -4482,9 +4486,10 @@ async function lireToutes(faire){
 async function chargerMesResultats(){
   try{
     const {data,error}=await lireToutes(()=>sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id));
-    if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; return mesResultats; }
+    if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; mesBrouillons=[]; return mesResultats; }
     mesResultats=(data||[]).filter(r=>!isPaused(r));
-  }catch(e){ mesResultats=[]; }
+    mesBrouillons=(data||[]).filter(r=>isPaused(r)&&r.details&&!Array.isArray(r.details)&&r.details.dm);
+  }catch(e){ mesResultats=[]; mesBrouillons=[]; }
   return mesResultats;
 }
 async function openThemes(){
@@ -4795,7 +4800,7 @@ function dmCandidat(r, devoirId, exoId, mode){
   const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==devoirId) return null;
   return isPaused(r) ? dmNoteBrouillon(r) : r;
 }
-function dmBest(did,id,m){ let b=null; (mesResultats||[]).forEach(r=>{ const c=dmCandidat(r,did,id,m); if(c&&(b==null||c.percent>b.percent)) b=c; }); return b; }
+function dmBest(did,id,m){ let b=null; (mesResultats||[]).concat(mesBrouillons||[]).forEach(r=>{ const c=dmCandidat(r,did,id,m); if(c&&(b==null||c.percent>b.percent)) b=c; }); return b; }
 function noteDevoirExo(bestSoutien, bestEntrain, smax){
   /* Le plafond du soutien se règle PAR EXERCICE du devoir (demande de Turquet,
      août 2026) : 5/10 par défaut, jusqu'à 10/10. Hors devoir, rien ne passe le
