@@ -228,14 +228,18 @@ async function ouvrir(chromium, ml, options){
      ouverture attendait 3,5 s à plat — 118 ouvertures pour la Seconde, près
      de sept minutes à ne rien mesurer. On attend maintenant ce que ces 3,5 s
      couvraient : la page entièrement chargée, le double de Supabase en place
-     et, quand MathLive est servi, <math-field> enregistré ; puis un court
-     répit pour que le premier écran se pose. Sans MathLive servi (ml vide),
-     le délai d'avant reste, et le garde du bas tranche comme avant. */
+     et, quand MathLive est servi, <math-field> enregistré ; puis un répit de
+     1,2 s. Le script module de la page pose, APRÈS cet enregistrement, des
+     réglages différés par setTimeout — raccourcis de frappe à 0 et 350 ms,
+     menu, ajustement du clavier jusqu'à 620 ms : à 400 ms de répit, le 4.6
+     de la Première tapait « 1/2 + 1/2 × 3/2 » avant que les raccourcis ne
+     soient réglés, et sa copie juste rougissait. Sans MathLive servi (ml
+     vide), le délai d'avant reste, et le garde du bas tranche comme avant. */
   try {
     await page.waitForFunction(attendML => document.readyState === 'complete' && !!window.__faux
       && (!attendML || !!customElements.get('math-field')), !!ml, { timeout: 15000 });
   } catch(e){ /* le garde ci-dessous et la section 1 (« <math-field> est enregistré ») diront ce qui manque */ }
-  await page.waitForTimeout(ml ? 400 : 1500);
+  await page.waitForTimeout(ml ? 1200 : 1500);
 
   /* Et on refuse de continuer si le double n'est pas en place : mieux vaut ne
      rien tester que tester en écrivant dans la vraie base. */
