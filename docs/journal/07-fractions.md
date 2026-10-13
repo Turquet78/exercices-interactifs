@@ -1706,6 +1706,8 @@ et la simplification par étapes » (`tests/verifier.js`, ③) joue la capture �
 route par 6 de 1/2 + 5/6 (chaîne d'une étape sur 8/6, 4/3 tel quel refusé),
 ×3 sous 1/2 qui rougit seul à côté d'un ×1 bleu (message et correction sur
 la route par 4, sans chaîne à 7/4), ×4 et ×1 qui rougissent ensemble, et la
-correction du croisement sur des cases vides. Éprouvé avant d'écrire le
-juge : la copie de la capture rougissait quatre cases, et la chaîne restait
-posée sur 7/4.
+correction du croisement sur des cases vides. Éprouvé par sabotage, le
+contrôle rejoué sur la page de `main` (v312) : la copie de la capture y
+rougissait ses neuf cases de croisement, le verdict disait « il manque des
+cases » (la chaîne de 14/8 restait posée sous 7/4), et la route par 6 rangeait
+16/12 au lieu de 8/6.
