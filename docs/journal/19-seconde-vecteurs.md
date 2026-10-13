@@ -409,7 +409,7 @@ C, D et E). Trois images par question, quatre questions par séance
 `v` est la tournure, que la clé écarte, et deux questions aux vecteurs
 différents auraient passé pour la même.
 
-**Puis les deux formes ont ALTERNÉ** (v481, demande de Turquet, octobre 2026 :
+**Puis les deux formes ont ALTERNÉ** (v482, demande de Turquet, octobre 2026 :
 « en seconde dans le 8.4, il faut alterner une question avec un vecteur u et
 une autre avec le vecteur AB »). Chaque question tirait sa forme au sort
 (`pick(['u','ab'])`) : une séance de quatre questions pouvait n'avoir que des
