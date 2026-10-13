@@ -6882,7 +6882,17 @@ async function parcours(page, N){
        une fois, sans quoi le contrôle ne mesure rien — et le dit.
        L'autre bord : le TÉMOIN hors thème qui partage l'écran du 4.2 et du 4.3
        (le 1.9) garde ses cases pleines — un sélecteur trop large l'aurait
-       réduit sans que le premier bord ne bouge. */
+       réduit sans que le premier bord ne bouge.
+       PUIS L'ENCRE EST DEVENUE NOIRE (octobre 2026 : « tous les nombres et
+       les barres de fractions soient écrits en noir dans les énoncés et les
+       exercices, sauf dans les cases » — « sauf le 4.2 »). Le même relevé lit
+       la COULEUR de chaque nombre et de chaque signe que la page écrit, et
+       celle de chaque trait de fraction (un fond, pas un texte) ; tout doit
+       être noir, hors les cases (ce que l'élève écrit) et la correction
+       (verte, règle globale). L'exercice dispensé, déclaré dans le profil
+       (encreFractions.noir.sauf), doit AVOIR encore des couleurs — sans quoi
+       la dispense ne dispense de rien ; et le témoin hors thème garde les
+       siennes : le noir ne déborde pas du thème. */
     titre('6 terdecies ter. LE THÈME DES FRACTIONS S\'ÉCRIT D\'UNE SEULE ENCRE');
     const NOM_ENCRE = 'le thème des fractions s\'écrit d\'une seule police et d\'une seule taille, de l\'énoncé à la fin, cases comprises';
     if(!P.encreFractions){
@@ -6916,13 +6926,22 @@ async function parcours(page, N){
         const sorte = e => e.closest('.mp-instr') ? 'énoncé' : e.closest('.mf-cor') ? 'correction'
                          : e.closest('.dexp2-sheet') ? 'feuille' : 'rangée';
         const items = [];
+        /* les traits de fraction : leur encre est un FOND (.f-fbar) ou la
+           couleur du texte qu'ils prolongent (.sf-f .bar, en currentColor) */
+        for(const b of on.querySelectorAll('.f-fbar, .sf-f .bar')){
+          if(horsCalcul(b) || !visible(b) || b.closest('math-field')) continue;
+          items.push({ sorte: 'trait', quoi: 'trait de fraction ' + (b.closest('.mp-instr') ? 'de l\'énoncé' : 'de la rangée'),
+                       police: null, couleur: getComputedStyle(b).backgroundColor });
+        }
         for(const x of on.querySelectorAll('*')){
           if(x.children.length || x.closest('math-field') || horsCalcul(x) || !visible(x)) continue;
           const t = (x.textContent || '').trim();
           const nombre = t.length <= 12 && /\d/.test(t) && !/\p{L}/u.test(t);
           const signe = /^[+−×÷=]$/.test(t);
           if(!nombre && !signe) continue;
-          items.push({ sorte: signe ? 'signe' : sorte(x), quoi: sorte(x) + ' « ' + t + ' »', police: police(x), taille: taille(x) });
+          items.push({ sorte: signe ? 'signe' : sorte(x), quoi: sorte(x) + ' « ' + t + ' »', police: police(x), taille: taille(x),
+                       /* la couleur de ce que la PAGE écrit ; la correction garde son vert */
+                       couleur: sorte(x) === 'correction' ? undefined : getComputedStyle(x).color });
         }
         for(const mf of on.querySelectorAll('math-field')){
           if(!visible(mf) || horsCalcul(mf)) continue;
@@ -6939,12 +6958,23 @@ async function parcours(page, N){
         }
         return { ecran: on.id, theme: on.dataset.theme || '', items };
       });
-      const dits = [], vus = {};
-      const juger = (num, moment, R) => {
+      const dits = [], vus = {}, ditsNoir = []; let mesuresNoir = 0;
+      /* « noir » : ce que l'œil appelle noir — l'encre de la page (--ink, un
+         bleu sombre) et le bleu nuit des fractions n'en sont pas */
+      const noir = c => { const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c || ''); return !!m && +m[1] <= 24 && +m[2] <= 24 && +m[3] <= 24; };
+      const juger = (id, num, moment, R) => {
         if(!R){ dits.push(num + ' (' + moment + ') : aucun écran ouvert'); return; }
         if(R.theme !== E.theme) dits.push(num + ' : l\'écran ne porte pas le thème (data-theme « ' + R.theme + ' »)');
         const hauteurs = [];
+        const dispense = E.noir && E.noir.sauf && E.noir.sauf[id];   /* le 4.2 garde ses couleurs */
+        let colores = 0;
         for(const it of R.items){
+          if(E.noir && it.couleur !== undefined){
+            mesuresNoir++;
+            if(!noir(it.couleur)) colores++;
+            if(!dispense && !noir(it.couleur)) ditsNoir.push(num + ' (' + moment + ') : ' + it.quoi + ' en ' + it.couleur + ' au lieu de noir');
+          }
+          if(it.sorte === 'trait'){ vus.trait = (vus.trait || 0) + 1; continue; }   /* un trait n'a ni police ni taille */
           if(it.police === null) continue;          /* une case vide : aucun chiffre à lire */
           vus[it.sorte] = (vus[it.sorte] || 0) + 1;
           const mauvaise = it.police !== E.police || Math.abs(it.taille - E.rem) > 0.03
@@ -6956,6 +6986,8 @@ async function parcours(page, N){
         /* les cases à remplir ont la même taille entre elles : la même hauteur */
         if(hauteurs.length && Math.max(...hauteurs) - Math.min(...hauteurs) > 4)
           dits.push(num + ' (' + moment + ') : des cases de ' + Math.min(...hauteurs) + ' à ' + Math.max(...hauteurs) + ' px de haut');
+        /* l'exercice dispensé a encore des couleurs : sinon la dispense ne dispense de rien */
+        if(E.noir && dispense && !colores) ditsNoir.push(num + ' (' + moment + ') : dispensé du noir (' + dispense + '), mais plus aucun nombre n\'y est en couleur');
       };
       const tousNums = [];
       for(const id of ids){
@@ -6974,7 +7006,7 @@ async function parcours(page, N){
         await s.page.waitForTimeout(60);
         await s.page.keyboard.type('97', { delay: 20 });
         await s.page.waitForTimeout(150);
-        juger(num, 'ouverture', await releve());
+        juger(id, num, 'ouverture', await releve());
         const clique = await s.page.evaluate(() => {
           const on = document.querySelector('section.screen.on'); if(!on) return false;
           const b = [...on.querySelectorAll('button')].filter(x => x.getBoundingClientRect().width > 0)
@@ -6983,7 +7015,7 @@ async function parcours(page, N){
         });
         if(!clique){ dits.push(num + ' : pas de bouton « Vérifier »'); continue; }
         await s.page.waitForTimeout(900);
-        juger(num, 'vérification', await releve());
+        juger(id, num, 'vérification', await releve());
       }
       /* le témoin hors thème, sur l'écran partagé : ses cases restent pleines */
       await ouvrirExo(E.temoin);
@@ -6995,12 +7027,16 @@ async function parcours(page, N){
         /* la zone de la question rédigée, ouverte par le 4.3 sur ce même écran,
            ne doit pas y être restée (show() la ferme) */
         const zone = [...on.querySelectorAll('.sfr-zone')].filter(z => !z.hidden && z.getBoundingClientRect().height > 0).length;
-        return { theme: on.dataset.theme || '', ecran: on.id, zone,
+        /* ses nombres gardent leur couleur : le noir du thème ne déborde pas sur lui */
+        const noir = c => { const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c || ''); return !!m && +m[1] <= 24 && +m[2] <= 24 && +m[3] <= 24; };
+        const nombres = [...on.querySelectorAll('.pt-row .f-frac, .pt-row .f-whole, .pt-row .f-times, .mp-instr .f-frac')].filter(e => e.getBoundingClientRect().width > 0);
+        const colores = nombres.filter(e => !noir(getComputedStyle(e).color)).length;
+        return { theme: on.dataset.theme || '', ecran: on.id, zone, nombres: nombres.length, colores,
                  police: Math.max(...mfs.map(e => Math.round(parseFloat(getComputedStyle(e).fontSize) / rem * 100) / 100)),
                  hauteur: Math.max(...mfs.map(e => Math.round(e.getBoundingClientRect().height))) };
       });
       const numT = await s.page.evaluate(i => TEST_NUM[i], E.temoin);
-      const sortes = ['énoncé', 'signe', 'rangée', 'case', 'correction', 'feuille'];
+      const sortes = ['énoncé', 'signe', 'rangée', 'case', 'correction', 'feuille', 'trait'];
       const manquent = sortes.filter(k => !vus[k]);
       console.log('   · ' + tousNums.join(', ') + ' — relevé : ' + sortes.map(k => k + ' ' + (vus[k] || 0)).join(', ')
         + ' — témoin ' + numT + ' : ' + (T ? T.police + ' rem, ' + T.hauteur + ' px, thème « ' + T.theme + ' »' : 'rien'));
@@ -7009,6 +7045,20 @@ async function parcours(page, N){
                        : dits.length + ' écart(s) — ' + dits.slice(0, 4).join(' | '));
       verifier('chaque sorte d\'écriture du thème a été relevée (le contrôle mesure quelque chose)',
         manquent.length === 0, 'jamais vu : ' + manquent.join(', '));
+      const NOM_NOIR = 'ce que la page écrit dans le thème des fractions — nombres, signes, traits — est noir, hors les cases et hors l\'exercice dispensé';
+      if(!E.noir) ignorer(NOM_NOIR, 'ce niveau ne déclare pas d\'encre noire');
+      else {
+        const dispenses = Object.keys(E.noir.sauf || {});
+        const absents = dispenses.filter(d => ids.indexOf(d) < 0);
+        console.log('   · encre noire : ' + mesuresNoir + ' couleur(s) relevée(s), dispensé(s) : ' + (dispenses.map(d => d + ' (' + E.noir.sauf[d] + ')').join(', ') || 'aucun'));
+        verifier(NOM_NOIR, mesuresNoir > 0 && ditsNoir.length === 0 && absents.length === 0,
+          absents.length ? 'le profil dispense ' + absents.join(', ') + ', qui n\'est pas du thème'
+          : mesuresNoir === 0 ? 'aucune couleur relevée : le contrôle ne mesure rien'
+          : ditsNoir.length + ' écart(s) — ' + ditsNoir.slice(0, 4).join(' | '));
+        verifier('le témoin hors thème garde ses nombres en couleur : le noir ne déborde pas du thème',
+          !!T && T.nombres > 0 && T.colores > 0,
+          T ? (numT + ' : ' + T.colores + ' nombre(s) en couleur sur ' + T.nombres) : numT + ' : aucun nombre mesuré');
+      }
       verifier('le témoin hors thème, sur l\'écran partagé, garde ses cases pleines',
         !!T && T.theme !== E.theme && T.police >= 1.8 && T.hauteur >= 44,
         T ? (numT + ' : ' + T.police + ' rem, ' + T.hauteur + ' px, thème « ' + T.theme + ' »') : numT + ' : aucune case mesurée');

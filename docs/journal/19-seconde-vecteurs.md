@@ -171,6 +171,44 @@ la case vide en correction (jamais rouge, sa carte montrée en vert, aucune
 carte rouge, « Il te manquait 1 case »), et la carte touchée qui choisit sa
 lettre et se range dans `q.rep`.
 
+**Puis deux figures sur trois étaient « justes », et c'est l'élève qui l'a
+vu** (Turquet, octobre 2026, deux copies d'écran, v479 → v480) : sur la
+ligne « UKAH est un parallélogramme », deux dessins montraient UKAH
+parallélogramme ; sur la ligne « J est le milieu de [RA] », deux dessins
+montraient J au milieu de [RA]. Les pièges dessinés gardaient les MÊMES
+points que la bonne figure et ne changeaient que le sens d'une flèche : A→H
+au lieu de H→A, les quatre points U, K, A, H restaient aux quatre sommets du
+parallélogramme ; A→J au lieu de J→A, J restait au milieu. Le dessin disait
+« le piège », les points disaient « la bonne réponse », et un élève qui
+regarde les points — ce qu'on lui apprend — avait deux bonnes figures. Le
+troisième dessin de `par` n'arrangeait rien : ses flèches « non parallèles »
+ne faisaient que 13° d'écart, et se lisaient comme un parallélogramme un peu
+penché. **Un piège dessiné est faux PAR SES POINTS, jamais seulement par le
+sens de ses flèches.** Les pièges sont désormais, pour `par`, le
+parallélogramme ABCD (les flèches A→B et D→C, égales, C et D échangés, une
+forme un peu différente pour que l'œil ne cherche pas la différence
+d'étiquettes) et deux flèches à 38° l'une de l'autre ; pour `mil`, A au
+milieu de [BC] (les flèches B→A et A→C, égales, sur une droite qui descend).
+Chaque figure est redevenue COHÉRENTE : ses deux flèches sont égales (sauf
+le coude et les deux directions, qui le disent), et sa phrase (`vgtFigTxt`,
+l'aria-label et le contexte envoyé au modèle) raconte ce qu'elle montre —
+avant, « de même longueur mais de sens contraires » décrivait un dessin
+qu'aucune ligne de la fiche ne nomme. `conf` n'a pas bougé : ses pièges
+(deux flèches qui s'écartent, trois points alignés) étaient déjà faux par
+leurs points.
+
+Le contrôle (`tests/verifier.js`, « vecteurs égaux », section 2) relit chaque
+dessin comme l'élève le regarde : les cercles sont les points, chaque lettre
+va au point le plus proche, chaque flèche est un trait et sa pointe. Sur les
+POINTS, la configuration de la ligne (AB = CD, B milieu de [AC], B = C) doit
+être vraie sur la figure 0 et FAUSSE sur les deux autres ; chaque flèche doit
+joindre deux points nommés ; les flèches des deux parallélogrammes sont
+parallèles, celles du troisième dessin font au moins 30°. Éprouvé sur la
+page de v479 : « par figure 1 : les points du piège vérifient la
+configuration », « par figure 2 : les flèches « non parallèles » ne font que
+13° », « mil figure 1 : les points du piège vérifient la configuration » —
+les trois défauts, nommés, aucun autre.
+
 ## {vecteurs-egaux} — retrouver les vecteurs égaux dans une figure (8.3, v475)
 
 **Trois sessions ont créé le thème 8 le même jour** — la translation du 8.1,
@@ -300,6 +338,53 @@ première juste, la seconde rouge, le message le dit), AC pour AB (rouge, le
 message parle de longueur), une case vide (correction FB, jamais rouge, le
 message nomme le manque), la copie entièrement vide (rien de rouge), le
 barème égal au total des cases de la séance, `qId`.
+
+**Puis le TOTAL des cases est devenu la consigne : de 10 à 12 vecteurs à
+trouver par figure (v480).** Turquet, octobre 2026 : « pour l'exercice 8.3,
+il faudrait entre 10 et 12 vecteurs à trouver pour chaque dessin ». La fiche
+posait cinq lignes quel que soit leur total, et le total allait de 10 sur
+l'hexagone à 16 sur le rectangle — et le triangle des milieux, avec ses six
+familles (2 2 2 1 1 1), ne pouvait pas dépasser 9. `VEG_CASES` (`[10,12]`)
+porte la consigne ; `VEG_LIGNES` n'est plus un nombre mais deux bornes
+(`[4,6]`) : jamais deux lignes de cinq cases pour faire le compte, jamais dix
+lignes d'une case. Le tirage (`vegGenQuestion`) est une recherche en
+profondeur dans l'ordre tiré des familles : la première combinaison qui tient
+les deux bornes, sans famille ET son opposée. **Et l'ordre tiré a dû
+changer avec lui** : le rang « taille + hasard » d'avant, qui suffisait quand
+on prenait les cinq premières, faisait sortir 5 + 5 + 1 + 1 neuf fois sur dix
+sur le rectangle, le carré et le parallélogramme dès que le total a été
+borné — le prototype sous Node l'a mesuré sur 3 000 séances. Le rang est
+désormais un tirage pondéré par le nombre de cases (`Math.pow(Math.random(),
+1/cases)`) : une famille de cinq cases passe en tête cinq fois plus souvent
+qu'une famille d'une case, et le rectangle sort vingt-cinq combinaisons
+différentes au lieu de quatre.
+
+**Trois figures ont gagné des points, parce que le prototype a d'abord
+compté** ce que chacune pouvait donner (familles sans leurs opposées, cases
+par famille, nombre de combinaisons de 4 à 6 lignes faisant 10 à 12) :
+le triangle des milieux plafonnait à 9, l'hexagone et le trapèze
+n'atteignaient 12 qu'en posant leurs six familles à chaque fois. Le
+triangle ABLC est devenu **un triangle partagé deux fois en quatre** — ABC,
+le triangle DEF de ses milieux, le triangle GHI des milieux de DEF — neuf
+points, neuf familles (2 2 2 2 2 2 1 1 1) ; l'identifiant `triMilieux` ne
+change pas, seuls ses points changent. **L'hexagone a reçu G, H, I, les
+milieux de trois rayons sur six** ([OA], [OC], [OE]) : douze familles
+(3 3 3 2 2 2 et six à une case). **Le trapèze a reçu H et I, les milieux de
+ses côtés obliques** : huit familles. Leurs places sont écrites (`etq`) là où
+le calcul se trompe, et la capture l'a montré une fois de plus : le H du
+triangle, milieu de [EF], est à la hauteur du centre de la boîte — « du côté
+opposé au centre » le posait SUR son trait, à gauche du point. Les trois
+figures ont été capturées dans Chromium, à l'endroit et retournées.
+
+**Le contrôle a suivi la consigne** (`tests/verifier.js`) : `VEG_CASES` vaut
+`[10,12]` — la demande elle-même, écrite en dur, pour qu'un réglage qui
+dérive se voie — ; pour chaque forme, une table des totaux atteignables par
+nombre de lignes dit si une combinaison existe dans les bornes, et nomme
+les cases par famille quand elle n'existe pas ; sur 300 séances, chaque
+figure compte de 10 à 12 vecteurs à trouver, relus depuis la seconde
+écriture des familles, en 4 à 6 lignes. Le rejeu de la fiche (seize cases,
+cinq lignes) reste tel quel : il éprouve le juge, pas le tirage, et pose ses
+lignes à la main.
 
 ## {translation-quadrillage} — déplacer un point en suivant le chemin u⃗ (8.4, v476)
 

@@ -234,7 +234,16 @@ module.exports = {
        Le témoin partage l'écran du 4.2 et du 4.3 sans être du thème, et garde
        ses cases pleines : le banc navigateur mesure les deux bords
        (« 6 terdecies ter »). */
-    encreFractions: { theme: 'Fractions', police: 'Fredoka', rem: 1.45, temoin: 'somme-fractions' },
+    encreFractions: { theme: 'Fractions', police: 'Fredoka', rem: 1.45, temoin: 'somme-fractions',
+      /* …et cette encre est NOIRE (demande de Turquet, octobre 2026 : « pour
+         tous les exercices dans le thème fraction, sauf le 4.2, tous les
+         nombres et les barres de fractions soient écrits en noir dans les
+         énoncés et les exercices, sauf dans les cases »). Tout ce que la PAGE
+         écrit — nombres, signes, traits de fraction — est noir ; les cases
+         gardent leur bleu, la vérification ses couleurs. Un exercice qui garde
+         ses couleurs se déclare ici, raison comprise, et le contrôle vérifie
+         qu'il en a encore (le même sélecteur, dans la page : deux sources). */
+      noir: { sauf: { 'croiser-denominateurs': 'ses dénominateurs se colorent en violet et en orange pour dire où va chacun — « sauf le 4.2 »' } } },
     /* {multiplier-fractions} et {diviser-fractions} (4.4, 4.5) : le moteur de
        la Seconde, nombres de 1 à 5, produit qui se SIMPLIFIE par étapes, sans
        la version rédigée. */
