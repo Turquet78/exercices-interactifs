@@ -109,7 +109,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc','python-if-frais-port':'pcf', 'python-input-prix':'pkg', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-if-plus-grand-trois':'pgt', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-if-cinema':'pci', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
+               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc','python-if-frais-port':'pcf', 'python-input-prix':'pkg', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-if-plus-grand-trois':'pgt', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-if-cinema':'pci', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -920,7 +920,7 @@ module.exports = {
        fini, et le juger à chaque changement de lettre serait absurde. */
     /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
        avec leurs exercices — voir le profil de la Première. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pfn', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pof', 'pfn', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1126,7 +1126,7 @@ module.exports = {
        du code proposé au choix de l'élève — pas l'inconnue d'une équation. */
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
-                  sans: ['python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
+                  sans: ['python-pile-face', 'python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
@@ -1321,12 +1321,6 @@ module.exports = {
        le sous-thème 6.7 « Condition if else ». Le juge lit ce que le programme AFFICHE. « nb » est la
        seconde source du compte (la page a PCF_NB). */
     pythonIfFraisPort: { exercice: 'python-if-frais-port', nb: 3, numero: '6.7.6' },
-    /* {python-if-plus-grand-trois} (6.7.7, derrière {python-if-frais-port}
-       dans le sous-thème « Condition if else », demande de Turquet, octobre
-       2026) : l'exercice 8 du carnet, BONUS — demander 3 nombres décimaux,
-       afficher le plus grand. Le juge exécute la copie sous six triplets.
-       Une seule question (la fiche), une case. */
-    pythonIfPlusGrandTrois: { exercice: 'python-if-plus-grand-trois', numero: '6.7.7' },
     /* {python-input-prix} (6.3.9, demande de Turquet, octobre 2026) :
        l'exercice 10 du carnet — le serpent au panier : demander le poids des
        pommes puis des tomates (float), calculer le prix total, l'afficher
@@ -1334,6 +1328,18 @@ module.exports = {
        que le programme AFFICHE. « nb » est la seconde source du compte
        (la page a PKG_NB). */
     pythonInputPrix: { exercice: 'python-input-prix', nb: 3, numero: '6.3.9' },
+    /* {python-pile-face} (6.7.7, derrière les six autres du sous-thème, sous-thème « Condition if else », demande de
+       Turquet, octobre 2026) : l'exercice 7 du carnet — jouons à pile ou face,
+       six questions qui montent un jeu (a à f). Le juge EXÉCUTE, en imposant
+       les réponses et les tirages de la pièce. « nb » est la seconde source du
+       compte (la page a POF_NB). */
+    pythonPileFace: { exercice: 'python-pile-face', nb: 6, numero: '6.7.7' },
+    /* {python-if-plus-grand-trois} (6.7.8, derrière {python-pile-face} dans
+       le sous-thème « Condition if else », demande de Turquet, octobre
+       2026) : l'exercice 8 du carnet, BONUS — demander 3 nombres décimaux,
+       afficher le plus grand. Le juge exécute la copie sous six triplets.
+       Une seule question (la fiche), une case. */
+    pythonIfPlusGrandTrois: { exercice: 'python-if-plus-grand-trois', numero: '6.7.8' },
     /* {python-for-nom} (6.6.2 — 6.6.1 à sa création, avant que {python-for-range}, la fiche de la définition, ne passe devant ; sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 5 du carnet — afficher 8 fois
        son nom et son prénom avec une boucle for. Le juge lit ce que le

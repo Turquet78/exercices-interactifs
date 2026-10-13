@@ -4251,6 +4251,8 @@ function exercices(suite){
     pythonInputFloat(w, P);
     pythonInputSomme(w, P);
     pythonInputPrix(w, P);
+    pythonPileFace(w, P);
+    pythonIfPlusGrandTrois(w, P);
     pythonForNom(w, P);
     pythonForCouples(w, P);
     pythonInputEvolution(w, P);
@@ -4293,7 +4295,6 @@ function exercices(suite){
     pythonIfLocation(w, P);
     pythonIfPlusGrand(w, P);
     pythonIfFraisPort(w, P);
-    pythonIfPlusGrandTrois(w, P);
     pythonChaines(w, P);
     pythonChaineLen(w, P);
     pythonForRange(w, P);
@@ -28526,6 +28527,216 @@ function pythonInputSomme(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-pile-face} (Seconde, 6.7.7) : l'« Exercice 7 » du carnet — jouons à
+   pile ou face, en six questions qui montent un jeu (a : le choix, b : la
+   pièce, c : le verdict, d : cinq fois, e : le score, f : le message). Le
+   contrôle tient la place au menu (il ferme le sous-thème 6.7, derrière
+   {python-if-else}, {python-samoussa}, {python-if-plus-grand}, {python-if-cinema},
+   {python-if-location} et {python-if-frais-port} — le 6.7 « Condition if else » : rien d'autre ne bouge), la séance (les six
+   questions dans l'ordre de la fiche), l'interpréteur appris pour l'occasion
+   (import random, random.randint, les tirages imposés), le juge — sur les
+   modèles de chaque question et sur des copies fausses, chacune avec le mot
+   qui la nomme —, l'écran (le dessin d'abord, la définition mot pour mot,
+   l'énoncé en gras dans son cadre, les coups de pouce de la fiche repliés,
+   la console vide), le dialogue de la console qui REJOUE la pièce, la copie
+   juste, fausse et vide, la cellule qui s'ouvre sur le programme d'avant,
+   le soutien, puis compare à un vrai CPython ce que les modèles affichent.
+   Aucun accent grave ni antislash littéral dans le code évalué. */
+function pythonPileFace(w, P){
+  const nom = '{python-pile-face} : jouons à pile ou face';
+  if(!P.pythonPileFace){ ignorer(nom, 'ce niveau n\'a pas l\'exercice pile ou face'); return; }
+  const ID = P.pythonPileFace.exercice, NB = P.pythonPileFace.nb, NUM = P.pythonPileFace.numero;
+  const present = evaluer(w, "typeof startPOF==='function' && typeof pofDiag==='function' && typeof pofBuildQuestions==='function' && typeof pyRandint==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPOF / pofDiag / pofBuildQuestions / pyRandint introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.7 « Condition if else », derrière les six autres, numéroté ' + NUM + ', dernier sous-thème du thème 6, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
+    if(!st||!/condition if else/i.test(st.nom)) vus.push("pas de sous-thème 6.7 Condition if else");
+    else if(st.ids.join(",")!=="python-if-else,python-samoussa,python-if-plus-grand,python-if-cinema,python-if-location,python-if-frais-port,${ID}") vus.push("il ne ferme pas le sous-thème derrière les six autres : "+st.ids.join(","));
+    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème 6");
+    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-if-location"]!=="6.7.5"||TEST_NUM["python-if-frais-port"]!=="6.7.6") vus.push("les autres du 6.7 ont bougé");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la séance ---- */
+  verifierEval(w, 'la séance : les ' + NB + ' questions de la fiche, a) à f), dans l’ordre, chacune une case ; jamais au-delà de six', `(function(){
+    const vus=[];
+    const qs=pofBuildQuestions();
+    if(qs.length!==${NB}) vus.push("séance de "+qs.length);
+    if(qs.map(function(q){ return q.e; }).join("")!=="abcdef") vus.push("ordre "+qs.map(function(q){ return q.e; }).join(""));
+    qs.forEach(function(q){ if(q.prog!==""||q.fin!==null) vus.push("question non vierge"); });
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. l'interpréteur : import random, random.randint, les tirages imposés ---- */
+  verifierEval(w, 'l’interpréteur : import random puis random.randint(1,2) tire 1 ou 2 (les deux sortent), les tirages imposés sont pris dans l’ordre et rendus dans « alea », random sans import est une NameError, et le point reste refusé partout ailleurs', `(function(){
+    const vus=[], NL=String.fromCharCode(10);
+    const src="import random"+NL+"piece = random.randint(1,2)"+NL+"print(piece)";
+    const vues={};
+    for(let k=0;k<200;k++){ const r=pyRun(src); vues[r.out]=1; }
+    if(Object.keys(vues).sort().join("|")!==["1"+NL,"2"+NL].join("|")) vus.push("tirages vus : "+JSON.stringify(Object.keys(vues)));
+    const r=pyRun(src+NL+"piece = random.randint(1,2)"+NL+"print(piece)", [], [2,1]);
+    if(r.out!=="2"+NL+"1"+NL) vus.push("tirages imposés : "+JSON.stringify(r.out));
+    if(r.alea.length!==2||r.alea[0].a!==1||r.alea[0].b!==2||r.alea[0].v!==2) vus.push("alea : "+JSON.stringify(r.alea));
+    try{ pyRun("piece = random.randint(1,2)"); vus.push("random sans import passe"); }catch(e){ if(!/NameError/.test(e.message)) vus.push("random sans import : "+e.message); }
+    try{ const f=pyRun("from random import randint"+NL+"print(randint(1,1))"); if(f.out!=="1"+NL) vus.push("from random import randint : "+f.out); }catch(e){ vus.push("from random import randint : "+e.message); }
+    try{ pyRun("a = "+String.fromCharCode(34)+"x"+String.fromCharCode(34)+NL+"print(a.upper())"); vus.push("une méthode passe"); }catch(e){ if(!/méthodes/.test(e.message)) vus.push("le point ailleurs : "+e.message); }
+    try{ pyRun("import math"); vus.push("import math passe"); }catch(e){}
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le juge ---- */
+  verifierEval(w, 'le juge accepte le modèle de chaque question et d’autres écritures justes, et nomme chaque défaut — int oublié, un seul « = », else oublié, messages échangés, consigne oubliée, variable mal nommée, input au b), import oublié, mauvaises bornes, a) ou b) perdus au c), tirage ou input hors de la boucle, pas de for, raison jamais augmentée ou remise à 0, total à chaque tour, messages du f) faux ou en trop', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    const p=function(t){ return "print("+Q+t+Q+")"; };
+    ["a","b","c","d","e","f"].forEach(function(e){ const d=pofDiag(pofModele({e:e}),{e:e}); if(!d.ok) vus.push("modèle "+e+" refusé : "+d.dits.join(" ")); });
+    const A=pofModele({e:"a"}), B=pofModele({e:"b"}), C=pofModele({e:"c"}), D=pofModele({e:"d"}), E=pofModele({e:"e"}), F=pofModele({e:"f"});
+    const justes=[
+      ["a", "choix = int(input("+Q+"Entre 1 pour Face ou 2 pour Pile : "+Q+"))"+NL+"if choix == 1 :"+NL+"    "+p("Face !")+NL+"else :"+NL+"    "+p("Pile !")],
+      ["b", "from random import randint"+NL+"piece = randint(1,2)"+NL+"if piece == 2:"+NL+"    "+p("la pièce donne Pile.")+NL+"else:"+NL+"    "+p("la pièce donne Face.")],
+      ["c", A+NL+B+NL+pofModele({e:"c"}).split(NL).slice(-4).join(NL)],
+      ["f", F.split("if raison == 3").join("elif raison == 3").split("if raison == 4").join("elif raison == 4").split("if raison == 5").join("elif raison == 5")]
+    ];
+    justes.forEach(function(c){ const d=pofDiag(c[1],{e:c[0]}); if(!d.ok) vus.push("refusé ("+c[0]+") : "+JSON.stringify(c[1])+" — "+d.dits.join(" ")); });
+    const cas=[
+      ["a", A.split("int(input(").join("(input("), /TEXTE/],
+      ["a", A.split("choix == 1").join("choix = 1"), /DEUX « = »/],
+      ["a", A.split("else:"+NL).join(""), /Face ET Pile|décalages/],
+      ["a", A.split("Face.").join("X").split("Pile.").join("Face.").split("X").join("Pile."), /échangés/],
+      ["a", A.split(NL).slice(1).join(NL).split("rentre ton choix : ").join("ton choix ? "), /AVANT de demander/],
+      ["a", A.split("choix").join("c"), /variable choix/],
+      ["a", "", /vide/],
+      ["b", "choix = int(input("+Q+"?"+Q+"))"+NL+B, /ne demande rien/],
+      ["b", B.split(NL).slice(1).join(NL), /import random/],
+      ["b", B.split("randint(1,2)").join("randint(0,1)"), /pour 1 ou 2/],
+      ["b", B.split("piece").join("p"), /variable piece/],
+      ["b", "import random"+NL+"piece = 1"+NL+p("la pièce donne Face."), /ne tire rien/],
+      ["c", A+NL+pofModele({e:"c"}).split(NL).slice(-4).join(NL), /piece = random.randint/],
+      ["c", "import random"+NL+"choix = int(input("+Q+"ton choix ? "+Q+"))"+NL+"piece = random.randint(1,2)"+NL+C.split(NL).slice(-4).join(NL), /plus ce que l’on a choisi/],
+      ["c", C.split("choix == piece").join("choix != piece"), /échangés/],
+      ["d", C, /for k in range/],
+      ["d", "import random"+NL+"piece = random.randint(1,2)"+NL+"for k in range(5):"+NL+A.split(NL).map(function(l){ return "    "+l; }).join(NL)+NL+"    if choix == piece:"+NL+"        "+p("Bravo")+NL+"    else:"+NL+"        "+p("Perdu"), /tirée qu’une fois/],
+      ["d", D.split("range(5)").join("range(3)"), /3 questions/],
+      ["e", D, /raison = 0/],
+      ["e", E.split("raison = raison + 1").join("raison = raison"), /reste à 0/],
+      ["e", E.split(NL+"raison = 0").join("").split("for k in range(5):"+NL).join("for k in range(5):"+NL+"    raison = 0"+NL), /repart de 0/],
+      ["e", E.split(NL+"print("+Q+"vous avez deviné").join(NL+"    print("+Q+"vous avez deviné"), /à chaque tour/],
+      ["f", E, /un message selon raison/],
+      ["f", F.split("incapable de deviner").join("XX").split("un vrai medium").join("incapable de deviner").split("XX").join("un vrai medium"), /il fallait/],
+      ["f", F.split("if raison == 3").join("if raison >= 3"), /plusieurs messages/]
+    ];
+    cas.forEach(function(c){
+      let d=null; try{ d=pofDiag(c[1],{e:c[0]}); }catch(x){ vus.push(c[0]+" plante : "+x.message); return; }
+      if(d.ok) vus.push("accepté à tort ("+c[0]+") : "+JSON.stringify(c[1]));
+      else if(!c[2].test(d.dits.join(" "))) vus.push(c[0]+" "+JSON.stringify(c[1]).slice(0,120)+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,5).join(" || ");
+  })()`, v => v === '');
+
+  /* ---- 5. l'écran, la console, la copie juste ---- */
+  verifierEval(w, 'l’écran : le dessin d’abord, puis la définition mot pour mot (le code et sa traduction, la remarque des deux « = »), l’énoncé en gras dans son cadre avec les coups de pouce de la fiche repliés, la cellule, « Exécuter » et la console vide ; la console pose la question et garde la pièce ; la copie juste est bleue, la question d’après s’ouvre sur le programme d’avant, le c) sur ceux du a) et du b)', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPOF();
+    const vus=[], NL=String.fromCharCode(10), net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const card=document.querySelector("#scr-pof .card"), fig=document.getElementById("pofFig"), av=document.getElementById("pofAvant");
+    if(!fig||!fig.querySelector("img.pof-img")||card.firstElementChild!==fig) vus.push("le dessin n’ouvre pas l’écran");
+    if(!av||fig.nextElementSibling!==av) vus.push("la définition ne suit pas le dessin");
+    const def=av&&net([].map.call(av.querySelectorAll("p, .pof-c"), function(e){ return e.textContent; }).join(" "));
+    const Q2=String.fromCharCode(34), att="⚠ Définition : if choix == 1 : signifie: si choix = 1 alors print (§Face§) afficher §Face§ else : sinon print (§Pile§) afficher §Pile§ Remarque : il faut mettre deux §=§ dans la condition : if n == 1".split("§").join(Q2);
+    if(def!==att) vus.push("la définition : "+JSON.stringify(def));
+    const et=document.getElementById("pofEtape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!ti||ti.textContent.indexOf("✏️ a) Faire un programme qui")!==0||ti.querySelectorAll("li").length!==4) vus.push("l’énoncé du a) : "+(ti&&ti.textContent));
+    ["pof-prog","pofRun","pofConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const pouces=document.querySelectorAll("#pofEtape details.pyd-pouce");
+    if(pouces.length!==3||[].some.call(pouces, function(d){ return d.open; })) vus.push(pouces.length+" coups de pouce, ou dépliés");
+    else if(net(pouces[2].querySelector("p").textContent)!==net("if choix == 1:"+NL+"    print ("+String.fromCharCode(34)+" ... texte à afficher ..."+String.fromCharCode(34)+")"+NL+"else:"+NL+"    print ("+String.fromCharCode(34)+" ... texte à afficher ..."+String.fromCharCode(34)+")")) vus.push("le coup de pouce 3 : "+pouces[2].textContent);
+    const cons=document.getElementById("pofConsole"), ta=document.getElementById("pof-prog");
+    if(cons.textContent!=="") vus.push("la console n’est pas vide");
+    if(ta.value!==""||ta.getAttribute("placeholder")) vus.push("la cellule du a) n’est pas vide");
+    /* la console : la question, puis la pièce rejouée */
+    ta.value=pofModele({e:"c"}); ta.dispatchEvent(new Event("input",{bubbles:true}));
+    pofExecuter();
+    const r=document.getElementById("pof-rep");
+    if(!r||cons.textContent.indexOf("Entre 1 pour Face ou 2 pour Pile")<0) vus.push("la console ne pose pas la question : "+JSON.stringify(cons.textContent));
+    else { r.value="1"; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+      const t=cons.textContent; if(!/Vous avez choisi Face/.test(t)||!/la pièce donne (Face|Pile)/.test(t)||!/(Bravo|Perdu)/.test(t)) vus.push("la console finit par "+JSON.stringify(t));
+      if(/Face/.test(t.split("la pièce donne ")[1]||"")!==/Bravo/.test(t)) vus.push("verdict incohérent avec la pièce : "+JSON.stringify(t)); }
+    ta.value=pofModele({e:"a"}); ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPOF();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPOF();
+    if(document.getElementById("pof-prog").value!==""||!document.querySelector("#pofFig img")) vus.push("le b) ne s’ouvre pas vide, avec son dessin");
+    checkPOF();
+    nextPOF();
+    if(document.getElementById("pof-prog").value!==pofModele({e:"a"})+NL+pofModele({e:"b"})) vus.push("le c) ne s’ouvre pas sur le a) (juste) puis le b) (corrigé) : "+JSON.stringify(document.getElementById("pof-prog").value));
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPOF();
+    let ta=document.getElementById("pof-prog");
+    ta.value=pofModele({e:"a"}).split("int(input(").join("(input("); ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPOF();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pofModele .sol");
+    if(!mod||mod.textContent!==pofModele({e:"a"})) vus.push("pas de modèle vert sous la copie fausse");
+    nextPOF(); ta=document.getElementById("pof-prog");
+    checkPOF();
+    if(ta.classList.contains("bad")||!ta.classList.contains("sol")||ta.value!==pofModele({e:"b"})) vus.push("la copie vide : "+ta.className);
+    currentMode="soutien"; startPOF(); ta=document.getElementById("pof-prog");
+    checkPOF();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value=pofModele({e:"a"}).split("choix == 1").join("choix = 1"); ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPOF();
+    const fb=document.getElementById("pofFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/DEUX « = »/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pofModele .sol")) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPof(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. la seconde méthode : CPython, sur les modèles ----
+     input et random.randint sont remplacés, côté CPython, par des fonctions
+     qui rendent les réponses et les tirages imposés, l'un après l'autre. */
+  const nomPy = 'ce que les modèles de {python-pile-face} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[], essais={a:[[[1],[]],[[2],[]]], b:[[[],[1]],[[],[2]]], c:[[[1],[1]],[[1],[2]],[[2],[1]],[[2],[2]]], d:POF_D, e:POF_D, f:POF_F};
+    ["a","b","c","d","e","f"].forEach(function(e){ essais[e].forEach(function(x){
+      const src=pofModele({e:e}), r=pyRun(src, x[0].map(String), x[1]);
+      res.push([src, x[0].map(String), x[1], r.prints.map(function(z){ return z.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, rep, alea]) =>
+    '_r = ' + JSON.stringify(rep) + '\n_h = ' + JSON.stringify(alea) + '\ndef input(q=""):\n    return _r.pop(0)\nimport random\nrandom.randint = lambda a, b: _h.pop(0)\n' + src.replace(/^import random$/m, '')));
+  const ecarts = [];
+  liste.forEach(([src, rep, alea, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src).slice(0, 80) + ' (' + rep.join(', ') + ' ; ' + alea.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* {python-input-prix} (Seconde, 6.3.9) : l'exercice 10 du carnet — le serpent
    au panier. Demander le poids des pommes puis celui des tomates sous forme
    décimale, calculer le prix total, l'afficher avec une phrase. Le contrôle
@@ -30974,10 +31185,10 @@ function pythonTroisDes(w, P){
   verifier(nomPy, ecarts.length === 0 && /: 81\n/.test(ref[2]) && /: 25\n/.test(ref[1]), ecarts.join(' | ') || J(ref[2].slice(-200)));
 }
 
-/* {python-if-plus-grand-trois} (Seconde, 6.7.7) : l'exercice 8 du carnet, BONUS —
+/* {python-if-plus-grand-trois} (Seconde, 6.7.8) : l'exercice 8 du carnet, BONUS —
    la photo, puis « Faire un programme qui demande 3 nombres décimaux et qui
    affiche le plus grand des trois nombres. » Le contrôle tient la place au
-   menu (il suit {python-if-frais-port} dans le sous-thème 6.7 « Condition if
+   menu (il suit {python-pile-face} dans le sous-thème 6.7 « Condition if
    else », dernier du thème, rien d'autre ne bouge), le mot « Bonus » du
    titre, le juge sur des copies justes et fausses — chacune avec le mot qui
    la nomme —, l'écran (la photo d'abord, aucune définition, aucun coup de
@@ -30994,14 +31205,14 @@ function pythonIfPlusGrandTrois(w, P){
   }
 
   /* ---- 1. la place au menu, et le mot « Bonus » ---- */
-  verifierEval(w, 'il suit {python-if-frais-port} dans le sous-thème 6.7 « Condition if else », numéroté ' + NUM + ', juste derrière « Boucle for in range », son titre dit « Bonus », et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-pile-face} dans le sous-thème 6.7 « Condition if else », numéroté ' + NUM + ', son titre dit « Bonus », et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
     if(!st||!/condition/i.test(st.nom)||!/if/.test(st.nom)||!/else/.test(st.nom)) vus.push("pas de sous-thème 6.7 Condition if else");
-    else if(st.ids.indexOf("python-if-frais-port")<0||st.ids.indexOf("${ID}")!==st.ids.indexOf("python-if-frais-port")+1) vus.push("il ne suit pas {python-if-frais-port} : "+st.ids.join(","));
+    else if(st.ids.indexOf("python-pile-face")<0||st.ids.indexOf("${ID}")!==st.ids.indexOf("python-pile-face")+1) vus.push("il ne suit pas {python-pile-face} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-if-location"]!=="6.7.5"||TEST_NUM["python-if-frais-port"]!=="6.7.6"||TEST_NUM["python-for-table"]!=="6.6.11"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-if-location"]!=="6.7.5"||TEST_NUM["python-if-frais-port"]!=="6.7.6"||TEST_NUM["python-pile-face"]!=="6.7.7"||TEST_NUM["python-for-table"]!=="6.6.11"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("le titre ne dit pas Bonus : "+TESTS["${ID}"].name);
     const qs=pgtBuildQuestions();
