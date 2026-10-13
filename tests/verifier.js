@@ -29049,7 +29049,7 @@ function pythonIfCinema(w, P){
   })()`, v => v === '');
 
   /* ---- 4. l'écran, tenu aux consignes du sous-thème Input, le dialogue, et la copie juste ---- */
-  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition, deux coups de pouce repliés, l’énoncé de la fiche mot pour mot en gras dans son cadre, la cellule et la console VIDES, « Exécuter » qui pose la question dans la console ; le rappel ne redit que la consigne ; la copie juste vaut 1', `(function(){
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition, deux coups de pouce repliés, l’énoncé de la fiche mot pour mot en gras dans son cadre, la cellule et la console VIDES, « Exécuter » qui pose la question dans la console ; le rappel redit la consigne puis les coups de pouce ; la copie juste vaut 1', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPCI();
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
