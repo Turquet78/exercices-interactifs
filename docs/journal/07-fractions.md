@@ -1556,8 +1556,49 @@ questions en tire 6 pour en garder 5. Le banc navigateur (« 6 terdecies
 bis ») ouvre la rédigée du produit sous sa guidée, et celle du 4.6 par la
 reprise d'une pause, et y fait compter une copie juste.
 
+**Puis les cases du 4.3, du 4.4 et du 4.5 ont été RÉDUITES (octobre 2026,
+Première v311).** Demande de Turquet : « en première dans les exercices 4.3 ;
+4.4 ; 4.5 réduire la taille des cases où l'on doit placer des nombres à
+l'écran » — les mêmes mots que pour le 4.6, et donc la même réponse : la
+mesure de `#spfHost`, reprise au chiffre près.
+
+* **La rangée entière descend d'un cran**, pas la case seule : la règle de
+  tout exercice veut que la case ait la taille des nombres qui l'entourent
+  (le contrôle universel la mesure à 90 %). Chiffres et « = » à 1,45 rem au
+  lieu de 2, signes à 1,15 rem, cases à 1,4 rem, cadre resserré (36 px de
+  haut au lieu de 46, largeur au contenu avec un minimum de 40 px, trait à
+  3 px, badge de correction à 0,95 rem avec ses marges réduites). Sur
+  téléphone, un cran de moins encore, comme au 4.6. Le facteur de la
+  tablette (`--tab-nb`) reste dans chaque règle.
+* **Le 4.3 partage son écran avec le 4.2 et le 1.9** (`#sfHost`, moteur sf
+  identique à la Seconde au caractère près) : une classe de plus dans le
+  rendu aurait cassé l'identité du moteur, une règle sur `#sfHost` aurait
+  réduit les trois. La règle se pose donc sur l'ÉCRAN, par l'exercice qu'il
+  porte : `show()` écrit `currentTestId` dans `data-exo` de la section,
+  au démarrage comme à la reprise après une pause (les deux passent par
+  `show()`), et le sélecteur est
+  `#scr-sf[data-exo="somme-fractions-2"] #sfHost …`. Le 4.2 et le 1.9
+  gardent leurs cases pleines ; le 4.2 n'était pas dans la demande.
+* **Le 4.4 et le 4.5** ont `#mltHost` pour eux seuls : leurs tailles y sont
+  remplacées, et les deux requêtes média qui les rétrécissaient à 900 et
+  520 px (1,5 rem, 76 et 62 px) disparaissent — la case est déjà au-dessous,
+  et sa largeur suit son contenu.
+* **Le 4.1** (`#rvfHost`) n'est pas touché : il n'était pas nommé.
+
+Contrôle : « les cases réduites sont plus petites que celles du témoin, qui
+garde les siennes » (banc navigateur, « 6 terdecies ter », déclaré par
+`casesReduites` dans le profil de la Première : le témoin est le 4.2, les
+réduits le 4.3, le 4.4, le 4.5 et le 4.6). Il MESURE à l'écran, en
+entraînement, la police et la hauteur des cases de la rangée : réduites à
+80 % au plus et 6 px de moins que le témoin ; le témoin à 1,8 rem et 44 px
+au moins ; et chaque case réduite à la taille de ses nombres. Deux bords,
+parce qu'un sélecteur trop large (`#sfHost` nu) réduirait le 4.2 sans que
+le premier bord ne bouge — c'est le second qui l'attraperait. Éprouvé par
+sabotage : la ligne `data-exo` retirée de `show()`, le 4.3 garde ses
+grandes cases et le contrôle rougit sur lui seul.
+
 **Puis le 4.6 a reçu une soustraction et ses colonnes (octobre 2026,
-Première v311).** Demande de Turquet : « dans le 4.6 en première, il est
+Première v312).** Demande de Turquet : « dans le 4.6 en première, il est
 possible d'avoir une soustraction au lieu d'une addition, mais le résultat
 doit être positif. De plus placer les signes "=" en début de ligne et
 afficher les cases à remplir en dessous verticalement des nombres du dessus
