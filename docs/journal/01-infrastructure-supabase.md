@@ -412,7 +412,10 @@ cités par la migration 009 et sa notice ne dépassent pas celui de la page »
 apporté le champ et ne bouge plus quand `APP_VERSION` avance : chaque mention
 doit lui être ÉGALE (trop haut, Turquet attendrait une version qui n'arrive
 jamais ; trop bas, il croirait une page en ligne déjà passée au champ), et
-la constante ne dépasse pas la page. Le double
+la constante ne dépasse pas la page. Éprouvé : « Seconde v484 » glissé
+dans l'en-tête de la 009 — « ✗ les numéros de version cités par la migration
+009 et sa notice sont ceux de la page → supabase/migrations/009_connexion_
+sans_liste.sql cite Seconde v484 au lieu de v483 ». Le double
 (`tests/faux-supabase.js`) a gagné `rpc(nom, args)` pour cela : il
 journalise l'appel, rend pour `cles_de_connexion` ce que rend la fonction,
 `PGRST202` pour un nom inconnu — et pour tout appel sous `sansRpc`.
