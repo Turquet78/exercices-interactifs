@@ -7006,7 +7006,17 @@ async function parcours(page, N){
        une fois, sans quoi le contrôle ne mesure rien — et le dit.
        L'autre bord : le TÉMOIN hors thème qui partage l'écran du 4.2 et du 4.3
        (le 1.9) garde ses cases pleines — un sélecteur trop large l'aurait
-       réduit sans que le premier bord ne bouge. */
+       réduit sans que le premier bord ne bouge.
+       PUIS L'ENCRE EST DEVENUE NOIRE (octobre 2026 : « tous les nombres et
+       les barres de fractions soient écrits en noir dans les énoncés et les
+       exercices, sauf dans les cases » — « sauf le 4.2 »). Le même relevé lit
+       la COULEUR de chaque nombre et de chaque signe que la page écrit, et
+       celle de chaque trait de fraction (un fond, pas un texte) ; tout doit
+       être noir, hors les cases (ce que l'élève écrit) et la correction
+       (verte, règle globale). L'exercice dispensé, déclaré dans le profil
+       (encreFractions.noir.sauf), doit AVOIR encore des couleurs — sans quoi
+       la dispense ne dispense de rien ; et le témoin hors thème garde les
+       siennes : le noir ne déborde pas du thème. */
     titre('6 terdecies ter. LE THÈME DES FRACTIONS S\'ÉCRIT D\'UNE SEULE ENCRE');
     const NOM_ENCRE = 'le thème des fractions s\'écrit d\'une seule police et d\'une seule taille, de l\'énoncé à la fin, cases comprises';
     if(!P.encreFractions){
@@ -7040,13 +7050,22 @@ async function parcours(page, N){
         const sorte = e => e.closest('.mp-instr') ? 'énoncé' : e.closest('.mf-cor') ? 'correction'
                          : e.closest('.dexp2-sheet') ? 'feuille' : 'rangée';
         const items = [];
+        /* les traits de fraction : leur encre est un FOND (.f-fbar) ou la
+           couleur du texte qu'ils prolongent (.sf-f .bar, en currentColor) */
+        for(const b of on.querySelectorAll('.f-fbar, .sf-f .bar')){
+          if(horsCalcul(b) || !visible(b) || b.closest('math-field')) continue;
+          items.push({ sorte: 'trait', quoi: 'trait de fraction ' + (b.closest('.mp-instr') ? 'de l\'énoncé' : 'de la rangée'),
+                       police: null, couleur: getComputedStyle(b).backgroundColor });
+        }
         for(const x of on.querySelectorAll('*')){
           if(x.children.length || x.closest('math-field') || horsCalcul(x) || !visible(x)) continue;
           const t = (x.textContent || '').trim();
           const nombre = t.length <= 12 && /\d/.test(t) && !/\p{L}/u.test(t);
           const signe = /^[+−×÷=]$/.test(t);
           if(!nombre && !signe) continue;
-          items.push({ sorte: signe ? 'signe' : sorte(x), quoi: sorte(x) + ' « ' + t + ' »', police: police(x), taille: taille(x) });
+          items.push({ sorte: signe ? 'signe' : sorte(x), quoi: sorte(x) + ' « ' + t + ' »', police: police(x), taille: taille(x),
+                       /* la couleur de ce que la PAGE écrit ; la correction garde son vert */
+                       couleur: sorte(x) === 'correction' ? undefined : getComputedStyle(x).color });
         }
         for(const mf of on.querySelectorAll('math-field')){
           if(!visible(mf) || horsCalcul(mf)) continue;
@@ -7063,12 +7082,23 @@ async function parcours(page, N){
         }
         return { ecran: on.id, theme: on.dataset.theme || '', items };
       });
-      const dits = [], vus = {};
-      const juger = (num, moment, R) => {
+      const dits = [], vus = {}, ditsNoir = []; let mesuresNoir = 0;
+      /* « noir » : ce que l'œil appelle noir — l'encre de la page (--ink, un
+         bleu sombre) et le bleu nuit des fractions n'en sont pas */
+      const noir = c => { const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c || ''); return !!m && +m[1] <= 24 && +m[2] <= 24 && +m[3] <= 24; };
+      const juger = (id, num, moment, R) => {
         if(!R){ dits.push(num + ' (' + moment + ') : aucun écran ouvert'); return; }
         if(R.theme !== E.theme) dits.push(num + ' : l\'écran ne porte pas le thème (data-theme « ' + R.theme + ' »)');
         const hauteurs = [];
+        const dispense = E.noir && E.noir.sauf && E.noir.sauf[id];   /* le 4.2 garde ses couleurs */
+        let colores = 0;
         for(const it of R.items){
+          if(E.noir && it.couleur !== undefined){
+            mesuresNoir++;
+            if(!noir(it.couleur)) colores++;
+            if(!dispense && !noir(it.couleur)) ditsNoir.push(num + ' (' + moment + ') : ' + it.quoi + ' en ' + it.couleur + ' au lieu de noir');
+          }
+          if(it.sorte === 'trait'){ vus.trait = (vus.trait || 0) + 1; continue; }   /* un trait n'a ni police ni taille */
           if(it.police === null) continue;          /* une case vide : aucun chiffre à lire */
           vus[it.sorte] = (vus[it.sorte] || 0) + 1;
           const mauvaise = it.police !== E.police || Math.abs(it.taille - E.rem) > 0.03
@@ -7080,6 +7110,8 @@ async function parcours(page, N){
         /* les cases à remplir ont la même taille entre elles : la même hauteur */
         if(hauteurs.length && Math.max(...hauteurs) - Math.min(...hauteurs) > 4)
           dits.push(num + ' (' + moment + ') : des cases de ' + Math.min(...hauteurs) + ' à ' + Math.max(...hauteurs) + ' px de haut');
+        /* l'exercice dispensé a encore des couleurs : sinon la dispense ne dispense de rien */
+        if(E.noir && dispense && !colores) ditsNoir.push(num + ' (' + moment + ') : dispensé du noir (' + dispense + '), mais plus aucun nombre n\'y est en couleur');
       };
       const tousNums = [];
       for(const id of ids){
@@ -7098,7 +7130,7 @@ async function parcours(page, N){
         await s.page.waitForTimeout(60);
         await s.page.keyboard.type('97', { delay: 20 });
         await s.page.waitForTimeout(150);
-        juger(num, 'ouverture', await releve());
+        juger(id, num, 'ouverture', await releve());
         const clique = await s.page.evaluate(() => {
           const on = document.querySelector('section.screen.on'); if(!on) return false;
           const b = [...on.querySelectorAll('button')].filter(x => x.getBoundingClientRect().width > 0)
@@ -7107,7 +7139,7 @@ async function parcours(page, N){
         });
         if(!clique){ dits.push(num + ' : pas de bouton « Vérifier »'); continue; }
         await s.page.waitForTimeout(900);
-        juger(num, 'vérification', await releve());
+        juger(id, num, 'vérification', await releve());
       }
       /* le témoin hors thème, sur l'écran partagé : ses cases restent pleines */
       await ouvrirExo(E.temoin);
@@ -7119,12 +7151,16 @@ async function parcours(page, N){
         /* la zone de la question rédigée, ouverte par le 4.3 sur ce même écran,
            ne doit pas y être restée (show() la ferme) */
         const zone = [...on.querySelectorAll('.sfr-zone')].filter(z => !z.hidden && z.getBoundingClientRect().height > 0).length;
-        return { theme: on.dataset.theme || '', ecran: on.id, zone,
+        /* ses nombres gardent leur couleur : le noir du thème ne déborde pas sur lui */
+        const noir = c => { const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c || ''); return !!m && +m[1] <= 24 && +m[2] <= 24 && +m[3] <= 24; };
+        const nombres = [...on.querySelectorAll('.pt-row .f-frac, .pt-row .f-whole, .pt-row .f-times, .mp-instr .f-frac')].filter(e => e.getBoundingClientRect().width > 0);
+        const colores = nombres.filter(e => !noir(getComputedStyle(e).color)).length;
+        return { theme: on.dataset.theme || '', ecran: on.id, zone, nombres: nombres.length, colores,
                  police: Math.max(...mfs.map(e => Math.round(parseFloat(getComputedStyle(e).fontSize) / rem * 100) / 100)),
                  hauteur: Math.max(...mfs.map(e => Math.round(e.getBoundingClientRect().height))) };
       });
       const numT = await s.page.evaluate(i => TEST_NUM[i], E.temoin);
-      const sortes = ['énoncé', 'signe', 'rangée', 'case', 'correction', 'feuille'];
+      const sortes = ['énoncé', 'signe', 'rangée', 'case', 'correction', 'feuille', 'trait'];
       const manquent = sortes.filter(k => !vus[k]);
       console.log('   · ' + tousNums.join(', ') + ' — relevé : ' + sortes.map(k => k + ' ' + (vus[k] || 0)).join(', ')
         + ' — témoin ' + numT + ' : ' + (T ? T.police + ' rem, ' + T.hauteur + ' px, thème « ' + T.theme + ' »' : 'rien'));
@@ -7133,6 +7169,20 @@ async function parcours(page, N){
                        : dits.length + ' écart(s) — ' + dits.slice(0, 4).join(' | '));
       verifier('chaque sorte d\'écriture du thème a été relevée (le contrôle mesure quelque chose)',
         manquent.length === 0, 'jamais vu : ' + manquent.join(', '));
+      const NOM_NOIR = 'ce que la page écrit dans le thème des fractions — nombres, signes, traits — est noir, hors les cases et hors l\'exercice dispensé';
+      if(!E.noir) ignorer(NOM_NOIR, 'ce niveau ne déclare pas d\'encre noire');
+      else {
+        const dispenses = Object.keys(E.noir.sauf || {});
+        const absents = dispenses.filter(d => ids.indexOf(d) < 0);
+        console.log('   · encre noire : ' + mesuresNoir + ' couleur(s) relevée(s), dispensé(s) : ' + (dispenses.map(d => d + ' (' + E.noir.sauf[d] + ')').join(', ') || 'aucun'));
+        verifier(NOM_NOIR, mesuresNoir > 0 && ditsNoir.length === 0 && absents.length === 0,
+          absents.length ? 'le profil dispense ' + absents.join(', ') + ', qui n\'est pas du thème'
+          : mesuresNoir === 0 ? 'aucune couleur relevée : le contrôle ne mesure rien'
+          : ditsNoir.length + ' écart(s) — ' + ditsNoir.slice(0, 4).join(' | '));
+        verifier('le témoin hors thème garde ses nombres en couleur : le noir ne déborde pas du thème',
+          !!T && T.nombres > 0 && T.colores > 0,
+          T ? (numT + ' : ' + T.colores + ' nombre(s) en couleur sur ' + T.nombres) : numT + ' : aucun nombre mesuré');
+      }
       verifier('le témoin hors thème, sur l\'écran partagé, garde ses cases pleines',
         !!T && T.theme !== E.theme && T.police >= 1.8 && T.hauteur >= 44,
         T ? (numT + ' : ' + T.police + ' rem, ' + T.hauteur + ' px, thème « ' + T.theme + ' »') : numT + ' : aucune case mesurée');
@@ -7954,6 +8004,118 @@ async function parcours(page, N){
       if(faux.score !== 4) dits.push('l\'image fausse et la manquante ne coûtent pas exactement leur point (score ' + faux.score + ' au lieu de 4)');
       verifier('les images se posent au clic sur le quadrillage, le stylo avance, le reclic retire', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la translation ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 quadragies ter. ÉGALITÉ DE VECTEURS : LE POINT SE CLIQUE, LE NOM SE TAPE ===== */
+    /* {egalite-vectorielle-point} (8.6, demande de Turquet, octobre 2026 :
+       « comme le 8.5 ») : le point manquant se pose au clic sur un nœud du
+       quadrillage, et le nom du parallélogramme se tape. jsdom n'a pas de mise
+       en page : le calibrage clic → nœud (la zone de touche de 14 px autour de
+       chaque nœud) et le retrait au reclic ne se voient qu'ici. Le banc
+       principal pose selM par vepPose() et juge tout le reste. */
+    titre('6 quadragies ter. ÉGALITÉ DE VECTEURS : LE POINT SE CLIQUE, LE NOM SE TAPE');
+    if(!P.egaliteVectoriellePoint){
+      ignorer('le point manquant se pose au clic, le reclic le retire, le nom tapé se juge',
+        'ce niveau n\'a pas l\'exercice de l\'égalité de vecteurs sur quadrillage');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.egaliteVectoriellePoint.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      const mes = await s.page.evaluate(() => {
+        const svg = document.querySelector('#vepGraph .vec-svg'), r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+        /* la flèche au-dessus des deux lettres : le ::before de .vgt-vec a un trait */
+        const v = document.querySelector('#vepInstr .vgt-vec');
+        const fl = v ? getComputedStyle(v, '::before').borderTopWidth : '';
+        const nom = document.getElementById('vep-nom'), ph = nom && nom.closest('.tvg-cons');
+        return { svg: r.width > 250 && r.height > 250, fleche: parseFloat(fl) > 0,
+                 nomPx: nom ? parseFloat(getComputedStyle(nom).fontSize) : 0, phrasePx: ph ? parseFloat(getComputedStyle(ph).fontSize) : 0 };
+      });
+      if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      if(!mes.fleche) dits.push('les vecteurs de l\'énoncé ne sont pas coiffés d\'une flèche (::before de .vgt-vec sans trait)');
+      if(!(mes.nomPx >= mes.phrasePx)) dits.push('la case du nom s\'écrit plus petit que sa phrase (' + mes.nomPx + 'px contre ' + mes.phrasePx + 'px)');
+      /* la position d'un nœud, lue dans la géométrie du SVG rendu et les
+         constantes de la page — le rectangle est relu à CHAQUE clic */
+      const posNoeud = async (x, y, dx, dy) => await s.page.evaluate(([x, y, dx, dy]) => {
+        const svg = document.querySelector('#vepGraph .vec-svg');
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const kx = r.width / vb.width, ky = r.height / vb.height;
+        return { px: r.left + (VEC_PAD + (x + dx) * VEC_CELL) * kx, py: r.top + (VEC_PAD + (VEC_N - (y + dy)) * VEC_CELL) * ky };
+      }, [x, y, dx || 0, dy || 0]);
+      const clicNoeud = async (x, y, dx, dy) => { const p = await posNoeud(x, y, dx, dy); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      const etat = async () => await s.page.evaluate(() => ({
+        sel: JSON.stringify(test.questions[test.idx].selM),
+        peints: document.querySelectorAll('#vepGraph .vec-t.sel').length,
+        lbl: [...document.querySelectorAll('#vepGraph .vec-t.sel .vec-dlbl')].map(t => t.textContent).join(',')
+      }));
+      /* la question affichée, et ses réponses attendues, recalculées ICI */
+      const q0 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { M: vepPoint(q), m: q.m, nom: vepTour(q), eq: q.eq }; });
+      await clicNoeud(q0.M[0], q0.M[1]);
+      let e = await etat();
+      if(e.sel !== JSON.stringify(q0.M)) dits.push('le clic ne pose pas le nœud visé : ' + e.sel + ' au lieu de ' + JSON.stringify(q0.M));
+      if(e.peints !== 1) dits.push('le nœud posé ne se peint pas (' + e.peints + ')');
+      if(e.lbl !== q0.m) dits.push('le nœud posé ne porte pas la lettre ' + q0.m + ' : « ' + e.lbl + ' »');
+      /* recliquer RETIRE */
+      await clicNoeud(q0.M[0], q0.M[1]);
+      e = await etat();
+      if(e.sel !== 'null' || e.peints !== 0) dits.push('recliquer le nœud ne le retire pas : ' + e.sel);
+      /* un clic à un cinquième de maille tombe dans la zone de touche du nœud */
+      await clicNoeud(q0.M[0], q0.M[1], 0.2, 0);
+      e = await etat();
+      if(e.sel !== JSON.stringify(q0.M)) dits.push('le clic décalé d\'un cinquième de maille ne s\'accroche pas au nœud : ' + e.sel);
+      /* le nom, en minuscules et dans l'autre sens, puis la copie juste : 2/2 */
+      await s.page.fill('#vep-nom', q0.nom.toLowerCase().split('').reverse().join(''));
+      await s.page.click('#vepValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
+        okc: document.querySelectorAll('#vepGraph .vec-t.okc').length, missc: document.querySelectorAll('#vepGraph .vec-t.missc').length,
+        nom: document.getElementById('vep-nom').className, para: document.querySelectorAll('#vepCorr .vec-para').length,
+        bouton: document.getElementById('vepNext') ? document.getElementById('vepNext').textContent : '' }));
+      if(fin.score !== 2) dits.push('la copie juste cliquée vaut ' + fin.score + ' au lieu de 2');
+      if(!fin.locked) dits.push('la copie juste ne verrouille pas la question');
+      if(fin.okc !== 1 || fin.missc) dits.push('le nœud juste n\'est pas peint okc, ou le point attendu se montre (' + fin.okc + ', ' + fin.missc + ')');
+      if(!/\bok\b/.test(fin.nom)) dits.push('le nom juste tapé à l\'envers et en minuscules n\'est pas ok : ' + fin.nom);
+      if(fin.para !== 1) dits.push('la figure de la correction ne se trace pas');
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* question suivante : un nœud FAUX, et le nom dans l'ordre de l'égalité
+         (le piège) — le point attendu en vert, d'étendue non nulle, le badge */
+      await s.page.click('#vepNext');
+      await s.page.waitForTimeout(400);
+      const q1 = await s.page.evaluate(() => { const q = test.questions[test.idx], M = vepPoint(q);
+        let faux = null;
+        for(let i = 0; i <= VEC_N && !faux; i++) for(let j = 0; j <= VEC_N && !faux; j++){
+          if(i === M[0] && j === M[1]) continue;
+          if(['A', 'B', 'C', 'D'].some(L => q[L] && q[L][0] === i && q[L][1] === j)) continue;
+          faux = [i, j];
+        }
+        return { M: M, faux: faux, eq: q.eq, nom: vepTour(q) }; });
+      await clicNoeud(q1.faux[0], q1.faux[1]);
+      await s.page.fill('#vep-nom', q1.eq);
+      await s.page.click('#vepValidate');
+      await s.page.waitForTimeout(300);
+      const faux = await s.page.evaluate(() => {
+        const miss = [...document.querySelectorAll('#vepGraph .vec-t.missc .dot')];
+        const badge = document.getElementById('vep-nom').nextElementSibling;
+        return { badc: document.querySelectorAll('#vepGraph .vec-t.badc').length, miss: miss.length,
+                 large: miss.every(c => c.getBoundingClientRect().width > 4),
+                 badge: badge && badge.classList.contains('mf-cor') ? badge.textContent : '',
+                 fl: [...document.querySelectorAll('#vepCorr .vec-fl')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+                 score: test.score };
+      });
+      if(faux.badc !== 1) dits.push('le nœud faux ne rougit pas (' + faux.badc + ')');
+      if(faux.miss !== 1) dits.push('le point attendu ne se montre pas en vert (' + faux.miss + ')');
+      else if(!faux.large) dits.push('le point attendu est dessiné mais d\'étendue nulle');
+      if(faux.badge !== q1.nom) dits.push('le badge ne montre pas le nom attendu « ' + q1.nom + ' » : « ' + faux.badge + ' »');
+      if(faux.fl !== 2) dits.push('les deux vecteurs égaux ne se dessinent pas (' + faux.fl + ')');
+      if(faux.score !== 2) dits.push('la copie fausse rapporte des points (score ' + faux.score + ' au lieu de 2)');
+      verifier('le point manquant se pose au clic, le reclic le retire, le nom tapé se juge', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de l\'égalité de vecteurs ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }

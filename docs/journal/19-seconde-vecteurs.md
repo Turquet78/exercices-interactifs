@@ -171,6 +171,44 @@ la case vide en correction (jamais rouge, sa carte montrée en vert, aucune
 carte rouge, « Il te manquait 1 case »), et la carte touchée qui choisit sa
 lettre et se range dans `q.rep`.
 
+**Puis deux figures sur trois étaient « justes », et c'est l'élève qui l'a
+vu** (Turquet, octobre 2026, deux copies d'écran, v479 → v480) : sur la
+ligne « UKAH est un parallélogramme », deux dessins montraient UKAH
+parallélogramme ; sur la ligne « J est le milieu de [RA] », deux dessins
+montraient J au milieu de [RA]. Les pièges dessinés gardaient les MÊMES
+points que la bonne figure et ne changeaient que le sens d'une flèche : A→H
+au lieu de H→A, les quatre points U, K, A, H restaient aux quatre sommets du
+parallélogramme ; A→J au lieu de J→A, J restait au milieu. Le dessin disait
+« le piège », les points disaient « la bonne réponse », et un élève qui
+regarde les points — ce qu'on lui apprend — avait deux bonnes figures. Le
+troisième dessin de `par` n'arrangeait rien : ses flèches « non parallèles »
+ne faisaient que 13° d'écart, et se lisaient comme un parallélogramme un peu
+penché. **Un piège dessiné est faux PAR SES POINTS, jamais seulement par le
+sens de ses flèches.** Les pièges sont désormais, pour `par`, le
+parallélogramme ABCD (les flèches A→B et D→C, égales, C et D échangés, une
+forme un peu différente pour que l'œil ne cherche pas la différence
+d'étiquettes) et deux flèches à 38° l'une de l'autre ; pour `mil`, A au
+milieu de [BC] (les flèches B→A et A→C, égales, sur une droite qui descend).
+Chaque figure est redevenue COHÉRENTE : ses deux flèches sont égales (sauf
+le coude et les deux directions, qui le disent), et sa phrase (`vgtFigTxt`,
+l'aria-label et le contexte envoyé au modèle) raconte ce qu'elle montre —
+avant, « de même longueur mais de sens contraires » décrivait un dessin
+qu'aucune ligne de la fiche ne nomme. `conf` n'a pas bougé : ses pièges
+(deux flèches qui s'écartent, trois points alignés) étaient déjà faux par
+leurs points.
+
+Le contrôle (`tests/verifier.js`, « vecteurs égaux », section 2) relit chaque
+dessin comme l'élève le regarde : les cercles sont les points, chaque lettre
+va au point le plus proche, chaque flèche est un trait et sa pointe. Sur les
+POINTS, la configuration de la ligne (AB = CD, B milieu de [AC], B = C) doit
+être vraie sur la figure 0 et FAUSSE sur les deux autres ; chaque flèche doit
+joindre deux points nommés ; les flèches des deux parallélogrammes sont
+parallèles, celles du troisième dessin font au moins 30°. Éprouvé sur la
+page de v479 : « par figure 1 : les points du piège vérifient la
+configuration », « par figure 2 : les flèches « non parallèles » ne font que
+13° », « mil figure 1 : les points du piège vérifient la configuration » —
+les trois défauts, nommés, aucun autre.
+
 ## {vecteurs-egaux} — retrouver les vecteurs égaux dans une figure (8.3, v475)
 
 **Trois sessions ont créé le thème 8 le même jour** — la translation du 8.1,
@@ -301,6 +339,53 @@ message parle de longueur), une case vide (correction FB, jamais rouge, le
 message nomme le manque), la copie entièrement vide (rien de rouge), le
 barème égal au total des cases de la séance, `qId`.
 
+**Puis le TOTAL des cases est devenu la consigne : de 10 à 12 vecteurs à
+trouver par figure (v480).** Turquet, octobre 2026 : « pour l'exercice 8.3,
+il faudrait entre 10 et 12 vecteurs à trouver pour chaque dessin ». La fiche
+posait cinq lignes quel que soit leur total, et le total allait de 10 sur
+l'hexagone à 16 sur le rectangle — et le triangle des milieux, avec ses six
+familles (2 2 2 1 1 1), ne pouvait pas dépasser 9. `VEG_CASES` (`[10,12]`)
+porte la consigne ; `VEG_LIGNES` n'est plus un nombre mais deux bornes
+(`[4,6]`) : jamais deux lignes de cinq cases pour faire le compte, jamais dix
+lignes d'une case. Le tirage (`vegGenQuestion`) est une recherche en
+profondeur dans l'ordre tiré des familles : la première combinaison qui tient
+les deux bornes, sans famille ET son opposée. **Et l'ordre tiré a dû
+changer avec lui** : le rang « taille + hasard » d'avant, qui suffisait quand
+on prenait les cinq premières, faisait sortir 5 + 5 + 1 + 1 neuf fois sur dix
+sur le rectangle, le carré et le parallélogramme dès que le total a été
+borné — le prototype sous Node l'a mesuré sur 3 000 séances. Le rang est
+désormais un tirage pondéré par le nombre de cases (`Math.pow(Math.random(),
+1/cases)`) : une famille de cinq cases passe en tête cinq fois plus souvent
+qu'une famille d'une case, et le rectangle sort vingt-cinq combinaisons
+différentes au lieu de quatre.
+
+**Trois figures ont gagné des points, parce que le prototype a d'abord
+compté** ce que chacune pouvait donner (familles sans leurs opposées, cases
+par famille, nombre de combinaisons de 4 à 6 lignes faisant 10 à 12) :
+le triangle des milieux plafonnait à 9, l'hexagone et le trapèze
+n'atteignaient 12 qu'en posant leurs six familles à chaque fois. Le
+triangle ABLC est devenu **un triangle partagé deux fois en quatre** — ABC,
+le triangle DEF de ses milieux, le triangle GHI des milieux de DEF — neuf
+points, neuf familles (2 2 2 2 2 2 1 1 1) ; l'identifiant `triMilieux` ne
+change pas, seuls ses points changent. **L'hexagone a reçu G, H, I, les
+milieux de trois rayons sur six** ([OA], [OC], [OE]) : douze familles
+(3 3 3 2 2 2 et six à une case). **Le trapèze a reçu H et I, les milieux de
+ses côtés obliques** : huit familles. Leurs places sont écrites (`etq`) là où
+le calcul se trompe, et la capture l'a montré une fois de plus : le H du
+triangle, milieu de [EF], est à la hauteur du centre de la boîte — « du côté
+opposé au centre » le posait SUR son trait, à gauche du point. Les trois
+figures ont été capturées dans Chromium, à l'endroit et retournées.
+
+**Le contrôle a suivi la consigne** (`tests/verifier.js`) : `VEG_CASES` vaut
+`[10,12]` — la demande elle-même, écrite en dur, pour qu'un réglage qui
+dérive se voie — ; pour chaque forme, une table des totaux atteignables par
+nombre de lignes dit si une combinaison existe dans les bornes, et nomme
+les cases par famille quand elle n'existe pas ; sur 300 séances, chaque
+figure compte de 10 à 12 vecteurs à trouver, relus depuis la seconde
+écriture des familles, en 4 à 6 lignes. Le rejeu de la fiche (seize cases,
+cinq lignes) reste tel quel : il éprouve le juge, pas le tirage, et pose ses
+lignes à la main.
+
 ## {translation-quadrillage} — déplacer un point en suivant le chemin u⃗ (8.4, v476)
 
 **La demande** (Turquet, octobre 2026, une autre conversation que celle du 8.1 :
@@ -323,6 +408,21 @@ C, D et E). Trois images par question, quatre questions par séance
 `distinctes()` sur la clé des données : le vecteur s'appelle `vec`, pas `v` —
 `v` est la tournure, que la clé écarte, et deux questions aux vecteurs
 différents auraient passé pour la même.
+
+**Puis les deux formes ont ALTERNÉ** (v482, demande de Turquet, octobre 2026 :
+« en seconde dans le 8.4, il faut alterner une question avec un vecteur u et
+une autre avec le vecteur AB »). Chaque question tirait sa forme au sort
+(`pick(['u','ab'])`) : une séance de quatre questions pouvait n'avoir que des
+flèches, ou que des points — une chance sur huit, assez pour qu'un élève ne
+voie jamais la seconde moitié de la fiche. La forme se lit désormais sur
+l'INDEX de la question (`trlForme(i)` : u aux rangs pairs, AB aux rangs
+impairs), passée à `trlFabrique(forme)` par `distinctes()` — par l'index, pas
+par un compteur, pour qu'une question retirée comme doublon ne décale pas
+l'alternance (le motif des pourcentages, `incs[i%incs.length]`). Le secours du
+vivier épuisé rend lui aussi une question de la forme demandée. Le contrôle du
+banc principal, qui se contentait de voir sortir les deux formes en deux cents
+séances, exige l'ordre u, ab, u, ab sur chaque séance tirée, et u, ab, u, ab, u
+sur cinq questions — le réglage « Questions » d'un devoir peut être impair.
 
 **Le tirage est garanti LISIBLE, et le contrôle le relit sur deux cents
 séances.** Tous les points — les trois sources, leurs trois images, et A et B
@@ -471,3 +571,168 @@ repérer les côtés opposés, compter le chemin, le refaire depuis C.
 coupe le barème avec elle. Le nœud posé est une `pts-case` (le bloc de la
 consigne b), peint `ok`, `bad` ou `sol`) : la note affichée compte bien
 trois cases, pas deux.
+
+### Puis les trois questions se sont mises dans l'ordre de la fiche (v482)
+
+Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, mettre en
+premier la question b, qui doit être vérifiée et corrigée si nécessaire,
+puis en deuxième question la phrase avec le chemin, puis en troisième
+question une égalité de vecteurs à compléter correspondant à la question
+sur les chemins ». La construction d'abord, l'explication ensuite, puis
+l'écriture savante : **a)** cliquer le nœud où se trouve D, **b)** « le
+chemin qui va de … à … est le même que celui qui va de C à D », **c)**
+« ⟶?? = ⟶CD » — deux listes sous une même flèche (l'écriture `.vgt-vec` du
+8.2), le vecteur CD écrit en clair comme dans la phrase. Les paragraphes
+ci-dessus qui disent « la consigne b) » pour le nœud racontent l'ordre de
+leur époque : la règle qu'ils portent n'a pas bougé, seule la lettre a
+changé.
+
+**Chaque question se vérifie seule, et la suivante n'apparaît qu'après.**
+« Vérifiée et corrigée si nécessaire » : le nœud est jugé AVANT que la
+phrase ne s'affiche. En soutien, un nœud faux rougit et se déplace, un nœud
+manquant reste neutre, et rien n'avance tant que D n'est pas juste — comme
+avant, mais question par question. Hors soutien, le verdict tombe une fois :
+le nœud juste en bleu, le faux en rouge, et D **en vert aussitôt** s'il
+manquait ou était ailleurs — la figure est juste sous les yeux de l'élève
+pour les deux questions qui suivent, et c'est le sens de « corrigée si
+nécessaire ». Le quadrillage se fige dès que la question a) est passée
+(`vecPose` refuse quand `q.etape` est au-delà de 0). La phrase et le vecteur
+suivent la même règle : juste en bleu et figé ; hors soutien, la lettre
+fausse reçoit la bonne en badge vert, la liste vide l'écrit en vert
+(`corrChoix`, la convention commune des listes). Le pourquoi, la figure
+(parallélogramme en pointillés, deux chemins fléchés) et la note ne viennent
+qu'après la question c) : cinq réponses par question, barème 30 sur six
+questions, `vecCases(q)` en rend les cinq identifiants dans l'ordre des
+questions, et `VEC_ETAPES` dit lesquels chaque question juge.
+
+**Le juge lit la question, jamais les listes — et c'est le piège de cette
+marche.** Hors soutien, la correction d'une liste vide y ÉCRIT la bonne
+lettre (classe `sol`) ; un juge qui relirait la liste à la fin de la
+question c) compterait juste une lettre que l'élève n'a jamais choisie.
+Tout ce que l'élève a fait vit donc dans la question : la question atteinte
+(`q.etape`, 0 à 2), le nœud posé (`q.selD`), les quatre lettres (`q.s1`,
+`q.s2`, `q.v1`, `q.v2`) — chaque changement de liste y retourne, et
+`vecJuge()` ne lit que cela. La pause et la reprise les emportent :
+`renderVec()` rejoue l'écran tel qu'il était, les blocs déjà franchis
+repeints d'après leur verdict, les listes remplies depuis la question. Les
+réponses enregistrées disent les trois gestes (« D (6 ; 7) — chemin de A à
+B — vecteur AB = vecteur CD ») ; le contexte du modèle dit la question en
+cours, ce que l'élève a répondu à chacune, et tient les lettres et la
+position de D sous secret. Le rappel a gagné un cinquième point — un chemin
+s'écrit avec un vecteur, les deux lettres dans l'ordre du chemin — et la
+fenêtre d'aide une question de plus.
+
+**Le contrôle** vit dans le banc principal (`parallelogrammePoint`, déclaré
+dans `tests/profils.js`) : le tirage lisible et sans rien de répondu ; au
+départ la question a) seule et rien de peint ; une copie d'entraînement qui
+laisse le nœud vide (sol, D en vert, quadrillage figé, la b) apparaît, le
+nœud ne se pose plus), écrit la phrase juste (bleue, figée, la c) apparaît,
+la figure pas encore tracée), puis un vecteur faux et à moitié vide : 2 sur
+5, la lettre manquante écrite en vert mais **pas comptée**, le pourquoi qui
+ne parle que des vraies fautes ; une copie juste par `vecPose` ; le soutien,
+où rien ne se révèle et rien n'avance tant que ce n'est pas juste ; et la
+reprise à la question b) puis c), qui repeint ce qui a été jugé et dont le
+juge refuse toujours la lettre écrite par la correction. Le clic réel sur un
+nœud reste l'affaire du banc navigateur. Éprouvé par sabotage, le contrôle
+rejoué dans un vrai Chromium sur des copies de la page : un juge qui relit
+les listes (« la lettre que la correction a écrite compte juste »), les trois
+questions affichées d'un coup, D jamais révélé — chacun rougit, la page
+intacte reste verte. Un quatrième sabotage, le garde de `q.etape` retiré de
+`vecPose`, est resté vert : les nœuds sont aussi `off` dès que la question
+a) se ferme, et le second garde tient seul — ce n'est pas un trou du
+contrôle, c'est une ceinture avec des bretelles.
+
+## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v481)
+
+**La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
+le 8.5, où il faut placer un quatrième point pour avoir une égalité
+vectorielle avec les lettres A, B, C et D dans l'ordre que tu veux ; puis en
+deuxième question il faut nommer le parallélogramme correctement ». Le 8.5
+donne le NOM du parallélogramme et demande la phrase des chemins et le point ;
+le 8.6 donne l'ÉGALITÉ de vecteurs et demande le point, puis le nom. Même
+quadrillage, même geste, l'inverse comme donnée.
+
+**Le quadrillage du 8.5 est devenu un moteur partagé.** `vecSVG` dessinait
+les trois croix A, B, C et une cible « D » par nœud libre, en dur ;
+`vecQuadrillage(o)` reçoit les points donnés, la lettre à poser, le nœud
+choisi, le préfixe des identifiants et la fonction du clic, et `vecSVG(q)`
+n'est plus qu'un appel. De même `vecFigure(P, ordre, fleches, marker)`
+trace le parallélogramme en pointillés verts et ses chemins fléchés pour les
+deux exercices. Rien n'a changé à l'écran du 8.5 — même rendu, même CSS
+`.vec-svg` —, et ses identités restent les siennes (`vecn-`, `vecPose`,
+`vecCorr`) : deux exercices partagent un moteur, pas leur identité.
+
+**L'égalité est une permutation des quatre lettres** (`q.eq`, par exemple
+`'BDAC'` : le vecteur BD est égal au vecteur AC), tirée au hasard — avec des
+lettres toujours dans le même ordre, l'élève retiendrait une recette au lieu
+de lire l'égalité. **La lettre qui manque** (`q.m`) est l'une des quatre,
+tirée elle aussi, et les trois autres sont rangées sous leur lettre (`q.A`,
+`q.B`, `q.D`…). Rien d'autre dans la question : le point attendu
+(`vepPoint`) et les noms du parallélogramme (`vepNoms`) se recalculent dans
+la fonction qui corrige. Le tirage refuse ce que refuse le 8.5 — trois
+points plats (déterminant sous 6), un point hors du quadrillage, deux
+points à moins de deux carreaux —, et les questions passent par
+`distinctes()` ; `dmNbQuestions(6)`, barème 12 (deux cases par question,
+`vepCases`).
+
+**Le chemin à refaire dépend de la lettre qui manque**, et c'est la
+difficulté nouvelle. PQ = RS : si le point manquant TERMINE son vecteur (S,
+ou Q), on compte le chemin de l'autre vecteur et on le refait depuis le
+départ du sien (S = R + PQ) ; s'il le COMMENCE (R, ou P), on refait ce chemin
+À L'ENVERS depuis l'arrivée (R = S − PQ, soit le chemin de Q à P refait depuis
+S). `vepChemin(q)` rend les trois lettres (de, a, depuis), et la correction le
+dit en carreaux par `vecMots`, en nommant le cas : « Le point A est le DÉPART
+de son vecteur : on refait donc le chemin à l'envers. De D à B, on fait
+3 carreaux vers la gauche puis 1 carreau vers le bas ; on refait exactement ce
+chemin en partant de C ».
+
+**Nommer le parallélogramme : huit noms justes, seize faux.** PQ = RS dit que
+P, Q, S, R sont les sommets lus en tournant ; les quatre départs et les deux
+sens font huit écritures, toutes justes — le 8.2 avait déjà appris qu'un piège
+équivalent à la bonne réponse compte un élève juste pour faux. Les seize
+autres permutations font traverser la figure par une diagonale : PQRS, les
+lettres de l'égalité dans l'ordre, est LE piège, et le message le nomme avec
+ce que l'élève a tapé : « C'est CABD — ou le même tour en partant d'une autre
+lettre, ou dans l'autre sens — mais pas CADB : ses lettres ne font pas le
+tour de la figure, elles la traversent. » Le nom se tape dans une case de
+quatre lettres (`.veg-in.vep-in`, la case de vecteur du 8.3 élargie), jugée
+sans la casse ni les espaces (`vepLit`) ; sa correction passe par
+`corrChoix` — vide, elle reçoit le tour en vert et ne rougit jamais ; fausse,
+le badge `.mf-cor` écrit le tour à côté.
+
+**Le reste est le 8.5** : le nœud posé est une `pts-case` (consigne a), le
+quadrillage ne peint rien au fil des clics (`soutienEnDirect.sans`, kind
+« vep »), le soutien colore à la vérification sans rien révéler — le nom
+juste bleu et figé, le nœud faux rouge à déplacer —, la correction finale
+pose le point en vert s'il manquait et trace le parallélogramme avec ses DEUX
+VECTEURS fléchés (ceux de l'égalité, dans le même sens), le contexte du
+modèle (`ctxVep`) décrit le quadrillage par ses coordonnées et porte le point
+et les huit noms sous clause de secret. Pas de bouton des tables
+(`TABLES_SANS`, `tablesAide.sans`). L'énoncé écrit l'égalité avec les flèches
+en CSS de `.vgt-vec` (8.2), jamais en texte nu.
+
+**Le juge** (`tests/verifier.js`, « égalité de vecteurs ») : la place (8.6, le
+8.5 immobile), 200 séances tirées (six questions distinctes, barème 12, la
+question ne range que `eq`, `m`, `selM` et les trois points, l'égalité est une
+permutation de ABCD, chaque lettre manque à son tour, douze égalités au moins,
+le point attendu RECALCULÉ par une seconde écriture des quatre cas, dans le
+quadrillage, à deux carreaux, jamais plat, huit noms distincts dont le tour et
+son envers et jamais PQRS, la question survit au JSON), puis trois questions
+choisies — AB = DC sans C (c'est ABCD), BD = AC sans A (A termine son
+vecteur), CA = DB sans D (D commence le sien) : l'énoncé (« Place le point C »,
+« AB = DC » coiffé de flèches, A, B, D seuls dessinés, 97 cibles), la copie
+vide (deux `sol`, ABCD écrit, le point (6 ; 7) en vert, le parallélogramme et
+ses deux flèches, « Il te manquait 2 cases », 0/2), la copie juste par
+`vepPose` (poser, retirer, déplacer) et « acdb » (2/2, `okc`, rien ne se
+révèle), le piège CADB avec un nœud faux (0/2, `badc`, D (8 ; 5) en vert, badge
+« CABD », « traversent », « 3 carreaux vers la gauche puis 2 carreaux vers le
+haut » n'était PAS le chemin : D est le départ de DB, on refait A → C à l'envers, « 3 carreaux vers la droite puis 2 carreaux vers le bas » « en partant de B » — le juge l'avait d'abord écrit dans le mauvais sens, et c'est la page qui avait raison), le soutien (rien ne se verrouille ni ne se
+révèle, le nom juste figé, le nœud faux rougi puis déplacé, la copie corrigée
+vaut 2, un nom vide reste neutre, le nœud juste se fige), et le contexte du
+modèle (secret, le point, le nom, « posé en (1 ; 8) »). **Le banc navigateur**
+(« 6 quadragies ter ») clique pour de vrai : le nœud visé, le reclic qui
+retire, un clic à un cinquième de maille qui s'accroche, le nom tapé à
+l'envers en minuscules (2/2), puis un nœud faux et le piège (le point attendu
+en vert d'étendue non nulle, le badge, les deux flèches, aucun point gagné) —
+et mesure que les vecteurs de l'énoncé portent leur flèche et que la case du
+nom n'est pas plus petite que sa phrase.
