@@ -1794,3 +1794,52 @@ avoir été vue, sans quoi le contrôle le dit. L'autre bord : le 1.9, témoin
 hors thème sur l'écran partagé, garde ses cases pleines — et ne porte plus
 la zone rédigée d'un autre exercice. Éprouvé par le `<b>+</b>` du 4.6, que
 le premier relevé a nommé avant qu'on l'ait cherché.
+
+**Puis cette encre est devenue NOIRE (octobre 2026, Première v316).** Demande
+de Turquet : « en première je veux que pour tous les exercices dans le thème
+fraction, sauf le 4.2, tous les nombres et les barres de fractions soient
+écrits en noir dans les énoncés et les exercices, sauf dans les cases. » Une
+seule police et une seule taille, la veille — mais quatre encres se croisaient
+encore sur le même calcul, chacune héritée d'une règle écrite dans son coin :
+les fractions de l'énoncé et de la rangée en bleu nuit (`.f-frac`,
+`.sf-times` : `--blue-dark`), le « = », les entiers (`.f-whole`) et le trait
+de fraction (`.f-fbar`) dans l'encre de la page (`--ink`, un bleu sombre qui
+n'est pas noir), et le signe de l'énoncé en ROUGE — la règle `.mp-instr b`
+qui souligne les mots importants prenait le « + » et le « × » avec eux.
+
+* **Une encre, déclarée une fois, sur l'écran du thème** : `--fx-encre`
+  (`#000`), posée dans le bloc « UNE SEULE ENCRE » et lue par un second bloc,
+  « … ET ELLE EST NOIRE », qui la donne à tout ce que la PAGE écrit —
+  `.f-frac`, `.sf-f`, `.f-whole`, `.f-eq`, `.f-times`, `.sf-times`,
+  `b.spf-op`, le `<b>` qui suit une fraction dans l'énoncé (le signe, jamais
+  un mot : les mots en gras du 4.1 restent rouges), le préfixe « = » de la
+  feuille rédigée — et au FOND du trait `.f-fbar` ; le trait de `.sf-f` est
+  en `currentColor` et suit son texte.
+* **Les cases n'en sont pas.** Ce que l'élève écrit garde son bleu, la
+  vérification garde ses couleurs (juste en bleu, faux en rouge, correction
+  en vert), et le badge `.mf-cor` est une correction : il reste vert — c'est
+  la règle globale d'août 2026, tenue par le « 9 bis ».
+* **Le 4.2 est l'exception, NOMMÉE.** Ses dénominateurs se colorent en violet
+  et en orange pour dire où va chacun (`crd-a`, `crd-b`) ; le noir autour
+  n'aurait rien changé à ce qu'il enseigne, et l'exercice garde son écriture
+  entière. Le sélecteur l'écarte par `data-exo`, que `show()` écrit déjà sur
+  l'écran avec `data-theme` — c'est ce qui permet d'épargner un exercice sur
+  un écran partagé (`#scr-sf` porte le 1.9, le 4.2 et le 4.3). Le profil le
+  déclare, raison comprise (`encreFractions.noir.sauf`) : deux sources.
+
+Contrôle : le relevé du « 6 terdecies ter » (banc navigateur) lit désormais la
+COULEUR de chaque nombre et de chaque signe qu'il relève, et celle de chaque
+trait de fraction (un fond, pas un texte — une sorte d'écriture de plus,
+« trait », qui doit avoir été vue), à l'ouverture et après la vérification ;
+« ce que la page écrit dans le thème des fractions — nombres, signes, traits —
+est noir, hors les cases et hors l'exercice dispensé » exige le noir partout
+sauf sur le 4.2, et tient les deux autres bords : l'exercice dispensé a ENCORE
+des couleurs (sans quoi la dispense ne dispense de rien), et le témoin hors
+thème sur l'écran partagé — le 1.9 — garde ses nombres en couleur : le noir ne
+déborde pas du thème. Le noir se mesure, il ne se devine pas : les trois
+canaux sous 24, ce qui refuse `--ink` (30, 42, 74) comme le bleu nuit.
+Éprouvé par sabotage des deux côtés, en une seule exécution : la règle du
+fond de `.f-fbar` retirée (32 écarts, chaque trait de la rangée nommé « en
+rgb(30, 42, 74) au lieu de noir », du 4.1 au 4.6, à l'ouverture comme après
+la vérification) et un sélecteur trop large qui noircissait `#scr-sf` entier
+(« 1.9 : 0 nombre(s) en couleur sur 18 »).
