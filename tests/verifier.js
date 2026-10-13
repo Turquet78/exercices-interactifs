@@ -20963,11 +20963,11 @@ function ordreDesDevoirs(w, apres){
      ROUGIT : les deux sources doivent tomber d'accord. */
   if(!P.ordreDevoirs){
     ignorer(nom, 'ce niveau ne règle pas l\'ordre des exercices d\'un devoir (le bord opposé est tenu par le contrôle des fiches)');
-    return noteFicheSur20(w, apres);
+    return brouillonProvisoire(w, apres);
   }
   if(!present.ok || !present.valeur){
     verifier(nom, false, 'le profil déclare le réglage de l\'ordre des devoirs, et la page n\'a pas cet éditeur (readEditorIntoDevoir, renderDevoirEditor ou renderDevoirDetail manque)');
-    return noteFicheSur20(w, apres);
+    return brouillonProvisoire(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
