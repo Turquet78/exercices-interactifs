@@ -397,6 +397,13 @@ correction et le rappel, pas demandée dans une case.
 
 ## {parallelogramme-point} — le quatrième point d'un parallélogramme (8.5, v477)
 
+**Deux changements sous un seul numéro.** La PR 630 (brouillon étiqueté,
+bilan « en cours ») et celle-ci sont arrivées sur `main` à quatre minutes
+d'écart, toutes deux en v477 : le contrôle des versions compare une branche à
+`main`, pas deux branches entre elles, et la fusion n'y a rien vu. Le numéro
+est passé à **v478** aussitôt après, sans autre changement, pour qu'un
+numéro désigne de nouveau un seul état de la page.
+
 **Une question = un quadrillage = trois cases.** Le quadrillage est celui de
 la fiche : 9 carreaux sur 9, les nœuds de 0 à 9 dans chaque sens, les trois
 points marqués d'une croix et d'une lettre — jamais le caractère « x », qui
