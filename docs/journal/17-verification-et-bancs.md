@@ -230,4 +230,9 @@ contrôles »). `verifier.js` écrit désormais ces fichiers dans un dossier
 trois niveaux ensemble et recrache leurs sorties dans l'ordre, comme le banc
 navigateur ; l'action donne une machine à chaque niveau (`controles
 (secondes.html)`), au lieu d'une étape. L'attente tombe de la somme des trois
-au plus long d'entre eux.
+au plus long d'entre eux. Éprouvé sur l'ancien code, la Première et la Terminale
+lancées à la même seconde : la Première meurt en section 1 sur « erreur
+JavaScript non rattrapée → ENOENT: no such file or directory, unlink
+/tmp/ctrl0.js » pendant que la Terminale passe ses sept scripts — le rouge
+accuse une page qui n'a rien ; sur le nouveau, les trois niveaux lancés
+ensemble par npm test finissent verts, chacun avec ses fichiers.
