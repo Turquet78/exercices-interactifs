@@ -5929,3 +5929,53 @@ le mot qui la nomme, l'écran tenu aux consignes, le dialogue de la console,
 les copies juste, fausse et vide, le soutien qui ne révèle rien, et les
 modèles comparés à un vrai CPython. La visite universelle (section 9)
 l'ouvre dans les deux modes.
+
+### {python-if-frais-port} — 6.7.6, les frais de port (sous-thème « Condition if else », v465)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
+"condition if else", créer un exercice qui suit les images jointes ;
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème "input" ; mettre le dessin en premier ; dans la définition ne
+rien rajouter de plus, ainsi que dans les coups de pouce éventuels ;
+respecter les couleurs et présentations des exercices du sous-thème input ;
+ne rien écrire dans le cadre de la console ». Créé le même jour que
+{python-if-else} (6.7.1), {python-samoussa} (6.7.2) et
+{python-if-plus-grand} (6.7.3), {python-if-cinema} (6.7.4), puis {python-if-location}
+(6.7.5) : il les suit, en 6.7.6 — rien n'est renuméroté.
+
+**La fiche** (« Exercice 4 ») : si la commande est inférieure à 100 €, 10 €
+de frais de port, sinon ils sont offerts ; demander le montant dans
+`montant`, puis un `if` / `else`. **La présentation est celle du 6.3.8** :
+le dessin EN PREMIER (le serpent au colis, découpé dans la capture, détouré,
+WebP de 14 Ko, `PCF_IMG`), puis l'énoncé du carnet EN GRAS dans son cadre
+`.pyn-etape` — la règle des frais, les trois puces, la note « (Le montant de
+la commande est un nombre décimal) » en chasse fixe et le « Rappel » de
+`float(input(…))`, qui est DANS l'énoncé de la fiche —, trois coups de pouce
+repliés vert clair (`pyPoucesHTML`, le code du second en bloc,
+`.pvo-pouce-code`), la cellule, « Exécuter » et la console vide
+(`#pcfConsole` rejoint `content:none`). Pas de définition (exception
+déclarée, `pythonAvant.sans`) ; le rappel (`RAP_PCF`) ne dit que les coups
+de pouce. Coquilles corrigées, rien d'ajouté : « alors il calcule », « un
+nombre décimal », la parenthèse fermante du coup de pouce 1.
+
+**Le juge (`pcfDiag`) lit ce que le programme FAIT** : quatre exécutions,
+deux montants sous le seuil, deux au-dessus — jamais le seuil lui-même,
+« inférieure à » s'y lit des deux façons —, multiples de 1/4 (la page et
+CPython écrivent le même nombre). Il faut UN input rangé dans `montant`,
+avec sa question, et une ligne qui porte des mots et le montant à payer ;
+au-dessus du seuil, jamais montant + frais. Deux `if` au lieu d'un `else`,
+le calcul dans le print, une seule ligne `print` après le `if` : acceptés.
+Nommés : int au lieu de float, float oublié (le texte qu'on ne compare pas),
+la virgule, deux questions, l'input muet, une autre variable, le else
+oublié, le print oublié sous le if, les frais jamais ajoutés, toujours
+ajoutés, la condition à l'envers, le montant sans phrase, le nombre écrit à
+la main, le nom entre guillemets, un mauvais calcul.
+
+**La séance** : la fiche épinglée (100 € / 10 €), puis d'autres seuils et
+frais (`PCF_SITUATIONS`) tirés par `distinctes()` ; `dmNbQuestions()`
+l'allonge. Une case (`pts-case`), pas de correction au fil de la frappe,
+pas de bouton des tables. Contrôle : `pythonIfFraisPort` (banc principal) —
+la place, le tirage (300 séances), le juge sur 4 copies justes et 18
+fausses, l'écran tenu aux consignes (dessin d'abord, console vide), les
+copies juste, fausse et vide, le soutien, et les modèles comparés à un vrai
+CPython.
