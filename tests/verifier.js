@@ -7865,7 +7865,19 @@ function multiplierFractions(w, P){
      et la SOUSTRACTION 3/2 − 1/2 × 3/2 = 6/4 − 3/4 = 6/8 = 3/4 vaut le point,
      quand 12/8 + 6/8 = 18/8 (additionné au lieu de soustrait) ne le vaut pas
      et le message dit « soustraire ». La ligne de l'énoncé n'ouvre pas sur un
-     « = », chaque étape si — la grille elle-même se mesure dans le navigateur. */
+     « = », chaque étape si — la grille elle-même se mesure dans le navigateur.
+   ③ LE DÉNOMINATEUR COMMUN EST LIBRE (demande de Turquet, octobre 2026 :
+     « accepter la méthode où l'élève met un dénominateur commun plus petit »,
+     sur une capture de 1/2 + 1/2 × 5/2 où 2/4 + 5/4 rougissait) : passé par
+     4, 2/4 + 5/4 = 7/4 vaut le point, aucune case ne rougit, et la chaîne —
+     posée d'emblée pour 14/8 — disparaît, 7/4 étant irréductible ; passé par
+     6, 1/2 + 5/6 = 3/6 + 5/6 = 8/6 = 4/3 montre une chaîne d'une étape (la
+     fraction brute rangée est 8/6, celle de la route), et 4/3 écrit tel quel
+     ne vaut pas le point ; une paire qui ne mène nulle part (×3 sous 1/2 :
+     6 n'est pas un multiple de 4) rougit seule, sa voisine ×1 reste bleue, le
+     message et la correction suivent la route de l'élève (sur 4, × 2) ; deux
+     paires qui tiennent chacune sans se rejoindre (×4 et ×1 : 8 et 4)
+     rougissent toutes les deux. */
 function sommeProduitFractions(w, P){
   const R = P.sommeProduit;
   const nom = '{somme-produit-fractions} : nombres de 1 à ' + (R ? R.max : '?') + ', produit borné à ' + (R ? R.inter : '?') + ', et la simplification par étapes';
@@ -8010,6 +8022,68 @@ function sommeProduitFractions(w, P){
     if(der() && der().correct) vus.push('12/8 + 6/8 = 18/8 est compté juste sur une soustraction');
     if(peint('spf-x-rn')!=='faux') vus.push('18/8 au lieu de 6/8 : le numérateur est peint '+peint('spf-x-rn'));
     if(!/soustraire/.test(($$('spfFeedback')||{}).textContent||'')) vus.push('le message d’une soustraction manquée ne dit pas « soustraire » : « '+(($$('spfFeedback')||{}).textContent||'')+' »');
+
+    /* ---- ③ le dénominateur commun est libre ---------------------------------- */
+    const fb=function(){ return ($$('spfFeedback')||{}).textContent||''; };
+    const produit=function(q){ [['spf-h1',q.c],['spf-h2',q.e],['spf-b1',q.d],['spf-b2',q.f],['spf-pn',q.P1],['spf-pd',q.Q1]].forEach(function(p){ tape(p[0],p[1]); }); };
+    /* la route par Dc, après le produit ; rn/rd si on les donne */
+    const route=function(q,Dc,rn,rd){
+      produit(q);
+      [['spf-x-a1',Dc/q.b],['spf-x-b1',Dc/q.b],['spf-x-a2',Dc/q.Q1],['spf-x-b2',Dc/q.Q1],
+       ['spf-x-n1',q.a*(Dc/q.b)],['spf-x-n2',q.P1*(Dc/q.Q1)],['spf-x-d',Dc]].forEach(function(p){ tape(p[0],p[1]); });
+      if(rn!==undefined){ tape('spf-x-rn',rn); tape('spf-x-rd',rd); }
+    };
+    const CX=['spf-x-a1','spf-x-b1','spf-x-a2','spf-x-b2','spf-x-n1','spf-x-n2','spf-x-d','spf-x-rn','spf-x-rd'];
+    /* la capture : 1/2 + 1/2 × 5/2 = 1/2 + 5/4, passé par 4 */
+    const Q5={a:1,b:2,c:1,d:2,e:5,f:2,op:'+',P1:5,Q1:4,N:14,D:8,Nr:7,Dr:4};
+    pose(Q5);
+    if(!$$('spf-e0-dn')) vus.push('14/8 (le croisement) se simplifie, et aucune étape n’est posée d’emblée');
+    route(Q5,4,7,4);
+    if($$('spf-e0-dn')) vus.push('passé par 4, 7/4 est irréductible, et la chaîne reste posée');
+    checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('1/2 + 5/4 = 2/4 + 5/4 = 7/4 (dénominateur commun 4) est compté faux : « '+fb()+' »');
+    (function(){ const pas=CX.filter(function(i){ return peint(i)!=='juste'; }); if(pas.length) vus.push('sur la route par 4, des cases ne sont pas bleues : '+pas.map(function(i){ return i+'='+peint(i); }).join(' ')); })();
+    /* la soustraction par le même chemin : 3/2 − 5/4 = 6/4 − 5/4 = 1/4 */
+    const Q7={a:3,b:2,c:1,d:2,e:5,f:2,op:'−',P1:5,Q1:4,N:2,D:8,Nr:1,Dr:4};
+    pose(Q7); route(Q7,4,1,4); checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('3/2 − 5/4 = 6/4 − 5/4 = 1/4 (dénominateur commun 4) est compté faux : « '+fb()+' »');
+    /* la route par 6, dont le résultat se simplifie : 1/2 + 5/2 × 1/3 = 1/2 + 5/6 = 3/6 + 5/6 = 8/6 = 4/3 */
+    const Q6={a:1,b:2,c:5,d:2,e:1,f:3,op:'+',P1:5,Q1:6,N:16,D:12,Nr:4,Dr:3};
+    pose(Q6); route(Q6,6,8,6);
+    if(!$$('spf-e0-dn')) vus.push('passé par 6, 8/6 se simplifie, et aucune étape n’est posée');
+    if(test.questions[0].sbrut!=='8/6') vus.push('la fraction brute rangée sur la route par 6 n’est pas 8/6 : '+test.questions[0].sbrut);
+    if(($$('spf-e0-an')||{}).textContent!=='8' || ($$('spf-e0-ad')||{}).textContent!=='6') vus.push('les nombres divisés ne recopient pas 8/6');
+    tape('spf-e0-dn',2); tape('spf-e0-n',4); tape('spf-e0-d',3);
+    checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('1/2 + 5/6 = 3/6 + 5/6 = 8/6 = 4/3 est compté faux : « '+fb()+' »');
+    pose(Q6); route(Q6,6,4,3); checkSpfAnswer();
+    if(der() && der().correct) vus.push('passé par 6, écrire 4/3 au lieu de 8/6 est compté juste — la chaîne n’a plus d’objet');
+    if(peint('spf-x-rn')!=='faux') vus.push('passé par 6, 4/3 au lieu de 8/6 : le numérateur est peint '+peint('spf-x-rn'));
+    /* une paire qui ne mène nulle part, sa voisine qui tient : ×3 sous 1/2, ×1 sous 5/4, le reste juste sur 4 */
+    pose(Q5); route(Q5,4,7,4); tape('spf-x-a1',3); tape('spf-x-b1',3);
+    checkSpfAnswer();
+    if(der() && der().correct) vus.push('×3 sous 1/2 est compté juste');
+    if(peint('spf-x-a1')!=='faux' || peint('spf-x-b1')!=='faux') vus.push('×3 sous 1/2 (vers 6, qui n’est pas un multiple de 4) est peint '+peint('spf-x-a1')+' '+peint('spf-x-b1'));
+    if(peint('spf-x-a2')!=='juste' || peint('spf-x-b2')!=='juste') vus.push('×1 sous 5/4, qui tient seul, est peint '+peint('spf-x-a2')+' '+peint('spf-x-b2'));
+    (function(){ const pas=['spf-x-n1','spf-x-n2','spf-x-d','spf-x-rn','spf-x-rd'].filter(function(i){ return peint(i)!=='juste'; }); if(pas.length) vus.push('à côté d’un ×3 faux, la suite de la route par 4 rougit : '+pas.join(' ')); })();
+    if(!/sur 4, c’est × 2/.test(fb())) vus.push('le message ne suit pas la route de l’élève (sur 4, × 2) : « '+fb()+' »');
+    (function(){ const el=$$('spf-x-a1'), c=el && el.nextElementSibling; if(!c || !/mf-cor/.test(c.className) || c.textContent!=='2') vus.push('la correction de ×3 ne suit pas la route de l’élève (× 2) : '+(c?c.textContent:'rien')); })();
+    if($$('spf-e0-dn')) vus.push('sur la route par 4, une chaîne est posée à 7/4');
+    /* la route n'est dite que par une paire : la correction la suit sur les cases vides */
+    pose(Q5); produit(Q5); tape('spf-x-a2',1); tape('spf-x-b2',1);
+    checkSpfAnswer();
+    if(peint('spf-x-a2')!=='juste') vus.push('×1 sous 5/4, seul écrit, est peint '+peint('spf-x-a2'));
+    [['spf-x-a1','2'],['spf-x-n1','2'],['spf-x-n2','5'],['spf-x-d','4'],['spf-x-rn','7'],['spf-x-rd','4']].forEach(function(p){
+      if(peint(p[0])!=='correction' || ($$(p[0])||{}).value!==p[1]) vus.push('la correction ne suit pas la route par 4 : '+p[0]+' = '+(($$(p[0])||{}).value)+' ('+peint(p[0])+')'); });
+    if($$('spf-e0-dn')) vus.push('sur la route par 4, la correction pose une chaîne à 7/4');
+    /* deux paires qui tiennent chacune, sans se rejoindre : ×4 (8) et ×1 (4) */
+    pose(Q5); produit(Q5); tape('spf-x-a1',4); tape('spf-x-b1',4); tape('spf-x-a2',1); tape('spf-x-b2',1);
+    checkSpfAnswer();
+    if(peint('spf-x-a1')!=='faux' || peint('spf-x-a2')!=='faux') vus.push('×4 et ×1 (8 et 4) ne se rejoignent pas, et sont peints '+peint('spf-x-a1')+' et '+peint('spf-x-a2'));
+    /* sur des cases vides, la correction reste celle du croisement */
+    pose(Q5); produit(Q5); checkSpfAnswer();
+    if(($$('spf-x-d')||{}).value!=='8') vus.push('sans route choisie, la correction n’écrit pas le croisement (8) : '+(($$('spf-x-d')||{}).value));
+    if(peint('spf-e0-dn')!=='correction') vus.push('sans route choisie, la chaîne de 14/8 ne reçoit pas sa correction ('+peint('spf-e0-dn')+')');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }

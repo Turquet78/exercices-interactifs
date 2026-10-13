@@ -1662,3 +1662,50 @@ des seconds termes tombent sur la même verticale à 2 px près, huit lignes,
 rien ne déborde ; puis il tape la copie au clavier, ouvre la rédigée, y écrit
 une soustraction juste, referme la zone, et rejoue la reprise sur une
 rédigée.
+
+**Puis le 4.6 a accepté un dénominateur commun plus petit (octobre 2026,
+Première v313).** Demande de Turquet, sur une capture : « en première dans le
+4.6 accepter la méthode où l'élève met un dénominateur commun plus petit. »
+Sur 1/2 + 1/2 × 5/2 = 1/2 + 5/4, l'élève avait écrit 1 × 2 / 2 × 2 + 5 × 1 /
+4 × 1 — le plus petit multiple commun, 4, la route du cours — et ses quatre
+cases rougissaient, la correction écrivant 4 et 2 : le croisement, 8, que le
+juge de la Seconde exigeait tel quel (`pfMult(a1,b1,s)`).
+
+* **La règle est celle du 4.2 (`sfJuge`), recopiée dans `pfCroixJuge`.** Une
+  paire se juge sur ce qu'elle PROMET (le dénominateur qu'elle produit doit
+  être un multiple de l'autre), ×1 est une paire comme une autre, l'accord
+  entre les deux paires n'est exigé que lorsque les deux mènent quelque part
+  (×4 et ×1 — 8 et 4 — restent fausses toutes les deux), le dénominateur
+  écrit est juste s'il est multiple des deux et ne contredit pas une paire
+  qui tient, et les numérateurs se jugent sur la ROUTE de l'élève — le
+  dénominateur écrit, sinon celui que les paires annoncent, sinon le
+  croisement. Le juge rend la route (`Dc`, `m1`, `m2`, `N1`, `N2`, `R`) : le
+  message (« sur 4, c'est × 2 ») et la correction en vert
+  (`pfCroixCorrection(pref, cx)`) la suivent, et sur des cases vides c'est le
+  croisement, comme avant.
+* **La fraction brute à simplifier dépend donc de la route**, comme pour la
+  somme du 4.2 : `SE_CFG.spf.brut` lit `spfJuge(q).se.F` (`spfBrut` et `pfMult`,
+  qui exigeaient le croisement, ont disparu). Sur des cases vides la route est le croisement, donc 14/8 montre
+  sa chaîne d'emblée — le contrôle de v308 le demande toujours — et elle
+  disparaît quand l'élève passe par 4 (7/4 est irréductible) ; passé par 6,
+  1/2 + 5/6 donne 8/6, et la chaîne naît là, sur la fraction de l'élève
+  (`q.sbrut` = « 8/6 »). Un piège à connaître : `pfCroixJuge` décide lui-même
+  si la fraction obtenue est exigée telle quelle (la route se simplifie et la
+  chaîne est en service) — le drapeau `estFinal` qu'on lui passait d'avance
+  ne pouvait plus l'être, puisque la route n'est connue qu'en lisant les
+  cases.
+* Le libellé de la rangée, la description du menu, le rappel de cours
+  (`RAP_SPF`, un exemple par 4) et le contexte envoyé au modèle (`ctxSpf`,
+  qui nomme aussi la somme sur le plus petit dénominateur commun) disent que
+  les deux méthodes sont acceptées.
+
+Contrôle : « {somme-produit-fractions} : nombres de 1 à 5, produit borné à 6,
+et la simplification par étapes » (`tests/verifier.js`, ③) joue la capture —
+2/4 + 5/4 = 7/4 vaut le point, aucune case ne rougit, la chaîne posée pour
+14/8 a disparu —, la soustraction 6/4 − 5/4 = 1/4 par le même chemin, la
+route par 6 de 1/2 + 5/6 (chaîne d'une étape sur 8/6, 4/3 tel quel refusé),
+×3 sous 1/2 qui rougit seul à côté d'un ×1 bleu (message et correction sur
+la route par 4, sans chaîne à 7/4), ×4 et ×1 qui rougissent ensemble, et la
+correction du croisement sur des cases vides. Éprouvé avant d'écrire le
+juge : la copie de la capture rougissait quatre cases, et la chaîne restait
+posée sur 7/4.
