@@ -4347,6 +4347,7 @@ function exercices(suite){
     simplifierBarres(w, P);
     multiplierFractions(w, P);
     fractionsEtapes(w, P);
+    sommeProduitFractions(w, P);
     synthesePourcentage(w, P);
     synthesePourcentageMethode(w, P);
     syntheseLibrePourcentage(w, P);
@@ -7761,6 +7762,130 @@ function multiplierFractions(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---------- {somme-produit-fractions} de la Première (4.6) ------------------
+   Le 5.12 de la Seconde, porté en octobre 2026. Demande de Turquet : « les
+   nombres doivent être entre 1 et 5, les fractions au départ sont
+   irréductibles, dans les fractions intermédiaires les nombres ne peuvent pas
+   dépasser 6 et sont positifs ; si on peut simplifier la fraction à la fin,
+   présenter comme dans le 4.1 ». La borne 6 porte sur le PRODUIT (précisé
+   par Turquet : le croisement la dépasse par construction). Déclaré par le
+   profil (sommeProduit) ; la Seconde, qui garde son exercice, s'y affiche
+   « non applicable ».
+   ① LE TIRAGE, deux cents séances par le démarreur RÉEL : chaque nombre de
+     départ de 1 à la borne (et la borne atteinte), trois fractions de départ
+     irréductibles, le produit recalculé ici, ses deux nombres de 1 à 6, tout
+     positif ; un résultat qui se simplifie doit SORTIR, et un qui ne se
+     simplifie pas aussi — sans quoi l'un des deux chemins n'est jamais exercé.
+   ② LA CHAÎNE, par de vrais évènements « input » : 1/2 + 1/2 × 3/2 =
+     1/2 + 3/4 = 4/8 + 6/8 = 10/8 = 5/4 montre sa chaîne d'emblée et vaut le
+     point ; écrire 5/4 au lieu de 10/8 ne le vaut pas ; un diviseur laissé
+     vide ne rougit pas et reçoit la correction ; un diviseur faux rougit et
+     le message nomme la simplification ; 2/3 + 1/2 × 3/2 = 17/12 n'a pas de
+     chaîne et accepte toute fraction égale ; la reprise redessine l'étape. */
+function sommeProduitFractions(w, P){
+  const R = P.sommeProduit;
+  const nom = '{somme-produit-fractions} : nombres de 1 à ' + (R ? R.max : '?') + ', produit borné à ' + (R ? R.inter : '?') + ', et la simplification par étapes';
+  if(!R){
+    ignorer('{somme-produit-fractions} : nombres bornés, produit borné, et la simplification par étapes',
+      'ce niveau garde le 5.12 tel quel');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], MAX=${R.max}, INTER=${R.inter}, id='somme-produit-fractions';
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    if(!TESTS[id] || !TEST_NUM[id]) return id+' : absent du menu';
+
+    /* ---- ① le tirage ------------------------------------------------------ */
+    let vuMax=false, red=0, irr=0, faute='';
+    for(let t=0;t<200 && !faute;t++){
+      currentTestId=id; TESTS[id].start();
+      if(test.qId!==id){ faute='la note part sous « '+test.qId+' »'; break; }
+      if(!test.etapes){ faute='le démarreur ne pose pas la simplification par étapes'; break; }
+      (test.questions||[]).forEach(function(q){
+        if(faute) return;
+        const eti=q.a+'/'+q.b+' + '+q.c+'/'+q.d+' × '+q.e+'/'+q.f;
+        const dep=[q.a,q.b,q.c,q.d,q.e,q.f];
+        if(dep.some(function(x){ return !(x>=1 && x<=MAX); })){ faute=eti+' : un nombre de départ sort de 1 à '+MAX; return; }
+        if(dep.indexOf(MAX)>=0) vuMax=true;
+        if(pgcd(q.a,q.b)!==1 || pgcd(q.c,q.d)!==1 || pgcd(q.e,q.f)!==1){ faute=eti+' : une fraction de départ est réductible'; return; }
+        const P1=q.c*q.e, Q1=q.d*q.f;
+        if(P1!==q.P1 || Q1!==q.Q1){ faute=eti+' : le produit rangé '+q.P1+'/'+q.Q1+' ne suit pas le calcul '+P1+'/'+Q1; return; }
+        if(!(P1>=1 && P1<=INTER && Q1>=1 && Q1<=INTER)){ faute=eti+' : le produit '+P1+'/'+Q1+' dépasse '+INTER; return; }
+        const N=q.a*Q1+P1*q.b, D=q.b*Q1;
+        if(N!==q.N || D!==q.D){ faute=eti+' : la somme rangée '+q.N+'/'+q.D+' ne suit pas le calcul '+N+'/'+D; return; }
+        if(!(N>0 && D>0)){ faute=eti+' : un résultat est négatif ou nul'; return; }
+        if(N%D===0){ faute=eti+' : le résultat est un entier'; return; }
+        if(pgcd(N,D)>1) red++; else irr++;
+      });
+    }
+    if(faute) return id+' : '+faute;
+    if(!vuMax) vus.push('aucun nombre de départ ne vaut jamais '+MAX+' en 200 séances');
+    if(!red) vus.push('aucun résultat ne se simplifie en 200 séances : la chaîne n’est jamais exercée');
+    if(!irr) vus.push('tous les résultats se simplifient : le chemin sans chaîne n’est jamais exercé');
+
+    const $$=function(i){ return document.getElementById(i); };
+    const tape=function(i,v){ const el=$$(i); if(!el){ vus.push('pas de case '+i); return; } el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
+    const peint=function(i){ const el=$$(i); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const der=function(){ return test.answers[test.answers.length-1]; };
+
+    /* ---- ② la chaîne -------------------------------------------------------- */
+    currentTestId=id; TESTS[id].start();
+    const Q1={a:1,b:2,c:1,d:2,e:3,f:2,P1:3,Q1:4,N:10,D:8};
+    const pose=function(q){ test.questions=[Object.assign({},q)]; test.idx=0; test.locked=false; renderSpfTest(); };
+    const debut=function(q){
+      [['spf-h1',q.c],['spf-h2',q.e],['spf-b1',q.d],['spf-b2',q.f],['spf-pn',q.P1],['spf-pd',q.Q1],
+       ['spf-x-a1',q.Q1],['spf-x-b1',q.Q1],['spf-x-a2',q.b],['spf-x-b2',q.b],
+       ['spf-x-n1',q.a*q.Q1],['spf-x-n2',q.P1*q.b],['spf-x-d',q.b*q.Q1]].forEach(function(p){ tape(p[0],p[1]); });
+    };
+    pose(Q1);
+    if(!$$('spf-e0-dn')) vus.push('10/8 se simplifie, et aucune étape n’est posée d’emblée');
+    if($$('spf-e1-dn')) vus.push('10/8 n’a besoin que d’une étape au départ');
+    const lab=document.querySelector('#spfHost .pt-lab');
+    if(!lab || !/simplifier/.test(lab.textContent)) vus.push('aucun libellé n’annonce la simplification');
+    debut(Q1); tape('spf-x-rn',10); tape('spf-x-rd',8);
+    if(($$('spf-e0-an')||{}).textContent!=='10' || ($$('spf-e0-ad')||{}).textContent!=='8') vus.push('les nombres divisés ne recopient pas 10/8');
+    tape('spf-e0-dn',2);
+    if(($$('spf-e0-dd')||{}).value!=='2') vus.push('le diviseur écrit en haut ne se recopie pas en bas');
+    tape('spf-e0-n',5); tape('spf-e0-d',4);
+    checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('1/2 + 1/2 × 3/2 = … = 10/8 = 5/4 est compté faux');
+    else if(!/5 4$/.test(der().given)) vus.push('la réponse enregistrée ne finit pas par la fraction simplifiée : '+der().given);
+    /* la fraction simplifiée d'emblée ne suffit pas : la ligne demande le calcul tel quel */
+    pose(Q1); debut(Q1); tape('spf-x-rn',5); tape('spf-x-rd',4);
+    checkSpfAnswer();
+    if(der() && der().correct) vus.push('écrire 5/4 au lieu de 10/8 est compté juste — la chaîne n’a plus d’objet');
+    if(peint('spf-e0-dn')==='faux') vus.push('un diviseur laissé vide rougit');
+    /* le diviseur vide reçoit la correction */
+    pose(Q1); debut(Q1); tape('spf-x-rn',10); tape('spf-x-rd',8);
+    checkSpfAnswer();
+    if(der() && der().correct) vus.push('la simplification laissée vide vaut le point');
+    if(peint('spf-e0-dn')!=='correction') vus.push('le diviseur laissé vide ne reçoit pas la correction ('+peint('spf-e0-dn')+')');
+    /* un diviseur faux */
+    pose(Q1); debut(Q1); tape('spf-x-rn',10); tape('spf-x-rd',8); tape('spf-e0-dn',3); tape('spf-e0-n',3); tape('spf-e0-d',3);
+    checkSpfAnswer();
+    if(der() && der().correct) vus.push('le diviseur 3 de 10/8 est compté juste');
+    if(peint('spf-e0-dn')!=='faux') vus.push('le diviseur 3 est peint '+peint('spf-e0-dn'));
+    if(!/simplifie/.test(($$('spfFeedback')||{}).textContent||'')) vus.push('le message ne nomme pas la simplification : « '+(($$('spfFeedback')||{}).textContent||'')+' »');
+    /* sans chaîne : 2/3 + 1/2 × 3/2 = 8/12 + 9/12 = 17/12 ; pour la reprise, 1/4 + 1/2 × 5/3 = 26/24 */
+    const Q2={a:1,b:4,c:1,d:2,e:5,f:3,P1:5,Q1:6,N:26,D:24};
+    const Q3={a:2,b:3,c:1,d:2,e:3,f:2,P1:3,Q1:4,N:17,D:12};
+    pose(Q3);
+    if($$('spf-e0-dn')) vus.push('17/12 est irréductible, et une simplification est demandée');
+    debut(Q3); tape('spf-x-rn',34); tape('spf-x-rd',24);
+    checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('2/3 + 1/2 × 3/2 : une fraction égale (34/24) à 17/12 irréductible est comptée fausse');
+    /* la reprise */
+    pose(Q2); debut(Q2); tape('spf-x-rn',26); tape('spf-x-rd',24); tape('spf-e0-dn',2);
+    const qr=test.questions[0];
+    renderSpfTest();
+    if(!$$('spf-e0-dn') || ($$('spf-e0-dd')||{}).value===undefined) vus.push('après un redessin (reprise), l’étape a disparu');
+    if(qr.sbrut!=='26/24' || !qr.sdiv || qr.sdiv[0]!=='2') vus.push('rangé dans la question : '+qr.sbrut+' '+JSON.stringify(qr.sdiv));
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 /* ---------- Le thème 4 « Fractions » de la Première : 4.2 à 4.5 ------------
    Demande de Turquet (octobre 2026) : « mettre les exercices de seconde 5.2 ;
    5.3 ; 5.6 ; 5.8 dans le thème fraction de première ; tous les nombres au
