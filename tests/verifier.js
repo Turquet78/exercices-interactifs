@@ -28552,11 +28552,11 @@ function pythonPileFace(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.7 « Condition if else », derrière les six autres, numéroté ' + NUM + ', dernier sous-thème du thème 6, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit les six autres du sous-thème 6.7 « Condition if else » ({python-if-plus-grand-trois} est venu derrière), numéroté ' + NUM + ', dernier sous-thème du thème 6, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
     if(!st||!/condition if else/i.test(st.nom)) vus.push("pas de sous-thème 6.7 Condition if else");
-    else if(st.ids.join(",")!=="python-if-else,python-samoussa,python-if-plus-grand,python-if-cinema,python-if-location,python-if-frais-port,${ID}") vus.push("il ne ferme pas le sous-thème derrière les six autres : "+st.ids.join(","));
+    else if(st.ids.slice(0,7).join(",")!=="python-if-else,python-samoussa,python-if-plus-grand,python-if-cinema,python-if-location,python-if-frais-port,${ID}") vus.push("il ne suit pas les six autres : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème 6");
     if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-if-location"]!=="6.7.5"||TEST_NUM["python-if-frais-port"]!=="6.7.6") vus.push("les autres du 6.7 ont bougé");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
