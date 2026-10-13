@@ -213,3 +213,21 @@ cinq touches existent et écrivent ; il dit en plus « le clavier changeait
 encore après 6 s » quand c'est ce qui l'a privé d'une touche. « Flake » n'est
 pas un diagnostic : la cause est un délai fixe, et le correctif est
 l'attente de l'état.
+
+**Puis les trois bancs jsdom ont joué de front, chacun dans son dossier
+temporaire.** La règle « deux bancs jsdom ne se lancent pas EN MÊME TEMPS »
+tenait à un seul fichier : les scripts de la page, écrits dans
+`/tmp/ctrl<i>.js` pour `node --check`, portaient le même nom d'un processus à
+l'autre, et le second effaçait ce que le premier relisait. Elle coûtait cher :
+`npm test` enchaînait les trois niveaux — une minute et demie, vingt-deux,
+quatre —, et l'action GitHub faisait de même dans un seul travail, vingt-sept
+minutes avant de pouvoir fusionner, pendant lesquelles `main` avançait (treize
+pull requests par jour en octobre 2026) et le contrôle de version rougissait :
+plus de deux reprises de `main` par livraison, comptées sur cinq jours
+(décision de Turquet, octobre 2026 : « fais pareil pour le temps des
+contrôles »). `verifier.js` écrit désormais ces fichiers dans un dossier
+`mkdtemp` propre au processus, effacé à la fin ; `tests/tous.js` lance les
+trois niveaux ensemble et recrache leurs sorties dans l'ordre, comme le banc
+navigateur ; l'action donne une machine à chaque niveau (`controles
+(secondes.html)`), au lieu d'une étape. L'attente tombe de la somme des trois
+au plus long d'entre eux.

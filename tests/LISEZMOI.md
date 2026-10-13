@@ -4,7 +4,7 @@
 
 ```bash
 npm install     # une seule fois, installe jsdom
-npm test        # vérifie les TROIS niveaux, l'un après l'autre
+npm test        # vérifie les TROIS niveaux, de front (un processus chacun)
 ```
 
 Un seul niveau à la fois :
@@ -32,7 +32,7 @@ La commande affiche une ligne par contrôle et se termine par un verdict. Elle
 renvoie le code 0 si tout passe, 1 sinon — ce qui permet de la brancher sur une
 action GitHub pour bloquer une fusion qui casserait quelque chose.
 `.github/workflows/controles.yml` contrôle bien les trois fichiers, chacun dans
-sa propre étape.
+son propre travail, en parallèle.
 
 ## À quoi ça sert
 
