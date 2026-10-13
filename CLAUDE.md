@@ -225,6 +225,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Un élève connecté dans un autre onglet CHASSE la session du professeur, et la base répond 42501.**
 - **L'écran du bilan ne bouge plus quand le professeur pose une note.**
 - **Et la note du DEVOIR ENTIER est une note, elle aussi.**
+- **Un brouillon étiqueté d'un devoir vaut une NOTE PROVISOIRE — et le bilan le dit « en cours ».** Un exercice fermé à la sonnerie sans « Voir mes résultats » ne laissait que son brouillon, compté nulle part.
 
 ### Aides, rappels, mise en page et navigation
 
@@ -339,7 +340,7 @@ tenus, les sabotages qui les ont éprouvés.
 - Terminale — dérivées, suites, récurrences et TVI — `docs/journal/14-terminale.md`
 - Seconde — calcul littéral (thème 7 : les nombres relatifs, somme et produit, réduire une somme) — `docs/journal/16-seconde-calcul-litteral.md`
 - Première — probabilités (thème 3 : lire une probabilité, le tableau à double entrée) — `docs/journal/18-premiere-probabilites.md`
-- Seconde — vecteurs (thème 8 : l'image d'un point par une translation sur une grille, le tableau des vecteurs égaux, les vecteurs égaux d'une figure, la translation d'un point sur quadrillage) — `docs/journal/19-seconde-vecteurs.md`
+- Seconde — vecteurs (thème 8 : l'image d'un point par une translation sur une grille, le tableau des vecteurs égaux, les vecteurs égaux d'une figure, la translation d'un point sur quadrillage, le quatrième point d'un parallélogramme) — `docs/journal/19-seconde-vecteurs.md`
 
 ## Ajouter un exercice
 

@@ -21515,11 +21515,11 @@ function ordreDesDevoirs(w, apres){
      ROUGIT : les deux sources doivent tomber d'accord. */
   if(!P.ordreDevoirs){
     ignorer(nom, 'ce niveau ne règle pas l\'ordre des exercices d\'un devoir (le bord opposé est tenu par le contrôle des fiches)');
-    return noteFicheSur20(w, apres);
+    return brouillonProvisoire(w, apres);
   }
   if(!present.ok || !present.valeur){
     verifier(nom, false, 'le profil déclare le réglage de l\'ordre des devoirs, et la page n\'a pas cet éditeur (readEditorIntoDevoir, renderDevoirEditor ou renderDevoirDetail manque)');
-    return noteFicheSur20(w, apres);
+    return brouillonProvisoire(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
@@ -21594,6 +21594,124 @@ function ordreDesDevoirs(w, apres){
     if(document.querySelectorAll('#devoirsBody .locked').length ||
        cartes.some(function(el){ return el.disabled; }))
       vus.push('la page du devoir verrouille des exercices : un devoir reste tout ouvert');
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    brouillonProvisoire(w, apres);
+  });
+}
+/* UN BROUILLON ÉTIQUETÉ D'UN DEVOIR VAUT UNE NOTE PROVISOIRE (demande de
+   Turquet, octobre 2026 : « en Seconde je n'ai quasiment aucune note pour les
+   fiches de travail alors qu'ils ont travaillé en classe »). L'exercice
+   commencé en classe et fermé à la sonnerie ne laissait que son brouillon
+   automatique — la ligne « en pause » — et il ne comptait nulle part. Il vaut
+   maintenant ce que vaut la note partielle du bouton « Pause ». Quatre bords,
+   et n'en tenir qu'un ne tient rien :
+     · l'ÉLÈVE lit « Note provisoire : 6 / 10 » sur un brouillon à 3 réponses
+       justes sur 5 — et un brouillon où RIEN n'est validé ne reçoit rien ;
+     · le PROFESSEUR lit la même note dans le bilan, et la cellule dit
+       « en cours · 3/5 q » : l'entonnoir est unique (dmCandidat) ;
+     · l'ORDRE imposé des fiches ne s'en contente pas : un brouillon sur le
+       premier exercice ne débloque pas le deuxième ;
+     · le bord OPPOSÉ : une note TERMINÉE l'emporte, et n'est plus dite
+       provisoire. */
+function brouillonProvisoire(w, apres){
+  const nom='un brouillon étiqueté d\'un devoir compte comme une note provisoire : l\'élève, le professeur, et pas l\'ordre';
+  /* le bilan du professeur se rend par renderDevoirResultats() (Seconde,
+     Terminale) ou renderDmResults() (Première) — le motif du contrôle de
+     l'archivage, juste au-dessus */
+  const present = evaluer(w, "typeof dmCandidat==='function' && typeof dmNoteDevoir==='function' && typeof ouvrirDevoirDetail==='function' && (typeof renderDevoirResultats==='function' || typeof renderDmResults==='function')");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'dmCandidat, dmNoteDevoir, ouvrirDevoirDetail ou le rendu du bilan (renderDevoirResultats / renderDmResults) manque');
+    return noteFicheSur20(w, apres);
+  }
+  const src = lire(CIBLE);
+  const LISTE = (src.match(/dmMoyDernier\s*=\s*dmMoyennes\(\s*([A-Za-z_$][\w$]*)\s*,/) || [])[1];
+  if(!LISTE){ verifier(nom, false, 'impossible de lire le nom de la liste des devoirs dans renderDmMoyennes()'); return noteFicheSur20(w, apres); }
+  const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
+  const TR=P.tableResultats, TE=P.tableEleves;
+  const ORDRE=!!(P.fiches&&P.fiches.ordre);
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const sbDouble=sb;
+    const vus=[];
+    const vraiToast=toast; toast=function(){};
+    try{
+      currentEleve={id:'e-controle',prenom:'Contrôle'};
+      const ids=(typeof TEST_ORDER!=='undefined'?TEST_ORDER:Object.keys(TESTS)).slice(0,2);
+      const A=ids[0], B=ids[1];
+      const deux=function(){ return [{id:A,modes:['train']},{id:B,modes:['train']}]; };
+      const valeurs={devoirs:[{id:'dm_br',num:1,actif:true,titre:'Devoir brouillon',cours:'',exercices:deux()}]};
+      if(${ORDRE}) valeurs.fiches=[{id:'fc_br',num:1,actif:true,titre:'Fiche brouillon',cours:'',exercices:deux()}];
+      window.__faux.semer('${TABLE}',[{id:1,valeurs:valeurs}]);
+      window.__faux.semer('${TE}',[{id:'e-controle',prenom:'Contrôle',cle:'c-1',user_id:'u-1'}]);
+      /* le brouillon tel que recoveryPayload l'écrit : percent 0, score en
+         cours, état « paused », le tirage et les réponses validées dedans */
+      const brouillon=function(id,dm,test,nbRep){
+        const answers=[]; for(let i=0;i<nbRep;i++) answers.push({q:'q'+i,correct:true});
+        return {id:id,eleve_id:'e-controle',score:nbRep,total:5,percent:0,duration_sec:600,created_at:'2026-10-13T09:00:00Z',
+                details:{test:test,mode:'train',dm:dm,state:'paused',idx:nbRep,maxScore:5,questions:[1,2,3,4,5],answers:answers}}; };
+      const lignes=[brouillon('b1','dm_br',A,3), brouillon('b2','dm_br',B,0)];
+      if(${ORDRE}) lignes.push(brouillon('b3','fc_br',A,3));
+      window.__faux.semer('${TR}', lignes);
+      const page=function(){ return ((document.getElementById('devoirsBody')||{}).textContent||'').replace(/\\s+/g,' '); };
+
+      /* 1. L'ÉLÈVE */
+      await ouvrirDevoirDetail('dm_br');
+      let t=page();
+      if(!/Note provisoire : 6 \\/ 10/.test(t)) vus.push('la page de l\\'élève ne dit pas « Note provisoire : 6 / 10 » pour le brouillon à 3/5 : '+t.slice(0,220));
+      if((t.match(/Note provisoire/g)||[]).length!==1) vus.push('un brouillon où rien n\\'est validé reçoit une note');
+      const nA=noteDevoirExo(dmBest('dm_br',A,'soutien'), dmBest('dm_br',A,'train'));
+      const nB=noteDevoirExo(dmBest('dm_br',B,'soutien'), dmBest('dm_br',B,'train'));
+      if(!nA.fait||!nA.provisoire||nA.termine||Math.round(nA.note*10)!==60)
+        vus.push('la définition : brouillon 3/5 → attendu fait, provisoire, non terminé, 6/10 ; rendu '+JSON.stringify({fait:nA.fait,provisoire:nA.provisoire,termine:nA.termine,note:nA.note}));
+      if(nB.fait) vus.push('un brouillon sans réponse validée compte comme fait');
+      /* la définition seule : un point gagné suffit (question à parties, réponse
+         pas encore rangée), rien du tout ne vaut rien */
+      const brut=function(score,answers){ return {eleve_id:'e-controle',score:score,total:5,percent:0,details:{test:A,mode:'train',dm:'dm_br',state:'paused',maxScore:5,questions:[1,2,3,4,5],answers:answers}}; };
+      const unPoint=dmNoteBrouillon(brut(2,[]));
+      if(!unPoint||unPoint.percent!==40||!unPoint.enCours) vus.push('un brouillon à 2 points sans réponse rangée ne vaut pas 40 % provisoire : '+JSON.stringify(unPoint&&{percent:unPoint.percent,enCours:unPoint.enCours}));
+      if(dmNoteBrouillon(brut(0,[]))!==null) vus.push('un brouillon vide reçoit une note');
+      if(dmNoteBrouillon(Object.assign(brut(3,[{}]),{details:{test:A,mode:'train',state:'paused',answers:[{}],maxScore:5}}))!==null) vus.push('un brouillon SANS étiquette de devoir reçoit une note de devoir');
+
+      /* 2. LE PROFESSEUR */
+      const dev=(mesDevoirs||[]).find(function(d){ return d.id==='dm_br'; });
+      const n=dmNoteDevoir(dev,'e-controle',lignes);
+      if(Math.round(n.somme*10)!==60||n.nbFait!==1) vus.push('dmNoteDevoir : attendu 6 / 20 et 1 exercice fait, rendu '+fmtNote(n.somme)+' / '+n.totMax+' · '+n.nbFait+' fait(s)');
+      ${LISTE}=[{id:'dm_br',num:1,actif:true,titre:'Devoir brouillon',cours:'',exercices:deux(),notes:{},notesDevoir:{}}];
+      dmSelId='dm_br'; if(typeof dmGenre!=='undefined') dmGenre='dm';
+      sb=sbDouble;
+      if(typeof renderDevoirResultats==='function') await renderDevoirResultats(); else await renderDmResults();
+      await new Promise(function(r){ setTimeout(r,60); });
+      let bilan=((document.getElementById('dmResults')||{}).textContent||'').replace(/\\s+/g,' ');
+      /* en Première, les cellules par exercice ne s'ouvrent qu'au clic sur l'élève */
+      if(typeof dmStudentDetail==='function'){ try{ dmStudentDetail('e-controle','Contrôle'); }catch(e){}
+        bilan+=' '+((document.getElementById('dmStudentDetail')||{}).textContent||'').replace(/\\s+/g,' '); }
+      if(!/en cours · 3\\/5 q · 60%/.test(bilan)) vus.push('le bilan du professeur ne dit pas « en cours · 3/5 q · 60% » : '+bilan.slice(0,260));
+      if(!/6 \\/ 20/.test(bilan)) vus.push('le bilan du professeur ne compte pas la note provisoire (6 / 20 attendu) : '+bilan.slice(0,260));
+
+      /* 3. L'ORDRE */
+      if(${ORDRE}){
+        await ouvrirDevoirDetail('fc_br');
+        const fiche=(mesDevoirs||[]).find(function(d){ return d.id==='fc_br'; });
+        if(!fiche) vus.push('la fiche témoin n\\'arrive pas chez l\\'élève');
+        else {
+          if(!dmVerrouille(fiche,B)) vus.push('un brouillon sur le premier exercice de la fiche débloque le deuxième');
+          if(dmVerrouille(fiche,A)) vus.push('l\\'exercice en cours est verrouillé');
+          if(!/Note provisoire : 6 \\/ 10/.test(page())) vus.push('la page de la fiche ne montre pas la note provisoire');
+        }
+      }
+
+      /* 4. LE BORD OPPOSÉ : une note terminée l'emporte */
+      window.__faux.semer('${TR}', lignes.concat([{id:'t1',eleve_id:'e-controle',score:4,total:5,percent:80,duration_sec:300,created_at:'2026-10-13T10:00:00Z',details:{test:A,mode:'train',dm:'dm_br'}}]));
+      await ouvrirDevoirDetail('dm_br');
+      t=page();
+      if(!/Note : 8 \\/ 10/.test(t)||/provisoire/.test(t)) vus.push('une note terminée à 80 % ne remplace pas le brouillon, ou reste dite provisoire : '+t.slice(0,220));
+      const nT=noteDevoirExo(dmBest('dm_br',A,'soutien'), dmBest('dm_br',A,'train'));
+      if(!nT.termine||nT.provisoire) vus.push('après une note terminée, la définition dit encore non terminé ou provisoire');
+    } finally { toast=vraiToast; sb=sbDouble; currentDM=null; if(typeof dmGenre!=='undefined') dmGenre='dm'; }
     return vus.join(' | ');
   })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);

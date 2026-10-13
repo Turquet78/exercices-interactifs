@@ -203,6 +203,7 @@
   .dl-title{font-family:"Fredoka";font-weight:600;font-size:1.12rem}
   .dm-cell{font-size:.76rem;font-weight:700;padding:2px 9px;border-radius:999px}
   .dm-cell.done{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2}
+  .dm-cell.encours{color:#8a6d12;background:#FCEFD8;border:1px dashed #d9b85c}
   .dm-cell.todo{color:var(--ink-soft);background:#fff;border:1px solid var(--line)}
   .dl-go{font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--blue);align-self:flex-end}
   .dl-list{display:flex;flex-direction:column;gap:14px}
@@ -219,6 +220,7 @@
   .dm-cells{display:flex;flex-wrap:wrap;gap:8px}
   .dm-cell{font-size:.86rem;font-weight:600;border-radius:9px;padding:6px 11px}
   .dm-cell.done{color:#157a52;background:var(--green-soft);border:1px solid #b6e6d2}
+  .dm-cell.encours{color:#8a6d12;background:#FCEFD8;border:1px dashed #d9b85c}
   .dm-cell.todo{color:#8a6d12;background:#FCEFD8;border:1px solid #f2dca8}
   .dm-note{font-family:"Fredoka";font-weight:600;font-size:.82rem;padding:2px 11px;border-radius:999px;color:#fff;background:var(--blue);white-space:nowrap}
   .dm-note.none{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
@@ -592,7 +594,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-vgt,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-vtr,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pch,#scr-pcl,#scr-pfr,#scr-pii,#scr-pia,#scr-pis,#scr-pmy,#scr-ptr,#scr-pfo,#scr-pgc,#scr-prc,#scr-pcf,#scr-pkg,#scr-phm,#scr-pvo,#scr-pdu,#scr-pfe,#scr-ptds,#scr-pfn,#scr-pfk,#scr-pof,#scr-pxy,#scr-pmt,#scr-ptm,#scr-pgt,#scr-pbl,#scr-pmn,#scr-pfv,#scr-pfd,#scr-pfc,#scr-pfq,#scr-pfi,#scr-plo,#scr-pce,#scr-psm,#scr-pci,#scr-prl,#scr-ptt,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-pph,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl,#scr-tdc,#scr-veg{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-vgt,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-vec,#scr-vtr,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pch,#scr-pcl,#scr-pfr,#scr-pii,#scr-pia,#scr-pis,#scr-pmy,#scr-ptr,#scr-pfo,#scr-pgc,#scr-prc,#scr-pcf,#scr-pkg,#scr-phm,#scr-pvo,#scr-pdu,#scr-pfe,#scr-ptds,#scr-pfn,#scr-pfk,#scr-pof,#scr-pxy,#scr-pmt,#scr-ptm,#scr-pgt,#scr-pbl,#scr-pmn,#scr-pfv,#scr-pfd,#scr-pfc,#scr-pfq,#scr-pfi,#scr-plo,#scr-pce,#scr-psm,#scr-pci,#scr-prl,#scr-ptt,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-pph,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl,#scr-tdc,#scr-veg{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -2214,6 +2216,34 @@
   .tvg-cons{display:block;padding:6px 12px;margin:6px 0;border-radius:9px;border:1.6px solid var(--line);font-weight:600;background:var(--surface);line-height:1.6}
   .tvg-cons.ok{border-color:var(--blue);background:#EAF0FF}
   .tvg-cons.bad{border-color:var(--red);background:#fdeaea}
+  /* 8.5 — le quatrième point d'un parallélogramme : le quadrillage de la
+     fiche, ses croix, et une cible INVISIBLE par nœud, qui ne se montre qu'au
+     survol — posée (bleu), juste (bleu), fausse (rouge), manquante (vert),
+     la lettre D avec. La zone de touche est celle de {solutions-graphique}. */
+  #vecGraph .sv-svg{max-width:360px}
+  .vec-svg .vec-grid{stroke:var(--grid);stroke-width:1}
+  .vec-svg .vec-cadre{fill:none;stroke:var(--ink-soft);stroke-width:1.4}
+  .vec-svg .vec-pt line{stroke:var(--ink);stroke-width:2.2;stroke-linecap:round}
+  .vec-svg .vec-lbl{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;fill:var(--ink)}
+  .vec-svg .vec-t{cursor:pointer}
+  .vec-svg .vec-t .hit{fill:transparent}
+  .vec-svg .vec-t .dot{fill:transparent;stroke:transparent;stroke-width:1.6}
+  .vec-svg .vec-t:hover .dot{fill:#EAF0FF;stroke:var(--blue)}
+  .vec-svg .vec-t .vec-dlbl{display:none}
+  .vec-svg .vec-t.sel .dot,.vec-svg .vec-t.okc .dot{fill:var(--blue);stroke:var(--blue-dark)}
+  .vec-svg .vec-t.badc .dot{fill:var(--red);stroke:#bf2c3e}
+  .vec-svg .vec-t.missc .dot{fill:var(--green-soft);stroke:var(--green);stroke-width:2.4}
+  .vec-svg .vec-t.sel .vec-dlbl,.vec-svg .vec-t.okc .vec-dlbl{display:block;fill:var(--blue-dark)}
+  .vec-svg .vec-t.badc .vec-dlbl{display:block;fill:var(--red)}
+  .vec-svg .vec-t.missc .vec-dlbl{display:block;fill:var(--green)}
+  .vec-svg .vec-t.off{pointer-events:none}
+  .vec-svg .vec-t:focus{outline:none}
+  .vec-svg .vec-t:focus-visible .hit{stroke:var(--blue);stroke-width:2.5}
+  .vec-svg .vec-zone{fill:none;stroke:transparent;stroke-width:28px;stroke-linecap:round;vector-effect:non-scaling-stroke;pointer-events:stroke;cursor:pointer}
+  .vec-svg .vec-para{fill:var(--green-soft);fill-opacity:.45;stroke:var(--green);stroke-width:1.8;stroke-dasharray:6 4}
+  .vec-svg .vec-fl{stroke:var(--green);stroke-width:2.4}
+  #scr-vec .vec-sel{width:64px;height:40px;font-size:1.1rem;padding:0;vertical-align:middle;margin:2px 4px}
+  #scr-vec .tvg-cons.sol{border-color:var(--green);background:var(--green-soft)}
   .tvg-solzone{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 12px}
   .tvg-sollbl{font-weight:800;color:var(--ink);font-size:1.05rem}
   .tvg-solin{width:190px;padding:8px 10px;border:2px solid #c9d3e8;border-radius:10px;font:inherit;font-weight:700;color:var(--ink);background:var(--surface)}
@@ -6263,6 +6293,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- VECTEURS : LE QUATRIÈME POINT D'UN PARALLÉLOGRAMME (8.5) -->
+  <section class="screen" id="scr-vec">
+    <div class="card lv-card">
+      <div class="q-head"><span id="vecIdx" class="q-idx">Question 1 / 6</span><span id="vecModeTag"></span></div>
+      <p class="enonce" id="vecInstr"></p>
+      <div class="lv-graph" id="vecGraph"></div>
+      <div id="vecBody"></div>
+      <div class="mp-feedback" id="vecFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="vecActions"></div>
+    </div>
+  </section>
+
   <!-- POURCENTAGES : PROPORTIONS DANS UN TABLEAU À DOUBLE ENTRÉE (4.6.1) -->
   <section class="screen" id="scr-tdp">
     <div class="test-top">
@@ -7286,6 +7328,7 @@ const TESTS={
   'reduire-produit': { name:'R\u00e9duire un produit avec x', icon:'\ud83d\udd22', desc:'Quinze produits de deux facteurs \u2014 un nombre ou la lettre x, jamais x\u00b2. D\u2019abord case par case\u00a0: le signe, le coefficient, puis si \u00e7a se termine par x ou par x\u00b2. Puis directement le r\u00e9sultat r\u00e9duit.', start:()=>startRpd() },
   'translation-quadrillage': { name:'Translation\u00a0: d\u00e9placer un point sur le quadrillage', icon:'\u27a1\ufe0f', desc:'Sur un quadrillage, une fl\u00e8che u (ou deux points A et B) donne un chemin\u00a0: d\u00e9place chaque point en suivant ce chemin et place son image A\u2032, B\u2032, C\u2032 \u2014 \u00ab\u00a0l\u2019image de A par la translation de vecteur u est le point A\u2032\u00a0\u00bb. Les images se posent au clic sur le quadrillage.', start:()=>startTrl() },
   'translation-grille': { name:'Image d\u2019un point par une translation', icon:'\u27a1\ufe0f', desc:'Huit vecteurs dessin\u00e9s et une grille de points de A \u00e0 X. Six lignes \u00e0 compl\u00e9ter\u00a0: le point image par la translation du vecteur indiqu\u00e9, ou le vecteur de la translation qui m\u00e8ne d\u2019un point \u00e0 son image.', start:()=>startVtr() },
+  'parallelogramme-point': { name:'Le quatri\u00e8me point d\u2019un parall\u00e9logramme', icon:'\ud83d\udccd', desc:'Trois points A, B et C sur un quadrillage, et l\u2019\u00e9nonc\u00e9 \u00ab ABDC est un parall\u00e9logramme \u00bb \u2014 ou ABCD. Compl\u00e8te la phrase \u00ab le chemin qui va de \u2026 \u00e0 \u2026 est le m\u00eame que celui qui va de C \u00e0 D \u00bb, puis clique sur le quadrillage le point D.', start:()=>startVec() },
   'tableau-proportions': { name:'Proportions dans un tableau', icon:'\ud83d\udcca', desc:'Comme sur la fiche papier\u00a0: un tableau \u00e0 double entr\u00e9e dont tu compl\u00e8tes la ligne et la colonne \u00ab\u00a0total\u00a0\u00bb, puis des proportions \u00e0 \u00e9crire en fraction \u2014 qui l\u2019on \u00e9tudie, parmi qui, et les deux effectifs. Les situations changent \u00e0 chaque s\u00e9ance.', start:()=>startTdp() },
   'tableau-proportions-lettres': { name:'Proportions dans un tableau (avec des lettres)', icon:'\ud83d\udd24', desc:'Le tableau de {tableau-proportions}, r\u00e9dig\u00e9 comme sur la fiche\u00a0: les groupes portent des lettres (A, B, C, D). Tu compl\u00e8tes le tableau, tu donnes le nombre correspondant \u00e0 A, \u00e0 C, \u00e0 \u00ab\u00a0A et C\u00a0\u00bb, puis tu \u00e9cris cinq proportions avec les lettres. Les situations changent \u00e0 chaque s\u00e9ance.', start:()=>startTdl() },
   'tableau-proportions-lettres-tirees': { name:'Proportions dans un tableau (lettres tir\u00e9es)', icon:'\ud83c\udfb2', desc:'Comme {tableau-proportions-lettres}, mais la paire de lettres change \u00e0 chaque situation\u00a0: une lettre parmi A ou B, une lettre parmi C ou D, tir\u00e9es au hasard. Tu compl\u00e8tes le tableau, tu donnes le nombre correspondant \u00e0 chacune d\u2019elles et \u00e0 leur croisement, puis tu \u00e9cris cinq proportions qui ne parlent que de ces deux lettres.', start:()=>startTdlTirees() },
@@ -7493,7 +7536,7 @@ const THEMES=[
   /* {translation-quadrillage} (8.4) : la fiche 2 sur les vecteurs — déplacer un
      point en suivant le chemin u⃗ (demande de Turquet, octobre 2026 : « en
      seconde créer un exercice comme le pdf joint »). Ajouté EN DERNIER. */
-  { num:8, nom:'Vecteurs', ids:['translation-grille','vecteurs-egaux-tableau','vecteurs-egaux','translation-quadrillage'] }
+  { num:8, nom:'Vecteurs', ids:['translation-grille','vecteurs-egaux-tableau','vecteurs-egaux','translation-quadrillage','parallelogramme-point'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -7701,6 +7744,10 @@ function cardHTML(icon,title,desc,onclick,extraClass,lockMsg,badge){
     <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(numeros(desc))}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
 }
 let mesResultats=[], mesDevoirs=[];
+/* les brouillons « en pause » étiquetés d'un devoir, rangés À PART : tous les
+   lecteurs de mesResultats supposent des notes terminées, seul dmBest lit
+   ceux-ci, par leur note provisoire (dmNoteBrouillon) */
+let mesBrouillons=[];
 function bestModeExo(id, modes){
   let b=null;
   (mesResultats||[]).forEach(r=>{ if(isPaused(r)||testIdOf(r)!==id||modes.indexOf(modeOf(r))<0) return; if(b==null||r.percent>b.percent) b=r; });
@@ -8529,6 +8576,7 @@ function conseilPaire(){
   else if(test.kind==='rpd' && q) b=ctxRpd(q);
   else if(test.kind==='vtr' && q) b=ctxVtr(q);
   else if(test.kind==='veg' && q) b=ctxVeg(q);
+  else if(test.kind==='vec' && q) b=ctxVec(q);
   else if(test.kind==='rvf' && q) b=ctxRvf(q);
   else if(test.kind==='asx' && q) b=ctxAsx(q);
   else if(test.kind==='vgt' && q) b=ctxVgt(q);
@@ -8946,6 +8994,7 @@ const QIA_SUGG={
   vtr:["Qu\u2019est-ce que l\u2019image d\u2019un point par une translation\u00a0?","Comment lire la direction et le sens d\u2019un vecteur\u00a0?","Comment retrouver le vecteur quand on conna\u00eet le point et son image\u00a0?","Deux fl\u00e8ches dessin\u00e9es \u00e0 des endroits diff\u00e9rents peuvent-elles repr\u00e9senter le m\u00eame vecteur\u00a0?"],
   veg:["Quand dit-on que deux vecteurs sont \u00e9gaux\u00a0?","Pourquoi BA n\u2019est-il pas \u00e9gal \u00e0 AB\u00a0?","Quel rapport entre vecteurs \u00e9gaux et parall\u00e9logramme\u00a0?","Comment utiliser un milieu pour trouver deux vecteurs \u00e9gaux\u00a0?"],
   rpd:["Comment trouver le signe d\u2019un produit\u00a0?","Pourquoi x \u00d7 x fait-il x\u00b2\u00a0?","Comment calculer le coefficient sans les signes\u00a0?","Pourquoi n\u2019\u00e9crit-on jamais 1x\u00a0?"],
+  vec:["Comment compter le chemin d\u2019un point \u00e0 un autre sur le quadrillage\u00a0?","Quelle diff\u00e9rence entre ABCD et ABDC\u00a0?","Pourquoi le chemin de C \u00e0 D est-il le m\u00eame que celui d\u2019un autre c\u00f4t\u00e9\u00a0?","Comment v\u00e9rifier que ma figure est bien un parall\u00e9logramme\u00a0?"],
   rvf:["Pourquoi on ne met pas au m\u00eame d\u00e9nominateur pour multiplier\u00a0?","Comment trouver le d\u00e9nominateur commun quand ils sont diff\u00e9rents\u00a0?","Pourquoi diviser par une fraction, c\u2019est multiplier par son inverse\u00a0?","Comment \u00e9crire un entier en fraction\u00a0?"],
   spf:["Pourquoi calculer le produit avant la somme\u00a0?","Comment croiser les d\u00e9nominateurs\u00a0?","Que faire une fois le produit calcul\u00e9\u00a0?","Est-ce que l\u2019ordre d\u2019\u00e9criture change le r\u00e9sultat\u00a0?"],
   pqd:["Pourquoi calculer la parenth\u00e8se en premier\u00a0?","Comment croiser les d\u00e9nominateurs dans la parenth\u00e8se\u00a0?","Le r\u00e9sultat de la parenth\u00e8se peut-il \u00eatre n\u00e9gatif\u00a0?","Pourquoi diviser revient-il \u00e0 multiplier par l\u2019inverse\u00a0?"],
@@ -10269,6 +10318,11 @@ const RAP_VTR=`<b>Image d'un point par une translation</b><br>
 <b>② L'image d'un point M par la translation de vecteur <span class="vtr-vec"><span class="vtr-fl">u</span></span></b> est le point M′ tel que <span class="vtr-vec"><span class="vtr-fl">MM′</span></span> = <span class="vtr-vec"><span class="vtr-fl">u</span></span> : on part de M et on se déplace <b>comme le vecteur</b> — même direction, même sens, même longueur.<br>
 <b>③ Sur la grille :</b> on lit le vecteur case par case (« une case vers le haut », « une case vers la droite et une case vers le bas »…), puis on fait le même déplacement à partir du point. Le point où l'on arrive est l'image.<br>
 <b>④ Pour retrouver le vecteur</b> quand on connaît le point et son image, on regarde le déplacement qui mène de l'un à l'autre, puis on cherche la flèche qui fait exactement ce déplacement.`;
+const RAP_VEC=`<b>Le quatrième point d'un parallélogramme</b><br>
+<b>① Les lettres font le tour de la figure.</b> Dans ABCD, les sommets se suivent A, B, C, D : A est en face de C, B en face de D. Dans ABDC, ils se suivent A, B, D, C : D est en face de A. L'ordre des lettres change la figure.<br>
+<b>② Deux côtés opposés d'un parallélogramme sont parallèles et de même longueur</b> : aller d'un sommet au suivant, c'est faire le même chemin que du sommet opposé au suivant. Dans ABCD, le chemin de B à A est le même que celui de C à D ; dans ABDC, le chemin de A à B est le même que celui de C à D.<br>
+<b>③ Sur un quadrillage, un chemin se compte en carreaux</b> : d'abord vers la droite ou la gauche, puis vers le haut ou le bas. De A à B : « 3 carreaux vers la droite puis 2 carreaux vers le haut ».<br>
+<b>④ Pour construire D</b>, on compte le chemin, puis on refait EXACTEMENT le même en partant de C — même nombre de carreaux, même sens. On vérifie à la fin : les côtés opposés doivent être parallèles.`;
 
 const RAP_RED=`<b>Réduire une somme de termes</b><br>
 <b>① On n'additionne que des termes de même nature.</b> Des <i>x</i> avec des <i>x</i>, des <i>x</i>² avec des <i>x</i>², des nombres avec des nombres. Comme des pommes avec des pommes : 2 pommes + 3 pommes = 5 pommes, mais 2 pommes + 3 poires ne font pas 5 de quelque chose.<br>
@@ -10288,7 +10342,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}=\\frac{5}{6}\\) (on simplifie à la fin, ici par 2).`;
 const RAPPELS={ veg:RAP_VEG, pgc:RAP_PGC, pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
-  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, trl:RAP_TRL, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, vgt:RAP_VGT, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, vtr:RAP_VTR, tdp:RAP_TDP, tdl:RAP_TDL, tdc:RAP_TDC, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pfr:RAP_PFR, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, pfo:RAP_PFO, prc:RAP_PRC, pcf:RAP_PCF, pkg:RAP_PKG, pfn:RAP_PFN, pfk:RAP_PFK, pof:RAP_POF, pxy:RAP_PXY, pmt:RAP_PMT, ptm:RAP_PTM, pgt:RAP_PGT, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pfe:RAP_PFE, pbl:RAP_PBL, pmn:RAP_PMN, pfv:RAP_PFV, ptds:RAP_PTDS, pfd:RAP_PFD, pfc:RAP_PFC, pfq:RAP_PFQ, pfi:RAP_PFI, plo:RAP_PLO, pci:RAP_PCI, pce:RAP_PCE, psm:RAP_PSM, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
+  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, trl:RAP_TRL, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, vgt:RAP_VGT, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, vec:RAP_VEC, vtr:RAP_VTR, tdp:RAP_TDP, tdl:RAP_TDL, tdc:RAP_TDC, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pfr:RAP_PFR, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, pfo:RAP_PFO, prc:RAP_PRC, pcf:RAP_PCF, pkg:RAP_PKG, pfn:RAP_PFN, pfk:RAP_PFK, pof:RAP_POF, pxy:RAP_PXY, pmt:RAP_PMT, ptm:RAP_PTM, pgt:RAP_PGT, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pfe:RAP_PFE, pbl:RAP_PBL, pmn:RAP_PMN, pfv:RAP_PFV, ptds:RAP_PTDS, pfd:RAP_PFD, pfc:RAP_PFC, pfq:RAP_PFQ, pfi:RAP_PFI, plo:RAP_PLO, pci:RAP_PCI, pce:RAP_PCE, psm:RAP_PSM, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
 const RAPPELS_ID={ 'python-input-float':RAP_PIF, 'python-for-moyenne-notes':RAP_PFM, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'pourcentages-problemes-sans-aide':RAP_PPS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
@@ -10534,7 +10588,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['translation-quadrillage','vecteurs-egaux','vecteurs-egaux-tableau','python-for-images-entiers','python-if-plus-grand-trois','python-pile-face','python-if-location','python-if-cinema','python-if-plus-grand','python-if-else','python-for-couples','python-samoussa','python-tables-multiplication','python-for-table','python-for-images','python-for-multiples','python-for-moyenne-notes','python-trois-des','python-for-depart-fin','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-if-frais-port','python-input-prix','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','translation-grille','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi','tableau-proportions-trois-colonnes','tableau-proportions-trois-colonnes-directes','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','translation-grille','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi','tableau-proportions-trois-colonnes','tableau-proportions-trois-colonnes-directes','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','parallelogramme-point','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -11008,7 +11062,7 @@ function retourModes(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={veg:['veg',renderVegTest], lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], trl:['trl',renderTrl], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], spr:['spr',renderSpr], ppb:['ppb',renderPpb], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], vgt:['vgt',renderVgtTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], vtr:['vtr',renderVtrTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], tdc:['tdc',renderTdcTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pch:['pch',renderPCH], pcl:['pcl',renderPCL], pfr:['pfr',renderPFR], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], ptr:['ptr',renderPTR], pfo:['pfo',renderPFO], pgc:['pgc',renderPGC], prc:['prc',renderPRC], pcf:['pcf',renderPCF], pkg:['pkg',renderPKG], pfn:['pfn',renderPFN], pfk:['pfk',renderPFK], pof:['pof',renderPOF], pxy:['pxy',renderPXY], pmt:['pmt',renderPMT], ptm:['ptm',renderPTM], pgt:['pgt',renderPGT], phm:['phm',renderPHM], pvo:['pvo',renderPVO], pdu:['pdu',renderPDU], pfe:['pfe',renderPFE], pbl:['pbl',renderPBL], pmn:['pmn',renderPMN], pfv:['pfv',renderPFV], ptds:['ptds',renderPTDS], pfd:['pfd',renderPFD], pfc:['pfc',renderPFC], pfq:['pfq',renderPFQ], pfi:['pfi',renderPFI], plo:['plo',renderPLO], pci:['pci',renderPCI], pce:['pce',renderPCE], psm:['psm',renderPSM], prl:['prl',renderPRL], ptt:['ptt',renderPTT], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH]};
+  const DISPATCH={veg:['veg',renderVegTest], lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], trl:['trl',renderTrl], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], spr:['spr',renderSpr], ppb:['ppb',renderPpb], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], vgt:['vgt',renderVgtTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], vec:['vec',renderVec], vtr:['vtr',renderVtrTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], tdc:['tdc',renderTdcTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pch:['pch',renderPCH], pcl:['pcl',renderPCL], pfr:['pfr',renderPFR], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], ptr:['ptr',renderPTR], pfo:['pfo',renderPFO], pgc:['pgc',renderPGC], prc:['prc',renderPRC], pcf:['pcf',renderPCF], pkg:['pkg',renderPKG], pfn:['pfn',renderPFN], pfk:['pfk',renderPFK], pof:['pof',renderPOF], pxy:['pxy',renderPXY], pmt:['pmt',renderPMT], ptm:['ptm',renderPTM], pgt:['pgt',renderPGT], phm:['phm',renderPHM], pvo:['pvo',renderPVO], pdu:['pdu',renderPDU], pfe:['pfe',renderPFE], pbl:['pbl',renderPBL], pmn:['pmn',renderPMN], pfv:['pfv',renderPFV], ptds:['ptds',renderPTDS], pfd:['pfd',renderPFD], pfc:['pfc',renderPFC], pfq:['pfq',renderPFQ], pfi:['pfi',renderPFI], plo:['plo',renderPLO], pci:['pci',renderPCI], pce:['pce',renderPCE], psm:['psm',renderPSM], prl:['prl',renderPRL], ptt:['ptt',renderPTT], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -11139,7 +11193,7 @@ function show(name){
   if(name!=='spr'){ try{ sprRestituer(); }catch(e){} }
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','trl','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','spr','ppb','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','vgt','cit','rgp','mrl','red','srl','rpd','vtr','veg','tdp','tdl','tdc','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pcl','pfr','pii','pia','pis','pmy','ptr','pfo','pgc','prc','pcf','pkg','pfn','pfk','pof','pxy','pmt','ptm','pgt','phm','pvo','pdu','pfe','pbl','pmn','pfv','ptds','pfd','pfc','pfq','pfi','pci','pce','psm','plo','prl','ptt','pap','pvm','ppc','ppd','ppm','pev','pel','pph'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','trl','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','spr','ppb','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','vgt','cit','rgp','mrl','red','srl','rpd','vec','vtr','veg','tdp','tdl','tdc','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pcl','pfr','pii','pia','pis','pmy','ptr','pfo','pgc','prc','pcf','pkg','pfn','pfk','pof','pxy','pmt','ptm','pgt','phm','pvo','pdu','pfe','pbl','pmn','pfv','ptds','pfd','pfc','pfq','pfi','pci','pce','psm','plo','prl','ptt','pap','pvm','ppc','ppd','ppm','pev','pel','pph'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -11936,9 +11990,10 @@ async function lireToutes(faire){
 async function chargerMesResultats(){
   try{
     const {data,error}=await lireToutes(()=>sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id));
-    if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; return mesResultats; }
+    if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; mesBrouillons=[]; return mesResultats; }
     mesResultats=(data||[]).filter(r=>!isPaused(r));
-  }catch(e){ mesResultats=[]; }
+    mesBrouillons=(data||[]).filter(r=>isPaused(r)&&r.details&&!Array.isArray(r.details)&&r.details.dm);
+  }catch(e){ mesResultats=[]; mesBrouillons=[]; }
   return mesResultats;
 }
 async function openThemes(){
@@ -12011,7 +12066,42 @@ async function openDevoirsEleve(genre){
   await chargerMesResultats();
   renderDevoirsList();
 }
-function dmBest(did,id,m){ let b=null; (mesResultats||[]).forEach(r=>{ if(!isPaused(r)&&testIdOf(r)===id&&modeOf(r)===m&&r.details&&!Array.isArray(r.details)&&r.details.dm===did){ if(b==null||r.percent>b.percent) b=r; } }); return b; }
+/* UN BROUILLON ÉTIQUETÉ D'UN DEVOIR VAUT UNE NOTE PROVISOIRE (demande de
+   Turquet, octobre 2026 : « en Seconde je n'ai quasiment aucune note pour les
+   fiches de travail alors qu'ils ont travaillé en classe »). Pendant un
+   exercice, la page enregistre un brouillon automatique — la ligne « en
+   pause » — étiqueté du devoir, avec le score en cours. Un élève qui ferme
+   l'onglet à la sonnerie sans « Voir mes résultats » ni « Pause » ne laisse
+   que ce brouillon, et il ne comptait nulle part : quarante minutes de
+   travail, et la fiche disait « — / 20 ». Le brouillon vaut désormais ce que
+   vaut la note partielle posée par le bouton « Pause » — même règle, même
+   barème : rien de validé, pas de note ; sinon le score sur le barème ENTIER.
+   La ligne rendue est une COPIE marquée enCours : la ligne de la base ne
+   bouge pas, et l'écran sait dire « provisoire ». */
+function dmNoteBrouillon(r){
+  const d=r&&r.details;
+  if(!isPaused(r)||!d||!d.dm) return null;
+  const faites=Array.isArray(d.answers)?d.answers.length:0;
+  /* Rien de validé ET aucun point : pas de note — la règle de la pause. Un
+     point suffit : les questions à plusieurs parties (Python) ne rangent
+     leur réponse qu'à la dernière partie, et le score, lui, avance à chaque
+     partie juste. */
+  if(!faites && !((r.score||0)>0)) return null;
+  const total=d.maxScore||r.total||0;                             /* le barème posé par le démarreur, comme finishTest et la pause de ce niveau */
+  if(!total) return null;
+  const nbQ=Array.isArray(d.questions)?d.questions.length:(r.total||0);
+  return Object.assign({}, r, { percent:Math.min(100,Math.round((r.score||0)/total*100)), enCours:true, faites:faites, nbQ:nbQ });
+}
+/* La ligne qui compte pour UN exercice d'UN devoir dans UN mode : une note
+   terminée telle quelle, un brouillon étiqueté par sa note provisoire, rien
+   sinon. Entonnoir partagé par l'écran de l'élève (dmBest) et le bilan du
+   professeur (dmMeilleur) — deux définitions auraient donné deux notes. */
+function dmCandidat(r, devoirId, exoId, mode){
+  if(testIdOf(r)!==exoId||modeOf(r)!==mode) return null;
+  const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==devoirId) return null;
+  return isPaused(r) ? dmNoteBrouillon(r) : r;
+}
+function dmBest(did,id,m){ let b=null; (mesResultats||[]).concat(mesBrouillons||[]).forEach(r=>{ const c=dmCandidat(r,did,id,m); if(c&&(b==null||c.percent>b.percent)) b=c; }); return b; }
 /* Note d'un exercice de devoir. Soutien vaut 5 pts (5×%), entraînement vaut 10 pts (10×%).
    Note /10 = points d'entraînement si (entraînement > soutien) OU si le soutien n'a pas été fait ;
    sinon points du soutien (au max 5). */
@@ -12023,8 +12113,14 @@ function noteDevoirExo(bestSoutien, bestEntrain, smax){
   const s = bestSoutien ? Math.min(plafond, bestSoutien.percent/100*plafond) : 0;
   const e = bestEntrain ? Math.min(10, bestEntrain.percent/100*10) : 0;
   const soutienFait = !!bestSoutien;
-  const note = (e > s || !soutienFait) ? e : s;
-  return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain) };
+  const parEntrain = (e > s || !soutienFait);
+  const note = parEntrain ? e : s;
+  /* « termine » : au moins un essai mené au bout (ou mis en pause par le
+     bouton) — c'est lui que lit l'ordre imposé des fiches ; « provisoire » :
+     la note retenue vient d'un brouillon en cours, et l'écran le dit. */
+  const termine = !!(bestSoutien&&!bestSoutien.enCours) || !!(bestEntrain&&!bestEntrain.enCours);
+  const provisoire = parEntrain ? !!(bestEntrain&&bestEntrain.enCours) : !!(bestSoutien&&bestSoutien.enCours);
+  return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain), termine, provisoire };
 }
 function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
 /* LA NOTE D'UN DEVOIR À EXERCICES BONUS (demande de Turquet, août 2026) : un
@@ -12199,7 +12295,9 @@ function dmVerrouille(dev, testId){
     if(exos[i].id===testId) return false;      /* lui-même, ou placé avant le premier non-fait */
     if(dmEstBonus(exos[i])) continue;          /* un bonus non fait ne bloque pas la suite */
     const nd=noteDevoirExo(dmBest(dev.id,exos[i].id,'soutien'), dmBest(dev.id,exos[i].id,'train'), exos[i].smax);
-    if(!nd.fait) return true;                  /* un exercice AVANT lui n'est pas fait */
+    /* un brouillon en cours compte pour la note, pas pour l'ordre : tant que
+       l'exercice d'avant n'est pas mené au bout, le suivant reste fermé */
+    if(!nd.termine) return true;               /* un exercice AVANT lui n'est pas terminé */
   }
   return false;
 }
@@ -12222,7 +12320,7 @@ function renderDevoirDetail(devoirId){
     const verrou=ordreImpose&&bloque&&!bonus;
     if(ordreImpose&&!nd.fait&&!bonus) bloque=true;
     /* la note d'un BONUS s'affiche sur 1 : c'est ce qu'il vaut dans le total */
-    const badge=nd.fait?`<span class="ex-bilan done">${bonus?'Bonus : '+fmtNote(nd.note/10)+' / 1':'Note : '+fmtNote(nd.note)+' / 10'}</span>`
+    const badge=nd.fait?`<span class="ex-bilan done">${bonus?'Bonus : '+fmtNote(nd.note/10)+' / 1':(nd.provisoire?'Note provisoire : ':'Note : ')+fmtNote(nd.note)+' / 10'}</span>`
                        :`<span class="ex-bilan todo">${bonus?'Bonus · à faire':'À faire'}</span>`;
     let desc=t.desc;
     if(bonus) desc+=' Exercice BONUS : il peut ajouter jusqu\u2019à 1 point à la note '+(dev.genre==='fiche'?'de la fiche':'du devoir')+', sans la faire dépasser le maximum.';
@@ -20838,9 +20936,11 @@ async function dmMarquerArchive(id, archive){
 function dmMeilleur(rows, eleveId, devoirId, exoId, mode){
   let b=null;
   (rows||[]).forEach(function(r){
-    if(r.eleve_id!==eleveId||isPaused(r)||testIdOf(r)!==exoId||modeOf(r)!==mode) return;
-    const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==devoirId) return;
-    if(b==null||r.percent>b.percent) b=r;
+    if(r.eleve_id!==eleveId) return;
+    /* un brouillon étiqueté compte par sa note provisoire — dmCandidat, le
+       même entonnoir que l'écran de l'élève */
+    const c=dmCandidat(r, devoirId, exoId, mode); if(!c) return;
+    if(b==null||c.percent>b.percent) b=c;
   });
   return b;
 }
@@ -21062,13 +21162,13 @@ async function renderDevoirResultats(){
     const bilan=`<div class="panel">
       <div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Bilan de la classe</h3>
         <span class="badge ${moy===null?'':pctClass(Math.round(moy/totMax*100))}">${moy===null?'Moyenne : —':('Moyenne : '+fmtNote(dmNoteAff(dmGenre,moy,totMax).note)+' / '+surAff)}</span></div>
-      <p class="note" style="margin:0 0 10px">Note du devoir par élève (chaque exercice sur 10, soutien plafonné à 5${exos.some(ex=>dmEstBonus(ex))?' ; un exercice bonus ajoute jusqu\u2019à 1 point sans dépasser le maximum':''})${GENRE_DEVOIRS[dmGenre].sur20?' ; la note de la fiche est ramenée sur 20':''}. « Exercices faits » = nombre d'exercices commencés sur ${exos.length}.</p>
+      <p class="note" style="margin:0 0 10px">Note du devoir par élève (chaque exercice sur 10, soutien plafonné à 5${exos.some(ex=>dmEstBonus(ex))?' ; un exercice bonus ajoute jusqu\u2019à 1 point sans dépasser le maximum':''})${GENRE_DEVOIRS[dmGenre].sur20?' ; la note de la fiche est ramenée sur 20':''}. « Exercices faits » = nombre d'exercices commencés sur ${exos.length} ; un exercice commencé mais non terminé compte, « en cours », pour ce que l\u2019élève a déjà validé.</p>
       <table class="tbl"><thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead><tbody>${bilanRows}</tbody></table>
     </div>`;
     // 2) Détail par élève
     const cards=synth.map(x=>{
       const rows=x.exd.map(({ex,nd,bs,be})=>{
-        const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${mlbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
+        const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell ${r.enCours?'encours':'done'}">${mlbl} ${r.enCours?'en cours · '+r.faites+'/'+r.nbQ+' q · ':''}${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
         const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)}/10</span>`:`<span class="dm-note none">—/10</span>`;
         return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${nb}</span></div>`;
       }).join('');
@@ -54414,6 +54514,261 @@ function ctxRpd(q){
   return {nombre:'', contexte:c};
 }
 
+/* ===== EXERCICE : LE QUATRIÈME POINT D'UN PARALLÉLOGRAMME ======================
+   (identifiant « parallelogramme-point », kind « vec », thème 8.5 — Vecteurs)
+   Demandé par Turquet en octobre 2026, d'après la « Fiche 1 sur les
+   vecteurs » : un quadrillage, trois points A, B, C posés d'une croix, et
+   l'énoncé « ABDC est un parallélogramme » (exercice 1 de la fiche) ou
+   « ABCD est un parallélogramme » (exercice 2). Deux gestes, comme sur le
+   papier : a) compléter « le chemin qui va de … à … est le même que celui
+   qui va de C à D », b) construire D sur le quadrillage — ici, cliquer le
+   nœud où il se trouve.
+
+   LA FORME EST DANS LA QUESTION (q.forme, 'ABDC' ou 'ABCD'), et elle change
+   la réponse : dans ABDC les sommets se suivent A, B, D, C — D est en face
+   de A, le chemin de A à B est celui de C à D ; dans ABCD ils se suivent A,
+   B, C, D — D est en face de B, le chemin de B à A est celui de C à D. La
+   première moitié de la séance suit l'exercice 1 de la fiche (ABDC), la
+   seconde l'exercice 2 (ABCD).
+
+   ON RANGE LES TROIS POINTS, JAMAIS D : vecQuatrieme() le recalcule dans la
+   fonction qui corrige, et la phrase attendue sort de vecChemin(). Le tirage
+   refuse trois points alignés (pas de parallélogramme), un D hors du
+   quadrillage, et deux points à moins de deux carreaux l'un de l'autre —
+   leurs lettres se chevaucheraient.
+
+   LE QUADRILLAGE NE PEINT RIEN AU FIL DES CLICS : colorer le nœud posé dirait
+   s'il est juste avant même de vérifier (déclaré dans soutienEnDirect.sans,
+   comme {solutions-graphique}). Le soutien colore à la vérification — le nœud
+   juste en bleu et figé, le nœud faux en rouge à déplacer — sans jamais
+   montrer D. La correction finale trace le parallélogramme et les deux
+   chemins égaux en vert, et pose D en vert s'il manquait ou était faux.
+   La sélection vit dans la question (q.selD) : elle part avec la pause et
+   revient avec la reprise, comme les cibles de {solutions-graphique}. */
+const VEC_N=9;                       /* carreaux par côté : les nœuds vont de 0 à 9 */
+const VEC_CELL=34, VEC_PAD=20;       /* un carreau en unités SVG, et la marge autour — assez large pour la lettre d’un point posé sur un bord */
+/* D, jamais rangé : recalculé là où l'on corrige, d'après la forme. */
+function vecQuatrieme(q){
+  return q.forme==='ABDC'
+    ? [q.B[0]+q.C[0]-q.A[0], q.B[1]+q.C[1]-q.A[1]]
+    : [q.A[0]+q.C[0]-q.B[0], q.A[1]+q.C[1]-q.B[1]];
+}
+/* Le chemin que la phrase attend : « de A à B » (ABDC) ou « de B à A » (ABCD). */
+function vecChemin(q){ return q.forme==='ABDC' ? ['A','B'] : ['B','A']; }
+function vecLoin(P,Q){ return Math.max(Math.abs(P[0]-Q[0]),Math.abs(P[1]-Q[1]))>=2; }
+function vecGen(forme){
+  for(let essai=0;essai<500;essai++){
+    const A=[rand(0,VEC_N),rand(0,VEC_N)], B=[rand(0,VEC_N),rand(0,VEC_N)], C=[rand(0,VEC_N),rand(0,VEC_N)];
+    if(!vecLoin(A,B)||!vecLoin(A,C)||!vecLoin(B,C)) continue;
+    const det=(B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0]);
+    /* alignés (det nul) : pas de parallélogramme ; et une aire de moins de six
+       carreaux fait une figure trop plate pour qu'on y lise les quatre lettres */
+    if(Math.abs(det)<6) continue;
+    const q={forme:forme, A:A, B:B, C:C, selD:null};
+    const D=vecQuatrieme(q);
+    if(D[0]<0||D[0]>VEC_N||D[1]<0||D[1]>VEC_N) continue;
+    if(!vecLoin(D,A)||!vecLoin(D,B)||!vecLoin(D,C)) continue;
+    return q;
+  }
+  /* repli — jamais atteint en pratique : un parallélogramme valable dans les deux formes */
+  return {forme:forme, A:[2,2], B:[5,3], C:[3,6], selD:null};
+}
+function vecBuildQuestions(){
+  const n=dmNbQuestions(6), moitie=Math.ceil(n/2);
+  return distinctes(n, function(_, i){ return vecGen(i<moitie?'ABDC':'ABCD'); });
+}
+/* Les trois réponses d'une question — la convention de nommage que lit
+   dmPoidsQuestion() pour couper une séance de devoir sans fausser la note. */
+function vecCases(q){ return ['vec-s1','vec-s2','vec-pt']; }
+/* « 3 carreaux vers la droite puis 2 carreaux vers le haut » */
+function vecMots(dx,dy){
+  const n=v=>Math.abs(v)+(Math.abs(v)>1?' carreaux':' carreau');
+  const h=dx?n(dx)+(dx>0?' vers la droite':' vers la gauche'):'';
+  const v=dy?n(dy)+(dy>0?' vers le haut':' vers le bas'):'';
+  return h&&v ? h+' puis '+v : (h||v);
+}
+/* La lettre d'un point se pose en haut à droite de sa croix ; au bord droit
+   ou en haut du quadrillage, elle passe de l'autre côté pour rester lisible. */
+function vecEtiquette(i,j,L,cls){
+  const X=VEC_PAD+i*VEC_CELL, Y=VEC_PAD+(VEC_N-j)*VEC_CELL;
+  const droite=i<VEC_N, haut=j<VEC_N;
+  return `<text class="${cls}" x="${droite?X+7:X-7}" y="${haut?Y-7:Y+17}" text-anchor="${droite?'start':'end'}">${L}</text>`;
+}
+function vecCroix(i,j,L){
+  const X=VEC_PAD+i*VEC_CELL, Y=VEC_PAD+(VEC_N-j)*VEC_CELL;
+  return `<g class="vec-pt"><line x1="${X-5}" y1="${Y-5}" x2="${X+5}" y2="${Y+5}"/><line x1="${X-5}" y1="${Y+5}" x2="${X+5}" y2="${Y-5}"/></g>`+vecEtiquette(i,j,L,'vec-lbl');
+}
+/* Rendu du quadrillage : les carreaux, les trois croix, et une cible par nœud
+   libre — un disque de touche de 14 px à l'écran quelle que soit l'échelle
+   (la couche .vec-zone, même recette que {solutions-graphique}), puis la
+   cible elle-même, bouton au clavier. Le nœud choisi porte « D » en bleu. */
+function vecSVG(q){
+  const W=2*VEC_PAD+VEC_N*VEC_CELL;
+  const X=i=>VEC_PAD+i*VEC_CELL, Y=j=>VEC_PAD+(VEC_N-j)*VEC_CELL;
+  let g='';
+  for(let i=0;i<=VEC_N;i++){
+    g+=`<line x1="${X(i)}" y1="${Y(0)}" x2="${X(i)}" y2="${Y(VEC_N)}" class="vec-grid"/>`;
+    g+=`<line x1="${X(0)}" y1="${Y(i)}" x2="${X(VEC_N)}" y2="${Y(i)}" class="vec-grid"/>`;
+  }
+  g+=`<rect x="${X(0)}" y="${Y(VEC_N)}" width="${VEC_N*VEC_CELL}" height="${VEC_N*VEC_CELL}" class="vec-cadre"/>`;
+  const occupe={};
+  ['A','B','C'].forEach(function(L){ const P=q[L]; occupe[P[0]+','+P[1]]=L; g+=vecCroix(P[0],P[1],L); });
+  let zones='', cibles='';
+  for(let i=0;i<=VEC_N;i++) for(let j=0;j<=VEC_N;j++){
+    if(occupe[i+','+j]) continue;
+    const sel=(q.selD&&q.selD[0]===i&&q.selD[1]===j)?' sel':'';
+    zones+=`<path class="vec-zone" d="M${X(i)} ${Y(j)}h0.01" onclick="vecPose(${i},${j})"/>`;
+    cibles+=`<g class="vec-t${sel}" id="vecn-${i}-${j}" onclick="vecPose(${i},${j})" tabindex="0" role="button" aria-label="nœud ${i} vers la droite, ${j} vers le haut" aria-pressed="${sel?'true':'false'}">`
+      +`<circle class="hit" cx="${X(i)}" cy="${Y(j)}" r="10"/><circle class="dot" cx="${X(i)}" cy="${Y(j)}" r="5"/>${vecEtiquette(i,j,'D','vec-lbl vec-dlbl')}</g>`;
+  }
+  return `<svg viewBox="0 0 ${W} ${W}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg">`
+    +`<defs><marker id="vecArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--green)"/></marker></defs>`
+    +g+`<g id="vecCorr"></g><g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}</svg>`;
+}
+/* Poser D : un seul nœud à la fois — cliquer un autre nœud déplace D, cliquer
+   le nœud posé le retire. L'état vit dans la question (pause et reprise). */
+function vecPose(i,j){
+  if(test.locked||test.kind!=='vec'||test.vecFige) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  const el=$('vecn-'+i+'-'+j); if(!el||el.classList.contains('off')) return;
+  if(q.selD){ const av=$('vecn-'+q.selD[0]+'-'+q.selD[1]); if(av){ av.classList.remove('sel','badc'); av.setAttribute('aria-pressed','false'); } }
+  const meme=q.selD&&q.selD[0]===i&&q.selD[1]===j;
+  q.selD=meme?null:[i,j];
+  if(!meme){ el.classList.add('sel'); el.classList.remove('badc'); el.setAttribute('aria-pressed','true'); }
+  const pt=$('vec-pt'); if(pt) pt.classList.remove('ok','bad');
+  recoveryDirty=true;
+}
+/* LE JUGE — trois réponses, chacune jugée seule : les deux lettres de la
+   phrase, et le nœud posé, qui doit être exactement D. */
+function vecJuge(q){
+  const ch=vecChemin(q), D=vecQuatrieme(q);
+  const s1=$('vec-s1'), s2=$('vec-s2');
+  const v1=s1?String(s1.value||''):'', v2=s2?String(s2.value||''):'';
+  return [
+    {id:'vec-s1', el:s1, bon:ch[0], ok:v1===ch[0], vide:v1===''},
+    {id:'vec-s2', el:s2, bon:ch[1], ok:v2===ch[1], vide:v2===''},
+    {id:'vec-pt', el:null, bon:D, ok:!!(q.selD&&q.selD[0]===D[0]&&q.selD[1]===D[1]), vide:!q.selD}
+  ];
+}
+/* Soutien : les lettres justes en bleu et figées, les fausses en rouge à
+   corriger (corrChoix, sans badge en soutien) ; le nœud juste en bleu et
+   figé, le nœud faux en rouge à déplacer. Une réponse vide reste neutre. */
+function vecMarqueSoutien(q,subs){
+  subs.forEach(function(s){
+    if(s.el){ corrChoix(s.el, s.bon, s.ok); return; }
+    const pt=$('vec-pt'); if(pt){ pt.classList.remove('ok','bad'); if(!s.vide) pt.classList.add(s.ok?'ok':'bad'); }
+    if(!q.selD) return;
+    const el=$('vecn-'+q.selD[0]+'-'+q.selD[1]); if(!el) return;
+    if(s.ok){ el.classList.add('okc','off'); el.classList.remove('sel','badc'); test.vecFige=true; }
+    else el.classList.add('badc');
+  });
+}
+/* Correction finale : tout figer, bleu = juste, rouge = faux, vert = la bonne
+   réponse (la lettre à côté de la liste, D sur le quadrillage), et le
+   parallélogramme tracé avec ses deux chemins égaux. */
+function vecFinal(q,subs){
+  const D=vecQuatrieme(q), ch=vecChemin(q);
+  subs.forEach(function(s){ if(s.el) corrChoix(s.el, s.bon, s.ok); });
+  const pt=$('vec-pt'); if(pt){ pt.classList.remove('ok','bad'); pt.classList.add(subs[2].ok?'ok':(subs[2].vide?'sol':'bad')); }
+  document.querySelectorAll('#vecGraph .vec-t').forEach(function(el){ el.classList.add('off'); el.classList.remove('sel'); });
+  if(q.selD){ const el=$('vecn-'+q.selD[0]+'-'+q.selD[1]); if(el) el.classList.add(subs[2].ok?'okc':'badc'); }
+  if(!subs[2].ok){ const el=$('vecn-'+D[0]+'-'+D[1]); if(el) el.classList.add('missc'); }
+  const X=i=>VEC_PAD+i*VEC_CELL, Y=j=>VEC_PAD+(VEC_N-j)*VEC_CELL;
+  const P=L=>L==='D'?D:q[L];
+  const ordre=q.forme.split('');
+  const poly=ordre.map(function(L){ const p=P(L); return X(p[0])+','+Y(p[1]); }).join(' ');
+  /* la flèche s'arrête 7 px avant le nœud : sa pointe ne couvre pas la croix */
+  const fleche=function(U,V){ const u=P(U), v=P(V); const dx=X(v[0])-X(u[0]), dy=Y(v[1])-Y(u[1]), l=Math.hypot(dx,dy)||1;
+    return `<line class="vec-fl" x1="${X(u[0])}" y1="${Y(u[1])}" x2="${(X(v[0])-7*dx/l).toFixed(1)}" y2="${(Y(v[1])-7*dy/l).toFixed(1)}" marker-end="url(#vecArr)"/>`; };
+  const corr=$('vecCorr'); if(corr) corr.innerHTML=`<polygon class="vec-para" points="${poly}"/>`+fleche(ch[0],ch[1])+fleche('C','D');
+}
+/* Le pourquoi, sur les vraies fautes seulement : l'ordre des lettres pour la
+   phrase, le chemin compté en carreaux pour le point. */
+function vecPourquoi(q,subs){
+  const ch=vecChemin(q), parts=[];
+  const dx=q[ch[1]][0]-q[ch[0]][0], dy=q[ch[1]][1]-q[ch[0]][1];
+  if((!subs[0].ok&&!subs[0].vide)||(!subs[1].ok&&!subs[1].vide))
+    parts.push('Dans '+q.forme+', les sommets se suivent dans l’ordre des lettres : D est en face de '+(q.forme==='ABDC'?'A':'B')+', et le chemin qui va de '+ch[0]+' à '+ch[1]+' est le même que celui qui va de C à D.');
+  if(!subs[2].ok&&!subs[2].vide)
+    parts.push('De '+ch[0]+' à '+ch[1]+', on fait '+vecMots(dx,dy)+' ; on refait exactement ce chemin en partant de C, et on arrive sur D — en vert sur le quadrillage.');
+  return parts.join(' ');
+}
+function renderVec(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false; test.vecFige=false;
+  if(!Array.isArray(q.selD)||q.selD.length!==2) q.selD=null;
+  $('vecIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('vecModeTag').innerHTML=modeTagHTML();
+  $('vecInstr').innerHTML='<b>'+q.forme+'</b> est un parallélogramme. En utilisant le quadrillage, construis le point <b>D</b> tel que '+q.forme+' soit un parallélogramme.';
+  $('vecGraph').innerHTML=vecSVG(q);
+  const opts='<option value="" selected disabled>?</option>'+['A','B','C','D'].map(function(L){ return '<option value="'+L+'">'+L+'</option>'; }).join('');
+  $('vecBody').innerHTML=
+     '<div class="tvg-cons" id="vec-ph"><b>a)</b> '+q.forme+' est un parallélogramme signifie que : <span class="vec-phrase">le chemin qui va de '
+    +'<select class="plc-sel vec-sel" id="vec-s1" aria-label="le point de départ du chemin">'+opts+'</select> à '
+    +'<select class="plc-sel vec-sel" id="vec-s2" aria-label="le point d’arrivée du chemin">'+opts+'</select> est le même que celui qui va de <b>C</b> à <b>D</b>.</span></div>'
+    +'<div class="tvg-cons pts-case" id="vec-pt"><b>b)</b> Clique sur le quadrillage le nœud où se trouve le point <b>D</b>.</div>';
+  ['vec-s1','vec-s2'].forEach(function(id){ const el=$(id); if(!el) return;
+    el.addEventListener('change', function(){ recoveryDirty=true; clearTimeout(test.vecSave); test.vecSave=setTimeout(autoSave,1000); }); });
+  $('vecFeedback').textContent=''; $('vecFeedback').className='mp-feedback';
+  $('vecActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="vecValidate" type="button" onclick="checkVec()">Vérifier</button>';
+}
+function checkVec(){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const subs=vecJuge(q);
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  if(!allOk && isSoutien()){
+    vecMarqueSoutien(q,subs);
+    const vide=subs.some(function(s){ return s.vide; }), faux=subs.some(function(s){ return !s.ok&&!s.vide; });
+    $('vecFeedback').textContent=(faux?'Ce n’est pas encore ça. ':'')
+      +'Deux chemins opposés d’un parallélogramme sont les mêmes : compte le chemin choisi en carreaux — vers la droite ou la gauche, puis vers le haut ou le bas — et refais exactement le même en partant de C. Attention à l’ordre des lettres de '+q.forme+'. '
+      +(faux?'Corrige ce qui est en rouge':'Complète ta réponse')+(vide&&faux?', complète ce qui manque':'')+', puis revérifie.';
+    $('vecFeedback').className='mp-feedback bad';
+    $('vecActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="vecValidate" type="button" onclick="checkVec()">Revérifier</button>';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
+  const pourquoi=vecPourquoi(q,subs);
+  vecFinal(q,subs);
+  test.score+=nCorrect;
+  if(allOk){ $('vecFeedback').textContent=pick(['Parfait !','Très bien construit !','Excellent !','Exactement !']); $('vecFeedback').className='mp-feedback good'; }
+  else { $('vecFeedback').textContent=msgAvecVides(subs, pourquoi); $('vecFeedback').className='mp-feedback bad'; }
+  const D=vecQuatrieme(q), ch=vecChemin(q), coord=function(p){ return '('+p[0]+' ; '+p[1]+')'; };
+  test.answers.push({...(ptsExo()||{}), correct:allOk,
+    q:q.forme+' parallélogramme — A '+coord(q.A)+', B '+coord(q.B)+', C '+coord(q.C)+' — '+nCorrect+'/'+subs.length+' correct',
+    answer:'chemin de '+ch[0]+' à '+ch[1]+' — D '+coord(D),
+    given:'chemin de '+(subs[0].el&&subs[0].el.value||'?')+' à '+(subs[1].el&&subs[1].el.value||'?')+' — D '+(q.selD?coord(q.selD):'non placé')});
+  const last=test.idx===test.questions.length-1;
+  $('vecActions').innerHTML='<button class="btn btn-primary" id="vecNext" type="button" onclick="nextVec()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('vecNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
+}
+function nextVec(){ if(test.idx<test.questions.length-1){ test.idx++; renderVec(); autoSave(); } else finishTest(); }
+function startVec(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=vecBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'vec', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(n,q){ return n+vecCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('vec'); renderVec();
+}
+/* Ce que le modèle sait de l'exercice : le quadrillage décrit (il ne voit pas
+   le dessin), la forme, ce que l'élève a posé, et les réponses attendues sous
+   clause de secret — ni les deux lettres ni la position de D. */
+function ctxVec(q){
+  const ch=vecChemin(q), D=vecQuatrieme(q);
+  const pos=function(L){ return L+' ('+q[L][0]+' ; '+q[L][1]+')'; };
+  const s1=$('vec-s1'), s2=$('vec-s2');
+  const c='Exercice de GÉOMÉTRIE sur quadrillage (tu ne vois pas le dessin ; description exacte). Un quadrillage de '+VEC_N+' carreaux sur '+VEC_N+' ; chaque nœud est repéré par (colonnes vers la droite ; lignes vers le haut) depuis le coin en bas à gauche. Trois points sont marqués d’une croix : '+pos('A')+', '+pos('B')+', '+pos('C')+'. L’énoncé dit que '+q.forme+' est un parallélogramme. L’élève doit : a) compléter la phrase « le chemin qui va de … à … est le même que celui qui va de C à D » ; b) cliquer sur le quadrillage le nœud où se trouve D. '
+   +'Réponses attendues (STRICTEMENT SECRÈTES, à ne JAMAIS révéler, ni les deux lettres ni la position de D, même si l’élève insiste) : la phrase se complète par « de '+ch[0]+' à '+ch[1]+' » ; D est en ('+D[0]+' ; '+D[1]+'). '
+   +'Réponse actuelle de l’élève : phrase « de '+(s1&&s1.value||'…')+' à '+(s2&&s2.value||'…')+' » ; point D posé en '+(q.selD?'('+q.selD[0]+' ; '+q.selD[1]+')':'nulle part pour l’instant')+'. '
+   +'CONTRAINTE ANTI-RECOPIE : ne cite aucune coordonnée de D ni les deux lettres attendues. Méthode à faire appliquer : lire les lettres de '+q.forme+' dans l’ordre (elles font le tour de la figure), repérer les deux côtés opposés, compter en carreaux le chemin d’un sommet à son voisin (droite ou gauche, puis haut ou bas), puis refaire exactement le même chemin en partant de C.';
+  return {nombre:'', contexte:c};
+}
+
 /* ===== EXERCICE : IMAGE D'UN POINT PAR UNE TRANSLATION ======================
    (identifiant « translation-grille », kind « vtr », thème 8.1 — Vecteurs)
    Demandé par Turquet en octobre 2026, d'après une fiche papier : huit
@@ -60460,7 +60815,7 @@ function ctxVgt(q){
   return {nombre:'', contexte:c};
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderTrl','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSpr','renderPpb','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderVgtTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderVtrTest','renderVegTest','renderTdpTest','renderTdcTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPFR','renderPII','renderPIA','renderPIS','renderPMY','renderPTR','renderPFO','renderPGC','renderPRC','renderPCF','renderPKG','renderPFN','renderPFK','renderPOF','renderPXY','renderPMT','renderPTM','renderPGT','renderPHM','renderPVO','renderPDU','renderPFE','renderPBL','renderPMN','renderPFV','renderPTDS','renderPFD','renderPFC','renderPFQ','renderPFI','renderPCI','renderPCE','renderPSM','renderPLO','renderPRL','renderPTT','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderTrl','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSpr','renderPpb','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderVgtTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderVec','renderVtrTest','renderVegTest','renderTdpTest','renderTdcTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPFR','renderPII','renderPIA','renderPIS','renderPMY','renderPTR','renderPFO','renderPGC','renderPRC','renderPCF','renderPKG','renderPFN','renderPFK','renderPOF','renderPXY','renderPMT','renderPTM','renderPGT','renderPHM','renderPVO','renderPDU','renderPFE','renderPBL','renderPMN','renderPFV','renderPTDS','renderPFD','renderPFC','renderPFQ','renderPFI','renderPCI','renderPCE','renderPSM','renderPLO','renderPRL','renderPTT','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
