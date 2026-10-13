@@ -4347,6 +4347,7 @@ function exercices(suite){
     simplifierBarres(w, P);
     multiplierFractions(w, P);
     fractionsEtapes(w, P);
+    sommeProduitFractions(w, P);
     synthesePourcentage(w, P);
     synthesePourcentageMethode(w, P);
     syntheseLibrePourcentage(w, P);
@@ -7761,6 +7762,130 @@ function multiplierFractions(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---------- {somme-produit-fractions} de la Première (4.6) ------------------
+   Le 5.12 de la Seconde, porté en octobre 2026. Demande de Turquet : « les
+   nombres doivent être entre 1 et 5, les fractions au départ sont
+   irréductibles, dans les fractions intermédiaires les nombres ne peuvent pas
+   dépasser 6 et sont positifs ; si on peut simplifier la fraction à la fin,
+   présenter comme dans le 4.1 ». La borne 6 porte sur le PRODUIT (précisé
+   par Turquet : le croisement la dépasse par construction). Déclaré par le
+   profil (sommeProduit) ; la Seconde, qui garde son exercice, s'y affiche
+   « non applicable ».
+   ① LE TIRAGE, deux cents séances par le démarreur RÉEL : chaque nombre de
+     départ de 1 à la borne (et la borne atteinte), trois fractions de départ
+     irréductibles, le produit recalculé ici, ses deux nombres de 1 à 6, tout
+     positif ; un résultat qui se simplifie doit SORTIR, et un qui ne se
+     simplifie pas aussi — sans quoi l'un des deux chemins n'est jamais exercé.
+   ② LA CHAÎNE, par de vrais évènements « input » : 1/2 + 1/2 × 3/2 =
+     1/2 + 3/4 = 4/8 + 6/8 = 10/8 = 5/4 montre sa chaîne d'emblée et vaut le
+     point ; écrire 5/4 au lieu de 10/8 ne le vaut pas ; un diviseur laissé
+     vide ne rougit pas et reçoit la correction ; un diviseur faux rougit et
+     le message nomme la simplification ; 2/3 + 1/2 × 3/2 = 17/12 n'a pas de
+     chaîne et accepte toute fraction égale ; la reprise redessine l'étape. */
+function sommeProduitFractions(w, P){
+  const R = P.sommeProduit;
+  const nom = '{somme-produit-fractions} : nombres de 1 à ' + (R ? R.max : '?') + ', produit borné à ' + (R ? R.inter : '?') + ', et la simplification par étapes';
+  if(!R){
+    ignorer('{somme-produit-fractions} : nombres bornés, produit borné, et la simplification par étapes',
+      'ce niveau garde le 5.12 tel quel');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], MAX=${R.max}, INTER=${R.inter}, id='somme-produit-fractions';
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    if(!TESTS[id] || !TEST_NUM[id]) return id+' : absent du menu';
+
+    /* ---- ① le tirage ------------------------------------------------------ */
+    let vuMax=false, red=0, irr=0, faute='';
+    for(let t=0;t<200 && !faute;t++){
+      currentTestId=id; TESTS[id].start();
+      if(test.qId!==id){ faute='la note part sous « '+test.qId+' »'; break; }
+      if(!test.etapes){ faute='le démarreur ne pose pas la simplification par étapes'; break; }
+      (test.questions||[]).forEach(function(q){
+        if(faute) return;
+        const eti=q.a+'/'+q.b+' + '+q.c+'/'+q.d+' × '+q.e+'/'+q.f;
+        const dep=[q.a,q.b,q.c,q.d,q.e,q.f];
+        if(dep.some(function(x){ return !(x>=1 && x<=MAX); })){ faute=eti+' : un nombre de départ sort de 1 à '+MAX; return; }
+        if(dep.indexOf(MAX)>=0) vuMax=true;
+        if(pgcd(q.a,q.b)!==1 || pgcd(q.c,q.d)!==1 || pgcd(q.e,q.f)!==1){ faute=eti+' : une fraction de départ est réductible'; return; }
+        const P1=q.c*q.e, Q1=q.d*q.f;
+        if(P1!==q.P1 || Q1!==q.Q1){ faute=eti+' : le produit rangé '+q.P1+'/'+q.Q1+' ne suit pas le calcul '+P1+'/'+Q1; return; }
+        if(!(P1>=1 && P1<=INTER && Q1>=1 && Q1<=INTER)){ faute=eti+' : le produit '+P1+'/'+Q1+' dépasse '+INTER; return; }
+        const N=q.a*Q1+P1*q.b, D=q.b*Q1;
+        if(N!==q.N || D!==q.D){ faute=eti+' : la somme rangée '+q.N+'/'+q.D+' ne suit pas le calcul '+N+'/'+D; return; }
+        if(!(N>0 && D>0)){ faute=eti+' : un résultat est négatif ou nul'; return; }
+        if(N%D===0){ faute=eti+' : le résultat est un entier'; return; }
+        if(pgcd(N,D)>1) red++; else irr++;
+      });
+    }
+    if(faute) return id+' : '+faute;
+    if(!vuMax) vus.push('aucun nombre de départ ne vaut jamais '+MAX+' en 200 séances');
+    if(!red) vus.push('aucun résultat ne se simplifie en 200 séances : la chaîne n’est jamais exercée');
+    if(!irr) vus.push('tous les résultats se simplifient : le chemin sans chaîne n’est jamais exercé');
+
+    const $$=function(i){ return document.getElementById(i); };
+    const tape=function(i,v){ const el=$$(i); if(!el){ vus.push('pas de case '+i); return; } el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
+    const peint=function(i){ const el=$$(i); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const der=function(){ return test.answers[test.answers.length-1]; };
+
+    /* ---- ② la chaîne -------------------------------------------------------- */
+    currentTestId=id; TESTS[id].start();
+    const Q1={a:1,b:2,c:1,d:2,e:3,f:2,P1:3,Q1:4,N:10,D:8};
+    const pose=function(q){ test.questions=[Object.assign({},q)]; test.idx=0; test.locked=false; renderSpfTest(); };
+    const debut=function(q){
+      [['spf-h1',q.c],['spf-h2',q.e],['spf-b1',q.d],['spf-b2',q.f],['spf-pn',q.P1],['spf-pd',q.Q1],
+       ['spf-x-a1',q.Q1],['spf-x-b1',q.Q1],['spf-x-a2',q.b],['spf-x-b2',q.b],
+       ['spf-x-n1',q.a*q.Q1],['spf-x-n2',q.P1*q.b],['spf-x-d',q.b*q.Q1]].forEach(function(p){ tape(p[0],p[1]); });
+    };
+    pose(Q1);
+    if(!$$('spf-e0-dn')) vus.push('10/8 se simplifie, et aucune étape n’est posée d’emblée');
+    if($$('spf-e1-dn')) vus.push('10/8 n’a besoin que d’une étape au départ');
+    const lab=document.querySelector('#spfHost .pt-lab');
+    if(!lab || !/simplifier/.test(lab.textContent)) vus.push('aucun libellé n’annonce la simplification');
+    debut(Q1); tape('spf-x-rn',10); tape('spf-x-rd',8);
+    if(($$('spf-e0-an')||{}).textContent!=='10' || ($$('spf-e0-ad')||{}).textContent!=='8') vus.push('les nombres divisés ne recopient pas 10/8');
+    tape('spf-e0-dn',2);
+    if(($$('spf-e0-dd')||{}).value!=='2') vus.push('le diviseur écrit en haut ne se recopie pas en bas');
+    tape('spf-e0-n',5); tape('spf-e0-d',4);
+    checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('1/2 + 1/2 × 3/2 = … = 10/8 = 5/4 est compté faux');
+    else if(!/5 4$/.test(der().given)) vus.push('la réponse enregistrée ne finit pas par la fraction simplifiée : '+der().given);
+    /* la fraction simplifiée d'emblée ne suffit pas : la ligne demande le calcul tel quel */
+    pose(Q1); debut(Q1); tape('spf-x-rn',5); tape('spf-x-rd',4);
+    checkSpfAnswer();
+    if(der() && der().correct) vus.push('écrire 5/4 au lieu de 10/8 est compté juste — la chaîne n’a plus d’objet');
+    if(peint('spf-e0-dn')==='faux') vus.push('un diviseur laissé vide rougit');
+    /* le diviseur vide reçoit la correction */
+    pose(Q1); debut(Q1); tape('spf-x-rn',10); tape('spf-x-rd',8);
+    checkSpfAnswer();
+    if(der() && der().correct) vus.push('la simplification laissée vide vaut le point');
+    if(peint('spf-e0-dn')!=='correction') vus.push('le diviseur laissé vide ne reçoit pas la correction ('+peint('spf-e0-dn')+')');
+    /* un diviseur faux */
+    pose(Q1); debut(Q1); tape('spf-x-rn',10); tape('spf-x-rd',8); tape('spf-e0-dn',3); tape('spf-e0-n',3); tape('spf-e0-d',3);
+    checkSpfAnswer();
+    if(der() && der().correct) vus.push('le diviseur 3 de 10/8 est compté juste');
+    if(peint('spf-e0-dn')!=='faux') vus.push('le diviseur 3 est peint '+peint('spf-e0-dn'));
+    if(!/simplifie/.test(($$('spfFeedback')||{}).textContent||'')) vus.push('le message ne nomme pas la simplification : « '+(($$('spfFeedback')||{}).textContent||'')+' »');
+    /* sans chaîne : 2/3 + 1/2 × 3/2 = 8/12 + 9/12 = 17/12 ; pour la reprise, 1/4 + 1/2 × 5/3 = 26/24 */
+    const Q2={a:1,b:4,c:1,d:2,e:5,f:3,P1:5,Q1:6,N:26,D:24};
+    const Q3={a:2,b:3,c:1,d:2,e:3,f:2,P1:3,Q1:4,N:17,D:12};
+    pose(Q3);
+    if($$('spf-e0-dn')) vus.push('17/12 est irréductible, et une simplification est demandée');
+    debut(Q3); tape('spf-x-rn',34); tape('spf-x-rd',24);
+    checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('2/3 + 1/2 × 3/2 : une fraction égale (34/24) à 17/12 irréductible est comptée fausse');
+    /* la reprise */
+    pose(Q2); debut(Q2); tape('spf-x-rn',26); tape('spf-x-rd',24); tape('spf-e0-dn',2);
+    const qr=test.questions[0];
+    renderSpfTest();
+    if(!$$('spf-e0-dn') || ($$('spf-e0-dd')||{}).value===undefined) vus.push('après un redessin (reprise), l’étape a disparu');
+    if(qr.sbrut!=='26/24' || !qr.sdiv || qr.sdiv[0]!=='2') vus.push('rangé dans la question : '+qr.sbrut+' '+JSON.stringify(qr.sdiv));
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 /* ---------- Le thème 4 « Fractions » de la Première : 4.2 à 4.5 ------------
    Demande de Turquet (octobre 2026) : « mettre les exercices de seconde 5.2 ;
    5.3 ; 5.6 ; 5.8 dans le thème fraction de première ; tous les nombres au
@@ -26048,15 +26173,17 @@ function pythonForOuiNon(w, P){
    multiples de 5 de 0 à 50 (juge : la console, exécutée). Le contrôle tient la
    place au menu, la séance, les juges du c) (comparés à un vrai CPython quand
    il est là), l'écran tenu aux consignes du sous-thème Input (dessin d'abord,
-   aucune définition ni coup de pouce, consoles vides), le trajet a) → b) → c)
-   et ses portes, les verdicts dans les deux modes, et la note à deux cases. */
+   aucune définition ni coup de pouce, consoles vides), TOUT l'exercice sur
+   une seule page (a), b) et c) dès l'ouverture, un seul « Vérifier » —
+   demande de Turquet, octobre 2026), les verdicts case par case dans les deux
+   modes, et la note à deux cases. */
 function pythonForMultiples(w, P){
   const nom = '{python-for-multiples} : les multiples avec une boucle for';
   if(!P.pythonForMultiples){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la boucle for'); return; }
   const ID = P.pythonForMultiples.exercice, NB = P.pythonForMultiples.nb, NUM = P.pythonForMultiples.numero;
-  const present = evaluer(w, "typeof startPFQ==='function' && typeof pfqBuildQuestions==='function' && typeof pfqDiag==='function' && typeof pfqVerdictB==='function'");
+  const present = evaluer(w, "typeof startPFQ==='function' && typeof pfqBuildQuestions==='function' && typeof pfqDiag==='function' && typeof pfqVerdict==='function'");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'startPFQ / pfqBuildQuestions / pfqDiag / pfqVerdictB introuvables alors que tests/profils.js déclare l\'exercice'); return;
+    verifier(nom, false, 'startPFQ / pfqBuildQuestions / pfqDiag / pfqVerdict introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
   /* ---- 1. la place au menu ---- */
@@ -26084,7 +26211,7 @@ function pythonForMultiples(w, P){
       const S0=pfqSit(qs[0]);
       if(S0.n!==11||S0.a!==2||S0.m!==5||S0.f!==50){ vus.push("la fiche n’ouvre pas la séance"); break; }
       if(new Set(qs.map(function(q){ return q.s; })).size!==qs.length){ vus.push("deux fois la même situation"); break; }
-      if(qs.some(function(q){ return q.vu!==false||q.bOk!==null||q.cOk!==null||q.etape!=="b"; })){ vus.push("une question ne part pas du a)"); break; }
+      if(qs.some(function(q){ return q.vu!==false||q.bOk!==null||q.cOk!==null||q.etape!==undefined; })){ vus.push("une question ne part pas d’une page vierge"); break; }
     }
     PFQ_SITUATIONS.forEach(function(S, i){
       const q={s:i}, x=ptrEssai(pfqProg(q));
@@ -26118,8 +26245,8 @@ function pythonForMultiples(w, P){
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input ---- */
-  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni coup de pouce ; le a) seul, en gras dans son cadre, la console VIDE, « Vérifier » fermé ; « Exécuter » remplit la console et ouvre le b) sous le a) ; l’explication vide ne part pas, l’explication part au modèle avec la règle de décision', `(function(){
+  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input — tout sur une seule page ---- */
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni coup de pouce ; a), b) et c) sur la même page dès l’ouverture, chacun en gras dans son cadre, consoles et cellules VIDES, un seul « Vérifier » actif ; « Exécuter » remplit la console sans rien ouvrir ni fermer ; une case vide ne part pas et ne rougit pas ; l’explication part au modèle avec la règle de décision', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPFQ();
     const vus=[], NL=String.fromCharCode(10);
@@ -26133,25 +26260,33 @@ function pythonForMultiples(w, P){
     if(!document.querySelector("#pfqEtapeA .py-code")||document.querySelector("#pfqEtapeA .py-code").textContent!=="for k in range ( 11 ):"+NL+"    print (2*k)") vus.push("le programme du a) n’est pas celui de la fiche");
     const cons=document.getElementById("pfqConsole");
     if(!cons||cons.textContent!==""||!document.getElementById("pfqEtapeA").contains(cons)) vus.push("la console n’est pas un cadre vide dans le a)");
-    if(document.getElementById("pfqEtapeB")||document.getElementById("pfqEtapeC")) vus.push("le b) ou le c) est ouvert avant l’exécution");
-    const v0=document.getElementById("pfqValidate"); if(!v0||!v0.disabled) vus.push("Vérifier est actif avant l’exécution");
+    const tb=document.querySelector("#pfqEtapeB .pyn-titre");
+    if(!tb||tb.textContent.trim()!=="✏️ b) Expliquer ce que fait ce programme.") vus.push("le b) n’est pas sur la page dès l’ouverture : "+(tb&&tb.textContent));
+    const am=document.querySelector("#pfqEtapeB .pfq-amorce");
+    if(!am||!/^Votre réponse ✍️/.test(am.textContent)) vus.push("pas de « Votre réponse ✍️ »");
+    const tc0=document.querySelector("#pfqEtapeC .pyn-titre");
+    if(!tc0||!/c\\) Faire un programme dans la cellule ci-dessous qui affiche tous les multiples de 5 de 0 à 50\\./.test(tc0.textContent)) vus.push("le c) n’est pas sur la page dès l’ouverture : "+(tc0&&tc0.textContent));
+    const tc=document.getElementById("pfq-prog");
+    if(!tc||tc.value!==""||tc.getAttribute("placeholder")) vus.push("la cellule du c) n’est pas vide, ou porte un texte d’attente");
+    if(!document.getElementById("pfqConsoleC")||document.getElementById("pfqConsoleC").textContent!=="") vus.push("la console du c) n’est pas vide");
+    if(document.querySelectorAll("#pfqActions button.btn-primary").length!==1) vus.push("il n’y a pas UN seul bouton de vérification");
+    const v0=document.getElementById("pfqValidate"); if(!v0||v0.disabled) vus.push("Vérifier n’est pas actif dès l’ouverture");
+    const ta=document.getElementById("pfq-exp");
+    if(!ta||!ta.classList.contains("pts-case")) vus.push("l’explication n’est pas une pts-case");
     pfqExecuter();
     const att=[]; for(let k=0;k<=10;k++) att.push(String(2*k));
     if(document.getElementById("pfqConsole").textContent!==att.join(NL)) vus.push("la console : "+JSON.stringify(document.getElementById("pfqConsole").textContent));
-    if(!document.getElementById("pfqEtapeA")||document.getElementById("pfqRun")) vus.push("le a) a disparu, ou garde son bouton");
-    const tb=document.querySelector("#pfqEtapeB .pyn-titre");
-    if(!tb||tb.textContent.trim()!=="✏️ b) Expliquer ce que fait ce programme.") vus.push("l’énoncé du b) : "+(tb&&tb.textContent));
-    const am=document.querySelector("#pfqEtapeB .pfq-amorce");
-    if(!am||!/^Votre réponse ✍️/.test(am.textContent)) vus.push("pas de « Votre réponse ✍️ »");
-    if(document.getElementById("pfqEtapeC")) vus.push("le c) est ouvert avant le b)");
-    const ta=document.getElementById("pfq-exp");
-    if(!ta||!ta.classList.contains("pts-case")) vus.push("l’explication n’est pas une pts-case");
+    if(document.getElementById("pfqRun")) vus.push("le bouton du a) reste après l’exécution");
+    if(document.getElementById("pfq-exp")!==ta||document.getElementById("pfq-prog")!==tc) vus.push("l’exécution redessine les cellules (ce qui est écrit serait perdu)");
     const sbAvant=sb; let envoye=null;
     sb={functions:{invoke:function(n,o){ envoye=o&&o.body; return new Promise(function(){}); }}};
     checkPFQ();
-    if(envoye||ta.classList.contains("bad")||test.pfqBusy) vus.push("l’explication vide part ou rougit");
-    ta.value="il affiche les nombres pairs de 0 à 20";
-    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(envoye||ta.classList.contains("bad")||tc.classList.contains("bad")||test.pfqBusy) vus.push("deux cases vides partent ou rougissent");
+    ta.value="il affiche les nombres pairs de 0 à 20"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPFQ();
+    if(envoye||tc.classList.contains("bad")||ta.classList.contains("bad")||test.pfqBusy) vus.push("le c) vide : l’explication part quand même, ou une case rougit");
+    if(!/c\\)/.test(document.getElementById("pfqFeedback").textContent)) vus.push("le c) vide n’est pas redemandé : "+document.getElementById("pfqFeedback").textContent);
+    tc.value="for k in range ( 11 ):"+NL+"    print (5*k)"; tc.dispatchEvent(new Event("input",{bubbles:true}));
     checkPFQ();
     sb=sbAvant;
     if(!envoye||envoye.action!=="verif"||envoye.reponse!==ta.value||!/RÈGLE DE DÉCISION/.test(envoye.attendu)||!/range \\( 11 \\)/.test(envoye.question)) vus.push("ce qui part au modèle : "+JSON.stringify(envoye));
@@ -26159,73 +26294,81 @@ function pythonForMultiples(w, P){
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 5. le trajet b) → c), la note ---- */
-  verifierEval(w, 'le trajet : le b) juste se peint en bleu et ouvre « Passer au c) » ; le c) vide est redemandé sans rougir ; le c) juste vaut sa case ; la note compte 2 cases sur 2 ; la question suivante repart du a)', `(function(){
+  /* ---- 5. un seul « Vérifier », la note ---- */
+  verifierEval(w, 'un seul « Vérifier » : le b) et le c) justes se peignent en bleu ensemble ; la note compte 2 cases sur 2 ; la question suivante repart d’une page vierge', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
-    startPFQ(); pfqExecuter();
-    const vus=[], NL=String.fromCharCode(10), ta=document.getElementById("pfq-exp");
+    startPFQ();
+    const vus=[], NL=String.fromCharCode(10), ta=document.getElementById("pfq-exp"), tc=document.getElementById("pfq-prog");
     ta.value="les multiples de 2"; ta.dispatchEvent(new Event("input",{bubbles:true}));
-    pfqVerdictB({correct:true, feedback:"Bravo"}, ta.value);
-    if(!ta.classList.contains("ok")||!ta.readOnly||test.score!==1) vus.push("le b) juste : "+ta.className+", note "+test.score);
-    if(document.getElementById("pfqFeedback").className.indexOf("good")<0) vus.push("le commentaire juste n’est pas vert");
-    if(!document.getElementById("pfqSuite")) vus.push("pas de « Passer au c) »");
-    pfqVersC();
-    const tc0=document.querySelector("#pfqEtapeC .pyn-titre");
-    if(!tc0||!/c\\) Faire un programme dans la cellule ci-dessous qui affiche tous les multiples de 5 de 0 à 50\\./.test(tc0.textContent)) vus.push("l’énoncé du c) : "+(tc0&&tc0.textContent));
-    if(!document.getElementById("pfqEtapeA")||!document.getElementById("pfqEtapeB")||!document.getElementById("pfq-exp").classList.contains("ok")) vus.push("le a) et le b) ne restent pas au-dessus, peints");
-    const tc=document.getElementById("pfq-prog");
-    if(!tc||tc.value!==""||tc.getAttribute("placeholder")) vus.push("la cellule du c) n’est pas vide, ou porte un texte d’attente");
-    if(document.getElementById("pfqConsoleC").textContent!=="") vus.push("la console du c) n’est pas vide");
-    checkPFQ();
-    if(tc.classList.contains("bad")||test.locked) vus.push("la cellule vide rougit ou verrouille");
     tc.value="for k in range ( 11 ):"+NL+"    print (5*k)"; tc.dispatchEvent(new Event("input",{bubbles:true}));
     pfqExecuterC();
     if(document.getElementById("pfqConsoleC").textContent.split(NL).length!==11) vus.push("la console du c) : "+document.getElementById("pfqConsoleC").textContent);
-    checkPFQ();
-    if(!tc.classList.contains("ok")||test.score!==2||!test.locked) vus.push("le c) juste : "+tc.className+", note "+test.score);
+    pfqVerdict({correct:true, feedback:"Bravo"});
+    if(!ta.classList.contains("ok")||!ta.readOnly) vus.push("le b) juste : "+ta.className);
+    if(!tc.classList.contains("ok")||!tc.readOnly) vus.push("le c) juste : "+tc.className);
+    if(test.score!==2||!test.locked) vus.push("note "+test.score+", verrou "+test.locked);
+    const fb=document.getElementById("pfqFeedback");
+    if(fb.className.indexOf("good")<0||!fb.querySelector(".fb-ok")) vus.push("le commentaire juste n’est pas vert");
     const ans=test.answers[test.answers.length-1];
     if(!ans||ans.cases!==2||ans.justes!==2||!ans.correct) vus.push("la note ne compte pas 2 cases justes : "+JSON.stringify(ans));
+    if(!document.getElementById("pfqNext")) vus.push("pas de « Question suivante »");
     nextPFQ();
-    if(test.idx!==1||document.getElementById("pfq-exp")||document.getElementById("pfqConsole").textContent!=="") vus.push("la question suivante ne repart pas du a)");
+    if(test.idx!==1||document.getElementById("pfq-exp").value!==""||document.getElementById("pfq-prog").value!==""||document.getElementById("pfqConsole").textContent!==""||!document.getElementById("pfqRun")) vus.push("la question suivante ne repart pas d’une page vierge");
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 6. le faux, le soutien, la reprise ---- */
-  verifierEval(w, 'le faux : en entraînement le b) et le c) faux rougissent et la correction s’écrit en vert ; en soutien ils rougissent sans rien révéler et restent ouverts ; une vérification indisponible ne juge rien ; la reprise redessine l’étape', `(function(){
+  /* ---- 6. le faux, case par case, le soutien, la reprise ---- */
+  verifierEval(w, 'le faux : chaque case reçoit son verdict (une case juste ne rougit pas à cause de l’autre) ; en entraînement la case fausse rougit et sa correction s’écrit en vert ; en soutien la juste se fige en bleu, la fausse rougit sans rien révéler et reste ouverte ; une vérification indisponible ne juge rien ; la reprise redessine la question', `(function(){
     const vus=[], NL=String.fromCharCode(10);
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
-    startPFQ(); pfqExecuter();
-    let ta=document.getElementById("pfq-exp"); ta.value="il fait une boucle";
-    pfqVerdictB(null, ta.value);
-    if(test.questions[0].bOk!==null||ta.classList.contains("bad")) vus.push("vérification indisponible : le b) est jugé");
-    pfqVerdictB({correct:false, feedback:"Pas encore"}, ta.value);
+    startPFQ();
+    let ta=document.getElementById("pfq-exp"), tc=document.getElementById("pfq-prog");
+    ta.value="il fait une boucle"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    tc.value="for k in range(10):"+NL+"    print(5*k)"; tc.dispatchEvent(new Event("input",{bubbles:true}));
+    pfqVerdict(null);
+    if(test.questions[0].bOk!==null||test.questions[0].cOk!==null||ta.classList.contains("bad")||tc.classList.contains("bad")) vus.push("vérification indisponible : une case est jugée");
+    pfqVerdict({correct:false, feedback:"Pas encore"});
     if(!ta.classList.contains("bad")||!ta.readOnly) vus.push("le b) faux ne rougit pas");
     const mb=document.querySelector("#pfqModeleB .sol");
     if(!mb||!/multiples de 2 de 0 à 20/.test(mb.textContent)) vus.push("pas d’explication verte");
-    if(test.score!==0) vus.push("le faux compte");
-    pfqVersC();
-    let tc=document.getElementById("pfq-prog"); tc.value="for k in range(10):"+NL+"    print(5*k)";
-    checkPFQ();
     if(!tc.classList.contains("bad")||!test.locked) vus.push("le c) faux ne rougit pas");
     const mc=document.querySelector("#pfqModeleC .sol");
     if(!mc||mc.textContent!=="for k in range ( 11 ):"+NL+"    print (5*k)") vus.push("pas de programme vert");
     if(!/il manque 50/.test(document.getElementById("pfqFeedback").textContent)) vus.push("l’erreur n’est pas nommée");
-    const ans=test.answers[test.answers.length-1];
+    if(test.score!==0) vus.push("le faux compte");
+    let ans=test.answers[test.answers.length-1];
     if(!ans||ans.cases!==2||ans.justes!==0||ans.correct) vus.push("la note du faux : "+JSON.stringify(ans));
     /* la reprise : la question est rangée en JSON, et se redessine telle quelle */
     const sauve=JSON.parse(JSON.stringify(test.questions[0]));
     test.questions[0]=sauve; renderPFQ();
     if(!document.getElementById("pfq-exp").classList.contains("bad")||!document.getElementById("pfq-prog").classList.contains("bad")||!document.getElementById("pfqNext")) vus.push("la reprise ne redessine pas la question finie");
-    currentMode="soutien"; startPFQ(); pfqExecuter(); ta=document.getElementById("pfq-exp"); ta.value="il fait une boucle";
-    pfqVerdictB({correct:false, feedback:"Pas encore"}, ta.value);
+    /* b) juste, c) faux : la juste reste bleue */
+    startPFQ(); ta=document.getElementById("pfq-exp"); tc=document.getElementById("pfq-prog");
+    ta.value="les multiples de 2"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    tc.value="for k in range(10):"+NL+"    print(5*k)"; tc.dispatchEvent(new Event("input",{bubbles:true}));
+    pfqVerdict({correct:true, feedback:"Bravo"});
+    if(!ta.classList.contains("ok")||ta.classList.contains("bad")||!tc.classList.contains("bad")||test.score!==1) vus.push("b) juste, c) faux : "+ta.className+" / "+tc.className+", note "+test.score);
+    ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==2||ans.justes!==1||ans.correct) vus.push("la note b) juste, c) faux : "+JSON.stringify(ans));
+    /* soutien */
+    currentMode="soutien"; startPFQ(); ta=document.getElementById("pfq-exp"); tc=document.getElementById("pfq-prog");
+    ta.value="il fait une boucle"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    tc.value="for k in range ( 11 ):"+NL+"    print (5*k)"; tc.dispatchEvent(new Event("input",{bubbles:true}));
+    pfqVerdict({correct:false, feedback:"Pas encore"});
     if(!ta.classList.contains("bad")||ta.readOnly||test.questions[0].bOk!==null) vus.push("soutien : le b) faux ne rougit pas, ou se fige");
     if(document.querySelector("#pfqModeleB .sol")) vus.push("soutien : l’explication est révélée");
+    if(!tc.classList.contains("ok")||!tc.readOnly||test.questions[0].cOk!==true||test.score!==1) vus.push("soutien : le c) juste ne se fige pas en bleu à côté d’un b) faux");
+    if(test.locked||!document.getElementById("pfqValidate")) vus.push("soutien : la question se ferme avec un b) faux");
     ta.value="les multiples de 2"; ta.dispatchEvent(new Event("input",{bubbles:true}));
     if(ta.classList.contains("bad")) vus.push("soutien : retaper ne retire pas le rouge");
-    pfqVerdictB({correct:true, feedback:"Bravo"}, ta.value); pfqVersC();
-    tc=document.getElementById("pfq-prog"); tc.value="for k in range(1,11):"+NL+"    print(5*k)";
-    checkPFQ();
-    if(!tc.classList.contains("bad")||test.locked||document.querySelector("#pfqModeleC .sol")) vus.push("soutien : le c) faux se fige ou se révèle");
+    pfqVerdict({correct:true, feedback:"Bravo"});
+    if(!ta.classList.contains("ok")||!tc.classList.contains("ok")||test.score!==2||!test.locked) vus.push("soutien : le b) corrigé ne ferme pas la question : note "+test.score);
+    startPFQ(); ta=document.getElementById("pfq-exp"); tc=document.getElementById("pfq-prog");
+    ta.value="les multiples de 2"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    tc.value="for k in range(1,11):"+NL+"    print(5*k)"; tc.dispatchEvent(new Event("input",{bubbles:true}));
+    pfqVerdict({correct:true, feedback:"Bravo"});
+    if(!tc.classList.contains("bad")||tc.readOnly||test.locked||document.querySelector("#pfqModeleC .sol")) vus.push("soutien : le c) faux se fige ou se révèle");
+    if(!ta.classList.contains("ok")) vus.push("soutien : le b) juste rougit à cause du c)");
     if(!/STRICTEMENT SECRÈTES/.test(ctxPfq(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
     currentMode="train";
     return vus.slice(0,5).join(" | ");
