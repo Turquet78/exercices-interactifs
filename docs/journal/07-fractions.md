@@ -1596,3 +1596,85 @@ parce qu'un sélecteur trop large (`#sfHost` nu) réduirait le 4.2 sans que
 le premier bord ne bouge — c'est le second qui l'attraperait. Éprouvé par
 sabotage : la ligne `data-exo` retirée de `show()`, le 4.3 garde ses
 grandes cases et le contrôle rougit sur lui seul.
+
+**Puis le thème 4 de la Première s'est écrit d'UNE SEULE ENCRE (octobre
+2026, Première v312).** Demande de Turquet : « en première je veux que pour
+tous les exercices dans le thème fraction, les nombres aient la même taille
+et la même police, de l'énoncé jusqu'à la fin de l'exercice, et pour les
+cases à remplir aussi ». Trois écritures se croisaient sur le même écran,
+chacune héritée d'une décision prise dans son coin : l'énoncé écrivait ses
+fractions en Fredoka à 1,33 rem (`.sf-f` à 0,92 em d'un `.f-frac` à 1,45)
+entre des mots en Nunito ; la rangée en Fredoka à 2 rem (4.1, 4.2) ou
+1,45 rem (4.3 à 4.6, les « cases réduites » de la veille) ; les cases
+MathLive en Nunito GRAS — la règle `.ML__cmr` que `FIELD_FIX_CSS` injecte
+dans chaque case, pour tout le niveau ; la feuille de la question rédigée à
+2 rem ; le badge de correction à 0,95 rem.
+
+* **Une police, une graisse, une taille, déclarées UNE fois** sur l'écran du
+  thème (`.screen[data-theme="Fractions"]`, bloc « UNE SEULE ENCRE ») :
+  Fredoka 600 — la police des nombres de tout le niveau — à 1,45 rem, la
+  mesure des cases réduites, qui gagne le 4.1 et le 4.2 au passage. Tout ce
+  qui porte un nombre ou un signe du calcul la lit : `.f-frac` et `.sf-f`
+  (l'énoncé comme la rangée), `.f-whole`, `.f-eq`, `.f-times`, le `<b>`
+  qui suit une fraction dans l'énoncé (le signe, jamais un mot — le 4.1 a
+  des `<b>` de texte, sans fraction devant), les `<input>` du 4.1, les
+  `math-field`, le badge `.mf-cor`, le préfixe « = » et le champ de la
+  feuille rédigée. Les deux sortes de cases ont la même hauteur, bord
+  compris (`--fx-case`, 42 px : la hauteur naturelle d'un champ MathLive à
+  cette taille, donnée aux `<input>`).
+* **La police ENTRE dans les cases par une variable.** Une règle de la page
+  ne traverse pas le shadow DOM de MathLive ; une propriété personnalisée,
+  si. `FIELD_FIX_CSS` écrit désormais
+  `.ML__cmr{font-family:var(--mf-police, Nunito…);font-weight:var(--mf-graisse,700)}` :
+  le thème pose `--mf-police`/`--mf-graisse` sur son écran, les cases les
+  héritent ; partout ailleurs, la variable est absente et la case garde son
+  Nunito gras. Le champ de la feuille rédigée (`dexp-mf`) y passe aussi.
+* **L'écran porte le THÈME.** `show()` écrit le nom du thème de l'exercice
+  dans `data-theme`, comme il écrit déjà l'identifiant dans `data-exo`.
+  `#scr-sf` est partagé avec le 1.9, qui n'est pas du thème et garde ses
+  tailles pleines ; un exercice ajouté demain au thème reçoit l'encre sans
+  rien déclarer, sur un écran neuf comme sur un écran partagé. Les règles à
+  IDENTIFIANT de `#sfHost` gagneraient sur celles du thème : elles lisent
+  donc `--fx-base` (leur propre taille en repli), et les écrans propres au
+  thème (rvf, mlt, spf) n'écrivent plus aucune taille — les blocs « cases
+  réduites » et les tailles de `#spfHost` ont disparu.
+* **Le facteur de la TABLETTE s'applique à l'énoncé aussi**, pour ce thème
+  seul : « de l'énoncé jusqu'à la fin » ne tiendrait pas sur une tablette
+  où la rangée descend de 15 % et l'énoncé non. `--tab-nb` est donc posé
+  une seconde fois, sur l'écran entier du thème, à la même valeur et sous
+  la même requête média que le stage — l'exception déclarée
+  (`chaineTablette.ecransEntiers`) à « après l'énoncé », que le banc jsdom
+  vérifie telle quelle (même valeur, même requête, sélecteur d'écran
+  déclaré) et qu'il refuse ailleurs. Chaque règle de taille multiplie
+  elle-même `--fx-base` par le facteur : un `--fx` composé une fois sur
+  l'écran aurait été plus court, mais le contrôle exige que CHAQUE règle de
+  case porte `var(--tab-nb` — et c'est lui qui l'a dit, à la première
+  exécution.
+* **Deux défauts d'à côté se sont vus en relevant l'encre.** L'énoncé du
+  4.6 écrivait ses espaces en espaces ORDINAIRES dans une rangée flex :
+  « Calcule2/3+5/2×1/3 », collé — la leçon du 4.3 (espaces insécables)
+  n'avait pas été portée avec lui ; le « + » de sa rangée était un `<b>`
+  nu, en Nunito à la taille du texte, seul signe du thème à ne pas
+  s'écrire de l'encre des nombres — il est `.f-times` comme le « × ». Et
+  **la zone de la question rédigée restait sur l'écran partagé** : ouverte
+  par le 4.3, elle s'affichait encore, feuille comprise, sous la rangée du
+  1.9 ou du 4.2 ouverts ensuite — seul `sfrRendu` la fermait, et seul un
+  exercice à rédaction l'appelle. `show()` la ferme en arrivant sur un
+  exercice sans `test.redac` (le test est posé avant l'affichage, au
+  démarrage comme à la reprise).
+
+Contrôle : « le thème des fractions s'écrit d'une seule police et d'une
+seule taille, de l'énoncé à la fin, cases comprises » (banc navigateur,
+« 6 terdecies ter », déclaré par `encreFractions` dans le profil de la
+Première : thème, police, taille — deux sources —, témoin). Il remplace les
+« cases réduites ». Pour chaque exercice du thème, lu dans `THEMES` de la
+page, il RELÈVE à l'écran chaque nombre et chaque signe écrit par la page et
+chaque case — sa police lue DANS son shadow DOM, sur le chiffre qu'on y a
+tapé (« 97 », faux partout) —, à l'ouverture puis après la vérification, qui
+pose un badge, écrit les corrections en vert et ouvre la question rédigée ;
+tout doit porter l'encre déclarée, les cases la même hauteur, et chaque
+sorte d'écriture (énoncé, signe, rangée, case, correction, feuille) doit
+avoir été vue, sans quoi le contrôle le dit. L'autre bord : le 1.9, témoin
+hors thème sur l'écran partagé, garde ses cases pleines — et ne porte plus
+la zone rédigée d'un autre exercice. Éprouvé par le `<b>+</b>` du 4.6, que
+le premier relevé a nommé avant qu'on l'ait cherché.

@@ -6733,68 +6733,160 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 terdecies ter. LES CASES RÉDUITES DU THÈME DES FRACTIONS =====
-       Demande de Turquet (octobre 2026) : « en première dans les exercices
-       4.3 ; 4.4 ; 4.5 réduire la taille des cases où l'on doit placer des
-       nombres à l'écran » — comme le 4.6 avant eux. Deux bords, et n'en tenir
-       qu'un ne tient rien : les cases de ces exercices sont PLUS PETITES que
-       celles du témoin (le 4.2, qui partage l'écran et le moteur du 4.3), ET
-       le témoin GARDE ses cases pleines — la réduction du 4.3 se pose sur
-       l'écran par l'exercice qu'il porte (data-exo, écrit par show()), et un
-       sélecteur trop large réduirait le 4.2 sans que rien ne rougisse. La
-       règle de tout exercice reste tenue au passage : la case réduite a la
-       taille des nombres qui l'entourent. Tout est MESURÉ, à l'écran, sur les
-       premières cases de la rangée. */
-    titre('6 terdecies ter. LES CASES RÉDUITES DU THÈME DES FRACTIONS');
-    if(!P.casesReduites){
-      ignorer('les cases réduites sont plus petites que celles du témoin, qui garde les siennes',
-        'ce niveau ne déclare aucun exercice à cases réduites');
+    /* ===== 6 terdecies ter. LE THÈME DES FRACTIONS S'ÉCRIT D'UNE SEULE ENCRE =====
+       Demande de Turquet (octobre 2026) : « pour tous les exercices dans le
+       thème fraction, les nombres aient la même taille et la même police, de
+       l'énoncé jusqu'à la fin de l'exercice, et pour les cases à remplir
+       aussi ». Elle remplace la règle des « cases réduites » (le 4.3, le 4.4,
+       le 4.5 et le 4.6 plus petits que le 4.2) : tout le thème s'écrit d'une
+       seule encre, le 4.1 et le 4.2 compris.
+       On RELÈVE, à l'écran, pour chaque exercice du thème — lu dans THEMES de
+       la page : un exercice ajouté demain entre dans le contrôle sans rien
+       déclarer — chaque nombre et chaque signe que la page écrit (énoncé,
+       rangée, badge de correction, préfixe de la feuille) et chaque case : sa
+       police se lit DANS son shadow DOM, sur le chiffre qu'elle contient (une
+       case vide n'a aucun chiffre à mesurer, on en tape donc un dans la
+       première). Deux moments : l'ouverture, puis la vérification d'une copie
+       fausse — qui pose un badge, écrit les corrections en vert et, là où elle
+       existe, ouvre la question rédigée sous la guidée (sfrMonte). Tout doit
+       porter LA police et LA taille déclarées dans le profil (deux sources,
+       comme FRAC_MAX), et chaque sorte d'écriture doit avoir été vue au moins
+       une fois, sans quoi le contrôle ne mesure rien — et le dit.
+       L'autre bord : le TÉMOIN hors thème qui partage l'écran du 4.2 et du 4.3
+       (le 1.9) garde ses cases pleines — un sélecteur trop large l'aurait
+       réduit sans que le premier bord ne bouge. */
+    titre('6 terdecies ter. LE THÈME DES FRACTIONS S\'ÉCRIT D\'UNE SEULE ENCRE');
+    const NOM_ENCRE = 'le thème des fractions s\'écrit d\'une seule police et d\'une seule taille, de l\'énoncé à la fin, cases comprises';
+    if(!P.encreFractions){
+      ignorer(NOM_ENCRE, 'ce niveau ne déclare aucun thème à encre unique');
     } else if(!ml){
-      ignorer('les cases réduites sont plus petites que celles du témoin, qui garde les siennes', 'MathLive absent');
+      ignorer(NOM_ENCRE, 'MathLive absent');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
       await connecter(s.page);
-      const mesure = async id => {
+      const E = P.encreFractions;
+      const ids = await s.page.evaluate(nom => {
+        const t = (typeof THEMES !== 'undefined' ? THEMES : []).find(t => t.nom === nom);
+        return t ? t.ids.slice() : [];
+      }, E.theme);
+      const ouvrirExo = async id => {
         await s.page.evaluate(i => openTest(i), id);
         await s.page.waitForTimeout(400);
         await s.page.click('#modeChoices [onclick*="train"]');
         await s.page.waitForTimeout(1200);
-        return s.page.evaluate(() => {
-          const on = document.querySelector('section.screen.on'); if(!on) return null;
-          const r = e => e.getBoundingClientRect();
-          const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-          const px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) / rem * 100) / 100;
-          const mfs = [...on.querySelectorAll('.pt-row math-field.pm-mf')].filter(e => r(e).width > 0);
-          if(!mfs.length) return null;
-          const voisins = [...on.querySelectorAll('.pt-row .f-whole, .pt-row .f-eq')].filter(e => r(e).width > 0 && /\d/.test(e.textContent));
-          return { police: Math.max(...mfs.map(px)), hauteur: Math.max(...mfs.map(e => Math.round(r(e).height))),
-                   voisins: voisins.length ? Math.max(...voisins.map(px)) : null, n: mfs.length, ecran: on.id };
-        });
       };
-      const dits = [];
-      const T = await mesure(P.casesReduites.temoin);
-      const numT = await s.page.evaluate(i => TEST_NUM[i], P.casesReduites.temoin);
-      if(!T) dits.push('témoin ' + numT + ' : aucune case mesurée');
-      /* LE TÉMOIN GARDE SES CASES PLEINES : 1,9 rem et 46 px de haut, les
-         tailles de tout écran à chaîne de nombres de ce niveau. */
-      else if(T.police < 1.8 || T.hauteur < 44)
-        dits.push('témoin ' + numT + ' : ses cases ont été réduites avec les autres (' + T.police + ' rem, ' + T.hauteur + ' px)');
-      for(const id of P.casesReduites.exercices){
-        const m = await mesure(id), num = await s.page.evaluate(i => TEST_NUM[i], id);
-        if(!m){ dits.push(num + ' : aucune case mesurée'); continue; }
-        if(!T) continue;
-        if(!(m.police <= T.police * 0.8))
-          dits.push(num + ' : police de ' + m.police + ' rem contre ' + T.police + ' rem au témoin');
-        if(!(m.hauteur <= T.hauteur - 6))
-          dits.push(num + ' : ' + m.hauteur + ' px de haut contre ' + T.hauteur + ' px au témoin');
-        if(m.voisins !== null && m.police < m.voisins * 0.9)
-          dits.push(num + ' : la case (' + m.police + ' rem) est plus petite que ses nombres (' + m.voisins + ' rem)');
+      /* le relevé : chaque nombre, chaque signe et chaque case de l'écran ouvert */
+      const releve = () => s.page.evaluate(() => {
+        const on = document.querySelector('section.screen.on'); if(!on) return null;
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+        const visible = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+        const police = e => (getComputedStyle(e).fontFamily.split(',')[0] || '').replace(/["']/g, '').trim();
+        const taille = e => Math.round(parseFloat(getComputedStyle(e).fontSize) / rem * 100) / 100;
+        /* ce qui n'est pas le calcul : le bandeau, le titre, les étiquettes
+           d'étape, les messages, les boutons, la phrase de la règle du 4.1 */
+        const horsCalcul = e => !!e.closest('.test-top, .exo-title, .pt-lab, .mp-feedback, .dexp-hint, .rel-regle, .se-lab, button, select, .btn, .score-tag');
+        const sorte = e => e.closest('.mp-instr') ? 'énoncé' : e.closest('.mf-cor') ? 'correction'
+                         : e.closest('.dexp2-sheet') ? 'feuille' : 'rangée';
+        const items = [];
+        for(const x of on.querySelectorAll('*')){
+          if(x.children.length || x.closest('math-field') || horsCalcul(x) || !visible(x)) continue;
+          const t = (x.textContent || '').trim();
+          const nombre = t.length <= 12 && /\d/.test(t) && !/\p{L}/u.test(t);
+          const signe = /^[+−×÷=]$/.test(t);
+          if(!nombre && !signe) continue;
+          items.push({ sorte: signe ? 'signe' : sorte(x), quoi: sorte(x) + ' « ' + t + ' »', police: police(x), taille: taille(x) });
+        }
+        for(const mf of on.querySelectorAll('math-field')){
+          if(!visible(mf) || horsCalcul(mf)) continue;
+          const cmr = mf.shadowRoot && mf.shadowRoot.querySelector('.ML__cmr');
+          const feuille = !!mf.closest('.dexp2-sheet');
+          items.push({ sorte: feuille ? 'feuille' : 'case', quoi: (feuille ? 'feuille ' : 'case ') + (mf.id || '(sans id)'),
+                       police: cmr ? police(cmr) : null, taille: taille(mf), chiffre: cmr ? taille(cmr) : null,
+                       hauteur: feuille ? null : Math.round(mf.getBoundingClientRect().height) });
+        }
+        for(const inp of on.querySelectorAll('input.f-num, input.f-den')){
+          if(!visible(inp)) continue;
+          items.push({ sorte: 'case', quoi: 'case ' + (inp.id || '(sans id)'), police: police(inp), taille: taille(inp),
+                       hauteur: Math.round(inp.getBoundingClientRect().height) });
+        }
+        return { ecran: on.id, theme: on.dataset.theme || '', items };
+      });
+      const dits = [], vus = {};
+      const juger = (num, moment, R) => {
+        if(!R){ dits.push(num + ' (' + moment + ') : aucun écran ouvert'); return; }
+        if(R.theme !== E.theme) dits.push(num + ' : l\'écran ne porte pas le thème (data-theme « ' + R.theme + ' »)');
+        const hauteurs = [];
+        for(const it of R.items){
+          if(it.police === null) continue;          /* une case vide : aucun chiffre à lire */
+          vus[it.sorte] = (vus[it.sorte] || 0) + 1;
+          const mauvaise = it.police !== E.police || Math.abs(it.taille - E.rem) > 0.03
+            || (it.chiffre !== null && it.chiffre !== undefined && Math.abs(it.chiffre - E.rem) > 0.03);
+          if(mauvaise) dits.push(num + ' (' + moment + ') : ' + it.quoi + ' en ' + it.police + ' à ' + it.taille
+            + ' rem' + (it.chiffre ? ' (chiffre à ' + it.chiffre + ' rem)' : ''));
+          if(it.hauteur) hauteurs.push(it.hauteur);
+        }
+        /* les cases à remplir ont la même taille entre elles : la même hauteur */
+        if(hauteurs.length && Math.max(...hauteurs) - Math.min(...hauteurs) > 4)
+          dits.push(num + ' (' + moment + ') : des cases de ' + Math.min(...hauteurs) + ' à ' + Math.max(...hauteurs) + ' px de haut');
+      };
+      const tousNums = [];
+      for(const id of ids){
+        const num = await s.page.evaluate(i => TEST_NUM[i], id); tousNums.push(num);
+        await ouvrirExo(id);
+        /* un chiffre dans la première case : la police d'une case se lit sur ce
+           qu'elle contient. « 97 » est faux partout (les nombres vont de 1 à 5,
+           et aucune case n'attend plus de 50) : la vérification posera un badge. */
+        const premiere = await s.page.evaluate(() => {
+          const on = document.querySelector('section.screen.on'); if(!on) return null;
+          const c = [...on.querySelectorAll('.pt-row math-field, .pt-row input.f-num, .pt-row input.f-den')]
+            .find(e => e.getBoundingClientRect().width > 0);
+          if(!c) return null; c.focus(); return c.id || '(sans id)';
+        });
+        if(!premiere){ dits.push(num + ' : aucune case à remplir dans la rangée'); continue; }
+        await s.page.waitForTimeout(60);
+        await s.page.keyboard.type('97', { delay: 20 });
+        await s.page.waitForTimeout(150);
+        juger(num, 'ouverture', await releve());
+        const clique = await s.page.evaluate(() => {
+          const on = document.querySelector('section.screen.on'); if(!on) return false;
+          const b = [...on.querySelectorAll('button')].filter(x => x.getBoundingClientRect().width > 0)
+            .find(x => /^Vérifier/.test(x.textContent.trim()));
+          if(!b) return false; b.click(); return true;
+        });
+        if(!clique){ dits.push(num + ' : pas de bouton « Vérifier »'); continue; }
+        await s.page.waitForTimeout(900);
+        juger(num, 'vérification', await releve());
       }
-      console.log('   · témoin ' + numT + ' : ' + (T ? T.police + ' rem, ' + T.hauteur + ' px' : 'rien')
-        + ' — réduits : ' + P.casesReduites.exercices.length + ' exercice(s)');
-      verifier('les cases réduites sont plus petites que celles du témoin, qui garde les siennes',
-        dits.length === 0, dits.slice(0, 4).join(' | '));
-      verifier('les écrans des cases réduites ne lèvent aucune erreur JavaScript',
+      /* le témoin hors thème, sur l'écran partagé : ses cases restent pleines */
+      await ouvrirExo(E.temoin);
+      const T = await s.page.evaluate(() => {
+        const on = document.querySelector('section.screen.on'); if(!on) return null;
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+        const mfs = [...on.querySelectorAll('.pt-row math-field.pm-mf')].filter(e => e.getBoundingClientRect().width > 0);
+        if(!mfs.length) return null;
+        /* la zone de la question rédigée, ouverte par le 4.3 sur ce même écran,
+           ne doit pas y être restée (show() la ferme) */
+        const zone = [...on.querySelectorAll('.sfr-zone')].filter(z => !z.hidden && z.getBoundingClientRect().height > 0).length;
+        return { theme: on.dataset.theme || '', ecran: on.id, zone,
+                 police: Math.max(...mfs.map(e => Math.round(parseFloat(getComputedStyle(e).fontSize) / rem * 100) / 100)),
+                 hauteur: Math.max(...mfs.map(e => Math.round(e.getBoundingClientRect().height))) };
+      });
+      const numT = await s.page.evaluate(i => TEST_NUM[i], E.temoin);
+      const sortes = ['énoncé', 'signe', 'rangée', 'case', 'correction', 'feuille'];
+      const manquent = sortes.filter(k => !vus[k]);
+      console.log('   · ' + tousNums.join(', ') + ' — relevé : ' + sortes.map(k => k + ' ' + (vus[k] || 0)).join(', ')
+        + ' — témoin ' + numT + ' : ' + (T ? T.police + ' rem, ' + T.hauteur + ' px, thème « ' + T.theme + ' »' : 'rien'));
+      verifier(NOM_ENCRE, ids.length >= 2 && dits.length === 0,
+        ids.length < 2 ? 'le thème « ' + E.theme + ' » compte ' + ids.length + ' exercice(s) : le contrôle ne mesure rien'
+                       : dits.length + ' écart(s) — ' + dits.slice(0, 4).join(' | '));
+      verifier('chaque sorte d\'écriture du thème a été relevée (le contrôle mesure quelque chose)',
+        manquent.length === 0, 'jamais vu : ' + manquent.join(', '));
+      verifier('le témoin hors thème, sur l\'écran partagé, garde ses cases pleines',
+        !!T && T.theme !== E.theme && T.police >= 1.8 && T.hauteur >= 44,
+        T ? (numT + ' : ' + T.police + ' rem, ' + T.hauteur + ' px, thème « ' + T.theme + ' »') : numT + ' : aucune case mesurée');
+      verifier('la zone de la question rédigée ne reste pas sur l\'écran partagé quand un autre exercice y arrive',
+        !!T && T.zone === 0, T ? (numT + ' : ' + T.zone + ' zone(s) rédigée(s) encore ouverte(s) sous sa rangée') : 'témoin non mesuré');
+      verifier('les écrans du thème des fractions ne lèvent aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
