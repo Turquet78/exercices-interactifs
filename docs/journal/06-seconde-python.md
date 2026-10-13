@@ -6132,3 +6132,82 @@ justes, 13 fausses chacune avec son mot), l'écran tenu aux consignes, le
 dialogue de la console sur trois réponses, les copies juste, fausse et vide,
 le soutien qui ne révèle rien, et le modèle comparé à CPython sur neuf
 triplets. La visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-for-images-entiers} — les images de x par f, de 0 à 10 (6.6.14, Boucle for in range)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème "boucle
+for in range", créer un exercice qui suit les images jointes. Il faudra
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème "input". Mettre le dessin en premier, dans la définition ne rien
+rajouter de plus ainsi que dans les coups de pouce éventuels. Respecter les
+couleurs et présentations des exercices du sous-thème input. Ne rien écrire
+dans le cadre de la console. » C'est l'« Exercice 9 » du carnet : le serpent
+qui nargue (« Y a plus dur ? »), « Soit la fonction f(x) = x² − 6x + 3. »,
+« **Faire** un programme qui affiche les images **pour x allant de 0 à 10**
+de la façon suivante : », l'exemple en chasse fixe (« L'image de 0 par f est
+3 », « L'image de 1 par f est -2 », « ... ainsi de suite », « L'image de 10
+par f est 43 »), la remarque (« Vous pouvez essayer pour x allant de 0 à
+50. »), puis TROIS coups de pouce repliés et la cellule. Il suit
+{python-for-couples} en 6.6.14 : ajouté en dernier, rien n'est renuméroté.
+Version 468.
+
+**Quatre fusions de `main` pendant les bancs, et un identifiant déjà pris.**
+Écrit d'abord en 6.6.6 (version 437), sous l'identifiant {python-for-images}
+et la sorte `pfi`. Pendant les bancs, le sous-thème a reçu huit autres
+exercices et l'ordre du carnet. Surtout, {python-for-images} et `pfi` ont été
+pris sur `main` par l'exercice 10 du carnet (les images de dixième en
+dixième, BONUS, 6.6.10). Fusionner tel quel aurait donné deux exercices sous
+la même clé TESTS : le second écrasait le premier sans erreur, et les notes
+de l'un passaient à l'autre. Celui-ci est donc devenu
+{python-for-images-entiers}, de préfixe `pfk`. Les fichiers ont été repris de
+`main`, et l'exercice y a été réinséré point de branchement par point de
+branchement, plutôt que fusionné ligne à ligne : la fusion automatique
+alignait son bloc sur les exercices du 6.7. Une première résolution avait
+aussi soudé `'pfi'` à {python-for-depart-fin} dans la table des sortes de
+`tests/profils.js`. Le contrôle des rappels l'a attrapé (« Unexpected
+string ») sur l'intégration continue, puis en local.
+
+**La présentation est celle du 6.6.2** ({python-for-nom}) : le dessin seul
+dans `#pfkInstr` (découpé dans la capture, détouré depuis les bords, WebP de
+11 Ko en `data:`, `PFK_IMG`) ; la question dans un cadre `.pyn-etape`, en
+gras, qui enveloppe l'exemple, la remarque, les coups de pouce, la cellule,
+« Exécuter » et la console. La fonction s'écrit en grand, centrée et sans
+gras, comme sur la fiche (`.pfk-f`, `<i>x</i>`) ; l'exemple garde sa chasse
+fixe et son retrait (`.pfk-ex`). Aucune définition (exception déclarée,
+`pythonAvant.sans`) ; cellule sans texte d'attente, console vide
+(`#pfkConsole` rejoint la règle `content:none`).
+
+**Les coups de pouce sont ceux de la fiche, mot pour mot** — y compris
+`pour l'affichage:  print ("l'image de ", x , "par f est" , ...  )` et
+`le calcul de f est:  x**2-6*x+3`, en chasse fixe comme sur la capture. Le
+« for x in range ( 11 ): » du premier est dans un `<code>` : écrit en texte, le
+filet `italiquerX` aurait penché le x d'une instruction Python. Le rappel
+(`RAP_PFK`) ne redit que les trois coups de pouce.
+
+**Le juge (`pfkDiag`) lit ce que la console affiche** (moteur du 6.4.5,
+`ptrDerouler` puis `pyRun`) : une ligne par valeur de x, de 0 à n, « L'image
+de x par f est f(x) ». Les NOMBRES se lisent exactement, signe compris
+(`pyTexteProche` compare les chiffres mais pas le « - » : « 2 » pour « -2 »
+serait passé — d'où la lecture des nombres à part) ; le TEXTE autour a la
+tolérance du thème, sans la casse (le coup de pouce écrit « l'image »,
+l'exemple « L'image »), et la page nomme ce qu'elle a toléré. Les lignes
+vides ne comptent pas. Nommés : rien d'affiché, x jusqu'à 9 (range(10)) ou
+jusqu'à 50 (la remarque invite à essayer : la vérification attend la borne de
+l'énoncé, et le dit), x depuis 1, une image fausse (le calcul de la fiche
+rappelé, x² = x**2), la lettre x entre guillemets, l'image seule, une autre
+phrase, `x^2` (le ^ de Python n'est pas une puissance), les onze print à la main, un input, un texte + un nombre, les erreurs
+de boucle. `def` n'existe pas dans l'interpréteur : aucun coup de pouce n'y
+mène.
+
+**La séance** : la fiche épinglée (x² − 6x + 3, de 0 à 10), puis d'autres
+fonctions x² + bx + c (|b| ≥ 2, pour que « bx » s'écrive `b*x`) et d'autres
+bornes, tirées par `distinctes()` ; `dmNbQuestions()` l'allonge. L'exemple et
+les coups de pouce 1 et 3 suivent la question ; le coup de pouce 2 et la
+remarque ne changent pas. Une case (`pts-case`), pas de correction au fil de
+la frappe (`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonForImagesEntiers`) : la place, le tirage (300 séances), le juge sur quatre
+copies justes et seize fausses, l'écran (dessin seul, énoncé, exemple,
+remarque, trois coups de pouce mot pour mot, rappel), la copie juste, fausse
+et vide, le soutien qui ne révèle rien, et les modèles comparés à CPython.

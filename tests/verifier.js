@@ -4255,6 +4255,7 @@ function exercices(suite){
     pythonIfPlusGrandTrois(w, P);
     pythonForNom(w, P);
     pythonForCouples(w, P);
+    pythonForImagesEntiers(w, P);
     pythonInputEvolution(w, P);
     pythonInputDuree(w, P);
     pythonInputDureeSecondes(w, P);
@@ -30198,6 +30199,202 @@ function pythonIfPlusGrand(w, P){
   const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
   const ecarts = [];
   liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-for-images-entiers} (Seconde, 6.6.14) : l'exercice 9 du carnet — le serpent
+   « Y a plus dur ? », f(x) = x² − 6x + 3, afficher « L'image de x par f est … »
+   pour x allant de 0 à 10. Le contrôle tient la place au menu (il suit
+   {python-for-couples} dans le 6.6 : rien d'autre ne bouge), la fiche
+   épinglée et le tirage, le juge — qui ne lit que ce que le programme
+   AFFICHE — sur des copies justes et fausses, chacune avec le mot qui la
+   nomme, l'écran tenu aux consignes du sous-thème Input (le dessin seul en
+   tête, l'énoncé de la fiche dans son cadre, l'exemple et la remarque, les
+   trois coups de pouce repliés et mot pour mot, aucune définition, la
+   cellule et la console vides, le rappel réduit aux coups de pouce), la
+   copie juste, fausse et vide, le soutien qui explique sans révéler, puis
+   compare à un vrai CPython ce que les modèles affichent. Aucun accent grave
+   ni antislash littéral dans le code évalué. */
+function pythonForImagesEntiers(w, P){
+  const nom = '{python-for-images-entiers} : les images de x par f, de 0 à 10';
+  if(!P.pythonForImagesEntiers){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des images par une boucle for'); return; }
+  const ID = P.pythonForImagesEntiers.exercice, NB = P.pythonForImagesEntiers.nb, NUM = P.pythonForImagesEntiers.numero;
+  const present = evaluer(w, "typeof startPFK==='function' && typeof pfkDiag==='function' && typeof pfkBuildQuestions==='function' && typeof ptrDerouler==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPFK / pfkDiag / pfkBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il suit {python-for-couples} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
+    if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
+    /* il SUIT son prédécesseur sans exiger de fermer le sous-thème : un exercice ajouté derrière lui ne casse rien */
+    else if(st.ids.indexOf("${ID}")<1||st.ids[st.ids.indexOf("${ID}")-1]!=="python-for-couples") vus.push("il ne suit pas {python-for-couples} : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-for-images"]!=="6.6.10"||TEST_NUM["python-for-couples"]!=="6.6.13") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (x² − 6x + 3, de 0 à 10), puis d’autres fonctions distinctes ; le modèle de chacune passe au juge, chaque fonction sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pfkBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S0=pfkSit(qs[0]);
+      if(S0.b!==-6||S0.c!==3||S0.n!==10){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois la même fonction : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PFK_SITUATIONS.forEach(function(_, i){ const d=pfkDiag(pfkModele({s:i}),{s:i}); if(!d.ok) vus.push("le modèle "+i+" : "+d.dits.join(" ")); if(d.ecart) vus.push("le modèle "+i+" reçoit un écart : "+d.ecart); });
+    if(pfkCalcul(PFK_SITUATIONS[0])!=="x**2-6*x+3") vus.push("le calcul de la fiche : "+pfkCalcul(PFK_SITUATIONS[0]));
+    if(pfkF(PFK_SITUATIONS[0],0)!==3||pfkF(PFK_SITUATIONS[0],1)!==-2||pfkF(PFK_SITUATIONS[0],10)!==43) vus.push("les images de la fiche ne sont pas 3, -2, 43");
+    if(Object.keys(vues).length!==PFK_SITUATIONS.length) vus.push("des fonctions ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte toute boucle juste (le modèle, le coup de pouce recopié, une variable pour l’image, « l’image » sans majuscule, une faute de frappe) et nomme chaque défaut — x jusqu’à 9 ou jusqu’à 50, x depuis 1, un calcul faux, x^2, la lettre x affichée, l’image seule, une autre phrase, les lignes à la main, un input, un texte + un nombre, la boucle sans décalage ou sans deux-points, guillemets typographiques, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0,prog:""};
+    const txt=Q+"L"+A+"image de"+Q, par=Q+"par f est"+Q;
+    const boucle=function(r, corps){ return "for x in range("+r+"):"+NL+"    "+corps; };
+    const justes=[pfkModele(q),
+                  "for x in range ( 11 ):"+NL+"   print ("+Q+"l"+A+"image de "+Q+", x , "+par+" , x**2-6*x+3 )",
+                  "for x in range(0,11):"+NL+"    y = x**2-6*x+3"+NL+"    print("+txt+", x, "+par+", y)",
+                  boucle("11", "print("+Q+"L"+A+"imgae de"+Q+", x, "+par+", x*x-6*x+3)")];
+    justes.forEach(function(p){ const d=pfkDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const ecrit=pfkDiag(justes[3],q); if(ecrit.ok&&!ecrit.ecart) vus.push("la faute tolérée n’est pas nommée");
+    const main=[]; for(let k=0;k<=10;k++) main.push("print("+Q+"L"+A+"image de "+k+" par f est "+(k*k-6*k+3)+Q+")");
+    const cas=[
+      [boucle("10", "print("+txt+", x, "+par+", x**2-6*x+3)"), /de 0 à 9 .*de 0 à 10/],
+      [boucle("51", "print("+txt+", x, "+par+", x**2-6*x+3)"), /de 0 à 50 .*de 0 à 10/],
+      [boucle("1,12", "print("+txt+", x, "+par+", x**2-6*x+3)"), /commence à x = 1/],
+      [boucle("11", "print("+txt+", x, "+par+", x**2+6*x+3)"), /Pour x = 1, ton programme affiche 10 .*calcul de f/],
+      [boucle("11", "print("+txt+", x, "+par+", x*2-6*x+3)"), /Pour x = 1, .*x[*][*]2/],
+      [boucle("11", "print("+txt+", x, "+par+", x^2-6*x+3)"), /x[*][*]2 : le signe/],
+      [boucle("11", "print("+Q+"L"+A+"image de x par f est"+Q+", x**2-6*x+3)"), /lettre x/],
+      [boucle("11", "print(x**2-6*x+3)"), /phrase/],
+      [boucle("11", "print("+Q+"Le résultat pour"+Q+", x, "+Q+"vaut"+Q+", x**2-6*x+3)"), /phrase de l’énoncé/],
+      [main.join(NL), /une par une/],
+      ["n = int(input("+Q+"n ? "+Q+"))"+NL+boucle("n", "print(x)"), /rien à demander/],
+      [boucle("11", "print("+Q+"L"+A+"image de "+Q+"+x)"), /virgules/],
+      ["for x in range(11):"+NL+"print("+txt+", x, "+par+", x**2-6*x+3)", /décalées/],
+      ["for x in range(11)"+NL+"    print("+txt+", x, "+par+", x**2-6*x+3)", /deux-points/],
+      [boucle("11", "print(“L’image de”, x, “par f est”, x**2-6*x+3)"), /guillemets/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pfkDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input, et la copie juste ---- */
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni encadré au-dessus, l’énoncé de la fiche en gras dans son cadre, l’exemple et la remarque, les trois coups de pouce repliés et mot pour mot, la cellule et la console VIDES, « Exécuter » ; le rappel ne dit que les coups de pouce ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFK();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39);
+    const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(String.fromCharCode(8202)).join("").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("pfkInstr"), img=en&&en.querySelector("img.pfk-img");
+    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
+    if(document.querySelector("#scr-pfk .py-avant,#scr-pfk .pyp-regle,#scr-pfk .pyi-cours")) vus.push("un encadré de définition sur l’écran");
+    const et=document.getElementById("pfkEtape"), ti=et&&et.querySelector(".pyn-titre");
+    const fo=et&&et.firstElementChild;
+    if(!fo||fo.id!=="pfkFonction"||net(fo.textContent)!=="Soit la fonction f(x) = x2 − 6x + 3 .") vus.push("la fonction en tête du cadre : "+JSON.stringify(fo&&net(fo.textContent)));
+    if(!ti||net(ti.textContent)!=="✏️ Faire un programme qui affiche les images pour x allant de 0 à 10 de la façon suivante :") vus.push("l’énoncé de la question : "+JSON.stringify(ti&&net(ti.textContent)));
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    const ex=et&&et.querySelector("pre.pfk-ex");
+    if(!ex||ex.textContent!==["L"+A+"image de 0 par f est 3","L"+A+"image de 1 par f est -2","","... ainsi de suite","","L"+A+"image de 10 par f est 43"].join(NL)) vus.push("l’exemple : "+JSON.stringify(ex&&ex.textContent));
+    const rq=et&&et.querySelector(".pfk-rq li");
+    if(!rq||net(rq.textContent)!=="Remarque : Vous pouvez essayer pour x allant de 0 à 50.") vus.push("la remarque : "+JSON.stringify(rq&&rq.textContent));
+    ["pfk-prog","pfkRun","pfkConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const pouces=document.querySelectorAll("#pfkEtape details.pyd-pouce");
+    const attendus=[["coup de pouce 1","On pourra utiliser une boucle qui va de 0 à 10. for x in range ( 11 ):"],
+                    ["coup de pouce 2","pour l"+A+"affichage: print ("+Q+"l"+A+"image de "+Q+", x , "+Q+"par f est"+Q+" , ... )"],
+                    ["coup de pouce 3","le calcul de f est: x**2-6*x+3"]];
+    if(pouces.length!==3) vus.push(pouces.length+" coup(s) de pouce");
+    else pouces.forEach(function(p, i){
+      if(p.open) vus.push("coup de pouce "+(i+1)+" déplié d’emblée");
+      const s=net(p.querySelector("summary").textContent), corps=[].map.call(p.querySelectorAll("p"), function(x){ return x.textContent; }).join(" ");
+      if(s!==attendus[i][0]||net(corps)!==attendus[i][1]) vus.push("le coup de pouce "+(i+1)+" : "+JSON.stringify(s+" / "+net(corps)));
+    });
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pfk||"";
+    if(net(rap.textContent)!=="Les images de x par f On pourra utiliser une boucle qui va de 0 à 10. for x in range ( 11 ): "+attendus[1][1]+" "+attendus[2][1]) vus.push("le rappel : "+JSON.stringify(net(rap.textContent)));
+    const ta=document.getElementById("pfk-prog"), cons=document.getElementById("pfkConsole");
+    if(ta.value!==""||ta.getAttribute("placeholder")) vus.push("la cellule n’est pas vide");
+    if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide : "+JSON.stringify(cons.textContent+getComputedStyle(cons,"::before").content));
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value=pfkModele(q);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    pfkExecuter();
+    const lignes=cons.textContent.split(NL);
+    if(lignes.length!==11||lignes[0]!=="L"+A+"image de 0 par f est 3"||lignes[10]!=="L"+A+"image de 10 par f est 43") vus.push("la console : "+JSON.stringify(cons.textContent));
+    checkPFK();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPFK();
+    if(test.idx!==1||document.getElementById("pfk-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    const S1=pfkSit(test.questions[1]), t1=net(document.getElementById("pfkEtape").textContent);
+    if(t1.indexOf("de 0 à "+S1.n+" de la façon")<0||t1.indexOf(pfkCalcul(S1))<0) vus.push("la question 2 ne suit pas sa fonction ni sa borne");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFK();
+    let ta=document.getElementById("pfk-prog");
+    ta.value="for x in range(10):"+NL+"    print("+Q+"L"+A+"image de"+Q+", x, "+Q+"par f est"+Q+", x**2-6*x+3)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPFK();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pfkModele .sol");
+    if(!mod||mod.textContent!==pfkModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    nextPFK(); ta=document.getElementById("pfk-prog");
+    checkPFK();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pfkModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPFK(); ta=document.getElementById("pfk-prog");
+    checkPFK();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="for x in range(1,12):"+NL+"    print("+Q+"L"+A+"image de"+Q+", x, "+Q+"par f est"+Q+", x**2-6*x+3)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPFK();
+    const fb=document.getElementById("pfkFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/commence à x = 1/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pfkModele .sol")||fb.indexOf("range(11)")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPfk(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ---- */
+  const nomPy = 'ce que les modèles de {python-for-images-entiers} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify(PFK_SITUATIONS.map(function(_, i){ const src=pfkModele({s:i}); return [src, ptrRun(src).out]; }))`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src]) => src));
+  const ecarts = [];
+  liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
