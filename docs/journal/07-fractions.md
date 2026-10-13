@@ -1433,7 +1433,7 @@ case rouge ; « 6 terdecies » (les flèches qui se croisent) court maintenant
 sur les deux niveaux.
 
 **Puis le 4.3 de la Première a reçu sa question RÉDIGÉE, sur la même page
-(octobre 2026, Première v308, Seconde v468).** Demande de Turquet : « en
+(octobre 2026, Première v308, Seconde v469).** Demande de Turquet : « en
 première dans le 4.3 ; après avoir fait une question, poser sur la même page
 une nouvelle question avec les mêmes critères mais où il faut rédiger la
 solution comme dans l'exercice 5.5 en seconde ; on mettra un "=" derrière le
