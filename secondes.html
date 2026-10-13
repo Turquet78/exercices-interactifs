@@ -7343,7 +7343,7 @@ const TESTS={
   'reduire-somme': { name:'R\u00e9duire une somme de termes', icon:'\ud83d\udd24', desc:'R\u00e9duis si possible : 2x + 3x, 2x + 3, \u22122x\u00b2 + 3x\u00b2, \u22122x\u00b2 + 3x\u2026 On n\u2019additionne que des termes de m\u00eame nature \u2014 des x avec des x, des x\u00b2 avec des x\u00b2, des nombres avec des nombres.', start:()=>startRed() },
   'associer-expressions': { name:'Associer chaque expression \u00e0 son r\u00e9sultat', icon:'\ud83d\udd17', desc:'Quatre expressions \u2014 un carr\u00e9, un double, un nombre divis\u00e9 par lui-m\u00eame, un nombre moins lui-m\u00eame \u2014 \u00e0 associer \u00e0 leur r\u00e9sultat. Trois fois avec un nombre, puis trois fois avec une lettre \u2014 x, puis a, puis b.', start:()=>startAsx() },
   'vecteurs-egaux-tableau': { name:'Vecteurs \u00e9gaux', icon:'\u27a1\ufe0f', desc:'Le tableau de la fiche \u2014 \u00e9galit\u00e9 de vecteurs, figure, configuration g\u00e9om\u00e9trique. Sur chaque ligne, une colonne est donn\u00e9e : choisis la bonne proposition, parmi trois, pour chacune des deux autres.', start:()=>startVgt() },
-  'vecteurs-egaux': { name:'Vecteurs \u00e9gaux dans une figure', icon:'\u27a1\ufe0f', desc:'Une figure \u2014 un rectangle et ses milieux, un carr\u00e9, un triangle, un hexagone\u2026 \u2014 et cinq lignes \u00ab AB = \u2026 = \u2026 \u00bb\u00a0: retrouve tous les vecteurs de la figure \u00e9gaux \u00e0 celui qui ouvre la ligne. Attention au sens\u00a0: BA n\u2019est pas AB.', start:()=>startVeg() },
+  'vecteurs-egaux': { name:'Vecteurs \u00e9gaux dans une figure', icon:'\u27a1\ufe0f', desc:'Une figure \u2014 un rectangle et ses milieux, un carr\u00e9, un triangle, un hexagone\u2026 \u2014 et des lignes \u00ab AB = \u2026 = \u2026 \u00bb, de 10 \u00e0 12 vecteurs \u00e0 trouver par figure\u00a0: retrouve tous les vecteurs de la figure \u00e9gaux \u00e0 celui qui ouvre la ligne. Attention au sens\u00a0: BA n\u2019est pas AB.', start:()=>startVeg() },
   'reduire-produit': { name:'R\u00e9duire un produit avec x', icon:'\ud83d\udd22', desc:'Quinze produits de deux facteurs \u2014 un nombre ou la lettre x, jamais x\u00b2. D\u2019abord case par case\u00a0: le signe, le coefficient, puis si \u00e7a se termine par x ou par x\u00b2. Puis directement le r\u00e9sultat r\u00e9duit.', start:()=>startRpd() },
   'translation-quadrillage': { name:'Translation\u00a0: d\u00e9placer un point sur le quadrillage', icon:'\u27a1\ufe0f', desc:'Sur un quadrillage, une fl\u00e8che u (ou deux points A et B) donne un chemin\u00a0: d\u00e9place chaque point en suivant ce chemin et place son image A\u2032, B\u2032, C\u2032 \u2014 \u00ab\u00a0l\u2019image de A par la translation de vecteur u est le point A\u2032\u00a0\u00bb. Les images se posent au clic sur le quadrillage.', start:()=>startTrl() },
   'translation-grille': { name:'Image d\u2019un point par une translation', icon:'\u27a1\ufe0f', desc:'Huit vecteurs dessin\u00e9s et une grille de points de A \u00e0 X. Six lignes \u00e0 compl\u00e9ter\u00a0: le point image par la translation du vecteur indiqu\u00e9, ou le vecteur de la translation qui m\u00e8ne d\u2019un point \u00e0 son image.', start:()=>startVtr() },
@@ -55288,6 +55288,20 @@ function ctxVtr(q){
    (vegClasses) ; une classe est une famille de vecteurs égaux. On ne pose en
    tête de ligne qu'un vecteur dont la classe compte de 2 à 6 membres : au
    moins UN autre vecteur égal (la consigne), au plus CINQ cases (la fiche).
+
+   DE 10 À 12 VECTEURS À TROUVER PAR FIGURE (Turquet, octobre 2026 : « il
+   faudrait entre 10 et 12 vecteurs à trouver pour chaque dessin ») : la
+   fiche posait cinq lignes quel que soit leur total — de 10 cases sur
+   l'hexagone à 16 sur le rectangle, et 9 au plus sur le premier triangle.
+   Désormais c'est le TOTAL des cases qui est la consigne (VEG_CASES), et le
+   nombre de lignes en découle, borné (VEG_LIGNES, de 4 à 6) : jamais deux
+   lignes de cinq cases pour faire le compte, jamais dix lignes d'une case.
+   Le tirage est une recherche en profondeur dans l'ordre tiré des familles
+   (vegGenQuestion) : la première combinaison qui tient les deux bornes.
+   Trois figures ont gagné des points pour y arriver — le triangle des
+   milieux (9 cases au plus) est devenu un triangle partagé deux fois en
+   quatre, l'hexagone a reçu les milieux de trois rayons, le trapèze les
+   milieux de ses côtés obliques.
    Tout couple de points nommés compte, qu'un trait le dessine ou non — la
    fiche elle-même attend EJ et BG pour FK, que rien ne relie —, mais le
    vecteur de TÊTE se choisit de préférence le long d'un trait (vegTrace),
@@ -55307,7 +55321,8 @@ function ctxVtr(q){
    vivier des figures, et distinctes() tient les figures d'une séance par
    leur forme ET leur retournement (jamais deux fois la même image). */
 const VEG_NB=3;        /* figures par séance (réglage « Questions » d'un devoir) */
-const VEG_LIGNES=5;    /* lignes « AB = … » par figure, comme la fiche */
+const VEG_CASES=[10,12];  /* vecteurs à trouver (cases) par figure : de 10 à 12, consigne de Turquet */
+const VEG_LIGNES=[4,6];   /* lignes « AB = … » par figure : assez pour varier, jamais dix lignes d'une case */
 const VEG_R3=Math.sqrt(3);
 const VEG_FIGURES={
   /* la fiche : un rectangle, ses milieux E, F, G, B, J, ses diagonales [IC]
@@ -55327,27 +55342,35 @@ const VEG_FIGURES={
     pts:{A:[0,2],B:[2,2],C:[4,2],D:[1,1],E:[3,1],F:[5,1],G:[2,0],H:[4,0],I:[6,0]},
     traits:[['A','C'],['G','I'],['A','G'],['C','I'],['D','F'],['B','H'],['A','I'],['C','G']],
     etq:{E:[0,-17]} },
-  /* un triangle, ses trois milieux, et le point L qui fait de ABLC un
-     parallélogramme (J est le milieu de [AL]) : seuls, les trois milieux ne
-     donnaient que trois familles de vecteurs égaux, trop peu pour cinq lignes */
-  triMilieux:{ nom:'un triangle, les milieux de ses côtés et le parallélogramme ABLC',
-    pts:{A:[0,0],B:[6,0],C:[2,4],I:[3,0],J:[4,2],K:[1,2],L:[8,4]},
-    traits:[['A','B'],['B','L'],['L','C'],['C','A'],['I','J'],['J','K'],['K','I'],['A','L']],
-    etq:{J:[13,13]} },
+  /* un triangle ABC, le triangle DEF de ses milieux, et le triangle GHI
+     des milieux de DEF : seuls, les trois milieux ne donnaient que trois
+     familles de vecteurs égaux, et le point L du parallélogramme ABLC (la
+     première version) n'en faisait que six, 9 cases au plus — trop peu pour
+     les 10 à 12 cases demandées ; le second partage en quatre en donne neuf */
+  triMilieux:{ nom:'un triangle, le triangle de ses milieux, et le triangle des milieux de celui-ci',
+    pts:{A:[0,0],B:[8,0],C:[2,6],D:[4,0],E:[5,3],F:[1,3],G:[4.5,1.5],H:[3,3],I:[2.5,1.5]},
+    traits:[['A','B'],['B','C'],['C','A'],['D','E'],['E','F'],['F','D'],['G','H'],['H','I'],['I','G']],
+    /* H est à la hauteur du centre de la boîte : « du côté opposé au centre »
+       le posait SUR [FE] — sa place est écrite, au-dessus du trait */
+    etq:{H:[0,-17]} },
   /* un triangle, deux côtés partagés en trois, deux parallèles au troisième
      et deux parallèles à la base */
   triTiers:{ nom:'un triangle et deux familles de parallèles',
     pts:{A:[0,0],B:[6,0],C:[2,4.5],D:[2,0],E:[4,0],F:[2/3,1.5],G:[4/3,3],H:[14/3,1.5],K:[10/3,3]},
     traits:[['A','B'],['B','C'],['C','A'],['D','F'],['E','G'],['F','H'],['G','K']] },
-  /* un hexagone régulier, son centre et ses six rayons */
-  hexagone:{ nom:'un hexagone régulier et son centre',
-    pts:{A:[2,0],B:[1,VEG_R3],C:[-1,VEG_R3],D:[-2,0],E:[-1,-VEG_R3],F:[1,-VEG_R3],O:[0,0]},
+  /* un hexagone régulier, son centre, ses six rayons, et les milieux G, H, I
+     de trois rayons sur six ([OA], [OC], [OE]) : sans eux, les six familles
+     ne faisaient 12 cases qu'en les posant toutes */
+  hexagone:{ nom:'un hexagone régulier, son centre et les milieux de trois rayons',
+    pts:{A:[2,0],B:[1,VEG_R3],C:[-1,VEG_R3],D:[-2,0],E:[-1,-VEG_R3],F:[1,-VEG_R3],O:[0,0],G:[1,0],H:[-0.5,VEG_R3/2],I:[-0.5,-VEG_R3/2]},
     traits:[['A','B'],['B','C'],['C','D'],['D','E'],['E','F'],['F','A'],['O','A'],['O','B'],['O','C'],['O','D'],['O','E'],['O','F']],
-    etq:{O:[20,-11]} },
+    etq:{O:[20,-11],G:[0,-17],H:[15,-8],I:[15,8]} },
   /* un trapèze ABCD partagé en six triangles : la grande base en trois (E,
-     F), la petite en deux (G), et les obliques en zigzag */
-  trapeze:{ nom:'un trapèze partagé en triangles',
-    pts:{A:[0,0],B:[6,0],C:[5,2],D:[1,2],E:[2,0],F:[4,0],G:[3,2]},
+     F), la petite en deux (G), les obliques en zigzag, et H, I les milieux
+     des côtés obliques [AD] et [BC] — deux familles de plus, pour atteindre
+     les 10 à 12 cases sans poser toutes les lignes à chaque fois */
+  trapeze:{ nom:'un trapèze partagé en triangles, H et I milieux de ses côtés obliques',
+    pts:{A:[0,0],B:[6,0],C:[5,2],D:[1,2],E:[2,0],F:[4,0],G:[3,2],H:[0.5,1],I:[5.5,1]},
     traits:[['A','B'],['D','C'],['A','D'],['D','E'],['E','G'],['G','F'],['F','C'],['C','B']] }
 };
 const VEG_FIG_IDS=Object.keys(VEG_FIGURES);
@@ -55382,23 +55405,46 @@ function vegTrace(q, v){
   };
   return fig.traits.some(function(t){ return sur(P,t[0],t[1]) && sur(Q,t[0],t[1]); });
 }
-/* une figure tirée : la forme, son retournement, et cinq vecteurs de tête de
-   familles différentes — jamais une famille ET son opposée, pour varier */
+/* une figure tirée : la forme, son retournement, et des vecteurs de tête de
+   familles différentes — jamais une famille ET son opposée, pour varier —
+   dont les cases font de VEG_CASES[0] à VEG_CASES[1] en VEG_LIGNES[0] à
+   VEG_LIGNES[1] lignes */
 function vegGenQuestion(fig){
   const q={fig:fig||pick(VEG_FIG_IDS), fx:Math.random()<0.5?1:-1, fy:Math.random()<0.5?1:-1, lignes:[]};
   const cl=vegClasses(q);
   /* les familles riches passent devant, sans que les mêmes sortent à chaque
-     fois : chaque famille reçoit un rang tiré, pondéré par sa taille */
+     fois : chaque famille reçoit un rang tiré, pondéré par son nombre de
+     cases (une famille de cinq cases passe en tête cinq fois plus souvent
+     qu'une famille d'une case). Le rang « taille + hasard » d'avant faisait
+     sortir 5 + 5 + 1 + 1 neuf fois sur dix sur le rectangle, le carré et le
+     parallélogramme, dès que le total a été borné */
   const cand=Object.keys(cl).filter(function(k){ const n=cl[k].membres.length; return n>=2 && n<=6; })
-    .map(function(k){ return {k:k, r:cl[k].membres.length+Math.random()*3}; })
+    .map(function(k){ return {k:k, r:Math.pow(Math.random(), 1/(cl[k].membres.length-1))}; })
     .sort(function(a,b){ return b.r-a.r; }).map(function(x){ return x.k; });
   const pris=[];
-  cand.forEach(function(k){
-    if(pris.length>=VEG_LIGNES) return;
-    const c=cl[k], opp=vegCle(-c.dx,-c.dy);
-    if(pris.some(function(p){ return p.k===opp; })) return;
-    pris.push(c);
-  });
+  const sansOpp=function(c){ const opp=vegCle(-c.dx,-c.dy); return !pris.some(function(p){ return p.k===opp; }); };
+  /* une recherche en profondeur dans l'ordre tiré : la première combinaison
+     qui tient les deux bornes — assez de cases, pas trop, et un nombre de
+     lignes dans les siennes — est la bonne */
+  const cherche=function(depuis, total){
+    if(pris.length>=VEG_LIGNES[0] && total>=VEG_CASES[0]) return true;
+    if(pris.length>=VEG_LIGNES[1]) return false;
+    for(let j=depuis;j<cand.length;j++){
+      const c=cl[cand[j]], n=c.membres.length-1;
+      if(total+n>VEG_CASES[1] || !sansOpp(c)) continue;
+      pris.push(c);
+      if(cherche(j+1, total+n)) return true;
+      pris.pop();
+    }
+    return false;
+  };
+  if(!cherche(0, 0)){
+    /* aucune combinaison : la figure est trop pauvre, et le banc le dit
+       (tests/verifier.js) ; on pose quand même ce qu'on peut, plutôt que rien */
+    console.warn('vecteurs-egaux : la figure '+q.fig+' ne fournit pas '+VEG_CASES[0]+' à '+VEG_CASES[1]+' cases');
+    pris.length=0;
+    cand.forEach(function(k){ const c=cl[k]; if(pris.length<VEG_LIGNES[1] && sansOpp(c)) pris.push(c); });
+  }
   /* le plus de cases d'abord, comme la fiche */
   pris.sort(function(a,b){ return b.membres.length-a.membres.length; });
   q.lignes=pris.map(function(c){
@@ -60909,10 +60955,10 @@ function vgtProps(q, col){
 function vgtFigTxt(fam, L, v){
   const A=L[0], B=L[1], C=L[2], D=L[3];
   if(fam==='par') return ['figure : les flèches '+A+'→'+B+' et '+C+'→'+D+', parallèles, de même sens et de même longueur',
-                          'figure : les flèches '+A+'→'+B+' et '+D+'→'+C+', de même longueur mais de sens contraires',
-                          'figure : les flèches '+A+'→'+B+' et '+C+'→'+D+', qui ne sont pas parallèles'][v];
+                          'figure : les flèches '+A+'→'+B+' et '+D+'→'+C+', parallèles, de même sens et de même longueur ('+A+B+C+D+' est un parallélogramme, pas '+A+B+D+C+')',
+                          'figure : les flèches '+A+'→'+B+' et '+C+'→'+D+', de directions nettement différentes'][v];
   if(fam==='mil') return ['figure : '+A+', '+B+' et '+C+' alignés, les flèches '+A+'→'+B+' et '+B+'→'+C+' de même longueur',
-                          'figure : '+A+', '+B+' et '+C+' alignés, les flèches '+A+'→'+B+' et '+C+'→'+B+' de sens contraires',
+                          'figure : '+B+', '+A+' et '+C+' alignés, les flèches '+B+'→'+A+' et '+A+'→'+C+' de même longueur ('+A+' est le milieu de ['+B+C+'], pas '+B+')',
                           'figure : les flèches '+A+'→'+B+' et '+B+'→'+C+' de même longueur, mais '+A+', '+B+' et '+C+' ne sont pas alignés'][v];
   return ['figure : une seule flèche, de '+A+' vers le point '+B+' = '+C,
           'figure : deux flèches de même longueur partant de '+A+', vers '+B+' et vers '+C+', dans deux directions différentes',
@@ -60932,17 +60978,40 @@ function vgtPt(p){ return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.6"/>'; }
 function vgtEtq(x,y,t){ return '<text x="'+x+'" y="'+y+'" text-anchor="middle">'+esc(t)+'</text>'; }
 function vgtSvg(fam, L, v){
   const A=L[0], B=L[1], C=L[2], D=L[3]; let h='';
+  /* Un piège dessiné doit être faux PAR SES POINTS, pas seulement par le sens
+     de ses flèches : avec les mêmes quatre points et une flèche retournée,
+     ABDC restait un parallélogramme sous les yeux de l'élève (deux figures
+     « justes » sur trois — Turquet, octobre 2026). Les pièges sont donc :
+     pour « par », le parallélogramme ABCD (les flèches A→B et D→C, égales,
+     C et D échangés) et deux flèches de directions nettement différentes ;
+     pour « mil », A au milieu de [BC] (les flèches B→A et A→C, égales) et le
+     coude. */
   if(fam==='par'){
-    const pA=[30,50], pB=[110,32], pC=[70,86], pD=(v===2?[165,86]:[150,68]);
-    h+=vgtFleche(pA[0],pA[1],pB[0],pB[1]);
-    h+=(v===1 ? vgtFleche(pD[0],pD[1],pC[0],pC[1]) : vgtFleche(pC[0],pC[1],pD[0],pD[1]));
-    h+=vgtPt(pA)+vgtPt(pB)+vgtPt(pC)+vgtPt(pD);
-    h+=vgtEtq(18,55,A)+vgtEtq(122,34,B)+vgtEtq(58,92,C)+vgtEtq(pD[0]+13,pD[1]+(v===2?3:4),D);
+    if(v===0){
+      const pA=[30,50], pB=[110,32], pC=[70,86], pD=[150,68];
+      h+=vgtFleche(pA[0],pA[1],pB[0],pB[1])+vgtFleche(pC[0],pC[1],pD[0],pD[1]);
+      h+=vgtPt(pA)+vgtPt(pB)+vgtPt(pC)+vgtPt(pD);
+      h+=vgtEtq(18,55,A)+vgtEtq(122,34,B)+vgtEtq(58,92,C)+vgtEtq(163,72,D);
+    } else if(v===1){
+      const pA=[25,56], pB=[95,30], pD=[80,84], pC=[150,58];
+      h+=vgtFleche(pA[0],pA[1],pB[0],pB[1])+vgtFleche(pD[0],pD[1],pC[0],pC[1]);
+      h+=vgtPt(pA)+vgtPt(pB)+vgtPt(pC)+vgtPt(pD);
+      h+=vgtEtq(13,61,A)+vgtEtq(107,32,B)+vgtEtq(163,62,C)+vgtEtq(68,91,D);
+    } else {
+      const pA=[30,50], pB=[110,32], pC=[70,55], pD=[145,90];
+      h+=vgtFleche(pA[0],pA[1],pB[0],pB[1])+vgtFleche(pC[0],pC[1],pD[0],pD[1]);
+      h+=vgtPt(pA)+vgtPt(pB)+vgtPt(pC)+vgtPt(pD);
+      h+=vgtEtq(18,55,A)+vgtEtq(122,34,B)+vgtEtq(59,69,C)+vgtEtq(158,94,D);
+    }
+  } else if(fam==='mil' && v===1){
+    const pB=[25,34], pA=[100,54], pC=[175,74];
+    h+=vgtFleche(pB[0],pB[1],pA[0],pA[1])+vgtFleche(pA[0],pA[1],pC[0],pC[1]);
+    h+=vgtPt(pA)+vgtPt(pB)+vgtPt(pC);
+    h+=vgtEtq(19,50,B)+vgtEtq(100,44,A)+vgtEtq(187,78,C);
   } else if(fam==='mil' || (fam==='conf' && v===2)){
     const coude=(fam==='mil' && v===2);
     const pA=coude?[30,80]:[25,72], pB=coude?[95,38]:[100,52], pC=coude?[175,56]:[175,32];
-    h+=vgtFleche(pA[0],pA[1],pB[0],pB[1]);
-    h+=(fam==='mil' && v===1 ? vgtFleche(pC[0],pC[1],pB[0],pB[1]) : vgtFleche(pB[0],pB[1],pC[0],pC[1]));
+    h+=vgtFleche(pA[0],pA[1],pB[0],pB[1])+vgtFleche(pB[0],pB[1],pC[0],pC[1]);
     h+=vgtPt(pA)+vgtPt(pB)+vgtPt(pC);
     h+=vgtEtq(pA[0]-6,pA[1]+16,A)+vgtEtq(pB[0],pB[1]-10,B)+vgtEtq(pC[0]+12,pC[1]+(coude?5:2),C);
   } else {

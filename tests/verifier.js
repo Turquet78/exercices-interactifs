@@ -17631,6 +17631,50 @@ function vecteursEgauxTableau(w, P){
       figs.forEach(function(f,i){ if(!/<svg/.test(f.html)) vus.push(q.fam+' figure '+i+' : pas de dessin');
         q.L.forEach(function(l){ if(f.html.indexOf('>'+l+'<')<0 && f.html.indexOf('>'+l+' = ')<0 && f.html.indexOf('= '+l+'<')<0) vus.push(q.fam+' figure '+i+' : la lettre '+l+' n\\'est pas écrite'); }); });
       if(new Set(figs.map(function(f){ return f.html; })).size!==3) vus.push(q.fam+' : deux figures identiques');
+      /* Un piège dessiné est faux PAR SES POINTS : avec les mêmes points et une
+         flèche retournée, UKAH restait un parallélogramme et J le milieu de
+         [RA] sous les yeux de l'élève — deux figures « justes » sur trois
+         (Turquet, octobre 2026). Chaque dessin est relu ici : ses points (les
+         cercles), ses lettres (le texte le plus proche de chaque point) et ses
+         flèches (le trait et la pointe) ; la configuration de la ligne doit
+         être vraie sur les points de la bonne figure SEULEMENT, et chaque
+         flèche doit joindre deux points nommés. */
+      const lire=function(html){
+        const pts=[]; let m; const rc=/<circle cx="([\\d.]+)" cy="([\\d.]+)"/g;
+        while((m=rc.exec(html))) pts.push({x:+m[1], y:+m[2], l:''});
+        const rt=/<text x="([\\d.]+)" y="([\\d.]+)"[^>]*>([^<]+)<\\/text>/g;
+        while((m=rt.exec(html))){ const tx=+m[1], ty=+m[2]; let best=null, bd=1e9;
+          pts.forEach(function(p){ const d=Math.hypot(p.x-tx, p.y-ty); if(d<bd){ bd=d; best=p; } });
+          if(best) best.l+=m[3].replace(/[^A-Z]/g,''); }
+        const fl=[]; const rl=/<line x1="([\\d.]+)" y1="([\\d.]+)"/g; const rp=/<polygon points="([\\d.]+),([\\d.]+) /g;
+        const deps=[], tips=[]; while((m=rl.exec(html))) deps.push({x:+m[1], y:+m[2]}); while((m=rp.exec(html))) tips.push({x:+m[1], y:+m[2]});
+        deps.forEach(function(d,i){ if(tips[i]) fl.push({de:d, a:tips[i]}); });
+        const P={}; pts.forEach(function(p){ p.l.split('').forEach(function(l){ P[l]=p; }); });
+        return {pts:pts, P:P, fl:fl};
+      };
+      const pres=function(p,x,y){ return Math.hypot(p.x-x, p.y-y)<1.5; };
+      const A=q.L[0], B=q.L[1], C=q.L[2], D=q.L[3];
+      figs.forEach(function(f,i){
+        const g=lire(f.html);
+        q.L.forEach(function(l){ if(!g.P[l]) vus.push(q.fam+' figure '+i+' : la lettre '+l+' n\\'est posée près d\\'aucun point'); });
+        if(q.L.some(function(l){ return !g.P[l]; })) return;
+        g.fl.forEach(function(v){
+          if(!g.pts.some(function(p){ return pres(p,v.de.x,v.de.y); }) || !g.pts.some(function(p){ return pres(p,v.a.x,v.a.y); }))
+            vus.push(q.fam+' figure '+i+' : une flèche ne joint pas deux points nommés'); });
+        if(g.fl.length<1) vus.push(q.fam+' figure '+i+' : aucune flèche');
+        const pa=g.P[A], pb=g.P[B], pc=g.P[C], pd=g.P[D];
+        const vraie = q.fam==='par' ? pres({x:pb.x-pa.x, y:pb.y-pa.y}, pd.x-pc.x, pd.y-pc.y)   /* AB = CD : ABDC parallélogramme */
+                    : q.fam==='mil' ? pres(pb, (pa.x+pc.x)/2, (pa.y+pc.y)/2)                   /* B milieu de [AC] */
+                    :                 pres(pb, pc.x, pc.y);                                     /* B = C */
+        if(i===0 && !vraie) vus.push(q.fam+' figure 0 : les points ne vérifient pas la configuration');
+        if(i>0 && vraie) vus.push(q.fam+' figure '+i+' : les points du piège vérifient la configuration (un élève y verrait une seconde bonne figure)');
+        if(q.fam==='par' && g.fl.length===2){
+          const ang=function(v){ return Math.atan2(v.a.y-v.de.y, v.a.x-v.de.x); };
+          let d=Math.abs(ang(g.fl[0])-ang(g.fl[1])); if(d>Math.PI) d=2*Math.PI-d;
+          if(i===2 && d<Math.PI/6) vus.push('par figure 2 : les flèches « non parallèles » ne font que '+Math.round(d*180/Math.PI)+'°, l\\'élève y voit un parallélogramme');
+          if(i<2 && d>0.01) vus.push('par figure '+i+' : les deux flèches ne sont pas parallèles');
+        }
+      });
     });
     if(vus.length) return vus.slice(0,4).join(' | ');
     /* ---- 3. la correction, par le BOUTON ---------------------------------- */
@@ -19327,8 +19371,9 @@ function translationGrille(w, P){
 
 /* {vecteurs-egaux} — thème 8 « Vecteurs », 8.3 : une figure (un rectangle et
    ses milieux, un carré, un parallélogramme, deux triangles, un hexagone, un
-   trapèze), cinq lignes « AB = … = … », et l'élève écrit tous les vecteurs
-   égaux au vecteur de tête. Les familles de vecteurs égaux sont
+   trapèze), des lignes « AB = … = … » — de 10 à 12 vecteurs à trouver par
+   figure (Turquet, octobre 2026), en 4 à 6 lignes —, et l'élève écrit tous
+   les vecteurs égaux au vecteur de tête. Les familles de vecteurs égaux sont
    reconstruites ICI, depuis les coordonnées des figures, par une écriture
    indépendante de vegClasses — jamais les fonctions de la page qui corrigent. */
 function vecteursEgaux(w, P){
@@ -19365,6 +19410,17 @@ function vecteursEgaux(w, P){
     };
     const retourne=function(id, fx, fy){ const pts={}; Object.keys(VEG_FIGURES[id].pts).forEach(function(n){ pts[n]=[VEG_FIGURES[id].pts[n][0]*fx, VEG_FIGURES[id].pts[n][1]*fy]; }); return pts; };
     if(VEG_FIG_IDS.length<5) vus.push(VEG_FIG_IDS.length+' forme(s) seulement : la consigne demande des formes variées');
+    /* la consigne : de 10 à 12 vecteurs à trouver par figure, et les lignes
+       bornées des deux côtés */
+    if(!Array.isArray(VEG_CASES) || VEG_CASES[0]!==10 || VEG_CASES[1]!==12) vus.push('VEG_CASES vaut '+JSON.stringify(VEG_CASES)+' : la consigne demande de 10 à 12 vecteurs à trouver par figure');
+    if(!Array.isArray(VEG_LIGNES) || !(VEG_LIGNES[0]>=3) || !(VEG_LIGNES[1]>=VEG_LIGNES[0]) || !(VEG_LIGNES[1]<=8)) vus.push('VEG_LIGNES vaut '+JSON.stringify(VEG_LIGNES)+' : de 3 à 8 lignes au plus');
+    /* une combinaison de familles existe-t-elle, qui tienne les deux bornes ?
+       (une table des totaux atteignables, par nombre de lignes) */
+    const atteignable=function(tailles){
+      const ok={}; ok['0,0']=true;
+      tailles.forEach(function(n){ Object.keys(ok).slice().forEach(function(k){ const d=k.split(',').map(Number); if(d[0]<VEG_LIGNES[1] && d[1]+n<=VEG_CASES[1]) ok[(d[0]+1)+','+(d[1]+n)]=true; }); });
+      return Object.keys(ok).some(function(k){ const d=k.split(',').map(Number); return d[0]>=VEG_LIGNES[0] && d[1]>=VEG_CASES[0]; });
+    };
     VEG_FIG_IDS.forEach(function(id){
       const fig=VEG_FIGURES[id], noms=Object.keys(fig.pts);
       if(noms.length<6) vus.push(id+' : '+noms.length+' points seulement');
@@ -19374,7 +19430,9 @@ function vecteursEgaux(w, P){
       if(!(fig.traits||[]).length) vus.push(id+' : aucun trait');
       const f=familles(fig.pts), bonnes=Object.keys(f).filter(function(k){ return f[k].length>=2 && f[k].length<=6; });
       const nonOpp=[]; bonnes.forEach(function(k){ const d=k.split(','); const opp=cle(-parseFloat(d[0]),-parseFloat(d[1])); if(nonOpp.indexOf(opp)<0) nonOpp.push(k); });
-      if(nonOpp.length<VEG_LIGNES) vus.push(id+' : '+nonOpp.length+' famille(s) de vecteurs égaux (sans leurs opposées) pour '+VEG_LIGNES+' lignes');
+      if(nonOpp.length<VEG_LIGNES[0]) vus.push(id+' : '+nonOpp.length+' famille(s) de vecteurs égaux (sans leurs opposées) pour '+VEG_LIGNES[0]+' lignes au moins');
+      const tailles=nonOpp.map(function(k){ return f[k].length-1; });
+      if(!atteignable(tailles)) vus.push(id+' : aucune combinaison de '+VEG_LIGNES[0]+' à '+VEG_LIGNES[1]+' familles ne fait de '+VEG_CASES[0]+' à '+VEG_CASES[1]+' cases (cases par famille : '+tailles.sort(function(a,b){ return b-a; }).join(' ')+')');
     });
     if(vus.length) return vus.slice(0,4).join(' | ');
 
@@ -19389,13 +19447,15 @@ function vecteursEgaux(w, P){
         formes[q.fig]=true;
         if(!VEG_FIGURES[q.fig]) vus.push('forme inconnue '+q.fig);
         if((q.fx!==1 && q.fx!==-1) || (q.fy!==1 && q.fy!==-1)) vus.push('retournement hors de ±1');
-        if(q.lignes.length!==VEG_LIGNES) vus.push(q.fig+' : '+q.lignes.length+' lignes au lieu de '+VEG_LIGNES);
+        if(q.lignes.length<VEG_LIGNES[0] || q.lignes.length>VEG_LIGNES[1]) vus.push(q.fig+' : '+q.lignes.length+' lignes, hors de '+VEG_LIGNES[0]+' à '+VEG_LIGNES[1]);
         const pts=retourne(q.fig, q.fx, q.fy), f=familles(pts), ls=vegLignes(q), vusDep=[];
+        let totalCases=0;
         ls.forEach(function(l, k){
           const dep=q.lignes[k].dep;
           if(!/^[A-Z]{2}$/.test(dep) || dep[0]===dep[1] || !pts[dep[0]] || !pts[dep[1]]){ vus.push(q.fig+' : vecteur de tête « '+dep+' » illisible'); return; }
           const d=cle(pts[dep[1]][0]-pts[dep[0]][0], pts[dep[1]][1]-pts[dep[0]][1]);
-          const attendu=(f[d]||[]).filter(function(v){ return v!==dep; }).sort().join(' ');
+          const attendus=(f[d]||[]).filter(function(v){ return v!==dep; }), attendu=attendus.slice().sort().join(' ');
+          totalCases+=attendus.length;
           if(l.att.slice().sort().join(' ')!==attendu) vus.push(q.fig+' : '+dep+' attend « '+l.att.join(' ')+' » au lieu de « '+attendu+' »');
           if(l.n<1) vus.push(q.fig+' : '+dep+' n’a aucun vecteur égal — la consigne en veut au moins un');
           if(l.n>5) vus.push(q.fig+' : '+dep+' a '+l.n+' cases, plus que la fiche');
@@ -19405,6 +19465,9 @@ function vecteursEgaux(w, P){
           if(vusDep.indexOf(opp)>=0) vus.push(q.fig+' : une ligne et son opposée ('+dep+')');
           vusDep.push(d);
         });
+        /* la consigne, relue depuis les familles reconstruites ici : de 10 à
+           12 vecteurs à trouver sur CHAQUE figure */
+        if(totalCases<VEG_CASES[0] || totalCases>VEG_CASES[1]) vus.push(q.fig+' : '+totalCases+' vecteurs à trouver, hors de '+VEG_CASES[0]+' à '+VEG_CASES[1]+' ('+ls.map(function(l){ return l.dep+':'+l.n; }).join(' ')+')');
       });
     }
     if(vus.length) return vus.slice(0,4).join(' | ');
