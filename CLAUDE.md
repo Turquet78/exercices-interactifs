@@ -317,6 +317,8 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **La même erreur, huit fois, n'est pas huit mesures.**
 - **Deux bancs jsdom ne se lancent pas EN MÊME TEMPS.**
 - **Puis les trois bancs jsdom ont joué de front, chacun dans son dossier temporaire.**
+- **Puis la Seconde a rendu dix minutes à chacun de ses deux bancs — mesurées contrôle par contrôle, jamais devinées.**
+- **Puis l'action a donné la mesure propre, et le répit s'est allongé à 1,2 s.**
 - **Un bug trouvé devient un contrôle.**
 - **Une clé écrite deux fois dans `tests/profils.js` ne casse rien — elle gagne.**
 - **Un NUMÉRO de section du banc ne désigne qu'une section — et un en-tête qui n'imprime pas son titre est pire qu'un titre absent.**
@@ -337,7 +339,7 @@ tenus, les sabotages qui les ont éprouvés.
 - Terminale — dérivées, suites, récurrences et TVI — `docs/journal/14-terminale.md`
 - Seconde — calcul littéral (thème 7 : les nombres relatifs, somme et produit, réduire une somme) — `docs/journal/16-seconde-calcul-litteral.md`
 - Première — probabilités (thème 3 : lire une probabilité, le tableau à double entrée) — `docs/journal/18-premiere-probabilites.md`
-- Seconde — vecteurs (thème 8 : l'image d'un point par une translation sur une grille) — `docs/journal/19-seconde-vecteurs.md`
+- Seconde — vecteurs (thème 8 : l'image d'un point par une translation sur une grille, le tableau des vecteurs égaux) — `docs/journal/19-seconde-vecteurs.md`
 
 ## Ajouter un exercice
 
