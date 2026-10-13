@@ -213,3 +213,75 @@ cinq touches existent et écrivent ; il dit en plus « le clavier changeait
 encore après 6 s » quand c'est ce qui l'a privé d'une touche. « Flake » n'est
 pas un diagnostic : la cause est un délai fixe, et le correctif est
 l'attente de l'état.
+
+**Puis les trois bancs jsdom ont joué de front, chacun dans son dossier
+temporaire.** La règle « deux bancs jsdom ne se lancent pas EN MÊME TEMPS »
+tenait à un seul fichier : les scripts de la page, écrits dans
+`/tmp/ctrl<i>.js` pour `node --check`, portaient le même nom d'un processus à
+l'autre, et le second effaçait ce que le premier relisait. Elle coûtait cher :
+`npm test` enchaînait les trois niveaux — une minute et demie, vingt-deux,
+quatre —, et l'action GitHub faisait de même dans un seul travail, vingt-sept
+minutes avant de pouvoir fusionner, pendant lesquelles `main` avançait (treize
+pull requests par jour en octobre 2026) et le contrôle de version rougissait :
+plus de deux reprises de `main` par livraison, comptées sur cinq jours
+(décision de Turquet, octobre 2026 : « fais pareil pour le temps des
+contrôles »). `verifier.js` écrit désormais ces fichiers dans un dossier
+`mkdtemp` propre au processus, effacé à la fin ; `tests/tous.js` lance les
+trois niveaux ensemble et recrache leurs sorties dans l'ordre, comme le banc
+navigateur ; l'action donne une machine à chaque niveau (`controles
+(secondes.html)`), au lieu d'une étape. L'attente tombe de la somme des trois
+au plus long d'entre eux. Éprouvé sur l'ancien code, la Première et la Terminale
+lancées à la même seconde : la Première meurt en section 1 sur « erreur
+JavaScript non rattrapée → ENOENT: no such file or directory, unlink
+/tmp/ctrl0.js » pendant que la Terminale passe ses sept scripts — le rouge
+accuse une page qui n'a rien ; sur le nouveau, les trois niveaux lancés
+ensemble par npm test finissent verts, chacun avec ses fichiers.
+
+**Puis la Seconde a rendu dix minutes à chacun de ses deux bancs — mesurées
+contrôle par contrôle, jamais devinées.** Le relevé horodaté du banc jsdom
+(chaque ligne préfixée du temps écoulé depuis la précédente) a donné, sur
+27,6 minutes, 14 minutes à un seul contrôle, « aucune séance ne pose deux fois
+la même question » — 7 160 séances démarrées dans la fenêtre jsdom qui venait
+d'encaisser toute la section 4 —, et 2,3 minutes de plus aux fractions
+irréductibles, 900 séances dans la même fenêtre. Or une fenêtre FRAÎCHE
+démarre les 183 exercices du menu en 7,8 s par tour, soit cinq minutes pour
+quarante tours : la fenêtre usée démarrait un exercice près de trois fois plus
+lentement. Les trois contrôles qui rejouent des séances (contexte de chaque
+exercice, séances sans doublon, fractions irréductibles) tournent donc dans
+une fenêtre neuve (`rejouerDansUneFenetreNeuve`, `tests/verifier.js`) : le
+rejeu des séances passe de 839 à 295 s, les fractions de 138 à 60 s, le banc
+de 27,6 à 16,5 minutes — mêmes 904 contrôles verts, mêmes quarante tours.
+Côté navigateur, le relevé montrait 118 ouvertures de page (une par section),
+chacune LANÇANT son propre Chromium puis attendant 3,5 s à plat : six à sept
+secondes par ouverture, 93 lignes de plus de quatre secondes qui cumulaient
+1 103 s sur 1 312. Le navigateur est lancé une fois pour tout le banc, chaque
+ouverture reçoit un contexte neuf (rien n'est partagé d'une section à l'autre,
+et c'est le contexte que `s.nav.close()` ferme), et l'attente est devenue une
+CONDITION — page chargée, double de Supabase en place, `<math-field>`
+enregistré — suivie de 400 ms de répit : la première ouverture passe de 7,1 à
+1,3 s, le banc de 21,9 à 16,6 minutes, 625 contrôles verts. Ce qui reste, et
+le dire vaut mieux que de le taire : la visite de tous les exercices de la
+section 9 (459 s, des attentes fixes de 300, 650 et 700 ms par exercice et
+par mode, que des conditions pourraient remplacer sans que rien ne le mesure
+encore), le schéma à cases de {pourcentages-problemes} (178 s, 600 rendus), et
+le rejeu des séances lui-même, cinq minutes pour quarante tours. Toutes les
+durées ici sont celles d'une machine qui jouait deux bancs à la fois ;
+l'action GitHub, une machine par banc, fera mieux.
+
+**Puis l'action a donné la mesure propre, et le répit s'est allongé à 1,2 s.**
+Sur la pull request #626, une machine par banc : jsdom de la Seconde 7 min 07
+au lieu de 21 min 40, Première 1 min 35, Terminale 4 min 16 ; navigateur de
+la Seconde 15 min 50 au lieu de 20, Première 9 min 48, Terminale 8 min 33 —
+l'action entière en seize minutes au lieu de vingt-sept. Mais sur la machine
+de la session, les trois bancs navigateur joués de front avec le banc jsdom,
+le 4.6 de la Première a rougi une fois : « 1/2 + 1/2 × 3/2 = 10/8 = 5/4, tapé
+au clavier, est compté faux ». Le script module de la page pose, APRÈS
+l'enregistrement de `<math-field>` que l'attente de condition guette, des
+réglages différés par `setTimeout` — les raccourcis de frappe à 0 et 350 ms,
+le menu, l'ajustement du clavier jusqu'à 620 ms. À 400 ms de répit, sur une
+machine chargée, la frappe partait avant les raccourcis ; l'ancien délai de
+3,5 s les couvrait sans le savoir. Le répit passe à 1,2 s : les 118
+ouvertures de la Seconde coûtent 1,6 minute de plus qu'à 400 ms, et 4,5 de
+moins qu'avant. Une attente de condition n'attend que ce qu'elle nomme — ce
+que le script fait ensuite, différé, reste à couvrir par le répit, et c'est
+écrit à côté de lui.

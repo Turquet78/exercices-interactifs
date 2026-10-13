@@ -105,22 +105,40 @@ function servirRacine(){
 }
 
 /* ---------- ouverture d'une page ---------- */
+/* UN SEUL NAVIGATEUR POUR TOUT LE BANC (octobre 2026). Chaque ouvrir()
+   lançait son propre Chromium — 118 lancements pour la Seconde — et le
+   refermait avec s.nav.close(). Le navigateur est désormais lancé une fois,
+   à la première demande ; chaque ouverture reçoit un CONTEXTE neuf (cookies,
+   stockage, fenêtre : rien n'est partagé d'une section à l'autre), et c'est
+   le contexte que s.nav.close() ferme. Le navigateur lui-même se ferme à la
+   sortie du processus. */
+let navigateurPartage = null;
+async function navigateur(chromium){
+  if(!navigateurPartage){
+    navigateurPartage = await chromium.launch({
+      executablePath: chercherChromium(),
+      /* bypass : sans lui, Chromium envoie AUSSI 127.0.0.1 au mandataire, qui
+         répond 405 — la page servie en HTTP local (section 11 bis) arrivait
+         vide, sans une erreur qui le dise. */
+      proxy: (process.env.HTTPS_PROXY || process.env.https_proxy)
+        ? { server: process.env.HTTPS_PROXY || process.env.https_proxy, bypass: '127.0.0.1,localhost' } : undefined,
+    });
+    process.on('exit', () => { try { navigateurPartage.close(); } catch(e){} });
+  }
+  return navigateurPartage;
+}
 async function ouvrir(chromium, ml, options){
   options = options || {};
-  const nav = await chromium.launch({
-    executablePath: chercherChromium(),
-    /* bypass : sans lui, Chromium envoie AUSSI 127.0.0.1 au mandataire, qui
-       répond 405 — la page servie en HTTP local (section 11 bis) arrivait
-       vide, sans une erreur qui le dise. */
-    proxy: (process.env.HTTPS_PROXY || process.env.https_proxy)
-      ? { server: process.env.HTTPS_PROXY || process.env.https_proxy, bypass: '127.0.0.1,localhost' } : undefined,
-  });
+  const nav = await navigateur(chromium);
   /* hasTouch : un contexte TACTILE — MathLive y déploie son clavier complet au
      focus (politique « auto »), exactement ce que le pavé compact doit empêcher
      sur les cases qu'on lui confie ; la requête média pointer:coarse, elle,
      reste au navigateur (le banc force le pavé par window.__paveForce). */
   const ctx = await nav.newContext({ ignoreHTTPSErrors: true, viewport: options.viewport || { width: 1280, height: 900 },
                                      hasTouch: options.hasTouch === true });
+  /* ce que les sections ferment par s.nav.close() : le contexte, pas le
+     navigateur partagé */
+  const poignee = { close: () => ctx.close() };
   const page = await ctx.newPage();
   const erreurs = [];
   page.on('pageerror', e => erreurs.push(String(e.message)));
@@ -206,15 +224,30 @@ async function ouvrir(chromium, ml, options){
      local par servirRacine(), pour ce que file:// ne sait pas faire. */
   await page.goto(options.adresse || ('file://' + path.join(RACINE, CIBLE) + (options.fragment || '')),
     { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForTimeout(ml ? 3500 : 1500);
+  /* L'ATTENTE EST UNE CONDITION, PLUS UNE DURÉE (octobre 2026). Chaque
+     ouverture attendait 3,5 s à plat — 118 ouvertures pour la Seconde, près
+     de sept minutes à ne rien mesurer. On attend maintenant ce que ces 3,5 s
+     couvraient : la page entièrement chargée, le double de Supabase en place
+     et, quand MathLive est servi, <math-field> enregistré ; puis un répit de
+     1,2 s. Le script module de la page pose, APRÈS cet enregistrement, des
+     réglages différés par setTimeout — raccourcis de frappe à 0 et 350 ms,
+     menu, ajustement du clavier jusqu'à 620 ms : à 400 ms de répit, le 4.6
+     de la Première tapait « 1/2 + 1/2 × 3/2 » avant que les raccourcis ne
+     soient réglés, et sa copie juste rougissait. Sans MathLive servi (ml
+     vide), le délai d'avant reste, et le garde du bas tranche comme avant. */
+  try {
+    await page.waitForFunction(attendML => document.readyState === 'complete' && !!window.__faux
+      && (!attendML || !!customElements.get('math-field')), !!ml, { timeout: 15000 });
+  } catch(e){ /* le garde ci-dessous et la section 1 (« <math-field> est enregistré ») diront ce qui manque */ }
+  await page.waitForTimeout(ml ? 1200 : 1500);
 
   /* Et on refuse de continuer si le double n'est pas en place : mieux vaut ne
      rien tester que tester en écrivant dans la vraie base. */
   if(!await page.evaluate(() => !!window.__faux)){
-    await nav.close().catch(() => {});
+    await poignee.close().catch(() => {});
     throw new Error('interception de supabase-js échouée — aucun test ne démarre');
   }
-  return { nav, page, erreurs, eleve };
+  return { nav: poignee, page, erreurs, eleve };
 }
 
 const ecranVisible = page => page.evaluate(() =>
@@ -7582,6 +7615,129 @@ async function parcours(page, N){
       if(faux.score !== 7) dits.push('le point faux ne coûte pas exactement son point (score ' + faux.score + ' au lieu de 7)');
       verifier('le point se pose au clic, les cases attendent le point', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran du point à placer ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 quadragies bis. TRANSLATION SUR QUADRILLAGE : LES IMAGES SE CLIQUENT ===== */
+    /* {translation-quadrillage} (8.3, la fiche 2 sur les vecteurs — demande de
+       Turquet, octobre 2026) : le geste central est le CLIC sur un nœud du
+       quadrillage, converti en coordonnées par trlNoeud() depuis la géométrie
+       du SVG RENDU. jsdom n'a pas de mise en page (un rectangle de SVG y vaut
+       zéro) : le calibrage clic → nœud, le stylo qui avance tout seul, le
+       retrait au reclic et la correction verte dessinée ne se voient qu'ici.
+       Le banc principal, lui, pose rep à la main — la répartition de
+       {placer-image}. On clique le BON nœud, un nœud décalé d'un tiers de
+       maille (il s'accroche au plus proche), on vérifie 3/3 ; puis une image
+       FAUSSE et une MANQUANTE pour voir les images attendues en vert. */
+    titre('6 quadragies bis. TRANSLATION SUR QUADRILLAGE : LES IMAGES SE CLIQUENT');
+    if(!P.translationQuadrillage){
+      ignorer('les images se posent au clic sur le quadrillage, le stylo avance, le reclic retire',
+        'ce niveau n\'a pas l\'exercice de la translation sur quadrillage');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.translationQuadrillage.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* le mode d'emploi se rend PLUS PETIT que la demande — mesuré à l'encre rendue */
+      const mes = await s.page.evaluate(() => {
+        const instr = document.getElementById('trlInstr'), sous = instr && instr.querySelector('.trl-sous');
+        const svg = document.querySelector('#trlGraph .trl-svg');
+        const r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+        /* la flèche au-dessus du nom du vecteur : le ::before de .vec a une encre */
+        const vec = instr && instr.querySelector('.vec');
+        const fleche = vec ? getComputedStyle(vec, '::before').content : '';
+        return { ok: !!instr && !!sous, fsInstr: instr ? parseFloat(getComputedStyle(instr).fontSize) : 0,
+                 fsSous: sous ? parseFloat(getComputedStyle(sous).fontSize) : 0,
+                 svg: r.width > 300 && r.height > 150, fleche: fleche };
+      });
+      if(!mes.ok) dits.push('l\'énoncé ou son bloc .trl-sous manque à l\'écran');
+      else if(!(mes.fsSous < mes.fsInstr)) dits.push('le mode d\'emploi ne se rend pas plus petit que la demande (' + mes.fsSous + 'px contre ' + mes.fsInstr + 'px)');
+      if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      if(!/→|\\2192|→/.test(mes.fleche)) dits.push('le nom du vecteur n\'est pas coiffé d\'une flèche (::before de .vec : ' + mes.fleche + ')');
+      /* la position d'un nœud, lue dans la géométrie du SVG rendu — le
+         rectangle est relu à CHAQUE clic, le dessin étant réécrit */
+      const posNoeud = async (x, y, dx, dy) => await s.page.evaluate(([x, y, dx, dy]) => {
+        const svg = document.querySelector('#trlGraph .trl-svg');
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const M = +svg.dataset.m, C = +svg.dataset.c, H = +svg.dataset.h;
+        const kx = r.width / vb.width, ky = r.height / vb.height;
+        return { px: r.left + (M + (x + (dx || 0)) * C) * kx, py: r.top + (M + (H - (y + (dy || 0))) * C) * ky };
+      }, [x, y, dx || 0, dy || 0]);
+      const clicNoeud = async (x, y, dx, dy) => { const p = await posNoeud(x, y, dx, dy); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      const etat = async () => await s.page.evaluate(() => ({
+        rep: JSON.stringify(test.questions[test.idx].rep),
+        sel: test.trlSel,
+        pts: document.querySelectorAll('#trlGraph .trl-pt').length,
+        sol: document.querySelectorAll('#trlGraph .trl-sol').length,
+        lbl: [...document.querySelectorAll('#trlGraph .trl-lbl')].map(t => t.textContent).join(','),
+        pastille0: document.getElementById('trl-pt-0').textContent,
+        sel1: document.getElementById('trlSel1').classList.contains('sel')
+      }));
+      /* la question affichée, et ses images attendues, recalculées ICI */
+      const q0 = await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return { src: q.src, im: q.src.map(p => [p[0] + q.vec[0], p[1] + q.vec[1]]), noms: trlNoms(q) }; });
+      /* le clic pose A′ au nœud visé, la pastille le dit, le stylo passe à B′ */
+      await clicNoeud(q0.im[0][0], q0.im[0][1]);
+      let e = await etat();
+      if(e.rep !== JSON.stringify([{ x: q0.im[0][0], y: q0.im[0][1] }, null, null])) dits.push('le clic ne pose pas le nœud visé : ' + e.rep);
+      if(e.pts !== 1) dits.push('le point posé ne se dessine pas (' + e.pts + ' point(s))');
+      if(e.lbl !== q0.noms[0] + '′') dits.push('le point posé ne porte pas son nom ' + q0.noms[0] + '′ : « ' + e.lbl + ' »');
+      if(e.pastille0.indexOf(q0.noms[0] + '′ posé') < 0) dits.push('la pastille ne dit pas « ' + q0.noms[0] + '′ posé » : ' + e.pastille0);
+      if(e.sel !== 1 || !e.sel1) dits.push('le stylo ne passe pas à B′ une fois A′ posé (trlSel = ' + e.sel + ')');
+      /* recliquer RETIRE, et le stylo revient sur ce point */
+      await clicNoeud(q0.im[0][0], q0.im[0][1]);
+      e = await etat();
+      if(e.rep !== JSON.stringify([null, null, null])) dits.push('recliquer le point ne le retire pas : ' + e.rep);
+      if(e.sel !== 0) dits.push('retirer A′ ne rend pas le stylo A′ (trlSel = ' + e.sel + ')');
+      /* un clic à un TIERS de maille s'accroche au nœud le plus proche */
+      await clicNoeud(q0.im[0][0], q0.im[0][1], 0.33, -0.3);
+      e = await etat();
+      if(e.rep !== JSON.stringify([{ x: q0.im[0][0], y: q0.im[0][1] }, null, null])) dits.push('le clic décalé d\'un tiers de maille ne s\'accroche pas au nœud le plus proche : ' + e.rep);
+      /* B′ et C′, puis la copie juste : 3/3, rien ne se révèle */
+      await clicNoeud(q0.im[1][0], q0.im[1][1]);
+      await clicNoeud(q0.im[2][0], q0.im[2][1]);
+      e = await etat();
+      if(e.pts !== 3) dits.push('les trois points posés ne se dessinent pas (' + e.pts + ')');
+      await s.page.click('#trlValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, sol: document.querySelectorAll('#trlGraph .trl-sol').length,
+        ok: document.querySelectorAll('#trlGraph .trl-pt.ok').length, locked: test.locked,
+        bouton: document.getElementById('trlValidate').textContent }));
+      if(fin.score !== 3) dits.push('la copie juste cliquée vaut ' + fin.score + ' au lieu de 3');
+      if(fin.sol) dits.push('une image attendue se montre sur une copie toute juste');
+      if(fin.ok !== 3) dits.push('les trois points justes ne sont pas peints ok (' + fin.ok + ')');
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* question suivante : une image FAUSSE, une MANQUANTE — les deux
+         attendues se montrent en vert, d'étendue non nulle, le point faux rougit */
+      await s.page.click('#trlValidate');
+      await s.page.waitForTimeout(400);
+      const q1 = await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return { src: q.src, im: q.src.map(p => [p[0] + q.vec[0], p[1] + q.vec[1]]), o: q.o, forme: q.forme }; });
+      await clicNoeud(q1.im[0][0], q1.im[0][1]);
+      /* B′ posé sur B (ou sur le départ de la flèche) : un nœud sûrement faux et libre */
+      await clicNoeud(q1.o[0], q1.o[1]);
+      await s.page.click('#trlValidate');
+      await s.page.waitForTimeout(300);
+      const faux = await s.page.evaluate(() => {
+        const sols = [...document.querySelectorAll('#trlGraph .trl-sol')];
+        return { sol: sols.length, large: sols.every(c => c.getBoundingClientRect().width > 4),
+                 bad: document.querySelectorAll('#trlGraph .trl-pt.bad').length,
+                 chemins: document.querySelectorAll('#trlGraph .trl-sol-chemin').length,
+                 p2: document.getElementById('trl-pt-2').className, score: test.score };
+      });
+      if(faux.sol !== 2) dits.push('les deux images attendues ne se montrent pas (' + faux.sol + ' anneau(x))');
+      else if(!faux.large) dits.push('une image attendue est dessinée mais d\'étendue nulle');
+      if(faux.chemins !== 2) dits.push('les chemins attendus en pointillés ne se dessinent pas (' + faux.chemins + ')');
+      if(faux.bad !== 1) dits.push('le point faux de l\'élève ne rougit pas sur le dessin (' + faux.bad + ')');
+      if(!/\bsol\b/.test(faux.p2)) dits.push('la pastille de l\'image manquante n\'est pas sol : ' + faux.p2);
+      if(faux.score !== 4) dits.push('l\'image fausse et la manquante ne coûtent pas exactement leur point (score ' + faux.score + ' au lieu de 4)');
+      verifier('les images se posent au clic sur le quadrillage, le stylo avance, le reclic retire', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de la translation ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
