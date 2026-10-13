@@ -5793,7 +5793,144 @@ fausses, chacune avec le mot qui la nomme, l'écran tenu aux consignes, le
 dialogue de la console, les copies juste, fausse et vide, le soutien qui ne
 révèle rien, et les modèles comparés à un vrai CPython.
 
-## Jouons à pile ou face — {python-pile-face} (6.7.4, Condition if else)
+---
+
+## {python-if-cinema} — le prix d'une place de cinéma (6.7.4, Condition if else, BONUS)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
+condition if else, créer un exercice qui suit les images jointes ; respecter
+les consignes de présentation des autres exercices d'algo du sous-thème
+input ; mettre le dessin en premier ; dans la définition ne rien rajouter de
+plus, ainsi que dans les coups de pouce éventuels ; respecter les couleurs et
+présentations des exercices du sous-thème input ; ne rien écrire dans le
+cadre de la console ; mettre bonus dans le titre. » C'est l'« Exercice 2 »
+du carnet : le serpent au cinéma (« L'acteur est trop beau ! »), puis « Le
+prix d'une place de cinéma est de 6 € pour les mineurs et de 9 € pour les
+majeurs. Faire un programme qui demande l'âge de l'utilisateur et qui met le
+résultat dans la variable entière age ; si l'age est plus petit que 18 alors
+il affiche "Tu dois payer 6 €. " et sinon il affiche "Tu dois payer 9€." ».
+
+**Le sous-thème 6.7 « Condition if else » n'existait pas quand cet exercice
+a été écrit : il l'a créé, en 6.7.1. Mais {python-samoussa}, {python-if-else}
+puis {python-if-plus-grand}, écrits en même temps dans d'autres branches, l'ont
+créé eux aussi, et ont été fusionnés les premiers — chaque fois juste avant la
+fusion de celui-ci.** Ce qui est en ligne ne se renumérote pas :
+{python-if-else} ouvre le 6.7, {python-samoussa} le suit en 6.7.2,
+{python-if-plus-grand} en 6.7.3, le cinéma passe en 6.7.4 (APP_VERSION 463 ;
+451, 457, 460, 461 puis 462 pris sur `main` pendant les bancs). Les exercices du 6.7 avaient été bâtis sur le même modèle
+({python-input-prix}) : git a entrelacé leurs blocs ligne à ligne, si bien
+que la fusion n'a pas été résolue conflit par conflit — les quatre fichiers
+ont été repris de `main`, et le cinéma regreffé pièce par pièce depuis la
+branche, chaque pièce vérifiée identique à sa source. Huit contrôles
+d'exercices du 6.6 exigeaient que le 6.6 soit le DERNIER sous-thème : ils
+exigent qu'il reste le SIXIÈME (la même adaptation a été faite des deux
+côtés).
+
+**La présentation est celle de {python-for-images}** : le dessin seul dans
+`#pciInstr` (découpé dans la capture, WebP de 17 Ko, `PCI_IMG`) ; l'énoncé
+de la fiche, mot pour mot (« l'age » sans accent compris, et les espaces des
+deux phrases à afficher, « 6 €. " » et « 9€." »), dans un cadre `.pyn-etape`
+en gras qui enveloppe la cellule, « Exécuter » et la console ; ses deux
+puces séparées par un trait, comme sur la fiche. **La fiche n'a ni
+définition ni coup de pouce : l'écran n'en a pas** (exception déclarée,
+`pythonAvant.sans`), et le rappel (`RAP_PCI`) ne redit que la consigne. La
+console vide reste un cadre vide (`#pciConsole` rejoint `content:none`).
+
+**Le dialogue est celui de {python-input-prix}** : « Exécuter » pose la
+question du programme dans la console, l'élève y tape l'âge et Entrée. À la
+vérification, la console montre deux des exécutions du juge : 15 ans, puis
+la frontière, 18 ans.
+
+**Le juge (`pciDiag`) exécute la copie sous quatre âges** (`PCI_AGES` : 15,
+30, 17, 18) : une question, rangée dans `age`, ENTIÈRE ; à chaque âge UNE
+phrase, « Tu dois payer N € » — lue réduite à ses lettres et chiffres, si
+bien que « 9€. », « 9 €. », « 9 euros » et `print("Tu dois payer", 9, "€.")`
+valent pareil ; et un `if` dans le programme. **18 ans est la frontière :
+à 18 ans on est majeur**, et c'est l'âge qui trahit `age <= 18`. Nommés :
+`int` oublié (Python ne compare pas un texte à 18), `float` à la place, la
+réponse hors de `age`, l'input muet, aucune ou deux questions, `age <= 18`,
+les prix échangés, le même prix à tout âge, les deux phrases à la fois (le
+`else` oublié ou le print sorti du bloc), une autre phrase, rien d'affiché à
+un âge, un autre prix ; « si », « sinon », « alors » écrits en français ; et
+les erreurs d'écriture d'un `if` (les deux-points, le retrait, un `else`
+sans `if`) dans les mots de l'interpréteur.
+
+**La séance** : la fiche épinglée (6 € et 9 €), puis d'autres prix
+(`PCI_PRIX`, `[mineurs, majeurs]`) tirés par `distinctes()` ;
+`dmNbQuestions()` l'allonge. Le programme voyage dans `q.prog` et compte
+pour UNE case (`pts-case`). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Contrôle :
+`pythonIfCinema` (banc principal) — la place, le titre, le tirage
+(300 séances), le juge sur 8 copies justes et 20 fausses, chacune avec le
+mot qui la nomme, l'écran tenu aux consignes, le dialogue de la console, les
+copies juste, fausse et vide, le soutien qui ne révèle rien, et les modèles
+comparés à un vrai CPython. La visite universelle (section 9) l'ouvre dans
+les deux modes.
+
+## {python-if-location} — je loue une voiture (6.7.5, Condition if else)
+
+**L'exercice 6 du carnet sur la condition.** {python-if-location} (Seconde,
+6.7.5, APP_VERSION 464 — 449 à 463 prises sur `main` pendant ses bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+le sous-thème "condition if else", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ») : le serpent qui tend la clé (« Je loue une
+voiture »), le tarif — 100 € la journée, 0,40 €/km pour les 50 premiers
+kilomètres, 0,70 €/km au-delà —, puis « Écrire un programme en python qui »
+demande le nombre entier de kilomètres dans la variable `kilometre`, calcule
+le prix dans la variable `prix` par un if puis un else, et l'affiche ; quatre
+coups de pouce. Le sous-thème 6.7 « Condition if else » a été créé sur `main` pendant ses
+bancs, et quatre exercices y sont entrés ({python-if-else}, {python-samoussa},
+{python-if-plus-grand}, {python-if-cinema}) : celui-ci le ferme en 6.7.5 —
+rien n'est renuméroté.
+
+**La présentation est celle du 6.3.9 et du 6.6.10** : le dessin seul dans
+`#ploInstr` (découpé dans la capture, 376 × 376, WebP de 17 Ko, `PLO_IMG`) ;
+la question dans un cadre `.pyn-etape`, en gras : le tarif à puces, le trait
+qui le sépare du programme sur la fiche (`.plo-sep`), puis les trois puces ;
+les quatre coups de pouce repliés, la cellule, « Exécuter » et la console.
+Aucune définition (exception déclarée, `pythonAvant.sans`) ; la console vide
+reste un cadre vide (`#ploConsole` rejoint `content:none`). Dans la cellule,
+Tab et Entrée après « : » décalent (`pfnTouche`).
+
+**Les quatre coups de pouce sont ceux de la fiche** — le code du premier et
+du second en chasse fixe, colorié comme le carnet (`if`, `else`, `int`,
+`input` en vert gras, `<` et `= ....` en violet, les textes en rouge) ; le
+rappel (`RAP_PLO`) ne dit qu'eux. **Deux coquilles corrigées, et seulement
+elles** : la parenthèse fermante qui manquait au premier (`int (input ( "…" )`
+ne s'exécute pas), et le quatrième, qui écrivait `0.7 * ( 50 - kilometre )`
+— un prix qui BAISSE au-delà de 50 km : c'est `( kilometre - 50 )`, les
+« kilomètres restants » du troisième. Dans l'énoncé, « il calcul » devient
+« il calcule » ; les noms de variables restent `kilometre` et `prix`.
+
+**Le juge (`ploDiag`) exécute la copie sous trois kilométrages** (`ploKm` :
+le seuil − 13, puis + 37 et + 150) et lit la variable `prix` ET la console
+(à 10⁻⁶ près : `0.7*70` vaut `48.99999999999999`, ici comme dans CPython).
+Les noms `kilometre` et `prix` sont imposés par la fiche, il les exige ; il
+faut un `if` et un `else`. `<=` au lieu de `<` passe (au seuil les deux
+formules donnent le même prix), `float(input(…))` aussi. Nommés : la
+conversion oubliée, la virgule française, aucun input, pas de if, pas de
+else, deux questions, l'input muet, `kilometre` ou `prix` absents, le prix
+non affiché, `( 50 - kilometre )`, la même formule dans les deux branches,
+tous les kilomètres au second tarif, les premiers kilomètres oubliés, le if
+faux, le prix fixe, le else faux — en donnant le kilométrage tapé et ce que
+la copie a calculé, jamais le prix attendu.
+
+**La séance** : la fiche épinglée (100 € ; 0,40 € ; 50 km ; 0,70 €), puis
+d'autres tarifs (`PLO_TARIFS`) tirés par `distinctes()` ; `dmNbQuestions()`
+l'allonge. L'énoncé et les coups de pouce suivent le tarif de la question.
+Le programme voyage dans `q.prog` et compte pour UNE case (`pts-case`). Pas
+de correction au fil de la frappe (`soutienEnDirect.sans`), pas de bouton
+des tables. Contrôle : `pythonIfLocation` (banc principal) — la place, le
+tirage (300 séances), le juge sur 4 copies justes et 19 fausses, chacune avec
+le mot qui la nomme, l'écran tenu aux consignes, le dialogue de la console,
+les copies juste, fausse et vide, le soutien qui ne révèle rien, et les
+modèles comparés à un vrai CPython. La visite universelle (section 9)
+l'ouvre dans les deux modes.
+
+## Jouons à pile ou face — {python-pile-face} (6.7.6, Condition if else)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous theme
 "condition if else", créer un exercice qui suit les images jointes […]
@@ -5802,9 +5939,10 @@ thème "input". mettre le dessin en premier, dans la définition ne rien
 rajouter de plus ainsi que dans les coups de pouces eventuels […] ne rien
 écrire dans le cadre de la console. » La fiche est l'« Exercice 7 » du
 carnet, envoyée en trois fois (a), puis b) à e), puis f)). Créé en même temps
-que {python-if-else}, {python-samoussa} et {python-if-plus-grand}, qui ont
-ouvert le sous-thème 6.7 sur `main` pendant les bancs : il le ferme, en 6.7.4
-(APP_VERSION 463 — 449 à 462 pris sur `main`), rien n'est renuméroté. Les contrôles du 6.6 qui
+que {python-if-else}, {python-samoussa}, {python-if-plus-grand},
+{python-if-cinema} et {python-if-location}, qui ont ouvert le sous-thème 6.7
+sur `main` pendant les bancs : il le ferme, en 6.7.6 (APP_VERSION 465 — 449
+à 464 pris sur `main`), rien n'est renuméroté. Les contrôles du 6.6 qui
 exigeaient « le dernier sous-thème » avaient été corrigés des deux côtés :
 c'est la version de `main` qui reste.
 
