@@ -36,8 +36,8 @@ changé, ce qui a été exécuté, et ce qu'aucun banc ne voit.
 **2. `npm test` avant toute proposition.** Aucune modification n'est poussée si
 les contrôles échouent. `npm test` contrôle **les trois niveaux**, chacun selon
 son profil (`tests/profils.js`). L'action GitHub `.github/workflows/controles.yml`
-les rejoue tous les trois sur chaque pull request, une étape par fichier : elle
-doit être verte avant fusion. Voir `tests/LISEZMOI.md`.
+les rejoue tous les trois sur chaque pull request, un travail par fichier, en
+parallèle : elle doit être verte avant fusion. Voir `tests/LISEZMOI.md`.
 
 **3. Ne jamais livrer sans avoir exécuté.** Une vérification de syntaxe ne prouve
 rien. Trois pannes en production sont passées à travers des contrôles statiques
@@ -316,6 +316,8 @@ règle ci-dessous, lis le paragraphe qui la porte :
 
 - **La même erreur, huit fois, n'est pas huit mesures.**
 - **Deux bancs jsdom ne se lancent pas EN MÊME TEMPS.**
+- **Puis les trois bancs jsdom ont joué de front, chacun dans son dossier temporaire.**
+- **Puis la Seconde a rendu dix minutes à chacun de ses deux bancs — mesurées contrôle par contrôle, jamais devinées.**
 - **Un bug trouvé devient un contrôle.**
 - **Une clé écrite deux fois dans `tests/profils.js` ne casse rien — elle gagne.**
 - **Un NUMÉRO de section du banc ne désigne qu'une section — et un en-tête qui n'imprime pas son titre est pire qu'un titre absent.**
@@ -336,7 +338,7 @@ tenus, les sabotages qui les ont éprouvés.
 - Terminale — dérivées, suites, récurrences et TVI — `docs/journal/14-terminale.md`
 - Seconde — calcul littéral (thème 7 : les nombres relatifs, somme et produit, réduire une somme) — `docs/journal/16-seconde-calcul-litteral.md`
 - Première — probabilités (thème 3 : lire une probabilité, le tableau à double entrée) — `docs/journal/18-premiere-probabilites.md`
-- Seconde — vecteurs (thème 8 : l'image d'un point par une translation sur une grille, la translation d'un point sur quadrillage) — `docs/journal/19-seconde-vecteurs.md`
+- Seconde — vecteurs (thème 8 : l'image d'un point par une translation sur une grille, le tableau des vecteurs égaux, la translation d'un point sur quadrillage) — `docs/journal/19-seconde-vecteurs.md`
 
 ## Ajouter un exercice
 
@@ -510,8 +512,8 @@ réglage de l'authentification Supabase, le déploiement de la fonction Edge, et
 le fait que `COURRIEL_PROF` désigne un compte réel. Voir `supabase/LISEZMOI.md`.
 
 **Une erreur qui revient à l'identique se diagnostique en remontant la
-chaîne, jamais en la répétant** ; **deux bancs jsdom ne se lancent pas EN MÊME
-TEMPS, `npm test` les enchaîne exprès** ; **une clé dupliquée dans
+chaîne, jamais en la répétant** ; **les trois bancs jsdom se jouent de front, chacun dans son dossier
+temporaire — `npm test` les lance ensemble (octobre 2026)** ; **une clé dupliquée dans
 `tests/profils.js` gagne en silence** ; **un NUMÉRO de section du banc
 navigateur ne désigne qu'une section, et se relit à chaque fusion de `main`
 comme `APP_VERSION`** ; **un contrôle qui ne s'applique pas à un fichier se
