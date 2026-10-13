@@ -5979,3 +5979,80 @@ la place, le tirage (300 séances), le juge sur 4 copies justes et 18
 fausses, l'écran tenu aux consignes (dessin d'abord, console vide), les
 copies juste, fausse et vide, le soutien, et les modèles comparés à un vrai
 CPython.
+
+## Jouons à pile ou face — {python-pile-face} (6.7.7, Condition if else)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous theme
+"condition if else", créer un exercice qui suit les images jointes […]
+respecter les consignes de présentation des autres exercices d'algo du sous
+thème "input". mettre le dessin en premier, dans la définition ne rien
+rajouter de plus ainsi que dans les coups de pouces eventuels […] ne rien
+écrire dans le cadre de la console. » La fiche est l'« Exercice 7 » du
+carnet, envoyée en trois fois (a), puis b) à e), puis f)). Créé en même temps
+que {python-if-else}, {python-samoussa}, {python-if-plus-grand},
+{python-if-cinema}, {python-if-location} et {python-if-frais-port}, qui ont
+ouvert le sous-thème 6.7 sur `main` pendant les bancs : il le ferme, en 6.7.7
+(APP_VERSION 466 — 449 à 465 pris sur `main`), rien n'est renuméroté. Les contrôles du 6.6 qui
+exigeaient « le dernier sous-thème » avaient été corrigés des deux côtés :
+c'est la version de `main` qui reste.
+
+**Six questions, une par écran, qui montent un jeu** : a) le choix
+(`choix = int(input(…))`, `if choix == 1 : … else : …`), b) la pièce
+(`import random`, `piece = random.randint(1,2)`), c) le verdict
+(`if choix == piece`), d) cinq parties (`for k in range(5)`), e) le score
+(`raison`), f) le message selon le score. La fiche dit « il faudra
+copier-coller » : la cellule de la question d'après s'ouvre sur le programme
+d'avant (`q.fin` : celui de l'élève s'il était juste, la correction sinon) —
+le c) sur le a) PUIS le b). Le geste de {python-input-evolution}. Le
+réglage « Questions » d'un devoir raccourcit la séance (au moins le a)) et ne
+l'allonge jamais : la fiche n'a pas de septième question.
+
+**L'écran** : le dessin de la question d'abord (« Jouons à pile ou face ! »
+au a), le serpent à la pièce au b), le magicien du c) au f) — la fiche n'a
+plus de dessin après le c), on garde celui du jeu qu'on complète), puis la
+définition MOT POUR MOT dans le cadre orange, en trois colonnes comme le
+carnet (le code, « signifie: », la traduction), puis l'énoncé en gras dans
+son cadre `.pyn-etape` avec les coups de pouce de la fiche, repliés, leur
+code coloré comme le carnet (`pofColorie` : `if`, `else`, `for`, `in`,
+`import` en vert gras ; `=`, `==`, `+`, `<=` et les `...` à compléter en
+violet). Le f) n'a pas de coup de pouce : il n'en a pas. La console vide
+reste un cadre vide (`#pofConsole` rejoint `content:none`). Coquilles
+corrigées, rien d'ajouté : `deux "="` (la capture montrait `""=""`),
+« répéter », « où », « deviné », et `if` dans le coup de pouce du e) (la fiche
+écrit `If`, que Python refuse).
+
+**L'interpréteur a appris le hasard** : `import random`,
+`random.randint(a, b)` (bornes comprises, comme CPython) et
+`from random import randint`. Le point n'est accepté QUE derrière le nom
+`random` : `chaine.upper()` reste refusé en le nommant, aucun autre exercice
+ne change. `pyRun(src, entrees, hasard)` : la liste `hasard` IMPOSE les
+tirages, dans l'ordre (c'est ainsi que le juge sait ce que la pièce a
+donné), et chaque tirage sort dans `r.alea` — ou dans `e.alea` quand
+l'exécution s'arrête. C'est ce second canal qui tient le **piège de la
+console** : « Exécuter » REJOUE le programme depuis le début à chaque réponse
+tapée ; sans précaution, la pièce aurait été relancée à chaque rejeu, et
+l'écran aurait dit « la pièce donne Face » puis « Perdu » sur un choix Face.
+Les tirages déjà faits sont rejoués (`_pofAlea`), les suivants tirés au vrai
+hasard — « tester plusieurs fois » garde son sens.
+
+**Le juge (`pofDiag`) exécute et lit ce que le programme AFFICHE**, sous
+des réponses et des pièces choisies pour que chaque branche se montre ; il
+lit le mot qui décide (face, pile, bravo, perdu, incapable, pas mal,
+impressionnant, medium), pas la phrase à la lettre. Nommés : `int` oublié
+(« 1 » n'est pas 1, la condition est toujours fausse), un seul « = » dans la
+condition, le `else` oublié, les messages échangés, la consigne oubliée, la
+variable mal nommée, un `input` au b), `import random` oublié, les mauvaises
+bornes de `randint`, le a) ou le b) perdus au c), l'absence de `for`, le
+tirage ou l'`input` restés hors de la boucle, `raison` jamais augmentée ou
+remise à 0 à chaque tour, le total affiché à chaque tour, un message du f)
+faux, en trop, ou avant le total.
+
+Contrôle : `pythonPileFace` (banc principal) — la place au menu, la séance,
+l'interpréteur (les deux tirages sortent, les tirages imposés, `random` sans
+import, le point refusé ailleurs), le juge sur les six modèles, des copies
+justes écrites autrement et 25 copies fausses chacune avec le mot qui la
+nomme, l'écran (dessin d'abord, définition mot pour mot, coups de pouce),
+la console qui garde la pièce, la cellule du c) ouverte sur le a) et le b),
+les copies juste, fausse et vide, le soutien qui ne révèle rien, et les
+modèles comparés à un vrai CPython (`input` et `random.randint` remplacés
+par les réponses et les tirages imposés).
