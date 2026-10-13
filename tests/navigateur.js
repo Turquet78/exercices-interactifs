@@ -6733,6 +6733,72 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 terdecies ter. LES CASES RÉDUITES DU THÈME DES FRACTIONS =====
+       Demande de Turquet (octobre 2026) : « en première dans les exercices
+       4.3 ; 4.4 ; 4.5 réduire la taille des cases où l'on doit placer des
+       nombres à l'écran » — comme le 4.6 avant eux. Deux bords, et n'en tenir
+       qu'un ne tient rien : les cases de ces exercices sont PLUS PETITES que
+       celles du témoin (le 4.2, qui partage l'écran et le moteur du 4.3), ET
+       le témoin GARDE ses cases pleines — la réduction du 4.3 se pose sur
+       l'écran par l'exercice qu'il porte (data-exo, écrit par show()), et un
+       sélecteur trop large réduirait le 4.2 sans que rien ne rougisse. La
+       règle de tout exercice reste tenue au passage : la case réduite a la
+       taille des nombres qui l'entourent. Tout est MESURÉ, à l'écran, sur les
+       premières cases de la rangée. */
+    titre('6 terdecies ter. LES CASES RÉDUITES DU THÈME DES FRACTIONS');
+    if(!P.casesReduites){
+      ignorer('les cases réduites sont plus petites que celles du témoin, qui garde les siennes',
+        'ce niveau ne déclare aucun exercice à cases réduites');
+    } else if(!ml){
+      ignorer('les cases réduites sont plus petites que celles du témoin, qui garde les siennes', 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      const mesure = async id => {
+        await s.page.evaluate(i => openTest(i), id);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        return s.page.evaluate(() => {
+          const on = document.querySelector('section.screen.on'); if(!on) return null;
+          const r = e => e.getBoundingClientRect();
+          const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+          const px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) / rem * 100) / 100;
+          const mfs = [...on.querySelectorAll('.pt-row math-field.pm-mf')].filter(e => r(e).width > 0);
+          if(!mfs.length) return null;
+          const voisins = [...on.querySelectorAll('.pt-row .f-whole, .pt-row .f-eq')].filter(e => r(e).width > 0 && /\d/.test(e.textContent));
+          return { police: Math.max(...mfs.map(px)), hauteur: Math.max(...mfs.map(e => Math.round(r(e).height))),
+                   voisins: voisins.length ? Math.max(...voisins.map(px)) : null, n: mfs.length, ecran: on.id };
+        });
+      };
+      const dits = [];
+      const T = await mesure(P.casesReduites.temoin);
+      const numT = await s.page.evaluate(i => TEST_NUM[i], P.casesReduites.temoin);
+      if(!T) dits.push('témoin ' + numT + ' : aucune case mesurée');
+      /* LE TÉMOIN GARDE SES CASES PLEINES : 1,9 rem et 46 px de haut, les
+         tailles de tout écran à chaîne de nombres de ce niveau. */
+      else if(T.police < 1.8 || T.hauteur < 44)
+        dits.push('témoin ' + numT + ' : ses cases ont été réduites avec les autres (' + T.police + ' rem, ' + T.hauteur + ' px)');
+      for(const id of P.casesReduites.exercices){
+        const m = await mesure(id), num = await s.page.evaluate(i => TEST_NUM[i], id);
+        if(!m){ dits.push(num + ' : aucune case mesurée'); continue; }
+        if(!T) continue;
+        if(!(m.police <= T.police * 0.8))
+          dits.push(num + ' : police de ' + m.police + ' rem contre ' + T.police + ' rem au témoin');
+        if(!(m.hauteur <= T.hauteur - 6))
+          dits.push(num + ' : ' + m.hauteur + ' px de haut contre ' + T.hauteur + ' px au témoin');
+        if(m.voisins !== null && m.police < m.voisins * 0.9)
+          dits.push(num + ' : la case (' + m.police + ' rem) est plus petite que ses nombres (' + m.voisins + ' rem)');
+      }
+      console.log('   · témoin ' + numT + ' : ' + (T ? T.police + ' rem, ' + T.hauteur + ' px' : 'rien')
+        + ' — réduits : ' + P.casesReduites.exercices.length + ' exercice(s)');
+      verifier('les cases réduites sont plus petites que celles du témoin, qui garde les siennes',
+        dits.length === 0, dits.slice(0, 4).join(' | '));
+      verifier('les écrans des cases réduites ne lèvent aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 sexdecies. SIMPLIFIER EN COLORIANT : LA MÊME LONGUEUR =====
        Tout l'exercice tient dans une chose qu'aucun banc hors navigateur ne
        peut voir : les deux barres VONT EXACTEMENT AUSSI LOIN. Si l'une était
