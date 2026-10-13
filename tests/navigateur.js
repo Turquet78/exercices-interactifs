@@ -7587,7 +7587,7 @@ async function parcours(page, N){
     }
 
     /* ===== 6 quadragies bis. TRANSLATION SUR QUADRILLAGE : LES IMAGES SE CLIQUENT ===== */
-    /* {translation-quadrillage} (8.1, la fiche 2 sur les vecteurs — demande de
+    /* {translation-quadrillage} (8.2, la fiche 2 sur les vecteurs — demande de
        Turquet, octobre 2026) : le geste central est le CLIC sur un nœud du
        quadrillage, converti en coordonnées par trlNoeud() depuis la géométrie
        du SVG RENDU. jsdom n'a pas de mise en page (un rectangle de SVG y vaut
