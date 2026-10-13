@@ -4956,7 +4956,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
-  <!-- TEST : LE PRIX D'UNE PLACE DE CINÉMA (PYTHON, CONDITION IF ELSE — BONUS) -->
+  <!-- TEST : LE PRIX D'UNE PLACE DE CINÉMA (PYTHON, CONDITION IF ELSE) -->
   <section class="screen" id="scr-pci">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPCI"></span><span class="q-idx" id="pciIdx">Question 1 / 3</span></span>
@@ -6337,7 +6337,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=467;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=468;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7121,7 +7121,7 @@ const TESTS={
   'python-for-multiples': { name:'Les multiples avec une boucle for', icon:'\ud83d\udd01', desc:'a) Ex\u00e9cute le programme\u00a0; b) explique ce qu\u2019il fait\u00a0; c) fais un programme qui affiche tous les multiples de 5 de 0 \u00e0 50.', start:()=>startPFQ() },
   'python-trois-des': { name:'Bonus\u00a0: les r\u00e9sultats de trois d\u00e9s', icon:'\ud83c\udfb2', desc:'Bonus\u00a0: \u00e9cris un programme qui affiche tous les r\u00e9sultats possibles de trois d\u00e9s \u00e0 six faces, puis compl\u00e8te-le pour qu\u2019il compte les fois o\u00f9 le total vaut 9, puis celles o\u00f9 il est au-dessus de 12.', start:()=>startPTDS() },
   'python-for-images': { name:'Bonus\u00a0: les images de f de dixi\u00e8me en dixi\u00e8me', icon:'\ud83d\udd01', desc:'Bonus\u00a0: \u00e9cris un programme qui affiche les images de 0\u00a0; 0,1\u00a0; 0,2\u00a0\u2026 jusqu\u2019\u00e0 1 par la fonction f, avec une boucle for \u2026 in range(\u2026). Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPFI() },
-  'python-if-cinema': { name:'Bonus\u00a0: le prix d\u2019une place de cin\u00e9ma', icon:'\ud83c\udfac', desc:'Bonus\u00a0: \u00e9cris un programme qui demande l\u2019\u00e2ge de l\u2019utilisateur et qui affiche le prix de sa place de cin\u00e9ma \u2014 un prix pour les mineurs, un autre pour les majeurs \u2014 avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPCI() },
+  'python-if-cinema': { name:'Le prix d\u2019une place de cin\u00e9ma', icon:'\ud83c\udfac', desc:'\u00c9cris un programme qui demande l\u2019\u00e2ge de l\u2019utilisateur et qui affiche le prix de sa place de cin\u00e9ma \u2014 un prix pour les mineurs, un autre pour les majeurs \u2014 avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPCI() },
   'python-if-location': { name:'Je loue une voiture', icon:'\ud83d\ude97', desc:'\u00c9cris un programme qui demande le nombre de kilom\u00e8tres parcourus et calcule le prix de la location avec if et else, puis l\u2019affiche. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPLO() },
   'python-if-else': { name:'La condition if \u2026 else', icon:'\ud83d\udd00', desc:'\u00c9cris un programme qui demande l\u2019\u00e2ge de l\u2019utilisateur avec int(input(\u2026)), puis affiche \u00ab\u00a0Tu es mineur.\u00a0\u00bb s\u2019il est plus petit que 18, \u00ab\u00a0Tu es majeur.\u00a0\u00bb sinon, avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPCE() },
   'python-for-table': { name:'Afficher la table de 3, puis la table de 7', icon:'\ud83d\udd01', desc:'\u00c9cris un programme qui affiche la table de 3, de \u00ab\u00a03 fois 1 est \u00e9gal \u00e0 3\u00a0\u00bb \u00e0 \u00ab\u00a03 fois 9 est \u00e9gal \u00e0 27\u00a0\u00bb, avec une boucle for \u2026 in range(\u2026) \u2014 puis un second qui affiche la table de 7. Ex\u00e9cute-les\u00a0: la console montre ce qu\u2019ils affichent.', start:()=>startPTM() },
@@ -9709,13 +9709,17 @@ Pour compter de <code class="inline">1</code> à <code class="inline">8</code> u
 /* Le rappel de {python-if-plus-grand} : le « Rappel » de la fiche, sans une phrase de plus. */
 const RAP_PXY=`<b>Le plus grand des deux nombres</b><br>
 Pour demander un <b>nombre décimal</b> il faut mettre : <code class="inline">= float(input("... texte de la question ..."))</code>`;
-/* Le rappel de {python-if-cinema} : la fiche n'a ni définition ni coup de
-   pouce — le rappel ne redit que la consigne, sans une phrase de plus. */
+/* Le rappel de {python-if-cinema} : la fiche n'a pas de définition — le rappel
+   redit la consigne, puis les deux coups de pouce de l'écran (demande de
+   Turquet, octobre 2026 : « enlever bonus du titre et placer 1 ou deux coups
+   de pouce à la façon des autres »). */
 const RAP_PCI=`<b>Le prix d’une place de cinéma</b><br>
 Le prix d’une place de cinéma est de 6 € pour les mineurs et de 9 € pour les majeurs.<br>
 <b>Faire un programme</b><br>
 - Qui demande l’âge de l’utilisateur et qui met le résultat dans la variable entière age.<br>
-- <b>Si</b> l’age est plus petit que 18 <b>Alors</b> il affiche <b>"Tu dois payer 6 €. "</b> et <b>sinon</b> il affiche <b>"Tu dois payer 9€."</b>`;
+- <b>Si</b> l’age est plus petit que 18 <b>Alors</b> il affiche <b>"Tu dois payer 6 €. "</b> et <b>sinon</b> il affiche <b>"Tu dois payer 9€."</b><br>
+<code class="inline">age = int(input("...texte de la question ..."))</code><br>
+<code class="inline">if age &lt; 18 :</code> <code class="inline">print(" ... texte réponse ... ")</code> <code class="inline">else :</code> <code class="inline">print(" ... texte réponse ... ")</code>`;
 /* Le rappel de {python-if-location} : les quatre coups de pouce de la fiche, sans une phrase de plus. */
 const RAP_PLO=`<b>Je loue une voiture</b><br>
 <code class="inline">kilometre = int (input ( "...texte de la question ... "))</code><br>
@@ -40117,7 +40121,7 @@ function ctxPce(q){
   return {nombre:'', contexte:c};
 }
 
-/* ---------- Exercice : le prix d'une place de cinéma (Python, CONDITION IF ELSE — BONUS) ----------
+/* ---------- Exercice : le prix d'une place de cinéma (Python, CONDITION IF ELSE) ----------
    Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
    condition if else, créer un exercice qui suit les images jointes ;
    respecter les consignes de présentation des autres exercices d'algo du
@@ -40143,6 +40147,11 @@ function ctxPce(q){
    DÉFINITION NI COUP DE POUCE : pas d'encadré au-dessus (exception DÉCLARÉE,
    tests/profils.js, pythonAvant.sans), aucun coup de pouce sous l'énoncé ; le
    rappel (RAP_PCI) ne redit que la consigne, mot pour mot.
+   PUIS (Turquet, octobre 2026 : « enlever bonus du titre et placer 1 ou deux
+   coups de pouce à la façon des autres coups de pouce ») : le titre perd
+   « Bonus », et DEUX coups de pouce repliés suivent l'énoncé, comme au 6.7.3
+   — la forme de l'input, puis le squelette du if / else, sans les phrases ni
+   les prix. Le rappel les reprend après la consigne.
 
    LE DIALOGUE : celui de {python-input-prix} — « Exécuter » pose la question
    du programme dans la console, l'élève y tape l'âge et Entrée.
@@ -40276,6 +40285,16 @@ function pciEnonceHTML(q){
     +'<hr class="pci-trait">\n'
     +'<ul class="pyd-puces"><li>Si l’age est plus petit que 18 Alors il affiche "Tu dois payer '+S.mi+' €. " et sinon il affiche "Tu dois payer '+S.ma+'€."</li></ul>';
 }
+/* Les deux coups de pouce, repliés sous l'énoncé, à la façon du 6.7.3
+   (demande de Turquet, octobre 2026) : la forme de l'input, puis le squelette
+   du if / else — jamais les phrases ni les prix, qui restent à écrire. */
+function pciPoucesHTML(){
+  const t='&nbsp;&nbsp;&nbsp;&nbsp;';
+  return pyPoucesHTML([
+    ['coup de pouce 1', '<code>age = int(input("...texte de la question ..."))</code>'],
+    ['coup de pouce 2', '<code>if age &lt; 18 :</code><br><code>'+t+'print(" ... texte réponse ... ")</code><br><code>else :</code><br><code>'+t+'print(" ... texte réponse ... ")</code>']
+  ]);
+}
 
 /* ---- 3. Cycle de vie ---- */
 async function startPCI(){
@@ -40301,6 +40320,7 @@ function renderPCI(){
   $('pciHost').innerHTML=
     '<div class="py-cell">'
     +'<div class="pyn-etape" id="pciEtape"><div class="pyn-titre">✏️ '+pciEnonceHTML(q)+'</div>'
+    +pciPoucesHTML()
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pci-prog" class="pyp-edit pts-case" rows="5" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python"></textarea>'
     +'<div class="py-runrow"><button class="btn btn-ghost" id="pciRun" type="button" onclick="pciExecuter()">▶ Exécuter mon programme</button></div>'

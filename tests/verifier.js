@@ -28941,18 +28941,18 @@ function pythonInputPrix(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
-/* {python-if-cinema} (Seconde, 6.7.4, BONUS) : l'exercice 2 du carnet — le
+/* {python-if-cinema} (Seconde, 6.7.4 — « Bonus » retiré du titre en octobre 2026) : l'exercice 2 du carnet — le
    serpent au cinéma, puis « Le prix d'une place de cinéma est de 6 € pour les
    mineurs et de 9 € pour les majeurs ; faire un programme qui demande l'âge
    … si l'age est plus petit que 18 alors … sinon … ». Le contrôle tient la
    place au menu (dans le sous-thème 6.7 « Condition if else », derrière
    {python-if-else}, {python-samoussa} et {python-if-plus-grand}, dernier du
-   thème ; rien d'autre ne bouge ; « Bonus »
+   thème ; rien d'autre ne bouge ; plus de « Bonus »
    dans le titre),
    la fiche épinglée et le tirage, le juge sur des copies justes et fausses,
    chacune avec le mot qui la nomme, l'écran tenu aux consignes du sous-thème
    Input (le dessin seul en tête, l'énoncé de la fiche en gras dans son
-   cadre, aucun coup de pouce, aucune définition, la cellule et la console
+   cadre, deux coups de pouce repliés qui ne donnent pas la réponse, aucune définition, la cellule et la console
    vides), le dialogue de la console, la copie juste, fausse et vide, le
    soutien qui explique sans révéler, puis compare à un vrai CPython ce que
    les modèles affichent. Aucun accent grave ni antislash littéral dans le
@@ -28967,7 +28967,7 @@ function pythonIfCinema(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il suit {python-if-plus-grand} dans le sous-thème 6.7 « Condition if else », dernier du thème, numéroté ' + NUM + ', « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-if-plus-grand} dans le sous-thème 6.7 « Condition if else », dernier du thème, numéroté ' + NUM + ', sans « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
     if(!st||st.nom!=="Condition if else") vus.push("pas de sous-thème 6.7 Condition if else");
@@ -28977,7 +28977,7 @@ function pythonIfCinema(w, P){
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-images"]!=="6.6.10"||TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
-    else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+TESTS["${ID}"].name);
+    else if(/bonus/i.test(TESTS["${ID}"].name+" "+TESTS["${ID}"].desc)) vus.push("« Bonus » est resté dans le titre : "+TESTS["${ID}"].name);
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -29049,7 +29049,7 @@ function pythonIfCinema(w, P){
   })()`, v => v === '');
 
   /* ---- 4. l'écran, tenu aux consignes du sous-thème Input, le dialogue, et la copie juste ---- */
-  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni coup de pouce, l’énoncé de la fiche mot pour mot en gras dans son cadre, la cellule et la console VIDES, « Exécuter » qui pose la question dans la console ; le rappel ne redit que la consigne ; la copie juste vaut 1', `(function(){
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition, deux coups de pouce repliés, l’énoncé de la fiche mot pour mot en gras dans son cadre, la cellule et la console VIDES, « Exécuter » qui pose la question dans la console ; le rappel ne redit que la consigne ; la copie juste vaut 1', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPCI();
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
@@ -29061,15 +29061,24 @@ function pythonIfCinema(w, P){
     const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
     if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
     if(document.querySelector("#scr-pci .py-avant,#scr-pci .pyp-regle,#scr-pci .pyi-cours,#scr-pci .pii-def")) vus.push("un encadré de définition sur l’écran");
-    if(document.querySelector("#scr-pci details")) vus.push("un coup de pouce que la fiche n’a pas");
     const et=document.getElementById("pciEtape"), ti=et&&et.querySelector(".pyn-titre");
+    /* deux coups de pouce repliés, sous l'énoncé, avant la cellule — sans les phrases ni les prix */
+    const pc=[].slice.call(document.querySelectorAll("#scr-pci details.pyd-pouce"));
+    if(pc.length!==2) vus.push(pc.length+" coup(s) de pouce au lieu de deux");
+    else {
+      if(pc.some(function(d){ return d.open||d.parentNode.parentNode!==et; })) vus.push("un coup de pouce ouvert, ou hors du cadre de la question");
+      if(!(ti.compareDocumentPosition(pc[0])&4)||!(pc[1].compareDocumentPosition(document.getElementById("pci-prog"))&4)) vus.push("les coups de pouce ne sont pas entre l’énoncé et la cellule");
+      if(net(pc[0].textContent)!=="coup de pouce 1age = int(input("+Q+"...texte de la question ..."+Q+"))") vus.push("coup de pouce 1 : "+JSON.stringify(net(pc[0].textContent)));
+      if(net(pc[1].textContent).indexOf("if age < 18 :")<0||net(pc[1].textContent).indexOf("else :")<0) vus.push("coup de pouce 2 : "+JSON.stringify(net(pc[1].textContent)));
+      if(/payer|[69] ?€/.test(pc.map(function(d){ return d.textContent; }).join(" "))) vus.push("un coup de pouce donne la réponse");
+    }
     const attendu="✏️ Le prix d’une place de cinéma est de 6 € pour les mineurs et de 9 € pour les majeurs. Faire un programme Qui demande l’âge de l’utilisateur et qui met le résultat dans la variable entière age. Si l’age est plus petit que 18 Alors il affiche "+Q+"Tu dois payer 6 €. "+Q+" et sinon il affiche "+Q+"Tu dois payer 9€."+Q;
     if(!ti||net(ti.textContent)!==attendu) vus.push("l’énoncé : "+(ti&&JSON.stringify(net(ti.textContent))));
     if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
     if(!ti||ti.querySelectorAll("li").length!==2||!ti.querySelector("hr")) vus.push("les deux puces séparées par un trait");
     ["pci-prog","pciRun","pciConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
     const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pci||"";
-    if(net(rap.textContent)!=="Le prix d’une place de cinéma "+attendu.slice(3).replace("Faire un programme Qui","Faire un programme - Qui").replace(" Si l’age"," - Si l’age")) vus.push("le rappel : "+JSON.stringify(net(rap.textContent)));
+    if(net(rap.textContent)!=="Le prix d’une place de cinéma "+attendu.slice(3).replace("Faire un programme Qui","Faire un programme - Qui").replace(" Si l’age"," - Si l’age")+" age = int(input("+Q+"...texte de la question ..."+Q+")) if age < 18 : print("+Q+" ... texte réponse ... "+Q+") else : print("+Q+" ... texte réponse ... "+Q+")") vus.push("le rappel : "+JSON.stringify(net(rap.textContent)));
     const ta=document.getElementById("pci-prog"), cons=document.getElementById("pciConsole");
     if(ta.value!==""||ta.getAttribute("placeholder")) vus.push("la cellule n’est pas vide");
     if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide : "+JSON.stringify(cons.textContent+getComputedStyle(cons,"::before").content));

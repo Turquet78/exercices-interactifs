@@ -5795,7 +5795,7 @@ révèle rien, et les modèles comparés à un vrai CPython.
 
 ---
 
-## {python-if-cinema} — le prix d'une place de cinéma (6.7.4, Condition if else, BONUS)
+## {python-if-cinema} — le prix d'une place de cinéma (6.7.4, Condition if else ; BONUS jusqu'à la version 468)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
 condition if else, créer un exercice qui suit les images jointes ; respecter
@@ -5866,6 +5866,21 @@ mot qui la nomme, l'écran tenu aux consignes, le dialogue de la console, les
 copies juste, fausse et vide, le soutien qui ne révèle rien, et les modèles
 comparés à un vrai CPython. La visite universelle (section 9) l'ouvre dans
 les deux modes.
+
+**Puis « Bonus » a quitté le titre, et deux coups de pouce sont venus**
+(Turquet, octobre 2026 : « en seconde dans le 6.7.4, enlever bonus du titre et
+placer 1 ou deux coup de pouce à la façon des autres coup de pouce » ;
+APP_VERSION 468). Le titre et la description perdent « Bonus » — l'exercice
+n'avait jamais porté le drapeau `bonus` d'un devoir, seul le mot changeait. Les
+coups de pouce suivent le 6.7.3 ({python-if-plus-grand}), son voisin le plus
+proche : deux `details.pyd-pouce` repliés entre l'énoncé et la cellule — la
+forme de l'input (`age = int(input("...texte de la question ..."))`), puis le
+squelette `if age < 18 :` / `else :` avec des `print(" ... texte réponse ... ")`
+à trous. Ni la phrase « Tu dois payer », ni les prix : ils sont ce que l'élève
+écrit. Le rappel (`RAP_PCI`) les reprend après la consigne, comme celui du
+6.7.5. Le banc, qui exigeait « Bonus » dans le titre et AUCUN `details`, exige
+maintenant l'inverse : pas de « bonus » (titre ni description), deux coups de
+pouce fermés, à leur place, dont aucun ne contient « payer » ni un prix.
 
 ## {python-if-location} — je loue une voiture (6.7.5, Condition if else)
 
