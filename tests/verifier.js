@@ -4347,6 +4347,7 @@ function exercices(suite){
     simplifierBarres(w, P);
     multiplierFractions(w, P);
     fractionsEtapes(w, P);
+    fractionsRedigees(w, P);
     sommeProduitFractions(w, P);
     synthesePourcentage(w, P);
     synthesePourcentageMethode(w, P);
@@ -7550,6 +7551,12 @@ function multiplierFractions(w, P){
 
     /* ---- 2. la correction, exercée pour de vrai -------------------------- */
     startMlt();
+    /* CE CONTRÔLE EXERCE LE MOTEUR GUIDÉ, plusieurs vérifications de suite sur
+       le même écran. Depuis octobre 2026 la Première fait suivre chaque
+       guidée d'une question rédigée (test.redac) : la première vérification
+       passerait à la rédigée, et les suivantes ne trouveraient plus de cases.
+       Les rédigées ont leur propre contrôle (fractionsRedigees). */
+    test.redac=false;
     /* 3/7 × 4/9 = 12/63… non : 12 et 63 partagent 3. On prend 5/7 × 4/9 = 20/63,
        irréductible, et dont aucun facteur n'est égal à un autre. */
     test.questions[test.idx]={n1:5,d1:7,n2:4,d2:9,a1:5,a2:4,b1:7,b2:9,P:20,Q:63};
@@ -7660,7 +7667,7 @@ function multiplierFractions(w, P){
       }
       /* la correction : l'inverse se juge case par case, et le MESSAGE nomme
          l'erreur visée — multiplier sans retourner la seconde fraction. */
-      startDiv();
+      startDiv(); test.redac=false;   /* le moteur guidé seul, comme plus haut */
       test.questions[test.idx]={n1:3,d1:5,n2:2,d2:7,a1:3,a2:7,b1:5,b2:2,P:21,Q:10};
       const qd=test.questions[test.idx];
       const jugerD=function(o){
@@ -7917,6 +7924,86 @@ function sommeProduitFractions(w, P){
      (la fraction brute ne dépend que de l'énoncé), 2/3 × 1/5 = 2/15 n'en a
      pas, et 2/3 ÷ 4/5 = 10/12 se simplifie par 2. Le message nomme la
      simplification quand c'est elle qui manque. */
+/* ---------- Les questions RÉDIGÉES des 4.3 à 4.6 de la Première -----------
+   Demande de Turquet (octobre 2026) : après chaque question guidée, une
+   question de mêmes critères, rédigée dans une feuille dont la première ligne
+   porte le calcul suivi de « = ». Déclaré par le même profil
+   (fractionsEtapes) : la Seconde s'y affiche « non applicable ».
+   ① LES PAIRES : chaque démarreur réel alterne guidée et rédigée, la séance
+     tient le nombre déclaré, et la séance d'un devoir réglé à k questions en
+     garde k (le réglage compte les rédigées).
+   ② LES JUGES, par des copies écrites à la main, une par bord : la copie
+     juste vaut le point, la copie qui s'arrête sur une fraction réductible
+     est REFUSÉE (« simplifier ») — le juge de la Seconde ne regardait que la
+     valeur pour un produit —, une égalité fausse est nommée, la division sans
+     l'inverse fait s'abstenir le juge (le modèle décide), et au 4.6 la ligne
+     du produit intermédiaire n'est pas une égalité fausse, mais une addition
+     faite avant la multiplication l'est. */
+function fractionsRedigees(w, P){
+  const nom='les questions rédigées des 4.3 à 4.6 : des paires, et des juges qui exigent un résultat irréductible';
+  if(!P.fractionsEtapes){
+    ignorer(nom, 'ce niveau ne porte pas les questions rédigées du thème Fractions');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    if(typeof redMath!=='function' || typeof RED_CFG==='undefined') return 'redMath ou RED_CFG absent';
+    /* ① les paires */
+    const ids={'somme-fractions-2':12,'multiplier-fractions':12,'diviser-fractions':12,'somme-produit-fractions':8};
+    Object.keys(ids).forEach(function(id){
+      if(!TESTS[id]){ vus.push(id+' absent'); return; }
+      currentTestId=id; TESTS[id].start();
+      const qs=test.questions||[];
+      if(!test.redac) vus.push(id+' : le démarreur ne pose pas test.redac');
+      if(qs.length!==ids[id]) vus.push(id+' : '+qs.length+' questions au lieu de '+ids[id]);
+      if(qs.some(function(q,i){ return !!q.redac!==(i%2===1); })) vus.push(id+' : les questions n’alternent pas guidée / rédigée');
+      if(!RED_CFG[test.kind] || !document.getElementById(RED_CFG[test.kind].r+'Zone')) vus.push(id+' : aucune zone rédigée sur l’écran '+test.kind);
+    });
+    /* ② les juges */
+    const juge=function(kind, inv, q, rep){ test.kind=kind; test.inv=inv; return redMath(q).juge(rep); };
+    const mq={n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15,redac:true};
+    let j=juge('mlt',false,mq,'2/3×3/5=6/15=2/5');
+    if(!(j.sait && j.correct)) vus.push('produit : 2/3 × 3/5 = 6/15 = 2/5 n’est pas compté juste');
+    j=juge('mlt',false,mq,'2/3×3/5=6/15');
+    if(!(j.sait && !j.correct && j.motif==='simplifier')) vus.push('produit : s’arrêter sur 6/15 n’est pas refusé pour « simplifier » ('+JSON.stringify(j)+')');
+    j=juge('mlt',false,mq,'2/3×3/5=6/15=3/5');
+    if(!(j.sait && !j.correct && j.motif==='egalite')) vus.push('produit : l’égalité fausse 6/15 = 3/5 n’est pas nommée');
+    const dq={n1:3,d1:4,n2:2,d2:5,a1:3,a2:5,b1:4,b2:2,P:15,Q:8,redac:true};
+    j=juge('mlt',true,dq,'3/4÷2/5=3/4×5/2=15/8');
+    if(!(j.sait && j.correct)) vus.push('quotient : 3/4 ÷ 2/5 = 3/4 × 5/2 = 15/8 n’est pas compté juste');
+    j=juge('mlt',true,dq,'3/4÷2/5=15/8');
+    if(j.sait) vus.push('quotient : sans l’inverse écrit, le juge tranche au lieu de laisser lire le modèle');
+    const sq={n1:1,d1:2,n2:1,d2:4,op:'+',D:4,N1:2,N2:1,N:3,Nr:3,Dr:4,redac:true};
+    j=juge('sf',false,sq,'1/2+1/4=4/8+2/8=6/8');
+    if(!(j.sait && !j.correct && j.motif==='simplifier')) vus.push('somme : s’arrêter sur 6/8 n’est pas refusé');
+    j=juge('sf',false,sq,'1/2+1/4=2/4+1/4=3/4');
+    if(!(j.sait && j.correct)) vus.push('somme : 1/2 + 1/4 = 2/4 + 1/4 = 3/4 n’est pas compté juste');
+    const pq={a:1,b:4,c:1,d:2,e:5,f:3,P1:5,Q1:6,N:26,D:24,redac:true};
+    j=juge('spf',false,pq,'1/4+1/2×5/3=1/4+5/6\\n=1/2×5/3\\n=5/6\\n=6/24+20/24=26/24=13/12');
+    if(!(j.sait && j.correct)) vus.push('somme avec produit : une copie juste, produit isolé sur sa ligne, n’est pas comptée juste ('+JSON.stringify(j)+')');
+    j=juge('spf',false,pq,'1/4+1/2×5/3=6/24+20/24=26/24');
+    if(!(j.sait && !j.correct && j.motif==='simplifier')) vus.push('somme avec produit : s’arrêter sur 26/24 n’est pas refusé');
+    j=juge('spf',false,pq,'1/4+1/2×5/3=3/4×5/3=15/12');
+    if(!(j.sait && !j.correct)) vus.push('somme avec produit : l’addition faite avant la multiplication n’est pas refusée');
+    /* le texte que lit le modèle commence par le calcul suivi de « = » */
+    test.kind='spf'; test.inv=false;
+    if(!/« 1\\/4 \\+ 1\\/2 × 5\\/3 = »/.test(redMath(pq).enonceIA)) vus.push('le modèle ne lit pas que la première ligne porte « 1/4 + 1/2 × 5/3 = »');
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+  /* le réglage « Questions » d'un devoir compte les rédigées */
+  verifierEval(w, nom+' (réglage d’un devoir)', `(function(){
+    if(typeof redPaires!=='function') return 'redPaires absente';
+    const garde=dmReglageExo; let rendu='';
+    try{
+      dmReglageExo=function(){ return {nbQ:5}; };
+      const qs=redPaires(6, mltGen);
+      if(qs.length!==6) rendu='5 questions réglées : '+qs.length+' tirées au lieu de 6 (trois paires, la coupe en garde cinq)';
+    } finally { dmReglageExo=garde; }
+    return rendu;
+  })()`, v => v === '', undefined);
+}
+
 function fractionsEtapes(w, P){
   const R = P.fractionsEtapes;
   const nom = 'le thème Fractions : nombres de 1 à ' + (R ? R.max : '?') + ', rien de négatif, et la simplification par étapes';

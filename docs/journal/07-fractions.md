@@ -1516,3 +1516,42 @@ bis ») vérifie que la zone s'ouvre sous la guidée restée affichée, que la
 feuille commence par la somme suivie de « = », qu'une copie juste
 (1/2 + 1/3 = 3/6 + 2/6 = 5/6) vaut le point, et que la zone disparaît à la
 guidée suivante.
+
+**Puis les 4.4, 4.5 et 4.6 de la Première ont reçu la même question
+rédigée (octobre 2026, Première v310).** Demande de Turquet : « faire la
+même chose pour les 4.4 ; 4.5 et 4.6 en première ».
+
+* **Un seul module pour trois moteurs** (sf, mlt, spf) : `RED_CFG` dit où vit
+  chaque écran (les éléments de la zone portent le préfixe `sfr`, `mltr` ou
+  `spfr` — les trois zones sont dans la page en même temps), `redMath(q)` dit
+  la mathématique de chaque exercice : l'énoncé (texte, LaTeX, écran), le
+  juge, et ce que lit le modèle. Les noms `sfr…` sont restés ceux du 4.3 :
+  le moteur sf, partagé au caractère près avec la Seconde, les appelle ainsi.
+  Les moteurs mlt et spf, propres à la Première, ont reçu les deux mêmes
+  lignes gardées (`sfrRendu` en tête du rendu, `sfrMonte` après la note).
+* **Les paires passent par `redPaires(n, générateur)`** :
+  `mltBuildQuestions`, `divBuildQuestions` et `spfBuildQuestions` tirent
+  désormais 12, 12 et 8 questions. **Le réglage « Questions » d'un devoir
+  compte les rédigées** : k questions tirent ⌈k/2⌉ paires, et la coupe
+  générique en garde k — c'est ce qui laisse passer le contrôle « la séance
+  s'allonge exactement de deux ».
+* **Le résultat final doit être irréductible partout** (`redIrreductible`).
+  Le juge de la Seconde ne regardait que la VALEUR pour un produit ou un
+  quotient — en Seconde le résultat tombait toujours irréductible. Ici
+  2/3 × 3/5 = 6/15 doit aller jusqu'à 2/5.
+* **Le 4.5 exige l'inverse écrit** (`libreJuge`, genre « dll ») : sans lui le
+  juge s'abstient et le modèle décide, comme en Seconde.
+* **Le 4.6 prend le juge du 5.10 de la Seconde** (`pfJuge`, recopié sous le
+  nom `spfrJuge`) : une ligne qui vaut le produit intermédiaire n'est pas une
+  égalité fausse, une addition faite avant la multiplication l'est ; l'étape
+  du même dénominateur est exigée.
+
+Contrôles : « les questions rédigées des 4.3 à 4.6 » (`tests/verifier.js`,
+`fractionsRedigees`) lance les quatre démarreurs réels — alternance des
+paires, nombre de questions, zone présente sur l'écran — puis écrit une
+copie à la main par bord de chaque juge (juste, arrêtée sur une fraction
+réductible, égalité fausse, quotient sans inverse, produit isolé sur sa
+ligne, addition avant la multiplication), et vérifie qu'un devoir réglé à 5
+questions en tire 6 pour en garder 5. Le banc navigateur (« 6 terdecies
+bis ») ouvre la rédigée du produit sous sa guidée, et celle du 4.6 par la
+reprise d'une pause, et y fait compter une copie juste.
