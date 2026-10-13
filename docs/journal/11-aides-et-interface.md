@@ -903,7 +903,7 @@ banc à la date du jour ne le voit jamais ; c'est la copie à saison forcée qui
 le mesure.
 
 **Puis les SERPENTS D'HALLOWEEN sont venus sur le sous-thème « Input » (6.3)**
-(demande de Turquet, octobre 2026, v474 — v472 à l'écriture, deux numéros pris
+(demande de Turquet, octobre 2026, v475 — v472 à l'écriture, trois numéros pris
 sur `main` entre-temps : « mettre dans les algo de seconde,
 pour le sous-thème input, des serpents comme ceux des exercices d'algo, en
 rapport avec Halloween ; ils peuvent faire peur »). Les serpents des fiches

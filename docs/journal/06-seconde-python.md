@@ -3593,7 +3593,7 @@ garde le rappel. Contrôle : le banc principal ({python-input-float}) rend la
 question 2 et exige qu'aucune définition n'y figure.
 
 **Puis les neuf exercices du 6.3 ont reçu un SERPENT D'HALLOWEEN** (demande
-de Turquet, octobre 2026, v474), posé à côté du dessin de leur fiche, dessiné
+de Turquet, octobre 2026, v475), posé à côté du dessin de leur fiche, dessiné
 en SVG par la page et visible sous le décor seulement. La chronique entière
 — les déguisements, la bulle de chacun, le choix « à côté, jamais à la
 place », le suivi du décor plutôt que de la date, et les deux bancs qui les
