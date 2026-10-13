@@ -7884,6 +7884,118 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies ter. ÉGALITÉ DE VECTEURS : LE POINT SE CLIQUE, LE NOM SE TAPE ===== */
+    /* {egalite-vectorielle-point} (8.6, demande de Turquet, octobre 2026 :
+       « comme le 8.5 ») : le point manquant se pose au clic sur un nœud du
+       quadrillage, et le nom du parallélogramme se tape. jsdom n'a pas de mise
+       en page : le calibrage clic → nœud (la zone de touche de 14 px autour de
+       chaque nœud) et le retrait au reclic ne se voient qu'ici. Le banc
+       principal pose selM par vepPose() et juge tout le reste. */
+    titre('6 quadragies ter. ÉGALITÉ DE VECTEURS : LE POINT SE CLIQUE, LE NOM SE TAPE');
+    if(!P.egaliteVectoriellePoint){
+      ignorer('le point manquant se pose au clic, le reclic le retire, le nom tapé se juge',
+        'ce niveau n\'a pas l\'exercice de l\'égalité de vecteurs sur quadrillage');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.egaliteVectoriellePoint.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      const mes = await s.page.evaluate(() => {
+        const svg = document.querySelector('#vepGraph .vec-svg'), r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+        /* la flèche au-dessus des deux lettres : le ::before de .vgt-vec a un trait */
+        const v = document.querySelector('#vepInstr .vgt-vec');
+        const fl = v ? getComputedStyle(v, '::before').borderTopWidth : '';
+        const nom = document.getElementById('vep-nom'), ph = nom && nom.closest('.tvg-cons');
+        return { svg: r.width > 250 && r.height > 250, fleche: parseFloat(fl) > 0,
+                 nomPx: nom ? parseFloat(getComputedStyle(nom).fontSize) : 0, phrasePx: ph ? parseFloat(getComputedStyle(ph).fontSize) : 0 };
+      });
+      if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      if(!mes.fleche) dits.push('les vecteurs de l\'énoncé ne sont pas coiffés d\'une flèche (::before de .vgt-vec sans trait)');
+      if(!(mes.nomPx >= mes.phrasePx)) dits.push('la case du nom s\'écrit plus petit que sa phrase (' + mes.nomPx + 'px contre ' + mes.phrasePx + 'px)');
+      /* la position d'un nœud, lue dans la géométrie du SVG rendu et les
+         constantes de la page — le rectangle est relu à CHAQUE clic */
+      const posNoeud = async (x, y, dx, dy) => await s.page.evaluate(([x, y, dx, dy]) => {
+        const svg = document.querySelector('#vepGraph .vec-svg');
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const kx = r.width / vb.width, ky = r.height / vb.height;
+        return { px: r.left + (VEC_PAD + (x + dx) * VEC_CELL) * kx, py: r.top + (VEC_PAD + (VEC_N - (y + dy)) * VEC_CELL) * ky };
+      }, [x, y, dx || 0, dy || 0]);
+      const clicNoeud = async (x, y, dx, dy) => { const p = await posNoeud(x, y, dx, dy); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      const etat = async () => await s.page.evaluate(() => ({
+        sel: JSON.stringify(test.questions[test.idx].selM),
+        peints: document.querySelectorAll('#vepGraph .vec-t.sel').length,
+        lbl: [...document.querySelectorAll('#vepGraph .vec-t.sel .vec-dlbl')].map(t => t.textContent).join(',')
+      }));
+      /* la question affichée, et ses réponses attendues, recalculées ICI */
+      const q0 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { M: vepPoint(q), m: q.m, nom: vepTour(q), eq: q.eq }; });
+      await clicNoeud(q0.M[0], q0.M[1]);
+      let e = await etat();
+      if(e.sel !== JSON.stringify(q0.M)) dits.push('le clic ne pose pas le nœud visé : ' + e.sel + ' au lieu de ' + JSON.stringify(q0.M));
+      if(e.peints !== 1) dits.push('le nœud posé ne se peint pas (' + e.peints + ')');
+      if(e.lbl !== q0.m) dits.push('le nœud posé ne porte pas la lettre ' + q0.m + ' : « ' + e.lbl + ' »');
+      /* recliquer RETIRE */
+      await clicNoeud(q0.M[0], q0.M[1]);
+      e = await etat();
+      if(e.sel !== 'null' || e.peints !== 0) dits.push('recliquer le nœud ne le retire pas : ' + e.sel);
+      /* un clic à un cinquième de maille tombe dans la zone de touche du nœud */
+      await clicNoeud(q0.M[0], q0.M[1], 0.2, 0);
+      e = await etat();
+      if(e.sel !== JSON.stringify(q0.M)) dits.push('le clic décalé d\'un cinquième de maille ne s\'accroche pas au nœud : ' + e.sel);
+      /* le nom, en minuscules et dans l'autre sens, puis la copie juste : 2/2 */
+      await s.page.fill('#vep-nom', q0.nom.toLowerCase().split('').reverse().join(''));
+      await s.page.click('#vepValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
+        okc: document.querySelectorAll('#vepGraph .vec-t.okc').length, missc: document.querySelectorAll('#vepGraph .vec-t.missc').length,
+        nom: document.getElementById('vep-nom').className, para: document.querySelectorAll('#vepCorr .vec-para').length,
+        bouton: document.getElementById('vepNext') ? document.getElementById('vepNext').textContent : '' }));
+      if(fin.score !== 2) dits.push('la copie juste cliquée vaut ' + fin.score + ' au lieu de 2');
+      if(!fin.locked) dits.push('la copie juste ne verrouille pas la question');
+      if(fin.okc !== 1 || fin.missc) dits.push('le nœud juste n\'est pas peint okc, ou le point attendu se montre (' + fin.okc + ', ' + fin.missc + ')');
+      if(!/\bok\b/.test(fin.nom)) dits.push('le nom juste tapé à l\'envers et en minuscules n\'est pas ok : ' + fin.nom);
+      if(fin.para !== 1) dits.push('la figure de la correction ne se trace pas');
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* question suivante : un nœud FAUX, et le nom dans l'ordre de l'égalité
+         (le piège) — le point attendu en vert, d'étendue non nulle, le badge */
+      await s.page.click('#vepNext');
+      await s.page.waitForTimeout(400);
+      const q1 = await s.page.evaluate(() => { const q = test.questions[test.idx], M = vepPoint(q);
+        let faux = null;
+        for(let i = 0; i <= VEC_N && !faux; i++) for(let j = 0; j <= VEC_N && !faux; j++){
+          if(i === M[0] && j === M[1]) continue;
+          if(['A', 'B', 'C', 'D'].some(L => q[L] && q[L][0] === i && q[L][1] === j)) continue;
+          faux = [i, j];
+        }
+        return { M: M, faux: faux, eq: q.eq, nom: vepTour(q) }; });
+      await clicNoeud(q1.faux[0], q1.faux[1]);
+      await s.page.fill('#vep-nom', q1.eq);
+      await s.page.click('#vepValidate');
+      await s.page.waitForTimeout(300);
+      const faux = await s.page.evaluate(() => {
+        const miss = [...document.querySelectorAll('#vepGraph .vec-t.missc .dot')];
+        const badge = document.getElementById('vep-nom').nextElementSibling;
+        return { badc: document.querySelectorAll('#vepGraph .vec-t.badc').length, miss: miss.length,
+                 large: miss.every(c => c.getBoundingClientRect().width > 4),
+                 badge: badge && badge.classList.contains('mf-cor') ? badge.textContent : '',
+                 fl: [...document.querySelectorAll('#vepCorr .vec-fl')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+                 score: test.score };
+      });
+      if(faux.badc !== 1) dits.push('le nœud faux ne rougit pas (' + faux.badc + ')');
+      if(faux.miss !== 1) dits.push('le point attendu ne se montre pas en vert (' + faux.miss + ')');
+      else if(!faux.large) dits.push('le point attendu est dessiné mais d\'étendue nulle');
+      if(faux.badge !== q1.nom) dits.push('le badge ne montre pas le nom attendu « ' + q1.nom + ' » : « ' + faux.badge + ' »');
+      if(faux.fl !== 2) dits.push('les deux vecteurs égaux ne se dessinent pas (' + faux.fl + ')');
+      if(faux.score !== 2) dits.push('la copie fausse rapporte des points (score ' + faux.score + ' au lieu de 2)');
+      verifier('le point manquant se pose au clic, le reclic le retire, le nom tapé se juge', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de l\'égalité de vecteurs ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 undevicies. antécédents : la droite se fait GLISSER ===== */
     /* {antecedents-droite} : le geste central est un GLISSER — la droite suit
        le pointeur enfoncé et s'accroche à la graduation la plus proche — puis
