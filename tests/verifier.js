@@ -466,8 +466,18 @@ function structure(){
   });
 
   const scripts = [...s.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+  /* UN DOSSIER TEMPORAIRE PAR PROCESSUS (octobre 2026). Ces fichiers
+     s'appelaient ctrl<i>.js dans le dossier temporaire du SYSTÈME : deux bancs
+     lancés en même temps se les prenaient l'un à l'autre — « ENOENT … unlink
+     /tmp/ctrl1.js », un rouge qui accusait la page —, et c'est ce qui a fondé
+     la règle « deux bancs jsdom ne se lancent pas EN MÊME TEMPS » et la mise
+     en série de npm test (une quarantaine de minutes, le temps de la Seconde
+     plus celui des deux autres). mkdtemp donne à chaque processus son propre
+     dossier, que rien d'autre ne connaît : la règle tombe, npm test joue les
+     trois niveaux de front, et l'action GitHub leur donne une machine chacun. */
+  const dossierTemp = fs.mkdtempSync(path.join(os.tmpdir(), 'verifier-'));
   scripts.forEach((js, i) => {
-    const f = path.join(os.tmpdir(), 'ctrl' + i + '.js');
+    const f = path.join(dossierTemp, 'ctrl' + i + '.js');
     fs.writeFileSync(f, js);
     let ok = true, err = '';
     try { execFileSync('node', ['--check', f], { stdio:'pipe' }); }
@@ -475,6 +485,7 @@ function structure(){
     fs.unlinkSync(f);
     verifier('script n°' + (i+1) + ' syntaxiquement valide', ok, err);
   });
+  fs.rmSync(dossierTemp, { recursive: true, force: true });
 
   const ecrans = new Set([...s.matchAll(/<section class="screen" id="scr-([a-z0-9-]+)"/g)].map(m => m[1]));
   const demandes = new Set([...s.matchAll(/show\('([a-z0-9-]+)'\)/g)].map(m => m[1]));
@@ -4228,6 +4239,7 @@ function exercices(suite){
     reduireSomme(w, P);
     soustraireRelatifs(w, P);
     reduireProduit(w, P);
+    translationGrille(w, P);
     tableauProportions(w, P);
     tableauProportionsLettres(w, P);
     tableauProportionsTirees(w, P);
@@ -17166,7 +17178,7 @@ function additionnerRelatifs(w, P){
     if(!th || !/Calcul littéral/i.test(th.nom) || th.ids.indexOf('additionner-relatifs')<0)
       vus.push('l\\'exercice n\\'est pas dans un thème 7 « Calcul littéral »');
     if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('numéro '+TEST_NUM['additionner-relatifs']+' au lieu de 7.1');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(THEMES.map(function(t){ return t.num; }).slice(0,7).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');   /* un thème ajouté EN DERNIER (le 8, Vecteurs) ne fait pas bouger les sept premiers */
     if(TABLES_SANS.indexOf('additionner-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
 
     /* ---- 1. le tirage ---------------------------------------------------- */
@@ -17451,7 +17463,7 @@ function reduireSomme(w, P){
       vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
     if(TEST_NUM['reduire-somme']!=='7.5') vus.push('numéro '+TEST_NUM['reduire-somme']+' au lieu de 7.5');
     if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2' || TEST_NUM['multiplier-relatifs']!=='7.3' || TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['simplifier-barres']!=='5.1') vus.push('l\\'exercice ajouté a renuméroté les autres');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(THEMES.map(function(t){ return t.num; }).slice(0,7).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');   /* un thème ajouté EN DERNIER (le 8, Vecteurs) ne fait pas bouger les sept premiers */
     if(TABLES_SANS.indexOf('reduire-somme')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
     if(document.querySelectorAll('#modeTagRed').length!==1) vus.push('le badge du mode du 7.5 n\\'est pas le sien');
 
@@ -17597,7 +17609,7 @@ function soustraireRelatifs(w, P){
     if(!th || !/Calcul litt/i.test(th.nom) || th.ids.indexOf('soustraire-relatifs')<0)
       vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
     if(TEST_NUM['soustraire-relatifs']!=='7.7') vus.push('numéro '+TEST_NUM['soustraire-relatifs']+' au lieu de 7.7');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(THEMES.map(function(t){ return t.num; }).slice(0,7).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');   /* un thème ajouté EN DERNIER (le 8, Vecteurs) ne fait pas bouger les sept premiers */
     if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2' || TEST_NUM['multiplier-relatifs']!=='7.3' || TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['reduire-somme']!=='7.5' || TEST_NUM['associer-expressions']!=='7.6') vus.push('un exercice de 7.1 à 7.6 a bougé');
     if(TABLES_SANS.indexOf('soustraire-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
 
@@ -17706,7 +17718,7 @@ function tableauProportions(w, P){
       vus.push('l\\'exercice n\\'est pas la partie 6 du thème 4 « Pourcentages »');
     if(TEST_NUM['tableau-proportions']!=='4.6.1') vus.push('numéro '+TEST_NUM['tableau-proportions']+' au lieu de 4.6.1');
     if(TEST_NUM['synthese-pourcentages']!=='4.5.1' || TEST_NUM['evolutions-successives']!=='4.5.5' || TEST_NUM['fraction-pourcentage']!=='4.1.1') vus.push('un exercice du thème 4 a changé de numéro');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(THEMES.map(function(t){ return t.num; }).slice(0,7).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');   /* un thème ajouté EN DERNIER (le 8, Vecteurs) ne fait pas bouger les sept premiers */
     if(TABLES_SANS.indexOf('tableau-proportions')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
 
     /* ---- 1. le tirage ---------------------------------------------------- */
@@ -18620,6 +18632,168 @@ function reduireProduit(w, P){
 
     /* le barème : 45 cases (phase détaillée) + 15 (phase directe) */
     if(test.maxScore!==60) vus.push('barème de '+test.maxScore+' au lieu de 60');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {translation-grille} — thème 8 « Vecteurs », 8.1 : huit vecteurs d'une
+   case (les huit directions), une grille de points de A à X, six lignes
+   « … a pour image … par la translation de vecteur … ». Les images et les
+   numéros de vecteur attendus sont reconstruits ICI, à partir d'une grille et
+   de déplacements écrits à part — jamais par les fonctions de la page qui
+   corrigent. Puis la fiche elle-même (L → A par v₁, L → M par v₂, N → M par
+   v₃, H → G par v₄, I → O par v₈, T → P par v₅), jugée par le bouton. */
+function translationGrille(w, P){
+  const present = evaluer(w, "typeof startVtr==='function' && typeof vtrLignes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('image d\'un point par une translation : le tirage, la correction et la place dans le thème Vecteurs',
+      'ce niveau n\'a pas l\'exercice de la translation sur une grille');
+    return;
+  }
+  verifierEval(w, 'image d\'un point par une translation : le tirage, la correction et la place dans le thème Vecteurs', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='translation-grille';
+
+    /* ---- 0. la place : 8.1, dans un thème « Vecteurs » ajouté en dernier ; pas de bouton des tables */
+    const th=THEMES.find(function(t){ return t.num===8; });
+    if(!th || !/Vecteurs/i.test(th.nom) || th.ids.indexOf('translation-grille')<0)
+      vus.push('l\\'exercice n\\'est pas dans le thème 8 « Vecteurs »');
+    if(TEST_NUM['translation-grille']!=='8.1') vus.push('numéro '+TEST_NUM['translation-grille']+' au lieu de 8.1');
+    if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['reduire-produit']!=='7.8' || TEST_NUM['simplifier-barres']!=='5.1'
+       || TEST_NUM['python-affichage']!=='6.1.1' || TEST_NUM['ensembles-nombres']!=='2.1') vus.push('le thème ajouté a renuméroté les autres');
+    if(TABLES_SANS.indexOf('translation-grille')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
+    /* la grille de la fiche : 24 lettres, chacune une fois, en serpentin */
+    const GRILLE=['ABCDEF','LKJIHG','MNOPQR','XWVUTS'];
+    if(VTR_GRILLE.join('|')!==GRILLE.join('|')) vus.push('la grille n\\'est pas celle de la fiche : '+VTR_GRILLE.join(' / '));
+    const toutes=GRILLE.join('').split('').sort().join('');
+    if(toutes!=='ABCDEFGHIJKLMNOPQRSTUVWX') vus.push('les 24 lettres ne sont pas A à X une fois chacune');
+    /* les huit déplacements, dans l'ordre de la fiche (dy>0 descend) */
+    const DEP=[[0,-1],[0,1],[-1,0],[1,0],[-1,-1],[1,-1],[1,1],[-1,1]];
+    DEP.forEach(function(d,k){ if(VTR_DIRS[k].dx!==d[0] || VTR_DIRS[k].dy!==d[1]) vus.push('la direction '+(k+1)+' n\\'est pas celle de la fiche'); });
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    const pos=function(p){ return {c:p%6, l:Math.floor(p/6)}; };
+    const lettre=function(p){ const o=pos(p); return GRILLE[o.l][o.c]; };
+    const bouge=function(p,d){ const o=pos(p), c=o.c+DEP[d][0], l=o.l+DEP[d][1]; return (c<0||c>5||l<0||l>3)?-1:l*6+c; };
+    const cles=new Set(); let pagesDoublees=0;
+    for(let i=0;i<300 && vus.length<4;i++){
+      const qs=vtrBuildQuestions();
+      if(qs.length!==3){ vus.push(qs.length+' pages au lieu de 3'); break; }
+      const vuesIci=[];
+      qs.forEach(function(q,ip){
+        if(!Array.isArray(q.ordre) || q.ordre.slice().sort().join('')!=='01234567') vus.push('page '+(ip+1)+' : l\\'ordre des vecteurs n\\'est pas une permutation de 0 à 7');
+        if(ip===0 && q.ordre.join('')!=='01234567') vus.push('la première page ne suit pas la fiche (v1 vers le haut, v2 vers le bas…)');
+        if(q.lignes.length!==6) vus.push('page '+(ip+1)+' : '+q.lignes.length+' lignes au lieu de 6');
+        const dirs=q.lignes.map(function(L){ return L.d; });
+        if(new Set(dirs).size!==dirs.length) vus.push('page '+(ip+1)+' : deux lignes ont la même direction');
+        q.lignes.forEach(function(L,k){
+          if(!(L.p>=0 && L.p<24 && Number.isInteger(L.p))) vus.push('point '+L.p+' hors de la grille');
+          if(bouge(L.p,L.d)<0) vus.push('ligne '+(k+1)+' : l\\'image de '+lettre(L.p)+' par la direction '+L.d+' sort de la grille');
+          if(L.t!==(k<4?'image':'vecteur')) vus.push('ligne '+(k+1)+' demande '+L.t+' : la fiche demande quatre images puis deux vecteurs');
+          if(Object.keys(L).some(function(k2){ return typeof L[k2]==='function'; })) vus.push('une ligne range une fonction : la question ne survivrait pas à la pause');
+        });
+        vuesIci.push(JSON.stringify(q.lignes));
+      });
+      if(new Set(vuesIci).size!==vuesIci.length) pagesDoublees++;
+      vuesIci.forEach(function(c){ cles.add(c); });
+    }
+    if(pagesDoublees) vus.push(pagesDoublees+' séance(s) sur 300 posent deux fois la même page');
+    if(cles.size<200) vus.push('seulement '+cles.size+' pages différentes sur 900 tirées');
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 2. les réponses attendues, reconstruites ici ------------------- */
+    for(let essai=0;essai<200 && vus.length<4;essai++){
+      const q=vtrGenQuestion(undefined, essai%3);
+      vtrLignes(q).forEach(function(l, idx){
+        const L=q.lignes[idx], img=bouge(L.p,L.d);
+        if(l.dep!==lettre(L.p)) vus.push('départ '+l.dep+' au lieu de '+lettre(L.p));
+        if(l.img!==lettre(img)) vus.push('image de '+l.dep+' : '+l.img+' au lieu de '+lettre(img));
+        if(l.num!==q.ordre.indexOf(L.d)+1) vus.push('numéro de vecteur '+l.num+' au lieu de '+(q.ordre.indexOf(L.d)+1));
+      });
+      const cs=vtrCases(q);
+      if(cs.length!==6) vus.push(cs.length+' cases au lieu de 6');
+      if(cs.filter(function(c){ return c.kind==='sel'; }).length!==2) vus.push('les deux lignes « vecteur » ne sont pas des listes');
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 3. la correction, par le BOUTON, sur la fiche elle-même --------- */
+    const FICHE={ ordre:[0,1,2,3,4,5,6,7], lignes:[
+      {p:6,  d:0, t:'image'},    /* L → A par v1 (haut) */
+      {p:6,  d:1, t:'image'},    /* L → M par v2 (bas) */
+      {p:13, d:2, t:'image'},    /* N → M par v3 (gauche) */
+      {p:10, d:3, t:'image'},    /* H → G par v4 (droite) */
+      {p:9,  d:7, t:'vecteur'},  /* I → O : bas-gauche, v8 */
+      {p:22, d:4, t:'vecteur'}   /* T → P : haut-gauche, v5 */
+    ]};
+    startVtr();
+    test.questions=[FICHE, test.questions[1], test.questions[2]]; test.idx=0;
+    if(test.questions.length!==3 || test.maxScore!==18) vus.push('barème de '+test.maxScore+' au lieu de 18 (3 pages × 6 cases)');
+    const JUSTE={'vtr-i-0':'A','vtr-i-1':'M','vtr-i-2':'M','vtr-i-3':'G','vtr-v-4':'8','vtr-v-5':'5'};
+    const IDS=Object.keys(JUSTE);
+    const poser=function(vals){
+      test.locked=false; renderVtrTest();
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    poser({});
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la page manque à l\\'écran';
+    /* les deux figures sont là : huit flèches, vingt-quatre lettres */
+    const svgs=document.querySelectorAll('#vtrHost svg');
+    if(svgs.length!==2) vus.push(svgs.length+' figure(s) au lieu de 2');
+    if(document.querySelectorAll('#vtrHost .vtr-svg-vec path.vtr-ar:not(.vtr-ar-s)').length!==8) vus.push('la figure des vecteurs n\\'a pas huit flèches');
+    const lettresSvg=[].map.call(document.querySelectorAll('#vtrHost .vtr-svg-gr text'), function(t){ return t.textContent; }).sort().join('');
+    if(lettresSvg!=='ABCDEFGHIJKLMNOPQRSTUVWX') vus.push('la grille n\\'écrit pas les 24 lettres : '+lettresSvg);
+    const opts=[].map.call(document.getElementById('vtr-v-4').options, function(o){ return o.value; }).filter(Boolean);
+    if(opts.join(',')!=='1,2,3,4,5,6,7,8') vus.push('la liste des vecteurs propose '+opts.join(', '));
+    /* la copie juste */
+    poser(JUSTE); checkVtrAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    const nonVerts=IDS.filter(function(id){ return peint(id)!=='vert'; });
+    if(nonVerts.length) vus.push('la copie juste n\\'est pas entièrement juste : '+nonVerts.join(', '));
+    if(!der || der.cases!==6) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 6');
+    if(test.score!==6) vus.push('le score affiché vaut '+test.score+' au lieu de 6');
+    /* une minuscule vaut la majuscule */
+    poser(Object.assign({}, JUSTE, {'vtr-i-0':'a'})); checkVtrAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('« a » en minuscule est refusé pour A');
+    /* LE PIÈGE : le sens inversé — M (vers le bas) au lieu de A pour v1 */
+    poser(Object.assign({}, JUSTE, {'vtr-i-0':'M'})); checkVtrAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('M pour l\\'image de L par v1 est accepté');
+    if(peint('vtr-i-0')!=='rouge') vus.push('vtr-i-0 faux, peint en '+peint('vtr-i-0'));
+    ['vtr-i-1','vtr-i-2','vtr-i-3','vtr-v-4','vtr-v-5'].forEach(function(id){ if(peint(id)!=='vert') vus.push('une case juste rougit à côté du piège : '+id); });
+    const fb=document.getElementById('vtrFeedback').textContent;
+    if(!/vers le haut/.test(fb) || !/arrive en A/.test(fb)) vus.push('le message ne dit pas le déplacement de v1 ni l\\'image A : « '+fb.slice(0,80)+' »');
+    /* le même piège sur un vecteur : bas-droite (v7) au lieu de bas-gauche (v8) */
+    poser(Object.assign({}, JUSTE, {'vtr-v-4':'7'})); checkVtrAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('v7 pour aller de I à O est accepté');
+    if(peint('vtr-v-4')!=='rouge') vus.push('vtr-v-4 faux, peint en '+peint('vtr-v-4'));
+    const badge=document.getElementById('vtr-v-4').nextElementSibling;
+    if(!badge || !/mf-cor/.test(badge.className) || badge.textContent!=='v₈') vus.push('la bonne réponse v₈ ne s\\'écrit pas à côté de la liste fausse');
+    /* une case vide ne rougit pas, et reçoit la correction — lettre et liste */
+    poser(Object.assign({}, JUSTE, {'vtr-i-1':'', 'vtr-v-5':''})); checkVtrAnswer();
+    if(peint('vtr-i-1')!=='bleu') vus.push('case vide vtr-i-1 peinte en '+peint('vtr-i-1'));
+    if((document.getElementById('vtr-i-1')||{}).value!=='M') vus.push('la correction de la case vide n\\'écrit pas M');
+    if(peint('vtr-v-5')!=='bleu') vus.push('liste vide vtr-v-5 peinte en '+peint('vtr-v-5'));
+    if((document.getElementById('vtr-v-5')||{}).value!=='5') vus.push('la correction de la liste vide ne choisit pas v5');
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('une copie à deux cases vides est comptée juste');
+    if(!/manquait 2 cases/.test(document.getElementById('vtrFeedback').textContent)) vus.push('le message ne nomme pas les deux cases manquantes');
+    /* la copie entièrement vide : rien ne rougit */
+    poser({}); checkVtrAnswer();
+    const rouges=IDS.filter(function(id){ return peint(id)==='rouge'; });
+    if(rouges.length) vus.push('une copie vide rougit : '+rouges.join(', '));
+    /* en soutien, la correction au fil de la saisie peint sans verrouiller */
+    currentMode='soutien'; poser(Object.assign({}, JUSTE, {'vtr-i-2':'A'}));
+    checkVtrAnswer(true);
+    if(peint('vtr-i-2')!=='rouge') vus.push('en soutien, la lettre fausse n\\'est pas peinte en rouge au fil de la saisie');
+    if(peint('vtr-i-0')!=='vert') vus.push('en soutien, la lettre juste n\\'est pas peinte en bleu (ok) au fil de la saisie');
+    if(test.locked) vus.push('la correction en direct verrouille la page');
+    currentMode='train';
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
