@@ -13108,6 +13108,95 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 9 quater. LES SERPENTS D'HALLOWEEN DU SOUS-THÈME « INPUT » =====
+       Demande de Turquet, octobre 2026. Le décor d'Halloween ne s'allume que
+       du 15 octobre au 2 novembre, et la CI joue hors saison : un banc à la
+       date du jour ne verrait jamais les serpents. On force donc le décor
+       (body.halloween, ce que fait le bouton 🎃) et on MESURE : le serpent
+       rendu à côté du dessin de la fiche, sa bulle dont le texte tient dans
+       son cadre, rien qui déborde de la carte ni de l'écran — sur un grand
+       écran et sur un téléphone de 360 px —, et, décor éteint, rien du tout. */
+    if(P.serpentsHalloween){
+      titre('9 quater. LES SERPENTS D\'HALLOWEEN DU SOUS-THÈME « INPUT »');
+      s = await ouvrir(chromium, ml);
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('les serpents d\'Halloween se montrent sous le décor, à côté du dessin de la fiche', 'connexion impossible — rien à mesurer');
+      } else {
+        const TH = P.serpentsHalloween.theme, SS = P.serpentsHalloween.sous;
+        /* page.evaluate ne passe qu'UN argument : les deux numéros vont dans un objet */
+        const ids = await s.page.evaluate(({ t, u }) => {
+          const th = THEMES.find(x => x.num === t), s3 = th && th.sous && th.sous.find(x => x.num === u);
+          return s3 ? s3.ids.slice() : [];
+        }, { t: TH, u: SS });
+        const pbs = [], vus = [];
+        const mesurer = () => s.page.evaluate(() => {
+          const on = document.querySelector('section.screen.on');
+          if(!on) return { pb: 'aucun écran ouvert' };
+          const fig = on.querySelector('figure.hw-serpent');
+          if(!fig) return { pb: 'pas de serpent sur ' + on.id };
+          const rf = fig.getBoundingClientRect(), svg = fig.querySelector('svg.hw-svg');
+          const card = fig.closest('.card'), rc = card ? card.getBoundingClientRect() : null;
+          const img = fig.parentNode.querySelector('img[src^="data:image"]'), ri = img ? img.getBoundingClientRect() : null;
+          /* la bulle et ses deux lignes portent une classe : les étoiles du sorcier
+             et les crocs blancs du vampire sont aussi des <text> et des <path fill="#fff"> */
+          const textes = svg ? [...svg.querySelectorAll('text.hw-bulle-texte')] : [];
+          const bulle = svg ? svg.querySelector('path.hw-bulle') : null, rb = bulle ? bulle.getBBox() : null;
+          const deborde = textes.filter(t => { const b = t.getBBox(); return rb && (b.x < rb.x + 2 || b.x + b.width > rb.x + rb.width - 2); }).map(t => t.textContent);
+          return { ecran: on.id, variante: fig.getAttribute('data-hw'), largeur: rf.width, hauteur: rf.height,
+                   svgH: svg ? svg.getBoundingClientRect().height : 0, imgL: ri ? ri.width : 0,
+                   dansCarte: !!rc && rf.left >= rc.left - 1 && rf.right <= rc.right + 1,
+                   largeurPage: document.documentElement.scrollWidth,
+                   textes: textes.length, deborde };
+        });
+        for(const id of ids){
+          await s.page.evaluate(i => openTest(i), id);
+          await s.page.waitForTimeout(300);
+          const pris = await s.page.evaluate(() => {
+            const b = [...document.querySelectorAll('#modeChoices button')]
+              .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='train'") >= 0);
+            if(b){ b.click(); return true; } return false;
+          });
+          if(!pris){ pbs.push(id + ' : pas de bouton d\'entraînement'); continue; }
+          await s.page.waitForTimeout(650);
+          /* décor éteint : le serpent existe dans la page, mais ne se voit pas */
+          await s.page.evaluate(() => document.body.classList.remove('halloween'));
+          const sans = await mesurer();
+          if(sans.pb){ pbs.push(id + ' : ' + sans.pb); continue; }
+          if(sans.largeur > 0 || sans.hauteur > 0) pbs.push(id + ' : décor éteint, le serpent occupe ' + Math.round(sans.largeur) + '×' + Math.round(sans.hauteur) + ' px');
+          /* décor allumé, grand écran */
+          await s.page.evaluate(() => document.body.classList.add('halloween'));
+          await s.page.waitForTimeout(120);
+          const avec = await mesurer();
+          if(avec.pb){ pbs.push(id + ' : ' + avec.pb); continue; }
+          if(!(avec.largeur > 150) || !(avec.svgH > 100)) pbs.push(id + ' : le serpent est rendu ' + Math.round(avec.largeur) + '×' + Math.round(avec.svgH) + ' px');
+          if(!(avec.imgL > 100)) pbs.push(id + ' : le dessin de la fiche ne fait plus que ' + Math.round(avec.imgL) + ' px à côté du serpent');
+          /* la page peut déjà déborder sans le décor (le 6.3.7 à 360 px : un <code> de
+             l'énoncé) — ce qu'on tient, c'est que le serpent n'élargit RIEN */
+          if(!avec.dansCarte || avec.largeurPage > sans.largeurPage) pbs.push(id + ' : le serpent sort de la carte ou élargit la page (' + sans.largeurPage + ' → ' + avec.largeurPage + ' px)');
+          if(avec.textes < 2 || avec.deborde.length) pbs.push(id + ' : la bulle déborde (' + avec.deborde.join(' / ') + ')');
+          /* décor allumé, téléphone de 360 px : le dessin et le serpent passent à la ligne, rien ne déborde */
+          await s.page.setViewportSize({ width: 360, height: 740 });
+          await s.page.waitForTimeout(200);
+          const tel = await mesurer();
+          await s.page.evaluate(() => document.body.classList.remove('halloween'));
+          await s.page.waitForTimeout(120);
+          const telSans = await mesurer();
+          if(tel.pb) pbs.push(id + ' (360 px) : ' + tel.pb);
+          else if(!(tel.largeur > 150) || !tel.dansCarte || tel.largeurPage > telSans.largeurPage || !(tel.imgL > 80)) pbs.push(id + ' (360 px) : serpent ' + Math.round(tel.largeur) + ' px, dessin ' + Math.round(tel.imgL) + ' px, dans la carte ' + tel.dansCarte + ', page ' + telSans.largeurPage + ' → ' + tel.largeurPage + ' px');
+          await s.page.setViewportSize({ width: 1280, height: 900 });
+          await s.page.evaluate(() => document.body.classList.remove('halloween'));
+          vus.push(id + ':' + avec.variante);
+        }
+        verifier('les serpents d\'Halloween se montrent sous le décor, à côté du dessin de la fiche, bulle lisible, sans déborder (grand écran et 360 px) — et pas du tout décor éteint',
+          ids.length > 0 && pbs.length === 0, pbs.length ? pbs.slice(0, 3).join(' | ') : 'aucun exercice dans le sous-thème ' + TH + '.' + SS);
+        verifier('le sous-thème ' + TH + '.' + SS + ' compte ' + ids.length + ' serpents, tous différents',
+          ids.length > 0 && new Set(vus.map(v => v.split(':')[1])).size === ids.length, vus.join(', '));
+        verifier('les serpents d\'Halloween ne lèvent aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ---- 10. Les retours à la ligne du modèle arrivent-ils à l'écran ? ----
        Le modèle a pour consigne d'aller à la ligne souvent — une étape par
        ligne, une ligne vide entre deux parties. Cette consigne a DEUX moitiés,

@@ -1485,6 +1485,13 @@ module.exports = {
        notées par question (les deux trous de chaine1, celui de chaine2). */
     pythonChaines: { exercice: 'python-chaines', nb: 3, cases: 3, numero: '6.1.14' },
     pythonInputReponse: { exercice: 'python-input-reponse', nb: 3, numero: '6.3.1' },
+    /* Les SERPENTS D'HALLOWEEN du sous-thème « Input » (demande de Turquet,
+       octobre 2026) : chaque exercice du sous-thème 6.3 pose, à côté du
+       dessin de sa fiche, un serpent déguisé dessiné en SVG (HW_SERPENTS),
+       visible sous body.halloween seulement. `theme`/`sous` désignent le
+       sous-thème lu dans THEMES : un exercice qui y entre demain doit gagner
+       son serpent, et le banc le dit. */
+    serpentsHalloween: { theme: 6, sous: 3 },
     /* {python-chaine-tirets} (6.4.2, demande de Turquet, octobre 2026) :
        l'exercice 28 du carnet — ajouter « - » entre chaque caractère d'une
        chaîne avec une boucle for. Il suit {python-chaine-len} dans le

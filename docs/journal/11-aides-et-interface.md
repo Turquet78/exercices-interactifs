@@ -901,3 +901,63 @@ ligne (`.mast:has(> .hw-bascule){flex-wrap:wrap}`, le bloc du titre en
 pour tout décor SAISONNIER : la CI le joue hors saison, donc décor ABSENT — un
 banc à la date du jour ne le voit jamais ; c'est la copie à saison forcée qui
 le mesure.
+
+**Puis les SERPENTS D'HALLOWEEN sont venus sur le sous-thème « Input » (6.3)**
+(demande de Turquet, octobre 2026, v472 : « mettre dans les algo de seconde,
+pour le sous-thème input, des serpents comme ceux des exercices d'algo, en
+rapport avec Halloween ; ils peuvent faire peur »). Les serpents des fiches
+sont les dessins de Turquet, en WebP ; ceux-ci sont DESSINÉS EN SVG par la
+page (`hwSerpentSVG`, après `pyAvant`) : un même corps — une courbe tracée
+trois fois, contour, vert, ventre, les taches posées dessus, la tête au
+bout, le regard vers la bulle — et neuf déguisements, un par exercice,
+rangés dans `HW_SERPENTS` avec la bulle et le texte de remplacement :
+le sorcier (6.3.1, « Ton prénom… pour mon grimoire ! »), le vampire (6.3.2,
+cape, crocs, yeux rouges qui battent), le fantôme (6.3.3, « Quel âge as-tu ?
+Moi : 666 ans. BOUH ! »), la citrouille sculptée (6.3.4), la momie (6.3.5,
+les bandelettes sont un trait en tirets par-dessus le corps — un seul
+attribut `stroke-dasharray`), le squelette (6.3.6, côtes et crâne par le même
+procédé), le zombie (6.3.7, l'œil qui pend, « La moyenne de mes deux
+cerveaux ? »), l'araignée qui descend sur un serpent terrifié (6.3.8,
+« L'araignée veut l'aire de sa toile ! ») et le diable à la fourche (6.3.9,
+« Pommes et tomates… à prix d'enfer ! »). Chaque bulle parle de SON
+exercice — c'est ce que font les bulles des fiches — et aucune n'écrit un
+« x » isolé, que le filet `italiquerX` aurait penché jusque dans le SVG.
+Trois décisions tiennent le reste :
+* **à côté du dessin de la fiche, jamais à sa place** : `hwSerpentHTML(id)`
+  s'ajoute DANS le cadre qui porte le dessin (`.pyi-fig`, `.pii-fig`,
+  `.pia-fig`, `.pis-fig`, `.pmy-fig`, `.prc-fig`, `.pkg-fig`, `#pynFig`), à
+  la même condition que lui (au premier écran seulement là où la fiche n'y
+  est qu'au premier écran). Les contrôles de chaque fiche ne bougent pas ;
+  le cadre passe à la ligne sous `body.halloween` (`flex-wrap`) quand les
+  deux ne tiennent pas côte à côte — un téléphone de 360 px ;
+* **le serpent suit le DÉCOR, pas la date** : le `<figure class="hw-serpent">`
+  est toujours dans la page, et c'est la feuille de styles qui le cache
+  (`display:none`) ou le montre (`body.halloween … display:flex`). Le bouton
+  🎃 l'éteint donc avec le reste, sans redessiner l'écran, et hors saison il
+  n'y a rien à retirer. Un `role="img"` et un `aria-label` sur la figure, le
+  SVG en `aria-hidden` : un lecteur d'écran lit une phrase, pas neuf
+  chemins ;
+* **un exercice qui entre au 6.3 doit gagner son serpent** : le banc jsdom
+  (`serpentsHalloween`, `tests/verifier.js`) lit le sous-thème dans
+  `THEMES` — déclaré par `serpentsHalloween: { theme, sous }` dans
+  `tests/profils.js` —, exige une entrée par identifiant, des déguisements
+  tous différents, la bulle et l'alt ; puis OUVRE chaque exercice et relit
+  l'écran : un serpent et un seul, à côté du dessin de la fiche, avant la
+  zone de travail, en `display:none` sans la classe et `flex` avec.
+Et le banc navigateur (« 9 quater ») force le décor — la CI joue hors
+saison, leçon du paragraphe précédent — et MESURE, sur chaque exercice du
+sous-thème : le serpent rendu à côté d'un dessin de fiche qui garde sa
+largeur, le texte de la bulle dans son cadre (`getBBox` du texte contre
+celui de la bulle — la première épreuve du prototype débordait, « Moi : 666
+ans. BOUH ! » sortait du cadre, et c'est l'image qui l'a montré, pas le
+code), rien qui sorte de la carte, et une page qui n'est pas plus LARGE
+avec le décor que sans — à 1280 px puis à 360 px ; et, décor éteint, un
+serpent de 0 × 0 px. Deux leçons de la première exécution : la bulle se
+cherche par sa CLASSE (`.hw-bulle`, `.hw-bulle-texte`), parce que les
+étoiles du sorcier sont aussi des `<text>` et les crocs du vampire un
+`<path fill="#fff">` — le contrôle les prenait pour une bulle qui déborde ;
+et la largeur de la page se compare AVEC et SANS décor, pas à l'écran, parce
+que le 6.3.7 déborde déjà de 35 px à 360 px, décor éteint — un `<code>` de
+son énoncé (« "la moyenne est de :" ») que rien ne fait plier —, défaut
+d'avant les serpents, vu en les mesurant, nommé ici et pas corrigé dans ce
+chantier.

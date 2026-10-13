@@ -4274,6 +4274,7 @@ function exercices(suite){
     pythonNomVariable(w, P);
     pythonPrint(w, P);
     pythonInputReponse(w, P);
+    serpentsHalloween(w, P);
     pythonInput(w, P);
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
@@ -24917,6 +24918,69 @@ function pythonNomVariable(w, P){
    diagnostics propres à input (l'apostrophe entre guillemets simples, le
    second input), le soutien qui ne verrouille rien, et la reprise. Aucun
    accent grave ni antislash littéral dans le code évalué. */
+/* ===== LES SERPENTS D'HALLOWEEN DU SOUS-THÈME « INPUT » (6.3) =====
+   Demande de Turquet, octobre 2026 : « des serpents comme ceux des exercices
+   d'algo, en rapport avec Halloween ; ils peuvent faire peur ». Le contrôle
+   lit le sous-thème dans THEMES — pas une liste figée : un exercice ajouté au
+   6.3 demain doit avoir son serpent, et c'est ici qu'on le saura. Il ouvre
+   chaque exercice et regarde l'écran : le serpent est là, à côté du dessin
+   de la fiche (jamais à sa place), avant la zone de travail, avec sa bulle et
+   son texte de remplacement ; caché hors décor, montré sous body.halloween. */
+function serpentsHalloween(w, P){
+  const nom = 'les serpents d\'Halloween du sous-thème « Input »';
+  if(!P.serpentsHalloween){ ignorer(nom, 'ce niveau n\'a pas de serpents d\'Halloween'); return; }
+  const TH = P.serpentsHalloween.theme, SS = P.serpentsHalloween.sous;
+  const present = evaluer(w, "typeof hwSerpentHTML==='function' && typeof HW_SERPENTS==='object'");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'hwSerpentHTML / HW_SERPENTS introuvables alors que tests/profils.js les déclare'); return; }
+  verifierEval(w, 'chaque exercice du sous-thème ' + TH + '.' + SS + ' a son serpent d’Halloween, déguisé autrement que les autres, avec sa bulle et son texte de remplacement', `(function(){
+    const vus=[], th=THEMES.find(function(t){ return t.num===${TH}; }), s3=th&&th.sous&&th.sous.find(function(x){ return x.num===${SS}; });
+    if(!s3||!s3.ids.length) return "sous-thème ${TH}.${SS} introuvable";
+    const vars={};
+    s3.ids.forEach(function(id){
+      const d=HW_SERPENTS[id];
+      if(!d){ vus.push(id+" : pas d’entrée HW_SERPENTS"); return; }
+      if(vars[d.v]) vus.push(id+" : le déguisement « "+d.v+" » sert déjà à "+vars[d.v]); vars[d.v]=id;
+      if(!d.bulle||!d.bulle[0]||!d.bulle[1]) vus.push(id+" : bulle incomplète");
+      if(!d.alt||d.alt.length<30||d.alt.indexOf("serpent")<0) vus.push(id+" : texte de remplacement absent ou muet");
+      if(d.bulle&&/(^|[^a-zA-Z])x([^a-zA-Z]|$)/.test(d.bulle.join(" "))) vus.push(id+" : un « x » isolé dans la bulle, que le filet italiquerX voudrait pencher");
+      const h=hwSerpentHTML(id);
+      if(!/^<figure class="hw-serpent" data-hw="[a-z]+" role="img" aria-label="[^"]{30,}">(<svg class="hw-svg" [^>]*aria-hidden="true")/.test(h)) vus.push(id+" : le HTML du serpent n’a pas la forme attendue : "+h.slice(0,120));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+  verifierEval(w, 'sur l’écran de chaque exercice du sous-thème, le serpent est posé à côté du dessin de la fiche, avant la zone de travail ; la feuille de styles le cache hors décor et le montre sous body.halloween', `(function(){
+    const vus=[], th=THEMES.find(function(t){ return t.num===${TH}; }), s3=th&&th.sous&&th.sous.find(function(x){ return x.num===${SS}; });
+    if(!s3) return "sous-thème introuvable";
+    document.body.classList.remove("halloween");
+    s3.ids.forEach(function(id){
+      const d=HW_SERPENTS[id]; if(!d) return;
+      currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId=id;
+      try{ TESTS[id].start(); }catch(e){ vus.push(id+" : "+e.message); return; }
+      const on=document.querySelector("section.screen.on");
+      if(!on){ vus.push(id+" : aucun écran ouvert"); return; }
+      const figs=on.querySelectorAll("figure.hw-serpent");
+      if(figs.length!==1){ vus.push(id+" : "+figs.length+" serpent(s) d’Halloween sur "+on.id); return; }
+      const fig=figs[0];
+      if(fig.getAttribute("data-hw")!==d.v) vus.push(id+" : le serpent affiché est « "+fig.getAttribute("data-hw")+" » au lieu de « "+d.v+" »");
+      const svg=fig.querySelector("svg.hw-svg"), textes=svg?[].map.call(svg.querySelectorAll("text"),function(t){ return t.textContent; }):[];
+      if(!svg) vus.push(id+" : pas de SVG dans le serpent");
+      else if(d.bulle.some(function(l){ return textes.indexOf(l)<0; })) vus.push(id+" : la bulle n’écrit pas « "+d.bulle.join(" / ")+" » : "+textes.join(" / "));
+      const img=fig.parentNode&&fig.parentNode.querySelector("img[src^='data:image']");
+      if(!img) vus.push(id+" : le serpent n’est pas à côté du dessin de la fiche");
+      else if(!(img.compareDocumentPosition(fig)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push(id+" : le serpent passe AVANT le dessin de la fiche");
+      const stage=on.querySelector(".mp-stage");
+      if(stage&&!(fig.compareDocumentPosition(stage)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push(id+" : le serpent vient après la zone de travail");
+      const sans=getComputedStyle(fig).display;
+      document.body.classList.add("halloween");
+      const avec=getComputedStyle(fig).display;
+      document.body.classList.remove("halloween");
+      if(sans!=="none") vus.push(id+" : hors décor, le serpent est en display:"+sans);
+      if(avec!=="flex") vus.push(id+" : sous body.halloween, le serpent est en display:"+avec);
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
 function pythonInputReponse(w, P){
   const nom = '{python-input-reponse} : demander une réponse avec input, en trois étapes';
   if(!P.pythonInputReponse){ ignorer(nom, 'ce niveau n\'a pas l\'exercice sur input'); return; }
