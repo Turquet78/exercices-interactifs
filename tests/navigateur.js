@@ -105,22 +105,40 @@ function servirRacine(){
 }
 
 /* ---------- ouverture d'une page ---------- */
+/* UN SEUL NAVIGATEUR POUR TOUT LE BANC (octobre 2026). Chaque ouvrir()
+   lançait son propre Chromium — 118 lancements pour la Seconde — et le
+   refermait avec s.nav.close(). Le navigateur est désormais lancé une fois,
+   à la première demande ; chaque ouverture reçoit un CONTEXTE neuf (cookies,
+   stockage, fenêtre : rien n'est partagé d'une section à l'autre), et c'est
+   le contexte que s.nav.close() ferme. Le navigateur lui-même se ferme à la
+   sortie du processus. */
+let navigateurPartage = null;
+async function navigateur(chromium){
+  if(!navigateurPartage){
+    navigateurPartage = await chromium.launch({
+      executablePath: chercherChromium(),
+      /* bypass : sans lui, Chromium envoie AUSSI 127.0.0.1 au mandataire, qui
+         répond 405 — la page servie en HTTP local (section 11 bis) arrivait
+         vide, sans une erreur qui le dise. */
+      proxy: (process.env.HTTPS_PROXY || process.env.https_proxy)
+        ? { server: process.env.HTTPS_PROXY || process.env.https_proxy, bypass: '127.0.0.1,localhost' } : undefined,
+    });
+    process.on('exit', () => { try { navigateurPartage.close(); } catch(e){} });
+  }
+  return navigateurPartage;
+}
 async function ouvrir(chromium, ml, options){
   options = options || {};
-  const nav = await chromium.launch({
-    executablePath: chercherChromium(),
-    /* bypass : sans lui, Chromium envoie AUSSI 127.0.0.1 au mandataire, qui
-       répond 405 — la page servie en HTTP local (section 11 bis) arrivait
-       vide, sans une erreur qui le dise. */
-    proxy: (process.env.HTTPS_PROXY || process.env.https_proxy)
-      ? { server: process.env.HTTPS_PROXY || process.env.https_proxy, bypass: '127.0.0.1,localhost' } : undefined,
-  });
+  const nav = await navigateur(chromium);
   /* hasTouch : un contexte TACTILE — MathLive y déploie son clavier complet au
      focus (politique « auto »), exactement ce que le pavé compact doit empêcher
      sur les cases qu'on lui confie ; la requête média pointer:coarse, elle,
      reste au navigateur (le banc force le pavé par window.__paveForce). */
   const ctx = await nav.newContext({ ignoreHTTPSErrors: true, viewport: options.viewport || { width: 1280, height: 900 },
                                      hasTouch: options.hasTouch === true });
+  /* ce que les sections ferment par s.nav.close() : le contexte, pas le
+     navigateur partagé */
+  const poignee = { close: () => ctx.close() };
   const page = await ctx.newPage();
   const erreurs = [];
   page.on('pageerror', e => erreurs.push(String(e.message)));
@@ -206,15 +224,26 @@ async function ouvrir(chromium, ml, options){
      local par servirRacine(), pour ce que file:// ne sait pas faire. */
   await page.goto(options.adresse || ('file://' + path.join(RACINE, CIBLE) + (options.fragment || '')),
     { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForTimeout(ml ? 3500 : 1500);
+  /* L'ATTENTE EST UNE CONDITION, PLUS UNE DURÉE (octobre 2026). Chaque
+     ouverture attendait 3,5 s à plat — 118 ouvertures pour la Seconde, près
+     de sept minutes à ne rien mesurer. On attend maintenant ce que ces 3,5 s
+     couvraient : la page entièrement chargée, le double de Supabase en place
+     et, quand MathLive est servi, <math-field> enregistré ; puis un court
+     répit pour que le premier écran se pose. Sans MathLive servi (ml vide),
+     le délai d'avant reste, et le garde du bas tranche comme avant. */
+  try {
+    await page.waitForFunction(attendML => document.readyState === 'complete' && !!window.__faux
+      && (!attendML || !!customElements.get('math-field')), !!ml, { timeout: 15000 });
+  } catch(e){ /* le garde ci-dessous et la section 1 (« <math-field> est enregistré ») diront ce qui manque */ }
+  await page.waitForTimeout(ml ? 400 : 1500);
 
   /* Et on refuse de continuer si le double n'est pas en place : mieux vaut ne
      rien tester que tester en écrivant dans la vraie base. */
   if(!await page.evaluate(() => !!window.__faux)){
-    await nav.close().catch(() => {});
+    await poignee.close().catch(() => {});
     throw new Error('interception de supabase-js échouée — aucun test ne démarre');
   }
-  return { nav, page, erreurs, eleve };
+  return { nav: poignee, page, erreurs, eleve };
 }
 
 const ecranVisible = page => page.evaluate(() =>
