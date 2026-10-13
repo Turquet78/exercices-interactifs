@@ -170,3 +170,227 @@ figure juste à côté, la bonne carte en vert, le message « ABDC, pas ABCD »,
 la case vide en correction (jamais rouge, sa carte montrée en vert, aucune
 carte rouge, « Il te manquait 1 case »), et la carte touchée qui choisit sa
 lettre et se range dans `q.rep`.
+
+## {vecteurs-egaux} — retrouver les vecteurs égaux dans une figure (8.3, v475)
+
+**Trois sessions ont créé le thème 8 le même jour** — la translation du 8.1,
+le tableau du 8.2 et cet exercice, chacune voyant un thème « Vecteurs » neuf sur sa branche,
+chacune en v473, chacune avec SON `19-seconde-vecteurs.md` : le motif du
+thème 7 (7.1 et 7.2, septembre 2026), à l'identique. Le dernier arrivé sur
+`main` prend la place 8.3 et le numéro 475, et les deux chroniques vivent
+dans ce seul fichier. Les préfixes (`vtr`, `vgt`, `veg`) ne se sont pas heurtés ;
+la fusion, elle, a laissé deux blocs amputés de leur FIN commune (les
+quatre dernières lignes de `ctxVtr`, les trois du contrôle de la
+translation) : quand deux ajouts se terminent par les mêmes lignes, git les
+tient pour communes et ne les écrit qu'une fois — la vérification de syntaxe
+de chaque bloc `<script>` l'a vu avant tout banc.
+
+**La demande** (Turquet, octobre 2026, d'après une fiche papier « Retrouver
+les vecteurs égaux dans la figure ») : un rectangle quadrillé de ses milieux
+(E, F, G, B, J), de ses diagonales et de deux obliques, onze points nommés
+(H et D aux croisements), puis cinq lignes « AB = … = … = … = … = … » où
+l'élève écrit, deux lettres par case, tous les vecteurs égaux à celui qui
+ouvre la ligne. « On pourra changer la forme du dessin et les traits (dans un
+carré, un triangle, un hexagone…). Il faut au moins un deuxième vecteur égal
+pour chaque question. »
+
+**La figure est une DONNÉE, pas un dessin.** `VEG_FIGURES` range, pour
+chaque forme, ses points nommés (coordonnées dans un repère abstrait) et les
+traits qui les relient — rien d'autre. Le dessin SVG, les familles de
+vecteurs égaux, les lignes posées, le juge et l'explication s'en déduisent
+tous. Sept formes au départ : le rectangle de la fiche (`rect9`), un carré
+partagé en quatre avec ses diagonales, le même en parallélogramme, un
+triangle avec ses milieux et le point L qui fait de ABLC un parallélogramme,
+un triangle partagé en tiers avec deux familles de parallèles, un hexagone
+régulier et ses six rayons, un trapèze partagé en six triangles (la grande
+base en trois, la petite en deux, les obliques en zigzag). Une forme ajoutée demain n'écrit que ses points et ses traits, et le
+contrôle la relit sans rien déclarer.
+
+**Deux vecteurs sont égaux quand ils ont les mêmes coordonnées** : les
+couples ordonnés de points nommés se rangent par déplacement
+(`vegClasses`), et une famille est une classe de vecteurs égaux. On ne pose
+en tête de ligne qu'un vecteur dont la famille compte de 2 à 6 membres — au
+moins UN autre vecteur égal (la consigne), au plus CINQ cases (la fiche).
+**Tout couple de points nommés compte, qu'un trait le dessine ou non** : la
+fiche elle-même attend EJ et BG pour FK, que rien ne relie. Le vecteur de
+TÊTE, lui, se choisit de préférence le long d'un trait (`vegTrace`), pour que
+l'élève le voie. Sur la figure de la fiche, le moteur retrouve exactement ses
+lignes : AB → BC, EF, FG, IJ, JK ; FK → AF, EJ, BG ; CD → DH, HI ; HC → ID.
+(La fiche ne laissait que trois cases à IE, qui en a cinq : EA, JF, FB, KG,
+GC — on les demande toutes, comme pour AB.)
+
+**Le triangle des milieux seul n'avait que trois familles** (AI = IB = KJ et
+ses deux sœurs) : trop peu pour cinq lignes. Le point L, symétrique de A par
+rapport au milieu J de [BC], en fait un parallélogramme ABLC et double les
+familles. Le prototype sous Node a compté les familles de chaque forme avant
+que la page ne les dessine ; c'est lui qui a montré le manque. **Le premier
+trapèze** (la grande base partagée en trois, deux obliques) n'avait que cinq
+familles, quatre d'entre elles à UNE case : la capture montrait quatre lignes
+« DA = … » à une seule case. Partagé en six triangles, il en a six, de deux à
+cinq cases.
+
+**Cinq lignes par figure, jamais une famille ET son opposée** : les familles
+riches passent devant sans sortir à chaque fois (un rang tiré, pondéré par
+la taille), et les lignes vont du plus de cases au moins, comme la fiche.
+Trois figures par séance (`VEG_NB`), de FORMES différentes tant que la séance
+est plus courte que le vivier (`distinctes()` sur la forme), de forme ou de
+retournement différents au-delà ; le réglage « Questions » d'un devoir
+allonge la séance (`dmNbQuestions`). **Le retournement** (`fx`, `fy` : miroir
+horizontal, vertical, les deux) ne change aucune égalité de vecteurs,
+seulement l'image — il quadruple le vivier.
+
+**Le sens compte : BA n'est pas AB.** C'est le piège de l'exercice, et
+l'explication le nomme : opposé (même direction, même longueur, sens
+contraire — « c'est AB qui est égal à … »), colinéaire (même direction,
+autre longueur), ou ni l'un ni l'autre. **L'ordre des cases d'une ligne est
+libre**, et un vecteur écrit deux fois n'est juste qu'une fois — la seconde
+case est fausse, la première reste juste. Une ligne se juge donc ENTIÈRE
+(`vegJugeLigne`), jamais case par case : la correction écrit, dans chaque
+case fausse ou vide, un des vecteurs attendus qui manquent encore. Minuscules,
+espaces, flèches tapées sont ignorés (`vegLit`) ; « ab » vaut AB.
+
+**On range la forme, son retournement et les vecteurs de tête, jamais les
+réponses** : `vegLignes()` recalcule les familles dans la fonction même qui
+corrige. Le champ s'appelle `dep`, pas `v` — `v` est retiré de la clé de
+`distinctes()` comme une tournure, et deux figures aux vecteurs différents
+seraient passées pour la même question.
+
+**Le dessin** (`vegSvg`) : pas de quadrillage — celui de `.mp-stage` ferait
+croire à un repère, et l'élève raisonne sur la figure, pas sur des
+coordonnées. Une lettre se pose du côté opposé au centre de la figure, donc
+hors du polygone et de ses traits ; un point intérieur (le centre, un
+croisement) a sa place écrite à la main (`etq`), dans un secteur libre entre
+ses traits, et cette place suit le retournement. Deux captures ont montré ce
+que le calcul ne voit pas : le J du triangle est le CENTRE du parallélogramme
+ABLC — « du côté opposé au centre » ne veut plus rien dire —, et le E du
+carré, posé à 18 px du croisement de quatre traits, touchait une diagonale ;
+tous deux ont reçu leur place écrite. Lettres à 19 px dans une
+boîte de 460 — 13 px rendus sur un téléphone, au-dessus des 12 px que le
+banc exige des textes de dessin. La flèche du vecteur est dessinée en CSS
+au-dessus des deux lettres, et au-dessus de chaque case, pour dire qu'on y
+attend un vecteur. Le « = » et sa case forment un bloc insécable
+(`.veg-grp`) ; la rangée peut se replier sur un téléphone, jamais entre les
+deux. Les cases ont la taille des lettres qui les entourent (1.45rem,
+Fredoka, comme `.red-expr`), et leurs trois verdicts reprennent les encres de
+`.red-in` : juste en bleu, faux en rouge, correction en vert.
+
+**Pas de bouton des tables** (l'identifiant est dans `TABLES_SANS` et dans
+`tablesAide.sans` du profil) : on lit une figure, on ne multiplie rien.
+
+**Le contexte envoyé au modèle** (`ctxVeg`) décrit la figure par ses points
+et ses coordonnées, ses traits, les lignes posées et les réponses secrètes —
+et lui demande de raisonner avec les parallélogrammes, les milieux et les
+longueurs de la figure, jamais avec des coordonnées que l'élève ne voit pas.
+
+**Le juge** (`tests/verifier.js`, « vecteurs égaux dans une figure ») : la
+place (8.3 derrière la translation du 8.1 et le tableau du 8.2, le thème 7 immobile, pas de bouton des tables) ; chaque forme
+relue depuis ses coordonnées par une SECONDE écriture des familles,
+indépendante de `vegClasses` (au moins six points, des lettres majuscules,
+pas deux points au même endroit, des traits entre des points connus, et au
+moins cinq familles de 2 à 6 membres sans leurs opposées) ; 300 séances
+tirées (trois figures de formes différentes, cinq lignes chacune, les
+réponses attendues égales à celles de la seconde écriture, de 1 à 5 cases par
+ligne, du plus de cases au moins, jamais deux lignes de la même famille ni
+d'une famille et son opposée, chaque forme sortie au moins une fois) ; puis
+le bouton sur la figure de la fiche : seize cases, les onze lettres
+dessinées, la copie juste (16/16), la même en minuscules et dans un autre
+ordre, le piège BA (rouge, ses voisines justes, le message dit « opposé » et
+« sens », la correction propose un vecteur égal), BC écrit deux fois (la
+première juste, la seconde rouge, le message le dit), AC pour AB (rouge, le
+message parle de longueur), une case vide (correction FB, jamais rouge, le
+message nomme le manque), la copie entièrement vide (rien de rouge), le
+barème égal au total des cases de la séance, `qId`.
+
+## {translation-quadrillage} — déplacer un point en suivant le chemin u⃗ (8.4, v476)
+
+**La demande** (Turquet, octobre 2026, une autre conversation que celle du 8.1 :
+« en seconde créer un exercice comme le pdf joint ») : la *fiche 2 sur les
+vecteurs*. Un quadrillage où une flèche u⃗ est dessinée, des points A, B, C,
+D, E, et la consigne « déplacer le point A en suivant le chemin u⃗ et appeler
+le nouveau point A′ » ; puis le même quadrillage sans flèche, où le chemin
+est « celui qui va de A à B » (le vecteur AB⃗), et des points C, D, E, F, G à
+déplacer. En bas de la fiche, la phrase à retenir : « *l'image de A par la
+translation de vecteur u⃗ est le point A′* ». Les deux conversations ont
+créé le thème 8 le même jour ; celle-ci a repris `main` trois fois et s'est rangée
+DERRIÈRE le 8.1, le 8.2 et le 8.3 — ajouté en dernier, l'exercice ne renumérote rien.
+
+**{translation-quadrillage} (8.4) : les deux exercices de la fiche sont les
+deux FORMES du tirage.** `q.forme` vaut `'u'` (la flèche dessinée, nommée u⃗,
+les points à déplacer sont A, B et C) ou `'ab'` (deux points A et B SANS
+flèche — lire le chemin fait partie du travail —, les points à déplacer sont
+C, D et E). Trois images par question, quatre questions par séance
+(`TRL_NB`, et `dmNbQuestions()` quand un devoir règle autrement), tirées par
+`distinctes()` sur la clé des données : le vecteur s'appelle `vec`, pas `v` —
+`v` est la tournure, que la clé écarte, et deux questions aux vecteurs
+différents auraient passé pour la même.
+
+**Le tirage est garanti LISIBLE, et le contrôle le relit sur deux cents
+séances.** Tous les points — les trois sources, leurs trois images, et A et B
+ou les deux bouts de la flèche — sont dans le quadrillage (13 colonnes sur 9
+lignes), deux à deux NON VOISINS (distance de Tchebychev ≥ 2 : deux
+étiquettes côte à côte se liraient l'une sur l'autre), et aucun point nommé ne
+tombe sur la flèche u⃗ (ses nœuds intermédiaires se comptent par le pgcd des
+composantes). Le chemin fait au moins deux carreaux. La question ne porte que
+`forme`, `vec`, `o` (l'origine de la flèche, ou le point A), `src` et `rep`
+(trois `null` au tirage) ; elle survit au JSON de la pause. Éprouvé par
+sabotage : des points seulement « distincts » au lieu de « non voisins » ont
+rougi dès le premier tirage, quatre paires nommées.
+
+**La bonne réponse n'est jamais rangée à côté de la question.** L'image de
+chaque point se recalcule (`trlImage`) depuis la source et le vecteur — les
+données MÊMES qui dessinent le quadrillage —, par la fonction qui corrige
+(`trlCheck`), par le dessin de la correction et par le contexte du modèle. Une
+image calculée de travers (le `−` à la place du `+` sur la seconde
+composante) a rougi au tirage même, avant d'atteindre le juge.
+
+**Le geste est celui de {placer-image}, avec trois stylos.** Le point se POSE
+au clic sur un nœud ; l'écouteur est DÉLÉGUÉ à l'hôte, le SVG étant réécrit à
+chaque pose ; `trlNoeud()` relit la géométrie dans le SVG RENDU (`data-m`,
+`data-c`, `data-w`, `data-h`) et s'accroche au nœud le plus proche — aucune
+coordonnée recopiée. Trois images, donc trois stylos « ● Placer A′ », « ●
+Placer B′ », « ● Placer C′ » (`trlChoisir`) : poser un point passe au stylo
+suivant encore vide, recliquer sur un de ses points le RETIRE et rend son
+stylo, cliquer ailleurs avec le même stylo le déplace. jsdom n'a pas de mise
+en page : le clic, le stylo qui avance et le reclic qui retire ne se mesurent
+que dans le banc navigateur (« 6 quadragies bis »), qui clique le bon nœud,
+un nœud décalé d'un tiers de maille, et retire au reclic. Le banc principal,
+lui, pose `rep` à la main — la répartition de {placer-image}.
+
+**La demande en énoncé, le mode d'emploi en plus petit.** « Déplace les points
+A, B et C en suivant le chemin u⃗ : place les points A′, B′ et C′, images de
+A, B et C par la translation de vecteur u⃗. » est l'énoncé (`.lv-instr`, qui
+prend l'encadré) ; le geste — choisir le stylo, cliquer le nœud, déplacer,
+retirer — se lit après, dans `.trl-sous`, à 0,85 rem contre 1,04. Le nom d'un
+vecteur est une lettre coiffée d'une flèche : la classe `.vec`, dont le
+`::before` porte la flèche, dans l'énoncé, le rappel et les corrections ; sur
+le dessin, un « u » en fonte mathématique sous un petit trait fléché.
+
+**Chaque image se juge SEULE, et une image manquante ne rougit jamais.** La
+copie juste vaut 3 ; une image fausse coûte son point et pas celui des deux
+autres ; une image NON POSÉE n'est pas une erreur : sa pastille (`pts-case`,
+comptée par `ptsEcran`) ne rougit pas — en entraînement elle devient `sol`
+(verte) et le dessin montre l'image attendue en vert : un anneau, son
+étiquette, et le chemin depuis la source en pointillés ; en soutien rien ne
+se révèle et rien ne se verrouille tant que la copie n'est pas juste, la
+pastille et le point se colorent à la pose (`trlLive`). Vérifier sans AUCUN
+point ne peint rien et ne verrouille rien : le message redit le geste. Les
+encres suivent la convention commune — le point de l'élève est bleu, rouge
+quand il est faux, la correction verte (`.trl-sol`, le motif de `.pim-sol`) —
+et le banc « 9 bis » les relit comme toutes les autres. Éprouvé par sabotage
+des deux côtés : une pastille vide peinte en rouge a rougi (« n'est pas sol,
+elle est bad »), et un soutien qui verrouille une copie fausse a rougi trois
+fois (verrouillage, révélation, copie corrigée).
+
+**Le contexte envoyé au modèle dit le chemin en carreaux.** « 3 carreaux vers
+la droite et 2 carreaux vers le bas » (`trlChemin`), les points en (colonne ;
+ligne) comptées depuis le coin bas gauche, ce que l'élève a posé (juste, FAUX,
+pas encore posé), et les images attendues derrière `CTX_SECRET`. La même
+phrase en carreaux sert la correction écrite à l'élève. Le bouton des tables
+n'est pas proposé : on n'y multiplie rien (`TABLES_SANS`, et `tablesAide.sans`
+dans le profil — deux sources, donc un vrai contrôle).
+
+**Ce qu'aucun banc ne voit** : la fiche 1 (construire le point D tel que ABDC
+soit un parallélogramme) n'est pas portée — Turquet a précisé que la fiche 2
+était « le bon fichier » ; et la phrase à compléter « l'image de B par la
+translation de vecteur … est le point … » de la fiche est dite dans la
+correction et le rappel, pas demandée dans une case.
