@@ -2149,6 +2149,36 @@
   .pim-case{display:inline-block;padding:5px 12px;border-radius:9px;border:1.6px solid var(--line);font-weight:600;background:var(--surface)}
   .pim-case.ok{border-color:var(--blue);background:#EAF0FF}
   .pim-case.bad{border-color:var(--red);background:#fdeaea}
+  /* {translation-quadrillage} (thème 8, Vecteurs — la fiche 2 sur les
+     vecteurs, demande de Turquet, octobre 2026) : un quadrillage cliquable,
+     des points nommés en croix, la flèche u⃗ ; le point posé par l'élève est
+     BLEU (sa réponse), rouge quand il est faux ; l'image attendue — la
+     correction — est un anneau VERT, avec son chemin en pointillés, la
+     convention commune (.pim-sol). Les étiquettes font 14 px : les textes
+     d'un graphique s'écrivent à 12 px au moins. touch-action:manipulation,
+     pas :none — ici on ne glisse rien, on pose au clic. */
+  #scr-trl{padding-bottom:84px}
+  .lv-instr .trl-sous{display:block;font-size:.85rem;font-weight:400;margin-top:6px}
+  /* le nom d'un vecteur : la lettre coiffée d'une flèche */
+  .vec{position:relative;display:inline-block;padding-top:.45em;line-height:1}
+  .vec::before{content:'\2192';position:absolute;top:-.15em;left:0;right:0;text-align:center;font-size:.72em;font-style:normal;line-height:1}
+  .trl-svg{display:block;width:100%;max-width:560px;height:auto;margin:0 auto;touch-action:manipulation;cursor:pointer}
+  .trl-grid{stroke:var(--ink-soft);stroke-width:.8;opacity:.55}
+  .trl-x{stroke:var(--ink);stroke-width:1.8;fill:none}
+  .trl-nom{font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;fill:var(--ink)}
+  .trl-vec{stroke:#C2410C;stroke-width:2.6;fill:none;stroke-linecap:round}
+  .trl-arw{fill:#C2410C}
+  .trl-u{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic;font-size:16px;fill:#C2410C}
+  .trl-u-arw{stroke:#C2410C;stroke-width:1.4;fill:none;marker-end:url(#trlArw)}
+  .trl-pt{fill:var(--blue)}
+  .trl-pt.bad{fill:var(--red)}
+  .trl-lbl{font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;fill:var(--blue)}
+  .trl-lbl.bad{fill:var(--red)}
+  .trl-sol{fill:none;stroke:var(--green);stroke-width:2.6}
+  .trl-sol-nom{font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;fill:var(--green)}
+  .trl-sol-chemin{stroke:var(--green);stroke-width:2;stroke-dasharray:6 4;fill:none}
+  .trl-arw-sol{fill:var(--green)}
+  .trl-case.sol{border-color:var(--green);background:var(--green-soft)}
   /* {antecedents-droite} : la grille doublée (13 graduations) et la droite que
      l'élève DÉPLACE. La droite est ORANGE — la couleur de g au 2.5/2.6,
      choisie pour ne se confondre ni avec la courbe bleue, ni avec le bleu,
@@ -3809,6 +3839,19 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div id="pimBody"></div>
       <div class="lv-feedback"><span id="pimMark" class="mark"></span> <span id="pimCorr" class="correction"></span></div>
       <div class="row" style="justify-content:center;margin-top:16px"><button id="pimRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="pimConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="pimQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="pimValidate" onclick="submitPim()">Valider</button></div>
+    </div>
+  </section>
+
+  <!-- TEST : TRANSLATION D'UN POINT SUR QUADRILLAGE (VECTEURS) -->
+  <section class="screen" id="scr-trl">
+    <div class="card lv-card">
+      <div class="q-head"><span id="trlIdx" class="q-idx">Question 1 / 4</span><span id="trlModeTag"></span></div>
+      <p class="lv-instr" id="trlInstr"></p>
+      <div class="lv-graph" id="trlGraph"></div>
+      <div class="adr-modes" id="trlModes"></div>
+      <div id="trlBody"></div>
+      <div class="lv-feedback"><span id="trlMark" class="mark"></span> <span id="trlCorr" class="correction"></span></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="trlRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="trlConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="trlQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="trlValidate" onclick="submitTrl()">Valider</button></div>
     </div>
   </section>
 
@@ -6362,7 +6405,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=472;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=473;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7070,6 +7113,7 @@ const TESTS={
   'reduire-somme': { name:'R\u00e9duire une somme de termes', icon:'\ud83d\udd24', desc:'R\u00e9duis si possible : 2x + 3x, 2x + 3, \u22122x\u00b2 + 3x\u00b2, \u22122x\u00b2 + 3x\u2026 On n\u2019additionne que des termes de m\u00eame nature \u2014 des x avec des x, des x\u00b2 avec des x\u00b2, des nombres avec des nombres.', start:()=>startRed() },
   'associer-expressions': { name:'Associer chaque expression \u00e0 son r\u00e9sultat', icon:'\ud83d\udd17', desc:'Quatre expressions \u2014 un carr\u00e9, un double, un nombre divis\u00e9 par lui-m\u00eame, un nombre moins lui-m\u00eame \u2014 \u00e0 associer \u00e0 leur r\u00e9sultat. Trois fois avec un nombre, puis trois fois avec une lettre \u2014 x, puis a, puis b.', start:()=>startAsx() },
   'reduire-produit': { name:'R\u00e9duire un produit avec x', icon:'\ud83d\udd22', desc:'Quinze produits de deux facteurs \u2014 un nombre ou la lettre x, jamais x\u00b2. D\u2019abord case par case\u00a0: le signe, le coefficient, puis si \u00e7a se termine par x ou par x\u00b2. Puis directement le r\u00e9sultat r\u00e9duit.', start:()=>startRpd() },
+  'translation-quadrillage': { name:'Translation\u00a0: d\u00e9placer un point sur le quadrillage', icon:'\u27a1\ufe0f', desc:'Sur un quadrillage, une fl\u00e8che u (ou deux points A et B) donne un chemin\u00a0: d\u00e9place chaque point en suivant ce chemin et place son image A\u2032, B\u2032, C\u2032 \u2014 \u00ab\u00a0l\u2019image de A par la translation de vecteur u est le point A\u2032\u00a0\u00bb. Les images se posent au clic sur le quadrillage.', start:()=>startTrl() },
   'tableau-proportions': { name:'Proportions dans un tableau', icon:'\ud83d\udcca', desc:'Comme sur la fiche papier\u00a0: un tableau \u00e0 double entr\u00e9e dont tu compl\u00e8tes la ligne et la colonne \u00ab\u00a0total\u00a0\u00bb, puis des proportions \u00e0 \u00e9crire en fraction \u2014 qui l\u2019on \u00e9tudie, parmi qui, et les deux effectifs. Les situations changent \u00e0 chaque s\u00e9ance.', start:()=>startTdp() },
   'tableau-proportions-lettres': { name:'Proportions dans un tableau (avec des lettres)', icon:'\ud83d\udd24', desc:'Le tableau de {tableau-proportions}, r\u00e9dig\u00e9 comme sur la fiche\u00a0: les groupes portent des lettres (A, B, C, D). Tu compl\u00e8tes le tableau, tu donnes le nombre correspondant \u00e0 A, \u00e0 C, \u00e0 \u00ab\u00a0A et C\u00a0\u00bb, puis tu \u00e9cris cinq proportions avec les lettres. Les situations changent \u00e0 chaque s\u00e9ance.', start:()=>startTdl() },
   'tableau-proportions-lettres-tirees': { name:'Proportions dans un tableau (lettres tir\u00e9es)', icon:'\ud83c\udfb2', desc:'Comme {tableau-proportions-lettres}, mais la paire de lettres change \u00e0 chaque situation\u00a0: une lettre parmi A ou B, une lettre parmi C ou D, tir\u00e9es au hasard. Tu compl\u00e8tes le tableau, tu donnes le nombre correspondant \u00e0 chacune d\u2019elles et \u00e0 leur croisement, puis tu \u00e9cris cinq proportions qui ne parlent que de ces deux lettres.', start:()=>startTdlTirees() },
@@ -7270,7 +7314,11 @@ const THEMES=[
   /* Le thème des RAPPELS (demande de Turquet, septembre 2026) : les bases du
      collège qu'on reprend en début de Seconde. Ajouté EN DERNIER, il ne
      renumérote rien. */
-  { num:7, nom:'Calcul littéral', ids:['additionner-relatifs','nombres-relatifs','multiplier-relatifs','calcul-itere','reduire-somme','associer-expressions','soustraire-relatifs','reduire-produit'] }
+  { num:7, nom:'Calcul littéral', ids:['additionner-relatifs','nombres-relatifs','multiplier-relatifs','calcul-itere','reduire-somme','associer-expressions','soustraire-relatifs','reduire-produit'] },
+  /* Le thème des VECTEURS (demande de Turquet, octobre 2026 : « en seconde
+     créer un exercice comme le pdf joint » — la fiche 2 sur les vecteurs).
+     Ajouté EN DERNIER, il ne renumérote rien. */
+  { num:8, nom:'Vecteurs', ids:['translation-quadrillage'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -7410,6 +7458,7 @@ function liveCheckCurrent(){
   else if(k==='eqg') checkEqgAnswer(true);
   else if(k==='cfx') cfxLive();
   else if(k==='pim') pimLive();
+  else if(k==='trl') trlLive();
   else if(k==='ls') lsLive();
   else if(k==='lsv') lsvLive();
   else if(k==='tvd') tvdLive();
@@ -8318,6 +8367,7 @@ function conseilPaire(){
   else if(test.kind==='tvd' && q) b=ctxTvd(q);
   else if(test.kind==='img' && q) b=ctxImg(q);
   else if(test.kind==='pim' && q) b=ctxPim(q);
+  else if(test.kind==='trl' && q) b=ctxTrl(q);
   else if(test.kind==='ant' && q) b=ctxAnt(q);
   else if(test.kind==='adr' && q) b=ctxAdr(q);
   else if(test.kind==='iqd' && q) b=ctxIqd(q);
@@ -8627,6 +8677,7 @@ const QIA_SUGG={
   tvd:["Comment trouver les changements de sens sur le dessin ?","Quelles valeurs \u00e9crit-on aux bouts des fl\u00e8ches ?","Comment savoir si la fl\u00e8che monte ou descend ?"],
   img:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","À quoi sert le trait vertical ?","Quelle est la différence entre un nombre et son image ?"],
   pim:["Comment je place la droite verticale au bon endroit ?","Comment je place le point de la courbe d’abscisse 2 ?","Quelle est la différence entre l’abscisse et l’image ?","Pourquoi f(2) = 3 veut dire que l’image de 2 est 3 ?","Que faire quand la courbe descend sous l’axe ?"],
+  trl:["Comment je lis le chemin de la flèche u sur le quadrillage ?","Qu’est-ce que l’image d’un point par une translation ?","Comment trouver le chemin qui va de A à B ?","Pourquoi le nouveau point s’appelle-t-il A′ ?"],
   ant:["C\u2019est quoi, un antécédent ?","Quelle est la différence entre image et antécédent ?","À quoi sert la ligne de niveau ?"],
   iqd:["Que veut dire f (x) \u2265 2 sur un dessin ?","Quand est-ce que les crochets sont ouverts ?","Pourquoi S est un intervalle et pas des accolades { } ?","Comment je place la droite à la bonne hauteur ?"],
   adr:["Comment je place la droite à la bonne hauteur ?","Comment savoir s’il n’y a aucun antécédent ?","Quand est-ce qu’on écrit « est » et quand « sont » ?","Quelle est la différence entre image et antécédent ?"],
@@ -9513,6 +9564,16 @@ Le <b>point de la courbe d'abscisse <i>a</i></b> est le point de la courbe situ�
 Pour le placer : repère <i>a</i> sur l'axe des <b>abscisses</b> (l'axe horizontal), pose la <b>droite verticale</b> sur <i>a</i>, puis pose le point là où cette droite coupe la courbe.<br>
 La <b>hauteur</b> de ce point, lue sur l'axe vertical, est <b>l'image de <i>a</i></b> : on la note <i>f</i>(<i>a</i>).<br>
 Exemple : si le point de la courbe d'abscisse 2 est à la hauteur 3, alors <i>f</i>(2) = 3 — l'image de 2 est 3.`;
+/* Le rappel de {translation-quadrillage} : la définition de la fiche 2 —
+   « déplacer le point A en suivant le chemin u⃗ et appeler le nouveau point
+   A′ ; on écrit que l'image de A par la translation de vecteur u⃗ est le
+   point A′ ». Sans LaTeX : rien à empiler. */
+const RAP_TRL=`<b>Translation : déplacer un point en suivant un chemin</b><br>
+Une flèche <span class="vec"><i>u</i></span> dessinée sur le quadrillage est un <b>chemin</b> : tant de carreaux vers la droite (ou la gauche), tant de carreaux vers le haut (ou le bas).<br>
+<b>Déplacer le point A en suivant le chemin <span class="vec"><i>u</i></span></b> : on part de A et on refait exactement le même chemin. Le point d'arrivée s'appelle A′ (on lit « A prime »).<br>
+On écrit : <b>l'image de A par la translation de vecteur <span class="vec"><i>u</i></span> est le point A′</b>.<br>
+Quand on donne deux points A et B, le chemin <span class="vec"><i>AB</i></span> est celui qui va <b>de A vers B</b> : on compte les carreaux de A à B, puis on refait ce chemin à partir de chaque point.<br>
+Exemple : si <span class="vec"><i>u</i></span> va de 3 carreaux vers la droite et de 2 carreaux vers le bas, l'image de A est le point situé 3 carreaux à droite et 2 carreaux plus bas que A.`;
 /* Rappel des solutions sur le graphique : celui du 4.5 de la Terminale, porté
    tel quel — la méthode ne dépend pas du niveau. Sans LaTeX : rien à empiler. */
 const RAP_TVG=
@@ -10020,7 +10081,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}=\\frac{5}{6}\\) (on simplifie à la fin, ici par 2).`;
 const RAPPELS={ pgc:RAP_PGC, pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
-  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, tdc:RAP_TDC, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pfr:RAP_PFR, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, pfo:RAP_PFO, prc:RAP_PRC, pcf:RAP_PCF, pkg:RAP_PKG, pfn:RAP_PFN, pfk:RAP_PFK, pof:RAP_POF, pxy:RAP_PXY, pmt:RAP_PMT, ptm:RAP_PTM, pgt:RAP_PGT, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pfe:RAP_PFE, pbl:RAP_PBL, pmn:RAP_PMN, pfv:RAP_PFV, ptds:RAP_PTDS, pfd:RAP_PFD, pfc:RAP_PFC, pfq:RAP_PFQ, pfi:RAP_PFI, plo:RAP_PLO, pci:RAP_PCI, pce:RAP_PCE, psm:RAP_PSM, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
+  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, trl:RAP_TRL, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, tdc:RAP_TDC, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pfr:RAP_PFR, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, pfo:RAP_PFO, prc:RAP_PRC, pcf:RAP_PCF, pkg:RAP_PKG, pfn:RAP_PFN, pfk:RAP_PFK, pof:RAP_POF, pxy:RAP_PXY, pmt:RAP_PMT, ptm:RAP_PTM, pgt:RAP_PGT, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pfe:RAP_PFE, pbl:RAP_PBL, pmn:RAP_PMN, pfv:RAP_PFV, ptds:RAP_PTDS, pfd:RAP_PFD, pfc:RAP_PFC, pfq:RAP_PFQ, pfi:RAP_PFI, plo:RAP_PLO, pci:RAP_PCI, pce:RAP_PCE, psm:RAP_PSM, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
 const RAPPELS_ID={ 'python-input-float':RAP_PIF, 'python-for-moyenne-notes':RAP_PFM, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'pourcentages-problemes-sans-aide':RAP_PPS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
@@ -10146,7 +10207,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    que 3² = 9 et 4² = 16.
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
-const TABLES_SANS=['python-for-images-entiers','python-if-plus-grand-trois','python-pile-face','python-if-location','python-if-cinema','python-if-plus-grand','python-if-else','python-for-couples','python-samoussa','python-tables-multiplication','python-for-table','python-for-images','python-for-multiples','python-for-moyenne-notes','python-trois-des','python-for-depart-fin','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-if-frais-port','python-input-prix','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
+const TABLES_SANS=['translation-quadrillage','python-for-images-entiers','python-if-plus-grand-trois','python-pile-face','python-if-location','python-if-cinema','python-if-plus-grand','python-if-else','python-for-couples','python-samoussa','python-tables-multiplication','python-for-table','python-for-images','python-for-multiples','python-for-moyenne-notes','python-trois-des','python-for-depart-fin','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-if-frais-port','python-input-prix','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
                    'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi','tableau-proportions-trois-colonnes','tableau-proportions-trois-colonnes-directes','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
@@ -10621,7 +10682,7 @@ function retourModes(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], spr:['spr',renderSpr], ppb:['ppb',renderPpb], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], tdc:['tdc',renderTdcTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pch:['pch',renderPCH], pcl:['pcl',renderPCL], pfr:['pfr',renderPFR], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], ptr:['ptr',renderPTR], pfo:['pfo',renderPFO], pgc:['pgc',renderPGC], prc:['prc',renderPRC], pcf:['pcf',renderPCF], pkg:['pkg',renderPKG], pfn:['pfn',renderPFN], pfk:['pfk',renderPFK], pof:['pof',renderPOF], pxy:['pxy',renderPXY], pmt:['pmt',renderPMT], ptm:['ptm',renderPTM], pgt:['pgt',renderPGT], phm:['phm',renderPHM], pvo:['pvo',renderPVO], pdu:['pdu',renderPDU], pfe:['pfe',renderPFE], pbl:['pbl',renderPBL], pmn:['pmn',renderPMN], pfv:['pfv',renderPFV], ptds:['ptds',renderPTDS], pfd:['pfd',renderPFD], pfc:['pfc',renderPFC], pfq:['pfq',renderPFQ], pfi:['pfi',renderPFI], plo:['plo',renderPLO], pci:['pci',renderPCI], pce:['pce',renderPCE], psm:['psm',renderPSM], prl:['prl',renderPRL], ptt:['ptt',renderPTT], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], trl:['trl',renderTrl], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], spr:['spr',renderSpr], ppb:['ppb',renderPpb], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], tdc:['tdc',renderTdcTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pch:['pch',renderPCH], pcl:['pcl',renderPCL], pfr:['pfr',renderPFR], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], ptr:['ptr',renderPTR], pfo:['pfo',renderPFO], pgc:['pgc',renderPGC], prc:['prc',renderPRC], pcf:['pcf',renderPCF], pkg:['pkg',renderPKG], pfn:['pfn',renderPFN], pfk:['pfk',renderPFK], pof:['pof',renderPOF], pxy:['pxy',renderPXY], pmt:['pmt',renderPMT], ptm:['ptm',renderPTM], pgt:['pgt',renderPGT], phm:['phm',renderPHM], pvo:['pvo',renderPVO], pdu:['pdu',renderPDU], pfe:['pfe',renderPFE], pbl:['pbl',renderPBL], pmn:['pmn',renderPMN], pfv:['pfv',renderPFV], ptds:['ptds',renderPTDS], pfd:['pfd',renderPFD], pfc:['pfc',renderPFC], pfq:['pfq',renderPFQ], pfi:['pfi',renderPFI], plo:['plo',renderPLO], pci:['pci',renderPCI], pce:['pce',renderPCE], psm:['psm',renderPSM], prl:['prl',renderPRL], ptt:['ptt',renderPTT], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -10752,7 +10813,7 @@ function show(name){
   if(name!=='spr'){ try{ sprRestituer(); }catch(e){} }
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','spr','ppb','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','tdc','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pcl','pfr','pii','pia','pis','pmy','ptr','pfo','pgc','prc','pcf','pkg','pfn','pfk','pof','pxy','pmt','ptm','pgt','phm','pvo','pdu','pfe','pbl','pmn','pfv','ptds','pfd','pfc','pfq','pfi','pci','pce','psm','plo','prl','ptt','pap','pvm','ppc','ppd','ppm','pev','pel','pph'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','trl','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','spr','ppb','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','tdc','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pcl','pfr','pii','pia','pis','pmy','ptr','pfo','pgc','prc','pcf','pkg','pfn','pfk','pof','pxy','pmt','ptm','pgt','phm','pvo','pdu','pfe','pbl','pmn','pfv','ptds','pfd','pfc','pfq','pfi','pci','pce','psm','plo','prl','ptt','pap','pvm','ppc','ppd','ppm','pev','pel','pph'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -12812,6 +12873,308 @@ function submitPim(){
   lvBoutonSuivant('pimValidate', nextPimQuestion);
 }
 function nextPimQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; test.pimMode='droite'; renderPim(); autoSave(); } else finishTest(); }
+
+/* ================= Exercice Seconde : Translation d'un point sur quadrillage (kind 'trl') =================
+   Demande de Turquet (octobre 2026) : « en seconde créer un exercice comme le
+   pdf joint » — la FICHE 2 SUR LES VECTEURS. Un quadrillage, des points
+   nommés, et une consigne : « Déplacer le point A en suivant le chemin u⃗ et
+   appeler le nouveau point A′ » ; puis « on écrit que l'image de A par la
+   translation de vecteur u⃗ est le point A′ ». La fiche a deux exercices, qui
+   deviennent les deux FORMES du tirage (q.forme) :
+     · 'u'  — le chemin est une FLÈCHE dessinée sur le quadrillage, nommée u⃗ ;
+              les points à déplacer sont A, B et C ;
+     · 'ab' — le chemin est celui qui va de A à B (le vecteur AB⃗), deux points
+              SANS flèche : c'est à l'élève de lire le chemin ; les points à
+              déplacer sont C, D et E.
+   Le GESTE est celui de {placer-image} : le point se POSE au clic sur un nœud
+   du quadrillage, l'écouteur est DÉLÉGUÉ à l'hôte (le SVG est réécrit à
+   chaque pose), et le clic s'accroche au nœud le plus proche en relisant la
+   géométrie dans le SVG RENDU (data-m, data-c, data-w, data-h) — aucune
+   coordonnée recopiée. Trois images par question, donc trois « stylos » :
+   « ● Placer A′ », « ● Placer B′ », « ● Placer C′ » ; poser un point passe
+   au stylo suivant encore vide, recliquer sur un de ses points le retire,
+   cliquer ailleurs avec le même stylo le déplace.
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : l'image de
+   chaque point se recalcule (trlImage) depuis les données MÊMES qui dessinent
+   le quadrillage — la source et le vecteur —, par la fonction qui corrige.
+   La question reste du JSON : forme, vecteur (vec — pas « v », que la clé de
+   distinctes() écarte comme une tournure), origine de la flèche ou point A
+   (o), les trois sources (src) et les trois réponses (rep). Le tirage est
+   garanti LISIBLE : tous les points — sources, images, A et B ou les deux
+   bouts de la flèche — sont dans le quadrillage, deux à deux non voisins
+   (une étiquette ne recouvre jamais sa voisine), et aucun point ne tombe sur
+   la flèche u⃗.
+   CHAQUE IMAGE SE JUGE SEULE — une image fausse coûte son point, pas ceux
+   des deux autres. Un point NON POSÉ n'est pas une erreur : sa pastille ne
+   rougit jamais ; en entraînement elle devient « sol » (verte) et le dessin
+   montre l'image attendue en vert (anneau, étiquette, et le chemin en
+   pointillés depuis la source) ; en soutien rien ne se révèle, l'élève
+   corrige lui-même. Vérifier sans AUCUN point ne peint rien et ne verrouille
+   rien : le message redit le geste. */
+const TRL_NB=4, TRL_W=12, TRL_H=8;
+function trlNoms(q){ return q.forme==='ab' ? ['C','D','E'] : ['A','B','C']; }
+function trlVecHTML(q){ return '<span class="vec"><i>'+(q.forme==='ab'?'AB':'u')+'</i></span>'; }
+function trlVecTexte(q){ return q.forme==='ab' ? 'AB' : 'u'; }
+function trlImage(q,i){ return [q.src[i][0]+q.vec[0], q.src[i][1]+q.vec[1]]; }
+/* le chemin dit en carreaux : « 3 carreaux vers la droite et 2 carreaux vers le bas » */
+function trlChemin(q){
+  const dx=q.vec[0], dy=q.vec[1], m=[];
+  const c=n=>n+' carreau'+(n>1?'x':'');
+  if(dx) m.push(c(Math.abs(dx))+' vers la '+(dx>0?'droite':'gauche'));
+  if(dy) m.push(c(Math.abs(dy))+' vers le '+(dy>0?'haut':'bas'));
+  return m.join(' et ');
+}
+/* Le tirage d'UNE question. Les points sont deux à deux NON VOISINS (distance
+   de Tchebychev ≥ 2) : deux étiquettes côte à côte se liraient l'une sur
+   l'autre. Pour la forme 'u', aucun point ne tombe sur la flèche — ses nœuds
+   intermédiaires se comptent par le pgcd des composantes. */
+function trlFabrique(){
+  const W=TRL_W, H=TRL_H;
+  const dans=p=>p[0]>=0&&p[0]<=W&&p[1]>=0&&p[1]<=H;
+  const voisins=(p,r)=>Math.abs(p[0]-r[0])<=1&&Math.abs(p[1]-r[1])<=1;
+  for(let att=0; att<500; att++){
+    const forme=pick(['u','ab']);
+    const dx=rand(-5,5), dy=rand(-4,4);
+    if(Math.abs(dx)+Math.abs(dy)<2) continue;
+    const vec=[dx,dy];
+    /* les nœuds d'où le chemin reste dans le quadrillage */
+    const dep=[]; for(let x=0;x<=W;x++) for(let y=0;y<=H;y++){ if(dans([x+dx,y+dy])) dep.push([x,y]); }
+    if(dep.length<6) continue;
+    const o=pick(dep);
+    /* les nœuds que la flèche u⃗ traverse (ses deux bouts compris) */
+    const g=gcd(dx,dy), surFleche=[];
+    for(let k=0;k<=g;k++) surFleche.push([o[0]+dx/g*k, o[1]+dy/g*k]);
+    const occupes=(forme==='ab') ? [o,[o[0]+dx,o[1]+dy]] : surFleche.slice();
+    const src=[]; let ok=true;
+    for(let i=0;i<3 && ok;i++){
+      let cand=null;
+      for(let e=0;e<60 && !cand;e++){
+        const p=pick(dep), im=[p[0]+dx,p[1]+dy];
+        const tous=occupes.concat(src, src.map((s,j)=>trlImage({src:src,vec:vec},j)));
+        if(tous.some(r=>voisins(p,r)||voisins(im,r)) || voisins(p,im)) continue;
+        if(forme==='u' && surFleche.some(r=>(r[0]===p[0]&&r[1]===p[1])||(r[0]===im[0]&&r[1]===im[1]))) continue;
+        cand=p;
+      }
+      if(!cand) ok=false; else src.push(cand);
+    }
+    if(!ok) continue;
+    return {forme:forme, vec:vec, o:o, src:src, rep:[null,null,null]};
+  }
+  /* vivier épuisé (jamais vu) : une question sûre plutôt qu'une page figée */
+  return {forme:'u', vec:[3,-2], o:[1,7], src:[[1,4],[5,6],[8,3]], rep:[null,null,null]};
+}
+function trlSVG(q, verdict){
+  const M=24, C=30, W=TRL_W, H=TRL_H;
+  const sx=x=>M+x*C, sy=y=>M+(H-y)*C;
+  const noms=trlNoms(q);
+  let s='<svg viewBox="0 0 '+(2*M+W*C)+' '+(2*M+H*C)+'" xmlns="http://www.w3.org/2000/svg" class="trl-svg" data-m="'+M+'" data-c="'+C+'" data-w="'+W+'" data-h="'+H+'" role="img" aria-label="Quadrillage de la translation">';
+  s+='<defs><marker id="trlArw" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" class="trl-arw"/></marker>'
+    +'<marker id="trlArwSol" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" class="trl-arw-sol"/></marker></defs>';
+  for(let x=0;x<=W;x++) s+='<line x1="'+sx(x)+'" y1="'+sy(H)+'" x2="'+sx(x)+'" y2="'+sy(0)+'" class="trl-grid"/>';
+  for(let y=0;y<=H;y++) s+='<line x1="'+sx(0)+'" y1="'+sy(y)+'" x2="'+sx(W)+'" y2="'+sy(y)+'" class="trl-grid"/>';
+  const croix=(p,nom,cls)=>'<path d="M'+(sx(p[0])-5)+' '+(sy(p[1])-5)+' L'+(sx(p[0])+5)+' '+(sy(p[1])+5)+' M'+(sx(p[0])-5)+' '+(sy(p[1])+5)+' L'+(sx(p[0])+5)+' '+(sy(p[1])-5)+'" class="trl-x'+(cls||'')+'"/>'
+    +'<text x="'+(sx(p[0])+7)+'" y="'+(sy(p[1])-7)+'" class="trl-nom'+(cls||'')+'">'+nom+'</text>';
+  if(q.forme==='u'){
+    const a=q.o, b=[q.o[0]+q.vec[0], q.o[1]+q.vec[1]];
+    s+='<line x1="'+sx(a[0])+'" y1="'+sy(a[1])+'" x2="'+sx(b[0])+'" y2="'+sy(b[1])+'" class="trl-vec" marker-end="url(#trlArw)"/>';
+    /* le nom u⃗, posé à côté du milieu de la flèche, du côté perpendiculaire */
+    const ddx=sx(b[0])-sx(a[0]), ddy=sy(b[1])-sy(a[1]), L=Math.hypot(ddx,ddy)||1;
+    const px=-ddy/L, py=ddx/L, lx=(sx(a[0])+sx(b[0]))/2+px*15, ly=(sy(a[1])+sy(b[1]))/2+py*15;
+    s+='<text x="'+lx.toFixed(1)+'" y="'+(ly+5).toFixed(1)+'" class="trl-u" text-anchor="middle">u</text>'
+      +'<path d="M'+(lx-5).toFixed(1)+' '+(ly-9).toFixed(1)+' L'+(lx+5).toFixed(1)+' '+(ly-9).toFixed(1)+'" class="trl-u-arw" marker-end="url(#trlArw)"/>';
+  } else {
+    s+=croix(q.o,'A')+croix([q.o[0]+q.vec[0], q.o[1]+q.vec[1]],'B');
+  }
+  q.src.forEach((p,i)=>{ s+=croix(p,noms[i]); });
+  /* la correction (entraînement, point faux ou manquant) : l'image attendue en
+     vert — anneau, étiquette, et le chemin depuis la source en pointillés */
+  if(verdict && verdict.sol) q.src.forEach((p,i)=>{
+    if(!verdict.sol[i]) return;
+    const im=trlImage(q,i);
+    s+='<line x1="'+sx(p[0])+'" y1="'+sy(p[1])+'" x2="'+sx(im[0])+'" y2="'+sy(im[1])+'" class="trl-sol-chemin" marker-end="url(#trlArwSol)"/>'
+      +'<circle cx="'+sx(im[0])+'" cy="'+sy(im[1])+'" r="7" class="trl-sol"/>'
+      +'<text x="'+(sx(im[0])+8)+'" y="'+(sy(im[1])-8)+'" class="trl-sol-nom">'+noms[i]+'′</text>';
+  });
+  /* les points de l'élève : bleus, rouges au verdict quand ils sont faux */
+  (q.rep||[]).forEach((r,i)=>{
+    if(!r) return;
+    const cls=verdict&&verdict.oks ? (verdict.oks[i]?' ok':' bad') : '';
+    s+='<circle cx="'+sx(r.x)+'" cy="'+sy(r.y)+'" r="4.5" class="trl-pt'+cls+'"/>'
+      +'<text x="'+(sx(r.x)+7)+'" y="'+(sy(r.y)-7)+'" class="trl-lbl'+cls+'">'+noms[i]+'′</text>';
+  });
+  return s+'</svg>';
+}
+/* Le clic s'accroche au nœud le plus proche — la géométrie est relue dans le
+   SVG rendu (ses data-*), jamais recopiée (la leçon de pimNoeud). */
+function trlNoeud(svg, ev){
+  const r=svg.getBoundingClientRect(); if(!r.width||!r.height) return null;
+  const vb=svg.viewBox.baseVal;
+  const mx=(ev.clientX-r.left)*vb.width/r.width, my=(ev.clientY-r.top)*vb.height/r.height;
+  const M=+svg.dataset.m, C=+svg.dataset.c, W=+svg.dataset.w, H=+svg.dataset.h;
+  if(!(C>0)) return null;
+  const x=Math.max(0,Math.min(W,Math.round((mx-M)/C))), y=Math.max(0,Math.min(H,Math.round(H-(my-M)/C)));
+  return {x:x, y:y};
+}
+function startTrl(){
+  const qs=distinctes(dmNbQuestions(TRL_NB), trlFabrique);
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(k=>delete test[k]);
+  Object.assign(test,{kind:'trl', questions:qs, idx:0, score:0, maxScore:qs.length*3, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false, trlSel:0});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('trl'); renderTrl();
+}
+function trlChoisir(i){
+  if(test.kind!=='trl'||test.locked) return;
+  if(!(i>=0&&i<3)) return;
+  test.trlSel=i; trlMaj();
+}
+function renderTrl(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  if(!Array.isArray(q.rep)||q.rep.length!==3) q.rep=[null,null,null];
+  if(!(test.trlSel>=0&&test.trlSel<3)) test.trlSel=0;
+  const noms=trlNoms(q), V=trlVecHTML(q), primes=noms.map(n=>n+'′');
+  $('trlIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('trlModeTag').innerHTML=modeTagHTML();
+  { const cb=$('trlConseilBtn'); if(cb) cb.hidden=!isSoutien();
+    const rb=$('trlRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
+    const qb=$('trlQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
+  /* la demande d'abord, en énoncé ; le mode d'emploi du geste après, en plus
+     petit (le motif de {placer-image}). Les noms sont des lettres fixes, pas
+     du texte libre — innerHTML est sûr ici. */
+  const chemin=(q.forme==='ab') ? 'le chemin '+V+' (celui qui va de A à B)' : 'le chemin '+V;
+  $('trlInstr').innerHTML='Déplace les points '+noms[0]+', '+noms[1]+' et '+noms[2]+' en suivant '+chemin
+    +' : place les points '+primes[0]+', '+primes[1]+' et '+primes[2]+', images de '+noms[0]+', '+noms[1]+' et '+noms[2]+' par la translation de vecteur '+V+'.'
+    +'<span class="trl-sous">Choisis le point à placer (« ● Placer '+primes[0]+' », …), puis clique sur le nœud du quadrillage où il arrive. Un point se déplace en cliquant ailleurs, se retire en recliquant dessus.</span>';
+  $('trlGraph').innerHTML=trlSVG(q,null);
+  $('trlModes').innerHTML=noms.map((n,i)=>'<button id="trlSel'+i+'" class="btn btn-ghost" type="button" onclick="trlChoisir('+i+')">● Placer '+n+'′</button>').join('');
+  $('trlBody').innerHTML='<div class="img-line">'+noms.map((n,i)=>'<span class="pts-case pim-case trl-case" id="trl-pt-'+i+'"></span>').join(' ')+'</div>';
+  trlMaj();
+  $('trlMark').className='mark'; $('trlMark').textContent=''; $('trlCorr').innerHTML='';
+  const b=$('trlValidate'); b.disabled=false; b.textContent='Valider'; b.onclick=submitTrl;
+  trlBrancher();
+}
+/* Un seul écouteur, DÉLÉGUÉ à l'hôte : le SVG est réécrit à chaque pose. */
+let _trlSaveTimer=null;
+function trlBrancher(){
+  const host=$('trlGraph');
+  if(host.__trlPret) return;
+  host.__trlPret=true;
+  host.addEventListener('pointerdown', function(ev){
+    if(test.kind!=='trl'||test.locked) return;
+    const svg=ev.target.closest('.trl-svg'); if(!svg) return;
+    const q=test.questions[test.idx]; if(!q) return;
+    const n=trlNoeud(svg,ev); if(!n) return;
+    ev.preventDefault();
+    const deja=q.rep.findIndex(r=>r&&r.x===n.x&&r.y===n.y);
+    if(deja>=0){ q.rep[deja]=null; test.trlSel=deja; }   /* recliquer sur son point le retire */
+    else {
+      q.rep[test.trlSel]=n;
+      /* puis le stylo passe au prochain point encore vide, s'il y en a un */
+      const suivant=q.rep.findIndex((r,i)=>!r && i>test.trlSel);
+      const premier=q.rep.findIndex(r=>!r);
+      test.trlSel = suivant>=0 ? suivant : (premier>=0 ? premier : test.trlSel);
+    }
+    $('trlGraph').innerHTML=trlSVG(q,null);
+    trlMaj(); trlLive();
+    recoveryDirty=true; clearTimeout(_trlSaveTimer); _trlSaveTimer=setTimeout(autoSave,1200);
+  });
+}
+/* les stylos et les pastilles : le stylo courant est surligné, chaque
+   pastille dit si son point est posé — le texte seulement, les couleurs sont
+   l'affaire de trlLive() et de submitTrl() */
+function trlMaj(){
+  const q=test.questions[test.idx]; if(!q) return;
+  const noms=trlNoms(q), fige=!!test.locked;
+  noms.forEach((n,i)=>{
+    const b=$('trlSel'+i); if(b){ b.disabled=fige; b.classList.toggle('sel', test.trlSel===i && !fige); }
+    const c=$('trl-pt-'+i); if(!c) return;
+    const r=q.rep[i];
+    c.textContent = r ? '● '+n+'′ posé' : '○ '+n+'′ à poser';
+  });
+}
+/* CHAQUE IMAGE SE JUGE SEULE : l'image attendue se recalcule depuis la source
+   et le vecteur — jamais rangée dans la question. */
+function trlCheck(q){
+  const subs=q.src.map((p,i)=>{
+    const im=trlImage(q,i), r=q.rep[i];
+    return {i:i, id:'trl-pt-'+i, val:im, pose:!!r, ok: !!r && r.x===im[0] && r.y===im[1]};
+  });
+  const nCorrect=subs.filter(s=>s.ok).length, poses=subs.filter(s=>s.pose).length;
+  return {subs:subs, nCorrect:nCorrect, nTotal:3, poses:poses, allOk:nCorrect===3, oks:subs.map(s=>s.ok)};
+}
+/* Soutien : la pastille et le point se colorent à la pose — un point non posé
+   ne reçoit RIEN. */
+function trlLive(){
+  if(test.kind!=='trl' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  const res=trlCheck(q);
+  res.subs.forEach(s=>{ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad','sol'); if(s.pose) el.classList.add(s.ok?'ok':'bad'); });
+  $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks});
+}
+function submitTrl(){
+  if(test.locked) return;
+  const q=test.questions[test.idx], res=trlCheck(q), noms=trlNoms(q), V=trlVecHTML(q);
+  const primes=noms.map(n=>n+'′');
+  /* aucun point : rien ne se peint, rien ne se verrouille — on redit le geste */
+  if(!res.poses){
+    const mk=$('trlMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('trlCorr').textContent='Place d’abord un point : choisis « ● Placer '+primes[0]+' », puis clique sur le nœud du quadrillage où '+noms[0]+' arrive en suivant le chemin '+trlVecTexte(q)+'.';
+    return;
+  }
+  const peindre=function(final){
+    res.subs.forEach(s=>{ const el=$(s.id); if(!el) return;
+      el.classList.remove('ok','bad','sol');
+      if(s.ok) el.classList.add('ok');
+      else if(s.pose) el.classList.add('bad');
+      else if(final && !isSoutien()){ el.classList.add('sol'); el.textContent='● '+noms[s.i]+'′ non posé — en vert sur le dessin'; }
+    });
+  };
+  if(isSoutien() && !res.allOk){
+    peindre(false);
+    $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks});
+    const mk=$('trlMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('trlCorr').textContent='Pas tout à fait — déplace ce qui est en rouge (reclique sur le point pour le retirer, puis pose-le au bon nœud), pose ce qui manque, puis revérifie.';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  peindre(true);
+  /* l'image attendue ne se montre que là où elle manque — en soutien on
+     n'arrive ici que tout juste, rien ne se révèle par construction */
+  $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks, sol:res.subs.map(s=>!s.ok)});
+  trlMaj();
+  const mk=$('trlMark'); mk.textContent=res.allOk?'✓':'✗'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
+  test.score += res.nCorrect;
+  $('trlValidate').disabled=true;
+  if(!res.allOk){
+    const faux=res.subs.filter(s=>!s.ok).map(s=>primes[s.i]);
+    $('trlCorr').innerHTML='Pour placer '+faux.join(', ')+', on part de '+res.subs.filter(s=>!s.ok).map(s=>noms[s.i]).join(', ')
+      +' et on suit le même chemin que '+V+' : '+trlChemin(q)+'. Les points verts montrent les images attendues. '
+      +'On écrit : '+primes[0]+' est l’image de '+noms[0]+' par la translation de vecteur '+V+'.';
+  }
+  else $('trlCorr').innerHTML='<span class="lv-ok">Parfait — '+primes.join(', ')+' sont bien les images de '+noms.join(', ')+' par la translation de vecteur '+V+' !</span>';
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Images de '+noms.join(', ')+' par la translation de vecteur '+trlVecTexte(q)+' — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'trl'});
+  lvBoutonSuivant('trlValidate', nextTrlQuestion);
+}
+function nextTrlQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; test.trlSel=0; renderTrl(); autoSave(); } else finishTest(); }
+/* le contexte envoyé au modèle : le quadrillage, le chemin en carreaux, les
+   points (colonne ; ligne, comptées depuis le coin bas gauche), ce que l'élève
+   a posé — et les images attendues, STRICTEMENT SECRÈTES */
+function ctxTrl(q){
+  const noms=trlNoms(q), res=trlCheck(q), V=trlVecTexte(q);
+  const pos=p=>'(colonne '+p[0]+' ; ligne '+p[1]+')';
+  let c='L’élève a sous les yeux un quadrillage de '+TRL_W+' carreaux de large sur '+TRL_H+' de haut (colonnes comptées de 0 à '+TRL_W+' de gauche à droite, lignes de 0 à '+TRL_H+' de bas en haut).';
+  c+=(q.forme==='ab')
+    ? ' Deux points A '+pos(q.o)+' et B '+pos([q.o[0]+q.vec[0],q.o[1]+q.vec[1]])+' définissent le chemin AB (de A vers B), sans flèche dessinée.'
+    : ' Une flèche nommée u est dessinée, de '+pos(q.o)+' à '+pos([q.o[0]+q.vec[0],q.o[1]+q.vec[1]])+'.';
+  c+=' Ce chemin vaut : '+trlChemin(q)+'. Points à déplacer : '+noms.map((n,i)=>n+' '+pos(q.src[i])).join(', ')+'.'+ctxEnonce('trlInstr')
+    +' L’élève doit placer, au clic sur un nœud du quadrillage, '+noms.map(n=>n+'′').join(', ')+' : les images de '+noms.join(', ')+' par la translation de vecteur '+V+'.';
+  const ecrit=res.subs.map(s=>noms[s.i]+'′ : '+(s.pose?'posé '+pos([q.rep[s.i].x,q.rep[s.i].y])+(s.ok?' (juste)':' (FAUX)'):'pas encore posé'));
+  c+=' Ce que l’élève a fait : '+ecrit.join(' ; ')+'.'
+    +CTX_SECRET+res.subs.map(s=>noms[s.i]+'′ = '+pos(s.val)).join(' ; ')+'.'
+    +ctxFin('on part du point et on refait exactement le chemin de la flèche (ou le chemin de A vers B) : autant de carreaux vers la droite ou la gauche, puis autant vers le haut ou le bas ; le nœud d’arrivée est l’image, qu’on nomme avec un prime (A′).');
+  return {nombre:'', contexte:c};
+}
 
 /* ================= Exercice Seconde : Antécédents d'un nombre (kind 'ant') =================
    Le chemin INVERSE de {image-nombre}, repris de la fiche papier : on donne une
@@ -58970,7 +59333,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSpr','renderPpb','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTdcTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPFR','renderPII','renderPIA','renderPIS','renderPMY','renderPTR','renderPFO','renderPGC','renderPRC','renderPCF','renderPKG','renderPFN','renderPFK','renderPOF','renderPXY','renderPMT','renderPTM','renderPGT','renderPHM','renderPVO','renderPDU','renderPFE','renderPBL','renderPMN','renderPFV','renderPTDS','renderPFD','renderPFC','renderPFQ','renderPFI','renderPCI','renderPCE','renderPSM','renderPLO','renderPRL','renderPTT','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderTrl','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSpr','renderPpb','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTdcTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPFR','renderPII','renderPIA','renderPIS','renderPMY','renderPTR','renderPFO','renderPGC','renderPRC','renderPCF','renderPKG','renderPFN','renderPFK','renderPOF','renderPXY','renderPMT','renderPTM','renderPGT','renderPHM','renderPVO','renderPDU','renderPFE','renderPBL','renderPMN','renderPFV','renderPTDS','renderPFD','renderPFC','renderPFQ','renderPFI','renderPCI','renderPCE','renderPSM','renderPLO','renderPRL','renderPTT','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
