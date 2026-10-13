@@ -963,19 +963,28 @@ function structure(){
      lui-même (le champ « Ton prénom ») ; les numéros valent « ce numéro ou
      plus », et un numéro cité PLUS GRAND que la page serait un numéro mort :
      Turquet attendrait une version qui n'arrivera jamais. */
+  /* Les DEUX bords, par une constante de la page : VERSION_CONNEXION_PRENOM
+     est le numéro qui a apporté le champ, il ne bouge plus quand APP_VERSION
+     avance. Chaque mention de la migration et de la notice doit lui être
+     ÉGALE — trop haut, Turquet attendrait une version qui n'arrive jamais ;
+     trop bas, il croirait une page EN LIGNE déjà passée au champ et jouerait
+     la migration sur des pastilles — et la constante ne dépasse pas la page. */
   {
     const NIVEAU_DE = { 'secondes.html': 'Seconde', 'premiere-specifique.html': 'Première', 'terminale.html': 'Terminale' }[CIBLE];
     const version = parseInt((s.match(/const APP_VERSION\s*=\s*(\d+)/) || [])[1], 10);
+    const apportee = parseInt((s.match(/const VERSION_CONNEXION_PRENOM\s*=\s*(\d+)/) || [])[1], 10);
     const lire = f => { try{ return fs.readFileSync(path.join(__dirname, '..', f), 'utf8'); }catch(e){ return ''; } };
     const defauts = [];
+    if(!apportee) defauts.push('VERSION_CONNEXION_PRENOM introuvable dans la page');
+    else if(apportee > version) defauts.push('VERSION_CONNEXION_PRENOM (' + apportee + ') dépasse APP_VERSION (' + version + ')');
     ['supabase/migrations/009_connexion_sans_liste.sql', 'supabase/LISEZMOI.md'].forEach(f => {
       const t = lire(f);
-      const m = t.match(new RegExp(NIVEAU_DE + '\\s+v(\\d+)'));
+      const mentions = [...t.matchAll(new RegExp(NIVEAU_DE + '\\s+v(\\d+)', 'g'))].map(m => parseInt(m[1], 10));
       if(!t) defauts.push(f + ' illisible');
-      else if(!m) defauts.push(f + ' ne cite aucun numéro pour la ' + NIVEAU_DE);
-      else if(parseInt(m[1], 10) > version) defauts.push(f + ' cite ' + NIVEAU_DE + ' v' + m[1] + ' alors que la page est en v' + version);
+      else if(!mentions.length) defauts.push(f + ' ne cite aucun numéro pour la ' + NIVEAU_DE);
+      else mentions.filter(v => v !== apportee).forEach(v => defauts.push(f + ' cite ' + NIVEAU_DE + ' v' + v + ' au lieu de v' + apportee));
     });
-    verifier('les numéros de version cités par la migration 009 et sa notice ne dépassent pas celui de la page',
+    verifier('les numéros de version cités par la migration 009 et sa notice sont ceux de la page',
       !!version && !!NIVEAU_DE && defauts.length === 0,
       !version ? 'APP_VERSION introuvable' : !NIVEAU_DE ? 'niveau inconnu pour ' + CIBLE : defauts.join(' ; '));
   }
@@ -1326,7 +1335,11 @@ function connexionParPrenom(w, suite){
   let faux = '';
   try{ faux = fs.readFileSync(path.join(__dirname, 'faux-supabase.js'), 'utf8'); }catch(e){}
   const prep = faux ? evaluer(w, faux) : { ok:false, erreur:'tests/faux-supabase.js illisible' };
-  if(!prep.ok){ verifier(INTITULE, false, 'le double de Supabase ne se charge pas : ' + prep.erreur); return suite(); }
+  if(!prep.ok){
+    const d = 'le double de Supabase ne se charge pas : ' + prep.erreur;
+    verifier(INTITULE, false, d); verifier(INTITULE_REPLI, false, d);   /* les deux se déclarent, aucun ne se retire */
+    return suite();
+  }
   evalPromis(w, `(async function(){
     const F=window.__faux, table=${JSON.stringify(P.tableEleves)};
     F.semer(table,[{id:'eleve-jsdom',prenom:'Contrôle',cle:'cle-jsdom',user_id:'compte-jsdom'}]);

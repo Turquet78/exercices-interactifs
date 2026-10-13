@@ -321,9 +321,14 @@ bilan('rejouer 008 ne fait plus rien', !r8.erreur, r8.erreur);
    demande un prénom présent — sur une table vide il ne mesurerait rien, et
    le dirait. Les témoins sont retirés ensuite : le banc des rôles compte ses
    élèves. */
+/* Et une ligne au prénom BLANC mais à clé, en Seconde : créée à la main dans
+   l'éditeur de table, elle se classerait première, et la fonction ne rend
+   rien pour elle par conception — le contrôle final doit choisir un autre
+   témoin, pas accuser la RLS (seconde relecture). */
 psql('banc', ['-c', `insert into public.eleves (prenom, cle) values ('Témoin', 'cle-temoin-t');
   insert into public.eleves_1ere (prenom, cle) values ('Témoin', 'cle-temoin-1');
-  insert into public.eleves_2nde (prenom, cle) values ('Témoin', 'cle-temoin-2');`]);
+  insert into public.eleves_2nde (prenom, cle) values ('Témoin', 'cle-temoin-2');
+  insert into public.eleves_2nde (prenom, cle) values ('   ', 'cle-blanc');`]);
 const r9a = psql('banc', ['-f', MIG9], true);
 bilan('009 s\'applique, et son contrôle final ne trouve rien à redire',
   !r9a.erreur, String(r9a.erreur || '').split('\n').filter(l => /ERROR|ERREUR/.test(l)).join(' '));
@@ -345,10 +350,20 @@ bilan('009 refuse une fonction dont le propriétaire ne traverse pas la RLS — 
   !!r9p.erreur && /ne rend rien à un visiteur pour un prénom pourtant présent/.test(String(r9p.erreur)),
   r9p.erreur ? (String(r9p.erreur).match(/ERROR: [^\n]*/) || [''])[0] : '009 est passée au vert sur une fonction qui ne rend rien à personne');
 psql('banc', ['-c', `alter function public.cles_de_connexion(text, text) owner to postgres;
-  drop owned by proprio_sans_rls; drop role proprio_sans_rls;
-  delete from public.eleves where cle = 'cle-temoin-t';
-  delete from public.eleves_1ere where cle = 'cle-temoin-1';
-  delete from public.eleves_2nde where cle = 'cle-temoin-2';`]);
+  drop owned by proprio_sans_rls; drop role proprio_sans_rls;`]);
+/* L'autre propriétaire qu'on ne voit pas en lisant l'attribut : SANS AUCUN
+   DROIT. La fonction lève alors « permission denied » dans son corps, et la
+   migration doit ÉCHOUER — pas dire « impossible de prendre le rôle anon »
+   et se déclarer faite (seconde relecture : le gestionnaire d'exception
+   enveloppait l'appel de la fonction). */
+psql('banc', ['-c', `create role proprio_sans_droits nologin;
+  alter function public.cles_de_connexion(text, text) owner to proprio_sans_droits;`]);
+const r9d = psql('banc', ['-f', MIG9], true);
+bilan('009 échoue sur une fonction dont le propriétaire n\'a aucun droit, au lieu de se déclarer faite',
+  !!r9d.erreur && /permission denied/.test(String(r9d.erreur)) && !/impossible de prendre le rôle anon/.test(String(r9d.erreur)),
+  r9d.erreur ? (String(r9d.erreur).match(/ERROR: [^\n]*|NOTICE: [^\n]*effet non mesuré[^\n]*/) || [''])[0] : '009 est passée au vert');
+psql('banc', ['-c', `alter function public.cles_de_connexion(text, text) owner to postgres;
+  drop owned by proprio_sans_droits; drop role proprio_sans_droits;`]);
 bilan('009 ferme la liste sur les trois tables d\'élèves',
   (s9.match(/: connexion sans liste/g) || []).length === 3,
   (s9.match(/: connexion sans liste/g) || []).length + ' table(s) sur 3');
@@ -376,9 +391,19 @@ bilan('elle verrouille son search_path',
   /\|search_path=[^|]+\|/.test(fn9), fn9);
 bilan('et le visiteur a le droit de l\'appeler : c\'est tout ce qu\'il lui reste',
   /\|true$/.test(fn9), fn9);
+/* Le rejeu se mesure AVEC des données, comme sur le projet : les témoins sont
+   encore là, et la mesure du visiteur doit se refaire trois fois. Ils sont
+   retirés ensuite ; seule la séquence d'identité d'eleves_1ere garde la trace
+   de leur passage, et rien ne la lit. */
 const r9 = psql('banc', ['-f', MIG9], true);
 bilan('rejouer 009 ne fait plus rien', !r9.erreur,
   String(r9.erreur || '').split('\n').filter(l => /ERROR|ERREUR/.test(l)).join(' '));
+bilan('et rejouée sur des tables pleines, elle mesure encore son effet trois fois',
+  (String(r9.erreur || r9).match(/un visiteur obtient bien la clé de « Témoin »/g) || []).length === 3,
+  (String(r9.erreur || r9).match(/un visiteur obtient bien la clé de/g) || []).length + ' mesure(s) sur 3');
+psql('banc', ['-c', `delete from public.eleves where cle = 'cle-temoin-t';
+  delete from public.eleves_1ere where cle = 'cle-temoin-1';
+  delete from public.eleves_2nde where cle in ('cle-temoin-2', 'cle-blanc');`]);
 bilan('009 demande à PostgREST de recharger son cache de schéma',
   /notify\s+pgrst\s*,\s*'reload schema'/.test(fs.readFileSync(MIG9, 'utf8')),
   'aucun « notify pgrst, \'reload schema\' » : tant que le cache n’est pas rechargé, la page se replie sur une liste fermée');
@@ -398,7 +423,11 @@ bilan('009 demande à PostgREST de recharger son cache de schéma',
 {
   const SONDES = ['Chloé', 'CHLOÉ  ', '  alice ', 'Léa   Marie', 'Ayşe', 'Nataša', 'Tomáš', 'Ștefan', 'Ağça',
     'Nguyễn', 'Cătălin', 'Šárka', 'Zoë', 'Anaïs', 'Ângela', 'Łukasz', 'Øyvind', 'Jean-Pierre', 'Alice\t',
-    'Alice\u00a0', 'Noël', 'Ærø', 'İsmail', '\u202fZoé\u3000', 'Maël', 'Jean  Baptiste'];
+    'Alice\u00a0', 'Noël', 'Ærø', 'İsmail', '\u202fZoé\u3000', 'Maël', 'Jean  Baptiste',
+    /* DÉCOMPOSÉS et hors latin (seconde relecture, octobre 2026) : un accent déjà
+       séparé de sa lettre, Ǿ et ǣ qui se ramènent à ø et æ, un ё et un έ, et
+       des majuscules que seule la locale du serveur saurait abaisser */
+    'Chloe\u0301', '\u01feystein', '\u01e3lfred', '\u0401\u043b\u0435\u043d\u0430', '\u0395\u03bb\u03ad\u03bd\u03b7', '\u0141UKASZ', '\u00d8YVIND'];
   const lireFonction = (fichier, motif, enTete) => {
     const src = fs.readFileSync(path.join(RACINE, fichier), 'utf8');
     const m = src.match(motif);

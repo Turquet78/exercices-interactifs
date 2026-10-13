@@ -42,6 +42,11 @@ window.__faux = {
      six chiffres — une classe entière derrière l'adresse de l'établissement
      la rencontre. Ce n'est PAS un code faux, et la page ne doit pas le dire. */
   cadence: false,
+  /* Poser window.__faux.nonConfirme = true fait répondre « Email not
+     confirmed » (400, email_not_confirmed) : le réglage « confirmation par
+     courriel » resté actif sur le projet, qu'aucun banc ne voit. Un 400 n'est
+     pas forcément un code faux, et la page ne doit pas le dire. */
+  nonConfirme: false,
   suivant: 1,
   /* Les comptes tiennent le rôle de auth.users : c'est là que vivent les codes
      depuis qu'ils ont quitté la table des élèves. Le double les compare
@@ -256,6 +261,11 @@ window.supabase = {
             F.journal.push({ op: 'signIn', table: 'auth', courriel: courriel, ok: false, cadence: true });
             return Promise.resolve({ data: { user: null, session: null },
                                      error: { status: 429, code: 'over_request_rate_limit', message: 'Request rate limit reached' } });
+          }
+          if(F.nonConfirme){
+            F.journal.push({ op: 'signIn', table: 'auth', courriel: courriel, ok: false, nonConfirme: true });
+            return Promise.resolve({ data: { user: null, session: null },
+                                     error: { status: 400, code: 'email_not_confirmed', message: 'Email not confirmed' } });
           }
           const ok = !!c && c.motDePasse === String(mdp);
           F.journal.push({ op: 'signIn', table: 'auth', courriel: courriel, ok: ok });

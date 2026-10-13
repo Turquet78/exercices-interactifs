@@ -97,22 +97,27 @@
 -- 1. Le prénom normalisé — la MÊME règle que normaliserPrenom() dans la page
 -- ---------------------------------------------------------------------------
 -- La page normalise par NFD : chaque lettre précomposée est décomposée, les
--- signes combinants retirés, puis minuscules, blancs rognés et réduits. Une
--- liste d'accents « à la française » n'est PAS cette règle : ş, š, č, ğ, ă,
--- ễ passaient d'un côté et pas de l'autre, et une élève qui tape « seyma »
--- pour « Şeyma » entrait avant la migration (repli, filtré par la page) et
--- lisait « Prénom inconnu » après. La table de translate ci-dessous est donc
--- GÉNÉRÉE depuis NFD (blocs Latin-1, Latin étendu A et B, Latin étendu
--- additionnel : chaque lettre qui se décompose en une lettre ASCII plus des
--- combinants, majuscules et minuscules — 488 entrées), et ce qui ne se
--- décompose pas (ł, ø, æ, ß, đ…) reste tel quel des deux côtés. translate()
--- vient AVANT lower() : « İ » se traduit en « i » avant que lower() n'en
--- fasse un « i » suivi d'un point combinant. Les blancs sont ceux que \s et
--- trim() voient en JavaScript, insécable compris ; on réduit d'abord, on
--- rogne ensuite. Le banc de la base (tests/base.js, 1 sexies) relit les
--- fonctions de la page et du double et exige le même résultat sur les
--- mêmes sondes : la règle « les deux doivent rester équivalentes » a un
--- contrôle, elle n'est plus une promesse.
+-- signes combinants (U+0300 à U+036F) retirés, puis minuscules, blancs rognés
+-- et réduits. PostgreSQL sait faire EXACTEMENT cela depuis sa version 13 :
+-- normalize(p, NFD) — c'est elle qu'on emploie, et non une table d'accents.
+-- Une liste « à la française » n'était pas cette règle : ş, š, č, ğ, ă, ễ
+-- passaient d'un côté et pas de l'autre ; une table générée depuis NFD ne
+-- l'était pas non plus, parce qu'elle ne retirait pas un accent DÉJÀ
+-- décomposé (« e » suivi d'un accent combinant, ce qu'un collage ou certains
+-- claviers produisent). Avec normalize(), précomposé et décomposé se
+-- rejoignent avant le retrait, comme dans la page.
+-- Ce qui reste : les minuscules. lower() dépend de la locale du serveur —
+-- sous un ctype « C », « Ł », « Ø », « Æ » restent en majuscules quand la page
+-- rend « ł », « ø », « æ ». La table de translate ci-dessous ne contient donc
+-- QUE les majuscules non décomposables hors ASCII, chacune vers sa minuscule
+-- (772 lettres du plan de base, générées depuis String.prototype.toLowerCase :
+-- une règle qui dépend de la locale n'est pas une règle) ; lower() ne traite
+-- plus que l'ASCII, identique partout. Les blancs sont ceux que \s et trim()
+-- voient en JavaScript, insécable compris ; on réduit d'abord, on rogne
+-- ensuite. Le banc de la base (tests/base.js, 1 sexies) relit les fonctions
+-- de la page et du double et exige le même résultat sur les mêmes sondes —
+-- décomposées comprises : la règle « les deux doivent rester équivalentes »
+-- a un contrôle, elle n'est plus une promesse.
 create or replace function public.normaliser_prenom(p text)
 returns text
 language sql
@@ -122,9 +127,10 @@ set search_path = public, pg_temp
 as $$
   select btrim(
            regexp_replace(
-             lower(translate(p,
-               'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöùúûüýÿĀāĂăĄąĆćĈĉĊċČčĎďĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĨĩĪīĬĭĮįİĴĵĶķĹĺĻļĽľŃńŅņŇňŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžƠơƯưǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǞǟǠǡǦǧǨǩǪǫǬǭǰǴǵǸǹǺǻȀȁȂȃȄȅȆȇȈȉȊȋȌȍȎȏȐȑȒȓȔȕȖȗȘșȚțȞȟȦȧȨȩȪȫȬȭȮȯȰȱȲȳḀḁḂḃḄḅḆḇḈḉḊḋḌḍḎḏḐḑḒḓḔḕḖḗḘḙḚḛḜḝḞḟḠḡḢḣḤḥḦḧḨḩḪḫḬḭḮḯḰḱḲḳḴḵḶḷḸḹḺḻḼḽḾḿṀṁṂṃṄṅṆṇṈṉṊṋṌṍṎṏṐṑṒṓṔṕṖṗṘṙṚṛṜṝṞṟṠṡṢṣṤṥṦṧṨṩṪṫṬṭṮṯṰṱṲṳṴṵṶṷṸṹṺṻṼṽṾṿẀẁẂẃẄẅẆẇẈẉẊẋẌẍẎẏẐẑẒẓẔẕẖẗẘẙẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹ',
-               'aaaaaaceeeeiiiinooooouuuuyaaaaaaceeeeiiiinooooouuuuyyaaaaaaccccccccddeeeeeeeeeegggggggghhiiiiiiiiijjkkllllllnnnnnnoooooorrrrrrssssssssttttuuuuuuuuuuuuwwyyyzzzzzzoouuaaiioouuuuuuuuuuaaaaggkkoooojggnnaaaaaaeeeeiiiioooorrrruuuusstthhaaeeooooooooyyaabbbbbbccddddddddddeeeeeeeeeeffgghhhhhhhhhhiiiikkkkkkllllllllmmmmmmnnnnnnnnoooooooopppprrrrrrrrssssssssssttttttttuuuuuuuuuuvvvvwwwwwwwwwwxxxxyyzzzzzzhtwyaaaaaaaaaaaaaaaaaaaaaaaaeeeeeeeeeeeeeeeeiiiioooooooooooooooooooooooouuuuuuuuuuuuuuyyyyyyyy')),
+             lower(translate(
+               regexp_replace(normalize(p, NFD), '[\u0300-\u036f]', '', 'g'),
+               'ÆÐØÞĐĦĲĿŁŊŒŦƁƂƄƆƇƉƊƋƎƏƐƑƓƔƖƗƘƜƝƟƢƤƦƧƩƬƮƱƲƳƵƷƸƼǄǅǇǈǊǋǤǱǲǶǷȜȠȢȤȺȻȽȾɁɃɄɅɆɈɊɌɎͰͲͶͿΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩϏϘϚϜϞϠϢϤϦϨϪϬϮϴϷϹϺϽϾϿЂЄЅІЈЉЊЋЏАБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯѠѢѤѦѨѪѬѮѰѲѴѸѺѼѾҀҊҌҎҐҒҔҖҘҚҜҞҠҢҤҦҨҪҬҮҰҲҴҶҸҺҼҾӀӃӅӇӉӋӍӔӘӠӨӶӺӼӾԀԂԄԆԈԊԌԎԐԒԔԖԘԚԜԞԠԢԤԦԨԪԬԮԱԲԳԴԵԶԷԸԹԺԻԼԽԾԿՀՁՂՃՄՅՆՇՈՉՊՋՌՍՎՏՐՑՒՓՔՕՖႠႡႢႣႤႥႦႧႨႩႪႫႬႭႮႯႰႱႲႳႴႵႶႷႸႹႺႻႼႽႾႿჀჁჂჃჄჅჇჍᎠᎡᎢᎣᎤᎥᎦᎧᎨᎩᎪᎫᎬᎭᎮᎯᎰᎱᎲᎳᎴᎵᎶᎷᎸᎹᎺᎻᎼᎽᎾᎿᏀᏁᏂᏃᏄᏅᏆᏇᏈᏉᏊᏋᏌᏍᏎᏏᏐᏑᏒᏓᏔᏕᏖᏗᏘᏙᏚᏛᏜᏝᏞᏟᏠᏡᏢᏣᏤᏥᏦᏧᏨᏩᏪᏫᏬᏭᏮᏯᏰᏱᏲᏳᏴᏵᲉᲐᲑᲒᲓᲔᲕᲖᲗᲘᲙᲚᲛᲜᲝᲞᲟᲠᲡᲢᲣᲤᲥᲦᲧᲨᲩᲪᲫᲬᲭᲮᲯᲰᲱᲲᲳᲴᲵᲶᲷᲸᲹᲺᲽᲾᲿẞỺỼỾℲⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅬⅭⅮⅯↃⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏⰀⰁⰂⰃⰄⰅⰆⰇⰈⰉⰊⰋⰌⰍⰎⰏⰐⰑⰒⰓⰔⰕⰖⰗⰘⰙⰚⰛⰜⰝⰞⰟⰠⰡⰢⰣⰤⰥⰦⰧⰨⰩⰪⰫⰬⰭⰮⰯⱠⱢⱣⱤⱧⱩⱫⱭⱮⱯⱰⱲⱵⱾⱿⲀⲂⲄⲆⲈⲊⲌⲎⲐⲒⲔⲖⲘⲚⲜⲞⲠⲢⲤⲦⲨⲪⲬⲮⲰⲲⲴⲶⲸⲺⲼⲾⳀⳂⳄⳆⳈⳊⳌⳎⳐⳒⳔⳖⳘⳚⳜⳞⳠⳢⳫⳭⳲꙀꙂꙄꙆꙈꙊꙌꙎꙐꙒꙔꙖꙘꙚꙜꙞꙠꙢꙤꙦꙨꙪꙬꚀꚂꚄꚆꚈꚊꚌꚎꚐꚒꚔꚖꚘꚚꜢꜤꜦꜨꜪꜬꜮꜲꜴꜶꜸꜺꜼꜾꝀꝂꝄꝆꝈꝊꝌꝎꝐꝒꝔꝖꝘꝚꝜꝞꝠꝢꝤꝦꝨꝪꝬꝮꝹꝻꝽꝾꞀꞂꞄꞆꞋꞍꞐꞒꞖꞘꞚꞜꞞꞠꞢꞤꞦꞨꞪꞫꞬꞭꞮꞰꞱꞲꞳꞴꞶꞸꞺꞼꞾꟀꟂꟄꟅꟆꟇꟉꟋꟌꟐꟖꟘꟚꟜꟵＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ',
+               'æðøþđħĳŀłŋœŧɓƃƅɔƈɖɗƌǝəɛƒɠɣɩɨƙɯɲɵƣƥʀƨʃƭʈʊʋƴƶʒƹƽǆǆǉǉǌǌǥǳǳƕƿȝƞȣȥⱥȼƚⱦɂƀʉʌɇɉɋɍɏͱͳͷϳαβγδεζηθικλμνξοπρστυφχψωϗϙϛϝϟϡϣϥϧϩϫϭϯθϸϲϻͻͼͽђєѕіјљњћџабвгдежзиклмнопрстуфхцчшщъыьэюяѡѣѥѧѩѫѭѯѱѳѵѹѻѽѿҁҋҍҏґғҕҗҙқҝҟҡңҥҧҩҫҭүұҳҵҷҹһҽҿӏӄӆӈӊӌӎӕәӡөӷӻӽӿԁԃԅԇԉԋԍԏԑԓԕԗԙԛԝԟԡԣԥԧԩԫԭԯաբգդեզէըթժիլխծկհձղճմյնշոչպջռսվտրցւփքօֆⴀⴁⴂⴃⴄⴅⴆⴇⴈⴉⴊⴋⴌⴍⴎⴏⴐⴑⴒⴓⴔⴕⴖⴗⴘⴙⴚⴛⴜⴝⴞⴟⴠⴡⴢⴣⴤⴥⴧⴭꭰꭱꭲꭳꭴꭵꭶꭷꭸꭹꭺꭻꭼꭽꭾꭿꮀꮁꮂꮃꮄꮅꮆꮇꮈꮉꮊꮋꮌꮍꮎꮏꮐꮑꮒꮓꮔꮕꮖꮗꮘꮙꮚꮛꮜꮝꮞꮟꮠꮡꮢꮣꮤꮥꮦꮧꮨꮩꮪꮫꮬꮭꮮꮯꮰꮱꮲꮳꮴꮵꮶꮷꮸꮹꮺꮻꮼꮽꮾꮿᏸᏹᏺᏻᏼᏽᲊაბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰჱჲჳჴჵჶჷჸჹჺჽჾჿßỻỽỿⅎⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹⅺⅻⅼⅽⅾⅿↄⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩⰰⰱⰲⰳⰴⰵⰶⰷⰸⰹⰺⰻⰼⰽⰾⰿⱀⱁⱂⱃⱄⱅⱆⱇⱈⱉⱊⱋⱌⱍⱎⱏⱐⱑⱒⱓⱔⱕⱖⱗⱘⱙⱚⱛⱜⱝⱞⱟⱡɫᵽɽⱨⱪⱬɑɱɐɒⱳⱶȿɀⲁⲃⲅⲇⲉⲋⲍⲏⲑⲓⲕⲗⲙⲛⲝⲟⲡⲣⲥⲧⲩⲫⲭⲯⲱⲳⲵⲷⲹⲻⲽⲿⳁⳃⳅⳇⳉⳋⳍⳏⳑⳓⳕⳗⳙⳛⳝⳟⳡⳣⳬⳮⳳꙁꙃꙅꙇꙉꙋꙍꙏꙑꙓꙕꙗꙙꙛꙝꙟꙡꙣꙥꙧꙩꙫꙭꚁꚃꚅꚇꚉꚋꚍꚏꚑꚓꚕꚗꚙꚛꜣꜥꜧꜩꜫꜭꜯꜳꜵꜷꜹꜻꜽꜿꝁꝃꝅꝇꝉꝋꝍꝏꝑꝓꝕꝗꝙꝛꝝꝟꝡꝣꝥꝧꝩꝫꝭꝯꝺꝼᵹꝿꞁꞃꞅꞇꞌɥꞑꞓꞗꞙꞛꞝꞟꞡꞣꞥꞧꞩɦɜɡɬɪʞʇʝꭓꞵꞷꞹꞻꞽꞿꟁꟃꞔʂᶎꟈꟊɤꟍꟑꟗꟙꟛƛꟶａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ')),
              '[\s\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+', ' ', 'g'),
            ' ')
 $$;
@@ -227,6 +233,7 @@ declare
   definer bool;
   chemin text[];
   temoin text;
+  ancien text;
 begin
   -- 1. Plus aucune politique de LECTURE d'une table d'élèves ne nomme anon —
   --    ni « public », qui le contient. « for all » compte comme une lecture :
@@ -290,22 +297,29 @@ begin
   --    aussi — ni l'un ni l'autre ne passe au vert en silence.
   foreach el in array array['eleves', 'eleves_1ere', 'eleves_2nde'] loop
     if to_regclass('public.' || el) is null then continue; end if;
-    execute format('select prenom from public.%I where cle is not null order by prenom limit 1', el) into temoin;
+    -- Un témoin que la fonction PEUT rendre : une ligne au prénom blanc mais
+    -- à clé (créée à la main) se classerait première, et la fonction ne rend
+    -- rien pour elle PAR CONCEPTION — le contrôle accuserait alors la RLS.
+    execute format('select prenom from public.%I where cle is not null and public.normaliser_prenom(prenom) <> '''' order by prenom limit 1', el) into temoin;
     if temoin is null then
-      raise notice '  % : vide, effet non mesuré', el;
+      raise notice '  % : aucun prénom exploitable, effet non mesuré', el;
       continue;
     end if;
-    n := null;
+    -- Seule la PRISE DE RÔLE est protégée : une erreur levée DANS la fonction
+    -- (droit manquant, search_path cassé) doit faire échouer ce fichier, pas
+    -- se faire passer pour « impossible de prendre le rôle ». Le rôle d'avant
+    -- est rendu tel quel — « reset role » rendrait le rôle de SESSION, qui
+    -- n'est pas forcément celui en vigueur.
+    ancien := current_user;
     begin
       set local role anon;
-      select count(*) into n from public.cles_de_connexion(
-        case el when 'eleves' then 'terminale' when 'eleves_1ere' then 'premiere' else 'secondes' end, temoin);
-      reset role;
     exception when insufficient_privilege then
-      reset role;
       raise notice '  % : impossible de prendre le rôle anon ici, effet non mesuré', el;
       continue;
     end;
+    select count(*) into n from public.cles_de_connexion(
+      case el when 'eleves' then 'terminale' when 'eleves_1ere' then 'premiere' else 'secondes' end, temoin);
+    execute format('set local role %I', ancien);
     if n = 0 then
       raise exception '% : la fonction ne rend rien à un visiteur pour un prénom pourtant présent (« % ») — le propriétaire de la fonction traverse-t-il la RLS ?', el, temoin;
     end if;

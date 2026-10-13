@@ -2953,6 +2953,11 @@ function $(id){
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
 const APP_VERSION=317;                       /* numero de version affiche dans l'en-tete */
+/* La version qui a apporté la connexion par prénom tapé (migration 009). Les
+   numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
+   elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
+   Elle ne bouge plus — c'est APP_VERSION qui avance. */
+const VERSION_CONNEXION_PRENOM=317;
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5572,8 +5577,11 @@ async function connexionEleve(){
          (429 — une classe entière derrière l'adresse de l'établissement), une
          coupure réseau, un compte non confirmé ne sont pas un code faux :
          dire « Code incorrect », vider la case et faire retaper aggraverait
-         la cadence. On s'arrête, on le dit, et le code reste dans sa case. */
-      const refus=errCo.status===400||errCo.code==='invalid_credentials'||/invalid login credentials/i.test(errCo.message||'');
+         la cadence. On s'arrête, on le dit, et le code reste dans sa case.
+         Pas « tout statut 400 » : un compte non confirmé (400,
+         email_not_confirmed) ou une adresse refusée répondent 400 aussi, et
+         ne sont pas un code faux — seul invalid_credentials l'est. */
+      const refus=errCo.code==='invalid_credentials'||/invalid login credentials/i.test(errCo.message||'');
       if(refus) continue;
       try{ console.warn('connexion :', errCo.status, errCo.code, errCo.message); }catch(e){}
       toast('Connexion impossible — réessaie dans une minute','err'); return;

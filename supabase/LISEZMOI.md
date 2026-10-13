@@ -552,8 +552,10 @@ désormais son prénom, et la page n'obtient que ce qu'il faut pour le
 connecter.
 
 - **`normaliser_prenom(text)`** : minuscules, espaces rognés, accents retirés
-  — « Chloé », « chloe » et « CHLOÉ  » sont le même prénom. La page applique la
-  même règle de son côté.
+  — « Chloé », « chloe » et « CHLOÉ  » sont le même prénom, « Ayşe » et
+  « ayse » aussi. C'est la règle exacte de la page (`normalize(…, NFD)` de
+  PostgreSQL, puis les signes combinants retirés), et le banc exige que les
+  deux rendent la même chose sur les mêmes prénoms.
 - **`cles_de_connexion(niveau, prenom)`** : la ou les clés des élèves du niveau
   qui portent ce prénom, **cinq au plus**, et **rien d'autre** — ni
   l'identifiant, ni le prénom, ni la liste. Elle est `security definer` : elle
@@ -628,7 +630,9 @@ Le fichier lui-même se termine par une mesure, pas une affirmation : il prend
 le rôle `anon`, demande un prénom présent dans chaque table, et **échoue** si
 la fonction ne rend rien — c'est le seul contrôle qui tourne sur le projet
 réel. Une table vide, ou un rôle qu'il ne peut pas prendre, se déclare dans
-sa sortie au lieu de passer au vert.
+sa sortie au lieu de passer au vert ; une erreur de droit levée dans la
+fonction elle-même fait échouer le fichier, elle ne se déguise pas en « rôle
+impossible à prendre ».
 
 ## 4. Vous déclarer professeur (1 min)
 

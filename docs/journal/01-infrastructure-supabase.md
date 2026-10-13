@@ -247,15 +247,23 @@ français, et la relecture a mesuré onze écarts sur trente et un prénoms —
 « seyma » pour Şeyma, « natasa » pour Nataša, « nguyen » pour Nguyễn entraient
 avant la migration (repli, filtré par la page) et auraient lu « Prénom
 inconnu » après ; une tabulation ou un insécable en bordure, que `trim()`
-retire, restaient en SQL. La table de `translate` est donc GÉNÉRÉE depuis NFD
-(488 lettres des blocs Latin-1, Latin étendu A et B, Latin étendu
-additionnel, majuscules et minuscules — ce qui ne se décompose pas, ł, ø, æ,
-ß, reste tel quel des deux côtés), `translate` passe AVANT `lower` (« İ »
-deviendrait sinon un « i » suivi d'un point combinant), et les blancs sont
-ceux que `\s` et `trim()` voient en JavaScript, insécable compris. Et la
-règle a gagné son contrôle : le banc de la base RELIT `normaliserPrenom` dans
-les trois pages et `normaliser` dans le double, les exécute dans Node sur
-vingt-six sondes (« Ayşe », « Nguyễn », « İsmail », « Alice » suivi d'une
+retire, restaient en SQL. Une table de `translate` GÉNÉRÉE depuis NFD a
+suivi — et la seconde relecture l'a prise en défaut à son tour, en balayant
+le plan de base entier : une table traduit le précomposé, elle ne retire pas
+un accent DÉJÀ décomposé (« e » suivi d'un accent combinant, ce qu'un collage
+produit), ni Ǿ et ǣ, ni ё et έ. La règle est donc celle de la page, mot pour
+mot, par ce que PostgreSQL sait faire depuis sa version 13 : `normalize(p,
+NFD)`, puis les combinants U+0300 à U+036F retirés ; il ne reste que les
+minuscules, où `lower()` dépend de la locale du serveur — une table de 772
+majuscules non décomposables (Ł, Ø, Æ, les capitales grecques et
+cyrilliques…) vers leur minuscule l'en affranchit, et `lower()` ne traite
+plus que l'ASCII. Les blancs sont ceux que `\s` et `trim()` voient en
+JavaScript, insécable compris ; on réduit, puis on rogne. Zéro divergence
+sur le plan de base, en émulation, locale « C » comprise. Et la règle a gagné
+son contrôle : le banc de la base RELIT `normaliserPrenom` dans les trois
+pages et `normaliser` dans le double, les exécute dans Node sur trente-trois
+sondes (« Ayşe », « Nguyễn », « İsmail », « Chloé » dont l'accent est
+décomposé, « Ǿystein », « Ёлена », « ŁUKASZ », « Alice » suivi d'une
 tabulation, un insécable, trois espaces) et exige, sonde par sonde, le
 résultat que rend `normaliser_prenom` sur la base jetable (« secondes.html
 normalise le prénom comme la base », et ses trois jumeaux) — avec un bord qui
@@ -274,8 +282,22 @@ l'établissement —, une coupure, un compte non confirmé ne sont pas un code
 faux ; dire « Code incorrect », vider la case et faire retaper aggraverait la
 cadence. La page s'arrête, écrit « Connexion impossible — réessaie dans une
 minute », garde le code dans sa case, et le dit en console (« une erreur de
-cadence n'est pas un code faux : la page le dit et garde le code », le double
-sait rendre 429 par `window.__faux.cadence`). La fonction ne rend jamais une
+cadence n'est pas un code faux : la page s'arrête à la première clé, le dit
+et garde le code », le double sait rendre 429 par `window.__faux.cadence`).
+Pas « tout statut 400 » — la seconde relecture l'a vu : un compte non
+confirmé répond 400 aussi (`email_not_confirmed`, le réglage de confirmation
+par courriel qu'aucun banc ne voit), et lisait « Code incorrect », case
+vidée ; seul `invalid_credentials` est un code faux (« un compte non
+confirmé n'est pas un code faux : pas de « Code incorrect », et le code
+reste », `window.__faux.nonConfirme`). Et les homonymes — la raison d'être
+de la boucle sur les clés — n'étaient exercés par aucun banc : un seul élève
+semé, un `break` après le premier refus passait tout ; la section 3 sème
+maintenant un second « Contrôle » à un autre code (« deux homonymes : c'est
+le code qui départage, et la seconde clé entre après le refus de la
+première »), et le contrôle de cadence mesure alors vraiment l'arrêt à la
+première clé. Les avertissements que la page écrit en console sont tenus
+aussi : le banc navigateur les collecte (`s.avertissements`) et les exige
+sur la panne et la cadence. La fonction ne rend jamais une
 clé VIDE non plus (`and e.cle is not null`) : une ligne créée à la main sans
 clé aurait donné un « null » que la page aurait changé en adresse « null@… »
 (« la fonction ne rend jamais une clé vide »). La création de compte passe par la même porte :
@@ -386,8 +408,11 @@ sous `sansRpc` avec « CONTROLE » : « et sans la fonction SQL, le repli
 reconnaît le prénom tapé sans accent (jsdom) ») ; et il relit les numéros que
 la migration et sa notice citent pour cette page : « les numéros de version
 cités par la migration 009 et sa notice ne dépassent pas celui de la page »
-— un numéro cité plus grand que la page serait un numéro mort dans
-l'instruction d'ordre. Le double
+— par une constante de la page, `VERSION_CONNEXION_PRENOM`, le numéro qui a
+apporté le champ et ne bouge plus quand `APP_VERSION` avance : chaque mention
+doit lui être ÉGALE (trop haut, Turquet attendrait une version qui n'arrive
+jamais ; trop bas, il croirait une page en ligne déjà passée au champ), et
+la constante ne dépasse pas la page. Le double
 (`tests/faux-supabase.js`) a gagné `rpc(nom, args)` pour cela : il
 journalise l'appel, rend pour `cles_de_connexion` ce que rend la fonction,
 `PGRST202` pour un nom inconnu — et pour tout appel sous `sansRpc`.
@@ -467,7 +492,16 @@ présent dans chaque table, et échoue si la fonction ne rend rien ; la
 relecture avait montré que l'attribut seul passait au vert sur une base où la
 fonction, confiée à un propriétaire sans droit de traverser la RLS, ne
 rendait rien à personne. Une table vide, ou un rôle qu'on ne peut pas
-prendre, se déclare dans la sortie. Et ce qui RESTE ouvert, nommé : un
+prendre, se déclare dans la sortie — et la seconde relecture a resserré la
+mesure deux fois : le témoin est un prénom que la fonction PEUT rendre (une
+ligne au prénom blanc mais à clé, créée à la main, se classait première et
+bloquait la migration entière en accusant la RLS), et seule la prise de rôle
+est protégée par le gestionnaire d'exception — une erreur de droit levée
+DANS la fonction fait échouer le fichier au lieu de se déguiser en « rôle
+impossible à prendre » (« 009 échoue sur une fonction dont le propriétaire
+n'a aucun droit, au lieu de se déclarer faite »). Le rejeu se mesure sur des
+tables pleines, comme sur le projet (« et rejouée sur des tables pleines,
+elle mesure encore son effet trois fois »). Et ce qui RESTE ouvert, nommé : un
 visiteur peut toujours demander si « Léa » a un compte dans une classe, cinq
 clés à la fois — la fonction est un oracle d'existence, sans autre cadence
 que celle de PostgREST ; le code, lui, reste vérifié par Supabase seul, et sa

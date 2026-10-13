@@ -148,6 +148,11 @@ async function ouvrir(chromium, ml, options){
   const page = await ctx.newPage();
   const erreurs = [];
   page.on('pageerror', e => erreurs.push(String(e.message)));
+  /* Les avertissements que la page ÉCRIT EN CONSOLE sont une promesse faite à
+     Turquet (« la panne se lit sans ouvrir l'onglet Réseau ») : on les garde,
+     et deux contrôles de la connexion les exigent. */
+  const avertissements = [];
+  page.on('console', m => { if(m.type() === 'warning') avertissements.push(m.text()); });
 
   /* les polices distantes ne changent rien à ce qu'on vérifie, et le réseau des
      tests peut ne pas les servir : on coupe court plutôt que d'attendre */
@@ -253,7 +258,7 @@ async function ouvrir(chromium, ml, options){
     await poignee.close().catch(() => {});
     throw new Error('interception de supabase-js échouée — aucun test ne démarre');
   }
-  return { nav: poignee, page, erreurs, eleve };
+  return { nav: poignee, page, erreurs, avertissements, eleve };
 }
 
 const ecranVisible = page => page.evaluate(() =>
@@ -660,9 +665,11 @@ async function parcours(page, N){
     /* tapé SANS accent ni minuscule : dans le repli, c'est la normalisation de
        la PAGE qui filtre la liste — tapé exact, une page qui ne normaliserait
        plus passerait ce contrôle sans peine (relecture d'octobre 2026) */
-    const apresRepli = await entrer(enMajuscules, CODE_CONTROLE);
-    const repliApres = await compterRepli();
-    await s.page.evaluate(() => { window.__faux.sansRpc = false; });
+    let apresRepli, repliApres;
+    try{
+      apresRepli = await entrer(enMajuscules, CODE_CONTROLE);
+      repliApres = await compterRepli();
+    } finally { await s.page.evaluate(() => { window.__faux.sansRpc = false; }); }
     verifier('sans la fonction SQL, la page se replie sur l\'ancienne liste et y reconnaît le prénom sans accent — tant que la 009 n\'est pas jouée',
       repliApres.rpc > repliAvant.rpc && repliApres.listes > repliAvant.listes && apresRepli === 'scr-space',
       repliApres.rpc === repliAvant.rpc ? 'la fonction SQL n\'a même pas été demandée : le contrôle ne mesure pas le repli'
@@ -683,13 +690,42 @@ async function parcours(page, N){
       apresPanne = await entrer(PRENOM_CONTROLE, CODE_CONTROLE);
       toastPanne = await lireToast(); panneApres = await compterRepli(); signInApresPanne = await nbSignIn();
     } finally { await s.page.evaluate(() => { window.__faux.panne = false; }); }
+    const avertiPanne = s.avertissements.some(a => /cles_de_connexion :/.test(a));
     verifier('une panne de la fonction SQL n\'ouvre ni le repli ni une connexion, et le dit',
       apresPanne === 'scr-login' && panneApres.listes === panneAvant.listes && signInApresPanne === signInAvantPanne
-        && !!toastPanne && /Connexion impossible/.test(toastPanne.texte),
+        && !!toastPanne && /Connexion impossible/.test(toastPanne.texte) && avertiPanne,
       apresPanne !== 'scr-login' ? 'écran atteint : ' + apresPanne
         : panneApres.listes !== panneAvant.listes ? 'la page s\'est repliée sur la liste pour une erreur qui n\'est pas PGRST202'
         : signInApresPanne !== signInAvantPanne ? 'une connexion a été tentée malgré la panne'
+        : !avertiPanne ? 'rien en console : la panne ne se lit qu\'en ouvrant l\'onglet Réseau'
         : 'message : ' + JSON.stringify(toastPanne));
+    await sortir();
+
+    /* DEUX HOMONYMES : la boucle sur les clés est la raison d'être du
+       « for(const cle of cles) », et un seul élève semé ne l'exerce pas — un
+       « break » après le premier refus passerait tout le banc (seconde
+       relecture). On sème un second « Contrôle » à un autre code : c'est le
+       code qui départage, et la page entre sur la SECONDE clé après un refus
+       sur la première. L'homonyme reste pour le contrôle de cadence, qui
+       exige alors vraiment l'arrêt à la première clé ; il est retiré avant
+       le rechargement, qui resème de toute façon. */
+    const CODE_BIS = '456789123'.slice(0, CODE_CONTROLE.length);
+    await s.page.evaluate(a => {
+      window.__faux.lignes(a.t).push({ id: 'eleve-bis', prenom: a.p, cle: 'cle-controle-bis', user_id: 'compte-bis' });
+      window.__faux.semerCompte(courrielDe('cle-controle-bis'), motDePasseDe(a.c), 'compte-bis');
+    }, { t: P.tableEleves, p: PRENOM_CONTROLE, c: CODE_BIS });
+    const signInAvantBis = await nbSignIn();
+    const apresBis = await entrer(PRENOM_CONTROLE, CODE_BIS);
+    const bis = await s.page.evaluate(n => ({
+      cle: currentEleve && currentEleve.cle,
+      tentatives: window.__faux.operations('signIn').slice(n).map(e => (e.ok ? 'ok:' : 'refus:') + e.courriel),
+    }), signInAvantBis);
+    verifier('deux homonymes : c\'est le code qui départage, et la seconde clé entre après le refus de la première',
+      apresBis === 'scr-space' && bis.cle === 'cle-controle-bis' && bis.tentatives.length === 2
+        && /^refus:/.test(bis.tentatives[0]) && /^ok:/.test(bis.tentatives[1]),
+      apresBis !== 'scr-space' ? 'écran atteint : ' + apresBis
+        : bis.cle !== 'cle-controle-bis' ? 'entré sous la clé « ' + bis.cle + ' »'
+        : 'tentatives : ' + bis.tentatives.join(', '));
     await sortir();
 
     /* une erreur de CADENCE (429 — une classe entière derrière une seule
@@ -704,14 +740,36 @@ async function parcours(page, N){
       toastCadence = await lireToast(); signInApresCadence = await nbSignIn();
       codeRestant = await s.page.evaluate(() => document.getElementById('loginPin').value);
     } finally { await s.page.evaluate(() => { window.__faux.cadence = false; }); }
-    verifier('une erreur de cadence n\'est pas un code faux : la page le dit et garde le code',
+    const avertiCadence = s.avertissements.some(a => /connexion : 429/.test(a));
+    verifier('une erreur de cadence n\'est pas un code faux : la page s\'arrête à la première clé, le dit et garde le code',
       apresCadence === 'scr-login' && signInApresCadence === signInAvantCadence + 1 && codeRestant === CODE_CONTROLE
-        && !!toastCadence && /réessaie dans une minute/.test(toastCadence.texte),
+        && !!toastCadence && /réessaie dans une minute/.test(toastCadence.texte) && avertiCadence,
       apresCadence !== 'scr-login' ? 'écran atteint : ' + apresCadence
-        : signInApresCadence !== signInAvantCadence + 1 ? (signInApresCadence - signInAvantCadence) + ' tentative(s) au lieu d\'une'
+        : signInApresCadence !== signInAvantCadence + 1 ? (signInApresCadence - signInAvantCadence) + ' tentative(s) au lieu d\'une (deux homonymes sont semés)'
         : codeRestant !== CODE_CONTROLE ? 'le code a été effacé (« ' + codeRestant + ' »)'
+        : !avertiCadence ? 'rien en console : « connexion : 429 … » attendu'
         : 'message : ' + JSON.stringify(toastCadence));
     await sortir();
+
+    /* un compte NON CONFIRMÉ (400, email_not_confirmed — le réglage de
+       confirmation par courriel resté actif, qu'aucun banc ne voit) n'est pas
+       un code faux non plus : un 400 n'a pas tous le même sens */
+    await s.page.evaluate(() => { window.__faux.nonConfirme = true; });
+    await viderToast();
+    let apresNC, toastNC, codeNC;
+    try{
+      apresNC = await entrer(PRENOM_CONTROLE, CODE_CONTROLE);
+      toastNC = await lireToast();
+      codeNC = await s.page.evaluate(() => document.getElementById('loginPin').value);
+    } finally { await s.page.evaluate(() => { window.__faux.nonConfirme = false; }); }
+    verifier('un compte non confirmé n\'est pas un code faux : pas de « Code incorrect », et le code reste',
+      apresNC === 'scr-login' && codeNC === CODE_CONTROLE && !!toastNC && !/Code incorrect/.test(toastNC.texte) && /Connexion impossible/.test(toastNC.texte),
+      apresNC !== 'scr-login' ? 'écran atteint : ' + apresNC
+        : codeNC !== CODE_CONTROLE ? 'le code a été effacé (« ' + codeNC + ' »)'
+        : 'message : ' + JSON.stringify(toastNC));
+    await sortir();
+    /* l'homonyme s'en va avant la création de compte (qui compte les clés du prénom) */
+    await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.cle === 'cle-controle-bis'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
 
     /* la création de compte est la seule porte avant connexion, et elle ignore
        l'accent : un second « Contrôle » écrit « controle » est refusé, sans
