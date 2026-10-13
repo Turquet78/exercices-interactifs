@@ -4291,8 +4291,9 @@ function exercices(suite){
     pythonSamoussa(w, P);
     pythonIfCinema(w, P);
     pythonIfLocation(w, P);
-    pythonIfPlusGrandTrois(w, P);
     pythonIfPlusGrand(w, P);
+    pythonIfFraisPort(w, P);
+    pythonIfPlusGrandTrois(w, P);
     pythonChaines(w, P);
     pythonChaineLen(w, P);
     pythonForRange(w, P);
@@ -26855,6 +26856,208 @@ function pythonInputRectangle(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-if-frais-port} (Seconde, 6.7.6) : l'« Exercice 4 » du carnet — le
+   montant d'une commande demandé avec float(input(…)), puis un if / else :
+   des frais de port sous le seuil, offerts au-dessus. Le contrôle tient la
+   place au menu (il suit {python-if-location} dans le sous-thème 6.7
+   « Condition if else »), la fiche épinglée et le tirage, le juge sur des copies justes et
+   fausses — chacune avec le mot qui la nomme —, les consignes du sous-thème
+   input (le dessin d'abord, l'énoncé en gras dans son cadre, trois coups de
+   pouce repliés, aucune définition, aucune consigne au bouton, la console
+   vide), le dialogue de la console, la copie juste, fausse et vide, le
+   soutien qui n'en révèle rien, puis compare à un vrai CPython ce que les
+   modèles affichent. */
+function pythonIfFraisPort(w, P){
+  const nom = '{python-if-frais-port} : les frais de port, avec if et else';
+  if(!P.pythonIfFraisPort){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des frais de port'); return; }
+  const ID = P.pythonIfFraisPort.exercice, NB = P.pythonIfFraisPort.nb, NUM = P.pythonIfFraisPort.numero;
+  const present = evaluer(w, "typeof startPCF==='function' && typeof pcfDiag==='function' && typeof pcfBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPCF / pcfDiag / pcfBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il suit {python-if-location} dans le sous-thème 6.7 « Condition if else », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
+    if(!st||!/if/i.test(st.nom)||!/else/i.test(st.nom)) vus.push("pas de sous-thème 6.7 Condition if else");
+    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-if-location")+1||st.ids.indexOf("python-if-location")<0) vus.push("il ne suit pas {python-if-location} : "+st.ids.join(","));
+    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-rectangle"]!=="6.3.8"||TEST_NUM["python-for-images"]!=="6.6.10"||TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-if-location"]!=="6.7.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (100 €, 10 €), puis des situations distinctes ; le modèle de chacune passe au juge, chaque montant du juge est décimal, deux sous le seuil et deux au-dessus, jamais le seuil lui-même, et chaque situation sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pcfBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S0=pcfSit(qs[0]);
+      if(qs[0].s!==0||S0.seuil!==100||S0.frais!==10){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois la même situation : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PCF_SITUATIONS.forEach(function(S, i){
+      const d=pcfDiag(pcfModele({s:i}),{s:i});
+      if(!d.ok) vus.push("le modèle de la situation "+i+" : "+(d.dits||[]).join(" "));
+      if(S.ex.length!==4) vus.push("le juge n’a pas quatre montants en "+i);
+      S.ex.forEach(function(m, k){
+        if(m.indexOf(".")<0) vus.push("montant entier "+m+" en "+i+" : un int(input) passerait");
+        if(Number(m)===S.seuil) vus.push("le seuil lui-même en "+i);
+        if((Number(m)<S.seuil)!==(k%2===0)) vus.push("le montant "+m+" n’est pas du bon côté du seuil en "+i);
+      });
+    });
+    if(Object.keys(vues).length!==PCF_SITUATIONS.length) vus.push("des situations ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (espaces de la fiche, if sans else mais deux if, calcul dans le print, guillemets simples) et nomme chaque défaut — int au lieu de float, float oublié, virgule, deux questions, input muet, autre variable, else oublié, print oublié sous le if, frais jamais ajoutés, frais toujours ajoutés, condition à l’envers, sans phrase, nombre écrit à la main, nom entre guillemets, mauvais calcul, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0,prog:""}, T="    ";
+    const i1="montant = float(input("+Q+"Montant ? "+Q+"))";
+    const pr=function(v){ return "print("+Q+"Le montant à payer est de"+Q+", "+v+", "+Q+"€"+Q+")"; };
+    const bloc=function(cond, corps, sinon){ return i1+NL+"if "+cond+" :"+NL+corps.map(function(l){ return T+l; }).join(NL)+(sinon?NL+"else :"+NL+sinon.map(function(l){ return T+l; }).join(NL):""); };
+    const justes=[bloc("montant < 100", ["montant = montant + 10", pr("montant")], [pr("montant")]),
+                  "montant = float (input ( "+Q+"Quel est le montant de la commande ? "+Q+"))"+NL+NL+"if montant<100:"+NL+NL+T+"montant = montant+10"+NL+NL+T+"print ("+Q+" le nouveau montant est "+Q+"  , montant )"+NL+NL+"else :"+NL+NL+T+"print ("+Q+" le montant est "+Q+"  , montant )",
+                  i1+NL+"if montant < 100:"+NL+T+"montant = montant + 10"+NL+"print("+A+"Montant :"+A+", montant)",
+                  i1+NL+"if montant < 100:"+NL+T+pr("montant + 10")+NL+"if montant >= 100:"+NL+T+pr("montant")];
+    justes.forEach(function(p){ const d=pcfDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[
+      [bloc("montant < 100", ["montant = montant + 10", pr("montant")], [pr("montant")]).replace("float","int"), /float\\(/],
+      [bloc("montant < 100", ["montant = montant + 10", pr("montant")], [pr("montant")]).replace("float(input("+Q+"Montant ? "+Q+"))","input("+Q+"Montant ? "+Q+")"), /TOUJOURS un texte/],
+      [bloc("montant < 100,5", ["montant = montant + 10", pr("montant")], [pr("montant")]), /POINT/],
+      ["x = input("+Q+"?"+Q+")"+NL+bloc("montant < 100", ["montant = montant + 10", pr("montant")], [pr("montant")]), /qu’une/],
+      [bloc("montant < 100", ["montant = montant + 10", pr("montant")], [pr("montant")]).replace("input("+Q+"Montant ? "+Q+")","input()"), /pas de question/],
+      ["prix = float(input("+Q+"?"+Q+"))"+NL+"if prix < 100 :"+NL+T+"prix = prix + 10"+NL+T+pr("prix")+NL+"else :"+NL+T+pr("prix"), /variable montant/],
+      [bloc("montant < 100", ["montant = montant + 10", pr("montant")]), /il manque le else/],
+      [bloc("montant < 100", ["montant = montant + 10"], [pr("montant")]), /inférieure à 100 €, ton programme n’affiche rien/],
+      [bloc("montant < 100", [pr("montant")], [pr("montant")]), /sans les frais/],
+      [i1+NL+"montant = montant + 10"+NL+pr("montant"), /même quand/],
+      [bloc("montant > 100", ["montant = montant + 10", pr("montant")], [pr("montant")]), /à l’envers/],
+      [bloc("montant < 100", ["montant = montant + 10", "print(montant)"], ["print(montant)"]), /sans phrase/],
+      [bloc("montant < 100", ["montant = montant + 10", pr("52.5")], [pr("127.75")]), /écrit à la main/],
+      [bloc("montant < 100", ["montant = montant + 10", pr(Q+"montant"+Q)], [pr(Q+"montant"+Q)]), /SANS guillemets/],
+      [bloc("montant < 100", ["montant = montant + 100", pr("montant")], [pr("montant")]), /Vérifie ton calcul/],
+      [pr("montant"), /n’existe pas encore/],
+      [i1, /n’affiche rien/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pcfDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, le dialogue, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : le dessin de la fiche EN PREMIER, l’énoncé EN GRAS dans son cadre (la règle des frais, les trois puces, la note et le rappel de float) qui enveloppe trois coups de pouce repliés, la cellule, « Exécuter » et la console VIDE ; aucune définition, aucune consigne au bouton ; « Exécuter » pose la question, une virgule tapée y est nommée, et Entrée affiche le montant ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPCF();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("pcfInstr");
+    const fig=en&&en.querySelector("figure.pcf-fig img.pcf-img"), alt=fig?(fig.getAttribute("alt")||""):"";
+    if(!fig||!/^data:image[/]webp;base64,/.test(fig.getAttribute("src")||"")||!/serpent/.test(alt)||!/colis/.test(alt)) vus.push("le dessin de la fiche (le serpent au colis) manque");
+    if(fig&&(fig.compareDocumentPosition(document.getElementById("pcfHost"))&Node.DOCUMENT_POSITION_FOLLOWING)===0) vus.push("le dessin n’est pas en premier");
+    const et=document.querySelector("#pcfHost .pyn-etape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!ti||getComputedStyle(ti).fontWeight!=="700") vus.push("l’énoncé n’est pas en gras dans son cadre");
+    else if(ti.querySelectorAll("ul ul li").length!==3||["100 €","10 €","frais de port","montant","Sinon il affiche le montant","nombre décimal","Rappel","float ( input"].some(function(m){ return ti.textContent.replace(/\\u00a0/g," ").indexOf(m)<0; })) vus.push("l’énoncé : "+ti.textContent);
+    if(!et||!et.querySelector("#pcf-prog")||!et.querySelector("#pcfRun")||!et.querySelector("#pcfConsole")) vus.push("le cadre n’enveloppe pas la cellule, le bouton et la console");
+    const pouces=document.querySelectorAll("#pcfHost .pyn-etape details.pyd-pouce");
+    if(pouces.length!==3) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); });
+    if(pouces.length===3&&(!/if montant < 100 :/.test(pouces[1].textContent)||!/else :/.test(pouces[1].textContent)||!/montant = montant \\+ 10/.test(pouces[2].textContent))) vus.push("les coups de pouce ne sont pas ceux de la fiche");
+    if(document.querySelector("#scr-pcf .py-avant, #scr-pcf .pyi-cours, #scr-pcf .pyp-regle")) vus.push("une définition s’affiche : la fiche n’en a pas");
+    const run=document.getElementById("pcfRun"); if(run.parentNode.textContent.trim()!==run.textContent.trim()) vus.push("une consigne est posée à côté du bouton");
+    const ta=document.getElementById("pcf-prog"), cons=document.getElementById("pcfConsole");
+    if(cons.textContent!==""||[].slice.call(document.querySelectorAll("style")).every(function(st){ return st.textContent.indexOf("#pcfConsole:empty::before")<0; })) vus.push("la console n’est pas un cadre vide (#pcfConsole hors de la règle content:none)");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value=pcfModele(q);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    const repondre=function(v){ const r=document.getElementById("pcf-rep"); if(!r||!cons.contains(r)){ vus.push("la console ne demande pas la réponse "+v); return false; } r.value=v; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); return true; };
+    pcfExecuter();
+    if(cons.textContent.indexOf("Quel est le montant de la commande ? ")<0) vus.push("la question n’est pas écrite dans la console");
+    if(repondre("42,5") && !(cons.classList.contains("py-err") && /POINT/.test(cons.textContent))) vus.push("la virgule tapée n’est pas nommée : "+JSON.stringify(cons.textContent));
+    pcfExecuter();
+    if(repondre("42.5")){
+      if(document.getElementById("pcf-rep")) vus.push("la case reste après la réponse");
+      if(cons.textContent.split(NL).slice(-1)[0]!=="Le montant à payer est de 52.5 €") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+    }
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPCF();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score+" — "+document.getElementById("pcfFeedback").textContent);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!document.getElementById("pcfNext")) vus.push("pas de « Question suivante »");
+    nextPCF();
+    if(test.idx!==1||document.getElementById("pcf-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    if(document.getElementById("pcfConsole").textContent!=="") vus.push("la console de la question suivante n’est pas vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), T="    ";
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPCF();
+    let ta=document.getElementById("pcf-prog");
+    const corps=NL+"if montant > 100 :"+NL+T+"montant = montant + 10"+NL+T+"print("+Q+"Montant :"+Q+", montant)"+NL+"else :"+NL+T+"print("+Q+"Montant :"+Q+", montant)";
+    ta.value="montant = int(input("+Q+"? "+Q+"))"+corps;
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPCF();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pcfModele .sol");
+    if(!mod||mod.textContent!==pcfModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    if(!document.getElementById("pcfConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    nextPCF(); ta=document.getElementById("pcf-prog");
+    checkPCF();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pcfModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPCF(); ta=document.getElementById("pcf-prog");
+    checkPCF();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="montant = float(input("+Q+"? "+Q+"))"+corps;
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPCF();
+    const fb=document.getElementById("pcfFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/envers/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pcfModele .sol")||fb.indexOf("Quel est le montant")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPcf(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ---- */
+  const nomPy = 'ce que les modèles de {python-if-frais-port} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PCF_SITUATIONS.forEach(function(S, i){ S.ex.forEach(function(m){
+      const src=pcfModele({s:i}), r=pyRun(src,[m]);
+      res.push([src, [m], r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_R = iter(' + JSON.stringify(p) + ')\ndef input(q=""):\n    return next(_R)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* {python-chaines} (Seconde, 6.1.14) : les exercices 21 et 22 du carnet — la
    concaténation (+) et la répétition (*) des chaînes. Le contrôle tient la
    place au menu (il ferme le 6.1, rien d'autre ne bouge), le cadre de la
@@ -30771,10 +30974,10 @@ function pythonTroisDes(w, P){
   verifier(nomPy, ecarts.length === 0 && /: 81\n/.test(ref[2]) && /: 25\n/.test(ref[1]), ecarts.join(' | ') || J(ref[2].slice(-200)));
 }
 
-/* {python-if-plus-grand-trois} (Seconde, 6.7.6) : l'exercice 8 du carnet, BONUS —
+/* {python-if-plus-grand-trois} (Seconde, 6.7.7) : l'exercice 8 du carnet, BONUS —
    la photo, puis « Faire un programme qui demande 3 nombres décimaux et qui
    affiche le plus grand des trois nombres. » Le contrôle tient la place au
-   menu (il suit {python-if-location} dans le sous-thème 6.7 « Condition if
+   menu (il suit {python-if-frais-port} dans le sous-thème 6.7 « Condition if
    else », dernier du thème, rien d'autre ne bouge), le mot « Bonus » du
    titre, le juge sur des copies justes et fausses — chacune avec le mot qui
    la nomme —, l'écran (la photo d'abord, aucune définition, aucun coup de
@@ -30791,14 +30994,14 @@ function pythonIfPlusGrandTrois(w, P){
   }
 
   /* ---- 1. la place au menu, et le mot « Bonus » ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.7 « Condition if else » derrière {python-if-location}, numéroté ' + NUM + ', juste derrière « Boucle for in range », son titre dit « Bonus », et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-if-frais-port} dans le sous-thème 6.7 « Condition if else », numéroté ' + NUM + ', juste derrière « Boucle for in range », son titre dit « Bonus », et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
     if(!st||!/condition/i.test(st.nom)||!/if/.test(st.nom)||!/else/.test(st.nom)) vus.push("pas de sous-thème 6.7 Condition if else");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-if-location") vus.push("il ne ferme pas le sous-thème derrière {python-if-location} : "+st.ids.join(","));
+    else if(st.ids.indexOf("python-if-frais-port")<0||st.ids.indexOf("${ID}")!==st.ids.indexOf("python-if-frais-port")+1) vus.push("il ne suit pas {python-if-frais-port} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-if-location"]!=="6.7.5"||TEST_NUM["python-for-table"]!=="6.6.11"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-if-location"]!=="6.7.5"||TEST_NUM["python-if-frais-port"]!=="6.7.6"||TEST_NUM["python-for-table"]!=="6.6.11"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("le titre ne dit pas Bonus : "+TESTS["${ID}"].name);
     const qs=pgtBuildQuestions();

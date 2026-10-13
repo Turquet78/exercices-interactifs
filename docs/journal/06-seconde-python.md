@@ -5930,10 +5930,60 @@ les copies juste, fausse et vide, le soutien qui ne révèle rien, et les
 modèles comparés à un vrai CPython. La visite universelle (section 9)
 l'ouvre dans les deux modes.
 
-## {python-if-plus-grand-trois} — le plus grand de trois nombres (6.7.6, Condition if else, BONUS)
+### {python-if-frais-port} — 6.7.6, les frais de port (sous-thème « Condition if else », v465)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
+"condition if else", créer un exercice qui suit les images jointes ;
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème "input" ; mettre le dessin en premier ; dans la définition ne
+rien rajouter de plus, ainsi que dans les coups de pouce éventuels ;
+respecter les couleurs et présentations des exercices du sous-thème input ;
+ne rien écrire dans le cadre de la console ». Créé le même jour que
+{python-if-else} (6.7.1), {python-samoussa} (6.7.2) et
+{python-if-plus-grand} (6.7.3), {python-if-cinema} (6.7.4), puis {python-if-location}
+(6.7.5) : il les suit, en 6.7.6 — rien n'est renuméroté.
+
+**La fiche** (« Exercice 4 ») : si la commande est inférieure à 100 €, 10 €
+de frais de port, sinon ils sont offerts ; demander le montant dans
+`montant`, puis un `if` / `else`. **La présentation est celle du 6.3.8** :
+le dessin EN PREMIER (le serpent au colis, découpé dans la capture, détouré,
+WebP de 14 Ko, `PCF_IMG`), puis l'énoncé du carnet EN GRAS dans son cadre
+`.pyn-etape` — la règle des frais, les trois puces, la note « (Le montant de
+la commande est un nombre décimal) » en chasse fixe et le « Rappel » de
+`float(input(…))`, qui est DANS l'énoncé de la fiche —, trois coups de pouce
+repliés vert clair (`pyPoucesHTML`, le code du second en bloc,
+`.pvo-pouce-code`), la cellule, « Exécuter » et la console vide
+(`#pcfConsole` rejoint `content:none`). Pas de définition (exception
+déclarée, `pythonAvant.sans`) ; le rappel (`RAP_PCF`) ne dit que les coups
+de pouce. Coquilles corrigées, rien d'ajouté : « alors il calcule », « un
+nombre décimal », la parenthèse fermante du coup de pouce 1.
+
+**Le juge (`pcfDiag`) lit ce que le programme FAIT** : quatre exécutions,
+deux montants sous le seuil, deux au-dessus — jamais le seuil lui-même,
+« inférieure à » s'y lit des deux façons —, multiples de 1/4 (la page et
+CPython écrivent le même nombre). Il faut UN input rangé dans `montant`,
+avec sa question, et une ligne qui porte des mots et le montant à payer ;
+au-dessus du seuil, jamais montant + frais. Deux `if` au lieu d'un `else`,
+le calcul dans le print, une seule ligne `print` après le `if` : acceptés.
+Nommés : int au lieu de float, float oublié (le texte qu'on ne compare pas),
+la virgule, deux questions, l'input muet, une autre variable, le else
+oublié, le print oublié sous le if, les frais jamais ajoutés, toujours
+ajoutés, la condition à l'envers, le montant sans phrase, le nombre écrit à
+la main, le nom entre guillemets, un mauvais calcul.
+
+**La séance** : la fiche épinglée (100 € / 10 €), puis d'autres seuils et
+frais (`PCF_SITUATIONS`) tirés par `distinctes()` ; `dmNbQuestions()`
+l'allonge. Une case (`pts-case`), pas de correction au fil de la frappe,
+pas de bouton des tables. Contrôle : `pythonIfFraisPort` (banc principal) —
+la place, le tirage (300 séances), le juge sur 4 copies justes et 18
+fausses, l'écran tenu aux consignes (dessin d'abord, console vide), les
+copies juste, fausse et vide, le soutien, et les modèles comparés à un vrai
+CPython.
+
+## {python-if-plus-grand-trois} — le plus grand de trois nombres (6.7.7, Condition if else, BONUS)
 
 **L'exercice 8 du carnet, rubrique « 3/ Bonus ».** {python-if-plus-grand-trois}
-(Seconde, 6.7.6, demande de Turquet, octobre 2026 : « en seconde dans le
+(Seconde, 6.7.7, demande de Turquet, octobre 2026 : « en seconde dans le
 sous-thème "condition if else", créer un exercice qui suit les images
 jointes […] respecter les consignes de présentation des autres exercices
 d'algo du sous-thème "input" […] mettre le dessin en premier, dans la
@@ -5943,17 +5993,19 @@ photo (un homme penché sur son clavier), puis « Faire un programme qui
 demande 3 nombres décimaux et qui affiche le plus grand des trois nombres. »
 Préfixe `pgt`. Le sous-thème « Condition if else » n'existait pas quand
 le travail a commencé, et la branche l'avait créé ; pendant les bancs, `main`
-l'a créé de son côté et l'a rempli de cinq exercices ({python-if-else},
+l'a créé de son côté et l'a rempli de six exercices ({python-if-else},
 {python-samoussa}, {python-if-plus-grand} — le plus grand de DEUX nombres,
-PR 607 —, {python-if-cinema}, {python-if-location}). {python-if-plus-grand}
-a pris l'identifiant que la branche avait choisi : l'exercice de la branche
-est devenu {python-if-plus-grand-trois}, et ferme le sous-thème en 6.7.6. À
-chaque fusion (cinq, la version passée de 450 à 465), la page de `main` a
+PR 607 —, {python-if-cinema}, {python-if-location}, {python-if-frais-port}).
+{python-if-plus-grand} a pris l'identifiant que la branche avait choisi :
+l'exercice de la branche est devenu {python-if-plus-grand-trois}, en 6.7.7.
+À chaque fusion (six, la version passée de 450 à 466), la page de `main` a
 été reprise TELLE QUELLE et l'exercice y a été réinséré par un script
 d'insertion rejoué, plutôt que de démêler les conflits. **Deux sessions qui
 ajoutent au même sous-thème se marchent dessus jusque dans l'identifiant** :
 `npm run test:version` ne voit que le numéro de version, et c'est un `git
-fetch` avant de pousser qui l'a montré.
+fetch` avant de pousser qui l'a montré. Le contrôle de place dit « suit
+{python-if-frais-port} », pas « ferme le sous-thème » : un exercice ajouté
+derrière lui ne le fera pas rougir.
 
 **La présentation du sous-thème Input.** La photo, découpée dans la capture
 (WebP de 9 Ko, `PGT_IMG`, URL data:), est l'énoncé du haut, et lui seul ;
