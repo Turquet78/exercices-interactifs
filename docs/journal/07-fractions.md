@@ -1431,3 +1431,44 @@ navigateur (« 6 terdecies bis ») TAPE la chaîne au clavier dans les vraies
 cases MathLive — 1/2 + 1/4 par 8, 2/3 × 3/5 — et exige la note et aucune
 case rouge ; « 6 terdecies » (les flèches qui se croisent) court maintenant
 sur les deux niveaux.
+
+**Puis le 5.12 de la Seconde est devenu le 4.6 de la Première —
+{somme-produit-fractions} (octobre 2026, Première v308).** Demande de
+Turquet : « reprendre le 5.12 de seconde et le mettre en première, les
+nombres doivent être entre 1 et 5, les fractions au départ sont
+irréductibles, dans les fractions intermédiaires les nombres ne peuvent pas
+dépasser 6 et sont positifs. Si on peut simplifier la fraction à la fin,
+présenter comme dans le 4.1 de première. De plus les cases où l'on place des
+nombres doivent être plus petites à l'écran. » La Seconde garde son 5.12,
+inchangé ; l'identifiant est le même, libre en Première.
+
+* **« Pas plus de 6 » porte sur le PRODUIT.** La somme se met au même
+  dénominateur en CROISANT : avec des dénominateurs d'au moins 2, et un
+  produit dont le dénominateur vaut au moins 2 × 2 = 4, le dénominateur
+  croisé vaut au moins 8. La borne ne pouvait donc pas tenir sur TOUTES les
+  fractions intermédiaires ; la question a été posée, et Turquet a choisi
+  « 6 sur le produit seul » (`SPF_INTER`). Le produit restant irréductible
+  (comme en Seconde), il ne reste que des produits sur 4 ou sur 6 —
+  1/2 × 3/2, 5/2 × 1/3… — et la variété vient de la première fraction.
+* **La fin se simplifie comme au 4.1** : la case de la fraction obtenue
+  attend le calcul TEL QUEL (10/8), puis la chaîne `se…` — une entrée de
+  plus dans `SE_CFG`, `spf` — le simplifie sur la même ligne. La fraction
+  brute ne dépend que de l'énoncé (le croisement est figé) : la chaîne est
+  posée d'emblée, comme pour le produit. Un résultat irréductible garde la
+  règle de la Seconde (toute fraction égale) ; un résultat entier est écarté.
+* **Les cases plus petites** : la règle de tout exercice veut que la case ait
+  la taille des nombres qui l'entourent — c'est donc toute la rangée qui
+  descend d'un cran (1,45 rem au lieu de 2), cases, chiffres et signes, et le
+  cadre de la case se resserre (`#spfHost`). C'est aussi la rangée la plus
+  longue du thème.
+* Les blocs `pfCroix…` et les lecteurs `pfLu`/`pfPaire`/`pfMult`/`pfVide`
+  sont recopiés de la Seconde pour ce seul exercice, sans les variantes
+  (`deux`, `teteRn`, `envolver`) que seuls H, I et J utilisent. Le peintre
+  juge chaque case seule (la Seconde peignait la paire du haut d'un seul
+  verdict en vérification).
+
+Contrôle : « {somme-produit-fractions} : nombres de 1 à 5, produit borné à 6,
+et la simplification par étapes » (`tests/verifier.js`, déclaré par
+`sommeProduit` dans le profil de la Première) — deux cents séances par le
+vrai démarreur, puis 1/2 + 1/2 × 3/2 = 10/8 = 5/4 tapé par de vrais
+évènements « input ».
