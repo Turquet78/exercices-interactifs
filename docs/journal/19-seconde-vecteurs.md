@@ -557,7 +557,7 @@ coupe le barème avec elle. Le nœud posé est une `pts-case` (le bloc de la
 consigne b), peint `ok`, `bad` ou `sol`) : la note affichée compte bien
 trois cases, pas deux.
 
-### Puis les trois questions se sont mises dans l'ordre de la fiche (v480)
+### Puis les trois questions se sont mises dans l'ordre de la fiche (v481)
 
 Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, mettre en
 premier la question b, qui doit être vérifiée et corrigée si nécessaire,
