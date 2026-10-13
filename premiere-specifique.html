@@ -2906,7 +2906,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=313;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=314;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3369,7 +3369,7 @@ const TESTS={
   'diviser-fractions': { name:'Diviser deux fractions', icon:'\u2797', desc:'Comme {multiplier-fractions}, avec un maillon de plus\u00a0: on transforme d\u2019abord la division en multiplication par l\u2019inverse, puis on multiplie et on simplifie.\u00a0Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startDiv() },
   /* Octobre 2026 : le 5.12 de la Seconde, nombres de 1 à 5, produit borné à 6
      et simplification par étapes (voir l'en-tête de startSpf). */
-  'somme-produit-fractions': { name:'Une somme avec un produit dedans', icon:'\u2795', desc:'a/b + c/d\u00d7e/f, ou a/b \u2212 c/d\u00d7e/f\u00a0: la multiplication se calcule D\u2019ABORD, puis la somme (ou la diff\u00e9rence, toujours positive) se termine en croisant les d\u00e9nominateurs \u2014 et on simplifie la fraction finale si elle se simplifie. Une \u00e9tape par ligne, le \u00ab\u00a0=\u00a0\u00bb en t\u00eate. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startSpf() },
+  'somme-produit-fractions': { name:'Une somme avec un produit dedans', icon:'\u2795', desc:'a/b + c/d\u00d7e/f, ou a/b \u2212 c/d\u00d7e/f\u00a0: la multiplication se calcule D\u2019ABORD, puis la somme (ou la diff\u00e9rence, toujours positive) se termine en croisant les d\u00e9nominateurs, ou sur un d\u00e9nominateur commun plus petit \u2014 et on simplifie la fraction finale si elle se simplifie. Une \u00e9tape par ligne, le \u00ab\u00a0=\u00a0\u00bb en t\u00eate. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startSpf() },
   'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() }
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
@@ -15472,10 +15472,13 @@ const SE_CFG={
        brut:function(q){ const r=sfJuge(q); return r.se ? r.se.F : null; }},
   mlt:{host:'mltHost', pfx:'mlt-e', src:['mlt-fn','mlt-fd'],
        brut:function(q){ return mltPgcd(q.P,q.Q)>1 ? {n:q.P, d:q.Q} : null; }},
-  /* {somme-produit-fractions} (4.6) : la fraction brute ne dépend que de
-     l'énoncé — le croisement est figé —, la chaîne est posée d'emblée. */
+  /* {somme-produit-fractions} (4.6) : comme pour la somme du 4.2, la fraction
+     brute dépend du dénominateur commun RETENU par l'élève (octobre 2026 : il
+     est libre). Sur des cases vides, la route est celle du croisement, qui
+     est aussi celle de la correction : 10/8 montre sa chaîne d'emblée, et
+     elle disparaît si l'élève passe par 4 (2/4 + 3/4 = 5/4). */
   spf:{host:'spfHost', pfx:'spf-e', src:['spf-x-rn','spf-x-rd'],
-       brut:function(q){ return gcd(q.N,q.D)>1 ? {n:q.N, d:q.D} : null; }}
+       brut:function(q){ const r=spfJuge(q); return r.se ? r.se.F : null; }}
 };
 /* Les étapes, à partir de la fraction brute F et des diviseurs écrits : une
    étape tant que la fraction se simplifie, et la chaîne s'arrête au premier
@@ -15940,9 +15943,12 @@ function mltCtxTexte(q){
      4.3 à 4.6 (RED_CFG, redMath, sfrRendu, sfrMonte — voir « la question
      rédigée, sous la question guidée »). Sa branche « spf » lit q.op : la
      soustraction s'y rédige comme la somme.
-   Les lecteurs pfLu/pfPaire/pfMult/pfVide et le juge pfCroixJuge sont ceux de
-   la Seconde, recopiés pour ce seul exercice : les autres exercices de la
-   famille (H, I, J, la triple somme) ne sont pas en Première. */
+   Les lecteurs pfLu/pfPaire/pfVide sont ceux de la Seconde, recopiés pour ce
+   seul exercice : les autres exercices de la famille (H, I, J, la triple
+   somme) ne sont pas en Première. Le juge pfCroixJuge, lui, s'en est écarté
+   en octobre 2026 : LE DÉNOMINATEUR COMMUN EST LIBRE (voir son en-tête), la
+   chaîne de simplification suit la route de l'élève, et pfMult — qui
+   exigeait le croisement — n'a plus d'emploi. */
 function pfLu(id){ const el=$(id); if(!el) return NaN;
   const v=String(el.value||'').trim(); return /^-?\d+$/.test(v)?parseInt(v,10):NaN; }
 function pfPaire(a,b,x,y){
@@ -15950,11 +15956,6 @@ function pfPaire(a,b,x,y){
   const promB = !isNaN(b) && (b===x || b===y);
   const accord = promA && promB && ((a===x && b===y) || (a===y && b===x));
   return [promA && (!promB || accord), promB && (!promA || accord)];
-}
-function pfMult(a,b,attendu){
-  if(!isNaN(a) && !isNaN(b)) return a===b && a===attendu;
-  const m = isNaN(a) ? b : a;
-  return !isNaN(m) && m===attendu;
 }
 function pfVide(ids){ return ids.some(function(id){ const el=$(id); return !el || String(el.value||'').trim()===''; }); }
 function pfFracJuge(fn,fd,P,Q){
@@ -15971,7 +15972,9 @@ function spfCol(cls, html){ return html.replace(/^<(span|b)\b([^>]*?)class="/, '
 function spfEq(){ return '<span class="f-eq spf-eq">=</span>'; }
 function spfOp(op){ return '<b class="spf-op">'+(op==='+'?'+':'−')+'</b>'; }
 /* Le bloc « croiser pour mettre au même dénominateur » : p/q op r/s, chaque
-   terme multiplié par le dénominateur de l'AUTRE (voir la Seconde). Trois
+   terme multiplié par le dénominateur de l'AUTRE (voir la Seconde) — ou par
+   ce qu'il faut pour un dénominateur commun plus petit, le juge accepte les
+   deux. Trois
    LIGNES de la grille : le croisement, la somme (ou la différence) sur le
    dénominateur commun, la fraction obtenue — le « = » en tête de chacune. */
 function pfCroixHTML(pref, p,q_,r,s, op, labRn){
@@ -15991,21 +15994,55 @@ function pfCroixHTML(pref, p,q_,r,s, op, labRn){
     +spfEq()+spfCol('spf-t1','<span class="f-frac-input">'+mf(pref+'-rn','f-num',labRn||'résultat')+'<span class="f-fbar"></span>'+mf(pref+'-rd','f-den','dénominateur du résultat')+'</span>');
 }
 function pfCroixCases(pref){ return [pref+'-a1',pref+'-b1',pref+'-a2',pref+'-b2',pref+'-n1',pref+'-n2',pref+'-d',pref+'-rn',pref+'-rd']; }
-/* estFinal : rn/rd acceptent toute fraction ÉGALE ; sinon ils exigent la
-   valeur EXACTE du croisement — c'est le cas ici quand elle se simplifie
-   (écart ③), la chaîne qui suit faisant le reste. */
-function pfCroixJuge(pref, p,q_,r,s, op, estFinal){
+/* LE DÉNOMINATEUR COMMUN EST LIBRE (demande de Turquet, octobre 2026 :
+   « accepter la méthode où l'élève met un dénominateur commun plus petit »).
+   La Seconde exigeait le croisement — 2 × 4 = 8 pour 1/2 + 5/4 —, et l'élève
+   qui écrivait 2/4 + 5/4, sur le plus petit multiple commun, voyait ses
+   quatre cases rougir. La règle est celle du 4.2 (sfJuge), au mot près :
+   · une PAIRE (×m en haut et en bas) se juge sur ce qu'elle PROMET — le
+     dénominateur qu'elle produit doit être un multiple de l'autre dénominateur
+     (2 × 2 = 4 est un multiple de 4, la paire tient ; 2 × 3 = 6 n'en est pas
+     un, elle ne mène nulle part) ; ×1 est une paire comme une autre ;
+   · l'ACCORD entre les deux paires n'est exigé que lorsque les deux mènent
+     quelque part : ×4 d'un côté (8) et ×1 de l'autre (4) ne se rejoignent pas,
+     et restent fausses toutes les deux ;
+   · le dénominateur ÉCRIT à l'étape ④ est juste s'il est un multiple des deux
+     et ne contredit pas une paire qui tient ; les numérateurs se jugent sur
+     la ROUTE de l'élève — le dénominateur écrit, sinon celui que les paires
+     annoncent, sinon le croisement, qui est aussi la voie de la correction ;
+   · la fraction obtenue (rn/rd) est la somme SUR CETTE ROUTE. Si elle se
+     simplifie et que la chaîne est en service (etapes), elle est exigée TELLE
+     QUELLE — c'est la chaîne qui simplifie, et F la lui donne — ; sinon toute
+     fraction égale est acceptée.
+   Le résultat rend la route (Dc, N1, N2, R) pour le message et la correction. */
+function pfCroixJuge(pref, p,q_,r,s, op, etapes){
   const a1=pfLu(pref+'-a1'), b1=pfLu(pref+'-b1'), a2=pfLu(pref+'-a2'), b2=pfLu(pref+'-b2');
-  const ok1=pfMult(a1,b1,s), ok2=pfMult(a2,b2,q_);
-  const N1=p*s, N2=r*q_, D=q_*s;
+  const mult=function(a,b){
+    if(!isNaN(a) && !isNaN(b)) return (a===b && a>=1) ? a : 0;  /* les deux écrites : elles doivent s'accorder */
+    const m = isNaN(a) ? b : a;                                 /* une seule écrite : c'est elle qui dit le multiplicateur */
+    if(isNaN(m)) return -1;                                     /* rien d'écrit : indéterminé, pas faux */
+    return (m>=1) ? m : 0;
+  };
+  const m1=mult(a1,b1), m2=mult(a2,b2);
+  const D1 = m1>0 ? q_*m1 : 0, D2 = m2>0 ? s*m2 : 0;
+  const memeD = m1>0 && m2>0 && D1===D2;
+  const prom1 = m1>0 && D1 % s === 0;
+  const prom2 = m2>0 && D2 % q_ === 0;
+  const ok1 = prom1 && (!prom2 || memeD);
+  const ok2 = prom2 && (!prom1 || memeD);
   const n1=pfLu(pref+'-n1'), n2=pfLu(pref+'-n2'), d=pfLu(pref+'-d');
-  const okN1=!isNaN(n1)&&n1===N1, okN2=!isNaN(n2)&&n2===N2, okD=!isNaN(d)&&d===D;
+  const okD = !isNaN(d) && d>0 && d%q_===0 && d%s===0 && (!ok1 || d===D1) && (!ok2 || d===D2);
+  const Dc = okD ? d : (ok1 ? D1 : (ok2 ? D2 : q_*s));
+  const N1=p*(Dc/q_), N2=r*(Dc/s);
+  const okN1=!isNaN(n1)&&n1===N1, okN2=!isNaN(n2)&&n2===N2;
   const R=(op==='+')?N1+N2:N1-N2;
+  const F = (etapes && R>0 && gcd(R,Dc)>1) ? {n:R, d:Dc} : null;
   const rn=pfLu(pref+'-rn'), rd=pfLu(pref+'-rd');
   let okRn,okRd;
-  if(estFinal){ const j=pfFracJuge(rn,rd,R,D); okRn=j[0]; okRd=j[1]; }
-  else { okRn=!isNaN(rn)&&rn===R; okRd=!isNaN(rd)&&rd===D; }
-  return {ok1:ok1,ok2:ok2,okN1:okN1,okN2:okN2,okD:okD,okRn:okRn,okRd:okRd,N1:N1,N2:N2,D:D,R:R,
+  if(F){ okRn=!isNaN(rn)&&rn===R; okRd=!isNaN(rd)&&rd===Dc; }
+  else { const j=pfFracJuge(rn,rd,R,Dc); okRn=j[0]; okRd=j[1]; }
+  return {ok1:ok1,ok2:ok2,okN1:okN1,okN2:okN2,okD:okD,okRn:okRn,okRd:okRd,N1:N1,N2:N2,D:Dc,Dc:Dc,R:R,F:F,
+    m1:Dc/q_, m2:Dc/s,
     tousOk: ok1&&ok2&&okN1&&okN2&&okD&&okRn&&okRd};
 }
 function pfCroixPeindre(pref, r, mode){
@@ -16023,14 +16060,17 @@ function pfCroixPeindre(pref, r, mode){
   col([pref+'-n1'],r.okN1); col([pref+'-n2'],r.okN2); col([pref+'-d'],r.okD);
   col([pref+'-rn'],r.okRn); col([pref+'-rd'],r.okRd);
 }
-function pfCroixCorrection(pref, p,q_,r,s, op, estFinal){
-  const N1=p*s, N2=r*q_, D=q_*s, R=(op==='+')?N1+N2:N1-N2;
-  corTrainDec(pref+'-a1',s); corTrainDec(pref+'-b1',s);
-  corTrainDec(pref+'-a2',q_); corTrainDec(pref+'-b2',q_);
-  corTrainDec(pref+'-n1',N1); corTrainDec(pref+'-n2',N2);
-  corTrainDec(pref+'-d',D);
-  if(estFinal) corTrainFrac(pref+'-rn',pref+'-rd',R,D);
-  else { corTrainDec(pref+'-rn',R); corTrainDec(pref+'-rd',D); }
+/* La correction en vert suit la ROUTE de l'élève (cx, rendu par le juge) :
+   sur des cases vides ou sans route cohérente, c'est le croisement. Une
+   correction qui écrirait ×4 à côté d'un ×2 juste dirait le contraire du
+   message posé dessous. */
+function pfCroixCorrection(pref, cx){
+  corTrainDec(pref+'-a1',cx.m1); corTrainDec(pref+'-b1',cx.m1);
+  corTrainDec(pref+'-a2',cx.m2); corTrainDec(pref+'-b2',cx.m2);
+  corTrainDec(pref+'-n1',cx.N1); corTrainDec(pref+'-n2',cx.N2);
+  corTrainDec(pref+'-d',cx.Dc);
+  if(cx.F){ corTrainDec(pref+'-rn',cx.R); corTrainDec(pref+'-rd',cx.Dc); }
+  else corTrainFrac(pref+'-rn',pref+'-rd',cx.R,cx.Dc);
 }
 
 /* La borne de la fraction intermédiaire du produit (écart ②). */
@@ -16069,8 +16109,6 @@ const SPF_NB=4;
    tirage reçoit le rang de chaque question : l'opération alterne d'une
    paire à l'autre, la guidée et sa rédigée posent la même (écart ⑥). */
 function spfBuildQuestions(){ return redPaires(SPF_NB, spfGen); }
-/* le résultat se simplifie-t-il ? — la chaîne du 4.1 ne naît que dans ce cas */
-function spfBrut(q){ return gcd(q.N,q.D)>1; }
 function spfTexte(q){ return q.a+'/'+q.b+' '+(q.op==='−'?'−':'+')+' '+q.c+'/'+q.d+' × '+q.e+'/'+q.f; }
 function spfCases(){
   const etapes=(test && test.etapes) ? seIds('spf') : [];
@@ -16095,7 +16133,7 @@ function renderSpfTest(){
   const t1=spfCol('spf-t1', sfTermeHTML(q.a,q.b));
   $('spfHost').innerHTML=
     '<div class="pt-step"><div class="pt-lab">① le produit d’abord&nbsp;: les numérateurs ensemble, les dénominateurs ensemble&nbsp;'
-     +'· ② le résultat du produit&nbsp;· ③ mettre au même dénominateur (le croisement)&nbsp;· ④ la '+(moins?'différence':'somme')+' sur ce dénominateur&nbsp;· ⑤ la fraction obtenue</div>'
+     +'· ② le résultat du produit&nbsp;· ③ mettre au même dénominateur (le croisement, ou un dénominateur commun plus petit)&nbsp;· ④ la '+(moins?'différence':'somme')+' sur ce dénominateur&nbsp;· ⑤ la fraction obtenue</div>'
      +'<div class="pt-row">'
        /* la ligne de l'énoncé, sans « = » : la colonne du signe reste vide */
        +t1+spfOp(q.op)+'<span class="spf-t2">'+sfTermeHTML(q.c,q.d)+fois+sfTermeHTML(q.e,q.f)+'</span>'
@@ -16124,9 +16162,10 @@ function spfJuge(q){
   const hh=pfPaire(h1,h2,q.c,q.e), bb=pfPaire(b1,b2,q.d,q.f);
   const pn=pfLu('spf-pn'), pd=pfLu('spf-pd');
   const okPn=!isNaN(pn)&&pn===q.P1, okPd=!isNaN(pd)&&pd===q.Q1;
-  const brut=!!(test && test.etapes) && spfBrut(q);
-  const cx=pfCroixJuge('spf-x', q.a,q.b,q.P1,q.Q1,q.op,!brut);
-  const se=(test && test.etapes) ? seJuge('spf', brut ? {n:q.N, d:q.D} : null) : null;
+  /* le croisement se juge sur la route de l'élève ; la fraction brute à
+     simplifier (cx.F) en découle, et la chaîne la suit */
+  const cx=pfCroixJuge('spf-x', q.a,q.b,q.P1,q.Q1,q.op,!!(test && test.etapes));
+  const se=(test && test.etapes) ? seJuge('spf', cx.F) : null;
   const vide=pfVide(spfCases());
   return {okH1:hh[0],okH2:hh[1],okB1:bb[0],okB2:bb[1],okPn:okPn,okPd:okPd,cx:cx,se:se,
     haut:hh[0]&&hh[1], bas:bb[0]&&bb[1], produit:okPn&&okPd, vide:vide};
@@ -16137,10 +16176,12 @@ function spfPourquoi(q,r){
   if(!r.haut) return 'En haut du produit, les deux numérateurs de la multiplication : '+q.c+' et '+q.e+'.';
   if(!r.bas) return 'En bas du produit, les deux dénominateurs de la multiplication : '+q.d+' et '+q.f+'.';
   if(!r.produit) return 'Il reste à calculer le produit : '+q.c+' × '+q.e+' = '+q.P1+' et '+q.d+' × '+q.f+' = '+q.Q1+'.';
-  if(!r.cx.ok1) return 'Pour mettre au même dénominateur, la première fraction se multiplie par le dénominateur de l’AUTRE, ici '+q.Q1+' — en haut ET en bas.';
-  if(!r.cx.ok2) return 'Pour mettre au même dénominateur, le produit se multiplie par le dénominateur de l’AUTRE, ici '+q.b+' — en haut ET en bas.';
-  if(!(r.cx.okN1&&r.cx.okN2&&r.cx.okD)) return 'Sur le dénominateur '+r.cx.D+', les numérateurs deviennent '+r.cx.N1+' et '+r.cx.N2+'.';
-  if(!(r.cx.okRn&&r.cx.okRd)) return 'Il reste à '+(moins?'soustraire':'additionner')+' : '+r.cx.N1+(moins?' − ':' + ')+r.cx.N2+' = '+q.N+', sur '+q.D+(r.se?', que tu simplifieras ensuite.':'.');
+  /* les nombres du message sont ceux de la ROUTE de l'élève (ou du
+     croisement, s'il n'en a pas choisi) : le dénominateur commun est libre */
+  if(!r.cx.ok1) return 'Pour mettre au même dénominateur, la première fraction se multiplie en haut ET en bas par le même nombre, qui doit mener à un dénominateur commun aux deux fractions : sur '+r.cx.Dc+', c’est × '+r.cx.m1+'.';
+  if(!r.cx.ok2) return 'Pour mettre au même dénominateur, le produit se multiplie en haut ET en bas par le même nombre, qui doit mener à un dénominateur commun aux deux fractions : sur '+r.cx.Dc+', c’est × '+r.cx.m2+'.';
+  if(!(r.cx.okN1&&r.cx.okN2&&r.cx.okD)) return 'Sur le dénominateur '+r.cx.Dc+', les numérateurs deviennent '+r.cx.N1+' et '+r.cx.N2+'.';
+  if(!(r.cx.okRn&&r.cx.okRd)) return 'Il reste à '+(moins?'soustraire':'additionner')+' : '+r.cx.N1+(moins?' − ':' + ')+r.cx.N2+' = '+r.cx.R+', sur '+r.cx.Dc+(r.se?', que tu simplifieras ensuite.':'.');
   if(r.se && !r.se.ok) return seMessage(r.se);
   return 'Relis chaque case.';
 }
@@ -16174,7 +16215,7 @@ function checkSpfAnswer(live){
     corTrainDec('spf-h1',q.c); corTrainDec('spf-h2',q.e);
     corTrainDec('spf-b1',q.d); corTrainDec('spf-b2',q.f);
     corTrainDec('spf-pn',q.P1); corTrainDec('spf-pd',q.Q1);
-    pfCroixCorrection('spf-x', q.a,q.b,q.P1,q.Q1,q.op,!r.se);
+    pfCroixCorrection('spf-x', r.cx);
     if(r.se){ r.se.cases.forEach(function(c){ corTrainDec(c.id,c.bon); }); seMiroirs('spf'); }
   }
   const donne=spfCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
@@ -16201,11 +16242,12 @@ async function startSpf(){
   show('spf'); renderSpfTest();
 }
 function ctxSpf(q){
-  const g=gcd(q.N,q.D), moins=(q.op==='−'), opm=moins?'−':'+';
+  const g=gcd(q.N,q.D), moins=(q.op==='−'), opm=moins?'−':'+', ppcm=q.b*q.Q1/gcd(q.b,q.Q1);
   const c='L’élève calcule '+q.a+'/'+q.b+' '+opm+' '+q.c+'/'+q.d+'×'+q.e+'/'+q.f+' en complétant des cases, dans l’ordre du cours : '
    +'le produit '+q.c+'/'+q.d+'×'+q.e+'/'+q.f+' d’ABORD (priorité des opérations), puis la mise au même dénominateur par le CROISEMENT '
-   +'(chaque terme multiplié par le dénominateur de l’autre), puis la '+(moins?'différence':'somme')+', puis la fraction obtenue. Les lignes du calcul sont écrites l’une sous l’autre, chacune commençant par « = ». '
-   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : le produit vaut '+q.P1+'/'+q.Q1+', la '+(moins?'différence':'somme')+' se met sur '+(q.b*q.Q1)+' et vaut '+q.N+'/'+q.D+'. '
+   +'(chaque terme multiplié par le dénominateur de l’autre) — ou sur n’importe quel autre dénominateur commun, par exemple le plus petit : l’élève choisit, et les deux méthodes sont acceptées —, puis la '+(moins?'différence':'somme')+', puis la fraction obtenue. Les lignes du calcul sont écrites l’une sous l’autre, chacune commençant par « = ». '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : le produit vaut '+q.P1+'/'+q.Q1+', la '+(moins?'différence':'somme')+' se met sur '+(q.b*q.Q1)+' et vaut '+q.N+'/'+q.D
+   +(ppcm!==q.b*q.Q1 ? ' (sur le plus petit dénominateur commun, '+ppcm+', elle vaut '+(moins ? q.a*(ppcm/q.b)-q.P1*(ppcm/q.Q1) : q.a*(ppcm/q.b)+q.P1*(ppcm/q.Q1))+'/'+ppcm+')' : '')+'. '
    +(g>1 ? 'Ce résultat se simplifie : l’élève le simplifie ensuite SUR LA MÊME LIGNE, en divisant le numérateur et le dénominateur par un même nombre de son choix (écrit en haut et en bas), une ou plusieurs fois, jusqu’à '+(q.N/g)+'/'+(q.D/g)+' — réponse STRICTEMENT SECRÈTE. ' : 'Le résultat ne se simplifie pas. ')
    +'L’ERREUR VISÉE est celle de l’élève qui '+(moins?'soustrait '+q.c+'/'+q.d+' de '+q.a+'/'+q.b:'additionne '+q.a+'/'+q.b+' et '+q.c+'/'+q.d)+' AVANT de multiplier par '+q.e+'/'+q.f+', en oubliant la priorité des opérations.'
    +(moins ? ' La différence est positive : le tirage y veille.' : '');
@@ -22339,6 +22381,7 @@ const RAP_SPF=`<b>Priorités des opérations, avec des fractions</b><br>
 <b>Dans une somme, la multiplication se calcule TOUJOURS avant l’addition</b> — même sans parenthèses autour d’elle. C’est la même règle qu’avec des nombres seuls : \\(2+3\\times 4\\) fait 14, pas 20.<br>
 <b>① On calcule d’abord le produit</b>, comme dans {multiplier-fractions} : \\(\\frac{1}{2}\\times\\frac{3}{2}=\\frac{1\\times 3}{2\\times 2}=\\frac{3}{4}\\)<br>
 <b>② Il ne reste plus qu’une somme</b>, qu’on met au même dénominateur en CROISANT, comme dans {croiser-denominateurs} : \\(\\frac{1}{2}+\\frac{3}{4}=\\frac{1\\times 4}{2\\times 4}+\\frac{3\\times 2}{4\\times 2}=\\frac{4}{8}+\\frac{6}{8}\\)<br>
+<b>On peut aussi choisir un dénominateur commun plus petit</b>, quand il en existe un : 4 est déjà un multiple de 2, donc \\(\\frac{1}{2}+\\frac{3}{4}=\\frac{1\\times 2}{2\\times 2}+\\frac{3\\times 1}{4\\times 1}=\\frac{2}{4}+\\frac{3}{4}=\\frac{5}{4}\\). Tout multiple commun des deux dénominateurs convient — le plus petit évite d’avoir à simplifier à la fin.<br>
 <b>③ On additionne les numérateurs</b> sur ce dénominateur commun : \\(\\frac{4+6}{8}=\\frac{10}{8}\\)<br>
 <b>④ On simplifie si c’est possible</b> : 2 divise 10 et 8, donc \\(\\frac{10}{8}=\\frac{10\\div 2}{8\\div 2}=\\frac{5}{4}\\). Si la fraction obtenue se simplifie encore, on recommence.<br>
 <b>Avec une soustraction, même chemin</b> : le produit d’abord, puis on SOUSTRAIT les numérateurs sur le dénominateur commun : \\(\\frac{3}{2}-\\frac{1}{2}\\times\\frac{3}{2}=\\frac{3}{2}-\\frac{3}{4}=\\frac{6}{4}-\\frac{3}{4}=\\frac{3}{4}\\). Dans cet exercice, la différence est toujours positive.<br>
