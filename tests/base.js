@@ -196,7 +196,7 @@ bilan('sans 002, la protection ne tient PAS (c\'est ce qui justifie 002)',
   !!sans002.erreur,
   'le banc des rôles est passé alors que les politiques ouvertes sont encore là');
 bilan('et c\'est bien la liste ouverte qui le fait rougir, pas une fonction absente',
-  /ÉCHEC : il ne voit PLUS la liste des prénoms \(3\)/.test(String(sans002.erreur || '')),
+  /ÉCHEC : il ne voit PLUS la liste des prénoms \(4\)/.test(String(sans002.erreur || '')),
   (String(sans002.erreur || '').match(/ÉCHEC : .*|ERROR: .*/) || ['aucune ligne ÉCHEC'])[0]);
 
 /* On repart d'une base neuve : le banc des rôles vient d'y écrire. */
@@ -316,10 +316,39 @@ bilan('rejouer 008 ne fait plus rien', !r8.erreur, r8.erreur);
    definer — c'est une ligne rouge qui doit le dire, pas un banc qui s'arrête
    net sur « psql a échoué ». Les contrôles qui suivent mesurent alors sur
    l'état réellement laissé par la migration. */
+/* Un témoin dans chaque table AVANT la migration : son contrôle final ne se
+   contente pas de lire l'attribut security definer, il prend le rôle anon et
+   demande un prénom présent — sur une table vide il ne mesurerait rien, et
+   le dirait. Les témoins sont retirés ensuite : le banc des rôles compte ses
+   élèves. */
+psql('banc', ['-c', `insert into public.eleves (prenom, cle) values ('Témoin', 'cle-temoin-t');
+  insert into public.eleves_1ere (prenom, cle) values ('Témoin', 'cle-temoin-1');
+  insert into public.eleves_2nde (prenom, cle) values ('Témoin', 'cle-temoin-2');`]);
 const r9a = psql('banc', ['-f', MIG9], true);
 bilan('009 s\'applique, et son contrôle final ne trouve rien à redire',
   !r9a.erreur, String(r9a.erreur || '').split('\n').filter(l => /ERROR|ERREUR/.test(l)).join(' '));
 const s9 = String(r9a.erreur || r9a);
+bilan('009 mesure son effet en tant que visiteur, sur les trois tables',
+  (s9.match(/un visiteur obtient bien la clé de « Témoin »/g) || []).length === 3,
+  (s9.match(/un visiteur obtient bien la clé de/g) || []).length + ' table(s) mesurée(s) sur 3 — ' + (s9.match(/effet non mesuré[^\n]*/g) || []).join(' ; '));
+/* Le cas que l'attribut seul ne voit pas (relecture d'octobre 2026) : une
+   fonction SECURITY DEFINER dont le PROPRIÉTAIRE ne traverse pas la RLS rend
+   zéro ligne à tout le monde, sans erreur — « Prénom inconnu » pour la classe.
+   Sur Supabase l'éditeur tourne en postgres, propriétaire des tables ; on ne
+   le suppose pas, on exige que la migration le MESURE et refuse cet état. */
+psql('banc', ['-c', `create role proprio_sans_rls nologin;
+  grant select on public.eleves, public.eleves_1ere, public.eleves_2nde to proprio_sans_rls;
+  grant execute on function public.normaliser_prenom(text) to proprio_sans_rls;
+  alter function public.cles_de_connexion(text, text) owner to proprio_sans_rls;`]);
+const r9p = psql('banc', ['-f', MIG9], true);
+bilan('009 refuse une fonction dont le propriétaire ne traverse pas la RLS — mesuré, pas lu sur l\'attribut',
+  !!r9p.erreur && /ne rend rien à un visiteur pour un prénom pourtant présent/.test(String(r9p.erreur)),
+  r9p.erreur ? (String(r9p.erreur).match(/ERROR: [^\n]*/) || [''])[0] : '009 est passée au vert sur une fonction qui ne rend rien à personne');
+psql('banc', ['-c', `alter function public.cles_de_connexion(text, text) owner to postgres;
+  drop owned by proprio_sans_rls; drop role proprio_sans_rls;
+  delete from public.eleves where cle = 'cle-temoin-t';
+  delete from public.eleves_1ere where cle = 'cle-temoin-1';
+  delete from public.eleves_2nde where cle = 'cle-temoin-2';`]);
 bilan('009 ferme la liste sur les trois tables d\'élèves',
   (s9.match(/: connexion sans liste/g) || []).length === 3,
   (s9.match(/: connexion sans liste/g) || []).length + ' table(s) sur 3');
@@ -350,6 +379,53 @@ bilan('et le visiteur a le droit de l\'appeler : c\'est tout ce qu\'il lui reste
 const r9 = psql('banc', ['-f', MIG9], true);
 bilan('rejouer 009 ne fait plus rien', !r9.erreur,
   String(r9.erreur || '').split('\n').filter(l => /ERROR|ERREUR/.test(l)).join(' '));
+bilan('009 demande à PostgREST de recharger son cache de schéma',
+  /notify\s+pgrst\s*,\s*'reload schema'/.test(fs.readFileSync(MIG9, 'utf8')),
+  'aucun « notify pgrst, \'reload schema\' » : tant que le cache n’est pas rechargé, la page se replie sur une liste fermée');
+
+/* LA RÈGLE DE NORMALISATION DU PRÉNOM EST LA MÊME DANS LA PAGE ET DANS LA BASE.
+   La page (normaliserPrenom, par NFD) sert au repli d'avant la migration et à
+   la création de compte ; la base (normaliser_prenom, par translate) sert à
+   la fonction de connexion. Si elles divergent, un prénom passe d'un côté et
+   pas de l'autre — « seyma » pour Şeyma entrait avant la 009 et lisait
+   « Prénom inconnu » après (relecture d'octobre 2026, 11 divergences sur
+   31 prénoms avec la première table « à la française »). On RELIT donc les
+   fonctions des trois pages et du double de Supabase, on les exécute dans
+   Node sur les mêmes sondes que la base, et on exige l'égalité, sonde par
+   sonde. Les sondes portent ce qui a divergé : lettres hors du français,
+   tabulation, insécable, espaces doubles — et au moins une doit changer sous
+   la règle, sinon le contrôle ne mesure rien. */
+{
+  const SONDES = ['Chloé', 'CHLOÉ  ', '  alice ', 'Léa   Marie', 'Ayşe', 'Nataša', 'Tomáš', 'Ștefan', 'Ağça',
+    'Nguyễn', 'Cătălin', 'Šárka', 'Zoë', 'Anaïs', 'Ângela', 'Łukasz', 'Øyvind', 'Jean-Pierre', 'Alice\t',
+    'Alice\u00a0', 'Noël', 'Ærø', 'İsmail', '\u202fZoé\u3000', 'Maël', 'Jean  Baptiste'];
+  const lireFonction = (fichier, motif, enTete) => {
+    const src = fs.readFileSync(path.join(RACINE, fichier), 'utf8');
+    const m = src.match(motif);
+    if(!m) return null;
+    try{ return new Function('s', 'return (' + enTete(m[0]) + ')(s);'); }catch(e){ return null; }
+  };
+  const fonctions = {
+    'secondes.html':            lireFonction('secondes.html',            /function normaliserPrenom\(s\)\{[^\n]*\}/, f => f),
+    'premiere-specifique.html': lireFonction('premiere-specifique.html', /function normaliserPrenom\(s\)\{[^\n]*\}/, f => f),
+    'terminale.html':           lireFonction('terminale.html',           /function normaliserPrenom\(s\)\{[^\n]*\}/, f => f),
+    'tests/faux-supabase.js':   lireFonction('tests/faux-supabase.js',
+      /const normaliser = s => [\s\S]*?replace\(\/\\s\+\/g, ' '\);/, f => f.replace(/^const normaliser = /, '').replace(/;$/, '')),
+  };
+  const enBase = SONDES.map(p => psql('banc', ['-tAc', "select '[' || public.normaliser_prenom($s$" + p + "$s$) || ']'"]).replace(/\n$/, ''));
+  const changeantes = SONDES.filter((p, i) => enBase[i] !== '[' + p + ']').length;
+  bilan('les sondes de normalisation changent vraiment sous la règle (' + changeantes + '/' + SONDES.length + ')',
+    changeantes >= SONDES.length / 2, 'un jeu de sondes que la règle ne touche pas ne mesure rien');
+  Object.keys(fonctions).forEach(fichier => {
+    const fn = fonctions[fichier];
+    if(!fn){ bilan(fichier + ' normalise le prénom comme la base', false, 'normaliserPrenom introuvable ou inexécutable dans ' + fichier); return; }
+    const ecarts = SONDES.map((p, i) => {
+      let v; try{ v = '[' + fn(p) + ']'; }catch(e){ v = 'erreur : ' + e.message; }
+      return v === enBase[i] ? null : JSON.stringify(p) + ' → page ' + v + ', base ' + enBase[i];
+    }).filter(Boolean);
+    bilan(fichier + ' normalise le prénom comme la base', ecarts.length === 0, ecarts.slice(0, 3).join(' ; '));
+  });
+}
 
 /* ---------------------------------------------------------------------------
    2. Ce que chaque rôle peut réellement faire
@@ -435,6 +511,25 @@ const MUTATIONS = [
   ['la fonction de connexion perd SECURITY DEFINER',
    ['alter function public.cles_de_connexion(text, text) security invoker']],
 ];
+/* LA CAUSE ATTENDUE DE CHAQUE ROUGE. « Le banc a rougi » ne suffit pas :
+   sans la 009 dans la boucle ci-dessous, huit mutations restaient « détectées »
+   pour une fonction absente — un banc vert sur huit détections qui ne
+   mesuraient rien (relecture d'octobre 2026). Chaque mutation nomme donc la
+   ligne ÉCHEC qu'elle doit produire, et une erreur « does not exist » n'est
+   jamais une détection. Une mutation sans cause attendue rougit d'elle-même. */
+const CAUSES = {
+  'la RLS n’a pas pris sur une table (migration à moitié appliquée)': /ÉCHEC : il ne voit aucune note \(2\)/,
+  'la politique d’écriture ne vérifie plus à qui appartient la note': /ÉCHEC : elle ne peut pas noter à la place de Bob/,
+  'la liste des élèves redevient lisible en écriture par n’importe qui': /ÉCHEC : elle ne peut pas supprimer un camarade/,
+  'une seule politique grande ouverte oubliée annule tout le reste': /ÉCHEC : il ne voit aucune note \(2\)/,
+  'les signalements deviennent lisibles par toute la classe': /ÉCHEC : elle relit SES signalements, et eux seuls \(3\)/,
+  /* la lecture rendue au seul professeur cache d'abord ses PROPRES signalements à l'élève : c'est ce contrôle-là qui rougit le premier */
+  'la réponse du professeur redevient invisible à son destinataire': /ÉCHEC : elle relit SES signalements, et eux seuls \(0\)/,
+  'l’élève reçoit le droit de réécrire sa ligne de signalement': /ÉCHEC : elle ne peut écrire aucune réponse, pas même sur sa ligne/,
+  /* 4 et non 3 : le banc des rôles sème une ligne sans clé à côté des trois élèves, le temps de la section du visiteur */
+  'la liste des élèves redevient lisible sans connexion': /ÉCHEC : il ne voit PLUS la liste des prénoms \(4\)/,
+  'la fonction de connexion perd SECURITY DEFINER': /ÉCHEC : il obtient la clé d’un prénom qu’il connaît, et elle seule \(∅\)|ÉCHEC : il obtient la clé d'un prénom qu'il connaît, et elle seule \(∅\)/,
+};
 MUTATIONS.forEach(([nom, sqls], i) => {
   const bd = 'mut' + i;
   monter(bd);
@@ -450,7 +545,16 @@ MUTATIONS.forEach(([nom, sqls], i) => {
   psql(bd, ['-f', MIG9]);
   sqls.forEach(q => psql(bd, ['-c', q]));
   const r = psql(bd, ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
-  bilan('détectée : ' + nom, !!r.erreur, r.erreur ? '' : 'le banc est resté vert alors que la base est ouverte');
+  const attendu = CAUSES[nom];
+  const texte = String(r.erreur || '');
+  const ligne = (texte.match(/ÉCHEC : [^\n]*|ERROR: [^\n]*/) || [''])[0];
+  bilan('détectée : ' + nom,
+    !!attendu && !!r.erreur && attendu.test(texte) && !/does not exist|n'existe pas/.test(texte),
+    !attendu ? 'aucune cause attendue n’est écrite pour cette mutation : elle ne mesure rien'
+      : !r.erreur ? 'le banc est resté vert alors que la base est ouverte'
+      : /does not exist|n'existe pas/.test(texte) ? 'rougit pour une mauvaise cause : ' + ligne
+      : !attendu.test(texte) ? 'rougit, mais pas là où la mutation frappe : ' + ligne
+      : '');
   psql('postgres', ['-c', 'drop database if exists ' + bd]);
 });
 

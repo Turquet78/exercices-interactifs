@@ -6,9 +6,13 @@
 --  ⚠️  ELLE SE JOUE APRÈS LA MISE EN LIGNE, PAS AVANT — l'inverse des 003,
 --      007 et 008, et pour une raison qui ne se devine pas.
 --
---  La version qui la connaît est : Seconde v480, Première v316, Terminale
---  v384. Attendez de LIRE ces numéros dans l'en-tête des trois pages en ligne,
---  puis collez ce fichier. Dans l'autre ordre, la connexion de TOUT LE MONDE
+--  LE REPÈRE À LIRE est l'écran de connexion lui-même : la page qui connaît
+--  cette migration demande de TAPER son prénom (un champ « Ton prénom », puis
+--  le code). Tant que vous voyez des PASTILLES de prénoms à cliquer, sur l'une
+--  des trois pages, NE JOUEZ PAS ce fichier. Les numéros qui l'ont apportée —
+--  Seconde v483, Première v317, Terminale v384 — valent « ce numéro ou plus »,
+--  et un numéro recopié peut se tromper (c'est arrivé avant même la mise en
+--  ligne) : c'est le champ qu'on regarde. Dans l'autre ordre, la connexion de TOUT LE MONDE
 --  est coupée : l'ancienne page demande la liste des prénoms avant toute
 --  authentification (select sur eleves… en tant que visiteur), et cette
 --  migration ferme précisément cette lecture — l'écran afficherait « Aucun
@@ -65,6 +69,26 @@
 --  relier-comptes.sql, la fonction Edge admin-eleve : ils traversent la RLS,
 --  qu'une politique soit là ou non.
 --
+--  Et elle laisse un RÉSIDU, nommé plutôt que caché : un visiteur peut
+--  demander si « Léa » a un compte dans une classe, et obtenir ses clés —
+--  cinq au plus par appel (limit 5 : au-delà, les homonymes suivants ne
+--  sortent pas, et ne peuvent pas se connecter par cet écran), sans autre
+--  cadence que celle de PostgREST. C'est un oracle d'existence par prénom :
+--  bien moins que la liste entière d'avant, mais pas « rien ». Le code, lui,
+--  reste le seul secret, vérifié par Supabase seul, sous sa limitation de
+--  cadence. Un durcissement possible, NON FAIT ici : « revoke select on
+--  public.eleves, public.eleves_1ere, public.eleves_2nde from anon » — la
+--  fonction, SECURITY DEFINER, n'en a pas besoin, et une politique anon
+--  recréée un jour dans la console ne rouvrirait plus rien.
+--
+--  LE CACHE DE SCHÉMA DE POSTGREST. Le fichier se termine par
+--  « notify pgrst, 'reload schema' » : Supabase recharge normalement ce cache
+--  de lui-même après un CREATE FUNCTION, mais pas à la seconde. Tant qu'il
+--  n'est pas rechargé, la page reçoit PGRST202, se replie sur une liste que
+--  ce fichier vient de fermer, et répond « Prénom inconnu » à tout le monde.
+--  Si c'est ce que vous voyez dans la minute qui suit : attendez, ne rejouez
+--  rien.
+--
 --  ELLE EST IDEMPOTENTE : la rejouer ne casse rien et ne duplique rien.
 --  Un niveau dont la table est absente est SIGNALÉ et sauté, jamais deviné.
 -- ============================================================================
@@ -72,12 +96,23 @@
 -- ---------------------------------------------------------------------------
 -- 1. Le prénom normalisé — la MÊME règle que normaliserPrenom() dans la page
 -- ---------------------------------------------------------------------------
--- lower() d'abord, puis le retrait des accents. Les majuscules accentuées
--- figurent AUSSI dans la table de translate : sous une locale « C », lower()
--- laisse « É » tel quel, et « CHLOÉ » ne retrouverait pas « Chloé ». Sous une
--- locale complète (celle de Supabase) ces entrées sont inertes ; sous l'autre,
--- elles rattrapent ce que lower() a laissé. Une règle qui dépend de la locale
--- n'est pas une règle.
+-- La page normalise par NFD : chaque lettre précomposée est décomposée, les
+-- signes combinants retirés, puis minuscules, blancs rognés et réduits. Une
+-- liste d'accents « à la française » n'est PAS cette règle : ş, š, č, ğ, ă,
+-- ễ passaient d'un côté et pas de l'autre, et une élève qui tape « seyma »
+-- pour « Şeyma » entrait avant la migration (repli, filtré par la page) et
+-- lisait « Prénom inconnu » après. La table de translate ci-dessous est donc
+-- GÉNÉRÉE depuis NFD (blocs Latin-1, Latin étendu A et B, Latin étendu
+-- additionnel : chaque lettre qui se décompose en une lettre ASCII plus des
+-- combinants, majuscules et minuscules — 488 entrées), et ce qui ne se
+-- décompose pas (ł, ø, æ, ß, đ…) reste tel quel des deux côtés. translate()
+-- vient AVANT lower() : « İ » se traduit en « i » avant que lower() n'en
+-- fasse un « i » suivi d'un point combinant. Les blancs sont ceux que \s et
+-- trim() voient en JavaScript, insécable compris ; on réduit d'abord, on
+-- rogne ensuite. Le banc de la base (tests/base.js, 1 sexies) relit les
+-- fonctions de la page et du double et exige le même résultat sur les
+-- mêmes sondes : la règle « les deux doivent rester équivalentes » a un
+-- contrôle, elle n'est plus une promesse.
 create or replace function public.normaliser_prenom(p text)
 returns text
 language sql
@@ -85,10 +120,13 @@ immutable
 strict
 set search_path = public, pg_temp
 as $$
-  select translate(
-           regexp_replace(lower(btrim(p)), '\s+', ' ', 'g'),
-           'àáâäãåèéêëìíîïòóôöõùúûüýÿçñÀÁÂÄÃÅÈÉÊËÌÍÎÏÒÓÔÖÕÙÚÛÜÝŸÇÑ',
-           'aaaaaaeeeeiiiiooooouuuuyycnaaaaaaeeeeiiiiooooouuuuyycn')
+  select btrim(
+           regexp_replace(
+             lower(translate(p,
+               'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöùúûüýÿĀāĂăĄąĆćĈĉĊċČčĎďĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĨĩĪīĬĭĮįİĴĵĶķĹĺĻļĽľŃńŅņŇňŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžƠơƯưǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǞǟǠǡǦǧǨǩǪǫǬǭǰǴǵǸǹǺǻȀȁȂȃȄȅȆȇȈȉȊȋȌȍȎȏȐȑȒȓȔȕȖȗȘșȚțȞȟȦȧȨȩȪȫȬȭȮȯȰȱȲȳḀḁḂḃḄḅḆḇḈḉḊḋḌḍḎḏḐḑḒḓḔḕḖḗḘḙḚḛḜḝḞḟḠḡḢḣḤḥḦḧḨḩḪḫḬḭḮḯḰḱḲḳḴḵḶḷḸḹḺḻḼḽḾḿṀṁṂṃṄṅṆṇṈṉṊṋṌṍṎṏṐṑṒṓṔṕṖṗṘṙṚṛṜṝṞṟṠṡṢṣṤṥṦṧṨṩṪṫṬṭṮṯṰṱṲṳṴṵṶṷṸṹṺṻṼṽṾṿẀẁẂẃẄẅẆẇẈẉẊẋẌẍẎẏẐẑẒẓẔẕẖẗẘẙẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹ',
+               'aaaaaaceeeeiiiinooooouuuuyaaaaaaceeeeiiiinooooouuuuyyaaaaaaccccccccddeeeeeeeeeegggggggghhiiiiiiiiijjkkllllllnnnnnnoooooorrrrrrssssssssttttuuuuuuuuuuuuwwyyyzzzzzzoouuaaiioouuuuuuuuuuaaaaggkkoooojggnnaaaaaaeeeeiiiioooorrrruuuusstthhaaeeooooooooyyaabbbbbbccddddddddddeeeeeeeeeeffgghhhhhhhhhhiiiikkkkkkllllllllmmmmmmnnnnnnnnoooooooopppprrrrrrrrssssssssssttttttttuuuuuuuuuuvvvvwwwwwwwwwwxxxxyyzzzzzzhtwyaaaaaaaaaaaaaaaaaaaaaaaaeeeeeeeeeeeeeeeeiiiioooooooooooooooooooooooouuuuuuuuuuuuuuyyyyyyyy')),
+             '[\s\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+', ' ', 'g'),
+           ' ')
 $$;
 
 revoke all on function public.normaliser_prenom(text) from public;
@@ -130,9 +168,12 @@ begin
 
   -- « limit 5 » : deux homonymes dans une classe, c'est courant ; cinq, c'est
   -- déjà le signe d'autre chose. La page essaie le code sur chaque clé rendue.
+  -- Jamais une clé VIDE : une ligne sans clé (créée à la main, jamais reliée)
+  -- rendrait un « null » que la page transformerait en adresse « null@… ».
   return query execute format(
     'select e.cle from public.%I e
       where public.normaliser_prenom(e.prenom) = $1
+        and e.cle is not null
       order by e.cle
       limit 5', t)
     using p;
@@ -185,6 +226,7 @@ declare
   n int;
   definer bool;
   chemin text[];
+  temoin text;
 begin
   -- 1. Plus aucune politique de LECTURE d'une table d'élèves ne nomme anon —
   --    ni « public », qui le contient. « for all » compte comme une lecture :
@@ -238,6 +280,38 @@ begin
     raise exception 'anon ne peut pas exécuter public.cles_de_connexion : la connexion serait impossible';
   end if;
 
+  -- 5. Et elle RÉPOND au visiteur : l'attribut ne suffit pas, l'effet se
+  --    mesure. SECURITY DEFINER ne traverse la RLS que si le PROPRIÉTAIRE de
+  --    la fonction la traverse (propriétaire des tables, ou bypassrls) — sur
+  --    un projet Supabase l'éditeur SQL tourne en « postgres », propriétaire
+  --    des tables créées depuis le tableau de bord, mais on ne le suppose
+  --    pas : on prend le rôle anon, on demande un prénom présent, et il faut
+  --    une clé. Une table vide se DÉCLARE ; un rôle qu'on ne peut pas prendre
+  --    aussi — ni l'un ni l'autre ne passe au vert en silence.
+  foreach el in array array['eleves', 'eleves_1ere', 'eleves_2nde'] loop
+    if to_regclass('public.' || el) is null then continue; end if;
+    execute format('select prenom from public.%I where cle is not null order by prenom limit 1', el) into temoin;
+    if temoin is null then
+      raise notice '  % : vide, effet non mesuré', el;
+      continue;
+    end if;
+    n := null;
+    begin
+      set local role anon;
+      select count(*) into n from public.cles_de_connexion(
+        case el when 'eleves' then 'terminale' when 'eleves_1ere' then 'premiere' else 'secondes' end, temoin);
+      reset role;
+    exception when insufficient_privilege then
+      reset role;
+      raise notice '  % : impossible de prendre le rôle anon ici, effet non mesuré', el;
+      continue;
+    end;
+    if n = 0 then
+      raise exception '% : la fonction ne rend rien à un visiteur pour un prénom pourtant présent (« % ») — le propriétaire de la fonction traverse-t-il la RLS ?', el, temoin;
+    end if;
+    raise notice '  % : un visiteur obtient bien la clé de « % »', el, temoin;
+  end loop;
+
   raise notice 'La liste des prénoms ne se lit plus sans connexion ; cles_de_connexion répond au visiteur, et elle seule.';
 end $$;
 
@@ -259,3 +333,13 @@ begin
       array_to_string(p.roles::text[], '+');
   end loop;
 end $$;
+
+-- ---------------------------------------------------------------------------
+--  LE CACHE DE SCHÉMA DE POSTGREST
+-- ---------------------------------------------------------------------------
+--  Une fonction qui vient d'être créée n'est appelable par rpc qu'une fois le
+--  cache de schéma rechargé. Supabase s'en charge de lui-même (un déclencheur
+--  d'événement envoie ce même signal après chaque DDL), mais pas à la
+--  seconde ; sans auditeur — sur le PostgreSQL du banc — la ligne ne fait
+--  rien, et elle est idempotente.
+notify pgrst, 'reload schema';

@@ -95,10 +95,16 @@ end $$;
 -- 1. UN VISITEUR NON CONNECTÉ (rôle anon)
 -- ==========================================================================
 do $$
-declare n int; ok bool; cles text; ret text; alice uuid;
+declare n int; n2 int; ok bool; cles text; ret text; alice uuid;
 begin
   raise notice '';
   raise notice '1. VISITEUR NON CONNECTÉ';
+  -- Une ligne SANS clé — un élève créé à la main dans l'éditeur de table, ou
+  -- jamais relié — porte le même prénom qu'Alice : la fonction ne doit pas la
+  -- rendre (un « null » que la page changerait en adresse « null@… »). Posée
+  -- en superutilisateur, retirée à la fin de cette section pour ne pas
+  -- changer les comptes des sections suivantes.
+  insert into public.eleves_2nde (prenom, cle, user_id) values ('Alice', null, null);
   -- L'identifiant d'Alice se lit AVANT de devenir visiteur. Depuis la 009, le
   -- visiteur ne lit plus la table des élèves : un « insert … select » qui
   -- passe par elle ne trouve aucune ligne, n'insère rien — et n'est refusé par
@@ -122,6 +128,10 @@ begin
     from public.cles_de_connexion('secondes', 'Alice') c;
   perform pg_temp.exige('il obtient la clé d''un prénom qu''il connaît, et elle seule (' || cles || ')',
                         cles = 'cle-alice');
+  -- string_agg ignore les null : on COMPTE, sinon une clé vide passerait.
+  select count(*), count(c) into n, n2 from public.cles_de_connexion('secondes', 'Alice') c;
+  perform pg_temp.exige('la fonction ne rend jamais une clé vide (' || n || ' clé(s), ' || (n - n2) || ' vide(s))',
+                        n = 1 and n2 = 1);
 
   -- Les accents, la casse et les espaces ne font pas un autre prénom : un
   -- élève qui tape « chloe » sur un clavier sans accent est Chloé — et
@@ -189,6 +199,7 @@ begin
   perform pg_temp.exige('il ne peut pas supprimer un élève', ok);
 
   reset role;
+  delete from public.eleves_2nde where prenom = 'Alice' and cle is null;
 end $$;
 
 -- ==========================================================================

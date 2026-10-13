@@ -37,6 +37,11 @@ window.__faux = {
      des prénoms — le repli qui tient la connexion tant que la 009 n'est pas
      jouée, et qui ne doit se prendre sur AUCUNE autre erreur. */
   sansRpc: false,
+  /* Poser window.__faux.cadence = true fait répondre 429 à toute connexion :
+     la limitation de cadence de Supabase, le seul rempart devant les codes à
+     six chiffres — une classe entière derrière l'adresse de l'établissement
+     la rencontre. Ce n'est PAS un code faux, et la page ne doit pas le dire. */
+  cadence: false,
   suivant: 1,
   /* Les comptes tiennent le rôle de auth.users : c'est là que vivent les codes
      depuis qu'ils ont quitté la table des élèves. Le double les compare
@@ -221,6 +226,10 @@ window.supabase = {
          permet d'exiger qu'il ait eu lieu AVANT toute lecture de la table. */
       rpc(nom, args){
         F.journal.push({ op: 'rpc', table: nom, args: Object.assign({}, args || {}) });
+        /* « panne » : la fonction existe mais échoue — droit retiré, exception,
+           search_path cassé — c'est-à-dire TOUTE erreur autre que PGRST202,
+           celle sur laquelle la page ne doit PAS se replier */
+        if(F.panne) return Promise.resolve({ data: null, error: { code: 'XX000', message: 'panne simulée' } });
         if(F.sansRpc || nom !== 'cles_de_connexion'){
           return Promise.resolve({ data: null, error: { code: 'PGRST202',
             message: 'Could not find the function public.' + nom + ' in the schema cache' } });
@@ -243,10 +252,18 @@ window.supabase = {
         signInWithPassword(id){
           const courriel = id && id.email, mdp = id && id.password;
           const c = F.comptes[courriel];
+          if(F.cadence){
+            F.journal.push({ op: 'signIn', table: 'auth', courriel: courriel, ok: false, cadence: true });
+            return Promise.resolve({ data: { user: null, session: null },
+                                     error: { status: 429, code: 'over_request_rate_limit', message: 'Request rate limit reached' } });
+          }
           const ok = !!c && c.motDePasse === String(mdp);
           F.journal.push({ op: 'signIn', table: 'auth', courriel: courriel, ok: ok });
+          /* le refus d'un code porte le statut 400 et le code d'erreur de
+             GoTrue, comme chez Supabase : c'est à cela que la page reconnaît
+             un code faux d'une panne */
           if(!ok) return Promise.resolve({ data: { user: null, session: null },
-                                           error: { message: 'Invalid login credentials' } });
+                                           error: { status: 400, code: 'invalid_credentials', message: 'Invalid login credentials' } });
           F.poserSession({ user: { id: c.userId, email: courriel,
                                    app_metadata: c.app_metadata || {} } });
           return Promise.resolve({ data: { user: F.session.user, session: F.session }, error: null });

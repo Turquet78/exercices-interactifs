@@ -934,7 +934,7 @@ function structure(){
     const fCr = (s.match(/^async function creerCompte\(\)\{[\s\S]*?\n\}/m) || [''])[0];
     const fCles = (s.match(/^async function clesDuPrenom\([^)]*\)\{[\s\S]*?\n\}/m) || [''])[0];
     const appelRpc = /sb\.rpc\(\s*'cles_de_connexion'\s*,\s*\{\s*niveau\s*:\s*NIVEAU\b/.test(fCles);
-    const iGarde = fCles.search(/if\(\s*error\.code\s*!==\s*'PGRST202'\s*\)\s*return\b/);
+    const iGarde = fCles.search(/if\(\s*error\.code\s*!==\s*'PGRST202'\s*\)\s*\{[\s\S]*?return\s*\{data:null,error\};\s*\}/);
     const iRepli = fCles.search(/sb\.from\('[^']+'\)\.select\('cle,prenom'\)/);
     const defaut =
         /id="nameChips"/.test(s) ? 'la liste des prénoms (#nameChips) est encore dans la page'
@@ -952,6 +952,32 @@ function structure(){
       : !/\bclesDuPrenom\(/.test(fCr) ? 'creerCompte() ne vérifie pas le prénom par clesDuPrenom() : un second « Léa » écrit « lea » passerait'
       : '';
     verifier('l’écran de connexion n’affiche plus de liste de prénoms', defaut === '', defaut);
+  }
+
+  /* LES NUMÉROS DE VERSION QUE LA MIGRATION 009 ET SA NOTICE CITENT NE
+     DÉPASSENT PAS CELUI DE LA PAGE. L'instruction d'ordre (« la page d'abord
+     en ligne, la migration ensuite ») est la seule chose qu'aucun banc ne
+     voit sur le projet réel, et elle s'appuyait sur trois numéros recopiés —
+     qui se sont trompés avant même la mise en ligne, main ayant avancé
+     (relecture d'octobre 2026). Le repère premier est désormais l'écran
+     lui-même (le champ « Ton prénom ») ; les numéros valent « ce numéro ou
+     plus », et un numéro cité PLUS GRAND que la page serait un numéro mort :
+     Turquet attendrait une version qui n'arrivera jamais. */
+  {
+    const NIVEAU_DE = { 'secondes.html': 'Seconde', 'premiere-specifique.html': 'Première', 'terminale.html': 'Terminale' }[CIBLE];
+    const version = parseInt((s.match(/const APP_VERSION\s*=\s*(\d+)/) || [])[1], 10);
+    const lire = f => { try{ return fs.readFileSync(path.join(__dirname, '..', f), 'utf8'); }catch(e){ return ''; } };
+    const defauts = [];
+    ['supabase/migrations/009_connexion_sans_liste.sql', 'supabase/LISEZMOI.md'].forEach(f => {
+      const t = lire(f);
+      const m = t.match(new RegExp(NIVEAU_DE + '\\s+v(\\d+)'));
+      if(!t) defauts.push(f + ' illisible');
+      else if(!m) defauts.push(f + ' ne cite aucun numéro pour la ' + NIVEAU_DE);
+      else if(parseInt(m[1], 10) > version) defauts.push(f + ' cite ' + NIVEAU_DE + ' v' + m[1] + ' alors que la page est en v' + version);
+    });
+    verifier('les numéros de version cités par la migration 009 et sa notice ne dépassent pas celui de la page',
+      !!version && !!NIVEAU_DE && defauts.length === 0,
+      !version ? 'APP_VERSION introuvable' : !NIVEAU_DE ? 'niveau inconnu pour ' + CIBLE : defauts.join(' ; '));
   }
 
   /* L'ÉLÈVE DOIT ÊTRE PRÉVENU DE NOTER SON CODE, AUX DEUX ENDROITS où il s'en
@@ -1296,6 +1322,7 @@ function demarrage(suite){
    verdict au milieu de la section suivante. */
 function connexionParPrenom(w, suite){
   const INTITULE = 'la connexion par prénom ouvre l’espace sans lire la table avant le signIn';
+  const INTITULE_REPLI = 'et sans la fonction SQL, le repli reconnaît le prénom tapé sans accent (jsdom)';
   let faux = '';
   try{ faux = fs.readFileSync(path.join(__dirname, 'faux-supabase.js'), 'utf8'); }catch(e){}
   const prep = faux ? evaluer(w, faux) : { ok:false, erreur:'tests/faux-supabase.js illisible' };
@@ -1318,16 +1345,44 @@ function connexionParPrenom(w, suite){
       const rpc=avant.filter(function(e){ return e.op==='rpc'&&e.table==='cles_de_connexion'; }).length;
       const ecran=((document.querySelector('.screen.on')||{}).id)||'(aucun)';
       const prenomVu=currentEleve&&currentEleve.prenom;
-      if(i<0) return 'aucune connexion tentée : le contrôle n\\'a rien mesuré';
-      if(lectures.length) return lectures.length+' lecture(s) de '+table+' avant la connexion : '+lectures.join(', ');
-      if(!rpc) return 'aucun appel rpc cles_de_connexion avant la connexion';
-      if(!j[i].ok) return 'le serveur a refusé le code semé : rien d\\'autre n\\'est mesurable';
-      if(ecran!=='scr-space') return 'écran atteint : '+ecran;
-      if(prenomVu!=='Contrôle') return 'currentEleve ne porte pas la ligne relue : '+JSON.stringify(prenomVu);
-      return '';
+      const direct=
+        i<0 ? 'aucune connexion tentée : le contrôle n\\'a rien mesuré'
+        : lectures.length ? lectures.length+' lecture(s) de '+table+' avant la connexion : '+lectures.join(', ')
+        : !rpc ? 'aucun appel rpc cles_de_connexion avant la connexion'
+        : !j[i].ok ? 'le serveur a refusé le code semé : rien d\\'autre n\\'est mesurable'
+        : ecran!=='scr-space' ? 'écran atteint : '+ecran
+        : prenomVu!=='Contrôle' ? 'currentEleve ne porte pas la ligne relue : '+JSON.stringify(prenomVu)
+        : '';
+      /* SECOND PASSAGE : la base d'AVANT la migration (PGRST202 à tout rpc).
+         Le prénom est tapé sans accent ni minuscule : dans le repli, c'est la
+         normalisation de la PAGE qui filtre la liste, et c'est elle qu'on
+         éprouve — tapé exact, une page qui ne normaliserait plus passerait. */
+      currentEleve=null; show('login'); preparerConnexion();
+      F.sansRpc=true;
+      let repli;
+      try{
+        document.getElementById('loginPrenom').value='CONTROLE';
+        document.getElementById('loginPin').value='123456';
+        await connexionEleve();
+        await new Promise(function(r){ setTimeout(r,0); });
+        const apres=j.slice(i+1), i2=apres.findIndex(function(e){ return e.op==='signIn'; });
+        const avant2=i2<0?apres:apres.slice(0,i2);
+        const liste2=avant2.filter(function(e){ return e.op==='select'&&e.table===table&&e.colonnes==='cle,prenom'; }).length;
+        const rpc2=avant2.filter(function(e){ return e.op==='rpc'&&e.table==='cles_de_connexion'; }).length;
+        const ecran2=((document.querySelector('.screen.on')||{}).id)||'(aucun)';
+        repli=
+          !rpc2 ? 'la fonction SQL n\\'a pas été demandée : le repli n\\'est pas mesuré'
+          : !liste2 ? 'aucune lecture select(cle,prenom) : la page ne se replie pas (écran : '+ecran2+')'
+          : i2<0 ? 'le repli a lu la liste mais n\\'a tenté aucune connexion : « CONTROLE » n\\'y a pas été reconnu'
+          : ecran2!=='scr-space' ? 'écran atteint : '+ecran2
+          : '';
+      } finally { F.sansRpc=false; }
+      return JSON.stringify({direct:direct, repli:repli});
     } finally { sb=sbSauve; currentEleve=eleveSauve; show('login'); }
   })()`, r => {
-    verifier(INTITULE, r.ok && r.valeur === '', r.ok ? r.valeur : 'erreur JavaScript : ' + r.erreur);
+    let v = null; try{ v = r.ok ? JSON.parse(r.valeur) : null; }catch(e){ v = null; }
+    verifier(INTITULE, !!v && v.direct === '', v ? v.direct : 'erreur JavaScript : ' + (r.erreur || r.valeur));
+    verifier(INTITULE_REPLI, !!v && v.repli === '', v ? v.repli : 'erreur JavaScript : ' + (r.erreur || r.valeur));
     suite();
   });
 }

@@ -1913,7 +1913,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
       <form id="modeCo" onsubmit="return false" autocomplete="off">
         <div class="field">
           <label class="lab" for="loginPrenom">Ton prénom</label>
-          <input class="text-input" id="loginPrenom" maxlength="24" placeholder="Ex. : Léa" autocomplete="off" autocapitalize="words" enterkeyhint="next">
+          <input class="text-input" id="loginPrenom" maxlength="24" placeholder="Ex. : Léa" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="words" enterkeyhint="next">
         </div>
         <div id="pinRow">
           <label class="lab" for="loginPin">Ton code à 6 chiffres</label>
@@ -3705,7 +3705,10 @@ function navCasesListe(){
       if(t!=='text' && t!=='number') return;
     }
     let a=el, cache=false;
-    while(a && a!==scr){ if(a.style && a.style.display==='none'){ cache=true; break; } a=a.parentElement; }
+    /* masqué par style.display OU par l'attribut hidden : le formulaire
+       « Créer mon compte » de l'écran de connexion est caché par hidden, et
+       Entrée dans le prénom ne doit pas y envoyer le focus */
+    while(a && a!==scr){ if((a.style && a.style.display==='none') || a.hidden){ cache=true; break; } a=a.parentElement; }
     if(!cache) out.push(el);
   });
   return out;
@@ -5517,7 +5520,13 @@ async function clesDuPrenom(prenom){
   if(!voulu) return {data:[],error:null};
   const {data,error}=await sb.rpc('cles_de_connexion',{niveau:NIVEAU,prenom});
   if(!error) return {data:(data||[]).map(String),error:null};
-  if(error.code!=='PGRST202') return {data:null,error};
+  if(error.code!=='PGRST202'){
+    /* Toute autre erreur remonte — et s'écrit en console : une fonction en
+       panne (droit retiré, search_path cassé) doit se lire sans ouvrir
+       l'onglet Réseau. */
+    try{ console.warn('cles_de_connexion :', error.code, error.message); }catch(e){}
+    return {data:null,error};
+  }
   const {data:liste,error:errListe}=await sb.from('eleves').select('cle,prenom');
   if(errListe) return {data:null,error:errListe};
   return {data:(liste||[]).filter(e=>normaliserPrenom(e.prenom)===voulu).map(e=>String(e.cle)).sort().slice(0,5),error:null};
@@ -5538,7 +5547,17 @@ async function connexionEleve(){
      l'ordre, et c'est le code qui départage. */
   for(const cle of cles){
     const {error:errCo}=await sb.auth.signInWithPassword({email:courrielDe(cle),password:motDePasseDe(pin)});
-    if(errCo) continue;
+    if(errCo){
+      /* Seul un CODE REFUSÉ passe à la clé suivante. Une limitation de cadence
+         (429 — une classe entière derrière l'adresse de l'établissement), une
+         coupure réseau, un compte non confirmé ne sont pas un code faux :
+         dire « Code incorrect », vider la case et faire retaper aggraverait
+         la cadence. On s'arrête, on le dit, et le code reste dans sa case. */
+      const refus=errCo.status===400||errCo.code==='invalid_credentials'||/invalid login credentials/i.test(errCo.message||'');
+      if(refus) continue;
+      try{ console.warn('connexion :', errCo.status, errCo.code, errCo.message); }catch(e){}
+      toast('Connexion impossible — réessaie dans une minute','err'); return;
+    }
     /* Connecté : on relit SA ligne. La table n'est lisible qu'une fois
        connecté, et c'est cette ligne qui porte l'identifiant sous lequel ses
        notes s'enregistrent. Un compte sans ligne — un élève retiré de la table

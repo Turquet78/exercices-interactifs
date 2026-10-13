@@ -519,14 +519,22 @@ et le brouillon de pause épargnés, l'idempotence et le retour arrière.
 Collez **`migrations/009_connexion_sans_liste.sql`** dans l'éditeur SQL et
 exécutez-le. **Collez le fichier ENTIER.**
 
-**À jouer APRÈS la mise en ligne de la version qui la connaît — Seconde v480,
-Première v316, Terminale v384 —, et pas avant.** C'est l'inverse des 003, 007
-et 008, et la raison ne se devine pas : l'ancien écran de connexion demandait
-la **liste des prénoms** avant toute authentification, et cette migration ferme
-précisément cette lecture. Jouée trop tôt, elle coupe la connexion de **tout le
-monde** — l'ancienne page afficherait « Aucun compte pour l'instant » à une
-classe entière. Attendez de **lire ces numéros** dans l'en-tête des trois pages
-en ligne, puis collez.
+**À jouer APRÈS la mise en ligne de la version qui la connaît, et pas
+avant.** C'est l'inverse des 003, 007 et 008, et la raison ne se devine pas :
+l'ancien écran de connexion demandait la **liste des prénoms** avant toute
+authentification, et cette migration ferme précisément cette lecture. Jouée
+trop tôt, elle coupe la connexion de **tout le monde** — l'ancienne page
+afficherait « Aucun compte pour l'instant » à une classe entière.
+
+**Le repère à lire est l'écran de connexion lui-même**, sur les trois pages en
+ligne : la page qui connaît cette migration demande de **taper son prénom**
+(un champ « Ton prénom », puis le code). Tant que vous voyez des **pastilles de
+prénoms** à cliquer sur l'une des trois pages, ne collez pas ce fichier. Les
+numéros qui l'ont apportée — Seconde v483, Première v317, Terminale v384 —
+valent « ce numéro ou plus » ; un numéro recopié peut se tromper (c'est arrivé
+avant même la mise en ligne), le champ, non. GitHub Pages peut servir
+l'ancienne page quelques minutes encore après la fusion : si vous voyez le
+champ, attendez dix minutes de plus avant de coller.
 
 Dans le bon ordre, il n'y a aucun risque : tant que la migration n'est pas
 jouée, la nouvelle page **se replie d'elle-même** sur l'ancienne liste
@@ -584,16 +592,43 @@ possible plus tard, **nommée ici comme non faite**.
 `relier-comptes.sql`, la fonction Edge `admin-eleve` : ils traversent la RLS,
 qu'une politique soit là ou non.
 
+**Il reste un résidu, nommé plutôt que caché.** Un visiteur peut demander si
+« Léa » a un compte dans une classe et obtenir ses clés — cinq au plus par
+appel ; au-delà de cinq homonymes, les suivants ne sortent pas et ne peuvent
+pas se connecter par cet écran. C'est un oracle d'existence par prénom : bien
+moins que la liste entière d'avant, mais pas rien. Le code reste le seul
+secret, vérifié par Supabase seul, sous sa limitation de cadence. Un
+durcissement possible, **non fait** : `revoke select on public.eleves,
+public.eleves_1ere, public.eleves_2nde from anon` — la fonction n'en a pas
+besoin, et une politique `anon` recréée un jour dans la console ne rouvrirait
+plus rien.
+
+**Si l'écran répond « Prénom inconnu » à tout le monde dans la minute qui
+suit**, c'est le cache de schéma de PostgREST, qui ne connaît pas encore la
+fonction : le fichier lui demande de se recharger (`notify pgrst`), Supabase
+le fait aussi de lui-même, mais pas à la seconde. Attendez, ne rejouez rien.
+
 ### Ce que le banc voit
 
 Celle-ci est du SQL ordinaire : `npm run test:base` la rejoue en entier, puis
 met le banc dans la peau d'un **visiteur** : il ne voit plus la liste, il
-obtient la clé d'un prénom qu'il connaît **et elle seule**, « CHLOE » et
-« CHLOÉ » retrouvent Chloé, un prénom inconnu ou vide ne rend rien, un niveau
-inconnu est refusé, et la fonction ne rend que des `text`. Le professeur, lui,
-voit encore sa liste. Le banc éprouve aussi les deux retours en arrière les
-plus tentants : remettre `anon` sur la politique de la liste, et retirer
-`security definer` à la fonction — chacun **doit** le faire rougir.
+obtient la clé d'un prénom qu'il connaît **et elle seule**, jamais une clé
+vide, « CHLOE » et « CHLOÉ » retrouvent Chloé, un prénom inconnu ou vide ne
+rend rien, un niveau inconnu est refusé, et la fonction ne rend que des
+`text`. Le professeur, lui, voit encore sa liste. Le banc relit aussi la
+fonction de normalisation des trois pages et l'exécute sur les mêmes sondes
+que la base — « Ayşe », « Nguyễn », une tabulation, un insécable — et exige le
+même résultat : la page et la base **doivent** reconnaître les mêmes prénoms.
+Il éprouve enfin les deux retours en arrière les plus tentants : remettre
+`anon` sur la politique de la liste, et retirer `security definer` à la
+fonction — chacun **doit** le faire rougir, et **pour la bonne cause** : la
+ligne d'échec attendue est écrite pour chaque mutation.
+
+Le fichier lui-même se termine par une mesure, pas une affirmation : il prend
+le rôle `anon`, demande un prénom présent dans chaque table, et **échoue** si
+la fonction ne rend rien — c'est le seul contrôle qui tourne sur le projet
+réel. Une table vide, ou un rôle qu'il ne peut pas prendre, se déclare dans
+sa sortie au lieu de passer au vert.
 
 ## 4. Vous déclarer professeur (1 min)
 
@@ -707,7 +742,7 @@ la page lui demande d'en choisir un **avant de le laisser entrer**. Pas un
 bouton qu'il pourrait ignorer : une demande qui barre l'entrée. S'il renonce,
 la session se referme et il revient à l'accueil.
 
-**Une fois son code choisi, il est renvoyé à l'écran des prénoms** et doit se
+**Une fois son code choisi, il est renvoyé à l'écran de connexion** et doit se
 reconnecter avec. C'est voulu : il vérifie ainsi tout de suite qu'il l'a bien
 retenu, au lieu de s'en apercevoir le lendemain, seul devant son écran. La
 session est réellement refermée avant le renvoi — sans quoi l'élève suivant sur

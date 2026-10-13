@@ -622,7 +622,7 @@ async function parcours(page, N){
       await s.page.waitForTimeout(500);
       return ecranVisible(s.page);
     };
-    const sortir = async () => { await s.page.evaluate(() => logout()); await s.page.waitForTimeout(300); };
+    const sortir = async () => { await s.page.evaluate(() => logout()); await s.page.waitForTimeout(400); };
     const sansAccents = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
     /* un prénom que personne ne porte : aucune tentative, et un message qui le dit */
@@ -645,7 +645,7 @@ async function parcours(page, N){
       enMajuscules !== PRENOM_CONTROLE && apresMajuscules === 'scr-space',
       enMajuscules === PRENOM_CONTROLE ? 'le prénom de contrôle n\'a ni accent ni minuscule : le contrôle ne mesure rien'
         : 'écran atteint avec « ' + enMajuscules + ' » : ' + apresMajuscules);
-    if(apresMajuscules === 'scr-space') await sortir();
+    await sortir();
 
     /* la base d'AVANT la migration 009 : la fonction n'existe pas (PGRST202),
        et la page se replie sur l'ancienne liste — select('cle,prenom') sur la
@@ -657,15 +657,61 @@ async function parcours(page, N){
       listes: window.__faux.operations('select', t).filter(e => e.colonnes === 'cle,prenom').length,
     }), P.tableEleves);
     const repliAvant = await compterRepli();
-    const apresRepli = await entrer(PRENOM_CONTROLE, CODE_CONTROLE);
+    /* tapé SANS accent ni minuscule : dans le repli, c'est la normalisation de
+       la PAGE qui filtre la liste — tapé exact, une page qui ne normaliserait
+       plus passerait ce contrôle sans peine (relecture d'octobre 2026) */
+    const apresRepli = await entrer(enMajuscules, CODE_CONTROLE);
     const repliApres = await compterRepli();
     await s.page.evaluate(() => { window.__faux.sansRpc = false; });
-    verifier('sans la fonction SQL, la page se replie sur l\'ancienne liste — tant que la 009 n\'est pas jouée',
+    verifier('sans la fonction SQL, la page se replie sur l\'ancienne liste et y reconnaît le prénom sans accent — tant que la 009 n\'est pas jouée',
       repliApres.rpc > repliAvant.rpc && repliApres.listes > repliAvant.listes && apresRepli === 'scr-space',
       repliApres.rpc === repliAvant.rpc ? 'la fonction SQL n\'a même pas été demandée : le contrôle ne mesure pas le repli'
         : repliApres.listes === repliAvant.listes ? 'aucune lecture select(\'cle,prenom\') de ' + P.tableEleves + ' : la page ne se replie pas (écran atteint : ' + apresRepli + ')'
         : 'écran atteint : ' + apresRepli);
-    if(apresRepli === 'scr-space') await sortir();
+    await sortir();
+
+    /* une PANNE de la fonction SQL — toute erreur autre que PGRST202 — ne se
+       replie pas sur la liste, ne tente aucune connexion, et le dit. C'est le
+       second bord du repli, EXÉCUTÉ : le contrôle de source du banc principal
+       lit que la garde précède le repli, celui-ci regarde ce que fait la page. */
+    await s.page.evaluate(() => { window.__faux.panne = true; });
+    await viderToast();
+    const panneAvant = await compterRepli();
+    const signInAvantPanne = await nbSignIn();
+    let apresPanne, toastPanne, panneApres, signInApresPanne;
+    try{
+      apresPanne = await entrer(PRENOM_CONTROLE, CODE_CONTROLE);
+      toastPanne = await lireToast(); panneApres = await compterRepli(); signInApresPanne = await nbSignIn();
+    } finally { await s.page.evaluate(() => { window.__faux.panne = false; }); }
+    verifier('une panne de la fonction SQL n\'ouvre ni le repli ni une connexion, et le dit',
+      apresPanne === 'scr-login' && panneApres.listes === panneAvant.listes && signInApresPanne === signInAvantPanne
+        && !!toastPanne && /Connexion impossible/.test(toastPanne.texte),
+      apresPanne !== 'scr-login' ? 'écran atteint : ' + apresPanne
+        : panneApres.listes !== panneAvant.listes ? 'la page s\'est repliée sur la liste pour une erreur qui n\'est pas PGRST202'
+        : signInApresPanne !== signInAvantPanne ? 'une connexion a été tentée malgré la panne'
+        : 'message : ' + JSON.stringify(toastPanne));
+    await sortir();
+
+    /* une erreur de CADENCE (429 — une classe entière derrière une seule
+       adresse) n'est pas un code faux : la page s'arrête à la première, le
+       dit, et laisse le code dans sa case au lieu de le faire retaper */
+    await s.page.evaluate(() => { window.__faux.cadence = true; });
+    await viderToast();
+    const signInAvantCadence = await nbSignIn();
+    let apresCadence, toastCadence, codeRestant, signInApresCadence;
+    try{
+      apresCadence = await entrer(PRENOM_CONTROLE, CODE_CONTROLE);
+      toastCadence = await lireToast(); signInApresCadence = await nbSignIn();
+      codeRestant = await s.page.evaluate(() => document.getElementById('loginPin').value);
+    } finally { await s.page.evaluate(() => { window.__faux.cadence = false; }); }
+    verifier('une erreur de cadence n\'est pas un code faux : la page le dit et garde le code',
+      apresCadence === 'scr-login' && signInApresCadence === signInAvantCadence + 1 && codeRestant === CODE_CONTROLE
+        && !!toastCadence && /réessaie dans une minute/.test(toastCadence.texte),
+      apresCadence !== 'scr-login' ? 'écran atteint : ' + apresCadence
+        : signInApresCadence !== signInAvantCadence + 1 ? (signInApresCadence - signInAvantCadence) + ' tentative(s) au lieu d\'une'
+        : codeRestant !== CODE_CONTROLE ? 'le code a été effacé (« ' + codeRestant + ' »)'
+        : 'message : ' + JSON.stringify(toastCadence));
+    await sortir();
 
     /* la création de compte est la seule porte avant connexion, et elle ignore
        l'accent : un second « Contrôle » écrit « controle » est refusé, sans
@@ -686,10 +732,12 @@ async function parcours(page, N){
       inscriptions ? inscriptions + ' inscription(s) : un second compte a été créé sous le même prénom'
         : apresDeja !== 'scr-login' ? 'écran atteint : ' + apresDeja
         : 'message : ' + JSON.stringify(toastDeja));
-    /* retour au mode « Se connecter » ; si le second compte a été créé malgré
-       tout, l'espace s'est ouvert et c'est logout() qui ramène à la connexion
-       — un clic sur un bouton caché attendrait trente secondes pour rien */
-    if(apresDeja === 'scr-login') await s.page.click('#segCo'); else await sortir();
+    /* retour à l'écran de connexion en mode « Se connecter », de N'IMPORTE
+       QUEL écran : logout() → accueil() → preparerConnexion() y ramène, que le
+       second compte ait été refusé ou — le sabotage — créé. Un retour qui
+       dépendrait de l'écran lu 500 ms plus tôt a déjà fait avorter tout le
+       banc sur un clic de trente secondes vers un bouton caché. */
+    await sortir();
 
     /* On repart d'une page neuve : le double se resème au chargement. */
     await s.page.reload({ waitUntil: 'domcontentloaded' });
