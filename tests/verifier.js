@@ -17029,7 +17029,8 @@ function additionnerRelatifs(w, P){
     if(!th || !/Calcul littéral/i.test(th.nom) || th.ids.indexOf('additionner-relatifs')<0)
       vus.push('l\\'exercice n\\'est pas dans un thème 7 « Calcul littéral »');
     if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('numéro '+TEST_NUM['additionner-relatifs']+' au lieu de 7.1');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    /* les sept premiers thèmes gardent leurs numéros ; un thème ajouté EN DERNIER (le 8, Vecteurs, octobre 2026) ne renumérote rien et ne rougit pas ici */
+    if(THEMES.map(function(t){ return t.num; }).join(',').indexOf('1,2,3,4,5,6,7')!==0) vus.push('les thèmes ont changé de numéros');
     if(TABLES_SANS.indexOf('additionner-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
 
     /* ---- 1. le tirage ---------------------------------------------------- */
@@ -17314,7 +17315,8 @@ function reduireSomme(w, P){
       vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
     if(TEST_NUM['reduire-somme']!=='7.5') vus.push('numéro '+TEST_NUM['reduire-somme']+' au lieu de 7.5');
     if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2' || TEST_NUM['multiplier-relatifs']!=='7.3' || TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['simplifier-barres']!=='5.1') vus.push('l\\'exercice ajouté a renuméroté les autres');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    /* les sept premiers thèmes gardent leurs numéros ; un thème ajouté EN DERNIER (le 8, Vecteurs, octobre 2026) ne renumérote rien et ne rougit pas ici */
+    if(THEMES.map(function(t){ return t.num; }).join(',').indexOf('1,2,3,4,5,6,7')!==0) vus.push('les thèmes ont changé de numéros');
     if(TABLES_SANS.indexOf('reduire-somme')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
     if(document.querySelectorAll('#modeTagRed').length!==1) vus.push('le badge du mode du 7.5 n\\'est pas le sien');
 
@@ -17460,7 +17462,8 @@ function soustraireRelatifs(w, P){
     if(!th || !/Calcul litt/i.test(th.nom) || th.ids.indexOf('soustraire-relatifs')<0)
       vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
     if(TEST_NUM['soustraire-relatifs']!=='7.7') vus.push('numéro '+TEST_NUM['soustraire-relatifs']+' au lieu de 7.7');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    /* les sept premiers thèmes gardent leurs numéros ; un thème ajouté EN DERNIER (le 8, Vecteurs, octobre 2026) ne renumérote rien et ne rougit pas ici */
+    if(THEMES.map(function(t){ return t.num; }).join(',').indexOf('1,2,3,4,5,6,7')!==0) vus.push('les thèmes ont changé de numéros');
     if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2' || TEST_NUM['multiplier-relatifs']!=='7.3' || TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['reduire-somme']!=='7.5' || TEST_NUM['associer-expressions']!=='7.6') vus.push('un exercice de 7.1 à 7.6 a bougé');
     if(TABLES_SANS.indexOf('soustraire-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
 
@@ -17569,7 +17572,8 @@ function tableauProportions(w, P){
       vus.push('l\\'exercice n\\'est pas la partie 6 du thème 4 « Pourcentages »');
     if(TEST_NUM['tableau-proportions']!=='4.6.1') vus.push('numéro '+TEST_NUM['tableau-proportions']+' au lieu de 4.6.1');
     if(TEST_NUM['synthese-pourcentages']!=='4.5.1' || TEST_NUM['evolutions-successives']!=='4.5.5' || TEST_NUM['fraction-pourcentage']!=='4.1.1') vus.push('un exercice du thème 4 a changé de numéro');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    /* les sept premiers thèmes gardent leurs numéros ; un thème ajouté EN DERNIER (le 8, Vecteurs, octobre 2026) ne renumérote rien et ne rougit pas ici */
+    if(THEMES.map(function(t){ return t.num; }).join(',').indexOf('1,2,3,4,5,6,7')!==0) vus.push('les thèmes ont changé de numéros');
     if(TABLES_SANS.indexOf('tableau-proportions')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
 
     /* ---- 1. le tirage ---------------------------------------------------- */
