@@ -226,6 +226,12 @@ module.exports = {
        proposer les simplifications comme au 4.1 »). FRAC_MAX dans la page,
        ici la borne : deux sources. */
     fractionsEtapes: { max: 5, exercices: ['croiser-denominateurs', 'somme-fractions-2', 'multiplier-fractions', 'diviser-fractions'] },
+    /* Les cases RÉDUITES du thème 4 (demande de Turquet, octobre 2026 : le 4.6
+       d'abord, puis « 4.3 ; 4.4 ; 4.5 »). Le témoin partage l'écran et le
+       moteur du 4.3 et garde ses cases pleines : le banc navigateur mesure les
+       deux bords (« 6 terdecies ter »). */
+    casesReduites: { temoin: 'croiser-denominateurs',
+                     exercices: ['somme-fractions-2', 'multiplier-fractions', 'diviser-fractions', 'somme-produit-fractions'] },
     /* {multiplier-fractions} et {diviser-fractions} (4.4, 4.5) : le moteur de
        la Seconde, nombres de 1 à 5, produit qui se SIMPLIFIE par étapes, sans
        la version rédigée. */
