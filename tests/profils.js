@@ -711,6 +711,14 @@ module.exports = {
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements_2nde', exercice: 'pourcentage' },
 
+    /* Les dessins des exercices (le thème Python, le bilan des ensembles)
+       vivent en FICHIERS dans dessins/secondes/ — plus jamais en base64 dans
+       la page (décision de Turquet, octobre 2026 : 770 Ko sur 4,9 Mo).
+       Déclaré pour le bord opposé des deux bancs : un niveau qui déclare des
+       dessins doit en offrir au banc ; sans la clé, les contrôles s'affichent
+       « non applicable » plutôt que d'être tus. */
+    dessins: { dossier: 'dessins/secondes' },
+
     /* Le schéma des évolutions ({synthese-evolutions}, 4.5.4) : quand
        l'inconnue est le pourcentage, la flèche « −1 » se tient au milieu du
        trait de la grande flèche, entre la case du haut et celle du bas. jsdom
