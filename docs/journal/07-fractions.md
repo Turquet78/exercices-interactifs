@@ -1474,7 +1474,7 @@ vrai démarreur, puis 1/2 + 1/2 × 3/2 = 10/8 = 5/4 tapé par de vrais
 évènements « input ».
 
 **Puis le 4.3 de la Première a reçu sa question RÉDIGÉE, sur la même page
-(octobre 2026, Première v309, Seconde v470).** Demande de Turquet : « en
+(octobre 2026, Première v309, Seconde v471).** Demande de Turquet : « en
 première dans le 4.3 ; après avoir fait une question, poser sur la même page
 une nouvelle question avec les mêmes critères mais où il faut rédiger la
 solution comme dans l'exercice 5.5 en seconde ; on mettra un "=" derrière le
