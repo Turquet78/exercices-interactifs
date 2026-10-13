@@ -1431,3 +1431,47 @@ navigateur (« 6 terdecies bis ») TAPE la chaîne au clavier dans les vraies
 cases MathLive — 1/2 + 1/4 par 8, 2/3 × 3/5 — et exige la note et aucune
 case rouge ; « 6 terdecies » (les flèches qui se croisent) court maintenant
 sur les deux niveaux.
+
+**Puis le 4.3 de la Première a reçu sa question RÉDIGÉE, sur la même page
+(octobre 2026, Première v308, Seconde v468).** Demande de Turquet : « en
+première dans le 4.3 ; après avoir fait une question, poser sur la même page
+une nouvelle question avec les mêmes critères mais où il faut rédiger la
+solution comme dans l'exercice 5.5 en seconde ; on mettra un "=" derrière le
+calcul proposé dans la case de la rédaction. »
+
+* **Les questions vont par PAIRES dans `test.questions`** (`sfrBuildQuestions`) :
+  une guidée, puis une rédigée (`q.redac`), toutes deux tirées par `sfGen`
+  avec la borne `FRAC_MAX` et la même opération — « les mêmes critères » —,
+  toutes distinctes ; l'opération alterne d'une paire à l'autre. Chacune vaut
+  un point et porte sa réponse : la note, la pause, la reprise et la coupe
+  d'un devoir suivent la liste sans rien savoir des paires. La séance passe
+  de 6 à 12 questions.
+* **La rédigée s'ouvre SOUS la guidée** : deux lignes gardées du moteur sf
+  (`test.redac && typeof sfrMonte/sfrRendu === 'function'`), écrites dans les
+  deux fichiers pour que le moteur reste identique au caractère près — lettre
+  morte en Seconde, comme les flèches du croisement. `sfrMonte` est appelée
+  par `checkSFAnswer` une fois la guidée notée, à la place de « Question
+  suivante » ; `sfrRendu`, en tête de `renderSFTest`, vide la zone sur une
+  guidée et, à la reprise d'une pause posée sur une rédigée, ne montre que la
+  rédaction (la guidée qui la précédait est déjà notée).
+* **La feuille** est `mlFeuille` ; sa première ligne porte la somme SUIVIE
+  DE « = » (`test.sfrDepart`), modifiable ; une copie où rien n'a été ajouté
+  n'est pas lue.
+* **Le juge** est celui du 5.5, `libreJuge` et ses voisines, RECOPIÉ sans
+  retouche, genre « sfl » : étape du même dénominateur exigée, résultat
+  irréductible, aucune égalité fausse ; le modèle ne rédige que le
+  commentaire. Le résultat du 4.3 est irréductible sur le plus petit
+  dénominateur commun : seul un dénominateur plus grand oblige à simplifier.
+* **La réponse rédigée ne passe pas par `ptsExo()`** : l'écran porte encore
+  les cases peintes de la guidée, qui ne sont pas cette réponse-là. Une
+  rédaction vaut tout ou rien.
+* Son énoncé (`#sfrPrompt`) se déclare `enonce-suite` : c'est le second
+  énoncé du même écran.
+
+Contrôles : le contrôle du tirage du thème (`tests/verifier.js`, ①) lit
+désormais aussi les questions rédigées — mêmes bornes, mêmes
+irréductibilités, sans rien déclarer ; le banc navigateur (« 6 terdecies
+bis ») vérifie que la zone s'ouvre sous la guidée restée affichée, que la
+feuille commence par la somme suivie de « = », qu'une copie juste
+(1/2 + 1/3 = 3/6 + 2/6 = 5/6) vaut le point, et que la zone disparaît à la
+guidée suivante.

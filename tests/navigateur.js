@@ -6626,6 +6626,42 @@ async function parcours(page, N){
           if(!r.juste) dits.push('somme : 1/2 + 1/4 = 4/8 + 2/8 = 6/8 = 3/4, tapé au clavier, est compté faux');
           if(r.rouges.length) dits.push('somme : des cases rougissent sur une copie juste : ' + r.rouges.slice(0, 4).join(', '));
         }
+        /* La question RÉDIGÉE du 4.3 (octobre 2026) : la guidée notée, elle
+           s'ouvre SOUS elle, sur le même écran, la somme suivie de « = » déjà
+           écrite dans la feuille ; une copie juste vaut le point. Sa question
+           est remplacée par un calcul connu, puis redessinée. */
+        await s.page.evaluate(() => { if(test.questions[1] && test.questions[1].redac){
+          test.questions[1] = {n1:1,d1:2,n2:1,d2:3,op:'+',D:6,k1:3,k2:2,N1:3,N2:2,N:5,Nr:5,Dr:6,redac:true};
+          if(test.idx === 1) sfrAfficher(test.questions[1]); } });
+        if(!(await s.page.evaluate(() => test.redac && test.questions[1] && test.questions[1].redac))){
+          dits.push('somme : le 4.3 ne pose pas de question rédigée après la guidée');
+        } else {
+          if(!(await s.page.evaluate(() => test.answers.length))){
+            await s.page.evaluate(() => checkSFAnswer());
+            await s.page.waitForTimeout(300);
+          }
+          await s.page.waitForTimeout(500);
+          const z = await s.page.evaluate(() => {
+            const zone = document.getElementById('sfrZone'), mf = zone && zone.querySelector('math-field');
+            return { vue: !!(zone && !zone.hidden && zone.offsetHeight > 0), guidee: !!document.getElementById('sf-a1'),
+                     depart: mf ? mf.getValue() : null, idx: test.idx };
+          });
+          if(!z.vue) dits.push('rédigée : la zone ne s’affiche pas après la question guidée');
+          if(!z.guidee) dits.push('rédigée : la question guidée a disparu de l’écran');
+          if(!/=\s*$/.test(z.depart || '')) dits.push('rédigée : la feuille ne commence pas par la somme suivie de « = » (' + z.depart + ')');
+          await s.page.evaluate(() => { const mf = document.querySelector('#sfrZone math-field');
+            mf.setValue(test.sfrDepart + '\\frac{3}{6}+\\frac{2}{6}=\\frac{5}{6}'); });
+          await s.page.evaluate(() => checkSFR());
+          await s.page.waitForTimeout(1500);
+          const v = await s.page.evaluate(() => { const d = test.answers[test.answers.length - 1];
+            return { juste: !!(d && d.correct && /rédigé/.test(d.q)), suite: !!document.getElementById('sfrNext') }; });
+          if(!v.juste) dits.push('rédigée : 1/2 + 1/3 = 3/6 + 2/6 = 5/6 est compté faux');
+          if(!v.suite) dits.push('rédigée : aucun bouton « Question suivante » après la vérification');
+          await s.page.evaluate(() => nextSFQuestion());
+          await s.page.waitForTimeout(400);
+          if(await s.page.evaluate(() => { const zz = document.getElementById('sfrZone'); return !!(zz && !zz.hidden); }))
+            dits.push('rédigée : la zone reste affichée sur la question guidée suivante');
+        }
       }
       /* ② le produit */
       if(P.fractionsEtapes.exercices.indexOf('multiplier-fractions') >= 0){

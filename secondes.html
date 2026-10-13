@@ -6337,7 +6337,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=467;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=468;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -50735,6 +50735,10 @@ function sfCases(){
   return ((test && test.simp) ? base.concat(['sf-sn','sf-q1','sf-sd','sf-q2'],fin) : base.concat(fin)).concat(etapes);
 }
 function renderSFTest(){
+  /* La question RÉDIGÉE du 4.3 de la Première se dessine sous la question
+     guidée, sur le même écran (sfrRendu). La Seconde ne pose jamais
+     « test.redac » : la ligne y est lettre morte, comme celle des flèches. */
+  if(test.redac && typeof sfrRendu==='function' && sfrRendu()) return;
   const q=test.questions[test.idx]; test.locked=false;
   $('sfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagSF').innerHTML=modeTagHTML();
@@ -51090,6 +51094,8 @@ function checkSFAnswer(live){
   test.answers.push({...(ptsExo()||{}),correct:allOk,
     q:q.n1+(q.d1===1?'':'/'+q.d1)+' '+q.op+' '+q.n2+(q.d2===1?'':'/'+q.d2),
     answer:q.N+'/'+q.D, given:donne});
+  /* La question rédigée qui suit s'ouvre ICI, sous celle-ci (Première, 4.3). */
+  if(test.redac && typeof sfrMonte==='function' && sfrMonte()) return;
   const last=test.idx===test.questions.length-1;
   $('sfActions').innerHTML='<button class="btn btn-primary" id="sfNext" onclick="nextSFQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('sfNext'); if(nb) nb.focus();
