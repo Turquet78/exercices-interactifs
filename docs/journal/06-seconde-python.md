@@ -5364,6 +5364,30 @@ tenu aux consignes, ce qui part au modèle, le trajet a) → b) → c) et la not
 comparés à un vrai CPython. Pas de section propre au banc navigateur : la
 visite universelle (section 9) l'ouvre dans les deux modes.
 
+**Puis tout l'exercice sur une seule page** (APP_VERSION 469 — la 468 prise sur `main` par {python-for-images-entiers} pendant les bancs —, demande de
+Turquet, octobre 2026 : « en seconde dans le 6.6.7, faire tout l'exercice sur
+une seule page ») : a), b) et c) sont à l'écran dès l'ouverture, comme sur la
+fiche, et UN SEUL « Vérifier » corrige le b) et le c) ensemble. Les portes ont
+disparu : le b) n'attend plus l'exécution du a), le c) n'attend plus
+« Passer au c) » (`pfqVersC`, `pfqSuiteBtn` et `q.etape` sont retirés ; une
+question rangée avant, qui porte encore `etape`, se redessine sans rien
+perdre). « Exécuter » du a) remplit la console et efface son bouton SANS
+redessiner l'écran : ce que l'élève a déjà écrit au b) ou au c) reste.
+**Une case encore ouverte et vide bloque toute la vérification** : rien ne
+part au modèle, rien ne rougit, et le message nomme la case qui manque. Le
+verdict (`pfqVerdict`, qui remplace `pfqVerdictB`, toujours sans réseau pour
+le banc) est posé **case par case** : une case juste ne rougit jamais à cause
+de l'autre ; le commentaire porte une ligne par case (`fb-ok` / `fb-ko`), et
+celle du modèle reste verte quand c'est juste, rouge quand c'est faux. En
+entraînement, les deux cases se figent et la correction de chaque case fausse
+s'écrit en vert ; en soutien, la case juste se fige en bleu (elle compte), la
+fausse rougit et reste ouverte (« Revérifier »), et seule la case encore
+ouverte repart — le b) déjà juste ne retourne pas au modèle. Sans verdict du
+modèle (réseau, erreur), RIEN n'est jugé, pas même le c) : la page ne pose
+pas une demi-note. Le banc jsdom a suivi : l'écran complet dès l'ouverture,
+un seul bouton, les cases vides (les deux, puis le c) seul), le trajet juste
+en un clic, b) juste à côté d'un c) faux, et le soutien dans les deux sens.
+
 ---
 
 ## {python-for-images} — les images de f de dixième en dixième (6.6.10, Boucle for in range, BONUS)

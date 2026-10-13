@@ -37157,15 +37157,20 @@ const PTDS_IMG='data:image/webp;base64,UklGRrIeAABXRUJQVlA4WAoAAAAQAAAAvgAAxwAAQ
    aucun (exception DÉCLARÉE, tests/profils.js, pythonAvant.sans), et le
    rappel (RAP_PFQ) ne porte que le programme de la fiche.
 
-   a) UNE PORTE, PAS UNE NOTE (le motif de {python-for-oui-non}) : le b) ne s'ouvre qu'après
-   l'exécution ; « Vérifier » est fermé avant. L'exécution passe par le
-   moteur du 6.4.5 (ptrEssai : la boucle déroulée, puis pyRun).
+   TOUT L'EXERCICE SUR UNE SEULE PAGE (demande de Turquet, octobre 2026 :
+   « faire tout l'exercice sur une seule page ») : a), b) et c) sont à
+   l'écran dès l'ouverture, comme sur la fiche, et UN SEUL « Vérifier »
+   corrige le b) et le c) ensemble. Avant, le b) n'apparaissait qu'après
+   l'exécution du a), et le c) qu'après la vérification du b).
+   a) N'EST PAS NOTÉ : « Exécuter » remplit la console, rien de plus.
+   L'exécution passe par le moteur du 6.4.5 (ptrEssai : la boucle déroulée,
+   puis pyRun).
    b) LE JUGE EST LE MODÈLE (action « verif ») : une explication en mots ne se
    juge pas à la règle. La RÈGLE DE DÉCISION porte l'idée — le programme
    affiche les multiples de 2 (2*k, le double de k, les nombres pairs) ; les
    bornes ne sont pas exigées, mais une borne donnée doit être juste. Une
    explication vide ne part pas et ne rougit pas. Le verdict s'applique dans
-   pfqVerdictB, à part de l'appel : le banc le joue sans réseau.
+   pfqVerdict, à part de l'appel : le banc le joue sans réseau.
    c) LE JUGE EXÉCUTE (pfqDiag) et lit ce que la console AFFICHE : les
    multiples de 5 de 0 à 50, un par ligne, dans l'ordre — et le programme
    répète par une boucle for : les onze print écrits à la main sont refusés
@@ -37173,8 +37178,10 @@ const PTDS_IMG='data:image/webp;base64,UklGRrIeAABXRUJQVlA4WAoAAAAQAAAAvgAAxwAAQ
    rien d'affiché, la dernière valeur manquante (le piège de range), une
    valeur de trop, 0 oublié, les multiples du a) recopiés, des nombres à
    virgule. Une cellule vide est redemandée, sans rougir.
-   Chaque étape se vérifie seule, puis ouvre la suivante : une case juste ne
-   rougit jamais à cause d'une autre.
+   Si l'une des deux cases est vide, rien n'est jugé : la page la redemande
+   (une case vide ne rougit jamais). Chaque case reçoit SON verdict : une
+   case juste ne rougit jamais à cause de l'autre. En soutien, la case juste
+   se fige en bleu, la fausse rougit et reste ouverte.
 
    LA SÉANCE : la fiche ÉPINGLÉE en tête (range ( 11 ), 2*k ; les multiples de
    5 de 0 à 50), puis d'autres situations tirées par distinctes() ;
@@ -37196,7 +37203,7 @@ const PFQ_SITUATIONS=[
 function pfqBuildQuestions(){
   const n=Math.min(dmNbQuestions(PFQ_NB), PFQ_SITUATIONS.length);
   return distinctes(n, function(_, i){ return {s:i===0?0:rand(1,PFQ_SITUATIONS.length-1)}; })
-    .map(function(q){ return Object.assign(q, {vu:false, exp:'', bOk:null, etape:'b', prog:'', cOk:null}); });
+    .map(function(q){ return Object.assign(q, {vu:false, exp:'', bOk:null, prog:'', cOk:null}); });
 }
 function pfqSit(q){ return PFQ_SITUATIONS[q.s]||PFQ_SITUATIONS[0]; }
 function pfqCases(q){ return [{id:'pfq-exp'},{id:'pfq-prog'}]; }
@@ -37341,12 +37348,9 @@ function renderPFQ(){
   $('pfqLiveScore').textContent=test.score;
   $('pfqInstr').innerHTML=pfqDessinHTML();
   $('pfqFeedback').textContent=''; $('pfqFeedback').className='mp-feedback';
-  $('pfqHost').innerHTML='<div class="py-cell">'+pfqAHTML(q)+(q.vu?pfqBHTML(q):'')+(q.vu&&q.etape==='c'?pfqCHTML(q):'')+'</div>';
-  if(!q.vu){
-    pfqActions('<button class="btn btn-primary" id="pfqValidate" type="button" disabled title="Exécute d’abord le programme">Vérifier</button>');
-    return;
-  }
-  pfqConsoleMontrer(q);
+  /* a), b) et c) sur la même page, dès l'ouverture */
+  $('pfqHost').innerHTML='<div class="py-cell">'+pfqAHTML(q)+pfqBHTML(q)+pfqCHTML(q)+'</div>';
+  if(q.vu) pfqConsoleMontrer(q);
   /* b) */
   const ta=$('pfq-exp'); ta.value=q.exp||'';
   if(q.bOk!==null){
@@ -37354,41 +37358,28 @@ function renderPFQ(){
     if(!q.bOk) pfqModeleBHTML(q);
   } else ta.addEventListener('input', pfqSaisieB);
   /* c) */
-  if(q.etape==='c'){
-    const tc=$('pfq-prog'); tc.value=q.prog||'';
-    if(q.cOk!==null){
-      test.locked=true; tc.readOnly=true; tc.classList.add(q.cOk?'ok':'bad');
-      const r=$('pfqRunC'); if(r) r.remove();
-      pfqConsoleC(q.prog);
-      if(!q.cOk) pfqModeleCHTML(q);
-    } else {
-      tc.addEventListener('input', pfqSaisieC);
-      tc.addEventListener('keydown', pfqTouche);
-    }
+  const tc=$('pfq-prog'); tc.value=q.prog||'';
+  if(q.cOk!==null){
+    tc.readOnly=true; tc.classList.add(q.cOk?'ok':'bad');
+    const r=$('pfqRunC'); if(r) r.remove();
+    pfqConsoleC(q.prog);
+    if(!q.cOk) pfqModeleCHTML(q);
+  } else {
+    tc.addEventListener('input', pfqSaisieC);
+    tc.addEventListener('keydown', pfqTouche);
   }
-  /* les boutons du bas suivent l'étape */
-  if(q.bOk===null) pfqVerifierBtn();
-  else if(q.etape==='b') pfqSuiteBtn();
-  else if(q.cOk===null) pfqVerifierBtn();
-  else pfqSuivanteBtn();
-}
-function pfqSuiteBtn(){
-  pfqActions('<button class="btn btn-primary" id="pfqSuite" type="button" onclick="pfqVersC()">Passer au c)</button>');
-  const s=$('pfqSuite'); if(s) s.focus();
-}
-function pfqVersC(){
-  const q=test.questions[test.idx]; if(!q || q.bOk===null || q.etape!=='b') return;
-  q.etape='c'; renderPFQ(); autoSave();
-  const el=$('pfq-prog'); if(el) setTimeout(function(){ try{ el.focus(); }catch(x){} },40);
+  if(q.bOk!==null && q.cOk!==null){ test.locked=true; pfqSuivanteBtn(); }
+  else pfqVerifierBtn();
 }
 /* Retaper efface le rouge du dernier essai (soutien). */
 function pfqSaisieB(){
+  if(test.locked) return;
   const q=test.questions[test.idx], ta=$('pfq-exp'); if(!q||!ta||ta.readOnly) return;
   q.exp=ta.value; ta.classList.remove('bad'); pfqSauver();
 }
 function pfqSaisieC(){
   if(test.locked) return;
-  const q=test.questions[test.idx], ta=$('pfq-prog'); if(!q||!ta) return;
+  const q=test.questions[test.idx], ta=$('pfq-prog'); if(!q||!ta||ta.readOnly) return;
   q.prog=ta.value; ta.classList.remove('bad'); pfqSauver();
 }
 /* Tab décale de quatre espaces, Entrée après « : » décale la ligne suivante — le geste du 6.4.5. */
@@ -37407,12 +37398,12 @@ function pfqTouche(e){
   ta.selectionStart=ta.selectionEnd=a+ins.length;
   pfqSaisieC();
 }
+/* « Exécuter » du a) : la console se remplit, le bouton s'efface — rien d'autre ne bouge. */
 function pfqExecuter(){
-  if(test.locked) return;
   const q=test.questions[test.idx]; if(!q||q.vu) return;
   q.vu=true; pfqSauver();
-  renderPFQ();
-  const ta=$('pfq-exp'); if(ta) ta.focus();
+  const r=$('pfqRun'); if(r) r.remove();
+  pfqConsoleMontrer(q);
 }
 function pfqExecuterC(){
   if(test.locked) return;
@@ -37437,89 +37428,99 @@ function pfqAttenduIA(q){
 function checkPFQ(live){
   if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
   if(test.locked || test.pfqBusy) return;
-  const q=test.questions[test.idx]; if(!q || !q.vu) return;
-  if(q.bOk===null) return pfqVerifierB(q);
-  if(q.etape==='c' && q.cOk===null) return pfqVerifierC(q);
+  const q=test.questions[test.idx]; if(!q) return;
+  pfqVerifier(q);
 }
-async function pfqVerifierB(q){
-  const fb=$('pfqFeedback'), ta=$('pfq-exp'); if(!ta) return;
-  const rep=(ta.value||'').trim(); q.exp=ta.value;
-  /* une explication vide ne part pas, et ne rougit pas */
-  if(rep.length<3){ fb.textContent='Écris d’abord ton explication : que fait ce programme ?'; fb.className='mp-feedback bad'; ta.focus(); return; }
-  test.pfqBusy=true;
-  pfqActions('<button class="btn btn-primary" disabled>Vérification…</button>');
-  fb.textContent='Je lis ton explication…'; fb.className='mp-feedback muted';
+/* UN SEUL « Vérifier » pour le b) et le c). Une case encore ouverte et vide
+   est redemandée : rien n'est jugé, rien ne rougit. */
+async function pfqVerifier(q){
+  const fb=$('pfqFeedback'), ta=$('pfq-exp'), tc=$('pfq-prog'); if(!ta||!tc) return;
+  if(q.bOk===null) q.exp=ta.value;
+  if(q.cOk===null) q.prog=tc.value;
+  const bVide=q.bOk===null && String(q.exp||'').trim().length<3;
+  const cVide=q.cOk===null && !String(q.prog||'').trim();
+  if(bVide || cVide){
+    fb.textContent=bVide&&cVide?'Écris d’abord ton explication au b) et ton programme au c).'
+      :bVide?'Écris d’abord ton explication au b) : que fait ce programme ?'
+      :'Écris d’abord ton programme au c), puis exécute-le.';
+    fb.className='mp-feedback bad';
+    const vide=bVide?ta:tc; setTimeout(function(){ try{ vide.focus(); }catch(e){} },40);
+    return;
+  }
   let res=null;
-  try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id,
-      action:'verif', question:pfqEnonceIA(q), attendu:pfqAttenduIA(q), reponse:rep } });
-    if(r.error) throw r.error; res=r.data;
-  }catch(e){ res=null; }
-  test.pfqBusy=false;
-  pfqVerdictB(res, rep);
+  if(q.bOk===null){
+    test.pfqBusy=true;
+    pfqActions('<button class="btn btn-primary" disabled>Vérification…</button>');
+    fb.textContent='Je lis ton explication…'; fb.className='mp-feedback muted';
+    try{
+      const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id,
+        action:'verif', question:pfqEnonceIA(q), attendu:pfqAttenduIA(q), reponse:String(q.exp).trim() } });
+      if(r.error) throw r.error; res=r.data;
+    }catch(e){ res=null; }
+    test.pfqBusy=false;
+  }
+  pfqVerdict(res);
 }
-/* Le verdict du modèle posé sur l'écran — séparé de l'appel, pour que le banc
-   l'exerce sans attendre le réseau. */
-function pfqVerdictB(res, rep){
-  const q=test.questions[test.idx], fb=$('pfqFeedback'), ta=$('pfq-exp');
-  if(!q||!ta||q.bOk!==null) return;
-  if(!res || res.error){
+/* Les verdicts posés sur l'écran — séparés de l'appel, pour que le banc les
+   exerce sans attendre le réseau. res : la réponse du modèle pour le b)
+   (ignorée si le b) est déjà jugé). Chaque case reçoit SON verdict. */
+function pfqVerdict(res){
+  const q=test.questions[test.idx], fb=$('pfqFeedback'), ta=$('pfq-exp'), tc=$('pfq-prog');
+  if(!q||!ta||!tc||test.locked) return;
+  const bOuvert=q.bOk===null, cOuvert=q.cOk===null;
+  if(!bOuvert && !cOuvert) return;
+  /* sans verdict du modèle, rien n'est jugé — pas même le c) */
+  if(bOuvert && (!res || res.error)){
     fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
     fb.className='mp-feedback bad';
     pfqVerifierBtn();
     return;
   }
-  const correct=res.correct===true;
-  ta.classList.remove('ok','bad','sol');
-  /* Les phrases qui commentent une vérification par l'IA sont VERTES quand
-     c'est bon, ROUGES quand c'est faux (règle du projet, août 2026). */
-  fb.textContent=res.feedback||''; fb.className='mp-feedback '+(correct?'good':'bad');
-  if(isSoutien() && !correct){
-    ta.classList.add('bad');
+  const soutien=isSoutien(), S=pfqSit(q), lignes=[];
+  /* b) — les phrases du modèle sont VERTES quand c'est bon, ROUGES quand
+     c'est faux (règle du projet, août 2026). */
+  if(bOuvert){
+    const correct=res.correct===true;
+    ta.classList.remove('ok','bad','sol');
+    lignes.push('<span class="'+(correct?'fb-ok':'fb-ko')+'">b) '+esc(res.feedback||(correct?'Bravo !':'Ce n’est pas encore ça.'))+'</span>');
+    if(correct){ q.bOk=true; ta.readOnly=true; ta.classList.add('ok'); test.score+=1; }
+    else if(soutien) ta.classList.add('bad');
+    else { q.bOk=false; ta.readOnly=true; ta.classList.add('bad'); pfqModeleBHTML(q); }
+  }
+  /* c) */
+  if(cOuvert){
+    const src=q.prog, d=pfqDiag(src, q);
+    pfqConsoleC(src);
+    tc.classList.remove('ok','bad','sol');
+    if(d.ok){
+      q.cOk=true; tc.readOnly=true; tc.classList.add('ok'); test.score+=1;
+      const r=$('pfqRunC'); if(r) r.remove();
+      lignes.push('<span class="fb-ok">c) '+pick(['Bravo !','Parfait !','Excellent !'])+' Ton programme affiche les multiples de '+S.m+' de 0 à '+S.f+'.</span>');
+    } else {
+      tc.classList.add('bad');
+      lignes.push('<span class="fb-ko">c) <b>Où est l’erreur&nbsp;?</b> '+esc(d.dits.join(' '))+(soutien?' Corrige ton programme, puis revérifie.':' Un programme qui convient est écrit en vert en dessous.')+'</span>');
+      if(!soutien){
+        q.cOk=false; tc.readOnly=true;
+        const r=$('pfqRunC'); if(r) r.remove();
+        pfqModeleCHTML(q);
+      }
+    }
+  }
+  const fini=q.bOk!==null && q.cOk!==null;
+  fb.innerHTML=lignes.join('<br>');
+  fb.className='mp-feedback '+((q.bOk!==false && q.cOk!==false && fini)?'good':'bad');
+  $('pfqLiveScore').textContent=test.score;
+  if(!fini){
     pfqVerifierBtn('Revérifier');
-    setTimeout(function(){ try{ ta.focus(); }catch(e){} },40);
+    const ouvert=q.bOk===null?ta:tc; setTimeout(function(){ try{ ouvert.focus(); }catch(e){} },40);
+    autoSave();
     return;
   }
-  q.bOk=correct; q.exp=ta.value; ta.readOnly=true;
-  if(correct){ ta.classList.add('ok'); test.score+=1; }
-  else { ta.classList.add('bad'); pfqModeleBHTML(q); }
-  $('pfqLiveScore').textContent=test.score;
-  pfqSuiteBtn();
-  autoSave();
-}
-function pfqVerifierC(q){
-  const fb=$('pfqFeedback'), ta=$('pfq-prog'); if(!ta) return;
-  const src=ta.value; q.prog=src;
-  const d=pfqDiag(src, q), S=pfqSit(q);
-  pfqConsoleC(src);
-  ta.classList.remove('ok','bad','sol');
-  /* une cellule vide est redemandée : elle ne rougit jamais */
-  if(d.vide){ fb.textContent=d.dits[0]; fb.className='mp-feedback bad'; setTimeout(function(){ try{ ta.focus(); }catch(e){} },40); return; }
-  if(!d.ok && isSoutien()){
-    ta.classList.add('bad');
-    fb.innerHTML='<b>Où est l’erreur&nbsp;?</b> '+esc(d.dits.join(' '))+' Corrige ton programme, puis revérifie.';
-    fb.className='mp-feedback bad';
-    pfqVerifierBtn('Revérifier');
-    setTimeout(function(){ try{ ta.focus(); }catch(e){} },40);
-    return;
-  }
-  q.cOk=d.ok; test.locked=true; ta.readOnly=true;
-  const r=$('pfqRunC'); if(r) r.remove();
-  if(d.ok){
-    ta.classList.add('ok'); test.score+=1;
-    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' Ton programme affiche les multiples de '+S.m+' de 0 à '+S.f+'.';
-    fb.className='mp-feedback good';
-  } else {
-    ta.classList.add('bad');
-    fb.innerHTML='<b>Où est l’erreur&nbsp;?</b> '+esc(d.dits.join(' '))+' Un programme qui convient est écrit en vert en dessous.';
-    fb.className='mp-feedback bad';
-    pfqModeleCHTML(q);
-  }
-  $('pfqLiveScore').textContent=test.score;
-  test.answers.push({...(ptsExo()||{}), correct:(q.bOk===true && d.ok),
+  test.locked=true;
+  test.answers.push({...(ptsExo()||{}), correct:(q.bOk===true && q.cOk===true),
     q:pfqProg(q).replace(/\n+/g,' ⏎ ')+' — expliquer ; afficher les multiples de '+S.m+' de 0 à '+S.f,
     answer:pfqModeleB(q)+' ; '+pfqModeleC(q).replace(/\n+/g,' ⏎ '),
-    given:(String(q.exp||'').trim()||'?')+' ; '+(src.trim()?src.replace(/\n+/g,' ⏎ '):'?')});
+    given:(String(q.exp||'').trim()||'?')+' ; '+(String(q.prog||'').trim()?String(q.prog).replace(/\n+/g,' ⏎ '):'?')});
   pfqSuivanteBtn();
   autoSave();
 }
@@ -37531,9 +37532,10 @@ function ctxPfq(q){
   c+='a) L’élève exécute ce programme :\n'+pfqProg(q)+'\nLa console affiche, un par ligne : '+pfqAffichesA(q).join(', ')+'. ';
   c+='b) Il explique ce que fait ce programme. ';
   c+='c) Il écrit un programme qui affiche tous les multiples de '+S.m+' de 0 à '+S.f+', avec une boucle for. ';
-  c+=!q.vu?'Il n’a pas encore exécuté le programme du a). ':('Étape en cours : '+(q.etape==='c'?'c)':'b)')+'. ');
+  c+='Les trois questions sont sur la même page. ';
+  if(!q.vu) c+='Il n’a pas encore exécuté le programme du a). ';
   if(exp.trim()) c+='Son explication du b) : « '+exp+' ». ';
-  if(q.etape==='c'){
+  {
     c+='Ce que l’élève a écrit au c) :\n'+(prog.trim()?prog:'(rien pour l’instant)')+'\n';
     let d=null; try{ d=pfqDiag(prog, q); }catch(e){}
     if(d && !d.vide) c+=d.ok?'Son programme convient. ':('Ce que la page a relevé : '+d.dits.join(' ')+' ');
