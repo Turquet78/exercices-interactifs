@@ -1516,3 +1516,149 @@ bis ») vérifie que la zone s'ouvre sous la guidée restée affichée, que la
 feuille commence par la somme suivie de « = », qu'une copie juste
 (1/2 + 1/3 = 3/6 + 2/6 = 5/6) vaut le point, et que la zone disparaît à la
 guidée suivante.
+
+**Puis les 4.4, 4.5 et 4.6 de la Première ont reçu la même question
+rédigée (octobre 2026, Première v310).** Demande de Turquet : « faire la
+même chose pour les 4.4 ; 4.5 et 4.6 en première ».
+
+* **Un seul module pour trois moteurs** (sf, mlt, spf) : `RED_CFG` dit où vit
+  chaque écran (les éléments de la zone portent le préfixe `sfr`, `mltr` ou
+  `spfr` — les trois zones sont dans la page en même temps), `redMath(q)` dit
+  la mathématique de chaque exercice : l'énoncé (texte, LaTeX, écran), le
+  juge, et ce que lit le modèle. Les noms `sfr…` sont restés ceux du 4.3 :
+  le moteur sf, partagé au caractère près avec la Seconde, les appelle ainsi.
+  Les moteurs mlt et spf, propres à la Première, ont reçu les deux mêmes
+  lignes gardées (`sfrRendu` en tête du rendu, `sfrMonte` après la note).
+* **Les paires passent par `redPaires(n, générateur)`** :
+  `mltBuildQuestions`, `divBuildQuestions` et `spfBuildQuestions` tirent
+  désormais 12, 12 et 8 questions. **Le réglage « Questions » d'un devoir
+  compte les rédigées** : k questions tirent ⌈k/2⌉ paires, et la coupe
+  générique en garde k — c'est ce qui laisse passer le contrôle « la séance
+  s'allonge exactement de deux ».
+* **Le résultat final doit être irréductible partout** (`redIrreductible`).
+  Le juge de la Seconde ne regardait que la VALEUR pour un produit ou un
+  quotient — en Seconde le résultat tombait toujours irréductible. Ici
+  2/3 × 3/5 = 6/15 doit aller jusqu'à 2/5.
+* **Le 4.5 exige l'inverse écrit** (`libreJuge`, genre « dll ») : sans lui le
+  juge s'abstient et le modèle décide, comme en Seconde.
+* **Le 4.6 prend le juge du 5.10 de la Seconde** (`pfJuge`, recopié sous le
+  nom `spfrJuge`) : une ligne qui vaut le produit intermédiaire n'est pas une
+  égalité fausse, une addition faite avant la multiplication l'est ; l'étape
+  du même dénominateur est exigée.
+
+Contrôles : « les questions rédigées des 4.3 à 4.6 » (`tests/verifier.js`,
+`fractionsRedigees`) lance les quatre démarreurs réels — alternance des
+paires, nombre de questions, zone présente sur l'écran — puis écrit une
+copie à la main par bord de chaque juge (juste, arrêtée sur une fraction
+réductible, égalité fausse, quotient sans inverse, produit isolé sur sa
+ligne, addition avant la multiplication), et vérifie qu'un devoir réglé à 5
+questions en tire 6 pour en garder 5. Le banc navigateur (« 6 terdecies
+bis ») ouvre la rédigée du produit sous sa guidée, et celle du 4.6 par la
+reprise d'une pause, et y fait compter une copie juste.
+
+**Puis les cases du 4.3, du 4.4 et du 4.5 ont été RÉDUITES (octobre 2026,
+Première v311).** Demande de Turquet : « en première dans les exercices 4.3 ;
+4.4 ; 4.5 réduire la taille des cases où l'on doit placer des nombres à
+l'écran » — les mêmes mots que pour le 4.6, et donc la même réponse : la
+mesure de `#spfHost`, reprise au chiffre près.
+
+* **La rangée entière descend d'un cran**, pas la case seule : la règle de
+  tout exercice veut que la case ait la taille des nombres qui l'entourent
+  (le contrôle universel la mesure à 90 %). Chiffres et « = » à 1,45 rem au
+  lieu de 2, signes à 1,15 rem, cases à 1,4 rem, cadre resserré (36 px de
+  haut au lieu de 46, largeur au contenu avec un minimum de 40 px, trait à
+  3 px, badge de correction à 0,95 rem avec ses marges réduites). Sur
+  téléphone, un cran de moins encore, comme au 4.6. Le facteur de la
+  tablette (`--tab-nb`) reste dans chaque règle.
+* **Le 4.3 partage son écran avec le 4.2 et le 1.9** (`#sfHost`, moteur sf
+  identique à la Seconde au caractère près) : une classe de plus dans le
+  rendu aurait cassé l'identité du moteur, une règle sur `#sfHost` aurait
+  réduit les trois. La règle se pose donc sur l'ÉCRAN, par l'exercice qu'il
+  porte : `show()` écrit `currentTestId` dans `data-exo` de la section,
+  au démarrage comme à la reprise après une pause (les deux passent par
+  `show()`), et le sélecteur est
+  `#scr-sf[data-exo="somme-fractions-2"] #sfHost …`. Le 4.2 et le 1.9
+  gardent leurs cases pleines ; le 4.2 n'était pas dans la demande.
+* **Le 4.4 et le 4.5** ont `#mltHost` pour eux seuls : leurs tailles y sont
+  remplacées, et les deux requêtes média qui les rétrécissaient à 900 et
+  520 px (1,5 rem, 76 et 62 px) disparaissent — la case est déjà au-dessous,
+  et sa largeur suit son contenu.
+* **Le 4.1** (`#rvfHost`) n'est pas touché : il n'était pas nommé.
+
+Contrôle : « les cases réduites sont plus petites que celles du témoin, qui
+garde les siennes » (banc navigateur, « 6 terdecies ter », déclaré par
+`casesReduites` dans le profil de la Première : le témoin est le 4.2, les
+réduits le 4.3, le 4.4, le 4.5 et le 4.6). Il MESURE à l'écran, en
+entraînement, la police et la hauteur des cases de la rangée : réduites à
+80 % au plus et 6 px de moins que le témoin ; le témoin à 1,8 rem et 44 px
+au moins ; et chaque case réduite à la taille de ses nombres. Deux bords,
+parce qu'un sélecteur trop large (`#sfHost` nu) réduirait le 4.2 sans que
+le premier bord ne bouge — c'est le second qui l'attraperait. Éprouvé par
+sabotage : la ligne `data-exo` retirée de `show()`, le 4.3 garde ses
+grandes cases et le contrôle rougit sur lui seul.
+
+**Puis le 4.6 a reçu une soustraction et ses colonnes (octobre 2026,
+Première v312).** Demande de Turquet : « dans le 4.6 en première, il est
+possible d'avoir une soustraction au lieu d'une addition, mais le résultat
+doit être positif. De plus placer les signes "=" en début de ligne et
+afficher les cases à remplir en dessous verticalement des nombres du dessus
+correspondants au mieux. De plus il faut sur la même page une autre question
+où il faut rédiger la solution comme dans l'exercice 4.3 de première. » Le
+troisième point était déjà en ligne, par le module commun du paragraphe
+précédent (v310) : la branche « spf » de `redMath` a seulement appris à lire
+`q.op`. Deux branches avaient travaillé en même temps sur la même page ; la
+fusion a gardé le module commun, et jeté le calque que l'autre avait écrit.
+
+* **L'opération vit dans la question (`q.op`, « + » ou « − »)** et alterne
+  d'une paire à l'autre : `spfGen(op, i)` lit le rang que `distinctes()` lui
+  passe, si bien que `redPaires(SPF_NB, spfGen)` n'a rien à savoir — la
+  guidée et sa rédigée posent la même opération. Le tirage écarte toute
+  différence négative ou nulle — « le résultat doit être positif » —, et le
+  croisement ne soustrait donc jamais au-dessous de zéro non plus
+  (N1 − N2 = N > 0). Le juge, le peintre et la correction du croisement
+  (`pfCroixJuge`, `pfCroixPeindre`, `pfCroixCorrection`) savaient déjà
+  soustraire : ils venaient de la Seconde avec leur `op`, que le 5.12
+  n'appelait qu'avec « + ». Le message « il reste à additionner » dit
+  « soustraire » quand il faut ; le libellé des étapes, l'énoncé, le
+  contexte envoyé à l'aide, la branche « spf » de `redMath` (énoncé, LaTeX,
+  règle, contexte de la rédigée) et le rappel de cours (`RAP_SPF`) nomment
+  la différence. La question porte aussi `Nr`/`Dr`, sa forme irréductible.
+  Le juge de la rédigée (`spfrJuge`) n'a pas bougé : il compare des VALEURS,
+  et « 3/2 − 1/2×3/2 » vaut 3/4 pour `libreEval`, qui connaît la priorité
+  des opérations — la copie qui soustrait avant de multiplier écrit une
+  égalité fausse, que le juge nomme.
+* **Le calcul se lit EN COLONNES.** La rangée `.pt-row` de `#spfHost` est
+  une GRILLE de quatre colonnes — le « = », le premier terme, le signe, le
+  second terme —, une ligne par étape, `align-items`/`justify-items` au
+  centre : la case tombe sous le nombre qu'elle remplace, « au mieux », et le
+  « = » ouvre chaque ligne. La ligne de l'énoncé n'en a pas (sa première
+  colonne reste vide). Les étapes à un seul terme — la somme, la fraction
+  obtenue, la simplification — se posent dans la colonne du premier terme.
+  Le HTML ne fait que NOMMER la colonne de chaque morceau (`spf-eq`,
+  `spf-t1`, `spf-op`, `spf-t2`, posés par `spfCol`) ; `pfCroixHTML` écrit
+  désormais ces trois lignes-là plutôt que la rangée de la Seconde — son
+  juge n'a pas bougé d'une lettre. La simplification par étapes
+  (`seEtapeHTML`) rend des groupes « = fraction » (`.f-grp.se-etape`) :
+  `display:contents` les efface et leurs deux enfants prennent les colonnes 1
+  et 2 — le moteur partagé n'a rien eu à apprendre. Un piège de grille à
+  connaître : le placement automatique ouvre une nouvelle ligne dès qu'un
+  morceau à colonne fixée recule (le « = » de la colonne 1 après un second
+  terme de la colonne 4), et c'est ce qui range les étapes sans qu'aucune
+  ligne soit déclarée.
+
+Contrôles : le contrôle du tirage (`tests/verifier.js`, « nombres de 1 à 5,
+produit borné à 6… ») exige les DEUX opérations en deux cents séances, le
+résultat recalculé selon l'opération et strictement positif, `Nr`/`Dr`
+rangés, les paires guidée PUIS rédigée de la même opération ; il joue la
+soustraction 3/2 − 1/2 × 3/2 = 6/8 = 3/4 par de vrais évènements « input »,
+et refuse 18/8 (additionné) avec le mot « soustraire » ; il compte les « = »
+de la grille et vérifie que la ligne de l'énoncé n'en a pas. Le contrôle des
+rédigées (`fractionsRedigees`) juge une soustraction rédigée juste, refuse
+6/4 + 3/4 = 9/4 et la soustraction faite avant la multiplication, et relit
+l'énoncé, le LaTeX, la règle et le contexte de la soustraction. Le banc
+navigateur (« 6 terdecies bis », ③) MESURE la grille : chaque « = » est le
+premier morceau de sa ligne, les centres des premiers termes, des signes et
+des seconds termes tombent sur la même verticale à 2 px près, huit lignes,
+rien ne déborde ; puis il tape la copie au clavier, ouvre la rédigée, y écrit
+une soustraction juste, referme la zone, et rejoue la reprise sur une
+rédigée.

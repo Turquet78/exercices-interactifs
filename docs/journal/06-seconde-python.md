@@ -3593,7 +3593,7 @@ garde le rappel. Contrôle : le banc principal ({python-input-float}) rend la
 question 2 et exige qu'aucune définition n'y figure.
 
 **Puis les neuf exercices du 6.3 ont reçu un SERPENT D'HALLOWEEN** (demande
-de Turquet, octobre 2026, v472), posé à côté du dessin de leur fiche, dessiné
+de Turquet, octobre 2026, v474), posé à côté du dessin de leur fiche, dessiné
 en SVG par la page et visible sous le décor seulement. La chronique entière
 — les déguisements, la bulle de chacun, le choix « à côté, jamais à la
 place », le suivi du décor plutôt que de la date, et les deux bancs qui les
@@ -6243,3 +6243,15 @@ la frappe (`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
 copies justes et seize fausses, l'écran (dessin seul, énoncé, exemple,
 remarque, trois coups de pouce mot pour mot, rappel), la copie juste, fausse
 et vide, le soutien qui ne révèle rien, et les modèles comparés à CPython.
+
+**Puis les dessins ont quitté la page (octobre 2026).** Tout ce qui précède
+raconte les dessins de la fiche « en URL `data:` — la page reste un fichier
+unique » : c'était la convention de leur époque, et rien n'en est réécrit. Depuis
+la décision de Turquet d'octobre 2026 (« sors les images de la Seconde dans des
+fichiers »), chaque dessin est un FICHIER de `dessins/secondes/<identifiant>.webp`,
+référencé par un chemin relatif ; les constantes `PXX_IMG` gardent leur nom et
+tous leurs usages, seule leur valeur change, et quatre contrôles universels
+tiennent la règle sur les trois niveaux — un dessin ajouté demain en base64
+rougit le jour même. La règle et sa chronique : « Les dessins vivent en
+FICHIERS, jamais en base64 dans la page », dans `11-aides-et-interface.md` ;
+le mode d'emploi pour ajouter un dessin : `dessins/LISEZMOI.md`.

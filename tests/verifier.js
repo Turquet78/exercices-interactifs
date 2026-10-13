@@ -244,6 +244,69 @@ function structure(){
       imbriques.length === 0, imbriques.slice(0, 3).join(' | '));
   }
 
+  /* LES DESSINS VIVENT EN FICHIERS, JAMAIS EN BASE64 DANS LA PAGE (décision de
+     Turquet, octobre 2026). Les 43 dessins de la Seconde, embarqués en URL
+     data:, pesaient 770 Ko sur 4,9 Mo — téléchargés et analysés par chaque
+     élève à chaque ouverture, même pour un exercice de fractions. Ils vivent
+     dans dessins/<niveau>/, référencés par un chemin relatif, et le fichier
+     ne part au navigateur que quand l'exercice s'ouvre.
+     Trois bords, et il les faut tous : (1) aucune image en base64 ne reste
+     dans la page — un exercice ajouté demain est couvert sans rien déclarer ;
+     (2) chaque fichier référencé existe dans le dépôt — jsdom ne charge pas
+     les images, un fichier manquant ne rougirait nulle part ici, et c'est le
+     banc navigateur (section 9) qui vérifie de son côté qu'ils se CHARGENT ;
+     (3) aucun fichier du dossier n'est orphelin — un dessin qu'aucune page ne
+     référence est un poids mort qu'on croit vivant. Un niveau qui ne
+     référence aucun dessin le dit (« non applicable ») au lieu de se taire,
+     et un niveau qui DÉCLARE des dessins (profils.js, « dessins ») sans en
+     référencer rougit. */
+  {
+    const RACINE_DEPOT = path.join(__dirname, '..');
+    const embarquees = [...s.matchAll(/data:image\/[a-z+.-]+;base64,/gi)].map(m => 'ligne ' + ligneDe(m.index));
+    verifier('aucune image n’est embarquée en base64 dans la page (les dessins vivent dans dessins/)',
+      embarquees.length === 0, embarquees.length + ' image(s) : ' + embarquees.slice(0, 5).join(', '));
+    const refs = [...new Set([...s.matchAll(/dessins\/[a-z0-9-]+\/[a-z0-9-]+\.[a-z0-9]+/g)].map(m => m[0]))];
+    const dossiers = [...new Set(refs.map(r => r.slice(0, r.lastIndexOf('/'))))];
+    /* un dossier ne compte que ses fichiers visibles : le mode d'emploi et
+       les fichiers-points ne sont pas des dessins */
+    const fichiersDe = d => { try { return fs.readdirSync(path.join(RACINE_DEPOT, d)).filter(f => !/^LISEZMOI/i.test(f) && !f.startsWith('.')); } catch(e){ return null; } };
+    if(refs.length){
+      /* LA DÉCLARATION DU PROFIL EST LUE, pas seulement sa présence : un
+         dossier déclaré de travers (« dessins/seconde ») serait une donnée
+         morte qu'on croit vivante ; et une page qui référence des dessins
+         sans les déclarer priverait le banc navigateur de son bord opposé
+         (« des dessins ont bien été relevés ») en silence. */
+      if(P.dessins)
+        verifier('les dessins de la page vivent dans le dossier déclaré par le profil (' + P.dessins.dossier + ')',
+          dossiers.length === 1 && dossiers[0] === P.dessins.dossier, 'dossier(s) référencé(s) : ' + dossiers.join(', '));
+      else
+        verifier('une page qui référence des dessins les déclare dans son profil (tests/profils.js, clé « dessins »)',
+          false, dossiers.join(', ') + ' référencé(s) sans clé « dessins »');
+      const absents = refs.filter(r => !fs.existsSync(path.join(RACINE_DEPOT, r)));
+      verifier('chaque dessin référencé par la page existe dans le dépôt (' + refs.length + ' référence(s))',
+        absents.length === 0, 'absent(s) : ' + absents.join(', '));
+      const orphelins = [];
+      for(const d of dossiers){
+        const fichiers = fichiersDe(d);
+        if(!fichiers){ orphelins.push(d + '/ (dossier illisible)'); continue; }
+        fichiers.forEach(f => { if(refs.indexOf(d + '/' + f) < 0) orphelins.push(d + '/' + f); });
+      }
+      verifier('aucun fichier des dossiers de dessins de la page n’est orphelin',
+        orphelins.length === 0, orphelins.join(', '));
+    } else if(P.dessins){
+      verifier('chaque dessin référencé par la page existe dans le dépôt', false,
+        'le profil déclare des dessins (' + P.dessins.dossier + ') et la page n’en référence aucun');
+      /* et tout ce que contient le dossier déclaré est alors orphelin */
+      const restes = fichiersDe(P.dessins.dossier) || [];
+      verifier('aucun fichier des dossiers de dessins de la page n’est orphelin',
+        restes.length === 0, restes.map(f => P.dessins.dossier + '/' + f).join(', '));
+    } else {
+      /* les trois contrôles se déclarent, aucun ne se tait */
+      ignorer('chaque dessin référencé par la page existe dans le dépôt', 'cette page ne référence aucun dessin');
+      ignorer('aucun fichier des dossiers de dessins de la page n’est orphelin', 'cette page ne référence aucun dessin');
+    }
+  }
+
   /* Supabase renvoie ses erreurs sans lever d'exception : tout appel doit les
      examiner. Deux façons de passer à côté, et le banc ne voyait que la
      première — l'insertion de la note de fin de test échappait au compte. */
@@ -403,8 +466,18 @@ function structure(){
   });
 
   const scripts = [...s.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+  /* UN DOSSIER TEMPORAIRE PAR PROCESSUS (octobre 2026). Ces fichiers
+     s'appelaient ctrl<i>.js dans le dossier temporaire du SYSTÈME : deux bancs
+     lancés en même temps se les prenaient l'un à l'autre — « ENOENT … unlink
+     /tmp/ctrl1.js », un rouge qui accusait la page —, et c'est ce qui a fondé
+     la règle « deux bancs jsdom ne se lancent pas EN MÊME TEMPS » et la mise
+     en série de npm test (une quarantaine de minutes, le temps de la Seconde
+     plus celui des deux autres). mkdtemp donne à chaque processus son propre
+     dossier, que rien d'autre ne connaît : la règle tombe, npm test joue les
+     trois niveaux de front, et l'action GitHub leur donne une machine chacun. */
+  const dossierTemp = fs.mkdtempSync(path.join(os.tmpdir(), 'verifier-'));
   scripts.forEach((js, i) => {
-    const f = path.join(os.tmpdir(), 'ctrl' + i + '.js');
+    const f = path.join(dossierTemp, 'ctrl' + i + '.js');
     fs.writeFileSync(f, js);
     let ok = true, err = '';
     try { execFileSync('node', ['--check', f], { stdio:'pipe' }); }
@@ -412,6 +485,7 @@ function structure(){
     fs.unlinkSync(f);
     verifier('script n°' + (i+1) + ' syntaxiquement valide', ok, err);
   });
+  fs.rmSync(dossierTemp, { recursive: true, force: true });
 
   const ecrans = new Set([...s.matchAll(/<section class="screen" id="scr-([a-z0-9-]+)"/g)].map(m => m[1]));
   const demandes = new Set([...s.matchAll(/show\('([a-z0-9-]+)'\)/g)].map(m => m[1]));
@@ -4165,6 +4239,7 @@ function exercices(suite){
     reduireSomme(w, P);
     soustraireRelatifs(w, P);
     reduireProduit(w, P);
+    translationGrille(w, P);
     tableauProportions(w, P);
     tableauProportionsLettres(w, P);
     tableauProportionsTirees(w, P);
@@ -4348,6 +4423,7 @@ function exercices(suite){
     simplifierBarres(w, P);
     multiplierFractions(w, P);
     fractionsEtapes(w, P);
+    fractionsRedigees(w, P);
     sommeProduitFractions(w, P);
     synthesePourcentage(w, P);
     synthesePourcentageMethode(w, P);
@@ -7551,6 +7627,12 @@ function multiplierFractions(w, P){
 
     /* ---- 2. la correction, exercée pour de vrai -------------------------- */
     startMlt();
+    /* CE CONTRÔLE EXERCE LE MOTEUR GUIDÉ, plusieurs vérifications de suite sur
+       le même écran. Depuis octobre 2026 la Première fait suivre chaque
+       guidée d'une question rédigée (test.redac) : la première vérification
+       passerait à la rédigée, et les suivantes ne trouveraient plus de cases.
+       Les rédigées ont leur propre contrôle (fractionsRedigees). */
+    test.redac=false;
     /* 3/7 × 4/9 = 12/63… non : 12 et 63 partagent 3. On prend 5/7 × 4/9 = 20/63,
        irréductible, et dont aucun facteur n'est égal à un autre. */
     test.questions[test.idx]={n1:5,d1:7,n2:4,d2:9,a1:5,a2:4,b1:7,b2:9,P:20,Q:63};
@@ -7661,7 +7743,7 @@ function multiplierFractions(w, P){
       }
       /* la correction : l'inverse se juge case par case, et le MESSAGE nomme
          l'erreur visée — multiplier sans retourner la seconde fraction. */
-      startDiv();
+      startDiv(); test.redac=false;   /* le moteur guidé seul, comme plus haut */
       test.questions[test.idx]={n1:3,d1:5,n2:2,d2:7,a1:3,a2:7,b1:5,b2:2,P:21,Q:10};
       const qd=test.questions[test.idx];
       const jugerD=function(o){
@@ -7772,17 +7854,31 @@ function multiplierFractions(w, P){
    par Turquet : le croisement la dépasse par construction). Déclaré par le
    profil (sommeProduit) ; la Seconde, qui garde son exercice, s'y affiche
    « non applicable ».
+   Puis (octobre 2026) : « il est possible d'avoir une soustraction au lieu
+   d'une addition, mais le résultat doit être positif ; placer les signes "="
+   en début de ligne et afficher les cases à remplir en dessous verticalement
+   des nombres du dessus ; sur la même page une autre question où il faut
+   rédiger la solution comme dans le 4.3 ». La grille se MESURE dans le banc
+   navigateur ; la rédigée est celle du module commun (fractionsRedigees).
    ① LE TIRAGE, deux cents séances par le démarreur RÉEL : chaque nombre de
      départ de 1 à la borne (et la borne atteinte), trois fractions de départ
-     irréductibles, le produit recalculé ici, ses deux nombres de 1 à 6, tout
-     positif ; un résultat qui se simplifie doit SORTIR, et un qui ne se
-     simplifie pas aussi — sans quoi l'un des deux chemins n'est jamais exercé.
+     irréductibles, le produit recalculé ici, ses deux nombres de 1 à 6, une
+     opération « + » ou « − » et les DEUX doivent sortir, un résultat
+     strictement positif recalculé selon l'opération, sa forme irréductible
+     rangée (Nr/Dr) ; un résultat qui se simplifie doit SORTIR, et un qui ne
+     se simplifie pas aussi — sans quoi l'un des deux chemins n'est jamais
+     exercé. LES QUESTIONS VONT PAR PAIRES : une guidée, puis une rédigée
+     (q.redac), de la même opération.
    ② LA CHAÎNE, par de vrais évènements « input » : 1/2 + 1/2 × 3/2 =
      1/2 + 3/4 = 4/8 + 6/8 = 10/8 = 5/4 montre sa chaîne d'emblée et vaut le
      point ; écrire 5/4 au lieu de 10/8 ne le vaut pas ; un diviseur laissé
      vide ne rougit pas et reçoit la correction ; un diviseur faux rougit et
      le message nomme la simplification ; 2/3 + 1/2 × 3/2 = 17/12 n'a pas de
-     chaîne et accepte toute fraction égale ; la reprise redessine l'étape. */
+     chaîne et accepte toute fraction égale ; la reprise redessine l'étape ;
+     et la SOUSTRACTION 3/2 − 1/2 × 3/2 = 6/4 − 3/4 = 6/8 = 3/4 vaut le point,
+     quand 12/8 + 6/8 = 18/8 (additionné au lieu de soustrait) ne le vaut pas
+     et le message dit « soustraire ». La ligne de l'énoncé n'ouvre pas sur un
+     « = », chaque étape si — la grille elle-même se mesure dans le navigateur. */
 function sommeProduitFractions(w, P){
   const R = P.sommeProduit;
   const nom = '{somme-produit-fractions} : nombres de 1 à ' + (R ? R.max : '?') + ', produit borné à ' + (R ? R.inter : '?') + ', et la simplification par étapes';
@@ -7798,14 +7894,24 @@ function sommeProduitFractions(w, P){
     if(!TESTS[id] || !TEST_NUM[id]) return id+' : absent du menu';
 
     /* ---- ① le tirage ------------------------------------------------------ */
-    let vuMax=false, red=0, irr=0, faute='';
+    let vuMax=false, vuPlus=false, vuMoins=false, red=0, irr=0, faute='';
     for(let t=0;t<200 && !faute;t++){
       currentTestId=id; TESTS[id].start();
       if(test.qId!==id){ faute='la note part sous « '+test.qId+' »'; break; }
       if(!test.etapes){ faute='le démarreur ne pose pas la simplification par étapes'; break; }
-      (test.questions||[]).forEach(function(q){
+      if(!test.redac){ faute='le démarreur ne pose pas la question rédigée (test.redac)'; break; }
+      const qs=test.questions||[];
+      if(qs.length%2){ faute='une séance de '+qs.length+' questions : les paires guidée + rédigée ne tombent pas juste'; break; }
+      qs.forEach(function(q,i){
         if(faute) return;
-        const eti=q.a+'/'+q.b+' + '+q.c+'/'+q.d+' × '+q.e+'/'+q.f;
+        if(!!q.redac!==(i%2===1)){ faute='la question '+(i+1)+' '+(q.redac?'est':'n’est pas')+' rédigée : les paires sont guidée PUIS rédigée'; return; }
+        if(i%2===1 && q.op!==qs[i-1].op){ faute='la paire '+(i)+'/'+(i+1)+' ne pose pas la même opération ('+qs[i-1].op+' puis '+q.op+')'; return; }
+      });
+      qs.forEach(function(q){
+        if(faute) return;
+        if(q.op!=='+' && q.op!=='−'){ faute='opération « '+q.op+' » inconnue'; return; }
+        if(q.op==='+') vuPlus=true; else vuMoins=true;
+        const eti=q.a+'/'+q.b+' '+q.op+' '+q.c+'/'+q.d+' × '+q.e+'/'+q.f;
         const dep=[q.a,q.b,q.c,q.d,q.e,q.f];
         if(dep.some(function(x){ return !(x>=1 && x<=MAX); })){ faute=eti+' : un nombre de départ sort de 1 à '+MAX; return; }
         if(dep.indexOf(MAX)>=0) vuMax=true;
@@ -7813,15 +7919,19 @@ function sommeProduitFractions(w, P){
         const P1=q.c*q.e, Q1=q.d*q.f;
         if(P1!==q.P1 || Q1!==q.Q1){ faute=eti+' : le produit rangé '+q.P1+'/'+q.Q1+' ne suit pas le calcul '+P1+'/'+Q1; return; }
         if(!(P1>=1 && P1<=INTER && Q1>=1 && Q1<=INTER)){ faute=eti+' : le produit '+P1+'/'+Q1+' dépasse '+INTER; return; }
-        const N=q.a*Q1+P1*q.b, D=q.b*Q1;
-        if(N!==q.N || D!==q.D){ faute=eti+' : la somme rangée '+q.N+'/'+q.D+' ne suit pas le calcul '+N+'/'+D; return; }
+        const N=(q.op==='+') ? q.a*Q1+P1*q.b : q.a*Q1-P1*q.b, D=q.b*Q1;
+        if(N!==q.N || D!==q.D){ faute=eti+' : le résultat rangé '+q.N+'/'+q.D+' ne suit pas le calcul '+N+'/'+D; return; }
         if(!(N>0 && D>0)){ faute=eti+' : un résultat est négatif ou nul'; return; }
         if(N%D===0){ faute=eti+' : le résultat est un entier'; return; }
-        if(pgcd(N,D)>1) red++; else irr++;
+        const g=pgcd(N,D);
+        if(q.Nr!==N/g || q.Dr!==D/g){ faute=eti+' : la forme irréductible rangée '+q.Nr+'/'+q.Dr+' n’est pas '+(N/g)+'/'+(D/g); return; }
+        if(g>1) red++; else irr++;
       });
     }
     if(faute) return id+' : '+faute;
     if(!vuMax) vus.push('aucun nombre de départ ne vaut jamais '+MAX+' en 200 séances');
+    if(!vuPlus) vus.push('aucune addition en 200 séances');
+    if(!vuMoins) vus.push('aucune soustraction en 200 séances');
     if(!red) vus.push('aucun résultat ne se simplifie en 200 séances : la chaîne n’est jamais exercée');
     if(!irr) vus.push('tous les résultats se simplifient : le chemin sans chaîne n’est jamais exercé');
 
@@ -7833,7 +7943,7 @@ function sommeProduitFractions(w, P){
 
     /* ---- ② la chaîne -------------------------------------------------------- */
     currentTestId=id; TESTS[id].start();
-    const Q1={a:1,b:2,c:1,d:2,e:3,f:2,P1:3,Q1:4,N:10,D:8};
+    const Q1={a:1,b:2,c:1,d:2,e:3,f:2,op:'+',P1:3,Q1:4,N:10,D:8,Nr:5,Dr:4};
     const pose=function(q){ test.questions=[Object.assign({},q)]; test.idx=0; test.locked=false; renderSpfTest(); };
     const debut=function(q){
       [['spf-h1',q.c],['spf-h2',q.e],['spf-b1',q.d],['spf-b2',q.f],['spf-pn',q.P1],['spf-pd',q.Q1],
@@ -7841,6 +7951,19 @@ function sommeProduitFractions(w, P){
        ['spf-x-n1',q.a*q.Q1],['spf-x-n2',q.P1*q.b],['spf-x-d',q.b*q.Q1]].forEach(function(p){ tape(p[0],p[1]); });
     };
     pose(Q1);
+    /* la ligne de l'énoncé n'ouvre pas sur « = » ; les cinq étapes et la
+       simplification, si — la position à l'écran se mesure dans le navigateur */
+    (function(){ const row=document.querySelector('#spfHost .pt-row'); if(!row){ vus.push('pas de rangée'); return; }
+      const items=[].concat.apply([], [].map.call(row.children, function(c){ return c.classList.contains('f-grp') ? [].slice.call(c.children) : [c]; }));
+      const eqs=items.filter(function(e){ return e.classList.contains('f-eq'); });
+      if(items[0].classList.contains('f-eq')) vus.push('la ligne de l’énoncé commence par un « = »');
+      if(eqs.length!==5+2) vus.push(eqs.length+' « = » au lieu de 7 (cinq étapes, deux pour la simplification)');
+      if(eqs.some(function(e){ return e.textContent.trim()!=='='; })) vus.push('un « = » n’en est pas un');
+      const t1=items.filter(function(e){ return e.classList.contains('spf-t1'); });
+      if(t1.length!==6) vus.push(t1.length+' premiers termes au lieu de 6');
+      const op=items.filter(function(e){ return e.classList.contains('spf-op'); });
+      if(op.length!==4 || op.some(function(e){ return e.textContent.trim()!=='+'; })) vus.push('les signes de la grille : '+op.map(function(e){ return e.textContent.trim(); }).join(' '));
+    })();
     if(!$$('spf-e0-dn')) vus.push('10/8 se simplifie, et aucune étape n’est posée d’emblée');
     if($$('spf-e1-dn')) vus.push('10/8 n’a besoin que d’une étape au départ');
     const lab=document.querySelector('#spfHost .pt-lab');
@@ -7870,8 +7993,8 @@ function sommeProduitFractions(w, P){
     if(peint('spf-e0-dn')!=='faux') vus.push('le diviseur 3 est peint '+peint('spf-e0-dn'));
     if(!/simplifie/.test(($$('spfFeedback')||{}).textContent||'')) vus.push('le message ne nomme pas la simplification : « '+(($$('spfFeedback')||{}).textContent||'')+' »');
     /* sans chaîne : 2/3 + 1/2 × 3/2 = 8/12 + 9/12 = 17/12 ; pour la reprise, 1/4 + 1/2 × 5/3 = 26/24 */
-    const Q2={a:1,b:4,c:1,d:2,e:5,f:3,P1:5,Q1:6,N:26,D:24};
-    const Q3={a:2,b:3,c:1,d:2,e:3,f:2,P1:3,Q1:4,N:17,D:12};
+    const Q2={a:1,b:4,c:1,d:2,e:5,f:3,op:'+',P1:5,Q1:6,N:26,D:24,Nr:13,Dr:12};
+    const Q3={a:2,b:3,c:1,d:2,e:3,f:2,op:'+',P1:3,Q1:4,N:17,D:12,Nr:17,Dr:12};
     pose(Q3);
     if($$('spf-e0-dn')) vus.push('17/12 est irréductible, et une simplification est demandée');
     debut(Q3); tape('spf-x-rn',34); tape('spf-x-rd',24);
@@ -7883,41 +8006,121 @@ function sommeProduitFractions(w, P){
     renderSpfTest();
     if(!$$('spf-e0-dn') || ($$('spf-e0-dd')||{}).value===undefined) vus.push('après un redessin (reprise), l’étape a disparu');
     if(qr.sbrut!=='26/24' || !qr.sdiv || qr.sdiv[0]!=='2') vus.push('rangé dans la question : '+qr.sbrut+' '+JSON.stringify(qr.sdiv));
+    /* la soustraction : 3/2 − 1/2 × 3/2 = 3/2 − 3/4 = 12/8 − 6/8 = 6/8 = 3/4 */
+    const Q4={a:3,b:2,c:1,d:2,e:3,f:2,op:'−',P1:3,Q1:4,N:6,D:8,Nr:3,Dr:4};
+    pose(Q4);
+    if(!/−/.test(($$('spfPrompt')||{}).textContent||'')) vus.push('l’énoncé d’une soustraction n’écrit pas « − »');
+    if(!/différence/.test((document.querySelector('#spfHost .pt-lab')||{}).textContent||'')) vus.push('le libellé d’une soustraction parle encore de somme');
+    (function(){ const op=document.querySelectorAll('#spfHost .pt-row .spf-op'); if(op.length!==4 || [].some.call(op, function(e){ return e.textContent.trim()!=='−'; })) vus.push('les signes de la grille d’une soustraction : '+[].map.call(op, function(e){ return e.textContent.trim(); }).join(' ')); })();
+    if(!$$('spf-e0-dn')) vus.push('6/8 se simplifie, et aucune étape n’est posée d’emblée');
+    debut(Q4); tape('spf-x-rn',6); tape('spf-x-rd',8); tape('spf-e0-dn',2); tape('spf-e0-n',3); tape('spf-e0-d',4);
+    checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('3/2 − 1/2 × 3/2 = … = 6/8 = 3/4 est compté faux');
+    else if(!/−/.test(der().q)) vus.push('la question enregistrée n’écrit pas la soustraction : '+der().q);
+    /* additionné au lieu de soustrait */
+    pose(Q4); debut(Q4); tape('spf-x-rn',18); tape('spf-x-rd',8); tape('spf-e0-dn',2); tape('spf-e0-n',3); tape('spf-e0-d',4);
+    checkSpfAnswer();
+    if(der() && der().correct) vus.push('12/8 + 6/8 = 18/8 est compté juste sur une soustraction');
+    if(peint('spf-x-rn')!=='faux') vus.push('18/8 au lieu de 6/8 : le numérateur est peint '+peint('spf-x-rn'));
+    if(!/soustraire/.test(($$('spfFeedback')||{}).textContent||'')) vus.push('le message d’une soustraction manquée ne dit pas « soustraire » : « '+(($$('spfFeedback')||{}).textContent||'')+' »');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
 
-/* ---------- Le thème 4 « Fractions » de la Première : 4.2 à 4.5 ------------
-   Demande de Turquet (octobre 2026) : « mettre les exercices de seconde 5.2 ;
-   5.3 ; 5.6 ; 5.8 dans le thème fraction de première ; tous les nombres au
-   départ entre 1 et 5 ; pas de résultat intermédiaire ou final négatif ; les
-   fractions au début irréductibles ; si le résultat peut être simplifié,
-   proposer les simplifications comme dans l'exercice de première 4.1 ».
-   Déclaré par le profil (fractionsEtapes) ; la Seconde, qui garde ses
-   exercices tels quels, s'y affiche « non applicable ».
-   TROIS mesures, et chacune passe par le démarreur RÉEL de l'exercice —
-   jamais par le tirage seul : c'est le démarreur qui choisit la borne et pose
-   « test.etapes », et un tirage juste branché sur un démarreur qui l'oublie
-   ne se verrait pas.
-   ① LE TIRAGE, sur deux cents séances par exercice : chaque nombre de départ
-     entre 1 et la borne (et la borne ATTEINTE, sans quoi la mesure ne
-     mesurerait qu'un tirage trop étroit), les fractions de départ
-     irréductibles, et aucun nombre intermédiaire ou final négatif ou nul —
-     recalculé ICI, par une arithmétique propre : multiplicateurs du plus
-     petit dénominateur commun, numérateurs mis au même, résultat ; produit
-     et quotient. Un produit qui se simplifie doit SORTIR au moins une fois,
-     sans quoi la chaîne ne serait jamais exercée.
-   ② LA SOMME, par de vrais évènements « input » : sur le plus petit
-     dénominateur commun (1/2 + 1/4 = 2/4 + 1/4 = 3/4) aucune chaîne ; par 8,
-     la fraction obtenue 6/8 ouvre une étape, le diviseur se recopie, 2 la
-     ferme ; par 16, 12/16 ÷ 2 = 6/8 en ouvre une seconde. La copie juste vaut
-     le point, la réponse enregistrée garde toute la ligne, un diviseur faux
-     rougit et sa correction écrit le PGCD, un diviseur vide ne rougit pas, et
-     la reprise redessine les mêmes étapes.
-   ③ LE PRODUIT ET LE QUOTIENT : 2/3 × 3/5 = 6/15 montre sa chaîne d'emblée
-     (la fraction brute ne dépend que de l'énoncé), 2/3 × 1/5 = 2/15 n'en a
-     pas, et 2/3 ÷ 4/5 = 10/12 se simplifie par 2. Le message nomme la
-     simplification quand c'est elle qui manque. */
+/* ---------- Les questions RÉDIGÉES des 4.3 à 4.6 de la Première -----------
+   Demande de Turquet (octobre 2026) : après chaque question guidée, une
+   question de mêmes critères, rédigée dans une feuille dont la première ligne
+   porte le calcul suivi de « = ». Déclaré par le même profil
+   (fractionsEtapes) : la Seconde s'y affiche « non applicable ».
+   ① LES PAIRES : chaque démarreur réel alterne guidée et rédigée, la séance
+     tient le nombre déclaré, et la séance d'un devoir réglé à k questions en
+     garde k (le réglage compte les rédigées).
+   ② LES JUGES, par des copies écrites à la main, une par bord : la copie
+     juste vaut le point, la copie qui s'arrête sur une fraction réductible
+     est REFUSÉE (« simplifier ») — le juge de la Seconde ne regardait que la
+     valeur pour un produit —, une égalité fausse est nommée, la division sans
+     l'inverse fait s'abstenir le juge (le modèle décide), et au 4.6 la ligne
+     du produit intermédiaire n'est pas une égalité fausse, mais une addition
+     faite avant la multiplication l'est. */
+function fractionsRedigees(w, P){
+  const nom='les questions rédigées des 4.3 à 4.6 : des paires, et des juges qui exigent un résultat irréductible';
+  if(!P.fractionsEtapes){
+    ignorer(nom, 'ce niveau ne porte pas les questions rédigées du thème Fractions');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    if(typeof redMath!=='function' || typeof RED_CFG==='undefined') return 'redMath ou RED_CFG absent';
+    /* ① les paires */
+    const ids={'somme-fractions-2':12,'multiplier-fractions':12,'diviser-fractions':12,'somme-produit-fractions':8};
+    Object.keys(ids).forEach(function(id){
+      if(!TESTS[id]){ vus.push(id+' absent'); return; }
+      currentTestId=id; TESTS[id].start();
+      const qs=test.questions||[];
+      if(!test.redac) vus.push(id+' : le démarreur ne pose pas test.redac');
+      if(qs.length!==ids[id]) vus.push(id+' : '+qs.length+' questions au lieu de '+ids[id]);
+      if(qs.some(function(q,i){ return !!q.redac!==(i%2===1); })) vus.push(id+' : les questions n’alternent pas guidée / rédigée');
+      if(!RED_CFG[test.kind] || !document.getElementById(RED_CFG[test.kind].r+'Zone')) vus.push(id+' : aucune zone rédigée sur l’écran '+test.kind);
+    });
+    /* ② les juges */
+    const juge=function(kind, inv, q, rep){ test.kind=kind; test.inv=inv; return redMath(q).juge(rep); };
+    const mq={n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15,redac:true};
+    let j=juge('mlt',false,mq,'2/3×3/5=6/15=2/5');
+    if(!(j.sait && j.correct)) vus.push('produit : 2/3 × 3/5 = 6/15 = 2/5 n’est pas compté juste');
+    j=juge('mlt',false,mq,'2/3×3/5=6/15');
+    if(!(j.sait && !j.correct && j.motif==='simplifier')) vus.push('produit : s’arrêter sur 6/15 n’est pas refusé pour « simplifier » ('+JSON.stringify(j)+')');
+    j=juge('mlt',false,mq,'2/3×3/5=6/15=3/5');
+    if(!(j.sait && !j.correct && j.motif==='egalite')) vus.push('produit : l’égalité fausse 6/15 = 3/5 n’est pas nommée');
+    const dq={n1:3,d1:4,n2:2,d2:5,a1:3,a2:5,b1:4,b2:2,P:15,Q:8,redac:true};
+    j=juge('mlt',true,dq,'3/4÷2/5=3/4×5/2=15/8');
+    if(!(j.sait && j.correct)) vus.push('quotient : 3/4 ÷ 2/5 = 3/4 × 5/2 = 15/8 n’est pas compté juste');
+    j=juge('mlt',true,dq,'3/4÷2/5=15/8');
+    if(j.sait) vus.push('quotient : sans l’inverse écrit, le juge tranche au lieu de laisser lire le modèle');
+    const sq={n1:1,d1:2,n2:1,d2:4,op:'+',D:4,N1:2,N2:1,N:3,Nr:3,Dr:4,redac:true};
+    j=juge('sf',false,sq,'1/2+1/4=4/8+2/8=6/8');
+    if(!(j.sait && !j.correct && j.motif==='simplifier')) vus.push('somme : s’arrêter sur 6/8 n’est pas refusé');
+    j=juge('sf',false,sq,'1/2+1/4=2/4+1/4=3/4');
+    if(!(j.sait && j.correct)) vus.push('somme : 1/2 + 1/4 = 2/4 + 1/4 = 3/4 n’est pas compté juste');
+    const pq={a:1,b:4,c:1,d:2,e:5,f:3,P1:5,Q1:6,N:26,D:24,redac:true};
+    j=juge('spf',false,pq,'1/4+1/2×5/3=1/4+5/6\\n=1/2×5/3\\n=5/6\\n=6/24+20/24=26/24=13/12');
+    if(!(j.sait && j.correct)) vus.push('somme avec produit : une copie juste, produit isolé sur sa ligne, n’est pas comptée juste ('+JSON.stringify(j)+')');
+    j=juge('spf',false,pq,'1/4+1/2×5/3=6/24+20/24=26/24');
+    if(!(j.sait && !j.correct && j.motif==='simplifier')) vus.push('somme avec produit : s’arrêter sur 26/24 n’est pas refusé');
+    j=juge('spf',false,pq,'1/4+1/2×5/3=3/4×5/3=15/12');
+    if(!(j.sait && !j.correct)) vus.push('somme avec produit : l’addition faite avant la multiplication n’est pas refusée');
+    /* le texte que lit le modèle commence par le calcul suivi de « = » */
+    test.kind='spf'; test.inv=false;
+    if(!/« 1\\/4 \\+ 1\\/2 × 5\\/3 = »/.test(redMath(pq).enonceIA)) vus.push('le modèle ne lit pas que la première ligne porte « 1/4 + 1/2 × 5/3 = »');
+    /* la SOUSTRACTION du 4.6 (octobre 2026) : 3/2 − 1/2 × 3/2 = 3/2 − 3/4 = 6/4 − 3/4 = 3/4 */
+    const pm={a:3,b:2,c:1,d:2,e:3,f:2,op:'−',P1:3,Q1:4,N:6,D:8,Nr:3,Dr:4,redac:true};
+    j=juge('spf',false,pm,'3/2−1/2×3/2=3/2−3/4=6/4−3/4=3/4');
+    if(!(j.sait && j.correct)) vus.push('somme avec produit, soustraction : une copie juste n’est pas comptée juste ('+JSON.stringify(j)+')');
+    j=juge('spf',false,pm,'3/2−1/2×3/2=3/2−3/4=6/4+3/4=9/4');
+    if(!(j.sait && !j.correct)) vus.push('somme avec produit, soustraction : 6/4 + 3/4 = 9/4 est accepté');
+    j=juge('spf',false,pm,'3/2−1/2×3/2=2/2×3/2=3/2');
+    if(!(j.sait && !j.correct)) vus.push('somme avec produit, soustraction : soustraire avant de multiplier (2/2 × 3/2) est accepté');
+    const mm=redMath(pm);
+    if(!/« 3\\/2 − 1\\/2 × 3\\/2 = »/.test(mm.enonceIA)) vus.push('le modèle ne lit pas que la première ligne porte « 3/2 − 1/2 × 3/2 = »');
+    if(mm.latex!=='\\\\frac{3}{2}-\\\\frac{1}{2}\\\\times \\\\frac{3}{2}') vus.push('le LaTeX de la soustraction : '+mm.latex);
+    if(!/différence/.test(mm.attenduIA) || /la somme 3\\/2/.test(mm.attenduIA)) vus.push('la règle d’une soustraction parle encore de somme');
+    if(!/soustraire/.test(mm.ctx)) vus.push('le contexte de l’aide d’une soustraction ne dit pas « soustraire »');
+    if(!/−/.test(mm.html)) vus.push('l’énoncé affiché d’une soustraction n’écrit pas « − »');
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+  /* le réglage « Questions » d'un devoir compte les rédigées */
+  verifierEval(w, nom+' (réglage d’un devoir)', `(function(){
+    if(typeof redPaires!=='function') return 'redPaires absente';
+    const garde=dmReglageExo; let rendu='';
+    try{
+      dmReglageExo=function(){ return {nbQ:5}; };
+      const qs=redPaires(6, mltGen);
+      if(qs.length!==6) rendu='5 questions réglées : '+qs.length+' tirées au lieu de 6 (trois paires, la coupe en garde cinq)';
+    } finally { dmReglageExo=garde; }
+    return rendu;
+  })()`, v => v === '', undefined);
+}
+
 function fractionsEtapes(w, P){
   const R = P.fractionsEtapes;
   const nom = 'le thème Fractions : nombres de 1 à ' + (R ? R.max : '?') + ', rien de négatif, et la simplification par étapes';
@@ -16902,7 +17105,7 @@ function additionnerRelatifs(w, P){
     if(!th || !/Calcul littéral/i.test(th.nom) || th.ids.indexOf('additionner-relatifs')<0)
       vus.push('l\\'exercice n\\'est pas dans un thème 7 « Calcul littéral »');
     if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('numéro '+TEST_NUM['additionner-relatifs']+' au lieu de 7.1');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(THEMES.map(function(t){ return t.num; }).slice(0,7).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');   /* un thème ajouté EN DERNIER (le 8, Vecteurs) ne fait pas bouger les sept premiers */
     if(TABLES_SANS.indexOf('additionner-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
 
     /* ---- 1. le tirage ---------------------------------------------------- */
@@ -17187,7 +17390,7 @@ function reduireSomme(w, P){
       vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
     if(TEST_NUM['reduire-somme']!=='7.5') vus.push('numéro '+TEST_NUM['reduire-somme']+' au lieu de 7.5');
     if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2' || TEST_NUM['multiplier-relatifs']!=='7.3' || TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['simplifier-barres']!=='5.1') vus.push('l\\'exercice ajouté a renuméroté les autres');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(THEMES.map(function(t){ return t.num; }).slice(0,7).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');   /* un thème ajouté EN DERNIER (le 8, Vecteurs) ne fait pas bouger les sept premiers */
     if(TABLES_SANS.indexOf('reduire-somme')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
     if(document.querySelectorAll('#modeTagRed').length!==1) vus.push('le badge du mode du 7.5 n\\'est pas le sien');
 
@@ -17333,7 +17536,7 @@ function soustraireRelatifs(w, P){
     if(!th || !/Calcul litt/i.test(th.nom) || th.ids.indexOf('soustraire-relatifs')<0)
       vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
     if(TEST_NUM['soustraire-relatifs']!=='7.7') vus.push('numéro '+TEST_NUM['soustraire-relatifs']+' au lieu de 7.7');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(THEMES.map(function(t){ return t.num; }).slice(0,7).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');   /* un thème ajouté EN DERNIER (le 8, Vecteurs) ne fait pas bouger les sept premiers */
     if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2' || TEST_NUM['multiplier-relatifs']!=='7.3' || TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['reduire-somme']!=='7.5' || TEST_NUM['associer-expressions']!=='7.6') vus.push('un exercice de 7.1 à 7.6 a bougé');
     if(TABLES_SANS.indexOf('soustraire-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
 
@@ -17442,7 +17645,7 @@ function tableauProportions(w, P){
       vus.push('l\\'exercice n\\'est pas la partie 6 du thème 4 « Pourcentages »');
     if(TEST_NUM['tableau-proportions']!=='4.6.1') vus.push('numéro '+TEST_NUM['tableau-proportions']+' au lieu de 4.6.1');
     if(TEST_NUM['synthese-pourcentages']!=='4.5.1' || TEST_NUM['evolutions-successives']!=='4.5.5' || TEST_NUM['fraction-pourcentage']!=='4.1.1') vus.push('un exercice du thème 4 a changé de numéro');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(THEMES.map(function(t){ return t.num; }).slice(0,7).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');   /* un thème ajouté EN DERNIER (le 8, Vecteurs) ne fait pas bouger les sept premiers */
     if(TABLES_SANS.indexOf('tableau-proportions')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
 
     /* ---- 1. le tirage ---------------------------------------------------- */
@@ -18356,6 +18559,168 @@ function reduireProduit(w, P){
 
     /* le barème : 45 cases (phase détaillée) + 15 (phase directe) */
     if(test.maxScore!==60) vus.push('barème de '+test.maxScore+' au lieu de 60');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {translation-grille} — thème 8 « Vecteurs », 8.1 : huit vecteurs d'une
+   case (les huit directions), une grille de points de A à X, six lignes
+   « … a pour image … par la translation de vecteur … ». Les images et les
+   numéros de vecteur attendus sont reconstruits ICI, à partir d'une grille et
+   de déplacements écrits à part — jamais par les fonctions de la page qui
+   corrigent. Puis la fiche elle-même (L → A par v₁, L → M par v₂, N → M par
+   v₃, H → G par v₄, I → O par v₈, T → P par v₅), jugée par le bouton. */
+function translationGrille(w, P){
+  const present = evaluer(w, "typeof startVtr==='function' && typeof vtrLignes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('image d\'un point par une translation : le tirage, la correction et la place dans le thème Vecteurs',
+      'ce niveau n\'a pas l\'exercice de la translation sur une grille');
+    return;
+  }
+  verifierEval(w, 'image d\'un point par une translation : le tirage, la correction et la place dans le thème Vecteurs', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='translation-grille';
+
+    /* ---- 0. la place : 8.1, dans un thème « Vecteurs » ajouté en dernier ; pas de bouton des tables */
+    const th=THEMES.find(function(t){ return t.num===8; });
+    if(!th || !/Vecteurs/i.test(th.nom) || th.ids.indexOf('translation-grille')<0)
+      vus.push('l\\'exercice n\\'est pas dans le thème 8 « Vecteurs »');
+    if(TEST_NUM['translation-grille']!=='8.1') vus.push('numéro '+TEST_NUM['translation-grille']+' au lieu de 8.1');
+    if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['reduire-produit']!=='7.8' || TEST_NUM['simplifier-barres']!=='5.1'
+       || TEST_NUM['python-affichage']!=='6.1.1' || TEST_NUM['ensembles-nombres']!=='2.1') vus.push('le thème ajouté a renuméroté les autres');
+    if(TABLES_SANS.indexOf('translation-grille')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
+    /* la grille de la fiche : 24 lettres, chacune une fois, en serpentin */
+    const GRILLE=['ABCDEF','LKJIHG','MNOPQR','XWVUTS'];
+    if(VTR_GRILLE.join('|')!==GRILLE.join('|')) vus.push('la grille n\\'est pas celle de la fiche : '+VTR_GRILLE.join(' / '));
+    const toutes=GRILLE.join('').split('').sort().join('');
+    if(toutes!=='ABCDEFGHIJKLMNOPQRSTUVWX') vus.push('les 24 lettres ne sont pas A à X une fois chacune');
+    /* les huit déplacements, dans l'ordre de la fiche (dy>0 descend) */
+    const DEP=[[0,-1],[0,1],[-1,0],[1,0],[-1,-1],[1,-1],[1,1],[-1,1]];
+    DEP.forEach(function(d,k){ if(VTR_DIRS[k].dx!==d[0] || VTR_DIRS[k].dy!==d[1]) vus.push('la direction '+(k+1)+' n\\'est pas celle de la fiche'); });
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    const pos=function(p){ return {c:p%6, l:Math.floor(p/6)}; };
+    const lettre=function(p){ const o=pos(p); return GRILLE[o.l][o.c]; };
+    const bouge=function(p,d){ const o=pos(p), c=o.c+DEP[d][0], l=o.l+DEP[d][1]; return (c<0||c>5||l<0||l>3)?-1:l*6+c; };
+    const cles=new Set(); let pagesDoublees=0;
+    for(let i=0;i<300 && vus.length<4;i++){
+      const qs=vtrBuildQuestions();
+      if(qs.length!==3){ vus.push(qs.length+' pages au lieu de 3'); break; }
+      const vuesIci=[];
+      qs.forEach(function(q,ip){
+        if(!Array.isArray(q.ordre) || q.ordre.slice().sort().join('')!=='01234567') vus.push('page '+(ip+1)+' : l\\'ordre des vecteurs n\\'est pas une permutation de 0 à 7');
+        if(ip===0 && q.ordre.join('')!=='01234567') vus.push('la première page ne suit pas la fiche (v1 vers le haut, v2 vers le bas…)');
+        if(q.lignes.length!==6) vus.push('page '+(ip+1)+' : '+q.lignes.length+' lignes au lieu de 6');
+        const dirs=q.lignes.map(function(L){ return L.d; });
+        if(new Set(dirs).size!==dirs.length) vus.push('page '+(ip+1)+' : deux lignes ont la même direction');
+        q.lignes.forEach(function(L,k){
+          if(!(L.p>=0 && L.p<24 && Number.isInteger(L.p))) vus.push('point '+L.p+' hors de la grille');
+          if(bouge(L.p,L.d)<0) vus.push('ligne '+(k+1)+' : l\\'image de '+lettre(L.p)+' par la direction '+L.d+' sort de la grille');
+          if(L.t!==(k<4?'image':'vecteur')) vus.push('ligne '+(k+1)+' demande '+L.t+' : la fiche demande quatre images puis deux vecteurs');
+          if(Object.keys(L).some(function(k2){ return typeof L[k2]==='function'; })) vus.push('une ligne range une fonction : la question ne survivrait pas à la pause');
+        });
+        vuesIci.push(JSON.stringify(q.lignes));
+      });
+      if(new Set(vuesIci).size!==vuesIci.length) pagesDoublees++;
+      vuesIci.forEach(function(c){ cles.add(c); });
+    }
+    if(pagesDoublees) vus.push(pagesDoublees+' séance(s) sur 300 posent deux fois la même page');
+    if(cles.size<200) vus.push('seulement '+cles.size+' pages différentes sur 900 tirées');
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 2. les réponses attendues, reconstruites ici ------------------- */
+    for(let essai=0;essai<200 && vus.length<4;essai++){
+      const q=vtrGenQuestion(undefined, essai%3);
+      vtrLignes(q).forEach(function(l, idx){
+        const L=q.lignes[idx], img=bouge(L.p,L.d);
+        if(l.dep!==lettre(L.p)) vus.push('départ '+l.dep+' au lieu de '+lettre(L.p));
+        if(l.img!==lettre(img)) vus.push('image de '+l.dep+' : '+l.img+' au lieu de '+lettre(img));
+        if(l.num!==q.ordre.indexOf(L.d)+1) vus.push('numéro de vecteur '+l.num+' au lieu de '+(q.ordre.indexOf(L.d)+1));
+      });
+      const cs=vtrCases(q);
+      if(cs.length!==6) vus.push(cs.length+' cases au lieu de 6');
+      if(cs.filter(function(c){ return c.kind==='sel'; }).length!==2) vus.push('les deux lignes « vecteur » ne sont pas des listes');
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 3. la correction, par le BOUTON, sur la fiche elle-même --------- */
+    const FICHE={ ordre:[0,1,2,3,4,5,6,7], lignes:[
+      {p:6,  d:0, t:'image'},    /* L → A par v1 (haut) */
+      {p:6,  d:1, t:'image'},    /* L → M par v2 (bas) */
+      {p:13, d:2, t:'image'},    /* N → M par v3 (gauche) */
+      {p:10, d:3, t:'image'},    /* H → G par v4 (droite) */
+      {p:9,  d:7, t:'vecteur'},  /* I → O : bas-gauche, v8 */
+      {p:22, d:4, t:'vecteur'}   /* T → P : haut-gauche, v5 */
+    ]};
+    startVtr();
+    test.questions=[FICHE, test.questions[1], test.questions[2]]; test.idx=0;
+    if(test.questions.length!==3 || test.maxScore!==18) vus.push('barème de '+test.maxScore+' au lieu de 18 (3 pages × 6 cases)');
+    const JUSTE={'vtr-i-0':'A','vtr-i-1':'M','vtr-i-2':'M','vtr-i-3':'G','vtr-v-4':'8','vtr-v-5':'5'};
+    const IDS=Object.keys(JUSTE);
+    const poser=function(vals){
+      test.locked=false; renderVtrTest();
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    poser({});
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la page manque à l\\'écran';
+    /* les deux figures sont là : huit flèches, vingt-quatre lettres */
+    const svgs=document.querySelectorAll('#vtrHost svg');
+    if(svgs.length!==2) vus.push(svgs.length+' figure(s) au lieu de 2');
+    if(document.querySelectorAll('#vtrHost .vtr-svg-vec path.vtr-ar:not(.vtr-ar-s)').length!==8) vus.push('la figure des vecteurs n\\'a pas huit flèches');
+    const lettresSvg=[].map.call(document.querySelectorAll('#vtrHost .vtr-svg-gr text'), function(t){ return t.textContent; }).sort().join('');
+    if(lettresSvg!=='ABCDEFGHIJKLMNOPQRSTUVWX') vus.push('la grille n\\'écrit pas les 24 lettres : '+lettresSvg);
+    const opts=[].map.call(document.getElementById('vtr-v-4').options, function(o){ return o.value; }).filter(Boolean);
+    if(opts.join(',')!=='1,2,3,4,5,6,7,8') vus.push('la liste des vecteurs propose '+opts.join(', '));
+    /* la copie juste */
+    poser(JUSTE); checkVtrAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    const nonVerts=IDS.filter(function(id){ return peint(id)!=='vert'; });
+    if(nonVerts.length) vus.push('la copie juste n\\'est pas entièrement juste : '+nonVerts.join(', '));
+    if(!der || der.cases!==6) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 6');
+    if(test.score!==6) vus.push('le score affiché vaut '+test.score+' au lieu de 6');
+    /* une minuscule vaut la majuscule */
+    poser(Object.assign({}, JUSTE, {'vtr-i-0':'a'})); checkVtrAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('« a » en minuscule est refusé pour A');
+    /* LE PIÈGE : le sens inversé — M (vers le bas) au lieu de A pour v1 */
+    poser(Object.assign({}, JUSTE, {'vtr-i-0':'M'})); checkVtrAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('M pour l\\'image de L par v1 est accepté');
+    if(peint('vtr-i-0')!=='rouge') vus.push('vtr-i-0 faux, peint en '+peint('vtr-i-0'));
+    ['vtr-i-1','vtr-i-2','vtr-i-3','vtr-v-4','vtr-v-5'].forEach(function(id){ if(peint(id)!=='vert') vus.push('une case juste rougit à côté du piège : '+id); });
+    const fb=document.getElementById('vtrFeedback').textContent;
+    if(!/vers le haut/.test(fb) || !/arrive en A/.test(fb)) vus.push('le message ne dit pas le déplacement de v1 ni l\\'image A : « '+fb.slice(0,80)+' »');
+    /* le même piège sur un vecteur : bas-droite (v7) au lieu de bas-gauche (v8) */
+    poser(Object.assign({}, JUSTE, {'vtr-v-4':'7'})); checkVtrAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('v7 pour aller de I à O est accepté');
+    if(peint('vtr-v-4')!=='rouge') vus.push('vtr-v-4 faux, peint en '+peint('vtr-v-4'));
+    const badge=document.getElementById('vtr-v-4').nextElementSibling;
+    if(!badge || !/mf-cor/.test(badge.className) || badge.textContent!=='v₈') vus.push('la bonne réponse v₈ ne s\\'écrit pas à côté de la liste fausse');
+    /* une case vide ne rougit pas, et reçoit la correction — lettre et liste */
+    poser(Object.assign({}, JUSTE, {'vtr-i-1':'', 'vtr-v-5':''})); checkVtrAnswer();
+    if(peint('vtr-i-1')!=='bleu') vus.push('case vide vtr-i-1 peinte en '+peint('vtr-i-1'));
+    if((document.getElementById('vtr-i-1')||{}).value!=='M') vus.push('la correction de la case vide n\\'écrit pas M');
+    if(peint('vtr-v-5')!=='bleu') vus.push('liste vide vtr-v-5 peinte en '+peint('vtr-v-5'));
+    if((document.getElementById('vtr-v-5')||{}).value!=='5') vus.push('la correction de la liste vide ne choisit pas v5');
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('une copie à deux cases vides est comptée juste');
+    if(!/manquait 2 cases/.test(document.getElementById('vtrFeedback').textContent)) vus.push('le message ne nomme pas les deux cases manquantes');
+    /* la copie entièrement vide : rien ne rougit */
+    poser({}); checkVtrAnswer();
+    const rouges=IDS.filter(function(id){ return peint(id)==='rouge'; });
+    if(rouges.length) vus.push('une copie vide rougit : '+rouges.join(', '));
+    /* en soutien, la correction au fil de la saisie peint sans verrouiller */
+    currentMode='soutien'; poser(Object.assign({}, JUSTE, {'vtr-i-2':'A'}));
+    checkVtrAnswer(true);
+    if(peint('vtr-i-2')!=='rouge') vus.push('en soutien, la lettre fausse n\\'est pas peinte en rouge au fil de la saisie');
+    if(peint('vtr-i-0')!=='vert') vus.push('en soutien, la lettre juste n\\'est pas peinte en bleu (ok) au fil de la saisie');
+    if(test.locked) vus.push('la correction en direct verrouille la page');
+    currentMode='train';
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -24967,7 +25332,7 @@ function serpentsHalloween(w, P){
       const svg=fig.querySelector("svg.hw-svg"), textes=svg?[].map.call(svg.querySelectorAll("text"),function(t){ return t.textContent; }):[];
       if(!svg) vus.push(id+" : pas de SVG dans le serpent");
       else if(d.bulle.some(function(l){ return textes.indexOf(l)<0; })) vus.push(id+" : la bulle n’écrit pas « "+d.bulle.join(" / ")+" » : "+textes.join(" / "));
-      const img=fig.parentNode&&fig.parentNode.querySelector("img[src^='data:image']");
+      const img=fig.parentNode&&fig.parentNode.querySelector("img[src*='dessins/']");
       if(!img) vus.push(id+" : le serpent n’est pas à côté du dessin de la fiche");
       else if(!(img.compareDocumentPosition(fig)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push(id+" : le serpent passe AVANT le dessin de la fiche");
       const stage=on.querySelector(".mp-stage");
@@ -25104,7 +25469,7 @@ function pythonInputReponse(w, P){
     currentEleve=currentEleve||{id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPYN();
     /* le dessin de la fiche ouvre l'écran, avant la définition et l'énoncé — à la question 1… */
     const fig=$("pynFig"), img=fig&&fig.querySelector("img.pyn-img");
-    if(!img||!/^data:image/.test(img.getAttribute("src")||"")||!img.getAttribute("alt")) vus.push("le dessin de la fiche manque en tête de l’exercice");
+    if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(img.getAttribute("src")||"")||!img.getAttribute("alt")) vus.push("le dessin de la fiche manque en tête de l’exercice");
     if(fig&&!(fig.compareDocumentPosition($("pynAvant")) & Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas avant la définition");
     if(fig&&!(fig.compareDocumentPosition($("pynInstr")) & Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas avant l’énoncé");
     if(!$("pynAvant")||!/input/.test($("pynAvant").textContent)) vus.push("la définition manque à la question 1");
@@ -25787,7 +26152,7 @@ function pythonForRange(w, P){
     startPFR();
     const vus=[], av=document.getElementById("pfrAvant");
     const img=av.querySelector("img.pfr-img"), def=av.querySelector(".pii-def");
-    if(!img||!/^data:image\\/webp/.test(img.getAttribute("src"))) vus.push("pas de dessin");
+    if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src"))) vus.push("pas de dessin");
     if(!def) vus.push("pas de définition");
     else {
       if(img&&!(img.compareDocumentPosition(def)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas en premier");
@@ -26034,7 +26399,7 @@ function pythonProgrammeCalcul(w, P){
     const li=Array.prototype.map.call(document.querySelectorAll("#pgcInstr .pgc-etapes li"),function(l){ return l.textContent; });
     if(li.join("|")!==pgcEtapes(PGC_SITUATIONS[0]).join("|")) vus.push("les étapes de l’énoncé : "+li.join("|"));
     const img=document.querySelector("#pgcInstr img.pgc-img"), etapes=document.querySelector("#pgcInstr .pgc-etapes");
-    if(!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("pas de dessin en tête de l’énoncé");
+    if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(img.getAttribute("src")||"")) vus.push("pas de dessin en tête de l’énoncé");
     else if(!(img.compareDocumentPosition(etapes) & Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas AVANT le programme de calcul");
     const et=document.querySelector("#pgcHost .pyn-etape .pyn-titre");
     if(!et||!/Écrivez un programme Python permettant de coder ce programme de calcul/.test(et.textContent)) vus.push("l’énoncé de la question : "+(et&&et.textContent));
@@ -26318,7 +26683,7 @@ function pythonForMultiples(w, P){
     const vus=[], NL=String.fromCharCode(10);
     if(test.maxScore!==2*${NB}) vus.push("barème "+test.maxScore);
     const ins=document.getElementById("pfqInstr"), fig=ins&&ins.querySelector("img");
-    if(!fig||!/^data:image.webp/.test(fig.getAttribute("src")||"")||!/0, 5, 10, 15/.test(fig.alt)) vus.push("pas de dessin de la fiche en tête");
+    if(!fig||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(fig.getAttribute("src")||"")||!/0, 5, 10, 15/.test(fig.alt)) vus.push("pas de dessin de la fiche en tête");
     if(ins&&(ins.textContent||"").trim()) vus.push("l’énoncé du haut porte du texte : "+ins.textContent.trim());
     if(document.querySelector("#scr-pfq .py-avant, #scr-pfq .pii-def, #pfqHost details.pyd-pouce, #pfqHost .pyp-regle, #scr-pfq .py-hint")) vus.push("une définition, un coup de pouce ou une consigne est écrit sur l’écran");
     const ta0=document.querySelector("#pfqEtapeA .pyn-titre");
@@ -26768,7 +27133,7 @@ function pythonInputMoyenne(w, P){
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const des=document.getElementById("pmyDessin"), img=des&&des.querySelector("img.pmy-img"), carte=des&&des.parentNode;
-    if(!img||!/^data:image/.test(img.getAttribute("src")||"")||!/variable/.test(img.getAttribute("alt")||"")) vus.push("l’écran n’a pas le dessin des deux serpents");
+    if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(img.getAttribute("src")||"")||!/variable/.test(img.getAttribute("alt")||"")) vus.push("l’écran n’a pas le dessin des deux serpents");
     else if(!carte||!carte.classList.contains("card")||carte.firstElementChild!==des) vus.push("le dessin n’est pas en tête du cadre");
     else if(des.compareDocumentPosition(document.getElementById("pmyInstr"))&Node.DOCUMENT_POSITION_PRECEDING) vus.push("le dessin vient après l’énoncé");
     const en=document.getElementById("pmyInstr");
@@ -26971,7 +27336,7 @@ function pythonInputRectangle(w, P){
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const en=document.getElementById("prcInstr");
     const fig=en&&en.querySelector("figure.prc-fig img.prc-img"), alt=fig?(fig.getAttribute("alt")||""):"";
-    if(!fig||!/^data:image[/]webp;base64,/.test(fig.getAttribute("src")||"")||!/Longueur/.test(alt)||!/Largeur/.test(alt)) vus.push("le dessin de la fiche (le serpent et le rectangle) manque");
+    if(!fig||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(fig.getAttribute("src")||"")||!/Longueur/.test(alt)||!/Largeur/.test(alt)) vus.push("le dessin de la fiche (le serpent et le rectangle) manque");
     const et=document.querySelector("#prcHost .pyn-etape"), ti=et&&et.querySelector(".pyn-titre");
     if(!ti||getComputedStyle(ti).fontWeight!=="700") vus.push("l’énoncé n’est pas en gras dans son cadre");
     else if(ti.querySelectorAll("li").length!==4||["longueur","largeur","aire","perimetre","décimal"].some(function(m){ return ti.textContent.indexOf(m)<0; })) vus.push("l’énoncé : "+ti.textContent);
@@ -27173,7 +27538,7 @@ function pythonIfFraisPort(w, P){
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const en=document.getElementById("pcfInstr");
     const fig=en&&en.querySelector("figure.pcf-fig img.pcf-img"), alt=fig?(fig.getAttribute("alt")||""):"";
-    if(!fig||!/^data:image[/]webp;base64,/.test(fig.getAttribute("src")||"")||!/serpent/.test(alt)||!/colis/.test(alt)) vus.push("le dessin de la fiche (le serpent au colis) manque");
+    if(!fig||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(fig.getAttribute("src")||"")||!/serpent/.test(alt)||!/colis/.test(alt)) vus.push("le dessin de la fiche (le serpent au colis) manque");
     if(fig&&(fig.compareDocumentPosition(document.getElementById("pcfHost"))&Node.DOCUMENT_POSITION_FOLLOWING)===0) vus.push("le dessin n’est pas en premier");
     const et=document.querySelector("#pcfHost .pyn-etape"), ti=et&&et.querySelector(".pyn-titre");
     if(!ti||getComputedStyle(ti).fontWeight!=="700") vus.push("l’énoncé n’est pas en gras dans son cadre");
@@ -27970,7 +28335,7 @@ function pythonForDepartFin(w, P){
   verifierEval(w, 'l’écran : le dessin d’abord, puis la définition de la fiche mot pour mot (2 puces), puis l’énoncé ; le a) seul, en gras dans son cadre, deux trous dans la ligne de code, aucun coup de pouce, « Vérifier » fermé, console vide sans texte', `(function(){
     currentEleve={id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPFD();
     const vus=[], fig=document.querySelector("#pfdFig img"), def=document.querySelector("#pfdAvant .pii-def"), en=document.getElementById("pfdInstr");
-    if(!fig||!/^data:image.webp/.test(fig.getAttribute("src")||"")) vus.push("pas de dessin de la fiche");
+    if(!fig||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(fig.getAttribute("src")||"")) vus.push("pas de dessin de la fiche");
     if(!def) vus.push("pas de définition");
     else {
       if(fig&&!(fig.compareDocumentPosition(def)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas avant la définition");
@@ -28137,7 +28502,7 @@ function pythonForRenommer(w, P){
   verifierEval(w, 'l’écran : le dessin d’abord, puis la définition de la fiche mot pour mot (4 puces), puis l’énoncé ; le a) seul, en gras dans son cadre, « Vérifier » fermé, aucune consigne au bouton, consoles vides sans texte', `(function(){
     currentEleve={id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPFV();
     const vus=[], fig=document.querySelector("#pfvFig img"), def=document.querySelector("#pfvAvant .pii-def"), en=document.getElementById("pfvInstr");
-    if(!fig||!/^data:image.webp/.test(fig.getAttribute("src")||"")||!/boucler/.test(fig.alt)) vus.push("pas de dessin de la fiche");
+    if(!fig||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(fig.getAttribute("src")||"")||!/boucler/.test(fig.alt)) vus.push("pas de dessin de la fiche");
     if(!def) vus.push("pas de définition");
     else {
       if(!(fig.compareDocumentPosition(def)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas avant la définition");
@@ -29048,7 +29413,7 @@ function pythonInputPrix(w, P){
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const en=document.getElementById("pkgInstr"), img=en&&en.querySelector("img.pkg-img");
-    if(!en||!en.classList.contains("mp-instr")||!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("l’étiquette n’a pas son dessin");
+    if(!en||!en.classList.contains("mp-instr")||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(img.getAttribute("src")||"")) vus.push("l’étiquette n’a pas son dessin");
     if(!en||en.textContent.split(String.fromCharCode(160)).join(" ").split(String.fromCharCode(10)).join(" ").replace(/ +/g," ").indexOf("1 kg de pomme = 3,62")<0||en.textContent.split(String.fromCharCode(160)).join(" ").split(String.fromCharCode(10)).join(" ").replace(/ +/g," ").indexOf("1 kg de tomate = 5,57")<0) vus.push("l’étiquette : "+(en&&en.textContent));
     if(document.querySelector("#scr-pkg .py-avant,#scr-pkg .pyp-regle,#scr-pkg .pyi-cours")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("pkgEtape"), ti=et&&et.querySelector(".pyn-titre");
@@ -29266,7 +29631,7 @@ function pythonIfCinema(w, P){
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const ecr=document.getElementById("scr-pci"), en=document.getElementById("pciInstr"), img=en&&en.querySelector("img.pci-img");
-    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(!en||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
     if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
     const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
     if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
@@ -29485,7 +29850,7 @@ function pythonSamoussa(w, P){
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const ecr=document.getElementById("scr-psm"), en=document.getElementById("psmInstr"), img=en&&en.querySelector("img.psm-img");
-    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(!en||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
     if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
     const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
     if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
@@ -29696,7 +30061,7 @@ function pythonIfLocation(w, P){
     const plat=function(t){ return String(t).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const en=document.getElementById("ploInstr"), img=en&&en.querySelector("img.plo-img");
-    if(!en||!en.classList.contains("mp-instr")||!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(!en||!en.classList.contains("mp-instr")||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
     if(en&&plat(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+plat(en.textContent));
     if(document.querySelector("#scr-plo .py-avant,#scr-plo .pyp-regle,#scr-plo .pyi-cours,#scr-plo .pii-def")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("ploEtape"), ti=et&&et.querySelector(".pyn-titre");
@@ -29905,7 +30270,7 @@ function pythonForImages(w, P){
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const ecr=document.getElementById("scr-pfi"), en=document.getElementById("pfiInstr"), img=en&&en.querySelector("img.pfi-img");
-    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(!en||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
     if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
     const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
     if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
@@ -30104,7 +30469,7 @@ function pythonIfElse(w, P){
     const lit=function(el){ const c=el.cloneNode(true); c.querySelectorAll("li,p,ul,div,.pce-def-g>span").forEach(function(e){ e.insertBefore(document.createTextNode(" "), e.firstChild); e.appendChild(document.createTextNode(" ")); }); return net(c.textContent); };
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const ecr=document.getElementById("scr-pce"), img=ecr.querySelector("#pceFig img.pce-img");
-    if(!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("pas de dessin");
+    if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("pas de dessin");
     const tout=[].slice.call(ecr.querySelectorAll("img,.pii-def,.pyn-etape"));
     if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
     const def=document.querySelector("#pceAvant .pii-def");
@@ -30304,7 +30669,7 @@ function pythonIfPlusGrand(w, P){
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const en=document.getElementById("pxyInstr"), img=en&&en.querySelector("img.pxy-img");
-    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(!en||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
     if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
     if(document.querySelector("#scr-pxy .py-avant,#scr-pxy .pyp-regle,#scr-pxy .pyi-cours")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("pxyEtape"), ti=et&&et.querySelector(".pyn-titre");
@@ -30513,7 +30878,7 @@ function pythonForImagesEntiers(w, P){
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(String.fromCharCode(8202)).join("").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const en=document.getElementById("pfkInstr"), img=en&&en.querySelector("img.pfk-img");
-    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(!en||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
     if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
     if(document.querySelector("#scr-pfk .py-avant,#scr-pfk .pyp-regle,#scr-pfk .pyi-cours")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("pfkEtape"), ti=et&&et.querySelector(".pyn-titre");
@@ -30702,7 +31067,7 @@ function pythonForNom(w, P){
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const en=document.getElementById("pfnInstr"), img=en&&en.querySelector("img.pfn-img");
-    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(!en||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
     if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
     if(document.querySelector("#scr-pfn .py-avant,#scr-pfn .pyp-regle,#scr-pfn .pyi-cours")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("pfnEtape"), ti=et&&et.querySelector(".pyn-titre");
@@ -30864,7 +31229,7 @@ function pythonForTable(w, P){
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.questions.length!==1||test.maxScore!==2) vus.push("séance de "+test.questions.length+", barème "+test.maxScore);
     const en=document.getElementById("ptmInstr"), img=en&&en.querySelector("img.ptm-img");
-    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(!en||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
     if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
     if(document.querySelector("#scr-ptm .py-avant,#scr-ptm .pyp-regle,#scr-ptm .pyi-cours")) vus.push("un encadré de définition sur l’écran");
     const A=document.getElementById("ptmEtapeA"), B=document.getElementById("ptmEtapeB");
@@ -31050,7 +31415,7 @@ function pythonForTables(w, P){
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.maxScore!==1||test.questions.length!==1) vus.push("barème "+test.maxScore+", "+test.questions.length+" question(s)");
     const en=document.getElementById("pmtInstr"), img=en&&en.querySelector("img.pmt-img");
-    if(!en||!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(!en||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
     if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
     if(document.querySelector("#scr-pmt .py-avant,#scr-pmt .pyp-regle,#scr-pmt .pyi-cours,#scr-pmt .pii-def")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("pmtEtape"), ti=et&&et.querySelector(".pyn-titre");
@@ -31358,7 +31723,7 @@ function pythonForErreur(w, P){
     const net=function(t){ return t.split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.questions.length!==3||test.maxScore!==3) vus.push("séance de "+test.questions.length+" question(s), barème "+test.maxScore);
     const ecr=document.getElementById("scr-pfe"), en=document.getElementById("pfeInstr"), img=en&&en.querySelector("img.pfe-img");
-    if(!img||!/^data:image\\/webp/.test(img.getAttribute("src")||"")||!/Houlàlla/.test(img.getAttribute("alt")||"")) vus.push("pas de dessin de la fiche");
+    if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")||!/Houlàlla/.test(img.getAttribute("alt")||"")) vus.push("pas de dessin de la fiche");
     const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
     if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
     if(ecr.querySelector(".py-avant:not(:empty),.pyp-regle,.pyi-cours,details.pyd-pouce")) vus.push("une définition ou un coup de pouce sur l’écran");
@@ -31481,7 +31846,7 @@ function pythonTroisDes(w, P){
     const net=function(t){ return t.split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.questions.length!==1||test.maxScore!==3) vus.push("séance de "+test.questions.length+" question(s), barème "+test.maxScore);
     const ecr=document.getElementById("scr-ptds"), img=ecr.querySelector("#ptdsFig img.ptds-img");
-    if(!img||!/^data:image\\/webp/.test(img.getAttribute("src")||"")) vus.push("pas de dessin de la fiche");
+    if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("pas de dessin de la fiche");
     const tout=[].slice.call(ecr.querySelectorAll("img,.pyn-etape"));
     if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
     if(ecr.querySelector(".py-avant:not(:empty),.pyp-regle,.pyi-cours,.pii-def,details.pyd-pouce")) vus.push("une définition ou un coup de pouce sur l’écran");
@@ -31682,7 +32047,7 @@ function pythonIfPlusGrandTrois(w, P){
     const net=function(t){ return t.split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.maxScore!==1||test.questions.length!==1) vus.push("barème "+test.maxScore+", "+test.questions.length+" question(s)");
     const en=document.getElementById("pgtInstr"), imgs=en?en.querySelectorAll("img"):[];
-    if(!en||!en.classList.contains("mp-instr")||imgs.length!==1||!imgs[0].classList.contains("pgt-img")||!/^data:image\\/webp/.test(imgs[0].getAttribute("src")||"")) vus.push("l’écran n’a pas la photo de la fiche");
+    if(!en||!en.classList.contains("mp-instr")||imgs.length!==1||!imgs[0].classList.contains("pgt-img")||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(imgs[0].getAttribute("src")||"")) vus.push("l’écran n’a pas la photo de la fiche");
     if(en&&net(en.textContent)!=="") vus.push("du texte à côté du dessin : "+JSON.stringify(net(en.textContent)));
     if(document.querySelector("#scr-pgt .py-avant,#scr-pgt .pyp-regle,#scr-pgt .pyi-cours")) vus.push("un encadré de définition sur l’écran");
     if(document.querySelector("#scr-pgt details.pyd-pouce")) vus.push("un coup de pouce sur l’écran");
@@ -31863,10 +32228,10 @@ function pythonInputDuree(w, P){
     const net=function(t){ return t.split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const en=document.getElementById("pduInstr"), img=en&&en.querySelector("img.pdu-img");
-    if(!en||!en.classList.contains("mp-instr")||!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("l’écran n’a pas le dessin de la fiche");
+    if(!en||!en.classList.contains("mp-instr")||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(img.getAttribute("src")||"")) vus.push("l’écran n’a pas le dessin de la fiche");
     /* le serpent fatigué (« Je fatigue un peu là ! ») ouvre le dessin, AVANT les deux serpents */
     const imgs=en?en.querySelectorAll("img"):[], fat=imgs[0];
-    if(imgs.length!==2||!fat||!fat.classList.contains("pdu-img-fatigue")||!/^data:image/.test(fat.getAttribute("src")||"")||!/fatigue/i.test(fat.getAttribute("alt")||"")) vus.push("le serpent fatigué n’ouvre pas le dessin ("+imgs.length+" image(s))");
+    if(imgs.length!==2||!fat||!fat.classList.contains("pdu-img-fatigue")||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(fat.getAttribute("src")||"")||!/fatigue/i.test(fat.getAttribute("alt")||"")) vus.push("le serpent fatigué n’ouvre pas le dessin ("+imgs.length+" image(s))");
     if(document.querySelector("#scr-pdu .py-avant,#scr-pdu .pyp-regle,#scr-pdu .pyi-cours")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("pduEtape"), ti=et&&et.querySelector(".pyn-titre");
     if(!ti||net(ti.textContent)!=="✏️ Faire un programme qui demande une durée en minutes et qui affiche le résultat en heures et minutes.par exemple : si on rentre 135 min il doit afficher 2 heures et 15 minutes.") vus.push("l’énoncé de la question : "+JSON.stringify(ti&&net(ti.textContent)));
@@ -32079,7 +32444,7 @@ function pythonInputEvolution(w, P){
     const vus=[], NL=String.fromCharCode(10);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const img=document.querySelector("#pvoInstr img.pvo-img");
-    if(!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("pas de dessin");
+    if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(img.getAttribute("src")||"")) vus.push("pas de dessin");
     const et=document.getElementById("pvoEtape"), ti=et&&et.querySelector(".pyn-titre");
     const tx=ti?ti.textContent.split(String.fromCharCode(160)).join(" "):"";
     if(!ti||!/^✏️ Faire un programme qui/.test(tx)||ti.querySelectorAll("li").length!==3) vus.push("l’énoncé : "+tx);
@@ -32263,7 +32628,7 @@ function pythonInputDureeSecondes(w, P){
     if(!av||net(av.textContent).indexOf("17 // 5 vaut 3")<0||net(av.textContent).indexOf("17 % 5 vaut 2")<0) vus.push("l’encadré de cours : "+(av&&av.textContent));
     if(!(av.compareDocumentPosition(en) & Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("l’encadré n’est pas avant l’énoncé");
     const img=en&&en.querySelector("img.phm-img");
-    if(!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("pas de dessin");
+    if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(img.getAttribute("src")||"")) vus.push("pas de dessin");
     const et=document.getElementById("phmEtape"), ti=et&&et.querySelector(".pyn-titre");
     if(!ti||net(ti.textContent).indexOf("Faire un programme qui demande une durée en secondes et qui affiche le résultat en heures, minutes et secondes.")<0||net(ti.textContent).indexOf("si on rentre 3730 secondes, il doit afficher : 1 heures, 2 minutes et 10 secondes")<0) vus.push("l’énoncé : "+(ti&&ti.textContent));
     if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
@@ -34327,7 +34692,7 @@ function pythonInputFloat(w, P){
     /* le dessin de la fiche (les deux serpents, « Quelle est ta taille ? »)
        est en TETE : avant la definition et l'enonce, et il n'est qu'au 6.3.5 */
     var fig=document.querySelector("#piiAvant img.pif-img"), en0=document.getElementById("piiInstr");
-    if(!fig||!/^data:image/.test(fig.getAttribute("src")||"")) vus.push("pas de dessin en tete du 6.3.5");
+    if(!fig||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(fig.getAttribute("src")||"")) vus.push("pas de dessin en tete du 6.3.5");
     else{
       if(document.querySelector("#scr-pii img.pii-img:not(.pif-img)")) vus.push("le dessin du 6.3.3 s\\u2019affiche aussi sur le 6.3.5");
       if(!(fig.compareDocumentPosition(def)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n\\u2019est pas avant la definition");
@@ -44999,13 +45364,13 @@ function pythonPasAPas(w, P){
   })()`, v => v === '');
 
   /* ---- 11 bis. le dessin en tête de l'écran ---- */
-  verifierEval(w, 'le dessin de tête (le serpent « Pour l’instant tout va bien ! ») ouvre la carte de l’exercice, en WebP embarqué, avec son texte de remplacement, au-dessus des définitions — et un second rendu ne le repose pas', `(function(){
+  verifierEval(w, 'le dessin de tête (le serpent « Pour l’instant tout va bien ! ») ouvre la carte de l’exercice, en WebP dans dessins/secondes/, avec son texte de remplacement, au-dessus des définitions — et un second rendu ne le repose pas', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPAP();
     const vus=[];
     const card=document.querySelector("#scr-pap .card"), fig=document.getElementById("papDessin"), img=fig&&fig.querySelector("img.pap-img");
     if(!card||!fig||card.firstElementChild!==fig) vus.push("le dessin n’ouvre pas la carte");
-    if(!img||!/^data:image\\/webp;base64,/.test(img.getAttribute("src")||"")) vus.push("pas de dessin WebP embarqué");
+    if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("pas de dessin WebP dans dessins/secondes/");
     if(!img||!/Pour l.instant tout va bien/.test(img.getAttribute("alt")||"")) vus.push("le texte de remplacement : "+(img&&img.getAttribute("alt")));
     const avant=document.getElementById("papAvant");
     if(fig&&avant&&!(fig.compareDocumentPosition(avant)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas au-dessus des définitions");

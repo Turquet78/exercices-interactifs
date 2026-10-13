@@ -110,7 +110,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc','python-if-frais-port':'pcf', 'python-input-prix':'pkg', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-if-plus-grand-trois':'pgt', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv', 'python-for-images-entiers':'pfk','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-if-cinema':'pci', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
+               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'translation-grille':'vtr', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc','python-if-frais-port':'pcf', 'python-input-prix':'pkg', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-if-plus-grand-trois':'pgt', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv', 'python-for-images-entiers':'pfk','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-if-cinema':'pci', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -226,6 +226,12 @@ module.exports = {
        proposer les simplifications comme au 4.1 »). FRAC_MAX dans la page,
        ici la borne : deux sources. */
     fractionsEtapes: { max: 5, exercices: ['croiser-denominateurs', 'somme-fractions-2', 'multiplier-fractions', 'diviser-fractions'] },
+    /* Les cases RÉDUITES du thème 4 (demande de Turquet, octobre 2026 : le 4.6
+       d'abord, puis « 4.3 ; 4.4 ; 4.5 »). Le témoin partage l'écran et le
+       moteur du 4.3 et garde ses cases pleines : le banc navigateur mesure les
+       deux bords (« 6 terdecies ter »). */
+    casesReduites: { temoin: 'croiser-denominateurs',
+                     exercices: ['somme-fractions-2', 'multiplier-fractions', 'diviser-fractions', 'somme-produit-fractions'] },
     /* {multiplier-fractions} et {diviser-fractions} (4.4, 4.5) : le moteur de
        la Seconde, nombres de 1 à 5, produit qui se SIMPLIFIE par étapes, sans
        la version rédigée. */
@@ -238,7 +244,11 @@ module.exports = {
        nombres ne dépassent pas 6 et sont positifs ; si on peut simplifier la
        fraction à la fin, présenter comme au 4.1 ». La borne 6 porte sur le
        PRODUIT (précisé par Turquet : le croisement la dépasse par
-       construction). FRAC_MAX et SPF_INTER dans la page, ici les bornes. */
+       construction). FRAC_MAX et SPF_INTER dans la page, ici les bornes.
+       Puis (octobre 2026) : une SOUSTRACTION une paire sur deux, au résultat
+       positif ; le calcul rangé en colonnes, le « = » en tête de chaque ligne
+       (mesuré dans le banc navigateur) ; et après chaque guidée, une question
+       RÉDIGÉE sur la même page, comme au 4.3 (sommeProduitRedigee). */
     sommeProduit: { max: 5, inter: 6 },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
@@ -313,7 +323,7 @@ module.exports = {
     /* Le nombre de questions des exercices du moteur sf — DEUX sources : la
        page a sa constante SF_NB, le banc compare à celle-ci. 6 en Première,
        4 en Seconde (demande de Turquet, août 2026). */
-    nbQuestionsFractions: { sf: 6 },
+    nbQuestionsFractions: { sf: 6, mlt: 12, spf: 8 },   /* 4.4 à 4.6 : paires guidée + rédigée (octobre 2026) */
     /* 4 questions du 2.1.3 au 2.1.7 (demande de Turquet, août 2026), et
        {pourcentage-dix} (2.1.8, même tirage, troisième méthode par 10 %,
        septembre 2026) — DEUX sources : la page a PCT_NB et QD_NB, le banc
@@ -700,6 +710,14 @@ module.exports = {
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements_2nde', exercice: 'pourcentage' },
+
+    /* Les dessins des exercices (le thème Python, le bilan des ensembles)
+       vivent en FICHIERS dans dessins/secondes/ — plus jamais en base64 dans
+       la page (décision de Turquet, octobre 2026 : 770 Ko sur 4,9 Mo).
+       Déclaré pour le bord opposé des deux bancs : un niveau qui déclare des
+       dessins doit en offrir au banc ; sans la clé, les contrôles s'affichent
+       « non applicable » plutôt que d'être tus. */
+    dessins: { dossier: 'dessins/secondes' },
 
     /* Le schéma des évolutions ({synthese-evolutions}, 4.5.4) : quand
        l'inconnue est le pourcentage, la flèche « −1 » se tient au milieu du
@@ -1135,7 +1153,7 @@ module.exports = {
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
                   sans: ['python-pile-face', 'python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
-                         'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
+                         'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'translation-grille', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
                          'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-for-oui-non', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-input', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-chaines', 'python-input-int', 'python-input-calcul', 'python-input-float', 'python-input-somme', 'python-input-moyenne', 'python-input-rectangle', 'python-input-duree', 'python-input-prix', 'python-for-erreur', 'python-for-nom', 'python-for-images', 'python-if-cinema', 'python-input-evolution', 'python-input-duree-secondes', 'python-inverser-lettres', 'python-for-renommer', 'python-for-images-entiers', 'python-for-depart-fin', 'python-moyenne-notes', 'python-remplacer-lettre', 'python-triangle-etoiles', 'python-programme-calcul', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables', 'python-echange-par-lettres', 'python-phrases-memoire', 'python-input-reponse', 'python-chaine-len', 'python-chaine-tirets'] },

@@ -85,7 +85,7 @@ function servirRacine(){
   const http = require('http');
   const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
                   '.webmanifest': 'application/manifest+json', '.json': 'application/json',
-                  '.png': 'image/png', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
+                  '.png': 'image/png', '.webp': 'image/webp', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
   const prises = new Set();
   const serveur = http.createServer((req, res) => {
     let fichier;
@@ -6682,10 +6682,214 @@ async function parcours(page, N){
         const r = await verdict();
         if(!r.juste) dits.push('produit : 2/3 × 3/5 = 6/15 = 2/5, tapé au clavier, est compté faux');
         if(r.rouges.length) dits.push('produit : des cases rougissent sur une copie juste : ' + r.rouges.slice(0, 4).join(', '));
+        /* sa question RÉDIGÉE (octobre 2026) : elle s'ouvre sous la guidée, la
+           feuille commence par le produit suivi de « = », et 2/3 × 3/5 = 6/15
+           = 2/5 vaut le point — le résultat simplifié est exigé. */
+        const zr = await s.page.evaluate(() => {
+          if(!(test.questions[1] && test.questions[1].redac) || test.idx !== 1) return null;
+          test.questions[1] = {n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15,redac:true};
+          sfrAfficher(test.questions[1]);
+          const zone = document.getElementById('mltrZone'), mf = zone && zone.querySelector('math-field');
+          return { vue: !!(zone && !zone.hidden && zone.offsetHeight > 0), guidee: !!document.getElementById('mlt-h1'), depart: mf ? mf.getValue() : null };
+        });
+        if(!zr) dits.push('produit : aucune question rédigée ne s’ouvre après la guidée');
+        else {
+          if(!zr.vue) dits.push('produit rédigé : la zone ne s’affiche pas');
+          if(!zr.guidee) dits.push('produit rédigé : la question guidée a disparu de l’écran');
+          if(!/=\s*$/.test(zr.depart || '')) dits.push('produit rédigé : la feuille ne commence pas par le produit suivi de « = » (' + zr.depart + ')');
+          await s.page.evaluate(() => { document.querySelector('#mltrZone math-field').setValue(test.sfrDepart + '\\frac{6}{15}=\\frac{2}{5}'); checkSFR(); });
+          await s.page.waitForTimeout(1500);
+          const v = await s.page.evaluate(() => { const d = test.answers[test.answers.length - 1];
+            return { juste: !!(d && d.correct && /rédigé/.test(d.q)), suite: !!document.getElementById('mltrNext') }; });
+          if(!v.juste) dits.push('produit rédigé : 2/3 × 3/5 = 6/15 = 2/5 est compté faux');
+          if(!v.suite) dits.push('produit rédigé : aucun bouton « Question suivante »');
+        }
+      }
+      /* ③ LA SOMME AVEC UN PRODUIT DEDANS (4.6), EN COLONNES, PUIS RÉDIGÉE
+         (demande de Turquet, octobre 2026 : « placer les signes "=" en début
+         de ligne et afficher les cases à remplir en dessous verticalement des
+         nombres du dessus correspondants au mieux ; sur la même page une autre
+         question où il faut rédiger la solution comme dans le 4.3 »). Ce que
+         l'élève VOIT, et que jsdom ne peut pas mesurer : chaque « = » est le
+         premier morceau de sa ligne ; les premiers termes de toutes les lignes
+         (a/b, puis (a×□)/(b×□), puis la somme, la fraction obtenue et la
+         simplification) sont CENTRÉS sur la même verticale, les signes aussi,
+         les seconds termes aussi ; et la ligne de l'énoncé n'a pas de « = ».
+         Puis la copie TAPÉE au clavier — 1/2 + 1/2 × 3/2 = 10/8 = 5/4 — vaut
+         le point sans rien rougir, la rédigée s'ouvre sous la guidée avec le
+         calcul suivi de « = », une SOUSTRACTION rédigée juste vaut le point,
+         et la guidée suivante referme la zone. */
+      if(P.sommeProduit){
+        await s.page.evaluate(() => openTest('somme-produit-fractions'));
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        await s.page.evaluate(() => {
+          test.questions[0] = {a:1,b:2,c:1,d:2,e:3,f:2,op:'+',P1:3,Q1:4,N:10,D:8,Nr:5,Dr:4};
+          test.questions[1] = {a:3,b:2,c:1,d:2,e:3,f:2,op:'−',P1:3,Q1:4,N:6,D:8,Nr:3,Dr:4,redac:true};
+          test.idx = 0; renderSpfTest(); });
+        await s.page.waitForTimeout(700);
+        const g = await s.page.evaluate(() => {
+          const row = document.querySelector('#spfHost .pt-row'); if(!row) return { manque: 'pas de rangée' };
+          const vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+          const items = [...row.children].flatMap(c => c.classList.contains('f-grp') ? [...c.children] : [c]).filter(vis);
+          const cy = e => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; };
+          const cx = e => { const r = e.getBoundingClientRect(); return (r.left + r.right) / 2; };
+          /* les lignes : on regroupe par recouvrement vertical */
+          const lignes = [];
+          for(const it of items){
+            const r = it.getBoundingClientRect();
+            let L = lignes.find(l => Math.min(l.bas, r.bottom) - Math.max(l.haut, r.top) > Math.min(l.bas - l.haut, r.height) * 0.5);
+            if(!L){ L = { haut: r.top, bas: r.bottom, items: [] }; lignes.push(L); }
+            L.haut = Math.min(L.haut, r.top); L.bas = Math.max(L.bas, r.bottom); L.items.push(it);
+          }
+          lignes.sort((a, b) => a.haut - b.haut);
+          const dits = [];
+          lignes.forEach((L, i) => {
+            L.items.sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left);
+            const premier = L.items[0], eqs = L.items.filter(e => e.classList.contains('f-eq'));
+            if(i === 0){ if(eqs.length) dits.push('la ligne de l’énoncé commence par un « = »'); }
+            else {
+              if(eqs.length !== 1) dits.push('ligne ' + (i + 1) + ' : ' + eqs.length + ' « = »');
+              else if(premier !== eqs[0]) dits.push('ligne ' + (i + 1) + ' : le « = » n’ouvre pas la ligne (premier morceau : ' + (premier.className || premier.tagName) + ')');
+              if(L.items.length < 2) dits.push('ligne ' + (i + 1) + ' : rien après le « = »');
+            }
+          });
+          /* les colonnes : les centres des premiers termes, des signes, des seconds termes */
+          const col = (sel, nom) => {
+            const xs = items.filter(e => e.matches(sel)).map(cx);
+            if(xs.length < 2) return dits.push(nom + ' : ' + xs.length + ' élément(s) mesuré(s) — rien à aligner');
+            const ecart = Math.max(...xs) - Math.min(...xs);
+            if(ecart > 2) dits.push(nom + ' : les centres s’écartent de ' + Math.round(ecart) + ' px');
+          };
+          col('.spf-t1, .f-grp > .f-frac-input', 'premiers termes');
+          col('.spf-op', 'signes');
+          col('.spf-t2', 'seconds termes');
+          col('.f-eq', 'les « = »');
+          /* les seconds termes sont à droite des signes, eux-mêmes à droite des premiers termes */
+          const bord = sel => Math.max(...items.filter(e => e.matches(sel)).map(e => e.getBoundingClientRect().right));
+          const gauche = sel => Math.min(...items.filter(e => e.matches(sel)).map(e => e.getBoundingClientRect().left));
+          if(!(bord('.spf-t1') <= gauche('.spf-op') && bord('.spf-op') <= gauche('.spf-t2'))) dits.push('les colonnes se chevauchent');
+          return { dits, lignes: lignes.length, deborde: row.scrollWidth > row.clientWidth + 1 || document.documentElement.scrollWidth > window.innerWidth + 1 };
+        });
+        if(g.manque) dits.push('4.6 : ' + g.manque);
+        else {
+          if(g.lignes !== 8) dits.push('4.6 : ' + g.lignes + ' lignes au lieu de 8 (l’énoncé, cinq étapes, deux pour la simplification)');
+          if(g.deborde) dits.push('4.6 : la grille déborde de l’écran');
+          g.dits.forEach(d => dits.push('4.6 : ' + d));
+        }
+        for(const [id, v] of [['spf-h1',1],['spf-h2',3],['spf-b1',2],['spf-b2',2],['spf-pn',3],['spf-pd',4],['spf-x-a1',4],['spf-x-b1',4],['spf-x-a2',2],['spf-x-b2',2],['spf-x-n1',4],['spf-x-n2',6],['spf-x-d',8],['spf-x-rn',10],['spf-x-rd',8],['spf-e0-dn',2],['spf-e0-n',5],['spf-e0-d',4]]) await tape(id, v);
+        await s.page.evaluate(() => checkSpfAnswer());
+        await s.page.waitForTimeout(500);
+        const r3 = await verdict();
+        if(!r3.juste) dits.push('4.6 : 1/2 + 1/2 × 3/2 = 10/8 = 5/4, tapé au clavier, est compté faux');
+        if(r3.rouges.length) dits.push('4.6 : des cases rougissent sur une copie juste : ' + r3.rouges.slice(0, 4).join(', '));
+        const z = await s.page.evaluate(() => {
+          const zone = document.getElementById('spfrZone'), mf = zone && zone.querySelector('math-field');
+          return { vue: !!(zone && !zone.hidden && zone.offsetHeight > 0), guidee: !!document.getElementById('spf-h1'),
+                   depart: mf ? mf.getValue() : null, idx: test.idx };
+        });
+        if(!z.vue) dits.push('4.6 rédigée : la zone ne s’affiche pas après la question guidée');
+        if(!z.guidee) dits.push('4.6 rédigée : la question guidée a disparu de l’écran');
+        if(!/=\s*$/.test(z.depart || '') || !/-/.test(z.depart || '')) dits.push('4.6 rédigée : la feuille ne commence pas par la soustraction suivie de « = » (' + z.depart + ')');
+        await s.page.evaluate(() => { const mf = document.querySelector('#spfrZone math-field');
+          mf.setValue(test.sfrDepart + '\\frac{3}{2}-\\frac{3}{4}=\\frac{6}{4}-\\frac{3}{4}=\\frac{3}{4}'); });
+        await s.page.evaluate(() => checkSFR());
+        await s.page.waitForTimeout(1500);
+        const v3 = await s.page.evaluate(() => { const d = test.answers[test.answers.length - 1];
+          return { juste: !!(d && d.correct && /rédigé/.test(d.q)), suite: !!document.getElementById('spfrNext') }; });
+        if(!v3.juste) dits.push('4.6 rédigée : 3/2 − 1/2×3/2 = 3/2 − 3/4 = 6/4 − 3/4 = 3/4 est compté faux');
+        if(!v3.suite) dits.push('4.6 rédigée : aucun bouton « Question suivante » après la vérification');
+        await s.page.evaluate(() => nextSpfQuestion());
+        await s.page.waitForTimeout(400);
+        if(await s.page.evaluate(() => { const zz = document.getElementById('spfrZone'); return !!(zz && !zz.hidden); }))
+          dits.push('4.6 rédigée : la zone reste affichée sur la question guidée suivante');
+      
+        /* et la REPRISE : une pause posée sur une rédigée redessine la rédaction seule */
+        const zp = await s.page.evaluate(() => {
+          test.questions[test.idx] = {a:1,b:4,c:1,d:2,e:5,f:3,op:'+',P1:5,Q1:6,N:26,D:24,Nr:13,Dr:12,redac:true};
+          renderSpfTest();
+          const zone = document.getElementById('spfrZone'), mf = zone && zone.querySelector('math-field');
+          return { vue: !!(zone && !zone.hidden && zone.offsetHeight > 0), guidee: !!document.getElementById('spf-h1'), depart: mf ? mf.getValue() : null };
+        });
+        await s.page.waitForTimeout(500);
+        if(!zp.vue) dits.push('4.6 : la reprise sur une question rédigée ne la redessine pas');
+        if(zp.guidee) dits.push('4.6 : à la reprise sur une rédigée, les cases de la guidée réapparaissent');
+        if(!/=\s*$/.test(zp.depart || '')) dits.push('4.6 rédigée (reprise) : la feuille ne commence pas par le calcul suivi de « = » (' + zp.depart + ')');
+        await s.page.evaluate(() => { document.querySelector('#spfrZone math-field').setValue(test.sfrDepart + '\\frac{1}{4}+\\frac{5}{6}=\\frac{6}{24}+\\frac{20}{24}=\\frac{26}{24}=\\frac{13}{12}'); checkSFR(); });
+        await s.page.waitForTimeout(1500);
+        const vr = await s.page.evaluate(() => { const d = test.answers[test.answers.length - 1]; return !!(d && d.correct && /rédigé/.test(d.q)); });
+        if(!vr) dits.push('4.6 rédigée : 1/4 + 1/2 × 5/3 = 1/4 + 5/6 = 6/24 + 20/24 = 26/24 = 13/12 est comptée fausse');
       }
       verifier('la simplification par étapes s\'ouvre en écrivant, et la copie juste vaut le point',
         dits.length === 0, dits.slice(0, 3).join(' | '));
       verifier('les écrans de la simplification par étapes ne lèvent aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 terdecies ter. LES CASES RÉDUITES DU THÈME DES FRACTIONS =====
+       Demande de Turquet (octobre 2026) : « en première dans les exercices
+       4.3 ; 4.4 ; 4.5 réduire la taille des cases où l'on doit placer des
+       nombres à l'écran » — comme le 4.6 avant eux. Deux bords, et n'en tenir
+       qu'un ne tient rien : les cases de ces exercices sont PLUS PETITES que
+       celles du témoin (le 4.2, qui partage l'écran et le moteur du 4.3), ET
+       le témoin GARDE ses cases pleines — la réduction du 4.3 se pose sur
+       l'écran par l'exercice qu'il porte (data-exo, écrit par show()), et un
+       sélecteur trop large réduirait le 4.2 sans que rien ne rougisse. La
+       règle de tout exercice reste tenue au passage : la case réduite a la
+       taille des nombres qui l'entourent. Tout est MESURÉ, à l'écran, sur les
+       premières cases de la rangée. */
+    titre('6 terdecies ter. LES CASES RÉDUITES DU THÈME DES FRACTIONS');
+    if(!P.casesReduites){
+      ignorer('les cases réduites sont plus petites que celles du témoin, qui garde les siennes',
+        'ce niveau ne déclare aucun exercice à cases réduites');
+    } else if(!ml){
+      ignorer('les cases réduites sont plus petites que celles du témoin, qui garde les siennes', 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      const mesure = async id => {
+        await s.page.evaluate(i => openTest(i), id);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        return s.page.evaluate(() => {
+          const on = document.querySelector('section.screen.on'); if(!on) return null;
+          const r = e => e.getBoundingClientRect();
+          const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+          const px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) / rem * 100) / 100;
+          const mfs = [...on.querySelectorAll('.pt-row math-field.pm-mf')].filter(e => r(e).width > 0);
+          if(!mfs.length) return null;
+          const voisins = [...on.querySelectorAll('.pt-row .f-whole, .pt-row .f-eq')].filter(e => r(e).width > 0 && /\d/.test(e.textContent));
+          return { police: Math.max(...mfs.map(px)), hauteur: Math.max(...mfs.map(e => Math.round(r(e).height))),
+                   voisins: voisins.length ? Math.max(...voisins.map(px)) : null, n: mfs.length, ecran: on.id };
+        });
+      };
+      const dits = [];
+      const T = await mesure(P.casesReduites.temoin);
+      const numT = await s.page.evaluate(i => TEST_NUM[i], P.casesReduites.temoin);
+      if(!T) dits.push('témoin ' + numT + ' : aucune case mesurée');
+      /* LE TÉMOIN GARDE SES CASES PLEINES : 1,9 rem et 46 px de haut, les
+         tailles de tout écran à chaîne de nombres de ce niveau. */
+      else if(T.police < 1.8 || T.hauteur < 44)
+        dits.push('témoin ' + numT + ' : ses cases ont été réduites avec les autres (' + T.police + ' rem, ' + T.hauteur + ' px)');
+      for(const id of P.casesReduites.exercices){
+        const m = await mesure(id), num = await s.page.evaluate(i => TEST_NUM[i], id);
+        if(!m){ dits.push(num + ' : aucune case mesurée'); continue; }
+        if(!T) continue;
+        if(!(m.police <= T.police * 0.8))
+          dits.push(num + ' : police de ' + m.police + ' rem contre ' + T.police + ' rem au témoin');
+        if(!(m.hauteur <= T.hauteur - 6))
+          dits.push(num + ' : ' + m.hauteur + ' px de haut contre ' + T.hauteur + ' px au témoin');
+        if(m.voisins !== null && m.police < m.voisins * 0.9)
+          dits.push(num + ' : la case (' + m.police + ' rem) est plus petite que ses nombres (' + m.voisins + ' rem)');
+      }
+      console.log('   · témoin ' + numT + ' : ' + (T ? T.police + ' rem, ' + T.hauteur + ' px' : 'rien')
+        + ' — réduits : ' + P.casesReduites.exercices.length + ' exercice(s)');
+      verifier('les cases réduites sont plus petites que celles du témoin, qui garde les siennes',
+        dits.length === 0, dits.slice(0, 4).join(' | '));
+      verifier('les écrans des cases réduites ne lèvent aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
@@ -11052,6 +11256,8 @@ async function parcours(page, N){
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
       /* 1. LES DEUX COLONNES, LE NOM ÉCRIT, LA CASE UNIQUE */
+      /* un dessin en FICHIER arrive un instant après le rendu : on attend son décodage avant de lire naturalWidth (octobre 2026) */
+      await s.page.evaluate(() => Promise.all([...document.querySelectorAll('section.screen.on img[src^="dessins/"]')].map(i => i.decode().catch(() => {}))));
       const vu = await s.page.evaluate(() => {
         const host = document.getElementById('pvmHost');
         const cols = [...host.querySelectorAll('.pap-col')], prog = host.querySelector('.pyx-prog');
@@ -11079,7 +11285,7 @@ async function parcours(page, N){
                  /* le dessin en tête : premier enfant de la carte, réellement chargé (naturalWidth) */
                  fig: (() => { const f = document.getElementById('pvmFig'), img = f && f.querySelector('img.pvm-img');
                    return { premier: !!f && f.parentElement.firstElementChild === f,
-                            data: !!img && /^data:image/.test(img.getAttribute('src') || ''),
+                            fichier: !!img && /^dessins\/secondes\/[a-z0-9-]+\.webp$/.test(img.getAttribute('src') || ''),
                             charge: !!img && img.complete && img.naturalWidth > 0,
                             large: img ? img.getBoundingClientRect().width : 0 }; })() };
       });
@@ -11110,13 +11316,13 @@ async function parcours(page, N){
       verifier('les deux colonnes rendues côte à côte, le NOM de la case ÉCRIT (aucune liste) et une seule case à la chasse du code',
         !dits.length, dits.slice(0, 3).join(' | '));
       /* 1 bis. LE DESSIN EN TÊTE DE L'ÉCRAN (demande de Turquet, octobre 2026) : premier
-         enfant de la carte, image embarquée, chargée, et visible (≥ 120 px de large) */
+         enfant de la carte, image en fichier (dessins/secondes/), chargée, et visible (≥ 120 px de large) */
       const fig = vu.fig, fd = [];
       if(!fig.premier) fd.push('le dessin n\'est pas le premier élément de la carte');
-      if(!fig.data) fd.push('pas d\'image embarquée');
+      if(!fig.fichier) fd.push('pas de dessin en fichier dans dessins/secondes/');
       if(!fig.charge) fd.push('image non chargée');
       if(!(fig.large >= 120)) fd.push('largeur ' + Math.round(fig.large) + ' px');
-      verifier('le dessin du serpent « Trop facile ! » ouvre l\'écran : premier dans la carte, embarqué, chargé et visible',
+      verifier('le dessin du serpent « Trop facile ! » ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
         !fd.length, fd.join(' | '));
       /* 2. LA VALEUR SE TAPE POUR DE VRAI, et le verdict s'encre en BLEU */
       const bons = await s.page.evaluate(() => { const q = test.questions[test.idx];
@@ -11243,6 +11449,8 @@ async function parcours(page, N){
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
       /* 1. LA FICHE ÉPINGLÉE, AVEC SA LIGNE DE CALCUL VISIBLE */
+      /* un dessin en FICHIER arrive un instant après le rendu : on attend son décodage avant de lire naturalWidth (octobre 2026) */
+      await s.page.evaluate(() => Promise.all([...document.querySelectorAll('section.screen.on img[src^="dessins/"]')].map(i => i.decode().catch(() => {}))));
       const vu = await s.page.evaluate(() => {
         const host = document.getElementById('ppcHost');
         const lignes = [...host.querySelectorAll('.pyx-ligne')];
@@ -11255,7 +11463,7 @@ async function parcours(page, N){
                  /* le dessin de la fiche : en TÊTE de la carte, réellement chargé (naturalWidth) */
                  fig: (() => { const f = document.getElementById('ppcFig'), img = f && f.querySelector('img.ppc-img');
                    return { premier: !!f && f.parentElement.firstElementChild === f,
-                            data: !!img && /^data:image/.test(img.getAttribute('src') || ''),
+                            fichier: !!img && /^dessins\/secondes\/[a-z0-9-]+\.webp$/.test(img.getAttribute('src') || ''),
                             charge: !!img && img.complete && img.naturalWidth > 0,
                             large: img ? img.getBoundingClientRect().width : 0 }; })() };
       });
@@ -11269,13 +11477,13 @@ async function parcours(page, N){
       verifier('la fiche épinglée (a = 10, b = 2, c = a+b) est rendue, avec le nom de la case ÉCRIT',
         !dits.length, dits.slice(0, 3).join(' | '));
       /* 1 bis. LE DESSIN EN TÊTE DE L'ÉCRAN (demande de Turquet, octobre 2026) : premier
-         enfant de la carte, image embarquée, chargée, et visible (≥ 120 px de large) */
+         enfant de la carte, image en fichier (dessins/secondes/), chargée, et visible (≥ 120 px de large) */
       const fig = vu.fig, fd = [];
       if(!fig.premier) fd.push('le dessin n\'est pas le premier élément de la carte');
-      if(!fig.data) fd.push('pas d\'image embarquée');
+      if(!fig.fichier) fd.push('pas de dessin en fichier dans dessins/secondes/');
       if(!fig.charge) fd.push('image non chargée');
       if(!(fig.large >= 120)) fd.push('largeur ' + Math.round(fig.large) + ' px');
-      verifier('le dessin du serpent au champagne ouvre l\'écran : premier dans la carte, embarqué, chargé et visible',
+      verifier('le dessin du serpent au champagne ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
         !fd.length, fd.join(' | '));
       /* 2. LES DEUX LIGNES LITTÉRALES SE TAPENT ET SE JUGENT COMME AVANT */
       for(let k = 0; k < nL - 1; k++){
@@ -11346,6 +11554,8 @@ async function parcours(page, N){
       await s.page.waitForTimeout(900);
       const dits = [];
       /* 1. LA FICHE ÉPINGLÉE, SES QUATRE LIGNES, LES DEUX COLONNES ET LE ▶ */
+      /* un dessin en FICHIER arrive un instant après le rendu : on attend son décodage avant de lire naturalWidth (octobre 2026) */
+      await s.page.evaluate(() => Promise.all([...document.querySelectorAll('section.screen.on img[src^="dessins/"]')].map(i => i.decode().catch(() => {}))));
       const vu = await s.page.evaluate(() => {
         const host = document.getElementById('ppdHost');
         const cols = [...host.querySelectorAll('.pap-col')];
@@ -11362,11 +11572,11 @@ async function parcours(page, N){
                  bilan: !!host.querySelector('.ppd-bilan'),
                  /* le dessin en tête (octobre 2026), la même mesure qu'au
                     6.2.5 : RENDU — décodé, haut de plus de 100 px, posé AVANT
-                    la consigne — et jamais un chemin de fichier */
+                    la consigne — un fichier de dessins/secondes/ (octobre 2026) */
                  fig: (() => {
                    const img = document.querySelector('#scr-ppd img.ppd-img'), ins = document.querySelector('#scr-ppd .mp-instr');
                    if(!img) return 'absent';
-                   if(!/^data:image\//.test(img.getAttribute('src') || '')) return 'src ' + String(img.getAttribute('src')).slice(0, 30);
+                   if(!/^dessins\/secondes\/[a-z0-9-]+\.webp$/.test(img.getAttribute('src') || '')) return 'src ' + String(img.getAttribute('src')).slice(0, 30);
                    if(!img.complete || !img.naturalWidth) return 'non décodé';
                    const h = img.getBoundingClientRect().height;
                    if(h < 100) return 'haut de ' + Math.round(h) + ' px';
@@ -11472,6 +11682,8 @@ async function parcours(page, N){
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
       /* 1. LA FICHE ÉPINGLÉE DU PDF, CINQ LIGNES, LE NOM ÉCRIT */
+      /* un dessin en FICHIER arrive un instant après le rendu : on attend son décodage avant de lire naturalWidth (octobre 2026) */
+      await s.page.evaluate(() => Promise.all([...document.querySelectorAll('section.screen.on img[src^="dessins/"]')].map(i => i.decode().catch(() => {}))));
       const vu = await s.page.evaluate(() => {
         const host = document.getElementById('pevHost');
         const lignes = [...host.querySelectorAll('.pyx-ligne')];
@@ -11484,12 +11696,12 @@ async function parcours(page, N){
                  bilan: !!host.querySelector('.pev-bilan'),
                  exp: !!document.getElementById('pev-exp'),
                  /* le dessin en tête (octobre 2026) : RENDU — décodé, haut de
-                    plus de 100 px, posé AVANT la consigne — et jamais un
-                    chemin de fichier, la page reste un seul fichier */
+                    plus de 100 px, posé AVANT la consigne — un fichier de
+                    dessins/secondes/ (octobre 2026 : les dessins vivent en fichiers) */
                  fig: (() => {
                    const img = document.querySelector('#scr-pev img.pev-img'), ins = document.querySelector('#scr-pev .mp-instr');
                    if(!img) return 'absent';
-                   if(!/^data:image\//.test(img.getAttribute('src') || '')) return 'src ' + String(img.getAttribute('src')).slice(0, 30);
+                   if(!/^dessins\/secondes\/[a-z0-9-]+\.webp$/.test(img.getAttribute('src') || '')) return 'src ' + String(img.getAttribute('src')).slice(0, 30);
                    if(!img.complete || !img.naturalWidth) return 'non décodé';
                    const h = img.getBoundingClientRect().height;
                    if(h < 100) return 'haut de ' + Math.round(h) + ' px';
@@ -11716,19 +11928,21 @@ async function parcours(page, N){
         !dits.length, dits.slice(0, 3).join(' | '));
       /* 1 bis. LE DESSIN DE LA FICHE EN TÊTE DE L'EXERCICE (demande de Turquet,
          octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.6
-         au début ») : un vrai dessin (données embarquées), RENDU (une largeur
+         au début ») : un vrai dessin (un fichier de dessins/secondes/), RENDU (une largeur
          mesurée, pas un alt sur une image cassée), posé après le rappel et
          AVANT la consigne et le programme — pas en bas de page. */
+      /* un dessin en FICHIER arrive un instant après le rendu : on attend son décodage avant de lire naturalWidth (octobre 2026) */
+      await s.page.evaluate(() => Promise.all([...document.querySelectorAll('section.screen.on img[src^="dessins/"]')].map(i => i.decode().catch(() => {}))));
       const fig = await s.page.evaluate(() => {
         const i = document.querySelector('#ppmFig img.ppm-img'), av = document.getElementById('ppmAvant'),
               instr = document.querySelector('#scr-ppm .mp-instr'), host = document.getElementById('ppmHost');
         if(!i) return { absent: true };
         const apres = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
-        return { src: (i.getAttribute('src') || '').slice(0, 16), largeur: i.getBoundingClientRect().width,
+        return { src: (i.getAttribute('src') || '').slice(0, 60), largeur: i.getBoundingClientRect().width,
                  naturelle: i.naturalWidth, apresRappel: apres(av, i), avantConsigne: apres(i, instr) && apres(i, host) };
       });
       verifier('le dessin de la fiche est en tête de l\'exercice, rendu, après le rappel et avant la consigne',
-        !fig.absent && /^data:image\//.test(fig.src) && fig.largeur > 100 && fig.naturelle > 0 && fig.apresRappel && fig.avantConsigne,
+        !fig.absent && /^dessins\/secondes\/[a-z0-9-]+\.webp$/.test(fig.src) && fig.largeur > 100 && fig.naturelle > 0 && fig.apresRappel && fig.avantConsigne,
         JSON.stringify(fig));
       /* 2. UNE PRÉDICTION VIDE EST REDEMANDÉE, JAMAIS JUGÉE */
       await s.page.click('#ppmGuessValidate');
@@ -12361,6 +12575,46 @@ async function parcours(page, N){
       const idsAvant = idsPython.filter(id => !avantSans[id]);
       const sansAvant = []; let nAvant = 0;
       const sansClavierLim = []; let nLimCases = 0;
+      /* CHAQUE DESSIN EST UN FICHIER DE dessins/, ET IL EST RÉELLEMENT CHARGÉ
+         (décision de Turquet, octobre 2026 : les 43 images de la Seconde
+         quittent la page, qui pesait 4,9 Mo dont 770 Ko de base64 — chaque
+         élève les téléchargeait et les analysait à chaque ouverture, même
+         pour un exercice de fractions). Mesuré sur chaque écran visité, dans
+         les deux modes, au premier écran et après les écrans de départ : un
+         fichier manquant s'affiche comme un cadre vide portant son alt, et
+         RIEN d'autre ne le verrait — le banc jsdom ne charge pas les images,
+         il vérifie seulement que le fichier existe. Un dessin resté en
+         base64 est nommé aussi : la règle vaut partout, et le banc jsdom la
+         tient par ailleurs sur le texte de la page. decode() attend que
+         l'image soit chargée, et REJETTE si le fichier manque : naturalWidth
+         tranche ensuite. Un exercice ajouté demain est couvert sans rien
+         déclarer. */
+      const dessinsCasses = []; let nDessins = 0; const dessinsVus = new Set(), srcCassesVisite = new Set();
+      const releverDessins = async (id, mode, moment) => {
+        const vus = await s.page.evaluate(async () => {
+          const on = document.querySelector('section.screen.on');
+          if(!on) return [];
+          const out = [];
+          for(const i of on.querySelectorAll('img[src]')){
+            const src = i.getAttribute('src') || '';
+            if(/^data:image/i.test(src)){ out.push({ src: src.slice(0, 24) + '…', etat: 'embarqué en base64 au lieu d’un fichier' }); continue; }
+            if(!/^dessins\//.test(src)) continue;
+            try { await i.decode(); } catch(e){ /* fichier absent : naturalWidth restera 0 */ }
+            out.push({ src, etat: (i.complete && i.naturalWidth > 0) ? '' : 'non chargé (fichier absent ?)' });
+          }
+          return out;
+        });
+        if(!vus.length) return;
+        const num = await s.page.evaluate(i => TEST_NUM[i], id);
+        for(const d of vus){
+          if(!d.etat){ nDessins++; continue; }
+          srcCassesVisite.add(d.src);
+          const cle = id + '|' + mode + '|' + d.src;
+          if(dessinsVus.has(cle)) continue;
+          dessinsVus.add(cle);
+          dessinsCasses.push(num + ' ' + id + ' (' + mode + ', ' + moment + ') ' + d.src + ' — ' + d.etat);
+        }
+      };
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -12383,6 +12637,7 @@ async function parcours(page, N){
           }, mode);
           if(!pris){ sansMode.push(id + '/' + mode); continue; }
           await s.page.waitForTimeout(650);
+          await releverDessins(id, mode, 'premier écran');
           if(idsAvant.indexOf(id) >= 0){
             const av = await s.page.evaluate(() => {
               const on = document.querySelector('section.screen.on');
@@ -12431,6 +12686,7 @@ async function parcours(page, N){
             if(!passe) break;
             await s.page.waitForTimeout(700);
           }
+          await releverDessins(id, mode, 'après les écrans de départ');
           const vu = await s.page.evaluate(() => {
             const on = document.querySelector('section.screen.on');
             if(!on) return {ia: false, ecran: '(aucun)'};
@@ -12853,6 +13109,41 @@ async function parcours(page, N){
       else
         ignorer('des cases de limite sont bien posées (le contrôle du clavier mesure quelque chose)',
           'ce niveau ne pose aucune case de limite');
+      /* ET LES DESSINS POSÉS HORS DES ÉCRANS D'EXERCICE : le schéma-bilan des
+         ensembles de nombres vit dans une modale (#bilanModal), hors de toute
+         section.screen — la visite ne le voit pas. Une fois la visite finie,
+         on relit le document ENTIER : tout <img> qui désigne dessins/ doit
+         être décodé, celui-là compris, et ceux des écrans déjà rendus avec. */
+      {
+        const partout = await s.page.evaluate(async () => {
+          const imgs = [...document.querySelectorAll('img[src^="dessins/"]')], casses = [];
+          let charges = 0;
+          for(const i of imgs){
+            try { await i.decode(); } catch(e){ /* fichier absent : naturalWidth restera 0 */ }
+            if(i.complete && i.naturalWidth > 0) charges++; else casses.push(i.getAttribute('src'));
+          }
+          return { charges, casses: [...new Set(casses)] };
+        });
+        /* un dessin cassé déjà nommé par la visite ne l'est pas une seconde
+           fois sous une étiquette qui le dirait « hors écran » */
+        partout.casses.filter(src => !srcCassesVisite.has(src))
+          .forEach(src => dessinsCasses.push('(document entier, hors écran visité) ' + src + ' — non chargé (fichier absent ?)'));
+        nDessins += partout.charges;
+      }
+      /* le COMPTE et la liste ENTIÈRE : un dessin cassé de plus ne doit pas
+         se cacher derrière les trois premiers */
+      verifier('chaque dessin d\'un exercice est un fichier de dessins/, réellement chargé',
+        dessinsCasses.length === 0, dessinsCasses.length + ' cas — ' + dessinsCasses.join(' | '));
+      /* LE BORD OPPOSÉ : un contrôle qui n'a rien à mesurer ne mesure rien, et
+         doit le dire. Le niveau qui DÉCLARE des dessins (tests/profils.js,
+         « dessins ») doit en offrir au banc ; celui qui n'en déclare pas
+         s'affiche « non applicable » plutôt que d'être tu. */
+      if(P.dessins)
+        verifier('des dessins ont bien été relevés (le contrôle des dessins mesure quelque chose)',
+          nDessins > 0, nDessins + ' dessin(s) relevé(s) sur toute la visite');
+      else
+        ignorer('des dessins ont bien été relevés (le contrôle des dessins mesure quelque chose)',
+          'ce niveau ne déclare aucun dessin (mesuré : ' + nDessins + ')');
       /* Une étiquette de courbe posée SUR sa courbe se lit barrée (capture de
          Turquet, 5.4, septembre 2026) : mesurée ici sur toute étiquette de tout
          dessin visité, contre les courbes RENDUES. */
@@ -13136,7 +13427,7 @@ async function parcours(page, N){
           if(!fig) return { pb: 'pas de serpent sur ' + on.id };
           const rf = fig.getBoundingClientRect(), svg = fig.querySelector('svg.hw-svg');
           const card = fig.closest('.card'), rc = card ? card.getBoundingClientRect() : null;
-          const img = fig.parentNode.querySelector('img[src^="data:image"]'), ri = img ? img.getBoundingClientRect() : null;
+          const img = fig.parentNode.querySelector('img[src*="dessins/"]'), ri = img ? img.getBoundingClientRect() : null;
           /* la bulle et ses deux lignes portent une classe : les étoiles du sorcier
              et les crocs blancs du vampire sont aussi des <text> et des <path fill="#fff"> */
           const textes = svg ? [...svg.querySelectorAll('text.hw-bulle-texte')] : [];

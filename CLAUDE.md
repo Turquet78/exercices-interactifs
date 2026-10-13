@@ -36,8 +36,8 @@ changé, ce qui a été exécuté, et ce qu'aucun banc ne voit.
 **2. `npm test` avant toute proposition.** Aucune modification n'est poussée si
 les contrôles échouent. `npm test` contrôle **les trois niveaux**, chacun selon
 son profil (`tests/profils.js`). L'action GitHub `.github/workflows/controles.yml`
-les rejoue tous les trois sur chaque pull request, une étape par fichier : elle
-doit être verte avant fusion. Voir `tests/LISEZMOI.md`.
+les rejoue tous les trois sur chaque pull request, un travail par fichier, en
+parallèle : elle doit être verte avant fusion. Voir `tests/LISEZMOI.md`.
 
 **3. Ne jamais livrer sans avoir exécuté.** Une vérification de syntaxe ne prouve
 rien. Trois pannes en production sont passées à travers des contrôles statiques
@@ -80,6 +80,7 @@ couvert sans rien avoir à déclarer.
 | L'inconnue **« x » s'écrit en italique ARRONDI** — l'écriture de MathLive (`KaTeX_Math`), pas le simple penché de Nunito : `<i>x</i>` (règle globale `i{…}`), jamais un `x` droit ; dans un `<option>`, le caractère `𝑥` ; dans un SVG, un `<tspan>` de fonte mathématique. **Un filet de sécurité (`italiquerX`, script `#italiquer-x` en fin de fichier) enveloppe à l'affichage tout « x » isolé resté en texte brut** : écrire `<i>x</i>` reste la règle, le filet rattrape le reste | le « x » passe pour une lettre de texte ou pour le signe ×, sur tous les niveaux | « l'inconnue « x » s'écrit toujours en italique » — plus aucune dispense (septembre 2026) : le contrôle vérifie ce que le filet a produit ; le code en chasse fixe (Python) est hors champ |
 | Les questions d'une séance se tirent par **`distinctes()`** — jamais deux fois les mêmes données | l'élève refait le même calcul dans la même séance | « aucune séance ne pose deux fois la même question » (banc principal, `tests/verifier.js`) |
 | Un calcul de fractions (Seconde, Première) part de **fractions irréductibles** — seuls se dispensent, raison comprise, les exercices dont le sujet est la fraction réductible (`fractionsIrreductibles.sans`) | l'élève qui simplifie d'abord, à juste titre, est compté faux | « les fractions de départ d'un calcul de fractions sont irréductibles » (banc principal, `tests/verifier.js`) |
+| Un **dessin** d'exercice est un **fichier** de `dessins/<niveau>/`, référencé par son chemin relatif — jamais une image en base64 dans la page (décision de Turquet, octobre 2026) | la page de Seconde pesait 4,9 Mo, dont 770 Ko de dessins téléchargés et analysés par chaque élève à chaque ouverture, même sans exercice Python | « aucune image n'est embarquée en base64 dans la page », « chaque dessin référencé par la page existe dans le dépôt », « aucun fichier des dossiers de dessins de la page n'est orphelin » (banc principal, `tests/verifier.js`) ; « chaque dessin d'un exercice est un fichier de dessins/, réellement chargé » (banc navigateur, section 9) |
 
 **Les couleurs de la vérification ont changé en août 2026** (décision de
 Turquet) : ce qui est JUSTE se peint en **bleu**, ce qui est faux reste en
@@ -256,6 +257,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **La fenêtre « Soutien » se saisit n'importe où.**
 - **Fenêtres d'aide détachées**
 - **Une fenêtre d'aide FERMÉE doit se rouvrir — et « est-elle fermée ? » n'a pas de réponse au moment où on la pose.**
+- **Les dessins vivent en FICHIERS, jamais en base64 dans la page.**
 
 ### Séances : pause, abandon, branchements oubliés
 
@@ -314,6 +316,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 
 - **La même erreur, huit fois, n'est pas huit mesures.**
 - **Deux bancs jsdom ne se lancent pas EN MÊME TEMPS.**
+- **Puis les trois bancs jsdom ont joué de front, chacun dans son dossier temporaire.**
 - **Un bug trouvé devient un contrôle.**
 - **Une clé écrite deux fois dans `tests/profils.js` ne casse rien — elle gagne.**
 - **Un NUMÉRO de section du banc ne désigne qu'une section — et un en-tête qui n'imprime pas son titre est pire qu'un titre absent.**
@@ -334,6 +337,7 @@ tenus, les sabotages qui les ont éprouvés.
 - Terminale — dérivées, suites, récurrences et TVI — `docs/journal/14-terminale.md`
 - Seconde — calcul littéral (thème 7 : les nombres relatifs, somme et produit, réduire une somme) — `docs/journal/16-seconde-calcul-litteral.md`
 - Première — probabilités (thème 3 : lire une probabilité, le tableau à double entrée) — `docs/journal/18-premiere-probabilites.md`
+- Seconde — vecteurs (thème 8 : l'image d'un point par une translation sur une grille) — `docs/journal/19-seconde-vecteurs.md`
 
 ## Ajouter un exercice
 
@@ -507,8 +511,8 @@ réglage de l'authentification Supabase, le déploiement de la fonction Edge, et
 le fait que `COURRIEL_PROF` désigne un compte réel. Voir `supabase/LISEZMOI.md`.
 
 **Une erreur qui revient à l'identique se diagnostique en remontant la
-chaîne, jamais en la répétant** ; **deux bancs jsdom ne se lancent pas EN MÊME
-TEMPS, `npm test` les enchaîne exprès** ; **une clé dupliquée dans
+chaîne, jamais en la répétant** ; **les trois bancs jsdom se jouent de front, chacun dans son dossier
+temporaire — `npm test` les lance ensemble (octobre 2026)** ; **une clé dupliquée dans
 `tests/profils.js` gagne en silence** ; **un NUMÉRO de section du banc
 navigateur ne désigne qu'une section, et se relit à chaque fusion de `main`
 comme `APP_VERSION`** ; **un contrôle qui ne s'applique pas à un fichier se
