@@ -4290,6 +4290,7 @@ function exercices(suite){
     pythonForTables(w, P);
     pythonSamoussa(w, P);
     pythonIfCinema(w, P);
+    pythonIfLocation(w, P);
     pythonIfPlusGrandTrois(w, P);
     pythonIfPlusGrand(w, P);
     pythonChaines(w, P);
@@ -28958,6 +28959,212 @@ function pythonSamoussa(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-if-location} (Seconde, 6.7.5) : l'exercice 6 du carnet — le serpent
+   à la clé de voiture. Demander le nombre entier de kilomètres dans la
+   variable kilometre, calculer le prix de la location dans la variable prix
+   avec un if et un else, l'afficher. Le contrôle tient la place au menu (le
+   sous-thème 6.7 « Condition if else », ajouté en dernier, rien d'autre ne
+   bouge), la fiche épinglée et le tirage, le juge sur des copies justes et
+   fausses, chacune avec le mot qui la nomme, l'écran tenu aux consignes du
+   sous-thème Input (le dessin seul en tête, l'énoncé en gras dans son cadre,
+   les quatre coups de pouce repliés, aucune définition, la console vide), le
+   dialogue de la console, la copie juste, fausse et vide, le soutien qui
+   explique sans révéler, puis compare à un vrai CPython ce que les modèles
+   affichent. Aucun accent grave ni antislash littéral dans le code évalué. */
+function pythonIfLocation(w, P){
+  const nom = '{python-if-location} : je loue une voiture';
+  if(!P.pythonIfLocation){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la location'); return; }
+  const ID = P.pythonIfLocation.exercice, NB = P.pythonIfLocation.nb, NUM = P.pythonIfLocation.numero;
+  const present = evaluer(w, "typeof startPLO==='function' && typeof ploDiag==='function' && typeof ploBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPLO / ploDiag / ploBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il suit {python-if-cinema} dans le sous-thème 6.7 « Condition if else », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
+    if(!st||!/condition if else/i.test(st.nom)) vus.push("pas de sous-thème 6.7 Condition if else");
+    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-if-cinema")+1||st.ids.indexOf("python-if-cinema")<0) vus.push("il ne suit pas {python-if-cinema} : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-for-images"]!=="6.6.10"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (100 €, 0,40 € jusqu’à 50 km, 0,70 € au-delà), puis d’autres tarifs distincts ; le modèle de chacun passe au juge, chaque tarif sort (300 séances), et les kilométrages du juge tombent des deux côtés du seuil', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=ploBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S0=ploSit(qs[0]);
+      if(S0.j!==100||S0.p1!==0.4||S0.km!==50||S0.p2!==0.7){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois le même tarif : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PLO_TARIFS.forEach(function(t, i){
+      const d=ploDiag(ploModele({s:i}),{s:i});
+      if(!d.ok) vus.push("le modèle du tarif "+i+" : "+d.dits.join(" "));
+      const S=ploSit({s:i}), K=ploKm(S);
+      if(!(K[0]>0&&K[0]<S.km&&K[1]>S.km&&K[2]>K[1])) vus.push("les kilométrages du tarif "+i+" : "+K.join(","));
+      if(!(S.p2>S.p1)) vus.push("le tarif "+i+" n’est pas plus cher au-delà");
+    });
+    if(Object.keys(vues).length!==PLO_TARIFS.length) vus.push("des tarifs ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte toute écriture juste (<= au lieu de <, float au lieu de int, calcul développé, print en dehors du if, une phrase collée par str) et nomme chaque défaut — int oublié, virgule française, aucun input, pas de if, pas de else, deux questions, input muet, variable kilometre ou prix absente, prix non affiché, ( 50 - kilometre ), tarif des premiers au-delà, tout au second tarif, les 50 premiers oubliés, mauvais if, prix fixe, guillemets typographiques, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0,prog:""}, I="    ";
+    const IN="kilometre = int(input("+Q+"Kilomètres ? "+Q+"))"+NL;
+    const prog=function(a, b, tete){ return (tete===undefined?IN:tete)+"if kilometre < 50 :"+NL+I+"prix = "+a+NL+I+"print("+Q+"Prix :"+Q+", prix)"+NL+"else :"+NL+I+"prix = "+b+NL+I+"print("+Q+"Prix :"+Q+", prix)"; };
+    const A="100 + 0.4 * kilometre", B="100 + 0.4 * 50 + 0.7 * (kilometre - 50)";
+    const justes=[ploModele(q), prog(A, B),
+      IN+"if kilometre <= 50:"+NL+I+"prix = 100 + 0.4*kilometre"+NL+"else:"+NL+I+"prix = 120 + 0.7*kilometre - 35"+NL+"print("+Q+"Le prix est de "+Q+" + str(prix) + "+Q+" euros"+Q+")",
+      prog(A, B, "kilometre = float(input("+Q+"Kilomètres ? "+Q+"))"+NL)];
+    justes.forEach(function(p){ const d=ploDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[
+      [prog(A, B, "kilometre = input("+Q+"Kilomètres ? "+Q+")"+NL), /TOUJOURS un texte/],
+      [prog("100 + 0,4 * kilometre", B), /POINT/],
+      [prog(A, B, "kilometre = 30"+NL), /aucune question/],
+      [IN+"prix = "+A+NL+"print(prix)", /condition/],
+      [IN+"if kilometre < 50 :"+NL+I+"prix = "+A+NL+"print(prix)", /else/],
+      [prog(A, B, IN+"j = int(input("+Q+"Jours ? "+Q+"))"+NL), /plus d’une question/],
+      [prog(A, B, "kilometre = int(input())"+NL), /pas de question/],
+      [prog(A.replace("kilometre","km"), B.replace("kilometre","km"), "km = int(input("+Q+"Km ? "+Q+"))"+NL).replace("if kilometre","if km"), /variable kilometre/],
+      [IN+"if kilometre < 50 :"+NL+I+"p = "+A+NL+I+"print(p)"+NL+"else :"+NL+I+"p = "+B+NL+I+"print(p)", /variable prix/],
+      [IN+"if kilometre < 50 :"+NL+I+"prix = "+A+NL+"else :"+NL+I+"prix = "+B, /ne l’affiche pas/],
+      [prog(A, "100 + 0.4 * 50 + 0.7 * (50 - kilometre)"), /pas 50 - kilometre/],
+      [prog(A, A), /ne change pas de formule/],
+      [prog(A, "100 + 0.7 * kilometre"), /EN PLUS/],
+      [prog(A, "100 + 0.7 * (kilometre - 50)"), /premiers kilomètres/],
+      [prog("100 + 0.7 * kilometre", B), /calcul du if/],
+      [prog(A, "150"), /même prix/],
+      [prog(A, "100 + 0.4 * 50 + 0.7 * kilometre"), /calcul du else/],
+      ["kilometre = int(input(«A»))", /guillemets/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=ploDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni encadré au-dessus, l’énoncé de la fiche en gras dans son cadre avec ses quatre coups de pouce repliés, la cellule, « Exécuter » et la console vide ; le rappel ne dit que les coups de pouce ; « Exécuter » pose la question, Entrée affiche le prix ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPLO();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
+    const plat=function(t){ return String(t).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("ploInstr"), img=en&&en.querySelector("img.plo-img");
+    if(!en||!en.classList.contains("mp-instr")||!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(en&&plat(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+plat(en.textContent));
+    if(document.querySelector("#scr-plo .py-avant,#scr-plo .pyp-regle,#scr-plo .pyi-cours,#scr-plo .pii-def")) vus.push("un encadré de définition sur l’écran");
+    const et=document.getElementById("ploEtape"), ti=et&&et.querySelector(".pyn-titre");
+    const tt=ti?plat(ti.textContent):"";
+    if(!/^✏️ Une société de location de voiture propose le tarif suivant : ?100 € la journée auxquels il faut rajouter 0,40 €\\/km pour les 50 premiers kilomètres et 0,70 €\\/km au-delà\\. ?Écrire un programme en python qui :/.test(tt)||ti.querySelectorAll("li").length!==4) vus.push("l’énoncé de la question : "+tt);
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    ["plo-prog","ploRun","ploConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const pouces=document.querySelectorAll("#ploEtape details.pyd-pouce");
+    if(pouces.length!==4) vus.push(pouces.length+" coup(s) de pouce");
+    else {
+      if([].some.call(pouces, function(p){ return p.open; })) vus.push("coup de pouce déplié d’emblée");
+      const t=[].map.call(pouces, function(p){ return plat(p.querySelector("p").textContent); });
+      if(t[0]!=="kilometre = int (input ( "+String.fromCharCode(34)+"...texte de la question ... "+String.fromCharCode(34)+"))") vus.push("coup de pouce 1 : "+t[0]);
+      if(!/^if kilometre < 50 : prix = \\.\\.\\.\\. print/.test(t[1])||!/else : prix = \\.\\.\\.\\./.test(t[1])) vus.push("coup de pouce 2 : "+t[1]);
+      if(t[3].indexOf("prix = 100 + 0.4 * 50 + 0.7 * ( kilometre - 50 )")<0) vus.push("coup de pouce 4 : "+t[3]);
+    }
+    const cons=document.getElementById("ploConsole"), ta=document.getElementById("plo-prog");
+    if(cons.textContent!==""||ta.getAttribute("placeholder")) vus.push("la console ou la cellule porte un texte d’attente");
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.plo||"";
+    if(!/^Je loue une voiture kilometre = int/.test(plat(rap.textContent))) vus.push("le rappel : "+JSON.stringify(plat(rap.textContent)));
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value=ploModele(q);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    const repondre=function(v){ const r=document.getElementById("plo-rep"); if(!r||!cons.contains(r)){ vus.push("la console ne demande pas la réponse ("+v+")"); return false; } r.value=v; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); return true; };
+    ploExecuter();
+    if(cons.textContent.indexOf("Combien de kilomètres")<0) vus.push("la question n’est pas écrite dans la console");
+    if(repondre("130")){
+      if(document.getElementById("plo-rep")) vus.push("la case reste après la réponse");
+      if(cons.textContent.split(NL).pop()!=="Le prix de la location est de 176.0 €") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+    }
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPLO();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPLO();
+    if(test.idx!==1||document.getElementById("plo-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    const S1=ploSit(test.questions[1]), t1=plat(document.getElementById("ploEtape").textContent);
+    if(t1.indexOf(S1.j+" € la journée")<0||t1.indexOf("les "+S1.km+" premiers")<0) vus.push("l’énoncé de la question 2 ne suit pas son tarif : "+t1);
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), I="    ";
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPLO();
+    let ta=document.getElementById("plo-prog");
+    ta.value="kilometre = input("+Q+"Km ? "+Q+")"+NL+"if kilometre < 50 :"+NL+I+"prix = 100"+NL+"else :"+NL+I+"prix = 200"+NL+"print(prix)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPLO();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#ploModele .sol");
+    if(!mod||mod.textContent!==ploModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    if(!document.getElementById("ploConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    nextPLO(); ta=document.getElementById("plo-prog");
+    checkPLO();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==ploModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPLO(); ta=document.getElementById("plo-prog");
+    checkPLO();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="kilometre = int(input("+Q+"Km ? "+Q+"))"+NL+"if kilometre < 50 :"+NL+I+"prix = 100 + 0.4 * kilometre"+NL+"else :"+NL+I+"prix = 100 + 0.4 * 50 + 0.7 * (50 - kilometre)"+NL+"print(prix)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPLO();
+    const fb=document.getElementById("ploFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/pas 50 - kilometre/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#ploModele .sol")||fb.indexOf("0.7 * (kilometre - 50)")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPlo(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ----
+     input est remplacé, côté CPython, par une fonction qui rend les réponses
+     l'une après l'autre sans écrire la question. */
+  const nomPy = 'ce que les modèles de {python-if-location} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PLO_TARIFS.forEach(function(_, i){ const S=ploSit({s:i}); ploKm(S).concat([S.km, 1, S.km+3]).forEach(function(k){
+      const src=ploModele({s:i}), r=pyRun(src,[String(k)]);
+      res.push([src, [String(k)], r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* {python-for-images} (Seconde, 6.6.10, BONUS) : l'exercice 10 du carnet — la
    photo de l'élève penché sur son clavier, puis « Soit la fonction f(x) =
    x² − 6x + 3 ; faire un programme qui affiche les images pour x = 0 puis
@@ -30564,10 +30771,10 @@ function pythonTroisDes(w, P){
   verifier(nomPy, ecarts.length === 0 && /: 81\n/.test(ref[2]) && /: 25\n/.test(ref[1]), ecarts.join(' | ') || J(ref[2].slice(-200)));
 }
 
-/* {python-if-plus-grand-trois} (Seconde, 6.7.5) : l'exercice 8 du carnet, BONUS —
+/* {python-if-plus-grand-trois} (Seconde, 6.7.6) : l'exercice 8 du carnet, BONUS —
    la photo, puis « Faire un programme qui demande 3 nombres décimaux et qui
    affiche le plus grand des trois nombres. » Le contrôle tient la place au
-   menu (il suit {python-if-cinema} dans le sous-thème 6.7 « Condition if
+   menu (il suit {python-if-location} dans le sous-thème 6.7 « Condition if
    else », dernier du thème, rien d'autre ne bouge), le mot « Bonus » du
    titre, le juge sur des copies justes et fausses — chacune avec le mot qui
    la nomme —, l'écran (la photo d'abord, aucune définition, aucun coup de
@@ -30584,14 +30791,14 @@ function pythonIfPlusGrandTrois(w, P){
   }
 
   /* ---- 1. la place au menu, et le mot « Bonus » ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.7 « Condition if else » derrière {python-if-cinema}, numéroté ' + NUM + ', dernier sous-thème du thème, son titre dit « Bonus », et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il ferme le sous-thème 6.7 « Condition if else » derrière {python-if-location}, numéroté ' + NUM + ', juste derrière « Boucle for in range », son titre dit « Bonus », et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===7; });
     if(!st||!/condition/i.test(st.nom)||!/if/.test(st.nom)||!/else/.test(st.nom)) vus.push("pas de sous-thème 6.7 Condition if else");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-if-cinema") vus.push("il ne ferme pas le sous-thème derrière {python-if-cinema} : "+st.ids.join(","));
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-if-location") vus.push("il ne ferme pas le sous-thème derrière {python-if-location} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-for-table"]!=="6.6.11"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-if-location"]!=="6.7.5"||TEST_NUM["python-for-table"]!=="6.6.11"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("le titre ne dit pas Bonus : "+TESTS["${ID}"].name);
     const qs=pgtBuildQuestions();
