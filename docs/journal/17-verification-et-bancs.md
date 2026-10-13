@@ -236,3 +236,34 @@ JavaScript non rattrapée → ENOENT: no such file or directory, unlink
 /tmp/ctrl0.js » pendant que la Terminale passe ses sept scripts — le rouge
 accuse une page qui n'a rien ; sur le nouveau, les trois niveaux lancés
 ensemble par npm test finissent verts, chacun avec ses fichiers.
+
+**Puis la Seconde a rendu dix minutes à chacun de ses deux bancs — mesurées
+contrôle par contrôle, jamais devinées.** Le relevé horodaté du banc jsdom
+(chaque ligne préfixée du temps écoulé depuis la précédente) a donné, sur
+27,6 minutes, 14 minutes à un seul contrôle, « aucune séance ne pose deux fois
+la même question » — 7 160 séances démarrées dans la fenêtre jsdom qui venait
+d'encaisser toute la section 4 —, et 2,3 minutes de plus aux fractions
+irréductibles, 900 séances dans la même fenêtre. Or une fenêtre FRAÎCHE
+démarre les 183 exercices du menu en 7,8 s par tour, soit cinq minutes pour
+quarante tours : la fenêtre usée démarrait un exercice près de trois fois plus
+lentement. Les trois contrôles qui rejouent des séances (contexte de chaque
+exercice, séances sans doublon, fractions irréductibles) tournent donc dans
+une fenêtre neuve (`rejouerDansUneFenetreNeuve`, `tests/verifier.js`) : le
+rejeu des séances passe de 839 à 295 s, les fractions de 138 à 60 s, le banc
+de 27,6 à 16,5 minutes — mêmes 904 contrôles verts, mêmes quarante tours.
+Côté navigateur, le relevé montrait 118 ouvertures de page (une par section),
+chacune LANÇANT son propre Chromium puis attendant 3,5 s à plat : six à sept
+secondes par ouverture, 93 lignes de plus de quatre secondes qui cumulaient
+1 103 s sur 1 312. Le navigateur est lancé une fois pour tout le banc, chaque
+ouverture reçoit un contexte neuf (rien n'est partagé d'une section à l'autre,
+et c'est le contexte que `s.nav.close()` ferme), et l'attente est devenue une
+CONDITION — page chargée, double de Supabase en place, `<math-field>`
+enregistré — suivie de 400 ms de répit : la première ouverture passe de 7,1 à
+1,3 s, le banc de 21,9 à 16,6 minutes, 625 contrôles verts. Ce qui reste, et
+le dire vaut mieux que de le taire : la visite de tous les exercices de la
+section 9 (459 s, des attentes fixes de 300, 650 et 700 ms par exercice et
+par mode, que des conditions pourraient remplacer sans que rien ne le mesure
+encore), le schéma à cases de {pourcentages-problemes} (178 s, 600 rendus), et
+le rejeu des séances lui-même, cinq minutes pour quarante tours. Toutes les
+durées ici sont celles d'une machine qui jouait deux bancs à la fois ;
+l'action GitHub, une machine par banc, fera mieux.
