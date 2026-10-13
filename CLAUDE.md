@@ -334,6 +334,7 @@ tenus, les sabotages qui les ont éprouvés.
 - Terminale — dérivées, suites, récurrences et TVI — `docs/journal/14-terminale.md`
 - Seconde — calcul littéral (thème 7 : les nombres relatifs, somme et produit, réduire une somme) — `docs/journal/16-seconde-calcul-litteral.md`
 - Première — probabilités (thème 3 : lire une probabilité, le tableau à double entrée) — `docs/journal/18-premiere-probabilites.md`
+- Seconde — vecteurs (thème 8 : vecteurs égaux, figure et configuration) — `docs/journal/19-seconde-vecteurs.md`
 
 ## Ajouter un exercice
 
