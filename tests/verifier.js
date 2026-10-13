@@ -466,8 +466,18 @@ function structure(){
   });
 
   const scripts = [...s.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+  /* UN DOSSIER TEMPORAIRE PAR PROCESSUS (octobre 2026). Ces fichiers
+     s'appelaient ctrl<i>.js dans le dossier temporaire du SYSTÈME : deux bancs
+     lancés en même temps se les prenaient l'un à l'autre — « ENOENT … unlink
+     /tmp/ctrl1.js », un rouge qui accusait la page —, et c'est ce qui a fondé
+     la règle « deux bancs jsdom ne se lancent pas EN MÊME TEMPS » et la mise
+     en série de npm test (une quarantaine de minutes, le temps de la Seconde
+     plus celui des deux autres). mkdtemp donne à chaque processus son propre
+     dossier, que rien d'autre ne connaît : la règle tombe, npm test joue les
+     trois niveaux de front, et l'action GitHub leur donne une machine chacun. */
+  const dossierTemp = fs.mkdtempSync(path.join(os.tmpdir(), 'verifier-'));
   scripts.forEach((js, i) => {
-    const f = path.join(os.tmpdir(), 'ctrl' + i + '.js');
+    const f = path.join(dossierTemp, 'ctrl' + i + '.js');
     fs.writeFileSync(f, js);
     let ok = true, err = '';
     try { execFileSync('node', ['--check', f], { stdio:'pipe' }); }
@@ -475,6 +485,7 @@ function structure(){
     fs.unlinkSync(f);
     verifier('script n°' + (i+1) + ' syntaxiquement valide', ok, err);
   });
+  fs.rmSync(dossierTemp, { recursive: true, force: true });
 
   const ecrans = new Set([...s.matchAll(/<section class="screen" id="scr-([a-z0-9-]+)"/g)].map(m => m[1]));
   const demandes = new Set([...s.matchAll(/show\('([a-z0-9-]+)'\)/g)].map(m => m[1]));

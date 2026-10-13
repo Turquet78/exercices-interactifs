@@ -20,25 +20,35 @@ on:
     branches: [main]
 
 jobs:
+  # LES TROIS NIVEAUX JSDOM EN PARALLÈLE, une machine chacun (octobre 2026).
+  # Ils s'enchaînaient dans un seul travail, une étape par fichier : une minute
+  # et demie pour la Première, vingt-deux pour la Seconde, quatre pour la
+  # Terminale, soit vingt-sept minutes avant de pouvoir fusionner — et pendant
+  # ces vingt-sept minutes, « main » avançait (treize pull requests par jour),
+  # le contrôle de version rougissait, et la branche reprenait « main » pour
+  # relancer : plus de deux reprises par livraison, mesurées sur cinq jours.
+  # La mise en série tenait à un seul fichier temporaire partagé (journal 17,
+  # « Deux bancs jsdom ne se lancent pas EN MÊME TEMPS ») ; chaque processus a
+  # désormais le sien, et ici chaque niveau a de toute façon sa machine.
+  # L'attente tombe à la durée du plus long des trois : la Seconde.
+  #
+  # « fail-fast: false » et le nom du travail qui porte le fichier : les mêmes
+  # raisons que pour le banc navigateur, plus bas.
   controles:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        niveau: [premiere-specifique.html, secondes.html, terminale.html]
+    name: controles (${{ matrix.niveau }})
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: npm install
-      # Chaque niveau a son étape, pour que l'action nomme le fichier fautif ;
-      # « if: always() » les fait toutes tourner, sinon un niveau cassé masquerait
-      # l'état des deux autres.
-      - name: premiere-specifique.html
-        run: npm run test:premiere
-      - name: secondes.html
-        if: always()
-        run: npm run test:secondes
-      - name: terminale.html
-        if: always()
-        run: npm run test:terminale
+      - name: ${{ matrix.niveau }}
+        run: node tests/verifier.js ${{ matrix.niveau }}
 
   # Les deux autres travaux remplacent Supabase par un double en mémoire — exprès,
   # pour qu'aucun contrôle n'approche les comptes réels. Ils sont donc aveugles
