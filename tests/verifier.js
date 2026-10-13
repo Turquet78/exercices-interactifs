@@ -21113,6 +21113,13 @@ function brouillonProvisoire(w, apres){
       if(!nA.fait||!nA.provisoire||nA.termine||Math.round(nA.note*10)!==60)
         vus.push('la définition : brouillon 3/5 → attendu fait, provisoire, non terminé, 6/10 ; rendu '+JSON.stringify({fait:nA.fait,provisoire:nA.provisoire,termine:nA.termine,note:nA.note}));
       if(nB.fait) vus.push('un brouillon sans réponse validée compte comme fait');
+      /* la définition seule : un point gagné suffit (question à parties, réponse
+         pas encore rangée), rien du tout ne vaut rien */
+      const brut=function(score,answers){ return {eleve_id:'e-controle',score:score,total:5,percent:0,details:{test:A,mode:'train',dm:'dm_br',state:'paused',maxScore:5,questions:[1,2,3,4,5],answers:answers}}; };
+      const unPoint=dmNoteBrouillon(brut(2,[]));
+      if(!unPoint||unPoint.percent!==40||!unPoint.enCours) vus.push('un brouillon à 2 points sans réponse rangée ne vaut pas 40 % provisoire : '+JSON.stringify(unPoint&&{percent:unPoint.percent,enCours:unPoint.enCours}));
+      if(dmNoteBrouillon(brut(0,[]))!==null) vus.push('un brouillon vide reçoit une note');
+      if(dmNoteBrouillon(Object.assign(brut(3,[{}]),{details:{test:A,mode:'train',state:'paused',answers:[{}],maxScore:5}}))!==null) vus.push('un brouillon SANS étiquette de devoir reçoit une note de devoir');
 
       /* 2. LE PROFESSEUR */
       const dev=(mesDevoirs||[]).find(function(d){ return d.id==='dm_br'; });

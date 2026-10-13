@@ -1086,8 +1086,12 @@ Pire : la légende du bilan disait « nombre d'exercices commencés » alors
 qu'il ne comptait que les terminés — et l'export CSV écartait les brouillons
 aussi, si bien que le professeur n'avait AUCUN moyen de voir le travail en
 cours.
-**La règle est celle de la pause, ni plus ni moins** : un brouillon où rien
-n'est validé ne reçoit rien ; sinon le score en cours sur le barème ENTIER
+**La règle est celle de la pause, à un détail près** : un brouillon où rien
+n'est validé ET aucun point gagné ne reçoit rien ; sinon le score en cours sur
+le barème ENTIER. Le détail : une question à plusieurs parties (Python) ne
+range sa réponse qu'à la dernière partie, mais son score avance à chaque
+partie juste — un point suffit donc, là où la pause exigeait une réponse
+rangée
 (`dmNoteBrouillon`, le barème de chaque niveau : `maxScore` en Seconde, le
 nombre de questions ailleurs — exactement ce que lit son `finishTest`). La
 ligne rendue est une COPIE marquée `enCours`, la ligne de la base ne bouge

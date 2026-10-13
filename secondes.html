@@ -11714,7 +11714,11 @@ function dmNoteBrouillon(r){
   const d=r&&r.details;
   if(!isPaused(r)||!d||!d.dm) return null;
   const faites=Array.isArray(d.answers)?d.answers.length:0;
-  if(!faites) return null;                                  /* rien de validé : pas de note — la règle de la pause */
+  /* Rien de validé ET aucun point : pas de note — la règle de la pause. Un
+     point suffit : les questions à plusieurs parties (Python) ne rangent
+     leur réponse qu'à la dernière partie, et le score, lui, avance à chaque
+     partie juste. */
+  if(!faites && !((r.score||0)>0)) return null;
   const total=d.maxScore||r.total||0;                             /* le barème posé par le démarreur, comme finishTest et la pause de ce niveau */
   if(!total) return null;
   const nbQ=Array.isArray(d.questions)?d.questions.length:(r.total||0);
