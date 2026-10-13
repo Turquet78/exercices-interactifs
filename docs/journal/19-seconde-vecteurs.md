@@ -58,6 +58,12 @@ badge « v₈ » à côté d'elle (`.vtr-x`, comme `.rpd-x` au 7.8) —, et le m
 dit le déplacement de la première case fausse : « Le vecteur v₁ déplace d'une
 case vers le haut : en partant de L, on arrive en A. »
 
+**Les deux figures se posent sur un fond uni** (v474, demande de Turquet le
+jour même : « ne pas voir le quadrillage derrière ces dessins ») : la scène
+(`.mp-stage`) est quadrillée comme une feuille, et ses carreaux passaient
+derrière les flèches et la grille de points ; chaque figure (`.vtr-fig`) porte
+désormais son fond blanc et son cadre.
+
 **La flèche au-dessus de la lettre v** est posée par CSS (`.vtr-fl::before`),
 dans les lignes comme dans le rappel ; dans une `<option>`, qui ne porte pas
 de balise, le vecteur s'écrit « v₁ » avec un indice Unicode (`vtrVecTxt`),

@@ -1898,7 +1898,10 @@
      vecteur) : le contrôle des graphiques exige 12 px au moins, 10 pour un
      indice. */
   .vtr-figs{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:12px 36px;margin:0 auto 16px}
-  .vtr-fig{display:flex;flex-direction:column;align-items:center;gap:4px;max-width:100%}
+  /* chaque figure se pose sur un fond UNI : le quadrillage de la scène
+     (.mp-stage) ne se voit pas derrière les flèches ni derrière la grille de
+     points, dont il brouillerait la lecture (demande de Turquet, octobre 2026) */
+  .vtr-fig{display:flex;flex-direction:column;align-items:center;gap:4px;max-width:100%;background:var(--surface);border:1.5px solid #D6E2F8;border-radius:14px;padding:8px 12px 4px}
   .vtr-fig-t{font-family:"Fredoka";font-weight:600;font-size:1.05rem;color:var(--ink);text-align:center}
   .vtr-svg{max-width:100%;height:auto;display:block}
   .vtr-svg .vtr-ln{stroke:#8FA6D6;stroke-width:1.5}
@@ -6420,7 +6423,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=473;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=474;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
