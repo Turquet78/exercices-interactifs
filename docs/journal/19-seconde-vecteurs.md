@@ -301,7 +301,101 @@ message parle de longueur), une case vide (correction FB, jamais rouge, le
 message nomme le manque), la copie entièrement vide (rien de rouge), le
 barème égal au total des cases de la séance, `qId`.
 
-## {parallelogramme-point} — le quatrième point d'un parallélogramme (8.4, v476)
+## {translation-quadrillage} — déplacer un point en suivant le chemin u⃗ (8.4, v476)
+
+**La demande** (Turquet, octobre 2026, une autre conversation que celle du 8.1 :
+« en seconde créer un exercice comme le pdf joint ») : la *fiche 2 sur les
+vecteurs*. Un quadrillage où une flèche u⃗ est dessinée, des points A, B, C,
+D, E, et la consigne « déplacer le point A en suivant le chemin u⃗ et appeler
+le nouveau point A′ » ; puis le même quadrillage sans flèche, où le chemin
+est « celui qui va de A à B » (le vecteur AB⃗), et des points C, D, E, F, G à
+déplacer. En bas de la fiche, la phrase à retenir : « *l'image de A par la
+translation de vecteur u⃗ est le point A′* ». Les deux conversations ont
+créé le thème 8 le même jour ; celle-ci a repris `main` trois fois et s'est rangée
+DERRIÈRE le 8.1, le 8.2 et le 8.3 — ajouté en dernier, l'exercice ne renumérote rien.
+
+**{translation-quadrillage} (8.4) : les deux exercices de la fiche sont les
+deux FORMES du tirage.** `q.forme` vaut `'u'` (la flèche dessinée, nommée u⃗,
+les points à déplacer sont A, B et C) ou `'ab'` (deux points A et B SANS
+flèche — lire le chemin fait partie du travail —, les points à déplacer sont
+C, D et E). Trois images par question, quatre questions par séance
+(`TRL_NB`, et `dmNbQuestions()` quand un devoir règle autrement), tirées par
+`distinctes()` sur la clé des données : le vecteur s'appelle `vec`, pas `v` —
+`v` est la tournure, que la clé écarte, et deux questions aux vecteurs
+différents auraient passé pour la même.
+
+**Le tirage est garanti LISIBLE, et le contrôle le relit sur deux cents
+séances.** Tous les points — les trois sources, leurs trois images, et A et B
+ou les deux bouts de la flèche — sont dans le quadrillage (13 colonnes sur 9
+lignes), deux à deux NON VOISINS (distance de Tchebychev ≥ 2 : deux
+étiquettes côte à côte se liraient l'une sur l'autre), et aucun point nommé ne
+tombe sur la flèche u⃗ (ses nœuds intermédiaires se comptent par le pgcd des
+composantes). Le chemin fait au moins deux carreaux. La question ne porte que
+`forme`, `vec`, `o` (l'origine de la flèche, ou le point A), `src` et `rep`
+(trois `null` au tirage) ; elle survit au JSON de la pause. Éprouvé par
+sabotage : des points seulement « distincts » au lieu de « non voisins » ont
+rougi dès le premier tirage, quatre paires nommées.
+
+**La bonne réponse n'est jamais rangée à côté de la question.** L'image de
+chaque point se recalcule (`trlImage`) depuis la source et le vecteur — les
+données MÊMES qui dessinent le quadrillage —, par la fonction qui corrige
+(`trlCheck`), par le dessin de la correction et par le contexte du modèle. Une
+image calculée de travers (le `−` à la place du `+` sur la seconde
+composante) a rougi au tirage même, avant d'atteindre le juge.
+
+**Le geste est celui de {placer-image}, avec trois stylos.** Le point se POSE
+au clic sur un nœud ; l'écouteur est DÉLÉGUÉ à l'hôte, le SVG étant réécrit à
+chaque pose ; `trlNoeud()` relit la géométrie dans le SVG RENDU (`data-m`,
+`data-c`, `data-w`, `data-h`) et s'accroche au nœud le plus proche — aucune
+coordonnée recopiée. Trois images, donc trois stylos « ● Placer A′ », « ●
+Placer B′ », « ● Placer C′ » (`trlChoisir`) : poser un point passe au stylo
+suivant encore vide, recliquer sur un de ses points le RETIRE et rend son
+stylo, cliquer ailleurs avec le même stylo le déplace. jsdom n'a pas de mise
+en page : le clic, le stylo qui avance et le reclic qui retire ne se mesurent
+que dans le banc navigateur (« 6 quadragies bis »), qui clique le bon nœud,
+un nœud décalé d'un tiers de maille, et retire au reclic. Le banc principal,
+lui, pose `rep` à la main — la répartition de {placer-image}.
+
+**La demande en énoncé, le mode d'emploi en plus petit.** « Déplace les points
+A, B et C en suivant le chemin u⃗ : place les points A′, B′ et C′, images de
+A, B et C par la translation de vecteur u⃗. » est l'énoncé (`.lv-instr`, qui
+prend l'encadré) ; le geste — choisir le stylo, cliquer le nœud, déplacer,
+retirer — se lit après, dans `.trl-sous`, à 0,85 rem contre 1,04. Le nom d'un
+vecteur est une lettre coiffée d'une flèche : la classe `.vec`, dont le
+`::before` porte la flèche, dans l'énoncé, le rappel et les corrections ; sur
+le dessin, un « u » en fonte mathématique sous un petit trait fléché.
+
+**Chaque image se juge SEULE, et une image manquante ne rougit jamais.** La
+copie juste vaut 3 ; une image fausse coûte son point et pas celui des deux
+autres ; une image NON POSÉE n'est pas une erreur : sa pastille (`pts-case`,
+comptée par `ptsEcran`) ne rougit pas — en entraînement elle devient `sol`
+(verte) et le dessin montre l'image attendue en vert : un anneau, son
+étiquette, et le chemin depuis la source en pointillés ; en soutien rien ne
+se révèle et rien ne se verrouille tant que la copie n'est pas juste, la
+pastille et le point se colorent à la pose (`trlLive`). Vérifier sans AUCUN
+point ne peint rien et ne verrouille rien : le message redit le geste. Les
+encres suivent la convention commune — le point de l'élève est bleu, rouge
+quand il est faux, la correction verte (`.trl-sol`, le motif de `.pim-sol`) —
+et le banc « 9 bis » les relit comme toutes les autres. Éprouvé par sabotage
+des deux côtés : une pastille vide peinte en rouge a rougi (« n'est pas sol,
+elle est bad »), et un soutien qui verrouille une copie fausse a rougi trois
+fois (verrouillage, révélation, copie corrigée).
+
+**Le contexte envoyé au modèle dit le chemin en carreaux.** « 3 carreaux vers
+la droite et 2 carreaux vers le bas » (`trlChemin`), les points en (colonne ;
+ligne) comptées depuis le coin bas gauche, ce que l'élève a posé (juste, FAUX,
+pas encore posé), et les images attendues derrière `CTX_SECRET`. La même
+phrase en carreaux sert la correction écrite à l'élève. Le bouton des tables
+n'est pas proposé : on n'y multiplie rien (`TABLES_SANS`, et `tablesAide.sans`
+dans le profil — deux sources, donc un vrai contrôle).
+
+**Ce qu'aucun banc ne voit** : la fiche 1 (construire le point D tel que ABDC
+soit un parallélogramme) n'est pas portée — Turquet a précisé que la fiche 2
+était « le bon fichier » ; et la phrase à compléter « l'image de B par la
+translation de vecteur … est le point … » de la fiche est dite dans la
+correction et le rappel, pas demandée dans une case.
+
+## {parallelogramme-point} — le quatrième point d'un parallélogramme (8.5, v477)
 
 **Une question = un quadrillage = trois cases.** Le quadrillage est celui de
 la fiche : 9 carreaux sur 9, les nœuds de 0 à 9 dans chaque sens, les trois
