@@ -4251,6 +4251,7 @@ function exercices(suite){
     tableauProportionsTroisColonnesDirectes(w, P);
     imageNombre(w, P);
     placerImage(w, P);
+    translationQuadrillage(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
     recurrenceLimite(w, P);
@@ -11272,6 +11273,176 @@ function etudeExponentielle(w, P){
   })()`, v => v === '', undefined);
 }
 
+/* {translation-quadrillage} (Seconde, 8.3, thème « Vecteurs » — demande de
+   Turquet, octobre 2026 : « en seconde créer un exercice comme le pdf
+   joint », la fiche 2 sur les vecteurs). Six bords :
+     · le tirage est LISIBLE et JSON : deux formes ('u' la flèche, 'ab' les
+       deux points), un chemin d'au moins deux carreaux, tous les points dans
+       le quadrillage, deux à deux NON VOISINS, aucun sur la flèche u⃗, et
+       RIEN d'autre que forme, vec, o, src et rep dans la question — rep
+       vide au tirage ;
+     · l'énoncé DIT la demande (« Déplace les points … en suivant le chemin
+       … ») et le mode d'emploi du geste se lit APRÈS, en plus petit ;
+     · vérifier SANS point ne peint rien et ne verrouille rien ;
+     · chaque image se juge SEULE : la copie juste vaut 3, une image fausse
+       coûte son point, une image manquante aussi ;
+     · une image MANQUANTE ne rougit jamais : en entraînement sa pastille
+       devient « sol » et le dessin montre l'image attendue en vert, en
+       soutien rien ne se révèle et rien ne se verrouille ;
+     · le contexte envoyé au modèle dit le chemin en carreaux, ce que l'élève a
+       posé, et porte les images attendues en les déclarant SECRÈTES.
+   Le CLIC, lui, ne se mesure que dans un vrai navigateur : jsdom n'a pas de
+   mise en page, un rectangle de SVG y vaut zéro — le banc navigateur clique
+   pour de vrai (« 6 quadragies bis »). */
+function translationQuadrillage(w, P){
+  const nom = 'translation sur quadrillage : le tirage est lisible, chaque image se juge seule, une image manquante ne rougit pas';
+  if(!P.translationQuadrillage){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice de la translation sur quadrillage');
+    return;
+  }
+  const present = evaluer(w, "typeof startTrl==='function' && typeof trlCheck==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startTrl ou trlCheck introuvable');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.translationQuadrillage)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+
+    /* 1. le tirage : lisible, JSON, deux formes, rien d'autre dans la question */
+    const formes={};
+    const voisins=function(p,r){ return Math.abs(p[0]-r[0])<=1 && Math.abs(p[1]-r[1])<=1; };
+    for(let t=0;t<200 && !vus.length;t++){
+      startTrl(); clearTimeout(test.fbTimer);
+      if(test.questions.length!==D.nb){ vus.push(test.questions.length+' questions au lieu de '+D.nb); break; }
+      test.questions.forEach(function(q,qi){
+        const cles=Object.keys(q).filter(function(k){ return ['forme','vec','o','src','rep'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que forme, vec, o, src et rep : '+cles.join(','));
+        if(q.forme!=='u' && q.forme!=='ab') vus.push('forme inconnue : '+q.forme);
+        formes[q.forme]=1;
+        if(!Array.isArray(q.rep) || q.rep.length!==D.images || q.rep.some(function(r){ return r!==null; })) vus.push('le tirage pose une réponse à la place de l\\'élève');
+        if(Math.abs(q.vec[0])+Math.abs(q.vec[1])<2) vus.push('un chemin de moins de deux carreaux : '+q.vec.join(','));
+        if(q.src.length!==D.images) vus.push(q.src.length+' points à déplacer au lieu de '+D.images);
+        const pts=[q.o,[q.o[0]+q.vec[0],q.o[1]+q.vec[1]]].concat(q.src, q.src.map(function(p){ return [p[0]+q.vec[0],p[1]+q.vec[1]]; }));
+        pts.forEach(function(p){ if(p[0]<0||p[0]>TRL_W||p[1]<0||p[1]>TRL_H) vus.push('un point sort du quadrillage : ('+p.join(';')+')'); });
+        /* les bouts de la flèche u⃗ ne sont pas des points : seuls les six
+           points nommés (et A, B pour la forme ab) doivent s'éviter */
+        const nommes=(q.forme==='ab')?pts:pts.slice(2);
+        for(let i=0;i<nommes.length;i++) for(let j=i+1;j<nommes.length;j++)
+          if(voisins(nommes[i],nommes[j])) vus.push('deux points voisins ou confondus : ('+nommes[i].join(';')+') et ('+nommes[j].join(';')+')');
+        if(q.forme==='u'){
+          const g=gcd(q.vec[0],q.vec[1]);
+          for(let k=0;k<=g;k++){ const f=[q.o[0]+q.vec[0]/g*k, q.o[1]+q.vec[1]/g*k];
+            if(nommes.some(function(p){ return p[0]===f[0]&&p[1]===f[1]; })) vus.push('un point tombe sur la flèche u : ('+f.join(';')+')'); }
+        }
+        if(JSON.stringify(JSON.parse(JSON.stringify(q)))!==JSON.stringify(q)) vus.push('la question ne survit pas au JSON de la pause');
+      });
+    }
+    if(!vus.length && !(formes.u && formes.ab)) vus.push('une des deux formes ne sort jamais en 200 tirages : '+Object.keys(formes).join(','));
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* montage : une question CHOISIE (forme u, chemin 3 à droite et 2 vers le bas) */
+    startTrl(); clearTimeout(test.fbTimer);
+    test.questions[0]={forme:'u', vec:[3,-2], o:[1,7], src:[[1,4],[5,6],[8,3]], rep:[null,null,null]};
+    test.questions[1]={forme:'ab', vec:[-2,3], o:[9,1], src:[[3,1],[6,2],[11,4]], rep:[null,null,null]};
+    test.questions[2]={forme:'u', vec:[4,1], o:[0,0], src:[[1,3],[2,6],[6,5]], rep:[null,null,null]};
+    test.idx=0; test.locked=false; renderTrl();
+    const q=test.questions[0];
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    if(trlChemin(q)!=='3 carreaux vers la droite et 2 carreaux vers le bas') vus.push('le chemin en carreaux se dit « '+trlChemin(q)+' »');
+    if(JSON.stringify(trlImage(q,0))!=='[4,2]') vus.push('l\\'image de (1;4) par (3;-2) vaut '+JSON.stringify(trlImage(q,0)));
+
+    /* 2. l'énoncé dit la demande, le mode d'emploi vient après, en plus petit */
+    const instr=el('trlInstr');
+    if(instr.textContent.indexOf('Déplace les points A, B et C en suivant le chemin')!==0)
+      vus.push('l\\'énoncé ne commence pas par « Déplace les points A, B et C en suivant le chemin » : '+instr.textContent.slice(0,70));
+    if(!instr.querySelector('.vec')) vus.push('le nom du vecteur n\\'est pas coiffé de sa flèche (.vec)');
+    const sous=instr.querySelector('.trl-sous');
+    if(!sous) vus.push('le mode d\\'emploi du geste n\\'est plus dans son bloc .trl-sous');
+    else{
+      if(sous.textContent.indexOf('Placer A′')<0) vus.push('le mode d\\'emploi ne nomme plus le stylo « Placer A′ »');
+      const css=Array.from(document.querySelectorAll('style')).map(function(s){ return s.textContent; }).join('');
+      const mS=css.match(/\\.trl-sous\\{[^}]*font-size:([0-9.]+)rem/);
+      const mE=css.match(/\\.lv-instr\\{[^}]*font-size:([0-9.]+)rem/);
+      if(!mS) vus.push('aucune règle CSS ne réduit le mode d\\'emploi (.trl-sous sans font-size)');
+      else if(!mE) vus.push('la taille de l\\'énoncé (.lv-instr) est devenue illisible au contrôle');
+      else if(parseFloat(mS[1])>=parseFloat(mE[1])) vus.push('le mode d\\'emploi ne s\\'écrit pas plus petit que l\\'énoncé');
+    }
+    /* trois stylos, le premier choisi ; rien de posé, rien de révélé */
+    if(!el('trlSel0')||!el('trlSel1')||!el('trlSel2')) vus.push('les trois stylos « Placer A′ / B′ / C′ » manquent');
+    else if(!el('trlSel0').classList.contains('sel')) vus.push('le premier stylo n\\'est pas choisi au départ');
+    if(document.querySelector('#trlGraph .trl-pt')) vus.push('un point est dessiné avant que l\\'élève le pose');
+    if(document.querySelector('#trlGraph .trl-sol')) vus.push('l\\'image attendue est déjà montrée avant la vérification');
+    if(!document.querySelector('#trlGraph .trl-vec')) vus.push('la flèche u n\\'est pas dessinée (forme u)');
+    const textesSvg=Array.from(document.querySelectorAll('#trlGraph text')).map(function(t){ return t.textContent; });
+    ['A','B','C','u'].forEach(function(n){ if(textesSvg.indexOf(n)<0) vus.push('l\\'étiquette « '+n+' » manque sur le dessin'); });
+
+    /* 3. vérifier sans point : rien ne se peint, rien ne se verrouille */
+    submitTrl();
+    if(test.locked) vus.push('vérifier sans point verrouille la question');
+    if(classe('trl-pt-0')!=='rien'||classe('trl-pt-1')!=='rien'||classe('trl-pt-2')!=='rien') vus.push('vérifier sans point pose une couleur');
+    if(el('trlCorr').textContent.indexOf('Placer A′')<0) vus.push('vérifier sans point ne redit pas le geste : '+el('trlCorr').textContent.slice(0,80));
+
+    /* 4. copie juste : 3 points, rien ne se révèle, les pastilles sont ok */
+    q.rep=[{x:4,y:2},{x:8,y:4},{x:11,y:1}]; trlMaj();
+    if(el('trl-pt-0').textContent.indexOf('A′ posé')<0) vus.push('la pastille ne dit pas « A′ posé » : '+el('trl-pt-0').textContent);
+    let avant=test.score; submitTrl(); clearTimeout(test.fbTimer);
+    if(test.score-avant!==3) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 3');
+    if(!test.locked) vus.push('la copie juste ne verrouille pas la question');
+    if(classe('trl-pt-0')!=='ok'||classe('trl-pt-1')!=='ok'||classe('trl-pt-2')!=='ok') vus.push('une pastille juste n\\'est pas marquée ok');
+    if(document.querySelector('#trlGraph .trl-sol')) vus.push('l\\'image attendue se montre alors que tout est juste');
+    if(document.querySelectorAll('#trlGraph .trl-pt.ok').length!==3) vus.push('les trois points justes ne sont pas peints ok sur le dessin');
+    const a0=test.answers[test.answers.length-1];
+    if(!a0||a0.type!=='trl'||!a0.correct||a0.cases!==3) vus.push('la réponse enregistrée ne compte pas 3 cases justes (type trl)');
+
+    /* 5. entraînement, forme ab : une image fausse, une manquante, une juste —
+       1 point, la fausse rougit, la manquante devient sol, les deux attendues
+       se montrent en vert */
+    nextTrlQuestion(); clearTimeout(test.fbTimer);
+    const q1=test.questions[1];
+    if(el('trlInstr').textContent.indexOf('celui qui va de A à B')<0) vus.push('la forme ab ne dit pas « celui qui va de A à B »');
+    if(document.querySelector('#trlGraph .trl-vec')) vus.push('la forme ab dessine une flèche : le chemin de A à B serait donné');
+    const txt1=Array.from(document.querySelectorAll('#trlGraph text')).map(function(t){ return t.textContent; });
+    ['A','B','C','D','E'].forEach(function(n){ if(txt1.indexOf(n)<0) vus.push('forme ab : l\\'étiquette « '+n+' » manque'); });
+    q1.rep=[{x:1,y:4},{x:5,y:5},null]; trlMaj();
+    avant=test.score; submitTrl(); clearTimeout(test.fbTimer);
+    if(test.score-avant!==1) vus.push('une juste, une fausse, une manquante valent '+(test.score-avant)+' au lieu de 1');
+    if(classe('trl-pt-0')!=='ok') vus.push('la pastille de l\\'image juste n\\'est pas ok');
+    if(classe('trl-pt-1')!=='bad') vus.push('la pastille de l\\'image fausse n\\'est pas bad');
+    if(classe('trl-pt-2')!=='sol') vus.push('la pastille de l\\'image manquante n\\'est pas sol (elle est « '+classe('trl-pt-2')+' »)');
+    if(document.querySelectorAll('#trlGraph .trl-sol').length!==2) vus.push(document.querySelectorAll('#trlGraph .trl-sol').length+' image(s) attendue(s) montrée(s) au lieu de 2');
+    if(document.querySelectorAll('#trlGraph .trl-pt.bad').length!==1) vus.push('le point faux ne rougit pas sur le dessin');
+    if(el('trlCorr').textContent.indexOf('2 carreaux vers la gauche et 3 carreaux vers le haut')<0) vus.push('la correction ne dit pas le chemin en carreaux : '+el('trlCorr').textContent.slice(0,90));
+    const a1=test.answers[test.answers.length-1];
+    if(!a1||a1.correct||a1.cases!==3||a1.justes!==1) vus.push('la réponse enregistrée ne compte pas 1 case juste sur 3');
+
+    /* 6. soutien : la pastille se colore à la pose, rien ne se révèle, rien
+       ne se verrouille tant que ce n'est pas juste ; le contexte du modèle */
+    currentMode='soutien'; nextTrlQuestion(); clearTimeout(test.fbTimer);
+    const q2=test.questions[2];
+    q2.rep=[{x:5,y:5},null,null]; trlLive();
+    if(classe('trl-pt-0')!=='bad') vus.push('soutien : le point faux posé ne rougit pas en direct');
+    if(classe('trl-pt-1')!=='rien') vus.push('soutien : une pastille vide reçoit une couleur en direct');
+    submitTrl();
+    if(test.locked) vus.push('soutien : vérifier une copie fausse verrouille la question');
+    if(document.querySelector('#trlGraph .trl-sol')) vus.push('soutien : l\\'image attendue se révèle');
+    if(classe('trl-pt-1')!=='rien'||classe('trl-pt-2')!=='rien') vus.push('soutien : une image manquante reçoit une couleur à la vérification');
+    const ctx=conseilCtxCourant();
+    if(ctx.indexOf('4 carreaux vers la droite et 1 carreau vers le haut')<0) vus.push('le contexte du modèle ne dit pas le chemin en carreaux');
+    if(ctx.indexOf('STRICTEMENT SECR')<0) vus.push('le contexte du modèle ne déclare pas les images secrètes');
+    if(ctx.indexOf('A′ = (colonne 5 ; ligne 4)')<0) vus.push('le contexte du modèle ne porte pas l\\'image attendue de A');
+    if(ctx.indexOf('(FAUX)')<0 || ctx.indexOf('pas encore posé')<0) vus.push('le contexte du modèle ne dit pas ce que l\\'élève a posé');
+    q2.rep=[{x:5,y:4},{x:6,y:7},{x:10,y:6}]; trlLive();
+    avant=test.score; submitTrl(); clearTimeout(test.fbTimer);
+    if(!test.locked || test.score-avant!==3) vus.push('soutien : la copie corrigée ne vaut pas 3 (ou ne verrouille pas)');
+    currentMode='train';
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '');
+}
 /* {placer-image} (Seconde, à côté du 2.2 — demande de Turquet, septembre
    2026 : « il faut que l'élève place le point sur le graphique avant de
    donner le résultat en complétant f(…) = … »). Cinq bords :
@@ -21364,11 +21535,11 @@ function ordreDesDevoirs(w, apres){
      ROUGIT : les deux sources doivent tomber d'accord. */
   if(!P.ordreDevoirs){
     ignorer(nom, 'ce niveau ne règle pas l\'ordre des exercices d\'un devoir (le bord opposé est tenu par le contrôle des fiches)');
-    return noteFicheSur20(w, apres);
+    return brouillonProvisoire(w, apres);
   }
   if(!present.ok || !present.valeur){
     verifier(nom, false, 'le profil déclare le réglage de l\'ordre des devoirs, et la page n\'a pas cet éditeur (readEditorIntoDevoir, renderDevoirEditor ou renderDevoirDetail manque)');
-    return noteFicheSur20(w, apres);
+    return brouillonProvisoire(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
@@ -21443,6 +21614,124 @@ function ordreDesDevoirs(w, apres){
     if(document.querySelectorAll('#devoirsBody .locked').length ||
        cartes.some(function(el){ return el.disabled; }))
       vus.push('la page du devoir verrouille des exercices : un devoir reste tout ouvert');
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    brouillonProvisoire(w, apres);
+  });
+}
+/* UN BROUILLON ÉTIQUETÉ D'UN DEVOIR VAUT UNE NOTE PROVISOIRE (demande de
+   Turquet, octobre 2026 : « en Seconde je n'ai quasiment aucune note pour les
+   fiches de travail alors qu'ils ont travaillé en classe »). L'exercice
+   commencé en classe et fermé à la sonnerie ne laissait que son brouillon
+   automatique — la ligne « en pause » — et il ne comptait nulle part. Il vaut
+   maintenant ce que vaut la note partielle du bouton « Pause ». Quatre bords,
+   et n'en tenir qu'un ne tient rien :
+     · l'ÉLÈVE lit « Note provisoire : 6 / 10 » sur un brouillon à 3 réponses
+       justes sur 5 — et un brouillon où RIEN n'est validé ne reçoit rien ;
+     · le PROFESSEUR lit la même note dans le bilan, et la cellule dit
+       « en cours · 3/5 q » : l'entonnoir est unique (dmCandidat) ;
+     · l'ORDRE imposé des fiches ne s'en contente pas : un brouillon sur le
+       premier exercice ne débloque pas le deuxième ;
+     · le bord OPPOSÉ : une note TERMINÉE l'emporte, et n'est plus dite
+       provisoire. */
+function brouillonProvisoire(w, apres){
+  const nom='un brouillon étiqueté d\'un devoir compte comme une note provisoire : l\'élève, le professeur, et pas l\'ordre';
+  /* le bilan du professeur se rend par renderDevoirResultats() (Seconde,
+     Terminale) ou renderDmResults() (Première) — le motif du contrôle de
+     l'archivage, juste au-dessus */
+  const present = evaluer(w, "typeof dmCandidat==='function' && typeof dmNoteDevoir==='function' && typeof ouvrirDevoirDetail==='function' && (typeof renderDevoirResultats==='function' || typeof renderDmResults==='function')");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'dmCandidat, dmNoteDevoir, ouvrirDevoirDetail ou le rendu du bilan (renderDevoirResultats / renderDmResults) manque');
+    return noteFicheSur20(w, apres);
+  }
+  const src = lire(CIBLE);
+  const LISTE = (src.match(/dmMoyDernier\s*=\s*dmMoyennes\(\s*([A-Za-z_$][\w$]*)\s*,/) || [])[1];
+  if(!LISTE){ verifier(nom, false, 'impossible de lire le nom de la liste des devoirs dans renderDmMoyennes()'); return noteFicheSur20(w, apres); }
+  const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
+  const TR=P.tableResultats, TE=P.tableEleves;
+  const ORDRE=!!(P.fiches&&P.fiches.ordre);
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const sbDouble=sb;
+    const vus=[];
+    const vraiToast=toast; toast=function(){};
+    try{
+      currentEleve={id:'e-controle',prenom:'Contrôle'};
+      const ids=(typeof TEST_ORDER!=='undefined'?TEST_ORDER:Object.keys(TESTS)).slice(0,2);
+      const A=ids[0], B=ids[1];
+      const deux=function(){ return [{id:A,modes:['train']},{id:B,modes:['train']}]; };
+      const valeurs={devoirs:[{id:'dm_br',num:1,actif:true,titre:'Devoir brouillon',cours:'',exercices:deux()}]};
+      if(${ORDRE}) valeurs.fiches=[{id:'fc_br',num:1,actif:true,titre:'Fiche brouillon',cours:'',exercices:deux()}];
+      window.__faux.semer('${TABLE}',[{id:1,valeurs:valeurs}]);
+      window.__faux.semer('${TE}',[{id:'e-controle',prenom:'Contrôle',cle:'c-1',user_id:'u-1'}]);
+      /* le brouillon tel que recoveryPayload l'écrit : percent 0, score en
+         cours, état « paused », le tirage et les réponses validées dedans */
+      const brouillon=function(id,dm,test,nbRep){
+        const answers=[]; for(let i=0;i<nbRep;i++) answers.push({q:'q'+i,correct:true});
+        return {id:id,eleve_id:'e-controle',score:nbRep,total:5,percent:0,duration_sec:600,created_at:'2026-10-13T09:00:00Z',
+                details:{test:test,mode:'train',dm:dm,state:'paused',idx:nbRep,maxScore:5,questions:[1,2,3,4,5],answers:answers}}; };
+      const lignes=[brouillon('b1','dm_br',A,3), brouillon('b2','dm_br',B,0)];
+      if(${ORDRE}) lignes.push(brouillon('b3','fc_br',A,3));
+      window.__faux.semer('${TR}', lignes);
+      const page=function(){ return ((document.getElementById('devoirsBody')||{}).textContent||'').replace(/\\s+/g,' '); };
+
+      /* 1. L'ÉLÈVE */
+      await ouvrirDevoirDetail('dm_br');
+      let t=page();
+      if(!/Note provisoire : 6 \\/ 10/.test(t)) vus.push('la page de l\\'élève ne dit pas « Note provisoire : 6 / 10 » pour le brouillon à 3/5 : '+t.slice(0,220));
+      if((t.match(/Note provisoire/g)||[]).length!==1) vus.push('un brouillon où rien n\\'est validé reçoit une note');
+      const nA=noteDevoirExo(dmBest('dm_br',A,'soutien'), dmBest('dm_br',A,'train'));
+      const nB=noteDevoirExo(dmBest('dm_br',B,'soutien'), dmBest('dm_br',B,'train'));
+      if(!nA.fait||!nA.provisoire||nA.termine||Math.round(nA.note*10)!==60)
+        vus.push('la définition : brouillon 3/5 → attendu fait, provisoire, non terminé, 6/10 ; rendu '+JSON.stringify({fait:nA.fait,provisoire:nA.provisoire,termine:nA.termine,note:nA.note}));
+      if(nB.fait) vus.push('un brouillon sans réponse validée compte comme fait');
+      /* la définition seule : un point gagné suffit (question à parties, réponse
+         pas encore rangée), rien du tout ne vaut rien */
+      const brut=function(score,answers){ return {eleve_id:'e-controle',score:score,total:5,percent:0,details:{test:A,mode:'train',dm:'dm_br',state:'paused',maxScore:5,questions:[1,2,3,4,5],answers:answers}}; };
+      const unPoint=dmNoteBrouillon(brut(2,[]));
+      if(!unPoint||unPoint.percent!==40||!unPoint.enCours) vus.push('un brouillon à 2 points sans réponse rangée ne vaut pas 40 % provisoire : '+JSON.stringify(unPoint&&{percent:unPoint.percent,enCours:unPoint.enCours}));
+      if(dmNoteBrouillon(brut(0,[]))!==null) vus.push('un brouillon vide reçoit une note');
+      if(dmNoteBrouillon(Object.assign(brut(3,[{}]),{details:{test:A,mode:'train',state:'paused',answers:[{}],maxScore:5}}))!==null) vus.push('un brouillon SANS étiquette de devoir reçoit une note de devoir');
+
+      /* 2. LE PROFESSEUR */
+      const dev=(mesDevoirs||[]).find(function(d){ return d.id==='dm_br'; });
+      const n=dmNoteDevoir(dev,'e-controle',lignes);
+      if(Math.round(n.somme*10)!==60||n.nbFait!==1) vus.push('dmNoteDevoir : attendu 6 / 20 et 1 exercice fait, rendu '+fmtNote(n.somme)+' / '+n.totMax+' · '+n.nbFait+' fait(s)');
+      ${LISTE}=[{id:'dm_br',num:1,actif:true,titre:'Devoir brouillon',cours:'',exercices:deux(),notes:{},notesDevoir:{}}];
+      dmSelId='dm_br'; if(typeof dmGenre!=='undefined') dmGenre='dm';
+      sb=sbDouble;
+      if(typeof renderDevoirResultats==='function') await renderDevoirResultats(); else await renderDmResults();
+      await new Promise(function(r){ setTimeout(r,60); });
+      let bilan=((document.getElementById('dmResults')||{}).textContent||'').replace(/\\s+/g,' ');
+      /* en Première, les cellules par exercice ne s'ouvrent qu'au clic sur l'élève */
+      if(typeof dmStudentDetail==='function'){ try{ dmStudentDetail('e-controle','Contrôle'); }catch(e){}
+        bilan+=' '+((document.getElementById('dmStudentDetail')||{}).textContent||'').replace(/\\s+/g,' '); }
+      if(!/en cours · 3\\/5 q · 60%/.test(bilan)) vus.push('le bilan du professeur ne dit pas « en cours · 3/5 q · 60% » : '+bilan.slice(0,260));
+      if(!/6 \\/ 20/.test(bilan)) vus.push('le bilan du professeur ne compte pas la note provisoire (6 / 20 attendu) : '+bilan.slice(0,260));
+
+      /* 3. L'ORDRE */
+      if(${ORDRE}){
+        await ouvrirDevoirDetail('fc_br');
+        const fiche=(mesDevoirs||[]).find(function(d){ return d.id==='fc_br'; });
+        if(!fiche) vus.push('la fiche témoin n\\'arrive pas chez l\\'élève');
+        else {
+          if(!dmVerrouille(fiche,B)) vus.push('un brouillon sur le premier exercice de la fiche débloque le deuxième');
+          if(dmVerrouille(fiche,A)) vus.push('l\\'exercice en cours est verrouillé');
+          if(!/Note provisoire : 6 \\/ 10/.test(page())) vus.push('la page de la fiche ne montre pas la note provisoire');
+        }
+      }
+
+      /* 4. LE BORD OPPOSÉ : une note terminée l'emporte */
+      window.__faux.semer('${TR}', lignes.concat([{id:'t1',eleve_id:'e-controle',score:4,total:5,percent:80,duration_sec:300,created_at:'2026-10-13T10:00:00Z',details:{test:A,mode:'train',dm:'dm_br'}}]));
+      await ouvrirDevoirDetail('dm_br');
+      t=page();
+      if(!/Note : 8 \\/ 10/.test(t)||/provisoire/.test(t)) vus.push('une note terminée à 80 % ne remplace pas le brouillon, ou reste dite provisoire : '+t.slice(0,220));
+      const nT=noteDevoirExo(dmBest('dm_br',A,'soutien'), dmBest('dm_br',A,'train'));
+      if(!nT.termine||nT.provisoire) vus.push('après une note terminée, la définition dit encore non terminé ou provisoire');
+    } finally { toast=vraiToast; sb=sbDouble; currentDM=null; if(typeof dmGenre!=='undefined') dmGenre='dm'; }
     return vus.join(' | ');
   })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
