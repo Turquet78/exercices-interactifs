@@ -1,6 +1,6 @@
 # Seconde — le thème 8, Vecteurs
 
-**Le thème est né en octobre 2026** (v472), à la demande de Turquet, d'après
+**Le thème est né en octobre 2026** (v473), à la demande de Turquet, d'après
 la « Fiche 1 sur les vecteurs » — un document Word imprimé : deux exercices,
 huit quadrillages chacun, trois points posés d'une croix sur chaque
 quadrillage, et la consigne « En utilisant le quadrillage, construire le
@@ -14,7 +14,7 @@ renumérote rien, et les sept premiers gardent leurs numéros. Il n'a pas de
 sous-thème : un seul exercice, numéroté 8.1 — le jour où un second arrive,
 il prend la place 8.2 sans que rien ne bouge.
 
-## {parallelogramme-point} — le quatrième point d'un parallélogramme (8.1, v472)
+## {parallelogramme-point} — le quatrième point d'un parallélogramme (8.1, v473)
 
 **Une question = un quadrillage = trois cases.** Le quadrillage est celui de
 la fiche : 9 carreaux sur 9, les nœuds de 0 à 9 dans chaque sens, les trois
