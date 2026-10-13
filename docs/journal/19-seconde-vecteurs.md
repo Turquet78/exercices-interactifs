@@ -471,3 +471,73 @@ repérer les côtés opposés, compter le chemin, le refaire depuis C.
 coupe le barème avec elle. Le nœud posé est une `pts-case` (le bloc de la
 consigne b), peint `ok`, `bad` ou `sol`) : la note affichée compte bien
 trois cases, pas deux.
+
+### Puis les trois questions se sont mises dans l'ordre de la fiche (v480)
+
+Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, mettre en
+premier la question b, qui doit être vérifiée et corrigée si nécessaire,
+puis en deuxième question la phrase avec le chemin, puis en troisième
+question une égalité de vecteurs à compléter correspondant à la question
+sur les chemins ». La construction d'abord, l'explication ensuite, puis
+l'écriture savante : **a)** cliquer le nœud où se trouve D, **b)** « le
+chemin qui va de … à … est le même que celui qui va de C à D », **c)**
+« ⟶?? = ⟶CD » — deux listes sous une même flèche (l'écriture `.vgt-vec` du
+8.2), le vecteur CD écrit en clair comme dans la phrase. Les paragraphes
+ci-dessus qui disent « la consigne b) » pour le nœud racontent l'ordre de
+leur époque : la règle qu'ils portent n'a pas bougé, seule la lettre a
+changé.
+
+**Chaque question se vérifie seule, et la suivante n'apparaît qu'après.**
+« Vérifiée et corrigée si nécessaire » : le nœud est jugé AVANT que la
+phrase ne s'affiche. En soutien, un nœud faux rougit et se déplace, un nœud
+manquant reste neutre, et rien n'avance tant que D n'est pas juste — comme
+avant, mais question par question. Hors soutien, le verdict tombe une fois :
+le nœud juste en bleu, le faux en rouge, et D **en vert aussitôt** s'il
+manquait ou était ailleurs — la figure est juste sous les yeux de l'élève
+pour les deux questions qui suivent, et c'est le sens de « corrigée si
+nécessaire ». Le quadrillage se fige dès que la question a) est passée
+(`vecPose` refuse quand `q.etape` est au-delà de 0). La phrase et le vecteur
+suivent la même règle : juste en bleu et figé ; hors soutien, la lettre
+fausse reçoit la bonne en badge vert, la liste vide l'écrit en vert
+(`corrChoix`, la convention commune des listes). Le pourquoi, la figure
+(parallélogramme en pointillés, deux chemins fléchés) et la note ne viennent
+qu'après la question c) : cinq réponses par question, barème 30 sur six
+questions, `vecCases(q)` en rend les cinq identifiants dans l'ordre des
+questions, et `VEC_ETAPES` dit lesquels chaque question juge.
+
+**Le juge lit la question, jamais les listes — et c'est le piège de cette
+marche.** Hors soutien, la correction d'une liste vide y ÉCRIT la bonne
+lettre (classe `sol`) ; un juge qui relirait la liste à la fin de la
+question c) compterait juste une lettre que l'élève n'a jamais choisie.
+Tout ce que l'élève a fait vit donc dans la question : la question atteinte
+(`q.etape`, 0 à 2), le nœud posé (`q.selD`), les quatre lettres (`q.s1`,
+`q.s2`, `q.v1`, `q.v2`) — chaque changement de liste y retourne, et
+`vecJuge()` ne lit que cela. La pause et la reprise les emportent :
+`renderVec()` rejoue l'écran tel qu'il était, les blocs déjà franchis
+repeints d'après leur verdict, les listes remplies depuis la question. Les
+réponses enregistrées disent les trois gestes (« D (6 ; 7) — chemin de A à
+B — vecteur AB = vecteur CD ») ; le contexte du modèle dit la question en
+cours, ce que l'élève a répondu à chacune, et tient les lettres et la
+position de D sous secret. Le rappel a gagné un cinquième point — un chemin
+s'écrit avec un vecteur, les deux lettres dans l'ordre du chemin — et la
+fenêtre d'aide une question de plus.
+
+**Le contrôle** vit dans le banc principal (`parallelogrammePoint`, déclaré
+dans `tests/profils.js`) : le tirage lisible et sans rien de répondu ; au
+départ la question a) seule et rien de peint ; une copie d'entraînement qui
+laisse le nœud vide (sol, D en vert, quadrillage figé, la b) apparaît, le
+nœud ne se pose plus), écrit la phrase juste (bleue, figée, la c) apparaît,
+la figure pas encore tracée), puis un vecteur faux et à moitié vide : 2 sur
+5, la lettre manquante écrite en vert mais **pas comptée**, le pourquoi qui
+ne parle que des vraies fautes ; une copie juste par `vecPose` ; le soutien,
+où rien ne se révèle et rien n'avance tant que ce n'est pas juste ; et la
+reprise à la question b) puis c), qui repeint ce qui a été jugé et dont le
+juge refuse toujours la lettre écrite par la correction. Le clic réel sur un
+nœud reste l'affaire du banc navigateur. Éprouvé par sabotage, le contrôle
+rejoué dans un vrai Chromium sur des copies de la page : un juge qui relit
+les listes (« la lettre que la correction a écrite compte juste »), les trois
+questions affichées d'un coup, D jamais révélé — chacun rougit, la page
+intacte reste verte. Un quatrième sabotage, le garde de `q.etape` retiré de
+`vecPose`, est resté vert : les nœuds sont aussi `off` dès que la question
+a) se ferme, et le second garde tient seul — ce n'est pas un trou du
+contrôle, c'est une ceinture avec des bretelles.

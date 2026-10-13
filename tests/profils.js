@@ -866,6 +866,11 @@ module.exports = {
        dans un vrai navigateur. « nb » est la seconde source du compte (la page
        a TRL_NB), « images » celle du nombre de points à déplacer par question. */
     translationQuadrillage: { exercice: 'translation-quadrillage', numero: '8.4', nb: 4, images: 3 },
+    /* {parallelogramme-point} (8.5, thème « Vecteurs », demande de Turquet,
+       octobre 2026) : trois questions dans l'ordre — le nœud D, la phrase du
+       chemin, l'égalité de vecteurs —, chacune vérifiée avant la suivante.
+       « nb » est la seconde source du compte (la page tire dmNbQuestions(6)). */
+    parallelogrammePoint: { exercice: 'parallelogramme-point', numero: '8.5', nb: 6 },
     /* {antecedents-droite} : la droite se fait GLISSER à la hauteur demandée,
        puis les points se posent au clic sur elle. Le glisser et le calcul
        geste → nœud (grille doublée, 13 graduations) ne se voient que dans un
