@@ -5819,7 +5819,7 @@ révèle rien, et les modèles comparés à un vrai CPython.
 
 ---
 
-## {python-if-cinema} — le prix d'une place de cinéma (6.7.4, Condition if else ; BONUS jusqu'à la version 469)
+## {python-if-cinema} — le prix d'une place de cinéma (6.7.4, Condition if else ; BONUS jusqu'à la version 470)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
 condition if else, créer un exercice qui suit les images jointes ; respecter
@@ -5894,7 +5894,7 @@ les deux modes.
 **Puis « Bonus » a quitté le titre, et deux coups de pouce sont venus**
 (Turquet, octobre 2026 : « en seconde dans le 6.7.4, enlever bonus du titre et
 placer 1 ou deux coup de pouce à la façon des autres coup de pouce » ;
-APP_VERSION 469 — 468 pris sur `main` pendant les bancs). Le titre et la description perdent « Bonus » — l'exercice
+APP_VERSION 470 — 468 et 469 pris sur `main` pendant les bancs). Le titre et la description perdent « Bonus » — l'exercice
 n'avait jamais porté le drapeau `bonus` d'un devoir, seul le mot changeait. Les
 coups de pouce suivent le 6.7.3 ({python-if-plus-grand}), son voisin le plus
 proche : deux `details.pyd-pouce` repliés entre l'énoncé et la cellule — la
