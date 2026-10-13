@@ -1516,3 +1516,74 @@ bis ») vérifie que la zone s'ouvre sous la guidée restée affichée, que la
 feuille commence par la somme suivie de « = », qu'une copie juste
 (1/2 + 1/3 = 3/6 + 2/6 = 5/6) vaut le point, et que la zone disparaît à la
 guidée suivante.
+
+**Puis le 4.6 a reçu une soustraction, ses colonnes et sa question RÉDIGÉE
+(octobre 2026, Première v310).** Demande de Turquet : « dans le 4.6 en
+première, il est possible d'avoir une soustraction au lieu d'une addition,
+mais le résultat doit être positif. De plus placer les signes "=" en début
+de ligne et afficher les cases à remplir en dessous verticalement des
+nombres du dessus correspondants au mieux. De plus il faut sur la même page
+une autre question où il faut rédiger la solution comme dans l'exercice 4.3
+de première. »
+
+* **L'opération vit dans la question (`q.op`, « + » ou « − »)** et alterne
+  d'une paire à l'autre. `spfGen(op)` écarte toute différence négative ou
+  nulle — « le résultat doit être positif » —, et le croisement ne soustrait
+  donc jamais au-dessous de zéro non plus (N1 − N2 = N > 0). Le juge, le
+  peintre et la correction du croisement (`pfCroixJuge`, `pfCroixPeindre`,
+  `pfCroixCorrection`) savaient déjà soustraire : ils venaient de la Seconde
+  avec leur `op`, que le 5.12 n'appelait qu'avec « + ». Le message « il
+  reste à additionner » dit « soustraire » quand il faut ; le libellé des
+  étapes, l'énoncé, le contexte envoyé à l'aide et le rappel de cours
+  (`RAP_SPF`) nomment la différence.
+* **Le calcul se lit EN COLONNES.** La rangée `.pt-row` de `#spfHost` est
+  une GRILLE de quatre colonnes — le « = », le premier terme, le signe, le
+  second terme —, une ligne par étape, `align-items`/`justify-items` au
+  centre : la case tombe sous le nombre qu'elle remplace, « au mieux », et le
+  « = » ouvre chaque ligne. La ligne de l'énoncé n'en a pas (sa première
+  colonne reste vide). Les étapes à un seul terme — la somme, la fraction
+  obtenue, la simplification — se posent dans la colonne du premier terme.
+  Le HTML ne fait que NOMMER la colonne de chaque morceau (`spf-eq`,
+  `spf-t1`, `spf-op`, `spf-t2`, posés par `spfCol`) ; `pfCroixHTML` écrit
+  désormais ces trois lignes-là plutôt que la rangée de la Seconde — son
+  juge n'a pas bougé d'une lettre. La simplification par étapes
+  (`seEtapeHTML`) rend des groupes « = fraction » (`.f-grp.se-etape`) :
+  `display:contents` les efface et leurs deux enfants prennent les colonnes 1
+  et 2 — le moteur partagé n'a rien eu à apprendre. Un piège de grille à
+  connaître : le placement automatique ouvre une nouvelle ligne dès qu'un
+  morceau à colonne fixée recule (le « = » de la colonne 1 après un second
+  terme de la colonne 4), et c'est ce qui range les étapes sans qu'aucune
+  ligne soit déclarée.
+* **La question rédigée est le calque du 4.3** (`spr…`, le « sfr » du 4.3
+  sur le kind « spf ») : les paires guidée + rédigée dans `test.questions`
+  (`spfBuildQuestions`, `dmNbQuestions(2 × SPF_NB)` questions, une impaire
+  laissant la dernière guidée seule), `sprMonte` appelée par `checkSpfAnswer`
+  une fois la guidée notée, `sprRendu` en tête de `renderSpfTest` pour la
+  reprise, la feuille `mlFeuille` dont la première ligne porte le calcul
+  suivi de « = » (`sprLatex`, le « − » ordinaire et `\times`). Le JUGE est
+  `libreJuge`, genre « sfl », SANS retouche : son évaluateur connaît la
+  priorité des opérations (« 2/3 + 1/2×3/2 » vaut 17/12), si bien que la
+  copie qui additionne AVANT de multiplier écrit une égalité fausse, que le
+  juge nomme — l'erreur visée de l'exercice est tenue par le juge local, pas
+  par le modèle. La question porte `Nr`/`Dr` (la forme irréductible), que le
+  juge lit. L'aide connaît la rédigée (`sprCtxTexte`).
+
+Contrôles : le contrôle du tirage (`tests/verifier.js`, « nombres de 1 à 5,
+produit borné à 6… ») exige les DEUX opérations en deux cents séances, le
+résultat recalculé selon l'opération et strictement positif, `Nr`/`Dr`
+rangés, les paires guidée PUIS rédigée de la même opération ; il joue la
+soustraction 3/2 − 1/2 × 3/2 = 6/8 = 3/4 par de vrais évènements « input »,
+et refuse 18/8 (additionné) avec le mot « soustraire » ; il compte les « = »
+de la grille et vérifie que la ligne de l'énoncé n'en a pas. Un second
+contrôle, asynchrone (`sommeProduitRedigee`, chaîné après les fractions
+irréductibles), joue la rédigée sous un modèle stubbé qui se trompe : la
+copie juste vaut le point, la soustraction aussi, l'erreur de priorité est
+refusée sur son égalité fausse même quand le modèle l'acceptait, le résultat
+non simplifié est refusé, sans l'étape du même dénominateur le modèle décide,
+la feuille intacte n'appelle rien, le soutien rouvre la feuille, la reprise ne
+montre que la rédaction, la guidée suivante referme la zone. Le banc
+navigateur (« 6 terdecies bis », ③) MESURE la grille : chaque « = » est le
+premier morceau de sa ligne, les centres des premiers termes, des signes et
+des seconds termes tombent sur la même verticale à 2 px près, huit lignes,
+rien ne déborde ; puis il tape la copie au clavier, ouvre la rédigée, y écrit
+une soustraction juste et referme la zone.

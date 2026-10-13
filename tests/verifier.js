@@ -6755,7 +6755,7 @@ function contexteChaqueExercice(w, apres){
    par distinctes() ou rougit ici. Et le contrôle dit ce qu'il a mesuré : un
    parcours sans aucune séance à plusieurs questions ne mesure rien. */
 function questionsDistinctes(w, apres){
-  const suite = apres; apres = () => fractionsDepartIrreductibles(w, suite);
+  const suite = apres; apres = () => fractionsDepartIrreductibles(w, () => sommeProduitRedigee(w, suite));
   const nom = 'aucune séance ne pose deux fois la même question';
   const src = lire(CIBLE);
   const bruts = (src.match(/test\.questions\s*=\s*Array\.from\(\{length:/g) || []).length;
@@ -7771,17 +7771,31 @@ function multiplierFractions(w, P){
    par Turquet : le croisement la dépasse par construction). Déclaré par le
    profil (sommeProduit) ; la Seconde, qui garde son exercice, s'y affiche
    « non applicable ».
+   Puis (octobre 2026) : « il est possible d'avoir une soustraction au lieu
+   d'une addition, mais le résultat doit être positif ; placer les signes "="
+   en début de ligne et afficher les cases à remplir en dessous verticalement
+   des nombres du dessus ; sur la même page une autre question où il faut
+   rédiger la solution comme dans le 4.3 ». La grille se MESURE dans le banc
+   navigateur ; la rédigée a son contrôle à part (sommeProduitRedigee).
    ① LE TIRAGE, deux cents séances par le démarreur RÉEL : chaque nombre de
      départ de 1 à la borne (et la borne atteinte), trois fractions de départ
-     irréductibles, le produit recalculé ici, ses deux nombres de 1 à 6, tout
-     positif ; un résultat qui se simplifie doit SORTIR, et un qui ne se
-     simplifie pas aussi — sans quoi l'un des deux chemins n'est jamais exercé.
+     irréductibles, le produit recalculé ici, ses deux nombres de 1 à 6, une
+     opération « + » ou « − » et les DEUX doivent sortir, un résultat
+     strictement positif recalculé selon l'opération, sa forme irréductible
+     rangée (Nr/Dr) ; un résultat qui se simplifie doit SORTIR, et un qui ne
+     se simplifie pas aussi — sans quoi l'un des deux chemins n'est jamais
+     exercé. LES QUESTIONS VONT PAR PAIRES : une guidée, puis une rédigée
+     (q.redac), de la même opération.
    ② LA CHAÎNE, par de vrais évènements « input » : 1/2 + 1/2 × 3/2 =
      1/2 + 3/4 = 4/8 + 6/8 = 10/8 = 5/4 montre sa chaîne d'emblée et vaut le
      point ; écrire 5/4 au lieu de 10/8 ne le vaut pas ; un diviseur laissé
      vide ne rougit pas et reçoit la correction ; un diviseur faux rougit et
      le message nomme la simplification ; 2/3 + 1/2 × 3/2 = 17/12 n'a pas de
-     chaîne et accepte toute fraction égale ; la reprise redessine l'étape. */
+     chaîne et accepte toute fraction égale ; la reprise redessine l'étape ;
+     et la SOUSTRACTION 3/2 − 1/2 × 3/2 = 6/4 − 3/4 = 6/8 = 3/4 vaut le point,
+     quand 12/8 + 6/8 = 18/8 (additionné au lieu de soustrait) ne le vaut pas
+     et le message dit « soustraire ». La ligne de l'énoncé n'ouvre pas sur un
+     « = », chaque étape si — la grille elle-même se mesure dans le navigateur. */
 function sommeProduitFractions(w, P){
   const R = P.sommeProduit;
   const nom = '{somme-produit-fractions} : nombres de 1 à ' + (R ? R.max : '?') + ', produit borné à ' + (R ? R.inter : '?') + ', et la simplification par étapes';
@@ -7797,14 +7811,24 @@ function sommeProduitFractions(w, P){
     if(!TESTS[id] || !TEST_NUM[id]) return id+' : absent du menu';
 
     /* ---- ① le tirage ------------------------------------------------------ */
-    let vuMax=false, red=0, irr=0, faute='';
+    let vuMax=false, vuPlus=false, vuMoins=false, red=0, irr=0, faute='';
     for(let t=0;t<200 && !faute;t++){
       currentTestId=id; TESTS[id].start();
       if(test.qId!==id){ faute='la note part sous « '+test.qId+' »'; break; }
       if(!test.etapes){ faute='le démarreur ne pose pas la simplification par étapes'; break; }
-      (test.questions||[]).forEach(function(q){
+      if(!test.redac){ faute='le démarreur ne pose pas la question rédigée (test.redac)'; break; }
+      const qs=test.questions||[];
+      if(qs.length%2){ faute='une séance de '+qs.length+' questions : les paires guidée + rédigée ne tombent pas juste'; break; }
+      qs.forEach(function(q,i){
         if(faute) return;
-        const eti=q.a+'/'+q.b+' + '+q.c+'/'+q.d+' × '+q.e+'/'+q.f;
+        if(!!q.redac!==(i%2===1)){ faute='la question '+(i+1)+' '+(q.redac?'est':'n’est pas')+' rédigée : les paires sont guidée PUIS rédigée'; return; }
+        if(i%2===1 && q.op!==qs[i-1].op){ faute='la paire '+(i)+'/'+(i+1)+' ne pose pas la même opération ('+qs[i-1].op+' puis '+q.op+')'; return; }
+      });
+      qs.forEach(function(q){
+        if(faute) return;
+        if(q.op!=='+' && q.op!=='−'){ faute='opération « '+q.op+' » inconnue'; return; }
+        if(q.op==='+') vuPlus=true; else vuMoins=true;
+        const eti=q.a+'/'+q.b+' '+q.op+' '+q.c+'/'+q.d+' × '+q.e+'/'+q.f;
         const dep=[q.a,q.b,q.c,q.d,q.e,q.f];
         if(dep.some(function(x){ return !(x>=1 && x<=MAX); })){ faute=eti+' : un nombre de départ sort de 1 à '+MAX; return; }
         if(dep.indexOf(MAX)>=0) vuMax=true;
@@ -7812,15 +7836,19 @@ function sommeProduitFractions(w, P){
         const P1=q.c*q.e, Q1=q.d*q.f;
         if(P1!==q.P1 || Q1!==q.Q1){ faute=eti+' : le produit rangé '+q.P1+'/'+q.Q1+' ne suit pas le calcul '+P1+'/'+Q1; return; }
         if(!(P1>=1 && P1<=INTER && Q1>=1 && Q1<=INTER)){ faute=eti+' : le produit '+P1+'/'+Q1+' dépasse '+INTER; return; }
-        const N=q.a*Q1+P1*q.b, D=q.b*Q1;
-        if(N!==q.N || D!==q.D){ faute=eti+' : la somme rangée '+q.N+'/'+q.D+' ne suit pas le calcul '+N+'/'+D; return; }
+        const N=(q.op==='+') ? q.a*Q1+P1*q.b : q.a*Q1-P1*q.b, D=q.b*Q1;
+        if(N!==q.N || D!==q.D){ faute=eti+' : le résultat rangé '+q.N+'/'+q.D+' ne suit pas le calcul '+N+'/'+D; return; }
         if(!(N>0 && D>0)){ faute=eti+' : un résultat est négatif ou nul'; return; }
         if(N%D===0){ faute=eti+' : le résultat est un entier'; return; }
-        if(pgcd(N,D)>1) red++; else irr++;
+        const g=pgcd(N,D);
+        if(q.Nr!==N/g || q.Dr!==D/g){ faute=eti+' : la forme irréductible rangée '+q.Nr+'/'+q.Dr+' n’est pas '+(N/g)+'/'+(D/g); return; }
+        if(g>1) red++; else irr++;
       });
     }
     if(faute) return id+' : '+faute;
     if(!vuMax) vus.push('aucun nombre de départ ne vaut jamais '+MAX+' en 200 séances');
+    if(!vuPlus) vus.push('aucune addition en 200 séances');
+    if(!vuMoins) vus.push('aucune soustraction en 200 séances');
     if(!red) vus.push('aucun résultat ne se simplifie en 200 séances : la chaîne n’est jamais exercée');
     if(!irr) vus.push('tous les résultats se simplifient : le chemin sans chaîne n’est jamais exercé');
 
@@ -7832,7 +7860,7 @@ function sommeProduitFractions(w, P){
 
     /* ---- ② la chaîne -------------------------------------------------------- */
     currentTestId=id; TESTS[id].start();
-    const Q1={a:1,b:2,c:1,d:2,e:3,f:2,P1:3,Q1:4,N:10,D:8};
+    const Q1={a:1,b:2,c:1,d:2,e:3,f:2,op:'+',P1:3,Q1:4,N:10,D:8,Nr:5,Dr:4};
     const pose=function(q){ test.questions=[Object.assign({},q)]; test.idx=0; test.locked=false; renderSpfTest(); };
     const debut=function(q){
       [['spf-h1',q.c],['spf-h2',q.e],['spf-b1',q.d],['spf-b2',q.f],['spf-pn',q.P1],['spf-pd',q.Q1],
@@ -7840,6 +7868,19 @@ function sommeProduitFractions(w, P){
        ['spf-x-n1',q.a*q.Q1],['spf-x-n2',q.P1*q.b],['spf-x-d',q.b*q.Q1]].forEach(function(p){ tape(p[0],p[1]); });
     };
     pose(Q1);
+    /* la ligne de l'énoncé n'ouvre pas sur « = » ; les cinq étapes et la
+       simplification, si — la position à l'écran se mesure dans le navigateur */
+    (function(){ const row=document.querySelector('#spfHost .pt-row'); if(!row){ vus.push('pas de rangée'); return; }
+      const items=[].concat.apply([], [].map.call(row.children, function(c){ return c.classList.contains('f-grp') ? [].slice.call(c.children) : [c]; }));
+      const eqs=items.filter(function(e){ return e.classList.contains('f-eq'); });
+      if(items[0].classList.contains('f-eq')) vus.push('la ligne de l’énoncé commence par un « = »');
+      if(eqs.length!==5+2) vus.push(eqs.length+' « = » au lieu de 7 (cinq étapes, deux pour la simplification)');
+      if(eqs.some(function(e){ return e.textContent.trim()!=='='; })) vus.push('un « = » n’en est pas un');
+      const t1=items.filter(function(e){ return e.classList.contains('spf-t1'); });
+      if(t1.length!==6) vus.push(t1.length+' premiers termes au lieu de 6');
+      const op=items.filter(function(e){ return e.classList.contains('spf-op'); });
+      if(op.length!==4 || op.some(function(e){ return e.textContent.trim()!=='+'; })) vus.push('les signes de la grille : '+op.map(function(e){ return e.textContent.trim(); }).join(' '));
+    })();
     if(!$$('spf-e0-dn')) vus.push('10/8 se simplifie, et aucune étape n’est posée d’emblée');
     if($$('spf-e1-dn')) vus.push('10/8 n’a besoin que d’une étape au départ');
     const lab=document.querySelector('#spfHost .pt-lab');
@@ -7869,8 +7910,8 @@ function sommeProduitFractions(w, P){
     if(peint('spf-e0-dn')!=='faux') vus.push('le diviseur 3 est peint '+peint('spf-e0-dn'));
     if(!/simplifie/.test(($$('spfFeedback')||{}).textContent||'')) vus.push('le message ne nomme pas la simplification : « '+(($$('spfFeedback')||{}).textContent||'')+' »');
     /* sans chaîne : 2/3 + 1/2 × 3/2 = 8/12 + 9/12 = 17/12 ; pour la reprise, 1/4 + 1/2 × 5/3 = 26/24 */
-    const Q2={a:1,b:4,c:1,d:2,e:5,f:3,P1:5,Q1:6,N:26,D:24};
-    const Q3={a:2,b:3,c:1,d:2,e:3,f:2,P1:3,Q1:4,N:17,D:12};
+    const Q2={a:1,b:4,c:1,d:2,e:5,f:3,op:'+',P1:5,Q1:6,N:26,D:24,Nr:13,Dr:12};
+    const Q3={a:2,b:3,c:1,d:2,e:3,f:2,op:'+',P1:3,Q1:4,N:17,D:12,Nr:17,Dr:12};
     pose(Q3);
     if($$('spf-e0-dn')) vus.push('17/12 est irréductible, et une simplification est demandée');
     debut(Q3); tape('spf-x-rn',34); tape('spf-x-rd',24);
@@ -7882,8 +7923,147 @@ function sommeProduitFractions(w, P){
     renderSpfTest();
     if(!$$('spf-e0-dn') || ($$('spf-e0-dd')||{}).value===undefined) vus.push('après un redessin (reprise), l’étape a disparu');
     if(qr.sbrut!=='26/24' || !qr.sdiv || qr.sdiv[0]!=='2') vus.push('rangé dans la question : '+qr.sbrut+' '+JSON.stringify(qr.sdiv));
+    /* la soustraction : 3/2 − 1/2 × 3/2 = 3/2 − 3/4 = 12/8 − 6/8 = 6/8 = 3/4 */
+    const Q4={a:3,b:2,c:1,d:2,e:3,f:2,op:'−',P1:3,Q1:4,N:6,D:8,Nr:3,Dr:4};
+    pose(Q4);
+    if(!/−/.test(($$('spfPrompt')||{}).textContent||'')) vus.push('l’énoncé d’une soustraction n’écrit pas « − »');
+    if(!/différence/.test((document.querySelector('#spfHost .pt-lab')||{}).textContent||'')) vus.push('le libellé d’une soustraction parle encore de somme');
+    (function(){ const op=document.querySelectorAll('#spfHost .pt-row .spf-op'); if(op.length!==4 || [].some.call(op, function(e){ return e.textContent.trim()!=='−'; })) vus.push('les signes de la grille d’une soustraction : '+[].map.call(op, function(e){ return e.textContent.trim(); }).join(' ')); })();
+    if(!$$('spf-e0-dn')) vus.push('6/8 se simplifie, et aucune étape n’est posée d’emblée');
+    debut(Q4); tape('spf-x-rn',6); tape('spf-x-rd',8); tape('spf-e0-dn',2); tape('spf-e0-n',3); tape('spf-e0-d',4);
+    checkSpfAnswer();
+    if(!der() || !der().correct) vus.push('3/2 − 1/2 × 3/2 = … = 6/8 = 3/4 est compté faux');
+    else if(!/−/.test(der().q)) vus.push('la question enregistrée n’écrit pas la soustraction : '+der().q);
+    /* additionné au lieu de soustrait */
+    pose(Q4); debut(Q4); tape('spf-x-rn',18); tape('spf-x-rd',8); tape('spf-e0-dn',2); tape('spf-e0-n',3); tape('spf-e0-d',4);
+    checkSpfAnswer();
+    if(der() && der().correct) vus.push('12/8 + 6/8 = 18/8 est compté juste sur une soustraction');
+    if(peint('spf-x-rn')!=='faux') vus.push('18/8 au lieu de 6/8 : le numérateur est peint '+peint('spf-x-rn'));
+    if(!/soustraire/.test(($$('spfFeedback')||{}).textContent||'')) vus.push('le message d’une soustraction manquée ne dit pas « soustraire » : « '+(($$('spfFeedback')||{}).textContent||'')+' »');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
+}
+
+/* ---------- {somme-produit-fractions} : la question RÉDIGÉE sous la guidée --
+   Demande de Turquet (octobre 2026) : « sur la même page une autre question
+   où il faut rédiger la solution comme dans l'exercice 4.3 ». Le calque du
+   4.3 : la guidée notée, la rédigée s'ouvre SOUS elle (sprMonte), la feuille
+   porte le calcul suivi de « = », et le juge du 5.5 (libreJuge, « sfl »)
+   décide en entiers exacts sous un modèle stubbé qui SE TROMPE toujours.
+   Les bords : une copie juste vaut le point malgré le modèle (le produit
+   d'abord, puis le même dénominateur, puis la fraction irréductible) ; la
+   SOUSTRACTION aussi ; la copie qui additionne AVANT de multiplier (l'erreur
+   visée) est refusée sur une égalité fausse, même si le modèle l'acceptait ;
+   un résultat non simplifié est refusé ; sans l'étape du même dénominateur le
+   juge s'abstient et le modèle décide ; la feuille intacte n'appelle pas le
+   modèle ; la reprise sur une rédigée ne montre que la rédaction ; la guidée
+   suivante referme la zone ; l'aide connaît la rédigée. Déclaré par le profil
+   (sommeProduit), comme le contrôle du tirage. */
+function sommeProduitRedigee(w, apres){
+  const nom = '{somme-produit-fractions} : la question rédigée sous la guidée — le juge prime, la soustraction, l’erreur de priorité refusée';
+  if(!P.sommeProduit){ ignorer(nom, 'ce niveau garde le 5.12 tel quel'); return apres(); }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[], ID='somme-produit-fractions';
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId=ID;
+    const $$=function(i){ return document.getElementById(i); };
+    const feuille=function(texte){ return { lire:function(){ return texte; },
+      lignes:[{mf:{getValue:function(){ return 'x'; },focus:function(){},setValue:function(){},executeCommand:function(){},classList:{add:function(){},remove:function(){},contains:function(){ return false; }}}}],
+      verrouiller:function(){ this.verrou=true; } }; };
+    let MODELE={correct:false}, appels=0;
+    sb.functions={ invoke:async function(nom, opts){ appels++; return { data:{ correct:MODELE.correct, feedback:'Retour du modèle stubbé.' } }; } };
+    const tape=function(i,v){ const el=$$(i); if(!el){ vus.push('pas de case '+i); return; } el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
+    const der=function(){ return test.answers[test.answers.length-1]; };
+    const G={a:1,b:2,c:1,d:2,e:3,f:2,op:'+',P1:3,Q1:4,N:10,D:8,Nr:5,Dr:4};          /* la guidée : 1/2 + 1/2 × 3/2 */
+    const R={a:2,b:3,c:1,d:2,e:3,f:2,op:'+',P1:3,Q1:4,N:17,D:12,Nr:17,Dr:12,redac:true};   /* la rédigée : 2/3 + 1/2 × 3/2 */
+    const RM={a:3,b:2,c:1,d:2,e:3,f:2,op:'−',P1:3,Q1:4,N:6,D:8,Nr:3,Dr:4,redac:true};      /* 3/2 − 1/2 × 3/2 */
+    const armer=function(redac, mode){
+      currentMode=mode||'train'; currentTestId=ID; TESTS[ID].start();
+      test.questions=[Object.assign({},G), Object.assign({},redac)]; test.idx=0; test.locked=false; renderSpfTest();
+      [['spf-h1',1],['spf-h2',3],['spf-b1',2],['spf-b2',2],['spf-pn',3],['spf-pd',4],['spf-x-a1',4],['spf-x-b1',4],['spf-x-a2',2],['spf-x-b2',2],
+       ['spf-x-n1',4],['spf-x-n2',6],['spf-x-d',8],['spf-x-rn',10],['spf-x-rd',8],['spf-e0-dn',2],['spf-e0-n',5],['spf-e0-d',4]].forEach(function(p){ tape(p[0],p[1]); });
+      checkSpfAnswer();
+    };
+    const zone=function(){ const z=$$('sprZone'); return !!(z && !z.hidden && z.innerHTML!==''); };
+    const couleur=function(){ const c=($$('sprFeedback')||{}).className||''; return /\\bgood\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
+
+    /* 1. la guidée notée ouvre la rédigée sous elle, la feuille porte le calcul suivi de « = » */
+    armer(R);
+    if(!der() || !der().correct) vus.push('la guidée 1/2 + 1/2 × 3/2 = 10/8 = 5/4 est comptée fausse ('+(der()?der().given:'rien')+')');
+    if(test.idx!==1) vus.push('après la guidée, test.idx vaut '+test.idx+' au lieu de 1 : la rédigée ne s’est pas ouverte');
+    if(!zone()) vus.push('la zone de la rédigée ne s’affiche pas sous la guidée');
+    if(!$$('spf-h1')) vus.push('la guidée a disparu de l’écran quand la rédigée s’est ouverte');
+    if($$('spfNext')) vus.push('un bouton « Question suivante » est proposé alors que la rédigée attend');
+    if(test.sprDepart!=='\\\\frac{2}{3}+\\\\frac{1}{2}\\\\times\\\\frac{3}{2}=') vus.push('le point de départ de la feuille : '+test.sprDepart);
+    if(!/rédiger/.test(($$('sprPrompt')||{}).textContent||'')) vus.push('l’énoncé de la rédigée ne dit pas « rédiger »');
+    if(!($$('sprPrompt')||{classList:{contains:function(){return false;}}}).classList.contains('enonce-suite')) vus.push('le second énoncé de l’écran ne se déclare pas « enonce-suite »');
+    /* 2. une copie juste vaut le point malgré un modèle qui refuse */
+    sprFeuille=feuille('2/3 + 1/2×3/2 = 2/3 + 3/4 = 8/12 + 9/12 = 17/12'); MODELE={correct:false}; appels=0;
+    await checkSpr();
+    if(!der() || der().correct!==true || !/rédigé/.test(der().q)) vus.push('2/3 + 1/2×3/2 = 2/3 + 3/4 = 8/12 + 9/12 = 17/12 est refusé sous un modèle qui refuse : '+JSON.stringify(der()));
+    if(test.score!==2) vus.push('la paire juste ne vaut pas 2 points : '+test.score);
+    if(couleur()!=='vert') vus.push('copie juste peinte « '+couleur()+' »');
+    if(!appels) vus.push('le modèle n’a pas été appelé pour rédiger le commentaire');
+    if(!$$('sprNext')) vus.push('aucun bouton « Question suivante » après la rédigée');
+    if(der() && der().answer!=='17/12') vus.push('la réponse attendue enregistrée : '+der().answer);
+    /* 3. « Question suivante » referme la zone, et la question suivante est guidée */
+    test.questions.push(Object.assign({},G)); nextSpfQuestion();
+    if(zone()) vus.push('la zone de la rédigée reste affichée sur la guidée suivante');
+    if(!$$('spf-h1')) vus.push('la guidée suivante ne se dessine pas');
+    /* 4. l'erreur visée : additionner AVANT de multiplier — refusée même si le modèle acceptait */
+    armer(R); sprFeuille=feuille('2/3 + 1/2×3/2 = 7/6×3/2 = 21/12 = 7/4'); MODELE={correct:true};
+    await checkSpr();
+    if(!der() || der().correct!==false) vus.push('additionner avant de multiplier (7/6 × 3/2 = 7/4) est accepté');
+    if(couleur()!=='rouge') vus.push('copie à l’égalité fausse peinte « '+couleur()+' »');
+    if(/stubbé/.test(($$('sprFeedback')||{}).textContent||'')) vus.push('le modèle contredit le juge et sa prose s’affiche quand même');
+    if(!/frac\\{7\\}\\{6\\}|7\\/6/.test((($$('sprFeedback')||{}).textContent||'').replace(/\\s+/g,''))) vus.push('le refus ne nomme pas l’égalité fausse : « '+(($$('sprFeedback')||{}).textContent||'')+' »');
+    /* 5. un résultat non simplifié est refusé */
+    armer(R); sprFeuille=feuille('2/3 + 1/2×3/2 = 2/3 + 3/4 = 16/24 + 18/24 = 34/24'); MODELE={correct:true};
+    await checkSpr();
+    if(!der() || der().correct!==false) vus.push('34/24, non simplifié, est accepté');
+    if(!/simplifi/.test(($$('sprFeedback')||{}).textContent||'')) vus.push('le refus d’un résultat non simplifié ne parle pas de simplifier');
+    /* 6. sans l'étape du même dénominateur : le juge s'abstient, le modèle décide */
+    armer(R); sprFeuille=feuille('2/3 + 1/2×3/2 = 17/12'); MODELE={correct:true};
+    await checkSpr();
+    if(!der() || der().correct!==true) vus.push('sans l’étape du même dénominateur, le modèle qui accepte n’est pas suivi (le juge devait s’abstenir)');
+    armer(R); sprFeuille=feuille('2/3 + 1/2×3/2 = 17/12'); MODELE={correct:false};
+    await checkSpr();
+    if(!der() || der().correct!==false) vus.push('sans l’étape du même dénominateur, le modèle qui refuse n’est pas suivi');
+    /* 7. la soustraction rédigée */
+    armer(RM); sprFeuille=feuille('3/2 − 1/2×3/2 = 3/2 − 3/4 = 6/4 − 3/4 = 3/4'); MODELE={correct:false};
+    await checkSpr();
+    if(!der() || der().correct!==true) vus.push('3/2 − 1/2×3/2 = 3/2 − 3/4 = 6/4 − 3/4 = 3/4 est refusé');
+    if(test.sprDepart!=='\\\\frac{3}{2}-\\\\frac{1}{2}\\\\times\\\\frac{3}{2}=') vus.push('le point de départ d’une soustraction : '+test.sprDepart);
+    armer(RM); sprFeuille=feuille('3/2 − 1/2×3/2 = 3/2 − 3/4 = 6/4 + 3/4 = 9/4'); MODELE={correct:true};
+    await checkSpr();
+    if(!der() || der().correct!==false) vus.push('6/4 + 3/4 = 9/4 sur une soustraction est accepté');
+    /* 8. la feuille intacte n'appelle pas le modèle */
+    armer(R); appels=0;
+    sprFeuille={ lire:function(){ return '2/3 + 1/2×3/2 ='; }, lignes:[{mf:{getValue:function(){ return test.sprDepart; },focus:function(){}}}], verrouiller:function(){} };
+    await checkSpr();
+    if(appels) vus.push('la feuille intacte (le calcul et son « = ») appelle le modèle');
+    if(test.answers.length!==1) vus.push('la feuille intacte est notée');
+    /* 9. en SOUTIEN, une copie fausse rouvre la feuille */
+    armer(R,'soutien'); sprFeuille=feuille('2/3 + 1/2×3/2 = 2/3 + 3/4 = 8/12 + 9/12 = 18/12'); MODELE={correct:false};
+    await checkSpr();
+    if(!/Revérifier/.test(($$('sprBoutons')||{}).textContent||'')) vus.push('en soutien, la copie fausse ne propose pas « Revérifier » : '+(($$('sprBoutons')||{}).textContent||''));
+    if(test.answers.length!==1) vus.push('en soutien, la copie fausse est notée tout de suite');
+    currentMode='train';
+    /* 10. la reprise sur une rédigée : seule la rédaction se montre */
+    armer(R); test.idx=1; renderSpfTest();
+    if(!zone()) vus.push('à la reprise sur une rédigée, la zone ne s’affiche pas');
+    if($$('spf-h1')) vus.push('à la reprise sur une rédigée, les cases de la guidée réapparaissent');
+    if(!test.locked) vus.push('à la reprise sur une rédigée, le moteur guidé n’est pas verrouillé');
+    /* 11. l'aide connaît la rédigée */
+    const ctx=conseilCtxCourant();
+    if(!/LUI-MÊME/.test(ctx) || !/2\\/3 \\+ 1\\/2 × 3\\/2/.test(ctx)) vus.push('le contexte envoyé à l’aide ne décrit pas la rédigée : « '+String(ctx).slice(0,120)+' »');
+    return vus.slice(0,6).join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    apres();
+  });
 }
 
 /* ---------- Le thème 4 « Fractions » de la Première : 4.2 à 4.5 ------------

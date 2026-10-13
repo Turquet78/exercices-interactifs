@@ -6683,6 +6683,106 @@ async function parcours(page, N){
         if(!r.juste) dits.push('produit : 2/3 × 3/5 = 6/15 = 2/5, tapé au clavier, est compté faux');
         if(r.rouges.length) dits.push('produit : des cases rougissent sur une copie juste : ' + r.rouges.slice(0, 4).join(', '));
       }
+      /* ③ LA SOMME AVEC UN PRODUIT DEDANS (4.6), EN COLONNES, PUIS RÉDIGÉE
+         (demande de Turquet, octobre 2026 : « placer les signes "=" en début
+         de ligne et afficher les cases à remplir en dessous verticalement des
+         nombres du dessus correspondants au mieux ; sur la même page une autre
+         question où il faut rédiger la solution comme dans le 4.3 »). Ce que
+         l'élève VOIT, et que jsdom ne peut pas mesurer : chaque « = » est le
+         premier morceau de sa ligne ; les premiers termes de toutes les lignes
+         (a/b, puis (a×□)/(b×□), puis la somme, la fraction obtenue et la
+         simplification) sont CENTRÉS sur la même verticale, les signes aussi,
+         les seconds termes aussi ; et la ligne de l'énoncé n'a pas de « = ».
+         Puis la copie TAPÉE au clavier — 1/2 + 1/2 × 3/2 = 10/8 = 5/4 — vaut
+         le point sans rien rougir, la rédigée s'ouvre sous la guidée avec le
+         calcul suivi de « = », une SOUSTRACTION rédigée juste vaut le point,
+         et la guidée suivante referme la zone. */
+      if(P.sommeProduit){
+        await s.page.evaluate(() => openTest('somme-produit-fractions'));
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        await s.page.evaluate(() => {
+          test.questions[0] = {a:1,b:2,c:1,d:2,e:3,f:2,op:'+',P1:3,Q1:4,N:10,D:8,Nr:5,Dr:4};
+          test.questions[1] = {a:3,b:2,c:1,d:2,e:3,f:2,op:'−',P1:3,Q1:4,N:6,D:8,Nr:3,Dr:4,redac:true};
+          test.idx = 0; renderSpfTest(); });
+        await s.page.waitForTimeout(700);
+        const g = await s.page.evaluate(() => {
+          const row = document.querySelector('#spfHost .pt-row'); if(!row) return { manque: 'pas de rangée' };
+          const vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+          const items = [...row.children].flatMap(c => c.classList.contains('f-grp') ? [...c.children] : [c]).filter(vis);
+          const cy = e => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; };
+          const cx = e => { const r = e.getBoundingClientRect(); return (r.left + r.right) / 2; };
+          /* les lignes : on regroupe par recouvrement vertical */
+          const lignes = [];
+          for(const it of items){
+            const r = it.getBoundingClientRect();
+            let L = lignes.find(l => Math.min(l.bas, r.bottom) - Math.max(l.haut, r.top) > Math.min(l.bas - l.haut, r.height) * 0.5);
+            if(!L){ L = { haut: r.top, bas: r.bottom, items: [] }; lignes.push(L); }
+            L.haut = Math.min(L.haut, r.top); L.bas = Math.max(L.bas, r.bottom); L.items.push(it);
+          }
+          lignes.sort((a, b) => a.haut - b.haut);
+          const dits = [];
+          lignes.forEach((L, i) => {
+            L.items.sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left);
+            const premier = L.items[0], eqs = L.items.filter(e => e.classList.contains('f-eq'));
+            if(i === 0){ if(eqs.length) dits.push('la ligne de l’énoncé commence par un « = »'); }
+            else {
+              if(eqs.length !== 1) dits.push('ligne ' + (i + 1) + ' : ' + eqs.length + ' « = »');
+              else if(premier !== eqs[0]) dits.push('ligne ' + (i + 1) + ' : le « = » n’ouvre pas la ligne (premier morceau : ' + (premier.className || premier.tagName) + ')');
+              if(L.items.length < 2) dits.push('ligne ' + (i + 1) + ' : rien après le « = »');
+            }
+          });
+          /* les colonnes : les centres des premiers termes, des signes, des seconds termes */
+          const col = (sel, nom) => {
+            const xs = items.filter(e => e.matches(sel)).map(cx);
+            if(xs.length < 2) return dits.push(nom + ' : ' + xs.length + ' élément(s) mesuré(s) — rien à aligner');
+            const ecart = Math.max(...xs) - Math.min(...xs);
+            if(ecart > 2) dits.push(nom + ' : les centres s’écartent de ' + Math.round(ecart) + ' px');
+          };
+          col('.spf-t1, .f-grp > .f-frac-input', 'premiers termes');
+          col('.spf-op', 'signes');
+          col('.spf-t2', 'seconds termes');
+          col('.f-eq', 'les « = »');
+          /* les seconds termes sont à droite des signes, eux-mêmes à droite des premiers termes */
+          const bord = sel => Math.max(...items.filter(e => e.matches(sel)).map(e => e.getBoundingClientRect().right));
+          const gauche = sel => Math.min(...items.filter(e => e.matches(sel)).map(e => e.getBoundingClientRect().left));
+          if(!(bord('.spf-t1') <= gauche('.spf-op') && bord('.spf-op') <= gauche('.spf-t2'))) dits.push('les colonnes se chevauchent');
+          return { dits, lignes: lignes.length, deborde: row.scrollWidth > row.clientWidth + 1 || document.documentElement.scrollWidth > window.innerWidth + 1 };
+        });
+        if(g.manque) dits.push('4.6 : ' + g.manque);
+        else {
+          if(g.lignes !== 8) dits.push('4.6 : ' + g.lignes + ' lignes au lieu de 8 (l’énoncé, cinq étapes, deux pour la simplification)');
+          if(g.deborde) dits.push('4.6 : la grille déborde de l’écran');
+          g.dits.forEach(d => dits.push('4.6 : ' + d));
+        }
+        for(const [id, v] of [['spf-h1',1],['spf-h2',3],['spf-b1',2],['spf-b2',2],['spf-pn',3],['spf-pd',4],['spf-x-a1',4],['spf-x-b1',4],['spf-x-a2',2],['spf-x-b2',2],['spf-x-n1',4],['spf-x-n2',6],['spf-x-d',8],['spf-x-rn',10],['spf-x-rd',8],['spf-e0-dn',2],['spf-e0-n',5],['spf-e0-d',4]]) await tape(id, v);
+        await s.page.evaluate(() => checkSpfAnswer());
+        await s.page.waitForTimeout(500);
+        const r3 = await verdict();
+        if(!r3.juste) dits.push('4.6 : 1/2 + 1/2 × 3/2 = 10/8 = 5/4, tapé au clavier, est compté faux');
+        if(r3.rouges.length) dits.push('4.6 : des cases rougissent sur une copie juste : ' + r3.rouges.slice(0, 4).join(', '));
+        const z = await s.page.evaluate(() => {
+          const zone = document.getElementById('sprZone'), mf = zone && zone.querySelector('math-field');
+          return { vue: !!(zone && !zone.hidden && zone.offsetHeight > 0), guidee: !!document.getElementById('spf-h1'),
+                   depart: mf ? mf.getValue() : null, idx: test.idx };
+        });
+        if(!z.vue) dits.push('4.6 rédigée : la zone ne s’affiche pas après la question guidée');
+        if(!z.guidee) dits.push('4.6 rédigée : la question guidée a disparu de l’écran');
+        if(!/=\s*$/.test(z.depart || '') || !/-/.test(z.depart || '')) dits.push('4.6 rédigée : la feuille ne commence pas par la soustraction suivie de « = » (' + z.depart + ')');
+        await s.page.evaluate(() => { const mf = document.querySelector('#sprZone math-field');
+          mf.setValue(test.sprDepart + '\\frac{3}{2}-\\frac{3}{4}=\\frac{6}{4}-\\frac{3}{4}=\\frac{3}{4}'); });
+        await s.page.evaluate(() => checkSpr());
+        await s.page.waitForTimeout(1500);
+        const v3 = await s.page.evaluate(() => { const d = test.answers[test.answers.length - 1];
+          return { juste: !!(d && d.correct && /rédigé/.test(d.q)), suite: !!document.getElementById('sprNext') }; });
+        if(!v3.juste) dits.push('4.6 rédigée : 3/2 − 1/2×3/2 = 3/2 − 3/4 = 6/4 − 3/4 = 3/4 est compté faux');
+        if(!v3.suite) dits.push('4.6 rédigée : aucun bouton « Question suivante » après la vérification');
+        await s.page.evaluate(() => nextSpfQuestion());
+        await s.page.waitForTimeout(400);
+        if(await s.page.evaluate(() => { const zz = document.getElementById('sprZone'); return !!(zz && !zz.hidden); }))
+          dits.push('4.6 rédigée : la zone reste affichée sur la question guidée suivante');
+      }
       verifier('la simplification par étapes s\'ouvre en écrivant, et la copie juste vaut le point',
         dits.length === 0, dits.slice(0, 3).join(' | '));
       verifier('les écrans de la simplification par étapes ne lèvent aucune erreur JavaScript',
