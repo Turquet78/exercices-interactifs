@@ -262,29 +262,48 @@ function structure(){
      référencer rougit. */
   {
     const RACINE_DEPOT = path.join(__dirname, '..');
-    const embarquees = [...s.matchAll(/data:image\/[a-z+.-]+;base64,/g)].map(m => 'ligne ' + ligneDe(m.index));
+    const embarquees = [...s.matchAll(/data:image\/[a-z+.-]+;base64,/gi)].map(m => 'ligne ' + ligneDe(m.index));
     verifier('aucune image n’est embarquée en base64 dans la page (les dessins vivent dans dessins/)',
       embarquees.length === 0, embarquees.length + ' image(s) : ' + embarquees.slice(0, 5).join(', '));
     const refs = [...new Set([...s.matchAll(/dessins\/[a-z0-9-]+\/[a-z0-9-]+\.[a-z0-9]+/g)].map(m => m[0]))];
     const dossiers = [...new Set(refs.map(r => r.slice(0, r.lastIndexOf('/'))))];
+    /* un dossier ne compte que ses fichiers visibles : le mode d'emploi et
+       les fichiers-points ne sont pas des dessins */
+    const fichiersDe = d => { try { return fs.readdirSync(path.join(RACINE_DEPOT, d)).filter(f => !/^LISEZMOI/i.test(f) && !f.startsWith('.')); } catch(e){ return null; } };
     if(refs.length){
+      /* LA DÉCLARATION DU PROFIL EST LUE, pas seulement sa présence : un
+         dossier déclaré de travers (« dessins/seconde ») serait une donnée
+         morte qu'on croit vivante ; et une page qui référence des dessins
+         sans les déclarer priverait le banc navigateur de son bord opposé
+         (« des dessins ont bien été relevés ») en silence. */
+      if(P.dessins)
+        verifier('les dessins de la page vivent dans le dossier déclaré par le profil (' + P.dessins.dossier + ')',
+          dossiers.length === 1 && dossiers[0] === P.dessins.dossier, 'dossier(s) référencé(s) : ' + dossiers.join(', '));
+      else
+        verifier('une page qui référence des dessins les déclare dans son profil (tests/profils.js, clé « dessins »)',
+          false, dossiers.join(', ') + ' référencé(s) sans clé « dessins »');
       const absents = refs.filter(r => !fs.existsSync(path.join(RACINE_DEPOT, r)));
       verifier('chaque dessin référencé par la page existe dans le dépôt (' + refs.length + ' référence(s))',
         absents.length === 0, 'absent(s) : ' + absents.join(', '));
       const orphelins = [];
       for(const d of dossiers){
-        let fichiers = [];
-        try { fichiers = fs.readdirSync(path.join(RACINE_DEPOT, d)); } catch(e){ orphelins.push(d + '/ (dossier illisible)'); }
-        fichiers.filter(f => !/^LISEZMOI/i.test(f) && !f.startsWith('.'))
-          .forEach(f => { if(refs.indexOf(d + '/' + f) < 0) orphelins.push(d + '/' + f); });
+        const fichiers = fichiersDe(d);
+        if(!fichiers){ orphelins.push(d + '/ (dossier illisible)'); continue; }
+        fichiers.forEach(f => { if(refs.indexOf(d + '/' + f) < 0) orphelins.push(d + '/' + f); });
       }
       verifier('aucun fichier des dossiers de dessins de la page n’est orphelin',
         orphelins.length === 0, orphelins.join(', '));
     } else if(P.dessins){
       verifier('chaque dessin référencé par la page existe dans le dépôt', false,
         'le profil déclare des dessins (' + P.dessins.dossier + ') et la page n’en référence aucun');
+      /* et tout ce que contient le dossier déclaré est alors orphelin */
+      const restes = fichiersDe(P.dessins.dossier) || [];
+      verifier('aucun fichier des dossiers de dessins de la page n’est orphelin',
+        restes.length === 0, restes.map(f => P.dessins.dossier + '/' + f).join(', '));
     } else {
+      /* les trois contrôles se déclarent, aucun ne se tait */
       ignorer('chaque dessin référencé par la page existe dans le dépôt', 'cette page ne référence aucun dessin');
+      ignorer('aucun fichier des dossiers de dessins de la page n’est orphelin', 'cette page ne référence aucun dessin');
     }
   }
 

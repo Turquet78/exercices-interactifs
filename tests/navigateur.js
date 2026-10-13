@@ -12494,7 +12494,7 @@ async function parcours(page, N){
          l'image soit chargée, et REJETTE si le fichier manque : naturalWidth
          tranche ensuite. Un exercice ajouté demain est couvert sans rien
          déclarer. */
-      const dessinsCasses = []; let nDessins = 0; const dessinsVus = new Set();
+      const dessinsCasses = []; let nDessins = 0; const dessinsVus = new Set(), srcCassesVisite = new Set();
       const releverDessins = async (id, mode, moment) => {
         const vus = await s.page.evaluate(async () => {
           const on = document.querySelector('section.screen.on');
@@ -12502,7 +12502,7 @@ async function parcours(page, N){
           const out = [];
           for(const i of on.querySelectorAll('img[src]')){
             const src = i.getAttribute('src') || '';
-            if(/^data:image/.test(src)){ out.push({ src: src.slice(0, 24) + '…', etat: 'embarqué en base64 au lieu d’un fichier' }); continue; }
+            if(/^data:image/i.test(src)){ out.push({ src: src.slice(0, 24) + '…', etat: 'embarqué en base64 au lieu d’un fichier' }); continue; }
             if(!/^dessins\//.test(src)) continue;
             try { await i.decode(); } catch(e){ /* fichier absent : naturalWidth restera 0 */ }
             out.push({ src, etat: (i.complete && i.naturalWidth > 0) ? '' : 'non chargé (fichier absent ?)' });
@@ -12513,6 +12513,7 @@ async function parcours(page, N){
         const num = await s.page.evaluate(i => TEST_NUM[i], id);
         for(const d of vus){
           if(!d.etat){ nDessins++; continue; }
+          srcCassesVisite.add(d.src);
           const cle = id + '|' + mode + '|' + d.src;
           if(dessinsVus.has(cle)) continue;
           dessinsVus.add(cle);
@@ -13021,14 +13022,18 @@ async function parcours(page, N){
       {
         const partout = await s.page.evaluate(async () => {
           const imgs = [...document.querySelectorAll('img[src^="dessins/"]')], casses = [];
+          let charges = 0;
           for(const i of imgs){
             try { await i.decode(); } catch(e){ /* fichier absent : naturalWidth restera 0 */ }
-            if(!(i.complete && i.naturalWidth > 0)) casses.push(i.getAttribute('src'));
+            if(i.complete && i.naturalWidth > 0) charges++; else casses.push(i.getAttribute('src'));
           }
-          return { total: imgs.length, casses: [...new Set(casses)] };
+          return { charges, casses: [...new Set(casses)] };
         });
-        partout.casses.forEach(src => dessinsCasses.push('(document entier, hors écran visité) ' + src + ' — non chargé (fichier absent ?)'));
-        nDessins += partout.total - partout.casses.length;
+        /* un dessin cassé déjà nommé par la visite ne l'est pas une seconde
+           fois sous une étiquette qui le dirait « hors écran » */
+        partout.casses.filter(src => !srcCassesVisite.has(src))
+          .forEach(src => dessinsCasses.push('(document entier, hors écran visité) ' + src + ' — non chargé (fichier absent ?)'));
+        nDessins += partout.charges;
       }
       /* le COMPTE et la liste ENTIÈRE : un dessin cassé de plus ne doit pas
          se cacher derrière les trois premiers */

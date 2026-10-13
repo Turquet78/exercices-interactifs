@@ -905,9 +905,9 @@ le mesure.
 **Les dessins vivent en FICHIERS, jamais en base64 dans la page.** Jusqu'en
 octobre 2026, chaque dessin d'exercice — le serpent du thème Python, le
 schéma-bilan des ensembles de nombres — était écrit dans `secondes.html` en
-URL `data:`, « pour que la page reste un seul fichier » : trente-trois
-commentaires le disaient, et une trentaine de contrôles l'exigeaient (« jamais
-un chemin de fichier »). À quarante-trois dessins, cela faisait 770 Ko sur
+URL `data:`, « pour que la page reste un seul fichier » : vingt-sept
+commentaires le disaient, sur trente-trois lignes, et une trentaine de
+contrôles l'exigeaient (« jamais un chemin de fichier »). À quarante-trois dessins, cela faisait 770 Ko sur
 4,9 Mo — 16 % du fichier —, téléchargés et analysés par chaque élève à chaque
 ouverture, y compris pour un exercice de fractions qui n'en montre aucun ; le
 base64 se compresse mal, et la page pesait 1,76 Mo compressée. Mesurée dans un
@@ -944,11 +944,19 @@ un niveau qui déclare des dessins doit en offrir au banc, un niveau qui n'en
 déclare pas s'affiche « non applicable » plutôt que d'être tu. Éprouvé avant
 même l'extraction : sur la page encore intacte, le contrôle jsdom a rougi sur
 les 43 images (« 43 image(s) : ligne 3627, ligne 32865… ») et sur « le profil
-déclare des dessins et la page n'en référence aucun ». Les commentaires de la
+déclare des dessins et la page n'en référence aucun ». Puis, les fichiers en
+place, un seul dessin renommé (`python-input-prix.webp`) : au banc jsdom, deux
+rouges qui le nomment — « absent(s) : dessins/secondes/python-input-prix.webp »
+et « orphelin : …python-input-prix.webp.absent » — et au banc navigateur un
+seul, « 6.3.9 python-input-prix (train, premier écran) … non chargé (fichier
+absent ?) », dans les deux modes, 624 autres contrôles verts autour. Ce
+sabotage a aussi montré que le relevé du document entier renommait le même
+fichier une troisième fois « hors écran visité » : il écarte désormais ce que
+la visite a déjà nommé. Les commentaires de la
 page et les contrôles par exercice qui disaient « jamais un chemin de
 fichier » ont été réécrits — un commentaire qui contredit le code est pire
-qu'aucun —, et les paragraphes plus anciens de ce journal qui racontent « une
-URL `data:` — la page reste un fichier unique » racontent l'histoire avec la
-convention de leur époque : le motif d'un dessin (découpé, détouré, WebP de
+qu'aucun —, et les paragraphes plus anciens du journal du thème Python
+(`06-seconde-python.md`) qui racontent « une URL `data:` — la page reste un
+fichier unique » racontent l'histoire avec la convention de leur époque : le motif d'un dessin (découpé, détouré, WebP de
 10 à 20 Ko, posé en tête de l'exercice) reste vrai, seul son rangement a
 changé.
