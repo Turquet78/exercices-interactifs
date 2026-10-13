@@ -171,6 +171,44 @@ la case vide en correction (jamais rouge, sa carte montrée en vert, aucune
 carte rouge, « Il te manquait 1 case »), et la carte touchée qui choisit sa
 lettre et se range dans `q.rep`.
 
+**Puis deux figures sur trois étaient « justes », et c'est l'élève qui l'a
+vu** (Turquet, octobre 2026, deux copies d'écran, v479 → v480) : sur la
+ligne « UKAH est un parallélogramme », deux dessins montraient UKAH
+parallélogramme ; sur la ligne « J est le milieu de [RA] », deux dessins
+montraient J au milieu de [RA]. Les pièges dessinés gardaient les MÊMES
+points que la bonne figure et ne changeaient que le sens d'une flèche : A→H
+au lieu de H→A, les quatre points U, K, A, H restaient aux quatre sommets du
+parallélogramme ; A→J au lieu de J→A, J restait au milieu. Le dessin disait
+« le piège », les points disaient « la bonne réponse », et un élève qui
+regarde les points — ce qu'on lui apprend — avait deux bonnes figures. Le
+troisième dessin de `par` n'arrangeait rien : ses flèches « non parallèles »
+ne faisaient que 13° d'écart, et se lisaient comme un parallélogramme un peu
+penché. **Un piège dessiné est faux PAR SES POINTS, jamais seulement par le
+sens de ses flèches.** Les pièges sont désormais, pour `par`, le
+parallélogramme ABCD (les flèches A→B et D→C, égales, C et D échangés, une
+forme un peu différente pour que l'œil ne cherche pas la différence
+d'étiquettes) et deux flèches à 38° l'une de l'autre ; pour `mil`, A au
+milieu de [BC] (les flèches B→A et A→C, égales, sur une droite qui descend).
+Chaque figure est redevenue COHÉRENTE : ses deux flèches sont égales (sauf
+le coude et les deux directions, qui le disent), et sa phrase (`vgtFigTxt`,
+l'aria-label et le contexte envoyé au modèle) raconte ce qu'elle montre —
+avant, « de même longueur mais de sens contraires » décrivait un dessin
+qu'aucune ligne de la fiche ne nomme. `conf` n'a pas bougé : ses pièges
+(deux flèches qui s'écartent, trois points alignés) étaient déjà faux par
+leurs points.
+
+Le contrôle (`tests/verifier.js`, « vecteurs égaux », section 2) relit chaque
+dessin comme l'élève le regarde : les cercles sont les points, chaque lettre
+va au point le plus proche, chaque flèche est un trait et sa pointe. Sur les
+POINTS, la configuration de la ligne (AB = CD, B milieu de [AC], B = C) doit
+être vraie sur la figure 0 et FAUSSE sur les deux autres ; chaque flèche doit
+joindre deux points nommés ; les flèches des deux parallélogrammes sont
+parallèles, celles du troisième dessin font au moins 30°. Éprouvé sur la
+page de v479 : « par figure 1 : les points du piège vérifient la
+configuration », « par figure 2 : les flèches « non parallèles » ne font que
+13° », « mil figure 1 : les points du piège vérifient la configuration » —
+les trois défauts, nommés, aucun autre.
+
 ## {vecteurs-egaux} — retrouver les vecteurs égaux dans une figure (8.3, v475)
 
 **Trois sessions ont créé le thème 8 le même jour** — la translation du 8.1,
