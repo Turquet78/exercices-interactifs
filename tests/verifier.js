@@ -4240,6 +4240,7 @@ function exercices(suite){
     soustraireRelatifs(w, P);
     reduireProduit(w, P);
     translationGrille(w, P);
+    vecteursEgauxTableau(w, P);
     tableauProportions(w, P);
     tableauProportionsLettres(w, P);
     tableauProportionsTirees(w, P);
@@ -17078,6 +17079,129 @@ function associerExpressions(w, P){
     if(peint('asx-1')!=='bleu') vus.push('case vide peinte en '+peint('asx-1'));
     if((document.getElementById('asx-1')||{}).value!=='add') vus.push('la correction de la case vide n\\'écrit pas 3 + 3');
     if(test.maxScore!==24) vus.push('barème de '+test.maxScore+' au lieu de 24');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {vecteurs-egaux-tableau} — 8.2, thème « Vecteurs » : une ligne du tableau de la
+   fiche (égalité, figure, configuration), une colonne donnée, deux à choisir
+   parmi trois propositions. Les réponses sont jugées par une SECONDE
+   méthode : l'égalité et la configuration attendues sont réécrites ici à
+   partir des lettres — jamais lues dans la table de la page. */
+function vecteursEgauxTableau(w, P){
+  const nom = 'vecteurs égaux : les dix lignes de la fiche, trois propositions par case, la correction et la place dans le thème Vecteurs (8.2)';
+  const present = evaluer(w, "typeof startVgt==='function' && typeof vgtProps==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des vecteurs égaux'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='vecteurs-egaux-tableau';
+    /* ---- 0. la place ------------------------------------------------------ */
+    const th=THEMES.find(function(t){ return t.num===8; });
+    if(!th || !/Vecteurs/i.test(th.nom) || th.ids.indexOf('vecteurs-egaux-tableau')<0) vus.push('l\\'exercice n\\'est pas dans le thème 8 « Vecteurs »');
+    if(TEST_NUM['vecteurs-egaux-tableau']!=='8.2') vus.push('numéro '+TEST_NUM['vecteurs-egaux-tableau']+' au lieu de 8.2');
+    if(TEST_NUM['reduire-produit']!=='7.8') vus.push('le 7.8 a bougé');
+    if(TEST_NUM['translation-grille']!=='8.1') vus.push('le 8.1 ({translation-grille}) a bougé');
+    if(TABLES_SANS.indexOf('vecteurs-egaux-tableau')<0) vus.push('le bouton des tables est proposé : il n\\'y a rien à multiplier');
+    /* ---- 1. le tirage : le plan de la fiche, des lettres tirées ----------- */
+    const PLAN=[['par','eg'],['par','eg'],['par','conf'],['mil','eg'],['conf','fig'],['conf','eg'],['par','fig'],['mil','fig'],['mil','conf'],['conf','conf']];
+    const ordresVus={}; const lettresVues={};
+    for(let i=0;i<300 && vus.length<4;i++){
+      const qs=vgtBuildQuestions();
+      if(qs.length!==10){ vus.push(qs.length+' lignes au lieu de 10'); break; }
+      qs.forEach(function(q,k){
+        if(q.fam!==PLAN[k][0] || q.donne!==PLAN[k][1]) vus.push('ligne '+(k+1)+' : '+q.fam+'/'+q.donne+' au lieu de '+PLAN[k].join('/'));
+        const n=q.fam==='par'?4:3;
+        if(!Array.isArray(q.L) || q.L.length!==n) vus.push('ligne '+(k+1)+' : '+(q.L||[]).length+' lettres au lieu de '+n);
+        else {
+          if(new Set(q.L).size!==n) vus.push('ligne '+(k+1)+' : deux lettres identiques '+q.L.join(''));
+          q.L.forEach(function(l){ lettresVues[l]=1; if(!/^[A-Z]$/.test(l) || 'OWXYZ'.indexOf(l)>=0) vus.push('lettre interdite '+l); });
+        }
+        ['eg','fig','conf'].forEach(function(c){ const o=q.ordre&&q.ordre[c];
+          if(!o || o.slice().sort().join()!=='0,1,2') vus.push('ligne '+(k+1)+' : ordre '+c+' incomplet');
+          else ordresVus[o.join()]=1; });
+      });
+      const cles=qs.map(function(q){ return q.fam+q.donne+q.L.join(''); });
+      if(new Set(cles).size!==cles.length) vus.push('deux lignes identiques dans une séance');
+    }
+    if(!vus.length && Object.keys(ordresVus).length<3) vus.push('les propositions ne sont jamais mélangées');
+    if(!vus.length && Object.keys(lettresVues).length<10) vus.push('les lettres ne sont jamais tirées : '+Object.keys(lettresVues).join(''));
+    /* ---- 2. les réponses attendues, par une seconde écriture ------------- */
+    const attendu=function(q){ const A=q.L[0],B=q.L[1],C=q.L[2],D=q.L[3];
+      return q.fam==='par' ? {eg:'vecteur '+A+B+' = vecteur '+C+D, conf:A+B+D+C+' est un parallélogramme'}
+           : q.fam==='mil' ? {eg:'vecteur '+A+B+' = vecteur '+B+C, conf:B+' est le milieu de ['+A+C+']'}
+           :                 {eg:'vecteur '+A+B+' = vecteur '+A+C, conf:B+' et '+C+' sont confondus'}; };
+    [{fam:'par',L:['R','S','T','U']},{fam:'mil',L:['H','T','C']},{fam:'conf',L:['H','T','C']}].forEach(function(q){
+      q.donne='fig'; q.ordre={eg:[0,1,2],fig:[0,1,2],conf:[0,1,2]};
+      const at=attendu(q);
+      ['eg','conf'].forEach(function(c){ const pr=vgtProps(q,c);
+        if(pr.length!==3) vus.push(q.fam+' '+c+' : '+pr.length+' propositions au lieu de 3');
+        if(pr[0].txt!==at[c]) vus.push(q.fam+' '+c+' : la bonne proposition dit « '+pr[0].txt+' » au lieu de « '+at[c]+' »');
+        if(new Set(pr.map(function(p){ return p.txt; })).size!==3) vus.push(q.fam+' '+c+' : deux propositions identiques');
+      });
+      /* AC = BD dirait la même chose que AB = CD : aucun piège ne doit être une
+         écriture équivalente à la bonne réponse */
+      if(q.fam==='par'){
+        const eq=function(a,b,c,d){ return a+b+c+d; };   /* une égalité de vecteurs par ses quatre lettres */
+        const memes=['RSTU','TURS','SRUT','UTSR','RTSU','SURT','TRUS','USTR'];   /* AB=CD, CD=AB, BA=DC, DC=BA, AC=BD, BD=AC, CA=DB, DB=CA */
+        vgtProps(q,'eg').slice(1).forEach(function(p){ const m=/vecteur (\\w\\w) = vecteur (\\w\\w)/.exec(p.txt);
+          if(m && memes.indexOf(m[1]+m[2])>=0) vus.push('le piège « '+p.txt+' » est une écriture de la bonne égalité'); });
+        const paras=['RSUT','SUTR','UTRS','TRSU','RTUS','TUSR','USRT','SRTU'];   /* les huit noms du parallélogramme RSUT */
+        vgtProps(q,'conf').slice(1).forEach(function(p){ const m=/^(\\w{4}) est/.exec(p.txt);
+          if(m && paras.indexOf(m[1])>=0) vus.push('le piège « '+p.txt+' » nomme le bon parallélogramme'); });
+      }
+      const figs=vgtProps(q,'fig');
+      figs.forEach(function(f,i){ if(!/<svg/.test(f.html)) vus.push(q.fam+' figure '+i+' : pas de dessin');
+        q.L.forEach(function(l){ if(f.html.indexOf('>'+l+'<')<0 && f.html.indexOf('>'+l+' = ')<0 && f.html.indexOf('= '+l+'<')<0) vus.push(q.fam+' figure '+i+' : la lettre '+l+' n\\'est pas écrite'); }); });
+      if(new Set(figs.map(function(f){ return f.html; })).size!==3) vus.push(q.fam+' : deux figures identiques');
+    });
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    /* ---- 3. la correction, par le BOUTON ---------------------------------- */
+    startVgt();
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const poser=function(vals){ test.locked=false; renderVgtTest();
+      vgtCases(test.questions[test.idx]).forEach(function(c,i){ const el=document.getElementById(c.id); if(el) el.value=vals[i]; }); };
+    for(let p=0;p<10;p++){
+      test.idx=p; const cases=vgtCases(test.questions[p]);
+      if(cases.length!==2) vus.push('ligne '+(p+1)+' : '+cases.length+' cases au lieu de 2');
+      if(cases.some(function(c){ return c.col===test.questions[p].donne; })) vus.push('ligne '+(p+1)+' : la colonne donnée est à compléter');
+      poser(cases.map(function(c){ return c.bon; })); checkVgtAnswer();
+      const der=test.answers[test.answers.length-1];
+      if(!der || !der.correct) vus.push('ligne '+(p+1)+' : la copie juste est comptée fausse');
+      if(cases.some(function(c){ return peint(c.id)!=='vert'; })) vus.push('ligne '+(p+1)+' : une case juste n\\'est pas marquée ok');
+      const bleues=document.querySelectorAll('#vgtHost .vgt-carte.ok').length;
+      if(bleues!==2) vus.push('ligne '+(p+1)+' : '+bleues+' carte(s) bleue(s) au lieu de 2');
+      if(document.querySelectorAll('#vgtHost .vgt-donne').length!==1) vus.push('ligne '+(p+1)+' : la colonne donnée ne s\\'affiche pas une fois');
+    }
+    if(test.score!==20 || test.maxScore!==20) vus.push('note '+test.score+' / '+test.maxScore+' au lieu de 20 / 20');
+    /* LE PIÈGE : ABCD au lieu de ABDC — rouge, et la figure juste à côté reste bleue */
+    test.idx=0; test.questions[0]={fam:'par', donne:'eg', L:['A','B','C','D'], ordre:{eg:[0,1,2], fig:[2,0,1], conf:[1,0,2]}};
+    poser(['1','0']); checkVgtAnswer();   /* figure : carte B (la bonne) ; configuration : carte A = ABCD */
+    if(peint('vgt-fig')!=='vert') vus.push('la figure juste à côté d\\'un piège est peinte en '+peint('vgt-fig'));
+    if(peint('vgt-conf')!=='rouge') vus.push('ABCD au lieu de ABDC est peint en '+peint('vgt-conf'));
+    const cBad=document.querySelector('#vgtHost .vgt-carte[data-col="conf"][data-i="0"]');
+    if(!cBad || !/\\bbad\\b/.test(cBad.className)) vus.push('la carte ABCD choisie n\\'est pas rouge');
+    const cSol=document.querySelector('#vgtHost .vgt-carte[data-col="conf"][data-i="1"]');
+    if(!cSol || !/\\bsol\\b/.test(cSol.className)) vus.push('la bonne configuration n\\'est pas montrée en vert');
+    const fb=(document.getElementById('vgtFeedback')||{}).textContent||'';
+    if(!/ABDC/.test(fb) || !/pas ABCD/.test(fb)) vus.push('le message ne dit pas « ABDC, pas ABCD » : « '+fb.slice(0,80)+' »');
+    /* une case vide ne rougit pas : elle reçoit la correction, et sa carte se montre en vert */
+    poser(['', '1']); checkVgtAnswer();
+    if(peint('vgt-fig')!=='bleu') vus.push('case vide peinte en '+peint('vgt-fig'));
+    if((document.getElementById('vgt-fig')||{}).value!=='1') vus.push('la correction de la case vide n\\'écrit pas B');
+    if(peint('vgt-conf')!=='vert') vus.push('la configuration juste rougit à côté d\\'une case vide');
+    const fSol=document.querySelector('#vgtHost .vgt-carte[data-col="fig"][data-i="1"]');
+    if(!fSol || !/\\bsol\\b/.test(fSol.className)) vus.push('la bonne figure n\\'est pas montrée en vert quand la case est vide');
+    if(document.querySelector('#vgtHost .vgt-carte.bad')) vus.push('une carte rougit alors qu\\'aucune n\\'est fausse');
+    if(!/Il te manquait 1 case/.test((document.getElementById('vgtFeedback')||{}).textContent||'')) vus.push('le message ne dit pas qu\\'il manquait une case');
+    /* toucher une carte, c'est choisir sa lettre */
+    test.locked=false; renderVgtTest();
+    vgtChoisir('conf', 2);
+    if((document.getElementById('vgt-conf')||{}).value!=='2') vus.push('toucher la carte C ne choisit pas C dans la liste');
+    const cCh=document.querySelector('#vgtHost .vgt-carte[data-col="conf"][data-i="2"]');
+    if(!cCh || !/\\bchoisi\\b/.test(cCh.className)) vus.push('la carte touchée ne se surligne pas');
+    if(!test.questions[0].rep || test.questions[0].rep.conf!=='2') vus.push('le choix ne se range pas dans la question (q.rep)');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
