@@ -5,7 +5,7 @@ fin ne renumérote rien — les sept premiers gardent leurs numéros, aucun renv
 {identifiant} ne bouge. Les juges du thème 7 cherchent leur thème par son
 NUMÉRO (la leçon de `16-seconde-calcul-litteral.md`) : ils n'ont pas rougi.
 
-## {vecteurs-egaux} — vecteurs égaux, figure et configuration (8.1, v472)
+## {vecteurs-egaux} — vecteurs égaux, figure et configuration (8.1, v473)
 
 **La demande** (Turquet, octobre 2026, d'après la fiche papier « Fiche 5 —
 Vecteurs égaux ») : « créer un exercice comme le pdf, sans faire de rappel.
