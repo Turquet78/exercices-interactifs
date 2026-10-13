@@ -21133,7 +21133,10 @@ function brouillonProvisoire(w, apres){
       sb=sbDouble;
       if(typeof renderDevoirResultats==='function') await renderDevoirResultats(); else await renderDmResults();
       await new Promise(function(r){ setTimeout(r,60); });
-      const bilan=((document.getElementById('dmResults')||{}).textContent||'').replace(/\\s+/g,' ');
+      let bilan=((document.getElementById('dmResults')||{}).textContent||'').replace(/\\s+/g,' ');
+      /* en Première, les cellules par exercice ne s'ouvrent qu'au clic sur l'élève */
+      if(typeof dmStudentDetail==='function'){ try{ dmStudentDetail('e-controle','Contrôle'); }catch(e){}
+        bilan+=' '+((document.getElementById('dmStudentDetail')||{}).textContent||'').replace(/\\s+/g,' '); }
       if(!/en cours · 3\\/5 q · 60%/.test(bilan)) vus.push('le bilan du professeur ne dit pas « en cours · 3/5 q · 60% » : '+bilan.slice(0,260));
       if(!/6 \\/ 20/.test(bilan)) vus.push('le bilan du professeur ne compte pas la note provisoire (6 / 20 attendu) : '+bilan.slice(0,260));
 
