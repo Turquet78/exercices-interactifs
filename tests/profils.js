@@ -109,7 +109,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-for-nom':'pfn', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-renommer':'pfv','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-images-entiers':'pfk', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
+               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc','python-if-frais-port':'pcf', 'python-input-prix':'pkg', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-if-plus-grand-trois':'pgt', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv', 'python-for-images-entiers':'pfk','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-if-cinema':'pci', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -920,7 +920,7 @@ module.exports = {
        fini, et le juger à chaque changement de lettre serait absurde. */
     /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
        avec leurs exercices — voir le profil de la Première. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pkg', 'pfn', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd','pfk', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pof', 'pfn', 'pfk', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1126,11 +1126,11 @@ module.exports = {
        du code proposé au choix de l'élève — pas l'inconnue d'une équation. */
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
-                  sans: ['python-for-range', 'python-trois-des', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
+                  sans: ['python-pile-face', 'python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-for-oui-non', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-input', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-chaines', 'python-input-int', 'python-input-calcul', 'python-input-float', 'python-input-somme', 'python-input-moyenne', 'python-input-rectangle', 'python-input-duree', 'python-input-prix', 'python-for-erreur', 'python-for-nom', 'python-input-evolution', 'python-input-duree-secondes', 'python-inverser-lettres', 'python-for-renommer', 'python-for-depart-fin', 'python-for-images-entiers', 'python-moyenne-notes', 'python-remplacer-lettre', 'python-triangle-etoiles', 'python-programme-calcul', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables', 'python-echange-par-lettres', 'python-phrases-memoire', 'python-input-reponse', 'python-chaine-len', 'python-chaine-tirets'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-for-oui-non', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-input', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-chaines', 'python-input-int', 'python-input-calcul', 'python-input-float', 'python-input-somme', 'python-input-moyenne', 'python-input-rectangle', 'python-input-duree', 'python-input-prix', 'python-for-erreur', 'python-for-nom', 'python-for-images', 'python-if-cinema', 'python-input-evolution', 'python-input-duree-secondes', 'python-inverser-lettres', 'python-for-renommer', 'python-for-images-entiers', 'python-for-depart-fin', 'python-moyenne-notes', 'python-remplacer-lettre', 'python-triangle-etoiles', 'python-programme-calcul', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables', 'python-echange-par-lettres', 'python-phrases-memoire', 'python-input-reponse', 'python-chaine-len', 'python-chaine-tirets'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -1185,16 +1185,28 @@ module.exports = {
     pythonAvant: { sans: {
       'python-for-oui-non': 'la fiche n\u2019a ni définition ni coup de pouce (demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus ») : son rappel ne porte que le programme de la fiche',
       'python-chaine-len': 'l\u2019élève découvre en exécutant ce que représentent len(chaine) et chaine[i] : leur définition est la réponse attendue',
+      'python-samoussa': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que les trois coups de pouce (l\u2019input, le if / else, les deux formules) — demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus ».',
+      'python-if-location': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que les quatre coups de pouce (l\u2019input, le if et le else, les deux formules), qui restent REPLIÉS sous l\u2019énoncé — les écrire avant lui donnerait le programme à écrire',
+      'python-if-cinema': 'la fiche n\u2019a ni définition ni coup de pouce : l\u2019énoncé du haut est son dessin, et son rappel ne redit que la consigne — le test si … alors … sinon est ce que l\u2019élève doit écrire',
+      'python-for-images': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que les deux coups de pouce (range(11) puis x=x/10), qui restent REPLIÉS sous l\u2019énoncé — les écrire avant lui donnerait la boucle à écrire',
+      'python-if-plus-grand-trois': 'la fiche (l\u2019exercice 8 du carnet) n\u2019a ni définition ni coup de pouce (demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus ») : l\u2019énoncé du haut est son dessin, et son rappel ne redit que la consigne',
+      'python-if-plus-grand': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, son « Rappel » (le float(input(…))) fait partie de l\u2019énoncé, et les deux coups de pouce restent REPLIÉS sous lui — les écrire avant donnerait le programme à écrire',
+      'python-for-couples': 'la fiche n\u2019a ni dessin ni définition : son rappel n\u2019est que le coup de pouce (la double boucle), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait le squelette du programme',
       'python-for-nom': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que le coup de pouce (le for k in range), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait la boucle à écrire',
       'python-for-images-entiers': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que les trois coups de pouce (la boucle, le print, le calcul de f), qui restent REPLIÉS sous l\u2019énoncé — les écrire avant lui donnerait le programme',
       'python-input-prix': 'la fiche n\u2019a pas de définition : son étiquette (le dessin, les deux prix au kilo) est l\u2019énoncé, et son rappel ne reprend que la formule du coup de pouce — l\u2019écrire avant l\u2019énoncé donnerait le calcul à écrire',
+      'python-tables-multiplication': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (la double boucle), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait le programme (demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus »)',
       'python-for-erreur': 'la fiche n\u2019a ni définition ni coup de pouce : son rappel ne redit que la consigne, et l\u2019erreur à expliquer est la réponse attendue',
+      'python-for-table': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que les deux coups de pouce (la boucle de 1 à 9, le print), qui restent REPLIÉS sous l\u2019énoncé — les écrire avant lui donnerait le programme à écrire',
+      'python-for-multiples': 'la fiche n\u2019a ni définition ni coup de pouce (demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus ») : l\u2019énoncé du haut est son dessin, et son rappel ne porte que le programme de la fiche',
       'python-trois-des': 'la fiche (l\u2019exercice 13 du carnet) n\u2019a ni définition ni coup de pouce : l\u2019énoncé du haut est son dessin, et son rappel ne redit que les consignes a), b) et c)',
       'python-input-duree': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (les trois calculs à essayer), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait les calculs à écrire',
       'python-input-evolution': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (le bloc if evolution==0), déjà proposé sous l\u2019énoncé — l\u2019écrire avant lui donnerait le premier tiers du programme',
       'python-inverser-lettres': 'comme le 6.4.2 : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
+      'python-for-moyenne-notes': 'comme le 6.5.4, la même fiche : son rappel ne reprend que les deux coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
       'python-moyenne-notes': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les deux coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
       'python-chaine-tirets': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
+      'python-if-frais-port': 'la fiche n\u2019a pas de définition : son « Rappel » (float(input(…))) est dans l\u2019énoncé, et son rappel ne reprend que les trois coups de pouce (la ligne de float, le if / else, montant = montant + 10), déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
       'python-input-rectangle': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les trois coups de pouce (la ligne de float, les formules, les print), déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
       'python-programme-calcul': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (les deux premières étapes traduites, les autres en pointillés), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait le programme',
       'python-triangle-etoiles': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce, qui reste REPLIÉ sous l\u2019énoncé (demande de Turquet, octobre 2026 : « garde le coup de pouce seulement replié »)',
@@ -1303,6 +1315,13 @@ module.exports = {
        aire et perimetre, puis deux lignes affichées. Le juge du 6.3.7 avec
        deux résultats. « nb » est la seconde source du compte (PRC_NB). */
     pythonInputRectangle: { exercice: 'python-input-rectangle', nb: 3, numero: '6.3.8' },
+    /* {python-if-frais-port} (6.7.6, demande de Turquet, octobre 2026) :
+       l'« Exercice 4 » du carnet — demander le montant d'une commande
+       (float) dans montant, puis un if / else : 10 € de frais de port sous
+       100 €, offerts au-dessus. Il suit {python-if-location} (6.7.5) dans
+       le sous-thème 6.7 « Condition if else ». Le juge lit ce que le programme AFFICHE. « nb » est la
+       seconde source du compte (la page a PCF_NB). */
+    pythonIfFraisPort: { exercice: 'python-if-frais-port', nb: 3, numero: '6.7.6' },
     /* {python-input-prix} (6.3.9, demande de Turquet, octobre 2026) :
        l'exercice 10 du carnet — le serpent au panier : demander le poids des
        pommes puis des tomates (float), calculer le prix total, l'afficher
@@ -1310,12 +1329,37 @@ module.exports = {
        que le programme AFFICHE. « nb » est la seconde source du compte
        (la page a PKG_NB). */
     pythonInputPrix: { exercice: 'python-input-prix', nb: 3, numero: '6.3.9' },
+    /* {python-pile-face} (6.7.7, derrière les six autres du sous-thème, sous-thème « Condition if else », demande de
+       Turquet, octobre 2026) : l'exercice 7 du carnet — jouons à pile ou face,
+       six questions qui montent un jeu (a à f). Le juge EXÉCUTE, en imposant
+       les réponses et les tirages de la pièce. « nb » est la seconde source du
+       compte (la page a POF_NB). */
+    pythonPileFace: { exercice: 'python-pile-face', nb: 6, numero: '6.7.7' },
+    /* {python-if-plus-grand-trois} (6.7.8, derrière {python-pile-face} dans
+       le sous-thème « Condition if else », demande de Turquet, octobre
+       2026) : l'exercice 8 du carnet, BONUS — demander 3 nombres décimaux,
+       afficher le plus grand. Le juge exécute la copie sous six triplets.
+       Une seule question (la fiche), une case. */
+    pythonIfPlusGrandTrois: { exercice: 'python-if-plus-grand-trois', numero: '6.7.8' },
     /* {python-for-nom} (6.6.2 — 6.6.1 à sa création, avant que {python-for-range}, la fiche de la définition, ne passe devant ; sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 5 du carnet — afficher 8 fois
        son nom et son prénom avec une boucle for. Le juge lit ce que le
        programme AFFICHE. « nb » est la seconde source du compte (la page a
        PFN_NB). */
     pythonForNom: { exercice: 'python-for-nom', nb: 3, numero: '6.6.3' },
+    /* {python-for-couples} (6.6.13, dans le sous-thème « Boucle for in
+       range », derrière {python-tables-multiplication} ; demande de Turquet, octobre
+       2026) : l'exercice 12 du carnet, BONUS — afficher tous les couples
+       d'entiers (a ; b) avec a et b entre 0 et 2. Le juge lit ce que le
+       programme AFFICHE. « nb » est la seconde source du compte (la page a
+       PFC_NB). */
+    pythonForCouples: { exercice: 'python-for-couples', nb: 3, numero: '6.6.13' },
+    /* {python-for-images-entiers} (6.6.14, derrière {python-for-couples}, sous-thème « Boucle for in range », demande
+       de Turquet, octobre 2026) : l'exercice 9 du carnet — afficher les
+       images de x par f(x) = x² − 6x + 3 pour x allant de 0 à 10. Le juge lit
+       ce que le programme AFFICHE. « nb » est la seconde source du compte (la
+       page a PFK_NB). */
+    pythonForImagesEntiers: { exercice: 'python-for-images-entiers', nb: 3, numero: '6.6.14' },
     /* {python-input-duree} (6.5.1, sous-thème « Bonus : input », demande de
        Turquet, octobre 2026) : l'exercice 11 du carnet — demander une durée
        en minutes et l'afficher en heures et minutes (// et %). La fiche ne
@@ -1330,9 +1374,21 @@ module.exports = {
     pythonInputDureeSecondes: { exercice: 'python-input-duree-secondes', nb: 3, numero: '6.5.3' },
     /* {python-for-erreur} (6.6.4, dernier du sous-thème, sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 3 du carnet — exécuter un
-       programme faux, puis expliquer l'erreur (juge : le modèle). Une seule
-       question, la fiche : rien à tirer. */
+       programme faux, puis expliquer l'erreur (juge : le modèle). Trois
+       questions fixes, une faute chacune (deux-points, décalage, i au lieu
+       de k) : rien à tirer. */
     pythonForErreur: { exercice: 'python-for-erreur', numero: '6.6.5' },
+    /* {python-for-table} (6.6.11, dernier du sous-thème « Boucle for in range »,
+       demande de Turquet, octobre 2026) : l'exercice 8 du carnet — a) la
+       table de 3, b) la table de 7, avec une boucle for. Le juge lit ce que
+       le programme AFFICHE. Une seule question (la fiche), deux cases. */
+    pythonForTable: { exercice: 'python-for-table', numero: '6.6.11' },
+    /* {python-tables-multiplication} (6.6.12, BONUS, derrière {python-for-table}, dans le sous-thème
+       « Boucle for in range », demande de Turquet, octobre 2026) :
+       l'exercice 12 du carnet — afficher les tables de 2 à 9 avec une double
+       boucle for. Le juge lit ce que le programme AFFICHE. Une seule
+       question, la fiche : rien à tirer. */
+    pythonForTables: { exercice: 'python-tables-multiplication', numero: '6.6.12' },
     /* {python-inverser-lettres} (6.4.4, sous-thème « Bonus », derrière
        {python-chaine-len}, {python-chaine-tirets} et {python-remplacer-lettre} ;
        demande de Turquet, octobre 2026) : l'exercice 29 du carnet — inverser
@@ -1355,22 +1411,64 @@ module.exports = {
        a) compléter range, b) renommer la variable, c) le résultat change-t-il ?
        « nb » est la seconde source du compte (la page a PFV_NB). */
     pythonForRenommer: { exercice: 'python-for-renommer', nb: 3, numero: '6.6.2' },
-    /* {python-trois-des} (6.6.7, BONUS, sous-thème « Boucle for in range », demande
+    /* {python-for-multiples} (6.6.7, sous-thème « Boucle for in range », derrière
+       {python-for-depart-fin}, devant les deux bonus ; demande de Turquet,
+       octobre 2026) : l'exercice 7 du carnet sur la boucle — a) exécuter
+       for k in range ( 11 ): print (2*k), b) expliquer ce qu'il fait (juge :
+       le modèle), c) afficher les multiples de 5 de 0 à 50. « nb » est la
+       seconde source du compte (la page a PFQ_NB). */
+    pythonForMultiples: { exercice: 'python-for-multiples', nb: 3, numero: '6.6.7' },
+    /* {python-trois-des} (6.6.8 — 6.6.7 à sa création —, BONUS, sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 13 du carnet — a) les résultats
        de trois dés, b) compter les totaux de 9, c) ceux au-dessus de 12. Une
        seule question, la fiche : rien à tirer. */
-    pythonTroisDes: { exercice: 'python-trois-des', numero: '6.6.7' },
+    pythonTroisDes: { exercice: 'python-trois-des', numero: '6.6.8' },
     /* {python-for-depart-fin} (6.6.6, sous-thème « Boucle for in range »,
        demande de Turquet, octobre 2026) : l'exercice 6 du carnet —
        for k in range ( départ , fin ), a) de 5 à 15, b) de 1 à 9.
        « nb » est la seconde source du compte (la page a PFD_NB). */
     pythonForDepartFin: { exercice: 'python-for-depart-fin', nb: 3, numero: '6.6.6' },
-    /* {python-for-images-entiers} (6.6.8, derrière {python-trois-des}, sous-thème « Boucle for in range », demande
-       de Turquet, octobre 2026) : l'exercice 9 du carnet — afficher les
-       images de x par f(x) = x² − 6x + 3 pour x allant de 0 à 10. Le juge lit
+    /* {python-for-moyenne-notes} (6.6.9 — 6.6.8 à sa création —, sous-thème « Boucle for in range »,
+       derrière {python-trois-des} ; demande de Turquet, octobre 2026) :
+       l'exercice 11 du carnet — la fiche du 6.5.4, son moteur et son juge,
+       présentée comme le sous-thème Input, coups de pouce mot pour mot. */
+    pythonForMoyenneNotes: { exercice: 'python-for-moyenne-notes', nb: 3, numero: '6.6.9' },
+    /* {python-for-images} (6.6.10, derrière {python-for-moyenne-notes}, sous-thème « Boucle for in range », demande
+       de Turquet, octobre 2026, BONUS) : l'exercice 10 du carnet — afficher
+       les images de f(x) = x² − 6x + 3 pour x de 0 à 1, de dixième en
+       dixième. Le juge lit ce que le programme AFFICHE. « nb » est la seconde
+       source du compte (la page a PFI_NB). */
+    pythonForImages: { exercice: 'python-for-images', nb: 3, numero: '6.6.10' },
+    /* {python-samoussa} (6.7.2 — 6.7.1 à sa création, puis {python-if-else} est passé devant —, sous-thème « Condition if else »,
+       demande de Turquet, octobre 2026) : l'exercice 3 du carnet — le prix
+       des samoussas, 1.20 € sous 10, 0.80 € à partir de 10. Le juge lit le
+       prix AFFICHÉ sous quatre réponses. « nb » est la seconde source du
+       compte (la page a PSM_NB). */
+    pythonSamoussa: { exercice: 'python-samoussa', nb: 3, numero: '6.7.2' },
+    /* {python-if-cinema} (6.7.4, derrière {python-if-plus-grand}, sous-thème
+       « Condition if else », demande de Turquet, octobre 2026, BONUS) :
+       l'exercice 2 du carnet — le prix d'une place de cinéma, 6 € pour les
+       mineurs, 9 € pour les majeurs. Le juge exécute la copie sous quatre
+       âges, 18 compris. « nb » est la seconde source du compte (la page a
+       PCI_NB). */
+    pythonIfCinema: { exercice: 'python-if-cinema', nb: 3, numero: '6.7.4' },
+    /* {python-if-location} (6.7.5, sous-thème « Condition if else », derrière
+       {python-if-cinema} ; demande de Turquet, octobre 2026) : l'exercice
+       6 du carnet — le prix d'une location de voiture, un if et un else.
+       Le juge lit la variable prix et ce que la console affiche. « nb » est
+       la seconde source du compte (la page a PLO_NB). */
+    pythonIfLocation: { exercice: 'python-if-location', nb: 3, numero: '6.7.5' },
+    /* {python-if-else} (6.7.1, devant {python-samoussa} : la fiche « 1/
+       Définition d'une condition if age < 18 : … else … » ouvre le sous-thème)
+       — demander l'âge, afficher mineur ou majeur. Le juge EXÉCUTE la copie
+       sous quatre réponses. « nb » est la seconde source du compte (PCE_NB). */
+    pythonIfElse: { exercice: 'python-if-else', nb: 3, numero: '6.7.1' },
+    /* {python-if-plus-grand} (6.7.3, derrière {python-if-else} et {python-samoussa}, sous-thème « Condition if else », demande
+       de Turquet, octobre 2026) : l'exercice 5 du carnet — demander deux
+       nombres décimaux, afficher le plus grand avec if … else. Le juge lit
        ce que le programme AFFICHE. « nb » est la seconde source du compte (la
-       page a PFK_NB). */
-    pythonForImagesEntiers: { exercice: 'python-for-images-entiers', nb: 3, numero: '6.6.8' },
+       page a PXY_NB). */
+    pythonIfPlusGrand: { exercice: 'python-if-plus-grand', nb: 3, numero: '6.7.3' },
     /* {python-chaines} (6.1.14, demande de Turquet, octobre 2026) : les
        exercices 21 et 22 du carnet — a) exécuter un programme qui concatène
        et répète, b) compléter un programme pour qu'il affiche 10 fois le nom

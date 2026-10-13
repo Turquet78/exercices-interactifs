@@ -3208,7 +3208,7 @@ l'allonge jusqu'à six. Le dialogue de la console est celui du 6.3.2 (la case
 tablette. Pas de correction au fil de la frappe (`soutienEnDirect.sans`).
 Banc jsdom (`pythonInputCalcul`) : la place, la fiche et le tirage (300
 séances, chaque situation sort, chaque modèle passe), le juge sur quatre
-copies justes et seize fausses chacune avec son mot, le dialogue joué au
+copies justes et quinze fausses chacune avec son mot, le dialogue joué au
 clavier, les copies juste, fausse et vide, le soutien qui ne révèle rien, et
 les modèles comparés à un vrai CPython. Pas de section propre au banc
 navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
@@ -4206,7 +4206,7 @@ allonge. Une case (`pts-case`), pas de correction au fil de la frappe
 jet, et vu en OUVRANT la page : la liste de `tests/profils.js` n'est que la
 seconde source, la page a la sienne). Banc jsdom
 (`pythonTriangle`) : la place, la fiche et le tirage (300 séances), le juge
-sur six copies justes et seize fausses chacune avec son mot, l'écran et les
+sur six copies justes et quinze fausses chacune avec son mot, l'écran et les
 consignes du sous-thème Input, Tab et Entrée, la copie juste tapée, fausse et
 vide, le soutien qui ne révèle rien, et quatorze programmes déroulés comparés
 à un vrai CPython — boucles imbriquées, pas négatif et erreurs d'indentation
@@ -4340,7 +4340,7 @@ que le réglage « Questions » allonge. Une case (`pts-case`), pas de correctio
 au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables
 (`TABLES_SANS`, et sa seconde source dans `tests/profils.js`). Banc jsdom
 (`pythonProgrammeCalcul`) : la place, la fiche et le tirage (300 séances), le
-juge sur huit copies justes et seize fausses chacune avec son mot, l'écran,
+juge sur huit copies justes et quinze fausses chacune avec son mot, l'écran,
 la copie juste tapée et exécutée, fausse et vide, le soutien qui ne révèle ni
 le modèle ni le résultat, et les modèles comparés à un vrai CPython. Pas de
 section propre au banc navigateur : la visite universelle (section 9) l'ouvre
@@ -4538,7 +4538,7 @@ fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables
 (`TABLES_SANS` ET `tablesAide.sans` : oublier la seconde a fait rougir le banc
 navigateur, « sans bouton alors qu'il devrait l'avoir »). Banc jsdom
 (`pythonInputDureeSecondes`) : la place, le tirage (300 séances), le juge sur
-quatre copies justes et seize fausses chacune avec son mot, l'écran (encadré
+quatre copies justes et quinze fausses chacune avec son mot, l'écran (encadré
 avant l'énoncé, dessin, énoncé en gras dans son cadre, aucun coup de pouce),
 le dialogue joué au clavier, les copies juste, fausse et vide, le soutien qui
 ne révèle rien, et le modèle comparé à un vrai CPython. Pas de section propre
@@ -5017,6 +5017,28 @@ caractère près, une correction qui ne nomme plus `nombre`, et CPython refuse
 le programme (SyntaxError) puis, les deux-points remis, l'exécute et affiche
 `valeur= 0` à `valeur= 8`.
 
+**Puis l'exercice a posé TROIS programmes faux** (Seconde, 6.6.4 au moment de la demande) (demande de Turquet, octobre
+2026, version 450 — 439 à 449 pris sur `main` pendant les bancs, et l'exercice passé entre-temps en 6.6.5 : « faire aussi une question où l'erreur est qu'il n'y a pas
+de décalage après le "for in range :", et une autre question où l'erreur est
+que k est la variable du for et i est la variable dans la ligne du print »).
+La séance passe à trois questions, toujours dans le même ordre : la fiche
+(les deux-points), puis `for k  in range ( 9 ):` / `print ("valeur=", k )`
+collé à gauche (IndentationError), puis `for k  in range ( 9 ):` /
+`   print ("valeur=", i )` (NameError). Chaque programme ne porte QU'UNE faute :
+les deux nouveaux ont leurs deux-points, sans quoi CPython s'arrêterait à
+eux et la question redeviendrait la première. Trois programmes fixes, tous
+différents : toujours ni `distinctes()` ni `dmNbQuestions()`. Les données de
+chaque question (programme, faute, règle du juge, fausses pistes, correction)
+vivent dans `PFE_QS` ; la question ne range que l'indice `q.t`, et une pause
+d'avant, sans `q.t`, reprend la fiche. L'énoncé envoyé au modèle et le
+contexte de l'aide ne recopient plus un message de console écrit à la main :
+ils lisent ce que `pyRun` répond (`pfeConsoleTexte`), donc ce que l'élève a vu.
+Le contrôle suit : séance de 3, barème 3, chaque programme au caractère près,
+sa console vide puis son erreur, une correction qui ne parle plus des
+deux-points hors de la fiche, et CPython refuse chacun des trois pour SA faute
+(SyntaxError, IndentationError, NameError) puis, la faute corrigée, affiche
+`valeur= 0` à `valeur= 8`.
+
 ---
 
 ## {python-for-renommer} — renommer la variable d'une boucle for (6.6.5, Boucle for in range)
@@ -5237,7 +5259,868 @@ le soutien, et les trois programmes de la correction comparés à un vrai
 CPython. Pas de section propre au banc navigateur : la visite universelle
 (section 9) l'ouvre dans les deux modes.
 
-## {python-for-images-entiers} — les images de x par f, de 0 à 10 (6.6.8, Boucle for in range)
+**La moyenne de N notes, une seconde fois : le 6.6.8, « Bonus ».**
+{python-for-moyenne-notes} (Seconde, 6.6.8, version 437 puis 446 — les fusions de `main` ont apporté le 6.6.6 {python-for-depart-fin}, l'ordre du carnet ({python-for-renommer} en 6.6.2), le 6.6.7 {python-trois-des} et les versions 438 à 445 —, demande de Turquet,
+octobre 2026 : « en seconde dans le sous thème "boucle for in range", créer un
+exercice qui suit les images jointes ; respecter les consignes de
+présentation des autres exercices d'algo du sous-thème input ; mettre le
+dessin en premier ; dans la définition ne rien rajouter de plus ainsi que
+dans les coups de pouce ; ne rien écrire dans le cadre de la console ; mettre
+bonus dans le titre »). L'image est la fiche « Exercice 11 » — la même que
+celle du 6.5.4 ({python-moyenne-notes}). Le 6.5.4 reste en ligne, intact :
+l'exercice neuf est une IDENTITÉ de plus sur le MÊME moteur (kind `pmn`, le
+motif du 6.3.3/6.3.5), distinguée par `q.f=1` dans chaque question — elle part
+en base avec elles, la reprise d'une pause la retrouve sans rien déclarer. La
+note passe par `currentTestId`, le rappel par `RAPPELS_ID` (`RAP_PFM`).
+
+Ce qui change sous `q.f` : aucune consigne au-dessus de la fiche (le 6.5.4
+écrit « Le programme demande des notes… », phrase AJOUTÉE — `#pmnInstr` est
+caché) ; « Faire un programme » en gras, comme la fiche ; les coups de pouce
+MOT POUR MOT (`pfmPoucesHTML`), `range (N)` du second compris — seul
+l'`input ( "ta note",k,"?")` est récrit `"ta note "+str(k)+" ?"`, parce que
+CPython le refuse et que l'élève qui le recopie échouerait (voir le 6.5.4) ;
+et la vérification n'écrit RIEN dans la console (le 6.5.4 y rejoue
+l'exécution du juge, « (la page a répondu …) ») : seul « Exécuter » y écrit,
+et une case de dialogue encore ouverte est désactivée. La fiche n'a pas de
+dessin : il n'y en a pas en tête. Le titre commence par « Bonus ». Banc jsdom
+(`pythonForMoyenneNotes`) : la place (il ferme le 6.6 derrière
+{python-trois-des}, rien ne bouge — le contrôle du 6.6.7 passe de « il
+ferme » à « il est le septième »), l'écran et les coups de pouce au
+caractère près, le programme des coups de pouce accepté par le juge, juste,
+faux, vide, et la console laissée vide par la vérification.
+
+---
+
+## {python-for-multiples} — les multiples avec une boucle for (6.6.7, Boucle for in range)
+
+**L'exercice 7 du carnet sur la boucle.** {python-for-multiples} (Seconde,
+6.6.7, APP_VERSION 447 — 437 à 446 pris sur `main` pendant les bancs, demande de Turquet, octobre 2026 : « en seconde dans
+le sous theme "bloucle for in range", créer un exercice qui suit les images
+jointes. Il faudra respecter les consignes de présentation des autres
+exercices d'algo du sous thème "input". mettre le dessin en premier, dans la
+définition ne rien rajouter de plus ainsi que dans les coups de pouces
+éventuels. respecter les couleur et présentations des exercices du sous theme
+input. ne rien écrire dans le cadre de la console. ») : le serpent qui compte
+« 0, 5, 10, 15 », puis a) « **Exécuter** le nouveau programme ci-dessous » —
+`for k in range ( 11 ):` / `print (2*k)` —, b) « Expliquer ce que fait ce
+programme. » et sa cellule « Votre réponse ✍ : », c) « **Faire** un
+programme dans la cellule ci-dessous qui affiche **tous les multiples de 5**
+de **0** à **50** ». Il ferme le sous-thème 6.6, derrière
+{python-for-depart-fin} : rien n'est renuméroté. **Écrit d'abord en 6.6.6,
+v437** : pendant ses bancs, {python-for-depart-fin} a pris ce numéro et
+cette version sur `main` (puis la v438 est partie avec la Première). La
+fusion a repris les fichiers de `main` et y a rejoué l'exercice, en 6.6.7 ;
+puis l'ordre du carnet ({python-for-renommer} en 6.6.2) a pris la v439 : la
+version passe à 440. Le 7 du carnet vient après le 6 : il reste en 6.6.7, et
+le contrôle de {python-for-depart-fin}, qui exigeait de FERMER le 6.6, exige
+d'en être le sixième, derrière {python-for-erreur}.
+**Puis une troisième rencontre, et l'ordre du carnet a décidé encore** :
+{python-trois-des} (l'exercice 13 du carnet, BONUS) a été fusionné en 6.6.7,
+v445, pendant les bancs. Le 7 du carnet vient avant le 13 : celui-ci prend
+6.6.7, {python-trois-des} recule en 6.6.8 — les notes portent l'identifiant
+et ne bougent pas —, et la version passe à 446. Le contrôle de
+{python-trois-des} exigeait de fermer le 6.6 en SEPTIÈME : il exige de le
+fermer en huitième, derrière celui-ci ; celui-ci exige d'être le septième,
+entre {python-for-depart-fin} et {python-trois-des}.
+**Et une quatrième** : {python-for-moyenne-notes} (l'exercice 11 du carnet,
+BONUS) est entré dans le 6.6 en 6.6.8, v446, derrière {python-trois-des}.
+Celui-ci ne réordonne pas les deux bonus entre eux — ce n'était pas
+demandé — : il prend 6.6.7, et les deux bonus reculent d'un rang
+({python-trois-des} 6.6.8, {python-for-moyenne-notes} 6.6.9). Version 447. **Et le préfixe a changé** : {python-for-moyenne-notes} avait pris `pfm` (`startPFM`, `RAP_PFM`) sur `main` ; à la fusion, la page déclarait deux fois `RAP_PFM` et ne s'ouvrait plus — le banc l'a dit avant toute poussée. Celui-ci passe au préfixe `pfq`, qui n'apparaissait nulle part. Un préfixe se vérifie sur `main` au moment de la FUSION, pas seulement à la création.
+
+**La présentation est celle de {python-for-erreur} et de {python-for-renommer}** : le dessin seul dans
+l'énoncé du haut (découpé dans la capture, détouré depuis les bords, WebP de
+9 Ko en `data:`, `PFQ_IMG`), puis les trois étapes sur le MÊME écran, chacune
+dans son cadre `.pyn-etape` ouvert par SA question en gras, gardée quand la
+suivante s'ouvre. La fiche n'a ni définition ni coup de pouce : l'écran n'en
+a aucun (exception nommée de `pythonAvant.sans`), et le rappel (`RAP_PFQ`)
+ne porte que le programme de la fiche. Les deux consoles vides restent des
+cadres vides (`#pfqConsole`, `#pfqConsoleC` rejoignent `content:none`), et
+la cellule du c) n'a pas de texte d'attente. « Executer » reçoit son accent.
+
+**a) est une porte, pas une note** (le motif de {python-for-oui-non}) : « Vérifier » est
+fermé, et le b) ne s'ouvre qu'après l'exécution. **b) est jugé par le
+modèle** (action `verif`) : la règle de décision porte l'idée — le programme
+affiche les multiples de 2 (2*k, le double de k, les nombres pairs) ; les
+bornes ne sont pas exigées, mais une borne donnée doit être juste. Une
+explication vide ne part pas et ne rougit pas ; le verdict s'applique dans
+`pfqVerdictB`, que le banc joue sans réseau. **c) est jugé en exécutant**
+(`pfqDiag`, le moteur du 6.4.5) : la console doit afficher 0, 5, …, 50, un par
+ligne, et le programme répéter par une boucle for. `range ( 11 )` avec `5*k`,
+`range(0,51,5)`, une phrase autour du nombre passent. Nommés : rien
+d'affiché, 50 manquant (le piège de range), une valeur de trop, 0 oublié,
+le programme du a) recopié, des nombres à virgule, les onze print à la main.
+Une cellule vide est redemandée sans rougir. Chaque étape se vérifie seule,
+puis ouvre la suivante (« Passer au c) ») : deux cases par question.
+
+**La séance** : la fiche épinglée (range ( 11 ), 2*k ; les multiples de 5 de
+0 à 50), puis d'autres situations (`PFQ_SITUATIONS`, jamais le même
+multiplicateur au a) et au c)) tirées par `distinctes()` ; `dmNbQuestions()`
+l'allonge. Pas de correction au fil de la frappe (`soutienEnDirect.sans`),
+pas de bouton des tables. Banc jsdom (`pythonForMultiples`) : la place, la
+séance (300 séances), le juge du c) sur des copies justes et fausses, l'écran
+tenu aux consignes, ce qui part au modèle, le trajet a) → b) → c) et la note
+à deux cases, le faux dans les deux modes, la reprise, et les programmes
+comparés à un vrai CPython. Pas de section propre au banc navigateur : la
+visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-for-images} — les images de f de dixième en dixième (6.6.10, Boucle for in range, BONUS)
+
+**L'exercice 10 du carnet sur la boucle.** {python-for-images} (Seconde,
+6.6.10, APP_VERSION 448 — de 437 à 447, toutes prises sur `main` pendant ses bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+le sous-thème "boucle for in range", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre ») : la photo de
+l'élève penché sur son clavier, puis « Soit la fonction f(x) = x² − 6x + 3.
+Faire un programme qui affiche les images pour x = 0 puis 0,1 puis 0,2 … de
+dixième en dixième jusqu'à 1, de la façon suivante : L'image de 0 par f est
+… », et deux coups de pouce. Écrit en 6.6.6, il a croisé à la fusion de `main`
+{python-for-depart-fin}, mis en ligne pendant ses bancs sous le même numéro :
+l'exercice en ligne garde sa place, puis {python-trois-des}, {python-for-moyenne-notes} et
+{python-for-multiples} (inséré en 6.6.7, il a décalé les deux autres en 6.6.8
+et 6.6.9) : celui-ci ferme le sous-thème en 6.6.10, et les contrôles des
+exercices en ligne qui exigeaient de FERMER le 6.6 exigent désormais leur rang. Rien n'est renuméroté.
+
+**« Bonus » est dans le TITRE** (`TESTS[…].name` commence par « Bonus : »),
+comme {python-trois-des} et {python-for-moyenne-notes} devant lui — ceux du 6.4 et du 6.5 ne le
+disaient que dans leur description, et le sous-thème dans son nom. Le
+contrôle l'exige.
+
+**La présentation est celle de {python-for-nom}** : la photo seule dans
+`#pfiInstr` (découpée dans la capture, WebP de 9 Ko, `PFI_IMG`) ; la
+question dans un cadre `.pyn-etape`, en gras, qui enveloppe les coups de
+pouce, la cellule, « Exécuter » et la console ; la fonction en grand,
+centrée, comme sur la fiche (`.pfi-fonction`, les lettres en `<i>`) ; la
+sortie attendue en chasse fixe (`pre.pfi-sortie`, au caractère près, le
+double espace de « 1  par » compris). Aucune définition (exception
+déclarée, `pythonAvant.sans`) ; la console vide reste un cadre vide
+(`#pfiConsole` rejoint `content:none`). **Les deux coups de pouce sont
+ceux de la fiche, mot pour mot** — seul « bloucle » est corrigé —, en chasse
+fixe comme sur la capture, le code du second colorié comme le carnet
+(`for`, `in`, `range` en vert gras, `=` et `/` en violet) ; le rappel
+(`RAP_PFI`) ne dit qu'eux.
+
+**Le juge (`pfiDiag`) lit les NOMBRES affichés, jamais le texte** :
+l'interpréteur du 6.4.5 a les flottants de CPython (`0.2**2-6*0.2+3` →
+`1.8399999999999999`), si bien qu'une comparaison de texte refuserait
+`x*x`, juste. Il faut 11 lignes ; la k-ième donne k/10 (premier nombre) puis
+son image (dernier nombre), à 10⁻⁶ près, dans la phrase de la fiche
+(« L'image de # par f est # », l'apostrophe, les espaces et un « : » final
+tolérés) ; et une boucle `for` dans le programme. Nommés : `range(10)` qui
+s'arrête à 0.9, `x` non divisé par 10 (de 0 à 10), `x*2` pris pour le carré,
+une mauvaise image, l'image sans son `x`, la phrase absente, les lignes
+vides, les 11 print à la main ; et avant l'exécution, `^` ou `²` pour le
+carré, `6x` sans `*`, `range` à pas décimal, `round(…, 2)`, `def` et `while`
+— que cette page n'exécute pas : le dire vaut mieux qu'une IndentationError
+qui accuse le décalage —, `f(x)` sans fonction, un `input`.
+
+**La séance** : la fiche épinglée (x² − 6x + 3), puis d'autres fonctions
+du second degré (`PFI_F`, `[a, b, c]`) tirées par `distinctes()` ;
+`dmNbQuestions()` l'allonge. Le programme voyage dans `q.prog` et compte
+pour UNE case (`pts-case`). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Contrôle :
+`pythonForImages` (banc principal) — la place, le titre, le tirage
+(300 séances), le juge sur 5 copies justes et 19 fausses, chacune avec le
+mot qui la nomme, l'écran tenu aux consignes, les copies juste, fausse et
+vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
+CPython. La visite universelle (section 9) l'ouvre dans les deux modes.
+
+## {python-for-table} — la table de 3, puis la table de 7 (6.6.11, Boucle for in range)
+
+**L'exercice 8 du carnet.** {python-for-table} (Seconde, 6.6.11, demande de
+Turquet, octobre 2026, avec la même consigne que les autres fiches du
+sous-thème : présentation du sous-thème Input, dessin en premier, rien
+d'ajouté à la définition ni aux coups de pouce, rien dans la console). a)
+« Faire un programme qui affiche la table de 3 comme ci-dessous », l'exemple
+de la fiche à chasse fixe (« 3 fois 1 est égal à 3 » … « ainsi de suite » …
+« 3 fois 9 est égal à 27 »), deux coups de pouce repliés (la boucle de 1 à
+9, le print) ; b) « Faire un programme qui affiche la table de 7 », sans
+coup de pouce. Préfixe `ptm`. Il ferme le sous-thème, en 6.6.11, derrière
+{python-for-images} : rien n'est renuméroté — `main` a réordonné le 6.6 et
+ajouté cinq exercices pendant le travail (trois fusions de `main`, la version
+passée de 437 à 449) ; chaque fois, la page de `main` a été reprise TELLE
+QUELLE et l'exercice y a été réinséré, plutôt que de démêler des conflits où
+deux blocs ajoutés au même endroit s'entrelaçaient. Le contrôle de
+{python-for-images}, qui exigeait de FERMER le sous-thème, exige désormais
+sa place (6.6.10, derrière {python-for-moyenne-notes}).
+
+**Deux choix demandés à Turquet, pas devinés.** La capture n'avait AUCUN
+dessin : le serpent qui tape un programme (`PHM_IMG`, du 6.5.3) est repris
+— l'image est réutilisée, pas recopiée. Et a) et b) sont sur le MÊME écran,
+comme sur la fiche : une seule question, deux cases (`pts-case`), deux
+cellules, deux « Exécuter », deux consoles. Pas de tirage, donc ni
+`distinctes()` ni `dmNbQuestions()` — la leçon du 6.6.4.
+
+**Le juge lit ce que la console AFFICHE** (`ptmDiag`, par table) : neuf
+lignes « t fois k est égal à t×k », k de 1 à 9, lues sans accents, sans
+majuscules ni espaces doublés — `print("3 fois ", k, …)`, le coup de pouce
+de la fiche, en écrit deux, et c'est juste. Puis une boucle `for` exigée.
+Nommés : rien d'affiché, la table qui commence à 0 (`range(10)`), qui
+s'arrête à 8 (`range(1,9)` — « range s'arrête AVANT »), l'autre table (la
+table de 3 recopiée au b)), un résultat faux, une ligne qui n'a pas la forme
+de la fiche, des lignes vides, les neuf print à la main, un input, et les
+erreurs de boucle du 6.4.5. Une partie juste reste BLEUE à côté d'une
+fausse ; une cellule vide reçoit le modèle en vert sans rougir ; en soutien,
+le diagnostic de chaque partie s'affiche, préfixé a) ou b), sans le modèle.
+
+**Bancs.** jsdom (`pythonForTable`, déclaré dans `tests/profils.js`) : la
+place, le juge (3 copies justes, 11 fausses chacune avec son mot), l'écran
+tenu aux consignes (dessin seul en tête, deux cadres en gras, l'exemple, deux
+coups de pouce repliés au a) et aucun au b), cellules et consoles vides,
+rappel réduit aux coups de pouce), les copies juste, fausse, vide et mixte,
+le soutien, et les modèles comparés à CPython. Pas de section propre au banc
+navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-tables-multiplication} — afficher les tables de 2 à 9 (6.6.12, Boucle for in range, BONUS)
+
+**L'exercice 12 du carnet.** {python-tables-multiplication} (Seconde, 6.6.12,
+APP_VERSION 455 — 6.6.6 à 6.6.11 et les versions 437 à 449 pris sur `main`
+pendant les bancs, par {python-for-depart-fin}, {python-for-multiples},
+{python-trois-des}, {python-for-moyenne-notes}, {python-for-images},
+{python-for-table} et la Première —, demande de Turquet, octobre 2026 : « en seconde dans le sous
+thème "boucle for in range", créer un exercice qui suit les images jointes ;
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre ») : le bandeau
+« JUST CODE IT. », puis « **Faire** un programme qui affiche toutes les tables
+de **la table de 2 jusqu'à la table de 9** », et UN coup de pouce — « On
+pourra utiliser une double boucle », `for l in range ( 2 , 10 ):`, puis,
+décalés, `for k in range ( 1 , 10 ):` et `print (...`, au caractère près.
+Il vient derrière {python-for-table} (6.6.11) : rien n'est renuméroté. Le
+contrôle de {python-for-table} exigeait de FERMER le sous-thème : il exige
+désormais de suivre {python-for-images}. Six fusions de `main` en une
+journée : à chaque fois, une session voisine avait mis en ligne le numéro et
+la version d'ici. Les dernières ont été REFAITES à partir des fichiers de
+`main` (l'écran et le moteur, copiés du même {python-for-nom} que ceux des
+voisins, s'entremêlaient ligne à ligne dans la fusion automatique) ; la
+version a sauté à 455 pour ne plus heurter celles que les sessions voisines
+prennent une à une ; et le contrôle d'ici n'exige plus de FERMER le 6.6,
+seulement de suivre {python-for-table} : le sous-thème grandit chaque jour. Pendant les
+bancs, {python-for-renommer} est passé en 6.6.2 (l'ordre du carnet) : le
+contrôle d'ici épingle ce nouvel ordre. « Bonus » est dans le NOM (`TESTS`), le
+titre que montrent le menu et le bilan — le sous-thème « Bonus » (6.4) n'a pas
+été choisi : la demande nomme le 6.6.
+
+**Le moteur est celui du 6.6.2** ({python-for-nom}) : le dessin seul dans
+`#pmtInstr` (découpé dans la capture — le fond noir est le sien, rien à
+détourer —, WebP de 10 Ko, `PMT_IMG`) ; la question dans un cadre
+`.pyn-etape`, en gras, qui enveloppe le coup de pouce replié, la cellule,
+« Exécuter » et la console ; aucune définition (exception déclarée,
+`pythonAvant.sans`) ; la cellule sans texte d'attente et la console vide
+(`#pmtConsole` rejoint la règle `content:none`). Le rappel (`RAP_PMT`) ne dit
+que le coup de pouce. « jusqu'a » est corrigé en « jusqu'à » (les coquilles
+se corrigent, rien ne s'ajoute). Pas de bouton des tables : il donnerait la
+console attendue (`TABLES_SANS`).
+
+**L'interpréteur sait déjà les for imbriqués** : `ptrDerouler` (6.4.5) déroule
+le for du dehors, et celui du dedans devient à son tour le premier for de
+tête — 8 + 72 = 80 tours, loin de `PTR_MAX_TOURS`.
+
+**Le juge (`pmtDiag`) lit ce que la console affiche**, ligne par ligne : un
+calcul (trois nombres, le produit en dernier — « 2 x 3 = 6 », « 2 * 3 = 6 »,
+« 3 x 2 = 6 » passent), un produit seul, ou la table entière sur une ligne
+(ses neuf produits) ; une ligne sans calcul (« Table de 2 ») est un titre, et
+passe. Les tables de 2 à 9, dans l'ordre, chacune de 1 à 9 — **ou de 1 à 10**,
+la table apprise à l'école : ce n'est pas une faute, c'est un arbitrage nommé.
+Nommés, en essayant chaque borne de range décalée d'un cran : la table de 1 ou
+de 3 en tête, celle de 8 ou de 10 en dernier, le multiplicateur 0, l'arrêt à
+« x 8 », les deux boucles échangées (les calculs rangés par multiplicateur) ;
+puis le résultat faux (l'addition l + k est nommée), le calcul sans résultat,
+rien d'affiché, un input, les erreurs de boucle du 6.4.5, et les 72 print à
+la main (il faut une boucle for). Sinon, la première ligne qui s'écarte est
+citée à côté de celle qu'on attendait.
+
+**La séance est la fiche, et elle seule** : une question, rien à tirer — ni
+`distinctes()` ni `dmNbQuestions()`, comme {python-for-erreur}. Le programme
+voyage dans `q.prog` et compte pour une case (`pts-case`). Pas de correction
+au fil de la frappe (`soutienEnDirect.sans`). Banc jsdom
+(`pythonForTables`, déclaré dans `tests/profils.js`) : la place et « Bonus »
+dans le nom, le juge sur sept copies justes et quinze fausses (chacune avec le
+mot qui la nomme), l'écran tenu aux consignes (dessin seul, énoncé et coup de
+pouce au caractère près, cellule et console vides), la copie juste, fausse,
+vide, le soutien qui explique sans révéler, et le modèle comparé à un vrai
+CPython. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-samoussa} — le prix des samoussas (6.7.1, Condition if else)
+
+**L'exercice 3 du carnet sur la condition.** {python-samoussa} (Seconde,
+6.7.1, APP_VERSION 457 — 449 à 456 pris sur `main` pendant les bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+le sous-thème "condition if else", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre », puis, pendant le
+travail : « ne pas écrire bonus dans le titre ») : le serpent « Donne à mouin
+un samoussa », puis « Le prix d'un samoussa est de 1.20 € si on en prend
+moins de 10 et il est de 0.80 € à partir de 10 samoussas. Faire un
+programme » et ses trois puces (l'input dans la variable entière `nombre`,
+le Si … Alors, le sinon), et trois coups de pouce. **Le sous-thème 6.7
+« Condition if else » n'existait pas** : il est créé EN DERNIER dans le
+thème, rien n’est renuméroté. Les neuf contrôles du 6.6 qui exigeaient que
+leur sous-thème soit « le dernier du thème » exigent désormais qu'il soit le
+sixième. **Pas de « Bonus »** : ni dans le titre, ni dans la description ;
+le contrôle l'exige (le contraire du 6.6.10).
+
+**La présentation est celle de {python-for-images}** : le dessin seul dans
+`#psmInstr` (découpé dans la capture, détouré depuis les bords, WebP de
+17 Ko, `PSM_IMG`) ; l'énoncé dans un cadre `.pyn-etape`, en gras, qui
+enveloppe les coups de pouce, la cellule, « Exécuter » et la console. Le
+texte est celui de la fiche — « 1.20 € » avec son point, comme elle l'écrit —,
+seule coquille corrigée : « le nombre de samoussas ». Aucune définition
+(exception déclarée, `pythonAvant.sans`) ; la console vide reste un cadre
+vide (`#psmConsole` rejoint `content:none`). **Les trois coups de pouce sont
+ceux de la fiche, mot pour mot** : les deux premiers en chasse fixe,
+coloriés comme le carnet (`int`, `input`, `if`, `else`, `print` en vert
+gras, les chaînes en rouge, `=`, `<` et les points de suspension en violet),
+le troisième en phrases, ses formules en gras. Le rappel (`RAP_PSM`) ne dit
+qu'eux.
+
+**L'exécution est celle de `pyRun`**, qui sait `if / elif / else` depuis le
+6.4 ; la console pose la question du programme et l'élève y répond (le
+dialogue du 6.3.9). Tab décale de quatre espaces, Entrée après « : » décale
+la ligne suivante (`psmTouche`, le geste de `pfnTouche`, mais qui enregistre
+dans SA question).
+
+**Le juge (`psmDiag`) lit le prix AFFICHÉ** sous quatre réponses que l'élève
+ne connaît pas (`psmEx` : sous le seuil, le seuil lui-même, au-dessus, juste
+sous le seuil), à 1e-6 près — le prix seul ou avec une phrase, `1.2` ou
+`1.20`, `elif` au lieu de `else`, tout passe. La fiche NOMME ses variables :
+la réponse va dans `nombre`, entière (`int`), le prix dans `prix`. Nommés :
+`float` au lieu de `int`, l'input sans `int` (le texte qu'on ne compare pas),
+`1,20`, `=` dans le test, `If` en majuscule, pas de `if`, un cas qui
+n'affiche rien (un print oublié dans une branche), le seuil compté du mauvais
+côté (`<= 10` : 10 samoussas coûtent déjà 0.80 €), les prix échangés,
+toujours le même prix, le prix d'UN samoussa, `"prix"` entre guillemets, le
+prix non rangé dans `prix`, deux input, `round`, `nombre` renommé, les
+deux-points et le retrait.
+
+**La séance** : la fiche épinglée (1.20 €, 0.80 €, 10), puis d'autres prix et
+d'autres seuils (`PSM_PRIX`, `[prix sous le seuil, prix à partir du seuil,
+seuil]`, seuil ≥ 5 pour qu'on puisse juger en dessous) tirés par
+`distinctes()` ; `dmNbQuestions()` l'allonge. Énoncé et coups de pouce
+suivent les prix de la question ; le rappel garde ceux de la fiche. Le
+programme voyage dans `q.prog` et compte pour UNE case (`pts-case`). Pas de
+correction au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des
+tables. Contrôle : `pythonSamoussa` (banc principal) — la place et le titre
+sans « Bonus », le tirage (300 séances), le juge sur 5 copies justes et 21
+fausses, chacune avec le mot qui la nomme, l'écran tenu aux consignes, le
+dialogue de la console, les copies juste, fausse et vide, le soutien qui ne
+révèle rien, et les modèles comparés à un vrai CPython. La visite
+universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-for-couples} — BONUS : tous les couples d'entiers (a ; b) (6.6.13, Boucle for in range)
+
+**L'exercice 12 du carnet.** {python-for-couples} (Seconde, 6.6.13, APP_VERSION
+460 — 437 à 455 pris par les sessions voisines du même jour, et les 6.6.6
+à 6.6.12 par {python-for-depart-fin}, {python-for-multiples},
+{python-trois-des}, {python-for-moyenne-notes}, {python-for-images},
+{python-for-table} et {python-tables-multiplication} pendant les bancs ;
+la 460 est prise large, pour ne plus courir après —, demande de Turquet, octobre 2026 : « en seconde dans le sous-thème
+"boucle for in range", créer un exercice qui suit les images jointes ;
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre ») : « **Faire** un
+programme qui affiche tous les couples d'entiers possibles ( a ; b ) avec a et
+b entre 0 et 2 », l'exemple de la fiche ((0 ; 0), (1 ; 0), (2 ; 0), (0 ; 1),
+(1 ; 1) … jusqu'à (2 ; 2)) et un coup de pouce : « On pourra utiliser une
+double boucle » et son squelette `for l in range ( 3 ):` / `for k in range ( 3 ):`
+/ `print (...`. Il suit {python-tables-multiplication} dans le sous-thème 6.6, et son
+contrôle exige de le SUIVRE, pas de fermer le sous-thème : un exercice
+ajouté derrière lui ne le casse pas. Le titre commence par « Bonus : », comme les descriptions des
+exercices bonus du thème — et le contrôle l'exige.
+
+**La présentation est celle du 6.6.3** ({python-for-nom}) : la question en
+gras dans son cadre `.pyn-etape`, qui enveloppe l'exemple (dans la mise en
+page en chasse fixe de la fiche, `.pfc-exemple`), le coup de pouce replié
+vert clair (`pyPoucesHTML`, son squelette dans `.pvo-pouce-code`), la cellule
+sans texte d'attente, « Exécuter » et la console — vide, `#pfcConsole` rejoint
+la règle `content:none`. **LA CAPTURE N'A NI DESSIN NI DÉFINITION** (seul le
+crayon de l'en-tête de la fiche) : l'écran n'en a pas, l'énoncé du haut reste
+vide et se masque (`.mp-instr:empty`), l'exception est déclarée
+(`pythonAvant.sans`), et le rappel (`RAP_PFC`) ne redit que le coup de pouce.
+Coquilles corrigées, rien d'ajouté : « couples d'entiers possibles »,
+« (2 ; 2) ».
+
+**Le juge (`pfcDiag`) lit ce que la console AFFICHE**, sans exiger l'ordre de
+l'exemple (c'est un exemple) ni les parenthèses : une ligne par couple, deux
+entiers par ligne, chaque couple de l'intervalle une fois et une seule. Le
+programme doit contenir une boucle for — les neuf print à la main sont
+refusés en le disant ; une boucle simple (`print(i%3, i//3)`) passe, la fiche
+dit « on POURRA ». Nommés : rien d'affiché, tout sur une ligne, `"(k ; l)"`
+entre guillemets (affiché tel quel), une ligne sans couple, un couple hors de
+l'intervalle, un couple en double, des couples manquants (un est cité, avec le
+compte), un input, une variable inconnue (`print(a, b)` sous `for k`/`for l`),
+les erreurs de boucle du 6.4.5. L'interpréteur est celui du 6.4.5 :
+`ptrDerouler` déroule la boucle extérieure, puis l'intérieure au tour suivant
+— rien n'est ajouté.
+
+**La séance** : la fiche épinglée (de 0 à 2), puis d'autres bornes (`PFC_BORNES`
+: 0–3, 1–3, 1–4, 0–4, 2–5) tirées par `distinctes()` ; `dmNbQuestions()`
+l'allonge. L'exemple et le coup de pouce suivent les bornes (`range ( 1,4 )`
+quand on part de 1). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonForCouples`) : la place et le titre « Bonus », le tirage (300
+séances), le juge sur cinq copies justes et quinze fausses, l'écran tenu aux
+consignes, la copie juste, fausse et vide, le soutien qui ne révèle rien, et
+les modèles comparés à un vrai CPython. Pas de section propre au banc
+navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-if-else} — la condition if … else (6.7.1, Condition if else)
+
+**Un sous-thème neuf, et la fiche « 1/ Définition d'une condition if age <
+18 : … else … ».** {python-if-else} (Seconde, 6.7.1, APP_VERSION 461 — 449 à 460 pris sur `main` pendant les bancs —, demande
+de Turquet, octobre 2026 : « en seconde dans le sous thème "condition if
+else", créer un exercice qui suit les images jointes. Il faudra respecter
+les consignes de présentation des autres exercices d'algo du sous-thème
+"input". mettre le dessin en premier, dans la définition ne rien rajouter
+de plus ainsi que dans les coups de pouce éventuels […] ne rien écrire dans
+le cadre de la console » ; « mettre bonus dans le titre », aussitôt repris :
+« ne pas écrire bonus dans le titre »). Le sous-thème 6.7 « Condition if
+else » n'existait pas au départ de la branche ; **pendant les bancs,
+{python-samoussa} l'a créé sur `main`** (même nom, même numéro). À la
+fusion, la fiche « 1/ Définition » l'ouvre en 6.7.1, et {python-samoussa}
+passe en 6.7.2 — son contrôle de place exige désormais de suivre
+celui-ci ; rien d'autre n'est renuméroté.
+
+**La présentation est celle du 6.6.6** : le dessin de la fiche (le serpent
+boudeur, « Si tu travailles alors je suis content sinon je fais la tête »,
+découpé tel quel avec son fond crème, WebP de 16 Ko, `PCE_IMG`) dans
+`#pceFig`, EN PREMIER et à chaque question ; la définition dans `#pceAvant`
+(le cadre orange `.pii-def`), au PREMIER écran seulement, en ses deux
+colonnes comme la capture — le code colorié (if/else en vert gras, `<` en
+violet, 18 en vert, les textes en rouge), « signifie: », la traduction
+si … alors … sinon. Rien n'y est ajouté ; seule la coquille « Tu est
+mineur. » du côté Python devient « Tu es mineur. », comme sa traduction.
+Puis la question dans un cadre `.pyn-etape` EN GRAS (« Faire un programme »,
+les deux puces, « Rappel: … = int ( input (" ... ")) »), qui enveloppe les
+DEUX coups de pouce repliés (mot pour mot, à la variable et au seuil de la
+question), la cellule, « Exécuter » et la console. Cellule sans texte
+d'attente, console vide (`#pceConsole` rejoint `content:none`). La console
+pose la question du programme et l'élève y répond (le dialogue du 6.3.4).
+Le rappel (`RAP_PCE`) ne dit que la définition.
+
+**Le juge (`pceDiag`) EXÉCUTE la copie sous quatre réponses** que l'élève ne
+voit pas : seuil − 3, seuil − 1, le seuil, seuil + 5. Il exige un input rangé
+dans la variable de la question, ENTIER, avec sa question ; un `if` et un
+`else` ; et à chaque exécution UNE ligne, la bonne phrase (casse, espaces,
+guillemets et point final indifférents). Nommés : `If`/`Else` en majuscule,
+`=` dans le if, input sans int (« Python ne compare pas un texte avec
+18 »), float, aucune ou deux questions, la mauvaise variable, l'invite
+vide, les guillemets typographiques, les deux phrases affichées (print hors
+du bloc), rien affiché au-dessus du seuil (le else oublié), les phrases
+inversées, `<=` (le seuil dit « mineur »), un autre nombre dans la
+condition, une phrase fausse, et la copie juste écrite avec deux if sans
+else. À la vérification, la console montre l'exécution sur la réponse qui
+a trahi la copie (« la page a répondu « 18 » »).
+
+**La séance** : la fiche épinglée (age, 18), puis d'autres situations
+(`PCE_SITUATIONS` : note/10, taille/140, température/0, heure/12,
+points/100) tirées par `distinctes()` ; `dmNbQuestions()` l'allonge. Le
+programme voyage dans `q.prog` et compte pour UNE case. Pas de correction
+au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables.
+Contrôle : `pythonIfElse` (banc principal) — la place, le titre sans
+« Bonus », le tirage (300 séances), le juge sur 4 copies justes et 17
+fausses, l'écran (dessin en premier, définition et énoncé mot pour mot,
+coups de pouce repliés, cellule et console vides, la console qui pose la
+question), les copies juste, fausse et vide, le soutien qui ne révèle rien,
+et les modèles comparés à un vrai CPython sous les quatre réponses (un
+`input` de remplacement écrit la réponse, comme la console de la page).
+
+## {python-if-plus-grand} — le plus grand des deux nombres (6.7.3, Condition if else)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous thème
+"condition if else", créer un exercice qui suit les images jointes […]
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème "input". Mettre le dessin en premier, dans la définition ne rien
+rajouter de plus ainsi que dans les coups de pouce éventuels […] ne rien
+écrire dans le cadre de la console. » Le sous-thème n'existait pas quand
+l'exercice a été écrit, et une autre branche l'a créé en même temps avec
+{python-samoussa}, puis {python-if-else} est venu l'ouvrir : à la fusion,
+celui-ci passe **derrière eux, en 6.7.3** — rien n'est renuméroté.
+
+**La présentation est celle de {python-for-nom}** : le dessin seul dans
+`#pxyInstr` (les deux serpents, « Je suis le plus grand ! », découpé dans la
+capture, le fond crème rendu transparent depuis les bords, WebP de 19 Ko,
+`PXY_IMG`) ; la question dans un cadre `.pyn-etape`, en gras, qui enveloppe
+les deux coups de pouce, la cellule, « Exécuter » et la console. **L'énoncé
+est celui de la fiche, mot pour mot**, son « Rappel » compris (il fait partie
+de l'exercice, pas d'une définition : sa ligne garde les graisses de la
+fiche, `.pxy-rappel`). Deux coquilles corrigées, rien d'ajouté : « un nombre
+décimal » (la fiche écrit « décimale ») et la parenthèse fermante qui
+manquait au coup de pouce 1. Aucune définition (exception déclarée,
+`pythonAvant.sans`), le rappel de cours (`RAP_PXY`) ne redit que le Rappel
+de la fiche ; la console vide reste un cadre vide (`#pxyConsole` rejoint
+`content:none`).
+
+**Le juge (`pxyDiag`) « teste plusieurs fois » à la place de l'élève** :
+la copie s'exécute sous quatre paires (`PXY_EX`) — le plus grand en second,
+en premier, deux négatifs, deux égaux. Il faut deux `input` avec leur
+question, les réponses rangées EN NOMBRES dans les deux variables de
+l'énoncé, et une sortie qui porte le plus grand et jamais le plus petit (le
+texte de la phrase est libre, le nombre seul suffit). Nommés : `float`
+oublié (la variable contient un texte), `int` (3.5 refusé), la virgule
+française, une ou trois questions, l'input muet, une autre variable que
+celle de l'énoncé, les deux nombres affichés, le plus petit affiché, la
+variable entre guillemets, un print juste dans une seule branche, rien
+d'affiché, les guillemets typographiques.
+
+**La séance** : la fiche épinglée (`x` et `y`), puis d'autres paires de
+variables (`PXY_VARS`) tirées par `distinctes()` ; `dmNbQuestions()`
+l'allonge. Le programme voyage dans `q.prog` et compte pour UNE case
+(`pts-case`). Pas de correction au fil de la frappe (`soutienEnDirect.sans`),
+pas de bouton des tables. Contrôle : `pythonIfPlusGrand` (banc principal) —
+la place, le tirage (300 séances), le juge sur 5 copies justes et 14
+fausses, chacune avec le mot qui la nomme, l'écran tenu aux consignes, le
+dialogue de la console, les copies juste, fausse et vide, le soutien qui ne
+révèle rien, et les modèles comparés à un vrai CPython.
+
+---
+
+## {python-if-cinema} — le prix d'une place de cinéma (6.7.4, Condition if else, BONUS)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
+condition if else, créer un exercice qui suit les images jointes ; respecter
+les consignes de présentation des autres exercices d'algo du sous-thème
+input ; mettre le dessin en premier ; dans la définition ne rien rajouter de
+plus, ainsi que dans les coups de pouce éventuels ; respecter les couleurs et
+présentations des exercices du sous-thème input ; ne rien écrire dans le
+cadre de la console ; mettre bonus dans le titre. » C'est l'« Exercice 2 »
+du carnet : le serpent au cinéma (« L'acteur est trop beau ! »), puis « Le
+prix d'une place de cinéma est de 6 € pour les mineurs et de 9 € pour les
+majeurs. Faire un programme qui demande l'âge de l'utilisateur et qui met le
+résultat dans la variable entière age ; si l'age est plus petit que 18 alors
+il affiche "Tu dois payer 6 €. " et sinon il affiche "Tu dois payer 9€." ».
+
+**Le sous-thème 6.7 « Condition if else » n'existait pas quand cet exercice
+a été écrit : il l'a créé, en 6.7.1. Mais {python-samoussa}, {python-if-else}
+puis {python-if-plus-grand}, écrits en même temps dans d'autres branches, l'ont
+créé eux aussi, et ont été fusionnés les premiers — chaque fois juste avant la
+fusion de celui-ci.** Ce qui est en ligne ne se renumérote pas :
+{python-if-else} ouvre le 6.7, {python-samoussa} le suit en 6.7.2,
+{python-if-plus-grand} en 6.7.3, le cinéma passe en 6.7.4 (APP_VERSION 463 ;
+451, 457, 460, 461 puis 462 pris sur `main` pendant les bancs). Les exercices du 6.7 avaient été bâtis sur le même modèle
+({python-input-prix}) : git a entrelacé leurs blocs ligne à ligne, si bien
+que la fusion n'a pas été résolue conflit par conflit — les quatre fichiers
+ont été repris de `main`, et le cinéma regreffé pièce par pièce depuis la
+branche, chaque pièce vérifiée identique à sa source. Huit contrôles
+d'exercices du 6.6 exigeaient que le 6.6 soit le DERNIER sous-thème : ils
+exigent qu'il reste le SIXIÈME (la même adaptation a été faite des deux
+côtés).
+
+**La présentation est celle de {python-for-images}** : le dessin seul dans
+`#pciInstr` (découpé dans la capture, WebP de 17 Ko, `PCI_IMG`) ; l'énoncé
+de la fiche, mot pour mot (« l'age » sans accent compris, et les espaces des
+deux phrases à afficher, « 6 €. " » et « 9€." »), dans un cadre `.pyn-etape`
+en gras qui enveloppe la cellule, « Exécuter » et la console ; ses deux
+puces séparées par un trait, comme sur la fiche. **La fiche n'a ni
+définition ni coup de pouce : l'écran n'en a pas** (exception déclarée,
+`pythonAvant.sans`), et le rappel (`RAP_PCI`) ne redit que la consigne. La
+console vide reste un cadre vide (`#pciConsole` rejoint `content:none`).
+
+**Le dialogue est celui de {python-input-prix}** : « Exécuter » pose la
+question du programme dans la console, l'élève y tape l'âge et Entrée. À la
+vérification, la console montre deux des exécutions du juge : 15 ans, puis
+la frontière, 18 ans.
+
+**Le juge (`pciDiag`) exécute la copie sous quatre âges** (`PCI_AGES` : 15,
+30, 17, 18) : une question, rangée dans `age`, ENTIÈRE ; à chaque âge UNE
+phrase, « Tu dois payer N € » — lue réduite à ses lettres et chiffres, si
+bien que « 9€. », « 9 €. », « 9 euros » et `print("Tu dois payer", 9, "€.")`
+valent pareil ; et un `if` dans le programme. **18 ans est la frontière :
+à 18 ans on est majeur**, et c'est l'âge qui trahit `age <= 18`. Nommés :
+`int` oublié (Python ne compare pas un texte à 18), `float` à la place, la
+réponse hors de `age`, l'input muet, aucune ou deux questions, `age <= 18`,
+les prix échangés, le même prix à tout âge, les deux phrases à la fois (le
+`else` oublié ou le print sorti du bloc), une autre phrase, rien d'affiché à
+un âge, un autre prix ; « si », « sinon », « alors » écrits en français ; et
+les erreurs d'écriture d'un `if` (les deux-points, le retrait, un `else`
+sans `if`) dans les mots de l'interpréteur.
+
+**La séance** : la fiche épinglée (6 € et 9 €), puis d'autres prix
+(`PCI_PRIX`, `[mineurs, majeurs]`) tirés par `distinctes()` ;
+`dmNbQuestions()` l'allonge. Le programme voyage dans `q.prog` et compte
+pour UNE case (`pts-case`). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Contrôle :
+`pythonIfCinema` (banc principal) — la place, le titre, le tirage
+(300 séances), le juge sur 8 copies justes et 20 fausses, chacune avec le
+mot qui la nomme, l'écran tenu aux consignes, le dialogue de la console, les
+copies juste, fausse et vide, le soutien qui ne révèle rien, et les modèles
+comparés à un vrai CPython. La visite universelle (section 9) l'ouvre dans
+les deux modes.
+
+## {python-if-location} — je loue une voiture (6.7.5, Condition if else)
+
+**L'exercice 6 du carnet sur la condition.** {python-if-location} (Seconde,
+6.7.5, APP_VERSION 464 — 449 à 463 prises sur `main` pendant ses bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+le sous-thème "condition if else", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ») : le serpent qui tend la clé (« Je loue une
+voiture »), le tarif — 100 € la journée, 0,40 €/km pour les 50 premiers
+kilomètres, 0,70 €/km au-delà —, puis « Écrire un programme en python qui »
+demande le nombre entier de kilomètres dans la variable `kilometre`, calcule
+le prix dans la variable `prix` par un if puis un else, et l'affiche ; quatre
+coups de pouce. Le sous-thème 6.7 « Condition if else » a été créé sur `main` pendant ses
+bancs, et quatre exercices y sont entrés ({python-if-else}, {python-samoussa},
+{python-if-plus-grand}, {python-if-cinema}) : celui-ci le ferme en 6.7.5 —
+rien n'est renuméroté.
+
+**La présentation est celle du 6.3.9 et du 6.6.10** : le dessin seul dans
+`#ploInstr` (découpé dans la capture, 376 × 376, WebP de 17 Ko, `PLO_IMG`) ;
+la question dans un cadre `.pyn-etape`, en gras : le tarif à puces, le trait
+qui le sépare du programme sur la fiche (`.plo-sep`), puis les trois puces ;
+les quatre coups de pouce repliés, la cellule, « Exécuter » et la console.
+Aucune définition (exception déclarée, `pythonAvant.sans`) ; la console vide
+reste un cadre vide (`#ploConsole` rejoint `content:none`). Dans la cellule,
+Tab et Entrée après « : » décalent (`pfnTouche`).
+
+**Les quatre coups de pouce sont ceux de la fiche** — le code du premier et
+du second en chasse fixe, colorié comme le carnet (`if`, `else`, `int`,
+`input` en vert gras, `<` et `= ....` en violet, les textes en rouge) ; le
+rappel (`RAP_PLO`) ne dit qu'eux. **Deux coquilles corrigées, et seulement
+elles** : la parenthèse fermante qui manquait au premier (`int (input ( "…" )`
+ne s'exécute pas), et le quatrième, qui écrivait `0.7 * ( 50 - kilometre )`
+— un prix qui BAISSE au-delà de 50 km : c'est `( kilometre - 50 )`, les
+« kilomètres restants » du troisième. Dans l'énoncé, « il calcul » devient
+« il calcule » ; les noms de variables restent `kilometre` et `prix`.
+
+**Le juge (`ploDiag`) exécute la copie sous trois kilométrages** (`ploKm` :
+le seuil − 13, puis + 37 et + 150) et lit la variable `prix` ET la console
+(à 10⁻⁶ près : `0.7*70` vaut `48.99999999999999`, ici comme dans CPython).
+Les noms `kilometre` et `prix` sont imposés par la fiche, il les exige ; il
+faut un `if` et un `else`. `<=` au lieu de `<` passe (au seuil les deux
+formules donnent le même prix), `float(input(…))` aussi. Nommés : la
+conversion oubliée, la virgule française, aucun input, pas de if, pas de
+else, deux questions, l'input muet, `kilometre` ou `prix` absents, le prix
+non affiché, `( 50 - kilometre )`, la même formule dans les deux branches,
+tous les kilomètres au second tarif, les premiers kilomètres oubliés, le if
+faux, le prix fixe, le else faux — en donnant le kilométrage tapé et ce que
+la copie a calculé, jamais le prix attendu.
+
+**La séance** : la fiche épinglée (100 € ; 0,40 € ; 50 km ; 0,70 €), puis
+d'autres tarifs (`PLO_TARIFS`) tirés par `distinctes()` ; `dmNbQuestions()`
+l'allonge. L'énoncé et les coups de pouce suivent le tarif de la question.
+Le programme voyage dans `q.prog` et compte pour UNE case (`pts-case`). Pas
+de correction au fil de la frappe (`soutienEnDirect.sans`), pas de bouton
+des tables. Contrôle : `pythonIfLocation` (banc principal) — la place, le
+tirage (300 séances), le juge sur 4 copies justes et 19 fausses, chacune avec
+le mot qui la nomme, l'écran tenu aux consignes, le dialogue de la console,
+les copies juste, fausse et vide, le soutien qui ne révèle rien, et les
+modèles comparés à un vrai CPython. La visite universelle (section 9)
+l'ouvre dans les deux modes.
+
+### {python-if-frais-port} — 6.7.6, les frais de port (sous-thème « Condition if else », v465)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème
+"condition if else", créer un exercice qui suit les images jointes ;
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème "input" ; mettre le dessin en premier ; dans la définition ne
+rien rajouter de plus, ainsi que dans les coups de pouce éventuels ;
+respecter les couleurs et présentations des exercices du sous-thème input ;
+ne rien écrire dans le cadre de la console ». Créé le même jour que
+{python-if-else} (6.7.1), {python-samoussa} (6.7.2) et
+{python-if-plus-grand} (6.7.3), {python-if-cinema} (6.7.4), puis {python-if-location}
+(6.7.5) : il les suit, en 6.7.6 — rien n'est renuméroté.
+
+**La fiche** (« Exercice 4 ») : si la commande est inférieure à 100 €, 10 €
+de frais de port, sinon ils sont offerts ; demander le montant dans
+`montant`, puis un `if` / `else`. **La présentation est celle du 6.3.8** :
+le dessin EN PREMIER (le serpent au colis, découpé dans la capture, détouré,
+WebP de 14 Ko, `PCF_IMG`), puis l'énoncé du carnet EN GRAS dans son cadre
+`.pyn-etape` — la règle des frais, les trois puces, la note « (Le montant de
+la commande est un nombre décimal) » en chasse fixe et le « Rappel » de
+`float(input(…))`, qui est DANS l'énoncé de la fiche —, trois coups de pouce
+repliés vert clair (`pyPoucesHTML`, le code du second en bloc,
+`.pvo-pouce-code`), la cellule, « Exécuter » et la console vide
+(`#pcfConsole` rejoint `content:none`). Pas de définition (exception
+déclarée, `pythonAvant.sans`) ; le rappel (`RAP_PCF`) ne dit que les coups
+de pouce. Coquilles corrigées, rien d'ajouté : « alors il calcule », « un
+nombre décimal », la parenthèse fermante du coup de pouce 1.
+
+**Le juge (`pcfDiag`) lit ce que le programme FAIT** : quatre exécutions,
+deux montants sous le seuil, deux au-dessus — jamais le seuil lui-même,
+« inférieure à » s'y lit des deux façons —, multiples de 1/4 (la page et
+CPython écrivent le même nombre). Il faut UN input rangé dans `montant`,
+avec sa question, et une ligne qui porte des mots et le montant à payer ;
+au-dessus du seuil, jamais montant + frais. Deux `if` au lieu d'un `else`,
+le calcul dans le print, une seule ligne `print` après le `if` : acceptés.
+Nommés : int au lieu de float, float oublié (le texte qu'on ne compare pas),
+la virgule, deux questions, l'input muet, une autre variable, le else
+oublié, le print oublié sous le if, les frais jamais ajoutés, toujours
+ajoutés, la condition à l'envers, le montant sans phrase, le nombre écrit à
+la main, le nom entre guillemets, un mauvais calcul.
+
+**La séance** : la fiche épinglée (100 € / 10 €), puis d'autres seuils et
+frais (`PCF_SITUATIONS`) tirés par `distinctes()` ; `dmNbQuestions()`
+l'allonge. Une case (`pts-case`), pas de correction au fil de la frappe,
+pas de bouton des tables. Contrôle : `pythonIfFraisPort` (banc principal) —
+la place, le tirage (300 séances), le juge sur 4 copies justes et 18
+fausses, l'écran tenu aux consignes (dessin d'abord, console vide), les
+copies juste, fausse et vide, le soutien, et les modèles comparés à un vrai
+CPython.
+
+## Jouons à pile ou face — {python-pile-face} (6.7.7, Condition if else)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le sous theme
+"condition if else", créer un exercice qui suit les images jointes […]
+respecter les consignes de présentation des autres exercices d'algo du sous
+thème "input". mettre le dessin en premier, dans la définition ne rien
+rajouter de plus ainsi que dans les coups de pouces eventuels […] ne rien
+écrire dans le cadre de la console. » La fiche est l'« Exercice 7 » du
+carnet, envoyée en trois fois (a), puis b) à e), puis f)). Créé en même temps
+que {python-if-else}, {python-samoussa}, {python-if-plus-grand},
+{python-if-cinema}, {python-if-location} et {python-if-frais-port}, qui ont
+ouvert le sous-thème 6.7 sur `main` pendant les bancs : il le ferme, en 6.7.7
+(APP_VERSION 466 — 449 à 465 pris sur `main`), rien n'est renuméroté. Les contrôles du 6.6 qui
+exigeaient « le dernier sous-thème » avaient été corrigés des deux côtés :
+c'est la version de `main` qui reste.
+
+**Six questions, une par écran, qui montent un jeu** : a) le choix
+(`choix = int(input(…))`, `if choix == 1 : … else : …`), b) la pièce
+(`import random`, `piece = random.randint(1,2)`), c) le verdict
+(`if choix == piece`), d) cinq parties (`for k in range(5)`), e) le score
+(`raison`), f) le message selon le score. La fiche dit « il faudra
+copier-coller » : la cellule de la question d'après s'ouvre sur le programme
+d'avant (`q.fin` : celui de l'élève s'il était juste, la correction sinon) —
+le c) sur le a) PUIS le b). Le geste de {python-input-evolution}. Le
+réglage « Questions » d'un devoir raccourcit la séance (au moins le a)) et ne
+l'allonge jamais : la fiche n'a pas de septième question.
+
+**L'écran** : le dessin de la question d'abord (« Jouons à pile ou face ! »
+au a), le serpent à la pièce au b), le magicien du c) au f) — la fiche n'a
+plus de dessin après le c), on garde celui du jeu qu'on complète), puis la
+définition MOT POUR MOT dans le cadre orange, en trois colonnes comme le
+carnet (le code, « signifie: », la traduction), puis l'énoncé en gras dans
+son cadre `.pyn-etape` avec les coups de pouce de la fiche, repliés, leur
+code coloré comme le carnet (`pofColorie` : `if`, `else`, `for`, `in`,
+`import` en vert gras ; `=`, `==`, `+`, `<=` et les `...` à compléter en
+violet). Le f) n'a pas de coup de pouce : il n'en a pas. La console vide
+reste un cadre vide (`#pofConsole` rejoint `content:none`). Coquilles
+corrigées, rien d'ajouté : `deux "="` (la capture montrait `""=""`),
+« répéter », « où », « deviné », et `if` dans le coup de pouce du e) (la fiche
+écrit `If`, que Python refuse).
+
+**L'interpréteur a appris le hasard** : `import random`,
+`random.randint(a, b)` (bornes comprises, comme CPython) et
+`from random import randint`. Le point n'est accepté QUE derrière le nom
+`random` : `chaine.upper()` reste refusé en le nommant, aucun autre exercice
+ne change. `pyRun(src, entrees, hasard)` : la liste `hasard` IMPOSE les
+tirages, dans l'ordre (c'est ainsi que le juge sait ce que la pièce a
+donné), et chaque tirage sort dans `r.alea` — ou dans `e.alea` quand
+l'exécution s'arrête. C'est ce second canal qui tient le **piège de la
+console** : « Exécuter » REJOUE le programme depuis le début à chaque réponse
+tapée ; sans précaution, la pièce aurait été relancée à chaque rejeu, et
+l'écran aurait dit « la pièce donne Face » puis « Perdu » sur un choix Face.
+Les tirages déjà faits sont rejoués (`_pofAlea`), les suivants tirés au vrai
+hasard — « tester plusieurs fois » garde son sens.
+
+**Le juge (`pofDiag`) exécute et lit ce que le programme AFFICHE**, sous
+des réponses et des pièces choisies pour que chaque branche se montre ; il
+lit le mot qui décide (face, pile, bravo, perdu, incapable, pas mal,
+impressionnant, medium), pas la phrase à la lettre. Nommés : `int` oublié
+(« 1 » n'est pas 1, la condition est toujours fausse), un seul « = » dans la
+condition, le `else` oublié, les messages échangés, la consigne oubliée, la
+variable mal nommée, un `input` au b), `import random` oublié, les mauvaises
+bornes de `randint`, le a) ou le b) perdus au c), l'absence de `for`, le
+tirage ou l'`input` restés hors de la boucle, `raison` jamais augmentée ou
+remise à 0 à chaque tour, le total affiché à chaque tour, un message du f)
+faux, en trop, ou avant le total.
+
+Contrôle : `pythonPileFace` (banc principal) — la place au menu, la séance,
+l'interpréteur (les deux tirages sortent, les tirages imposés, `random` sans
+import, le point refusé ailleurs), le juge sur les six modèles, des copies
+justes écrites autrement et 25 copies fausses chacune avec le mot qui la
+nomme, l'écran (dessin d'abord, définition mot pour mot, coups de pouce),
+la console qui garde la pièce, la cellule du c) ouverte sur le a) et le b),
+les copies juste, fausse et vide, le soutien qui ne révèle rien, et les
+modèles comparés à un vrai CPython (`input` et `random.randint` remplacés
+par les réponses et les tirages imposés).
+
+## {python-if-plus-grand-trois} — le plus grand de trois nombres (6.7.8, Condition if else, BONUS)
+
+**L'exercice 8 du carnet, rubrique « 3/ Bonus ».** {python-if-plus-grand-trois}
+(Seconde, 6.7.8, demande de Turquet, octobre 2026 : « en seconde dans le
+sous-thème "condition if else", créer un exercice qui suit les images
+jointes […] respecter les consignes de présentation des autres exercices
+d'algo du sous-thème "input" […] mettre le dessin en premier, dans la
+définition ne rien rajouter de plus ainsi que dans les coups de pouce […] ne
+rien écrire dans le cadre de la console. Mettre bonus dans le titre »). La
+photo (un homme penché sur son clavier), puis « Faire un programme qui
+demande 3 nombres décimaux et qui affiche le plus grand des trois nombres. »
+Préfixe `pgt`. Le sous-thème « Condition if else » n'existait pas quand
+le travail a commencé, et la branche l'avait créé ; pendant les bancs,
+`main` l'a créé de son côté et l'a rempli de sept exercices, venus de
+sessions parallèles ({python-if-else}, {python-samoussa},
+{python-if-plus-grand} — le plus grand de DEUX nombres, PR 607 —,
+{python-if-cinema}, {python-if-location}, {python-if-frais-port},
+{python-pile-face}). {python-if-plus-grand} a pris l'identifiant que la
+branche avait choisi : l'exercice de la branche est devenu
+{python-if-plus-grand-trois}, en 6.7.8. À chaque fusion (sept, la version
+passée de 450 à 467), la page de `main` a été reprise TELLE QUELLE et
+l'exercice y a été réinséré par un script d'insertion rejoué, plutôt que de
+démêler les conflits. **Deux sessions qui ajoutent au même sous-thème se
+marchent dessus jusque dans l'identifiant** : `npm run test:version` ne voit
+que le numéro de version, et c'est un `git fetch` avant de pousser qui l'a
+montré. Le contrôle de place dit « suit {python-pile-face} », pas « ferme le
+sous-thème » : un exercice ajouté derrière lui ne le fera pas rougir.
+
+**La présentation du sous-thème Input.** La photo, découpée dans la capture
+(WebP de 9 Ko, `PGT_IMG`, URL data:), est l'énoncé du haut, et lui seul ;
+l'énoncé de la fiche, en gras, ouvre le cadre `.pyn-etape` qui enveloppe la
+cellule, « Exécuter » et la console ; `#pgtConsole` rejoint la règle
+`content:none` ; la cellule n'a pas de texte d'attente. La fiche n'a NI
+définition NI coup de pouce : aucun encadré, aucun `details.pyd-pouce`
+(exception déclarée, `pythonAvant.sans`), et `RAP_PGT` ne redit que la
+consigne. Le titre dit « Bonus : le plus grand de trois nombres », comme les
+autres bonus de la Seconde (le mot s'écrit, le barème ne change pas).
+
+**Le juge exécute la copie** (`pgtDiag`) sous six triplets que l'élève ne
+connaît pas (`PGT_EX`) : le plus grand en tête, au milieu, à la fin, trois
+négatifs, deux égaux en tête, deux égaux aux bords. Il faut trois input avec
+leur question, et que, des nombres TAPÉS, la sortie n'affiche que le plus
+grand — « le plus grand des 3 nombres est 9.25 » est juste, aucun nombre tapé
+n'est entier. Nommés : `int` (« int(…) ne sait pas lire 4.5 »), `float`
+oublié (des TEXTES comparés : "9.5" passe devant "12.5" — le triplet 12.5 /
+7.75 / 9.5 le trahit), `max(…)` (que l'interpréteur ne prend d'ailleurs pas
+en charge), trop ou trop peu de questions, l'input muet, rien d'affiché,
+plusieurs nombres affichés, l'égalité oubliée (`>` au lieu de `>=`, nommée
+quand SEULS les triplets à égalité échouent), une condition fausse (le
+classique `if a > b … elif b > c …`, que 5.5 / 1.25 / 9.75 trahit). Une
+seule question, la fiche : pas de tirage, ni `distinctes()` ni
+`dmNbQuestions()`.
+
+**Bancs.** jsdom (`pythonIfPlusGrandTrois`, déclaré dans `tests/profils.js`) : la
+place et le mot « Bonus », la couverture des triplets (chaque place du plus
+grand, une égalité, la comparaison de textes trahie), le juge (5 copies
+justes, 13 fausses chacune avec son mot), l'écran tenu aux consignes, le
+dialogue de la console sur trois réponses, les copies juste, fausse et vide,
+le soutien qui ne révèle rien, et le modèle comparé à CPython sur neuf
+triplets. La visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+## {python-for-images-entiers} — les images de x par f, de 0 à 10 (6.6.14, Boucle for in range)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème "boucle
 for in range", créer un exercice qui suit les images jointes. Il faudra
@@ -5251,17 +6134,25 @@ qui nargue (« Y a plus dur ? »), « Soit la fonction f(x) = x² − 6x + 3. »
 de la façon suivante : », l'exemple en chasse fixe (« L'image de 0 par f est
 3 », « L'image de 1 par f est -2 », « ... ainsi de suite », « L'image de 10
 par f est 43 »), la remarque (« Vous pouvez essayer pour x allant de 0 à
-50. »), puis TROIS coups de pouce repliés et la cellule. Écrit d'abord en
-6.6.6, derrière {python-for-renommer}, avec la version 437 : pendant les bancs,
-une autre session a fusionné {python-for-depart-fin} (l'exercice 6 du carnet)
-au même numéro et à la même version. La fusion de `main` a gardé l'ordre
-d'arrivée — {python-for-depart-fin} en 6.6.6, celui-ci en 6.6.7. Puis une
-seconde fusion a apporté l'ordre du carnet ({python-for-renommer} en 6.6.2) :
-l'exercice 9 reste le dernier, en 6.6.7. Puis une troisième : {python-trois-des}
-(l'exercice 13, BONUS) a pris le 6.6.7 et la version 445 — l'ordre d'arrivée
-a de nouveau tranché : celui-ci passe en 6.6.8, version 446, et le contrôle du
-6.6.7 exige son rang au lieu de fermer le sous-thème. Les contrôles du 6.6.5 et du 6.6.6, qui
-exigeaient chacun de fermer le sous-thème, exigent désormais leur rang.
+50. »), puis TROIS coups de pouce repliés et la cellule. Il suit
+{python-for-couples} en 6.6.14 : ajouté en dernier, rien n'est renuméroté.
+Version 468.
+
+**Quatre fusions de `main` pendant les bancs, et un identifiant déjà pris.**
+Écrit d'abord en 6.6.6 (version 437), sous l'identifiant {python-for-images}
+et la sorte `pfi`. Pendant les bancs, le sous-thème a reçu huit autres
+exercices et l'ordre du carnet. Surtout, {python-for-images} et `pfi` ont été
+pris sur `main` par l'exercice 10 du carnet (les images de dixième en
+dixième, BONUS, 6.6.10). Fusionner tel quel aurait donné deux exercices sous
+la même clé TESTS : le second écrasait le premier sans erreur, et les notes
+de l'un passaient à l'autre. Celui-ci est donc devenu
+{python-for-images-entiers}, de préfixe `pfk`. Les fichiers ont été repris de
+`main`, et l'exercice y a été réinséré point de branchement par point de
+branchement, plutôt que fusionné ligne à ligne : la fusion automatique
+alignait son bloc sur les exercices du 6.7. Une première résolution avait
+aussi soudé `'pfi'` à {python-for-depart-fin} dans la table des sortes de
+`tests/profils.js`. Le contrôle des rappels l'a attrapé (« Unexpected
+string ») sur l'intégration continue, puis en local.
 
 **La présentation est celle du 6.6.2** ({python-for-nom}) : le dessin seul
 dans `#pfkInstr` (découpé dans la capture, détouré depuis les bords, WebP de
