@@ -184,7 +184,17 @@ ne ferme plus l'enregistrement automatique — invisible sur cinq exercices,
 rouge sur la Terminale entière : seize exercices insèrent un second brouillon
 après le retour au menu, et quatorze restent sur la question corrigée au lieu
 de passer à la suite. Une course ne se montre pas sur un échantillon ; elle se
-montre sur tout le menu. Et la clé du profil s'appelle `pauseReprise` : la clé
+montre sur tout le menu.
+**Et le premier passage dans l'action a rougi sur un verdict de hasard** : le
+{signe-second-degre} refuse de vérifier tant que le nombre de racines n'est
+pas juste, et le bouchon y tombait juste ou non selon la séance tirée —
+atteint ici, « hors d'atteinte » là-bas. Une déclaration n'y aurait rien fait :
+elle serait devenue « morte » au tirage suivant. Le banc fixe donc le tirage,
+exercice par exercice (`Math.random` remplacé par un générateur à graine tirée
+de l'identifiant, le temps de l'exercice) : la même séance ici et dans
+l'action, vérifiée par deux passages identiques. Le double de Supabase numérote
+ses lignes avec un compteur, il n'en souffre pas. Le tirage fixé a fait passer
+{equation-tangente} hors d'atteinte — désormais déclaré, et pour de bon. Et la clé du profil s'appelle `pauseReprise` : la clé
 `pause` servait déjà les bancs principal et navigateur, et l'écrire une seconde
 fois l'aurait écrasée en silence (journal 17) — la lecture du profil l'a montré
 avant `npm test`.

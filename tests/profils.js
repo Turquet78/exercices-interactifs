@@ -2649,6 +2649,7 @@ module.exports = {
       'signe-produit': 'la vérification est refusée tant que le tableau de signes n\'est pas complet et cohérent : le banc ne sait pas le construire',
       'signe-quotient-carre': 'la vérification est refusée tant que le tableau de signes n\'est pas complet et cohérent : le banc ne sait pas le construire',
       'tvi-redaction': 'la rédaction est jugée par l\'IA (action « redaction »), que le double de Supabase du banc ne sait pas simuler',
+      'equation-tangente': 'la page refuse une copie incomplète ou faite de zéros : le banc ne sait pas la remplir',
       'tangente-exp': 'la page refuse une copie incomplète ou faite de zéros : le banc ne sait pas la remplir',
       'etude-fonction': 'la page refuse une copie incomplète ou faite de zéros : le banc ne sait pas la remplir',
       'suite-auxiliaire-2': 'la page refuse une copie incomplète ou faite de zéros : le banc ne sait pas la remplir',
