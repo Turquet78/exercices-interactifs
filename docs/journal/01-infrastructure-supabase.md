@@ -913,6 +913,54 @@ erreur, et ne rend rien → erreur : ERROR: niveau inconnu : premieres ». Un
 piège de banc, en passant : le PostgreSQL jetable tourne sous `postgres`, qui
 ne lit pas le scratchpad (0700) — les sabotages de la base se jouent depuis un
 miroir dans `/tmp`, effacé à chaque passage.
+**Puis la relecture du premier jet a trouvé deux trous sur les pastilles, et
+des contrôles qui ne tenaient qu'un bord.** Deux « Léa » font deux pastilles
+pareilles : la page n'essayait que la clé de la pastille CLIQUÉE, et l'élève
+qui touchait celle de sa voisine lisait « Code incorrect » avec son propre
+code juste. `connexionEleve()` essaie désormais la clé de la pastille cliquée,
+puis celles du même prénom normalisé, déjà lues avec la liste (`listeEleves`,
+gardée par `renderLoginNames()`, vidée à chaque redessin) — aucune requête de
+plus, et c'est le code qui départage, comme dans le repli. Une ligne SANS CLÉ
+(un élève ajouté à la main dans la table, jamais relié) a sa pastille, mais
+aucune adresse : la page tentait « null@… » et répondait « Code incorrect » à
+tout code ; elle dit maintenant « Ton compte n'est pas encore relié —
+préviens ton professeur » sans rien tenter (« Nouveau code » de l'onglet
+Élèves pose la clé : `admin-eleve` fait `eleve.cle || crypto.randomUUID()`).
+Le repli de `clesDuPrenom()` sur la liste et la fonction du double écartent
+les clés vides, comme la vraie fonction (`and e.cle is not null`). Côté
+bancs : `ecranConnexion()` jugeait la visibilité à l'attribut `hidden` — un
+bloc caché par la feuille de styles passait pour visible ; il la juge au
+RENDU (`getClientRects()` et `visibility`) ; « un code faux n’ouvre pas
+l’espace de l’élève » passait sur tout écran autre que `scr-space`, y compris
+quand aucune pastille n'avait été cliquée ; il exige `scr-login`, et dit «
+rien n’a été tenté » quand l'entrée a échoué avant le code ; le pavé du code
+à 390 et 360 px vérifie le retour de `cliquerPastille` au lieu de poser le
+focus sur une case cachée. Trois contrôles naissent en section 3 : « deux
+homonymes sur les pastilles : la pastille cliquée d'abord, puis son
+homonyme, et c'est le code qui départage » (la clé de la pastille cliquée est
+LUE, pas supposée, et le banc tape le code de l'AUTRE), « une pastille sans
+clé ne tente aucune connexion, et dit que le compte n'est pas relié », « liste
+fermée et sondage en panne : la page propose le prénom tapé, pas « Aucun
+compte » » (la branche `sonde.code !== 'PGRST202'` du sondage, exécutée). Et
+trois au banc de la base, chacun sur sa base neuve : « un droit de colonne
+retiré à anon fait échouer 010, qui le nomme », « le droit rendu, 010 passe
+et mesure ses trois tables », « sur trois tables vides, 010 passe et dit
+trois fois « table vide, effet non mesuré », sans rien prétendre mesurer » —
+183 contrôles. Éprouvés par sabotage, sur une copie de la Seconde, chacun
+rougissant SEUL sur la section 3 : les homonymes retirés de
+`connexionEleve()` — « ✗ deux homonymes sur les pastilles : … → écran atteint
+: scr-login — tentatives : refus:cle-controle@eleves.exercices-interactifs.invalid
+» ; la garde de la ligne sans clé retirée — « ✗ une pastille sans clé … →
+message : {"texte":"Code incorrect","classe":"show err"} » ; le sondage qui
+ne conclut « fermée » que sans erreur (`if(!sonde)`) — « ✗ liste fermée et
+sondage en panne : … → la page annonce « Aucun compte pour l'instant. Crée le
+tien avec « Créer mon compte ». » sur une panne du sondage ». Et les deux
+bords du banc lui-même : `#pinRow{visibility:hidden}` — invisible pour
+l'élève, visible pour l'ancien `vu` — fait rougir chaque contrôle qui tape
+un code (« → la case du code reste cachée après le clic ») ; les pastilles
+renommées (`className='puce'`) font dire au contrôle du code faux « →
+rien n’a été tenté : (aucune pastille « Contrôle » à cliquer) », là où il
+passait au vert.
 **Ce qu'aucun banc ne voit.** L'état réel du projet : la 009 y a-t-elle été
 jouée ? La sortie de la 010, « état trouvé », le dira. Le cache de schéma de
 PostgREST dans la minute qui suit la 010 : il peut tenter encore une fonction

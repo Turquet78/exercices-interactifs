@@ -654,7 +654,8 @@ async function parcours(page, N){
     };
     const entrerPrenom = async (prenom, code) => {
       const e = await ecranConnexion();
-      if(!e.prenom || !e.code) return '(aucun champ « Ton prénom » à l\'écran : ' + (e.message || 'rien') + ')';
+      if(!e.prenom) return '(aucun champ « Ton prénom » à l\'écran : ' + (e.message || 'rien') + ')';
+      if(!e.code) return '(la case du code reste cachée à côté du champ « Ton prénom »)';
       await s.page.fill('#loginPrenom', prenom);
       await s.page.fill('#loginPin', code);
       await s.page.click('#modeCo button.btn-primary');
