@@ -1289,7 +1289,115 @@ copies glissées jusqu'à D puis au bout de la première, M — 8 sur 8, « 8 ca
 justes sur 8 » — puis une copie vide entièrement verte. Le doigt sur
 tablette, lui, ne se joue dans aucun banc.
 
-## {point-somme-vecteurs} — construire un point par une somme de vecteurs (8.12, v494)
+## {chasles-alignes} — la relation de Chasles sur une droite (8.12, v494)
+
+**La demande** (Turquet, octobre 2026, le même jour que le 8.9 et avec la même phrase, mais une AUTRE fiche) : « en seconde fais un exercice comme
+le 8.8 mais avec le pdf joint ». La fiche : « A, B, C et D sont quatre points
+alignés tels que AB = BC = CD », une droite, et six lignes « Compléter » —
+AB + CD, CB + AB, AC + DC, BD + BA, AB + DC = … = … ; AB + CD + CA = … = ….
+
+**Ce que la fiche ajoute au 8.8, et que le moteur du 8.8 refusait** : le
+VECTEUR NUL (CB + AB et AB + DC valent 0⃗ — `chsPosable` écartait toute somme
+nulle) et une somme de TROIS vecteurs. D'où un exercice à part (`cha`), qui
+partage les outils de lecture du 8.8 (`chsD`, `chsMeme`, `chsVecs`,
+`chsGrp`) et du 8.3 (`vegLit`, `vegVecHTML`, `.veg-in`), mais pas son juge.
+
+**Une seule forme de ligne** : aucune ligne de la fiche ne s'enchaîne telle
+quelle, chacune se RÉÉCRIT (un vecteur par case, autant de cases que de
+vecteurs) puis se conclut — 3 cases par ligne de deux vecteurs, 4 pour la
+ligne de trois : 19 cases par figure. Le plan (`CHA_PLAN`) est celui de la
+fiche : `n` (somme non nulle), `z` (somme nulle), `n`, `n`, `z`, `t` (trois
+vecteurs, de somme nulle ou non). La première figure EST la fiche
+(`CHA_FICHE`) ; les suivantes tirent quatre lettres (`CHS_LETTRES`) et six
+lignes dont aucune paire voisine ne s'enchaîne déjà (`chaEnchainee` — pour
+deux vecteurs, dans aucun ordre : « retourner » seul ne suffit jamais).
+`CHA_NB` = 2 figures, `dmNbQuestions` allonge la séance, `distinctes()` les
+tient différentes. On range les lettres et les lignes (`vs`), jamais les
+réponses.
+
+**Le juge** (`chaJugeLigne`) : `chaLigne` énumère TOUTES les écritures
+enchaînées de la même somme (des vecteurs égaux à ceux de la ligne, dans un
+ordre où chacun part là où s'arrête le précédent) ; la page retient celle qui
+garde le plus de cases de l'élève (à égalité, celle qui garde les premières,
+puis celle qui reprend le plus de vecteurs de la ligne — la correction de
+AB + CD est AB + BC, pas BC + CD). Une case juste ne rougit donc pas pour sa
+voisine. Le résultat est juste dès qu'il est égal à la somme (AB + CD = BD
+aussi) ; le vecteur nul s'écrit 0, O ou deux fois la même lettre (AA), et la
+correction écrit 0 sous la flèche de la case. Les messages nomment la faute :
+le vecteur recopié qui doit « partir de B, là où s'arrête AB », le vecteur
+égal à aucun de la somme, le vecteur nul (« on revient au point de départ »),
+le résultat à l'envers.
+
+**Le dessin** (`chaSvg`) : une droite, quatre points à pas égal, les lettres
+dessous comme sur la fiche, un petit trait de codage sur chaque segment. Il
+prend toute la largeur au-dessus des lignes (`.cha-fig`) : la droite est
+longue et basse, posée à gauche elle écrasait les lignes.
+
+**Le banc** (`tests/verifier.js`, « Chasles sur une droite ») : la place
+(8.12, pas de bouton des tables), 300 séances dont chaque correction est relue
+par un juge INDÉPENDANT écrit depuis les abscisses 0, 1, 2, 3, le plan, les
+sommes nulles où le plan les veut, la ligne de trois vecteurs tantôt nulle
+tantôt non ; puis le bouton sur la fiche : 19 cases, quatre lettres, trois
+codages, la copie juste, d'autres écritures justes en minuscules (BC + CD =
+BD, CB + BC = CC, CA + AB + BC = aa), AB + CD recopié (CD rouge, AB et AC
+bleus, badge BC, « partir de B »), CD égal à rien de AC + DC, AB + DC = AB
+(« nul »), BA pour AC + DC (« sens »), la case vide (correction BA, jamais
+rouge), la copie vide, le soutien, le barème, `qId`, le contexte du modèle.
+
+## {chasles-sans-figure} — la relation de Chasles sans figure (8.13, v495)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
+le 8.8 mais avec le pdf joint », la fiche 6 « Relation de Chasles » — sans
+figure, des points quelconques, trois parties : 1) écrire sous forme d'un
+seul vecteur… si c'est possible (AD + DF, CB + CA, DF − FG, AB − AC,
+RS + AR, EG + GT, AL − LA, − AD − DB) ; 2) écrire plus simplement
+u = AB + BC + CA, v = IJ + KI + JK, w = AB + AC + BC, x = DE + FG + EF + DG ;
+3) la même chose en transformant d'abord les soustractions (AB − AC,
+RT − ST + RS, AB + MA − MB + BA, MN − MP − PQ + MQ).
+
+**Prévu 8.9, publié 8.13** : pendant sa rédaction, d'autres sessions ont mis en ligne, le même jour, quatre exercices de vecteurs tirés d'AUTRES fiches — {chasles-trois-vecteurs} (8.9, le parallélogramme EFGH), {chasles-simplifier} (8.10, le rectangle ACKI), {somme-vecteurs-repere} (8.11) et {chasles-alignes} (8.12). Celle-ci, la fiche 6 sans figure, vient derrière, en 8.13. Elle s'appelait aussi « chasles-simplifier » sur sa branche : l'identifiant étant pris, elle est devenue {chasles-sans-figure}, et sa fonction de banc `chaslesSansFigure`. Aucun moteur commun avec les autres, sauf l'habillage des vecteurs du 8.3 (`.veg-v`, `.veg-in`).
+
+**Une page par partie ; les trois premières SONT la fiche** (`CHL_FICHE`),
+les trois suivantes reprennent chaque ligne de la fiche avec d'autres lettres
+(ni O, ni I, ni W à Z), dans un autre ordre. `CHL_NB` = 6 pages,
+`dmNbQuestions` règle la séance, `distinctes()` la tient différente ; 32
+cases par séance. On range la partie et les lignes écrites (« +AB-AC »),
+jamais les réponses.
+
+**Une case par ligne, et la réponse s'écrit comme sur la copie** : AF, 2AC,
+0 (le vecteur nul), ou « impossible ». Sur la partie 1 — la seule qui dise
+« si c'est possible » — un bouton écrit le mot dans la case (et l'en retire
+au second appui) ; la case s'élargit alors et perd sa flèche. Une seule case
+peinte par ligne, et c'est voulu : `ptsEcran()` compte les champs peints, une
+case du coefficient à côté de celle du vecteur aurait compté chaque ligne
+deux fois.
+
+**Le juge lit le calcul, pas des lettres attendues.** Sans figure, deux
+vecteurs ne sont égaux que s'ils ont les mêmes lettres ; une somme se lit
+donc comme une combinaison de points (AB vaut B − A). La réponse est juste
+dès que sa combinaison est celle de la ligne : 2AL et −2LA ne font qu'un, AA
+vaut 0. La ligne est impossible quand la combinaison porte trois points ou
+plus (CB + CA = A + B − 2C). Les messages nomment la faute — « impossible »
+sur une somme possible, un vecteur pour une somme impossible, le mauvais
+sens, le mauvais nombre (AL au lieu de 2AL), la soustraction oubliée — et
+déroulent le calcul : AB + MA − MB + BA = AB + MA + BM + BA = AB + BM + MA +
+BA = 0 + BA = BA (`chlEtapes` : les opposés, la somme remise dans l'ordre
+qui enchaîne, chaque chaîne réduite).
+
+**Le juge du banc** (`tests/verifier.js`, « Chasles sans figure ») : la place
+(8.13, pas de bouton des tables) ; les réponses de la fiche ; 300 séances dont
+chaque correction est relue par un juge INDÉPENDANT — des coordonnées
+quelconques pour chaque lettre, la somme calculée en déplacements, et
+« impossible » vérifié contre tous les kXY possibles ; chaque ligne tirée est
+une ligne de la fiche, lettres changées ; puis par le bouton : les trois
+copies justes, d'autres écritures justes (minuscules, −2LA, « imp », AA,
+2×DG), « impossible » sur AD + DF, AB pour CB + CA (badge « impossible »),
+BC pour AB − AC (« sens »), AL pour AL − LA (« 2AL »), 2RT pour RT − ST + RS
+(« opposé TS »), « A » illisible, la case vide (correction, jamais rouge),
+la copie vide des trois parties, le bouton « impossible » dans les deux sens,
+le soutien au fil de la saisie, le barème, `qId`, le contexte du modèle.
+
+## {point-somme-vecteurs} — construire un point par une somme de vecteurs (8.14, v496)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
 l'exercice 1 du pdf, en déplaçant les vecteurs comme dans le 8.7 ». La
@@ -1349,7 +1457,7 @@ avait commencé s'il tient ; B′ attendu en vert ; une consigne vide devient
 le quadrillage), rien ne se révèle.
 
 **Le juge** (`tests/verifier.js`, « point par une somme de vecteurs ») : la
-place (8.12, le 8.11 immobile), 200 séances (six questions distinctes, barème
+place (8.14, le 8.11 immobile), 200 séances (six questions distinctes, barème
 12, les trois premières celles de la fiche, les quatre égalités tirées
 ensuite, la question ne range que la figure et les gestes, B′ relu par une
 seconde écriture, tout à un carreau du bord, jamais parallèles, rien de

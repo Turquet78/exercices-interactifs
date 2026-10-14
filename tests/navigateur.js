@@ -9067,7 +9067,7 @@ async function parcours(page, N){
     }
 
     /* ===== 6 quadragies sexies. POINT PAR UNE SOMME DE VECTEURS : GLISSER ET RETOURNER ===== */
-    /* {point-somme-vecteurs} (8.12, demande de Turquet, octobre 2026 : « fais
+    /* {point-somme-vecteurs} (8.14, demande de Turquet, octobre 2026 : « fais
        un exercice comme l'exercice 1 du pdf, en déplaçant les vecteurs comme
        dans le 8.7 ») : BB′ = u⃗ − v⃗. Le bouton retourne v⃗, la souris fait
        glisser u⃗ jusqu'au point B puis −v⃗ au bout de u⃗, et B′ se pose d'un
