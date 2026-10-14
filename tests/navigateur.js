@@ -8860,6 +8860,12 @@ if(require.main === module) (async () => {
       if(!mes.fleche) dits.push('les vecteurs de l\'énoncé ne sont pas coiffés d\'une flèche');
       if(mes.dehors) dits.push(mes.dehors + ' mot(s) « début » / « fin » sortent du dessin');
       if(mes.touche !== 'none') dits.push('une prise fait défiler la page sous le doigt (touch-action : ' + mes.touche + ')');
+      /* la question en cours se lit AU-DESSUS du dessin, en a) comme en b) (v502) */
+      const auDessus = async id => await s.page.evaluate(id => {
+        const q = document.getElementById(id), svg = document.querySelector('#svcGraph .svc-svg');
+        return !!(q && svg && q.getBoundingClientRect().bottom <= svg.getBoundingClientRect().top + 1);
+      }, id);
+      if(!await auDessus('svc-ch')) dits.push('la question a) ne se lit pas au-dessus du dessin');
       const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
         const svg = document.querySelector('#svcGraph .svc-svg');
         const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
@@ -8890,6 +8896,7 @@ if(require.main === module) (async () => {
       /* question b) : le bouton fige les flèches et ouvre le tracé */
       await s.page.click('#svcValidate');
       await s.page.waitForTimeout(150);
+      if(!await auDessus('svc-sm')) dits.push('la question b) ne se lit pas au-dessus du dessin');
       /* u + v : le début tombe SUR la flèche u, et le clic doit arriver au nœud */
       await clic(e.u[0], e.u[1], 0.15);
       e = await etat();
