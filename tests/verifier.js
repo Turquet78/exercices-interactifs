@@ -22819,6 +22819,26 @@ function jugeArithmetique(w, P){
     cas('la même par le PPCM', qS, '(1)/(2)-(1)/(6)\\n= (3)/(6)-(1)/(6)\\n= (2)/(6)\\n= (1)/(3)', 'sfl', 'juste');
     const jF=cas('une égalité fausse', qS, '(1)/(2)-(1)/(6)\\n= (3)/(6)-(1)/(6)\\n= (5)/(12)\\n= (1)/(3)', 'sfl', 'faux (egalite)');
     if(jF.sait && jF.morceau!=='(5)/(12)') vus.push('le juge ne nomme pas le morceau faux : '+jF.morceau);
+    /* LE TERME FAUTIF (octobre 2026) : sur « 5/3 − 5/6 = 30/18 − 10/18 » (4.6
+       de Première), le modèle, à qui l'on ne disait que « cette égalité est
+       fausse », a accusé 30/18 — juste — au lieu de 10/18. La page désigne
+       le terme qui a changé de valeur ; s'il y en a deux, elle se tait. */
+    if(typeof libreTermeFaux!=='function') vus.push('libreTermeFaux est absente');
+    else {
+      const jT=cas('un seul terme faux', qS, '(1)/(2)-(1)/(6)\\n= (6)/(12)-(1)/(12)\\n= (5)/(12)', 'sfl', 'faux (egalite)');
+      if(!jT.terme || jT.terme.avant!=='1/6' || jT.terme.apres!=='1/12')
+        vus.push('le juge ne désigne pas le terme faux 1/12 : '+JSON.stringify(jT.terme));
+      else if(libreSecours(jT).indexOf('1/12')<0) vus.push('la phrase de secours ne nomme pas le terme faux');
+      if(jF.terme) vus.push('le juge désigne un terme alors que la ligne entière a changé : '+JSON.stringify(jF.terme));
+      const jD=cas('deux termes faux', qS, '(1)/(2)-(1)/(6)\\n= (2)/(12)-(1)/(12)\\n= (1)/(12)', 'sfl', 'faux (egalite)');
+      if(jD.terme) vus.push('le juge désigne un terme alors que deux ont changé : '+JSON.stringify(jD.terme));
+      const jP = (typeof spfrJuge==='function') ? spfrJuge : (typeof pfJuge==='function' ? pfJuge : null);
+      if(jP){
+        const j6=jP({P:5,Q:6,P1:5,Q1:6}, '(5)/(3)-(1)/(3)*(5)/(2)\\n= (5)/(3)-(5)/(6)\\n= (30)/(18)-(10)/(18)\\n= (20)/(18)\\n= (10)/(9)');
+        if(!j6.terme || j6.terme.avant!=='5/6' || j6.terme.apres!=='10/18')
+          vus.push('sur la copie de la capture du 4.6, le juge ne désigne pas 10/18 : '+JSON.stringify(j6));
+      }
+    }
     cas('un résultat non simplifié', qS, '(1)/(2)-(1)/(6)\\n= (3)/(6)-(1)/(6)\\n= (2)/(6)', 'sfl', 'faux (simplifier)');
     cas('l\\'étape du même dénominateur absente : le modèle reste juge', qS, '(1)/(2)-(1)/(6)\\n= (1)/(3)', 'sfl', 'je-ne-sais-pas');
     cas('une écriture illisible : le modèle reste juge', qS, '(1)/(2)-(1)/(6)\\n= n importe quoi', 'sfl', 'je-ne-sais-pas');
