@@ -7996,15 +7996,16 @@ async function parcours(page, N){
        Turquet, octobre 2026) : le geste central est le CLIC sur un nœud du
        quadrillage, converti en coordonnées par trlNoeud() depuis la géométrie
        du SVG RENDU. jsdom n'a pas de mise en page (un rectangle de SVG y vaut
-       zéro) : le calibrage clic → nœud, le stylo qui avance tout seul, le
-       retrait au reclic et la correction verte dessinée ne se voient qu'ici.
+       zéro) : le calibrage clic → nœud, le point posé SANS NOM puis nommé
+       par l'élève (demande de Turquet, octobre 2026), le retrait au reclic
+       et la correction verte dessinée ne se voient qu'ici.
        Le banc principal, lui, pose rep à la main — la répartition de
        {placer-image}. On clique le BON nœud, un nœud décalé d'un tiers de
        maille (il s'accroche au plus proche), on vérifie 3/3 ; puis une image
        FAUSSE et une MANQUANTE pour voir les images attendues en vert. */
     titre('6 quadragies bis. TRANSLATION SUR QUADRILLAGE : LES IMAGES SE CLIQUENT');
     if(!P.translationQuadrillage){
-      ignorer('les images se posent au clic sur le quadrillage, le stylo avance, le reclic retire',
+      ignorer('les images se posent au clic sur le quadrillage puis se nomment, le reclic retire',
         'ce niveau n\'a pas l\'exercice de la translation sur quadrillage');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
@@ -8041,38 +8042,53 @@ async function parcours(page, N){
         return { px: r.left + (M + (x + (dx || 0)) * C) * kx, py: r.top + (M + (H - (y + (dy || 0))) * C) * ky };
       }, [x, y, dx || 0, dy || 0]);
       const clicNoeud = async (x, y, dx, dy) => { const p = await posNoeud(x, y, dx, dy); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      /* nommer le point posé : le VRAI bouton, cliqué à l'écran */
+      const nommer = async i => { await s.page.click('#trlNom' + i); await s.page.waitForTimeout(120); };
+      const poser = async (x, y, i) => { await clicNoeud(x, y); await nommer(i); };
       const etat = async () => await s.page.evaluate(() => ({
         rep: JSON.stringify(test.questions[test.idx].rep),
-        sel: test.trlSel,
+        pend: JSON.stringify(test.questions[test.idx].pend || null),
+        pendDessin: document.querySelectorAll('#trlGraph .trl-pt.trl-pend').length,
         pts: document.querySelectorAll('#trlGraph .trl-pt').length,
         sol: document.querySelectorAll('#trlGraph .trl-sol').length,
         lbl: [...document.querySelectorAll('#trlGraph .trl-lbl')].map(t => t.textContent).join(','),
         pastille0: document.getElementById('trl-pt-0').textContent,
-        sel1: document.getElementById('trlSel1').classList.contains('sel')
+        nomActif: !document.getElementById('trlNom0').disabled,
+        question: document.getElementById('trlNommerTxt').textContent
       }));
       /* la question affichée, et ses images attendues, recalculées ICI */
       const q0 = await s.page.evaluate(() => { const q = test.questions[test.idx];
         return { src: q.src, im: q.src.map(p => [p[0] + q.vec[0], p[1] + q.vec[1]]), noms: trlNoms(q) }; });
-      /* le clic pose A′ au nœud visé, la pastille le dit, le stylo passe à B′ */
-      await clicNoeud(q0.im[0][0], q0.im[0][1]);
+      /* le clic pose un point SANS NOM au nœud visé, et la page en demande le nom */
       let e = await etat();
-      if(e.rep !== JSON.stringify([{ x: q0.im[0][0], y: q0.im[0][1] }, null, null])) dits.push('le clic ne pose pas le nœud visé : ' + e.rep);
-      if(e.pts !== 1) dits.push('le point posé ne se dessine pas (' + e.pts + ' point(s))');
-      if(e.lbl !== q0.noms[0] + '′') dits.push('le point posé ne porte pas son nom ' + q0.noms[0] + '′ : « ' + e.lbl + ' »');
-      if(e.pastille0.indexOf(q0.noms[0] + '′ posé') < 0) dits.push('la pastille ne dit pas « ' + q0.noms[0] + '′ posé » : ' + e.pastille0);
-      if(e.sel !== 1 || !e.sel1) dits.push('le stylo ne passe pas à B′ une fois A′ posé (trlSel = ' + e.sel + ')');
-      /* recliquer RETIRE, et le stylo revient sur ce point */
+      if(e.nomActif) dits.push('un bouton de nom est actif avant tout point posé');
       await clicNoeud(q0.im[0][0], q0.im[0][1]);
       e = await etat();
-      if(e.rep !== JSON.stringify([null, null, null])) dits.push('recliquer le point ne le retire pas : ' + e.rep);
-      if(e.sel !== 0) dits.push('retirer A′ ne rend pas le stylo A′ (trlSel = ' + e.sel + ')');
-      /* un clic à un TIERS de maille s'accroche au nœud le plus proche */
-      await clicNoeud(q0.im[0][0], q0.im[0][1], 0.33, -0.3);
+      if(e.pend !== JSON.stringify({ x: q0.im[0][0], y: q0.im[0][1] })) dits.push('le clic ne pose pas un point sans nom au nœud visé : ' + e.pend);
+      if(e.rep !== JSON.stringify([null, null, null])) dits.push('le point posé a reçu un nom sans que l\'élève le choisisse : ' + e.rep);
+      if(e.pendDessin !== 1 || e.lbl !== '?') dits.push('le point sans nom ne se dessine pas avec un « ? » (' + e.pendDessin + ' point, « ' + e.lbl + ' »)');
+      if(!e.nomActif || !/Comment s.appelle ce point/.test(e.question)) dits.push('la page ne demande pas le nom du point posé : « ' + e.question + ' »');
+      /* recliquer le point sans nom le RETIRE */
+      await clicNoeud(q0.im[0][0], q0.im[0][1]);
       e = await etat();
-      if(e.rep !== JSON.stringify([{ x: q0.im[0][0], y: q0.im[0][1] }, null, null])) dits.push('le clic décalé d\'un tiers de maille ne s\'accroche pas au nœud le plus proche : ' + e.rep);
+      if(e.pend !== 'null' || e.pts !== 0) dits.push('recliquer le point sans nom ne le retire pas : ' + e.pend);
+      /* un clic à un TIERS de maille s'accroche au nœud le plus proche ; nommé A′ */
+      await clicNoeud(q0.im[0][0], q0.im[0][1], 0.33, -0.3);
+      await nommer(0);
+      e = await etat();
+      if(e.rep !== JSON.stringify([{ x: q0.im[0][0], y: q0.im[0][1] }, null, null])) dits.push('le clic décalé d\'un tiers de maille, nommé A′, ne range pas A′ au nœud le plus proche : ' + e.rep);
+      if(e.pend !== 'null') dits.push('le point nommé attend encore son nom');
+      if(e.lbl !== q0.noms[0] + '′') dits.push('le point nommé ne porte pas son nom ' + q0.noms[0] + '′ : « ' + e.lbl + ' »');
+      if(e.pastille0.indexOf(q0.noms[0] + '′ posé') < 0) dits.push('la pastille ne dit pas « ' + q0.noms[0] + '′ posé » : ' + e.pastille0);
+      if(e.nomActif) dits.push('les boutons de nom restent actifs une fois le point nommé');
+      /* recliquer un point NOMMÉ lui rend son nom à choisir */
+      await clicNoeud(q0.im[0][0], q0.im[0][1]);
+      e = await etat();
+      if(e.rep !== JSON.stringify([null, null, null]) || e.pend !== JSON.stringify({ x: q0.im[0][0], y: q0.im[0][1] })) dits.push('recliquer A′ ne lui rend pas son nom à choisir : ' + e.rep + ' / ' + e.pend);
+      await nommer(0);
       /* B′ et C′, puis la copie juste : 3/3, rien ne se révèle */
-      await clicNoeud(q0.im[1][0], q0.im[1][1]);
-      await clicNoeud(q0.im[2][0], q0.im[2][1]);
+      await poser(q0.im[1][0], q0.im[1][1], 1);
+      await poser(q0.im[2][0], q0.im[2][1], 2);
       e = await etat();
       if(e.pts !== 3) dits.push('les trois points posés ne se dessinent pas (' + e.pts + ')');
       await s.page.click('#trlValidate');
@@ -8090,9 +8106,9 @@ async function parcours(page, N){
       await s.page.waitForTimeout(400);
       const q1 = await s.page.evaluate(() => { const q = test.questions[test.idx];
         return { src: q.src, im: q.src.map(p => [p[0] + q.vec[0], p[1] + q.vec[1]]), o: q.o, forme: q.forme }; });
-      await clicNoeud(q1.im[0][0], q1.im[0][1]);
+      await poser(q1.im[0][0], q1.im[0][1], 0);
       /* B′ posé sur B (ou sur le départ de la flèche) : un nœud sûrement faux et libre */
-      await clicNoeud(q1.o[0], q1.o[1]);
+      await poser(q1.o[0], q1.o[1], 1);
       await s.page.click('#trlValidate');
       await s.page.waitForTimeout(300);
       const faux = await s.page.evaluate(() => {
@@ -8108,7 +8124,7 @@ async function parcours(page, N){
       if(faux.bad !== 1) dits.push('le point faux de l\'élève ne rougit pas sur le dessin (' + faux.bad + ')');
       if(!/\bsol\b/.test(faux.p2)) dits.push('la pastille de l\'image manquante n\'est pas sol : ' + faux.p2);
       if(faux.score !== 4) dits.push('l\'image fausse et la manquante ne coûtent pas exactement leur point (score ' + faux.score + ' au lieu de 4)');
-      verifier('les images se posent au clic sur le quadrillage, le stylo avance, le reclic retire', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('les images se posent au clic sur le quadrillage puis se nomment, le reclic retire', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la translation ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;

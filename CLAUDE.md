@@ -161,6 +161,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **La fonction Edge portait les gestes les plus lourds sans qu'aucun banc ne l'exécute.**
 - **Une borne posée côté serveur coupe l'aide sans le dire.**
 - **La fonction Edge ne se met jamais à jour toute seule.**
+- **L'aide par IA tourne sur Claude Haiku 5.5, et sa fonction Edge a un banc qui l'exécute.**
 - **Renommer un élève ne passe PAS par la fonction Edge, et c'est la leçon du paragraphe précédent prise à l'envers.**
 - **Une sauvegarde remise en place casse la Première le lendemain.**
 - **Un élève dé-relié se connecte parfaitement — et tout ce qui est à lui est refusé.**
@@ -492,7 +493,7 @@ npm test             # les trois niveaux
 npm run test:secondes # un seul, quand on travaille dessus
 npm run test:navigateur # les trois pages ouvertes dans un vrai Chromium
 npm run test:base    # les règles d'accès de la base, sur un PostgreSQL jetable
-npm run test:fonction # la fonction Edge admin-eleve, réellement exécutée
+npm run test:fonction # les deux fonctions Edge, réellement exécutées
 npm run test:version # les numéros de version, comparés à ceux de `main`
 ```
 
