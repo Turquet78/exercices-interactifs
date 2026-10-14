@@ -56154,24 +56154,28 @@ function cvpChaine(q){
 }
 /* Le nom d'une flèche, au milieu, côté perpendiculaire, coiffé de sa flèche :
    « u », ou « −u » quand elle est retournée — la flèche ne coiffe que la
-   lettre, comme on l'écrit. */
-function cvpNom(a,b,L,moins,cls){
+   lettre, comme on l'écrit. Le nom passe du côté du trait le plus loin de
+   « loin » (le milieu de l'autre flèche) : à la jonction de deux flèches
+   bout à bout, posés du même côté, les deux noms se chevauchaient. */
+function cvpNom(a,b,L,moins,cls,loin){
   const X=i=>SVC_PX+i*SVC_C, Y=j=>SVC_PY+(SVC_H-j)*SVC_C;
   const x1=X(a[0]), y1=Y(a[1]), x2=X(b[0]), y2=Y(b[1]);
   const dx=x2-x1, dy=y2-y1, l=Math.hypot(dx,dy)||1, ux=dx/l, uy=dy/l;
-  const ec=moins?22:17, lx=(x1+x2)/2-uy*ec, ly=(y1+y2)/2+ux*ec, cx=moins?lx+5.5:lx;
+  let px=-uy, py=ux;
+  if(loin){ const mx=(x1+x2)/2, my=(y1+y2)/2, ox=X(loin[0])-mx, oy=Y(loin[1])-my; if(px*ox+py*oy>0){ px=-px; py=-py; } }
+  const ec=moins?22:17, lx=(x1+x2)/2+px*ec, ly=(y1+y2)/2+py*ec, cx=moins?lx+5.5:lx;
   return `<text class="svc-nom ${cls}-t" x="${lx.toFixed(1)}" y="${(ly+6).toFixed(1)}" text-anchor="middle">${moins?'<tspan class="cvp-moins">−</tspan>':''}${L}</text>`
     +`<path class="svc-nfl ${cls}-f" d="M${(cx-6.5).toFixed(1)} ${(ly-9).toFixed(1)}h13m-3.5 -3l3.5 3l-3.5 3"/>`;
 }
 /* La lettre du point se pose dans le coin (parmi les quatre diagonales) le
    plus loin des flèches qui le touchent : une flèche posée sur le point ne
    la recouvre pas. */
-function cvpLettre(P,L,dirs,cls){
+function cvpLettre(P,L,dirs,cls,cote){
   const X=SVC_PX+P[0]*SVC_C, Y=SVC_PY+(SVC_H-P[1])*SVC_C;
   const coins=[[1,-1],[-1,-1],[1,1],[-1,1]];
   let best=coins[0], score=-Infinity;
   coins.forEach(function(c){ const n=Math.SQRT1_2;
-    const m=dirs.length?Math.min.apply(null, dirs.map(function(d){ return -(c[0]*n*d[0]+c[1]*n*d[1]); })):0;
+    const m=dirs.length?Math.min.apply(null, dirs.map(function(d){ const p=c[0]*n*d[0]+c[1]*n*d[1]; return cote?-Math.abs(p):-p; })):0;
     if(m>score+1e-9){ score=m; best=c; } });
   return `<text class="${cls}" x="${X+best[0]*8}" y="${best[1]<0?Y-8:Y+19}" text-anchor="${best[0]>0?'start':'end'}">${L}</text>`;
 }
@@ -56219,20 +56223,35 @@ function cvpDessinerFleches(q){
     doubles+=svcMot(X(m.p[0]), Y(m.p[1]), ex/l, ey/l, m.m===n.m?m.m+'s':'fin / début');
   });
   fl.innerHTML=svcFleche(a, af, {cls:'svc-u', marker:'cvpArrU', mots:true, depart:true, sansDebut:sauf[0], sansFin:sauf[1]})
-    +cvpNom(a, af, 'u', q.ur, 'svc-u')
+    +cvpNom(a, af, 'u', q.ur, 'svc-u', cvpMilieu(b,bf))
     +svcFleche(b, bf, {cls:'svc-v', marker:'cvpArrV', mots:true, depart:true, sansDebut:sauf[2], sansFin:sauf[3]})
-    +cvpNom(b, bf, 'v', q.vr, 'svc-v')+doubles
+    +cvpNom(b, bf, 'v', q.vr, 'svc-v', cvpMilieu(a,af))+doubles
     +cvpLettre(q.po, q.l, dirsP, 'vec-lbl');
   const fige=test.cvpFigeCh||test.locked;
   const prise=function(w,p,c){ const f=svcPlus(p,c);
     return `<line class="svc-prise" data-vec="${w}" x1="${X(p[0])}" y1="${Y(p[1])}" x2="${X(f[0])}" y2="${Y(f[1])}" tabindex="0" role="button" aria-label="déplacer le vecteur ${w} (flèches du clavier)"/>`; };
   pr.innerHTML=fige?'':prise('u',a,du)+prise('v',b,dv);
+  if(q.sel) cvpEtiquetteNoeud(q,q.sel);
   ['u','v'].forEach(function(w){ const bt=$('cvpRet'+w.toUpperCase()); if(bt) bt.disabled=!!fige; });
+}
+function cvpMilieu(p,r){ return [(p[0]+r[0])/2, (p[1]+r[1])/2]; }
+/* La lettre d'un nœud (« B′ ») se pose, comme celle du point donné, dans la
+   diagonale la plus loin des flèches qui y arrivent : la pointe de la seconde
+   flèche la recouvrait —, et DE CÔTÉ : dans son prolongement, il y a le mot
+   « fin ». */
+function cvpEtiquetteNoeud(q,n){
+  const el=n&&$('cvpn-'+n[0]+'-'+n[1]), t=el&&el.querySelector('.vec-dlbl'); if(!t) return;
+  const dirs=[], vers=function(d,f){ if(!svcEgal(f,n)) return; const l=Math.hypot(d[0],d[1])||1; dirs.push([-d[0]/l,d[1]/l]); };
+  const du=cvpUc(q), dv=cvpVc(q); vers(du,svcPlus(cvpU(q),du)); vers(dv,svcPlus(cvpV(q),dv));
+  const c=$('cvpCorr'), k=c&&c.children.length&&cvpConstruction(q); if(k) vers(k.d2,k.fin);
+  const tmp=document.createElement('div'); tmp.innerHTML='<svg>'+cvpLettre(n,cvpNomPt(q),dirs,'',true)+'</svg>';
+  const r=tmp.querySelector('text');
+  ['x','y','text-anchor'].forEach(function(a){ t.setAttribute(a, r.getAttribute(a)); });
 }
 /* Le nœud posé : bleu en attendant la vérification. */
 function cvpMarquer(q){
   document.querySelectorAll('#cvpGraph .vec-t.sel').forEach(function(el){ el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
-  if(q.sel){ const el=$('cvpn-'+q.sel[0]+'-'+q.sel[1]); if(el){ el.classList.add('sel'); el.setAttribute('aria-pressed','true'); } }
+  if(q.sel){ const el=$('cvpn-'+q.sel[0]+'-'+q.sel[1]); if(el){ el.classList.add('sel'); el.setAttribute('aria-pressed','true'); } cvpEtiquetteNoeud(q,q.sel); }
 }
 /* Poser A′ : un seul nœud — cliquer un autre nœud le déplace, recliquer le
    même le retire. L'état vit dans la question (pause et reprise). */
@@ -56400,10 +56419,11 @@ function cvpFinal(q,subs){
   const k=cvpConstruction(q), c=$('cvpCorr');
   if(!ch.ok&&k&&c){
     const s=cvpSignes(q), sg=function(w){ return (w==='u'?s[0]:s[1])<0; };
-    c.innerHTML=svcFleche(q.po, k.milieu, {cls:'svc-s', marker:'cvpArrS'})+cvpNom(q.po, k.milieu, k.premier, sg(k.premier), 'svc-s')
-      +svcFleche(k.milieu, k.fin, {cls:'svc-s', marker:'cvpArrS'})+cvpNom(k.milieu, k.fin, k.second, sg(k.second), 'svc-s');
+    c.innerHTML=svcFleche(q.po, k.milieu, {cls:'svc-s', marker:'cvpArrS'})+cvpNom(q.po, k.milieu, k.premier, sg(k.premier), 'svc-s', cvpMilieu(k.milieu,k.fin))
+      +svcFleche(k.milieu, k.fin, {cls:'svc-s', marker:'cvpArrS'})+cvpNom(k.milieu, k.fin, k.second, sg(k.second), 'svc-s', cvpMilieu(q.po,k.milieu));
   }
-  if(!pt.ok){ const E=cvpPoint(q), el=$('cvpn-'+E[0]+'-'+E[1]); if(el) el.classList.add('missc'); }
+  if(!pt.ok){ const E=cvpPoint(q), el=$('cvpn-'+E[0]+'-'+E[1]); if(el) el.classList.add('missc'); cvpEtiquetteNoeud(q,E); }
+  if(q.sel) cvpEtiquetteNoeud(q,q.sel);
 }
 function renderCvp(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);

@@ -1102,3 +1102,13 @@ retourne v⃗ au bouton, fait glisser u⃗ jusqu'à B puis −v⃗ au bout de u�
 souris, pose B′ d'un clic à travers la prise de −v⃗, puis joue le signe
 oublié (rouge, construction verte, aucun point). Le doigt sur tablette ne se
 joue dans aucun banc.
+
+**La première capture a montré deux chevauchements que le banc ne voyait
+pas.** À la jonction de u⃗ et de −v⃗ posés bout à bout, les deux noms tombaient
+l'un sur l'autre : chaque nom passe désormais du côté de son trait le plus
+loin de l'AUTRE flèche (`cvpNom`, argument `loin`), dans la construction de
+l'élève comme dans la correction verte. Et la pointe de la seconde flèche
+couvrait l'étiquette « B′ », posée en haut à droite du nœud comme au 8.5 ;
+retournée, elle tombait sur le mot « fin », qui prolonge la flèche. Elle se
+pose donc DE CÔTÉ, dans la diagonale la plus perpendiculaire aux flèches qui
+arrivent au nœud (`cvpEtiquetteNoeud`), recalculée à chaque glisser.
