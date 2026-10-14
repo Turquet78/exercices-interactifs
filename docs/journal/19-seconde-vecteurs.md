@@ -821,7 +821,7 @@ en vert d'étendue non nulle, le badge, les deux flèches, aucun point gagné) �
 et mesure que les vecteurs de l'énoncé portent leur flèche et que la case du
 nom n'est pas plus petite que sa phrase.
 
-## {somme-vecteurs} — la somme de deux vecteurs : un début va sur une fin (8.7, v486)
+## {somme-vecteurs} — la somme de deux vecteurs : un début va sur une fin (8.7, v487)
 
 **La demande** (Turquet, octobre 2026, « en seconde créer un exercice comme
 le pdf ») : la fiche « Fiche 1 : somme de vecteurs — un début va sur une
