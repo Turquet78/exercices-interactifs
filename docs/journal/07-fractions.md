@@ -1843,3 +1843,20 @@ fond de `.f-fbar` retirée (32 écarts, chaque trait de la rangée nommé « en
 rgb(30, 42, 74) au lieu de noir », du 4.1 au 4.6, à l'ouverture comme après
 la vérification) et un sélecteur trop large qui noircissait `#scr-sf` entier
 (« 1.9 : 0 nombre(s) en couleur sur 18 »).
+
+**Une case `<input>` n'a pas la largeur de son contenu quand on lui dit
+`auto` (Première, 4.1, octobre 2026).** Signalé par Turquet sur deux
+captures : au 4.1, les cases du diviseur (« 6 ÷ ▢ ») et du multiplicateur
+(« 3 × ▢ ») s'étiraient sur 372 px quand les autres en faisaient 48. Le bloc
+« UNE SEULE ENCRE » donne aux cases de `.sf-l` la largeur `--fx-l`, qui vaut
+`auto` — la mesure du 4.6, dont ces cases sont des champs MathLive qui
+suivent leur contenu. Le 4.1 y pose des `<input>`, et un `<input>` en `auto`
+prend sa largeur par défaut, une vingtaine de caractères. Correctif : une
+règle `.sf-l input.f-num/.f-den` à 48 px (42 sur téléphone), la largeur des
+autres cases du thème. Le contrôle « 6 terdecies ter » relève désormais la
+LARGEUR des cases `<input>` de chaque écran du thème (elles doivent être
+égales à 4 px près, comme les hauteurs), et pose à coup sûr les deux maillons
+du 4.1 qui ne sortent que selon le tirage (profil
+`encreFractions.maillons`). Éprouvé par sabotage : sur la page d'avant, « des
+cases de 48 à 372 px de large — rvf-s0-dn », au 4.1 seulement, aux quatre
+moments mesurés.
