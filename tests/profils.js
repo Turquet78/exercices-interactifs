@@ -949,7 +949,7 @@ module.exports = {
     /* Les exercices de rapidité portés de la Première : pas d'aide IA, comme là-bas.
        Et le 4.6.7, SANS AUCUNE AIDE par demande (Turquet, octobre 2026 : « il ne
        faut aucune aide ») — AIDE_SANS dans la page. */
-    aideIA: { sans: ['point-somme-vecteurs', 'tables-multiplication', 'tables-multiplication-2', 'calcul-mental', 'tableau-proportions-trois-colonnes-directes'] },
+    aideIA: { sans: ['tables-multiplication', 'tables-multiplication-2', 'calcul-mental', 'tableau-proportions-trois-colonnes-directes'] },
     /* Les poses du calcul mental, portées de la Première avec leurs contrôles
        — voir le profil de la Première pour la doctrine. */
     operationPosee: { exercice: 'addition-soustraction', hote: 'aspHost' },
@@ -1225,7 +1225,7 @@ module.exports = {
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
                   /* {vecteurs-egaux} (8.3) : on lit une figure, on ne multiplie rien */
-                  sans: ['somme-vecteurs-repere', 'somme-vecteurs', 'relation-chasles', 'chasles-trois-vecteurs', 'chasles-simplifier', 'chasles-alignes', 'translation-quadrillage', 'egalite-vectorielle-point', 'vecteurs-egaux', 'python-pile-face', 'python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
+                  sans: ['point-somme-vecteurs', 'somme-vecteurs-repere', 'somme-vecteurs', 'relation-chasles', 'chasles-trois-vecteurs', 'chasles-simplifier', 'chasles-alignes', 'translation-quadrillage', 'egalite-vectorielle-point', 'vecteurs-egaux', 'python-pile-face', 'python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'vecteurs-egaux-tableau', 'soustraire-relatifs', 'translation-grille', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
