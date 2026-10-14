@@ -1344,7 +1344,60 @@ bleus, badge BC, « partir de B »), CD égal à rien de AC + DC, AB + DC = AB
 (« nul »), BA pour AC + DC (« sens »), la case vide (correction BA, jamais
 rouge), la copie vide, le soutien, le barème, `qId`, le contexte du modèle.
 
-## {point-somme-vecteurs} — construire un point avec une somme de vecteurs (8.13, v495)
+## {chasles-sans-figure} — la relation de Chasles sans figure (8.13, v495)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
+le 8.8 mais avec le pdf joint », la fiche 6 « Relation de Chasles » — sans
+figure, des points quelconques, trois parties : 1) écrire sous forme d'un
+seul vecteur… si c'est possible (AD + DF, CB + CA, DF − FG, AB − AC,
+RS + AR, EG + GT, AL − LA, − AD − DB) ; 2) écrire plus simplement
+u = AB + BC + CA, v = IJ + KI + JK, w = AB + AC + BC, x = DE + FG + EF + DG ;
+3) la même chose en transformant d'abord les soustractions (AB − AC,
+RT − ST + RS, AB + MA − MB + BA, MN − MP − PQ + MQ).
+
+**Prévu 8.9, publié 8.13** : pendant sa rédaction, d'autres sessions ont mis en ligne, le même jour, quatre exercices de vecteurs tirés d'AUTRES fiches — {chasles-trois-vecteurs} (8.9, le parallélogramme EFGH), {chasles-simplifier} (8.10, le rectangle ACKI), {somme-vecteurs-repere} (8.11) et {chasles-alignes} (8.12). Celle-ci, la fiche 6 sans figure, vient derrière, en 8.13. Elle s'appelait aussi « chasles-simplifier » sur sa branche : l'identifiant étant pris, elle est devenue {chasles-sans-figure}, et sa fonction de banc `chaslesSansFigure`. Aucun moteur commun avec les autres, sauf l'habillage des vecteurs du 8.3 (`.veg-v`, `.veg-in`).
+
+**Une page par partie ; les trois premières SONT la fiche** (`CHL_FICHE`),
+les trois suivantes reprennent chaque ligne de la fiche avec d'autres lettres
+(ni O, ni I, ni W à Z), dans un autre ordre. `CHL_NB` = 6 pages,
+`dmNbQuestions` règle la séance, `distinctes()` la tient différente ; 32
+cases par séance. On range la partie et les lignes écrites (« +AB-AC »),
+jamais les réponses.
+
+**Une case par ligne, et la réponse s'écrit comme sur la copie** : AF, 2AC,
+0 (le vecteur nul), ou « impossible ». Sur la partie 1 — la seule qui dise
+« si c'est possible » — un bouton écrit le mot dans la case (et l'en retire
+au second appui) ; la case s'élargit alors et perd sa flèche. Une seule case
+peinte par ligne, et c'est voulu : `ptsEcran()` compte les champs peints, une
+case du coefficient à côté de celle du vecteur aurait compté chaque ligne
+deux fois.
+
+**Le juge lit le calcul, pas des lettres attendues.** Sans figure, deux
+vecteurs ne sont égaux que s'ils ont les mêmes lettres ; une somme se lit
+donc comme une combinaison de points (AB vaut B − A). La réponse est juste
+dès que sa combinaison est celle de la ligne : 2AL et −2LA ne font qu'un, AA
+vaut 0. La ligne est impossible quand la combinaison porte trois points ou
+plus (CB + CA = A + B − 2C). Les messages nomment la faute — « impossible »
+sur une somme possible, un vecteur pour une somme impossible, le mauvais
+sens, le mauvais nombre (AL au lieu de 2AL), la soustraction oubliée — et
+déroulent le calcul : AB + MA − MB + BA = AB + MA + BM + BA = AB + BM + MA +
+BA = 0 + BA = BA (`chlEtapes` : les opposés, la somme remise dans l'ordre
+qui enchaîne, chaque chaîne réduite).
+
+**Le juge du banc** (`tests/verifier.js`, « Chasles sans figure ») : la place
+(8.13, pas de bouton des tables) ; les réponses de la fiche ; 300 séances dont
+chaque correction est relue par un juge INDÉPENDANT — des coordonnées
+quelconques pour chaque lettre, la somme calculée en déplacements, et
+« impossible » vérifié contre tous les kXY possibles ; chaque ligne tirée est
+une ligne de la fiche, lettres changées ; puis par le bouton : les trois
+copies justes, d'autres écritures justes (minuscules, −2LA, « imp », AA,
+2×DG), « impossible » sur AD + DF, AB pour CB + CA (badge « impossible »),
+BC pour AB − AC (« sens »), AL pour AL − LA (« 2AL »), 2RT pour RT − ST + RS
+(« opposé TS »), « A » illisible, la case vide (correction, jamais rouge),
+la copie vide des trois parties, le bouton « impossible » dans les deux sens,
+le soutien au fil de la saisie, le barème, `qId`, le contexte du modèle.
+
+## {point-somme-vecteurs} — construire un point avec une somme de vecteurs (8.14, v496)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice
 comme l'exercice 2 du pdf, l'élève devra d'abord tracer les 2 vecteurs
@@ -1352,7 +1405,7 @@ demandés, puis pourra les déplacer aux bons endroits comme dans le 8.7 et on
 finira par placer le point demandé ». La fiche (« Fiche 8 sur somme de
 vecteur », exercice 2) : cinq points A, B, C, D, E sur un quadrillage, et
 « construire A′ tel que AA′ = BC + BD », « B′ tel que BB′ = ED + EA »,
-« C′ tel que CC′ = AE + BD ». Ajouté en dernier, il ne renumérote rien. Écrit comme 8.9 en v491, il est devenu le 8.13 en v495 au fil de quatre fusions de `main`, où {chasles-trois-vecteurs} (8.9, v491), {chasles-simplifier} (8.10, v492), {somme-vecteurs-repere} (8.11, v493) puis {chasles-alignes} (8.12, v494) avaient pris leur place le même jour — plusieurs sessions remplissaient le thème 8 de front, et chaque pull request verte arrivait derrière une autre. Ce dernier part d'une autre fiche (la « Fiche 10 », un repère où l'élève place d'abord les points) : les deux exercices sont voisins, pas doubles — ici les cinq points sont donnés, et le geste à apprendre est de recopier deux vecteurs de la figure.
+« C′ tel que CC′ = AE + BD ». Ajouté en dernier, il ne renumérote rien. Écrit comme 8.9 en v491, il est devenu le 8.14 en v496 au fil de cinq fusions de `main`, où {chasles-trois-vecteurs} (8.9, v491), {chasles-simplifier} (8.10, v492), {somme-vecteurs-repere} (8.11, v493), {chasles-alignes} (8.12, v494) puis {chasles-sans-figure} (8.13, v495) avaient pris leur place le même jour — plusieurs sessions remplissaient le thème 8 de front, et chaque pull request verte arrivait derrière une autre. Ce dernier part d'une autre fiche (la « Fiche 10 », un repère où l'élève place d'abord les points) : les deux exercices sont voisins, pas doubles — ici les cinq points sont donnés, et le geste à apprendre est de recopier deux vecteurs de la figure.
 
 **Trois gestes, quatre réponses jugées chacune SEULE** (`cpsJuge`). ① Les
 deux vecteurs se TRACENT, deux clics chacun (le début, puis la fin ;
@@ -1409,7 +1462,7 @@ que sur deux flèches justes — figé sur une fausse, il empêcherait de la
 retracer.
 
 **Le juge** (`tests/verifier.js`, « point par une somme de vecteurs ») : la
-place (8.13, le 8.7 à 8.12 immobiles, pas de bouton des tables), 200
+place (8.14, le 8.7 à 8.13 immobiles, pas de bouton des tables), 200
 séances (quatre questions distinctes, barème 16, les clés rangées, les
 formes qui alternent, le point recalculé, tout dans le quadrillage, JSON),
 puis la figure de la fiche recadrée (A′ en (5 ; 2)) : l'énoncé, cinq croix,
