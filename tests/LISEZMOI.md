@@ -31,6 +31,14 @@ npm run test:notes                   # les trois niveaux, de front
 npm run test:notes:secondes          # un seul
 ```
 
+Et le **banc de la pause** : une question corrigée, mise en pause puis
+reprise, ne se rejuge pas :
+
+```bash
+npm run test:pause                   # les trois niveaux, de front
+npm run test:pause:secondes          # un seul
+```
+
 Et un banc qui ne charge aucune page — il ne lit que le dépôt et `git` :
 
 ```bash
@@ -179,6 +187,28 @@ valider ; un exercice qui plante, ou dont la fin n'enregistre rien, rougit.
 Pour éprouver un sabotage sans mener tout un niveau :
 `NOTES_EXERCICES=fraction-pourcentage,pourcentage node tests/notes.js premiere-specifique.html`
 — le banc dit alors que ce n'est pas le verdict du niveau.
+
+## Le banc de la pause
+
+`npm run test:pause` (`tests/pause.js`) tient un défaut trouvé en octobre 2026
+dans les trois niveaux : une question vérifiée puis mise en pause rouvrait
+déverrouillée, avec dans ses cases les corrections que la page venait d'écrire.
+Revérifiée, une copie fausse devenait parfaite, et la question comptait deux
+fois.
+
+Sur chaque exercice du menu, en entraînement : « Vérifier » sur une copie vide
+(puis des zéros, une phrase dans les rédactions, une proposition et un segment
+cliqués si la page refuse), puis le **vrai** geste de l'élève — `pauseTest()`,
+l'écran des modes du devoir, la reprise. Exigé : aucune réponse ni aucun point
+de plus ; la question passe à la suite en le disant (« Question déjà corrigée
+: on passe à la suivante. »), ou reste verrouillée ; et au plus un brouillon
+inséré par pause, aucun après le retour au menu. Un exercice que le banc ne sait
+pas mener à une question corrigée se déclare, raison comprise
+(`pauseReprise.horsAtteinte`).
+
+Une question dont le bouton « Question suivante » n'apparaît qu'après un autre
+geste (un programme Python à exécuter d'abord, une minuterie) nomme sa suite
+dans sa correction : `marquerSuite('nextXxx')`.
 
 ## Le banc des numéros de version
 

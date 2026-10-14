@@ -3811,6 +3811,39 @@ function exercices(suite){
   const t = P.temoin;
   charger(CIBLE, w => {
 
+    /* ptsEcran NE COMPTE QUE LES RÉPONSES (octobre 2026, inventaire du crédit
+       partiel). Le crédit partiel d'une question se lit sur les cases peintes
+       à l'écran ; tout ce qui y est peint sans être une réponse fausse la
+       note. La Terminale comptait ses cases facultatives u, v, u′, v′ — une
+       dérivée FAUSSE valait 0,75 point — et ses miroirs en lecture seule. On
+       pose donc à l'écran une réponse juste, une fausse, une montrée (sol),
+       une attendue que l'élève n'a pas ouverte (.pts-vide), et quatre champs
+       peints qui ne sont PAS des réponses : un bloc facultatif, un miroir, un
+       .hors-note, une pose facultative. Attendu : 1 juste sur 4. Un niveau dont
+       le crédit partiel est encore suspendu (notes.creditPartielSuspendu) se
+       déclare — et la déclaration rougit dès que son compte est sûr. */
+    {
+      const intitule = 'le crédit partiel ne compte que les réponses : facultatif, miroir, hors-note et pose facultative exclus ; une réponse attendue non ouverte compte';
+      const r = evaluer(w, `(function(){
+        if(typeof ptsEcran!=='function') return 'pas de ptsEcran() dans la page';
+        const autres=[...document.querySelectorAll('.screen.on')]; autres.forEach(e=>e.classList.remove('on'));
+        const scr=document.createElement('section'); scr.className='screen on'; scr.id='scr-sonde-pts';
+        scr.innerHTML='<input class="ok" value="1"><input class="bad" value="2"><span class="pts-case sol"></span>'
+          +'<input class="pts-vide" value="">'
+          +'<div class="dexp-facblock"><input class="ok" value="3"></div><input class="dq-mirror ok" value="4">'
+          +'<input class="hors-note ok" value="5"><div class="pose-fac"><input class="ok" value="6"></div>';
+        document.body.prepend(scr);
+        let m; try{ m=ptsEcran(); } finally { scr.remove(); autres.forEach(e=>e.classList.add('on')); }
+        if(!m) return 'ptsEcran() ne compte rien';
+        return (m.cases===4 && m.justes===1) ? '' : 'ptsEcran() compte '+m.justes+' juste(s) sur '+m.cases+' case(s), au lieu de 1 sur 4';
+      })()`);
+      const suspendu = (P.notes || {}).creditPartielSuspendu;
+      if(!r.ok) verifier(intitule, false, 'erreur JavaScript : ' + r.erreur);
+      else if(suspendu && r.valeur !== '') ignorer(intitule, 'crédit partiel suspendu à ce niveau (' + suspendu + ') — ' + r.valeur);
+      else if(suspendu) verifier(intitule + ' — la suspension déclarée est morte : le compte est sûr, retirer notes.creditPartielSuspendu', false);
+      else verifier(intitule, r.valeur === '', r.valeur);
+    }
+
     /* correction en direct : une fraction n'est jugée qu'une fois complète */
     if(P.liveCheck){
       const lc = P.liveCheck, c = lc.cases;

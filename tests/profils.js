@@ -594,6 +594,16 @@ module.exports = {
        questions par exercice »). */
     reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage', 'hausses-successives'], nbQMax: 20 },
     tableResultats: 'resultats_1ere',
+    /* tests/pause.js — une question corrigée ne se rejuge pas à la reprise
+       (« pauseReprise » : la clé « pause », plus bas, sert déjà les bancs
+       principal et navigateur — une clé écrite deux fois gagne en silence).
+       horsAtteinte : les exercices que le banc ne sait pas mener jusqu'à une
+       question corrigée (le correctif, lui, est commun : snapshotTest et
+       resumeTest). Une déclaration qui ne sert plus rougit. */
+    pauseReprise: { horsAtteinte: {
+      'tables-multiplication': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause',
+      'tables-multiplication-2': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause'
+    } },
     /* tests/notes.js — la note enregistrée est celle qui s'affiche. Quand
        une copie vide n'atteint pas la fin (une colonne à colorier, une table
        jouée au clavier contre la montre), le banc appelle lui-même la
@@ -1189,6 +1199,41 @@ module.exports = {
        questions par exercice »). */
     reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20 },
     tableResultats: 'resultats_2nde',
+    /* tests/pause.js — une question corrigée ne se rejuge pas à la reprise
+       (« pauseReprise » : la clé « pause », plus bas, sert déjà les bancs
+       principal et navigateur — une clé écrite deux fois gagne en silence).
+       horsAtteinte : les exercices que le banc ne sait pas mener jusqu'à une
+       question corrigée (le correctif, lui, est commun : snapshotTest et
+       resumeTest). Une déclaration qui ne sert plus rougit. */
+    pauseReprise: { horsAtteinte: {
+      'tables-multiplication': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause',
+      'tables-multiplication-2': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause',
+      'plus-petit-ensemble': 'les ensembles se choisissent un à un, dans l\'ordre : le banc ne sait pas construire la réponse',
+      'placer-image': 'la copie se trace sur le graphique (glisser une droite, placer des points) : le banc ne sait pas la tracer',
+      'antecedents-droite': 'la copie se trace sur le graphique (glisser une droite, placer des points) : le banc ne sait pas la tracer',
+      'inequation-droite': 'la copie se trace sur le graphique (glisser une droite, placer des points) : le banc ne sait pas la tracer',
+      'construire-max-min': 'la copie se trace sur le graphique (glisser une droite, placer des points) : le banc ne sait pas la tracer',
+      'construire-fonction': 'la copie se trace sur le graphique (glisser une droite, placer des points) : le banc ne sait pas la tracer',
+      'somme-fractions-libre': 'calcul libre que la page refuse tant qu\'il n\'est pas écrit à la suite de l\'énoncé : le banc ne sait pas l\'écrire',
+      'multiplier-fractions-libre': 'calcul libre que la page refuse tant qu\'il n\'est pas écrit à la suite de l\'énoncé : le banc ne sait pas l\'écrire',
+      'diviser-fractions-libre': 'calcul libre que la page refuse tant qu\'il n\'est pas écrit à la suite de l\'énoncé : le banc ne sait pas l\'écrire',
+      'priorite-fractions': 'calcul libre que la page refuse tant qu\'il n\'est pas écrit à la suite de l\'énoncé : le banc ne sait pas l\'écrire',
+      'python-tableau-valeurs': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-pas-a-pas': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-valeur-case': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-pas-a-pas-calcul': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-pas-a-pas-chaine': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-echange-variables': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-pas-a-pas-multiplication': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-echange-par-lettres': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-input-reponse': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-input-int': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-input-float': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-for-renommer': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-trois-des': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'translation-quadrillage': 'la copie se trace sur le quadrillage : le banc ne sait pas la tracer',
+      'somme-vecteurs': 'la copie se trace sur le quadrillage : le banc ne sait pas la tracer'
+    } },
     /* tests/notes.js — la note enregistrée est celle qui s'affiche. Quand
        une copie vide n'atteint pas la fin (une colonne à colorier, une table
        jouée au clavier contre la montre), le banc appelle lui-même la
@@ -2593,6 +2638,22 @@ module.exports = {
        « allonge » : les exercices dont la séance DOIT s'allonger. */
     reglagesDevoirs: { exercice: 'tangente-exp', exercicePlafond: 'derivees', allonge: ['derivees', 'equation-tangente', 'signes-variations'], nbQMax: 20, tiragesMin: 11 },
     tableResultats: 'resultats',
+    /* tests/pause.js — une question corrigée ne se rejuge pas à la reprise
+       (« pauseReprise » : la clé « pause », plus bas, sert déjà les bancs
+       principal et navigateur — une clé écrite deux fois gagne en silence).
+       horsAtteinte : les exercices que le banc ne sait pas mener jusqu'à une
+       question corrigée (le correctif, lui, est commun : snapshotTest et
+       resumeTest). Une déclaration qui ne sert plus rougit. */
+    pauseReprise: { horsAtteinte: {
+      'signe-premier-degre': 'la vérification est refusée tant que le tableau de signes n\'est pas complet et cohérent : le banc ne sait pas le construire',
+      'signe-produit': 'la vérification est refusée tant que le tableau de signes n\'est pas complet et cohérent : le banc ne sait pas le construire',
+      'signe-quotient-carre': 'la vérification est refusée tant que le tableau de signes n\'est pas complet et cohérent : le banc ne sait pas le construire',
+      'tvi-redaction': 'la rédaction est jugée par l\'IA (action « redaction »), que le double de Supabase du banc ne sait pas simuler',
+      'tangente-exp': 'la page refuse une copie incomplète ou faite de zéros : le banc ne sait pas la remplir',
+      'etude-fonction': 'la page refuse une copie incomplète ou faite de zéros : le banc ne sait pas la remplir',
+      'suite-auxiliaire-2': 'la page refuse une copie incomplète ou faite de zéros : le banc ne sait pas la remplir',
+      'suite-vocabulaire': 'les réponses se cochent par groupes : le banc ne sait pas les cocher'
+    } },
     /* tests/notes.js — la note enregistrée est celle qui s'affiche. La
        Terminale n'a qu'UNE fonction de fin, commune à tous ses exercices :
        quand une copie vide n'atteint pas la fin (une rédaction refuse d'être

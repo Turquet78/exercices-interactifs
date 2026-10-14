@@ -123,3 +123,56 @@ Il ne voit pas une boucle `push` écrite à la main : c'est le bord pratique
 qui l'a vue sur les quatre constructeurs de ce genre, et il ne verra pas
 un doublon d'une séance sur mille. Le dire vaut mieux que le taire.
 
+
+**Une question corrigée ne se rejuge plus après une pause** (octobre 2026,
+trouvé par l'inventaire du crédit partiel, aux trois niveaux, en ligne). Le
+chemin : « Vérifier » verrouille la question, range la réponse, et la page
+écrit ses corrections en vert (`sol`) dans les cases fausses ou vides ;
+« Pause » enregistre le brouillon — mais `snapshotTest` sautait `locked`, et
+`captureBoxes` rangeait AUSSI les corrections, comme des saisies ; « Reprendre »
+redessinait la même question déverrouillée, et `restoreBoxes` y recopiait les
+corrections. Un nouveau « Vérifier » jugeait donc la correction de la page :
+une copie fausse devenait parfaite, et la question comptait deux fois. Mesuré
+par l'inventaire : 126 questions rejugées sur 127 en Seconde (89 deviennent
+parfaites), 41 sur 47 en Première (25), 21 sur 29 en Terminale (9 — l'étude de
+convexité passait de 1/102 à 102/102). Le crédit partiel n'y était pour rien :
+le score seul suffisait. Et une course voisine : la pause remettait
+`recoveryRowId` à zéro sans fermer l'enregistrement automatique, si bien qu'un
+`autoSave` différé insérait un SECOND brouillon après le retour au menu.
+**Le correctif tient en un geste** : le brouillon range le verrou ET la suite
+de la question — le bouton visible qui clôt la question (`next…`, `finish…`,
+`endLevel` ; la PROPRIÉTÉ `onclick` d'abord, que `lvBoutonSuivant` remplace
+sans toucher à l'attribut resté sur `submitImg()`), ou, là où la suite n'a pas
+de bouton, celle que la correction a nommée par `marquerSuite()` : la minuterie
+du calcul mental et des dérivées (`suiteMinuteur`), et quatre exercices Python
+de la Seconde dont « Question suivante » n'apparaît qu'après « ▶ Exécuter »
+(6.1.1, 6.1.2, 6.1.5 — et 6.1.11, que le banc a trouvé seul). La reprise d'une
+question déjà corrigée appelle cette suite au lieu de la rejuger, et le dit :
+« Question déjà corrigée : on passe à la suivante. » (décision de Turquet,
+octobre 2026). `captureBoxes` ne range plus jamais une case `sol`, et la pause
+ferme l'enregistrement automatique (`recoveryClosed`) — chaque démarreur et la
+reprise le rouvrent, vérifié démarreur par démarreur, y compris ceux que des
+démarreurs partagés servent (`demarrerTdl`, `demarrerTdc`, `demarrerPII`).
+Une question verrouillée sans bouton de suite (les rédigées des fractions de la
+Première, que `sfrRendu` reverrouille lui-même) garde l'ancien chemin, sans
+dommage : la reprise la rend verrouillée.
+**Le banc qui le tient partout, `tests/pause.js`** (`npm run test:pause`, un
+travail « pause » par niveau) : chaque exercice du menu, en entraînement,
+« Vérifier » sur une copie vide puis, si la page refuse, un bouchon qui monte
+d'un cran à chaque refus — des zéros, une phrase dans les rédactions et une
+ligne de calcul dans les feuilles, puis une proposition et le premier segment
+de chaque groupe cliquables ; « ▶ Exécuter » et « Ligne suivante » quand ils
+ouvrent la vérification —, puis le VRAI geste de l'élève : `pauseTest()`,
+l'écran des modes du devoir, la reprise. Exigé : ni réponse ni point de plus,
+la suite annoncée, et au plus un brouillon par pause, aucun après le retour au
+menu. **Éprouvé sur la version en ligne** (une copie de `main`) : trois
+questions rejugées sur cinq exercices de la Terminale, dont deux qui gagnent
+un point (« 1 réponse, 0 point à la pause ; 2 et 1 après la reprise ») ; sur la
+version corrigée, aucune. Les exercices que le banc ne sait pas mener à une
+question corrigée — tracer sur un graphique ou un quadrillage, une table au
+clavier contre la montre, un programme Python par étapes, un calcul libre que
+la page refuse tant qu'il n'est pas écrit à la suite de la somme — se déclarent
+(`pauseReprise.horsAtteinte`, raison comprise), et une déclaration qui ne sert plus
+rougit. **Le prix est nommé** : l'élève qui reprend une question corrigée ne
+revoit pas sa correction — le message le lui dit, et la question est rangée
+dans ses réponses.

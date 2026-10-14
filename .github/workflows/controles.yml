@@ -170,3 +170,26 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: ${{ matrix.niveau }} — la note enregistrée est celle qui s'affiche
         run: node tests/notes.js ${{ matrix.niveau }}
+
+  # UNE QUESTION CORRIGÉE NE SE REJUGE PAS À LA REPRISE (octobre 2026). Chaque
+  # exercice du menu : « Vérifier », la vraie pause, l'écran des modes du
+  # devoir, la reprise — ni réponse ni point de plus, et un seul brouillon.
+  # Un travail à part pour la même raison que « notes » : ses minutes
+  # courent en même temps que celles des autres.
+  pause:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        niveau: [premiere-specifique.html, secondes.html, terminale.html]
+    name: pause (${{ matrix.niveau }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Installer Chromium
+        run: npx playwright install --with-deps chromium
+      - name: ${{ matrix.niveau }} — une question corrigée ne se rejuge pas à la reprise
+        run: node tests/pause.js ${{ matrix.niveau }}

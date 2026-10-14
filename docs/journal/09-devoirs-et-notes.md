@@ -1318,3 +1318,41 @@ au lieu d'un vert rattrapé) ; `CREDIT_PARTIEL_FIN` remis à vrai en Première
 qui ignore le partiel d'une séance d'une question en Terminale
 (« etude-convexite — note 0 / 1, le crédit partiel vaudrait 0,29 »).
 
+
+**Puis l'inventaire a compté les cases de la Terminale, où le crédit partiel
+est en ligne** (octobre 2026). Sept lecteurs ont relu chaque correction des
+trois niveaux, dans un vrai Chromium, pour préparer la levée de la suspension ;
+la Terminale passait d'abord, parce que son crédit partiel compte DÉJÀ.
+* **Ses cases facultatives comptaient.** u, v, u′, v′ (`.dexp-facblock` :
+  {derivee-exp-2}, {derivee-exp-quotient-2}, {etude-exponentielle}) étaient
+  peints puis comptés par `ptsEcran` : une dérivée FAUSSE avec u, v, u′, v′
+  justes valait 0,75 point, quand le commentaire de ces écrans promet
+  « aucune influence sur la note ». Ils en sortent — 0,75 tombe à 0.
+* **Ses miroirs comptaient en plus de la case qu'ils recopient** (`.dq-mirror`) :
+  au {derivee-exp-quotient}, la saisie du dénominateur pesait trois fois, juste
+  comme fausse ; à l'{etude-quotient}, deux fautes fantômes à chaque copie
+  imparfaite (33 cases au lieu de 31). Ils en sortent.
+* **La feuille de l'étude exponentielle est une réponse, et ne comptait pas** :
+  la page annonçait « n / 47 » et comptait 50 cases, dont les quatre
+  facultatives, sans la feuille. Elle compte désormais une fois, avec le
+  verdict de la dérivée (`pts-case`, bleue ou rouge), comme celle du
+  {suite-variation-recurrence} — 47.
+* **Une copie blanche ne gagne rien** (décision de Turquet, octobre 2026) : aux
+  limites graphiques, l'équation d'une asymptote attendue dont l'élève n'a pas
+  ouvert la zone n'était pas comptée — le dénominateur dépendait de son choix.
+  Elle compte maintenant comme une case non juste, sans couleur (`.pts-vide`,
+  que `ptsEcran` lit).
+* Les études de convexité rangent aussi `justes` à côté de `pts` et `cases`.
+`ptsEcran` exclut donc `.pose-fac, .dexp-facblock, .dq-mirror, .hors-note`
+(cette dernière : toute autre case peinte qui n'est pas une réponse), et compte
+`.pts-vide`. **Un contrôle commun aux trois niveaux le tient** (banc principal,
+section 4, « le crédit partiel ne compte que les réponses ») : il pose à
+l'écran une réponse juste, une fausse, une montrée, une attendue non ouverte,
+et quatre champs peints qui ne sont pas des réponses — attendu, 1 juste sur 4.
+La Seconde et la Première, dont le crédit partiel reste suspendu, s'y déclarent
+(`notes.creditPartielSuspendu`), et la déclaration rougira dès que leur compte
+sera sûr. Deux sous-comptes de la Terminale restent pour la pull request
+suivante, parce que la note y est trop BASSE et non gonflée : les réponses a)
+et b) du {tvi-lecture-graphique}, qui ne comptent jamais, et les feuilles de
+{derivee-exp-2} et {derivee-exp-quotient-2}, qui sont la réponse notée et
+valent donc déjà 0 ou 1.

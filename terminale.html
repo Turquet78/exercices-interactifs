@@ -848,6 +848,8 @@
      (fond adouci + filet). Les fonds adoucis ne disent rien a « 9 bis » : ce
      sont le filet et la bordure qui portent l'encre, en proprietes longues —
      un raccourci a var() ne se relit pas dans la CSSOM. */
+  #ecSheet.ok{border-color:var(--blue)}
+  #ecSheet.bad{border-color:var(--red)}
   #svrSheet{margin:6px 0 10px}
   #svrSheet.ok{border-color:var(--blue)}
   #svrSheet.bad{border-color:var(--red)}
@@ -4911,14 +4913,49 @@ function ouvrirDevoirs(){ window.open(PAGE_DEVOIRS_URL,'_blank','noopener'); }
    qu'aucun panneau : rebranché, il aurait lancé un exercice sans passer par le
    choix, et personne ne l'aurait vu (septembre 2026). */
 let pausedRows={};
+/* LA PAUSE NE REJUGE PLUS UNE QUESTION DÉJÀ CORRIGÉE (octobre 2026).
+   Une question vérifiée puis mise en pause rouvrait DÉVERROUILLÉE : le
+   brouillon ne rangeait pas « locked », et captureBoxes rangeait aussi les
+   corrections que la page venait d'écrire (classe sol) — restoreBoxes les
+   remettait dans les cases comme des saisies de l'élève. Une seconde
+   vérification jugeait donc la correction de la page : une copie fausse
+   devenait parfaite, et la question comptait deux fois (mesuré : 89
+   exercices en Seconde, 25 en Première, 9 en Terminale). Le brouillon range
+   désormais le verrou ET le geste qui mène à la suite — le bouton visible de
+   l'écran (next…, finish…, endLevel : la propriété onclick d'abord, que
+   lvBoutonSuivant remplace sans toucher à l'attribut), ou, là où la suite
+   n'a pas de bouton (une minuterie, un programme à exécuter d'abord), celui
+   que la correction a nommé (marquerSuite). La reprise d'une question déjà
+   corrigée passe à la suite au lieu de la rejuger. tests/pause.js le tient. */
+function marquerSuite(f){ test.suite={f:f, idx:test.idx, kind:test.kind}; }
+function suiteDeLEcran(){
+  const scr=document.querySelector('.screen.on'); if(!scr) return '';
+  const RE=/^(next\w*|finish\w*|endLevel)$/;
+  for(const b of scr.querySelectorAll('button')){
+    if(b.disabled || b.hidden || !b.getClientRects().length) continue;
+    let nom=(typeof b.onclick==='function' && b.onclick.name && b.onclick.name!=='onclick') ? b.onclick.name : '';
+    if(!RE.test(nom)){ const m=/^\s*([A-Za-z_$][\w$]*)\s*\(/.exec(b.getAttribute('onclick')||''); nom=m?m[1]:''; }
+    if(RE.test(nom) && typeof window[nom]==='function') return nom;
+  }
+  return '';
+}
+function suiteDeLaQuestion(){
+  if(!test.locked) return '';
+  const s=test.suite;
+  const nommee=(s && s.idx===test.idx && s.kind===test.kind && typeof window[s.f]==='function') ? s.f : '';
+  return suiteDeLEcran() || nommee;
+}
 function snapshotTest(){
-  const skip={qTimer:1,qDeadline:1,qTotal:1,fbTimer:1,locked:1,startTime:1,_boxes:1};
-  const snap={}; Object.keys(test).forEach(k=>{ if(!skip[k]) snap[k]=test[k]; }); return snap;
+  const skip={qTimer:1,qDeadline:1,qTotal:1,fbTimer:1,locked:1,startTime:1,_boxes:1,_suite:1};
+  const snap={}; Object.keys(test).forEach(k=>{ if(!skip[k]) snap[k]=test[k]; });
+  const suite=suiteDeLaQuestion(); if(suite){ snap.locked=true; snap._suite=suite; }   /* question déjà corrigée : la reprise passe à la suite */
+  return snap;
 }
 // lit ce que l'élève a déjà saisi dans les cases de la question en cours
 function captureBoxes(){
   const scr=document.querySelector('.screen.on'); if(!scr) return {};
   const m={}; scr.querySelectorAll('input[id],select[id],math-field[id]').forEach(el=>{
+    if(el.classList.contains('sol')) return;   /* une correction écrite par la page n'est pas une saisie */
     let v; if(el.tagName==='MATH-FIELD'){ try{ v=el.getValue(); }catch(e){ v=''; } } else v=el.value;
     if(v!=null && v!=='') m[el.id]=v; }); return m;
 }
@@ -5108,6 +5145,7 @@ async function pauseTest(){
   else if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
   else toast('Pause non enregistrée — reste connecté et réessaie','err');
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
+  recoveryClosed=true;                      /* plus d'enregistrement automatique : un autoSave différé insérait un SECOND brouillon après le retour au menu (chaque démarreur et la reprise rouvrent) */
   /* retour à l'écran d'où l'exercice a été lancé, comme l'abandon — voir ecranAvantExo */
   await retourAvantExo();
 }
@@ -5281,13 +5319,16 @@ async function resumeTest(mode){
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
   Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
-  const skip={state:1,test:1,mode:1,_boxes:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
+  /* une question déjà corrigée (snapshotTest) : la reprise passe à sa suite */
+  const suite=(d.locked===true && typeof d._suite==='string' && /^(next\w*|finish\w*|endLevel|suiteMinuteur)$/.test(d._suite) && typeof window[d._suite]==='function') ? d._suite : '';
+  const skip={state:1,test:1,mode:1,_boxes:1,locked:1,_suite:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
   test.startTime=Date.now()-((row.duration_sec||0)*1000);
   test.locked=false;
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
   if(!afficherEcranDe(test.kind)){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
+  if(suite){ test.locked=true; toast('Question déjà corrigée : on passe à la suivante.','ok'); window[suite](); return; }   /* ni les cases ni le verdict ne reviennent : la question est faite */
   restoreBoxes(draft);   // et on recolore les cases déjà complètes
 }
 
@@ -7038,6 +7079,9 @@ function tickTimer(){
   if(left<=0){submitAnswer(true);return;}
   test.qTimer=setTimeout(tickTimer,200);
 }
+/* La suite d'une question à minuterie : la question suivante, ou la fin.
+   Nommée pour que la reprise d'une pause prise pendant le délai la retrouve. */
+function suiteMinuteur(){ if(test.idx<test.questions.length-1){test.idx++;renderQuestion();autoSave();} else finishTest(); }
 function submitAnswer(timedOut){
   if(test.locked)return;
   const q=test.questions[test.idx],ai=$('answerInput'),raw=ai.value.trim();
@@ -7066,7 +7110,8 @@ function submitAnswer(timedOut){
     $('correction').innerHTML=pre+'R\u00e9ponse : '+(q.type==='expr'?'f\u2009\u2032(x) = ':'')+esc(String(q.answer));
   }
   test.answers.push({...(ptsExo()||{}),q:q.text,answer:q.answer,given,correct,type:q.type});
-  test.fbTimer=setTimeout(()=>{ if(test.idx<test.questions.length-1){test.idx++;renderQuestion();autoSave();} else finishTest(); },correct?850:1600);
+  marquerSuite('suiteMinuteur');
+  test.fbTimer=setTimeout(suiteMinuteur,correct?850:1600);
 }
 /* ================== NOTE AVEC CREDIT PARTIEL ==================
    Un exercice qui comporte plusieurs cases ne vaut plus 0 des la premiere erreur : au
@@ -7085,9 +7130,26 @@ function ptsEcran(){
        C'est le défaut de « good » au lieu de « ok », par une autre porte : la
        note enregistrée serait juste, seule celle montrée à l'élève mentirait.
        (La Seconde a la même ligne, pour la même raison.) */
-    const els=scr.querySelectorAll('math-field.ok,math-field.bad,math-field.sol,'
+    /* CE QUI N'EST PAS UNE RÉPONSE NE COMPTE PAS (octobre 2026, inventaire
+       du crédit partiel). Les cases facultatives u, v, u′, v′ (.dexp-facblock :
+       {derivee-exp-2}, {derivee-exp-quotient-2}, {etude-exponentielle}) étaient
+       peintes puis comptées — une dérivée FAUSSE avec u, v, u′, v′ justes
+       valait 0,75 point, quand le commentaire de ces écrans promet « aucune
+       influence sur la note ». Les miroirs en lecture seule (.dq-mirror) se
+       comptaient en plus de la case qu'ils recopient : la saisie du
+       dénominateur pesait trois fois au {derivee-exp-quotient}, et
+       {etude-quotient} ajoutait deux fautes fantômes à chaque copie imparfaite.
+       .hors-note : toute autre case peinte qui n'est pas une réponse.
+       ET UNE RÉPONSE ATTENDUE QUE L'ÉLÈVE N'A PAS OUVERTE COMPTE (décision de
+       Turquet, octobre 2026 : une copie blanche ne gagne rien) : .pts-vide,
+       sans couleur, est une case non juste — l'équation d'une asymptote
+       attendue dont la zone est restée fermée, aux limites graphiques. */
+    const HORS_NOTE='.pose-fac, .dexp-facblock, .dq-mirror, .hors-note';
+    const juges=[...scr.querySelectorAll('math-field.ok,math-field.bad,math-field.sol,'
       +'select.ok,select.bad,select.sol,input.ok,input.bad,input.sol,'
-      +'.pts-case.ok,.pts-case.bad,.pts-case.sol');
+      +'.pts-case.ok,.pts-case.bad,.pts-case.sol')];
+    const vides=[...scr.querySelectorAll('.pts-vide')].filter(e=>!e.classList.contains('ok')&&!e.classList.contains('bad')&&!e.classList.contains('sol'));
+    const els=[...juges,...vides].filter(e=>!e.closest(HORS_NOTE));
     if(!els.length) return null;
     let ok=0; els.forEach(e=>{ if(e.classList.contains('ok')) ok++; });
     return {pts:ok/els.length, justes:ok, cases:els.length};
@@ -9295,7 +9357,8 @@ function lgFinal(c){
           if(lgEqOK(s,eq.value)) eq.classList.add('ok');
           else { eq.classList.add('bad'); const fx3=document.createElement('span'); fx3.className='dhv-fix'; fx3.textContent='→ '+numFmt(s.eq); eq.insertAdjacentElement('afterend',fx3); }
         } else eq.classList.add('bad');
-      } }
+      } else if(s.typ!=='rien') eq.classList.add('pts-vide');   /* asymptote attendue, zone restée fermée : une case non juste */
+    }
   });
 }
 let lgBusy=false;
@@ -9655,7 +9718,8 @@ function lgSubsFinal(c,pfx){
           if(lgEqOK(s,eq.value)) eq.classList.add('ok');
           else { eq.classList.add('bad'); const fx3=document.createElement('span'); fx3.className='dhv-fix'; fx3.textContent='→ '+numFmt(s.eq); eq.insertAdjacentElement('afterend',fx3); }
         } else eq.classList.add('bad');
-      } }
+      } else if(s.typ!=='rien') eq.classList.add('pts-vide');   /* asymptote attendue, zone restée fermée : une case non juste */
+    }
   });
 }
 function lg2Final(c){
@@ -16644,7 +16708,7 @@ function ecFormHTML(q){
     +'<div class="dexp-row"><span>'+mlTex("u'=",'<i>u</i>′ = ')+'<math-field class="dexp-mf" id="ec-du"></math-field></span><span>'+mlTex("v'=",'<i>v</i>′ = ')+'<math-field class="dexp-mf" id="ec-dv"></math-field></span></div>'
     +'</div>'
     +'<p class="tvi-instr">Rédige le calcul, une étape par ligne — c’est l’IA qui lit ta rédaction :</p>'
-    +'<div class="dexp2-sheet" id="ecSheet"></div>'
+    +'<div class="dexp2-sheet pts-case" id="ecSheet"></div>'
     +'<p class="dexp-hint">Une étape par ligne. <b>Entrée</b> (ou la touche <b>⏎</b>) ajoute une ligne ; <b>retour arrière</b> sur une ligne vide la supprime.</p>';
   /* ---- c. le tableau (le 5.3) ---- */
   const T=ecTab(q);
@@ -16815,6 +16879,11 @@ async function checkEC(live){
   try{ if(ecF) ecF.verrouiller(); }catch(e){}
   ['ec-u','ec-v','ec-du','ec-dv'].forEach(id=>{ const el=$(id); if(el) el.readOnly=true; });
   test.score=r.nOk+(sheetOk?1:0); $('ecLiveScore').textContent=test.score;
+  /* la feuille de la dérivée est une RÉPONSE, notée par l'IA : elle compte une
+     fois dans la note, avec son verdict, comme celle du {suite-variation-recurrence}
+     (pts-case) — la page annonçait « n / 47 » et comptait 50 cases, dont quatre
+     facultatives, sans la feuille */
+  { const sh=$('ecSheet'); if(sh){ sh.classList.remove('ok','bad','sol'); sh.classList.add(sheetOk?'ok':'bad'); } }
   const A=ecAns(q);
   if(allOk){
     fb.textContent=pick(['Parfait, étude complète !','Excellent !','Bravo, tout y est !']);
@@ -17552,7 +17621,7 @@ function checkECV(live){
     efArrowChange();   /* les flèches complétées en vert se redessinent */
   }
   test.answers.push({...(ptsExo()||{}),q:'Étude de ('+s1ExprText(A.p,A.q)+')e^(−x) et convexité : axes, limites, f′, tableau, TVI, tangente en 0, f″, convexité, point d’inflexion ('+numFmt(A.xI)+' ; '+numFmt(A.cI)+'e^('+numFmt(A.eI)+')), courbe et tangente',
-    answer:'étude complète', given:nOk+'/'+nTot, correct:allOk, pts:nOk/nTot, cases:nTot, type:'tvi'});
+    answer:'étude complète', given:nOk+'/'+nTot, correct:allOk, pts:nOk/nTot, cases:nTot, justes:nOk, type:'tvi'});
   $('ecvActions').innerHTML='<button class="btn btn-primary" onclick="finishTest()">Voir mes résultats</button>';
 }
 function ecvConseilCtx(){
@@ -18050,7 +18119,7 @@ function checkEAV(live){
     eavArrowChange();   /* les flèches complétées en vert se redessinent */
   }
   test.answers.push({...(ptsExo()||{}),q:'Étude de ('+s1ExprText(q.a,q.b)+')'+eavExpo(q).plain+' : lecture graphique, f′ en littéral, limites, tableau, TVI, algorithme (x = '+numFmt(A.xr)+'), f″ et convexité',
-    answer:'étude complète', given:nOk+'/'+nTot, correct:allOk, pts:nOk/nTot, cases:nTot, type:'tvi'});
+    answer:'étude complète', given:nOk+'/'+nTot, correct:allOk, pts:nOk/nTot, cases:nTot, justes:nOk, type:'tvi'});
   $('eavActions').innerHTML='<button class="btn btn-primary" onclick="finishTest()">Voir mes résultats</button>';
 }
 function eavConseilCtx(){

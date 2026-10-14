@@ -11241,9 +11241,43 @@ async function renderDM(results){
   host.hidden=false;
 }
 let pausedRows={};
+/* LA PAUSE NE REJUGE PLUS UNE QUESTION DÉJÀ CORRIGÉE (octobre 2026).
+   Une question vérifiée puis mise en pause rouvrait DÉVERROUILLÉE : le
+   brouillon ne rangeait pas « locked », et captureBoxes rangeait aussi les
+   corrections que la page venait d'écrire (classe sol) — restoreBoxes les
+   remettait dans les cases comme des saisies de l'élève. Une seconde
+   vérification jugeait donc la correction de la page : une copie fausse
+   devenait parfaite, et la question comptait deux fois (mesuré : 89
+   exercices en Seconde, 25 en Première, 9 en Terminale). Le brouillon range
+   désormais le verrou ET le geste qui mène à la suite — le bouton visible de
+   l'écran (next…, finish…, endLevel : la propriété onclick d'abord, que
+   lvBoutonSuivant remplace sans toucher à l'attribut), ou, là où la suite
+   n'a pas de bouton (une minuterie, un programme à exécuter d'abord), celui
+   que la correction a nommé (marquerSuite). La reprise d'une question déjà
+   corrigée passe à la suite au lieu de la rejuger. tests/pause.js le tient. */
+function marquerSuite(f){ test.suite={f:f, idx:test.idx, kind:test.kind}; }
+function suiteDeLEcran(){
+  const scr=document.querySelector('.screen.on'); if(!scr) return '';
+  const RE=/^(next\w*|finish\w*|endLevel)$/;
+  for(const b of scr.querySelectorAll('button')){
+    if(b.disabled || b.hidden || !b.getClientRects().length) continue;
+    let nom=(typeof b.onclick==='function' && b.onclick.name && b.onclick.name!=='onclick') ? b.onclick.name : '';
+    if(!RE.test(nom)){ const m=/^\s*([A-Za-z_$][\w$]*)\s*\(/.exec(b.getAttribute('onclick')||''); nom=m?m[1]:''; }
+    if(RE.test(nom) && typeof window[nom]==='function') return nom;
+  }
+  return '';
+}
+function suiteDeLaQuestion(){
+  if(!test.locked) return '';
+  const s=test.suite;
+  const nommee=(s && s.idx===test.idx && s.kind===test.kind && typeof window[s.f]==='function') ? s.f : '';
+  return suiteDeLEcran() || nommee;
+}
 function snapshotTest(){
-  const skip={qTimer:1,qDeadline:1,qTotal:1,fbTimer:1,locked:1,startTime:1,_boxes:1};
-  const snap={}; Object.keys(test).forEach(k=>{ if(!skip[k]) snap[k]=test[k]; }); return snap;
+  const skip={qTimer:1,qDeadline:1,qTotal:1,fbTimer:1,locked:1,startTime:1,_boxes:1,_suite:1};
+  const snap={}; Object.keys(test).forEach(k=>{ if(!skip[k]) snap[k]=test[k]; });
+  const suite=suiteDeLaQuestion(); if(suite){ snap.locked=true; snap._suite=suite; }   /* question déjà corrigée : la reprise passe à la suite */
+  return snap;
 }
 // lit ce que l'élève a déjà saisi dans les cases de la question en cours
 function captureBoxes(){
@@ -11251,10 +11285,11 @@ function captureBoxes(){
   /* les math-field manquaient : toutes les cases de calcul en sont, et la pause
      perdait donc la saisie en cours de l'eleve */
   const m={}; scr.querySelectorAll('input[id],select[id],math-field[id]').forEach(el=>{
+    if(el.classList.contains('sol')) return;   /* une correction écrite par la page n'est pas une saisie */
     const v=el.value; if(v!==''&&v!==undefined&&v!==null) m[el.id]=String(v); });
   /* cases sans id (poses en colonnes, retenues) : clé = position dans l'écran,
      le rendu d'une question étant déterministe — comme en Première */
-  [...scr.querySelectorAll('input:not([id])')].forEach((el,i)=>{ const v=el.value; if(v!=='') m['#'+i]=v; });
+  [...scr.querySelectorAll('input:not([id])')].forEach((el,i)=>{ if(el.classList.contains('sol')) return; const v=el.value; if(v!=='') m['#'+i]=v; });
   return m;
 }
 // remet les saisies dans les cases après réaffichage de la question
@@ -11442,6 +11477,7 @@ async function pauseTest(){
   else if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
   else toast('Pause non enregistrée — reste connecté et réessaie','err');
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
+  recoveryClosed=true;                      /* plus d'enregistrement automatique : un autoSave différé insérait un SECOND brouillon après le retour au menu (chaque démarreur et la reprise rouvrent) */
   /* retour à l'écran d'où l'exercice a été lancé, comme l'abandon — voir ecranAvantExo */
   await retourAvantExo();
 }
@@ -11525,7 +11561,9 @@ async function resumeTest(mode){
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
   Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
-  const skip={state:1,test:1,mode:1,_boxes:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
+  /* une question déjà corrigée (snapshotTest) : la reprise passe à sa suite */
+  const suite=(d.locked===true && typeof d._suite==='string' && /^(next\w*|finish\w*|endLevel|suiteMinuteur)$/.test(d._suite) && typeof window[d._suite]==='function') ? d._suite : '';
+  const skip={state:1,test:1,mode:1,_boxes:1,locked:1,_suite:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
   test.startTime=Date.now()-((row.duration_sec||0)*1000);
   test.locked=false;
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
@@ -11535,6 +11573,7 @@ async function resumeTest(mode){
     setTimeout(()=>{ const ai=$('tmInput'); if(ai){ ai.value=''; try{ ai.focus(); }catch(e){} } },0); }
   else if(test.kind==='cm'){ show('test'); renderQuestion(); }
   else if(!afficherEcranDe(test.kind)){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
+  if(suite){ test.locked=true; toast('Question déjà corrigée : on passe à la suivante.','ok'); window[suite](); return; }   /* ni les cases ni le verdict ne reviennent : la question est faite */
   restoreBoxes(draft);   // et on recolore les cases déjà complètes
   try{ updateAStep3(); updateDStep3(); updateVStep3(); }catch(e){}   // réaffiche l'étape facultative si l'étape précédente est déjà écrite
 }
@@ -22210,6 +22249,9 @@ function tickTimer(){
   if(left<=0){submitAnswer(true);return;}
   test.qTimer=setTimeout(tickTimer,200);
 }
+/* La suite d'une question à minuterie : la question suivante, ou la fin.
+   Nommée pour que la reprise d'une pause prise pendant le délai la retrouve. */
+function suiteMinuteur(){ if(test.idx<test.questions.length-1){test.idx++;renderQuestion();autoSave();} else finishTest(); }
 function submitAnswer(timedOut){
   if(test.locked)return;
   const q=test.questions[test.idx],ai=$('answerInput'),raw=ai.value.trim();
@@ -22230,7 +22272,8 @@ function submitAnswer(timedOut){
   if(correct){test.score++;$('liveScore').textContent=test.score;}
   else{$('correction').textContent=(timedOut&&given===null?'Temps écoulé — ':'')+`Réponse : ${q.answer}`;}
   test.answers.push({...(ptsExo()||{}),q:q.text,answer:q.answer,given,correct});
-  test.fbTimer=setTimeout(()=>{ if(test.idx<test.questions.length-1){test.idx++;renderQuestion();autoSave();} else finishTest(); },correct?850:1500);
+  marquerSuite('suiteMinuteur');
+  test.fbTimer=setTimeout(suiteMinuteur,correct?850:1500);
 }
 /* ================= Tables de multiplication (rapidité) =================
    TM_NB produits des tables de 2 à 9 dont le résultat a DEUX chiffres, et
@@ -32815,6 +32858,7 @@ function checkPY(live){
   else { $('pyFeedback').textContent=msgAvecVides(subs, pyPourquoi(q, ans, subs))+' Exécute le programme pour le voir.'; $('pyFeedback').className='mp-feedback bad'; }
   const given=subs.map(function(s){ return s.sel&&s.sel.value?s.sel.value:'?'; }).join(' | ');
   test.answers.push({...(ptsExo()||{}), correct:allOk, q:q.src.replace(/\n+/g,' ⏎ '), answer:ans.texte+' | '+ans.valeur+' | '+ans.variable, given:given});
+  marquerSuite('nextPY');   /* la suite n'a pas encore de bouton : il vient après « ▶ Exécuter » */
   $('pyActions').innerHTML=conseilInlineBtn();
   pyDebloquer();
 }
@@ -33024,6 +33068,7 @@ function checkPTY(live){
   else { $('ptyFeedback').textContent=msgAvecVides(subs, ptyPourquoi(q, ans, subs))+' Exécute le programme pour voir ce que Python répond.'; $('ptyFeedback').className='mp-feedback bad'; }
   const given=subs.map(function(s){ return s.sel&&s.sel.value?s.sel.value:'?'; }).join(' | ');
   test.answers.push({...(ptsExo()||{}), correct:allOk, q:q.src.replace(/\n+/g,' ⏎ '), answer:ans.noms.map(function(n){ return n+' : '+ans.types[n]; }).join(' | '), given:given});
+  marquerSuite('nextPTY');   /* la suite n'a pas encore de bouton : il vient après « ▶ Exécuter » */
   $('ptyActions').innerHTML=conseilInlineBtn();
   ptyDebloquer();
 }
@@ -33778,6 +33823,7 @@ function checkPNV(live){
   if(allOk){ $('pnvFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !'])+' Exécute le programme : Python accepte tes noms.'; $('pnvFeedback').className='mp-feedback good'; }
   else { $('pnvFeedback').textContent=msgAvecVides(subs, pourquoi)+' Exécute le programme pour voir les noms en action.'; $('pnvFeedback').className='mp-feedback bad'; }
   test.answers.push({...(ptsExo()||{}), correct:allOk, q:subs.map(function(s){ return s.c.g.txt; }).join(' | '), answer:subs.map(function(s){ return s.ok?s.nom:s.c.g.ex; }).join(' | '), given:subs.map(function(s){ return s.nom||'(vide)'; }).join(' | ')});
+  marquerSuite('nextPNV');   /* la suite n'a pas encore de bouton : il vient après « ▶ Exécuter » */
   $('pnvActions').innerHTML=conseilInlineBtn();
   /* le programme, écrit avec les noms de l'élève — et « Exécuter » débloqué */
   const src=pnvProgramme(q, subs);
@@ -47675,6 +47721,7 @@ function checkPCV(live){
   test.answers.push({...(ptsExo()||{}), correct:allOk, q:pcvProg(q,v.va,v.vb).replace(/\n+/g,' ⏎ '),
     answer:ans.somme+' | '+ans.produit,
     given:subs.map(function(s){ return s.e&&s.e.value?pcvNet(s.e.value):'?'; }).join(' | ')});
+  marquerSuite('nextPCV');   /* la suite n'a pas encore de bouton : il vient après « ▶ Exécuter » */
   $('pcvActions').innerHTML=conseilInlineBtn();
   pcvDebloquer();
 }
