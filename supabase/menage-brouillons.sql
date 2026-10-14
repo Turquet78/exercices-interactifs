@@ -26,8 +26,13 @@
 --  existe.
 --
 --  AUCUNE NOTE N'EST TOUCHÉE. Une note n'a pas de champ « state » : le filtre
---  details->>'state' = 'paused' ne peut pas l'atteindre. L'ÉTAPE 1 le montre
---  chiffres en main avant que quoi que ce soit ne soit supprimé.
+--  details->>'state' = 'paused' ne peut pas l'atteindre. Les ÉTAPES 1 et 3 le
+--  comptent, mais par NOTICE, et l'éditeur SQL de Supabase n'affiche aucune
+--  notice — l'étape 1 tourne d'ailleurs dans le même clic que la suppression
+--  quand on colle le fichier entier. Pour le voir chiffres en main, lancez
+--  SEULE, avant puis après ce fichier, la requête de lecture de
+--  supabase/LISEZMOI.md (« Le ménage des lignes fantômes ») : « notes » ne
+--  bouge pas.
 --
 --  QUAND LE JOUER : en dehors des heures où les élèves travaillent. Les rares
 --  pauses réellement en cours partiraient avec les autres — sans perte de note,
@@ -38,8 +43,12 @@
 
 -- ---------------------------------------------------------------------------
 --  ÉTAPE 1 — CE QU'IL Y A, AVANT DE TOUCHER À QUOI QUE CE SOIT
---  Lisez cette sortie. Si les nombres vous surprennent, arrêtez-vous ici :
---  rien n'a encore été supprimé.
+--  Cette sortie part en NOTICE, que l'éditeur SQL de Supabase n'affiche pas ;
+--  et « Run » joue d'un coup tout le fichier collé, l'étape 2 avec : ce n'est
+--  pas ici qu'on peut s'arrêter. Ce qu'il y a se lit AVANT de coller ce
+--  fichier, par la requête de lecture de supabase/LISEZMOI.md — et si les
+--  nombres vous surprennent, c'est là qu'on s'arrête : rien n'a encore été
+--  supprimé.
 -- ---------------------------------------------------------------------------
 do $$
 declare
@@ -99,7 +108,10 @@ end $$;
 
 -- ---------------------------------------------------------------------------
 --  ÉTAPE 3 — CE QU'IL RESTE
---  « brouillons » doit être à zéro partout, et « notes » identique à l'étape 1.
+--  « brouillons » doit être à zéro partout (sauf ceux de moins de 24 h si la
+--  ligne de l'étape 2 a été décommentée), et « notes » identique à l'étape 1.
+--  Par NOTICE encore, invisible dans l'éditeur SQL de Supabase : relancez la
+--  requête de lecture de supabase/LISEZMOI.md pour le voir.
 -- ---------------------------------------------------------------------------
 do $$
 declare
