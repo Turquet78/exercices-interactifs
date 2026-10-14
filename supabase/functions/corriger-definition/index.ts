@@ -32,8 +32,49 @@ const MAX_LEN = 800;                 // longueur max du texte ÉCRIT PAR L'ÉLÈ
    la valeur ci-dessous : la relever ou l'abaisser fait donc réagir les contrôles
    du dépôt, ce qui est tout l'intérêt d'avoir cette fonction sous les yeux. */
 const MAX_CTX = 20000;               // longueur max du CONTEXTE d'exercice, généré par l'application (action « conseil »)
-const MODEL   = "claude-haiku-4-5-20251001";  // modèle économique ; change-le si besoin
-const MAX_TOKENS = 900;   // releve pour les exemples numeriques complets de terminale.html (reponse coupee en pleine formule avec 500)
+/* MODÈLE : Claude Haiku 5.5, à la place de Haiku 4.5 (décision de Turquet,
+   octobre 2026). Son identifiant s'écrit tel quel, SANS suffixe de date.
+   Haiku 5.5 refuse d'un 400 trois choses que Haiku 4.5 acceptait, et aucune ne
+   doit entrer dans la requête plus bas : un réglage d'échantillonnage
+   (temperature, top_p, top_k), un préremplissage (une conversation qui finit
+   par un message « assistant »), un budget de réflexion (budget_tokens). Un 400
+   se lirait chez l'élève « L'aide IA est mal configurée (code 400) », sur TOUTE
+   l'aide des trois niveaux.
+   Changer de modèle se fait ICI et dans le banc (tests/fonction-ia.js), qui
+   exige cet identifiant : un changement fait d'un seul côté le fait rougir. */
+const MODEL   = "claude-haiku-5-5";
+/* MAX_TOKENS borne TOUT ce que le modèle produit, sa réflexion comprise : Haiku
+   5.5 réfléchit avant de répondre, et cette réflexion se décompte de la même
+   borne — où le même texte coûte en outre ~30 % de tokens de plus qu'avec
+   Haiku 4.5. À 900 (la valeur de Haiku 4.5, déjà relevée de 500 pour les
+   exemples numériques complets de la Terminale), la réflexion pouvait consommer
+   la borne entière : la réponse s'arrêtait sur « max_tokens » sans un mot de
+   texte, et l'élève n'aurait rien reçu. La LONGUEUR de ce que lit l'élève est
+   tenue par les consignes (« 2 à 3 phrases », « 3 à 5 phrases »…), pas par
+   cette borne ; le COÛT, par les quotas (DAILY_LIMIT_PER_ELEVE,
+   HOURLY_GLOBAL_LIMIT). */
+const MAX_TOKENS = 16000;
+/* EFFORT, par action : c'est le levier du coût et de la latence — pas le
+   prompt. Pour que le modèle réfléchisse moins, on baisse l'effort ; on
+   n'écrit pas « réfléchis peu » dans une consigne.
+   - conseil : « low ». L'indice du bouton « Conseil » : deux ou trois
+     phrases, et l'élève attend devant « Je réfléchis à un indice… ».
+   - verif, redaction, definition : « medium ». Un VERDICT, où l'exactitude
+     compte plus que la vitesse. C'est aussi le défaut de Haiku 5.5 : l'écrire
+     tient le réglage même si ce défaut change un jour.
+   - la QUESTION D'UN ÉLÈVE (fenêtre « Pose ta question à l'IA », dont
+     « Montre-moi un exemple de rédaction ») part elle aussi en action
+     « conseil », mais elle exige souvent un EXEMPLE NUMÉRIQUE COMPLET calculé
+     jusqu'au résultat — la sortie la plus calculatoire de l'application,
+     celle pour laquelle la borne avait été relevée sous Haiku 4.5. Elle part à
+     EFFORT_QUESTION ; on la reconnaît au marqueur que les trois pages posent en
+     tête du contexte (QUESTION_ELEVE), comme legacyDexp reconnaît les dérivées
+     historiques à leur attendu. */
+const EFFORT: Record<string, "low" | "medium"> = {
+  conseil: "low", verif: "medium", redaction: "medium", definition: "medium",
+};
+const EFFORT_QUESTION = "medium";
+const QUESTION_ELEVE = /^MISSION « r[ée]ponse [àa] une question d/;
 // ----------------------------------------------------------------------------
 
 const ENS_INFO: Record<string, { sym: string; nom: string; rappels: string }> = {
@@ -245,6 +286,8 @@ Deno.serve(async (req: Request) => {
      toujours ce marqueur dans leur attendu : ils gardent la correction spécialisée d'origine.
      Tout autre appel « verif » décrit lui-même son énoncé et sa règle : correcteur générique. */
   const legacyDexp = isVerif && /ÉGALEMENT CORRECT dans l[’']autre ordre/.test(attendu);
+  const questionEleve = isConseil && QUESTION_ELEVE.test(contexte);
+  const effort = questionEleve ? EFFORT_QUESTION : EFFORT[action];
   const sys = (isConseil ? CONSEIL_SYS + (balises ? NOTATION_LATEX : NOTATION_PLAIN) : isVerif ? (legacyDexp ? VERIF_DEXP_SYS : VERIF_GEN_SYS) : isRedac ? REDAC_SYS : systeme(ensemble))
     + (balises && (isConseil || isVerif || isRedac) ? BALISE_INSTR : "");
   const userMsg = isConseil
@@ -260,6 +303,10 @@ Deno.serve(async (req: Request) => {
   let feedback = "";
   let correct = false;
   let criteres: { variation: boolean; continuite: boolean; monotonie: boolean; unicite: boolean } | null = null;
+  /* La ligne du journal (étape 4) a UNE forme, qu'elle note une réponse, un
+     refus, une coupure ou une réponse illisible : la même fonction la fabrique
+     dans tous les cas. */
+  const ligneJournal = (fb: string) => ({ eleve_id, ensemble: isConseil ? "conseil" : isVerif ? "verif" : isRedac ? "redaction" : ensemble, texte: isConseil ? contexte : isVerif ? reponse : isRedac ? redaction : texte, feedback: fb });
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -271,6 +318,11 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_TOKENS,
+        /* Réflexion adaptative — le défaut de Haiku 5.5, écrit pour être lu.
+           Sa profondeur se règle par l'effort de l'action (EFFORT), jamais par
+           un budget_tokens, que Haiku 5.5 refuse. */
+        thinking: { type: "adaptive" },
+        output_config: { effort },
         system: sys,
         messages: [{ role: "user", content: userMsg }],
       }),
@@ -278,22 +330,88 @@ Deno.serve(async (req: Request) => {
     if (!r.ok) {
       const errBody = await r.text().catch(() => "");
       console.error("Erreur API Anthropic", r.status, errBody.slice(0, 500));
-      return reply({ error: "L'IA a renvoyé une erreur (code " + r.status + "). Vérifie la clé API et le crédit sur console.anthropic.com." }, 200, headers);
+      /* Deux familles, et l'élève n'a pas à lire « vérifie la clé API » : une
+         SURCHARGE (429, 529, toute 5xx) se réessaie — Haiku 5.5 n'a aucun repli
+         côté serveur, elle arrive donc telle quelle —, une erreur de
+         CONFIGURATION (400, 401, 403, 404…) ne passera pas toute seule, et c'est
+         le professeur qui doit le savoir. Le code reste dans le message : c'est
+         lui que la notice (supabase/LISEZMOI.md, 5 bis) apprend à lire. */
+      const surcharge = r.status === 429 || r.status >= 500;
+      return reply({ error: surcharge
+        ? "L'IA est très sollicitée, réessaie dans un instant (code " + r.status + ")."
+        : "L'aide IA est mal configurée (code " + r.status + ") : préviens ton professeur." }, 200, headers);
     }
     const out = await r.json();
+    /* LE STOP_REASON SE LIT AVANT LE CONTENU. Deux fins de Haiku 5.5 rendent
+       un HTTP 200 sans réponse exploitable :
+       - « refusal » : un classificateur de sécurité a décliné la demande
+         (stop_details.category dit lequel) ; content peut être vide, et Haiku
+         5.5 n'a AUCUN repli côté serveur — rien ne réessaie à notre place ;
+       - « max_tokens » : la borne est atteinte, par la réflexion parfois avant
+         le moindre texte, ou au milieu du JSON d'un verdict.
+       Dans les deux cas la fonction rend une ERREUR, pas un texte : les pages
+       affichent d.error. Pour « verif », la Seconde et la Première basculent
+       alors sur leur juge local quand il sait (« (!res || res.error) &&
+       juge.sait ») ; la Terminale ne compte ni ne verrouille la question, et
+       propose « Réessayer ». Un texte de secours (« Je n'ai pas pu analyser… »,
+       avec correct: false) passerait pour un verdict du modèle : la copie
+       serait comptée fausse, et verrouillée en Terminale. Un JSON coupé serait
+       recopié brut sous les yeux de l'élève, ou son « true » deviné. La ligne
+       du journal est écrite quand même : elle compte dans les quotas, et le
+       professeur voit le refus. */
+    if (out?.stop_reason === "refusal") {
+      const categorie = String(out?.stop_details?.category || "sans catégorie");
+      console.warn("Refus du modèle", categorie);
+      await admin.from("corrections_ia").insert(ligneJournal("[refus du modèle : " + categorie + "]"));
+      /* Le message suit ce que l'élève a fait : l'indice du bouton « Conseil »
+         est fabriqué par la page — l'élève n'a rien écrit, il n'a rien à
+         reformuler ; une réponse à juger ne doit pas l'inviter à changer une
+         réponse peut-être juste. */
+      return reply({ error: questionEleve
+        ? "L'IA n'a pas pu répondre à cette question. Reformule-la, ou demande à ton professeur."
+        : isConseil
+        ? "L'IA n'a pas pu donner d'indice sur cet exercice. Demande à ton professeur."
+        : "L'IA n'a pas pu relire ta réponse. Réessaie, ou demande à ton professeur." }, 200, headers);
+    }
+    if (out?.stop_reason === "max_tokens") {
+      console.warn("Réponse du modèle coupée (max_tokens =", MAX_TOKENS + ")");
+      await admin.from("corrections_ia").insert(ligneJournal("[réponse coupée]"));
+      return reply({ error: "La réponse de l'IA a été coupée avant la fin. Réessaie." }, 200, headers);
+    }
+    /* Les blocs se lisent par TYPE, jamais content[0] : la réponse de Haiku 5.5
+       COMMENCE par un ou plusieurs blocs « thinking » (texte vide par défaut). */
     const raw = (out?.content || [])
       .filter((b: { type: string }) => b.type === "text")
       .map((b: { text: string }) => b.text)
       .join("\n").trim();
+    /* UNE RÉPONSE ILLISIBLE N'EST PAS UN VERDICT. Un 200 sans texte (la
+       réflexion seule), un texte qui n'est pas le JSON demandé, un JSON sans
+       « correct » booléen — ou, pour une rédaction, sans ses critères : la
+       fonction rendait jusqu'ici « Je n'ai pas pu analyser ta réponse » avec
+       correct: false, ou la prose brute du modèle (« Ta réponse est correcte,
+       bravo ! » comptée fausse). C'est le même défaut que le refus, par une
+       autre porte : la copie était comptée fausse, verrouillée en Terminale,
+       et le juge local de la Seconde et de la Première ne prenait pas la main.
+       Une erreur, journalisée, comme le refus et la coupure. */
+    const illisible = async (pourquoi: string) => {
+      console.warn("Réponse du modèle illisible :", pourquoi, raw.slice(0, 300));
+      await admin.from("corrections_ia").insert(ligneJournal("[réponse illisible] " + raw.slice(0, 500)));
+      return reply({ error: "La réponse de l'IA est illisible. Réessaie." }, 200, headers);
+    };
     if (isConseil) {
-      feedback = raw || "Je n'ai pas de conseil pour l'instant. Réessaie dans un instant.";
+      if (!raw) return await illisible("aucun texte");
+      feedback = raw;
     } else {
+      if (!raw) return await illisible("aucun texte");
+      let lisible = false;
       try {
         let js = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
         const p = js.indexOf("{"), q = js.lastIndexOf("}");
         if (p >= 0 && q > p) js = js.slice(p, q + 1);
         js = js.replace(/\\([\s\S])/g, (m, ch) => ('"\\/bfnrtu'.includes(ch) ? m : "\\\\" + ch));  // répare les échappements LaTeX invalides (ex. \cdot) avant le parse
         const parsed = JSON.parse(js);
+        lisible = !!parsed && typeof parsed === "object" && typeof parsed.correct === "boolean"
+          && (!isRedac || (!!parsed.criteres && typeof parsed.criteres === "object"));
         correct = parsed.correct === true;
         feedback = (parsed.feedback || "").toString().trim();
         if (isRedac && parsed.criteres && typeof parsed.criteres === "object") {
@@ -305,8 +423,9 @@ Deno.serve(async (req: Request) => {
           };
           correct = criteres.variation && criteres.continuite && criteres.monotonie && criteres.unicite;
         }
-      } catch (_e) { feedback = ""; }
-      if (!feedback) feedback = raw || "Je n'ai pas pu analyser ta réponse. Réessaie en reformulant ta définition.";
+      } catch (_e) { lisible = false; }
+      if (!lisible) return await illisible("pas le JSON demandé");
+      if (!feedback) feedback = raw;
     }
   } catch (e) {
     console.error("Appel à l'IA échoué", String(e));
@@ -319,7 +438,7 @@ Deno.serve(async (req: Request) => {
   feedback = balises ? feedback.trim() : nettoieFeedback(feedback);
 
   // 4) Journalisation (pour toi + quotas)
-  await admin.from("corrections_ia").insert({ eleve_id, ensemble: isConseil ? "conseil" : isVerif ? "verif" : isRedac ? "redaction" : ensemble, texte: isConseil ? contexte : isVerif ? reponse : isRedac ? redaction : texte, feedback });
+  await admin.from("corrections_ia").insert(ligneJournal(feedback));
 
   return reply(isConseil ? { feedback } : isRedac ? { correct, feedback, criteres } : { correct, feedback }, 200, headers);
 });
