@@ -8883,7 +8883,10 @@ async function parcours(page, N){
       await glisser('v', [uf[0] - e.v[0], uf[1] - e.v[1]]);
       e = await etat();
       if(JSON.stringify(e.v) !== JSON.stringify(uf) || e.ch !== 'uv') dits.push('v glissé ne s\'accroche pas au bout de u : ' + JSON.stringify(e.v) + ' au lieu de ' + JSON.stringify(uf));
-      /* u + v : le début tombe SUR la flèche u, sa prise doit laisser passer le clic */
+      /* question b) : le bouton fige les flèches et ouvre le tracé */
+      await s.page.click('#svcValidate');
+      await s.page.waitForTimeout(150);
+      /* u + v : le début tombe SUR la flèche u, et le clic doit arriver au nœud */
       await clic(e.u[0], e.u[1], 0.15);
       e = await etat();
       if(JSON.stringify(e.sd) !== JSON.stringify(e.u)) dits.push('le clic sur le début de u (sous sa prise) ne pose pas le début de u + v : ' + JSON.stringify(e.sd));
@@ -8897,6 +8900,27 @@ async function parcours(page, N){
       const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
         bouton: document.getElementById('svcNext') ? document.getElementById('svcNext').textContent : '' }));
       if(fin.score !== 2 || !fin.locked) dits.push('la copie juste glissée vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller'));
+      /* le nom de la somme : une petite flèche sur u, une sur v, chacune AU-DESSUS de sa lettre */
+      const nom = await s.page.evaluate(() => {
+        const t = document.querySelector('#svcTrace text.svc-nom'), f = document.querySelector('#svcTrace path.svc-nfl');
+        if(!t || !f) return 'nom ou flèches absents';
+        const sp = [...t.querySelectorAll('tspan')];
+        if(sp.length !== 3) return sp.length + ' signes au lieu de 3';
+        const svg = f.ownerSVGElement, m = svg.getScreenCTM();
+        const segs = f.getAttribute('d').match(/M[-\d.]+ [-\d.]+h[\d.]+/g) || [];
+        const dits = [];
+        [sp[0], sp[2]].forEach((L, k) => {
+          const b = L.getBBox(), g = segs[k] && segs[k].match(/M([-\d.]+) ([-\d.]+)h([\d.]+)/);
+          if(!g) { dits.push('pas de flèche pour la lettre ' + L.textContent); return; }
+          const x0 = +g[1], x1 = x0 + +g[3], cx = b.x + b.width / 2;
+          if(cx < x0 - 1 || cx > x1 + 1) dits.push('la flèche de ' + L.textContent + ' n\'est pas sur sa lettre');
+          if(+g[2] > b.y + 4) dits.push('la flèche de ' + L.textContent + ' tombe sur sa lettre');
+        });
+        const p = sp[1].getBBox(), u = sp[0].getBBox(), v = sp[2].getBBox();
+        if(!(u.x + u.width <= p.x + 2 && p.x + p.width <= v.x + 2)) dits.push('les signes de u+v se chevauchent');
+        return dits.join(', ');
+      });
+      if(nom) dits.push('le nom de u + v : ' + nom);
       if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
       /* question suivante : u tiré loin à droite reste dans le quadrillage ; copie fausse */
       await s.page.click('#svcNext');
@@ -8910,6 +8934,8 @@ async function parcours(page, N){
       e = await etat();
       const bord = e.uc[0] >= 0 ? 12 - e.uc[0] : 12;
       if(e.u[0] !== bord || e.u[1] !== e.uo[1]) dits.push('u tiré hors du quadrillage n\'est pas retenu au bord : ' + JSON.stringify(e.u) + ' au lieu de [' + bord + ',' + e.uo[1] + ']');
+      await s.page.click('#svcValidate');
+      await s.page.waitForTimeout(150);
       await s.page.click('#svcValidate');
       await s.page.waitForTimeout(300);
       const faux = await s.page.evaluate(() => ({
@@ -8927,7 +8953,7 @@ async function parcours(page, N){
     }
 
     /* ===== 6 quadragies quinquies. SOMME DE VECTEURS DANS UN REPÈRE ===== */
-    /* {somme-vecteurs-repere} (8.9, demande de Turquet, octobre 2026, la
+    /* {somme-vecteurs-repere} (8.10, demande de Turquet, octobre 2026, la
        « fiche 10 sur somme de vecteur ») : l'élève fait la fiche entière, à la
        souris, dans l'ordre demandé — il PLACE les quatre points, TRACE BC et
        BA (le second clic sur B tombe sur la prise de BC, qui doit le laisser
