@@ -30,14 +30,18 @@ Trois règles en découlent, et elles valent pour chaque fichier de ce dossier :
 - **Les lignes `NOTICE` ne s'affichent jamais.** Tout ce qu'un fichier
   « annonce », « nomme » ou « liste » par `raise notice` — un état avant, un
   bilan, une liste d'élèves — reste invisible. Seul `psql` les montre : c'est
-  ce que lit le banc (`npm run test:base`), et c'est de lui que parlent les
-  commentaires des fichiers quand ils disent « à lire dans la sortie ».
+  ce que lit le banc (`npm run test:base`). Les migrations qui disent « à lire
+  dans la sortie de l'éditeur SQL » ont été écrites avant ce constat et ne sont
+  pas réécrites : cette sortie-là, l'éditeur ne la montre pas.
 - **Seul le résultat de la DERNIÈRE requête s'affiche.** Deux `select` collés
   ensemble ne montrent que le tableau du second : une requête de lecture se
   colle **seule**.
 - **Une erreur s'affiche en rouge, et annule tout le fichier.** Les migrations
-  se contrôlent elles-mêmes par des erreurs (`raise exception`) : pour elles,
-  « Success » veut dire que leurs contrôles sont passés. Mais ce qu'un fichier
+  001, 002 et 005 à 010 se contrôlent elles-mêmes par des erreurs
+  (`raise exception`) : pour elles, « Success » veut dire que leurs contrôles
+  sont passés. La 003 et la 004 n'en ont aucun : « Success » y dit seulement
+  qu'elles ont tourné — c'est leur requête « Pour vérifier » qui tranche, comme
+  pour les scripts de ménage, de réparation et de reliage. Mais ce qu'un fichier
   se contente de **déclarer** par une `NOTICE` — une table absente sautée, une
   mesure qu'il n'a pas pu faire — passe en silence, et « Success » ne le
   distingue pas.
@@ -217,7 +221,8 @@ where schemaname='public' and policyname not like 'p\_%'
                     'parametres','parametres_1ere','parametres_2nde');
 ```
 
-→ **zéro ligne**.
+→ **zéro ligne** — ou seulement les politiques que la 002 a laissées, à juger
+une par une.
 
 > `npm run test:base` le démontre plutôt que de l'affirmer : joué après 001
 > seule, le banc des rôles **doit échouer**. S'il passait, c'est qu'il ne
@@ -440,8 +445,8 @@ tout annulé — si le bucket manque, s'il est resté public, ou s'il n'a pas se
 quatre politiques : « Success » veut dire qu'il est passé. La ligne `NOTICE`
 qui le redit n'apparaît pas dans l'éditeur. Pour relire l'état après coup, les
 deux requêtes en commentaire à la fin du fichier — **une à la fois** : collées
-ensemble, seule la seconde s'afficherait (et `public` y vaut `true` depuis la
-006, qui a ouvert le bucket en lecture au portail).
+ensemble, seule la seconde s'afficherait (et, dans la première, `public` vaut
+`true` depuis la 006, qui a ouvert le bucket en lecture au portail).
 
 ---
 

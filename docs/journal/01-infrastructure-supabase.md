@@ -1134,9 +1134,13 @@ gagné deux exactitudes vues en passant : `restaurer()` répond « ligne(s)
 remises en place », pas « restaurée(s) », et la dernière ligne de `comparer()`
 est toujours un bilan. Les commentaires des trois scripts qui servent encore
 (`relier-comptes.sql`, `menage-brouillons.sql`, `corriger-notes-coupe.sql`)
-disent la même chose ; les migrations 001 à 010, déjà jouées, ne sont pas
-retouchées — leurs « à lire dans la sortie » parlent de `psql`, et la section
-de tête le dit. **La règle pour demain** : ce qu'un fichier collé dans
+disent la même chose ; les migrations, déjà jouées (la 009 peut-être pas), ne
+sont pas retouchées — leurs « à lire dans la sortie de l'éditeur SQL » se
+trompent d'outil, et la section de tête le dit. Une relecture critique du diff
+l'a d'ailleurs attrapé : la première rédaction prétendait que ces commentaires
+parlaient de `psql`, et que toutes les migrations se contrôlaient par erreur
+— la 003 et la 004 n'en ont aucune, et pour elles « Success » ne dit que
+qu'elles ont tourné. **La règle pour demain** : ce qu'un fichier collé dans
 l'éditeur doit faire LIRE à Turquet passe par une erreur (un contrôle) ou par
 son DERNIER `select` — jamais par une `NOTICE` seule. Le même jour, sur le
 projet : la 010 jouée (« Success. No rows returned »), et la fonction
