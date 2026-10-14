@@ -1016,6 +1016,18 @@ sans retour, et le nom de la somme porte trois signes et deux flèches. Le banc
 navigateur passe à b) par le bouton, puis mesure que chaque petite flèche est
 AU-DESSUS de sa lettre et que les trois signes ne se chevauchent pas.
 
+**Puis les questions sont montées AU-DESSUS du dessin (v502).** Turquet,
+octobre 2026 : « afficher la question a au-dessus du dessin ; quand l'élève
+passe à la question b, afficher cette question au-dessus du dessin aussi ».
+Les deux consignes (`svc-ch`, `svc-sm`) se lisaient SOUS le quadrillage : sur
+un écran ordinaire, l'élève qui fait glisser ses flèches ne voyait plus ce
+qu'on lui demandait. `#svcBody` passe simplement avant `#svcGraph` dans
+l'écran : la question en cours (encadrée en bleu) se lit au-dessus du
+dessin, en a) comme en b), et la correction finale garde ses deux cases au
+même endroit. Le banc navigateur (« 6 quadragies quater ») mesure que la
+consigne a) finit au-dessus du haut du dessin, puis, une fois passé à b), que
+la consigne b) aussi — éprouvé par sabotage (l'ancien ordre rétabli rougit).
+
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v490)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
