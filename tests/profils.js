@@ -613,6 +613,16 @@ module.exports = {
       tmFinir:    ['tables-multiplication-2'] },
       /* le crédit partiel : un produit des tables est su ou ne l'est pas —
          pas de cases à compter ; tmFinir note les produits acquis */
+      /* SUSPENDU (octobre 2026) : le compte de cases de ptsEcran() ne tient
+         pas encore comme base d'une note — lignes vraies d'une feuille libre,
+         cases vides hors entraînement, retenues facultatives, question comptée
+         deux fois après une pause (CREDIT_PARTIEL_FIN, journal 09). Le banc
+         vérifie l'inverse : la note est celle des questions parfaites. */
+      creditPartielSuspendu: 'le compte de cases de ptsEcran() n\'est pas encore une base de note sûre',
+      /* le calcul mental se clôt de lui-même : un minuteur enchaîne la
+         question suivante, puis finishTest — pas de « Voir mes résultats »
+         où poser la séance du banc ; sa note est relue telle quelle */
+      sansSeance: { 'calcul-mental': 'la séance se clôt d\'elle-même à la dernière réponse : aucun « Voir mes résultats » où poser la séance du banc' },
       sansCreditPartiel: {
         'tables-multiplication': 'un produit est su ou ne l\'est pas : aucune case à compter',
         'tables-multiplication-2': 'un produit est su ou ne l\'est pas : aucune case à compter' } },
@@ -1192,6 +1202,16 @@ module.exports = {
       tmFinir:    ['tables-multiplication-2'] },
       /* le crédit partiel : un produit des tables est su ou ne l'est pas —
          pas de cases à compter ; tmFinir note les produits acquis */
+      /* SUSPENDU (octobre 2026) : le compte de cases de ptsEcran() ne tient
+         pas encore comme base d'une note — lignes vraies d'une feuille libre,
+         cases vides hors entraînement, retenues facultatives, question comptée
+         deux fois après une pause (CREDIT_PARTIEL_FIN, journal 09). Le banc
+         vérifie l'inverse : la note est celle des questions parfaites. */
+      creditPartielSuspendu: 'le compte de cases de ptsEcran() n\'est pas encore une base de note sûre',
+      /* le calcul mental se clôt de lui-même : un minuteur enchaîne la
+         question suivante, puis finishTest — pas de « Voir mes résultats »
+         où poser la séance du banc ; sa note est relue telle quelle */
+      sansSeance: { 'calcul-mental': 'la séance se clôt d\'elle-même à la dernière réponse : aucun « Voir mes résultats » où poser la séance du banc' },
       sansCreditPartiel: {
         'tables-multiplication': 'un produit est su ou ne l\'est pas : aucune case à compter',
         'tables-multiplication-2': 'un produit est su ou ne l\'est pas : aucune case à compter' } },

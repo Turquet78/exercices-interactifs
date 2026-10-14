@@ -7308,11 +7308,24 @@ function ptsRep(a){
    posé par le démarreur (test.maxScore — les questions à plusieurs parties)
    compte déjà ses parties dans le score. Le score entier reste celui des
    questions parfaites ; la note, elle, part dans details.note, et le
-   pourcentage en découle — tests/notes.js relit l'un contre l'autre. */
+   pourcentage en découle — tests/notes.js relit l'un contre l'autre.
+   SUSPENDU AVANT SA MISE EN LIGNE (octobre 2026) : la relecture de la pull
+   request a montré que le compte de cases de ptsEcran(), écrit pour la note
+   AFFICHÉE en entraînement, ne tient pas comme base d'une note enregistrée.
+   Les lignes VRAIES d'une feuille de calcul libre y comptent comme cases
+   justes (une copie entièrement fausse valait 80 %) ; en évaluation, les
+   cases laissées vides sortent du dénominateur (laisser vide rapportait plus
+   qu'écrire faux) ; les retenues facultatives y comptent (une copie sans un
+   chiffre du résultat valait 40 %) ; et une pause après « Vérifier » fait
+   compter la même question deux fois. Tant que ce compte n'est pas sûr, la
+   note reste celle des questions parfaites — c'est ce que dit
+   CREDIT_PARTIEL_FIN, et le banc des notes le tient (notes.creditPartielSuspendu,
+   tests/profils.js). Journal 09, « la note enregistrée est celle qui s'affiche ». */
+const CREDIT_PARTIEL_FIN=false;
 function acquisDe(answers, parfaits, total, nbQuestions){
   if(!(total>0)) return 0;
   const p=Math.max(0, Math.min(total, parfaits||0));
-  if(nbQuestions!==total) return p;
+  if(!CREDIT_PARTIEL_FIN || nbQuestions!==total) return p;
   const somme=(answers||[]).reduce((s,a)=>s+ptsRep(a),0);
   return Math.max(p, Math.min(total, somme));
 }
@@ -7323,7 +7336,7 @@ function noteFin(score, total, nbQuestions){
 }
 /* La note d'une ligne de résultats : details.note quand la fin l'a posée
    (crédit partiel), le score sinon — les lignes d'avant octobre 2026. */
-function noteDe(r){ const d=r&&r.details; return (d&&!Array.isArray(d)&&typeof d.note==='number')?d.note:(r?r.score:0); }
+function noteDe(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&typeof d.note==='number') return d.note; return !r?0:((r.total>0)?Math.min(r.total, r.score||0):(r.score||0)); }   /* un vieux score en cases (« 36 / 1 ») est borné au total */
 function pmFmtNote(v){ const r=Math.round(v*100)/100; return String(Number.isInteger(r)?r:Math.round(r*10)/10).replace('.',','); }
 function afficherNoteExo(){
   try{

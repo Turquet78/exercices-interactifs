@@ -170,7 +170,11 @@ pourcentage et la note sur 10, et **en soutien la note que le devoir en
 tirera** — pourcentage × plafond. Et il exige que **le crédit partiel compte** :
 la séance vaut 1 + 2/7 de point, la note enregistrée aussi. Ses dispenses se
 déclarent dans `tests/profils.js`, raison comprise (`notes.horsAtteinte`,
-`notes.sansCreditPartiel`), et une dispense qui ne sert plus rougit.
+`notes.sansCreditPartiel`, `notes.sansSeance`), et une dispense qui ne sert
+plus rougit. En Seconde et en Première, le crédit partiel est **suspendu**
+(`notes.creditPartielSuspendu`) : le banc y vérifie l'inverse, qu'aucune note
+ne le compte. La fin directe ne rattrape qu'une copie qui refuse de se
+valider ; un exercice qui plante, ou dont la fin n'enregistre rien, rougit.
 
 Pour éprouver un sabotage sans mener tout un niveau :
 `NOTES_EXERCICES=fraction-pourcentage,pourcentage node tests/notes.js premiere-specifique.html`

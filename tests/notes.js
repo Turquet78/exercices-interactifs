@@ -26,7 +26,9 @@
    Là où une copie vide ne se valide pas (une colonne à colorier, une
    rédaction, une table au clavier contre la montre), le banc appelle
    lui-même la fonction de fin de l'exercice sur la même séance synthétique
-   — « la fin directe », plus bas.
+   — « la fin directe », plus bas. Elle ne rattrape QUE ce blocage-là : un
+   exercice qui plante au démarrage, ou dont « Voir mes résultats »
+   n'ouvre aucun écran de fin, rougit.
 
    CE QUI EST COMPARÉ, pour chaque exercice : exactement UNE note finale en
    base (ni brouillon ni note de pause) ; son étiquette (exercice, mode,
@@ -40,10 +42,16 @@
 
    LE CRÉDIT PARTIEL COMPTE (décision de Turquet, octobre 2026 : la note
    finale compte ce que chaque question montre sur 1). La séance synthétique
-   vaut 1 + 2/7 de point ; là où une question vaut un point (total = nombre
-   de questions), la note enregistrée doit valoir 1,29 — pas 1. Un exercice
-   où une réponse n'a pas de cases à compter se dispense, raison comprise
-   (notes.sansCreditPartiel), et une dispense qui compte quand même rougit.
+   vaut 1 + 2/7 de point (2/7 pour une séance d'UNE question — une étude de
+   fonction, dont toute la note est du partiel) ; là où une question vaut un
+   point (total = nombre de questions), la note enregistrée doit valoir
+   1,29 — pas 1. Un exercice où une réponse n'a pas de cases à compter se
+   dispense, raison comprise (notes.sansCreditPartiel), et une dispense qui
+   compte quand même rougit. Un niveau où le crédit partiel est SUSPENDU
+   (notes.creditPartielSuspendu, raison comprise) est tenu à l'inverse :
+   aucune note n'y compte le partiel. Un exercice qui se clôt sans « Voir mes
+   résultats » n'a pas reçu la séance du banc : il se déclare
+   (notes.sansSeance).
 
    LES DEUX BORDS. Un exercice qui n'atteint pas sa fin le dit, et rougit s'il
    n'est pas DÉCLARÉ (tests/profils.js, notes.horsAtteinte, raison comprise) ;
@@ -100,13 +108,25 @@ const ETAPE = ({ modeFin, bouchon }) => {
     /* le score est AJUSTÉ, jamais réécrit : un exercice qui compte ses
        cases dans test.score (une étude de fonction, 102 cases) doit garder
        son unité, sans quoi le banc masquerait ce qu'il cherche */
-    let delta = 0;
-    if(ans.length >= 1){ if(!ans[0].correct) delta++; ans[0].correct = true; delete ans[0].pts; }
-    if(ans.length >= 2){ const a = ans[ans.length - 1]; if(a.correct) delta--; a.correct = false; a.pts = 2 / 7; a.cases = 7; a.justes = 2; }
-    if(seance && ans.length) seance.score = Math.max(0, (seance.score || 0) + delta);
-    /* ce que la note DOIT valoir si le crédit partiel compte : 1 + 2/7 */
-    window.__notesBanc = (ans.length >= 2 && seance.questions && seance.questions.length === ans.length)
-      ? { n: ans.length, attendu: 1 + 2 / 7 } : null;
+    const n = ans.length;
+    if(n){
+      /* une seule question : sa réponse à 2 cases sur 7 — la séance d'une
+         étude de fonction n'a qu'une question, et TOUTE sa note est du
+         crédit partiel ; sinon la première juste, la dernière à 2/7, celles
+         du milieu fausses et sans crédit, pour que l'attendu soit exact */
+      let delta = 0;
+      ans.forEach((a, i) => {
+        if(a.correct) delta--;
+        a.correct = false; delete a.pts; delete a.cases; delete a.justes;
+        if(i === 0 && n >= 2){ a.correct = true; delta++; }
+        if(i === n - 1){ a.pts = 2 / 7; a.cases = 7; a.justes = 2; }
+      });
+      seance.score = Math.max(0, (seance.score || 0) + delta);
+    }
+    /* ce que la note DOIT valoir : les parfaits, plus 2/7 si le crédit
+       partiel compte — là où une question vaut un point */
+    window.__notesBanc = (n && seance.questions && seance.questions.length === n)
+      ? { n, parfaits: n >= 2 ? 1 : 0, partiel: 2 / 7 } : null;
     currentMode = modeFin;
     fin.click();
     return 'résultats';
@@ -173,12 +193,15 @@ const FIN_DIRECTE = ({ id, declaree, defaut, modeFin }) => {
   const n = test.questions.length;
   test.answers = (test.answers || []).slice(0, n);
   while(test.answers.length < n) test.answers.push({ q: '(banc des notes)', given: '', answer: '', correct: false });
-  let delta = 0;   /* ajusté, jamais réécrit : voir ETAPE */
-  if(!test.answers[0].correct) delta++;
-  test.answers[0].correct = true; delete test.answers[0].pts;
-  if(n >= 2){ const a = test.answers[n - 1]; if(a.correct) delta--; a.correct = false; a.pts = 2 / 7; a.cases = 7; a.justes = 2; }
+  let delta = 0;   /* ajusté, jamais réécrit, et la même séance qu'ETAPE */
+  test.answers.forEach((a, i) => {
+    if(a.correct) delta--;
+    a.correct = false; delete a.pts; delete a.cases; delete a.justes;
+    if(i === 0 && n >= 2){ a.correct = true; delta++; }
+    if(i === n - 1){ a.pts = 2 / 7; a.cases = 7; a.justes = 2; }
+  });
   test.score = Math.max(0, (test.score || 0) + delta);
-  window.__notesBanc = n >= 2 ? { n, attendu: 1 + 2 / 7 } : null;
+  window.__notesBanc = { n, parfaits: n >= 2 ? 1 : 0, partiel: 2 / 7 };
   test.idx = n - 1; test.locked = true;
   currentMode = modeFin;
   window[fin]();
@@ -302,6 +325,15 @@ function juger(id, modeFin, lu, plafond){
      n'a pas de cases à compter (une table de multiplication est sue ou ne
      l'est pas) */
   const SANS_PARTIEL = (P.notes || {}).sansCreditPartiel || {};
+  /* notes.creditPartielSuspendu : 'raison' — le niveau ne compte pas encore le
+     crédit partiel ; le contrôle vérifie alors l'inverse (la note est celle
+     des questions parfaites), et ne se tait pas */
+  const SUSPENDU = (P.notes || {}).creditPartielSuspendu || '';
+  /* notes.sansSeance : { exercice: 'raison' } — un exercice qui atteint sa fin
+     sans passer par « Voir mes résultats » (une séance qui se clôt seule) :
+     le banc n'a pas pu y poser sa séance non triviale, et le dit */
+  const SANS_SEANCE = (P.notes || {}).sansSeance || {};
+  const sansSeance = [], seancesMortes = [];
   const FIN = (P.notes || {}).finDirecte || '';
   /* notes.finDe : { finishX: ['exercice', …] } — retourné en exercice → fin */
   const FIN_DE = {};
@@ -311,7 +343,8 @@ function juger(id, modeFin, lu, plafond){
   const finsMortes = [].concat(
     Object.keys(FIN_DE).filter(x => !tous.includes(x)).map(x => x + ' (finDe)'),
     Object.keys(DECLARES).filter(x => !tous.includes(x)).map(x => x + ' (horsAtteinte)'),
-    Object.keys(SANS_PARTIEL).filter(x => !tous.includes(x)).map(x => x + ' (sansCreditPartiel)'));
+    Object.keys(SANS_PARTIEL).filter(x => !tous.includes(x)).map(x => x + ' (sansCreditPartiel)'),
+    Object.keys(SANS_SEANCE).filter(x => !tous.includes(x)).map(x => x + ' (sansSeance)'));
   const debut = Date.now();
   for(let i = 0; i < ids.length; i++){
     const id = ids[i], modeFin = MODES[i % MODES.length];
@@ -320,7 +353,11 @@ function juger(id, modeFin, lu, plafond){
     let raison;
     try{ raison = await Promise.race([mener(s.page, id, modeFin), new Promise(r => setTimeout(() => r('bloqué : plus de 25 s'), 25000))]); }
     catch(e){ raison = 'erreur du banc : ' + e.message; }
-    if(raison){
+    /* la fin directe ne rattrape QU'UNE copie qui refuse de se valider
+       (« bloqué : … ») : un exercice qui plante au démarrage, ou dont
+       « Voir mes résultats » n'ouvre aucun écran de fin, reste un défaut
+       — il rougit, ou se déclare */
+    if(raison && /^bloqué : /.test(raison)){
       const r2 = await s.page.evaluate(FIN_DIRECTE, { id, declaree: FIN_DE[id] || '', defaut: FIN, modeFin });
       if(!r2){
         try{ await s.page.waitForFunction(() => { const r = document.getElementById('scr-results'); return r && r.classList.contains('on'); }, null, { timeout: 4000 }); raison = ''; directs++; }
@@ -340,15 +377,25 @@ function juger(id, modeFin, lu, plafond){
     if(lu.lignes.length === 1 && lu.lignes[0].percent > 0 && lu.lignes[0].percent < 100) nonTriviaux++;
     /* LE CRÉDIT PARTIEL COMPTE : la séance synthétique vaut 1 + 2/7 là où
        une question vaut un point (total = nombre de questions) */
+    if(!lu.banc && lu.lignes.length === 1){
+      if(!SANS_SEANCE[id]) sansSeance.push(num + ' ' + id + ' (' + modeFin + ')');
+    } else if(SANS_SEANCE[id]) seancesMortes.push(num + ' ' + id);
     if(lu.banc && lu.lignes.length === 1 && lu.lignes[0].total === lu.banc.n){
       const l = lu.lignes[0], d = l.details || {};
       const note = (typeof d.note === 'number') ? d.note : l.score;
-      const compte = Math.abs(note - lu.banc.attendu) <= 0.01;
-      if(SANS_PARTIEL[id]){ if(compte) partielsMorts.push(num + ' ' + id); }
-      else {
+      const attendu = lu.banc.parfaits + lu.banc.partiel;
+      const compte = Math.abs(note - attendu) <= 0.01;
+      const fmt = x => String(Math.round(x * 100) / 100).replace('.', ',');
+      if(SANS_PARTIEL[id]){ if(!SUSPENDU && compte) partielsMorts.push(num + ' ' + id); }
+      else if(SUSPENDU){
+        /* suspendu : la note est celle des questions parfaites, et rien d'autre */
         partielsMesures++;
-        if(!compte) partielsManques.push(num + ' ' + id + ' (' + modeFin + ') — note ' + String(note).replace('.', ',') + ' / ' + l.total
-          + ', le crédit partiel vaudrait ' + String(Math.round(lu.banc.attendu * 100) / 100).replace('.', ','));
+        if(Math.abs(note - lu.banc.parfaits) > 0.01) partielsManques.push(num + ' ' + id + ' (' + modeFin + ') — note ' + fmt(note) + ' / ' + l.total
+          + ' alors que le crédit partiel est suspendu : les questions parfaites valent ' + fmt(lu.banc.parfaits));
+      } else {
+        partielsMesures++;
+        if(!compte) partielsManques.push(num + ' ' + id + ' (' + modeFin + ') — note ' + fmt(note) + ' / ' + l.total
+          + ', le crédit partiel vaudrait ' + fmt(attendu));
       }
     }
     await s.page.evaluate(() => { try{ show('space'); }catch(e){} });
@@ -361,13 +408,19 @@ function juger(id, modeFin, lu, plafond){
     bloques.length === 0, bloques.length + ' exercice(s) :\n        ' + bloques.join('\n        '));
   verifier('aucune déclaration morte : un exercice déclaré hors d\'atteinte n\'atteint pas sa fin',
     mortes.length === 0, mortes.join(' ; '));
-  verifier('chaque déclaration du profil (notes.finDe, horsAtteinte, sansCreditPartiel) désigne un exercice du menu',
+  verifier('chaque déclaration du profil (notes.finDe, horsAtteinte, sansCreditPartiel, sansSeance) désigne un exercice du menu',
     finsMortes.length === 0, finsMortes.join(', '));
   verifier('le contrôle mesure des notes non triviales (ni 0 ni 100 %)',
     nonTriviaux > 0 && nonTriviaux >= Math.floor(menes / 2), nonTriviaux + ' non triviale(s) sur ' + menes + ' note(s)');
   verifier('la note enregistrée est celle qui s\'affiche, sur chaque exercice mené à sa fin',
     menes > 0 && ecarts.length === 0, menes ? ecarts.length + ' écart(s) :\n        ' + ecarts.join('\n        ') : 'aucun exercice mené : rien n\'a été mesuré');
-  verifier('le crédit partiel d\'une question compte dans la note finale (2 cases justes sur 7 valent 2/7 de point)',
+  verifier('chaque exercice mené porte la séance non triviale du banc, ou se déclare (notes.sansSeance)',
+    sansSeance.length === 0, sansSeance.length + ' exercice(s) clos sans « Voir mes résultats » :\n        ' + sansSeance.join('\n        '));
+  verifier('aucune dispense de séance morte : un exercice déclaré sansSeance n\'a pas reçu la séance du banc',
+    seancesMortes.length === 0, seancesMortes.join(', '));
+  verifier(SUSPENDU
+      ? 'le crédit partiel reste suspendu à ce niveau (' + SUSPENDU + ') : aucune note ne le compte'
+      : 'le crédit partiel d\'une question compte dans la note finale (2 cases justes sur 7 valent 2/7 de point)',
     partielsMesures > 0 && partielsManques.length === 0,
     partielsMesures ? partielsManques.length + ' exercice(s) :\n        ' + partielsManques.join('\n        ') : 'aucune note mesurée : rien n\'a été vérifié');
   verifier('aucune dispense morte : un exercice dispensé du crédit partiel ne le compte pas',

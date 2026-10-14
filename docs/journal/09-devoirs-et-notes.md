@@ -1192,7 +1192,8 @@ le crédit partiel des deux côtés.** Chaque question y montre sa note sur 1
 ne comptait que les questions parfaites : une séance à 4,6 / 5 question par
 question s'enregistrait ET s'affichait 4 / 5. Cohérent, et faux. Turquet a
 tranché trois questions (octobre 2026) :
-1. **Le crédit partiel compte aux trois niveaux.** `noteFin()` (Seconde,
+1. **Le crédit partiel compte aux trois niveaux** — SUSPENDU en Seconde et en
+   Première avant sa mise en ligne, voir plus bas. `noteFin()` (Seconde,
    Première) fait ce que faisait déjà la Terminale : la somme des `ptsRep`,
    jamais moins que les questions parfaites, jamais plus que le barème. Le
    score entier reste celui des questions parfaites ; la note part dans
@@ -1254,3 +1255,66 @@ et passait en silence — une déclaration qui survit à un renommage sans que
 rien ne le dise. Toute déclaration du profil (`finDe`, `horsAtteinte`,
 `sansCreditPartiel`) doit désormais nommer un exercice du menu, et ce bord-là
 a été éprouvé à son tour.
+
+**Puis la relecture adversariale de la pull request a SUSPENDU le crédit
+partiel en Seconde et en Première, avant sa mise en ligne.** L'action était
+verte, les trois bancs aussi ; une relecture à cinq angles, chaque constat
+mis à l'épreuve par un sceptique qui le REPRODUIT dans un vrai Chromium, a
+confirmé huit défauts sur neuf. Le cœur : le compte de cases de
+`ptsEcran()`, écrit pour la note AFFICHÉE sous chaque question en
+entraînement, ne tient pas comme base d'une note ENREGISTRÉE.
+* **Les lignes vraies d'une feuille de calcul libre comptent comme cases
+  justes.** Les `…PeindreLignes` peignent en `ok` toute égalité vraie en
+  arithmétique, sans rapport avec la réponse : cinq lignes « 1 = 1 » par
+  question, aucune question juste — 80 % enregistrés ({pourcentages-problemes},
+  {synthese-pourcentages-redigee}, les synthèses libres, le devoir blanc).
+* **Hors entraînement, une case laissée vide sort du dénominateur** : `mark()`
+  ne peint pas une case vide, et `corTrainDec`/`corTrainFrac`, qui la
+  remplissent en `sol`, ne servent qu'en entraînement. Quatre conversions
+  justes sur neuf cases, le reste vide, en évaluation : 75 %, là où main
+  donnait 0 %. Laisser vide rapportait plus qu'écrire faux.
+* **Les retenues facultatives comptent**, et la retenue recopiée en bas d'une
+  soustraction deux fois : une copie sans un seul chiffre du résultat, 38 à
+  42 %.
+* **Une pause après « Vérifier » fait compter la même question deux fois** :
+  `snapshotTest` ne range pas `locked`, la reprise rouvre la question
+  vérifiée, et la seconde vérification pousse une seconde réponse.
+  `acquisDe` additionne sans rattacher une réponse à sa question : quatre
+  reprises d'une question à 4 cases sur 5, 100 %.
+Aucun de ces défauts ne se voyait au banc des notes : sa séance non triviale
+pose elle-même le crédit des réponses. Il fallait la relecture pour regarder
+COMMENT la page le calcule. **La décision prise ici** : cette pull request
+part avec le crédit partiel de la Seconde et de la Première SUSPENDU — un
+seul interrupteur, `CREDIT_PARTIEL_FIN`, dont le commentaire dit pourquoi ;
+la note y reste celle des questions parfaites, comme sur main —, et le banc
+le tient (`notes.creditPartielSuspendu`) en vérifiant l'INVERSE : aucune
+note ne compte le partiel. Rendre le compte de cases sûr (les feuilles, les
+cases vides, les retenues, la pause) puis lever la suspension est l'affaire
+d'une seconde pull request. **La Terminale compte le partiel depuis plus
+longtemps, avec son propre `ptsEcran`** : les mêmes questions s'y posent, et
+la seconde pull request les y regardera — ce ne sont pas des régressions de
+celle-ci.
+
+**Trois autres constats ont été corrigés ici.** Les lignes de pause à
+« 3600 % » déjà écrites en base par la Terminale jusqu'à la v385 donnaient
+encore 360 / 10 à l'exercice et le maximum au devoir entier : la correction de
+l'écriture ne les touchait pas. `noteDevoirExo`, l'entonnoir de toute note de
+devoir, borne désormais le pourcentage à 0–100 à la LECTURE, et `noteDe` un
+vieux score au total. Et deux trous du banc lui-même : la fin directe
+rattrapait N'IMPORTE QUEL échec — un exercice qui plantait au démarrage, ou
+dont « Voir mes résultats » n'enregistrait rien, était compté « mené », vert
+(sabotage du relecteur : `nextASPQuestion` renvoyée au menu, banc vert) ;
+elle ne rattrape plus qu'une copie qui refuse de se valider (« bloqué : … »).
+Et une séance d'UNE question forçait sa seule réponse à « juste » — 100 %,
+crédit partiel jamais mesuré, précisément sur les études de fonction dont
+toute la note est du partiel ; elle reçoit maintenant sa réponse à 2 cases sur
+7, et la Terminale mesure le partiel sur ses 52 exercices. Un exercice qui se
+clôt sans « Voir mes résultats » (le calcul mental : un minuteur enchaîne)
+n'a pas pu recevoir la séance du banc : il se déclare (`notes.sansSeance`).
+Les trois bords neufs, éprouvés à leur tour : la fin de l'addition posée
+renvoyée au menu (« clic sur « Voir mes résultats » sans écran de fin », rouge
+au lieu d'un vert rattrapé) ; `CREDIT_PARTIEL_FIN` remis à vrai en Première
+(« note 1,29 / 2 alors que le crédit partiel est suspendu ») ; et `acquisDe`
+qui ignore le partiel d'une séance d'une question en Terminale
+(« etude-convexite — note 0 / 1, le crédit partiel vaudrait 0,29 »).
+

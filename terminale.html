@@ -3686,7 +3686,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
    compte les exercices PARFAITS. Les historiques affichaient « 4 / 5 » à
    l'élève qui avait lu « 4,5 / 5 » (tests/notes.js, octobre 2026). Une
    ligne d'avant details.note n'a que son score : c'est lui. */
-function noteDe(r){ const d=r&&r.details; return (d&&!Array.isArray(d)&&typeof d.note==='number')?d.note:(r?r.score:0); }
+function noteDe(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&typeof d.note==='number') return d.note; return !r?0:((r.total>0)?Math.min(r.total, r.score||0):(r.score||0)); }   /* un vieux score en cases (« 36 / 1 ») est borné au total */
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || ((typeof FRAC_INFO!=='undefined'&&FRAC_INFO[id])?('Fractions — '+FRAC_INFO[id].name):'Test'); }   /* garde : FRAC_INFO n'existe pas dans ce fichier (vestige) ; sans elle, un id inconnu jetait une ReferenceError */
@@ -6504,8 +6504,13 @@ function noteDevoirExo(bestSoutien, bestEntrain, forcee, smax){
      août 2026) : 5/10 par défaut, jusqu'à 10/10. Hors devoir, rien ne passe le
      paramètre et le plafond reste 5. La note POSÉE par le professeur, elle,
      prime toujours. */
-  const s = bestSoutien ? (bestSoutien.percent/100*dmPlafondSoutien(smax)) : 0;
-  const e = bestEntrain ? (bestEntrain.percent/100*10) : 0;
+  /* Le pourcentage est BORNÉ à 0–100 à la lecture : jusqu'à la v385, une
+     pause prise sur une étude de fonction enregistrait « 3600 % » (le compte
+     de cases sur un total d'un exercice) — une seule de ces lignes, restées
+     en base, donnait 360 / 10 à l'exercice et le maximum au devoir entier. */
+  const pc = r => Math.max(0, Math.min(100, (r && r.percent) || 0));
+  const s = bestSoutien ? (pc(bestSoutien)/100*dmPlafondSoutien(smax)) : 0;
+  const e = bestEntrain ? (pc(bestEntrain)/100*10) : 0;
   const soutienFait = !!bestSoutien;
   const auto = (e > s || !soutienFait) ? e : s;
   /* Une note posée est BORNÉE à 0–10 : elle vit dans un JSON qu'on peut éditer
