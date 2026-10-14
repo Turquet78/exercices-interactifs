@@ -1989,7 +1989,7 @@
      sans flèche (ce n'est pas un vecteur), à la taille des vecteurs. */
   .chl-lignes{max-width:900px}
   .chl-num{font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--ink-soft);min-width:1.6em;padding-top:8px}
-  /* UN champ par ligne (v500) : le vrai champ garde la saisie, son texte est
+  /* UN champ par ligne (v501) : le vrai champ garde la saisie, son texte est
      transparent ; .chl-rendu dessine par-dessus chaque vecteur sous sa
      flèche, les signes, et le curseur qui clignote sous la flèche ouverte.
      Le champ s'élargit avec la chaîne (chlRendu). */
@@ -6932,7 +6932,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=500;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=501;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -59758,7 +59758,7 @@ function ctxCha(q){
    L'ÉLÈVE ÉCRIT SA CHAÎNE (Turquet, octobre 2026 : « une flèche déjà prête à
    accueillir les deux lettres ; s'il tape un plus, un moins ou un égal, une
    autre flèche ») : AB − AC = AB + CA = CB, CB + CA = impossible. Puis
-   (v500) toute la chaîne s'écrit dans UN SEUL champ, les flèches DESSINÉES
+   (v501) toute la chaîne s'écrit dans UN SEUL champ, les flèches DESSINÉES
    dedans (chlRendu) : un « + », un « − » ou un « = » fait apparaître une
    flèche vide, le curseur clignote dessous, elle s'allonge avec ses lettres.
    Le juge découpe la chaîne aux « = » : chaque morceau doit valoir la ligne,

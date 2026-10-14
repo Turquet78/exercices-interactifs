@@ -1441,7 +1441,7 @@ dernière rouge), −AD−DB=BA (le « − » de tête reste un signe, posé DEV
 flèche et non dessous), la partie 2
 en deux étapes, le retour arrière, et aucune case vide de chaîne ne rougit.
 
-**Puis la chaîne est entrée dans UN SEUL champ** (v500, Turquet, octobre
+**Puis la chaîne est entrée dans UN SEUL champ** (v501, Turquet, octobre
 2026 : « la réponse des élèves pour une question dans un seul champ de
 saisie, la flèche du vecteur dans ce champ, le curseur qui clignote sous
 cette flèche, qui doit s'agrandir quand on met une lettre dessous ; un plus,
