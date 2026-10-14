@@ -2327,6 +2327,11 @@
   .trl-pt.bad{fill:var(--red)}
   .trl-lbl{font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;fill:var(--blue)}
   .trl-lbl.bad{fill:var(--red)}
+  .trl-pt.trl-pend{fill:var(--ink)}
+  .trl-pend-anneau{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-dasharray:3 3}
+  .trl-lbl.trl-pend{fill:var(--ink)}
+  .trl-nommer{display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;width:100%}
+  .trl-nommer-txt{font-weight:700}
   .trl-sol{fill:none;stroke:var(--green);stroke-width:2.6}
   .trl-sol-nom{font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;fill:var(--green)}
   .trl-sol-chemin{stroke:var(--green);stroke-width:2;stroke-dasharray:6 4;fill:none}
@@ -6651,7 +6656,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=483;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=484;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -7366,7 +7371,7 @@ const TESTS={
   'vecteurs-egaux-tableau': { name:'Vecteurs \u00e9gaux', icon:'\u27a1\ufe0f', desc:'Le tableau de la fiche \u2014 \u00e9galit\u00e9 de vecteurs, figure, configuration g\u00e9om\u00e9trique. Sur chaque ligne, une colonne est donn\u00e9e : choisis la bonne proposition, parmi trois, pour chacune des deux autres.', start:()=>startVgt() },
   'vecteurs-egaux': { name:'Vecteurs \u00e9gaux dans une figure', icon:'\u27a1\ufe0f', desc:'Une figure \u2014 un rectangle et ses milieux, un carr\u00e9, un triangle, un hexagone\u2026 \u2014 et des lignes \u00ab AB = \u2026 = \u2026 \u00bb, de 10 \u00e0 12 vecteurs \u00e0 trouver par figure\u00a0: retrouve tous les vecteurs de la figure \u00e9gaux \u00e0 celui qui ouvre la ligne. Attention au sens\u00a0: BA n\u2019est pas AB.', start:()=>startVeg() },
   'reduire-produit': { name:'R\u00e9duire un produit avec x', icon:'\ud83d\udd22', desc:'Quinze produits de deux facteurs \u2014 un nombre ou la lettre x, jamais x\u00b2. D\u2019abord case par case\u00a0: le signe, le coefficient, puis si \u00e7a se termine par x ou par x\u00b2. Puis directement le r\u00e9sultat r\u00e9duit.', start:()=>startRpd() },
-  'translation-quadrillage': { name:'Translation\u00a0: d\u00e9placer un point sur le quadrillage', icon:'\u27a1\ufe0f', desc:'Sur un quadrillage, une fl\u00e8che u (ou deux points A et B) donne un chemin\u00a0: d\u00e9place chaque point en suivant ce chemin et place son image A\u2032, B\u2032, C\u2032 \u2014 \u00ab\u00a0l\u2019image de A par la translation de vecteur u est le point A\u2032\u00a0\u00bb. Les images se posent au clic sur le quadrillage.', start:()=>startTrl() },
+  'translation-quadrillage': { name:'Translation\u00a0: d\u00e9placer un point sur le quadrillage', icon:'\u27a1\ufe0f', desc:'Sur un quadrillage, une fl\u00e8che u (ou deux points A et B) donne un chemin\u00a0: d\u00e9place chaque point en suivant ce chemin et place son image A\u2032, B\u2032, C\u2032 \u2014 \u00ab\u00a0l\u2019image de A par la translation de vecteur u est le point A\u2032\u00a0\u00bb. Chaque point se pose au clic sur le quadrillage, puis l\u2019\u00e9l\u00e8ve le nomme.', start:()=>startTrl() },
   'translation-grille': { name:'Image d\u2019un point par une translation', icon:'\u27a1\ufe0f', desc:'Huit vecteurs dessin\u00e9s et une grille de points de A \u00e0 X. Six lignes \u00e0 compl\u00e9ter\u00a0: le point image par la translation du vecteur indiqu\u00e9, ou le vecteur de la translation qui m\u00e8ne d\u2019un point \u00e0 son image.', start:()=>startVtr() },
   'parallelogramme-point': { name:'Le quatri\u00e8me point d\u2019un parall\u00e9logramme', icon:'\ud83d\udccd', desc:'Trois points A, B et C sur un quadrillage, et l\u2019\u00e9nonc\u00e9 \u00ab ABDC est un parall\u00e9logramme \u00bb \u2014 ou ABCD. Construis D d\u2019un clic sur le quadrillage, puis compl\u00e8te la phrase \u00ab le chemin qui va de \u2026 \u00e0 \u2026 est le m\u00eame que celui qui va de C \u00e0 D \u00bb, puis \u00e9cris cette \u00e9galit\u00e9 avec des vecteurs.', start:()=>startVec() },
   'egalite-vectorielle-point': { name:'Placer un point pour une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccf', desc:'Trois des points A, B, C et D sur un quadrillage, et une \u00e9galit\u00e9 de vecteurs \u00e0 r\u00e9aliser. Clique sur le quadrillage le point qui manque, puis nomme le parall\u00e9logramme obtenu \u2014 dans le bon ordre des lettres.', start:()=>startVep() },
@@ -13440,10 +13445,14 @@ function nextPimQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; te
    du quadrillage, l'écouteur est DÉLÉGUÉ à l'hôte (le SVG est réécrit à
    chaque pose), et le clic s'accroche au nœud le plus proche en relisant la
    géométrie dans le SVG RENDU (data-m, data-c, data-w, data-h) — aucune
-   coordonnée recopiée. Trois images par question, donc trois « stylos » :
-   « ● Placer A′ », « ● Placer B′ », « ● Placer C′ » ; poser un point passe
-   au stylo suivant encore vide, recliquer sur un de ses points le retire,
-   cliquer ailleurs avec le même stylo le déplace.
+   coordonnée recopiée. Le point posé n'a PAS DE NOM : l'élève le nomme
+   ensuite (« Comment s'appelle ce point ? A′, B′ ou C′ », demande de
+   Turquet, octobre 2026 : « laisser l'élève placer un point et lui demander
+   ensuite de le nommer ») — c'est lui qui dit quel point il a déplacé, la
+   page ne le devine pas. Un seul point sans nom à la fois (q.pend) :
+   cliquer ailleurs le déplace, recliquer dessus le retire ; recliquer un
+   point déjà nommé lui rend son nom à choisir ; donner un nom déjà pris
+   déplace ce nom sur le nouveau point.
    LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : l'image de
    chaque point se recalcule (trlImage) depuis les données MÊMES qui dessinent
    le quadrillage — la source et le vecteur —, par la fonction qui corrige.
@@ -13561,6 +13570,10 @@ function trlSVG(q, verdict){
     s+='<circle cx="'+sx(r.x)+'" cy="'+sy(r.y)+'" r="4.5" class="trl-pt'+cls+'"/>'
       +'<text x="'+(sx(r.x)+7)+'" y="'+(sy(r.y)-7)+'" class="trl-lbl'+cls+'">'+noms[i]+'′</text>';
   });
+  /* le point posé qui attend son nom : neutre, entouré, un « ? » pour nom */
+  if(q.pend && !(verdict && verdict.sol)) s+='<circle cx="'+sx(q.pend.x)+'" cy="'+sy(q.pend.y)+'" r="9" class="trl-pend-anneau"/>'
+    +'<circle cx="'+sx(q.pend.x)+'" cy="'+sy(q.pend.y)+'" r="4.5" class="trl-pt trl-pend"/>'
+    +'<text x="'+(sx(q.pend.x)+10)+'" y="'+(sy(q.pend.y)-10)+'" class="trl-lbl trl-pend">?</text>';
   return s+'</svg>';
 }
 /* Le clic s'accroche au nœud le plus proche — la géométrie est relue dans le
@@ -13580,20 +13593,29 @@ function startTrl(){
   const qs=distinctes(dmNbQuestions(TRL_NB), (_,i)=>trlFabrique(trlForme(i)));
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
-  Object.assign(test,{kind:'trl', questions:qs, idx:0, score:0, maxScore:qs.length*3, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false, trlSel:0});
+  Object.assign(test,{kind:'trl', questions:qs, idx:0, score:0, maxScore:qs.length*3, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('trl'); renderTrl();
 }
-function trlChoisir(i){
+/* NOMMER le point posé : il prend le nom choisi ; si ce nom était déjà
+   porté par un autre point, c'est ce nom qui se déplace */
+function trlNommer(i){
   if(test.kind!=='trl'||test.locked) return;
-  if(!(i>=0&&i<3)) return;
-  test.trlSel=i; trlMaj();
+  const q=test.questions[test.idx]; if(!q||!q.pend||!(i>=0&&i<3)) return;
+  q.rep[i]={x:q.pend.x, y:q.pend.y}; delete q.pend;
+  trlRedessiner();
+}
+function trlRedessiner(){
+  const q=test.questions[test.idx]; if(!q) return;
+  $('trlGraph').innerHTML=trlSVG(q,null);
+  trlMaj(); trlLive();
+  recoveryDirty=true; clearTimeout(_trlSaveTimer); _trlSaveTimer=setTimeout(autoSave,1200);
 }
 function renderTrl(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
   const q=test.questions[test.idx]; test.locked=false;
   if(!Array.isArray(q.rep)||q.rep.length!==3) q.rep=[null,null,null];
-  if(!(test.trlSel>=0&&test.trlSel<3)) test.trlSel=0;
+  if(q.pend && !(q.pend.x>=0 && q.pend.y>=0)) delete q.pend;
   const noms=trlNoms(q), V=trlVecHTML(q), primes=noms.map(n=>n+'′');
   $('trlIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('trlModeTag').innerHTML=modeTagHTML();
@@ -13606,9 +13628,10 @@ function renderTrl(){
   const chemin=(q.forme==='ab') ? 'le chemin '+V+' (celui qui va de A à B)' : 'le chemin '+V;
   $('trlInstr').innerHTML='Déplace les points '+noms[0]+', '+noms[1]+' et '+noms[2]+' en suivant '+chemin
     +' : place les points '+primes[0]+', '+primes[1]+' et '+primes[2]+', images de '+noms[0]+', '+noms[1]+' et '+noms[2]+' par la translation de vecteur '+V+'.'
-    +'<span class="trl-sous">Choisis le point à placer (« ● Placer '+primes[0]+' », …), puis clique sur le nœud du quadrillage où il arrive. Un point se déplace en cliquant ailleurs, se retire en recliquant dessus.</span>';
+    +'<span class="trl-sous">Clique sur le nœud du quadrillage où arrive un point, puis nomme le point posé ('+primes.join(', ')+'). Avant de le nommer, il se déplace en cliquant ailleurs et se retire en recliquant dessus ; recliquer un point déjà nommé permet de le renommer.</span>';
   $('trlGraph').innerHTML=trlSVG(q,null);
-  $('trlModes').innerHTML=noms.map((n,i)=>'<button id="trlSel'+i+'" class="btn btn-ghost" type="button" onclick="trlChoisir('+i+')">● Placer '+n+'′</button>').join('');
+  $('trlModes').innerHTML='<div class="trl-nommer"><span class="trl-nommer-txt" id="trlNommerTxt"></span>'
+    +noms.map((n,i)=>'<button id="trlNom'+i+'" class="btn btn-ghost" type="button" onclick="trlNommer('+i+')">'+n+'′</button>').join('')+'</div>';
   $('trlBody').innerHTML='<div class="img-line">'+noms.map((n,i)=>'<span class="pts-case pim-case trl-case" id="trl-pt-'+i+'"></span>').join(' ')+'</div>';
   trlMaj();
   $('trlMark').className='mark'; $('trlMark').textContent=''; $('trlCorr').innerHTML='';
@@ -13628,27 +13651,23 @@ function trlBrancher(){
     const n=trlNoeud(svg,ev); if(!n) return;
     ev.preventDefault();
     const deja=q.rep.findIndex(r=>r&&r.x===n.x&&r.y===n.y);
-    if(deja>=0){ q.rep[deja]=null; test.trlSel=deja; }   /* recliquer sur son point le retire */
-    else {
-      q.rep[test.trlSel]=n;
-      /* puis le stylo passe au prochain point encore vide, s'il y en a un */
-      const suivant=q.rep.findIndex((r,i)=>!r && i>test.trlSel);
-      const premier=q.rep.findIndex(r=>!r);
-      test.trlSel = suivant>=0 ? suivant : (premier>=0 ? premier : test.trlSel);
-    }
-    $('trlGraph').innerHTML=trlSVG(q,null);
-    trlMaj(); trlLive();
-    recoveryDirty=true; clearTimeout(_trlSaveTimer); _trlSaveTimer=setTimeout(autoSave,1200);
+    if(q.pend && q.pend.x===n.x && q.pend.y===n.y) delete q.pend;   /* recliquer le point sans nom le retire */
+    else if(deja>=0){ q.rep[deja]=null; q.pend={x:n.x, y:n.y}; }      /* recliquer un point nommé : son nom est à choisir de nouveau */
+    else q.pend={x:n.x, y:n.y};                                         /* poser (ou déplacer) le point sans nom */
+    trlRedessiner();
   });
 }
-/* les stylos et les pastilles : le stylo courant est surligné, chaque
-   pastille dit si son point est posé — le texte seulement, les couleurs sont
-   l'affaire de trlLive() et de submitTrl() */
+/* la question du nom et les pastilles : les boutons de nom ne servent que
+   quand un point attend le sien ; chaque pastille dit si son point est posé
+   — le texte seulement, les couleurs sont l'affaire de trlLive() et de
+   submitTrl() */
 function trlMaj(){
   const q=test.questions[test.idx]; if(!q) return;
-  const noms=trlNoms(q), fige=!!test.locked;
+  const noms=trlNoms(q), fige=!!test.locked, attend=!!q.pend && !fige;
+  const t=$('trlNommerTxt');
+  if(t) t.textContent = fige ? '' : (attend ? 'Comment s’appelle ce point ?' : 'Clique sur un nœud pour poser un point.');
   noms.forEach((n,i)=>{
-    const b=$('trlSel'+i); if(b){ b.disabled=fige; b.classList.toggle('sel', test.trlSel===i && !fige); }
+    const b=$('trlNom'+i); if(b){ b.disabled=!attend; b.hidden=fige; }
     const c=$('trl-pt-'+i); if(!c) return;
     const r=q.rep[i];
     c.textContent = r ? '● '+n+'′ posé' : '○ '+n+'′ à poser';
@@ -13677,10 +13696,17 @@ function submitTrl(){
   if(test.locked) return;
   const q=test.questions[test.idx], res=trlCheck(q), noms=trlNoms(q), V=trlVecHTML(q);
   const primes=noms.map(n=>n+'′');
+  /* un point posé sans nom : on ne devine pas lequel c'est — rien ne se
+     peint, rien ne se verrouille, on demande le nom */
+  if(q.pend){
+    const mk=$('trlMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('trlCorr').textContent='Nomme d’abord le point que tu viens de poser : '+primes.join(', ')+' ? (ou reclique dessus pour le retirer)';
+    return;
+  }
   /* aucun point : rien ne se peint, rien ne se verrouille — on redit le geste */
   if(!res.poses){
     const mk=$('trlMark'); mk.textContent='✗'; mk.className='mark bad show';
-    $('trlCorr').textContent='Place d’abord un point : choisis « ● Placer '+primes[0]+' », puis clique sur le nœud du quadrillage où '+noms[0]+' arrive en suivant le chemin '+trlVecTexte(q)+'.';
+    $('trlCorr').textContent='Place d’abord un point : clique sur le nœud du quadrillage où '+noms[0]+' arrive en suivant le chemin '+trlVecTexte(q)+', puis nomme-le '+primes[0]+'.';
     return;
   }
   const peindre=function(final){
@@ -13717,7 +13743,7 @@ function submitTrl(){
   test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Images de '+noms.join(', ')+' par la translation de vecteur '+trlVecTexte(q)+' — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'trl'});
   lvBoutonSuivant('trlValidate', nextTrlQuestion);
 }
-function nextTrlQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; test.trlSel=0; renderTrl(); autoSave(); } else finishTest(); }
+function nextTrlQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTrl(); autoSave(); } else finishTest(); }
 /* le contexte envoyé au modèle : le quadrillage, le chemin en carreaux, les
    points (colonne ; ligne, comptées depuis le coin bas gauche), ce que l'élève
    a posé — et les images attendues, STRICTEMENT SECRÈTES */
@@ -13729,8 +13755,9 @@ function ctxTrl(q){
     ? ' Deux points A '+pos(q.o)+' et B '+pos([q.o[0]+q.vec[0],q.o[1]+q.vec[1]])+' définissent le chemin AB (de A vers B), sans flèche dessinée.'
     : ' Une flèche nommée u est dessinée, de '+pos(q.o)+' à '+pos([q.o[0]+q.vec[0],q.o[1]+q.vec[1]])+'.';
   c+=' Ce chemin vaut : '+trlChemin(q)+'. Points à déplacer : '+noms.map((n,i)=>n+' '+pos(q.src[i])).join(', ')+'.'+ctxEnonce('trlInstr')
-    +' L’élève doit placer, au clic sur un nœud du quadrillage, '+noms.map(n=>n+'′').join(', ')+' : les images de '+noms.join(', ')+' par la translation de vecteur '+V+'.';
+    +' L’élève pose un point au clic sur un nœud du quadrillage, puis le nomme ('+noms.map(n=>n+'′').join(', ')+') : il doit placer les images de '+noms.join(', ')+' par la translation de vecteur '+V+'.';
   const ecrit=res.subs.map(s=>noms[s.i]+'′ : '+(s.pose?'posé '+pos([q.rep[s.i].x,q.rep[s.i].y])+(s.ok?' (juste)':' (FAUX)'):'pas encore posé'));
+  if(q.pend) ecrit.push('un point posé '+pos([q.pend.x,q.pend.y])+' attend encore son nom');
   c+=' Ce que l’élève a fait : '+ecrit.join(' ; ')+'.'
     +CTX_SECRET+res.subs.map(s=>noms[s.i]+'′ = '+pos(s.val)).join(' ; ')+'.'
     +ctxFin('on part du point et on refait exactement le chemin de la flèche (ou le chemin de A vers B) : autant de carreaux vers la droite ou la gauche, puis autant vers le haut ou le bas ; le nœud d’arrivée est l’image, qu’on nomme avec un prime (A′).');
