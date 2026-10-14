@@ -8275,16 +8275,18 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 quadragies quater. SOMME DE VECTEURS : LA FIN DE V RECOPIÉ SE CLIQUE ===== */
+    /* ===== 6 quadragies quater. SOMME DE VECTEURS : LES FLÈCHES GLISSENT ===== */
     /* {somme-vecteurs} (8.7, demande de Turquet, octobre 2026, la fiche
-       « somme de vecteurs — un début va sur une fin ») : la fin de v⃗ recopié
-       se pose au clic sur un nœud, et la page trace aussitôt la construction
-       de l'élève. jsdom n'a pas de mise en page : le calibrage clic → nœud, le
-       reclic qui retire, la construction tracée d'étendue non nulle et les
-       mots « début » / « fin » lisibles ne se voient qu'ici. */
-    titre('6 quadragies quater. SOMME DE VECTEURS : LA FIN DE V RECOPIÉ SE CLIQUE');
+       « somme de vecteurs — un début va sur une fin » ; v489 : « je veux que
+       l'on puisse déplacer les vecteurs u et v sur le quadrillage ») : u⃗ et
+       v⃗ se font GLISSER à la souris jusqu'à être bout à bout, puis u⃗ + v⃗ se
+       trace en deux clics — le premier tombe sur la flèche u⃗, qui doit le
+       laisser passer au nœud. jsdom n'a pas de mise en page : le glisser,
+       l'accrochage aux nœuds, la flèche retenue au bord, le clic à travers la
+       prise et les mots « début » / « fin » lisibles ne se voient qu'ici. */
+    titre('6 quadragies quater. SOMME DE VECTEURS : LES FLÈCHES GLISSENT');
     if(!P.sommeVecteurs){
-      ignorer('la fin de v recopié se pose au clic, la construction se trace, le reclic la retire',
+      ignorer('u et v glissent bout à bout, u + v se trace en deux clics, une flèche reste dans le quadrillage',
         'ce niveau n\'a pas l\'exercice de la somme de vecteurs');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
@@ -8301,66 +8303,79 @@ async function parcours(page, N){
         /* chaque mot « début » / « fin » reste DANS le dessin */
         const dehors = [...document.querySelectorAll('#svcGraph .svc-mot')].filter(t => { const b = t.getBoundingClientRect();
           return b.left < r.left - 1 || b.right > r.right + 1 || b.top < r.top - 1 || b.bottom > r.bottom + 1; }).length;
-        return { svg: r.width > 400 && r.height > 250, fleche: fl && fl !== 'none', dehors: dehors };
+        const pr = document.querySelector('#svcPrises .svc-prise');
+        return { svg: r.width > 400 && r.height > 250, fleche: fl && fl !== 'none', dehors: dehors,
+                 touche: pr ? getComputedStyle(pr).touchAction : '' };
       });
       if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
       if(!mes.fleche) dits.push('les vecteurs de l\'énoncé ne sont pas coiffés d\'une flèche');
       if(mes.dehors) dits.push(mes.dehors + ' mot(s) « début » / « fin » sortent du dessin');
-      const posNoeud = async (x, y, dx, dy) => await s.page.evaluate(([x, y, dx, dy]) => {
+      if(mes.touche !== 'none') dits.push('une prise fait défiler la page sous le doigt (touch-action : ' + mes.touche + ')');
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
         const svg = document.querySelector('#svcGraph .svc-svg');
-        svg.scrollIntoView({ block: 'center' });
         const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
         const kx = r.width / vb.width, ky = r.height / vb.height;
-        return { px: r.left + (SVC_PX + (x + dx) * SVC_C) * kx, py: r.top + (SVC_PY + (SVC_H - (y + dy)) * SVC_C) * ky };
-      }, [x, y, dx || 0, dy || 0]);
-      const clicNoeud = async (x, y, dx, dy) => { const p = await posNoeud(x, y, dx, dy); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
-      const etat = async () => await s.page.evaluate(() => ({
-        sel: JSON.stringify(test.questions[test.idx].sel),
-        peints: document.querySelectorAll('#svcGraph .vec-t.sel').length,
-        trace: [...document.querySelectorAll('#svcTrace line')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length
-      }));
-      const q0 = await s.page.evaluate(() => svcPoint(test.questions[test.idx]));
-      await clicNoeud(q0[0], q0[1]);
+        return { px: r.left + (SVC_PX + x * SVC_C) * kx, py: r.top + (SVC_PY + (SVC_H - y) * SVC_C) * ky };
+      }, [x, y]);
+      await s.page.evaluate(() => document.querySelector('#svcGraph .svc-svg').scrollIntoView({ block: 'center' }));
+      await s.page.waitForTimeout(150);
+      /* saisir une flèche en son milieu et la faire glisser d'un vecteur de carreaux */
+      const glisser = async (w, d) => {
+        const q = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { u: svcU(q), v: svcV(q), uc: q.uc, vc: q.vc }; });
+        const p = w === 'u' ? q.u : q.v, c = w === 'u' ? q.uc : q.vc;
+        const a = await pos(p[0] + c[0] / 2, p[1] + c[1] / 2), b = await pos(p[0] + c[0] / 2 + d[0], p[1] + c[1] / 2 + d[1]);
+        await s.page.mouse.move(a.px, a.py); await s.page.mouse.down();
+        await s.page.mouse.move(b.px, b.py, { steps: 12 }); await s.page.mouse.up();
+        await s.page.waitForTimeout(120);
+      };
+      const clic = async (x, y, dx) => { const p = await pos(x + (dx || 0), y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      const etat = async () => await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return { u: svcU(q), v: svcV(q), uo: q.uo, uc: q.uc, vc: q.vc, sd: q.sd, sf: q.sf, ch: svcChaine(q) ? svcChaine(q).ordre : '',
+          trace: [...document.querySelectorAll('#svcTrace line')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length }; });
       let e = await etat();
-      if(e.sel !== JSON.stringify(q0)) dits.push('le clic ne pose pas le nœud visé : ' + e.sel + ' au lieu de ' + JSON.stringify(q0));
-      if(e.peints !== 1) dits.push('le nœud posé ne se peint pas (' + e.peints + ')');
-      if(e.trace !== 2) dits.push('la construction (v recopié et u + v) ne se trace pas à la pose (' + e.trace + ' traits)');
-      await clicNoeud(q0[0], q0[1]);
+      /* v glisse jusqu'au bout de u */
+      const uf = [e.u[0] + e.uc[0], e.u[1] + e.uc[1]];
+      await glisser('v', [uf[0] - e.v[0], uf[1] - e.v[1]]);
       e = await etat();
-      if(e.sel !== 'null' || e.peints !== 0 || e.trace !== 0) dits.push('recliquer le nœud ne le retire pas : ' + e.sel);
-      await clicNoeud(q0[0], q0[1], 0.2, 0);
+      if(JSON.stringify(e.v) !== JSON.stringify(uf) || e.ch !== 'uv') dits.push('v glissé ne s\'accroche pas au bout de u : ' + JSON.stringify(e.v) + ' au lieu de ' + JSON.stringify(uf));
+      /* u + v : le début tombe SUR la flèche u, sa prise doit laisser passer le clic */
+      await clic(e.u[0], e.u[1], 0.15);
       e = await etat();
-      if(e.sel !== JSON.stringify(q0)) dits.push('le clic décalé d\'un cinquième de maille ne s\'accroche pas au nœud : ' + e.sel);
+      if(JSON.stringify(e.sd) !== JSON.stringify(e.u)) dits.push('le clic sur le début de u (sous sa prise) ne pose pas le début de u + v : ' + JSON.stringify(e.sd));
+      if(JSON.stringify(e.u) !== JSON.stringify(e.uo)) dits.push('un simple clic sur u l\'a déplacé');
+      const vf = [e.v[0] + e.vc[0], e.v[1] + e.vc[1]];
+      await clic(vf[0], vf[1]);
+      e = await etat();
+      if(JSON.stringify(e.sf) !== JSON.stringify(vf) || e.trace !== 1) dits.push('le second clic ne trace pas u + v (' + JSON.stringify(e.sf) + ', ' + e.trace + ' trait)');
       await s.page.click('#svcValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
-        okc: document.querySelectorAll('#svcGraph .vec-t.okc').length, missc: document.querySelectorAll('#svcGraph .vec-t.missc').length,
         bouton: document.getElementById('svcNext') ? document.getElementById('svcNext').textContent : '' }));
-      if(fin.score !== 1 || !fin.locked) dits.push('la copie juste cliquée vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller'));
-      if(fin.okc !== 1 || fin.missc) dits.push('le nœud juste n\'est pas peint okc, ou la correction se montre (' + fin.okc + ', ' + fin.missc + ')');
+      if(fin.score !== 2 || !fin.locked) dits.push('la copie juste glissée vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller'));
       if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
-      /* question suivante : v posé sur le DÉBUT de u, quand ce nœud est dans le quadrillage, sinon un nœud faux quelconque */
+      /* question suivante : u tiré loin à droite reste dans le quadrillage ; copie fausse */
       await s.page.click('#svcNext');
       await s.page.waitForTimeout(400);
-      const q1 = await s.page.evaluate(() => { const q = test.questions[test.idx], E = svcPoint(q);
-        let f = [q.uo[0] + q.vc[0], q.uo[1] + q.vc[1]];
-        if(!svcDans(f)) f = E[0] > 0 ? [E[0] - 1, E[1]] : [E[0] + 1, E[1]];
-        return { E: E, faux: f }; });
-      await clicNoeud(q1.faux[0], q1.faux[1]);
+      /* la première figure de la fiche : u tiré à droite ne peut pas tomber bout à bout avec v */
+      await s.page.evaluate(() => { test.questions[test.idx] = { uo: [1, 1], uc: [2, 4], vo: [6, 6], vc: [2, -2], up: null, vp: null, sd: null, sf: null }; renderSvc();
+        document.querySelector('#svcGraph .svc-svg').scrollIntoView({ block: 'center' }); });
+      await s.page.waitForTimeout(150);
+      e = await etat();
+      await glisser('u', [20, 0]);
+      e = await etat();
+      const bord = e.uc[0] >= 0 ? 12 - e.uc[0] : 12;
+      if(e.u[0] !== bord || e.u[1] !== e.uo[1]) dits.push('u tiré hors du quadrillage n\'est pas retenu au bord : ' + JSON.stringify(e.u) + ' au lieu de [' + bord + ',' + e.uo[1] + ']');
       await s.page.click('#svcValidate');
       await s.page.waitForTimeout(300);
-      const faux = await s.page.evaluate(() => {
-        const miss = [...document.querySelectorAll('#svcGraph .vec-t.missc .dot')];
-        return { badc: document.querySelectorAll('#svcGraph .vec-t.badc').length, miss: miss.length,
-                 large: miss.every(c => c.getBoundingClientRect().width > 4),
-                 vert: [...document.querySelectorAll('#svcCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
-                 rouge: document.querySelectorAll('#svcTrace line.svc-eb').length, score: test.score };
-      });
-      if(faux.badc !== 1 || faux.rouge !== 2) dits.push('le nœud faux et sa construction ne rougissent pas (' + faux.badc + ', ' + faux.rouge + ')');
-      if(faux.miss !== 1 || !faux.large) dits.push('le nœud attendu ne se montre pas en vert');
+      const faux = await s.page.evaluate(() => ({
+        ch: document.getElementById('svc-ch').className, sm: document.getElementById('svc-sm').className,
+        vert: [...document.querySelectorAll('#svcCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        prises: document.querySelectorAll('#svcPrises .svc-prise').length, score: test.score }));
+      if(!/\bbad\b/.test(faux.ch) || !/\bsol\b/.test(faux.sm)) dits.push('flèches séparées, u + v vide : ' + faux.ch + ' / ' + faux.sm);
       if(faux.vert !== 2) dits.push('la construction attendue ne se trace pas en vert (' + faux.vert + ')');
-      if(faux.score !== 1) dits.push('la copie fausse rapporte des points (score ' + faux.score + ')');
-      verifier('la fin de v recopié se pose au clic, la construction se trace, le reclic la retire', !dits.length, dits.slice(0, 3).join(' | '));
+      if(faux.prises) dits.push('les flèches se saisissent encore après la correction');
+      if(faux.score !== 2) dits.push('la copie fausse rapporte des points (score ' + faux.score + ')');
+      verifier('u et v glissent bout à bout, u + v se trace en deux clics, une flèche reste dans le quadrillage', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la somme de vecteurs ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;

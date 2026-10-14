@@ -890,6 +890,46 @@ clique pour de vrai : le nœud visé, le reclic qui retire, un clic à un
 cinquième de maille, la construction d'étendue non nulle, puis un nœud faux
 (rouge, construction attendue en vert, aucun point).
 
+**Puis les flèches ont GLISSÉ (v489).** Turquet, octobre 2026 : « je veux
+que l'on puisse déplacer les vecteurs u et v sur le quadrillage. l'élève
+peut construire la somme où il veut si cela rentre dans le quadrillage et
+dans l'ordre qu'il veut pour les vecteurs ». Le clic unique (la fin de v⃗
+recopié, la page traçant le reste) est remplacé par deux gestes : l'élève
+fait GLISSER u⃗ et v⃗ — chaque flèche s'accroche aux nœuds et reste entière
+dans le quadrillage, retenue au bord (`svcDeplacer`) — jusqu'à les poser bout
+à bout, u⃗ puis v⃗ ou v⃗ puis u⃗ (`svcChaine`) ; puis il TRACE u⃗ + v⃗ en
+cliquant son début puis sa fin (`svcPose` : un troisième clic recommence,
+recliquer le début seul le retire). Deux réponses, jugées chacune SEULE :
+`svc-ch` (le début de l'une sur la fin de l'autre) et `svc-sm` (la flèche
+tracée est un représentant de u⃗ + v⃗, où qu'elle soit) — une flèche u⃗ + v⃗
+juste ne rougit pas parce que les deux autres sont mal posées. Le barème
+passe de 8 à 16 (`svcCases`, `bareme` dans `tests/profils.js`).
+On range `up`/`vp` (les débuts déplacés, null tant qu'une flèche n'a pas
+bougé), `sd`/`sf` (la flèche tracée) ; `sel` disparaît. Le chaînage est
+« vide » tant qu'aucune flèche n'a quitté sa place.
+**La prise.** Chaque flèche porte un trait large et transparent posé
+par-dessus tout le dessin (`.svc-prise`, `touch-action:none`, et `touchstart`
+retenu pour Safari) : on la saisit pour glisser ; le reste du dessin fait
+défiler la page sous le doigt. Mais le début de u⃗ + v⃗ tombe presque
+toujours SUR une flèche, sous sa prise : un appui qui ne bouge pas d'un
+tiers de carreau est donc un CLIC sur le nœud le plus proche. Au clavier, la
+prise a le focus et les flèches du clavier la déplacent. Les écouteurs sont
+délégués à l'hôte, mouvement et relâchement à la fenêtre (le motif
+d'{antecedents-droite}).
+**Les pièges nommés** (`svcPourquoi`) : deux débuts ensemble, deux fins
+ensemble, deux flèches qui ne se touchent pas, u⃗ + v⃗ tracé à l'envers.
+**La correction** montre en vert la construction attendue depuis u⃗ là où
+l'élève l'a laissé, sinon depuis v⃗ (l'autre ordre), sinon depuis la place
+de départ de u⃗ — celle que le tirage garantit (`svcConstruction`) ; quand
+le chaînage est juste, seulement u⃗ + v⃗. En soutien, la réponse juste se
+fige (les flèches ne glissent plus, ou u⃗ + v⃗ ne se retrace plus).
+Le juge (`tests/verifier.js`) éprouve les deux ordres, la flèche retenue au
+bord, la reprise après JSON, chaque piège et le jugement séparé ; le banc
+navigateur (« 6 quadragies quater ») glisse v⃗ à la souris jusqu'au bout de
+u⃗, clique le début de u⃗ + v⃗ À TRAVERS la prise de u⃗, tire u⃗ hors du
+quadrillage, et relit `touch-action` sur la prise. Le doigt sur tablette, lui,
+ne se joue dans aucun banc.
+
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
