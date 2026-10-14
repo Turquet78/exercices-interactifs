@@ -1055,7 +1055,7 @@ quelle, `chsLigne` sait toujours la lire. Le banc suit : fiche, plan, 17
 cases ; le contrôle « une case juste ne rougit pas pour sa voisine » passe de
 DC + CE à CE + BC (BC bleu, AB rouge, badge CE).
 
-## {somme-vecteurs-repere} — placer un point défini par une somme de vecteurs (8.9, v491)
+## {somme-vecteurs-repere} — placer un point défini par une somme de vecteurs (8.9, v492)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme le
 pdf, en plaçant d'abord les points demandés, puis en traçant les vecteurs
