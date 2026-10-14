@@ -821,7 +821,76 @@ en vert d'étendue non nulle, le badge, les deux flèches, aucun point gagné) �
 et mesure que les vecteurs de l'énoncé portent leur flèche et que la case du
 nom n'est pas plus petite que sa phrase.
 
-## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.7, v487)
+## {somme-vecteurs} — la somme de deux vecteurs : un début va sur une fin (8.7, v487)
+
+**La demande** (Turquet, octobre 2026, « en seconde créer un exercice comme
+le pdf ») : la fiche « Fiche 1 : somme de vecteurs — un début va sur une
+fin ». Dix quadrillages ; sur chacun, deux flèches séparées, u⃗ en trait
+plein et v⃗ en pointillés, chacune marquée « début » et « fin » ; la consigne
+« construire le vecteur égal à la somme u⃗ + v⃗ ». Ajouté en dernier, il ne
+renumérote rien.
+
+**La construction de la fiche, en un geste.** On recopie v⃗ en posant son
+DÉBUT sur la FIN de u⃗ ; u⃗ + v⃗ va du début de u⃗ à la fin de v⃗ recopié.
+L'élève clique le nœud où arrive la fin de v⃗ recopié, et la page trace
+aussitôt SA construction en bleu : v⃗ recopié en pointillés depuis la fin de
+u⃗, et la flèche u⃗ + v⃗ depuis le début de u⃗. Ce tracé est le dessin de ce
+qu'il a posé, pas un verdict — rien ne dit juste ou faux avant « Vérifier »
+(`soutienEnDirect.sans`, kind « svc », comme le 8.5 et le 8.6). Cliquer un
+autre nœud déplace la construction, le même nœud la retire. Une réponse par
+question, huit questions (`SVC_NB`, `dmNbQuestions`), barème 8 ; la consigne
+est une `pts-case` (`svcCases`).
+
+**On range les deux flèches, jamais la réponse** : `uo`/`uc` (le début de u⃗
+et son chemin), `vo`/`vc`, `sel` le nœud posé. **Pas de champ `v`** : `v` est
+dans `CLE_HORS` (une tournure), et deux figures aux v⃗ différents auraient
+passé pour la même question dans `distinctes()` — le piège du 8.3 et du 8.4,
+évité d'avance. `svcPoint(q)` recalcule le nœud attendu là où l'on corrige.
+
+**Le quadrillage est celui de la fiche, plus large que haut** : 12 carreaux
+sur 8, la recette des cibles du 8.5 (zone de touche de 14 px, cible au
+clavier), mais TOUS les nœuds cliquables — le nœud attendu peut tomber sur
+une extrémité dessinée. Le tirage (`svcGen`) garde tout dans le quadrillage,
+chaque chemin (u⃗, v⃗ et la somme) à deux carreaux au moins, les quatre
+extrémités deux à deux à deux carreaux (les mots « début » et « fin » ne se
+chevauchent pas), les deux flèches à plus de 1,2 carreau l'une de l'autre
+(jamais croisées, jamais collées) — donc jamais v⃗ déjà posé au bout de u⃗.
+La deuxième capture a ajouté deux refus : une extrémité dessinée sur le BORD
+posait son mot « début » à cheval sur le cadre (les quatre extrémités restent
+désormais à un carreau du bord), et la flèche u⃗ + v⃗ attendue traversait
+le « début » de v⃗ (la construction attendue passe maintenant à un carreau au
+moins de la flèche v⃗, et le nœud attendu à deux carreaux de ses bouts). Le
+tirage accepte une figure en 200 essais au plus, sans jamais atteindre le
+repli (3 000 figures simulées sous Node, toutes différentes).
+Les mots se posent dans le prolongement de la flèche, hors d'elle, à 15 px ;
+la marge de 46 unités les tient au bord, et le banc navigateur mesure qu'aucun
+ne sort du dessin.
+
+**Les deux pièges sont nommés** (`svcPourquoi`) : v⃗ posé sur le DÉBUT de u⃗
+(« un début va sur une FIN ») et v⃗ recopié à l'envers ; tout message faux dit
+ensuite le chemin de v⃗ en carreaux et celui de u⃗ + v⃗. Les messages écrivent
+« u » et « v » sans flèche : la flèche combinante (U+20D7) se dessinait mal en
+texte brut, la première capture l'a montré. Correction finale : nœud juste
+bleu (`okc`), faux rouge avec sa construction rouge, et la construction
+attendue en VERT (v⃗ recopié et u⃗ + v⃗) quand l'élève ne l'avait pas ; une
+consigne vide devient `sol`, jamais rouge. En soutien : le faux rougit et se
+déplace, le juste se fige, rien ne se révèle.
+
+**Le juge** (`tests/verifier.js`, « somme de vecteurs ») : la place (8.7, le
+8.6 immobile), 200 séances (huit questions distinctes, barème 8, la question
+ne range que `uo`, `uc`, `vo`, `vc`, `sel`, le nœud attendu relu par une
+seconde écriture, tout dans le quadrillage, extrémités à deux carreaux,
+chemins à deux carreaux, JSON), puis la première figure de la fiche : deux
+« début », deux « fin », u et v nommés, 117 cibles ; la copie vide (sol, nœud
+(5 ; 3) en vert, deux traits verts, « Il te manquait 1 case ») ; la copie
+juste par `svcPose` (poser, retirer, déplacer, la construction tracée) ; les
+deux pièges nommés ; le soutien et le contexte du modèle (secret, le nœud,
+ce que l'élève a posé). **Le banc navigateur** (« 6 quadragies quater »)
+clique pour de vrai : le nœud visé, le reclic qui retire, un clic à un
+cinquième de maille, la construction d'étendue non nulle, puis un nœud faux
+(rouge, construction attendue en vert, aucun point).
+
+## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
 le pdf », une fiche « Compléter à l'aide du dessin afin d'utiliser la
@@ -863,7 +932,7 @@ l'écran le permet. Les messages nomment la faute : l'opposé oublié (« Soustr
 CA, c'est AJOUTER son opposé AC »), le vecteur recopié qui ne part pas du bon
 point, l'ordre qui ne s'enchaîne pas, le résultat à l'envers.
 
-**Le juge** (`tests/verifier.js`, « relation de Chasles ») : la place (8.7,
+**Le juge** (`tests/verifier.js`, « relation de Chasles ») : la place (8.8,
 pas de bouton des tables), 300 séances tirées dont chaque correction est
 relue par un juge INDÉPENDANT écrit depuis les coordonnées (somme,
 enchaînement, égalité), la fiche en première page, le plan des lignes,
