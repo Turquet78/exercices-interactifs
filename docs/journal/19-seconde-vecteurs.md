@@ -890,7 +890,7 @@ clique pour de vrai : le nœud visé, le reclic qui retire, un clic à un
 cinquième de maille, la construction d'étendue non nulle, puis un nœud faux
 (rouge, construction attendue en vert, aucun point).
 
-## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488)
+## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v489)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
 le pdf », une fiche « Compléter à l'aide du dessin afin d'utiliser la
@@ -944,3 +944,20 @@ E »), CE + BC écrit dans le même ordre (« ordre »), DC + AB (DC bleu, AB
 rouge, badge CE), la case vide (correction BC, jamais rouge), la copie vide
 (rien de rouge, une correction juste pour le juge), le soutien au fil de la
 saisie, le barème, `qId`, le contexte du modèle.
+
+**Puis deux retouches, d'après la page ouverte** (Turquet, octobre 2026, v489).
+« Il faut que les noms des vecteurs soient alignés horizontalement » : le
+premier vecteur de chaque ligne (`.veg-tete`) n'avait aucune règle — un span
+en ligne, blockifié par le flex de `.veg-l`, où la `.veg-v` se posait sur la
+ligne de base de son texte. Mesuré dans Chromium : ses lettres tombaient 5 px
+sous celles des vecteurs voisins, sur les huit lignes. `.veg-tete` est
+désormais `inline-flex`, centrée comme les `.veg-grp` : écart 0 px. La règle
+vaut aussi pour le 8.3, qui pose la même tête. Et « pour la deuxième ligne,
+on peut utiliser la relation de Chasles directement, ce n'est pas la peine de
+demander deux termes » : DC + CE s'enchaîne déjà, la ligne devient `r` (le
+résultat seul). Le plan est `r, r, ci, ci, ci, u, u, s` — la variante `cd`
+(« à réécrire, déjà dans l'ordre ») disparaît du tirage : 17 cases par figure.
+Une séance en pause rangée avant (un `t:'c'` déjà enchaîné) se rejoue telle
+quelle, `chsLigne` sait toujours la lire. Le banc suit : fiche, plan, 17
+cases ; le contrôle « une case juste ne rougit pas pour sa voisine » passe de
+DC + CE à CE + BC (BC bleu, AB rouge, badge CE).

@@ -20194,8 +20194,8 @@ function relationChasles(w, P){
       }
       return f;
     };
-    const FICHE_L=[['r','AE','EB'],['c','DC','CE'],['c','CE','BC'],['c','AD','BA'],['c','DC','BD'],['u','AB','AD'],['u','BE','AE'],['s','BA','CA']];
-    const PLAN=['r','c','c','c','c','u','u','s'];
+    const FICHE_L=[['r','AE','EB'],['r','DC','CE'],['c','CE','BC'],['c','AD','BA'],['c','DC','BD'],['u','AB','AD'],['u','BE','AE'],['s','BA','CA']];
+    const PLAN=['r','r','c','c','c','u','u','s'];
 
     /* ---- 1. le tirage : 300 séances, chaque correction relue ----------- */
     const formes={};
@@ -20242,7 +20242,7 @@ function relationChasles(w, P){
     /* ---- 2. la fiche, par le BOUTON ------------------------------------ */
     startChs();
     test.idx=0;
-    const JUSTE={0:['AB'],1:['DC','CE','DE'],2:['BC','CE','BE'],3:['BA','AD','BD'],4:['BD','DC','BC'],5:['BC','AC'],6:['EC','BC'],7:['AC','BC']};
+    const JUSTE={0:['AB'],1:['DE'],2:['BC','CE','BE'],3:['BA','AD','BD'],4:['BD','DC','BC'],5:['BC','AC'],6:['EC','BC'],7:['AC','BC']};
     const ptsF=pointsDe(test.questions[0]);
     FICHE_L.forEach(function(x, i){ if(juge(ptsF, {t:x[0],u:x[1],v:x[2]}, JUSTE[i]).length) vus.push('le juge refuse la copie juste de la ligne '+(i+1)); });
     const IDS=[]; Object.keys(JUSTE).forEach(function(i){ JUSTE[i].forEach(function(v,j){ IDS.push('chs-'+i+'-'+j); }); });
@@ -20253,7 +20253,7 @@ function relationChasles(w, P){
       return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
     const fb=function(){ return document.getElementById('chsFeedback').textContent; };
     poser({});
-    if(IDS.length!==19) vus.push(IDS.length+' cases au lieu de 19');
+    if(IDS.length!==17) vus.push(IDS.length+' cases au lieu de 17');
     if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la fiche manque à l’écran';
     const lettres=[...document.querySelectorAll('#chsHost svg text')].map(function(t){ return t.textContent.trim(); }).sort().join('');
     if(lettres!=='ABCDE') vus.push('les lettres du dessin sont « '+lettres+' »');
@@ -20264,9 +20264,9 @@ function relationChasles(w, P){
     if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
     const pasJustes=IDS.filter(function(id){ return peint(id)!=='juste'; });
     if(pasJustes.length) vus.push('copie juste, cases non justes : '+pasJustes.join(', '));
-    if(!der || der.cases!==19) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 19');
-    /* d’AUTRES écritures justes, en minuscules : AE + EB = DC ; DC + CE = EA + AB = EB ; CE + BC = EA + AD = ED */
-    poser(val(Object.assign({}, JUSTE, {0:['dc'],1:['ea','ab','eb'],2:['EA','AD','ED']}))); checkChsAnswer();
+    if(!der || der.cases!==17) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 17');
+    /* d’AUTRES écritures justes, en minuscules : AE + EB = DC ; DC + CE = EB ; CE + BC = EA + AD = ED */
+    poser(val(Object.assign({}, JUSTE, {0:['dc'],1:['eb'],2:['EA','AD','ED']}))); checkChsAnswer();
     der=test.answers[test.answers.length-1];
     if(!der || !der.correct) vus.push('une autre écriture juste est comptée fausse : '+IDS.filter(function(id){ return peint(id)!=='juste'; }).join(', '));
     /* LE PIÈGE de la soustraction : BA − CA = BA + CA */
@@ -20286,10 +20286,10 @@ function relationChasles(w, P){
     poser(val(Object.assign({}, JUSTE, {2:['CE','BC','BE']}))); checkChsAnswer();
     if(peint('chs-2-0')!=='rouge' || peint('chs-2-2')!=='juste') vus.push('CE + BC = CE + BC = BE : '+peint('chs-2-0')+', résultat '+peint('chs-2-2'));
     if(!/ordre/.test(fb())) vus.push('le message ne propose pas de changer l’ordre');
-    /* une case juste ne rougit pas à cause de sa voisine : DC + CE = DC + AB */
-    poser(val(Object.assign({}, JUSTE, {1:['DC','AB','DE']}))); checkChsAnswer();
-    if(peint('chs-1-0')!=='juste' || peint('chs-1-1')!=='rouge') vus.push('DC + CE = DC + AB : '+peint('chs-1-0')+' puis '+peint('chs-1-1'));
-    const badge=document.getElementById('chs-1-1').nextElementSibling;
+    /* une case juste ne rougit pas à cause de sa voisine : CE + BC = BC + AB */
+    poser(val(Object.assign({}, JUSTE, {2:['BC','AB','BE']}))); checkChsAnswer();
+    if(peint('chs-2-0')!=='juste' || peint('chs-2-1')!=='rouge') vus.push('CE + BC = BC + AB : '+peint('chs-2-0')+' puis '+peint('chs-2-1'));
+    const badge=document.getElementById('chs-2-1').nextElementSibling;
     if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='CE') vus.push('la correction de AB n’écrit pas CE à côté');
     /* une case vide ne rougit pas, et reçoit la correction */
     poser(val(Object.assign({}, JUSTE, {5:['','AC']}))); checkChsAnswer();
@@ -20312,7 +20312,7 @@ function relationChasles(w, P){
     /* le barème et l’identité */
     startChs();
     const total=test.questions.reduce(function(a,q){ return a+chsCases(q).length; },0);
-    if(test.maxScore!==total || total!==19*CHS_NB) vus.push('barème de '+test.maxScore+' au lieu de '+total);
+    if(test.maxScore!==total || total!==17*CHS_NB) vus.push('barème de '+test.maxScore+' au lieu de '+total);
     if(test.qId!=='relation-chasles') vus.push('qId « '+test.qId+' »');
     const ctx=ctxChs(test.questions[0]).contexte;
     if(!/SECR/.test(ctx) || !/Chasles/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret ni la méthode');
