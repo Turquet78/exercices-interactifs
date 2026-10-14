@@ -209,6 +209,22 @@ configuration », « par figure 2 : les flèches « non parallèles » ne font q
 13° », « mil figure 1 : les points du piège vérifient la configuration » —
 les trois défauts, nommés, aucun autre.
 
+**Puis la colonne DONNÉE a ressorti, dès l'arrivée de la question**
+(Turquet, octobre 2026, v486 : « faire ressortir la colonne qui donne
+l'information au début de chaque question »). Les trois colonnes avaient le
+même cadre pâle : l'élève devait chercher laquelle était remplie avant de
+savoir d'où partir. La cellule donnée (`vgt-donnee`, une classe qui existait
+sans aucun style) prend une encre DORÉE (`--gold`) — ni le bleu du juste, ni
+le vert de la correction, ni le rouge, ni le violet de la carte choisie —,
+une étiquette « Donnée » à côté de son titre, et un battement d'1,4 s à
+l'arrivée de la question (figé par la règle `prefers-reduced-motion`). La
+consigne NOMME la colonne (« la colonne « Figure » est donnée ») puisqu'elle
+change d'une ligne à l'autre. Et sur téléphone, où le tableau s'empile, la
+colonne donnée passe EN TÊTE (`order:-1`) : elle tombait en deuxième ou
+troisième place, sous le bas de l'écran, et l'élève voyait des propositions
+avant de voir de quoi elles parlaient. Vu dans Chromium (bureau et
+390 px), égalité donnée et figure donnée.
+
 ## {vecteurs-egaux} — retrouver les vecteurs égaux dans une figure (8.3, v475)
 
 **Trois sessions ont créé le thème 8 le même jour** — la translation du 8.1,

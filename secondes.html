@@ -2011,11 +2011,21 @@
   .asx-l .mf-cor.asx-lit{font-style:italic;font-family:"Times New Roman",serif}
   /* ---- Vecteurs égaux (8.2) : le tableau de la fiche, une ligne par page ---- */
   .vgt-tab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1.15fr);gap:12px;width:100%;max-width:1100px;margin:0 auto;align-items:start}
-  @media(max-width:860px){ .vgt-tab{grid-template-columns:1fr} }
+  /* empilé (téléphone), le tableau commence par la colonne DONNÉE : c'est d'elle qu'on part */
+  @media(max-width:860px){ .vgt-tab{grid-template-columns:1fr} .vgt-cell.vgt-donnee{order:-1} }
   .vgt-cell{border:1.5px solid #D6E2F8;border-radius:14px;padding:10px 10px 12px;background:#FBFCFF;min-width:0}
   .vgt-head{font-family:"Fredoka";font-weight:600;font-size:.95rem;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);text-align:center;margin:0 0 8px}
   .vgt-revient{font-style:italic;color:var(--ink-soft);text-align:center;font-size:.95rem;margin:-4px 0 8px}
   .vgt-donne{display:flex;align-items:center;justify-content:center;min-height:96px;padding:10px;border-radius:12px;background:#fff;border:1.5px solid #DCE7FB;text-align:center}
+  /* la colonne DONNÉE ressort dès que la question s'affiche : encre dorée —
+     ni le bleu du juste, ni le vert de la correction, ni le rouge, ni le
+     violet de la carte choisie — une étiquette « Donnée », et un battement
+     à l'arrivée de la question (figé par prefers-reduced-motion) */
+  .vgt-cell.vgt-donnee{border:2.5px solid var(--gold);background:#FFF7E6;box-shadow:0 0 0 4px rgba(242,169,59,.18);animation:vgtDonnee 1.4s ease-out 1}
+  .vgt-donnee .vgt-head{color:#9A5B00}
+  .vgt-donnee .vgt-donne{border-color:#F4C77A}
+  .vgt-badge{display:inline-block;margin-left:.5em;padding:2px 9px;border-radius:999px;background:var(--gold);color:#fff;font-size:.72rem;letter-spacing:.05em;vertical-align:middle}
+  @keyframes vgtDonnee{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(242,169,59,.6)}30%{transform:scale(1.03);box-shadow:0 0 0 12px rgba(242,169,59,.28)}100%{transform:scale(1);box-shadow:0 0 0 4px rgba(242,169,59,.18)}}
   .vgt-donne.vgt-eg{font-size:1.9rem}
   .vgt-donne.vgt-conf{font-family:"Fredoka";font-weight:600;font-size:1.25rem;color:var(--blue-dark)}
   .vgt-donne.vgt-fig .vgt-fig{width:100%;max-width:300px}
@@ -6656,7 +6666,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=485;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=486;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -61299,7 +61309,7 @@ function vgtCases(q){
 }
 function vgtCelluleHTML(q, col){
   const props=vgtProps(q, col);
-  const tete='<div class="vgt-head">'+VGT_COL_NOM[col]+'</div>'+(col==='conf'?'<div class="vgt-revient">… revient à dire que …</div>':'');
+  const tete='<div class="vgt-head">'+VGT_COL_NOM[col]+(col===q.donne?'<span class="vgt-badge">Donnée</span>':'')+'</div>'+(col==='conf'?'<div class="vgt-revient">… revient à dire que …</div>':'');
   if(col===q.donne) return '<div class="vgt-cell vgt-donnee">'+tete+'<div class="vgt-donne vgt-'+col+'">'+props[0].html+'</div></div>';
   const cartes=q.ordre[col].map(function(p,i){
     return '<div class="vgt-carte vgt-c-'+col+'" data-col="'+col+'" data-i="'+i+'" onclick="vgtChoisir(\''+col+'\','+i+')">'
@@ -61313,6 +61323,8 @@ function vgtCelluleHTML(q, col){
 function renderVgtTest(){
   const q=test.questions[test.idx]; test.locked=false;
   $('vgtIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  /* la consigne NOMME la colonne donnée, qui change d'une ligne à l'autre */
+  $('vgtInstr').innerHTML='Compl&egrave;te la ligne du tableau : la colonne <b>« '+VGT_COL_NOM[q.donne]+' »</b> est donn&eacute;e, choisis la bonne proposition (A, B ou C) pour chacune des deux autres.';
   $('modeTagVgt').innerHTML=modeTagHTML();
   $('vgtLiveScore').textContent=test.score;
   $('vgtFeedback').textContent=''; $('vgtFeedback').className='mp-feedback';
