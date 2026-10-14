@@ -4494,6 +4494,7 @@ function exercices(suite){
     vecteursEgauxTableau(w, P);
     vecteursEgaux(w, P);
     relationChasles(w, P);
+    chaslesTroisVecteurs(w, P);
     chaslesSimplifier(w, P);
     tableauProportions(w, P);
     tableauProportionsLettres(w, P);
@@ -11857,10 +11858,27 @@ function sommeVecteurs(w, P){
     test.idx=0; test.locked=false; renderSvc();
 
     /* 2. l'énoncé et le dessin */
-    const instr=el('svcInstr');
+    const instr=el('svcInstr'), qa=el('svc-ch'), qb=el('svc-sm');
     if(instr.textContent.indexOf('Un début va sur une fin')<0) vus.push('l\\'énoncé ne dit pas « Un début va sur une fin » : '+instr.textContent.slice(0,80));
-    if(instr.textContent.indexOf('glisser')<0 || instr.textContent.indexOf('l’ordre que tu veux')<0) vus.push('l\\'énoncé ne dit pas qu\\'on fait glisser les flèches, dans l\\'ordre qu\\'on veut');
-    if(instr.querySelectorAll('.vec').length<4) vus.push('les vecteurs de l\\'énoncé ne sont pas coiffés de leur flèche');
+    if(qa.textContent.indexOf('a)')!==0 || qa.textContent.indexOf('glisser')<0 || qa.textContent.indexOf('l’ordre que tu veux')<0) vus.push('la question a) ne dit pas qu\\'on fait glisser les flèches, dans l\\'ordre qu\\'on veut : '+qa.textContent.slice(0,80));
+    if(qb.textContent.indexOf('b)')!==0 || qb.textContent.indexOf('Trace')<0) vus.push('la question b) ne demande pas de tracer la somme : '+qb.textContent.slice(0,80));
+    if(instr.querySelectorAll('.vec').length+qa.querySelectorAll('.vec').length+qb.querySelectorAll('.vec').length<6) vus.push('les vecteurs de l\\'énoncé ne sont pas coiffés de leur flèche');
+    /* a) puis b) : en a), un clic ne trace rien ; en b), les flèches ne glissent plus */
+    if(!qa.classList.contains('svc-actif') || !qb.classList.contains('svc-attente')) vus.push('la question a) n\\'est pas la question en cours au départ');
+    svcPose(1,1);
+    if(test.questions[0].sd) vus.push('en a), un clic sur le quadrillage commence u + v');
+    svcVersB();
+    if(test.questions[0].et!=='b' || !qb.classList.contains('svc-actif') || document.querySelectorAll('#svcPrises .svc-prise').length) vus.push('passer à b) ne fige pas les flèches ou n\\'active pas b)');
+    if(svcDeplacer('u',[2,2])) vus.push('en b), une flèche glisse encore');
+    svcPose(1,1);
+    if(JSON.stringify(test.questions[0].sd)!=='[1,1]') vus.push('en b), le premier clic ne pose pas le début de u + v');
+    svcPose(1,1); svcVersA();
+    if(test.questions[0].et!=='a' || document.querySelectorAll('#svcPrises .svc-prise').length!==2) vus.push('« Revenir à la question a) » ne rend pas les flèches');
+    /* le nom de la somme : une flèche sur u, une sur v, le texte « u+v » */
+    test.questions[0].sd=[1,1]; test.questions[0].sf=[5,3]; svcTracer(test.questions[0],'');
+    const ns=el('svcTrace').querySelector('text.svc-nom'), nf=el('svcTrace').querySelector('path.svc-nfl');
+    if(!ns || ns.textContent!=='u+v' || ns.querySelectorAll('tspan').length!==3 || !nf || (nf.getAttribute('d').match(/M/g)||[]).length!==2) vus.push('le nom de u + v n\\'a pas une flèche sur chaque lettre : '+(nf?nf.getAttribute('d'):'aucune'));
+    test.questions[0].sd=null; test.questions[0].sf=null; svcTracer(test.questions[0],'');
     const mots=Array.from(document.querySelectorAll('#svcGraph text.svc-mot')).map(function(t){ return t.textContent; }).sort().join(',');
     if(mots!=='début,début,fin,fin') vus.push('le dessin n\\'écrit pas deux « début » et deux « fin » : '+mots);
     const noms=Array.from(document.querySelectorAll('#svcGraph text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',');
@@ -11890,6 +11908,7 @@ function sommeVecteurs(w, P){
     if(!svcChaine(q1)||svcChaine(q1).ordre!=='uv') vus.push('v posé au bout de u n\\'est pas lu bout à bout');
     const lv=el('svcFl').querySelector('line.svc-v');
     if(!lv || lv.getAttribute('x1')!==String(SVC_PX+3*SVC_C)) vus.push('la flèche v ne se redessine pas à sa nouvelle place');
+    svcVersB();
     svcPose(1,1);
     if(JSON.stringify(q1.sd)!=='[1,1]' || !document.querySelector('#svcn-1-1.sel')) vus.push('le premier clic ne pose pas le début de u + v');
     svcPose(1,1);
@@ -11900,7 +11919,7 @@ function sommeVecteurs(w, P){
     /* la pause : la question jouée survit au JSON et au redessin */
     test.questions[1]=JSON.parse(JSON.stringify(q1)); renderSvc();
     const q1b=test.questions[1];
-    if(!svcChaine(q1b) || el('svcTrace').querySelectorAll('line.svc-e').length!==1) vus.push('la reprise perd les flèches déplacées ou u + v');
+    if(!svcChaine(q1b) || el('svcTrace').querySelectorAll('line.svc-e').length!==1 || q1b.et!=='b') vus.push('la reprise perd les flèches déplacées, u + v ou la question b)');
     if(verifierIci()!==2) vus.push('la copie juste (u puis v) ne vaut pas 2');
     if(classe('svc-ch')!=='ok'||classe('svc-sm')!=='ok') vus.push('la copie juste n\\'est pas peinte ok : '+classe('svc-ch')+', '+classe('svc-sm'));
     if(el('svcCorr').children.length || document.querySelector('#svcGraph .vec-t.missc')) vus.push('la correction se montre alors que tout est juste');
@@ -11913,12 +11932,12 @@ function sommeVecteurs(w, P){
     if(JSON.stringify(q2.up)!=='[10,4]') vus.push('u tiré hors du quadrillage n\\'est pas retenu au bord : '+JSON.stringify(q2.up));
     svcDeplacer('v',[0,6]); svcDeplacer('u',[2,4]);
     if(!svcChaine(q2)||svcChaine(q2).ordre!=='vu') vus.push('u posé au bout de v n\\'est pas lu bout à bout');
-    svcPose(0,6); svcPose(4,8);
+    svcVersB(); svcPose(0,6); svcPose(4,8);
     if(verifierIci()!==2) vus.push('la copie juste dans l\\'autre ordre (v puis u) ne vaut pas 2');
 
     /* 6. les pièges, et chaque réponse jugée seule */
     nextSvc(); clearTimeout(test.fbTimer);
-    svcDeplacer('v',[1,2]); svcPose(1,2); svcPose(6,5);
+    svcDeplacer('v',[1,2]); svcVersB(); svcPose(1,2); svcPose(6,5);
     if(verifierIci()!==1) vus.push('deux débuts ensemble, u + v juste : ne vaut pas 1');
     if(classe('svc-ch')!=='bad'||classe('svc-sm')!=='ok') vus.push('deux débuts ensemble : '+classe('svc-ch')+', '+classe('svc-sm')+' au lieu de bad, ok — une réponse juste rougit à cause de l\\'autre');
     let fb=el('svcFeedback').textContent;
@@ -11926,7 +11945,7 @@ function sommeVecteurs(w, P){
     if(fb.indexOf('Il te manquait')>=0) vus.push('le message parle de cases manquantes sur une copie complète');
     if(document.querySelectorAll('#svcCorr line.svc-s').length!==1) vus.push('deux débuts ensemble : la correction ne montre pas seulement le vecteur recopié en vert');
     nextSvc(); clearTimeout(test.fbTimer);
-    svcDeplacer('v',[2,1]); svcPose(6,5); svcPose(1,2);
+    svcDeplacer('v',[2,1]); svcVersB(); svcPose(6,5); svcPose(1,2);
     if(verifierIci()!==0) vus.push('deux fins ensemble et u + v à l\\'envers rapportent des points');
     fb=el('svcFeedback').textContent;
     if(classe('svc-ch')!=='bad'||classe('svc-sm')!=='bad'||fb.indexOf('deux FINS')<0||fb.indexOf('à l’envers')<0) vus.push('deux fins ensemble et u + v à l\\'envers ne sont pas rouges et nommés : '+fb.slice(0,160));
@@ -11951,6 +11970,7 @@ function sommeVecteurs(w, P){
     if(ctx.indexOf('v commence en (1 ; 2)')<0 || ctx.indexOf('pas bout à bout')<0) vus.push('le contexte du modèle ne dit pas où l\\'élève a posé ses flèches');
     svcDeplacer('v',[4,3]); checkSvc();
     if(!test.svcFigeCh || svcDeplacer('u',[0,0])) vus.push('soutien : les flèches justes ne se figent pas');
+    if(qs.et!=='b' || el('svcRetourA')) vus.push('soutien : a) juste ne passe pas à b), ou laisse revenir à a)');
     if(test.locked) vus.push('soutien : u + v manquant verrouille la question');
     svcPose(1,2); svcPose(6,5);
     checkSvc(); clearTimeout(test.fbTimer);
@@ -12240,6 +12260,10 @@ function parallelogrammePoint(w, P){
         const Dq=vecQuatrieme(q), pts=[q.A,q.B,q.C,Dq];
         pts.forEach(function(p){ if(p[0]<0||p[0]>VEC_N||p[1]<0||p[1]>VEC_N) vus.push('un point sort du quadrillage : ('+p.join(';')+')'); });
         for(let i=0;i<4;i++) for(let j=i+1;j<4;j++) if(!vecLoin(pts[i],pts[j])) vus.push('deux points à moins de deux carreaux : ('+pts[i].join(';')+') et ('+pts[j].join(';')+')');
+        /* les quatre côtés, dans l'ordre du nom : aucun horizontal ni vertical */
+        const cotes=q.forme==='ABDC'?[q.A,q.B,Dq,q.C]:[q.A,q.B,q.C,Dq];
+        cotes.forEach(function(u,k){ const v=cotes[(k+1)%4];
+          if(u[0]===v[0]||u[1]===v[1]) vus.push('un côté du parallélogramme '+q.forme+' est '+(u[1]===v[1]?'horizontal':'vertical')+' : de ('+u.join(';')+') à ('+v.join(';')+')'); });
         if(JSON.stringify(JSON.parse(JSON.stringify(q)))!==JSON.stringify(q)) vus.push('la question ne survit pas au JSON de la pause');
       });
     }
@@ -20512,7 +20536,188 @@ function relationChasles(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
-/* {chasles-simplifier} — thème 8 « Vecteurs », 8.9 (Turquet, octobre 2026 :
+/* {chasles-trois-vecteurs} — thème 8 « Vecteurs », 8.9 (Turquet, octobre
+   2026 : « fais un exercice comme le 8.8 mais avec le pdf joint ») : un
+   parallélogramme EFGH de centre O, sept sommes de deux ou trois vecteurs,
+   dont une nulle. Comme au 8.8, chaque correction est relue par un juge
+   indépendant, écrit depuis les coordonnées. */
+function chaslesTroisVecteurs(w, P){
+  const present = evaluer(w, "typeof startCtv==='function' && typeof ctvLignes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('Chasles avec trois vecteurs : la place, le tirage, la correction de la fiche',
+      'ce niveau n\'a pas l\'exercice de Chasles avec trois vecteurs');
+    return;
+  }
+  verifierEval(w, 'Chasles avec trois vecteurs : la place, le tirage, la correction de la fiche', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='chasles-trois-vecteurs';
+
+    /* ---- 0. la place : 8.9, derrière le 8.8 ; pas de bouton des tables */
+    if(TEST_NUM['chasles-trois-vecteurs']!=='8.9') vus.push('numéro '+TEST_NUM['chasles-trois-vecteurs']+' au lieu de 8.9');
+    if(TEST_NUM['relation-chasles']!=='8.8') vus.push('le 8.8 a bougé');
+    if(TABLES_SANS.indexOf('chasles-trois-vecteurs')<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+
+    /* ---- le juge indépendant ------------------------------------------- */
+    const pointsDe=function(q){
+      const base=CHS_FIGURES[q.fig].pts, pts={};
+      for(let i=0;i<4;i++) pts[q.n[i]]=[base[i][0]*q.fx, base[i][1]*q.fy];
+      pts[q.n[4]]=[(pts[q.n[0]][0]+pts[q.n[2]][0])/2, (pts[q.n[0]][1]+pts[q.n[2]][1])/2];
+      return pts;
+    };
+    const dep=function(pts, v){ return (v && v.length===2 && pts[v[0]] && pts[v[1]] && v[0]!==v[1]) ? [pts[v[1]][0]-pts[v[0]][0], pts[v[1]][1]-pts[v[0]][1]] : null; };
+    const eg=function(a, b){ return !!a && !!b && Math.abs(a[0]-b[0])<1e-9 && Math.abs(a[1]-b[1])<1e-9; };
+    /* les termes signés d'une ligne */
+    const termes=function(pts, l){
+      if(l.t==='t') return l.w.map(function(v,k){ const d=dep(pts,v); return [l.s[k]*d[0], l.s[k]*d[1]]; });
+      const U=dep(pts,l.u), V=dep(pts,l.v), sg=l.t==='s'?-1:1; return [U, [sg*V[0], sg*V[1]]];
+    };
+    /* une ligne remplie est-elle juste ? rend la liste des cases fausses */
+    const juge=function(pts, l, c){
+      const T=termes(pts, l), S=T.reduce(function(a,d){ return [a[0]+d[0], a[1]+d[1]]; },[0,0]), f=[];
+      const r=c[c.length-1], nul=eg(S,[0,0]);
+      if(!(nul ? (r==='0') : eg(dep(pts,r), S))) f.push(c.length-1);
+      let mil=null;
+      if(l.t==='c') mil=c.slice(0,2);
+      if(l.t==='t') mil=c.slice(0,3);
+      if(mil){
+        const D=mil.map(function(v){ return dep(pts,v); });
+        let ch=D.every(Boolean);
+        for(let k=1;k<mil.length && ch;k++) ch=mil[k-1][1]===mil[k][0];
+        /* les déplacements écrits sont-ils les termes, à l'ordre près ? */
+        const reste=T.slice();
+        if(ch) D.forEach(function(d){ const k=reste.findIndex(function(t){ return eg(t,d); }); if(k<0) ch=false; else reste.splice(k,1); });
+        if(!ch) f.push(0);
+      }
+      if(l.t==='u' || l.t==='s'){
+        const a=dep(pts,c[0]);
+        if(!(a && c[0][0]===l.u[1] && eg(a,T[1]))) f.push(0);
+      }
+      return f;
+    };
+    const ecr=function(l){ return l.t==='t' ? l.w.join('')+l.s.join('') : l.t+l.u+l.v; };
+    const FICHE_L=[{t:'c',u:'OF',v:'EO'},{t:'c',u:'OG',v:'EO'},{t:'r',u:'HO',v:'OG'},{t:'u',u:'HE',v:'HG'},
+      {t:'t',w:['HE','OG','HO'],s:[1,1,1]},{t:'t',w:['EG','FE','GF'],s:[1,1,1]},{t:'t',w:['EG','FG','OF'],s:[1,-1,-1]}];
+    const PLAN=['c','c','r','u','t','t','t'];
+
+    /* ---- 1. le tirage : 300 séances, chaque correction relue ----------- */
+    const formes={};
+    for(let i=0;i<300 && !vus.length;i++){
+      const qs=ctvBuildQuestions();
+      if(qs.length!==CTV_NB){ vus.push(qs.length+' figures au lieu de '+CTV_NB); break; }
+      const f=qs[0];
+      if(f.fig!=='para' || f.n!=='EFGHO' || f.lignes.map(ecr).join()!==FICHE_L.map(ecr).join()) vus.push('la première figure n’est pas la fiche');
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      qs.forEach(function(q, k){
+        formes[q.fig]=true;
+        if(!CHS_FIGURES[q.fig]) { vus.push('forme inconnue '+q.fig); return; }
+        if(!/^[A-Z]{4}O$/.test(q.n) || new Set(q.n.split('')).size!==5 || /[IWXYZ]/.test(q.n)) vus.push('lettres « '+q.n+' »');
+        if(q.lignes.map(function(l){ return l.t; }).join()!==PLAN.join()) vus.push(q.n+' : le plan des lignes est '+q.lignes.map(function(l){ return l.t; }).join(''));
+        const pts=pointsDe(q), cles={};
+        const ls=ctvLignes(q);
+        ls.forEach(function(L, j){
+          const l=q.lignes[j], vs=l.t==='t'?l.w:[l.u,l.v], cle=vs.slice().sort().join();
+          if(cles[cle]) vus.push(q.n+' : deux lignes '+cle); cles[cle]=true;
+          if(vs.some(function(v){ return !dep(pts,v); })) { vus.push(q.n+' : ligne illisible '+vs.join(' ')); return; }
+          const T=termes(pts,l), S=T.reduce(function(a,d){ return [a[0]+d[0], a[1]+d[1]]; },[0,0]);
+          const nul=eg(S,[0,0]);
+          if(nul !== (j===5)) vus.push(q.n+' : la ligne '+(j+1)+(nul?' est nulle':' n’est pas nulle'));
+          if(j===6 && l.s.join()!=='1,-1,-1') vus.push(q.n+' : la dernière ligne n’a pas deux soustractions');
+          if(j<6 && l.t==='t' && l.s.join()!=='1,1,1') vus.push(q.n+' : la ligne '+(j+1)+' soustrait');
+          if(l.t==='r' && l.u[1]!==l.v[0]) vus.push(q.n+' : '+l.u+' + '+l.v+' ne s’enchaînent pas');
+          if(l.t==='c' && l.v[1]!==l.u[0]) vus.push(q.n+' : la ligne '+(j+1)+' ne se retourne pas');
+          if(l.t==='u' && (l.u[1]===l.v[0] || l.v[1]===l.u[0])) vus.push(q.n+' : '+l.u+' + '+l.v+' n’a pas besoin d’un vecteur égal');
+          const bons=ctvJugeLigne(q, L, chsPoints(q)).map(function(s){ return s.bon; });
+          if(bons.length!==({r:1,c:3,u:2,t:4})[l.t]) vus.push(q.n+' : '+bons.length+' cases pour une ligne '+l.t);
+          const faux=juge(pts, l, bons);
+          if(faux.length) vus.push(q.fig+' '+q.n+' : la correction de '+ctvEcrit(l)+' écrit « '+bons.join(' ')+' », faux pour le juge');
+        });
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    const absentes=CHS_FIG_IDS.filter(function(id){ return !formes[id]; });
+    if(absentes.length) vus.push('en 300 séances, jamais tirée : '+absentes.join(', '));
+
+    /* ---- 2. la fiche, par le BOUTON ------------------------------------ */
+    startCtv();
+    test.idx=0;
+    const JUSTE={0:['EO','OF','EF'],1:['EO','OG','EG'],2:['HG'],3:['EF','HF'],4:['HE','EO','OF','HF'],5:['FE','EG','GF','0'],6:['EG','GF','FO','EO']};
+    const ptsF=pointsDe(test.questions[0]);
+    FICHE_L.forEach(function(x, i){ if(juge(ptsF, x, JUSTE[i]).length) vus.push('le juge refuse la copie juste de la ligne '+(i+1)); });
+    const IDS=[]; Object.keys(JUSTE).forEach(function(i){ JUSTE[i].forEach(function(v,j){ IDS.push('ctv-'+i+'-'+j); }); });
+    const val=function(c){ const o={}; Object.keys(c).forEach(function(i){ c[i].forEach(function(v,j){ o['ctv-'+i+'-'+j]=v; }); }); return o; };
+    const poser=function(o){ test.locked=false; renderCtvTest();
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(o[id]==null?'':o[id]); }); };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const fb=function(){ return document.getElementById('ctvFeedback').textContent; };
+    poser({});
+    if(IDS.length!==21) vus.push(IDS.length+' cases au lieu de 21');
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la fiche manque à l’écran';
+    const lettres=[...document.querySelectorAll('#ctvHost svg text')].map(function(t){ return t.textContent.trim(); }).sort().join('');
+    if(lettres!=='EFGHO') vus.push('les lettres du dessin sont « '+lettres+' »');
+    if(document.querySelectorAll('#ctvHost svg line').length!==6) vus.push('le dessin n’a pas quatre côtés et deux diagonales');
+    /* la copie juste */
+    poser(val(JUSTE)); checkCtvAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse : '+IDS.filter(function(id){ return peint(id)!=='juste'; }).join(', '));
+    if(!der || der.cases!==21) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 21');
+    /* d’AUTRES écritures justes : HO + OG + GF = HF ; le nul écrit FF ou o ; EG + GF + FO = OG */
+    poser(val(Object.assign({}, JUSTE, {4:['HO','OG','GF','hf'],5:['GF','FE','EG','FF'],6:['EG','GF','FO','OG']}))); checkCtvAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('une autre écriture juste est comptée fausse : '+IDS.filter(function(id){ return peint(id)!=='juste'; }).join(', '));
+    poser(val(Object.assign({}, JUSTE, {5:['FE','EG','GF','o']}))); checkCtvAnswer();
+    if(peint('ctv-5-3')!=='juste') vus.push('le vecteur nul écrit « o » est peint '+peint('ctv-5-3'));
+    /* LE PIÈGE de la soustraction : EG − FG − OF = EG + FG + … */
+    poser(val(Object.assign({}, JUSTE, {6:['EG','FG','OF','EO']}))); checkCtvAnswer();
+    if(peint('ctv-6-0')!=='juste' || peint('ctv-6-1')!=='rouge') vus.push('EG − FG = EG + FG : '+peint('ctv-6-0')+' puis '+peint('ctv-6-1'));
+    if(peint('ctv-6-3')!=='juste') vus.push('le résultat juste EO rougit à côté du piège');
+    if(!/oppos/i.test(fb())) vus.push('le message ne dit pas d’ajouter l’opposé : « '+fb().slice(0,90)+' »');
+    /* la somme nulle écrite comme un vecteur */
+    poser(val(Object.assign({}, JUSTE, {5:['FE','EG','GF','EG']}))); checkCtvAnswer();
+    if(peint('ctv-5-3')!=='rouge') vus.push('EG + FE + GF = EG est peint '+peint('ctv-5-3'));
+    if(!/nul/i.test(fb())) vus.push('le message ne parle pas du vecteur nul : « '+fb().slice(0,90)+' »');
+    /* un vecteur égal recopié qui ne part pas du bon point : HE + OG + … */
+    poser(val(Object.assign({}, JUSTE, {4:['HE','OG','OF','HF']}))); checkCtvAnswer();
+    if(peint('ctv-4-0')!=='juste' || peint('ctv-4-1')!=='rouge' || peint('ctv-4-2')!=='juste') vus.push('HE + OG + OF : '+[0,1,2].map(function(j){ return peint('ctv-4-'+j); }).join(' '));
+    if(!/part/.test(fb()) || !/E/.test(fb())) vus.push('le message ne dit pas que le vecteur doit partir de E');
+    const badge=document.getElementById('ctv-4-1').nextElementSibling;
+    if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='EO') vus.push('la correction de OG n’écrit pas EO à côté');
+    /* le sens du résultat */
+    poser(val(Object.assign({}, JUSTE, {4:['HE','EO','OF','FH']}))); checkCtvAnswer();
+    if(peint('ctv-4-3')!=='rouge' || !/sens/.test(fb())) vus.push('HE + EO + OF = FH : '+peint('ctv-4-3')+' « '+fb().slice(0,60)+' »');
+    /* les lignes à deux vecteurs sont celles du 8.8 : l’ordre */
+    poser(val(Object.assign({}, JUSTE, {0:['OF','EO','EF']}))); checkCtvAnswer();
+    if(peint('ctv-0-0')!=='rouge' || peint('ctv-0-2')!=='juste' || !/ordre/.test(fb())) vus.push('OF + EO = OF + EO = EF : '+peint('ctv-0-0')+', résultat '+peint('ctv-0-2'));
+    /* une case vide ne rougit pas, et reçoit la correction */
+    poser(val(Object.assign({}, JUSTE, {4:['HE','','OF','HF']}))); checkCtvAnswer();
+    if(peint('ctv-4-1')!=='correction' || document.getElementById('ctv-4-1').value!=='EO') vus.push('la case vide de HE + OG + HO : '+peint('ctv-4-1')+' « '+document.getElementById('ctv-4-1').value+' »');
+    if(!/manquait/.test(fb())) vus.push('le message ne nomme pas la case manquante');
+    /* une copie entièrement vide : rien de rouge, tout en correction juste pour le juge */
+    poser({}); checkCtvAnswer();
+    const rouges=IDS.filter(function(id){ return peint(id)==='rouge'; });
+    if(rouges.length) vus.push('copie vide : '+rouges.length+' case(s) rouge(s)');
+    FICHE_L.forEach(function(x, i){ const c=JUSTE[i].map(function(v,j){ return document.getElementById('ctv-'+i+'-'+j).value; });
+      if(juge(ptsF, x, c).length) vus.push('la correction de la ligne '+(i+1)+' écrit « '+c.join(' ')+' »'); });
+    /* le soutien : peint au fil de la saisie, sans verrouiller */
+    currentMode='soutien'; poser({});
+    const e0=document.getElementById('ctv-4-0'); e0.value='HE'; checkCtvAnswer(true);
+    if(peint('ctv-4-0')!=='juste' || peint('ctv-4-1')!=='rien') vus.push('le soutien peint '+peint('ctv-4-0')+' la case remplie, '+peint('ctv-4-1')+' la case vide');
+    e0.value='GF'; checkCtvAnswer(true);
+    if(peint('ctv-4-0')!=='rouge') vus.push('le soutien ne rougit pas GF');
+    if(test.locked) vus.push('la correction en direct verrouille la page');
+    currentMode='train';
+    /* le barème et l’identité */
+    startCtv();
+    const total=test.questions.reduce(function(a,q){ return a+ctvCases(q).length; },0);
+    if(test.maxScore!==total || total!==21*CTV_NB) vus.push('barème de '+test.maxScore+' au lieu de '+total);
+    if(test.qId!=='chasles-trois-vecteurs') vus.push('qId « '+test.qId+' »');
+    const ctx=ctxCtv(test.questions[0]).contexte;
+    if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/nul/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret ni la méthode');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {chasles-simplifier} — thème 8 « Vecteurs », 8.10 (Turquet, octobre 2026 :
    « fais un exercice comme le 8.8 mais avec le pdf joint », la fiche 6
    « Relation de Chasles », sans figure). Chaque correction de la page est
    relue ICI par un juge indépendant : les lettres reçoivent des coordonnées
@@ -20531,11 +20736,11 @@ function chaslesSimplifier(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='chasles-simplifier';
 
-    /* ---- 0. la place : 8.9, derrière le 8.8 ; pas de bouton des tables */
+    /* ---- 0. la place : 8.10, derrière le 8.9 ; pas de bouton des tables */
     const th=THEMES.find(function(t){ return t.num===8; });
     if(!th || th.ids.indexOf('chasles-simplifier')<0) vus.push('l’exercice n’est pas dans le thème 8 « Vecteurs »');
-    if(TEST_NUM['chasles-simplifier']!=='8.9') vus.push('numéro '+TEST_NUM['chasles-simplifier']+' au lieu de 8.9');
-    if(TEST_NUM['relation-chasles']!=='8.8') vus.push('le 8.8 a bougé');
+    if(TEST_NUM['chasles-simplifier']!=='8.10') vus.push('numéro '+TEST_NUM['chasles-simplifier']+' au lieu de 8.10');
+    if(TEST_NUM['relation-chasles']!=='8.8' || TEST_NUM['chasles-trois-vecteurs']!=='8.9') vus.push('le 8.8 ou le 8.9 a bougé');
     if(TABLES_SANS.indexOf('chasles-simplifier')<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
 
     /* ---- le juge indépendant : des coordonnées quelconques ------------- */

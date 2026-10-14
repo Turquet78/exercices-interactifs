@@ -756,6 +756,29 @@ vecteur OM jugés justes, 5 sur 5. Éprouvé par sabotage (la permutation
 retirée du tirage) : le contrôle rougit (« le point à construire n'est que 0
 fois une autre lettre que la dernière du jeu »), la page intacte reste verte.
 
+### Puis les côtés ont quitté les lignes du quadrillage (v491)
+
+Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, je veux des
+parallélogrammes qui n'ont pas forcément un côté horizontal ou vertical ».
+Mesuré avant de toucher à rien, sur vingt mille tirages : **53 %** des
+parallélogrammes avaient au moins un côté posé sur une ligne du quadrillage
+— le cas facile, où le chemin ne compte qu'un déplacement, et où l'élève
+finit par croire qu'un parallélogramme se pose toujours ainsi.
+
+**Le tirage refuse désormais tout côté horizontal ou vertical**
+(`vecOblique(q)`) : les quatre côtés, pris sommet après sommet dans l'ordre
+du NOM — A, B, D, C en ABDC ; A, B, C, D en ABCD —, jamais les diagonales.
+Les chemins ont donc toujours deux déplacements, l'un horizontal, l'autre
+vertical. Le taux d'acceptation baisse sans gêner : le repli, qui avait
+déjà ses quatre côtés obliques dans les deux formes, sort environ une fois
+sur sept cents questions. Rien d'autre du moteur n'a bougé, ni le 8.6 qui
+partage le quadrillage mais pas ce tirage.
+
+**Le contrôle** (`parallelogrammePoint`) relit, sur les cent séances du
+tirage, les quatre côtés de chaque question dans l'ordre du nom, et nomme
+celui qui serait horizontal ou vertical. Éprouvé par sabotage (le refus
+retiré du tirage) : le contrôle rougit, la page intacte reste verte.
+
 ## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v481)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
@@ -960,6 +983,39 @@ u⃗, clique le début de u⃗ + v⃗ À TRAVERS la prise de u⃗, tire u⃗ hor
 quadrillage, et relit `touch-action` sur la prise. Le doigt sur tablette, lui,
 ne se joue dans aucun banc.
 
+**Puis deux questions, a) et b), et une flèche par lettre (v491).** Turquet,
+capture à l'appui : « le nom de la somme doit être avec deux flèches, une pour
+u et l'autre pour v. […] je veux que la question a soit place les vecteurs u
+et v correctement. puis question b) trace le vecteur somme ».
+**Le nom.** « u+v » portait UNE longue flèche sur les trois signes : il se
+lisait comme le nom d'un vecteur « u+v ». Chaque signe est désormais un
+`tspan` à x absolu (un bloc centré pour lui seul), le « + » droit en
+`KaTeX_Main` entre deux lettres italiques, et `svc-nfl` trace une petite
+flèche par lettre, décalée d'un pixel vers la droite parce que la lettre
+penche. Le texte du nœud reste « u+v ». La même capture montrait les noms u
+et v l'un sur l'autre (deux flèches bout à bout en angle aigu posent leurs
+noms du même côté, dans l'angle) : `svcNomPos` calcule la place d'un nom, et
+v passe de l'autre côté de son trait quand son nom tomberait à moins de 26
+unités de celui de u.
+**Les deux questions.** L'étape vit dans la question (`q.et`, 'a' ou 'b'),
+posée au premier dessin et non au tirage — la clé de `distinctes()` ne la
+voit pas, la pause la retrouve. En a), les flèches glissent et un clic sur le
+quadrillage ne trace rien (`svcPose` l'ignore) ; « Passer à la question b) »
+fige les flèches (plus de prises, `svcDeplacer` refuse) et ouvre le tracé ;
+« Revenir à la question a) » les rend tant que rien n'est jugé. La question
+en cours est encadrée en bleu, celle qui attend pâlit. En SOUTIEN, le bouton
+de a) est « Vérifier a) » : une construction fausse rougit, nommée (deux
+débuts, deux fins, pas bout à bout), et reste à reprendre ; une juste se fige
+et passe à b) sans retour — et une reprise en b) la retrouve figée. Ailleurs,
+rien ne se juge avant « Vérifier », qui note les deux cases comme avant : le
+barème ne bouge pas (16). `checkSvc` appelé en a) en soutien vérifie a) ;
+hors soutien il reste la vérification entière (la copie vide en dépend).
+Le juge ajoute : a) en cours au départ, un clic en a) ne trace rien, b) fige
+les flèches, le retour les rend, la reprise garde b), le soutien passe à b)
+sans retour, et le nom de la somme porte trois signes et deux flèches. Le banc
+navigateur passe à b) par le bouton, puis mesure que chaque petite flèche est
+AU-DESSUS de sa lettre et que les trois signes ne se chevauchent pas.
+
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v490)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
@@ -1032,7 +1088,63 @@ quelle, `chsLigne` sait toujours la lire. Le banc suit : fiche, plan, 17
 cases ; le contrôle « une case juste ne rougit pas pour sa voisine » passe de
 DC + CE à CE + BC (BC bleu, AB rouge, badge CE).
 
-## {chasles-simplifier} — simplifier des sommes de vecteurs, sans figure (8.9, v491)
+## {chasles-trois-vecteurs} — la relation de Chasles jusqu'à trois vecteurs (8.9, v491)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fait un exercice comme
+le 8.8 mais avec le pdf joint », une fiche « EFGH est un parallélogramme de
+centre O. Compléter » : OF + EO = … = … ; OG + EO = … = … ; HO + OG = … ;
+HE + HG = … = … ; HE + OG + HO, EG + FE + GF, EG − FG − OF = … = …. Le PDF
+porte aussi, en texte blanc invisible, des restes d'une version antérieure
+(EF + GH, HE + HG + FH, HF) : ils ne s'impriment pas, ils ne sont pas repris.
+
+**Le moteur des lignes à deux vecteurs EST celui du 8.8.** `chsLigne`,
+`chsPosable`, `chsJugeLigne`, `chsPourquoi`, `chsSvg` servent tels quels ;
+`chsJugeLigne` et `chsCaseHTML` ont seulement gagné un préfixe de case
+facultatif (`'chs'` par défaut, `'ctv'` ici) — le 8.8 ne change pas d'un
+octet à l'écran. L'identité est propre (kind `ctv`, écran `scr-ctv`, rappel
+`RAP_CTV`, `qId` « chasles-trois-vecteurs ») : deux exercices partagent un
+moteur, jamais une identité.
+
+**Le plan** (`CTV_PLAN`) : `ci, ci, r, u, t, t0, ts` — deux lignes à
+retourner, une déjà enchaînée (le résultat seul), une où l'on remplace le
+second vecteur, puis trois lignes à TROIS vecteurs, écrites
+« … + … + … = … » : `t` une somme dont aucun ordre des vecteurs écrits ne
+s'enchaîne (il faut remplacer un vecteur par un vecteur égal, comme
+HE + OG + HO = HE + EO + OF = HF), `t0` une somme NULLE (EG + FE + GF =
+FE + EG + GF = 0), `ts` deux soustractions (EG − FG − OF = EG + GF + FO =
+EO). Une ligne à trois vecteurs se range `{t:'t', w:[…], s:[1,±1,±1]}`. Elle
+se tire en construisant une chaîne de points (refermée pour `t0`), dont chaque
+vecteur est remplacé par un vecteur égal au hasard, puis l'ordre mélangé (`t`,
+`t0`) ou les deux derniers retournés et soustraits (`ts`). Le centre
+s'appelle toujours O, comme la fiche ; les sommets se tirent (ni I, ni W à Z).
+La première figure EST la fiche ; `CTV_NB` = 2 figures, 21 cases chacune.
+
+**Le juge d'une ligne à trois vecteurs** (`ctvJuge3`) : `ctvLigne` énumère
+TOUTES les chaînes justes — trois vecteurs de la figure qui s'enchaînent et
+égalent les termes signés dans un ordre quelconque. Chaque case du milieu se
+juge contre les chaînes encore possibles après les cases JUSTES qui la
+précèdent : HE + OG + OF garde HE et OF bleus, seul OG rougit (« doit partir
+de E »), badge EO. Le résultat se juge contre la somme. **Le vecteur nul**
+s'écrit 0, ou O seul, ou deux fois la même lettre (FF) : `ctvLit` les lit
+tous comme « 0 » ; la correction écrit 0, sous la flèche de la case. Un
+vecteur écrit pour une somme nulle rougit avec « la chaîne revient à son
+point de départ ». La correction préfère la chaîne qui garde le plus de
+vecteurs écrits (les soustraits par leur opposé).
+
+**Le juge du banc** (`tests/verifier.js`, « Chasles avec trois vecteurs ») :
+la place (8.9, pas de bouton des tables), 300 séances dont chaque correction
+est relue par un juge INDÉPENDANT écrit depuis les coordonnées (pour une
+chaîne : l'enchaînement, et les déplacements égaux aux termes signés à
+l'ordre près), le plan, la ligne nulle et elle seule, la fiche en première
+page ; puis par le bouton : 21 cases, lettres EFGHO, la copie juste,
+d'autres écritures justes (HO + OG + GF = hf, GF + FE + EG = FF, résultat
+OG pour EO), « o » pour le nul, le piège EG + FG (rouge, EG et le résultat
+restent bleus, « opposé »), EG écrit pour la somme nulle (« nul »),
+HE + OG + OF (seul OG rouge, badge EO, « part de E »), FH (« sens »),
+OF + EO recopié (« ordre », du 8.8), la case vide (correction EO), la copie
+vide, le soutien, le barème, `qId`, le contexte du modèle.
+
+## {chasles-simplifier} — simplifier des sommes de vecteurs, sans figure (8.10, v492)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
 le 8.8 mais avec le pdf joint », la fiche 6 « Relation de Chasles » — sans
@@ -1042,6 +1154,11 @@ RS + AR, EG + GT, AL − LA, − AD − DB) ; 2) écrire plus simplement
 u = AB + BC + CA, v = IJ + KI + JK, w = AB + AC + BC, x = DE + FG + EF + DG ;
 3) la même chose en transformant d'abord les soustractions (AB − AC,
 RT − ST + RS, AB + MA − MB + BA, MN − MP − PQ + MQ).
+
+**Prévu 8.9, publié 8.10** : pendant sa rédaction, une autre session a mis
+en ligne {chasles-trois-vecteurs} (une autre fiche, le parallélogramme EFGH)
+sous le numéro 8.9 et la version 491. La fusion de `main` a rangé celui-ci
+derrière, en v492 ; les deux exercices n'ont ni moteur ni identité en commun.
 
 **Une page par partie ; les trois premières SONT la fiche** (`CHL_FICHE`),
 les trois suivantes reprennent chaque ligne de la fiche avec d'autres lettres
@@ -1071,7 +1188,7 @@ BA = 0 + BA = BA (`chlEtapes` : les opposés, la somme remise dans l'ordre
 qui enchaîne, chaque chaîne réduite).
 
 **Le juge du banc** (`tests/verifier.js`, « Chasles sans figure ») : la place
-(8.9, pas de bouton des tables) ; les réponses de la fiche ; 300 séances dont
+(8.10, pas de bouton des tables) ; les réponses de la fiche ; 300 séances dont
 chaque correction est relue par un juge INDÉPENDANT — des coordonnées
 quelconques pour chaque lettre, la somme calculée en déplacements, et
 « impossible » vérifié contre tous les kXY possibles ; chaque ligne tirée est
