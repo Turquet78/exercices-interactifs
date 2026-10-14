@@ -964,6 +964,81 @@ passait au vert ; et devant les mêmes pastilles renommées, le pavé du code
 rougit aux deux largeurs de téléphone (« → aucune pastille « Contrôle » à
 cliquer : la case du code n'est pas atteignable »), là où il posait sans
 le dire le focus sur une case cachée.
+**Puis une seconde relecture, adversariale — quatre relecteurs, un sceptique
+derrière chacun — a confirmé dix constats, tous mineurs, et tous corrigés.**
+Côté pages. La pastille SANS CLÉ disait « pas encore relié » à partir de la
+ligne LUE à l'ouverture : le professeur clique « Nouveau code », l'élève
+revient sur la même tablette, et le message se répète alors que le compte
+existe ; `connexionEleve()` RELIT désormais la ligne de la pastille sans clé
+(`select('cle').eq('id', …).maybeSingle()`) au moment de valider, et entre si
+la clé est là. La même pastille, quand un HOMONYME est relié, essayait la clé
+de l'homonyme et répondait « Code incorrect » à tout code — le message
+complet est « Code incorrect — ou ton compte n'est pas encore relié :
+préviens ton professeur ». Le filtre des clés vides ajouté au premier tour
+rendait la création de compte AVEUGLE aux lignes sans clé, en A et en C :
+l'élève non relié qui « recrée » son compte en faisait une seconde ligne, ses
+notes restées sur la première — régression sur `main`, qui la voyait ;
+`clesDuPrenom(prenom, avecLignesSansCle)` garde le filtre pour SE CONNECTER et
+l'ôte pour REFUSER UN DOUBLON (`creerCompte` passe `true`). En B, la fonction
+de la 009 ne voit pas ces lignes non plus (`and e.cle is not null`) : limite
+d'avant, nommée dans la 010 et la 3 decies. « Ce prénom existe déjà —
+connecte-toi » renvoyait à une liste lue AVANT la création faite ailleurs,
+sans la pastille : `creerCompte` rappelle `renderLoginNames()`, qui relit la
+liste et revient à la connexion. Et l'ÉTAT B', que personne n'avait compté :
+la 009 offrait, « possible, non fait », de retirer à `anon` le DROIT de lire
+la table. Appliqué, PostgREST rend une ERREUR 42501, pas une liste vide — la
+page tombait dans `catch` (« Connexion impossible. Vérifie ta
+configuration. ») à toute la classe, et la 010 collée pour réparer échouait à
+sa propre mesure, tout annulé. La page lit désormais 42501 comme une liste
+fermée (le même sondage, et un `console.warn('liste des prénoms : …')`) ; la
+010 rend `grant select (id, prenom, cle) … to anon` — ces trois colonnes
+SEULES : si le droit de table avait été retiré, `user_id` et `created_at`
+restent fermés au visiteur ; sinon le `grant` ne change rien. Le message de
+sa mesure dit maintenant ce qui reste possible : « le grant de l'étape 1 n'a
+pas pris — jouez ce fichier en tant que propriétaire des tables » (un rôle
+sans droit de donner reçoit un AVERTISSEMENT de PostgreSQL, pas une erreur).
+Côté bancs. Le chemin des pastilles se jouait sur le double par défaut — la
+liste lisible ET la fonction qui répond, un état que la base ne connaît
+jamais : en A et en C la fonction manque, en B la liste est fermée. Tout le
+bloc des pastilles se joue maintenant sous `sansRpc`, comme la première passe
+jsdom de « 2 ter ». Le contrôle des homonymes cliquait toujours la PREMIÈRE
+pastille, qui était aussi la tête de liste : une page qui suivrait l'ordre de
+la liste au lieu du clic passait ; il clique la SECONDE, exige qu'elle ne soit
+pas la tête de liste (sinon « le contrôle ne mesure rien »), et qu'aucun
+`rpc` ne soit fait. Cinq contrôles naissent en section 3 : « une pastille lue
+sans clé, reliée depuis par le professeur, connecte sans recharger la page »,
+« une pastille sans clé dont l'homonyme est relié : un code refusé dit aussi
+« pas encore relié », et le code de l'homonyme entre », « un prénom dont la
+ligne n'a pas de clé ne crée pas de second compte (états A et C) », « un
+prénom pris ailleurs depuis l'ouverture : refusé à la création, et l'écran
+revient à la connexion avec sa pastille », et en état B « liste refusée par
+un droit retiré à anon (42501) : la page sonde, propose le prénom tapé, et
+l'élève entre » — le double gagne `window.__faux.listeRefusee` (42501 à tout
+select d'une table d'élèves sans session). Le banc de la base remplace « un
+droit de colonne retiré à anon fait échouer 010 » — devenu faux, puisque la
+010 rend le droit — par l'état B' sur sa propre base, la 009 jouée puis le
+`revoke` : « l'état B' se monte : le visiteur est REFUSÉ, pas servi d'une
+liste vide », « dans l'état B', 010 rend le droit de lire id, prénom et clé,
+et passe en mesurant ses trois tables », « le visiteur y lit de nouveau id,
+prénom et clé des trois classes (1/1/1) », « et rien de plus : user_id et
+created_at restent refusés au visiteur », « rejouée dans l'état B', 010 ne
+fait plus rien et mesure encore ses trois tables » — 186 contrôles. Trois
+textes corrigés : la 3 decies affirmait qu'une 009 rejouée par erreur après
+la 010 laissait « la connexion marcher encore » — faux dans la minute du
+cache de PostgREST, où la page dit « Aucun compte » et la création de compte
+ne voit plus les prénoms pris ; l'en-tête de la 010 promettait de refuser
+toute politique « for all » revenue, alors qu'il ne relit que les tables
+d'élèves (« rejouez la 002, dont le filet contrôle les neuf ») ; et la limite
+de l'état B pour les lignes sans clé est écrite. Éprouvé par sabotage. Base,
+sur des copies : le `grant` retiré de la 010 — « ✗ dans l'état B', 010 rend
+le droit de lire id, prénom et clé, et passe en mesurant ses trois tables →
+… ERROR: eleves : un visiteur n'a pas le droit de lire id, prénom et clé
+(permission denied for table eleves) — … le grant de l'étape 1 n'a pas pris
+— jouez ce fichier en tant que propriétaire des tables (postgres, dans
+l'éditeur SQL) », avec le visiteur et le rejeu (la branche d'exception de la
+mesure, que rien d'autre n'atteint, y est exercée) ; le droit rendu sur la
+TABLE entière — « ✗ et rien de plus : user_id et created_at restent refusés
+au visiteur → 0 ; 1 ». SABOTAGES-PAGES
 **Ce qu'aucun banc ne voit.** L'état réel du projet : la 009 y a-t-elle été
 jouée ? La sortie de la 010, « état trouvé », le dira. Le cache de schéma de
 PostgREST dans la minute qui suit la 010 : il peut tenter encore une fonction
@@ -975,7 +1050,10 @@ connecte dans les trois états — par la fonction en B, par son propre repli
 PGRST202 en A et en C —, sauf pendant cette fenêtre. Que le vrai PostgREST
 rende `[]` sans erreur pour un prénom vide, et `PGRST202` pour une fonction
 absente — les deux réponses sur lesquelles repose le sondage : elles ne sont
-mesurées que sur le double et sur la base jetable. Et que l'éditeur SQL de
+mesurées que sur le double et sur la base jetable. De même pour l'état B' : que
+PostgREST transmette à supabase-js le code `42501` du « permission denied »
+de PostgreSQL — c'est son comportement documenté, mais seul le double le
+rend ici. Et que l'éditeur SQL de
 Supabase laisse prendre `set local role anon`, sous un `postgres` qui traverse
 la RLS : la même hypothèse que la 009, et un refus s'y déclare au lieu de
 passer au vert.
