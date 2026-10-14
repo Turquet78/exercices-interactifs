@@ -6651,7 +6651,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=483;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=484;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -53206,6 +53206,36 @@ function libreFracSimple(morceau){
   m=t.match(/^-?\d+$/);
   return m ? {n:parseInt(t,10), d:1} : null;
 }
+/* LE TERME FAUTIF D'UNE ÉGALITÉ FAUSSE (octobre 2026). Signalé par Turquet
+   sur une capture du 4.6 de Première : « 5/3 − 5/6 = 30/18 − 10/18 », le juge
+   disait seulement « cette égalité est fausse », et le modèle, laissé à
+   deviner, a accusé 30/18 — qui est juste — au lieu de 10/18. Désigner le
+   terme est un fait arithmétique : la page le calcule. Le morceau fautif et
+   celui qui le précède (lui, juste) sont découpés aux « + » et « − » de
+   profondeur zéro ; s'ils ont les mêmes opérations et qu'UN SEUL terme a
+   changé de valeur, c'est lui. Sinon (termes réordonnés, deux termes changés,
+   écriture illisible) : null, et le verdict reste celui d'avant. */
+function libreTermeFaux(ms, i){
+  if(i<1) return null;
+  const a=libreNiv0(ms[i-1], '+-'), b=libreNiv0(ms[i], '+-');
+  if(!a || !b || a.parts.length<2 || a.parts.length!==b.parts.length || a.ops.join('')!==b.ops.join('')) return null;
+  let k=-1;
+  for(let j=0;j<a.parts.length;j++){
+    const va=libreEval(a.parts[j]), vb=libreEval(b.parts[j]);
+    if(!va || !vb) return null;
+    if(va.p*vb.q!==vb.p*va.q){ if(k>=0) return null; k=j; }
+  }
+  if(k<0) return null;
+  const vu=s=>String(s).replace(/^[+]/,'').replace(/\((-?\d+)\)/g,'$1').replace(/\*/g,'×').slice(0,40);
+  return {avant:vu(a.parts[k]), apres:vu(b.parts[k])};
+}
+/* Ce que le verdict et la phrase de secours disent du terme fautif. */
+function libreTermeIA(t){
+  return ' La page a LOCALISÉ l’erreur : dans l’égalité précédente, le terme « '+t.avant+' » a été remplacé par « '+t.apres+' », et ces deux nombres ne sont PAS égaux. C’est « '+t.apres+' » qui est faux ; les autres termes de cette ligne sont justes — ne les mets jamais en cause. Dis à l’élève que c’est « '+t.apres+' » qui ne vaut pas « '+t.avant+' », sans lui donner la bonne valeur.';
+}
+function libreTermeSecours(t){
+  return 'Il y a une égalité fausse dans ton calcul : « '+t.apres+' » n’est pas égal à « '+t.avant+' ». Vérifie comment tu as transformé cette fraction.';
+}
 /* Le juge. genre : 'sfl' (somme, étape du même dénominateur exigée),
    'mll' (produit, aucune étape exigée), 'dll' (quotient, inverse exigé). */
 function libreJuge(q, rep, genre){
@@ -53216,7 +53246,7 @@ function libreJuge(q, rep, genre){
   for(let i=0;i<ms.length;i++){ const v=libreEval(ms[i]); if(!v) return {sait:false}; vals.push(v); }
   for(let i=0;i<ms.length;i++){
     if(vals[i].p*attQ!==attP*vals[i].q)
-      return {sait:true, correct:false, motif:'egalite', morceau:ms[i]};
+      return {sait:true, correct:false, motif:'egalite', morceau:ms[i], terme:libreTermeFaux(ms,i)};
   }
   const fin=libreFracSimple(ms[ms.length-1]);
   if(!fin || fin.d<=0 || fin.n<0) return {sait:false};
@@ -53246,7 +53276,7 @@ function libreVerdictIA(j){
   let v='\n\nVERDICT DÉJÀ CALCULÉ PAR LA PAGE. Elle a vérifié chaque égalité EN ENTIERS, sans virgule flottante : ce verdict est sûr et s’impose. « correct » vaut '+(j.correct?'true':'false')+'.';
   if(!j.correct) v+=' Ce qui cloche : '+(j.motif==='simplifier'
     ? 'le résultat final n’est pas écrit sous forme irréductible.'
-    : 'l’égalité « '+String(j.morceau||'').slice(0,80)+' » est fausse — elle ne vaut pas le reste de la chaîne.');
+    : 'l’égalité « '+String(j.morceau||'').slice(0,80)+' » est fausse — elle ne vaut pas le reste de la chaîne.'+(j.terme?libreTermeIA(j.terme):''));
   v+=' Ton rôle est de RÉDIGER le feedback conforme à ce verdict et aux consignes de la règle. Si ton propre calcul te dit autre chose, c’est ton calcul qui se trompe : ne conteste jamais ce verdict.';
   return v;
 }
@@ -53254,6 +53284,7 @@ function libreVerdictIA(j){
    bloquer l'élève sur « Vérification indisponible ». */
 function libreSecours(j){
   if(j.correct) return 'Bravo, ton calcul est juste d’un bout à l’autre !';
+  if(j.motif==='egalite' && j.terme) return libreTermeSecours(j.terme);
   return (j.motif==='simplifier')
     ? 'Ton calcul est bon, mais le résultat n’est pas simplifié : cherche un nombre qui divise le numérateur ET le dénominateur.'
     : 'Il y a une égalité fausse dans ton calcul : « '+String(j.morceau||'').slice(0,80)+' » ne vaut pas le reste. Vérifie ce morceau.';
@@ -53544,7 +53575,7 @@ function pfJuge(q, rep){
   for(let i=0;i<ms.length;i++){
     const okFinal=vals[i].p*q.Q===q.P*vals[i].q;
     const okProduit=vals[i].p*q.Q1===q.P1*vals[i].q;
-    if(!okFinal && !okProduit) return {sait:true, correct:false, motif:'egalite', morceau:ms[i]};
+    if(!okFinal && !okProduit) return {sait:true, correct:false, motif:'egalite', morceau:ms[i], terme:libreTermeFaux(ms,i)};
   }
   const fin=libreFracSimple(ms[ms.length-1]);
   if(!fin || fin.d<=0 || fin.n<0) return {sait:false};
@@ -53559,12 +53590,13 @@ function pfVerdictIA(j,q){
   let v='\n\nVERDICT DÉJÀ CALCULÉ PAR LA PAGE. Elle a vérifié chaque égalité EN ENTIERS, sans virgule flottante : ce verdict est sûr et s’impose. « correct » vaut '+(j.correct?'true':'false')+'.';
   if(!j.correct) v+= (j.motif==='resultat')
     ? ' Ce qui cloche : le résultat final n’est pas '+q.P+'/'+q.Q+'.'
-    : ' Ce qui cloche : l’égalité « '+String(j.morceau||'').slice(0,80)+' » ne vaut ni le produit '+q.P1+'/'+q.Q1+' ni le résultat final '+q.P+'/'+q.Q+' — c’est probablement une addition faite avant la multiplication.';
+    : ' Ce qui cloche : l’égalité « '+String(j.morceau||'').slice(0,80)+' » ne vaut ni le produit '+q.P1+'/'+q.Q1+' ni le résultat final '+q.P+'/'+q.Q+(j.terme ? '.'+libreTermeIA(j.terme) : ' — c’est probablement une addition faite avant la multiplication.');
   v+=' Ton rôle est de RÉDIGER le feedback conforme à ce verdict et aux consignes de la règle. Si ton propre calcul te dit autre chose, c’est ton calcul qui se trompe : ne conteste jamais ce verdict.';
   return v;
 }
 function pfSecours(j,q){
   if(j.correct) return 'Bravo, ton calcul est juste d’un bout à l’autre !';
+  if(j.motif==='egalite' && j.terme) return libreTermeSecours(j.terme);
   return (j.motif==='resultat')
     ? 'Ton calcul contient une erreur : le résultat final n’est pas correct. Revérifie tes calculs.'
     : 'Il y a une égalité fausse dans ton calcul : « '+String(j.morceau||'').slice(0,80)+' » ne correspond ni au produit ni au résultat final. As-tu bien calculé la multiplication AVANT d’additionner ?';
