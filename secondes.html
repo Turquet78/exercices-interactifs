@@ -2376,7 +2376,11 @@
      boutons retournent u⃗ et v⃗ ; l'égalité s'écrit avec la flèche du 8.2 */
   #scr-cvp .tvg-cons.sol{border-color:var(--green);background:var(--green-soft)}
   #cvpGraph .sv-svg{max-width:640px}
-  #cvpInstr .trl-sous{display:block;font-size:.85rem;font-weight:400;margin-top:6px}
+  /* l'étape en cours, AU-DESSUS du dessin, en bandeau : on la lit avant de toucher une flèche */
+  .cvp-etape{margin:6px 0 10px;padding:10px 14px;border-left:5px solid var(--blue);border-radius:10px;background:#EAF0FF;color:var(--ink);font-size:1.05rem;line-height:1.45}
+  .cvp-etape:empty{display:none}
+  .cvp-etape .cvp-etape-n{display:inline-block;margin-right:6px;font-weight:800;color:var(--blue-dark)}
+  .cvp-etape .cvp-etape-sous{display:block;margin-top:4px;font-size:.92rem}
   #cvpInstr .vgt-vec{font-size:1.1em}
   #cvpInstr .cvp-eg{white-space:nowrap}
   .cvp-outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:4px 0 12px}
@@ -6587,6 +6591,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card lv-card">
       <div class="q-head"><span id="cvpIdx" class="q-idx">Question 1 / 6</span><span id="cvpModeTag"></span></div>
       <p class="enonce" id="cvpInstr"></p>
+      <div class="cvp-etape" id="cvpEtape" aria-live="polite"></div>
       <div class="lv-graph" id="cvpGraph"></div>
       <div id="cvpBody"></div>
       <div class="mp-feedback" id="cvpFeedback" aria-live="polite"></div>
@@ -6917,7 +6922,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=499;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=500;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -57027,28 +57032,21 @@ function cvpSVG(q){
     +'<defs>'+pointe('cvpArrU','var(--ink)')+pointe('cvpArrV','var(--ink-soft)')+pointe('cvpArrS','var(--green)')+'</defs>'
     +g+'<g id="cvpCorr"></g><g id="cvpFl"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cvpPrises"></g></svg>`;
 }
-/* Les deux flèches à leur place du moment (avec leurs mots « début » et
-   « fin », sauf sur le point donné, qui porte sa lettre), la lettre du point,
-   et les prises. */
+/* Les deux flèches à leur place du moment, la lettre du point, et les prises.
+   Aucun mot « début » ni « fin » sur les flèches (demande de Turquet,
+   octobre 2026) : le dessin ne porte que ce qu'on écrit sur une copie. */
 function cvpDessinerFleches(q){
   const fl=$('cvpFl'), pr=$('cvpPrises'); if(!fl||!pr) return;
   const du=cvpUc(q), dv=cvpVc(q), a=cvpU(q), b=cvpV(q), af=svcPlus(a,du), bf=svcPlus(b,dv);
   const X=i=>SVC_PX+i*SVC_C, Y=j=>SVC_PY+(SVC_H-j)*SVC_C;
   const bouts=[{p:a,c:du,s:-1,m:'début'},{p:af,c:du,s:1,m:'fin'},{p:b,c:dv,s:-1,m:'début'},{p:bf,c:dv,s:1,m:'fin'}];
   const dir=function(t){ const l=Math.hypot(t.c[0],t.c[1])||1; return [t.s*t.c[0]/l, -t.s*t.c[1]/l]; };
-  const sauf={}, dirsP=[]; let doubles='';
-  bouts.forEach(function(t,k){ if(svcEgal(t.p,q.po)){ sauf[k]=true; const d=dir(t); dirsP.push([-d[0],-d[1]]); } });
-  [[0,2],[0,3],[1,2],[1,3]].forEach(function(k){
-    const m=bouts[k[0]], n=bouts[k[1]]; if(!svcEgal(m.p,n.p)||sauf[k[0]]) return;
-    sauf[k[0]]=sauf[k[1]]=true;
-    const d1=dir(m), d2=dir(n); let ex=d1[0]+d2[0], ey=d1[1]+d2[1], l=Math.hypot(ex,ey);
-    if(l<0.3){ ex=-d1[1]; ey=d1[0]; l=1; }
-    doubles+=svcMot(X(m.p[0]), Y(m.p[1]), ex/l, ey/l, m.m===n.m?m.m+'s':'fin / début');
-  });
-  fl.innerHTML=svcFleche(a, af, {cls:'svc-u', marker:'cvpArrU', mots:true, depart:true, sansDebut:sauf[0], sansFin:sauf[1]})
+  const dirsP=[];
+  bouts.forEach(function(t){ if(svcEgal(t.p,q.po)){ const d=dir(t); dirsP.push([-d[0],-d[1]]); } });
+  fl.innerHTML=svcFleche(a, af, {cls:'svc-u', marker:'cvpArrU', depart:true})
     +cvpNom(a, af, 'u', q.ur, 'svc-u', cvpMilieu(b,bf))
-    +svcFleche(b, bf, {cls:'svc-v', marker:'cvpArrV', mots:true, depart:true, sansDebut:sauf[2], sansFin:sauf[3]})
-    +cvpNom(b, bf, 'v', q.vr, 'svc-v', cvpMilieu(a,af))+doubles
+    +svcFleche(b, bf, {cls:'svc-v', marker:'cvpArrV', depart:true})
+    +cvpNom(b, bf, 'v', q.vr, 'svc-v', cvpMilieu(a,af))
     +cvpLettre(q.po, q.l, dirsP, 'vec-lbl');
   const fige=test.cvpFigeCh||test.locked;
   const prise=function(w,p,c){ const f=svcPlus(p,c);
@@ -57056,6 +57054,29 @@ function cvpDessinerFleches(q){
   pr.innerHTML=fige?'':prise('u',a,du)+prise('v',b,dv);
   if(q.sel) cvpEtiquetteNoeud(q,q.sel);
   ['u','v'].forEach(function(w){ const bt=$('cvpRet'+w.toUpperCase()); if(bt) bt.disabled=!!fige; });
+  cvpConsigne(q);
+}
+/* Les deux flèches bout à bout depuis le point, dans un ordre ou l'autre —
+   le GESTE de l'étape 1, quel que soit le sens des flèches : ce n'est pas un
+   verdict, seule la vérification juge. */
+function cvpBoutABout(q){
+  const a=cvpU(q), b=cvpV(q), af=svcPlus(a,cvpUc(q)), bf=svcPlus(b,cvpVc(q));
+  return (svcEgal(a,q.po)&&svcEgal(af,b)) || (svcEgal(b,q.po)&&svcEgal(bf,a));
+}
+/* L'étape en cours, au-dessus du dessin (demande de Turquet, octobre 2026) :
+   l'étape 1 d'abord ; dès que les deux flèches sont bout à bout depuis le
+   point, l'étape 2. Un guide du geste, jamais un verdict ; rien après la
+   correction. */
+function cvpConsigne(q){
+  const el=$('cvpEtape'); if(!el) return;
+  if(test.locked){ el.innerHTML=''; return; }
+  const u=svcVecHTML('u'), v=svcVecHTML('v'), s=cvpSignes(q), Ap='<b>'+cvpNomPt(q)+'</b>';
+  if(!cvpBoutABout(q)){
+    const moins=[s[0]<0?'−'+u:'', s[1]<0?'−'+v:''].filter(Boolean);
+    el.innerHTML='<span class="cvp-etape-n">Étape 1 / 2</span>Fais glisser '+u+' et '+v+' pour les mettre bout à bout <b>à partir du point '+q.l+'</b> : un début va sur une fin, dans l’ordre que tu veux.'
+      +'<span class="cvp-etape-sous">Saisis une flèche pour la déplacer.'
+      +(moins.length?' Pour '+moins.join(' et ')+', retourne la flèche avec le bouton ⇄ : soustraire un vecteur, c’est ajouter son opposé.':'')+'</span>';
+  } else el.innerHTML='<span class="cvp-etape-n">Étape 2 / 2</span>Clique le nœud où se trouve le point '+Ap+' : au bout de la seconde flèche.';
 }
 function cvpMilieu(p,r){ return [(p[0]+r[0])/2, (p[1]+r[1])/2]; }
 /* La lettre d'un nœud (« B′ ») se pose, comme celle du point donné, dans la
@@ -57256,8 +57277,7 @@ function renderCvp(){
   const u=svcVecHTML('u'), v=svcVecHTML('v'), Ap='<b>'+cvpNomPt(q)+'</b>';
   $('cvpIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('cvpModeTag').innerHTML=modeTagHTML();
-  $('cvpInstr').innerHTML='Construis le point '+Ap+' tel que <span class="cvp-eg">'+cvpEgaliteHTML(q)+'</span>. Fais glisser '+u+' et '+v+' pour les mettre bout à bout <b>à partir du point '+q.l+'</b> — un début va sur une fin, dans l’ordre que tu veux —, puis clique le nœud où se trouve '+Ap+'. '
-    +'<span class="trl-sous">Saisis une flèche pour la déplacer. Pour −'+u+' ou −'+v+', retourne la flèche : soustraire un vecteur, c’est ajouter son opposé.</span>';
+  $('cvpInstr').innerHTML='Construis le point '+Ap+' tel que <span class="cvp-eg">'+cvpEgaliteHTML(q)+'</span>.';
   $('cvpGraph').innerHTML=cvpSVG(q);
   $('cvpBody').innerHTML='<div class="cvp-outils"><button class="btn btn-ghost" id="cvpRetU" type="button" onclick="cvpRetourner(\'u\')">⇄ Retourner '+u+'</button>'
     +'<button class="btn btn-ghost" id="cvpRetV" type="button" onclick="cvpRetourner(\'v\')">⇄ Retourner '+v+'</button></div>'

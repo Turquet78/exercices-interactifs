@@ -12459,10 +12459,15 @@ function pointSommeDifference(w, P){
 
     /* 2. l'énoncé et le dessin */
     const instr=el('cvpInstr');
-    if(instr.textContent.indexOf('Construis le point B′')<0 || instr.textContent.indexOf('à partir du point B')<0) vus.push('l\\'énoncé ne demande pas de construire B′ à partir de B : '+instr.textContent.slice(0,90));
+    /* l'énoncé ne porte que l'égalité ; la méthode vit dans l'étape, au-dessus du dessin */
+    if(instr.textContent.replace(/\\s+/g,' ').trim()!=='Construis le point B′ tel que BB′ = u − v.') vus.push('l\\'énoncé n\\'est pas la seule phrase mathématique : '+instr.textContent.slice(0,90));
+    const etape=el('cvpEtape');
+    if(!etape || etape.nextElementSibling!==el('cvpGraph')) vus.push('l\\'étape ne se place pas juste au-dessus du dessin');
+    if(!etape || etape.textContent.indexOf('Étape 1 / 2')!==0 || etape.textContent.indexOf('à partir du point B')<0) vus.push('l\\'étape 1 ne dit pas de partir du point B : '+(etape?etape.textContent.slice(0,90):''));
+    if(document.querySelector('#cvpGraph .svc-mot')) vus.push('les flèches portent encore « début » ou « fin »');
     if(!instr.querySelector('.vgt-vec') || instr.querySelector('.vgt-vec').textContent!=='BB′') vus.push('l\\'égalité ne s\\'écrit pas BB′ coiffé de sa flèche');
     if(instr.querySelector('.cvp-eg').textContent.replace(/\\s+/g,' ')!=='BB′ = u − v') vus.push('l\\'égalité écrite n\\'est pas BB′ = u − v : '+instr.querySelector('.cvp-eg').textContent);
-    if(instr.textContent.indexOf('retourne la flèche')<0) vus.push('l\\'énoncé ne dit pas qu\\'on retourne une flèche pour son opposé');
+    if(!etape || etape.textContent.indexOf('Pour −v, retourne la flèche')<0 || etape.textContent.indexOf('−u')>=0) vus.push('l\\'étape 1 ne dit pas de retourner v (et v seul) : '+(etape?etape.textContent.slice(0,160):''));
     const noms=Array.from(document.querySelectorAll('#cvpFl text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',');
     if(noms!=='u,v') vus.push('le dessin ne nomme pas u et v : '+noms);
     if(!document.querySelector('#cvpGraph .vec-pt') || Array.from(document.querySelectorAll('#cvpFl text.vec-lbl')).map(function(t){ return t.textContent; }).join()!=='B') vus.push('le point B n\\'est pas marqué d\\'une croix et de sa lettre');
@@ -12482,6 +12487,7 @@ function pointSommeDifference(w, P){
     if(!document.querySelector('#cvpn-4-2.missc')) vus.push('B′ attendu (4;2) ne se montre pas en vert');
     if(el('cvpFeedback').textContent.indexOf('Il te manquait 2 cases')<0) vus.push('le message ne dit pas « Il te manquait 2 cases » : '+el('cvpFeedback').textContent.slice(0,90));
     if(document.querySelector('#cvpPrises .svc-prise') || !el('cvpRetU').disabled) vus.push('les flèches se saisissent ou se retournent encore après la correction');
+    if(el('cvpEtape').textContent) vus.push('l\\'étape reste affichée après la correction');
     if(test.score!==0) vus.push('la copie vide vaut '+test.score);
     const a0=test.answers[test.answers.length-1];
     if(!a0||a0.correct||a0.cases!==2||a0.justes!==0) vus.push('la réponse enregistrée ne compte pas 0 case juste sur 2');
@@ -12498,6 +12504,7 @@ function pointSommeDifference(w, P){
     if(!cvpDeplacer('u',[3,4]) || JSON.stringify(q1.up)!=='[3,4]') vus.push('cvpDeplacer ne range pas le début de u');
     cvpDeplacer('v',[6,5]);
     if(!cvpChaine(q1)||cvpChaine(q1).ordre!=='uv') vus.push('u puis −v posés depuis B ne sont pas lus comme la construction');
+    if(el('cvpEtape').textContent.indexOf('Étape 2 / 2')!==0 || el('cvpEtape').textContent.indexOf('B′')<0) vus.push('les flèches bout à bout, l\\'étape 2 ne s\\'affiche pas : '+el('cvpEtape').textContent.slice(0,90));
     cvpPose(1,1);
     if(JSON.stringify(q1.sel)!=='[1,1]' || !document.querySelector('#cvpn-1-1.sel')) vus.push('le clic ne pose pas B′');
     cvpPose(1,1);

@@ -1550,3 +1550,27 @@ quadragies septies ») et de titre (« Construire un point : somme ou
 différence de deux vecteurs ») : deux noms de menu presque identiques
 auraient fait choisir l'un pour l'autre. Le kind `cvp` et les fonctions
 `cvp…` n'entraient en collision avec rien (le 8.14 est `cps`).
+**Puis l'énoncé n'a gardé que les mathématiques, et la méthode est passée AU-DESSUS du dessin, une étape à la fois (v500).**
+La demande (Turquet, octobre 2026) : « dans le 8.15, je ne veux que l'énoncé
+mathématique, l'explication de l'étape n°1 doit s'afficher en premier au
+dessus du dessin de manière visible ; quand l'élève a fait cette étape, il
+faut afficher l'étape 2 au dessus du dessin de manière visible. Ne pas
+afficher fin / début sur les vecteurs du dessin. » L'énoncé (`#cvpInstr`) se
+réduit à « Construis le point A′ tel que AA′ = u⃗ + v⃗. » ; un bandeau
+`#cvpEtape`, posé entre l'énoncé et le dessin, dit l'étape en cours
+(`cvpConsigne`, rappelée à chaque redessin des flèches). Étape 1 : faire
+glisser u⃗ et v⃗ bout à bout depuis le point — et, SEULEMENT si l'égalité en
+porte un, retourner −u⃗ ou −v⃗ (la phrase générique « pour −u⃗ ou −v⃗ » nommait
+un geste inutile sur AA′ = u⃗ + v⃗). Étape 2 dès que les deux flèches sont bout
+à bout depuis le point, dans un ordre ou l'autre (`cvpBoutABout`) : c'est le
+GESTE qui fait passer à l'étape 2, pas sa justesse — le sens des flèches
+n'est pas regardé, sans quoi le bandeau dirait « juste » avant « Vérifier »
+(soutienEnDirect.sans). Après la correction, le bandeau se vide. Les mots
+« début », « fin » et « fin / début » ne s'écrivent plus sur les flèches ; la
+petite pastille du début reste, le nom des flèches aussi.
+
+Le juge tient l'énoncé à la phrase près, la place du bandeau (juste avant le
+dessin), le « −v⃗ » seul nommé sur BB′ = u⃗ − v⃗, l'étape 2 après u⃗ puis −v⃗
+posés depuis B, le bandeau vide après la correction et zéro `svc-mot` dans le
+dessin ; le banc navigateur mesure que le bandeau est AU-DESSUS du dessin, à
+l'étape 1 puis à l'étape 2 après les deux glissés à la souris.
