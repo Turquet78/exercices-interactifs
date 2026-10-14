@@ -55997,6 +55997,10 @@ function svcFleche(a,b,o){
        quelle que soit la largeur de la fonte. Le texte du nœud reste
        « u+v ». */
     const lettres=o.nom.split('+'), pas=16, x0=lx-pas*(lettres.length-1);
+    /* un nom de deux lettres (BC, au 8.14) s'écrit plus petit, et sa flèche
+       monte au-dessus des lettres (demande de Turquet, octobre 2026) : à la
+       taille d'une lettre seule, la flèche touchait le haut des majuscules */
+    const deux=lettres.some(L=>L.length>1), r=deux?0.8:1, hf=deux?13:9;
     let ts='', fl='';
     lettres.forEach(function(L,k){
       const cx=x0+2*pas*k;
@@ -56004,10 +56008,10 @@ function svcFleche(a,b,o){
       ts+=`<tspan x="${cx.toFixed(1)}">${L}</tspan>`;
       /* la lettre penche : sa flèche se décale d'un rien vers la droite */
       /* un nom de deux lettres (BC, au 8.14) : la flèche couvre les deux */
-      const lg=11*L.length;
-      fl+=`M${(cx-4.5-5.5*(L.length-1)).toFixed(1)} ${(ly-9).toFixed(1)}h${lg}m-3.5 -3l3.5 3l-3.5 3`;
+      const lg=11*r*L.length;
+      fl+=`M${(cx-4.5*r-5.5*r*(L.length-1)).toFixed(1)} ${(ly-hf).toFixed(1)}h${lg.toFixed(1)}m-3.5 -3l3.5 3l-3.5 3`;
     });
-    s+=`<text class="svc-nom ${c0}-t" y="${(ly+6).toFixed(1)}" text-anchor="middle">${ts}</text>`
+    s+=`<text class="svc-nom ${c0}-t" y="${(ly+6).toFixed(1)}" text-anchor="middle"${deux?' style="font-size:'+(20*r)+'px"':''}>${ts}</text>`
       +`<path class="svc-nfl ${c0}-f" d="${fl}"/>`;
   }
   if(o.mots){
