@@ -22434,16 +22434,16 @@ function jugeArithmetique(w, P){
        le terme qui a changé de valeur ; s'il y en a deux, elle se tait. */
     if(typeof libreTermeFaux!=='function') vus.push('libreTermeFaux est absente');
     else {
-      const jT=cas('un seul terme faux', qS, '(1)/(2)-(1)/(6)\n= (6)/(12)-(1)/(12)\n= (5)/(12)', 'sfl', 'faux (egalite)');
+      const jT=cas('un seul terme faux', qS, '(1)/(2)-(1)/(6)\\n= (6)/(12)-(1)/(12)\\n= (5)/(12)', 'sfl', 'faux (egalite)');
       if(!jT.terme || jT.terme.avant!=='1/6' || jT.terme.apres!=='1/12')
         vus.push('le juge ne désigne pas le terme faux 1/12 : '+JSON.stringify(jT.terme));
       else if(libreSecours(jT).indexOf('1/12')<0) vus.push('la phrase de secours ne nomme pas le terme faux');
       if(jF.terme) vus.push('le juge désigne un terme alors que la ligne entière a changé : '+JSON.stringify(jF.terme));
-      const jD=cas('deux termes faux', qS, '(1)/(2)-(1)/(6)\n= (2)/(12)-(1)/(12)\n= (1)/(12)', 'sfl', 'faux (egalite)');
+      const jD=cas('deux termes faux', qS, '(1)/(2)-(1)/(6)\\n= (2)/(12)-(1)/(12)\\n= (1)/(12)', 'sfl', 'faux (egalite)');
       if(jD.terme) vus.push('le juge désigne un terme alors que deux ont changé : '+JSON.stringify(jD.terme));
       const jP = (typeof spfrJuge==='function') ? spfrJuge : (typeof pfJuge==='function' ? pfJuge : null);
       if(jP){
-        const j6=jP({P:5,Q:6,P1:5,Q1:6}, '(5)/(3)-(1)/(3)*(5)/(2)\n= (5)/(3)-(5)/(6)\n= (30)/(18)-(10)/(18)\n= (20)/(18)\n= (10)/(9)');
+        const j6=jP({P:5,Q:6,P1:5,Q1:6}, '(5)/(3)-(1)/(3)*(5)/(2)\\n= (5)/(3)-(5)/(6)\\n= (30)/(18)-(10)/(18)\\n= (20)/(18)\\n= (10)/(9)');
         if(!j6.terme || j6.terme.avant!=='5/6' || j6.terme.apres!=='10/18')
           vus.push('sur la copie de la capture du 4.6, le juge ne désigne pas 10/18 : '+JSON.stringify(j6));
       }
