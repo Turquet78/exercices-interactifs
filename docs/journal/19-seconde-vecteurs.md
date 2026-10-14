@@ -489,6 +489,30 @@ phrase en carreaux sert la correction écrite à l'élève. Le bouton des tables
 n'est pas proposé : on n'y multiplie rien (`TABLES_SANS`, et `tablesAide.sans`
 dans le profil — deux sources, donc un vrai contrôle).
 
+**Puis le point s'est posé SANS NOM, et l'élève le nomme** (v484, demande de
+Turquet, octobre 2026 : « en seconde dans le 8.4, laisser l'élève placer un
+point et demander lui ensuite de le nommer »). Les trois stylos « ● Placer
+A′ » disaient d'avance quel point l'élève déplaçait : la page choisissait le
+nom, l'élève n'avait qu'à suivre. Le clic pose désormais un point neutre,
+entouré de pointillés et marqué « ? » (`q.pend`), et la page demande sous le
+quadrillage « Comment s'appelle ce point ? » avec trois boutons A′, B′, C′
+(`trlNommer`) — inactifs tant qu'aucun point n'attend son nom. Un seul point
+sans nom à la fois : cliquer ailleurs le déplace, recliquer dessus le
+retire ; recliquer un point NOMMÉ lui rend son nom à choisir (c'est le geste
+pour renommer ou retirer) ; donner un nom déjà porté DÉPLACE ce nom sur le
+nouveau point — deux A′ n'existent jamais. Vérifier avec un point sans nom
+ne peint rien et ne verrouille rien : le message demande le nom — on ne
+devine pas quel point l'élève a voulu déplacer, ce serait lui ôter
+précisément ce qu'on lui demande. `q.pend` est du JSON, part avec la pause
+et revient avec la reprise ; le contexte du modèle dit qu'un point attend
+son nom. Le juge, lui, n'a pas bougé : `q.rep[i]` reste l'image nommée
+`i`, et une image fausse parce que mal NOMMÉE (le bon nœud de B′ appelé A′)
+coûte son point comme une image mal placée. Le banc principal éprouve le
+refus d'un point sans nom, le rangement au nom choisi et le nom déplacé ;
+le banc navigateur (« 6 quadragies bis ») clique le nœud, constate le « ? »
+et la question, retire au reclic, clique le VRAI bouton de nom, puis rend
+son nom à choisir à un point nommé.
+
 **Ce qu'aucun banc ne voit** : la fiche 1 (construire le point D tel que ABDC
 soit un parallélogramme) n'est pas portée — Turquet a précisé que la fiche 2
 était « le bon fichier » ; et la phrase à compléter « l'image de B par la
