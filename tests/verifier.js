@@ -11725,30 +11725,34 @@ function egaliteVectoriellePoint(w, P){
 
 /* {somme-vecteurs} (Seconde, 8.7, thème « Vecteurs » — demande de Turquet,
    octobre 2026, d'après la fiche « somme de vecteurs — un début va sur une
-   fin »). Six bords :
+   fin » ; v489 : « je veux que l'on puisse déplacer les vecteurs u et v sur
+   le quadrillage », la somme construite où l'élève veut, dans l'ordre qu'il
+   veut). Sept bords :
      · le tirage est LISIBLE et JSON : les deux flèches et le nœud attendu dans
        le quadrillage, les extrémités dessinées à un carreau du bord, chaque
        flèche et la somme à deux carreaux au moins, les quatre extrémités deux
        à deux à deux carreaux, le nœud attendu loin de v⃗, rien de répondu ;
-     · le nœud attendu se retrouve par une SECONDE écriture (début de u⃗ +
-       chemin de u⃗ + chemin de v⃗) ;
      · vérifier à VIDE ne rougit rien : la construction attendue se trace en
-       vert, la consigne devient sol ;
-     · la copie juste vaut 1, la construction de l'élève se trace à la pose ;
-     · les deux pièges — v⃗ posé sur le DÉBUT de u⃗, v⃗ recopié à l'envers —
-       rougissent et sont NOMMÉS par le message ;
-     · en soutien, rien ne se révèle et rien ne se verrouille ; le contexte du
-       modèle porte le nœud attendu en le déclarant SECRET.
-   Le CLIC, lui, ne se mesure que dans un vrai navigateur. */
+       vert, les deux consignes deviennent sol ;
+     · la copie juste vaut 2 dans les DEUX ordres (u⃗ puis v⃗, v⃗ puis u⃗), où
+       que l'élève la pose ; une flèche glissée reste dans le quadrillage ;
+     · chaque réponse se juge SEULE : u⃗ + v⃗ juste ne rougit pas parce que
+       les flèches sont mal posées ;
+     · les pièges — deux débuts ensemble, deux fins ensemble, flèches qui ne
+       se touchent pas, u⃗ + v⃗ à l'envers — rougissent et sont NOMMÉS ;
+     · une question jouée survit au JSON de la pause et au redessin ;
+     · en soutien, rien ne se révèle, rien ne se verrouille, le juste se fige ;
+       le contexte du modèle porte la somme en la déclarant SECRÈTE.
+   Le GLISSER, lui, ne se mesure que dans un vrai navigateur. */
 function sommeVecteurs(w, P){
-  const nom = 'somme de vecteurs : le tirage est lisible, le nœud se juge, les deux pièges sont nommés, une case vide ne rougit pas';
+  const nom = 'somme de vecteurs : le tirage est lisible, les flèches glissent, les deux ordres sont justes, les pièges sont nommés, une case vide ne rougit pas';
   if(!P.sommeVecteurs){
     ignorer(nom, 'ce niveau n\'a pas l\'exercice de la somme de vecteurs');
     return;
   }
-  const present = evaluer(w, "typeof startSvc==='function' && typeof checkSvc==='function' && typeof svcPoint==='function'");
+  const present = evaluer(w, "typeof startSvc==='function' && typeof checkSvc==='function' && typeof svcDeplacer==='function'");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'startSvc, checkSvc ou svcPoint introuvable');
+    verifier(nom, false, 'startSvc, checkSvc ou svcDeplacer introuvable');
     return;
   }
   verifierEval(w, nom, `(function(){
@@ -11763,22 +11767,25 @@ function sommeVecteurs(w, P){
     const loin=function(p,r){ return Math.max(Math.abs(p[0]-r[0]),Math.abs(p[1]-r[1]))>=2; };
     const dans=function(p){ return p[0]>=0&&p[0]<=12&&p[1]>=0&&p[1]<=8; };
     const plus=function(p,r){ return [p[0]+r[0],p[1]+r[1]]; };
+    const fiche=function(){ return {uo:[1,1], uc:[2,4], vo:[6,6], vc:[2,-2], up:null, vp:null, sd:null, sf:null}; };
+    const autre=function(){ return {uo:[1,2], uc:[3,1], vo:[7,6], vc:[2,2], up:null, vp:null, sd:null, sf:null}; };
+    const verifierIci=function(){ const av=test.score; checkSvc(); clearTimeout(test.fbTimer); return test.score-av; };
 
-    /* 1. le tirage : lisible, JSON, le nœud attendu relu par une seconde écriture */
+    /* 1. le tirage : lisible, JSON, rien de répondu */
     /* une seule séance DESSINÉE (le barème) ; les 200 tirages passent par
        svcBuildQuestions sans redessiner le quadrillage : 200 dessins de 117
        cibles ont fait déborder la mémoire du banc sur l'action GitHub (4 Go) */
     const figures={};
     startSvc(); clearTimeout(test.fbTimer);
-    if(test.maxScore!==D.nb) vus.push('barème '+test.maxScore+' au lieu de '+D.nb);
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
     for(let t=0;t<200 && !vus.length;t++){
       const qs=svcBuildQuestions();
       if(qs.length!==D.nb){ vus.push(qs.length+' questions au lieu de '+D.nb); break; }
       const cles=qs.map(cleQuestion);
       if(new Set(cles).size!==cles.length) vus.push('deux questions identiques dans une même séance');
       qs.forEach(function(q){
-        if(Object.keys(q).sort().join(',')!=='sel,uc,uo,vc,vo') vus.push('la question range autre chose que uo, uc, vo, vc et sel : '+Object.keys(q).join(','));
-        if(q.sel!==null) vus.push('le tirage pose un nœud à la place de l\\'élève');
+        if(Object.keys(q).sort().join(',')!=='sd,sf,uc,uo,up,vc,vo,vp') vus.push('la question range autre chose que les deux flèches et la place de l\\'élève : '+Object.keys(q).join(','));
+        if(q.up!==null||q.vp!==null||q.sd!==null||q.sf!==null) vus.push('le tirage répond à la place de l\\'élève');
         figures[cleQuestion(q)]=1;
         const uf=plus(q.uo,q.uc), vf=plus(q.vo,q.vc), E=plus(uf,q.vc), Ep=svcPoint(q);
         if(E[0]!==Ep[0]||E[1]!==Ep[1]) vus.push('svcPoint rend '+JSON.stringify(Ep)+' au lieu de '+JSON.stringify(E));
@@ -11788,96 +11795,121 @@ function sommeVecteurs(w, P){
         bouts.forEach(function(p){ if(p[0]<1||p[0]>11||p[1]<1||p[1]>7) vus.push('une extrémité dessinée touche le bord : ('+p.join(';')+') — ses mots chevaucheraient le cadre'); });
         if(!loin(E,q.vo)||!loin(E,vf)) vus.push('le nœud attendu ('+E.join(';')+') tombe contre la flèche v');
         [q.uc,q.vc,plus(q.uc,q.vc)].forEach(function(c){ if(!loin(c,[0,0])) vus.push('un chemin de moins de deux carreaux : ('+c.join(';')+')'); });
+        if(svcChaine(q)) vus.push('le tirage pose déjà les deux flèches bout à bout');
         if(JSON.stringify(JSON.parse(JSON.stringify(q)))!==JSON.stringify(q)) vus.push('la question ne survit pas au JSON de la pause');
       });
     }
     if(!vus.length && Object.keys(figures).length<1000) vus.push('les figures se répètent : '+Object.keys(figures).length+' en 1600 questions');
     if(vus.length) return vus.slice(0,4).join(' | ');
 
-    /* montage : trois questions CHOISIES — la première figure de la fiche, puis une figure pour les pièges */
+    /* montage : des figures CHOISIES — la première de la fiche, puis une figure pour les pièges */
     startSvc(); clearTimeout(test.fbTimer);
-    test.questions[0]={uo:[1,1], uc:[2,4], vo:[6,6], vc:[2,-2], sel:null};
-    test.questions[1]={uo:[1,1], uc:[2,4], vo:[6,6], vc:[2,-2], sel:null};
-    test.questions[2]={uo:[1,2], uc:[3,1], vo:[7,6], vc:[2,2], sel:null};
-    test.questions[3]={uo:[1,2], uc:[3,1], vo:[7,6], vc:[2,2], sel:null};
+    test.questions[0]=fiche(); test.questions[1]=fiche(); test.questions[2]=fiche();
+    test.questions[3]=autre(); test.questions[4]=autre(); test.questions[5]=autre();
     test.idx=0; test.locked=false; renderSvc();
-    if(JSON.stringify(svcPoint(test.questions[0]))!=='[5,3]') vus.push('fiche : fin de v recopié attendue en (5;3), svcPoint rend '+JSON.stringify(svcPoint(test.questions[0])));
 
     /* 2. l'énoncé et le dessin */
     const instr=el('svcInstr');
     if(instr.textContent.indexOf('Un début va sur une fin')<0) vus.push('l\\'énoncé ne dit pas « Un début va sur une fin » : '+instr.textContent.slice(0,80));
+    if(instr.textContent.indexOf('glisser')<0 || instr.textContent.indexOf('l’ordre que tu veux')<0) vus.push('l\\'énoncé ne dit pas qu\\'on fait glisser les flèches, dans l\\'ordre qu\\'on veut');
     if(instr.querySelectorAll('.vec').length<4) vus.push('les vecteurs de l\\'énoncé ne sont pas coiffés de leur flèche');
     const mots=Array.from(document.querySelectorAll('#svcGraph text.svc-mot')).map(function(t){ return t.textContent; }).sort().join(',');
     if(mots!=='début,début,fin,fin') vus.push('le dessin n\\'écrit pas deux « début » et deux « fin » : '+mots);
     const noms=Array.from(document.querySelectorAll('#svcGraph text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',');
     if(noms!=='u,v') vus.push('le dessin ne nomme pas u et v : '+noms);
     if(document.querySelectorAll('#svcGraph .vec-t').length!==117) vus.push(document.querySelectorAll('#svcGraph .vec-t').length+' cibles au lieu de 117 (13 × 9 nœuds)');
-    if(document.querySelector('#svcGraph .vec-t.sel') || el('svcTrace').children.length) vus.push('un nœud est posé avant que l\\'élève le pose');
-    if(!el('svc-pt')||!el('svc-pt').classList.contains('pts-case')) vus.push('la consigne n\\'est pas une pts-case : le nœud posé ne compterait pas dans la note');
+    if(document.querySelectorAll('#svcPrises .svc-prise').length!==2) vus.push('les deux flèches n\\'ont pas chacune leur prise pour glisser');
+    if(document.querySelector('#svcGraph .vec-t.sel') || el('svcTrace').children.length) vus.push('u + v est tracé avant que l\\'élève le trace');
+    ['svc-ch','svc-sm'].forEach(function(id){ if(!el(id)||!el(id).classList.contains('pts-case')) vus.push(id+' n\\'est pas une pts-case : la réponse ne compterait pas dans la note'); });
 
     /* 3. vérifier à vide : rien ne rougit, la construction attendue en vert */
     checkSvc(); clearTimeout(test.fbTimer);
-    if(classe('svc-pt')!=='sol') vus.push('vérifier sans nœud : la consigne est '+classe('svc-pt')+' au lieu de sol');
-    if(!document.querySelector('#svcn-5-3.missc')) vus.push('le nœud attendu (5;3) ne se montre pas en vert');
+    if(classe('svc-ch')!=='sol'||classe('svc-sm')!=='sol') vus.push('vérifier à vide : les consignes sont '+classe('svc-ch')+' et '+classe('svc-sm')+' au lieu de sol');
     if(document.querySelector('#svcGraph .vec-t.badc, #svcGraph .svc-eb')) vus.push('vérifier à vide rougit quelque chose');
     if(document.querySelectorAll('#svcCorr line.svc-s').length!==2) vus.push('la construction attendue (v recopié et u + v) n\\'est pas tracée en vert');
-    if(el('svcFeedback').textContent.indexOf('Il te manquait 1 case')<0) vus.push('le message ne dit pas « Il te manquait 1 case » : '+el('svcFeedback').textContent.slice(0,90));
+    if(!document.querySelector('#svcn-5-3.missc')) vus.push('la fin de u + v attendue (5;3) ne se montre pas en vert');
+    if(el('svcFeedback').textContent.indexOf('Il te manquait 2 cases')<0) vus.push('le message ne dit pas « Il te manquait 2 cases » : '+el('svcFeedback').textContent.slice(0,90));
+    if(document.querySelector('#svcPrises .svc-prise')) vus.push('les flèches se saisissent encore après la correction');
     if(!test.locked) vus.push('vérifier à vide ne verrouille pas en entraînement');
     if(test.score!==0) vus.push('la copie vide vaut '+test.score);
     const a0=test.answers[test.answers.length-1];
-    if(!a0||a0.correct||a0.cases!==1||a0.justes!==0) vus.push('la réponse enregistrée ne compte pas 0 case juste sur 1');
+    if(!a0||a0.correct||a0.cases!==2||a0.justes!==0) vus.push('la réponse enregistrée ne compte pas 0 case juste sur 2');
 
-    /* 4. copie juste par svcPose : poser, retirer, déplacer */
+    /* 4. copie juste, u PUIS v : v glisse au bout de u ; u + v se trace au clic */
     nextSvc(); clearTimeout(test.fbTimer);
     const q1=test.questions[1];
-    svcPose(5,3);
-    if(JSON.stringify(q1.sel)!=='[5,3]') vus.push('svcPose ne range pas le nœud dans sel : '+JSON.stringify(q1.sel));
-    if(el('svcTrace').querySelectorAll('line.svc-e').length!==2) vus.push('la construction de l\\'élève ne se trace pas à la pose');
-    svcPose(5,3);
-    if(q1.sel!==null || el('svcTrace').children.length) vus.push('reposer le même nœud ne le retire pas');
-    svcPose(0,0); svcPose(5,3);
-    if(JSON.stringify(q1.sel)!=='[5,3]' || document.querySelector('#svcn-0-0.sel')) vus.push('poser un autre nœud ne déplace pas le point');
-    let avant=test.score; checkSvc(); clearTimeout(test.fbTimer);
-    if(test.score-avant!==1) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 1');
-    if(classe('svc-pt')!=='ok' || !document.querySelector('#svcn-5-3.okc')) vus.push('la copie juste n\\'est pas peinte ok');
-    if(document.querySelector('#svcGraph .vec-t.missc') || el('svcCorr').children.length) vus.push('la correction se montre alors que tout est juste');
+    if(!svcDeplacer('v',[3,5]) || JSON.stringify(q1.vp)!=='[3,5]') vus.push('svcDeplacer ne range pas le début de v : '+JSON.stringify(q1.vp));
+    if(!svcChaine(q1)||svcChaine(q1).ordre!=='uv') vus.push('v posé au bout de u n\\'est pas lu bout à bout');
+    const lv=el('svcFl').querySelector('line.svc-v');
+    if(!lv || lv.getAttribute('x1')!==String(SVC_PX+3*SVC_C)) vus.push('la flèche v ne se redessine pas à sa nouvelle place');
+    svcPose(1,1);
+    if(JSON.stringify(q1.sd)!=='[1,1]' || !document.querySelector('#svcn-1-1.sel')) vus.push('le premier clic ne pose pas le début de u + v');
+    svcPose(1,1);
+    if(q1.sd!==null || document.querySelector('#svcn-1-1.sel')) vus.push('recliquer le début seul ne le retire pas');
+    svcPose(0,0); svcPose(2,2); svcPose(1,1); svcPose(5,3);
+    if(JSON.stringify([q1.sd,q1.sf])!=='[[1,1],[5,3]]') vus.push('un troisième clic ne recommence pas la flèche : '+JSON.stringify([q1.sd,q1.sf]));
+    if(el('svcTrace').querySelectorAll('line.svc-e').length!==1) vus.push('la flèche u + v ne se trace pas au second clic');
+    /* la pause : la question jouée survit au JSON et au redessin */
+    test.questions[1]=JSON.parse(JSON.stringify(q1)); renderSvc();
+    const q1b=test.questions[1];
+    if(!svcChaine(q1b) || el('svcTrace').querySelectorAll('line.svc-e').length!==1) vus.push('la reprise perd les flèches déplacées ou u + v');
+    if(verifierIci()!==2) vus.push('la copie juste (u puis v) ne vaut pas 2');
+    if(classe('svc-ch')!=='ok'||classe('svc-sm')!=='ok') vus.push('la copie juste n\\'est pas peinte ok : '+classe('svc-ch')+', '+classe('svc-sm'));
+    if(el('svcCorr').children.length || document.querySelector('#svcGraph .vec-t.missc')) vus.push('la correction se montre alors que tout est juste');
     if(el('svcFeedback').className.indexOf('good')<0) vus.push('la copie juste n\\'a pas de message vert');
 
-    /* 5. les deux pièges : v sur le DÉBUT de u, puis v à l'envers */
+    /* 5. copie juste, v PUIS u, ailleurs ; une flèche glissée reste dans le quadrillage */
     nextSvc(); clearTimeout(test.fbTimer);
-    svcPose(3,4);
-    avant=test.score; checkSvc(); clearTimeout(test.fbTimer);
-    if(test.score-avant!==0) vus.push('v posé sur le début de u rapporte un point');
-    if(classe('svc-pt')!=='bad' || !document.querySelector('#svcn-3-4.badc')) vus.push('v posé sur le début de u ne rougit pas');
-    if(!el('svcTrace').querySelector('line.svc-eb')) vus.push('la construction fausse ne se peint pas en rouge');
-    if(!document.querySelector('#svcn-6-5.missc')) vus.push('le nœud attendu (6;5) ne se montre pas en vert');
-    let fb=el('svcFeedback').textContent;
-    if(fb.indexOf('DÉBUT de u')<0 || fb.indexOf('2 carreaux vers la droite puis 2 carreaux vers le haut')<0) vus.push('le message ne nomme pas le piège du début, ni le chemin de v : '+fb.slice(0,140));
-    if(fb.indexOf('Il te manquait')>=0) vus.push('le message parle de cases manquantes sur une copie complète');
-    nextSvc(); clearTimeout(test.fbTimer);
-    svcPose(2,1); checkSvc(); clearTimeout(test.fbTimer);
-    fb=el('svcFeedback').textContent;
-    if(classe('svc-pt')!=='bad' || fb.indexOf('à l’envers')<0) vus.push('v recopié à l\\'envers n\\'est pas rouge et nommé : '+fb.slice(0,120));
+    const q2=test.questions[2];
+    svcDeplacer('u',[11,7]);
+    if(JSON.stringify(q2.up)!=='[10,4]') vus.push('u tiré hors du quadrillage n\\'est pas retenu au bord : '+JSON.stringify(q2.up));
+    svcDeplacer('v',[0,6]); svcDeplacer('u',[2,4]);
+    if(!svcChaine(q2)||svcChaine(q2).ordre!=='vu') vus.push('u posé au bout de v n\\'est pas lu bout à bout');
+    svcPose(0,6); svcPose(4,8);
+    if(verifierIci()!==2) vus.push('la copie juste dans l\\'autre ordre (v puis u) ne vaut pas 2');
 
-    /* 6. soutien : rien ne se révèle, rien ne se verrouille ; le juste se fige */
+    /* 6. les pièges, et chaque réponse jugée seule */
+    nextSvc(); clearTimeout(test.fbTimer);
+    svcDeplacer('v',[1,2]); svcPose(1,2); svcPose(6,5);
+    if(verifierIci()!==1) vus.push('deux débuts ensemble, u + v juste : ne vaut pas 1');
+    if(classe('svc-ch')!=='bad'||classe('svc-sm')!=='ok') vus.push('deux débuts ensemble : '+classe('svc-ch')+', '+classe('svc-sm')+' au lieu de bad, ok — une réponse juste rougit à cause de l\\'autre');
+    let fb=el('svcFeedback').textContent;
+    if(fb.indexOf('deux DÉBUTS')<0 || fb.indexOf('3 carreaux vers la droite puis 1 carreau vers le haut')<0) vus.push('le message ne nomme pas les deux débuts, ni le chemin de u : '+fb.slice(0,140));
+    if(fb.indexOf('Il te manquait')>=0) vus.push('le message parle de cases manquantes sur une copie complète');
+    if(document.querySelectorAll('#svcCorr line.svc-s').length!==1) vus.push('deux débuts ensemble : la correction ne montre pas seulement le vecteur recopié en vert');
+    nextSvc(); clearTimeout(test.fbTimer);
+    svcDeplacer('v',[2,1]); svcPose(6,5); svcPose(1,2);
+    if(verifierIci()!==0) vus.push('deux fins ensemble et u + v à l\\'envers rapportent des points');
+    fb=el('svcFeedback').textContent;
+    if(classe('svc-ch')!=='bad'||classe('svc-sm')!=='bad'||fb.indexOf('deux FINS')<0||fb.indexOf('à l’envers')<0) vus.push('deux fins ensemble et u + v à l\\'envers ne sont pas rouges et nommés : '+fb.slice(0,160));
+    if(!el('svcTrace').querySelector('line.svc-eb')) vus.push('la flèche u + v fausse ne se peint pas en rouge');
+    nextSvc(); clearTimeout(test.fbTimer);
+    svcDeplacer('v',[8,5]);
+    if(verifierIci()!==0) vus.push('deux flèches séparées rapportent des points');
+    fb=el('svcFeedback').textContent;
+    if(classe('svc-ch')!=='bad'||classe('svc-sm')!=='sol'||fb.indexOf('pas bout à bout')<0||fb.indexOf('Il te manquait 1 case')<0) vus.push('deux flèches séparées, u + v vide : '+classe('svc-ch')+', '+classe('svc-sm')+' — '+fb.slice(0,140));
+
+    /* 7. soutien : rien ne se révèle, rien ne se verrouille ; le juste se fige */
     currentMode='soutien'; startSvc(); clearTimeout(test.fbTimer);
-    test.questions[0]={uo:[1,2], uc:[3,1], vo:[7,6], vc:[2,2], sel:null}; test.idx=0; renderSvc();
+    test.questions[0]=autre(); test.idx=0; renderSvc();
     const qs=test.questions[0];
-    svcPose(2,1); checkSvc();
+    svcDeplacer('v',[1,2]); checkSvc();
     if(test.locked) vus.push('soutien : une copie fausse verrouille la question');
-    if(classe('svc-pt')!=='bad' || !document.querySelector('#svcn-2-1.badc')) vus.push('soutien : le nœud faux ne rougit pas');
-    if(document.querySelector('#svcGraph .vec-t.missc') || el('svcCorr').children.length) vus.push('soutien : la construction attendue se révèle');
+    if(classe('svc-ch')!=='bad' || classe('svc-sm')!=='rien') vus.push('soutien : '+classe('svc-ch')+', '+classe('svc-sm')+' au lieu de bad, rien');
+    if(el('svcCorr').children.length || document.querySelector('#svcGraph .vec-t.missc')) vus.push('soutien : la construction attendue se révèle');
     const ctx=conseilCtxCourant();
     if(ctx.indexOf('STRICTEMENT SECR')<0) vus.push('le contexte du modèle ne déclare pas la réponse secrète');
-    if(ctx.indexOf('(6 ; 5)')<0) vus.push('le contexte du modèle ne porte pas le nœud attendu');
-    if(ctx.indexOf('posé en (2 ; 1)')<0) vus.push('le contexte du modèle ne dit pas ce que l\\'élève a posé');
-    svcPose(6,5);
-    if(JSON.stringify(qs.sel)!=='[6,5]') vus.push('soutien : le nœud faux ne se déplace pas');
+    if(ctx.indexOf('5 carreaux vers la droite puis 3 carreaux vers le haut')<0) vus.push('le contexte du modèle ne porte pas la somme');
+    if(ctx.indexOf('v commence en (1 ; 2)')<0 || ctx.indexOf('pas bout à bout')<0) vus.push('le contexte du modèle ne dit pas où l\\'élève a posé ses flèches');
+    svcDeplacer('v',[4,3]); checkSvc();
+    if(!test.svcFigeCh || svcDeplacer('u',[0,0])) vus.push('soutien : les flèches justes ne se figent pas');
+    if(test.locked) vus.push('soutien : u + v manquant verrouille la question');
+    svcPose(1,2); svcPose(6,5);
     checkSvc(); clearTimeout(test.fbTimer);
-    if(!test.locked || test.score!==1) vus.push('soutien : la copie corrigée ne verrouille pas ou ne vaut pas 1 ('+test.score+')');
+    if(!test.locked || test.score!==2) vus.push('soutien : la copie corrigée ne verrouille pas ou ne vaut pas 2 ('+test.score+')');
     currentMode='soutien'; startSvc(); clearTimeout(test.fbTimer);
     checkSvc();
-    if(classe('svc-pt')!=='rien' || test.locked) vus.push('soutien : vérifier sans nœud peint '+classe('svc-pt')+(test.locked?' et verrouille':''));
+    if(classe('svc-ch')!=='rien' || classe('svc-sm')!=='rien' || test.locked) vus.push('soutien : vérifier sans rien faire peint '+classe('svc-ch')+(test.locked?' et verrouille':''));
     currentMode='train';
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
