@@ -137,7 +137,24 @@ const BROUILLONS = ({ k, table }) => window.__faux.journal.slice(k)
   .filter(e => e.op === 'insert' && e.table === table && Array.isArray(e.lignes))
   .reduce((n, e) => n + e.lignes.filter(l => l.details && l.details.state === 'paused').length, 0);
 
+/* LE TIRAGE EST FIXÉ, EXERCICE PAR EXERCICE. Certaines pages refusent de
+   vérifier tant qu'une première réponse n'est pas juste (le nombre de racines
+   du {signe-second-degre}) : le bouchon y tombe juste ou non selon la séance
+   tirée, et le verdict du banc changeait d'une exécution à l'autre — atteint
+   ici, « hors d'atteinte » dans l'action. Un banc dont le verdict dépend du
+   hasard ne dit rien, dans un sens comme dans l'autre (une déclaration
+   deviendrait « morte » au tirage suivant). Math.random est donc remplacé, le
+   temps de l'exercice, par un générateur à graine (mulberry32) dont la graine
+   est l'identifiant de l'exercice : la même séance ici et dans l'action. Le
+   double de Supabase numérote ses lignes avec un compteur, pas au hasard. */
+function graine(id){ let h = 2166136261; for(const c of id){ h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+const SEMER = g => {
+  let a = g >>> 0;
+  Math.random = function(){ a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+};
+
 async function mener(page, id){
+  await page.evaluate(SEMER, graine(id));
   const lance = await page.evaluate(async a => {
     try{ await lancerDevoirExo(a.DM, a.id, 'train'); return ''; }
     catch(e){ return 'démarrage : ' + (e && e.message || e); }
