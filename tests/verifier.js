@@ -11857,10 +11857,27 @@ function sommeVecteurs(w, P){
     test.idx=0; test.locked=false; renderSvc();
 
     /* 2. l'énoncé et le dessin */
-    const instr=el('svcInstr');
+    const instr=el('svcInstr'), qa=el('svc-ch'), qb=el('svc-sm');
     if(instr.textContent.indexOf('Un début va sur une fin')<0) vus.push('l\\'énoncé ne dit pas « Un début va sur une fin » : '+instr.textContent.slice(0,80));
-    if(instr.textContent.indexOf('glisser')<0 || instr.textContent.indexOf('l’ordre que tu veux')<0) vus.push('l\\'énoncé ne dit pas qu\\'on fait glisser les flèches, dans l\\'ordre qu\\'on veut');
-    if(instr.querySelectorAll('.vec').length<4) vus.push('les vecteurs de l\\'énoncé ne sont pas coiffés de leur flèche');
+    if(qa.textContent.indexOf('a)')!==0 || qa.textContent.indexOf('glisser')<0 || qa.textContent.indexOf('l’ordre que tu veux')<0) vus.push('la question a) ne dit pas qu\\'on fait glisser les flèches, dans l\\'ordre qu\\'on veut : '+qa.textContent.slice(0,80));
+    if(qb.textContent.indexOf('b)')!==0 || qb.textContent.indexOf('Trace')<0) vus.push('la question b) ne demande pas de tracer la somme : '+qb.textContent.slice(0,80));
+    if(instr.querySelectorAll('.vec').length+qa.querySelectorAll('.vec').length+qb.querySelectorAll('.vec').length<6) vus.push('les vecteurs de l\\'énoncé ne sont pas coiffés de leur flèche');
+    /* a) puis b) : en a), un clic ne trace rien ; en b), les flèches ne glissent plus */
+    if(!qa.classList.contains('svc-actif') || !qb.classList.contains('svc-attente')) vus.push('la question a) n\\'est pas la question en cours au départ');
+    svcPose(1,1);
+    if(test.questions[0].sd) vus.push('en a), un clic sur le quadrillage commence u + v');
+    svcVersB();
+    if(test.questions[0].et!=='b' || !qb.classList.contains('svc-actif') || document.querySelectorAll('#svcPrises .svc-prise').length) vus.push('passer à b) ne fige pas les flèches ou n\\'active pas b)');
+    if(svcDeplacer('u',[2,2])) vus.push('en b), une flèche glisse encore');
+    svcPose(1,1);
+    if(JSON.stringify(test.questions[0].sd)!=='[1,1]') vus.push('en b), le premier clic ne pose pas le début de u + v');
+    svcPose(1,1); svcVersA();
+    if(test.questions[0].et!=='a' || document.querySelectorAll('#svcPrises .svc-prise').length!==2) vus.push('« Revenir à la question a) » ne rend pas les flèches');
+    /* le nom de la somme : une flèche sur u, une sur v, le texte « u+v » */
+    test.questions[0].sd=[1,1]; test.questions[0].sf=[5,3]; svcTracer(test.questions[0],'');
+    const ns=el('svcTrace').querySelector('text.svc-nom'), nf=el('svcTrace').querySelector('path.svc-nfl');
+    if(!ns || ns.textContent!=='u+v' || ns.querySelectorAll('tspan').length!==3 || !nf || (nf.getAttribute('d').match(/M/g)||[]).length!==2) vus.push('le nom de u + v n\\'a pas une flèche sur chaque lettre : '+(nf?nf.getAttribute('d'):'aucune'));
+    test.questions[0].sd=null; test.questions[0].sf=null; svcTracer(test.questions[0],'');
     const mots=Array.from(document.querySelectorAll('#svcGraph text.svc-mot')).map(function(t){ return t.textContent; }).sort().join(',');
     if(mots!=='début,début,fin,fin') vus.push('le dessin n\\'écrit pas deux « début » et deux « fin » : '+mots);
     const noms=Array.from(document.querySelectorAll('#svcGraph text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',');
@@ -11890,6 +11907,7 @@ function sommeVecteurs(w, P){
     if(!svcChaine(q1)||svcChaine(q1).ordre!=='uv') vus.push('v posé au bout de u n\\'est pas lu bout à bout');
     const lv=el('svcFl').querySelector('line.svc-v');
     if(!lv || lv.getAttribute('x1')!==String(SVC_PX+3*SVC_C)) vus.push('la flèche v ne se redessine pas à sa nouvelle place');
+    svcVersB();
     svcPose(1,1);
     if(JSON.stringify(q1.sd)!=='[1,1]' || !document.querySelector('#svcn-1-1.sel')) vus.push('le premier clic ne pose pas le début de u + v');
     svcPose(1,1);
@@ -11900,7 +11918,7 @@ function sommeVecteurs(w, P){
     /* la pause : la question jouée survit au JSON et au redessin */
     test.questions[1]=JSON.parse(JSON.stringify(q1)); renderSvc();
     const q1b=test.questions[1];
-    if(!svcChaine(q1b) || el('svcTrace').querySelectorAll('line.svc-e').length!==1) vus.push('la reprise perd les flèches déplacées ou u + v');
+    if(!svcChaine(q1b) || el('svcTrace').querySelectorAll('line.svc-e').length!==1 || q1b.et!=='b') vus.push('la reprise perd les flèches déplacées, u + v ou la question b)');
     if(verifierIci()!==2) vus.push('la copie juste (u puis v) ne vaut pas 2');
     if(classe('svc-ch')!=='ok'||classe('svc-sm')!=='ok') vus.push('la copie juste n\\'est pas peinte ok : '+classe('svc-ch')+', '+classe('svc-sm'));
     if(el('svcCorr').children.length || document.querySelector('#svcGraph .vec-t.missc')) vus.push('la correction se montre alors que tout est juste');
@@ -11913,12 +11931,12 @@ function sommeVecteurs(w, P){
     if(JSON.stringify(q2.up)!=='[10,4]') vus.push('u tiré hors du quadrillage n\\'est pas retenu au bord : '+JSON.stringify(q2.up));
     svcDeplacer('v',[0,6]); svcDeplacer('u',[2,4]);
     if(!svcChaine(q2)||svcChaine(q2).ordre!=='vu') vus.push('u posé au bout de v n\\'est pas lu bout à bout');
-    svcPose(0,6); svcPose(4,8);
+    svcVersB(); svcPose(0,6); svcPose(4,8);
     if(verifierIci()!==2) vus.push('la copie juste dans l\\'autre ordre (v puis u) ne vaut pas 2');
 
     /* 6. les pièges, et chaque réponse jugée seule */
     nextSvc(); clearTimeout(test.fbTimer);
-    svcDeplacer('v',[1,2]); svcPose(1,2); svcPose(6,5);
+    svcDeplacer('v',[1,2]); svcVersB(); svcPose(1,2); svcPose(6,5);
     if(verifierIci()!==1) vus.push('deux débuts ensemble, u + v juste : ne vaut pas 1');
     if(classe('svc-ch')!=='bad'||classe('svc-sm')!=='ok') vus.push('deux débuts ensemble : '+classe('svc-ch')+', '+classe('svc-sm')+' au lieu de bad, ok — une réponse juste rougit à cause de l\\'autre');
     let fb=el('svcFeedback').textContent;
@@ -11926,7 +11944,7 @@ function sommeVecteurs(w, P){
     if(fb.indexOf('Il te manquait')>=0) vus.push('le message parle de cases manquantes sur une copie complète');
     if(document.querySelectorAll('#svcCorr line.svc-s').length!==1) vus.push('deux débuts ensemble : la correction ne montre pas seulement le vecteur recopié en vert');
     nextSvc(); clearTimeout(test.fbTimer);
-    svcDeplacer('v',[2,1]); svcPose(6,5); svcPose(1,2);
+    svcDeplacer('v',[2,1]); svcVersB(); svcPose(6,5); svcPose(1,2);
     if(verifierIci()!==0) vus.push('deux fins ensemble et u + v à l\\'envers rapportent des points');
     fb=el('svcFeedback').textContent;
     if(classe('svc-ch')!=='bad'||classe('svc-sm')!=='bad'||fb.indexOf('deux FINS')<0||fb.indexOf('à l’envers')<0) vus.push('deux fins ensemble et u + v à l\\'envers ne sont pas rouges et nommés : '+fb.slice(0,160));
@@ -11951,6 +11969,7 @@ function sommeVecteurs(w, P){
     if(ctx.indexOf('v commence en (1 ; 2)')<0 || ctx.indexOf('pas bout à bout')<0) vus.push('le contexte du modèle ne dit pas où l\\'élève a posé ses flèches');
     svcDeplacer('v',[4,3]); checkSvc();
     if(!test.svcFigeCh || svcDeplacer('u',[0,0])) vus.push('soutien : les flèches justes ne se figent pas');
+    if(qs.et!=='b' || el('svcRetourA')) vus.push('soutien : a) juste ne passe pas à b), ou laisse revenir à a)');
     if(test.locked) vus.push('soutien : u + v manquant verrouille la question');
     svcPose(1,2); svcPose(6,5);
     checkSvc(); clearTimeout(test.fbTimer);

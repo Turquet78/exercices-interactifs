@@ -983,6 +983,39 @@ u⃗, clique le début de u⃗ + v⃗ À TRAVERS la prise de u⃗, tire u⃗ hor
 quadrillage, et relit `touch-action` sur la prise. Le doigt sur tablette, lui,
 ne se joue dans aucun banc.
 
+**Puis deux questions, a) et b), et une flèche par lettre (v491).** Turquet,
+capture à l'appui : « le nom de la somme doit être avec deux flèches, une pour
+u et l'autre pour v. […] je veux que la question a soit place les vecteurs u
+et v correctement. puis question b) trace le vecteur somme ».
+**Le nom.** « u+v » portait UNE longue flèche sur les trois signes : il se
+lisait comme le nom d'un vecteur « u+v ». Chaque signe est désormais un
+`tspan` à x absolu (un bloc centré pour lui seul), le « + » droit en
+`KaTeX_Main` entre deux lettres italiques, et `svc-nfl` trace une petite
+flèche par lettre, décalée d'un pixel vers la droite parce que la lettre
+penche. Le texte du nœud reste « u+v ». La même capture montrait les noms u
+et v l'un sur l'autre (deux flèches bout à bout en angle aigu posent leurs
+noms du même côté, dans l'angle) : `svcNomPos` calcule la place d'un nom, et
+v passe de l'autre côté de son trait quand son nom tomberait à moins de 26
+unités de celui de u.
+**Les deux questions.** L'étape vit dans la question (`q.et`, 'a' ou 'b'),
+posée au premier dessin et non au tirage — la clé de `distinctes()` ne la
+voit pas, la pause la retrouve. En a), les flèches glissent et un clic sur le
+quadrillage ne trace rien (`svcPose` l'ignore) ; « Passer à la question b) »
+fige les flèches (plus de prises, `svcDeplacer` refuse) et ouvre le tracé ;
+« Revenir à la question a) » les rend tant que rien n'est jugé. La question
+en cours est encadrée en bleu, celle qui attend pâlit. En SOUTIEN, le bouton
+de a) est « Vérifier a) » : une construction fausse rougit, nommée (deux
+débuts, deux fins, pas bout à bout), et reste à reprendre ; une juste se fige
+et passe à b) sans retour — et une reprise en b) la retrouve figée. Ailleurs,
+rien ne se juge avant « Vérifier », qui note les deux cases comme avant : le
+barème ne bouge pas (16). `checkSvc` appelé en a) en soutien vérifie a) ;
+hors soutien il reste la vérification entière (la copie vide en dépend).
+Le juge ajoute : a) en cours au départ, un clic en a) ne trace rien, b) fige
+les flèches, le retour les rend, la reprise garde b), le soutien passe à b)
+sans retour, et le nom de la somme porte trois signes et deux flèches. Le banc
+navigateur passe à b) par le bouton, puis mesure que chaque petite flèche est
+AU-DESSUS de sa lettre et que les trois signes ne se chevauchent pas.
+
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v490)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
