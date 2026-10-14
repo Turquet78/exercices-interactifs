@@ -99,6 +99,8 @@ jobs:
   # connaît que PostgreSQL. Elle n'était donc vérifiée que par la relecture, et
   # un défaut bloquant y est passé — « Nouveau code » refusait tous les élèves
   # inscrits avant la bascule. Ce banc la charge dans Node et l'exécute.
+  # Depuis octobre 2026 il exécute aussi corriger-definition, qui porte toute
+  # l'aide IA des trois niveaux, contre un faux modèle : rien ne part vers l'API.
   fonction:
     runs-on: ubuntu-latest
     steps:
@@ -106,7 +108,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Fonction Edge admin-eleve
+      - name: Fonctions Edge admin-eleve et corriger-definition
         run: npm run test:fonction
 
   # LES TROIS NIVEAUX EN PARALLÈLE, une machine chacun. Ils tournaient l'un

@@ -1655,6 +1655,10 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 .screen[data-theme="Fractions"] math-field.pm-mf.f-num,.screen[data-theme="Fractions"] math-field.pm-mf.f-den{width:auto;min-width:40px;height:auto;min-height:var(--fx-case);border-radius:9px;border-width:1.5px;padding:0 2px}
 .screen[data-theme="Fractions"] input.f-num,.screen[data-theme="Fractions"] input.f-den{width:48px;height:auto;min-height:var(--fx-case);border-radius:9px;border-width:1.5px;padding:0 2px}
 .screen[data-theme="Fractions"] .sf-l .f-num,.screen[data-theme="Fractions"] .sf-l .f-den{width:var(--fx-l)}
+/* … mais sur un <input> (les diviseurs « 6 ÷ ▢ » du 4.1), « auto » ne suit PAS
+   le contenu : la case prenait la largeur d'une vingtaine de caractères
+   (signalé par Turquet, octobre 2026). Elle garde celle des autres cases. */
+.screen[data-theme="Fractions"] .sf-l input.f-num,.screen[data-theme="Fractions"] .sf-l input.f-den{width:48px}
 .screen[data-theme="Fractions"] .f-fbar{height:var(--fx-trait)}
 /* le badge de correction, hors du flux, et la place qu'il prend LÀ OÙ il existe */
 .screen[data-theme="Fractions"] .sf-case .mf-cor{margin-left:4px}
@@ -1664,7 +1668,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 @media(max-width:520px){
   .screen[data-theme="Fractions"]{--fx-case:36px}
   .screen[data-theme="Fractions"] math-field.pm-mf.f-num,.screen[data-theme="Fractions"] math-field.pm-mf.f-den{min-width:34px}
-  .screen[data-theme="Fractions"] input.f-num,.screen[data-theme="Fractions"] input.f-den{width:42px} }
+  .screen[data-theme="Fractions"] input.f-num,.screen[data-theme="Fractions"] input.f-den,.screen[data-theme="Fractions"] .sf-l input.f-num,.screen[data-theme="Fractions"] .sf-l input.f-den{width:42px} }
 /* {somme-produit-fractions} (4.6) : la mise en page de la Seconde. C'est lui
    qui a reçu le premier les CASES PLUS PETITES (demande de Turquet, octobre
    2026) ; sa mesure est devenue celle de tout le thème — bloc « UNE SEULE
@@ -2952,7 +2956,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=318;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=319;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.

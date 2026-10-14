@@ -723,6 +723,57 @@ Une variable d'environnement à régler, une seule : **`ANTHROPIC_API_KEY`**
 > compare à `MAX_CTX` **lu dans le fichier du dépôt** — il ne voit pas ce qui est
 > déployé. Il affiche à chaque exécution le contexte le plus long et sa marge.
 
+> ### ⚠️ Octobre 2026 : passage à Claude Haiku 5.5 — redéployez
+>
+> L'aide par IA quitte Claude Haiku 4.5 pour **Claude Haiku 5.5** (identifiant
+> `claude-haiku-5-5`). Tout le changement est dans
+> `functions/corriger-definition/index.ts` : les trois pages n'ont pas bougé.
+>
+> **Ce qui change pour les élèves.** Rien à l'écran : mêmes boutons, mêmes
+> fenêtres, mêmes quotas. Les conseils et les verdicts viennent d'un modèle plus
+> récent. Et quand l'IA refuse une demande, que sa réponse est coupée ou qu'elle
+> est illisible, l'élève lit un message clair — par exemple *« L'IA n'a pas pu
+> relire ta réponse. Réessaie, ou demande à ton professeur. »*, *« La réponse de
+> l'IA a été coupée avant la fin. Réessaie. »* ou *« La réponse de l'IA est
+> illisible. Réessaie. »* — là où il lisait avant un verdict « faux » qui n'en
+> était pas un, ou *« Je n'ai pas de conseil pour l'instant »*. Une copie n'est
+> plus comptée fausse ni verrouillée sur une réponse de l'IA qui n'en était pas
+> une ; là où la page sait juger la copie elle-même, elle prend le relais. Ces
+> cas laissent une ligne dans la table `corrections_ia` (`[refus du modèle :
+> …]`, `[réponse coupée]`, `[réponse illisible] …`) : vous y lirez leur
+> fréquence réelle.
+>
+> **Les erreurs du service se lisent autrement.** Un service surchargé dit à
+> l'élève *« L'IA est très sollicitée, réessaie dans un instant (code 529). »* ;
+> une erreur de configuration (clé, crédit, modèle) dit *« L'aide IA est mal
+> configurée (code 404) : préviens ton professeur. »*. Le code entre parenthèses
+> est celui à lire ci-dessous.
+>
+> **Le geste : redéployez la fonction**, comme indiqué plus haut. Tant que ce
+> n'est pas fait, l'aide continue de tourner sur Haiku 4.5, sans que rien ne le
+> signale.
+>
+> **Vérifier que c'est fait.** Edge Functions → `corriger-definition` → Code :
+> le fichier déployé porte `const MODEL = "claude-haiku-5-5"`. Puis, après une
+> demande d'aide faite depuis une page, **console.anthropic.com → Usage** : les
+> appels apparaissent sous `claude-haiku-5-5`. Les journaux de la fonction chez
+> Supabase (Edge Functions → `corriger-definition` → Logs) le montrent aussi
+> dès qu'un refus ou une coupure s'y produit : *« Refus du modèle … »* ou
+> *« Réponse du modèle coupée … »* — deux lignes que l'ancienne version
+> n'écrivait jamais.
+>
+> **Le retour arrière.** Si, après le redéploiement, l'aide répond partout
+> *« L'aide IA est mal configurée (code 404) : préviens ton professeur. »*, le
+> modèle n'est pas ouvert à votre clé. Remettez la version précédente du fichier — le dépôt la garde : sur
+> GitHub, `supabase/functions/corriger-definition/index.ts` → **History**, la
+> version d'avant ce passage, celle qui porte `claude-haiku-4-5-20251001` — et
+> redéployez-la de la même façon : l'aide revient sur Haiku 4.5. Un code 400
+> appelle le même geste (c'est alors la requête elle-même qui est refusée).
+> Seule la fonction déployée revient en arrière : le dépôt reste sur Haiku 5.5,
+> et son banc (`npm run test:fonction`) exige ce modèle. Un code 401 ou 403 est
+> une clé refusée ou sans crédit : réglez-la sur console.anthropic.com, sans
+> toucher au fichier.
+
 ---
 
 ## 6. Redonner un code à chaque élève
