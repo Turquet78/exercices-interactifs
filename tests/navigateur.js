@@ -8953,7 +8953,7 @@ async function parcours(page, N){
     }
 
     /* ===== 6 quadragies quinquies. SOMME DE VECTEURS DANS UN REPÈRE ===== */
-    /* {somme-vecteurs-repere} (8.10, demande de Turquet, octobre 2026, la
+    /* {somme-vecteurs-repere} (8.11, demande de Turquet, octobre 2026, la
        « fiche 10 sur somme de vecteur ») : l'élève fait la fiche entière, à la
        souris, dans l'ordre demandé — il PLACE les quatre points, TRACE BC et
        BA (le second clic sur B tombe sur la prise de BC, qui doit le laisser

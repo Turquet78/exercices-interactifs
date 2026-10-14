@@ -4495,6 +4495,7 @@ function exercices(suite){
     vecteursEgaux(w, P);
     relationChasles(w, P);
     chaslesTroisVecteurs(w, P);
+    chaslesSimplifier(w, P);
     tableauProportions(w, P);
     tableauProportionsLettres(w, P);
     tableauProportionsTirees(w, P);
@@ -11983,7 +11984,7 @@ function sommeVecteurs(w, P){
   })()`, v => v === '', undefined);
 }
 
-/* {somme-vecteurs-repere} (Seconde, 8.10, thème « Vecteurs » — demande de
+/* {somme-vecteurs-repere} (Seconde, 8.11, thème « Vecteurs » — demande de
    Turquet, octobre 2026, la « fiche 10 sur somme de vecteur » : placer A, B,
    C, D dans un repère, tracer BC et BA, les déplacer bout à bout depuis D,
    placer M tel que DM = BC + BA). Les bords :
@@ -12019,6 +12020,7 @@ function sommeVecteursRepere(w, P){
     if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
     if(TEST_NUM['relation-chasles']!=='8.8') vus.push('le 8.8 a bougé : '+TEST_NUM['relation-chasles']);
     if(TEST_NUM['chasles-trois-vecteurs']!=='8.9') vus.push('le 8.9 a bougé : '+TEST_NUM['chasles-trois-vecteurs']);
+    if(TEST_NUM['chasles-simplifier']!=='8.10') vus.push('le 8.10 a bougé : '+TEST_NUM['chasles-simplifier']);
     const el=function(id){ return document.getElementById(id); };
     const classe=function(id){ const c=el(id)?el(id).className:'';
       return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
@@ -20875,6 +20877,199 @@ function chaslesTroisVecteurs(w, P){
     if(test.qId!=='chasles-trois-vecteurs') vus.push('qId « '+test.qId+' »');
     const ctx=ctxCtv(test.questions[0]).contexte;
     if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/nul/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret ni la méthode');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {chasles-simplifier} — thème 8 « Vecteurs », 8.10 (Turquet, octobre 2026 :
+   « fais un exercice comme le 8.8 mais avec le pdf joint ») : le rectangle
+   ACKI, ses milieux B, G, J, E, son centre F, les croisements D et H, et
+   neuf sommes ou différences à écrire plus simplement. Chaque correction
+   proposée par la page est relue ICI par un juge indépendant, écrit depuis
+   les coordonnées : chaque étape réécrit les termes (l'opposé d'un terme
+   soustrait), la dernière s'enchaîne, le résultat vaut la somme — jamais
+   les fonctions de la page qui corrigent. */
+function chaslesSimplifier(w, P){
+  const present = evaluer(w, "typeof startCsp==='function' && typeof cspLignes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('écrire plus simplement une somme de vecteurs : la place, le tirage, la correction de la fiche',
+      'ce niveau n\'a pas l\'exercice « écrire plus simplement une somme de vecteurs »');
+    return;
+  }
+  verifierEval(w, 'écrire plus simplement une somme de vecteurs : la place, le tirage, la correction de la fiche', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='chasles-simplifier';
+
+    /* ---- 0. la place : 8.10, derrière le 8.9 ; pas de bouton des tables */
+    const th=THEMES.find(function(t){ return t.num===8; });
+    if(!th || th.ids.indexOf('chasles-simplifier')<0) vus.push('l’exercice n’est pas dans le thème 8 « Vecteurs »');
+    if(TEST_NUM['chasles-simplifier']!=='8.10') vus.push('numéro '+TEST_NUM['chasles-simplifier']+' au lieu de 8.10');
+    if(TEST_NUM['chasles-trois-vecteurs']!=='8.9' || TEST_NUM['relation-chasles']!=='8.8' || TEST_NUM['somme-vecteurs']!=='8.7') vus.push('un exercice du thème 8 a bougé');
+    if(TABLES_SANS.indexOf('chasles-simplifier')<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+
+    /* ---- le juge indépendant : la fiche en coordonnées, puis l'image affine */
+    const BASE={A:[0,2],B:[2,2],C:[4,2],D:[3,1.5],E:[0,1],F:[2,1],G:[4,1],H:[1,0.5],I:[0,0],J:[2,0],K:[4,0]};
+    const pointsDe=function(q){
+      const f=CSP_FORMES[q.fig], pts={};
+      'ABCDEFGHIJK'.split('').forEach(function(c,i){ const p=BASE[c]; pts[q.n[i]]=[(f.sx*p[0]+f.sh*p[1])*q.fx, p[1]*q.fy]; });
+      return pts;
+    };
+    const dep=function(pts, v){
+      if(v==='0' || (v && v.length===2 && v[0]===v[1] && pts[v[0]])) return [0,0];
+      return (v && v.length===2 && pts[v[0]] && pts[v[1]]) ? [pts[v[1]][0]-pts[v[0]][0], pts[v[1]][1]-pts[v[0]][1]] : null; };
+    const eg=function(a, b){ return !!a && !!b && Math.abs(a[0]-b[0])<1e-9 && Math.abs(a[1]-b[1])<1e-9; };
+    const ETAPES={r:[], u:[['k','b']], c:[['b','b']], z:[['b','b'],['b','b']], q:[['b','b','b','b']]};
+    /* une ligne remplie (cases dans l'ordre) est-elle juste ? rend une liste de défauts */
+    const juge=function(pts, l, c){
+      const T=l.v.map(function(v,k){ const d=dep(pts,v); return l.s[k]==='-' ? [-d[0],-d[1]] : d; });
+      const S=T.reduce(function(a,d){ return [a[0]+d[0],a[1]+d[1]]; },[0,0]), f=[];
+      let j=0;
+      ETAPES[l.f].forEach(function(gab, e){
+        const ws=gab.map(function(g){ return g==='k' ? l.v[0] : String(c[j++]||'').toUpperCase(); });
+        const ds=ws.map(function(x){ return dep(pts,x); });
+        if(ds.some(function(d){ return !d || eg(d,[0,0]); })) { f.push('étape '+(e+1)+' illisible'); return; }
+        /* un appariement des vecteurs aux termes */
+        const libre=T.map(function(){ return true; });
+        const apparie=function(k){ if(k===ds.length) return true;
+          for(let t=0;t<T.length;t++) if(libre[t] && eg(ds[k],T[t])){ libre[t]=false; if(apparie(k+1)) return true; libre[t]=true; }
+          return false; };
+        if(ds.length!==T.length || !apparie(0)) f.push('étape '+(e+1)+' : '+ws.join(' + ')+' ne réécrit pas la somme');
+        if(e===ETAPES[l.f].length-1) for(let k=1;k<ws.length;k++) if(ws[k-1][1]!==ws[k][0]) f.push('étape '+(e+1)+' : '+ws.join(' + ')+' ne s’enchaîne pas');
+      });
+      if(!eg(dep(pts, String(c[j]||'').toUpperCase()), S)) f.push('résultat '+c[j]);
+      if(c.length!==j+1) f.push(c.length+' cases au lieu de '+(j+1));
+      return f;
+    };
+    const FICHE_L=CSP_FICHE.lignes.map(function(l){ return l.f+':'+l.v.join(l.s.length?',':'')+':'+l.s; });
+    const ATTENDU=['r:EH,HF:++','u:AE,FG:++','c:EH,IE:++','c:FC,BG:++','u:AC,AI:++','c:EF,EF:++','c:EI,JI:+-','z:AF,FK:+-','q:EA,BA,CB,GC:+---'];
+    if(FICHE_L.join()!==ATTENDU.join()) vus.push('la fiche n’est pas celle du PDF : '+FICHE_L.join(' '));
+    const PLAN=['r','u','c','c','u','c','c','z','q'];
+
+    /* ---- 1. le tirage : 150 séances, chaque correction relue ----------- */
+    const formes={};
+    for(let i=0;i<150 && !vus.length;i++){
+      const qs=cspBuildQuestions();
+      if(qs.length!==CSP_NB){ vus.push(qs.length+' figures au lieu de '+CSP_NB); break; }
+      const f=qs[0];
+      if(f.fig!=='rect' || f.n!=='ABCDEFGHIJK' || JSON.stringify(f.lignes)!==JSON.stringify(CSP_FICHE.lignes)) vus.push('la première figure n’est pas la fiche');
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      qs.forEach(function(q, k){
+        formes[q.fig]=true;
+        if(!CSP_FORMES[q.fig]) { vus.push('forme inconnue '+q.fig); return; }
+        if(!/^[A-Z]{11}$/.test(q.n) || new Set(q.n.split('')).size!==11 || (k>0 && /[OIWXYZ]/.test(q.n))) vus.push('lettres « '+q.n+' »');
+        if(q.lignes.map(function(l){ return l.f; }).join()!==PLAN.join()) vus.push(q.n+' : le plan des lignes est '+q.lignes.map(function(l){ return l.f; }).join(''));
+        const pts=pointsDe(q), cles={};
+        /* les milieux sont des milieux, D et H des milieux de diagonale */
+        const mil=function(a,b,m){ return eg([(pts[q.n[a]][0]+pts[q.n[b]][0])/2,(pts[q.n[a]][1]+pts[q.n[b]][1])/2], pts[q.n[m]]); };
+        if(!(mil(0,2,1) && mil(2,10,6) && mil(10,8,9) && mil(8,0,4) && mil(0,10,5) && mil(8,2,5) && mil(5,2,3) && mil(1,6,3) && mil(8,5,7) && mil(4,9,7)))
+          vus.push(q.fig+' : un milieu n’est pas un milieu');
+        const ls=cspLignes(q);
+        ls.forEach(function(L, j){
+          const l=q.lignes[j], cle=l.v.slice().sort().join();
+          if(cles[cle]) vus.push(q.n+' : deux lignes '+cle); cles[cle]=true;
+          const T=l.v.map(function(v,t){ const d=dep(pts,v); return d && (l.s[t]==='-' ? [-d[0],-d[1]] : d); });
+          if(T.some(function(d){ return !d; })) { vus.push(q.n+' : ligne illisible '+l.v.join()); return; }
+          const S=T.reduce(function(a,d){ return [a[0]+d[0],a[1]+d[1]]; },[0,0]);
+          if(eg(S,[0,0])!==(l.f==='z')) vus.push(q.n+' : '+l.v.join(l.s)+(l.f==='z'?' n’est pas nul':' est nul'));
+          if(l.f==='r' && l.v[0][1]!==l.v[1][0]) vus.push(q.n+' : '+l.v.join(' + ')+' ne s’enchaînent pas (ligne sans réécriture)');
+          if(l.f==='u' && (l.v[0][1]===l.v[1][0] || l.v[1][1]===l.v[0][0])) vus.push(q.n+' : '+l.v.join(' + ')+' n’a pas besoin d’un vecteur égal');
+          if(k>0 && j===2 && l.v[1][1]!==l.v[0][0]) vus.push(q.n+' : la troisième ligne ne se retourne pas');
+          if(k>0 && j===5 && l.v[0]!==l.v[1]) vus.push(q.n+' : la sixième ligne n’ajoute pas un vecteur à lui-même');
+          /* la correction de la page (une copie vide), relue par le juge */
+          const bons=cspJugeLigne(q, L, cspPoints(q)).map(function(s){ return s.bon; });
+          const faux=juge(pts, l, bons);
+          if(faux.length) vus.push(q.fig+' '+q.n+' : la correction de '+l.v.join(l.s)+' écrit « '+bons.join(' ')+' », '+faux.join(', '));
+        });
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    const absentes=CSP_FORME_IDS.filter(function(id){ return !formes[id]; });
+    if(absentes.length) vus.push('en 150 séances, jamais tirée : '+absentes.join(', '));
+
+    /* ---- 2. la fiche, par le BOUTON ------------------------------------ */
+    startCsp();
+    test.idx=0;
+    const JUSTE={0:['EF'],1:['EF','AF'],2:['IE','EH','IH'],3:['AF','FC','AC'],4:['CK','AK'],5:['EF','FG','EG'],
+                 6:['EI','IJ','EJ'],7:['AF','KF','AF','FA','AA'],8:['EA','AB','BC','CG','EG']};
+    const ptsF=pointsDe(test.questions[0]);
+    CSP_FICHE.lignes.forEach(function(l, i){ const f=juge(ptsF, l, JUSTE[i]); if(f.length) vus.push('le juge refuse la copie juste de la ligne '+(i+1)+' : '+f.join(', ')); });
+    const IDS=[]; Object.keys(JUSTE).forEach(function(i){ JUSTE[i].forEach(function(v,j){ IDS.push('csp-'+i+'-'+j); }); });
+    const val=function(c){ const o={}; Object.keys(c).forEach(function(i){ c[i].forEach(function(v,j){ o['csp-'+i+'-'+j]=v; }); }); return o; };
+    const poser=function(o){ test.locked=false; renderCspTest();
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(o[id]==null?'':o[id]); }); };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const fb=function(){ return document.getElementById('cspFeedback').textContent; };
+    poser({});
+    if(IDS.length!==27) vus.push(IDS.length+' cases au lieu de 27');
+    if(document.querySelectorAll('#cspHost input').length!==27) vus.push(document.querySelectorAll('#cspHost input').length+' cases à l’écran au lieu de 27');
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la fiche manque à l’écran';
+    const lettres=[...document.querySelectorAll('#cspHost svg text')].map(function(t){ return t.textContent.trim(); }).sort().join('');
+    if(lettres!=='ABCDEFGHIJK') vus.push('les lettres du dessin sont « '+lettres+' »');
+    if(document.querySelectorAll('#cspHost svg line').length!==9) vus.push('le dessin n’a pas ses neuf traits');
+    if(!/ACKI/.test(document.getElementById('cspEnonce').textContent) || !/milieux/.test(document.getElementById('cspEnonce').textContent)) vus.push('l’énoncé ne présente pas ACKI et ses milieux');
+    /* la copie juste */
+    poser(val(JUSTE)); checkCspAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    const pasJustes=IDS.filter(function(id){ return peint(id)!=='juste'; });
+    if(pasJustes.length) vus.push('copie juste, cases non justes : '+pasJustes.join(', '));
+    if(!der || der.cases!==27) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 27');
+    /* d’AUTRES écritures justes, en minuscules : EH + HF = FG ; FC + BG = IF + FK = IK ; le nul écrit 0 ; EG écrit AC */
+    poser(val(Object.assign({}, JUSTE, {0:['fg'],3:['IF','FK','ik'],7:['AF','KF','EJ','JE','0'],8:['EA','AB','BC','CG','AC']}))); checkCspAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('une autre écriture juste est comptée fausse : '+IDS.filter(function(id){ return peint(id)!=='juste'; }).join(', '));
+    /* LE PIÈGE de la soustraction : EI − JI = EI + JI */
+    poser(val(Object.assign({}, JUSTE, {6:['EI','JI','EJ']}))); checkCspAnswer();
+    if(peint('csp-6-1')!=='rouge') vus.push('EI − JI = EI + JI : la case est peinte '+peint('csp-6-1'));
+    if(peint('csp-6-0')!=='juste' || peint('csp-6-2')!=='juste') vus.push('EI et le résultat juste EJ rougissent à côté du piège');
+    if(!/oppos/i.test(fb()) || !/IJ/.test(fb())) vus.push('le message ne dit pas d’ajouter l’opposé IJ : « '+fb().slice(0,90)+' »');
+    /* le sens du résultat : EH + HF = FE */
+    poser(val(Object.assign({}, JUSTE, {0:['FE']}))); checkCspAnswer();
+    if(peint('csp-0-0')!=='rouge') vus.push('EH + HF = FE est peint '+peint('csp-0-0'));
+    if(!/sens/.test(fb())) vus.push('le message ne parle pas du sens pour FE');
+    /* le vecteur recopié sans être remplacé : AE + FG = AE + FG */
+    poser(val(Object.assign({}, JUSTE, {1:['FG','AF']}))); checkCspAnswer();
+    if(peint('csp-1-0')!=='rouge' || peint('csp-1-1')!=='juste') vus.push('AE + FG = AE + FG = AF : '+peint('csp-1-0')+', résultat '+peint('csp-1-1'));
+    if(!/part/.test(fb()) || !/ E/.test(fb())) vus.push('le message ne dit pas que le vecteur doit partir de E : « '+fb().slice(0,90)+' »');
+    /* l’ordre qui ne s’enchaîne pas : EH + IE = EH + … */
+    poser(val(Object.assign({}, JUSTE, {2:['EH','IE','IH']}))); checkCspAnswer();
+    if(peint('csp-2-0')!=='rouge' || peint('csp-2-2')!=='juste') vus.push('EH + IE = EH + IE = IH : '+peint('csp-2-0')+', résultat '+peint('csp-2-2'));
+    if(!/ordre/.test(fb())) vus.push('le message ne propose pas de changer l’ordre');
+    /* une case juste ne rougit pas à cause de sa voisine : FC + BG = AF + BG */
+    poser(val(Object.assign({}, JUSTE, {3:['AF','BG','AC']}))); checkCspAnswer();
+    if(peint('csp-3-0')!=='juste' || peint('csp-3-1')!=='rouge') vus.push('FC + BG = AF + BG : '+peint('csp-3-0')+' puis '+peint('csp-3-1'));
+    const badge=document.getElementById('csp-3-1').nextElementSibling;
+    if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='FC') vus.push('la correction de BG n’écrit pas FC à côté');
+    /* la somme nulle écrite comme un vrai vecteur */
+    poser(val(Object.assign({}, JUSTE, {7:['AF','KF','AF','FA','AK']}))); checkCspAnswer();
+    if(peint('csp-7-4')!=='rouge' || peint('csp-7-3')!=='juste') vus.push('AF + FA = AK : '+peint('csp-7-4'));
+    if(!/nul/i.test(fb())) vus.push('le message ne nomme pas le vecteur nul');
+    /* une case vide ne rougit pas, et reçoit la correction */
+    poser(val(Object.assign({}, JUSTE, {4:['','AK']}))); checkCspAnswer();
+    if(peint('csp-4-0')!=='correction' || document.getElementById('csp-4-0').value!=='CK') vus.push('la case vide de AC + AI : '+peint('csp-4-0')+' « '+document.getElementById('csp-4-0').value+' »');
+    if(!/manquait/.test(fb())) vus.push('le message ne nomme pas la case manquante');
+    /* une copie entièrement vide : rien de rouge, une correction juste pour le juge */
+    poser({}); checkCspAnswer();
+    const rouges=IDS.filter(function(id){ return peint(id)==='rouge'; });
+    if(rouges.length) vus.push('copie vide : '+rouges.length+' case(s) rouge(s)');
+    CSP_FICHE.lignes.forEach(function(l, i){ const c=JUSTE[i].map(function(v,j){ return document.getElementById('csp-'+i+'-'+j).value; });
+      if(juge(ptsF, l, c).length) vus.push('la correction de la ligne '+(i+1)+' écrit « '+c.join(' ')+' »'); });
+    /* le soutien : peint au fil de la saisie, sans verrouiller */
+    currentMode='soutien'; poser({});
+    const e0=document.getElementById('csp-0-0'); e0.value='EF'; checkCspAnswer(true);
+    if(peint('csp-0-0')!=='juste' || peint('csp-1-0')!=='rien') vus.push('le soutien peint '+peint('csp-0-0')+' la case remplie, '+peint('csp-1-0')+' la case vide');
+    e0.value='FE'; checkCspAnswer(true);
+    if(peint('csp-0-0')!=='rouge') vus.push('le soutien ne rougit pas FE');
+    if(test.locked) vus.push('la correction en direct verrouille la page');
+    currentMode='train';
+    /* le barème et l’identité */
+    startCsp();
+    const total=test.questions.reduce(function(a,q){ return a+cspCases(q).length; },0);
+    if(test.maxScore!==total || total!==27*CSP_NB) vus.push('barème de '+test.maxScore+' au lieu de '+total);
+    if(test.qId!=='chasles-simplifier') vus.push('qId « '+test.qId+' »');
+    const ctx=ctxCsp(test.questions[0]).contexte;
+    if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/oppos/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret ni la méthode');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

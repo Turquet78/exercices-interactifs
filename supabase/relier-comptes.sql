@@ -34,9 +34,13 @@
 --  clé — cle || '@' || domaine — donc le lien se recalcule. Pour chaque ligne
 --  sans user_id dont le compte existe encore dans auth.users, il remet le
 --  lien. Il ne touche NI aux codes, NI aux comptes, NI aux lignes déjà
---  reliées. Les élèves dont le compte n'existe plus sont LISTÉS à la fin :
---  pour eux, un seul chemin — « Nouveau code » dans le tableau du professeur,
---  qui recrée le compte et pose le lien (l'élève reçoit un code provisoire).
+--  reliées. Les élèves dont le compte n'existe plus sont LISTÉS à la fin —
+--  par RAISE NOTICE, que psql affiche mais PAS l'éditeur SQL de Supabase :
+--  celui-ci ne répond que « Success. No rows returned ». Sur le projet, on
+--  les lit APRÈS coup, avec la requête de supabase/LISEZMOI.md (« Restaurer
+--  entièrement, après un sinistre », étape 6). Pour eux, un seul chemin —
+--  « Nouveau code » dans le tableau du professeur, qui recrée le compte et
+--  pose le lien (l'élève reçoit un code provisoire).
 --
 --  Le domaine ci-dessous doit être LE MÊME que DOMAINE_COMPTES dans les trois
 --  pages et dans admin-eleve : un contrôle de `npm test` les compare.
@@ -74,8 +78,11 @@ begin
       rpad(t, 14), n_total, n_orphelins, n_relies;
 
     /* Ceux qui restent : leur compte n'existe plus, « Nouveau code » est le
-       seul chemin. Les nommer ici vaut mieux qu'un chiffre — c'est le
-       professeur qui lit cette sortie, sur son propre projet. */
+       seul chemin. Les nommer ici vaut mieux qu'un chiffre — mais par
+       NOTICE, que l'éditeur SQL de Supabase n'affiche pas : sur le projet,
+       ces noms se lisent par la requête de supabase/LISEZMOI.md. Seuls psql
+       et le banc voient cette sortie (test:base exige « encore sans lien :
+       Sam »). */
     for restant in execute format(
       'select prenom from public.%I where user_id is null order by prenom', t)
     loop
