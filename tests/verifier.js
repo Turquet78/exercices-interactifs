@@ -11866,9 +11866,12 @@ function parallelogrammePoint(w, P){
     const noeud=function(i,j){ const e=el('vecn-'+i+'-'+j); return e?String(e.getAttribute('class')||''):''; };
     const choisir=function(id,v){ const e=el(id); if(!e){ vus.push('la liste '+id+' manque'); return; } e.value=v; e.dispatchEvent(new Event('change',{bubbles:true})); };
     const fb=function(){ return el('vecFeedback').textContent; };
-    const CLES=['forme','A','B','C','etape','selD','s1','s2','v1','v2'];
+    const CLES=['forme','lt','A','B','C','etape','selD','s1','s2','v1','v2'];
+    const jeux={};
 
-    /* 1. le tirage : lisible, JSON, deux formes, rien de répondu */
+    /* 1. le tirage : lisible, JSON, deux formes, rien de répondu ; les
+       lettres tirées parmi les cinq jeux ; la figure CENTRÉE — les trois
+       quatrièmes points possibles dans le quadrillage, loin du bord */
     for(let t=0;t<100 && !vus.length;t++){
       startVec(); clearTimeout(test.fbTimer);
       if(test.questions.length!==D.nb){ vus.push(test.questions.length+' questions au lieu de '+D.nb); break; }
@@ -11878,12 +11881,44 @@ function parallelogrammePoint(w, P){
         if(cles.length) vus.push('la question range autre chose que '+CLES.join(', ')+' : '+cles.join(','));
         if(q.forme!==(qi<D.nb/2?'ABDC':'ABCD')) vus.push('la question '+(qi+1)+' est en '+q.forme);
         if(q.etape!==0||q.selD!==null||q.s1!==''||q.s2!==''||q.v1!==''||q.v2!=='') vus.push('le tirage pose une réponse à la place de l\\'élève');
+        if(!(q.lt>=0&&q.lt<VEC_LETTRES.length)) vus.push('le jeu de lettres rangé vaut '+q.lt);
+        jeux[VEC_LETTRES[q.lt]]=1;
+        [[q.B[0]+q.C[0]-q.A[0],q.B[1]+q.C[1]-q.A[1]],[q.A[0]+q.C[0]-q.B[0],q.A[1]+q.C[1]-q.B[1]],[q.A[0]+q.B[0]-q.C[0],q.A[1]+q.B[1]-q.C[1]]].forEach(function(p){
+          if(p[0]<1||p[0]>VEC_N-1||p[1]<1||p[1]>VEC_N-1) vus.push('figure pas centrée : un des trois parallélogrammes possibles a son quatrième point en ('+p.join(';')+')'); });
         const Dq=vecQuatrieme(q), pts=[q.A,q.B,q.C,Dq];
         pts.forEach(function(p){ if(p[0]<0||p[0]>VEC_N||p[1]<0||p[1]>VEC_N) vus.push('un point sort du quadrillage : ('+p.join(';')+')'); });
         for(let i=0;i<4;i++) for(let j=i+1;j<4;j++) if(!vecLoin(pts[i],pts[j])) vus.push('deux points à moins de deux carreaux : ('+pts[i].join(';')+') et ('+pts[j].join(';')+')');
         if(JSON.stringify(JSON.parse(JSON.stringify(q)))!==JSON.stringify(q)) vus.push('la question ne survit pas au JSON de la pause');
       });
     }
+    if(!vus.length && JSON.stringify(Object.keys(jeux).sort())!==JSON.stringify(['ABCD','EFGH','IJKL','MNOP','QRST'])) vus.push('sur 100 séances, les jeux de lettres sortis sont '+Object.keys(jeux).join(','));
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* les lettres d'un autre jeu : MNOP. MNPO (rôles ABDC) — l'énoncé, le
+       dessin, les listes, l'égalité et le juge parlent tous en M, N, O, P */
+    startVec(); clearTimeout(test.fbTimer);
+    test.questions[0]=vecQuestion('ABDC',[2,2],[5,3],[3,6],1);
+    test.idx=0; test.locked=false; renderVec();
+    const qm=test.questions[0];
+    if(el('vecInstr').textContent.indexOf('MNPO est un parallélogramme')<0||el('vecInstr').textContent.indexOf('point P')<0) vus.push('MNOP : l\'énoncé ne dit pas MNPO ni le point P : '+el('vecInstr').textContent.slice(0,80));
+    const txm=Array.from(document.querySelectorAll('#vecGraph text')).map(function(t){ return t.textContent; });
+    ['M','N','O'].forEach(function(n){ if(txm.indexOf(n)<0) vus.push('MNOP : l\'étiquette « '+n+' » manque sur le dessin'); });
+    if(txm.indexOf('A')>=0||txm.indexOf('D')>=0) vus.push('MNOP : le dessin écrit encore A ou D');
+    vecPose(6,7); checkVec();
+    if(classe('vec-pt')!=='ok') vus.push('MNOP : le bon nœud n\'est pas juste');
+    const optm=el('vec-s1')?Array.from(el('vec-s1').options).map(function(o){ return o.value; }).join(''):'';
+    if(optm!=='MNOP') vus.push('MNOP : la liste propose « '+optm+' »');
+    if(el('vec-ph')&&el('vec-ph').textContent.indexOf('de O à P')<0) vus.push('MNOP : la phrase ne dit pas « de O à P »');
+    choisir('vec-s1','M'); choisir('vec-s2','N'); checkVec();
+    if(classe('vec-s1')!=='ok'||classe('vec-s2')!=='ok') vus.push('MNOP : la phrase « de M à N » n\'est pas jugée juste');
+    if(el('vec-eg')&&el('vec-eg').textContent.indexOf('OP')<0) vus.push('MNOP : l\'égalité n\'écrit pas le vecteur OP');
+    choisir('vec-v1','N'); const avant0=test.score; checkVec(); clearTimeout(test.fbTimer);
+    if(test.score-avant0!==3) vus.push('MNOP : la copie (vecteur N?) vaut '+(test.score-avant0)+' au lieu de 3');
+    if(fb().indexOf('vecteur MN')<0||fb().indexOf('vecteur OP')<0) vus.push('MNOP : le pourquoi ne parle pas en M, N, O, P : '+fb().slice(0,160));
+    const am=test.answers[test.answers.length-1];
+    if(!am||String(am.answer).indexOf('vecteur MN = vecteur OP')<0) vus.push('MNOP : la réponse attendue enregistrée est '+(am&&am.answer));
+    const cxm=ctxVec(qm);
+    if(cxm.indexOf('MNPO est un parallélogramme')<0||cxm.indexOf('vecteur MN = vecteur OP')<0) vus.push('MNOP : le contexte du modèle ne parle pas en M, N, O, P');
     if(vus.length) return vus.slice(0,4).join(' | ');
 
     /* montage : trois questions CHOISIES */
