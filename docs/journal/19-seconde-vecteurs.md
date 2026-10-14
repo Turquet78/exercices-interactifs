@@ -1441,6 +1441,55 @@ dernière rouge), −AD−DB=BA (le « − » de tête reste un signe, posé DEV
 flèche et non dessous), la partie 2
 en deux étapes, le retour arrière, et aucune case vide de chaîne ne rougit.
 
+**Puis la chaîne est entrée dans UN SEUL champ** (v500, Turquet, octobre
+2026 : « la réponse des élèves pour une question dans un seul champ de
+saisie, la flèche du vecteur dans ce champ, le curseur qui clignote sous
+cette flèche, qui doit s'agrandir quand on met une lettre dessous ; un plus,
+un moins ou un égal fait apparaître une nouvelle flèche avec le curseur
+dessous »). Une ligne = un `<input>` (`chl-i`), et plus aucune case ajoutée :
+`chlAjoute`, `chlSigne`, `chlOp`, `chlNeg` et la classe `.pose-fac` de la
+chaîne sont partis.
+
+**Le vrai champ garde la saisie, un dessin la montre** (`chlRendu`). Un champ
+« riche » (contenteditable, MathLive) aurait dû refaire ce que le navigateur
+sait déjà : le clavier d'une tablette Android, le collage, le retour arrière,
+la sélection. Le texte du `<input>` est donc transparent (curseur compris), et
+`.chl-rendu`, posé par-dessus sans capter les clics, réécrit la même chaîne
+lettre à lettre : chaque vecteur sous SA flèche (`.chl-vec`, la flèche des
+`.veg-v`, 20 px à vide, puis la largeur de ses lettres), les signes entre
+eux, et un curseur dessiné (`.chl-car`) qui clignote à la place de
+`selectionStart` — sous la flèche ouverte quand on vient de taper un signe.
+Un « − » en tête d'un morceau reste un signe, DEVANT la flèche ; un nombre
+(2AC) aussi ; « 0 » et « impossible » s'écrivent sans flèche. Un clic se
+ramène aux lettres DESSINÉES (`chlClic`) : le curseur se pose entre les deux
+lettres les plus proches du doigt, pas entre celles, invisibles, du vrai
+champ. Le champ s'élargit avec la chaîne. La saisie est remise au propre à
+chaque frappe (`chlNorme` : sans espaces, « − » → « - », « + » ou « = » de
+tête retirés), le curseur suivant.
+
+**Un champ, un verdict, une case peinte par ligne** — la note reste « 8 cases »
+sans `.pose-fac`. Le juge lit la chaîne entière (`chlAnalyse` : découpe aux
+« = », un signe laissé au bout tombe). La couleur du dessin suit celle du
+champ par la CSS (`.chl-in.ok ~ .chl-rendu`), si bien que le garde qui retire
+la couleur de la case où l'élève écrit agit sur le dessin sans le savoir ; la
+couleur de chaque MORCEAU (`dataset.mv`, posée par `chlPeint`) ne se dessine
+que hors du champ — une étape juste reste bleue dans une ligne fausse, le
+résultat n'est bleu que si la ligne est juste. Le badge de la correction
+(`mf-cor`) se glisse entre le champ et son dessin : `corrChoix` le trouve
+toujours en `nextElementSibling`.
+
+**Le banc** (`tests/verifier.js`, « Chasles sans figure ») tape caractère par
+caractère : un seul champ par ligne, AB+CA=CB dessiné en trois flèches avec
+« + » et « = », « AB+ » ouvre une flèche vide avec le curseur dessous (et il
+y reste après une lettre), le champ vide a sa flèche prête, « impossible »
+sans flèche, AB+AC=CB (morceaux « ff »), AB+CA=BC (« jf », l'étape bleue),
+−AD−DB=BA (trois flèches, trois signes, le « − » hors de la flèche), un
+« − » de tablette et des espaces remis au propre, le 2 de 2AC hors de la
+flèche, un champ réduit à « += » qui ne rougit pas. Ce que jsdom ne voit
+pas — la flèche qui s'allonge (20, 25 puis 42 px pour A puis AD), le curseur
+qui clignote, le dessin aligné sur le champ — a été regardé dans Chromium,
+à 1280 et à 390 px de large.
+
 ## {point-somme-vecteurs} — construire un point avec une somme de vecteurs (8.14, v496)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice

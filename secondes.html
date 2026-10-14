@@ -1989,15 +1989,30 @@
      sans flèche (ce n'est pas un vecteur), à la taille des vecteurs. */
   .chl-lignes{max-width:900px}
   .chl-num{font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--ink-soft);min-width:1.6em;padding-top:8px}
-  .veg-in.chl-in{width:96px}
-  .veg-in.chl-in.imp{width:170px;text-transform:none}
-  .chl-imp-on>.veg-fl{visibility:hidden}
+  /* UN champ par ligne (v500) : le vrai champ garde la saisie, son texte est
+     transparent ; .chl-rendu dessine par-dessus chaque vecteur sous sa
+     flèche, les signes, et le curseur qui clignote sous la flèche ouverte.
+     Le champ s'élargit avec la chaîne (chlRendu). */
+  .chl-boite{position:relative;display:inline-flex;align-items:center;gap:8px}
+  .veg-in.chl-in{width:96px;color:transparent;caret-color:transparent;text-transform:none;text-align:left}
+  .veg-in.chl-in::selection{background:transparent;color:transparent}
+  .chl-rendu{position:absolute;left:0;top:0;width:96px;height:46px;display:flex;align-items:center;justify-content:center;pointer-events:none;white-space:nowrap;overflow:hidden;font-family:"Fredoka";font-weight:600;font-size:1.45rem;line-height:1.1;color:var(--blue-dark)}
+  .chl-dessin,.chl-m{display:inline-flex;align-items:flex-end}
+  .chl-rendu .veg-v,.chl-rendu .veg-fl{color:inherit}
+  .chl-vec .veg-fl{min-width:20px}
+  .chl-let{display:inline-flex;align-items:flex-end;justify-content:center;min-height:1.1em}
+  .chl-op{padding:0 .28em}
+  .chl-car{display:inline-block;width:2px;height:1.05em;margin:0 1px;background:currentColor;animation:chlClignote 1.05s steps(1) infinite}
+  @keyframes chlClignote{50%{opacity:0}}
+  .chl-sel{background:rgba(43,80,200,.2);border-radius:3px}
+  .chl-in.ok ~ .chl-rendu{color:var(--blue)}
+  .chl-in.bad ~ .chl-rendu{color:var(--red)}
+  .chl-in.sol ~ .chl-rendu{color:var(--green)}
+  /* dans une ligne fausse, une étape juste reste bleue */
+  .chl-rendu .chl-mj{color:var(--blue)}
+  .chl-rendu .chl-mf{color:var(--red)}
   .btn.chl-imp{padding:8px 14px;font-size:.95rem;margin-top:8px}
-  /* la CHAÎNE de l'élève : une flèche prête pour deux lettres ; un « + », un
-     « − » ou un « = » tapé en ouvre une autre. Le conteneur s'efface (display
-     contents) : chaque signe et sa case restent un .veg-grp de la rangée. */
-  .chl-chaine{display:contents}
-  @media(max-width:520px){ .veg-in.chl-in{width:84px} .veg-in.chl-in.imp{width:150px} }
+  @media(max-width:520px){ .veg-in.chl-in{width:84px} .chl-rendu{height:42px} .chl-op{padding:0 .14em} }
   /* ---- Somme et produit de deux relatifs (7.4, thème Calcul littéral) ----
      Une paire de relatifs par bloc, et deux lignes : leur SOMME, puis leur
      PRODUIT. Les deux calculs sont indépendants — on alterne les règles, pas
@@ -6917,7 +6932,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=499;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=500;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -59738,12 +59753,14 @@ function ctxCha(q){
 
    L'ÉLÈVE ÉCRIT SA CHAÎNE (Turquet, octobre 2026 : « une flèche déjà prête à
    accueillir les deux lettres ; s'il tape un plus, un moins ou un égal, une
-   autre flèche ») : AB − AC = AB + CA = CB, CB + CA = impossible. Chaque
-   case porte UN vecteur ; le signe tapé se pose devant la case suivante. Le
-   juge découpe la chaîne aux « = » : chaque morceau doit valoir la ligne, et
-   le DERNIER est le résultat — un seul vecteur, 0, ou « impossible ». Seule
-   la case du résultat compte dans la note (les autres portent .pose-fac,
-   que ptsEcran saute) : une ligne vaut toujours un point. Le verdict reste
+   autre flèche ») : AB − AC = AB + CA = CB, CB + CA = impossible. Puis
+   (v500) toute la chaîne s'écrit dans UN SEUL champ, les flèches DESSINÉES
+   dedans (chlRendu) : un « + », un « − » ou un « = » fait apparaître une
+   flèche vide, le curseur clignote dessous, elle s'allonge avec ses lettres.
+   Le juge découpe la chaîne aux « = » : chaque morceau doit valoir la ligne,
+   et le DERNIER est le résultat — un seul vecteur, 0, ou « impossible ». Un
+   champ par ligne, donc une case peinte par ligne : une ligne vaut toujours
+   un point. Le verdict reste
    à la page, jamais au modèle (« un verdict arithmétique ne se confie pas à
    un modèle ») : une somme de vecteurs se calcule exactement. */
 const CHL_NB=6;   /* pages par séance (réglage « Questions » d'un devoir) */
@@ -59841,15 +59858,11 @@ function chlBuildQuestions(){
   return distinctes(dmNbQuestions(CHL_NB), chlGenQuestion, function(q){ return q.p+'|'+q.e.join(','); });
 }
 function chlCases(q){ return q.e.map(function(e, i){ return {id:'chl-'+i, e:e, i:i}; }); }
-/* les cases d'une ligne, dans l'ordre ; la première s'appelle chl-i */
-function chlSlots(i){ const l=$('chl-l-'+i); return l ? [].slice.call(l.querySelectorAll('input.chl-in')) : []; }
-/* un « − » tapé EN TÊTE d'une case sort devant sa flèche (− AD), jamais dessous */
-function chlNeg(el){ const g=el&&el.closest('.veg-grp'); return !!(g && g.dataset.neg); }
-function chlSigne(el, neg){ const g=el.closest('.veg-grp'); if(!g) return;
-  const sp=g.querySelector('.chl-signe');
-  if(neg){ g.dataset.neg='1'; if(!sp) el.closest('.veg-v').insertAdjacentHTML('beforebegin','<span class="veg-eq chl-signe">−</span>'); }
-  else { delete g.dataset.neg; if(sp) sp.remove(); } }
-function chlOp(el){ const g=el&&el.closest('.veg-grp'); return g&&g.dataset.op||'='; }
+/* UN SEUL CHAMP par ligne (Turquet, octobre 2026 : « la réponse dans un seul
+   champ de saisie, la flèche du vecteur dans ce champ, le curseur qui clignote
+   sous la flèche ; un plus, un moins ou un égal fait apparaître une nouvelle
+   flèche »). Le champ s'appelle chl-i ; chlSlots le rend seul, dans une liste. */
+function chlSlots(i){ const el=$('chl-'+i); return el ? [el] : []; }
 function chlNet(v){ return String(v==null?'':v).toUpperCase().replace(/[−–]/g,'-').replace(/[\s→⃗()×*·.]/g,''); }
 /* un morceau de chaîne (« AB-AC », « 2AC », « 0 », « IMPOSSIBLE ») :
    {imp} | {c, n (nombre de vecteurs)} | null si illisible */
@@ -59867,24 +59880,18 @@ function chlLitMembre(m){
     if(k) termes.push({s:k, v:x[3]}); }
   return n ? {c:chlComb(termes), n:n} : null;
 }
-/* la chaîne lue sur l'écran : ses cases écrites (les vides du bout tombent),
-   ses morceaux aux « = », le morceau de chaque case */
+/* la chaîne lue dans le champ : ses morceaux aux « = » (un signe laissé au
+   bout, flèche encore vide, tombe), et son texte pour les messages */
 function chlAnalyse(i){
-  let cases=chlSlots(i).map(function(el, k){ const v=chlNet(el.value); return {el:el, op:k?chlOp(el):'', val:v!=='' && chlNeg(el) ? '-'+v : v}; });
-  while(cases.length && cases[cases.length-1].val==='') cases.pop();
-  const a={cases:cases, trou:cases.some(function(c){ return c.val===''; }), membres:[], txt:''};
-  let m=0, cur='';
-  cases.forEach(function(c, k){
-    if(k && c.op==='='){ a.membres.push(cur); cur=''; m++; }
-    else if(k) cur+=(c.op==='-'?'-':'+');
-    c.m=m; cur+=c.val; });
-  if(cases.length) a.membres.push(cur);
-  /* une case qui porte elle-même un « = » (une chaîne collée d'un bloc) */
-  a.membres=[].concat.apply([], a.membres.map(function(x){ return x.split('='); }));
+  const el=$('chl-'+i), net=chlNet(el?el.value:'').replace(/[+\-=]+$/,'');
+  const a={cases:net ? [{el:el, val:net}] : [], membres:net ? net.split('=') : [], txt:chlTexte(el?el.value:'')};
+  a.trou=a.membres.some(function(m){ return m===''; });
   a.lus=a.membres.map(chlLitMembre);
-  a.txt=cases.map(function(c, k){ return (k?' '+(c.op==='-'?'−':c.op)+' ':'')+(chlNeg(c.el)?'− ':'')+String(c.el.value).trim(); }).join('');
   return a;
 }
+/* le champ écrit pour l'élève : « AB − AC = CB » */
+function chlTexte(v){ return String(v==null?'':v).replace(/\s+/g,'').replace(/[−–]/g,'-').replace(/[+\-=]+$/,'')
+  .replace(/[+\-=]/g, function(o, k){ return k ? ' '+(o==='-'?'−':o)+' ' : (o==='-'?'− ':''); }); }
 /* un morceau écrit pour l'élève : « AB + CA », « − AD − DB » */
 function chlMembreTxt(m){ return String(m).replace(/^\+/,'').replace(/([^+-])([+-])/g, function(_, a, o){ return a+(o==='-'?' − ':' + '); }).replace(/^-/,'− '); }
 /* le verdict d'une ligne : el (la case du résultat), brut, vide, ok, bon,
@@ -59892,7 +59899,7 @@ function chlMembreTxt(m){ return String(m).replace(/^\+/,'').replace(/([^+-])([+
 function chlJuge(q, i){
   const e=q.e[i], T=chlTermes(e), c=chlComb(T), bon=chlBon(c);
   const a=chlAnalyse(i), cases=a.cases;
-  const el=cases.length ? cases[cases.length-1].el : $('chl-'+i);
+  const el=$('chl-'+i);
   const s={el:el, brut:a.txt, vide:!cases.length, ok:false, bon:bon, raison:'', e:e, i:i, a:a, res:''};
   s.mJuste=a.lus.map(function(l){ return !!(l && l.c && chlMeme(l.c, c)); });
   if(s.vide) return s;
@@ -59922,7 +59929,7 @@ function chlPourquoi(q, subs){
   if(!f) return '';
   const T=chlTermes(f.e), qui=chlNomLigne(q, f.i), chemin=chlPhrase(f.e);
   switch(f.raison){
-    case 'forme': return '« '+f.brut+' » ne se lit pas : dans chaque case, écris les deux lettres d’un vecteur (AC), un nombre devant s’il le faut (2AC), 0 pour le vecteur nul'+(q.p===1?', ou « impossible »':'')+' ; ne laisse pas de case vide au milieu.';
+    case 'forme': return '« '+f.brut+' » ne se lit pas : écris des vecteurs à deux lettres (AC), un nombre devant s’il le faut (2AC), 0 pour le vecteur nul'+(q.p===1?', ou « impossible »':'')+', séparés par +, − ou = ; ne laisse pas de flèche vide au milieu.';
     case 'etape': return 'L’égalité '+chlEcrit(T)+' = '+chlMembreTxt(f.a.membres[f.etape])+' est fausse. '+chlPhrase(f.e);
     case 'pasfini': return f.res+' est juste, mais tu peux encore l’écrire avec un seul vecteur : '+chlPhrase(f.e);
     case 'ecrisimp': return f.res+' est juste, mais ces vecteurs ne s’enchaînent dans aucun ordre : la somme ne s’écrit pas avec un seul vecteur, écris « impossible ».';
@@ -59937,74 +59944,119 @@ function chlPourquoi(q, subs){
 }
 /* le nom d'un vecteur de la partie 2 ou 3 : une lettre italique sous sa flèche */
 function chlNomHTML(n){ return '<span class="veg-v"><span class="veg-fl" aria-hidden="true"></span><span class="veg-let"><i>'+n+'</i></span></span>'; }
+/* le champ prend la forme de ce qu'il porte : « impossible » le marque, et
+   le dessin se refait */
 function chlForme(el){
   if(!el) return;
-  const imp=/^imp/i.test(String(el.value).trim());
-  el.classList.toggle('imp', imp);
-  const v=el.closest('.veg-v'); if(v) v.classList.toggle('chl-imp-on', imp);
+  el.classList.toggle('imp', /(^|=)\s*imp/i.test(String(el.value).trim()));
+  chlRendu(el);
 }
-/* une case de plus au bout de la chaîne, derrière le signe tapé */
-function chlCaseHTML(id, aria){ return '<span class="veg-v chl-v"><span class="veg-fl" aria-hidden="true"></span>'
-  +'<input class="veg-in chl-in" id="'+id+'" type="text" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="'+esc(aria)+'"></span>'; }
-function chlGrpHTML(op, contenu){ return '<span class="veg-grp" data-op="'+op+'"><span class="veg-eq">'+(op==='-'?'−':op)+'</span>'+contenu+'</span>'; }
-function chlAjoute(el, op, val){
-  const i=+el.dataset.ligne, g=el.closest('.veg-grp');
-  test.chlN=(test.chlN||0)+1;
-  const id='chl-'+i+'-'+test.chlN;
-  g.insertAdjacentHTML('afterend', chlGrpHTML(op, chlCaseHTML(id, 'un vecteur de plus, après « '+(op==='-'?'moins':op==='+'?'plus':'égal')+' »')));
-  const n=$(id); chlBranche(n, i);
-  n.value=val||''; n.focus();
-  if(n.value) chlSaisie(n);
-  return n;
-}
-/* la saisie d'une case : un « + », un « − » ou un « = » tapé après ses
-   lettres ferme la case et en ouvre une autre (un « − » en tête reste un
-   signe, un « + » ou un « = » en tête ne veut rien dire) */
-function chlSaisie(el){
-  let v=String(el.value);
-  if(/^\s*[-−–]/.test(v) && !chlNeg(el)){ chlSigne(el, true); v=v.replace(/^\s*[-−–]\s*/,''); el.value=v; }
-  if(!/^imp/i.test(v.trim())){
-    const m=/[+\-−–=]/.exec(v);
-    const p=m ? m.index : -1;
-    if(/^\s*[+=]/.test(v)) el.value=v.replace(/^\s*[+=]+/,'');
-    else if(p>0 && v.slice(0,p).trim()!==''){
-      const op=v[p]==='='?'=':(v[p]==='+'?'+':'-');
-      el.value=v.slice(0,p).trim();
-      chlForme(el); chlAjoute(el, op, v.slice(p+1).trim()); return;
+/* LE DESSIN DU CHAMP. Le vrai <input> garde la saisie (clavier d'une
+   tablette, collage, retour arrière, sélection : tout ce que le navigateur
+   sait faire), mais son texte est transparent ; par-dessus, .chl-rendu écrit
+   la même chaîne lettre à lettre : chaque vecteur sous SA flèche, qui
+   s'allonge avec ses lettres ; un « + », un « − » ou un « = » ouvre une
+   flèche vide, et le curseur clignote dessous. Un « − » en tête d'un morceau
+   reste un signe, posé DEVANT la flèche ; un nombre (2AC) aussi ; « 0 » et
+   « impossible » s'écrivent sans flèche. Les couleurs des morceaux (dataset.mv,
+   posé par chlPeint) ne se montrent que hors du champ : la case où l'élève
+   écrit ne se colore pas. */
+function chlRendu(el){
+  const r=el && el.parentNode && el.parentNode.querySelector('.chl-rendu'); if(!r) return;
+  const v=String(el.value), foc=document.activeElement===el && !el.disabled;
+  let c0=-1, c1=-1;
+  if(foc){ try{ c0=el.selectionStart; c1=el.selectionEnd; }catch(_){ c0=c1=v.length; } if(c0==null) c0=c1=v.length; }
+  const mv=foc ? '' : (el.dataset.mv||'');
+  const curs=function(k){ return c0===k && c1===k ? '<span class="chl-car"></span>' : ''; };
+  const car=function(k, maj){ return curs(k)+'<span class="chl-c'+(c0!==c1 && k>=c0 && k<c1 ? ' chl-sel' : '')+'" data-k="'+k+'">'+esc(maj ? v[k].toUpperCase() : v[k])+'</span>'; };
+  const fleche=function(a, b, fin){ let x='';
+    for(let k=a;k<b;k++) x+=car(k, true);
+    return '<span class="veg-v chl-vec"><span class="veg-fl" aria-hidden="true"></span><span class="veg-let chl-let">'+x+curs(fin)+'</span></span>'; };
+  const ouvre=function(m){ return '<span class="chl-m'+(mv[m]==='j' ? ' chl-mj' : mv[m]==='f' ? ' chl-mf' : '')+'">'; };
+  let h=ouvre(0), m=0, a=0;
+  for(let j=0;j<=v.length;j++){
+    if(j<v.length && !/[+\-=−–]/.test(v[j])) continue;
+    const t=v.slice(a, j), tete=a===0 || v[a-1]==='=';
+    if(t===''){
+      /* un « − » en tête : un signe, pas une flèche vide devant lui */
+      if(tete && j<v.length && /[-−–]/.test(v[j])) h+=curs(a);
+      else h+=fleche(a, a, a);
+    } else if(/^\s*im/i.test(t) || /^\s*0\s*$/.test(t)){
+      for(let k=a;k<j;k++) h+=car(k, false);
+      h+=curs(j);
+    } else {
+      const n=(/^[\d\s×*·.,]*/.exec(t)||[''])[0].length;
+      for(let k=a;k<a+n;k++) h+=car(k, false);
+      h+=fleche(a+n, j, j);
     }
+    if(j<v.length){
+      const o=/[-−–]/.test(v[j]) ? '−' : v[j];
+      if(o==='='){ h+='</span><span class="chl-op" data-k="'+j+'">=</span>'+ouvre(++m); }
+      else h+='<span class="chl-op" data-k="'+j+'">'+o+'</span>';
+    }
+    a=j+1;
   }
+  r.innerHTML='<span class="chl-dessin">'+h+'</span></span>';
+  /* le champ s'élargit avec sa chaîne ; le dessin le recouvre exactement */
+  el.style.width='';
+  const base=el.offsetWidth, w=Math.ceil(r.firstChild.getBoundingClientRect().width)+28;
+  if(w>base) el.style.width=w+'px';
+  r.style.width=el.offsetWidth ? el.offsetWidth+'px' : '';
+  r.style.height=el.offsetHeight ? el.offsetHeight+'px' : '';
+}
+/* un clic (ou un doigt) pose le curseur entre les lettres DESSINÉES, pas
+   entre celles, invisibles, du vrai champ */
+function chlClic(el, x){
+  const r=el.parentNode && el.parentNode.querySelector('.chl-rendu'); if(!r) return;
+  let best=String(el.value).length, d=Infinity;
+  [].forEach.call(r.querySelectorAll('[data-k]'), function(sp){
+    const b=sp.getBoundingClientRect(), k=+sp.dataset.k;
+    [[k, b.left], [k+1, b.right]].forEach(function(p){ const e=Math.abs(x-p[1]); if(e<d){ d=e; best=p[0]; } });
+  });
+  try{ el.setSelectionRange(best, best); }catch(_){}
+  chlRendu(el);
+}
+/* la saisie : sans espaces, le « − » d'un clavier de tablette ramené à « - »,
+   un « + » ou un « = » en tête retiré (il ne veut rien dire) */
+function chlNorme(x){ return String(x).replace(/\s+/g,'').replace(/[−–]/g,'-').replace(/^[+=]+/,''); }
+function chlSaisie(el){
+  const v=String(el.value), nv=chlNorme(v);
+  if(nv!==v){ let p=v.length; try{ if(el.selectionStart!=null) p=el.selectionStart; }catch(_){}
+    const np=chlNorme(v.slice(0, p)).length;
+    el.value=nv; try{ el.setSelectionRange(np, np); }catch(_){} }
   chlForme(el);
   if(isSoutien()) checkChlAnswer(true);
   clearTimeout(test.chlSave); test.chlSave=setTimeout(autoSave,1000);
 }
 function chlBranche(el, i){
   el.dataset.ligne=i;
+  const redessine=function(){ chlRendu(el); };
   el.addEventListener('input', function(){ chlSaisie(el); });
   el.addEventListener('keydown', function(e){
-    /* Retour arrière dans une case vide : elle disparaît avec son signe */
-    if(e.key==='Backspace' && el.value==='' && chlNeg(el)){ e.preventDefault(); chlSigne(el, false); if(isSoutien()) checkChlAnswer(true); return; }
-    if(e.key==='Backspace' && el.value==='' && el.id!=='chl-'+i){ e.preventDefault();
-      const cs=chlSlots(i), k=cs.indexOf(el), prec=cs[k-1];
-      el.closest('.veg-grp').remove();
-      if(prec){ prec.focus(); try{ prec.setSelectionRange(prec.value.length, prec.value.length); }catch(_){} }
-      if(isSoutien()) checkChlAnswer(true);
-      return; }
     /* Entrée passe à la ligne suivante ; sur la dernière, elle vérifie */
     if(e.key==='Enter'){ e.preventDefault();
-      const suiv=$('chl-'+(i+1)); if(suiv && !suiv.disabled) suiv.focus(); else checkChlAnswer(); }
+      const suiv=$('chl-'+(i+1)); if(suiv && !suiv.disabled) suiv.focus(); else checkChlAnswer(); return; }
+    setTimeout(redessine, 0);   /* les flèches du clavier déplacent le curseur */
   });
+  el.addEventListener('keyup', redessine);
+  el.addEventListener('select', redessine);
+  el.addEventListener('focus', redessine);
+  el.addEventListener('blur', function(){ setTimeout(redessine, 0); });
+  el.addEventListener('click', function(e){ chlClic(el, e.clientX); });
 }
 /* le bouton « impossible » écrit le mot au bout de la chaîne (derrière un
-   « = » si la chaîne est commencée), ou l'en retire */
+   « = » si elle est commencée), ou l'en retire */
 function chlImpossible(i){
   if(test.locked) return;
-  const cs=chlSlots(i); if(!cs.length || cs[0].disabled) return;
-  const der=cs[cs.length-1];
-  if(/^imp/i.test(String(der.value).trim())){
-    if(der.id==='chl-'+i){ der.value=''; chlForme(der); der.focus(); }
-    else { der.closest('.veg-grp').remove(); cs[cs.length-2].focus(); }
-  } else if(String(der.value).trim()===''){ chlSigne(der, false); der.value='impossible'; chlForme(der); der.focus(); }
-  else chlAjoute(der, '=', 'impossible');
+  const el=$('chl-'+i); if(!el || el.disabled) return;
+  let v=chlNorme(el.value);
+  const m=/(^|=)imp[a-z]*$/i.exec(v);
+  if(m) v=v.slice(0, m.index);
+  else if(v==='') v='impossible';
+  else v=v.replace(/[+\-]+$/,'').replace(/=?$/,'=')+'impossible';
+  el.value=v; el.focus();
+  try{ el.setSelectionRange(v.length, v.length); }catch(_){}
+  chlForme(el);
   if(isSoutien()) checkChlAnswer(true);
   clearTimeout(test.chlSave); test.chlSave=setTimeout(autoSave,1000);
 }
@@ -60013,7 +60065,7 @@ function renderChlTest(){
   $('chlIdx').textContent='Page '+(test.idx+1)+' / '+test.questions.length+' — partie '+q.p;
   $('modeTagChl').innerHTML=modeTagHTML();
   $('chlLiveScore').textContent=test.score;
-  $('chlInstr').innerHTML=CHL_INSTR[q.p-1]+' Dans chaque case, écris un vecteur comme <b>AC</b>, <b>2AC</b> pour deux fois AC, ou <b>0</b> pour le vecteur nul. Tape <b>+</b>, <b>−</b> ou <b>=</b> pour ouvrir une autre case et écrire ton calcul en plusieurs étapes : la dernière case est ton résultat.';
+  $('chlInstr').innerHTML=CHL_INSTR[q.p-1]+' Écris ta réponse dans le champ : les deux lettres d’un vecteur se placent sous la flèche (<b>AC</b>, <b>2AC</b> pour deux fois AC, <b>0</b> pour le vecteur nul). Tape <b>+</b>, <b>−</b> ou <b>=</b> pour faire apparaître une nouvelle flèche et écrire ton calcul en plusieurs étapes : ce qui suit le dernier «&nbsp;=&nbsp;» est ton résultat.';
   $('chlFeedback').textContent=''; $('chlFeedback').className='mp-feedback';
   $('chlActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkChlAnswer()">Vérifier</button>';
   let h='<div class="veg-lignes chl-lignes">';
@@ -60027,40 +60079,29 @@ function renderChlTest(){
       else h+=chsGrp(t.s<0?'−':'+', vegVecHTML(t.v));
     });
     const aria='le résultat de '+(q.p===1?'':CHL_NOMS[i]+' = ')+chlEcrit(T);
-    h+='<span class="chl-chaine">'+chlGrpHTML('=', chlCaseHTML('chl-'+i, aria))+'</span>';
+    h+='<span class="veg-grp"><span class="veg-eq">=</span><span class="chl-boite">'
+      +'<input class="veg-in chl-in" id="chl-'+i+'" type="text" maxlength="80" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="'+esc(aria)+'">'
+      +'<span class="chl-rendu" aria-hidden="true"></span></span></span>';
     if(q.p===1) h+='<button class="btn chl-imp" type="button" onclick="chlImpossible('+i+')">impossible</button>';
     h+='</div>';
   });
   h+='</div>';
   $('chlHost').innerHTML=h;
-  chlCases(q).forEach(function(c){ const el=$(c.id); if(el) chlBranche(el, c.i); });
+  chlCases(q).forEach(function(c){ const el=$(c.id); if(el){ chlBranche(el, c.i); chlForme(el); } });
 }
-/* la peinture d'une ligne. live (soutien, au fil de la saisie) : chaque case
-   écrite selon son morceau, rien sur une case vide. Sinon : la case du
-   résultat reçoit le verdict de la ligne (corrChoix : correction en vert si
-   la ligne est vide, la bonne réponse à côté si elle est fausse) ; les cases
-   des étapes, juste ou faux selon leur morceau, et .pose-fac sur leur groupe
-   — elles ne comptent pas, la ligne vaut un point. */
+/* la peinture d'une ligne : UN champ, un verdict. live (soutien, au fil de la
+   saisie) : bleu si la ligne est juste, rouge sinon, rien sur un champ vide.
+   Sinon corrChoix : la correction en vert dans un champ vide, la bonne
+   réponse à côté d'un champ faux. Chaque morceau de la chaîne garde en plus
+   sa couleur (dataset.mv) : une étape juste reste bleue dans une ligne
+   fausse, et le résultat n'est bleu que si la ligne est juste. */
 function chlPeint(s, live){
-  const a=s.a, n=a.cases.length;
-  chlSlots(s.i).forEach(function(el){ el.classList.remove('ok','bad','sol');
-    const g=el.closest('.veg-grp'); if(g) g.classList.remove('pose-fac'); });
-  a.cases.forEach(function(c, k){
-    const mj=s.mJuste[c.m], lu=a.lus[c.m];
-    if(live){ if(c.val!=='') c.el.classList.add(mj || (lu && lu.imp && s.bon==='impossible') ? 'ok' : 'bad'); return; }
-    if(k===n-1) return;
-    c.el.closest('.veg-grp').classList.add('pose-fac');
-    c.el.classList.add(s.ok || mj ? 'ok' : 'bad');
-    c.el.disabled=!isSoutien() || s.ok;
-  });
-  /* les cases vides laissées après le résultat : neutres, et fermées */
-  chlSlots(s.i).forEach(function(el){ if(a.cases.every(function(c){ return c.el!==el; }) && el!==s.el){
-    el.closest('.veg-grp').classList.add('pose-fac'); el.disabled=!isSoutien(); } });
-  if(live) return;
-  /* une ligne vide : la correction s'écrit dans la première case, sans le
-     « − » de tête qui y traînerait */
-  if(s.vide) chlSigne(s.el, false);
-  corrChoix(s.el, s.bon, s.ok); chlForme(s.el);
+  const el=s.el; if(!el) return;
+  const n=s.a.membres.length;
+  el.dataset.mv=s.vide ? '' : s.a.membres.map(function(_, k){ return (k<n-1 ? s.mJuste[k] : s.ok) ? 'j' : 'f'; }).join('');
+  if(live){ el.classList.remove('ok','bad','sol'); if(!s.vide) el.classList.add(s.ok ? 'ok' : 'bad'); chlForme(el); return; }
+  corrChoix(el, s.bon, s.ok);
+  chlForme(el);
 }
 function checkChlAnswer(live){
   if(test.locked) return;
@@ -60078,7 +60119,7 @@ function checkChlAnswer(live){
   if(!allOk && isSoutien()){ soutienAgain('chlFeedback','chlActions','checkChlAnswer','chlHost'); return; }
   test.locked=true;
   document.querySelectorAll('#chlHost .chl-imp').forEach(function(b){ b.disabled=true; });
-  document.querySelectorAll('#chlHost input.chl-in').forEach(function(el){ el.disabled=true; });
+  document.querySelectorAll('#chlHost input.chl-in').forEach(function(el){ el.disabled=true; chlRendu(el); });
   test.score+=nCorrect; $('chlLiveScore').textContent=test.score;
   if(allOk){ $('chlFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('chlFeedback').className='mp-feedback good'; }
   else { $('chlFeedback').textContent=msgAvecVides(subs, pourquoi); $('chlFeedback').className='mp-feedback bad'; }
@@ -60113,7 +60154,7 @@ function ctxChl(q){
      'Partie 2 : écrire plus simplement des sommes de trois ou quatre vecteurs.',
      'Partie 3 : écrire plus simplement, en transformant d’abord les soustractions en addition de l’opposé.'][q.p-1]+' '
    +'Les lignes : '+q.e.map(function(e, i){ return nom(i)+chlEcrit(chlTermes(e)); }).join(' ; ')+'. '
-   +'L’élève écrit son calcul en une chaîne de cases, un vecteur par case (deux lettres AC, un nombre devant 2AC, 0 pour le vecteur nul), séparées par +, − ou = ; la DERNIÈRE case est son résultat, ou « impossible ». Il peut écrire des étapes (AB − AC = AB + CA = CB) ou le résultat directement. '
+   +'L’élève écrit son calcul dans un seul champ, chaque vecteur sous sa flèche (deux lettres AC, un nombre devant 2AC, 0 pour le vecteur nul), séparés par +, − ou = ; ce qui suit le dernier « = » est son résultat, ou « impossible ». Il peut écrire des étapes (AB − AC = AB + CA = CB) ou le résultat directement. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : '+q.e.map(function(e){ return chlPhrase(e); }).join(' ; ')+' '
    +'Méthode enseignée : relation de Chasles, AB + BC = AC (le second vecteur part là où s’arrête le premier) ; on peut changer l’ordre d’une somme ; soustraire un vecteur, c’est ajouter son opposé (− AC = + CA) ; AA = 0, le vecteur nul ; AC + AC = 2AC. Deux vecteurs qui partent du même point (ou arrivent au même point) ne s’enchaînent dans aucun ordre. Ne jamais parler de coordonnées à l’élève.';
   if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
