@@ -12131,7 +12131,8 @@ function pointSommeVecteurs(w, P){
     if(verifierIci()!==1) vus.push('construction hors de B, B′ juste : ne vaut pas 1');
     fb=el('cvpFeedback').textContent;
     if(classe('cvp-ch')!=='bad'||classe('cvp-pt')!=='ok'||fb.indexOf('part du point B')<0) vus.push('la construction qui ne part pas de B n\\'est pas rouge et nommée, ou B′ juste rougit : '+classe('cvp-pt')+' — '+fb.slice(0,120));
-    nextCvp(); clearTimeout(test.fbTimer);
+    /* la séance a six questions : le dernier piège rejoue la sixième, remise à neuf */
+    test.questions[test.idx]=fiche(); test.locked=false; renderCvp();
     cvpRetourner('u'); cvpRetourner('v');
     if(verifierIci()!==0) vus.push('u retourné à tort rapporte des points');
     fb=el('cvpFeedback').textContent;
