@@ -8953,7 +8953,7 @@ async function parcours(page, N){
     }
 
     /* ===== 6 quadragies quinquies. POINT PAR UNE SOMME DE VECTEURS : TRACER, GLISSER, PLACER ===== */
-    /* {point-somme-vecteurs} (8.10, demande de Turquet, octobre 2026,
+    /* {point-somme-vecteurs} (8.11, demande de Turquet, octobre 2026,
        l'exercice 2 de la « Fiche 8 sur somme de vecteur ») : les deux
        vecteurs se TRACENT en deux clics chacun, se font GLISSER bout à bout
        depuis A, puis A′ se pose d'un clic. Le second tracé commence en B,

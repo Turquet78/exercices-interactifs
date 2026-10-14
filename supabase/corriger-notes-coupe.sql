@@ -47,9 +47,12 @@
 --  laissée trop basse se voit et se rattrape : l'élève REFAIT l'exercice, la
 --  meilleure note l'emporte, et le carnet se corrige de lui-même.
 --  Ces copies sont donc LISTÉES à la fin, devoir par devoir, sans être
---  touchées — et la liste distingue celles dont le devoir porte par ailleurs
---  une copie réparée : là, la coupe a bien eu lieu, et elles sont
---  probablement sous-notées elles aussi.
+--  touchées — celles-là seules dont le même exercice, dans le même devoir,
+--  porte une copie réparée : là, la coupe a bien eu lieu, et elles sont
+--  probablement sous-notées elles aussi. Mais la liste part en NOTICE, comme
+--  tout le rapport, et l'éditeur SQL de Supabase n'affiche aucune notice : on
+--  n'y voit que « Success. No rows returned ». Elle se lit par la requête de
+--  supabase/LISEZMOI.md (§ 3 octies), avant ou après ce fichier.
 --
 --  CE QU'IL NE TOUCHE PAS
 --   · les brouillons de pause (details.state = 'paused') ;
@@ -89,7 +92,9 @@ begin
   end if;
 
   /* Les lignes EXPLOITABLES : une note de devoir TERMINÉE, dont on sait lire
-     les fautes. Tout le reste est écarté — le rapport final le dit. */
+     les fautes. Tout le reste est écarté sans être compté : le rapport ne
+     donne que le nombre de lignes exploitables — par notice, que l'éditeur
+     SQL de Supabase n'affiche pas. */
   create temporary table _lignes on commit drop as
   select r.id, r.score, r.total, r.percent,
          r.details->>'test' as ex,
