@@ -756,6 +756,29 @@ vecteur OM jugés justes, 5 sur 5. Éprouvé par sabotage (la permutation
 retirée du tirage) : le contrôle rougit (« le point à construire n'est que 0
 fois une autre lettre que la dernière du jeu »), la page intacte reste verte.
 
+### Puis les côtés ont quitté les lignes du quadrillage (v491)
+
+Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, je veux des
+parallélogrammes qui n'ont pas forcément un côté horizontal ou vertical ».
+Mesuré avant de toucher à rien, sur vingt mille tirages : **53 %** des
+parallélogrammes avaient au moins un côté posé sur une ligne du quadrillage
+— le cas facile, où le chemin ne compte qu'un déplacement, et où l'élève
+finit par croire qu'un parallélogramme se pose toujours ainsi.
+
+**Le tirage refuse désormais tout côté horizontal ou vertical**
+(`vecOblique(q)`) : les quatre côtés, pris sommet après sommet dans l'ordre
+du NOM — A, B, D, C en ABDC ; A, B, C, D en ABCD —, jamais les diagonales.
+Les chemins ont donc toujours deux déplacements, l'un horizontal, l'autre
+vertical. Le taux d'acceptation baisse sans gêner : le repli, qui avait
+déjà ses quatre côtés obliques dans les deux formes, sort environ une fois
+sur sept cents questions. Rien d'autre du moteur n'a bougé, ni le 8.6 qui
+partage le quadrillage mais pas ce tirage.
+
+**Le contrôle** (`parallelogrammePoint`) relit, sur les cent séances du
+tirage, les quatre côtés de chaque question dans l'ordre du nom, et nomme
+celui qui serait horizontal ou vertical. Éprouvé par sabotage (le refus
+retiré du tirage) : le contrôle rougit, la page intacte reste verte.
+
 ## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v481)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
