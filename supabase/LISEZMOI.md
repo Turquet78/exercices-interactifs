@@ -516,6 +516,10 @@ et le brouillon de pause épargnés, l'idempotence et le retour arrière.
 
 ## 3 nonies. La connexion sans la liste des prénoms (1 min)
 
+> **Remplacée le 14 octobre 2026 par la 3 decies** (juste après) ; gardée
+> pour l'histoire, et parce qu'elle a pu être jouée. Ne la collez plus : si
+> elle l'a été, la 3 decies la défait.
+
 Collez **`migrations/009_connexion_sans_liste.sql`** dans l'éditeur SQL et
 exécutez-le. **Collez le fichier ENTIER.**
 
@@ -621,10 +625,14 @@ rend rien, un niveau inconnu est refusé, et la fonction ne rend que des
 fonction de normalisation des trois pages et l'exécute sur les mêmes sondes
 que la base — « Ayşe », « Nguyễn », une tabulation, un insécable — et exige le
 même résultat : la page et la base **doivent** reconnaître les mêmes prénoms.
-Il éprouve enfin les deux retours en arrière les plus tentants : remettre
-`anon` sur la politique de la liste, et retirer `security definer` à la
-fonction — chacun **doit** le faire rougir, et **pour la bonne cause** : la
-ligne d'échec attendue est écrite pour chaque mutation.
+Il éprouvait enfin, jusqu'à la 010, les deux retours en arrière les plus
+tentants : remettre `anon` sur la politique de la liste, et retirer `security
+definer` à la fonction — chacun **devait** le faire rougir, et **pour la bonne
+cause** : la ligne d'échec attendue est écrite pour chaque mutation. **Depuis
+la 010, remettre `anon` est l'état EXIGÉ**, et ces deux mutations ont quitté
+la boucle ; ce que pose ce fichier — la liste vide au visiteur, la fonction et
+ses réponses — reste éprouvé juste après lui (voir « Ce que le banc voit » de
+la 3 decies).
 
 Le fichier lui-même se termine par une mesure, pas une affirmation : il prend
 le rôle `anon`, demande un prénom présent dans chaque table, et **échoue** si
@@ -633,6 +641,154 @@ réel. Une table vide, ou un rôle qu'il ne peut pas prendre, se déclare dans
 sa sortie au lieu de passer au vert ; une erreur de droit levée dans la
 fonction elle-même fait échouer le fichier, elle ne se déguise pas en « rôle
 impossible à prendre ».
+
+---
+
+## 3 decies. Le retour de la liste des prénoms (1 min)
+
+Collez **`migrations/010_retour_de_la_liste.sql`** dans l'éditeur SQL et
+exécutez-le. **Collez le fichier ENTIER.**
+
+Décision de Turquet, le 14 octobre 2026 : *« revenir à la liste des élèves qui
+s'affichent à l'écran avant de rentrer son mot de passe »*. Les **pastilles de
+prénoms** reviennent sur l'écran de connexion des trois pages, et la liste se
+lit de nouveau sans compte — exactement comme après la 001.
+
+**L'ordre est indifférent** : avant ou après la mise en ligne de la page qui
+ramène les pastilles, et que la 3 nonies (009) ait été jouée ou non. C'est la
+seule migration de ce dossier dont on puisse le dire, et c'est voulu — chaque
+combinaison connecte :
+
+- **La page qui ramène les pastilles** lit la liste. Si elle revient vide —
+  la 009 jouée, pas encore la 010 —, elle demande à la base si la fonction de
+  la 009 existe ; si oui, la liste est fermée exprès, et la page affiche le
+  champ **« Ton prénom »** à la place des pastilles : la connexion par prénom
+  tapé, intacte. Dès que la 010 est passée, la liste revient pleine et les
+  pastilles s'affichent d'elles-mêmes. Ce repli s'éteint tout seul : il ne
+  reste rien à retirer, ni dans la page, ni dans la base.
+- **La page d'hier** (le champ « Ton prénom »), si une tablette la garde
+  encore en cache, appelle la fonction ; dès que la 010 l'a supprimée,
+  Supabase répond « fonction inconnue » (code `PGRST202`) et la page relit la
+  liste — rouverte au même instant, par le même fichier.
+- **Si la 009 n'a jamais été jouée**, la 010 ne change rien de visible : la
+  politique est déjà celle-là, et les fonctions n'existent pas.
+
+Et la **création de compte** refuse un prénom déjà pris — sans accent ni
+majuscule — dans les trois cas : par la fonction si elle existe, par la liste
+sinon. Aucun élève ne se crée un second compte pendant la transition. Une
+limite, nommée : tant que la 009 est jouée et pas la 010, la fonction ne voit
+pas une ligne **sans clé** (élève jamais relié) — le doublon d'un tel prénom
+n'y est pas refusé ; dès la 010 jouée, la liste le voit.
+
+### Ce qu'elle pose
+
+- Sur `eleves`, `eleves_1ere`, `eleves_2nde` : la politique **`p_<table>_liste`**
+  est **remplacée** par celle de la 001 — `for select to anon, authenticated
+  using (true)`. Le nom ne change pas, seul `anon` revient. Remplacée, pas
+  doublée : deux politiques permissives se combinent par un OU (la leçon de
+  la 002).
+- Le **droit de lire** `id`, `prenom` et `cle` est rendu à `anon` sur ces
+  trois tables. La 3 nonies proposait un durcissement « possible, non fait » :
+  `revoke select … from anon`. S'il a été appliqué, la politique ne suffit
+  pas — la page recevrait « permission denied » au lieu de la liste. Rendu sur
+  ces trois colonnes et sur elles seules : `created_at` et `user_id` restent
+  fermés à un visiteur si le droit de table avait été retiré. S'il ne l'a pas
+  été, ce `grant` ne change rien.
+- Les deux fonctions de la 009, **`cles_de_connexion`** et
+  **`normaliser_prenom`**, sont **supprimées**. Elles ne servaient qu'à
+  l'écran du prénom tapé — et leur **absence** est un signal que les pages
+  lisent : laissée en place, la fonction ferait afficher « Ton prénom » à une
+  classe vide au lieu de « Aucun compte pour l'instant », et masquerait une
+  liste refermée par erreur un jour.
+- `notify pgrst, 'reload schema'` : PostgREST doit **oublier** la fonction.
+
+Sa sortie commence par **l'état trouvé** — « la 009 avait été jouée », ou
+« pas de cles_de_connexion » — : vous saurez dans quel état était la base.
+Elle se termine par un contrôle qui **échoue bruyamment** si une table d'élèves
+porte plus d'une politique de lecture (une politique « for all » revenue par
+la console, par exemple : jouez alors la 002), si cette politique ne nomme pas
+`anon` et `authenticated` ou ne laisse pas tout lire, ou si l'une des deux
+fonctions existe encore. Puis elle **mesure** : elle prend le rôle `anon`, lit
+ce que la page demande — identifiant, prénom et clé — et exige autant de
+lignes que le rôle qui joue le fichier. Une table vide, ou un rôle qu'elle ne
+peut pas prendre, se **déclare** dans la sortie au lieu de passer au vert.
+Elle est **idempotente**, et un niveau dont la table manque est signalé et
+sauté. **Aucune donnée n'est touchée**, et aucune autre politique.
+
+### Ce qu'elle coûte, nommé
+
+C'est exactement la lecture que la 009 avait fermée, et son prix revient avec
+elle. La clé anonyme de Supabase est dans la page : **n'importe qui, sans
+compte, depuis n'importe où sur Internet, lit de nouveau les prénoms de trois
+classes de mineurs — et la clé de chacun**, dont l'adresse de connexion est
+dérivée. La moitié de l'identifiant est offerte : **le code à six chiffres et
+la limitation de cadence de Supabase** (voir « La limitation de cadence »
+plus bas) **redeviennent le seul rempart**. C'est la décision de Turquet,
+prise en connaissance de ce prix.
+
+### Ce que voient les élèves pendant la transition
+
+- **La 009 jouée, la 010 pas encore** : le champ « Ton prénom » à la place des
+  pastilles, sur la page qui les ramène comme sur celle d'hier. **La connexion
+  marche.**
+- **La 010 jouée** : les pastilles, sur les trois pages.
+- **Dans la minute qui suit la 010**, la page d'hier peut répondre « Connexion
+  impossible — réessaie », et la création de compte « Vérification du prénom
+  impossible » : c'est le cache de schéma de PostgREST, qui tente encore une
+  fonction disparue. Le fichier lui demande de se recharger, Supabase le fait
+  aussi de lui-même, mais pas à la seconde. **Attendez, ne rejouez rien.** Les
+  pastilles, elles, ne passent pas par la fonction.
+- **Si la 009 est rejouée par erreur après la 010**, la liste se referme et le
+  champ « Ton prénom » revient — la connexion marche encore. **Sauf dans la
+  minute qui suit** : tant que PostgREST n'a pas appris la fonction recréée,
+  la page affiche « Aucun compte pour l'instant », et la création de compte ne
+  voit plus les prénoms pris. Recollez la 010 aussitôt, et que personne ne
+  crée de compte pendant ce temps.
+- **Deux élèves du même prénom** ont deux pastilles pareilles : l'un ou l'autre
+  peut cliquer n'importe laquelle, c'est **le code qui départage**.
+- **Une ligne ajoutée à la main dans la table, sans clé**, a sa pastille, mais
+  aucun compte derrière : l'élève lit « Ton compte n'est pas encore relié —
+  préviens ton professeur ». « Nouveau code » depuis l'onglet Élèves lui pose
+  une clé et un compte : l'élève reçoit un code provisoire.
+
+### Pour vérifier
+
+```sql
+select tablename, policyname, roles from pg_policies
+where schemaname='public' and tablename like 'eleves%' and cmd='SELECT';
+```
+
+→ **trois lignes**, toutes `{anon,authenticated}`.
+
+Et sur les trois pages en ligne, **les pastilles reviennent** à l'écran de
+connexion.
+
+### Ce que le banc voit
+
+`npm run test:base` joue la 010 dans les deux états d'où elle peut partir —
+**après la 009**, et sur une base où **la 009 n'a jamais été jouée** — et
+exige les deux fois : aucune erreur, la liste rouverte sur les trois tables et
+mesurée en tant que visiteur, une seule politique de lecture par table, qui
+nomme `anon`, plus aucune des deux fonctions ; rejouée, elle ne change plus
+rien. Elle doit aussi **refuser** de se déclarer faite tant que les politiques
+grandes ouvertes que retire la 002 sont là. Le banc des rôles, joué sur
+l'état final (001 à 004, 008, 009 **puis** 010), met le banc dans la peau
+d'un visiteur : il voit la liste des prénoms (Alice, Bob, Chloé) **et la clé
+de chacun**, et toujours aucune note. Deux retours en arrière doivent le faire
+rougir, pour la bonne cause : **la liste qui se referme aux visiteurs**, et
+**la clé cachée par un droit de colonne** — « garder la liste, cacher les
+clés » est le durcissement le plus tentant, et il couperait la connexion de
+tout le monde.
+
+L'état intermédiaire — la 009 jouée, pas la 010 — **reste éprouvé**, parce
+qu'il peut exister sur le projet : la liste revient vide au visiteur, sans
+erreur ; la fonction rend la clé d'un prénom et elle seule, sans accent ni
+majuscule ; et la question que posent les pages — « la fonction existe-t-elle ? », un
+prénom vide sur le niveau de chaque page — répond sans erreur et ne rend
+rien.
+
+Ce qu'il ne voit pas : **dans quel état est votre projet**. C'est la sortie
+de la 010, « état trouvé », qui le dit.
 
 ## 4. Vous déclarer professeur (1 min)
 

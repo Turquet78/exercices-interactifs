@@ -893,10 +893,11 @@ module.exports = {
        page a dmNbQuestions(6)) ; le barème vaut deux cases par question. */
     egaliteVectoriellePoint: { exercice: 'egalite-vectorielle-point', numero: '8.6', nb: 6 },
     /* {somme-vecteurs} (8.7, demande de Turquet, octobre 2026, la fiche
-       « somme de vecteurs — un début va sur une fin ») : un nœud à poser par
-       question, la fin de v⃗ recopié depuis la fin de u⃗. « nb » est la seconde
-       source du compte (la page a SVC_NB). */
-    sommeVecteurs: { exercice: 'somme-vecteurs', numero: '8.7', nb: 8 },
+       « somme de vecteurs — un début va sur une fin ») : u⃗ et v⃗ glissent sur
+       le quadrillage jusqu'à être bout à bout, puis l'élève trace u⃗ + v⃗ —
+       deux réponses par question (v489). « nb » est la seconde source du
+       compte (la page a SVC_NB) ; « bareme » celle du barème. */
+    sommeVecteurs: { exercice: 'somme-vecteurs', numero: '8.7', nb: 8, bareme: 16 },
     /* {antecedents-droite} : la droite se fait GLISSER à la hauteur demandée,
        puis les points se posent au clic sur elle. Le glisser et le calcul
        geste → nœud (grille doublée, 13 graduations) ne se voient que dans un
@@ -999,8 +1000,8 @@ module.exports = {
        où on le pose dirait s'il est juste avant même de vérifier. Le soutien
        y colore à la vérification, sans jamais montrer où est D. « vep » —
        {egalite-vectorielle-point}, 8.6 — pose son point de la même façon, et
-       « svc » — {somme-vecteurs}, 8.7 — aussi : la construction tracée au clic
-       est le dessin de ce que l'élève a posé, jamais un verdict. */
+       « svc » — {somme-vecteurs}, 8.7 — aussi : les flèches glissées et u⃗ + v⃗
+       tracé sont le dessin de ce que l'élève a posé, jamais un verdict. */
     soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'vec', 'vep', 'svc', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pof', 'pfn', 'pfk', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur

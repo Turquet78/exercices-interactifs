@@ -36,10 +36,11 @@ const RACINE = path.resolve(__dirname, '..');
    sans jamais éprouver la nouvelle. */
 let CODE_CONTROLE = '', CODE_FAUX = '';
 /* Le prénom de l'élève d'essai. Il porte un ACCENT et une MAJUSCULE, exprès :
-   depuis que l'élève TAPE son prénom (octobre 2026), un contrôle entre avec
-   « CONTROLE » et doit être reconnu — un prénom de contrôle sans accent ne
-   mesurerait rien. Il est écrit ici, une fois, et lu par ouvrir() qui le sème
-   et par connecter() qui le tape. */
+   dans le repli de transition (la liste fermée par la 009), un contrôle entre
+   en tapant « CONTROLE » et doit être reconnu, et la création de compte doit
+   refuser « controle » — un prénom de contrôle sans accent ne mesurerait
+   rien. Il est écrit ici, une fois, et lu par ouvrir() qui le sème et par
+   connecter() qui clique SA pastille. */
 const PRENOM_CONTROLE = 'Contrôle';
 /* Le mot de passe du professeur d'essai : il ne vit que dans ce banc, et le
    double le compare lui-même — comme le ferait Supabase. */
@@ -265,14 +266,31 @@ const ecranVisible = page => page.evaluate(() =>
   ([...document.querySelectorAll('section.screen')].find(s => s.classList.contains('on')) || {}).id || '(aucun)');
 
 /* ---------- le parcours d'un élève ---------- */
+/* La pastille d'un élève : celle dont le texte est CE prénom — pas « la
+   première » : un contrôle qui sème d'autres élèves (une « Anaïs » passe
+   devant « Contrôle ») cliquerait sinon le premier venu. S'il n'y a qu'une
+   pastille, c'est elle. Rend false, sans lever, si la liste ne vient pas ou
+   si aucune pastille ne convient : l'appelant le dit. */
+async function cliquerPastille(page, prenom, delai){
+  try { await page.waitForSelector('#nameChips .chip', { timeout: delai || 15000 }); }
+  catch(e){ return false; }
+  const i = await page.evaluate(p => {
+    const b = [...document.querySelectorAll('#nameChips .chip')];
+    const k = b.findIndex(x => x.textContent.trim() === p);
+    return k >= 0 ? k : (b.length === 1 ? 0 : -1);
+  }, prenom);
+  if(i < 0) return false;
+  await page.locator('#nameChips .chip').nth(i).click();
+  await page.waitForTimeout(150);                              /* la page met le focus au code après 60 ms */
+  return true;
+}
 async function connecter(page){
   /* La page s'ouvre DIRECTEMENT sur la connexion : l'écran « Choisis ton rôle »
      a disparu avec le bouton du professeur. Le banc n'a donc plus de premier
      clic à donner — et s'il en donnait un, il chercherait un écran absent.
-     Et l'élève TAPE son prénom (octobre 2026) : la liste des pastilles n'existe
-     plus, elle se lisait sans compte. */
-  await page.waitForSelector('#loginPrenom', { timeout: 15000 });
-  await page.fill('#loginPrenom', PRENOM_CONTROLE);            /* son prénom */
+     L'élève CLIQUE son prénom (les pastilles sont revenues, décision de
+     Turquet du 14 octobre 2026) : la case du code n'apparaît qu'après. */
+  if(!await cliquerPastille(page, PRENOM_CONTROLE)) return ecranVisible(page);
   await page.fill('#loginPin', CODE_CONTROLE);
   await page.click('#modeCo button.btn-primary');              /* « Entrer » */
   await page.waitForTimeout(500);
@@ -582,35 +600,22 @@ async function parcours(page, N){
     /* ===== 3. un élève fait l'exercice ===== */
     titre('3. UN ÉLÈVE FAIT UN EXERCICE');
 
-    /* D'abord avec un mauvais code. L'ancienne version refusait aussi les
-       mauvais codes — elle les comparait dans la page. Ce qui change, et que ce
-       contrôle regarde, c'est QUI refuse : le serveur, ou une ligne de
-       JavaScript que n'importe quel élève peut réécrire dans sa console. */
-    await s.page.waitForSelector('#loginPrenom', { timeout: 15000 });
-    await s.page.fill('#loginPrenom', PRENOM_CONTROLE);
-    await s.page.fill('#loginPin', CODE_FAUX);
-    await s.page.click('#modeCo button.btn-primary');
-    await s.page.waitForTimeout(500);
-    const apresFaux = await ecranVisible(s.page);
-    const tentatives = await s.page.evaluate(() =>
-      window.__faux.operations(null, 'auth').filter(e => e.op === 'signIn'));
-    verifier('un code faux n’ouvre pas l’espace de l’élève', apresFaux !== 'scr-space',
-      'écran atteint : ' + apresFaux);
-    verifier('c’est le serveur qui refuse le code, pas la page',
-      tentatives.length > 0 && tentatives.every(e => e.ok === false),
-      tentatives.length ? JSON.stringify(tentatives)
-                        : 'aucune authentification tentée — le code a été jugé dans la page');
-
-    /* ===== l'élève TAPE son prénom : ce que l'écran de connexion doit tenir =====
-       La liste des pastilles a disparu (décision de Turquet, octobre 2026) :
-       elle se lisait sans compte — des prénoms de mineurs, et les clés dont
-       l'adresse de connexion est dérivée. L'élève tape son prénom, la page
-       obtient ses clés par la fonction SQL cles_de_connexion, et rien d'autre
-       ne se lit avant la connexion. Quatre bords ici, chacun depuis un état
-       connu — la page vient d'être ouverte, une seule connexion refusée au
-       journal, et chaque entrée réussie est refermée par logout(), comme le
-       fait la page. Le cinquième bord — aucune lecture de la table avant la
-       connexion — se mesure sur le parcours complet, plus bas. */
+    /* ===== l'écran de connexion, dans les TROIS états de la base =====
+       Les pastilles sont revenues (décision de Turquet, 14 octobre 2026) : la
+       liste des prénoms se lit de nouveau sans compte, et l'élève CLIQUE son
+       prénom avant de taper son code. Mais rien ne dit si la migration 009 a
+       été jouée sur le projet, et la 010 qui rouvre la liste se colle à la
+       main : la page doit connecter dans les trois états de la base, et le
+       banc les joue tous avec les interrupteurs du double —
+         la liste ouverte (états A et C) : le chemin principal ;
+         listeFermee, la fonction présente (état B : la 009 jouée, pas la 010) ;
+         sansRpc, la fonction absente (avant la 009, ou après la 010).
+       Chaque contrôle part d'un état CONNU : personne de connecté, l'écran
+       redessiné par logout() → accueil() → renderLoginNames(), comme le fait
+       la page, et chaque interrupteur remis dans un finally — un contrôle qui
+       lève ne fausse pas le suivant. Les entrées refusent d'attendre un champ
+       caché : elles le DISENT, au lieu de laisser Playwright patienter trente
+       secondes puis faire avorter tout le banc. */
     const lireToast = () => s.page.evaluate(() => {
       const t = document.getElementById('toast');
       return t ? { texte: t.textContent, classe: t.className } : null;
@@ -619,183 +624,694 @@ async function parcours(page, N){
        chaque message attendu, sans quoi « Code incorrect » d'au-dessus
        pourrait passer pour la réponse. */
     const viderToast = () => s.page.evaluate(() => { const t = document.getElementById('toast'); if(t){ t.textContent = ''; t.className = ''; } });
-    const nbSignIn = () => s.page.evaluate(() => window.__faux.operations('signIn').length);
-    const entrer = async (prenom, code) => {
+    /* le journal du double, à partir d'un repère : ce que CE contrôle a fait */
+    const repere = () => s.page.evaluate(() => window.__faux.journal.length);
+    const depuis = n => s.page.evaluate(k => window.__faux.journal.slice(k), n);
+    const sortir = async () => { await s.page.evaluate(() => logout()); await s.page.waitForTimeout(400); };
+    const sansAccents = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const enMajuscules = sansAccents(PRENOM_CONTROLE).toUpperCase();
+    const valeurCode = () => s.page.evaluate(() => document.getElementById('loginPin').value);
+    /* ce que l'écran de connexion MONTRE, jugé au RENDU et non à l'attribut :
+       un bloc caché par hidden, par display:none ou sous un parent caché n'a
+       aucun rectangle ; visibility:hidden en garde un, d'où le second test.
+       Lire seulement e.hidden passerait un bloc que la feuille de styles
+       cache — ou montre malgré l'attribut (un « display:flex » plus fort). */
+    const ecranConnexion = () => s.page.evaluate(() => {
+      const vu = id => { const e = document.getElementById(id); return !!e && e.getClientRects().length > 0 && getComputedStyle(e).visibility !== 'hidden'; };
+      return { pastilles: [...document.querySelectorAll('#nameChips .chip')].map(b => b.textContent.trim()),
+               choisie: ((document.querySelector('#nameChips .chip.sel') || {}).textContent || '').trim(),
+               liste: vu('chipsRow'), prenom: vu('prenomRow'), code: vu('pinRow'),
+               message: ((document.getElementById('nameChips') || {}).textContent || '').trim(),
+               focus: document.activeElement ? document.activeElement.id : '' };
+    });
+    const entrerPastille = async code => {
+      if(!await cliquerPastille(s.page, PRENOM_CONTROLE, 3000)) return '(aucune pastille « ' + PRENOM_CONTROLE + ' » à cliquer)';
+      if(!(await ecranConnexion()).code) return '(la case du code reste cachée après le clic)';
+      await s.page.fill('#loginPin', code);
+      await s.page.click('#modeCo button.btn-primary');
+      await s.page.waitForTimeout(500);
+      return ecranVisible(s.page);
+    };
+    const entrerPrenom = async (prenom, code) => {
+      const e = await ecranConnexion();
+      if(!e.prenom) return '(aucun champ « Ton prénom » à l\'écran : ' + (e.message || 'rien') + ')';
+      if(!e.code) return '(la case du code reste cachée à côté du champ « Ton prénom »)';
       await s.page.fill('#loginPrenom', prenom);
       await s.page.fill('#loginPin', code);
       await s.page.click('#modeCo button.btn-primary');
       await s.page.waitForTimeout(500);
       return ecranVisible(s.page);
     };
-    const sortir = async () => { await s.page.evaluate(() => logout()); await s.page.waitForTimeout(400); };
-    const sansAccents = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const essais = j => j.filter(e => e.op === 'signIn');
+    const appels = j => j.filter(e => e.op === 'rpc' && e.table === 'cles_de_connexion');
+    const listesLues = j => j.filter(e => e.op === 'select' && e.table === P.tableEleves && e.colonnes === 'cle,prenom');
 
-    /* un prénom que personne ne porte : aucune tentative, et un message qui le dit */
-    await viderToast();
-    const signInAvantInconnu = await nbSignIn();
-    const apresInconnu = await entrer('Personne', CODE_CONTROLE);
-    const signInApresInconnu = await nbSignIn();
-    const toastInconnu = await lireToast();
-    verifier('un prénom inconnu ne tente aucune connexion, et le dit',
-      apresInconnu === 'scr-login' && signInApresInconnu === signInAvantInconnu
-        && !!toastInconnu && /Prénom inconnu/.test(toastInconnu.texte) && /show/.test(toastInconnu.classe),
-      apresInconnu !== 'scr-login' ? 'écran atteint : ' + apresInconnu
-        : signInApresInconnu !== signInAvantInconnu ? (signInApresInconnu - signInAvantInconnu) + ' connexion(s) tentée(s) pour un prénom inconnu'
-        : 'message : ' + JSON.stringify(toastInconnu));
-
-    /* le prénom tapé sans accent, en majuscules, est bien le sien */
-    const enMajuscules = sansAccents(PRENOM_CONTROLE).toUpperCase();
-    const apresMajuscules = await entrer(enMajuscules, CODE_CONTROLE);
-    verifier('le prénom se reconnaît sans accent ni majuscule',
-      enMajuscules !== PRENOM_CONTROLE && apresMajuscules === 'scr-space',
-      enMajuscules === PRENOM_CONTROLE ? 'le prénom de contrôle n\'a ni accent ni minuscule : le contrôle ne mesure rien'
-        : 'écran atteint avec « ' + enMajuscules + ' » : ' + apresMajuscules);
-    await sortir();
-
-    /* la base d'AVANT la migration 009 : la fonction n'existe pas (PGRST202),
-       et la page se replie sur l'ancienne liste — select('cle,prenom') sur la
-       table, filtré dans la page. On exige les trois pas : la fonction a été
-       demandée, la liste a été lue, l'élève est entré. */
-    await s.page.evaluate(() => { window.__faux.sansRpc = true; });
-    const compterRepli = () => s.page.evaluate(t => ({
-      rpc: window.__faux.operations('rpc', 'cles_de_connexion').length,
-      listes: window.__faux.operations('select', t).filter(e => e.colonnes === 'cle,prenom').length,
-    }), P.tableEleves);
-    const repliAvant = await compterRepli();
-    /* tapé SANS accent ni minuscule : dans le repli, c'est la normalisation de
-       la PAGE qui filtre la liste — tapé exact, une page qui ne normaliserait
-       plus passerait ce contrôle sans peine (relecture d'octobre 2026) */
-    let apresRepli, repliApres;
-    try{
-      apresRepli = await entrer(enMajuscules, CODE_CONTROLE);
-      repliApres = await compterRepli();
-    } finally { await s.page.evaluate(() => { window.__faux.sansRpc = false; }); }
-    verifier('sans la fonction SQL, la page se replie sur l\'ancienne liste et y reconnaît le prénom sans accent — tant que la 009 n\'est pas jouée',
-      repliApres.rpc > repliAvant.rpc && repliApres.listes > repliAvant.listes && apresRepli === 'scr-space',
-      repliApres.rpc === repliAvant.rpc ? 'la fonction SQL n\'a même pas été demandée : le contrôle ne mesure pas le repli'
-        : repliApres.listes === repliAvant.listes ? 'aucune lecture select(\'cle,prenom\') de ' + P.tableEleves + ' : la page ne se replie pas (écran atteint : ' + apresRepli + ')'
-        : 'écran atteint : ' + apresRepli);
-    await sortir();
-
-    /* une PANNE de la fonction SQL — toute erreur autre que PGRST202 — ne se
-       replie pas sur la liste, ne tente aucune connexion, et le dit. C'est le
-       second bord du repli, EXÉCUTÉ : le contrôle de source du banc principal
-       lit que la garde précède le repli, celui-ci regarde ce que fait la page. */
-    await s.page.evaluate(() => { window.__faux.panne = true; });
-    await viderToast();
-    const panneAvant = await compterRepli();
-    const signInAvantPanne = await nbSignIn();
-    let apresPanne, toastPanne, panneApres, signInApresPanne;
-    try{
-      apresPanne = await entrer(PRENOM_CONTROLE, CODE_CONTROLE);
-      toastPanne = await lireToast(); panneApres = await compterRepli(); signInApresPanne = await nbSignIn();
-    } finally { await s.page.evaluate(() => { window.__faux.panne = false; }); }
-    const avertiPanne = s.avertissements.some(a => /cles_de_connexion :/.test(a));
-    verifier('une panne de la fonction SQL n\'ouvre ni le repli ni une connexion, et le dit',
-      apresPanne === 'scr-login' && panneApres.listes === panneAvant.listes && signInApresPanne === signInAvantPanne
-        && !!toastPanne && /Connexion impossible/.test(toastPanne.texte) && avertiPanne,
-      apresPanne !== 'scr-login' ? 'écran atteint : ' + apresPanne
-        : panneApres.listes !== panneAvant.listes ? 'la page s\'est repliée sur la liste pour une erreur qui n\'est pas PGRST202'
-        : signInApresPanne !== signInAvantPanne ? 'une connexion a été tentée malgré la panne'
-        : !avertiPanne ? 'rien en console : la panne ne se lit qu\'en ouvrant l\'onglet Réseau'
-        : 'message : ' + JSON.stringify(toastPanne));
-    await sortir();
-
-    /* DEUX HOMONYMES : la boucle sur les clés est la raison d'être du
-       « for(const cle of cles) », et un seul élève semé ne l'exerce pas — un
-       « break » après le premier refus passerait tout le banc (seconde
-       relecture). On sème un second « Contrôle » à un autre code : c'est le
-       code qui départage, et la page entre sur la SECONDE clé après un refus
-       sur la première. L'homonyme reste pour le contrôle de cadence, qui
-       exige alors vraiment l'arrêt à la première clé ; il est retiré avant
-       le rechargement, qui resème de toute façon. */
+    /* le code du second « Contrôle » des contrôles d'homonymes (pastilles,
+       puis prénom tapé en état B) */
     const CODE_BIS = '456789123'.slice(0, CODE_CONTROLE.length);
-    await s.page.evaluate(a => {
-      window.__faux.lignes(a.t).push({ id: 'eleve-bis', prenom: a.p, cle: 'cle-controle-bis', user_id: 'compte-bis' });
-      window.__faux.semerCompte(courrielDe('cle-controle-bis'), motDePasseDe(a.c), 'compte-bis');
-    }, { t: P.tableEleves, p: PRENOM_CONTROLE, c: CODE_BIS });
-    const signInAvantBis = await nbSignIn();
-    const apresBis = await entrer(PRENOM_CONTROLE, CODE_BIS);
-    const bis = await s.page.evaluate(n => ({
-      cle: currentEleve && currentEleve.cle,
-      tentatives: window.__faux.operations('signIn').slice(n).map(e => (e.ok ? 'ok:' : 'refus:') + e.courriel),
-    }), signInAvantBis);
-    verifier('deux homonymes : c\'est le code qui départage, et la seconde clé entre après le refus de la première',
-      apresBis === 'scr-space' && bis.cle === 'cle-controle-bis' && bis.tentatives.length === 2
-        && /^refus:/.test(bis.tentatives[0]) && /^ok:/.test(bis.tentatives[1]),
-      apresBis !== 'scr-space' ? 'écran atteint : ' + apresBis
-        : bis.cle !== 'cle-controle-bis' ? 'entré sous la clé « ' + bis.cle + ' »'
-        : 'tentatives : ' + bis.tentatives.join(', '));
+
+    /* ===== LE CHEMIN DES PASTILLES SE JOUE SANS LA FONCTION (sansRpc) =====
+       La liste se lit ET cles_de_connexion répond : c'est l'état par défaut
+       du double, et AUCUN état réel ne le connaît — en A et en C la fonction
+       n'existe pas, en B la liste est fermée. Une page qui irait chercher les
+       homonymes par la fonction passerait au banc et tomberait sur PGRST202
+       en classe. Tout ce bloc joue donc le vrai état A/C : chaque rpc y rend
+       PGRST202, et les contrôles qui le peuvent exigent qu'aucun n'ait été
+       fait. Remis dans un finally, avant l'état B. */
+    await s.page.evaluate(() => { window.__faux.sansRpc = true; });
+    try{
+    /* D'abord avec un mauvais code. L'ancienne version refusait aussi les
+       mauvais codes — elle les comparait dans la page. Ce qui change, et que ce
+       contrôle regarde, c'est QUI refuse : le serveur, ou une ligne de
+       JavaScript que n'importe quel élève peut réécrire dans sa console. */
+    const apresFaux = await entrerPastille(CODE_FAUX);
+    const tentatives = await s.page.evaluate(() =>
+      window.__faux.operations(null, 'auth').filter(e => e.op === 'signIn'));
+    /* les deux bords : l'élève RESTE sur la connexion — et quelque chose a
+       été tenté. Une pastille absente ou une case du code cachée rendent
+       « (…) » : « pas d'espace atteint » n'y mesurerait rien. */
+    verifier('un code faux n’ouvre pas l’espace de l’élève', apresFaux === 'scr-login',
+      /^\(/.test(apresFaux) ? 'rien n’a été tenté : ' + apresFaux : 'écran atteint : ' + apresFaux);
+    verifier('c’est le serveur qui refuse le code, pas la page',
+      tentatives.length > 0 && tentatives.every(e => e.ok === false),
+      tentatives.length ? JSON.stringify(tentatives)
+                        : 'aucune authentification tentée — le code a été jugé dans la page (' + apresFaux + ')');
     await sortir();
+
+    /* ===== LE CHEMIN PRINCIPAL : la liste ouverte (états A et C) =====
+       Une pastille par élève, dans l'ordre des prénoms, et c'est celle qu'on
+       CLIQUE qui connecte : une « Anaïs » semée passe devant « Contrôle » —
+       un écran qui connecterait toujours la première pastille ne passerait
+       plus. Le code reste caché jusqu'au clic, puis reçoit le focus ; le
+       champ « Ton prénom » du repli reste caché. */
+    await s.page.evaluate(t => {
+      window.__faux.lignes(t).push({ id: 'eleve-anais', prenom: 'Anaïs', cle: 'cle-anais', user_id: 'compte-anais' });
+    }, P.tableEleves);
+    {
+      let avant, attendues, choix, apres, cle;
+      try{
+        await sortir();
+        avant = await ecranConnexion();
+        attendues = await s.page.evaluate(t => window.__faux.lignes(t).map(l => l.prenom).sort(), P.tableEleves);
+        const clic = await cliquerPastille(s.page, PRENOM_CONTROLE, 3000);
+        choix = clic ? await ecranConnexion() : null;
+        if(choix && choix.code){
+          await s.page.fill('#loginPin', CODE_CONTROLE);
+          await s.page.click('#modeCo button.btn-primary');
+          await s.page.waitForTimeout(500);
+          apres = await ecranVisible(s.page);
+          cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
+        }
+      } finally {
+        await sortir();
+        await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.cle === 'cle-anais'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
+        await sortir();
+      }
+      const memes = JSON.stringify(avant.pastilles) === JSON.stringify(attendues);
+      verifier('la liste des prénoms s\'affiche, une pastille par élève, et une pastille connecte',
+        memes && avant.liste && !avant.code && !avant.prenom && !!choix && choix.code && choix.choisie === PRENOM_CONTROLE
+          && choix.focus === 'loginPin' && apres === 'scr-space' && cle === 'cle-controle',
+        !memes ? 'pastilles ' + JSON.stringify(avant.pastilles) + ' pour les élèves ' + JSON.stringify(attendues)
+                 + (avant.message ? ' — « ' + avant.message + ' »' : '')
+          : !avant.liste ? 'la liste des pastilles est cachée'
+          : avant.code ? 'la case du code est visible avant tout clic'
+          : avant.prenom ? 'le champ « Ton prénom » du repli s\'affiche alors que la liste est ouverte'
+          : !choix ? 'aucune pastille « ' + PRENOM_CONTROLE + ' » à cliquer'
+          : !choix.code ? 'la case du code reste cachée après le clic'
+          : choix.choisie !== PRENOM_CONTROLE ? 'pastille marquée après le clic : « ' + choix.choisie + ' »'
+          : choix.focus !== 'loginPin' ? 'le focus est sur « ' + choix.focus + ' », pas sur le code'
+          : apres !== 'scr-space' ? 'écran atteint : ' + apres
+          : 'entré sous la clé « ' + cle + ' » au lieu de « cle-controle »');
+    }
+
+    /* DEUX HOMONYMES SUR LES PASTILLES : deux « Contrôle », deux pastilles
+       pareilles, et l'élève clique celle de son voisin. C'est le code qui
+       départage, comme dans le repli : la page essaie la clé de la pastille
+       CLIQUÉE, puis celles du même prénom, déjà lues avec la liste. Le banc
+       clique la SECONDE pastille et tape le code de l'AUTRE homonyme : une
+       page qui n'essaierait que la pastille cliquée dirait « Code incorrect »
+       à un code juste ; une page qui suivrait l'ordre de la liste au lieu du
+       clic entrerait du premier coup — la pastille cliquée doit donc ne PAS
+       être la tête de liste, sans quoi les deux ne se distinguent pas, et le
+       contrôle le dit. Aucun appel à la fonction : elle n'existe pas ici. */
+    {
+      const r0 = await repere();
+      let nPareilles = 0, premiere, tete, attendue, apres, cle, t, j;
+      await s.page.evaluate(a => {
+        window.__faux.lignes(a.t).push({ id: 'eleve-bis', prenom: a.p, cle: 'cle-controle-bis', user_id: 'compte-bis' });
+        window.__faux.semerCompte(courrielDe('cle-controle-bis'), motDePasseDe(a.c), 'compte-bis');
+      }, { t: P.tableEleves, p: PRENOM_CONTROLE, c: CODE_BIS });
+      try{
+        await sortir();
+        const pareilles = s.page.locator('#nameChips .chip', { hasText: new RegExp('^\\s*' + PRENOM_CONTROLE + '\\s*$') });
+        await pareilles.nth(1).waitFor({ timeout: 3000 }).catch(() => {});
+        nPareilles = await pareilles.count();
+        if(nPareilles === 2){
+          await pareilles.nth(1).click();
+          await s.page.waitForTimeout(150);
+          const lu = await s.page.evaluate(p => ({ choisie: selectedEleve && selectedEleve.cle,
+            tete: (listeEleves.find(e => e.prenom === p) || {}).cle }), PRENOM_CONTROLE);
+          premiere = lu.choisie; tete = lu.tete;
+          attendue = premiere === 'cle-controle' ? 'cle-controle-bis' : 'cle-controle';
+          if((await ecranConnexion()).code){
+            await s.page.fill('#loginPin', attendue === 'cle-controle-bis' ? CODE_BIS : CODE_CONTROLE);
+            await s.page.click('#modeCo button.btn-primary');
+            await s.page.waitForTimeout(500);
+            apres = await ecranVisible(s.page);
+            cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
+          }
+        }
+        j = await depuis(r0);
+        t = essais(j).map(e => (e.ok ? 'ok:' : 'refus:') + e.courriel);
+      } finally {
+        await sortir();
+        await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.cle === 'cle-controle-bis'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
+        await sortir();
+      }
+      verifier('deux homonymes sur les pastilles : la pastille cliquée d\'abord, puis son homonyme, et c\'est le code qui départage',
+        nPareilles === 2 && !!premiere && premiere !== tete && apres === 'scr-space' && cle === attendue && t.length === 2
+          && t[0].indexOf('refus:' + premiere + '@') === 0 && t[1].indexOf('ok:' + attendue + '@') === 0 && appels(j).length === 0,
+        nPareilles !== 2 ? nPareilles + ' pastille(s) « ' + PRENOM_CONTROLE + ' » au lieu de deux'
+          : !premiere ? 'aucune ligne choisie au clic'
+          : premiere === tete ? 'la pastille cliquée est la tête de liste : l\'ordre de la liste et la pastille cliquée ne se distinguent pas, le contrôle ne mesure rien'
+          : appels(j).length ? appels(j).length + ' appel(s) à cles_de_connexion sur le chemin des pastilles : la fonction n\'existe pas dans les états A et C'
+          : apres === undefined ? 'la case du code reste cachée après le clic'
+          : apres !== 'scr-space' ? 'écran atteint : ' + apres + ' — tentatives : ' + (t.join(', ') || 'aucune')
+          : cle !== attendue ? 'entré sous la clé « ' + cle + ' » au lieu de « ' + attendue + ' »'
+          : 'tentatives : ' + t.join(', '));
+    }
+
+    /* UNE LIGNE SANS CLÉ (un élève ajouté à la main dans la table, jamais
+       relié à un compte) a sa pastille, mais aucune adresse de connexion :
+       tenter « null@… » répondrait « Code incorrect » à tout code, ce qui
+       est faux. La page le dit, et ne tente rien. */
+    {
+      const r0 = await repere();
+      await viderToast();
+      let clic, apres, toastS, j;
+      await s.page.evaluate(t => {
+        window.__faux.lignes(t).push({ id: 'eleve-sans-cle', prenom: 'Zélie', cle: null, user_id: null });
+      }, P.tableEleves);
+      try{
+        await sortir();
+        clic = await cliquerPastille(s.page, 'Zélie', 3000);
+        if(clic && (await ecranConnexion()).code){
+          await s.page.fill('#loginPin', CODE_CONTROLE);
+          await s.page.click('#modeCo button.btn-primary');
+          await s.page.waitForTimeout(500);
+          apres = await ecranVisible(s.page);
+          toastS = await lireToast();
+        }
+        j = await depuis(r0);
+      } finally {
+        await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.id === 'eleve-sans-cle'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
+        await sortir();
+      }
+      verifier('une pastille sans clé ne tente aucune connexion, et dit que le compte n\'est pas relié',
+        clic && apres === 'scr-login' && essais(j).length === 0 && !!toastS && /pas encore relié/.test(toastS.texte),
+        !clic ? 'aucune pastille « Zélie » à cliquer'
+          : apres === undefined ? 'la case du code reste cachée après le clic'
+          : apres !== 'scr-login' ? 'écran atteint : ' + apres
+          : essais(j).length ? essais(j).length + ' connexion(s) tentée(s) : ' + JSON.stringify(essais(j).map(e => e.courriel))
+          : 'message : ' + JSON.stringify(toastS));
+    }
+
+    /* UNE PASTILLE LUE SANS CLÉ, RELIÉE DEPUIS : l'élève lit « pas encore
+       relié », va voir le professeur, qui clique « Nouveau code » — la clé
+       et le compte sont posés en base, mais l'écran de la tablette, lui, a
+       été dessiné AVANT. La page relit la ligne de la pastille au moment de
+       valider : le code donné doit ouvrir l'espace sans recharger la page. */
+    {
+      let clic, apres, cle;
+      await s.page.evaluate(t => {
+        window.__faux.lignes(t).push({ id: 'eleve-reliee', prenom: 'Zoé', cle: null, user_id: null });
+      }, P.tableEleves);
+      try{
+        await sortir();
+        await s.page.evaluate(a => {
+          const l = window.__faux.lignes(a.t).find(e => e.id === 'eleve-reliee');
+          l.cle = 'cle-reliee'; l.user_id = 'compte-reliee';
+          window.__faux.semerCompte(courrielDe('cle-reliee'), motDePasseDe(a.c), 'compte-reliee');
+        }, { t: P.tableEleves, c: CODE_CONTROLE });
+        clic = await cliquerPastille(s.page, 'Zoé', 3000);
+        if(clic && (await ecranConnexion()).code){
+          await s.page.fill('#loginPin', CODE_CONTROLE);
+          await s.page.click('#modeCo button.btn-primary');
+          await s.page.waitForTimeout(500);
+          apres = await ecranVisible(s.page);
+          cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
+        }
+      } finally {
+        await sortir();
+        await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.id === 'eleve-reliee'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
+        await sortir();
+      }
+      verifier('une pastille lue sans clé, reliée depuis par le professeur, connecte sans recharger la page',
+        clic && apres === 'scr-space' && cle === 'cle-reliee',
+        !clic ? 'aucune pastille « Zoé » à cliquer'
+          : apres === undefined ? 'la case du code reste cachée après le clic'
+          : apres !== 'scr-space' ? 'écran atteint : ' + apres + ' — la ligne n\'a pas été relue, la clé posée depuis est ignorée'
+          : 'entré sous la clé « ' + cle + ' »');
+    }
+
+    /* UNE PASTILLE SANS CLÉ DONT UN HOMONYME EST RELIÉ : deux « Contrôle »,
+       l'un jamais relié. L'élève non relié clique SA pastille : seule la clé
+       de l'homonyme existe, et elle refuse son code — « Code incorrect »
+       seul mentirait, le code était peut-être juste. Le message dit les deux.
+       Puis le BON code de l'homonyme, tapé sur la même pastille, entre : c'est
+       le code qui départage, même depuis une pastille sans clé. */
+    {
+      const r0 = await repere();
+      await viderToast();
+      let clic = false, apres1, toastH, t1, apres2, cle2;
+      await s.page.evaluate(a => {
+        window.__faux.lignes(a.t).push({ id: 'eleve-controle-sans-cle', prenom: a.p, cle: null, user_id: null });
+      }, { t: P.tableEleves, p: PRENOM_CONTROLE });
+      try{
+        await sortir();
+        const k = await s.page.evaluate(() => listeEleves.findIndex(e => e.id === 'eleve-controle-sans-cle'));
+        if(k >= 0){
+          await s.page.locator('#nameChips .chip').nth(k).click();
+          await s.page.waitForTimeout(150);
+          clic = await s.page.evaluate(() => !!selectedEleve && selectedEleve.id === 'eleve-controle-sans-cle');
+        }
+        if(clic && (await ecranConnexion()).code){
+          await s.page.fill('#loginPin', CODE_FAUX);
+          await s.page.click('#modeCo button.btn-primary');
+          await s.page.waitForTimeout(500);
+          apres1 = await ecranVisible(s.page); toastH = await lireToast();
+          t1 = essais(await depuis(r0)).map(e => (e.ok ? 'ok:' : 'refus:') + e.courriel);
+          await s.page.fill('#loginPin', CODE_CONTROLE);
+          await s.page.click('#modeCo button.btn-primary');
+          await s.page.waitForTimeout(500);
+          apres2 = await ecranVisible(s.page);
+          cle2 = await s.page.evaluate(() => currentEleve && currentEleve.cle);
+        }
+      } finally {
+        await sortir();
+        await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.id === 'eleve-controle-sans-cle'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
+        await sortir();
+      }
+      verifier('une pastille sans clé dont l\'homonyme est relié : un code refusé dit aussi « pas encore relié », et le code de l\'homonyme entre',
+        clic && apres1 === 'scr-login' && !!toastH && /pas encore relié/.test(toastH.texte) && /Code incorrect/.test(toastH.texte)
+          && t1.length === 1 && t1[0].indexOf('refus:cle-controle@') === 0 && apres2 === 'scr-space' && cle2 === 'cle-controle',
+        !clic ? 'la pastille sans clé de « ' + PRENOM_CONTROLE + ' » n\'a pas pu être cliquée'
+          : apres1 === undefined ? 'la case du code reste cachée après le clic'
+          : apres1 !== 'scr-login' ? 'écran atteint avec un code faux : ' + apres1
+          : t1.length !== 1 || t1[0].indexOf('refus:cle-controle@') !== 0 ? 'tentatives : ' + (t1.join(', ') || 'aucune') + ' — attendu : la seule clé de l\'homonyme, refusée'
+          : !toastH || !/pas encore relié/.test(toastH.texte) || !/Code incorrect/.test(toastH.texte) ? 'message : ' + JSON.stringify(toastH)
+          : 'avec le code de l\'homonyme : écran ' + apres2 + ', clé « ' + cle2 + ' »');
+    }
+
+    /* LE DOUBLON D'UNE LIGNE SANS CLÉ : l'élève non relié lit « pas encore
+       relié » et passe par « Créer mon compte ». Sa ligne n'a pas de clé —
+       elle ne sert pas à SE CONNECTER, mais elle compte pour REFUSER UN
+       DOUBLON : sans quoi une seconde ligne naît sous le même prénom, et ses
+       notes restent sur la première. États A et C : par la liste. */
+    {
+      const garde = await s.page.evaluate(t => window.__faux.lignes(t).map(l => Object.assign({}, l)), P.tableEleves);
+      await s.page.evaluate(t => {
+        window.__faux.lignes(t).push({ id: 'eleve-sans-cle', prenom: 'Zélie', cle: null, user_id: null });
+      }, P.tableEleves);
+      const r0 = await repere();
+      let apres, toastZ, j;
+      try{
+        await sortir();
+        await s.page.click('#segCr');
+        await s.page.fill('#newPrenom', 'zelie');
+        await s.page.fill('#newPin', CODE_CONTROLE);
+        await s.page.fill('#newPin2', CODE_CONTROLE);
+        await viderToast();
+        await s.page.click('#modeCr button.btn-primary');
+        await s.page.waitForTimeout(500);
+        toastZ = await lireToast(); apres = await ecranVisible(s.page); j = await depuis(r0);
+      } finally {
+        await s.page.evaluate(a => { window.__faux.tables[a.t] = a.l; }, { t: P.tableEleves, l: garde });
+        await sortir();
+      }
+      const inscriptions = j.filter(e => e.op === 'signUp').length;
+      verifier('un prénom dont la ligne n\'a pas de clé ne crée pas de second compte (états A et C)',
+        inscriptions === 0 && apres === 'scr-login' && listesLues(j).length > 0 && !!toastZ && /existe déjà/.test(toastZ.texte),
+        inscriptions ? inscriptions + ' inscription(s) : une seconde ligne « Zélie » a été créée'
+          : apres !== 'scr-login' ? 'écran atteint : ' + apres
+          : !listesLues(j).length ? 'aucune lecture select(\'cle,prenom\') : le prénom n\'a pas été cherché dans la liste'
+          : 'message : ' + JSON.stringify(toastZ));
+    }
+
+    /* UN PRÉNOM PRIS AILLEURS DEPUIS L'OUVERTURE : Tom crée son compte sur
+       une autre tablette, puis passe sur celle-ci, dont la liste a été lue
+       AVANT — pas de pastille « Tom ». Il tente « Créer mon compte » : refusé,
+       « connecte-toi ». L'écran doit alors revenir à la connexion AVEC sa
+       pastille : sans relecture, il tournerait en rond entre deux onglets. */
+    {
+      const garde = await s.page.evaluate(t => window.__faux.lignes(t).map(l => Object.assign({}, l)), P.tableEleves);
+      let avant, apres, toastT, ecranT;
+      try{
+        await sortir();
+        await s.page.evaluate(t => {
+          window.__faux.lignes(t).push({ id: 'eleve-ailleurs', prenom: 'Tom', cle: 'cle-ailleurs', user_id: 'compte-ailleurs' });
+        }, P.tableEleves);
+        avant = await ecranConnexion();
+        await s.page.click('#segCr');
+        await s.page.fill('#newPrenom', 'tom');
+        await s.page.fill('#newPin', CODE_CONTROLE);
+        await s.page.fill('#newPin2', CODE_CONTROLE);
+        await viderToast();
+        await s.page.click('#modeCr button.btn-primary');
+        await s.page.waitForTimeout(600);
+        toastT = await lireToast(); apres = await ecranVisible(s.page); ecranT = await ecranConnexion();
+      } finally {
+        await s.page.evaluate(a => { window.__faux.tables[a.t] = a.l; }, { t: P.tableEleves, l: garde });
+        await sortir();
+      }
+      verifier('un prénom pris ailleurs depuis l\'ouverture : refusé à la création, et l\'écran revient à la connexion avec sa pastille',
+        avant.pastilles.indexOf('Tom') < 0 && apres === 'scr-login' && !!toastT && /existe déjà/.test(toastT.texte)
+          && ecranT.liste && ecranT.pastilles.indexOf('Tom') >= 0,
+        avant.pastilles.indexOf('Tom') >= 0 ? 'la pastille « Tom » était déjà là : le contrôle ne mesure rien'
+          : apres !== 'scr-login' ? 'écran atteint : ' + apres
+          : !toastT || !/existe déjà/.test(toastT.texte) ? 'message : ' + JSON.stringify(toastT)
+          : !ecranT.liste ? 'l\'écran reste sur « Créer mon compte » : la liste des pastilles n\'est pas visible'
+          : 'pastilles après le refus : ' + JSON.stringify(ecranT.pastilles) + ' — la liste n\'a pas été relue');
+    }
 
     /* une erreur de CADENCE (429 — une classe entière derrière une seule
-       adresse) n'est pas un code faux : la page s'arrête à la première, le
-       dit, et laisse le code dans sa case au lieu de le faire retaper */
-    await s.page.evaluate(() => { window.__faux.cadence = true; });
-    await viderToast();
-    const signInAvantCadence = await nbSignIn();
-    let apresCadence, toastCadence, codeRestant, signInApresCadence;
-    try{
-      apresCadence = await entrer(PRENOM_CONTROLE, CODE_CONTROLE);
-      toastCadence = await lireToast(); signInApresCadence = await nbSignIn();
-      codeRestant = await s.page.evaluate(() => document.getElementById('loginPin').value);
-    } finally { await s.page.evaluate(() => { window.__faux.cadence = false; }); }
-    const avertiCadence = s.avertissements.some(a => /connexion : 429/.test(a));
-    verifier('une erreur de cadence n\'est pas un code faux : la page s\'arrête à la première clé, le dit et garde le code',
-      apresCadence === 'scr-login' && signInApresCadence === signInAvantCadence + 1 && codeRestant === CODE_CONTROLE
-        && !!toastCadence && /réessaie dans une minute/.test(toastCadence.texte) && avertiCadence,
-      apresCadence !== 'scr-login' ? 'écran atteint : ' + apresCadence
-        : signInApresCadence !== signInAvantCadence + 1 ? (signInApresCadence - signInAvantCadence) + ' tentative(s) au lieu d\'une (deux homonymes sont semés)'
-        : codeRestant !== CODE_CONTROLE ? 'le code a été effacé (« ' + codeRestant + ' »)'
-        : !avertiCadence ? 'rien en console : « connexion : 429 … » attendu'
-        : 'message : ' + JSON.stringify(toastCadence));
-    await sortir();
+       adresse) n'est pas un code faux : la page le dit, et laisse le code
+       dans sa case au lieu de le faire retaper */
+    {
+      const r0 = await repere(), a0 = s.avertissements.length;
+      await viderToast();
+      let apres, toastC, code, j;
+      await s.page.evaluate(() => { window.__faux.cadence = true; });
+      try{
+        apres = await entrerPastille(CODE_CONTROLE);
+        toastC = await lireToast(); code = await valeurCode(); j = await depuis(r0);
+      } finally { await s.page.evaluate(() => { window.__faux.cadence = false; }); }
+      const averti = s.avertissements.slice(a0).some(a => /connexion : 429/.test(a));
+      verifier('une erreur de cadence n\'est pas un code faux : la page le dit et garde le code',
+        apres === 'scr-login' && essais(j).length === 1 && code === CODE_CONTROLE
+          && !!toastC && /réessaie dans une minute/.test(toastC.texte) && averti,
+        apres !== 'scr-login' ? 'écran atteint : ' + apres
+          : essais(j).length !== 1 ? essais(j).length + ' tentative(s) au lieu d\'une'
+          : code !== CODE_CONTROLE ? 'le code a été effacé (« ' + code + ' »)'
+          : !averti ? 'rien en console : « connexion : 429 … » attendu'
+          : 'message : ' + JSON.stringify(toastC));
+      await sortir();
+    }
 
     /* un compte NON CONFIRMÉ (400, email_not_confirmed — le réglage de
        confirmation par courriel resté actif, qu'aucun banc ne voit) n'est pas
        un code faux non plus : un 400 n'a pas tous le même sens */
-    await s.page.evaluate(() => { window.__faux.nonConfirme = true; });
-    await viderToast();
-    let apresNC, toastNC, codeNC;
-    try{
-      apresNC = await entrer(PRENOM_CONTROLE, CODE_CONTROLE);
-      toastNC = await lireToast();
-      codeNC = await s.page.evaluate(() => document.getElementById('loginPin').value);
-    } finally { await s.page.evaluate(() => { window.__faux.nonConfirme = false; }); }
-    verifier('un compte non confirmé n\'est pas un code faux : pas de « Code incorrect », et le code reste',
-      apresNC === 'scr-login' && codeNC === CODE_CONTROLE && !!toastNC && !/Code incorrect/.test(toastNC.texte) && /Connexion impossible/.test(toastNC.texte),
-      apresNC !== 'scr-login' ? 'écran atteint : ' + apresNC
-        : codeNC !== CODE_CONTROLE ? 'le code a été effacé (« ' + codeNC + ' »)'
-        : 'message : ' + JSON.stringify(toastNC));
-    await sortir();
-    /* l'homonyme s'en va avant la création de compte (qui compte les clés du prénom) */
-    await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.cle === 'cle-controle-bis'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
+    {
+      await viderToast();
+      let apres, toastNC, code;
+      await s.page.evaluate(() => { window.__faux.nonConfirme = true; });
+      try{
+        apres = await entrerPastille(CODE_CONTROLE);
+        toastNC = await lireToast(); code = await valeurCode();
+      } finally { await s.page.evaluate(() => { window.__faux.nonConfirme = false; }); }
+      verifier('un compte non confirmé n\'est pas un code faux : pas de « Code incorrect », et le code reste',
+        apres === 'scr-login' && code === CODE_CONTROLE && !!toastNC && !/Code incorrect/.test(toastNC.texte) && /Connexion impossible/.test(toastNC.texte),
+        apres !== 'scr-login' ? 'écran atteint : ' + apres
+          : code !== CODE_CONTROLE ? 'le code a été effacé (« ' + code + ' »)'
+          : 'message : ' + JSON.stringify(toastNC));
+      await sortir();
+    }
 
-    /* la création de compte est la seule porte avant connexion, et elle ignore
-       l'accent : un second « Contrôle » écrit « controle » est refusé, sans
-       inscription — sinon deux comptes se confondraient à l'écran de connexion */
-    await s.page.click('#segCr');
-    await s.page.fill('#newPrenom', sansAccents(PRENOM_CONTROLE).toLowerCase());
-    await s.page.fill('#newPin', CODE_CONTROLE);
-    await s.page.fill('#newPin2', CODE_CONTROLE);
-    await viderToast();
-    await s.page.click('#modeCr button.btn-primary');
-    await s.page.waitForTimeout(500);
-    const inscriptions = await s.page.evaluate(() => window.__faux.operations('signUp').length);
-    const toastDeja = await lireToast();
-    const apresDeja = await ecranVisible(s.page);
-    verifier('un prénom déjà pris, même écrit sans accent, ne crée pas de second compte',
-      inscriptions === 0 && apresDeja === 'scr-login'
-        && !!toastDeja && /existe déjà/.test(toastDeja.texte) && /show/.test(toastDeja.classe),
-      inscriptions ? inscriptions + ' inscription(s) : un second compte a été créé sous le même prénom'
-        : apresDeja !== 'scr-login' ? 'écran atteint : ' + apresDeja
-        : 'message : ' + JSON.stringify(toastDeja));
-    /* retour à l'écran de connexion en mode « Se connecter », de N'IMPORTE
-       QUEL écran : logout() → accueil() → preparerConnexion() y ramène, que le
-       second compte ait été refusé ou — le sabotage — créé. Un retour qui
-       dépendrait de l'écran lu 500 ms plus tôt a déjà fait avorter tout le
-       banc sur un clic de trente secondes vers un bouton caché. */
-    await sortir();
+    } finally {
+      await s.page.evaluate(() => { window.__faux.sansRpc = false; });
+      await sortir();
+    }
+
+    /* la création de compte refuse un prénom déjà pris, même écrit sans
+       accent — sinon deux comptes se confondent à la connexion : deux
+       pastilles presque pareilles, ou deux clés pour un prénom tapé. Elle
+       passe par clesDuPrenom dans les TROIS états, et chaque état exige sa
+       preuve que le prénom a vraiment été cherché par le bon chemin (exige).
+       La table est remise telle quelle ensuite : un second compte créé — le
+       sabotage — ne survit pas au contrôle qui l'a vu. */
+    const doublon = async (intitule, exige) => {
+      const garde = await s.page.evaluate(t => window.__faux.lignes(t).map(l => Object.assign({}, l)), P.tableEleves);
+      const r0 = await repere();
+      let apres, toastD, j;
+      try{
+        await s.page.click('#segCr');
+        await s.page.fill('#newPrenom', sansAccents(PRENOM_CONTROLE).toLowerCase());
+        await s.page.fill('#newPin', CODE_CONTROLE);
+        await s.page.fill('#newPin2', CODE_CONTROLE);
+        await viderToast();
+        await s.page.click('#modeCr button.btn-primary');
+        await s.page.waitForTimeout(500);
+        toastD = await lireToast(); apres = await ecranVisible(s.page); j = await depuis(r0);
+      } finally {
+        await s.page.evaluate(a => { window.__faux.tables[a.t] = a.l; }, { t: P.tableEleves, l: garde });
+        await sortir();
+      }
+      const inscriptions = j.filter(e => e.op === 'signUp').length;
+      const manque = exige(j);
+      verifier(intitule,
+        inscriptions === 0 && apres === 'scr-login' && !manque
+          && !!toastD && /existe déjà/.test(toastD.texte) && /show/.test(toastD.classe),
+        inscriptions ? inscriptions + ' inscription(s) : un second compte a été créé sous le même prénom'
+          : apres !== 'scr-login' ? 'écran atteint : ' + apres
+          : manque ? manque
+          : 'message : ' + JSON.stringify(toastD));
+    };
+
+    /* ===== L'ÉTAT B : la liste fermée par la 009, la fonction présente =====
+       La 009 jouée, la 010 pas encore : un visiteur lit une liste VIDE, sans
+       erreur (listeFermee), mais cles_de_connexion répond. La page doit le
+       reconnaître — elle sonde la fonction — et proposer de TAPER son prénom
+       comme depuis VERSION_CONNEXION_PRENOM, au lieu de dire « Aucun compte »
+       à toute la classe. Les bords du prénom tapé y sont tous rejoués : le
+       prénom en majuscules sans accent, l'inconnu, deux homonymes, la
+       cadence, la panne de la fonction — et le doublon. */
+    await s.page.evaluate(() => { window.__faux.listeFermee = true; });
+    try{
+      {
+        const r0 = await repere();
+        await sortir();
+        const ecranB = await ecranConnexion();
+        const sondes = appels(await depuis(r0));
+        const apres = await entrerPrenom(enMajuscules, CODE_CONTROLE);
+        verifier('liste fermée par la 009 : la page propose de taper son prénom, sans pastille, et l\'élève entre',
+          enMajuscules !== PRENOM_CONTROLE && sondes.length > 0 && ecranB.prenom && ecranB.code
+            && !ecranB.liste && ecranB.pastilles.length === 0 && apres === 'scr-space',
+          enMajuscules === PRENOM_CONTROLE ? 'le prénom de contrôle n\'a ni accent ni minuscule : le contrôle ne mesure rien'
+            : !sondes.length ? 'la liste vide n\'a pas fait sonder la fonction : « ' + (ecranB.message || 'rien') + ' »'
+            : !ecranB.prenom ? 'aucun champ « Ton prénom » : « ' + (ecranB.message || 'rien') + ' »'
+            : !ecranB.code ? 'la case du code reste cachée'
+            : (ecranB.liste || ecranB.pastilles.length) ? 'la liste des pastilles reste affichée : ' + JSON.stringify(ecranB.pastilles)
+            : 'écran atteint avec « ' + enMajuscules + ' » : ' + apres);
+        await sortir();
+      }
+
+      /* le SONDAGE en panne : la fonction existe mais répond une erreur qui
+         n'est pas PGRST202 (droit retiré, exception). La page ne sait pas
+         alors si la liste est fermée ou la classe vide — et dire « Aucun
+         compte » à toute la classe serait le pire des deux : elle propose le
+         prénom tapé, qui dira lui-même ce qui ne va pas. C'est la branche
+         « sonde.code !== 'PGRST202' » du sondage, exécutée ; la panne est
+         posée AVANT le dessin de l'écran, et levée quoi qu'il arrive. */
+      {
+        const r0 = await repere();
+        let ecranP, sondes;
+        await s.page.evaluate(() => { window.__faux.panne = true; });
+        try{
+          await sortir();
+          ecranP = await ecranConnexion();
+          sondes = appels(await depuis(r0));
+        } finally {
+          await s.page.evaluate(() => { window.__faux.panne = false; });
+          await sortir();
+        }
+        verifier('liste fermée et sondage en panne : la page propose le prénom tapé, pas « Aucun compte »',
+          sondes.length > 0 && ecranP.prenom && ecranP.code && !/Aucun compte/.test(ecranP.message),
+          !sondes.length ? 'la fonction n\'a pas été sondée : la panne n\'a rien éprouvé'
+            : /Aucun compte/.test(ecranP.message) ? 'la page annonce « ' + ecranP.message + ' » sur une panne du sondage'
+            : !ecranP.prenom ? 'aucun champ « Ton prénom » : « ' + (ecranP.message || 'rien') + ' »'
+            : 'la case du code reste cachée');
+      }
+
+      /* L'ÉTAT B' : la liste REFUSÉE (42501). La 009 proposait un
+         durcissement « possible, non fait » — retirer à anon le droit de lire
+         la table. Appliqué à la main, il ne rend pas une liste vide mais une
+         ERREUR : la page qui la prendrait pour une panne de configuration
+         dirait « Connexion impossible » à toute la classe, alors que la
+         fonction de la 009 est là. Elle doit la lire comme une liste fermée,
+         sonder, et proposer le prénom tapé — par lequel l'élève entre. */
+      {
+        const r0 = await repere(), a0 = s.avertissements.length;
+        let ecranR, sondes, refus, apres;
+        await s.page.evaluate(() => { window.__faux.listeRefusee = true; });
+        try{
+          await sortir();
+          ecranR = await ecranConnexion();
+          const j = await depuis(r0);
+          sondes = appels(j);
+          refus = j.filter(e => e.op === 'select' && e.table === P.tableEleves && e.refusee).length;
+          apres = await entrerPrenom(PRENOM_CONTROLE, CODE_CONTROLE);
+        } finally {
+          await s.page.evaluate(() => { window.__faux.listeRefusee = false; });
+          await sortir();
+        }
+        const averti = s.avertissements.slice(a0).some(a => /liste des prénoms : 42501/.test(a));
+        verifier('liste refusée par un droit retiré à anon (42501) : la page sonde, propose le prénom tapé, et l\'élève entre',
+          refus > 0 && sondes.length > 0 && ecranR.prenom && ecranR.code && !/Connexion impossible/.test(ecranR.message)
+            && apres === 'scr-space' && averti,
+          !refus ? 'la liste n\'a pas été refusée : l\'interrupteur listeRefusee n\'a rien éprouvé'
+            : /Connexion impossible/.test(ecranR.message) ? 'la page annonce « ' + ecranR.message + ' » : le refus est pris pour une panne de configuration'
+            : !sondes.length ? 'la fonction n\'a pas été sondée : « ' + (ecranR.message || 'rien') + ' »'
+            : !ecranR.prenom || !ecranR.code ? 'aucun champ « Ton prénom » avec sa case du code : « ' + (ecranR.message || 'rien') + ' »'
+            : apres !== 'scr-space' ? 'écran atteint : ' + apres
+            : 'rien en console : « liste des prénoms : 42501 … » attendu');
+      }
+
+      /* un prénom que personne ne porte : il est CHERCHÉ (un appel à la
+         fonction), aucune connexion n'est tentée, et un message le dit */
+      {
+        await viderToast();
+        const r0 = await repere();
+        const apres = await entrerPrenom('Personne', CODE_CONTROLE);
+        const j = await depuis(r0), toastI = await lireToast();
+        verifier('un prénom inconnu ne tente aucune connexion, et le dit',
+          apres === 'scr-login' && appels(j).length > 0 && essais(j).length === 0
+            && !!toastI && /Prénom inconnu/.test(toastI.texte) && /show/.test(toastI.classe),
+          apres !== 'scr-login' ? 'écran atteint : ' + apres
+            : !appels(j).length ? 'le prénom n\'a pas été cherché : le contrôle ne mesure rien'
+            : essais(j).length ? essais(j).length + ' connexion(s) tentée(s) pour un prénom inconnu'
+            : 'message : ' + JSON.stringify(toastI));
+        await sortir();
+      }
+
+      /* DEUX HOMONYMES : la boucle sur les clés est la raison d'être du
+         « for(const cle of cles) », et un seul élève semé ne l'exerce pas — un
+         « break » après le premier refus passerait tout le banc. On sème un
+         second « Contrôle » à un autre code : c'est le code qui départage, et
+         la page entre sur la SECONDE clé après un refus sur la première.
+         L'homonyme reste pour le contrôle de cadence, qui exige alors
+         vraiment l'arrêt à la première clé ; il part avant le doublon. */
+      await s.page.evaluate(a => {
+        window.__faux.lignes(a.t).push({ id: 'eleve-bis', prenom: a.p, cle: 'cle-controle-bis', user_id: 'compte-bis' });
+        window.__faux.semerCompte(courrielDe('cle-controle-bis'), motDePasseDe(a.c), 'compte-bis');
+      }, { t: P.tableEleves, p: PRENOM_CONTROLE, c: CODE_BIS });
+      {
+        const r0 = await repere();
+        const apres = await entrerPrenom(PRENOM_CONTROLE, CODE_BIS);
+        const cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
+        const t = essais(await depuis(r0)).map(e => (e.ok ? 'ok:' : 'refus:') + e.courriel);
+        verifier('deux homonymes : c\'est le code qui départage, et la seconde clé entre après le refus de la première',
+          apres === 'scr-space' && cle === 'cle-controle-bis' && t.length === 2 && /^refus:/.test(t[0]) && /^ok:/.test(t[1]),
+          apres !== 'scr-space' ? 'écran atteint : ' + apres
+            : cle !== 'cle-controle-bis' ? 'entré sous la clé « ' + cle + ' »'
+            : 'tentatives : ' + t.join(', '));
+        await sortir();
+      }
+
+      /* la CADENCE, avec les deux homonymes : la page s'arrête à la PREMIÈRE
+         clé — essayer la seconde aggraverait la cadence —, le dit, et garde
+         le code */
+      {
+        const r0 = await repere(), a0 = s.avertissements.length;
+        await viderToast();
+        let apres, toastC, code, j;
+        await s.page.evaluate(() => { window.__faux.cadence = true; });
+        try{
+          apres = await entrerPrenom(PRENOM_CONTROLE, CODE_CONTROLE);
+          toastC = await lireToast(); code = await valeurCode(); j = await depuis(r0);
+        } finally { await s.page.evaluate(() => { window.__faux.cadence = false; }); }
+        const averti = s.avertissements.slice(a0).some(a => /connexion : 429/.test(a));
+        verifier('une erreur de cadence n\'est pas un code faux : la page s\'arrête à la première clé, le dit et garde le code',
+          apres === 'scr-login' && essais(j).length === 1 && code === CODE_CONTROLE
+            && !!toastC && /réessaie dans une minute/.test(toastC.texte) && averti,
+          apres !== 'scr-login' ? 'écran atteint : ' + apres
+            : essais(j).length !== 1 ? essais(j).length + ' tentative(s) au lieu d\'une (deux homonymes sont semés)'
+            : code !== CODE_CONTROLE ? 'le code a été effacé (« ' + code + ' »)'
+            : !averti ? 'rien en console : « connexion : 429 … » attendu'
+            : 'message : ' + JSON.stringify(toastC));
+        await sortir();
+      }
+
+      /* une PANNE de la fonction SQL — toute erreur autre que PGRST202 — ne se
+         replie pas sur la liste, ne tente aucune connexion, et le dit. C'est le
+         second bord du repli de clesDuPrenom, EXÉCUTÉ : le contrôle de source
+         du banc principal lit que la garde précède le repli, celui-ci regarde
+         ce que fait la page. La panne est posée APRÈS le dessin de l'écran :
+         c'est la recherche du prénom qu'elle éprouve, pas le sondage. */
+      {
+        const r0 = await repere(), a0 = s.avertissements.length;
+        await viderToast();
+        let apres, toastP, j;
+        await s.page.evaluate(() => { window.__faux.panne = true; });
+        try{
+          apres = await entrerPrenom(PRENOM_CONTROLE, CODE_CONTROLE);
+          toastP = await lireToast(); j = await depuis(r0);
+        } finally { await s.page.evaluate(() => { window.__faux.panne = false; }); }
+        const averti = s.avertissements.slice(a0).some(a => /cles_de_connexion :/.test(a));
+        verifier('une panne de la fonction SQL n\'ouvre ni le repli ni une connexion, et le dit',
+          apres === 'scr-login' && appels(j).length > 0 && listesLues(j).length === 0 && essais(j).length === 0
+            && !!toastP && /Connexion impossible/.test(toastP.texte) && averti,
+          apres !== 'scr-login' ? 'écran atteint : ' + apres
+            : !appels(j).length ? 'la fonction n\'a pas été appelée : la panne n\'a rien éprouvé'
+            : listesLues(j).length ? 'la page s\'est repliée sur la liste pour une erreur qui n\'est pas PGRST202'
+            : essais(j).length ? 'une connexion a été tentée malgré la panne'
+            : !averti ? 'rien en console : la panne ne se lit qu\'en ouvrant l\'onglet Réseau'
+            : 'message : ' + JSON.stringify(toastP));
+        await sortir();
+      }
+      /* l'homonyme s'en va avant le doublon, qui compte les clés du prénom */
+      await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.cle === 'cle-controle-bis'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
+
+      /* le doublon en B : la liste fermée ne rend RIEN à un visiteur — une
+         création de compte qui la relirait laisserait chaque élève recréer
+         le sien. C'est la fonction qui doit le trouver. */
+      await doublon('un prénom déjà pris, même écrit sans accent, ne crée pas de second compte — liste fermée (état B), par la fonction SQL',
+        j => appels(j).length ? '' : 'la fonction SQL n\'a pas été demandée : le prénom n\'a pas été cherché par elle');
+    } finally {
+      await s.page.evaluate(t => {
+        window.__faux.listeFermee = false;
+        const l = window.__faux.lignes(t); const i = l.findIndex(e => e.cle === 'cle-controle-bis'); if(i >= 0) l.splice(i, 1);
+      }, P.tableEleves);
+      await sortir();
+    }
+
+    /* ===== SANS LA FONCTION : avant la 009 (état A), ou après la 010 (état C) =====
+       PostgREST ne connaît pas cles_de_connexion (sansRpc : PGRST202 à tout
+       rpc). Une liste vide y dit vraiment « classe vide » : la page l'annonce,
+       sans champ de prénom qui ne mènerait nulle part — c'est le second bord
+       du sondage, celui qui ne conclut « fermée » que hors PGRST202. Et la
+       création de compte s'y replie sur la liste, filtrée par la
+       normalisation de la PAGE : c'est elle qui doit voir que « controle »
+       est « Contrôle ». Le contrôle de la classe vide vide la table, puis la
+       resème, quoi qu'il arrive. */
+    await s.page.evaluate(() => { window.__faux.sansRpc = true; });
+    try{
+      {
+        const garde = await s.page.evaluate(t => { const l = window.__faux.lignes(t).map(x => Object.assign({}, x)); window.__faux.tables[t] = []; return l; }, P.tableEleves);
+        let ecranC, sondes;
+        try{
+          const r0 = await repere();
+          await sortir();
+          ecranC = await ecranConnexion();
+          sondes = appels(await depuis(r0));
+        } finally {
+          await s.page.evaluate(a => { window.__faux.tables[a.t] = a.l; }, { t: P.tableEleves, l: garde });
+          await sortir();
+        }
+        verifier('liste vide sans la fonction (classe vide, ou 010 jouée) : « Aucun compte pour l\'instant », sans champ de prénom',
+          sondes.length > 0 && /Aucun compte pour l.instant/.test(ecranC.message) && !ecranC.prenom && !ecranC.code && ecranC.pastilles.length === 0,
+          !sondes.length ? 'la fonction n\'a pas été sondée : la réponse PGRST202 n\'a pas été lue, le contrôle ne mesure rien'
+            : ecranC.prenom ? 'un champ « Ton prénom » s\'affiche alors que la fonction n\'existe pas : le sondage conclut « fermée » sur PGRST202'
+            : ecranC.code ? 'la case du code s\'affiche sur une classe vide'
+            : 'message affiché : « ' + ecranC.message + ' »');
+      }
+      await doublon('un prénom déjà pris, même écrit sans accent, ne crée pas de second compte — fonction absente (états A et C), par la liste',
+        j => !appels(j).length ? 'la fonction SQL n\'a pas été demandée : le repli n\'est pas mesuré'
+           : !listesLues(j).length ? 'aucune lecture select(\'cle,prenom\') de ' + P.tableEleves + ' : la page ne s\'est pas repliée sur la liste'
+           : '');
+    } finally {
+      await s.page.evaluate(() => { window.__faux.sansRpc = false; });
+      await sortir();
+    }
 
     /* On repart d'une page neuve : le double se resème au chargement. */
     await s.page.reload({ waitUntil: 'domcontentloaded' });
@@ -807,34 +1323,38 @@ async function parcours(page, N){
     /* Le contrôle ci-dessus dit que l'élève est entré. Il ne dit pas COMMENT.
        Tant que le code était comparé dans la page, il passait aussi — et deux
        lignes dans la console suffisaient à entrer sous n'importe quel prénom.
-       Les deux contrôles qui suivent regardent le mécanisme, pas le résultat. */
+       Les contrôles qui suivent regardent le mécanisme, pas le résultat. */
     const journalAuth = await s.page.evaluate(() => window.__faux.operations(null, 'auth').map(e => ({ op:e.op, ok:e.ok })));
     verifier('la connexion est passée par le serveur, pas par une comparaison locale',
       journalAuth.some(e => e.op === 'signIn' && e.ok),
       journalAuth.length ? 'opérations vues : ' + JSON.stringify(journalAuth)
                          : 'aucun appel d’authentification — le code a été jugé dans la page');
 
-    /* Et AVANT cette connexion, la page n'a lu aucune ligne de la table des
-       élèves. La liste des prénoms ne s'affiche plus — et elle ne se lit même
-       plus : la migration 009 ferme la lecture anonyme, et une page qui
-       lirait encore la table avant d'être connectée ne connecterait plus
-       personne une fois la migration jouée. On exige un appel rpc
-       cles_de_connexion avant le premier signIn, et aucun select sur la table
-       avant lui. Le journal est celui de la page rechargée : il commence à
-       cette connexion-là, et s'il ne porte aucun signIn, rien n'a été mesuré. */
+    /* Et AVANT cette connexion, la page n'a lu la table des élèves que pour
+       la LISTE — trois colonnes : id, prenom et cle — et n'a pas interrogé
+       la fonction de connexion : la liste ouverte, la pastille porte sa clé,
+       et le sondage n'a lieu que sur une liste vide. Le journal est celui de
+       la page rechargée : il commence à l'ouverture, et s'il ne porte aucun
+       signIn, ou aucune lecture de la liste, rien n'a été mesuré. */
     const avantConnexion = await s.page.evaluate(t => {
       const j = window.__faux.journal;
       const i = j.findIndex(e => e.op === 'signIn');
       const avant = i < 0 ? j : j.slice(0, i);
       return { connecte: i >= 0,
-               rpc: avant.filter(e => e.op === 'rpc' && e.table === 'cles_de_connexion').length,
-               lectures: avant.filter(e => e.op === 'select' && e.table === t).map(e => 'select(' + e.colonnes + ')') };
+               rpc: avant.filter(e => e.op === 'rpc').map(e => e.table + ' ' + JSON.stringify(e.args)),
+               lectures: avant.filter(e => e.op === 'select' && e.table === t).map(e => e.colonnes) };
     }, P.tableEleves);
-    verifier('avant la connexion, la page ne lit aucune ligne de la table des élèves',
-      avantConnexion.connecte && avantConnexion.lectures.length === 0 && avantConnexion.rpc > 0,
+    const autresColonnes = avantConnexion.lectures.filter(c => c !== 'id,prenom,cle');
+    verifier('la liste ne demande que id, prenom et cle',
+      avantConnexion.connecte && avantConnexion.lectures.length > 0 && autresColonnes.length === 0,
       !avantConnexion.connecte ? 'aucune connexion au journal : le contrôle n\'a rien mesuré'
-        : avantConnexion.lectures.length ? avantConnexion.lectures.length + ' lecture(s) de ' + P.tableEleves + ' avant la connexion : ' + avantConnexion.lectures.join(', ')
-        : 'aucun appel rpc cles_de_connexion avant la connexion');
+        : !avantConnexion.lectures.length ? 'aucune lecture de ' + P.tableEleves + ' avant la connexion : la liste n\'a pas été lue'
+        : autresColonnes.length + ' lecture(s) d\'autres colonnes : ' + autresColonnes.map(c => 'select(' + c + ')').join(', '));
+    verifier('avec la liste ouverte, la page n\'interroge pas la fonction de connexion',
+      avantConnexion.connecte && avantConnexion.lectures.length > 0 && avantConnexion.rpc.length === 0,
+      !avantConnexion.connecte ? 'aucune connexion au journal : le contrôle n\'a rien mesuré'
+        : !avantConnexion.lectures.length ? 'la liste n\'a pas été lue : le chemin des pastilles n\'est pas mesuré'
+        : avantConnexion.rpc.length + ' appel(s) rpc avant la connexion : ' + avantConnexion.rpc.join(', '));
 
     /* La table des élèves ne doit plus jamais être lue en entier : c'est
        select('*') qui rapportait la colonne des codes, toute la classe d'un
@@ -8300,16 +8820,18 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 quadragies quater. SOMME DE VECTEURS : LA FIN DE V RECOPIÉ SE CLIQUE ===== */
+    /* ===== 6 quadragies quater. SOMME DE VECTEURS : LES FLÈCHES GLISSENT ===== */
     /* {somme-vecteurs} (8.7, demande de Turquet, octobre 2026, la fiche
-       « somme de vecteurs — un début va sur une fin ») : la fin de v⃗ recopié
-       se pose au clic sur un nœud, et la page trace aussitôt la construction
-       de l'élève. jsdom n'a pas de mise en page : le calibrage clic → nœud, le
-       reclic qui retire, la construction tracée d'étendue non nulle et les
-       mots « début » / « fin » lisibles ne se voient qu'ici. */
-    titre('6 quadragies quater. SOMME DE VECTEURS : LA FIN DE V RECOPIÉ SE CLIQUE');
+       « somme de vecteurs — un début va sur une fin » ; v489 : « je veux que
+       l'on puisse déplacer les vecteurs u et v sur le quadrillage ») : u⃗ et
+       v⃗ se font GLISSER à la souris jusqu'à être bout à bout, puis u⃗ + v⃗ se
+       trace en deux clics — le premier tombe sur la flèche u⃗, qui doit le
+       laisser passer au nœud. jsdom n'a pas de mise en page : le glisser,
+       l'accrochage aux nœuds, la flèche retenue au bord, le clic à travers la
+       prise et les mots « début » / « fin » lisibles ne se voient qu'ici. */
+    titre('6 quadragies quater. SOMME DE VECTEURS : LES FLÈCHES GLISSENT');
     if(!P.sommeVecteurs){
-      ignorer('la fin de v recopié se pose au clic, la construction se trace, le reclic la retire',
+      ignorer('u et v glissent bout à bout, u + v se trace en deux clics, une flèche reste dans le quadrillage',
         'ce niveau n\'a pas l\'exercice de la somme de vecteurs');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
@@ -8326,66 +8848,79 @@ async function parcours(page, N){
         /* chaque mot « début » / « fin » reste DANS le dessin */
         const dehors = [...document.querySelectorAll('#svcGraph .svc-mot')].filter(t => { const b = t.getBoundingClientRect();
           return b.left < r.left - 1 || b.right > r.right + 1 || b.top < r.top - 1 || b.bottom > r.bottom + 1; }).length;
-        return { svg: r.width > 400 && r.height > 250, fleche: fl && fl !== 'none', dehors: dehors };
+        const pr = document.querySelector('#svcPrises .svc-prise');
+        return { svg: r.width > 400 && r.height > 250, fleche: fl && fl !== 'none', dehors: dehors,
+                 touche: pr ? getComputedStyle(pr).touchAction : '' };
       });
       if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
       if(!mes.fleche) dits.push('les vecteurs de l\'énoncé ne sont pas coiffés d\'une flèche');
       if(mes.dehors) dits.push(mes.dehors + ' mot(s) « début » / « fin » sortent du dessin');
-      const posNoeud = async (x, y, dx, dy) => await s.page.evaluate(([x, y, dx, dy]) => {
+      if(mes.touche !== 'none') dits.push('une prise fait défiler la page sous le doigt (touch-action : ' + mes.touche + ')');
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
         const svg = document.querySelector('#svcGraph .svc-svg');
-        svg.scrollIntoView({ block: 'center' });
         const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
         const kx = r.width / vb.width, ky = r.height / vb.height;
-        return { px: r.left + (SVC_PX + (x + dx) * SVC_C) * kx, py: r.top + (SVC_PY + (SVC_H - (y + dy)) * SVC_C) * ky };
-      }, [x, y, dx || 0, dy || 0]);
-      const clicNoeud = async (x, y, dx, dy) => { const p = await posNoeud(x, y, dx, dy); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
-      const etat = async () => await s.page.evaluate(() => ({
-        sel: JSON.stringify(test.questions[test.idx].sel),
-        peints: document.querySelectorAll('#svcGraph .vec-t.sel').length,
-        trace: [...document.querySelectorAll('#svcTrace line')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length
-      }));
-      const q0 = await s.page.evaluate(() => svcPoint(test.questions[test.idx]));
-      await clicNoeud(q0[0], q0[1]);
+        return { px: r.left + (SVC_PX + x * SVC_C) * kx, py: r.top + (SVC_PY + (SVC_H - y) * SVC_C) * ky };
+      }, [x, y]);
+      await s.page.evaluate(() => document.querySelector('#svcGraph .svc-svg').scrollIntoView({ block: 'center' }));
+      await s.page.waitForTimeout(150);
+      /* saisir une flèche en son milieu et la faire glisser d'un vecteur de carreaux */
+      const glisser = async (w, d) => {
+        const q = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { u: svcU(q), v: svcV(q), uc: q.uc, vc: q.vc }; });
+        const p = w === 'u' ? q.u : q.v, c = w === 'u' ? q.uc : q.vc;
+        const a = await pos(p[0] + c[0] / 2, p[1] + c[1] / 2), b = await pos(p[0] + c[0] / 2 + d[0], p[1] + c[1] / 2 + d[1]);
+        await s.page.mouse.move(a.px, a.py); await s.page.mouse.down();
+        await s.page.mouse.move(b.px, b.py, { steps: 12 }); await s.page.mouse.up();
+        await s.page.waitForTimeout(120);
+      };
+      const clic = async (x, y, dx) => { const p = await pos(x + (dx || 0), y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      const etat = async () => await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return { u: svcU(q), v: svcV(q), uo: q.uo, uc: q.uc, vc: q.vc, sd: q.sd, sf: q.sf, ch: svcChaine(q) ? svcChaine(q).ordre : '',
+          trace: [...document.querySelectorAll('#svcTrace line')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length }; });
       let e = await etat();
-      if(e.sel !== JSON.stringify(q0)) dits.push('le clic ne pose pas le nœud visé : ' + e.sel + ' au lieu de ' + JSON.stringify(q0));
-      if(e.peints !== 1) dits.push('le nœud posé ne se peint pas (' + e.peints + ')');
-      if(e.trace !== 2) dits.push('la construction (v recopié et u + v) ne se trace pas à la pose (' + e.trace + ' traits)');
-      await clicNoeud(q0[0], q0[1]);
+      /* v glisse jusqu'au bout de u */
+      const uf = [e.u[0] + e.uc[0], e.u[1] + e.uc[1]];
+      await glisser('v', [uf[0] - e.v[0], uf[1] - e.v[1]]);
       e = await etat();
-      if(e.sel !== 'null' || e.peints !== 0 || e.trace !== 0) dits.push('recliquer le nœud ne le retire pas : ' + e.sel);
-      await clicNoeud(q0[0], q0[1], 0.2, 0);
+      if(JSON.stringify(e.v) !== JSON.stringify(uf) || e.ch !== 'uv') dits.push('v glissé ne s\'accroche pas au bout de u : ' + JSON.stringify(e.v) + ' au lieu de ' + JSON.stringify(uf));
+      /* u + v : le début tombe SUR la flèche u, sa prise doit laisser passer le clic */
+      await clic(e.u[0], e.u[1], 0.15);
       e = await etat();
-      if(e.sel !== JSON.stringify(q0)) dits.push('le clic décalé d\'un cinquième de maille ne s\'accroche pas au nœud : ' + e.sel);
+      if(JSON.stringify(e.sd) !== JSON.stringify(e.u)) dits.push('le clic sur le début de u (sous sa prise) ne pose pas le début de u + v : ' + JSON.stringify(e.sd));
+      if(JSON.stringify(e.u) !== JSON.stringify(e.uo)) dits.push('un simple clic sur u l\'a déplacé');
+      const vf = [e.v[0] + e.vc[0], e.v[1] + e.vc[1]];
+      await clic(vf[0], vf[1]);
+      e = await etat();
+      if(JSON.stringify(e.sf) !== JSON.stringify(vf) || e.trace !== 1) dits.push('le second clic ne trace pas u + v (' + JSON.stringify(e.sf) + ', ' + e.trace + ' trait)');
       await s.page.click('#svcValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
-        okc: document.querySelectorAll('#svcGraph .vec-t.okc').length, missc: document.querySelectorAll('#svcGraph .vec-t.missc').length,
         bouton: document.getElementById('svcNext') ? document.getElementById('svcNext').textContent : '' }));
-      if(fin.score !== 1 || !fin.locked) dits.push('la copie juste cliquée vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller'));
-      if(fin.okc !== 1 || fin.missc) dits.push('le nœud juste n\'est pas peint okc, ou la correction se montre (' + fin.okc + ', ' + fin.missc + ')');
+      if(fin.score !== 2 || !fin.locked) dits.push('la copie juste glissée vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller'));
       if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
-      /* question suivante : v posé sur le DÉBUT de u, quand ce nœud est dans le quadrillage, sinon un nœud faux quelconque */
+      /* question suivante : u tiré loin à droite reste dans le quadrillage ; copie fausse */
       await s.page.click('#svcNext');
       await s.page.waitForTimeout(400);
-      const q1 = await s.page.evaluate(() => { const q = test.questions[test.idx], E = svcPoint(q);
-        let f = [q.uo[0] + q.vc[0], q.uo[1] + q.vc[1]];
-        if(!svcDans(f)) f = E[0] > 0 ? [E[0] - 1, E[1]] : [E[0] + 1, E[1]];
-        return { E: E, faux: f }; });
-      await clicNoeud(q1.faux[0], q1.faux[1]);
+      /* la première figure de la fiche : u tiré à droite ne peut pas tomber bout à bout avec v */
+      await s.page.evaluate(() => { test.questions[test.idx] = { uo: [1, 1], uc: [2, 4], vo: [6, 6], vc: [2, -2], up: null, vp: null, sd: null, sf: null }; renderSvc();
+        document.querySelector('#svcGraph .svc-svg').scrollIntoView({ block: 'center' }); });
+      await s.page.waitForTimeout(150);
+      e = await etat();
+      await glisser('u', [20, 0]);
+      e = await etat();
+      const bord = e.uc[0] >= 0 ? 12 - e.uc[0] : 12;
+      if(e.u[0] !== bord || e.u[1] !== e.uo[1]) dits.push('u tiré hors du quadrillage n\'est pas retenu au bord : ' + JSON.stringify(e.u) + ' au lieu de [' + bord + ',' + e.uo[1] + ']');
       await s.page.click('#svcValidate');
       await s.page.waitForTimeout(300);
-      const faux = await s.page.evaluate(() => {
-        const miss = [...document.querySelectorAll('#svcGraph .vec-t.missc .dot')];
-        return { badc: document.querySelectorAll('#svcGraph .vec-t.badc').length, miss: miss.length,
-                 large: miss.every(c => c.getBoundingClientRect().width > 4),
-                 vert: [...document.querySelectorAll('#svcCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
-                 rouge: document.querySelectorAll('#svcTrace line.svc-eb').length, score: test.score };
-      });
-      if(faux.badc !== 1 || faux.rouge !== 2) dits.push('le nœud faux et sa construction ne rougissent pas (' + faux.badc + ', ' + faux.rouge + ')');
-      if(faux.miss !== 1 || !faux.large) dits.push('le nœud attendu ne se montre pas en vert');
+      const faux = await s.page.evaluate(() => ({
+        ch: document.getElementById('svc-ch').className, sm: document.getElementById('svc-sm').className,
+        vert: [...document.querySelectorAll('#svcCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        prises: document.querySelectorAll('#svcPrises .svc-prise').length, score: test.score }));
+      if(!/\bbad\b/.test(faux.ch) || !/\bsol\b/.test(faux.sm)) dits.push('flèches séparées, u + v vide : ' + faux.ch + ' / ' + faux.sm);
       if(faux.vert !== 2) dits.push('la construction attendue ne se trace pas en vert (' + faux.vert + ')');
-      if(faux.score !== 1) dits.push('la copie fausse rapporte des points (score ' + faux.score + ')');
-      verifier('la fin de v recopié se pose au clic, la construction se trace, le reclic la retire', !dits.length, dits.slice(0, 3).join(' | '));
+      if(faux.prises) dits.push('les flèches se saisissent encore après la correction');
+      if(faux.score !== 2) dits.push('la copie fausse rapporte des points (score ' + faux.score + ')');
+      verifier('u et v glissent bout à bout, u + v se trace en deux clics, une flèche reste dans le quadrillage', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la somme de vecteurs ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
@@ -14627,10 +15162,16 @@ async function parcours(page, N){
       for(const [w, h] of [[390, 844], [360, 740]]){
         const sc = await ouvrir(chromium, ml, { viewport: { width: w, height: h } });
         try{
-          /* plus de pastille à cliquer : le champ du code est visible d'emblée,
-             sous celui du prénom — on attend l'écran, puis on pose le focus */
-          await sc.page.waitForSelector('#loginPrenom', { timeout: 15000 });
+          /* la case du code n'apparaît qu'après le clic sur une pastille : on
+             attend la liste, on force le pavé, on clique le prénom de l'élève
+             d'essai, puis on pose le focus */
+          await sc.page.waitForSelector('#nameChips .chip', { timeout: 15000 }).catch(() => {});
           await sc.page.evaluate(() => { window.__paveForce = true; paveObserver(); });
+          if(!await cliquerPastille(sc.page, PRENOM_CONTROLE)){
+            verifier('à ' + w + ' px en portrait, le pavé du code tient dans la largeur de l\'écran, replié sans défiler', false,
+              'aucune pastille « ' + PRENOM_CONTROLE + ' » à cliquer : la case du code n\'est pas atteignable');
+            continue;
+          }
           await sc.page.waitForTimeout(200);
           await sc.page.focus('#loginPin');
           await sc.page.waitForTimeout(400);
@@ -16270,9 +16811,9 @@ async function parcours(page, N){
       const racine = () => ({
         px: parseFloat(getComputedStyle(document.documentElement).fontSize),
         /* un texte de l'écran de connexion toujours présent — l'étiquette
-           « Ton prénom », en rem comme l'était la pastille : le même élément
-           est mesuré sur ordinateur et sur tablette, et son rapport est celui
-           de la racine */
+           « Choisis ton prénom », en rem comme la pastille, et là avant que
+           la liste ne soit lue : le même élément est mesuré sur ordinateur et
+           sur tablette, et son rapport est celui de la racine */
         texte: (function(){ const e = document.querySelector('#scr-login label.lab, h1, .brand'); return e ? parseFloat(getComputedStyle(e).fontSize) : 0; })(),
       });
       s = await ouvrir(chromium, ml, {});

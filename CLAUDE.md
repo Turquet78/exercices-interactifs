@@ -165,7 +165,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Renommer un élève ne passe PAS par la fonction Edge, et c'est la leçon du paragraphe précédent prise à l'envers.**
 - **Une sauvegarde remise en place casse la Première le lendemain.**
 - **Un élève dé-relié se connecte parfaitement — et tout ce qui est à lui est refusé.**
-- **La liste des prénoms ne se lit plus sans être connecté.**
+- **La liste des prénoms s'affiche de nouveau avant le code, et le prix est nommé.**
 - **Le plan gratuit de Supabase ne sauvegarde rien.**
 - **Supabase ne rend jamais plus de 1000 lignes par requête — et il coupe EN SILENCE.** Toute lecture d'une table de résultats passe par `lireToutes()`.
 
@@ -502,7 +502,7 @@ mémoire — exprès : aucun contrôle ne doit approcher les comptes réels. Ils
 donc **aveugles aux règles d'accès de la base**, et c'est là qu'étaient les
 fuites. `npm run test:base` comble ce trou sans jamais toucher au projet : il
 lève un PostgreSQL jetable, y recrée l'état d'avant, y joue les vraies
-migrations (001 à 004, 008 et 009 — les 005 à 007 sont du `storage`, propre
+migrations (001 à 004, 008, 009 et 010 — les 005 à 007 sont du `storage`, propre
 à Supabase, que ce banc ne sait pas lever), puis joue chaque rôle — visiteur,
 deux élèves, professeur — et vérifie ce que chacun obtient. Il éprouve aussi
 les scripts qui ÉCRIVENT dans la base vivante — la restauration d'une
