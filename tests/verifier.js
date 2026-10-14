@@ -8516,6 +8516,42 @@ function fractionsEtapes(w, P){
       if(!/simplifie/.test(($$('mltFeedback')||{}).textContent||'')) vus.push('produit : le message ne nomme pas la simplification : « '+(($$('mltFeedback')||{}).textContent||'')+' »');
       pose({n1:2,d1:3,n2:1,d2:5,a1:2,a2:1,b1:3,b2:5,P:2,Q:15});
       if($$('mlt-e0-dn')) vus.push('produit : 2/15 est irréductible, et une simplification est demandée');
+      /* SIMPLIFIER AVANT DE MULTIPLIER (octobre 2026) : sur 5/2 × 3/5, barrer
+         les 5 donne (1 × 3)/(2 × 1) = 3/2 — juste, et la chaîne disparaît. */
+      const Q53={n1:5,d1:2,n2:3,d2:5,a1:5,a2:3,b1:2,b2:5,P:15,Q:10};
+      pose(Object.assign({},Q53));
+      if(!$$('mlt-e0-dn')) vus.push('produit : 15/10 se simplifie, et aucune étape n’est posée d’emblée');
+      tape('mlt-h1',1); tape('mlt-h2',3); tape('mlt-b1',2); tape('mlt-b2',1); tape('mlt-fn',3); tape('mlt-fd',2);
+      if($$('mlt-e0-dn')) vus.push('produit : les 5 enlevés avant de multiplier, la chaîne de simplification reste posée');
+      checkMltAnswer();
+      if(!der() || !der().correct) vus.push('produit : 5/2 × 3/5 = (1×3)/(2×1) = 3/2 (facteur enlevé avant) est compté faux');
+      if(peint('mlt-h1')!=='juste') vus.push('produit : le 1 du facteur enlevé est peint '+peint('mlt-h1'));
+      /* … mais un produit FAUX des facteurs simplifiés ne passe pas */
+      pose(Object.assign({},Q53));
+      tape('mlt-h1',1); tape('mlt-h2',3); tape('mlt-b1',2); tape('mlt-b2',1); tape('mlt-fn',15); tape('mlt-fd',10);
+      checkMltAnswer();
+      if(der() && der().correct) vus.push('produit : (1×3)/(2×1) = 15/10 est compté juste');
+      /* … ni un facteur enlevé d'un seul côté */
+      pose(Object.assign({},Q53));
+      tape('mlt-h1',1); tape('mlt-h2',3); tape('mlt-b1',2); tape('mlt-b2',5); tape('mlt-fn',3); tape('mlt-fd',10);
+      checkMltAnswer();
+      if(der() && der().correct) vus.push('produit : le 5 enlevé en haut seulement est compté juste');
+      /* LE RÉSULTAT DONNÉ DIRECTEMENT : les quatre cases du produit vides */
+      pose(Object.assign({},Q53));
+      tape('mlt-fn',3); tape('mlt-fd',2);
+      checkMltAnswer();
+      if(!der() || !der().correct) vus.push('produit : 3/2 donné directement est compté faux');
+      if(['mlt-h1','mlt-h2','mlt-b1','mlt-b2'].some(function(id){ return peint(id)!=='rien'; }))
+        vus.push('produit : un résultat donné directement voit ses cases du produit remplies ou peintes');
+      /* … et s'il n'est pas simplifié, la chaîne part de lui */
+      pose(Object.assign({},Q53));
+      tape('mlt-fn',15); tape('mlt-fd',10);
+      checkMltAnswer();
+      if(der() && der().correct) vus.push('produit : 15/10 donné directement, sans simplifier, est compté juste');
+      pose(Object.assign({},Q53));
+      tape('mlt-fn',15); tape('mlt-fd',10); tape('mlt-e0-dn',5); tape('mlt-e0-n',3); tape('mlt-e0-d',2);
+      checkMltAnswer();
+      if(!der() || !der().correct) vus.push('produit : 15/10 donné directement puis simplifié en 3/2 est compté faux');
     }
     if(IDS.indexOf('diviser-fractions')>=0){
       currentTestId='diviser-fractions'; TESTS['diviser-fractions'].start();
@@ -8524,6 +8560,17 @@ function fractionsEtapes(w, P){
         .forEach(function(p){ tape(p[0],p[1]); });
       checkMltAnswer();
       if(!der() || !der().correct) vus.push('quotient : 2/3 ÷ 4/5 = 2/3 × 5/4 = 10/12 = 5/6 est compté faux');
+      /* le 2 enlevé avant de multiplier : 2/3 × 5/4 = (1 × 5)/(3 × 2) = 5/6 */
+      test.questions=[{n1:2,d1:3,n2:4,d2:5,a1:2,a2:5,b1:3,b2:4,P:10,Q:12}]; test.idx=0; test.locked=false; renderMltTest();
+      [['mlt-i1',5],['mlt-i2',4],['mlt-h1',1],['mlt-h2',5],['mlt-b1',3],['mlt-b2',2],['mlt-fn',5],['mlt-fd',6]]
+        .forEach(function(p){ tape(p[0],p[1]); });
+      checkMltAnswer();
+      if(!der() || !der().correct) vus.push('quotient : 2/3 × 5/4 = (1×5)/(3×2) = 5/6 (facteur enlevé avant) est compté faux');
+      /* le résultat direct ne dispense pas de l'inverse */
+      test.questions=[{n1:2,d1:3,n2:4,d2:5,a1:2,a2:5,b1:3,b2:4,P:10,Q:12}]; test.idx=0; test.locked=false; renderMltTest();
+      tape('mlt-fn',5); tape('mlt-fd',6);
+      checkMltAnswer();
+      if(der() && der().correct) vus.push('quotient : le résultat direct sans l’inverse écrit est compté juste');
     }
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
