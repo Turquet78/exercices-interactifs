@@ -134,6 +134,164 @@ longueur des codes lit les *fichiers du dépôt* — il ne voit pas ce qui tourn
 Le seul garde-fou qui le voie est dans la page : elle vérifie la longueur des
 codes reçus et avertit. Après toute modification de la fonction, redéployer.
 
+**L'aide par IA tourne sur Claude Haiku 5.5, et sa fonction Edge a un banc qui
+l'exécute.** Décision de Turquet (octobre 2026, deuxième point de « on peut
+faire quoi d'autre ») : `corriger-definition`, qui porte TOUTE l'aide par IA
+des trois niveaux — l'indice du bouton « Conseil », la fenêtre « Pose ta
+question à l'IA », la vérification des réponses rédigées, les rédactions du
+TVI, les définitions des ensembles —, quitte Claude Haiku 4.5
+(`claude-haiku-4-5-20251001`) pour Claude Haiku 5.5, `claude-haiku-5-5`, SANS
+suffixe de date. Elle parle toujours au modèle en HTTP brut, par `fetch` : il
+s'agissait de changer de modèle, pas de réécrire le client.
+**Ce que Haiku 5.5 change, et ce que la fonction en fait.** Il refuse d'un 400
+un réglage d'échantillonnage (`temperature`, `top_p`, `top_k`), un
+préremplissage, un budget de réflexion (`budget_tokens`) : la fonction n'en
+envoyait aucun, n'en envoie toujours aucun, et un contrôle le tient désormais.
+Il RÉFLÉCHIT avant de répondre, par défaut, et cette réflexion se décompte de
+`max_tokens` — où le même texte pèse en outre environ 30 % de tokens de plus.
+À 900, la borne d'avant, la réflexion pouvait la consommer entière : réponse
+arrêtée sur « max_tokens » sans un mot, l'élève sans rien. `MAX_TOKENS` passe à
+16000, et ce n'est PAS la longueur de ce que lit l'élève — celle-ci est tenue
+par les consignes, le coût par les quotas, qui n'ont pas bougé. La profondeur
+de la réflexion se règle par l'EFFORT (`output_config.effort`), jamais par une
+phrase de consigne : « low » pour l'indice du bouton « Conseil » (deux ou trois
+phrases, l'élève attend), « medium » pour les VERDICTS (`verif`, `redaction`,
+`definition`), où l'exactitude passe avant la vitesse — et « medium » aussi
+pour la QUESTION D'UN ÉLÈVE. Celle-là part en action `conseil` comme l'indice,
+mais elle exige souvent un EXEMPLE NUMÉRIQUE COMPLET calculé jusqu'au résultat,
+la sortie la plus calculatoire de l'application ; le premier jet l'envoyait à
+« low » sur la foi d'un postulat faux (« un conseil, c'est deux ou trois
+phrases »), et c'est la relecture qui l'a vu. La fonction la reconnaît au
+marqueur que les trois pages posent en tête du contexte, « MISSION « réponse à
+une question d'élève » » (sans accents en Seconde), comme elle reconnaît les
+deux dérivées historiques à leur attendu. Enfin la réponse COMMENCE par un ou
+plusieurs blocs `thinking`, au texte vide : la fonction lisait déjà les blocs
+par type, jamais `content[0]` — ce bord n'était tenu que par la forme du code,
+il l'est maintenant par des contrôles.
+**`stop_reason` se lit AVANT le contenu, et ce qui n'est pas une réponse rend
+une ERREUR, jamais un verdict.** Trois fins rendent un HTTP 200 inutilisable.
+Le REFUS d'un classificateur de sécurité (`stop_reason: "refusal"`,
+`stop_details.category` — `cyber`, `bio`, `frontier_llm`, `general_harms` —,
+`content` vide ou partiel), sans AUCUN repli côté serveur pour Haiku 5.5 : le
+paramètre `fallbacks` n'est pas envoyé (une liste y serait un 400). La COUPURE
+(`stop_reason: "max_tokens"`), la réflexion ayant tout pris ou la borne tombant
+au milieu du JSON d'un verdict. La réponse ILLISIBLE : un 200 sans texte, un
+texte qui n'est pas le JSON demandé, un JSON sans « correct » booléen — ou une
+rédaction sans ses critères. La fonction d'avant rendait, dans ces trois cas,
+un verdict « faux » de secours (« Je n'ai pas pu analyser ta réponse… »,
+`correct: false`), la prose brute du modèle (« Ta réponse x = 3 est correcte,
+bravo ! », comptée FAUSSE), « Je n'ai pas de conseil pour l'instant », ou le
+JSON coupé recopié sous les yeux de l'élève. Sans `error`, rien ne disait aux
+pages que ce n'était pas un verdict : en Terminale, le TVI rédigé (`checkTVI3`)
+et la lecture graphique des limites (`checkLR`) comptaient la copie fausse et
+VERROUILLAIENT la question hors soutien, là où une erreur n'est « ni comptée ni
+verrouillée » et propose « Réessayer » ; en Seconde et en Première, le juge
+local ne prenait pas la main (`(!res || res.error) && juge.sait`). Désormais :
+une erreur, journalisée dans `corrections_ia` (`[refus du modèle :
+<catégorie>]`, `[réponse coupée]`, `[réponse illisible] …` — la ligne compte
+dans les quotas, et le professeur la lit), avec une trace `console.warn` dans
+les journaux de la fonction. Le message suit ce que l'élève a fait : un refus
+sur l'indice dit « L'IA n'a pas pu donner d'indice sur cet exercice » (l'élève
+n'a rien écrit, il n'a rien à reformuler), sur une question « L'IA n'a pas pu
+répondre à cette question. Reformule-la… », sur un verdict « L'IA n'a pas pu
+relire ta réponse » (ne pas l'inviter à changer une réponse peut-être juste).
+Et une erreur HTTP ne dit plus à l'élève de « vérifier la clé API » : une
+SURCHARGE (429, 529, toute 5xx — sans repli serveur, elle arrive telle quelle)
+dit « L'IA est très sollicitée, réessaie dans un instant (code N) », une erreur
+de CONFIGURATION (400, 401, 403, 404…) dit « L'aide IA est mal configurée
+(code N) : préviens ton professeur » ; le code reste dans le message, c'est lui
+que la notice apprend à lire.
+**Le banc : `tests/fonction-ia.js`.** `npm run test:fonction` le joue avec
+celui d'`admin-eleve` par un petit lanceur, `tests/fonctions.js`, qui mène les
+DEUX bancs au bout et échoue si l'un échoue — le premier jet les enchaînait par
+`&&`, et un `admin-eleve` rouge taisait l'état de l'aide IA. Même méthode que
+`tests/fonction-edge.js` : la vraie fonction chargée dans Node avec trois
+substitutions (l'import de supabase-js, `Deno.serve`, `Deno.env`). Un faux
+Supabase porte les trois tables d'élèves et `corrections_ia`, qui ne sait que
+compter et noter ses insertions. `fetch` est servi par un FAUX MODÈLE qui note
+chaque requête, corps et en-têtes, et rend la réponse écrite par le contrôle :
+DEUX blocs de réflexion d'abord, toujours — avec un seul, lire `content[1]`,
+« puisque le texte est maintenant le second bloc », passait tout le banc. Le
+faux `fetch` est posé avant le moindre chargement : aucun code de la fonction
+ne voit jamais le `fetch` natif, et tout appel hors `api.anthropic.com` fait
+échouer le banc, compté une seule fois. Les bornes et l'origine se LISENT dans
+la source ; le marqueur des questions d'élève se LIT dans les trois pages ; le
+modèle exigé est écrit deux fois, dans la fonction et dans le banc, exprès.
+Cinquante-deux contrôles, en cinq sections. 0, CE QUE LE BANC LIT DANS LA
+FONCTION. 1, CE QUI PART AU MODÈLE — les quatre actions relues requête par
+requête, avec leur second bord (« rien mesuré : aucune requête notée par le
+faux modèle ») : « le modèle demandé est exactement « claude-haiku-5-5 » »,
+« aucun paramètre d'échantillonnage (temperature, top_p, top_k) : Haiku 5.5 les
+refuse », « la conversation finit par un message « user » : aucun
+préremplissage », « la réflexion est absente ou adaptative, sans
+budget_tokens », « l'effort vaut « low » pour l'indice du bouton Conseil,
+« medium » pour verif, redaction et definition », « max_tokens laisse place à
+la réflexion (≥ 8000) », « aucun repli demandé : ni champ « fallbacks », ni
+en-tête anthropic-beta de repli », « la clé part dans x-api-key, et nulle part
+dans le corps », « les en-têtes anthropic-version (2023-06-01) et content-type
+(application/json) sont envoyés », « une question d'élève (marqueur MISSION lu
+dans les trois pages) part à l'effort « medium », l'indice reste à « low » ».
+2, CE QUI REVIENT À L'ÉLÈVE — le texte du bloc `text` et jamais la réflexion,
+« verif : trois blocs thinking avant le texte rendent encore { correct: true } »,
+les critères de la rédaction tranchés par la fonction (« un critère faux rend
+correct: false, même si le modèle dit true »), une ligne de journal par appel.
+3, REFUS, COUPURES ET RÉPONSES ILLISIBLES — chaque contrôle y exige que la
+réponse du faux modèle ait été SERVIE (une erreur rendue avant le modèle ne le
+satisfait plus) et le message PROPRE au cas ; le refus sous ses trois formes
+(« un refus du modèle sur « verif » rend une erreur qui le dit, jamais
+correct: true », « un refus survenu APRÈS la réflexion (content partiel) rend la
+même erreur », « un refus survenu au milieu du texte ne montre rien de ce
+texte », « un refus sans stop_details rend la même erreur, et se journalise »),
+ses trois messages, les deux coupures, quatre réponses illisibles (« une
+réponse sans texte sur « verif » rend une erreur, jamais un verdict », « un
+texte qui n'est pas le JSON demandé, sur « verif », rend une erreur, jamais
+correct: false », « une rédaction jugée sans ses critères rend une erreur »,
+« un indice sans texte rend une erreur, pas le texte de secours »), la
+surcharge et la configuration (« une surcharge (HTTP 529) dit de réessayer, et
+cite le code », « une erreur de configuration (HTTP 404) dit de prévenir le
+professeur, et cite le code »). 4, LES GARDES AVANT LE MODÈLE — ZÉRO requête
+exigée pour chacune, chaque borne jouée à la limite ET juste en dessous, un
+témoin d'abord : élève inconnu, quota journalier (100, lu dans la source),
+plafond horaire (600), origine étrangère, contexte au-delà de `MAX_CTX`, clé
+absente, préflight OPTIONS. Les contrôles de `tests/verifier.js` qui LISENT la
+source (`MAX_CTX`, les troncatures) retrouvent leur valeur.
+**Éprouvé par sabotage, et par deux relectures.** Joué sur la fonction d'avant,
+le banc rougit vingt fois sur cinquante-deux. Douze sabotages, joués sur une
+copie, rougissent chacun sur le contrôle visé : l'ancien modèle (« ✗ le modèle
+demandé est exactement « claude-haiku-5-5 » → conseil : model =
+"claude-haiku-4-5-20251001" | … »), `temperature: 0`, `MAX_TOKENS` à 900,
+`content[1]` au lieu du filtre par type (treize rouges), le refus guetté par
+« content vide » (« ✗ un refus survenu APRÈS la réflexion (content partiel)
+rend la même erreur → message : {"error":"La réponse de l'IA est illisible.
+Réessaie."} »), `stop_details` lu sans garde (« ✗ un refus sans stop_details rend
+la même erreur, et se journalise → message : {"error":"Impossible de joindre
+l'IA (réseau ou clé). Réessaie."} ; journal : [] »), `anthropic-version` faux,
+`content-type` retiré, la réponse illisible rendue en verdict (« ✗ un texte qui
+n'est pas le JSON demandé, sur « verif », rend une erreur, jamais correct: false
+→ message : {"correct":false,"feedback":"Ta réponse x = 3 est correcte, bravo
+!"} »), le marqueur des questions cassé (« ✗ une question d'élève (marqueur
+MISSION lu dans les trois pages) part à l'effort « medium », l'indice reste à
+« low » → en défaut : secondes.html (effort "low"), … »), un message de refus
+unique, l'ancien message HTTP. Cinq de ces sabotages passaient au vert sur le
+premier jet du banc, que la seconde relecture a renforcé : un banc qui annonce
+tenir « les blocs se lisent par type » et ne sert jamais qu'un seul bloc de
+réflexion ne tient que `content[0]`.
+**Ce qu'aucun banc ne voit, et le dire vaut mieux que de le taire.** La
+fonction DÉPLOYÉE : elle ne se met jamais à jour toute seule (paragraphe
+précédent), et tant qu'elle n'est pas redéployée à la main l'aide tourne sur
+Haiku 4.5 — `supabase/LISEZMOI.md` (5 bis) dit le geste, la vérification et le
+retour arrière. Que l'API accepte réellement ce corps : il n'y a aucune clé
+ici, c'est voulu, et seule la référence de l'API le tient. La qualité réelle
+des réponses et des verdicts à ces efforts : aucune copie n'a été jugée par le
+vrai Haiku 5.5, et le point de l'audit « éprouver les rédactions avec le vrai
+modèle » reste ouvert. La fréquence réelle des refus, des coupures et des
+réponses illisibles : les lignes `[refus …]`, `[réponse coupée]` et `[réponse
+illisible]` de `corrections_ia` la diront. Le coût réel : le tarif par token de
+Haiku 5.5 est bien plus bas que celui de Haiku 4.5, mais la réflexion ajoute
+des tokens de sortie ; le bilan se lit dans la console Anthropic. La durée :
+la réflexion à l'effort « medium » ajoute quelques secondes avant le texte, non
+mesurées.
+
 **Renommer un élève ne passe PAS par la fonction Edge, et c'est la leçon du
 paragraphe précédent prise à l'envers.** Le professeur peut changer le prénom
 d'un élève depuis sa liste (demande de Turquet, août 2026) : jusqu'ici le seul
