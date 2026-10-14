@@ -679,7 +679,12 @@ points de chaque question tiennent dans [1 ; 8], puis joue une question en
 MNOP (forme MNPO) : énoncé, étiquettes M, N, O sans A ni D, liste « MNOP »,
 phrase « de O à P », vecteur OP, la phrase « de M à N » jugée juste, une
 copie à 3 sur 5, le pourquoi, la réponse enregistrée et le contexte du
-modèle en M, N, O, P.
+modèle en M, N, O, P. Éprouvé par trois sabotages, le contrôle rejoué seul
+dans un vrai Chromium : le centrage retiré (« un des trois parallélogrammes
+possibles a son quatrième point en (−3 ; 7) »), les lettres figées sur ABCD
+(« les jeux sortis sont ABCD »), un juge qui compare au rôle au lieu de la
+lettre affichée (« la phrase de M à N n'est pas jugée juste ») — chacun
+rougit, la page intacte reste verte.
 
 ## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v481)
 
