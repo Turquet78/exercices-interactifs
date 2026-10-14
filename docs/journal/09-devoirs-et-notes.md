@@ -1351,7 +1351,8 @@ l'écran une réponse juste, une fausse, une montrée, une attendue non ouverte,
 et quatre champs peints qui ne sont pas des réponses — attendu, 1 juste sur 4.
 La Seconde et la Première, dont le crédit partiel reste suspendu, s'y déclarent
 (`notes.creditPartielSuspendu`), et la déclaration rougira dès que leur compte
-sera sûr. Deux sous-comptes de la Terminale restent pour la pull request
+sera sûr. Éprouvé en remettant les miroirs dans le compte : « ptsEcran()
+compte 2 juste(s) sur 5 case(s), au lieu de 1 sur 4 ». Deux sous-comptes de la Terminale restent pour la pull request
 suivante, parce que la note y est trop BASSE et non gonflée : les réponses a)
 et b) du {tvi-lecture-graphique}, qui ne comptent jamais, et les feuilles de
 {derivee-exp-2} et {derivee-exp-quotient-2}, qui sont la réponse notée et
