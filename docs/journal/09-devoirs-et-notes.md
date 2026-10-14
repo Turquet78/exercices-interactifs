@@ -1149,7 +1149,7 @@ l'identifiant de la famille) ; sinon la SEULE `finish…()` qui écrit
 l'identifiant en toutes lettres ; sinon celle du niveau (`notes.finDirecte`,
 `finishTest`). Une fin mal choisie ne passe pas inaperçue : elle range la
 note sous un autre identifiant, et le juge le dit. Bilan de la première
-passe complète : Seconde 194 exercices sur 194 (69 par la fin directe),
+passe complète : Seconde 197 exercices sur 197 (69 par la fin directe),
 Première 67 sur 67 (35), Terminale 52 sur 52 (17). `notes.horsAtteinte` est
 vide aux trois niveaux.
 
