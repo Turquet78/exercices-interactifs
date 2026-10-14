@@ -600,7 +600,7 @@ module.exports = {
        horsAtteinte : les exercices que le banc ne sait pas mener jusqu'à une
        question corrigée (le correctif, lui, est commun : snapshotTest et
        resumeTest). Une déclaration qui ne sert plus rougit. */
-    pauseReprise: { horsAtteinte: {
+    pauseReprise: { minuterie: 'calcul-mental', parcours: 'fractions-decimales', horsAtteinte: {
       'tables-multiplication': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause',
       'tables-multiplication-2': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause'
     } },
@@ -1205,7 +1205,7 @@ module.exports = {
        horsAtteinte : les exercices que le banc ne sait pas mener jusqu'à une
        question corrigée (le correctif, lui, est commun : snapshotTest et
        resumeTest). Une déclaration qui ne sert plus rougit. */
-    pauseReprise: { horsAtteinte: {
+    pauseReprise: { minuterie: 'calcul-mental', parcours: 'fractions-decimales', horsAtteinte: {
       'tables-multiplication': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause',
       'tables-multiplication-2': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause',
       'plus-petit-ensemble': 'les ensembles se choisissent un à un, dans l\'ordre : le banc ne sait pas construire la réponse',
@@ -2644,7 +2644,7 @@ module.exports = {
        horsAtteinte : les exercices que le banc ne sait pas mener jusqu'à une
        question corrigée (le correctif, lui, est commun : snapshotTest et
        resumeTest). Une déclaration qui ne sert plus rougit. */
-    pauseReprise: { horsAtteinte: {
+    pauseReprise: { minuterie: 'derivees', horsAtteinte: {
       'signe-premier-degre': 'la vérification est refusée tant que le tableau de signes n\'est pas complet et cohérent : le banc ne sait pas le construire',
       'signe-produit': 'la vérification est refusée tant que le tableau de signes n\'est pas complet et cohérent : le banc ne sait pas le construire',
       'signe-quotient-carre': 'la vérification est refusée tant que le tableau de signes n\'est pas complet et cohérent : le banc ne sait pas le construire',

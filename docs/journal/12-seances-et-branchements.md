@@ -198,3 +198,37 @@ ses lignes avec un compteur, il n'en souffre pas. Le tirage fixé a fait passer
 `pause` servait déjà les bancs principal et navigateur, et l'écrire une seconde
 fois l'aurait écrasée en silence (journal 17) — la lecture du profil l'a montré
 avant `npm test`.
+**Puis la relecture adversariale de la pull request a trouvé trois défauts, dont
+une régression.** Quatre relecteurs, chaque constat reproduit dans un vrai
+Chromium par un sceptique avant d'être retenu :
+* **La minuterie orpheline (une régression de ce correctif).** Avec un temps par
+  question (`secondsPerQuestion`), la reprise d'une question corrigée la
+  redessinait, puis passait à la suite dans la même image : deux
+  `startQTimer`, deux `requestAnimationFrame` — et aucun `clearTimeout` ne
+  peut annuler une image en attente. Deux chaînes de `tickTimer` tournaient ;
+  la pause suivante n'en coupait qu'une, et l'orpheline validait seule les
+  questions vides jusqu'à `finishTest()` : une note posée sur l'écran des
+  modes, même après un abandon. Sur `main`, la reprise ne dessinait qu'une
+  fois, et rien ne bougeait. Correctif à la source : `startQTimer` annule
+  l'image encore en attente (`test.qRaf`), et la pause comme l'abandon
+  l'annulent aussi. Un scénario du banc le tient (« la minuterie ne survit
+  pas à la reprise » : valider, « Pause » pendant la correction, reprendre,
+  « Pause » aussitôt, attendre plus que le temps par question), éprouvé en
+  remettant l'ancien `requestAnimationFrame` : « 2 réponse(s) poussée(s) après
+  la pause ».
+* **La fin d'un niveau du parcours.** Sur l'écran « Niveau N terminé » des
+  fractions décimales, le seul bouton est « Niveau N + 1 → », dont le
+  gestionnaire est `goNextLevel` — absent du motif des suites. La reprise
+  rouvrait la dernière question du niveau ; revérifiée, elle comptait deux
+  fois, et le niveau aussi. `goNextLevel` entre dans le motif, aux deux
+  endroits qui le lisent (le brouillon et la reprise : l'un sans l'autre,
+  le brouillon rangerait une suite que la reprise refuse). Scénario du banc :
+  un niveau réussi posé par `endLevel()`, la pause, la reprise — le niveau
+  suivant, sans réponse ni niveau de plus ; éprouvé en retirant `goNextLevel`
+  (« la reprise rouvre le niveau 1 au lieu du niveau 2 »).
+* **Un trou du banc.** Une question restée à l'écran après la reprise était
+  revérifiée sur une copie VIDE, et classée « sur place » si rien ne
+  partait — sans lire son verrou. Or toute question validée par le bouchon
+  refuse le vide de toute façon. Le banc lit d'abord le verrou (une question
+  corrigée qui rouvre déverrouillée est le défaut même, « rouverte »), puis
+  revérifie avec la copie qui l'avait validée.

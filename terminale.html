@@ -4930,7 +4930,7 @@ let pausedRows={};
 function marquerSuite(f){ test.suite={f:f, idx:test.idx, kind:test.kind}; }
 function suiteDeLEcran(){
   const scr=document.querySelector('.screen.on'); if(!scr) return '';
-  const RE=/^(next\w*|finish\w*|endLevel)$/;
+  const RE=/^(next\w*|finish\w*|endLevel|goNextLevel)$/;   /* goNextLevel : « Niveau N → » d'un parcours réussi */
   for(const b of scr.querySelectorAll('button')){
     if(b.disabled || b.hidden || !b.getClientRects().length) continue;
     let nom=(typeof b.onclick==='function' && b.onclick.name && b.onclick.name!=='onclick') ? b.onclick.name : '';
@@ -4946,7 +4946,7 @@ function suiteDeLaQuestion(){
   return suiteDeLEcran() || nommee;
 }
 function snapshotTest(){
-  const skip={qTimer:1,qDeadline:1,qTotal:1,fbTimer:1,locked:1,startTime:1,_boxes:1,_suite:1};
+  const skip={qTimer:1,qRaf:1,qDeadline:1,qTotal:1,fbTimer:1,locked:1,startTime:1,_boxes:1,_suite:1};
   const snap={}; Object.keys(test).forEach(k=>{ if(!skip[k]) snap[k]=test[k]; });
   const suite=suiteDeLaQuestion(); if(suite){ snap.locked=true; snap._suite=suite; }   /* question déjà corrigée : la reprise passe à la suite */
   return snap;
@@ -5131,7 +5131,7 @@ async function enregistrerNotePartielle(){
 }
 async function pauseTest(){
   if(!currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
-  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer); cancelAnimationFrame(test.qRaf);
   $('testCtrls').hidden=true;
   let okPause=false;
   try{
@@ -5152,7 +5152,7 @@ async function pauseTest(){
 async function abandonTest(){
   if(!currentEleve) return;
   if(!confirm('Abandonner cet exercice ? Aucune note ne sera enregistrée.')) return;
-  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer); cancelAnimationFrame(test.qRaf);
   $('testCtrls').hidden=true;
   /* ABANDONNER N'ENREGISTRE AUCUNE NOTE (décision de Turquet, août 2026).
      Le même bouton faisait trois choses différentes selon l'endroit : rien en
@@ -5320,7 +5320,7 @@ async function resumeTest(mode){
   Object.keys(test).forEach(k=>delete test[k]);
   Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
   /* une question déjà corrigée (snapshotTest) : la reprise passe à sa suite */
-  const suite=(d.locked===true && typeof d._suite==='string' && /^(next\w*|finish\w*|endLevel|suiteMinuteur)$/.test(d._suite) && typeof window[d._suite]==='function') ? d._suite : '';
+  const suite=(d.locked===true && typeof d._suite==='string' && /^(next\w*|finish\w*|endLevel|goNextLevel|suiteMinuteur)$/.test(d._suite) && typeof window[d._suite]==='function') ? d._suite : '';
   const skip={state:1,test:1,mode:1,_boxes:1,locked:1,_suite:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
   test.startTime=Date.now()-((row.duration_sec||0)*1000);
   test.locked=false;
@@ -7070,7 +7070,13 @@ function startQTimer(sec){
   const bar=$('timerBar'),fill=$('timerFill');
   bar.hidden=false;bar.classList.remove('low');fill.style.transition='none';fill.style.width='100%';
   test.qTotal=sec*1000;test.qDeadline=Date.now()+test.qTotal;
-  requestAnimationFrame(()=>{fill.style.transition='width .25s linear';tickTimer();});
+  /* UNE SEULE CHAÎNE DE MINUTERIE : l'image demandée ici n'est annulée par aucun
+     clearTimeout, et deux rendus dans la même image (une reprise qui passe
+     à la suite d'une question corrigée) lançaient deux chaînes — l'orpheline,
+     que la pause ne coupait pas, finissait la séance toute seule et posait
+     une note, même après un abandon (relecture d'octobre 2026). */
+  cancelAnimationFrame(test.qRaf);
+  test.qRaf=requestAnimationFrame(()=>{test.qRaf=0;fill.style.transition='width .25s linear';tickTimer();});
 }
 function tickTimer(){
   const left=test.qDeadline-Date.now(),fill=$('timerFill'),bar=$('timerBar');

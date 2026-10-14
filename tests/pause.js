@@ -180,7 +180,7 @@ async function mener(page, id){
     }
     await page.waitForTimeout(700);
     const e = await page.evaluate(ETAT);
-    if(e.locked && !e.fini && (e.n > e0.n || e.score > e0.score)) corrige = e;
+    if(e.locked && !e.fini && (e.n > e0.n || e.score > e0.score)){ corrige = e; corrige.bouchon = Math.min(essai, 3); }
     if(e.fini) return { raison: 'la séance s\'est close dès la première vérification' };
   }
   if(!corrige) return { raison: 'aucune question corrigée : la copie ne se valide pas, même remplie de zéros' };
@@ -206,10 +206,14 @@ async function mener(page, id){
   const toast = await page.evaluate(() => ((document.getElementById('toast') || {}).textContent || ''));
   let issue;
   if(e2.fini || e2.idx !== corrige.idx) issue = 'suite';
+  else if(!e2.locked) issue = 'rouverte';   /* la question corrigée rouvre déverrouillée : c'est le défaut lui-même */
   else {
-    /* restée à l'écran : l'élève revérifie — rien ne doit partir */
+    /* restée à l'écran, verrouillée : l'élève revérifie avec la copie qui
+       l'avait validée — rien ne doit partir. (Revérifier une copie VIDE ne
+       prouvait rien : une page qui refuse le vide l'aurait refusée de toute
+       façon — relecture d'octobre 2026.) */
     const avant = e2;
-    await page.evaluate(VERIFIER, { bouchon: 0 });
+    await page.evaluate(VERIFIER, { bouchon: corrige.bouchon });
     await page.waitForTimeout(700);
     e2 = await page.evaluate(ETAT);
     issue = (e2.n === avant.n && e2.score === avant.score) ? 'sur place' : 'rejugée';
@@ -255,12 +259,94 @@ async function mener(page, id){
       mesures++;
       if(r.issue === 'suite'){ suites++; if(/déjà corrigée/.test(r.toast)) annonces++; }
       else if(r.issue === 'sur place') surPlace++;
-      if(r.issue === 'rejugée' || r.e2.n !== r.corrige.n || r.e2.score !== r.corrige.score)
+      if(r.issue === 'rejugée' || r.issue === 'rouverte' || r.e2.n !== r.corrige.n || r.e2.score !== r.corrige.score)
         rejugees.push(num + ' ' + id + ' — ' + r.corrige.n + ' réponse(s), ' + r.corrige.score + ' point(s) à la pause ; '
-          + r.e2.n + ' et ' + r.e2.score + ' après la reprise' + (r.issue === 'rejugée' ? ', la question rouverte s\'est rejugée' : ''));
+          + r.e2.n + ' et ' + r.e2.score + ' après la reprise'
+          + (r.issue === 'rejugée' ? ', la question rouverte s\'est rejugée' : r.issue === 'rouverte' ? ', la question corrigée a rouvert déverrouillée' : ''));
     }
     await s.page.evaluate(() => { try{ clearTimeout(test.fbTimer); clearTimeout(test.qTimer); show('space'); }catch(e){} });
   }
+  /* ---- LA MINUTERIE NE SURVIT PAS À LA REPRISE (relecture d'octobre 2026) ----
+     Avec un temps par question, la reprise d'une question corrigée lançait
+     DEUX chaînes de minuterie ; l'orpheline, que la pause ne coupait pas,
+     validait seule les questions suivantes et finissait la séance — une note
+     posée même après un abandon. Le geste de l'élève : valider, « Pause »
+     pendant la correction, reprendre, « Pause » aussitôt, puis attendre plus
+     longtemps que le temps par question. Rien ne doit bouger. */
+  const MIN = (P.pauseReprise || {}).minuterie;
+  let minuterie = null;
+  /* l'exercice existe dans TESTS (les dérivées chronométrées de la Terminale
+     ne sont plus au menu, mais leur minuterie est celle du calcul mental) */
+  if(MIN && await s.page.evaluate(x => !!(typeof TESTS !== 'undefined' && TESTS[x]), MIN)){
+    await s.page.evaluate(SEMER, graine(MIN));
+    const k0 = await s.page.evaluate(() => window.__faux.journal.length);
+    minuterie = await s.page.evaluate(async a => {
+      await lancerDevoirExo(a.DM, a.id, 'train');
+      return '';
+    }, { DM, id: MIN });
+    await s.page.waitForTimeout(300);
+    for(let hop = 0; hop < 3; hop++){ if(!await s.page.evaluate(SAUT)) break; await s.page.waitForTimeout(400); }
+    minuterie = await s.page.evaluate(async a => {
+      if(typeof cfg === 'undefined' || !cfg) return 'pas de réglage cfg';
+      cfg.secondsPerQuestion = 2;
+      if(typeof renderQuestion === 'function') renderQuestion();   /* la question en cours, avec sa minuterie */
+      await new Promise(r => setTimeout(r, 300));
+      if(typeof submitAnswer !== 'function') return 'pas de submitAnswer';
+      submitAnswer();                                               /* une réponse vide, validée */
+      await new Promise(r => setTimeout(r, 150));
+      if(!test.locked) return 'la question ne s\'est pas verrouillée';
+      await pauseTest();                                            /* pendant le délai de correction */
+      const ecran = window.openTestDevoirModes || window.openTestDevoir;
+      await ecran(a.DM, a.id);
+      if(!pausedRows || !pausedRows.train) return 'aucun brouillon à reprendre';
+      await resumeTest('train');
+      await new Promise(r => setTimeout(r, 200));
+      const n = test.answers.length;
+      await pauseTest();                                            /* aussitôt, sur la question suivante */
+      await new Promise(r => setTimeout(r, 2000 + 3500));           /* plus que le temps par question */
+      const fin = document.getElementById('scr-results');
+      const finales = window.__faux.journal.slice(a.k0).filter(e => e.op === 'insert' && e.table === a.table && Array.isArray(e.lignes))
+        .reduce((x, e) => x + e.lignes.filter(l => l.details && !l.details.state && !l.details.partiel).length, 0);
+      return (test.answers.length !== n ? (test.answers.length - n) + ' réponse(s) poussée(s) après la pause ; ' : '')
+        + (finales ? finales + ' note(s) finale(s) posée(s) après la pause ; ' : '')
+        + (fin && fin.classList.contains('on') ? 'l\'écran des résultats a remplacé le menu' : '');
+    }, { DM, id: MIN, k0, table: P.tableResultats });
+    await s.page.evaluate(() => { try{ clearTimeout(test.fbTimer); clearTimeout(test.qTimer); show('space'); }catch(e){} });
+  }
+
+  /* ---- LA FIN D'UN NIVEAU DU PARCOURS (relecture d'octobre 2026) ----
+     Une pause sur l'écran « Niveau N terminé » rouvrait la dernière question
+     du niveau, déverrouillée : la suite du niveau réussi, goNextLevel, n'était
+     pas reconnue. Le banc pose un niveau réussi (endLevel), met en pause,
+     reprend : le niveau suivant, sans réponse ni niveau compté de plus. */
+  const PARC = (P.pauseReprise || {}).parcours;
+  let parcours = null;
+  if(PARC && await s.page.evaluate(x => !!(typeof TESTS !== 'undefined' && TESTS[x]), PARC)){
+    await s.page.evaluate(SEMER, graine(PARC));
+    await s.page.evaluate(async a => { await lancerDevoirExo(a.DM, a.id, 'train'); }, { DM, id: PARC });
+    await s.page.waitForTimeout(300);
+    for(let hop = 0; hop < 3; hop++){ if(!await s.page.evaluate(SAUT)) break; await s.page.waitForTimeout(400); }
+    parcours = await s.page.evaluate(async a => {
+      if(typeof endLevel !== 'function' || !Array.isArray(test.levels)) return 'pas de parcours en niveaux';
+      if(test.levels.length < 2) return 'un seul niveau';
+      test.levelScore = test.passNeeded; test.idx = test.questions.length - 1; test.locked = true;
+      endLevel();
+      const l0 = test.levelIdx, n0 = test.answers.length, r0 = test.results.length;
+      await pauseTest();
+      const ecran = window.openTestDevoirModes || window.openTestDevoir;
+      await ecran(a.DM, a.id);
+      if(!pausedRows || !pausedRows.train) return 'aucun brouillon à reprendre';
+      await resumeTest('train');
+      await new Promise(r => setTimeout(r, 500));
+      const pb = [];
+      if(test.levelIdx !== l0 + 1) pb.push('la reprise rouvre le niveau ' + (test.levelIdx + 1) + ' au lieu du niveau ' + (l0 + 2));
+      if(test.answers.length !== n0) pb.push((test.answers.length - n0) + ' réponse(s) de plus');
+      if(test.results.length !== r0) pb.push('le niveau compté ' + (test.results.length - r0 + 1) + ' fois');
+      return pb.join(' ; ');
+    }, { DM, id: PARC });
+    await s.page.evaluate(() => { try{ show('space'); }catch(e){} });
+  }
+
   const duree = Math.round((Date.now() - debut) / 1000);
   console.log('   (' + mesures + ' question(s) corrigée(s) mises en pause sur ' + ids.length + ' exercice(s) : '
     + suites + ' passée(s) à la suite, dont ' + annonces + ' annoncée(s), ' + surPlace + ' restée(s) verrouillée(s) ; ' + duree + ' s)');
@@ -279,6 +365,10 @@ async function mener(page, id){
     mesures > 0 && rejugees.length === 0, rejugees.length + ' exercice(s) :\n        ' + rejugees.join('\n        '));
   verifier('la reprise d\'une question corrigée qui passe à la suite le dit à l\'élève',
     annonces === suites, (suites - annonces) + ' reprise(s) sans le message « Question déjà corrigée »');
+  if(minuterie === null) console.log('   ○ la minuterie ne survit pas à la reprise  — non applicable : ce niveau ne déclare pas d\'exercice à minuterie (pauseReprise.minuterie)');
+  else verifier('la minuterie ne survit pas à la reprise : une pause après la reprise ne laisse rien tourner (' + MIN + ', 2 s par question)', minuterie === '', minuterie);
+  if(parcours === null) console.log('   ○ la fin d\'un niveau du parcours passe au niveau suivant à la reprise  — non applicable : ce niveau ne déclare pas de parcours (pauseReprise.parcours)');
+  else verifier('la fin d\'un niveau du parcours passe au niveau suivant à la reprise, sans rien recompter (' + PARC + ')', parcours === '', parcours);
   verifier('une pause n\'insère qu\'un brouillon, et aucun après le retour au menu',
     brouillons.length === 0, brouillons.join('\n        '));
   verifier('aucune erreur JavaScript pendant les séances', s.erreurs.length === 0, s.erreurs.slice(0, 5).join(' | '));
