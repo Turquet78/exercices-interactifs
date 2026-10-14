@@ -4496,6 +4496,7 @@ function exercices(suite){
     relationChasles(w, P);
     chaslesTroisVecteurs(w, P);
     chaslesSimplifier(w, P);
+    chaslesSansFigure(w, P);
     chaslesAlignes(w, P);
     tableauProportions(w, P);
     tableauProportionsLettres(w, P);
@@ -21222,6 +21223,166 @@ function chaslesAlignes(w, P){
     if(test.qId!=='chasles-alignes') vus.push('qId « '+test.qId+' »');
     const ctx=ctxCha(test.questions[0]).contexte;
     if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/nul/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret ni la méthode');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {chasles-sans-figure} — thème 8 « Vecteurs », 8.13 (Turquet, octobre 2026 :
+   « fais un exercice comme le 8.8 mais avec le pdf joint », la fiche 6
+   « Relation de Chasles », sans figure). Chaque correction de la page est
+   relue ICI par un juge indépendant : les lettres reçoivent des coordonnées
+   quelconques, la somme se calcule comme des déplacements, et « impossible »
+   veut dire qu'AUCUN vecteur kXY ne la vaut — jamais les fonctions de la page
+   qui corrigent. */
+function chaslesSansFigure(w, P){
+  const present = evaluer(w, "typeof startChl==='function' && typeof chlJuge==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('Chasles sans figure : la place, le tirage, la correction de la fiche',
+      'ce niveau n\'a pas l\'exercice « la relation de Chasles sans figure »');
+    return;
+  }
+  verifierEval(w, 'Chasles sans figure : la place, le tirage, la correction de la fiche', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='chasles-sans-figure';
+
+    /* ---- 0. la place : 8.13, le dernier du thème 8 ; pas de bouton des tables */
+    const th=THEMES.find(function(t){ return t.num===8; });
+    if(!th || th.ids.indexOf('chasles-sans-figure')<0) vus.push('l’exercice n’est pas dans le thème 8 « Vecteurs »');
+    if(TEST_NUM['chasles-sans-figure']!=='8.13') vus.push('numéro '+TEST_NUM['chasles-sans-figure']+' au lieu de 8.13');
+    if(TEST_NUM['relation-chasles']!=='8.8' || TEST_NUM['chasles-trois-vecteurs']!=='8.9' || TEST_NUM['chasles-simplifier']!=='8.10') vus.push('un exercice de Chasles (8.8 à 8.10) a bougé');
+    if(TABLES_SANS.indexOf('chasles-sans-figure')<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+
+    /* ---- le juge indépendant : des coordonnées quelconques ------------- */
+    const C={}; 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function(l, i){ C[l]=[Math.sin(i*12.9898+1)*7.31+i*0.37, Math.cos(i*78.233+2)*5.17-i*0.29]; });
+    const dep=function(v){ return [C[v[1]][0]-C[v[0]][0], C[v[1]][1]-C[v[0]][1]]; };
+    const eg=function(a, b){ return Math.abs(a[0]-b[0])<1e-7 && Math.abs(a[1]-b[1])<1e-7; };
+    const somme=function(e){ const S=[0,0]; String(e).replace(/([+-])([A-Z]{2})/g, function(_, s, v){ const d=dep(v), k=s==='-'?-1:1; S[0]+=k*d[0]; S[1]+=k*d[1]; return ''; }); return S; };
+    /* une réponse écrite (AF, 2AC, 0, impossible) est-elle juste pour la ligne ? */
+    const juste=function(e, r){
+      const S=somme(e), t=String(r).toUpperCase().replace(/\\s/g,'');
+      if(t==='IMPOSSIBLE'){
+        const L='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        if(eg(S,[0,0])) return false;
+        return !L.some(function(x){ return L.some(function(y){ if(x===y) return false; const d=dep(x+y);
+          for(let k=-4;k<=4;k++) if(k && eg(S,[k*d[0],k*d[1]])) return true; return false; }); });
+      }
+      if(t==='0') return eg(S,[0,0]);
+      const m=/^(-?\\d*)([A-Z])([A-Z])$/.exec(t); if(!m) return false;
+      const k=m[1]===''?1:(m[1]==='-'?-1:parseInt(m[1],10)), d=dep(m[2]+m[3]);
+      return eg(S,[k*d[0],k*d[1]]);
+    };
+    const FICHE=[['+AD+DF','+CB+CA','+DF-FG','+AB-AC','+RS+AR','+EG+GT','+AL-LA','-AD-DB'],
+                 ['+AB+BC+CA','+IJ+KI+JK','+AB+AC+BC','+DE+FG+EF+DG'],
+                 ['+AB-AC','+RT-ST+RS','+AB+MA-MB+BA','+MN-MP-PQ+MQ']];
+    const REP=[['AF','impossible','impossible','CB','AS','ET','2AL','BA'],['0','0','2AC','2DG'],['CB','2RS','BA','MN']];
+    FICHE.forEach(function(p, k){ p.forEach(function(e, i){ if(!juste(e, REP[k][i])) vus.push('le juge refuse la réponse de la fiche '+e+' = '+REP[k][i]); }); });
+    if(vus.length) return vus.join(' | ');
+    /* une correction de la page (case vide) relue par le juge */
+    const corrections=function(q){ return q.e.map(function(_, i){ return chlJuge(q, i).bon; }); };
+
+    /* ---- 1. le tirage : 300 séances, chaque correction relue ----------- */
+    let nImp=0;
+    for(let n=0;n<300 && !vus.length;n++){
+      const qs=chlBuildQuestions();
+      if(qs.length!==CHL_NB){ vus.push(qs.length+' pages au lieu de '+CHL_NB); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      for(let k=0;k<3;k++) if(qs[k].p!==k+1 || qs[k].e.join()!==FICHE[k].join()) vus.push('la page '+(k+1)+' n’est pas la partie '+(k+1)+' de la fiche');
+      qs.forEach(function(q, k){
+        if(q.p!==(k%3)+1) vus.push('la page '+(k+1)+' est la partie '+q.p);
+        if(q.e.length!==FICHE[q.p-1].length) vus.push('partie '+q.p+' : '+q.e.length+' lignes');
+        /* une ligne tirée est une ligne de la fiche, ses lettres changées */
+        const forme=function(e){ const m={}; let c=0; return e.replace(/[A-Z]/g, function(l){ if(!(l in m)) m[l]=String.fromCharCode(97+c++); return m[l]; }); };
+        const formesFiche=FICHE[q.p-1].map(forme).sort().join(), formesQ=q.e.map(forme).sort().join();
+        if(formesQ!==formesFiche) vus.push('partie '+q.p+' : les lignes '+q.e.join(' ')+' ne sont pas celles de la fiche');
+        if(k>=3 && q.e.some(function(e){ return /[OIWXYZ]/.test(e); })) vus.push('lettre interdite dans '+q.e.join(' '));
+        const bons=corrections(q);
+        q.e.forEach(function(e, i){
+          if(bons[i]==='impossible') nImp++;
+          if(!juste(e, bons[i])) vus.push('la correction de '+e+' écrit « '+bons[i]+' », faux pour le juge');
+        });
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    if(nImp!==300*2*(CHL_NB/3)) vus.push(nImp+' lignes impossibles en 300 séances');
+
+    /* ---- 2. la fiche, par le BOUTON ------------------------------------ */
+    startChl();
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const fb=function(){ return document.getElementById('chlFeedback').textContent; };
+    const poser=function(k, rs){ test.idx=k; test.locked=false; renderChlTest();
+      rs.forEach(function(r, i){ const el=document.getElementById('chl-'+i); if(el){ el.value=(r==null?'':r); chlForme(el); } }); };
+    const der=function(){ return test.answers[test.answers.length-1]||{}; };
+    for(let k=0;k<3;k++){
+      poser(k, REP[k]);
+      const ids=REP[k].map(function(_, i){ return 'chl-'+i; });
+      if(ids.some(function(id){ return !document.getElementById(id); })) return 'une case de la partie '+(k+1)+' manque à l’écran';
+      if(document.querySelectorAll('#chlHost .chl-imp').length!==(k===0?8:0)) vus.push('partie '+(k+1)+' : '+document.querySelectorAll('#chlHost .chl-imp').length+' boutons « impossible »');
+      checkChlAnswer();
+      if(!der().correct) vus.push('la copie juste de la partie '+(k+1)+' est comptée fausse : '+ids.filter(function(id){ return peint(id)!=='juste'; }).join(', '));
+      if(der().cases!==REP[k].length) vus.push('partie '+(k+1)+' : la note compte '+der().cases+' cases');
+    }
+    /* d’AUTRES écritures justes : minuscules, −2LA pour 2AL, « imp », AA pour 0, 2 × DG */
+    poser(0, ['af','imp','Impossible','cb','AS','E T','-2LA','ba']); checkChlAnswer();
+    if(!der().correct) vus.push('une autre écriture juste est comptée fausse (partie 1) : '+[0,1,2,3,4,5,6,7].filter(function(i){ return peint('chl-'+i)!=='juste'; }).join(', '));
+    poser(1, ['AA','0','2AC','2×DG']); checkChlAnswer();
+    if(!der().correct) vus.push('une autre écriture juste est comptée fausse (partie 2)');
+    /* « impossible » sur une somme possible : AD + DF */
+    poser(0, ['impossible'].concat(REP[0].slice(1))); checkChlAnswer();
+    if(peint('chl-0')!=='rouge' || peint('chl-1')!=='juste') vus.push('AD + DF = impossible : '+peint('chl-0')+', la ligne suivante '+peint('chl-1'));
+    if(!/possible/.test(fb()) || !/AF/.test(fb())) vus.push('le message ne montre pas que AD + DF = AF : « '+fb().slice(0,90)+' »');
+    /* un vecteur pour une somme impossible : CB + CA = AB */
+    poser(0, ['AF','AB'].concat(REP[0].slice(2))); checkChlAnswer();
+    if(peint('chl-1')!=='rouge') vus.push('CB + CA = AB est peint '+peint('chl-1'));
+    const badge=document.getElementById('chl-1').nextElementSibling;
+    if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='impossible') vus.push('la correction de CB + CA n’écrit pas « impossible » à côté');
+    if(!/aucun ordre/.test(fb())) vus.push('le message ne dit pas que CB et CA ne s’enchaînent pas');
+    /* le sens : AB − AC = BC */
+    poser(0, REP[0].slice(0,3).concat(['BC']).concat(REP[0].slice(4))); checkChlAnswer();
+    if(peint('chl-3')!=='rouge' || !/sens/.test(fb())) vus.push('AB − AC = BC : '+peint('chl-3')+', « '+fb().slice(0,60)+' »');
+    /* le nombre : AL − LA = AL */
+    poser(0, REP[0].slice(0,6).concat(['AL','BA'])); checkChlAnswer();
+    if(peint('chl-6')!=='rouge' || !/2AL/.test(fb())) vus.push('AL − LA = AL : '+peint('chl-6')+', « '+fb().slice(0,60)+' »');
+    /* la soustraction oubliée : RT − ST + RS = 2RT */
+    poser(2, ['CB','2RT','BA','MN']); checkChlAnswer();
+    if(peint('chl-1')!=='rouge' || !/oppos/.test(fb()) || !/TS/.test(fb())) vus.push('RT − ST + RS = 2RT : '+peint('chl-1')+', « '+fb().slice(0,80)+' »');
+    /* une écriture illisible */
+    poser(1, ['0','0','A','2DG']); checkChlAnswer();
+    if(peint('chl-2')!=='rouge' || !/ne se lit pas/.test(fb())) vus.push('« A » : '+peint('chl-2'));
+    /* une case vide ne rougit pas, et reçoit la correction */
+    poser(0, ['AF','','impossible','CB','AS','ET','2AL','BA']); checkChlAnswer();
+    if(peint('chl-1')!=='correction' || document.getElementById('chl-1').value!=='impossible') vus.push('la case vide de CB + CA : '+peint('chl-1')+' « '+document.getElementById('chl-1').value+' »');
+    if(!document.getElementById('chl-1').classList.contains('imp')) vus.push('« impossible » écrit par la correction n’élargit pas sa case');
+    if(!/manquait/.test(fb())) vus.push('le message ne nomme pas la case manquante');
+    /* une copie entièrement vide : rien de rouge, toute la correction juste */
+    for(let k=0;k<3;k++){
+      poser(k, []); checkChlAnswer();
+      REP[k].forEach(function(_, i){ const el=document.getElementById('chl-'+i);
+        if(peint('chl-'+i)==='rouge') vus.push('copie vide, partie '+(k+1)+' : la case '+(i+1)+' rougit');
+        if(!juste(FICHE[k][i], el.value)) vus.push('la correction écrit '+FICHE[k][i]+' = « '+el.value+' »'); });
+    }
+    /* le bouton « impossible » écrit le mot, et le retire */
+    poser(0, []);
+    chlImpossible(1);
+    const e1=document.getElementById('chl-1');
+    if(e1.value!=='impossible' || !e1.classList.contains('imp')) vus.push('le bouton n’écrit pas « impossible » : « '+e1.value+' »');
+    chlImpossible(1);
+    if(e1.value!=='' || e1.classList.contains('imp')) vus.push('le second appui ne retire pas « impossible »');
+    /* le soutien : peint au fil de la saisie, sans verrouiller */
+    currentMode='soutien'; poser(0, []);
+    const e0=document.getElementById('chl-0'); e0.value='AF'; checkChlAnswer(true);
+    if(peint('chl-0')!=='juste' || peint('chl-1')!=='rien') vus.push('le soutien peint '+peint('chl-0')+' la case remplie, '+peint('chl-1')+' la case vide');
+    e0.value='FA'; checkChlAnswer(true);
+    if(peint('chl-0')!=='rouge') vus.push('le soutien ne rougit pas FA');
+    if(test.locked) vus.push('la correction en direct verrouille la page');
+    currentMode='train';
+    /* le barème et l’identité */
+    startChl();
+    const total=test.questions.reduce(function(a,q){ return a+q.e.length; },0);
+    if(test.maxScore!==total || total!==16*CHL_NB/3) vus.push('barème de '+test.maxScore+' au lieu de '+total);
+    if(test.qId!=='chasles-sans-figure') vus.push('qId « '+test.qId+' »');
+    const ctx=ctxChl(test.questions[0]).contexte;
+    if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/impossible/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret ni la méthode');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
