@@ -682,6 +682,50 @@ intacte reste verte. Un quatrième sabotage, le garde de `q.etape` retiré de
 a) se ferme, et le second garde tient seul — ce n'est pas un trou du
 contrôle, c'est une ceinture avec des bretelles.
 
+### Puis les lettres ont changé, et la figure s'est centrée (v485)
+
+Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, nommer les 4
+points avec les lettres A, B, C, D ou M, N, O, P ou E, F, G, H ou I, J, K, L
+ou Q, R, S, T. De plus il faudrait que les 4 points soient plus au centre du
+dessin afin d'avoir tous les parallélogrammes possibles avec ces 3 points. »
+
+**Les lettres sont tirées, les rôles restent.** La question range l'INDICE
+du jeu (`q.lt` dans `VEC_LETTRES`), jamais les lettres. Tout le moteur
+raisonne encore sur les rôles A, B, C, D — `q.A`, la forme `'ABDC'`,
+`vecChemin()`, `vecQuatrieme()` — et `vecL(q, rôle)` traduit au dernier
+moment : l'énoncé (« MNPO est un parallélogramme… construis le point P »),
+les étiquettes du dessin, les options des listes, « de O à P », le vecteur
+OP, le pourquoi, la réponse enregistrée et le contexte du modèle. Les
+lettres que l'élève choisit sont les lettres AFFICHÉES, et le juge les
+compare à la traduction du chemin. Une question rangée avant v485 n'a pas de
+`q.lt` : elle se lit en ABCD, la reprise d'une pause ne casse rien. Le
+rappel de cours garde A, B, C, D : c'est la méthode, pas l'exercice.
+
+**Centrée veut dire : les trois parallélogrammes possibles tiennent.** Trois
+points font trois parallélogrammes, un par quatrième point — B+C−A, A+C−B,
+A+B−C. Le tirage (`vecCentre`) exige que les TROIS tombent dans le
+quadrillage, à un carreau au moins du bord ; les trois points donnés, milieux
+de ce grand triangle, sont alors au cœur du dessin. **Le piège était le
+taux d'acceptation** : tirés sur tout le quadrillage, à peine un triplet sur
+six cents passait (0,17 %), et le repli constant sortait près d'une fois sur
+deux — vu à la première capture d'écran, la même figure revenant deux fois
+par séance. Les points se tirent maintenant à deux carreaux au moins du bord
+(un sur cinquante passe), deux mille essais au plus ; le repli,
+`(3;3) (5;4) (4;6)`, est lui-même centré.
+
+**Le contrôle** (`parallelogrammePoint`) range `lt` parmi les clés permises,
+exige sur cent séances que les cinq jeux sortent et que les trois quatrièmes
+points de chaque question tiennent dans [1 ; 8], puis joue une question en
+MNOP (forme MNPO) : énoncé, étiquettes M, N, O sans A ni D, liste « MNOP »,
+phrase « de O à P », vecteur OP, la phrase « de M à N » jugée juste, une
+copie à 3 sur 5, le pourquoi, la réponse enregistrée et le contexte du
+modèle en M, N, O, P. Éprouvé par trois sabotages, le contrôle rejoué seul
+dans un vrai Chromium : le centrage retiré (« un des trois parallélogrammes
+possibles a son quatrième point en (−3 ; 7) »), les lettres figées sur ABCD
+(« les jeux sortis sont ABCD »), un juge qui compare au rôle au lieu de la
+lettre affichée (« la phrase de M à N n'est pas jugée juste ») — chacun
+rougit, la page intacte reste verte.
+
 ## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v481)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
