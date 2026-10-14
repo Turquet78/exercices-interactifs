@@ -1038,7 +1038,28 @@ le droit de lire id, prénom et clé, et passe en mesurant ses trois tables →
 l'éditeur SQL) », avec le visiteur et le rejeu (la branche d'exception de la
 mesure, que rien d'autre n'atteint, y est exercée) ; le droit rendu sur la
 TABLE entière — « ✗ et rien de plus : user_id et created_at restent refusés
-au visiteur → 0 ; 1 ». SABOTAGES-PAGES
+au visiteur → 0 ; 1 ». Pages, sur une copie de la
+Seconde, section 3 seule, chacun sur son contrôle — le dernier sur deux : la relecture de la
+pastille sans clé retirée — « ✗ une pastille lue sans clé, reliée depuis par
+le professeur, connecte sans recharger la page → écran atteint : scr-login —
+la ligne n'a pas été relue, la clé posée depuis est ignorée » ; le message
+réduit à « Code incorrect » — « ✗ une pastille sans clé dont l'homonyme est
+relié : … → message : {"texte":"Code incorrect","classe":"show err"} » ;
+`creerCompte` rendu à `clesDuPrenom(prenom)` — « ✗ un prénom dont la ligne
+n'a pas de clé ne crée pas de second compte (états A et C) → 1
+inscription(s) : une seconde ligne « Zélie » a été créée » ; la relecture
+après « existe déjà » retirée — « ✗ un prénom pris ailleurs depuis
+l'ouverture : … → l'écran reste sur « Créer mon compte » : la liste des
+pastilles n'est pas visible » ; le 42501 rendu au `catch` — « ✗ liste
+refusée par un droit retiré à anon (42501) : … → la page annonce « Connexion
+impossible. Vérifie ta configuration. » : le refus est pris pour une panne de
+configuration » ; les homonymes pris dans l'ordre de la liste au lieu du clic
+— « ✗ deux homonymes sur les pastilles : … → tentatives :
+ok:cle-controle@eleves.exercices-interactifs.invalid », que l'ancien
+contrôle laissait passer ; et un `rpc('cles_de_connexion')` glissé dans
+`connexionEleve()` — « → 1 appel(s) à cles_de_connexion sur le chemin des
+pastilles : la fonction n'existe pas dans les états A et C », avec « ✗ avec
+la liste ouverte, la page n'interroge pas la fonction de connexion ».
 **Ce qu'aucun banc ne voit.** L'état réel du projet : la 009 y a-t-elle été
 jouée ? La sortie de la 010, « état trouvé », le dira. Le cache de schéma de
 PostgREST dans la minute qui suit la 010 : il peut tenter encore une fonction
