@@ -1031,3 +1031,58 @@ Une séance en pause rangée avant (un `t:'c'` déjà enchaîné) se rejoue tell
 quelle, `chsLigne` sait toujours la lire. Le banc suit : fiche, plan, 17
 cases ; le contrôle « une case juste ne rougit pas pour sa voisine » passe de
 DC + CE à CE + BC (BC bleu, AB rouge, badge CE).
+
+## {chasles-alignes} — la relation de Chasles sur une droite (8.9, v491)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
+le 8.8 mais avec le pdf joint ». La fiche : « A, B, C et D sont quatre points
+alignés tels que AB = BC = CD », une droite, et six lignes « Compléter » —
+AB + CD, CB + AB, AC + DC, BD + BA, AB + DC = … = … ; AB + CD + CA = … = ….
+
+**Ce que la fiche ajoute au 8.8, et que le moteur du 8.8 refusait** : le
+VECTEUR NUL (CB + AB et AB + DC valent 0⃗ — `chsPosable` écartait toute somme
+nulle) et une somme de TROIS vecteurs. D'où un exercice à part (`cha`), qui
+partage les outils de lecture du 8.8 (`chsD`, `chsMeme`, `chsVecs`,
+`chsGrp`) et du 8.3 (`vegLit`, `vegVecHTML`, `.veg-in`), mais pas son juge.
+
+**Une seule forme de ligne** : aucune ligne de la fiche ne s'enchaîne telle
+quelle, chacune se RÉÉCRIT (un vecteur par case, autant de cases que de
+vecteurs) puis se conclut — 3 cases par ligne de deux vecteurs, 4 pour la
+ligne de trois : 19 cases par figure. Le plan (`CHA_PLAN`) est celui de la
+fiche : `n` (somme non nulle), `z` (somme nulle), `n`, `n`, `z`, `t` (trois
+vecteurs, de somme nulle ou non). La première figure EST la fiche
+(`CHA_FICHE`) ; les suivantes tirent quatre lettres (`CHS_LETTRES`) et six
+lignes dont aucune paire voisine ne s'enchaîne déjà (`chaEnchainee` — pour
+deux vecteurs, dans aucun ordre : « retourner » seul ne suffit jamais).
+`CHA_NB` = 2 figures, `dmNbQuestions` allonge la séance, `distinctes()` les
+tient différentes. On range les lettres et les lignes (`vs`), jamais les
+réponses.
+
+**Le juge** (`chaJugeLigne`) : `chaLigne` énumère TOUTES les écritures
+enchaînées de la même somme (des vecteurs égaux à ceux de la ligne, dans un
+ordre où chacun part là où s'arrête le précédent) ; la page retient celle qui
+garde le plus de cases de l'élève (à égalité, celle qui garde les premières,
+puis celle qui reprend le plus de vecteurs de la ligne — la correction de
+AB + CD est AB + BC, pas BC + CD). Une case juste ne rougit donc pas pour sa
+voisine. Le résultat est juste dès qu'il est égal à la somme (AB + CD = BD
+aussi) ; le vecteur nul s'écrit 0, O ou deux fois la même lettre (AA), et la
+correction écrit 0 sous la flèche de la case. Les messages nomment la faute :
+le vecteur recopié qui doit « partir de B, là où s'arrête AB », le vecteur
+égal à aucun de la somme, le vecteur nul (« on revient au point de départ »),
+le résultat à l'envers.
+
+**Le dessin** (`chaSvg`) : une droite, quatre points à pas égal, les lettres
+dessous comme sur la fiche, un petit trait de codage sur chaque segment. Il
+prend toute la largeur au-dessus des lignes (`.cha-fig`) : la droite est
+longue et basse, posée à gauche elle écrasait les lignes.
+
+**Le banc** (`tests/verifier.js`, « Chasles sur une droite ») : la place
+(8.9, pas de bouton des tables), 300 séances dont chaque correction est relue
+par un juge INDÉPENDANT écrit depuis les abscisses 0, 1, 2, 3, le plan, les
+sommes nulles où le plan les veut, la ligne de trois vecteurs tantôt nulle
+tantôt non ; puis le bouton sur la fiche : 19 cases, quatre lettres, trois
+codages, la copie juste, d'autres écritures justes en minuscules (BC + CD =
+BD, CB + BC = CC, CA + AB + BC = aa), AB + CD recopié (CD rouge, AB et AC
+bleus, badge BC, « partir de B »), CD égal à rien de AC + DC, AB + DC = AB
+(« nul »), BA pour AC + DC (« sens »), la case vide (correction BA, jamais
+rouge), la copie vide, le soutien, le barème, `qId`, le contexte du modèle.
