@@ -3333,7 +3333,7 @@ function toast(msg,type){const t=$('toast');t.textContent=msg;t.className='show'
 
 /* ---------- État ---------- */
 const DEFAULT_CFG={ops:{add:true,sub:true,mul:true,div:false},addSubMax:20,mulMax:10,count:10,secondsPerQuestion:0,mpCount:10,fracCount:10,locks:{}};
-let sb=null, currentEleve=null, selectedEleve=null, cfg=null;
+let sb=null, currentEleve=null, selectedEleve=null, listeEleves=[], cfg=null;
 const test={kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false};
 /* Un double-clic sur le bouton de la derniere question appelait finish... deux fois :
    deux lignes en base pour le meme test. Le verrou est cale sur test.startTime, qui
@@ -5554,7 +5554,7 @@ function loginMode(m){
    clavier du système avant tout geste. Le focus va au code après le clic sur
    une pastille, qui est un geste de l'élève. */
 async function renderLoginNames(){
-  loginMode('co'); selectedEleve=null;
+  loginMode('co'); selectedEleve=null; listeEleves=[];
   $('chipsRow').hidden=false; $('prenomRow').hidden=true; $('pinRow').hidden=true;
   $('loginPrenom').value=''; $('loginPin').value='';
   const box=$('nameChips'); box.innerHTML='<span class="muted">Chargement…</span>';
@@ -5572,6 +5572,11 @@ async function renderLoginNames(){
       box.innerHTML='<span class="muted">Aucun compte pour l\'instant. Crée le tien avec « Créer mon compte ».</span>'; return;
     }
     box.innerHTML='';
+    /* La liste lue est GARDÉE : deux pastilles peuvent porter le même prénom
+       (deux « Léa », ou « Léa » et « Lea », un doublon d'avant que la création
+       de compte ne voie l'accent). L'élève qui clique la mauvaise doit entrer
+       quand même avec SON code — voir connexionEleve. */
+    listeEleves=data;
     data.forEach(e=>{
       /* type="button" : dans le <form>, un bouton sans type est un bouton
          d'ENVOI, celui que le navigateur « clique » quand Entrée valide le
@@ -5623,7 +5628,7 @@ async function clesDuPrenom(prenom){
   }
   const {data:liste,error:errListe}=await sb.from('eleves_1ere').select('cle,prenom');
   if(errListe) return {data:null,error:errListe};
-  return {data:(liste||[]).filter(e=>normaliserPrenom(e.prenom)===voulu).map(e=>String(e.cle)).sort().slice(0,5),error:null};
+  return {data:(liste||[]).filter(e=>e.cle!=null&&e.cle!==''&&normaliserPrenom(e.prenom)===voulu).map(e=>String(e.cle)).sort().slice(0,5),error:null};
 }
 /* Deux chemins mènent aux clés, puis la MÊME boucle les essaie :
      - la PASTILLE cliquée, le chemin normal (états A et C) : la ligne lue dans
@@ -5639,7 +5644,17 @@ async function connexionEleve(){
   if(parPrenom&&!prenom){ toast('Écris ton prénom'); $('loginPrenom').focus(); return; }
   const pin=val('loginPin').trim();
   if(!pin){ toast('Écris ton code'); $('loginPin').focus(); return; }
-  let cles=choisi?[choisi.cle]:null;
+  /* La pastille choisie d'abord, puis celles qui portent le même prénom
+     (normalisé) : c'est le code qui départage, comme dans le repli. Sans
+     elles, l'élève qui clique la « Léa » de sa voisine lirait « Code
+     incorrect » avec son propre code juste. Aucune requête de plus : la
+     liste est déjà lue. */
+  let cles=choisi?[choisi.cle].concat(listeEleves.filter(e=>e!==choisi&&normaliserPrenom(e.prenom)===normaliserPrenom(choisi.prenom)).map(e=>e.cle))
+                    .filter(c=>c!=null&&c!=='').map(String):null;
+  /* Une ligne SANS clé (élève ajouté à la main dans la table, jamais relié à
+     un compte) n'a pas d'adresse de connexion : tenter « null@… » répondrait
+     « Code incorrect » quel que soit le code, ce qui est faux. */
+  if(choisi&&!cles.length){ toast('Ton compte n\'est pas encore relié — préviens ton professeur','err'); return; }
   if(!cles){
     const {data,error}=await clesDuPrenom(prenom);
     if(error){ toast('Connexion impossible — réessaie','err'); return; }
@@ -5650,9 +5665,9 @@ async function connexionEleve(){
      le vérifie, et lui seul détient de quoi le faire. Tant que la comparaison
      était faite dans le navigateur, deux lignes dans la console suffisaient à
      entrer sous n'importe quel prénom.
-     Deux élèves peuvent porter le même prénom : avec les pastilles, chacun a
-     la sienne ; dans le repli, chaque clé du prénom tapé est essayée dans
-     l'ordre, et c'est le code qui départage. */
+     Deux élèves peuvent porter le même prénom : chaque clé est essayée dans
+     l'ordre — celle de la pastille cliquée d'abord, puis ses homonymes ; dans
+     le repli, celles du prénom tapé — et c'est le code qui départage. */
   for(const cle of cles){
     const {error:errCo}=await sb.auth.signInWithPassword({email:courrielDe(cle),password:motDePasseDe(pin)});
     if(errCo){

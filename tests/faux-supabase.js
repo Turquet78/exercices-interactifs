@@ -268,7 +268,8 @@ window.supabase = {
           .toLowerCase().trim().replace(/\s+/g, ' ');
         const voulu = normaliser(args.prenom);
         if(!voulu) return Promise.resolve({ data: [], error: null });
-        const cles = F.lignes(table).filter(l => normaliser(l.prenom) === voulu)
+        /* jamais une clé vide, comme la vraie fonction (« and e.cle is not null ») */
+        const cles = F.lignes(table).filter(l => l.cle != null && l.cle !== '' && normaliser(l.prenom) === voulu)
           .map(l => String(l.cle)).sort().slice(0, 5);
         return Promise.resolve({ data: cles, error: null });
       },

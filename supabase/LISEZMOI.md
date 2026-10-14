@@ -730,6 +730,12 @@ prise en connaissance de ce prix.
   pastilles, elles, ne passent pas par la fonction.
 - **Si la 009 est rejouée par erreur après la 010**, la liste se referme et le
   champ « Ton prénom » revient — la connexion marche encore ; recollez la 010.
+- **Deux élèves du même prénom** ont deux pastilles pareilles : l'un ou l'autre
+  peut cliquer n'importe laquelle, c'est **le code qui départage**.
+- **Une ligne ajoutée à la main dans la table, sans clé**, a sa pastille, mais
+  aucun compte derrière : l'élève lit « Ton compte n'est pas encore relié —
+  préviens ton professeur ». « Nouveau code » depuis l'onglet Élèves lui pose
+  une clé et un compte : l'élève reçoit un code provisoire.
 
 ### Pour vérifier
 

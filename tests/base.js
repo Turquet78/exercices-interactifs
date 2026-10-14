@@ -646,6 +646,44 @@ bilan('010 demande à PostgREST de recharger son cache de schéma',
   psql('postgres', ['-c', 'drop database if exists etat_a']);
 }
 
+/* LA MESURE DE LA 010 A DEUX BORDS, et chacun s'éprouve sur sa propre base.
+   Un DROIT DE COLONNE retiré à anon : la politique est parfaite, et la page
+   ne lirait pourtant aucune pastille — c'est ce que la mesure sous le rôle
+   anon existe pour voir, et rien d'autre sur le projet ne le verrait. Elle
+   doit échouer EN LE NOMMANT, et non sous le déguisement « impossible de
+   prendre le rôle anon » qui la ferait passer pour non mesurée ; puis, le
+   droit rendu, passer. Des TABLES VIDES (une rentrée, avant la première
+   inscription) : rien à mesurer, et la 010 doit le DIRE trois fois, sans
+   jamais prétendre « un visiteur lit la liste entière ». */
+{
+  const bd = monter('etat_droit');
+  [MIG, MIG2, MIG3, MIG4, MIG8].forEach(f => psql(bd, ['-f', f]));
+  semerTemoins(bd);
+  psql(bd, ['-c', 'revoke select on public.eleves_2nde from anon; grant select (id, prenom) on public.eleves_2nde to anon;']);
+  const rd = psql(bd, ['-f', MIG10], true);
+  const ed = erreurDe(rd);
+  bilan('un droit de colonne retiré à anon fait échouer 010, qui le nomme',
+    !!rd.erreur && /eleves_2nde : un visiteur n.a pas le droit de lire id, prénom et clé/.test(ed) && !/impossible de prendre le rôle anon/.test(String(rd.erreur)),
+    !rd.erreur ? '010 est passée : la mesure sous le rôle anon ne voit pas un droit de colonne retiré' : ed);
+  psql(bd, ['-c', 'grant select on public.eleves_2nde to anon;']);
+  const rd2 = psql(bd, ['-f', MIG10], true);
+  bilan('le droit rendu, 010 passe et mesure ses trois tables',
+    !rd2.erreur && mesures10(String(rd2)) === 3, rd2.erreur ? erreurDe(rd2) : mesures10(String(rd2)) + ' mesure(s) sur 3');
+  psql('postgres', ['-c', 'drop database if exists etat_droit']);
+}
+{
+  const bd = monter('etat_vide');
+  [MIG, MIG2, MIG3, MIG4, MIG8].forEach(f => psql(bd, ['-f', f]));
+  psql(bd, ['-c', 'truncate public.eleves, public.eleves_1ere, public.eleves_2nde cascade;']);
+  const rv = psql(bd, ['-f', MIG10], true);
+  const sv = String(rv.erreur || rv);
+  const vides = (sv.match(/table vide, effet non mesuré/g) || []).length;
+  bilan('sur trois tables vides, 010 passe et dit trois fois « table vide, effet non mesuré », sans rien prétendre mesurer',
+    !rv.erreur && vides === 3 && mesures10(sv) === 0,
+    rv.erreur ? erreurDe(rv) : vides + ' « table vide » sur 3, ' + mesures10(sv) + ' « lit la liste entière » sur 0');
+  psql('postgres', ['-c', 'drop database if exists etat_vide']);
+}
+
 /* ---------------------------------------------------------------------------
    2. Ce que chaque rôle peut réellement faire
    ------------------------------------------------------------------------- */

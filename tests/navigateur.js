@@ -631,10 +631,13 @@ async function parcours(page, N){
     const sansAccents = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const enMajuscules = sansAccents(PRENOM_CONTROLE).toUpperCase();
     const valeurCode = () => s.page.evaluate(() => document.getElementById('loginPin').value);
-    /* ce que l'écran de connexion MONTRE : un bloc caché par hidden, ou sous
-       un parent caché, n'a aucun rectangle */
+    /* ce que l'écran de connexion MONTRE, jugé au RENDU et non à l'attribut :
+       un bloc caché par hidden, par display:none ou sous un parent caché n'a
+       aucun rectangle ; visibility:hidden en garde un, d'où le second test.
+       Lire seulement e.hidden passerait un bloc que la feuille de styles
+       cache — ou montre malgré l'attribut (un « display:flex » plus fort). */
     const ecranConnexion = () => s.page.evaluate(() => {
-      const vu = id => { const e = document.getElementById(id); return !!e && !e.hidden && e.getClientRects().length > 0; };
+      const vu = id => { const e = document.getElementById(id); return !!e && e.getClientRects().length > 0 && getComputedStyle(e).visibility !== 'hidden'; };
       return { pastilles: [...document.querySelectorAll('#nameChips .chip')].map(b => b.textContent.trim()),
                choisie: ((document.querySelector('#nameChips .chip.sel') || {}).textContent || '').trim(),
                liste: vu('chipsRow'), prenom: vu('prenomRow'), code: vu('pinRow'),
@@ -669,8 +672,11 @@ async function parcours(page, N){
     const apresFaux = await entrerPastille(CODE_FAUX);
     const tentatives = await s.page.evaluate(() =>
       window.__faux.operations(null, 'auth').filter(e => e.op === 'signIn'));
-    verifier('un code faux n’ouvre pas l’espace de l’élève', apresFaux !== 'scr-space',
-      'écran atteint : ' + apresFaux);
+    /* les deux bords : l'élève RESTE sur la connexion — et quelque chose a
+       été tenté. Une pastille absente ou une case du code cachée rendent
+       « (…) » : « pas d'espace atteint » n'y mesurerait rien. */
+    verifier('un code faux n’ouvre pas l’espace de l’élève', apresFaux === 'scr-login',
+      /^\(/.test(apresFaux) ? 'rien n’a été tenté : ' + apresFaux : 'écran atteint : ' + apresFaux);
     verifier('c’est le serveur qui refuse le code, pas la page',
       tentatives.length > 0 && tentatives.every(e => e.ok === false),
       tentatives.length ? JSON.stringify(tentatives)
@@ -683,6 +689,9 @@ async function parcours(page, N){
        un écran qui connecterait toujours la première pastille ne passerait
        plus. Le code reste caché jusqu'au clic, puis reçoit le focus ; le
        champ « Ton prénom » du repli reste caché. */
+    /* le code du second « Contrôle » des contrôles d'homonymes (pastilles,
+       puis prénom tapé en état B) */
+    const CODE_BIS = '456789123'.slice(0, CODE_CONTROLE.length);
     await s.page.evaluate(t => {
       window.__faux.lignes(t).push({ id: 'eleve-anais', prenom: 'Anaïs', cle: 'cle-anais', user_id: 'compte-anais' });
     }, P.tableEleves);
@@ -721,6 +730,84 @@ async function parcours(page, N){
           : choix.focus !== 'loginPin' ? 'le focus est sur « ' + choix.focus + ' », pas sur le code'
           : apres !== 'scr-space' ? 'écran atteint : ' + apres
           : 'entré sous la clé « ' + cle + ' » au lieu de « cle-controle »');
+    }
+
+    /* DEUX HOMONYMES SUR LES PASTILLES : deux « Contrôle », deux pastilles
+       pareilles, et l'élève clique la PREMIÈRE — peut-être celle de son
+       voisin. C'est le code qui départage, comme dans le repli : la page
+       essaie la clé de la pastille cliquée, puis celles du même prénom, déjà
+       lues avec la liste. Le banc tape le code de l'AUTRE homonyme : une page
+       qui n'essaierait que la pastille cliquée dirait « Code incorrect » à un
+       code juste. Quelle pastille vient en tête n'est pas supposé : la clé de
+       la pastille cliquée est lue, et le code choisi en conséquence. */
+    {
+      const r0 = await repere();
+      let premiere, attendue, apres, cle, t;
+      await s.page.evaluate(a => {
+        window.__faux.lignes(a.t).push({ id: 'eleve-bis', prenom: a.p, cle: 'cle-controle-bis', user_id: 'compte-bis' });
+        window.__faux.semerCompte(courrielDe('cle-controle-bis'), motDePasseDe(a.c), 'compte-bis');
+      }, { t: P.tableEleves, p: PRENOM_CONTROLE, c: CODE_BIS });
+      try{
+        await sortir();
+        if(await cliquerPastille(s.page, PRENOM_CONTROLE, 3000)){
+          premiere = await s.page.evaluate(() => selectedEleve && selectedEleve.cle);
+          attendue = premiere === 'cle-controle' ? 'cle-controle-bis' : 'cle-controle';
+          if((await ecranConnexion()).code){
+            await s.page.fill('#loginPin', attendue === 'cle-controle-bis' ? CODE_BIS : CODE_CONTROLE);
+            await s.page.click('#modeCo button.btn-primary');
+            await s.page.waitForTimeout(500);
+            apres = await ecranVisible(s.page);
+            cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
+          }
+        }
+        t = essais(await depuis(r0)).map(e => (e.ok ? 'ok:' : 'refus:') + e.courriel);
+      } finally {
+        await sortir();
+        await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.cle === 'cle-controle-bis'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
+        await sortir();
+      }
+      verifier('deux homonymes sur les pastilles : la pastille cliquée d\'abord, puis son homonyme, et c\'est le code qui départage',
+        !!premiere && apres === 'scr-space' && cle === attendue && t.length === 2 && /^refus:/.test(t[0]) && /^ok:/.test(t[1]),
+        !premiere ? 'aucune pastille « ' + PRENOM_CONTROLE + ' » à cliquer, ou aucune ligne choisie au clic'
+          : apres === undefined ? 'la case du code reste cachée après le clic'
+          : apres !== 'scr-space' ? 'écran atteint : ' + apres + ' — tentatives : ' + (t.join(', ') || 'aucune')
+          : cle !== attendue ? 'entré sous la clé « ' + cle + ' » au lieu de « ' + attendue + ' »'
+          : 'tentatives : ' + t.join(', '));
+    }
+
+    /* UNE LIGNE SANS CLÉ (un élève ajouté à la main dans la table, jamais
+       relié à un compte) a sa pastille, mais aucune adresse de connexion :
+       tenter « null@… » répondrait « Code incorrect » à tout code, ce qui
+       est faux. La page le dit, et ne tente rien. */
+    {
+      const r0 = await repere();
+      await viderToast();
+      let clic, apres, toastS, j;
+      await s.page.evaluate(t => {
+        window.__faux.lignes(t).push({ id: 'eleve-sans-cle', prenom: 'Zélie', cle: null, user_id: null });
+      }, P.tableEleves);
+      try{
+        await sortir();
+        clic = await cliquerPastille(s.page, 'Zélie', 3000);
+        if(clic && (await ecranConnexion()).code){
+          await s.page.fill('#loginPin', CODE_CONTROLE);
+          await s.page.click('#modeCo button.btn-primary');
+          await s.page.waitForTimeout(500);
+          apres = await ecranVisible(s.page);
+          toastS = await lireToast();
+        }
+        j = await depuis(r0);
+      } finally {
+        await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.id === 'eleve-sans-cle'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
+        await sortir();
+      }
+      verifier('une pastille sans clé ne tente aucune connexion, et dit que le compte n\'est pas relié',
+        clic && apres === 'scr-login' && essais(j).length === 0 && !!toastS && /pas encore relié/.test(toastS.texte),
+        !clic ? 'aucune pastille « Zélie » à cliquer'
+          : apres === undefined ? 'la case du code reste cachée après le clic'
+          : apres !== 'scr-login' ? 'écran atteint : ' + apres
+          : essais(j).length ? essais(j).length + ' connexion(s) tentée(s) : ' + JSON.stringify(essais(j).map(e => e.courriel))
+          : 'message : ' + JSON.stringify(toastS));
     }
 
     /* une erreur de CADENCE (429 — une classe entière derrière une seule
@@ -829,6 +916,33 @@ async function parcours(page, N){
         await sortir();
       }
 
+      /* le SONDAGE en panne : la fonction existe mais répond une erreur qui
+         n'est pas PGRST202 (droit retiré, exception). La page ne sait pas
+         alors si la liste est fermée ou la classe vide — et dire « Aucun
+         compte » à toute la classe serait le pire des deux : elle propose le
+         prénom tapé, qui dira lui-même ce qui ne va pas. C'est la branche
+         « sonde.code !== 'PGRST202' » du sondage, exécutée ; la panne est
+         posée AVANT le dessin de l'écran, et levée quoi qu'il arrive. */
+      {
+        const r0 = await repere();
+        let ecranP, sondes;
+        await s.page.evaluate(() => { window.__faux.panne = true; });
+        try{
+          await sortir();
+          ecranP = await ecranConnexion();
+          sondes = appels(await depuis(r0));
+        } finally {
+          await s.page.evaluate(() => { window.__faux.panne = false; });
+          await sortir();
+        }
+        verifier('liste fermée et sondage en panne : la page propose le prénom tapé, pas « Aucun compte »',
+          sondes.length > 0 && ecranP.prenom && ecranP.code && !/Aucun compte/.test(ecranP.message),
+          !sondes.length ? 'la fonction n\'a pas été sondée : la panne n\'a rien éprouvé'
+            : /Aucun compte/.test(ecranP.message) ? 'la page annonce « ' + ecranP.message + ' » sur une panne du sondage'
+            : !ecranP.prenom ? 'aucun champ « Ton prénom » : « ' + (ecranP.message || 'rien') + ' »'
+            : 'la case du code reste cachée');
+      }
+
       /* un prénom que personne ne porte : il est CHERCHÉ (un appel à la
          fonction), aucune connexion n'est tentée, et un message le dit */
       {
@@ -853,7 +967,6 @@ async function parcours(page, N){
          la page entre sur la SECONDE clé après un refus sur la première.
          L'homonyme reste pour le contrôle de cadence, qui exige alors
          vraiment l'arrêt à la première clé ; il part avant le doublon. */
-      const CODE_BIS = '456789123'.slice(0, CODE_CONTROLE.length);
       await s.page.evaluate(a => {
         window.__faux.lignes(a.t).push({ id: 'eleve-bis', prenom: a.p, cle: 'cle-controle-bis', user_id: 'compte-bis' });
         window.__faux.semerCompte(courrielDe('cle-controle-bis'), motDePasseDe(a.c), 'compte-bis');
@@ -14698,9 +14811,13 @@ async function parcours(page, N){
           /* la case du code n'apparaît qu'après le clic sur une pastille : on
              attend la liste, on force le pavé, on clique le prénom de l'élève
              d'essai, puis on pose le focus */
-          await sc.page.waitForSelector('#nameChips .chip', { timeout: 15000 });
+          await sc.page.waitForSelector('#nameChips .chip', { timeout: 15000 }).catch(() => {});
           await sc.page.evaluate(() => { window.__paveForce = true; paveObserver(); });
-          await cliquerPastille(sc.page, PRENOM_CONTROLE);
+          if(!await cliquerPastille(sc.page, PRENOM_CONTROLE)){
+            verifier('à ' + w + ' px en portrait, le pavé du code tient dans la largeur de l\'écran, replié sans défiler', false,
+              'aucune pastille « ' + PRENOM_CONTROLE + ' » à cliquer : la case du code n\'est pas atteignable');
+            continue;
+          }
           await sc.page.waitForTimeout(200);
           await sc.page.focus('#loginPin');
           await sc.page.waitForTimeout(400);
