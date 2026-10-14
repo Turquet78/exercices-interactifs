@@ -9173,6 +9173,112 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies septies. POINT PAR UNE SOMME OU UNE DIFFÉRENCE : GLISSER ET RETOURNER ===== */
+    /* {point-somme-difference} (8.15, demande de Turquet, octobre 2026 : « fais
+       un exercice comme l'exercice 1 du pdf, en déplaçant les vecteurs comme
+       dans le 8.7 ») : BB′ = u⃗ − v⃗. Le bouton retourne v⃗, la souris fait
+       glisser u⃗ jusqu'au point B puis −v⃗ au bout de u⃗, et B′ se pose d'un
+       clic À TRAVERS la prise de −v⃗ (la fin de la seconde flèche est sous
+       elle). jsdom n'a pas de mise en page : le glisser, l'accrochage, le clic
+       sous une prise et la lettre du point lisible ne se voient qu'ici. */
+    titre('6 quadragies septies. POINT PAR UNE SOMME OU UNE DIFFÉRENCE : GLISSER ET RETOURNER');
+    if(!P.pointSommeDifference){
+      ignorer('u glisse jusqu\'au point, v se retourne et glisse au bout de u, B′ se pose au clic',
+        'ce niveau n\'a pas l\'exercice du point construit par une somme de vecteurs');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pointSommeDifference.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      await s.page.evaluate(() => { test.questions[test.idx] = { l: 'B', ex: 'pm', po: [3, 4], uo: [1, 6], uc: [3, 1], vo: [8, 2], vc: [2, 3], up: null, vp: null, ur: false, vr: false, sel: null };
+        renderCvp(); document.querySelector('#cvpGraph .cvp-svg').scrollIntoView({ block: 'center' }); });
+      await s.page.waitForTimeout(200);
+      const mes = await s.page.evaluate(() => {
+        const svg = document.querySelector('#cvpGraph .cvp-svg'), r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+        const eg = document.querySelector('#cvpInstr .vgt-vec');
+        const dehors = [...document.querySelectorAll('#cvpGraph .svc-mot, #cvpGraph .vec-lbl')].filter(t => { const b = t.getBoundingClientRect();
+          return b.width && (b.left < r.left - 1 || b.right > r.right + 1 || b.top < r.top - 1 || b.bottom > r.bottom + 1); }).length;
+        const pr = document.querySelector('#cvpPrises .svc-prise');
+        const lettre = document.querySelector('#cvpFl text.vec-lbl'), lb = lettre ? lettre.getBoundingClientRect() : { width: 0 };
+        return { svg: r.width > 400 && r.height > 250, fleche: eg ? getComputedStyle(eg, '::before').borderTopStyle : '', dehors: dehors,
+                 touche: pr ? getComputedStyle(pr).touchAction : '', lettre: lb.width > 5 };
+      });
+      if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      if(mes.fleche !== 'solid') dits.push('BB′ n\'est pas coiffé de sa flèche');
+      if(mes.dehors) dits.push(mes.dehors + ' mot(s) ou lettre(s) sortent du dessin');
+      if(mes.touche !== 'none') dits.push('une prise fait défiler la page sous le doigt (touch-action : ' + mes.touche + ')');
+      if(!mes.lettre) dits.push('la lettre du point B ne s\'affiche pas');
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
+        const svg = document.querySelector('#cvpGraph .cvp-svg');
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const kx = r.width / vb.width, ky = r.height / vb.height;
+        return { px: r.left + (SVC_PX + x * SVC_C) * kx, py: r.top + (SVC_PY + (SVC_H - y) * SVC_C) * ky };
+      }, [x, y]);
+      const etat = async () => await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return { u: cvpU(q), v: cvpV(q), uc: cvpUc(q), vc: cvpVc(q), vr: q.vr, sel: q.sel, ch: cvpChaine(q) ? cvpChaine(q).ordre : '' }; });
+      const glisser = async (w, d) => {
+        const e = await etat();
+        const p = w === 'u' ? e.u : e.v, c = w === 'u' ? e.uc : e.vc;
+        const a = await pos(p[0] + c[0] / 2, p[1] + c[1] / 2), b = await pos(p[0] + c[0] / 2 + d[0], p[1] + c[1] / 2 + d[1]);
+        await s.page.mouse.move(a.px, a.py); await s.page.mouse.down();
+        await s.page.mouse.move(b.px, b.py, { steps: 12 }); await s.page.mouse.up();
+        await s.page.waitForTimeout(120);
+      };
+      /* v se retourne au bouton : −v */
+      await s.page.click('#cvpRetV');
+      await s.page.waitForTimeout(120);
+      let e = await etat();
+      if(!e.vr || JSON.stringify(e.vc) !== '[-2,-3]') dits.push('le bouton ne retourne pas v : ' + JSON.stringify(e.vc));
+      /* u glisse jusqu'au point B, −v au bout de u */
+      await glisser('u', [3 - e.u[0], 4 - e.u[1]]);
+      e = await etat();
+      if(JSON.stringify(e.u) !== '[3,4]') dits.push('u glissé ne s\'accroche pas au point B : ' + JSON.stringify(e.u));
+      await glisser('v', [6 - e.v[0], 5 - e.v[1]]);
+      e = await etat();
+      if(JSON.stringify(e.v) !== '[6,5]' || e.ch !== 'uv') dits.push('−v glissé ne s\'accroche pas au bout de u : ' + JSON.stringify(e.v));
+      /* B′ : la fin de −v, sous sa prise — le clic doit passer au nœud */
+      const b2 = await pos(4.1, 2);
+      await s.page.mouse.click(b2.px, b2.py); await s.page.waitForTimeout(120);
+      e = await etat();
+      if(JSON.stringify(e.sel) !== '[4,2]') dits.push('le clic au bout de −v (sous sa prise) ne pose pas B′ : ' + JSON.stringify(e.sel));
+      if(JSON.stringify(e.v) !== '[6,5]') dits.push('un simple clic sur −v l\'a déplacé');
+      const lbl = await s.page.evaluate(() => { const t = document.querySelector('#cvpn-4-2 .vec-dlbl'); return t ? getComputedStyle(t).display + ' ' + t.textContent : ''; });
+      if(lbl !== 'block B′') dits.push('le nœud posé ne porte pas « B′ » : ' + lbl);
+      await s.page.click('#cvpValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
+        bouton: document.getElementById('cvpNext') ? document.getElementById('cvpNext').textContent : '' }));
+      if(fin.score !== 2 || !fin.locked) dits.push('la copie juste vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller'));
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* question suivante : le signe oublié */
+      await s.page.click('#cvpNext');
+      await s.page.waitForTimeout(400);
+      await s.page.evaluate(() => { test.questions[test.idx] = { l: 'B', ex: 'pm', po: [3, 4], uo: [1, 6], uc: [3, 1], vo: [8, 2], vc: [2, 3], up: null, vp: null, ur: false, vr: false, sel: null };
+        renderCvp(); document.querySelector('#cvpGraph .cvp-svg').scrollIntoView({ block: 'center' }); });
+      await s.page.waitForTimeout(150);
+      e = await etat();
+      await glisser('u', [3 - e.u[0], 4 - e.u[1]]);
+      e = await etat();
+      await glisser('v', [6 - e.v[0], 5 - e.v[1]]);
+      await s.page.click('#cvpValidate');
+      await s.page.waitForTimeout(300);
+      const faux = await s.page.evaluate(() => ({
+        ch: document.getElementById('cvp-ch').className, pt: document.getElementById('cvp-pt').className,
+        vert: [...document.querySelectorAll('#cvpCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        fb: document.getElementById('cvpFeedback').textContent, score: test.score }));
+      if(!/\bbad\b/.test(faux.ch) || !/\bsol\b/.test(faux.pt)) dits.push('le signe oublié, B′ vide : ' + faux.ch + ' / ' + faux.pt);
+      if(faux.vert !== 2) dits.push('la construction attendue ne se trace pas en vert (' + faux.vert + ')');
+      if(faux.fb.indexOf('retourne la flèche v') < 0) dits.push('le signe oublié n\'est pas nommé : ' + faux.fb.slice(0, 100));
+      if(faux.score !== 2) dits.push('la copie fausse rapporte des points (score ' + faux.score + ')');
+      verifier('u glisse jusqu\'au point, v se retourne et glisse au bout de u, B′ se pose au clic', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran du point par une somme de vecteurs ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 undevicies. antécédents : la droite se fait GLISSER ===== */
     /* {antecedents-droite} : le geste central est un GLISSER — la droite suit
        le pointeur enfoncé et s'accroche à la graduation la plus proche — puis
