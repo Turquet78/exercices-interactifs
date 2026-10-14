@@ -489,6 +489,30 @@ phrase en carreaux sert la correction écrite à l'élève. Le bouton des tables
 n'est pas proposé : on n'y multiplie rien (`TABLES_SANS`, et `tablesAide.sans`
 dans le profil — deux sources, donc un vrai contrôle).
 
+**Puis le point s'est posé SANS NOM, et l'élève le nomme** (v484, demande de
+Turquet, octobre 2026 : « en seconde dans le 8.4, laisser l'élève placer un
+point et demander lui ensuite de le nommer »). Les trois stylos « ● Placer
+A′ » disaient d'avance quel point l'élève déplaçait : la page choisissait le
+nom, l'élève n'avait qu'à suivre. Le clic pose désormais un point neutre,
+entouré de pointillés et marqué « ? » (`q.pend`), et la page demande sous le
+quadrillage « Comment s'appelle ce point ? » avec trois boutons A′, B′, C′
+(`trlNommer`) — inactifs tant qu'aucun point n'attend son nom. Un seul point
+sans nom à la fois : cliquer ailleurs le déplace, recliquer dessus le
+retire ; recliquer un point NOMMÉ lui rend son nom à choisir (c'est le geste
+pour renommer ou retirer) ; donner un nom déjà porté DÉPLACE ce nom sur le
+nouveau point — deux A′ n'existent jamais. Vérifier avec un point sans nom
+ne peint rien et ne verrouille rien : le message demande le nom — on ne
+devine pas quel point l'élève a voulu déplacer, ce serait lui ôter
+précisément ce qu'on lui demande. `q.pend` est du JSON, part avec la pause
+et revient avec la reprise ; le contexte du modèle dit qu'un point attend
+son nom. Le juge, lui, n'a pas bougé : `q.rep[i]` reste l'image nommée
+`i`, et une image fausse parce que mal NOMMÉE (le bon nœud de B′ appelé A′)
+coûte son point comme une image mal placée. Le banc principal éprouve le
+refus d'un point sans nom, le rangement au nom choisi et le nom déplacé ;
+le banc navigateur (« 6 quadragies bis ») clique le nœud, constate le « ? »
+et la question, retire au reclic, clique le VRAI bouton de nom, puis rend
+son nom à choisir à un point nommé.
+
 **Ce qu'aucun banc ne voit** : la fiche 1 (construire le point D tel que ABDC
 soit un parallélogramme) n'est pas portée — Turquet a précisé que la fiche 2
 était « le bon fichier » ; et la phrase à compléter « l'image de B par la
@@ -642,6 +666,50 @@ intacte reste verte. Un quatrième sabotage, le garde de `q.etape` retiré de
 a) se ferme, et le second garde tient seul — ce n'est pas un trou du
 contrôle, c'est une ceinture avec des bretelles.
 
+### Puis les lettres ont changé, et la figure s'est centrée (v485)
+
+Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, nommer les 4
+points avec les lettres A, B, C, D ou M, N, O, P ou E, F, G, H ou I, J, K, L
+ou Q, R, S, T. De plus il faudrait que les 4 points soient plus au centre du
+dessin afin d'avoir tous les parallélogrammes possibles avec ces 3 points. »
+
+**Les lettres sont tirées, les rôles restent.** La question range l'INDICE
+du jeu (`q.lt` dans `VEC_LETTRES`), jamais les lettres. Tout le moteur
+raisonne encore sur les rôles A, B, C, D — `q.A`, la forme `'ABDC'`,
+`vecChemin()`, `vecQuatrieme()` — et `vecL(q, rôle)` traduit au dernier
+moment : l'énoncé (« MNPO est un parallélogramme… construis le point P »),
+les étiquettes du dessin, les options des listes, « de O à P », le vecteur
+OP, le pourquoi, la réponse enregistrée et le contexte du modèle. Les
+lettres que l'élève choisit sont les lettres AFFICHÉES, et le juge les
+compare à la traduction du chemin. Une question rangée avant v485 n'a pas de
+`q.lt` : elle se lit en ABCD, la reprise d'une pause ne casse rien. Le
+rappel de cours garde A, B, C, D : c'est la méthode, pas l'exercice.
+
+**Centrée veut dire : les trois parallélogrammes possibles tiennent.** Trois
+points font trois parallélogrammes, un par quatrième point — B+C−A, A+C−B,
+A+B−C. Le tirage (`vecCentre`) exige que les TROIS tombent dans le
+quadrillage, à un carreau au moins du bord ; les trois points donnés, milieux
+de ce grand triangle, sont alors au cœur du dessin. **Le piège était le
+taux d'acceptation** : tirés sur tout le quadrillage, à peine un triplet sur
+six cents passait (0,17 %), et le repli constant sortait près d'une fois sur
+deux — vu à la première capture d'écran, la même figure revenant deux fois
+par séance. Les points se tirent maintenant à deux carreaux au moins du bord
+(un sur cinquante passe), deux mille essais au plus ; le repli,
+`(3;3) (5;4) (4;6)`, est lui-même centré.
+
+**Le contrôle** (`parallelogrammePoint`) range `lt` parmi les clés permises,
+exige sur cent séances que les cinq jeux sortent et que les trois quatrièmes
+points de chaque question tiennent dans [1 ; 8], puis joue une question en
+MNOP (forme MNPO) : énoncé, étiquettes M, N, O sans A ni D, liste « MNOP »,
+phrase « de O à P », vecteur OP, la phrase « de M à N » jugée juste, une
+copie à 3 sur 5, le pourquoi, la réponse enregistrée et le contexte du
+modèle en M, N, O, P. Éprouvé par trois sabotages, le contrôle rejoué seul
+dans un vrai Chromium : le centrage retiré (« un des trois parallélogrammes
+possibles a son quatrième point en (−3 ; 7) »), les lettres figées sur ABCD
+(« les jeux sortis sont ABCD »), un juge qui compare au rôle au lieu de la
+lettre affichée (« la phrase de M à N n'est pas jugée juste ») — chacun
+rougit, la page intacte reste verte.
+
 ## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v481)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
@@ -737,7 +805,7 @@ en vert d'étendue non nulle, le badge, les deux flèches, aucun point gagné) �
 et mesure que les vecteurs de l'énoncé portent leur flèche et que la case du
 nom n'est pas plus petite que sa phrase.
 
-## {somme-vecteurs} — la somme de deux vecteurs : un début va sur une fin (8.7, v484)
+## {somme-vecteurs} — la somme de deux vecteurs : un début va sur une fin (8.7, v486)
 
 **La demande** (Turquet, octobre 2026, « en seconde créer un exercice comme
 le pdf ») : la fiche « Fiche 1 : somme de vecteurs — un début va sur une

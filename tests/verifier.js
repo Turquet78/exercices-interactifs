@@ -11841,6 +11841,7 @@ function translationQuadrillage(w, P){
       test.questions.forEach(function(q,qi){
         const cles=Object.keys(q).filter(function(k){ return ['forme','vec','o','src','rep'].indexOf(k)<0; });
         if(cles.length) vus.push('la question range autre chose que forme, vec, o, src et rep : '+cles.join(','));
+        if(q.pend) vus.push('le tirage pose un point sans nom à la place de l\\'élève');
         if(q.forme!=='u' && q.forme!=='ab') vus.push('forme inconnue : '+q.forme);
         else if(q.forme!==(qi%2===0?'u':'ab')) vus.push('les formes n\\'alternent pas : la question '+(qi+1)+' est en forme '+q.forme+' (attendu '+(qi%2===0?'u':'ab')+' — u, ab, u, ab…)');
         formes[q.forme]=1;
@@ -11893,7 +11894,7 @@ function translationQuadrillage(w, P){
     const sous=instr.querySelector('.trl-sous');
     if(!sous) vus.push('le mode d\\'emploi du geste n\\'est plus dans son bloc .trl-sous');
     else{
-      if(sous.textContent.indexOf('Placer A′')<0) vus.push('le mode d\\'emploi ne nomme plus le stylo « Placer A′ »');
+      if(sous.textContent.indexOf('nomme le point posé')<0) vus.push('le mode d\\'emploi ne dit pas qu\\'on nomme le point posé');
       const css=Array.from(document.querySelectorAll('style')).map(function(s){ return s.textContent; }).join('');
       const mS=css.match(/\\.trl-sous\\{[^}]*font-size:([0-9.]+)rem/);
       const mE=css.match(/\\.lv-instr\\{[^}]*font-size:([0-9.]+)rem/);
@@ -11901,9 +11902,10 @@ function translationQuadrillage(w, P){
       else if(!mE) vus.push('la taille de l\\'énoncé (.lv-instr) est devenue illisible au contrôle');
       else if(parseFloat(mS[1])>=parseFloat(mE[1])) vus.push('le mode d\\'emploi ne s\\'écrit pas plus petit que l\\'énoncé');
     }
-    /* trois stylos, le premier choisi ; rien de posé, rien de révélé */
-    if(!el('trlSel0')||!el('trlSel1')||!el('trlSel2')) vus.push('les trois stylos « Placer A′ / B′ / C′ » manquent');
-    else if(!el('trlSel0').classList.contains('sel')) vus.push('le premier stylo n\\'est pas choisi au départ');
+    /* trois boutons de nom, inactifs tant qu'aucun point n'attend le sien ;
+       rien de posé, rien de révélé */
+    if(!el('trlNom0')||!el('trlNom1')||!el('trlNom2')) vus.push('les trois boutons de nom « A′ / B′ / C′ » manquent');
+    else if(!el('trlNom0').disabled) vus.push('un bouton de nom est actif alors qu\\'aucun point n\\'est posé');
     if(document.querySelector('#trlGraph .trl-pt')) vus.push('un point est dessiné avant que l\\'élève le pose');
     if(document.querySelector('#trlGraph .trl-sol')) vus.push('l\\'image attendue est déjà montrée avant la vérification');
     if(!document.querySelector('#trlGraph .trl-vec')) vus.push('la flèche u n\\'est pas dessinée (forme u)');
@@ -11914,7 +11916,24 @@ function translationQuadrillage(w, P){
     submitTrl();
     if(test.locked) vus.push('vérifier sans point verrouille la question');
     if(classe('trl-pt-0')!=='rien'||classe('trl-pt-1')!=='rien'||classe('trl-pt-2')!=='rien') vus.push('vérifier sans point pose une couleur');
-    if(el('trlCorr').textContent.indexOf('Placer A′')<0) vus.push('vérifier sans point ne redit pas le geste : '+el('trlCorr').textContent.slice(0,80));
+    if(el('trlCorr').textContent.indexOf('nomme-le A′')<0) vus.push('vérifier sans point ne redit pas le geste : '+el('trlCorr').textContent.slice(0,80));
+
+    /* 3 bis. le point posé SANS NOM : il ne compte pour aucune image, la
+       vérification le refuse sans rien peindre ni verrouiller et demande le
+       nom ; nommé, il devient l'image choisie ; un nom déjà pris se déplace */
+    q.pend={x:4,y:2}; trlMaj();
+    if(el('trlNom0').disabled) vus.push('le bouton de nom reste inactif alors qu\\'un point attend son nom');
+    if(el('trlNommerTxt').textContent.indexOf('Comment s’appelle ce point')<0) vus.push('la page ne demande pas le nom du point posé : '+el('trlNommerTxt').textContent);
+    submitTrl();
+    if(test.locked) vus.push('vérifier avec un point sans nom verrouille la question');
+    if(classe('trl-pt-0')!=='rien') vus.push('vérifier avec un point sans nom pose une couleur');
+    if(el('trlCorr').textContent.indexOf('Nomme d’abord')<0) vus.push('vérifier avec un point sans nom ne demande pas son nom : '+el('trlCorr').textContent.slice(0,80));
+    trlNommer(1);
+    if(q.pend || JSON.stringify(q.rep)!=='[null,{"x":4,"y":2},null]') vus.push('nommer B′ ne range pas le point en B′ : '+JSON.stringify(q.rep));
+    if(!el('trlNom1').disabled) vus.push('le bouton de nom reste actif une fois le point nommé');
+    q.pend={x:8,y:4}; trlNommer(1);
+    if(JSON.stringify(q.rep)!=='[null,{"x":8,"y":4},null]') vus.push('un nom déjà pris ne se déplace pas sur le nouveau point : '+JSON.stringify(q.rep));
+    q.rep=[null,null,null];
 
     /* 4. copie juste : 3 points, rien ne se révèle, les pastilles sont ok */
     q.rep=[{x:4,y:2},{x:8,y:4},{x:11,y:1}]; trlMaj();
@@ -12023,9 +12042,12 @@ function parallelogrammePoint(w, P){
     const noeud=function(i,j){ const e=el('vecn-'+i+'-'+j); return e?String(e.getAttribute('class')||''):''; };
     const choisir=function(id,v){ const e=el(id); if(!e){ vus.push('la liste '+id+' manque'); return; } e.value=v; e.dispatchEvent(new Event('change',{bubbles:true})); };
     const fb=function(){ return el('vecFeedback').textContent; };
-    const CLES=['forme','A','B','C','etape','selD','s1','s2','v1','v2'];
+    const CLES=['forme','lt','A','B','C','etape','selD','s1','s2','v1','v2'];
+    const jeux={};
 
-    /* 1. le tirage : lisible, JSON, deux formes, rien de répondu */
+    /* 1. le tirage : lisible, JSON, deux formes, rien de répondu ; les
+       lettres tirées parmi les cinq jeux ; la figure CENTRÉE — les trois
+       quatrièmes points possibles dans le quadrillage, loin du bord */
     for(let t=0;t<100 && !vus.length;t++){
       startVec(); clearTimeout(test.fbTimer);
       if(test.questions.length!==D.nb){ vus.push(test.questions.length+' questions au lieu de '+D.nb); break; }
@@ -12035,12 +12057,44 @@ function parallelogrammePoint(w, P){
         if(cles.length) vus.push('la question range autre chose que '+CLES.join(', ')+' : '+cles.join(','));
         if(q.forme!==(qi<D.nb/2?'ABDC':'ABCD')) vus.push('la question '+(qi+1)+' est en '+q.forme);
         if(q.etape!==0||q.selD!==null||q.s1!==''||q.s2!==''||q.v1!==''||q.v2!=='') vus.push('le tirage pose une réponse à la place de l\\'élève');
+        if(!(q.lt>=0&&q.lt<VEC_LETTRES.length)) vus.push('le jeu de lettres rangé vaut '+q.lt);
+        jeux[VEC_LETTRES[q.lt]]=1;
+        [[q.B[0]+q.C[0]-q.A[0],q.B[1]+q.C[1]-q.A[1]],[q.A[0]+q.C[0]-q.B[0],q.A[1]+q.C[1]-q.B[1]],[q.A[0]+q.B[0]-q.C[0],q.A[1]+q.B[1]-q.C[1]]].forEach(function(p){
+          if(p[0]<1||p[0]>VEC_N-1||p[1]<1||p[1]>VEC_N-1) vus.push('figure pas centrée : un des trois parallélogrammes possibles a son quatrième point en ('+p.join(';')+')'); });
         const Dq=vecQuatrieme(q), pts=[q.A,q.B,q.C,Dq];
         pts.forEach(function(p){ if(p[0]<0||p[0]>VEC_N||p[1]<0||p[1]>VEC_N) vus.push('un point sort du quadrillage : ('+p.join(';')+')'); });
         for(let i=0;i<4;i++) for(let j=i+1;j<4;j++) if(!vecLoin(pts[i],pts[j])) vus.push('deux points à moins de deux carreaux : ('+pts[i].join(';')+') et ('+pts[j].join(';')+')');
         if(JSON.stringify(JSON.parse(JSON.stringify(q)))!==JSON.stringify(q)) vus.push('la question ne survit pas au JSON de la pause');
       });
     }
+    if(!vus.length && JSON.stringify(Object.keys(jeux).sort())!==JSON.stringify(['ABCD','EFGH','IJKL','MNOP','QRST'])) vus.push('sur 100 séances, les jeux de lettres sortis sont '+Object.keys(jeux).join(','));
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* les lettres d'un autre jeu : MNOP. MNPO (rôles ABDC) — l'énoncé, le
+       dessin, les listes, l'égalité et le juge parlent tous en M, N, O, P */
+    startVec(); clearTimeout(test.fbTimer);
+    test.questions[0]=vecQuestion('ABDC',[2,2],[5,3],[3,6],1);
+    test.idx=0; test.locked=false; renderVec();
+    const qm=test.questions[0];
+    if(el('vecInstr').textContent.indexOf('MNPO est un parallélogramme')<0||el('vecInstr').textContent.indexOf('point P')<0) vus.push('MNOP : l\\'énoncé ne dit pas MNPO ni le point P : '+el('vecInstr').textContent.slice(0,80));
+    const txm=Array.from(document.querySelectorAll('#vecGraph text')).map(function(t){ return t.textContent; });
+    ['M','N','O'].forEach(function(n){ if(txm.indexOf(n)<0) vus.push('MNOP : l\\'étiquette « '+n+' » manque sur le dessin'); });
+    if(txm.indexOf('A')>=0||txm.indexOf('D')>=0) vus.push('MNOP : le dessin écrit encore A ou D');
+    vecPose(6,7); checkVec();
+    if(classe('vec-pt')!=='ok') vus.push('MNOP : le bon nœud n\\'est pas juste');
+    const optm=el('vec-s1')?Array.from(el('vec-s1').options).map(function(o){ return o.value; }).join(''):'';
+    if(optm!=='MNOP') vus.push('MNOP : la liste propose « '+optm+' »');
+    if(el('vec-ph')&&el('vec-ph').textContent.indexOf('de O à P')<0) vus.push('MNOP : la phrase ne dit pas « de O à P »');
+    choisir('vec-s1','M'); choisir('vec-s2','N'); checkVec();
+    if(classe('vec-s1')!=='ok'||classe('vec-s2')!=='ok') vus.push('MNOP : la phrase « de M à N » n\\'est pas jugée juste');
+    if(el('vec-eg')&&el('vec-eg').textContent.indexOf('OP')<0) vus.push('MNOP : l\\'égalité n\\'écrit pas le vecteur OP');
+    choisir('vec-v1','N'); const avant0=test.score; checkVec(); clearTimeout(test.fbTimer);
+    if(test.score-avant0!==3) vus.push('MNOP : la copie (vecteur N?) vaut '+(test.score-avant0)+' au lieu de 3');
+    if(fb().indexOf('vecteur MN')<0||fb().indexOf('vecteur OP')<0) vus.push('MNOP : le pourquoi ne parle pas en M, N, O, P : '+fb().slice(0,160));
+    const am=test.answers[test.answers.length-1];
+    if(!am||String(am.answer).indexOf('vecteur MN = vecteur OP')<0) vus.push('MNOP : la réponse attendue enregistrée est '+(am&&am.answer));
+    const cxm=ctxVec(qm).contexte;
+    if(cxm.indexOf('MNPO est un parallélogramme')<0||cxm.indexOf('vecteur MN = vecteur OP')<0) vus.push('MNOP : le contexte du modèle ne parle pas en M, N, O, P');
     if(vus.length) return vus.slice(0,4).join(' | ');
 
     /* montage : trois questions CHOISIES */
