@@ -7184,7 +7184,8 @@ async function parcours(page, N){
         for(const inp of on.querySelectorAll('input.f-num, input.f-den')){
           if(!visible(inp)) continue;
           items.push({ sorte: 'case', quoi: 'case ' + (inp.id || '(sans id)'), police: police(inp), taille: taille(inp),
-                       hauteur: Math.round(inp.getBoundingClientRect().height) });
+                       hauteur: Math.round(inp.getBoundingClientRect().height),
+                       largeur: Math.round(inp.getBoundingClientRect().width) });
         }
         return { ecran: on.id, theme: on.dataset.theme || '', items };
       });
@@ -7195,7 +7196,7 @@ async function parcours(page, N){
       const juger = (id, num, moment, R) => {
         if(!R){ dits.push(num + ' (' + moment + ') : aucun écran ouvert'); return; }
         if(R.theme !== E.theme) dits.push(num + ' : l\'écran ne porte pas le thème (data-theme « ' + R.theme + ' »)');
-        const hauteurs = [];
+        const hauteurs = [], largeurs = [];
         const dispense = E.noir && E.noir.sauf && E.noir.sauf[id];   /* le 4.2 garde ses couleurs */
         let colores = 0;
         for(const it of R.items){
@@ -7213,9 +7214,22 @@ async function parcours(page, N){
             + ' rem' + (it.chiffre ? ' (chiffre à ' + it.chiffre + ' rem)' : ''));
           if(it.hauteur) hauteurs.push(it.hauteur);
         }
+        /* les cases <input> se relèvent même vides : leur LARGEUR ne dépend pas
+           de ce qu'elles contiennent */
+        for(const it of R.items) if(it.largeur) largeurs.push(it.largeur + ' px (' + it.quoi + ')');
         /* les cases à remplir ont la même taille entre elles : la même hauteur */
         if(hauteurs.length && Math.max(...hauteurs) - Math.min(...hauteurs) > 4)
           dits.push(num + ' (' + moment + ') : des cases de ' + Math.min(...hauteurs) + ' à ' + Math.max(...hauteurs) + ' px de haut');
+        /* … et les cases <input> la même LARGEUR (signalé par Turquet, octobre
+           2026, deux captures du 4.1 : les cases après « ÷ » et après « × »
+           s'étiraient sur 330 px — « width:auto », la mesure des champs
+           MathLive, ne suit pas le contenu d'un <input>). */
+        const lg = largeurs.map(parseFloat);
+        if(lg.length > 1 && Math.max(...lg) - Math.min(...lg) > 4){
+          dits.push(num + ' (' + moment + ') : des cases de ' + Math.min(...lg) + ' à ' + Math.max(...lg) + ' px de large — '
+            + largeurs[lg.indexOf(Math.max(...lg))]);
+        }
+        if(lg.length > 1) vus.largeurs = (vus.largeurs || 0) + lg.length;
         /* l'exercice dispensé a encore des couleurs : sinon la dispense ne dispense de rien */
         if(E.noir && dispense && !colores) ditsNoir.push(num + ' (' + moment + ') : dispensé du noir (' + dispense + '), mais plus aucun nombre n\'y est en couleur');
       };
@@ -7246,6 +7260,23 @@ async function parcours(page, N){
         if(!clique){ dits.push(num + ' : pas de bouton « Vérifier »'); continue; }
         await s.page.waitForTimeout(900);
         juger(id, num, 'vérification', await releve());
+        /* les maillons du 4.1 qui n'existent que selon la question tirée : un
+           produit à compléter (« 3 × ▢ ») et une simplification (« 6 ÷ ▢ »),
+           posés à coup sûr — sans quoi la largeur de leurs cases dépendrait
+           du hasard du tirage. */
+        if(E.maillons && E.maillons[id]){
+          for(const m of E.maillons[id]){
+            const ok = await s.page.evaluate(m => { const f = window[m.rendu]; if(typeof f !== 'function') return false;
+              test.questions = [m.q]; test.idx = 0; f(); return true; }, m);
+            if(!ok){ dits.push(num + ' : fonction de rendu ' + m.rendu + ' introuvable'); continue; }
+            await s.page.waitForTimeout(300);
+            const R = await releve();
+            const ids2 = R ? R.items.map(it => it.quoi) : [];
+            const manque = m.cases.filter(c => ids2.indexOf('case ' + c) < 0);
+            if(manque.length) dits.push(num + ' (' + m.nom + ') : le maillon n\'a pas de case ' + manque.join(', '));
+            juger(id, num, m.nom, R);
+          }
+        }
       }
       /* le témoin hors thème, sur l'écran partagé : ses cases restent pleines */
       await ouvrirExo(E.temoin);
@@ -7275,6 +7306,8 @@ async function parcours(page, N){
                        : dits.length + ' écart(s) — ' + dits.slice(0, 4).join(' | '));
       verifier('chaque sorte d\'écriture du thème a été relevée (le contrôle mesure quelque chose)',
         manquent.length === 0, 'jamais vu : ' + manquent.join(', '));
+      verifier('les cases à remplir d\'un écran du thème ont la même largeur (relevée sur ' + (vus.largeurs || 0) + ' case(s))',
+        (vus.largeurs || 0) > 0, 'aucune largeur relevée : le contrôle ne mesure rien');
       const NOM_NOIR = 'ce que la page écrit dans le thème des fractions — nombres, signes, traits — est noir, hors les cases et hors l\'exercice dispensé';
       if(!E.noir) ignorer(NOM_NOIR, 'ce niveau ne déclare pas d\'encre noire');
       else {

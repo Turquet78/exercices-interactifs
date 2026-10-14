@@ -209,6 +209,22 @@ configuration », « par figure 2 : les flèches « non parallèles » ne font q
 13° », « mil figure 1 : les points du piège vérifient la configuration » —
 les trois défauts, nommés, aucun autre.
 
+**Puis la colonne DONNÉE a ressorti, dès l'arrivée de la question**
+(Turquet, octobre 2026, v486 : « faire ressortir la colonne qui donne
+l'information au début de chaque question »). Les trois colonnes avaient le
+même cadre pâle : l'élève devait chercher laquelle était remplie avant de
+savoir d'où partir. La cellule donnée (`vgt-donnee`, une classe qui existait
+sans aucun style) prend une encre DORÉE (`--gold`) — ni le bleu du juste, ni
+le vert de la correction, ni le rouge, ni le violet de la carte choisie —,
+une étiquette « Donnée » à côté de son titre, et un battement d'1,4 s à
+l'arrivée de la question (figé par la règle `prefers-reduced-motion`). La
+consigne NOMME la colonne (« la colonne « Figure » est donnée ») puisqu'elle
+change d'une ligne à l'autre. Et sur téléphone, où le tableau s'empile, la
+colonne donnée passe EN TÊTE (`order:-1`) : elle tombait en deuxième ou
+troisième place, sous le bas de l'écran, et l'élève voyait des propositions
+avant de voir de quoi elles parlaient. Vu dans Chromium (bureau et
+390 px), égalité donnée et figure donnée.
+
 ## {vecteurs-egaux} — retrouver les vecteurs égaux dans une figure (8.3, v475)
 
 **Trois sessions ont créé le thème 8 le même jour** — la translation du 8.1,
@@ -666,6 +682,50 @@ intacte reste verte. Un quatrième sabotage, le garde de `q.etape` retiré de
 a) se ferme, et le second garde tient seul — ce n'est pas un trou du
 contrôle, c'est une ceinture avec des bretelles.
 
+### Puis les lettres ont changé, et la figure s'est centrée (v485)
+
+Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, nommer les 4
+points avec les lettres A, B, C, D ou M, N, O, P ou E, F, G, H ou I, J, K, L
+ou Q, R, S, T. De plus il faudrait que les 4 points soient plus au centre du
+dessin afin d'avoir tous les parallélogrammes possibles avec ces 3 points. »
+
+**Les lettres sont tirées, les rôles restent.** La question range l'INDICE
+du jeu (`q.lt` dans `VEC_LETTRES`), jamais les lettres. Tout le moteur
+raisonne encore sur les rôles A, B, C, D — `q.A`, la forme `'ABDC'`,
+`vecChemin()`, `vecQuatrieme()` — et `vecL(q, rôle)` traduit au dernier
+moment : l'énoncé (« MNPO est un parallélogramme… construis le point P »),
+les étiquettes du dessin, les options des listes, « de O à P », le vecteur
+OP, le pourquoi, la réponse enregistrée et le contexte du modèle. Les
+lettres que l'élève choisit sont les lettres AFFICHÉES, et le juge les
+compare à la traduction du chemin. Une question rangée avant v485 n'a pas de
+`q.lt` : elle se lit en ABCD, la reprise d'une pause ne casse rien. Le
+rappel de cours garde A, B, C, D : c'est la méthode, pas l'exercice.
+
+**Centrée veut dire : les trois parallélogrammes possibles tiennent.** Trois
+points font trois parallélogrammes, un par quatrième point — B+C−A, A+C−B,
+A+B−C. Le tirage (`vecCentre`) exige que les TROIS tombent dans le
+quadrillage, à un carreau au moins du bord ; les trois points donnés, milieux
+de ce grand triangle, sont alors au cœur du dessin. **Le piège était le
+taux d'acceptation** : tirés sur tout le quadrillage, à peine un triplet sur
+six cents passait (0,17 %), et le repli constant sortait près d'une fois sur
+deux — vu à la première capture d'écran, la même figure revenant deux fois
+par séance. Les points se tirent maintenant à deux carreaux au moins du bord
+(un sur cinquante passe), deux mille essais au plus ; le repli,
+`(3;3) (5;4) (4;6)`, est lui-même centré.
+
+**Le contrôle** (`parallelogrammePoint`) range `lt` parmi les clés permises,
+exige sur cent séances que les cinq jeux sortent et que les trois quatrièmes
+points de chaque question tiennent dans [1 ; 8], puis joue une question en
+MNOP (forme MNPO) : énoncé, étiquettes M, N, O sans A ni D, liste « MNOP »,
+phrase « de O à P », vecteur OP, la phrase « de M à N » jugée juste, une
+copie à 3 sur 5, le pourquoi, la réponse enregistrée et le contexte du
+modèle en M, N, O, P. Éprouvé par trois sabotages, le contrôle rejoué seul
+dans un vrai Chromium : le centrage retiré (« un des trois parallélogrammes
+possibles a son quatrième point en (−3 ; 7) »), les lettres figées sur ABCD
+(« les jeux sortis sont ABCD »), un juge qui compare au rôle au lieu de la
+lettre affichée (« la phrase de M à N n'est pas jugée juste ») — chacun
+rougit, la page intacte reste verte.
+
 ## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v481)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
@@ -761,7 +821,7 @@ en vert d'étendue non nulle, le badge, les deux flèches, aucun point gagné) �
 et mesure que les vecteurs de l'énoncé portent leur flèche et que la case du
 nom n'est pas plus petite que sa phrase.
 
-## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.7, v485)
+## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.7, v487)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
 le pdf », une fiche « Compléter à l'aide du dessin afin d'utiliser la
