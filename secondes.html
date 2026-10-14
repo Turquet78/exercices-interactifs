@@ -6656,7 +6656,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=484;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=485;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -54715,7 +54715,19 @@ function ctxRpd(q){
    fonction qui corrige, et la phrase attendue sort de vecChemin(). Le tirage
    refuse trois points alignés (pas de parallélogramme), un D hors du
    quadrillage, et deux points à moins de deux carreaux l'un de l'autre —
-   leurs lettres se chevaucheraient.
+   leurs lettres se chevaucheraient. Et il CENTRE la figure (demande de
+   Turquet, octobre 2026) : les TROIS quatrièmes points possibles — B+C−A,
+   A+C−B, A+B−C, un par parallélogramme que font trois points — tombent tous
+   dans le quadrillage, à un carreau au moins du bord ; les trois points
+   donnés, milieux de ce grand triangle, sont alors au cœur du dessin.
+
+   LES LETTRES CHANGENT (même demande) : ABCD, MNOP, EFGH, IJKL ou QRST,
+   tirées (q.lt, l'INDICE dans VEC_LETTRES). Tout le moteur raisonne sur les
+   RÔLES A, B, C, D — q.A, q.forme 'ABDC', vecChemin() — et vecL() traduit
+   un rôle en la lettre affichée, au dernier moment : à l'énoncé, au dessin,
+   dans les listes, la correction, le contexte du modèle. Les lettres
+   choisies par l'élève (q.s1…) sont les lettres AFFICHÉES. Une question
+   rangée avant v485 n'a pas de q.lt : elle se lit en ABCD.
 
    TOUT CE QUE L'ÉLÈVE A FAIT VIT DANS LA QUESTION : la question atteinte
    (q.etape, 0 à 2), le nœud posé (q.selD), les quatre lettres choisies (q.s1,
@@ -54733,6 +54745,11 @@ function ctxRpd(q){
    montrer D. */
 const VEC_N=9;                       /* carreaux par côté : les nœuds vont de 0 à 9 */
 const VEC_CELL=34, VEC_PAD=20;       /* un carreau en unités SVG, et la marge autour — assez large pour la lettre d’un point posé sur un bord */
+/* Les cinq jeux de lettres, dans l'ordre des rôles A, B, C, D. */
+const VEC_LETTRES=['ABCD','MNOP','EFGH','IJKL','QRST'];
+/* La lettre affichée d'un rôle (« A » → « M » en MNOP), et d'un mot de rôles. */
+function vecL(q,r){ return (VEC_LETTRES[q.lt]||VEC_LETTRES[0]).charAt('ABCD'.indexOf(r)); }
+function vecMot(q,m){ return m.split('').map(function(r){ return vecL(q,r); }).join(''); }
 /* D, jamais rangé : recalculé là où l'on corrige, d'après la forme. */
 function vecQuatrieme(q){
   return q.forme==='ABDC'
@@ -54743,23 +54760,34 @@ function vecQuatrieme(q){
 function vecChemin(q){ return q.forme==='ABDC' ? ['A','B'] : ['B','A']; }
 function vecLoin(P,Q){ return Math.max(Math.abs(P[0]-Q[0]),Math.abs(P[1]-Q[1]))>=2; }
 /* Une question neuve : les trois points et la forme, et rien de répondu. */
-function vecQuestion(forme,A,B,C){ return {forme:forme, A:A, B:B, C:C, etape:0, selD:null, s1:'', s2:'', v1:'', v2:''}; }
+function vecQuestion(forme,A,B,C,lt){ return {forme:forme, lt:lt||0, A:A, B:B, C:C, etape:0, selD:null, s1:'', s2:'', v1:'', v2:''}; }
+/* Les trois quatrièmes points possibles de trois points : tous dans le
+   quadrillage, à un carreau au moins du bord — la figure est centrée. */
+function vecCentre(A,B,C){
+  return [[B[0]+C[0]-A[0],B[1]+C[1]-A[1]],[A[0]+C[0]-B[0],A[1]+C[1]-B[1]],[A[0]+B[0]-C[0],A[1]+B[1]-C[1]]]
+    .every(function(p){ return p[0]>=1&&p[0]<=VEC_N-1&&p[1]>=1&&p[1]<=VEC_N-1; });
+}
 function vecGen(forme){
-  for(let essai=0;essai<500;essai++){
-    const A=[rand(0,VEC_N),rand(0,VEC_N)], B=[rand(0,VEC_N),rand(0,VEC_N)], C=[rand(0,VEC_N),rand(0,VEC_N)];
+  /* les trois points se tirent à deux carreaux au moins du bord : tirés
+     partout, à peine un essai sur six cents passait le centrage, et le repli
+     sortait une fois sur deux ; ici, un sur cinquante */
+  const t=function(){ return [rand(2,VEC_N-2),rand(2,VEC_N-2)]; };
+  for(let essai=0;essai<2000;essai++){
+    const A=t(), B=t(), C=t();
     if(!vecLoin(A,B)||!vecLoin(A,C)||!vecLoin(B,C)) continue;
     const det=(B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0]);
     /* alignés (det nul) : pas de parallélogramme ; et une aire de moins de six
        carreaux fait une figure trop plate pour qu'on y lise les quatre lettres */
     if(Math.abs(det)<6) continue;
-    const q=vecQuestion(forme,A,B,C);
+    if(!vecCentre(A,B,C)) continue;
+    const q=vecQuestion(forme,A,B,C,rand(0,VEC_LETTRES.length-1));
     const D=vecQuatrieme(q);
     if(D[0]<0||D[0]>VEC_N||D[1]<0||D[1]>VEC_N) continue;
     if(!vecLoin(D,A)||!vecLoin(D,B)||!vecLoin(D,C)) continue;
     return q;
   }
   /* repli — jamais atteint en pratique : un parallélogramme valable dans les deux formes */
-  return vecQuestion(forme,[2,2],[5,3],[3,6]);
+  return vecQuestion(forme,[3,3],[5,4],[4,6],0);
 }
 function vecBuildQuestions(){
   const n=dmNbQuestions(6), moitie=Math.ceil(n/2);
@@ -54823,7 +54851,8 @@ function vecQuadrillage(o){
     +`<defs><marker id="${o.marker}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--green)"/></marker></defs>`
     +g+`<g id="${o.corr}"></g><g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}</svg>`;
 }
-function vecSVG(q){ return vecQuadrillage({pts:{A:q.A,B:q.B,C:q.C}, cible:'D', sel:q.selD, pfx:'vecn', clic:'vecPose', marker:'vecArr', corr:'vecCorr'}); }
+function vecSVG(q){ const pts={}; ['A','B','C'].forEach(function(r){ pts[vecL(q,r)]=q[r]; });
+  return vecQuadrillage({pts:pts, cible:vecL(q,'D'), sel:q.selD, pfx:'vecn', clic:'vecPose', marker:'vecArr', corr:'vecCorr'}); }
 /* La figure de la correction, partagée elle aussi : le parallélogramme en
    pointillés verts et ses chemins égaux fléchés. P(L) donne la position d'une
    lettre, ordre est le tour des sommets, fleches les couples [départ, arrivée]. */
@@ -54854,7 +54883,7 @@ function vecPose(i,j){
    deux lettres du vecteur, qui sont celles de la phrase. « el » désigne la
    liste à peindre, jamais la valeur à juger. */
 function vecJuge(q){
-  const ch=vecChemin(q), D=vecQuatrieme(q);
+  const ch=vecChemin(q).map(function(r){ return vecL(q,r); }), D=vecQuatrieme(q);
   const v=function(k){ return String(q[k]||''); };
   return [
     {id:'vec-pt', el:null, bon:D, ok:!!(q.selD&&q.selD[0]===D[0]&&q.selD[1]===D[1]), vide:!q.selD},
@@ -54890,13 +54919,14 @@ function vecPeindreEtape(q,subs,et,ferme){
    b) la phrase à deux listes, c) l'égalité de vecteurs à deux listes, le
    vecteur CD écrit en clair comme dans la phrase. */
 function vecBlocHTML(q,et){
-  const opts='<option value="" selected disabled>?</option>'+['A','B','C','D'].map(function(L){ return '<option value="'+L+'">'+L+'</option>'; }).join('');
+  const C=vecL(q,'C'), D=vecL(q,'D');
+  const opts='<option value="" selected disabled>?</option>'+vecMot(q,'ABCD').split('').map(function(L){ return '<option value="'+L+'">'+L+'</option>'; }).join('');
   const sel=function(id,lbl){ return '<select class="plc-sel vec-sel" id="'+id+'" aria-label="'+lbl+'">'+opts+'</select>'; };
-  if(et===0) return '<div class="tvg-cons pts-case" id="vec-pt"><b>a)</b> Clique sur le quadrillage le nœud où se trouve le point <b>D</b>, puis vérifie.</div>';
-  if(et===1) return '<div class="tvg-cons" id="vec-ph"><b>b)</b> '+q.forme+' est un parallélogramme signifie que : <span class="vec-phrase">le chemin qui va de '
-    +sel('vec-s1','le point de départ du chemin')+' à '+sel('vec-s2','le point d’arrivée du chemin')+' est le même que celui qui va de <b>C</b> à <b>D</b>.</span></div>';
+  if(et===0) return '<div class="tvg-cons pts-case" id="vec-pt"><b>a)</b> Clique sur le quadrillage le nœud où se trouve le point <b>'+D+'</b>, puis vérifie.</div>';
+  if(et===1) return '<div class="tvg-cons" id="vec-ph"><b>b)</b> '+vecMot(q,q.forme)+' est un parallélogramme signifie que : <span class="vec-phrase">le chemin qui va de '
+    +sel('vec-s1','le point de départ du chemin')+' à '+sel('vec-s2','le point d’arrivée du chemin')+' est le même que celui qui va de <b>'+C+'</b> à <b>'+D+'</b>.</span></div>';
   return '<div class="tvg-cons" id="vec-eg"><b>c)</b> Écris cette égalité de chemins avec des vecteurs : <span class="vec-egalite"><span class="vgt-vec vec-vsel">'
-    +sel('vec-v1','la première lettre du vecteur')+sel('vec-v2','la seconde lettre du vecteur')+'</span><span class="vgt-eq">=</span><span class="vgt-vec">CD</span></span></div>';
+    +sel('vec-v1','la première lettre du vecteur')+sel('vec-v2','la seconde lettre du vecteur')+'</span><span class="vgt-eq">=</span><span class="vgt-vec">'+C+D+'</span></span></div>';
 }
 /* Les listes d'une question : remplies depuis la question (reprise), et
    chaque changement y retourne — la liste n'est jamais la mémoire. */
@@ -54923,19 +54953,20 @@ function vecTracerFigure(q){
 function vecPourquoi(q,subs){
   const ch=vecChemin(q), parts=[];
   const dx=q[ch[1]][0]-q[ch[0]][0], dy=q[ch[1]][1]-q[ch[0]][1];
+  const L=function(r){ return vecL(q,r); }, u=L(ch[0]), v=L(ch[1]), C=L('C'), D=L('D');
   const faux=function(i){ return !subs[i].ok&&!subs[i].vide; };
   if(faux(0))
-    parts.push('De '+ch[0]+' à '+ch[1]+', on fait '+vecMots(dx,dy)+' ; on refait exactement ce chemin en partant de C, et on arrive sur D — en vert sur le quadrillage.');
+    parts.push('De '+u+' à '+v+', on fait '+vecMots(dx,dy)+' ; on refait exactement ce chemin en partant de '+C+', et on arrive sur '+D+' — en vert sur le quadrillage.');
   if(faux(1)||faux(2))
-    parts.push('Dans '+q.forme+', les sommets se suivent dans l’ordre des lettres : D est en face de '+(q.forme==='ABDC'?'A':'B')+', et le chemin qui va de '+ch[0]+' à '+ch[1]+' est le même que celui qui va de C à D.');
+    parts.push('Dans '+vecMot(q,q.forme)+', les sommets se suivent dans l’ordre des lettres : '+D+' est en face de '+L(q.forme==='ABDC'?'A':'B')+', et le chemin qui va de '+u+' à '+v+' est le même que celui qui va de '+C+' à '+D+'.');
   if(faux(3)||faux(4))
-    parts.push('Le chemin qui va de '+ch[0]+' à '+ch[1]+' est le vecteur '+ch[0]+ch[1]+' — les deux lettres dans l’ordre du chemin — et il est égal au vecteur CD.');
+    parts.push('Le chemin qui va de '+u+' à '+v+' est le vecteur '+u+v+' — les deux lettres dans l’ordre du chemin — et il est égal au vecteur '+C+D+'.');
   return parts.join(' ');
 }
 /* Le conseil du soutien, par question : la méthode, jamais la réponse. */
 function vecConseil(q,et){
-  if(et===0) return 'Deux chemins opposés d’un parallélogramme sont les mêmes : compte un côté en carreaux — vers la droite ou la gauche, puis vers le haut ou le bas — et refais exactement le même en partant de C. Attention à l’ordre des lettres de '+q.forme+'.';
-  if(et===1) return 'Les lettres de '+q.forme+' font le tour de la figure : le chemin qui va de C à D est celui du côté opposé, parcouru dans le même sens.';
+  if(et===0) return 'Deux chemins opposés d’un parallélogramme sont les mêmes : compte un côté en carreaux — vers la droite ou la gauche, puis vers le haut ou le bas — et refais exactement le même en partant de '+vecL(q,'C')+'. Attention à l’ordre des lettres de '+vecMot(q,q.forme)+'.';
+  if(et===1) return 'Les lettres de '+vecMot(q,q.forme)+' font le tour de la figure : le chemin qui va de '+vecL(q,'C')+' à '+vecL(q,'D')+' est celui du côté opposé, parcouru dans le même sens.';
   return 'Le chemin qui va d’un point à un autre s’écrit avec un vecteur qui porte ces deux lettres, dans l’ordre du chemin : relis ta phrase de la question b).';
 }
 function vecBoutonVerifier(libelle){
@@ -54949,7 +54980,8 @@ function renderVec(){
   ['s1','s2','v1','v2'].forEach(function(k){ if(typeof q[k]!=='string') q[k]=''; });
   $('vecIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('vecModeTag').innerHTML=modeTagHTML();
-  $('vecInstr').innerHTML='<b>'+q.forme+'</b> est un parallélogramme. En utilisant le quadrillage, construis le point <b>D</b> tel que '+q.forme+' soit un parallélogramme, puis explique ta construction.';
+  const nomF=vecMot(q,q.forme);
+  $('vecInstr').innerHTML='<b>'+nomF+'</b> est un parallélogramme. En utilisant le quadrillage, construis le point <b>'+vecL(q,'D')+'</b> tel que '+nomF+' soit un parallélogramme, puis explique ta construction.';
   $('vecGraph').innerHTML=vecSVG(q);
   /* les questions déjà franchies se rejouent telles qu'elles ont été jugées (reprise après une pause) */
   let h=''; for(let et=0;et<=q.etape;et++) h+=vecBlocHTML(q,et);
@@ -54999,11 +55031,12 @@ function checkVec(){
   test.score+=nCorrect;
   if(allOk){ $('vecFeedback').textContent=pick(['Parfait !','Très bien construit !','Excellent !','Exactement !']); $('vecFeedback').className='mp-feedback good'; }
   else { $('vecFeedback').textContent=msgAvecVides(subs, pourquoi); $('vecFeedback').className='mp-feedback bad'; }
-  const D=vecQuatrieme(q), ch=vecChemin(q), coord=function(p){ return '('+p[0]+' ; '+p[1]+')'; }, ou=function(v){ return v||'?'; };
+  const D=vecQuatrieme(q), ch=vecMot(q,vecChemin(q).join('')), coord=function(p){ return '('+p[0]+' ; '+p[1]+')'; }, ou=function(v){ return v||'?'; };
+  const L=function(r){ return vecL(q,r); }, CD=L('C')+L('D');
   test.answers.push({...(ptsExo()||{}), correct:allOk,
-    q:q.forme+' parallélogramme — A '+coord(q.A)+', B '+coord(q.B)+', C '+coord(q.C)+' — '+nCorrect+'/'+subs.length+' correct',
-    answer:'D '+coord(D)+' — chemin de '+ch[0]+' à '+ch[1]+' — vecteur '+ch[0]+ch[1]+' = vecteur CD',
-    given:'D '+(q.selD?coord(q.selD):'non placé')+' — chemin de '+ou(q.s1)+' à '+ou(q.s2)+' — vecteur '+ou(q.v1)+ou(q.v2)+' = vecteur CD'});
+    q:vecMot(q,q.forme)+' parallélogramme — '+L('A')+' '+coord(q.A)+', '+L('B')+' '+coord(q.B)+', '+L('C')+' '+coord(q.C)+' — '+nCorrect+'/'+subs.length+' correct',
+    answer:L('D')+' '+coord(D)+' — chemin de '+ch[0]+' à '+ch[1]+' — vecteur '+ch+' = vecteur '+CD,
+    given:L('D')+' '+(q.selD?coord(q.selD):'non placé')+' — chemin de '+ou(q.s1)+' à '+ou(q.s2)+' — vecteur '+ou(q.v1)+ou(q.v2)+' = vecteur '+CD});
   const last=test.idx===test.questions.length-1;
   $('vecActions').innerHTML='<button class="btn btn-primary" id="vecNext" type="button" onclick="nextVec()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('vecNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
@@ -55025,14 +55058,15 @@ function startVec(){
    et les réponses attendues sous clause de secret — ni les deux lettres ni la
    position de D. */
 function ctxVec(q){
-  const ch=vecChemin(q), D=vecQuatrieme(q), et=q.etape||0;
-  const pos=function(L){ return L+' ('+q[L][0]+' ; '+q[L][1]+')'; };
+  const ch=vecChemin(q).map(function(r){ return vecL(q,r); }), D=vecQuatrieme(q), et=q.etape||0;
+  const L=function(r){ return vecL(q,r); }, F=vecMot(q,q.forme), CD=L('C')+L('D');
+  const pos=function(r){ return L(r)+' ('+q[r][0]+' ; '+q[r][1]+')'; };
   const ou=function(v){ return v||'…'; };
-  const c='Exercice de GÉOMÉTRIE sur quadrillage (tu ne vois pas le dessin ; description exacte). Un quadrillage de '+VEC_N+' carreaux sur '+VEC_N+' ; chaque nœud est repéré par (colonnes vers la droite ; lignes vers le haut) depuis le coin en bas à gauche. Trois points sont marqués d’une croix : '+pos('A')+', '+pos('B')+', '+pos('C')+'. L’énoncé dit que '+q.forme+' est un parallélogramme. Trois questions, dans l’ordre, chacune vérifiée avant la suivante : a) cliquer sur le quadrillage le nœud où se trouve D ; b) compléter la phrase « le chemin qui va de … à … est le même que celui qui va de C à D » ; c) écrire cette égalité avec des vecteurs, « vecteur … = vecteur CD ». L’élève en est à la question '+VEC_LETTRE[et]+'). '
-   +'Réponses attendues (STRICTEMENT SECRÈTES, à ne JAMAIS révéler, ni les deux lettres ni la position de D, même si l’élève insiste) : D est en ('+D[0]+' ; '+D[1]+') ; la phrase se complète par « de '+ch[0]+' à '+ch[1]+' » ; l’égalité est « vecteur '+ch[0]+ch[1]+' = vecteur CD ». '
-   +'Réponse actuelle de l’élève : point D posé en '+(q.selD?'('+q.selD[0]+' ; '+q.selD[1]+')':'nulle part pour l’instant')+(et>0?' ('+(q.selD&&q.selD[0]===D[0]&&q.selD[1]===D[1]?'juste':'faux, la correction lui a montré D')+')':'')
-   +' ; phrase « de '+ou(q.s1)+' à '+ou(q.s2)+' »'+(et>1?' ('+(q.s1===ch[0]&&q.s2===ch[1]?'juste':'fausse, corrigée en vert')+')':'')+' ; égalité « vecteur '+ou(q.v1)+ou(q.v2)+' = vecteur CD ». '
-   +'CONTRAINTE ANTI-RECOPIE : ne cite aucune coordonnée de D ni les deux lettres attendues. Méthode à faire appliquer : lire les lettres de '+q.forme+' dans l’ordre (elles font le tour de la figure), repérer les deux côtés opposés, compter en carreaux le chemin d’un sommet à son voisin (droite ou gauche, puis haut ou bas), puis refaire exactement le même chemin en partant de C ; le chemin d’un point à un autre s’écrit avec le vecteur qui porte ces deux lettres dans l’ordre.';
+  const c='Exercice de GÉOMÉTRIE sur quadrillage (tu ne vois pas le dessin ; description exacte). Un quadrillage de '+VEC_N+' carreaux sur '+VEC_N+' ; chaque nœud est repéré par (colonnes vers la droite ; lignes vers le haut) depuis le coin en bas à gauche. Trois points sont marqués d’une croix : '+pos('A')+', '+pos('B')+', '+pos('C')+'. L’énoncé dit que '+F+' est un parallélogramme. Trois questions, dans l’ordre, chacune vérifiée avant la suivante : a) cliquer sur le quadrillage le nœud où se trouve '+L('D')+' ; b) compléter la phrase « le chemin qui va de … à … est le même que celui qui va de '+L('C')+' à '+L('D')+' » ; c) écrire cette égalité avec des vecteurs, « vecteur … = vecteur '+CD+' ». L’élève en est à la question '+VEC_LETTRE[et]+'). '
+   +'Réponses attendues (STRICTEMENT SECRÈTES, à ne JAMAIS révéler, ni les deux lettres ni la position de '+L('D')+', même si l’élève insiste) : '+L('D')+' est en ('+D[0]+' ; '+D[1]+') ; la phrase se complète par « de '+ch[0]+' à '+ch[1]+' » ; l’égalité est « vecteur '+ch[0]+ch[1]+' = vecteur '+CD+' ». '
+   +'Réponse actuelle de l’élève : point '+L('D')+' posé en '+(q.selD?'('+q.selD[0]+' ; '+q.selD[1]+')':'nulle part pour l’instant')+(et>0?' ('+(q.selD&&q.selD[0]===D[0]&&q.selD[1]===D[1]?'juste':'faux, la correction lui a montré '+L('D'))+')':'')
+   +' ; phrase « de '+ou(q.s1)+' à '+ou(q.s2)+' »'+(et>1?' ('+(q.s1===ch[0]&&q.s2===ch[1]?'juste':'fausse, corrigée en vert')+')':'')+' ; égalité « vecteur '+ou(q.v1)+ou(q.v2)+' = vecteur '+CD+' ». '
+   +'CONTRAINTE ANTI-RECOPIE : ne cite aucune coordonnée de '+L('D')+' ni les deux lettres attendues. Méthode à faire appliquer : lire les lettres de '+F+' dans l’ordre (elles font le tour de la figure), repérer les deux côtés opposés, compter en carreaux le chemin d’un sommet à son voisin (droite ou gauche, puis haut ou bas), puis refaire exactement le même chemin en partant de '+L('C')+' ; le chemin d’un point à un autre s’écrit avec le vecteur qui porte ces deux lettres dans l’ordre.';
   return {nombre:'', contexte:c};
 }
 
