@@ -12022,7 +12022,7 @@ function pointSommeVecteurs(w, P){
       if(new Set(cles).size!==cles.length) vus.push('deux questions identiques dans une même séance');
       if(qs.slice(0,3).map(function(q){ return q.l+q.ex; }).join(',')!=='App,Bpm,Cmm') vus.push('les trois premières questions ne suivent pas la fiche (AA′ = u + v, BB′ = u − v, CC′ = −u − v) : '+qs.slice(0,3).map(function(q){ return q.l+q.ex; }).join(','));
       qs.forEach(function(q,i){
-        if(Object.keys(q).sort().join(',')!=='ex,l,po,sel,uc,ur,uo,up,vc,vo,vp,vr') vus.push('la question range autre chose que la figure et les gestes de l\\'élève : '+Object.keys(q).join(','));
+        if(Object.keys(q).sort().join(',')!=='ex,l,po,sel,uc,uo,up,ur,vc,vo,vp,vr') vus.push('la question range autre chose que la figure et les gestes de l\\'élève : '+Object.keys(q).join(','));
         if(q.up!==null||q.vp!==null||q.ur||q.vr||q.sel!==null) vus.push('le tirage répond à la place de l\\'élève');
         if(i>=3) egalites[q.ex]=1;
         figures[cleQuestion(q)]=1;
