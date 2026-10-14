@@ -21,6 +21,33 @@ neuve, ou pour reprendre après un incident.
 
 ---
 
+## Ce que montre l'éditeur SQL de Supabase — et ce qu'il ne montre pas
+
+Constaté le 14 octobre 2026, en jouant la 010 : l'éditeur SQL du tableau de
+bord ne répond que **« Success. No rows returned »**, ou l'erreur en rouge.
+Trois règles en découlent, et elles valent pour chaque fichier de ce dossier :
+
+- **Les lignes `NOTICE` ne s'affichent jamais.** Tout ce qu'un fichier
+  « annonce », « nomme » ou « liste » par `raise notice` — un état avant, un
+  bilan, une liste d'élèves — reste invisible. Seul `psql` les montre : c'est
+  ce que lit le banc (`npm run test:base`), et c'est de lui que parlent les
+  commentaires des fichiers quand ils disent « à lire dans la sortie ».
+- **Seul le résultat de la DERNIÈRE requête s'affiche.** Deux `select` collés
+  ensemble ne montrent que le tableau du second : une requête de lecture se
+  colle **seule**.
+- **Une erreur s'affiche en rouge, et annule tout le fichier.** Les migrations
+  se contrôlent elles-mêmes par des erreurs (`raise exception`) : pour elles,
+  « Success » veut dire que leurs contrôles sont passés. Mais ce qu'un fichier
+  se contente de **déclarer** par une `NOTICE` — une table absente sautée, une
+  mesure qu'il n'a pas pu faire — passe en silence, et « Success » ne le
+  distingue pas.
+
+Là où un compte rendu compte vraiment, la section donne la **requête de
+lecture** qui le montre : un `select` qui ne modifie rien, à coller seul,
+avant ou après le fichier.
+
+---
+
 ## 1. Régler l'authentification (2 min)
 
 Dans Supabase → **Authentication → Sign In / Providers → Email** :
@@ -110,10 +137,28 @@ gagner du temps :
 Dans **SQL Editor**, coller **`migrations/001_comptes_et_verrouillage.sql`** en
 entier, et exécuter.
 
-Elle commence par **afficher l'état actuel** de vos neuf tables — RLS active ou
-non, politiques déjà en place. **Lisez ces lignes.** Si des politiques à vous y
-figurent, elles ne seront pas touchées : la migration ne pose et ne retire que
-les siennes, préfixées `p_`.
+Elle commence par décrire l'état actuel de vos neuf tables — RLS active ou
+non, politiques déjà en place — mais en lignes `NOTICE`, que l'éditeur
+n'affiche pas. Cet état se lit **avant** de la coller, par une requête qui ne
+touche à rien, collée seule :
+
+```sql
+select c.relname as "table", c.relrowsecurity as rls,
+       count(p.policyname) as politiques,
+       coalesce(string_agg(p.policyname, ', '), '—') as noms
+from pg_class c
+left join pg_policies p on p.schemaname = 'public' and p.tablename = c.relname
+where c.relnamespace = 'public'::regnamespace
+  and c.relname in ('eleves','eleves_1ere','eleves_2nde',
+                    'resultats','resultats_1ere','resultats_2nde',
+                    'parametres','parametres_1ere','parametres_2nde')
+group by c.relname, c.relrowsecurity
+order by c.relname;
+```
+
+**Lisez ces lignes** — une table absente n'y figure pas. Si des politiques à
+vous y figurent, elles ne seront pas touchées : la migration ne pose et ne
+retire que les siennes, préfixées `p_`.
 
 Ce qu'elle fait ensuite :
 
@@ -122,8 +167,11 @@ Ce qu'elle fait ensuite :
   navigateur ;
 - active la RLS sur les neuf tables et pose 30 politiques.
 
-Elle se termine en réaffichant l'état obtenu, et **échoue bruyamment** si une
-table est restée sans RLS ou si une colonne `pin` subsiste.
+Elle se termine par un contrôle qui **échoue bruyamment** — en rouge, tout
+annulé — si une table est restée sans RLS ou si une colonne `pin` subsiste :
+« Success » veut dire qu'il est passé. L'état obtenu, elle le décrit aussi en
+`NOTICE` ; pour le voir, relancez seule la requête ci-dessus — `rls` à `true`
+sur chaque ligne.
 
 Elle est **idempotente** : la relancer ne casse rien.
 
@@ -153,8 +201,11 @@ vient de poser.
 fait. C'est à `002_retirer_politiques_ouvertes.sql` de le faire, explicitement.
 
 Collez **`migrations/002_retirer_politiques_ouvertes.sql`** dans l'éditeur SQL
-et exécutez-le. Il nomme chaque politique retirée, laisse en place tout ce qui
-n'est pas manifestement grand ouvert, et **échoue** s'il en subsiste une.
+et exécutez-le. Il retire les politiques grandes ouvertes, laisse en place tout
+ce qui ne l'est pas manifestement, et **échoue** — en rouge, tout annulé — s'il
+en subsiste une. Il nomme aussi chaque politique retirée ou laissée, mais en
+`NOTICE`, invisibles dans l'éditeur : les retirées ne se relisent plus dans la
+base ; les laissées, si — ce sont les lignes de la requête ci-dessous.
 
 Pour vérifier :
 
@@ -267,19 +318,46 @@ suppression professeur.
 ### Le ménage des lignes fantômes
 
 Les brouillons accumulés depuis des mois sont toujours là : la migration ouvre
-le droit pour la suite, elle ne nettoie pas le passé. Collez
-**`menage-brouillons.sql`** dans l'éditeur SQL et exécutez-le.
+le droit pour la suite, elle ne nettoie pas le passé : c'est
+**`menage-brouillons.sql`** qui le fait — précédé et suivi d'une requête de
+lecture.
 
-Il travaille en trois temps, et le premier ne touche à rien :
+Le script travaille en trois temps — ce qu'il y a, le ménage, ce qu'il reste —
+mais il n'en dit rien dans l'éditeur : il ne parle qu'en `NOTICE`, et, collé
+entier, il se joue d'un seul clic, **ménage compris**. Le garde-fou « regarder
+avant de supprimer » se fait donc à part, par cette requête qui ne touche à
+rien, collée **seule** :
 
-1. **ce qu'il y a** — par table : lignes, notes, brouillons, et combien datent
-   de moins de 24 h. Si les nombres vous surprennent, arrêtez-vous là ;
-2. **le ménage** — les seules lignes dont `details->>'state'` vaut `paused` ;
-3. **ce qu'il reste** — « brouillons » à zéro, « notes » identique au point 1.
+```sql
+select t.nom as "table",
+  count(r.nom) as lignes,
+  count(r.nom) filter (where r.details->>'state' is distinct from 'paused') as notes,
+  count(r.nom) filter (where r.details->>'state' = 'paused') as brouillons,
+  count(r.nom) filter (where r.details->>'state' = 'paused'
+    and r.created_at > now() - interval '24 hours') as "dont < 24 h"
+from (values ('resultats'), ('resultats_1ere'), ('resultats_2nde')) t(nom)
+left join (select 'resultats' as nom, details, created_at from public.resultats
+           union all select 'resultats_1ere', details, created_at
+                       from public.resultats_1ere
+           union all select 'resultats_2nde', details, created_at
+                       from public.resultats_2nde) r on r.nom = t.nom
+group by t.nom
+order by t.nom;
+```
+
+1. **avant** — lancez la requête : par table, lignes, notes, brouillons, et
+   combien datent de moins de 24 h. Si les nombres vous surprennent,
+   arrêtez-vous là : rien n'est supprimé ;
+2. **le ménage** — collez alors le script À LA PLACE de la requête, et
+   exécutez-le : il ne retire que les lignes dont `details->>'state'` vaut
+   `paused` ;
+3. **après** — remettez la requête seule : « brouillons » à zéro (sauf ceux de
+   moins de 24 h si vous avez décommenté la ligne de l'étape 2), « notes »
+   identique au point 1.
 
 **Aucune note n'est touchée**, et ce n'est pas une promesse : une note n'a pas
-de champ `state`, le filtre ne peut pas l'atteindre, et l'étape 1 le montre
-chiffres en main avant toute suppression.
+de champ `state`, le filtre ne peut pas l'atteindre, et la requête le montre
+chiffres en main — « notes » ne bouge pas entre le point 1 et le point 3.
 
 Ces brouillons ne valent rien, et c'est démontrable : le droit de *modifier*
 manquait autant que celui de supprimer, si bien que chaque ligne est restée
@@ -357,9 +435,13 @@ professeur.
 
 `npm run test:base` **ne rejoue pas** cette migration : il lève un PostgreSQL
 ordinaire, où le schéma `storage` n'existe pas — il est propre à Supabase. Le
-fichier se termine donc par un contrôle qui **échoue bruyamment** si le bucket
-manque, s'il est resté public, ou s'il n'a pas ses quatre politiques. Lisez la
-ligne `NOTICE` qu'il affiche.
+fichier se termine donc par un contrôle qui **échoue bruyamment** — en rouge,
+tout annulé — si le bucket manque, s'il est resté public, ou s'il n'a pas ses
+quatre politiques : « Success » veut dire qu'il est passé. La ligne `NOTICE`
+qui le redit n'apparaît pas dans l'éditeur. Pour relire l'état après coup, les
+deux requêtes en commentaire à la fin du fichier — **une à la fois** : collées
+ensemble, seule la seconde s'afficherait (et `public` y vaut `true` depuis la
+006, qui a ouvert le bucket en lecture au portail).
 
 ---
 
@@ -502,8 +584,46 @@ est par construction le barème de la séance réellement posée, donc la note
 juste est 100 % — aucune supposition. Une copie qui a des fautes est
 sous-notée elle aussi, mais son barème n'est écrit nulle part ; le deviner
 ferait courir le risque de remonter une note à tort, ce qu'on ne saurait plus
-voir. Ces copies-là sont **listées** à la fin du rapport : faites refaire
-l'exercice, la meilleure note l'emporte et le carnet se corrige de lui-même.
+voir. Ces copies-là sont **listées** à la fin de son rapport — mais ce rapport
+part en `NOTICE`, et l'éditeur n'en affiche rien : « Success. No rows
+returned » dit que le script a tourné, pas ce qu'il a réparé. Ce qu'il fera,
+puis ce qu'il a fait, se lit par cette requête de lecture, collée **seule**,
+avant puis après le script :
+
+```sql
+select d.genre, d.num, d.titre, r.details->>'dm' as id,
+       r.details->>'test' as exercice,
+       count(*) filter (where r.details->'misses' = '[]' and r.score > 0
+                          and r.total > r.score) as a_reparer,
+       count(*) filter (where r.details ? 'correction_bareme') as reparees,
+       count(*) filter (where r.details->'misses' <> '[]'
+                          and r.total > r.score) as avec_faute
+  from public.resultats_2nde r
+  left join lateral (
+       select k.genre, v->>'num' as num, v->>'titre' as titre
+         from public.parametres_2nde p,
+              (values ('fiches','fiche'), ('devoirs','devoir')) k(cle, genre),
+              jsonb_array_elements(coalesce(p.valeurs->k.cle, '[]')) v
+        where v->>'id' = r.details->>'dm' limit 1) d on true
+ where jsonb_typeof(r.details) = 'object' and r.details ? 'dm'
+   and coalesce(r.details->>'state', '') <> 'paused'
+   and not coalesce((r.details->>'partiel')::boolean, false)
+   and jsonb_typeof(r.details->'misses') = 'array'
+   and r.total > 0 and r.score >= 0 and r.score = trunc(r.score)
+ group by 1, 2, 3, 4, 5
+having count(*) filter (where r.details ? 'correction_bareme'
+                           or (r.details->'misses' = '[]' and r.score > 0
+                               and r.total > r.score)) > 0
+ order by 1, 2, 5;
+```
+
+Une ligne par exercice d'un devoir où une copie sans faute prouve la coupe,
+avec le genre, le numéro et le titre que vous connaissez (vides si le devoir a
+été retiré des réglages : reste son identifiant, `id`). **Avant** le script,
+`a_reparer` compte les copies sans faute qu'il remettra à 100 % ; **après**,
+`a_reparer` est à zéro et `reparees` les a reprises. `avec_faute` compte les
+copies qu'il laisse : faites refaire l'exercice, la meilleure note l'emporte et
+le carnet se corrige de lui-même. Aucune ligne : il n'y a rien à réparer.
 
 **Seule la Seconde est concernée** : la Première et la Terminale notent sur le
 nombre de questions et n'ont jamais mal noté.
@@ -576,7 +696,8 @@ Elle se termine par un contrôle qui **échoue bruyamment** si une politique de
 lecture d'une table d'élèves nomme encore `anon`, si une table porte plus d'une
 politique de lecture, si la fonction manque ou n'est pas `security definer`, ou
 si `anon` n'a pas le droit de l'appeler. Elle est **idempotente**, et un niveau
-dont la table manque est signalé et sauté.
+dont la table manque est sauté — signalé par une `NOTICE`, donc sans rien à
+l'écran.
 
 Pour vérifier :
 
@@ -637,10 +758,11 @@ la 3 decies).
 Le fichier lui-même se termine par une mesure, pas une affirmation : il prend
 le rôle `anon`, demande un prénom présent dans chaque table, et **échoue** si
 la fonction ne rend rien — c'est le seul contrôle qui tourne sur le projet
-réel. Une table vide, ou un rôle qu'il ne peut pas prendre, se déclare dans
-sa sortie au lieu de passer au vert ; une erreur de droit levée dans la
-fonction elle-même fait échouer le fichier, elle ne se déguise pas en « rôle
-impossible à prendre ».
+réel. Une table vide, ou un rôle qu'il ne peut pas prendre, se déclare par une
+`NOTICE` au lieu d'échouer — et l'éditeur n'en montre rien : dans ces deux cas,
+« Success » ne prouve pas que la mesure a eu lieu. Une erreur de droit levée
+dans la fonction elle-même, elle, fait échouer le fichier, en rouge ; elle ne
+se déguise pas en « rôle impossible à prendre ».
 
 ---
 
@@ -702,8 +824,12 @@ n'y est pas refusé ; dès la 010 jouée, la liste le voit.
   liste refermée par erreur un jour.
 - `notify pgrst, 'reload schema'` : PostgREST doit **oublier** la fonction.
 
-Sa sortie commence par **l'état trouvé** — « la 009 avait été jouée », ou
-« pas de cles_de_connexion » — : vous saurez dans quel état était la base.
+Elle dit aussi **l'état trouvé** — « la 009 avait été jouée », ou « pas de
+cles_de_connexion » — mais par une `NOTICE`, que l'éditeur n'affiche pas. Pour
+le savoir, il faut le demander **avant** de la coller, par une requête seule :
+`select to_regprocedure('public.cles_de_connexion(text, text)') is not null as
+la_009_avait_ete_jouee;` — après elle, la réponse est `false` dans tous les
+cas, et la question n'a plus d'objet.
 Elle se termine par un contrôle qui **échoue bruyamment** si une table d'élèves
 porte plus d'une politique de lecture (une politique « for all » revenue par
 la console, par exemple : jouez alors la 002), si cette politique ne nomme pas
@@ -711,9 +837,13 @@ la console, par exemple : jouez alors la 002), si cette politique ne nomme pas
 fonctions existe encore. Puis elle **mesure** : elle prend le rôle `anon`, lit
 ce que la page demande — identifiant, prénom et clé — et exige autant de
 lignes que le rôle qui joue le fichier. Une table vide, ou un rôle qu'elle ne
-peut pas prendre, se **déclare** dans la sortie au lieu de passer au vert.
-Elle est **idempotente**, et un niveau dont la table manque est signalé et
-sauté. **Aucune donnée n'est touchée**, et aucune autre politique.
+peut pas prendre, se **déclare** par une `NOTICE` au lieu d'échouer — invisible
+dans l'éditeur : dans ces deux cas, « Success » ne prouve pas que la mesure a
+eu lieu. La preuve directe est sur les pages en ligne : elles lisent la liste
+**en visiteur**, et les pastilles de toute la classe s'y affichent.
+Elle est **idempotente**, et un niveau dont la table manque est sauté
+(signalé, lui aussi, par une `NOTICE`). **Aucune donnée n'est touchée**, et
+aucune autre politique.
 
 ### Ce qu'elle coûte, nommé
 
@@ -787,8 +917,10 @@ majuscule ; et la question que posent les pages — « la fonction existe-t-elle
 prénom vide sur le niveau de chaque page — répond sans erreur et ne rend
 rien.
 
-Ce qu'il ne voit pas : **dans quel état est votre projet**. C'est la sortie
-de la 010, « état trouvé », qui le dit.
+Ce qu'il ne voit pas : **dans quel état est votre projet**. La 010 a été
+jouée le 14 octobre 2026 (« Success. No rows returned ») ; l'« état trouvé »
+qu'elle annonçait part en `NOTICE` et ne s'est pas affiché : on ne saura pas si
+la 009 l'avait précédée — et, la 010 jouée, cela n'a plus d'importance.
 
 ## 4. Vous déclarer professeur (1 min)
 
@@ -1181,8 +1313,10 @@ $j$::json);
 | `EN TROP` | passée après la sauvegarde — **normal**, pas une anomalie |
 
 Les écarts de forme ne sont pas signalés : `8` et `8.0`, ou le même instant
-écrit dans deux fuseaux, comptent pour identiques. Ce qui s'affiche est un vrai
-écart.
+écrit dans deux fuseaux, comptent pour identiques. Chaque ligne affichée est
+un vrai écart — sauf la dernière, toujours présente, qui fait le compte :
+« — N identique(s), N différente(s), N manquante(s), N en trop ». Seule, elle
+dit que la base et la sauvegarde sont d'accord.
 
 ⚠️ **`DIFFÉRENTE` ne veut pas dire falsifiée.** La sauvegarde date du dimanche
 précédent : un exercice refait depuis apparaît là, légitimement. Lisez les
@@ -1242,7 +1376,11 @@ select public.restaurer('eleves_1ere', $j$
 $j$::json);
 ```
 
-Il répond `eleves_1ere : 8 ligne(s) restaurée(s), séquence replacée`.
+Il répond, par une seule ligne : `eleves_1ere : 8 ligne(s) remises en place,
+séquence replacée`. La fin « séquence replacée » ne vient que pour
+`eleves_1ere` et `resultats_1ere`, dont l'identifiant sort d'une séquence. Une
+table par exécution : collés ensemble, plusieurs `select` ne montreraient que
+la réponse du dernier.
 
 **5. Recommencer pour chaque table**, en respectant cet ordre — les notes
 désignent un élève, elles ne peuvent pas arriver les premières :
@@ -1262,10 +1400,28 @@ Deux cas :
 - **Les comptes ont survécu** (la base a été restaurée mais `auth.users` n'a
   pas été touché — c'est le cas d'une restauration ordinaire) : coller
   **`relier-comptes.sql`** dans l'éditeur SQL et l'exécuter. Il recalcule le
-  lien par l'adresse dérivée de la clé, sans changer aucun code, et liste les
-  élèves qu'il n'a pas pu relier.
+  lien par l'adresse dérivée de la clé, sans changer aucun code. L'éditeur ne
+  répond que « Success. No rows returned » : c'est normal.
 - **Les comptes ont disparu aussi** : « Nouveau code » depuis l'onglet Élèves
   recrée le compte et pose le lien — l'élève reçoit un code provisoire.
+
+**Qui reste à relier ?** Le script nomme les élèves qu'il n'a pas pu relier,
+mais par des `NOTICE`, que l'éditeur n'affiche pas. Pour les voir, lancez
+ENSUITE cette requête, seule — elle ne modifie rien :
+
+```sql
+select 'Terminale' as niveau, prenom from public.eleves where user_id is null
+union all
+select 'Première', prenom from public.eleves_1ere where user_id is null
+union all
+select 'Seconde', prenom from public.eleves_2nde where user_id is null
+order by niveau, prenom;
+```
+
+Chaque ligne nomme un élève dont le compte n'existe plus : « Nouveau code »
+pour lui. « No rows returned » : tous sont reliés. Jouée AVANT le script, la
+même requête sert de diagnostic — aucune ligne veut dire que personne n'est
+dé-relié, et que la panne vient d'ailleurs.
 
 **7. Retirer les outils**, ils n'ont plus rien à faire dans la base :
 

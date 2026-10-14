@@ -166,6 +166,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Une sauvegarde remise en place casse la Première le lendemain.**
 - **Un élève dé-relié se connecte parfaitement — et tout ce qui est à lui est refusé.**
 - **La liste des prénoms s'affiche de nouveau avant le code, et le prix est nommé.**
+- **L'éditeur SQL de Supabase n'affiche ni les NOTICE ni les tableaux intermédiaires.** Ce qu'un fichier collé doit faire lire passe par une erreur ou par son DERNIER `select`, jamais par une `NOTICE` seule.
 - **Le plan gratuit de Supabase ne sauvegarde rien.**
 - **Supabase ne rend jamais plus de 1000 lignes par requête — et il coupe EN SILENCE.** Toute lecture d'une table de résultats passe par `lireToutes()`.
 
