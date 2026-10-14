@@ -896,12 +896,12 @@ function structure(){
   /* LE CODE DE CONNEXION SE TAPE MASQUÉ (audit d'octobre 2026, T10) — en
      classe, il s'affichait sur l'écran du voisin. Et masqué par la feuille de
      styles, PAS par type="password" : le formulaire de l'élève n'offre aucun
-     identifiant au sens de Chrome (le prénom est un champ texte en
-     autocomplete="off", dans un <form autocomplete="off">), Chrome irait le
-     chercher ailleurs et proposerait d'enregistrer le code d'un élève sur un
-     poste partagé (le piège « Sans balise <form> »). Les deux bords : masqué,
-     et pas en password ; le pavé numérique, lui, ne s'attache qu'aux cases
-     numeric. */
+     identifiant au sens de Chrome (le prénom est un bouton — ou, dans le
+     repli de transition, un champ texte en autocomplete="off", dans un
+     <form autocomplete="off">), Chrome irait le chercher ailleurs et
+     proposerait d'enregistrer le code d'un élève sur un poste partagé (le
+     piège « Sans balise <form> »). Les deux bords : masqué, et pas en
+     password ; le pavé numérique, lui, ne s'attache qu'aux cases numeric. */
   {
     const pin = (s.match(/<input[^>]*id="loginPin"[^>]*>/) || [''])[0];
     const regle = /#loginPin\{[^}]*-webkit-text-security:\s*disc/.test(s);
@@ -913,45 +913,97 @@ function structure(){
         : 'loginPin a perdu inputmode="numeric" : le pavé numérique ne s’y attache plus');
   }
 
-  /* L'ÉCRAN DE CONNEXION N'AFFICHE PLUS DE LISTE DE PRÉNOMS (décision de
-     Turquet, octobre 2026). Les pastilles se lisaient sans compte — des
-     prénoms de mineurs, et les clés dont l'adresse de connexion est dérivée.
-     L'élève TAPE son prénom, et la page obtient ses clés par la fonction SQL
-     cles_de_connexion (migration 009), qui ferme la lecture anonyme de la
-     table. Tant que la migration n'est pas jouée, la fonction n'existe pas
-     (PGRST202) et la page se replie sur l'ancienne liste. DEUX BORDS sur ce
-     repli, et n'en tenir qu'un ne tient rien : s'il DISPARAISSAIT, la page
-     mise en ligne avant la migration ne connecterait plus personne ; s'il se
-     prenait sur TOUTE erreur, chaque incident de la fonction relirait la
-     liste entière, et personne ne verrait la panne. L'ordre est impératif :
-     la page d'abord en ligne, la migration ensuite. Et la création de compte
-     passe par la même porte : un second « Léa » écrit « lea » doit y être
-     refusé, sinon les deux se confondent à la connexion. */
+  /* L'ÉCRAN DE CONNEXION AFFICHE LA LISTE DES PRÉNOMS, ET NE SE REPLIE SUR LE
+     PRÉNOM TAPÉ QUE SI LA LISTE EST FERMÉE. Les pastilles sont revenues
+     (décision de Turquet, 14 octobre 2026) ; leur prix — la liste lisible
+     sans compte — est nommé dans la page. Mais rien ne dit si la migration
+     009 a été jouée sur le projet, et la page doit connecter dans les trois
+     états de la base : A, avant la 009 ; B, la 009 jouée — la liste fermée,
+     la fonction cles_de_connexion présente ; C, la 010 jouée — la liste
+     rouverte, la fonction supprimée. DEUX BORDS, et n'en tenir qu'un ne
+     tient rien :
+       — la LISTE s'affiche : #nameChips dans le formulaire, lue par
+         renderLoginNames en trois colonnes, la case du code cachée jusqu'au
+         choix, et la pastille choisie (selectedEleve) sert à connexionEleve.
+         Sans cela, les états A et C — ceux où la liste se lit — reviendraient
+         au prénom tapé, ou ne connecteraient personne ;
+       — le REPLI ne s'ouvre que sur une liste FERMÉE : #loginPrenom vit dans
+         un #prenomRow caché par défaut, et le sondage de la fonction n'a lieu
+         que dans la branche « liste vide », pour ne conclure « fermée » que
+         hors PGRST202. Sans sondage, l'état B afficherait « Aucun compte » à
+         toute la classe ; un sondage qui conclurait « fermée » sur PGRST202
+         offrirait à une classe vraiment vide un champ qui ne mène nulle part ;
+         un sondage hors de la branche vide interrogerait la fonction à
+         chaque ouverture.
+     Et clesDuPrenom garde sa garde PGRST202 AVANT son repli sur la liste ;
+     et creerCompte passe par elle : un second « Léa » écrit « lea » doit être
+     refusé dans les trois états — en B, une relecture de la liste ne verrait
+     personne, et chacun recréerait son compte. */
   {
     const champ = (s.match(/<input[^>]*id="loginPrenom"[^>]*>/) || [''])[0];
     const formulaire = (s.match(/<form id="modeCo"[\s\S]*?<\/form>/) || [''])[0];
+    const blocPrenom = (formulaire.match(/<div[^>]*\bid="prenomRow"[^>]*>[\s\S]*?<\/div>/) || [''])[0];
+    const ouvrePrenom = blocPrenom.split('>')[0];
+    const ouvreCode = (formulaire.match(/<div[^>]*\bid="pinRow"[^>]*>/) || [''])[0];
+    const fRendu = (s.match(/^async function renderLoginNames\(\)\{[\s\S]*?\n\}/m) || [''])[0];
     const fCo = (s.match(/^async function connexionEleve\(\)\{[\s\S]*?\n\}/m) || [''])[0];
     const fCr = (s.match(/^async function creerCompte\(\)\{[\s\S]*?\n\}/m) || [''])[0];
     const fCles = (s.match(/^async function clesDuPrenom\([^)]*\)\{[\s\S]*?\n\}/m) || [''])[0];
+    /* un bloc { … } entier, accolades appariées, chaînes et commentaires sautés */
+    const bloc = (t, k) => {
+      if(k < 0) return '';
+      let n = 0;
+      for(let q = k; q < t.length; q++){
+        const saut = sauter(t, q);
+        if(saut >= 0){ q = saut; continue; }
+        if(t[q] === '{') n++;
+        else if(t[q] === '}'){ n--; if(n === 0) return t.slice(k, q + 1); }
+      }
+      return '';
+    };
+    const lectureListe = new RegExp("sb\\.from\\('" + P.tableEleves + "'\\)\\.select\\('id,prenom,cle'\\)").test(fRendu);
+    const iVide = fRendu.search(/if\(\s*!data\.length\s*\)\s*\{/);
+    const brancheVide = iVide < 0 ? '' : bloc(fRendu, fRendu.indexOf('{', iVide));
+    const SONDE = /sb\.rpc\(\s*'cles_de_connexion'/g;
+    const sondages = (fRendu.match(SONDE) || []).length;
+    const sondagesVide = (brancheVide.match(SONDE) || []).length;
+    /* « fermée » conclu SEULEMENT hors PGRST202 : pas d'erreur, ou une erreur
+       d'un autre code — et c'est là, et là seul, que #prenomRow s'ouvre */
+    const conclusion = /if\(\s*!(\w+)\s*\|\|\s*\1\.code\s*!==\s*'PGRST202'\s*\)\s*\{[^}]*\$\('prenomRow'\)\.hidden\s*=\s*false/.test(brancheVide);
+    const ouvertures = (fRendu.match(/\$\('prenomRow'\)\.hidden\s*=\s*false/g) || []).length;
     const appelRpc = /sb\.rpc\(\s*'cles_de_connexion'\s*,\s*\{\s*niveau\s*:\s*NIVEAU\b/.test(fCles);
     const iGarde = fCles.search(/if\(\s*error\.code\s*!==\s*'PGRST202'\s*\)\s*\{[\s\S]*?return\s*\{data:null,error\};\s*\}/);
     const iRepli = fCles.search(/sb\.from\('[^']+'\)\.select\('cle,prenom'\)/);
     const defaut =
-        /id="nameChips"/.test(s) ? 'la liste des prénoms (#nameChips) est encore dans la page'
-      : !champ ? 'aucun champ #loginPrenom : l’élève ne peut pas taper son prénom'
-      : !/autocomplete="off"/.test(champ) ? '#loginPrenom n’est pas en autocomplete="off"'
-      : formulaire.indexOf('id="loginPrenom"') < 0 || !/autocomplete="off"/.test(formulaire.split('>')[0])
-          ? '#loginPrenom n’est pas dans le <form id="modeCo" autocomplete="off">'
+      /* premier bord : la liste s'affiche, et la pastille connecte */
+        formulaire.indexOf('id="nameChips"') < 0 ? 'la liste des prénoms (#nameChips) n’est pas dans le formulaire de connexion'
+      : !fRendu ? 'renderLoginNames() introuvable'
+      : !/\bfunction accueil\(\)\{[^}]*\brenderLoginNames\(\)/.test(s) ? 'accueil() n’appelle pas renderLoginNames() : la liste ne se dessine pas'
+      : !lectureListe ? 'renderLoginNames() ne lit pas la liste par sb.from(\'' + P.tableEleves + '\').select(\'id,prenom,cle\')'
+      : !/\bselectedEleve\s*=\s*e\b/.test(fRendu) ? 'une pastille cliquée ne choisit pas l’élève (selectedEleve)'
+      : !ouvreCode || !/\shidden\b/.test(ouvreCode) ? '#pinRow n’est pas caché par défaut : la case du code s’affiche avant le choix du prénom'
       : !fCo ? 'connexionEleve() introuvable'
-      : !/\bclesDuPrenom\(/.test(fCo) ? 'connexionEleve() ne passe pas par clesDuPrenom()'
+      : !/\bselectedEleve\b/.test(fCo) ? 'connexionEleve() ne se sert pas de selectedEleve : la pastille cliquée ne connecte personne'
+      /* second bord : le repli ne s'ouvre que sur une liste fermée */
+      : !champ ? 'aucun champ #loginPrenom : le repli de transition (la liste fermée par la 009) ne connecterait personne'
+      : !blocPrenom || blocPrenom.indexOf('id="loginPrenom"') < 0 ? '#loginPrenom n’est pas dans un bloc #prenomRow du formulaire'
+      : !/\shidden\b/.test(ouvrePrenom) ? '#prenomRow n’est pas caché par défaut : le champ du prénom s’afficherait à côté des pastilles'
+      : !/autocomplete="off"/.test(champ) ? '#loginPrenom n’est pas en autocomplete="off"'
+      : !/autocomplete="off"/.test(formulaire.split('>')[0]) ? 'le <form id="modeCo"> n’est pas en autocomplete="off"'
+      : sondages === 0 ? 'aucun sondage de cles_de_connexion sur une liste vide : la 009 jouée, la page dirait « Aucun compte » à toute la classe'
+      : sondagesVide !== 1 || sondages !== 1 ? 'le sondage de cles_de_connexion a lieu hors de la branche « liste vide » (' + sondages + ' appel(s), dont ' + sondagesVide + ' dans la branche) : la fonction serait interrogée à chaque ouverture'
+      : !conclusion || ouvertures !== 1 ? 'le champ du prénom ne s’ouvre pas sur « pas d’erreur, ou une erreur autre que PGRST202 » seulement : une classe vraiment vide (fonction absente) verrait un champ qui ne mène nulle part'
+      : !/Aucun compte pour l/.test(brancheVide) ? 'la branche « liste vide » n’annonce plus « Aucun compte » quand la fonction est absente'
+      : !/\bclesDuPrenom\(/.test(fCo) || !/prenomRow/.test(fCo) ? 'connexionEleve() ne passe pas par clesDuPrenom() quand #prenomRow est affiché : le repli ne connecterait personne'
+      /* la recherche d'un prénom tapé, et le doublon */
       : !fCles ? 'clesDuPrenom() introuvable'
       : !appelRpc ? 'clesDuPrenom() n’appelle pas sb.rpc(\'cles_de_connexion\', { niveau: NIVEAU, … })'
-      : iRepli < 0 ? 'le repli sur l’ancienne liste (select(\'cle,prenom\')) a disparu : mise en ligne avant la migration 009, la page ne connecterait plus personne'
+      : iRepli < 0 ? 'le repli de clesDuPrenom sur la liste (select(\'cle,prenom\')) a disparu : sans la fonction (avant la 009, après la 010), la création de compte ne verrait plus les doublons'
       : iGarde < 0 || iGarde > iRepli ? 'le repli se prend sur TOUTE erreur, pas seulement sur PGRST202 : une panne de la fonction relirait la liste entière sans que rien ne le dise'
       : !fCr ? 'creerCompte() introuvable'
-      : !/\bclesDuPrenom\(/.test(fCr) ? 'creerCompte() ne vérifie pas le prénom par clesDuPrenom() : un second « Léa » écrit « lea » passerait'
+      : !/\bclesDuPrenom\(/.test(fCr) ? 'creerCompte() ne vérifie pas le prénom par clesDuPrenom() : un second « Léa » écrit « lea » passerait — et, la liste fermée, chacun recréerait son compte'
       : '';
-    verifier('l’écran de connexion n’affiche plus de liste de prénoms', defaut === '', defaut);
+    verifier('l’écran de connexion affiche la liste des prénoms, et ne se replie sur le prénom tapé que si la liste est fermée', defaut === '', defaut);
   }
 
   /* LES NUMÉROS DE VERSION QUE LA MIGRATION 009 ET SA NOTICE CITENT NE
@@ -968,7 +1020,13 @@ function structure(){
      avance. Chaque mention de la migration et de la notice doit lui être
      ÉGALE — trop haut, Turquet attendrait une version qui n'arrive jamais ;
      trop bas, il croirait une page EN LIGNE déjà passée au champ et jouerait
-     la migration sur des pastilles — et la constante ne dépasse pas la page. */
+     la migration sur des pastilles — et la constante ne dépasse pas la page.
+     Depuis le retour des pastilles (14 octobre 2026), l'écran n'est plus ce
+     repère : passé VERSION_CONNEXION_PRENOM, les pages montrent de nouveau
+     des pastilles, la 009 jouée ou non — le repli de transition s'en charge,
+     et la 010 se joue dans n'importe quel ordre. Les numéros que la 009 cite
+     restent pourtant ceux de la version qui a apporté le champ : le contrôle
+     les tient toujours, inchangé. */
   {
     const NIVEAU_DE = { 'secondes.html': 'Seconde', 'premiere-specifique.html': 'Première', 'terminale.html': 'Terminale' }[CIBLE];
     const version = parseInt((s.match(/const APP_VERSION\s*=\s*(\d+)/) || [])[1], 10);
@@ -1311,27 +1369,32 @@ function demarrage(suite){
       return sans.join(', ');
     })()`, v => v === '', 'exercice(s) sans start()');
     branchements(w);
-    connexionParPrenom(w, suite);
+    connexionExecutee(w, suite);
   });
 }
 
-/* ---------- 2 ter. La connexion par prénom, exécutée dans jsdom ------------
-   Le contrôle de source de la section 1 lit que connexionEleve passe par
-   clesDuPrenom et que le repli ne se prend que sur PGRST202 ; celui-ci
-   EXÉCUTE la connexion, avec le double de Supabase du banc navigateur
-   (tests/faux-supabase.js) injecté à la place de supabase-js, que jsdom ne
-   charge pas : un élève semé, son compte, les deux champs remplis — le prénom
-   en MAJUSCULES SANS ACCENT, pour que la normalisation soit du voyage —, puis
-   connexionEleve() attendue. Ce qu'on exige : l'espace s'ouvre, currentEleve
-   porte la ligne relue, et AUCUN select sur la table des élèves n'a précédé
-   le signIn — c'est la lecture que la migration 009 ferme. Le banc
-   navigateur tient le même bord dans un vrai Chromium ; ici il coûte une
-   seconde et tourne sans Chromium. Il passe la main à la section 3 depuis
-   son rappel : un contrôle asynchrone lancé avant suite() aurait imprimé son
-   verdict au milieu de la section suivante. */
-function connexionParPrenom(w, suite){
-  const INTITULE = 'la connexion par prénom ouvre l’espace sans lire la table avant le signIn';
-  const INTITULE_REPLI = 'et sans la fonction SQL, le repli reconnaît le prénom tapé sans accent (jsdom)';
+/* ---------- 2 ter. La connexion, exécutée dans jsdom : la pastille, puis le repli ----
+   Le contrôle de source de la section 1 lit la forme de l'écran de
+   connexion ; celui-ci l'EXÉCUTE, avec le double de Supabase du banc
+   navigateur (tests/faux-supabase.js) injecté à la place de supabase-js, que
+   jsdom ne charge pas. Deux passages, un par chemin :
+     — la liste ouverte (états A et C) : renderLoginNames() attendu, la
+       pastille « Contrôle » cliquée, le code rempli, connexionEleve()
+       attendue. On exige l'espace, la ligne relue dans currentEleve, la liste
+       lue en trois colonnes et AUCUN rpc avant le signIn : la pastille porte
+       sa clé, la fonction n'a rien à dire ;
+     — la liste fermée par la 009, la fonction présente (listeFermee : état
+       B) : renderLoginNames() doit sonder la fonction, montrer le champ du
+       prénom et aucune pastille ; « CONTROLE » tapé — en majuscules, sans
+       accent : la normalisation est du voyage — ouvre l'espace.
+   Le banc navigateur tient les mêmes bords dans un vrai Chromium, et bien
+   d'autres ; ici ils coûtent une seconde et tournent sans Chromium. Il passe
+   la main à la section 3 depuis son rappel : un contrôle asynchrone lancé
+   avant suite() aurait imprimé son verdict au milieu de la section
+   suivante. */
+function connexionExecutee(w, suite){
+  const INTITULE = 'liste ouverte : une pastille cliquée ouvre l’espace, sans appeler la fonction de connexion (jsdom)';
+  const INTITULE_REPLI = 'liste fermée par la 009 : le champ du prénom s’affiche, et « CONTROLE » tapé ouvre l’espace (jsdom)';
   let faux = '';
   try{ faux = fs.readFileSync(path.join(__dirname, 'faux-supabase.js'), 'utf8'); }catch(e){}
   const prep = faux ? evaluer(w, faux) : { ok:false, erreur:'tests/faux-supabase.js illisible' };
@@ -1346,52 +1409,77 @@ function connexionParPrenom(w, suite){
     F.semerCompte(courrielDe('cle-jsdom'),motDePasseDe('123456'),'compte-jsdom');
     const sbSauve=sb, eleveSauve=currentEleve;
     sb=window.supabase.createClient();
+    const ecranOn=function(){ return ((document.querySelector('.screen.on')||{}).id)||'(aucun)'; };
+    const cache=function(id){ const e=document.getElementById(id); return !e||e.hidden; };
+    const liste=function(){ return (document.getElementById('nameChips')||{}).textContent||''; };
     try{
-      show('login'); preparerConnexion();
-      document.getElementById('loginPrenom').value='CONTROLE';
-      document.getElementById('loginPin').value='123456';
-      await connexionEleve();
-      await new Promise(function(r){ setTimeout(r,0); });
-      const j=F.journal, i=j.findIndex(function(e){ return e.op==='signIn'; });
-      const avant=i<0?j:j.slice(0,i);
-      const lectures=avant.filter(function(e){ return e.op==='select'&&e.table===table; }).map(function(e){ return 'select('+e.colonnes+')'; });
-      const rpc=avant.filter(function(e){ return e.op==='rpc'&&e.table==='cles_de_connexion'; }).length;
-      const ecran=((document.querySelector('.screen.on')||{}).id)||'(aucun)';
-      const prenomVu=currentEleve&&currentEleve.prenom;
-      const direct=
-        i<0 ? 'aucune connexion tentée : le contrôle n\\'a rien mesuré'
-        : lectures.length ? lectures.length+' lecture(s) de '+table+' avant la connexion : '+lectures.join(', ')
-        : !rpc ? 'aucun appel rpc cles_de_connexion avant la connexion'
-        : !j[i].ok ? 'le serveur a refusé le code semé : rien d\\'autre n\\'est mesurable'
-        : ecran!=='scr-space' ? 'écran atteint : '+ecran
-        : prenomVu!=='Contrôle' ? 'currentEleve ne porte pas la ligne relue : '+JSON.stringify(prenomVu)
-        : '';
-      /* SECOND PASSAGE : la base d'AVANT la migration (PGRST202 à tout rpc).
-         Le prénom est tapé sans accent ni minuscule : dans le repli, c'est la
-         normalisation de la PAGE qui filtre la liste, et c'est elle qu'on
-         éprouve — tapé exact, une page qui ne normaliserait plus passerait. */
-      currentEleve=null; show('login'); preparerConnexion();
+      /* PREMIER PASSAGE : la liste ouverte, la pastille — SANS la fonction
+         (sansRpc), comme dans les vrais états A et C : aucun état réel ne
+         réunit une liste lisible et une fonction qui répond */
       F.sansRpc=true;
-      let repli;
-      try{
-        document.getElementById('loginPrenom').value='CONTROLE';
+      show('login'); await renderLoginNames();
+      const b=[].slice.call(document.querySelectorAll('#nameChips .chip')).filter(function(x){ return x.textContent.trim()==='Contrôle'; })[0];
+      let direct;
+      if(!b) direct='aucune pastille « Contrôle » après renderLoginNames() : « '+liste()+' »';
+      else {
+        const codeAvant=!cache('pinRow');
+        b.click();
+        const codeApres=!cache('pinRow');
         document.getElementById('loginPin').value='123456';
         await connexionEleve();
         await new Promise(function(r){ setTimeout(r,0); });
-        const apres=j.slice(i+1), i2=apres.findIndex(function(e){ return e.op==='signIn'; });
-        const avant2=i2<0?apres:apres.slice(0,i2);
-        const liste2=avant2.filter(function(e){ return e.op==='select'&&e.table===table&&e.colonnes==='cle,prenom'; }).length;
-        const rpc2=avant2.filter(function(e){ return e.op==='rpc'&&e.table==='cles_de_connexion'; }).length;
-        const ecran2=((document.querySelector('.screen.on')||{}).id)||'(aucun)';
-        repli=
-          !rpc2 ? 'la fonction SQL n\\'a pas été demandée : le repli n\\'est pas mesuré'
-          : !liste2 ? 'aucune lecture select(cle,prenom) : la page ne se replie pas (écran : '+ecran2+')'
-          : i2<0 ? 'le repli a lu la liste mais n\\'a tenté aucune connexion : « CONTROLE » n\\'y a pas été reconnu'
-          : ecran2!=='scr-space' ? 'écran atteint : '+ecran2
+        const j=F.journal, i=j.findIndex(function(e){ return e.op==='signIn'; });
+        const avant=i<0?j:j.slice(0,i);
+        const lectures=avant.filter(function(e){ return e.op==='select'&&e.table===table; }).map(function(e){ return e.colonnes; });
+        const rpc=avant.filter(function(e){ return e.op==='rpc'; }).length;
+        const prenomVu=currentEleve&&currentEleve.prenom;
+        direct=
+          codeAvant ? 'la case du code est visible avant le clic sur une pastille'
+          : !codeApres ? 'la case du code reste cachée après le clic sur la pastille'
+          : i<0 ? 'aucune connexion tentée : le contrôle n\\'a rien mesuré'
+          : !lectures.length ? 'la liste n\\'a pas été lue avant la connexion'
+          : lectures.some(function(c){ return c!=='id,prenom,cle'; }) ? 'lectures de '+table+' avant la connexion : '+lectures.map(function(c){ return 'select('+c+')'; }).join(', ')
+          : rpc ? rpc+' appel(s) rpc avant la connexion : la liste ouverte n\\'a pas à interroger la fonction'
+          : !j[i].ok ? 'le serveur a refusé le code semé : rien d\\'autre n\\'est mesurable'
+          : ecranOn()!=='scr-space' ? 'écran atteint : '+ecranOn()
+          : prenomVu!=='Contrôle' ? 'currentEleve ne porte pas la ligne relue : '+JSON.stringify(prenomVu)
           : '';
-      } finally { F.sansRpc=false; }
+      }
+      /* SECOND PASSAGE : la liste fermée par la 009 — sans session, la
+         table rend zéro ligne, sans erreur — et la fonction présente. La
+         session du premier passage est refermée d'abord : connecté, l'élève
+         lirait la table, et le passage ne mesurerait rien. */
+      await sb.auth.signOut();
+      currentEleve=null;
+      F.sansRpc=false;
+      const n0=F.journal.length;
+      F.listeFermee=true;
+      let repli;
+      try{
+        show('login'); await renderLoginNames();
+        const nPastilles=document.querySelectorAll('#nameChips .chip').length;
+        const sondes=F.journal.slice(n0).filter(function(e){ return e.op==='rpc'&&e.table==='cles_de_connexion'; }).length;
+        if(!sondes||cache('prenomRow')||cache('pinRow')||nPastilles){
+          repli=(sondes?'':'la liste vide n\\'a pas fait sonder la fonction ; ')
+            +'champ du prénom '+(cache('prenomRow')?'caché':'visible')+', code '+(cache('pinRow')?'caché':'visible')
+            +', '+nPastilles+' pastille(s) — « '+liste()+' »';
+        } else {
+          document.getElementById('loginPrenom').value='CONTROLE';
+          document.getElementById('loginPin').value='123456';
+          await connexionEleve();
+          await new Promise(function(r){ setTimeout(r,0); });
+          const apres=F.journal.slice(n0), i2=apres.findIndex(function(e){ return e.op==='signIn'; });
+          const ecran2=ecranOn();
+          repli=
+            i2<0 ? 'aucune connexion tentée : « CONTROLE » n\\'a pas été reconnu (écran : '+ecran2+')'
+            : !apres[i2].ok ? 'le serveur a refusé le code semé : rien d\\'autre n\\'est mesurable'
+            : ecran2!=='scr-space' ? 'écran atteint : '+ecran2
+            : (currentEleve&&currentEleve.prenom)!=='Contrôle' ? 'currentEleve ne porte pas la ligne relue : '+JSON.stringify(currentEleve&&currentEleve.prenom)
+            : '';
+        }
+      } finally { F.listeFermee=false; }
       return JSON.stringify({direct:direct, repli:repli});
-    } finally { sb=sbSauve; currentEleve=eleveSauve; show('login'); }
+    } finally { F.sansRpc=false; sb=sbSauve; currentEleve=eleveSauve; selectedEleve=null; show('login'); }
   })()`, r => {
     let v = null; try{ v = r.ok ? JSON.parse(r.valeur) : null; }catch(e){ v = null; }
     verifier(INTITULE, !!v && v.direct === '', v ? v.direct : 'erreur JavaScript : ' + (r.erreur || r.valeur));
