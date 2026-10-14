@@ -6740,7 +6740,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=489;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=490;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -54979,6 +54979,16 @@ function ctxRpd(q){
    choisies par l'élève (q.s1…) sont les lettres AFFICHÉES. Une question
    rangée avant v485 n'a pas de q.lt : elle se lit en ABCD.
 
+   ET LE NOM N'EST PAS FORCÉMENT DANS L'ORDRE ALPHABÉTIQUE (demande de
+   Turquet, octobre 2026) : les quatre lettres du jeu se distribuent sur les
+   rôles dans un ordre tiré (q.pm, la permutation des INDICES — q.pm[k] est la
+   place dans le jeu de la lettre du k-ième rôle). « OMNP est un
+   parallélogramme… construis le point N » : le point à construire n'est plus
+   toujours la dernière lettre du jeu, et l'élève lit vraiment l'ordre des
+   lettres au lieu de le deviner. Les listes, elles, proposent le jeu dans
+   l'ordre alphabétique. Une question rangée avant v490 n'a pas de q.pm : ses
+   lettres suivent les rôles dans l'ordre.
+
    TOUT CE QUE L'ÉLÈVE A FAIT VIT DANS LA QUESTION : la question atteinte
    (q.etape, 0 à 2), le nœud posé (q.selD), les quatre lettres choisies (q.s1,
    q.s2, q.v1, q.v2). La pause et la reprise les emportent, renderVec() rejoue
@@ -54995,10 +55005,11 @@ function ctxRpd(q){
    montrer D. */
 const VEC_N=9;                       /* carreaux par côté : les nœuds vont de 0 à 9 */
 const VEC_CELL=34, VEC_PAD=20;       /* un carreau en unités SVG, et la marge autour — assez large pour la lettre d’un point posé sur un bord */
-/* Les cinq jeux de lettres, dans l'ordre des rôles A, B, C, D. */
+/* Les cinq jeux de lettres, dans l'ordre alphabétique — q.pm les distribue sur les rôles A, B, C, D. */
 const VEC_LETTRES=['ABCD','MNOP','EFGH','IJKL','QRST'];
-/* La lettre affichée d'un rôle (« A » → « M » en MNOP), et d'un mot de rôles. */
-function vecL(q,r){ return (VEC_LETTRES[q.lt]||VEC_LETTRES[0]).charAt('ABCD'.indexOf(r)); }
+/* La lettre affichée d'un rôle (« A » → « O » en MNOP permuté), et d'un mot de rôles. */
+function vecJeu(q){ return VEC_LETTRES[q.lt]||VEC_LETTRES[0]; }
+function vecL(q,r){ const k='ABCD'.indexOf(r); return vecJeu(q).charAt(Array.isArray(q.pm)?q.pm[k]:k); }
 function vecMot(q,m){ return m.split('').map(function(r){ return vecL(q,r); }).join(''); }
 /* D, jamais rangé : recalculé là où l'on corrige, d'après la forme. */
 function vecQuatrieme(q){
@@ -55010,7 +55021,14 @@ function vecQuatrieme(q){
 function vecChemin(q){ return q.forme==='ABDC' ? ['A','B'] : ['B','A']; }
 function vecLoin(P,Q){ return Math.max(Math.abs(P[0]-Q[0]),Math.abs(P[1]-Q[1]))>=2; }
 /* Une question neuve : les trois points et la forme, et rien de répondu. */
-function vecQuestion(forme,A,B,C,lt){ return {forme:forme, lt:lt||0, A:A, B:B, C:C, etape:0, selD:null, s1:'', s2:'', v1:'', v2:''}; }
+function vecQuestion(forme,A,B,C,lt,pm){ return {forme:forme, lt:lt||0, pm:pm||[0,1,2,3], A:A, B:B, C:C, etape:0, selD:null, s1:'', s2:'', v1:'', v2:''}; }
+/* Une permutation tirée des quatre places du jeu : le nom du parallélogramme
+   n'est pas forcément dans l'ordre alphabétique. */
+function vecPermutation(){
+  const p=[0,1,2,3];
+  for(let i=3;i>0;i--){ const j=rand(0,i), t=p[i]; p[i]=p[j]; p[j]=t; }
+  return p;
+}
 /* Les trois quatrièmes points possibles de trois points : tous dans le
    quadrillage, à un carreau au moins du bord — la figure est centrée. */
 function vecCentre(A,B,C){
@@ -55030,14 +55048,14 @@ function vecGen(forme){
        carreaux fait une figure trop plate pour qu'on y lise les quatre lettres */
     if(Math.abs(det)<6) continue;
     if(!vecCentre(A,B,C)) continue;
-    const q=vecQuestion(forme,A,B,C,rand(0,VEC_LETTRES.length-1));
+    const q=vecQuestion(forme,A,B,C,rand(0,VEC_LETTRES.length-1),vecPermutation());
     const D=vecQuatrieme(q);
     if(D[0]<0||D[0]>VEC_N||D[1]<0||D[1]>VEC_N) continue;
     if(!vecLoin(D,A)||!vecLoin(D,B)||!vecLoin(D,C)) continue;
     return q;
   }
   /* repli — jamais atteint en pratique : un parallélogramme valable dans les deux formes */
-  return vecQuestion(forme,[3,3],[5,4],[4,6],0);
+  return vecQuestion(forme,[3,3],[5,4],[4,6],0,vecPermutation());
 }
 function vecBuildQuestions(){
   const n=dmNbQuestions(6), moitie=Math.ceil(n/2);
@@ -55170,7 +55188,7 @@ function vecPeindreEtape(q,subs,et,ferme){
    vecteur CD écrit en clair comme dans la phrase. */
 function vecBlocHTML(q,et){
   const C=vecL(q,'C'), D=vecL(q,'D');
-  const opts='<option value="" selected disabled>?</option>'+vecMot(q,'ABCD').split('').map(function(L){ return '<option value="'+L+'">'+L+'</option>'; }).join('');
+  const opts='<option value="" selected disabled>?</option>'+vecJeu(q).split('').map(function(L){ return '<option value="'+L+'">'+L+'</option>'; }).join('');
   const sel=function(id,lbl){ return '<select class="plc-sel vec-sel" id="'+id+'" aria-label="'+lbl+'">'+opts+'</select>'; };
   if(et===0) return '<div class="tvg-cons pts-case" id="vec-pt"><b>a)</b> Clique sur le quadrillage le nœud où se trouve le point <b>'+D+'</b>, puis vérifie.</div>';
   if(et===1) return '<div class="tvg-cons" id="vec-ph"><b>b)</b> '+vecMot(q,q.forme)+' est un parallélogramme signifie que : <span class="vec-phrase">le chemin qui va de '
