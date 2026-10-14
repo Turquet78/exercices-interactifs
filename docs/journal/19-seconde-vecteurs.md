@@ -1031,3 +1031,74 @@ Une séance en pause rangée avant (un `t:'c'` déjà enchaîné) se rejoue tell
 quelle, `chsLigne` sait toujours la lire. Le banc suit : fiche, plan, 17
 cases ; le contrôle « une case juste ne rougit pas pour sa voisine » passe de
 DC + CE à CE + BC (BC bleu, AB rouge, badge CE).
+
+## {point-somme-vecteurs} — construire un point par une somme de vecteurs (8.9, v491)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
+l'exercice 1 du pdf, en déplaçant les vecteurs comme dans le 8.7 ». La
+« Fiche 8 sur somme de vecteurs », exercice 1 : deux vecteurs u⃗ et v⃗ sur un
+quadrillage, trois points A, B, C, et « construire le point manquant
+vérifiant l'égalité » — AA′ = u⃗ + v⃗, BB′ = u⃗ − v⃗, CC′ = −u⃗ − v⃗. Ajouté en
+dernier, il ne renumérote rien.
+
+**Le geste du 8.7, plus un : RETOURNER.** L'élève fait glisser u⃗ et v⃗
+exactement comme au 8.7 (prises larges, accrochage aux nœuds, flèche retenue
+au bord, flèches du clavier ; `cvpBrancher` est la recopie de `svcBrancher`
+sur les identifiants de l'écran). Quand l'égalité porte un signe −, il
+retourne la flèche d'un bouton (« ⇄ Retourner u⃗ / v⃗ ») : elle reste sur son
+segment, son début passe à son ancienne fin, son nom devient −u⃗ (la flèche
+ne coiffe que la lettre, `cvpNom`). Deux retournements la rendent telle
+quelle. Puis il clique le nœud du point construit, qui porte « B′ » comme au
+8.5. Le point donné est une croix et sa lettre ; la lettre se pose dans la
+diagonale la plus loin des flèches qui le touchent (`cvpLettre`), et aucun
+mot « début » ne s'écrit sur lui.
+
+**Deux réponses, jugées chacune SEULE** : `cvp-ch`, la construction — les
+deux flèches dans le sens que l'égalité demande, la première partant du point,
+le début de la seconde sur la fin de la première, dans l'ordre qu'on veut
+(`cvpChaine`) — et `cvp-pt`, le nœud de B′, où que soient restées les
+flèches. Un B′ juste ne rougit pas parce que la construction est fausse.
+Barème 2 par question, six questions (`CVP_NB`, `dmNbQuestions`), 12 points.
+Rien ne dit juste ou faux avant « Vérifier » (`soutienEnDirect.sans`, kind
+« cvp »).
+
+**On range la figure et les gestes, jamais la réponse** : `l` la lettre, `ex`
+l'égalité (`pp` u + v, `pm` u − v, `mp` −u + v, `mm` −u − v), `po` le point,
+`uo`/`uc` et `vo`/`vc` les flèches au tirage ; `up`/`vp` les débuts déplacés,
+`ur`/`vr` les retournements, `sel` le nœud posé. `cvpPoint(q)` recalcule B′.
+
+**Le tirage suit la fiche, puis varie** : A avec u + v, B avec u − v, C avec
+−u − v, puis l'égalité tirée parmi quatre et la lettre parmi seize. u⃗ et v⃗
+jamais parallèles, chaque chemin et le résultat à deux carreaux au moins ; le
+point, B′ et les extrémités dessinées à un carreau du bord ; le premier
+vecteur depuis le point tient dans le quadrillage (la correction s'y trace) ;
+les flèches loin l'une de l'autre, loin du point et de B′, et la construction
+attendue loin d'elles — rien n'est construit d'avance.
+
+**Les pièges sont nommés** (`cvpPourquoi`) : le signe oublié (« L'égalité
+demande −v : retourne la flèche v — soustraire v, c'est ajouter son
+opposé »), une flèche retournée à tort, une construction qui ne part pas du
+point, deux débuts ou deux fins ensemble, deux flèches qui ne se touchent pas,
+B′ posé ailleurs qu'au bout de la seconde flèche ; tout message faux finit
+par la décomposition (« BB′ = u − v = u + (−v) : on enchaîne u puis −v à
+partir de B ») et le chemin de B à B′. Correction finale : construction
+attendue en VERT depuis le point (−u⃗, −v⃗ nommés), dans l'ordre que l'élève
+avait commencé s'il tient ; B′ attendu en vert ; une consigne vide devient
+`sol`. En soutien : le faux rougit, le juste se fige (flèches et boutons, ou
+le quadrillage), rien ne se révèle.
+
+**Le juge** (`tests/verifier.js`, « point par une somme de vecteurs ») : la
+place (8.9, le 8.8 immobile), 200 séances (six questions distinctes, barème
+12, les trois premières celles de la fiche, les quatre égalités tirées
+ensuite, la question ne range que la figure et les gestes, B′ relu par une
+seconde écriture, tout à un carreau du bord, jamais parallèles, rien de
+construit, JSON), puis une figure choisie (BB′ = u − v, B′ en (4 ; 2)) :
+l'énoncé et le dessin, la copie vide (sol, construction verte « u, −v », B′
+vert), retourner deux fois, la copie juste dans les deux ordres et à la
+reprise, le signe oublié, la construction juste et B′ faux (1 point), la
+construction hors de B et B′ juste (1 point), u retourné à tort, le soutien et
+le contexte du modèle. **Le banc navigateur** (« 6 quadragies quinquies »)
+retourne v⃗ au bouton, fait glisser u⃗ jusqu'à B puis −v⃗ au bout de u⃗ à la
+souris, pose B′ d'un clic à travers la prise de −v⃗, puis joue le signe
+oublié (rouge, construction verte, aucun point). Le doigt sur tablette ne se
+joue dans aucun banc.
