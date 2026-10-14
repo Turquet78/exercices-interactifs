@@ -1860,3 +1860,43 @@ du 4.1 qui ne sortent que selon le tirage (profil
 `encreFractions.maillons`). Éprouvé par sabotage : sur la page d'avant, « des
 cases de 48 à 372 px de large — rvf-s0-dn », au 4.1 seulement, aux quatre
 moments mesurés.
+
+**Puis les 4.4 et 4.5 de la Première ont accepté les deux raccourcis du
+produit (octobre 2026, Première v321).** Demande de Turquet : « dans le 4.4
+et le 4.5 pour les multiplications un élève a le droit d'enlever le même
+facteur au numérateur et au dénominateur, et il a le droit de donner
+directement le résultat d'une multiplication de fraction. » Deux copies
+d'écran l'avaient montré : sur 5/2 × 3/5, l'élève qui barrait les 5 et
+écrivait (1 × 3)/(2 × 1) = 3/2 voyait ses cases rougir et la chaîne de
+15/10 corriger derrière lui ; sur la rédigée 4/5 × 1/2 = 4/10, le message
+disait « juste… Bravo ! » en rouge.
+
+* **La route du produit** (`mltRoute`) : quatre cases du produit qui
+  DIVISENT chacune l'un des facteurs de leur étage, et dont le tout VAUT le
+  produit, sont justes ensemble (`mltSimplifieAvant`). Les fractions de
+  départ étant irréductibles, un facteur ne s'enlève qu'en croix : la valeur
+  suffit à prouver qu'on a enlevé le même en haut et en bas. L'écriture
+  classique en est le cas particulier.
+* **Le résultat direct** : les quatre cases du produit VIDES et une fraction
+  obtenue égale au produit — elle est jugée, les cases vides ne comptent
+  pas comme un oubli, et la correction ne les remplit pas derrière lui.
+  L'inverse du 4.5 reste exigé : c'est la division, pas la multiplication.
+* **La fraction brute suit la route** (`SE_CFG.mlt.brut`) : la chaîne de
+  simplification part de ce que l'élève a obtenu — elle disparaît sur 3/2,
+  elle part de 15/10 donné directement —, et se redessine pendant la saisie
+  comme celle de la somme. Des facteurs justes n'ont qu'un produit : la
+  case l'attend exactement (1 × 3 sur 2 × 1 ne fait pas 15/10).
+* **La rédigée** acceptait déjà les deux raccourcis (le juge `mll` compare
+  des valeurs) ; la règle du modèle le dit désormais en toutes lettres. Le
+  défaut était le MESSAGE : sur un résultat non simplifié, le modèle rendait
+  « correct : false » avec une prose de félicitations. Le motif
+  `simplifier` étant sûr, la page écrit elle-même la phrase (`redSecours`).
+
+Contrôles : « le thème Fractions… et la simplification par étapes »
+(`tests/verifier.js`) joue 5/2 × 3/5 au facteur enlevé (juste, chaîne
+retirée, case du 1 peinte juste), son produit faux (15/10), un 5 enlevé d'un
+seul côté, le résultat direct simplifié ou non, et au 4.5 le facteur enlevé
+puis le résultat direct sans l'inverse (refusé). Le banc navigateur (« 6
+terdecies bis ») tape au clavier la copie au facteur enlevé, puis la rédigée
+15/10, refusée avec « pas simplifié ». Éprouvé par sabotage : la route
+simplifiée et la route directe coupées, six écarts nommés.

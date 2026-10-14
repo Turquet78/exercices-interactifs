@@ -2965,7 +2965,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=320;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=321;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -15498,7 +15498,8 @@ function redMath(q){
         +(g>1 ? ', qui se simplifie en '+finale+'.' : ', déjà irréductible.')
         +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les conditions sont réunies.'
         +(inv ? '\n1. LA MULTIPLICATION PAR L’INVERSE EST ÉCRITE. Au moins une ligne montre '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+' (les deux facteurs dans un ordre ou dans l’autre). Un élève qui oublie de RETOURNER la seconde fraction se trompe : c’est la faute que l’exercice cherche.'
-              : '\n1. PAS DE MISE AU MÊME DÉNOMINATEUR : elle n’est pas fausse si elle est bien menée, mais la multiplication n’en a pas besoin. Écrire l’étape (numérateurs ensemble)/(dénominateurs ensemble) est recommandé.')
+              : '\n1. PAS DE MISE AU MÊME DÉNOMINATEUR : elle n’est pas fausse si elle est bien menée, mais la multiplication n’en a pas besoin. Écrire l’étape (numérateurs ensemble)/(dénominateurs ensemble) est recommandé, PAS exigé.')
+        +'\nSONT PERMIS ET JUSTES : donner DIRECTEMENT le résultat de la multiplication, sans étape intermédiaire, et enlever le même facteur au numérateur et au dénominateur AVANT de multiplier. Ne refuse jamais une copie pour l’un de ces raccourcis.'
         +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ. La DERNIÈRE expression du calcul vaut '+finale+' et est écrite sous forme irréductible. S’arrêter sur une fraction égale mais réductible est REFUSÉ : le travail n’est pas terminé.'
         +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = » : chaque morceau doit valoir '+finale+'. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE est fausse.'
         +'\nL’ordre des facteurs, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance.'
@@ -15659,6 +15660,11 @@ async function checkSFR(){
   /* Le verdict du juge PRIME, et la prose d'un modèle qui le contredit est
      remplacée par la phrase du juge (la règle du 5.5). */
   if(juge.sait && (res.correct===true)!==juge.correct) res={ correct:juge.correct, feedback:redSecours(juge, m) };
+  /* UN RÉSULTAT NON SIMPLIFIÉ SE DIT AVEC LES MOTS DE LA PAGE (octobre 2026) :
+     sur 4/5 × 1/2 = 4/10, le modèle rendait bien « correct : false » mais
+     écrivait « ton calcul est juste… Bravo ! » — en rouge, sans dire ce qui
+     manque. Le motif est sûr (redIrreductible) : la phrase l'est aussi. */
+  if(juge.sait && !juge.correct && juge.motif==='simplifier') res={ correct:false, feedback:redSecours(juge, m) };
   const correct=juge.sait ? juge.correct : (res.correct===true);
   fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   if(isSoutien() && !correct){
@@ -15804,8 +15810,11 @@ function crdDecorer(q){
 const SE_CFG={
   sf: {host:'sfHost',  pfx:'sf-e',  src:['sf-fn','sf-fd'],
        brut:function(q){ const r=sfJuge(q); return r.se ? r.se.F : null; }},
+  /* La fraction brute d'un produit dépend, elle aussi, de la route depuis
+     octobre 2026 : l'élève peut simplifier AVANT de multiplier, ou donner le
+     résultat directement (mltRoute). Sur des cases vides, c'est P/Q. */
   mlt:{host:'mltHost', pfx:'mlt-e', src:['mlt-fn','mlt-fd'],
-       brut:function(q){ return mltPgcd(q.P,q.Q)>1 ? {n:q.P, d:q.Q} : null; }},
+       brut:function(q){ const F=mltRoute(q).F; return mltPgcd(F.n,F.d)>1 ? F : null; }},
   /* {somme-produit-fractions} (4.6) : comme pour la somme du 4.2, la fraction
      brute dépend du dénominateur commun RETENU par l'élève (octobre 2026 : il
      est libre). Sur des cases vides, la route est celle du croisement, qui
@@ -16022,11 +16031,44 @@ function mltPaire(a,b,x,y){
   const accord = promA && promB && ((a===x && b===y) || (a===y && b===x));
   return [promA && (!promB || accord), promB && (!promA || accord)];
 }
+/* SIMPLIFIER AVANT DE MULTIPLIER, OU DONNER LE RÉSULTAT DIRECTEMENT (demande
+   de Turquet, octobre 2026 : « dans le 4.4 et le 4.5, pour les
+   multiplications, un élève a le droit d'enlever le même facteur au
+   numérateur et au dénominateur, et il a le droit de donner directement le
+   résultat d'une multiplication de fraction »).
+   · Sur 5/2 × 3/5, l'élève qui barre les 5 écrit (1 × 3)/(2 × 1) puis 3/2 :
+     chaque case du haut DIVISE l'un des deux numérateurs, chaque case du bas
+     l'un des deux dénominateurs, et le tout VAUT le produit. Les fractions de
+     départ étant irréductibles, un facteur ne peut s'enlever qu'en croix —
+     la valeur suffit à prouver qu'on a enlevé le même en haut et en bas.
+     L'écriture classique (les nombres de l'énoncé) en est le cas particulier.
+   · Les quatre cases du produit laissées VIDES, une fraction obtenue égale au
+     produit est un résultat donné directement : elle est jugée, et les cases
+     vides ne comptent pas comme un oubli. Les cases de l'INVERSE, au 4.5,
+     restent exigées — c'est la division, pas la multiplication.
+   · La fraction brute suit la route (F) : la chaîne de simplification part
+     de ce que l'élève a obtenu, et disparaît quand il est déjà irréductible. */
+function mltSimplifieAvant(q,h1,h2,b1,b2){
+  if([h1,h2,b1,b2].some(function(v){ return isNaN(v) || v<1; })) return false;
+  const divise=function(x,y,a,b){ return (a%x===0 && b%y===0) || (a%y===0 && b%x===0); };
+  return divise(h1,h2,q.a1,q.a2) && divise(b1,b2,q.b1,q.b2) && h1*h2*q.Q===q.P*b1*b2;
+}
+function mltRoute(q){
+  const h1=mltLu('mlt-h1'), h2=mltLu('mlt-h2'), b1=mltLu('mlt-b1'), b2=mltLu('mlt-b2');
+  if(mltSimplifieAvant(q,h1,h2,b1,b2)) return {F:{n:h1*h2, d:b1*b2}, facteurs:true};
+  const vides=['mlt-h1','mlt-h2','mlt-b1','mlt-b2'].every(function(id){ const el=$(id); return !el || String(el.value||'').trim()===''; });
+  const fn=mltLu('mlt-fn'), fd=mltLu('mlt-fd');
+  if(vides && fn>0 && fd>0 && fn*q.Q===q.P*fd) return {F:{n:fn, d:fd}, direct:true};
+  return {F:{n:q.P, d:q.Q}};
+}
 function mltJuge(q){
   const h1=mltLu('mlt-h1'), h2=mltLu('mlt-h2'), b1=mltLu('mlt-b1'), b2=mltLu('mlt-b2');
+  const rt=mltRoute(q), F=rt.F;
   /* Les facteurs EFFECTIFS, rangés par le tirage : ceux de l'énoncé pour un
-     produit, ceux de l'énoncé après inversion pour une division. */
-  const hh=mltPaire(h1,h2,q.a1,q.a2), bb=mltPaire(b1,b2,q.b1,q.b2);
+     produit, ceux de l'énoncé après inversion pour une division. Simplifiés
+     avant de multiplier, ils sont justes ensemble (mltRoute). */
+  const hh=rt.facteurs ? [true,true] : mltPaire(h1,h2,q.a1,q.a2);
+  const bb=rt.facteurs ? [true,true] : mltPaire(b1,b2,q.b1,q.b2);
   /* L'INVERSE, quand l'exercice le demande. Les deux cases ne forment PAS une
      paire : le haut doit valoir d2 et le bas n2, chacun une seule valeur. Une
      case qui porterait l'autre nombre n'a pas inversé, et c'est précisément la
@@ -16038,19 +16080,28 @@ function mltJuge(q){
   const fn=mltLu('mlt-fn'), fd=mltLu('mlt-fd');
   /* La fraction finale accepte toute fraction ÉGALE, comme {somme-fractions} :
      chaque case se juge sur sa promesse, puis les deux doivent se rejoindre. */
-  const promFn = !isNaN(fn) && fn>0 && fn%q.P===0;
-  const promFd = !isNaN(fd) && fd>0 && fd%q.Q===0;
+  const g=mltPgcd(q.P,q.Q), Pr=q.P/g, Qr=q.Q/g;
+  const promFn = !isNaN(fn) && fn>0 && fn%Pr===0;
+  const promFd = !isNaN(fd) && fd>0 && fd%Qr===0;
   const accord = promFn && promFd && fn*q.Q===q.P*fd;
-  /* SAUF quand le produit se simplifie (écart ②) : la case attend alors le
-     produit brut, et c'est la chaîne qui suit qui le simplifie. */
-  const brut = !!(test && test.etapes) && mltPgcd(q.P,q.Q)>1;
-  const okFn = brut ? (!isNaN(fn) && fn===q.P) : (promFn && (!promFd || accord));
-  const okFd = brut ? (!isNaN(fd) && fd===q.Q) : (promFd && (!promFn || accord));
-  const se = (test && test.etapes) ? seJuge('mlt', brut ? {n:q.P, d:q.Q} : null) : null;
-  const vide = mltCases().some(function(id){ const el=$(id); return !el || String(el.value||'').trim()===''; });
+  /* SAUF quand la fraction obtenue se simplifie (écart ②) : la case attend
+     alors le produit brut DE LA ROUTE PRISE (F), et c'est la chaîne qui suit
+     qui le simplifie. */
+  const brut = !!(test && test.etapes) && mltPgcd(F.n,F.d)>1;
+  /* Des facteurs justes, écrits ou simplifiés, n'ont qu'un produit : la case
+     attend CE produit (1 × 3 sur 2 × 1 ne fait pas 15/10). */
+  const exact = brut || rt.facteurs;
+  const okFn = exact ? (!isNaN(fn) && fn===F.n) : (promFn && (!promFd || accord));
+  const okFd = exact ? (!isNaN(fd) && fd===F.d) : (promFd && (!promFn || accord));
+  const se = (test && test.etapes) ? seJuge('mlt', brut ? F : null) : null;
+  /* un résultat donné directement laisse les quatre cases du produit vides */
+  const facteurs=['mlt-h1','mlt-h2','mlt-b1','mlt-b2'];
+  const vide = mltCases().some(function(id){ if(rt.direct && facteurs.indexOf(id)>=0) return false;
+    const el=$(id); return !el || String(el.value||'').trim()===''; });
   return { okH1:hh[0], okH2:hh[1], okB1:bb[0], okB2:bb[1], okFn:okFn, okFd:okFd,
            okI1:okI1, okI2:okI2, inverse:(!inv || (okI1&&okI2)),
-           haut:hh[0]&&hh[1], bas:bb[0]&&bb[1], fin:okFn&&okFd, vide:vide, se:se };
+           haut:rt.direct || (hh[0]&&hh[1]), bas:rt.direct || (bb[0]&&bb[1]), fin:okFn&&okFd, vide:vide, se:se,
+           F:F, facteurs:!!rt.facteurs, direct:!!rt.direct, h:[h1,h2,b1,b2] };
 }
 function renderMltTest(){
   /* la question rédigée se dessine sous la guidée (sfrRendu, 4.3 à 4.6) */
@@ -16110,6 +16161,9 @@ function mltPourquoi(q,r){
   if(!r.haut) return 'En haut, les deux numérateurs de la multiplication : '+q.a1+' et '+q.a2+'.';
   if(!r.bas) return 'En bas, les deux dénominateurs de la multiplication : '+q.b1+' et '+q.b2+'.';
   if(r.fin && r.se && !r.se.ok) return seMessage(r.se);
+  /* les facteurs simplifiés avant de multiplier : le calcul qui reste est le sien */
+  if(r.facteurs) return 'Il reste à calculer : '+r.h[0]+' × '+r.h[1]+' = '+r.F.n+' et '+r.h[2]+' × '+r.h[3]+' = '+r.F.d+', donc '+r.F.n+'/'+r.F.d
+    +(r.se ? ', que tu simplifieras ensuite.' : '.');
   return 'Il reste à calculer : '+q.a1+' × '+q.a2+' = '+q.P+' et '+q.b1+' × '+q.b2+' = '+q.Q+', donc '+q.P+'/'+q.Q
     +(r.se ? ', que tu simplifieras ensuite.' : '.');
 }
@@ -16150,9 +16204,13 @@ function checkMltAnswer(live){
     $('mltFeedback').textContent=mltPourquoi(q,r); $('mltFeedback').className='mp-feedback bad';
     /* la correction en vert suit l'ordre de l'énoncé */
     if(test.inv){ corTrainDec('mlt-i1',q.d2); corTrainDec('mlt-i2',q.n2); }
-    corTrainDec('mlt-h1',q.a1); corTrainDec('mlt-h2',q.a2);
-    corTrainDec('mlt-b1',q.b1); corTrainDec('mlt-b2',q.b2);
-    corTrainDec('mlt-fn',q.P);  corTrainDec('mlt-fd',q.Q);
+    /* un résultat donné directement n'a pas à voir ses cases du produit
+       remplies derrière lui ; la fraction obtenue se corrige sur SA route */
+    if(!r.direct){
+      corTrainDec('mlt-h1',q.a1); corTrainDec('mlt-h2',q.a2);
+      corTrainDec('mlt-b1',q.b1); corTrainDec('mlt-b2',q.b2);
+    }
+    corTrainDec('mlt-fn',r.F.n);  corTrainDec('mlt-fd',r.F.d);
     if(r.se){ r.se.cases.forEach(function(c){ corTrainDec(c.id,c.bon); }); seMiroirs('mlt'); }
   }
   const donne=mltCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
@@ -16206,6 +16264,7 @@ function divCtxTexte(q){
    +q.b1+' et '+q.b2+', résultat '+q.P+'/'+q.Q+'. '
    +'L’ERREUR VISÉE est d’oublier de RETOURNER la seconde fraction : l’élève multiplie alors par '+q.n2+'/'+q.d2
    +' au lieu de '+q.d2+'/'+q.n2+'.'
+   +' Deux raccourcis sont PERMIS et comptés justes : enlever le même facteur en haut et en bas AVANT de multiplier (les cases portent alors les facteurs simplifiés, par exemple 1 au lieu d’un nombre barré), ou laisser vides les quatre cases du produit et écrire directement le résultat. La fraction à simplifier ensuite est alors celle que l’élève a obtenue.'
    +(mltPgcd(q.P,q.Q)>1 ? ' Le résultat '+q.P+'/'+q.Q+' se simplifie : l’élève le simplifie ensuite SUR LA MÊME LIGNE, en divisant le numérateur et le dénominateur par un même nombre de son choix (écrit en haut et en bas), une ou plusieurs fois, jusqu’à '+(q.P/mltPgcd(q.P,q.Q))+'/'+(q.Q/mltPgcd(q.P,q.Q))+' — réponse attendue, STRICTEMENT SECRÈTE.' : ' Le résultat ne se simplifie pas.');
 }
 function mltCtxTexte(q){
@@ -16217,6 +16276,7 @@ function mltCtxTexte(q){
    +'professeur l’autorise : en haut '+q.n1+' et '+q.n2+', en bas '+q.d1+' et '+q.d2+', résultat '+q.P+'/'+q.Q+'. '
    +'L’ERREUR VISÉE est celle de l’élève qui vient de faire trois exercices d’addition : il cherche à mettre au même '
    +'dénominateur alors que la multiplication n’en a pas besoin.'
+   +' Deux raccourcis sont PERMIS et comptés justes : enlever le même facteur en haut et en bas AVANT de multiplier (les cases portent alors les facteurs simplifiés, par exemple 1 au lieu d’un nombre barré), ou laisser vides les quatre cases du produit et écrire directement le résultat. La fraction à simplifier ensuite est alors celle que l’élève a obtenue.'
    +(mltPgcd(q.P,q.Q)>1 ? ' Le résultat '+q.P+'/'+q.Q+' se simplifie : l’élève le simplifie ensuite SUR LA MÊME LIGNE, en divisant le numérateur et le dénominateur par un même nombre de son choix (écrit en haut et en bas), une ou plusieurs fois, jusqu’à '+(q.P/mltPgcd(q.P,q.Q))+'/'+(q.Q/mltPgcd(q.P,q.Q))+' — réponse attendue, STRICTEMENT SECRÈTE.' : ' Le résultat ne se simplifie pas.');
 }
 
@@ -22696,7 +22756,8 @@ const RAP_MLT=`<b>Multiplier deux fractions</b><br>
 <b>① On multiplie en haut avec en haut, en bas avec en bas</b> : \\(\\frac{2}{3}\\times\\frac{3}{5}=\\frac{2\\times 3}{3\\times 5}\\)<br>
 <b>② On calcule</b> : \\(\\frac{2\\times 3}{3\\times 5}=\\frac{6}{15}\\)<br>
 <b>③ On simplifie si c’est possible</b> : 3 divise 6 et 15, donc \\(\\frac{6}{15}=\\frac{6\\div 3}{15\\div 3}=\\frac{2}{5}\\). Si la fraction obtenue se simplifie encore, on recommence.<br>
-<b>L’ordre ne change rien</b> : \\(\\frac{2}{3}\\times\\frac{3}{5}\\) et \\(\\frac{3}{5}\\times\\frac{2}{3}\\) donnent la même chose.`;
+<b>L’ordre ne change rien</b> : \\(\\frac{2}{3}\\times\\frac{3}{5}\\) et \\(\\frac{3}{5}\\times\\frac{2}{3}\\) donnent la même chose.<br>
+<b>Deux raccourcis permis</b> : enlever le même facteur en haut et en bas AVANT de multiplier — \\(\\frac{2}{3}\\times\\frac{3}{5}=\\frac{2\\times 1}{1\\times 5}=\\frac{2}{5}\\), le 3 est parti des deux côtés —, ou écrire directement le résultat.`;
 const RAP_DIV=`<b>Diviser par une fraction</b><br>
 <b>Diviser par une fraction, c’est multiplier par son INVERSE.</b> L’inverse d’une fraction, c’est la même fraction retournée : l’inverse de \\(\\frac{4}{5}\\) est \\(\\frac{5}{4}\\).<br>
 <b>① On retourne la seconde fraction</b> et le ÷ devient × : \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}\\)<br>

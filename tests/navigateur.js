@@ -7487,6 +7487,31 @@ async function parcours(page, N){
           if(!v.juste) dits.push('produit rédigé : 2/3 × 3/5 = 6/15 = 2/5 est compté faux');
           if(!v.suite) dits.push('produit rédigé : aucun bouton « Question suivante »');
         }
+        /* SIMPLIFIER AVANT DE MULTIPLIER, tapé au clavier (demande de Turquet,
+           octobre 2026) : sur 5/2 × 3/5, les 5 barrés donnent (1 × 3)/(2 × 1)
+           = 3/2 — la chaîne de 15/10 disparaît, et rien ne rougit. Puis la
+           rédigée arrêtée sur 15/10 : refusée, et le message dit pourquoi. */
+        await s.page.evaluate(() => { test.idx = 0; test.locked = false;
+          test.questions[0] = {n1:5,d1:2,n2:3,d2:5,a1:5,a2:3,b1:2,b2:5,P:15,Q:10}; renderMltTest(); });
+        await s.page.waitForTimeout(700);
+        if(!(await lit('mlt-')).e0) dits.push('produit : 15/10 se simplifie, et aucune étape n’est posée d’emblée');
+        for(const [id, v] of [['mlt-h1',1],['mlt-h2',3],['mlt-b1',2],['mlt-b2',1],['mlt-fn',3],['mlt-fd',2]]) await tape(id, v);
+        if((await lit('mlt-')).e0) dits.push('produit : les 5 enlevés avant de multiplier, la chaîne de simplification reste posée');
+        await s.page.evaluate(() => checkMltAnswer());
+        await s.page.waitForTimeout(300);
+        const rs = await verdict();
+        if(!rs.juste) dits.push('produit : 5/2 × 3/5 = (1×3)/(2×1) = 3/2, tapé au clavier, est compté faux');
+        if(rs.rouges.length) dits.push('produit : des cases rougissent sur la copie au facteur enlevé : ' + rs.rouges.slice(0, 4).join(', '));
+        const ms = await s.page.evaluate(async () => {
+          test.idx = 1; test.questions[1] = {n1:5,d1:2,n2:3,d2:5,a1:5,a2:3,b1:2,b2:5,P:15,Q:10,redac:true};
+          sfrAfficher(test.questions[1]);
+          document.querySelector('#mltrZone math-field').setValue(test.sfrDepart + '\\frac{15}{10}');
+          await checkSFR();
+          const fb = document.getElementById('mltrFeedback'), d = test.answers[test.answers.length - 1];
+          return { texte: fb ? fb.textContent : '', rouge: !!(fb && fb.classList.contains('bad')), compte: !!(d && d.correct) };
+        });
+        if(ms.compte) dits.push('produit rédigé : 15/10, non simplifié, vaut le point');
+        if(!ms.rouge || !/pas simplifi/.test(ms.texte)) dits.push('produit rédigé : 15/10 refusé sans dire qu’il n’est pas simplifié (« ' + ms.texte + ' »)');
       }
       /* ③ LA SOMME AVEC UN PRODUIT DEDANS (4.6), EN COLONNES, PUIS RÉDIGÉE
          (demande de Turquet, octobre 2026 : « placer les signes "=" en début
