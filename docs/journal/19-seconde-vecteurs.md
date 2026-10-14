@@ -726,6 +726,36 @@ possibles a son quatrième point en (−3 ; 7) »), les lettres figées sur ABCD
 lettre affichée (« la phrase de M à N n'est pas jugée juste ») — chacun
 rougit, la page intacte reste verte.
 
+### Puis le nom a quitté l'ordre alphabétique (v489)
+
+Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, les lettres ne
+sont pas forcément dans l'ordre alphabétique pour le nom du
+parallélogramme ». Jusque-là le jeu de lettres changeait, mais ses lettres
+suivaient les rôles dans l'ordre : MNOP donnait toujours MNPO ou MNOP, et le
+point à construire était toujours la dernière lettre du jeu — l'élève
+pouvait deviner sans lire.
+
+**Les lettres se distribuent sur les rôles dans un ordre tiré.** La question
+range une permutation des INDICES (`q.pm`, quatre entiers : `q.pm[k]` est la
+place dans le jeu de la lettre du k-ième rôle), jamais les lettres ; `vecL`
+la lit, et rien d'autre du moteur n'a bougé — les rôles A, B, C, D, la
+forme, `vecChemin()` et `vecQuatrieme()` raisonnent comme avant. « OMNP est
+un parallélogramme… construis le point N ». Les listes, elles, proposent le
+jeu dans l'ordre alphabétique (`vecJeu(q)`), pas dans l'ordre des rôles, qui
+trahirait la réponse. Une question rangée avant v489 n'a pas de `q.pm` : ses
+lettres suivent les rôles, la reprise d'une pause ne casse rien.
+
+**Le contrôle** (`parallelogrammePoint`) range `pm` parmi les clés permises,
+exige que ce soit une permutation de 0 à 3, que sur cent séances plus de la
+moitié des noms de forme ABCD sortent hors de l'ordre alphabétique (en ABDC,
+MNPO n'y était déjà pas : ce bord-là ne voit rien) et plus de la moitié des
+points à construire ne soient pas la dernière lettre du jeu, puis joue une
+question MNOP permutée [2,0,3,1] : énoncé « OMNP… le point N », étiquettes M,
+O, P, liste en M, N, O, P, phrase « de P à N », la phrase « de O à M » et le
+vecteur OM jugés justes, 5 sur 5. Éprouvé par sabotage (la permutation
+retirée du tirage) : le contrôle rougit (« le point à construire n'est que 0
+fois une autre lettre que la dernière du jeu »), la page intacte reste verte.
+
 ## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v481)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme

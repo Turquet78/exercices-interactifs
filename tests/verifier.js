@@ -12047,8 +12047,8 @@ function parallelogrammePoint(w, P){
     const noeud=function(i,j){ const e=el('vecn-'+i+'-'+j); return e?String(e.getAttribute('class')||''):''; };
     const choisir=function(id,v){ const e=el(id); if(!e){ vus.push('la liste '+id+' manque'); return; } e.value=v; e.dispatchEvent(new Event('change',{bubbles:true})); };
     const fb=function(){ return el('vecFeedback').textContent; };
-    const CLES=['forme','lt','A','B','C','etape','selD','s1','s2','v1','v2'];
-    const jeux={};
+    const CLES=['forme','lt','pm','A','B','C','etape','selD','s1','s2','v1','v2'];
+    const jeux={}; let horsOrdre=0, dPasDernier=0;
 
     /* 1. le tirage : lisible, JSON, deux formes, rien de répondu ; les
        lettres tirées parmi les cinq jeux ; la figure CENTRÉE — les trois
@@ -12064,6 +12064,9 @@ function parallelogrammePoint(w, P){
         if(q.etape!==0||q.selD!==null||q.s1!==''||q.s2!==''||q.v1!==''||q.v2!=='') vus.push('le tirage pose une réponse à la place de l\\'élève');
         if(!(q.lt>=0&&q.lt<VEC_LETTRES.length)) vus.push('le jeu de lettres rangé vaut '+q.lt);
         jeux[VEC_LETTRES[q.lt]]=1;
+        if(!Array.isArray(q.pm)||q.pm.slice().sort().join('')!=='0123') vus.push('la permutation des lettres rangée vaut '+JSON.stringify(q.pm));
+        else { const nm=vecMot(q,q.forme); if(q.forme==='ABCD'&&nm!==nm.split('').sort().join('')) horsOrdre++;
+          if(vecL(q,'D')!==VEC_LETTRES[q.lt].charAt(3)) dPasDernier++; }
         [[q.B[0]+q.C[0]-q.A[0],q.B[1]+q.C[1]-q.A[1]],[q.A[0]+q.C[0]-q.B[0],q.A[1]+q.C[1]-q.B[1]],[q.A[0]+q.B[0]-q.C[0],q.A[1]+q.B[1]-q.C[1]]].forEach(function(p){
           if(p[0]<1||p[0]>VEC_N-1||p[1]<1||p[1]>VEC_N-1) vus.push('figure pas centrée : un des trois parallélogrammes possibles a son quatrième point en ('+p.join(';')+')'); });
         const Dq=vecQuatrieme(q), pts=[q.A,q.B,q.C,Dq];
@@ -12073,6 +12076,28 @@ function parallelogrammePoint(w, P){
       });
     }
     if(!vus.length && JSON.stringify(Object.keys(jeux).sort())!==JSON.stringify(['ABCD','EFGH','IJKL','MNOP','QRST'])) vus.push('sur 100 séances, les jeux de lettres sortis sont '+Object.keys(jeux).join(','));
+    if(!vus.length && horsOrdre<100*D.nb/4) vus.push('sur 100 séances, seuls '+horsOrdre+' noms en forme ABCD ne sont pas dans l\\'ordre alphabétique');
+    if(!vus.length && dPasDernier<100*D.nb/2) vus.push('sur 100 séances, le point à construire n\\'est que '+dPasDernier+' fois une autre lettre que la dernière du jeu');
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* le nom HORS de l'ordre alphabétique : MNOP permuté [2,0,3,1] — A→O,
+       B→M, C→P, D→N ; la forme ABDC se lit OMNP, on construit N, et le
+       chemin de O à M est celui de P à N ; les listes restent M, N, O, P */
+    startVec(); clearTimeout(test.fbTimer);
+    test.questions[0]=vecQuestion('ABDC',[2,2],[5,3],[3,6],1,[2,0,3,1]);
+    test.idx=0; test.locked=false; renderVec();
+    if(el('vecInstr').textContent.indexOf('OMNP est un parallélogramme')<0||el('vecInstr').textContent.indexOf('point N')<0) vus.push('permuté : l\\'énoncé ne dit pas OMNP ni le point N : '+el('vecInstr').textContent.slice(0,80));
+    const txp=Array.from(document.querySelectorAll('#vecGraph text.vec-lbl:not(.vec-dlbl)')).map(function(t){ return t.textContent; }).sort().join('');
+    if(txp!=='MOP') vus.push('permuté : le dessin nomme les points donnés '+txp+' au lieu de M, O, P');
+    vecPose(6,7); checkVec();
+    if(classe('vec-pt')!=='ok') vus.push('permuté : le bon nœud n\\'est pas juste');
+    const optp=el('vec-s1')?Array.from(el('vec-s1').options).map(function(o){ return o.value; }).join(''):'';
+    if(optp!=='MNOP') vus.push('permuté : la liste propose « '+optp+' » au lieu de l\\'ordre alphabétique');
+    if(el('vec-ph')&&el('vec-ph').textContent.indexOf('de P à N')<0) vus.push('permuté : la phrase ne dit pas « de P à N »');
+    choisir('vec-s1','O'); choisir('vec-s2','M'); checkVec();
+    if(classe('vec-s1')!=='ok'||classe('vec-s2')!=='ok') vus.push('permuté : la phrase « de O à M » n\\'est pas jugée juste');
+    choisir('vec-v1','O'); choisir('vec-v2','M'); const avantP=test.score; checkVec(); clearTimeout(test.fbTimer);
+    if(test.score-avantP!==5) vus.push('permuté : la copie juste vaut '+(test.score-avantP)+' au lieu de 5');
     if(vus.length) return vus.slice(0,4).join(' | ');
 
     /* les lettres d'un autre jeu : MNOP. MNPO (rôles ABDC) — l'énoncé, le
