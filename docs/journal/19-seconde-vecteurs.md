@@ -209,6 +209,22 @@ configuration », « par figure 2 : les flèches « non parallèles » ne font q
 13° », « mil figure 1 : les points du piège vérifient la configuration » —
 les trois défauts, nommés, aucun autre.
 
+**Puis la colonne DONNÉE a ressorti, dès l'arrivée de la question**
+(Turquet, octobre 2026, v486 : « faire ressortir la colonne qui donne
+l'information au début de chaque question »). Les trois colonnes avaient le
+même cadre pâle : l'élève devait chercher laquelle était remplie avant de
+savoir d'où partir. La cellule donnée (`vgt-donnee`, une classe qui existait
+sans aucun style) prend une encre DORÉE (`--gold`) — ni le bleu du juste, ni
+le vert de la correction, ni le rouge, ni le violet de la carte choisie —,
+une étiquette « Donnée » à côté de son titre, et un battement d'1,4 s à
+l'arrivée de la question (figé par la règle `prefers-reduced-motion`). La
+consigne NOMME la colonne (« la colonne « Figure » est donnée ») puisqu'elle
+change d'une ligne à l'autre. Et sur téléphone, où le tableau s'empile, la
+colonne donnée passe EN TÊTE (`order:-1`) : elle tombait en deuxième ou
+troisième place, sous le bas de l'écran, et l'élève voyait des propositions
+avant de voir de quoi elles parlaient. Vu dans Chromium (bureau et
+390 px), égalité donnée et figure donnée.
+
 ## {vecteurs-egaux} — retrouver les vecteurs égaux dans une figure (8.3, v475)
 
 **Trois sessions ont créé le thème 8 le même jour** — la translation du 8.1,
@@ -666,6 +682,50 @@ intacte reste verte. Un quatrième sabotage, le garde de `q.etape` retiré de
 a) se ferme, et le second garde tient seul — ce n'est pas un trou du
 contrôle, c'est une ceinture avec des bretelles.
 
+### Puis les lettres ont changé, et la figure s'est centrée (v485)
+
+Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, nommer les 4
+points avec les lettres A, B, C, D ou M, N, O, P ou E, F, G, H ou I, J, K, L
+ou Q, R, S, T. De plus il faudrait que les 4 points soient plus au centre du
+dessin afin d'avoir tous les parallélogrammes possibles avec ces 3 points. »
+
+**Les lettres sont tirées, les rôles restent.** La question range l'INDICE
+du jeu (`q.lt` dans `VEC_LETTRES`), jamais les lettres. Tout le moteur
+raisonne encore sur les rôles A, B, C, D — `q.A`, la forme `'ABDC'`,
+`vecChemin()`, `vecQuatrieme()` — et `vecL(q, rôle)` traduit au dernier
+moment : l'énoncé (« MNPO est un parallélogramme… construis le point P »),
+les étiquettes du dessin, les options des listes, « de O à P », le vecteur
+OP, le pourquoi, la réponse enregistrée et le contexte du modèle. Les
+lettres que l'élève choisit sont les lettres AFFICHÉES, et le juge les
+compare à la traduction du chemin. Une question rangée avant v485 n'a pas de
+`q.lt` : elle se lit en ABCD, la reprise d'une pause ne casse rien. Le
+rappel de cours garde A, B, C, D : c'est la méthode, pas l'exercice.
+
+**Centrée veut dire : les trois parallélogrammes possibles tiennent.** Trois
+points font trois parallélogrammes, un par quatrième point — B+C−A, A+C−B,
+A+B−C. Le tirage (`vecCentre`) exige que les TROIS tombent dans le
+quadrillage, à un carreau au moins du bord ; les trois points donnés, milieux
+de ce grand triangle, sont alors au cœur du dessin. **Le piège était le
+taux d'acceptation** : tirés sur tout le quadrillage, à peine un triplet sur
+six cents passait (0,17 %), et le repli constant sortait près d'une fois sur
+deux — vu à la première capture d'écran, la même figure revenant deux fois
+par séance. Les points se tirent maintenant à deux carreaux au moins du bord
+(un sur cinquante passe), deux mille essais au plus ; le repli,
+`(3;3) (5;4) (4;6)`, est lui-même centré.
+
+**Le contrôle** (`parallelogrammePoint`) range `lt` parmi les clés permises,
+exige sur cent séances que les cinq jeux sortent et que les trois quatrièmes
+points de chaque question tiennent dans [1 ; 8], puis joue une question en
+MNOP (forme MNPO) : énoncé, étiquettes M, N, O sans A ni D, liste « MNOP »,
+phrase « de O à P », vecteur OP, la phrase « de M à N » jugée juste, une
+copie à 3 sur 5, le pourquoi, la réponse enregistrée et le contexte du
+modèle en M, N, O, P. Éprouvé par trois sabotages, le contrôle rejoué seul
+dans un vrai Chromium : le centrage retiré (« un des trois parallélogrammes
+possibles a son quatrième point en (−3 ; 7) »), les lettres figées sur ABCD
+(« les jeux sortis sont ABCD »), un juge qui compare au rôle au lieu de la
+lettre affichée (« la phrase de M à N n'est pas jugée juste ») — chacun
+rougit, la page intacte reste verte.
+
 ## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v481)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
@@ -760,3 +820,127 @@ l'envers en minuscules (2/2), puis un nœud faux et le piège (le point attendu
 en vert d'étendue non nulle, le badge, les deux flèches, aucun point gagné) —
 et mesure que les vecteurs de l'énoncé portent leur flèche et que la case du
 nom n'est pas plus petite que sa phrase.
+
+## {somme-vecteurs} — la somme de deux vecteurs : un début va sur une fin (8.7, v487)
+
+**La demande** (Turquet, octobre 2026, « en seconde créer un exercice comme
+le pdf ») : la fiche « Fiche 1 : somme de vecteurs — un début va sur une
+fin ». Dix quadrillages ; sur chacun, deux flèches séparées, u⃗ en trait
+plein et v⃗ en pointillés, chacune marquée « début » et « fin » ; la consigne
+« construire le vecteur égal à la somme u⃗ + v⃗ ». Ajouté en dernier, il ne
+renumérote rien.
+
+**La construction de la fiche, en un geste.** On recopie v⃗ en posant son
+DÉBUT sur la FIN de u⃗ ; u⃗ + v⃗ va du début de u⃗ à la fin de v⃗ recopié.
+L'élève clique le nœud où arrive la fin de v⃗ recopié, et la page trace
+aussitôt SA construction en bleu : v⃗ recopié en pointillés depuis la fin de
+u⃗, et la flèche u⃗ + v⃗ depuis le début de u⃗. Ce tracé est le dessin de ce
+qu'il a posé, pas un verdict — rien ne dit juste ou faux avant « Vérifier »
+(`soutienEnDirect.sans`, kind « svc », comme le 8.5 et le 8.6). Cliquer un
+autre nœud déplace la construction, le même nœud la retire. Une réponse par
+question, huit questions (`SVC_NB`, `dmNbQuestions`), barème 8 ; la consigne
+est une `pts-case` (`svcCases`).
+
+**On range les deux flèches, jamais la réponse** : `uo`/`uc` (le début de u⃗
+et son chemin), `vo`/`vc`, `sel` le nœud posé. **Pas de champ `v`** : `v` est
+dans `CLE_HORS` (une tournure), et deux figures aux v⃗ différents auraient
+passé pour la même question dans `distinctes()` — le piège du 8.3 et du 8.4,
+évité d'avance. `svcPoint(q)` recalcule le nœud attendu là où l'on corrige.
+
+**Le quadrillage est celui de la fiche, plus large que haut** : 12 carreaux
+sur 8, la recette des cibles du 8.5 (zone de touche de 14 px, cible au
+clavier), mais TOUS les nœuds cliquables — le nœud attendu peut tomber sur
+une extrémité dessinée. Le tirage (`svcGen`) garde tout dans le quadrillage,
+chaque chemin (u⃗, v⃗ et la somme) à deux carreaux au moins, les quatre
+extrémités deux à deux à deux carreaux (les mots « début » et « fin » ne se
+chevauchent pas), les deux flèches à plus de 1,2 carreau l'une de l'autre
+(jamais croisées, jamais collées) — donc jamais v⃗ déjà posé au bout de u⃗.
+La deuxième capture a ajouté deux refus : une extrémité dessinée sur le BORD
+posait son mot « début » à cheval sur le cadre (les quatre extrémités restent
+désormais à un carreau du bord), et la flèche u⃗ + v⃗ attendue traversait
+le « début » de v⃗ (la construction attendue passe maintenant à un carreau au
+moins de la flèche v⃗, et le nœud attendu à deux carreaux de ses bouts). Le
+tirage accepte une figure en 200 essais au plus, sans jamais atteindre le
+repli (3 000 figures simulées sous Node, toutes différentes).
+Les mots se posent dans le prolongement de la flèche, hors d'elle, à 15 px ;
+la marge de 46 unités les tient au bord, et le banc navigateur mesure qu'aucun
+ne sort du dessin.
+
+**Les deux pièges sont nommés** (`svcPourquoi`) : v⃗ posé sur le DÉBUT de u⃗
+(« un début va sur une FIN ») et v⃗ recopié à l'envers ; tout message faux dit
+ensuite le chemin de v⃗ en carreaux et celui de u⃗ + v⃗. Les messages écrivent
+« u » et « v » sans flèche : la flèche combinante (U+20D7) se dessinait mal en
+texte brut, la première capture l'a montré. Correction finale : nœud juste
+bleu (`okc`), faux rouge avec sa construction rouge, et la construction
+attendue en VERT (v⃗ recopié et u⃗ + v⃗) quand l'élève ne l'avait pas ; une
+consigne vide devient `sol`, jamais rouge. En soutien : le faux rougit et se
+déplace, le juste se fige, rien ne se révèle.
+
+**Le juge** (`tests/verifier.js`, « somme de vecteurs ») : la place (8.7, le
+8.6 immobile), 200 séances (huit questions distinctes, barème 8, la question
+ne range que `uo`, `uc`, `vo`, `vc`, `sel`, le nœud attendu relu par une
+seconde écriture, tout dans le quadrillage, extrémités à deux carreaux,
+chemins à deux carreaux, JSON), puis la première figure de la fiche : deux
+« début », deux « fin », u et v nommés, 117 cibles ; la copie vide (sol, nœud
+(5 ; 3) en vert, deux traits verts, « Il te manquait 1 case ») ; la copie
+juste par `svcPose` (poser, retirer, déplacer, la construction tracée) ; les
+deux pièges nommés ; le soutien et le contexte du modèle (secret, le nœud,
+ce que l'élève a posé). **Le banc navigateur** (« 6 quadragies quater »)
+clique pour de vrai : le nœud visé, le reclic qui retire, un clic à un
+cinquième de maille, la construction d'étendue non nulle, puis un nœud faux
+(rouge, construction attendue en vert, aucun point).
+
+## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488)
+
+**La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
+le pdf », une fiche « Compléter à l'aide du dessin afin d'utiliser la
+relation de Chasles » : un rectangle ABCD, ses diagonales qui se coupent en
+E, et huit lignes — AE + EB = … ; DC + CE, CE + BC, AD + BA, DC + BD = … + …
+= … ; AB + AD = AB + … = … ; BE + AE = BE + … = … ; BA − CA = BA + … = ….
+
+**Quatre sortes de lignes, le plan de la fiche** (`CHS_PLAN`) : `r` — les
+vecteurs s'enchaînent déjà, une case pour le résultat ; `c` — trois cases,
+la somme réécrite dans un ordre qui s'enchaîne, puis le résultat (la
+première déjà dans l'ordre, trois à retourner) ; `u` — le second vecteur se
+remplace par un vecteur ÉGAL qui part là où s'arrête le premier ; `s` —
+soustraire, c'est ajouter l'opposé. **La première figure de la séance EST la
+fiche** (`CHS_FICHE`, rangée telle quelle) ; les suivantes tirent la forme —
+rectangle, carré, parallélogramme, losange : tous ont des diagonales qui se
+coupent en leur milieu, donc les mêmes égalités de vecteurs —, son
+retournement, cinq lettres (ni O, ni I, ni W à Z) et huit lignes du plan,
+sans somme nulle ni ligne impossible (`chsPosable`). `CHS_NB` = 2 figures,
+`dmNbQuestions` allonge la séance, `distinctes()` les tient différentes ;
+19 cases par figure.
+
+**Un calcul juste n'est jamais compté faux.** Chaque case se juge par les
+VECTEURS, pas par des lettres attendues : le résultat est juste dès qu'il est
+égal à la somme (AE + EB = DC, puisque DC = AB) ; les deux cases du milieu
+d'une ligne `c` sont justes dès qu'elles réécrivent la même somme avec des
+vecteurs égaux qui s'enchaînent (DC + CE = EA + AB est juste aussi). La
+première case du milieu est juste si une suite existe ; la seconde l'est si
+elle enchaîne la première — ou, la première fausse, si elle termine une
+écriture juste : une case juste ne rougit pas pour sa voisine.
+
+**On range la forme, le retournement, les lettres et les lignes, jamais les
+réponses** : `chsLigne()` recalcule les écritures justes depuis les points.
+Le dessin (`chsSvg`) reprend le trait du 8.3 (`.veg-svg`) ; la lettre du
+centre se pose sur la bissectrice du plus large des quatre secteurs, ce qui
+marche aussi pour le losange, où « au-dessus » tombait sur une diagonale.
+Les vecteurs, signes et cases sont ceux du 8.3 (`.veg-v`, `.veg-in`,
+`.veg-grp`) ; la figure se pose à gauche des lignes, comme la fiche, dès que
+l'écran le permet. Les messages nomment la faute : l'opposé oublié (« Soustraire
+CA, c'est AJOUTER son opposé AC »), le vecteur recopié qui ne part pas du bon
+point, l'ordre qui ne s'enchaîne pas, le résultat à l'envers.
+
+**Le juge** (`tests/verifier.js`, « relation de Chasles ») : la place (8.8,
+pas de bouton des tables), 300 séances tirées dont chaque correction est
+relue par un juge INDÉPENDANT écrit depuis les coordonnées (somme,
+enchaînement, égalité), la fiche en première page, le plan des lignes,
+aucune somme nulle, chaque forme tirée ; puis le bouton sur la fiche : 19
+cases, cinq lettres et six traits, la copie juste, d'autres écritures justes
+en minuscules, le piège BA + CA (rouge, son résultat juste reste bleu,
+« opposé »), BA pour AE + EB (« sens »), AE recopié dans BE + AE (« part de
+E »), CE + BC écrit dans le même ordre (« ordre »), DC + AB (DC bleu, AB
+rouge, badge CE), la case vide (correction BC, jamais rouge), la copie vide
+(rien de rouge, une correction juste pour le juge), le soutien au fil de la
+saisie, le barème, `qId`, le contexte du modèle.

@@ -185,3 +185,25 @@ un vrai chiffre ou une virgule. Deux bords tenus, et tous deux contrôlés dans
 la section « 6 undecies » du banc navigateur : « O{,}9 », « O,81 », « 1O »,
 « -O.5 » se lisent comme leur version à zéros ; « O » seul reste « O » (le nom
 d'un point), et « xO » n'est pas touché.
+
+**L'égalité fausse désigne son TERME FAUTIF — la page le calcule.** Signalé
+par Turquet sur une capture du 4.6 de Première (octobre 2026) : sur
+« 5/3 − 1/3 × 5/2 = 5/3 − 5/6 = 30/18 − 10/18 = 20/18 = 10/9 », le juge a
+bien refusé, et bien nommé le morceau « 30/18 − 10/18 » — mais il ne disait
+que « cette égalité ne vaut ni le produit ni le résultat, c'est probablement
+une addition faite avant la multiplication ». Le modèle, laissé à deviner
+QUEL terme clochait, a demandé « est-ce que 5/3 vaut vraiment 30/18 ? » —
+c'est juste — et n'a rien dit de 10/18, qui est faux. C'est la leçon du
+paragraphe « Un verdict arithmétique ne se confie pas à un modèle », un cran
+plus loin : désigner le terme est AUSSI un fait arithmétique.
+`libreTermeFaux(ms, i)` découpe le morceau fautif et celui qui le précède
+(juste, puisque le juge l'a passé) aux « + » et « − » de profondeur zéro ;
+s'ils portent les mêmes opérations et qu'UN SEUL terme a changé de valeur,
+c'est lui, et le verdict envoyé au modèle le nomme (« 10/18 ne vaut pas
+5/6 »), sans la bonne valeur ; la phrase de secours aussi. Termes réordonnés,
+deux termes changés, ligne réduite à une fraction : la page se tait sur le
+terme, et le verdict reste celui d'avant — elle ne désigne que ce qu'elle
+prouve. Les quatre juges en profitent (`libreJuge`, `pfJuge` en Seconde,
+`spfrJuge` en Première), et le contrôle « le juge arithmétique des
+rédactions » rejoue la copie de la capture, un terme faux seul, et deux
+termes faux (où rien ne doit être désigné).
