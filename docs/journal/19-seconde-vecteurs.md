@@ -1397,6 +1397,50 @@ BC pour AB − AC (« sens »), AL pour AL − LA (« 2AL »), 2RT pour RT − S
 la copie vide des trois parties, le bouton « impossible » dans les deux sens,
 le soutien au fil de la saisie, le barème, `qId`, le contexte du modèle.
 
+**Puis l'élève a écrit SA CHAÎNE** (v497, Turquet, octobre 2026 : « laisser
+l'élève entrer dans un champ de saisie ses vecteurs, il doit y avoir une
+flèche déjà prête à accueillir les deux lettres ; s'il tape un plus, un moins
+ou un égal, alors afficher une autre flèche […] il peut toujours choisir
+impossible »). La case unique de chaque ligne est devenue le DÉBUT d'une
+chaîne : la première case garde son nom (`chl-i`, et tout le banc d'avant
+s'y lit sans changement) ; un « + », un « − » ou un « = » tapé derrière des
+lettres ferme la case et en ouvre une autre, le signe posé devant elle
+(`chlSaisie`, sur l'événement `input` — le clavier d'une tablette Android
+n'envoie pas de `key` utile, et un collage passe par le même chemin). Un « − »
+EN TÊTE reste un signe (− AD − DB) ; un « + » ou un « = » en tête est retiré.
+Retour arrière dans une case vide : elle part avec son signe. Le bouton
+« impossible » écrit le mot au bout de la chaîne — derrière un « = » si elle
+est commencée (CB + CA = impossible) — et l'en retire au second appui ; il
+reste sur la partie 1 seulement, mais le mot se tape aussi.
+
+**Le juge découpe aux « = »** (`chlAnalyse`, `chlLitMembre`) : chaque morceau
+doit valoir la ligne (sinon « l'égalité … est fausse »), le DERNIER est le
+résultat — un seul vecteur, 0 ou « impossible ». Un dernier morceau juste
+mais encore à plusieurs vecteurs ne conclut pas : « tu peux encore l'écrire
+avec un seul vecteur », ou, sur une somme impossible, « écris
+“impossible” ». Une case vide au milieu de la chaîne rend la ligne illisible ;
+les cases vides du bout tombent. **Le verdict reste à la page**, alors que la
+demande disait « c'est l'IA qui vérifiera si c'est nécessaire » : une somme
+de vecteurs sans figure se calcule exactement, le juge sait donc TOUJOURS
+lire, et « un verdict arithmétique ne se confie pas à un modèle »
+(`08-verdicts-et-juges.md`). Le modèle reçoit la chaîne dans `ctxChl` et
+l'explique, comme avant.
+
+**Une ligne vaut toujours un point** : seule la case du RÉSULTAT compte ; les
+cases des étapes se peignent (bleu si leur morceau vaut la ligne, rouge
+sinon) mais leur groupe porte `.pose-fac`, que `ptsEcran()` saute — la note
+de la fiche reste « 8 cases », quel que soit le nombre d'étapes. Une ligne
+vide reçoit la correction dans sa première case, en vert, comme avant.
+
+**Le banc** (`tests/verifier.js`, même contrôle) tape caractère par caractère :
+AB+CA=CB (trois cases, signes « + » et « = », juste, 8 cases à la note, tout
+bleu), CB+CA puis le bouton (CB | CA | impossible, juste ; le second appui le
+retire), CB+CA sans conclure (rouge, « écris “impossible” »), AB+AC=CB
+(l'étape fausse nommée), AB+CA (pas fini : la première case bleue, la
+dernière rouge), −AD−DB=BA (le « − » de tête reste un signe, posé DEVANT la
+flèche et non dessous), la partie 2
+en deux étapes, le retour arrière, et aucune case vide de chaîne ne rougit.
+
 ## {point-somme-vecteurs} — construire un point avec une somme de vecteurs (8.14, v496)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice
