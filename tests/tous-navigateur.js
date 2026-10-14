@@ -24,13 +24,19 @@
    illisible est un rapport qu'on cesse de lire — c'est ainsi qu'un rouge se
    fait manquer. On capture donc chaque niveau, et on l'affiche entier quand il
    a fini, l'un après l'autre.
+
+   LE MÊME COUREUR SERT LE BANC DES NOTES (octobre 2026) :
+       node tests/tous-navigateur.js notes
+   lance tests/notes.js sur les trois niveaux, de la même façon — la note
+   enregistrée est celle qui s'affiche, exercice par exercice.
    ========================================================================== */
 const { spawn } = require('child_process');
 const path = require('path');
 const PROFILS = require('./profils');
 const { mathlive } = require('./mathlive-cache');
 
-const banc = path.join(__dirname, 'navigateur.js');
+const NOTES = process.argv[2] === 'notes';
+const banc = path.join(__dirname, NOTES ? 'notes.js' : 'navigateur.js');
 const fichiers = Object.keys(PROFILS).filter(f => PROFILS[f].navigateur);
 
 function lancer(fichier){
@@ -52,7 +58,8 @@ function lancer(fichier){
   resultats.forEach(r => console.log((r.ok ? '✓ ' : '✗ ') + r.fichier));
   const casses = resultats.filter(r => !r.ok);
   console.log(casses.length === 0
-    ? '\n✓ Les trois niveaux se comportent bien dans un vrai navigateur.'
+    ? (NOTES ? '\n✓ Aux trois niveaux, la note enregistrée est celle qui s\'affiche.'
+             : '\n✓ Les trois niveaux se comportent bien dans un vrai navigateur.')
     : '\n✗ ' + casses.length + ' niveau(x) en échec. NE PAS mettre en ligne.');
   process.exit(casses.length ? 1 : 0);
 })();

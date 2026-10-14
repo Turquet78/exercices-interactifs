@@ -13,7 +13,11 @@
     "test:navigateur": "node tests/tous-navigateur.js",
     "test:navigateur:premiere": "node tests/navigateur.js premiere-specifique.html",
     "test:navigateur:terminale": "node tests/navigateur.js terminale.html",
-    "test:navigateur:secondes": "node tests/navigateur.js secondes.html"
+    "test:navigateur:secondes": "node tests/navigateur.js secondes.html",
+    "test:notes": "node tests/tous-navigateur.js notes",
+    "test:notes:premiere": "node tests/notes.js premiere-specifique.html",
+    "test:notes:terminale": "node tests/notes.js terminale.html",
+    "test:notes:secondes": "node tests/notes.js secondes.html"
   },
   "devDependencies": {
     "jsdom": "^24.0.0",

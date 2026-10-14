@@ -144,3 +144,29 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: ${{ matrix.niveau }} — dans un vrai navigateur
         run: node tests/navigateur.js ${{ matrix.niveau }}
+
+  # LA NOTE ENREGISTRÉE EST CELLE QUI S'AFFICHE (octobre 2026). Chaque exercice
+  # du menu mené jusqu'à son écran de fin, dans un vrai Chromium, et la ligne
+  # que la page insère dans la table des résultats comparée à ce que l'élève
+  # lit — score, pourcentage, note sur 10, note plafonnée du soutien, crédit
+  # partiel. Un travail à part, et non une étape du banc navigateur : la
+  # Seconde y passe près de sept minutes, qui s'ajouteraient aux siennes ;
+  # ici elles courent en même temps. Mêmes raisons pour la matrice et pour
+  # « fail-fast: false ».
+  notes:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        niveau: [premiere-specifique.html, secondes.html, terminale.html]
+    name: notes (${{ matrix.niveau }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Installer Chromium
+        run: npx playwright install --with-deps chromium
+      - name: ${{ matrix.niveau }} — la note enregistrée est celle qui s'affiche
+        run: node tests/notes.js ${{ matrix.niveau }}

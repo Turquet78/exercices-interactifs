@@ -594,6 +594,28 @@ module.exports = {
        questions par exercice »). */
     reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage', 'hausses-successives'], nbQMax: 20 },
     tableResultats: 'resultats_1ere',
+    /* tests/notes.js — la note enregistrée est celle qui s'affiche. Quand
+       une copie vide n'atteint pas la fin (une colonne à colorier, une table
+       jouée au clavier contre la montre), le banc appelle lui-même la
+       fonction de fin de l'exercice : la seule finish…() qui écrit son
+       identifiant en toutes lettres, sinon celle que « finDe » lui donne —
+       les familles qui partagent un moteur rangent leur identité sur
+       test.qId (startAUGQ('diminuer-depart', …)), et leur fonction de fin
+       n'écrit que l'identifiant de la famille. « finDirecte » : celle de
+       tout le reste, finishTest. horsAtteinte : vide, et c'est voulu. */
+    notes: { finDirecte: 'finishTest', horsAtteinte: {}, finDe: {
+      finishQCM:  ['pourcentage-taux', 'pourcentage-synthese'],
+      finishAUGQ: ['augmenter-taux', 'diminuer-depart', 'diminuer-taux'],
+      finishA2Q:  ['augmenter-taux-addition', 'diminuer-depart-soustraction', 'diminuer-taux-soustraction'],
+      finishAugAdd: ['diminuer-soustraction'],
+      finishSyn:  ['synthese-augmentations', 'synthese-diminutions', 'synthese-augmentations-dix', 'synthese-diminutions-dix'],
+      finishSal:  ['synthese-diminutions-libre', 'synthese-pourcentages-libre', 'synthese-augmentations-libre-dix', 'synthese-diminutions-libre-dix'],
+      tmFinir:    ['tables-multiplication-2'] },
+      /* le crédit partiel : un produit des tables est su ou ne l'est pas —
+         pas de cases à compter ; tmFinir note les produits acquis */
+      sansCreditPartiel: {
+        'tables-multiplication': 'un produit est su ou ne l\'est pas : aucune case à compter',
+        'tables-multiplication-2': 'un produit est su ou ne l\'est pas : aucune case à compter' } },
     tableEleves: 'eleves_1ere',
     navigateur: {
       exercice: 'pourcentage', ecran: 'ptest',
@@ -1143,6 +1165,29 @@ module.exports = {
        questions par exercice »). */
     reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20 },
     tableResultats: 'resultats_2nde',
+    /* tests/notes.js — la note enregistrée est celle qui s'affiche. Quand
+       une copie vide n'atteint pas la fin (une colonne à colorier, une table
+       jouée au clavier contre la montre), le banc appelle lui-même la
+       fonction de fin de l'exercice : la seule finish…() qui écrit son
+       identifiant en toutes lettres, sinon celle que « finDe » lui donne —
+       les familles qui partagent un moteur rangent leur identité sur
+       test.qId (startAUGQ('diminuer-depart', …)), et leur fonction de fin
+       n'écrit que l'identifiant de la famille. « finDirecte » : celle de
+       tout le reste, finishTest — qui range la note sous currentTestId.
+       horsAtteinte : vide, et c'est voulu. */
+    notes: { finDirecte: 'finishTest', horsAtteinte: {}, finDe: {
+      finishQCM:  ['pourcentage-taux', 'pourcentage-synthese'],
+      finishAUGQ: ['augmenter-taux', 'diminuer-depart', 'diminuer-taux'],
+      finishA2Q:  ['augmenter-taux-addition', 'diminuer-depart-soustraction', 'diminuer-taux-soustraction'],
+      finishAugAdd: ['diminuer-soustraction'],
+      finishSyn:  ['synthese-augmentations', 'synthese-diminutions'],
+      finishSal:  ['synthese-diminutions-libre', 'synthese-pourcentages-libre'],
+      tmFinir:    ['tables-multiplication-2'] },
+      /* le crédit partiel : un produit des tables est su ou ne l'est pas —
+         pas de cases à compter ; tmFinir note les produits acquis */
+      sansCreditPartiel: {
+        'tables-multiplication': 'un produit est su ou ne l\'est pas : aucune case à compter',
+        'tables-multiplication-2': 'un produit est su ou ne l\'est pas : aucune case à compter' } },
     tableEleves: 'eleves_2nde',
     navigateur: {
       exercice: 'pourcentage', ecran: 'ptest',
@@ -2514,6 +2559,13 @@ module.exports = {
        « allonge » : les exercices dont la séance DOIT s'allonger. */
     reglagesDevoirs: { exercice: 'tangente-exp', exercicePlafond: 'derivees', allonge: ['derivees', 'equation-tangente', 'signes-variations'], nbQMax: 20, tiragesMin: 11 },
     tableResultats: 'resultats',
+    /* tests/notes.js — la note enregistrée est celle qui s'affiche. La
+       Terminale n'a qu'UNE fonction de fin, commune à tous ses exercices :
+       quand une copie vide n'atteint pas la fin (une rédaction refuse d'être
+       vérifiée vide), le banc l'appelle directement, sur une séance
+       synthétique. horsAtteinte : les exercices que ni l'un ni l'autre
+       n'atteint, raison comprise — vide, et c'est voulu. */
+    notes: { finDirecte: 'finishTest', horsAtteinte: {} },
     tableEleves: 'eleves',
     navigateur: {
       exercice: 'derivees', ecran: 'test',

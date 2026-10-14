@@ -2085,6 +2085,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
         <svg viewBox="0 0 170 130" aria-hidden="true"><ellipse class="ring" cx="85" cy="65" rx="74" ry="52" transform="rotate(-4 85 65)"/></svg>
         <div class="val"><span class="big" id="resultScore">0 / 10</span><span class="pct" id="resultPct">0 %</span></div>
       </div>
+      <p class="note" id="resultPlafond" hidden style="text-align:center;margin:0 0 6px"></p>
       <ul class="review" id="review"></ul>
       <div class="row" style="margin-top:22px;justify-content:center">
         <button class="btn btn-primary" onclick="restartCurrentTest()">Recommencer</button>
@@ -3280,6 +3281,32 @@ function ptsRep(a){
   if(p>=1) p=(a.cases>1)?(a.cases-1)/a.cases:0;
   return p;
 }
+/* LE CRÉDIT PARTIEL COMPTE DANS LA NOTE FINALE (décision de Turquet, octobre
+   2026). Chaque question montre sa note sur 1 — « 0,6 / 1, 3 cases justes
+   sur 5 » (afficherNoteExo) —, mais la note finale ne comptait que les
+   questions parfaites : une séance à 4,6 / 5 question par question
+   s'enregistrait 4 / 5. La Terminale comptait déjà le partiel ; c'est
+   désormais la même règle aux trois niveaux, et la même borne (ptsRep).
+   Le partiel ne compte que là où UNE question vaut UN point : un barème
+   posé par le démarreur (test.maxScore — les questions à plusieurs parties)
+   compte déjà ses parties dans le score. Le score entier reste celui des
+   questions parfaites ; la note, elle, part dans details.note, et le
+   pourcentage en découle — tests/notes.js relit l'un contre l'autre. */
+function acquisDe(answers, parfaits, total, nbQuestions){
+  if(!(total>0)) return 0;
+  const p=Math.max(0, Math.min(total, parfaits||0));
+  if(nbQuestions!==total) return p;
+  const somme=(answers||[]).reduce((s,a)=>s+ptsRep(a),0);
+  return Math.max(p, Math.min(total, somme));
+}
+function noteFin(score, total, nbQuestions){
+  const n=(typeof nbQuestions==='number')?nbQuestions:((test.questions||[]).length);
+  const acquis=acquisDe(test.answers, score, total, n);
+  return { note:Math.round(acquis*100)/100, pct:total?Math.min(100,Math.round(acquis/total*100)):0 };
+}
+/* La note d'une ligne de résultats : details.note quand la fin l'a posée
+   (crédit partiel), le score sinon — les lignes d'avant octobre 2026. */
+function noteDe(r){ const d=r&&r.details; return (d&&!Array.isArray(d)&&typeof d.note==='number')?d.note:(r?r.score:0); }
 /* Un nombre AFFICHÉ à l'élève (ou envoyé au modèle) s'écrit avec une virgule :
    « 0.6 » est l'écriture de JavaScript, pas celle de la classe (audit M66). */
 function decVirgule(x){ return String(x).replace('.',','); }
@@ -3990,7 +4017,7 @@ function voirNotesExo(id){
   else { $('notesList').innerHTML=rows.map(r=>{
     const m=modeOf(r), cls=m==='train'?'train':(m==='soutien'?'soutien':'eval'), lbl=m==='train'?'entraînement':(m==='soutien'?'soutien':'éval');
     return `<li><span class="d">${fmtDate(r.created_at)} <span class="mode-tag ${cls}" style="font-size:.72rem;padding:2px 8px">${lbl}</span></span>
-      <span class="sc">${r.score} / ${r.total}</span>
+      <span class="sc">${fmtNote(noteDe(r))} / ${r.total}</span>
       <span class="badge ${pctClass(r.percent)}">${fmtNote(noteAttempt(r))} / 10</span></li>`; }).join(''); }
   $('notesModal').hidden=false;
 }
@@ -4648,7 +4675,7 @@ function renderBilan(results){
   $('spaceHist').innerHTML=recent.length?recent.map(r=>{
     const m=modeOf(r), cls=m==='train'?'train':(m==='soutien'?'soutien':'eval'), lbl=m==='train'?'entraînement':(m==='soutien'?'soutien':'éval');
     return `<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))} <span class="mode-tag ${cls}" style="font-size:.7rem;padding:1px 7px">${lbl}</span></span>
-      <span class="sc">${r.score} / ${r.total}</span>
+      <span class="sc">${fmtNote(noteDe(r))} / ${r.total}</span>
       <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
     :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
 }
@@ -4914,7 +4941,8 @@ function dmNoteBrouillon(r){
   const total=r.total||0;                             /* le nombre de questions, comme finishTest et la pause de ce niveau */
   if(!total) return null;
   const nbQ=Array.isArray(d.questions)?d.questions.length:(r.total||0);
-  return Object.assign({}, r, { percent:Math.min(100,Math.round((r.score||0)/total*100)), enCours:true, faites:faites, nbQ:nbQ });
+  const acquis=acquisDe(d.answers, r.score, total, nbQ);   /* le crédit partiel, comme la fin (noteFin) */
+  return Object.assign({}, r, { percent:Math.min(100,Math.round(acquis/total*100)), enCours:true, faites:faites, nbQ:nbQ });
 }
 /* La ligne qui compte pour UN exercice d'UN devoir dans UN mode : une note
    terminée telle quelle, un brouillon étiqueté par sa note provisoire, rien
@@ -4966,6 +4994,22 @@ function dmTotal(parts){
 /* Un plafond bricolé à la main dans la base retombe sur 5 : la leçon de
    TM_NB_CHOIX — le réglage est un simple champ JSON. */
 function dmPlafondSoutien(smax){ const p=parseInt(smax,10); return (p>=6&&p<=10)?p:5; }
+/* LA NOTE QUE LE SOUTIEN RAPPORTERA, À L'ÉCRAN DE FIN (décision de Turquet,
+   octobre 2026). Le soutien ne compte que pour son plafond — 5/10, ou celui
+   que le devoir a réglé —, et noteDevoirExo() le multiplie par le
+   pourcentage. L'écran de fin affichait le pourcentage brut : « 80 % »
+   au bout d'une séance de soutien promettait une note que le carnet ne
+   donnera jamais (4/10). Même définition que noteDevoirExo() — le plafond
+   de dmReglageExo(), 5 hors devoir —, relue par tests/notes.js. */
+function plafondSoutien(){ const ex=dmReglageExo(); return dmPlafondSoutien(ex&&ex.smax); }
+function noteSoutienFin(percent){
+  const el=$('resultPlafond'), soutien=(currentMode==='soutien');
+  if(el){ el.hidden=!soutien; el.textContent=soutien?`En soutien, cet exercice compte pour ${plafondSoutien()} points sur 10 au plus.`:''; }
+  if(!soutien) return false;
+  $('resultPct').textContent=`${fmtNote(percent/100*plafondSoutien())} / 10`;
+  $('resultPct').title='Note de soutien, plafonnée';
+  return true;
+}
 /* L'entrée de l'exercice courant dans le devoir courant — la même définition
    que celle que l'éditeur écrit, jamais un état parallèle (la leçon de
    currentPasse, déjà payée par tmNbDevoir). */
@@ -6050,19 +6094,21 @@ function submitAnswer(timedOut){
 async function finishTest(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{
-    if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:(test.qId||'calcul-mental'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */
+    if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:(test.qId||'calcul-mental'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */
   }catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 function showResults(r){
   const msg=r.percent>=90?'Excellent !':r.percent>=70?'Bravo !':r.percent>=50?'Bien joué !':'Continue, tu progresses !';
   $('resultMsg').textContent=msg;
   $('resultSub').textContent=`${esc(currentEleve.prenom)} • ${modeName(currentMode)} • ${fmtDur(r.durationSec)}`;
-  $('resultScore').textContent=`${r.score} / ${r.total}`;$('resultPct').textContent=`${r.percent} %`;
+  const note=(typeof r.note==='number')?r.note:r.score;   /* le crédit partiel compté (noteFin) */
+  $('resultScore').textContent=`${fmtNote(note)} / ${r.total}`;$('resultPct').textContent=`${r.percent} %`; $('resultPct').title='';
+  noteSoutienFin(r.percent);
   const ul=$('review');ul.innerHTML='';
   test.answers.forEach(a=>{
     const li=document.createElement('li');li.className=a.correct?'ok':'ko';
@@ -6573,12 +6619,12 @@ function nextASPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 async function finishASPTest(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'addition-soustraction',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'addition-soustraction',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Test 2 : multiplication posée ---------- */
@@ -6673,12 +6719,12 @@ function nextMQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishMTest(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'multiplication-posee',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'multiplication-posee',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Sauvegarde générique d'un résultat ---------- */
@@ -7062,17 +7108,18 @@ function goNextLevel(){
 async function finishParcours(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.answers.length, score=test.score, pct=total?Math.round(score/total*100):0;
+  const total=test.answers.length, score=test.score, {note,pct}=noteFin(score,total,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   let reached=0; for(const r of test.results){ if(r.passed) reached++; else break; }
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   const perLevel=test.results.map(r=>({lvl:r.level,score:r.score,total:r.total,passed:r.passed}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'fractions-decimales',mode:currentMode,reached,perLevel,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'fractions-decimales',mode:currentMode,reached,perLevel,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   const allPassed=test.results.length===test.levels.length && test.results.every(r=>r.passed);
   $('resultMsg').textContent= allPassed?'Parcours réussi ! 🎉':(reached>0?`Tu as validé le niveau ${reached}`:'Continue à t\u2019entraîner !');
   $('resultSub').textContent=`${esc(currentEleve.prenom)} • ${modeName(currentMode)} • ${fmtDur(durationSec)}`;
-  $('resultScore').textContent=`${score} / ${total}`; $('resultPct').textContent=`${pct} %`;
+  $('resultScore').textContent=`${fmtNote(note)} / ${total}`; $('resultPct').textContent=`${pct} %`; $('resultPct').title='';
+  noteSoutienFin(pct);
   const ul=$('review'); ul.innerHTML='';
   test.results.forEach((r,i)=>{
     const li=document.createElement('li'); li.className=r.passed?'ok':'ko';
@@ -7389,12 +7436,12 @@ function nextPQuestion(){ if(test.kind==='dbp'){ nextDbp(); return; }   /* {devo
 async function finishPercent(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ============ 2.1.8 Prendre 10 % en divisant par 10 ============
@@ -7484,12 +7531,12 @@ function nextPct10Question(){ if(test.idx<test.questions.length-1){ test.idx++; 
 async function finishPct10(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'pourcentage-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ============ 2.1.9 Retrouver plusieurs pourcentages en passant par 10 % ============
@@ -7614,12 +7661,12 @@ function nextPdcQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 async function finishPdc(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage-dix-cascade',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'pourcentage-dix-cascade',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ============ 2.1.10 Retrouver le pourcentage en passant par 10 % ============
@@ -7834,12 +7881,12 @@ function nextPdtQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 async function finishPdt(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage-dix-taux',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'pourcentage-dix-taux',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ============ 2.2.11 Augmenter en passant par 10 % ============
@@ -8024,12 +8071,12 @@ function nextAdxQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 async function finishAdx(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'augmenter-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 
@@ -8297,12 +8344,12 @@ function nextAtdQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 async function finishAtd(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-taux-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'augmenter-taux-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 
@@ -8466,12 +8513,12 @@ function nextDdxQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 async function finishDdx(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'diminuer-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 
@@ -8682,12 +8729,12 @@ function nextDdtQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 async function finishDdt(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-taux-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'diminuer-taux-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 
@@ -8871,12 +8918,12 @@ function nextFPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; ren
 async function finishFP(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'fraction-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'fraction-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 
@@ -9024,12 +9071,12 @@ function nextPctColQuestion(){ if(test.idx<test.questions.length-1){ test.idx++;
 async function finishPctCol(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage-colonnes',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'pourcentage-colonnes',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 
@@ -9289,12 +9336,12 @@ function nextAG2Question(){ if(test.kind==='dbp'){ nextDbp(); return; }   /* {de
 async function finishAugAdd(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:(test.qId||'augmenter-addition'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:(test.qId||'augmenter-addition'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 
@@ -9561,13 +9608,13 @@ function nextWQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishA2Q(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,
-    details:{test:(test.qId||'augmenter-depart-addition'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+    details:{note,test:(test.qId||'augmenter-depart-addition'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 
@@ -10278,12 +10325,12 @@ function nextSynQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 async function finishSyn(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:(test.qId||'synthese-pourcentages'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:(test.qId||'synthese-pourcentages'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ============ Tests \u00e0 propositions : QCM + v\u00e9rification chiffr\u00e9e ============
@@ -10813,13 +10860,13 @@ function nextQQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishQCM(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,
-    details:{test:(test.qId||'pourcentage-depart'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+    details:{note,test:(test.qId||'pourcentage-depart'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('R\u00e9sultat non enregistr\u00e9 (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Synthèse 2.1.7 : les mêmes questions, mais l'élève JUSTIFIE ------
@@ -11024,13 +11071,13 @@ function nextPsl(){ if(test.idx<test.questions.length-1){ test.idx++; renderPsl(
 async function finishPsl(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,
-    details:{test:'pourcentage-synthese-libre',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+    details:{note,test:'pourcentage-synthese-libre',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Synthèse des augmentations, RÉDIGÉE (2.2.10) ---------------------
@@ -11755,13 +11802,13 @@ function nextSal(){ if(test.kind==='sgl'){ nextSgl(); return; }   /* {synthese-g
 async function finishSal(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,
-    details:{test:(test.qId||'synthese-augmentations-libre'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+    details:{note,test:(test.qId||'synthese-augmentations-libre'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Test 7 : augmenter d'un pourcentage (méthode en 4 étapes) ---------- */
@@ -11976,12 +12023,12 @@ function nextAQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishAug(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Pose générale (numérateurs sans zéros) : (1 à 3 chiffres) × (1 chiffre) ---------- */
@@ -12447,13 +12494,13 @@ function nextVQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishAUGQ(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,
-    details:{test:(test.qId||'augmenter-depart'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+    details:{note,test:(test.qId||'augmenter-depart'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Test 8 : diminuer d'un pourcentage (même méthode, coefficient (100−P)/100) ---------- */
@@ -12588,12 +12635,12 @@ function nextDQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishDim(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- 2.2.7 : une hausse suivie d'une autre hausse ----------
@@ -13119,12 +13166,12 @@ function nextHSCQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 async function finishHaussesCent(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'hausses-successives-cent',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'hausses-successives-cent',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 /* ---------- 2.5.4 : deux évolutions successives, chacune une hausse OU une baisse ----------
    La SYNTHÈSE de {hausses-successives}, {hausses-successives-cent} et
@@ -13667,12 +13714,12 @@ function nextEssQuestion(){ if(test.kind==='dbp'){ nextDbp(); return; }   /* {de
 async function finishEss(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'synthese-evolutions-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'synthese-evolutions-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 /* ---------- {synthese-evolutions-successives-libre} : le 2.5.4 RÉDIGÉ ----------
    Demande de Turquet (septembre 2026) : « faire un exercice comme le 2.5.4,
@@ -14019,12 +14066,12 @@ function nextEsl(){ if(test.kind==='sgl'){ nextSgl(); return; }   /* {synthese-g
 async function finishEsl(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'synthese-evolutions-successives-libre',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'synthese-evolutions-successives-libre',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 /* ---------- {synthese-generale-libre} (2.5.7) : la synthèse RÉDIGÉE des deux familles ----------
    Demande de Turquet (septembre 2026) : « en Première, un exercice de synthèse
@@ -14088,12 +14135,12 @@ function nextSgl(){ if(test.idx<test.questions.length-1){ test.idx++; renderSgl(
 async function finishSgl(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'synthese-generale-libre',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'synthese-generale-libre',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 /* ---------- {devoir-blanc-pourcentages} (2.5.8) : le devoir blanc ----------
    Demande de Turquet (octobre 2026), en deux temps. D'abord : « créer un
@@ -14480,12 +14527,12 @@ function nextDbp(){ if(test.idx<test.questions.length-1){ test.idx++; renderDbp(
 async function finishDbp(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'devoir-blanc-pourcentages',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'devoir-blanc-pourcentages',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 /* La rangée d'aide, propre au niveau : la Première la fait poser par
    iaBoutons(), qui l'insère après l'élément « …Actions ». Le moteur ne
@@ -18016,12 +18063,12 @@ function pbfCtxTexte(){
 async function finishPB(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:(test.qId||'tableau-probabilites'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:(test.qId||'tableau-probabilites'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 /* Le contexte envoyé au modèle. */
 function pbCtxTexte(q){
@@ -18055,12 +18102,12 @@ function pbCtxTexte(q){
 async function finishHausses(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'hausses-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'hausses-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- 2.3.7 : une baisse suivie d'une autre baisse ----------
@@ -18333,12 +18380,12 @@ function nextBSQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; ren
 async function finishBaisses(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'baisses-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'baisses-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- 2.3.14 : deux baisses de suite, EN PASSANT PAR 10 % ----------
@@ -18476,12 +18523,12 @@ function nextBsdQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 async function finishBaissesDix(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'baisses-successives-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'baisses-successives-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ============ {evolutions-successives} (2.5.5) : deux évolutions de suite, le schéma de la fiche ============
@@ -18691,12 +18738,12 @@ function nextEvsQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 async function finishEvs(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'evolutions-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'evolutions-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- 2.4.1 : lire un coefficient multiplicateur ----------
@@ -18870,12 +18917,12 @@ function nextLCQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; ren
 async function finishLireCoef(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'lire-coefficient',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'lire-coefficient',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Reconnaître le coefficient (2.5.2) --------------------------------
@@ -19037,12 +19084,12 @@ function nextCKQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; ren
 async function finishCK(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'reconnaitre-coefficient',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'reconnaitre-coefficient',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Test : ASSOCIER LE COEFFICIENT MULTIPLICATEUR (2.4.2) ----------
@@ -19221,12 +19268,12 @@ function nextACQuestion(){ if(test.kind==='dbp'){ nextDbp(); return; }   /* {dev
 async function finishAC(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'associer-coefficient',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'associer-coefficient',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Test 5 : multiplier des décimaux (méthode en 4 étapes) ---------- */
@@ -19360,12 +19407,12 @@ function nextMDQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; ren
 async function finishMultDec(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-decimaux',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'mult-decimaux',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Test 6 : multiplier des décimaux qui commencent par 1 (pose en colonnes) ---------- */
@@ -19542,12 +19589,12 @@ function nextUQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishU(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-dec-un',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{note,test:'mult-dec-un',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,note,total,percent:pct,durationSec});
 }
 
 /* ---------- Professeur ---------- */
@@ -20550,7 +20597,7 @@ async function showStudentDetail(id,prenom){
     } else {
       inner+=lineChart(data.map(r=>r.percent));
       const rows=[...data].reverse().map(r=>`<li><span class="d">${fmtDate(r.created_at)} · ${esc(testName(testIdOf(r)))}</span>
-        <span class="sc">${r.score} / ${r.total}</span><span class="badge ${pctClass(r.percent)}">${r.percent} %</span>
+        <span class="sc">${fmtNote(noteDe(r))} / ${r.total}</span><span class="badge ${pctClass(r.percent)}">${r.percent} %</span>
         <span class="d" style="margin-left:8px">${fmtDur(r.duration_sec)}</span></li>`).join('');
       inner+=`<ul class="histlist" style="margin-top:14px">${rows}</ul></div>`;
     }
@@ -20728,7 +20775,7 @@ async function exportCSV(){
     data.forEach(r=>lignes.push([
       (r.eleves_1ere&&r.eleves_1ere.prenom)||(r.eleves&&r.eleves.prenom)||'?',
       testName(testIdOf(r)), modeName(modeOf(r)),
-      r.score, r.total, r.percent,
+      String(noteDe(r)).replace('.',','), r.total, r.percent,   /* la note lue par l'élève, crédit partiel compris */
       Math.round(r.duration_sec||0), new Date(r.created_at).toLocaleString('fr-FR')]));
     csvTelecharger('tests-resultats.csv', lignes);
   }catch(e){ toast('Export impossible','err'); }

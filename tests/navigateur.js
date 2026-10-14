@@ -339,8 +339,12 @@ async function parcours(page, N){
   return { espace, tours };
 }
 
-/* ---------- déroulement ---------- */
-(async () => {
+/* ---------- déroulement ----------
+   Lancé seul (node tests/navigateur.js …), le banc se déroule ; REQUIS par un
+   autre banc (tests/notes.js), il prête seulement ses outils — ouvrir(),
+   connecter() — sans rien lancer : une seule ouverture de page, jamais
+   recopiée, et donc jamais divergente. */
+if(require.main === module) (async () => {
   let chromium;
   try { ({ chromium } = require('playwright')); }
   catch(e){
@@ -17012,3 +17016,6 @@ async function parcours2(page, N){
     }
   }
 }
+
+/* Les outils prêtés à tests/notes.js (voir « déroulement »). */
+module.exports = { ouvrir, connecter, ecranVisible, CIBLE, P, PRENOM_CONTROLE };

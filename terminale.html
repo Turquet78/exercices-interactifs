@@ -3093,6 +3093,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
         <svg viewBox="0 0 170 130" aria-hidden="true"><ellipse class="ring" cx="85" cy="65" rx="74" ry="52" transform="rotate(-4 85 65)"/></svg>
         <div class="val"><span class="big" id="resultScore">0 / 10</span><span class="pct" id="resultPct">0 %</span></div>
       </div>
+      <p class="note" id="resultPlafond" hidden style="text-align:center;margin:0 0 6px"></p>
       <ul class="review" id="review"></ul>
       <div class="row" style="margin-top:22px;justify-content:center">
         <button class="btn btn-primary" onclick="restartCurrentTest()">Recommencer</button>
@@ -3680,6 +3681,12 @@ function distinctes(n, fabrique){
 }
 function testIdOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.test) return d.test; return 'derivees'; }
 function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) return d.mode; return 'eval'; }
+/* LA NOTE D'UNE TENTATIVE, en exercices : celle que l'élève a lue à l'écran de
+   fin (details.note, crédit partiel compris), et non la colonne score, qui
+   compte les exercices PARFAITS. Les historiques affichaient « 4 / 5 » à
+   l'élève qui avait lu « 4,5 / 5 » (tests/notes.js, octobre 2026). Une
+   ligne d'avant details.note n'a que son score : c'est lui. */
+function noteDe(r){ const d=r&&r.details; return (d&&!Array.isArray(d)&&typeof d.note==='number')?d.note:(r?r.score:0); }
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || ((typeof FRAC_INFO!=='undefined'&&FRAC_INFO[id])?('Fractions — '+FRAC_INFO[id].name):'Test'); }   /* garde : FRAC_INFO n'existe pas dans ce fichier (vestige) ; sans elle, un id inconnu jetait une ReferenceError */
@@ -4632,7 +4639,7 @@ function voirNotesExo(id){
   else { $('notesList').innerHTML=rows.map(r=>{
     const m=modeOf(r), cls=m==='train'?'train':(m==='soutien'?'soutien':'eval'), lbl=m==='train'?'entraînement':(m==='soutien'?'soutien':'éval');
     return `<li><span class="d">${fmtDate(r.created_at)} <span class="mode-tag ${cls}" style="font-size:.72rem;padding:2px 8px">${lbl}</span></span>
-      <span class="sc">${r.score} / ${r.total}</span>
+      <span class="sc">${fmtNote(noteDe(r))} / ${r.total}</span>
       <span class="badge ${pctClass(r.percent)}">${fmtNote(noteAttempt(r))} / 10</span></li>`; }).join(''); }
   $('notesModal').hidden=false;
 }
@@ -5074,9 +5081,13 @@ async function enregistrerNotePartielle(){
   if(!(currentMode==='train'||currentMode==='soutien')) return null;
   if(!test.questions || !test.questions.length) return null;
   if(!(test.answers||[]).length) return null;             // rien de validé : pas de note
-  const total=test.questions.length, score=test.score||0, pct=Math.round(score/total*100);
+  /* le crédit partiel, comme l'écran de fin (décision de Turquet, octobre
+     2026) — et borné : une pause prise sur une étude verrouillée enregistrait
+     « 2700 % », relu « 270 / 10 » par le devoir */
+  const total=test.questions.length, score=test.score||0;
+  const acquis=acquisDe(test.answers, score, total), pct=Math.min(100,Math.round(acquis/total*100));
   const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
-  const details={test:currentTestId,mode:currentMode,partiel:true}; if(currentDM) details.dm=currentDM;
+  const details={test:currentTestId,mode:currentMode,partiel:true,note:Math.round(acquis*100)/100,parfaits:score}; if(currentDM) details.dm=currentDM;
   try{ const {error}=await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:elapsed,details});
     if(error){ toast('Note non enregistrée : '+(error.message||'erreur'),'err'); return false; }
     return true; }catch(e){ return false; }
@@ -6410,7 +6421,7 @@ function renderBilan(results){
   $('spaceHist').innerHTML=recent.length?recent.map(r=>{
     const m=modeOf(r), cls=m==='train'?'train':(m==='soutien'?'soutien':'eval'), lbl=m==='train'?'entraînement':(m==='soutien'?'soutien':'éval');
     return `<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))} <span class="mode-tag ${cls}" style="font-size:.7rem;padding:1px 7px">${lbl}</span></span>
-      <span class="sc">${r.score} / ${r.total}</span>
+      <span class="sc">${fmtNote(noteDe(r))} / ${r.total}</span>
       <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
     :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
 }
@@ -6457,7 +6468,9 @@ function dmNoteBrouillon(r){
   const total=r.total||0;                             /* le nombre de questions, comme finishTest et la pause de ce niveau */
   if(!total) return null;
   const nbQ=Array.isArray(d.questions)?d.questions.length:(r.total||0);
-  return Object.assign({}, r, { percent:Math.min(100,Math.round((r.score||0)/total*100)), enCours:true, faites:faites, nbQ:nbQ });
+  /* le crédit partiel, comme la fin et la pause (acquisDe) */
+  const acquis=acquisDe(d.answers, r.score, total);
+  return Object.assign({}, r, { percent:Math.min(100,Math.round(acquis/total*100)), enCours:true, faites:faites, nbQ:nbQ });
 }
 /* La ligne qui compte pour UN exercice d'UN devoir dans UN mode : une note
    terminée telle quelle, un brouillon étiqueté par sa note provisoire, rien
@@ -6597,6 +6610,22 @@ function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
 /* Un plafond bricolé à la main dans la base retombe sur 5 : le réglage est un
    simple champ JSON (la leçon de TM_NB_CHOIX en Première). */
 function dmPlafondSoutien(smax){ const p=parseInt(smax,10); return (p>=6&&p<=10)?p:5; }
+/* LA NOTE QUE LE SOUTIEN RAPPORTERA, À L'ÉCRAN DE FIN (décision de Turquet,
+   octobre 2026). Le soutien ne compte que pour son plafond — 5/10, ou celui
+   que le devoir a réglé —, et noteDevoirExo() le multiplie par le
+   pourcentage. L'écran de fin affichait le pourcentage brut : « 80 % »
+   au bout d'une séance de soutien promettait une note que le carnet ne
+   donnera jamais (4/10). Même définition que noteDevoirExo() — le plafond
+   de dmReglageExo(), 5 hors devoir —, relue par tests/notes.js. */
+function plafondSoutien(){ const ex=dmReglageExo(); return dmPlafondSoutien(ex&&ex.smax); }
+function noteSoutienFin(percent){
+  const el=$('resultPlafond'), soutien=(currentMode==='soutien');
+  if(el){ el.hidden=!soutien; el.textContent=soutien?`En soutien, cet exercice compte pour ${plafondSoutien()} points sur 10 au plus.`:''; }
+  if(!soutien) return false;
+  $('resultPct').textContent=`${fmtNote(percent/100*plafondSoutien())} / 10`;
+  $('resultPct').title='Note de soutien, plafonnée';
+  return true;
+}
 /* L'entrée de l'exercice courant dans le devoir courant — la même définition
    que celle que l'éditeur écrit, jamais un état parallèle. */
 function dmReglageExo(){
@@ -7096,14 +7125,29 @@ function ptsRep(a){
   return p;
 }
 function fmtNote(v){ const r=Math.round(v*100)/100; return numFmt(Number.isInteger(r)?r:Math.round(r*10)/10); }
+/* LA NOTE D'UNE SÉANCE, EN EXERCICES : la somme du crédit de chaque réponse
+   (1 pour un exercice parfait, la part de ses cases justes sinon), jamais
+   moins que le nombre d'exercices parfaits, jamais plus que le barème. Une
+   seule définition pour la fin, la pause et la note provisoire d'un devoir
+   (décision de Turquet, octobre 2026 : la pause compte le crédit partiel,
+   comme l'écran de fin). */
+function acquisDe(answers, parfaits, total){
+  const somme=(answers||[]).reduce((s,a)=>s+ptsRep(a),0);
+  return Math.max(0, Math.min(total||0, Math.max(somme, parfaits||0)));
+}
 async function finishTest(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
   const total=test.questions.length, score=test.score;
-  const acquis=test.answers.reduce((s,a)=>s+ptsRep(a),0);
+  const acquis=acquisDe(test.answers, test.score, total);
   const note=Math.round(acquis*100)/100;          /* note en exercices, au centieme */
-  const note10=Math.round((acquis/total)*100)/10;  /* note sur 10, au dixieme */
-  const pct=Math.round(note/total*100);
+  /* UN SEUL ARRONDI POUR L'ÉCRAN ET POUR LA BASE (octobre 2026). La note sur
+     10 affichée partait de acquis, le pourcentage enregistré de la note DÉJÀ
+     arrondie au centième : 1 exercice juste et un à 2 cases sur 7, sur 2,
+     s'affichait « 6,4 / 10 » et se relisait partout ailleurs « 6,5 / 10 »
+     (tests/notes.js). Le pourcentage part de acquis, et l'écran le lit. */
+  const pct=Math.min(100,Math.round(acquis/total*100));
+  const note10=pct/10;                             /* note sur 10, au dixieme : CELLE que relira la base */
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   const fdetails={test:currentTestId,mode:currentMode,misses,note:note,parfaits:score};
@@ -7127,6 +7171,7 @@ function showResults(r){
   const n10=(typeof r.note10==='number')?r.note10:Math.round((note/r.total)*100)/10;
   $('resultPct').textContent = sur10 ? `${numFmt(n10)} / 10` : `${r.percent} %`;
   $('resultPct').title = sur10 ? 'Note sur 10 (les exercices partiellement r\u00e9ussis comptent)' : '';
+  noteSoutienFin(r.percent);   /* en soutien : la note plafonnée, celle qui comptera */
   const ul=$('review');ul.innerHTML='';
   test.answers.forEach(a=>{
     const part=(!a.correct && ptsRep(a)>0);                 /* exercice partiellement reussi */
@@ -16748,7 +16793,10 @@ async function checkEC(live){
   test.locked=true;
   try{ if(ecF) ecF.verrouiller(); }catch(e){}
   ['ec-u','ec-v','ec-du','ec-dv'].forEach(id=>{ const el=$(id); if(el) el.readOnly=true; });
-  test.score=r.nOk+(sheetOk?1:0); $('ecLiveScore').textContent=test.score;
+  /* test.score compte les exercices PARFAITS (0 ou 1 ici, la séance n'en a qu'un) ;
+     le compteur affiché, lui, compte les cases justes — deux nombres, deux places.
+     Le crédit partiel passe par la réponse (ptsExo), comme partout. */
+  test.score=allOk?1:0; $('ecLiveScore').textContent=r.nOk+(sheetOk?1:0);
   const A=ecAns(q);
   if(allOk){
     fb.textContent=pick(['Parfait, étude complète !','Excellent !','Bravo, tout y est !']);
@@ -17465,7 +17513,7 @@ function checkECV(live){
     return;
   }
   test.locked=true;
-  test.score=nOk; $('ecvLiveScore').textContent=test.score;
+  test.score=allOk?1:0; $('ecvLiveScore').textContent=nOk;   /* parfaits en base, cases justes à l'écran */
   if(allOk){
     fb.textContent=pick(['Parfait, étude complète !','Excellent !','Bravo, tout y est !']);
     fb.className='mp-feedback good';
@@ -17963,7 +18011,7 @@ function checkEAV(live){
     return;
   }
   test.locked=true;
-  test.score=nOk; $('eavLiveScore').textContent=test.score;
+  test.score=allOk?1:0; $('eavLiveScore').textContent=nOk;   /* parfaits en base, cases justes à l'écran */
   if(allOk){
     fb.textContent=pick(['Parfait, étude complète !','Excellent !','Bravo, tout y est !']);
     fb.className='mp-feedback good';
@@ -25464,7 +25512,7 @@ async function showStudentDetail(id,prenom){
     } else {
       inner+=lineChart(data.map(r=>r.percent));
       const rows=[...data].reverse().map(r=>`<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))}</span>
-        <span class="sc">${r.score} / ${r.total}</span><span class="badge ${pctClass(r.percent)}">${r.percent} %</span>
+        <span class="sc">${fmtNote(noteDe(r))} / ${r.total}</span><span class="badge ${pctClass(r.percent)}">${r.percent} %</span>
         <span class="d" style="margin-left:8px">${fmtDur(r.duration_sec)}</span></li>`).join('');
       inner+=`<ul class="histlist" style="margin-top:14px">${rows}</ul></div>`;
     }
@@ -26412,7 +26460,7 @@ async function exportCSV(){
     data.forEach(r=>lignes.push([
       (r.eleves&&r.eleves.prenom)||'?',
       testNum(testIdOf(r)), testName(testIdOf(r)), modeName(modeOf(r)),
-      r.score, r.total, r.percent,
+      String(noteDe(r)).replace('.',','), r.total, r.percent,   /* la note lue par l'élève, crédit partiel compris */
       Math.round(r.duration_sec||0), new Date(r.created_at).toLocaleString('fr-FR')]));
     csvTelecharger('tests-resultats.csv', lignes);
   }catch(e){ toast('Export impossible','err'); }
