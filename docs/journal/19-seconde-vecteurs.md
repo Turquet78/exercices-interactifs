@@ -1397,7 +1397,133 @@ BC pour AB − AC (« sens »), AL pour AL − LA (« 2AL »), 2RT pour RT − S
 la copie vide des trois parties, le bouton « impossible » dans les deux sens,
 le soutien au fil de la saisie, le barème, `qId`, le contexte du modèle.
 
-## {point-somme-vecteurs} — construire un point par une somme de vecteurs (8.14, v496)
+**Puis l'élève a écrit SA CHAÎNE** (v497, Turquet, octobre 2026 : « laisser
+l'élève entrer dans un champ de saisie ses vecteurs, il doit y avoir une
+flèche déjà prête à accueillir les deux lettres ; s'il tape un plus, un moins
+ou un égal, alors afficher une autre flèche […] il peut toujours choisir
+impossible »). La case unique de chaque ligne est devenue le DÉBUT d'une
+chaîne : la première case garde son nom (`chl-i`, et tout le banc d'avant
+s'y lit sans changement) ; un « + », un « − » ou un « = » tapé derrière des
+lettres ferme la case et en ouvre une autre, le signe posé devant elle
+(`chlSaisie`, sur l'événement `input` — le clavier d'une tablette Android
+n'envoie pas de `key` utile, et un collage passe par le même chemin). Un « − »
+EN TÊTE reste un signe (− AD − DB) ; un « + » ou un « = » en tête est retiré.
+Retour arrière dans une case vide : elle part avec son signe. Le bouton
+« impossible » écrit le mot au bout de la chaîne — derrière un « = » si elle
+est commencée (CB + CA = impossible) — et l'en retire au second appui ; il
+reste sur la partie 1 seulement, mais le mot se tape aussi.
+
+**Le juge découpe aux « = »** (`chlAnalyse`, `chlLitMembre`) : chaque morceau
+doit valoir la ligne (sinon « l'égalité … est fausse »), le DERNIER est le
+résultat — un seul vecteur, 0 ou « impossible ». Un dernier morceau juste
+mais encore à plusieurs vecteurs ne conclut pas : « tu peux encore l'écrire
+avec un seul vecteur », ou, sur une somme impossible, « écris
+“impossible” ». Une case vide au milieu de la chaîne rend la ligne illisible ;
+les cases vides du bout tombent. **Le verdict reste à la page**, alors que la
+demande disait « c'est l'IA qui vérifiera si c'est nécessaire » : une somme
+de vecteurs sans figure se calcule exactement, le juge sait donc TOUJOURS
+lire, et « un verdict arithmétique ne se confie pas à un modèle »
+(`08-verdicts-et-juges.md`). Le modèle reçoit la chaîne dans `ctxChl` et
+l'explique, comme avant.
+
+**Une ligne vaut toujours un point** : seule la case du RÉSULTAT compte ; les
+cases des étapes se peignent (bleu si leur morceau vaut la ligne, rouge
+sinon) mais leur groupe porte `.pose-fac`, que `ptsEcran()` saute — la note
+de la fiche reste « 8 cases », quel que soit le nombre d'étapes. Une ligne
+vide reçoit la correction dans sa première case, en vert, comme avant.
+
+**Le banc** (`tests/verifier.js`, même contrôle) tape caractère par caractère :
+AB+CA=CB (trois cases, signes « + » et « = », juste, 8 cases à la note, tout
+bleu), CB+CA puis le bouton (CB | CA | impossible, juste ; le second appui le
+retire), CB+CA sans conclure (rouge, « écris “impossible” »), AB+AC=CB
+(l'étape fausse nommée), AB+CA (pas fini : la première case bleue, la
+dernière rouge), −AD−DB=BA (le « − » de tête reste un signe, posé DEVANT la
+flèche et non dessous), la partie 2
+en deux étapes, le retour arrière, et aucune case vide de chaîne ne rougit.
+
+## {point-somme-vecteurs} — construire un point avec une somme de vecteurs (8.14, v496)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice
+comme l'exercice 2 du pdf, l'élève devra d'abord tracer les 2 vecteurs
+demandés, puis pourra les déplacer aux bons endroits comme dans le 8.7 et on
+finira par placer le point demandé ». La fiche (« Fiche 8 sur somme de
+vecteur », exercice 2) : cinq points A, B, C, D, E sur un quadrillage, et
+« construire A′ tel que AA′ = BC + BD », « B′ tel que BB′ = ED + EA »,
+« C′ tel que CC′ = AE + BD ». Ajouté en dernier, il ne renumérote rien. Écrit comme 8.9 en v491, il est devenu le 8.14 en v496 au fil de cinq fusions de `main`, où {chasles-trois-vecteurs} (8.9, v491), {chasles-simplifier} (8.10, v492), {somme-vecteurs-repere} (8.11, v493), {chasles-alignes} (8.12, v494) puis {chasles-sans-figure} (8.13, v495) avaient pris leur place le même jour — plusieurs sessions remplissaient le thème 8 de front, et chaque pull request verte arrivait derrière une autre. Ce dernier part d'une autre fiche (la « Fiche 10 », un repère où l'élève place d'abord les points) : les deux exercices sont voisins, pas doubles — ici les cinq points sont donnés, et le geste à apprendre est de recopier deux vecteurs de la figure.
+
+**Trois gestes, quatre réponses jugées chacune SEULE** (`cpsJuge`). ① Les
+deux vecteurs se TRACENT, deux clics chacun (le début, puis la fin ;
+recliquer le début seul le retire), le premier de la somme d'abord : la
+flèche porte son nom dès qu'elle est tracée, et une ligne sous le dessin
+(`#cpsEtape`) dit quelle flèche tracer ou quel point placer — un guide du
+geste, jamais un verdict. ② Elles GLISSENT comme au 8.7 (le moteur de
+`svcBrancher`, recopié pour son hôte : prise transparente, `touch-action`,
+appui immobile = clic au nœud, flèches du clavier) jusqu'à être bout à bout
+depuis le point donné, dans l'ordre qu'on veut. ③ Les deux tracées, un clic
+pose le point (le même nœud le retire, un autre le déplace), dont la lettre
+A′ s'écrit sur la cible. Les réponses : `cps-t1` et `cps-t2` (chaque flèche
+fait le chemin de son vecteur, où qu'elle soit), `cps-ch` (les deux partent
+bout à bout du point donné, quelles qu'elles soient), `cps-pt` (le point au
+nœud attendu). Barème 4 par question, quatre questions (`CPS_NB`,
+`dmNbQuestions`) : 16.
+
+**Le chaînage jamais tenté ne rougit pas.** Deux flèches tracées sur la
+figure et jamais déplacées, sans être déjà bout à bout depuis le point,
+font un chaînage VIDE (sol), pas faux : l'élève n'a rien fait de travers,
+il n'a rien fait. « Effacer mes flèches » efface les deux tracés pour les
+reprendre — sauf, en soutien, celui que la vérification a figé juste ; le
+point posé reste.
+
+**On range la figure, jamais la réponse** : `pts` (les cinq points), `m`
+(le point déplacé), `a` et `b` (les deux vecteurs, en indices de points),
+puis `d1`/`f1`/`p1`, `d2`/`f2`/`p2` (les deux clics de chaque tracé et le
+début déplacé) et `pt`. `cpsAttendu(q)` recalcule le point. Les deux formes
+de la fiche ALTERNENT : « mo », deux vecteurs de même origine (BC + BD),
+puis « qq », quatre lettres (AE + BD) ; le point déplacé n'est jamais une
+lettre de la somme. Le tirage (`cpsGen`) : cinq points à un carreau du bord,
+deux à deux à deux carreaux ; chaque chemin et la somme à deux carreaux au
+moins ; deux vecteurs jamais parallèles (la construction se voit) ; la
+construction depuis le point dans le quadrillage, dans les deux ordres ; le
+point attendu à deux carreaux de tout point nommé. Quadrillage de 14 × 9.
+
+**`svcFleche` sert les deux exercices** — et la fusion y a rencontré le nom à une flèche par lettre du 8.7 (« u+v » écrit u⃗ + v⃗) : une lettre est un morceau du nom coupé aux « + », et un morceau de deux lettres (BC) reçoit une flèche de deux largeurs. Elle prend désormais `o.geo` (le
+quadrillage de l'appelant) et ne pose ses suffixes `-o`, `-t`, `-f` que sur
+la PREMIÈRE classe — une flèche nommée en pointillés (`svc-s svc-copie`)
+aurait sinon posé la classe `svc-s` sur son nom, et un trait vert de 2,6 px
+autour des lettres. Le 8.7 n'en voit rien : il ne nommait jamais une flèche
+à deux classes.
+
+**La correction** : flèche juste en bleu, fausse en rouge ; en vert ce qui
+manque — la flèche juste de chaque vecteur manqué, posée sur ses deux
+lettres ; la construction depuis le point (le premier vecteur en trait
+plein, le second en pointillés) si le chaînage n'y était pas ; le point
+attendu avec sa lettre. Les pièges nommés (`cpsPourquoi`) : une flèche à
+l'envers, une flèche de travers (avec son chemin en carreaux), les deux
+débuts sur le point, une construction qui ne part pas du point, deux
+flèches qui ne se touchent pas, un point qui n'est pas au bout. En soutien :
+le faux rougit, le juste se fige, rien ne se révèle ; le chaînage ne se fige
+que sur deux flèches justes — figé sur une fausse, il empêcherait de la
+retracer.
+
+**Le juge** (`tests/verifier.js`, « point par une somme de vecteurs ») : la
+place (8.14, le 8.7 à 8.13 immobiles, pas de bouton des tables), 200
+séances (quatre questions distinctes, barème 16, les clés rangées, les
+formes qui alternent, le point recalculé, tout dans le quadrillage, JSON),
+puis la figure de la fiche recadrée (A′ en (5 ; 2)) : l'énoncé, cinq croix,
+150 cibles, aucune flèche avant le tracé ; la copie vide (quatre sol, quatre
+traits verts, A′ en vert, « Il te manquait 4 cases ») ; la copie juste dans
+les deux ordres, la reprise après JSON, la flèche retenue au bord ; BD à
+l'envers et deux débuts sur A avec A′ juste (ok, bad, bad, ok — le point
+juste ne rougit pas) ; les flèches jamais déplacées avec A′ faux (ok, ok,
+sol, bad) ; le soutien (rien ne se révèle, la flèche juste se fige,
+« Effacer » garde la figée) et le contexte du modèle. **Le banc navigateur**
+(« 6 quadragies sexies ») trace BC à la souris (un clic à un cinquième
+de maille), trace BD depuis B SOUS la prise de BC, fait glisser les deux
+flèches bout à bout depuis A, pose A′ sous la pointe de BD et lit sa
+lettre, puis corrige une copie vide (quatre traits verts, rien de rouge).
+Le doigt sur tablette, lui, ne se joue dans aucun banc.
+
+## {point-somme-difference} — construire un point par une somme ou une différence de deux vecteurs (8.15, v498)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
 l'exercice 1 du pdf, en déplaçant les vecteurs comme dans le 8.7 ». La
@@ -1410,74 +1536,17 @@ là, des vecteurs tracés entre des points d'un repère, et seulement des
 SOMMES ; ici, deux vecteurs libres, et des DIFFÉRENCES et des opposés — d'où
 le geste de retourner une flèche.
 
-**Le geste du 8.7, plus un : RETOURNER.** L'élève fait glisser u⃗ et v⃗
-exactement comme au 8.7 (prises larges, accrochage aux nœuds, flèche retenue
-au bord, flèches du clavier ; `cvpBrancher` est la recopie de `svcBrancher`
-sur les identifiants de l'écran). Quand l'égalité porte un signe −, il
-retourne la flèche d'un bouton (« ⇄ Retourner u⃗ / v⃗ ») : elle reste sur son
-segment, son début passe à son ancienne fin, son nom devient −u⃗ (la flèche
-ne coiffe que la lettre, `cvpNom`). Deux retournements la rendent telle
-quelle. Puis il clique le nœud du point construit, qui porte « B′ » comme au
-8.5. Le point donné est une croix et sa lettre ; la lettre se pose dans la
-diagonale la plus loin des flèches qui le touchent (`cvpLettre`), et aucun
-mot « début » ne s'écrit sur lui.
-
-**Deux réponses, jugées chacune SEULE** : `cvp-ch`, la construction — les
-deux flèches dans le sens que l'égalité demande, la première partant du point,
-le début de la seconde sur la fin de la première, dans l'ordre qu'on veut
-(`cvpChaine`) — et `cvp-pt`, le nœud de B′, où que soient restées les
-flèches. Un B′ juste ne rougit pas parce que la construction est fausse.
-Barème 2 par question, six questions (`CVP_NB`, `dmNbQuestions`), 12 points.
-Rien ne dit juste ou faux avant « Vérifier » (`soutienEnDirect.sans`, kind
-« cvp »).
-
-**On range la figure et les gestes, jamais la réponse** : `l` la lettre, `ex`
-l'égalité (`pp` u + v, `pm` u − v, `mp` −u + v, `mm` −u − v), `po` le point,
-`uo`/`uc` et `vo`/`vc` les flèches au tirage ; `up`/`vp` les débuts déplacés,
-`ur`/`vr` les retournements, `sel` le nœud posé. `cvpPoint(q)` recalcule B′.
-
-**Le tirage suit la fiche, puis varie** : A avec u + v, B avec u − v, C avec
-−u − v, puis l'égalité tirée parmi quatre et la lettre parmi seize. u⃗ et v⃗
-jamais parallèles, chaque chemin et le résultat à deux carreaux au moins ; le
-point, B′ et les extrémités dessinées à un carreau du bord ; le premier
-vecteur depuis le point tient dans le quadrillage (la correction s'y trace) ;
-les flèches loin l'une de l'autre, loin du point et de B′, et la construction
-attendue loin d'elles — rien n'est construit d'avance.
-
-**Les pièges sont nommés** (`cvpPourquoi`) : le signe oublié (« L'égalité
-demande −v : retourne la flèche v — soustraire v, c'est ajouter son
-opposé »), une flèche retournée à tort, une construction qui ne part pas du
-point, deux débuts ou deux fins ensemble, deux flèches qui ne se touchent pas,
-B′ posé ailleurs qu'au bout de la seconde flèche ; tout message faux finit
-par la décomposition (« BB′ = u − v = u + (−v) : on enchaîne u puis −v à
-partir de B ») et le chemin de B à B′. Correction finale : construction
-attendue en VERT depuis le point (−u⃗, −v⃗ nommés), dans l'ordre que l'élève
-avait commencé s'il tient ; B′ attendu en vert ; une consigne vide devient
-`sol`. En soutien : le faux rougit, le juste se fige (flèches et boutons, ou
-le quadrillage), rien ne se révèle.
-
-**Le juge** (`tests/verifier.js`, « point par une somme de vecteurs ») : la
-place (8.14, le 8.11 immobile), 200 séances (six questions distinctes, barème
-12, les trois premières celles de la fiche, les quatre égalités tirées
-ensuite, la question ne range que la figure et les gestes, B′ relu par une
-seconde écriture, tout à un carreau du bord, jamais parallèles, rien de
-construit, JSON), puis une figure choisie (BB′ = u − v, B′ en (4 ; 2)) :
-l'énoncé et le dessin, la copie vide (sol, construction verte « u, −v », B′
-vert), retourner deux fois, la copie juste dans les deux ordres et à la
-reprise, le signe oublié, la construction juste et B′ faux (1 point), la
-construction hors de B et B′ juste (1 point), u retourné à tort, le soutien et
-le contexte du modèle. **Le banc navigateur** (« 6 quadragies sexies »)
-retourne v⃗ au bouton, fait glisser u⃗ jusqu'à B puis −v⃗ au bout de u⃗ à la
-souris, pose B′ d'un clic à travers la prise de −v⃗, puis joue le signe
-oublié (rouge, construction verte, aucun point). Le doigt sur tablette ne se
-joue dans aucun banc.
-
-**La première capture a montré deux chevauchements que le banc ne voyait
-pas.** À la jonction de u⃗ et de −v⃗ posés bout à bout, les deux noms tombaient
-l'un sur l'autre : chaque nom passe désormais du côté de son trait le plus
-loin de l'AUTRE flèche (`cvpNom`, argument `loin`), dans la construction de
-l'élève comme dans la correction verte. Et la pointe de la seconde flèche
-couvrait l'étiquette « B′ », posée en haut à droite du nœud comme au 8.5 ;
-retournée, elle tombait sur le mot « fin », qui prolonge la flèche. Elle se
-pose donc DE CÔTÉ, dans la diagonale la plus perpendiculaire aux flèches qui
-arrivent au nœud (`cvpEtiquetteNoeud`), recalculée à chaque glisser.
+**Écrit comme 8.9 en v491, publié 8.15 en v498**, au fil de trois fusions de
+`main` : les 8.9 à 8.14 avaient été pris le même jour par d'autres sessions.
+La dernière fusion a montré une COLLISION d'identité, pas seulement de numéro :
+le 8.14 venait d'être publié sous l'identifiant `point-somme-vecteurs` — celui
+que portait cet exercice — et sous le profil de banc `pointSommeVecteurs`. Le
+8.14 fait l'exercice 2 de la MÊME fiche (cinq points donnés, AA′ = BC + BD,
+deux vecteurs à tracer puis à faire glisser) ; celui-ci fait l'exercice 1
+(u⃗ et v⃗ libres, sommes, différences et opposés). Ils sont voisins, pas
+doubles. Celui-ci a donc changé d'identifiant (`point-somme-difference`), de
+profil (`pointSommeDifference`), de section de banc navigateur (« 6
+quadragies septies ») et de titre (« Construire un point : somme ou
+différence de deux vecteurs ») : deux noms de menu presque identiques
+auraient fait choisir l'un pour l'autre. Le kind `cvp` et les fonctions
+`cvp…` n'entraient en collision avec rien (le 8.14 est `cps`).
