@@ -1144,7 +1144,63 @@ HE + OG + OF (seul OG rouge, badge EO, « part de E »), FH (« sens »),
 OF + EO recopié (« ordre », du 8.8), la case vide (correction EO), la copie
 vide, le soutien, le barème, `qId`, le contexte du modèle.
 
-## {chasles-alignes} — la relation de Chasles sur une droite (8.10, v492)
+## {chasles-simplifier} — écrire plus simplement une somme de vecteurs (8.10, v492)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
+le 8.8 mais avec le pdf joint » — une seconde fiche, le jour même où
+l'EFGH de centre O devenait le 8.9 : les deux exercices cohabitent, celui-ci
+en 8.10. La fiche : « ACKI est un rectangle. B, G, J
+et E sont les milieux respectifs de [AC], [CK], [KI] et [IA]. » — le
+rectangle, ses deux diagonales (centre F), la médiane [EG], et [BG], [EJ],
+qui coupent la diagonale [IC] en D et H (milieux de [FC] et [IF]). Puis
+« Écrire plus simplement les vecteurs suivants » : EH + HF = … ;
+AE + FG = AE + … = … ; EH + IE, FC + BG, EF + EF, EI − JI = … + … = … ;
+AC + AI = AC + … = … ; AF − FK = … + … = … + … = … ; EA − BA − CB − GC =
+… + … + … = ….
+
+**Un moteur à part, pas celui du 8.8.** Les lignes du 8.8 ont deux vecteurs
+et une étape ; ici une ligne en a jusqu'à quatre, des signes, et parfois
+deux étapes (AF − FK : l'opposé d'abord, AF + KF, puis un vecteur égal,
+AF + FA). Une ligne se range comme ses termes (`v`), ses signes (`s`) et sa
+forme (`f` ∈ r, u, c, z, q) ; la forme donne les ÉTAPES (`CSP_ETAPES`), des
+emplacements « case » ou « premier vecteur gardé ». **Une étape est juste
+quand ses vecteurs sont, dans un ordre quelconque, égaux aux termes (l'opposé
+d'un terme soustrait) ; la dernière doit en plus s'enchaîner.** Le résultat
+est juste dès qu'il vaut la somme ; la somme nulle s'écrit AA (n'importe quel
+point répété) ou 0.
+
+**La dernière ligne de la fiche n'avait que TROIS cases pour quatre
+vecteurs** : l'écran en pose quatre (EA + AB + BC + CG = EG), une par
+vecteur réécrit — c'est l'écart assumé avec le papier.
+
+**Une case juste ne rougit pas pour sa voisine** : `cspRemplit` énumère
+toutes les écritures justes d'une étape ; une case est juste s'il en existe
+une qui la porte avec les cases justes avant elle. La correction prend,
+parmi celles qui gardent les cases justes, la plus lisible : des vecteurs
+portés par les traits du dessin, puis les lettres de l'énoncé (FC + BG se
+corrige AF + FC, pas EB + BG, que rien ne trace).
+
+**La première figure est la fiche** (`CSP_FICHE`) ; les suivantes tirent une
+image affine — rectangle, carré, parallélogramme : mêmes milieux, mêmes
+égalités —, son retournement, onze lettres (ni O, ni I, ni W à Z) et neuf
+lignes du plan de la fiche (`CSP_PLAN` : déjà enchaînés, remplacer,
+retourner, remplacer, remplacer, le même deux fois, soustraire, la somme
+nulle, un chemin de quatre traits), chacune lisible sur les traits
+(`cspPosable`). 27 cases par figure, `CSP_NB` = 2.
+
+**Le juge** (`tests/verifier.js`, « écrire plus simplement une somme de
+vecteurs ») : la place (8.10, pas de bouton des tables), la fiche du PDF
+ligne à ligne, 150 séances dont chaque correction est relue par un juge
+indépendant (appariement des vecteurs aux termes, enchaînement, somme), les
+milieux qui restent des milieux, chaque forme tirée ; puis le bouton sur la
+fiche : 27 cases, onze lettres, neuf traits, la copie juste, d'autres
+écritures justes (FG pour EH + HF, IF + FK = IK, le nul écrit 0, AC pour
+EG), le piège EI + JI (« opposé IJ »), FE (« sens »), FG recopié dans
+AE + FG (« part de E »), EH + IE dans le même ordre (« ordre »), AF + BG
+(AF bleu, BG rouge, badge FC), AK pour la somme nulle (« nul »), la case
+vide, la copie vide, le soutien, le barème, `qId`, le contexte du modèle.
+
+## {chasles-alignes} — la relation de Chasles sur une droite (8.11, v493)
 
 **La demande** (Turquet, octobre 2026, le même jour que le 8.9 et avec la même phrase, mais une AUTRE fiche) : « en seconde fais un exercice comme
 le 8.8 mais avec le pdf joint ». La fiche : « A, B, C et D sont quatre points
@@ -1189,7 +1245,7 @@ prend toute la largeur au-dessus des lignes (`.cha-fig`) : la droite est
 longue et basse, posée à gauche elle écrasait les lignes.
 
 **Le banc** (`tests/verifier.js`, « Chasles sur une droite ») : la place
-(8.10, pas de bouton des tables), 300 séances dont chaque correction est relue
+(8.11, pas de bouton des tables), 300 séances dont chaque correction est relue
 par un juge INDÉPENDANT écrit depuis les abscisses 0, 1, 2, 3, le plan, les
 sommes nulles où le plan les veut, la ligne de trois vecteurs tantôt nulle
 tantôt non ; puis le bouton sur la fiche : 19 cases, quatre lettres, trois
