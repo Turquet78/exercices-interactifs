@@ -176,3 +176,15 @@ la page refuse tant qu'il n'est pas écrit à la suite de la somme — se décla
 rougit. **Le prix est nommé** : l'élève qui reprend une question corrigée ne
 revoit pas sa correction — le message le lui dit, et la question est rangée
 dans ses réponses.
+**Éprouvé par trois sabotages** : le brouillon privé de son verrou (« la
+question rouverte s'est rejugée », trois exercices sur cinq — sans point de
+plus, cette fois, puisque `captureBoxes` ne rend plus les corrections) ; le
+message de reprise retiré (« 4 reprise(s) sans le message ») ; et la pause qui
+ne ferme plus l'enregistrement automatique — invisible sur cinq exercices,
+rouge sur la Terminale entière : seize exercices insèrent un second brouillon
+après le retour au menu, et quatorze restent sur la question corrigée au lieu
+de passer à la suite. Une course ne se montre pas sur un échantillon ; elle se
+montre sur tout le menu. Et la clé du profil s'appelle `pauseReprise` : la clé
+`pause` servait déjà les bancs principal et navigateur, et l'écrire une seconde
+fois l'aurait écrasée en silence (journal 17) — la lecture du profil l'a montré
+avant `npm test`.
