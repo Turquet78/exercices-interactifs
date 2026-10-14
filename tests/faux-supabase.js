@@ -48,6 +48,14 @@ window.__faux = {
      « Aucun compte » à toute la classe. Une fois connecté, la table se lit
      comme avant : la page y relit SA ligne. */
   listeFermee: false,
+  /* Poser window.__faux.listeRefusee = true fait REFUSER tout select sur une
+     table d'élèves tant qu'aucune session n'est ouverte — l'erreur 42501
+     (« permission denied for table … ») que PostgREST rend quand le DROIT de
+     lecture a été retiré à anon : le durcissement que la 009 proposait
+     (« revoke select … from anon »), appliqué à la main. C'est l'état B' :
+     une ERREUR, pas une liste vide — la page doit la lire comme une liste
+     fermée, pas comme une page mal configurée. */
+  listeRefusee: false,
   /* Poser window.__faux.cadence = true fait répondre 429 à toute connexion :
      la limitation de cadence de Supabase, le seul rempart devant les codes à
      six chiffres — une classe entière derrière l'adresse de l'établissement
@@ -172,6 +180,10 @@ window.supabase = {
            et aucune erreur — c'est ce silence que la page doit savoir lire. */
         const fermee = F.listeFermee && !F.session
           && ['eleves', 'eleves_1ere', 'eleves_2nde'].indexOf(nom) >= 0;
+        if(F.listeRefusee && !F.session && ['eleves', 'eleves_1ere', 'eleves_2nde'].indexOf(nom) >= 0){
+          F.journal.push({ op: 'select', table: nom, n: 0, colonnes: etat.colonnes ? etat.colonnes.join(',') : '*', refusee: true });
+          return { data: null, error: { code: '42501', message: 'permission denied for table ' + nom } };
+        }
         /* Le vrai PostgREST ne rend que les colonnes demandées. Le double le
            fait aussi, sans quoi un select('id,prenom') et un select('*')
            seraient indiscernables au banc — et la fuite des codes n'aurait

@@ -5535,7 +5535,12 @@ async function renderLoginNames(){
   $('loginPrenom').value=''; $('loginPin').value='';
   const box=$('nameChips'); box.innerHTML='<span class="muted">Chargement…</span>';
   try{
-    const {data,error}=await sb.from('eleves').select('id,prenom,cle').order('prenom');
+    let {data,error}=await sb.from('eleves').select('id,prenom,cle').order('prenom');
+    /* Une liste REFUSÉE (42501 : le droit de lecture retiré à anon, le
+       durcissement que proposait la 009) est une liste fermée, pas une page
+       mal configurée : elle passe par le même sondage. Toute autre erreur
+       reste une erreur. */
+    if(error&&error.code==='42501'){ try{ console.warn('liste des prénoms :', error.code, error.message); }catch(e){} data=[]; error=null; }
     if(error)throw error;
     if(!data.length){
       const {error:sonde}=await sb.rpc('cles_de_connexion',{niveau:NIVEAU,prenom:''});
@@ -5590,7 +5595,7 @@ function normaliserPrenom(s){ return String(s||'').normalize('NFD').replace(/[\u
    quelle erreur relirait la liste entière à chaque incident et, en B, où la
    liste fermée ne rend rien, répondrait « Prénom inconnu » à tout le monde
    au lieu de dire que la fonction est en panne. */
-async function clesDuPrenom(prenom){
+async function clesDuPrenom(prenom,avecLignesSansCle){
   const voulu=normaliserPrenom(prenom);
   if(!voulu) return {data:[],error:null};
   const {data,error}=await sb.rpc('cles_de_connexion',{niveau:NIVEAU,prenom});
@@ -5604,7 +5609,11 @@ async function clesDuPrenom(prenom){
   }
   const {data:liste,error:errListe}=await sb.from('eleves').select('cle,prenom');
   if(errListe) return {data:null,error:errListe};
-  return {data:(liste||[]).filter(e=>e.cle!=null&&e.cle!==''&&normaliserPrenom(e.prenom)===voulu).map(e=>String(e.cle)).sort().slice(0,5),error:null};
+  /* Pour SE CONNECTER, une clé vide n'ouvre rien : écartée, comme le fait la
+     fonction de la 009. Pour REFUSER UN DOUBLON (avecLignesSansCle), la ligne
+     compte quand même : un élève non relié qui « recrée » son compte en
+     ferait une seconde ligne, ses notes restées sur la première. */
+  return {data:(liste||[]).filter(e=>(avecLignesSansCle||(e.cle!=null&&e.cle!==''))&&normaliserPrenom(e.prenom)===voulu).map(e=>String(e.cle)).sort().slice(0,5),error:null};
 }
 /* Deux chemins mènent aux clés, puis la MÊME boucle les essaie :
      - la PASTILLE cliquée, le chemin normal (états A et C) : la ligne lue dans
@@ -5627,9 +5636,18 @@ async function connexionEleve(){
      liste est déjà lue. */
   let cles=choisi?[choisi.cle].concat(listeEleves.filter(e=>e!==choisi&&normaliserPrenom(e.prenom)===normaliserPrenom(choisi.prenom)).map(e=>e.cle))
                     .filter(c=>c!=null&&c!=='').map(String):null;
-  /* Une ligne SANS clé (élève ajouté à la main dans la table, jamais relié à
-     un compte) n'a pas d'adresse de connexion : tenter « null@… » répondrait
-     « Code incorrect » quel que soit le code, ce qui est faux. */
+  /* Une pastille SANS clé (élève ajouté à la main dans la table, jamais relié
+     à un compte) n'a pas d'adresse de connexion. Mais la liste a pu être lue
+     AVANT que le professeur ne la relie — « Nouveau code » pose la clé : sa
+     ligne se RELIT, une seule, au moment de valider. Toujours sans clé et
+     sans homonyme : tenter « null@… » répondrait « Code incorrect » quel que
+     soit le code, ce qui est faux — la page dit ce qui manque. */
+  let sansCle=!!choisi&&(choisi.cle==null||choisi.cle==='');
+  if(sansCle){
+    const {data:frais,error:errFrais}=await sb.from('eleves').select('cle').eq('id',choisi.id).maybeSingle();
+    if(errFrais){ try{ console.warn('relecture de la pastille :', errFrais.code, errFrais.message); }catch(e){} toast('Connexion impossible — réessaie','err'); return; }
+    if(frais&&frais.cle!=null&&frais.cle!==''){ choisi.cle=frais.cle; cles.unshift(String(frais.cle)); sansCle=false; }
+  }
   if(choisi&&!cles.length){ toast('Ton compte n\'est pas encore relié — préviens ton professeur','err'); return; }
   if(!cles){
     const {data,error}=await clesDuPrenom(prenom);
@@ -5676,7 +5694,11 @@ async function connexionEleve(){
     }
     currentEleve=ligne; await ouvrirEspace(); return;
   }
-  toast('Code incorrect','err'); $('loginPin').value=''; $('loginPin').focus();
+  /* Une pastille sans clé dont un HOMONYME est relié : seules les clés de
+     l'homonyme ont été essayées. Le code était peut-être juste — celui d'un
+     compte que personne n'a encore relié : « Code incorrect » seul mentirait. */
+  toast(sansCle?'Code incorrect — ou ton compte n\'est pas encore relié : préviens ton professeur':'Code incorrect','err');
+  $('loginPin').value=''; $('loginPin').focus();
 }
 /* Un code donne par le professeur est tire au hasard : il ne se retient pas.
    L'eleve doit pouvoir le remplacer par le sien. Aucune fonction Edge ici —
@@ -5753,9 +5775,12 @@ async function creerCompte(){
        ilike('prenom') ne voyait pas l'accent ; et en B, où la liste fermée
        rend zéro ligne à un visiteur, il ne verrait PERSONNE : chaque élève
        recréerait son compte en double. */
-    const {data:exist,error:errExist}=await clesDuPrenom(prenom);
+    const {data:exist,error:errExist}=await clesDuPrenom(prenom,true);
     if(errExist){ toast('Vérification du prénom impossible — réessaie','err'); return; }
-    if(exist.length){ toast('Ce prénom existe déjà — connecte-toi','err'); return; }
+    /* « connecte-toi » : la liste se RELIT et l'écran revient à la connexion
+       — un compte créé ailleurs depuis l'ouverture de la page n'avait pas
+       encore sa pastille, et l'élève tournerait en rond. */
+    if(exist.length){ toast('Ce prénom existe déjà — connecte-toi','err'); await renderLoginNames(); return; }
     /* On tire une CLÉ, pas un identifiant de ligne : « id » n'a pas le même
        type d'un niveau à l'autre — uuid ici, bigint en Première — et y écrire
        un uuid cassait la création de compte là-bas. La base produit « id »

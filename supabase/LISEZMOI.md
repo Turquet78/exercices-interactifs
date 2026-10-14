@@ -675,7 +675,10 @@ combinaison connecte :
 
 Et la **création de compte** refuse un prénom déjà pris — sans accent ni
 majuscule — dans les trois cas : par la fonction si elle existe, par la liste
-sinon. Aucun élève ne se crée un second compte pendant la transition.
+sinon. Aucun élève ne se crée un second compte pendant la transition. Une
+limite, nommée : tant que la 009 est jouée et pas la 010, la fonction ne voit
+pas une ligne **sans clé** (élève jamais relié) — le doublon d'un tel prénom
+n'y est pas refusé ; dès la 010 jouée, la liste le voit.
 
 ### Ce qu'elle pose
 
@@ -684,6 +687,13 @@ sinon. Aucun élève ne se crée un second compte pendant la transition.
   using (true)`. Le nom ne change pas, seul `anon` revient. Remplacée, pas
   doublée : deux politiques permissives se combinent par un OU (la leçon de
   la 002).
+- Le **droit de lire** `id`, `prenom` et `cle` est rendu à `anon` sur ces
+  trois tables. La 3 nonies proposait un durcissement « possible, non fait » :
+  `revoke select … from anon`. S'il a été appliqué, la politique ne suffit
+  pas — la page recevrait « permission denied » au lieu de la liste. Rendu sur
+  ces trois colonnes et sur elles seules : `created_at` et `user_id` restent
+  fermés à un visiteur si le droit de table avait été retiré. S'il ne l'a pas
+  été, ce `grant` ne change rien.
 - Les deux fonctions de la 009, **`cles_de_connexion`** et
   **`normaliser_prenom`**, sont **supprimées**. Elles ne servaient qu'à
   l'écran du prénom tapé — et leur **absence** est un signal que les pages
@@ -729,7 +739,11 @@ prise en connaissance de ce prix.
   aussi de lui-même, mais pas à la seconde. **Attendez, ne rejouez rien.** Les
   pastilles, elles, ne passent pas par la fonction.
 - **Si la 009 est rejouée par erreur après la 010**, la liste se referme et le
-  champ « Ton prénom » revient — la connexion marche encore ; recollez la 010.
+  champ « Ton prénom » revient — la connexion marche encore. **Sauf dans la
+  minute qui suit** : tant que PostgREST n'a pas appris la fonction recréée,
+  la page affiche « Aucun compte pour l'instant », et la création de compte ne
+  voit plus les prénoms pris. Recollez la 010 aussitôt, et que personne ne
+  crée de compte pendant ce temps.
 - **Deux élèves du même prénom** ont deux pastilles pareilles : l'un ou l'autre
   peut cliquer n'importe laquelle, c'est **le code qui départage**.
 - **Une ligne ajoutée à la main dans la table, sans clé**, a sa pastille, mais

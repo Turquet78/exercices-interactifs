@@ -666,6 +666,20 @@ async function parcours(page, N){
     const appels = j => j.filter(e => e.op === 'rpc' && e.table === 'cles_de_connexion');
     const listesLues = j => j.filter(e => e.op === 'select' && e.table === P.tableEleves && e.colonnes === 'cle,prenom');
 
+    /* le code du second « Contrôle » des contrôles d'homonymes (pastilles,
+       puis prénom tapé en état B) */
+    const CODE_BIS = '456789123'.slice(0, CODE_CONTROLE.length);
+
+    /* ===== LE CHEMIN DES PASTILLES SE JOUE SANS LA FONCTION (sansRpc) =====
+       La liste se lit ET cles_de_connexion répond : c'est l'état par défaut
+       du double, et AUCUN état réel ne le connaît — en A et en C la fonction
+       n'existe pas, en B la liste est fermée. Une page qui irait chercher les
+       homonymes par la fonction passerait au banc et tomberait sur PGRST202
+       en classe. Tout ce bloc joue donc le vrai état A/C : chaque rpc y rend
+       PGRST202, et les contrôles qui le peuvent exigent qu'aucun n'ait été
+       fait. Remis dans un finally, avant l'état B. */
+    await s.page.evaluate(() => { window.__faux.sansRpc = true; });
+    try{
     /* D'abord avec un mauvais code. L'ancienne version refusait aussi les
        mauvais codes — elle les comparait dans la page. Ce qui change, et que ce
        contrôle regarde, c'est QUI refuse : le serveur, ou une ligne de
@@ -690,9 +704,6 @@ async function parcours(page, N){
        un écran qui connecterait toujours la première pastille ne passerait
        plus. Le code reste caché jusqu'au clic, puis reçoit le focus ; le
        champ « Ton prénom » du repli reste caché. */
-    /* le code du second « Contrôle » des contrôles d'homonymes (pastilles,
-       puis prénom tapé en état B) */
-    const CODE_BIS = '456789123'.slice(0, CODE_CONTROLE.length);
     await s.page.evaluate(t => {
       window.__faux.lignes(t).push({ id: 'eleve-anais', prenom: 'Anaïs', cle: 'cle-anais', user_id: 'compte-anais' });
     }, P.tableEleves);
@@ -734,24 +745,33 @@ async function parcours(page, N){
     }
 
     /* DEUX HOMONYMES SUR LES PASTILLES : deux « Contrôle », deux pastilles
-       pareilles, et l'élève clique la PREMIÈRE — peut-être celle de son
-       voisin. C'est le code qui départage, comme dans le repli : la page
-       essaie la clé de la pastille cliquée, puis celles du même prénom, déjà
-       lues avec la liste. Le banc tape le code de l'AUTRE homonyme : une page
-       qui n'essaierait que la pastille cliquée dirait « Code incorrect » à un
-       code juste. Quelle pastille vient en tête n'est pas supposé : la clé de
-       la pastille cliquée est lue, et le code choisi en conséquence. */
+       pareilles, et l'élève clique celle de son voisin. C'est le code qui
+       départage, comme dans le repli : la page essaie la clé de la pastille
+       CLIQUÉE, puis celles du même prénom, déjà lues avec la liste. Le banc
+       clique la SECONDE pastille et tape le code de l'AUTRE homonyme : une
+       page qui n'essaierait que la pastille cliquée dirait « Code incorrect »
+       à un code juste ; une page qui suivrait l'ordre de la liste au lieu du
+       clic entrerait du premier coup — la pastille cliquée doit donc ne PAS
+       être la tête de liste, sans quoi les deux ne se distinguent pas, et le
+       contrôle le dit. Aucun appel à la fonction : elle n'existe pas ici. */
     {
       const r0 = await repere();
-      let premiere, attendue, apres, cle, t;
+      let nPareilles = 0, premiere, tete, attendue, apres, cle, t, j;
       await s.page.evaluate(a => {
         window.__faux.lignes(a.t).push({ id: 'eleve-bis', prenom: a.p, cle: 'cle-controle-bis', user_id: 'compte-bis' });
         window.__faux.semerCompte(courrielDe('cle-controle-bis'), motDePasseDe(a.c), 'compte-bis');
       }, { t: P.tableEleves, p: PRENOM_CONTROLE, c: CODE_BIS });
       try{
         await sortir();
-        if(await cliquerPastille(s.page, PRENOM_CONTROLE, 3000)){
-          premiere = await s.page.evaluate(() => selectedEleve && selectedEleve.cle);
+        const pareilles = s.page.locator('#nameChips .chip', { hasText: new RegExp('^\\s*' + PRENOM_CONTROLE + '\\s*$') });
+        await pareilles.nth(1).waitFor({ timeout: 3000 }).catch(() => {});
+        nPareilles = await pareilles.count();
+        if(nPareilles === 2){
+          await pareilles.nth(1).click();
+          await s.page.waitForTimeout(150);
+          const lu = await s.page.evaluate(p => ({ choisie: selectedEleve && selectedEleve.cle,
+            tete: (listeEleves.find(e => e.prenom === p) || {}).cle }), PRENOM_CONTROLE);
+          premiere = lu.choisie; tete = lu.tete;
           attendue = premiere === 'cle-controle' ? 'cle-controle-bis' : 'cle-controle';
           if((await ecranConnexion()).code){
             await s.page.fill('#loginPin', attendue === 'cle-controle-bis' ? CODE_BIS : CODE_CONTROLE);
@@ -761,15 +781,20 @@ async function parcours(page, N){
             cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
           }
         }
-        t = essais(await depuis(r0)).map(e => (e.ok ? 'ok:' : 'refus:') + e.courriel);
+        j = await depuis(r0);
+        t = essais(j).map(e => (e.ok ? 'ok:' : 'refus:') + e.courriel);
       } finally {
         await sortir();
         await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.cle === 'cle-controle-bis'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
         await sortir();
       }
       verifier('deux homonymes sur les pastilles : la pastille cliquée d\'abord, puis son homonyme, et c\'est le code qui départage',
-        !!premiere && apres === 'scr-space' && cle === attendue && t.length === 2 && /^refus:/.test(t[0]) && /^ok:/.test(t[1]),
-        !premiere ? 'aucune pastille « ' + PRENOM_CONTROLE + ' » à cliquer, ou aucune ligne choisie au clic'
+        nPareilles === 2 && !!premiere && premiere !== tete && apres === 'scr-space' && cle === attendue && t.length === 2
+          && t[0].indexOf('refus:' + premiere + '@') === 0 && t[1].indexOf('ok:' + attendue + '@') === 0 && appels(j).length === 0,
+        nPareilles !== 2 ? nPareilles + ' pastille(s) « ' + PRENOM_CONTROLE + ' » au lieu de deux'
+          : !premiere ? 'aucune ligne choisie au clic'
+          : premiere === tete ? 'la pastille cliquée est la tête de liste : l\'ordre de la liste et la pastille cliquée ne se distinguent pas, le contrôle ne mesure rien'
+          : appels(j).length ? appels(j).length + ' appel(s) à cles_de_connexion sur le chemin des pastilles : la fonction n\'existe pas dans les états A et C'
           : apres === undefined ? 'la case du code reste cachée après le clic'
           : apres !== 'scr-space' ? 'écran atteint : ' + apres + ' — tentatives : ' + (t.join(', ') || 'aucune')
           : cle !== attendue ? 'entré sous la clé « ' + cle + ' » au lieu de « ' + attendue + ' »'
@@ -809,6 +834,164 @@ async function parcours(page, N){
           : apres !== 'scr-login' ? 'écran atteint : ' + apres
           : essais(j).length ? essais(j).length + ' connexion(s) tentée(s) : ' + JSON.stringify(essais(j).map(e => e.courriel))
           : 'message : ' + JSON.stringify(toastS));
+    }
+
+    /* UNE PASTILLE LUE SANS CLÉ, RELIÉE DEPUIS : l'élève lit « pas encore
+       relié », va voir le professeur, qui clique « Nouveau code » — la clé
+       et le compte sont posés en base, mais l'écran de la tablette, lui, a
+       été dessiné AVANT. La page relit la ligne de la pastille au moment de
+       valider : le code donné doit ouvrir l'espace sans recharger la page. */
+    {
+      let clic, apres, cle;
+      await s.page.evaluate(t => {
+        window.__faux.lignes(t).push({ id: 'eleve-reliee', prenom: 'Zoé', cle: null, user_id: null });
+      }, P.tableEleves);
+      try{
+        await sortir();
+        await s.page.evaluate(a => {
+          const l = window.__faux.lignes(a.t).find(e => e.id === 'eleve-reliee');
+          l.cle = 'cle-reliee'; l.user_id = 'compte-reliee';
+          window.__faux.semerCompte(courrielDe('cle-reliee'), motDePasseDe(a.c), 'compte-reliee');
+        }, { t: P.tableEleves, c: CODE_CONTROLE });
+        clic = await cliquerPastille(s.page, 'Zoé', 3000);
+        if(clic && (await ecranConnexion()).code){
+          await s.page.fill('#loginPin', CODE_CONTROLE);
+          await s.page.click('#modeCo button.btn-primary');
+          await s.page.waitForTimeout(500);
+          apres = await ecranVisible(s.page);
+          cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
+        }
+      } finally {
+        await sortir();
+        await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.id === 'eleve-reliee'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
+        await sortir();
+      }
+      verifier('une pastille lue sans clé, reliée depuis par le professeur, connecte sans recharger la page',
+        clic && apres === 'scr-space' && cle === 'cle-reliee',
+        !clic ? 'aucune pastille « Zoé » à cliquer'
+          : apres === undefined ? 'la case du code reste cachée après le clic'
+          : apres !== 'scr-space' ? 'écran atteint : ' + apres + ' — la ligne n\'a pas été relue, la clé posée depuis est ignorée'
+          : 'entré sous la clé « ' + cle + ' »');
+    }
+
+    /* UNE PASTILLE SANS CLÉ DONT UN HOMONYME EST RELIÉ : deux « Contrôle »,
+       l'un jamais relié. L'élève non relié clique SA pastille : seule la clé
+       de l'homonyme existe, et elle refuse son code — « Code incorrect »
+       seul mentirait, le code était peut-être juste. Le message dit les deux.
+       Puis le BON code de l'homonyme, tapé sur la même pastille, entre : c'est
+       le code qui départage, même depuis une pastille sans clé. */
+    {
+      const r0 = await repere();
+      await viderToast();
+      let clic = false, apres1, toastH, t1, apres2, cle2;
+      await s.page.evaluate(a => {
+        window.__faux.lignes(a.t).push({ id: 'eleve-controle-sans-cle', prenom: a.p, cle: null, user_id: null });
+      }, { t: P.tableEleves, p: PRENOM_CONTROLE });
+      try{
+        await sortir();
+        const k = await s.page.evaluate(() => listeEleves.findIndex(e => e.id === 'eleve-controle-sans-cle'));
+        if(k >= 0){
+          await s.page.locator('#nameChips .chip').nth(k).click();
+          await s.page.waitForTimeout(150);
+          clic = await s.page.evaluate(() => !!selectedEleve && selectedEleve.id === 'eleve-controle-sans-cle');
+        }
+        if(clic && (await ecranConnexion()).code){
+          await s.page.fill('#loginPin', CODE_FAUX);
+          await s.page.click('#modeCo button.btn-primary');
+          await s.page.waitForTimeout(500);
+          apres1 = await ecranVisible(s.page); toastH = await lireToast();
+          t1 = essais(await depuis(r0)).map(e => (e.ok ? 'ok:' : 'refus:') + e.courriel);
+          await s.page.fill('#loginPin', CODE_CONTROLE);
+          await s.page.click('#modeCo button.btn-primary');
+          await s.page.waitForTimeout(500);
+          apres2 = await ecranVisible(s.page);
+          cle2 = await s.page.evaluate(() => currentEleve && currentEleve.cle);
+        }
+      } finally {
+        await sortir();
+        await s.page.evaluate(t => { const l = window.__faux.lignes(t); const i = l.findIndex(e => e.id === 'eleve-controle-sans-cle'); if(i >= 0) l.splice(i, 1); }, P.tableEleves);
+        await sortir();
+      }
+      verifier('une pastille sans clé dont l\'homonyme est relié : un code refusé dit aussi « pas encore relié », et le code de l\'homonyme entre',
+        clic && apres1 === 'scr-login' && !!toastH && /pas encore relié/.test(toastH.texte) && /Code incorrect/.test(toastH.texte)
+          && t1.length === 1 && t1[0].indexOf('refus:cle-controle@') === 0 && apres2 === 'scr-space' && cle2 === 'cle-controle',
+        !clic ? 'la pastille sans clé de « ' + PRENOM_CONTROLE + ' » n\'a pas pu être cliquée'
+          : apres1 === undefined ? 'la case du code reste cachée après le clic'
+          : apres1 !== 'scr-login' ? 'écran atteint avec un code faux : ' + apres1
+          : t1.length !== 1 || t1[0].indexOf('refus:cle-controle@') !== 0 ? 'tentatives : ' + (t1.join(', ') || 'aucune') + ' — attendu : la seule clé de l\'homonyme, refusée'
+          : !toastH || !/pas encore relié/.test(toastH.texte) || !/Code incorrect/.test(toastH.texte) ? 'message : ' + JSON.stringify(toastH)
+          : 'avec le code de l\'homonyme : écran ' + apres2 + ', clé « ' + cle2 + ' »');
+    }
+
+    /* LE DOUBLON D'UNE LIGNE SANS CLÉ : l'élève non relié lit « pas encore
+       relié » et passe par « Créer mon compte ». Sa ligne n'a pas de clé —
+       elle ne sert pas à SE CONNECTER, mais elle compte pour REFUSER UN
+       DOUBLON : sans quoi une seconde ligne naît sous le même prénom, et ses
+       notes restent sur la première. États A et C : par la liste. */
+    {
+      const garde = await s.page.evaluate(t => window.__faux.lignes(t).map(l => Object.assign({}, l)), P.tableEleves);
+      await s.page.evaluate(t => {
+        window.__faux.lignes(t).push({ id: 'eleve-sans-cle', prenom: 'Zélie', cle: null, user_id: null });
+      }, P.tableEleves);
+      const r0 = await repere();
+      let apres, toastZ, j;
+      try{
+        await sortir();
+        await s.page.click('#segCr');
+        await s.page.fill('#newPrenom', 'zelie');
+        await s.page.fill('#newPin', CODE_CONTROLE);
+        await s.page.fill('#newPin2', CODE_CONTROLE);
+        await viderToast();
+        await s.page.click('#modeCr button.btn-primary');
+        await s.page.waitForTimeout(500);
+        toastZ = await lireToast(); apres = await ecranVisible(s.page); j = await depuis(r0);
+      } finally {
+        await s.page.evaluate(a => { window.__faux.tables[a.t] = a.l; }, { t: P.tableEleves, l: garde });
+        await sortir();
+      }
+      const inscriptions = j.filter(e => e.op === 'signUp').length;
+      verifier('un prénom dont la ligne n\'a pas de clé ne crée pas de second compte (états A et C)',
+        inscriptions === 0 && apres === 'scr-login' && listesLues(j).length > 0 && !!toastZ && /existe déjà/.test(toastZ.texte),
+        inscriptions ? inscriptions + ' inscription(s) : une seconde ligne « Zélie » a été créée'
+          : apres !== 'scr-login' ? 'écran atteint : ' + apres
+          : !listesLues(j).length ? 'aucune lecture select(\'cle,prenom\') : le prénom n\'a pas été cherché dans la liste'
+          : 'message : ' + JSON.stringify(toastZ));
+    }
+
+    /* UN PRÉNOM PRIS AILLEURS DEPUIS L'OUVERTURE : Tom crée son compte sur
+       une autre tablette, puis passe sur celle-ci, dont la liste a été lue
+       AVANT — pas de pastille « Tom ». Il tente « Créer mon compte » : refusé,
+       « connecte-toi ». L'écran doit alors revenir à la connexion AVEC sa
+       pastille : sans relecture, il tournerait en rond entre deux onglets. */
+    {
+      const garde = await s.page.evaluate(t => window.__faux.lignes(t).map(l => Object.assign({}, l)), P.tableEleves);
+      let avant, apres, toastT, ecranT;
+      try{
+        await sortir();
+        await s.page.evaluate(t => {
+          window.__faux.lignes(t).push({ id: 'eleve-ailleurs', prenom: 'Tom', cle: 'cle-ailleurs', user_id: 'compte-ailleurs' });
+        }, P.tableEleves);
+        avant = await ecranConnexion();
+        await s.page.click('#segCr');
+        await s.page.fill('#newPrenom', 'tom');
+        await s.page.fill('#newPin', CODE_CONTROLE);
+        await s.page.fill('#newPin2', CODE_CONTROLE);
+        await viderToast();
+        await s.page.click('#modeCr button.btn-primary');
+        await s.page.waitForTimeout(600);
+        toastT = await lireToast(); apres = await ecranVisible(s.page); ecranT = await ecranConnexion();
+      } finally {
+        await s.page.evaluate(a => { window.__faux.tables[a.t] = a.l; }, { t: P.tableEleves, l: garde });
+        await sortir();
+      }
+      verifier('un prénom pris ailleurs depuis l\'ouverture : refusé à la création, et l\'écran revient à la connexion avec sa pastille',
+        avant.pastilles.indexOf('Tom') < 0 && apres === 'scr-login' && !!toastT && /existe déjà/.test(toastT.texte)
+          && ecranT.liste && ecranT.pastilles.indexOf('Tom') >= 0,
+        avant.pastilles.indexOf('Tom') >= 0 ? 'la pastille « Tom » était déjà là : le contrôle ne mesure rien'
+          : apres !== 'scr-login' ? 'écran atteint : ' + apres
+          : !toastT || !/existe déjà/.test(toastT.texte) ? 'message : ' + JSON.stringify(toastT)
+          : !ecranT.liste ? 'l\'écran reste sur « Créer mon compte » : la liste des pastilles n\'est pas visible'
+          : 'pastilles après le refus : ' + JSON.stringify(ecranT.pastilles) + ' — la liste n\'a pas été relue');
     }
 
     /* une erreur de CADENCE (429 — une classe entière derrière une seule
@@ -851,6 +1034,11 @@ async function parcours(page, N){
         apres !== 'scr-login' ? 'écran atteint : ' + apres
           : code !== CODE_CONTROLE ? 'le code a été effacé (« ' + code + ' »)'
           : 'message : ' + JSON.stringify(toastNC));
+      await sortir();
+    }
+
+    } finally {
+      await s.page.evaluate(() => { window.__faux.sansRpc = false; });
       await sortir();
     }
 
@@ -942,6 +1130,40 @@ async function parcours(page, N){
             : /Aucun compte/.test(ecranP.message) ? 'la page annonce « ' + ecranP.message + ' » sur une panne du sondage'
             : !ecranP.prenom ? 'aucun champ « Ton prénom » : « ' + (ecranP.message || 'rien') + ' »'
             : 'la case du code reste cachée');
+      }
+
+      /* L'ÉTAT B' : la liste REFUSÉE (42501). La 009 proposait un
+         durcissement « possible, non fait » — retirer à anon le droit de lire
+         la table. Appliqué à la main, il ne rend pas une liste vide mais une
+         ERREUR : la page qui la prendrait pour une panne de configuration
+         dirait « Connexion impossible » à toute la classe, alors que la
+         fonction de la 009 est là. Elle doit la lire comme une liste fermée,
+         sonder, et proposer le prénom tapé — par lequel l'élève entre. */
+      {
+        const r0 = await repere(), a0 = s.avertissements.length;
+        let ecranR, sondes, refus, apres;
+        await s.page.evaluate(() => { window.__faux.listeRefusee = true; });
+        try{
+          await sortir();
+          ecranR = await ecranConnexion();
+          const j = await depuis(r0);
+          sondes = appels(j);
+          refus = j.filter(e => e.op === 'select' && e.table === P.tableEleves && e.refusee).length;
+          apres = await entrerPrenom(PRENOM_CONTROLE, CODE_CONTROLE);
+        } finally {
+          await s.page.evaluate(() => { window.__faux.listeRefusee = false; });
+          await sortir();
+        }
+        const averti = s.avertissements.slice(a0).some(a => /liste des prénoms : 42501/.test(a));
+        verifier('liste refusée par un droit retiré à anon (42501) : la page sonde, propose le prénom tapé, et l\'élève entre',
+          refus > 0 && sondes.length > 0 && ecranR.prenom && ecranR.code && !/Connexion impossible/.test(ecranR.message)
+            && apres === 'scr-space' && averti,
+          !refus ? 'la liste n\'a pas été refusée : l\'interrupteur listeRefusee n\'a rien éprouvé'
+            : /Connexion impossible/.test(ecranR.message) ? 'la page annonce « ' + ecranR.message + ' » : le refus est pris pour une panne de configuration'
+            : !sondes.length ? 'la fonction n\'a pas été sondée : « ' + (ecranR.message || 'rien') + ' »'
+            : !ecranR.prenom || !ecranR.code ? 'aucun champ « Ton prénom » avec sa case du code : « ' + (ecranR.message || 'rien') + ' »'
+            : apres !== 'scr-space' ? 'écran atteint : ' + apres
+            : 'rien en console : « liste des prénoms : 42501 … » attendu');
       }
 
       /* un prénom que personne ne porte : il est CHERCHÉ (un appel à la

@@ -64,6 +64,9 @@
 --  La création de compte refuse un prénom déjà pris — sans accent ni
 --  majuscule — dans les trois états : par la fonction si elle existe, par la
 --  liste sinon. Aucun élève ne se crée un second compte pendant la transition.
+--  Une limite, nommée : tant que la 009 est jouée et pas ce fichier, la
+--  fonction ne voit pas une ligne SANS clé (élève jamais relié) — le doublon
+--  d'un tel prénom n'y est pas refusé ; dès ce fichier joué, la liste le voit.
 --
 --  LE PRIX, NOMMÉ PLUTÔT QUE TU
 --
@@ -84,9 +87,11 @@
 --  Aucune autre politique n'est touchée : notes, signalements, paramètres,
 --  écriture et suppression d'un élève gardent les leurs. Elle ne revient pas
 --  sur la 002 — les politiques « for all » grandes ouvertes restent retirées,
---  et elle refuse de se déclarer faite si l'une d'elles est revenue. Et la 009
---  reste dans le dossier, telle quelle : c'est l'histoire, et elle a pu être
---  jouée.
+--  et elle refuse de se déclarer faite si l'une d'elles est revenue SUR UNE
+--  TABLE D'ÉLÈVES. Les tables de notes et de paramètres ne sont pas relues
+--  ici : en cas de doute, rejouez la 002, dont le filet contrôle les neuf.
+--  Et la 009 reste dans le dossier, telle quelle : c'est l'histoire, et elle
+--  a pu être jouée.
 --
 --  ELLE EST IDEMPOTENTE : la rejouer ne casse rien et ne duplique rien.
 --  Un niveau dont la table est absente est SIGNALÉ et sauté, jamais deviné.
@@ -129,6 +134,14 @@ begin
     -- Même nom qu'en 001 et en 009, « anon » de retour. REMPLACÉE, pas doublée.
     execute format('drop policy if exists p_%s_liste on public.%I', el, el);
     execute format('create policy p_%s_liste on public.%I for select to anon, authenticated using (true)', el, el);
+    -- Et le DROIT de lire ce que la page affiche. La 009 proposait un
+    -- durcissement « possible, non fait » : retirer à anon le droit de lire
+    -- la table. Appliqué, il laisse une politique parfaite et une page qui
+    -- reçoit « permission denied » au lieu de la liste. Rendu ici sur les
+    -- trois colonnes que lit la page, et sur elles seules : si le droit de
+    -- table a été retiré, created_at et user_id restent fermés à un visiteur ;
+    -- s'il ne l'a pas été, ce grant ne change rien. Idempotent.
+    execute format('grant select (id, prenom, cle) on public.%I to anon', el);
 
     faits := faits + 1;
     raise notice '  % : liste lisible sans connexion', el;
@@ -206,9 +219,11 @@ begin
 
   -- 3. Et le visiteur LIT la liste : la politique ne suffit pas, l'effet se
   --    mesure. On prend le rôle anon et on lit ce que la page demande — id,
-  --    prénom et clé — : un droit de colonne retiré, une politique
-  --    restrictive posée à côté, une RLS forcée se verraient ici et nulle
-  --    part ailleurs sur le projet réel. Le compte de référence est celui du
+  --    prénom et clé — : un grant de l'étape 1 qui n'a pas pris (un rôle
+  --    qui n'a pas le droit de le donner reçoit un simple AVERTISSEMENT de
+  --    PostgreSQL, pas une erreur), une politique restrictive posée à côté,
+  --    une RLS forcée se verraient ici et nulle part ailleurs sur le projet
+  --    réel. Le compte de référence est celui du
   --    rôle qui joue ce fichier (postgres dans l'éditeur SQL, propriétaire
   --    des tables, qui traverse la RLS). Une table vide se DÉCLARE ; un rôle
   --    qu'on ne peut pas prendre aussi — ni l'un ni l'autre ne passe au vert
@@ -238,7 +253,7 @@ begin
     begin
       execute format('select count(*) from (select id, prenom, cle from public.%I) t', el) into vus;
     exception when insufficient_privilege then
-      raise exception '% : un visiteur n''a pas le droit de lire id, prénom et clé (%) — la page ne pourrait pas afficher les pastilles : un droit de colonne retiré à anon ?',
+      raise exception '% : un visiteur n''a pas le droit de lire id, prénom et clé (%) — la page ne pourrait pas afficher les pastilles : le grant de l''étape 1 n''a pas pris — jouez ce fichier en tant que propriétaire des tables (postgres, dans l''éditeur SQL)',
         el, sqlerrm;
     end;
     execute format('set local role %I', ancien);

@@ -1413,7 +1413,10 @@ function connexionExecutee(w, suite){
     const cache=function(id){ const e=document.getElementById(id); return !e||e.hidden; };
     const liste=function(){ return (document.getElementById('nameChips')||{}).textContent||''; };
     try{
-      /* PREMIER PASSAGE : la liste ouverte, la pastille */
+      /* PREMIER PASSAGE : la liste ouverte, la pastille — SANS la fonction
+         (sansRpc), comme dans les vrais états A et C : aucun état réel ne
+         réunit une liste lisible et une fonction qui répond */
+      F.sansRpc=true;
       show('login'); await renderLoginNames();
       const b=[].slice.call(document.querySelectorAll('#nameChips .chip')).filter(function(x){ return x.textContent.trim()==='Contrôle'; })[0];
       let direct;
@@ -1448,6 +1451,7 @@ function connexionExecutee(w, suite){
          lirait la table, et le passage ne mesurerait rien. */
       await sb.auth.signOut();
       currentEleve=null;
+      F.sansRpc=false;
       const n0=F.journal.length;
       F.listeFermee=true;
       let repli;
@@ -1475,7 +1479,7 @@ function connexionExecutee(w, suite){
         }
       } finally { F.listeFermee=false; }
       return JSON.stringify({direct:direct, repli:repli});
-    } finally { sb=sbSauve; currentEleve=eleveSauve; selectedEleve=null; show('login'); }
+    } finally { F.sansRpc=false; sb=sbSauve; currentEleve=eleveSauve; selectedEleve=null; show('login'); }
   })()`, r => {
     let v = null; try{ v = r.ok ? JSON.parse(r.valeur) : null; }catch(e){ v = null; }
     verifier(INTITULE, !!v && v.direct === '', v ? v.direct : 'erreur JavaScript : ' + (r.erreur || r.valeur));

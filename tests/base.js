@@ -646,31 +646,40 @@ bilan('010 demande à PostgREST de recharger son cache de schéma',
   psql('postgres', ['-c', 'drop database if exists etat_a']);
 }
 
-/* LA MESURE DE LA 010 A DEUX BORDS, et chacun s'éprouve sur sa propre base.
-   Un DROIT DE COLONNE retiré à anon : la politique est parfaite, et la page
-   ne lirait pourtant aucune pastille — c'est ce que la mesure sous le rôle
-   anon existe pour voir, et rien d'autre sur le projet ne le verrait. Elle
-   doit échouer EN LE NOMMANT, et non sous le déguisement « impossible de
-   prendre le rôle anon » qui la ferait passer pour non mesurée ; puis, le
-   droit rendu, passer. Des TABLES VIDES (une rentrée, avant la première
-   inscription) : rien à mesurer, et la 010 doit le DIRE trois fois, sans
-   jamais prétendre « un visiteur lit la liste entière ». */
+/* L'ÉTAT B' — LE DURCISSEMENT QUE PROPOSAIT LA 009. Son en-tête et sa notice
+   offraient, « possible, non fait », de retirer à anon le DROIT de lire les
+   tables d'élèves. Appliqué à la main, il laisse à la 010 une politique
+   parfaite et un visiteur qui reçoit « permission denied » : sans rien de
+   plus, la page n'aurait aucune pastille, et la 010, qui mesure, échouerait
+   au lieu de réparer. Elle rend donc le droit sur id, prénom et clé — sur
+   ces trois colonnes SEULES : user_id et created_at restent fermés au
+   visiteur, et le banc l'exige. Éprouvé sur sa propre base : la 009 jouée,
+   puis le revoke, puis la 010, puis son rejeu. */
 {
-  const bd = monter('etat_droit');
-  [MIG, MIG2, MIG3, MIG4, MIG8].forEach(f => psql(bd, ['-f', f]));
+  const bd = monter('etat_b_prime');
+  [MIG, MIG2, MIG3, MIG4, MIG8, MIG9].forEach(f => psql(bd, ['-f', f]));
   semerTemoins(bd);
-  psql(bd, ['-c', 'revoke select on public.eleves_2nde from anon; grant select (id, prenom) on public.eleves_2nde to anon;']);
-  const rd = psql(bd, ['-f', MIG10], true);
-  const ed = erreurDe(rd);
-  bilan('un droit de colonne retiré à anon fait échouer 010, qui le nomme',
-    !!rd.erreur && /eleves_2nde : un visiteur n.a pas le droit de lire id, prénom et clé/.test(ed) && !/impossible de prendre le rôle anon/.test(String(rd.erreur)),
-    !rd.erreur ? '010 est passée : la mesure sous le rôle anon ne voit pas un droit de colonne retiré' : ed);
-  psql(bd, ['-c', 'grant select on public.eleves_2nde to anon;']);
-  const rd2 = psql(bd, ['-f', MIG10], true);
-  bilan('le droit rendu, 010 passe et mesure ses trois tables',
-    !rd2.erreur && mesures10(String(rd2)) === 3, rd2.erreur ? erreurDe(rd2) : mesures10(String(rd2)) + ' mesure(s) sur 3');
-  psql('postgres', ['-c', 'drop database if exists etat_droit']);
+  psql(bd, ['-c', 'revoke select on public.eleves, public.eleves_1ere, public.eleves_2nde from anon;']);
+  const anon = sql => { const r = psql(bd, ['-tA', '-c', 'set role anon', '-c', sql], true); return r && r.erreur !== undefined ? { erreur: String(r.erreur) } : { texte: String(r).trim() }; };
+  const avantB = anon('select count(*) from public.eleves_2nde');
+  bilan('l\'état B\' se monte : le visiteur est REFUSÉ, pas servi d\'une liste vide (' + lu(avantB) + ')',
+    avantB.erreur !== undefined && /permission denied/.test(avantB.erreur), lu(avantB));
+  const rb = psql(bd, ['-f', MIG10], true);
+  bilan('dans l\'état B\', 010 rend le droit de lire id, prénom et clé, et passe en mesurant ses trois tables',
+    !rb.erreur && mesures10(String(rb)) === 3, rb.erreur ? erreurDe(rb) : mesures10(String(rb)) + ' mesure(s) sur 3');
+  const trois = anon('select (select count(*) from (select id, prenom, cle from public.eleves) t) || \'/\' || (select count(*) from (select id, prenom, cle from public.eleves_1ere) t) || \'/\' || (select count(*) from (select id, prenom, cle from public.eleves_2nde) t)');
+  bilan('le visiteur y lit de nouveau id, prénom et clé des trois classes (' + lu(trois) + ')', trois.texte === '1/1/1', lu(trois));
+  const fermes = ['user_id', 'created_at'].map(c => anon('select count(' + c + ') from public.eleves_2nde'));
+  bilan('et rien de plus : user_id et created_at restent refusés au visiteur',
+    fermes.every(r => r.erreur !== undefined && /permission denied/.test(r.erreur)), fermes.map(lu).join(' ; '));
+  const rb2 = psql(bd, ['-f', MIG10], true);
+  bilan('rejouée dans l\'état B\', 010 ne fait plus rien et mesure encore ses trois tables',
+    !rb2.erreur && mesures10(String(rb2)) === 3, rb2.erreur ? erreurDe(rb2) : mesures10(String(rb2)) + ' mesure(s) sur 3');
+  psql('postgres', ['-c', 'drop database if exists etat_b_prime']);
 }
+/* DES TABLES VIDES (une rentrée, avant la première inscription) : rien à
+   mesurer, et la 010 doit le DIRE trois fois, sans jamais prétendre « un
+   visiteur lit la liste entière ». */
 {
   const bd = monter('etat_vide');
   [MIG, MIG2, MIG3, MIG4, MIG8].forEach(f => psql(bd, ['-f', f]));
