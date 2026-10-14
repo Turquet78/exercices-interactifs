@@ -22,6 +22,15 @@ npm run test:navigateur              # les trois niveaux
 npm run test:navigateur:secondes     # un seul
 ```
 
+Et le **banc des notes**, dans le même vrai navigateur : chaque exercice du
+menu mené jusqu'à son écran de fin, la note enregistrée comparée à la note
+affichée :
+
+```bash
+npm run test:notes                   # les trois niveaux, de front
+npm run test:notes:secondes          # un seul
+```
+
 Et un banc qui ne charge aucune page — il ne lit que le dépôt et `git` :
 
 ```bash
@@ -136,6 +145,40 @@ MathLive est servi depuis une copie locale (`tests/.cache/`, ignorée par git),
 téléchargée à la première exécution. Si le téléchargement échoue, les contrôles
 de rendu se déclarent « non applicable » au lieu de passer au vert sans rien
 vérifier.
+
+## Le banc des notes
+
+`npm run test:notes` (`tests/notes.js`) tient une règle que CLAUDE.md rangeait
+parmi celles « qui ne se vérifient pas encore partout » : **la note enregistrée
+est celle qui s'affiche.** Le contrôle des cases justes compare ce que la page
+peint ; celui-ci relit ce qui part en base, sur **chaque exercice du menu** des
+trois niveaux.
+
+Chaque exercice est lancé par l'entonnoir d'un devoir (`lancerDevoirExo`),
+dans un devoir que le banc pose en mémoire — deux questions, un plafond de
+soutien réglé à 7 —, puis mené à « Voir mes résultats » sur une copie vide.
+Juste avant la fin, la séance est rendue **non triviale** : la première réponse
+juste, la dernière à 2 cases justes sur 7. Là où une copie vide ne se valide
+pas (une colonne à colorier, une rédaction, une table au clavier), le banc
+appelle lui-même la fonction de fin de l'exercice — la seule `finish…()` qui
+écrit son identifiant, sinon celle que `notes.finDe` lui donne, sinon celle du
+niveau (`notes.finDirecte`).
+
+Il compare, exercice par exercice : une seule note finale en base, son
+étiquette, le score affiché et la note de la ligne (`details.note`), le
+pourcentage et la note sur 10, et **en soutien la note que le devoir en
+tirera** — pourcentage × plafond. Et il exige que **le crédit partiel compte** :
+la séance vaut 1 + 2/7 de point, la note enregistrée aussi. Ses dispenses se
+déclarent dans `tests/profils.js`, raison comprise (`notes.horsAtteinte`,
+`notes.sansCreditPartiel`, `notes.sansSeance`), et une dispense qui ne sert
+plus rougit. En Seconde et en Première, le crédit partiel est **suspendu**
+(`notes.creditPartielSuspendu`) : le banc y vérifie l'inverse, qu'aucune note
+ne le compte. La fin directe ne rattrape qu'une copie qui refuse de se
+valider ; un exercice qui plante, ou dont la fin n'enregistre rien, rougit.
+
+Pour éprouver un sabotage sans mener tout un niveau :
+`NOTES_EXERCICES=fraction-pourcentage,pourcentage node tests/notes.js premiere-specifique.html`
+— le banc dit alors que ce n'est pas le verdict du niveau.
 
 ## Le banc des numéros de version
 

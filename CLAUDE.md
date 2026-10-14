@@ -81,6 +81,7 @@ couvert sans rien avoir à déclarer.
 | Les questions d'une séance se tirent par **`distinctes()`** — jamais deux fois les mêmes données | l'élève refait le même calcul dans la même séance | « aucune séance ne pose deux fois la même question » (banc principal, `tests/verifier.js`) |
 | Un calcul de fractions (Seconde, Première) part de **fractions irréductibles** — seuls se dispensent, raison comprise, les exercices dont le sujet est la fraction réductible (`fractionsIrreductibles.sans`) | l'élève qui simplifie d'abord, à juste titre, est compté faux | « les fractions de départ d'un calcul de fractions sont irréductibles » (banc principal, `tests/verifier.js`) |
 | Un **dessin** d'exercice est un **fichier** de `dessins/<niveau>/`, référencé par son chemin relatif — jamais une image en base64 dans la page (décision de Turquet, octobre 2026) | la page de Seconde pesait 4,9 Mo, dont 770 Ko de dessins téléchargés et analysés par chaque élève à chaque ouverture, même sans exercice Python | « aucune image n'est embarquée en base64 dans la page », « chaque dessin référencé par la page existe dans le dépôt », « aucun fichier des dossiers de dessins de la page n'est orphelin » (banc principal, `tests/verifier.js`) ; « chaque dessin d'un exercice est un fichier de dessins/, réellement chargé » (banc navigateur, section 9) |
+| La note **enregistrée** est celle qui **s'affiche** — score, pourcentage, note sur 10, et en soutien la **note plafonnée** qui comptera — et le **crédit partiel** de chaque question y compte (décision de Turquet, octobre 2026) : en Terminale ; en Seconde et en Première il est **suspendu** (`CREDIT_PARTIEL_FIN`) tant que le compte de cases de `ptsEcran()` n'est pas une base de note sûre | l'élève lit « 6,4 / 10 » et le carnet « 6,5 » ; il lit « 8 / 10 » en soutien et le devoir lui en donne 4 | « la note enregistrée est celle qui s'affiche, sur chaque exercice mené à sa fin », « le crédit partiel d'une question compte dans la note finale » — ou, suspendu, « …reste suspendu à ce niveau : aucune note ne le compte » (banc des notes, `tests/notes.js` — chaque exercice du menu, dans un vrai Chromium) |
 
 **Les couleurs de la vérification ont changé en août 2026** (décision de
 Turquet) : ce qui est JUSTE se peint en **bleu**, ce qui est faux reste en
@@ -117,7 +118,7 @@ mesure rien, et doit le dire. Le **liseré bleu** de
 {croiser-denominateurs} est devenu **violet** (`--crd-a`) : un liseré bleu à
 côté de cases justes bleues aurait dit autre chose que ce qu'il dit.
 
-**Trois autres règles ne se vérifient pas encore partout**, et le dire vaut
+**Deux autres règles ne se vérifient pas encore partout**, et le dire vaut
 mieux que de le taire :
 
 * **Une case juste ne rougit pas parce qu'une AUTRE est vide ou fausse.** Il
@@ -127,8 +128,6 @@ mieux que de le taire :
 * **Le message d'erreur dit la vérité.** « Il faut le MÊME dénominateur »
   devant une copie dont il manque sept cases est un mensonge, et rien ne le
   mesure.
-* **La note enregistrée est celle qui s'affiche.** Le contrôle des cases justes
-  compare ce que la page a peint ; il ne relit pas ce qui part en base.
 
 ## Pièges éprouvés
 
@@ -229,6 +228,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **L'écran du bilan ne bouge plus quand le professeur pose une note.**
 - **Et la note du DEVOIR ENTIER est une note, elle aussi.**
 - **Un brouillon étiqueté d'un devoir vaut une NOTE PROVISOIRE — et le bilan le dit « en cours ».** Un exercice fermé à la sonnerie sans « Voir mes résultats » ne laissait que son brouillon, compté nulle part.
+- **La note enregistrée est celle qui s'affiche — et un banc la tient PARTOUT.** Toute fin de séance passe par `noteFin()` (Seconde, Première — crédit partiel suspendu, `CREDIT_PARTIEL_FIN`) ou `acquisDe()`/`parfaitsDe()` (Terminale) : `details.note` porte la note, le pourcentage en découle ; un historique lit `noteDe(r)`, jamais `r.score`. Le compte de cases de `ptsEcran()` n'est PAS une base de note sûre (feuilles libres, cases vides hors entraînement, retenues, pause).
 
 ### Aides, rappels, mise en page et navigation
 
@@ -493,6 +493,7 @@ npm install          # une seule fois
 npm test             # les trois niveaux
 npm run test:secondes # un seul, quand on travaille dessus
 npm run test:navigateur # les trois pages ouvertes dans un vrai Chromium
+npm run test:notes   # chaque exercice mené à sa fin : la note enregistrée est celle qui s'affiche
 npm run test:base    # les règles d'accès de la base, sur un PostgreSQL jetable
 npm run test:fonction # les deux fonctions Edge, réellement exécutées
 npm run test:version # les numéros de version, comparés à ceux de `main`

@@ -1121,3 +1121,200 @@ reçoit rien ; le professeur lit la même note et « en cours » ; le verrou
 reste fermé ; et le bord opposé, une note TERMINÉE à 80 % l'emporte et n'est
 plus dite provisoire. Les brouillons déjà en base comptent dès la mise en
 ligne : aucune réparation à jouer, la règle les relit tels qu'ils sont.
+
+**La note enregistrée est celle qui s'affiche — et un banc la tient PARTOUT
+(octobre 2026).** CLAUDE.md la rangeait parmi les trois règles « qui ne se
+vérifient pas encore partout » : le contrôle des cases justes compare ce que
+la page PEINT, il ne relit pas ce qui part en base. Turquet a demandé de la
+tenir ; `tests/notes.js` le fait, sur CHAQUE exercice du menu des trois
+niveaux (`npm run test:notes`, un travail « notes » par niveau dans
+l'action). Chaque exercice est lancé par l'entonnoir de production d'un
+devoir (`lancerDevoirExo`), dans un devoir posé en mémoire — deux questions,
+un plafond de soutien réglé à 7, ni le défaut ni le maximum, pour qu'« ignorer
+le réglage » et « le lire » ne se confondent pas —, puis mené sur une copie
+vide jusqu'à « Voir mes résultats ». Juste avant ce clic, la séance est
+rendue NON TRIVIALE : première réponse juste, dernière à 2 cases justes sur
+7 ; une note 0/N partout ne mesurerait rien, les arrondis ne mordent que sur
+des fractions. Le mode de la fin tourne d'un exercice à l'autre :
+entraînement, soutien, évaluation.
+
+**La fin directe.** Une copie vide n'atteint pas toujours la fin : une colonne
+veut être coloriée, une rédaction refuse d'être vérifiée vide, une table de
+multiplication se joue au clavier contre la montre. Là, le banc appelle
+lui-même la fonction de fin de l'exercice, sur la même séance synthétique.
+Laquelle : celle que le profil nomme (`notes.finDe`, rangé par fonction —
+les familles qui partagent un moteur rangent leur identité sur `test.qId`,
+`startAUGQ('diminuer-depart', …)`, et leur `finishAUGQ` n'écrit que
+l'identifiant de la famille) ; sinon la SEULE `finish…()` qui écrit
+l'identifiant en toutes lettres ; sinon celle du niveau (`notes.finDirecte`,
+`finishTest`). Une fin mal choisie ne passe pas inaperçue : elle range la
+note sous un autre identifiant, et le juge le dit. Bilan de la première
+passe complète : Seconde 197 exercices sur 197 (69 par la fin directe),
+Première 67 sur 67 (35), Terminale 52 sur 52 (17). `notes.horsAtteinte` est
+vide aux trois niveaux.
+
+**Ce qu'il a trouvé : 34 écarts en Terminale, aucun ailleurs — mais pour une
+raison qui n'était pas une bonne nouvelle.**
+* **Un double arrondi, sur TOUS les exercices d'entraînement.** `finishTest`
+  calculait la note sur 10 à partir des points acquis, et le pourcentage
+  enregistré à partir de la note DÉJÀ arrondie au centième : un exercice juste
+  et un à 2 cases sur 7, sur 2, s'affichait « 6,4 / 10 » et se relisait
+  partout ailleurs « 6,5 / 10 ». Le pourcentage part maintenant des points
+  acquis, et l'écran lit le pourcentage (`note10 = pct / 10`) : un seul
+  arrondi pour l'écran et pour la base.
+* **Le soutien promettait une note que le carnet ne donne pas.** L'écran de
+  fin affichait « 8 / 10 » ; `noteDevoirExo` en tire 80 % × 5 = 4 / 10.
+* **{etude-convexite} et {etude-algo-convexite} enregistraient 35 / 1 et
+  20 / 1.** Une étude de fonction compte ses CASES (`test.maxScore` = 102,
+  « une étude de deux pages ne vaut pas un point », journal 14) : `test.score`
+  y vaut le nombre de cases justes, et `finishTest`, qui note sur le nombre
+  de questions, le rangeait tel quel dans la colonne `score` d'un total d'UN
+  exercice. Le premier correctif fut le mauvais : réécrire `test.score` en 0
+  ou 1 dans les études — le banc navigateur et le banc jsdom l'ont refusé
+  d'une voix, des dizaines de contrôles y lisent la note EN CASES (« la copie
+  de la fiche vaut 102 », « trois fautes valent 99 »), et ils avaient raison.
+  La correction est dans la FIN : `parfaitsDe()` lit les exercices parfaits
+  sur les réponses quand le barème du démarreur n'est pas d'un point par
+  exercice (`maxScore` ≠ nombre de questions) ; les cases, elles, comptent
+  par le crédit partiel de la réponse (`ptsExo`). Sans elle, la nouvelle
+  borne du crédit partiel (`acquisDe`, jamais moins que les parfaits) aurait
+  compté 100 % pour 35 cases sur 102. La NOTE DE PAUSE, qui relisait le même
+  score brut, avait enregistré « 2700 % », relu « 270 / 10 » par le devoir ;
+  elle et la note provisoire passent par `parfaitsDe` aussi.
+* **Les historiques affichaient « 4 / 5 » à l'élève qui avait lu « 4,5 / 5 »**
+  — la colonne `score` compte les exercices parfaits, la note est dans
+  `details.note`. `noteDe(r)` la lit, avec le score pour les lignes d'avant ;
+  l'export CSV aussi.
+
+**Et la Seconde et la Première ne mentaient pas — parce qu'elles ignoraient
+le crédit partiel des deux côtés.** Chaque question y montre sa note sur 1
+(« 0,6 / 1 — 3 cases justes sur 5 », `afficherNoteExo`), mais la note finale
+ne comptait que les questions parfaites : une séance à 4,6 / 5 question par
+question s'enregistrait ET s'affichait 4 / 5. Cohérent, et faux. Turquet a
+tranché trois questions (octobre 2026) :
+1. **Le crédit partiel compte aux trois niveaux** — SUSPENDU en Seconde et en
+   Première avant sa mise en ligne, voir plus bas. `noteFin()` (Seconde,
+   Première) fait ce que faisait déjà la Terminale : la somme des `ptsRep`,
+   jamais moins que les questions parfaites, jamais plus que le barème. Le
+   score entier reste celui des questions parfaites ; la note part dans
+   `details.note`, le pourcentage en découle. Les 38 fonctions de fin de
+   chaque niveau (toutes sauf `tmFinir`) passent par elle. **Le partiel ne
+   compte que là où une question vaut un point** (`acquisDe`, quatrième
+   argument) : un barème posé par le démarreur (`test.maxScore`, les
+   questions à plusieurs parties de Python) compte déjà ses parties dans le
+   score. La note provisoire d'un brouillon (`dmNoteBrouillon`) et la note de
+   pause de la Seconde suivent la même règle.
+2. **L'écran de fin du soutien montre la note plafonnée** : « 4 / 10 », et
+   dessous « En soutien, cet exercice compte pour 5 points sur 10 au plus »
+   (`noteSoutienFin`, `plafondSoutien()` — le plafond de `dmReglageExo()`, 5
+   hors devoir, exactement ce que lit `noteDevoirExo`). La carte de choix du
+   mode le disait déjà (« Ne compte que pour 5 points ») ; l'écran de fin le
+   contredisait.
+3. **La note de pause et la note provisoire de la Terminale comptent le
+   partiel**, bornées par le barème : plus de 270 / 10.
+
+**Le contrôle tient ses bords, et les DIT.** Un exercice qui n'atteint pas sa
+fin rougit s'il n'est pas déclaré (`notes.horsAtteinte`, raison comprise) ;
+une déclaration qui ne sert plus rougit aussi, comme une fin déclarée pour un
+exercice absent du menu. Il exige des notes non triviales sur au moins la
+moitié des exercices menés : s'il n'en mesure aucune, il ne mesure rien.
+**Le crédit partiel** se mesure partout où une question vaut un point : la
+note enregistrée doit valoir 1,29, pas 1 ; les tables de multiplication s'en
+dispensent (`notes.sansCreditPartiel` — un produit est su ou ne l'est pas),
+et une dispense qui compte quand même rougit.
+
+**Deux pièges du banc, chacun pris par un de ses bords.** `test` est un `let`
+de la page, PAS une propriété de `window` : la première version injectait la
+séance non triviale dans `window.test`, c'est-à-dire nulle part, et la fin
+directe répondait « pas de séance ouverte » sur tout exercice — le bord
+« chaque exercice atteint sa fin » l'a montré au premier passage. Et les
+notes non triviales n'étaient comptées que sur les exercices SANS écart :
+34 écarts en Terminale faisaient croire à un banc qui ne mesurait rien ; le
+compte est désormais indépendant du verdict.
+
+**Éprouvé par sabotage, chacun rougissant en nommant son défaut**
+(`NOTES_EXERCICES` restreint le banc à quelques exercices, et le dit) : un
+pourcentage enregistré décalé d'un point dans `finishFP` (« l'écran affiche
+64 %, 65 % en base ») ; l'appel à `noteSoutienFin` retiré de l'écran de fin
+(« en soutien, l'écran affiche 64 % au lieu de la note plafonnée, 4,5 / 10,
+plafond 7 ») ; `acquisDe` qui ne compte plus le partiel (« note 1 / 2, le
+crédit partiel vaudrait 1,29 », sur les trois exercices) ; le double arrondi
+de la Terminale remis en place (« l'écran affiche 6,4 / 10, la base relira
+6,5 / 10 ») ; une dispense de crédit partiel sur un exercice qui le compte,
+et une dispense d'atteinte sur un exercice qui atteint sa fin ; et le banc
+privé de sa séance non triviale (« 0 non triviale(s) sur 3 note(s) »). Un septième remet la colonne `score` sur
+`test.score` dans `finishTest` : « etude-convexite — score 34 sur 1 en base ».
+**Et le banc avait un angle mort, que ce défaut a montré** : sa séance non
+triviale RÉÉCRIVAIT `test.score` (le nombre de réponses justes), effaçant
+l'unité de l'exercice — un score en cases redevenait un score en questions,
+et le défaut se cachait derrière le banc chargé de le trouver. Il l'AJUSTE
+désormais d'un écart (+1 pour la réponse rendue juste, −1 pour celle rendue
+fausse), sans en changer l'unité. **Un huitième a trouvé un trou du banc lui-même** : une dispense posée sur
+« derivees », identifiant absent du menu de la Terminale, ne dispensait rien
+et passait en silence — une déclaration qui survit à un renommage sans que
+rien ne le dise. Toute déclaration du profil (`finDe`, `horsAtteinte`,
+`sansCreditPartiel`) doit désormais nommer un exercice du menu, et ce bord-là
+a été éprouvé à son tour.
+
+**Puis la relecture adversariale de la pull request a SUSPENDU le crédit
+partiel en Seconde et en Première, avant sa mise en ligne.** L'action était
+verte, les trois bancs aussi ; une relecture à cinq angles, chaque constat
+mis à l'épreuve par un sceptique qui le REPRODUIT dans un vrai Chromium, a
+confirmé huit défauts sur neuf. Le cœur : le compte de cases de
+`ptsEcran()`, écrit pour la note AFFICHÉE sous chaque question en
+entraînement, ne tient pas comme base d'une note ENREGISTRÉE.
+* **Les lignes vraies d'une feuille de calcul libre comptent comme cases
+  justes.** Les `…PeindreLignes` peignent en `ok` toute égalité vraie en
+  arithmétique, sans rapport avec la réponse : cinq lignes « 1 = 1 » par
+  question, aucune question juste — 80 % enregistrés ({pourcentages-problemes},
+  {synthese-pourcentages-redigee}, les synthèses libres, le devoir blanc).
+* **Hors entraînement, une case laissée vide sort du dénominateur** : `mark()`
+  ne peint pas une case vide, et `corTrainDec`/`corTrainFrac`, qui la
+  remplissent en `sol`, ne servent qu'en entraînement. Quatre conversions
+  justes sur neuf cases, le reste vide, en évaluation : 75 %, là où main
+  donnait 0 %. Laisser vide rapportait plus qu'écrire faux.
+* **Les retenues facultatives comptent**, et la retenue recopiée en bas d'une
+  soustraction deux fois : une copie sans un seul chiffre du résultat, 38 à
+  42 %.
+* **Une pause après « Vérifier » fait compter la même question deux fois** :
+  `snapshotTest` ne range pas `locked`, la reprise rouvre la question
+  vérifiée, et la seconde vérification pousse une seconde réponse.
+  `acquisDe` additionne sans rattacher une réponse à sa question : quatre
+  reprises d'une question à 4 cases sur 5, 100 %.
+Aucun de ces défauts ne se voyait au banc des notes : sa séance non triviale
+pose elle-même le crédit des réponses. Il fallait la relecture pour regarder
+COMMENT la page le calcule. **La décision prise ici** : cette pull request
+part avec le crédit partiel de la Seconde et de la Première SUSPENDU — un
+seul interrupteur, `CREDIT_PARTIEL_FIN`, dont le commentaire dit pourquoi ;
+la note y reste celle des questions parfaites, comme sur main —, et le banc
+le tient (`notes.creditPartielSuspendu`) en vérifiant l'INVERSE : aucune
+note ne compte le partiel. Rendre le compte de cases sûr (les feuilles, les
+cases vides, les retenues, la pause) puis lever la suspension est l'affaire
+d'une seconde pull request. **La Terminale compte le partiel depuis plus
+longtemps, avec son propre `ptsEcran`** : les mêmes questions s'y posent, et
+la seconde pull request les y regardera — ce ne sont pas des régressions de
+celle-ci.
+
+**Trois autres constats ont été corrigés ici.** Les lignes de pause à
+« 3600 % » déjà écrites en base par la Terminale jusqu'à la v385 donnaient
+encore 360 / 10 à l'exercice et le maximum au devoir entier : la correction de
+l'écriture ne les touchait pas. `noteDevoirExo`, l'entonnoir de toute note de
+devoir, borne désormais le pourcentage à 0–100 à la LECTURE, et `noteDe` un
+vieux score au total. Et deux trous du banc lui-même : la fin directe
+rattrapait N'IMPORTE QUEL échec — un exercice qui plantait au démarrage, ou
+dont « Voir mes résultats » n'enregistrait rien, était compté « mené », vert
+(sabotage du relecteur : `nextASPQuestion` renvoyée au menu, banc vert) ;
+elle ne rattrape plus qu'une copie qui refuse de se valider (« bloqué : … »).
+Et une séance d'UNE question forçait sa seule réponse à « juste » — 100 %,
+crédit partiel jamais mesuré, précisément sur les études de fonction dont
+toute la note est du partiel ; elle reçoit maintenant sa réponse à 2 cases sur
+7, et la Terminale mesure le partiel sur ses 52 exercices. Un exercice qui se
+clôt sans « Voir mes résultats » (le calcul mental : un minuteur enchaîne)
+n'a pas pu recevoir la séance du banc : il se déclare (`notes.sansSeance`).
+Les trois bords neufs, éprouvés à leur tour : la fin de l'addition posée
+renvoyée au menu (« clic sur « Voir mes résultats » sans écran de fin », rouge
+au lieu d'un vert rattrapé) ; `CREDIT_PARTIEL_FIN` remis à vrai en Première
+(« note 1,29 / 2 alors que le crédit partiel est suspendu ») ; et `acquisDe`
+qui ignore le partiel d'une séance d'une question en Terminale
+(« etude-convexite — note 0 / 1, le crédit partiel vaudrait 0,29 »).
+
