@@ -684,7 +684,7 @@ reviennent, comme avant #638 : `#nameChips` sous « Choisis ton prénom »,
 dessinées par `renderLoginNames()` qu'appelle `accueil()`, depuis
 `select('id,prenom,cle').order('prenom')` ; la pastille cliquée pose
 `selectedEleve`, prend `.sel`, fait paraître `#pinRow` (caché jusque-là), vide
-le code et lui donne le focus 60 ms plus tard (Seconde v488, Première v319,
+le code et lui donne le focus 60 ms plus tard (Seconde v489, Première v320,
 Terminale v385 — même diff aux trois pages, à la table et à la version près).
 Ce qui RESTE de #638, et c'est voulu : `normaliserPrenom` et `clesDuPrenom`,
 avec sa garde PGRST202 et son `console.warn` ; la création de compte qui
