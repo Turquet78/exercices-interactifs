@@ -8275,6 +8275,97 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies quater. SOMME DE VECTEURS : LA FIN DE V RECOPIÉ SE CLIQUE ===== */
+    /* {somme-vecteurs} (8.7, demande de Turquet, octobre 2026, la fiche
+       « somme de vecteurs — un début va sur une fin ») : la fin de v⃗ recopié
+       se pose au clic sur un nœud, et la page trace aussitôt la construction
+       de l'élève. jsdom n'a pas de mise en page : le calibrage clic → nœud, le
+       reclic qui retire, la construction tracée d'étendue non nulle et les
+       mots « début » / « fin » lisibles ne se voient qu'ici. */
+    titre('6 quadragies quater. SOMME DE VECTEURS : LA FIN DE V RECOPIÉ SE CLIQUE');
+    if(!P.sommeVecteurs){
+      ignorer('la fin de v recopié se pose au clic, la construction se trace, le reclic la retire',
+        'ce niveau n\'a pas l\'exercice de la somme de vecteurs');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.sommeVecteurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      const mes = await s.page.evaluate(() => {
+        const svg = document.querySelector('#svcGraph .svc-svg'), r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+        const v = document.querySelector('#svcInstr .vec');
+        const fl = v ? getComputedStyle(v, '::before').content : '';
+        /* chaque mot « début » / « fin » reste DANS le dessin */
+        const dehors = [...document.querySelectorAll('#svcGraph .svc-mot')].filter(t => { const b = t.getBoundingClientRect();
+          return b.left < r.left - 1 || b.right > r.right + 1 || b.top < r.top - 1 || b.bottom > r.bottom + 1; }).length;
+        return { svg: r.width > 400 && r.height > 250, fleche: fl && fl !== 'none', dehors: dehors };
+      });
+      if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      if(!mes.fleche) dits.push('les vecteurs de l\'énoncé ne sont pas coiffés d\'une flèche');
+      if(mes.dehors) dits.push(mes.dehors + ' mot(s) « début » / « fin » sortent du dessin');
+      const posNoeud = async (x, y, dx, dy) => await s.page.evaluate(([x, y, dx, dy]) => {
+        const svg = document.querySelector('#svcGraph .svc-svg');
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const kx = r.width / vb.width, ky = r.height / vb.height;
+        return { px: r.left + (SVC_PX + (x + dx) * SVC_C) * kx, py: r.top + (SVC_PY + (SVC_H - (y + dy)) * SVC_C) * ky };
+      }, [x, y, dx || 0, dy || 0]);
+      const clicNoeud = async (x, y, dx, dy) => { const p = await posNoeud(x, y, dx, dy); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      const etat = async () => await s.page.evaluate(() => ({
+        sel: JSON.stringify(test.questions[test.idx].sel),
+        peints: document.querySelectorAll('#svcGraph .vec-t.sel').length,
+        trace: [...document.querySelectorAll('#svcTrace line')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length
+      }));
+      const q0 = await s.page.evaluate(() => svcPoint(test.questions[test.idx]));
+      await clicNoeud(q0[0], q0[1]);
+      let e = await etat();
+      if(e.sel !== JSON.stringify(q0)) dits.push('le clic ne pose pas le nœud visé : ' + e.sel + ' au lieu de ' + JSON.stringify(q0));
+      if(e.peints !== 1) dits.push('le nœud posé ne se peint pas (' + e.peints + ')');
+      if(e.trace !== 2) dits.push('la construction (v recopié et u + v) ne se trace pas à la pose (' + e.trace + ' traits)');
+      await clicNoeud(q0[0], q0[1]);
+      e = await etat();
+      if(e.sel !== 'null' || e.peints !== 0 || e.trace !== 0) dits.push('recliquer le nœud ne le retire pas : ' + e.sel);
+      await clicNoeud(q0[0], q0[1], 0.2, 0);
+      e = await etat();
+      if(e.sel !== JSON.stringify(q0)) dits.push('le clic décalé d\'un cinquième de maille ne s\'accroche pas au nœud : ' + e.sel);
+      await s.page.click('#svcValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
+        okc: document.querySelectorAll('#svcGraph .vec-t.okc').length, missc: document.querySelectorAll('#svcGraph .vec-t.missc').length,
+        bouton: document.getElementById('svcNext') ? document.getElementById('svcNext').textContent : '' }));
+      if(fin.score !== 1 || !fin.locked) dits.push('la copie juste cliquée vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller'));
+      if(fin.okc !== 1 || fin.missc) dits.push('le nœud juste n\'est pas peint okc, ou la correction se montre (' + fin.okc + ', ' + fin.missc + ')');
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* question suivante : v posé sur le DÉBUT de u, quand ce nœud est dans le quadrillage, sinon un nœud faux quelconque */
+      await s.page.click('#svcNext');
+      await s.page.waitForTimeout(400);
+      const q1 = await s.page.evaluate(() => { const q = test.questions[test.idx], E = svcPoint(q);
+        let f = [q.uo[0] + q.vc[0], q.uo[1] + q.vc[1]];
+        if(!svcDans(f)) f = E[0] > 0 ? [E[0] - 1, E[1]] : [E[0] + 1, E[1]];
+        return { E: E, faux: f }; });
+      await clicNoeud(q1.faux[0], q1.faux[1]);
+      await s.page.click('#svcValidate');
+      await s.page.waitForTimeout(300);
+      const faux = await s.page.evaluate(() => {
+        const miss = [...document.querySelectorAll('#svcGraph .vec-t.missc .dot')];
+        return { badc: document.querySelectorAll('#svcGraph .vec-t.badc').length, miss: miss.length,
+                 large: miss.every(c => c.getBoundingClientRect().width > 4),
+                 vert: [...document.querySelectorAll('#svcCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+                 rouge: document.querySelectorAll('#svcTrace line.svc-eb').length, score: test.score };
+      });
+      if(faux.badc !== 1 || faux.rouge !== 2) dits.push('le nœud faux et sa construction ne rougissent pas (' + faux.badc + ', ' + faux.rouge + ')');
+      if(faux.miss !== 1 || !faux.large) dits.push('le nœud attendu ne se montre pas en vert');
+      if(faux.vert !== 2) dits.push('la construction attendue ne se trace pas en vert (' + faux.vert + ')');
+      if(faux.score !== 1) dits.push('la copie fausse rapporte des points (score ' + faux.score + ')');
+      verifier('la fin de v recopié se pose au clic, la construction se trace, le reclic la retire', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de la somme de vecteurs ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 undevicies. antécédents : la droite se fait GLISSER ===== */
     /* {antecedents-droite} : le geste central est un GLISSER — la droite suit
        le pointeur enfoncé et s'accroche à la graduation la plus proche — puis
