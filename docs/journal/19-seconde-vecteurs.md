@@ -726,7 +726,7 @@ possibles a son quatrième point en (−3 ; 7) »), les lettres figées sur ABCD
 lettre affichée (« la phrase de M à N n'est pas jugée juste ») — chacun
 rougit, la page intacte reste verte.
 
-### Puis le nom a quitté l'ordre alphabétique (v489)
+### Puis le nom a quitté l'ordre alphabétique (v490)
 
 Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, les lettres ne
 sont pas forcément dans l'ordre alphabétique pour le nom du
@@ -742,7 +742,7 @@ la lit, et rien d'autre du moteur n'a bougé — les rôles A, B, C, D, la
 forme, `vecChemin()` et `vecQuatrieme()` raisonnent comme avant. « OMNP est
 un parallélogramme… construis le point N ». Les listes, elles, proposent le
 jeu dans l'ordre alphabétique (`vecJeu(q)`), pas dans l'ordre des rôles, qui
-trahirait la réponse. Une question rangée avant v489 n'a pas de `q.pm` : ses
+trahirait la réponse. Une question rangée avant v490 n'a pas de `q.pm` : ses
 lettres suivent les rôles, la reprise d'une pause ne casse rien.
 
 **Le contrôle** (`parallelogrammePoint`) range `pm` parmi les clés permises,
