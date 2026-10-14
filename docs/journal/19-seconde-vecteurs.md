@@ -760,3 +760,58 @@ l'envers en minuscules (2/2), puis un nœud faux et le piège (le point attendu
 en vert d'étendue non nulle, le badge, les deux flèches, aucun point gagné) —
 et mesure que les vecteurs de l'énoncé portent leur flèche et que la case du
 nom n'est pas plus petite que sa phrase.
+
+## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.7, v485)
+
+**La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
+le pdf », une fiche « Compléter à l'aide du dessin afin d'utiliser la
+relation de Chasles » : un rectangle ABCD, ses diagonales qui se coupent en
+E, et huit lignes — AE + EB = … ; DC + CE, CE + BC, AD + BA, DC + BD = … + …
+= … ; AB + AD = AB + … = … ; BE + AE = BE + … = … ; BA − CA = BA + … = ….
+
+**Quatre sortes de lignes, le plan de la fiche** (`CHS_PLAN`) : `r` — les
+vecteurs s'enchaînent déjà, une case pour le résultat ; `c` — trois cases,
+la somme réécrite dans un ordre qui s'enchaîne, puis le résultat (la
+première déjà dans l'ordre, trois à retourner) ; `u` — le second vecteur se
+remplace par un vecteur ÉGAL qui part là où s'arrête le premier ; `s` —
+soustraire, c'est ajouter l'opposé. **La première figure de la séance EST la
+fiche** (`CHS_FICHE`, rangée telle quelle) ; les suivantes tirent la forme —
+rectangle, carré, parallélogramme, losange : tous ont des diagonales qui se
+coupent en leur milieu, donc les mêmes égalités de vecteurs —, son
+retournement, cinq lettres (ni O, ni I, ni W à Z) et huit lignes du plan,
+sans somme nulle ni ligne impossible (`chsPosable`). `CHS_NB` = 2 figures,
+`dmNbQuestions` allonge la séance, `distinctes()` les tient différentes ;
+19 cases par figure.
+
+**Un calcul juste n'est jamais compté faux.** Chaque case se juge par les
+VECTEURS, pas par des lettres attendues : le résultat est juste dès qu'il est
+égal à la somme (AE + EB = DC, puisque DC = AB) ; les deux cases du milieu
+d'une ligne `c` sont justes dès qu'elles réécrivent la même somme avec des
+vecteurs égaux qui s'enchaînent (DC + CE = EA + AB est juste aussi). La
+première case du milieu est juste si une suite existe ; la seconde l'est si
+elle enchaîne la première — ou, la première fausse, si elle termine une
+écriture juste : une case juste ne rougit pas pour sa voisine.
+
+**On range la forme, le retournement, les lettres et les lignes, jamais les
+réponses** : `chsLigne()` recalcule les écritures justes depuis les points.
+Le dessin (`chsSvg`) reprend le trait du 8.3 (`.veg-svg`) ; la lettre du
+centre se pose sur la bissectrice du plus large des quatre secteurs, ce qui
+marche aussi pour le losange, où « au-dessus » tombait sur une diagonale.
+Les vecteurs, signes et cases sont ceux du 8.3 (`.veg-v`, `.veg-in`,
+`.veg-grp`) ; la figure se pose à gauche des lignes, comme la fiche, dès que
+l'écran le permet. Les messages nomment la faute : l'opposé oublié (« Soustraire
+CA, c'est AJOUTER son opposé AC »), le vecteur recopié qui ne part pas du bon
+point, l'ordre qui ne s'enchaîne pas, le résultat à l'envers.
+
+**Le juge** (`tests/verifier.js`, « relation de Chasles ») : la place (8.7,
+pas de bouton des tables), 300 séances tirées dont chaque correction est
+relue par un juge INDÉPENDANT écrit depuis les coordonnées (somme,
+enchaînement, égalité), la fiche en première page, le plan des lignes,
+aucune somme nulle, chaque forme tirée ; puis le bouton sur la fiche : 19
+cases, cinq lettres et six traits, la copie juste, d'autres écritures justes
+en minuscules, le piège BA + CA (rouge, son résultat juste reste bleu,
+« opposé »), BA pour AE + EB (« sens »), AE recopié dans BE + AE (« part de
+E »), CE + BC écrit dans le même ordre (« ordre »), DC + AB (DC bleu, AB
+rouge, badge CE), la case vide (correction BC, jamais rouge), la copie vide
+(rien de rouge, une correction juste pour le juge), le soutien au fil de la
+saisie, le barème, `qId`, le contexte du modèle.
