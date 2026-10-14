@@ -1397,7 +1397,7 @@ BC pour AB − AC (« sens »), AL pour AL − LA (« 2AL »), 2RT pour RT − S
 la copie vide des trois parties, le bouton « impossible » dans les deux sens,
 le soutien au fil de la saisie, le barème, `qId`, le contexte du modèle.
 
-**Puis l'élève a écrit SA CHAÎNE** (v496, Turquet, octobre 2026 : « laisser
+**Puis l'élève a écrit SA CHAÎNE** (v497, Turquet, octobre 2026 : « laisser
 l'élève entrer dans un champ de saisie ses vecteurs, il doit y avoir une
 flèche déjà prête à accueillir les deux lettres ; s'il tape un plus, un moins
 ou un égal, alors afficher une autre flèche […] il peut toujours choisir
@@ -1437,5 +1437,88 @@ AB+CA=CB (trois cases, signes « + » et « = », juste, 8 cases à la note, tou
 bleu), CB+CA puis le bouton (CB | CA | impossible, juste ; le second appui le
 retire), CB+CA sans conclure (rouge, « écris “impossible” »), AB+AC=CB
 (l'étape fausse nommée), AB+CA (pas fini : la première case bleue, la
-dernière rouge), −AD−DB=BA (le « − » de tête reste un signe), la partie 2
+dernière rouge), −AD−DB=BA (le « − » de tête reste un signe, posé DEVANT la
+flèche et non dessous), la partie 2
 en deux étapes, le retour arrière, et aucune case vide de chaîne ne rougit.
+
+## {point-somme-vecteurs} — construire un point avec une somme de vecteurs (8.14, v496)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice
+comme l'exercice 2 du pdf, l'élève devra d'abord tracer les 2 vecteurs
+demandés, puis pourra les déplacer aux bons endroits comme dans le 8.7 et on
+finira par placer le point demandé ». La fiche (« Fiche 8 sur somme de
+vecteur », exercice 2) : cinq points A, B, C, D, E sur un quadrillage, et
+« construire A′ tel que AA′ = BC + BD », « B′ tel que BB′ = ED + EA »,
+« C′ tel que CC′ = AE + BD ». Ajouté en dernier, il ne renumérote rien. Écrit comme 8.9 en v491, il est devenu le 8.14 en v496 au fil de cinq fusions de `main`, où {chasles-trois-vecteurs} (8.9, v491), {chasles-simplifier} (8.10, v492), {somme-vecteurs-repere} (8.11, v493), {chasles-alignes} (8.12, v494) puis {chasles-sans-figure} (8.13, v495) avaient pris leur place le même jour — plusieurs sessions remplissaient le thème 8 de front, et chaque pull request verte arrivait derrière une autre. Ce dernier part d'une autre fiche (la « Fiche 10 », un repère où l'élève place d'abord les points) : les deux exercices sont voisins, pas doubles — ici les cinq points sont donnés, et le geste à apprendre est de recopier deux vecteurs de la figure.
+
+**Trois gestes, quatre réponses jugées chacune SEULE** (`cpsJuge`). ① Les
+deux vecteurs se TRACENT, deux clics chacun (le début, puis la fin ;
+recliquer le début seul le retire), le premier de la somme d'abord : la
+flèche porte son nom dès qu'elle est tracée, et une ligne sous le dessin
+(`#cpsEtape`) dit quelle flèche tracer ou quel point placer — un guide du
+geste, jamais un verdict. ② Elles GLISSENT comme au 8.7 (le moteur de
+`svcBrancher`, recopié pour son hôte : prise transparente, `touch-action`,
+appui immobile = clic au nœud, flèches du clavier) jusqu'à être bout à bout
+depuis le point donné, dans l'ordre qu'on veut. ③ Les deux tracées, un clic
+pose le point (le même nœud le retire, un autre le déplace), dont la lettre
+A′ s'écrit sur la cible. Les réponses : `cps-t1` et `cps-t2` (chaque flèche
+fait le chemin de son vecteur, où qu'elle soit), `cps-ch` (les deux partent
+bout à bout du point donné, quelles qu'elles soient), `cps-pt` (le point au
+nœud attendu). Barème 4 par question, quatre questions (`CPS_NB`,
+`dmNbQuestions`) : 16.
+
+**Le chaînage jamais tenté ne rougit pas.** Deux flèches tracées sur la
+figure et jamais déplacées, sans être déjà bout à bout depuis le point,
+font un chaînage VIDE (sol), pas faux : l'élève n'a rien fait de travers,
+il n'a rien fait. « Effacer mes flèches » efface les deux tracés pour les
+reprendre — sauf, en soutien, celui que la vérification a figé juste ; le
+point posé reste.
+
+**On range la figure, jamais la réponse** : `pts` (les cinq points), `m`
+(le point déplacé), `a` et `b` (les deux vecteurs, en indices de points),
+puis `d1`/`f1`/`p1`, `d2`/`f2`/`p2` (les deux clics de chaque tracé et le
+début déplacé) et `pt`. `cpsAttendu(q)` recalcule le point. Les deux formes
+de la fiche ALTERNENT : « mo », deux vecteurs de même origine (BC + BD),
+puis « qq », quatre lettres (AE + BD) ; le point déplacé n'est jamais une
+lettre de la somme. Le tirage (`cpsGen`) : cinq points à un carreau du bord,
+deux à deux à deux carreaux ; chaque chemin et la somme à deux carreaux au
+moins ; deux vecteurs jamais parallèles (la construction se voit) ; la
+construction depuis le point dans le quadrillage, dans les deux ordres ; le
+point attendu à deux carreaux de tout point nommé. Quadrillage de 14 × 9.
+
+**`svcFleche` sert les deux exercices** — et la fusion y a rencontré le nom à une flèche par lettre du 8.7 (« u+v » écrit u⃗ + v⃗) : une lettre est un morceau du nom coupé aux « + », et un morceau de deux lettres (BC) reçoit une flèche de deux largeurs. Elle prend désormais `o.geo` (le
+quadrillage de l'appelant) et ne pose ses suffixes `-o`, `-t`, `-f` que sur
+la PREMIÈRE classe — une flèche nommée en pointillés (`svc-s svc-copie`)
+aurait sinon posé la classe `svc-s` sur son nom, et un trait vert de 2,6 px
+autour des lettres. Le 8.7 n'en voit rien : il ne nommait jamais une flèche
+à deux classes.
+
+**La correction** : flèche juste en bleu, fausse en rouge ; en vert ce qui
+manque — la flèche juste de chaque vecteur manqué, posée sur ses deux
+lettres ; la construction depuis le point (le premier vecteur en trait
+plein, le second en pointillés) si le chaînage n'y était pas ; le point
+attendu avec sa lettre. Les pièges nommés (`cpsPourquoi`) : une flèche à
+l'envers, une flèche de travers (avec son chemin en carreaux), les deux
+débuts sur le point, une construction qui ne part pas du point, deux
+flèches qui ne se touchent pas, un point qui n'est pas au bout. En soutien :
+le faux rougit, le juste se fige, rien ne se révèle ; le chaînage ne se fige
+que sur deux flèches justes — figé sur une fausse, il empêcherait de la
+retracer.
+
+**Le juge** (`tests/verifier.js`, « point par une somme de vecteurs ») : la
+place (8.14, le 8.7 à 8.13 immobiles, pas de bouton des tables), 200
+séances (quatre questions distinctes, barème 16, les clés rangées, les
+formes qui alternent, le point recalculé, tout dans le quadrillage, JSON),
+puis la figure de la fiche recadrée (A′ en (5 ; 2)) : l'énoncé, cinq croix,
+150 cibles, aucune flèche avant le tracé ; la copie vide (quatre sol, quatre
+traits verts, A′ en vert, « Il te manquait 4 cases ») ; la copie juste dans
+les deux ordres, la reprise après JSON, la flèche retenue au bord ; BD à
+l'envers et deux débuts sur A avec A′ juste (ok, bad, bad, ok — le point
+juste ne rougit pas) ; les flèches jamais déplacées avec A′ faux (ok, ok,
+sol, bad) ; le soutien (rien ne se révèle, la flèche juste se fige,
+« Effacer » garde la figée) et le contexte du modèle. **Le banc navigateur**
+(« 6 quadragies sexies ») trace BC à la souris (un clic à un cinquième
+de maille), trace BD depuis B SOUS la prise de BC, fait glisser les deux
+flèches bout à bout depuis A, pose A′ sous la pointe de BD et lit sa
+lettre, puis corrige une copie vide (quatre traits verts, rien de rouge).
+Le doigt sur tablette, lui, ne se joue dans aucun banc.
