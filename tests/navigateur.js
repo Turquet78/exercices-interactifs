@@ -9070,6 +9070,109 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies sexies. POINT PAR UNE SOMME DE VECTEURS : TRACER, GLISSER, PLACER ===== */
+    /* {point-somme-vecteurs} (8.14, demande de Turquet, octobre 2026,
+       l'exercice 2 de la « Fiche 8 sur somme de vecteur ») : les deux
+       vecteurs se TRACENT en deux clics chacun, se font GLISSER bout à bout
+       depuis A, puis A′ se pose d'un clic. Le second tracé commence en B,
+       SOUS la prise de la première flèche, et A′ tombe sous celle de la
+       seconde : un appui qui ne bouge pas doit passer au nœud. jsdom n'a pas
+       de mise en page : le clic → nœud, le glisser et la lettre A′ affichée
+       ne se voient qu'ici. */
+    titre('6 quadragies sexies. POINT PAR UNE SOMME DE VECTEURS : TRACER, GLISSER, PLACER');
+    if(!P.pointSommeVecteurs){
+      ignorer('les vecteurs se tracent au clic, glissent bout à bout depuis A, A′ se pose au clic',
+        'ce niveau n\'a pas l\'exercice du point construit par une somme de vecteurs');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pointSommeVecteurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* la figure de la fiche : AA′ = BC + BD, A′ en (5 ; 2) */
+      const fiche = () => { test.questions[test.idx] = { pts: [[2, 4], [5, 7], [8, 7], [5, 5], [3, 2]], m: 0, a: [1, 2], b: [1, 3], d1: null, f1: null, p1: null, d2: null, f2: null, p2: null, pt: null };
+        renderCps(); document.querySelector('#cpsGraph .cps-svg').scrollIntoView({ block: 'center' }); };
+      await s.page.evaluate(fiche);
+      await s.page.waitForTimeout(150);
+      const mes = await s.page.evaluate(() => {
+        const svg = document.querySelector('#cpsGraph .cps-svg'), r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+        const v = document.querySelector('#cpsInstr .vgt-vec');
+        const fl = v ? getComputedStyle(v, '::before').content : '';
+        return { svg: r.width > 400 && r.height > 250, fleche: fl && fl !== 'none' };
+      });
+      if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      if(!mes.fleche) dits.push('les vecteurs de l\'énoncé ne sont pas coiffés d\'une flèche');
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
+        const svg = document.querySelector('#cpsGraph .cps-svg');
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const kx = r.width / vb.width, ky = r.height / vb.height;
+        return { px: r.left + (CPS_PX + x * CPS_C) * kx, py: r.top + (CPS_PY + (CPS_H - y) * CPS_C) * ky };
+      }, [x, y]);
+      const clic = async (x, y, dx) => { const p = await pos(x + (dx || 0), y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      const glisser = async (k, d) => {
+        const t = await s.page.evaluate(k => { const t = cpsFl(test.questions[test.idx], k); return t ? { s: t.s, w: t.w } : null; }, k);
+        if(!t) return;
+        const a = await pos(t.s[0] + t.w[0] / 2, t.s[1] + t.w[1] / 2), b = await pos(t.s[0] + t.w[0] / 2 + d[0], t.s[1] + t.w[1] / 2 + d[1]);
+        await s.page.mouse.move(a.px, a.py); await s.page.mouse.down();
+        await s.page.mouse.move(b.px, b.py, { steps: 12 }); await s.page.mouse.up();
+        await s.page.waitForTimeout(120);
+      };
+      const etat = async () => await s.page.evaluate(() => { const q = test.questions[test.idx], a = cpsFl(q, 0), b = cpsFl(q, 1);
+        return { a: a ? [a.s, a.f] : null, b: b ? [b.s, b.f] : null, pt: q.pt, ch: cpsChaine(q) ? cpsChaine(q).ordre : '',
+          traits: [...document.querySelectorAll('#cpsFl line')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+          prises: document.querySelectorAll('#cpsPrises .svc-prise').length }; });
+      /* ① BC : B puis C — un clic à un cinquième de maille s'accroche au nœud */
+      await clic(5, 7, 0.2); await clic(8, 7);
+      let e = await etat();
+      if(JSON.stringify(e.a) !== '[[5,7],[8,7]]' || e.traits !== 1) dits.push('BC ne se trace pas en deux clics : ' + JSON.stringify(e.a) + ', ' + e.traits + ' trait');
+      /* ② BD : B est SOUS la prise de BC — l'appui doit passer au nœud */
+      await clic(5, 7); await clic(5, 5);
+      e = await etat();
+      if(JSON.stringify(e.b) !== '[[5,7],[5,5]]' || e.prises !== 2) dits.push('BD ne se trace pas depuis B, sous la prise de BC : ' + JSON.stringify(e.b) + ', ' + e.prises + ' prise(s)');
+      if(JSON.stringify(e.a) !== '[[5,7],[8,7]]') dits.push('le clic sur B a déplacé BC');
+      /* ③ glisser BC sur A, puis BD au bout de BC */
+      await glisser(0, [-3, -3]);
+      await glisser(1, [0, -3]);
+      e = await etat();
+      if(e.ch !== 'ab') dits.push('BC et BD glissés ne sont pas bout à bout depuis A : ' + JSON.stringify([e.a, e.b]));
+      /* ④ A′ : sous la pointe de BD — l'appui passe au nœud, la lettre s'affiche */
+      await clic(5, 2);
+      const lettre = await s.page.evaluate(() => { const t = document.querySelector('#cpsn-5-2 .vec-dlbl');
+        return t ? { vu: getComputedStyle(t).display !== 'none', txt: t.textContent } : null; });
+      e = await etat();
+      if(JSON.stringify(e.pt) !== '[5,2]') dits.push('le clic sur la pointe de BD ne pose pas A′ : ' + JSON.stringify(e.pt));
+      if(!lettre || !lettre.vu || lettre.txt !== 'A′') dits.push('la lettre A′ ne s\'affiche pas sur le nœud posé : ' + JSON.stringify(lettre));
+      await s.page.click('#cpsValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
+        bouton: document.getElementById('cpsNext') ? document.getElementById('cpsNext').textContent : '' }));
+      if(fin.score !== 4 || !fin.locked) dits.push('la copie juste vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller'));
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* question suivante : la copie vide se corrige en vert, sans rien de rouge */
+      await s.page.click('#cpsNext');
+      await s.page.waitForTimeout(400);
+      await s.page.evaluate(fiche);
+      await s.page.waitForTimeout(150);
+      await s.page.click('#cpsValidate');
+      await s.page.waitForTimeout(300);
+      const vide = await s.page.evaluate(() => ({
+        cls: ['cps-t1', 'cps-t2', 'cps-ch', 'cps-pt'].map(id => document.getElementById(id).className),
+        vert: [...document.querySelectorAll('#cpsCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        a: (() => { const t = document.querySelector('#cpsn-5-2 .vec-dlbl'); return t ? getComputedStyle(t).display !== 'none' : false; })(),
+        rouge: !!document.querySelector('#cpsGraph .badc, #cpsGraph .svc-eb'), score: test.score }));
+      if(!vide.cls.every(c => /\bsol\b/.test(c))) dits.push('la copie vide ne passe pas en vert : ' + vide.cls.join(' / '));
+      if(vide.vert !== 4) dits.push('la correction ne trace pas BC, BD et la construction en vert (' + vide.vert + ')');
+      if(!vide.a) dits.push('le point attendu A′ ne se montre pas avec sa lettre');
+      if(vide.rouge) dits.push('la copie vide rougit quelque chose');
+      if(vide.score !== 4) dits.push('la copie vide rapporte des points (score ' + vide.score + ' au lieu de 4)');
+      verifier('les vecteurs se tracent au clic, glissent bout à bout depuis A, A′ se pose au clic', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran du point par une somme de vecteurs ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 undevicies. antécédents : la droite se fait GLISSER ===== */
     /* {antecedents-droite} : le geste central est un GLISSER — la droite suit
        le pointeur enfoncé et s'accroche à la graduation la plus proche — puis

@@ -1288,3 +1288,193 @@ retire, BC⃗ et BA⃗ (le second clic sur B traverse la prise de BC⃗), les de
 copies glissées jusqu'à D puis au bout de la première, M — 8 sur 8, « 8 cases
 justes sur 8 » — puis une copie vide entièrement verte. Le doigt sur
 tablette, lui, ne se joue dans aucun banc.
+
+## {chasles-alignes} — la relation de Chasles sur une droite (8.12, v494)
+
+**La demande** (Turquet, octobre 2026, le même jour que le 8.9 et avec la même phrase, mais une AUTRE fiche) : « en seconde fais un exercice comme
+le 8.8 mais avec le pdf joint ». La fiche : « A, B, C et D sont quatre points
+alignés tels que AB = BC = CD », une droite, et six lignes « Compléter » —
+AB + CD, CB + AB, AC + DC, BD + BA, AB + DC = … = … ; AB + CD + CA = … = ….
+
+**Ce que la fiche ajoute au 8.8, et que le moteur du 8.8 refusait** : le
+VECTEUR NUL (CB + AB et AB + DC valent 0⃗ — `chsPosable` écartait toute somme
+nulle) et une somme de TROIS vecteurs. D'où un exercice à part (`cha`), qui
+partage les outils de lecture du 8.8 (`chsD`, `chsMeme`, `chsVecs`,
+`chsGrp`) et du 8.3 (`vegLit`, `vegVecHTML`, `.veg-in`), mais pas son juge.
+
+**Une seule forme de ligne** : aucune ligne de la fiche ne s'enchaîne telle
+quelle, chacune se RÉÉCRIT (un vecteur par case, autant de cases que de
+vecteurs) puis se conclut — 3 cases par ligne de deux vecteurs, 4 pour la
+ligne de trois : 19 cases par figure. Le plan (`CHA_PLAN`) est celui de la
+fiche : `n` (somme non nulle), `z` (somme nulle), `n`, `n`, `z`, `t` (trois
+vecteurs, de somme nulle ou non). La première figure EST la fiche
+(`CHA_FICHE`) ; les suivantes tirent quatre lettres (`CHS_LETTRES`) et six
+lignes dont aucune paire voisine ne s'enchaîne déjà (`chaEnchainee` — pour
+deux vecteurs, dans aucun ordre : « retourner » seul ne suffit jamais).
+`CHA_NB` = 2 figures, `dmNbQuestions` allonge la séance, `distinctes()` les
+tient différentes. On range les lettres et les lignes (`vs`), jamais les
+réponses.
+
+**Le juge** (`chaJugeLigne`) : `chaLigne` énumère TOUTES les écritures
+enchaînées de la même somme (des vecteurs égaux à ceux de la ligne, dans un
+ordre où chacun part là où s'arrête le précédent) ; la page retient celle qui
+garde le plus de cases de l'élève (à égalité, celle qui garde les premières,
+puis celle qui reprend le plus de vecteurs de la ligne — la correction de
+AB + CD est AB + BC, pas BC + CD). Une case juste ne rougit donc pas pour sa
+voisine. Le résultat est juste dès qu'il est égal à la somme (AB + CD = BD
+aussi) ; le vecteur nul s'écrit 0, O ou deux fois la même lettre (AA), et la
+correction écrit 0 sous la flèche de la case. Les messages nomment la faute :
+le vecteur recopié qui doit « partir de B, là où s'arrête AB », le vecteur
+égal à aucun de la somme, le vecteur nul (« on revient au point de départ »),
+le résultat à l'envers.
+
+**Le dessin** (`chaSvg`) : une droite, quatre points à pas égal, les lettres
+dessous comme sur la fiche, un petit trait de codage sur chaque segment. Il
+prend toute la largeur au-dessus des lignes (`.cha-fig`) : la droite est
+longue et basse, posée à gauche elle écrasait les lignes.
+
+**Le banc** (`tests/verifier.js`, « Chasles sur une droite ») : la place
+(8.12, pas de bouton des tables), 300 séances dont chaque correction est relue
+par un juge INDÉPENDANT écrit depuis les abscisses 0, 1, 2, 3, le plan, les
+sommes nulles où le plan les veut, la ligne de trois vecteurs tantôt nulle
+tantôt non ; puis le bouton sur la fiche : 19 cases, quatre lettres, trois
+codages, la copie juste, d'autres écritures justes en minuscules (BC + CD =
+BD, CB + BC = CC, CA + AB + BC = aa), AB + CD recopié (CD rouge, AB et AC
+bleus, badge BC, « partir de B »), CD égal à rien de AC + DC, AB + DC = AB
+(« nul »), BA pour AC + DC (« sens »), la case vide (correction BA, jamais
+rouge), la copie vide, le soutien, le barème, `qId`, le contexte du modèle.
+
+## {chasles-sans-figure} — la relation de Chasles sans figure (8.13, v495)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
+le 8.8 mais avec le pdf joint », la fiche 6 « Relation de Chasles » — sans
+figure, des points quelconques, trois parties : 1) écrire sous forme d'un
+seul vecteur… si c'est possible (AD + DF, CB + CA, DF − FG, AB − AC,
+RS + AR, EG + GT, AL − LA, − AD − DB) ; 2) écrire plus simplement
+u = AB + BC + CA, v = IJ + KI + JK, w = AB + AC + BC, x = DE + FG + EF + DG ;
+3) la même chose en transformant d'abord les soustractions (AB − AC,
+RT − ST + RS, AB + MA − MB + BA, MN − MP − PQ + MQ).
+
+**Prévu 8.9, publié 8.13** : pendant sa rédaction, d'autres sessions ont mis en ligne, le même jour, quatre exercices de vecteurs tirés d'AUTRES fiches — {chasles-trois-vecteurs} (8.9, le parallélogramme EFGH), {chasles-simplifier} (8.10, le rectangle ACKI), {somme-vecteurs-repere} (8.11) et {chasles-alignes} (8.12). Celle-ci, la fiche 6 sans figure, vient derrière, en 8.13. Elle s'appelait aussi « chasles-simplifier » sur sa branche : l'identifiant étant pris, elle est devenue {chasles-sans-figure}, et sa fonction de banc `chaslesSansFigure`. Aucun moteur commun avec les autres, sauf l'habillage des vecteurs du 8.3 (`.veg-v`, `.veg-in`).
+
+**Une page par partie ; les trois premières SONT la fiche** (`CHL_FICHE`),
+les trois suivantes reprennent chaque ligne de la fiche avec d'autres lettres
+(ni O, ni I, ni W à Z), dans un autre ordre. `CHL_NB` = 6 pages,
+`dmNbQuestions` règle la séance, `distinctes()` la tient différente ; 32
+cases par séance. On range la partie et les lignes écrites (« +AB-AC »),
+jamais les réponses.
+
+**Une case par ligne, et la réponse s'écrit comme sur la copie** : AF, 2AC,
+0 (le vecteur nul), ou « impossible ». Sur la partie 1 — la seule qui dise
+« si c'est possible » — un bouton écrit le mot dans la case (et l'en retire
+au second appui) ; la case s'élargit alors et perd sa flèche. Une seule case
+peinte par ligne, et c'est voulu : `ptsEcran()` compte les champs peints, une
+case du coefficient à côté de celle du vecteur aurait compté chaque ligne
+deux fois.
+
+**Le juge lit le calcul, pas des lettres attendues.** Sans figure, deux
+vecteurs ne sont égaux que s'ils ont les mêmes lettres ; une somme se lit
+donc comme une combinaison de points (AB vaut B − A). La réponse est juste
+dès que sa combinaison est celle de la ligne : 2AL et −2LA ne font qu'un, AA
+vaut 0. La ligne est impossible quand la combinaison porte trois points ou
+plus (CB + CA = A + B − 2C). Les messages nomment la faute — « impossible »
+sur une somme possible, un vecteur pour une somme impossible, le mauvais
+sens, le mauvais nombre (AL au lieu de 2AL), la soustraction oubliée — et
+déroulent le calcul : AB + MA − MB + BA = AB + MA + BM + BA = AB + BM + MA +
+BA = 0 + BA = BA (`chlEtapes` : les opposés, la somme remise dans l'ordre
+qui enchaîne, chaque chaîne réduite).
+
+**Le juge du banc** (`tests/verifier.js`, « Chasles sans figure ») : la place
+(8.13, pas de bouton des tables) ; les réponses de la fiche ; 300 séances dont
+chaque correction est relue par un juge INDÉPENDANT — des coordonnées
+quelconques pour chaque lettre, la somme calculée en déplacements, et
+« impossible » vérifié contre tous les kXY possibles ; chaque ligne tirée est
+une ligne de la fiche, lettres changées ; puis par le bouton : les trois
+copies justes, d'autres écritures justes (minuscules, −2LA, « imp », AA,
+2×DG), « impossible » sur AD + DF, AB pour CB + CA (badge « impossible »),
+BC pour AB − AC (« sens »), AL pour AL − LA (« 2AL »), 2RT pour RT − ST + RS
+(« opposé TS »), « A » illisible, la case vide (correction, jamais rouge),
+la copie vide des trois parties, le bouton « impossible » dans les deux sens,
+le soutien au fil de la saisie, le barème, `qId`, le contexte du modèle.
+
+## {point-somme-vecteurs} — construire un point avec une somme de vecteurs (8.14, v496)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice
+comme l'exercice 2 du pdf, l'élève devra d'abord tracer les 2 vecteurs
+demandés, puis pourra les déplacer aux bons endroits comme dans le 8.7 et on
+finira par placer le point demandé ». La fiche (« Fiche 8 sur somme de
+vecteur », exercice 2) : cinq points A, B, C, D, E sur un quadrillage, et
+« construire A′ tel que AA′ = BC + BD », « B′ tel que BB′ = ED + EA »,
+« C′ tel que CC′ = AE + BD ». Ajouté en dernier, il ne renumérote rien. Écrit comme 8.9 en v491, il est devenu le 8.14 en v496 au fil de cinq fusions de `main`, où {chasles-trois-vecteurs} (8.9, v491), {chasles-simplifier} (8.10, v492), {somme-vecteurs-repere} (8.11, v493), {chasles-alignes} (8.12, v494) puis {chasles-sans-figure} (8.13, v495) avaient pris leur place le même jour — plusieurs sessions remplissaient le thème 8 de front, et chaque pull request verte arrivait derrière une autre. Ce dernier part d'une autre fiche (la « Fiche 10 », un repère où l'élève place d'abord les points) : les deux exercices sont voisins, pas doubles — ici les cinq points sont donnés, et le geste à apprendre est de recopier deux vecteurs de la figure.
+
+**Trois gestes, quatre réponses jugées chacune SEULE** (`cpsJuge`). ① Les
+deux vecteurs se TRACENT, deux clics chacun (le début, puis la fin ;
+recliquer le début seul le retire), le premier de la somme d'abord : la
+flèche porte son nom dès qu'elle est tracée, et une ligne sous le dessin
+(`#cpsEtape`) dit quelle flèche tracer ou quel point placer — un guide du
+geste, jamais un verdict. ② Elles GLISSENT comme au 8.7 (le moteur de
+`svcBrancher`, recopié pour son hôte : prise transparente, `touch-action`,
+appui immobile = clic au nœud, flèches du clavier) jusqu'à être bout à bout
+depuis le point donné, dans l'ordre qu'on veut. ③ Les deux tracées, un clic
+pose le point (le même nœud le retire, un autre le déplace), dont la lettre
+A′ s'écrit sur la cible. Les réponses : `cps-t1` et `cps-t2` (chaque flèche
+fait le chemin de son vecteur, où qu'elle soit), `cps-ch` (les deux partent
+bout à bout du point donné, quelles qu'elles soient), `cps-pt` (le point au
+nœud attendu). Barème 4 par question, quatre questions (`CPS_NB`,
+`dmNbQuestions`) : 16.
+
+**Le chaînage jamais tenté ne rougit pas.** Deux flèches tracées sur la
+figure et jamais déplacées, sans être déjà bout à bout depuis le point,
+font un chaînage VIDE (sol), pas faux : l'élève n'a rien fait de travers,
+il n'a rien fait. « Effacer mes flèches » efface les deux tracés pour les
+reprendre — sauf, en soutien, celui que la vérification a figé juste ; le
+point posé reste.
+
+**On range la figure, jamais la réponse** : `pts` (les cinq points), `m`
+(le point déplacé), `a` et `b` (les deux vecteurs, en indices de points),
+puis `d1`/`f1`/`p1`, `d2`/`f2`/`p2` (les deux clics de chaque tracé et le
+début déplacé) et `pt`. `cpsAttendu(q)` recalcule le point. Les deux formes
+de la fiche ALTERNENT : « mo », deux vecteurs de même origine (BC + BD),
+puis « qq », quatre lettres (AE + BD) ; le point déplacé n'est jamais une
+lettre de la somme. Le tirage (`cpsGen`) : cinq points à un carreau du bord,
+deux à deux à deux carreaux ; chaque chemin et la somme à deux carreaux au
+moins ; deux vecteurs jamais parallèles (la construction se voit) ; la
+construction depuis le point dans le quadrillage, dans les deux ordres ; le
+point attendu à deux carreaux de tout point nommé. Quadrillage de 14 × 9.
+
+**`svcFleche` sert les deux exercices** — et la fusion y a rencontré le nom à une flèche par lettre du 8.7 (« u+v » écrit u⃗ + v⃗) : une lettre est un morceau du nom coupé aux « + », et un morceau de deux lettres (BC) reçoit une flèche de deux largeurs. Elle prend désormais `o.geo` (le
+quadrillage de l'appelant) et ne pose ses suffixes `-o`, `-t`, `-f` que sur
+la PREMIÈRE classe — une flèche nommée en pointillés (`svc-s svc-copie`)
+aurait sinon posé la classe `svc-s` sur son nom, et un trait vert de 2,6 px
+autour des lettres. Le 8.7 n'en voit rien : il ne nommait jamais une flèche
+à deux classes.
+
+**La correction** : flèche juste en bleu, fausse en rouge ; en vert ce qui
+manque — la flèche juste de chaque vecteur manqué, posée sur ses deux
+lettres ; la construction depuis le point (le premier vecteur en trait
+plein, le second en pointillés) si le chaînage n'y était pas ; le point
+attendu avec sa lettre. Les pièges nommés (`cpsPourquoi`) : une flèche à
+l'envers, une flèche de travers (avec son chemin en carreaux), les deux
+débuts sur le point, une construction qui ne part pas du point, deux
+flèches qui ne se touchent pas, un point qui n'est pas au bout. En soutien :
+le faux rougit, le juste se fige, rien ne se révèle ; le chaînage ne se fige
+que sur deux flèches justes — figé sur une fausse, il empêcherait de la
+retracer.
+
+**Le juge** (`tests/verifier.js`, « point par une somme de vecteurs ») : la
+place (8.14, le 8.7 à 8.13 immobiles, pas de bouton des tables), 200
+séances (quatre questions distinctes, barème 16, les clés rangées, les
+formes qui alternent, le point recalculé, tout dans le quadrillage, JSON),
+puis la figure de la fiche recadrée (A′ en (5 ; 2)) : l'énoncé, cinq croix,
+150 cibles, aucune flèche avant le tracé ; la copie vide (quatre sol, quatre
+traits verts, A′ en vert, « Il te manquait 4 cases ») ; la copie juste dans
+les deux ordres, la reprise après JSON, la flèche retenue au bord ; BD à
+l'envers et deux débuts sur A avec A′ juste (ok, bad, bad, ok — le point
+juste ne rougit pas) ; les flèches jamais déplacées avec A′ faux (ok, ok,
+sol, bad) ; le soutien (rien ne se révèle, la flèche juste se fige,
+« Effacer » garde la figée) et le contexte du modèle. **Le banc navigateur**
+(« 6 quadragies sexies ») trace BC à la souris (un clic à un cinquième
+de maille), trace BD depuis B SOUS la prise de BC, fait glisser les deux
+flèches bout à bout depuis A, pose A′ sous la pointe de BD et lit sa
+lettre, puis corrige une copie vide (quatre traits verts, rien de rouge).
+Le doigt sur tablette, lui, ne se joue dans aucun banc.
