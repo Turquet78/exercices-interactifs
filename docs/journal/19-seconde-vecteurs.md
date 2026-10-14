@@ -210,7 +210,7 @@ configuration », « par figure 2 : les flèches « non parallèles » ne font q
 les trois défauts, nommés, aucun autre.
 
 **Puis la colonne DONNÉE a ressorti, dès l'arrivée de la question**
-(Turquet, octobre 2026, v485 : « faire ressortir la colonne qui donne
+(Turquet, octobre 2026, v486 : « faire ressortir la colonne qui donne
 l'information au début de chaque question »). Les trois colonnes avaient le
 même cadre pâle : l'élève devait chercher laquelle était remplie avant de
 savoir d'où partir. La cellule donnée (`vgt-donnee`, une classe qui existait
