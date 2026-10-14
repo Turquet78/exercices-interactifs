@@ -1522,3 +1522,31 @@ de maille), trace BD depuis B SOUS la prise de BC, fait glisser les deux
 flèches bout à bout depuis A, pose A′ sous la pointe de BD et lit sa
 lettre, puis corrige une copie vide (quatre traits verts, rien de rouge).
 Le doigt sur tablette, lui, ne se joue dans aucun banc.
+
+## {point-somme-difference} — construire un point par une somme ou une différence de deux vecteurs (8.15, v498)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
+l'exercice 1 du pdf, en déplaçant les vecteurs comme dans le 8.7 ». La
+« Fiche 8 sur somme de vecteurs », exercice 1 : deux vecteurs u⃗ et v⃗ sur un
+quadrillage, trois points A, B, C, et « construire le point manquant
+vérifiant l'égalité » — AA′ = u⃗ + v⃗, BB′ = u⃗ − v⃗, CC′ = −u⃗ − v⃗. Ajouté en
+dernier, il ne renumérote rien. Il voisine avec le 8.11
+({somme-vecteurs-repere}), écrit le même jour dans une autre conversation :
+là, des vecteurs tracés entre des points d'un repère, et seulement des
+SOMMES ; ici, deux vecteurs libres, et des DIFFÉRENCES et des opposés — d'où
+le geste de retourner une flèche.
+
+**Écrit comme 8.9 en v491, publié 8.15 en v498**, au fil de trois fusions de
+`main` : les 8.9 à 8.14 avaient été pris le même jour par d'autres sessions.
+La dernière fusion a montré une COLLISION d'identité, pas seulement de numéro :
+le 8.14 venait d'être publié sous l'identifiant `point-somme-vecteurs` — celui
+que portait cet exercice — et sous le profil de banc `pointSommeVecteurs`. Le
+8.14 fait l'exercice 2 de la MÊME fiche (cinq points donnés, AA′ = BC + BD,
+deux vecteurs à tracer puis à faire glisser) ; celui-ci fait l'exercice 1
+(u⃗ et v⃗ libres, sommes, différences et opposés). Ils sont voisins, pas
+doubles. Celui-ci a donc changé d'identifiant (`point-somme-difference`), de
+profil (`pointSommeDifference`), de section de banc navigateur (« 6
+quadragies septies ») et de titre (« Construire un point : somme ou
+différence de deux vecteurs ») : deux noms de menu presque identiques
+auraient fait choisir l'un pour l'autre. Le kind `cvp` et les fonctions
+`cvp…` n'entraient en collision avec rien (le 8.14 est `cps`).

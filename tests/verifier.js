@@ -4513,6 +4513,7 @@ function exercices(suite){
     sommeVecteurs(w, P);
     sommeVecteursRepere(w, P);
     pointSommeVecteurs(w, P);
+    pointSommeDifference(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
     recurrenceLimite(w, P);
@@ -12362,6 +12363,204 @@ function pointSommeVecteurs(w, P){
     if(classes()!=='rien,rien,rien,rien' || test.locked) vus.push('soutien : vérifier sans rien faire peint '+classes()+(test.locked?' et verrouille':''));
     currentMode='train';
     if(test.qId && test.qId!==D.exercice) vus.push('qId « '+test.qId+' »');
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {point-somme-difference} (Seconde, 8.15, thème « Vecteurs » — demande de
+   Turquet, octobre 2026 : « fais un exercice comme l'exercice 1 du pdf, en
+   déplaçant les vecteurs comme dans le 8.7 », la fiche 8, AA′ = u⃗ + v⃗,
+   BB′ = u⃗ − v⃗, CC′ = −u⃗ − v⃗). Sept bords :
+     · le tirage suit la fiche puis varie, il est LISIBLE et JSON : le point,
+       A′, les extrémités dessinées à un carreau du bord, u⃗ et v⃗ jamais
+       parallèles, chaque chemin à deux carreaux, rien de construit d'avance,
+       rien de répondu ;
+     · vérifier à VIDE ne rougit rien : la construction attendue en vert, A′
+       en vert, les deux consignes sol ;
+     · la copie juste vaut 2 dans les DEUX ordres, −v⃗ obtenu en RETOURNANT v⃗ ;
+       deux retournements rendent la flèche telle quelle ;
+     · chaque réponse se juge SEULE : un A′ juste ne rougit pas parce que la
+       construction est fausse, et l'inverse ;
+     · les pièges — le signe oublié, une flèche retournée à tort, une
+       construction qui ne part pas du point — rougissent et sont NOMMÉS ;
+     · une question jouée survit au JSON de la pause et au redessin ;
+     · en soutien, rien ne se révèle, rien ne se verrouille, le juste se fige ;
+       le contexte du modèle porte A′ en le déclarant SECRET.
+   Le GLISSER, lui, ne se mesure que dans un vrai navigateur. */
+function pointSommeDifference(w, P){
+  const nom = 'point par une somme ou une différence de vecteurs : le tirage suit la fiche, les flèches glissent et se retournent, les deux ordres sont justes, les pièges sont nommés, une case vide ne rougit pas';
+  if(!P.pointSommeDifference){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du point construit par une somme de vecteurs');
+    return;
+  }
+  const present = evaluer(w, "typeof startCvp==='function' && typeof checkCvp==='function' && typeof cvpRetourner==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startCvp, checkCvp ou cvpRetourner introuvable');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.pointSommeDifference)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['somme-vecteurs-repere']!=='8.11') vus.push('le 8.11 a bougé : '+TEST_NUM['somme-vecteurs-repere']);
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const loin=function(p,r){ return Math.max(Math.abs(p[0]-r[0]),Math.abs(p[1]-r[1]))>=2; };
+    const dans=function(p){ return p[0]>=0&&p[0]<=12&&p[1]>=0&&p[1]<=8; };
+    const int=function(p){ return p[0]>=1&&p[0]<=11&&p[1]>=1&&p[1]<=7; };
+    const plus=function(p,r){ return [p[0]+r[0],p[1]+r[1]]; };
+    /* B en (3 ; 4), u = (3 ; 1) en (1 ; 6), v = (2 ; 3) en (8 ; 2) : BB′ = u − v, B′ en (4 ; 2) */
+    const fiche=function(){ return {l:'B', ex:'pm', po:[3,4], uo:[1,6], uc:[3,1], vo:[8,2], vc:[2,3], up:null, vp:null, ur:false, vr:false, sel:null}; };
+    const verifierIci=function(){ const av=test.score; checkCvp(); clearTimeout(test.fbTimer); return test.score-av; };
+
+    /* 1. le tirage : la fiche d'abord, puis lisible, JSON, rien de répondu */
+    const figures={}, egalites={};
+    startCvp(); clearTimeout(test.fbTimer);
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    for(let t=0;t<200 && !vus.length;t++){
+      const qs=cvpBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' questions au lieu de '+D.nb); break; }
+      const cles=qs.map(cleQuestion);
+      if(new Set(cles).size!==cles.length) vus.push('deux questions identiques dans une même séance');
+      if(qs.slice(0,3).map(function(q){ return q.l+q.ex; }).join(',')!=='App,Bpm,Cmm') vus.push('les trois premières questions ne suivent pas la fiche (AA′ = u + v, BB′ = u − v, CC′ = −u − v) : '+qs.slice(0,3).map(function(q){ return q.l+q.ex; }).join(','));
+      qs.forEach(function(q,i){
+        if(Object.keys(q).sort().join(',')!=='ex,l,po,sel,uc,uo,up,ur,vc,vo,vp,vr') vus.push('la question range autre chose que la figure et les gestes de l\\'élève : '+Object.keys(q).join(','));
+        if(q.up!==null||q.vp!==null||q.ur||q.vr||q.sel!==null) vus.push('le tirage répond à la place de l\\'élève');
+        if(i>=3) egalites[q.ex]=1;
+        figures[cleQuestion(q)]=1;
+        const s=[q.ex[0]==='m'?-1:1, q.ex[1]==='m'?-1:1];
+        const E=[q.po[0]+s[0]*q.uc[0]+s[1]*q.vc[0], q.po[1]+s[0]*q.uc[1]+s[1]*q.vc[1]], Ep=cvpPoint(q);
+        if(E[0]!==Ep[0]||E[1]!==Ep[1]) vus.push('cvpPoint rend '+JSON.stringify(Ep)+' au lieu de '+JSON.stringify(E));
+        const M=[q.po[0]+s[0]*q.uc[0], q.po[1]+s[0]*q.uc[1]];
+        if(!dans(M)) vus.push('la construction attendue sort du quadrillage : ('+M.join(';')+')');
+        const uf=plus(q.uo,q.uc), vf=plus(q.vo,q.vc);
+        [q.po,E,q.uo,uf,q.vo,vf].forEach(function(p){ if(!int(p)) vus.push('un point touche le bord ou sort : ('+p.join(';')+')'); });
+        const bouts=[q.uo,uf,q.vo,vf];
+        for(let a=0;a<4;a++){
+          if(!loin(bouts[a],q.po)||!loin(bouts[a],E)) vus.push('une extrémité dessinée contre le point ou contre '+q.l+'′');
+          for(let b=a+1;b<4;b++) if(!loin(bouts[a],bouts[b])) vus.push('deux extrémités à moins de deux carreaux');
+        }
+        if(q.uc[0]*q.vc[1]-q.uc[1]*q.vc[0]===0) vus.push('u et v parallèles : ('+q.uc.join(';')+') et ('+q.vc.join(';')+')');
+        [q.uc,q.vc,[E[0]-q.po[0],E[1]-q.po[1]]].forEach(function(c){ if(!loin(c,[0,0])) vus.push('un chemin de moins de deux carreaux : ('+c.join(';')+')'); });
+        if(cvpChaine(q)) vus.push('le tirage pose déjà la construction');
+        if(JSON.stringify(JSON.parse(JSON.stringify(q)))!==JSON.stringify(q)) vus.push('la question ne survit pas au JSON de la pause');
+      });
+    }
+    if(!vus.length && Object.keys(egalites).sort().join(',')!=='mm,mp,pm,pp') vus.push('les questions suivantes ne tirent pas les quatre égalités : '+Object.keys(egalites).join(','));
+    if(!vus.length && Object.keys(figures).length<1000) vus.push('les figures se répètent : '+Object.keys(figures).length+' en 1200 questions');
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* montage : la même figure choisie, sept fois */
+    startCvp(); clearTimeout(test.fbTimer);
+    for(let i=0;i<test.questions.length;i++) test.questions[i]=fiche();
+    test.idx=0; test.locked=false; renderCvp();
+
+    /* 2. l'énoncé et le dessin */
+    const instr=el('cvpInstr');
+    if(instr.textContent.indexOf('Construis le point B′')<0 || instr.textContent.indexOf('à partir du point B')<0) vus.push('l\\'énoncé ne demande pas de construire B′ à partir de B : '+instr.textContent.slice(0,90));
+    if(!instr.querySelector('.vgt-vec') || instr.querySelector('.vgt-vec').textContent!=='BB′') vus.push('l\\'égalité ne s\\'écrit pas BB′ coiffé de sa flèche');
+    if(instr.querySelector('.cvp-eg').textContent.replace(/\\s+/g,' ')!=='BB′ = u − v') vus.push('l\\'égalité écrite n\\'est pas BB′ = u − v : '+instr.querySelector('.cvp-eg').textContent);
+    if(instr.textContent.indexOf('retourne la flèche')<0) vus.push('l\\'énoncé ne dit pas qu\\'on retourne une flèche pour son opposé');
+    const noms=Array.from(document.querySelectorAll('#cvpFl text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',');
+    if(noms!=='u,v') vus.push('le dessin ne nomme pas u et v : '+noms);
+    if(!document.querySelector('#cvpGraph .vec-pt') || Array.from(document.querySelectorAll('#cvpFl text.vec-lbl')).map(function(t){ return t.textContent; }).join()!=='B') vus.push('le point B n\\'est pas marqué d\\'une croix et de sa lettre');
+    if(document.querySelectorAll('#cvpGraph .vec-t').length!==117) vus.push(document.querySelectorAll('#cvpGraph .vec-t').length+' cibles au lieu de 117');
+    if(document.querySelectorAll('#cvpPrises .svc-prise').length!==2) vus.push('les deux flèches n\\'ont pas chacune leur prise pour glisser');
+    if(!el('cvpRetU') || !el('cvpRetV')) vus.push('les boutons pour retourner u et v manquent');
+    if(document.querySelector('#cvpGraph .vec-t.sel')) vus.push('B′ est posé avant que l\\'élève le pose');
+    ['cvp-ch','cvp-pt'].forEach(function(id){ if(!el(id)||!el(id).classList.contains('pts-case')) vus.push(id+' n\\'est pas une pts-case'); });
+
+    /* 3. vérifier à vide : rien ne rougit, la construction attendue en vert */
+    checkCvp(); clearTimeout(test.fbTimer);
+    if(classe('cvp-ch')!=='sol'||classe('cvp-pt')!=='sol') vus.push('vérifier à vide : '+classe('cvp-ch')+' et '+classe('cvp-pt')+' au lieu de sol');
+    if(document.querySelector('#cvpGraph .vec-t.badc, #cvpGraph .bad')) vus.push('vérifier à vide rougit quelque chose');
+    if(document.querySelectorAll('#cvpCorr line.svc-s').length!==2) vus.push('la construction attendue (u puis −v depuis B) n\\'est pas tracée en vert');
+    const vertNoms=Array.from(document.querySelectorAll('#cvpCorr text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
+    if(vertNoms!=='u,−v') vus.push('la construction verte ne nomme pas u puis −v : '+vertNoms);
+    if(!document.querySelector('#cvpn-4-2.missc')) vus.push('B′ attendu (4;2) ne se montre pas en vert');
+    if(el('cvpFeedback').textContent.indexOf('Il te manquait 2 cases')<0) vus.push('le message ne dit pas « Il te manquait 2 cases » : '+el('cvpFeedback').textContent.slice(0,90));
+    if(document.querySelector('#cvpPrises .svc-prise') || !el('cvpRetU').disabled) vus.push('les flèches se saisissent ou se retournent encore après la correction');
+    if(test.score!==0) vus.push('la copie vide vaut '+test.score);
+    const a0=test.answers[test.answers.length-1];
+    if(!a0||a0.correct||a0.cases!==2||a0.justes!==0) vus.push('la réponse enregistrée ne compte pas 0 case juste sur 2');
+
+    /* 4. copie juste, u PUIS −v ; deux retournements rendent la flèche */
+    nextCvp(); clearTimeout(test.fbTimer);
+    const q1=test.questions[1];
+    cvpRetourner('v');
+    if(!q1.vr || JSON.stringify(q1.vp)!=='[10,5]') vus.push('retourner v ne pose pas son début sur son ancienne fin : '+JSON.stringify(q1.vp));
+    if(Array.from(document.querySelectorAll('#cvpFl text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',')!=='u,−v') vus.push('la flèche retournée ne s\\'appelle pas −v');
+    cvpRetourner('v');
+    if(q1.vr || JSON.stringify(cvpV(q1))!=='[8,2]') vus.push('deux retournements ne rendent pas v tel quel');
+    cvpRetourner('v');
+    if(!cvpDeplacer('u',[3,4]) || JSON.stringify(q1.up)!=='[3,4]') vus.push('cvpDeplacer ne range pas le début de u');
+    cvpDeplacer('v',[6,5]);
+    if(!cvpChaine(q1)||cvpChaine(q1).ordre!=='uv') vus.push('u puis −v posés depuis B ne sont pas lus comme la construction');
+    cvpPose(1,1);
+    if(JSON.stringify(q1.sel)!=='[1,1]' || !document.querySelector('#cvpn-1-1.sel')) vus.push('le clic ne pose pas B′');
+    cvpPose(1,1);
+    if(q1.sel!==null || document.querySelector('#cvpn-1-1.sel')) vus.push('recliquer le nœud ne retire pas B′');
+    cvpPose(4,2);
+    test.questions[1]=JSON.parse(JSON.stringify(q1)); renderCvp();
+    const q1b=test.questions[1];
+    if(!cvpChaine(q1b) || !document.querySelector('#cvpn-4-2.sel')) vus.push('la reprise perd les flèches retournées, déplacées ou B′');
+    if(verifierIci()!==2) vus.push('la copie juste (u puis −v) ne vaut pas 2');
+    if(classe('cvp-ch')!=='ok'||classe('cvp-pt')!=='ok') vus.push('la copie juste n\\'est pas peinte ok : '+classe('cvp-ch')+', '+classe('cvp-pt'));
+    if(el('cvpCorr').children.length || document.querySelector('#cvpGraph .vec-t.missc')) vus.push('la correction se montre alors que tout est juste');
+    if(!document.querySelector('#cvpn-4-2.okc')) vus.push('B′ juste ne se peint pas en bleu');
+
+    /* 5. copie juste, −v PUIS u */
+    nextCvp(); clearTimeout(test.fbTimer);
+    cvpRetourner('v'); cvpDeplacer('v',[3,4]); cvpDeplacer('u',[1,1]); cvpPose(4,2);
+    if(!cvpChaine(test.questions[2])||cvpChaine(test.questions[2]).ordre!=='vu') vus.push('−v puis u n\\'est pas lu comme la construction');
+    if(verifierIci()!==2) vus.push('la copie juste dans l\\'autre ordre (−v puis u) ne vaut pas 2');
+
+    /* 6. les pièges, et chaque réponse jugée seule */
+    nextCvp(); clearTimeout(test.fbTimer);
+    cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]); cvpPose(8,8);
+    if(verifierIci()!==0) vus.push('le signe oublié (u + v au lieu de u − v) rapporte des points');
+    let fb=el('cvpFeedback').textContent;
+    if(classe('cvp-ch')!=='bad'||fb.indexOf('retourne la flèche v')<0||fb.indexOf('BB′ = u − v = u + (−v)')<0) vus.push('le signe oublié n\\'est pas rouge et nommé : '+fb.slice(0,160));
+    if(!document.querySelector('#cvpn-8-8.badc') || !document.querySelector('#cvpn-4-2.missc')) vus.push('B′ faux n\\'est pas rouge, ou le bon pas montré en vert');
+    nextCvp(); clearTimeout(test.fbTimer);
+    cvpRetourner('v'); cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]); cvpPose(5,2);
+    if(verifierIci()!==1) vus.push('construction juste, B′ faux : ne vaut pas 1');
+    if(classe('cvp-ch')!=='ok'||classe('cvp-pt')!=='bad') vus.push('construction juste, B′ faux : '+classe('cvp-ch')+', '+classe('cvp-pt')+' — une réponse juste rougit à cause de l\\'autre');
+    if(el('cvpCorr').querySelectorAll('line.svc-s').length) vus.push('la construction juste est redoublée en vert');
+    if(el('cvpFeedback').textContent.indexOf('au bout de la seconde flèche')<0) vus.push('le message ne dit pas où est B′');
+    nextCvp(); clearTimeout(test.fbTimer);
+    cvpRetourner('v'); cvpDeplacer('u',[0,4]); cvpDeplacer('v',[3,5]); cvpPose(4,2);
+    if(verifierIci()!==1) vus.push('construction hors de B, B′ juste : ne vaut pas 1');
+    fb=el('cvpFeedback').textContent;
+    if(classe('cvp-ch')!=='bad'||classe('cvp-pt')!=='ok'||fb.indexOf('part du point B')<0) vus.push('la construction qui ne part pas de B n\\'est pas rouge et nommée, ou B′ juste rougit : '+classe('cvp-pt')+' — '+fb.slice(0,120));
+    /* la séance a six questions : le dernier piège rejoue la sixième, remise à neuf */
+    test.questions[test.idx]=fiche(); test.locked=false; renderCvp();
+    cvpRetourner('u'); cvpRetourner('v');
+    if(verifierIci()!==0) vus.push('u retourné à tort rapporte des points');
+    fb=el('cvpFeedback').textContent;
+    if(fb.indexOf('ne doit pas être retournée')<0||fb.indexOf('Il te manquait 1 case')<0) vus.push('u retourné à tort n\\'est pas nommé : '+fb.slice(0,160));
+
+    /* 7. soutien : rien ne se révèle, rien ne se verrouille ; le juste se fige */
+    currentMode='soutien'; startCvp(); clearTimeout(test.fbTimer);
+    test.questions[0]=fiche(); test.idx=0; renderCvp();
+    cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]); checkCvp();
+    if(test.locked) vus.push('soutien : une copie fausse verrouille la question');
+    if(classe('cvp-ch')!=='bad' || classe('cvp-pt')!=='rien') vus.push('soutien : '+classe('cvp-ch')+', '+classe('cvp-pt')+' au lieu de bad, rien');
+    if(el('cvpCorr').children.length || document.querySelector('#cvpGraph .vec-t.missc')) vus.push('soutien : la construction attendue se révèle');
+    const ctx=conseilCtxCourant();
+    if(ctx.indexOf('STRICTEMENT SECR')<0 || ctx.indexOf('B′ est en (4 ; 2)')<0) vus.push('le contexte du modèle ne porte pas B′ en le déclarant secret');
+    if(ctx.indexOf('BB′ = u − v')<0 || ctx.indexOf('la flèche v va de (6 ; 5)')<0) vus.push('le contexte du modèle ne dit pas l\\'égalité ni où sont les flèches');
+    cvpRetourner('v'); cvpDeplacer('v',[6,5]); checkCvp();
+    if(!test.cvpFigeCh || cvpDeplacer('u',[0,0]) || !el('cvpRetU').disabled) vus.push('soutien : la construction juste ne se fige pas');
+    if(test.locked) vus.push('soutien : B′ manquant verrouille la question');
+    cvpPose(4,2); checkCvp(); clearTimeout(test.fbTimer);
+    if(!test.locked || test.score!==2) vus.push('soutien : la copie corrigée ne verrouille pas ou ne vaut pas 2 ('+test.score+')');
+    currentMode='soutien'; startCvp(); clearTimeout(test.fbTimer);
+    checkCvp();
+    if(classe('cvp-ch')!=='rien' || classe('cvp-pt')!=='rien' || test.locked) vus.push('soutien : vérifier sans rien faire peint '+classe('cvp-ch')+(test.locked?' et verrouille':''));
+    currentMode='train';
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
