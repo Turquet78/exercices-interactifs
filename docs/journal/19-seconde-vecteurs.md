@@ -666,7 +666,7 @@ intacte reste verte. Un quatrième sabotage, le garde de `q.etape` retiré de
 a) se ferme, et le second garde tient seul — ce n'est pas un trou du
 contrôle, c'est une ceinture avec des bretelles.
 
-### Puis les lettres ont changé, et la figure s'est centrée (v484)
+### Puis les lettres ont changé, et la figure s'est centrée (v485)
 
 Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, nommer les 4
 points avec les lettres A, B, C, D ou M, N, O, P ou E, F, G, H ou I, J, K, L
@@ -681,7 +681,7 @@ moment : l'énoncé (« MNPO est un parallélogramme… construis le point P »)
 les étiquettes du dessin, les options des listes, « de O à P », le vecteur
 OP, le pourquoi, la réponse enregistrée et le contexte du modèle. Les
 lettres que l'élève choisit sont les lettres AFFICHÉES, et le juge les
-compare à la traduction du chemin. Une question rangée avant v484 n'a pas de
+compare à la traduction du chemin. Une question rangée avant v485 n'a pas de
 `q.lt` : elle se lit en ABCD, la reprise d'une pause ne casse rien. Le
 rappel de cours garde A, B, C, D : c'est la méthode, pas l'exercice.
 
