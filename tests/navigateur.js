@@ -9210,9 +9210,14 @@ if(require.main === module) (async () => {
           return b.width && (b.left < r.left - 1 || b.right > r.right + 1 || b.top < r.top - 1 || b.bottom > r.bottom + 1); }).length;
         const pr = document.querySelector('#cvpPrises .svc-prise');
         const lettre = document.querySelector('#cvpFl text.vec-lbl'), lb = lettre ? lettre.getBoundingClientRect() : { width: 0 };
+        const et = document.getElementById('cvpEtape'), eb = et ? et.getBoundingClientRect() : { height: 0, bottom: 1e9 };
         return { svg: r.width > 400 && r.height > 250, fleche: eg ? getComputedStyle(eg, '::before').borderTopStyle : '', dehors: dehors,
-                 touche: pr ? getComputedStyle(pr).touchAction : '', lettre: lb.width > 5 };
+                 touche: pr ? getComputedStyle(pr).touchAction : '', lettre: lb.width > 5,
+                 etape: et ? et.textContent : '', etapeAuDessus: eb.height > 20 && eb.bottom <= r.top + 1,
+                 mots: document.querySelectorAll('#cvpGraph .svc-mot').length };
       });
+      if(mes.etape.indexOf('Étape 1') !== 0 || !mes.etapeAuDessus) dits.push('l\'étape 1 ne s\'affiche pas en bandeau au-dessus du dessin : ' + mes.etape.slice(0, 60));
+      if(mes.mots) dits.push(mes.mots + ' mot(s) « début » / « fin » sur les flèches');
       if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
       if(mes.fleche !== 'solid') dits.push('BB′ n\'est pas coiffé de sa flèche');
       if(mes.dehors) dits.push(mes.dehors + ' mot(s) ou lettre(s) sortent du dessin');
@@ -9246,6 +9251,10 @@ if(require.main === module) (async () => {
       await glisser('v', [6 - e.v[0], 5 - e.v[1]]);
       e = await etat();
       if(JSON.stringify(e.v) !== '[6,5]' || e.ch !== 'uv') dits.push('−v glissé ne s\'accroche pas au bout de u : ' + JSON.stringify(e.v));
+      const et2 = await s.page.evaluate(() => { const r = document.getElementById('cvpEtape').getBoundingClientRect(), g = document.querySelector('#cvpGraph .cvp-svg').getBoundingClientRect();
+        return { t: document.getElementById('cvpEtape').textContent, dessus: r.height > 20 && r.bottom <= g.top + 1, mots: document.querySelectorAll('#cvpGraph .svc-mot').length }; });
+      if(et2.t.indexOf('Étape 2') !== 0 || !et2.dessus) dits.push('les flèches bout à bout, l\'étape 2 ne s\'affiche pas au-dessus du dessin : ' + et2.t.slice(0, 60));
+      if(et2.mots) dits.push('bout à bout, les flèches portent ' + et2.mots + ' mot(s) « début » / « fin »');
       /* B′ : la fin de −v, sous sa prise — le clic doit passer au nœud */
       const b2 = await pos(4.1, 2);
       await s.page.mouse.click(b2.px, b2.py); await s.page.waitForTimeout(120);

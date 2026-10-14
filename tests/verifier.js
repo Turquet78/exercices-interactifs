@@ -12459,10 +12459,15 @@ function pointSommeDifference(w, P){
 
     /* 2. l'énoncé et le dessin */
     const instr=el('cvpInstr');
-    if(instr.textContent.indexOf('Construis le point B′')<0 || instr.textContent.indexOf('à partir du point B')<0) vus.push('l\\'énoncé ne demande pas de construire B′ à partir de B : '+instr.textContent.slice(0,90));
+    /* l'énoncé ne porte que l'égalité ; la méthode vit dans l'étape, au-dessus du dessin */
+    if(instr.textContent.replace(/\\s+/g,' ').trim()!=='Construis le point B′ tel que BB′ = u − v.') vus.push('l\\'énoncé n\\'est pas la seule phrase mathématique : '+instr.textContent.slice(0,90));
+    const etape=el('cvpEtape');
+    if(!etape || etape.nextElementSibling!==el('cvpGraph')) vus.push('l\\'étape ne se place pas juste au-dessus du dessin');
+    if(!etape || etape.textContent.indexOf('Étape 1 / 2')!==0 || etape.textContent.indexOf('à partir du point B')<0) vus.push('l\\'étape 1 ne dit pas de partir du point B : '+(etape?etape.textContent.slice(0,90):''));
+    if(document.querySelector('#cvpGraph .svc-mot')) vus.push('les flèches portent encore « début » ou « fin »');
     if(!instr.querySelector('.vgt-vec') || instr.querySelector('.vgt-vec').textContent!=='BB′') vus.push('l\\'égalité ne s\\'écrit pas BB′ coiffé de sa flèche');
     if(instr.querySelector('.cvp-eg').textContent.replace(/\\s+/g,' ')!=='BB′ = u − v') vus.push('l\\'égalité écrite n\\'est pas BB′ = u − v : '+instr.querySelector('.cvp-eg').textContent);
-    if(instr.textContent.indexOf('retourne la flèche')<0) vus.push('l\\'énoncé ne dit pas qu\\'on retourne une flèche pour son opposé');
+    if(!etape || etape.textContent.indexOf('Pour −v, retourne la flèche')<0 || etape.textContent.indexOf('−u')>=0) vus.push('l\\'étape 1 ne dit pas de retourner v (et v seul) : '+(etape?etape.textContent.slice(0,160):''));
     const noms=Array.from(document.querySelectorAll('#cvpFl text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',');
     if(noms!=='u,v') vus.push('le dessin ne nomme pas u et v : '+noms);
     if(!document.querySelector('#cvpGraph .vec-pt') || Array.from(document.querySelectorAll('#cvpFl text.vec-lbl')).map(function(t){ return t.textContent; }).join()!=='B') vus.push('le point B n\\'est pas marqué d\\'une croix et de sa lettre');
@@ -12482,6 +12487,7 @@ function pointSommeDifference(w, P){
     if(!document.querySelector('#cvpn-4-2.missc')) vus.push('B′ attendu (4;2) ne se montre pas en vert');
     if(el('cvpFeedback').textContent.indexOf('Il te manquait 2 cases')<0) vus.push('le message ne dit pas « Il te manquait 2 cases » : '+el('cvpFeedback').textContent.slice(0,90));
     if(document.querySelector('#cvpPrises .svc-prise') || !el('cvpRetU').disabled) vus.push('les flèches se saisissent ou se retournent encore après la correction');
+    if(el('cvpEtape').textContent) vus.push('l\\'étape reste affichée après la correction');
     if(test.score!==0) vus.push('la copie vide vaut '+test.score);
     const a0=test.answers[test.answers.length-1];
     if(!a0||a0.correct||a0.cases!==2||a0.justes!==0) vus.push('la réponse enregistrée ne compte pas 0 case juste sur 2');
@@ -12498,6 +12504,7 @@ function pointSommeDifference(w, P){
     if(!cvpDeplacer('u',[3,4]) || JSON.stringify(q1.up)!=='[3,4]') vus.push('cvpDeplacer ne range pas le début de u');
     cvpDeplacer('v',[6,5]);
     if(!cvpChaine(q1)||cvpChaine(q1).ordre!=='uv') vus.push('u puis −v posés depuis B ne sont pas lus comme la construction');
+    if(el('cvpEtape').textContent.indexOf('Étape 2 / 2')!==0 || el('cvpEtape').textContent.indexOf('B′')<0) vus.push('les flèches bout à bout, l\\'étape 2 ne s\\'affiche pas : '+el('cvpEtape').textContent.slice(0,90));
     cvpPose(1,1);
     if(JSON.stringify(q1.sel)!=='[1,1]' || !document.querySelector('#cvpn-1-1.sel')) vus.push('le clic ne pose pas B′');
     cvpPose(1,1);
@@ -21785,55 +21792,74 @@ function chaslesSansFigure(w, P){
     if(e1.value!=='impossible' || !e1.classList.contains('imp')) vus.push('le bouton n’écrit pas « impossible » : « '+e1.value+' »');
     chlImpossible(1);
     if(e1.value!=='' || e1.classList.contains('imp')) vus.push('le second appui ne retire pas « impossible »');
-    /* la CHAÎNE de l'élève (Turquet, octobre 2026) : un « + », un « − » ou un
-       « = » tapé ouvre une autre case ; le dernier morceau est le résultat */
-    const taper=function(i, txt){ txt.split('').forEach(function(ch){
-      const cs=chlSlots(i), el=cs[cs.length-1]; el.value+=ch; el.dispatchEvent(new Event('input')); }); };
-    const ligne=function(i){ return chlSlots(i).map(function(el){ return el.value; }).join('|'); };
+    /* la CHAÎNE de l'élève (Turquet, octobre 2026), dans UN SEUL champ
+       (v500) : un « + », un « − » ou un « = » tapé fait apparaître une
+       flèche vide, dessinée dans le champ, le curseur dessous ; le dernier
+       morceau est le résultat */
+    const taper=function(i, txt){ const el=document.getElementById('chl-'+i); el.focus();
+      txt.split('').forEach(function(ch){ el.value+=ch; el.dispatchEvent(new Event('input')); }); };
+    const rendu=function(i){ return document.querySelector('#chl-l-'+i+' .chl-rendu'); };
+    const fleches=function(i){ return [].map.call(rendu(i).querySelectorAll('.chl-vec .chl-let'), function(x){ return x.textContent; }).join('|'); };
+    const ops=function(i){ return [].map.call(rendu(i).querySelectorAll('.chl-op'), function(x){ return x.textContent; }).join(''); };
+    if(document.querySelectorAll('#chlHost input').length!==document.querySelectorAll('#chlHost .chl-l').length) vus.push('plus d’un champ par ligne');
     poser(0, REP[0]); document.getElementById('chl-3').value=''; taper(3, 'AB+CA=CB');
-    if(ligne(3)!=='AB|CA|CB') vus.push('AB+CA=CB tapé donne les cases « '+ligne(3)+' »');
-    const ops=chlSlots(3).slice(1).map(chlOp).join('');
-    if(ops!=='+=') vus.push('les signes de la chaîne : « '+ops+' »');
+    if(document.querySelectorAll('#chl-l-3 input').length!==1) vus.push('la chaîne ouvre d’autres champs');
+    if(fleches(3)!=='AB|CA|CB' || ops(3)!=='+=') vus.push('AB+CA=CB tapé dessine les flèches « '+fleches(3)+' », les signes « '+ops(3)+' »');
     checkChlAnswer();
     if(!der().correct) vus.push('AB − AC = AB + CA = CB est compté faux : '+peint('chl-3')+', « '+fb().slice(0,90)+' »');
     if(der().cases!==8) vus.push('la chaîne compte '+der().cases+' cases au lieu de 8 (une par ligne)');
-    if(chlSlots(3).some(function(el){ return peint(el.id)!=='juste'; })) vus.push('une case de la chaîne juste n’est pas bleue');
+    if(peint('chl-3')!=='juste') vus.push('la chaîne juste n’est pas bleue');
+    /* un signe tapé ouvre une flèche VIDE, et le curseur clignote dessous */
+    poser(0, []); taper(0, 'AB+');
+    { const ls=rendu(0).querySelectorAll('.chl-vec .chl-let');
+      if(ls.length!==2 || ls[1].textContent!=='' || !ls[1].querySelector('.chl-car')) vus.push('« AB+ » : '+ls.length+' flèche(s), la dernière « '+(ls[1]?ls[1].textContent:'')+' », curseur dessous : '+!!(ls[1]&&ls[1].querySelector('.chl-car'))); }
+    taper(0, 'D');
+    if(!rendu(0).querySelectorAll('.chl-vec .chl-let')[1].querySelector('.chl-car')) vus.push('après une lettre, le curseur n’est plus sous la flèche');
+    /* un champ vide : une flèche prête, et le curseur dessous quand il a le focus */
+    poser(0, []); document.getElementById('chl-0').focus(); chlRendu(document.getElementById('chl-0'));
+    if(fleches(0)!=='' || !rendu(0).querySelector('.chl-vec .chl-car')) vus.push('le champ vide n’a pas de flèche prête avec le curseur dessous');
     /* écrire la somme, puis « impossible » au bout */
     poser(0, REP[0]); document.getElementById('chl-1').value=''; taper(1, 'CB+CA'); chlImpossible(1);
-    if(ligne(1)!=='CB|CA|impossible' || chlOp(chlSlots(1)[2])!=='=') vus.push('le bouton « impossible » au bout de CB + CA : « '+ligne(1)+' »');
+    if(document.getElementById('chl-1').value!=='CB+CA=impossible') vus.push('le bouton « impossible » au bout de CB + CA : « '+document.getElementById('chl-1').value+' »');
+    if(rendu(1).querySelectorAll('.chl-vec').length!==2 || !/impossible/.test(rendu(1).textContent)) vus.push('« impossible » se dessine sous une flèche');
     checkChlAnswer();
     if(!der().correct) vus.push('CB + CA = CB + CA = impossible est compté faux');
     poser(0, REP[0]); document.getElementById('chl-1').value=''; taper(1, 'CB+CA'); chlImpossible(1); chlImpossible(1);
-    if(ligne(1)!=='CB|CA') vus.push('le second appui ne retire pas « impossible » du bout : « '+ligne(1)+' »');
+    if(document.getElementById('chl-1').value!=='CB+CA') vus.push('le second appui ne retire pas « impossible » du bout : « '+document.getElementById('chl-1').value+' »');
     /* la somme recopiée sans conclure : il faut « impossible » */
     checkChlAnswer();
-    if(peint(chlSlots(1)[1].id)!=='rouge' || !/écris « impossible »/.test(fb())) vus.push('CB + CA = CB + CA (sans conclure) : '+peint(chlSlots(1)[1].id)+', « '+fb().slice(0,90)+' »');
+    if(peint('chl-1')!=='rouge' || !/écris « impossible »/.test(fb())) vus.push('CB + CA = CB + CA (sans conclure) : '+peint('chl-1')+', « '+fb().slice(0,90)+' »');
     /* une étape fausse : la ligne est fausse, et l'égalité nommée */
     poser(0, REP[0]); document.getElementById('chl-3').value=''; taper(3, 'AB+AC=CB');
     checkChlAnswer();
-    if(der().correct || peint(chlSlots(3)[0].id)!=='rouge' || !/égalité/.test(fb())) vus.push('AB − AC = AB + AC = CB : '+peint(chlSlots(3)[0].id)+', « '+fb().slice(0,90)+' »');
+    if(der().correct || peint('chl-3')!=='rouge' || document.getElementById('chl-3').dataset.mv!=='ff' || !/égalité/.test(fb())) vus.push('AB − AC = AB + AC = CB : '+peint('chl-3')+', morceaux « '+document.getElementById('chl-3').dataset.mv+' », « '+fb().slice(0,90)+' »');
+    /* une étape juste, un résultat faux : l'étape reste bleue */
+    poser(0, REP[0]); document.getElementById('chl-3').value=''; taper(3, 'AB+CA=BC');
+    checkChlAnswer();
+    if(der().correct || peint('chl-3')!=='rouge' || document.getElementById('chl-3').dataset.mv!=='jf') vus.push('AB − AC = AB + CA = BC : '+peint('chl-3')+', morceaux « '+document.getElementById('chl-3').dataset.mv+' »');
+    if(!rendu(3).querySelector('.chl-mj') || !rendu(3).querySelector('.chl-mf')) vus.push('les morceaux de AB + CA = BC ne portent pas leur couleur');
     /* une étape juste, sans conclusion : « encore un seul vecteur » */
     poser(0, REP[0]); document.getElementById('chl-3').value=''; taper(3, 'AB+CA');
     checkChlAnswer();
-    if(der().correct || peint(chlSlots(3)[1].id)!=='rouge' || peint(chlSlots(3)[0].id)!=='juste' || !/seul vecteur/.test(fb())) vus.push('AB − AC = AB + CA (pas fini) : '+chlSlots(3).map(function(el){ return peint(el.id); }).join(',')+', « '+fb().slice(0,90)+' »');
-    /* un « − » en tête reste un signe ; un « − » plus loin ouvre une case */
+    if(der().correct || peint('chl-3')!=='rouge' || !/seul vecteur/.test(fb())) vus.push('AB − AC = AB + CA (pas fini) : '+peint('chl-3')+', « '+fb().slice(0,90)+' »');
+    /* un « − » en tête est un signe, posé DEVANT la flèche et non dessous */
     poser(0, REP[0]); document.getElementById('chl-7').value=''; taper(7, '-AD-DB=BA');
-    if(ligne(7)!=='AD|DB|BA' || !chlNeg(chlSlots(7)[0]) || chlOp(chlSlots(7)[1])!=='-' || !document.querySelector('#chl-l-7 .chl-signe')) vus.push('− AD − DB = BA tapé donne « '+ligne(7)+' », signe de tête '+chlNeg(chlSlots(7)[0]));
+    if(fleches(7)!=='AD|DB|BA' || ops(7)!=='−−=') vus.push('− AD − DB = BA tapé dessine « '+fleches(7)+' », signes « '+ops(7)+' »');
     checkChlAnswer();
     if(!der().correct) vus.push('− AD − DB = BA en chaîne est compté faux');
-    /* partie 2 : deux étapes */
+    /* le « − » d'un clavier de tablette, les espaces, un « + » en tête */
+    poser(0, REP[0]); document.getElementById('chl-3').value=''; taper(3, '+AB − AC = CB');
+    if(document.getElementById('chl-3').value!=='AB-AC=CB') vus.push('la saisie n’est pas remise au propre : « '+document.getElementById('chl-3').value+' »');
+    checkChlAnswer();
+    if(!der().correct) vus.push('AB − AC = CB tapé avec espaces et « − » est compté faux');
+    /* un nombre devant le vecteur : hors de la flèche */
     poser(1, REP[1]); document.getElementById('chl-2').value=''; taper(2, 'AB+BC+AC=AC+AC=2AC');
+    if(fleches(2)!=='AB|BC|AC|AC|AC|AC') vus.push('le 2 de 2AC est passé sous la flèche : « '+fleches(2)+' »');
     checkChlAnswer();
     if(!der().correct || der().cases!==4) vus.push('w = AB + BC + AC = AC + AC = 2AC : '+der().correct+', '+der().cases+' cases');
-    /* Retour arrière dans une case vide : elle disparaît avec son signe */
-    poser(0, []); taper(0, 'AD+');
-    const vide=chlSlots(0)[1];
-    if(!vide) vus.push('« + » n’ouvre pas de case');
-    else { vide.dispatchEvent(new KeyboardEvent('keydown', {key:'Backspace', bubbles:true}));
-      if(chlSlots(0).length!==1) vus.push('le retour arrière ne retire pas la case vide'); }
-    /* une chaîne vide de bout en bout : la correction dans la première case */
-    poser(0, []); taper(0, 'AD+'); checkChlAnswer();
-    if([].some.call(document.querySelectorAll('#chlHost input'), function(el){ return /\bbad\b/.test(el.className) && el.value.trim()===''; })) vus.push('une case vide de chaîne rougit');
+    /* un champ dont il ne reste qu'un signe : vide, il ne rougit pas */
+    poser(0, []); taper(0, '+='); checkChlAnswer();
+    if(peint('chl-0')==='rouge') vus.push('un champ vidé par la saisie rougit');
     /* le soutien : peint au fil de la saisie, sans verrouiller */
     currentMode='soutien'; poser(0, []);
     const e0=document.getElementById('chl-0'); e0.value='AF'; checkChlAnswer(true);
