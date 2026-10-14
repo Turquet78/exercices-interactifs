@@ -756,6 +756,29 @@ vecteur OM jugés justes, 5 sur 5. Éprouvé par sabotage (la permutation
 retirée du tirage) : le contrôle rougit (« le point à construire n'est que 0
 fois une autre lettre que la dernière du jeu »), la page intacte reste verte.
 
+### Puis les côtés ont quitté les lignes du quadrillage (v491)
+
+Demande de Turquet, octobre 2026 : « en seconde dans le 8.5, je veux des
+parallélogrammes qui n'ont pas forcément un côté horizontal ou vertical ».
+Mesuré avant de toucher à rien, sur vingt mille tirages : **53 %** des
+parallélogrammes avaient au moins un côté posé sur une ligne du quadrillage
+— le cas facile, où le chemin ne compte qu'un déplacement, et où l'élève
+finit par croire qu'un parallélogramme se pose toujours ainsi.
+
+**Le tirage refuse désormais tout côté horizontal ou vertical**
+(`vecOblique(q)`) : les quatre côtés, pris sommet après sommet dans l'ordre
+du NOM — A, B, D, C en ABDC ; A, B, C, D en ABCD —, jamais les diagonales.
+Les chemins ont donc toujours deux déplacements, l'un horizontal, l'autre
+vertical. Le taux d'acceptation baisse sans gêner : le repli, qui avait
+déjà ses quatre côtés obliques dans les deux formes, sort environ une fois
+sur sept cents questions. Rien d'autre du moteur n'a bougé, ni le 8.6 qui
+partage le quadrillage mais pas ce tirage.
+
+**Le contrôle** (`parallelogrammePoint`) relit, sur les cent séances du
+tirage, les quatre côtés de chaque question dans l'ordre du nom, et nomme
+celui qui serait horizontal ou vertical. Éprouvé par sabotage (le refus
+retiré du tirage) : le contrôle rougit, la page intacte reste verte.
+
 ## {egalite-vectorielle-point} — placer un point pour une égalité de vecteurs, et nommer le parallélogramme (8.6, v481)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
@@ -960,6 +983,39 @@ u⃗, clique le début de u⃗ + v⃗ À TRAVERS la prise de u⃗, tire u⃗ hor
 quadrillage, et relit `touch-action` sur la prise. Le doigt sur tablette, lui,
 ne se joue dans aucun banc.
 
+**Puis deux questions, a) et b), et une flèche par lettre (v491).** Turquet,
+capture à l'appui : « le nom de la somme doit être avec deux flèches, une pour
+u et l'autre pour v. […] je veux que la question a soit place les vecteurs u
+et v correctement. puis question b) trace le vecteur somme ».
+**Le nom.** « u+v » portait UNE longue flèche sur les trois signes : il se
+lisait comme le nom d'un vecteur « u+v ». Chaque signe est désormais un
+`tspan` à x absolu (un bloc centré pour lui seul), le « + » droit en
+`KaTeX_Main` entre deux lettres italiques, et `svc-nfl` trace une petite
+flèche par lettre, décalée d'un pixel vers la droite parce que la lettre
+penche. Le texte du nœud reste « u+v ». La même capture montrait les noms u
+et v l'un sur l'autre (deux flèches bout à bout en angle aigu posent leurs
+noms du même côté, dans l'angle) : `svcNomPos` calcule la place d'un nom, et
+v passe de l'autre côté de son trait quand son nom tomberait à moins de 26
+unités de celui de u.
+**Les deux questions.** L'étape vit dans la question (`q.et`, 'a' ou 'b'),
+posée au premier dessin et non au tirage — la clé de `distinctes()` ne la
+voit pas, la pause la retrouve. En a), les flèches glissent et un clic sur le
+quadrillage ne trace rien (`svcPose` l'ignore) ; « Passer à la question b) »
+fige les flèches (plus de prises, `svcDeplacer` refuse) et ouvre le tracé ;
+« Revenir à la question a) » les rend tant que rien n'est jugé. La question
+en cours est encadrée en bleu, celle qui attend pâlit. En SOUTIEN, le bouton
+de a) est « Vérifier a) » : une construction fausse rougit, nommée (deux
+débuts, deux fins, pas bout à bout), et reste à reprendre ; une juste se fige
+et passe à b) sans retour — et une reprise en b) la retrouve figée. Ailleurs,
+rien ne se juge avant « Vérifier », qui note les deux cases comme avant : le
+barème ne bouge pas (16). `checkSvc` appelé en a) en soutien vérifie a) ;
+hors soutien il reste la vérification entière (la copie vide en dépend).
+Le juge ajoute : a) en cours au départ, un clic en a) ne trace rien, b) fige
+les flèches, le retour les rend, la reprise garde b), le soutien passe à b)
+sans retour, et le nom de la somme porte trois signes et deux flèches. Le banc
+navigateur passe à b) par le bouton, puis mesure que chaque petite flèche est
+AU-DESSUS de sa lettre et que les trois signes ne se chevauchent pas.
+
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v490)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
@@ -1032,14 +1088,219 @@ quelle, `chsLigne` sait toujours la lire. Le banc suit : fiche, plan, 17
 cases ; le contrôle « une case juste ne rougit pas pour sa voisine » passe de
 DC + CE à CE + BC (BC bleu, AB rouge, badge CE).
 
-## {point-somme-vecteurs} — construire un point par une somme de vecteurs (8.9, v491)
+## {chasles-trois-vecteurs} — la relation de Chasles jusqu'à trois vecteurs (8.9, v491)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fait un exercice comme
+le 8.8 mais avec le pdf joint », une fiche « EFGH est un parallélogramme de
+centre O. Compléter » : OF + EO = … = … ; OG + EO = … = … ; HO + OG = … ;
+HE + HG = … = … ; HE + OG + HO, EG + FE + GF, EG − FG − OF = … = …. Le PDF
+porte aussi, en texte blanc invisible, des restes d'une version antérieure
+(EF + GH, HE + HG + FH, HF) : ils ne s'impriment pas, ils ne sont pas repris.
+
+**Le moteur des lignes à deux vecteurs EST celui du 8.8.** `chsLigne`,
+`chsPosable`, `chsJugeLigne`, `chsPourquoi`, `chsSvg` servent tels quels ;
+`chsJugeLigne` et `chsCaseHTML` ont seulement gagné un préfixe de case
+facultatif (`'chs'` par défaut, `'ctv'` ici) — le 8.8 ne change pas d'un
+octet à l'écran. L'identité est propre (kind `ctv`, écran `scr-ctv`, rappel
+`RAP_CTV`, `qId` « chasles-trois-vecteurs ») : deux exercices partagent un
+moteur, jamais une identité.
+
+**Le plan** (`CTV_PLAN`) : `ci, ci, r, u, t, t0, ts` — deux lignes à
+retourner, une déjà enchaînée (le résultat seul), une où l'on remplace le
+second vecteur, puis trois lignes à TROIS vecteurs, écrites
+« … + … + … = … » : `t` une somme dont aucun ordre des vecteurs écrits ne
+s'enchaîne (il faut remplacer un vecteur par un vecteur égal, comme
+HE + OG + HO = HE + EO + OF = HF), `t0` une somme NULLE (EG + FE + GF =
+FE + EG + GF = 0), `ts` deux soustractions (EG − FG − OF = EG + GF + FO =
+EO). Une ligne à trois vecteurs se range `{t:'t', w:[…], s:[1,±1,±1]}`. Elle
+se tire en construisant une chaîne de points (refermée pour `t0`), dont chaque
+vecteur est remplacé par un vecteur égal au hasard, puis l'ordre mélangé (`t`,
+`t0`) ou les deux derniers retournés et soustraits (`ts`). Le centre
+s'appelle toujours O, comme la fiche ; les sommets se tirent (ni I, ni W à Z).
+La première figure EST la fiche ; `CTV_NB` = 2 figures, 21 cases chacune.
+
+**Le juge d'une ligne à trois vecteurs** (`ctvJuge3`) : `ctvLigne` énumère
+TOUTES les chaînes justes — trois vecteurs de la figure qui s'enchaînent et
+égalent les termes signés dans un ordre quelconque. Chaque case du milieu se
+juge contre les chaînes encore possibles après les cases JUSTES qui la
+précèdent : HE + OG + OF garde HE et OF bleus, seul OG rougit (« doit partir
+de E »), badge EO. Le résultat se juge contre la somme. **Le vecteur nul**
+s'écrit 0, ou O seul, ou deux fois la même lettre (FF) : `ctvLit` les lit
+tous comme « 0 » ; la correction écrit 0, sous la flèche de la case. Un
+vecteur écrit pour une somme nulle rougit avec « la chaîne revient à son
+point de départ ». La correction préfère la chaîne qui garde le plus de
+vecteurs écrits (les soustraits par leur opposé).
+
+**Le juge du banc** (`tests/verifier.js`, « Chasles avec trois vecteurs ») :
+la place (8.9, pas de bouton des tables), 300 séances dont chaque correction
+est relue par un juge INDÉPENDANT écrit depuis les coordonnées (pour une
+chaîne : l'enchaînement, et les déplacements égaux aux termes signés à
+l'ordre près), le plan, la ligne nulle et elle seule, la fiche en première
+page ; puis par le bouton : 21 cases, lettres EFGHO, la copie juste,
+d'autres écritures justes (HO + OG + GF = hf, GF + FE + EG = FF, résultat
+OG pour EO), « o » pour le nul, le piège EG + FG (rouge, EG et le résultat
+restent bleus, « opposé »), EG écrit pour la somme nulle (« nul »),
+HE + OG + OF (seul OG rouge, badge EO, « part de E »), FH (« sens »),
+OF + EO recopié (« ordre », du 8.8), la case vide (correction EO), la copie
+vide, le soutien, le barème, `qId`, le contexte du modèle.
+
+## {chasles-simplifier} — écrire plus simplement une somme de vecteurs (8.10, v492)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
+le 8.8 mais avec le pdf joint » — une seconde fiche, le jour même où
+l'EFGH de centre O devenait le 8.9 : les deux exercices cohabitent, celui-ci
+en 8.10. La fiche : « ACKI est un rectangle. B, G, J
+et E sont les milieux respectifs de [AC], [CK], [KI] et [IA]. » — le
+rectangle, ses deux diagonales (centre F), la médiane [EG], et [BG], [EJ],
+qui coupent la diagonale [IC] en D et H (milieux de [FC] et [IF]). Puis
+« Écrire plus simplement les vecteurs suivants » : EH + HF = … ;
+AE + FG = AE + … = … ; EH + IE, FC + BG, EF + EF, EI − JI = … + … = … ;
+AC + AI = AC + … = … ; AF − FK = … + … = … + … = … ; EA − BA − CB − GC =
+… + … + … = ….
+
+**Un moteur à part, pas celui du 8.8.** Les lignes du 8.8 ont deux vecteurs
+et une étape ; ici une ligne en a jusqu'à quatre, des signes, et parfois
+deux étapes (AF − FK : l'opposé d'abord, AF + KF, puis un vecteur égal,
+AF + FA). Une ligne se range comme ses termes (`v`), ses signes (`s`) et sa
+forme (`f` ∈ r, u, c, z, q) ; la forme donne les ÉTAPES (`CSP_ETAPES`), des
+emplacements « case » ou « premier vecteur gardé ». **Une étape est juste
+quand ses vecteurs sont, dans un ordre quelconque, égaux aux termes (l'opposé
+d'un terme soustrait) ; la dernière doit en plus s'enchaîner.** Le résultat
+est juste dès qu'il vaut la somme ; la somme nulle s'écrit AA (n'importe quel
+point répété) ou 0.
+
+**La dernière ligne de la fiche n'avait que TROIS cases pour quatre
+vecteurs** : l'écran en pose quatre (EA + AB + BC + CG = EG), une par
+vecteur réécrit — c'est l'écart assumé avec le papier.
+
+**Une case juste ne rougit pas pour sa voisine** : `cspRemplit` énumère
+toutes les écritures justes d'une étape ; une case est juste s'il en existe
+une qui la porte avec les cases justes avant elle. La correction prend,
+parmi celles qui gardent les cases justes, la plus lisible : des vecteurs
+portés par les traits du dessin, puis les lettres de l'énoncé (FC + BG se
+corrige AF + FC, pas EB + BG, que rien ne trace).
+
+**La première figure est la fiche** (`CSP_FICHE`) ; les suivantes tirent une
+image affine — rectangle, carré, parallélogramme : mêmes milieux, mêmes
+égalités —, son retournement, onze lettres (ni O, ni I, ni W à Z) et neuf
+lignes du plan de la fiche (`CSP_PLAN` : déjà enchaînés, remplacer,
+retourner, remplacer, remplacer, le même deux fois, soustraire, la somme
+nulle, un chemin de quatre traits), chacune lisible sur les traits
+(`cspPosable`). 27 cases par figure, `CSP_NB` = 2.
+
+**Le juge** (`tests/verifier.js`, « écrire plus simplement une somme de
+vecteurs ») : la place (8.10, pas de bouton des tables), la fiche du PDF
+ligne à ligne, 150 séances dont chaque correction est relue par un juge
+indépendant (appariement des vecteurs aux termes, enchaînement, somme), les
+milieux qui restent des milieux, chaque forme tirée ; puis le bouton sur la
+fiche : 27 cases, onze lettres, neuf traits, la copie juste, d'autres
+écritures justes (FG pour EH + HF, IF + FK = IK, le nul écrit 0, AC pour
+EG), le piège EI + JI (« opposé IJ »), FE (« sens »), FG recopié dans
+AE + FG (« part de E »), EH + IE dans le même ordre (« ordre »), AF + BG
+(AF bleu, BG rouge, badge FC), AK pour la somme nulle (« nul »), la case
+vide, la copie vide, le soutien, le barème, `qId`, le contexte du modèle.
+
+## {somme-vecteurs-repere} — placer un point défini par une somme de vecteurs (8.11, v493)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme le
+pdf, en plaçant d'abord les points demandés, puis en traçant les vecteurs
+demandés, puis en déplaçant correctement ces vecteurs, puis en plaçant le
+point relatif à la question ». La « Fiche 10 sur somme de vecteur » : un
+repère gradué de −4 à 4, « 1) Placer A(3 ; 4), B(1 ; 2), C(3 ; 1) et
+D(−2 ; −3) ; 2) Tracer BC⃗ et BA⃗ ; 3) Placer M tel que DM⃗ = BC⃗ + BA⃗ ».
+Ajouté en dernier, il ne renumérote rien. Écrit comme 8.9, il est devenu 8.11 à la fusion :
+{chasles-trois-vecteurs} (8.9) puis {chasles-simplifier} (8.10) sont arrivés sur `main`
+pendant que la pull request attendait ses contrôles — deux fusions de `main`, et
+la version est passée de v491 à v493.
+
+**Quatre gestes, huit réponses, chacune jugée SEULE** (`svrJuge`) : les quatre
+points (`svr-A` … `svr-D`), les deux vecteurs tracés (`svr-t0`, `svr-t1` : du
+bon point au bon point, dans le bon sens), le déplacement (`svr-ch` : une
+copie part du point d'origine, la copie de l'autre part de sa fin — dans
+l'ordre qu'on veut) et M (`svr-M`). Un point faux ne fait pas rougir le
+vecteur tracé juste, et le déplacement se juge au GESTE, sur les vecteurs que
+l'élève a tracés : un vecteur tracé à l'envers coûte son point au geste ②,
+pas une seconde fois au geste ③. M se juge à sa place. Trois questions
+(`SVR_NB`, `dmNbQuestions`), barème 24.
+
+**Les boutons des gestes sont les réponses.** Sous l'énoncé, trois rangées :
+① « A(3 ; 4) », « B(1 ; 2) »… ; ② « Tracer BC⃗ », « Tracer BA⃗ » ; ③ la
+consigne du déplacement, puis « Placer M ». Chaque bouton choisit le geste,
+et c'est aussi une `pts-case` : il se peint bleu, rouge ou vert à la
+vérification. Poser un point passe au geste suivant encore à faire
+(`svrSuivant`), dans l'ordre de la demande. Un point se pose d'un clic, un
+second clic au même nœud le retire ; un vecteur se trace début puis fin (un
+clic de plus recommence, recliquer le début seul le retire).
+
+**Le déplacement est le glisser du 8.7, sur une COPIE.** Chaque vecteur
+tracé porte une prise (`.svc-prise`, reprise du 8.7 avec son `touch-action`
+et le clic qui la traverse) ; ce qui glisse est une copie en pointillés — le
+vecteur tracé reste entre ses deux points, comme sur la feuille où l'on
+recopie la flèche ailleurs. La copie s'accroche aux nœuds, reste entière dans
+le repère (retenue au bord), et s'efface quand on la ramène sur l'original.
+Retracer un vecteur remet sa copie à sa place.
+
+**On range les points et les indices, jamais la réponse** : `P` (A, B, C,
+D), `o` (l'indice du point d'origine), `a` et `b` (les deux vecteurs en
+paires d'indices), puis `pl`, `t` ({d, f}), `cp`, `m` — ce que l'élève a fait.
+`svrM(q)` recalcule M. **La première question EST la fiche** ; les suivantes
+tirent quatre points hors des axes, à un carreau du bord, deux à deux à deux
+carreaux, JAMAIS TROIS ALIGNÉS, un point d'origine et deux paires des trois
+autres, non colinéaires ni opposées, M lisible, la construction dans le
+repère dans les deux ordres. Le repère va de −6 à 6 et de −5 à 5 : la fiche y
+tient, avec la place de faire glisser.
+
+**Ce que les captures ont corrigé avant la livraison.** La première montrait
+un tirage où A, B et D étaient sur une même ligne : BA⃗ et AD⃗ se
+superposaient, et la construction se lisait sur leurs traits — d'où le refus
+des trois points alignés et des vecteurs colinéaires. Elle montrait aussi la
+lettre B posée sur la flèche BA⃗ : la lettre d'un point se pose maintenant
+dans celui des quatre coins le plus loin, en angle, des flèches qui touchent
+ce point (`svrCoin`). La deuxième montrait les noms AD⃗ et DB⃗ l'un sur
+l'autre, posés sur les nombres de l'axe : `svrNomsLisibles` refuse un tirage
+où les noms des quatre flèches de la figure se chevauchent ou tombent sur une
+bande de graduations (3 000 figures simulées sous Node, toutes différentes,
+aucune au repli). L'abscisse −1 est exclue pour les points : la lettre,
+posée à droite, touchait la graduation de l'axe des ordonnées.
+
+**Les messages nomment la faute** (`svrPourquoi`) : abscisse et ordonnée
+échangées, signe oublié, vecteur tracé à l'envers, construction qui ne part
+pas du point d'origine, « un début va sur une fin », et où est M. En soutien,
+le juste se fige (le bouton se désactive, la copie ne glisse plus), le faux
+rougit, rien ne se révèle ; vérifier sans rien avoir fait ne peint rien.
+Correction finale : en VERT les points manquants ou faux, les vecteurs du bon
+point au bon point, la construction depuis le point d'origine (pointillés),
+et M.
+
+**Le juge** (`tests/verifier.js`, « somme de vecteurs dans un repère ») :
+la place (8.11, le 8.8, le 8.9 et le 8.10 immobiles), 120 séances (la fiche en premier, chaque
+figure relue par une seconde écriture : M, points lisibles, non voisins,
+jamais trois alignés, vecteurs non colinéaires, construction dans le repère,
+rien de répondu, JSON), la copie vide (huit `sol`, rien de rouge, cinq points
+et quatre flèches en vert, « Il te manquait 8 cases »), la copie juste aux
+gestes de l'élève avec reclic, copie retenue au bord, copie ramenée qui
+s'efface, reprise après JSON ; l'autre ordre (BA⃗ d'abord) avec A aux
+coordonnées échangées, BC⃗ à l'envers et M faux — `bad,ok,ok,ok,bad,ok,ok,bad`,
+chaque faute nommée ; le soutien et le contexte du modèle. **Le banc
+navigateur** (« 6 quadragies quinquies ») fait la fiche entière à la souris :
+les quatre points (le premier clic à un cinquième de maille), le reclic qui
+retire, BC⃗ et BA⃗ (le second clic sur B traverse la prise de BC⃗), les deux
+copies glissées jusqu'à D puis au bout de la première, M — 8 sur 8, « 8 cases
+justes sur 8 » — puis une copie vide entièrement verte. Le doigt sur
+tablette, lui, ne se joue dans aucun banc.
+
+## {point-somme-vecteurs} — construire un point par une somme de vecteurs (8.12, v494)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
 l'exercice 1 du pdf, en déplaçant les vecteurs comme dans le 8.7 ». La
 « Fiche 8 sur somme de vecteurs », exercice 1 : deux vecteurs u⃗ et v⃗ sur un
 quadrillage, trois points A, B, C, et « construire le point manquant
 vérifiant l'égalité » — AA′ = u⃗ + v⃗, BB′ = u⃗ − v⃗, CC′ = −u⃗ − v⃗. Ajouté en
-dernier, il ne renumérote rien.
+dernier, il ne renumérote rien. Il voisine avec le 8.11
+({somme-vecteurs-repere}), écrit le même jour dans une autre conversation :
+là, des vecteurs tracés entre des points d'un repère, et seulement des
+SOMMES ; ici, deux vecteurs libres, et des DIFFÉRENCES et des opposés — d'où
+le geste de retourner une flèche.
 
 **Le geste du 8.7, plus un : RETOURNER.** L'élève fait glisser u⃗ et v⃗
 exactement comme au 8.7 (prises larges, accrochage aux nœuds, flèche retenue
@@ -1088,7 +1349,7 @@ avait commencé s'il tient ; B′ attendu en vert ; une consigne vide devient
 le quadrillage), rien ne se révèle.
 
 **Le juge** (`tests/verifier.js`, « point par une somme de vecteurs ») : la
-place (8.9, le 8.8 immobile), 200 séances (six questions distinctes, barème
+place (8.12, le 8.11 immobile), 200 séances (six questions distinctes, barème
 12, les trois premières celles de la fiche, les quatre égalités tirées
 ensuite, la question ne range que la figure et les gestes, B′ relu par une
 seconde écriture, tout à un carreau du bord, jamais parallèles, rien de
@@ -1097,7 +1358,7 @@ l'énoncé et le dessin, la copie vide (sol, construction verte « u, −v », B
 vert), retourner deux fois, la copie juste dans les deux ordres et à la
 reprise, le signe oublié, la construction juste et B′ faux (1 point), la
 construction hors de B et B′ juste (1 point), u retourné à tort, le soutien et
-le contexte du modèle. **Le banc navigateur** (« 6 quadragies quinquies »)
+le contexte du modèle. **Le banc navigateur** (« 6 quadragies sexies »)
 retourne v⃗ au bouton, fait glisser u⃗ jusqu'à B puis −v⃗ au bout de u⃗ à la
 souris, pose B′ d'un clic à travers la prise de −v⃗, puis joue le signe
 oublié (rouge, construction verte, aucun point). Le doigt sur tablette ne se

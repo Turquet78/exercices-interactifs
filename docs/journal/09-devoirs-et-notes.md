@@ -404,7 +404,12 @@ première version réparait ces copies sur le barème d'un groupe ; elle a été
 retirée avant le premier banc.
 **Le second bord est de le DIRE** : les copies non réparées sont listées, avec
 leur devoir, plutôt que tues — un carnet à moitié juste dont on ignore la
-moitié serait pire. Et l'ancien barème est conservé dans la ligne
+moitié serait pire. Mais elles le sont par `raise notice`, et l'éditeur SQL de
+Supabase n'affiche aucune notice (constaté le 14 octobre 2026, en jouant la
+010) : là où Turquet colle le script, la liste ne s'affiche pas. Elle se lit
+par la requête de `supabase/LISEZMOI.md` (§ 3 octies), avant ou après le
+script — éprouvée sur les données du banc : 4 copies « à réparer » avant, 4
+« réparées » après, et les 3 copies avec faute que le rapport nomme. Et l'ancien barème est conservé dans la ligne
 (`details.correction_bareme`), donc rien n'est perdu et le retour arrière tient
 en une requête.
 **Seule la Seconde est concernée**, comme le défaut lui-même.
