@@ -960,7 +960,10 @@ l'élève, visible pour l'ancien `vu` — fait rougir chaque contrôle qui tape
 un code (« → la case du code reste cachée après le clic ») ; les pastilles
 renommées (`className='puce'`) font dire au contrôle du code faux « →
 rien n’a été tenté : (aucune pastille « Contrôle » à cliquer) », là où il
-passait au vert.
+passait au vert ; et devant les mêmes pastilles renommées, le pavé du code
+rougit aux deux largeurs de téléphone (« → aucune pastille « Contrôle » à
+cliquer : la case du code n'est pas atteignable »), là où il posait sans
+le dire le focus sur une case cachée.
 **Ce qu'aucun banc ne voit.** L'état réel du projet : la 009 y a-t-elle été
 jouée ? La sortie de la 010, « état trouvé », le dira. Le cache de schéma de
 PostgREST dans la minute qui suit la 010 : il peut tenter encore une fonction
