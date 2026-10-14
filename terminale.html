@@ -5084,7 +5084,7 @@ async function enregistrerNotePartielle(){
   /* le crédit partiel, comme l'écran de fin (décision de Turquet, octobre
      2026) — et borné : une pause prise sur une étude verrouillée enregistrait
      « 2700 % », relu « 270 / 10 » par le devoir */
-  const total=test.questions.length, score=test.score||0;
+  const total=test.questions.length, score=parfaitsDe(test);
   const acquis=acquisDe(test.answers, score, total), pct=Math.min(100,Math.round(acquis/total*100));
   const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
   const details={test:currentTestId,mode:currentMode,partiel:true,note:Math.round(acquis*100)/100,parfaits:score}; if(currentDM) details.dm=currentDM;
@@ -6469,7 +6469,7 @@ function dmNoteBrouillon(r){
   if(!total) return null;
   const nbQ=Array.isArray(d.questions)?d.questions.length:(r.total||0);
   /* le crédit partiel, comme la fin et la pause (acquisDe) */
-  const acquis=acquisDe(d.answers, r.score, total);
+  const acquis=acquisDe(d.answers, parfaitsDe(Object.assign({score:r.score}, d)), total);
   return Object.assign({}, r, { percent:Math.min(100,Math.round(acquis/total*100)), enCours:true, faites:faites, nbQ:nbQ });
 }
 /* La ligne qui compte pour UN exercice d'UN devoir dans UN mode : une note
@@ -7131,6 +7131,22 @@ function fmtNote(v){ const r=Math.round(v*100)/100; return numFmt(Number.isInteg
    seule définition pour la fin, la pause et la note provisoire d'un devoir
    (décision de Turquet, octobre 2026 : la pause compte le crédit partiel,
    comme l'écran de fin). */
+/* LES EXERCICES PARFAITS D'UNE SÉANCE — la colonne « score ». test.score
+   compte les points du barème du démarreur : un par exercice le plus
+   souvent, mais une étude de fonction compte ses CASES (test.maxScore =
+   102, « une étude de deux pages ne vaut pas un point »), un tableau de
+   variations ses parties. Là, finishTest rangeait 35 sur un total d'UN
+   exercice (tests/notes.js, octobre 2026) — et le crédit partiel, borné par
+   ce score, aurait compté 100 %. Quand le barème n'est pas d'un point par
+   exercice, les parfaits se lisent sur les réponses ; les cases, elles,
+   comptent par le crédit partiel de la réponse (ptsExo). Prend une séance
+   ou le brouillon d'une pause (snapshotTest : les mêmes champs). */
+function parfaitsDe(t){
+  if(!t) return 0;
+  const n=Array.isArray(t.questions)?t.questions.length:0;
+  if(t.maxScore && t.maxScore!==n) return (t.answers||[]).filter(a=>a&&a.correct).length;
+  return t.score||0;
+}
 function acquisDe(answers, parfaits, total){
   const somme=(answers||[]).reduce((s,a)=>s+ptsRep(a),0);
   return Math.max(0, Math.min(total||0, Math.max(somme, parfaits||0)));
@@ -7138,8 +7154,8 @@ function acquisDe(answers, parfaits, total){
 async function finishTest(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const total=test.questions.length, score=test.score;
-  const acquis=acquisDe(test.answers, test.score, total);
+  const total=test.questions.length, score=parfaitsDe(test);
+  const acquis=acquisDe(test.answers, score, total);
   const note=Math.round(acquis*100)/100;          /* note en exercices, au centieme */
   /* UN SEUL ARRONDI POUR L'ÉCRAN ET POUR LA BASE (octobre 2026). La note sur
      10 affichée partait de acquis, le pourcentage enregistré de la note DÉJÀ
@@ -16793,10 +16809,7 @@ async function checkEC(live){
   test.locked=true;
   try{ if(ecF) ecF.verrouiller(); }catch(e){}
   ['ec-u','ec-v','ec-du','ec-dv'].forEach(id=>{ const el=$(id); if(el) el.readOnly=true; });
-  /* test.score compte les exercices PARFAITS (0 ou 1 ici, la séance n'en a qu'un) ;
-     le compteur affiché, lui, compte les cases justes — deux nombres, deux places.
-     Le crédit partiel passe par la réponse (ptsExo), comme partout. */
-  test.score=allOk?1:0; $('ecLiveScore').textContent=r.nOk+(sheetOk?1:0);
+  test.score=r.nOk+(sheetOk?1:0); $('ecLiveScore').textContent=test.score;
   const A=ecAns(q);
   if(allOk){
     fb.textContent=pick(['Parfait, étude complète !','Excellent !','Bravo, tout y est !']);
@@ -17513,7 +17526,7 @@ function checkECV(live){
     return;
   }
   test.locked=true;
-  test.score=allOk?1:0; $('ecvLiveScore').textContent=nOk;   /* parfaits en base, cases justes à l'écran */
+  test.score=nOk; $('ecvLiveScore').textContent=test.score;
   if(allOk){
     fb.textContent=pick(['Parfait, étude complète !','Excellent !','Bravo, tout y est !']);
     fb.className='mp-feedback good';
@@ -18011,7 +18024,7 @@ function checkEAV(live){
     return;
   }
   test.locked=true;
-  test.score=allOk?1:0; $('eavLiveScore').textContent=nOk;   /* parfaits en base, cases justes à l'écran */
+  test.score=nOk; $('eavLiveScore').textContent=test.score;
   if(allOk){
     fb.textContent=pick(['Parfait, étude complète !','Excellent !','Bravo, tout y est !']);
     fb.className='mp-feedback good';

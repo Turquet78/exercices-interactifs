@@ -18,7 +18,9 @@
    ouvre « Question suivante » —, jusqu'au bouton « Voir mes résultats ».
    Juste avant ce dernier clic, le banc rend la séance NON TRIVIALE : la
    première réponse juste, la dernière à 2 cases justes sur 7 (crédit
-   partiel), le score réglé en conséquence, et le mode de la fin tourné entre
+   partiel), le score AJUSTÉ d'autant — jamais réécrit : un exercice qui
+   compte ses cases dans test.score doit garder son unité —, et le mode de
+   la fin tourné entre
    entraînement, soutien et évaluation, d'un exercice à l'autre. Une note 0/N
    partout ne mesurerait rien : les arrondis ne mordent que sur des fractions.
    Là où une copie vide ne se valide pas (une colonne à colorier, une
@@ -95,9 +97,13 @@ const ETAPE = ({ modeFin, bouchon }) => {
     /* « test » est un let de la page : il n'est PAS une propriété de window */
     const seance = (typeof test !== 'undefined') ? test : null;
     const ans = (seance && seance.answers) || [];
-    if(ans.length >= 1){ ans[0].correct = true; delete ans[0].pts; }
-    if(ans.length >= 2){ const a = ans[ans.length - 1]; a.correct = false; a.pts = 2 / 7; a.cases = 7; a.justes = 2; }
-    if(seance && ans.length) seance.score = ans.filter(a => a.correct).length;
+    /* le score est AJUSTÉ, jamais réécrit : un exercice qui compte ses
+       cases dans test.score (une étude de fonction, 102 cases) doit garder
+       son unité, sans quoi le banc masquerait ce qu'il cherche */
+    let delta = 0;
+    if(ans.length >= 1){ if(!ans[0].correct) delta++; ans[0].correct = true; delete ans[0].pts; }
+    if(ans.length >= 2){ const a = ans[ans.length - 1]; if(a.correct) delta--; a.correct = false; a.pts = 2 / 7; a.cases = 7; a.justes = 2; }
+    if(seance && ans.length) seance.score = Math.max(0, (seance.score || 0) + delta);
     /* ce que la note DOIT valoir si le crédit partiel compte : 1 + 2/7 */
     window.__notesBanc = (ans.length >= 2 && seance.questions && seance.questions.length === ans.length)
       ? { n: ans.length, attendu: 1 + 2 / 7 } : null;
@@ -167,9 +173,11 @@ const FIN_DIRECTE = ({ id, declaree, defaut, modeFin }) => {
   const n = test.questions.length;
   test.answers = (test.answers || []).slice(0, n);
   while(test.answers.length < n) test.answers.push({ q: '(banc des notes)', given: '', answer: '', correct: false });
+  let delta = 0;   /* ajusté, jamais réécrit : voir ETAPE */
+  if(!test.answers[0].correct) delta++;
   test.answers[0].correct = true; delete test.answers[0].pts;
-  if(n >= 2){ const a = test.answers[n - 1]; a.correct = false; a.pts = 2 / 7; a.cases = 7; a.justes = 2; }
-  test.score = test.answers.filter(a => a.correct).length;
+  if(n >= 2){ const a = test.answers[n - 1]; if(a.correct) delta--; a.correct = false; a.pts = 2 / 7; a.cases = 7; a.justes = 2; }
+  test.score = Math.max(0, (test.score || 0) + delta);
   window.__notesBanc = n >= 2 ? { n, attendu: 1 + 2 / 7 } : null;
   test.idx = n - 1; test.locked = true;
   currentMode = modeFin;

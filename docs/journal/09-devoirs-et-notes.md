@@ -1165,11 +1165,22 @@ raison qui n'était pas une bonne nouvelle.**
 * **Le soutien promettait une note que le carnet ne donne pas.** L'écran de
   fin affichait « 8 / 10 » ; `noteDevoirExo` en tire 80 % × 5 = 4 / 10.
 * **{etude-convexite} et {etude-algo-convexite} enregistraient 35 / 1 et
-  20 / 1.** Leur vérification écrivait dans `test.score` le compteur de cases
-  justes affiché pendant l'exercice. Deux nombres, deux places désormais :
-  `test.score` compte les exercices parfaits (0 ou 1), le compteur affiché
-  garde les cases. Et la NOTE DE PAUSE, qui relisait ce score brut, avait
-  enregistré « 2700 % », relu « 270 / 10 » par le devoir.
+  20 / 1.** Une étude de fonction compte ses CASES (`test.maxScore` = 102,
+  « une étude de deux pages ne vaut pas un point », journal 14) : `test.score`
+  y vaut le nombre de cases justes, et `finishTest`, qui note sur le nombre
+  de questions, le rangeait tel quel dans la colonne `score` d'un total d'UN
+  exercice. Le premier correctif fut le mauvais : réécrire `test.score` en 0
+  ou 1 dans les études — le banc navigateur et le banc jsdom l'ont refusé
+  d'une voix, des dizaines de contrôles y lisent la note EN CASES (« la copie
+  de la fiche vaut 102 », « trois fautes valent 99 »), et ils avaient raison.
+  La correction est dans la FIN : `parfaitsDe()` lit les exercices parfaits
+  sur les réponses quand le barème du démarreur n'est pas d'un point par
+  exercice (`maxScore` ≠ nombre de questions) ; les cases, elles, comptent
+  par le crédit partiel de la réponse (`ptsExo`). Sans elle, la nouvelle
+  borne du crédit partiel (`acquisDe`, jamais moins que les parfaits) aurait
+  compté 100 % pour 35 cases sur 102. La NOTE DE PAUSE, qui relisait le même
+  score brut, avait enregistré « 2700 % », relu « 270 / 10 » par le devoir ;
+  elle et la note provisoire passent par `parfaitsDe` aussi.
 * **Les historiques affichaient « 4 / 5 » à l'élève qui avait lu « 4,5 / 5 »**
   — la colonne `score` compte les exercices parfaits, la note est dans
   `details.note`. `noteDe(r)` la lit, avec le score pour les lignes d'avant ;
@@ -1220,7 +1231,7 @@ notes non triviales n'étaient comptées que sur les exercices SANS écart :
 34 écarts en Terminale faisaient croire à un banc qui ne mesurait rien ; le
 compte est désormais indépendant du verdict.
 
-**Éprouvé par six sabotages, chacun rougissant en nommant son défaut**
+**Éprouvé par sabotage, chacun rougissant en nommant son défaut**
 (`NOTES_EXERCICES` restreint le banc à quelques exercices, et le dit) : un
 pourcentage enregistré décalé d'un point dans `finishFP` (« l'écran affiche
 64 %, 65 % en base ») ; l'appel à `noteSoutienFin` retiré de l'écran de fin
@@ -1230,8 +1241,14 @@ crédit partiel vaudrait 1,29 », sur les trois exercices) ; le double arrondi
 de la Terminale remis en place (« l'écran affiche 6,4 / 10, la base relira
 6,5 / 10 ») ; une dispense de crédit partiel sur un exercice qui le compte,
 et une dispense d'atteinte sur un exercice qui atteint sa fin ; et le banc
-privé de sa séance non triviale (« 0 non triviale(s) sur 3 note(s) »). **Un
-septième a trouvé un trou du banc lui-même** : une dispense posée sur
+privé de sa séance non triviale (« 0 non triviale(s) sur 3 note(s) »). Un septième remet la colonne `score` sur
+`test.score` dans `finishTest` : « etude-convexite — score 34 sur 1 en base ».
+**Et le banc avait un angle mort, que ce défaut a montré** : sa séance non
+triviale RÉÉCRIVAIT `test.score` (le nombre de réponses justes), effaçant
+l'unité de l'exercice — un score en cases redevenait un score en questions,
+et le défaut se cachait derrière le banc chargé de le trouver. Il l'AJUSTE
+désormais d'un écart (+1 pour la réponse rendue juste, −1 pour celle rendue
+fausse), sans en changer l'unité. **Un huitième a trouvé un trou du banc lui-même** : une dispense posée sur
 « derivees », identifiant absent du menu de la Terminale, ne dispensait rien
 et passait en silence — une déclaration qui survit à un renommage sans que
 rien ne le dise. Toute déclaration du profil (`finDe`, `horsAtteinte`,
