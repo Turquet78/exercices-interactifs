@@ -1862,7 +1862,7 @@ cases de 48 à 372 px de large — rvf-s0-dn », au 4.1 seulement, aux quatre
 moments mesurés.
 
 **Puis les 4.4 et 4.5 de la Première ont accepté les deux raccourcis du
-produit (octobre 2026, Première v320).** Demande de Turquet : « dans le 4.4
+produit (octobre 2026, Première v321).** Demande de Turquet : « dans le 4.4
 et le 4.5 pour les multiplications un élève a le droit d'enlever le même
 facteur au numérateur et au dénominateur, et il a le droit de donner
 directement le résultat d'une multiplication de fraction. » Deux copies
