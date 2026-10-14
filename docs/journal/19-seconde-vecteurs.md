@@ -1016,7 +1016,7 @@ sans retour, et le nom de la somme porte trois signes et deux flèches. Le banc
 navigateur passe à b) par le bouton, puis mesure que chaque petite flèche est
 AU-DESSUS de sa lettre et que les trois signes ne se chevauchent pas.
 
-**Puis les questions sont montées AU-DESSUS du dessin (v501).** Turquet,
+**Puis les questions sont montées AU-DESSUS du dessin (v502).** Turquet,
 octobre 2026 : « afficher la question a au-dessus du dessin ; quand l'élève
 passe à la question b, afficher cette question au-dessus du dessin aussi ».
 Les deux consignes (`svc-ch`, `svc-sm`) se lisaient SOUS le quadrillage : sur

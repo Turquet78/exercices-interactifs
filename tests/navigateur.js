@@ -8860,7 +8860,7 @@ if(require.main === module) (async () => {
       if(!mes.fleche) dits.push('les vecteurs de l\'énoncé ne sont pas coiffés d\'une flèche');
       if(mes.dehors) dits.push(mes.dehors + ' mot(s) « début » / « fin » sortent du dessin');
       if(mes.touche !== 'none') dits.push('une prise fait défiler la page sous le doigt (touch-action : ' + mes.touche + ')');
-      /* la question en cours se lit AU-DESSUS du dessin, en a) comme en b) (v501) */
+      /* la question en cours se lit AU-DESSUS du dessin, en a) comme en b) (v502) */
       const auDessus = async id => await s.page.evaluate(id => {
         const q = document.getElementById(id), svg = document.querySelector('#svcGraph .svc-svg');
         return !!(q && svg && q.getBoundingClientRect().bottom <= svg.getBoundingClientRect().top + 1);
