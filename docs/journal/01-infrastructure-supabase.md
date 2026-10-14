@@ -676,6 +676,259 @@ migration 001, racontent l'état d'avant octobre 2026 : ce qu'ils enseignent —
 le renommage sans la fonction Edge, le doublon refusé à la création — reste
 vrai, seul l'écran a changé.
 
+**La liste des prénoms s'affiche de nouveau avant le code, et le prix est
+nommé.** Décision de Turquet, le 14 octobre 2026 — le lendemain de la mise en
+ligne de l'écran à prénom tapé (#638) : « revenir à la liste des élèves qui
+s'affichent à l'écran avant de rentrer son mot de passe ». Les pastilles
+reviennent, comme avant #638 : `#nameChips` sous « Choisis ton prénom »,
+dessinées par `renderLoginNames()` qu'appelle `accueil()`, depuis
+`select('id,prenom,cle').order('prenom')` ; la pastille cliquée pose
+`selectedEleve`, prend `.sel`, fait paraître `#pinRow` (caché jusque-là), vide
+le code et lui donne le focus 60 ms plus tard (Seconde v485, Première v318,
+Terminale v385 — même diff aux trois pages, à la table et à la version près).
+Ce qui RESTE de #638, et c'est voulu : `normaliserPrenom` et `clesDuPrenom`,
+avec sa garde PGRST202 et son `console.warn` ; la création de compte qui
+refuse « lea » quand « Léa » existe ; la boucle sur les clés, où seul un code
+refusé (`invalid_credentials`) passe à la clé suivante — cadence, coupure ou
+compte non confirmé disent « Connexion impossible — réessaie dans une minute »
+et gardent le code ; la relecture de SA ligne après `signIn` (`.eq('cle',
+cle).single()`), et « Compte introuvable » qui referme la session.
+`VERSION_CONNEXION_PRENOM` reste 483, 317 et 384 : il nomme la version qui a
+APPORTÉ le champ, que la 009 et sa notice citent toujours, et le contrôle qui
+l'exige (« les numéros de version cités par la migration 009 et sa notice sont
+ceux de la page ») n'a pas bougé — c'est pourquoi la notice de la 010 ne cite
+AUCUN numéro de page : « Seconde v484 » écrit dans `supabase/LISEZMOI.md`
+aurait fait rougir ce contrôle, et l'ordre étant indifférent, le repère y est
+l'écran.
+**Le prix, nommé — et ce que disait le paragraphe précédent reste VRAI.** La
+clé anonyme de Supabase est dans la page : n'importe qui, sans compte, depuis
+n'importe où sur Internet, lit de nouveau les prénoms de trois classes de
+mineurs ET la clé de chacun, dont l'adresse `<cle>@DOMAINE_COMPTES` est
+dérivée. La moitié de l'identifiant est offerte ; le code à six chiffres et la
+limitation de cadence de Supabase redeviennent le seul rempart (« Les codes
+font 6 chiffres »). Rien de ce que mesurait le paragraphe précédent n'a changé
+: c'est la décision qui a changé, prise en connaissance de ce prix, et la
+page, la 010 et sa notice l'écrivent chacune. L'oracle d'existence par prénom
+de la 009 s'en va avec elle — remplacé par la liste entière, qui en dit plus.
+Et les paragraphes que le précédent rangeait dans « l'état d'avant octobre
+2026 » (« le prénom n'est pas un secret — l'écran de connexion l'affiche », «
+deux prénoms identiques ne se distinguent plus sur l'écran de connexion »)
+redeviennent vrais à la lettre.
+**LE PIÈGE : personne ne sait dans quel état est la base.** Turquet colle les
+migrations à la main, et rien ne dit si la 009 a été jouée. Trois états
+existent, et la page doit connecter dans les trois sans rien attendre de
+personne : A, la 009 jamais jouée — la liste se lit, `cles_de_connexion`
+n'existe pas (le rpc rend `PGRST202`) ; B, la 009 jouée, pas la 010 — la liste
+revient VIDE au visiteur, zéro ligne SANS erreur (c'est la RLS), et la
+fonction existe ; C, la 010 jouée — la liste se lit, les deux fonctions ont
+disparu. Une marche arrière naïve — rendre aux pages leur code d'avant #638 —
+marchait en A et en C, et en B fermait la porte à TOUTE la classe : liste
+vide, « Aucun compte pour l'instant », aucun chemin pour entrer. Et elle
+ouvrait la porte aux comptes en double : la création de compte d'avant
+cherchait le prénom par `ilike('prenom')` dans cette même liste, qui en B ne
+voit personne — chaque élève, lisant « Aucun compte », aurait recréé le sien,
+une seconde ligne sous le même prénom, ses notes coupées en deux, et deux
+pastilles « Léa » le jour où la 010 passe. Une liste vide sans erreur ne se
+distingue pas d'une classe vide : c'est « Une suppression que RLS refuse n'est
+pas une erreur », côté lecture.
+**Le repli de transition : sur une liste VIDE, et seulement alors, la page
+demande à la base si la fonction existe** — `sb.rpc('cles_de_connexion', {
+niveau: NIVEAU, prenom: '' })`, un prénom vide, qui ne rend rien par
+construction. `PGRST202` : c'est A ou C, la classe est vraiment vide, « Aucun
+compte pour l'instant. Crée le tien avec « Créer mon compte ». », sans champ.
+Toute autre réponse — aucune erreur, ou une erreur d'un autre code — : c'est
+B, la liste est fermée exprès ; `#chipsRow` se cache, `#prenomRow` (le champ «
+Ton prénom » d'hier, `hidden` par défaut) et `#pinRow` paraissent, et l'élève
+entre par le prénom tapé, exactement comme depuis #638. `connexionEleve()`
+choisit dans cet ordre : une pastille choisie, et sa clé ; sinon `#prenomRow`
+visible, et `clesDuPrenom()` ; sinon « Choisis ton prénom ». Puis la MÊME
+boucle. `creerCompte()` garde `clesDuPrenom()` — la fonction si elle existe,
+la liste filtrée par `normaliserPrenom` sinon — et refuse le doublon sans
+accent dans les trois états. Le repli S'ÉTEINT de lui-même : la 010 rouvre la
+liste, qui revient pleine, et le sondage n'est plus fait ; il ne restera rien
+à retirer. Trois choses nommées : l'enveloppe `#chipsRow` existe parce que
+`.chips{display:flex}` l'emporte sur un `hidden` posé directement sur
+`#nameChips` ; en B, une classe VRAIMENT vide voit le champ « Ton prénom » au
+lieu de « Aucun compte » — un visiteur n'a aucun moyen de les distinguer, et «
+Créer mon compte » reste à côté ; une exception levée par le sondage lui-même
+tombe dans le `catch` de `renderLoginNames()` (« Connexion impossible. Vérifie
+ta configuration. »), branche qu'aucun banc n'exerce.
+**La 010 (`supabase/migrations/010_retour_de_la_liste.sql`, notice 3 decies)
+se joue dans N'IMPORTE QUEL ORDRE** — la seule migration du dossier dont on
+puisse le dire, et c'est le repli qui le permet : avant ou après la mise en
+ligne, que la 009 ait été jouée ou non. Elle remet `p_<table>_liste` « for
+select to anon, authenticated using (true) » sur les trois tables (`drop
+policy if exists` puis `create`, même nom : remplacée, pas doublée), supprime
+`cles_de_connexion(text, text)` et `normaliser_prenom(text)` sans cascade, et
+demande à PostgREST de recharger son cache. Supprimer la fonction n'est pas du
+ménage : son ABSENCE est le signal que lisent les pages ; laissée, elle ferait
+afficher « Ton prénom » à une classe vide, et masquerait un jour une liste
+refermée par erreur. Page d'avant ou d'après, base A, B ou C, chaque
+combinaison connecte : la page de #638 restée en cache sur une tablette
+appelle la fonction, reçoit `PGRST202` dès la 010 passée, et se replie sur la
+liste, rouverte par le même fichier. La 010 dit d'abord l'ÉTAT TROUVÉ (« la
+009 avait été jouée », ou « pas de cles_de_connexion »), puis se contrôle
+bruyamment (`raise exception`) : une seule politique de lecture par table, qui
+nomme `anon` et `authenticated` et laisse tout lire ; les deux fonctions
+absentes ; et l'EFFET MESURÉ — pour chaque table non vide, sous `set local
+role anon` (seule la prise de rôle dans un sous-bloc `insufficient_privilege`,
+le rôle d'avant rendu par `execute format('set local role %I', ancien)`), le
+visiteur lit `id, prenom, cle` et doit compter autant de lignes que le rôle
+qui joue le fichier ; une table vide ou un rôle impossible à prendre se
+DÉCLARE par un `raise notice`. Un écart au contrat, voulu : un second
+gestionnaire entoure la LECTURE sous `anon`, non pour la sauter mais pour
+relever son refus en clair (« un visiteur n'a pas le droit de lire id, prénom
+et clé… un droit de colonne retiré à anon ? ») au lieu d'un « permission
+denied » nu.
+**Ce que chaque banc tient.** Le banc de la BASE (`npm run test:base`) a gagné
+« 1 septies. LA MIGRATION 010 — LE RETOUR DE LA LISTE » : « 010 s'applique
+après la 009, et son contrôle final ne trouve rien à redire », « elle
+reconnaît la base où la 009 a été jouée », « 010 rouvre la liste sur les trois
+tables d'élèves », « 010 mesure son effet en tant que visiteur, sur les trois
+tables », « plus aucune des deux fonctions de la 009 (aucune) », « exactement
+une politique de lecture par table d'élèves, et elle nomme anon », « un
+visiteur lit de nouveau la liste entière des trois classes (1/1/1, comme le
+superutilisateur) », « rejouer 010 ne fait plus rien », « et rejouée, elle
+sait qu'il n'y a plus de fonction à retirer, et mesure encore son effet trois
+fois », « 010 demande à PostgREST de recharger son cache de schéma » — puis
+l'état A, sur une base neuve : « sur une base où la 009 n'a JAMAIS été jouée,
+010 s'applique aussi sans erreur », « elle y reconnaît qu'il n'y a aucune
+fonction à retirer », « et elle y mesure son effet trois fois, une politique
+de lecture par table, ouverte à anon ». La démonstration « sans 002, rien ne
+protège » gagne « 010 refuse de se déclarer faite tant que la porte de 002 est
+ouverte, et la nomme », et sa cause attendue devient « et c'est bien la fuite
+des notes qui le fait rougir, pas une autre cause ». L'état B reste éprouvé,
+parce qu'il peut exister sur le projet : les contrôles du visiteur de la 009
+quittent le banc des rôles (joué désormais sur l'état final, 009 PUIS 010) et
+se rejouent sous `set role anon` juste après la 009 — « en état B, la liste
+revient VIDE au visiteur — zéro ligne, sans erreur (0) », « il obtient la clé
+d'un prénom qu'il connaît, et elle seule », « la fonction ne rend jamais une
+clé vide », « sans accent ni majuscule, le prénom se reconnaît quand même », «
+un prénom inconnu ne rend rien », « un prénom vide ne rend rien », « un niveau
+inconnu est refusé », « la fonction ne rend que des clés : ni prénom ni
+identifiant » —, et avec eux la question même que posent les pages, le niveau
+relu dans le `const NIVEAU` de chacune : « la sonde de secondes.html (niveau «
+secondes », prénom vide) répond sans erreur, et ne rend rien », et ses deux
+jumeaux. Le banc des rôles (`tests/base-controles.sql`, 46 contrôles annoncés
+au lieu de 52) voit le visiteur : « il voit la liste des prénoms (3) », « il
+lit aussi la clé de chacun, dont la pastille dérive l'adresse de connexion (3)
+» — un seul select des trois colonnes, comme la page, et un refus affiché «
+(refusée) » au lieu d'avorter. La boucle des mutations monte l'état final
+avant chaque mutation, et si la 010 refuse, chacune sort « non mesurée :
+l’état final (009 puis 010) ne se monte pas » au lieu de faire tomber le banc
+; « la liste des élèves redevient lisible sans connexion » et « la fonction de
+connexion perd SECURITY DEFINER » en sortent — la première est maintenant
+l'état EXIGÉ —, « la liste se referme aux visiteurs » (cause attendue « ÉCHEC
+: il voit la liste des prénoms (0) ») et « la clé ne se lit plus sans
+connexion (droit de colonne retiré) » (cause « … (refusée) ») y entrent :
+garder la liste et cacher les clés est le durcissement le plus tentant, et il
+couperait la connexion de tout le monde. Le banc NAVIGATEUR (section 3) joue
+les trois états par les interrupteurs du double — la liste ouverte ;
+`window.__faux.listeFermee`, nouveau (zéro ligne sans erreur à un visiteur, la
+fonction, security definer, lisant quand même) ; `sansRpc` — et exige : « la
+liste des prénoms s'affiche, une pastille par élève, et une pastille connecte
+» (une « Anaïs » semée passe devant « Contrôle » : un écran qui connecterait
+toujours la première pastille ne passe pas), « liste fermée par la 009 : la
+page propose de taper son prénom, sans pastille, et l'élève entre » (tapé «
+CONTROLE »), « liste vide sans la fonction (classe vide, ou 010 jouée) : «
+Aucun compte pour l'instant », sans champ de prénom », « un prénom déjà pris,
+même écrit sans accent, ne crée pas de second compte — liste fermée (état B),
+par la fonction SQL » et « … — fonction absente (états A et C), par la liste
+», « la liste ne demande que id, prenom et cle », « avec la liste ouverte, la
+page n'interroge pas la fonction de connexion ». Rejoués sur la pastille : «
+un code faux n’ouvre pas l’espace de l’élève », « c’est le serveur qui refuse
+le code, pas la page », « une erreur de cadence n'est pas un code faux : la
+page le dit et garde le code », « un compte non confirmé n'est pas un code
+faux : pas de « Code incorrect », et le code reste ». Rejoués en état B : « un
+prénom inconnu ne tente aucune connexion, et le dit », « deux homonymes :
+c'est le code qui départage, et la seconde clé entre après le refus de la
+première », « une erreur de cadence n'est pas un code faux : la page s'arrête
+à la première clé, le dit et garde le code », « une panne de la fonction SQL
+n'ouvre ni le repli ni une connexion, et le dit ». Retirés : « avant la
+connexion, la page ne lit aucune ligne de la table des élèves » (elle la lit :
+c'est la liste), « sans la fonction SQL, la page se replie sur l'ancienne
+liste et y reconnaît le prénom sans accent — tant que la 009 n'est pas jouée »
+(remplacé par l'état C, où le doublon éprouve la normalisation de la PAGE), «
+le prénom se reconnaît sans accent ni majuscule » (fondu dans l'entrée en B).
+`connecter()` clique la pastille de `PRENOM_CONTROLE` (`cliquerPastille`, qui
+rend `false` au lieu de lever), chaque contrôle part de `logout()` et remet
+ses interrupteurs dans un `finally`. Le banc PRINCIPAL lit la source — «
+l’écran de connexion affiche la liste des prénoms, et ne se replie sur le
+prénom tapé que si la liste est fermée », deux bords nommés : la liste qui
+s'affiche et la pastille qui connecte ; le repli qui ne s'ouvre que sur une
+liste fermée (le sondage n'existe QUE dans la branche « liste vide », découpée
+par accolades appariées, et `#prenomRow` ne s'ouvre que sur « pas d'erreur, ou
+un autre code que PGRST202 ») — et exécute dans jsdom (« 2 ter ») : « liste
+ouverte : une pastille cliquée ouvre l’espace, sans appeler la fonction de
+connexion (jsdom) » et « liste fermée par la 009 : le champ du prénom
+s’affiche, et « CONTROLE » tapé ouvre l’espace (jsdom) ».
+**Éprouvé par sabotage, sur des copies.** Pages (Seconde) : le sondage retiré
+— « ✗ liste fermée par la 009 : la page propose de taper son prénom, sans
+pastille, et l'élève entre → la liste vide n'a pas fait sonder la fonction : «
+Aucun compte pour l'instant. Crée le tien avec « Créer mon compte ». » », les
+quatre contrôles d'état B qui ne trouvent plus de champ, « ✗ liste vide sans
+la fonction (classe vide, ou 010 jouée) : … → la fonction n'a pas été sondée :
+la réponse PGRST202 n'a pas été lue, le contrôle ne mesure rien », la source
+(« → aucun sondage de cles_de_connexion sur une liste vide : la 009 jouée, la
+page dirait « Aucun compte » à toute la classe ») et le jsdom ; le sondage qui
+conclut « fermée » sur PGRST202 — « → un champ « Ton prénom » s'affiche alors
+que la fonction n'existe pas : le sondage conclut « fermée » sur PGRST202 » ;
+`selectedEleve` ignoré par `connexionEleve()` — « ✗ la liste des prénoms
+s'affiche, une pastille par élève, et une pastille connecte → écran atteint :
+scr-login », « ✗ un compte non confirmé n'est pas un code faux … → message :
+{"texte":"Choisis ton prénom","classe":"show"} », la source « →
+connexionEleve() ne se sert pas de selectedEleve : la pastille cliquée ne
+connecte personne », le jsdom « → aucune connexion tentée : le contrôle n'a
+rien mesuré » ; `creerCompte()` rendu à `ilike` — les deux doublons « → 1
+inscription(s) : un second compte a été créé sous le même prénom » ; le
+sondage sorti de la branche vide — « ✗ avec la liste ouverte, la page
+n'interroge pas la fonction de connexion → 1 appel(s) rpc avant la connexion :
+cles_de_connexion {"niveau":"secondes","prenom":""} » ; la liste lue par
+`select('*')` — « ✗ la liste ne demande que id, prenom et cle → 1 lecture(s)
+d'autres colonnes : select(*) » ; `#prenomRow` sans `hidden` — « → #prenomRow
+n’est pas caché par défaut : le champ du prénom s’afficherait à côté des
+pastilles » ; et la page de #638 elle-même — « → la liste des prénoms
+(#nameChips) n’est pas dans le formulaire de connexion ». Base : la 010 qui
+oublie `anon` — « ✗ 010 s'applique après la 009, et son contrôle final ne
+trouve rien à redire → ERROR: la liste des prénoms reste fermée aux visiteurs
+: eleves.p_eleves_liste (pour authenticated) — l'écran de connexion n'aurait
+plus de pastilles » ; la 010 qui garde la fonction — « → ERROR:
+public.cles_de_connexion(text, text) existe encore : les pages la lisent comme
+le signe d'une liste fermée exprès » ; la mesure ET le contrôle « nomme anon »
+retirés de la 010 : elle passe d'elle-même, et le banc rougit ailleurs — « ✗
+010 mesure son effet en tant que visiteur, sur les trois tables → 0 table(s)
+mesurée(s) sur 3 », « un visiteur lit de nouveau la liste entière … → 0/0/0
+pour 1/1/1 » ; le banc des rôles qui attend encore zéro prénom — « ✗ et c'est
+bien la fuite des notes qui le fait rougir, pas une autre cause → ERROR: ÉCHEC
+: il voit la liste des prénoms (3) », et huit mutations « rougit, mais pas là
+où la mutation frappe » ; le contrôle de la clé retiré — « ✗ détectée : la clé
+ne se lit plus sans connexion (droit de colonne retiré) → le banc est resté
+vert alors que la base est ouverte » ; un droit de colonne retiré à `anon`
+avant la 010 — « → ERROR: eleves_1ere : un visiteur n'a pas le droit de lire
+id, prénom et clé (permission denied for table eleves_1ere) — la page ne
+pourrait pas afficher les pastilles : un droit de colonne retiré à anon ? » ;
+`NIVEAU='premieres'` dans une copie de la Première — « ✗ la sonde de
+premiere-specifique.html (niveau « premieres », prénom vide) répond sans
+erreur, et ne rend rien → erreur : ERROR: niveau inconnu : premieres ». Un
+piège de banc, en passant : le PostgreSQL jetable tourne sous `postgres`, qui
+ne lit pas le scratchpad (0700) — les sabotages de la base se jouent depuis un
+miroir dans `/tmp`, effacé à chaque passage.
+**Ce qu'aucun banc ne voit.** L'état réel du projet : la 009 y a-t-elle été
+jouée ? La sortie de la 010, « état trouvé », le dira. Le cache de schéma de
+PostgREST dans la minute qui suit la 010 : il peut tenter encore une fonction
+disparue — la page de #638 dirait alors « Connexion impossible », la création
+de compte « Vérification du prénom impossible » ; il faut attendre, pas
+rejouer (les pastilles, elles, ne passent pas par la fonction). Les tablettes
+qui garderaient l'ancienne page quelques minutes après la mise en ligne : elle
+connecte dans les trois états — par la fonction en B, par son propre repli
+PGRST202 en A et en C —, sauf pendant cette fenêtre. Que le vrai PostgREST
+rende `[]` sans erreur pour un prénom vide, et `PGRST202` pour une fonction
+absente — les deux réponses sur lesquelles repose le sondage : elles ne sont
+mesurées que sur le double et sur la base jetable. Et que l'éditeur SQL de
+Supabase laisse prendre `set local role anon`, sous un `postgres` qui traverse
+la RLS : la même hypothèse que la 009, et un refus s'y déclare au lieu de
+passer au vert.
+
 **Le plan gratuit de Supabase ne sauvegarde rien.** L'action
 `.github/workflows/sauvegarde.yml` exporte les données chaque nuit du samedi au
 dimanche, les chiffre et les conserve 90 jours. Le chiffrement est

@@ -28,10 +28,14 @@ on conflict (id) do nothing;
 -- On n'écrit PAS « id » : c'est exactement ce que fait l'application depuis
 -- que les trois niveaux se sont révélés avoir des types d'identifiant
 -- différents. La base le produit ; le jeu d'essai s'en remet à elle.
--- Chloé n'a ni note ni signalement : elle n'est là que pour l'écran de
--- connexion — son prénom porte un accent, et c'est ce qu'on veut éprouver.
--- Les comptes exigés plus bas (3 notes vues par le professeur, 3 signalements,
--- 1 note d'Alice) ne la voient donc pas.
+-- Chloé n'a ni note ni signalement. Elle était venue pour la fonction de
+-- connexion de la 009 (un prénom accentué à retrouver tapé « CHLOE ») ; ces
+-- contrôles vivent désormais dans tests/base.js (1 sexies), contre l'état où
+-- la 009 est jouée et pas encore la 010 — c'est là seulement que la fonction
+-- existe. Elle reste ici en troisième prénom de la liste : un compte de 3
+-- distingue « toute la liste » de « la ligne d'Alice seule » comme de « tout
+-- sauf une ». Les comptes exigés plus bas (3 notes vues par le professeur,
+-- 3 signalements, 1 note d'Alice) ne la voient pas.
 insert into public.eleves_2nde (prenom, cle, user_id) values
   ('Alice', 'cle-alice', '11111111-1111-1111-1111-111111111111'),
   ('Bob',   'cle-bob',   '22222222-2222-2222-2222-222222222222'),
@@ -95,76 +99,43 @@ end $$;
 -- 1. UN VISITEUR NON CONNECTÉ (rôle anon)
 -- ==========================================================================
 do $$
-declare n int; n2 int; ok bool; cles text; ret text; alice uuid;
+declare n int; ok bool; vus text; alice uuid;
 begin
   raise notice '';
   raise notice '1. VISITEUR NON CONNECTÉ';
-  -- Une ligne SANS clé — un élève créé à la main dans l'éditeur de table, ou
-  -- jamais relié — porte le même prénom qu'Alice : la fonction ne doit pas la
-  -- rendre (un « null » que la page changerait en adresse « null@… »). Posée
-  -- en superutilisateur, retirée à la fin de cette section pour ne pas
-  -- changer les comptes des sections suivantes.
-  insert into public.eleves_2nde (prenom, cle, user_id) values ('Alice', null, null);
-  -- L'identifiant d'Alice se lit AVANT de devenir visiteur. Depuis la 009, le
-  -- visiteur ne lit plus la table des élèves : un « insert … select » qui
-  -- passe par elle ne trouve aucune ligne, n'insère rien — et n'est refusé par
-  -- rien. Le contrôle passait pour rouge sans avoir rien mesuré, et chaque
-  -- mutation de la section 3 était « détectée » pour cette seule raison.
+  -- L'identifiant d'Alice se lit AVANT de devenir visiteur. Un « insert …
+  -- select » qui passerait par la table des élèves ferait dépendre le refus
+  -- d'ÉCRITURE plus bas de la politique de LECTURE : quand la 009 l'avait
+  -- fermée, il ne trouvait aucune ligne, n'insérait rien, n'était refusé par
+  -- rien — le contrôle rougissait sans avoir rien mesuré, et chaque mutation
+  -- de la section 3 était « détectée » pour cette seule raison. La 010 a
+  -- rouvert la liste ; le contrôle d'écriture ne doit pas dépendre d'elle
+  -- pour autant.
   select id into alice from public.eleves_2nde where cle = 'cle-alice';
   set local role anon;
 
-  -- LA LISTE DES PRÉNOMS NE SE LIT PLUS SANS ÊTRE CONNECTÉ (migration 009).
-  -- Jusqu'en octobre 2026, ce banc exigeait l'inverse — « l'écran de
-  -- connexion l'affiche avant toute authentification » — et c'était le prix :
-  -- n'importe qui lisait les prénoms de trois classes de mineurs, et la clé
-  -- de chacun. L'écran demande désormais à l'élève de TAPER son prénom.
+  -- LA LISTE DES PRÉNOMS SE LIT SANS ÊTRE CONNECTÉ : l'écran de connexion
+  -- l'affiche en pastilles avant toute authentification. La 001 l'avait
+  -- ouverte, la 009 l'avait fermée — ce banc exigeait alors « il ne voit PLUS
+  -- la liste » —, la 010 la rouvre (décision de Turquet, 14 octobre 2026).
+  -- Le prix est nommé dans la 010 : n'importe qui lit les prénoms de trois
+  -- classes de mineurs, et la clé de chacun.
   select count(*) into n from public.eleves_2nde;
-  perform pg_temp.exige('il ne voit PLUS la liste des prénoms (' || n || ')', n = 0);
+  perform pg_temp.exige('il voit la liste des prénoms (' || n || ')', n = 3);
 
-  -- Ce qu'il obtient à la place : la clé du prénom qu'il connaît. Rien de
-  -- plus — « et elle seule » est le bord qui compte : une fonction qui
-  -- rendrait toute la colonne passerait le contrôle précédent sans peine.
-  select coalesce(string_agg(c, ',' order by c), '∅') into cles
-    from public.cles_de_connexion('secondes', 'Alice') c;
-  perform pg_temp.exige('il obtient la clé d''un prénom qu''il connaît, et elle seule (' || cles || ')',
-                        cles = 'cle-alice');
-  -- string_agg ignore les null : on COMPTE, sinon une clé vide passerait.
-  select count(*), count(c) into n, n2 from public.cles_de_connexion('secondes', 'Alice') c;
-  perform pg_temp.exige('la fonction ne rend jamais une clé vide (' || n || ' clé(s), ' || (n - n2) || ' vide(s))',
-                        n = 1 and n2 = 1);
-
-  -- Les accents, la casse et les espaces ne font pas un autre prénom : un
-  -- élève qui tape « chloe » sur un clavier sans accent est Chloé — et
-  -- « CHLOÉ », majuscule accentuée, l'est aussi quelle que soit la locale.
-  select coalesce((select string_agg(c, ',' order by c) from public.cles_de_connexion('secondes', 'CHLOE') c), '∅')
-      || '|' || coalesce((select string_agg(c, ',' order by c) from public.cles_de_connexion('secondes', '  alice ') c), '∅')
-      || '|' || coalesce((select string_agg(c, ',' order by c) from public.cles_de_connexion('secondes', 'CHLOÉ') c), '∅')
-    into cles;
-  perform pg_temp.exige('sans accent ni majuscule, le prénom se reconnaît quand même (' || cles || ')',
-                        cles = 'cle-chloe|cle-alice|cle-chloe');
-
-  select count(*) into n from public.cles_de_connexion('secondes', 'Zoé');
-  perform pg_temp.exige('un prénom inconnu ne rend rien (' || n || ')', n = 0);
-
-  select (select count(*) from public.cles_de_connexion('secondes', '   '))
-       + (select count(*) from public.cles_de_connexion('secondes', null)) into n;
-  perform pg_temp.exige('un prénom vide ne rend rien (' || n || ')', n = 0);
-
-  -- Un niveau inconnu est une ERREUR, pas une liste vide : la page qui
-  -- enverrait un mauvais nom doit le voir, pas conclure « prénom inconnu ».
+  -- Et ce que la pastille demande, d'UN seul select : id, prénom et clé —
+  -- la clé, dont la page dérive l'adresse de connexion. « Garder la liste,
+  -- cacher les clés » par un droit de colonne retiré à anon est le
+  -- durcissement le plus tentant, et il ne laisserait pas la liste vide : il
+  -- ferait ÉCHOUER la lecture de la page, et plus personne n'entrerait. Le
+  -- refus est attrapé pour qu'il se lise comme un échec de CE contrôle, pas
+  -- comme une erreur sans nom.
   begin
-    perform count(*) from public.cles_de_connexion('college', 'Alice');
-    ok := false;
-  exception when others then ok := (sqlerrm like 'niveau inconnu%');
+    select count(*)::text into vus from (select id, prenom, cle from public.eleves_2nde where cle is not null) t;
+  exception when insufficient_privilege then vus := 'refusée';
   end;
-  perform pg_temp.exige('un niveau inconnu est refusé', ok);
-
-  -- Le type de retour est la preuve que rien d'autre ne peut sortir : un
-  -- ensemble de « text », pas une ligne de table, pas un enregistrement.
-  select format_type(prorettype, null) || (case when proretset then ' (setof)' else '' end) into ret
-    from pg_proc where oid = to_regprocedure('public.cles_de_connexion(text, text)');
-  perform pg_temp.exige('la fonction ne rend que des clés : ni prénom ni identifiant (' || coalesce(ret, 'absente') || ')',
-                        ret = 'text (setof)');
+  perform pg_temp.exige('il lit aussi la clé de chacun, dont la pastille dérive l''adresse de connexion (' || vus || ')',
+                        vus = '3');
 
   -- Il ne doit voir AUCUNE note. C'est la fuite principale d'avant.
   select count(*) into n from public.resultats_2nde;
@@ -199,7 +170,6 @@ begin
   perform pg_temp.exige('il ne peut pas supprimer un élève', ok);
 
   reset role;
-  delete from public.eleves_2nde where prenom = 'Alice' and cle is null;
 end $$;
 
 -- ==========================================================================
@@ -255,9 +225,9 @@ begin
   -- droit est donc EXERCÉ pour de vrai (section 3, « il renomme un élève ») : la
   -- politique d'UPDATE sur cette table est la seule chose qui le réserve à lui.
   -- Un élève qui renommerait un camarade brouillerait l'écran de connexion, où
-  -- chacun TAPE son prénom pour obtenir sa clé — et pourrait s'y faire passer
-  -- pour un autre. Le refus est MUET, comme partout : la ligne qu'on n'a pas le
-  -- droit de toucher est une ligne qui n'existe pas.
+  -- chacun choisit SA pastille — deux « Bob » côte à côte, et un camarade qui
+  -- n'y trouve plus son prénom. Le refus est MUET, comme partout : la ligne
+  -- qu'on n'a pas le droit de toucher est une ligne qui n'existe pas.
   begin
     update public.eleves_2nde set prenom = 'Pirate' where prenom = 'Bob';
     ok := not found;
@@ -433,10 +403,10 @@ begin
   select count(*) into n from public.resultats_2nde;
   perform pg_temp.exige('il voit toutes les notes de la classe (' || n || ')', n = 3);
 
-  -- La liste que le visiteur ne voit plus, le professeur la voit encore : son
-  -- tableau, les signalements et le bilan nomment chaque ligne par son élève.
-  -- (Un élève connecté la voit aussi — c'est nommé dans la 009 comme non
-  -- restreint, pas oublié.)
+  -- Le professeur voit la liste de sa classe : son tableau, les signalements
+  -- et le bilan nomment chaque ligne par son élève. Elle lui est restée
+  -- ouverte quand la 009 la fermait aux visiteurs, et la 010 la lui laisse —
+  -- p_eleves_2nde_liste nomme authenticated aussi bien qu'anon.
   select count(*) into n from public.eleves_2nde;
   perform pg_temp.exige('il voit la liste des prénoms de sa classe (' || n || ')', n = 3);
 

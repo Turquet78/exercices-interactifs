@@ -178,25 +178,32 @@ bilan('la rejouer ne casse rien', !r2.erreur, r2.erreur);
    001 pose à côté. Ce contrôle l'exige plutôt que de l'affirmer : joué sans la
    migration 002, le banc des rôles DOIT échouer. S'il passait, c'est que ce
    banc ne mesure pas ce qu'il croit mesurer.
-   On joue AUSSI la 009 avant lui, et c'est voulu : depuis qu'elle existe, le
-   banc des rôles appelle cles_de_connexion(), et sans elle il échouerait de
-   toute façon — « fonction inconnue » —, ce qui ne démontrerait rien sur les
-   politiques ouvertes. Avec 001 + 009 et sans 002, la seule chose qui laisse
-   le visiteur lire la liste est la porte que 002 ferme : l'échec a la bonne
-   cause, et on vérifie laquelle. La 009 elle-même refuse cette base — son
-   contrôle final nomme la politique ouverte — et c'est un second bord mesuré
-   ici, pas un échec toléré en silence. */
+   Et il doit échouer pour la BONNE cause : la fuite des NOTES, que la porte
+   de 002 laisse lire à un visiteur. La liste des prénoms, elle, n'est plus
+   une cause — la 010 l'a rouverte, et le banc des rôles exige maintenant que
+   le visiteur la voie : sur cette base, il la voit, et ce contrôle-là passe.
+   On joue la 009 PUIS la 010 avant lui, comme partout où le banc des rôles
+   est joué : chacune doit REFUSER de se déclarer faite tant que la porte de
+   002 est ouverte, et la nommer — deux bords mesurés ici, pas deux échecs
+   tolérés en silence. (Leur refus vient de leur contrôle final : ce qu'elles
+   font avant — politique remplacée, fonctions posées puis retirées — est
+   déjà passé, et le banc des rôles mesure l'état réellement laissé.) */
 const MIG9 = path.join(RACINE, 'supabase/migrations/009_connexion_sans_liste.sql');
+const MIG10 = path.join(RACINE, 'supabase/migrations/010_retour_de_la_liste.sql');
 const s9seule = psql('banc', ['-f', MIG9], true);
 bilan('009 refuse de se déclarer faite tant que la porte de 002 est ouverte, et la nomme',
   !!s9seule.erreur && /reste lisible sans connexion : eleves\.acces classe - eleves \(pour anon\)/.test(String(s9seule.erreur)),
   s9seule.erreur ? String(s9seule.erreur).split('\n').filter(l => /ERROR|ERREUR/.test(l)).join(' ') : '009 est passée sans rien dire');
+const s10seule = psql('banc', ['-f', MIG10], true);
+bilan('010 refuse de se déclarer faite tant que la porte de 002 est ouverte, et la nomme',
+  !!s10seule.erreur && /eleves : 2 politique\(s\) de lecture au lieu d'une seule \(acces classe - eleves pour anon, p_eleves_liste pour anon\+authenticated\)/.test(String(s10seule.erreur)),
+  s10seule.erreur ? String(s10seule.erreur).split('\n').filter(l => /ERROR|ERREUR/.test(l)).join(' ') : '010 est passée sans rien dire');
 const sans002 = psql('banc', ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
 bilan('sans 002, la protection ne tient PAS (c\'est ce qui justifie 002)',
   !!sans002.erreur,
   'le banc des rôles est passé alors que les politiques ouvertes sont encore là');
-bilan('et c\'est bien la liste ouverte qui le fait rougir, pas une fonction absente',
-  /ÉCHEC : il ne voit PLUS la liste des prénoms \(4\)/.test(String(sans002.erreur || '')),
+bilan('et c\'est bien la fuite des notes qui le fait rougir, pas une autre cause',
+  /ÉCHEC : il ne voit aucune note \(2\)/.test(String(sans002.erreur || '')),
   (String(sans002.erreur || '').match(/ÉCHEC : .*|ERROR: .*/) || ['aucune ligne ÉCHEC'])[0]);
 
 /* On repart d'une base neuve : le banc des rôles vient d'y écrire. */
@@ -303,14 +310,19 @@ bilan('rejouer 008 ne fait plus rien', !r8.erreur, r8.erreur);
    -------------------------------------------------------------------------
    La 001 laissait un visiteur lire la liste des prénoms — et la clé de
    chacun — parce que l'écran de connexion l'affichait avant toute
-   authentification. La 009 ferme cette lecture : l'élève tape son prénom, et
-   une fonction SECURITY DEFINER lui rend la ou les clés de ce prénom, cinq au
-   plus, rien d'autre. Ici on vérifie que la migration a travaillé sur les
-   TROIS tables, qu'elle a REMPLACÉ la politique au lieu d'en ajouter une
-   (la leçon de la 002 : deux permissives se combinent par un OU), et que la
-   fonction a les trois propriétés sans lesquelles l'écran serait muet —
-   elle existe, elle lit sans la RLS, le visiteur peut l'appeler. Le contrôle
-   des rôles, plus bas, exerce ensuite ce que chacun obtient d'elle. */
+   authentification. La 009 a fermé cette lecture : l'élève tapait son
+   prénom, et une fonction SECURITY DEFINER lui rendait la ou les clés de ce
+   prénom, cinq au plus, rien d'autre. La 010 (section suivante) l'a défaite
+   le 14 octobre 2026 — mais l'ÉTAT que la 009 laisse peut exister sur le
+   projet réel, aussi longtemps que la 010 n'y est pas collée, et les pages
+   doivent y connecter tout le monde (par le prénom tapé). Cette section le
+   garde donc éprouvé : la migration travaille sur les TROIS tables, elle
+   REMPLACE la politique au lieu d'en ajouter une (la leçon de la 002 : deux
+   permissives se combinent par un OU), la fonction a les trois propriétés
+   sans lesquelles l'écran serait muet — elle existe, elle lit sans la RLS,
+   le visiteur peut l'appeler —, et ce que le VISITEUR obtient d'elle est
+   exercé ici même (ces contrôles vivaient dans tests/base-controles.sql,
+   qui décrit désormais l'état final, où la fonction n'existe plus). */
 /* Tolérant, exprès : la 009 porte son propre contrôle final, et quand il
    refuse — une politique qui nomme encore anon, une fonction sans security
    definer — c'est une ligne rouge qui doit le dire, pas un banc qui s'arrête
@@ -404,17 +416,92 @@ bilan('et rejouée sur des tables pleines, elle mesure encore son effet trois fo
 psql('banc', ['-c', `delete from public.eleves where cle = 'cle-temoin-t';
   delete from public.eleves_1ere where cle = 'cle-temoin-1';
   delete from public.eleves_2nde where cle in ('cle-temoin-2', 'cle-blanc');`]);
+
+/* L'ÉTAT B, VU PAR UN VISITEUR — la 009 jouée, la 010 pas encore. C'est
+   l'état que les pages doivent savoir traverser : la liste revient VIDE (zéro
+   ligne, sans erreur — la RLS ne refuse pas, elle cache), la fonction existe,
+   et la connexion passe par le prénom tapé. Chaque contrôle est joué par
+   psql sous « set role anon », comme PostgREST le ferait pour un visiteur :
+   le superutilisateur traverse la RLS, un contrôle écrit sans le rôle
+   passerait au vert quelles que soient les politiques.
+   Les témoins sont semés pour l'occasion et retirés ensuite : le banc des
+   rôles, plus bas, sème ses propres Alice et Chloé. Une ligne SANS clé — un
+   élève créé à la main dans l'éditeur de table, jamais relié — porte le même
+   prénom qu'Alice : la fonction ne doit pas la rendre (un « null » que la
+   page changerait en adresse « null@… »). */
+psql('banc', ['-c', `insert into public.eleves_2nde (prenom, cle) values
+  ('Alice', 'cle-alice-b'), ('Chloé', 'cle-chloe-b'), ('Alice', null);`]);
+const visiteur = sql => {
+  const r = psql('banc', ['-tA', '-c', 'set role anon', '-c', sql], true);
+  return r && r.erreur !== undefined ? { erreur: String(r.erreur) } : { texte: String(r).trim() };
+};
+const lu = r => r.erreur !== undefined ? 'erreur : ' + (r.erreur.match(/ERROR: [^\n]*/) || [r.erreur])[0] : r.texte;
+{
+  const liste = visiteur('select count(*) from public.eleves_2nde');
+  bilan('en état B, la liste revient VIDE au visiteur — zéro ligne, sans erreur (' + lu(liste) + ')',
+    liste.texte === '0', lu(liste));
+  const cle = visiteur(`select coalesce(string_agg(c, ',' order by c), '∅') from public.cles_de_connexion('secondes', 'Alice') c`);
+  bilan('il obtient la clé d\'un prénom qu\'il connaît, et elle seule (' + lu(cle) + ')',
+    cle.texte === 'cle-alice-b', lu(cle));
+  /* string_agg ignore les null : on COMPTE, sinon une clé vide passerait. */
+  const vides = visiteur(`select count(*) || '/' || count(c) from public.cles_de_connexion('secondes', 'Alice') c`);
+  bilan('la fonction ne rend jamais une clé vide (' + lu(vides) + ' : clés rendues / non vides)',
+    vides.texte === '1/1', lu(vides));
+  /* « chloe » tapé sur un clavier sans accent est Chloé — et « CHLOÉ »,
+     majuscule accentuée, l'est aussi quelle que soit la locale. */
+  const accents = visiteur(`select coalesce((select string_agg(c, ',' order by c) from public.cles_de_connexion('secondes', 'CHLOE') c), '∅')
+      || '|' || coalesce((select string_agg(c, ',' order by c) from public.cles_de_connexion('secondes', '  alice ') c), '∅')
+      || '|' || coalesce((select string_agg(c, ',' order by c) from public.cles_de_connexion('secondes', 'CHLOÉ') c), '∅')`);
+  bilan('sans accent ni majuscule, le prénom se reconnaît quand même (' + lu(accents) + ')',
+    accents.texte === 'cle-chloe-b|cle-alice-b|cle-chloe-b', lu(accents));
+  const inconnu = visiteur(`select count(*) from public.cles_de_connexion('secondes', 'Zoé')`);
+  bilan('un prénom inconnu ne rend rien (' + lu(inconnu) + ')', inconnu.texte === '0', lu(inconnu));
+  const vide = visiteur(`select (select count(*) from public.cles_de_connexion('secondes', '   '))
+       + (select count(*) from public.cles_de_connexion('secondes', null))`);
+  bilan('un prénom vide ne rend rien (' + lu(vide) + ')', vide.texte === '0', lu(vide));
+  /* Un niveau inconnu est une ERREUR, pas une liste vide : la page qui
+     enverrait un mauvais nom doit le voir, pas conclure « prénom inconnu ». */
+  const college = visiteur(`select count(*) from public.cles_de_connexion('college', 'Alice')`);
+  bilan('un niveau inconnu est refusé',
+    college.erreur !== undefined && /niveau inconnu/.test(college.erreur), lu(college));
+  /* Le type de retour est la preuve que rien d'autre ne peut sortir : un
+     ensemble de « text », pas une ligne de table, pas un enregistrement. */
+  const ret = visiteur(`select coalesce((select format_type(prorettype, null) || (case when proretset then ' (setof)' else '' end)
+      from pg_proc where oid = to_regprocedure('public.cles_de_connexion(text, text)')), 'absente')`);
+  bilan('la fonction ne rend que des clés : ni prénom ni identifiant (' + lu(ret) + ')',
+    ret.texte === 'text (setof)', lu(ret));
+  /* LA SONDE DES PAGES. Une page qui trouve la liste vide demande à la base
+     si la fonction existe — rpc('cles_de_connexion', { niveau: NIVEAU,
+     prenom: '' }) — et lit « pas d'erreur » comme « la liste est fermée
+     exprès » : elle affiche alors le champ « Ton prénom ». La sonde doit
+     donc répondre SANS ERREUR et sans rien rendre, sur le NIVEAU que chaque
+     page envoie réellement — relu dans la page, pas recopié : un niveau mal
+     écrit lèverait « niveau inconnu », que la page lirait aussi comme
+     « fonction présente », et le banc ne le verrait pas. */
+  ['secondes.html', 'premiere-specifique.html', 'terminale.html'].forEach(fichier => {
+    const niveau = (fs.readFileSync(path.join(RACINE, fichier), 'utf8').match(/const NIVEAU\s*=\s*'([a-z]+)'/) || [])[1];
+    const sonde = niveau ? visiteur(`select count(*) from public.cles_de_connexion('${niveau}', '')`) : { erreur: 'const NIVEAU introuvable dans ' + fichier };
+    bilan('la sonde de ' + fichier + ' (niveau « ' + (niveau || '?') + ' », prénom vide) répond sans erreur, et ne rend rien',
+      sonde.texte === '0', lu(sonde));
+  });
+}
+psql('banc', ['-c', `delete from public.eleves_2nde where cle in ('cle-alice-b', 'cle-chloe-b') or (prenom = 'Alice' and cle is null);`]);
+
 bilan('009 demande à PostgREST de recharger son cache de schéma',
   /notify\s+pgrst\s*,\s*'reload schema'/.test(fs.readFileSync(MIG9, 'utf8')),
   'aucun « notify pgrst, \'reload schema\' » : tant que le cache n’est pas rechargé, la page se replie sur une liste fermée');
 
 /* LA RÈGLE DE NORMALISATION DU PRÉNOM EST LA MÊME DANS LA PAGE ET DANS LA BASE.
-   La page (normaliserPrenom, par NFD) sert au repli d'avant la migration et à
-   la création de compte ; la base (normaliser_prenom, par translate) sert à
-   la fonction de connexion. Si elles divergent, un prénom passe d'un côté et
-   pas de l'autre — « seyma » pour Şeyma entrait avant la 009 et lisait
-   « Prénom inconnu » après (relecture d'octobre 2026, 11 divergences sur
-   31 prénoms avec la première table « à la française »). On RELIT donc les
+   La page (normaliserPrenom, par NFD) filtre la liste quand la fonction
+   manque — états A et C, avant la 009 ou après la 010 — et refuse ainsi un
+   doublon à la création de compte ; la base (normaliser_prenom, par
+   normalize NFD) sert à la fonction de connexion, en état B. Si elles
+   divergent, un prénom passe d'un côté et pas de l'autre : « seyma » pour
+   Şeyma entrait avant la 009 et lisait « Prénom inconnu » après (relecture
+   d'octobre 2026, 11 divergences sur 31 prénoms avec la première table « à
+   la française ») ; et un doublon refusé dans un état passerait dans
+   l'autre. Ce contrôle se joue AVANT la 010, qui retire la fonction : tant
+   que l'état B peut exister sur le projet, la règle tient. On RELIT donc les
    fonctions des trois pages et du double de Supabase, on les exécute dans
    Node sur les mêmes sondes que la base, et on exige l'égalité, sonde par
    sonde. Les sondes portent ce qui a divergé : lettres hors du français,
@@ -454,6 +541,109 @@ bilan('009 demande à PostgREST de recharger son cache de schéma',
     }).filter(Boolean);
     bilan(fichier + ' normalise le prénom comme la base', ecarts.length === 0, ecarts.slice(0, 3).join(' ; '));
   });
+}
+
+/* ---------------------------------------------------------------------------
+   1 septies. La migration 010 — le retour de la liste
+   -------------------------------------------------------------------------
+   Décision de Turquet, 14 octobre 2026 : les pastilles de prénoms reviennent,
+   la liste se lit de nouveau sans compte. La 010 remet p_<table>_liste pour
+   anon et authenticated, et supprime les deux fonctions de la 009. Elle se
+   joue dans N'IMPORTE QUEL ORDRE par rapport à la mise en ligne, et même si
+   la 009 n'a jamais été jouée : on l'éprouve donc dans les deux états d'où
+   elle peut partir — ici, après la 009 (état B) ; plus bas, sur une base où
+   la 009 n'a jamais passé (état A).
+   Les contrôles de la NORMALISATION, juste au-dessus, se jouent AVANT elle :
+   la fonction SQL qu'ils comparent aux pages disparaît ici, et les pages
+   gardent normaliserPrenom pour le repli de transition et la création de
+   compte. */
+console.log('\n1 septies. LA MIGRATION 010 — LE RETOUR DE LA LISTE');
+/* Le résumé des politiques de lecture des trois tables : combien, et si
+   elles nomment anon. Il sert au contrôle et à la mesure du rejeu. */
+const lecturesEleves = bd => psql(bd, ['-tAc',
+  `select string_agg(t || '=' || n || (case when ouverte then '+anon' else '' end), ',' order by t) from (
+     select x.t, count(p.policyname) as n, coalesce(bool_or(p.roles::text[] && array['anon','public']), false) as ouverte
+       from unnest(array['eleves','eleves_1ere','eleves_2nde']) as x(t)
+       left join pg_policies p on p.schemaname = 'public' and p.tablename = x.t and p.cmd in ('SELECT','ALL')
+      group by x.t) y`]).trim();
+const LECTURES_ATTENDUES = 'eleves=1+anon,eleves_1ere=1+anon,eleves_2nde=1+anon';
+const fonctions009 = bd => psql(bd, ['-tAc',
+  `select coalesce(string_agg(p.proname, ',' order by p.proname), 'aucune')
+     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and p.proname in ('cles_de_connexion', 'normaliser_prenom')`]).trim();
+/* Ce que lit un visiteur, table par table, face à ce que lit le
+   superutilisateur — la mesure du banc, indépendante de celle que la 010
+   porte elle-même. */
+const compteEleves = 'select (select count(*) from public.eleves) || \'/\' || (select count(*) from public.eleves_1ere) || \'/\' || (select count(*) from public.eleves_2nde)';
+/* Un témoin dans chaque table AVANT la migration : son contrôle final prend
+   le rôle anon et compare ce qu'il lit à ce que lit le rôle qui la joue — sur
+   une table vide il ne mesurerait rien, et le dirait. Retirés APRÈS, comme
+   pour la 009 : le banc des rôles compte ses élèves. */
+const semerTemoins = bd => psql(bd, ['-c', `insert into public.eleves (prenom, cle) values ('Témoin', 'cle-temoin-t');
+  insert into public.eleves_1ere (prenom, cle) values ('Témoin', 'cle-temoin-1');
+  insert into public.eleves_2nde (prenom, cle) values ('Témoin', 'cle-temoin-2');`]);
+const retirerTemoins = bd => psql(bd, ['-c', `delete from public.eleves where cle = 'cle-temoin-t';
+  delete from public.eleves_1ere where cle = 'cle-temoin-1';
+  delete from public.eleves_2nde where cle = 'cle-temoin-2';`]);
+const erreurDe = r => String(r && r.erreur || '').split('\n').filter(l => /ERROR|ERREUR/.test(l)).join(' ');
+const mesures10 = t => (String(t).match(/un visiteur lit la liste entière/g) || []).length;
+const nonMesure = t => (String(t).match(/effet non mesuré[^\n]*/g) || []).join(' ; ');
+
+semerTemoins('banc');
+const r10a = psql('banc', ['-f', MIG10], true);
+const s10 = String(r10a.erreur || r10a);
+bilan('010 s\'applique après la 009, et son contrôle final ne trouve rien à redire',
+  !r10a.erreur, erreurDe(r10a));
+bilan('elle reconnaît la base où la 009 a été jouée',
+  /état trouvé : la 009 avait été jouée/.test(s10), (s10.match(/état trouvé[^\n]*/) || ['aucun « état trouvé »'])[0]);
+bilan('010 rouvre la liste sur les trois tables d\'élèves',
+  (s10.match(/: liste lisible sans connexion/g) || []).length === 3,
+  (s10.match(/: liste lisible sans connexion/g) || []).length + ' table(s) sur 3');
+bilan('010 mesure son effet en tant que visiteur, sur les trois tables',
+  mesures10(s10) === 3, mesures10(s10) + ' table(s) mesurée(s) sur 3' + (nonMesure(s10) ? ' — ' + nonMesure(s10) : r10a.erreur ? ' — son contrôle final s’est arrêté avant' : ''));
+const fn10 = fonctions009('banc');
+bilan('plus aucune des deux fonctions de la 009 (' + fn10 + ')', fn10 === 'aucune', fn10 + ' encore là');
+const lect10 = lecturesEleves('banc');
+bilan('exactement une politique de lecture par table d\'élèves, et elle nomme anon',
+  lect10 === LECTURES_ATTENDUES, lect10 + '  ≠  ' + LECTURES_ATTENDUES);
+{
+  const anon = visiteur(compteEleves);
+  const su = psql('banc', ['-tAc', compteEleves]).trim();
+  bilan('un visiteur lit de nouveau la liste entière des trois classes (' + lu(anon) + ', comme le superutilisateur)',
+    anon.texte === su && su !== '0/0/0', lu(anon) + ' pour ' + su);
+}
+/* Le rejeu se mesure AVEC des données, comme sur le projet : les témoins
+   sont encore là, et la mesure du visiteur doit se refaire trois fois. */
+const r10 = psql('banc', ['-f', MIG10], true);
+const s10b = String(r10.erreur || r10);
+bilan('rejouer 010 ne fait plus rien', !r10.erreur && lecturesEleves('banc') === lect10 && fonctions009('banc') === 'aucune',
+  r10.erreur ? erreurDe(r10) : lecturesEleves('banc') + ' / ' + fonctions009('banc'));
+bilan('et rejouée, elle sait qu\'il n\'y a plus de fonction à retirer, et mesure encore son effet trois fois',
+  /état trouvé : pas de cles_de_connexion/.test(s10b) && mesures10(s10b) === 3,
+  (s10b.match(/état trouvé[^\n]*/) || ['aucun « état trouvé »'])[0] + ' ; ' + mesures10(s10b) + ' mesure(s) sur 3');
+retirerTemoins('banc');
+bilan('010 demande à PostgREST de recharger son cache de schéma',
+  /^notify\s+pgrst\s*,\s*'reload schema'\s*;/m.test(fs.readFileSync(MIG10, 'utf8')),
+  'aucun « notify pgrst, \'reload schema\' » : tant que le cache n’est pas rechargé, PostgREST tente une fonction disparue, et la page d’hier ne se replie pas sur la liste');
+
+/* L'ÉTAT A : la 009 n'a JAMAIS été jouée sur le projet (Turquet la colle à
+   la main, rien ne garantit qu'il l'ait fait). La 010 doit s'y appliquer
+   sans erreur — les fonctions n'existent pas, la politique est déjà la
+   bonne — et le dire, au lieu de « retirer » ce qui n'était pas là. */
+{
+  const bd = monter('etat_a');
+  [MIG, MIG2, MIG3, MIG4, MIG8].forEach(f => psql(bd, ['-f', f]));
+  semerTemoins(bd);
+  const ra = psql(bd, ['-f', MIG10], true);
+  const sa = String(ra.erreur || ra);
+  bilan('sur une base où la 009 n\'a JAMAIS été jouée, 010 s\'applique aussi sans erreur',
+    !ra.erreur, erreurDe(ra));
+  bilan('elle y reconnaît qu\'il n\'y a aucune fonction à retirer',
+    /état trouvé : pas de cles_de_connexion/.test(sa), (sa.match(/état trouvé[^\n]*/) || ['aucun « état trouvé »'])[0]);
+  bilan('et elle y mesure son effet trois fois, une politique de lecture par table, ouverte à anon',
+    mesures10(sa) === 3 && lecturesEleves(bd) === LECTURES_ATTENDUES && fonctions009(bd) === 'aucune',
+    mesures10(sa) + ' mesure(s) sur 3 ; ' + lecturesEleves(bd) + ' ; fonctions : ' + fonctions009(bd));
+  psql('postgres', ['-c', 'drop database if exists etat_a']);
 }
 
 /* ---------------------------------------------------------------------------
@@ -524,28 +714,32 @@ const MUTATIONS = [
        for update to authenticated
        using (exists (select 1 from public.eleves_2nde e where e.id = eleve_id and e.user_id = auth.uid()))
        with check (exists (select 1 from public.eleves_2nde e where e.id = eleve_id and e.user_id = auth.uid()))`]],
-  /* Le retour en arrière le plus tentant : remettre « anon » sur la politique
-     de la liste, comme en 001 — « pour que l'ancienne page marche encore ».
-     C'est exactement la lecture que la 009 ferme : les prénoms de trois
-     classes de mineurs et la clé de chacun, sans compte. */
-  ['la liste des élèves redevient lisible sans connexion',
+  /* Le retour en arrière le plus tentant, maintenant que la liste est
+     rouverte : la REFERMER aux visiteurs — rejouer la 009 « pour voir », ou
+     reposer la politique pour authenticated seul depuis la console. Les
+     pastilles disparaîtraient ; la page se replierait sur « Aucun compte
+     pour l'instant », la fonction de la 009 n'existant plus. */
+  ['la liste se referme aux visiteurs',
    ['drop policy p_eleves_2nde_liste on public.eleves_2nde',
-    'create policy p_eleves_2nde_liste on public.eleves_2nde for select to anon, authenticated using (true)']],
-  /* L'autre bord, et il est muet : sans SECURITY DEFINER, la fonction de
-     connexion s'exécute comme le visiteur qui l'appelle, et la RLS qu'on
-     vient de fermer ne lui rend plus rien — pas d'erreur, une liste vide, et
-     « prénom inconnu » pour toute la classe. ALTER FUNCTION ne touche qu'à
-     cet attribut : même corps, mêmes droits, pour que le banc ne rougisse
-     que de la bonne cause. */
-  ['la fonction de connexion perd SECURITY DEFINER',
-   ['alter function public.cles_de_connexion(text, text) security invoker']],
+    'create policy p_eleves_2nde_liste on public.eleves_2nde for select to authenticated using (true)']],
+  /* Le durcissement le plus tentant pour réduire le prix nommé dans la 010 :
+     « garder la liste, cacher les clés » par un droit de colonne. Il ne vide
+     pas la liste — il fait ÉCHOUER la lecture de la page, qui demande id,
+     prénom et clé d'un seul select, et plus personne n'entre. */
+  ['la clé ne se lit plus sans connexion (droit de colonne retiré)',
+   ['revoke select on public.eleves_2nde from anon',
+    'grant select (id, prenom, created_at, user_id) on public.eleves_2nde to anon']],
 ];
-/* LA CAUSE ATTENDUE DE CHAQUE ROUGE. « Le banc a rougi » ne suffit pas :
-   sans la 009 dans la boucle ci-dessous, huit mutations restaient « détectées »
-   pour une fonction absente — un banc vert sur huit détections qui ne
-   mesuraient rien (relecture d'octobre 2026). Chaque mutation nomme donc la
-   ligne ÉCHEC qu'elle doit produire, et une erreur « does not exist » n'est
-   jamais une détection. Une mutation sans cause attendue rougit d'elle-même. */
+/* LA CAUSE ATTENDUE DE CHAQUE ROUGE. « Le banc a rougi » ne suffit pas. En
+   octobre 2026, avant que la 009 n'entre dans la boucle ci-dessous, huit
+   mutations restaient « détectées » pour une fonction absente : un banc vert
+   sur huit détections qui ne mesuraient rien. La boucle joue donc l'état
+   FINAL — 001 à 004, 008, puis 009 et 010 —, celui sur lequel
+   base-controles.sql écrit ses attentes ; sans la 010, la liste fermée par
+   la 009 ferait rougir chaque mutation au premier contrôle du visiteur, pour
+   une cause qui n'est pas la sienne. Et chaque mutation nomme la ligne ÉCHEC
+   qu'elle doit produire ; une erreur « does not exist » n'est jamais une
+   détection. Une mutation sans cause attendue rougit d'elle-même. */
 const CAUSES = {
   'la RLS n’a pas pris sur une table (migration à moitié appliquée)': /ÉCHEC : il ne voit aucune note \(2\)/,
   'la politique d’écriture ne vérifie plus à qui appartient la note': /ÉCHEC : elle ne peut pas noter à la place de Bob/,
@@ -555,9 +749,8 @@ const CAUSES = {
   /* la lecture rendue au seul professeur cache d'abord ses PROPRES signalements à l'élève : c'est ce contrôle-là qui rougit le premier */
   'la réponse du professeur redevient invisible à son destinataire': /ÉCHEC : elle relit SES signalements, et eux seuls \(0\)/,
   'l’élève reçoit le droit de réécrire sa ligne de signalement': /ÉCHEC : elle ne peut écrire aucune réponse, pas même sur sa ligne/,
-  /* 4 et non 3 : le banc des rôles sème une ligne sans clé à côté des trois élèves, le temps de la section du visiteur */
-  'la liste des élèves redevient lisible sans connexion': /ÉCHEC : il ne voit PLUS la liste des prénoms \(4\)/,
-  'la fonction de connexion perd SECURITY DEFINER': /ÉCHEC : il obtient la clé d’un prénom qu’il connaît, et elle seule \(∅\)|ÉCHEC : il obtient la clé d'un prénom qu'il connaît, et elle seule \(∅\)/,
+  'la liste se referme aux visiteurs': /ÉCHEC : il voit la liste des prénoms \(0\)/,
+  'la clé ne se lit plus sans connexion (droit de colonne retiré)': /ÉCHEC : il lit aussi la clé de chacun, dont la pastille dérive l'adresse de connexion \(refusée\)/,
 };
 MUTATIONS.forEach(([nom, sqls], i) => {
   const bd = 'mut' + i;
@@ -567,11 +760,21 @@ MUTATIONS.forEach(([nom, sqls], i) => {
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/003_signalements.sql')]);
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/004_pause_de_l_eleve.sql')]);
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/008_reponse_au_signalement.sql')]);
-  /* La 009 est jouée PARTOUT où le banc des rôles l'est : sans elle, la
-     fonction de connexion manque, et chaque mutation serait « détectée »
-     pour cette seule raison — un banc qui rougit pour une mauvaise cause
-     est un mensonge qui rassure. */
-  psql(bd, ['-f', MIG9]);
+  /* La 009 PUIS la 010, PARTOUT où le banc des rôles est joué : c'est le
+     chemin le plus long qu'ait pu suivre le projet, et la preuve que la 010
+     défait la 009 pour tout ce que le banc des rôles mesure. Sans la 010, la
+     liste fermée par la 009 ferait rougir chaque mutation pour cette seule
+     raison — un banc qui rougit pour une mauvaise cause est un mensonge qui
+     rassure. Tolérant, exprès : une 010 qui refuse de se déclarer faite
+     (son contrôle final) ne doit pas faire tomber le banc sur « psql a
+     échoué » à la première mutation ; elle laisse chaque mutation NON
+     MESURÉE, et le dit — en rouge, une ligne par mutation. */
+  const monte = [MIG9, MIG10].map(f => psql(bd, ['-f', f], true)).find(x => x && x.erreur);
+  if(monte){
+    bilan('détectée : ' + nom, false, 'non mesurée : l’état final (009 puis 010) ne se monte pas — ' + erreurDe(monte));
+    psql('postgres', ['-c', 'drop database if exists ' + bd]);
+    return;
+  }
   sqls.forEach(q => psql(bd, ['-c', q]));
   const r = psql(bd, ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
   const attendu = CAUSES[nom];

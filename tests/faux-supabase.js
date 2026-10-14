@@ -31,12 +31,23 @@ window.__faux = {
   panne: false,
   refusMuet: false,
   /* Poser window.__faux.sansRpc = true fait répondre PGRST202 à TOUT rpc : c'est
-     la base d'AVANT la migration 009, où la fonction cles_de_connexion n'existe
-     pas encore et où PostgREST ne la trouve pas dans son cache de schéma.
-     C'est le seul moyen d'éprouver le repli de la page sur l'ancienne liste
-     des prénoms — le repli qui tient la connexion tant que la 009 n'est pas
-     jouée, et qui ne doit se prendre sur AUCUNE autre erreur. */
+     la base SANS la fonction cles_de_connexion — avant la migration 009
+     (état A), ou après la 010 qui la supprime (état C) — où PostgREST ne la
+     trouve pas dans son cache de schéma. C'est le seul moyen d'éprouver ce
+     que la page fait sans elle : une liste vide y veut dire « classe vide »,
+     et la création de compte s'y replie sur la liste des prénoms — un repli
+     qui ne doit se prendre sur AUCUNE autre erreur. */
   sansRpc: false,
+  /* Poser window.__faux.listeFermee = true fait rendre ZÉRO ligne, sans
+     erreur, à tout select sur une table d'élèves (eleves, eleves_1ere,
+     eleves_2nde) tant qu'AUCUNE session n'est ouverte : la RLS de la
+     migration 009 vue par un visiteur — la politique « liste » ne nomme plus
+     anon, et PostgREST ne rend pas une erreur, il rend une liste vide. C'est
+     l'état B (009 jouée, 010 pas encore) : « liste vide » n'y veut pas dire
+     « classe vide », et la page doit le reconnaître au lieu d'afficher
+     « Aucun compte » à toute la classe. Une fois connecté, la table se lit
+     comme avant : la page y relit SA ligne. */
+  listeFermee: false,
   /* Poser window.__faux.cadence = true fait répondre 429 à toute connexion :
      la limitation de cadence de Supabase, le seul rempart devant les codes à
      six chiffres — une classe entière derrière l'adresse de l'établissement
@@ -157,11 +168,15 @@ window.supabase = {
           F.tables[nom] = gardees;
           return { data: null, error: null };
         }
+        /* La RLS de la 009 vue par un visiteur (listeFermee) : zéro ligne,
+           et aucune erreur — c'est ce silence que la page doit savoir lire. */
+        const fermee = F.listeFermee && !F.session
+          && ['eleves', 'eleves_1ere', 'eleves_2nde'].indexOf(nom) >= 0;
         /* Le vrai PostgREST ne rend que les colonnes demandées. Le double le
            fait aussi, sans quoi un select('id,prenom') et un select('*')
            seraient indiscernables au banc — et la fuite des codes n'aurait
            laissé aucune trace observable. */
-        let trouvees = lignes.filter(correspond).map(l => {
+        let trouvees = (fermee ? [] : lignes.filter(correspond)).map(l => {
           if(!etat.colonnes) return Object.assign({}, l);
           const projetee = {};
           etat.colonnes.forEach(c => { projetee[c] = l[c]; });
@@ -184,7 +199,8 @@ window.supabase = {
           return { data: null, error: { message: 'aucune ligne', code: 'PGRST116' } };
         }
         F.journal.push({ op: 'select', table: nom, n: trouvees.length,
-                         colonnes: etat.colonnes ? etat.colonnes.join(',') : '*' });
+                         colonnes: etat.colonnes ? etat.colonnes.join(',') : '*',
+                         fermee: fermee || undefined });
         return { data: etat.unique ? (trouvees[0] || null) : trouvees, error: null };
       }
 
@@ -221,14 +237,20 @@ window.supabase = {
          connue, cles_de_connexion (migration 009) : les clés des élèves de la
          table du niveau dont le prénom normalisé — même règle que
          normaliserPrenom dans la page : minuscules, sans accent, espaces
-         réduits — est celui demandé, triées, cinq au plus. C'est par elle que
-         l'écran de connexion retrouve un élève depuis que la liste des prénoms
-         ne se lit plus sans compte. Un niveau inconnu est une erreur, comme le
-         raise exception de la fonction. Un nom de fonction inconnu rend ce que
-         rend PostgREST quand la fonction n'est pas dans son cache de schéma :
-         le code PGRST202 — et sansRpc = true le rend à TOUT appel, pour jouer
-         la base d'avant la migration. Chaque appel est journalisé, ce qui
-         permet d'exiger qu'il ait eu lieu AVANT toute lecture de la table. */
+         réduits — est celui demandé, triées, cinq au plus ; un prénom vide ne
+         rend rien, sans erreur. Depuis le retour des pastilles (14 octobre
+         2026), la page ne l'appelle plus que pour trois choses : sonder son
+         existence quand la liste revient vide, retrouver le prénom TAPÉ du
+         repli de transition (état B), et refuser un doublon à la création de
+         compte. Le double y lit la table directement, comme la vraie
+         fonction, SECURITY DEFINER, traverse la RLS : listeFermee ne la
+         touche pas. Un niveau inconnu est une
+         erreur, comme le raise exception de la fonction. Un nom de fonction
+         inconnu rend ce que rend PostgREST quand la fonction n'est pas dans
+         son cache de schéma : le code PGRST202 — et sansRpc = true le rend à
+         TOUT appel, pour jouer la base sans la fonction (états A et C).
+         Chaque appel est journalisé, ce qui permet d'exiger qu'il n'ait PAS
+         eu lieu quand la liste s'affiche. */
       rpc(nom, args){
         F.journal.push({ op: 'rpc', table: nom, args: Object.assign({}, args || {}) });
         /* « panne » : la fonction existe mais échoue — droit retiré, exception,
