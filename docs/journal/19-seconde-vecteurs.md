@@ -1031,3 +1031,59 @@ Une séance en pause rangée avant (un `t:'c'` déjà enchaîné) se rejoue tell
 quelle, `chsLigne` sait toujours la lire. Le banc suit : fiche, plan, 17
 cases ; le contrôle « une case juste ne rougit pas pour sa voisine » passe de
 DC + CE à CE + BC (BC bleu, AB rouge, badge CE).
+
+## {chasles-trois-vecteurs} — la relation de Chasles jusqu'à trois vecteurs (8.9, v491)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fait un exercice comme
+le 8.8 mais avec le pdf joint », une fiche « EFGH est un parallélogramme de
+centre O. Compléter » : OF + EO = … = … ; OG + EO = … = … ; HO + OG = … ;
+HE + HG = … = … ; HE + OG + HO, EG + FE + GF, EG − FG − OF = … = …. Le PDF
+porte aussi, en texte blanc invisible, des restes d'une version antérieure
+(EF + GH, HE + HG + FH, HF) : ils ne s'impriment pas, ils ne sont pas repris.
+
+**Le moteur des lignes à deux vecteurs EST celui du 8.8.** `chsLigne`,
+`chsPosable`, `chsJugeLigne`, `chsPourquoi`, `chsSvg` servent tels quels ;
+`chsJugeLigne` et `chsCaseHTML` ont seulement gagné un préfixe de case
+facultatif (`'chs'` par défaut, `'ctv'` ici) — le 8.8 ne change pas d'un
+octet à l'écran. L'identité est propre (kind `ctv`, écran `scr-ctv`, rappel
+`RAP_CTV`, `qId` « chasles-trois-vecteurs ») : deux exercices partagent un
+moteur, jamais une identité.
+
+**Le plan** (`CTV_PLAN`) : `ci, ci, r, u, t, t0, ts` — deux lignes à
+retourner, une déjà enchaînée (le résultat seul), une où l'on remplace le
+second vecteur, puis trois lignes à TROIS vecteurs, écrites
+« … + … + … = … » : `t` une somme dont aucun ordre des vecteurs écrits ne
+s'enchaîne (il faut remplacer un vecteur par un vecteur égal, comme
+HE + OG + HO = HE + EO + OF = HF), `t0` une somme NULLE (EG + FE + GF =
+FE + EG + GF = 0), `ts` deux soustractions (EG − FG − OF = EG + GF + FO =
+EO). Une ligne à trois vecteurs se range `{t:'t', w:[…], s:[1,±1,±1]}`. Elle
+se tire en construisant une chaîne de points (refermée pour `t0`), dont chaque
+vecteur est remplacé par un vecteur égal au hasard, puis l'ordre mélangé (`t`,
+`t0`) ou les deux derniers retournés et soustraits (`ts`). Le centre
+s'appelle toujours O, comme la fiche ; les sommets se tirent (ni I, ni W à Z).
+La première figure EST la fiche ; `CTV_NB` = 2 figures, 21 cases chacune.
+
+**Le juge d'une ligne à trois vecteurs** (`ctvJuge3`) : `ctvLigne` énumère
+TOUTES les chaînes justes — trois vecteurs de la figure qui s'enchaînent et
+égalent les termes signés dans un ordre quelconque. Chaque case du milieu se
+juge contre les chaînes encore possibles après les cases JUSTES qui la
+précèdent : HE + OG + OF garde HE et OF bleus, seul OG rougit (« doit partir
+de E »), badge EO. Le résultat se juge contre la somme. **Le vecteur nul**
+s'écrit 0, ou O seul, ou deux fois la même lettre (FF) : `ctvLit` les lit
+tous comme « 0 » ; la correction écrit 0, sous la flèche de la case. Un
+vecteur écrit pour une somme nulle rougit avec « la chaîne revient à son
+point de départ ». La correction préfère la chaîne qui garde le plus de
+vecteurs écrits (les soustraits par leur opposé).
+
+**Le juge du banc** (`tests/verifier.js`, « Chasles avec trois vecteurs ») :
+la place (8.9, pas de bouton des tables), 300 séances dont chaque correction
+est relue par un juge INDÉPENDANT écrit depuis les coordonnées (pour une
+chaîne : l'enchaînement, et les déplacements égaux aux termes signés à
+l'ordre près), le plan, la ligne nulle et elle seule, la fiche en première
+page ; puis par le bouton : 21 cases, lettres EFGHO, la copie juste,
+d'autres écritures justes (HO + OG + GF = hf, GF + FE + EG = FF, résultat
+OG pour EO), « o » pour le nul, le piège EG + FG (rouge, EG et le résultat
+restent bleus, « opposé »), EG écrit pour la somme nulle (« nul »),
+HE + OG + OF (seul OG rouge, badge EO, « part de E »), FH (« sens »),
+OF + EO recopié (« ordre », du 8.8), la case vide (correction EO), la copie
+vide, le soutien, le barème, `qId`, le contexte du modèle.
