@@ -21368,6 +21368,55 @@ function chaslesSansFigure(w, P){
     if(e1.value!=='impossible' || !e1.classList.contains('imp')) vus.push('le bouton n’écrit pas « impossible » : « '+e1.value+' »');
     chlImpossible(1);
     if(e1.value!=='' || e1.classList.contains('imp')) vus.push('le second appui ne retire pas « impossible »');
+    /* la CHAÎNE de l'élève (Turquet, octobre 2026) : un « + », un « − » ou un
+       « = » tapé ouvre une autre case ; le dernier morceau est le résultat */
+    const taper=function(i, txt){ txt.split('').forEach(function(ch){
+      const cs=chlSlots(i), el=cs[cs.length-1]; el.value+=ch; el.dispatchEvent(new Event('input')); }); };
+    const ligne=function(i){ return chlSlots(i).map(function(el){ return el.value; }).join('|'); };
+    poser(0, REP[0]); document.getElementById('chl-3').value=''; taper(3, 'AB+CA=CB');
+    if(ligne(3)!=='AB|CA|CB') vus.push('AB+CA=CB tapé donne les cases « '+ligne(3)+' »');
+    const ops=chlSlots(3).slice(1).map(chlOp).join('');
+    if(ops!=='+=') vus.push('les signes de la chaîne : « '+ops+' »');
+    checkChlAnswer();
+    if(!der().correct) vus.push('AB − AC = AB + CA = CB est compté faux : '+peint('chl-3')+', « '+fb().slice(0,90)+' »');
+    if(der().cases!==8) vus.push('la chaîne compte '+der().cases+' cases au lieu de 8 (une par ligne)');
+    if(chlSlots(3).some(function(el){ return peint(el.id)!=='juste'; })) vus.push('une case de la chaîne juste n’est pas bleue');
+    /* écrire la somme, puis « impossible » au bout */
+    poser(0, REP[0]); document.getElementById('chl-1').value=''; taper(1, 'CB+CA'); chlImpossible(1);
+    if(ligne(1)!=='CB|CA|impossible' || chlOp(chlSlots(1)[2])!=='=') vus.push('le bouton « impossible » au bout de CB + CA : « '+ligne(1)+' »');
+    checkChlAnswer();
+    if(!der().correct) vus.push('CB + CA = CB + CA = impossible est compté faux');
+    poser(0, REP[0]); document.getElementById('chl-1').value=''; taper(1, 'CB+CA'); chlImpossible(1); chlImpossible(1);
+    if(ligne(1)!=='CB|CA') vus.push('le second appui ne retire pas « impossible » du bout : « '+ligne(1)+' »');
+    /* la somme recopiée sans conclure : il faut « impossible » */
+    checkChlAnswer();
+    if(peint(chlSlots(1)[1].id)!=='rouge' || !/écris « impossible »/.test(fb())) vus.push('CB + CA = CB + CA (sans conclure) : '+peint(chlSlots(1)[1].id)+', « '+fb().slice(0,90)+' »');
+    /* une étape fausse : la ligne est fausse, et l'égalité nommée */
+    poser(0, REP[0]); document.getElementById('chl-3').value=''; taper(3, 'AB+AC=CB');
+    checkChlAnswer();
+    if(der().correct || peint(chlSlots(3)[0].id)!=='rouge' || !/égalité/.test(fb())) vus.push('AB − AC = AB + AC = CB : '+peint(chlSlots(3)[0].id)+', « '+fb().slice(0,90)+' »');
+    /* une étape juste, sans conclusion : « encore un seul vecteur » */
+    poser(0, REP[0]); document.getElementById('chl-3').value=''; taper(3, 'AB+CA');
+    checkChlAnswer();
+    if(der().correct || peint(chlSlots(3)[1].id)!=='rouge' || peint(chlSlots(3)[0].id)!=='juste' || !/seul vecteur/.test(fb())) vus.push('AB − AC = AB + CA (pas fini) : '+chlSlots(3).map(function(el){ return peint(el.id); }).join(',')+', « '+fb().slice(0,90)+' »');
+    /* un « − » en tête reste un signe ; un « − » plus loin ouvre une case */
+    poser(0, REP[0]); document.getElementById('chl-7').value=''; taper(7, '-AD-DB=BA');
+    if(ligne(7)!=='AD|DB|BA' || !chlNeg(chlSlots(7)[0]) || chlOp(chlSlots(7)[1])!=='-' || !document.querySelector('#chl-l-7 .chl-signe')) vus.push('− AD − DB = BA tapé donne « '+ligne(7)+' », signe de tête '+chlNeg(chlSlots(7)[0]));
+    checkChlAnswer();
+    if(!der().correct) vus.push('− AD − DB = BA en chaîne est compté faux');
+    /* partie 2 : deux étapes */
+    poser(1, REP[1]); document.getElementById('chl-2').value=''; taper(2, 'AB+BC+AC=AC+AC=2AC');
+    checkChlAnswer();
+    if(!der().correct || der().cases!==4) vus.push('w = AB + BC + AC = AC + AC = 2AC : '+der().correct+', '+der().cases+' cases');
+    /* Retour arrière dans une case vide : elle disparaît avec son signe */
+    poser(0, []); taper(0, 'AD+');
+    const vide=chlSlots(0)[1];
+    if(!vide) vus.push('« + » n’ouvre pas de case');
+    else { vide.dispatchEvent(new KeyboardEvent('keydown', {key:'Backspace', bubbles:true}));
+      if(chlSlots(0).length!==1) vus.push('le retour arrière ne retire pas la case vide'); }
+    /* une chaîne vide de bout en bout : la correction dans la première case */
+    poser(0, []); taper(0, 'AD+'); checkChlAnswer();
+    if([].some.call(document.querySelectorAll('#chlHost input'), function(el){ return /\bbad\b/.test(el.className) && el.value.trim()===''; })) vus.push('une case vide de chaîne rougit');
     /* le soutien : peint au fil de la saisie, sans verrouiller */
     currentMode='soutien'; poser(0, []);
     const e0=document.getElementById('chl-0'); e0.value='AF'; checkChlAnswer(true);

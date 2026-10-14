@@ -1993,6 +1993,10 @@
   .veg-in.chl-in.imp{width:170px;text-transform:none}
   .chl-imp-on>.veg-fl{visibility:hidden}
   .btn.chl-imp{padding:8px 14px;font-size:.95rem;margin-top:8px}
+  /* la CHAÎNE de l'élève : une flèche prête pour deux lettres ; un « + », un
+     « − » ou un « = » tapé en ouvre une autre. Le conteneur s'efface (display
+     contents) : chaque signe et sa case restent un .veg-grp de la rangée. */
+  .chl-chaine{display:contents}
   @media(max-width:520px){ .veg-in.chl-in{width:84px} .veg-in.chl-in.imp{width:150px} }
   /* ---- Somme et produit de deux relatifs (7.4, thème Calcul littéral) ----
      Une paire de relatifs par bloc, et deux lignes : leur SOMME, puis leur
@@ -6868,7 +6872,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=495;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=496;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -58685,7 +58689,18 @@ function ctxCha(q){
    porte trois points ou plus (CB + CA = A + B − 2C).
 
    ON RANGE LA PARTIE ET LES LIGNES ÉCRITES (« +AB-AC »), JAMAIS LES
-   RÉPONSES : chlJuge() recalcule tout depuis l'écriture. */
+   RÉPONSES : chlJuge() recalcule tout depuis l'écriture.
+
+   L'ÉLÈVE ÉCRIT SA CHAÎNE (Turquet, octobre 2026 : « une flèche déjà prête à
+   accueillir les deux lettres ; s'il tape un plus, un moins ou un égal, une
+   autre flèche ») : AB − AC = AB + CA = CB, CB + CA = impossible. Chaque
+   case porte UN vecteur ; le signe tapé se pose devant la case suivante. Le
+   juge découpe la chaîne aux « = » : chaque morceau doit valoir la ligne, et
+   le DERNIER est le résultat — un seul vecteur, 0, ou « impossible ». Seule
+   la case du résultat compte dans la note (les autres portent .pose-fac,
+   que ptsEcran saute) : une ligne vaut toujours un point. Le verdict reste
+   à la page, jamais au modèle (« un verdict arithmétique ne se confie pas à
+   un modèle ») : une somme de vecteurs se calcule exactement. */
 const CHL_NB=6;   /* pages par séance (réglage « Questions » d'un devoir) */
 const CHL_FICHE=[
   ['+AD+DF','+CB+CA','+DF-FG','+AB-AC','+RS+AR','+EG+GT','+AL-LA','-AD-DB'],
@@ -58697,7 +58712,7 @@ const CHL_NOMS=['u','v','w','x'];
    le nom d'un vecteur de la partie 2) */
 const CHL_LETTRES='ABCDEFGHJKLMNPRSTUV';
 const CHL_INSTR=[
-  'À l’aide de la <b>relation de Chasles</b>, écris sous forme d’un <b>seul vecteur</b>… si c’est possible. Sinon, appuie sur «&nbsp;impossible&nbsp;».',
+  'À l’aide de la <b>relation de Chasles</b>, écris sous forme d’un <b>seul vecteur</b>… si c’est possible. Sinon, écris ou appuie sur «&nbsp;impossible&nbsp;».',
   'Écris plus simplement les vecteurs suivants, en utilisant la <b>relation de Chasles</b>.',
   'Écris plus simplement les vecteurs suivants, en transformant les soustractions en <b>addition de l’opposé</b>, puis en utilisant la <b>relation de Chasles</b>.'
 ];
@@ -58781,15 +58796,70 @@ function chlBuildQuestions(){
   return distinctes(dmNbQuestions(CHL_NB), chlGenQuestion, function(q){ return q.p+'|'+q.e.join(','); });
 }
 function chlCases(q){ return q.e.map(function(e, i){ return {id:'chl-'+i, e:e, i:i}; }); }
-/* le verdict d'une case : el, brut, lu, vide, ok, bon, raison */
+/* les cases d'une ligne, dans l'ordre ; la première s'appelle chl-i */
+function chlSlots(i){ const l=$('chl-l-'+i); return l ? [].slice.call(l.querySelectorAll('input.chl-in')) : []; }
+/* un « − » tapé EN TÊTE d'une case sort devant sa flèche (− AD), jamais dessous */
+function chlNeg(el){ const g=el&&el.closest('.veg-grp'); return !!(g && g.dataset.neg); }
+function chlSigne(el, neg){ const g=el.closest('.veg-grp'); if(!g) return;
+  const sp=g.querySelector('.chl-signe');
+  if(neg){ g.dataset.neg='1'; if(!sp) el.closest('.veg-v').insertAdjacentHTML('beforebegin','<span class="veg-eq chl-signe">−</span>'); }
+  else { delete g.dataset.neg; if(sp) sp.remove(); } }
+function chlOp(el){ const g=el&&el.closest('.veg-grp'); return g&&g.dataset.op||'='; }
+function chlNet(v){ return String(v==null?'':v).toUpperCase().replace(/[−–]/g,'-').replace(/[\s→⃗()×*·.]/g,''); }
+/* un morceau de chaîne (« AB-AC », « 2AC », « 0 », « IMPOSSIBLE ») :
+   {imp} | {c, n (nombre de vecteurs)} | null si illisible */
+function chlLitMembre(m){
+  if(!m) return null;
+  if(/^IMP/.test(m)) return /^IMP[A-Z]*$/.test(m) ? {imp:true} : null;
+  const re=/([+-]*)(\d*)([A-Z][A-Z]|0|O)/y, termes=[]; let n=0, x;
+  re.lastIndex=0;
+  while(re.lastIndex<m.length){ const d=re.lastIndex; x=re.exec(m);
+    if(!x || x.index!==d) return null;
+    if(d>0 && !x[1]) return null;
+    n++;
+    if(x[3]==='0' || x[3]==='O' || x[3][0]===x[3][1]) continue;
+    const k=((x[1].split('-').length-1)%2?-1:1)*(x[2]===''?1:parseInt(x[2],10));
+    if(k) termes.push({s:k, v:x[3]}); }
+  return n ? {c:chlComb(termes), n:n} : null;
+}
+/* la chaîne lue sur l'écran : ses cases écrites (les vides du bout tombent),
+   ses morceaux aux « = », le morceau de chaque case */
+function chlAnalyse(i){
+  let cases=chlSlots(i).map(function(el, k){ const v=chlNet(el.value); return {el:el, op:k?chlOp(el):'', val:v!=='' && chlNeg(el) ? '-'+v : v}; });
+  while(cases.length && cases[cases.length-1].val==='') cases.pop();
+  const a={cases:cases, trou:cases.some(function(c){ return c.val===''; }), membres:[], txt:''};
+  let m=0, cur='';
+  cases.forEach(function(c, k){
+    if(k && c.op==='='){ a.membres.push(cur); cur=''; m++; }
+    else if(k) cur+=(c.op==='-'?'-':'+');
+    c.m=m; cur+=c.val; });
+  if(cases.length) a.membres.push(cur);
+  /* une case qui porte elle-même un « = » (une chaîne collée d'un bloc) */
+  a.membres=[].concat.apply([], a.membres.map(function(x){ return x.split('='); }));
+  a.lus=a.membres.map(chlLitMembre);
+  a.txt=cases.map(function(c, k){ return (k?' '+(c.op==='-'?'−':c.op)+' ':'')+(chlNeg(c.el)?'− ':'')+String(c.el.value).trim(); }).join('');
+  return a;
+}
+/* un morceau écrit pour l'élève : « AB + CA », « − AD − DB » */
+function chlMembreTxt(m){ return String(m).replace(/^\+/,'').replace(/([^+-])([+-])/g, function(_, a, o){ return a+(o==='-'?' − ':' + '); }).replace(/^-/,'− '); }
+/* le verdict d'une ligne : el (la case du résultat), brut, vide, ok, bon,
+   raison, et pour la peinture les morceaux justes */
 function chlJuge(q, i){
   const e=q.e[i], T=chlTermes(e), c=chlComb(T), bon=chlBon(c);
-  const el=$('chl-'+i), brut=el?String(el.value).trim():'', lu=chlLit(brut);
-  const s={el:el, brut:brut, lu:lu, vide:brut==='', ok:false, bon:bon, raison:'', e:e, i:i};
+  const a=chlAnalyse(i), cases=a.cases;
+  const el=cases.length ? cases[cases.length-1].el : $('chl-'+i);
+  const s={el:el, brut:a.txt, vide:!cases.length, ok:false, bon:bon, raison:'', e:e, i:i, a:a, res:''};
+  s.mJuste=a.lus.map(function(l){ return !!(l && l.c && chlMeme(l.c, c)); });
   if(s.vide) return s;
-  if(!lu){ s.raison='forme'; return s; }
-  if(lu.imp){ s.ok=bon==='impossible'; if(!s.ok) s.raison='pasimp'; return s; }
-  if(chlMeme(lu.c, c)){ s.ok=true; return s; }
+  const R=a.lus[a.lus.length-1], der=a.membres[a.membres.length-1];
+  s.res=chlMembreTxt(der);
+  if(a.trou || a.lus.some(function(l, k){ return !l || (l.imp && k<a.lus.length-1); })){ s.raison='forme'; return s; }
+  for(let k=0;k<a.lus.length-1;k++) if(!s.mJuste[k]){ s.raison='etape'; s.etape=k; return s; }
+  if(R.imp){ s.ok=bon==='impossible'; if(!s.ok) s.raison='pasimp'; return s; }
+  const lu=R;
+  if(chlMeme(lu.c, c)){
+    if(lu.n<=1){ s.ok=true; return s; }
+    s.raison=bon==='impossible' ? 'ecrisimp' : 'pasfini'; return s; }
   if(bon==='impossible'){ s.raison='imp'; return s; }
   const neg={}; Object.keys(c).forEach(function(k){ neg[k]=-c[k]; });
   const ks=Object.keys(c), kl=Object.keys(lu.c);
@@ -58807,10 +58877,13 @@ function chlPourquoi(q, subs){
   if(!f) return '';
   const T=chlTermes(f.e), qui=chlNomLigne(q, f.i), chemin=chlPhrase(f.e);
   switch(f.raison){
-    case 'forme': return '« '+f.brut+' » ne se lit pas : écris les deux lettres d’un vecteur (AC), un nombre devant s’il le faut (2AC), 0 pour le vecteur nul'+(q.p===1?', ou « impossible »':'')+'.';
+    case 'forme': return '« '+f.brut+' » ne se lit pas : dans chaque case, écris les deux lettres d’un vecteur (AC), un nombre devant s’il le faut (2AC), 0 pour le vecteur nul'+(q.p===1?', ou « impossible »':'')+' ; ne laisse pas de case vide au milieu.';
+    case 'etape': return 'L’égalité '+chlEcrit(T)+' = '+chlMembreTxt(f.a.membres[f.etape])+' est fausse. '+chlPhrase(f.e);
+    case 'pasfini': return f.res+' est juste, mais tu peux encore l’écrire avec un seul vecteur : '+chlPhrase(f.e);
+    case 'ecrisimp': return f.res+' est juste, mais ces vecteurs ne s’enchaînent dans aucun ordre : la somme ne s’écrit pas avec un seul vecteur, écris « impossible ».';
     case 'imp': return 'Pour '+qui+', on ne peut pas écrire un seul vecteur : '+chemin;
     case 'pasimp': return 'Pour '+qui+', c’est possible : '+chemin;
-    case 'sens': return f.brut.toUpperCase()+' va dans le mauvais sens : on part du premier point et on arrive au dernier. '+chemin;
+    case 'sens': return f.res.toUpperCase()+' va dans le mauvais sens : on part du premier point et on arrive au dernier. '+chemin;
     case 'coef': return 'Compte les vecteurs : '+chemin;
     case 'signe': return 'Soustraire un vecteur, c’est AJOUTER son opposé : − '+T.find(function(t){ return t.s<0; }).v+' = + '+chlOppose(T.find(function(t){ return t.s<0; }).v)+'. '+chemin;
     case 'nul': return 'On revient au point de départ, la somme est le vecteur nul : '+chemin;
@@ -58825,20 +58898,77 @@ function chlForme(el){
   el.classList.toggle('imp', imp);
   const v=el.closest('.veg-v'); if(v) v.classList.toggle('chl-imp-on', imp);
 }
-/* le bouton « impossible » écrit le mot dans la case, ou l'en retire */
+/* une case de plus au bout de la chaîne, derrière le signe tapé */
+function chlCaseHTML(id, aria){ return '<span class="veg-v chl-v"><span class="veg-fl" aria-hidden="true"></span>'
+  +'<input class="veg-in chl-in" id="'+id+'" type="text" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="'+esc(aria)+'"></span>'; }
+function chlGrpHTML(op, contenu){ return '<span class="veg-grp" data-op="'+op+'"><span class="veg-eq">'+(op==='-'?'−':op)+'</span>'+contenu+'</span>'; }
+function chlAjoute(el, op, val){
+  const i=+el.dataset.ligne, g=el.closest('.veg-grp');
+  test.chlN=(test.chlN||0)+1;
+  const id='chl-'+i+'-'+test.chlN;
+  g.insertAdjacentHTML('afterend', chlGrpHTML(op, chlCaseHTML(id, 'un vecteur de plus, après « '+(op==='-'?'moins':op==='+'?'plus':'égal')+' »')));
+  const n=$(id); chlBranche(n, i);
+  n.value=val||''; n.focus();
+  if(n.value) chlSaisie(n);
+  return n;
+}
+/* la saisie d'une case : un « + », un « − » ou un « = » tapé après ses
+   lettres ferme la case et en ouvre une autre (un « − » en tête reste un
+   signe, un « + » ou un « = » en tête ne veut rien dire) */
+function chlSaisie(el){
+  let v=String(el.value);
+  if(/^\s*[-−–]/.test(v) && !chlNeg(el)){ chlSigne(el, true); v=v.replace(/^\s*[-−–]\s*/,''); el.value=v; }
+  if(!/^imp/i.test(v.trim())){
+    const m=/[+\-−–=]/.exec(v);
+    const p=m ? m.index : -1;
+    if(/^\s*[+=]/.test(v)) el.value=v.replace(/^\s*[+=]+/,'');
+    else if(p>0 && v.slice(0,p).trim()!==''){
+      const op=v[p]==='='?'=':(v[p]==='+'?'+':'-');
+      el.value=v.slice(0,p).trim();
+      chlForme(el); chlAjoute(el, op, v.slice(p+1).trim()); return;
+    }
+  }
+  chlForme(el);
+  if(isSoutien()) checkChlAnswer(true);
+  clearTimeout(test.chlSave); test.chlSave=setTimeout(autoSave,1000);
+}
+function chlBranche(el, i){
+  el.dataset.ligne=i;
+  el.addEventListener('input', function(){ chlSaisie(el); });
+  el.addEventListener('keydown', function(e){
+    /* Retour arrière dans une case vide : elle disparaît avec son signe */
+    if(e.key==='Backspace' && el.value==='' && chlNeg(el)){ e.preventDefault(); chlSigne(el, false); if(isSoutien()) checkChlAnswer(true); return; }
+    if(e.key==='Backspace' && el.value==='' && el.id!=='chl-'+i){ e.preventDefault();
+      const cs=chlSlots(i), k=cs.indexOf(el), prec=cs[k-1];
+      el.closest('.veg-grp').remove();
+      if(prec){ prec.focus(); try{ prec.setSelectionRange(prec.value.length, prec.value.length); }catch(_){} }
+      if(isSoutien()) checkChlAnswer(true);
+      return; }
+    /* Entrée passe à la ligne suivante ; sur la dernière, elle vérifie */
+    if(e.key==='Enter'){ e.preventDefault();
+      const suiv=$('chl-'+(i+1)); if(suiv && !suiv.disabled) suiv.focus(); else checkChlAnswer(); }
+  });
+}
+/* le bouton « impossible » écrit le mot au bout de la chaîne (derrière un
+   « = » si la chaîne est commencée), ou l'en retire */
 function chlImpossible(i){
   if(test.locked) return;
-  const el=$('chl-'+i); if(!el || el.disabled) return;
-  el.value=/^imp/i.test(String(el.value).trim()) ? '' : 'impossible';
-  el.dispatchEvent(new Event('input'));
-  el.focus();
+  const cs=chlSlots(i); if(!cs.length || cs[0].disabled) return;
+  const der=cs[cs.length-1];
+  if(/^imp/i.test(String(der.value).trim())){
+    if(der.id==='chl-'+i){ der.value=''; chlForme(der); der.focus(); }
+    else { der.closest('.veg-grp').remove(); cs[cs.length-2].focus(); }
+  } else if(String(der.value).trim()===''){ chlSigne(der, false); der.value='impossible'; chlForme(der); der.focus(); }
+  else chlAjoute(der, '=', 'impossible');
+  if(isSoutien()) checkChlAnswer(true);
+  clearTimeout(test.chlSave); test.chlSave=setTimeout(autoSave,1000);
 }
 function renderChlTest(){
   const q=test.questions[test.idx]; test.locked=false;
   $('chlIdx').textContent='Page '+(test.idx+1)+' / '+test.questions.length+' — partie '+q.p;
   $('modeTagChl').innerHTML=modeTagHTML();
   $('chlLiveScore').textContent=test.score;
-  $('chlInstr').innerHTML=CHL_INSTR[q.p-1]+' Dans la case, écris un vecteur comme <b>AC</b>, <b>2AC</b> pour deux fois AC, ou <b>0</b> pour le vecteur nul.';
+  $('chlInstr').innerHTML=CHL_INSTR[q.p-1]+' Dans chaque case, écris un vecteur comme <b>AC</b>, <b>2AC</b> pour deux fois AC, ou <b>0</b> pour le vecteur nul. Tape <b>+</b>, <b>−</b> ou <b>=</b> pour ouvrir une autre case et écrire ton calcul en plusieurs étapes : la dernière case est ton résultat.';
   $('chlFeedback').textContent=''; $('chlFeedback').className='mp-feedback';
   $('chlActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkChlAnswer()">Vérifier</button>';
   let h='<div class="veg-lignes chl-lignes">';
@@ -58852,21 +58982,40 @@ function renderChlTest(){
       else h+=chsGrp(t.s<0?'−':'+', vegVecHTML(t.v));
     });
     const aria='le résultat de '+(q.p===1?'':CHL_NOMS[i]+' = ')+chlEcrit(T);
-    h+=chsGrp('=', '<span class="veg-v chl-v"><span class="veg-fl" aria-hidden="true"></span>'
-      +'<input class="veg-in chl-in" id="chl-'+i+'" type="text" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="'+esc(aria)+'"></span>');
+    h+='<span class="chl-chaine">'+chlGrpHTML('=', chlCaseHTML('chl-'+i, aria))+'</span>';
     if(q.p===1) h+='<button class="btn chl-imp" type="button" onclick="chlImpossible('+i+')">impossible</button>';
     h+='</div>';
   });
   h+='</div>';
   $('chlHost').innerHTML=h;
-  const cs=chlCases(q);
-  cs.forEach(function(c, k){ const el=$(c.id); if(!el) return;
-    el.addEventListener('input', function(){ chlForme(el); if(isSoutien()) checkChlAnswer(true);
-      clearTimeout(test.chlSave); test.chlSave=setTimeout(autoSave,1000); });
-    /* Entrée passe à la case suivante ; sur la dernière, elle vérifie */
-    el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault();
-      const suiv=cs[k+1] && $(cs[k+1].id); if(suiv && !suiv.disabled) suiv.focus(); else checkChlAnswer(); } });
+  chlCases(q).forEach(function(c){ const el=$(c.id); if(el) chlBranche(el, c.i); });
+}
+/* la peinture d'une ligne. live (soutien, au fil de la saisie) : chaque case
+   écrite selon son morceau, rien sur une case vide. Sinon : la case du
+   résultat reçoit le verdict de la ligne (corrChoix : correction en vert si
+   la ligne est vide, la bonne réponse à côté si elle est fausse) ; les cases
+   des étapes, juste ou faux selon leur morceau, et .pose-fac sur leur groupe
+   — elles ne comptent pas, la ligne vaut un point. */
+function chlPeint(s, live){
+  const a=s.a, n=a.cases.length;
+  chlSlots(s.i).forEach(function(el){ el.classList.remove('ok','bad','sol');
+    const g=el.closest('.veg-grp'); if(g) g.classList.remove('pose-fac'); });
+  a.cases.forEach(function(c, k){
+    const mj=s.mJuste[c.m], lu=a.lus[c.m];
+    if(live){ if(c.val!=='') c.el.classList.add(mj || (lu && lu.imp && s.bon==='impossible') ? 'ok' : 'bad'); return; }
+    if(k===n-1) return;
+    c.el.closest('.veg-grp').classList.add('pose-fac');
+    c.el.classList.add(s.ok || mj ? 'ok' : 'bad');
+    c.el.disabled=!isSoutien() || s.ok;
   });
+  /* les cases vides laissées après le résultat : neutres, et fermées */
+  chlSlots(s.i).forEach(function(el){ if(a.cases.every(function(c){ return c.el!==el; }) && el!==s.el){
+    el.closest('.veg-grp').classList.add('pose-fac'); el.disabled=!isSoutien(); } });
+  if(live) return;
+  /* une ligne vide : la correction s'écrit dans la première case, sans le
+     « − » de tête qui y traînerait */
+  if(s.vide) chlSigne(s.el, false);
+  corrChoix(s.el, s.bon, s.ok); chlForme(s.el);
 }
 function checkChlAnswer(live){
   if(test.locked) return;
@@ -58874,17 +59023,17 @@ function checkChlAnswer(live){
   const subs=q.e.map(function(_, i){ return chlJuge(q, i); });
   if(live){   /* soutien : on ne peint que les cases déjà remplies */
     if(!isSoutien()) return;
-    subs.forEach(function(s){ if(!s.el || s.el.disabled) return;
-      s.el.classList.remove('ok','bad'); if(!s.vide) s.el.classList.add(s.ok?'ok':'bad'); });
+    subs.forEach(function(s){ if(!s.el || s.el.disabled) return; chlPeint(s, true); });
     return;
   }
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
   const pourquoi=chlPourquoi(q, subs);
-  subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); chlForme(s.el); });
+  subs.forEach(function(s){ chlPeint(s, false); });
   if(!allOk && isSoutien()){ soutienAgain('chlFeedback','chlActions','checkChlAnswer','chlHost'); return; }
   test.locked=true;
   document.querySelectorAll('#chlHost .chl-imp').forEach(function(b){ b.disabled=true; });
+  document.querySelectorAll('#chlHost input.chl-in').forEach(function(el){ el.disabled=true; });
   test.score+=nCorrect; $('chlLiveScore').textContent=test.score;
   if(allOk){ $('chlFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('chlFeedback').className='mp-feedback good'; }
   else { $('chlFeedback').textContent=msgAvecVides(subs, pourquoi); $('chlFeedback').className='mp-feedback bad'; }
@@ -58919,7 +59068,7 @@ function ctxChl(q){
      'Partie 2 : écrire plus simplement des sommes de trois ou quatre vecteurs.',
      'Partie 3 : écrire plus simplement, en transformant d’abord les soustractions en addition de l’opposé.'][q.p-1]+' '
    +'Les lignes : '+q.e.map(function(e, i){ return nom(i)+chlEcrit(chlTermes(e)); }).join(' ; ')+'. '
-   +'L’élève écrit le résultat dans une case : deux lettres (AC), un nombre devant (2AC), 0 pour le vecteur nul, ou « impossible ». '
+   +'L’élève écrit son calcul en une chaîne de cases, un vecteur par case (deux lettres AC, un nombre devant 2AC, 0 pour le vecteur nul), séparées par +, − ou = ; la DERNIÈRE case est son résultat, ou « impossible ». Il peut écrire des étapes (AB − AC = AB + CA = CB) ou le résultat directement. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : '+q.e.map(function(e){ return chlPhrase(e); }).join(' ; ')+' '
    +'Méthode enseignée : relation de Chasles, AB + BC = AC (le second vecteur part là où s’arrête le premier) ; on peut changer l’ordre d’une somme ; soustraire un vecteur, c’est ajouter son opposé (− AC = + CA) ; AA = 0, le vecteur nul ; AC + AC = 2AC. Deux vecteurs qui partent du même point (ou arrivent au même point) ne s’enchaînent dans aucun ordre. Ne jamais parler de coordonnées à l’élève.';
   if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
