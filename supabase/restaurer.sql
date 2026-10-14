@@ -6,6 +6,12 @@
 --  depuis la sauvegarde déchiffrée ; la marche à suivre complète est dans
 --  LISEZMOI.md.
 --
+--  UN APPEL PAR EXÉCUTION. Les appels ci-dessous se suivent pour être lus,
+--  pas pour être collés ensemble : l'éditeur SQL de Supabase n'affiche que le
+--  résultat de la DERNIÈRE requête. Collés d'un bloc, ceux du cas courant
+--  joueraient l'écrasement sans avoir laissé lire la comparaison, et ceux du
+--  cas rare tairaient le compte de la première table.
+--
 --  LE CAS COURANT — une note paraît fausse ou a disparu, la base est vivante :
 --
 --      select * from public.comparer('resultats_1ere', $j$ [ … ] $j$::json);

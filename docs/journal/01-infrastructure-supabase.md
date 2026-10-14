@@ -367,9 +367,15 @@ dérivée de la clé — sans toucher aux codes ni aux comptes — et NOMME les
 Le domaine des comptes y vit une TROISIÈME fois, et le contrôle qui comparait
 la page à la fonction Edge compare maintenant les trois. `npm run test:base`
 rejoue le défaut (l'élève dé-relié refusé), le reliage, le témoin intact et
-l'idempotence — et sa sortie sur le vrai projet est un DIAGNOSTIC : « 0 sans
-lien » partout veut dire que la cause est ailleurs (session expirée, par
-exemple), pas que le script a échoué.
+l'idempotence — et sa sortie est un DIAGNOSTIC : « 0 sans lien » partout veut
+dire que la cause est ailleurs (session expirée, par exemple), pas que le
+script a échoué. Mais cette sortie n'existe que dans `psql` : elle part en
+`raise notice`, que l'éditeur SQL de Supabase n'affiche pas (constaté en
+octobre 2026). Sur le projet, le diagnostic et les noms se lisent par la
+requête de lecture de `supabase/LISEZMOI.md` (« Restaurer entièrement, après
+un sinistre », étape 6) : jouée AVANT le script, aucune ligne veut dire que la
+cause est ailleurs ; jouée APRÈS, elle nomme les élèves qui attendent un
+« Nouveau code ».
 
 **La liste des prénoms ne se lit plus sans être connecté.** La migration 001
 avait posé sur `eleves`, `eleves_1ere` et `eleves_2nde` une politique
@@ -1061,7 +1067,10 @@ contrôle laissait passer ; et un `rpc('cles_de_connexion')` glissé dans
 pastilles : la fonction n'existe pas dans les états A et C », avec « ✗ avec
 la liste ouverte, la page n'interroge pas la fonction de connexion ».
 **Ce qu'aucun banc ne voit.** L'état réel du projet : la 009 y a-t-elle été
-jouée ? La sortie de la 010, « état trouvé », le dira. Le cache de schéma de
+jouée ? On ne le saura pas — la 010 a été jouée le 14 octobre 2026, et son
+« état trouvé » part en `NOTICE`, que l'éditeur SQL n'affiche pas (voir
+« L'éditeur SQL de Supabase n'affiche ni les NOTICE ni les tableaux
+intermédiaires. ») ; la 010 jouée, la question n'a plus d'objet. Le cache de schéma de
 PostgREST dans la minute qui suit la 010 : il peut tenter encore une fonction
 disparue — la page de #638 dirait alors « Connexion impossible », la création
 de compte « Vérification du prénom impossible » ; il faut attendre, pas
@@ -1076,8 +1085,68 @@ PostgREST transmette à supabase-js le code `42501` du « permission denied »
 de PostgreSQL — c'est son comportement documenté, mais seul le double le
 rend ici. Et que l'éditeur SQL de
 Supabase laisse prendre `set local role anon`, sous un `postgres` qui traverse
-la RLS : la même hypothèse que la 009, et un refus s'y déclare au lieu de
-passer au vert.
+la RLS : la même hypothèse que la 009 — et un refus ne s'y déclare que par une
+`NOTICE`, invisible dans l'éditeur : « Success » ne le distingue pas d'une
+mesure faite. La preuve directe est ailleurs : les pages en ligne lisent la
+liste en visiteur, et leurs pastilles s'affichent.
+
+**L'éditeur SQL de Supabase n'affiche ni les NOTICE ni les tableaux
+intermédiaires.** Constaté le 14 octobre 2026 : Turquet colle la 010 — 303
+lignes, quatorze `raise notice` — dans l'éditeur SQL du tableau de bord, et
+l'écran ne montre que « Success. No rows returned ». Ni « état trouvé », ni
+« un visiteur lit la liste entière ». Or presque tous les fichiers du dossier
+`supabase/` rendent compte par `raise notice` — l'« ÉTAT AVANT MIGRATION » de
+la 001, les politiques « RETIRÉE » de la 002, l'« ÉTAT OBTENU » de la 003 à la
+010, « encore sans lien : Sam » du reliage, « NON RÉPARÉES » de la réparation
+des notes, l'« ÉTAT AVANT MÉNAGE » — et la notice disait à Turquet de les
+lire : « Lisez ces lignes », « Lisez la ligne NOTICE qu'il affiche », « vous
+saurez dans quel état était la base », « liste les élèves qu'il n'a pas pu
+relier ». Aucune ne s'affiche. Seul `psql` les montre — et c'est `psql` que lit
+le banc de la base (il relit la sortie d'erreur, où vont les NOTICE) : le banc
+était vert précisément sur ce que Turquet ne pouvait pas voir, et c'est pourquoi
+personne ne l'avait vu. Deux règles voisines, qui sont le comportement connu de
+l'éditeur : seul le résultat de la DERNIÈRE requête s'affiche — deux `select`
+collés ensemble n'en montrent qu'un — et une erreur s'affiche en rouge en
+annulant tout le fichier. Ce qui reste vrai : un fichier qui se contrôle par
+`raise exception` reste fiable, et « Success » prouve que ses contrôles sont
+passés. Ce qui ne l'est plus : ce qu'il se contente de DÉCLARER par une
+`NOTICE` — une table absente sautée, une table vide, un rôle `anon`
+impossible à prendre — passe en silence. Pour la 010, « Success » ne prouve
+donc pas à lui seul que la mesure en visiteur a eu lieu ; les pastilles des
+pages en ligne, lues en visiteur, si. Le pire cas était un script DESTRUCTIF :
+la notice de `menage-brouillons.sql` disait « le premier [temps] ne touche à
+rien… Si les nombres vous surprennent, arrêtez-vous là » — or les nombres sont
+invisibles, et le `delete` part dans le même clic. Trouvé par un audit en
+workflow, script par script (quatre auditeurs, un sceptique derrière chacun).
+Corrigé dans `supabase/LISEZMOI.md` : une section en tête, « Ce que montre
+l'éditeur SQL de Supabase — et ce qu'il ne montre pas », et, là où le compte
+rendu compte, une REQUÊTE DE LECTURE à coller seule — l'état des neuf tables
+avant et après la 001, le ménage avant et après, la réparation des notes avant
+et après, qui reste à relier après le reliage ; la requête « Pour vérifier » de
+la 002 existait déjà. Chacune a été exécutée sur un PostgreSQL jetable, avant
+et après son script, et comparée au compte rendu que le script écrit en
+`NOTICE` : mêmes nombres, mêmes noms (le reliage nomme Sam et Zoé, la requête
+aussi ; la réparation annonce 4 copies réparées et 3 laissées, la requête
+aussi). L'épreuve a corrigé une requête : celle du ménage faisait DISPARAÎTRE
+une table vide au lieu d'y écrire 0 — trompeur pour un contrôle « brouillons à
+zéro » ; elle part désormais de la liste des trois tables. La notice a aussi
+gagné deux exactitudes vues en passant : `restaurer()` répond « ligne(s)
+remises en place », pas « restaurée(s) », et la dernière ligne de `comparer()`
+est toujours un bilan. Les commentaires des trois scripts qui servent encore
+(`relier-comptes.sql`, `menage-brouillons.sql`, `corriger-notes-coupe.sql`)
+disent la même chose ; les migrations, déjà jouées (la 009 peut-être pas), ne
+sont pas retouchées — leurs « à lire dans la sortie de l'éditeur SQL » se
+trompent d'outil, et la section de tête le dit. Une relecture critique du diff
+l'a d'ailleurs attrapé : la première rédaction prétendait que ces commentaires
+parlaient de `psql`, et que toutes les migrations se contrôlaient par erreur
+— la 003 et la 004 n'en ont aucune, et pour elles « Success » ne dit que
+qu'elles ont tourné. **La règle pour demain** : ce qu'un fichier collé dans
+l'éditeur doit faire LIRE à Turquet passe par une erreur (un contrôle) ou par
+son DERNIER `select` — jamais par une `NOTICE` seule. Le même jour, sur le
+projet : la 010 jouée (« Success. No rows returned »), et la fonction
+`corriger-definition` redéployée par Turquet pour Haiku 5.5 — ce que dit
+Turquet ; aucun banc ne voit la fonction déployée (le signe : `const MODEL =
+"claude-haiku-5-5"` dans l'onglet Code, et une demande d'aide qui répond).
 
 **Le plan gratuit de Supabase ne sauvegarde rien.** L'action
 `.github/workflows/sauvegarde.yml` exporte les données chaque nuit du samedi au
