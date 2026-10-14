@@ -11676,14 +11676,18 @@ function sommeVecteurs(w, P){
     const plus=function(p,r){ return [p[0]+r[0],p[1]+r[1]]; };
 
     /* 1. le tirage : lisible, JSON, le nœud attendu relu par une seconde écriture */
+    /* une seule séance DESSINÉE (le barème) ; les 200 tirages passent par
+       svcBuildQuestions sans redessiner le quadrillage : 200 dessins de 117
+       cibles ont fait déborder la mémoire du banc sur l'action GitHub (4 Go) */
     const figures={};
+    startSvc(); clearTimeout(test.fbTimer);
+    if(test.maxScore!==D.nb) vus.push('barème '+test.maxScore+' au lieu de '+D.nb);
     for(let t=0;t<200 && !vus.length;t++){
-      startSvc(); clearTimeout(test.fbTimer);
-      if(test.questions.length!==D.nb){ vus.push(test.questions.length+' questions au lieu de '+D.nb); break; }
-      if(test.maxScore!==D.nb) vus.push('barème '+test.maxScore+' au lieu de '+D.nb);
-      const cles=test.questions.map(cleQuestion);
+      const qs=svcBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' questions au lieu de '+D.nb); break; }
+      const cles=qs.map(cleQuestion);
       if(new Set(cles).size!==cles.length) vus.push('deux questions identiques dans une même séance');
-      test.questions.forEach(function(q){
+      qs.forEach(function(q){
         if(Object.keys(q).sort().join(',')!=='sel,uc,uo,vc,vo') vus.push('la question range autre chose que uo, uc, vo, vc et sel : '+Object.keys(q).join(','));
         if(q.sel!==null) vus.push('le tirage pose un nœud à la place de l\\'élève');
         figures[cleQuestion(q)]=1;
