@@ -12400,6 +12400,10 @@ function parallelogrammePoint(w, P){
         const Dq=vecQuatrieme(q), pts=[q.A,q.B,q.C,Dq];
         pts.forEach(function(p){ if(p[0]<0||p[0]>VEC_N||p[1]<0||p[1]>VEC_N) vus.push('un point sort du quadrillage : ('+p.join(';')+')'); });
         for(let i=0;i<4;i++) for(let j=i+1;j<4;j++) if(!vecLoin(pts[i],pts[j])) vus.push('deux points à moins de deux carreaux : ('+pts[i].join(';')+') et ('+pts[j].join(';')+')');
+        /* les quatre côtés, dans l'ordre du nom : aucun horizontal ni vertical */
+        const cotes=q.forme==='ABDC'?[q.A,q.B,Dq,q.C]:[q.A,q.B,q.C,Dq];
+        cotes.forEach(function(u,k){ const v=cotes[(k+1)%4];
+          if(u[0]===v[0]||u[1]===v[1]) vus.push('un côté du parallélogramme '+q.forme+' est '+(u[1]===v[1]?'horizontal':'vertical')+' : de ('+u.join(';')+') à ('+v.join(';')+')'); });
         if(JSON.stringify(JSON.parse(JSON.stringify(q)))!==JSON.stringify(q)) vus.push('la question ne survit pas au JSON de la pause');
       });
     }
