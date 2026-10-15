@@ -1088,6 +1088,25 @@ moins de 3 px de la souris sur la flèche u⃗ puis pour la fin, plus aucun poin
 une fois la fin posée, une étape 1 fausse qui ne verdit pas, et le clic entre
 les nœuds.
 
+**Puis u⃗ + v⃗ tracé a gardé le point blanc de sa fin, éteint le survol des nœuds, et l'étape 2 finie a verdi comme l'étape 1 (v511 — fusionné en v510 juste après le vecteur nul du 8.2.7, qui portait le même numéro : la v511 rend la version de l'en-tête de nouveau parlante).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.1, laisser le point blanc
+quand on choisit le point à la fin du vecteur somme ; il ne faut plus que la
+flèche affiche un point ensuite quand on passe sur une intersection du
+quadrillage ; quand on a fini l'étape 2, le texte passe au vert comme pour
+l'étape 1 ». Le point blanc du clic sur la fin était celui du SURVOL
+(`.vec-t:hover .dot`) : il s'éteignait dès que la souris partait, et chaque
+nœud survolé ensuite en rallumait un. `svcTracer` pose désormais, dès que
+u⃗ + v⃗ a un début ET une fin, la classe `svc-fin` sur le nœud de la fin
+(point blanc, cerne bleu, à demeure) et `svc-complet` sur le SVG, qui éteint
+le point de survol de tous les autres nœuds (le début garde son `sel`). Le
+même instant met `svc-fait` sur l'étape 2 — cadre et texte verts sur fond
+vert clair, la règle de l'étape 1. « Fini » ne juge rien : une flèche fausse
+mais tracée verdit son étape comme une juste, et « Vérifier » tranche ; une
+étape 2 déjà marquée `ok`/`bad` en soutien garde sa marque, et le
+verrouillage retire `svc-fait` (`checkSvc`). Le banc navigateur lit, après
+le second clic, le fond blanc calculé du point de la fin, le cadre et le
+fond verts de l'étape 2, et un nœud libre survolé sans point.
+
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v490)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
@@ -1360,6 +1379,41 @@ retire, BC⃗ et BA⃗ (le second clic sur B traverse la prise de BC⃗), les de
 copies glissées jusqu'à D puis au bout de la première, M — 8 sur 8, « 8 cases
 justes sur 8 » — puis une copie vide entièrement verte. Le doigt sur
 tablette, lui, ne se joue dans aucun banc.
+
+**Les objectifs réalisés verdissent, M posé éteint le survol, et le vecteur
+résultat se trace (v510).** La demande (Turquet, octobre 2026) : « dans
+l'exercice 8.2.5, mettre en vert les objectifs dès qu'ils sont remplis comme
+dans le 8.2.1 — ne pas oublier l'objectif "fais glisser … bout à bout, à
+partir de …" ; quand placer M est réalisé, la souris ne doit plus afficher de
+point au bout de la flèche quand on passe sur une intersection du
+quadrillage ; il faut aussi tracer le vecteur correspondant au résultat ».
+**Réalisé = le geste fait** : un point posé, un vecteur tracé (début et fin),
+M posé — et pour le déplacement, les copies bout à bout depuis le point
+d'origine (`svrChaine`), le seul objectif dont « fait » suppose « juste »,
+comme l'étape 1 du 8.2.1. La classe `fait` (cadre vert, fond
+`--green-soft`) se pose dans `svrMajOutils`, que `svrDeplacer` appelle
+désormais : des copies qu'on écarte rendent l'objectif à son gris. Elle
+s'efface au verrou, et dans la feuille de styles elle précède `ok`, `bad` et
+`sol` : en soutien, la réponse jugée reprend la main sur le vert « fait ».
+**Le survol** : M posé avec le geste « Placer M » choisi, le repère prend
+`svr-repos` et le point de survol des nœuds (`.vec-t:hover .dot`) ne se
+montre plus ; choisir un autre geste le rend. Un clic repose toujours M.
+**Le vecteur résultat** OM⃗ (DM⃗ sur la fiche) se trace dès que M est posé,
+du point d'origine au M de l'élève (`svr-res`), bleu, rouge si M est faux ;
+à la correction, si M n'est pas juste, OM⃗ attendu se trace en vert. Ce
+n'est pas une réponse de plus : le barème reste à 8. Son nom ne se pose pas
+au milieu par principe : `svrEtiqResultat` essaie cinq places le long du
+trait, HORS du triangle de la construction d'abord, et garde la première qui
+ne tombe ni sur les graduations, ni sur le nom d'une autre flèche, ni sur un
+point — sur la fiche, le milieu de DM⃗ tombait sur l'axe des ordonnées.
+`svrCoin` compte aussi cette flèche pour poser les lettres. Vu dans un vrai
+Chromium sur la fiche et quatre corrections tirées. Le juge
+(`tests/verifier.js`) tient les sept objectifs verts, « Placer M » gris avant
+M, des copies écartées qui rendent le gris, le survol éteint, DM⃗ tracé depuis
+D et nommé, rouge vers un M faux, cinq flèches vertes dans une copie vide et
+aucun `fait` après la vérification ; le banc navigateur (« 6 quadragies
+quinquies ») lit les couleurs calculées du cadre et du fond, le point de
+survol présent avant M et absent après, et la flèche DM⃗ dessinée.
 
 ## {chasles-alignes} — la relation de Chasles sur une droite (8.12, v494)
 
@@ -1794,7 +1848,34 @@ quadragies septies) mesure le point posé sur le milieu de −v⃗ à moins de
 3 px de la souris, et un clic loin de tout nœud et de toute flèche qui pose
 B′ au nœud le plus proche.
 
-## {tracer-vecteurs-egaux} — tracer un vecteur égal à u⃗, à v⃗, à w⃗ (8.1.7, v511)
+**Puis, au 8.1.6, le point a suivi la souris, et le point choisi est devenu une croix (v511).**
+La demande (Turquet, octobre 2026) : « dans le 8.1.6, la flèche de la souris
+doit afficher un point constamment à l'écran. Quand un point est choisi,
+mettre une croix, et ne plus afficher de point au bout de la flèche de la
+souris ainsi que quand on passe sur une intersection du quadrillage. »
+Un groupe `#vepCurseur` (la classe `.cvp-curseur` du 8.2.8 : `pointer-events:none`,
+posé en DERNIER dans le SVG) dessine le point et la lettre à placer à la
+position exacte de la souris, partout sur le quadrillage à une demi-maille du
+cadre près — pas aimanté, le clic garde les zones de touche des nœuds. Le
+nœud choisi se dessine en croix comme les points donnés : UNE croix
+(`vepCroix`), posée dans le groupe du seul nœud choisi, bleue, rouge si elle
+est fausse (`badc`), et son disque devient transparent — il garde sa
+géométrie. **Piège rencontré** : la première version cachait une croix dans
+chacun des 97 nœuds (une option de `vecQuadrillage`) ; le dessin triplait à
+chaque question, et le banc principal de la Seconde, déjà proche de la limite
+de mémoire de Node, est mort de saturation dans l'action — deux fois, quand
+les autres pull requests passaient. La mesure de la mémoire ligne par ligne,
+branche contre `main`, a désigné le bloc des vecteurs (+300 Mo). Dès qu'un nœud est choisi,
+la classe `vep-pose` du dessin éteint le survol des autres nœuds et cache le
+point de la souris ; recliquer la croix la retire, et le point revient. Rien
+au doigt (`pointerType` « touch »), rien une fois la question corrigée ou le
+point juste figé en soutien. Le point attendu de la correction (`missc`) reste
+le disque vert. Le banc navigateur (6 quadragies ter) mesure le point à moins
+de 3 px de la souris entre deux nœuds, la croix et le disque transparent du
+nœud choisi, le point caché, le survol éteint, puis le point revenu après le
+reclic.
+
+## {tracer-vecteurs-egaux} — tracer un vecteur égal à u⃗, à v⃗, à w⃗ (8.1.7, v512)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice qui
 affiche trois vecteurs u, v et w sur un quadrillage et qui demande à l'élève
