@@ -8942,12 +8942,29 @@ if(require.main === module) (async () => {
       pm = await survol(e.u[0] + 0.5, e.u[1] + 0.5); cv = await curs();
       if(!cv || Math.hypot(cv.x - pm.px, cv.y - pm.py) > 3) dits.push('le début posé, le point de la fin ne suit pas la souris');
       if(JSON.stringify(e.sd) !== JSON.stringify(e.u)) dits.push('le clic sur le début de u (sous sa prise) ne pose pas le début de u + v : ' + JSON.stringify(e.sd));
+      /* le début posé, une flèche va de lui jusqu'à la pointe de la souris (v520) */
+      const vif = async () => await s.page.evaluate(() => { const l = document.querySelector('#svcVif line');
+        if(!l) return null; const svg = l.ownerSVGElement, m = svg.getScreenCTM(), P = (x, y) => { const p = svg.createSVGPoint(); p.x = x; p.y = y; return p.matrixTransform(m); };
+        const a = P(+l.getAttribute('x1'), +l.getAttribute('y1')), b = P(+l.getAttribute('x2'), +l.getAttribute('y2'));
+        const n = document.querySelector('#svcn-' + test.questions[test.idx].sd.join('-') + ' .dot').getBoundingClientRect();
+        return { ax: a.x, ay: a.y, bx: b.x, by: b.y, nx: n.left + n.width / 2, ny: n.top + n.height / 2, pointe: !!l.getAttribute('marker-end'), pe: getComputedStyle(l).pointerEvents }; });
+      let fv = await vif();
+      if(!fv) dits.push('le début posé, aucune flèche ne va du début jusqu\'à la souris');
+      else {
+        if(Math.hypot(fv.ax - fv.nx, fv.ay - fv.ny) > 2) dits.push('la flèche qui suit la souris ne part pas du début posé');
+        if(Math.hypot(fv.bx - pm.px, fv.by - pm.py) > 3) dits.push('la flèche qui suit la souris ne s\'arrête pas à sa pointe');
+        if(!fv.pointe) dits.push('la flèche qui suit la souris n\'a pas de pointe');
+        if(fv.pe !== 'none') dits.push('la flèche qui suit la souris prend les clics');
+      }
+      pm = await survol(e.u[0] + e.uc[0] / 2 + 0.4, e.u[1] + e.uc[1] / 2 + 0.3); fv = await vif();
+      if(!fv || Math.hypot(fv.bx - pm.px, fv.by - pm.py) > 3) dits.push('la flèche ne suit pas la souris quand elle bouge');
       if(JSON.stringify(e.u) !== JSON.stringify(e.uo)) dits.push('un simple clic sur u l\'a déplacé');
       const vf = [e.v[0] + e.vc[0], e.v[1] + e.vc[1]];
       await clic(vf[0], vf[1]);
       e = await etat();
       if(JSON.stringify(e.sf) !== JSON.stringify(vf) || e.trace !== 1) dits.push('le second clic ne trace pas u + v (' + JSON.stringify(e.sf) + ', ' + e.trace + ' trait)');
       if(await curs()) dits.push('la fin posée, un point suit encore la souris');
+      if(await s.page.evaluate(() => document.querySelectorAll('#svcVif line').length)) dits.push('la fin posée, une flèche suit encore la souris');
       await survol(1.5, 1.5);
       if(await curs()) dits.push('la fin posée, un point réapparaît au survol');
       /* u + v tracé (v510) : la fin garde son point BLANC, un nœud survolé n'en

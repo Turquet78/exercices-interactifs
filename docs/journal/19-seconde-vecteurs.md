@@ -1107,6 +1107,25 @@ verrouillage retire `svc-fait` (`checkSvc`). Le banc navigateur lit, après
 le second clic, le fond blanc calculé du point de la fin, le cadre et le
 fond verts de l'étape 2, et un nœud libre survolé sans point.
 
+**Puis, le début de u⃗ + v⃗ posé, une flèche va de lui jusqu'à la pointe de la souris (v520).**
+La demande (Turquet, octobre 2026) : « dans l'étape 2, après avoir placé le
+point de départ, on trace un vecteur de ce point de départ jusqu'à
+l'extrémité de la flèche de la souris ». La recette du 8.1.7 (`tvxVif`) :
+un calque `#svcVif`, posé juste sous le point de la souris et sans prise sur
+les clics, reçoit à chaque mouvement un trait bleu (`svc-e`, pointe
+`svcArrE`) du nœud du début jusqu'à la souris — la souris elle-même, pas le
+nœud le plus proche : la flèche suit la main, le clic pose au nœud. Bleue
+comme u⃗ + v⃗ tracé, parce que c'est le dessin de ce que l'élève fait, pas
+un verdict. Elle vit dans la même fonction que le point qui suit la souris
+(`curseur`, dans `svcBrancher`), donc sous les mêmes conditions : étape 2,
+début posé et fin pas encore, jamais au doigt, pendant un glisser, après la
+correction ou u⃗ + v⃗ figé. Elle s'efface à la fin posée, au début retiré,
+et quand la souris quitte le dessin ; rien n'en est rangé dans la question.
+Le banc navigateur (« 6 quadragies quater ») lit, le début posé, une flèche
+qui part du nœud du début (à 2 px), finit à la souris (à 3 px), porte sa
+pointe et ne prend pas les clics ; la suit quand la souris bouge ; et n'en
+trouve plus une fois la fin posée.
+
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v490)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
