@@ -12744,8 +12744,12 @@ function pointSommeDifference(w, P){
     const instr=el('cvpInstr');
     /* l'énoncé ne porte que l'égalité ; la méthode vit dans l'étape, au-dessus du dessin */
     if(instr.textContent.replace(/\\s+/g,' ').trim()!=='Construis le point B′ tel que BB′ = u − v.') vus.push('l\\'énoncé n\\'est pas la seule phrase mathématique : '+instr.textContent.slice(0,90));
-    const etape=el('cvpEtape');
-    if(!etape || etape.nextElementSibling!==el('cvpGraph')) vus.push('l\\'étape ne se place pas juste au-dessus du dessin');
+    /* les étapes SONT les réponses notées, en bandeaux bleus (octobre 2026 :
+       plus de cadres blancs) ; l'étape 2 attend que l'étape 1 soit faite */
+    const etape=el('cvp-ch');
+    if(!etape || el('cvpBody').nextElementSibling!==el('cvpGraph')) vus.push('les étapes ne se placent pas juste au-dessus du dessin');
+    if(!etape.classList.contains('cvp-etape') || !el('cvp-pt').classList.contains('cvp-etape') || document.querySelector('#scr-cvp .tvg-cons')) vus.push('un cadre blanc d\\'étape reste à côté des bandeaux bleus');
+    if(el('cvp-pt').style.display!=='none') vus.push('l\\'étape 2 se montre avant que l\\'étape 1 soit faite');
     if(!etape || etape.textContent.indexOf('Étape 1 / 2')!==0 || etape.textContent.indexOf('à partir du point B')<0) vus.push('l\\'étape 1 ne dit pas de partir du point B : '+(etape?etape.textContent.slice(0,90):''));
     if(document.querySelector('#cvpGraph .svc-mot')) vus.push('les flèches portent encore « début » ou « fin »');
     if(!instr.querySelector('.vgt-vec') || instr.querySelector('.vgt-vec').textContent!=='BB′') vus.push('l\\'égalité ne s\\'écrit pas BB′ coiffé de sa flèche');
@@ -12777,7 +12781,7 @@ function pointSommeDifference(w, P){
     if(!document.querySelector('#cvpn-4-2.missc')) vus.push('B′ attendu (4;2) ne se montre pas en vert');
     if(el('cvpFeedback').textContent.indexOf('Il te manquait 2 cases')<0) vus.push('le message ne dit pas « Il te manquait 2 cases » : '+el('cvpFeedback').textContent.slice(0,90));
     if(document.querySelector('#cvpPrises .svc-prise') || !el('cvpRetU').disabled) vus.push('les flèches se saisissent ou se retournent encore après la correction');
-    if(el('cvpEtape').textContent) vus.push('l\\'étape reste affichée après la correction');
+    if(el('cvp-pt').style.display==='none') vus.push('l\\'étape 2, notée, reste cachée après la correction');
     const solNom=Array.from(document.querySelectorAll('#cvpSol text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
     if(document.querySelectorAll('#cvpSol line.svc-s').length!==1 || solNom!=='BB′') vus.push('le vecteur solution BB′ ne se trace pas en vert : '+solNom);
     if(test.score!==0) vus.push('la copie vide vaut '+test.score);
@@ -12796,14 +12800,20 @@ function pointSommeDifference(w, P){
     if(!cvpDeplacer('u',[3,4]) || JSON.stringify(q1.up)!=='[3,4]') vus.push('cvpDeplacer ne range pas le début de u');
     cvpDeplacer('v',[6,5]);
     if(!cvpChaine(q1)||cvpChaine(q1).ordre!=='uv') vus.push('u puis −v posés depuis B ne sont pas lus comme la construction');
-    if(el('cvpEtape').textContent.indexOf('Étape 2 / 2')!==0 || el('cvpEtape').textContent.indexOf('B′')<0) vus.push('les flèches bout à bout, l\\'étape 2 ne s\\'affiche pas : '+el('cvpEtape').textContent.slice(0,90));
+    if(el('cvp-pt').style.display==='none' || el('cvp-pt').textContent.indexOf('Étape 2 / 2')!==0 || el('cvp-pt').textContent.indexOf('B′')<0 || el('cvp-ch').nextElementSibling!==el('cvp-pt')) vus.push('les flèches bout à bout, l\\'étape 2 ne s\\'affiche pas sous l\\'étape 1 : '+el('cvp-pt').textContent.slice(0,90));
+    if(el('cvpEl').children.length) vus.push('un vecteur BB′ se trace avant que B′ soit posé');
     if(!el('cvp-ch').classList.contains('cvp-fait') || el('cvp-pt').classList.contains('cvp-fait')) vus.push('les flèches bout à bout, l\\'étape 1 ne passe pas seule au vert');
     cvpPose(1,1);
     if(JSON.stringify(q1.sel)!=='[1,1]' || !document.querySelector('#cvpn-1-1.sel')) vus.push('le clic ne pose pas B′');
     if(!el('cvp-pt').classList.contains('cvp-fait')) vus.push('B′ posé, l\\'étape 2 ne passe pas au vert');
     if(document.querySelectorAll('#cvpCroix .crx.sel').length!==1 || el('cvpCroix').children.length!==1) vus.push('B′ posé ne se marque pas d\\'une seule croix');
+    /* B′ posé : le vecteur BB′ de l'élève se trace, violet et nommé ; plus de point au bout de la souris */
+    const elNom=Array.from(document.querySelectorAll('#cvpEl text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
+    if(document.querySelectorAll('#cvpEl line.cvp-aa').length!==1 || elNom!=='BB′') vus.push('B′ posé, le vecteur BB′ de l\\'élève ne se trace pas : '+elNom);
+    if(el('cvpCurseur').style.display!=='none') vus.push('B′ posé, le point suit encore la souris');
     cvpPose(1,1);
     if(q1.sel!==null || document.querySelector('#cvpn-1-1.sel')) vus.push('recliquer le nœud ne retire pas B′');
+    if(el('cvpEl').children.length) vus.push('B′ retiré, son vecteur reste tracé');
     if(el('cvp-pt').classList.contains('cvp-fait')) vus.push('B′ retiré, l\\'étape 2 reste verte');
     cvpPose(4,2);
     test.questions[1]=JSON.parse(JSON.stringify(q1)); renderCvp();
@@ -12816,6 +12826,7 @@ function pointSommeDifference(w, P){
     if(document.querySelectorAll('#cvpCroix .crx.okc').length!==1) vus.push('B′ juste ne se marque pas d\\'une croix bleue');
     if(document.querySelector('#cvpBody .cvp-fait')) vus.push('la marque « étape faite » reste sous le verdict');
     if(document.querySelectorAll('#cvpSol line.svc-s').length!==1) vus.push('la copie juste ne montre pas le vecteur solution');
+    if(document.querySelectorAll('#cvpEl line.svc-e').length!==1 || document.querySelector('#cvpEl text')) vus.push('la copie juste : le vecteur de l\\'élève n\\'est pas bleu, ou garde le nom du vecteur solution');
 
     /* 5. copie juste, −v PUIS u */
     nextCvp(); clearTimeout(test.fbTimer);
@@ -12830,6 +12841,7 @@ function pointSommeDifference(w, P){
     let fb=el('cvpFeedback').textContent;
     if(classe('cvp-ch')!=='bad'||fb.indexOf('retourne la flèche v')<0||fb.indexOf('BB′ = u − v = u + (−v)')<0) vus.push('le signe oublié n\\'est pas rouge et nommé : '+fb.slice(0,160));
     if(!document.querySelector('#cvpn-8-8.badc') || !document.querySelector('#cvpn-4-2.missc')) vus.push('B′ faux n\\'est pas rouge, ou le bon pas montré en vert');
+    if(document.querySelectorAll('#cvpEl line.svc-eb').length!==1) vus.push('B′ faux : le vecteur de l\\'élève ne rougit pas');
     if(document.querySelectorAll('#cvpCroix .crx.badc').length!==1 || document.querySelectorAll('#cvpCroix .crx.missc').length!==1) vus.push('B′ faux et B′ attendu ne se marquent pas d\\'une croix rouge et d\\'une croix verte');
     nextCvp(); clearTimeout(test.fbTimer);
     cvpRetourner('v'); cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]); cvpPose(5,2);
