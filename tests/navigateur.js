@@ -9255,6 +9255,19 @@ if(require.main === module) (async () => {
         return { t: document.getElementById('cvpEtape').textContent, dessus: r.height > 20 && r.bottom <= g.top + 1, mots: document.querySelectorAll('#cvpGraph .svc-mot').length }; });
       if(et2.t.indexOf('Étape 2') !== 0 || !et2.dessus) dits.push('les flèches bout à bout, l\'étape 2 ne s\'affiche pas au-dessus du dessin : ' + et2.t.slice(0, 60));
       if(et2.mots) dits.push('bout à bout, les flèches portent ' + et2.mots + ' mot(s) « début » / « fin »');
+      /* à l'étape 2, le point suit la souris, même PAR-DESSUS une flèche
+         (le milieu de −v), et un clic loin de tout nœud pose au plus proche */
+      const sur = await pos(5, 3.5);
+      await s.page.mouse.move(sur.px - 20, sur.py - 20); await s.page.mouse.move(sur.px, sur.py, { steps: 4 });
+      await s.page.waitForTimeout(80);
+      const fant = await s.page.evaluate(([x, y]) => { const c = document.getElementById('cvpCurseur'); if(!c) return 'absent';
+        const b = c.querySelector('circle').getBoundingClientRect();
+        return getComputedStyle(c).display === 'none' ? 'caché' : Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)); }, [sur.px, sur.py]);
+      if(typeof fant !== 'number' || fant > 3) dits.push('à l\'étape 2, le point ne suit pas la souris posée sur −v : ' + fant);
+      const loin = await pos(6.6, 6.6);
+      await s.page.mouse.click(loin.px, loin.py); await s.page.waitForTimeout(120);
+      e = await etat();
+      if(JSON.stringify(e.sel) !== '[7,7]') dits.push('un clic entre les nœuds ne pose pas B′ au plus proche : ' + JSON.stringify(e.sel));
       /* B′ : la fin de −v, sous sa prise — le clic doit passer au nœud */
       const b2 = await pos(4.1, 2);
       await s.page.mouse.click(b2.px, b2.py); await s.page.waitForTimeout(120);

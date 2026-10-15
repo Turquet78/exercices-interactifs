@@ -1512,6 +1512,31 @@ pas — la flèche qui s'allonge (20, 25 puis 42 px pour A puis AD), le curseur
 qui clignote, le dessin aligné sur le champ — a été regardé dans Chromium,
 à 1280 et à 390 px de large.
 
+**Puis le calcul est entré DANS le champ, et un exemple ouvre la page**
+(v505, Turquet, octobre 2026 : « mettre le calcul à effectuer dans le champ
+de saisie ; écrire un exemple au début, un champ déjà complété, qui effectue
+une addition et donne un modèle avec une étape jusqu'au résultat »). La
+ligne ne montre plus « AD + DF = » DEVANT le champ : le champ s'ouvre sur
+« AD + DF = », chaque vecteur sous sa flèche, et l'élève continue derrière.
+**Ce début n'est pas dans la valeur du champ** — il est dessiné par
+`chlPrefHTML` depuis `data-pref`, devant le dessin de la saisie
+(`chlDessin`, tiré de `chlRendu`). C'est voulu : dans la valeur, l'élève
+aurait pu l'effacer, et surtout un champ où il n'a rien tapé n'aurait plus été
+VIDE — ni pour le juge (`s.vide`), ni pour `corrChoix` (la correction verte
+dans un champ vide), ni pour la règle « une case vide ne rougit jamais », ni
+pour la reprise. Tout cela lit la valeur, inchangée ; le juge, le banc et le
+brouillon n'ont pas bougé. Le début s'écrit à l'encre de l'énoncé
+(`.chl-pref`, `--ink`) et ne prend pas la couleur du verdict. Ses signes
+portent `.chl-pop`, pas `.chl-op`, et ses vecteurs ne sont pas des
+`.chl-vec` : le banc compte les flèches et les signes de la SAISIE.
+L'exemple (`CHL_EXEMPLE`, `chlExempleHTML`) : « EF + GE = GE + EF = GF » —
+une addition, une étape (l'ordre changé pour que les vecteurs s'enchaînent),
+puis le résultat ; un dessin dans un cadre de champ, pas un `<input>` : rien à
+saisir, à juger ni à reprendre. Sur un téléphone (≤ 520 px), la rangée entière
+écrit à 1,1 rem, champ compris, du même facteur — le début ajouté élargissait
+le champ hors de la rangée. Reste nommé : une chaîne de cinq vecteurs ou plus
+déborde encore à 390 px. Regardé dans Chromium à 1280 et 390 px.
+
 ## {point-somme-vecteurs} — construire un point avec une somme de vecteurs (8.14, v496)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice
@@ -1660,3 +1685,29 @@ dessin), le « −v⃗ » seul nommé sur BB′ = u⃗ − v⃗, l'étape 2 apr�
 posés depuis B, le bandeau vide après la correction et zéro `svc-mot` dans le
 dessin ; le banc navigateur mesure que le bandeau est AU-DESSUS du dessin, à
 l'étape 1 puis à l'étape 2 après les deux glissés à la souris.
+
+**Puis, à l'étape 2, le point a suivi la pointe de la souris, et un clic n'importe où le pose au nœud le plus proche (v504).**
+La demande (Turquet, octobre 2026) : « dans le 8.15, quand il faut placer un
+point sur le quadrillage, afficher le point au bout de la flèche de la
+souris ; il doit être visible quand on passe sur un vecteur ; quand on
+clique, il faut le placer sur le point le plus proche du quadrillage. »
+Le survol d'un nœud (`.vec-t:hover .dot`) ne se voyait pas sous une flèche :
+la prise (`.svc-prise`, un trait de 22 unités) passe au-dessus des nœuds et
+prend le survol. Un groupe `#cvpCurseur` (`pointer-events:none`, posé en
+DERNIER dans le SVG, au-dessus des prises) dessine le point et sa lettre
+(« B′ ») à la position exacte de la souris — pas aimanté : c'est la pointe
+qui le porte, l'aimant ne joue qu'au clic. Il ne se montre qu'à l'étape 2
+(`cvpBoutABout`), jamais pendant un glisser, après la correction, une fois
+le point juste figé, ni au doigt (`pointerType` « touch » : pas de survol).
+Le clic : un écouteur de l'hôte pose au nœud le plus proche tout clic du
+quadrillage (à une demi-maille du cadre près) qui ne tombe ni sur un nœud,
+ni sur une prise — ceux-là gardent leur propre clic, sans quoi le nœud
+recliqué se retirerait aussitôt reposé. **Piège rencontré** : un glisser qui
+commence sur une prise et finit ailleurs envoie son `click` à l'ancêtre
+commun, le SVG — il aurait posé un point. Une première garde au chronomètre
+(400 ms après la fin d'un glisser) avalait au banc le clic légitime qui
+suivait vite ; c'est un drapeau `apresPrise`, levé à la fin du geste sur la
+prise et baissé au prochain appui, qui tient le bord. Le banc navigateur (6
+quadragies septies) mesure le point posé sur le milieu de −v⃗ à moins de
+3 px de la souris, et un clic loin de tout nœud et de toute flèche qui pose
+B′ au nœud le plus proche.

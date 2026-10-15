@@ -2001,7 +2001,24 @@
   .chl-rendu .veg-v,.chl-rendu .veg-fl{color:inherit}
   .chl-vec .veg-fl{min-width:20px}
   .chl-let{display:inline-flex;align-items:flex-end;justify-content:center;min-height:1.1em}
-  .chl-op{padding:0 .28em}
+  .chl-op,.chl-pop{padding:0 .28em}
+  /* v505 : le calcul à effectuer est ÉCRIT dans le champ, devant ce que tape
+     l'élève, à l'encre de l'énoncé (il ne se colore pas avec la réponse) ;
+     et un exemple tout rempli ouvre chaque page. */
+  .chl-rendu .chl-pref,.chl-rendu .chl-pref .veg-v{color:var(--ink)}
+  .chl-pref{display:inline-flex;align-items:flex-end}
+  .chl-exl{background:#F8F9FC;border-style:dashed}
+  .chl-exlbl{font-family:"Fredoka";font-weight:600;font-size:1.05rem;color:var(--ink-soft)}
+  .chl-ex{display:inline-flex;align-items:center;height:46px;padding:0 14px;font-family:"Fredoka";font-weight:600;font-size:1.45rem;line-height:1.1;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;white-space:nowrap}
+  .chl-ex .veg-v{color:inherit}
+  .chl-ex .veg-fl{min-width:20px;color:inherit}
+  /* sur un téléphone, le calcul ET la saisie tiennent dans la rangée : tout
+     ce qu'elle porte écrit plus petit, du même facteur */
+  @media (max-width:520px){
+    .chl-l .veg-v,.chl-l .veg-eq,.chl-l .chl-num,.chl-rendu,.veg-in.chl-in,.chl-ex,.chl-ex .veg-v{font-size:1.1rem}
+    .chl-ex{padding:0 8px}
+    .chl-rendu .veg-fl{min-width:16px}
+  }
   .chl-car{display:inline-block;width:2px;height:1.05em;margin:0 1px;background:currentColor;animation:chlClignote 1.05s steps(1) infinite}
   @keyframes chlClignote{50%{opacity:0}}
   .chl-sel{background:rgba(43,80,200,.2);border-radius:3px}
@@ -2401,6 +2418,9 @@
   .cvp-etape .cvp-etape-sous{display:block;margin-top:4px;font-size:.92rem}
   #cvpInstr .vgt-vec{font-size:1.1em}
   #cvpInstr .cvp-eg{white-space:nowrap}
+  .cvp-curseur{pointer-events:none}
+  .cvp-curseur circle{fill:var(--blue);fill-opacity:.55;stroke:var(--blue-dark);stroke-width:1.6}
+  .cvp-svg .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
   .cvp-outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:4px 0 12px}
   .cvp-outils .btn:disabled{opacity:.45;cursor:default}
   .cvp-svg .vec-t.sel .vec-dlbl,.cvp-svg .vec-t.okc .vec-dlbl,.cvp-svg .vec-t.badc .vec-dlbl,.cvp-svg .vec-t.missc .vec-dlbl{font-size:16px}
@@ -57136,7 +57156,8 @@ function cvpSVG(q){
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg cvp-svg" role="img" aria-label="Quadrillage : le point ${q.l}, et les vecteurs u et v à faire glisser">`
     +'<defs>'+pointe('cvpArrU','var(--ink)')+pointe('cvpArrV','var(--ink-soft)')+pointe('cvpArrS','var(--green)')+'</defs>'
-    +g+'<g id="cvpCorr"></g><g id="cvpFl"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cvpPrises"></g></svg>`;
+    +g+'<g id="cvpCorr"></g><g id="cvpFl"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cvpPrises"></g>`
+    +`<g id="cvpCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><circle r="5"/><text class="vec-lbl" x="8" y="-8">${cvpNomPt(q)}</text></g></svg>`;
 }
 /* Les deux flèches à leur place du moment, la lettre du point, et les prises.
    Aucun mot « début » ni « fin » sur les flèches (demande de Turquet,
@@ -57247,9 +57268,10 @@ function cvpBrancher(){
   const host=$('cvpGraph');
   if(!host||host.__cvpPret) return;
   host.__cvpPret=true;
-  let gl=null;
+  let gl=null, apresPrise=false;
   const pas=function(svg){ const r=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal; return {r:r, k:r.width/vb.width}; };
   host.addEventListener('pointerdown', function(ev){
+    apresPrise=false;
     const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
     if(test.kind!=='cvp'||test.locked) return;
     const q=test.questions[test.idx]; if(!q) return;
@@ -57272,7 +57294,7 @@ function cvpBrancher(){
   });
   const fin=function(ev){
     if(!gl) return;
-    const g=gl; gl=null; g.svg.classList.remove('glisse');
+    const g=gl; gl=null; g.svg.classList.remove('glisse'); apresPrise=true;
     if(g.bouge){ clearTimeout(_cvpSaveTimer); _cvpSaveTimer=setTimeout(autoSave,1200); return; }
     if(ev.type!=='pointerup') return;
     const m=pas(g.svg);
@@ -57281,6 +57303,32 @@ function cvpBrancher(){
   };
   window.addEventListener('pointerup', fin);
   window.addEventListener('pointercancel', fin);
+  /* À l'étape 2, le point suit la pointe de la souris — PAR-DESSUS les
+     flèches, où le survol d'un nœud ne se voit pas (demande de Turquet,
+     octobre 2026) — et un clic n'importe où dans le quadrillage le pose au
+     nœud le plus proche. Les nœuds et les prises gardent leur propre clic. */
+  const vue=function(ev){
+    const svg=host.querySelector('.cvp-svg'); if(!svg) return null;
+    const m=pas(svg), x=(ev.clientX-m.r.left)/m.k, y=(ev.clientY-m.r.top)/m.k;
+    const fx=(x-SVC_PX)/SVC_C, fy=SVC_H-(y-SVC_PY)/SVC_C;
+    if(fx<-0.5||fx>SVC_W+0.5||fy<-0.5||fy>SVC_H+0.5) return null;
+    return {x:x, y:y, i:Math.max(0,Math.min(SVC_W,Math.round(fx))), j:Math.max(0,Math.min(SVC_H,Math.round(fy)))};
+  };
+  const curseur=function(ev){
+    const c=host.querySelector('#cvpCurseur'); if(!c) return;
+    const q=test.kind==='cvp'&&test.questions[test.idx];
+    const v=ev&&!gl&&q&&!test.locked&&!test.cvpFigePt&&ev.pointerType!=='touch'&&cvpBoutABout(q)&&vue(ev);
+    if(!v){ c.style.display='none'; return; }
+    c.setAttribute('transform','translate('+v.x+' '+v.y+')');
+    c.style.display='';
+  };
+  host.addEventListener('pointermove', curseur);
+  host.addEventListener('pointerleave', function(){ curseur(null); });
+  host.addEventListener('click', function(ev){
+    /* le clic qui suit l'appui sur une prise est déjà traité : glisser ou poser */
+    const t=ev.target; if(!t.closest||!t.closest('.cvp-svg')||t.closest('.vec-t, .vec-zone, .svc-prise')||apresPrise) return;
+    const v=vue(ev); if(v) cvpPose(v.i,v.j);
+  });
   host.addEventListener('keydown', function(ev){
     const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
     const d={ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,1], ArrowDown:[0,-1]}[ev.key]; if(!d) return;
@@ -60078,6 +60126,27 @@ function chlRendu(el){
   let c0=-1, c1=-1;
   if(foc){ try{ c0=el.selectionStart; c1=el.selectionEnd; }catch(_){ c0=c1=v.length; } if(c0==null) c0=c1=v.length; }
   const mv=foc ? '' : (el.dataset.mv||'');
+  r.innerHTML='<span class="chl-dessin">'+chlPrefHTML(el.dataset.pref)+chlDessin(v, c0, c1, mv)+'</span></span>';
+  /* le champ s'élargit avec sa chaîne ; le dessin le recouvre exactement */
+  el.style.width='';
+  const base=el.offsetWidth, w=Math.ceil(r.firstChild.getBoundingClientRect().width)+28;
+  if(w>base) el.style.width=w+'px';
+  r.style.width=el.offsetWidth ? el.offsetWidth+'px' : '';
+  r.style.height=el.offsetHeight ? el.offsetHeight+'px' : '';
+}
+/* le calcul à effectuer, écrit dans le champ devant la saisie (v505) :
+   « AD + DF = », chaque vecteur sous sa flèche. Il n'est PAS dans la valeur
+   du champ — l'élève ne peut pas l'effacer, et un champ où il n'a rien tapé
+   reste vide pour le juge, la correction et la reprise. */
+function chlPrefHTML(e){
+  if(!e) return '';
+  return '<span class="chl-pref">'+chlTermes(e).map(function(t, j){
+    return (j || t.s<0 ? '<span class="chl-pop">'+(t.s<0?'−':'+')+'</span>' : '')+vegVecHTML(t.v); }).join('')
+    +'<span class="chl-pop">=</span></span>';
+}
+/* la chaîne tapée, dessinée : sans curseur (c0 = c1 = −1), elle sert aussi
+   à l'exemple tout rempli en tête de page */
+function chlDessin(v, c0, c1, mv){
   const curs=function(k){ return c0===k && c1===k ? '<span class="chl-car"></span>' : ''; };
   const car=function(k, maj){ return curs(k)+'<span class="chl-c'+(c0!==c1 && k>=c0 && k<c1 ? ' chl-sel' : '')+'" data-k="'+k+'">'+esc(maj ? v[k].toUpperCase() : v[k])+'</span>'; };
   const fleche=function(a, b, fin){ let x='';
@@ -60107,13 +60176,17 @@ function chlRendu(el){
     }
     a=j+1;
   }
-  r.innerHTML='<span class="chl-dessin">'+h+'</span></span>';
-  /* le champ s'élargit avec sa chaîne ; le dessin le recouvre exactement */
-  el.style.width='';
-  const base=el.offsetWidth, w=Math.ceil(r.firstChild.getBoundingClientRect().width)+28;
-  if(w>base) el.style.width=w+'px';
-  r.style.width=el.offsetWidth ? el.offsetWidth+'px' : '';
-  r.style.height=el.offsetHeight ? el.offsetHeight+'px' : '';
+  return h;
+}
+/* L'EXEMPLE en tête de page (v505, Turquet : « un exemple au début, un champ
+   déjà complété, qui effectue une addition et donne un modèle avec une étape
+   jusqu'au résultat ») : un dessin, pas un champ — rien à saisir, rien à
+   juger, rien à reprendre. */
+const CHL_EXEMPLE={e:'+EF+GE', v:'GE+EF=GF'};
+function chlExempleHTML(){
+  return '<div class="veg-l chl-exl" aria-label="Exemple : EF + GE = GE + EF = GF"><span class="chl-exlbl">Exemple&nbsp;:</span>'
+    +'<span class="chl-ex" aria-hidden="true"><span class="chl-dessin">'+chlPrefHTML(CHL_EXEMPLE.e)+chlDessin(CHL_EXEMPLE.v, -1, -1, '')+'</span></span></span>'
+    +'<span class="chl-exlbl">on change l’ordre pour enchaîner les vecteurs, puis la relation de Chasles.</span></div>';
 }
 /* un clic (ou un doigt) pose le curseur entre les lettres DESSINÉES, pas
    entre celles, invisibles, du vrai champ */
@@ -60176,22 +60249,19 @@ function renderChlTest(){
   $('chlIdx').textContent='Page '+(test.idx+1)+' / '+test.questions.length+' — partie '+q.p;
   $('modeTagChl').innerHTML=modeTagHTML();
   $('chlLiveScore').textContent=test.score;
-  $('chlInstr').innerHTML=CHL_INSTR[q.p-1]+' Écris ta réponse dans le champ : les deux lettres d’un vecteur se placent sous la flèche (<b>AC</b>, <b>2AC</b> pour deux fois AC, <b>0</b> pour le vecteur nul). Tape <b>+</b>, <b>−</b> ou <b>=</b> pour faire apparaître une nouvelle flèche et écrire ton calcul en plusieurs étapes : ce qui suit le dernier «&nbsp;=&nbsp;» est ton résultat.';
+  $('chlInstr').innerHTML=CHL_INSTR[q.p-1]+' Le calcul est déjà écrit dans le champ : continue après le «&nbsp;=&nbsp;». Les deux lettres d’un vecteur se placent sous la flèche (<b>AC</b>, <b>2AC</b> pour deux fois AC, <b>0</b> pour le vecteur nul). Tape <b>+</b>, <b>−</b> ou <b>=</b> pour faire apparaître une nouvelle flèche et écrire ton calcul en plusieurs étapes : ce qui suit le dernier «&nbsp;=&nbsp;» est ton résultat. Regarde l’exemple.';
   $('chlFeedback').textContent=''; $('chlFeedback').className='mp-feedback';
   $('chlActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkChlAnswer()">Vérifier</button>';
-  let h='<div class="veg-lignes chl-lignes">';
+  let h='<div class="veg-lignes chl-lignes">'+chlExempleHTML();
   q.e.forEach(function(e, i){
     const T=chlTermes(e);
     h+='<div class="veg-l chl-l" id="chl-l-'+i+'">';
     if(q.p===1) h+='<span class="chl-num">'+(i+1)+'.</span>';
     else h+='<span class="veg-tete">'+chlNomHTML(CHL_NOMS[i])+'</span><span class="veg-grp"><span class="veg-eq">=</span></span>';
-    T.forEach(function(t, j){
-      if(j===0 && t.s>0) h+='<span class="veg-tete">'+vegVecHTML(t.v)+'</span>';
-      else h+=chsGrp(t.s<0?'−':'+', vegVecHTML(t.v));
-    });
-    const aria='le résultat de '+(q.p===1?'':CHL_NOMS[i]+' = ')+chlEcrit(T);
-    h+='<span class="veg-grp"><span class="veg-eq">=</span><span class="chl-boite">'
-      +'<input class="veg-in chl-in" id="chl-'+i+'" type="text" maxlength="80" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="'+esc(aria)+'">'
+    /* le calcul s'écrit DANS le champ (chlPrefHTML), plus devant lui */
+    const aria='le calcul '+(q.p===1?'':CHL_NOMS[i]+' = ')+chlEcrit(T)+' = …';
+    h+='<span class="veg-grp"><span class="chl-boite">'
+      +'<input class="veg-in chl-in" id="chl-'+i+'" type="text" maxlength="80" autocomplete="off" autocapitalize="characters" spellcheck="false" data-pref="'+esc(e)+'" aria-label="'+esc(aria)+'">'
       +'<span class="chl-rendu" aria-hidden="true"></span></span></span>';
     if(q.p===1) h+='<button class="btn chl-imp" type="button" onclick="chlImpossible('+i+')">impossible</button>';
     h+='</div>';
@@ -60265,7 +60335,7 @@ function ctxChl(q){
      'Partie 2 : écrire plus simplement des sommes de trois ou quatre vecteurs.',
      'Partie 3 : écrire plus simplement, en transformant d’abord les soustractions en addition de l’opposé.'][q.p-1]+' '
    +'Les lignes : '+q.e.map(function(e, i){ return nom(i)+chlEcrit(chlTermes(e)); }).join(' ; ')+'. '
-   +'L’élève écrit son calcul dans un seul champ, chaque vecteur sous sa flèche (deux lettres AC, un nombre devant 2AC, 0 pour le vecteur nul), séparés par +, − ou = ; ce qui suit le dernier « = » est son résultat, ou « impossible ». Il peut écrire des étapes (AB − AC = AB + CA = CB) ou le résultat directement. '
+   +'Le calcul à effectuer est déjà écrit au début du champ, suivi de « = » ; un exemple tout rempli ouvre la page (EF + GE = GE + EF = GF). L’élève écrit la suite de son calcul dans ce seul champ, chaque vecteur sous sa flèche (deux lettres AC, un nombre devant 2AC, 0 pour le vecteur nul), séparés par +, − ou = ; ce qui suit le dernier « = » est son résultat, ou « impossible ». Il peut écrire des étapes (AB − AC = AB + CA = CB) ou le résultat directement. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : '+q.e.map(function(e){ return chlPhrase(e); }).join(' ; ')+' '
    +'Méthode enseignée : relation de Chasles, AB + BC = AC (le second vecteur part là où s’arrête le premier) ; on peut changer l’ordre d’une somme ; soustraire un vecteur, c’est ajouter son opposé (− AC = + CA) ; AA = 0, le vecteur nul ; AC + AC = 2AC. Deux vecteurs qui partent du même point (ou arrivent au même point) ne s’enchaînent dans aucun ordre. Ne jamais parler de coordonnées à l’élève.';
   if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
