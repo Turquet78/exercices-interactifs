@@ -2436,9 +2436,11 @@
   #scr-cps .tvg-cons.cps-fait{border-color:var(--green);color:var(--green);background:var(--green-soft)}
   #scr-cps .tvg-cons.cps-fait::after{content:" ✓";font-weight:800}
   #cpsGraph .sv-svg{max-width:640px}
-  #cpsInstr .trl-sous{display:block;font-size:.85rem;font-weight:400;margin-top:6px}
   #scr-cps .vgt-vec{font-size:1.1em}
-  #scr-cps .cps-etape{margin:4px 0 8px;font-weight:600;color:var(--blue-dark);min-height:1.6em}
+  /* l'étape À FAIRE, en bleu (demande de Turquet, octobre 2026) : une seule
+     à la fois, la première qui n'est pas faite ; faite, elle passe au vert et
+     la suivante prend le bleu. Ni ok ni sol : un guide du geste, pas un verdict */
+  #scr-cps .tvg-cons.cps-cours{border-color:var(--blue);background:#EAF0FF;color:var(--ink);box-shadow:inset 4px 0 0 var(--blue)}
   .vec-svg .vec-t.deb .dot{fill:var(--blue);stroke:var(--blue-dark)}
   /* 8.11 {somme-vecteurs-repere} : le repère de la fiche 10 (axes gradués,
      quadrillage du 8.5), les flèches et la prise du 8.7 (.svc-svg) ; la
@@ -7126,7 +7128,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=516;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=517;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -57292,6 +57294,16 @@ function cpsChaine(q){
   if(cpsEgal(b.s,P)&&cpsEgal(a.s,b.f)) return {ordre:'ba', fin:a.f};
   return null;
 }
+/* La flèche k est-elle le BON vecteur (son chemin, où qu'elle soit) ? Une
+   flèche fausse ne valide pas son étape, ne porte pas de nom, ne glisse pas :
+   le clic suivant la retrace (demande de Turquet, octobre 2026). */
+function cpsJuste(q,k){ const t=cpsFl(q,k); return !!t&&cpsEgal(t.w,cpsVec(q,k)); }
+/* Les quatre étapes faites, dans l'ordre : chaque flèche JUSTE, les deux
+   bout à bout depuis le point, le point posé. */
+function cpsEtapes(q){
+  const t1=cpsJuste(q,0), t2=t1&&cpsJuste(q,1);
+  return [t1, t2, t2&&!!cpsChaine(q), t2&&!!q.pt];
+}
 function cpsX(i){ return CPS_PX+i*CPS_C; }
 function cpsY(j){ return CPS_PY+(CPS_H-j)*CPS_C; }
 /* Le quadrillage, les cinq croix nommées, les calques (correction, flèches,
@@ -57338,8 +57350,9 @@ function cpsDessiner(q){
     if(!t){ if(d){ const el=$('cpsn-'+d[0]+'-'+d[1]); if(el) el.classList.add('deb'); } return; }
     const m=mq['t'+(k+1)], cls=m==='ok'?'svc-e':(m==='bad'?'svc-eb':(k?'svc-v':'svc-u'));
     const mk=m==='ok'?'cpsArrE':(m==='bad'?'cpsArrB':(k?'cpsArr1':'cpsArr0'));
-    h+=svcFleche(t.s, t.f, {cls:cls+(k&&m?' svc-copie':''), marker:mk, nom:cpsNom(q,k), depart:!m, geo:CPS_GEO});
-    if(!test.locked&&!test.cpsFigeCh)
+    const juste=cpsJuste(q,k);
+    h+=svcFleche(t.s, t.f, {cls:cls+(k&&m?' svc-copie':''), marker:mk, nom:juste?cpsNom(q,k):'', depart:!m, geo:CPS_GEO});
+    if(!test.locked&&!test.cpsFigeCh&&juste)
       prises+=`<line class="svc-prise" data-k="${k}" x1="${cpsX(t.s[0])}" y1="${cpsY(t.s[1])}" x2="${cpsX(t.f[0])}" y2="${cpsY(t.f[1])}" tabindex="0" role="button" aria-label="déplacer le vecteur ${cpsNom(q,k)} (flèches du clavier)"/>`;
   });
   fl.innerHTML=h; pr.innerHTML=prises;
@@ -57372,20 +57385,22 @@ function cpsCroix(){
     el.insertBefore(x, el.querySelector('.vec-dlbl'));
   });
 }
-/* Un clic sur un nœud : tant qu'une flèche n'est pas tracée, il pose son
+/* Un clic sur un nœud : tant qu'une flèche n'est pas JUSTE, il pose son
    début, puis sa fin (recliquer le début seul le retire) — la première
-   flèche d'abord, puis la seconde ; les deux tracées, il pose le point (le
-   même nœud le retire, un autre le déplace). L'état vit dans la question
-   (pause et reprise). */
+   flèche d'abord, puis la seconde ; une flèche tracée fausse reste au dessin,
+   sans nom, et le clic suivant recommence son tracé. Les deux justes, il pose
+   le point (le même nœud le retire, un autre le déplace). L'état vit dans la
+   question (pause et reprise). */
 function cpsPose(i,j){
   if(test.locked||test.kind!=='cps') return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>CPS_W||j<0||j>CPS_H) return;
   const n=[i,j], mq=test.cpsMarque||(test.cpsMarque={});
-  const k=!q.f1?0:(!q.f2?1:-1);
+  const k=!cpsJuste(q,0)?0:(!cpsJuste(q,1)?1:-1);
   if(k>=0){
     const D=k?'d2':'d1', F=k?'f2':'f1';
-    if(!q[D]) q[D]=n;
+    if(q[F]){ q[D]=n; q[F]=null; q[k?'p2':'p1']=null; mq['t'+(k+1)]=''; mq.ch=''; ['cps-t'+(k+1),'cps-ch'].forEach(function(id){ const c=$(id); if(c) c.classList.remove('ok','bad'); }); }
+    else if(!q[D]) q[D]=n;
     else if(cpsEgal(q[D],n)) q[D]=null;
     else { q[F]=n; mq['t'+(k+1)]=''; mq.ch=''; ['cps-t'+(k+1),'cps-ch'].forEach(function(id){ const c=$(id); if(c) c.classList.remove('ok','bad'); }); }
   } else {
@@ -57425,28 +57440,39 @@ function cpsDeplacer(k, p){
   recoveryDirty=true;
   return true;
 }
-/* Ce que la page attend maintenant, dit sous le dessin : la flèche à tracer,
-   ou le point à placer. Un guide du geste, jamais un verdict. */
+/* Chaque étape porte SA consigne, dans son cadre (demande de Turquet,
+   octobre 2026 : plus de ligne entre les cadres et le dessin) : la flèche à
+   tracer — son début, puis sa fin, ou « ce n'est pas lui » si la flèche
+   tracée n'est pas le bon vecteur —, les flèches à mettre bout à bout, le
+   point à placer. Un guide du geste, jamais un verdict de la vérification. */
 function cpsConsigne(q){
-  const el=$('cpsEtape'); if(!el||test.locked) return;
+  if(test.locked) return;
+  const P=cpsLettre(q), f=cpsEtapes(q);
+  const txt=function(id,h){ const c=$(id), t=c&&c.querySelector('.cps-txt'); if(t) t.innerHTML=h; };
+  [0,1].forEach(function(k){
+    const n=cpsVecHTML(cpsNom(q,k)), d=k?q.d2:q.d1, fin=k?q.f2:q.f1, cours=k?f[0]&&!f[1]:!f[0];
+    const base='Trace le vecteur '+n+' : clique son <b>début</b>, puis sa <b>fin</b>.';
+    txt('cps-t'+(k+1), !cours?base
+      :(fin?'Ce n’est pas le vecteur '+n+'. Trace-le de nouveau : clique son <b>début</b>, puis sa <b>fin</b>.'
+      :(d?'Trace le vecteur '+n+' : clique maintenant sa <b>fin</b>.':base)));
+  });
+  txt('cps-ch','Fais glisser les deux flèches pour les mettre bout à bout en partant de <b>'+P+'</b> — un début va sur une fin.');
+  txt('cps-pt','Clique le nœud où tu places <b>'+P+'′</b>, au bout de la seconde flèche.');
   cpsFaits(q);
-  const k=!q.f1?0:(!q.f2?1:-1);
-  if(k>=0){
-    const e=k?q.b:q.a, d=k?q.d2:q.d1, A=CPS_L[e[0]], B=CPS_L[e[1]];
-    el.innerHTML=d?'Clique la <b>fin</b> du vecteur '+cpsVecHTML(A+B)+'.':'Trace le vecteur '+cpsVecHTML(A+B)+' : clique son <b>début</b>, puis sa <b>fin</b>.';
-  } else el.innerHTML='Fais glisser les deux flèches bout à bout à partir de <b>'+cpsLettre(q)+'</b>, puis clique le nœud où tu places <b>'+cpsLettre(q)+'′</b>.';
 }
-/* Chaque étape EFFECTUÉE passe au vert (demande de Turquet, octobre 2026) :
-   la flèche tracée, les deux flèches bout à bout depuis le point, le point
-   posé. « Effectuée », pas « juste » : le geste est fait, la vérification
-   seule dira s'il est bon — et une consigne déjà marquée par elle (ok, bad,
-   sol) garde son verdict ; cpsPeindre retire la marque. */
+/* Chaque étape FAITE passe au vert, et la première qui ne l'est pas prend le
+   bleu (demandes de Turquet, octobre 2026). « Faite » : une flèche JUSTE —
+   une flèche fausse ne valide pas son étape —, les deux bout à bout depuis
+   le point, le point posé (la vérification seule dira s'il est bon). Une
+   consigne déjà marquée par la vérification (ok, bad, sol) garde son
+   verdict ; cpsPeindre retire les deux marques. */
 function cpsFaits(q){
-  const fait=[!!q.f1, !!q.f2, !!cpsChaine(q), !!q.pt];
+  const fait=cpsEtapes(q), cours=test.locked?-1:fait.indexOf(false);
   ['cps-t1','cps-t2','cps-ch','cps-pt'].forEach(function(id,n){
     const c=$(id); if(!c) return;
     const verdict=c.classList.contains('ok')||c.classList.contains('bad')||c.classList.contains('sol');
     c.classList.toggle('cps-fait', fait[n]&&!verdict);
+    c.classList.toggle('cps-cours', n===cours&&!verdict);
   });
 }
 /* Le glisser, la recette du 8.7 (svcBrancher) : écouteurs DÉLÉGUÉS à
@@ -57509,7 +57535,7 @@ function cpsBrancher(){
   const curseur=function(ev){
     const c=host.querySelector('#cpsCurseur'); if(!c) return;
     const q=test.kind==='cps'&&test.questions[test.idx];
-    const v=ev&&!gl&&q&&!test.locked&&!test.cpsFigePt&&!q.pt&&ev.pointerType!=='touch'&&!!cpsChaine(q)&&vue(ev);
+    const v=ev&&!gl&&q&&!test.locked&&!test.cpsFigePt&&!q.pt&&ev.pointerType!=='touch'&&cpsEtapes(q)[2]&&vue(ev);
     if(!v){ c.style.display='none'; return; }
     c.setAttribute('transform','translate('+v.x+' '+v.y+')');
     c.style.display='';
@@ -57520,7 +57546,7 @@ function cpsBrancher(){
     /* le clic qui suit l'appui sur une prise est déjà traité : glisser ou poser */
     const t=ev.target; if(!t.closest||!t.closest('.cps-svg')||t.closest('.vec-t, .vec-zone, .svc-prise')||apresPrise) return;
     if(test.kind!=='cps'||test.locked) return;
-    const q=test.questions[test.idx]; if(!q||!q.f1||!q.f2) return;
+    const q=test.questions[test.idx]; if(!q||!cpsEtapes(q)[1]) return;
     const v=vue(ev); if(v){ cpsPose(v.i,v.j); curseur(ev); }
   });
   host.addEventListener('keydown', function(ev){
@@ -57576,7 +57602,7 @@ function cpsPourquoi(q,subs){
 }
 /* Peindre les quatre consignes : bleu, rouge, ou vert si vide (final). */
 function cpsPeindre(subs, final){
-  subs.forEach(function(s){ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad','sol','cps-fait');
+  subs.forEach(function(s){ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad','sol','cps-fait','cps-cours');
     if(s.ok) el.classList.add('ok'); else if(!s.vide) el.classList.add('bad'); else if(final) el.classList.add('sol'); });
 }
 /* Soutien : chaque réponse juste se fige en bleu, la fausse rougit et reste
@@ -57636,14 +57662,12 @@ function renderCps(){
   $('cpsIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('cpsModeTag').innerHTML=modeTagHTML();
   $('cpsInstr').innerHTML='Les points A, B, C, D et E sont placés sur le quadrillage. Construis le point <b>'+P+'′</b> tel que '
-    +cpsVecHTML(P+P+'′')+' = '+cpsVecHTML(n0)+' + '+cpsVecHTML(n1)+'.'
-    +'<span class="trl-sous">① Trace '+cpsVecHTML(n0)+', puis '+cpsVecHTML(n1)+' : clique le début, puis la fin de chacun. ② Fais glisser les deux flèches pour les mettre bout à bout en partant de <b>'+P+'</b> — un début va sur une fin. ③ Clique le nœud où tu places <b>'+P+'′</b>.</span>';
+    +cpsVecHTML(P+P+'′')+' = '+cpsVecHTML(n0)+' + '+cpsVecHTML(n1)+'.';
   $('cpsGraph').innerHTML=cpsSVG(q);
-  $('cpsBody').innerHTML='<div class="tvg-cons pts-case" id="cps-t1">① Le vecteur '+cpsVecHTML(n0)+' tracé.</div>'
-    +'<div class="tvg-cons pts-case" id="cps-t2">② Le vecteur '+cpsVecHTML(n1)+' tracé.</div>'
-    +'<div class="tvg-cons pts-case" id="cps-ch">③ Les deux flèches bout à bout, en partant de <b>'+P+'</b>.</div>'
-    +'<div class="tvg-cons pts-case" id="cps-pt">④ Le point <b>'+P+'′</b> placé au bout.</div>'
-    +'<div class="cps-etape" id="cpsEtape" aria-live="polite"></div>';
+  /* les quatre cadres, et rien d'autre avant le dessin : chacun porte la
+     consigne de son étape (cpsConsigne) */
+  $('cpsBody').innerHTML=['cps-t1','cps-t2','cps-ch','cps-pt'].map(function(id,n){
+    return '<div class="tvg-cons pts-case" id="'+id+'" aria-live="polite">'+'①②③④'[n]+' <span class="cps-txt"></span></div>'; }).join('');
   cpsDessiner(q); cpsConsigne(q);
   cpsBrancher();
   $('cpsFeedback').textContent=''; $('cpsFeedback').className='mp-feedback';
@@ -57676,7 +57700,7 @@ function checkCps(){
   test.score+=n;
   if(n===4){ $('cpsFeedback').textContent=pick(['Parfait !','Très bien construit !','Excellent !','Exactement !']); $('cpsFeedback').className='mp-feedback good'; }
   else { $('cpsFeedback').textContent=msgAvecVides(subs, pourquoi); $('cpsFeedback').className='mp-feedback bad'; }
-  const et=$('cpsEtape'); if(et) et.innerHTML='';
+  cpsFaits(q);
   const coord=function(p){ return '('+p[0]+' ; '+p[1]+')'; }, P=cpsLettre(q);
   const fl=function(k){ const t=cpsFl(q,k); return t?cpsNom(q,k)+' tracé '+svcVecTxt(t.w)+' depuis '+coord(t.s):cpsNom(q,k)+' non tracé'; };
   test.answers.push({...(ptsExo()||{}), correct:n===4,
