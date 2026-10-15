@@ -1380,6 +1380,41 @@ copies glissées jusqu'à D puis au bout de la première, M — 8 sur 8, « 8 ca
 justes sur 8 » — puis une copie vide entièrement verte. Le doigt sur
 tablette, lui, ne se joue dans aucun banc.
 
+**Les objectifs réalisés verdissent, M posé éteint le survol, et le vecteur
+résultat se trace (v510).** La demande (Turquet, octobre 2026) : « dans
+l'exercice 8.2.5, mettre en vert les objectifs dès qu'ils sont remplis comme
+dans le 8.2.1 — ne pas oublier l'objectif "fais glisser … bout à bout, à
+partir de …" ; quand placer M est réalisé, la souris ne doit plus afficher de
+point au bout de la flèche quand on passe sur une intersection du
+quadrillage ; il faut aussi tracer le vecteur correspondant au résultat ».
+**Réalisé = le geste fait** : un point posé, un vecteur tracé (début et fin),
+M posé — et pour le déplacement, les copies bout à bout depuis le point
+d'origine (`svrChaine`), le seul objectif dont « fait » suppose « juste »,
+comme l'étape 1 du 8.2.1. La classe `fait` (cadre vert, fond
+`--green-soft`) se pose dans `svrMajOutils`, que `svrDeplacer` appelle
+désormais : des copies qu'on écarte rendent l'objectif à son gris. Elle
+s'efface au verrou, et dans la feuille de styles elle précède `ok`, `bad` et
+`sol` : en soutien, la réponse jugée reprend la main sur le vert « fait ».
+**Le survol** : M posé avec le geste « Placer M » choisi, le repère prend
+`svr-repos` et le point de survol des nœuds (`.vec-t:hover .dot`) ne se
+montre plus ; choisir un autre geste le rend. Un clic repose toujours M.
+**Le vecteur résultat** OM⃗ (DM⃗ sur la fiche) se trace dès que M est posé,
+du point d'origine au M de l'élève (`svr-res`), bleu, rouge si M est faux ;
+à la correction, si M n'est pas juste, OM⃗ attendu se trace en vert. Ce
+n'est pas une réponse de plus : le barème reste à 8. Son nom ne se pose pas
+au milieu par principe : `svrEtiqResultat` essaie cinq places le long du
+trait, HORS du triangle de la construction d'abord, et garde la première qui
+ne tombe ni sur les graduations, ni sur le nom d'une autre flèche, ni sur un
+point — sur la fiche, le milieu de DM⃗ tombait sur l'axe des ordonnées.
+`svrCoin` compte aussi cette flèche pour poser les lettres. Vu dans un vrai
+Chromium sur la fiche et quatre corrections tirées. Le juge
+(`tests/verifier.js`) tient les sept objectifs verts, « Placer M » gris avant
+M, des copies écartées qui rendent le gris, le survol éteint, DM⃗ tracé depuis
+D et nommé, rouge vers un M faux, cinq flèches vertes dans une copie vide et
+aucun `fait` après la vérification ; le banc navigateur (« 6 quadragies
+quinquies ») lit les couleurs calculées du cadre et du fond, le point de
+survol présent avant M et absent après, et la flèche DM⃗ dessinée.
+
 ## {chasles-alignes} — la relation de Chasles sur une droite (8.12, v494)
 
 **La demande** (Turquet, octobre 2026, le même jour que le 8.9 et avec la même phrase, mais une AUTRE fiche) : « en seconde fais un exercice comme
