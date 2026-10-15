@@ -6,7 +6,7 @@ renumérote rien — les sept premiers gardent leurs numéros, et aucun renvoi
 5.1, 6.1.1, 7.1 et 7.8 pour le prouver.
 
 
-**Puis le thème s'est découpé en deux sous-thèmes** (v506, demande de
+**Puis le thème s'est découpé en deux sous-thèmes** (v507 — fusionné en v506 juste après le 8.14, qui portait le même numéro : la v507 rend la version de l'en-tête de nouveau parlante —, demande de
 Turquet, octobre 2026 : « regroupe le 8.1 à 8.6 dans un sous-thème vecteurs
 égaux, puis les autres dans un sous-thème somme de vecteurs »). « Vecteurs
 égaux » porte la translation, les vecteurs égaux et le parallélogramme
