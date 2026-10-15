@@ -2372,6 +2372,9 @@
      croix nommées comme au 8.5 ; le début d'une flèche commencée se marque en
      bleu (.deb) en attendant sa fin */
   #scr-cps .tvg-cons.sol{border-color:var(--green);background:var(--green-soft)}
+  /* une étape EFFECTUÉE (pas encore vérifiée) : encre et liseré verts, coche */
+  #scr-cps .tvg-cons.cps-fait{border-color:var(--green);color:var(--green)}
+  #scr-cps .tvg-cons.cps-fait::after{content:" ✓";font-weight:800}
   #cpsGraph .sv-svg{max-width:640px}
   #cpsInstr .trl-sous{display:block;font-size:.85rem;font-weight:400;margin-top:6px}
   #scr-cps .vgt-vec{font-size:1.1em}
@@ -6957,7 +6960,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=505;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=506;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -56732,7 +56735,7 @@ function cpsDeplacer(k, p){
   if(k) q.p2=np; else q.p1=np;
   const mq=test.cpsMarque||(test.cpsMarque={}); mq.ch='';
   const c=$('cps-ch'); if(c) c.classList.remove('ok','bad');
-  cpsDessiner(q);
+  cpsDessiner(q); cpsConsigne(q);
   recoveryDirty=true;
   return true;
 }
@@ -56740,11 +56743,25 @@ function cpsDeplacer(k, p){
    ou le point à placer. Un guide du geste, jamais un verdict. */
 function cpsConsigne(q){
   const el=$('cpsEtape'); if(!el||test.locked) return;
+  cpsFaits(q);
   const k=!q.f1?0:(!q.f2?1:-1);
   if(k>=0){
     const e=k?q.b:q.a, d=k?q.d2:q.d1, A=CPS_L[e[0]], B=CPS_L[e[1]];
     el.innerHTML=d?'Clique la <b>fin</b> du vecteur '+cpsVecHTML(A+B)+'.':'Trace le vecteur '+cpsVecHTML(A+B)+' : clique son <b>début</b>, puis sa <b>fin</b>.';
   } else el.innerHTML='Fais glisser les deux flèches bout à bout à partir de <b>'+cpsLettre(q)+'</b>, puis clique le nœud où tu places <b>'+cpsLettre(q)+'′</b>.';
+}
+/* Chaque étape EFFECTUÉE passe au vert (demande de Turquet, octobre 2026) :
+   la flèche tracée, les deux flèches bout à bout depuis le point, le point
+   posé. « Effectuée », pas « juste » : le geste est fait, la vérification
+   seule dira s'il est bon — et une consigne déjà marquée par elle (ok, bad,
+   sol) garde son verdict ; cpsPeindre retire la marque. */
+function cpsFaits(q){
+  const fait=[!!q.f1, !!q.f2, !!cpsChaine(q), !!q.pt];
+  ['cps-t1','cps-t2','cps-ch','cps-pt'].forEach(function(id,n){
+    const c=$(id); if(!c) return;
+    const verdict=c.classList.contains('ok')||c.classList.contains('bad')||c.classList.contains('sol');
+    c.classList.toggle('cps-fait', fait[n]&&!verdict);
+  });
 }
 /* Le glisser, la recette du 8.7 (svcBrancher) : écouteurs DÉLÉGUÉS à
    l'hôte, mouvement et relâchement à la fenêtre ; un appui sur une prise qui
@@ -56842,7 +56859,7 @@ function cpsPourquoi(q,subs){
 }
 /* Peindre les quatre consignes : bleu, rouge, ou vert si vide (final). */
 function cpsPeindre(subs, final){
-  subs.forEach(function(s){ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad','sol');
+  subs.forEach(function(s){ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad','sol','cps-fait');
     if(s.ok) el.classList.add('ok'); else if(!s.vide) el.classList.add('bad'); else if(final) el.classList.add('sol'); });
 }
 /* Soutien : chaque réponse juste se fige en bleu, la fausse rougit et reste
@@ -56857,7 +56874,7 @@ function cpsMarqueSoutien(q,subs){
      flèche fausse, il empêcherait de la retracer */
   if(subs[2].ok&&subs[0].ok&&subs[1].ok) test.cpsFigeCh=true;
   if(subs[3].ok) test.cpsFigePt=true;
-  cpsDessiner(q);
+  cpsDessiner(q); cpsFaits(q);
 }
 /* Correction finale : tout figer ; chaque consigne en bleu, rouge, ou verte
    si elle était vide ; en VERT ce que l'élève n'avait pas — la flèche juste

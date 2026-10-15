@@ -1619,6 +1619,21 @@ flèches bout à bout depuis A, pose A′ sous la pointe de BD et lit sa
 lettre, puis corrige une copie vide (quatre traits verts, rien de rouge).
 Le doigt sur tablette, lui, ne se joue dans aucun banc.
 
+**Chaque étape faite passe au vert (v506).** La demande (Turquet, octobre
+2026) : « dans le 8.14 mettre en vert l'étape qui a été effectuée à chaque
+fois ». Les quatre consignes sous le dessin (① BC tracé, ② BD tracé,
+③ bout à bout depuis A, ④ A′ placé) prennent la classe `cps-fait` — encre
+et liseré verts, une coche « ✓ », SANS le fond adouci de `.sol` — dès que
+leur geste est fait (`cpsFaits`, appelé par `cpsConsigne`, que le glisser
+appelle désormais lui aussi). « Faite », pas « juste » : une flèche tracée à
+l'envers passe au vert comme une autre ; seule la vérification juge.
+`cpsPeindre` retire la marque avant de peindre son verdict, et une consigne
+déjà marquée ok, bad ou sol ne la reprend pas (en soutien, la case bleue
+reste bleue ; une rouge reste rouge jusqu'au geste suivant). La règle CSS ne
+nomme aucune classe de verdict : « 9 bis » ne la lit pas, et n'a pas à la
+lire. Le juge suit la copie juste du banc pas à pas : 0000, 1000, 1100,
+1110, 1111, puis 0000 une fois la copie vérifiée.
+
 ## {point-somme-difference} — construire un point par une somme ou une différence de deux vecteurs (8.15, v498)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
