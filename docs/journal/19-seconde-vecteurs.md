@@ -1532,7 +1532,7 @@ lettre à lettre : chaque vecteur sous SA flèche (`.chl-vec`, la flèche des
 eux, et un curseur dessiné (`.chl-car`) qui clignote à la place de
 `selectionStart` — sous la flèche ouverte quand on vient de taper un signe.
 Un « − » en tête d'un morceau reste un signe, DEVANT la flèche ; un nombre
-(2AC) aussi ; « 0 » et « impossible » s'écrivent sans flèche. Un clic se
+(2AC) aussi ; « impossible » s'écrit sans flèche (« 0 » aussi, jusqu'en v509). Un clic se
 ramène aux lettres DESSINÉES (`chlClic`) : le curseur se pose entre les deux
 lettres les plus proches du doigt, pas entre celles, invisibles, du vrai
 champ. Le champ s'élargit avec la chaîne. La saisie est remise au propre à
@@ -1586,6 +1586,13 @@ saisir, à juger ni à reprendre. Sur un téléphone (≤ 520 px), la rangée en
 écrit à 1,1 rem, champ compris, du même facteur — le début ajouté élargissait
 le champ hors de la rangée. Reste nommé : une chaîne de cinq vecteurs ou plus
 déborde encore à 390 px. Regardé dans Chromium à 1280 et 390 px.
+
+**Le vecteur nul a sa flèche** (v510, Turquet : « quand on tape 0, afficher
+la flèche au-dessus, c'est le vecteur nul »). `chlDessin` dessinait « 0 »
+comme « impossible », sans flèche : le résultat de AB + BA se lisait comme le
+nombre zéro. Un morceau réduit à « 0 » passe désormais par `fleche()`, comme
+un vecteur à deux lettres. Le banc tape « AB+BA=0 » et attend trois flèches,
+« AB|BA|0 ». Le juge, la correction et le badge ne changent pas.
 
 ## {point-somme-vecteurs} — construire un point avec une somme de vecteurs (8.14, v496)
 
