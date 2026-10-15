@@ -6937,7 +6937,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=503;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=504;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -56198,8 +56198,25 @@ function svcTracer(q, etat){
   document.querySelectorAll('#svcGraph .vec-t.sel').forEach(function(el){ el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
   if(q.sd){ const el=$('svcn-'+q.sd[0]+'-'+q.sd[1]); if(el){ el.classList.add('sel'); el.setAttribute('aria-pressed','true'); } }
   if(!q.sd||!q.sf){ t.innerHTML=''; return; }
-  const bad=etat==='bad';
-  t.innerHTML=svcFleche(q.sd, q.sf, {cls:bad?'svc-eb':'svc-e', marker:bad?'svcArrB':'svcArrE', nom:'u+v'});
+  const bad=etat==='bad', a=svcU(q), b=svcV(q);
+  t.innerHTML=svcFleche(q.sd, q.sf, {cls:bad?'svc-eb':'svc-e', marker:bad?'svcArrB':'svcArrE', nom:'u+v',
+    cote:svcCoteDehors(q.sd, q.sf, [[a,svcPlus(a,q.uc)],[b,svcPlus(b,q.vc)]])});
+}
+/* LE NOM « u+v » S'ÉCRIT HORS DU TRIANGLE (demande de Turquet, octobre 2026 :
+   posé toujours du même côté de son trait, il tombait dans le triangle, sur
+   le nom de u ou de v). Des deux côtés du trait, on garde celui où le nom
+   est le plus loin des autres flèches — le milieu de chacune et son nom :
+   bout à bout, elles sont DEDANS, l'autre côté est l'extérieur. */
+function svcCoteDehors(d, f, fleches){
+  const X=i=>SVC_PX+i*SVC_C, Y=j=>SVC_PY+(SVC_H-j)*SVC_C, pts=[];
+  fleches.forEach(function(e){
+    const x1=X(e[0][0]), y1=Y(e[0][1]), x2=X(e[1][0]), y2=Y(e[1][1]);
+    pts.push([(x1+x2)/2,(y1+y2)/2]);
+    const n=svcNomPos(x1,y1,x2,y2,'u',1); pts.push([n.x,n.y]);
+  });
+  const loin=function(c){ const n=svcNomPos(X(d[0]),Y(d[1]),X(f[0]),Y(f[1]),'u+v',c);
+    return Math.min.apply(null, pts.map(p=>Math.hypot(p[0]-n.x,p[1]-n.y))); };
+  return loin(-1)>loin(1)?-1:1;
 }
 /* Tracer u + v : le premier clic pose le début, le second la fin ; un clic
    de plus recommence une flèche ; recliquer le début seul le retire. L'état
@@ -56348,7 +56365,7 @@ function svcFinal(q,subs){
   const k=svcConstruction(q), c=$('svcCorr'); if(!k||!c) return;
   let h='';
   if(!ch.ok) h+=svcFleche(k.milieu, k.fin, {cls:'svc-s svc-copie', marker:'svcArrS'});
-  if(!sm.ok) h+=svcFleche(k.debut, k.fin, {cls:'svc-s', marker:'svcArrS', nom:'u+v'});
+  if(!sm.ok) h+=svcFleche(k.debut, k.fin, {cls:'svc-s', marker:'svcArrS', nom:'u+v', cote:svcCoteDehors(k.debut, k.fin, [[k.debut,k.milieu||svcPlus(k.debut,k.ordre==='uv'?q.uc:q.vc)],[k.milieu||svcPlus(k.debut,k.ordre==='uv'?q.uc:q.vc),k.fin]])});
   c.innerHTML=h;
   const el=$('svcn-'+k.fin[0]+'-'+k.fin[1]); if(el&&!sm.ok) el.classList.add('missc');
 }
