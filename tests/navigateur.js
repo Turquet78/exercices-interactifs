@@ -9144,6 +9144,29 @@ if(require.main === module) (async () => {
       await glisser(1, [0, -3]);
       e = await etat();
       if(e.ch !== 'ab') dits.push('BC et BD glissés ne sont pas bout à bout depuis A : ' + JSON.stringify([e.a, e.b]));
+      /* les étapes s'affichent AU-DESSUS du dessin, une étape faite sur fond vert clair (v508) */
+      const haut = await s.page.evaluate(() => { const g = document.querySelector('#cpsGraph .cps-svg').getBoundingClientRect();
+        const ids = ['cps-t1', 'cps-t2', 'cps-ch', 'cps-pt', 'cpsEtape'];
+        return { dessus: ids.every(id => document.getElementById(id).getBoundingClientRect().bottom <= g.top + 1),
+          fond: getComputedStyle(document.getElementById('cps-t1')).backgroundColor,
+          fond4: getComputedStyle(document.getElementById('cps-pt')).backgroundColor }; });
+      if(!haut.dessus) dits.push('les étapes ne s\'affichent pas au-dessus du dessin');
+      if(haut.fond === haut.fond4) dits.push('l\'étape faite n\'a pas de fond vert clair : ' + haut.fond + ' comme l\'étape à faire');
+      /* la dernière étape : le point suit la souris, même PAR-DESSUS BD (son milieu) */
+      const fantome = async (x, y) => { const p = await pos(x, y);
+        await s.page.mouse.move(p.px - 20, p.py - 20); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(80);
+        return await s.page.evaluate(([x, y]) => { const c = document.getElementById('cpsCurseur'); if(!c) return 'absent';
+          const b = c.querySelector('circle').getBoundingClientRect();
+          return getComputedStyle(c).display === 'none' ? 'caché' : Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)); }, [p.px, p.py]); };
+      const f1 = await fantome(5, 3.5);
+      if(typeof f1 !== 'number' || f1 > 3) dits.push('à la dernière étape, le point ne suit pas la souris posée sur BD : ' + f1);
+      /* un clic entre les nœuds, loin de toute flèche, pose A′ au plus proche */
+      const loin = await pos(9.6, 3.4);
+      await s.page.mouse.click(loin.px, loin.py); await s.page.waitForTimeout(120);
+      e = await etat();
+      if(JSON.stringify(e.pt) !== '[10,3]') dits.push('un clic entre les nœuds ne pose pas A′ au plus proche : ' + JSON.stringify(e.pt));
+      const f2 = await fantome(7, 6.5);
+      if(f2 !== 'caché') dits.push('A′ posé, le point suit encore la souris : ' + f2);
       /* ④ A′ : sous la pointe de BD — l'appui passe au nœud, la lettre s'affiche */
       await clic(5, 2);
       const lettre = await s.page.evaluate(() => { const t = document.querySelector('#cpsn-5-2 .vec-dlbl');
