@@ -12686,7 +12686,7 @@ function pointSommeVecteurs(w, P){
     cpsDeplacer(0,[2,4]); cpsDeplacer(1,[2,4]);
     if(Array.from(document.querySelectorAll('#cpsFl text.svc-nom')).map(function(t){ return t.textContent; }).join(',')!=='BC') vus.push('BD à l\\'envers porte un nom sur le dessin');
     /* BD faux, le clic recommencerait son tracé : la copie (une reprise d'avant
-       v516) pose A′ elle-même — le juge doit la lire réponse par réponse */
+       v517) pose A′ elle-même — le juge doit la lire réponse par réponse */
     test.questions[test.idx].pt=[5,2]; cpsDessiner(test.questions[test.idx]);
     if(verifierIci()!==2) vus.push('BD à l\\'envers et deux débuts sur A, A′ juste : ne vaut pas 2');
     if(classes()!=='ok,bad,bad,ok') vus.push('BD à l\\'envers, deux débuts : '+classes()+' au lieu de ok,bad,bad,ok — une réponse juste rougit à cause d\\'une autre');

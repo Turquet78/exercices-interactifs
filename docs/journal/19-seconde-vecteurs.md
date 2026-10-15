@@ -1793,7 +1793,7 @@ effacé quand A′ se retire, bleu seul sur la copie juste, rouge plus vert sur
 A′ faux, vert seul sur la copie vide ; le banc navigateur mesure la croix
 visible sans rond, AA′ visible, et aucun rond au survol d'un nœud.
 
-**Puis chaque cadre a porté sa consigne, le cadre à faire est passé en bleu, et une flèche fausse n'a plus validé son étape (v516).**
+**Puis chaque cadre a porté sa consigne, le cadre à faire est passé en bleu, et une flèche fausse n'a plus validé son étape (v517).**
 La demande (Turquet, octobre 2026) : « dans le 8.2.8, je ne veux que les 4
 cadres pour les étapes et je ne veux plus les consignes entre ces 4 cadres et
 le dessin. Chaque cadre contiendra la consigne correspondante. Le cadre à
@@ -1813,7 +1813,7 @@ Trace-le de nouveau » ; le clic suivant recommence son tracé. Le prix est
 nommé : en évaluation aussi, l'élève apprend avant de vérifier que sa flèche
 n'est pas la bonne — c'est la demande. La seconde flèche ne se trace qu'une
 fois la première juste, et A′ ne se pose qu'une fois les deux justes ; une
-copie d'avant v516 reprise avec une flèche fausse se juge comme avant,
+copie d'avant v517 reprise avec une flèche fausse se juge comme avant,
 réponse par réponse. Le juge suit le bleu pas à pas (1000, 0100, 0010, 0001,
 puis 0000 une fois vérifié), trace une flèche fausse (pas de vert, pas de
 nom, pas de prise, le cadre qui le dit) ; le banc navigateur le rejoue à la
