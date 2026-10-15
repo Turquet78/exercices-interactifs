@@ -12133,7 +12133,13 @@ function sommeVecteursRepere(w, P){
     svrOutil('B'); svrPose(1,2);
     if(q1.pl[1]!==null) vus.push('recliquer B ne le retire pas');
     svrPose(1,2);
-    svrOutil('t0'); svrPose(1,2); svrPose(1,2);
+    svrOutil('t0'); svrPose(1,2);
+    /* le début posé, une flèche suit la souris depuis ce début */
+    svrVif(q1,{x:svrX(4),y:svrY(-2)});
+    const vif=document.querySelector('#svrVif line.svr-vif');
+    if(!vif || Math.abs(+vif.getAttribute('x1')-svrX(1))>0.5 || Math.abs(+vif.getAttribute('y1')-svrY(2))>0.5) vus.push('le début d\\'un vecteur posé : aucune flèche ne suit la souris depuis ce début');
+    svrPose(1,2);
+    if(document.querySelector('#svrVif line')) vus.push('le début retiré : la flèche suit encore la souris');
     if(q1.t[0]!==null) vus.push('recliquer le début seul d\\'un vecteur ne le retire pas');
     svrPose(1,2); svrPose(3,1); svrPose(1,2); svrPose(3,4);
     if(JSON.stringify(q1.t)!=='[{"d":[1,2],"f":[3,1]},{"d":[1,2],"f":[3,4]}]') vus.push('les vecteurs ne se tracent pas : '+JSON.stringify(q1.t));
@@ -12172,12 +12178,17 @@ function sommeVecteursRepere(w, P){
     startSvr(); clearTimeout(test.fbTimer);
     const q2=test.questions[0];
     svrPose(4,3); svrPose(1,2); svrPose(3,1); svrPose(-2,-3);          /* A aux coordonnées échangées */
+    if(el('svr-A').classList.contains('fait')) vus.push('un point mal placé passe en vert');
+    if(!el('svr-B').classList.contains('fait')) vus.push('un point bien placé ne passe pas en vert');
     svrPose(3,1); svrPose(1,2);                                          /* BC à l'envers */
+    if(document.querySelector('#svrVif line')) vus.push('le vecteur tracé : la flèche suit encore la souris');
+    if(el('svr-t0').classList.contains('fait')) vus.push('un vecteur tracé à l\\'envers passe en vert');
     svrPose(1,2); svrPose(3,4);
     svrDeplacer(1,[-2,-3]);                                              /* BA d'abord, depuis D */
     q2.cp[0]=[0,-1]; renderSvr();                                        /* puis CB (le tracé de l'élève) au bout */
     if(!svrChaine(q2)) vus.push('BA puis le second tracé, bout à bout depuis D, ne sont pas lus');
     svrOutil('M'); svrPose(2,-3);                                        /* M faux */
+    if(el('svr-M').classList.contains('fait')) vus.push('M mal placé passe en vert');
     verifierIci();
     if(classes()!=='bad,ok,ok,ok,bad,ok,ok,bad') vus.push('chaque réponse ne se juge pas seule : '+classes()+' au lieu de bad,ok,ok,ok,bad,ok,ok,bad');
     const fb=el('svrFeedback').textContent;
