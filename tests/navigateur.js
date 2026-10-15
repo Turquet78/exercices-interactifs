@@ -9181,7 +9181,7 @@ if(require.main === module) (async () => {
       const fantome = async (x, y) => { const p = await pos(x, y);
         await s.page.mouse.move(p.px - 20, p.py - 20); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(80);
         return await s.page.evaluate(([x, y]) => { const c = document.getElementById('cpsCurseur'); if(!c) return 'absent';
-          const b = c.querySelector('circle').getBoundingClientRect();
+          const b = c.querySelector('.cps-x').getBoundingClientRect();
           return getComputedStyle(c).display === 'none' ? 'caché' : Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)); }, [p.px, p.py]); };
       const f1 = await fantome(5, 3.5);
       if(typeof f1 !== 'number' || f1 > 3) dits.push('à la dernière étape, le point ne suit pas la souris posée sur BD : ' + f1);
@@ -9199,6 +9199,16 @@ if(require.main === module) (async () => {
       e = await etat();
       if(JSON.stringify(e.pt) !== '[5,2]') dits.push('le clic sur la pointe de BD ne pose pas A′ : ' + JSON.stringify(e.pt));
       if(!lettre || !lettre.vu || lettre.txt !== 'A′') dits.push('la lettre A′ ne s\'affiche pas sur le nœud posé : ' + JSON.stringify(lettre));
+      /* A′ posé : une CROIX, jamais un rond ; aucun rond au survol d'un nœud ; le vecteur AA′ tracé */
+      const vu = await s.page.evaluate(() => ({
+        croix: getComputedStyle(document.querySelector('#cpsn-5-2 .cps-x')).stroke,
+        rond: getComputedStyle(document.querySelector('#cpsn-5-2 .dot')).display,
+        aa: [...document.querySelectorAll('#cpsSol line')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length }));
+      if(/transparent|rgba\(0, 0, 0, 0\)/.test(vu.croix) || vu.rond !== 'none') dits.push('A′ posé ne se marque pas d\'une croix seule : trait ' + vu.croix + ', rond ' + vu.rond);
+      if(vu.aa !== 1) dits.push('A′ posé, le vecteur AA′ ne se voit pas (' + vu.aa + ' trait)');
+      const pv = await pos(8, 2); await s.page.mouse.move(pv.px, pv.py); await s.page.waitForTimeout(60);
+      const survol = await s.page.evaluate(() => getComputedStyle(document.querySelector('#cpsn-8-2 .dot')).display);
+      if(survol !== 'none') dits.push('le survol d\'un nœud montre encore un rond : ' + survol);
       await s.page.click('#cpsValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
