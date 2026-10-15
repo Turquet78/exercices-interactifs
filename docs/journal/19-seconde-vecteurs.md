@@ -1803,10 +1803,15 @@ Un groupe `#vepCurseur` (la classe `.cvp-curseur` du 8.2.8 : `pointer-events:non
 posé en DERNIER dans le SVG) dessine le point et la lettre à placer à la
 position exacte de la souris, partout sur le quadrillage à une demi-maille du
 cadre près — pas aimanté, le clic garde les zones de touche des nœuds. Le
-nœud choisi se dessine en croix comme les points donnés : `vecQuadrillage`
-prend l'option `croix:true` (le 8.1.5, qui partage le rendu, ne la passe pas
-et ne change pas), une croix bleue, rouge si elle est fausse (`badc`), et son
-disque devient transparent — il garde sa géométrie. Dès qu'un nœud est choisi,
+nœud choisi se dessine en croix comme les points donnés : UNE croix
+(`vepCroix`), posée dans le groupe du seul nœud choisi, bleue, rouge si elle
+est fausse (`badc`), et son disque devient transparent — il garde sa
+géométrie. **Piège rencontré** : la première version cachait une croix dans
+chacun des 97 nœuds (une option de `vecQuadrillage`) ; le dessin triplait à
+chaque question, et le banc principal de la Seconde, déjà proche de la limite
+de mémoire de Node, est mort de saturation dans l'action — deux fois, quand
+les autres pull requests passaient. La mesure de la mémoire ligne par ligne,
+branche contre `main`, a désigné le bloc des vecteurs (+300 Mo). Dès qu'un nœud est choisi,
 la classe `vep-pose` du dessin éteint le survol des autres nœuds et cache le
 point de la souris ; recliquer la croix la retire, et le point revient. Rien
 au doigt (`pointerType` « touch »), rien une fois la question corrigée ou le
