@@ -17,7 +17,11 @@
     "test:notes": "node tests/tous-navigateur.js notes",
     "test:notes:premiere": "node tests/notes.js premiere-specifique.html",
     "test:notes:terminale": "node tests/notes.js terminale.html",
-    "test:notes:secondes": "node tests/notes.js secondes.html"
+    "test:notes:secondes": "node tests/notes.js secondes.html",
+    "test:pause": "node tests/tous-navigateur.js pause",
+    "test:pause:premiere": "node tests/pause.js premiere-specifique.html",
+    "test:pause:terminale": "node tests/pause.js terminale.html",
+    "test:pause:secondes": "node tests/pause.js secondes.html"
   },
   "devDependencies": {
     "jsdom": "^24.0.0",

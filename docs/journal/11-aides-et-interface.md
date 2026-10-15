@@ -972,6 +972,31 @@ large et une police de 11 ; et le banc navigateur mesure le texte dans
 DejaVu Sans — la plus large des polices de repli connues, installée des deux
 côtés — avant de le comparer au cadre, pour voir ici ce que la CI verra.
 
+**Puis le décor s'est allumé, et la CI a rougi à minuit.** Le 15 octobre à
+00 h 10 (UTC, l'heure du serveur de GitHub), une pull request qui ne touchait
+pas aux serpents a échoué sur « les textes des graphiques s'écrivent à 12 px
+au moins » : `hw-bulle-texte 11 px`, sur les neuf exercices du 6.3, dans les
+deux modes. `main` était vert la veille au soir. Rien n'avait changé dans le
+code — c'est la DATE qui avait changé : hors saison, `.hw-serpent` est en
+`display:none`, et ce contrôle commun (section 9) ne mesure que ce qui se
+voit ; le premier jour du décor, les bulles se sont montrées à lui pour la
+première fois. La police de 11 du paragraphe précédent violait donc une règle
+universelle depuis le premier jour, sans qu'aucun banc ne puisse le voir avant
+la saison — et l'élève, lui, la lisait en 11 dès ce matin. Deux réponses :
+* **les bulles passent à 12 px** (interligne de 15) : mesurée dans DejaVu
+  Sans gras, la ligne la plus large (« Pommes, tomates… ») fait 133,7 px pour
+  142 utiles — et l'image le confirme, à une ligne comme à trois ;
+* **le « 9 quater », qui force le décor, mesure aussi la taille des bulles**
+  (12 px au moins) : la règle tient toute l'année, et un banc joué hors
+  saison voit ce que la CI de la saison verra. Éprouvé par sabotage HORS
+  saison (bulles remises à 11 px, et le décor éteint par la date) : le
+  contrôle commun des 12 px reste vert, aveugle comme il l'était avant le
+  15 octobre — et le 9 quater rougit seul, en nommant chaque bulle
+  (« python-input-reponse : la bulle s'écrit sous 12 px (11 px « Ton
+  prénom, pour »…) »). La leçon : un contrôle commun ne mesure que ce que
+  l'écran montre ; ce que l'écran ne montre qu'à une date se force, ou il
+  ne se mesure pas.
+
 **Les dessins vivent en FICHIERS, jamais en base64 dans la page.** Jusqu'en
 octobre 2026, chaque dessin d'exercice — le serpent du thème Python, le
 schéma-bilan des ensembles de nombres — était écrit dans `secondes.html` en
