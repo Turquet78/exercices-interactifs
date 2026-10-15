@@ -1770,14 +1770,17 @@ le fond de l'étape faite différent de celui de l'étape à faire, le point à
 moins de 3 px de la souris sur le milieu de BD, un clic entre les nœuds qui
 pose A′ au plus proche, puis le curseur caché une fois A′ posé.
 
-**Puis A′ s'est marqué d'une CROIX, le survol n'a plus montré de rond, et le vecteur AA′ s'est tracé (v511).**
+**Puis A′ s'est marqué d'une CROIX, le survol n'a plus montré de rond, et le vecteur AA′ s'est tracé (v512).**
 La demande (Turquet, octobre 2026) : « dans le 8.2.8, quand le point de
 l'objectif 4 est placé, mettre une croix plutôt qu'un rond pour le point ; il
 ne faut plus que la flèche de la souris affiche un rond quand on passe à côté
 d'une intersection du quadrillage. Il faut aussi afficher le vecteur
-correspondant à la solution. » Chaque nœud porte une croix (`path.cps-x`),
-transparente tant qu'il n'est pas choisi, bleue posée ou juste, rouge fausse,
-verte attendue — comme les cinq points donnés. Le rond (`.dot`) ne se montre
+correspondant à la solution. » Le nœud choisi porte une croix
+(`path.cps-x`, posée par `cpsCroix` dans les SEULS nœuds marqués), bleue
+posée ou juste, rouge fausse, verte attendue — comme les cinq points donnés.
+Une première version cachait une croix dans chacun des 150 nœuds ; le 8.1.6,
+publié pendant ce temps, venait d'apprendre que ce choix sature la mémoire du
+banc principal dans l'action : la croix ne se crée donc qu'à la demande. Le rond (`.dot`) ne se montre
 plus jamais sur ce dessin, survol compris ; la règle est bornée à `.cps-svg`,
 les 8.5 et suivants gardent leur rond. Le point qui suit la souris est la même
 croix. Le vecteur : un calque `#cpsSol`, à part de `#cpsFl` et `#cpsCorr`

@@ -2449,7 +2449,7 @@
      d'un rond ; aucun rond ne vient non plus au survol d'un nœud (demande de
      Turquet, octobre 2026). Le point qui suit la souris est la même croix. */
   .cps-svg .vec-t .dot,.cps-svg .vec-t:hover .dot{display:none}
-  .cps-svg .vec-t .cps-x{fill:none;stroke:transparent;stroke-width:2.6;stroke-linecap:round}
+  .cps-svg .vec-t .cps-x{fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linecap:round}
   .cps-svg .vec-t.sel .cps-x,.cps-svg .vec-t.okc .cps-x{stroke:var(--blue)}
   .cps-svg .vec-t.badc .cps-x{stroke:var(--red)}
   .cps-svg .vec-t.missc .cps-x{stroke:var(--green)}
@@ -6996,7 +6996,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=511;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=512;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -56808,7 +56808,6 @@ function cpsSVG(q){
     zones+=`<path class="vec-zone" d="M${X(i)} ${Y(j)}h0.01" onclick="cpsPose(${i},${j})"/>`;
     cibles+=`<g class="vec-t" id="cpsn-${i}-${j}" onclick="cpsPose(${i},${j})" tabindex="0" role="button" aria-label="nœud ${i} vers la droite, ${j} vers le haut" aria-pressed="false">`
       +`<circle class="hit" cx="${X(i)}" cy="${Y(j)}" r="10"/><circle class="dot" cx="${X(i)}" cy="${Y(j)}" r="5"/>`
-      +`<path class="cps-x" d="M${X(i)-6} ${Y(j)-6}l12 12M${X(i)-6} ${Y(j)+6}l12 -12"/>`
       +`<text class="vec-dlbl vec-lbl" x="${X(i)+8}" y="${Y(j)-8}">${L}</text></g>`;
   }
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
@@ -56847,9 +56846,24 @@ function cpsDessiner(q){
       ? svcFleche(P, q.pt, {cls:mq.pt==='ok'?'svc-e':(mq.pt==='bad'?'svc-eb':'cps-aa'), marker:mq.pt==='ok'?'cpsArrE':(mq.pt==='bad'?'cpsArrB':'cpsArrA'), nom:L+L+'′', geo:CPS_GEO})
       : ''; }
   /* le point posé : son nœud porte le nom du point, en bleu */
-  if(test.locked) return;
+  if(test.locked){ cpsCroix(); return; }
   document.querySelectorAll('#cpsGraph .vec-t.sel, #cpsGraph .vec-t.okc, #cpsGraph .vec-t.badc').forEach(function(el){ el.classList.remove('sel','okc','badc'); el.setAttribute('aria-pressed','false'); });
   if(q.pt){ const el=$('cpsn-'+q.pt[0]+'-'+q.pt[1]); if(el){ el.classList.add(mq.pt==='ok'?'okc':(mq.pt==='bad'?'badc':'sel')); el.setAttribute('aria-pressed','true'); } }
+  cpsCroix();
+}
+/* La croix de A′ : posée dans le groupe des SEULS nœuds marqués (posé,
+   juste, faux, attendu), que leurs classes colorent — jamais une croix
+   cachée dans chacun des 150 nœuds : au 8.1.6, une croix par nœud a saturé
+   la mémoire du banc principal dans l'action. */
+function cpsCroix(){
+  document.querySelectorAll('#cpsGraph .vec-t .cps-x').forEach(function(x){ x.remove(); });
+  document.querySelectorAll('#cpsGraph .vec-t.sel, #cpsGraph .vec-t.okc, #cpsGraph .vec-t.badc, #cpsGraph .vec-t.missc').forEach(function(el){
+    const c=el.querySelector('.dot'); if(!c) return;
+    const X=+c.getAttribute('cx'), Y=+c.getAttribute('cy');
+    const x=document.createElementNS('http://www.w3.org/2000/svg','path');
+    x.setAttribute('class','cps-x'); x.setAttribute('d','M'+(X-6)+' '+(Y-6)+'l12 12M'+(X-6)+' '+(Y+6)+'l12 -12');
+    el.insertBefore(x, el.querySelector('.vec-dlbl'));
+  });
 }
 /* Un clic sur un nœud : tant qu'une flèche n'est pas tracée, il pose son
    début, puis sa fin (recliquer le début seul le retire) — la première
@@ -57101,6 +57115,7 @@ function cpsFinal(q,subs){
       if(so) so.innerHTML+=svcFleche(P, E, {cls:'svc-s', marker:'cpsArrS', nom:L+L+'′', cote:-1, geo:CPS_GEO}); }
   }
   c.innerHTML=h;
+  cpsCroix();
 }
 function renderCps(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
