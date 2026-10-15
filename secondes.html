@@ -2375,8 +2375,8 @@
      croix nommées comme au 8.5 ; le début d'une flèche commencée se marque en
      bleu (.deb) en attendant sa fin */
   #scr-cps .tvg-cons.sol{border-color:var(--green);background:var(--green-soft)}
-  /* une étape EFFECTUÉE (pas encore vérifiée) : encre et liseré verts, coche */
-  #scr-cps .tvg-cons.cps-fait{border-color:var(--green);color:var(--green)}
+  /* une étape EFFECTUÉE (pas encore vérifiée) : encre, liseré et fond verts, coche */
+  #scr-cps .tvg-cons.cps-fait{border-color:var(--green);color:var(--green);background:var(--green-soft)}
   #scr-cps .tvg-cons.cps-fait::after{content:" ✓";font-weight:800}
   #cpsGraph .sv-svg{max-width:640px}
   #cpsInstr .trl-sous{display:block;font-size:.85rem;font-weight:400;margin-top:6px}
@@ -2423,7 +2423,7 @@
   #cvpInstr .cvp-eg{white-space:nowrap}
   .cvp-curseur,.svc-curseur{pointer-events:none}
   .cvp-curseur circle,.svc-curseur circle{fill:var(--blue);fill-opacity:.55;stroke:var(--blue-dark);stroke-width:1.6}
-  .cvp-svg .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
+  .cvp-svg .cvp-curseur .vec-lbl,.cps-svg .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
   .cvp-outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:4px 0 12px}
   .cvp-outils .btn:disabled{opacity:.45;cursor:default}
   .cvp-svg .vec-t.sel .vec-dlbl,.cvp-svg .vec-t.okc .vec-dlbl,.cvp-svg .vec-t.badc .vec-dlbl,.cvp-svg .vec-t.missc .vec-dlbl{font-size:16px}
@@ -6596,8 +6596,8 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card lv-card">
       <div class="q-head"><span id="cpsIdx" class="q-idx">Question 1 / 4</span><span id="cpsModeTag"></span></div>
       <p class="enonce" id="cpsInstr"></p>
-      <div class="lv-graph" id="cpsGraph"></div>
       <div id="cpsBody"></div>
+      <div class="lv-graph" id="cpsGraph"></div>
       <div class="mp-feedback" id="cpsFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="cpsActions"></div>
     </div>
@@ -6963,7 +6963,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=508;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=509;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -56724,7 +56724,8 @@ function cpsSVG(q){
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg cps-svg" role="img" aria-label="Quadrillage : cinq points nommés, les vecteurs à tracer puis à faire glisser">`
     +'<defs>'+pointe('cpsArr0','var(--ink)')+pointe('cpsArr1','var(--ink-soft)')+pointe('cpsArrE','var(--blue)')
     +pointe('cpsArrB','var(--red)')+pointe('cpsArrS','var(--green)')+'</defs>'
-    +g+'<g id="cpsCorr"></g><g id="cpsFl"></g>'+pts+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cpsPrises"></g></svg>`;
+    +g+'<g id="cpsCorr"></g><g id="cpsFl"></g>'+pts+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cpsPrises"></g>`
+    +`<g id="cpsCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><circle r="5"/><text class="vec-lbl" x="8" y="-8">${L}</text></g></svg>`;
 }
 /* Les deux flèches tracées, à leur place du moment, et leurs prises. La
    première en trait plein, la seconde en pointillés, comme u⃗ et v⃗ au 8.7 ;
@@ -56836,9 +56837,10 @@ function cpsBrancher(){
   const host=$('cpsGraph');
   if(!host||host.__cpsPret) return;
   host.__cpsPret=true;
-  let gl=null;
+  let gl=null, apresPrise=false;
   const pas=function(svg){ const r=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal; return {r:r, k:r.width/vb.width}; };
   host.addEventListener('pointerdown', function(ev){
+    apresPrise=false;
     const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
     if(test.kind!=='cps'||test.locked) return;
     const q=test.questions[test.idx]; if(!q) return;
@@ -56861,15 +56863,45 @@ function cpsBrancher(){
   });
   const fin=function(ev){
     if(!gl) return;
-    const g=gl; gl=null; g.svg.classList.remove('glisse');
+    const g=gl; gl=null; g.svg.classList.remove('glisse'); apresPrise=true;
     if(g.bouge){ clearTimeout(_cpsSaveTimer); _cpsSaveTimer=setTimeout(autoSave,1200); return; }
     if(ev.type!=='pointerup') return;
     const m=pas(g.svg);
     const i=Math.round(((g.x-m.r.left)/m.k-CPS_PX)/CPS_C), j=CPS_H-Math.round(((g.y-m.r.top)/m.k-CPS_PY)/CPS_C);
-    cpsPose(i,j);
+    cpsPose(i,j); curseur(ev);
   };
   window.addEventListener('pointerup', fin);
   window.addEventListener('pointercancel', fin);
+  /* À la dernière étape — les deux flèches bout à bout depuis le point, A′
+     pas encore posé —, le point suit la pointe de la souris, PAR-DESSUS les
+     flèches, comme au 8.2.9 ; posé, il ne la suit plus (demande de Turquet,
+     octobre 2026). Les deux flèches tracées, un clic n'importe où dans le
+     quadrillage pose le point au nœud le plus proche ; les nœuds et les
+     prises gardent leur propre clic. */
+  const vue=function(ev){
+    const svg=host.querySelector('.cps-svg'); if(!svg) return null;
+    const m=pas(svg), x=(ev.clientX-m.r.left)/m.k, y=(ev.clientY-m.r.top)/m.k;
+    const fx=(x-CPS_PX)/CPS_C, fy=CPS_H-(y-CPS_PY)/CPS_C;
+    if(fx<-0.5||fx>CPS_W+0.5||fy<-0.5||fy>CPS_H+0.5) return null;
+    return {x:x, y:y, i:Math.max(0,Math.min(CPS_W,Math.round(fx))), j:Math.max(0,Math.min(CPS_H,Math.round(fy)))};
+  };
+  const curseur=function(ev){
+    const c=host.querySelector('#cpsCurseur'); if(!c) return;
+    const q=test.kind==='cps'&&test.questions[test.idx];
+    const v=ev&&!gl&&q&&!test.locked&&!test.cpsFigePt&&!q.pt&&ev.pointerType!=='touch'&&!!cpsChaine(q)&&vue(ev);
+    if(!v){ c.style.display='none'; return; }
+    c.setAttribute('transform','translate('+v.x+' '+v.y+')');
+    c.style.display='';
+  };
+  host.addEventListener('pointermove', curseur);
+  host.addEventListener('pointerleave', function(){ curseur(null); });
+  host.addEventListener('click', function(ev){
+    /* le clic qui suit l'appui sur une prise est déjà traité : glisser ou poser */
+    const t=ev.target; if(!t.closest||!t.closest('.cps-svg')||t.closest('.vec-t, .vec-zone, .svc-prise')||apresPrise) return;
+    if(test.kind!=='cps'||test.locked) return;
+    const q=test.questions[test.idx]; if(!q||!q.f1||!q.f2) return;
+    const v=vue(ev); if(v){ cpsPose(v.i,v.j); curseur(ev); }
+  });
   host.addEventListener('keydown', function(ev){
     const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
     const d={ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,1], ArrowDown:[0,-1]}[ev.key]; if(!d) return;
@@ -56983,11 +57015,11 @@ function renderCps(){
     +cpsVecHTML(P+P+'′')+' = '+cpsVecHTML(n0)+' + '+cpsVecHTML(n1)+'.'
     +'<span class="trl-sous">① Trace '+cpsVecHTML(n0)+', puis '+cpsVecHTML(n1)+' : clique le début, puis la fin de chacun. ② Fais glisser les deux flèches pour les mettre bout à bout en partant de <b>'+P+'</b> — un début va sur une fin. ③ Clique le nœud où tu places <b>'+P+'′</b>.</span>';
   $('cpsGraph').innerHTML=cpsSVG(q);
-  $('cpsBody').innerHTML='<div class="cps-etape" id="cpsEtape" aria-live="polite"></div>'
-    +'<div class="tvg-cons pts-case" id="cps-t1">① Le vecteur '+cpsVecHTML(n0)+' tracé.</div>'
+  $('cpsBody').innerHTML='<div class="tvg-cons pts-case" id="cps-t1">① Le vecteur '+cpsVecHTML(n0)+' tracé.</div>'
     +'<div class="tvg-cons pts-case" id="cps-t2">② Le vecteur '+cpsVecHTML(n1)+' tracé.</div>'
     +'<div class="tvg-cons pts-case" id="cps-ch">③ Les deux flèches bout à bout, en partant de <b>'+P+'</b>.</div>'
-    +'<div class="tvg-cons pts-case" id="cps-pt">④ Le point <b>'+P+'′</b> placé au bout.</div>';
+    +'<div class="tvg-cons pts-case" id="cps-pt">④ Le point <b>'+P+'′</b> placé au bout.</div>'
+    +'<div class="cps-etape" id="cpsEtape" aria-live="polite"></div>';
   cpsDessiner(q); cpsConsigne(q);
   cpsBrancher();
   $('cpsFeedback').textContent=''; $('cpsFeedback').className='mp-feedback';

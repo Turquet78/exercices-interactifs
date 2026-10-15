@@ -1049,7 +1049,7 @@ elles sont dedans, l'autre côté est l'extérieur. Même règle pour la flèche
 verte de la correction, avec les deux côtés de la construction. Vu dans un
 vrai Chromium sur trois triangles (angle aigu, obtus, plat en bas) et sur la
 correction ; aucun banc ne mesure ce chevauchement.
-**Puis les questions a) et b) sont devenues les ÉTAPES 1 et 2, et l'étape 1 réalisée ouvre l'étape 2 d'elle-même (v508).**
+**Puis les questions a) et b) sont devenues les ÉTAPES 1 et 2, et l'étape 1 réalisée ouvre l'étape 2 d'elle-même (v509).**
 La demande (Turquet, octobre 2026) : « en seconde dans le 8.2.1, remplacer
 les questions par des étapes 1 et 2 ; quand l'étape 1 est réalisée, mettre
 cette étape en vert avec un fond vert clair pour le cadre, puis passer
@@ -1683,6 +1683,31 @@ reste bleue ; une rouge reste rouge jusqu'au geste suivant). La règle CSS ne
 nomme aucune classe de verdict : « 9 bis » ne la lit pas, et n'a pas à la
 lire. Le juge suit la copie juste du banc pas à pas : 0000, 1000, 1100,
 1110, 1111, puis 0000 une fois la copie vérifiée.
+
+**Puis les étapes sont passées AU-DESSUS du dessin, sur fond vert une fois faites, et le point a suivi la souris à la dernière étape (v509).**
+La demande (Turquet, octobre 2026) : « en seconde pour le 8.2.8, afficher les
+étapes avant le dessin, quand une étape est réussie mettre aussi le cadre sur
+un fond vert clair. Quand on doit placer le point à la dernière étape,
+afficher le point sur la souris comme dans le 8.2.9, mais quand le point est
+placé il ne faut plus que le point soit affiché sur la flèche de la souris. »
+`#cpsBody` (les quatre consignes, puis la ligne `#cpsEtape`) passe avant
+`#cpsGraph`. `cps-fait` prend le fond `--green-soft` — le paragraphe
+précédent disait « sans le fond adouci de `.sol` » : c'est la demande qui a
+changé, la règle CSS ne nomme toujours aucune classe de verdict. Le curseur
+est celui du 8.2.9 (`#cpsCurseur`, classe `cvp-curseur`, posé en DERNIER dans
+le SVG, au-dessus des prises) : il ne se montre que si les deux flèches sont
+bout à bout depuis le point (`cpsChaine`) ET que A′ n'est pas encore posé —
+jamais pendant un glisser, après la correction, une fois le point figé, ni
+au doigt. Retirer A′ (recliquer son nœud) le fait revenir. Comme au 8.2.9, un
+clic n'importe où dans le quadrillage pose le point au nœud le plus proche,
+dès que les deux flèches sont TRACÉES (avant, un clic de ce genre aurait posé
+un bout de flèche à l'aveugle) ; le drapeau `apresPrise` avale le `click`
+qui suit un appui sur une prise, déjà traité par le glisser. Le juge vérifie
+l'ordre (consignes avant le dessin) et le curseur caché au départ ; le banc
+navigateur (6 quadragies sexies) mesure les consignes au-dessus du dessin,
+le fond de l'étape faite différent de celui de l'étape à faire, le point à
+moins de 3 px de la souris sur le milieu de BD, un clic entre les nœuds qui
+pose A′ au plus proche, puis le curseur caché une fois A′ posé.
 
 ## {point-somme-difference} — construire un point par une somme ou une différence de deux vecteurs (8.15, v498)
 

@@ -12295,6 +12295,8 @@ function pointSommeVecteurs(w, P){
     if(el('cpsFl').children.length || document.querySelectorAll('#cpsPrises .svc-prise').length) vus.push('une flèche est dessinée avant que l\\'élève la trace');
     ['cps-t1','cps-t2','cps-ch','cps-pt'].forEach(function(id){ if(!el(id)||!el(id).classList.contains('pts-case')) vus.push(id+' n\\'est pas une pts-case : la réponse ne compterait pas dans la note'); });
     if(el('cpsEtape').textContent.indexOf('BC')<0) vus.push('la page ne dit pas quelle flèche tracer d\\'abord : '+el('cpsEtape').textContent);
+    if(!(el('cpsBody').compareDocumentPosition(el('cpsGraph'))&4) || !el('cpsBody').contains(el('cpsEtape'))) vus.push('les étapes ne s\\'écrivent pas avant le dessin');
+    if(!el('cpsCurseur') || el('cpsCurseur').style.display!=='none') vus.push('le point qui suit la souris manque, ou se montre avant la dernière étape');
     const faits=function(){ return ['cps-t1','cps-t2','cps-ch','cps-pt'].map(function(id){ return el(id).classList.contains('cps-fait')?1:0; }).join(''); };
     if(faits()!=='0000') vus.push('une étape passe au vert avant d\\'être faite : '+faits());
 
