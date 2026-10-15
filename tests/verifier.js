@@ -12135,7 +12135,7 @@ function sommeVecteursRepere(w, P){
     /* le début posé, une flèche suit la souris depuis ce début */
     svrVif(q1,{x:svrX(4),y:svrY(-2)});
     const vif=document.querySelector('#svrVif line.svr-vif');
-    if(!vif || Math.abs(+vif.getAttribute('x1')-svrX(1))>0.5 || Math.abs(+vif.getAttribute('y1')-svrY(2))>0.5) vus.push('le début d\'un vecteur posé : aucune flèche ne suit la souris depuis ce début');
+    if(!vif || Math.abs(+vif.getAttribute('x1')-svrX(1))>0.5 || Math.abs(+vif.getAttribute('y1')-svrY(2))>0.5) vus.push('le début d\\'un vecteur posé : aucune flèche ne suit la souris depuis ce début');
     svrPose(1,2);
     if(document.querySelector('#svrVif line')) vus.push('le début retiré : la flèche suit encore la souris');
     if(q1.t[0]!==null) vus.push('recliquer le début seul d\\'un vecteur ne le retire pas');
@@ -12180,7 +12180,7 @@ function sommeVecteursRepere(w, P){
     if(!el('svr-B').classList.contains('fait')) vus.push('un point bien placé ne passe pas en vert');
     svrPose(3,1); svrPose(1,2);                                          /* BC à l'envers */
     if(document.querySelector('#svrVif line')) vus.push('le vecteur tracé : la flèche suit encore la souris');
-    if(el('svr-t0').classList.contains('fait')) vus.push('un vecteur tracé à l\'envers passe en vert');
+    if(el('svr-t0').classList.contains('fait')) vus.push('un vecteur tracé à l\\'envers passe en vert');
     svrPose(1,2); svrPose(3,4);
     svrDeplacer(1,[-2,-3]);                                              /* BA d'abord, depuis D */
     q2.cp[0]=[0,-1]; renderSvr();                                        /* puis CB (le tracé de l'élève) au bout */
