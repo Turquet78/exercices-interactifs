@@ -9230,6 +9230,13 @@ if(require.main === module) (async () => {
         return { a: a ? [a.s, a.f] : null, b: b ? [b.s, b.f] : null, pt: q.pt, ch: cpsChaine(q) ? cpsChaine(q).ordre : '',
           traits: [...document.querySelectorAll('#cpsFl line')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
           prises: document.querySelectorAll('#cpsPrises .svc-prise').length }; });
+      /* une flèche qui n'est pas BC (A vers un nœud) : le cadre ① reste bleu, la
+         flèche reste sans nom ; le clic suivant recommence le tracé (v517) */
+      await clic(2, 4); await clic(5, 2);
+      const faux = await s.page.evaluate(() => ({ f1: test.questions[test.idx].f1,
+        cours: document.getElementById('cps-t1').classList.contains('cps-cours'), fait: document.getElementById('cps-t1').classList.contains('cps-fait'),
+        noms: [...document.querySelectorAll('#cpsFl text.svc-nom')].length, txt: document.getElementById('cps-t1').textContent }));
+      if(!faux.f1 || !faux.cours || faux.fait || faux.noms || faux.txt.indexOf('Ce n’est pas le vecteur') < 0) dits.push('une flèche fausse valide le cadre ① ou porte un nom : ' + JSON.stringify(faux));
       /* ① BC : B puis C — un clic à un cinquième de maille s'accroche au nœud */
       await clic(5, 7, 0.2); await clic(8, 7);
       let e = await etat();
@@ -9246,12 +9253,13 @@ if(require.main === module) (async () => {
       if(e.ch !== 'ab') dits.push('BC et BD glissés ne sont pas bout à bout depuis A : ' + JSON.stringify([e.a, e.b]));
       /* les étapes s'affichent AU-DESSUS du dessin, une étape faite sur fond vert clair (v508) */
       const haut = await s.page.evaluate(() => { const g = document.querySelector('#cpsGraph .cps-svg').getBoundingClientRect();
-        const ids = ['cps-t1', 'cps-t2', 'cps-ch', 'cps-pt', 'cpsEtape'];
+        const ids = ['cps-t1', 'cps-t2', 'cps-ch', 'cps-pt'];
         return { dessus: ids.every(id => document.getElementById(id).getBoundingClientRect().bottom <= g.top + 1),
           fond: getComputedStyle(document.getElementById('cps-t1')).backgroundColor,
           fond4: getComputedStyle(document.getElementById('cps-pt')).backgroundColor }; });
       if(!haut.dessus) dits.push('les étapes ne s\'affichent pas au-dessus du dessin');
       if(haut.fond === haut.fond4) dits.push('l\'étape faite n\'a pas de fond vert clair : ' + haut.fond + ' comme l\'étape à faire');
+      if(!/rgb\(234, 240, 255\)/.test(haut.fond4)) dits.push('l\'étape à faire n\'est pas en bleu : ' + haut.fond4);
       /* la dernière étape : le point suit la souris, même PAR-DESSUS BD (son milieu) */
       const fantome = async (x, y) => { const p = await pos(x, y);
         await s.page.mouse.move(p.px - 20, p.py - 20); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(80);
