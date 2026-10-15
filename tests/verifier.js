@@ -4549,6 +4549,7 @@ function exercices(suite){
     pointSommeVecteurs(w, P);
     pointSommeDifference(w, P);
     tracerVecteursEgaux(w, P);
+    tracerVecteursOpposes(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
     recurrenceLimite(w, P);
@@ -12420,6 +12421,95 @@ function tracerVecteursEgaux(w, P){
     if(classes()!=='rien,rien,rien' || test.locked) vus.push('soutien : vérifier sans rien faire peint '+classes()+(test.locked?' et verrouille':''));
     currentMode='train';
     if(test.qId && test.qId!==D.exercice) vus.push('qId « '+test.qId+' »');
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {tracer-vecteurs-opposes} (Seconde, 8.1.8 — demande de Turquet, octobre
+   2026 : « un exercice comme le 8.1.7 où on demande de tracer l'opposé de
+   chaque vecteur ; on demandera de tracer −u, −v, −w dans l'énoncé »). Le
+   moteur du 8.1.7 (kind « tvx ») avec q.op : ce banc ne rejoue pas le geste,
+   tenu plus haut, mais ce qui CHANGE — l'énoncé, les noms « −u » sur le
+   dessin, le juge (le chemin à l'envers est juste, le vecteur égal est
+   faux et NOMMÉ), la correction verte dans le sens opposé, q.op relu après
+   le JSON de la pause, l'identité (rappel, questions à l'IA) par
+   l'identifiant. */
+function tracerVecteursOpposes(w, P){
+  const nom = 'vecteurs opposés à tracer : l\'énoncé demande −u, −v, −w, le chemin à l\'envers est juste, le vecteur égal est faux et nommé, la correction trace l\'opposé';
+  if(!P.tracerVecteursOpposes){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice des vecteurs opposés à tracer');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.tracerVecteursOpposes)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['tracer-vecteurs-egaux']!=='8.1.7' || TEST_NUM['somme-vecteurs']!=='8.2.1') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS_ID[D.exercice]!==RAP_TVO || !QIA_SUGG_ID[D.exercice]) vus.push('le rappel ou les questions à l\\'IA ne sont pas ceux des vecteurs opposés');
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const classes=function(){ return ['tvx-u','tvx-v','tvx-w'].map(classe).join(','); };
+    const fixe=function(){ return {vs:[[2,2,3,4],[7,8,4,-2],[13,2,-3,2]], d1:null, f1:null, d2:null, f2:null, d3:null, f3:null, op:1}; };
+    const verifierIci=function(){ const av=test.score; checkTvx(); clearTimeout(test.fbTimer); return test.score-av; };
+    const tracer=function(a,b){ tvxClic(a[0],a[1]); tvxClic(b[0],b[1]); };
+
+    /* 1. le tirage : TESTS lance les opposés, q.op rangé, rien d'autre */
+    TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='tvx') vus.push('kind « '+test.kind+' » au lieu de tvx');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    if(test.questions.length!==D.nb) vus.push(test.questions.length+' questions au lieu de '+D.nb);
+    test.questions.forEach(function(q){
+      if(Object.keys(q).sort().join(',')!=='d1,d2,d3,f1,f2,f3,op,vs' || q.op!==1) vus.push('la question des opposés range : '+JSON.stringify(q));
+    });
+    if(tvxBuildQuestions().some(function(q){ return 'op' in q; })) vus.push('le 8.1.7 range op : ses questions ont changé');
+
+    /* 2. l'écran : l'énoncé demande −u, −v, −w */
+    test.questions[0]=fixe(); test.idx=0; renderTvx();
+    const ins=el('tvxInstr').textContent;
+    if(ins.indexOf('−u, −v et −w')<0 || ins.indexOf('opposés')<0) vus.push('l\\'énoncé ne demande pas −u, −v, −w : '+ins);
+    if(el('tvx-u').textContent.indexOf('−u')<0) vus.push('l\\'étape ① ne nomme pas −u : '+el('tvx-u').textContent);
+    if(el('tvxEtape').textContent.indexOf('Trace le vecteur −u')<0) vus.push('la page ne dit pas de tracer −u : '+el('tvxEtape').textContent);
+    const donnes=Array.from(document.querySelectorAll('#tvxDonnes text.svc-nom')).map(function(t){ return t.textContent; }).join('');
+    if(donnes!=='uvw') vus.push('les vecteurs donnés ne s\\'appellent plus u, v, w : '+donnes);
+
+    /* 3. la copie juste : chaque chemin à l'envers ; les flèches s'appellent −u, −v, −w */
+    const q0=test.questions[0];
+    tracer([5,6],[2,2]); tracer([11,4],[7,6]); tracer([10,4],[13,2]);
+    const noms=Array.from(document.querySelectorAll('#tvxFl text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
+    if(noms!=='−u,−v,−w') vus.push('les flèches de l\\'élève ne s\\'appellent pas −u, −v, −w : '+noms);
+    if(document.querySelectorAll('#tvxFl path.svc-nfl').length!==3) vus.push('les noms des flèches n\\'ont pas leur petite flèche');
+    /* la reprise : q.op survit au JSON */
+    test.questions[0]=JSON.parse(JSON.stringify(q0)); renderTvx();
+    if(verifierIci()!==3 || classes()!=='ok,ok,ok') vus.push('la copie juste (chemins à l\\'envers) vaut '+test.score+' : '+classes());
+    if(el('tvxCorr').children.length) vus.push('la correction se montre alors que tout est juste');
+
+    /* 4. le piège du 8.1.8 : un vecteur ÉGAL est faux, et nommé ; la correction
+       verte trace l'opposé au départ de l'élève */
+    nextTvx(); clearTimeout(test.fbTimer);
+    if(!test.questions[1].op) vus.push('la question suivante a perdu op');
+    test.questions[1]=fixe(); renderTvx();
+    tracer([5,6],[8,10]); tracer([10,4],[12,3]);
+    if(verifierIci()!==0 || classes()!=='bad,bad,sol') vus.push('u égal, v trop court, w absent : '+classes()+' au lieu de bad,bad,sol');
+    const fb=el('tvxFeedback').textContent;
+    if(fb.indexOf('−u est égale à u')<0 || fb.indexOf('sens contraire')<0 || fb.indexOf('−u fait donc 3 carreaux vers la gauche puis 4 carreaux vers le bas')<0 || fb.indexOf('Il te manquait 1 case')<0) vus.push('le message ne nomme pas le vecteur égal au lieu de l\\'opposé, ou le chemin attendu : '+fb.slice(0,260));
+    const cu=document.querySelector('#tvxCorr line.svc-s');
+    if(!cu || cu.getAttribute('x1')!==String(TVX_PX+5*TVX_C) || !(Number(cu.getAttribute('x2'))<TVX_PX+5*TVX_C)) vus.push('la flèche verte de −u ne part pas du départ de l\\'élève vers la gauche');
+    const nomsCorr=Array.from(document.querySelectorAll('#tvxCorr text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
+    if(nomsCorr!=='−u,−v,−w') vus.push('la correction ne nomme pas −u, −v, −w : '+nomsCorr);
+    const rep=test.answers[test.answers.length-1];
+    if(!rep || rep.answer.indexOf('−u')<0) vus.push('la réponse enregistrée ne nomme pas −u');
+
+    /* 5. le contexte du modèle */
+    const ctx=conseilCtxCourant();
+    if(ctx.indexOf('vecteurs opposés −u, −v et −w')<0 || ctx.indexOf('flèche −u (opposée à u)')<0) vus.push('le contexte du modèle ne parle pas des opposés');
+
+    /* 6. le 8.1.7 reste le 8.1.7 */
+    currentTestId='tracer-vecteurs-egaux'; TESTS['tracer-vecteurs-egaux'].start(); clearTimeout(test.fbTimer);
+    if(el('tvxInstr').textContent.indexOf('égal au vecteur')<0 || el('tvxInstr').textContent.indexOf('−')>=0) vus.push('le 8.1.7 a changé d\\'énoncé : '+el('tvxInstr').textContent);
+    currentTestId=D.exercice;
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
