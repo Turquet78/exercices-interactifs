@@ -1107,7 +1107,7 @@ verrouillage retire `svc-fait` (`checkSvc`). Le banc navigateur lit, après
 le second clic, le fond blanc calculé du point de la fin, le cadre et le
 fond verts de l'étape 2, et un nœud libre survolé sans point.
 
-**Puis, le début de u⃗ + v⃗ posé, une flèche va de lui jusqu'à la pointe de la souris (v519).**
+**Puis, le début de u⃗ + v⃗ posé, une flèche va de lui jusqu'à la pointe de la souris (v520).**
 La demande (Turquet, octobre 2026) : « dans l'étape 2, après avoir placé le
 point de départ, on trace un vecteur de ce point de départ jusqu'à
 l'extrémité de la flèche de la souris ». La recette du 8.1.7 (`tvxVif`) :
