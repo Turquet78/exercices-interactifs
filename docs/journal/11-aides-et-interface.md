@@ -988,9 +988,14 @@ la saison — et l'élève, lui, la lisait en 11 dès ce matin. Deux réponses :
   142 utiles — et l'image le confirme, à une ligne comme à trois ;
 * **le « 9 quater », qui force le décor, mesure aussi la taille des bulles**
   (12 px au moins) : la règle tient toute l'année, et un banc joué hors
-  saison voit ce que la CI de la saison verra. La leçon : un contrôle
-  commun ne mesure que ce que l'écran montre ; ce que l'écran ne montre
-  qu'à une date se force, ou il ne se mesure pas.
+  saison voit ce que la CI de la saison verra. Éprouvé par sabotage HORS
+  saison (bulles remises à 11 px, et le décor éteint par la date) : le
+  contrôle commun des 12 px reste vert, aveugle comme il l'était avant le
+  15 octobre — et le 9 quater rougit seul, en nommant chaque bulle
+  (« python-input-reponse : la bulle s'écrit sous 12 px (11 px « Ton
+  prénom, pour »…) »). La leçon : un contrôle commun ne mesure que ce que
+  l'écran montre ; ce que l'écran ne montre qu'à une date se force, ou il
+  ne se mesure pas.
 
 **Les dessins vivent en FICHIERS, jamais en base64 dans la page.** Jusqu'en
 octobre 2026, chaque dessin d'exercice — le serpent du thème Python, le
