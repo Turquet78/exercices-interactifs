@@ -1049,6 +1049,45 @@ elles sont dedans, l'autre côté est l'extérieur. Même règle pour la flèche
 verte de la correction, avec les deux côtés de la construction. Vu dans un
 vrai Chromium sur trois triangles (angle aigu, obtus, plat en bas) et sur la
 correction ; aucun banc ne mesure ce chevauchement.
+**Puis les questions a) et b) sont devenues les ÉTAPES 1 et 2, et l'étape 1 réalisée ouvre l'étape 2 d'elle-même (v509).**
+La demande (Turquet, octobre 2026) : « en seconde dans le 8.2.1, remplacer
+les questions par des étapes 1 et 2 ; quand l'étape 1 est réalisée, mettre
+cette étape en vert avec un fond vert clair pour le cadre, puis passer
+automatiquement à l'étape 2. Le point de départ alors doit s'afficher sur la
+flèche de la souris comme dans le 8.2.9, et quand il choisit on passe au
+suivant ; quand le point d'arrivée est choisi, on arrête d'afficher un point
+sur la flèche de la souris. »
+**Réalisée = bout à bout** (`svcChaine`, un début sur une fin) : c'est le
+geste même de l'étape, il n'y a pas d'autre façon de l'avoir « faite ». Elle
+se lit au LÂCHER d'une flèche et à chaque pas au clavier (`svcAuto`), jamais
+pendant le glisser : une flèche qui traverse le bon nœud en passant ne se fige
+pas sous le doigt. Les flèches se figent (`svcFigeCh`, dans TOUS les modes
+désormais, et la reprise d'une étape 2 bout à bout les retrouve figées),
+l'étape 1 prend `svc-fait` (cadre vert, fond `--green-soft`), l'étape 2
+s'encadre en bleu. Le prix est nommé : hors soutien, voir l'étape 1 verdir
+dit que le chaînage est juste avant « Vérifier » — c'est ce qui a été
+demandé. Pour qu'une construction fausse ne BLOQUE pas l'élève hors soutien,
+« Passer à l'étape 2 » reste offert (bouton discret) : l'étape 1 n'y verdit
+pas, et « Revenir à l'étape 1 » rend les flèches. En soutien, « Vérifier
+l'étape 1 » nomme le piège (deux débuts, deux fins, pas bout à bout). À la
+vérification, `svc-fait` cède la place à `ok`/`bad`/`sol` : le barème et la
+note ne bougent pas.
+**Le point suit la souris**, la recette du 8.2.9 (`#svcCurseur`, posé en
+dernier dans le SVG, `pointer-events:none`) : à l'étape 2, tant que la fin de
+u⃗ + v⃗ n'est pas posée — le début d'abord, puis la fin — et plus rien
+ensuite ; jamais au doigt, pendant un glisser, après la correction ou u⃗ + v⃗
+juste figé en soutien. Un clic entre les nœuds pose au nœud le plus proche ;
+le drapeau `apresPrise` avale le clic qui suit un glisser — sans lui, le
+lâcher qui ouvre l'étape 2 aurait posé aussitôt le début de u⃗ + v⃗.
+Le juge (`tests/verifier.js`) tient les intitulés « Étape 1 / Étape 2 » et
+l'absence de « a) » / « b) », le non-passage de deux flèches séparées, le
+passage par `svcAuto` (vert, figé, sans retour, rejoué une seule fois) ; le
+banc navigateur (« 6 quadragies quater ») glisse v⃗ au bout de u⃗ et lit
+l'étape 2 ouverte SANS bouton, le cadre et le fond verts calculés, le point à
+moins de 3 px de la souris sur la flèche u⃗ puis pour la fin, plus aucun point
+une fois la fin posée, une étape 1 fausse qui ne verdit pas, et le clic entre
+les nœuds.
+
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v490)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
@@ -1645,7 +1684,7 @@ nomme aucune classe de verdict : « 9 bis » ne la lit pas, et n'a pas à la
 lire. Le juge suit la copie juste du banc pas à pas : 0000, 1000, 1100,
 1110, 1111, puis 0000 une fois la copie vérifiée.
 
-**Puis les étapes sont passées AU-DESSUS du dessin, sur fond vert une fois faites, et le point a suivi la souris à la dernière étape (v508).**
+**Puis les étapes sont passées AU-DESSUS du dessin, sur fond vert une fois faites, et le point a suivi la souris à la dernière étape (v509).**
 La demande (Turquet, octobre 2026) : « en seconde pour le 8.2.8, afficher les
 étapes avant le dessin, quand une étape est réussie mettre aussi le cadre sur
 un fond vert clair. Quand on doit placer le point à la dernière étape,

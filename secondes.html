@@ -2341,8 +2341,11 @@
   #scr-svc .tvg-cons.sol{border-color:var(--green);background:var(--green-soft)}
   #svcGraph .sv-svg{max-width:640px}
   #svcInstr .trl-sous{display:block;font-size:.85rem;font-weight:400;margin-top:6px}
-  /* a) puis b) : la question en cours est encadrée, celle qui attend pâlit */
+  /* étape 1 puis étape 2 : l'étape en cours est encadrée, celle qui attend
+     pâlit, l'étape 1 RÉALISÉE (les flèches bout à bout) passe en vert sur
+     fond vert clair — demande de Turquet, octobre 2026 */
   #scr-svc .tvg-cons.svc-actif{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,111,212,.15)}
+  #scr-svc .tvg-cons.svc-fait{border-color:var(--green);background:var(--green-soft);color:var(--green);box-shadow:0 0 0 2px rgba(21,122,82,.15)}
   #scr-svc .tvg-cons.svc-attente{opacity:.55}
   .svc-svg .svc-nom-op{font-family:KaTeX_Main,Georgia,'Times New Roman',serif;font-style:normal}
   .svc-svg .svc-u{stroke:var(--ink);stroke-width:2.4;stroke-linecap:round}
@@ -2418,8 +2421,8 @@
   .cvp-etape .cvp-etape-sous{display:block;margin-top:4px;font-size:.92rem}
   #cvpInstr .vgt-vec{font-size:1.1em}
   #cvpInstr .cvp-eg{white-space:nowrap}
-  .cvp-curseur{pointer-events:none}
-  .cvp-curseur circle{fill:var(--blue);fill-opacity:.55;stroke:var(--blue-dark);stroke-width:1.6}
+  .cvp-curseur,.svc-curseur{pointer-events:none}
+  .cvp-curseur circle,.svc-curseur circle{fill:var(--blue);fill-opacity:.55;stroke:var(--blue-dark);stroke-width:1.6}
   .cvp-svg .cvp-curseur .vec-lbl,.cps-svg .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
   .cvp-outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:4px 0 12px}
   .cvp-outils .btn:disabled{opacity:.45;cursor:default}
@@ -6960,7 +6963,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=508;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=509;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -7721,7 +7724,7 @@ const TESTS={
   'translation-grille': { name:'Image d\u2019un point par une translation', icon:'\u27a1\ufe0f', desc:'Huit vecteurs dessin\u00e9s et une grille de points de A \u00e0 X. Six lignes \u00e0 compl\u00e9ter\u00a0: le point image par la translation du vecteur indiqu\u00e9, ou le vecteur de la translation qui m\u00e8ne d\u2019un point \u00e0 son image.', start:()=>startVtr() },
   'parallelogramme-point': { name:'Le quatri\u00e8me point d\u2019un parall\u00e9logramme', icon:'\ud83d\udccd', desc:'Trois points A, B et C sur un quadrillage, et l\u2019\u00e9nonc\u00e9 \u00ab ABDC est un parall\u00e9logramme \u00bb \u2014 ou ABCD. Construis D d\u2019un clic sur le quadrillage, puis compl\u00e8te la phrase \u00ab le chemin qui va de \u2026 \u00e0 \u2026 est le m\u00eame que celui qui va de C \u00e0 D \u00bb, puis \u00e9cris cette \u00e9galit\u00e9 avec des vecteurs.', start:()=>startVec() },
   'egalite-vectorielle-point': { name:'Placer un point pour une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccf', desc:'Trois des points A, B, C et D sur un quadrillage, et une \u00e9galit\u00e9 de vecteurs \u00e0 r\u00e9aliser. Clique sur le quadrillage le point qui manque, puis nomme le parall\u00e9logramme obtenu \u2014 dans le bon ordre des lettres.', start:()=>startVep() },
-  'somme-vecteurs': { name:'Somme de deux vecteurs\u00a0: un d\u00e9but va sur une fin', icon:'\u2795', desc:'Deux fl\u00e8ches u et v sur un quadrillage\u00a0: a) fais-les glisser bout \u00e0 bout \u2014 \u00ab\u00a0un d\u00e9but va sur une fin\u00a0\u00bb\u00a0; b) trace le vecteur u + v.', start:()=>startSvc() },
+  'somme-vecteurs': { name:'Somme de deux vecteurs\u00a0: un d\u00e9but va sur une fin', icon:'\u2795', desc:'Deux fl\u00e8ches u et v sur un quadrillage\u00a0: \u00e9tape 1, fais-les glisser bout \u00e0 bout \u2014 \u00ab\u00a0un d\u00e9but va sur une fin\u00a0\u00bb\u00a0; \u00e9tape 2, trace le vecteur u + v.', start:()=>startSvc() },
   'relation-chasles': { name:'La relation de Chasles', icon:'\ud83d\udd17', desc:'Un rectangle, un carr\u00e9, un parall\u00e9logramme ou un losange et ses diagonales, et des sommes de vecteurs \u00e0 compl\u00e9ter\u00a0: encha\u00eene-les avec la relation de Chasles, en changeant l\u2019ordre ou en rempla\u00e7ant un vecteur par un vecteur \u00e9gal.', start:()=>startChs() },
   'chasles-trois-vecteurs': { name:'Chasles avec trois vecteurs', icon:'\u26d3\ufe0f', desc:'Un parall\u00e9logramme de centre O et des sommes de deux ou trois vecteurs\u00a0: change l\u2019ordre, remplace un vecteur par un vecteur \u00e9gal, ajoute l\u2019oppos\u00e9, encha\u00eene \u2014 et reconnais le vecteur nul.', start:()=>startCtv() },
   'chasles-simplifier': { name:'\u00c9crire plus simplement une somme de vecteurs', icon:'\u26d3\ufe0f', desc:'La figure de la fiche\u00a0: un rectangle, ses milieux et ses diagonales. Neuf sommes et diff\u00e9rences de vecteurs \u00e0 \u00e9crire plus simplement\u00a0: ajoute l\u2019oppos\u00e9, change l\u2019ordre ou prends un vecteur \u00e9gal, puis conclus par la relation de Chasles.', start:()=>startCsp() },
@@ -56192,7 +56195,8 @@ function svcSVG(q){
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg" role="img" aria-label="Quadrillage : les vecteurs u et v, à faire glisser">`
     +'<defs>'+pointe('svcArrU','var(--ink)')+pointe('svcArrV','var(--ink-soft)')+pointe('svcArrE','var(--blue)')
     +pointe('svcArrB','var(--red)')+pointe('svcArrS','var(--green)')+'</defs>'
-    +g+'<g id="svcCorr"></g><g id="svcFl"></g><g id="svcTrace"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="svcPrises"></g></svg>`;
+    +g+'<g id="svcCorr"></g><g id="svcFl"></g><g id="svcTrace"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="svcPrises"></g>`
+    +'<g id="svcCurseur" class="svc-curseur" aria-hidden="true" style="display:none"><circle r="5"/></g></svg>';
 }
 /* Les deux flèches à leur place du moment, et leurs prises. */
 function svcDessinerFleches(q){
@@ -56290,9 +56294,10 @@ function svcBrancher(){
   const host=$('svcGraph');
   if(!host||host.__svcPret) return;
   host.__svcPret=true;
-  let gl=null;
+  let gl=null, apresPrise=false, dernier=null;
   const pas=function(svg){ const r=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal; return {r:r, k:r.width/vb.width}; };
   host.addEventListener('pointerdown', function(ev){
+    apresPrise=false;
     const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
     if(test.kind!=='svc'||test.locked) return;
     const q=test.questions[test.idx]; if(!q) return;
@@ -56315,8 +56320,8 @@ function svcBrancher(){
   });
   const fin=function(ev){
     if(!gl) return;
-    const g=gl; gl=null; g.svg.classList.remove('glisse');
-    if(g.bouge){ clearTimeout(_svcSaveTimer); _svcSaveTimer=setTimeout(autoSave,1200); return; }
+    const g=gl; gl=null; g.svg.classList.remove('glisse'); apresPrise=true;
+    if(g.bouge){ svcAuto(); clearTimeout(_svcSaveTimer); _svcSaveTimer=setTimeout(autoSave,1200); return; }
     if(ev.type!=='pointerup') return;
     /* appui sans glisser : un clic sur le nœud le plus proche de l'appui */
     const m=pas(g.svg);
@@ -56325,6 +56330,36 @@ function svcBrancher(){
   };
   window.addEventListener('pointerup', fin);
   window.addEventListener('pointercancel', fin);
+  /* À L'ÉTAPE 2, LE POINT SUIT LA POINTE DE LA SOURIS, comme au 8.2.9
+     (demande de Turquet, octobre 2026) : le début de u + v d'abord, puis sa
+     fin ; une fois la fin posée, plus rien ne suit la souris. Un clic
+     n'importe où dans le quadrillage pose au nœud le plus proche ; les nœuds
+     gardent leur propre clic. Jamais au doigt (pas de survol), jamais
+     pendant un glisser, ni après la correction ou u + v juste figé. */
+  const vue=function(ev){
+    const svg=host.querySelector('.svc-svg'); if(!svg) return null;
+    const m=pas(svg), x=(ev.clientX-m.r.left)/m.k, y=(ev.clientY-m.r.top)/m.k;
+    const fx=(x-SVC_PX)/SVC_C, fy=SVC_H-(y-SVC_PY)/SVC_C;
+    if(fx<-0.5||fx>SVC_W+0.5||fy<-0.5||fy>SVC_H+0.5) return null;
+    return {x:x, y:y, i:Math.max(0,Math.min(SVC_W,Math.round(fx))), j:Math.max(0,Math.min(SVC_H,Math.round(fy)))};
+  };
+  const curseur=function(ev){
+    const c=host.querySelector('#svcCurseur'); if(!c) return;
+    const q=test.kind==='svc'&&test.questions[test.idx];
+    const v=ev&&!gl&&q&&q.et==='b'&&!(q.sd&&q.sf)&&!test.locked&&!test.svcFigeSm&&ev.pointerType!=='touch'&&vue(ev);
+    if(!v){ c.style.display='none'; return; }
+    c.setAttribute('transform','translate('+v.x+' '+v.y+')');
+    c.style.display='';
+  };
+  host.addEventListener('pointermove', function(ev){ dernier=ev; curseur(ev); });
+  host.addEventListener('pointerleave', function(){ dernier=null; curseur(null); });
+  host.addEventListener('click', function(ev){
+    /* le clic qui suit l'appui sur une prise est déjà traité : glisser ou poser */
+    const t=ev.target;
+    if(t.closest&&t.closest('.svc-svg')&&!t.closest('.vec-t, .vec-zone, .svc-prise')&&!apresPrise){ const v=vue(ev); if(v) svcPose(v.i,v.j); }
+    /* le point suivant (la fin) ou plus rien : le curseur suit l'état */
+    curseur(dernier&&dernier.pointerType!=='touch'?ev:null);
+  });
   /* au clavier : la prise a le focus, les flèches du clavier la déplacent */
   host.addEventListener('keydown', function(ev){
     const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
@@ -56332,7 +56367,10 @@ function svcBrancher(){
     const q=test.questions[test.idx]; if(!q) return;
     const w=pr.getAttribute('data-vec'), p=w==='u'?svcU(q):svcV(q);
     ev.preventDefault();
-    if(svcDeplacer(w, svcPlus(p,d))){ const n=document.querySelector('#svcPrises .svc-prise[data-vec="'+w+'"]'); if(n) n.focus(); }
+    if(svcDeplacer(w, svcPlus(p,d))){
+      if(svcAuto()) return;
+      const n=document.querySelector('#svcPrises .svc-prise[data-vec="'+w+'"]'); if(n) n.focus();
+    }
   });
 }
 /* LE JUGE — deux réponses, lues dans la question, chacune seule. Le
@@ -56379,7 +56417,7 @@ function svcConstruction(q){
    à reprendre ; rien ne se révèle. */
 function svcMarqueSoutien(q,subs){
   const ch=subs[0], sm=subs[1];
-  [['svc-ch',ch],['svc-sm',sm]].forEach(function(p){ const el=$(p[0]); if(el){ el.classList.remove('ok','bad'); if(!p[1].vide) el.classList.add(p[1].ok?'ok':'bad'); } });
+  [['svc-ch',ch],['svc-sm',sm]].forEach(function(p){ const el=$(p[0]); if(el){ el.classList.remove('ok','bad','svc-fait'); if(!p[1].vide) el.classList.add(p[1].ok?'ok':'bad'); } });
   if(ch.ok){ test.svcFigeCh=true; svcDessinerFleches(q); }
   if(sm.ok){ test.svcFigeSm=true; svcTracer(q,'ok'); }
   else svcTracer(q, sm.vide?'':'bad');
@@ -56390,7 +56428,7 @@ function svcMarqueSoutien(q,subs){
    si le chaînage était faux, et u + v si sa flèche l'était. */
 function svcFinal(q,subs){
   const ch=subs[0], sm=subs[1];
-  [['svc-ch',ch],['svc-sm',sm]].forEach(function(p){ const el=$(p[0]); if(el){ el.classList.remove('ok','bad','sol'); el.classList.add(p[1].ok?'ok':(p[1].vide?'sol':'bad')); } });
+  [['svc-ch',ch],['svc-sm',sm]].forEach(function(p){ const el=$(p[0]); if(el){ el.classList.remove('ok','bad','sol','svc-fait'); el.classList.add(p[1].ok?'ok':(p[1].vide?'sol':'bad')); } });
   document.querySelectorAll('#svcGraph .vec-t').forEach(function(el){ el.classList.add('off'); });
   svcDessinerFleches(q);
   svcTracer(q, sm.ok?'ok':'bad');
@@ -56415,19 +56453,35 @@ function svcFinal(q,subs){
 function svcEtape(q){
   const a=q.et!=='b', fige=!!test.svcFigeCh;
   const ch=$('svc-ch'), sm=$('svc-sm');
-  if(ch) ch.classList.toggle('svc-actif', a&&!test.locked);
+  if(ch){ ch.classList.toggle('svc-actif', a&&!test.locked); ch.classList.toggle('svc-fait', !a&&fige&&!test.locked); }
   if(sm){ sm.classList.toggle('svc-actif', !a&&!test.locked); sm.classList.toggle('svc-attente', a&&!test.locked); }
   const sous=$('svcSous');
   if(sous) sous.innerHTML=a
-    ?'Saisis une flèche pour la déplacer ; quand elles sont bout à bout, passe à la question b).'
+    ?'Saisis une flèche pour la déplacer ; dès qu’elles sont bout à bout, l’étape 2 commence.'
     :'Pour tracer '+svcVecHTML('u')+' + '+svcVecHTML('v')+', clique son début, puis sa fin ; un nouveau clic recommence.';
   svcDessinerFleches(q);
   svcTracer(q,'');
   const ia=conseilInlineBtn();
   $('svcActions').innerHTML=a
-    ?ia+'<button class="btn btn-primary" id="svcValidate" type="button" onclick="svcVersB()">'+(isSoutien()?'Vérifier a)':'Passer à la question b)')+'</button>'
-    :ia+(fige?'':'<button class="btn btn-ghost" id="svcRetourA" type="button" onclick="svcVersA()">Revenir à la question a)</button>')
+    ?ia+'<button class="btn btn-'+(isSoutien()?'primary':'ghost')+'" id="svcValidate" type="button" onclick="svcVersB()">'+(isSoutien()?'Vérifier l’étape 1':'Passer à l’étape 2')+'</button>'
+    :ia+(fige?'':'<button class="btn btn-ghost" id="svcRetourA" type="button" onclick="svcVersA()">Revenir à l’étape 1</button>')
       +'<button class="btn btn-primary" id="svcValidate" type="button" onclick="checkSvc()">Vérifier</button>';
+}
+/* L'ÉTAPE 1 RÉALISÉE OUVRE L'ÉTAPE 2 D'ELLE-MÊME (demande de Turquet,
+   octobre 2026 : « quand l'étape 1 est réalisée, mettre cette étape en vert
+   avec un fond vert clair, puis passer automatiquement à l'étape 2 »).
+   Réalisée = les deux flèches bout à bout, un début sur une fin — le geste
+   même que l'étape demande ; elle se lit au LÂCHER d'une flèche (et à
+   chaque pas au clavier), jamais pendant le glisser : une flèche qui
+   traverse le bon nœud en passant ne se fige pas sous le doigt. Les flèches
+   se figent, l'étape 1 passe en vert, l'étape 2 s'encadre. Hors soutien, le
+   bouton « Passer à l'étape 2 » reste offert : une construction fausse ne
+   bloque pas l'élève, elle se jugera à « Vérifier ». */
+function svcAuto(){
+  if(test.locked||test.kind!=='svc') return false;
+  const q=test.questions[test.idx]; if(!q||q.et==='b'||!svcChaine(q)) return false;
+  svcVersB();
+  return q.et==='b';
 }
 function svcVersB(){
   if(test.locked||test.kind!=='svc') return;
@@ -56445,8 +56499,8 @@ function svcVersB(){
       $('svcFeedback').className='mp-feedback bad';
       return;
     }
-    test.svcFigeCh=true;
   }
+  if(svcChaine(q)){ test.svcFigeCh=true; const el=$('svc-ch'); if(el) el.classList.remove('ok','bad'); }
   $('svcFeedback').textContent=''; $('svcFeedback').className='mp-feedback';
   q.et='b'; svcEtape(q); recoveryDirty=true;
 }
@@ -56461,16 +56515,16 @@ function renderSvc(){
   const pt=function(p){ return Array.isArray(p)&&p.length===2?p:null; };
   q.up=pt(q.up); q.vp=pt(q.vp); q.sd=pt(q.sd); q.sf=q.sd?pt(q.sf):null;
   q.et=q.et==='b'?'b':'a';
-  /* une reprise en b) en soutien : a) y avait été vérifiée juste */
-  if(q.et==='b'&&isSoutien()&&svcChaine(q)) test.svcFigeCh=true;
+  /* une reprise à l'étape 2 : l'étape 1 réalisée y était figée */
+  if(q.et==='b'&&svcChaine(q)) test.svcFigeCh=true;
   delete q.sel;
   $('svcIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('svcModeTag').innerHTML=modeTagHTML();
-  $('svcInstr').innerHTML='Construis le vecteur égal à la somme '+svcVecHTML('u')+' + '+svcVecHTML('v')+', en deux questions. <b>Un début va sur une fin.</b>'
+  $('svcInstr').innerHTML='Construis le vecteur égal à la somme '+svcVecHTML('u')+' + '+svcVecHTML('v')+', en deux étapes. <b>Un début va sur une fin.</b>'
     +'<span class="trl-sous" id="svcSous"></span>';
   $('svcGraph').innerHTML=svcSVG(q);
-  $('svcBody').innerHTML='<div class="tvg-cons pts-case" id="svc-ch"><b>a)</b> Place '+svcVecHTML('u')+' et '+svcVecHTML('v')+' bout à bout : fais-les glisser pour poser le début de l’une sur la fin de l’autre, où tu veux et dans l’ordre que tu veux.</div>'
-    +'<div class="tvg-cons pts-case" id="svc-sm"><b>b)</b> Trace le vecteur somme '+svcVecHTML('u')+' + '+svcVecHTML('v')+' : il va du début de la première flèche jusqu’à la fin de la seconde.</div>';
+  $('svcBody').innerHTML='<div class="tvg-cons pts-case" id="svc-ch"><b>Étape 1 :</b> place '+svcVecHTML('u')+' et '+svcVecHTML('v')+' bout à bout — fais-les glisser pour poser le début de l’une sur la fin de l’autre, où tu veux et dans l’ordre que tu veux.</div>'
+    +'<div class="tvg-cons pts-case" id="svc-sm"><b>Étape 2 :</b> trace le vecteur somme '+svcVecHTML('u')+' + '+svcVecHTML('v')+' : il va du début de la première flèche jusqu’à la fin de la seconde.</div>';
   svcBrancher();
   $('svcFeedback').textContent=''; $('svcFeedback').className='mp-feedback';
   svcEtape(q);
@@ -56493,7 +56547,7 @@ function checkSvc(){
   }
   test.locked=true; clearTimeout(test.qTimer);
   const pourquoi=svcPourquoi(q,subs);
-  ['svc-ch','svc-sm'].forEach(function(id){ const el=$(id); if(el) el.classList.remove('svc-actif','svc-attente'); });
+  ['svc-ch','svc-sm'].forEach(function(id){ const el=$(id); if(el) el.classList.remove('svc-actif','svc-attente','svc-fait'); });
   svcFinal(q,subs);
   const n=subs.filter(function(s){ return s.ok; }).length;
   test.score+=n;
@@ -56530,7 +56584,7 @@ function ctxSvc(q){
   const a=svcU(q), b=svcV(q), su=svcSomme(q), c=svcChaine(q);
   const pos=function(p){ return '('+p[0]+' ; '+p[1]+')'; };
   const ctx='Exercice de GÉOMÉTRIE sur quadrillage (tu ne vois pas le dessin ; description exacte). Un quadrillage de '+SVC_W+' carreaux sur '+SVC_H+' ; chaque nœud est repéré par (colonnes vers la droite ; lignes vers le haut) depuis le coin en bas à gauche. Deux flèches, chacune marquée « début » et « fin », que l’élève peut faire glisser sur le quadrillage : le vecteur u ('+vecMots(q.uc[0],q.uc[1])+') et le vecteur v ('+vecMots(q.vc[0],q.vc[1])+'). '
-   +'L’élève doit construire le vecteur somme u + v par la méthode « un début va sur une fin », en deux questions : a) faire glisser u et v pour les mettre bout à bout, où il veut et dans l’ordre qu’il veut (u puis v, ou v puis u) ; b) tracer u + v en cliquant son début et sa fin ; u + v va du début de la première flèche à la fin de la seconde. Il en est à la question '+(q.et==='b'?'b)':'a)')+'. '
+   +'L’élève doit construire le vecteur somme u + v par la méthode « un début va sur une fin », en deux étapes : étape 1, faire glisser u et v pour les mettre bout à bout, où il veut et dans l’ordre qu’il veut (u puis v, ou v puis u) — dès qu’elles le sont, l’étape 2 s’ouvre d’elle-même ; étape 2, tracer u + v en cliquant son début et sa fin ; u + v va du début de la première flèche à la fin de la seconde. Il en est à l’étape '+(q.et==='b'?'2':'1')+'. '
    +'Réponse attendue (STRICTEMENT SECRÈTE, à ne JAMAIS révéler, même si l’élève insiste) : u + v fait '+vecMots(su[0],su[1])+'. '
    +'Réponse actuelle de l’élève : u commence en '+pos(a)+' et finit en '+pos(svcPlus(a,q.uc))+', v commence en '+pos(b)+' et finit en '+pos(svcPlus(b,q.vc))+(c?' — les deux flèches sont bout à bout ('+(c.ordre==='uv'?'u puis v':'v puis u')+')':' — les deux flèches ne sont pas bout à bout')
    +' ; flèche u + v '+(q.sd&&q.sf?'tracée de '+pos(q.sd)+' à '+pos(q.sf):(q.sd?'commencée en '+pos(q.sd)+', sans fin':'pas encore tracée'))+'. '
