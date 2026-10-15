@@ -565,7 +565,7 @@ bulle bleue de x (rouge), « 2x » pour x × 2x (rouge), deux cases vides (la
 correction, jamais rouge), la forme réduite sans signe puis non réduite
 (rouges), le barème de 44.
 
-## {developper-double} — développer avec la double distributivité (7.10, v514)
+## {developper-double} — développer avec la double distributivité (7.10, v516)
 
 **La demande** (Turquet, octobre 2026, d'après la fiche papier « Développer »,
 exercice 4) : « faire un exercice présenté comme le 7.9 mais qui suit le pdf

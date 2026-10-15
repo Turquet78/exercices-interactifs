@@ -1770,6 +1770,29 @@ le fond de l'étape faite différent de celui de l'étape à faire, le point à
 moins de 3 px de la souris sur le milieu de BD, un clic entre les nœuds qui
 pose A′ au plus proche, puis le curseur caché une fois A′ posé.
 
+**Puis A′ s'est marqué d'une CROIX, le survol n'a plus montré de rond, et le vecteur AA′ s'est tracé (v514).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.8, quand le point de
+l'objectif 4 est placé, mettre une croix plutôt qu'un rond pour le point ; il
+ne faut plus que la flèche de la souris affiche un rond quand on passe à côté
+d'une intersection du quadrillage. Il faut aussi afficher le vecteur
+correspondant à la solution. » Le nœud choisi porte une croix
+(`path.cps-x`, posée par `cpsCroix` dans les SEULS nœuds marqués), bleue
+posée ou juste, rouge fausse, verte attendue — comme les cinq points donnés.
+Une première version cachait une croix dans chacun des 150 nœuds ; le 8.1.6,
+publié pendant ce temps, venait d'apprendre que ce choix sature la mémoire du
+banc principal dans l'action : la croix ne se crée donc qu'à la demande. Le rond (`.dot`) ne se montre
+plus jamais sur ce dessin, survol compris ; la règle est bornée à `.cps-svg`,
+les 8.5 et suivants gardent leur rond. Le point qui suit la souris est la même
+croix. Le vecteur : un calque `#cpsSol`, à part de `#cpsFl` et `#cpsCorr`
+(leurs comptes de traits restent ceux du juge), porte la flèche AA′ du point
+donné au point posé — violette (`--crd-a`) avant le jugement, bleue ou rouge
+comme le point ensuite ; quand A′ n'est pas juste (faux ou vide), la
+correction y ajoute en vert AA′ vers le point attendu, son nom de l'autre
+côté. Le juge lit la croix sur le nœud posé, AA′ tracé depuis A et nommé, AA′
+effacé quand A′ se retire, bleu seul sur la copie juste, rouge plus vert sur
+A′ faux, vert seul sur la copie vide ; le banc navigateur mesure la croix
+visible sans rond, AA′ visible, et aucun rond au survol d'un nœud.
+
 ## {point-somme-difference} — construire un point par une somme ou une différence de deux vecteurs (8.15, v498)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
@@ -2006,3 +2029,38 @@ sur la juste. Le banc navigateur (6 quadragies septies) mesure les étapes
 au-dessus du dessin, le fond de l'étape faite différent de l'étape à faire,
 aucun rond visible au survol d'un nœud, la croix du point posé visible, le
 point qui suit la souris centré sur elle, et le vecteur solution tracé.
+
+**Puis les cadres blancs sont partis : les étapes SONT les bandeaux bleus, l'étape 2 vient sous l'étape 1, et le vecteur de l'élève se trace (v515).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.9, garder uniquement les
+encadrés en bleu qui donnent les étapes, tu peux supprimer les cadres blancs
+avec étape 1 et étape 2. Quand l'étape 1/2 est réussie mettre ce cadre en
+vert et ajouter le cadre de l'étape 2/2 en dessous ; quand l'étape 2 est
+réussie, mettre le cadre correspondant en vert. Quand l'élève place le point
+d'arrivée tracer aussi le vecteur qui va du point de départ au point
+d'arrivée. Une fois le point placé, ne plus afficher de point au bout de la
+flèche de la souris. »
+**Les étapes.** Le bandeau unique `#cvpEtape` n'existe plus, ni les cadres
+`tvg-cons` : les deux réponses notées `cvp-ch` et `cvp-pt` SONT les bandeaux
+bleus (`cvp-etape pts-case`, écrits par `cvpEtapesHTML`), dans `#cvpBody`,
+juste au-dessus du dessin. L'étape 2 est cachée (`style.display`, pas
+l'attribut `hidden`, qu'un `display` d'auteur écraserait) tant que les
+flèches ne sont pas bout à bout depuis le point — sauf si un point est déjà
+posé, à la correction, ou si elle porte un verdict : une réponse notée ne se
+cache jamais (`cvpConsigne`). Une étape effectuée prend `cvp-fait`, vert ; la
+vérification la peint ok bleu, bad rouge, sol vert, par le liseré et le fond
+du bandeau (`#scr-cvp .cvp-etape.ok/.bad/.sol`).
+**Le vecteur de l'élève.** `cvpVecteurEleve` trace BB′ du point donné au
+point posé, dans son calque `#cvpEl` (au-dessus de `#cvpSol`) — la recette
+du 8.2.8 : violet (`cvp-aa`, `--crd-a`) et nommé avant le jugement, puis bleu
+(`svc-e`) ou rouge (`svc-eb`) comme la croix du point, sans nom à la
+correction : le nom « BB′ » passe au vecteur solution vert, dessous. Il est
+redessiné par `cvpCroix` (chaque marquage) et `cvpDessinerFleches` (le côté
+du nom suit les flèches). **Le point qui suit la souris** se cache dès que
+B′ est posé (`!q.sel` dans le garde du curseur, et `cvpPose` le masque
+aussitôt) ; retirer B′ le fait revenir. Le juge vérifie aucun cadre blanc,
+l'étape 2 cachée au départ puis montrée SOUS l'étape 1, montrée après la
+correction, BB′ violet et nommé au point posé, effacé au point retiré, bleu
+sans nom sur la copie juste, rouge sur la fausse, le curseur caché ; le banc
+navigateur (6 quadragies septies) mesure l'étape 2 sans hauteur au départ,
+puis entre l'étape 1 et le dessin, le curseur caché et le vecteur visible au
+point posé, et l'étape 2 verte comme l'étape 1.
