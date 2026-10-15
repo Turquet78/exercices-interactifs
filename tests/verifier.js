@@ -11720,7 +11720,9 @@ function egaliteVectoriellePoint(w, P){
     if(instr.textContent.indexOf('Place le point C')<0) vus.push('l\\'énoncé ne demande pas « Place le point C » : '+instr.textContent.slice(0,80));
     const vecs=Array.from(instr.querySelectorAll('.vgt-vec')).map(function(x){ return x.textContent; });
     if(vecs.join(' ')!=='AB DC') vus.push('l\\'égalité de l\\'énoncé n\\'est pas « AB = DC » coiffée de flèches : '+vecs.join(' '));
-    const lettres=Array.from(document.querySelectorAll('#vepGraph text.vec-lbl:not(.vec-dlbl)')).map(function(t){ return t.textContent; }).sort().join('');
+    /* la lettre du point qui suit la souris (.cvp-curseur, v510) n'est pas un point donné */
+    const lettres=Array.from(document.querySelectorAll('#vepGraph text.vec-lbl:not(.vec-dlbl)')).filter(function(t){ return !t.closest('.cvp-curseur'); }).map(function(t){ return t.textContent; }).sort().join('');
+    if(document.querySelectorAll('#vepGraph #vepCurseur').length!==1) vus.push('le point qui suit la souris (#vepCurseur) manque au dessin');
     if(lettres!=='ABD') vus.push('le dessin n\\'écrit pas exactement A, B et D : '+lettres);
     if(document.querySelectorAll('#vepGraph .vec-t').length!==97) vus.push(document.querySelectorAll('#vepGraph .vec-t').length+' cibles au lieu de 97 (100 nœuds moins 3 points)');
     if(document.querySelector('#vepGraph .vec-t.sel')) vus.push('un nœud est choisi avant que l\\'élève le pose');

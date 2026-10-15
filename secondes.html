@@ -2422,6 +2422,16 @@
   #cvpInstr .vgt-vec{font-size:1.1em}
   #cvpInstr .cvp-eg{white-space:nowrap}
   .cvp-curseur,.svc-curseur{pointer-events:none}
+  /* 8.1.6 : le nœud choisi se dessine en CROIX, comme les points donnés — bleue,
+     rouge si elle est fausse ; une fois un nœud choisi, le survol n'allume plus
+     les autres (vep-pose), et le point qui suivait la souris disparaît */
+  #vepGraph .vec-t .vec-x{display:none}
+  #vepGraph .vec-t .vec-x line{stroke:var(--blue-dark);stroke-width:2.6;stroke-linecap:round}
+  #vepGraph .vec-t.sel .vec-x,#vepGraph .vec-t.okc .vec-x,#vepGraph .vec-t.badc .vec-x{display:block}
+  #vepGraph .vec-t.badc .vec-x line{stroke:var(--red)}
+  #vepGraph .vec-t.sel .dot,#vepGraph .vec-t.okc .dot,#vepGraph .vec-t.badc .dot,
+  #vepGraph.vep-pose .vec-t:not(.missc):hover .dot{fill:transparent;stroke:transparent}
+  #vepGraph .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
   .cvp-curseur circle,.svc-curseur circle{fill:var(--blue);fill-opacity:.55;stroke:var(--blue-dark);stroke-width:1.6}
   .cvp-svg .cvp-curseur .vec-lbl,.cps-svg .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
   .cvp-outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:4px 0 12px}
@@ -6963,7 +6973,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=509;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=510;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -55519,7 +55529,8 @@ function vecCroix(i,j,L){
    o = { pts:{A:[i,j],…} les points donnés, cible:'D' la lettre à poser,
          sel:[i,j]|null le nœud choisi, pfx:'vecn' le préfixe des identifiants,
          clic:'vecPose' la fonction du clic, marker/corr : les identifiants de
-         la pointe de flèche et du calque de correction } */
+         la pointe de flèche et du calque de correction, croix:true pour que
+         le nœud choisi se dessine en croix, comme les points donnés (8.6) } */
 function vecQuadrillage(o){
   const W=2*VEC_PAD+VEC_N*VEC_CELL;
   const X=i=>VEC_PAD+i*VEC_CELL, Y=j=>VEC_PAD+(VEC_N-j)*VEC_CELL;
@@ -55537,7 +55548,9 @@ function vecQuadrillage(o){
     const sel=(o.sel&&o.sel[0]===i&&o.sel[1]===j)?' sel':'';
     zones+=`<path class="vec-zone" d="M${X(i)} ${Y(j)}h0.01" onclick="${o.clic}(${i},${j})"/>`;
     cibles+=`<g class="vec-t${sel}" id="${o.pfx}-${i}-${j}" onclick="${o.clic}(${i},${j})" tabindex="0" role="button" aria-label="nœud ${i} vers la droite, ${j} vers le haut" aria-pressed="${sel?'true':'false'}">`
-      +`<circle class="hit" cx="${X(i)}" cy="${Y(j)}" r="10"/><circle class="dot" cx="${X(i)}" cy="${Y(j)}" r="5"/>${vecEtiquette(i,j,o.cible,'vec-lbl vec-dlbl')}</g>`;
+      +`<circle class="hit" cx="${X(i)}" cy="${Y(j)}" r="10"/><circle class="dot" cx="${X(i)}" cy="${Y(j)}" r="5"/>`
+      +(o.croix?`<g class="vec-x"><line x1="${X(i)-6}" y1="${Y(j)-6}" x2="${X(i)+6}" y2="${Y(j)+6}"/><line x1="${X(i)-6}" y1="${Y(j)+6}" x2="${X(i)+6}" y2="${Y(j)-6}"/></g>`:'')
+      +`${vecEtiquette(i,j,o.cible,'vec-lbl vec-dlbl')}</g>`;
   }
   return `<svg viewBox="0 0 ${W} ${W}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg">`
     +`<defs><marker id="${o.marker}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--green)"/></marker></defs>`
@@ -55851,7 +55864,38 @@ function vepEgaliteHTML(q){ return vepVecHTML(q.eq[0],q.eq[1])+' = '+vepVecHTML(
 function vepEgaliteTxt(q){ return 'vecteur '+q.eq[0]+q.eq[1]+' = vecteur '+q.eq[2]+q.eq[3]; }
 function vepSVG(q){
   const pts={}; vepDonnes(q).forEach(function(L){ pts[L]=q[L]; });
-  return vecQuadrillage({pts:pts, cible:q.m, sel:q.selM, pfx:'vepn', clic:'vepPose', marker:'vepArr', corr:'vepCorr'});
+  /* le point qui suit la souris, posé en DERNIER : au-dessus de tout, sans
+     prendre aucun clic (.cvp-curseur, pointer-events:none) */
+  return vecQuadrillage({pts:pts, cible:q.m, sel:q.selM, pfx:'vepn', clic:'vepPose', marker:'vepArr', corr:'vepCorr', croix:true})
+    .replace(/<\/svg>$/, `<g id="vepCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><circle r="5"/><text class="vec-lbl" x="8" y="-8">${q.m}</text></g></svg>`);
+}
+/* Le point au bout de la souris (demande de Turquet, octobre 2026) : tant
+   qu'aucun nœud n'est choisi, un point et sa lettre suivent la pointe partout
+   sur le quadrillage ; dès qu'un nœud est choisi, il devient une croix, et
+   plus rien ne suit la souris ni ne s'allume au survol d'un nœud (classe
+   vep-pose du dessin). Recliquer la croix la retire : le point revient. Rien
+   au doigt (pointerType « touch » : pas de survol), rien une fois corrigé. */
+let vepDernier=null;
+function vepCurseur(ev){
+  const g=$('vepGraph'); if(!g) return;
+  const q=test.kind==='vep'&&test.questions&&test.questions[test.idx];
+  const pose=!q||!!q.selM||!!test.locked||!!test.vepFige;
+  g.classList.toggle('vep-pose', pose);
+  const c=$('vepCurseur'); if(!c) return;
+  const svg=g.querySelector('.vec-svg'), m=svg&&svg.getScreenCTM&&svg.getScreenCTM();
+  if(pose||!ev||ev.pointerType==='touch'||!m){ c.style.display='none'; return; }
+  const pt=svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
+  const p=pt.matrixTransform(m.inverse());
+  const fx=(p.x-VEC_PAD)/VEC_CELL, fy=VEC_N-(p.y-VEC_PAD)/VEC_CELL;
+  if(fx<-0.5||fx>VEC_N+0.5||fy<-0.5||fy>VEC_N+0.5){ c.style.display='none'; return; }
+  c.setAttribute('transform','translate('+p.x+' '+p.y+')');
+  c.style.display='';
+}
+function vepBrancheCurseur(){
+  const g=$('vepGraph'); if(!g||g.dataset.vepCurseur) return;
+  g.dataset.vepCurseur='1';
+  g.addEventListener('pointermove', function(ev){ vepDernier=ev; vepCurseur(ev); });
+  g.addEventListener('pointerleave', function(){ vepDernier=null; vepCurseur(null); });
 }
 /* Poser le point : un seul nœud à la fois — cliquer un autre nœud le déplace,
    cliquer le nœud posé le retire. L'état vit dans la question (pause et reprise). */
@@ -55864,6 +55908,7 @@ function vepPose(i,j){
   q.selM=meme?null:[i,j];
   if(!meme){ el.classList.add('sel'); el.classList.remove('badc'); el.setAttribute('aria-pressed','true'); }
   const pt=$('vep-pt'); if(pt) pt.classList.remove('ok','bad');
+  vepCurseur(vepDernier);
   recoveryDirty=true;
 }
 /* LE JUGE — deux réponses, chacune jugée seule : le nœud posé, qui doit être
@@ -55885,7 +55930,7 @@ function vepMarqueSoutien(q,subs){
     const pt=$('vep-pt'); if(pt){ pt.classList.remove('ok','bad'); if(!s.vide) pt.classList.add(s.ok?'ok':'bad'); }
     if(!q.selM) return;
     const el=$('vepn-'+q.selM[0]+'-'+q.selM[1]); if(!el) return;
-    if(s.ok){ el.classList.add('okc','off'); el.classList.remove('sel','badc'); test.vepFige=true; }
+    if(s.ok){ el.classList.add('okc','off'); el.classList.remove('sel','badc'); test.vepFige=true; vepCurseur(null); }
     else el.classList.add('badc');
   });
 }
@@ -55899,6 +55944,7 @@ function vepFinal(q,subs){
   document.querySelectorAll('#vepGraph .vec-t').forEach(function(el){ el.classList.add('off'); el.classList.remove('sel'); });
   if(q.selM){ const el=$('vepn-'+q.selM[0]+'-'+q.selM[1]); if(el) el.classList.add(subs[0].ok?'okc':'badc'); }
   if(!subs[0].ok){ const el=$('vepn-'+M[0]+'-'+M[1]); if(el) el.classList.add('missc'); }
+  vepCurseur(null);
   const P=L=>L===q.m?M:q[L];
   const corr=$('vepCorr'); if(corr) corr.innerHTML=vecFigure(P, vepTour(q).split(''), [[q.eq[0],q.eq[1]],[q.eq[2],q.eq[3]]], 'vepArr');
 }
@@ -55930,6 +55976,7 @@ function renderVep(){
   $('vepModeTag').innerHTML=modeTagHTML();
   $('vepInstr').innerHTML='Les points <b>'+d[0]+'</b>, <b>'+d[1]+'</b> et <b>'+d[2]+'</b> sont placés sur le quadrillage. Place le point <b>'+q.m+'</b> tel que '+vepEgaliteHTML(q)+'.';
   $('vepGraph').innerHTML=vepSVG(q);
+  vepBrancheCurseur(); vepCurseur(vepDernier);
   $('vepBody').innerHTML=
      '<div class="tvg-cons pts-case" id="vep-pt"><b>a)</b> Clique sur le quadrillage le nœud où se trouve le point <b>'+q.m+'</b> pour que '+vepEgaliteHTML(q)+'.</div>'
     +'<div class="tvg-cons" id="vep-ph"><b>b)</b> Nomme le parallélogramme obtenu : '

@@ -8760,15 +8760,41 @@ if(require.main === module) (async () => {
       }));
       /* la question affichée, et ses réponses attendues, recalculées ICI */
       const q0 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { M: vepPoint(q), m: q.m, nom: vepTour(q), eq: q.eq }; });
+      /* v510 : avant tout choix, un point suit la souris, même entre deux
+         nœuds ; une fois le nœud choisi, il devient une croix, le point de la
+         souris disparaît et le survol d'un autre nœud n'allume plus rien */
+      const curseur = async (px, py) => await s.page.evaluate(([x, y]) => { const c = document.getElementById('vepCurseur'); if(!c) return 'absent';
+        const b = c.querySelector('circle').getBoundingClientRect();
+        return getComputedStyle(c).display === 'none' ? 'caché' : Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)); }, [px, py]);
+      const entre = await posNoeud(q0.M[0], q0.M[1], 0.5, 0.5);
+      await s.page.mouse.move(entre.px - 15, entre.py - 15); await s.page.mouse.move(entre.px, entre.py, { steps: 4 });
+      await s.page.waitForTimeout(80);
+      const c0 = await curseur(entre.px, entre.py);
+      if(typeof c0 !== 'number' || c0 > 3) dits.push('avant le choix, le point ne suit pas la souris : ' + c0);
       await clicNoeud(q0.M[0], q0.M[1]);
+      const c1 = await curseur(0, 0);
+      if(c1 !== 'caché') dits.push('le nœud choisi, le point suit encore la souris : ' + c1);
+      const croix = await s.page.evaluate(([i, j]) => { const n = document.getElementById('vepn-' + i + '-' + j), x = n && n.querySelector('.vec-x');
+        const d = n && getComputedStyle(n.querySelector('.dot'));
+        return { x: !!x && getComputedStyle(x).display !== 'none' && x.getBoundingClientRect().width > 8, dot: d ? d.fill : '' }; }, q0.M);
+      if(!croix.x) dits.push('le nœud choisi ne se dessine pas en croix');
+      if(!/rgba\(0, 0, 0, 0\)|transparent/.test(croix.dot)) dits.push('le nœud choisi garde son disque : ' + croix.dot);
+      const autre = q0.M[0] > 0 ? [q0.M[0] - 1, q0.M[1]] : [q0.M[0] + 1, q0.M[1]];
+      const pa = await posNoeud(autre[0], autre[1]);
+      await s.page.mouse.move(pa.px, pa.py, { steps: 3 }); await s.page.waitForTimeout(80);
+      const survol = await s.page.evaluate(([i, j]) => { const n = document.getElementById('vepn-' + i + '-' + j); return n ? getComputedStyle(n.querySelector('.dot')).fill : 'occupé'; }, autre);
+      if(survol !== 'occupé' && !/rgba\(0, 0, 0, 0\)|transparent/.test(survol)) dits.push('le nœud choisi, le survol d\'un autre nœud l\'allume encore : ' + survol);
       let e = await etat();
       if(e.sel !== JSON.stringify(q0.M)) dits.push('le clic ne pose pas le nœud visé : ' + e.sel + ' au lieu de ' + JSON.stringify(q0.M));
       if(e.peints !== 1) dits.push('le nœud posé ne se peint pas (' + e.peints + ')');
       if(e.lbl !== q0.m) dits.push('le nœud posé ne porte pas la lettre ' + q0.m + ' : « ' + e.lbl + ' »');
-      /* recliquer RETIRE */
+      /* recliquer RETIRE — et le point revient au bout de la souris */
       await clicNoeud(q0.M[0], q0.M[1]);
       e = await etat();
       if(e.sel !== 'null' || e.peints !== 0) dits.push('recliquer le nœud ne le retire pas : ' + e.sel);
+      const pm = await posNoeud(q0.M[0], q0.M[1]);
+      const c2 = await curseur(pm.px, pm.py);
+      if(typeof c2 !== 'number' || c2 > 3) dits.push('la croix retirée, le point ne revient pas au bout de la souris : ' + c2);
       /* un clic à un cinquième de maille tombe dans la zone de touche du nœud */
       await clicNoeud(q0.M[0], q0.M[1], 0.2, 0);
       e = await etat();
