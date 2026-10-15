@@ -2433,6 +2433,16 @@
   #cvpInstr .vgt-vec{font-size:1.1em}
   #cvpInstr .cvp-eg{white-space:nowrap}
   .cvp-curseur,.svc-curseur{pointer-events:none}
+  /* 8.1.6 : le nœud choisi se dessine en CROIX, comme les points donnés — bleue,
+     rouge si elle est fausse ; une fois un nœud choisi, le survol n'allume plus
+     les autres (vep-pose), et le point qui suivait la souris disparaît */
+  #vepGraph .vec-t .vec-x{display:none}
+  #vepGraph .vec-t .vec-x line{stroke:var(--blue-dark);stroke-width:2.6;stroke-linecap:round}
+  #vepGraph .vec-t.sel .vec-x,#vepGraph .vec-t.okc .vec-x,#vepGraph .vec-t.badc .vec-x{display:block}
+  #vepGraph .vec-t.badc .vec-x line{stroke:var(--red)}
+  #vepGraph .vec-t.sel .dot,#vepGraph .vec-t.okc .dot,#vepGraph .vec-t.badc .dot,
+  #vepGraph.vep-pose .vec-t:not(.missc):hover .dot{fill:transparent;stroke:transparent}
+  #vepGraph .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
   .cvp-curseur circle,.svc-curseur circle{fill:var(--blue);fill-opacity:.55;stroke:var(--blue-dark);stroke-width:1.6}
   .cvp-svg .cvp-curseur .vec-lbl,.cps-svg .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
   .cvp-outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:4px 0 12px}
@@ -55862,7 +55872,51 @@ function vepEgaliteHTML(q){ return vepVecHTML(q.eq[0],q.eq[1])+' = '+vepVecHTML(
 function vepEgaliteTxt(q){ return 'vecteur '+q.eq[0]+q.eq[1]+' = vecteur '+q.eq[2]+q.eq[3]; }
 function vepSVG(q){
   const pts={}; vepDonnes(q).forEach(function(L){ pts[L]=q[L]; });
-  return vecQuadrillage({pts:pts, cible:q.m, sel:q.selM, pfx:'vepn', clic:'vepPose', marker:'vepArr', corr:'vepCorr'});
+  /* le point qui suit la souris, posé en DERNIER : au-dessus de tout, sans
+     prendre aucun clic (.cvp-curseur, pointer-events:none) */
+  return vecQuadrillage({pts:pts, cible:q.m, sel:q.selM, pfx:'vepn', clic:'vepPose', marker:'vepArr', corr:'vepCorr'})
+    .replace(/<\/svg>$/, `<g id="vepCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><circle r="5"/><text class="vec-lbl" x="8" y="-8">${q.m}</text></g></svg>`);
+}
+/* Le point au bout de la souris (demande de Turquet, octobre 2026) : tant
+   qu'aucun nœud n'est choisi, un point et sa lettre suivent la pointe partout
+   sur le quadrillage ; dès qu'un nœud est choisi, il devient une croix, et
+   plus rien ne suit la souris ni ne s'allume au survol d'un nœud (classe
+   vep-pose du dessin). Recliquer la croix la retire : le point revient. Rien
+   au doigt (pointerType « touch » : pas de survol), rien une fois corrigé. */
+let vepDernier=null;
+/* La croix du nœud choisi : UNE seule, posée dans le groupe de ce nœud (ses
+   classes sel/okc/badc la colorent) — pas une croix cachée dans chacun des
+   97 nœuds, qui triplait le dessin à chaque question. */
+function vepCroix(){
+  document.querySelectorAll('#vepGraph .vec-x').forEach(function(x){ x.remove(); });
+  const q=test.kind==='vep'&&test.questions&&test.questions[test.idx]; if(!q||!q.selM) return;
+  const el=$('vepn-'+q.selM[0]+'-'+q.selM[1]); if(!el) return;
+  const X=VEC_PAD+q.selM[0]*VEC_CELL, Y=VEC_PAD+(VEC_N-q.selM[1])*VEC_CELL, NS='http://www.w3.org/2000/svg';
+  const g=document.createElementNS(NS,'g'); g.setAttribute('class','vec-x');
+  [[-6,-6,6,6],[-6,6,6,-6]].forEach(function(d){ const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',X+d[0]); l.setAttribute('y1',Y+d[1]); l.setAttribute('x2',X+d[2]); l.setAttribute('y2',Y+d[3]); g.appendChild(l); });
+  el.insertBefore(g, el.querySelector('.vec-dlbl'));
+}
+function vepCurseur(ev){
+  const g=$('vepGraph'); if(!g) return;
+  const q=test.kind==='vep'&&test.questions&&test.questions[test.idx];
+  const pose=!q||!!q.selM||!!test.locked||!!test.vepFige;
+  g.classList.toggle('vep-pose', pose);
+  const c=$('vepCurseur'); if(!c) return;
+  const svg=g.querySelector('.vec-svg'), m=svg&&svg.getScreenCTM&&svg.getScreenCTM();
+  if(pose||!ev||ev.pointerType==='touch'||!m){ c.style.display='none'; return; }
+  const pt=svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
+  const p=pt.matrixTransform(m.inverse());
+  const fx=(p.x-VEC_PAD)/VEC_CELL, fy=VEC_N-(p.y-VEC_PAD)/VEC_CELL;
+  if(fx<-0.5||fx>VEC_N+0.5||fy<-0.5||fy>VEC_N+0.5){ c.style.display='none'; return; }
+  c.setAttribute('transform','translate('+p.x+' '+p.y+')');
+  c.style.display='';
+}
+function vepBrancheCurseur(){
+  const g=$('vepGraph'); if(!g||g.dataset.vepCurseur) return;
+  g.dataset.vepCurseur='1';
+  g.addEventListener('pointermove', function(ev){ vepDernier=ev; vepCurseur(ev); });
+  g.addEventListener('pointerleave', function(){ vepDernier=null; vepCurseur(null); });
 }
 /* Poser le point : un seul nœud à la fois — cliquer un autre nœud le déplace,
    cliquer le nœud posé le retire. L'état vit dans la question (pause et reprise). */
@@ -55875,6 +55929,7 @@ function vepPose(i,j){
   q.selM=meme?null:[i,j];
   if(!meme){ el.classList.add('sel'); el.classList.remove('badc'); el.setAttribute('aria-pressed','true'); }
   const pt=$('vep-pt'); if(pt) pt.classList.remove('ok','bad');
+  vepCroix(); vepCurseur(vepDernier);
   recoveryDirty=true;
 }
 /* LE JUGE — deux réponses, chacune jugée seule : le nœud posé, qui doit être
@@ -55896,7 +55951,7 @@ function vepMarqueSoutien(q,subs){
     const pt=$('vep-pt'); if(pt){ pt.classList.remove('ok','bad'); if(!s.vide) pt.classList.add(s.ok?'ok':'bad'); }
     if(!q.selM) return;
     const el=$('vepn-'+q.selM[0]+'-'+q.selM[1]); if(!el) return;
-    if(s.ok){ el.classList.add('okc','off'); el.classList.remove('sel','badc'); test.vepFige=true; }
+    if(s.ok){ el.classList.add('okc','off'); el.classList.remove('sel','badc'); test.vepFige=true; vepCurseur(null); }
     else el.classList.add('badc');
   });
 }
@@ -55910,6 +55965,7 @@ function vepFinal(q,subs){
   document.querySelectorAll('#vepGraph .vec-t').forEach(function(el){ el.classList.add('off'); el.classList.remove('sel'); });
   if(q.selM){ const el=$('vepn-'+q.selM[0]+'-'+q.selM[1]); if(el) el.classList.add(subs[0].ok?'okc':'badc'); }
   if(!subs[0].ok){ const el=$('vepn-'+M[0]+'-'+M[1]); if(el) el.classList.add('missc'); }
+  vepCurseur(null);
   const P=L=>L===q.m?M:q[L];
   const corr=$('vepCorr'); if(corr) corr.innerHTML=vecFigure(P, vepTour(q).split(''), [[q.eq[0],q.eq[1]],[q.eq[2],q.eq[3]]], 'vepArr');
 }
@@ -55941,6 +55997,7 @@ function renderVep(){
   $('vepModeTag').innerHTML=modeTagHTML();
   $('vepInstr').innerHTML='Les points <b>'+d[0]+'</b>, <b>'+d[1]+'</b> et <b>'+d[2]+'</b> sont placés sur le quadrillage. Place le point <b>'+q.m+'</b> tel que '+vepEgaliteHTML(q)+'.';
   $('vepGraph').innerHTML=vepSVG(q);
+  vepCroix(); vepBrancheCurseur(); vepCurseur(vepDernier);
   $('vepBody').innerHTML=
      '<div class="tvg-cons pts-case" id="vep-pt"><b>a)</b> Clique sur le quadrillage le nœud où se trouve le point <b>'+q.m+'</b> pour que '+vepEgaliteHTML(q)+'.</div>'
     +'<div class="tvg-cons" id="vep-ph"><b>b)</b> Nomme le parallélogramme obtenu : '
