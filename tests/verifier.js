@@ -12337,7 +12337,7 @@ function pointSommeVecteurs(w, P){
     cpsPose(5,2);
     if(faits()!=='1111') vus.push('A′ posé, les quatre étapes devraient être vertes : '+faits());
     if(JSON.stringify(q1.pt)!=='[5,2]' || !document.querySelector('#cpsn-5-2.sel')) vus.push('le clic suivant ne pose pas A′');
-    if(!document.querySelector('#cpsn-5-2 path.cps-x')) vus.push('le nœud de A′ n\'a pas de croix pour marquer le point posé');
+    if(!document.querySelector('#cpsn-5-2 path.cps-x')) vus.push('le nœud de A′ n\\'a pas de croix pour marquer le point posé');
     const aa=el('cpsSol').querySelector('line.cps-aa'), nomAA=Array.from(el('cpsSol').querySelectorAll('text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
     if(!aa || aa.getAttribute('x1')!==String(CPS_PX+2*CPS_C) || nomAA!=='AA′') vus.push('A′ posé, le vecteur AA′ ne se trace pas depuis A : '+nomAA);
     cpsPose(5,2);
@@ -12386,7 +12386,7 @@ function pointSommeVecteurs(w, P){
     if(classes()!=='ok,ok,sol,bad') vus.push('flèches jamais déplacées, A′ faux : '+classes()+' au lieu de ok,ok,sol,bad — un chaînage jamais tenté ne rougit pas');
     if(fb.indexOf('Il te manquait 1 case')<0 || fb.indexOf('pas au bon nœud')<0) vus.push('le message ne dit pas la case manquante et le point faux : '+fb.slice(0,160));
     if(!document.querySelector('#cpsn-6-2.badc') || !document.querySelector('#cpsn-5-2.missc')) vus.push('A′ faux ne rougit pas, ou le point attendu ne se montre pas en vert');
-    if(!el('cpsSol').querySelector('line.svc-eb') || !el('cpsSol').querySelector('line.svc-s')) vus.push('A′ faux : le vecteur AA′ de l\'élève ne rougit pas, ou celui de la solution ne se montre pas en vert');
+    if(!el('cpsSol').querySelector('line.svc-eb') || !el('cpsSol').querySelector('line.svc-s')) vus.push('A′ faux : le vecteur AA′ de l\\'élève ne rougit pas, ou celui de la solution ne se montre pas en vert');
 
     /* 7. soutien : rien ne se révèle, rien ne se verrouille ; le juste se fige ;
        « Effacer mes flèches » efface le faux, garde le figé */
