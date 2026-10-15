@@ -12289,6 +12289,8 @@ function pointSommeVecteurs(w, P){
     if(el('cpsFl').children.length || document.querySelectorAll('#cpsPrises .svc-prise').length) vus.push('une flèche est dessinée avant que l\\'élève la trace');
     ['cps-t1','cps-t2','cps-ch','cps-pt'].forEach(function(id){ if(!el(id)||!el(id).classList.contains('pts-case')) vus.push(id+' n\\'est pas une pts-case : la réponse ne compterait pas dans la note'); });
     if(el('cpsEtape').textContent.indexOf('BC')<0) vus.push('la page ne dit pas quelle flèche tracer d\\'abord : '+el('cpsEtape').textContent);
+    const faits=function(){ return ['cps-t1','cps-t2','cps-ch','cps-pt'].map(function(id){ return el(id).classList.contains('cps-fait')?1:0; }).join(''); };
+    if(faits()!=='0000') vus.push('une étape passe au vert avant d\\'être faite : '+faits());
 
     /* 3. vérifier à vide : rien ne rougit, la correction en vert */
     checkCps(); clearTimeout(test.fbTimer);
@@ -12313,14 +12315,18 @@ function pointSommeVecteurs(w, P){
     const nomsFl=Array.from(document.querySelectorAll('#cpsFl text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
     if(nomsFl!=='BC') vus.push('la flèche tracée ne porte pas son nom : '+nomsFl);
     if(el('cpsEtape').textContent.indexOf('BD')<0) vus.push('la page ne passe pas à la seconde flèche : '+el('cpsEtape').textContent);
+    if(faits()!=='1000') vus.push('BC tracé, seule la première étape devrait être verte : '+faits());
     tracer([5,7],[5,5]);
+    if(faits()!=='1100') vus.push('BC et BD tracés, les deux premières étapes devraient être vertes : '+faits());
     if(document.querySelectorAll('#cpsPrises .svc-prise').length!==2) vus.push('les deux flèches tracées n\\'ont pas chacune leur prise pour glisser');
     if(!cpsDeplacer(0,[2,4]) || JSON.stringify(q1.p1)!=='[2,4]') vus.push('cpsDeplacer ne range pas le début de BC : '+JSON.stringify(q1.p1));
     const l0=el('cpsFl').querySelector('line.svc-u');
     if(!l0 || l0.getAttribute('x1')!==String(CPS_PX+2*CPS_C)) vus.push('la flèche BC ne se redessine pas à sa nouvelle place');
     cpsDeplacer(1,[5,4]);
     if(!cpsChaine(q1)||cpsChaine(q1).ordre!=='ab') vus.push('BD posé au bout de BC, depuis A, n\\'est pas lu bout à bout');
+    if(faits()!=='1110') vus.push('les flèches bout à bout depuis A, la troisième étape devrait être verte : '+faits());
     cpsPose(5,2);
+    if(faits()!=='1111') vus.push('A′ posé, les quatre étapes devraient être vertes : '+faits());
     if(JSON.stringify(q1.pt)!=='[5,2]' || !document.querySelector('#cpsn-5-2.sel')) vus.push('le clic suivant ne pose pas A′');
     cpsPose(5,2);
     if(q1.pt!==null) vus.push('recliquer A′ ne le retire pas');
@@ -12330,6 +12336,7 @@ function pointSommeVecteurs(w, P){
     if(!cpsChaine(test.questions[1]) || el('cpsFl').querySelectorAll('line').length!==2 || !document.querySelector('#cpsn-5-2.sel')) vus.push('la reprise perd les flèches, leur place ou A′');
     if(verifierIci()!==4) vus.push('la copie juste (BC puis BD) ne vaut pas 4 : '+classes());
     if(classes()!=='ok,ok,ok,ok') vus.push('la copie juste n\\'est pas peinte ok : '+classes());
+    if(faits()!=='0000') vus.push('la marque « étape faite » reste après la vérification : '+faits());
     if(el('cpsCorr').children.length || document.querySelector('#cpsGraph .vec-t.missc')) vus.push('la correction se montre alors que tout est juste');
     if(el('cpsFeedback').className.indexOf('good')<0) vus.push('la copie juste n\\'a pas de message vert');
     if(document.querySelector('#cpsPrises .svc-prise')) vus.push('les flèches se saisissent encore après la correction');
