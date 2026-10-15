@@ -4547,6 +4547,7 @@ function exercices(suite){
     sommeVecteursRepere(w, P);
     pointSommeVecteurs(w, P);
     pointSommeDifference(w, P);
+    tracerVecteursEgaux(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
     recurrenceLimite(w, P);
@@ -12211,6 +12212,201 @@ function sommeVecteursRepere(w, P){
      · en soutien, rien ne se révèle, rien ne se verrouille, le juste se
        fige ; le contexte du modèle porte le point en le déclarant SECRET.
    Le TRACÉ et le GLISSER, eux, se mesurent dans un vrai navigateur. */
+/* {tracer-vecteurs-egaux} (Seconde, 8.1.7, thème « Vecteurs » — demande de
+   Turquet, octobre 2026 : trois vecteurs u⃗, v⃗, w⃗ sur un quadrillage, tracer
+   un vecteur égal à chacun ; un clic pose le départ, un second l'arrivée, un
+   clic sur une extrémité d'une flèche tracée la reprend). Le tirage, le
+   geste (tvxClic, le nœud tel que la souris le donne), le juge, la
+   correction et le soutien. Le geste à la souris lui-même — le point qui
+   suit la pointe, la flèche élastique, le clic aimanté au nœud le plus
+   proche — ne se voit que dans le banc navigateur (« 6 quadragies octies »). */
+function tracerVecteursEgaux(w, P){
+  const nom = 'vecteurs égaux à tracer : le tirage est lisible, un clic au départ, un à l\'arrivée, une extrémité se reprend, chaque flèche se juge seule, une case vide ne rougit pas';
+  if(!P.tracerVecteursEgaux){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice des vecteurs égaux à tracer');
+    return;
+  }
+  const present = evaluer(w, "typeof startTvx==='function' && typeof checkTvx==='function' && typeof tvxClic==='function' && typeof tvxAnnuler==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startTvx, checkTvx, tvxClic ou tvxAnnuler introuvable');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.tracerVecteursEgaux)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['translation-grille']!=='8.1.1' || TEST_NUM['egalite-vectorielle-point']!=='8.1.6' || TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['point-somme-difference']!=='8.2.9') vus.push('un exercice du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const classes=function(){ return ['tvx-u','tvx-v','tvx-w'].map(classe).join(','); };
+    const faits=function(){ return ['tvx-u','tvx-v','tvx-w'].map(function(id){ return el(id).classList.contains('tvx-fait')?1:0; }).join(''); };
+    const fixe=function(){ return {vs:[[2,2,3,4],[7,8,4,-2],[13,2,-3,2]], d1:null, f1:null, d2:null, f2:null, d3:null, f3:null}; };
+    const verifierIci=function(){ const av=test.score; checkTvx(); clearTimeout(test.fbTimer); return test.score-av; };
+    const tracer=function(a,b){ tvxClic(a[0],a[1]); tvxClic(b[0],b[1]); };
+
+    /* 1. le tirage : lisible, JSON, rien de répondu */
+    startTvx(); clearTimeout(test.fbTimer);
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    const figures={};
+    for(let t=0;t<200 && !vus.length;t++){
+      const qs=tvxBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' questions au lieu de '+D.nb); break; }
+      const cles=qs.map(cleQuestion);
+      if(new Set(cles).size!==cles.length) vus.push('deux questions identiques dans une même séance');
+      qs.forEach(function(q){
+        if(Object.keys(q).sort().join(',')!=='d1,d2,d3,f1,f2,f3,vs') vus.push('la question range autre chose que la figure et les flèches de l\\'élève : '+Object.keys(q).join(','));
+        if(['d1','f1','d2','f2','d3','f3'].some(function(k){ return q[k]!==null; })) vus.push('le tirage trace à la place de l\\'élève');
+        figures[cleQuestion(q)]=1;
+        if(q.vs.length!==3) vus.push(q.vs.length+' vecteurs au lieu de 3');
+        const ws=q.vs.map(function(v){ return [v[2],v[3]]; }), boites=[];
+        q.vs.forEach(function(v){
+          const f=[v[0]+v[2],v[1]+v[3]];
+          if(Math.max(Math.abs(v[2]),Math.abs(v[3]))<2 || Math.abs(v[2])>4 || Math.abs(v[3])>4) vus.push('un chemin illisible : ('+v[2]+';'+v[3]+')');
+          [[v[0],v[1]],f].forEach(function(p){ if(p[0]<1||p[0]>17||p[1]<1||p[1]>9) vus.push('un vecteur touche le bord : ('+p.join(';')+')'); });
+          boites.push([Math.min(v[0],f[0]),Math.min(v[1],f[1]),Math.max(v[0],f[0]),Math.max(v[1],f[1])]);
+        });
+        for(let a=0;a<3;a++) for(let b=a+1;b<3;b++){
+          if(ws[a][0]*ws[b][1]-ws[a][1]*ws[b][0]===0) vus.push('deux vecteurs parallèles');
+          const A=boites[a], B=boites[b];
+          if(A[0]-2<B[2]&&B[0]<A[2]+2&&A[1]-2<B[3]&&B[1]<A[3]+2) vus.push('deux vecteurs à moins de deux carreaux');
+        }
+        if(ws.filter(function(w){ return w[0]&&w[1]; }).length<2) vus.push('moins de deux vecteurs en biais');
+        if(JSON.stringify(JSON.parse(JSON.stringify(q)))!==JSON.stringify(q)) vus.push('la question ne survit pas au JSON de la pause');
+      });
+    }
+    if(!vus.length && Object.keys(figures).length<595) vus.push('les figures se répètent : '+Object.keys(figures).length+' en 600 questions');
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* montage : une figure fixe — u (3 ; 4), v (4 ; −2), w (−3 ; 2) */
+    startTvx(); clearTimeout(test.fbTimer);
+    test.questions=[fixe(),fixe(),fixe(),fixe(),fixe()];
+    test.idx=0; test.locked=false; renderTvx();
+
+    /* 2. l'énoncé, les étapes et le dessin */
+    const t0=el('tvxInstr').textContent;
+    if(t0.indexOf('Trace un vecteur égal au vecteur u')<0 || t0.indexOf('puis un vecteur égal au vecteur w')<0) vus.push('l\\'énoncé ne demande pas les trois vecteurs égaux : '+t0.slice(0,120));
+    if(el('tvxInstr').querySelectorAll('.vec').length!==3) vus.push('les vecteurs de l\\'énoncé ne sont pas coiffés de leur flèche');
+    const donnes=Array.from(document.querySelectorAll('#tvxDonnes text.svc-nom')).map(function(t){ return t.textContent; }).join('');
+    if(donnes!=='uvw' || document.querySelectorAll('#tvxDonnes line.svc-u').length!==3) vus.push('le dessin ne montre pas les trois vecteurs u, v, w nommés : '+donnes);
+    if(el('tvxFl').children.length || el('tvxPrises').children.length || el('tvxCorr').children.length) vus.push('une flèche de l\\'élève est dessinée avant qu\\'il la trace');
+    ['tvx-u','tvx-v','tvx-w'].forEach(function(id){ if(!el(id)||!el(id).classList.contains('pts-case')) vus.push(id+' n\\'est pas une pts-case : la réponse ne compterait pas dans la note'); });
+    if(!(el('tvxBody').compareDocumentPosition(el('tvxGraph'))&4) || !el('tvxBody').contains(el('tvxEtape'))) vus.push('les étapes ne s\\'écrivent pas avant le dessin');
+    if(el('tvxEtape').textContent.indexOf('point de départ')<0) vus.push('la page ne dit pas de cliquer le point de départ : '+el('tvxEtape').textContent);
+    if(!el('tvxCurseur') || el('tvxCurseur').style.display!=='none') vus.push('le point de la souris manque, ou se montre sans souris');
+    if(faits()!=='000') vus.push('une étape passe au vert avant d\\'être faite : '+faits());
+
+    /* 3. vérifier à vide : rien ne rougit, la correction en vert */
+    checkTvx(); clearTimeout(test.fbTimer);
+    if(classes()!=='sol,sol,sol') vus.push('vérifier à vide : '+classes()+' au lieu de sol partout');
+    if(document.querySelector('#tvxGraph .svc-eb, #tvxGraph .tvx-bad')) vus.push('vérifier à vide rougit quelque chose');
+    if(document.querySelectorAll('#tvxCorr line.svc-s').length!==3) vus.push('la correction ne trace pas en vert les trois vecteurs ('+document.querySelectorAll('#tvxCorr line.svc-s').length+' traits)');
+    if(el('tvxFeedback').textContent.indexOf('Il te manquait 3 cases')<0) vus.push('le message ne dit pas « Il te manquait 3 cases » : '+el('tvxFeedback').textContent.slice(0,90));
+    if(!test.locked || test.score!==0) vus.push('la copie vide ne verrouille pas ou vaut '+test.score);
+    const a0=test.answers[test.answers.length-1];
+    if(!a0||a0.correct||a0.cases!==3||a0.justes!==0) vus.push('la réponse enregistrée ne compte pas 0 case juste sur 3');
+    tvxClic(1,1);
+    if(test.questions[0].d1) vus.push('un clic trace encore après la correction');
+
+    /* 4. copie juste : départ, arrivée, puis on reprend le départ et l'arrivée */
+    nextTvx(); clearTimeout(test.fbTimer);
+    const q1=test.questions[1];
+    tvxClic(1,1);
+    if(JSON.stringify(q1.d1)!=='[1,1]' || el('tvxFl').querySelectorAll('.tvx-croix').length!==1) vus.push('le premier clic ne pose pas la croix du départ');
+    if(el('tvxEtape').textContent.indexOf('point d’arrivée')<0) vus.push('la page ne demande pas l\\'arrivée après le départ : '+el('tvxEtape').textContent);
+    tvxClic(1,1);
+    if(q1.d1!==null || el('tvxFl').children.length) vus.push('recliquer la croix du départ ne la retire pas');
+    tvxClic(1,1); tvxAnnuler();
+    if(q1.d1!==null) vus.push('Échap ne retire pas le départ d\\'une flèche commencée');
+    tracer([1,1],[4,5]);
+    if(el('tvxFl').querySelectorAll('line.tvx-el').length!==1 || JSON.stringify(q1.f1)!=='[4,5]') vus.push('la flèche ne se dessine pas au second clic');
+    const nomsFl=Array.from(document.querySelectorAll('#tvxFl text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
+    if(nomsFl!=='u') vus.push('la flèche tracée ne porte pas son nom : '+nomsFl);
+    if(el('tvxPrises').querySelectorAll('.tvx-prise').length!==2) vus.push('la flèche tracée n\\'a pas une prise à chaque extrémité');
+    if(faits()!=='100') vus.push('u tracé, seule la première étape devrait être verte : '+faits());
+    if(el('tvxEtape').textContent.indexOf('égal à v')<0) vus.push('la page ne passe pas au vecteur v : '+el('tvxEtape').textContent);
+    tracer([10,4],[14,2]); tracer([16,5],[13,7]);
+    if(faits()!=='111') vus.push('les trois tracés, les trois étapes devraient être vertes : '+faits());
+    /* un clic sur le DÉPART de u le reprend : la flèche part de la souris jusqu'à l'arrivée fixe */
+    tvxClic(1,1);
+    if(!test.tvxMob || test.tvxMob.k!==0 || test.tvxMob.bout!=='d') vus.push('un clic sur le départ de u ne le reprend pas : '+JSON.stringify(test.tvxMob));
+    if(el('tvxFl').querySelectorAll('line.tvx-el').length!==2) vus.push('la flèche reprise reste dessinée à sa place au lieu de suivre la souris');
+    if(el('tvxEtape').textContent.indexOf('point de départ')<0) vus.push('la page ne dit pas de reposer le départ : '+el('tvxEtape').textContent);
+    tvxClic(4,5);
+    if(!test.tvxMob || JSON.stringify(q1.d1)!=='[1,1]') vus.push('le départ reposé sur l\\'arrivée fait un vecteur nul');
+    tvxAnnuler();
+    if(test.tvxMob || JSON.stringify(q1.d1)!=='[1,1]' || el('tvxFl').querySelectorAll('line.tvx-el').length!==3) vus.push('Échap ne remet pas la flèche reprise à sa place');
+    tvxClic(1,1); tvxClic(2,1);
+    if(test.tvxMob || JSON.stringify(q1.d1)!=='[2,1]' || JSON.stringify(q1.f1)!=='[4,5]') vus.push('le départ repris ne se repose pas au clic suivant, l\\'arrivée restant fixe : '+JSON.stringify([q1.d1,q1.f1]));
+    /* un clic sur l'ARRIVÉE la reprend : la flèche part du départ fixe jusqu'à la souris */
+    tvxClic(4,5);
+    if(!test.tvxMob || test.tvxMob.bout!=='f') vus.push('un clic sur l\\'arrivée de u ne la reprend pas');
+    tvxClic(5,5);
+    if(JSON.stringify(q1.d1)!=='[2,1]' || JSON.stringify(q1.f1)!=='[5,5]') vus.push('l\\'arrivée reprise ne se repose pas, le départ restant fixe : '+JSON.stringify([q1.d1,q1.f1]));
+    test.questions[1]=JSON.parse(JSON.stringify(q1)); renderTvx();
+    if(el('tvxFl').querySelectorAll('line.tvx-el').length!==3) vus.push('la reprise perd les flèches');
+    if(verifierIci()!==3) vus.push('la copie juste ne vaut pas 3 : '+classes());
+    if(classes()!=='ok,ok,ok') vus.push('la copie juste n\\'est pas peinte ok : '+classes());
+    if(faits()!=='000') vus.push('la marque « étape faite » reste après la vérification : '+faits());
+    if(el('tvxCorr').children.length) vus.push('la correction se montre alors que tout est juste');
+    if(el('tvxFl').querySelectorAll('line.svc-e').length!==3) vus.push('les flèches justes ne bleuissent pas');
+    if(el('tvxFeedback').className.indexOf('good')<0) vus.push('la copie juste n\\'a pas de message vert');
+    if(el('tvxPrises').children.length) vus.push('les flèches se reprennent encore après la correction');
+
+    /* 5. les pièges, chaque flèche jugée seule */
+    nextTvx(); clearTimeout(test.fbTimer);
+    tracer([4,5],[1,1]); tracer([10,4],[12,3]);
+    if(verifierIci()!==0) vus.push('u à l\\'envers, v trop court, w absent : ne vaut pas 0');
+    if(classes()!=='bad,bad,sol') vus.push('u à l\\'envers, v trop court, w absent : '+classes()+' au lieu de bad,bad,sol');
+    let fb=el('tvxFeedback').textContent;
+    if(fb.indexOf('u est à l’envers')<0 || fb.indexOf('pas la bonne longueur')<0 || fb.indexOf('Il te manquait 1 case')<0 || fb.indexOf('4 carreaux vers la droite puis 2 carreaux vers le bas')<0) vus.push('le message ne nomme pas la flèche à l\\'envers, la longueur, le chemin ou la case manquante : '+fb.slice(0,220));
+    if(el('tvxFl').querySelectorAll('line.svc-eb').length!==2) vus.push('les flèches fausses ne rougissent pas');
+    if(document.querySelectorAll('#tvxCorr line.svc-s').length!==3) vus.push('la correction ne montre pas en vert u, v et w ('+document.querySelectorAll('#tvxCorr line.svc-s').length+')');
+    const cu=document.querySelector('#tvxCorr line.svc-s');
+    if(!cu || cu.getAttribute('x1')!==String(TVX_PX+4*TVX_C)) vus.push('la flèche juste de u ne part pas du départ de l\\'élève');
+    nextTvx(); clearTimeout(test.fbTimer);
+    tracer([1,1],[4,5]); tracer([10,4],[13,7]); tracer([16,5],[13,7]);
+    if(verifierIci()!==2 || classes()!=='ok,bad,ok') vus.push('v de travers : '+classes()+' au lieu de ok,bad,ok — une flèche juste rougit à cause d\\'une autre');
+    if(el('tvxFeedback').textContent.indexOf('n’a pas la direction de v')<0) vus.push('le message ne dit pas que v est de travers : '+el('tvxFeedback').textContent.slice(0,160));
+
+    /* 6. soutien : rien ne se révèle, rien ne se verrouille ; le juste se fige ;
+       « Effacer mes flèches » efface le faux, garde le figé */
+    currentMode='soutien'; startTvx(); clearTimeout(test.fbTimer);
+    test.questions[0]=fixe(); test.idx=0; renderTvx();
+    const qs=test.questions[0];
+    tracer([1,1],[4,5]); tracer([10,4],[13,7]);
+    checkTvx();
+    if(test.locked) vus.push('soutien : une copie fausse verrouille la question');
+    if(classes()!=='ok,bad,rien') vus.push('soutien : '+classes()+' au lieu de ok,bad,rien');
+    if(el('tvxCorr').children.length) vus.push('soutien : la correction se révèle');
+    tvxClic(1,1);
+    if(test.tvxMob) vus.push('soutien : la flèche juste se reprend alors qu\\'elle est figée');
+    tvxAnnuler();
+    tvxClic(13,7);
+    if(!test.tvxMob || test.tvxMob.k!==1) vus.push('soutien : la flèche rouge ne se reprend pas');
+    tvxAnnuler();
+    tvxEffacer();
+    if(qs.d2!==null || JSON.stringify(qs.f1)!=='[4,5]') vus.push('« Effacer mes flèches » n\\'efface pas la fausse, ou efface la juste figée');
+    tracer([10,4],[14,2]);
+    const ctx=conseilCtxCourant();
+    if(ctx.indexOf('u va de (2 ; 2) à (5 ; 6)')<0) vus.push('le contexte du modèle ne décrit pas les vecteurs donnés');
+    if(ctx.indexOf('flèche égale à v : tracée de (10 ; 4) à (14 ; 2)')<0 || ctx.indexOf('flèche égale à w : pas encore tracée')<0) vus.push('le contexte du modèle ne dit pas ce que l\\'élève a tracé');
+    checkTvx();
+    if(test.locked) vus.push('soutien : w manquant verrouille la question');
+    tracer([16,5],[13,7]);
+    checkTvx(); clearTimeout(test.fbTimer);
+    if(!test.locked || test.score!==3) vus.push('soutien : la copie corrigée ne verrouille pas ou ne vaut pas 3 ('+test.score+')');
+    currentMode='soutien'; startTvx(); clearTimeout(test.fbTimer);
+    checkTvx();
+    if(classes()!=='rien,rien,rien' || test.locked) vus.push('soutien : vérifier sans rien faire peint '+classes()+(test.locked?' et verrouille':''));
+    currentMode='train';
+    if(test.qId && test.qId!==D.exercice) vus.push('qId « '+test.qId+' »');
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 function pointSommeVecteurs(w, P){
   const nom = 'point par une somme de vecteurs : le tirage est lisible, on trace, on fait glisser, on place, chaque réponse se juge seule, une case vide ne rougit pas';
   if(!P.pointSommeVecteurs){

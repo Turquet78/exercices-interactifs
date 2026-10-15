@@ -1786,3 +1786,97 @@ prise et baissé au prochain appui, qui tient le bord. Le banc navigateur (6
 quadragies septies) mesure le point posé sur le milieu de −v⃗ à moins de
 3 px de la souris, et un clic loin de tout nœud et de toute flèche qui pose
 B′ au nœud le plus proche.
+
+## {tracer-vecteurs-egaux} — tracer un vecteur égal à u⃗, à v⃗, à w⃗ (8.1.7, v510)
+
+**La demande** (Turquet, octobre 2026) : « en seconde créer un exercice qui
+affiche trois vecteurs u, v et w sur un quadrillage et qui demande à l'élève
+de tracer un vecteur égal au vecteur u, puis au vecteur v puis au vecteur w.
+Sur la flèche de la souris il doit y avoir un point et quand on clique, on
+doit placer une croix sur l'intersection du quadrillage la plus proche, et il
+doit apparaître une flèche qui part de ce point placé jusqu'à la pointe de la
+flèche de la souris. Quand on clique une deuxième fois il doit fixer le
+vecteur avec comme point d'arrivée le point du quadrillage le plus proche de
+la souris. Si l'élève clique sur le point de départ on peut déplacer ce point
+à l'aide de la souris en traçant le vecteur jusqu'à son point d'arrivée qui
+est fixé. Si on clique sur le point d'arrivée, alors le vecteur est tracé du
+point de départ qui est fixe jusqu'à la flèche de la souris. » Il ferme le
+sous-thème « Vecteurs égaux » : 8.1.7, rien ne se renumérote.
+
+**Le geste, mot pour mot.** Le point de la souris est le `cvp-curseur` du
+8.2.9 (`#tvxCurseur`, posé en DERNIER dans le SVG), à la position EXACTE de
+la pointe — l'aimant ne joue qu'au clic. Il se montre tant qu'un clic posera
+quelque chose (une flèche reste à tracer, ou une extrémité est reprise) ;
+les trois flèches tracées, il se cache. Le premier clic pose le départ au
+nœud le plus proche, dessiné en CROIX ; une flèche élastique (`#tvxVif`) va
+de la croix à la pointe de la souris, sans aimant. Le second clic fixe
+l'arrivée au nœud le plus proche. Un clic sur le départ d'une flèche tracée
+le reprend (`test.tvxMob`, `bout:'d'`) : la flèche va de la souris à
+l'arrivée, fixe ; le clic suivant repose le départ. Même chose pour
+l'arrivée (`bout:'f'`). Trois gestes en plus, pour ne jamais coincer
+l'élève : recliquer la croix d'une flèche commencée la retire (comme au
+8.2.8), Échap rend une extrémité reprise à sa place (ou retire la croix d'une
+flèche commencée), « Effacer mes flèches » efface tout sauf ce que le soutien
+a figé. Un clic qui ferait un vecteur nul est ignoré.
+
+**Un seul écouteur de clic, à l'hôte, qui va au nœud le plus proche** — pas
+de cible par nœud comme au 8.2.8 : le clic n'a jamais à viser, et
+`tvxClic(i, j)` est ce que le banc principal joue. L'ordre de lecture d'un
+clic : une extrémité reprise se pose ; sinon une flèche commencée prend son
+arrivée ; sinon un clic sur une extrémité d'une flèche tracée la reprend ;
+sinon il pose le départ de la flèche suivante. **Le prix est nommé** : un
+départ ne peut pas se poser sur une extrémité d'une flèche déjà tracée (le
+clic la reprendrait) — ici, sans conséquence : un vecteur égal se trace
+n'importe où.
+
+**Les couleurs.** u⃗, v⃗, w⃗ donnés en noir, comme au 8.7. Les flèches de
+l'élève en VIOLET (`--crd-a`, le violet du liseré de {croiser-denominateurs})
+tant qu'elles ne sont pas jugées : le bleu dit « juste » et le vert
+« correction » depuis août 2026, aucune des deux encres n'était libre. Elles
+portent leur nom (u, v, w) — un vecteur égal à u⃗ EST u⃗. Les classes de la
+croix (`tvx-ok`, `tvx-bad`, `tvx-sol`) ne sont pas des classes de verdict :
+« 9 bis » ne les lit pas.
+
+**On range la figure, jamais la réponse** : `q.vs` (trois
+`[origine x, origine y, dx, dy]`) et `d1/f1`, `d2/f2`, `d3/f3`. L'extrémité
+reprise n'est pas rangée : après une pause, la flèche revient à sa dernière
+place. Le tirage (`tvxGen`) : chemins de 2 à 4 carreaux par direction, deux
+à deux non parallèles, au moins deux en biais, à un carreau du bord et à deux
+carreaux l'un de l'autre, sur un quadrillage de 18 × 10. Trois questions par
+séance (`TVX_NB`, `dmNbQuestions`), barème 9.
+
+**Le juge** (`tvxJuge`) : chaque flèche SEULE, juste si elle fait le chemin
+du vecteur, où qu'elle soit. Les pièges nommés (`tvxPourquoi`) : la flèche à
+l'envers, la bonne direction et le bon sens sans la bonne longueur, la bonne
+direction seule, la mauvaise direction — puis le chemin du vecteur et celui
+de la flèche en carreaux. La correction trace en VERT la flèche juste de
+chaque vecteur manqué : au départ de la flèche de l'élève si elle tient dans
+le quadrillage, sinon à la première place libre (`tvxPlace`). En soutien, la
+flèche juste se fige (plus de prise), la fausse rougit et se reprend d'un
+clic ; rien ne se révèle.
+
+**Le contexte du modèle** (`ctxTvx`) donne les trois vecteurs par leurs
+extrémités et les flèches de l'élève. Pas de clause de secret : la réponse
+est sous les yeux de l'élève ; la contrainte est de faire COMPTER le chemin
+plutôt que de le dicter.
+
+**Les bancs.** Le principal (`tracerVecteursEgaux`, « vecteurs égaux à
+tracer ») : la place (8.1.7, les voisins immobiles, pas de bouton des
+tables), 200 séances (trois questions distinctes, barème 9, les clés
+rangées, les contraintes du tirage, JSON), puis une figure fixe : l'énoncé,
+les trois vecteurs nommés, aucune flèche avant le tracé, les étapes avant le
+dessin ; la copie vide (trois sol, trois flèches vertes, « Il te manquait 3
+cases ») ; la croix, son retrait, Échap ; le départ repris (un vecteur nul
+refusé, Échap qui rend la place), l'arrivée reprise ; la reprise après JSON ;
+la copie juste (trois ok, trois flèches bleues, plus de prise) ; u à
+l'envers, v trop court, w absent (bad, bad, sol, la flèche verte de u au
+départ de l'élève) ; v de travers seul (ok, bad, ok) ; le soutien (le juste
+figé ne se reprend pas, le rouge oui, « Effacer » garde le figé). **Le banc
+navigateur** (« 6 quadragies octies ») joue tout à la vraie souris : le
+point à moins de 3 px de la pointe, un clic à un cinquième de maille qui
+pose la croix au nœud, la flèche élastique mesurée de la croix à la pointe,
+le départ repris qui suit la souris pendant que l'arrivée reste fixe, puis
+l'inverse, le point caché une fois les trois flèches tracées, Échap au
+clavier, la copie juste (3) et la copie vide (trois flèches vertes, rien de
+rouge). Le doigt sur tablette — un toucher pour le départ, un pour
+l'arrivée, sans flèche élastique faute de survol — ne se joue dans aucun banc.
