@@ -2535,6 +2535,18 @@
   #vepGraph .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
   .cvp-curseur circle,.svc-curseur circle{fill:var(--blue);fill-opacity:.55;stroke:var(--blue-dark);stroke-width:1.6}
   .cvp-svg .cvp-curseur .vec-lbl,.cps-svg .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
+  /* 8.2.8 — A′ se marque d'une CROIX, comme les cinq points donnés, jamais
+     d'un rond ; aucun rond ne vient non plus au survol d'un nœud (demande de
+     Turquet, octobre 2026). Le point qui suit la souris est la même croix. */
+  .cps-svg .vec-t .dot,.cps-svg .vec-t:hover .dot{display:none}
+  .cps-svg .vec-t .cps-x{fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linecap:round}
+  .cps-svg .vec-t.sel .cps-x,.cps-svg .vec-t.okc .cps-x{stroke:var(--blue)}
+  .cps-svg .vec-t.badc .cps-x{stroke:var(--red)}
+  .cps-svg .vec-t.missc .cps-x{stroke:var(--green)}
+  .cps-svg .cvp-curseur .cps-x{fill:none;stroke:var(--blue-dark);stroke-width:2.6;stroke-linecap:round;opacity:.8}
+  /* le vecteur AA′, du point donné au point posé : violet tant qu'il n'est pas jugé */
+  .cps-svg .cps-aa{stroke:var(--crd-a);stroke-width:2.6;stroke-linecap:round}
+  .cps-svg .cps-aa-t{fill:var(--crd-a)} .cps-svg .cps-aa-f{stroke:var(--crd-a)}
   .cvp-outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:4px 0 12px}
   .cvp-outils .btn:disabled{opacity:.45;cursor:default}
   .cvp-svg .vec-t.sel .vec-dlbl,.cvp-svg .vec-t.okc .vec-dlbl,.cvp-svg .vec-t.badc .vec-dlbl,.cvp-svg .vec-t.missc .vec-dlbl{font-size:16px}
@@ -7103,7 +7115,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=513;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=514;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -57284,9 +57296,9 @@ function cpsSVG(q){
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg cps-svg" role="img" aria-label="Quadrillage : cinq points nommés, les vecteurs à tracer puis à faire glisser">`
     +'<defs>'+pointe('cpsArr0','var(--ink)')+pointe('cpsArr1','var(--ink-soft)')+pointe('cpsArrE','var(--blue)')
-    +pointe('cpsArrB','var(--red)')+pointe('cpsArrS','var(--green)')+'</defs>'
-    +g+'<g id="cpsCorr"></g><g id="cpsFl"></g>'+pts+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cpsPrises"></g>`
-    +`<g id="cpsCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><circle r="5"/><text class="vec-lbl" x="8" y="-8">${L}</text></g></svg>`;
+    +pointe('cpsArrB','var(--red)')+pointe('cpsArrS','var(--green)')+pointe('cpsArrA','var(--crd-a)')+'</defs>'
+    +g+'<g id="cpsCorr"></g><g id="cpsFl"></g><g id="cpsSol"></g>'+pts+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cpsPrises"></g>`
+    +`<g id="cpsCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><path class="cps-x" d="M-6 -6l12 12M-6 6l12 -12"/><text class="vec-lbl" x="8" y="-8">${L}</text></g></svg>`;
 }
 /* Les deux flèches tracées, à leur place du moment, et leurs prises. La
    première en trait plein, la seconde en pointillés, comme u⃗ et v⃗ au 8.7 ;
@@ -57307,10 +57319,34 @@ function cpsDessiner(q){
       prises+=`<line class="svc-prise" data-k="${k}" x1="${cpsX(t.s[0])}" y1="${cpsY(t.s[1])}" x2="${cpsX(t.f[0])}" y2="${cpsY(t.f[1])}" tabindex="0" role="button" aria-label="déplacer le vecteur ${cpsNom(q,k)} (flèches du clavier)"/>`;
   });
   fl.innerHTML=h; pr.innerHTML=prises;
+  /* le VECTEUR de la solution (demande de Turquet, octobre 2026) : A′ posé,
+     la flèche AA′ va du point donné au point posé — violette avant le
+     jugement, puis bleue ou rouge comme le point ; cpsFinal y ajoute en vert
+     la flèche AA′ attendue quand le point n'était pas juste */
+  const so=$('cpsSol');
+  if(so){ const P=cpsP(q), L=cpsLettre(q);
+    so.innerHTML=q.pt&&!cpsEgal(q.pt,P)
+      ? svcFleche(P, q.pt, {cls:mq.pt==='ok'?'svc-e':(mq.pt==='bad'?'svc-eb':'cps-aa'), marker:mq.pt==='ok'?'cpsArrE':(mq.pt==='bad'?'cpsArrB':'cpsArrA'), nom:L+L+'′', geo:CPS_GEO})
+      : ''; }
   /* le point posé : son nœud porte le nom du point, en bleu */
-  if(test.locked) return;
+  if(test.locked){ cpsCroix(); return; }
   document.querySelectorAll('#cpsGraph .vec-t.sel, #cpsGraph .vec-t.okc, #cpsGraph .vec-t.badc').forEach(function(el){ el.classList.remove('sel','okc','badc'); el.setAttribute('aria-pressed','false'); });
   if(q.pt){ const el=$('cpsn-'+q.pt[0]+'-'+q.pt[1]); if(el){ el.classList.add(mq.pt==='ok'?'okc':(mq.pt==='bad'?'badc':'sel')); el.setAttribute('aria-pressed','true'); } }
+  cpsCroix();
+}
+/* La croix de A′ : posée dans le groupe des SEULS nœuds marqués (posé,
+   juste, faux, attendu), que leurs classes colorent — jamais une croix
+   cachée dans chacun des 150 nœuds : au 8.1.6, une croix par nœud a saturé
+   la mémoire du banc principal dans l'action. */
+function cpsCroix(){
+  document.querySelectorAll('#cpsGraph .vec-t .cps-x').forEach(function(x){ x.remove(); });
+  document.querySelectorAll('#cpsGraph .vec-t.sel, #cpsGraph .vec-t.okc, #cpsGraph .vec-t.badc, #cpsGraph .vec-t.missc').forEach(function(el){
+    const c=el.querySelector('.dot'); if(!c) return;
+    const X=+c.getAttribute('cx'), Y=+c.getAttribute('cy');
+    const x=document.createElementNS('http://www.w3.org/2000/svg','path');
+    x.setAttribute('class','cps-x'); x.setAttribute('d','M'+(X-6)+' '+(Y-6)+'l12 12M'+(X-6)+' '+(Y+6)+'l12 -12');
+    el.insertBefore(x, el.querySelector('.vec-dlbl'));
+  });
 }
 /* Un clic sur un nœud : tant qu'une flèche n'est pas tracée, il pose son
    début, puis sa fin (recliquer le début seul le retire) — la première
@@ -57557,9 +57593,12 @@ function cpsFinal(q,subs){
       h+=svcFleche(P, M, {cls:'svc-s', marker:'cpsArrS', geo:CPS_GEO})
         +svcFleche(M, E, {cls:'svc-s svc-copie', marker:'cpsArrS', geo:CPS_GEO});
     }
-    if(!subs[3].ok){ const n=$('cpsn-'+E[0]+'-'+E[1]); if(n) n.classList.add('missc'); }
+    if(!subs[3].ok){ const n=$('cpsn-'+E[0]+'-'+E[1]); if(n) n.classList.add('missc');
+      const so=$('cpsSol'), L=cpsLettre(q);
+      if(so) so.innerHTML+=svcFleche(P, E, {cls:'svc-s', marker:'cpsArrS', nom:L+L+'′', cote:-1, geo:CPS_GEO}); }
   }
   c.innerHTML=h;
+  cpsCroix();
 }
 function renderCps(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);

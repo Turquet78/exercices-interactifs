@@ -12519,6 +12519,7 @@ function pointSommeVecteurs(w, P){
     if(document.querySelector('#cpsGraph .vec-t.badc, #cpsGraph .svc-eb')) vus.push('vérifier à vide rougit quelque chose');
     if(document.querySelectorAll('#cpsCorr line.svc-s').length!==4) vus.push('la correction ne trace pas en vert BC, BD et la construction depuis A ('+document.querySelectorAll('#cpsCorr line.svc-s').length+' traits)');
     if(!document.querySelector('#cpsn-5-2.missc')) vus.push('le point attendu A′ (5;2) ne se montre pas en vert');
+    if(el('cpsSol').querySelectorAll('line.svc-s').length!==1) vus.push('la copie vide ne montre pas en vert le vecteur AA′ de la solution');
     if(el('cpsFeedback').textContent.indexOf('Il te manquait 4 cases')<0) vus.push('le message ne dit pas « Il te manquait 4 cases » : '+el('cpsFeedback').textContent.slice(0,90));
     if(!test.locked || test.score!==0) vus.push('la copie vide ne verrouille pas ou vaut '+test.score);
     const a0=test.answers[test.answers.length-1];
@@ -12549,8 +12550,12 @@ function pointSommeVecteurs(w, P){
     cpsPose(5,2);
     if(faits()!=='1111') vus.push('A′ posé, les quatre étapes devraient être vertes : '+faits());
     if(JSON.stringify(q1.pt)!=='[5,2]' || !document.querySelector('#cpsn-5-2.sel')) vus.push('le clic suivant ne pose pas A′');
+    if(!document.querySelector('#cpsn-5-2 path.cps-x') || document.querySelectorAll('#cpsGraph .vec-t .cps-x').length!==1) vus.push('A′ posé : '+document.querySelectorAll('#cpsGraph .vec-t .cps-x').length+' croix au lieu d\\'une, dans son nœud');
+    const aa=el('cpsSol').querySelector('line.cps-aa'), nomAA=Array.from(el('cpsSol').querySelectorAll('text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
+    if(!aa || aa.getAttribute('x1')!==String(CPS_PX+2*CPS_C) || nomAA!=='AA′') vus.push('A′ posé, le vecteur AA′ ne se trace pas depuis A : '+nomAA);
     cpsPose(5,2);
     if(q1.pt!==null) vus.push('recliquer A′ ne le retire pas');
+    if(el('cpsSol').children.length) vus.push('A′ retiré, le vecteur AA′ reste dessiné');
     cpsPose(6,6); cpsPose(5,2);
     if(JSON.stringify(q1.pt)!=='[5,2]') vus.push('un autre nœud ne déplace pas A′');
     test.questions[1]=JSON.parse(JSON.stringify(q1)); renderCps();
@@ -12559,6 +12564,7 @@ function pointSommeVecteurs(w, P){
     if(classes()!=='ok,ok,ok,ok') vus.push('la copie juste n\\'est pas peinte ok : '+classes());
     if(faits()!=='0000') vus.push('la marque « étape faite » reste après la vérification : '+faits());
     if(el('cpsCorr').children.length || document.querySelector('#cpsGraph .vec-t.missc')) vus.push('la correction se montre alors que tout est juste');
+    if(el('cpsSol').querySelectorAll('line.svc-e').length!==1 || el('cpsSol').querySelector('line.svc-s')) vus.push('la copie juste ne peint pas AA′ en bleu, seul');
     if(el('cpsFeedback').className.indexOf('good')<0) vus.push('la copie juste n\\'a pas de message vert');
     if(document.querySelector('#cpsPrises .svc-prise')) vus.push('les flèches se saisissent encore après la correction');
 
@@ -12593,6 +12599,8 @@ function pointSommeVecteurs(w, P){
     if(classes()!=='ok,ok,sol,bad') vus.push('flèches jamais déplacées, A′ faux : '+classes()+' au lieu de ok,ok,sol,bad — un chaînage jamais tenté ne rougit pas');
     if(fb.indexOf('Il te manquait 1 case')<0 || fb.indexOf('pas au bon nœud')<0) vus.push('le message ne dit pas la case manquante et le point faux : '+fb.slice(0,160));
     if(!document.querySelector('#cpsn-6-2.badc') || !document.querySelector('#cpsn-5-2.missc')) vus.push('A′ faux ne rougit pas, ou le point attendu ne se montre pas en vert');
+    if(!document.querySelector('#cpsn-6-2 .cps-x') || !document.querySelector('#cpsn-5-2 .cps-x') || document.querySelectorAll('#cpsGraph .vec-t .cps-x').length!==2) vus.push('A′ faux : la croix rouge et la croix verte ne sont pas les deux seules');
+    if(!el('cpsSol').querySelector('line.svc-eb') || !el('cpsSol').querySelector('line.svc-s')) vus.push('A′ faux : le vecteur AA′ de l\\'élève ne rougit pas, ou celui de la solution ne se montre pas en vert');
 
     /* 7. soutien : rien ne se révèle, rien ne se verrouille ; le juste se fige ;
        « Effacer mes flèches » efface le faux, garde le figé */
