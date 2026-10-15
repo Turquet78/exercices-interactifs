@@ -564,3 +564,59 @@ second terme sans son signe (rouge seul, message qui le nomme), « 4 » dans la
 bulle bleue de x (rouge), « 2x » pour x × 2x (rouge), deux cases vides (la
 correction, jamais rouge), la forme réduite sans signe puis non réduite
 (rouges), le barème de 44.
+
+## {developper-double} — développer avec la double distributivité (7.10, v514)
+
+**La demande** (Turquet, octobre 2026, d'après la fiche papier « Développer »,
+exercice 4) : « faire un exercice présenté comme le 7.9 mais qui suit le pdf
+joint ». La fiche développe (a + b) × (c + d) : le premier terme de la
+première parenthèse entouré en ROUGE (pointillés), le second en NOIR
+(pointillés) ; dans la seconde, le premier en BLEU (pointillés fins), le
+second en VERT (trait plein). Deux flèches partent du rouge PAR-DESSUS vers le
+bleu et le vert, deux du noir PAR-DESSOUS. Ligne 2 : les quatre produits
+« rouge × bleu + rouge × vert + noir × bleu + noir × vert », bulles vides des
+mêmes couleurs, une flèche et une accolade par produit. Ligne 3 : les quatre
+résultats, et une GRANDE accolade sous les deux termes en x. Ligne 4 : la
+forme réduite — le x² sous le premier produit, le terme en x sous la grande
+accolade, le nombre sous le dernier.
+
+**Quatre pages, les formes de la fiche** : (ax − b)(cx − d) deux fois (A et
+B), (x − b)(cx − d), (ax − b)(cx + d). A et B ont la même forme : elles sont
+tirées par `distincte()` avec une clé qui lit les NOMBRES (`[f1, f2]`), pas la
+lettre de la page — la clé par défaut lit `forme`, qui diffère toujours, et
+n'aurait rien empêché. Le terme en x ne s'annule jamais (le tirage
+recommence ; il ne le peut que sur D) : la forme réduite a toujours ses trois
+cases. La première page montre l'EXEMPLE de la fiche, rempli :
+(4x − 3)(2x − 5) = 8x² − 20x − 6x + 15 = 8x² − 26x + 15.
+
+**Le moteur est celui du 7.9**, partagé, pas recopié : `dvlLit`, `dvlJuste`,
+`dvlCorr`, `dvlSuivre` et `dvlTrace`. Ce dernier a appris deux gestes, sans
+rien changer au 7.9 : une flèche marquée `'bas'` passe par-dessous (pointe
+vers le haut), et une accolade déclarée par une PAIRE d'identifiants
+s'étend sous les deux. Les lignes 2 à 4 sont une seule grille de huit
+colonnes ; la ligne réduite place ses cases par `grid-column` (2, 4 / 7, 8),
+si bien que le terme en x tombe au milieu de la grande accolade sans calcul de
+position.
+
+**Le bleu s'éclaire en 7.10** (`.dvd-schema .dvl-bul.dvl-a`) : le bleu nuit du
+7.9, à côté du noir, ne s'en distinguait plus à l'écran (vu sur la première
+capture). Il passe en bleu franc et en pointillés fins, comme sur la fiche ;
+le 7.9, qui n'a pas de noir, garde le sien.
+
+**Le terme qui en suit un autre garde son signe**, en ligne 3 comme en
+ligne 4 (« −20x », « +15 ») — même règle et même message que le 7.9. Le
+pourquoi suit la flèche (« le produit 2 relie la bulle rouge à la bulle
+verte »), le produit, ou la réduction (« sous la grande accolade, les deux
+termes en x se regroupent »).
+
+**Le juge** (`tests/verifier.js`, « développer avec la double
+distributivité ») : la place (7.10, le 7.9 immobile), 400 tirages (les quatre
+formes dans l'ordre, les bornes, A ≠ B, terme en x jamais nul), puis la fiche
+elle-même au bouton — (4x − 3)(2x − 5), (3x − 4)(5x − 3), (x − 2)(8x − 1),
+(3x − 2)(2x + 5) — avec les réponses écrites À LA MAIN : la copie juste de
+chaque page (15 cases), 8 flèches dont 2 par-dessous, 5 accolades dont la
+grande, trois bulles noires ; l'exemple sur la première page seulement, sans
+case ; puis les pièges : « 15 » sans son signe (rouge seul, message qui le
+nomme), −15 pour (−3) × (−5), 2x dans la bulle verte (message qui suit la
+flèche), « −20x−6x » non réduit et −14x (message de la grande accolade), 8x
+pour 4x × 2x, deux cases vides (la correction, jamais rouge), le barème de 60.
