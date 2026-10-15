@@ -2002,7 +2002,7 @@
   .chl-vec .veg-fl{min-width:20px}
   .chl-let{display:inline-flex;align-items:flex-end;justify-content:center;min-height:1.1em}
   .chl-op,.chl-pop{padding:0 .28em}
-  /* v504 : le calcul à effectuer est ÉCRIT dans le champ, devant ce que tape
+  /* v505 : le calcul à effectuer est ÉCRIT dans le champ, devant ce que tape
      l'élève, à l'encre de l'énoncé (il ne se colore pas avec la réponse) ;
      et un exemple tout rempli ouvre chaque page. */
   .chl-rendu .chl-pref,.chl-rendu .chl-pref .veg-v{color:var(--ink)}
@@ -6954,7 +6954,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=504;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=505;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -60086,7 +60086,7 @@ function chlRendu(el){
   r.style.width=el.offsetWidth ? el.offsetWidth+'px' : '';
   r.style.height=el.offsetHeight ? el.offsetHeight+'px' : '';
 }
-/* le calcul à effectuer, écrit dans le champ devant la saisie (v504) :
+/* le calcul à effectuer, écrit dans le champ devant la saisie (v505) :
    « AD + DF = », chaque vecteur sous sa flèche. Il n'est PAS dans la valeur
    du champ — l'élève ne peut pas l'effacer, et un champ où il n'a rien tapé
    reste vide pour le juge, la correction et la reprise. */
@@ -60130,7 +60130,7 @@ function chlDessin(v, c0, c1, mv){
   }
   return h;
 }
-/* L'EXEMPLE en tête de page (v504, Turquet : « un exemple au début, un champ
+/* L'EXEMPLE en tête de page (v505, Turquet : « un exemple au début, un champ
    déjà complété, qui effectue une addition et donne un modèle avec une étape
    jusqu'au résultat ») : un dessin, pas un champ — rien à saisir, rien à
    juger, rien à reprendre. */

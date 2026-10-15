@@ -1513,7 +1513,7 @@ qui clignote, le dessin aligné sur le champ — a été regardé dans Chromium,
 à 1280 et à 390 px de large.
 
 **Puis le calcul est entré DANS le champ, et un exemple ouvre la page**
-(v504, Turquet, octobre 2026 : « mettre le calcul à effectuer dans le champ
+(v505, Turquet, octobre 2026 : « mettre le calcul à effectuer dans le champ
 de saisie ; écrire un exemple au début, un champ déjà complété, qui effectue
 une addition et donne un modèle avec une étape jusqu'au résultat »). La
 ligne ne montre plus « AD + DF = » DEVANT le champ : le champ s'ouvre sur
