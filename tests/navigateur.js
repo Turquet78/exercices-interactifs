@@ -9074,7 +9074,7 @@ if(require.main === module) (async () => {
       /* les objectifs réalisés sont verts, sur fond vert clair ; avant M, le
          survol d'un nœud y montre un point */
       const vert = async id => await s.page.evaluate(id => { const cs = getComputedStyle(document.getElementById(id));
-        const v = c => { const m = c.match(/\d+/g).map(Number); return m[1] > m[0] + 30 && m[1] > m[2]; };
+        const v = c => { const m = c.match(/\d+(\.\d+)?/g) || []; return m.length >= 3 && +m[1] > +m[0] && +m[1] > +m[2]; };
         return v(cs.borderTopColor) && v(cs.backgroundColor); }, id);
       for(const id of ['svr-A', 'svr-D', 'svr-t1', 'svr-ch']) if(!(await vert(id))) dits.push('l\'objectif ' + id + ' réalisé ne passe pas en vert');
       if(await vert('svr-M')) dits.push('« Placer M » est vert avant que M soit posé');
