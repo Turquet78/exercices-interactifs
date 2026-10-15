@@ -2064,3 +2064,45 @@ sans nom sur la copie juste, rouge sur la fausse, le curseur caché ; le banc
 navigateur (6 quadragies septies) mesure l'étape 2 sans hauteur au départ,
 puis entre l'étape 1 et le dessin, le curseur caché et le vecteur visible au
 point posé, et l'étape 2 verte comme l'étape 1.
+
+## {tracer-vecteurs-opposes} — tracer −u⃗, −v⃗, −w⃗ (8.1.8, v516)
+
+**La demande** (Turquet, octobre 2026) : « en seconde faire un exercice comme
+le 8.1.7 où on demande de tracer l'opposé de chaque vecteur. On demandera de
+tracer −u ; −v ; −w dans l'énoncé. » Il prend la suite du sous-thème
+« Vecteurs égaux » : 8.1.8, rien ne se renumérote.
+
+**Le moteur du 8.1.7, pas un second.** Même écran (`scr-tvx`), même kind
+`tvx`, même geste, même tirage, même barème (9). La question porte `q.op = 1`
+— rangée, donc relue après une pause ; le 8.1.7 ne la porte pas, et ses
+questions n'ont pas changé d'une clé. Tout ce qui diffère passe par deux
+fonctions : `tvxCible(q,k)` (le chemin attendu : −w au lieu de w — le juge,
+la place et la flèche de la correction) et `tvxNom(q,k)` (« −u » au lieu de
+« u » — le nom des flèches de l'élève et de la correction, l'enregistrement,
+les messages). L'identité suit `currentTestId`, comme au calcul mental :
+`RAPPELS_ID` (`RAP_TVO`), `QIA_SUGG_ID`, `TABLES_SANS`.
+
+**L'énoncé** : « Trace les vecteurs −u⃗, −v⃗ et −w⃗, opposés aux vecteurs u⃗,
+v⃗ et w⃗. » Les étapes : « ① Le vecteur −u⃗ tracé. » Sur le dessin, les
+vecteurs donnés gardent leurs noms u, v, w ; les flèches de l'élève
+s'appellent −u, −v, −w. `svcFleche` a appris ce nom : le signe moins s'écrit
+DROIT devant la lettre (un `tspan` `svc-nom-op`, comme le « + » de « u+v »),
+et la petite flèche ne coiffe que la lettre — −u⃗, jamais une flèche sur
+« −u ».
+
+**Le piège nommé** : la flèche ÉGALE au vecteur — le réflexe du 8.1.7 —
+est fausse : « Ta flèche −u est égale à u : même direction, même longueur,
+mais il fallait le sens contraire. » La phrase du chemin dit les deux : « u
+fait 3 carreaux vers la droite puis 4 vers le haut ; −u fait donc 3
+carreaux vers la gauche puis 4 vers le bas ; ta flèche fait … ». Le soutien
+ajoute « — puis fais ce chemin à l'envers ». Le contexte du modèle décrit la
+consigne et la méthode des opposés.
+
+**Le banc** (`tracerVecteursOpposes`, banc principal) ne rejoue pas le geste,
+tenu par celui du 8.1.7 et par le banc navigateur, mais ce qui CHANGE : la
+place (8.1.8, voisins immobiles), le rappel et les questions à l'IA par
+identifiant, `q.op` rangé (et absent du 8.1.7), l'énoncé −u, −v, −w, les noms
+des flèches avec leur petite flèche, la copie juste (trois chemins à
+l'envers, après un passage par le JSON de la pause), le vecteur égal faux et
+nommé, la flèche verte de −u partie du départ de l'élève vers la gauche, la
+réponse enregistrée, le contexte du modèle, et le 8.1.7 qui reste le 8.1.7.
