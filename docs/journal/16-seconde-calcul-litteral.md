@@ -497,7 +497,7 @@ dans tout l'écran (message excepté) avant de le nommer, et dit sinon
 {reduire-somme} joue les deux bords en soutien : une case vide seule, puis une
 case fausse.
 
-## {developper-distributivite} — développer avec la distributivité (7.9, v510)
+## {developper-distributivite} — développer avec la distributivité (7.9, v511)
 
 **La demande** (Turquet, octobre 2026, d'après la fiche papier « Fiche sur
 développer et factoriser », exercice 1) : « créer un exercice comme le pdf 1 ;
