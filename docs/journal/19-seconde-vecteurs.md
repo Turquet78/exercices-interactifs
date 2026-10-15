@@ -1716,7 +1716,7 @@ le fond de l'étape faite différent de celui de l'étape à faire, le point à
 moins de 3 px de la souris sur le milieu de BD, un clic entre les nœuds qui
 pose A′ au plus proche, puis le curseur caché une fois A′ posé.
 
-**Puis A′ s'est marqué d'une CROIX, le survol n'a plus montré de rond, et le vecteur AA′ s'est tracé (v510).**
+**Puis A′ s'est marqué d'une CROIX, le survol n'a plus montré de rond, et le vecteur AA′ s'est tracé (v511).**
 La demande (Turquet, octobre 2026) : « dans le 8.2.8, quand le point de
 l'objectif 4 est placé, mettre une croix plutôt qu'un rond pour le point ; il
 ne faut plus que la flèche de la souris affiche un rond quand on passe à côté
