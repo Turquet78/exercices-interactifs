@@ -1968,3 +1968,41 @@ l'inverse, le point caché une fois les trois flèches tracées, Échap au
 clavier, la copie juste (3) et la copie vide (trois flèches vertes, rien de
 rouge). Le doigt sur tablette — un toucher pour le départ, un pour
 l'arrivée, sans flèche élastique faute de survol — ne se joue dans aucun banc.
+
+**Puis les deux étapes sont passées AU-DESSUS du dessin comme au 8.2.8, le point est devenu une croix, et le vecteur solution s'est tracé (v513).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.9, afficher les objectifs
+(ici ce sont les 2 étapes) comme dans le 8.2.8 ; quand le point de
+l'objectif 2 est placé, mettre une croix plutôt qu'un rond pour le point ; il
+ne faut plus que la flèche de la souris affiche un rond bleu ou blanc quand
+on passe à côté d'une intersection du quadrillage ; de plus il faut aussi
+afficher le vecteur correspondant à la solution. »
+**Les étapes.** Les deux réponses `cvp-ch` et `cvp-pt` s'intitulent
+« Étape 1 : … » et « Étape 2 : … » et passent avant le bandeau `#cvpEtape`
+(qui reste, juste au-dessus du dessin, la méthode de l'étape en cours) ; les
+boutons « ⇄ Retourner » descendent sous le dessin (`#cvpOutils`). Une étape
+EFFECTUÉE prend `cvp-fait` (`cvpFaits`, la recette de `cpsFaits`) : cadre,
+encre et fond verts, coche — l'étape 1 dès que les flèches sont bout à bout
+depuis le point (`cvpBoutABout`, le geste, pas sa justesse), l'étape 2 dès
+que le point est posé ; recliquer le nœud la rend. Une étape marquée ok, bad
+ou sol par la vérification garde son verdict ; `cvpCasesPeindre` retire la
+marque. **La croix.** Le rond `.dot` des cibles ne se montre plus ; une croix
+(`.crx`) est dessinée par `cvpCroix`, dans le calque `#cvpCroix`, sur le seul
+nœud posé (bleu, ou bleu juste, rouge faux) et sur le point attendu de la
+correction (vert) — jamais une croix cachée dans chacun des 117 nœuds : au
+8.1.6, 97 croix cachées saturaient la mémoire du banc principal ; le rond du survol (`.vec-t:hover .dot`, blanc liseré bleu) n'existe
+plus sur cet écran, et le point qui suit la souris (`#cvpCurseur`) est lui
+aussi une croix bleue. Le 8.2.8, qui partage la classe `cvp-curseur`, garde
+son rond : la demande ne portait que sur le 8.2.9. **Le vecteur solution.**
+À la vérification, toujours — juste ou faux —, `cvpVecteurSol` trace en vert
+la flèche du point donné au point attendu, nommée « BB′ » du côté le plus loin
+de la construction (`svcCoteDehors`), dans son propre calque `#cvpSol` :
+`#cvpCorr` ne porte toujours que ce qui MANQUAIT, et les contrôles qui le
+veulent vide sur une copie juste n'ont pas bougé. Le juge vérifie l'ordre
+(étapes, bandeau, dessin), les intitulés, aucune étape verte au départ,
+l'étape 1 seule verte une fois les flèches bout à bout, l'étape 2 verte au
+point posé et rendue au point retiré, plus de marque sous le verdict, 117
+croix et aucun rond, le vecteur BB′ tracé et nommé sur la copie vide comme
+sur la juste. Le banc navigateur (6 quadragies septies) mesure les étapes
+au-dessus du dessin, le fond de l'étape faite différent de l'étape à faire,
+aucun rond visible au survol d'un nœud, la croix du point posé visible, le
+point qui suit la souris centré sur elle, et le vecteur solution tracé.

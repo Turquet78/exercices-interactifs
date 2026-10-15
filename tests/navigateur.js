@@ -9359,6 +9359,17 @@ if(require.main === module) (async () => {
       if(JSON.stringify(e.v) !== '[6,5]' || e.ch !== 'uv') dits.push('−v glissé ne s\'accroche pas au bout de u : ' + JSON.stringify(e.v));
       const et2 = await s.page.evaluate(() => { const r = document.getElementById('cvpEtape').getBoundingClientRect(), g = document.querySelector('#cvpGraph .cvp-svg').getBoundingClientRect();
         return { t: document.getElementById('cvpEtape').textContent, dessus: r.height > 20 && r.bottom <= g.top + 1, mots: document.querySelectorAll('#cvpGraph .svc-mot').length }; });
+      /* les étapes au-dessus du dessin ; l'étape 1 faite a son fond vert */
+      const etp = await s.page.evaluate(() => { const g = document.querySelector('#cvpGraph .cvp-svg').getBoundingClientRect(), a = document.getElementById('cvp-ch'), b = document.getElementById('cvp-pt');
+        return { dessus: b.getBoundingClientRect().bottom <= g.top + 1, fa: getComputedStyle(a).backgroundColor, fb: getComputedStyle(b).backgroundColor }; });
+      if(!etp.dessus) dits.push('les étapes ne s\'affichent pas au-dessus du dessin');
+      if(etp.fa === etp.fb) dits.push('l\'étape 1 faite n\'a pas un fond différent de l\'étape 2 à faire (' + etp.fa + ')');
+      /* survoler un nœud ne montre aucun rond */
+      const nd = await pos(9, 7);
+      await s.page.mouse.move(nd.px, nd.py); await s.page.waitForTimeout(60);
+      const rond = await s.page.evaluate(() => { const n = document.getElementById('cvpn-9-7');
+        return [...n.querySelectorAll('circle:not(.hit), .dot')].filter(c => getComputedStyle(c).display !== 'none').length; });
+      if(rond) dits.push('survoler un nœud y montre un rond');
       if(et2.t.indexOf('Étape 2') !== 0 || !et2.dessus) dits.push('les flèches bout à bout, l\'étape 2 ne s\'affiche pas au-dessus du dessin : ' + et2.t.slice(0, 60));
       if(et2.mots) dits.push('bout à bout, les flèches portent ' + et2.mots + ' mot(s) « début » / « fin »');
       /* à l'étape 2, le point suit la souris, même PAR-DESSUS une flèche
@@ -9367,7 +9378,7 @@ if(require.main === module) (async () => {
       await s.page.mouse.move(sur.px - 20, sur.py - 20); await s.page.mouse.move(sur.px, sur.py, { steps: 4 });
       await s.page.waitForTimeout(80);
       const fant = await s.page.evaluate(([x, y]) => { const c = document.getElementById('cvpCurseur'); if(!c) return 'absent';
-        const b = c.querySelector('circle').getBoundingClientRect();
+        const b = c.querySelector('.crx').getBoundingClientRect();
         return getComputedStyle(c).display === 'none' ? 'caché' : Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)); }, [sur.px, sur.py]);
       if(typeof fant !== 'number' || fant > 3) dits.push('à l\'étape 2, le point ne suit pas la souris posée sur −v : ' + fant);
       const loin = await pos(6.6, 6.6);
@@ -9382,6 +9393,8 @@ if(require.main === module) (async () => {
       if(JSON.stringify(e.v) !== '[6,5]') dits.push('un simple clic sur −v l\'a déplacé');
       const lbl = await s.page.evaluate(() => { const t = document.querySelector('#cvpn-4-2 .vec-dlbl'); return t ? getComputedStyle(t).display + ' ' + t.textContent : ''; });
       if(lbl !== 'block B′') dits.push('le nœud posé ne porte pas « B′ » : ' + lbl);
+      const crx = await s.page.evaluate(() => { const c = document.querySelector('#cvpCroix .crx.sel'); return c ? getComputedStyle(c).stroke : ''; });
+      if(!crx || crx === 'transparent' || crx === 'rgba(0, 0, 0, 0)' || crx === 'none') dits.push('le point posé ne se marque pas d\'une croix visible : ' + crx);
       await s.page.click('#cvpValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
@@ -9406,6 +9419,8 @@ if(require.main === module) (async () => {
         fb: document.getElementById('cvpFeedback').textContent, score: test.score }));
       if(!/\bbad\b/.test(faux.ch) || !/\bsol\b/.test(faux.pt)) dits.push('le signe oublié, B′ vide : ' + faux.ch + ' / ' + faux.pt);
       if(faux.vert !== 2) dits.push('la construction attendue ne se trace pas en vert (' + faux.vert + ')');
+      const solv = await s.page.evaluate(() => [...document.querySelectorAll('#cvpSol line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length);
+      if(solv !== 1) dits.push('le vecteur solution BB′ ne se trace pas (' + solv + ')');
       if(faux.fb.indexOf('retourne la flèche v') < 0) dits.push('le signe oublié n\'est pas nommé : ' + faux.fb.slice(0, 100));
       if(faux.score !== 2) dits.push('la copie fausse rapporte des points (score ' + faux.score + ')');
       verifier('u glisse jusqu\'au point, v se retourne et glisse au bout de u, B′ se pose au clic', !dits.length, dits.slice(0, 3).join(' | '));
