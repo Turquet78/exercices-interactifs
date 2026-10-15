@@ -1794,7 +1794,7 @@ quadragies septies) mesure le point posé sur le milieu de −v⃗ à moins de
 3 px de la souris, et un clic loin de tout nœud et de toute flèche qui pose
 B′ au nœud le plus proche.
 
-## {tracer-vecteurs-egaux} — tracer un vecteur égal à u⃗, à v⃗, à w⃗ (8.1.7, v510)
+## {tracer-vecteurs-egaux} — tracer un vecteur égal à u⃗, à v⃗, à w⃗ (8.1.7, v511)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice qui
 affiche trois vecteurs u, v et w sur un quadrillage et qui demande à l'élève
