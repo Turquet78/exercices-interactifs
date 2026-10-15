@@ -21892,6 +21892,10 @@ function chaslesSansFigure(w, P){
     poser(0, REP[0]); document.getElementById('chl-3').value=''; taper(3, 'AB+CA');
     checkChlAnswer();
     if(der().correct || peint('chl-3')!=='rouge' || !/seul vecteur/.test(fb())) vus.push('AB − AC = AB + CA (pas fini) : '+peint('chl-3')+', « '+fb().slice(0,90)+' »');
+    /* le vecteur nul : « 0 » s'écrit sous une flèche, comme un vecteur
+       (Turquet, octobre 2026) */
+    poser(0, []); taper(0, 'AB+BA=0');
+    if(fleches(0)!=='AB|BA|0' || ops(0)!=='+=') vus.push('AB+BA=0 tapé dessine les flèches « '+fleches(0)+' », signes « '+ops(0)+' » : le 0 du vecteur nul n’a pas sa flèche');
     /* un « − » en tête est un signe, posé DEVANT la flèche et non dessous */
     poser(0, REP[0]); document.getElementById('chl-7').value=''; taper(7, '-AD-DB=BA');
     if(fleches(7)!=='AD|DB|BA' || ops(7)!=='−−=') vus.push('− AD − DB = BA tapé dessine « '+fleches(7)+' », signes « '+ops(7)+' »');

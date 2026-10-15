@@ -60259,8 +60259,8 @@ function chlForme(el){
    la même chaîne lettre à lettre : chaque vecteur sous SA flèche, qui
    s'allonge avec ses lettres ; un « + », un « − » ou un « = » ouvre une
    flèche vide, et le curseur clignote dessous. Un « − » en tête d'un morceau
-   reste un signe, posé DEVANT la flèche ; un nombre (2AC) aussi ; « 0 » et
-   « impossible » s'écrivent sans flèche. Les couleurs des morceaux (dataset.mv,
+   reste un signe, posé DEVANT la flèche ; un nombre (2AC) aussi ; « 0 », le
+   vecteur nul, a sa flèche ; « impossible » s'écrit sans flèche. Les couleurs des morceaux (dataset.mv,
    posé par chlPeint) ne se montrent que hors du champ : la case où l'élève
    écrit ne se colore pas. */
 function chlRendu(el){
@@ -60304,9 +60304,13 @@ function chlDessin(v, c0, c1, mv){
       /* un « − » en tête : un signe, pas une flèche vide devant lui */
       if(tete && j<v.length && /[-−–]/.test(v[j])) h+=curs(a);
       else h+=fleche(a, a, a);
-    } else if(/^\s*im/i.test(t) || /^\s*0\s*$/.test(t)){
+    } else if(/^\s*im/i.test(t)){
       for(let k=a;k<j;k++) h+=car(k, false);
       h+=curs(j);
+    } else if(/^\s*0\s*$/.test(t)){
+      /* le vecteur nul : « 0 » sous sa flèche (Turquet, octobre 2026) — sans
+         elle, il se lirait comme le nombre zéro */
+      h+=fleche(a, j, j);
     } else {
       const n=(/^[\d\s×*·.,]*/.exec(t)||[''])[0].length;
       for(let k=a;k<a+n;k++) h+=car(k, false);
