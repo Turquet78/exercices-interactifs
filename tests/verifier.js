@@ -11898,13 +11898,15 @@ function sommeVecteurs(w, P){
     /* 2. l'énoncé et le dessin */
     const instr=el('svcInstr'), qa=el('svc-ch'), qb=el('svc-sm');
     if(instr.textContent.indexOf('Un début va sur une fin')<0) vus.push('l\\'énoncé ne dit pas « Un début va sur une fin » : '+instr.textContent.slice(0,80));
-    if(qa.textContent.indexOf('a)')!==0 || qa.textContent.indexOf('glisser')<0 || qa.textContent.indexOf('l’ordre que tu veux')<0) vus.push('la question a) ne dit pas qu\\'on fait glisser les flèches, dans l\\'ordre qu\\'on veut : '+qa.textContent.slice(0,80));
-    if(qb.textContent.indexOf('b)')!==0 || qb.textContent.indexOf('Trace')<0) vus.push('la question b) ne demande pas de tracer la somme : '+qb.textContent.slice(0,80));
+    if(qa.textContent.indexOf('Étape 1')!==0 || qa.textContent.indexOf('glisser')<0 || qa.textContent.indexOf('l’ordre que tu veux')<0) vus.push('l\\'étape 1 ne dit pas qu\\'on fait glisser les flèches, dans l\\'ordre qu\\'on veut : '+qa.textContent.slice(0,80));
+    if(qb.textContent.indexOf('Étape 2')!==0 || qb.textContent.indexOf('trace')<0) vus.push('l\\'étape 2 ne demande pas de tracer la somme : '+qb.textContent.slice(0,80));
+    if(/\\b[ab]\\)/.test(instr.textContent+qa.textContent+qb.textContent+el('svcActions').textContent)) vus.push('une question a) ou b) se lit encore : les étapes 1 et 2 les remplacent');
     if(instr.querySelectorAll('.vec').length+qa.querySelectorAll('.vec').length+qb.querySelectorAll('.vec').length<6) vus.push('les vecteurs de l\\'énoncé ne sont pas coiffés de leur flèche');
     /* a) puis b) : en a), un clic ne trace rien ; en b), les flèches ne glissent plus */
     if(!qa.classList.contains('svc-actif') || !qb.classList.contains('svc-attente')) vus.push('la question a) n\\'est pas la question en cours au départ');
     svcPose(1,1);
     if(test.questions[0].sd) vus.push('en a), un clic sur le quadrillage commence u + v');
+    if(svcAuto() || test.questions[0].et==='b') vus.push('deux flèches qui ne sont pas bout à bout ouvrent l\\'étape 2');
     svcVersB();
     if(test.questions[0].et!=='b' || !qb.classList.contains('svc-actif') || document.querySelectorAll('#svcPrises .svc-prise').length) vus.push('passer à b) ne fige pas les flèches ou n\\'active pas b)');
     if(svcDeplacer('u',[2,2])) vus.push('en b), une flèche glisse encore');
@@ -11946,7 +11948,11 @@ function sommeVecteurs(w, P){
     if(!svcChaine(q1)||svcChaine(q1).ordre!=='uv') vus.push('v posé au bout de u n\\'est pas lu bout à bout');
     const lv=el('svcFl').querySelector('line.svc-v');
     if(!lv || lv.getAttribute('x1')!==String(SVC_PX+3*SVC_C)) vus.push('la flèche v ne se redessine pas à sa nouvelle place');
-    svcVersB();
+    /* l'étape 1 réalisée ouvre l'étape 2 d'elle-même, en vert, flèches figées */
+    if(!svcAuto() || q1.et!=='b') vus.push('les flèches bout à bout n\\'ouvrent pas l\\'étape 2 d\\'elles-mêmes');
+    if(!el('svc-ch').classList.contains('svc-fait') || el('svc-ch').classList.contains('svc-actif') || !el('svc-sm').classList.contains('svc-actif')) vus.push('l\\'étape 1 réalisée ne passe pas en vert, ou l\\'étape 2 ne s\\'encadre pas : '+el('svc-ch').className+' / '+el('svc-sm').className);
+    if(!test.svcFigeCh || svcDeplacer('v',[2,2]) || el('svcRetourA') || document.querySelectorAll('#svcPrises .svc-prise').length) vus.push('l\\'étape 1 réalisée ne fige pas les flèches, ou laisse revenir à l\\'étape 1');
+    if(svcAuto()) vus.push('svcAuto rejoue le passage à l\\'étape 2');
     svcPose(1,1);
     if(JSON.stringify(q1.sd)!=='[1,1]' || !document.querySelector('#svcn-1-1.sel')) vus.push('le premier clic ne pose pas le début de u + v');
     svcPose(1,1);

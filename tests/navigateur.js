@@ -8893,19 +8893,37 @@ if(require.main === module) (async () => {
       await glisser('v', [uf[0] - e.v[0], uf[1] - e.v[1]]);
       e = await etat();
       if(JSON.stringify(e.v) !== JSON.stringify(uf) || e.ch !== 'uv') dits.push('v glissé ne s\'accroche pas au bout de u : ' + JSON.stringify(e.v) + ' au lieu de ' + JSON.stringify(uf));
-      /* question b) : le bouton fige les flèches et ouvre le tracé */
-      await s.page.click('#svcValidate');
-      await s.page.waitForTimeout(150);
-      if(!await auDessus('svc-sm')) dits.push('la question b) ne se lit pas au-dessus du dessin');
+      /* l'étape 1 réalisée ouvre l'étape 2 D'ELLE-MÊME, au lâcher : l'étape 1
+         passe en vert sur fond vert clair, les flèches se figent (v508) */
+      const et2 = await s.page.evaluate(() => { const ch = document.getElementById('svc-ch'), cs = getComputedStyle(ch);
+        const vert = c => { const m = c.match(/\d+(\.\d+)?/g) || []; return m.length >= 3 && +m[1] > +m[0] && +m[1] > +m[2]; };
+        return { et: test.questions[test.idx].et, fait: ch.classList.contains('svc-fait'), bord: vert(cs.borderTopColor), fond: vert(cs.backgroundColor),
+          prises: document.querySelectorAll('#svcPrises .svc-prise').length, actif: document.getElementById('svc-sm').classList.contains('svc-actif') }; });
+      if(et2.et !== 'b' || !et2.actif) dits.push('v posé au bout de u n\'ouvre pas l\'étape 2 de lui-même');
+      if(!et2.fait || !et2.bord || !et2.fond) dits.push('l\'étape 1 réalisée ne s\'affiche pas en vert sur fond vert clair');
+      if(et2.prises) dits.push('les flèches se saisissent encore à l\'étape 2');
+      if(!await auDessus('svc-sm')) dits.push('l\'étape 2 ne se lit pas au-dessus du dessin');
+      /* le point suit la pointe de la souris : le début, puis la fin, puis plus rien */
+      const curs = async () => await s.page.evaluate(() => { const c = document.getElementById('svcCurseur');
+        if(!c || c.style.display === 'none') return null; const r = c.querySelector('circle').getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+      const survol = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py, { steps: 3 }); await s.page.waitForTimeout(80); return p; };
+      let pm = await survol(e.u[0] + e.uc[0] / 2 + 0.3, e.u[1] + e.uc[1] / 2), cv = await curs();
+      if(!cv || Math.hypot(cv.x - pm.px, cv.y - pm.py) > 3) dits.push('à l\'étape 2, le point du début ne suit pas la souris (sur la flèche u) : ' + JSON.stringify(cv));
       /* u + v : le début tombe SUR la flèche u, et le clic doit arriver au nœud */
       await clic(e.u[0], e.u[1], 0.15);
       e = await etat();
+      pm = await survol(e.u[0] + 0.5, e.u[1] + 0.5); cv = await curs();
+      if(!cv || Math.hypot(cv.x - pm.px, cv.y - pm.py) > 3) dits.push('le début posé, le point de la fin ne suit pas la souris');
       if(JSON.stringify(e.sd) !== JSON.stringify(e.u)) dits.push('le clic sur le début de u (sous sa prise) ne pose pas le début de u + v : ' + JSON.stringify(e.sd));
       if(JSON.stringify(e.u) !== JSON.stringify(e.uo)) dits.push('un simple clic sur u l\'a déplacé');
       const vf = [e.v[0] + e.vc[0], e.v[1] + e.vc[1]];
       await clic(vf[0], vf[1]);
       e = await etat();
       if(JSON.stringify(e.sf) !== JSON.stringify(vf) || e.trace !== 1) dits.push('le second clic ne trace pas u + v (' + JSON.stringify(e.sf) + ', ' + e.trace + ' trait)');
+      if(await curs()) dits.push('la fin posée, un point suit encore la souris');
+      await survol(1.5, 1.5);
+      if(await curs()) dits.push('la fin posée, un point réapparaît au survol');
       await s.page.click('#svcValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
@@ -8945,8 +8963,15 @@ if(require.main === module) (async () => {
       e = await etat();
       const bord = e.uc[0] >= 0 ? 12 - e.uc[0] : 12;
       if(e.u[0] !== bord || e.u[1] !== e.uo[1]) dits.push('u tiré hors du quadrillage n\'est pas retenu au bord : ' + JSON.stringify(e.u) + ' au lieu de [' + bord + ',' + e.uo[1] + ']');
+      if(await s.page.evaluate(() => test.questions[test.idx].et === 'b')) dits.push('deux flèches séparées ouvrent l\'étape 2');
+      /* hors soutien, l'élève passe à l'étape 2 sans être bloqué ; l'étape 1 ne verdit pas */
       await s.page.click('#svcValidate');
       await s.page.waitForTimeout(150);
+      if(await s.page.evaluate(() => document.getElementById('svc-ch').classList.contains('svc-fait'))) dits.push('une étape 1 fausse passe en vert');
+      /* un clic loin de tout nœud pose le début au nœud le plus proche */
+      await clic(3.3, 2.2);
+      if(await s.page.evaluate(() => JSON.stringify(test.questions[test.idx].sd)) !== '[3,2]') dits.push('un clic entre les nœuds ne pose pas le début au nœud le plus proche');
+      await clic(3, 2);
       await s.page.click('#svcValidate');
       await s.page.waitForTimeout(300);
       const faux = await s.page.evaluate(() => ({
