@@ -4524,6 +4524,7 @@ function exercices(suite){
     soustraireRelatifs(w, P);
     reduireProduit(w, P);
     developperDistributivite(w, P);
+    developperDouble(w, P);
     translationGrille(w, P);
     vecteursEgauxTableau(w, P);
     vecteursEgaux(w, P);
@@ -21150,6 +21151,139 @@ function developperDistributivite(w, P){
     /* le barème : 5 pages de 6 cases, puis 14 */
     startDvl();
     if(test.maxScore!==44) vus.push('barème de '+test.maxScore+' au lieu de 44');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {developper-double} — thème 7 « Calcul littéral », 7.10 : la fiche
+   « Développer » (exercice 4), présentée comme le 7.9. Quatre pages
+   (ax − b)(cx − d) ×2, (x − b)(cx − d), (ax − b)(cx + d) ; quatre produits
+   suivis aux flèches, leurs résultats sous les accolades, la forme réduite.
+   Les réponses attendues sont écrites ICI, à la main, sur les expressions de
+   la fiche — jamais lues dans les fonctions de la page qui corrigent. */
+function developperDouble(w, P){
+  const present = evaluer(w, "typeof startDvd==='function' && typeof dvdLignes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('développer avec la double distributivité : le tirage, la correction et la place dans le thème Calcul littéral',
+      'ce niveau n\'a pas l\'exercice de double distributivité');
+    return;
+  }
+  verifierEval(w, 'développer avec la double distributivité : le tirage, la correction et la place dans le thème Calcul littéral', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='developper-double';
+
+    /* ---- 0. la place : 7.10, juste après le 7.9 */
+    if(TEST_NUM['developper-double']!=='7.10') vus.push('numéro '+TEST_NUM['developper-double']+' au lieu de 7.10');
+    if(TEST_NUM['developper-distributivite']!=='7.9') vus.push('le 7.9 a bougé');
+
+    /* ---- 1. le tirage : les quatre formes de la fiche, A et B jamais égales,
+       le terme en x jamais nul ---- */
+    const dans=function(v,a,b){ return Number.isInteger(v) && v>=a && v<=b; };
+    for(let i=0;i<400 && !vus.length;i++){
+      const qs=dvdBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' pages au lieu de 4'); break; }
+      if(qs.map(function(q){ return q.forme; }).join('')!=='ABCD') vus.push('formes '+qs.map(function(q){ return q.forme; }).join(''));
+      qs.forEach(function(q){
+        const a=q.f1[0], b=q.f1[1], c=q.f2[0], d=q.f2[1];
+        if(a.d!==1 || b.d!==0 || c.d!==1 || d.d!==0) vus.push(q.forme+' : les degrés ne sont pas (ax + b)(cx + d)');
+        if(q.forme==='C' ? a.c!==1 : !dans(a.c,2,9)) vus.push(q.forme+' : premier terme '+a.c+'x');
+        if(!dans(-b.c,1,9) || !dans(c.c,2,9)) vus.push(q.forme+' : nombres hors bornes');
+        if(q.forme==='D' ? !dans(d.c,1,9) : !dans(-d.c,1,9)) vus.push(q.forme+' : le dernier nombre a le mauvais signe');
+        if(a.c*d.c+b.c*c.c===0) vus.push(q.forme+' : le terme en x s\\'annule');
+      });
+      if(JSON.stringify([qs[0].f1,qs[0].f2])===JSON.stringify([qs[1].f1,qs[1].f2])) vus.push('A et B posent la même expression');
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 2. la correction, par le BOUTON, sur la fiche elle-même --------- */
+    const M=function(c,d){ return {c:c,d:d}; };
+    const FICHE=[
+      {forme:'A', f1:[M(4,1),M(-3,0)], f2:[M(2,1),M(-5,0)]},   /* (4x − 3)(2x − 5) */
+      {forme:'B', f1:[M(3,1),M(-4,0)], f2:[M(5,1),M(-3,0)]},   /* (3x − 4)(5x − 3) */
+      {forme:'C', f1:[M(1,1),M(-2,0)], f2:[M(8,1),M(-1,0)]},   /* (x − 2)(8x − 1) */
+      {forme:'D', f1:[M(3,1),M(-2,0)], f2:[M(2,1),M(5,0)]}     /* (3x − 2)(2x + 5) */
+    ];
+    const JUSTE=[
+      {f:['4x','2x','4x','-5','-3','2x','-3','(-5)'], t:['8x²','-20x','-6x','+15'], r:['8x^2','-26x','+15']},
+      {f:['3x','5x','3x','-3','-4','5x','(-4)','-3'], t:['15x^2','-9x','-20x','+12'], r:['15x²','-29x','+12']},
+      {f:['x','8x','x','-1','-2','8x','-2','-1'], t:['8x²','-x','-16x','+2'], r:['8x²','-17x','+2']},
+      {f:['3x','2x','3x','5','-2','2x','-2','+5'], t:['6x²','+15x','-4x','-10'], r:['6x²','+11x','-10']}
+    ];
+    const ids=function(j){
+      const o={}, J=JUSTE[j];
+      for(let i=0;i<4;i++){ o['dvd-f-'+i+'-1']=J.f[2*i]; o['dvd-f-'+i+'-2']=J.f[2*i+1]; o['dvd-t-'+i]=J.t[i]; }
+      J.r.forEach(function(v,m){ o['dvd-r-'+m]=v; });
+      return o;
+    };
+    startDvd();
+    test.questions=FICHE.map(function(q){ return JSON.parse(JSON.stringify(q)); });
+    const poser=function(vals){
+      test.locked=false; renderDvdTest();
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    for(let j=0;j<4;j++){
+      test.idx=j; const V=ids(j);
+      poser({});
+      const manque=Object.keys(V).filter(function(id){ return !document.getElementById(id); });
+      if(manque.length){ vus.push('page '+FICHE[j].forme+' : case(s) absente(s) '+manque.join(', ')); continue; }
+      /* 4 flèches au départ (2 par-dessous) + 1 par produit ; 4 accolades + la grande */
+      const sc=document.querySelector('#dvdHost .dvl-page .dvl-schema');
+      const fl=sc?JSON.parse(sc.getAttribute('data-fl')||'[]'):[], acc=sc?JSON.parse(sc.getAttribute('data-acc')||'[]'):[];
+      const bas=fl.filter(function(f){ return f[2]==='bas'; }).length;
+      if(fl.length!==8 || bas!==2 || acc.length!==5 || !Array.isArray(acc[4]))
+        vus.push('page '+FICHE[j].forme+' : '+fl.length+' flèches ('+bas+' par-dessous) et '+acc.length+' accolades au lieu de 8 (2) et 5');
+      if(document.querySelectorAll('#dvdHost .dvl-page .dvl-bul.dvl-n').length!==3) vus.push('page '+FICHE[j].forme+' : les bulles noires ne sont pas trois');
+      poser(V); checkDvdAnswer();
+      const der=test.answers[test.answers.length-1];
+      if(!der || !der.correct) vus.push('la copie juste de la page '+FICHE[j].forme+' est comptée fausse');
+      const nv=Object.keys(V).filter(function(id){ return peint(id)!=='vert'; });
+      if(nv.length) vus.push('page '+FICHE[j].forme+' : '+nv.join(', ')+' non juste(s)');
+      if(!der || der.cases!==15) vus.push('page '+FICHE[j].forme+' : '+(der?der.cases:'?')+' cases au lieu de 15');
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    /* l'exemple de la fiche (4x − 3)(2x − 5) sur la première page seulement, sans case, réduit juste */
+    test.idx=0; poser({});
+    const ex=document.querySelector('#dvdHost .dvl-ex');
+    if(!ex) vus.push('l\\'exemple (4x − 3)(2x − 5) manque à la première page');
+    else {
+      if(ex.querySelector('input')) vus.push('l\\'exemple porte une case à remplir');
+      if(!/26/.test(ex.textContent) || !/20/.test(ex.textContent)) vus.push('l\\'exemple ne montre pas −20x −6x = −26x');
+    }
+    test.idx=1; poser({});
+    if(document.querySelector('#dvdHost .dvl-ex')) vus.push('l\\'exemple se répète sur la deuxième page');
+
+    /* ---- 3. les pièges ---------------------------------------------------- */
+    /* le dernier terme SANS son signe : « 15 » au lieu de « +15 » — rouge, seul, nommé */
+    test.idx=0; poser(Object.assign(ids(0), {'dvd-t-3':'15'})); checkDvdAnswer();
+    if(peint('dvd-t-3')!=='rouge') vus.push('« 15 » sans son signe est peint en '+peint('dvd-t-3'));
+    if(peint('dvd-t-2')!=='vert' || peint('dvd-r-2')!=='vert') vus.push('une case juste rougit à côté du signe oublié');
+    if(!/garde son signe/.test($('dvdFeedback').textContent)) vus.push('le message ne nomme pas le signe oublié : '+$('dvdFeedback').textContent);
+    /* le noir oublié : −3 × (−5) écrit −15 */
+    test.idx=0; poser(Object.assign(ids(0), {'dvd-t-3':'-15'})); checkDvdAnswer();
+    if(peint('dvd-t-3')!=='rouge') vus.push('−15 pour (−3) × (−5) est peint en '+peint('dvd-t-3'));
+    /* une bulle croisée : le produit 2 (rouge × vert) qui prend le bleu */
+    test.idx=0; poser(Object.assign(ids(0), {'dvd-f-1-2':'2x'})); checkDvdAnswer();
+    if(peint('dvd-f-1-2')!=='rouge') vus.push('2x dans la bulle verte est peint en '+peint('dvd-f-1-2'));
+    if(!/bulle rouge à la bulle verte/.test($('dvdFeedback').textContent)) vus.push('le message ne suit pas la flèche : '+$('dvdFeedback').textContent);
+    /* la réduction : −20x −6x laissé tel quel, puis −14x (soustraction au lieu d'addition) */
+    test.idx=0; poser(Object.assign(ids(0), {'dvd-r-1':'-20x-6x'})); checkDvdAnswer();
+    if(peint('dvd-r-1')!=='rouge') vus.push('« -20x-6x », non réduit, est peint en '+peint('dvd-r-1'));
+    test.idx=0; poser(Object.assign(ids(0), {'dvd-r-1':'-14x'})); checkDvdAnswer();
+    if(peint('dvd-r-1')!=='rouge') vus.push('−14x est peint en '+peint('dvd-r-1'));
+    if(!/grande accolade/.test($('dvdFeedback').textContent)) vus.push('le message ne nomme pas la grande accolade : '+$('dvdFeedback').textContent);
+    /* x² oublié : 8x pour 4x × 2x */
+    test.idx=0; poser(Object.assign(ids(0), {'dvd-t-0':'8x'})); checkDvdAnswer();
+    if(peint('dvd-t-0')!=='rouge') vus.push('8x pour 4x × 2x est peint en '+peint('dvd-t-0'));
+    /* deux cases vides : la correction, jamais rouge */
+    test.idx=3; poser(Object.assign(ids(3), {'dvd-t-3':'', 'dvd-r-1':''})); checkDvdAnswer();
+    if(peint('dvd-t-3')!=='bleu' || peint('dvd-r-1')!=='bleu') vus.push('case vide peinte en '+peint('dvd-t-3')+' / '+peint('dvd-r-1'));
+    if((document.getElementById('dvd-r-1')||{}).value!=='+11x') vus.push('la correction de la case vide écrit '+(document.getElementById('dvd-r-1')||{}).value+' au lieu de +11x');
+
+    /* le barème : 4 pages de 15 cases */
+    startDvd();
+    if(test.maxScore!==60) vus.push('barème de '+test.maxScore+' au lieu de 60');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
