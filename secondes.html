@@ -2347,6 +2347,11 @@
   #scr-svc .tvg-cons.svc-actif{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,111,212,.15)}
   #scr-svc .tvg-cons.svc-fait{border-color:var(--green);background:var(--green-soft);color:var(--green);box-shadow:0 0 0 2px rgba(21,122,82,.15)}
   #scr-svc .tvg-cons.svc-attente{opacity:.55}
+  /* u + v tracé (début ET fin posés) : la fin garde son point blanc, et le
+     survol des autres nœuds ne montre plus de point — demande de Turquet,
+     octobre 2026 */
+  .svc-svg .vec-t.svc-fin .dot{fill:#fff;stroke:var(--blue)}
+  .svc-svg.svc-complet .vec-t:not(.sel):not(.svc-fin):hover .dot{fill:transparent;stroke:transparent}
   .svc-svg .svc-nom-op{font-family:KaTeX_Main,Georgia,'Times New Roman',serif;font-style:normal}
   .svc-svg .svc-u{stroke:var(--ink);stroke-width:2.4;stroke-linecap:round}
   .svc-svg .svc-v{stroke:var(--ink-soft);stroke-width:2;stroke-dasharray:6 4}
@@ -56234,7 +56239,17 @@ function svcTracer(q, etat){
   const t=$('svcTrace'); if(!t) return;
   document.querySelectorAll('#svcGraph .vec-t.sel').forEach(function(el){ el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
   if(q.sd){ const el=$('svcn-'+q.sd[0]+'-'+q.sd[1]); if(el){ el.classList.add('sel'); el.setAttribute('aria-pressed','true'); } }
-  if(!q.sd||!q.sf){ t.innerHTML=''; return; }
+  /* u + v TRACÉ : sa fin garde un point blanc, le survol des nœuds n'en
+     montre plus, et l'étape 2 passe au vert comme l'étape 1 réalisée
+     (demande de Turquet, octobre 2026). « Tracé » ne juge rien : la flèche
+     a un début et une fin, « Vérifier » dira si elle est juste. */
+  document.querySelectorAll('#svcGraph .vec-t.svc-fin').forEach(function(el){ el.classList.remove('svc-fin'); });
+  const complet=!!(q.sd&&q.sf), svg=document.querySelector('#svcGraph .svc-svg');
+  if(svg) svg.classList.toggle('svc-complet', complet);
+  if(complet){ const el=$('svcn-'+q.sf[0]+'-'+q.sf[1]); if(el) el.classList.add('svc-fin'); }
+  const sm=$('svc-sm');
+  if(sm) sm.classList.toggle('svc-fait', complet&&q.et==='b'&&!test.locked&&!sm.classList.contains('ok')&&!sm.classList.contains('bad'));
+  if(!complet){ t.innerHTML=''; return; }
   const bad=etat==='bad', a=svcU(q), b=svcV(q);
   t.innerHTML=svcFleche(q.sd, q.sf, {cls:bad?'svc-eb':'svc-e', marker:bad?'svcArrB':'svcArrE', nom:'u+v',
     cote:svcCoteDehors(q.sd, q.sf, [[a,svcPlus(a,q.uc)],[b,svcPlus(b,q.vc)]])});

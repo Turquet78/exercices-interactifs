@@ -1088,6 +1088,25 @@ moins de 3 px de la souris sur la flèche u⃗ puis pour la fin, plus aucun poin
 une fois la fin posée, une étape 1 fausse qui ne verdit pas, et le clic entre
 les nœuds.
 
+**Puis u⃗ + v⃗ tracé a gardé le point blanc de sa fin, éteint le survol des nœuds, et l'étape 2 finie a verdi comme l'étape 1 (v510).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.1, laisser le point blanc
+quand on choisit le point à la fin du vecteur somme ; il ne faut plus que la
+flèche affiche un point ensuite quand on passe sur une intersection du
+quadrillage ; quand on a fini l'étape 2, le texte passe au vert comme pour
+l'étape 1 ». Le point blanc du clic sur la fin était celui du SURVOL
+(`.vec-t:hover .dot`) : il s'éteignait dès que la souris partait, et chaque
+nœud survolé ensuite en rallumait un. `svcTracer` pose désormais, dès que
+u⃗ + v⃗ a un début ET une fin, la classe `svc-fin` sur le nœud de la fin
+(point blanc, cerne bleu, à demeure) et `svc-complet` sur le SVG, qui éteint
+le point de survol de tous les autres nœuds (le début garde son `sel`). Le
+même instant met `svc-fait` sur l'étape 2 — cadre et texte verts sur fond
+vert clair, la règle de l'étape 1. « Fini » ne juge rien : une flèche fausse
+mais tracée verdit son étape comme une juste, et « Vérifier » tranche ; une
+étape 2 déjà marquée `ok`/`bad` en soutien garde sa marque, et le
+verrouillage retire `svc-fait` (`checkSvc`). Le banc navigateur lit, après
+le second clic, le fond blanc calculé du point de la fin, le cadre et le
+fond verts de l'étape 2, et un nœud libre survolé sans point.
+
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v490)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
