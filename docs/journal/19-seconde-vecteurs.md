@@ -1813,7 +1813,7 @@ quadragies septies) mesure le point posé sur le milieu de −v⃗ à moins de
 3 px de la souris, et un clic loin de tout nœud et de toute flèche qui pose
 B′ au nœud le plus proche.
 
-**Puis les deux étapes sont passées AU-DESSUS du dessin comme au 8.2.8, le point est devenu une croix, et le vecteur solution s'est tracé (v510).**
+**Puis les deux étapes sont passées AU-DESSUS du dessin comme au 8.2.8, le point est devenu une croix, et le vecteur solution s'est tracé (v511).**
 La demande (Turquet, octobre 2026) : « dans le 8.2.9, afficher les objectifs
 (ici ce sont les 2 étapes) comme dans le 8.2.8 ; quand le point de
 l'objectif 2 est placé, mettre une croix plutôt qu'un rond pour le point ; il
