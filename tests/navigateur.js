@@ -8924,6 +8924,24 @@ if(require.main === module) (async () => {
       if(await curs()) dits.push('la fin posée, un point suit encore la souris');
       await survol(1.5, 1.5);
       if(await curs()) dits.push('la fin posée, un point réapparaît au survol');
+      /* u + v tracé (v510) : la fin garde son point BLANC, un nœud survolé n'en
+         montre plus, et l'étape 2 passe au vert comme l'étape 1 */
+      const fini = await s.page.evaluate((vf) => {
+        const dot = id => { const el = document.querySelector('#' + id + ' .dot'); return el ? getComputedStyle(el) : null; };
+        const fin = dot('svcn-' + vf[0] + '-' + vf[1]);
+        const sm = document.getElementById('svc-sm'), cs = getComputedStyle(sm);
+        const vert = c => { const m = c.match(/\d+(\.\d+)?/g) || []; return m.length >= 3 && +m[1] > +m[0] && +m[1] > +m[2]; };
+        return { finFond: fin ? fin.fill : '', finTrait: fin ? fin.stroke : '', fait: sm.classList.contains('svc-fait'), bord: vert(cs.borderTopColor), fond: vert(cs.backgroundColor) };
+      }, vf);
+      if(!/rgb\(255, 255, 255\)/.test(fini.finFond) || /rgba\(0, 0, 0, 0\)|transparent/.test(fini.finTrait)) dits.push('la fin de u + v ne garde pas son point blanc : ' + fini.finFond + ' / ' + fini.finTrait);
+      if(!fini.fait || !fini.bord || !fini.fond) dits.push('l\'étape 2 finie ne passe pas en vert sur fond vert clair');
+      const libre = await s.page.evaluate(() => { const q = test.questions[test.idx];
+        for(let i = 0; i <= SVC_W; i++) for(let j = 0; j <= SVC_H; j++) if(!svcEgal(q.sd, [i, j]) && !svcEgal(q.sf, [i, j])) return [i, j]; });
+      const nd = await survol(libre[0], libre[1]);
+      const survole = await s.page.evaluate(([x, y]) => { const t = document.elementFromPoint(x, y), g = t && t.closest('.vec-t');
+        if(!g) return 'aucun nœud sous la souris'; const d = getComputedStyle(g.querySelector('.dot'));
+        return /rgba\(0, 0, 0, 0\)|transparent|none/.test(d.fill) && /rgba\(0, 0, 0, 0\)|transparent|none/.test(d.stroke) ? '' : 'point ' + d.fill; }, [nd.px, nd.py]);
+      if(survole) dits.push('u + v tracé, un nœud survolé montre encore un point (' + survole + ')');
       await s.page.click('#svcValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
@@ -9071,10 +9089,24 @@ if(require.main === module) (async () => {
       if(JSON.stringify(e.cp) !== '[[-2,-3],[0,-4]]' || !e.ch) dits.push('les copies ne s\'accrochent pas bout à bout depuis D : ' + JSON.stringify(e.cp));
       if(JSON.stringify(e.t[0]) !== '{"d":[1,2],"f":[3,1]}') dits.push('glisser la copie a déplacé le vecteur tracé');
       if(e.fleches !== 4) dits.push(e.fleches + ' flèches au lieu de 4 (les deux vecteurs et leurs copies)');
+      /* les objectifs réalisés sont verts, sur fond vert clair ; avant M, le
+         survol d'un nœud y montre un point */
+      const vert = async id => await s.page.evaluate(id => { const cs = getComputedStyle(document.getElementById(id));
+        const v = c => { const m = c.match(/\d+(\.\d+)?/g) || []; return m.length >= 3 && +m[1] > +m[0] && +m[1] > +m[2]; };
+        return v(cs.borderTopColor) && v(cs.backgroundColor); }, id);
+      for(const id of ['svr-A', 'svr-D', 'svr-t1', 'svr-ch']) if(!(await vert(id))) dits.push('l\'objectif ' + id + ' réalisé ne passe pas en vert');
+      if(await vert('svr-M')) dits.push('« Placer M » est vert avant que M soit posé');
+      const survol = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py); await s.page.waitForTimeout(80);
+        return await s.page.evaluate(([x, y]) => { const n = svrNoeud([x, y]).querySelector('.dot'); return getComputedStyle(n).stroke !== 'rgba(0, 0, 0, 0)' && getComputedStyle(n).stroke !== 'transparent'; }, [x, y]); };
+      if(!(await survol(-5, 4))) dits.push('avant M, survoler un nœud n\'y montre pas de point');
       /* ④ M */
       await clic(2, -2);
       e = await etat();
       if(JSON.stringify(e.m) !== '[2,-2]') dits.push('M ne se pose pas en (2 ; −2) : ' + JSON.stringify(e.m));
+      if(!(await vert('svr-M'))) dits.push('M posé, « Placer M » ne passe pas en vert');
+      if(await survol(-5, 4)) dits.push('M posé, survoler un nœud y montre encore un point');
+      const res = await s.page.evaluate(() => { const l = document.querySelector('#svrFl line.svr-res'); if(!l) return null; const r = l.getBoundingClientRect(); return r.width + r.height; });
+      if(!res || res < 20) dits.push('M posé, le vecteur DM n\'est pas tracé');
       await s.page.click('#svrValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
@@ -9094,7 +9126,7 @@ if(require.main === module) (async () => {
         vert: [...document.querySelectorAll('#svrCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
         croix: document.querySelectorAll('#svrCorr .svr-pt.s').length, prises: document.querySelectorAll('#svrPrises .svc-prise').length, score: test.score }));
       if(vide.sol !== 8 || vide.rouge) dits.push('copie vide : ' + vide.sol + ' sol, ' + vide.rouge + ' rouge');
-      if(vide.vert !== 4 || vide.croix !== 5) dits.push('copie vide : la correction trace ' + vide.vert + ' flèches et ' + vide.croix + ' points en vert (4 et 5 attendus)');
+      if(vide.vert !== 5 || vide.croix !== 5) dits.push('copie vide : la correction trace ' + vide.vert + ' flèches et ' + vide.croix + ' points en vert (5, dont DM, et 5 attendus)');
       if(vide.score !== 8) dits.push('la copie vide rapporte des points (score ' + vide.score + ')');
       verifier('la fiche 10 se fait à la souris : quatre points, deux vecteurs, deux copies glissées, M', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la somme de vecteurs dans un repère ne lève aucune erreur JavaScript',
