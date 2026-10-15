@@ -10961,7 +10961,7 @@ function hwSerpentSVG(v, bulle){
      dans un cadre large — la police de la page n'est pas sûre (Nunito, ou le
      repli du système : sur le serveur de la CI, un repli plus large a fait
      déborder trois bulles écrites en lignes de vingt caractères). */
-  const n=bulle.length, lignes=bulle.map((l,i)=>'<text class="hw-bulle-texte" x="195" y="'+(40+(i-(n-1)/2)*14)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#1d1230">'+l+'</text>').join('');
+  const n=bulle.length, lignes=bulle.map((l,i)=>'<text class="hw-bulle-texte" x="195" y="'+(40+(i-(n-1)/2)*15)+'" text-anchor="middle" font-size="12" font-weight="700" fill="#1d1230">'+l+'</text>').join('');
   const bulleSVG='<path class="hw-bulle" d="M128 6 H 262 Q 268 6 268 12 V 60 Q 268 66 262 66 H 158 L 140 80 L 146 66 H 128 Q 122 66 122 60 V 12 Q 122 6 128 6 Z" fill="#fff" stroke="#2a2a2a" stroke-width="2" stroke-linejoin="round"/>'+lignes;
   return '<svg class="hw-svg" viewBox="0 0 272 216" width="272" height="216" aria-hidden="true" focusable="false">'+fond+serpent+dessus+bulleSVG+'</svg>';
 }

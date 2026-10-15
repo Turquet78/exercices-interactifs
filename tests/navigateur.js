@@ -15149,11 +15149,16 @@ if(require.main === module) (async () => {
           if(svg) svg.style.fontFamily = '"DejaVu Sans", sans-serif';
           const deborde = textes.filter(t => { const b = t.getBBox(); return rb && (b.x < rb.x + 2 || b.x + b.width > rb.x + rb.width - 2); }).map(t => t.textContent);
           if(svg) svg.style.fontFamily = policeAvant;
+          /* la bulle s'écrit à 12 px au moins, comme tout texte de graphique : le
+             contrôle commun de la section 9 ne voit les serpents qu'EN SAISON (le
+             décor suit la date) — ici, le décor est forcé, et la règle tient toute
+             l'année */
+          const petits = textes.filter(t => parseFloat(getComputedStyle(t).fontSize) < 12).map(t => parseFloat(getComputedStyle(t).fontSize) + ' px « ' + t.textContent + ' »');
           return { ecran: on.id, variante: fig.getAttribute('data-hw'), largeur: rf.width, hauteur: rf.height,
                    svgH: svg ? svg.getBoundingClientRect().height : 0, imgL: ri ? ri.width : 0,
                    dansCarte: !!rc && rf.left >= rc.left - 1 && rf.right <= rc.right + 1,
                    largeurPage: document.documentElement.scrollWidth,
-                   textes: textes.length, deborde };
+                   textes: textes.length, deborde, petits };
         });
         for(const id of ids){
           await s.page.evaluate(i => openTest(i), id);
@@ -15181,6 +15186,7 @@ if(require.main === module) (async () => {
              l'énoncé) — ce qu'on tient, c'est que le serpent n'élargit RIEN */
           if(!avec.dansCarte || avec.largeurPage > sans.largeurPage) pbs.push(id + ' : le serpent sort de la carte ou élargit la page (' + sans.largeurPage + ' → ' + avec.largeurPage + ' px)');
           if(avec.textes < 2 || avec.deborde.length) pbs.push(id + ' : la bulle déborde (' + avec.deborde.join(' / ') + ')');
+          if(avec.petits.length) pbs.push(id + ' : la bulle s\'écrit sous 12 px (' + avec.petits.slice(0, 2).join(', ') + ')');
           /* décor allumé, téléphone de 360 px : le dessin et le serpent passent à la ligne, rien ne déborde */
           await s.page.setViewportSize({ width: 360, height: 740 });
           await s.page.waitForTimeout(200);
@@ -15194,7 +15200,7 @@ if(require.main === module) (async () => {
           await s.page.evaluate(() => document.body.classList.remove('halloween'));
           vus.push(id + ':' + avec.variante);
         }
-        verifier('les serpents d\'Halloween se montrent sous le décor, à côté du dessin de la fiche, bulle lisible, sans déborder (grand écran et 360 px) — et pas du tout décor éteint',
+        verifier('les serpents d\'Halloween se montrent sous le décor, à côté du dessin de la fiche, bulle lisible à 12 px au moins, sans déborder (grand écran et 360 px) — et pas du tout décor éteint',
           ids.length > 0 && pbs.length === 0, pbs.length ? pbs.slice(0, 3).join(' | ') : 'aucun exercice dans le sous-thème ' + TH + '.' + SS);
         verifier('le sous-thème ' + TH + '.' + SS + ' compte ' + ids.length + ' serpents, tous différents',
           ids.length > 0 && new Set(vus.map(v => v.split(':')[1])).size === ids.length, vus.join(', '));
