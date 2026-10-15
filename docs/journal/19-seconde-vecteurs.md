@@ -1502,6 +1502,31 @@ pas — la flèche qui s'allonge (20, 25 puis 42 px pour A puis AD), le curseur
 qui clignote, le dessin aligné sur le champ — a été regardé dans Chromium,
 à 1280 et à 390 px de large.
 
+**Puis le calcul est entré DANS le champ, et un exemple ouvre la page**
+(v504, Turquet, octobre 2026 : « mettre le calcul à effectuer dans le champ
+de saisie ; écrire un exemple au début, un champ déjà complété, qui effectue
+une addition et donne un modèle avec une étape jusqu'au résultat »). La
+ligne ne montre plus « AD + DF = » DEVANT le champ : le champ s'ouvre sur
+« AD + DF = », chaque vecteur sous sa flèche, et l'élève continue derrière.
+**Ce début n'est pas dans la valeur du champ** — il est dessiné par
+`chlPrefHTML` depuis `data-pref`, devant le dessin de la saisie
+(`chlDessin`, tiré de `chlRendu`). C'est voulu : dans la valeur, l'élève
+aurait pu l'effacer, et surtout un champ où il n'a rien tapé n'aurait plus été
+VIDE — ni pour le juge (`s.vide`), ni pour `corrChoix` (la correction verte
+dans un champ vide), ni pour la règle « une case vide ne rougit jamais », ni
+pour la reprise. Tout cela lit la valeur, inchangée ; le juge, le banc et le
+brouillon n'ont pas bougé. Le début s'écrit à l'encre de l'énoncé
+(`.chl-pref`, `--ink`) et ne prend pas la couleur du verdict. Ses signes
+portent `.chl-pop`, pas `.chl-op`, et ses vecteurs ne sont pas des
+`.chl-vec` : le banc compte les flèches et les signes de la SAISIE.
+L'exemple (`CHL_EXEMPLE`, `chlExempleHTML`) : « EF + GE = GE + EF = GF » —
+une addition, une étape (l'ordre changé pour que les vecteurs s'enchaînent),
+puis le résultat ; un dessin dans un cadre de champ, pas un `<input>` : rien à
+saisir, à juger ni à reprendre. Sur un téléphone (≤ 520 px), la rangée entière
+écrit à 1,1 rem, champ compris, du même facteur — le début ajouté élargissait
+le champ hors de la rangée. Reste nommé : une chaîne de cinq vecteurs ou plus
+déborde encore à 390 px. Regardé dans Chromium à 1280 et 390 px.
+
 ## {point-somme-vecteurs} — construire un point avec une somme de vecteurs (8.14, v496)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice
