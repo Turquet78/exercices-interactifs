@@ -2403,7 +2403,11 @@
   span.svr-out{cursor:default;font-weight:600}
   .svr-out.actif{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,111,212,.25)}
   .svr-out .svr-rond{font-size:.8em;color:var(--ink-soft)}
-  .svr-out.fait .svr-rond{color:var(--blue)}
+  /* un objectif RÉALISÉ passe en vert sur fond vert clair, comme les étapes
+     du 8.2.1 (demande de Turquet, octobre 2026) ; à la vérification, ok, bad
+     et sol, écrits après, reprennent la main */
+  .svr-out.fait{border-color:var(--green);background:var(--green-soft);color:var(--green)}
+  .svr-out.fait .svr-rond{color:var(--green)}
   .svr-out.ok{border-color:var(--blue);background:#EAF0FF}
   .svr-out.bad{border-color:var(--red);background:#fdeaea}
   .svr-out.sol{border-color:var(--green);background:var(--green-soft)}
@@ -2414,6 +2418,8 @@
   .svr-svg .svr-lbl{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px}
   .svr-svg .svr-pt.e .svr-lbl{fill:var(--blue-dark)} .svr-svg .svr-pt.eb .svr-lbl{fill:var(--red)} .svr-svg .svr-pt.s .svr-lbl{fill:var(--green)}
   .svr-svg .svr-nom{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px}
+  /* M posé : survoler un nœud n'y montre plus de point */
+  .vec-svg.svr-repos .vec-t:hover .dot{fill:transparent;stroke:transparent}
   /* 8.15 {point-somme-difference} : le quadrillage et les flèches du 8.7 (.svc-svg),
      le point donné en croix (.vec-pt), A′ posé au clic comme au 8.5 ; deux
      boutons retournent u⃗ et v⃗ ; l'égalité s'écrit avec la flèche du 8.2 */
@@ -2427,10 +2433,11 @@
      faux ou attendu est une croix de sa couleur, et le point qui suit la
      souris aussi */
   .cvp-svg .vec-t .dot,.cvp-svg .vec-t:hover .dot{display:none}
-  .cvp-svg .vec-t .crx{fill:none;stroke:transparent;stroke-width:2.6;stroke-linecap:round}
-  .cvp-svg .vec-t.sel .crx,.cvp-svg .vec-t.okc .crx{stroke:var(--blue-dark)}
-  .cvp-svg .vec-t.badc .crx{stroke:var(--red)}
-  .cvp-svg .vec-t.missc .crx{stroke:var(--green)}
+  #cvpCroix{pointer-events:none}
+  #cvpCroix .crx{fill:none;stroke-width:2.6;stroke-linecap:round}
+  #cvpCroix .crx.sel,#cvpCroix .crx.okc{stroke:var(--blue-dark)}
+  #cvpCroix .crx.badc{stroke:var(--red)}
+  #cvpCroix .crx.missc{stroke:var(--green)}
   .cvp-svg .cvp-curseur .crx{fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linecap:round}
   /* le vecteur solution AA′, tracé par la correction */
   .cvp-svg .cvp-sol{stroke:var(--green);stroke-width:3}
@@ -2443,6 +2450,16 @@
   #cvpInstr .vgt-vec{font-size:1.1em}
   #cvpInstr .cvp-eg{white-space:nowrap}
   .cvp-curseur,.svc-curseur{pointer-events:none}
+  /* 8.1.6 : le nœud choisi se dessine en CROIX, comme les points donnés — bleue,
+     rouge si elle est fausse ; une fois un nœud choisi, le survol n'allume plus
+     les autres (vep-pose), et le point qui suivait la souris disparaît */
+  #vepGraph .vec-t .vec-x{display:none}
+  #vepGraph .vec-t .vec-x line{stroke:var(--blue-dark);stroke-width:2.6;stroke-linecap:round}
+  #vepGraph .vec-t.sel .vec-x,#vepGraph .vec-t.okc .vec-x,#vepGraph .vec-t.badc .vec-x{display:block}
+  #vepGraph .vec-t.badc .vec-x line{stroke:var(--red)}
+  #vepGraph .vec-t.sel .dot,#vepGraph .vec-t.okc .dot,#vepGraph .vec-t.badc .dot,
+  #vepGraph.vep-pose .vec-t:not(.missc):hover .dot{fill:transparent;stroke:transparent}
+  #vepGraph .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
   .cvp-curseur circle,.svc-curseur circle{fill:var(--blue);fill-opacity:.55;stroke:var(--blue-dark);stroke-width:1.6}
   .cvp-svg .cvp-curseur .vec-lbl,.cps-svg .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
   .cvp-outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:4px 0 12px}
@@ -6985,7 +7002,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=511;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=512;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -55873,7 +55890,51 @@ function vepEgaliteHTML(q){ return vepVecHTML(q.eq[0],q.eq[1])+' = '+vepVecHTML(
 function vepEgaliteTxt(q){ return 'vecteur '+q.eq[0]+q.eq[1]+' = vecteur '+q.eq[2]+q.eq[3]; }
 function vepSVG(q){
   const pts={}; vepDonnes(q).forEach(function(L){ pts[L]=q[L]; });
-  return vecQuadrillage({pts:pts, cible:q.m, sel:q.selM, pfx:'vepn', clic:'vepPose', marker:'vepArr', corr:'vepCorr'});
+  /* le point qui suit la souris, posé en DERNIER : au-dessus de tout, sans
+     prendre aucun clic (.cvp-curseur, pointer-events:none) */
+  return vecQuadrillage({pts:pts, cible:q.m, sel:q.selM, pfx:'vepn', clic:'vepPose', marker:'vepArr', corr:'vepCorr'})
+    .replace(/<\/svg>$/, `<g id="vepCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><circle r="5"/><text class="vec-lbl" x="8" y="-8">${q.m}</text></g></svg>`);
+}
+/* Le point au bout de la souris (demande de Turquet, octobre 2026) : tant
+   qu'aucun nœud n'est choisi, un point et sa lettre suivent la pointe partout
+   sur le quadrillage ; dès qu'un nœud est choisi, il devient une croix, et
+   plus rien ne suit la souris ni ne s'allume au survol d'un nœud (classe
+   vep-pose du dessin). Recliquer la croix la retire : le point revient. Rien
+   au doigt (pointerType « touch » : pas de survol), rien une fois corrigé. */
+let vepDernier=null;
+/* La croix du nœud choisi : UNE seule, posée dans le groupe de ce nœud (ses
+   classes sel/okc/badc la colorent) — pas une croix cachée dans chacun des
+   97 nœuds, qui triplait le dessin à chaque question. */
+function vepCroix(){
+  document.querySelectorAll('#vepGraph .vec-x').forEach(function(x){ x.remove(); });
+  const q=test.kind==='vep'&&test.questions&&test.questions[test.idx]; if(!q||!q.selM) return;
+  const el=$('vepn-'+q.selM[0]+'-'+q.selM[1]); if(!el) return;
+  const X=VEC_PAD+q.selM[0]*VEC_CELL, Y=VEC_PAD+(VEC_N-q.selM[1])*VEC_CELL, NS='http://www.w3.org/2000/svg';
+  const g=document.createElementNS(NS,'g'); g.setAttribute('class','vec-x');
+  [[-6,-6,6,6],[-6,6,6,-6]].forEach(function(d){ const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',X+d[0]); l.setAttribute('y1',Y+d[1]); l.setAttribute('x2',X+d[2]); l.setAttribute('y2',Y+d[3]); g.appendChild(l); });
+  el.insertBefore(g, el.querySelector('.vec-dlbl'));
+}
+function vepCurseur(ev){
+  const g=$('vepGraph'); if(!g) return;
+  const q=test.kind==='vep'&&test.questions&&test.questions[test.idx];
+  const pose=!q||!!q.selM||!!test.locked||!!test.vepFige;
+  g.classList.toggle('vep-pose', pose);
+  const c=$('vepCurseur'); if(!c) return;
+  const svg=g.querySelector('.vec-svg'), m=svg&&svg.getScreenCTM&&svg.getScreenCTM();
+  if(pose||!ev||ev.pointerType==='touch'||!m){ c.style.display='none'; return; }
+  const pt=svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
+  const p=pt.matrixTransform(m.inverse());
+  const fx=(p.x-VEC_PAD)/VEC_CELL, fy=VEC_N-(p.y-VEC_PAD)/VEC_CELL;
+  if(fx<-0.5||fx>VEC_N+0.5||fy<-0.5||fy>VEC_N+0.5){ c.style.display='none'; return; }
+  c.setAttribute('transform','translate('+p.x+' '+p.y+')');
+  c.style.display='';
+}
+function vepBrancheCurseur(){
+  const g=$('vepGraph'); if(!g||g.dataset.vepCurseur) return;
+  g.dataset.vepCurseur='1';
+  g.addEventListener('pointermove', function(ev){ vepDernier=ev; vepCurseur(ev); });
+  g.addEventListener('pointerleave', function(){ vepDernier=null; vepCurseur(null); });
 }
 /* Poser le point : un seul nœud à la fois — cliquer un autre nœud le déplace,
    cliquer le nœud posé le retire. L'état vit dans la question (pause et reprise). */
@@ -55886,6 +55947,7 @@ function vepPose(i,j){
   q.selM=meme?null:[i,j];
   if(!meme){ el.classList.add('sel'); el.classList.remove('badc'); el.setAttribute('aria-pressed','true'); }
   const pt=$('vep-pt'); if(pt) pt.classList.remove('ok','bad');
+  vepCroix(); vepCurseur(vepDernier);
   recoveryDirty=true;
 }
 /* LE JUGE — deux réponses, chacune jugée seule : le nœud posé, qui doit être
@@ -55907,7 +55969,7 @@ function vepMarqueSoutien(q,subs){
     const pt=$('vep-pt'); if(pt){ pt.classList.remove('ok','bad'); if(!s.vide) pt.classList.add(s.ok?'ok':'bad'); }
     if(!q.selM) return;
     const el=$('vepn-'+q.selM[0]+'-'+q.selM[1]); if(!el) return;
-    if(s.ok){ el.classList.add('okc','off'); el.classList.remove('sel','badc'); test.vepFige=true; }
+    if(s.ok){ el.classList.add('okc','off'); el.classList.remove('sel','badc'); test.vepFige=true; vepCurseur(null); }
     else el.classList.add('badc');
   });
 }
@@ -55921,6 +55983,7 @@ function vepFinal(q,subs){
   document.querySelectorAll('#vepGraph .vec-t').forEach(function(el){ el.classList.add('off'); el.classList.remove('sel'); });
   if(q.selM){ const el=$('vepn-'+q.selM[0]+'-'+q.selM[1]); if(el) el.classList.add(subs[0].ok?'okc':'badc'); }
   if(!subs[0].ok){ const el=$('vepn-'+M[0]+'-'+M[1]); if(el) el.classList.add('missc'); }
+  vepCurseur(null);
   const P=L=>L===q.m?M:q[L];
   const corr=$('vepCorr'); if(corr) corr.innerHTML=vecFigure(P, vepTour(q).split(''), [[q.eq[0],q.eq[1]],[q.eq[2],q.eq[3]]], 'vepArr');
 }
@@ -55952,6 +56015,7 @@ function renderVep(){
   $('vepModeTag').innerHTML=modeTagHTML();
   $('vepInstr').innerHTML='Les points <b>'+d[0]+'</b>, <b>'+d[1]+'</b> et <b>'+d[2]+'</b> sont placés sur le quadrillage. Place le point <b>'+q.m+'</b> tel que '+vepEgaliteHTML(q)+'.';
   $('vepGraph').innerHTML=vepSVG(q);
+  vepCroix(); vepBrancheCurseur(); vepCurseur(vepDernier);
   $('vepBody').innerHTML=
      '<div class="tvg-cons pts-case" id="vep-pt"><b>a)</b> Clique sur le quadrillage le nœud où se trouve le point <b>'+q.m+'</b> pour que '+vepEgaliteHTML(q)+'.</div>'
     +'<div class="tvg-cons" id="vep-ph"><b>b)</b> Nomme le parallélogramme obtenu : '
@@ -57278,13 +57342,13 @@ function cvpSVG(q){
   for(let i=0;i<=SVC_W;i++) for(let j=0;j<=SVC_H;j++){
     zones+=`<path class="vec-zone" d="M${X(i)} ${Y(j)}h0.01" onclick="cvpPose(${i},${j})"/>`;
     cibles+=`<g class="vec-t" id="cvpn-${i}-${j}" onclick="cvpPose(${i},${j})" tabindex="0" role="button" aria-label="nœud ${i} vers la droite, ${j} vers le haut" aria-pressed="false">`
-      +`<circle class="hit" cx="${X(i)}" cy="${Y(j)}" r="10"/><path class="crx" d="M${X(i)-6} ${Y(j)-6}l12 12m0 -12l-12 12"/>`
+      +`<circle class="hit" cx="${X(i)}" cy="${Y(j)}" r="10"/><circle class="dot" cx="${X(i)}" cy="${Y(j)}" r="5"/>`
       +`<text class="vec-lbl vec-dlbl" x="${i<SVC_W?X(i)+8:X(i)-8}" y="${j<SVC_H?Y(j)-8:Y(j)+19}" text-anchor="${i<SVC_W?'start':'end'}">${cvpNomPt(q)}</text></g>`;
   }
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg cvp-svg" role="img" aria-label="Quadrillage : le point ${q.l}, et les vecteurs u et v à faire glisser">`
     +'<defs>'+pointe('cvpArrU','var(--ink)')+pointe('cvpArrV','var(--ink-soft)')+pointe('cvpArrS','var(--green)')+'</defs>'
-    +g+'<g id="cvpSol"></g><g id="cvpCorr"></g><g id="cvpFl"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cvpPrises"></g>`
+    +g+'<g id="cvpSol"></g><g id="cvpCorr"></g><g id="cvpFl"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cvpCroix" aria-hidden="true"></g><g id="cvpPrises"></g>`
     +`<g id="cvpCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><path class="crx" d="M-6 -6l12 12m0 -12l-12 12"/><text class="vec-lbl" x="8" y="-8">${cvpNomPt(q)}</text></g></svg>`;
 }
 /* Les deux flèches à leur place du moment, la lettre du point, et les prises.
@@ -57365,6 +57429,21 @@ function cvpMarquer(q){
   document.querySelectorAll('#cvpGraph .vec-t.sel').forEach(function(el){ el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
   if(q.sel){ const el=$('cvpn-'+q.sel[0]+'-'+q.sel[1]); if(el){ el.classList.add('sel'); el.setAttribute('aria-pressed','true'); } cvpEtiquetteNoeud(q,q.sel); }
   if(!test.locked) cvpFaits(q);
+  cvpCroix();
+}
+/* Les croix des points : une par nœud marqué (posé, juste, faux, attendu),
+   dessinée à la demande — jamais une croix cachée dans chacun des 117 nœuds
+   (au 8.1.6, 97 croix cachées saturaient la mémoire du banc principal). */
+function cvpCroix(){
+  const g=$('cvpCroix'); if(!g) return;
+  let h='';
+  document.querySelectorAll('#cvpGraph .vec-t.sel, #cvpGraph .vec-t.okc, #cvpGraph .vec-t.badc, #cvpGraph .vec-t.missc').forEach(function(el){
+    const c=el.querySelector('.hit'); if(!c) return;
+    const x=+c.getAttribute('cx'), y=+c.getAttribute('cy');
+    const k=['missc','badc','okc','sel'].find(function(n){ return el.classList.contains(n); });
+    h+=`<path class="crx ${k}" d="M${x-6} ${y-6}l12 12m0 -12l-12 12"/>`;
+  });
+  g.innerHTML=h;
 }
 /* Poser A′ : un seul nœud — cliquer un autre nœud le déplace, recliquer le
    même le retire. L'état vit dans la question (pause et reprise). */
@@ -57545,6 +57624,7 @@ function cvpMarqueSoutien(q,subs){
   const pt=subs[1];
   if(q.sel){ const el=$('cvpn-'+q.sel[0]+'-'+q.sel[1]); if(el){ el.classList.remove('okc','badc'); el.classList.add(pt.ok?'okc':'badc'); } }
   if(pt.ok){ test.cvpFigePt=true; document.querySelectorAll('#cvpGraph .vec-t').forEach(function(el){ el.classList.add('off'); }); }
+  cvpCroix();
 }
 /* Correction finale : tout figer ; chaque réponse bleue, rouge, ou verte si
    elle était vide ; la construction attendue en VERT si elle manquait, et A′
@@ -57556,7 +57636,7 @@ function cvpFinal(q,subs){
   cvpDessinerFleches(q);
   if(q.sel){ const el=$('cvpn-'+q.sel[0]+'-'+q.sel[1]); if(el) el.classList.add(pt.ok?'okc':'badc'); }
   cvpVecteurSol(q);
-  if(ch.ok&&pt.ok) return;
+  if(ch.ok&&pt.ok){ cvpCroix(); return; }
   const k=cvpConstruction(q), c=$('cvpCorr');
   if(!ch.ok&&k&&c){
     const s=cvpSignes(q), sg=function(w){ return (w==='u'?s[0]:s[1])<0; };
@@ -57565,6 +57645,7 @@ function cvpFinal(q,subs){
   }
   if(!pt.ok){ const E=cvpPoint(q), el=$('cvpn-'+E[0]+'-'+E[1]); if(el) el.classList.add('missc'); cvpEtiquetteNoeud(q,E); }
   if(q.sel) cvpEtiquetteNoeud(q,q.sel);
+  cvpCroix();
 }
 /* Le vecteur SOLUTION, du point donné au point attendu, en vert et nommé
    (« BB′ ») — toujours, juste ou faux (demande de Turquet, octobre 2026) :
@@ -59413,11 +59494,43 @@ function svrFleche(a,b,o){
   const dx=x2-x1, dy=y2-y1, l=Math.hypot(dx,dy)||1, ux=dx/l, uy=dy/l;
   let s=`<line class="${o.cls}" x1="${x1}" y1="${y1}" x2="${(x2-3*ux).toFixed(1)}" y2="${(y2-3*uy).toFixed(1)}" marker-end="url(#${o.marker})"/>`;
   if(o.nom){
-    const et=svrEtiq(a,b), lx=et[0], ly=et[1], demi=10;
+    const et=o.et||svrEtiq(a,b), lx=et[0], ly=et[1], demi=10;
     s+=`<text class="svr-nom ${o.coul}-t" x="${lx.toFixed(1)}" y="${(ly+6).toFixed(1)}" text-anchor="middle">${o.nom}</text>`
       +`<path class="svc-nfl ${o.coul}-f" d="M${(lx-demi).toFixed(1)} ${(ly-9).toFixed(1)}h${2*demi}m-3.5 -3l3.5 3l-3.5 3"/>`;
   }
   return s;
+}
+/* Où poser le nom de la flèche résultat OM (O le point d'origine) : le
+   long du trait, HORS du triangle de la construction d'abord (à l'opposé du
+   sommet où s'arrête le premier vecteur), au premier endroit qui ne tombe
+   ni sur les graduations des axes, ni sur le nom d'une autre flèche (evite),
+   ni sur un point posé. Rien de libre : le milieu, comme les autres. */
+function svrEtiqResultat(q,M,evite){
+  const O=q.P[q.o], x1=svrX(O[0]), y1=svrY(O[1]), x2=svrX(M[0]), y2=svrY(M[1]);
+  const l=Math.hypot(x2-x1,y2-y1)||1, nx=-(y2-y1)/l, ny=(x2-x1)/l, X0=svrX(0), Y0=svrY(0);
+  const pts=q.pl.concat([q.m,O]).filter(Boolean).map(function(p){ return [svrX(p[0]),svrY(p[1])]; });
+  const Wd=2*SVR_PX+(SVR_X1-SVR_X0)*SVR_C, Hd=2*SVR_PY+(SVR_Y1-SVR_Y0)*SVR_C;
+  const m1=svrPlus(O,svrVec(q,q.a)), dedans=nx*(svrX(m1[0])-(x1+x2)/2)+ny*(svrY(m1[1])-(y1+y2)/2)>0?1:-1;
+  for(const t of [.5,.38,.62,.28,.72]) for(const c of [-dedans,dedans]){
+    const x=x1+(x2-x1)*t+c*nx*18, y=y1+(y2-y1)*t+c*ny*18;
+    if(x<14||x>Wd-14||y<12||y>Hd-8) continue;
+    if(y+7>Y0-3&&y-16<Y0+16) continue;
+    if(x+14>X0-24&&x-14<X0+4) continue;
+    if(evite.some(function(e){ return Math.abs(x-e[0])<34&&Math.abs(y-e[1])<30; })) continue;
+    if(pts.some(function(p){ return Math.abs(x-p[0])<24&&Math.abs(y+2-p[1])<22; })) continue;
+    return [x,y];
+  }
+  return svrEtiq(O,M);
+}
+/* Les noms des flèches de l'élève, là où ils sont écrits. */
+function svrNomsEleve(q){
+  const r=[];
+  for(let k=0;k<2;k++){
+    const t=svrTrace(q,k); if(!t) continue;
+    r.push(svrEtiq(t.d,t.f));
+    if(q.cp[k]){ const s=svrCopie(q,k); r.push(svrEtiq(s, svrPlus(s,svrTv(q,k)))); }
+  }
+  return r;
 }
 /* Le coin où poser la lettre d'un point : celui des quatre (en haut à
    droite d'abord) le plus loin, en angle, des flèches qui partent de ce point
@@ -59426,7 +59539,7 @@ function svrCoin(q,p){
   const dirs=[], va=svrVec(q,q.a), vb=svrVec(q,q.b), O=q.P[q.o], M=svrM(q);
   const bout=function(d,f){ if(svrEgal(p,d)) dirs.push([f[0]-d[0],f[1]-d[1]]); if(svrEgal(p,f)) dirs.push([d[0]-f[0],d[1]-f[1]]); };
   [q.a,q.b].forEach(function(w){ bout(q.P[w[0]], q.P[w[1]]); });
-  bout(O, svrPlus(O,va)); bout(O, svrPlus(O,vb)); bout(svrPlus(O,va), M); bout(svrPlus(O,vb), M);
+  bout(O, svrPlus(O,va)); bout(O, svrPlus(O,vb)); bout(svrPlus(O,va), M); bout(svrPlus(O,vb), M); bout(O, M);
   let mieux=[1,1], ecart=-1;
   [[1,1],[-1,1],[1,-1],[-1,-1]].forEach(function(c){
     const e=dirs.reduce(function(m,d){ const l=Math.hypot(d[0],d[1])*Math.SQRT2||1;
@@ -59488,6 +59601,10 @@ function svrDessiner(q){
     if(!test.locked&&!(test.svrFige&&test.svrFige['svr-ch']))
       prises+=`<line class="svc-prise" data-k="${k}" x1="${svrX(s[0])}" y1="${svrY(s[1])}" x2="${svrX(e[0])}" y2="${svrY(e[1])}" tabindex="0" role="button" aria-label="déplacer une copie du vecteur ${nom} (flèches du clavier)"/>`;
   }
+  /* M posé : la flèche du résultat, du point d'origine à M (demande de
+     Turquet, octobre 2026) — bleue, rouge si M est faux */
+  const O=q.P[q.o];
+  if(q.m&&!svrEgal(q.m,O)){ const c=svrCoul('svr-M'); f+=svrFleche(O, q.m, {cls:c[0]+' svr-res', marker:c[1], coul:c[0], nom:SVR_NOMS[q.o]+'M', et:svrEtiqResultat(q,q.m,svrNomsEleve(q))}); }
   let p='';
   for(let k=0;k<4;k++) if(q.pl[k]) p+=svrCroix(q.pl[k], SVR_NOMS[k], svrCoul('svr-'+SVR_NOMS[k])[2]);
   if(q.m) p+=svrCroix(q.m, 'M', svrCoul('svr-M')[2]);
@@ -59498,10 +59615,15 @@ function svrMajOutils(q){
   SVR_OUTILS.forEach(function(o){
     const el=$(svrIdOutil(o)); if(!el) return;
     el.classList.toggle('actif', !test.locked&&test.svrOutil===o);
-    el.classList.toggle('fait', svrFait(q,o));
+    el.classList.toggle('fait', !test.locked&&svrFait(q,o));
     el.setAttribute('aria-pressed', test.svrOutil===o?'true':'false');
     el.disabled=!!test.locked||!!(test.svrFige&&test.svrFige[svrIdOutil(o)]);
   });
+  /* l'objectif du déplacement : réalisé quand les copies sont bout à bout
+     depuis le point d'origine */
+  const ch=$('svr-ch'); if(ch) ch.classList.toggle('fait', !test.locked&&!!svrChaine(q));
+  const svg=document.querySelector('#svrGraph .svr-svg');
+  if(svg) svg.classList.toggle('svr-repos', !test.locked&&test.svrOutil==='M'&&!!q.m);
 }
 function svrFait(q,o){
   if(o==='M') return !!q.m;
@@ -59560,7 +59682,7 @@ function svrDeplacer(k, p){
   q.cp[k]=svrEgal(np,t.d)?null:np;
   if(test.svrEtat) delete test.svrEtat['svr-ch'];
   const el=$('svr-ch'); if(el) el.classList.remove('ok','bad');
-  svrDessiner(q);
+  svrDessiner(q); svrMajOutils(q);
   recoveryDirty=true;
   return true;
 }
@@ -59678,7 +59800,13 @@ function svrFinal(q,subs){
     h+=svrFleche(O, m1, {cls:'svc-s svc-copie', marker:'svrArrS', coul:'svc-s', nom:svrNomVec(q.a)})
       +svrFleche(m1, svrM(q), {cls:'svc-s svc-copie', marker:'svrArrS', coul:'svc-s', nom:svrNomVec(q.b)});
   }
-  if(!subs[7].ok) h+=svrCroix(svrM(q), 'M', 's');
+  if(!subs[7].ok){
+    const O=q.P[q.o], m1=svrPlus(O,svrVec(q,q.a)), M=svrM(q);
+    const evite=svrNomsEleve(q).concat(subs[6].ok?[]:[svrEtiq(O,m1), svrEtiq(m1,M)]);
+    if(q.m&&!svrEgal(q.m,O)) evite.push(svrEtiqResultat(q,q.m,svrNomsEleve(q)));
+    h+=svrFleche(O, M, {cls:'svc-s svr-res', marker:'svrArrS', coul:'svc-s', nom:SVR_NOMS[q.o]+'M', et:svrEtiqResultat(q,M,evite)})
+      +svrCroix(M, 'M', 's');
+  }
   const c=$('svrCorr'); if(c) c.innerHTML=h;
 }
 function renderSvr(){

@@ -8760,15 +8760,41 @@ if(require.main === module) (async () => {
       }));
       /* la question affichée, et ses réponses attendues, recalculées ICI */
       const q0 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { M: vepPoint(q), m: q.m, nom: vepTour(q), eq: q.eq }; });
+      /* v511 : avant tout choix, un point suit la souris, même entre deux
+         nœuds ; une fois le nœud choisi, il devient une croix, le point de la
+         souris disparaît et le survol d'un autre nœud n'allume plus rien */
+      const curseur = async (px, py) => await s.page.evaluate(([x, y]) => { const c = document.getElementById('vepCurseur'); if(!c) return 'absent';
+        const b = c.querySelector('circle').getBoundingClientRect();
+        return getComputedStyle(c).display === 'none' ? 'caché' : Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)); }, [px, py]);
+      const entre = await posNoeud(q0.M[0], q0.M[1], 0.5, 0.5);
+      await s.page.mouse.move(entre.px - 15, entre.py - 15); await s.page.mouse.move(entre.px, entre.py, { steps: 4 });
+      await s.page.waitForTimeout(80);
+      const c0 = await curseur(entre.px, entre.py);
+      if(typeof c0 !== 'number' || c0 > 3) dits.push('avant le choix, le point ne suit pas la souris : ' + c0);
       await clicNoeud(q0.M[0], q0.M[1]);
+      const c1 = await curseur(0, 0);
+      if(c1 !== 'caché') dits.push('le nœud choisi, le point suit encore la souris : ' + c1);
+      const croix = await s.page.evaluate(([i, j]) => { const n = document.getElementById('vepn-' + i + '-' + j), x = n && n.querySelector('.vec-x');
+        const d = n && getComputedStyle(n.querySelector('.dot'));
+        return { x: !!x && getComputedStyle(x).display !== 'none' && x.getBoundingClientRect().width > 8, dot: d ? d.fill : '' }; }, q0.M);
+      if(!croix.x) dits.push('le nœud choisi ne se dessine pas en croix');
+      if(!/rgba\(0, 0, 0, 0\)|transparent/.test(croix.dot)) dits.push('le nœud choisi garde son disque : ' + croix.dot);
+      const autre = q0.M[0] > 0 ? [q0.M[0] - 1, q0.M[1]] : [q0.M[0] + 1, q0.M[1]];
+      const pa = await posNoeud(autre[0], autre[1]);
+      await s.page.mouse.move(pa.px, pa.py, { steps: 3 }); await s.page.waitForTimeout(80);
+      const survol = await s.page.evaluate(([i, j]) => { const n = document.getElementById('vepn-' + i + '-' + j); return n ? getComputedStyle(n.querySelector('.dot')).fill : 'occupé'; }, autre);
+      if(survol !== 'occupé' && !/rgba\(0, 0, 0, 0\)|transparent/.test(survol)) dits.push('le nœud choisi, le survol d\'un autre nœud l\'allume encore : ' + survol);
       let e = await etat();
       if(e.sel !== JSON.stringify(q0.M)) dits.push('le clic ne pose pas le nœud visé : ' + e.sel + ' au lieu de ' + JSON.stringify(q0.M));
       if(e.peints !== 1) dits.push('le nœud posé ne se peint pas (' + e.peints + ')');
       if(e.lbl !== q0.m) dits.push('le nœud posé ne porte pas la lettre ' + q0.m + ' : « ' + e.lbl + ' »');
-      /* recliquer RETIRE */
+      /* recliquer RETIRE — et le point revient au bout de la souris */
       await clicNoeud(q0.M[0], q0.M[1]);
       e = await etat();
       if(e.sel !== 'null' || e.peints !== 0) dits.push('recliquer le nœud ne le retire pas : ' + e.sel);
+      const pm = await posNoeud(q0.M[0], q0.M[1]);
+      const c2 = await curseur(pm.px, pm.py);
+      if(typeof c2 !== 'number' || c2 > 3) dits.push('la croix retirée, le point ne revient pas au bout de la souris : ' + c2);
       /* un clic à un cinquième de maille tombe dans la zone de touche du nœud */
       await clicNoeud(q0.M[0], q0.M[1], 0.2, 0);
       e = await etat();
@@ -9089,10 +9115,24 @@ if(require.main === module) (async () => {
       if(JSON.stringify(e.cp) !== '[[-2,-3],[0,-4]]' || !e.ch) dits.push('les copies ne s\'accrochent pas bout à bout depuis D : ' + JSON.stringify(e.cp));
       if(JSON.stringify(e.t[0]) !== '{"d":[1,2],"f":[3,1]}') dits.push('glisser la copie a déplacé le vecteur tracé');
       if(e.fleches !== 4) dits.push(e.fleches + ' flèches au lieu de 4 (les deux vecteurs et leurs copies)');
+      /* les objectifs réalisés sont verts, sur fond vert clair ; avant M, le
+         survol d'un nœud y montre un point */
+      const vert = async id => await s.page.evaluate(id => { const cs = getComputedStyle(document.getElementById(id));
+        const v = c => { const m = c.match(/\d+(\.\d+)?/g) || []; return m.length >= 3 && +m[1] > +m[0] && +m[1] > +m[2]; };
+        return v(cs.borderTopColor) && v(cs.backgroundColor); }, id);
+      for(const id of ['svr-A', 'svr-D', 'svr-t1', 'svr-ch']) if(!(await vert(id))) dits.push('l\'objectif ' + id + ' réalisé ne passe pas en vert');
+      if(await vert('svr-M')) dits.push('« Placer M » est vert avant que M soit posé');
+      const survol = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py); await s.page.waitForTimeout(80);
+        return await s.page.evaluate(([x, y]) => { const n = svrNoeud([x, y]).querySelector('.dot'); return getComputedStyle(n).stroke !== 'rgba(0, 0, 0, 0)' && getComputedStyle(n).stroke !== 'transparent'; }, [x, y]); };
+      if(!(await survol(-5, 4))) dits.push('avant M, survoler un nœud n\'y montre pas de point');
       /* ④ M */
       await clic(2, -2);
       e = await etat();
       if(JSON.stringify(e.m) !== '[2,-2]') dits.push('M ne se pose pas en (2 ; −2) : ' + JSON.stringify(e.m));
+      if(!(await vert('svr-M'))) dits.push('M posé, « Placer M » ne passe pas en vert');
+      if(await survol(-5, 4)) dits.push('M posé, survoler un nœud y montre encore un point');
+      const res = await s.page.evaluate(() => { const l = document.querySelector('#svrFl line.svr-res'); if(!l) return null; const r = l.getBoundingClientRect(); return r.width + r.height; });
+      if(!res || res < 20) dits.push('M posé, le vecteur DM n\'est pas tracé');
       await s.page.click('#svrValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
@@ -9112,7 +9152,7 @@ if(require.main === module) (async () => {
         vert: [...document.querySelectorAll('#svrCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
         croix: document.querySelectorAll('#svrCorr .svr-pt.s').length, prises: document.querySelectorAll('#svrPrises .svc-prise').length, score: test.score }));
       if(vide.sol !== 8 || vide.rouge) dits.push('copie vide : ' + vide.sol + ' sol, ' + vide.rouge + ' rouge');
-      if(vide.vert !== 4 || vide.croix !== 5) dits.push('copie vide : la correction trace ' + vide.vert + ' flèches et ' + vide.croix + ' points en vert (4 et 5 attendus)');
+      if(vide.vert !== 5 || vide.croix !== 5) dits.push('copie vide : la correction trace ' + vide.vert + ' flèches et ' + vide.croix + ' points en vert (5, dont DM, et 5 attendus)');
       if(vide.score !== 8) dits.push('la copie vide rapporte des points (score ' + vide.score + ')');
       verifier('la fiche 10 se fait à la souris : quatre points, deux vecteurs, deux copies glissées, M', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la somme de vecteurs dans un repère ne lève aucune erreur JavaScript',
@@ -9353,7 +9393,7 @@ if(require.main === module) (async () => {
       if(JSON.stringify(e.v) !== '[6,5]') dits.push('un simple clic sur −v l\'a déplacé');
       const lbl = await s.page.evaluate(() => { const t = document.querySelector('#cvpn-4-2 .vec-dlbl'); return t ? getComputedStyle(t).display + ' ' + t.textContent : ''; });
       if(lbl !== 'block B′') dits.push('le nœud posé ne porte pas « B′ » : ' + lbl);
-      const crx = await s.page.evaluate(() => { const c = document.querySelector('#cvpn-4-2 .crx'); return c ? getComputedStyle(c).stroke : ''; });
+      const crx = await s.page.evaluate(() => { const c = document.querySelector('#cvpCroix .crx.sel'); return c ? getComputedStyle(c).stroke : ''; });
       if(!crx || crx === 'transparent' || crx === 'rgba(0, 0, 0, 0)' || crx === 'none') dits.push('le point posé ne se marque pas d\'une croix visible : ' + crx);
       await s.page.click('#cvpValidate');
       await s.page.waitForTimeout(300);

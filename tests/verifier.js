@@ -11720,7 +11720,9 @@ function egaliteVectoriellePoint(w, P){
     if(instr.textContent.indexOf('Place le point C')<0) vus.push('l\\'énoncé ne demande pas « Place le point C » : '+instr.textContent.slice(0,80));
     const vecs=Array.from(instr.querySelectorAll('.vgt-vec')).map(function(x){ return x.textContent; });
     if(vecs.join(' ')!=='AB DC') vus.push('l\\'égalité de l\\'énoncé n\\'est pas « AB = DC » coiffée de flèches : '+vecs.join(' '));
-    const lettres=Array.from(document.querySelectorAll('#vepGraph text.vec-lbl:not(.vec-dlbl)')).map(function(t){ return t.textContent; }).sort().join('');
+    /* la lettre du point qui suit la souris (.cvp-curseur, v511) n'est pas un point donné */
+    const lettres=Array.from(document.querySelectorAll('#vepGraph text.vec-lbl:not(.vec-dlbl)')).filter(function(t){ return !t.closest('.cvp-curseur'); }).map(function(t){ return t.textContent; }).sort().join('');
+    if(document.querySelectorAll('#vepGraph #vepCurseur').length!==1) vus.push('le point qui suit la souris (#vepCurseur) manque au dessin');
     if(lettres!=='ABD') vus.push('le dessin n\\'écrit pas exactement A, B et D : '+lettres);
     if(document.querySelectorAll('#vepGraph .vec-t').length!==97) vus.push(document.querySelectorAll('#vepGraph .vec-t').length+' cibles au lieu de 97 (100 nœuds moins 3 points)');
     if(document.querySelector('#vepGraph .vec-t.sel')) vus.push('un nœud est choisi avant que l\\'élève le pose');
@@ -12112,7 +12114,9 @@ function sommeVecteursRepere(w, P){
     if(verifierIci()!==0) vus.push('la copie vide rapporte des points');
     if(classes()!==IDS.map(function(){ return 'sol'; }).join(',')) vus.push('vérifier à vide : '+classes()+' au lieu de huit sol');
     if(document.querySelector('#svrGraph .svc-eb, #svrGraph .svr-pt.eb')) vus.push('vérifier à vide rougit quelque chose');
-    if(document.querySelectorAll('#svrCorr .svr-pt.s').length!==5 || document.querySelectorAll('#svrCorr line.svc-s').length!==4) vus.push('la correction ne trace pas cinq points et quatre flèches en vert');
+    if(document.querySelectorAll('#svrCorr .svr-pt.s').length!==5 || document.querySelectorAll('#svrCorr line.svc-s').length!==5) vus.push('la correction ne trace pas cinq points et cinq flèches (dont DM) en vert');
+    if(!document.querySelector('#svrCorr line.svr-res.svc-s')) vus.push('la correction ne trace pas le vecteur résultat DM en vert');
+    if(document.querySelector('#svrBody .fait')) vus.push('vérifier laisse un objectif en vert « réalisé »');
     if(el('svrFeedback').textContent.indexOf('Il te manquait 8 cases')<0) vus.push('le message ne dit pas « Il te manquait 8 cases » : '+el('svrFeedback').textContent.slice(0,80));
 
     /* 3. la copie juste, aux gestes de l'élève : BC d'abord */
@@ -12139,7 +12143,18 @@ function sommeVecteursRepere(w, P){
     svrDeplacer(1,[1,2]);
     if(q1.cp[1]!==null) vus.push('une copie ramenée sur son original ne s\\'efface pas');
     svrDeplacer(1,[0,-4]);
+    /* chaque objectif réalisé passe en vert, le déplacement compris */
+    if(['svr-A','svr-B','svr-C','svr-D','svr-t0','svr-t1','svr-ch'].some(function(id){ return !el(id).classList.contains('fait'); })) vus.push('un objectif réalisé ne passe pas en vert : '+IDS.filter(function(id){ return el(id).classList.contains('fait'); }).join(','));
+    if(el('svr-M').classList.contains('fait') || el('svrGraph').querySelector('.svr-repos')) vus.push('M passe en vert, ou le survol s’éteint, avant d’être posé');
+    svrDeplacer(1,[1,-4]);
+    if(el('svr-ch').classList.contains('fait')) vus.push('des copies qui ne sont plus bout à bout laissent l’objectif en vert');
+    svrDeplacer(1,[0,-4]);
     svrPose(2,-2);
+    if(!el('svr-M').classList.contains('fait')) vus.push('M posé ne passe pas en vert');
+    if(!el('svrGraph').querySelector('.svr-svg.svr-repos')) vus.push('M posé : le survol des nœuds montre encore un point');
+    const res=document.querySelector('#svrFl line.svr-res');
+    if(!res || Math.abs(+res.getAttribute('x1')-svrX(-2))>0.5 || Math.abs(+res.getAttribute('y1')-svrY(-3))>0.5) vus.push('M posé : le vecteur DM ne se trace pas depuis D');
+    if(el('svrFl').textContent.indexOf('DM')<0) vus.push('le vecteur résultat ne porte pas son nom DM');
     /* la reprise après JSON */
     test.questions[0]=JSON.parse(JSON.stringify(q1)); renderSvr();
     const q1b=test.questions[0];
@@ -12166,7 +12181,8 @@ function sommeVecteursRepere(w, P){
     if(fb.indexOf('à l’envers')<0) vus.push('le message ne nomme pas le vecteur à l\\'envers');
     if(fb.indexOf('M est au bout de la construction')<0) vus.push('le message ne dit pas où est M');
     if(!document.querySelector('#svrPts .svr-pt.eb') || !document.querySelector('#svrFl line.svc-eb')) vus.push('le point faux et le vecteur faux ne rougissent pas sur le dessin');
-    if(document.querySelectorAll('#svrCorr .svr-pt.s').length!==2 || document.querySelectorAll('#svrCorr line.svc-s').length!==1) vus.push('la correction ne montre pas en vert A, M et BC seulement');
+    if(document.querySelectorAll('#svrCorr .svr-pt.s').length!==2 || document.querySelectorAll('#svrCorr line.svc-s').length!==2) vus.push('la correction ne montre pas en vert A, M, BC et DM seulement');
+    if(!document.querySelector('#svrFl line.svr-res.svc-eb')) vus.push('le vecteur DM vers un M faux ne rougit pas');
 
     /* 5. le soutien */
     currentMode='soutien'; startSvr(); clearTimeout(test.fbTimer);
@@ -12529,7 +12545,7 @@ function pointSommeDifference(w, P){
     if(el('cvp-ch').textContent.indexOf('Étape 1')!==0 || el('cvp-pt').textContent.indexOf('Étape 2')!==0) vus.push('les objectifs ne s\\'appellent pas Étape 1 et Étape 2');
     if(document.querySelector('#cvpBody .cvp-fait')) vus.push('une étape est verte avant tout geste');
     /* le point se marque d'une croix : aucun rond sur les nœuds */
-    if(document.querySelector('#cvpGraph .vec-t .dot') || document.querySelectorAll('#cvpGraph .vec-t .crx').length!==117 || !document.querySelector('#cvpCurseur .crx') || document.querySelector('#cvpCurseur circle')) vus.push('un nœud ou le point qui suit la souris porte encore un rond, pas une croix');
+    if(document.querySelector('#cvpGraph .vec-t .crx') || !el('cvpCroix') || el('cvpCroix').children.length || !document.querySelector('#cvpCurseur .crx') || document.querySelector('#cvpCurseur circle')) vus.push('une croix est cachée dans les nœuds, se montre avant le point posé, ou le point qui suit la souris porte encore un rond');
     if(el('cvpSol').children.length) vus.push('le vecteur solution se montre avant la vérification');
 
     /* 3. vérifier à vide : rien ne rougit, la construction attendue en vert */
@@ -12566,6 +12582,7 @@ function pointSommeDifference(w, P){
     cvpPose(1,1);
     if(JSON.stringify(q1.sel)!=='[1,1]' || !document.querySelector('#cvpn-1-1.sel')) vus.push('le clic ne pose pas B′');
     if(!el('cvp-pt').classList.contains('cvp-fait')) vus.push('B′ posé, l\\'étape 2 ne passe pas au vert');
+    if(document.querySelectorAll('#cvpCroix .crx.sel').length!==1 || el('cvpCroix').children.length!==1) vus.push('B′ posé ne se marque pas d\\'une seule croix');
     cvpPose(1,1);
     if(q1.sel!==null || document.querySelector('#cvpn-1-1.sel')) vus.push('recliquer le nœud ne retire pas B′');
     if(el('cvp-pt').classList.contains('cvp-fait')) vus.push('B′ retiré, l\\'étape 2 reste verte');
@@ -12577,6 +12594,7 @@ function pointSommeDifference(w, P){
     if(classe('cvp-ch')!=='ok'||classe('cvp-pt')!=='ok') vus.push('la copie juste n\\'est pas peinte ok : '+classe('cvp-ch')+', '+classe('cvp-pt'));
     if(el('cvpCorr').children.length || document.querySelector('#cvpGraph .vec-t.missc')) vus.push('la correction se montre alors que tout est juste');
     if(!document.querySelector('#cvpn-4-2.okc')) vus.push('B′ juste ne se peint pas en bleu');
+    if(document.querySelectorAll('#cvpCroix .crx.okc').length!==1) vus.push('B′ juste ne se marque pas d\\'une croix bleue');
     if(document.querySelector('#cvpBody .cvp-fait')) vus.push('la marque « étape faite » reste sous le verdict');
     if(document.querySelectorAll('#cvpSol line.svc-s').length!==1) vus.push('la copie juste ne montre pas le vecteur solution');
 
@@ -12593,6 +12611,7 @@ function pointSommeDifference(w, P){
     let fb=el('cvpFeedback').textContent;
     if(classe('cvp-ch')!=='bad'||fb.indexOf('retourne la flèche v')<0||fb.indexOf('BB′ = u − v = u + (−v)')<0) vus.push('le signe oublié n\\'est pas rouge et nommé : '+fb.slice(0,160));
     if(!document.querySelector('#cvpn-8-8.badc') || !document.querySelector('#cvpn-4-2.missc')) vus.push('B′ faux n\\'est pas rouge, ou le bon pas montré en vert');
+    if(document.querySelectorAll('#cvpCroix .crx.badc').length!==1 || document.querySelectorAll('#cvpCroix .crx.missc').length!==1) vus.push('B′ faux et B′ attendu ne se marquent pas d\\'une croix rouge et d\\'une croix verte');
     nextCvp(); clearTimeout(test.fbTimer);
     cvpRetourner('v'); cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]); cvpPose(5,2);
     if(verifierIci()!==1) vus.push('construction juste, B′ faux : ne vaut pas 1');
