@@ -2001,7 +2001,24 @@
   .chl-rendu .veg-v,.chl-rendu .veg-fl{color:inherit}
   .chl-vec .veg-fl{min-width:20px}
   .chl-let{display:inline-flex;align-items:flex-end;justify-content:center;min-height:1.1em}
-  .chl-op{padding:0 .28em}
+  .chl-op,.chl-pop{padding:0 .28em}
+  /* v505 : le calcul à effectuer est ÉCRIT dans le champ, devant ce que tape
+     l'élève, à l'encre de l'énoncé (il ne se colore pas avec la réponse) ;
+     et un exemple tout rempli ouvre chaque page. */
+  .chl-rendu .chl-pref,.chl-rendu .chl-pref .veg-v{color:var(--ink)}
+  .chl-pref{display:inline-flex;align-items:flex-end}
+  .chl-exl{background:#F8F9FC;border-style:dashed}
+  .chl-exlbl{font-family:"Fredoka";font-weight:600;font-size:1.05rem;color:var(--ink-soft)}
+  .chl-ex{display:inline-flex;align-items:center;height:46px;padding:0 14px;font-family:"Fredoka";font-weight:600;font-size:1.45rem;line-height:1.1;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;white-space:nowrap}
+  .chl-ex .veg-v{color:inherit}
+  .chl-ex .veg-fl{min-width:20px;color:inherit}
+  /* sur un téléphone, le calcul ET la saisie tiennent dans la rangée : tout
+     ce qu'elle porte écrit plus petit, du même facteur */
+  @media (max-width:520px){
+    .chl-l .veg-v,.chl-l .veg-eq,.chl-l .chl-num,.chl-rendu,.veg-in.chl-in,.chl-ex,.chl-ex .veg-v{font-size:1.1rem}
+    .chl-ex{padding:0 8px}
+    .chl-rendu .veg-fl{min-width:16px}
+  }
   .chl-car{display:inline-block;width:2px;height:1.05em;margin:0 1px;background:currentColor;animation:chlClignote 1.05s steps(1) infinite}
   @keyframes chlClignote{50%{opacity:0}}
   .chl-sel{background:rgba(43,80,200,.2);border-radius:3px}
@@ -60102,6 +60119,27 @@ function chlRendu(el){
   let c0=-1, c1=-1;
   if(foc){ try{ c0=el.selectionStart; c1=el.selectionEnd; }catch(_){ c0=c1=v.length; } if(c0==null) c0=c1=v.length; }
   const mv=foc ? '' : (el.dataset.mv||'');
+  r.innerHTML='<span class="chl-dessin">'+chlPrefHTML(el.dataset.pref)+chlDessin(v, c0, c1, mv)+'</span></span>';
+  /* le champ s'élargit avec sa chaîne ; le dessin le recouvre exactement */
+  el.style.width='';
+  const base=el.offsetWidth, w=Math.ceil(r.firstChild.getBoundingClientRect().width)+28;
+  if(w>base) el.style.width=w+'px';
+  r.style.width=el.offsetWidth ? el.offsetWidth+'px' : '';
+  r.style.height=el.offsetHeight ? el.offsetHeight+'px' : '';
+}
+/* le calcul à effectuer, écrit dans le champ devant la saisie (v505) :
+   « AD + DF = », chaque vecteur sous sa flèche. Il n'est PAS dans la valeur
+   du champ — l'élève ne peut pas l'effacer, et un champ où il n'a rien tapé
+   reste vide pour le juge, la correction et la reprise. */
+function chlPrefHTML(e){
+  if(!e) return '';
+  return '<span class="chl-pref">'+chlTermes(e).map(function(t, j){
+    return (j || t.s<0 ? '<span class="chl-pop">'+(t.s<0?'−':'+')+'</span>' : '')+vegVecHTML(t.v); }).join('')
+    +'<span class="chl-pop">=</span></span>';
+}
+/* la chaîne tapée, dessinée : sans curseur (c0 = c1 = −1), elle sert aussi
+   à l'exemple tout rempli en tête de page */
+function chlDessin(v, c0, c1, mv){
   const curs=function(k){ return c0===k && c1===k ? '<span class="chl-car"></span>' : ''; };
   const car=function(k, maj){ return curs(k)+'<span class="chl-c'+(c0!==c1 && k>=c0 && k<c1 ? ' chl-sel' : '')+'" data-k="'+k+'">'+esc(maj ? v[k].toUpperCase() : v[k])+'</span>'; };
   const fleche=function(a, b, fin){ let x='';
@@ -60131,13 +60169,17 @@ function chlRendu(el){
     }
     a=j+1;
   }
-  r.innerHTML='<span class="chl-dessin">'+h+'</span></span>';
-  /* le champ s'élargit avec sa chaîne ; le dessin le recouvre exactement */
-  el.style.width='';
-  const base=el.offsetWidth, w=Math.ceil(r.firstChild.getBoundingClientRect().width)+28;
-  if(w>base) el.style.width=w+'px';
-  r.style.width=el.offsetWidth ? el.offsetWidth+'px' : '';
-  r.style.height=el.offsetHeight ? el.offsetHeight+'px' : '';
+  return h;
+}
+/* L'EXEMPLE en tête de page (v505, Turquet : « un exemple au début, un champ
+   déjà complété, qui effectue une addition et donne un modèle avec une étape
+   jusqu'au résultat ») : un dessin, pas un champ — rien à saisir, rien à
+   juger, rien à reprendre. */
+const CHL_EXEMPLE={e:'+EF+GE', v:'GE+EF=GF'};
+function chlExempleHTML(){
+  return '<div class="veg-l chl-exl" aria-label="Exemple : EF + GE = GE + EF = GF"><span class="chl-exlbl">Exemple&nbsp;:</span>'
+    +'<span class="chl-ex" aria-hidden="true"><span class="chl-dessin">'+chlPrefHTML(CHL_EXEMPLE.e)+chlDessin(CHL_EXEMPLE.v, -1, -1, '')+'</span></span></span>'
+    +'<span class="chl-exlbl">on change l’ordre pour enchaîner les vecteurs, puis la relation de Chasles.</span></div>';
 }
 /* un clic (ou un doigt) pose le curseur entre les lettres DESSINÉES, pas
    entre celles, invisibles, du vrai champ */
@@ -60200,22 +60242,19 @@ function renderChlTest(){
   $('chlIdx').textContent='Page '+(test.idx+1)+' / '+test.questions.length+' — partie '+q.p;
   $('modeTagChl').innerHTML=modeTagHTML();
   $('chlLiveScore').textContent=test.score;
-  $('chlInstr').innerHTML=CHL_INSTR[q.p-1]+' Écris ta réponse dans le champ : les deux lettres d’un vecteur se placent sous la flèche (<b>AC</b>, <b>2AC</b> pour deux fois AC, <b>0</b> pour le vecteur nul). Tape <b>+</b>, <b>−</b> ou <b>=</b> pour faire apparaître une nouvelle flèche et écrire ton calcul en plusieurs étapes : ce qui suit le dernier «&nbsp;=&nbsp;» est ton résultat.';
+  $('chlInstr').innerHTML=CHL_INSTR[q.p-1]+' Le calcul est déjà écrit dans le champ : continue après le «&nbsp;=&nbsp;». Les deux lettres d’un vecteur se placent sous la flèche (<b>AC</b>, <b>2AC</b> pour deux fois AC, <b>0</b> pour le vecteur nul). Tape <b>+</b>, <b>−</b> ou <b>=</b> pour faire apparaître une nouvelle flèche et écrire ton calcul en plusieurs étapes : ce qui suit le dernier «&nbsp;=&nbsp;» est ton résultat. Regarde l’exemple.';
   $('chlFeedback').textContent=''; $('chlFeedback').className='mp-feedback';
   $('chlActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkChlAnswer()">Vérifier</button>';
-  let h='<div class="veg-lignes chl-lignes">';
+  let h='<div class="veg-lignes chl-lignes">'+chlExempleHTML();
   q.e.forEach(function(e, i){
     const T=chlTermes(e);
     h+='<div class="veg-l chl-l" id="chl-l-'+i+'">';
     if(q.p===1) h+='<span class="chl-num">'+(i+1)+'.</span>';
     else h+='<span class="veg-tete">'+chlNomHTML(CHL_NOMS[i])+'</span><span class="veg-grp"><span class="veg-eq">=</span></span>';
-    T.forEach(function(t, j){
-      if(j===0 && t.s>0) h+='<span class="veg-tete">'+vegVecHTML(t.v)+'</span>';
-      else h+=chsGrp(t.s<0?'−':'+', vegVecHTML(t.v));
-    });
-    const aria='le résultat de '+(q.p===1?'':CHL_NOMS[i]+' = ')+chlEcrit(T);
-    h+='<span class="veg-grp"><span class="veg-eq">=</span><span class="chl-boite">'
-      +'<input class="veg-in chl-in" id="chl-'+i+'" type="text" maxlength="80" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="'+esc(aria)+'">'
+    /* le calcul s'écrit DANS le champ (chlPrefHTML), plus devant lui */
+    const aria='le calcul '+(q.p===1?'':CHL_NOMS[i]+' = ')+chlEcrit(T)+' = …';
+    h+='<span class="veg-grp"><span class="chl-boite">'
+      +'<input class="veg-in chl-in" id="chl-'+i+'" type="text" maxlength="80" autocomplete="off" autocapitalize="characters" spellcheck="false" data-pref="'+esc(e)+'" aria-label="'+esc(aria)+'">'
       +'<span class="chl-rendu" aria-hidden="true"></span></span></span>';
     if(q.p===1) h+='<button class="btn chl-imp" type="button" onclick="chlImpossible('+i+')">impossible</button>';
     h+='</div>';
@@ -60289,7 +60328,7 @@ function ctxChl(q){
      'Partie 2 : écrire plus simplement des sommes de trois ou quatre vecteurs.',
      'Partie 3 : écrire plus simplement, en transformant d’abord les soustractions en addition de l’opposé.'][q.p-1]+' '
    +'Les lignes : '+q.e.map(function(e, i){ return nom(i)+chlEcrit(chlTermes(e)); }).join(' ; ')+'. '
-   +'L’élève écrit son calcul dans un seul champ, chaque vecteur sous sa flèche (deux lettres AC, un nombre devant 2AC, 0 pour le vecteur nul), séparés par +, − ou = ; ce qui suit le dernier « = » est son résultat, ou « impossible ». Il peut écrire des étapes (AB − AC = AB + CA = CB) ou le résultat directement. '
+   +'Le calcul à effectuer est déjà écrit au début du champ, suivi de « = » ; un exemple tout rempli ouvre la page (EF + GE = GE + EF = GF). L’élève écrit la suite de son calcul dans ce seul champ, chaque vecteur sous sa flèche (deux lettres AC, un nombre devant 2AC, 0 pour le vecteur nul), séparés par +, − ou = ; ce qui suit le dernier « = » est son résultat, ou « impossible ». Il peut écrire des étapes (AB − AC = AB + CA = CB) ou le résultat directement. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : '+q.e.map(function(e){ return chlPhrase(e); }).join(' ; ')+' '
    +'Méthode enseignée : relation de Chasles, AB + BC = AC (le second vecteur part là où s’arrête le premier) ; on peut changer l’ordre d’une somme ; soustraire un vecteur, c’est ajouter son opposé (− AC = + CA) ; AA = 0, le vecteur nul ; AC + AC = 2AC. Deux vecteurs qui partent du même point (ou arrivent au même point) ne s’enchaînent dans aucun ordre. Ne jamais parler de coordonnées à l’élève.';
   if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
