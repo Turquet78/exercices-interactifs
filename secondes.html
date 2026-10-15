@@ -2399,6 +2399,11 @@
   #scr-svc .tvg-cons.svc-actif{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,111,212,.15)}
   #scr-svc .tvg-cons.svc-fait{border-color:var(--green);background:var(--green-soft);color:var(--green);box-shadow:0 0 0 2px rgba(21,122,82,.15)}
   #scr-svc .tvg-cons.svc-attente{opacity:.55}
+  /* u + v tracé (début ET fin posés) : la fin garde son point blanc, et le
+     survol des autres nœuds ne montre plus de point — demande de Turquet,
+     octobre 2026 */
+  .svc-svg .vec-t.svc-fin .dot{fill:#fff;stroke:var(--blue)}
+  .svc-svg.svc-complet .vec-t:not(.sel):not(.svc-fin):hover .dot{fill:transparent;stroke:transparent}
   .svc-svg .svc-nom-op{font-family:KaTeX_Main,Georgia,'Times New Roman',serif;font-style:normal}
   .svc-svg .svc-u{stroke:var(--ink);stroke-width:2.4;stroke-linecap:round}
   .svc-svg .svc-v{stroke:var(--ink-soft);stroke-width:2;stroke-dasharray:6 4}
@@ -2450,7 +2455,11 @@
   span.svr-out{cursor:default;font-weight:600}
   .svr-out.actif{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,111,212,.25)}
   .svr-out .svr-rond{font-size:.8em;color:var(--ink-soft)}
-  .svr-out.fait .svr-rond{color:var(--blue)}
+  /* un objectif RÉALISÉ passe en vert sur fond vert clair, comme les étapes
+     du 8.2.1 (demande de Turquet, octobre 2026) ; à la vérification, ok, bad
+     et sol, écrits après, reprennent la main */
+  .svr-out.fait{border-color:var(--green);background:var(--green-soft);color:var(--green)}
+  .svr-out.fait .svr-rond{color:var(--green)}
   .svr-out.ok{border-color:var(--blue);background:#EAF0FF}
   .svr-out.bad{border-color:var(--red);background:#fdeaea}
   .svr-out.sol{border-color:var(--green);background:var(--green-soft)}
@@ -2461,6 +2470,8 @@
   .svr-svg .svr-lbl{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px}
   .svr-svg .svr-pt.e .svr-lbl{fill:var(--blue-dark)} .svr-svg .svr-pt.eb .svr-lbl{fill:var(--red)} .svr-svg .svr-pt.s .svr-lbl{fill:var(--green)}
   .svr-svg .svr-nom{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px}
+  /* M posé : survoler un nœud n'y montre plus de point */
+  .vec-svg.svr-repos .vec-t:hover .dot{fill:transparent;stroke:transparent}
   /* 8.15 {point-somme-difference} : le quadrillage et les flèches du 8.7 (.svc-svg),
      le point donné en croix (.vec-pt), A′ posé au clic comme au 8.5 ; deux
      boutons retournent u⃗ et v⃗ ; l'égalité s'écrit avec la flèche du 8.2 */
@@ -56658,7 +56669,17 @@ function svcTracer(q, etat){
   const t=$('svcTrace'); if(!t) return;
   document.querySelectorAll('#svcGraph .vec-t.sel').forEach(function(el){ el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
   if(q.sd){ const el=$('svcn-'+q.sd[0]+'-'+q.sd[1]); if(el){ el.classList.add('sel'); el.setAttribute('aria-pressed','true'); } }
-  if(!q.sd||!q.sf){ t.innerHTML=''; return; }
+  /* u + v TRACÉ : sa fin garde un point blanc, le survol des nœuds n'en
+     montre plus, et l'étape 2 passe au vert comme l'étape 1 réalisée
+     (demande de Turquet, octobre 2026). « Tracé » ne juge rien : la flèche
+     a un début et une fin, « Vérifier » dira si elle est juste. */
+  document.querySelectorAll('#svcGraph .vec-t.svc-fin').forEach(function(el){ el.classList.remove('svc-fin'); });
+  const complet=!!(q.sd&&q.sf), svg=document.querySelector('#svcGraph .svc-svg');
+  if(svg) svg.classList.toggle('svc-complet', complet);
+  if(complet){ const el=$('svcn-'+q.sf[0]+'-'+q.sf[1]); if(el) el.classList.add('svc-fin'); }
+  const sm=$('svc-sm');
+  if(sm) sm.classList.toggle('svc-fait', complet&&q.et==='b'&&!test.locked&&!sm.classList.contains('ok')&&!sm.classList.contains('bad'));
+  if(!complet){ t.innerHTML=''; return; }
   const bad=etat==='bad', a=svcU(q), b=svcV(q);
   t.innerHTML=svcFleche(q.sd, q.sf, {cls:bad?'svc-eb':'svc-e', marker:bad?'svcArrB':'svcArrE', nom:'u+v',
     cote:svcCoteDehors(q.sd, q.sf, [[a,svcPlus(a,q.uc)],[b,svcPlus(b,q.vc)]])});
@@ -59777,11 +59798,43 @@ function svrFleche(a,b,o){
   const dx=x2-x1, dy=y2-y1, l=Math.hypot(dx,dy)||1, ux=dx/l, uy=dy/l;
   let s=`<line class="${o.cls}" x1="${x1}" y1="${y1}" x2="${(x2-3*ux).toFixed(1)}" y2="${(y2-3*uy).toFixed(1)}" marker-end="url(#${o.marker})"/>`;
   if(o.nom){
-    const et=svrEtiq(a,b), lx=et[0], ly=et[1], demi=10;
+    const et=o.et||svrEtiq(a,b), lx=et[0], ly=et[1], demi=10;
     s+=`<text class="svr-nom ${o.coul}-t" x="${lx.toFixed(1)}" y="${(ly+6).toFixed(1)}" text-anchor="middle">${o.nom}</text>`
       +`<path class="svc-nfl ${o.coul}-f" d="M${(lx-demi).toFixed(1)} ${(ly-9).toFixed(1)}h${2*demi}m-3.5 -3l3.5 3l-3.5 3"/>`;
   }
   return s;
+}
+/* Où poser le nom de la flèche résultat OM (O le point d'origine) : le
+   long du trait, HORS du triangle de la construction d'abord (à l'opposé du
+   sommet où s'arrête le premier vecteur), au premier endroit qui ne tombe
+   ni sur les graduations des axes, ni sur le nom d'une autre flèche (evite),
+   ni sur un point posé. Rien de libre : le milieu, comme les autres. */
+function svrEtiqResultat(q,M,evite){
+  const O=q.P[q.o], x1=svrX(O[0]), y1=svrY(O[1]), x2=svrX(M[0]), y2=svrY(M[1]);
+  const l=Math.hypot(x2-x1,y2-y1)||1, nx=-(y2-y1)/l, ny=(x2-x1)/l, X0=svrX(0), Y0=svrY(0);
+  const pts=q.pl.concat([q.m,O]).filter(Boolean).map(function(p){ return [svrX(p[0]),svrY(p[1])]; });
+  const Wd=2*SVR_PX+(SVR_X1-SVR_X0)*SVR_C, Hd=2*SVR_PY+(SVR_Y1-SVR_Y0)*SVR_C;
+  const m1=svrPlus(O,svrVec(q,q.a)), dedans=nx*(svrX(m1[0])-(x1+x2)/2)+ny*(svrY(m1[1])-(y1+y2)/2)>0?1:-1;
+  for(const t of [.5,.38,.62,.28,.72]) for(const c of [-dedans,dedans]){
+    const x=x1+(x2-x1)*t+c*nx*18, y=y1+(y2-y1)*t+c*ny*18;
+    if(x<14||x>Wd-14||y<12||y>Hd-8) continue;
+    if(y+7>Y0-3&&y-16<Y0+16) continue;
+    if(x+14>X0-24&&x-14<X0+4) continue;
+    if(evite.some(function(e){ return Math.abs(x-e[0])<34&&Math.abs(y-e[1])<30; })) continue;
+    if(pts.some(function(p){ return Math.abs(x-p[0])<24&&Math.abs(y+2-p[1])<22; })) continue;
+    return [x,y];
+  }
+  return svrEtiq(O,M);
+}
+/* Les noms des flèches de l'élève, là où ils sont écrits. */
+function svrNomsEleve(q){
+  const r=[];
+  for(let k=0;k<2;k++){
+    const t=svrTrace(q,k); if(!t) continue;
+    r.push(svrEtiq(t.d,t.f));
+    if(q.cp[k]){ const s=svrCopie(q,k); r.push(svrEtiq(s, svrPlus(s,svrTv(q,k)))); }
+  }
+  return r;
 }
 /* Le coin où poser la lettre d'un point : celui des quatre (en haut à
    droite d'abord) le plus loin, en angle, des flèches qui partent de ce point
@@ -59790,7 +59843,7 @@ function svrCoin(q,p){
   const dirs=[], va=svrVec(q,q.a), vb=svrVec(q,q.b), O=q.P[q.o], M=svrM(q);
   const bout=function(d,f){ if(svrEgal(p,d)) dirs.push([f[0]-d[0],f[1]-d[1]]); if(svrEgal(p,f)) dirs.push([d[0]-f[0],d[1]-f[1]]); };
   [q.a,q.b].forEach(function(w){ bout(q.P[w[0]], q.P[w[1]]); });
-  bout(O, svrPlus(O,va)); bout(O, svrPlus(O,vb)); bout(svrPlus(O,va), M); bout(svrPlus(O,vb), M);
+  bout(O, svrPlus(O,va)); bout(O, svrPlus(O,vb)); bout(svrPlus(O,va), M); bout(svrPlus(O,vb), M); bout(O, M);
   let mieux=[1,1], ecart=-1;
   [[1,1],[-1,1],[1,-1],[-1,-1]].forEach(function(c){
     const e=dirs.reduce(function(m,d){ const l=Math.hypot(d[0],d[1])*Math.SQRT2||1;
@@ -59852,6 +59905,10 @@ function svrDessiner(q){
     if(!test.locked&&!(test.svrFige&&test.svrFige['svr-ch']))
       prises+=`<line class="svc-prise" data-k="${k}" x1="${svrX(s[0])}" y1="${svrY(s[1])}" x2="${svrX(e[0])}" y2="${svrY(e[1])}" tabindex="0" role="button" aria-label="déplacer une copie du vecteur ${nom} (flèches du clavier)"/>`;
   }
+  /* M posé : la flèche du résultat, du point d'origine à M (demande de
+     Turquet, octobre 2026) — bleue, rouge si M est faux */
+  const O=q.P[q.o];
+  if(q.m&&!svrEgal(q.m,O)){ const c=svrCoul('svr-M'); f+=svrFleche(O, q.m, {cls:c[0]+' svr-res', marker:c[1], coul:c[0], nom:SVR_NOMS[q.o]+'M', et:svrEtiqResultat(q,q.m,svrNomsEleve(q))}); }
   let p='';
   for(let k=0;k<4;k++) if(q.pl[k]) p+=svrCroix(q.pl[k], SVR_NOMS[k], svrCoul('svr-'+SVR_NOMS[k])[2]);
   if(q.m) p+=svrCroix(q.m, 'M', svrCoul('svr-M')[2]);
@@ -59862,10 +59919,15 @@ function svrMajOutils(q){
   SVR_OUTILS.forEach(function(o){
     const el=$(svrIdOutil(o)); if(!el) return;
     el.classList.toggle('actif', !test.locked&&test.svrOutil===o);
-    el.classList.toggle('fait', svrFait(q,o));
+    el.classList.toggle('fait', !test.locked&&svrFait(q,o));
     el.setAttribute('aria-pressed', test.svrOutil===o?'true':'false');
     el.disabled=!!test.locked||!!(test.svrFige&&test.svrFige[svrIdOutil(o)]);
   });
+  /* l'objectif du déplacement : réalisé quand les copies sont bout à bout
+     depuis le point d'origine */
+  const ch=$('svr-ch'); if(ch) ch.classList.toggle('fait', !test.locked&&!!svrChaine(q));
+  const svg=document.querySelector('#svrGraph .svr-svg');
+  if(svg) svg.classList.toggle('svr-repos', !test.locked&&test.svrOutil==='M'&&!!q.m);
 }
 function svrFait(q,o){
   if(o==='M') return !!q.m;
@@ -59924,7 +59986,7 @@ function svrDeplacer(k, p){
   q.cp[k]=svrEgal(np,t.d)?null:np;
   if(test.svrEtat) delete test.svrEtat['svr-ch'];
   const el=$('svr-ch'); if(el) el.classList.remove('ok','bad');
-  svrDessiner(q);
+  svrDessiner(q); svrMajOutils(q);
   recoveryDirty=true;
   return true;
 }
@@ -60042,7 +60104,13 @@ function svrFinal(q,subs){
     h+=svrFleche(O, m1, {cls:'svc-s svc-copie', marker:'svrArrS', coul:'svc-s', nom:svrNomVec(q.a)})
       +svrFleche(m1, svrM(q), {cls:'svc-s svc-copie', marker:'svrArrS', coul:'svc-s', nom:svrNomVec(q.b)});
   }
-  if(!subs[7].ok) h+=svrCroix(svrM(q), 'M', 's');
+  if(!subs[7].ok){
+    const O=q.P[q.o], m1=svrPlus(O,svrVec(q,q.a)), M=svrM(q);
+    const evite=svrNomsEleve(q).concat(subs[6].ok?[]:[svrEtiq(O,m1), svrEtiq(m1,M)]);
+    if(q.m&&!svrEgal(q.m,O)) evite.push(svrEtiqResultat(q,q.m,svrNomsEleve(q)));
+    h+=svrFleche(O, M, {cls:'svc-s svr-res', marker:'svrArrS', coul:'svc-s', nom:SVR_NOMS[q.o]+'M', et:svrEtiqResultat(q,M,evite)})
+      +svrCroix(M, 'M', 's');
+  }
   const c=$('svrCorr'); if(c) c.innerHTML=h;
 }
 function renderSvr(){
@@ -60636,8 +60704,8 @@ function chlForme(el){
    la même chaîne lettre à lettre : chaque vecteur sous SA flèche, qui
    s'allonge avec ses lettres ; un « + », un « − » ou un « = » ouvre une
    flèche vide, et le curseur clignote dessous. Un « − » en tête d'un morceau
-   reste un signe, posé DEVANT la flèche ; un nombre (2AC) aussi ; « 0 » et
-   « impossible » s'écrivent sans flèche. Les couleurs des morceaux (dataset.mv,
+   reste un signe, posé DEVANT la flèche ; un nombre (2AC) aussi ; « 0 », le
+   vecteur nul, a sa flèche ; « impossible » s'écrit sans flèche. Les couleurs des morceaux (dataset.mv,
    posé par chlPeint) ne se montrent que hors du champ : la case où l'élève
    écrit ne se colore pas. */
 function chlRendu(el){
@@ -60681,9 +60749,13 @@ function chlDessin(v, c0, c1, mv){
       /* un « − » en tête : un signe, pas une flèche vide devant lui */
       if(tete && j<v.length && /[-−–]/.test(v[j])) h+=curs(a);
       else h+=fleche(a, a, a);
-    } else if(/^\s*im/i.test(t) || /^\s*0\s*$/.test(t)){
+    } else if(/^\s*im/i.test(t)){
       for(let k=a;k<j;k++) h+=car(k, false);
       h+=curs(j);
+    } else if(/^\s*0\s*$/.test(t)){
+      /* le vecteur nul : « 0 » sous sa flèche (Turquet, octobre 2026) — sans
+         elle, il se lirait comme le nombre zéro */
+      h+=fleche(a, j, j);
     } else {
       const n=(/^[\d\s×*·.,]*/.exec(t)||[''])[0].length;
       for(let k=a;k<a+n;k++) h+=car(k, false);
