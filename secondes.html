@@ -2413,6 +2413,22 @@
      le point donné en croix (.vec-pt), A′ posé au clic comme au 8.5 ; deux
      boutons retournent u⃗ et v⃗ ; l'égalité s'écrit avec la flèche du 8.2 */
   #scr-cvp .tvg-cons.sol{border-color:var(--green);background:var(--green-soft)}
+  /* les deux étapes AU-DESSUS du dessin, comme au 8.2.8 : une étape EFFECTUÉE
+     (pas encore vérifiée) prend l'encre, le liseré et le fond verts, et sa coche */
+  #scr-cvp .tvg-cons.cvp-fait{border-color:var(--green);color:var(--green);background:var(--green-soft)}
+  #scr-cvp .tvg-cons.cvp-fait::after{content:" ✓";font-weight:800}
+  /* le point se marque d'une CROIX, jamais d'un rond (demande de Turquet,
+     octobre 2026) : aucun rond au survol d'un nœud, le point posé, juste,
+     faux ou attendu est une croix de sa couleur, et le point qui suit la
+     souris aussi */
+  .cvp-svg .vec-t .dot,.cvp-svg .vec-t:hover .dot{display:none}
+  .cvp-svg .vec-t .crx{fill:none;stroke:transparent;stroke-width:2.6;stroke-linecap:round}
+  .cvp-svg .vec-t.sel .crx,.cvp-svg .vec-t.okc .crx{stroke:var(--blue-dark)}
+  .cvp-svg .vec-t.badc .crx{stroke:var(--red)}
+  .cvp-svg .vec-t.missc .crx{stroke:var(--green)}
+  .cvp-svg .cvp-curseur .crx{fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linecap:round}
+  /* le vecteur solution AA′, tracé par la correction */
+  .cvp-svg .cvp-sol{stroke:var(--green);stroke-width:3}
   #cvpGraph .sv-svg{max-width:640px}
   /* l'étape en cours, AU-DESSUS du dessin, en bandeau : on la lit avant de toucher une flèche */
   .cvp-etape{margin:6px 0 10px;padding:10px 14px;border-left:5px solid var(--blue);border-radius:10px;background:#EAF0FF;color:var(--ink);font-size:1.05rem;line-height:1.45}
@@ -6632,9 +6648,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card lv-card">
       <div class="q-head"><span id="cvpIdx" class="q-idx">Question 1 / 6</span><span id="cvpModeTag"></span></div>
       <p class="enonce" id="cvpInstr"></p>
+      <div id="cvpBody"></div>
       <div class="cvp-etape" id="cvpEtape" aria-live="polite"></div>
       <div class="lv-graph" id="cvpGraph"></div>
-      <div id="cvpBody"></div>
+      <div id="cvpOutils"></div>
       <div class="mp-feedback" id="cvpFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="cvpActions"></div>
     </div>
@@ -6963,7 +6980,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=509;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=510;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -57246,14 +57263,14 @@ function cvpSVG(q){
   for(let i=0;i<=SVC_W;i++) for(let j=0;j<=SVC_H;j++){
     zones+=`<path class="vec-zone" d="M${X(i)} ${Y(j)}h0.01" onclick="cvpPose(${i},${j})"/>`;
     cibles+=`<g class="vec-t" id="cvpn-${i}-${j}" onclick="cvpPose(${i},${j})" tabindex="0" role="button" aria-label="nœud ${i} vers la droite, ${j} vers le haut" aria-pressed="false">`
-      +`<circle class="hit" cx="${X(i)}" cy="${Y(j)}" r="10"/><circle class="dot" cx="${X(i)}" cy="${Y(j)}" r="5"/>`
+      +`<circle class="hit" cx="${X(i)}" cy="${Y(j)}" r="10"/><path class="crx" d="M${X(i)-6} ${Y(j)-6}l12 12m0 -12l-12 12"/>`
       +`<text class="vec-lbl vec-dlbl" x="${i<SVC_W?X(i)+8:X(i)-8}" y="${j<SVC_H?Y(j)-8:Y(j)+19}" text-anchor="${i<SVC_W?'start':'end'}">${cvpNomPt(q)}</text></g>`;
   }
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg cvp-svg" role="img" aria-label="Quadrillage : le point ${q.l}, et les vecteurs u et v à faire glisser">`
     +'<defs>'+pointe('cvpArrU','var(--ink)')+pointe('cvpArrV','var(--ink-soft)')+pointe('cvpArrS','var(--green)')+'</defs>'
-    +g+'<g id="cvpCorr"></g><g id="cvpFl"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cvpPrises"></g>`
-    +`<g id="cvpCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><circle r="5"/><text class="vec-lbl" x="8" y="-8">${cvpNomPt(q)}</text></g></svg>`;
+    +g+'<g id="cvpSol"></g><g id="cvpCorr"></g><g id="cvpFl"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cvpPrises"></g>`
+    +`<g id="cvpCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><path class="crx" d="M-6 -6l12 12m0 -12l-12 12"/><text class="vec-lbl" x="8" y="-8">${cvpNomPt(q)}</text></g></svg>`;
 }
 /* Les deux flèches à leur place du moment, la lettre du point, et les prises.
    Aucun mot « début » ni « fin » sur les flèches (demande de Turquet,
@@ -57293,6 +57310,7 @@ function cvpBoutABout(q){
 function cvpConsigne(q){
   const el=$('cvpEtape'); if(!el) return;
   if(test.locked){ el.innerHTML=''; return; }
+  cvpFaits(q);
   const u=svcVecHTML('u'), v=svcVecHTML('v'), s=cvpSignes(q), Ap='<b>'+cvpNomPt(q)+'</b>';
   if(!cvpBoutABout(q)){
     const moins=[s[0]<0?'−'+u:'', s[1]<0?'−'+v:''].filter(Boolean);
@@ -57300,6 +57318,18 @@ function cvpConsigne(q){
       +'<span class="cvp-etape-sous">Saisis une flèche pour la déplacer.'
       +(moins.length?' Pour '+moins.join(' et ')+', retourne la flèche avec le bouton ⇄ : soustraire un vecteur, c’est ajouter son opposé.':'')+'</span>';
   } else el.innerHTML='<span class="cvp-etape-n">Étape 2 / 2</span>Clique le nœud où se trouve le point '+Ap+' : au bout de la seconde flèche.';
+}
+/* Chaque étape EFFECTUÉE passe au vert, comme au 8.2.8 : les flèches bout à
+   bout depuis le point, puis le point posé. « Effectuée », pas « juste » —
+   une étape déjà marquée par la vérification (ok, bad, sol) garde son
+   verdict ; cvpCasesPeindre retire la marque. */
+function cvpFaits(q){
+  const fait=[cvpBoutABout(q), !!q.sel];
+  ['cvp-ch','cvp-pt'].forEach(function(id,n){
+    const c=$(id); if(!c) return;
+    const verdict=c.classList.contains('ok')||c.classList.contains('bad')||c.classList.contains('sol');
+    c.classList.toggle('cvp-fait', fait[n]&&!verdict);
+  });
 }
 function cvpMilieu(p,r){ return [(p[0]+r[0])/2, (p[1]+r[1])/2]; }
 /* La lettre d'un nœud (« B′ ») se pose, comme celle du point donné, dans la
@@ -57319,6 +57349,7 @@ function cvpEtiquetteNoeud(q,n){
 function cvpMarquer(q){
   document.querySelectorAll('#cvpGraph .vec-t.sel').forEach(function(el){ el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
   if(q.sel){ const el=$('cvpn-'+q.sel[0]+'-'+q.sel[1]); if(el){ el.classList.add('sel'); el.setAttribute('aria-pressed','true'); } cvpEtiquetteNoeud(q,q.sel); }
+  if(!test.locked) cvpFaits(q);
 }
 /* Poser A′ : un seul nœud — cliquer un autre nœud le déplace, recliquer le
    même le retire. L'état vit dans la question (pause et reprise). */
@@ -57488,7 +57519,7 @@ function cvpConstruction(q){
 }
 function cvpCasesPeindre(subs, final){
   [['cvp-ch',subs[0]],['cvp-pt',subs[1]]].forEach(function(p){ const el=$(p[0]); if(!el) return;
-    el.classList.remove('ok','bad','sol');
+    el.classList.remove('ok','bad','sol','cvp-fait');
     if(p[1].ok) el.classList.add('ok'); else if(!p[1].vide) el.classList.add('bad'); else if(final) el.classList.add('sol'); });
 }
 /* Soutien : chaque réponse juste se fige en bleu, la fausse rougit et reste
@@ -57509,6 +57540,7 @@ function cvpFinal(q,subs){
   document.querySelectorAll('#cvpGraph .vec-t').forEach(function(el){ el.classList.add('off'); el.classList.remove('sel'); });
   cvpDessinerFleches(q);
   if(q.sel){ const el=$('cvpn-'+q.sel[0]+'-'+q.sel[1]); if(el) el.classList.add(pt.ok?'okc':'badc'); }
+  cvpVecteurSol(q);
   if(ch.ok&&pt.ok) return;
   const k=cvpConstruction(q), c=$('cvpCorr');
   if(!ch.ok&&k&&c){
@@ -57518,6 +57550,17 @@ function cvpFinal(q,subs){
   }
   if(!pt.ok){ const E=cvpPoint(q), el=$('cvpn-'+E[0]+'-'+E[1]); if(el) el.classList.add('missc'); cvpEtiquetteNoeud(q,E); }
   if(q.sel) cvpEtiquetteNoeud(q,q.sel);
+}
+/* Le vecteur SOLUTION, du point donné au point attendu, en vert et nommé
+   (« BB′ ») — toujours, juste ou faux (demande de Turquet, octobre 2026) :
+   c'est lui que l'égalité définit. Son nom passe du côté le plus loin de la
+   construction. Dans son propre calque (#cvpSol), sous les flèches : le
+   calque de la correction (#cvpCorr) ne porte que ce qui manquait. */
+function cvpVecteurSol(q){
+  const g=$('cvpSol'); if(!g) return;
+  const E=cvpPoint(q), k=cvpConstruction(q);
+  const autres=k?[[q.po,k.milieu],[k.milieu,k.fin]]:[];
+  g.innerHTML=svcFleche(q.po, E, {cls:'svc-s cvp-sol', marker:'cvpArrS', nom:q.l+cvpNomPt(q), cote:svcCoteDehors(q.po, E, autres)});
 }
 function renderCvp(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
@@ -57529,10 +57572,12 @@ function renderCvp(){
   $('cvpModeTag').innerHTML=modeTagHTML();
   $('cvpInstr').innerHTML='Construis le point '+Ap+' tel que <span class="cvp-eg">'+cvpEgaliteHTML(q)+'</span>.';
   $('cvpGraph').innerHTML=cvpSVG(q);
-  $('cvpBody').innerHTML='<div class="cvp-outils"><button class="btn btn-ghost" id="cvpRetU" type="button" onclick="cvpRetourner(\'u\')">⇄ Retourner '+u+'</button>'
-    +'<button class="btn btn-ghost" id="cvpRetV" type="button" onclick="cvpRetourner(\'v\')">⇄ Retourner '+v+'</button></div>'
-    +'<div class="tvg-cons pts-case" id="cvp-ch">① Les deux flèches bout à bout à partir de '+q.l+', chacune dans le sens que demande l’égalité.</div>'
-    +'<div class="tvg-cons pts-case" id="cvp-pt">② Le point '+Ap+', au bout de la seconde flèche.</div>';
+  /* les deux étapes AU-DESSUS du dessin, comme au 8.2.8 (demande de Turquet,
+     octobre 2026) ; les boutons pour retourner les flèches, sous le dessin */
+  $('cvpBody').innerHTML='<div class="tvg-cons pts-case" id="cvp-ch">Étape 1 : les deux flèches bout à bout à partir de '+q.l+', chacune dans le sens que demande l’égalité.</div>'
+    +'<div class="tvg-cons pts-case" id="cvp-pt">Étape 2 : le point '+Ap+' placé au bout de la seconde flèche.</div>';
+  $('cvpOutils').innerHTML='<div class="cvp-outils"><button class="btn btn-ghost" id="cvpRetU" type="button" onclick="cvpRetourner(\'u\')">⇄ Retourner '+u+'</button>'
+    +'<button class="btn btn-ghost" id="cvpRetV" type="button" onclick="cvpRetourner(\'v\')">⇄ Retourner '+v+'</button></div>';
   cvpDessinerFleches(q);
   cvpMarquer(q);
   cvpBrancher();

@@ -12524,6 +12524,13 @@ function pointSommeDifference(w, P){
     if(!el('cvpRetU') || !el('cvpRetV')) vus.push('les boutons pour retourner u et v manquent');
     if(document.querySelector('#cvpGraph .vec-t.sel')) vus.push('B′ est posé avant que l\\'élève le pose');
     ['cvp-ch','cvp-pt'].forEach(function(id){ if(!el(id)||!el(id).classList.contains('pts-case')) vus.push(id+' n\\'est pas une pts-case'); });
+    /* les deux étapes AU-DESSUS du dessin, comme au 8.2.8 ; rien n'est vert au départ */
+    if(!(el('cvpBody').compareDocumentPosition(el('cvpGraph')) & 4) || !el('cvpBody').contains(el('cvp-ch'))) vus.push('les étapes ne s\\'affichent pas au-dessus du dessin');
+    if(el('cvp-ch').textContent.indexOf('Étape 1')!==0 || el('cvp-pt').textContent.indexOf('Étape 2')!==0) vus.push('les objectifs ne s\\'appellent pas Étape 1 et Étape 2');
+    if(document.querySelector('#cvpBody .cvp-fait')) vus.push('une étape est verte avant tout geste');
+    /* le point se marque d'une croix : aucun rond sur les nœuds */
+    if(document.querySelector('#cvpGraph .vec-t .dot') || document.querySelectorAll('#cvpGraph .vec-t .crx').length!==117 || !document.querySelector('#cvpCurseur .crx') || document.querySelector('#cvpCurseur circle')) vus.push('un nœud ou le point qui suit la souris porte encore un rond, pas une croix');
+    if(el('cvpSol').children.length) vus.push('le vecteur solution se montre avant la vérification');
 
     /* 3. vérifier à vide : rien ne rougit, la construction attendue en vert */
     checkCvp(); clearTimeout(test.fbTimer);
@@ -12536,6 +12543,8 @@ function pointSommeDifference(w, P){
     if(el('cvpFeedback').textContent.indexOf('Il te manquait 2 cases')<0) vus.push('le message ne dit pas « Il te manquait 2 cases » : '+el('cvpFeedback').textContent.slice(0,90));
     if(document.querySelector('#cvpPrises .svc-prise') || !el('cvpRetU').disabled) vus.push('les flèches se saisissent ou se retournent encore après la correction');
     if(el('cvpEtape').textContent) vus.push('l\\'étape reste affichée après la correction');
+    const solNom=Array.from(document.querySelectorAll('#cvpSol text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
+    if(document.querySelectorAll('#cvpSol line.svc-s').length!==1 || solNom!=='BB′') vus.push('le vecteur solution BB′ ne se trace pas en vert : '+solNom);
     if(test.score!==0) vus.push('la copie vide vaut '+test.score);
     const a0=test.answers[test.answers.length-1];
     if(!a0||a0.correct||a0.cases!==2||a0.justes!==0) vus.push('la réponse enregistrée ne compte pas 0 case juste sur 2');
@@ -12553,10 +12562,13 @@ function pointSommeDifference(w, P){
     cvpDeplacer('v',[6,5]);
     if(!cvpChaine(q1)||cvpChaine(q1).ordre!=='uv') vus.push('u puis −v posés depuis B ne sont pas lus comme la construction');
     if(el('cvpEtape').textContent.indexOf('Étape 2 / 2')!==0 || el('cvpEtape').textContent.indexOf('B′')<0) vus.push('les flèches bout à bout, l\\'étape 2 ne s\\'affiche pas : '+el('cvpEtape').textContent.slice(0,90));
+    if(!el('cvp-ch').classList.contains('cvp-fait') || el('cvp-pt').classList.contains('cvp-fait')) vus.push('les flèches bout à bout, l\\'étape 1 ne passe pas seule au vert');
     cvpPose(1,1);
     if(JSON.stringify(q1.sel)!=='[1,1]' || !document.querySelector('#cvpn-1-1.sel')) vus.push('le clic ne pose pas B′');
+    if(!el('cvp-pt').classList.contains('cvp-fait')) vus.push('B′ posé, l\\'étape 2 ne passe pas au vert');
     cvpPose(1,1);
     if(q1.sel!==null || document.querySelector('#cvpn-1-1.sel')) vus.push('recliquer le nœud ne retire pas B′');
+    if(el('cvp-pt').classList.contains('cvp-fait')) vus.push('B′ retiré, l\\'étape 2 reste verte');
     cvpPose(4,2);
     test.questions[1]=JSON.parse(JSON.stringify(q1)); renderCvp();
     const q1b=test.questions[1];
@@ -12565,6 +12577,8 @@ function pointSommeDifference(w, P){
     if(classe('cvp-ch')!=='ok'||classe('cvp-pt')!=='ok') vus.push('la copie juste n\\'est pas peinte ok : '+classe('cvp-ch')+', '+classe('cvp-pt'));
     if(el('cvpCorr').children.length || document.querySelector('#cvpGraph .vec-t.missc')) vus.push('la correction se montre alors que tout est juste');
     if(!document.querySelector('#cvpn-4-2.okc')) vus.push('B′ juste ne se peint pas en bleu');
+    if(document.querySelector('#cvpBody .cvp-fait')) vus.push('la marque « étape faite » reste sous le verdict');
+    if(document.querySelectorAll('#cvpSol line.svc-s').length!==1) vus.push('la copie juste ne montre pas le vecteur solution');
 
     /* 5. copie juste, −v PUIS u */
     nextCvp(); clearTimeout(test.fbTimer);
