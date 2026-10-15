@@ -1088,7 +1088,7 @@ moins de 3 px de la souris sur la flèche u⃗ puis pour la fin, plus aucun poin
 une fois la fin posée, une étape 1 fausse qui ne verdit pas, et le clic entre
 les nœuds.
 
-**Puis u⃗ + v⃗ tracé a gardé le point blanc de sa fin, éteint le survol des nœuds, et l'étape 2 finie a verdi comme l'étape 1 (v510).**
+**Puis u⃗ + v⃗ tracé a gardé le point blanc de sa fin, éteint le survol des nœuds, et l'étape 2 finie a verdi comme l'étape 1 (v511 — fusionné en v510 juste après le vecteur nul du 8.2.7, qui portait le même numéro : la v511 rend la version de l'en-tête de nouveau parlante).**
 La demande (Turquet, octobre 2026) : « dans le 8.2.1, laisser le point blanc
 quand on choisit le point à la fin du vecteur somme ; il ne faut plus que la
 flèche affiche un point ensuite quand on passe sur une intersection du
@@ -1867,3 +1867,30 @@ prise et baissé au prochain appui, qui tient le bord. Le banc navigateur (6
 quadragies septies) mesure le point posé sur le milieu de −v⃗ à moins de
 3 px de la souris, et un clic loin de tout nœud et de toute flèche qui pose
 B′ au nœud le plus proche.
+
+**Puis, au 8.1.6, le point a suivi la souris, et le point choisi est devenu une croix (v511).**
+La demande (Turquet, octobre 2026) : « dans le 8.1.6, la flèche de la souris
+doit afficher un point constamment à l'écran. Quand un point est choisi,
+mettre une croix, et ne plus afficher de point au bout de la flèche de la
+souris ainsi que quand on passe sur une intersection du quadrillage. »
+Un groupe `#vepCurseur` (la classe `.cvp-curseur` du 8.2.8 : `pointer-events:none`,
+posé en DERNIER dans le SVG) dessine le point et la lettre à placer à la
+position exacte de la souris, partout sur le quadrillage à une demi-maille du
+cadre près — pas aimanté, le clic garde les zones de touche des nœuds. Le
+nœud choisi se dessine en croix comme les points donnés : UNE croix
+(`vepCroix`), posée dans le groupe du seul nœud choisi, bleue, rouge si elle
+est fausse (`badc`), et son disque devient transparent — il garde sa
+géométrie. **Piège rencontré** : la première version cachait une croix dans
+chacun des 97 nœuds (une option de `vecQuadrillage`) ; le dessin triplait à
+chaque question, et le banc principal de la Seconde, déjà proche de la limite
+de mémoire de Node, est mort de saturation dans l'action — deux fois, quand
+les autres pull requests passaient. La mesure de la mémoire ligne par ligne,
+branche contre `main`, a désigné le bloc des vecteurs (+300 Mo). Dès qu'un nœud est choisi,
+la classe `vep-pose` du dessin éteint le survol des autres nœuds et cache le
+point de la souris ; recliquer la croix la retire, et le point revient. Rien
+au doigt (`pointerType` « touch »), rien une fois la question corrigée ou le
+point juste figé en soutien. Le point attendu de la correction (`missc`) reste
+le disque vert. Le banc navigateur (6 quadragies ter) mesure le point à moins
+de 3 px de la souris entre deux nœuds, la croix et le disque transparent du
+nœud choisi, le point caché, le survol éteint, puis le point revenu après le
+reclic.
