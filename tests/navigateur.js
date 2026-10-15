@@ -8942,7 +8942,7 @@ if(require.main === module) (async () => {
       pm = await survol(e.u[0] + 0.5, e.u[1] + 0.5); cv = await curs();
       if(!cv || Math.hypot(cv.x - pm.px, cv.y - pm.py) > 3) dits.push('le début posé, le point de la fin ne suit pas la souris');
       if(JSON.stringify(e.sd) !== JSON.stringify(e.u)) dits.push('le clic sur le début de u (sous sa prise) ne pose pas le début de u + v : ' + JSON.stringify(e.sd));
-      /* le début posé, une flèche va de lui jusqu'à la pointe de la souris (v518) */
+      /* le début posé, une flèche va de lui jusqu'à la pointe de la souris (v519) */
       const vif = async () => await s.page.evaluate(() => { const l = document.querySelector('#svcVif line');
         if(!l) return null; const svg = l.ownerSVGElement, m = svg.getScreenCTM(), P = (x, y) => { const p = svg.createSVGPoint(); p.x = x; p.y = y; return p.matrixTransform(m); };
         const a = P(+l.getAttribute('x1'), +l.getAttribute('y1')), b = P(+l.getAttribute('x2'), +l.getAttribute('y2'));
