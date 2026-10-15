@@ -4549,6 +4549,7 @@ function exercices(suite){
     pointSommeVecteurs(w, P);
     pointSommeDifference(w, P);
     tracerVecteursEgaux(w, P);
+    tracerVecteursOpposes(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
     recurrenceLimite(w, P);
@@ -12424,6 +12425,95 @@ function tracerVecteursEgaux(w, P){
   })()`, v => v === '', undefined);
 }
 
+/* {tracer-vecteurs-opposes} (Seconde, 8.1.8 — demande de Turquet, octobre
+   2026 : « un exercice comme le 8.1.7 où on demande de tracer l'opposé de
+   chaque vecteur ; on demandera de tracer −u, −v, −w dans l'énoncé »). Le
+   moteur du 8.1.7 (kind « tvx ») avec q.op : ce banc ne rejoue pas le geste,
+   tenu plus haut, mais ce qui CHANGE — l'énoncé, les noms « −u » sur le
+   dessin, le juge (le chemin à l'envers est juste, le vecteur égal est
+   faux et NOMMÉ), la correction verte dans le sens opposé, q.op relu après
+   le JSON de la pause, l'identité (rappel, questions à l'IA) par
+   l'identifiant. */
+function tracerVecteursOpposes(w, P){
+  const nom = 'vecteurs opposés à tracer : l\'énoncé demande −u, −v, −w, le chemin à l\'envers est juste, le vecteur égal est faux et nommé, la correction trace l\'opposé';
+  if(!P.tracerVecteursOpposes){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice des vecteurs opposés à tracer');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.tracerVecteursOpposes)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['tracer-vecteurs-egaux']!=='8.1.7' || TEST_NUM['somme-vecteurs']!=='8.2.1') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS_ID[D.exercice]!==RAP_TVO || !QIA_SUGG_ID[D.exercice]) vus.push('le rappel ou les questions à l\\'IA ne sont pas ceux des vecteurs opposés');
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const classes=function(){ return ['tvx-u','tvx-v','tvx-w'].map(classe).join(','); };
+    const fixe=function(){ return {vs:[[2,2,3,4],[7,8,4,-2],[13,2,-3,2]], d1:null, f1:null, d2:null, f2:null, d3:null, f3:null, op:1}; };
+    const verifierIci=function(){ const av=test.score; checkTvx(); clearTimeout(test.fbTimer); return test.score-av; };
+    const tracer=function(a,b){ tvxClic(a[0],a[1]); tvxClic(b[0],b[1]); };
+
+    /* 1. le tirage : TESTS lance les opposés, q.op rangé, rien d'autre */
+    TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='tvx') vus.push('kind « '+test.kind+' » au lieu de tvx');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    if(test.questions.length!==D.nb) vus.push(test.questions.length+' questions au lieu de '+D.nb);
+    test.questions.forEach(function(q){
+      if(Object.keys(q).sort().join(',')!=='d1,d2,d3,f1,f2,f3,op,vs' || q.op!==1) vus.push('la question des opposés range : '+JSON.stringify(q));
+    });
+    if(tvxBuildQuestions().some(function(q){ return 'op' in q; })) vus.push('le 8.1.7 range op : ses questions ont changé');
+
+    /* 2. l'écran : l'énoncé demande −u, −v, −w */
+    test.questions[0]=fixe(); test.idx=0; renderTvx();
+    const ins=el('tvxInstr').textContent;
+    if(ins.indexOf('−u, −v et −w')<0 || ins.indexOf('opposés')<0) vus.push('l\\'énoncé ne demande pas −u, −v, −w : '+ins);
+    if(el('tvx-u').textContent.indexOf('−u')<0) vus.push('l\\'étape ① ne nomme pas −u : '+el('tvx-u').textContent);
+    if(el('tvxEtape').textContent.indexOf('Trace le vecteur −u')<0) vus.push('la page ne dit pas de tracer −u : '+el('tvxEtape').textContent);
+    const donnes=Array.from(document.querySelectorAll('#tvxDonnes text.svc-nom')).map(function(t){ return t.textContent; }).join('');
+    if(donnes!=='uvw') vus.push('les vecteurs donnés ne s\\'appellent plus u, v, w : '+donnes);
+
+    /* 3. la copie juste : chaque chemin à l'envers ; les flèches s'appellent −u, −v, −w */
+    const q0=test.questions[0];
+    tracer([5,6],[2,2]); tracer([11,4],[7,6]); tracer([10,4],[13,2]);
+    const noms=Array.from(document.querySelectorAll('#tvxFl text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
+    if(noms!=='−u,−v,−w') vus.push('les flèches de l\\'élève ne s\\'appellent pas −u, −v, −w : '+noms);
+    if(document.querySelectorAll('#tvxFl path.svc-nfl').length!==3) vus.push('les noms des flèches n\\'ont pas leur petite flèche');
+    /* la reprise : q.op survit au JSON */
+    test.questions[0]=JSON.parse(JSON.stringify(q0)); renderTvx();
+    if(verifierIci()!==3 || classes()!=='ok,ok,ok') vus.push('la copie juste (chemins à l\\'envers) vaut '+test.score+' : '+classes());
+    if(el('tvxCorr').children.length) vus.push('la correction se montre alors que tout est juste');
+
+    /* 4. le piège du 8.1.8 : un vecteur ÉGAL est faux, et nommé ; la correction
+       verte trace l'opposé au départ de l'élève */
+    nextTvx(); clearTimeout(test.fbTimer);
+    if(!test.questions[1].op) vus.push('la question suivante a perdu op');
+    test.questions[1]=fixe(); renderTvx();
+    tracer([5,6],[8,10]); tracer([10,4],[12,3]);
+    if(verifierIci()!==0 || classes()!=='bad,bad,sol') vus.push('u égal, v trop court, w absent : '+classes()+' au lieu de bad,bad,sol');
+    const fb=el('tvxFeedback').textContent;
+    if(fb.indexOf('−u est égale à u')<0 || fb.indexOf('sens contraire')<0 || fb.indexOf('−u fait donc 3 carreaux vers la gauche puis 4 carreaux vers le bas')<0 || fb.indexOf('Il te manquait 1 case')<0) vus.push('le message ne nomme pas le vecteur égal au lieu de l\\'opposé, ou le chemin attendu : '+fb.slice(0,260));
+    const cu=document.querySelector('#tvxCorr line.svc-s');
+    if(!cu || cu.getAttribute('x1')!==String(TVX_PX+5*TVX_C) || !(Number(cu.getAttribute('x2'))<TVX_PX+5*TVX_C)) vus.push('la flèche verte de −u ne part pas du départ de l\\'élève vers la gauche');
+    const nomsCorr=Array.from(document.querySelectorAll('#tvxCorr text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
+    if(nomsCorr!=='−u,−v,−w') vus.push('la correction ne nomme pas −u, −v, −w : '+nomsCorr);
+    const rep=test.answers[test.answers.length-1];
+    if(!rep || rep.answer.indexOf('−u')<0) vus.push('la réponse enregistrée ne nomme pas −u');
+
+    /* 5. le contexte du modèle */
+    const ctx=conseilCtxCourant();
+    if(ctx.indexOf('vecteurs opposés −u, −v et −w')<0 || ctx.indexOf('flèche −u (opposée à u)')<0) vus.push('le contexte du modèle ne parle pas des opposés');
+
+    /* 6. le 8.1.7 reste le 8.1.7 */
+    currentTestId='tracer-vecteurs-egaux'; TESTS['tracer-vecteurs-egaux'].start(); clearTimeout(test.fbTimer);
+    if(el('tvxInstr').textContent.indexOf('égal au vecteur')<0 || el('tvxInstr').textContent.indexOf('−')>=0) vus.push('le 8.1.7 a changé d\\'énoncé : '+el('tvxInstr').textContent);
+    currentTestId=D.exercice;
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 function pointSommeVecteurs(w, P){
   const nom = 'point par une somme de vecteurs : le tirage est lisible, on trace, on fait glisser, on place, chaque réponse se juge seule, une case vide ne rougit pas';
   if(!P.pointSommeVecteurs){
@@ -12730,8 +12820,12 @@ function pointSommeDifference(w, P){
     const instr=el('cvpInstr');
     /* l'énoncé ne porte que l'égalité ; la méthode vit dans l'étape, au-dessus du dessin */
     if(instr.textContent.replace(/\\s+/g,' ').trim()!=='Construis le point B′ tel que BB′ = u − v.') vus.push('l\\'énoncé n\\'est pas la seule phrase mathématique : '+instr.textContent.slice(0,90));
-    const etape=el('cvpEtape');
-    if(!etape || etape.nextElementSibling!==el('cvpGraph')) vus.push('l\\'étape ne se place pas juste au-dessus du dessin');
+    /* les étapes SONT les réponses notées, en bandeaux bleus (octobre 2026 :
+       plus de cadres blancs) ; l'étape 2 attend que l'étape 1 soit faite */
+    const etape=el('cvp-ch');
+    if(!etape || el('cvpBody').nextElementSibling!==el('cvpGraph')) vus.push('les étapes ne se placent pas juste au-dessus du dessin');
+    if(!etape.classList.contains('cvp-etape') || !el('cvp-pt').classList.contains('cvp-etape') || document.querySelector('#scr-cvp .tvg-cons')) vus.push('un cadre blanc d\\'étape reste à côté des bandeaux bleus');
+    if(el('cvp-pt').style.display!=='none') vus.push('l\\'étape 2 se montre avant que l\\'étape 1 soit faite');
     if(!etape || etape.textContent.indexOf('Étape 1 / 2')!==0 || etape.textContent.indexOf('à partir du point B')<0) vus.push('l\\'étape 1 ne dit pas de partir du point B : '+(etape?etape.textContent.slice(0,90):''));
     if(document.querySelector('#cvpGraph .svc-mot')) vus.push('les flèches portent encore « début » ou « fin »');
     if(!instr.querySelector('.vgt-vec') || instr.querySelector('.vgt-vec').textContent!=='BB′') vus.push('l\\'égalité ne s\\'écrit pas BB′ coiffé de sa flèche');
@@ -12763,7 +12857,7 @@ function pointSommeDifference(w, P){
     if(!document.querySelector('#cvpn-4-2.missc')) vus.push('B′ attendu (4;2) ne se montre pas en vert');
     if(el('cvpFeedback').textContent.indexOf('Il te manquait 2 cases')<0) vus.push('le message ne dit pas « Il te manquait 2 cases » : '+el('cvpFeedback').textContent.slice(0,90));
     if(document.querySelector('#cvpPrises .svc-prise') || !el('cvpRetU').disabled) vus.push('les flèches se saisissent ou se retournent encore après la correction');
-    if(el('cvpEtape').textContent) vus.push('l\\'étape reste affichée après la correction');
+    if(el('cvp-pt').style.display==='none') vus.push('l\\'étape 2, notée, reste cachée après la correction');
     const solNom=Array.from(document.querySelectorAll('#cvpSol text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
     if(document.querySelectorAll('#cvpSol line.svc-s').length!==1 || solNom!=='BB′') vus.push('le vecteur solution BB′ ne se trace pas en vert : '+solNom);
     if(test.score!==0) vus.push('la copie vide vaut '+test.score);
@@ -12782,14 +12876,20 @@ function pointSommeDifference(w, P){
     if(!cvpDeplacer('u',[3,4]) || JSON.stringify(q1.up)!=='[3,4]') vus.push('cvpDeplacer ne range pas le début de u');
     cvpDeplacer('v',[6,5]);
     if(!cvpChaine(q1)||cvpChaine(q1).ordre!=='uv') vus.push('u puis −v posés depuis B ne sont pas lus comme la construction');
-    if(el('cvpEtape').textContent.indexOf('Étape 2 / 2')!==0 || el('cvpEtape').textContent.indexOf('B′')<0) vus.push('les flèches bout à bout, l\\'étape 2 ne s\\'affiche pas : '+el('cvpEtape').textContent.slice(0,90));
+    if(el('cvp-pt').style.display==='none' || el('cvp-pt').textContent.indexOf('Étape 2 / 2')!==0 || el('cvp-pt').textContent.indexOf('B′')<0 || el('cvp-ch').nextElementSibling!==el('cvp-pt')) vus.push('les flèches bout à bout, l\\'étape 2 ne s\\'affiche pas sous l\\'étape 1 : '+el('cvp-pt').textContent.slice(0,90));
+    if(el('cvpEl').children.length) vus.push('un vecteur BB′ se trace avant que B′ soit posé');
     if(!el('cvp-ch').classList.contains('cvp-fait') || el('cvp-pt').classList.contains('cvp-fait')) vus.push('les flèches bout à bout, l\\'étape 1 ne passe pas seule au vert');
     cvpPose(1,1);
     if(JSON.stringify(q1.sel)!=='[1,1]' || !document.querySelector('#cvpn-1-1.sel')) vus.push('le clic ne pose pas B′');
     if(!el('cvp-pt').classList.contains('cvp-fait')) vus.push('B′ posé, l\\'étape 2 ne passe pas au vert');
     if(document.querySelectorAll('#cvpCroix .crx.sel').length!==1 || el('cvpCroix').children.length!==1) vus.push('B′ posé ne se marque pas d\\'une seule croix');
+    /* B′ posé : le vecteur BB′ de l'élève se trace, violet et nommé ; plus de point au bout de la souris */
+    const elNom=Array.from(document.querySelectorAll('#cvpEl text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
+    if(document.querySelectorAll('#cvpEl line.cvp-aa').length!==1 || elNom!=='BB′') vus.push('B′ posé, le vecteur BB′ de l\\'élève ne se trace pas : '+elNom);
+    if(el('cvpCurseur').style.display!=='none') vus.push('B′ posé, le point suit encore la souris');
     cvpPose(1,1);
     if(q1.sel!==null || document.querySelector('#cvpn-1-1.sel')) vus.push('recliquer le nœud ne retire pas B′');
+    if(el('cvpEl').children.length) vus.push('B′ retiré, son vecteur reste tracé');
     if(el('cvp-pt').classList.contains('cvp-fait')) vus.push('B′ retiré, l\\'étape 2 reste verte');
     cvpPose(4,2);
     test.questions[1]=JSON.parse(JSON.stringify(q1)); renderCvp();
@@ -12802,6 +12902,7 @@ function pointSommeDifference(w, P){
     if(document.querySelectorAll('#cvpCroix .crx.okc').length!==1) vus.push('B′ juste ne se marque pas d\\'une croix bleue');
     if(document.querySelector('#cvpBody .cvp-fait')) vus.push('la marque « étape faite » reste sous le verdict');
     if(document.querySelectorAll('#cvpSol line.svc-s').length!==1) vus.push('la copie juste ne montre pas le vecteur solution');
+    if(document.querySelectorAll('#cvpEl line.svc-e').length!==1 || document.querySelector('#cvpEl text')) vus.push('la copie juste : le vecteur de l\\'élève n\\'est pas bleu, ou garde le nom du vecteur solution');
 
     /* 5. copie juste, −v PUIS u */
     nextCvp(); clearTimeout(test.fbTimer);
@@ -12816,6 +12917,7 @@ function pointSommeDifference(w, P){
     let fb=el('cvpFeedback').textContent;
     if(classe('cvp-ch')!=='bad'||fb.indexOf('retourne la flèche v')<0||fb.indexOf('BB′ = u − v = u + (−v)')<0) vus.push('le signe oublié n\\'est pas rouge et nommé : '+fb.slice(0,160));
     if(!document.querySelector('#cvpn-8-8.badc') || !document.querySelector('#cvpn-4-2.missc')) vus.push('B′ faux n\\'est pas rouge, ou le bon pas montré en vert');
+    if(document.querySelectorAll('#cvpEl line.svc-eb').length!==1) vus.push('B′ faux : le vecteur de l\\'élève ne rougit pas');
     if(document.querySelectorAll('#cvpCroix .crx.badc').length!==1 || document.querySelectorAll('#cvpCroix .crx.missc').length!==1) vus.push('B′ faux et B′ attendu ne se marquent pas d\\'une croix rouge et d\\'une croix verte');
     nextCvp(); clearTimeout(test.fbTimer);
     cvpRetourner('v'); cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]); cvpPose(5,2);
