@@ -11653,7 +11653,7 @@ function egaliteVectoriellePoint(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId=D.exercice;
     if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
-    if(TEST_NUM['parallelogramme-point']!=='8.5') vus.push('le 8.5 a bougé : '+TEST_NUM['parallelogramme-point']);
+    if(TEST_NUM['parallelogramme-point']!=='8.1.5') vus.push('le 8.5 a bougé : '+TEST_NUM['parallelogramme-point']);
     const el=function(id){ return document.getElementById(id); };
     const classe=function(id){ const c=el(id)?el(id).className:'';
       return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
@@ -11847,7 +11847,7 @@ function sommeVecteurs(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId=D.exercice;
     if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
-    if(TEST_NUM['egalite-vectorielle-point']!=='8.6') vus.push('le 8.6 a bougé : '+TEST_NUM['egalite-vectorielle-point']);
+    if(TEST_NUM['egalite-vectorielle-point']!=='8.1.6') vus.push('le 8.6 a bougé : '+TEST_NUM['egalite-vectorielle-point']);
     const el=function(id){ return document.getElementById(id); };
     const classe=function(id){ const c=el(id)?el(id).className:'';
       return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
@@ -12055,9 +12055,9 @@ function sommeVecteursRepere(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId=D.exercice;
     if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
-    if(TEST_NUM['relation-chasles']!=='8.8') vus.push('le 8.8 a bougé : '+TEST_NUM['relation-chasles']);
-    if(TEST_NUM['chasles-trois-vecteurs']!=='8.9') vus.push('le 8.9 a bougé : '+TEST_NUM['chasles-trois-vecteurs']);
-    if(TEST_NUM['chasles-simplifier']!=='8.10') vus.push('le 8.10 a bougé : '+TEST_NUM['chasles-simplifier']);
+    if(TEST_NUM['relation-chasles']!=='8.2.2') vus.push('le 8.8 a bougé : '+TEST_NUM['relation-chasles']);
+    if(TEST_NUM['chasles-trois-vecteurs']!=='8.2.3') vus.push('le 8.9 a bougé : '+TEST_NUM['chasles-trois-vecteurs']);
+    if(TEST_NUM['chasles-simplifier']!=='8.2.4') vus.push('le 8.10 a bougé : '+TEST_NUM['chasles-simplifier']);
     const el=function(id){ return document.getElementById(id); };
     const classe=function(id){ const c=el(id)?el(id).className:'';
       return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
@@ -12221,7 +12221,7 @@ function pointSommeVecteurs(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId=D.exercice;
     if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
-    if(TEST_NUM['chasles-sans-figure']!=='8.13' || TEST_NUM['chasles-alignes']!=='8.12' || TEST_NUM['somme-vecteurs-repere']!=='8.11' || TEST_NUM['chasles-simplifier']!=='8.10' || TEST_NUM['chasles-trois-vecteurs']!=='8.9' || TEST_NUM['relation-chasles']!=='8.8' || TEST_NUM['somme-vecteurs']!=='8.7') vus.push('un exercice du thème 8 a bougé');
+    if(TEST_NUM['chasles-sans-figure']!=='8.2.7' || TEST_NUM['chasles-alignes']!=='8.2.6' || TEST_NUM['somme-vecteurs-repere']!=='8.2.5' || TEST_NUM['chasles-simplifier']!=='8.2.4' || TEST_NUM['chasles-trois-vecteurs']!=='8.2.3' || TEST_NUM['relation-chasles']!=='8.2.2' || TEST_NUM['somme-vecteurs']!=='8.2.1') vus.push('un exercice du thème 8 a bougé');
     if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
     const el=function(id){ return document.getElementById(id); };
     const classe=function(id){ const c=el(id)?el(id).className:'';
@@ -12443,7 +12443,7 @@ function pointSommeDifference(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId=D.exercice;
     if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
-    if(TEST_NUM['somme-vecteurs-repere']!=='8.11') vus.push('le 8.11 a bougé : '+TEST_NUM['somme-vecteurs-repere']);
+    if(TEST_NUM['somme-vecteurs-repere']!=='8.2.5') vus.push('le 8.11 a bougé : '+TEST_NUM['somme-vecteurs-repere']);
     const el=function(id){ return document.getElementById(id); };
     const classe=function(id){ const c=el(id)?el(id).className:'';
       return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
@@ -19023,9 +19023,9 @@ function vecteursEgauxTableau(w, P){
     /* ---- 0. la place ------------------------------------------------------ */
     const th=THEMES.find(function(t){ return t.num===8; });
     if(!th || !/Vecteurs/i.test(th.nom) || th.ids.indexOf('vecteurs-egaux-tableau')<0) vus.push('l\\'exercice n\\'est pas dans le thème 8 « Vecteurs »');
-    if(TEST_NUM['vecteurs-egaux-tableau']!=='8.2') vus.push('numéro '+TEST_NUM['vecteurs-egaux-tableau']+' au lieu de 8.2');
+    if(TEST_NUM['vecteurs-egaux-tableau']!=='8.1.2') vus.push('numéro '+TEST_NUM['vecteurs-egaux-tableau']+' au lieu de 8.1.2');
     if(TEST_NUM['reduire-produit']!=='7.8') vus.push('le 7.8 a bougé');
-    if(TEST_NUM['translation-grille']!=='8.1') vus.push('le 8.1 ({translation-grille}) a bougé');
+    if(TEST_NUM['translation-grille']!=='8.1.1') vus.push('le 8.1 ({translation-grille}) a bougé');
     if(TABLES_SANS.indexOf('vecteurs-egaux-tableau')<0) vus.push('le bouton des tables est proposé : il n\\'y a rien à multiplier');
     /* ---- 1. le tirage : le plan de la fiche, des lettres tirées ----------- */
     const PLAN=[['par','eg'],['par','eg'],['par','conf'],['mil','eg'],['conf','fig'],['conf','eg'],['par','fig'],['mil','fig'],['mil','conf'],['conf','conf']];
@@ -20676,7 +20676,7 @@ function translationGrille(w, P){
     const th=THEMES.find(function(t){ return t.num===8; });
     if(!th || !/Vecteurs/i.test(th.nom) || th.ids.indexOf('translation-grille')<0)
       vus.push('l\\'exercice n\\'est pas dans le thème 8 « Vecteurs »');
-    if(TEST_NUM['translation-grille']!=='8.1') vus.push('numéro '+TEST_NUM['translation-grille']+' au lieu de 8.1');
+    if(TEST_NUM['translation-grille']!=='8.1.1') vus.push('numéro '+TEST_NUM['translation-grille']+' au lieu de 8.1.1');
     if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['reduire-produit']!=='7.8' || TEST_NUM['simplifier-barres']!=='5.1'
        || TEST_NUM['python-affichage']!=='6.1.1' || TEST_NUM['ensembles-nombres']!=='2.1') vus.push('le thème ajouté a renuméroté les autres');
     if(TABLES_SANS.indexOf('translation-grille')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
@@ -20839,9 +20839,9 @@ function vecteursEgaux(w, P){
     const th=THEMES.find(function(t){ return t.num===8; });
     if(!th || !/Vecteurs/i.test(th.nom) || th.ids.indexOf('vecteurs-egaux')<0)
       vus.push('l’exercice n’est pas dans le thème 8 « Vecteurs »');
-    if(TEST_NUM['vecteurs-egaux']!=='8.3') vus.push('numéro '+TEST_NUM['vecteurs-egaux']+' au lieu de 8.3');
-    if(TEST_NUM['vecteurs-egaux-tableau']!=='8.2') vus.push('le 8.2 (tableau des vecteurs égaux) a bougé');
-    if(TEST_NUM['translation-grille']!=='8.1') vus.push('le 8.1 (translation) a bougé');
+    if(TEST_NUM['vecteurs-egaux']!=='8.1.3') vus.push('numéro '+TEST_NUM['vecteurs-egaux']+' au lieu de 8.1.3');
+    if(TEST_NUM['vecteurs-egaux-tableau']!=='8.1.2') vus.push('le 8.2 (tableau des vecteurs égaux) a bougé');
+    if(TEST_NUM['translation-grille']!=='8.1.1') vus.push('le 8.1 (translation) a bougé');
     if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['reduire-produit']!=='7.8') vus.push('un exercice du thème 7 a bougé');
     if(TABLES_SANS.indexOf('vecteurs-egaux')<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
 
@@ -21012,8 +21012,8 @@ function relationChasles(w, P){
     /* ---- 0. la place : 8.8, derrière le 8.7 ; pas de bouton des tables */
     const th=THEMES.find(function(t){ return t.num===8; });
     if(!th || th.ids.indexOf('relation-chasles')<0) vus.push('l’exercice n’est pas dans le thème 8 « Vecteurs »');
-    if(TEST_NUM['relation-chasles']!=='8.8') vus.push('numéro '+TEST_NUM['relation-chasles']+' au lieu de 8.8');
-    if(TEST_NUM['somme-vecteurs']!=='8.7' || TEST_NUM['egalite-vectorielle-point']!=='8.6' || TEST_NUM['vecteurs-egaux']!=='8.3') vus.push('un exercice du thème 8 a bougé');
+    if(TEST_NUM['relation-chasles']!=='8.2.2') vus.push('numéro '+TEST_NUM['relation-chasles']+' au lieu de 8.2.2');
+    if(TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['egalite-vectorielle-point']!=='8.1.6' || TEST_NUM['vecteurs-egaux']!=='8.1.3') vus.push('un exercice du thème 8 a bougé');
     if(TABLES_SANS.indexOf('relation-chasles')<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
 
     /* ---- le juge indépendant : des points, des déplacements ------------- */
@@ -21183,8 +21183,8 @@ function chaslesTroisVecteurs(w, P){
     currentTestId='chasles-trois-vecteurs';
 
     /* ---- 0. la place : 8.9, derrière le 8.8 ; pas de bouton des tables */
-    if(TEST_NUM['chasles-trois-vecteurs']!=='8.9') vus.push('numéro '+TEST_NUM['chasles-trois-vecteurs']+' au lieu de 8.9');
-    if(TEST_NUM['relation-chasles']!=='8.8') vus.push('le 8.8 a bougé');
+    if(TEST_NUM['chasles-trois-vecteurs']!=='8.2.3') vus.push('numéro '+TEST_NUM['chasles-trois-vecteurs']+' au lieu de 8.2.3');
+    if(TEST_NUM['relation-chasles']!=='8.2.2') vus.push('le 8.8 a bougé');
     if(TABLES_SANS.indexOf('chasles-trois-vecteurs')<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
 
     /* ---- le juge indépendant ------------------------------------------- */
@@ -21369,8 +21369,8 @@ function chaslesSimplifier(w, P){
     /* ---- 0. la place : 8.10, derrière le 8.9 ; pas de bouton des tables */
     const th=THEMES.find(function(t){ return t.num===8; });
     if(!th || th.ids.indexOf('chasles-simplifier')<0) vus.push('l’exercice n’est pas dans le thème 8 « Vecteurs »');
-    if(TEST_NUM['chasles-simplifier']!=='8.10') vus.push('numéro '+TEST_NUM['chasles-simplifier']+' au lieu de 8.10');
-    if(TEST_NUM['chasles-simplifier']!=='8.10' || TEST_NUM['chasles-trois-vecteurs']!=='8.9' || TEST_NUM['relation-chasles']!=='8.8' || TEST_NUM['somme-vecteurs']!=='8.7') vus.push('un exercice du thème 8 a bougé');
+    if(TEST_NUM['chasles-simplifier']!=='8.2.4') vus.push('numéro '+TEST_NUM['chasles-simplifier']+' au lieu de 8.2.4');
+    if(TEST_NUM['chasles-simplifier']!=='8.2.4' || TEST_NUM['chasles-trois-vecteurs']!=='8.2.3' || TEST_NUM['relation-chasles']!=='8.2.2' || TEST_NUM['somme-vecteurs']!=='8.2.1') vus.push('un exercice du thème 8 a bougé');
     if(TABLES_SANS.indexOf('chasles-simplifier')<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
 
     /* ---- le juge indépendant : la fiche en coordonnées, puis l'image affine */
@@ -21559,8 +21559,8 @@ function chaslesAlignes(w, P){
     /* ---- 0. la place : 8.12, derrière le 8.11 ; pas de bouton des tables */
     const th=THEMES.find(function(t){ return t.num===8; });
     if(!th || th.ids.indexOf('chasles-alignes')<0) vus.push('l’exercice n’est pas dans le thème 8 « Vecteurs »');
-    if(TEST_NUM['chasles-alignes']!=='8.12') vus.push('numéro '+TEST_NUM['chasles-alignes']+' au lieu de 8.12');
-    if(TEST_NUM['relation-chasles']!=='8.8' || TEST_NUM['chasles-simplifier']!=='8.10') vus.push('le 8.8 ou le 8.10 a bougé');
+    if(TEST_NUM['chasles-alignes']!=='8.2.6') vus.push('numéro '+TEST_NUM['chasles-alignes']+' au lieu de 8.2.6');
+    if(TEST_NUM['relation-chasles']!=='8.2.2' || TEST_NUM['chasles-simplifier']!=='8.2.4') vus.push('le 8.8 ou le 8.10 a bougé');
     if(TABLES_SANS.indexOf('chasles-alignes')<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
 
     /* ---- le juge indépendant : des abscisses 0, 1, 2, 3 ----------------- */
@@ -21712,8 +21712,8 @@ function chaslesSansFigure(w, P){
     /* ---- 0. la place : 8.13, le dernier du thème 8 ; pas de bouton des tables */
     const th=THEMES.find(function(t){ return t.num===8; });
     if(!th || th.ids.indexOf('chasles-sans-figure')<0) vus.push('l’exercice n’est pas dans le thème 8 « Vecteurs »');
-    if(TEST_NUM['chasles-sans-figure']!=='8.13') vus.push('numéro '+TEST_NUM['chasles-sans-figure']+' au lieu de 8.13');
-    if(TEST_NUM['relation-chasles']!=='8.8' || TEST_NUM['chasles-trois-vecteurs']!=='8.9' || TEST_NUM['chasles-simplifier']!=='8.10') vus.push('un exercice de Chasles (8.8 à 8.10) a bougé');
+    if(TEST_NUM['chasles-sans-figure']!=='8.2.7') vus.push('numéro '+TEST_NUM['chasles-sans-figure']+' au lieu de 8.2.7');
+    if(TEST_NUM['relation-chasles']!=='8.2.2' || TEST_NUM['chasles-trois-vecteurs']!=='8.2.3' || TEST_NUM['chasles-simplifier']!=='8.2.4') vus.push('un exercice de Chasles (8.8 à 8.10) a bougé');
     if(TABLES_SANS.indexOf('chasles-sans-figure')<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
 
     /* ---- le juge indépendant : des coordonnées quelconques ------------- */
