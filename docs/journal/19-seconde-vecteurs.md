@@ -5,6 +5,17 @@ renumérote rien — les sept premiers gardent leurs numéros, et aucun renvoi
 {identifiant} ne bouge. Le contrôle de l'exercice relit les numéros de 2.1,
 5.1, 6.1.1, 7.1 et 7.8 pour le prouver.
 
+
+**Puis le thème s'est découpé en deux sous-thèmes** (v504, demande de
+Turquet, octobre 2026 : « regroupe le 8.1 à 8.6 dans un sous-thème vecteurs
+égaux, puis les autres dans un sous-thème somme de vecteurs »). « Vecteurs
+égaux » porte la translation, les vecteurs égaux et le parallélogramme
+(8.1.1 à 8.1.6) ; « Somme de vecteurs » porte la somme, Chasles et les points
+construits (8.2.1 à 8.2.9). L'ordre ne bouge pas ; les notes portent
+l'IDENTIFIANT et ne bougent pas. Les paragraphes ci-dessous citent les numéros
+à deux niveaux de leur époque : « le 8.5 » = 8.1.5, « le 8.7 » = 8.2.1,
+« le 8.15 » = 8.2.9. Les contrôles du banc qui lisaient `TEST_NUM` ont suivi
+(`tests/verifier.js`, `numero` dans `tests/profils.js`).
 ## {translation-grille} — image d'un point par une translation (8.1, v473)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme

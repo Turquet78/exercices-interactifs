@@ -6937,7 +6937,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=503;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=504;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -7914,7 +7914,17 @@ const THEMES=[
   /* {translation-quadrillage} (8.4) : la fiche 2 sur les vecteurs — déplacer un
      point en suivant le chemin u⃗ (demande de Turquet, octobre 2026 : « en
      seconde créer un exercice comme le pdf joint »). Ajouté EN DERNIER. */
-  { num:8, nom:'Vecteurs', ids:['translation-grille','vecteurs-egaux-tableau','vecteurs-egaux','translation-quadrillage','parallelogramme-point','egalite-vectorielle-point','somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','somme-vecteurs-repere','chasles-alignes','chasles-sans-figure','point-somme-vecteurs','point-somme-difference'] }
+  /* Découpé en deux sous-thèmes (demande de Turquet, octobre 2026 : « regroupe
+     le 8.1 à 8.6 dans un sous-thème vecteurs égaux, puis les autres dans un
+     sous-thème somme de vecteurs »). L'ordre ne bouge pas ; 8.1 à 8.6
+     deviennent 8.1.1 à 8.1.6, 8.7 à 8.15 deviennent 8.2.1 à 8.2.9, et les
+     notes, qui portent l'IDENTIFIANT, ne bougent pas. Les commentaires plus
+     anciens de ce fichier citent les numéros à deux niveaux de leur époque
+     (« le 8.5 » = 8.1.5, « le 8.7 » = 8.2.1). */
+  { num:8, nom:'Vecteurs', sous:[
+      { num:1, nom:'Vecteurs égaux',     ids:['translation-grille','vecteurs-egaux-tableau','vecteurs-egaux','translation-quadrillage','parallelogramme-point','egalite-vectorielle-point'] },
+      { num:2, nom:'Somme de vecteurs',  ids:['somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','somme-vecteurs-repere','chasles-alignes','chasles-sans-figure','point-somme-vecteurs','point-somme-difference'] }
+  ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —

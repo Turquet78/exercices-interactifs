@@ -923,43 +923,43 @@ module.exports = {
        clic sur un nœud du quadrillage — le calcul clic → nœud ne se voit que
        dans un vrai navigateur. « nb » est la seconde source du compte (la page
        a TRL_NB), « images » celle du nombre de points à déplacer par question. */
-    translationQuadrillage: { exercice: 'translation-quadrillage', numero: '8.4', nb: 4, images: 3 },
+    translationQuadrillage: { exercice: 'translation-quadrillage', numero: '8.1.4', nb: 4, images: 3 },
     /* {parallelogramme-point} (8.5, thème « Vecteurs », demande de Turquet,
        octobre 2026) : trois questions dans l'ordre — le nœud D, la phrase du
        chemin, l'égalité de vecteurs —, chacune vérifiée avant la suivante.
        « nb » est la seconde source du compte (la page tire dmNbQuestions(6)). */
-    parallelogrammePoint: { exercice: 'parallelogramme-point', numero: '8.5', nb: 6 },
+    parallelogrammePoint: { exercice: 'parallelogramme-point', numero: '8.1.5', nb: 6 },
     /* {egalite-vectorielle-point} (8.6, demande de Turquet, octobre 2026 :
        « comme le 8.5 ») : le point manquant se pose au clic sur un nœud, le nom
        du parallélogramme se tape. « nb » est la seconde source du compte (la
        page a dmNbQuestions(6)) ; le barème vaut deux cases par question. */
-    egaliteVectoriellePoint: { exercice: 'egalite-vectorielle-point', numero: '8.6', nb: 6 },
+    egaliteVectoriellePoint: { exercice: 'egalite-vectorielle-point', numero: '8.1.6', nb: 6 },
     /* {somme-vecteurs} (8.7, demande de Turquet, octobre 2026, la fiche
        « somme de vecteurs — un début va sur une fin ») : u⃗ et v⃗ glissent sur
        le quadrillage jusqu'à être bout à bout, puis l'élève trace u⃗ + v⃗ —
        deux réponses par question (v489). « nb » est la seconde source du
        compte (la page a SVC_NB) ; « bareme » celle du barème. */
-    sommeVecteurs: { exercice: 'somme-vecteurs', numero: '8.7', nb: 8, bareme: 16 },
+    sommeVecteurs: { exercice: 'somme-vecteurs', numero: '8.2.1', nb: 8, bareme: 16 },
     /* {somme-vecteurs-repere} (8.11, demande de Turquet, octobre 2026, la
        « fiche 10 sur somme de vecteur ») : placer quatre points dans un
        repère, tracer deux vecteurs, en faire glisser des copies bout à bout
        depuis un point, placer M. Huit réponses par question. « nb » est la
        seconde source du compte (la page a SVR_NB), « bareme » celle du
        barème. */
-    sommeVecteursRepere: { exercice: 'somme-vecteurs-repere', numero: '8.11', nb: 3, bareme: 24 },
+    sommeVecteursRepere: { exercice: 'somme-vecteurs-repere', numero: '8.2.5', nb: 3, bareme: 24 },
     /* {point-somme-vecteurs} (8.14, demande de Turquet, octobre 2026,
        l'exercice 2 de la « Fiche 8 sur somme de vecteur ») : tracer les deux
        vecteurs, les faire glisser bout à bout depuis le point donné, placer le
        point — quatre réponses par question. « nb » est la seconde source du
        compte (la page a CPS_NB) ; « bareme » celle du barème. */
-    pointSommeVecteurs: { exercice: 'point-somme-vecteurs', numero: '8.14', nb: 4, bareme: 16 },
+    pointSommeVecteurs: { exercice: 'point-somme-vecteurs', numero: '8.2.8', nb: 4, bareme: 16 },
     /* {point-somme-difference} (8.15, demande de Turquet, octobre 2026 : « fais
        un exercice comme l'exercice 1 du pdf, en déplaçant les vecteurs comme
        dans le 8.7 ») : u⃗ et v⃗ glissent et se retournent, bout à bout à
        partir du point, puis l'élève clique A′ — deux réponses par question.
        « nb » est la seconde source du compte (la page a CVP_NB) ; « bareme »
        celle du barème. */
-    pointSommeDifference: { exercice: 'point-somme-difference', numero: '8.15', nb: 6, bareme: 12 },
+    pointSommeDifference: { exercice: 'point-somme-difference', numero: '8.2.9', nb: 6, bareme: 12 },
     /* {antecedents-droite} : la droite se fait GLISSER à la hauteur demandée,
        puis les points se posent au clic sur elle. Le glisser et le calcul
        geste → nœud (grille doublée, 13 graduations) ne se voient que dans un
