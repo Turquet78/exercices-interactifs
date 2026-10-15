@@ -2030,7 +2030,42 @@ au-dessus du dessin, le fond de l'étape faite différent de l'étape à faire,
 aucun rond visible au survol d'un nœud, la croix du point posé visible, le
 point qui suit la souris centré sur elle, et le vecteur solution tracé.
 
-## {tracer-vecteurs-opposes} — tracer −u⃗, −v⃗, −w⃗ (8.1.8, v515)
+**Puis les cadres blancs sont partis : les étapes SONT les bandeaux bleus, l'étape 2 vient sous l'étape 1, et le vecteur de l'élève se trace (v515).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.9, garder uniquement les
+encadrés en bleu qui donnent les étapes, tu peux supprimer les cadres blancs
+avec étape 1 et étape 2. Quand l'étape 1/2 est réussie mettre ce cadre en
+vert et ajouter le cadre de l'étape 2/2 en dessous ; quand l'étape 2 est
+réussie, mettre le cadre correspondant en vert. Quand l'élève place le point
+d'arrivée tracer aussi le vecteur qui va du point de départ au point
+d'arrivée. Une fois le point placé, ne plus afficher de point au bout de la
+flèche de la souris. »
+**Les étapes.** Le bandeau unique `#cvpEtape` n'existe plus, ni les cadres
+`tvg-cons` : les deux réponses notées `cvp-ch` et `cvp-pt` SONT les bandeaux
+bleus (`cvp-etape pts-case`, écrits par `cvpEtapesHTML`), dans `#cvpBody`,
+juste au-dessus du dessin. L'étape 2 est cachée (`style.display`, pas
+l'attribut `hidden`, qu'un `display` d'auteur écraserait) tant que les
+flèches ne sont pas bout à bout depuis le point — sauf si un point est déjà
+posé, à la correction, ou si elle porte un verdict : une réponse notée ne se
+cache jamais (`cvpConsigne`). Une étape effectuée prend `cvp-fait`, vert ; la
+vérification la peint ok bleu, bad rouge, sol vert, par le liseré et le fond
+du bandeau (`#scr-cvp .cvp-etape.ok/.bad/.sol`).
+**Le vecteur de l'élève.** `cvpVecteurEleve` trace BB′ du point donné au
+point posé, dans son calque `#cvpEl` (au-dessus de `#cvpSol`) — la recette
+du 8.2.8 : violet (`cvp-aa`, `--crd-a`) et nommé avant le jugement, puis bleu
+(`svc-e`) ou rouge (`svc-eb`) comme la croix du point, sans nom à la
+correction : le nom « BB′ » passe au vecteur solution vert, dessous. Il est
+redessiné par `cvpCroix` (chaque marquage) et `cvpDessinerFleches` (le côté
+du nom suit les flèches). **Le point qui suit la souris** se cache dès que
+B′ est posé (`!q.sel` dans le garde du curseur, et `cvpPose` le masque
+aussitôt) ; retirer B′ le fait revenir. Le juge vérifie aucun cadre blanc,
+l'étape 2 cachée au départ puis montrée SOUS l'étape 1, montrée après la
+correction, BB′ violet et nommé au point posé, effacé au point retiré, bleu
+sans nom sur la copie juste, rouge sur la fausse, le curseur caché ; le banc
+navigateur (6 quadragies septies) mesure l'étape 2 sans hauteur au départ,
+puis entre l'étape 1 et le dessin, le curseur caché et le vecteur visible au
+point posé, et l'étape 2 verte comme l'étape 1.
+
+## {tracer-vecteurs-opposes} — tracer −u⃗, −v⃗, −w⃗ (8.1.8, v516)
 
 **La demande** (Turquet, octobre 2026) : « en seconde faire un exercice comme
 le 8.1.7 où on demande de tracer l'opposé de chaque vecteur. On demandera de

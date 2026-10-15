@@ -9326,13 +9326,14 @@ if(require.main === module) (async () => {
           return b.width && (b.left < r.left - 1 || b.right > r.right + 1 || b.top < r.top - 1 || b.bottom > r.bottom + 1); }).length;
         const pr = document.querySelector('#cvpPrises .svc-prise');
         const lettre = document.querySelector('#cvpFl text.vec-lbl'), lb = lettre ? lettre.getBoundingClientRect() : { width: 0 };
-        const et = document.getElementById('cvpEtape'), eb = et ? et.getBoundingClientRect() : { height: 0, bottom: 1e9 };
+        const et = document.getElementById('cvp-ch'), eb = et ? et.getBoundingClientRect() : { height: 0, bottom: 1e9 };
         return { svg: r.width > 400 && r.height > 250, fleche: eg ? getComputedStyle(eg, '::before').borderTopStyle : '', dehors: dehors,
                  touche: pr ? getComputedStyle(pr).touchAction : '', lettre: lb.width > 5,
                  etape: et ? et.textContent : '', etapeAuDessus: eb.height > 20 && eb.bottom <= r.top + 1,
                  mots: document.querySelectorAll('#cvpGraph .svc-mot').length };
       });
       if(mes.etape.indexOf('Étape 1') !== 0 || !mes.etapeAuDessus) dits.push('l\'étape 1 ne s\'affiche pas en bandeau au-dessus du dessin : ' + mes.etape.slice(0, 60));
+      if(await s.page.evaluate(() => document.getElementById('cvp-pt').getBoundingClientRect().height)) dits.push('l\'étape 2 se montre avant que l\'étape 1 soit faite');
       if(mes.mots) dits.push(mes.mots + ' mot(s) « début » / « fin » sur les flèches');
       if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
       if(mes.fleche !== 'solid') dits.push('BB′ n\'est pas coiffé de sa flèche');
@@ -9367,8 +9368,8 @@ if(require.main === module) (async () => {
       await glisser('v', [6 - e.v[0], 5 - e.v[1]]);
       e = await etat();
       if(JSON.stringify(e.v) !== '[6,5]' || e.ch !== 'uv') dits.push('−v glissé ne s\'accroche pas au bout de u : ' + JSON.stringify(e.v));
-      const et2 = await s.page.evaluate(() => { const r = document.getElementById('cvpEtape').getBoundingClientRect(), g = document.querySelector('#cvpGraph .cvp-svg').getBoundingClientRect();
-        return { t: document.getElementById('cvpEtape').textContent, dessus: r.height > 20 && r.bottom <= g.top + 1, mots: document.querySelectorAll('#cvpGraph .svc-mot').length }; });
+      const et2 = await s.page.evaluate(() => { const r = document.getElementById('cvp-pt').getBoundingClientRect(), r1 = document.getElementById('cvp-ch').getBoundingClientRect(), g = document.querySelector('#cvpGraph .cvp-svg').getBoundingClientRect();
+        return { t: document.getElementById('cvp-pt').textContent, dessus: r.height > 20 && r.top >= r1.bottom - 1 && r.bottom <= g.top + 1, mots: document.querySelectorAll('#cvpGraph .svc-mot').length }; });
       /* les étapes au-dessus du dessin ; l'étape 1 faite a son fond vert */
       const etp = await s.page.evaluate(() => { const g = document.querySelector('#cvpGraph .cvp-svg').getBoundingClientRect(), a = document.getElementById('cvp-ch'), b = document.getElementById('cvp-pt');
         return { dessus: b.getBoundingClientRect().bottom <= g.top + 1, fa: getComputedStyle(a).backgroundColor, fb: getComputedStyle(b).backgroundColor }; });
@@ -9380,7 +9381,7 @@ if(require.main === module) (async () => {
       const rond = await s.page.evaluate(() => { const n = document.getElementById('cvpn-9-7');
         return [...n.querySelectorAll('circle:not(.hit), .dot')].filter(c => getComputedStyle(c).display !== 'none').length; });
       if(rond) dits.push('survoler un nœud y montre un rond');
-      if(et2.t.indexOf('Étape 2') !== 0 || !et2.dessus) dits.push('les flèches bout à bout, l\'étape 2 ne s\'affiche pas au-dessus du dessin : ' + et2.t.slice(0, 60));
+      if(et2.t.indexOf('Étape 2') !== 0 || !et2.dessus) dits.push('les flèches bout à bout, l\'étape 2 ne s\'affiche pas sous l\'étape 1, au-dessus du dessin : ' + et2.t.slice(0, 60));
       if(et2.mots) dits.push('bout à bout, les flèches portent ' + et2.mots + ' mot(s) « début » / « fin »');
       /* à l'étape 2, le point suit la souris, même PAR-DESSUS une flèche
          (le milieu de −v), et un clic loin de tout nœud pose au plus proche */
@@ -9405,6 +9406,15 @@ if(require.main === module) (async () => {
       if(lbl !== 'block B′') dits.push('le nœud posé ne porte pas « B′ » : ' + lbl);
       const crx = await s.page.evaluate(() => { const c = document.querySelector('#cvpCroix .crx.sel'); return c ? getComputedStyle(c).stroke : ''; });
       if(!crx || crx === 'transparent' || crx === 'rgba(0, 0, 0, 0)' || crx === 'none') dits.push('le point posé ne se marque pas d\'une croix visible : ' + crx);
+      /* le point posé : son vecteur BB′ tracé, et plus de point au bout de la souris */
+      const apres = await pos(8, 1);
+      await s.page.mouse.move(apres.px, apres.py, { steps: 3 }); await s.page.waitForTimeout(80);
+      const vu = await s.page.evaluate(() => ({ cur: getComputedStyle(document.getElementById('cvpCurseur')).display,
+        el: [...document.querySelectorAll('#cvpEl line.cvp-aa')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8 && getComputedStyle(l).stroke !== 'none'; }).length,
+        fait: getComputedStyle(document.getElementById('cvp-pt')).backgroundColor === getComputedStyle(document.getElementById('cvp-ch')).backgroundColor }));
+      if(vu.cur !== 'none') dits.push('le point posé, un point suit encore la souris');
+      if(vu.el !== 1) dits.push('le point posé, le vecteur BB′ ne se trace pas (' + vu.el + ')');
+      if(!vu.fait) dits.push('le point posé, l\'étape 2 ne passe pas au vert comme l\'étape 1');
       await s.page.click('#cvpValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
