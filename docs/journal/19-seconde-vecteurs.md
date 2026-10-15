@@ -1088,7 +1088,7 @@ moins de 3 px de la souris sur la flèche u⃗ puis pour la fin, plus aucun poin
 une fois la fin posée, une étape 1 fausse qui ne verdit pas, et le clic entre
 les nœuds.
 
-**Puis u⃗ + v⃗ tracé a gardé le point blanc de sa fin, éteint le survol des nœuds, et l'étape 2 finie a verdi comme l'étape 1 (v510).**
+**Puis u⃗ + v⃗ tracé a gardé le point blanc de sa fin, éteint le survol des nœuds, et l'étape 2 finie a verdi comme l'étape 1 (v511 — fusionné en v510 juste après le vecteur nul du 8.2.7, qui portait le même numéro : la v511 rend la version de l'en-tête de nouveau parlante).**
 La demande (Turquet, octobre 2026) : « dans le 8.2.1, laisser le point blanc
 quand on choisit le point à la fin du vecteur somme ; il ne faut plus que la
 flèche affiche un point ensuite quand on passe sur une intersection du
