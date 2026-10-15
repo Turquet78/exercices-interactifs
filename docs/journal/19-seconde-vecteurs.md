@@ -1039,6 +1039,16 @@ même endroit. Le banc navigateur (« 6 quadragies quater ») mesure que la
 consigne a) finit au-dessus du haut du dessin, puis, une fois passé à b), que
 la consigne b) aussi — éprouvé par sabotage (l'ancien ordre rétabli rougit).
 
+
+**Le nom « u⃗ + v⃗ » s'écrit hors du triangle (v504)** — demande de Turquet,
+octobre 2026, capture à l'appui : posé toujours du même côté de son trait
+(`cote` 1), le nom de la flèche tracée tombait dans le triangle, sur le nom
+de u⃗. `svcCoteDehors` essaie les deux côtés et garde celui où le nom est le
+plus loin des deux autres flèches (leur milieu et leur nom) : bout à bout,
+elles sont dedans, l'autre côté est l'extérieur. Même règle pour la flèche
+verte de la correction, avec les deux côtés de la construction. Vu dans un
+vrai Chromium sur trois triangles (angle aigu, obtus, plat en bas) et sur la
+correction ; aucun banc ne mesure ce chevauchement.
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v490)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
@@ -1646,3 +1656,29 @@ dessin), le « −v⃗ » seul nommé sur BB′ = u⃗ − v⃗, l'étape 2 apr�
 posés depuis B, le bandeau vide après la correction et zéro `svc-mot` dans le
 dessin ; le banc navigateur mesure que le bandeau est AU-DESSUS du dessin, à
 l'étape 1 puis à l'étape 2 après les deux glissés à la souris.
+
+**Puis, à l'étape 2, le point a suivi la pointe de la souris, et un clic n'importe où le pose au nœud le plus proche (v504).**
+La demande (Turquet, octobre 2026) : « dans le 8.15, quand il faut placer un
+point sur le quadrillage, afficher le point au bout de la flèche de la
+souris ; il doit être visible quand on passe sur un vecteur ; quand on
+clique, il faut le placer sur le point le plus proche du quadrillage. »
+Le survol d'un nœud (`.vec-t:hover .dot`) ne se voyait pas sous une flèche :
+la prise (`.svc-prise`, un trait de 22 unités) passe au-dessus des nœuds et
+prend le survol. Un groupe `#cvpCurseur` (`pointer-events:none`, posé en
+DERNIER dans le SVG, au-dessus des prises) dessine le point et sa lettre
+(« B′ ») à la position exacte de la souris — pas aimanté : c'est la pointe
+qui le porte, l'aimant ne joue qu'au clic. Il ne se montre qu'à l'étape 2
+(`cvpBoutABout`), jamais pendant un glisser, après la correction, une fois
+le point juste figé, ni au doigt (`pointerType` « touch » : pas de survol).
+Le clic : un écouteur de l'hôte pose au nœud le plus proche tout clic du
+quadrillage (à une demi-maille du cadre près) qui ne tombe ni sur un nœud,
+ni sur une prise — ceux-là gardent leur propre clic, sans quoi le nœud
+recliqué se retirerait aussitôt reposé. **Piège rencontré** : un glisser qui
+commence sur une prise et finit ailleurs envoie son `click` à l'ancêtre
+commun, le SVG — il aurait posé un point. Une première garde au chronomètre
+(400 ms après la fin d'un glisser) avalait au banc le clic légitime qui
+suivait vite ; c'est un drapeau `apresPrise`, levé à la fin du geste sur la
+prise et baissé au prochain appui, qui tient le bord. Le banc navigateur (6
+quadragies septies) mesure le point posé sur le milieu de −v⃗ à moins de
+3 px de la souris, et un clic loin de tout nœud et de toute flèche qui pose
+B′ au nœud le plus proche.

@@ -2398,6 +2398,9 @@
   .cvp-etape .cvp-etape-sous{display:block;margin-top:4px;font-size:.92rem}
   #cvpInstr .vgt-vec{font-size:1.1em}
   #cvpInstr .cvp-eg{white-space:nowrap}
+  .cvp-curseur{pointer-events:none}
+  .cvp-curseur circle{fill:var(--blue);fill-opacity:.55;stroke:var(--blue-dark);stroke-width:1.6}
+  .cvp-svg .cvp-curseur .vec-lbl{fill:var(--blue-dark);font-size:16px}
   .cvp-outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:4px 0 12px}
   .cvp-outils .btn:disabled{opacity:.45;cursor:default}
   .cvp-svg .vec-t.sel .vec-dlbl,.cvp-svg .vec-t.okc .vec-dlbl,.cvp-svg .vec-t.badc .vec-dlbl,.cvp-svg .vec-t.missc .vec-dlbl{font-size:16px}
@@ -56208,8 +56211,25 @@ function svcTracer(q, etat){
   document.querySelectorAll('#svcGraph .vec-t.sel').forEach(function(el){ el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
   if(q.sd){ const el=$('svcn-'+q.sd[0]+'-'+q.sd[1]); if(el){ el.classList.add('sel'); el.setAttribute('aria-pressed','true'); } }
   if(!q.sd||!q.sf){ t.innerHTML=''; return; }
-  const bad=etat==='bad';
-  t.innerHTML=svcFleche(q.sd, q.sf, {cls:bad?'svc-eb':'svc-e', marker:bad?'svcArrB':'svcArrE', nom:'u+v'});
+  const bad=etat==='bad', a=svcU(q), b=svcV(q);
+  t.innerHTML=svcFleche(q.sd, q.sf, {cls:bad?'svc-eb':'svc-e', marker:bad?'svcArrB':'svcArrE', nom:'u+v',
+    cote:svcCoteDehors(q.sd, q.sf, [[a,svcPlus(a,q.uc)],[b,svcPlus(b,q.vc)]])});
+}
+/* LE NOM « u+v » S'ÉCRIT HORS DU TRIANGLE (demande de Turquet, octobre 2026 :
+   posé toujours du même côté de son trait, il tombait dans le triangle, sur
+   le nom de u ou de v). Des deux côtés du trait, on garde celui où le nom
+   est le plus loin des autres flèches — le milieu de chacune et son nom :
+   bout à bout, elles sont DEDANS, l'autre côté est l'extérieur. */
+function svcCoteDehors(d, f, fleches){
+  const X=i=>SVC_PX+i*SVC_C, Y=j=>SVC_PY+(SVC_H-j)*SVC_C, pts=[];
+  fleches.forEach(function(e){
+    const x1=X(e[0][0]), y1=Y(e[0][1]), x2=X(e[1][0]), y2=Y(e[1][1]);
+    pts.push([(x1+x2)/2,(y1+y2)/2]);
+    const n=svcNomPos(x1,y1,x2,y2,'u',1); pts.push([n.x,n.y]);
+  });
+  const loin=function(c){ const n=svcNomPos(X(d[0]),Y(d[1]),X(f[0]),Y(f[1]),'u+v',c);
+    return Math.min.apply(null, pts.map(p=>Math.hypot(p[0]-n.x,p[1]-n.y))); };
+  return loin(-1)>loin(1)?-1:1;
 }
 /* Tracer u + v : le premier clic pose le début, le second la fin ; un clic
    de plus recommence une flèche ; recliquer le début seul le retire. L'état
@@ -56358,7 +56378,7 @@ function svcFinal(q,subs){
   const k=svcConstruction(q), c=$('svcCorr'); if(!k||!c) return;
   let h='';
   if(!ch.ok) h+=svcFleche(k.milieu, k.fin, {cls:'svc-s svc-copie', marker:'svcArrS'});
-  if(!sm.ok) h+=svcFleche(k.debut, k.fin, {cls:'svc-s', marker:'svcArrS', nom:'u+v'});
+  if(!sm.ok) h+=svcFleche(k.debut, k.fin, {cls:'svc-s', marker:'svcArrS', nom:'u+v', cote:svcCoteDehors(k.debut, k.fin, [[k.debut,k.milieu||svcPlus(k.debut,k.ordre==='uv'?q.uc:q.vc)],[k.milieu||svcPlus(k.debut,k.ordre==='uv'?q.uc:q.vc),k.fin]])});
   c.innerHTML=h;
   const el=$('svcn-'+k.fin[0]+'-'+k.fin[1]); if(el&&!sm.ok) el.classList.add('missc');
 }
@@ -57112,7 +57132,8 @@ function cvpSVG(q){
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg cvp-svg" role="img" aria-label="Quadrillage : le point ${q.l}, et les vecteurs u et v à faire glisser">`
     +'<defs>'+pointe('cvpArrU','var(--ink)')+pointe('cvpArrV','var(--ink-soft)')+pointe('cvpArrS','var(--green)')+'</defs>'
-    +g+'<g id="cvpCorr"></g><g id="cvpFl"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cvpPrises"></g></svg>`;
+    +g+'<g id="cvpCorr"></g><g id="cvpFl"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cvpPrises"></g>`
+    +`<g id="cvpCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><circle r="5"/><text class="vec-lbl" x="8" y="-8">${cvpNomPt(q)}</text></g></svg>`;
 }
 /* Les deux flèches à leur place du moment, la lettre du point, et les prises.
    Aucun mot « début » ni « fin » sur les flèches (demande de Turquet,
@@ -57223,9 +57244,10 @@ function cvpBrancher(){
   const host=$('cvpGraph');
   if(!host||host.__cvpPret) return;
   host.__cvpPret=true;
-  let gl=null;
+  let gl=null, apresPrise=false;
   const pas=function(svg){ const r=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal; return {r:r, k:r.width/vb.width}; };
   host.addEventListener('pointerdown', function(ev){
+    apresPrise=false;
     const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
     if(test.kind!=='cvp'||test.locked) return;
     const q=test.questions[test.idx]; if(!q) return;
@@ -57248,7 +57270,7 @@ function cvpBrancher(){
   });
   const fin=function(ev){
     if(!gl) return;
-    const g=gl; gl=null; g.svg.classList.remove('glisse');
+    const g=gl; gl=null; g.svg.classList.remove('glisse'); apresPrise=true;
     if(g.bouge){ clearTimeout(_cvpSaveTimer); _cvpSaveTimer=setTimeout(autoSave,1200); return; }
     if(ev.type!=='pointerup') return;
     const m=pas(g.svg);
@@ -57257,6 +57279,32 @@ function cvpBrancher(){
   };
   window.addEventListener('pointerup', fin);
   window.addEventListener('pointercancel', fin);
+  /* À l'étape 2, le point suit la pointe de la souris — PAR-DESSUS les
+     flèches, où le survol d'un nœud ne se voit pas (demande de Turquet,
+     octobre 2026) — et un clic n'importe où dans le quadrillage le pose au
+     nœud le plus proche. Les nœuds et les prises gardent leur propre clic. */
+  const vue=function(ev){
+    const svg=host.querySelector('.cvp-svg'); if(!svg) return null;
+    const m=pas(svg), x=(ev.clientX-m.r.left)/m.k, y=(ev.clientY-m.r.top)/m.k;
+    const fx=(x-SVC_PX)/SVC_C, fy=SVC_H-(y-SVC_PY)/SVC_C;
+    if(fx<-0.5||fx>SVC_W+0.5||fy<-0.5||fy>SVC_H+0.5) return null;
+    return {x:x, y:y, i:Math.max(0,Math.min(SVC_W,Math.round(fx))), j:Math.max(0,Math.min(SVC_H,Math.round(fy)))};
+  };
+  const curseur=function(ev){
+    const c=host.querySelector('#cvpCurseur'); if(!c) return;
+    const q=test.kind==='cvp'&&test.questions[test.idx];
+    const v=ev&&!gl&&q&&!test.locked&&!test.cvpFigePt&&ev.pointerType!=='touch'&&cvpBoutABout(q)&&vue(ev);
+    if(!v){ c.style.display='none'; return; }
+    c.setAttribute('transform','translate('+v.x+' '+v.y+')');
+    c.style.display='';
+  };
+  host.addEventListener('pointermove', curseur);
+  host.addEventListener('pointerleave', function(){ curseur(null); });
+  host.addEventListener('click', function(ev){
+    /* le clic qui suit l'appui sur une prise est déjà traité : glisser ou poser */
+    const t=ev.target; if(!t.closest||!t.closest('.cvp-svg')||t.closest('.vec-t, .vec-zone, .svc-prise')||apresPrise) return;
+    const v=vue(ev); if(v) cvpPose(v.i,v.j);
+  });
   host.addEventListener('keydown', function(ev){
     const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
     const d={ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,1], ArrowDown:[0,-1]}[ev.key]; if(!d) return;
