@@ -1028,6 +1028,16 @@ même endroit. Le banc navigateur (« 6 quadragies quater ») mesure que la
 consigne a) finit au-dessus du haut du dessin, puis, une fois passé à b), que
 la consigne b) aussi — éprouvé par sabotage (l'ancien ordre rétabli rougit).
 
+
+**Le nom « u⃗ + v⃗ » s'écrit hors du triangle (v504)** — demande de Turquet,
+octobre 2026, capture à l'appui : posé toujours du même côté de son trait
+(`cote` 1), le nom de la flèche tracée tombait dans le triangle, sur le nom
+de u⃗. `svcCoteDehors` essaie les deux côtés et garde celui où le nom est le
+plus loin des deux autres flèches (leur milieu et leur nom) : bout à bout,
+elles sont dedans, l'autre côté est l'extérieur. Même règle pour la flèche
+verte de la correction, avec les deux côtés de la construction. Vu dans un
+vrai Chromium sur trois triangles (angle aigu, obtus, plat en bas) et sur la
+correction ; aucun banc ne mesure ce chevauchement.
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v490)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
