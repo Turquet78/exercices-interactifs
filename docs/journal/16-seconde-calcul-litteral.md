@@ -496,3 +496,71 @@ dans tout l'écran (message excepté) avant de le nommer, et dit sinon
 « Complète ta réponse, puis revérifie. », la phrase du 1.6. Le contrôle de
 {reduire-somme} joue les deux bords en soutien : une case vide seule, puis une
 case fausse.
+
+## {developper-distributivite} — développer avec la distributivité (7.9, v513)
+
+**La demande** (Turquet, octobre 2026, d'après la fiche papier « Fiche sur
+développer et factoriser », exercice 1) : « créer un exercice comme le pdf 1 ;
+je veux voir les termes entourés à peu près comme dans le pdf, avec des
+flèches qui indiquent la distribution, et les accolades en dessous des
+produits ». La fiche entoure le facteur k en ROUGE (pointillés), le premier
+terme de la parenthèse en BLEU NUIT (pointillés), le second en VERT (trait
+plein) ; deux flèches partent de k. Ligne 2 : « k × a + k × b », bulles vides
+des mêmes couleurs, flèches redessinées, une accolade sous chaque produit.
+Ligne 3 : le résultat de chaque produit, sous son accolade.
+
+**Six pages, les formes de la fiche, dans son ordre** : k × (x + b),
+k × (ax − b), −k × (ax − b), x × (ax − b), kx × (ax − b), puis
+k × (ax − b) − k′ × (a′x − b′) — la page F de la fiche, avec ses quatre
+produits, quatre accolades et sa ligne réduite (« le terme en x d'abord, puis
+le nombre »). Seuls les nombres sont tirés ; la forme de chaque page est
+fixe, une famille par page : la séance ne peut pas poser deux fois la même
+question, et le tirage n'a pas besoin de `distinctes()` (`dvlBuildQuestions`
+remplit un tableau, pas de « .map( » sur `test.questions`). Sur F, ni les x ni
+les nombres ne s'annulent à la réduction (le tirage recommence). La première
+page montre l'EXEMPLE de la fiche, rempli : 5 × (x + 3) = 5x + 15 — sans
+aucune case.
+
+**Les flèches et les accolades sont un `<svg>` posé PAR-DESSUS le texte**
+(`dvlTrace`) : les bulles sont du vrai texte et de vraies cases, le dessin lit
+leurs positions RENDUES (arc de k vers le haut de chaque terme, pointe en bas ;
+accolade sous chaque groupe `k × a`). Il se retrace au rendu, après les
+polices, à chaque correction (un badge déplace les bulles) et à chaque
+changement de taille (`ResizeObserver`, plus `resize`). Les lignes 2 et 3
+sont une GRILLE : chaque résultat est dans la colonne de son produit, donc
+sous son accolade, sans calcul de position.
+
+**Le verdict peint le FOND de la case, la bulle garde son anneau** : un anneau
+rouge est la couleur du facteur k, pas une faute. Le badge vert d'une case
+fausse se pose À CÔTÉ de la bulle (`dvlCorr`) — et pour un résultat, DANS sa
+cellule : posé après la cellule, il devenait une cellule de plus de la grille
+et tombait sous la ligne (vu sur la première capture).
+
+**Le terme qui en suit un autre garde son signe** : « 5x +15 », jamais
+« 5x 15 » — c'est ce que la fiche fait écrire, et c'est là que le signe se
+perd. Un « 15 » nu en deuxième position est rouge, et le message le nomme
+(« Le résultat est juste, mais il suit un autre terme : il garde son signe,
++15. »). Le premier terme d'une ligne s'en passe ; dans une bulle, « −3 »
+s'écrit avec ou sans parenthèses, et « 2 » vaut « +2 ». La lecture d'un terme
+réutilise `redLit` de {reduire-somme} (« x² », « x^2 », « x2 »), avec un
+bouton « x² » qui écrit dans la dernière case touchée.
+
+**Le bouton des tables est proposé** (pas dans `TABLES_SANS`) : chaque produit
+se calcule.
+
+**Sur téléphone**, la police du schéma descend à 1 rem et les bulles
+maigrissent : les pages à un produit tiennent dans la largeur ; la page F
+(huit bulles) défile dans son cadre.
+
+**Le juge** (`tests/verifier.js`, « développer avec la distributivité ») : la
+place (7.9, les 7.1 à 7.8 immobiles, bouton des tables présent), 300 tirages
+(les six formes dans l'ordre, les bornes de chaque nombre, F jamais annulée),
+puis la fiche elle-même au bouton — 4 × (x + 2), 4 × (2x − 1), −3 × (2x − 5),
+x × (2x − 1), 3x × (2x − 5), 3 × (2x − 1) − 2 × (4x − 5) —, avec les réponses
+écrites À LA MAIN dans le contrôle : la copie juste de chaque page (6, 6, 6, 6,
+6 et 14 cases), les flèches et accolades déclarées (4 et 2 par produit),
+l'exemple sur la première page seulement et sans case ; puis les pièges : le
+second terme sans son signe (rouge seul, message qui le nomme), « 4 » dans la
+bulle bleue de x (rouge), « 2x » pour x × 2x (rouge), deux cases vides (la
+correction, jamais rouge), la forme réduite sans signe puis non réduite
+(rouges), le barème de 44.
