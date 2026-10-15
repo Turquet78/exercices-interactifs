@@ -9414,6 +9414,144 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies octies. VECTEURS ÉGAUX À TRACER : LE POINT SUIT LA SOURIS, DEUX CLICS, UNE EXTRÉMITÉ SE REPREND ===== */
+    /* {tracer-vecteurs-egaux} (8.1.7, demande de Turquet, octobre 2026) : un
+       point suit la pointe de la souris ; un clic pose la croix du départ au
+       nœud le plus proche, une flèche part de la croix jusqu'à la souris ; un
+       second clic fixe l'arrivée au nœud le plus proche ; un clic sur le
+       départ (ou l'arrivée) d'une flèche tracée le reprend, la flèche allant
+       de la souris à l'arrivée fixe (ou du départ fixe à la souris). jsdom n'a
+       ni souris ni mise en page : le point qui suit, la flèche élastique et
+       l'aimant du clic ne se voient qu'ici. */
+    titre('6 quadragies octies. VECTEURS ÉGAUX À TRACER : LE POINT SUIT LA SOURIS, DEUX CLICS, UNE EXTRÉMITÉ SE REPREND');
+    if(!P.tracerVecteursEgaux){
+      ignorer('les vecteurs égaux se tracent en deux clics, la flèche suit la souris, une extrémité se reprend',
+        'ce niveau n\'a pas l\'exercice des vecteurs égaux à tracer');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.tracerVecteursEgaux.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* une figure fixe : u (3 ; 4), v (4 ; −2), w (−3 ; 2) */
+      const fixe = () => { test.questions[test.idx] = { vs: [[2, 2, 3, 4], [7, 8, 4, -2], [13, 2, -3, 2]], d1: null, f1: null, d2: null, f2: null, d3: null, f3: null };
+        renderTvx(); document.querySelector('#tvxGraph .tvx-svg').scrollIntoView({ block: 'center' }); };
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      const mes = await s.page.evaluate(() => {
+        const svg = document.querySelector('#tvxGraph .tvx-svg'), r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+        const g = svg.getBoundingClientRect(), et = document.getElementById('tvxEtape').getBoundingClientRect();
+        return { svg: r.width > 500 && r.height > 280, dessus: et.bottom <= g.top + 1 && et.height > 10 };
+      });
+      if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      if(!mes.dessus) dits.push('l\'étape à faire ne s\'affiche pas au-dessus du dessin');
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
+        const svg = document.querySelector('#tvxGraph .tvx-svg');
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const kx = r.width / vb.width, ky = r.height / vb.height;
+        return { px: r.left + (TVX_PX + x * TVX_C) * kx, py: r.top + (TVX_PY + (TVX_H - y) * TVX_C) * ky };
+      }, [x, y]);
+      const vers = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(60); return p; };
+      const clic = async (x, y) => { const p = await vers(x, y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(100); };
+      /* le point de la souris : à combien de pixels de la pointe (ou « caché ») */
+      const point = async p => await s.page.evaluate(([x, y]) => { const c = document.getElementById('tvxCurseur'); if(!c) return 'absent';
+        if(getComputedStyle(c).display === 'none') return 'caché';
+        const b = c.querySelector('circle').getBoundingClientRect();
+        return Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)); }, [p.px, p.py]);
+      /* la flèche qui suit la souris : ses deux bouts, à l'écran */
+      const vif = async () => await s.page.evaluate(() => { const l = document.querySelector('#tvxVif line.tvx-vif'); if(!l) return null;
+        const m = l.ownerSVGElement.getScreenCTM(), P = (x, y) => { const p = l.ownerSVGElement.createSVGPoint(); p.x = x; p.y = y; return p.matrixTransform(m); };
+        const a = P(+l.getAttribute('x1'), +l.getAttribute('y1')), b = P(+l.getAttribute('x2'), +l.getAttribute('y2'));
+        return { a: [a.x, a.y], b: [b.x, b.y] }; });
+      const pres = (u, p) => u && Math.hypot(u[0] - p.px, u[1] - p.py) < 4;
+      const etat = async () => await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return { u: [q.d1, q.f1], v: [q.d2, q.f2], w: [q.d3, q.f3], mob: test.tvxMob ? test.tvxMob.k + test.tvxMob.bout : '' }; });
+      /* ① le point suit la souris avant tout clic */
+      let p = await vers(3.3, 3.2);
+      let d = await point(p);
+      if(typeof d !== 'number' || d > 3) dits.push('le point ne suit pas la pointe de la souris : ' + d);
+      /* ② un clic à un cinquième de maille pose la croix au nœud (1 ; 1) */
+      await clic(1.2, 0.8);
+      let e = await etat();
+      if(JSON.stringify(e.u) !== '[[1,1],null]') dits.push('le premier clic ne pose pas le départ au nœud le plus proche : ' + JSON.stringify(e.u));
+      const croix = await s.page.evaluate(() => document.querySelectorAll('#tvxFl .tvx-croix').length);
+      if(croix !== 1) dits.push('la croix du départ ne se dessine pas');
+      /* la flèche part de la croix jusqu'à la pointe de la souris */
+      p = await vers(3.6, 4.4);
+      let l = await vif(), n11 = await pos(1, 1);
+      if(!l || !pres(l.a, n11) || !pres(l.b, p)) dits.push('la flèche ne va pas de la croix à la pointe de la souris : ' + JSON.stringify(l));
+      /* ③ le second clic fixe l'arrivée au nœud le plus proche */
+      await clic(4.2, 4.9);
+      e = await etat();
+      if(JSON.stringify(e.u) !== '[[1,1],[4,5]]') dits.push('le second clic ne fixe pas l\'arrivée au nœud le plus proche : ' + JSON.stringify(e.u));
+      /* ④ un clic sur le DÉPART le reprend : la flèche va de la souris à l'arrivée fixe */
+      await clic(1, 1);
+      e = await etat();
+      if(e.mob !== '0d') dits.push('un clic sur le départ de la flèche ne le reprend pas : ' + e.mob);
+      p = await vers(2.3, 1.2);
+      l = await vif();
+      const n45 = await pos(4, 5);
+      if(!l || !pres(l.a, p) || !pres(l.b, n45)) dits.push('le départ repris ne suit pas la souris, l\'arrivée restant fixe : ' + JSON.stringify(l));
+      d = await point(p);
+      if(typeof d !== 'number' || d > 3) dits.push('le point ne suit pas la souris pendant la reprise : ' + d);
+      await clic(2.3, 1.2);
+      e = await etat();
+      if(JSON.stringify(e.u) !== '[[2,1],[4,5]]' || e.mob) dits.push('le départ repris ne se repose pas au nœud le plus proche : ' + JSON.stringify(e));
+      /* ⑤ un clic sur l'ARRIVÉE la reprend : la flèche va du départ fixe à la souris */
+      await clic(4, 5);
+      p = await vers(5.2, 5.3);
+      l = await vif();
+      const n21 = await pos(2, 1);
+      if(!l || !pres(l.a, n21) || !pres(l.b, p)) dits.push('l\'arrivée reprise ne suit pas la souris, le départ restant fixe : ' + JSON.stringify(l));
+      await clic(5.2, 5.3);
+      e = await etat();
+      if(JSON.stringify(e.u) !== '[[2,1],[5,5]]') dits.push('l\'arrivée reprise ne se repose pas : ' + JSON.stringify(e.u));
+      /* ⑥ v et w ; puis Échap rend une extrémité reprise à sa place */
+      await clic(10, 4); await clic(14, 2); await clic(16, 5); await clic(13, 7);
+      e = await etat();
+      if(JSON.stringify([e.v, e.w]) !== '[[[10,4],[14,2]],[[16,5],[13,7]]]') dits.push('v et w ne se tracent pas en deux clics : ' + JSON.stringify([e.v, e.w]));
+      p = await vers(8.4, 2.4);
+      d = await point(p);
+      if(d !== 'caché') dits.push('les trois flèches tracées, le point suit encore la souris : ' + d);
+      await clic(16, 5);
+      await vers(17, 9);
+      await s.page.keyboard.press('Escape');
+      await s.page.waitForTimeout(80);
+      e = await etat();
+      if(e.mob || JSON.stringify(e.w) !== '[[16,5],[13,7]]') dits.push('Échap ne rend pas le départ repris à sa place : ' + JSON.stringify(e));
+      const traits = await s.page.evaluate(() => [...document.querySelectorAll('#tvxFl line.tvx-el')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length);
+      if(traits !== 3) dits.push(traits + ' flèches violettes visibles au lieu de 3');
+      await s.page.click('#tvxValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
+        bleu: document.querySelectorAll('#tvxFl line.svc-e').length,
+        bouton: document.getElementById('tvxNext') ? document.getElementById('tvxNext').textContent : '' }));
+      if(fin.score !== 3 || !fin.locked) dits.push('la copie juste vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller'));
+      if(fin.bleu !== 3) dits.push('les trois flèches justes ne passent pas en bleu (' + fin.bleu + ')');
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* question suivante : la copie vide se corrige en vert, sans rien de rouge */
+      await s.page.click('#tvxNext');
+      await s.page.waitForTimeout(400);
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      await s.page.click('#tvxValidate');
+      await s.page.waitForTimeout(300);
+      const vide = await s.page.evaluate(() => ({
+        cls: ['tvx-u', 'tvx-v', 'tvx-w'].map(id => document.getElementById(id).className),
+        vert: [...document.querySelectorAll('#tvxCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        rouge: !!document.querySelector('#tvxGraph .svc-eb, #tvxGraph .tvx-bad'), score: test.score }));
+      if(!vide.cls.every(c => /\bsol\b/.test(c))) dits.push('la copie vide ne passe pas en vert : ' + vide.cls.join(' / '));
+      if(vide.vert !== 3) dits.push('la correction ne trace pas u, v et w en vert (' + vide.vert + ')');
+      if(vide.rouge) dits.push('la copie vide rougit quelque chose');
+      if(vide.score !== 3) dits.push('la copie vide rapporte des points (score ' + vide.score + ' au lieu de 3)');
+      verifier('les vecteurs égaux se tracent en deux clics, la flèche suit la souris, une extrémité se reprend', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran des vecteurs égaux à tracer ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 undevicies. antécédents : la droite se fait GLISSER ===== */
     /* {antecedents-droite} : le geste central est un GLISSER — la droite suit
        le pointeur enfoncé et s'accroche à la graduation la plus proche — puis
