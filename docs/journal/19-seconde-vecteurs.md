@@ -1619,7 +1619,7 @@ flèches bout à bout depuis A, pose A′ sous la pointe de BD et lit sa
 lettre, puis corrige une copie vide (quatre traits verts, rien de rouge).
 Le doigt sur tablette, lui, ne se joue dans aucun banc.
 
-**Chaque étape faite passe au vert (v505).** La demande (Turquet, octobre
+**Chaque étape faite passe au vert (v506).** La demande (Turquet, octobre
 2026) : « dans le 8.14 mettre en vert l'étape qui a été effectuée à chaque
 fois ». Les quatre consignes sous le dessin (① BC tracé, ② BD tracé,
 ③ bout à bout depuis A, ④ A′ placé) prennent la classe `cps-fait` — encre
