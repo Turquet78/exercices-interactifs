@@ -9214,7 +9214,7 @@ if(require.main === module) (async () => {
           traits: [...document.querySelectorAll('#cpsFl line')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
           prises: document.querySelectorAll('#cpsPrises .svc-prise').length }; });
       /* une flèche qui n'est pas BC (A vers un nœud) : le cadre ① reste bleu, la
-         flèche reste sans nom ; le clic suivant recommence le tracé (v515) */
+         flèche reste sans nom ; le clic suivant recommence le tracé (v516) */
       await clic(2, 4); await clic(5, 2);
       const faux = await s.page.evaluate(() => ({ f1: test.questions[test.idx].f1,
         cours: document.getElementById('cps-t1').classList.contains('cps-cours'), fait: document.getElementById('cps-t1').classList.contains('cps-fait'),
