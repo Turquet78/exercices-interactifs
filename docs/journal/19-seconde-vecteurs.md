@@ -1794,7 +1794,7 @@ quadragies septies) mesure le point posé sur le milieu de −v⃗ à moins de
 3 px de la souris, et un clic loin de tout nœud et de toute flèche qui pose
 B′ au nœud le plus proche.
 
-**Puis, au 8.1.6, le point a suivi la souris, et le point choisi est devenu une croix (v510).**
+**Puis, au 8.1.6, le point a suivi la souris, et le point choisi est devenu une croix (v511).**
 La demande (Turquet, octobre 2026) : « dans le 8.1.6, la flèche de la souris
 doit afficher un point constamment à l'écran. Quand un point est choisi,
 mettre une croix, et ne plus afficher de point au bout de la flèche de la

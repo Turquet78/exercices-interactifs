@@ -11720,7 +11720,7 @@ function egaliteVectoriellePoint(w, P){
     if(instr.textContent.indexOf('Place le point C')<0) vus.push('l\\'énoncé ne demande pas « Place le point C » : '+instr.textContent.slice(0,80));
     const vecs=Array.from(instr.querySelectorAll('.vgt-vec')).map(function(x){ return x.textContent; });
     if(vecs.join(' ')!=='AB DC') vus.push('l\\'égalité de l\\'énoncé n\\'est pas « AB = DC » coiffée de flèches : '+vecs.join(' '));
-    /* la lettre du point qui suit la souris (.cvp-curseur, v510) n'est pas un point donné */
+    /* la lettre du point qui suit la souris (.cvp-curseur, v511) n'est pas un point donné */
     const lettres=Array.from(document.querySelectorAll('#vepGraph text.vec-lbl:not(.vec-dlbl)')).filter(function(t){ return !t.closest('.cvp-curseur'); }).map(function(t){ return t.textContent; }).sort().join('');
     if(document.querySelectorAll('#vepGraph #vepCurseur').length!==1) vus.push('le point qui suit la souris (#vepCurseur) manque au dessin');
     if(lettres!=='ABD') vus.push('le dessin n\\'écrit pas exactement A, B et D : '+lettres);

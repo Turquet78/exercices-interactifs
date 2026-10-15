@@ -8760,7 +8760,7 @@ if(require.main === module) (async () => {
       }));
       /* la question affichée, et ses réponses attendues, recalculées ICI */
       const q0 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { M: vepPoint(q), m: q.m, nom: vepTour(q), eq: q.eq }; });
-      /* v510 : avant tout choix, un point suit la souris, même entre deux
+      /* v511 : avant tout choix, un point suit la souris, même entre deux
          nœuds ; une fois le nœud choisi, il devient une croix, le point de la
          souris disparaît et le survol d'un autre nœud n'allume plus rien */
       const curseur = async (px, py) => await s.page.evaluate(([x, y]) => { const c = document.getElementById('vepCurseur'); if(!c) return 'absent';
