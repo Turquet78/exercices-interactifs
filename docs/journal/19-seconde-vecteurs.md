@@ -1434,6 +1434,32 @@ aucun `fait` après la vérification ; le banc navigateur (« 6 quadragies
 quinquies ») lit les couleurs calculées du cadre et du fond, le point de
 survol présent avant M et absent après, et la flèche DM⃗ dessinée.
 
+**Puis les objectifs ne verdissent que JUSTES, un vecteur suit la souris, et le dessin s'est allégé (v519).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.5, les croix et les
+lettres un peu plus petites, la pointe des vecteurs un peu plus petite ; la
+case ne passe au vert que si c'est bien tracé ou placé ; à l'étape deux, le
+point de départ posé, un vecteur tracé de ce point jusqu'à la flèche de la
+souris ; M posé, le vecteur correspondant tracé ». **Juste, plus seulement
+fait** : `svrJuste` (le point à sa place, le vecteur du bon point au bon
+point, M au bout de la construction) pose la classe `fait` ; `svrFait` (le
+geste fait) garde la main sur le geste suivant (`svrSuivant`) — sinon un
+point faux retiendrait l'élève sur son geste. Le déplacement suivait déjà la
+règle (`svrChaine`). Le vert dit donc juste avant la vérification : c'est
+la demande, en devoir comme en entraînement. **La flèche qui suit la
+souris** (`svrVif`, groupe `#svrVif` sans clic, la recette de `tvxVif`) :
+du début posé jusqu'à la pointe, bleue à 75 %, rien au doigt, rien pendant
+un glisser, rien une fois la fin posée ou la question corrigée ; la souris
+se range dans `test.svrSouris` pour que chaque redessin la retrouve. **Le
+vecteur résultat** OM⃗ se traçait déjà depuis la v510 : vu de nouveau dans
+Chromium. **Les tailles** : croix de demi-côté 4 (au lieu de 5), trait 2,1,
+lettres à 14 px (16), posées à 6 px (7) ; pointes `markerWidth` 5 (7), sur
+ce dessin seulement — les classes `.svr-pt` du 8.2.8 et du 8.2.9 gardent les
+leurs, la règle CSS est restée sous `.svr-svg`, propre à ce repère. Le juge
+(`tests/verifier.js`) tient A faux, BC⃗ à l'envers et M faux restés gris, B
+juste vert, la flèche vive depuis le début et effacée au retrait ou à la
+fin ; le banc navigateur (« 6 quadragies quinquies ») bouge la vraie souris
+après le début de BC⃗ et mesure la flèche du début de BC⃗ jusqu'à elle.
+
 ## {chasles-alignes} — la relation de Chasles sur une droite (8.12, v494)
 
 **La demande** (Turquet, octobre 2026, le même jour que le 8.9 et avec la même phrase, mais une AUTRE fiche) : « en seconde fais un exercice comme
@@ -2075,7 +2101,7 @@ au-dessus du dessin, le fond de l'étape faite différent de l'étape à faire,
 aucun rond visible au survol d'un nœud, la croix du point posé visible, le
 point qui suit la souris centré sur elle, et le vecteur solution tracé.
 
-**Puis les cadres blancs sont partis : les étapes SONT les bandeaux bleus, l'étape 2 vient sous l'étape 1, et le vecteur de l'élève se trace (v515).**
+**Puis les cadres blancs sont partis : les étapes SONT les bandeaux bleus, l'étape 2 vient sous l'étape 1, et le vecteur de l'élève se trace (v519)**
 La demande (Turquet, octobre 2026) : « dans le 8.2.9, garder uniquement les
 encadrés en bleu qui donnent les étapes, tu peux supprimer les cadres blancs
 avec étape 1 et étape 2. Quand l'étape 1/2 est réussie mettre ce cadre en

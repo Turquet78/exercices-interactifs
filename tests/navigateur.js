@@ -9111,7 +9111,16 @@ if(require.main === module) (async () => {
       await clic(3, 4);
       /* ② BC puis BA : le second clic sur B tombe sur la prise de BC */
       await s.page.click('#svr-t0');
-      await clic(1, 2); await clic(3, 1);
+      await clic(1, 2);
+      /* le début posé, la flèche suit la pointe de la souris, jusqu'à elle */
+      { const p = await pos(4.4, -1.6); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(80);
+        const v = await s.page.evaluate(([x, y]) => { const l = document.querySelector('#svrVif line.svr-vif'); if(!l) return null;
+          const r = l.getBoundingClientRect(), d = l.ownerSVGElement.getBoundingClientRect(), k = d.width / l.ownerSVGElement.viewBox.baseVal.width;
+          return { long: r.width + r.height, x1: +l.getAttribute('x1'), y1: +l.getAttribute('y1'), x2: d.left + +l.getAttribute('x2') * k, y2: d.top + +l.getAttribute('y2') * k, X: svrX(1), Y: svrY(2), mx: x, my: y }; }, [p.px, p.py]);
+        if(!v || v.long < 40) dits.push('le début de BC posé, aucune flèche ne suit la souris');
+        else if(Math.abs(v.x1 - v.X) > 0.5 || Math.abs(v.y1 - v.Y) > 0.5 || Math.hypot(v.x2 - v.mx, v.y2 - v.my) > 8) dits.push('la flèche qui suit la souris ne va pas du début de BC à la souris : ' + JSON.stringify(v)); }
+      await clic(3, 1);
+      if(await s.page.evaluate(() => !!document.querySelector('#svrVif line'))) dits.push('BC tracé, une flèche suit encore la souris');
       await clic(1, 2, 0.1); await clic(3, 4);
       e = await etat();
       if(JSON.stringify(e.t) !== JSON.stringify([{ d: [1, 2], f: [3, 1] }, { d: [1, 2], f: [3, 4] }]))
