@@ -12112,7 +12112,9 @@ function sommeVecteursRepere(w, P){
     if(verifierIci()!==0) vus.push('la copie vide rapporte des points');
     if(classes()!==IDS.map(function(){ return 'sol'; }).join(',')) vus.push('vérifier à vide : '+classes()+' au lieu de huit sol');
     if(document.querySelector('#svrGraph .svc-eb, #svrGraph .svr-pt.eb')) vus.push('vérifier à vide rougit quelque chose');
-    if(document.querySelectorAll('#svrCorr .svr-pt.s').length!==5 || document.querySelectorAll('#svrCorr line.svc-s').length!==4) vus.push('la correction ne trace pas cinq points et quatre flèches en vert');
+    if(document.querySelectorAll('#svrCorr .svr-pt.s').length!==5 || document.querySelectorAll('#svrCorr line.svc-s').length!==5) vus.push('la correction ne trace pas cinq points et cinq flèches (dont DM) en vert');
+    if(!document.querySelector('#svrCorr line.svr-res.svc-s')) vus.push('la correction ne trace pas le vecteur résultat DM en vert');
+    if(document.querySelector('#svrBody .fait')) vus.push('vérifier laisse un objectif en vert « réalisé »');
     if(el('svrFeedback').textContent.indexOf('Il te manquait 8 cases')<0) vus.push('le message ne dit pas « Il te manquait 8 cases » : '+el('svrFeedback').textContent.slice(0,80));
 
     /* 3. la copie juste, aux gestes de l'élève : BC d'abord */
@@ -12139,7 +12141,18 @@ function sommeVecteursRepere(w, P){
     svrDeplacer(1,[1,2]);
     if(q1.cp[1]!==null) vus.push('une copie ramenée sur son original ne s\\'efface pas');
     svrDeplacer(1,[0,-4]);
+    /* chaque objectif réalisé passe en vert, le déplacement compris */
+    if(['svr-A','svr-B','svr-C','svr-D','svr-t0','svr-t1','svr-ch'].some(function(id){ return !el(id).classList.contains('fait'); })) vus.push('un objectif réalisé ne passe pas en vert : '+IDS.filter(function(id){ return el(id).classList.contains('fait'); }).join(','));
+    if(el('svr-M').classList.contains('fait') || el('svrGraph').querySelector('.svr-repos')) vus.push('M passe en vert, ou le survol s’éteint, avant d’être posé');
+    svrDeplacer(1,[1,-4]);
+    if(el('svr-ch').classList.contains('fait')) vus.push('des copies qui ne sont plus bout à bout laissent l’objectif en vert');
+    svrDeplacer(1,[0,-4]);
     svrPose(2,-2);
+    if(!el('svr-M').classList.contains('fait')) vus.push('M posé ne passe pas en vert');
+    if(!el('svrGraph').querySelector('.svr-svg.svr-repos')) vus.push('M posé : le survol des nœuds montre encore un point');
+    const res=document.querySelector('#svrFl line.svr-res');
+    if(!res || Math.abs(+res.getAttribute('x1')-svrX(-2))>0.5 || Math.abs(+res.getAttribute('y1')-svrY(-3))>0.5) vus.push('M posé : le vecteur DM ne se trace pas depuis D');
+    if(el('svrFl').textContent.indexOf('DM')<0) vus.push('le vecteur résultat ne porte pas son nom DM');
     /* la reprise après JSON */
     test.questions[0]=JSON.parse(JSON.stringify(q1)); renderSvr();
     const q1b=test.questions[0];
@@ -12166,7 +12179,8 @@ function sommeVecteursRepere(w, P){
     if(fb.indexOf('à l’envers')<0) vus.push('le message ne nomme pas le vecteur à l\\'envers');
     if(fb.indexOf('M est au bout de la construction')<0) vus.push('le message ne dit pas où est M');
     if(!document.querySelector('#svrPts .svr-pt.eb') || !document.querySelector('#svrFl line.svc-eb')) vus.push('le point faux et le vecteur faux ne rougissent pas sur le dessin');
-    if(document.querySelectorAll('#svrCorr .svr-pt.s').length!==2 || document.querySelectorAll('#svrCorr line.svc-s').length!==1) vus.push('la correction ne montre pas en vert A, M et BC seulement');
+    if(document.querySelectorAll('#svrCorr .svr-pt.s').length!==2 || document.querySelectorAll('#svrCorr line.svc-s').length!==2) vus.push('la correction ne montre pas en vert A, M, BC et DM seulement');
+    if(!document.querySelector('#svrFl line.svr-res.svc-eb')) vus.push('le vecteur DM vers un M faux ne rougit pas');
 
     /* 5. le soutien */
     currentMode='soutien'; startSvr(); clearTimeout(test.fbTimer);
