@@ -1088,6 +1088,25 @@ moins de 3 px de la souris sur la flèche u⃗ puis pour la fin, plus aucun poin
 une fois la fin posée, une étape 1 fausse qui ne verdit pas, et le clic entre
 les nœuds.
 
+**Puis u⃗ + v⃗ tracé a gardé le point blanc de sa fin, éteint le survol des nœuds, et l'étape 2 finie a verdi comme l'étape 1 (v510).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.1, laisser le point blanc
+quand on choisit le point à la fin du vecteur somme ; il ne faut plus que la
+flèche affiche un point ensuite quand on passe sur une intersection du
+quadrillage ; quand on a fini l'étape 2, le texte passe au vert comme pour
+l'étape 1 ». Le point blanc du clic sur la fin était celui du SURVOL
+(`.vec-t:hover .dot`) : il s'éteignait dès que la souris partait, et chaque
+nœud survolé ensuite en rallumait un. `svcTracer` pose désormais, dès que
+u⃗ + v⃗ a un début ET une fin, la classe `svc-fin` sur le nœud de la fin
+(point blanc, cerne bleu, à demeure) et `svc-complet` sur le SVG, qui éteint
+le point de survol de tous les autres nœuds (le début garde son `sel`). Le
+même instant met `svc-fait` sur l'étape 2 — cadre et texte verts sur fond
+vert clair, la règle de l'étape 1. « Fini » ne juge rien : une flèche fausse
+mais tracée verdit son étape comme une juste, et « Vérifier » tranche ; une
+étape 2 déjà marquée `ok`/`bad` en soutien garde sa marque, et le
+verrouillage retire `svc-fait` (`checkSvc`). Le banc navigateur lit, après
+le second clic, le fond blanc calculé du point de la fin, le cadre et le
+fond verts de l'étape 2, et un nœud libre survolé sans point.
+
 ## {relation-chasles} — compléter des sommes de vecteurs par la relation de Chasles (8.8, v488, retouché v490)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice comme
@@ -1532,7 +1551,7 @@ lettre à lettre : chaque vecteur sous SA flèche (`.chl-vec`, la flèche des
 eux, et un curseur dessiné (`.chl-car`) qui clignote à la place de
 `selectionStart` — sous la flèche ouverte quand on vient de taper un signe.
 Un « − » en tête d'un morceau reste un signe, DEVANT la flèche ; un nombre
-(2AC) aussi ; « 0 » et « impossible » s'écrivent sans flèche. Un clic se
+(2AC) aussi ; « impossible » s'écrit sans flèche (« 0 » aussi, jusqu'en v509). Un clic se
 ramène aux lettres DESSINÉES (`chlClic`) : le curseur se pose entre les deux
 lettres les plus proches du doigt, pas entre celles, invisibles, du vrai
 champ. Le champ s'élargit avec la chaîne. La saisie est remise au propre à
@@ -1586,6 +1605,13 @@ saisir, à juger ni à reprendre. Sur un téléphone (≤ 520 px), la rangée en
 écrit à 1,1 rem, champ compris, du même facteur — le début ajouté élargissait
 le champ hors de la rangée. Reste nommé : une chaîne de cinq vecteurs ou plus
 déborde encore à 390 px. Regardé dans Chromium à 1280 et 390 px.
+
+**Le vecteur nul a sa flèche** (v510, Turquet : « quand on tape 0, afficher
+la flèche au-dessus, c'est le vecteur nul »). `chlDessin` dessinait « 0 »
+comme « impossible », sans flèche : le résultat de AB + BA se lisait comme le
+nombre zéro. Un morceau réduit à « 0 » passe désormais par `fleche()`, comme
+un vecteur à deux lettres. Le banc tape « AB+BA=0 » et attend trois flèches,
+« AB|BA|0 ». Le juge, la correction et le badge ne changent pas.
 
 ## {point-somme-vecteurs} — construire un point avec une somme de vecteurs (8.14, v496)
 

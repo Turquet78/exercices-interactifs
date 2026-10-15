@@ -8924,6 +8924,24 @@ if(require.main === module) (async () => {
       if(await curs()) dits.push('la fin posée, un point suit encore la souris');
       await survol(1.5, 1.5);
       if(await curs()) dits.push('la fin posée, un point réapparaît au survol');
+      /* u + v tracé (v510) : la fin garde son point BLANC, un nœud survolé n'en
+         montre plus, et l'étape 2 passe au vert comme l'étape 1 */
+      const fini = await s.page.evaluate((vf) => {
+        const dot = id => { const el = document.querySelector('#' + id + ' .dot'); return el ? getComputedStyle(el) : null; };
+        const fin = dot('svcn-' + vf[0] + '-' + vf[1]);
+        const sm = document.getElementById('svc-sm'), cs = getComputedStyle(sm);
+        const vert = c => { const m = c.match(/\d+(\.\d+)?/g) || []; return m.length >= 3 && +m[1] > +m[0] && +m[1] > +m[2]; };
+        return { finFond: fin ? fin.fill : '', finTrait: fin ? fin.stroke : '', fait: sm.classList.contains('svc-fait'), bord: vert(cs.borderTopColor), fond: vert(cs.backgroundColor) };
+      }, vf);
+      if(!/rgb\(255, 255, 255\)/.test(fini.finFond) || /rgba\(0, 0, 0, 0\)|transparent/.test(fini.finTrait)) dits.push('la fin de u + v ne garde pas son point blanc : ' + fini.finFond + ' / ' + fini.finTrait);
+      if(!fini.fait || !fini.bord || !fini.fond) dits.push('l\'étape 2 finie ne passe pas en vert sur fond vert clair');
+      const libre = await s.page.evaluate(() => { const q = test.questions[test.idx];
+        for(let i = 0; i <= SVC_W; i++) for(let j = 0; j <= SVC_H; j++) if(!svcEgal(q.sd, [i, j]) && !svcEgal(q.sf, [i, j])) return [i, j]; });
+      const nd = await survol(libre[0], libre[1]);
+      const survole = await s.page.evaluate(([x, y]) => { const t = document.elementFromPoint(x, y), g = t && t.closest('.vec-t');
+        if(!g) return 'aucun nœud sous la souris'; const d = getComputedStyle(g.querySelector('.dot'));
+        return /rgba\(0, 0, 0, 0\)|transparent|none/.test(d.fill) && /rgba\(0, 0, 0, 0\)|transparent|none/.test(d.stroke) ? '' : 'point ' + d.fill; }, [nd.px, nd.py]);
+      if(survole) dits.push('u + v tracé, un nœud survolé montre encore un point (' + survole + ')');
       await s.page.click('#svcValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
