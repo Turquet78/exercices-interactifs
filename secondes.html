@@ -2404,6 +2404,8 @@
      octobre 2026 */
   .svc-svg .vec-t.svc-fin .dot{fill:#fff;stroke:var(--blue)}
   .svc-svg.svc-complet .vec-t:not(.sel):not(.svc-fin):hover .dot{fill:transparent;stroke:transparent}
+  /* la flèche qui va du début posé à la souris : elle ne prend aucun clic */
+  .svc-svg #svcVif{pointer-events:none}
   .svc-svg .svc-nom-op{font-family:KaTeX_Main,Georgia,'Times New Roman',serif;font-style:normal}
   .svc-svg .svc-u{stroke:var(--ink);stroke-width:2.4;stroke-linecap:round}
   .svc-svg .svc-v{stroke:var(--ink-soft);stroke-width:2;stroke-dasharray:6 4}
@@ -7115,7 +7117,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=514;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=515;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -56759,6 +56761,7 @@ function svcSVG(q){
     +'<defs>'+pointe('svcArrU','var(--ink)')+pointe('svcArrV','var(--ink-soft)')+pointe('svcArrE','var(--blue)')
     +pointe('svcArrB','var(--red)')+pointe('svcArrS','var(--green)')+'</defs>'
     +g+'<g id="svcCorr"></g><g id="svcFl"></g><g id="svcTrace"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="svcPrises"></g>`
+    +'<g id="svcVif" aria-hidden="true"></g>'
     +'<g id="svcCurseur" class="svc-curseur" aria-hidden="true" style="display:none"><circle r="5"/></g></svg>';
 }
 /* Les deux flèches à leur place du moment, et leurs prises. */
@@ -56916,10 +56919,22 @@ function svcBrancher(){
     if(fx<-0.5||fx>SVC_W+0.5||fy<-0.5||fy>SVC_H+0.5) return null;
     return {x:x, y:y, i:Math.max(0,Math.min(SVC_W,Math.round(fx))), j:Math.max(0,Math.min(SVC_H,Math.round(fy)))};
   };
+  /* LE DÉBUT POSÉ, UNE FLÈCHE VA DE LUI JUSQU'À LA POINTE DE LA SOURIS
+     (demande de Turquet, octobre 2026), comme au 8.1.7 : l'élève voit le
+     vecteur qu'il est en train de tracer avant d'en poser la fin. Le dessin
+     de ce qu'il fait, pas un verdict — elle est bleue comme u + v tracé, et
+     s'efface dès que la fin est posée, que le début est retiré ou que la
+     souris quitte le dessin. */
   const curseur=function(ev){
-    const c=host.querySelector('#svcCurseur'); if(!c) return;
+    const c=host.querySelector('#svcCurseur'), vif=host.querySelector('#svcVif'); if(!c) return;
     const q=test.kind==='svc'&&test.questions[test.idx];
     const v=ev&&!gl&&q&&q.et==='b'&&!(q.sd&&q.sf)&&!test.locked&&!test.svcFigeSm&&ev.pointerType!=='touch'&&vue(ev);
+    let h='';
+    if(v&&q.sd){
+      const x1=SVC_PX+q.sd[0]*SVC_C, y1=SVC_PY+(SVC_H-q.sd[1])*SVC_C;
+      if(Math.hypot(v.x-x1, v.y-y1)>6) h=`<line class="svc-e svc-vif" x1="${x1}" y1="${y1}" x2="${v.x.toFixed(1)}" y2="${v.y.toFixed(1)}" marker-end="url(#svcArrE)"/>`;
+    }
+    if(vif) vif.innerHTML=h;
     if(!v){ c.style.display='none'; return; }
     c.setAttribute('transform','translate('+v.x+' '+v.y+')');
     c.style.display='';
