@@ -2751,7 +2751,7 @@ points qui ne s'enchaînent pas, la case vide (correction), la copie vide
 sur une page fixe SANS figure : aucun dessin, une copie juste à points libres
 (Q, A, B), deux pièges ; enfin le contexte du modèle.
 
-## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.12, v531 — v528 et v529 prises par le 8.2.9, le 8.1.10 et le 8.2.5 ; puis le 8.2.11 et la v530 par {chasles-inserer-point}, fusionné juste avant)
+## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.12, v532 — v528 et v529 prises par le 8.2.9, le 8.1.10 et le 8.2.5 ; puis le 8.2.11 et la v530 par {chasles-inserer-point}, la v531 par le 8.2.9 et le 8.1.10, tous fusionnés pendant les bancs)
 
 **La demande** (Turquet, octobre 2026). Dans la liste d'idées d'exercices sur
 les vecteurs, Turquet a retenu la n° 7 : « Trois vecteurs bout à bout ». Sur
