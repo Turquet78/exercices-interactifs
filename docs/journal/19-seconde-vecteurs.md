@@ -2367,7 +2367,7 @@ correction verte) ; le soutien ; le contexte du modèle ; et le 8.2.1 qui
 garde ses étapes et ses mots. Le glisser au doigt et à la souris est celui
 du 8.2.1, tenu par son banc navigateur (« 6 quadragies quater »).
 
-## {translation-pavage} — l'image d'un triangle dans un pavage (8.1.9, v525)
+## {translation-pavage} — l'image d'un triangle dans un pavage (8.1.9, v526)
 
 **La demande** (Turquet, octobre 2026). Claude avait proposé onze idées
 d'exercices sur les vecteurs égaux, la translation et Chasles ; Turquet a
