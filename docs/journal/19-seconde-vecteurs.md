@@ -2848,15 +2848,126 @@ recevait le même jour une dizaine d'exercices du thème 8. Le contrôle
 redessinait l'écran à chaque copie essayée (~25 rendus, 8,3 Mo retenus) ; il
 ne redessine plus que quand la question change et remet sinon les cases à
 zéro — 2,9 Mo retenus, mesurés avec `--expose-gc`.
-## {translation-antecedent} — retrouver un point dont on connaît l'image (8.1.11, v533)
+
+## {milieu-vecteurs-egaux} — milieux et vecteurs égaux (8.1.12, v534)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées proposées sur les
+vecteurs égaux, Turquet a retenu la n° 5 : « Milieu et vecteurs égaux » — un
+triangle et les milieux de ses côtés, qui découpent trois parallélogrammes ;
+traduire « I est le milieu de [AB] » par une égalité de vecteurs, sans aucune
+multiplication par un réel, puis écrire tous les vecteurs égaux à un vecteur
+donné, comme au 8.1.3. Ajouté en dernier du sous-thème « Vecteurs égaux » :
+8.1.11, rien ne se renumérote — et le numéro a changé en route : écrit en 8.1.10 et v528, l'exercice a trouvé à la fusion de `main` le 8.1.10 pris par {vrai-faux-vecteurs} (une autre session, le même jour) et la v529 avec lui ; puis la v530, prise à son tour par le 8.2.8 et le 8.2.11 pendant que l'action tournait — le contrôle « version » l'a vu. Puis la v531, prise par le 8.2.9 et le 8.1.10 retouchés. Puis la v532, prise par le 8.2.12. Le dernier arrivé prend le suivant : v533. Les détails ci-dessous ont été décidés sans
+aller-retour, comme la demande le voulait.
+
+**La figure est tirée, jamais dessinée à la main.** Quatre formes
+(`VMI_FORMES` : quelconque, isocèle, rectangle, obtusangle) ; la base sur
+[0 ; 1], le troisième sommet au-dessus, puis une rotation de −30° à 30°, un
+miroir horizontal et/ou vertical, et les sommets permutés (le côté de la
+base n'est pas toujours le premier). Un triangle dont le plus petit angle
+passe sous 28° est retiré : à 24°, la première capture montrait un
+obtusangle si plat que ses milieux se serraient contre les côtés. Six
+lettres tirées (`VMI_LETTRES`, sans O, Q, ni W à Z) : les sommets dans
+l'ordre alphabétique, les milieux aussi. `n[0] n[1] n[2]` sont les sommets,
+`n[3+k]` le milieu du côté k, de `n[k]` à `n[k+1]`.
+
+**Cinq lignes, sept cases par figure** (`VMI_PLAN`), trois figures par
+séance (`VMI_NB`, `dmNbQuestions`), barème 21 :
+- **le milieu** : « « I est le milieu de [AB] » s'écrit, avec les points A,
+  I et B : AI = … ». La tête est AI, IB, IA ou BI ; la réponse est l'unique
+  vecteur du segment qui fait le même chemin. La phrase NOMME les trois
+  points : KJ est aussi égal à AI, mais c'est le parallélogramme qui le dit,
+  pas le milieu — le message le dit en ces termes (`ailleurs`), plutôt que
+  de compter faux une égalité vraie sans prévenir ;
+- **l'équivalence** : « AI = IB équivaut à : I est le milieu du segment
+  [ … ] », sur un AUTRE côté ; [AB] et [BA] sont justes, crochets tapés
+  ignorés. Le milieu écrit comme extrémité est nommé (`milieu`) ;
+- **le côté du triangle des milieux** : « JK = … », une case, tout vecteur
+  égal est juste. Il suit le TROISIÈME côté ;
+- **deux lignes « u = … = … »** comme au 8.1.3 (ordre libre, un vecteur
+  écrit deux fois n'est juste qu'une fois), sur les côtés des deux premières
+  lignes, dans le SENS CONTRAIRE de ce qu'elles affichent. La première
+  version prenait n'importe quel sens : la capture a montré « RG = … » en
+  tête de la ligne du milieu ET de la ligne « tous » — et « MB = BE », écrit
+  en toutes lettres dans la ligne de l'équivalence, donnait les réponses
+  d'une ligne « tous ». Le sens contraire ferme les deux.
+
+**Les pièges nommés** (`vmiPourquoi`, sur la première case fausse) :
+l'opposé (« même direction, même longueur, mais sens contraire »), le
+segment entier ou le côté entier (« le milieu partage le segment en deux
+moitiés », « un côté du triangle des milieux mesure la MOITIÉ du côté qui
+lui est parallèle »), une autre direction, le vecteur de tête recopié (« on
+cherche un AUTRE vecteur »), un doublon, une écriture illisible, et pour le
+segment, le milieu pris pour une extrémité ou un autre segment.
+
+**Le dessin** (`vmiSvg`) : les traits et les lettres du 8.3, les côtés du
+triangle des milieux un peu plus fins. Une lettre de sommet se pose dans le
+prolongement du centre de gravité vers le sommet — l'angle opposé par le
+sommet est libre de tout trait —, une lettre de milieu le long de la normale
+sortante de son côté (les côtés du triangle des milieux partent vers
+l'intérieur). Un halo blanc (`paint-order:stroke`) garde les lettres lisibles
+sous une flèche. La ligne choisie (focus ou clic) prend un liseré violet et
+son vecteur de tête une flèche violette (les deux vecteurs pour la ligne de
+l'équivalence), la saisie une flèche violet clair. Une fois la page
+VERROUILLÉE : juste en bleu, faux en rouge, correction en vert ; en soutien
+rien ne se révèle (la condition est `test.locked`).
+
+**Un clic sur un point écrit sa lettre** (`vmiClicPt`) dans la dernière case
+choisie, ou la première case libre de la ligne montrée : deux clics font un
+vecteur, un troisième recommence la case. Chaque point porte une cible ronde
+de 16 px (`circle.vmi-cible`), distincte du point dessiné (`circle.vmi-pt`).
+
+**Le badge vert sort de la colonne.** La case d'un vecteur est, comme au
+8.3, une colonne flèche + case (`.veg-v`) ; `corrChoix` pose le badge de la
+correction juste après la case, donc DANS la colonne, sous elle : la
+capture montrait la case soulevée et la rangée cassée. `checkVmiAnswer`
+déplace le badge après la colonne.
+
+**On range les sommets, les lettres et les vecteurs de tête** (`f`, `p`,
+`n`, `lignes[].t`, `lignes[].u`), jamais les réponses : `vmiLignes`
+recalcule les familles depuis les coordonnées.
+
+**Le banc** (`milieuVecteursEgaux`, banc principal) a un juge qui ne lit PAS
+les lettres de la question. Il relit le DESSIN comme du TEXTE (`vmiSvg(q)`,
+la leçon du 8.1.9 : rien n'est posé dans le DOM) : la place de chaque point,
+la lettre la plus proche. Il y trouve LUI-MÊME les trois milieux (un point au
+milieu de deux autres), puis recalcule chaque famille de vecteurs égaux.
+Sur 150 séances : six points nommés et distincts ; les milieux que l'énoncé
+annonce sont ceux du dessin ; aucun angle sous 20° ; aucune lettre à moins
+de 9 px d'un trait ni hors du dessin ; le plan des lignes ; la réponse du
+milieu, le segment de l'équivalence, chaque famille, égaux à ceux du dessin ;
+le milieu et l'équivalence sur deux côtés différents ; trois directions
+différentes pour les trois dernières lignes ; aucune ligne « tous » ne
+montre ni n'attend un vecteur écrit plus haut ; les quatre formes, les deux
+orientations, au moins 100 jeux de lettres. Puis une figure fixe (ABC, I, J,
+K), par le bouton : les phrases, la copie juste en minuscules, crochets et
+désordre (7/7), dix pièges peints en rouge et nommés, le premier d'un doublon
+resté bleu, le badge, les flèches rouge et verte, la case vide en
+correction, la copie vide sans rouge, le clic (deux lettres, puis on
+recommence), le redessin après le JSON, le soutien qui peint sans révéler ni
+verrouiller, le contexte du modèle.
+
+Cinq sabotages ont été attrapés :
+- la réponse du milieu prise dans toute la famille : « la page attend JH TN,
+  le dessin TN » ;
+- les milieux décalés d'un côté (l'énoncé et le dessin se contredisent) ;
+- le mot « OPPOSÉ » retiré du message — et ce sabotage a montré un défaut
+  réel : pour IA écrit à la place de IB, le message disait « C'est AI qui est
+  égal à AI » ; il dit désormais « un vecteur égal à AI va, lui aussi, de A
+  vers I » ;
+- les lignes « tous » remises dans le sens affiché : « la ligne de RN reprend
+  RN, écrit plus haut » ;
+- la correction montrée sur le dessin en soutien.
+## {translation-antecedent} — retrouver un point dont on connaît l'image (8.1.12, v534)
 
 **La demande** (Turquet, octobre 2026). C'est l'idée n° 2 de la liste proposée
 par Claude : « antécédent par une translation ». C'est le chemin INVERSE du
 8.1.4. Sur un quadrillage, un vecteur u⃗ est dessiné, ainsi que trois points
 A′, B′, C′, images de A, B et C par la translation de vecteur u⃗. L'élève
 place A, B et C d'un clic. L'exercice est ajouté en dernier du sous-thème
-« Vecteurs égaux », après le vrai ou faux du 8.1.10 (fusionné le même jour,
-il a pris le numéro et la v529) : 8.1.11, rien ne se renumérote.
+« Vecteurs égaux », après le vrai ou faux du 8.1.10 et les milieux du
+8.1.11, fusionnés le même jour pendant que celui-ci attendait son action :
+8.1.12, rien ne se renumérote.
 
 **Le piège visé, et nommé** : suivre u⃗ depuis A′. On obtient alors l'IMAGE
 de A′, pas son antécédent. Le message le dit en clair : « tu as suivi u⃗ en
@@ -2936,8 +3047,8 @@ Ce qu'il vérifie :
   antécédent et chaque piège relus sur le dessin, la lisibilité (bord,
   voisins, flèche, piège sur le quadrillage et sur aucun point) ;
 - **sur une figure fixe** (u⃗ = (3 ; 2) ; A′ (7 ; 4), B′ (12 ; 6), C′ (6 ;
-  8)) : la place (8.1.11, voisins immobiles, pas de tables, rappel et
-  questions à l'IA ; le 8.1.10 voisin) ; l'énoncé `.enonce` ; le geste (pose, reprise au reclic,
+  8)) : la place (8.1.12, voisins immobiles, pas de tables, rappel et
+  questions à l'IA ; le 8.1.10 et le 8.1.11 voisins) ; l'énoncé `.enonce` ; le geste (pose, reprise au reclic,
   cadre choisi, retour au premier point manquant, « Effacer ») ; la reprise
   après JSON ; la copie juste (trois ok, trois croix et trois flèches bleues,
   aucune correction) ; le PIÈGE nommé « IMAGE de A′ … À L'ENVERS » avec C

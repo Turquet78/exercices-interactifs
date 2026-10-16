@@ -9703,7 +9703,7 @@ if(require.main === module) (async () => {
     }
 
     /* ===== 6 quadragies nonies. ANTÉCÉDENT PAR UNE TRANSLATION : LA CROIX SUIT LA SOURIS, LE CLIC POSE LE POINT ===== */
-    /* {translation-antecedent} (8.1.11, idée n° 2 retenue par Turquet,
+    /* {translation-antecedent} (8.1.12, idée n° 2 retenue par Turquet,
        octobre 2026) : la croix et la lettre du point en cours suivent la
        souris ; un clic pose le point au nœud le plus proche, un clic sur un
        point posé le reprend. jsdom n'a ni souris ni mise en page : le point
