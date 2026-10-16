@@ -292,7 +292,7 @@ défaut de Node (4 Go) était atteint sur main même : le travail
 « controles (secondes.html) » de la PR #710 a mis vingt minutes, rejoué en
 local sous `--max-old-space-size=4096` il n'avait pas fini en trente — le
 ramasse-miettes tournait en boucle. L'exercice suivant ({somme-trois-vecteurs},
-8.2.12) a fait déborder le tas (« heap out of memory »), alors que son contrôle
+8.2.13) a fait déborder le tas (« heap out of memory »), alors que son contrôle
 ne dessine qu'une figure par geste (sa première version en dessinait 200 : la
 leçon du 8.1.9, voir `19-seconde-vecteurs.md`). `controles.yml` lance désormais
 `node --max-old-space-size=6144 tests/verifier.js` : le runner a 16 Go, aucun

@@ -2751,7 +2751,105 @@ points qui ne s'enchaînent pas, la case vide (correction), la copie vide
 sur une page fixe SANS figure : aucun dessin, une copie juste à points libres
 (Q, A, B), deux pièges ; enfin le contexte du modèle.
 
-## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.12, v532 — v528 et v529 prises par le 8.2.9, le 8.1.10 et le 8.2.5 ; puis le 8.2.11 et la v530 par {chasles-inserer-point}, la v531 par le 8.2.9 et le 8.1.10, tous fusionnés pendant les bancs)
+## {demontrer-parallelogramme} — démontrer qu'un quadrilatère est un parallélogramme (8.2.12, v532 — numéro et versions pris en route : 8.2.11 par {chasles-inserer-point}, v528 à v531 par les retouches du 8.2.9, du 8.1.10, du 8.2.5 et du 8.2.8)
+
+**La demande** (Turquet, octobre 2026, idée n° 11 parmi celles proposées) :
+une égalité vectorielle entre quatre points, qui se SIMPLIFIE par Chasles
+jusqu'à une égalité du type AB = DC, des étapes à trous, puis le NOM du
+parallélogramme — ABCD, jamais ABDC : le piège de l'ordre des lettres, déjà
+nommé au 8.1.6. Ajouté en dernier du sous-thème « Somme de vecteurs » :
+8.2.12, rien ne se renumérote. Pas de figure : tout se lit sur les lettres.
+
+**La question range le tour et les formes, jamais les réponses.** `t` est le
+tour du parallélogramme (une permutation des quatre lettres W X Y Z : la
+démonstration aboutit à WX = ZY) ; `f` la forme de l'énoncé ; `g` et `d` les
+deux membres (un type et ses lettres intermédiaires) ; `sw` échange les
+membres à l'écran ; `r` est le vecteur retiré. Les étapes (`dpaLignes`) et
+les réponses (`dpaCases`) se recalculent.
+
+Trois formes :
+- `egal` : membre = membre, chacun d'un type — `seul` (déjà un vecteur),
+  `c2` (PT + TQ), `c3` (PT + TS + SQ), `ordre` (TQ + PT : on change
+  l'ordre), `moins` (PT − QT : soustraire, c'est ajouter l'opposé), `nul`
+  (PQ + RS + SR : le vecteur nul) ;
+- `zero` : AB + CD = 0, la ligne « On retire CD aux deux membres : AB = − CD
+  = … » ;
+- `retire` : un même vecteur ajouté aux deux membres. Il n'est ni un vecteur
+  déjà écrit, ni son opposé, et ne s'enchaîne avec AUCUN terme de l'égalité
+  (le sens compté) : NM + ML = LN − KN + ML proposait Chasles (NM + ML = NL)
+  au lieu du retrait, et le premier tirage le sortait.
+
+Le plan d'une séance (`DPA_PLAN`, `DPA_NB` = 4, `dmNbQuestions`) : Chasles
+simple, puis l'ordre ou la soustraction, puis le zéro ou le retrait, puis un
+mélange avec le vecteur nul. Une case = un point ; le barème varie donc avec
+le tirage (de 2 à 6 cases par question).
+
+**Chaque tirage est VÉRIFIÉ par la page** (`dpaVerifie`) : chaque case
+attendue est un vrai vecteur, chaque membre écrit avec ses bonnes cases vaut
+son départ, et l'hypothèse revient exactement à WX = ZY (sa combinaison de
+points vaut ±(X + Z − W − Y)). Un tirage refusé est retiré.
+
+**Le juge lit le calcul.** Sans figure, XY vaut Y − X ; une case est juste
+dès que sa combinaison est celle qui manque à son membre (AA, BB ou 0 pour le
+vecteur nul, en minuscules si l'on veut). Seule l'étape qui CHANGE L'ORDRE
+se juge lettre à lettre : ses deux cases doivent être les vecteurs de la
+somme, remis pour s'enchaîner. La case de vecteur porte sa flèche en CSS
+(`.dpa-vc`, posée sur la case seule) ; la correction (`mf-cor`) se réécrit
+sous sa propre flèche (`dpaBadge`).
+
+**Le nom** se juge comme au 8.1.6 : huit écritures justes (quatre départs,
+deux sens), lues sur l'égalité AFFICHÉE — si l'énoncé échange les membres,
+DC = AB, le nom de la correction est DCBA, et le piège DCAB.
+
+**Les pièges nommés** (`dpaPourquoi`, sur la première case fausse) : le nom
+recopié dans l'ORDRE des lettres de l'égalité (ABDC) ; un nom qui traverse ;
+un nom qui n'a pas les quatre lettres ; le vecteur soustrait recopié sans
+l'OPPOSÉ (− BC laissé BC) ; un résultat dans le mauvais sens ; l'ordre qui ne
+s'enchaîne pas ; RS + SR pris pour autre chose que le vecteur nul ; un
+vecteur retiré qui n'est pas commun aux deux membres ; un vecteur illisible ;
+sinon, la relation de Chasles redite sur le membre.
+
+Le soutien peint au fil de la saisie et à la vérification, sans révéler ni
+verrouiller (`corrChoix`). Pas de bouton des tables. Le contexte du modèle
+(`ctxDpa`) porte l'hypothèse, les étapes, les réponses sous clause de secret,
+la méthode et le piège.
+
+**Le banc** (`tests/verifier.js`, « démontrer un parallélogramme ») a un juge
+qui ne lit PAS les réponses de la page : il relit le HTML affiché comme du
+TEXTE (l'hypothèse, chaque étape — sans le poser dans le DOM, la leçon du
+8.1.9), en tire les combinaisons de points, recalcule chaque case attendue,
+et déduit les sommets opposés du parallélogramme des SIGNES de l'hypothèse
+(deux points de même signe sont opposés) : le nom de la page doit faire le
+tour, le piège doit traverser. Sur 150 séances : les trois formes et les six
+types sortent, aucune question répétée, la question ne range que t, f, g, d,
+sw, r. Puis par le bouton, quatre questions fixes (AC − BC = DA + AC ;
+CB + AC + DB = DC + DB ; AB + CD = 0 ; DC = AB + BD + DB) : l'énoncé, les
+étapes, la copie juste en minuscules, CDAB juste, BB et 0 pour le vecteur
+nul, les neuf pièges peints en rouge et nommés, le badge fléché, une case
+juste qui ne rougit pas pour sa voisine, la case vide en correction, la
+copie vide sans rouge, le JSON, le soutien, le contexte du modèle.
+
+Trois sabotages ont été attrapés :
+- le nom de la correction remplacé par le piège : « le nom QNMP ne fait pas
+  le tour », sur les séances tirées comme sur la question fixe ;
+- la soustraction écrite sans l'opposé (PT − TQ au lieu de PT − QT) :
+  `dpaVerifie` refuse alors tous ces tirages, et le banc le voit — « le
+  membre moins ne sort jamais » ;
+- le mot « ORDRE » retiré du message du piège.
+
+Regardé dans Chromium à 1280 et à 390 px : l'hypothèse centrée sous
+l'énoncé, une ligne par étape, la flèche sur chaque case, la correction
+fléchée à côté de la case fausse ; sur téléphone, les membres passent à la
+ligne avant un « = », jamais au milieu d'un vecteur.
+
+**Puis le banc a rendu sa mémoire.** Le premier passage dans l'action est
+tombé en « heap out of memory » : le banc de la Seconde, près de ses 4 Go,
+recevait le même jour une dizaine d'exercices du thème 8. Le contrôle
+redessinait l'écran à chaque copie essayée (~25 rendus, 8,3 Mo retenus) ; il
+ne redessine plus que quand la question change et remet sinon les cases à
+zéro — 2,9 Mo retenus, mesurés avec `--expose-gc`.
+
+## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.13, v533 — v528 et v529 prises par le 8.2.9, le 8.1.10 et le 8.2.5 ; le 8.2.11 et la v530 par {chasles-inserer-point} ; la v531 par le 8.2.9 et le 8.1.10 ; le 8.2.12 et la v532 par {demontrer-parallelogramme} — tous fusionnés pendant les bancs)
 
 **La demande** (Turquet, octobre 2026). Dans la liste d'idées d'exercices sur
 les vecteurs, Turquet a retenu la n° 7 : « Trois vecteurs bout à bout ». Sur
@@ -2759,7 +2857,7 @@ un quadrillage, trois vecteurs u⃗, v⃗, w⃗ ; l'élève construit u⃗ + v�
 les enchaînant bout à bout à partir d'un point, puis trace le vecteur somme.
 De temps en temps, la somme revient au point de départ : c'est le vecteur
 nul, et l'élève le déclare. Ajouté en dernier du sous-thème « Somme de
-vecteurs » : 8.2.12, rien ne se renumérote.
+vecteurs » : 8.2.13, rien ne se renumérote.
 
 **Un moteur à lui, les pièces du 8.2.1.** Kind `stv`, écran `scr-stv`. Le
 geste est celui du 8.2.10 (glisser ET tracer ouverts à tout moment, rien ne
