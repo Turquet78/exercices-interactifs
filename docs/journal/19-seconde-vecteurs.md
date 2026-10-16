@@ -3072,15 +3072,181 @@ Le banc navigateur (« 6 quadragies nonies ») joue tout à la vraie souris :
 toucher pose le point, sans croix qui suit), et la lisibilité des étiquettes
 quand l'élève pose un point juste à côté d'une lettre donnée.
 
+## {demontrer-chasles} — démontrer une égalité avec Chasles (8.2.13, v535 — prévu 8.2.11 en v528 ; pendant sa rédaction, v528 à v534 ont été prises par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8, le 8.2.12, le 8.1.11 et le 8.1.12, le 8.2.11 par {chasles-inserer-point} et le 8.2.12 par {demontrer-parallelogramme})
 
-## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.13, v535 — v528 à v534 et les numéros 8.2.11 et 8.2.12 pris pendant la rédaction, par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et « Chasles : insérer un point »)
+**La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
+par Claude, Turquet a retenu la dixième : « Montrer que AB⃗ + CD⃗ = AD⃗ +
+CB⃗ » (et d'autres égalités, tirées), une rédaction à trous, étape par
+étape — chaque étape a ses cases (des vecteurs) ET sa justification à choisir
+dans une liste. « Premier pas vers la démonstration ; toute écriture juste
+d'une étape acceptée. » Ajouté en dernier du sous-thème « Somme de
+vecteurs » : 8.2.13, rien ne se renumérote. Les détails ci-dessous ont été
+décidés sans aller-retour (consigne de la demande) ; ils sont nommés pour
+pouvoir être repris.
+
+**Une démonstration est un plan** (`DCH_DEMOS`, douze plans) : le membre de
+gauche, celui de droite, et les étapes — chacune une justification et, sauf la
+dernière, un nombre de cases. **La dernière ligne est le membre de droite,
+déjà écrit** : on sait où l'on va, on cherche comment y aller ; elle n'a que
+sa justification. Six plans sur des points quelconques (AB + CD = AD + CB ;
+AB + CD + BC = AD ; AB − CB = AC ; AB + BC + CA = 0 ; AB − AC + BC = 0 ;
+AB + CD − AD = CB), six sur un parallélogramme ABCD (AB + AD = AC ; BA + BC =
+BD ; AB + CD = 0 ; AB + CB = DB ; MA + MC = MB + MD, la plus longue, cinq
+étapes ; MA + DC = MB). Les lettres se renomment (`q.n`, sans I, O ni Q :
+le O se lirait 0) ; la tournure se tire (« Montrer », « Démontrer »,
+« Prouver que », `q.v`). **La première page est toujours l'exemple de la
+demande, avec ses lettres** ; les trois suivantes sont trois autres plans,
+jamais deux fois le même (`DCH_NB` = 4, `dmNbQuestions`, `distinctes()` avec
+le plan pour clé tant qu'il en reste).
+
+**Six justifications** (`DCH_JUST`, dans cet ordre dans la liste) : relation
+de Chasles ; on change l'ordre de la somme ; vecteurs opposés : leur somme
+est le vecteur nul ; ajouter le vecteur nul ne change rien ; soustraire un
+vecteur, c'est ajouter son opposé ; vecteurs égaux car ABCD est un
+parallélogramme — cette dernière n'est proposée que sur un parallélogramme,
+et porte son nom. La liste dit les règles EN MOTS, sans « AB⃗ + BA⃗ = 0⃗ »
+de l'idée : des lettres de l'énoncé souffleraient la réponse, et la première
+version, écrite « u⃗ + (−u⃗) = 0⃗ », s'affichait avec des carrés vides — la
+flèche combinante (U+20D7) n'a pas de dessin dans la police des listes, et
+une `<option>` ne peut pas poser la flèche en CSS comme `.vgt-vec`. Vu à
+l'écran, dans Chromium, pas par un banc. Sur un téléphone, la liste prend
+toute la ligne sous les cases (`flex:1 1 0;min-width:0`) : à sa largeur
+naturelle, la plus longue justification débordait de la carte.
+
+**Toute écriture juste est acceptée — et c'est une ÉNUMÉRATION, pas une
+liste de réponses.** `dchSuites` donne toutes les lignes qu'une étape tire de
+la précédente selon sa justification : Chasles décompose un vecteur en
+passant par N'IMPORTE QUEL point de l'énoncé, ou réunit deux vecteurs qui
+s'enchaînent (plusieurs à la fois si les cases l'exigent) ; l'ordre prend
+n'importe quelle permutation ; les opposés remplacent deux vecteurs voisins
+XY + YX par 0 ; le nul se retire ; la soustraction change tous les « − XY »
+en « + YX » ; le parallélogramme remplace un ou plusieurs vecteurs par un
+égal. `dchChaines` garde les rédactions complètes qui arrivent au membre de
+droite (à l'ordre près pour la dernière ligne) : 24 pour l'exemple, 48 pour
+MA + MC = MB + MD, une seule pour AB + AD = AC. **Une case est juste s'il
+existe une rédaction complète qui la porte avec les cases justes avant
+elle** (le principe de `cspRemplit`, 8.2.4) ; la correction prend la première
+qui reste, celle du plan d'abord. Ainsi AB + CD = AC + CB + CA + AD (passer
+par C puis par A) est juste autant que AD + DB + CB + BD.
+
+**Une étape vraie qui ne mène nulle part est fausse, et le message le dit.**
+Pour AB + AD = AC, remplacer AB par DC est une égalité juste, mais DC +
+AD ne se réunit pas par Chasles : la rédaction s'arrête. Le plan a un nombre
+de lignes fixé ; refuser cette ligne sans le dire serait un mensonge, la
+compter juste laisserait l'élève dans une impasse. Le message : « … est une
+étape juste, mais elle ne mène pas à AC avec les étapes qui suivent. Il
+fallait par exemple AB + BC. »
+
+**Une justification est juste dès qu'elle explique le passage** de la ligne
+d'avant (corrigée si elle était fausse) à la sienne (`dchExplique`) :
+AB + BA = 0 se justifie par les vecteurs opposés, ou par Chasles (AB + BA =
+AA). Sa correction est celle du plan.
+
+**Les pièges nommés** (`dchPourquoi`, sur la première case fausse) : un
+vecteur illisible ou hors de l'énoncé ; une ligne qui ne vaut plus la
+précédente (la somme se lit comme une combinaison de points, `dchComb`, et,
+sur un parallélogramme, le quatrième sommet vaut P0 + P2 − P1 — sans quoi
+AB + BC aurait « valu » autre chose que AB + AD) ; l'étape juste sans issue ;
+une ligne égale mais pas l'étape demandée (un vecteur changé pendant un
+changement d'ordre) ; la mauvaise justification. Chaque message dit ce que
+fait la règle, avec les lettres de l'étape quand il les trouve (`dchExemple` :
+« ici, AB = AD + DB »). La première version citait la PREMIÈRE
+transformation de l'étape : sur MA + MC = MB + BA + MD + DA, elle disait
+« ici, MA = MB + BA » — la moitié que l'élève avait juste. `dchChangements`
+rend chaque transformation avec les places qu'elle occupe, et le message
+cite celle qui couvre la case fausse : « ici, MC = MD + DC ». Vu en lisant
+le message à l'écran.
+
+**La mise en page est celle d'une copie** : le membre de gauche ouvre la
+première ligne, les suivantes en portent une copie INVISIBLE pour que leurs
+« = » tombent sous le premier (`.dch-fant`, retirée sur un téléphone), et la
+justification se choisit au bout de la ligne, après « car ». Vecteurs, signes
+et cases sont ceux du 8.1.3 (`.veg-v`, `.veg-eq`, `.veg-in`) ; la liste a sa
+classe (`.dch-sel`) et les trois encres de verdict. Une case vide reçoit la
+correction en vert (`corrChoix`), une liste vide aussi ; en soutien, rien ne
+se révèle. Le vecteur nul s'écrit 0, ou une lettre répétée (AA).
+
+**On range le plan, les lettres et la tournure** (`t`, `n`, `v`), jamais
+les réponses : tout se recalcule. Le verdict reste à la page.
+
+**Le banc** (`demontrerChasles`, banc principal) a un juge qui ne lit PAS les
+plans : il donne aux points des coordonnées au hasard (le quatrième sommet
+d'un parallélogramme par la règle du parallélogramme) et vérifie, en nombres,
+sur 200 séances, que l'égalité à démontrer est vraie et que CHAQUE ligne de
+CHAQUE rédaction acceptée vaut le membre de gauche ; il relit la forme de
+chaque étape du plan selon sa justification (l'ordre ne change que l'ordre,
+l'opposé fait apparaître un 0, le nul le retire…) ; il exige les douze plans
+sortis, la première page de la demande, jamais deux fois le même plan. Puis,
+par le bouton, sur l'exemple : l'énoncé, la liste sans parallélogramme (cinq
+justifications), la copie juste (15 cases), une AUTRE rédaction juste en
+minuscules avec AA pour le nul et Chasles pour justifier AC + CA = 0, cinq
+pièges peints en rouge et nommés, le badge vert, la case et la liste vides en
+correction, la copie vide sans rouge, le JSON, le soutien qui peint sans
+révéler ni verrouiller ; sur un parallélogramme EFGH : l'énoncé, la
+justification qui porte son nom, EF + FG = EG juste, HG + EH « ne mène pas » ;
+enfin le contexte du modèle.
+
+**Puis l'action a manqué de mémoire — et ce n'était pas le mémo.** Sur la
+machine de travail (8 Go de tas), tout était vert ; sur l'action (4 Go), le
+banc principal de la Seconde est tombé en « heap out of memory », bien après
+le contrôle de l'exercice, deux fois au même endroit. Rejoué en local avec
+`node --max-old-space-size=4096`, puis coupé en deux :
+- `main` seule passe à 4 Go, mais tombe à 3,8 Go : **le banc de la Seconde a
+  moins de 200 Mo de marge** ;
+- la branche passe à 4 Go si l'on retire le seul contrôle `demontrerChasles`.
+
+Premier soupçon, le mémo des rédactions, rangé par JEU DE LETTRES tirées
+(sans borne, le banc tirant des centaines de séances) : corrigé — les
+rédactions se calculent une fois par PLAN, sur ses propres lettres, puis se
+renomment (`dchChaines`, douze entrées quoi qu'il arrive) — mais le banc
+tombait toujours. La mesure, avec `--expose-gc` et `heapUsed` autour du
+contrôle, a dit le reste : 400 séances tirées et jugées ne retiennent rien ;
+**chaque rendu de l'écran retient près d'un Mo jusqu'à la fin du banc** (50
+rendus : +42 Mo), avec ou sans vérification. Le contrôle redessinait la page
+avant chaque copie, dix-huit fois. Il remet désormais les cases à blanc
+(`vider()`) et ne redessine que là où le rendu est lui-même vérifié : trois
+fois. Le pavage (8.1.9) et la somme sans étapes (8.2.10) retiennent chacun
+plus de 40 Mo de la même façon.
+
+**Et la cause a été trouvée ailleurs, le même jour** — par la session du
+8.1.12, qui butait sur le même mur (`docs/journal/17-verification-et-bancs.md`,
+« Un banc jsdom qui ne rend jamais la main garde chaque nœud retiré »). Ce
+n'était pas une fuite de la page : les relevés des `MutationObserver` de la
+page gardent en vie chaque nœud qu'un `innerHTML` retire, tant que le banc ne
+rend pas la main — d'où le Mo « retenu par rendu » mesuré ici. Le harnais
+délivre désormais ces relevés après chaque contrôle (`__viderObservateurs()`),
+et le banc plafonne bien sous les 4 Go. La remise à blanc de ce contrôle
+(`vider()`) reste : elle ne coûte rien et allège le contrôle.
+
+Leçon pour le prochain exercice : **un banc se rejoue en local À LA LIMITE
+DE L'ACTION** (`node --max-old-space-size=4096 tests/verifier.js
+secondes.html`) — la machine de travail donne 8 Go de tas à Node, l'action
+4 ; et un cache se borne par ce qui est fini (le plan), jamais par ce qui est
+tiré.
+
+**Puis le contrôle du réglage « Questions » a rougi — au hasard du tirage.**
+Sur l'action, le banc a fini par aller au bout (936 contrôles), avec un seul
+échec : « la séance passe de 4 à 6 questions, mais le barème reste 39 ». Ce
+contrôle universel suppose qu'une séance plus longue pèse plus de points ;
+c'est vrai quand chaque question a le même nombre de cases, pas ici : une
+démonstration a de 4 à 20 cases selon son plan, et six démonstrations courtes
+peuvent peser autant que quatre longues (15 + 4 + 4 + 4 + 4 + 8 = 15 + 12 + 4
++ 8 = 39). Le barème, lui, était juste : c'est la somme des cases réellement
+tirées, et le contrôle de l'exercice le tient (`maxScore` = somme de
+`dchCases`). L'exercice se déclare donc dans le profil
+(`reglagesDevoirs.baremeParCases`, raison comprise) ; la déclaration rougit
+si elle ne désigne plus un exercice qui s'allonge. Ce bord n'était sorti dans
+aucune des exécutions locales : il ne sort que sur certains tirages.
+
+
+## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.14, v536 — v528 à v535 et les numéros 8.2.11 à 8.2.13 pris pendant la rédaction, par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et « Chasles : insérer un point »)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
 par Claude, Turquet a retenu l'idée n° 8, « lire une somme sur un dessin » :
 une chaîne de flèches déjà tracée entre des points nommés, et deux questions
 — « quel vecteur de la figure est égal à u⃗ + v⃗ ? » et « écris w⃗ comme somme
 de deux vecteurs de la figure » —, toutes les écritures justes acceptées.
-Ajouté en dernier du sous-thème « Somme de vecteurs » : 8.2.13, rien ne se
+Ajouté en dernier du sous-thème « Somme de vecteurs » : 8.2.14, rien ne se
 renumérote. Kind `lsd`, écran `scr-lsd`.
 
 **Les choix faits sans redemander** (la consigne était de décider les
