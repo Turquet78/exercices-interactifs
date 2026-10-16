@@ -287,7 +287,7 @@ que le script fait ensuite, différé, reste à couvrir par le répit, et c'est
 écrit à côté de lui.
 
 **Le banc principal de la Seconde n'a plus de marge sous les 4 Go de l'action.**
-Mesuré en octobre 2026, pendant l'ajout de {demontrer-chasles} (8.2.12) :
+Mesuré en octobre 2026, pendant l'ajout de {demontrer-chasles} (8.2.13) :
 `main` passe à 4 Go et tombe à 3,8 Go. La machine de travail donne 8 Go de
 tas à Node : un banc vert en local peut tomber sur l'action en « heap out of
 memory », loin du contrôle qui l'a fait déborder. Deux règles en découlent :
@@ -295,7 +295,7 @@ memory », loin du contrôle qui l'a fait déborder. Deux règles en découlent 
   `node --max-old-space-size=4096 tests/verifier.js secondes.html` ;
 - un contrôle de banc ne redessine pas l'écran entre deux copies : dans
   jsdom, chaque rendu retient près d'un Mo jusqu'à la fin du banc (50 rendus
-  de l'écran du 8.2.12 : +42 Mo, mesuré avec `--expose-gc` et
+  de l'écran du 8.2.13 : +42 Mo, mesuré avec `--expose-gc` et
   `process.memoryUsage().heapUsed`). On remet les cases à blanc.
 Le détail, la bissection et la mesure : `docs/journal/19-seconde-vecteurs.md`,
 section {demontrer-chasles}. La fuite par rendu elle-même n'est pas trouvée.
