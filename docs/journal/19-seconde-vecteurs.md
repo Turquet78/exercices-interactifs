@@ -2488,3 +2488,96 @@ Trois sabotages ont été attrapés :
 - l'image remplacée par son retourné : « la page dit 27, le dessin 28 » ;
 - le mot « RETOURNÉ » retiré du message ;
 - le dessin jugé en soutien.
+
+## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.11, v528)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
+par Claude, Turquet a retenu l'idée n° 8, « lire une somme sur un dessin » :
+une chaîne de flèches déjà tracée entre des points nommés, et deux questions
+— « quel vecteur de la figure est égal à u⃗ + v⃗ ? » et « écris w⃗ comme somme
+de deux vecteurs de la figure » —, toutes les écritures justes acceptées.
+Ajouté en dernier du sous-thème « Somme de vecteurs » : 8.2.11, rien ne se
+renumérote. Kind `lsd`, écran `scr-lsd`.
+
+**Les choix faits sans redemander** (la consigne était de décider les
+détails raisonnables) :
+- **des cases de deux lettres, pas un QCM** : c'est l'écriture du 8.2.2
+  (`.veg-in` sous une flèche), et un QCM aurait donné la réponse à choisir ;
+- **u⃗, v⃗, w⃗ sont tracés À PART**, en orange, loin des points (au moins
+  1,2 carreau de chaque point nommé, 1 carreau de la chaîne, 1,4 carreau l'un
+  de l'autre) : si u⃗ était le nom d'une flèche de la chaîne, « u⃗ + v⃗ » se
+  lirait sur les étiquettes sans regarder le dessin. Ici, l'élève doit
+  reconnaître la flèche de la chaîne qui fait le même chemin que u⃗ ;
+- **un quadrillage**, 16 × 10 carreaux : il permet de compter, et le juge
+  du banc tranche au pixel près ;
+- **quatre figures par séance** (`LSD_NB`, `dmNbQuestions`), trois cases
+  chacune : barème 12.
+
+**Le tirage** (`lsdGenQuestion`). Cinq points en chaîne, quatre flèches de
+composantes au plus 3 ; deux flèches consécutives ne sont jamais alignées
+(leur somme se lirait sans rien chercher), aucun trait ne frôle un point ou
+un autre trait (0,9 carreau), deux points ne sont jamais voisins.
+- **u⃗ + v⃗** : u⃗ et v⃗ sont égaux à deux flèches CONSÉCUTIVES (k, k + 1) —
+  une fois sur deux dans l'ordre inverse (`sw`) : v⃗ + u⃗ se lit pareil, et le
+  message le dit (« on peut changer l'ordre d'une somme »).
+- **w⃗** est le raccourci de deux flèches (`m = 2`), ou de trois (`m = 3`, une
+  fois sur trois environ) : l'écriture attendue passe alors par un vecteur
+  que la chaîne ne trace pas (`XZ + ZT`). Jamais la somme de u⃗ + v⃗, ni son
+  opposée, ni une flèche de la chaîne.
+- **un sixième point, isolé**, est posé sept fois sur dix au bout d'un AUTRE
+  vecteur égal à u⃗ + v⃗ : « toutes les écritures justes » ont alors quelque
+  chose à accepter.
+- Les lettres sont six au hasard (sans I, O, Q, ni U, V, W qui nomment les
+  vecteurs libres) : la chaîne ne suit pas l'alphabet, il faut la lire.
+
+**On range la figure et les indices, jamais les réponses** : `pts`, `ch`
+(l'ordre de la chaîne), `uo`, `vo`, `wo` (l'origine des flèches libres), `k`,
+`sw`, `j`, `m`. `lsdVecs` recalcule u⃗, v⃗, w⃗ ; `lsdJuge` les réponses.
+
+**Le juge** (`lsdJuge`, sans le DOM : il prend les trois chaînes écrites).
+- u⃗ + v⃗ : juste si le vecteur écrit fait le même chemin, quelles que soient
+  ses lettres.
+- w⃗ = … + … : les deux cases justes si la somme fait w⃗. Sinon la première
+  est juste si un vecteur de la figure la COMPLÈTE (w⃗ − PQ en est un) : elle
+  commence une écriture juste, et la correction écrit dans la seconde ce qui
+  la complète — de préférence le vecteur qui part de sa fin (Chasles). À
+  défaut, la seconde se juge de même. Un vecteur déjà égal à w⃗ ne se complète
+  par aucun vecteur non nul : il est faux, et nommé.
+
+**Les pièges nommés** (`lsdPourquoi`, sur la première case fausse) : le
+vecteur illisible ; u⃗ + v⃗ à l'envers (« l'OPPOSÉ ») ; u⃗ seul, v⃗ seul ; la
+différence u⃗ − v⃗ ou v⃗ − u⃗ ; w⃗ écrit en UN vecteur (« DEUX vecteurs ») ;
+une somme opposée à w⃗ ; deux vecteurs qui s'enchaînent mais n'arrivent pas
+au bout de w⃗ (« DK + KA = DA, et DA n'est pas égal à w ») — ou reviennent au
+départ (le vecteur nul) ; le second vecteur qui ne complète pas un premier
+juste. Le message est du texte brut : les vecteurs s'y écrivent sans flèche,
+comme au 8.2.1 — la flèche combinante U+20D7 se dessinait décalée dans la
+police du message (vu sur la capture, avant la PR).
+
+**Le dessin montre une ligne à la fois** (`lsdMontrer`) : liseré violet, ses
+flèches libres épaissies, les vecteurs écrits par l'élève tracés en violet
+pointillé. La page VERROUILLÉE : le juste en bleu, le faux en rouge, la
+correction en vert. En soutien, rien ne se révèle (`test.locked`, comme au
+8.1.9).
+
+**Un clic sur un point écrit sa lettre** (`lsdClicPt`) dans la case choisie
+(liseré violet, `lsd-cible`) ; deux lettres posées, la main passe à la case
+vide suivante ; un clic dans une case pleine la recommence. Sur tablette,
+c'est le geste qui évite le clavier du système.
+
+**Le banc** (`lireSommeDessin`, banc principal) a un juge qui ne lit PAS les
+données de la page : il relit le SVG comme du TEXTE (la leçon du 8.1.9) — les
+points (le rond le plus proche de chaque lettre), les flèches de la chaîne et
+les trois flèches libres (le début du trait, la pointe), leur nom (le texte
+le plus proche du milieu). Sur 50 séances, il vérifie : la chaîne continue
+d'un point nommé à l'autre ; u⃗ et v⃗ égaux à deux flèches consécutives ; les
+flèches libres à plus de 30 px de chaque point ; pour CHACUN des 30 vecteurs
+de la figure, le verdict de la page sur « u⃗ + v⃗ = … » contre celui du
+dessin ; pour CHACUNE des 900 sommes de deux vecteurs, le verdict des deux
+cases de w⃗ (et la correction, qui doit faire w⃗) ; que `m = 3`, `sw = 1` et
+une seconde écriture de u⃗ + v⃗ sortent. Sur une figure fixe (K → D → M → A →
+F, B isolé) : les copies justes écrites AUTREMENT (`ab`, `MK + KF`), les dix
+pièges peints en rouge et nommés, l'ordre inverse, le badge vert, le dessin
+de la correction, les cases vides en correction (et la seconde qui COMPLÈTE
+une première juste : `MK` → `KF`), la copie vide sans rouge, les clics, le
+redessin après le JSON, le soutien sans révélation, le contexte du modèle.

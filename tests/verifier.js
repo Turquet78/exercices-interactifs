@@ -4553,6 +4553,7 @@ function exercices(suite){
     tracerVecteursEgaux(w, P);
     tracerVecteursOpposes(w, P);
     translationPavage(w, P);
+    lireSommeDessin(w, P);
     sommeVecteursLibre(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
@@ -12667,6 +12668,213 @@ function translationPavage(w, P){
     /* le contexte du modèle */
     const ctx=ctxTpv(test.questions[0]).contexte;
     if(!/SECR/.test(ctx) || !/glisse/i.test(ctx) || !/RM/.test(ctx) || !/triangle 29/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni les réponses');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {lire-somme-dessin} (Seconde, 8.2.11 — idée n° 8 retenue par Turquet,
+   octobre 2026) : une chaîne de flèches entre des points nommés, u⃗, v⃗, w⃗
+   tracés à part, « u⃗ + v⃗ = … » et « w⃗ = … + … ». Le juge de ce banc ne lit
+   PAS les données de la page : il relit le DESSIN — les points (le rond le
+   plus proche de chaque lettre), les flèches de la chaîne et les trois
+   flèches libres (le début du trait, la pointe) — et décide lui-même, en
+   pixels, quels vecteurs de la figure sont égaux à u⃗ + v⃗ et quelles
+   sommes de deux vecteurs font w⃗. Il lit le SVG comme du TEXTE (lsdSvg),
+   sans le poser dans le DOM : le banc jsdom de l'action est près de ses
+   4 Go (la leçon du 8.1.9). */
+function lireSommeDessin(w, P){
+  const nom = 'somme lue sur un dessin : la place, le tirage relu sur le dessin, toutes les écritures justes acceptées, les pièges nommés, le clic sur un point';
+  if(!P.lireSommeDessin){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice de la somme lue sur un dessin');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.lireSommeDessin)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+
+    /* ---- 0. la place : 8.2.11, à la fin de la somme de vecteurs ; pas de tables */
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['translation-pavage']!=='8.1.9' || TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['somme-vecteurs-libre']!=='8.2.10') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS.lsd!==RAP_LSD || !QIA_SUGG.lsd) vus.push('le rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant : il relit le DESSIN --------------------- */
+    const lire=function(src){
+      if(src==null) src=document.querySelector('#lsdHost svg').outerHTML;
+      const att=function(t, a){ const m=new RegExp('\\\\s'+a+'="([^"]*)"').exec(t); return m ? m[1] : null; };
+      const ronds=(src.match(/<circle class="lsd-pt"[^>]*>/g)||[]).map(function(t){ return [+att(t,'cx'), +att(t,'cy')]; });
+      const pts={};
+      (src.match(/<text class="lsd-nom"[^>]*>[^<]*<\\/text>/g)||[]).forEach(function(t){
+        const x=+att(t,'x'), y=+att(t,'y'), L=t.replace(/^<text[^>]*>|<\\/text>$/g,'').trim();
+        let b=null, bd=1e9; ronds.forEach(function(r){ const d=Math.hypot(r[0]-x, r[1]-y); if(d<bd){ bd=d; b=r; } });
+        pts[L]=b; });
+      const fl=function(cls){ const r=[];
+        const re=new RegExp('<g class="'+cls+'[^"]*"([^>]*)><line ([^>]*)/><polygon points="([^"]*)"/></g>', 'g');
+        let m; while((m=re.exec(src))){ const p=m[3].trim().split(/\\s+/)[0].split(',').map(Number);
+          r.push({n:att(' '+m[1],'data-n'), a:[+att(' '+m[2],'x1'), +att(' '+m[2],'y1')], b:p}); }
+        return r; };
+      const ch=fl('lsd-ch'), lib=fl('lsd-lib');
+      /* le nom de chaque flèche libre : le texte le plus proche de son milieu */
+      const noms=(src.match(/<text class="lsd-vn"[^>]*>[^<]*<\\/text>/g)||[]).map(function(t){
+        return {x:+att(t,'x'), y:+att(t,'y'), v:t.replace(/^<text[^>]*>|<\\/text>$/g,'').trim()}; });
+      const libre={};
+      lib.forEach(function(f){ const mx=(f.a[0]+f.b[0])/2, my=(f.a[1]+f.b[1])/2;
+        let b=null, bd=1e9; noms.forEach(function(n){ const d=Math.hypot(n.x-mx, n.y-my); if(d<bd){ bd=d; b=n; } });
+        libre[b ? b.v : '?']=f; });
+      const dep=function(f){ return [f.b[0]-f.a[0], f.b[1]-f.a[1]]; };
+      const D2=function(v){ return [pts[v[1]][0]-pts[v[0]][0], pts[v[1]][1]-pts[v[0]][1]]; };
+      const meme=function(a, b){ return Math.abs(a[0]-b[0])<0.5 && Math.abs(a[1]-b[1])<0.5; };
+      const L=Object.keys(pts).sort(), vecs=[];
+      L.forEach(function(X){ L.forEach(function(Y){ if(X!==Y) vecs.push(X+Y); }); });
+      return {pts:pts, ch:ch, libre:libre, dep:dep, D:D2, meme:meme, vecs:vecs};
+    };
+    const plus=function(a, b){ return [a[0]+b[0], a[1]+b[1]]; };
+    const moins=function(a, b){ return [a[0]-b[0], a[1]-b[1]]; };
+    const distPS=function(p, a, b){ const dx=b[0]-a[0], dy=b[1]-a[1], l=dx*dx+dy*dy;
+      const t=l ? Math.max(0, Math.min(1, ((p[0]-a[0])*dx+(p[1]-a[1])*dy)/l)) : 0; return Math.hypot(p[0]-a[0]-t*dx, p[1]-a[1]-t*dy); };
+
+    /* ---- 1. le tirage : 50 séances, chaque figure relue sur le dessin -- */
+    const vu={m2:0, m3:0, sw0:0, sw1:0, deux:0};
+    for(let s=0;s<50 && vus.length<4;s++){
+      const qs=lsdBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' figures au lieu de '+D.nb); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      const cles=qs.map(function(q){ return JSON.stringify(q.pts)+q.ch; });
+      if(new Set(cles).size!==cles.length) vus.push('deux figures identiques dans une séance');
+      qs.forEach(function(q){
+        vu['m'+q.m]++; vu['sw'+q.sw]++;
+        const J=lire(lsdSvg(q)), U=J.libre.u, V=J.libre.v, W=J.libre.w;
+        if(Object.keys(J.pts).length!==6 || Object.keys(J.pts).some(function(k){ return !J.pts[k]; })) { vus.push('les points nommés : '+Object.keys(J.pts).join('')); return; }
+        if(J.ch.length!==4 || !U || !V || !W) { vus.push('le dessin n’a pas 4 flèches de chaîne et u, v, w : '+J.ch.length+' '+Object.keys(J.libre).join('')); return; }
+        /* la chaîne : chaque flèche part où s'arrête la précédente, et relie deux points nommés */
+        const nomme=function(p){ return Object.keys(J.pts).find(function(k){ return J.meme(J.pts[k], p); }); };
+        const lettres=[nomme(J.ch[0].a)];
+        J.ch.forEach(function(f, i){ if(i && !J.meme(f.a, J.ch[i-1].b)) vus.push('la chaîne est coupée après la flèche '+i); lettres.push(nomme(f.b)); });
+        if(lettres.some(function(x){ return !x; })) vus.push('une flèche de la chaîne ne relie pas deux points nommés');
+        /* u⃗ et v⃗ sont égaux à deux flèches CONSÉCUTIVES de la chaîne */
+        const iu=J.ch.findIndex(function(f){ return J.meme(J.dep(f), J.dep(U)); }), iv=J.ch.findIndex(function(f){ return J.meme(J.dep(f), J.dep(V)); });
+        if(iu<0 || iv<0 || Math.abs(iu-iv)!==1) vus.push('u et v ne sont pas égaux à deux flèches consécutives de la chaîne ('+iu+', '+iv+')');
+        /* les flèches libres passent loin des points nommés */
+        [U, V, W].forEach(function(f){ Object.keys(J.pts).forEach(function(k){ if(distPS(J.pts[k], f.a, f.b)<30) vus.push('une flèche libre passe à '+Math.round(distPS(J.pts[k], f.a, f.b))+' px du point '+k); }); });
+        const sm=plus(J.dep(U), J.dep(V)), w=J.dep(W);
+        if(J.meme(sm, w) || J.meme(sm, [-w[0], -w[1]])) vus.push('u + v et w font le même chemin');
+        /* u⃗ + v⃗ : la page accepte EXACTEMENT les vecteurs que le dessin dit égaux */
+        const bons=J.vecs.filter(function(v){ return J.meme(J.D(v), sm); });
+        if(!bons.length) vus.push('aucun vecteur de la figure n’est égal à u + v');
+        if(bons.length>1) vu.deux++;
+        J.vecs.forEach(function(v){ const ok=lsdJuge(q, [v,'',''])[0].ok;
+          if(ok!==(bons.indexOf(v)>=0)) vus.push('u + v = '+v+' : la page dit '+(ok?'juste':'faux')+', le dessin '+(ok?'faux':'juste')); });
+        /* w⃗ : toutes les sommes de deux vecteurs de la figure, une par une */
+        const complete=function(d){ return J.vecs.some(function(r){ return J.meme(J.D(r), d); }); };
+        let canon=0;
+        J.vecs.forEach(function(a){ J.vecs.forEach(function(b){
+          const r=lsdJuge(q, ['', a, b]), juste=J.meme(plus(J.D(a), J.D(b)), w);
+          if(juste) canon++;
+          const ok1=juste || complete(moins(w, J.D(a))), ok2=juste || (!ok1 && complete(moins(w, J.D(b))));
+          if(r[1].ok!==ok1 || r[2].ok!==ok2) vus.push('w = '+a+' + '+b+' : la page dit '+r[1].ok+'/'+r[2].ok+', le dessin '+ok1+'/'+ok2);
+          if(!r[1].ok && !J.meme(plus(J.D(r[1].bon), J.D(r[2].bon)), w)) vus.push('la correction de w = '+a+' + '+b+' écrit '+r[1].bon+' + '+r[2].bon);
+        }); });
+        if(!canon) vus.push('aucune somme de deux vecteurs de la figure ne fait w');
+        const vide=lsdJuge(q, ['','','']);
+        if(!J.meme(J.D(vide[0].bon), sm) || !J.meme(plus(J.D(vide[1].bon), J.D(vide[2].bon)), w)) vus.push('la correction de la copie vide est fausse sur le dessin');
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    if(!vu.m2 || !vu.m3) vus.push('w ne sort jamais comme raccourci de '+(vu.m2?'trois':'deux')+' flèches');
+    if(!vu.sw0 || !vu.sw1) vus.push('u et v ne sortent jamais dans l’ordre '+(vu.sw0?'inverse':'de la chaîne'));
+    if(!vu.deux) vus.push('u + v n’a jamais deux écritures (le point isolé ne sert à rien)');
+
+    /* ---- 2. une figure fixe, par le BOUTON ------------------------------
+       La chaîne K → D → M → A → F, le point B. u = KD, v = DM : u + v = KM,
+       ou AB. w = MF, le raccourci de MA et AF. */
+    TESTS[D.exercice].start();
+    if(test.kind!=='lsd' || test.qId!==D.exercice) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    const fixe=function(sw){ return {pts:{K:[2,3],D:[4,6],M:[7,7],A:[9,4],F:[12,6],B:[14,8]}, ch:'KDMAF', uo:[11,0], vo:[13,1], wo:[1,9], k:0, sw:sw, j:2, m:2}; };
+    test.questions[0]=fixe(0); test.idx=0;
+    const IDS=['lsd-0-0','lsd-1-0','lsd-1-1'];
+    const el=function(id){ return document.getElementById(id); };
+    const peint=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const fb=function(){ return el('lsdFeedback').textContent; };
+    const poser=function(v){ test.locked=false; renderLsdTest(); IDS.forEach(function(id,k){ el(id).value=(v[k]==null?'':v[k]); }); };
+    poser([]);
+    const J=lire();
+    if(!J.meme(plus(J.dep(J.libre.u), J.dep(J.libre.v)), J.D('KM')) || !J.meme(J.D('AB'), J.D('KM')) || !J.meme(J.dep(J.libre.w), J.D('MF')))
+      return 'le dessin de la figure fixe ne donne pas u + v = KM = AB et w = MF';
+    const texte=el('lsdHost').textContent.replace(/\\s+/g,' ');
+    if(!/Quel vecteur de la figure est égal à u ?\\+ ?v/.test(texte)) vus.push('la question 1 dit « '+texte.slice(0,100)+' »');
+    if(!/comme la somme de deux vecteurs de la figure/.test(texte)) vus.push('la question 2 manque');
+    if(!el('lsdInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
+    /* la copie juste, écrite AUTREMENT que la page : AB (en minuscules) et MK + KF */
+    poser(['ab','MK','KF']); checkLsdAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste ab ; MK + KF est comptée fausse : '+IDS.map(peint).join(', '));
+    if(!der || der.cases!==3) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 3');
+    if(!el('lsdNext')) vus.push('pas de bouton « Figure suivante »');
+    poser(['KM','MA','AF']); checkLsdAnswer();
+    if(IDS.some(function(id){ return peint(id)!=='juste'; })) vus.push('la copie de la chaîne est peinte '+IDS.map(peint).join(', '));
+    /* les pièges, nommés */
+    const piege=function(v, id, re, quoi, etat){ poser(v); checkLsdAnswer();
+      if(peint(id)!==(etat||'rouge')) vus.push(quoi+' : la case est peinte '+peint(id));
+      else if(re && !re.test(fb())) vus.push(quoi+' : le message dit « '+fb().slice(0,120)+' »'); };
+    piege(['MK','MA','AF'], 'lsd-0-0', /mauvais sens/, 'u + v à l’envers');
+    piege(['KD','MA','AF'], 'lsd-0-0', /égal à u seulement/, 'u seul');
+    piege(['DM','MA','AF'], 'lsd-0-0', /égal à v seulement/, 'v seul');
+    piege(['KA','MA','AF'], 'lsd-0-0', /KD \\+ DM = KM/, 'un vecteur quelconque');
+    piege(['ZZ','MA','AF'], 'lsd-0-0', /n’est pas un vecteur de la figure/, 'un vecteur illisible');
+    piege(['KM','MF',''], 'lsd-1-0', /DEUX vecteurs/, 'w recopié en un seul vecteur');
+    piege(['KM','AM','FA'], 'lsd-1-0', /OPPOSÉ de w/, 'w à l’envers');
+    piege(['KM','DK','KA'], 'lsd-1-0', /= DA \\(relation de Chasles\\)/, 'une chaîne qui n’arrive pas au bout de w');
+    if(peint('lsd-1-1')!=='juste') vus.push('KA, qui se complète par BF, est peint '+peint('lsd-1-1'));
+    piege(['KM','MA','AB'], 'lsd-1-1', /devait être égal à AF/, 'le second vecteur après MA');
+    if(peint('lsd-1-0')!=='juste') vus.push('MA, juste en premier, est peint '+peint('lsd-1-0'));
+    /* l'ordre inverse : v + u se lit pareil, et le message le dit */
+    test.questions[0]=fixe(1);
+    piege(['KA','MA','AF'], 'lsd-0-0', /changer l’ordre/, 'u et v dans l’ordre inverse');
+    piege(['KM','MA','AF'], 'lsd-0-0', null, 'KM avec u et v inversés', 'juste');
+    test.questions[0]=fixe(0);
+    /* le badge vert à côté de la case fausse, et la correction sur le dessin */
+    poser(['MK','MA','AF']); checkLsdAnswer();
+    const badge=el('lsd-0-0').nextElementSibling;
+    if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='KM') vus.push('la correction de u + v n’écrit pas KM à côté');
+    if(!document.querySelector('#lsdFl .lsd-fr') || !document.querySelector('#lsdFl .lsd-fg')) vus.push('le dessin ne montre pas la réponse rouge et la correction verte');
+    if(!document.querySelector('#lsdHost g.lsd-lib.lsd-vu[data-n="u"]') || document.querySelector('#lsdHost g.lsd-lib.lsd-vu[data-n="w"]')) vus.push('la ligne montrée ne fait pas ressortir u et v');
+    /* une case vide ne rougit pas : elle reçoit la correction */
+    poser(['KM','','']); checkLsdAnswer();
+    if(peint('lsd-1-0')!=='correction' || el('lsd-1-0').value!=='MA' || el('lsd-1-1').value!=='AF') vus.push('les cases vides de w : '+peint('lsd-1-0')+' « '+el('lsd-1-0').value+' + '+el('lsd-1-1').value+' »');
+    if(!/manquait/.test(fb())) vus.push('le message ne nomme pas les cases manquantes');
+    /* une seule case de w, juste : la correction la COMPLÈTE */
+    poser(['KM','MK','']); checkLsdAnswer();
+    if(peint('lsd-1-0')!=='juste' || peint('lsd-1-1')!=='correction' || el('lsd-1-1').value!=='KF') vus.push('MK seul : '+peint('lsd-1-0')+', puis « '+el('lsd-1-1').value+' » '+peint('lsd-1-1'));
+    poser([]); checkLsdAnswer();
+    if(IDS.some(function(id){ return peint(id)==='rouge'; })) vus.push('la copie vide a du rouge');
+    /* le clic sur les points : deux lettres, puis la case suivante */
+    poser([]);
+    lsdClicPt('K'); lsdClicPt('M');
+    if(el('lsd-0-0').value!=='KM' || test.lsdCase!=='lsd-1-0') vus.push('les clics K puis M écrivent « '+el('lsd-0-0').value+' » et passent à '+test.lsdCase);
+    lsdClicPt('M'); lsdClicPt('A');
+    if(!document.querySelector('#lsdFl .lsd-fv')) vus.push('le vecteur écrit ne se trace pas en violet');
+    lsdClicPt('A'); lsdClicPt('F');
+    if(el('lsd-1-0').value!=='MA' || el('lsd-1-1').value!=='AF') vus.push('les clics écrivent w = « '+el('lsd-1-0').value+' » + « '+el('lsd-1-1').value+' »');
+    lsdClicPt('B');
+    if(el('lsd-1-1').value!=='B') vus.push('une case pleine ne recommence pas au clic : « '+el('lsd-1-1').value+' »');
+    /* la reprise : la question survit au JSON et se redessine */
+    const avant=JSON.stringify(test.questions[0]);
+    test.questions[0]=JSON.parse(avant); renderLsdTest();
+    if(JSON.stringify(test.questions[0])!==avant || document.querySelectorAll('#lsdHost circle.lsd-hit').length!==6) vus.push('la question ne se redessine pas après le JSON');
+    /* le soutien : peint au fil de la saisie, sans jamais montrer la correction */
+    currentMode='soutien'; poser([]);
+    el('lsd-0-0').value='MK'; el('lsd-0-0').dispatchEvent(new Event('input'));
+    if(peint('lsd-0-0')!=='rouge' || peint('lsd-1-0')!=='rien') vus.push('le soutien peint '+peint('lsd-0-0')+' la case remplie, '+peint('lsd-1-0')+' la vide');
+    checkLsdAnswer();
+    if(test.locked || document.querySelector('#lsdFl .lsd-fg') || el('lsd-1-0').value) vus.push('la vérification du soutien verrouille ou révèle');
+    el('lsd-0-0').value='KM'; checkLsdAnswer(true);
+    if(peint('lsd-0-0')!=='juste') vus.push('le soutien ne bleuit pas KM');
+    currentMode='train';
+    /* le contexte du modèle */
+    const ctx=ctxLsd(test.questions[0]).contexte;
+    if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/KM ou/.test(ctx) && !/AB ou KM/.test(ctx) || !/MA \\+ AF/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni les réponses');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
