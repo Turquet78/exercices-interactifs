@@ -60994,14 +60994,17 @@ function svrJuste(q,o){
 /* Le geste suivant encore à faire, dans l'ordre de la fiche : tant que
    l'objectif du geste en cours n'est pas vert, on y reste (demande de
    Turquet, octobre 2026) — un point faux se repose d'un clic, un vecteur faux
-   se retrace. Vert, on passe au premier objectif encore gris APRÈS lui, puis
-   on repart du début : un clic destiné à C ne déplace jamais A. Sans geste
-   en cours (depuis vide, au rendu), le premier gris de la fiche. */
+   se retrace. Vert, on passe au premier objectif encore gris APRÈS lui dans
+   la même étape (un clic destiné à C ne déplace jamais A), puis au premier
+   gris de la fiche : on ne passe à l'étape suivante qu'avec une étape toute
+   verte. Sans geste en cours (au rendu), le premier gris de la fiche. */
 function svrSuivant(q, depuis){
   const libre=function(o){ return !svrJuste(q,o)&&!(test.svrFige&&test.svrFige[svrIdOutil(o)]); };
+  const etape=function(o){ return o==='M'?2:(o[0]==='t'?1:0); };
   const i=SVR_OUTILS.indexOf(depuis);
   if(i>=0&&libre(depuis)) return depuis;
-  for(let n=1;n<=SVR_OUTILS.length;n++){ const o=SVR_OUTILS[(Math.max(i,-1)+n)%SVR_OUTILS.length]; if(libre(o)) return o; }
+  if(i>=0) for(let j=i+1;j<SVR_OUTILS.length&&etape(SVR_OUTILS[j])===etape(depuis);j++) if(libre(SVR_OUTILS[j])) return SVR_OUTILS[j];
+  for(const o of SVR_OUTILS) if(libre(o)) return o;
   return depuis||test.svrOutil;
 }
 function svrOutil(o){
