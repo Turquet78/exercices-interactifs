@@ -2600,6 +2600,14 @@ déclarée au bouton (le chaînage vide se trace en vert, rien ne rougit). Il
 mesure aussi que les consignes se lisent au-dessus du dessin, qu'aucun nom
 n'en sort et que les prises ne font pas défiler la page.
 
+Quatre sabotages ont été attrapés par le banc principal, chacun nommé :
+- une somme tracée À L'ENVERS acceptée par le juge (« la somme à l'envers :
+  ok ») — le soutien, du même coup, s'est verrouillé sur une copie fausse ;
+- le message « tu as oublié le vecteur w » retiré ;
+- le cercle vert de la somme nulle retiré (la correction traçait une flèche
+  du point au point) ;
+- plus aucune somme nulle au tirage (« une séance a 0 somme(s) nulle(s) »).
+
 Ce qu'aucun banc ne voit : le glisser au DOIGT sur tablette (celui du 8.2.1,
 `touch-action:none`, jamais joué), et la place du nom « u⃗ + v⃗ + w⃗ ». La
 première capture l'a montré posé sur la lettre du point : `stvCoteDehors`
