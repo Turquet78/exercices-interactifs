@@ -285,3 +285,19 @@ ouvertures de la Seconde coûtent 1,6 minute de plus qu'à 400 ms, et 4,5 de
 moins qu'avant. Une attente de condition n'attend que ce qu'elle nomme — ce
 que le script fait ensuite, différé, reste à couvrir par le répit, et c'est
 écrit à côté de lui.
+
+**Le banc jsdom de la Seconde a reçu 6 Go de tas sur l'action (octobre 2026).**
+Il garde UNE fenêtre jsdom ouverte pour tous ses exercices, et le plafond par
+défaut de Node (4 Go) était atteint sur main même : le travail
+« controles (secondes.html) » de la PR #710 a mis vingt minutes, rejoué en
+local sous `--max-old-space-size=4096` il n'avait pas fini en trente — le
+ramasse-miettes tournait en boucle. L'exercice suivant ({somme-trois-vecteurs},
+8.2.12) a fait déborder le tas (« heap out of memory »), alors que son contrôle
+ne dessine qu'une figure par geste (sa première version en dessinait 200 : la
+leçon du 8.1.9, voir `19-seconde-vecteurs.md`). `controles.yml` lance désormais
+`node --max-old-space-size=6144 tests/verifier.js` : le runner a 16 Go, aucun
+contrôle n'est retiré ni allégé. Mesuré en local sous ce plafond : 935 contrôles
+passés, 4,9 Go de mémoire au plus haut (RSS). Le prix est nommé : ce plafond recule le mur, il
+ne l'abat pas. Chaque exercice ajouté à la Seconde garde la règle — un tirage
+répété se fait SANS dessin (`xxxBuildQuestions()`, ou le SVG relu comme du
+texte), un seul démarrage réel par contrôle.

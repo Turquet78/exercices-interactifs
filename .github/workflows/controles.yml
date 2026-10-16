@@ -47,8 +47,14 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      # LE TAS DE NODE PASSE DE 4 À 6 GO (octobre 2026). Le banc de la Seconde
+      # garde ouverte UNE fenêtre jsdom pour tous ses exercices, et main était
+      # au bord : vingt minutes de ramasse-miettes pour passer, puis « heap out
+      # of memory » à l'exercice suivant ({somme-trois-vecteurs}, 8.2.12). Le
+      # runner a 16 Go ; on ne retire aucun contrôle. Voir
+      # docs/journal/17-verification-et-bancs.md.
       - name: ${{ matrix.niveau }}
-        run: node tests/verifier.js ${{ matrix.niveau }}
+        run: node --max-old-space-size=6144 tests/verifier.js ${{ matrix.niveau }}
 
   # Les deux autres travaux remplacent Supabase par un double en mémoire — exprès,
   # pour qu'aucun contrôle n'approche les comptes réels. Ils sont donc aveugles

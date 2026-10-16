@@ -13253,18 +13253,20 @@ function sommeTroisVecteurs(w, P){
     const fb=function(){ return el('stvFeedback').textContent; };
     const plus=function(a,b){ return [a[0]+b[0],a[1]+b[1]]; }, eg=function(a,b){ return !!a&&!!b&&a[0]===b[0]&&a[1]===b[1]; };
 
-    /* 1. le tirage, sur 200 séances : sa propre arithmétique */
+    /* 1. le tirage, sur 200 séances : sa propre arithmétique. UN SEUL
+       démarrage réel ; les 199 autres séances sont tirées par
+       stvBuildQuestions(), SANS dessin — 200 figures posées dans le DOM ont
+       épuisé les 4 Go du banc de l'action (la leçon du 8.1.9, retrouvée) */
     const CLES='dn,l,po,sd,sf,uc,uo,up,vc,vo,vp,wc,wo,wp';
+    TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='stv') vus.push('kind « '+test.kind+' » au lieu de stv');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    if(test.questions.length!==D.nb) vus.push(test.questions.length+' questions au lieu de '+D.nb);
     let nuls=0, places={};
     for(let s=0;s<200;s++){
-      TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
-      if(s===0){
-        if(test.kind!=='stv') vus.push('kind « '+test.kind+' » au lieu de stv');
-        if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
-        if(test.questions.length!==D.nb) vus.push(test.questions.length+' questions au lieu de '+D.nb);
-      }
+      const qs=s?stvBuildQuestions():test.questions;
       let n=0; const cles={};
-      test.questions.forEach(function(q,i){
+      qs.forEach(function(q,i){
         if(Object.keys(q).sort().join(',')!==CLES) vus.push('la question range : '+Object.keys(q).sort().join(','));
         const c=[q.uc,q.vc,q.wc], o=[q.uo,q.vo,q.wo], s3=[c[0][0]+c[1][0]+c[2][0], c[0][1]+c[1][1]+c[2][1]];
         const nul=s3[0]===0&&s3[1]===0; if(nul){ n++; places[i]=1; }

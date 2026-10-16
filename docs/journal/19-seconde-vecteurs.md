@@ -2837,6 +2837,17 @@ déclarée au bouton (le chaînage vide se trace en vert, rien ne rougit). Il
 mesure aussi que les consignes se lisent au-dessus du dessin, qu'aucun nom
 n'en sort et que les prises ne font pas défiler la page.
 
+**Le piège du 8.1.9, retrouvé.** La première version du contrôle tirait
+ses 200 séances par `TESTS[…].start()` : 200 figures posées dans le DOM.
+Verte sur la machine de travail (dont le tas n'est pas plafonné), elle a
+épuisé les 4 Go du banc de la Seconde sur l'action (« heap out of memory »,
+plus loin, dans les contrôles Python). Le tirage passe désormais par
+`stvBuildQuestions()`, sans dessin ; un seul démarrage réel reste, pour le
+kind, le barème et le nombre de questions. Cela n'a pas suffi : main était
+déjà au bord des 4 Go (rejoué en local sous ce plafond, son banc n'avait pas
+fini en trente minutes), et le banc jsdom de l'action a reçu 6 Go de tas —
+la chronique est dans `17-verification-et-bancs.md`.
+
 Quatre sabotages ont été attrapés par le banc principal, chacun nommé :
 - une somme tracée À L'ENVERS acceptée par le juge (« la somme à l'envers :
   ok ») — le soutien, du même coup, s'est verrouillé sur une copie fausse ;
