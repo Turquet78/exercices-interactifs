@@ -9793,7 +9793,7 @@ if(require.main === module) (async () => {
     }
 
     /* ===== 6 quadragies decies. TROIS VECTEURS BOUT À BOUT ===== */
-    /* {somme-trois-vecteurs} (8.2.13, demande de Turquet, octobre 2026, l'idée
+    /* {somme-trois-vecteurs} (8.2.15, demande de Turquet, octobre 2026, l'idée
        n° 7) : l'élève fait glisser u, v, w À LA SOURIS bout à bout depuis le
        point, clique le début de la somme À TRAVERS la prise de u (posée sur
        le point), la flèche suit la souris, il clique la fin et vérifie ; puis,

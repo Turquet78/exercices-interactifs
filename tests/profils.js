@@ -110,7 +110,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'translation-antecedent':'tan', 'chasles-inserer-point':'chi', 'translation-pavage':'tpv', 'demontrer-parallelogramme':'dpa', 'vrai-faux-vecteurs':'vfh', 'milieu-vecteurs-egaux':'vmi', 'somme-trois-vecteurs':'stv', 'vecteurs-egaux':'veg', 'relation-chasles':'chs', 'chasles-sans-figure':'chl', 'chasles-trois-vecteurs':'ctv', 'chasles-simplifier':'csp', 'point-somme-difference':'cvp', 'chasles-alignes':'cha', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'vecteurs-egaux-tableau':'vgt', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'developper-distributivite':'dvl', 'developper-double':'dvd', 'developper-double-nu':'dvn', 'parallelogramme-point':'vec', 'egalite-vectorielle-point':'vep', 'somme-vecteurs':'svc', 'somme-vecteurs-libre':'svc', 'point-somme-vecteurs':'cps', 'tracer-vecteurs-egaux':'tvx', 'tracer-vecteurs-opposes':'tvx', 'somme-vecteurs-repere':'svr', 'translation-grille':'vtr', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc','python-if-frais-port':'pcf', 'python-input-prix':'pkg', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-if-plus-grand-trois':'pgt', 'translation-quadrillage':'trl', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv', 'python-for-images-entiers':'pfk','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-if-cinema':'pci', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
+               'synthese-fonction':'syn', 'translation-antecedent':'tan', 'chasles-inserer-point':'chi', 'translation-pavage':'tpv', 'demontrer-parallelogramme':'dpa', 'vrai-faux-vecteurs':'vfh', 'lire-somme-dessin':'lsd', 'demontrer-chasles':'dch', 'milieu-vecteurs-egaux':'vmi', 'somme-trois-vecteurs':'stv', 'vecteurs-egaux':'veg', 'relation-chasles':'chs', 'chasles-sans-figure':'chl', 'chasles-trois-vecteurs':'ctv', 'chasles-simplifier':'csp', 'point-somme-difference':'cvp', 'chasles-alignes':'cha', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'vecteurs-egaux-tableau':'vgt', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'developper-distributivite':'dvl', 'developper-double':'dvd', 'developper-double-nu':'dvn', 'parallelogramme-point':'vec', 'egalite-vectorielle-point':'vep', 'somme-vecteurs':'svc', 'somme-vecteurs-libre':'svc', 'point-somme-vecteurs':'cps', 'tracer-vecteurs-egaux':'tvx', 'tracer-vecteurs-opposes':'tvx', 'somme-vecteurs-repere':'svr', 'translation-grille':'vtr', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc','python-if-frais-port':'pcf', 'python-input-prix':'pkg', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-if-plus-grand-trois':'pgt', 'translation-quadrillage':'trl', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv', 'python-for-images-entiers':'pfk','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-if-cinema':'pci', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -944,13 +944,13 @@ module.exports = {
        moteur du 8.2.1 sans étapes ni mots « début » / « fin » — une seule
        réponse notée par question, la flèche u⃗ + v⃗. */
     sommeVecteursLibre: { exercice: 'somme-vecteurs-libre', numero: '8.2.10', nb: 8, bareme: 8 },
-    /* {somme-trois-vecteurs} (8.2.13, demande de Turquet, octobre 2026 —
+    /* {somme-trois-vecteurs} (8.2.15, demande de Turquet, octobre 2026 —
        l'idée n° 7) : u⃗, v⃗, w⃗ glissent bout à bout à partir d'un point,
        puis l'élève trace u⃗ + v⃗ + w⃗ ou le déclare nul. Deux réponses par
        question. « nb » est la seconde source du compte (la page a STV_NB) ;
        « bareme » celle du barème ; « nuls » le nombre de questions dont la
        somme est le vecteur nul. */
-    sommeTroisVecteurs: { exercice: 'somme-trois-vecteurs', numero: '8.2.13', nb: 6, bareme: 12, nuls: 1 },
+    sommeTroisVecteurs: { exercice: 'somme-trois-vecteurs', numero: '8.2.15', nb: 6, bareme: 12, nuls: 1 },
     /* {somme-vecteurs-repere} (8.11, demande de Turquet, octobre 2026, la
        « fiche 10 sur somme de vecteur ») : placer quatre points dans un
        repère, tracer deux vecteurs, en faire glisser des copies bout à bout
@@ -1004,6 +1004,18 @@ module.exports = {
        octobre 2026) : u⃗ et trois images A′, B′, C′ ; l'élève place A, B, C
        d'un clic. Quatre questions de trois points. */
     translationAntecedent: { exercice: 'translation-antecedent', numero: '8.1.12', nb: 4, bareme: 12 },
+    /* {demontrer-chasles} (8.2.13, l'idée n° 10 retenue par Turquet, octobre
+       2026) : une démonstration à trous, des vecteurs et une justification
+       par ligne. « nb » est la seconde source du compte (la page a DCH_NB) ;
+       « cases » celles de l'exemple de la demande (11 vecteurs, 4
+       justifications) — le barème d'une séance dépend des plans tirés. */
+    demontrerChasles: { exercice: 'demontrer-chasles', numero: '8.2.13', nb: 4, cases: 15 },
+    /* {lire-somme-dessin} (8.2.14, idée n° 8 retenue par Turquet, octobre
+       2026) : une chaîne de flèches entre des points nommés, u⃗, v⃗, w⃗ tracés
+       à part ; « u⃗ + v⃗ = … » et « w⃗ = … + … » — trois cases par figure.
+       « nb » est la seconde source du compte (la page a LSD_NB) ; « bareme »
+       celle du barème. */
+    lireSommeDessin: { exercice: 'lire-somme-dessin', numero: '8.2.14', nb: 4, bareme: 12 },
     /* {point-somme-difference} (8.15, demande de Turquet, octobre 2026 : « fais
        un exercice comme l'exercice 1 du pdf, en déplaçant les vecteurs comme
        dans le 8.7 ») : u⃗ et v⃗ glissent et se retournent, bout à bout à
@@ -1120,7 +1132,7 @@ module.exports = {
        « cps » — {point-somme-vecteurs}, 8.14 — trace, glisse et pose de même ;
        « tvx » — {tracer-vecteurs-egaux}, 8.1.7 — trace ses flèches de même ;
        « tan » — {translation-antecedent}, 8.1.12 — pose ses points de même ;
-       « stv » — {somme-trois-vecteurs}, 8.2.13 — fait glisser ses flèches
+       « stv » — {somme-trois-vecteurs}, 8.2.15 — fait glisser ses flèches
        comme « svc ». */
     soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'vec', 'vep', 'svc', 'stv', 'svr', 'cvp', 'cps', 'tvx', 'tan', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pof', 'pfn', 'pfk', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
@@ -1252,7 +1264,12 @@ module.exports = {
        2026 : « en seconde, pour la création de devoir maison ou de fiche de
        travail, je souhaite que le professeur puisse mettre jusqu'à 20
        questions par exercice »). */
-    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20 },
+    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20,
+      /* le barème est la SOMME des cases tirées, et chaque démonstration a
+         les siennes (4 à 20) : six courtes peuvent peser autant que quatre
+         longues. Le contrôle de l'exercice (demontrerChasles) tient le
+         barème case par case. */
+      baremeParCases: { 'demontrer-chasles': 'une démonstration a 4 à 20 cases selon son plan' } },
     tableResultats: 'resultats_2nde',
     /* tests/pause.js — une question corrigée ne se rejuge pas à la reprise
        (« pauseReprise » : la clé « pause », plus bas, sert déjà les bancs
@@ -1397,7 +1414,7 @@ module.exports = {
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
                   /* {vecteurs-egaux} (8.3) : on lit une figure, on ne multiplie rien */
-                  sans: ['somme-trois-vecteurs', 'milieu-vecteurs-egaux', 'demontrer-parallelogramme', 'chasles-inserer-point', 'vrai-faux-vecteurs', 'translation-pavage', 'somme-vecteurs-libre', 'tracer-vecteurs-egaux', 'tracer-vecteurs-opposes', 'point-somme-difference', 'point-somme-vecteurs', 'somme-vecteurs-repere', 'somme-vecteurs', 'relation-chasles', 'chasles-trois-vecteurs', 'chasles-simplifier', 'chasles-alignes', 'chasles-sans-figure', 'translation-quadrillage', 'egalite-vectorielle-point', 'vecteurs-egaux', 'python-pile-face', 'python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
+                  sans: ['somme-trois-vecteurs', 'demontrer-chasles', 'milieu-vecteurs-egaux', 'demontrer-parallelogramme', 'chasles-inserer-point', 'vrai-faux-vecteurs', 'lire-somme-dessin', 'translation-pavage', 'somme-vecteurs-libre', 'tracer-vecteurs-egaux', 'tracer-vecteurs-opposes', 'point-somme-difference', 'point-somme-vecteurs', 'somme-vecteurs-repere', 'somme-vecteurs', 'relation-chasles', 'chasles-trois-vecteurs', 'chasles-simplifier', 'chasles-alignes', 'chasles-sans-figure', 'translation-quadrillage', 'egalite-vectorielle-point', 'vecteurs-egaux', 'python-pile-face', 'python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'vecteurs-egaux-tableau', 'soustraire-relatifs', 'translation-grille', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',

@@ -328,7 +328,7 @@ Le prix est nommé : les rappels des observateurs tournent désormais à la fin
 de CHAQUE contrôle, et non plus au prochain contrôle asynchrone, des centaines
 de contrôles plus loin. C'est plus près de ce que fait un navigateur.
 
-**Et le même mur, de l'autre côté, le même jour.** La pull request du 8.2.13
+**Et le même mur, de l'autre côté, le même jour.** La pull request du 8.2.15
 ({somme-trois-vecteurs}) a débordé elle aussi (« heap out of memory » sur
 `controles (secondes.html)`). Son contrôle tirait d'abord 200 séances par
 `TESTS[…].start()`, 200 figures posées dans le DOM : il tire désormais par
@@ -336,5 +336,5 @@ de contrôles plus loin. C'est plus près de ce que fait un navigateur.
 relevé le tas du banc jsdom à 6 Go dans `controles.yml`. Le correctif du
 paragraphe précédent, fusionné entre-temps, rend ce relèvement inutile : il
 a été retiré avant la fusion, et `controles.yml` est celui de main. Rejoué en local
-sous `--max-old-space-size=4096`, avec le 8.2.13 : 938 contrôles passés, 2,6 Go
+sous `--max-old-space-size=4096`, avec cet exercice (alors 8.2.13) : 938 contrôles passés, 2,6 Go
 de mémoire au plus haut.
