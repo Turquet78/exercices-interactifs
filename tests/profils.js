@@ -1239,7 +1239,12 @@ module.exports = {
        2026 : « en seconde, pour la création de devoir maison ou de fiche de
        travail, je souhaite que le professeur puisse mettre jusqu'à 20
        questions par exercice »). */
-    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20 },
+    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20,
+      /* le barème est la SOMME des cases tirées, et chaque démonstration a
+         les siennes (4 à 20) : six courtes peuvent peser autant que quatre
+         longues. Le contrôle de l'exercice (demontrerChasles) tient le
+         barème case par case. */
+      baremeParCases: { 'demontrer-chasles': 'une démonstration a 4 à 20 cases selon son plan' } },
     tableResultats: 'resultats_2nde',
     /* tests/pause.js — une question corrigée ne se rejuge pas à la reprise
        (« pauseReprise » : la clé « pause », plus bas, sert déjà les bancs

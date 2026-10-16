@@ -47633,6 +47633,7 @@ function reglageAllonge(w, apres){
     initSupabase();
     const vus=[], allonges=[], fixes=[], menus=[];
     const doivent=${JSON.stringify(doivent)};
+    const baremeParCases=${JSON.stringify(R.baremeParCases||{})};
     currentEleve={id:'e-allonge',prenom:'Contrôle'}; currentMode='train';
     for(const id of Object.keys(TESTS)){
       let nq0=0, ms0=0;
@@ -47652,8 +47653,13 @@ function reglageAllonge(w, apres){
       if(nq1===nq0){ fixes.push(id); if(doivent.indexOf(id)>=0) vus.push(id+' : réglé à '+cible+' questions, la séance en garde '+nq0); continue; }
       if(nq1!==cible){ vus.push(id+' : '+nq1+' question(s) au lieu des '+cible+' réglées'); continue; }
       allonges.push(id);
-      if(ms0 && ms1<=ms0) vus.push(id+' : la séance passe de '+nq0+' à '+nq1+' questions, mais le barème reste '+ms1+' — une copie parfaite dépasserait 100 %');
+      /* Un exercice dont chaque question a SON nombre de cases (barème = la
+         somme des cases tirées) peut tirer six questions courtes qui pèsent
+         autant que quatre longues : il se déclare (baremeParCases), raison
+         comprise, et son propre contrôle tient le barème case par case. */
+      if(ms0 && ms1<=ms0 && !baremeParCases[id]) vus.push(id+' : la séance passe de '+nq0+' à '+nq1+' questions, mais le barème reste '+ms1+' — une copie parfaite dépasserait 100 %');
     }
+    Object.keys(baremeParCases).forEach(function(id){ if(allonges.indexOf(id)<0) vus.push(id+' : déclaré baremeParCases, mais il ne s\\'allonge pas (ou n\\'existe plus) : la déclaration est morte'); });
     doivent.forEach(function(id){ if(allonges.indexOf(id)<0 && fixes.indexOf(id)<0 && vus.every(function(v){ return v.indexOf(id+' : ')!==0; })) vus.push(id+' : le témoin n\\'a pas été mesuré (inconnu, écran de menu, ou hors plage)'); });
     if(allonges.length<10) vus.push('seulement '+allonges.length+' exercice(s) s\\'allongent : le contrôle ne mesure plus la page');
     window.__allonge={allonges:allonges, fixes:fixes, menus:menus};

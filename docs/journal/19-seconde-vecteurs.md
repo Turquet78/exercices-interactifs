@@ -2991,3 +2991,17 @@ DE L'ACTION** (`node --max-old-space-size=4096 tests/verifier.js
 secondes.html`) ; un contrôle de banc ne redessine pas l'écran entre deux
 copies ; un cache se borne par ce qui est fini (le plan), jamais par ce qui
 est tiré.
+
+**Puis le contrôle du réglage « Questions » a rougi — au hasard du tirage.**
+Sur l'action, le banc a fini par aller au bout (936 contrôles), avec un seul
+échec : « la séance passe de 4 à 6 questions, mais le barème reste 39 ». Ce
+contrôle universel suppose qu'une séance plus longue pèse plus de points ;
+c'est vrai quand chaque question a le même nombre de cases, pas ici : une
+démonstration a de 4 à 20 cases selon son plan, et six démonstrations courtes
+peuvent peser autant que quatre longues (15 + 4 + 4 + 4 + 4 + 8 = 15 + 12 + 4
++ 8 = 39). Le barème, lui, était juste : c'est la somme des cases réellement
+tirées, et le contrôle de l'exercice le tient (`maxScore` = somme de
+`dchCases`). L'exercice se déclare donc dans le profil
+(`reglagesDevoirs.baremeParCases`, raison comprise) ; la déclaration rougit
+si elle ne désigne plus un exercice qui s'allonge. Ce bord n'était sorti dans
+aucune des exécutions locales : il ne sort que sur certains tirages.
