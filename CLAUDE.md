@@ -330,6 +330,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Un NUMÉRO de section du banc ne désigne qu'une section — et un en-tête qui n'imprime pas son titre est pire qu'un titre absent.**
 - **Un contrôle qui ne s'applique pas se déclare, il ne se retire pas.**
 - **Une fonction déclarée deux fois au niveau global écrase la première en silence.**
+- **Le banc principal de la Seconde n'a plus de marge sous les 4 Go de l'action.** Il se rejoue en local à la même limite (`node --max-old-space-size=4096`) ; un contrôle ne redessine pas l'écran entre deux copies (près d'un Mo retenu par rendu).
 
 ### La chronique des exercices, thème par thème
 

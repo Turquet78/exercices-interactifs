@@ -13206,8 +13206,18 @@ function demontrerChasles(w, P){
     const peint=function(id){ const c=el(id)?el(id).className:'';
       return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
     const fb=function(){ return el('dchFeedback').textContent; };
-    /* une copie : 4 + 4 + 3 vecteurs, puis les quatre justifications */
-    const poser=function(v, j){ test.locked=false; renderDchTest();
+    /* une copie : 4 + 4 + 3 vecteurs, puis les quatre justifications. La
+       page n'est PAS redessinée entre deux copies : dans jsdom, chaque rendu
+       de l'écran retient près d'un Mo jusqu'à la fin du banc (mesuré : 50
+       rendus, +42 Mo), et le banc de la Seconde n'a plus de marge sous ses
+       4 Go — dix-huit rendus suffisaient à le faire tomber sur l'action. On
+       remet les cases à blanc, comme une page neuve. */
+    let neuve=false;
+    const vider=function(){ test.locked=false;
+      document.querySelectorAll('#dchHost .mf-cor').forEach(function(b){ b.remove(); });
+      document.querySelectorAll('#dchHost input, #dchHost select').forEach(function(e){ e.value=''; e.classList.remove('ok','bad','sol'); e.disabled=false; });
+      el('dchFeedback').textContent=''; el('dchFeedback').className='mp-feedback'; };
+    const poser=function(v, j){ if(!neuve){ test.locked=false; renderDchTest(); neuve=true; } else vider();
       const vi=IDS.filter(function(id){ return /^dch-c-/.test(id); }), ji=IDS.filter(function(id){ return /^dch-s-/.test(id); });
       vi.forEach(function(id, k){ el(id).value=(v[k]==null?'':v[k]); });
       ji.forEach(function(id, k){ el(id).value=(j[k]==null?'':j[k]); }); };
@@ -13251,7 +13261,7 @@ function demontrerChasles(w, P){
     if(el('dch-c-2-2').value!=='0' || el('dch-s-0').value!=='ch') vus.push('la copie vide reçoit « '+el('dch-c-2-2').value+' » et « '+el('dch-s-0').value+' »');
     /* la reprise : la question survit au JSON */
     const avant=JSON.stringify(test.questions[0]);
-    test.questions[0]=JSON.parse(avant); renderDchTest();
+    test.questions[0]=JSON.parse(avant); test.locked=false; renderDchTest();
     if(JSON.stringify(test.questions[0])!==avant || document.querySelectorAll('#dchHost input').length!==11) vus.push('la question ne se redessine pas après le JSON');
     /* le soutien : peint au fil de la saisie, sans révéler ni verrouiller */
     currentMode='soutien'; poser([], []);
@@ -13272,13 +13282,13 @@ function demontrerChasles(w, P){
     checkDchAnswer();
     der=test.answers[test.answers.length-1];
     if(!der || !der.correct) vus.push('EF + EH = EF + FG = EG est comptée fausse');
-    test.locked=false; renderDchTest();
+    vider();
     el('dch-c-0-0').value='HG'; el('dch-c-0-1').value='EH'; el('dch-s-0').value='pa'; el('dch-s-1').value='ch';
     checkDchAnswer();
     if(peint('dch-c-0-0')!=='rouge' || !/ne mène pas/.test(fb())) vus.push('HG + EH (juste, sans issue) : '+peint('dch-c-0-0')+' « '+fb().slice(0,100)+' »');
 
     /* le contexte du modèle */
-    test.questions[0]={t:0, n:'ABCDM', v:0}; test.locked=false; renderDchTest();
+    test.questions[0]={t:0, n:'ABCDM', v:0}; vider();
     const ctx=ctxDch(test.questions[0]).contexte;
     if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/AD \\+ DB \\+ CB \\+ BD/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni la rédaction attendue');
     return vus.join(' | ');

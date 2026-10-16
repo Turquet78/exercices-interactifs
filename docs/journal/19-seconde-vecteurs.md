@@ -2840,17 +2840,31 @@ révéler ni verrouiller ; sur un parallélogramme EFGH : l'énoncé, la
 justification qui porte son nom, EF + FG = EG juste, HG + EH « ne mène pas » ;
 enfin le contexte du modèle.
 
-**Puis l'action a manqué de mémoire, et c'était le mémo.** La première
-version gardait les rédactions acceptées dans un mémo par JEU DE LETTRES
-tirées (`plan:lettres`). Sur la machine de travail (8 Go de tas), tout était
-vert ; sur l'action (4 Go), le banc principal de la Seconde est tombé en
-« heap out of memory » bien après le contrôle de l'exercice, au même endroit
-deux fois. Rejoué en local avec `node --max-old-space-size=4096` : `main`
-seule passait, la branche tombait. Le banc démarre et juge chaque exercice
-des centaines de fois, chaque séance tire des lettres neuves, et le mémo
-grossissait sans borne, sur un banc qui n'a plus de marge. Les rédactions se
-calculent désormais UNE fois par plan, sur ses propres lettres, puis se
-renomment (`dchChaines`) : douze entrées, quoi qu'il arrive. Leçon pour le
-prochain exercice : un banc se rejoue en local À LA LIMITE DE L'ACTION
-(`--max-old-space-size=4096`), et un cache se borne par ce qui est fini (le
-plan), jamais par ce qui est tiré.
+**Puis l'action a manqué de mémoire — et ce n'était pas le mémo.** Sur la
+machine de travail (8 Go de tas), tout était vert ; sur l'action (4 Go), le
+banc principal de la Seconde est tombé en « heap out of memory », bien après
+le contrôle de l'exercice, deux fois au même endroit. Rejoué en local avec
+`node --max-old-space-size=4096`, puis coupé en deux :
+- `main` seule passe à 4 Go, mais tombe à 3,8 Go : **le banc de la Seconde a
+  moins de 200 Mo de marge** ;
+- la branche passe à 4 Go si l'on retire le seul contrôle `demontrerChasles`.
+
+Premier soupçon, le mémo des rédactions, rangé par JEU DE LETTRES tirées
+(sans borne, le banc tirant des centaines de séances) : corrigé — les
+rédactions se calculent une fois par PLAN, sur ses propres lettres, puis se
+renomment (`dchChaines`, douze entrées quoi qu'il arrive) — mais le banc
+tombait toujours. La mesure, avec `--expose-gc` et `heapUsed` autour du
+contrôle, a dit le reste : 400 séances tirées et jugées ne retiennent rien ;
+**chaque rendu de l'écran retient près d'un Mo jusqu'à la fin du banc** (50
+rendus : +42 Mo), avec ou sans vérification. Le contrôle redessinait la page
+avant chaque copie, dix-huit fois. Il remet désormais les cases à blanc
+(`vider()`) et ne redessine que là où le rendu est lui-même vérifié : trois
+fois. Le pavage (8.1.9) et la somme sans étapes (8.2.10) retiennent chacun
+plus de 40 Mo de la même façon ; la fuite par rendu elle-même (quelque chose
+garde les nœuds détachés) n'est pas corrigée ici et reste à chercher.
+
+Leçon pour le prochain exercice : **un banc se rejoue en local À LA LIMITE
+DE L'ACTION** (`node --max-old-space-size=4096 tests/verifier.js
+secondes.html`) ; un contrôle de banc ne redessine pas l'écran entre deux
+copies ; un cache se borne par ce qui est fini (le plan), jamais par ce qui
+est tiré.
