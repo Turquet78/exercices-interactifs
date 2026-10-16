@@ -13644,16 +13644,28 @@ function pointSommeDifference(w, P){
 
     /* 6. les pièges, et chaque réponse jugée seule */
     nextCvp(); clearTimeout(test.fbTimer);
-    cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]); cvpPose(8,8);
+    cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]);
+    /* bout à bout, mais u + v au lieu de u − v : l'étape 1 n'est pas faite
+       (demande de Turquet, octobre 2026), une phrase le dit, et B′ ne se pose pas */
+    if(!cvpBoutABout(test.questions[test.idx]) || el('cvp-ch').classList.contains('cvp-fait') || !el('cvp-ch').classList.contains('cvp-cours') || el('cvp-pt').classList.contains('cvp-cours')) vus.push('bout à bout avec les mauvais vecteurs, l\\'étape 1 est validée : '+el('cvp-ch').className+' / '+el('cvp-pt').className);
+    if(el('cvpAlerte').textContent.indexOf('ce ne sont pas les bons vecteurs')<0 || el('cvpAlerte').textContent.indexOf('BB′ = u − v')<0) vus.push('bout à bout avec les mauvais vecteurs, rien ne dit pourquoi l\\'étape 1 ne passe pas : '+el('cvpAlerte').textContent);
+    cvpPose(8,8);
+    if(test.questions[test.idx].sel) vus.push('B′ se pose après des flèches bout à bout qui ne sont pas les bons vecteurs');
     if(verifierIci()!==0) vus.push('le signe oublié (u + v au lieu de u − v) rapporte des points');
     let fb=el('cvpFeedback').textContent;
     if(classe('cvp-ch')!=='bad'||fb.indexOf('retourne la flèche v')<0||fb.indexOf('BB′ = u − v = u + (−v)')<0) vus.push('le signe oublié n\\'est pas rouge et nommé : '+fb.slice(0,160));
-    if(!document.querySelector('#cvpn-8-8.badc') || !document.querySelector('#cvpn-4-2.missc')) vus.push('B′ faux n\\'est pas rouge, ou le bon pas montré en vert');
+    if(el('cvpAlerte').textContent) vus.push('la phrase de l\\'étape 1 reste après la correction');
+    nextCvp(); clearTimeout(test.fbTimer);
+    /* les bons vecteurs dans le bon sens : la phrase se tait, l'étape 1 passe */
+    cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]);
+    if(!el('cvpAlerte').textContent) vus.push('la phrase de l\\'étape 1 ne se montre pas');
+    cvpRetourner('v'); cvpDeplacer('v',[6,5]);
+    if(el('cvpAlerte').textContent || !el('cvp-ch').classList.contains('cvp-fait')) vus.push('v retourné, l\\'étape 1 ne passe pas, ou la phrase reste : '+el('cvpAlerte').textContent);
+    cvpPose(5,2);
+    if(verifierIci()!==1) vus.push('construction juste, B′ faux : ne vaut pas 1');
+    if(!document.querySelector('#cvpn-5-2.badc') || !document.querySelector('#cvpn-4-2.missc')) vus.push('B′ faux n\\'est pas rouge, ou le bon pas montré en vert');
     if(document.querySelectorAll('#cvpEl line.svc-eb').length!==1) vus.push('B′ faux : le vecteur de l\\'élève ne rougit pas');
     if(document.querySelectorAll('#cvpCroix .crx.badc').length!==1 || document.querySelectorAll('#cvpCroix .crx.missc').length!==1) vus.push('B′ faux et B′ attendu ne se marquent pas d\\'une croix rouge et d\\'une croix verte');
-    nextCvp(); clearTimeout(test.fbTimer);
-    cvpRetourner('v'); cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]); cvpPose(5,2);
-    if(verifierIci()!==1) vus.push('construction juste, B′ faux : ne vaut pas 1');
     if(classe('cvp-ch')!=='ok'||classe('cvp-pt')!=='bad') vus.push('construction juste, B′ faux : '+classe('cvp-ch')+', '+classe('cvp-pt')+' — une réponse juste rougit à cause de l\\'autre');
     if(el('cvpCorr').querySelectorAll('line.svc-s').length) vus.push('la construction juste est redoublée en vert');
     if(el('cvpFeedback').textContent.indexOf('au bout de la seconde flèche')<0) vus.push('le message ne dit pas où est B′');
