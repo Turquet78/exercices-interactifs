@@ -21547,9 +21547,23 @@ function developperDoubleNu(w, P){
     test.idx=3; poser(Object.assign(ids(3), {'dvn-t-3':'', 'dvn-r-1':''})); checkDvdAnswer();
     if(peint('dvn-t-3')!=='bleu' || peint('dvn-r-1')!=='bleu') vus.push('case vide peinte en '+peint('dvn-t-3')+' / '+peint('dvn-r-1'));
     if((document.getElementById('dvn-r-1')||{}).value!=='+11x') vus.push('la correction de la case vide écrit '+(document.getElementById('dvn-r-1')||{}).value);
+    /* « x^2 » et « x**2 » s'affichent x² dans la case, à la frappe — sur le
+       7.9, le 7.10 et le 7.11 (l'élève voyait le code, pas l'exposant) */
+    const tape=function(id, v){ const el=document.getElementById(id); if(!el) return '(case '+id+' absente)';
+      el.value=v; el.setSelectionRange(v.length, v.length); el.dispatchEvent(new Event('input')); return el.value; };
+    const exposants=function(nom, id){
+      [['8x^2','8x²'],['-3x**2','-3x²'],['x**2','x²'],['15x^','15x^']].forEach(function(e){
+        const lu=tape(id, e[0]); if(lu!==e[1]) vus.push(nom+' : « '+e[0]+' » s\\'affiche « '+lu+' » au lieu de « '+e[1]+' »'); });
+    };
+    test.idx=0; poser({}); exposants('7.11', 'dvn-t-0');
+    const lu8=dvlLit(tape('dvn-t-0', '8x**2'));
+    if(!lu8 || lu8.c!==8 || lu8.d!==2) vus.push('« 8x**2 » converti ne se lit plus 8x²');
     /* le 7.10 garde son dessin et ses cases « dvd-… » */
     startDvd();
     if(test.kind!=='dvd' || test.qId!=='developper-double' || !document.getElementById('dvd-f-0-1') || !document.querySelector('#dvdHost .dvl-bul')) vus.push('le 7.10 a perdu son identité ou ses bulles');
+    exposants('7.10', 'dvd-t-0');
+    startDvl(); test.idx=0; test.locked=false; renderDvlTest();
+    exposants('7.9', 'dvl-t-0');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

@@ -1931,6 +1931,7 @@
   .dvl-in.bad{background:#FDECEC;color:var(--red);border-color:var(--red)}
   .dvl-in.sol{background:var(--green-soft);color:var(--green);border-color:var(--green)}
   .dvl-in:disabled{opacity:1;-webkit-text-fill-color:currentColor}
+  .dvl-astuce{align-self:center;margin-left:.6em;color:#667;font-size:.9em}
   .dvl-val{font-family:"Fredoka";min-width:1em;text-align:center}
   .dvl-cor{margin-left:2px;font-size:.8em}
   .dvl-ex{border:1.5px dashed #C9D6F2;border-radius:14px;background:#FBFCFF;margin:0 auto 14px;width:max-content;max-width:100%}
@@ -55727,6 +55728,17 @@ function dvlLit(v){
   const ds=Object.keys(lu.termes); if(ds.length!==1) return null;
   return {c:lu.termes[ds[0]], d:Number(ds[0]), signe:/^[+\-−–]/.test(t)};
 }
+/* « x^2 » et « x**2 » s'écrivent x² DANS la case, à la frappe : l'élève voit
+   l'exposant qu'il a tapé, pas le code (7.9 à 7.11). Le curseur reste où il
+   était, recalé de ce que la conversion a retiré. */
+function dvlExposant(el){
+  const v=el.value, re=/(\*\*|\^)2/g;
+  if(!re.test(v)) return;
+  const a=el.selectionStart==null?v.length:el.selectionStart;
+  const avant=v.slice(0,a).replace(re,'²');
+  el.value=avant+v.slice(a).replace(re,'²');
+  try{ el.setSelectionRange(avant.length,avant.length); }catch(e){}
+}
 function dvlJuste(c, el){
   if(!el) return false;
   const lu=dvlLit(el.value);
@@ -55866,12 +55878,12 @@ function renderDvlTest(){
     +'<p class="dvl-consigne">Développe <b>'+L.nom+'</b> en suivant les flèches : dans les bulles, le facteur <span class="dvl-mot dvl-mk">rouge</span> multiplie le terme <span class="dvl-mot dvl-ma">bleu</span>, puis le terme <span class="dvl-mot dvl-mb">vert</span> ; sous chaque accolade, écris le résultat du produit'
     +(L.reduite ? ', puis réduis : le terme en <i>x</i> d’abord, puis le nombre.' : '.')+' Le terme qui en suit un autre garde son signe : <b>+15</b>, <b>−4</b>.</p>'
     +'<div class="dvl-page">'+dvlSchema(q, 'dvl-', null)+'</div>'
-    +(carre ? '<div class="dvl-outils"><button class="btn btn-ghost red-sq" type="button" tabindex="-1" onmousedown="event.preventDefault()" onclick="dvlCarre()" aria-label="écrire x au carré"><i>x</i>²</button></div>' : '');
+    +(carre ? '<div class="dvl-outils"><button class="btn btn-ghost red-sq" type="button" tabindex="-1" onmousedown="event.preventDefault()" onclick="dvlCarre()" aria-label="écrire x au carré"><i>x</i>²</button><span class="dvl-astuce">ou tape <i>x</i>^2, <i>x</i>**2</span></div>' : '');
   $('dvlHost').innerHTML=h;
   test.dvlFocus=null;
   dvlCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
     el.addEventListener('focus', function(){ test.dvlFocus=c.id; });
-    el.addEventListener('input', function(){ if(isSoutien()) checkDvlAnswer(true);
+    el.addEventListener('input', function(){ dvlExposant(el); if(isSoutien()) checkDvlAnswer(true);
       clearTimeout(test.dvlSave); test.dvlSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkDvlAnswer(); } });
   });
@@ -56155,11 +56167,11 @@ function renderDvdTest(){
   $(P+'Host').innerHTML=(test.idx===0 ? dvdExempleHTML(nu) : '')
     +consigne
     +'<div class="dvl-page">'+dvdSchema(q, P+'-', null, nu)+'</div>'
-    +'<div class="dvl-outils"><button class="btn btn-ghost red-sq" type="button" tabindex="-1" onmousedown="event.preventDefault()" onclick="dvdCarre()" aria-label="écrire x au carré"><i>x</i>²</button></div>';
+    +'<div class="dvl-outils"><button class="btn btn-ghost red-sq" type="button" tabindex="-1" onmousedown="event.preventDefault()" onclick="dvdCarre()" aria-label="écrire x au carré"><i>x</i>²</button><span class="dvl-astuce">ou tape <i>x</i>^2, <i>x</i>**2</span></div>';
   test.dvdFocus=null;
   dvdCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
     el.addEventListener('focus', function(){ test.dvdFocus=c.id; });
-    el.addEventListener('input', function(){ if(isSoutien()) checkDvdAnswer(true);
+    el.addEventListener('input', function(){ dvlExposant(el); if(isSoutien()) checkDvdAnswer(true);
       clearTimeout(test.dvdSave); test.dvdSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkDvdAnswer(); } });
   });
