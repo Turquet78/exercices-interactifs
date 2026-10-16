@@ -12212,11 +12212,18 @@ function sommeVecteursRepere(w, P){
     svrOutil('t1');
     if(document.querySelector('#svrVif line')) vus.push('le vecteur tracé : la flèche suit encore la souris');
     if(el('svr-t0').classList.contains('fait')) vus.push('un vecteur tracé à l\\'envers passe en vert');
+    if(!document.querySelector('#svrFl line.svc-eb')) vus.push('BC à l\\'envers ne rougit pas sur le dessin avant la vérification');
     svrPose(1,2); svrPose(3,4);
-    svrDeplacer(1,[-2,-3]);                                              /* BA d'abord, depuis D */
-    q2.cp[0]=[0,-1]; renderSvr();                                        /* puis CB (le tracé de l'élève) au bout */
+    /* BC faux : l'étape ③ reste fermée — ni glisser, ni M, ni prise */
+    if(!el('svr-ch').disabled || !el('svr-M').disabled) vus.push('un vecteur faux : l\\'étape ③ s\\'ouvre tout de même');
+    if(svrDeplacer(1,[-2,-3]) || q2.cp[1]) vus.push('un vecteur faux : une copie glisse tout de même');
+    if(document.querySelector('#svrPrises .svc-prise')) vus.push('un vecteur faux : les copies ont une prise');
+    svrOutil('M');
+    if(test.svrOutil==='M') vus.push('un vecteur faux : le geste « Placer M » se choisit tout de même');
+    if(test.svrOutil!=='A') vus.push('BA juste, BC et A faux : le geste ne revient pas au premier gris, A ('+test.svrOutil+')');
+    /* une copie ancienne (un brouillon d'avant la règle) se juge toujours seule */
+    q2.cp[1]=[-2,-3]; q2.cp[0]=[0,-1]; q2.m=[2,-3]; renderSvr();         /* BA depuis D, CB au bout, M faux */
     if(!svrChaine(q2)) vus.push('BA puis le second tracé, bout à bout depuis D, ne sont pas lus');
-    svrOutil('M'); svrPose(2,-3);                                        /* M faux */
     if(el('svr-M').classList.contains('fait')) vus.push('M mal placé passe en vert');
     if(document.querySelectorAll('#svrPts .svr-pt.eb').length!==2) vus.push('A et M mal placés ne sont pas tous deux rouges sur le dessin');
     verifierIci();
