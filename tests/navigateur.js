@@ -9406,7 +9406,14 @@ if(require.main === module) (async () => {
                  mots: document.querySelectorAll('#cvpGraph .svc-mot').length };
       });
       if(mes.etape.indexOf('Étape 1') !== 0 || !mes.etapeAuDessus) dits.push('l\'étape 1 ne s\'affiche pas en bandeau au-dessus du dessin : ' + mes.etape.slice(0, 60));
-      if(await s.page.evaluate(() => document.getElementById('cvp-pt').getBoundingClientRect().height)) dits.push('l\'étape 2 se montre avant que l\'étape 1 soit faite');
+      /* les deux étapes dès le départ, chacune encadrée : l'étape 1 sur fond
+         bleu, l'étape 2 sur fond blanc, sous l'étape 1 */
+      const dep = await s.page.evaluate(() => { const a = document.getElementById('cvp-ch'), b = document.getElementById('cvp-pt'), ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+        return { h: rb.height, sous: rb.top >= ra.bottom - 1, fa: getComputedStyle(a).backgroundColor, fb: getComputedStyle(b).backgroundColor,
+                 ca: getComputedStyle(a).borderTopColor, cb: getComputedStyle(b).borderTopColor, ea: getComputedStyle(a).borderTopWidth }; });
+      if(dep.h < 20 || !dep.sous) dits.push('au départ, l\'étape 2 ne s\'affiche pas sous l\'étape 1');
+      if(dep.fa !== 'rgb(234, 240, 255)' || dep.fb !== 'rgb(255, 255, 255)') dits.push('au départ, l\'étape 1 n\'est pas sur fond bleu et l\'étape 2 sur fond blanc : ' + dep.fa + ' / ' + dep.fb);
+      if(parseFloat(dep.ea) < 1 || dep.ca === dep.cb) dits.push('l\'étape 1 n\'est pas encadrée d\'un cadre bleu distinct de l\'étape 2 : ' + dep.ea + ' ' + dep.ca + ' / ' + dep.cb);
       if(mes.mots) dits.push(mes.mots + ' mot(s) « début » / « fin » sur les flèches');
       if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
       if(mes.fleche !== 'solid') dits.push('BB′ n\'est pas coiffé de sa flèche');
@@ -9433,7 +9440,7 @@ if(require.main === module) (async () => {
       const avant = await pos(11, 1);
       await s.page.mouse.click(avant.px, avant.py);
       await s.page.waitForTimeout(120);
-      if(await s.page.evaluate(() => !!test.questions[test.idx].sel || !!document.getElementById('cvp-pt').getBoundingClientRect().height)) dits.push('un clic pose B′ avant que l\'étape 1 soit faite');
+      if(await s.page.evaluate(() => !!test.questions[test.idx].sel || document.getElementById('cvp-pt').classList.contains('cvp-fait'))) dits.push('un clic pose B′ avant que l\'étape 1 soit faite');
       /* v se retourne au bouton : −v */
       await s.page.click('#cvpRetV');
       await s.page.waitForTimeout(120);
@@ -9453,6 +9460,7 @@ if(require.main === module) (async () => {
         return { dessus: b.getBoundingClientRect().bottom <= g.top + 1, fa: getComputedStyle(a).backgroundColor, fb: getComputedStyle(b).backgroundColor }; });
       if(!etp.dessus) dits.push('les étapes ne s\'affichent pas au-dessus du dessin');
       if(etp.fa === etp.fb) dits.push('l\'étape 1 faite n\'a pas un fond différent de l\'étape 2 à faire (' + etp.fa + ')');
+      if(etp.fb !== 'rgb(234, 240, 255)') dits.push('l\'étape 1 faite, le cadre de l\'étape 2 ne passe pas au bleu : ' + etp.fb);
       /* survoler un nœud ne montre aucun rond */
       const nd = await pos(9, 7);
       await s.page.mouse.move(nd.px, nd.py); await s.page.waitForTimeout(60);
