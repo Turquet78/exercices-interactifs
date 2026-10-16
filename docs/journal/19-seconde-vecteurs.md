@@ -2519,7 +2519,7 @@ Trois sabotages ont été attrapés :
 - le mot « RETOURNÉ » retiré du message ;
 - le dessin jugé en soutien.
 
-## {chasles-inserer-point} — Chasles : insérer un point (8.2.11, v528)
+## {chasles-inserer-point} — Chasles : insérer un point (8.2.11, v529 — v528 prise par le 8.2.9 pendant la rédaction)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
 sur les vecteurs, Turquet a retenu la neuvième : « Chasles : insérer un
