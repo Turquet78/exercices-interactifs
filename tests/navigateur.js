@@ -9699,7 +9699,7 @@ if(require.main === module) (async () => {
     }
 
     /* ===== 6 quadragies novies. DEUX TRANSLATIONS À LA SUITE : A′, A″, LA LISTE, AA″ ===== */
-    /* {translations-successives} (8.2.11, octobre 2026) : un clic n'importe
+    /* {translations-successives} (8.2.12, octobre 2026) : un clic n'importe
        où sur le quadrillage va au nœud le plus proche — A′, puis A″, puis le
        début et la fin de AA″ ; le point à placer suit la souris avec son nom,
        et pendant le tracé une flèche va du début à la souris, sans croix sur

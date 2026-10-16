@@ -4553,6 +4553,7 @@ function exercices(suite){
     tracerVecteursEgaux(w, P);
     tracerVecteursOpposes(w, P);
     translationPavage(w, P);
+    chaslesInsererPoint(w, P);
     vraiFauxVecteurs(w, P);
     sommeVecteursLibre(w, P);
     translationsSuccessives(w, P);
@@ -12656,6 +12657,190 @@ function vraiFauxVecteurs(w, P){
    la place de chaque lettre — et fait glisser les sommets du triangle de
    départ du chemin d'une lettre à l'autre. Une image fausse dans le calcul
    de la page ne peut donc pas se retrouver dans le juge. */
+/* {chasles-inserer-point} (Seconde, 8.2.11 — idée n° 9 retenue par Turquet,
+   octobre 2026) : décomposer un vecteur en insérant un point. Un juge
+   INDÉPENDANT relit chaque correction : sur une page à figure, il lit les
+   points sur le DESSIN (le SVG comme du texte, jamais posé dans le DOM — le
+   banc de l'action n'a que 4 Go) ; sans figure, il donne à chaque lettre des
+   coordonnées quelconques dans l'espace. Puis le bouton sur deux pages fixes :
+   la copie juste, d'autres écritures justes, les pièges nommés (AB + CB, le
+   chemin à l'envers, le point qui ne se répète pas), la case vide, la copie
+   vide, le badge, le soutien, la reprise, le contexte du modèle. */
+function chaslesInsererPoint(w, P){
+  const nom = 'Chasles, insérer un point : la place, le tirage relu par un juge indépendant, toute égalité juste acceptée, les pièges nommés';
+  if(!P.chaslesInsererPoint){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice « insérer un point »');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.chaslesInsererPoint)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+
+    /* ---- 0. la place : 8.2.11, à la fin de la somme de vecteurs ; pas de tables */
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['somme-vecteurs-libre']!=='8.2.10' || TEST_NUM['translation-pavage']!=='8.1.9') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS.chi!==RAP_CHI || !QIA_SUGG.chi) vus.push('le rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant ------------------------------------------- */
+    const att=function(t, a){ const m=new RegExp('\\\\s'+a+'="([^"]*)"').exec(t); return m ? m[1] : null; };
+    /* les points du DESSIN : chaque lettre au point dessiné le plus proche */
+    const lireFig=function(src){
+      const ronds=(src.match(/<circle[^>]*>/g)||[]).map(function(t){ return [+att(t,'cx'), -att(t,'cy')]; });
+      const pts={};
+      (src.match(/<text[^>]*>[^<]*<\\/text>/g)||[]).forEach(function(t){
+        const x=+att(t,'x'), y=-att(t,'y'), v=t.replace(/^<text[^>]*>|<\\/text>$/g,'').trim();
+        let b=null, bd=1e9; ronds.forEach(function(r){ const d=Math.hypot(r[0]-x, r[1]-y); if(d<bd){ bd=d; b=r; } }); pts[v]=b; });
+      return pts;
+    };
+    /* sans figure : des points quelconques, en dimension 3 */
+    const libres={};
+    const coord=function(pts, c){ if(pts) return pts[c]; if(!libres[c]) libres[c]=[Math.random()*97, Math.random()*89, Math.random()*83]; return libres[c]; };
+    const dep=function(pts, v){ const a=coord(pts, v[0]), b=coord(pts, v[1]); return a.map(function(x,k){ return b[k]-x; }); };
+    const somme=function(pts, vs){ return vs.reduce(function(s, v){ const d=dep(pts, v); return s.map(function(x,k){ return x+d[k]; }); }, pts ? [0,0] : [0,0,0]); };
+    /* le dessin arrondit ses coordonnées au dixième : une somme de trois
+       vecteurs peut s'écarter de 0,6 ; deux points de la figure sont à plus
+       de 40 unités l'un de l'autre */
+    const egal=function(a, b){ return a.every(function(x,k){ return Math.abs(x-b[k])<(a.length===2 ? 1 : 1e-6); }); };
+    /* une écriture complète, vérifiée : la somme, et la chaîne qu'elle forme */
+    const juge=function(pts, l, s){
+      const X=l.v[0], Y=l.v[1];
+      const vs=l.t==='l' ? [X+s[0], s[1]+Y] : (l.t==='m' ? [s[0]+l.p, l.p+s[1]] : (l.t==='e' ? [s[0], s[1]] : [X+s[0], s[1], s[2]+Y]));
+      if(l.t==='e' && (s[0][1]!==l.p || s[1][0]!==l.p)) return false;
+      return egal(somme(pts, vs), dep(pts, l.v));
+    };
+
+    /* ---- 1. le tirage : 300 séances, chaque correction relue ------------- */
+    const formes={};
+    for(let n=0;n<300 && vus.length<4;n++){
+      const qs=chiBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' pages au lieu de '+D.nb); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une page ne survit pas au JSON');
+      if(qs[0].f!==1 || qs[1].f!==0) vus.push('la première page n’a pas sa figure, ou la seconde en a une');
+      qs.forEach(function(q){
+        if(q.lignes.map(function(l){ return l.t; }).join('')!=='lmemd') vus.push('plan des lignes '+q.lignes.map(function(l){ return l.t; }).join(''));
+        const pts=q.f ? lireFig(chsSvg(q)) : null;
+        if(q.f){ formes[q.fig]=true;
+          if(Object.keys(pts).sort().join('')!==q.n.split('').sort().join('')) vus.push('les lettres du dessin '+Object.keys(pts).join('')+' ne sont pas '+q.n); }
+        const vs={};
+        q.lignes.forEach(function(l, i){
+          const L=Object.assign({i:i}, l);
+          const lettres=(l.v+l.p).split('');
+          if(new Set(lettres).size!==lettres.length) vus.push('une ligne répète une lettre : '+l.v+' par '+l.p);
+          if(q.f && lettres.some(function(c){ return q.n.indexOf(c)<0; })) vus.push('une lettre hors de la figure : '+l.v+' par '+l.p);
+          if(vs[l.v] || vs[l.v[1]+l.v[0]]) vus.push('deux lignes du même vecteur '+l.v);
+          vs[l.v]=true;
+          const c=chiCanon(L);
+          if(!juge(pts, L, c)) vus.push('la correction de '+l.v+' ('+l.t+') est fausse : '+c.join(' '));
+        });
+      });
+      /* toute égalité juste est acceptée : les écritures de la page sont
+         celles du juge, sur la page à figure (une séance sur dix) */
+      if(n%10===0){ const q=qs[0], pts=lireFig(chsSvg(q)), let_=q.n.split('');
+        q.lignes.forEach(function(l, i){
+          const L=Object.assign({i:i}, l), F=CHI_FORMES[l.t], miennes=[];
+          const val=function(k){ if(F[k]===1) return let_; const r=[]; let_.forEach(function(a){ let_.forEach(function(b){ r.push(a+b); }); }); return r; };
+          const rec=function(k, s){ if(k===F.length){ if(juge(pts, L, s)) miennes.push(s.join('|')); return; } val(k).forEach(function(v){ rec(k+1, s.concat([v])); }); };
+          rec(0, []);
+          const page=chiSolutions(chiPts(q), L, let_).map(function(s){ return s.join('|'); });
+          if(miennes.sort().join()!==page.sort().join()) vus.push(l.v+' ('+l.t+') : la page accepte '+page.length+' écritures, le juge '+miennes.length);
+        }); }
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    ['rect','carre','para','losange'].forEach(function(f){ if(!formes[f]) vus.push('la figure '+f+' ne sort jamais'); });
+
+    /* ---- 2. une page à figure fixe, par le BOUTON ------------------------
+       Le parallélogramme ABCD de centre E (A en haut à gauche, D en bas à
+       gauche) : AC = AB + BC ; AB = …E + E… s'écrit AE + EB, ou DE + EC ;
+       AC par B ; DB = …C + C… ; AB = A… + … + …B. */
+    TESTS[D.exercice].start();
+    if(test.kind!=='chi' || test.qId!==D.exercice) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    test.questions[0]={f:1, fig:'para', fx:1, fy:1, n:'ABCDE', lignes:[{t:'l',v:'AC',p:'B'},{t:'m',v:'AB',p:'E'},{t:'e',v:'AC',p:'B'},{t:'m',v:'DB',p:'C'},{t:'d',v:'AB',p:'DC'}]};
+    test.idx=0;
+    const IDS=['chi-0-0','chi-0-1','chi-1-0','chi-1-1','chi-2-0','chi-2-1','chi-3-0','chi-3-1','chi-4-0','chi-4-1','chi-4-2'];
+    const el=function(id){ return document.getElementById(id); };
+    const peint=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const fb=function(){ return el('chiFeedback').textContent; };
+    const poser=function(v){ test.locked=false; renderChiTest(); IDS.forEach(function(id,k){ if(el(id)) el(id).value=(v[k]==null?'':v[k]); }); };
+    poser([]);
+    if(IDS.some(function(id){ return !el(id); }) || document.querySelectorAll('#chiHost input').length!==11) vus.push('la page n’a pas ses 11 cases');
+    if(!document.querySelector('#chiHost svg')) vus.push('la page à figure n’a pas de dessin');
+    const texte=el('chiHost').textContent.replace(/\\s+/g,'');
+    if(!/AC=A\\+C/.test(texte) || !/AB=E\\+E/.test(texte) || !/enpassantparB/.test(texte)) vus.push('les lignes disent « '+texte.slice(0,90)+' »');
+    if(!el('chiInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
+    const JUSTE=['B','B','A','B','AB','BC','D','B','D','DC','C'];
+    poser(JUSTE); checkChiAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse : '+IDS.map(peint).join(', '));
+    if(!der || der.cases!==11) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 11');
+    if(!el('chiNext')) vus.push('pas de bouton « Page suivante »');
+    /* d'autres écritures justes, en minuscules : n'importe quel point de la
+       figure, DE + EC (DC = AB), AE + EC + CB */
+    poser(['e','e','d','c','ab','bc','d','b','e','ec','c']); checkChiAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('d’autres écritures justes sont refusées : '+IDS.map(peint).join(', '));
+    /* les pièges, nommés */
+    const piege=function(v, id, re, quoi, bleues){ poser(v); checkChiAnswer();
+      if(peint(id)!=='rouge') vus.push(quoi+' : la case est peinte '+peint(id));
+      else if(!re.test(fb())) vus.push(quoi+' : le message dit « '+fb().slice(0,140)+' »');
+      (bleues||[]).forEach(function(b){ if(peint(b)!=='juste') vus.push(quoi+' : '+b+' est peinte '+peint(b)+' — une case juste ne rougit pas pour sa voisine'); }); };
+    const avec=function(k, x){ const c=JUSTE.slice(); Object.keys(k).forEach(function(i){ c[i]=k[i]; }); return c; };
+    piege(avec({5:'CB'}), 'chi-2-1', /PARTIR de B.*AC = AB \\+ BC, pas AB \\+ CB/, 'AC = AB + CB', ['chi-2-0']);
+    piege(avec({2:'B',3:'A'}), 'chi-1-0', /envers/, 'le chemin à l’envers');
+    piege(avec({1:'D'}), 'chi-0-1', /PARTIR de ce même point/, 'le point qui ne se répète pas', ['chi-0-0']);
+    piege(avec({4:'AC'}), 'chi-2-0', /ARRIVER en B/, 'le premier vecteur qui n’arrive pas en B');
+    piege(avec({0:'Z'}), 'chi-0-0', /n’est pas un point de la figure/, 'une lettre hors de la figure');
+    piege(avec({9:'BC'}), 'chi-4-1', /partir là où s’arrête/, 'deux points qui ne s’enchaînent pas', ['chi-4-0']);
+    /* le badge vert : hors de la flèche, le vecteur entier */
+    poser(avec({5:'CB'})); checkChiAnswer();
+    const badge=el('chi-2-1').closest('.chi-v').nextElementSibling;
+    if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='BC') vus.push('le badge de AB + CB n’écrit pas BC à côté de la flèche');
+    if(el('chi-2-1').closest('.chi-v').querySelector('.mf-cor')) vus.push('le badge reste sous la flèche');
+    poser(avec({1:'D'})); checkChiAnswer();
+    const b2=el('chi-0-1').closest('.chi-v').nextElementSibling;
+    if(!b2 || b2.textContent.trim()!=='BC') vus.push('le badge d’une case d’une lettre n’écrit pas le vecteur entier : « '+(b2?b2.textContent:'')+' »');
+    /* une case vide ne rougit pas : elle reçoit la correction */
+    poser(avec({5:''})); checkChiAnswer();
+    if(peint('chi-2-1')!=='correction' || el('chi-2-1').value!=='BC') vus.push('la case vide : '+peint('chi-2-1')+' « '+el('chi-2-1').value+' »');
+    if(!/manquait/.test(fb())) vus.push('le message ne nomme pas la case manquante');
+    poser([]); checkChiAnswer();
+    if(IDS.some(function(id){ return peint(id)==='rouge'; })) vus.push('la copie vide a du rouge');
+    if(IDS.map(function(id){ return el(id).value; }).join(' ')!==JUSTE.join(' ')) vus.push('la copie vide reçoit '+IDS.map(function(id){ return el(id).value; }).join(' '));
+    /* la reprise : la page survit au JSON et se redessine */
+    const avant=JSON.stringify(test.questions[0]);
+    test.questions[0]=JSON.parse(avant); renderChiTest();
+    if(JSON.stringify(test.questions[0])!==avant || document.querySelectorAll('#chiHost input').length!==11) vus.push('la page ne se redessine pas après le JSON');
+    /* le soutien : peint au fil de la saisie, sans révéler */
+    currentMode='soutien'; poser([]);
+    el('chi-2-1').value='CB'; el('chi-2-1').dispatchEvent(new Event('input'));
+    if(peint('chi-2-1')!=='rouge' || peint('chi-2-0')!=='rien') vus.push('le soutien peint '+peint('chi-2-1')+' la case remplie, '+peint('chi-2-0')+' la vide');
+    checkChiAnswer();
+    if(test.locked || el('chi-2-0').value!=='' || document.querySelector('#chiHost .mf-cor')) vus.push('la vérification du soutien verrouille ou révèle');
+    el('chi-2-1').value='BC'; checkChiAnswer(true);
+    if(peint('chi-2-1')!=='juste') vus.push('le soutien ne bleuit pas BC');
+    currentMode='train';
+
+    /* ---- 3. une page SANS figure : les points sont quelconques ---------- */
+    test.questions[1]={f:0, lignes:[{t:'l',v:'RT',p:'S'},{t:'m',v:'KM',p:'L'},{t:'e',v:'UV',p:'N'},{t:'m',v:'GH',p:'F'},{t:'d',v:'PR',p:'ST'}]};
+    test.idx=1; poser([]);
+    if(document.querySelector('#chiHost svg')) vus.push('la page sans figure a un dessin');
+    if(!/Pas de figure/.test(el('chiInstr').textContent)) vus.push('l’énoncé sans figure ne le dit pas');
+    poser(['Q','Q','K','M','UN','NV','G','H','A','AB','B']); checkChiAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('sans figure, une copie juste à points libres est refusée : '+IDS.map(peint).join(', '));
+    piege(['Q','Q','K','M','UN','NV','G','H','A','BC','B'], 'chi-4-1', /partir là où s’arrête/, 'sans figure, AA + BC + BR', ['chi-4-0']);
+    piege(['Q','Q','M','K','UN','NV','G','H','A','AB','B'], 'chi-1-0', /envers/, 'sans figure, le chemin à l’envers');
+    test.idx=0;
+
+    /* le contexte du modèle */
+    const ctx=ctxChi(test.questions[0]).contexte;
+    if(!/SECR/.test(ctx) || !/AB \\+ CB/.test(ctx) || !/AC = AB \\+ BC/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni les réponses');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 function translationPavage(w, P){
   const nom = 'image d\'un triangle dans un pavage : la place, le tirage relu sur le dessin, la correction, les pièges nommés, le clic sur un triangle';
   if(!P.translationPavage){
