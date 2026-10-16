@@ -2517,12 +2517,18 @@ jamais deux fois le même (`DCH_NB` = 4, `dmNbQuestions`, `distinctes()` avec
 le plan pour clé tant qu'il en reste).
 
 **Six justifications** (`DCH_JUST`, dans cet ordre dans la liste) : relation
-de Chasles ; on change l'ordre de la somme ; vecteurs opposés, u⃗ + (−u⃗) =
-0⃗ ; le vecteur nul ne change rien ; soustraire un vecteur, c'est ajouter son
-opposé ; vecteurs égaux car ABCD est un parallélogramme — cette dernière
-n'est proposée que sur un parallélogramme, et porte son nom. La liste écrit
-u⃗ plutôt que « AB⃗ + BA⃗ » de l'idée : des lettres de l'énoncé dans la liste
-souffleraient la réponse.
+de Chasles ; on change l'ordre de la somme ; vecteurs opposés : leur somme
+est le vecteur nul ; ajouter le vecteur nul ne change rien ; soustraire un
+vecteur, c'est ajouter son opposé ; vecteurs égaux car ABCD est un
+parallélogramme — cette dernière n'est proposée que sur un parallélogramme,
+et porte son nom. La liste dit les règles EN MOTS, sans « AB⃗ + BA⃗ = 0⃗ »
+de l'idée : des lettres de l'énoncé souffleraient la réponse, et la première
+version, écrite « u⃗ + (−u⃗) = 0⃗ », s'affichait avec des carrés vides — la
+flèche combinante (U+20D7) n'a pas de dessin dans la police des listes, et
+une `<option>` ne peut pas poser la flèche en CSS comme `.vgt-vec`. Vu à
+l'écran, dans Chromium, pas par un banc. Sur un téléphone, la liste prend
+toute la ligne sous les cases (`flex:1 1 0;min-width:0`) : à sa largeur
+naturelle, la plus longue justification débordait de la carte.
 
 **Toute écriture juste est acceptée — et c'est une ÉNUMÉRATION, pas une
 liste de réponses.** `dchSuites` donne toutes les lignes qu'une étape tire de
@@ -2561,7 +2567,12 @@ AB + BC aurait « valu » autre chose que AB + AD) ; l'étape juste sans issue ;
 une ligne égale mais pas l'étape demandée (un vecteur changé pendant un
 changement d'ordre) ; la mauvaise justification. Chaque message dit ce que
 fait la règle, avec les lettres de l'étape quand il les trouve (`dchExemple` :
-« ici, AB = AD + DB »).
+« ici, AB = AD + DB »). La première version citait la PREMIÈRE
+transformation de l'étape : sur MA + MC = MB + BA + MD + DA, elle disait
+« ici, MA = MB + BA » — la moitié que l'élève avait juste. `dchChangements`
+rend chaque transformation avec les places qu'elle occupe, et le message
+cite celle qui couvre la case fausse : « ici, MC = MD + DC ». Vu en lisant
+le message à l'écran.
 
 **La mise en page est celle d'une copie** : le membre de gauche ouvre la
 première ligne, les suivantes en portent une copie INVISIBLE pour que leurs

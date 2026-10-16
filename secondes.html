@@ -2073,7 +2073,7 @@
   .dch-sel.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
   .dch-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
   .dch-sel:disabled{opacity:1;cursor:default}
-  @media(max-width:520px){ .dch-fant{display:none} .dch-car{margin-left:0} .dch-sel{font-size:.95rem} }
+  @media(max-width:520px){ .dch-fant{display:none} .dch-car{margin-left:0;flex:1 1 100%;min-width:0} .dch-sel{flex:1 1 0;min-width:0;width:100%;font-size:.95rem} }
   /* 8.1.9 {translation-pavage} : le pavage au-dessus des phrases (il est
      large et bas). Chaque triangle est une cible : un clic écrit son numéro.
      La ligne montrée a son liseré violet (--crd-a), son triangle de départ un
@@ -62261,8 +62261,8 @@ const DCH_ORDRE=['ch','or','op','nu','sb','pa'];
 const DCH_JUST={
   ch:'relation de Chasles',
   or:'on change l’ordre de la somme',
-  op:'vecteurs opposés : u⃗ + (−u⃗) = 0⃗',
-  nu:'le vecteur nul ne change rien : u⃗ + 0⃗ = u⃗',
+  op:'vecteurs opposés : leur somme est le vecteur nul',
+  nu:'ajouter le vecteur nul ne change rien',
   sb:'soustraire un vecteur, c’est ajouter son opposé',
   pa:'vecteurs égaux car {P} est un parallélogramme'
 };
@@ -62435,21 +62435,29 @@ function dchJuge(q){
   });
   return {D:D, C:C, subs:subs, lignes:lignes};
 }
-/* ce qu'une étape a fait, dit avec ses lettres : « AB = AD + DB » */
-function dchExemple(K, prev, cur){
-  if(!prev || !cur) return '';
-  if(K==='sb'){ const t=prev.find(function(t){ return t[0]==='-'; }); return t ? '− '+t.slice(1)+' = + '+dchOpp(t.slice(1)) : ''; }
+/* ce qu'une étape a fait, dit avec ses lettres : « AB = AD + DB ». Rend
+   chaque transformation et les places qu'elle occupe dans la ligne
+   d'arrivée (p0 à p1) : le message cite celle de la case fausse. */
+function dchChangements(K, prev, cur){
+  const r=[];
+  if(!prev || !cur) return r;
+  if(K==='sb'){ prev.forEach(function(t, i){ if(t[0]==='-') r.push({txt:'− '+t.slice(1)+' = + '+dchOpp(t.slice(1)), p0:i, p1:i}); }); return r; }
+  if(K==='or' || K==='nu') return r;
   let i=0, p=0;
-  while(i<prev.length && p<cur.length && prev[i]===cur[p]){ i++; p++; }
-  const a=prev[i], b=prev[i+1], u=cur[p], v=cur[p+1];
-  if(!a || !u) return '';
-  if(K==='ch'){
-    if(v && dchPlein(a) && u[0]===a[0] && v[1]===a[1] && u[1]===v[0]) return a+' = '+u+' + '+v;
-    if(b && dchPlein(a) && dchPlein(b) && a[1]===b[0]) return a+' + '+b+' = '+(u==='0' ? '0' : a[0]+b[1]);
+  while(i<prev.length && p<cur.length){
+    const a=prev[i], b=prev[i+1], u=cur[p], v=cur[p+1];
+    if(a===u){ i++; p++; continue; }
+    if(K==='ch' && v && dchPlein(a) && u[0]===a[0] && v[1]===a[1] && u[1]===v[0]){ r.push({txt:a+' = '+u+' + '+v, p0:p, p1:p+1}); i++; p+=2; continue; }
+    if((K==='ch' || K==='op') && b && dchPlein(a) && dchPlein(b) && a[1]===b[0]){ r.push({txt:a+' + '+b+' = '+(u==='0' ? '0' : a[0]+b[1]), p0:p, p1:p}); i+=2; p++; continue; }
+    if(K==='pa'){ r.push({txt:a+' = '+u, p0:p, p1:p}); i++; p++; continue; }
+    break;
   }
-  if(K==='op' && b) return a+' + '+b+' = 0';
-  if(K==='pa') return a+' = '+u;
-  return '';
+  return r;
+}
+function dchExemple(K, prev, cur, j){
+  const r=dchChangements(K, prev, cur);
+  const c=(j!=null && r.find(function(x){ return j>=x.p0 && j<=x.p1; })) || r[0];
+  return c ? c.txt : '';
 }
 /* ce que fait chaque justification, pour le message */
 function dchRegle(D, K){
@@ -62468,7 +62476,7 @@ function dchPourquoi(q, J){
   if(!f) return '';
   const D=J.D, C=J.C, k=f.k, E=D.e, K=E[k][0], last=E.length-1;
   const prev=k ? C[k-1] : D.g, bonne=k<last ? C[k] : D.d;
-  const L='Ligne '+(k+1)+' : ', ex=dchExemple(K, prev, bonne);
+  const L='Ligne '+(k+1)+' : ', ex=dchExemple(K, prev, bonne, f.t==='v' ? f.j : null);
   const avec=ex ? ' — ici, '+ex : '';
   if(f.t==='j'){
     return L+'la justification n’est pas « '+dchLabel(D, f.lu)+' ». On passe de '+dchTxt(prev)+' à '+dchTxt(bonne)+' : '+dchRegle(D, K)+avec+'.';
