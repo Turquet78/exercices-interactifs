@@ -9151,6 +9151,15 @@ if(require.main === module) (async () => {
       const survol = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py); await s.page.waitForTimeout(80);
         return await s.page.evaluate(([x, y]) => { const n = svrNoeud([x, y]).querySelector('.dot'); return getComputedStyle(n).stroke !== 'rgba(0, 0, 0, 0)' && getComputedStyle(n).stroke !== 'transparent'; }, [x, y]); };
       if(!(await survol(-5, 4))) dits.push('avant M, survoler un nœud n\'y montre pas de point');
+      /* « Placer M » : une croix M suit la pointe de la souris, et la souris
+         ne montre jamais de main, ni près d'un nœud ni sur une copie */
+      { const cur = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py); await s.page.waitForTimeout(80);
+          return await s.page.evaluate(([X, Y]) => { const el = document.elementFromPoint(X, Y), l = document.querySelector('#svrVif .svr-pt line');
+            const c = l && l.getBoundingClientRect();
+            return { cur: el ? getComputedStyle(el).cursor : '?', lettre: (document.querySelector('#svrVif .svr-pt') || {}).textContent || '', cx: c ? c.left + c.width / 2 : null, cy: c ? c.top + c.height / 2 : null, X, Y }; }, [p.px, p.py]); };
+        const n1 = await cur(-4.1, 2.1), n2 = await cur(-1, -3.5);
+        if(n1.lettre !== 'M' || n1.cx === null || Math.hypot(n1.cx - n1.X, n1.cy - n1.Y) > 2) dits.push('« Placer M » : aucune croix M à la pointe de la souris : ' + JSON.stringify(n1));
+        if(/pointer|grab/.test(n1.cur) || /pointer|grab/.test(n2.cur)) dits.push('« Placer M » : la souris montre une main (' + n1.cur + ', ' + n2.cur + ')'); }
       /* ④ M */
       await clic(2, -2);
       e = await etat();

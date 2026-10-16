@@ -12159,7 +12159,15 @@ function sommeVecteursRepere(w, P){
     svrDeplacer(1,[1,-4]);
     if(el('svr-ch').classList.contains('fait')) vus.push('des copies qui ne sont plus bout à bout laissent l’objectif en vert');
     svrDeplacer(1,[0,-4]);
+    /* « Placer M » choisi : une croix et la lettre M suivent la souris */
+    svrOutil('M'); svrVif(q1,{x:svrX(3)+7,y:svrY(-1)+5});
+    const cx=document.querySelector('#svrVif .svr-pt');
+    if(!cx || cx.querySelectorAll('line').length!==2 || cx.textContent!=='M' || Math.abs(+cx.querySelector('line').getAttribute('x1')-(svrX(3)+7-4))>0.5) vus.push('« Placer M » : aucune croix M ne suit la pointe de la souris');
+    if(!el('svrGraph').querySelector('.svr-svg.svr-croix')) vus.push('la croix de M suivie : le repère ne prend pas svr-croix (curseur sans main)');
+    const mk=['svrArrE','svrArrB','svrArrS'].map(function(id){ const m=el(id); return m&&m.getAttribute('markerUnits')+':'+m.getAttribute('markerWidth'); });
+    if(mk.some(function(x){ return x!=='userSpaceOnUse:10'; })) vus.push('les pointes des vecteurs ne sont pas toutes à la taille de celles des copies : '+mk.join(','));
     svrPose(2,-2);
+    if(document.querySelector('#svrVif .svr-pt')) vus.push('M posé juste : la croix suit encore la souris');
     if(!el('svr-M').classList.contains('fait')) vus.push('M posé ne passe pas en vert');
     if(!el('svrGraph').querySelector('.svr-svg.svr-repos')) vus.push('M posé : le survol des nœuds montre encore un point');
     const res=document.querySelector('#svrFl line.svr-res');

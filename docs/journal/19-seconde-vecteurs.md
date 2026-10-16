@@ -1475,6 +1475,32 @@ figé en soutien est sauté comme avant. Le juge (`tests/verifier.js`, copie
 D justes, et BC⃗ à l'envers resté sur « Tracer BC⃗ » ; la copie juste du
 banc navigateur enchaîne toujours d'elle-même.
 
+**Puis les pointes ont toutes pris la taille des pointillés, une croix M suit la souris, et la main a disparu (v522).**
+La demande (Turquet, octobre 2026) : « les pointes de tous les vecteurs aussi
+petites que celles des vecteurs en pointillés de ce même exercice ; quand on
+place le point final, afficher à la pointe de la flèche de la souris une
+croix avec la lettre du point à placer ; la souris ne peut pas afficher une
+main à côté d'un point d'intersection du quadrillage ». **Les pointes** : un
+`<marker>` se mesure par défaut en épaisseurs de trait — à `markerWidth` 5,
+la pointe d'un trait plein (2,6) dépassait celle d'une copie en pointillés
+(2). Les trois pointes des vecteurs (`svrArrE`, `svrArrB`, `svrArrS`) passent
+en `markerUnits="userSpaceOnUse"`, à 10 unités du dessin (5 × 2, la taille
+des copies) : la même pointe sur toutes les flèches, quelle que soit leur
+épaisseur ; les axes gardent la leur. **La croix** : « le point final » est
+M, le dernier geste. Le geste « Placer M » choisi et M pas encore juste,
+`svrVif` dessine sous la pointe de la souris une croix de la taille de
+celles du repère, lettre M en haut à droite, à 75 % — non aimantée au nœud,
+c'est la souris qu'elle suit ; rien au doigt, rien une fois M juste ou la
+question corrigée. **La main** : les nœuds de ce repère prennent
+`cursor:default` (règle sous `.svr-svg`, les autres repères vectoriels
+gardent leur main), et pendant que la croix suit, les prises des copies
+aussi (`svr-croix`) — en dehors de « Placer M », la main ouverte des prises
+reste, elle annonce le glisser. Le juge (`tests/verifier.js`) tient la
+croix M à la souris, la classe `svr-croix`, les trois pointes à
+`userSpaceOnUse:10`, la croix effacée M juste ; le banc navigateur
+(« 6 quadragies quinquies ») bouge la vraie souris près d'un nœud et sur une
+copie : croix M centrée sur la souris, aucun curseur `pointer` ni `grab`.
+
 ## {chasles-alignes} — la relation de Chasles sur une droite (8.12, v494)
 
 **La demande** (Turquet, octobre 2026, le même jour que le 8.9 et avec la même phrase, mais une AUTRE fiche) : « en seconde fais un exercice comme
