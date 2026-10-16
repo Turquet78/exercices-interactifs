@@ -2122,7 +2122,10 @@
   .lsd-q{font-size:1.05rem;color:var(--ink)}
   .lsd-eg{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap}
   .lsd-n .veg-let{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic;font-weight:400}
-  .veg-in.lsd-cible:not(.ok):not(.bad):not(.sol){border-color:var(--crd-a)}
+  /* la case qui recevra la lettre cliquée : un halo violet, pas une bordure —
+     la bordure est l'encre du verdict, et un sélecteur qui nomme .ok/.sol,
+     même dans :not(), est lu par « 9 bis » comme une règle de verdict */
+  .veg-in.lsd-cible{box-shadow:0 0 0 3px rgba(124,58,237,.35)}
   /* 8.10 {chasles-simplifier} : la même disposition, mais des lignes plus
      longues (jusqu'à quatre vecteurs, deux étapes) : la figure cède la place */
   .csp-fig{flex:1 1 260px;max-width:400px}
