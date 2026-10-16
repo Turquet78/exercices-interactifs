@@ -13393,7 +13393,10 @@ function pointSommeDifference(w, P){
     const etape=el('cvp-ch');
     if(!etape || el('cvpBody').nextElementSibling!==el('cvpGraph')) vus.push('les étapes ne se placent pas juste au-dessus du dessin');
     if(!etape.classList.contains('cvp-etape') || !el('cvp-pt').classList.contains('cvp-etape') || document.querySelector('#scr-cvp .tvg-cons')) vus.push('un cadre blanc d\\'étape reste à côté des bandeaux bleus');
-    if(el('cvp-pt').style.display!=='none') vus.push('l\\'étape 2 se montre avant que l\\'étape 1 soit faite');
+    /* les deux étapes se montrent dès le départ, chacune dans son encadré :
+       l'étape 1 en cours (bleue), l'étape 2 à venir (blanche) */
+    if(el('cvp-pt').style.display==='none' || el('cvp-ch').nextElementSibling!==el('cvp-pt')) vus.push('l\\'étape 2 ne se montre pas dès le départ sous l\\'étape 1');
+    if(!el('cvp-ch').classList.contains('cvp-cours') || el('cvp-pt').classList.contains('cvp-cours')) vus.push('au départ, l\\'étape 1 n\\'est pas seule en cours : '+el('cvp-ch').className+' / '+el('cvp-pt').className);
     if(!etape || etape.textContent.indexOf('Étape 1 / 2')!==0 || etape.textContent.indexOf('à partir du point B')<0) vus.push('l\\'étape 1 ne dit pas de partir du point B : '+(etape?etape.textContent.slice(0,90):''));
     if(document.querySelector('#cvpGraph .svc-mot')) vus.push('les flèches portent encore « début » ou « fin »');
     if(!instr.querySelector('.vgt-vec') || instr.querySelector('.vgt-vec').textContent!=='BB′') vus.push('l\\'égalité ne s\\'écrit pas BB′ coiffé de sa flèche');
@@ -13426,6 +13429,7 @@ function pointSommeDifference(w, P){
     if(el('cvpFeedback').textContent.indexOf('Il te manquait 2 cases')<0) vus.push('le message ne dit pas « Il te manquait 2 cases » : '+el('cvpFeedback').textContent.slice(0,90));
     if(document.querySelector('#cvpPrises .svc-prise') || !el('cvpRetU').disabled) vus.push('les flèches se saisissent ou se retournent encore après la correction');
     if(el('cvp-pt').style.display==='none') vus.push('l\\'étape 2, notée, reste cachée après la correction');
+    if(document.querySelector('#cvpBody .cvp-cours')) vus.push('une étape reste « en cours » après la correction');
     const solNom=Array.from(document.querySelectorAll('#cvpSol text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
     if(document.querySelectorAll('#cvpSol line.svc-s').length!==1 || solNom!=='BB′') vus.push('le vecteur solution BB′ ne se trace pas en vert : '+solNom);
     if(test.score!==0) vus.push('la copie vide vaut '+test.score);
@@ -13447,9 +13451,10 @@ function pointSommeDifference(w, P){
     if(el('cvp-pt').style.display==='none' || el('cvp-pt').textContent.indexOf('Étape 2 / 2')!==0 || el('cvp-pt').textContent.indexOf('B′')<0 || el('cvp-ch').nextElementSibling!==el('cvp-pt')) vus.push('les flèches bout à bout, l\\'étape 2 ne s\\'affiche pas sous l\\'étape 1 : '+el('cvp-pt').textContent.slice(0,90));
     if(el('cvpEl').children.length) vus.push('un vecteur BB′ se trace avant que B′ soit posé');
     if(!el('cvp-ch').classList.contains('cvp-fait') || el('cvp-pt').classList.contains('cvp-fait')) vus.push('les flèches bout à bout, l\\'étape 1 ne passe pas seule au vert');
+    if(el('cvp-ch').classList.contains('cvp-cours') || !el('cvp-pt').classList.contains('cvp-cours')) vus.push('les flèches bout à bout, le cadre bleu ne passe pas à l\\'étape 2');
     cvpPose(1,1);
     if(JSON.stringify(q1.sel)!=='[1,1]' || !document.querySelector('#cvpn-1-1.sel')) vus.push('le clic ne pose pas B′');
-    if(!el('cvp-pt').classList.contains('cvp-fait')) vus.push('B′ posé, l\\'étape 2 ne passe pas au vert');
+    if(!el('cvp-pt').classList.contains('cvp-fait') || document.querySelector('#cvpBody .cvp-cours')) vus.push('B′ posé, l\\'étape 2 ne passe pas au vert, ou une étape reste en cours');
     if(document.querySelectorAll('#cvpCroix .crx.sel').length!==1 || el('cvpCroix').children.length!==1) vus.push('B′ posé ne se marque pas d\\'une seule croix');
     /* B′ posé : le vecteur BB′ de l'élève se trace, violet et nommé ; plus de point au bout de la souris */
     const elNom=Array.from(document.querySelectorAll('#cvpEl text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
@@ -13496,7 +13501,7 @@ function pointSommeDifference(w, P){
     nextCvp(); clearTimeout(test.fbTimer);
     /* l'étape 2 attend l'étape 1 : un clic avant les flèches bout à bout ne pose rien */
     cvpPose(4,2);
-    if(test.questions[test.idx].sel || el('cvpEl').children.length || el('cvp-pt').style.display!=='none') vus.push('B′ se pose avant que les flèches soient bout à bout depuis B');
+    if(test.questions[test.idx].sel || el('cvpEl').children.length || el('cvp-pt').classList.contains('cvp-fait') || !el('cvp-ch').classList.contains('cvp-cours')) vus.push('B′ se pose avant que les flèches soient bout à bout depuis B');
     /* B′ posé à l'étape 2, puis les flèches déplacées hors de B : B′ reste */
     cvpRetourner('v'); cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]); cvpPose(4,2); cvpDeplacer('u',[0,4]); cvpDeplacer('v',[3,5]);
     if(verifierIci()!==1) vus.push('construction hors de B, B′ juste : ne vaut pas 1');
