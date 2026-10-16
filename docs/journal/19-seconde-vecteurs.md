@@ -1544,7 +1544,7 @@ depuis D — 8 sur 8. Le banc navigateur (« 6 quadragies quinquies ») bouge
 la vraie souris près de A : croix A, aucun point rond ; « fais glisser »
 après les vecteurs, « Placer M » après le glisser.
 
-**Puis un vecteur faux rougit dès qu'il est tracé, et l'étape ③ attend les deux vecteurs justes (v528).**
+**Puis un vecteur faux rougit dès qu'il est tracé, et l'étape ③ attend les deux vecteurs justes (v529).**
 La demande (Turquet, octobre 2026) : « dans le 8.2.5, pour l'étape 2, quand
 un vecteur tracé n'est pas bon, le mettre en rouge et ne pas passer à la
 suite de l'exercice : il faut que l'élève le corrige jusqu'à ce que le
