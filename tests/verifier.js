@@ -12879,7 +12879,8 @@ function demontrerChasles(w, P){
       if(peint(id)!=='rouge') vus.push(quoi+' : la case est peinte '+peint(id));
       else if(!re.test(fb())) vus.push(quoi+' : le message dit « '+fb().slice(0,140)+' »'); };
     piege(['AD','DB','CB','DB'].concat(JUSTE.slice(4)), JJ, 'dch-c-0-3', /n’est pas égal/, 'une ligne fausse');
-    piege(['AC','CB','CB','BD'].concat(JUSTE.slice(4)), JJ, 'dch-c-0-0', /ne mène pas/, 'une étape juste qui ne mène nulle part');
+    /* AC et CB restent justes (AB = AC + CB ouvre une autre rédaction) : c'est le second CB qui rougit */
+    piege(['AC','CB','CB','BD'].concat(JUSTE.slice(4)), JJ, 'dch-c-0-2', /ne mène pas/, 'une étape juste qui ne mène nulle part');
     piege(JUSTE, ['or','or','op','nu'], 'dch-s-0', /justification n’est pas/, 'la mauvaise justification');
     piege(JUSTE, ['ch','or','op','or'], 'dch-s-3', /justification n’est pas/, 'la mauvaise justification de la dernière ligne');
     piege(['ZZ'].concat(JUSTE.slice(1)), JJ, 'dch-c-0-0', /n’est pas un vecteur/, 'un vecteur illisible');
