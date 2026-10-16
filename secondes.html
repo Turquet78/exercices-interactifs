@@ -7194,7 +7194,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=525;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=526;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -61067,19 +61067,26 @@ function svrCoul(id){ const e=svrEtat(id); return e==='bad'?['svc-eb','svrArrB',
 /* Un point posé au mauvais nœud est rouge sur le dessin dès qu'il est posé
    (demande de Turquet, octobre 2026), sans attendre la vérification. */
 function svrCoulPt(q,o){ return !svrJuste(q,o)?['svc-eb','svrArrB','eb']:svrCoul(svrIdOutil(o)); }
+/* Et un vecteur tracé qui n'est pas égal au vecteur demandé, rouge dès qu'il
+   est tracé (même demande, octobre 2026) : l'élève le retrace jusqu'au juste. */
+function svrCoulVec(q,k){ return svrTrace(q,k)&&!svrJuste(q,'t'+k)?['svc-eb','svrArrB','eb']:svrCoul('svr-t'+k); }
+/* L'étape ③ (le glisser, puis M) ne s'ouvre qu'avec les deux vecteurs de
+   l'étape ② justes (demande de Turquet, octobre 2026) : on ne construit pas
+   la somme avec un vecteur faux. */
+function svrOuvert(q,o){ return (o!=='ch'&&o!=='M')||(svrJuste(q,'t0')&&svrJuste(q,'t1')); }
 /* Tout ce que l'élève a posé, à sa place du moment, et les prises. */
 function svrDessiner(q){
   const fl=$('svrFl'), pts=$('svrPts'), pr=$('svrPrises'); if(!fl||!pts||!pr) return;
   document.querySelectorAll('#svrGraph .vec-t.sel').forEach(function(el){ el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
   let f='', prises='';
   for(let k=0;k<2;k++){
-    const t=q.t[k], c=svrCoul('svr-t'+k), nom=svrNomVec(svrPaire(q,k));
+    const t=q.t[k], c=svrCoulVec(q,k), nom=svrNomVec(svrPaire(q,k));
     if(t&&t.d&&!t.f){ const n=svrNoeud(t.d); if(n){ n.classList.add('sel'); n.setAttribute('aria-pressed','true'); } continue; }
     if(!svrTrace(q,k)) continue;
     f+=svrFleche(t.d, t.f, {cls:c[0], marker:c[1], coul:c[0], nom:nom});
     const s=svrCopie(q,k), e=svrPlus(s,svrTv(q,k)), cc=svrCoul('svr-ch');
     if(q.cp[k]) f+=svrFleche(s, e, {cls:cc[0]+' svc-copie', marker:cc[1], coul:cc[0], nom:nom});
-    if(!test.locked&&!(test.svrFige&&test.svrFige['svr-ch']))
+    if(!test.locked&&!(test.svrFige&&test.svrFige['svr-ch'])&&svrOuvert(q,'ch'))
       prises+=`<line class="svc-prise" data-k="${k}" x1="${svrX(s[0])}" y1="${svrY(s[1])}" x2="${svrX(e[0])}" y2="${svrY(e[1])}" tabindex="0" role="button" aria-label="déplacer une copie du vecteur ${nom} (flèches du clavier)"/>`;
   }
   /* M posé : la flèche du résultat, du point d'origine à M (demande de
@@ -61123,7 +61130,8 @@ function svrMajOutils(q){
     el.classList.toggle('actif', !test.locked&&test.svrOutil===o);
     el.classList.toggle('fait', !test.locked&&svrJuste(q,o));
     el.setAttribute('aria-pressed', test.svrOutil===o?'true':'false');
-    el.disabled=!!test.locked||!!(test.svrFige&&test.svrFige[svrIdOutil(o)]);
+    el.disabled=!!test.locked||!!(test.svrFige&&test.svrFige[svrIdOutil(o)])||!svrOuvert(q,o);
+    if(!svrOuvert(q,o)) el.title='Trace d’abord les deux vecteurs justes (étape ②)'; else el.removeAttribute('title');
   });
 }
 /* L'objectif ne verdit que JUSTE (demande de Turquet, octobre 2026) : le
@@ -61144,7 +61152,7 @@ function svrJuste(q,o){
    gris de la fiche : on ne passe à l'étape suivante qu'avec une étape toute
    verte. Sans geste en cours (au rendu), le premier gris de la fiche. */
 function svrSuivant(q, depuis){
-  const libre=function(o){ return !svrJuste(q,o)&&!(test.svrFige&&test.svrFige[svrIdOutil(o)]); };
+  const libre=function(o){ return !svrJuste(q,o)&&svrOuvert(q,o)&&!(test.svrFige&&test.svrFige[svrIdOutil(o)]); };
   const etape=function(o){ return o==='M'||o==='ch'?2:(o[0]==='t'?1:0); };
   const i=SVR_OUTILS.indexOf(depuis);
   if(i>=0&&libre(depuis)) return depuis;
@@ -61154,6 +61162,7 @@ function svrSuivant(q, depuis){
 }
 function svrOutil(o){
   if(test.locked||test.kind!=='svr'||SVR_OUTILS.indexOf(o)<0) return;
+  if(!svrOuvert(test.questions[test.idx],o)) return;
   test.svrOutil=o;
   svrMajOutils(test.questions[test.idx]);
   svrVif(test.questions[test.idx], test.svrSouris||null);
@@ -61166,6 +61175,7 @@ function svrPose(i,j){
   const q=test.questions[test.idx]; if(!q||!svrDans([i,j])) return;
   const o=test.svrOutil, id=svrIdOutil(o);
   if(o==='ch') return;                    /* le geste du glisser : un clic ne pose rien */
+  if(!svrOuvert(q,o)) return;             /* l'étape ③ fermée : un vecteur faux à retracer */
   if(test.svrFige&&test.svrFige[id]) return;
   if(!test.svrEtat) test.svrEtat={};
   delete test.svrEtat[id];
@@ -61193,7 +61203,7 @@ function svrPose(i,j){
 function svrDeplacer(k, p){
   if(test.locked||test.kind!=='svr'||(test.svrFige&&test.svrFige['svr-ch'])) return false;
   const q=test.questions[test.idx]; if(!q) return false;
-  const t=svrTrace(q,k); if(!t) return false;
+  const t=svrTrace(q,k); if(!t||!svrOuvert(q,'ch')) return false;
   const c=svrTv(q,k), av=svrCopie(q,k);
   const borne=function(x,cx,m0,m1){ return Math.max(Math.max(m0,m0-cx), Math.min(Math.min(m1,m1-cx), x)); };
   const np=[borne(p[0],c[0],SVR_X0,SVR_X1), borne(p[1],c[1],SVR_Y0,SVR_Y1)];
@@ -61361,7 +61371,7 @@ function renderSvr(){
   $('svrInstr').innerHTML='① Place les points '+pts.slice(0,3).join(', ')+' et '+pts[3]+'. ② Trace '+svrVecHTML(a)+' et '+svrVecHTML(b)+'. '
     +'③ Place le point M tel que '+vepVecHTML(O,'M')+' = '+svrVecHTML(a)+' + '+svrVecHTML(b)+'.'
     +'<span class="trl-sous">Choisis le geste avec les boutons sous l’énoncé, puis clique les nœuds du repère : un point se pose d’un clic (un second clic au même endroit le retire) ; un vecteur se trace en cliquant son début, puis sa fin. '
-    +'Pour la somme, fais glisser les vecteurs tracés : une copie part, l’original reste. Mets les copies bout à bout à partir de '+O+', puis place M.</span>';
+    +'Pour la somme, fais glisser les vecteurs tracés : une copie part, l’original reste. Mets les copies bout à bout à partir de '+O+', puis place M. Un vecteur faux est en rouge : retrace-le — l’étape ③ s’ouvre quand les deux vecteurs sont justes.</span>';
   const b_=function(o,txt){ return '<button type="button" class="svr-out pts-case" id="'+svrIdOutil(o)+'" onclick="svrOutil(\''+o+'\')"><span class="svr-rond" aria-hidden="true">●</span>'+txt+'</button>'; };
   $('svrBody').innerHTML='<div class="svr-etapes">'
     +'<div class="svr-et"><span class="svr-et-n">①</span>'+[0,1,2,3].map(function(k){ return b_(SVR_NOMS[k], SVR_NOMS[k]+svrCoord(q.P[k])); }).join('')+'</div>'
