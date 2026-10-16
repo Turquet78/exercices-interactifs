@@ -8766,11 +8766,16 @@ if(require.main === module) (async () => {
       const curseur = async (px, py) => await s.page.evaluate(([x, y]) => { const c = document.getElementById('vepCurseur'); if(!c) return 'absent';
         const b = c.querySelector('circle').getBoundingClientRect();
         return getComputedStyle(c).display === 'none' ? 'caché' : Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)); }, [px, py]);
-      const entre = await posNoeud(q0.M[0], q0.M[1], 0.5, 0.5);
+      /* entre deux nœuds au MILIEU du quadrillage, pas à côté du point
+         attendu : tiré près du bas, il tombait sous les commandes flottantes,
+         et la souris n'était plus sur le dessin (deux échecs dans l'action) */
+      const mil = await s.page.evaluate(() => Math.floor(VEC_N / 2));
+      const entre = await posNoeud(mil, mil, 0.5, 0.5);
       await s.page.mouse.move(entre.px - 15, entre.py - 15); await s.page.mouse.move(entre.px, entre.py, { steps: 4 });
       await s.page.waitForTimeout(80);
       const c0 = await curseur(entre.px, entre.py);
-      if(typeof c0 !== 'number' || c0 > 3) dits.push('avant le choix, le point ne suit pas la souris : ' + c0);
+      if(typeof c0 !== 'number' || c0 > 3) dits.push('avant le choix, le point ne suit pas la souris : ' + c0 + ' — sous la souris : '
+        + await s.page.evaluate(([x, y]) => { const e = document.elementFromPoint(x, y); return e ? e.tagName + (e.id ? '#' + e.id : '') + '.' + String(e.className && e.className.baseVal !== undefined ? e.className.baseVal : e.className).split(' ').join('.') : 'rien'; }, [entre.px, entre.py]));
       await clicNoeud(q0.M[0], q0.M[1]);
       const c1 = await curseur(0, 0);
       if(c1 !== 'caché') dits.push('le nœud choisi, le point suit encore la souris : ' + c1);

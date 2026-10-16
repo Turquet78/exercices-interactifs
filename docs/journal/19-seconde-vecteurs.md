@@ -2263,7 +2263,7 @@ clic avant les flèches ne pose rien, ne trace aucun vecteur et laisse
 l'étape 2 cachée ; le banc navigateur (6 quadragies septies) clique le
 quadrillage à la souris avant tout glisser et mesure que rien n'est posé.
 
-**Puis les deux étapes se sont montrées dès le départ, chacune dans son encadré, et le cadre bleu passe de l'une à l'autre (v525)**
+**Puis les deux étapes se sont montrées dès le départ, chacune dans son encadré, et le cadre bleu passe de l’une à l’autre (v526)**
 La demande (Turquet, octobre 2026) : « dans le 8.2.9 il faudrait afficher
 les étapes 1 et 2 par un encadré, l'étape 1 ayant un fond bleu au départ et
 l'étape 2 un fond blanc au départ. Quand l'étape 1 est réalisée, le cadre de
@@ -2284,7 +2284,14 @@ cadre bleu passé à l'étape 2 aux flèches bout à bout, plus aucune étape en
 cours au point posé ni après la correction ; le banc navigateur (6
 quadragies septies) mesure le fond bleu de l'étape 1 et blanc de l'étape 2
 au départ, l'étape 2 sous l'étape 1, son fond devenu bleu une fois l'étape 1
-faite.
+faite. **Piège de banc rencontré** : l'action a rougi deux fois de suite
+sur le 8.1.6 (6 quadragies ter), que ce changement ne touche pas — « avant le
+choix, le point ne suit pas la souris : caché », vert en local. Le contrôle
+posait la souris entre deux nœuds à côté du point attendu, TIRÉ au hasard :
+près du bas du dessin, la souris peut tomber hors du quadrillage (sous les
+commandes flottantes), et aucun `pointermove` n'atteint `#vepGraph`. Il la
+pose désormais au milieu du quadrillage, et son message nomme l'élément sous
+la souris s'il rougit encore.
 
 ## {tracer-vecteurs-opposes} — tracer −u⃗, −v⃗, −w⃗ (8.1.8, v516)
 
