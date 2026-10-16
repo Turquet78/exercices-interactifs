@@ -2751,7 +2751,7 @@ points qui ne s'enchaînent pas, la case vide (correction), la copie vide
 sur une page fixe SANS figure : aucun dessin, une copie juste à points libres
 (Q, A, B), deux pièges ; enfin le contexte du modèle.
 
-## {translations-successives} — deux translations à la suite (8.2.12, v531)
+## {translations-successives} — deux translations à la suite (8.2.12, v532)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
 par Claude, Turquet a retenu la n° 3, « Deux translations à la suite » : le
@@ -2759,9 +2759,9 @@ pont entre la translation (8.1) et la somme de vecteurs (8.2). Ajouté en
 dernier du sous-thème « Somme de vecteurs » : 8.2.12, rien ne se renumérote.
 Kind `tcp`, écran `scr-tcp`, préfixe réservé pour cette session — d'autres
 sessions remplissaient le thème 8 le même jour. Écrit comme 8.2.11 en v528, publié comme 8.2.12 en
-v531 : pendant que les bancs tournaient, `main` a pris la v528 (le 8.2.9), la
+v532 : pendant que les bancs tournaient, `main` a pris la v528 (le 8.2.9), la
 v529 (le 8.1.10 et le 8.2.5), puis la v530 et le numéro 8.2.11
-({chasles-inserer-point}).
+({chasles-inserer-point}), puis la v531 (le 8.2.9 et le 8.1.10).
 
 **L'exercice.** Un quadrillage de 16 × 10, deux flèches u⃗ (trait plein) et
 v⃗ (pointillés), un point A. Quatre cadres d'étape au-dessus du dessin, la
