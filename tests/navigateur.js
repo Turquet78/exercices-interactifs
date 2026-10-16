@@ -9676,6 +9676,96 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies nonies. ANTÉCÉDENT PAR UNE TRANSLATION : LA CROIX SUIT LA SOURIS, LE CLIC POSE LE POINT ===== */
+    /* {translation-antecedent} (8.1.10, idée n° 2 retenue par Turquet,
+       octobre 2026) : la croix et la lettre du point en cours suivent la
+       souris ; un clic pose le point au nœud le plus proche, un clic sur un
+       point posé le reprend. jsdom n'a ni souris ni mise en page : le point
+       qui suit, l'aimant du clic et les flèches de la correction à l'écran ne
+       se voient qu'ici. Le banc principal joue tanClic(i, j). */
+    titre('6 quadragies nonies. ANTÉCÉDENT PAR UNE TRANSLATION : LA CROIX SUIT LA SOURIS, LE CLIC POSE LE POINT');
+    if(!P.translationAntecedent){
+      ignorer('les antécédents se posent au clic, la croix suit la souris, un point se reprend',
+        'ce niveau n\'a pas l\'exercice de l\'antécédent par une translation');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.translationAntecedent.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* u⃗ = (3 ; 2) ; A′ (7 ; 4), B′ (12 ; 6), C′ (6 ; 8) : A (4 ; 2), B (9 ; 4), C (3 ; 6) */
+      const fixe = () => { test.questions[test.idx] = { u: [3, 2], o: [1, 7], im: [[7, 4], [12, 6], [6, 8]], l: 0, p: [null, null, null] };
+        renderTan(); document.querySelector('#tanGraph .tan-svg').scrollIntoView({ block: 'center' }); };
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      const taille = await s.page.evaluate(() => { const r = document.querySelector('#tanGraph .tan-svg').getBoundingClientRect(); return [r.width, r.height]; });
+      if(!(taille[0] > 450 && taille[1] > 280)) dits.push('le quadrillage ne se dessine pas (ou trop petit) : ' + taille.join(' × '));
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
+        const svg = document.querySelector('#tanGraph .tan-svg');
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        return { px: r.left + (TAN_PX + x * TAN_C) * r.width / vb.width, py: r.top + (TAN_PY + (TAN_H - y) * TAN_C) * r.height / vb.height };
+      }, [x, y]);
+      const vers = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(60); return p; };
+      const clic = async (x, y) => { const p = await vers(x, y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(100); };
+      /* la croix de la souris : à combien de pixels de la pointe, et sa lettre (ou « caché ») */
+      const curseur = async p => await s.page.evaluate(([x, y]) => { const c = document.getElementById('tanCurseur'); if(!c) return 'absent';
+        if(getComputedStyle(c).display === 'none') return 'caché';
+        const l = c.querySelector('line'); if(!l) return 'vide';
+        const b = l.getBoundingClientRect();
+        return Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)) + ' ' + c.querySelector('text').textContent; }, [p.px, p.py]);
+      const poses = async () => await s.page.evaluate(() => JSON.stringify(test.questions[test.idx].p));
+      const visibles = async sel => await s.page.evaluate(sel => [...document.querySelectorAll(sel)].filter(e => { const r = e.getBoundingClientRect(); return r.width + r.height > 8; }).length, sel);
+      let p = await vers(5.3, 3.2);
+      let c = await curseur(p);
+      if(!/^[0-3] A$/.test(c)) dits.push('la croix ne suit pas la pointe de la souris avec la lettre A : ' + c);
+      /* un clic à un cinquième de maille pose A au nœud (4 ; 2) */
+      await clic(4.2, 1.8);
+      if(await poses() !== '[[4,2],null,null]') dits.push('le clic ne pose pas A au nœud le plus proche : ' + await poses());
+      if(await visibles('#tanEl .tan-croix line') !== 2) dits.push('la croix de A ne se voit pas');
+      p = await vers(8.4, 2.4);
+      c = await curseur(p);
+      if(!/ B$/.test(c)) dits.push('après A, la croix de la souris ne porte pas B : ' + c);
+      await clic(9.2, 4.1); await clic(3, 6);
+      p = await vers(11.4, 2.4);
+      if(await curseur(p) !== 'caché') dits.push('les trois points posés, la croix suit encore la souris');
+      /* un clic sur C le reprend ; il se repose ailleurs */
+      await clic(3, 6);
+      if(await poses() !== '[[4,2],[9,4],null]') dits.push('un clic sur C ne le reprend pas : ' + await poses());
+      p = await vers(2.7, 5.7);
+      c = await curseur(p);
+      if(!/ C$/.test(c)) dits.push('C repris, la croix de la souris ne porte pas C : ' + c);
+      await clic(2.8, 5.8);
+      await s.page.click('#tanValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
+        cls: [0, 1, 2].map(k => document.getElementById('tan-' + k).className).join(' / '),
+        bouton: document.getElementById('tanNext') ? document.getElementById('tanNext').textContent : '' }));
+      if(fin.score !== 3 || !fin.locked) dits.push('la copie juste vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller') + ' : ' + fin.cls);
+      if(await visibles('#tanEl line.svc-e') !== 3) dits.push('les trois flèches MM′ bleues ne se voient pas');
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* question suivante : le piège (u⃗ suivi depuis A′), B et C laissés vides */
+      await s.page.click('#tanNext');
+      await s.page.waitForTimeout(400);
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      await clic(10, 6);
+      await s.page.click('#tanValidate');
+      await s.page.waitForTimeout(300);
+      const faux = await s.page.evaluate(() => ({ cls: [0, 1, 2].map(k => document.getElementById('tan-' + k).className),
+        fb: document.getElementById('tanFeedback').textContent, score: test.score }));
+      if(!/\bbad\b/.test(faux.cls[0]) || !/\bsol\b/.test(faux.cls[1]) || !/\bsol\b/.test(faux.cls[2])) dits.push('le piège : ' + faux.cls.join(' / '));
+      if(!/IMAGE de A′/.test(faux.fb)) dits.push('le piège n\'est pas nommé : ' + faux.fb.slice(0, 100));
+      if(await visibles('#tanCorr line.svc-s') !== 3 || await visibles('#tanCorr .tan-x-sol line') !== 6) dits.push('la correction ne montre pas les trois bons points et leurs flèches vertes');
+      if(await visibles('#tanEl line.svc-eb') !== 1) dits.push('la flèche rouge du point faux ne se voit pas');
+      if(faux.score !== 3) dits.push('la copie fausse rapporte des points (score ' + faux.score + ')');
+      verifier('les antécédents se posent au clic, la croix suit la souris, un point se reprend', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de l\'antécédent par une translation ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 undevicies. antécédents : la droite se fait GLISSER ===== */
     /* {antecedents-droite} : le geste central est un GLISSER — la droite suit
        le pointeur enfoncé et s'accroche à la graduation la plus proche — puis
