@@ -12506,19 +12506,27 @@ function translationPavage(w, P){
     if(RAPPELS.tpv!==RAP_TPV || !QIA_SUGG.tpv) vus.push('le rappel ou les questions à l\\'IA manquent');
 
     /* ---- le juge indépendant : il relit le DESSIN ---------------------- */
-    const lire=function(){
-      const svg=document.querySelector('#tpvHost svg');
-      const tris=[...svg.querySelectorAll('polygon.tpv-tri')].map(function(p){
-        return p.getAttribute('points').trim().split(/\\s+/).map(function(c){ return c.split(',').map(Number); }); });
+    /* il lit le SVG comme du TEXTE (tpvSvg), sans le poser dans le DOM :
+       120 séances redessinées dans jsdom épuisaient les 4 Go du banc de
+       l'action. Le pavage fixe, plus bas, est relu à l'écran. */
+    const lire=function(src){
+      if(src==null) src=document.querySelector('#tpvHost svg').outerHTML;
+      const att=function(t, a){ const m=new RegExp('\\\\s'+a+'="([^"]*)"').exec(t); return m ? m[1] : null; };
+      const tris=(src.match(/<polygon class="tpv-tri[^"]*"[^>]*>/g)||[]).map(function(t){
+        return att(t,'points').trim().split(/\\s+/).map(function(c){ return c.split(',').map(Number); }); });
+      const nums=[], lets=[], ronds=[];
+      (src.match(/<text[^>]*>[^<]*<\\/text>/g)||[]).forEach(function(t){
+        const o={x:+att(t,'x'), y:+att(t,'y'), v:t.replace(/^<text[^>]*>|<\\/text>$/g,'').trim()};
+        if(/class="tpv-num"/.test(t)) nums.push(o); else if(/class="veg-pt"/.test(t)) lets.push(o); });
+      (src.match(/<circle[^>]*>/g)||[]).forEach(function(t){ ronds.push([+att(t,'cx'), +att(t,'cy')]); });
       const dans=function(t, x, y){ const s=function(a,b){ return (b[0]-a[0])*(y-a[1])-(b[1]-a[1])*(x-a[0]); };
         const u=s(t[0],t[1]), v=s(t[1],t[2]), z=s(t[2],t[0]); return (u>0&&v>0&&z>0)||(u<0&&v<0&&z<0); };
       /* le numéro de chaque triangle : celui qui est écrit DEDANS */
-      const num=tris.map(function(t){ const n=[...svg.querySelectorAll('text.tpv-num')].filter(function(e){ return dans(t, +e.getAttribute('x'), +e.getAttribute('y')); });
-        return n.length===1 ? +n[0].textContent : null; });
+      const num=tris.map(function(t){ const n=nums.filter(function(e){ return dans(t, e.x, e.y); });
+        return n.length===1 ? +n[0].v : null; });
       /* chaque lettre : le point dessiné le plus proche de son étiquette */
-      const pts={}, ronds=[...svg.querySelectorAll('circle')].map(function(c){ return [+c.getAttribute('cx'), +c.getAttribute('cy')]; });
-      [...svg.querySelectorAll('text.veg-pt')].forEach(function(e){ const x=+e.getAttribute('x'), y=+e.getAttribute('y');
-        let b=null, bd=1e9; ronds.forEach(function(r){ const d=Math.hypot(r[0]-x, r[1]-y); if(d<bd){ bd=d; b=r; } }); pts[e.textContent.trim()]=b; });
+      const pts={};
+      lets.forEach(function(e){ let b=null, bd=1e9; ronds.forEach(function(r){ const d=Math.hypot(r[0]-e.x, r[1]-e.y); if(d<bd){ bd=d; b=r; } }); pts[e.v]=b; });
       const meme=function(a, b){ return Math.abs(a[0]-b[0])<0.3 && Math.abs(a[1]-b[1])<0.3; };
       const deTri=function(n){ return tris[num.indexOf(n)]; };
       /* le triangle qui a pour sommets ceux de t glissés de d, s'il est dessiné */
@@ -12540,8 +12548,7 @@ function translationPavage(w, P){
       qs.forEach(function(q, k){
         formes[q.pav]=true;
         if(q.lignes.map(function(l){ return l.t; }).join()!=='img,img,img,vec') vus.push('plan des lignes '+q.lignes.map(function(l){ return l.t; }).join());
-        test.questions=qs; test.idx=k; test.score=0; test.locked=false; renderTpvTest();
-        const J=lire();
+        const J=lire(tpvSvg(q));
         if(J.tris.length!==30 || new Set(J.num).size!==30 || J.num.some(function(n){ return !(n>=1 && n<=30); })) { vus.push('le dessin n’a pas 30 triangles numérotés de 1 à 30 : '+J.num.join(' ')); return; }
         if(Object.keys(J.pts).length!==16 || Object.keys(J.pts).some(function(L){ return !J.pts[L]; })) vus.push('les lettres du contour : '+Object.keys(J.pts).join(''));
         const deps=[], departs=[];

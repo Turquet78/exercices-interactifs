@@ -2467,6 +2467,11 @@ Ce qu'il vérifie :
   montrée puis vers la première case libre ; le redessin après le JSON ; le
   soutien qui peint sans révéler ni verrouiller ; le contexte du modèle.
 
+**Le juge lit le SVG comme du TEXTE** (`tpvSvg(q)`), sans le poser dans le
+DOM. La première version redessinait les 360 pavages dans jsdom : verte sur
+la machine de travail, elle a épuisé les 4 Go du banc de l'action (« heap out
+of memory »). Seul le pavage fixe est relu à l'écran.
+
 Trois sabotages ont été attrapés :
 - l'image remplacée par son retourné : « la page dit 27, le dessin 28 » ;
 - le mot « RETOURNÉ » retiré du message ;
