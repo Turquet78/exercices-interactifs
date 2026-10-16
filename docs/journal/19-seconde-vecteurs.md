@@ -1544,6 +1544,31 @@ depuis D — 8 sur 8. Le banc navigateur (« 6 quadragies quinquies ») bouge
 la vraie souris près de A : croix A, aucun point rond ; « fais glisser »
 après les vecteurs, « Placer M » après le glisser.
 
+**Puis un vecteur faux rougit dès qu'il est tracé, et l'étape ③ attend les deux vecteurs justes (v529).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.5, pour l'étape 2, quand
+un vecteur tracé n'est pas bon, le mettre en rouge et ne pas passer à la
+suite de l'exercice : il faut que l'élève le corrige jusqu'à ce que le
+résultat soit bon ». **Le rouge** : `svrCoulVec` peint un vecteur tracé qui
+n'est pas égal au vecteur demandé en `svc-eb` (pointe `svrArrB`) dès sa fin
+posée, comme `svrCoulPt` pour les points (v525) ; avant, il restait bleu
+jusqu'à la vérification. **La suite fermée** : la v523 retenait déjà le
+GESTE sur un vecteur faux, mais rien n'empêchait de choisir à la main « Fais
+glisser » ou « Placer M », ni de faire glisser la copie du vecteur faux —
+la somme se construisait sur un vecteur faux. `svrOuvert(q,o)` ferme
+désormais `ch` et `M` tant que `t0` et `t1` ne sont pas tous deux justes :
+leurs boutons sont `disabled` (avec un `title` qui dit pourquoi), les copies
+n'ont pas de prise, `svrDeplacer` refuse, `svrOutil` et `svrPose` refusent,
+`svrSuivant` ne les propose pas. Le vecteur faux se retrace d'un clic
+(« un clic de plus recommence »). L'énoncé le dit en une phrase. Un
+brouillon d'avant la règle, copies et M déjà posés sur un vecteur faux, se
+relit et se juge comme avant, chaque réponse seule. Le juge
+(`tests/verifier.js`, copie « dans l'autre ordre ») tient BC⃗ à l'envers
+rouge avant la vérification, les deux boutons de l'étape ③ fermés, aucune
+prise, une copie qui ne glisse pas, « Placer M » refusé et le geste ramené
+à BC⃗ ; le banc navigateur (« 6 quadragies quinquies ») trace d'abord BC⃗
+faux à la souris, lit la couleur calculée du trait, l'étape ③ fermée, puis
+le retrace juste et fait la fiche comme avant.
+
 ## {chasles-alignes} — la relation de Chasles sur une droite (8.12, v494)
 
 **La demande** (Turquet, octobre 2026, le même jour que le 8.9 et avec la même phrase, mais une AUTRE fiche) : « en seconde fais un exercice comme
@@ -2275,6 +2300,36 @@ clic avant les flèches ne pose rien, ne trace aucun vecteur et laisse
 l'étape 2 cachée ; le banc navigateur (6 quadragies septies) clique le
 quadrillage à la souris avant tout glisser et mesure que rien n'est posé.
 
+**Puis les deux étapes se sont montrées dès le départ, chacune dans son encadré, et le cadre bleu passe de l’une à l’autre (v528)**
+La demande (Turquet, octobre 2026) : « dans le 8.2.9 il faudrait afficher
+les étapes 1 et 2 par un encadré, l'étape 1 ayant un fond bleu au départ et
+l'étape 2 un fond blanc au départ. Quand l'étape 1 est réalisée, le cadre de
+l'étape 1 passe en vert et celui de l'étape 2 en bleu. Quand le 2 est
+réalisé, c'est le cadre 2 qui passe en vert. » Le bandeau à liseré gauche
+devient, sur cet écran seulement (`#scr-cvp .cvp-etape` — le 8.1.7 partage
+la classe `cvp-etape` et n'a pas bougé), un cadre de 2 px tout autour, blanc
+liseré gris. L'étape 2 ne se cache plus : elle est là, blanche, sous l'étape
+1 dès le départ. `cvpFaits` pose `cvp-cours` (cadre et fond bleus) sur la
+première étape non faite : l'étape 1, puis l'étape 2 dès les flèches bout à
+bout ; les deux faites, plus aucune. Une étape portant un verdict ne la prend
+pas, `cvpCasesPeindre` la retire, et `cvpConsigne` l'efface une fois la
+question verrouillée. Le verrou du v521 reste : l'étape 2 se VOIT dès le
+départ, mais aucun point ne se pose avant l'étape 1. Flèches déplacées après
+le point posé : l'étape 1 redevient bleue, l'étape 2 reste verte. Le juge
+vérifie les deux étapes visibles au départ, l'étape 1 seule en cours, le
+cadre bleu passé à l'étape 2 aux flèches bout à bout, plus aucune étape en
+cours au point posé ni après la correction ; le banc navigateur (6
+quadragies septies) mesure le fond bleu de l'étape 1 et blanc de l'étape 2
+au départ, l'étape 2 sous l'étape 1, son fond devenu bleu une fois l'étape 1
+faite. **Piège de banc rencontré** : l'action a rougi deux fois de suite
+sur le 8.1.6 (6 quadragies ter), que ce changement ne touche pas — « avant le
+choix, le point ne suit pas la souris : caché », vert en local. Le contrôle
+posait la souris entre deux nœuds à côté du point attendu, TIRÉ au hasard :
+près du bas du dessin, la souris peut tomber hors du quadrillage (sous les
+commandes flottantes), et aucun `pointermove` n'atteint `#vepGraph`. Il la
+pose désormais au milieu du quadrillage, et son message nomme l'élément sous
+la souris s'il rougit encore.
+
 ## {tracer-vecteurs-opposes} — tracer −u⃗, −v⃗, −w⃗ (8.1.8, v516)
 
 **La demande** (Turquet, octobre 2026) : « en seconde faire un exercice comme
@@ -2489,7 +2544,105 @@ Trois sabotages ont été attrapés :
 - le mot « RETOURNÉ » retiré du message ;
 - le dessin jugé en soutien.
 
-## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.11, v528)
+## {vrai-faux-vecteurs} — vrai ou faux sur une figure à pièges (8.1.10, v529 — v528 prise par le 8.2.9)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
+sur les vecteurs égaux, Turquet a retenu l'idée n° 4 : « vrai ou faux sur une
+figure à pièges ». Une figure, une dizaine d'égalités de vecteurs à juger ;
+les fausses sont tirées EXPRÈS parmi trois pièges, et la correction nomme le
+critère qui manque. Ajouté en dernier du sous-thème « Vecteurs égaux » :
+8.1.10, rien ne se renumérote.
+
+**Les trois pièges** (`VFH_PIEGES`) sont les trois critères de l'égalité, pris
+un par un : deux vecteurs qui ont tout en commun SAUF
+- la DIRECTION (même longueur, droites non parallèles) ;
+- le SENS (même direction, même longueur : des vecteurs opposés) ;
+- la LONGUEUR (même direction, même sens).
+
+Deux vecteurs qui n'ont rien en commun ne sont jamais posés : « faux » se
+verrait sans réfléchir. `AB = BA` non plus : le sens se lirait dans les
+lettres, pas sur la figure. De 3 à 5 égalités sont vraies (`VFH_VRAIES`), les
+autres se partagent entre les trois pièges, chacun au moins une fois. Dix
+égalités par figure (`VFH_L`), un vecteur n'y sert qu'une fois.
+
+**Trois figures** (`VFH_FIGURES`), une de chaque par séance de trois :
+- un hexagone régulier ABCDEF de centre O, ses côtés et ses six rayons — le
+  quart de tour (`rot`), le sommet de A (`k0`) et le sens des lettres
+  (`sens`) se tirent ;
+- une frise de trois losanges, d'angle 60° ou 72° (`ang`) ; les lettres du
+  haut vont de gauche à droite ou font le tour (`lt`) ;
+- quatre parallélogrammes accolés, chacun coupé par une diagonale. Le côté
+  oblique (1,2 ; 1,6) et la diagonale (−1,2 ; 1,6) ont la même longueur : en
+  miroir l'un de l'autre, c'est le piège de la direction. Sans cette
+  diagonale, un réseau de parallélogrammes quelconques n'a AUCUN couple de
+  même longueur et de directions différentes — le piège n'était pas posable.
+
+Les retournements (`fx`, `fy`) s'ajoutent partout. Rien de tout cela ne
+change une égalité, seulement l'image.
+
+**Le verdict se calcule sur les coordonnées** (`vfhCat`) : colinéaires
+(produit en croix nul), même sens (produit scalaire positif), même longueur,
+au millionième. On range la figure et les couples de vecteurs, jamais les
+réponses : `vfhLignes` recalcule le verdict.
+
+**La case est une liste « ? / Vrai / Faux »** (`itvSelHTML`, `TVF_OPT_VF`,
+celle du 2.x vrai-ou-faux) : `corrChoix` la peint, met « Faux » en badge vert
+à côté d'une réponse fausse, et remplit en vert une liste laissée sur « ? ».
+
+**La correction nomme le critère** à deux endroits :
+- sous CHAQUE égalité, une fois la page verrouillée (`vfhNote`) : « Vrai :
+  même direction, même sens, même longueur. » ou « Faux : pas le même
+  sens. » ;
+- dans le message, sur la première ligne fausse (`vfhPourquoi`) : le critère
+  en capitales ; pour le sens, le vecteur qui AURAIT été égal (« c'est le
+  vecteur ED qui est égal au vecteur AB ») ; pour la longueur, le rapport
+  quand il est entier (« 2 fois plus court ») ; pour une vraie jugée fausse,
+  le parallélogramme PQSR — sauf s'il est aplati (OA = DO : O, A, D
+  alignés), où il n'en nomme aucun.
+
+**Le dessin montre une ligne à la fois** (`vfhMontrer`, au focus de la liste
+ou au clic sur la ligne). Le premier vecteur est violet (`--crd-a`), le
+second ambre (`--crd-b`), dans la ligne comme sur la figure. Avant la
+vérification, seulement des anneaux sur leurs quatre points : la figure
+reste à lire, rien n'est tracé. Une fois la page VERROUILLÉE, les deux
+flèches (la seconde en tirets), et la première ligne fausse est montrée. En
+soutien, rien ne se révèle : ni flèche, ni note — la condition est
+`test.locked`.
+
+**Les lettres se posent dans le plus grand angle libre** entre les traits qui
+partent de leur point : dehors pour un point du contour, entre deux rayons
+pour O, au-dessus du point du milieu des parallélogrammes. Une seule règle,
+aucune place écrite à la main.
+
+**Le banc** (`vraiFauxVecteurs`, banc principal) a un juge qui ne lit PAS les
+coordonnées de la page. Il relit le SVG comme du TEXTE (la leçon du 8.1.9 :
+jamais des centaines de figures dans jsdom) : les ronds, les lettres (le rond
+le plus proche), les traits ; puis il classe chaque égalité d'après les
+pixels, à 1 % près. Ce qu'il vérifie :
+- **sur 150 séances** : le verdict de chaque égalité recalculé sur le dessin ;
+  jamais une égalité sans rien de commun ; de 3 à 5 vraies ; les trois
+  pièges présents ; aucun vecteur servi deux fois ; jamais `AB = BA` ; une
+  figure de chaque forme par séance ; les deux orientations de l'hexagone ;
+  chaque lettre à 9 px au moins de tout trait ;
+- **sur un hexagone fixe** : les dix verdicts lus sur le dessin ; la copie
+  juste (10/10) ; les notes qui nomment direction, sens et longueur ; les
+  quatre pièges peints en rouge et nommés (avec « vecteur ED », « 2 fois plus
+  court », « ABDE est un parallélogramme ») ; aucun parallélogramme nommé
+  pour OA = DO ; le badge « Faux » ; les anneaux avant, les flèches après ;
+  la case vide en correction ; la copie vide sans rouge ; le redessin après
+  le JSON ; le soutien qui peint sans révéler ni verrouiller ; le contexte
+  du modèle.
+
+Quatre sabotages ont été attrapés :
+- l'égalité « même direction, même sens, autre longueur » attendue Vrai par
+  la page : « los : EH = EF attend V » ;
+- le piège du sens compté vrai : le tirage ne trouve plus ses égalités, et le
+  banc le dit ;
+- la note de correction réduite à « Faux. » ;
+- les flèches tracées avant la vérification : le soutien révèle, et le banc
+  le dit deux fois.
+
+## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.11, v530 — v528 et v529 prises par le 8.2.9, le 8.1.10 et le 8.2.5)
 
 **La demande** (Turquet, octobre 2026). Dans la liste d'idées d'exercices sur
 les vecteurs, Turquet a retenu la n° 7 : « Trois vecteurs bout à bout ». Sur

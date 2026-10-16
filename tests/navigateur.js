@@ -8766,11 +8766,16 @@ if(require.main === module) (async () => {
       const curseur = async (px, py) => await s.page.evaluate(([x, y]) => { const c = document.getElementById('vepCurseur'); if(!c) return 'absent';
         const b = c.querySelector('circle').getBoundingClientRect();
         return getComputedStyle(c).display === 'none' ? 'caché' : Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)); }, [px, py]);
-      const entre = await posNoeud(q0.M[0], q0.M[1], 0.5, 0.5);
+      /* entre deux nœuds au MILIEU du quadrillage, pas à côté du point
+         attendu : tiré près du bas, il tombait sous les commandes flottantes,
+         et la souris n'était plus sur le dessin (deux échecs dans l'action) */
+      const mil = await s.page.evaluate(() => Math.floor(VEC_N / 2));
+      const entre = await posNoeud(mil, mil, 0.5, 0.5);
       await s.page.mouse.move(entre.px - 15, entre.py - 15); await s.page.mouse.move(entre.px, entre.py, { steps: 4 });
       await s.page.waitForTimeout(80);
       const c0 = await curseur(entre.px, entre.py);
-      if(typeof c0 !== 'number' || c0 > 3) dits.push('avant le choix, le point ne suit pas la souris : ' + c0);
+      if(typeof c0 !== 'number' || c0 > 3) dits.push('avant le choix, le point ne suit pas la souris : ' + c0 + ' — sous la souris : '
+        + await s.page.evaluate(([x, y]) => { const e = document.elementFromPoint(x, y); return e ? e.tagName + (e.id ? '#' + e.id : '') + '.' + String(e.className && e.className.baseVal !== undefined ? e.className.baseVal : e.className).split(' ').join('.') : 'rien'; }, [entre.px, entre.py]));
       await clicNoeud(q0.M[0], q0.M[1]);
       const c1 = await curseur(0, 0);
       if(c1 !== 'caché') dits.push('le nœud choisi, le point suit encore la souris : ' + c1);
@@ -9118,6 +9123,15 @@ if(require.main === module) (async () => {
       await clic(3, 4);
       /* ② BC puis BA : le second clic sur B tombe sur la prise de BC */
       await s.page.click('#svr-t0');
+      /* BC tracé faux : rouge sur le dessin, le geste reste sur BC, et
+         l'étape ③ reste fermée tant qu'il n'est pas retracé juste */
+      await clic(1, 2); await clic(3, 2);
+      { const f = await s.page.evaluate(() => { const l = document.querySelector('#svrFl line.svc-eb'), c = l ? getComputedStyle(l).stroke.match(/\d+/g).map(Number) : null;
+          return { rouge: !!c && c[0] > 150 && c[0] > c[1] + 60 && c[0] > c[2] + 60, outil: test.svrOutil,
+                   ferme: document.getElementById('svr-ch').disabled && document.getElementById('svr-M').disabled }; });
+        if(!f.rouge) dits.push('BC tracé faux ne rougit pas sur le dessin');
+        if(f.outil !== 't0') dits.push('BC tracé faux : le geste passe tout de même à « ' + f.outil + ' »');
+        if(!f.ferme) dits.push('BC tracé faux : l\'étape ③ s\'ouvre tout de même'); }
       await clic(1, 2);
       /* le début posé, la flèche suit la pointe de la souris, jusqu'à elle */
       { const p = await pos(4.4, -1.6); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(80);
@@ -9414,7 +9428,14 @@ if(require.main === module) (async () => {
                  mots: document.querySelectorAll('#cvpGraph .svc-mot').length };
       });
       if(mes.etape.indexOf('Étape 1') !== 0 || !mes.etapeAuDessus) dits.push('l\'étape 1 ne s\'affiche pas en bandeau au-dessus du dessin : ' + mes.etape.slice(0, 60));
-      if(await s.page.evaluate(() => document.getElementById('cvp-pt').getBoundingClientRect().height)) dits.push('l\'étape 2 se montre avant que l\'étape 1 soit faite');
+      /* les deux étapes dès le départ, chacune encadrée : l'étape 1 sur fond
+         bleu, l'étape 2 sur fond blanc, sous l'étape 1 */
+      const dep = await s.page.evaluate(() => { const a = document.getElementById('cvp-ch'), b = document.getElementById('cvp-pt'), ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+        return { h: rb.height, sous: rb.top >= ra.bottom - 1, fa: getComputedStyle(a).backgroundColor, fb: getComputedStyle(b).backgroundColor,
+                 ca: getComputedStyle(a).borderTopColor, cb: getComputedStyle(b).borderTopColor, ea: getComputedStyle(a).borderTopWidth }; });
+      if(dep.h < 20 || !dep.sous) dits.push('au départ, l\'étape 2 ne s\'affiche pas sous l\'étape 1');
+      if(dep.fa !== 'rgb(234, 240, 255)' || dep.fb !== 'rgb(255, 255, 255)') dits.push('au départ, l\'étape 1 n\'est pas sur fond bleu et l\'étape 2 sur fond blanc : ' + dep.fa + ' / ' + dep.fb);
+      if(parseFloat(dep.ea) < 1 || dep.ca === dep.cb) dits.push('l\'étape 1 n\'est pas encadrée d\'un cadre bleu distinct de l\'étape 2 : ' + dep.ea + ' ' + dep.ca + ' / ' + dep.cb);
       if(mes.mots) dits.push(mes.mots + ' mot(s) « début » / « fin » sur les flèches');
       if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
       if(mes.fleche !== 'solid') dits.push('BB′ n\'est pas coiffé de sa flèche');
@@ -9441,7 +9462,7 @@ if(require.main === module) (async () => {
       const avant = await pos(11, 1);
       await s.page.mouse.click(avant.px, avant.py);
       await s.page.waitForTimeout(120);
-      if(await s.page.evaluate(() => !!test.questions[test.idx].sel || !!document.getElementById('cvp-pt').getBoundingClientRect().height)) dits.push('un clic pose B′ avant que l\'étape 1 soit faite');
+      if(await s.page.evaluate(() => !!test.questions[test.idx].sel || document.getElementById('cvp-pt').classList.contains('cvp-fait'))) dits.push('un clic pose B′ avant que l\'étape 1 soit faite');
       /* v se retourne au bouton : −v */
       await s.page.click('#cvpRetV');
       await s.page.waitForTimeout(120);
@@ -9461,6 +9482,7 @@ if(require.main === module) (async () => {
         return { dessus: b.getBoundingClientRect().bottom <= g.top + 1, fa: getComputedStyle(a).backgroundColor, fb: getComputedStyle(b).backgroundColor }; });
       if(!etp.dessus) dits.push('les étapes ne s\'affichent pas au-dessus du dessin');
       if(etp.fa === etp.fb) dits.push('l\'étape 1 faite n\'a pas un fond différent de l\'étape 2 à faire (' + etp.fa + ')');
+      if(etp.fb !== 'rgb(234, 240, 255)') dits.push('l\'étape 1 faite, le cadre de l\'étape 2 ne passe pas au bleu : ' + etp.fb);
       /* survoler un nœud ne montre aucun rond */
       const nd = await pos(9, 7);
       await s.page.mouse.move(nd.px, nd.py); await s.page.waitForTimeout(60);
