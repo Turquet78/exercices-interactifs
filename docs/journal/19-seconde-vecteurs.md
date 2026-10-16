@@ -2177,3 +2177,52 @@ des flèches avec leur petite flèche, la copie juste (trois chemins à
 l'envers, après un passage par le JSON de la pause), le vecteur égal faux et
 nommé, la flèche verte de −u partie du départ de l'élève vers la gauche, la
 réponse enregistrée, le contexte du modèle, et le 8.1.7 qui reste le 8.1.7.
+
+## {somme-vecteurs-libre} — la somme de deux vecteurs, sans étapes (8.2.10, v521)
+
+**La demande** (Turquet, octobre 2026) : « faire le même exercice que le
+8.2.1 en seconde, mais sans afficher les étapes et sans afficher début et fin
+sur les vecteurs. » Ajouté en dernier du sous-thème « Somme de vecteurs » :
+8.2.10, rien ne se renumérote.
+
+**Le moteur du 8.2.1, pas un second** — la recette du 8.1.8. Même écran
+(`scr-svc`), même kind `svc`, même tirage, même geste. La question porte
+`q.libre = 1`, rangé, donc relu après une pause ; le 8.2.1 ne le porte pas
+et ses questions n'ont pas changé d'une clé. Rappel et questions à l'IA sont
+ceux du kind (`RAP_SVC`, `QIA_SUGG.svc`) : la méthode est la même.
+
+**Ce qui disparaît.** Les deux cadres « Étape 1 / Étape 2 », le passage
+automatique de l'une à l'autre (`svcAuto`, `svcVersB`, `svcVersA` ne font
+rien sur une question libre), le figeage des flèches mises bout à bout, le
+vert « étape faite », les mots « début » et « fin » sur les flèches (et le
+mot double « fin / début » d'une jonction), et la phrase « Un début va sur
+une fin » de l'énoncé. L'énoncé dit seulement « Voici deux vecteurs u⃗ et v⃗
+sur un quadrillage », le geste en petit dessous ; la consigne « Construis le
+vecteur u⃗ + v⃗ » est la seule `pts-case`.
+
+**Glisser ET tracer, toujours.** `svcPeutGlisser(q)` et `svcPeutTracer(q)`
+remplacent les tests sur `q.et` : sur une question libre, les deux sont
+vrais à tout moment, dans l'ordre que l'élève veut ; le point et la flèche
+qui suivent la souris restent ceux du 8.2.1. `q.et` n'existe pas sur une
+question libre (`renderSvc` le retire).
+
+**Une seule réponse notée : la flèche u⃗ + v⃗** (`svcCases` rend
+`['svc-sm']`, barème 8 pour 8 questions). Le chaînage est le CHEMIN, pas la
+réponse : sans étape 1 affichée, il n'a plus de case où se peindre. Il reste
+jugé (`svcJuge` inchangé) pour deux choses seulement : nommer l'erreur
+(`svcPourquoi` — deux débuts, deux fins, pas bout à bout) quand u⃗ + v⃗ est
+fausse, et tracer en vert, à la correction, le second vecteur recopié quand
+les flèches n'étaient pas bout à bout. `svcNotees` filtre ce qui compte ; une
+u⃗ + v⃗ juste tracée sans avoir bougé les flèches vaut le point.
+
+**Le banc** (`sommeVecteursLibre`, banc principal) ne rejoue pas ce que tient
+celui du 8.2.1, mais ce qui CHANGE : la place (8.2.10, voisins immobiles),
+`q.libre` rangé (et absent du 8.2.1), aucun « Étape », aucun « début » /
+« fin » sur le dessin ni dans l'énoncé, pas de `svc-ch`, les deux prises,
+le bouton « Vérifier » seul ; la copie vide (sol, construction verte, « Il te
+manquait 1 case », 0 sur 1) ; un clic qui commence u⃗ + v⃗ AVANT tout glisser,
+v⃗ qui glisse ensuite, rien ne se fige à la mise bout à bout ; la reprise
+après JSON ; u⃗ + v⃗ juste sans chaînage (1) ; u⃗ + v⃗ à l'envers (nommé,
+correction verte) ; le soutien ; le contexte du modèle ; et le 8.2.1 qui
+garde ses étapes et ses mots. Le glisser au doigt et à la souris est celui
+du 8.2.1, tenu par son banc navigateur (« 6 quadragies quater »).
