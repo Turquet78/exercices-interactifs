@@ -12709,7 +12709,9 @@ function lireSommeDessin(w, P){
         let b=null, bd=1e9; ronds.forEach(function(r){ const d=Math.hypot(r[0]-x, r[1]-y); if(d<bd){ bd=d; b=r; } });
         pts[L]=b; });
       const fl=function(cls){ const r=[];
-        const re=new RegExp('<g class="'+cls+'[^"]*"([^>]*)><line ([^>]*)/><polygon points="([^"]*)"/></g>', 'g');
+        /* relu à l'écran, le SVG revient de outerHTML : « <line …/> » y devient
+           « <line …></line> » — les deux écritures se lisent */
+        const re=new RegExp('<g class="'+cls+'[^"]*"([^>]*)><line ([^>]*?)/?>(?:</line>)?<polygon points="([^"]*)"[^>]*>(?:</polygon>)?</g>', 'g');
         let m; while((m=re.exec(src))){ const p=m[3].trim().split(/\\s+/)[0].split(',').map(Number);
           r.push({n:att(' '+m[1],'data-n'), a:[+att(' '+m[2],'x1'), +att(' '+m[2],'y1')], b:p}); }
         return r; };

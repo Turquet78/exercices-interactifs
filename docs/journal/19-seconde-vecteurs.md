@@ -2581,3 +2581,23 @@ pièges peints en rouge et nommés, l'ordre inverse, le badge vert, le dessin
 de la correction, les cases vides en correction (et la seconde qui COMPLÈTE
 une première juste : `MK` → `KF`), la copie vide sans rouge, les clics, le
 redessin après le JSON, le soutien sans révélation, le contexte du modèle.
+
+**Deux pièges du banc, pris à la première exécution.** Le juge cherchait LA
+flèche de la chaîne égale à u⃗ (`findIndex`) : une chaîne sur onze a deux
+flèches égales, et le juge accusait à tort u⃗ et v⃗ de ne pas être
+consécutifs — il cherche maintenant TOUTES les flèches qui font le chemin.
+Puis la figure fixe, relue à l'écran par `outerHTML`, a planté le juge : la
+sérialisation réécrit `<line …/>` en `<line …></line>`, que l'expression
+régulière écrite sur `lsdSvg` ne lisait pas. Les deux écritures se lisent.
+Et la règle de la case ciblée, `.veg-in.lsd-cible:not(.ok):not(.bad):not(.sol)`,
+a fait rougir « 9 bis » : un sélecteur qui NOMME une classe de verdict, même
+dans `:not()`, est lu comme une règle de verdict, et son violet passait pour
+du bleu. La case ciblée prend un halo (`box-shadow`), plus une bordure.
+
+**Trois sabotages ont été attrapés** (le contrôle seul, joué dans Chromium) :
+- la page n'accepte plus que SON écriture de u⃗ + v⃗ : « u + v = AB : la page
+  dit faux, le dessin juste » ;
+- le juge de w⃗ oublie qu'une case se complète : « w = DF + DH : la page dit
+  false/false, le dessin false/true » ;
+- le dessin jugé en soutien : « la vérification du soutien verrouille ou
+  révèle ».
