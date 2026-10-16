@@ -2300,6 +2300,36 @@ clic avant les flèches ne pose rien, ne trace aucun vecteur et laisse
 l'étape 2 cachée ; le banc navigateur (6 quadragies septies) clique le
 quadrillage à la souris avant tout glisser et mesure que rien n'est posé.
 
+**Puis les deux étapes se sont montrées dès le départ, chacune dans son encadré, et le cadre bleu passe de l’une à l’autre (v528)**
+La demande (Turquet, octobre 2026) : « dans le 8.2.9 il faudrait afficher
+les étapes 1 et 2 par un encadré, l'étape 1 ayant un fond bleu au départ et
+l'étape 2 un fond blanc au départ. Quand l'étape 1 est réalisée, le cadre de
+l'étape 1 passe en vert et celui de l'étape 2 en bleu. Quand le 2 est
+réalisé, c'est le cadre 2 qui passe en vert. » Le bandeau à liseré gauche
+devient, sur cet écran seulement (`#scr-cvp .cvp-etape` — le 8.1.7 partage
+la classe `cvp-etape` et n'a pas bougé), un cadre de 2 px tout autour, blanc
+liseré gris. L'étape 2 ne se cache plus : elle est là, blanche, sous l'étape
+1 dès le départ. `cvpFaits` pose `cvp-cours` (cadre et fond bleus) sur la
+première étape non faite : l'étape 1, puis l'étape 2 dès les flèches bout à
+bout ; les deux faites, plus aucune. Une étape portant un verdict ne la prend
+pas, `cvpCasesPeindre` la retire, et `cvpConsigne` l'efface une fois la
+question verrouillée. Le verrou du v521 reste : l'étape 2 se VOIT dès le
+départ, mais aucun point ne se pose avant l'étape 1. Flèches déplacées après
+le point posé : l'étape 1 redevient bleue, l'étape 2 reste verte. Le juge
+vérifie les deux étapes visibles au départ, l'étape 1 seule en cours, le
+cadre bleu passé à l'étape 2 aux flèches bout à bout, plus aucune étape en
+cours au point posé ni après la correction ; le banc navigateur (6
+quadragies septies) mesure le fond bleu de l'étape 1 et blanc de l'étape 2
+au départ, l'étape 2 sous l'étape 1, son fond devenu bleu une fois l'étape 1
+faite. **Piège de banc rencontré** : l'action a rougi deux fois de suite
+sur le 8.1.6 (6 quadragies ter), que ce changement ne touche pas — « avant le
+choix, le point ne suit pas la souris : caché », vert en local. Le contrôle
+posait la souris entre deux nœuds à côté du point attendu, TIRÉ au hasard :
+près du bas du dessin, la souris peut tomber hors du quadrillage (sous les
+commandes flottantes), et aucun `pointermove` n'atteint `#vepGraph`. Il la
+pose désormais au milieu du quadrillage, et son message nomme l'élément sous
+la souris s'il rougit encore.
+
 ## {tracer-vecteurs-opposes} — tracer −u⃗, −v⃗, −w⃗ (8.1.8, v516)
 
 **La demande** (Turquet, octobre 2026) : « en seconde faire un exercice comme
