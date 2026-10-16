@@ -58808,6 +58808,10 @@ function cvpPose(i,j){
   if(test.locked||test.kind!=='cvp'||test.cvpFigePt) return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>SVC_W||j<0||j>SVC_H) return;
+  /* l'étape 2 attend l'étape 1 : pas de point posé tant que les flèches ne
+     sont pas bout à bout depuis le point (demande de Turquet, octobre 2026) ;
+     un point déjà posé se retire toujours */
+  if(!svcEgal(q.sel,[i,j]) && !cvpBoutABout(q) && !test.cvpFigeCh) return;
   q.sel=svcEgal(q.sel,[i,j])?null:[i,j];
   const pt=$('cvp-pt'); if(pt) pt.classList.remove('ok','bad');
   /* le point posé, plus de point au bout de la souris (demande de Turquet, octobre 2026) */

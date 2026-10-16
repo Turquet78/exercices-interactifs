@@ -12955,7 +12955,11 @@ function pointSommeDifference(w, P){
     if(el('cvpCorr').querySelectorAll('line.svc-s').length) vus.push('la construction juste est redoublée en vert');
     if(el('cvpFeedback').textContent.indexOf('au bout de la seconde flèche')<0) vus.push('le message ne dit pas où est B′');
     nextCvp(); clearTimeout(test.fbTimer);
-    cvpRetourner('v'); cvpDeplacer('u',[0,4]); cvpDeplacer('v',[3,5]); cvpPose(4,2);
+    /* l'étape 2 attend l'étape 1 : un clic avant les flèches bout à bout ne pose rien */
+    cvpPose(4,2);
+    if(test.questions[test.idx].sel || el('cvpEl').children.length || el('cvp-pt').style.display!=='none') vus.push('B′ se pose avant que les flèches soient bout à bout depuis B');
+    /* B′ posé à l'étape 2, puis les flèches déplacées hors de B : B′ reste */
+    cvpRetourner('v'); cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]); cvpPose(4,2); cvpDeplacer('u',[0,4]); cvpDeplacer('v',[3,5]);
     if(verifierIci()!==1) vus.push('construction hors de B, B′ juste : ne vaut pas 1');
     fb=el('cvpFeedback').textContent;
     if(classe('cvp-ch')!=='bad'||classe('cvp-pt')!=='ok'||fb.indexOf('part du point B')<0) vus.push('la construction qui ne part pas de B n\\'est pas rouge et nommée, ou B′ juste rougit : '+classe('cvp-pt')+' — '+fb.slice(0,120));

@@ -9420,6 +9420,11 @@ if(require.main === module) (async () => {
         await s.page.mouse.move(b.px, b.py, { steps: 12 }); await s.page.mouse.up();
         await s.page.waitForTimeout(120);
       };
+      /* l'étape 2 attend l'étape 1 : un clic sur le quadrillage, avant les flèches, ne pose rien */
+      const avant = await pos(11, 1);
+      await s.page.mouse.click(avant.px, avant.py);
+      await s.page.waitForTimeout(120);
+      if(await s.page.evaluate(() => !!test.questions[test.idx].sel || !!document.getElementById('cvp-pt').getBoundingClientRect().height)) dits.push('un clic pose B′ avant que l\'étape 1 soit faite');
       /* v se retourne au bouton : −v */
       await s.page.click('#cvpRetV');
       await s.page.waitForTimeout(120);
