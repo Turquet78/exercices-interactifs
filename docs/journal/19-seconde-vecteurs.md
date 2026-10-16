@@ -2519,7 +2519,7 @@ Trois sabotages ont été attrapés :
 - le mot « RETOURNÉ » retiré du message ;
 - le dessin jugé en soutien.
 
-## {vrai-faux-vecteurs} — vrai ou faux sur une figure à pièges (8.1.10, v528)
+## {vrai-faux-vecteurs} — vrai ou faux sur une figure à pièges (8.1.10, v529 — v528 prise par le 8.2.9)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
 sur les vecteurs égaux, Turquet a retenu l'idée n° 4 : « vrai ou faux sur une
