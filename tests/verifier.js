@@ -57,6 +57,9 @@ function titre(t){ console.log('\n' + t); }
 function evaluer(w, code){
   try { return { ok:true, valeur: w.eval(code) }; }
   catch(e){ return { ok:false, erreur: e.message }; }
+  /* les relevés en attente se délivrent : sans quoi chaque nœud retiré reste
+     en vie jusqu'au prochain retour de la main (tests/harnais.js) */
+  finally { try{ if(w.__viderObservateurs) w.__viderObservateurs(); }catch(e){} }
 }
 function verifierEval(w, intitule, code, juge, detail){
   const r = evaluer(w, code);

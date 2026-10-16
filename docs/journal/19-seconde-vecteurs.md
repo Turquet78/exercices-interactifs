@@ -2855,3 +2855,15 @@ dessine maintenant une fois, et les cases se remettent à neuf entre deux
 copies : 6 Mo retenus au lieu de 21, et les trois sabotages toujours attrapés.
 La marge du banc reste mince pour tout le monde : un contrôle qui dessine
 dessine le moins possible.
+
+**Et l'allègement n'a pas suffi : la cause était ailleurs, et une autre PR
+l'avait trouvée.** Le run suivant de l'action est mort de la même façon, et
+`main` lui-même passait ou non selon le tirage (rouge après le 8.2.11, vert
+après le 8.2.8). La PR #711 (8.1.11, l'antécédent par une translation) a nommé
+la cause exacte : les relevés des `MutationObserver` ne sont délivrés qu'au
+retour de la main, et chaque relevé garde en vie les nœuds RETIRÉS du DOM.
+Son correctif — `tests/harnais.js` enveloppe `MutationObserver`, `evaluer()`
+délivre les relevés après chaque contrôle — est porté ici À L'IDENTIQUE, pour
+que celle des deux PR qui passe la seconde n'ait rien à résoudre. La chronique
+du correctif est celle de la #711 (`docs/journal/17-verification-et-bancs.md`) ;
+mesuré ici, ce contrôle ne retient plus que 1 à 2 Mo par passage.
