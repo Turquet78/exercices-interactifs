@@ -13702,6 +13702,14 @@ function lireSommeDessin(w, P){
         const lettres=[nomme(J.ch[0].a)];
         J.ch.forEach(function(f, i){ if(i && !J.meme(f.a, J.ch[i-1].b)) vus.push('la chaîne est coupée après la flèche '+i); lettres.push(nomme(f.b)); });
         if(lettres.some(function(x){ return !x; })) vus.push('une flèche de la chaîne ne relie pas deux points nommés');
+        /* la chaîne ne revient jamais sur elle-même (plus de 120° entre deux
+           flèches), et aucun point ne semble posé sur une flèche qui ne le
+           touche pas : vu en ligne en v536, une figure sur deux */
+        J.ch.forEach(function(f, i){ if(!i) return; const a=J.dep(J.ch[i-1]), b=J.dep(f);
+          if(a[0]*b[0]+a[1]*b[1] < -0.5*Math.hypot(a[0],a[1])*Math.hypot(b[0],b[1])) vus.push('la chaîne fait demi-tour entre les flèches '+i+' et '+(i+1)); });
+        Object.keys(J.pts).forEach(function(k){ J.ch.forEach(function(f){
+          if(J.meme(J.pts[k], f.a) || J.meme(J.pts[k], f.b)) return;
+          if(distPS(J.pts[k], f.a, f.b)<32) vus.push('le point '+k+' est à '+Math.round(distPS(J.pts[k], f.a, f.b))+' px d’une flèche de la chaîne qui ne le touche pas'); }); });
         /* u⃗ et v⃗ sont égaux à deux flèches CONSÉCUTIVES de la chaîne — deux
            flèches de la chaîne peuvent être égales (une figure sur onze) :
            on cherche TOUTES celles qui font le chemin, pas la première */

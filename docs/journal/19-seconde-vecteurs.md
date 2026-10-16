@@ -3381,8 +3381,21 @@ que celle des deux PR qui passe la seconde n'ait rien à résoudre. La chronique
 du correctif est celle de la #711 (`docs/journal/17-verification-et-bancs.md`) ;
 mesuré ici, ce contrôle ne retient plus que 1 à 2 Mo par passage.
 
+**Puis la page en ligne a montré ce qu'aucun banc ne regardait : la chaîne
+faisait demi-tour** (v537). Sur la capture de la v536 publiée, N → K puis
+K → P : la seconde flèche repartait presque en arrière, se couchait sur la
+première, et N semblait posé sur le trait K → P. Le tirage interdisait deux
+flèches consécutives ALIGNÉES, pas un retour aigu. Mesuré sur 3 000 figures :
+une sur deux avait un demi-tour de plus de 120°, une sur huit un point à moins
+de 1,2 carreau d'une flèche qui ne le touche pas. Le tirage refuse maintenant
+les deux (angle entre deux flèches consécutives au plus 120°, tout point à
+1,2 carreau au moins de chaque flèche qui ne le touche pas) : 0 sur 3 000,
+sans repli ni perte de variété. Le banc relit les deux règles sur le DESSIN ;
+éprouvé par sabotage — sans la règle des 120°, « la chaîne fait demi-tour
+entre les flèches 1 et 2 » ; avec les distances d'avant, « le point E est à
+31 px d'une flèche de la chaîne qui ne le touche pas ».
 
-## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.15, v537 — commencé comme 8.2.11 en v528 ; les exercices du thème 8 fusionnés pendant les bancs ont pris tour à tour les numéros 8.2.11 à 8.2.14 et les versions v528 à v536)
+## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.15, v538 — commencé comme 8.2.11 en v528 ; les exercices du thème 8 fusionnés pendant les bancs ont pris tour à tour les numéros 8.2.11 à 8.2.14 et les versions v528 à v537)
 
 **La demande** (Turquet, octobre 2026). Dans la liste d'idées d'exercices sur
 les vecteurs, Turquet a retenu la n° 7 : « Trois vecteurs bout à bout ». Sur
