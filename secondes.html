@@ -2490,6 +2490,8 @@
   /* le vecteur qui suit la souris pendant un tracé de l'étape ② (svrVif) */
   #svrGraph #svrVif{pointer-events:none}
   #svrGraph .svr-vif{opacity:.75}
+  /* jamais de main près d'un nœud du repère ; la croix de M suivie, nulle part */
+  .vec-svg.svr-svg .vec-t,.svc-svg.svr-svg.svr-croix .svc-prise{cursor:default}
   /* 8.15 {point-somme-difference} : le quadrillage et les flèches du 8.7 (.svc-svg),
      le point donné en croix (.vec-pt), A′ posé au clic comme au 8.5 ; deux
      boutons retournent u⃗ et v⃗ ; l'égalité s'écrit avec la flèche du 8.2 */
@@ -7165,7 +7167,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=522;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=523;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -60977,9 +60979,12 @@ function svrSVG(q){
     cibles+=`<g class="vec-t" id="svrn-${i-SVR_X0}-${j-SVR_Y0}" onclick="svrPose(${i},${j})" tabindex="0" role="button" aria-label="point ${svrCoord([i,j])}" aria-pressed="false">`
       +`<circle class="hit" cx="${svrX(i)}" cy="${svrY(j)}" r="10"/><circle class="dot" cx="${svrX(i)}" cy="${svrY(j)}" r="5"/></g>`;
   }
-  const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
+  /* les pointes des vecteurs ont toutes la taille de celles des copies en
+     pointillés (trait 2 × 5) : en unités du dessin, elles ne grossissent plus
+     avec le trait (demande de Turquet, octobre 2026) ; les axes gardent la leur */
+  const pointe=function(id,coul,u){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" ${u?'markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10"':'markerWidth="5" markerHeight="5"'} orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg svr-svg" role="img" aria-label="Repère gradué de ${svrNb(SVR_X0)} à ${SVR_X1} et de ${svrNb(SVR_Y0)} à ${SVR_Y1}">`
-    +'<defs>'+pointe('svrArrAx','var(--ink)')+pointe('svrArrE','var(--blue)')+pointe('svrArrB','var(--red)')+pointe('svrArrS','var(--green)')+'</defs>'
+    +'<defs>'+pointe('svrArrAx','var(--ink)')+pointe('svrArrE','var(--blue)',1)+pointe('svrArrB','var(--red)',1)+pointe('svrArrS','var(--green)',1)+'</defs>'
     +g+'<g id="svrCorr"></g><g id="svrFl"></g><g id="svrPts"></g><g id="svrVif"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="svrPrises"></g></svg>`;
 }
 function svrNoeud(p){ return $('svrn-'+(p[0]-SVR_X0)+'-'+(p[1]-SVR_Y0)); }
@@ -61014,10 +61019,20 @@ function svrDessiner(q){
 /* Le vecteur qui suit la souris (demande de Turquet, octobre 2026) : le
    début d'un vecteur de l'étape ② posé, une flèche va de ce début jusqu'à
    la pointe de la souris (m, dans le repère du dessin). Rien sans souris (au
-   doigt, ou sortie du dessin), rien une fois corrigé. */
+   doigt, ou sortie du dessin), rien une fois corrigé.
+   Et le geste « Placer M » choisi, M pas encore juste : une croix et sa
+   lettre suivent la pointe de la souris (même demande). */
 function svrVif(q, m){
   const g=$('svrVif'); if(!g) return;
   const o=test.svrOutil, t=(o==='t0'||o==='t1')&&q&&q.t?q.t[+o[1]]:null;
+  const croix=!test.locked&&!!m&&o==='M'&&!!q&&!!q.P&&!svrJuste(q,'M');
+  const svg=document.querySelector('#svrGraph .svr-svg'); if(svg) svg.classList.toggle('svr-croix', croix);
+  if(croix){
+    const d=4;
+    g.innerHTML=`<g class="svr-pt e svr-vif"><line x1="${m.x-d}" y1="${m.y-d}" x2="${m.x+d}" y2="${m.y+d}"/><line x1="${m.x-d}" y1="${m.y+d}" x2="${m.x+d}" y2="${m.y-d}"/>`
+      +`<text class="svr-lbl" x="${(m.x+6).toFixed(1)}" y="${(m.y-6).toFixed(1)}">M</text></g>`;
+    return;
+  }
   if(test.locked||!m||!t||!t.d||t.f){ g.innerHTML=''; return; }
   const x1=svrX(t.d[0]), y1=svrY(t.d[1]), dx=m.x-x1, dy=m.y-y1, l=Math.hypot(dx,dy);
   if(l<8){ g.innerHTML=''; return; }
@@ -61040,21 +61055,27 @@ function svrMajOutils(q){
 }
 /* L'objectif ne verdit que JUSTE (demande de Turquet, octobre 2026) : le
    point à sa place, le vecteur du bon point au bon point, M au bout de la
-   construction. svrFait (le geste fait) garde la main sur le geste suivant. */
+   construction. */
 function svrJuste(q,o){
   if(o==='M') return svrEgal(q.m,svrM(q));
   if(o==='t0'||o==='t1'){ const k=+o[1], w=svrPaire(q,k), t=svrTrace(q,k); return !!t&&svrEgal(t.d,q.P[w[0]])&&svrEgal(t.f,q.P[w[1]]); }
   const k=SVR_NOMS.indexOf(o); return svrEgal(q.pl[k],q.P[k]);
 }
-function svrFait(q,o){
-  if(o==='M') return !!q.m;
-  if(o==='t0'||o==='t1') return !!svrTrace(q,+o[1]);
-  return !!q.pl[SVR_NOMS.indexOf(o)];
-}
-/* Le geste suivant encore à faire, dans l'ordre de la fiche. */
-function svrSuivant(q){
-  for(const o of SVR_OUTILS) if(!svrFait(q,o)&&!(test.svrFige&&test.svrFige[svrIdOutil(o)])) return o;
-  return test.svrOutil;
+/* Le geste suivant encore à faire, dans l'ordre de la fiche : tant que
+   l'objectif du geste en cours n'est pas vert, on y reste (demande de
+   Turquet, octobre 2026) — un point faux se repose d'un clic, un vecteur faux
+   se retrace. Vert, on passe au premier objectif encore gris APRÈS lui dans
+   la même étape (un clic destiné à C ne déplace jamais A), puis au premier
+   gris de la fiche : on ne passe à l'étape suivante qu'avec une étape toute
+   verte. Sans geste en cours (au rendu), le premier gris de la fiche. */
+function svrSuivant(q, depuis){
+  const libre=function(o){ return !svrJuste(q,o)&&!(test.svrFige&&test.svrFige[svrIdOutil(o)]); };
+  const etape=function(o){ return o==='M'?2:(o[0]==='t'?1:0); };
+  const i=SVR_OUTILS.indexOf(depuis);
+  if(i>=0&&libre(depuis)) return depuis;
+  if(i>=0) for(let j=i+1;j<SVR_OUTILS.length&&etape(SVR_OUTILS[j])===etape(depuis);j++) if(libre(SVR_OUTILS[j])) return SVR_OUTILS[j];
+  for(const o of SVR_OUTILS) if(libre(o)) return o;
+  return depuis||test.svrOutil;
 }
 function svrOutil(o){
   if(test.locked||test.kind!=='svr'||SVR_OUTILS.indexOf(o)<0) return;
@@ -61086,7 +61107,7 @@ function svrPose(i,j){
     const k=SVR_NOMS.indexOf(o); if(k<0) return;
     if(svrEgal(q.pl[k],[i,j])) q.pl[k]=null; else { q.pl[k]=[i,j]; fini=true; }
   }
-  if(fini) test.svrOutil=svrSuivant(q);
+  if(fini) test.svrOutil=svrSuivant(q,o);
   svrDessiner(q); svrMajOutils(q);
   recoveryDirty=true;
 }
@@ -61212,7 +61233,7 @@ function svrMarqueSoutien(q,subs){
     if(el) el.classList.add(s.ok?'ok':'bad');
     if(s.ok) test.svrFige[s.id]=true;
   });
-  if(test.svrFige[svrIdOutil(test.svrOutil)]) test.svrOutil=svrSuivant(q);
+  if(test.svrFige[svrIdOutil(test.svrOutil)]) test.svrOutil=svrSuivant(q,test.svrOutil);
   svrDessiner(q); svrMajOutils(q);
 }
 /* Correction finale : tout figer ; chaque réponse en bleu, rouge, ou verte si

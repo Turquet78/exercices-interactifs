@@ -1460,6 +1460,53 @@ juste vert, la flèche vive depuis le début et effacée au retrait ou à la
 fin ; le banc navigateur (« 6 quadragies quinquies ») bouge la vraie souris
 après le début de BC⃗ et mesure la flèche du début de BC⃗ jusqu'à elle.
 
+**Puis le geste ne passe à la suite que sur un objectif VERT (v523).** La
+demande (Turquet, octobre 2026) : « dans le 8.2.5, tant qu'une case n'est
+pas verte, ne pas passer à la suivante ». `svrSuivant` lit désormais
+`svrJuste`, et `svrFait` a disparu : la v519 avait gardé « fait » pour
+l'enchaînement exprès, pour qu'un point faux ne retienne pas l'élève — c'est
+justement ce qui est demandé. Un point faux garde son geste : le clic
+suivant le repose ailleurs ; un vecteur faux garde le sien : le clic suivant
+recommence le tracé. Choisir un autre geste à la main reste possible ; un
+geste juste mène au premier objectif encore gris APRÈS lui dans la même
+étape, puis au premier gris de la fiche (A faux, B choisi à la main : B, C,
+D s'enchaînent, puis retour à A) — on ne passe à l'étape suivante qu'avec
+une étape toute verte. La première écriture ramenait à A dès B juste — le
+clic destiné à C déplaçait alors A ; la deuxième avançait en cercle, et
+après D partait tracer BC⃗, A toujours faux. Le juge a montré les deux à la
+première exécution. `svrSuivant(q, depuis)` part donc du geste en cours ;
+au rendu, sans geste, du début de la fiche. Rien n'enferme : un geste figé en soutien est sauté
+comme avant. Le juge (`tests/verifier.js`, copie
+« dans l'autre ordre ») tient A faux resté sur A, le retour à A après B, C,
+D justes, et BC⃗ à l'envers resté sur « Tracer BC⃗ » ; la copie juste du
+banc navigateur enchaîne toujours d'elle-même.
+
+**Puis les pointes ont toutes pris la taille des pointillés, une croix M suit la souris, et la main a disparu (v523).**
+La demande (Turquet, octobre 2026) : « les pointes de tous les vecteurs aussi
+petites que celles des vecteurs en pointillés de ce même exercice ; quand on
+place le point final, afficher à la pointe de la flèche de la souris une
+croix avec la lettre du point à placer ; la souris ne peut pas afficher une
+main à côté d'un point d'intersection du quadrillage ». **Les pointes** : un
+`<marker>` se mesure par défaut en épaisseurs de trait — à `markerWidth` 5,
+la pointe d'un trait plein (2,6) dépassait celle d'une copie en pointillés
+(2). Les trois pointes des vecteurs (`svrArrE`, `svrArrB`, `svrArrS`) passent
+en `markerUnits="userSpaceOnUse"`, à 10 unités du dessin (5 × 2, la taille
+des copies) : la même pointe sur toutes les flèches, quelle que soit leur
+épaisseur ; les axes gardent la leur. **La croix** : « le point final » est
+M, le dernier geste. Le geste « Placer M » choisi et M pas encore juste,
+`svrVif` dessine sous la pointe de la souris une croix de la taille de
+celles du repère, lettre M en haut à droite, à 75 % — non aimantée au nœud,
+c'est la souris qu'elle suit ; rien au doigt, rien une fois M juste ou la
+question corrigée. **La main** : les nœuds de ce repère prennent
+`cursor:default` (règle sous `.svr-svg`, les autres repères vectoriels
+gardent leur main), et pendant que la croix suit, les prises des copies
+aussi (`svr-croix`) — en dehors de « Placer M », la main ouverte des prises
+reste, elle annonce le glisser. Le juge (`tests/verifier.js`) tient la
+croix M à la souris, la classe `svr-croix`, les trois pointes à
+`userSpaceOnUse:10`, la croix effacée M juste ; le banc navigateur
+(« 6 quadragies quinquies ») bouge la vraie souris près d'un nœud et sur une
+copie : croix M centrée sur la souris, aucun curseur `pointer` ni `grab`.
+
 ## {chasles-alignes} — la relation de Chasles sur une droite (8.12, v494)
 
 **La demande** (Turquet, octobre 2026, le même jour que le 8.9 et avec la même phrase, mais une AUTRE fiche) : « en seconde fais un exercice comme
