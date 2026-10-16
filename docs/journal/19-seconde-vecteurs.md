@@ -1989,7 +1989,7 @@ croix A′ qui suit la souris avec sa lettre. Le banc navigateur (« 6
 quadragies sexies ») renverse ses deux mesures : aucune croix visible sous la
 souris, avant le tracé ni le début posé ; la flèche vive est toujours mesurée.
 
-**Puis la flèche fausse s'est peinte en ROUGE dès le tracé (v528).**
+**Puis la flèche fausse s'est peinte en ROUGE dès le tracé (v529).**
 La demande (Turquet, octobre 2026) : « dans le 8.2.8 mettre les vecteurs en
 rouge si la réponse de l'élève ne correspond pas à ce qui est demandé. »
 Depuis la v517, une flèche tracée qui n'est pas le bon vecteur restait au

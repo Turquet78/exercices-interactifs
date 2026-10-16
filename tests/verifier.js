@@ -12988,7 +12988,7 @@ function pointSommeVecteurs(w, P){
     if(faits()!=='0000' || cours()!=='1000') vus.push('une flèche fausse valide son étape : faits '+faits()+', en cours '+cours());
     if(el('cpsFl').querySelectorAll('line').length<1 || el('cpsFl').querySelector('text.svc-nom') || el('cpsPrises').children.length) vus.push('la flèche fausse ne reste pas sans nom ni prise');
     if(txt('cps-t1').indexOf('Ce n’est pas le vecteur BC')<0) vus.push('le cadre ne dit pas que la flèche n\\'est pas BC : '+txt('cps-t1'));
-    /* et elle se peint en ROUGE dès le tracé, avant toute vérification (v528) */
+    /* et elle se peint en ROUGE dès le tracé, avant toute vérification (v529) */
     if(!el('cpsFl').querySelector('line.svc-eb') || el('cpsFl').querySelector('line.svc-u') || el('cpsFl').innerHTML.indexOf('cpsArrB')<0) vus.push('la flèche fausse ne se peint pas en rouge dès le tracé');
     cpsPose(5,7);
     if(JSON.stringify(q1.d1)!=='[5,7]' || !document.querySelector('#cpsn-5-7.deb')) vus.push('le premier clic ne pose pas le début de BC');
