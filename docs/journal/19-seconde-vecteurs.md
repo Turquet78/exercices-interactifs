@@ -2519,14 +2519,15 @@ Trois sabotages ont été attrapés :
 - le mot « RETOURNÉ » retiré du message ;
 - le dessin jugé en soutien.
 
-## {translations-successives} — deux translations à la suite (8.2.11, v528)
+## {translations-successives} — deux translations à la suite (8.2.11, v529)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
 par Claude, Turquet a retenu la n° 3, « Deux translations à la suite » : le
 pont entre la translation (8.1) et la somme de vecteurs (8.2). Ajouté en
 dernier du sous-thème « Somme de vecteurs » : 8.2.11, rien ne se renumérote.
 Kind `tcp`, écran `scr-tcp`, préfixe réservé pour cette session — d'autres
-sessions remplissaient le thème 8 le même jour.
+sessions remplissaient le thème 8 le même jour. Écrit en v528, publié en v529 : la v528 a été
+prise sur `main` par le 8.2.9 pendant que les bancs tournaient.
 
 **L'exercice.** Un quadrillage de 16 × 10, deux flèches u⃗ (trait plein) et
 v⃗ (pointillés), un point A. Quatre cadres d'étape au-dessus du dessin, la
