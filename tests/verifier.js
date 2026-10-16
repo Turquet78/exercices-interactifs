@@ -12617,8 +12617,14 @@ function milieuVecteursEgaux(w, P){
     const peint=function(id){ const c=el(id)?el(id).className:'';
       return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
     const fb=function(){ return el('vmiFeedback').textContent; };
-    const poser=function(v){ test.locked=false; renderVmiTest(); IDS.forEach(function(id,k){ el(id).value=(v[k]==null?'':v[k]); }); };
-    poser([]);
+    /* les cases se remettent à zéro SANS redessiner : chaque rendu retient
+       ~0,7 Mo dans jsdom, et le banc de la Seconde est au bord de ses 4 Go
+       dans l'action — vingt rendus ici l'ont fait déborder */
+    const poser=function(v){ test.locked=false;
+      document.querySelectorAll('#vmiHost .mf-cor').forEach(function(b){ b.remove(); });
+      IDS.forEach(function(id,k){ const e=el(id); e.disabled=false; e.classList.remove('ok','bad','sol'); e.value=(v[k]==null?'':v[k]); });
+      el('vmiFeedback').textContent=''; el('vmiFeedback').className='mp-feedback'; };
+    test.locked=false; renderVmiTest(); poser([]);
     if(IDS.some(function(id){ return !el(id); })) return 'les sept cases n’existent pas : '+IDS.filter(function(id){ return !el(id); }).join(' ');
     const J=lire(document.querySelector('#vmiHost svg').outerHTML);
     if(J.milieux.I!=='AB' || J.milieux.J!=='BC' || J.milieux.K!=='AC') return 'le dessin fixe ne met pas I, J, K aux milieux : '+JSON.stringify(J.milieux);
