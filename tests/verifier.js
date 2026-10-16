@@ -4552,6 +4552,7 @@ function exercices(suite){
     pointSommeDifference(w, P);
     tracerVecteursEgaux(w, P);
     tracerVecteursOpposes(w, P);
+    translationPavage(w, P);
     sommeVecteursLibre(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
@@ -12479,6 +12480,196 @@ function tracerVecteursEgaux(w, P){
   })()`, v => v === '', undefined);
 }
 
+/* {translation-pavage} (Seconde, 8.1.9 — demande de Turquet, octobre 2026 :
+   « fais l'exercice 1 avec le pavage ») : un pavage de 30 triangles
+   numérotés, seize lettres sur le contour, trois images à trouver et un
+   vecteur. Le juge de ce banc ne lit PAS le réseau de la page : il relit le
+   DESSIN — les sommets de chaque triangle dessiné, le numéro écrit dedans,
+   la place de chaque lettre — et fait glisser les sommets du triangle de
+   départ du chemin d'une lettre à l'autre. Une image fausse dans le calcul
+   de la page ne peut donc pas se retrouver dans le juge. */
+function translationPavage(w, P){
+  const nom = 'image d\'un triangle dans un pavage : la place, le tirage relu sur le dessin, la correction, les pièges nommés, le clic sur un triangle';
+  if(!P.translationPavage){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du pavage');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.translationPavage)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+
+    /* ---- 0. la place : 8.1.9, à la fin des vecteurs égaux ; pas de tables */
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['tracer-vecteurs-opposes']!=='8.1.8' || TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['somme-vecteurs-libre']!=='8.2.10') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS.tpv!==RAP_TPV || !QIA_SUGG.tpv) vus.push('le rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant : il relit le DESSIN ---------------------- */
+    /* il lit le SVG comme du TEXTE (tpvSvg), sans le poser dans le DOM :
+       120 séances redessinées dans jsdom épuisaient les 4 Go du banc de
+       l'action. Le pavage fixe, plus bas, est relu à l'écran. */
+    const lire=function(src){
+      if(src==null) src=document.querySelector('#tpvHost svg').outerHTML;
+      const att=function(t, a){ const m=new RegExp('\\\\s'+a+'="([^"]*)"').exec(t); return m ? m[1] : null; };
+      const tris=(src.match(/<polygon class="tpv-tri[^"]*"[^>]*>/g)||[]).map(function(t){
+        return att(t,'points').trim().split(/\\s+/).map(function(c){ return c.split(',').map(Number); }); });
+      const nums=[], lets=[], ronds=[];
+      (src.match(/<text[^>]*>[^<]*<\\/text>/g)||[]).forEach(function(t){
+        const o={x:+att(t,'x'), y:+att(t,'y'), v:t.replace(/^<text[^>]*>|<\\/text>$/g,'').trim()};
+        if(/class="tpv-num"/.test(t)) nums.push(o); else if(/class="veg-pt"/.test(t)) lets.push(o); });
+      (src.match(/<circle[^>]*>/g)||[]).forEach(function(t){ ronds.push([+att(t,'cx'), +att(t,'cy')]); });
+      const dans=function(t, x, y){ const s=function(a,b){ return (b[0]-a[0])*(y-a[1])-(b[1]-a[1])*(x-a[0]); };
+        const u=s(t[0],t[1]), v=s(t[1],t[2]), z=s(t[2],t[0]); return (u>0&&v>0&&z>0)||(u<0&&v<0&&z<0); };
+      /* le numéro de chaque triangle : celui qui est écrit DEDANS */
+      const num=tris.map(function(t){ const n=nums.filter(function(e){ return dans(t, e.x, e.y); });
+        return n.length===1 ? +n[0].v : null; });
+      /* chaque lettre : le point dessiné le plus proche de son étiquette */
+      const pts={};
+      lets.forEach(function(e){ let b=null, bd=1e9; ronds.forEach(function(r){ const d=Math.hypot(r[0]-e.x, r[1]-e.y); if(d<bd){ bd=d; b=r; } }); pts[e.v]=b; });
+      const meme=function(a, b){ return Math.abs(a[0]-b[0])<0.3 && Math.abs(a[1]-b[1])<0.3; };
+      const deTri=function(n){ return tris[num.indexOf(n)]; };
+      /* le triangle qui a pour sommets ceux de t glissés de d, s'il est dessiné */
+      const glisse=function(t, d){ const u=t.map(function(p){ return [p[0]+d[0], p[1]+d[1]]; });
+        const k=tris.findIndex(function(r){ return u.every(function(p){ return r.some(function(q){ return meme(p,q); }); }); });
+        return k<0 ? null : num[k]; };
+      const dep=function(v){ return [pts[v[1]][0]-pts[v[0]][0], pts[v[1]][1]-pts[v[0]][1]]; };
+      return {tris:tris, num:num, pts:pts, deTri:deTri, glisse:glisse, dep:dep, meme:meme};
+    };
+
+    /* ---- 1. le tirage : 120 séances, chaque ligne relue sur le dessin --- */
+    const formes={};
+    for(let s=0;s<120 && vus.length<4;s++){
+      const qs=tpvBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' pavages au lieu de '+D.nb); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      const cles=qs.map(function(q){ return JSON.stringify(q); });
+      if(new Set(cles).size!==cles.length) vus.push('deux pavages identiques dans une séance');
+      qs.forEach(function(q, k){
+        formes[q.pav]=true;
+        if(q.lignes.map(function(l){ return l.t; }).join()!=='img,img,img,vec') vus.push('plan des lignes '+q.lignes.map(function(l){ return l.t; }).join());
+        const J=lire(tpvSvg(q));
+        if(J.tris.length!==30 || new Set(J.num).size!==30 || J.num.some(function(n){ return !(n>=1 && n<=30); })) { vus.push('le dessin n’a pas 30 triangles numérotés de 1 à 30 : '+J.num.join(' ')); return; }
+        if(Object.keys(J.pts).length!==16 || Object.keys(J.pts).some(function(L){ return !J.pts[L]; })) vus.push('les lettres du contour : '+Object.keys(J.pts).join(''));
+        const deps=[], departs=[];
+        tpvLignes(q).forEach(function(L, i){
+          const t=J.deTri(L.n);
+          departs.push(L.n, L.m);
+          if(L.t==='img'){
+            const d=J.dep(L.u), m=J.glisse(t, d);
+            deps.push(d);
+            if(m===null) vus.push('le triangle '+L.n+' n’a pas d’image dans le pavage par '+L.u);
+            else if(m!==L.m) vus.push('image de '+L.n+' par '+L.u+' : la page dit '+L.m+', le dessin '+m);
+            const inv=J.glisse(t, [-d[0], -d[1]]);
+            if(inv!==L.inv) vus.push('image de '+L.n+' par '+L.u[1]+L.u[0]+' : la page dit '+L.inv+', le dessin '+inv);
+            if(i===0 && Math.abs(d[1])<0.5) vus.push('la première image ne suit pas les côtés obliques : '+L.u);
+          } else {
+            /* le chemin d'un sommet à son image : les lettres qui le font */
+            const a=J.deTri(L.n), b=J.deTri(L.m);
+            const ga=a.reduce(function(s,p){ return [s[0]+p[0]/3, s[1]+p[1]/3]; },[0,0]), gb=b.reduce(function(s,p){ return [s[0]+p[0]/3, s[1]+p[1]/3]; },[0,0]);
+            const d=[gb[0]-ga[0], gb[1]-ga[1]];
+            deps.push(d);
+            if(J.glisse(a, d)!==L.m) vus.push('le triangle '+L.m+' n’est pas une image glissée du triangle '+L.n);
+            const bons=[]; Object.keys(J.pts).forEach(function(X){ Object.keys(J.pts).forEach(function(Y){ if(X!==Y && J.meme(J.dep(X+Y), d)) bons.push(X+Y); }); });
+            if(!bons.length) vus.push('aucune paire de lettres ne mène du triangle '+L.n+' au triangle '+L.m);
+            if(bons.slice().sort().join()!==L.vecs.slice().sort().join()) vus.push('vecteurs de '+L.n+' à '+L.m+' : la page dit '+L.vecs.join(' ')+', le dessin '+bons.join(' '));
+          }
+        });
+        for(let a=0;a<deps.length;a++) for(let b=a+1;b<deps.length;b++)
+          if(J.meme(deps[a], deps[b]) || J.meme(deps[a], [-deps[b][0], -deps[b][1]])) vus.push('deux lignes du même chemin (ou de chemins opposés)');
+        if(new Set(departs).size!==departs.length) vus.push('un triangle sert deux fois : '+departs.join(' '));
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    ['equi','rect','quel'].forEach(function(f){ if(!formes[f]) vus.push('la forme '+f+' ne sort jamais en 120 séances'); });
+
+    /* ---- 2. un pavage fixe, par le BOUTON ------------------------------
+       Un quadrillage coupé, A au coin bas gauche : A B C D E F en bas,
+       G H sur la droite, J K L M N P en haut, R S sur la gauche.
+       SC (2 à droite, 1 en bas) : 15 → 29, à l'envers 1, retourné 30 ;
+       BG : 22 → 20 ; HD : 8 → 24 ; de 11 à 5 : DG ou RM. */
+    TESTS[D.exercice].start();
+    if(test.kind!=='tpv' || test.qId!==D.exercice) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    test.questions[0]={pav:'rect', dg:0, sx:1, d0:0, lignes:[{t:'img',f:0,u:'SC',n:15},{t:'img',f:1,u:'BG',n:22},{t:'img',f:0,u:'HD',n:8},{t:'vec',n:11,m:5}]};
+    test.idx=0;
+    const IDS=['tpv-0','tpv-1','tpv-2','tpv-3'];
+    const el=function(id){ return document.getElementById(id); };
+    const peint=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const fb=function(){ return el('tpvFeedback').textContent; };
+    const poser=function(v){ test.locked=false; renderTpvTest(); IDS.forEach(function(id,k){ el(id).value=(v[k]==null?'':v[k]); }); };
+    poser([]);
+    const J=lire();
+    const attendu={15:J.glisse(J.deTri(15), J.dep('SC')), 22:J.glisse(J.deTri(22), J.dep('BG')), 8:J.glisse(J.deTri(8), J.dep('HD'))};
+    if(attendu[15]!==29 || attendu[22]!==20 || attendu[8]!==24) return 'le dessin du pavage fixe ne donne pas 29, 20, 24 : '+JSON.stringify(attendu);
+    if(J.glisse(J.deTri(15), [-J.dep('SC')[0], -J.dep('SC')[1]])!==1) vus.push('le dessin ne met pas 1 à l’envers de 15');
+    const texte=el('tpvHost').textContent.replace(/\\s+/g,' ');
+    if(!/L’image du triangle 15 par la translation de vecteur SC est le triangle/.test(texte)) vus.push('la ligne 1 dit « '+texte.slice(0,120)+' »');
+    if(!/La translation qui transforme B en G transforme le triangle 22 en le triangle/.test(texte)) vus.push('la ligne 2 n’a pas la tournure « qui transforme B en G »');
+    if(!/transforme le triangle 11 en le triangle 5 a pour vecteur/.test(texte)) vus.push('la ligne du vecteur manque');
+    if(!el('tpvInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
+    /* la copie juste, un vecteur qui n'est PAS le premier de la liste, en minuscules */
+    poser(['29','20','24','rm']); checkTpvAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse : '+IDS.map(peint).join(', '));
+    if(!der || der.cases!==4) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 4');
+    if(!el('tpvNext')) vus.push('pas de bouton « Pavage suivant »');
+    poser(['29','20','24','DG']); checkTpvAnswer();
+    if(peint('tpv-3')!=='juste') vus.push('DG, l’autre vecteur juste, est peint '+peint('tpv-3'));
+    /* les pièges, nommés */
+    const piege=function(v, id, re, quoi){ poser(v); checkTpvAnswer();
+      if(peint(id)!=='rouge') vus.push(quoi+' : la case est peinte '+peint(id));
+      else if(!re.test(fb())) vus.push(quoi+' : le message dit « '+fb().slice(0,110)+' »'); };
+    piege(['15','20','24','DG'], 'tpv-0', /DÉPART/, 'le triangle de départ');
+    piege(['1','20','24','DG'], 'tpv-0', /sens contraire/, 'l’image à l’envers');
+    piege(['30','20','24','DG'], 'tpv-0', /RETOURNÉ/, 'le triangle retourné');
+    piege(['29','20','24','GD'], 'tpv-3', /mauvais sens/, 'le vecteur à l’envers');
+    piege(['29','20','24','AB'], 'tpv-3', /n’envoie pas/, 'un vecteur qui ne mène pas au triangle');
+    piege(['29','20','24','ZZ'], 'tpv-3', /n’est pas un vecteur/, 'un vecteur illisible');
+    piege(['29','20','99','DG'], 'tpv-2', /n’est pas un numéro/, 'un numéro hors du pavage');
+    /* le badge vert à côté de la case fausse, et la correction sur le dessin */
+    poser(['1','20','24','DG']); checkTpvAnswer();
+    const badge=el('tpv-0').nextElementSibling;
+    if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='29') vus.push('la correction de la ligne 1 n’écrit pas 29 à côté');
+    const poly=function(n){ return document.querySelector('#tpvHost polygon[data-n="'+n+'"]'); };
+    if(!poly(29).classList.contains('tpv-corr') || !poly(1).classList.contains('tpv-faux') || !poly(15).classList.contains('tpv-src'))
+      vus.push('le dessin ne montre pas la ligne fausse : départ 15 violet, 29 en vert, 1 en rouge');
+    if(!document.querySelector('#tpvFl .tpv-fg')) vus.push('le glissement du triangle n’est pas tracé en vert');
+    /* une case vide ne rougit pas : elle reçoit la correction */
+    poser(['29','','24','DG']); checkTpvAnswer();
+    if(peint('tpv-1')!=='correction' || el('tpv-1').value!=='20') vus.push('la case vide : '+peint('tpv-1')+' « '+el('tpv-1').value+' »');
+    if(!/manquait/.test(fb())) vus.push('le message ne nomme pas la case manquante');
+    poser([]); checkTpvAnswer();
+    if(IDS.some(function(id){ return peint(id)==='rouge'; })) vus.push('la copie vide a du rouge');
+    if(el('tpv-3').value!=='DG' || el('tpv-0').value!=='29') vus.push('la copie vide reçoit « '+el('tpv-0').value+' » et « '+el('tpv-3').value+' »');
+    /* le clic sur un triangle : dans la ligne montrée, ou la première case d'image libre */
+    poser([]);
+    tpvMontrer(1); tpvClicTri(20);
+    if(el('tpv-1').value!=='20') vus.push('le clic sur le triangle 20 écrit « '+el('tpv-1').value+' » dans la ligne 2');
+    tpvMontrer(3); tpvClicTri(7);
+    if(el('tpv-0').value!=='7' || el('tpv-3').value!=='') vus.push('depuis la ligne du vecteur, le clic écrit dans '+IDS.filter(function(id){ return el(id).value; }).join(' '));
+    if(!poly(7).classList.contains('tpv-vise')) vus.push('le triangle choisi ne se marque pas sur le dessin');
+    /* la reprise : les cases reviennent, la question survit au JSON */
+    const avant=JSON.stringify(test.questions[0]);
+    test.questions[0]=JSON.parse(avant); renderTpvTest();
+    if(JSON.stringify(test.questions[0])!==avant || document.querySelectorAll('#tpvHost polygon.tpv-tri').length!==30) vus.push('la question ne se redessine pas après le JSON');
+    /* le soutien : peint au fil de la saisie, sans jamais montrer la bonne image */
+    currentMode='soutien'; poser([]);
+    el('tpv-0').value='1'; el('tpv-0').dispatchEvent(new Event('input'));
+    if(peint('tpv-0')!=='rouge' || peint('tpv-1')!=='rien') vus.push('le soutien peint '+peint('tpv-0')+' la case remplie, '+peint('tpv-1')+' la vide');
+    if(poly(29).classList.contains('tpv-corr') || poly(29).classList.contains('tpv-juste')) vus.push('le soutien montre la bonne image sur le dessin');
+    checkTpvAnswer();
+    if(test.locked || poly(29).classList.contains('tpv-corr')) vus.push('la vérification du soutien verrouille ou révèle');
+    el('tpv-0').value='29'; checkTpvAnswer(true);
+    if(peint('tpv-0')!=='juste') vus.push('le soutien ne bleuit pas 29');
+    currentMode='train';
+    /* le contexte du modèle */
+    const ctx=ctxTpv(test.questions[0]).contexte;
+    if(!/SECR/.test(ctx) || !/glisse/i.test(ctx) || !/RM/.test(ctx) || !/triangle 29/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni les réponses');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* {tracer-vecteurs-opposes} (Seconde, 8.1.8 — demande de Turquet, octobre
    2026 : « un exercice comme le 8.1.7 où on demande de tracer l'opposé de
    chaque vecteur ; on demandera de tracer −u, −v, −w dans l'énoncé »). Le
