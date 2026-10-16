@@ -2138,8 +2138,8 @@
   /* 8.1.10 {vrai-faux-vecteurs} : la figure à côté des dix égalités, sur deux
      colonnes quand l'écran le permet. La ligne montrée a son liseré violet
      (--crd-a) ; ses deux vecteurs prennent chacun leur encre — violet pour le
-     premier, ambre (--crd-b) pour le second —, et la figure les reprend :
-     des anneaux sur leurs points avant la vérification, des flèches après.
+     premier, ambre (--crd-b) pour le second —, et la figure les reprend
+     en flèches après la vérification (aucun anneau avant, v531).
      Ni l'une ni l'autre n'est une encre de verdict : « 9 bis » ne les lit pas. */
   .vfh-fig{flex:1 1 360px;max-width:520px;margin:0 auto 14px}
   .vfh-lignes{flex:1 1 380px;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:8px 10px;align-content:start}
@@ -2152,8 +2152,6 @@
   .vfh-l .itv-sel.vf{width:92px;font-size:1.25rem}
   .vfh-pq{flex:1 1 100%;font-size:.95rem;color:var(--ink-soft);padding-left:2.2em}
   .vfh-pq:empty{display:none}
-  .vfh-svg circle.vfh-au,.vfh-svg circle.vfh-aw{fill:none;stroke-width:2.5}
-  .vfh-svg circle.vfh-au{stroke:var(--crd-a)} .vfh-svg circle.vfh-aw{stroke:var(--crd-b)}
   .vfh-svg .vfh-fu line{stroke:var(--crd-a);stroke-width:3.5} .vfh-svg .vfh-fu polygon{fill:var(--crd-a)}
   .vfh-svg .vfh-fw line{stroke:var(--crd-b);stroke-width:3.5;stroke-dasharray:8 5} .vfh-svg .vfh-fw polygon{fill:var(--crd-b)}
   @media(max-width:520px){ .vfh-lignes{grid-template-columns:1fr} .vfh-pq{padding-left:0} }
@@ -2648,6 +2646,8 @@
   #scr-cvp .cvp-etape.cvp-fait{border-color:var(--green);color:var(--green);background:var(--green-soft)}
   #scr-cvp .cvp-etape.cvp-fait .cvp-etape-n{color:var(--green)}
   #scr-cvp .cvp-etape.cvp-fait::after{content:" ✓";font-weight:800}
+  #scr-cvp .cvp-etape-alerte{display:block;margin-top:6px;color:var(--red);font-weight:700}
+  #scr-cvp .cvp-etape-alerte:empty{display:none}
   /* le point se marque d'une CROIX, jamais d'un rond (demande de Turquet,
      octobre 2026) : aucun rond au survol d'un nœud, le point posé, juste,
      faux ou attendu est une croix de sa couleur, et le point qui suit la
@@ -59060,13 +59060,18 @@ function cvpDessinerFleches(q){
   cvpVecteurEleve(q);
   cvpConsigne(q);
 }
-/* Les deux flèches bout à bout depuis le point, dans un ordre ou l'autre —
-   le GESTE de l'étape 1, quel que soit le sens des flèches : ce n'est pas un
-   verdict, seule la vérification juge. */
+/* Les deux flèches bout à bout depuis le point, dans un ordre ou l'autre,
+   quel que soit leur sens. Ce GESTE seul ne fait plus l'étape 1 (demande de
+   Turquet, octobre 2026 : « ne pas valider l'étape 1 si l'élève a mis les
+   vecteurs bout à bout et que ce ne sont pas les bons vecteurs ») : l'étape 1
+   est faite quand la chaîne est celle de l'égalité (cvpEtape1, la même
+   lecture que le juge) ; bout à bout mais dans le mauvais sens, elle reste
+   en cours, et une phrase dit pourquoi (#cvpAlerte). */
 function cvpBoutABout(q){
   const a=cvpU(q), b=cvpV(q), af=svcPlus(a,cvpUc(q)), bf=svcPlus(b,cvpVc(q));
   return (svcEgal(a,q.po)&&svcEgal(af,b)) || (svcEgal(b,q.po)&&svcEgal(bf,a));
 }
+function cvpEtape1(q){ return !!cvpChaine(q); }
 /* Les deux étapes, au-dessus du dessin, chacune dans son encadré : ce sont
    les réponses notées (cvp-ch, cvp-pt). Les deux se montrent dès le départ,
    l'étape 2 sous l'étape 1 (demande de Turquet, octobre 2026) ; cvpFaits dit
@@ -59076,13 +59081,14 @@ function cvpEtapesHTML(q){
   const moins=[s[0]<0?'−'+u:'', s[1]<0?'−'+v:''].filter(Boolean);
   return '<div class="cvp-etape pts-case" id="cvp-ch"><span class="cvp-etape-n">Étape 1 / 2</span>Fais glisser '+u+' et '+v+' pour les mettre bout à bout <b>à partir du point '+q.l+'</b> : un début va sur une fin, dans l’ordre que tu veux.'
       +'<span class="cvp-etape-sous">Saisis une flèche pour la déplacer.'
-      +(moins.length?' Pour '+moins.join(' et ')+', retourne la flèche avec le bouton ⇄ : soustraire un vecteur, c’est ajouter son opposé.':'')+'</span></div>'
+      +(moins.length?' Pour '+moins.join(' et ')+', retourne la flèche avec le bouton ⇄ : soustraire un vecteur, c’est ajouter son opposé.':'')+'</span>'
+      +'<span class="cvp-etape-alerte" id="cvpAlerte"></span></div>'
     +'<div class="cvp-etape pts-case" id="cvp-pt"><span class="cvp-etape-n">Étape 2 / 2</span>Clique le nœud où se trouve le point '+Ap+' : au bout de la seconde flèche.</div>';
 }
 function cvpConsigne(q){
   if(!$('cvp-pt')) return;
   if(!test.locked) cvpFaits(q);
-  else ['cvp-ch','cvp-pt'].forEach(function(id){ const c=$(id); if(c) c.classList.remove('cvp-cours'); });
+  else { ['cvp-ch','cvp-pt'].forEach(function(id){ const c=$(id); if(c) c.classList.remove('cvp-cours'); }); const al=$('cvpAlerte'); if(al) al.textContent=''; }
 }
 /* Chaque étape EFFECTUÉE passe au vert, comme au 8.2.8 : les flèches bout à
    bout depuis le point, puis le point posé. « Effectuée », pas « juste » —
@@ -59091,7 +59097,10 @@ function cvpConsigne(q){
    est la première qui n'est pas faite : l'étape 1, puis l'étape 2 dès que
    l'étape 1 est faite — le cadre bleu passe de l'une à l'autre. */
 function cvpFaits(q){
-  const fait=[cvpBoutABout(q), !!q.sel], cours=fait[0]?(fait[1]?-1:1):0;
+  const fait=[cvpEtape1(q), !!q.sel], cours=fait[0]?(fait[1]?-1:1):0;
+  /* bout à bout, mais pas les vecteurs de l'égalité : l'étape 1 ne passe pas */
+  const al=$('cvpAlerte');
+  if(al) al.innerHTML=cvpBoutABout(q)&&!fait[0] ? 'Tes flèches sont bout à bout, mais ce ne sont pas les bons vecteurs : relis les signes de '+cvpEgaliteHTML(q)+'.' : '';
   ['cvp-ch','cvp-pt'].forEach(function(id,n){
     const c=$(id); if(!c) return;
     const verdict=c.classList.contains('ok')||c.classList.contains('bad')||c.classList.contains('sol');
@@ -59154,9 +59163,10 @@ function cvpPose(i,j){
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>SVC_W||j<0||j>SVC_H) return;
   /* l'étape 2 attend l'étape 1 : pas de point posé tant que les flèches ne
-     sont pas bout à bout depuis le point (demande de Turquet, octobre 2026) ;
+     sont pas bout à bout depuis le point, et dans le sens que l'égalité
+     demande (demandes de Turquet, octobre 2026) ;
      un point déjà posé se retire toujours */
-  if(!svcEgal(q.sel,[i,j]) && !cvpBoutABout(q) && !test.cvpFigeCh) return;
+  if(!svcEgal(q.sel,[i,j]) && !cvpEtape1(q) && !test.cvpFigeCh) return;
   q.sel=svcEgal(q.sel,[i,j])?null:[i,j];
   const pt=$('cvp-pt'); if(pt) pt.classList.remove('ok','bad');
   /* le point posé, plus de point au bout de la souris (demande de Turquet, octobre 2026) */
@@ -59246,7 +59256,7 @@ function cvpBrancher(){
   const curseur=function(ev){
     const c=host.querySelector('#cvpCurseur'); if(!c) return;
     const q=test.kind==='cvp'&&test.questions[test.idx];
-    const v=ev&&!gl&&q&&!test.locked&&!test.cvpFigePt&&!q.sel&&ev.pointerType!=='touch'&&cvpBoutABout(q)&&vue(ev);
+    const v=ev&&!gl&&q&&!test.locked&&!test.cvpFigePt&&!q.sel&&ev.pointerType!=='touch'&&cvpEtape1(q)&&vue(ev);
     if(!v){ c.style.display='none'; return; }
     c.setAttribute('transform','translate('+v.x+' '+v.y+')');
     c.style.display='';
@@ -62846,25 +62856,21 @@ function vfhFleche(A, B, cls){
   return '<g class="'+cls+'"><line x1="'+f(A[0])+'" y1="'+f(A[1])+'" x2="'+f(bx)+'" y2="'+f(by)+'"/>'
     +'<polygon points="'+f(B[0])+','+f(B[1])+' '+f(bx-uy*e)+','+f(by+ux*e)+' '+f(bx+uy*e)+','+f(by-ux*e)+'"/></g>';
 }
-/* La ligne MONTRÉE sur le dessin. Avant la vérification, ses quatre points
-   seulement (des anneaux : violet pour le premier vecteur, ambre pour le
-   second) — la figure reste à lire. Une fois la page VERROUILLÉE, les deux
-   flèches, dans les mêmes encres, et la note dit ce qui manque. */
+/* La ligne MONTRÉE sur le dessin. Avant la vérification, RIEN sur la figure
+   (v531, demande de Turquet : plus d'anneau autour des points quand l'élève
+   clique sur une case) — seule la ligne prend son liseré, la figure reste à
+   lire. Une fois la page VERROUILLÉE, les deux flèches (violet pour le premier
+   vecteur, ambre pour le second), et la note dit ce qui manque. */
 function vfhMontrer(i){
   const host=$('vfhHost'); if(!host || !test.questions) return;
   const q=test.questions[test.idx]; if(!q || !q.lignes[i]) return;
   test.vfhVu=i;
   const pts=vfhPoints(q), K=vfhCadre(q), l=q.lignes[i];
   host.querySelectorAll('.vfh-l').forEach(function(e){ e.classList.toggle('vfh-actif', +e.getAttribute('data-i')===i); });
-  const N=function(L){ return K.P(pts[L]); }, f=function(v){ return v.toFixed(1); };
+  const N=function(L){ return K.P(pts[L]); };
   let fl='';
-  if(test.locked){
+  if(test.locked)
     fl+=vfhFleche(N(l.u[0]), N(l.u[1]), 'vfh-fu')+vfhFleche(N(l.w[0]), N(l.w[1]), 'vfh-fw');
-  } else {
-    const anneau=function(L, r, c){ const p=N(L); return '<circle class="'+c+'" cx="'+f(p[0])+'" cy="'+f(p[1])+'" r="'+r+'"/>'; };
-    l.u.split('').forEach(function(L){ fl+=anneau(L, 8, 'vfh-au'); });
-    l.w.split('').forEach(function(L){ fl+=anneau(L, l.u.indexOf(L)>=0 ? 12 : 8, 'vfh-aw'); });
-  }
   const g=$('vfhFl'); if(g) g.innerHTML=fl;
 }
 function vfhLigneHTML(l){
