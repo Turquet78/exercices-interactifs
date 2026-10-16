@@ -2849,7 +2849,7 @@ redessinait l'écran à chaque copie essayée (~25 rendus, 8,3 Mo retenus) ; il
 ne redessine plus que quand la question change et remet sinon les cases à
 zéro — 2,9 Mo retenus, mesurés avec `--expose-gc`.
 
-## {milieu-vecteurs-egaux} — milieux et vecteurs égaux (8.1.11, v533)
+## {milieu-vecteurs-egaux} — milieux et vecteurs égaux (8.1.12, v534)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées proposées sur les
 vecteurs égaux, Turquet a retenu la n° 5 : « Milieu et vecteurs égaux » — un
@@ -2958,8 +2958,122 @@ Cinq sabotages ont été attrapés :
 - les lignes « tous » remises dans le sens affiché : « la ligne de RN reprend
   RN, écrit plus haut » ;
 - la correction montrée sur le dessin en soutien.
+## {translation-antecedent} — retrouver un point dont on connaît l'image (8.1.12, v534)
 
-## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.13, v534 — v528 et v529 prises par le 8.2.9, le 8.1.10 et le 8.2.5 ; le 8.2.11 et la v530 par {chasles-inserer-point} ; la v531 par le 8.2.9 et le 8.1.10 ; le 8.2.12 et la v532 par {demontrer-parallelogramme} ; la v533 par {milieu-vecteurs-egaux} — tous fusionnés pendant les bancs)
+**La demande** (Turquet, octobre 2026). C'est l'idée n° 2 de la liste proposée
+par Claude : « antécédent par une translation ». C'est le chemin INVERSE du
+8.1.4. Sur un quadrillage, un vecteur u⃗ est dessiné, ainsi que trois points
+A′, B′, C′, images de A, B et C par la translation de vecteur u⃗. L'élève
+place A, B et C d'un clic. L'exercice est ajouté en dernier du sous-thème
+« Vecteurs égaux », après le vrai ou faux du 8.1.10 et les milieux du
+8.1.11, fusionnés le même jour pendant que celui-ci attendait son action :
+8.1.12, rien ne se renumérote.
+
+**Le piège visé, et nommé** : suivre u⃗ depuis A′. On obtient alors l'IMAGE
+de A′, pas son antécédent. Le message le dit en clair : « tu as suivi u⃗ en
+partant de A′. Or c'est de A qu'on part pour arriver en A′ : depuis A′, il
+faut suivre u⃗ À L'ENVERS, c'est-à-dire le vecteur −u⃗ ». Le rappel (`RAP_TAN`)
+en fait son point ③, et le contexte du modèle le signale sur le point fautif
+(« l'élève a suivi u au lieu de −u »).
+
+Trois autres erreurs sont nommées (`tanPourquoi`) :
+- le point posé SUR A′ : « il faut que AA′⃗ soit égal à u⃗, qui n'est pas
+  nul » ;
+- l'antécédent d'un AUTRE point (A posé à la place de B) ;
+- sinon, le chemin de AA′ comparé à celui de u⃗, en carreaux (`vecMots`).
+
+**Le tirage** (`tanGen`) :
+- u⃗ est toujours en biais : ses deux composantes sont non nulles, et l'une
+  vaut au moins 2 en valeur absolue (au plus 4) ;
+- les trois points donnés et leurs trois antécédents sont à un carreau du bord
+  au moins, deux à deux non voisins (Tchebychev ≥ 2), et hors de la flèche
+  u⃗ ;
+- le PIÈGE de chaque point (M′ + u⃗) existe sur le quadrillage : l'erreur
+  doit pouvoir se faire pour pouvoir se nommer. Il ne tombe sur aucun point
+  dessiné ni sur un autre piège ;
+- la flèche verte de la correction (de M à M′) ne traverse aucun autre
+  point.
+
+Le quadrillage fait 16 × 10 carreaux. Quatre questions par séance (`TAN_NB`,
+`dmNbQuestions`), barème 12. Chaque question prend un jeu de lettres par son
+index : A B C, M N P, E F G, R S T (`TAN_NOMS`, `q.l`). Le prime s'écrit
+U+2032.
+
+**On range la figure, jamais la réponse** : `u`, `o` (l'origine de la flèche),
+`im` (les trois points donnés), `l`, et `p` (les points posés, `null` tant
+qu'ils manquent). `tanAnte` recalcule l'antécédent (M′ − u⃗) et `tanPiege` le
+piège (M′ + u⃗), depuis les données mêmes qui dessinent la figure.
+
+**Le geste, celui du 8.1.7 pour un point.** Un seul écouteur de clic, à
+l'hôte, va au nœud le plus proche (`tanClic(i, j)`, ce que joue le banc
+principal). Le clic pose le point EN COURS : le premier qui manque, ou celui
+dont l'élève a cliqué le cadre (`tanChoisir`). Un clic sur un point posé le
+reprend : il disparaît, son cadre redevient bleu, le clic suivant le repose.
+« Effacer mes points » retire tout. La croix et la lettre du point en cours
+suivent la souris (`#tanCurseur`, sans aimant) ; elles se cachent quand les
+trois points sont posés, et au doigt, faute de survol.
+
+Les choix faits sans demander, puisque l'idée était déjà retenue :
+- les points se nomment par leur cadre, et non après la pose comme au 8.1.4 :
+  l'antécédent de A′ s'appelle A, il n'y a rien à deviner ;
+- pas de touche Échap : reprendre un point, c'est cliquer dessus ;
+- le soutien ne peint pas à la pose. C'est la règle des points posés au clic
+  (« vec », « tvx » : `soutienEnDirect.sans`), car peindre le nœud au moment
+  de la pose dirait s'il est juste avant toute vérification.
+
+**Les couleurs.** u⃗ et les points donnés sont en noir. Les points de l'élève
+et leur cadre « en cours » suivent la recette du 8.1.7 : violet avant le
+jugement, cadre bleu pour le point en cours, vert « fait » quand il est posé.
+À la vérification :
+- la croix juste est bleue, la fausse rouge, avec la flèche de son point à
+  M′ (bleue ou rouge : c'est le vecteur MM′ de l'élève) ;
+- pour chaque point faux ou manquant, le BON point en VERT et la flèche
+  verte MM′ = u⃗ ;
+- un cadre vide passe en `sol` et ne rougit jamais.
+
+En soutien, les points posés se jugent à « Vérifier » (bleu, rouge), mais rien
+ne se révèle et rien ne se verrouille. Un point repris perd son verdict.
+
+**Les bancs.** Le banc principal (`translationAntecedent`) a un juge qui ne lit
+PAS les données de la page. Il relit le SVG comme du TEXTE, sans le poser dans
+le DOM (la leçon du 8.1.9) : les lignes du quadrillage (origine et maille), la
+flèche u⃗ (dont la pointe s'arrête 3 px avant le nœud), les croix noires et
+les lettres des points donnés. Il calcule ensuite lui-même M = M′ − u⃗ et le
+piège M′ + u⃗.
+
+Ce qu'il vérifie :
+- **sur 150 séances** : quatre questions distinctes, le jeu de lettres de
+  chaque rang, les clés rangées, aucune réponse au tirage, le JSON, chaque
+  antécédent et chaque piège relus sur le dessin, la lisibilité (bord,
+  voisins, flèche, piège sur le quadrillage et sur aucun point) ;
+- **sur une figure fixe** (u⃗ = (3 ; 2) ; A′ (7 ; 4), B′ (12 ; 6), C′ (6 ;
+  8)) : la place (8.1.12, voisins immobiles, pas de tables, rappel et
+  questions à l'IA ; le 8.1.10 et le 8.1.11 voisins) ; l'énoncé `.enonce` ; le geste (pose, reprise au reclic,
+  cadre choisi, retour au premier point manquant, « Effacer ») ; la reprise
+  après JSON ; la copie juste (trois ok, trois croix et trois flèches bleues,
+  aucune correction) ; le PIÈGE nommé « IMAGE de A′ … À L'ENVERS » avec C
+  posé sur C′ (bad, ok, bad, deux points et deux flèches verts, le vert de A
+  en (4 ; 2)) ; l'échange A/B nommé ; le chemin faux dit en carreaux ; la
+  copie vide (trois sol, « manquait 3 cases », rien de rouge) ; le soutien
+  (bad, ok, rien, sans révéler ni verrouiller, puis la copie corrigée
+  acceptée) ; la réponse enregistrée et le contexte du modèle (secret,
+  méthode, piège).
+
+Le banc navigateur (« 6 quadragies nonies ») joue tout à la vraie souris :
+- la croix de la souris à moins de 3 px de la pointe, avec sa lettre ;
+- un clic à un cinquième de maille qui pose A au nœud ;
+- la lettre qui passe à B, la croix cachée une fois les trois points posés ;
+- C repris d'un clic puis reposé ;
+- la copie juste (3, trois flèches bleues visibles) ;
+- le piège avec deux points vides (bad, sol, sol, le message, trois points
+  et trois flèches verts visibles, une flèche rouge).
+
+**Ce qu'aucun banc ne voit** : le geste au doigt sur une vraie tablette (un
+toucher pose le point, sans croix qui suit), et la lisibilité des étiquettes
+quand l'élève pose un point juste à côté d'une lettre donnée.
+
+
+## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.13, v535 — v528 et v529 prises par le 8.2.9, le 8.1.10 et le 8.2.5 ; le 8.2.11 et la v530 par {chasles-inserer-point} ; la v531 par le 8.2.9 et le 8.1.10 ; le 8.2.12 et la v532 par {demontrer-parallelogramme} ; la v533 par {milieu-vecteurs-egaux} ; la v534 par {translation-antecedent} — tous fusionnés pendant les bancs)
 
 **La demande** (Turquet, octobre 2026). Dans la liste d'idées d'exercices sur
 les vecteurs, Turquet a retenu la n° 7 : « Trois vecteurs bout à bout ». Sur
@@ -3062,7 +3176,7 @@ JSON de la pause ; un autre ordre (w⃗, u⃗, v⃗) et la somme tracée ailleur
 les cinq pièges nommés ; la somme nulle (déclarer et tracer s'effacent l'un
 l'autre ; déclarer est juste ; tracer est faux et nommé ; la copie vide
 entoure le point en vert) ; le soutien ; le contexte du modèle.
-**Le banc navigateur** (« 6 quadragies novies ») fait l'exercice à la
+**Le banc navigateur** (« 6 quadragies decies ») fait l'exercice à la
 souris : les trois flèches glissées bout à bout depuis le point, le début de
 la somme cliqué À TRAVERS la prise de u⃗ posée sur le point, la flèche qui
 suit la souris, la fin, « Vérifier » (2 sur 2) ; puis une somme nulle
@@ -3078,8 +3192,10 @@ plus loin, dans les contrôles Python). Le tirage passe désormais par
 `stvBuildQuestions()`, sans dessin ; un seul démarrage réel reste, pour le
 kind, le barème et le nombre de questions. Cela n'a pas suffi : main était
 déjà au bord des 4 Go (rejoué en local sous ce plafond, son banc n'avait pas
-fini en trente minutes), et le banc jsdom de l'action a reçu 6 Go de tas —
-la chronique est dans `17-verification-et-bancs.md`.
+fini en trente minutes). La cause — les observateurs de mutations du banc qui
+gardaient chaque nœud retiré — a été trouvée et corrigée par le 8.1.12,
+fusionné pendant les bancs ; le relèvement à 6 Go essayé ici a été retiré
+(`17-verification-et-bancs.md`).
 
 Quatre sabotages ont été attrapés par le banc principal, chacun nommé :
 - une somme tracée À L'ENVERS acceptée par le juge (« la somme à l'envers :
