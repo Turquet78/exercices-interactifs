@@ -2488,3 +2488,106 @@ Trois sabotages ont été attrapés :
 - l'image remplacée par son retourné : « la page dit 27, le dessin 28 » ;
 - le mot « RETOURNÉ » retiré du message ;
 - le dessin jugé en soutien.
+
+## {demontrer-chasles} — démontrer une égalité avec Chasles (8.2.11, v528)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
+par Claude, Turquet a retenu la dixième : « Montrer que AB⃗ + CD⃗ = AD⃗ +
+CB⃗ » (et d'autres égalités, tirées), une rédaction à trous, étape par
+étape — chaque étape a ses cases (des vecteurs) ET sa justification à choisir
+dans une liste. « Premier pas vers la démonstration ; toute écriture juste
+d'une étape acceptée. » Ajouté en dernier du sous-thème « Somme de
+vecteurs » : 8.2.11, rien ne se renumérote. Les détails ci-dessous ont été
+décidés sans aller-retour (consigne de la demande) ; ils sont nommés pour
+pouvoir être repris.
+
+**Une démonstration est un plan** (`DCH_DEMOS`, douze plans) : le membre de
+gauche, celui de droite, et les étapes — chacune une justification et, sauf la
+dernière, un nombre de cases. **La dernière ligne est le membre de droite,
+déjà écrit** : on sait où l'on va, on cherche comment y aller ; elle n'a que
+sa justification. Six plans sur des points quelconques (AB + CD = AD + CB ;
+AB + CD + BC = AD ; AB − CB = AC ; AB + BC + CA = 0 ; AB − AC + BC = 0 ;
+AB + CD − AD = CB), six sur un parallélogramme ABCD (AB + AD = AC ; BA + BC =
+BD ; AB + CD = 0 ; AB + CB = DB ; MA + MC = MB + MD, la plus longue, cinq
+étapes ; MA + DC = MB). Les lettres se renomment (`q.n`, sans I, O ni Q :
+le O se lirait 0) ; la tournure se tire (« Montrer », « Démontrer »,
+« Prouver que », `q.v`). **La première page est toujours l'exemple de la
+demande, avec ses lettres** ; les trois suivantes sont trois autres plans,
+jamais deux fois le même (`DCH_NB` = 4, `dmNbQuestions`, `distinctes()` avec
+le plan pour clé tant qu'il en reste).
+
+**Six justifications** (`DCH_JUST`, dans cet ordre dans la liste) : relation
+de Chasles ; on change l'ordre de la somme ; vecteurs opposés, u⃗ + (−u⃗) =
+0⃗ ; le vecteur nul ne change rien ; soustraire un vecteur, c'est ajouter son
+opposé ; vecteurs égaux car ABCD est un parallélogramme — cette dernière
+n'est proposée que sur un parallélogramme, et porte son nom. La liste écrit
+u⃗ plutôt que « AB⃗ + BA⃗ » de l'idée : des lettres de l'énoncé dans la liste
+souffleraient la réponse.
+
+**Toute écriture juste est acceptée — et c'est une ÉNUMÉRATION, pas une
+liste de réponses.** `dchSuites` donne toutes les lignes qu'une étape tire de
+la précédente selon sa justification : Chasles décompose un vecteur en
+passant par N'IMPORTE QUEL point de l'énoncé, ou réunit deux vecteurs qui
+s'enchaînent (plusieurs à la fois si les cases l'exigent) ; l'ordre prend
+n'importe quelle permutation ; les opposés remplacent deux vecteurs voisins
+XY + YX par 0 ; le nul se retire ; la soustraction change tous les « − XY »
+en « + YX » ; le parallélogramme remplace un ou plusieurs vecteurs par un
+égal. `dchChaines` garde les rédactions complètes qui arrivent au membre de
+droite (à l'ordre près pour la dernière ligne) : 24 pour l'exemple, 48 pour
+MA + MC = MB + MD, une seule pour AB + AD = AC. **Une case est juste s'il
+existe une rédaction complète qui la porte avec les cases justes avant
+elle** (le principe de `cspRemplit`, 8.2.4) ; la correction prend la première
+qui reste, celle du plan d'abord. Ainsi AB + CD = AC + CB + CA + AD (passer
+par C puis par A) est juste autant que AD + DB + CB + BD.
+
+**Une étape vraie qui ne mène nulle part est fausse, et le message le dit.**
+Pour AB + AD = AC, remplacer AB par DC est une égalité juste, mais DC +
+AD ne se réunit pas par Chasles : la rédaction s'arrête. Le plan a un nombre
+de lignes fixé ; refuser cette ligne sans le dire serait un mensonge, la
+compter juste laisserait l'élève dans une impasse. Le message : « … est une
+étape juste, mais elle ne mène pas à AC avec les étapes qui suivent. Il
+fallait par exemple AB + BC. »
+
+**Une justification est juste dès qu'elle explique le passage** de la ligne
+d'avant (corrigée si elle était fausse) à la sienne (`dchExplique`) :
+AB + BA = 0 se justifie par les vecteurs opposés, ou par Chasles (AB + BA =
+AA). Sa correction est celle du plan.
+
+**Les pièges nommés** (`dchPourquoi`, sur la première case fausse) : un
+vecteur illisible ou hors de l'énoncé ; une ligne qui ne vaut plus la
+précédente (la somme se lit comme une combinaison de points, `dchComb`, et,
+sur un parallélogramme, le quatrième sommet vaut P0 + P2 − P1 — sans quoi
+AB + BC aurait « valu » autre chose que AB + AD) ; l'étape juste sans issue ;
+une ligne égale mais pas l'étape demandée (un vecteur changé pendant un
+changement d'ordre) ; la mauvaise justification. Chaque message dit ce que
+fait la règle, avec les lettres de l'étape quand il les trouve (`dchExemple` :
+« ici, AB = AD + DB »).
+
+**La mise en page est celle d'une copie** : le membre de gauche ouvre la
+première ligne, les suivantes en portent une copie INVISIBLE pour que leurs
+« = » tombent sous le premier (`.dch-fant`, retirée sur un téléphone), et la
+justification se choisit au bout de la ligne, après « car ». Vecteurs, signes
+et cases sont ceux du 8.1.3 (`.veg-v`, `.veg-eq`, `.veg-in`) ; la liste a sa
+classe (`.dch-sel`) et les trois encres de verdict. Une case vide reçoit la
+correction en vert (`corrChoix`), une liste vide aussi ; en soutien, rien ne
+se révèle. Le vecteur nul s'écrit 0, ou une lettre répétée (AA).
+
+**On range le plan, les lettres et la tournure** (`t`, `n`, `v`), jamais
+les réponses : tout se recalcule. Le verdict reste à la page.
+
+**Le banc** (`demontrerChasles`, banc principal) a un juge qui ne lit PAS les
+plans : il donne aux points des coordonnées au hasard (le quatrième sommet
+d'un parallélogramme par la règle du parallélogramme) et vérifie, en nombres,
+sur 200 séances, que l'égalité à démontrer est vraie et que CHAQUE ligne de
+CHAQUE rédaction acceptée vaut le membre de gauche ; il relit la forme de
+chaque étape du plan selon sa justification (l'ordre ne change que l'ordre,
+l'opposé fait apparaître un 0, le nul le retire…) ; il exige les douze plans
+sortis, la première page de la demande, jamais deux fois le même plan. Puis,
+par le bouton, sur l'exemple : l'énoncé, la liste sans parallélogramme (cinq
+justifications), la copie juste (15 cases), une AUTRE rédaction juste en
+minuscules avec AA pour le nul et Chasles pour justifier AC + CA = 0, cinq
+pièges peints en rouge et nommés, le badge vert, la case et la liste vides en
+correction, la copie vide sans rouge, le JSON, le soutien qui peint sans
+révéler ni verrouiller ; sur un parallélogramme EFGH : l'énoncé, la
+justification qui porte son nom, EF + FG = EG juste, HG + EH « ne mène pas » ;
+enfin le contexte du modèle.
