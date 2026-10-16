@@ -1460,6 +1460,21 @@ juste vert, la flèche vive depuis le début et effacée au retrait ou à la
 fin ; le banc navigateur (« 6 quadragies quinquies ») bouge la vraie souris
 après le début de BC⃗ et mesure la flèche du début de BC⃗ jusqu'à elle.
 
+**Puis le geste ne passe à la suite que sur un objectif VERT (v521).** La
+demande (Turquet, octobre 2026) : « dans le 8.2.5, tant qu'une case n'est
+pas verte, ne pas passer à la suivante ». `svrSuivant` lit désormais
+`svrJuste`, et `svrFait` a disparu : la v519 avait gardé « fait » pour
+l'enchaînement exprès, pour qu'un point faux ne retienne pas l'élève — c'est
+justement ce qui est demandé. Un point faux garde son geste : le clic
+suivant le repose ailleurs ; un vecteur faux garde le sien : le clic suivant
+recommence le tracé. Choisir un autre geste à la main reste possible, mais
+le prochain geste juste ramène au premier objectif encore gris, dans l'ordre
+de la fiche (B, C, D justes, A faux : retour à A). Rien n'enferme : un geste
+figé en soutien est sauté comme avant. Le juge (`tests/verifier.js`, copie
+« dans l'autre ordre ») tient A faux resté sur A, le retour à A après B, C,
+D justes, et BC⃗ à l'envers resté sur « Tracer BC⃗ » ; la copie juste du
+banc navigateur enchaîne toujours d'elle-même.
+
 ## {chasles-alignes} — la relation de Chasles sur une droite (8.12, v494)
 
 **La demande** (Turquet, octobre 2026, le même jour que le 8.9 et avec la même phrase, mais une AUTRE fiche) : « en seconde fais un exercice comme

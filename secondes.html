@@ -7160,7 +7160,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=520;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=521;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -60970,20 +60970,17 @@ function svrMajOutils(q){
 }
 /* L'objectif ne verdit que JUSTE (demande de Turquet, octobre 2026) : le
    point à sa place, le vecteur du bon point au bon point, M au bout de la
-   construction. svrFait (le geste fait) garde la main sur le geste suivant. */
+   construction. */
 function svrJuste(q,o){
   if(o==='M') return svrEgal(q.m,svrM(q));
   if(o==='t0'||o==='t1'){ const k=+o[1], w=svrPaire(q,k), t=svrTrace(q,k); return !!t&&svrEgal(t.d,q.P[w[0]])&&svrEgal(t.f,q.P[w[1]]); }
   const k=SVR_NOMS.indexOf(o); return svrEgal(q.pl[k],q.P[k]);
 }
-function svrFait(q,o){
-  if(o==='M') return !!q.m;
-  if(o==='t0'||o==='t1') return !!svrTrace(q,+o[1]);
-  return !!q.pl[SVR_NOMS.indexOf(o)];
-}
-/* Le geste suivant encore à faire, dans l'ordre de la fiche. */
+/* Le geste suivant encore à faire, dans l'ordre de la fiche : tant qu'un
+   objectif n'est pas vert, on y reste (demande de Turquet, octobre 2026) —
+   un point faux se repose d'un clic, un vecteur faux se retrace. */
 function svrSuivant(q){
-  for(const o of SVR_OUTILS) if(!svrFait(q,o)&&!(test.svrFige&&test.svrFige[svrIdOutil(o)])) return o;
+  for(const o of SVR_OUTILS) if(!svrJuste(q,o)&&!(test.svrFige&&test.svrFige[svrIdOutil(o)])) return o;
   return test.svrOutil;
 }
 function svrOutil(o){

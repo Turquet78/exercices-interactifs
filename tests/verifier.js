@@ -12177,10 +12177,15 @@ function sommeVecteursRepere(w, P){
     /* 4. l'autre ordre (BA d'abord), et chaque réponse jugée seule */
     startSvr(); clearTimeout(test.fbTimer);
     const q2=test.questions[0];
-    svrPose(4,3); svrPose(1,2); svrPose(3,1); svrPose(-2,-3);          /* A aux coordonnées échangées */
+    svrPose(4,3);                                                        /* A aux coordonnées échangées */
+    if(test.svrOutil!=='A') vus.push('A faux : le geste passe tout de même à la suite ('+test.svrOutil+')');
+    svrOutil('B'); svrPose(1,2); svrPose(3,1); svrPose(-2,-3);
+    if(test.svrOutil!=='A') vus.push('B, C, D justes et A faux : le geste ne revient pas à A ('+test.svrOutil+')');
     if(el('svr-A').classList.contains('fait')) vus.push('un point mal placé passe en vert');
     if(!el('svr-B').classList.contains('fait')) vus.push('un point bien placé ne passe pas en vert');
-    svrPose(3,1); svrPose(1,2);                                          /* BC à l'envers */
+    svrOutil('t0'); svrPose(3,1); svrPose(1,2);                          /* BC à l'envers */
+    if(test.svrOutil!=='t0') vus.push('BC à l\\'envers : le geste passe tout de même à la suite ('+test.svrOutil+')');
+    svrOutil('t1');
     if(document.querySelector('#svrVif line')) vus.push('le vecteur tracé : la flèche suit encore la souris');
     if(el('svr-t0').classList.contains('fait')) vus.push('un vecteur tracé à l\\'envers passe en vert');
     svrPose(1,2); svrPose(3,4);
