@@ -9123,6 +9123,15 @@ if(require.main === module) (async () => {
       await clic(3, 4);
       /* ② BC puis BA : le second clic sur B tombe sur la prise de BC */
       await s.page.click('#svr-t0');
+      /* BC tracé faux : rouge sur le dessin, le geste reste sur BC, et
+         l'étape ③ reste fermée tant qu'il n'est pas retracé juste */
+      await clic(1, 2); await clic(3, 2);
+      { const f = await s.page.evaluate(() => { const l = document.querySelector('#svrFl line.svc-eb'), c = l ? getComputedStyle(l).stroke.match(/\d+/g).map(Number) : null;
+          return { rouge: !!c && c[0] > 150 && c[0] > c[1] + 60 && c[0] > c[2] + 60, outil: test.svrOutil,
+                   ferme: document.getElementById('svr-ch').disabled && document.getElementById('svr-M').disabled }; });
+        if(!f.rouge) dits.push('BC tracé faux ne rougit pas sur le dessin');
+        if(f.outil !== 't0') dits.push('BC tracé faux : le geste passe tout de même à « ' + f.outil + ' »');
+        if(!f.ferme) dits.push('BC tracé faux : l\'étape ③ s\'ouvre tout de même'); }
       await clic(1, 2);
       /* le début posé, la flèche suit la pointe de la souris, jusqu'à elle */
       { const p = await pos(4.4, -1.6); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(80);
