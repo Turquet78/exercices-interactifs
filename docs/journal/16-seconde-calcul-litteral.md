@@ -663,3 +663,21 @@ avec « (−3) × 2x » ; les pièges : « 15 » sans son signe (rouge seul, mes
 nommé), le produit croisé (message qui nomme les termes, jamais la flèche),
 −14x (message sans accolade), deux cases vides (la correction) ; enfin le
 7.10 relancé garde ses bulles et ses cases `dvd-…`.
+
+## « x^2 » s'écrit x² dans la case — 7.9, 7.10 et 7.11 (v525)
+
+**La demande** (Turquet, octobre 2026, capture du 7.10) : l'élève qui tape
+« x^2 » voyait « x^2 » dans la bulle et dans la case du résultat, pas un 2 en
+exposant ; et « x**2 » devait servir aussi de raccourci. Le juge les lisait
+déjà (`redLit` change `**` en `^`) : seul l'AFFICHAGE manquait.
+
+**La case se réécrit à la frappe** (`dvlExposant`, appelé en tête de
+l'écouteur `input` du 7.9 et du 7.10/7.11) : « ^2 » et « **2 » deviennent
+« ² », le curseur recalé de ce que la conversion a retiré. Un « ^ » seul
+attend son 2 (« 15x^ » reste tel quel le temps de taper). Sous le bouton
+« x² », une mention le dit : « ou tape x^2, x**2 ».
+
+**Le juge** (`tests/verifier.js`, dans le contrôle du 7.11) : « 8x^2 »,
+« -3x**2 », « x**2 » tapés avec un vrai événement `input` s'affichent
+« 8x² », « -3x² », « x² » dans une case du 7.11, du 7.10 et du 7.9 ;
+« 15x^ » ne bouge pas ; la case convertie se lit toujours 8x².
