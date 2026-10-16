@@ -2577,3 +2577,12 @@ pixels, à 1 % près. Ce qu'il vérifie :
   la case vide en correction ; la copie vide sans rouge ; le redessin après
   le JSON ; le soutien qui peint sans révéler ni verrouiller ; le contexte
   du modèle.
+
+Quatre sabotages ont été attrapés :
+- l'égalité « même direction, même sens, autre longueur » attendue Vrai par
+  la page : « los : EH = EF attend V » ;
+- le piège du sens compté vrai : le tirage ne trouve plus ses égalités, et le
+  banc le dit ;
+- la note de correction réduite à « Faux. » ;
+- les flèches tracées avant la vérification : le soutien révèle, et le banc
+  le dit deux fois.
