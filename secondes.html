@@ -2602,16 +2602,19 @@
   .tvx-svg .tvx-prise{fill:transparent;stroke:transparent;stroke-width:2;cursor:pointer}
   .tvx-svg .tvx-prise:hover{fill:rgba(124,58,237,.14);stroke:var(--crd-a)}
   .tvx-svg #tvxVif,.tvx-svg #tvxFl,.tvx-svg #tvxCorr,.tvx-svg #tvxDonnes{pointer-events:none}
-  /* les deux étapes AU-DESSUS du dessin, en bandeaux bleus — ce sont elles
-     les réponses notées (demande de Turquet, octobre 2026 : plus de cadres
-     blancs « Étape 1 » / « Étape 2 ») ; l'étape 2 n'apparaît, sous l'étape 1,
-     qu'une fois celle-ci réalisée. Une étape EFFECTUÉE (pas encore vérifiée)
-     prend l'encre, le liseré et le fond verts, et sa coche ; la vérification
-     peint juste en bleu, faux en rouge, la correction en vert */
-  #scr-cvp .cvp-etape.ok{border-left-color:var(--blue);background:#EAF0FF}
-  #scr-cvp .cvp-etape.bad{border-left-color:var(--red);background:#fdeaea}
-  #scr-cvp .cvp-etape.sol{border-left-color:var(--green);background:var(--green-soft)}
-  #scr-cvp .cvp-etape.cvp-fait{border-left-color:var(--green);color:var(--green);background:var(--green-soft)}
+  /* les deux étapes AU-DESSUS du dessin, chacune dans son ENCADRÉ — ce sont
+     elles les réponses notées. Toutes deux se montrent dès le départ
+     (demande de Turquet, octobre 2026) : l'étape EN COURS (cvp-cours) a le
+     cadre et le fond bleus, l'étape à venir un fond blanc ; une étape
+     EFFECTUÉE (pas encore vérifiée) prend le cadre, l'encre et le fond verts,
+     et sa coche ; la vérification peint juste en bleu, faux en rouge, la
+     correction en vert */
+  #scr-cvp .cvp-etape{border:2px solid var(--line);background:var(--surface)}
+  #scr-cvp .cvp-etape.cvp-cours{border-color:var(--blue);background:#EAF0FF}
+  #scr-cvp .cvp-etape.ok{border-color:var(--blue);background:#EAF0FF}
+  #scr-cvp .cvp-etape.bad{border-color:var(--red);background:#fdeaea}
+  #scr-cvp .cvp-etape.sol{border-color:var(--green);background:var(--green-soft)}
+  #scr-cvp .cvp-etape.cvp-fait{border-color:var(--green);color:var(--green);background:var(--green-soft)}
   #scr-cvp .cvp-etape.cvp-fait .cvp-etape-n{color:var(--green)}
   #scr-cvp .cvp-etape.cvp-fait::after{content:" ✓";font-weight:800}
   /* le point se marque d'une CROIX, jamais d'un rond (demande de Turquet,
@@ -58975,35 +58978,36 @@ function cvpBoutABout(q){
   const a=cvpU(q), b=cvpV(q), af=svcPlus(a,cvpUc(q)), bf=svcPlus(b,cvpVc(q));
   return (svcEgal(a,q.po)&&svcEgal(af,b)) || (svcEgal(b,q.po)&&svcEgal(bf,a));
 }
-/* Les deux étapes, au-dessus du dessin, en bandeaux bleus : ce sont les
-   réponses notées (cvp-ch, cvp-pt). L'étape 2 n'apparaît, SOUS l'étape 1,
-   qu'une fois les deux flèches bout à bout depuis le point (demande de
-   Turquet, octobre 2026) — ou dès qu'un point est posé, à la correction, ou
-   si elle porte un verdict : une réponse notée ne se cache jamais. */
+/* Les deux étapes, au-dessus du dessin, chacune dans son encadré : ce sont
+   les réponses notées (cvp-ch, cvp-pt). Les deux se montrent dès le départ,
+   l'étape 2 sous l'étape 1 (demande de Turquet, octobre 2026) ; cvpFaits dit
+   laquelle est en cours (bleue) et lesquelles sont faites (vertes). */
 function cvpEtapesHTML(q){
   const u=svcVecHTML('u'), v=svcVecHTML('v'), s=cvpSignes(q), Ap='<b>'+cvpNomPt(q)+'</b>';
   const moins=[s[0]<0?'−'+u:'', s[1]<0?'−'+v:''].filter(Boolean);
   return '<div class="cvp-etape pts-case" id="cvp-ch"><span class="cvp-etape-n">Étape 1 / 2</span>Fais glisser '+u+' et '+v+' pour les mettre bout à bout <b>à partir du point '+q.l+'</b> : un début va sur une fin, dans l’ordre que tu veux.'
       +'<span class="cvp-etape-sous">Saisis une flèche pour la déplacer.'
       +(moins.length?' Pour '+moins.join(' et ')+', retourne la flèche avec le bouton ⇄ : soustraire un vecteur, c’est ajouter son opposé.':'')+'</span></div>'
-    +'<div class="cvp-etape pts-case" id="cvp-pt" style="display:none"><span class="cvp-etape-n">Étape 2 / 2</span>Clique le nœud où se trouve le point '+Ap+' : au bout de la seconde flèche.</div>';
+    +'<div class="cvp-etape pts-case" id="cvp-pt"><span class="cvp-etape-n">Étape 2 / 2</span>Clique le nœud où se trouve le point '+Ap+' : au bout de la seconde flèche.</div>';
 }
 function cvpConsigne(q){
-  const pt=$('cvp-pt'); if(!pt) return;
+  if(!$('cvp-pt')) return;
   if(!test.locked) cvpFaits(q);
-  const verdict=pt.classList.contains('ok')||pt.classList.contains('bad')||pt.classList.contains('sol');
-  pt.style.display=(test.locked||verdict||q.sel||cvpBoutABout(q))?'':'none';
+  else ['cvp-ch','cvp-pt'].forEach(function(id){ const c=$(id); if(c) c.classList.remove('cvp-cours'); });
 }
 /* Chaque étape EFFECTUÉE passe au vert, comme au 8.2.8 : les flèches bout à
    bout depuis le point, puis le point posé. « Effectuée », pas « juste » —
    une étape déjà marquée par la vérification (ok, bad, sol) garde son
-   verdict ; cvpCasesPeindre retire la marque. */
+   verdict ; cvpCasesPeindre retire la marque. L'étape EN COURS (cvp-cours)
+   est la première qui n'est pas faite : l'étape 1, puis l'étape 2 dès que
+   l'étape 1 est faite — le cadre bleu passe de l'une à l'autre. */
 function cvpFaits(q){
-  const fait=[cvpBoutABout(q), !!q.sel];
+  const fait=[cvpBoutABout(q), !!q.sel], cours=fait[0]?(fait[1]?-1:1):0;
   ['cvp-ch','cvp-pt'].forEach(function(id,n){
     const c=$(id); if(!c) return;
     const verdict=c.classList.contains('ok')||c.classList.contains('bad')||c.classList.contains('sol');
     c.classList.toggle('cvp-fait', fait[n]&&!verdict);
+    c.classList.toggle('cvp-cours', n===cours&&!verdict);
   });
 }
 function cvpMilieu(p,r){ return [(p[0]+r[0])/2, (p[1]+r[1])/2]; }
@@ -59228,7 +59232,7 @@ function cvpConstruction(q){
 }
 function cvpCasesPeindre(subs, final){
   [['cvp-ch',subs[0]],['cvp-pt',subs[1]]].forEach(function(p){ const el=$(p[0]); if(!el) return;
-    el.classList.remove('ok','bad','sol','cvp-fait');
+    el.classList.remove('ok','bad','sol','cvp-fait','cvp-cours');
     if(p[1].ok) el.classList.add('ok'); else if(!p[1].vide) el.classList.add('bad'); else if(final) el.classList.add('sol'); });
 }
 /* Soutien : chaque réponse juste se fige en bleu, la fausse rougit et reste
