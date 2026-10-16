@@ -12130,6 +12130,11 @@ function sommeVecteursRepere(w, P){
     startSvr(); clearTimeout(test.fbTimer);
     const q1=test.questions[0];
     if(test.svrOutil!=='A') vus.push('le premier geste n\\'est pas « placer A » : '+test.svrOutil);
+    /* « placer A » : une croix et la lettre A suivent la souris */
+    svrVif(q1,{x:svrX(-4)+3,y:svrY(2)-2});
+    if(((document.querySelector('#svrVif .svr-pt')||{}).textContent||'')!=='A') vus.push('« placer A » : aucune croix A ne suit la pointe de la souris');
+    { const css=[...document.querySelectorAll('style')].map(function(x){ return x.textContent; }).join('');
+      if(css.indexOf('.vec-svg.svr-svg .vec-t:not(.sel):hover .dot{fill:transparent;stroke:transparent}')<0) vus.push('le survol d\\'un nœud du repère montre encore un point rond'); }
     svrPose(3,4); svrPose(1,2); svrPose(3,1); svrPose(-2,-3);
     if(JSON.stringify(q1.pl)!==JSON.stringify(q1.P)) vus.push('les points ne se posent pas dans l\\'ordre : '+JSON.stringify(q1.pl));
     if(test.svrOutil!=='t0') vus.push('après D, le geste n\\'est pas « tracer BC » : '+test.svrOutil);
@@ -12147,10 +12152,16 @@ function sommeVecteursRepere(w, P){
     svrPose(1,2); svrPose(3,1); svrPose(1,2); svrPose(3,4);
     if(JSON.stringify(q1.t)!=='[{"d":[1,2],"f":[3,1]},{"d":[1,2],"f":[3,4]}]') vus.push('les vecteurs ne se tracent pas : '+JSON.stringify(q1.t));
     if(document.querySelectorAll('#svrPrises .svc-prise').length!==2) vus.push('les deux vecteurs tracés n\\'ont pas chacun leur prise');
+    /* les deux vecteurs justes : le geste ③ « fais glisser », pas « placer M » ;
+       un clic sur un nœud n'y pose rien, aucune croix ne suit la souris */
+    if(test.svrOutil!=='ch') vus.push('après les deux vecteurs, le geste n\\'est pas « fais glisser » : '+test.svrOutil);
+    svrPose(5,4); svrVif(q1,{x:svrX(5),y:svrY(4)});
+    if(q1.m || document.querySelector('#svrVif .svr-pt')) vus.push('le geste « fais glisser » : un clic pose M, ou une croix suit la souris');
     if(!svrDeplacer(0,[-2,-3]) || JSON.stringify(q1.cp[0])!=='[-2,-3]') vus.push('la copie de BC ne glisse pas sur D');
     if(JSON.stringify(q1.t[0])!=='{"d":[1,2],"f":[3,1]}') vus.push('glisser la copie déplace le vecteur tracé');
     svrDeplacer(1,[0,-4]);
     if(!svrChaine(q1)) vus.push('les copies bout à bout depuis D ne sont pas lues');
+    if(test.svrOutil!=='M') vus.push('les copies bout à bout : le geste ne passe pas à « placer M » ('+test.svrOutil+')');
     svrDeplacer(1,[20,-20]);
     if(JSON.stringify(q1.cp[1])!=='[4,-5]') vus.push('une copie tirée hors du repère n\\'est pas retenue au bord : '+JSON.stringify(q1.cp[1]));
     svrDeplacer(1,[1,2]);
@@ -12158,7 +12169,7 @@ function sommeVecteursRepere(w, P){
     svrDeplacer(1,[0,-4]);
     /* chaque objectif réalisé passe en vert, le déplacement compris */
     if(['svr-A','svr-B','svr-C','svr-D','svr-t0','svr-t1','svr-ch'].some(function(id){ return !el(id).classList.contains('fait'); })) vus.push('un objectif réalisé ne passe pas en vert : '+IDS.filter(function(id){ return el(id).classList.contains('fait'); }).join(','));
-    if(el('svr-M').classList.contains('fait') || el('svrGraph').querySelector('.svr-repos')) vus.push('M passe en vert, ou le survol s’éteint, avant d’être posé');
+    if(el('svr-M').classList.contains('fait')) vus.push('M passe en vert avant d’être posé');
     svrDeplacer(1,[1,-4]);
     if(el('svr-ch').classList.contains('fait')) vus.push('des copies qui ne sont plus bout à bout laissent l’objectif en vert');
     svrDeplacer(1,[0,-4]);
@@ -12172,7 +12183,6 @@ function sommeVecteursRepere(w, P){
     svrPose(2,-2);
     if(document.querySelector('#svrVif .svr-pt')) vus.push('M posé juste : la croix suit encore la souris');
     if(!el('svr-M').classList.contains('fait')) vus.push('M posé ne passe pas en vert');
-    if(!el('svrGraph').querySelector('.svr-svg.svr-repos')) vus.push('M posé : le survol des nœuds montre encore un point');
     const res=document.querySelector('#svrFl line.svr-res');
     if(!res || Math.abs(+res.getAttribute('x1')-svrX(-2))>0.5 || Math.abs(+res.getAttribute('y1')-svrY(-3))>0.5) vus.push('M posé : le vecteur DM ne se trace pas depuis D');
     if(el('svrFl').textContent.indexOf('DM')<0) vus.push('le vecteur résultat ne porte pas son nom DM');
@@ -12190,6 +12200,7 @@ function sommeVecteursRepere(w, P){
     const q2=test.questions[0];
     svrPose(4,3);                                                        /* A aux coordonnées échangées */
     if(test.svrOutil!=='A') vus.push('A faux : le geste passe tout de même à la suite ('+test.svrOutil+')');
+    if(!document.querySelector('#svrPts .svr-pt.eb')) vus.push('A mal placé ne rougit pas sur le dessin avant la vérification');
     svrOutil('B'); svrPose(1,2); svrPose(3,1); svrPose(-2,-3);
     if(test.svrOutil!=='A') vus.push('B, C, D justes et A faux : le geste ne revient pas à A ('+test.svrOutil+')');
     if(el('svr-A').classList.contains('fait')) vus.push('un point mal placé passe en vert');
@@ -12205,6 +12216,7 @@ function sommeVecteursRepere(w, P){
     if(!svrChaine(q2)) vus.push('BA puis le second tracé, bout à bout depuis D, ne sont pas lus');
     svrOutil('M'); svrPose(2,-3);                                        /* M faux */
     if(el('svr-M').classList.contains('fait')) vus.push('M mal placé passe en vert');
+    if(document.querySelectorAll('#svrPts .svr-pt.eb').length!==2) vus.push('A et M mal placés ne sont pas tous deux rouges sur le dessin');
     verifierIci();
     if(classes()!=='bad,ok,ok,ok,bad,ok,ok,bad') vus.push('chaque réponse ne se juge pas seule : '+classes()+' au lieu de bad,ok,ok,ok,bad,ok,ok,bad');
     const fb=el('svrFeedback').textContent;
@@ -12214,6 +12226,18 @@ function sommeVecteursRepere(w, P){
     if(!document.querySelector('#svrPts .svr-pt.eb') || !document.querySelector('#svrFl line.svc-eb')) vus.push('le point faux et le vecteur faux ne rougissent pas sur le dessin');
     if(document.querySelectorAll('#svrCorr .svr-pt.s').length!==2 || document.querySelectorAll('#svrCorr line.svc-s').length!==2) vus.push('la correction ne montre pas en vert A, M, BC et DM seulement');
     if(!document.querySelector('#svrFl line.svr-res.svc-eb')) vus.push('le vecteur DM vers un M faux ne rougit pas');
+
+    /* 4 bis. un vecteur égal au vecteur demandé, tracé ailleurs, est juste */
+    startSvr(); clearTimeout(test.fbTimer);
+    const q4=test.questions[0];
+    svrPose(3,4); svrPose(1,2); svrPose(3,1); svrPose(-2,-3);
+    svrPose(-5,0); svrPose(-3,-1);                                       /* BC = (2 ; −1), depuis (−5 ; 0) */
+    if(!el('svr-t0').classList.contains('fait') || test.svrOutil!=='t1') vus.push('un vecteur égal à BC, tracé ailleurs, n\\'est pas juste');
+    svrPose(-2,-3); svrPose(0,-1);                                       /* BA = (2 ; 2), depuis D : déjà au départ */
+    svrDeplacer(0,[0,-1]);                                               /* la copie de BC au bout */
+    svrPose(2,-2);
+    verifierIci();
+    if(classes()!==IDS.map(function(){ return 'ok'; }).join(',')) vus.push('des vecteurs égaux tracés ailleurs : '+classes());
 
     /* 5. le soutien */
     currentMode='soutien'; startSvr(); clearTimeout(test.fbTimer);
