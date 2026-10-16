@@ -9676,6 +9676,99 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies novies. DEUX TRANSLATIONS À LA SUITE : A′, A″, LA LISTE, AA″ ===== */
+    /* {translations-successives} (8.2.11, octobre 2026) : un clic n'importe
+       où sur le quadrillage va au nœud le plus proche — A′, puis A″, puis le
+       début et la fin de AA″ ; le point à placer suit la souris avec son nom,
+       et pendant le tracé une flèche va du début à la souris, sans croix sur
+       la pointe. jsdom n'a pas de mise en page : le clic → nœud, la croix qui
+       suit la souris et la flèche vive ne se voient qu'ici. */
+    titre('6 quadragies novies. DEUX TRANSLATIONS À LA SUITE : A′, A″, LA LISTE, AA″');
+    if(!P.translationsSuccessives){
+      ignorer('A′ et A″ se posent au clic, la liste se choisit, AA″ se trace en deux clics',
+        'ce niveau n\'a pas l\'exercice des deux translations à la suite');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.translationsSuccessives.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* u = (3 ; 1), v = (1 ; −3), A en (6 ; 5) : A′ en (9 ; 6), A″ en (10 ; 3) */
+      const fixe = () => { test.questions[test.idx] = { uc: [3, 1], vc: [1, -3], uo: [1, 7], vo: [1, 4], a: [6, 5], ord: [2, 0, 3, 1], p1: null, p2: null, ch: '', d: null, f: null };
+        renderTcp(); document.querySelector('#tcpGraph .tcp-svg').scrollIntoView({ block: 'center' }); };
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      const taille = await s.page.evaluate(() => { const r = document.querySelector('#tcpGraph .tcp-svg').getBoundingClientRect(); return r.width > 450 && r.height > 280; });
+      if(!taille) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
+        const svg = document.querySelector('#tcpGraph .tcp-svg'), r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const k = r.width / vb.width;
+        return { px: r.left + (TCP_PX + x * TCP_C) * k, py: r.top + (TCP_PY + (TCP_H - y) * TCP_C) * k };
+      }, [x, y]);
+      const clic = async (x, y) => { const p = await pos(x, y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      const souris = async (x, y) => { const p = await pos(x, y);
+        await s.page.mouse.move(p.px - 12, p.py - 12); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(80);
+        return await s.page.evaluate(([x, y]) => { const c = document.getElementById('tcpCurseur'), b = c.querySelector('.tcp-x').getBoundingClientRect();
+          const l = document.querySelector('#tcpVif line');
+          let vif = null;
+          if(l){ const svg = l.ownerSVGElement, m = svg.getScreenCTM(), pt = (a, b) => { const q = svg.createSVGPoint(); q.x = a; q.y = b; return q.matrixTransform(m); };
+            const p1 = pt(+l.getAttribute('x1'), +l.getAttribute('y1')), p2 = pt(+l.getAttribute('x2'), +l.getAttribute('y2'));
+            vif = { p1: [p1.x, p1.y], fin: Math.round(Math.hypot(p2.x - x, p2.y - y)) }; }
+          return { vu: getComputedStyle(c).display !== 'none', ecart: Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)),
+            lettre: c.querySelector('text').textContent, vif: vif }; }, [p.px, p.py]); };
+      /* ① A′ : la croix suit la souris avec « A′ », un clic décalé d'un quart de maille va au nœud */
+      let m = await souris(8.6, 6.3);
+      if(!m.vu || m.ecart > 3 || m.lettre !== 'A′') dits.push('la croix A′ ne suit pas la souris : ' + JSON.stringify(m));
+      await clic(9.25, 5.8);
+      let q = await s.page.evaluate(() => test.questions[test.idx]);
+      if(JSON.stringify(q.p1) !== '[9,6]') dits.push('un clic près de (9 ; 6) pose A′ en ' + JSON.stringify(q.p1));
+      m = await souris(10.4, 3.3);
+      if(!m.vu || m.lettre !== 'A″') dits.push('la croix ne passe pas à « A″ » : ' + JSON.stringify(m));
+      await clic(9.8, 3.2);
+      /* ③ la liste, ④ AA″ : plus de croix sur la souris ; le début posé, une flèche va de A à la souris */
+      await s.page.selectOption('#tcpSel', '0');
+      m = await souris(7.4, 4.4);
+      if(m.vu || m.vif) dits.push('avant le tracé de AA″, une croix ou une flèche suit la souris : ' + JSON.stringify(m));
+      await clic(6, 5);
+      m = await souris(8.3, 3.6);
+      const a0 = await pos(6, 5);
+      if(m.vu) dits.push('pendant le tracé, une croix est sur la pointe de la souris');
+      if(!m.vif || Math.hypot(m.vif.p1[0] - a0.px, m.vif.p1[1] - a0.py) > 2 || m.vif.fin > 3) dits.push('aucune flèche ne va de A jusqu\'à la souris : ' + JSON.stringify(m.vif));
+      await clic(10, 3);
+      q = await s.page.evaluate(() => ({ q: test.questions[test.idx], vif: document.querySelectorAll('#tcpVif line').length,
+        aa: [...document.querySelectorAll('#tcpCons line.tcp-aa')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        noms: [...document.querySelectorAll('#tcpCons .tcp-pt text')].map(t => t.textContent).join(',') }));
+      if(JSON.stringify([q.q.p2, q.q.d, q.q.f, q.q.ch]) !== '[[10,3],[6,5],[10,3],"0"]') dits.push('la copie posée à la souris : ' + JSON.stringify(q.q));
+      if(q.vif || q.aa !== 1 || q.noms !== 'A′,A″') dits.push('le dessin après le tracé : ' + JSON.stringify({ vif: q.vif, aa: q.aa, noms: q.noms }));
+      await s.page.click('#tcpValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
+        cls: ['tcp-p1', 'tcp-p2', 'tcp-ch', 'tcp-tr'].map(id => /\bok\b/.test(document.getElementById(id).className)).join(),
+        bouton: document.getElementById('tcpNext') ? document.getElementById('tcpNext').textContent : '' }));
+      if(fin.score !== 4 || !fin.locked || fin.cls !== 'true,true,true,true') dits.push('la copie juste : ' + JSON.stringify(fin));
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* la copie vide : quatre cadres verts, la construction verte, rien de rouge */
+      await s.page.click('#tcpNext');
+      await s.page.waitForTimeout(400);
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      await s.page.click('#tcpValidate');
+      await s.page.waitForTimeout(300);
+      const vide = await s.page.evaluate(() => ({
+        cls: ['tcp-p1', 'tcp-p2', 'tcp-ch', 'tcp-tr'].map(id => document.getElementById(id).className),
+        vert: [...document.querySelectorAll('#tcpCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        rouge: !!document.querySelector('#tcpGraph .svc-eb, #tcpGraph .tcp-faux, #scr-tcp .tvg-cons.bad') }));
+      if(!vide.cls.every(c => /\bsol\b/.test(c))) dits.push('la copie vide ne passe pas en vert : ' + vide.cls.join(' / '));
+      if(vide.vert !== 3) dits.push('la correction ne trace pas u, v et AA″ en vert (' + vide.vert + ')');
+      if(vide.rouge) dits.push('la copie vide rougit quelque chose');
+      verifier('A′ et A″ se posent au clic, la croix suit la souris, la liste se choisit, AA″ se trace en deux clics', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran des deux translations à la suite ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 undevicies. antécédents : la droite se fait GLISSER ===== */
     /* {antecedents-droite} : le geste central est un GLISSER — la droite suit
        le pointeur enfoncé et s'accroche à la graduation la plus proche — puis
