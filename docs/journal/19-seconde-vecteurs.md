@@ -2177,3 +2177,16 @@ des flèches avec leur petite flèche, la copie juste (trois chemins à
 l'envers, après un passage par le JSON de la pause), le vecteur égal faux et
 nommé, la flèche verte de −u partie du départ de l'élève vers la gauche, la
 réponse enregistrée, le contexte du modèle, et le 8.1.7 qui reste le 8.1.7.
+
+**Puis le cadre à faire est passé en bleu (v521).** La demande (Turquet,
+octobre 2026) : « en seconde dans le 8.1.8, mettre en bleu le cadre que l'on
+doit réaliser sur le dessin ». La recette de `cps-cours` (8.2.8) : le cadre
+de la flèche à tracer prend `tvx-cours` — liseré et fond bleu clair —, posé
+par `tvxFaits` sur la première flèche sans arrivée (`tvxCourante`), ou sur
+celle dont une extrémité est reprise (`test.tvxMob`), qui quitte alors son
+vert « tracé ». Les trois tracées, aucun cadre n'est bleu ; la vérification
+l'efface (`tvxPeindre`), et la règle ne nomme aucune classe de verdict :
+« 9 bis » ne la lit pas. Même écran, même moteur : le 8.1.7 l'a aussi. Le
+banc principal suit le bleu (100, 010, 000, 100 à la reprise de u, 000 une
+fois vérifié) ; le banc navigateur mesure le fond bleu calculé du cadre ②
+une fois u tracé.
