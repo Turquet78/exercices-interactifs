@@ -63068,19 +63068,24 @@ function dchSuites(D, l, K, n){
   return out;
 }
 /* toutes les rédactions qui mènent au membre de droite en suivant le plan ;
-   celle du plan d'abord */
+   celle du plan d'abord. Elles se calculent UNE fois par plan, sur ses
+   propres lettres (A, B, C, D, M), puis se renomment : un mémo par jeu de
+   lettres tirées grossissait sans borne — le banc démarre chaque exercice
+   des centaines de fois, et ses 4 Go n'ont pas de marge. */
 const DCH_MEMO={};
 function dchChaines(q){
-  const cle=q.t+':'+q.n; if(DCH_MEMO[cle]) return DCH_MEMO[cle];
-  const D=dchDemo(q), E=D.e, res=[];
-  const rec=function(k, l, acc){
-    if(k===E.length-1){ if(dchSuites(D, l, E[k][0]).some(function(r){ return dchMemes(r, D.d); })) res.push(acc.slice()); return; }
-    dchSuites(D, l, E[k][0], E[k][1]).forEach(function(r){ acc.push(r); rec(k+1, r, acc); acc.pop(); });
-  };
-  rec(0, D.g, []);
-  const ck=JSON.stringify(D.c);
-  res.sort(function(a, b){ return (JSON.stringify(b)===ck)-(JSON.stringify(a)===ck); });
-  return DCH_MEMO[cle]=res;
+  if(!DCH_MEMO[q.t]){
+    const q0={t:q.t, n:'ABCDM'}, D=dchDemo(q0), E=D.e, res=[];
+    const rec=function(k, l, acc){
+      if(k===E.length-1){ if(dchSuites(D, l, E[k][0]).some(function(r){ return dchMemes(r, D.d); })) res.push(acc.slice()); return; }
+      dchSuites(D, l, E[k][0], E[k][1]).forEach(function(r){ acc.push(r); rec(k+1, r, acc); acc.pop(); });
+    };
+    rec(0, D.g, []);
+    const ck=JSON.stringify(D.c);
+    res.sort(function(a, b){ return (JSON.stringify(b)===ck)-(JSON.stringify(a)===ck); });
+    DCH_MEMO[q.t]=res;
+  }
+  return DCH_MEMO[q.t].map(function(ch){ return ch.map(function(l){ return l.map(function(t){ return dchR(q, t); }); }); });
 }
 /* les justifications qui expliquent le passage de prev à cur (cur null : au membre de droite) */
 function dchExplique(D, prev, cur){

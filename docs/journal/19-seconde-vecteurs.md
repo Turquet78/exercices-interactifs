@@ -2839,3 +2839,18 @@ correction, la copie vide sans rouge, le JSON, le soutien qui peint sans
 révéler ni verrouiller ; sur un parallélogramme EFGH : l'énoncé, la
 justification qui porte son nom, EF + FG = EG juste, HG + EH « ne mène pas » ;
 enfin le contexte du modèle.
+
+**Puis l'action a manqué de mémoire, et c'était le mémo.** La première
+version gardait les rédactions acceptées dans un mémo par JEU DE LETTRES
+tirées (`plan:lettres`). Sur la machine de travail (8 Go de tas), tout était
+vert ; sur l'action (4 Go), le banc principal de la Seconde est tombé en
+« heap out of memory » bien après le contrôle de l'exercice, au même endroit
+deux fois. Rejoué en local avec `node --max-old-space-size=4096` : `main`
+seule passait, la branche tombait. Le banc démarre et juge chaque exercice
+des centaines de fois, chaque séance tire des lettres neuves, et le mémo
+grossissait sans borne, sur un banc qui n'a plus de marge. Les rédactions se
+calculent désormais UNE fois par plan, sur ses propres lettres, puis se
+renomment (`dchChaines`) : douze entrées, quoi qu'il arrive. Leçon pour le
+prochain exercice : un banc se rejoue en local À LA LIMITE DE L'ACTION
+(`--max-old-space-size=4096`), et un cache se borne par ce qui est fini (le
+plan), jamais par ce qui est tiré.
