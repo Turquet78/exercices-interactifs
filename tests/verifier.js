@@ -13154,7 +13154,22 @@ function lireSommeDessin(w, P){
     const peint=function(id){ const c=el(id)?el(id).className:'';
       return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
     const fb=function(){ return el('lsdFeedback').textContent; };
-    const poser=function(v){ test.locked=false; renderLsdTest(); IDS.forEach(function(id,k){ el(id).value=(v[k]==null?'':v[k]); }); };
+    /* la figure se dessine UNE fois ; entre deux copies, on remet seulement
+       les cases à neuf. Redessinée à chaque piège, elle laissait ~20 Mo de
+       DOM au banc, qui ne rend la mémoire qu'à la fin de son bloc et frôle
+       ses 4 Go dans l'action (« heap out of memory », octobre 2026). */
+    let dessinee=false;
+    const poser=function(v){
+      test.locked=false;
+      if(!dessinee){ renderLsdTest(); dessinee=true; }
+      else {
+        document.querySelectorAll('#lsdHost .mf-cor').forEach(function(b){ b.remove(); });
+        IDS.forEach(function(id){ const e=el(id); e.classList.remove('ok','bad','sol'); e.disabled=false; });
+        el('lsdFeedback').textContent=''; el('lsdFeedback').className='mp-feedback';
+        test.lsdCase='lsd-0-0'; lsdMarquerCible();
+      }
+      IDS.forEach(function(id,k){ el(id).value=(v[k]==null?'':v[k]); });
+    };
     poser([]);
     const J=lire();
     if(!J.meme(plus(J.dep(J.libre.u), J.dep(J.libre.v)), J.D('KM')) || !J.meme(J.D('AB'), J.D('KM')) || !J.meme(J.dep(J.libre.w), J.D('MF')))
@@ -13188,9 +13203,11 @@ function lireSommeDessin(w, P){
     if(peint('lsd-1-0')!=='juste') vus.push('MA, juste en premier, est peint '+peint('lsd-1-0'));
     /* l'ordre inverse : v + u se lit pareil, et le message le dit */
     test.questions[0]=fixe(1);
+    dessinee=false;
     piege(['KA','MA','AF'], 'lsd-0-0', /changer l’ordre/, 'u et v dans l’ordre inverse');
     piege(['KM','MA','AF'], 'lsd-0-0', null, 'KM avec u et v inversés', 'juste');
     test.questions[0]=fixe(0);
+    dessinee=false;
     /* le badge vert à côté de la case fausse, et la correction sur le dessin */
     poser(['MK','MA','AF']); checkLsdAnswer();
     const badge=el('lsd-0-0').nextElementSibling;

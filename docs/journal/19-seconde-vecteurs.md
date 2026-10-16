@@ -2838,3 +2838,20 @@ du bleu. La case ciblée prend un halo (`box-shadow`), plus une bordure.
   false/false, le dessin false/true » ;
 - le dessin jugé en soutien : « la vérification du soutien verrouille ou
   révèle ».
+
+**Puis l'action a manqué de mémoire, et le contrôle a cessé de redessiner.**
+Après la fusion du 8.2.11 « Chasles : insérer un point », le banc principal de
+la Seconde est mort dans l'action (« JavaScript heap out of memory », 4 Go),
+loin après ce contrôle, sur celui de `pourcentage-chaine`. Reproduit en local
+sous `--max-old-space-size=4096` : sans ce contrôle, le banc passe ; avec, il
+meurt au même endroit. Pourtant, joué seul, il ne retenait que 21 Mo, et
+« pourcentage-chaine » après lui tenait en 200 Mo. La mémoire était RENDUE
+dès que la page reprenait la main (75 Mo deux secondes plus tard) : jsdom
+garde ce que le DOM a touché jusqu'à la fin de la tâche en cours, et le
+banc enchaîne ses contrôles sans jamais rendre la main. Chaque contrôle qui
+dessine ajoute donc sa part à un tas qui frôle déjà 4 Go. Ici, `poser()`
+redessinait la figure fixe à chaque piège, une vingtaine de fois. Elle se
+dessine maintenant une fois, et les cases se remettent à neuf entre deux
+copies : 6 Mo retenus au lieu de 21, et les trois sabotages toujours attrapés.
+La marge du banc reste mince pour tout le monde : un contrôle qui dessine
+dessine le moins possible.
