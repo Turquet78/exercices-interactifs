@@ -12595,8 +12595,10 @@ function vraiFauxVecteurs(w, P){
     if(!/1\\) ?AB ?= ?ED/.test(texte) || !/10\\) ?OE ?= ?BO/.test(texte)) vus.push('les égalités se lisent « '+texte.slice(0,120)+' »');
     if(!el('vfhInstr').classList.contains('enonce') || !/direction/.test(el('vfhInstr').textContent)) vus.push('l’énoncé n’est pas dans un .enonce, ou ne nomme pas les trois critères');
     if(el('vfh-0').tagName!=='SELECT' || el('vfh-0').options.length!==3) vus.push('la case d’une égalité n’est pas une liste ? / Vrai / Faux');
-    /* avant la vérification : des anneaux sur les points, aucune flèche */
-    if(!document.querySelector('#vfhFl .vfh-au') || document.querySelector('#vfhFl .vfh-fu')) vus.push('avant la vérification, la ligne montrée ne marque pas ses points, ou montre déjà les flèches');
+    /* avant la vérification : rien sur la figure — ni anneau autour des points
+       (v531), ni flèche — même quand l'élève clique sur une case */
+    el('vfh-3').dispatchEvent(new Event('focus')); el('vfh-l-3').click();
+    if(el('vfhFl').innerHTML.trim() || !el('vfh-l-3').classList.contains('vfh-actif')) vus.push('avant la vérification, la figure marque la ligne montrée (anneaux ou flèches), ou la ligne cliquée ne prend pas son liseré');
     /* la copie juste */
     poser(BON); checkVfhAnswer();
     let der=test.answers[test.answers.length-1];

@@ -2641,8 +2641,11 @@ celle du 2.x vrai-ou-faux) : `corrChoix` la peint, met « Faux » en badge vert
 **Le dessin montre une ligne à la fois** (`vfhMontrer`, au focus de la liste
 ou au clic sur la ligne). Le premier vecteur est violet (`--crd-a`), le
 second ambre (`--crd-b`), dans la ligne comme sur la figure. Avant la
-vérification, seulement des anneaux sur leurs quatre points : la figure
-reste à lire, rien n'est tracé. Une fois la page VERROUILLÉE, les deux
+vérification, RIEN sur la figure : la ligne prend son liseré, et c'est tout.
+(Jusqu'à la v530, des anneaux entouraient ses quatre points ; Turquet les a
+retirés en octobre 2026 : « ne pas mettre de rond autour des points de la
+figure quand on clique sur une case réponse ». Le banc clique sur une case
+et exige `#vfhFl` vide.) Une fois la page VERROUILLÉE, les deux
 flèches (la seconde en tirets), et la première ligne fausse est montrée. En
 soutien, rien ne se révèle : ni flèche, ni note — la condition est
 `test.locked`.
@@ -2666,7 +2669,7 @@ pixels, à 1 % près. Ce qu'il vérifie :
   juste (10/10) ; les notes qui nomment direction, sens et longueur ; les
   quatre pièges peints en rouge et nommés (avec « vecteur ED », « 2 fois plus
   court », « ABDE est un parallélogramme ») ; aucun parallélogramme nommé
-  pour OA = DO ; le badge « Faux » ; les anneaux avant, les flèches après ;
+  pour OA = DO ; le badge « Faux » ; rien sur la figure avant, les flèches après ;
   la case vide en correction ; la copie vide sans rouge ; le redessin après
   le JSON ; le soutien qui peint sans révéler ni verrouiller ; le contexte
   du modèle.
