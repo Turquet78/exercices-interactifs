@@ -9255,8 +9255,38 @@ if(require.main === module) (async () => {
         cours: document.getElementById('cps-t1').classList.contains('cps-cours'), fait: document.getElementById('cps-t1').classList.contains('cps-fait'),
         noms: [...document.querySelectorAll('#cpsFl text.svc-nom')].length, txt: document.getElementById('cps-t1').textContent }));
       if(!faux.f1 || !faux.cours || faux.fait || faux.noms || faux.txt.indexOf('Ce n’est pas le vecteur') < 0) dits.push('une flèche fausse valide le cadre ① ou porte un nom : ' + JSON.stringify(faux));
-      /* ① BC : B puis C — un clic à un cinquième de maille s'accroche au nœud */
-      await clic(5, 7, 0.2); await clic(8, 7);
+      /* ① BC : B puis C — un clic à un cinquième de maille s'accroche au nœud.
+         Pendant le tracé, une croix sans lettre suit la pointe de la souris ;
+         le début posé (sa croix), une flèche va de lui jusqu'à la souris, et
+         s'efface quand le second clic fixe la fin (demande de Turquet, v521) */
+      const souris = async (x, y) => { const p = await pos(x, y);
+        await s.page.mouse.move(p.px - 15, p.py - 15); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(80);
+        return await s.page.evaluate(([x, y]) => { const c = document.getElementById('cpsCurseur'), b = c.querySelector('.cps-x').getBoundingClientRect();
+          const lb = c.querySelector('.vec-lbl'), l = document.querySelector('#cpsVif line');
+          let vif = null;
+          if(l){ const svg = l.ownerSVGElement, m = svg.getScreenCTM(), pt = (a, b) => { const q = svg.createSVGPoint(); q.x = a; q.y = b; return q.matrixTransform(m); };
+            const p1 = pt(+l.getAttribute('x1'), +l.getAttribute('y1')), p2 = pt(+l.getAttribute('x2'), +l.getAttribute('y2'));
+            vif = { p1: [p1.x, p1.y], fin: Math.round(Math.hypot(p2.x - x, p2.y - y)), pointe: !!l.getAttribute('marker-end'), clic: getComputedStyle(l).pointerEvents }; }
+          return { vu: getComputedStyle(c).display !== 'none', ecart: Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)),
+            lettre: !!lb && getComputedStyle(lb).display !== 'none', vif: vif }; }, [p.px, p.py]); };
+      let m0 = await souris(6.4, 5.6);
+      if(!m0.vu || m0.ecart > 3 || m0.lettre || m0.vif) dits.push('avant le tracé, la croix ne suit pas la souris (ou porte une lettre, ou une flèche) : ' + JSON.stringify(m0));
+      await clic(5, 7, 0.2);
+      const deb = await s.page.evaluate(() => !!document.querySelector('#cpsn-5-7.deb .cps-x'));
+      if(!deb) dits.push('le début de BC posé ne se marque pas d\'une croix');
+      m0 = await souris(7.3, 6.4);
+      const b0 = await pos(5, 7);
+      if(!m0.vu || m0.ecart > 3 || m0.lettre) dits.push('le début posé, la croix ne suit pas la souris : ' + JSON.stringify(m0));
+      if(!m0.vif || Math.hypot(m0.vif.p1[0] - b0.px, m0.vif.p1[1] - b0.py) > 2 || m0.vif.fin > 3 || !m0.vif.pointe || m0.vif.clic !== 'none')
+        dits.push('le début posé, aucune flèche ne va de B jusqu\'à la souris : ' + JSON.stringify(m0.vif));
+      const m1 = await souris(6.2, 5.3);
+      if(!m1.vif || m1.vif.fin > 3) dits.push('la flèche ne suit pas la souris qui bouge : ' + JSON.stringify(m1.vif));
+      await clic(8, 7);
+      const vif0 = await s.page.evaluate(() => document.querySelectorAll('#cpsVif line').length);
+      if(vif0) dits.push('la fin de BC fixée, la flèche qui suit la souris reste au dessin');
+      /* une pointe fine : le triangle des pointes n'a plus toute sa largeur */
+      const fine = await s.page.evaluate(() => [...document.querySelectorAll('#cpsGraph marker path')].map(p => p.getAttribute('d')));
+      if(!fine.length || fine.some(d => d !== 'M0 1.8L10 5L0 8.2z')) dits.push('les pointes des vecteurs ne sont pas fines : ' + fine.join(' ; '));
       let e = await etat();
       if(JSON.stringify(e.a) !== '[[5,7],[8,7]]' || e.traits !== 1) dits.push('BC ne se trace pas en deux clics : ' + JSON.stringify(e.a) + ', ' + e.traits + ' trait');
       /* ② BD : B est SOUS la prise de BC — l'appui doit passer au nœud */
@@ -9399,6 +9429,11 @@ if(require.main === module) (async () => {
         await s.page.mouse.move(b.px, b.py, { steps: 12 }); await s.page.mouse.up();
         await s.page.waitForTimeout(120);
       };
+      /* l'étape 2 attend l'étape 1 : un clic sur le quadrillage, avant les flèches, ne pose rien */
+      const avant = await pos(11, 1);
+      await s.page.mouse.click(avant.px, avant.py);
+      await s.page.waitForTimeout(120);
+      if(await s.page.evaluate(() => !!test.questions[test.idx].sel || !!document.getElementById('cvp-pt').getBoundingClientRect().height)) dits.push('un clic pose B′ avant que l\'étape 1 soit faite');
       /* v se retourne au bouton : −v */
       await s.page.click('#cvpRetV');
       await s.page.waitForTimeout(120);
@@ -9564,6 +9599,9 @@ if(require.main === module) (async () => {
       await clic(4.2, 4.9);
       e = await etat();
       if(JSON.stringify(e.u) !== '[[1,1],[4,5]]') dits.push('le second clic ne fixe pas l\'arrivée au nœud le plus proche : ' + JSON.stringify(e.u));
+      /* le cadre de la flèche à tracer est en bleu (fond bleu clair calculé), celui de u tracé ne l'est plus */
+      const fonds = await s.page.evaluate(() => ['tvx-u', 'tvx-v', 'tvx-w'].map(id => getComputedStyle(document.getElementById(id)).backgroundColor));
+      if(fonds[1] !== 'rgb(234, 240, 255)' || fonds[0] === fonds[1] || fonds[2] === fonds[1]) dits.push('le cadre à faire (②) n\'est pas le seul en bleu : ' + fonds.join(' / '));
       /* ④ un clic sur le DÉPART le reprend : la flèche va de la souris à l'arrivée fixe */
       await clic(1, 1);
       e = await etat();
