@@ -2751,7 +2751,7 @@ points qui ne s'enchaînent pas, la case vide (correction), la copie vide
 sur une page fixe SANS figure : aucun dessin, une copie juste à points libres
 (Q, A, B), deux pièges ; enfin le contexte du modèle.
 
-## {demontrer-parallelogramme} — démontrer qu'un quadrilatère est un parallélogramme (8.2.12, v531 — numéro et versions pris en route : 8.2.11 par {chasles-inserer-point}, v528 à v530 par le 8.2.9, le 8.1.10, le 8.2.5 et le 8.2.8)
+## {demontrer-parallelogramme} — démontrer qu'un quadrilatère est un parallélogramme (8.2.12, v532 — numéro et versions pris en route : 8.2.11 par {chasles-inserer-point}, v528 à v531 par les retouches du 8.2.9, du 8.1.10, du 8.2.5 et du 8.2.8)
 
 **La demande** (Turquet, octobre 2026, idée n° 11 parmi celles proposées) :
 une égalité vectorielle entre quatre points, qui se SIMPLIFIE par Chasles
