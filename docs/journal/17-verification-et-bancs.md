@@ -285,3 +285,45 @@ ouvertures de la Seconde coûtent 1,6 minute de plus qu'à 400 ms, et 4,5 de
 moins qu'avant. Une attente de condition n'attend que ce qu'elle nomme — ce
 que le script fait ensuite, différé, reste à couvrir par le répit, et c'est
 écrit à côté de lui.
+
+**Un banc jsdom qui ne rend jamais la main garde chaque nœud retiré (octobre
+2026).** L'action a refusé la pull request du 8.1.11 (l'antécédent par une
+translation) sur `controles (secondes.html)`. Le banc s'est arrêté avec
+« FATAL ERROR: … JavaScript heap out of memory » après onze minutes, alors que
+le contrôle du 8.1.11 était passé en 0,7 s, neuf minutes plus tôt. Les autres
+pull requests sur la même base passaient.
+
+La mesure, refaite sur la machine de la session avec la limite de l'action
+(`node --max-old-space-size=4096`) :
+- la branche du 8.1.11 déborde au même contrôle que l'action ;
+- `main` seul tient, de justesse ;
+- la mémoire résidente monte de 0,18 à 4,35 Go au fil du banc, dont 1,3 Go
+  pendant les seuls contrôles du 8.5 et du 8.6, qui dessinent une cible par
+  nœud.
+
+Ce n'est pas une fuite de la page. Deux cents démarrages du 8.1.11 retiennent
+118 Mo PENDANT la boucle, mais 0,5 Mo une fois la main rendue (le 8.1.9 :
+208 Mo, puis 27). Un `MutationObserver` ne reçoit ses relevés qu'au retour de
+la main, sous forme de microtâche, et chaque relevé garde en vie les nœuds
+qu'un `innerHTML` vient de RETIRER. La page a sept observateurs posés sur
+`document.body`. Le banc, lui, enchaîne ses contrôles synchrones sans jamais
+rendre la main : tous les écrans redessinés depuis le dernier contrôle
+asynchrone restaient en mémoire. Chaque exercice ajouté rapprochait la
+Seconde des 4 Go ; le 8.1.11 est celui qui a franchi la ligne.
+
+Le correctif est dans le banc, pas dans la page. Le harnais (`tests/
+harnais.js`, script injecté avant ceux de la page) enveloppe `MutationObserver`
+et tient la liste des observateurs branchés. `evaluer()` (`tests/
+verifier.js`, par où passe chaque contrôle) appelle `__viderObservateurs()`
+après chaque évaluation. Cette fonction délivre à chaque observateur ce qui
+l'attend (`takeRecords()` puis son rappel), comme le navigateur au retour de
+la main, sur cinq tours au plus si un rappel en déclenche d'autres.
+
+Mesuré :
+- 200 démarrages du 8.5 retiennent 5,9 Mo ;
+- le banc entier plafonne à 2,5 Go de mémoire résidente au lieu de déborder ;
+- aucun contrôle n'a changé de verdict.
+
+Le prix est nommé : les rappels des observateurs tournent désormais à la fin
+de CHAQUE contrôle, et non plus au prochain contrôle asynchrone, des centaines
+de contrôles plus loin. C'est plus près de ce que fait un navigateur.
