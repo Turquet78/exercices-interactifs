@@ -2816,3 +2816,10 @@ Regardé dans Chromium à 1280 et à 390 px : l'hypothèse centrée sous
 l'énoncé, une ligne par étape, la flèche sur chaque case, la correction
 fléchée à côté de la case fausse ; sur téléphone, les membres passent à la
 ligne avant un « = », jamais au milieu d'un vecteur.
+
+**Puis le banc a rendu sa mémoire.** Le premier passage dans l'action est
+tombé en « heap out of memory » : le banc de la Seconde, près de ses 4 Go,
+recevait le même jour une dizaine d'exercices du thème 8. Le contrôle
+redessinait l'écran à chaque copie essayée (~25 rendus, 8,3 Mo retenus) ; il
+ne redessine plus que quand la question change et remet sinon les cases à
+zéro — 2,9 Mo retenus, mesurés avec `--expose-gc`.

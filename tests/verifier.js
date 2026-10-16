@@ -12758,8 +12758,18 @@ function demontrerParallelogramme(w, P){
       return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
     const fb=function(){ return el('dpaFeedback').textContent; };
     const Q1={t:'ABCD', f:'egal', g:{k:'moins', p:['C']}, d:{k:'c2', p:['A']}, sw:0};
-    const poser=function(q, v){ test.questions[0]=JSON.parse(JSON.stringify(q)); test.idx=0; test.locked=false; renderDpaTest();
-      dpaCases(q).forEach(function(c, k){ el(c.id).value=(v[k]==null?'':v[k]); }); };
+    /* un rendu retient ~0,7 Mo dans jsdom, et le banc de l'action est près
+       de ses 4 Go : on ne redessine que si la question change ; sinon on
+       remet les cases à zéro (valeur, couleur, verrou, badge) */
+    const poser=function(q, v){
+      const j=JSON.stringify(q);
+      test.idx=0; test.locked=false;
+      if(JSON.stringify(test.questions[0])!==j){ test.questions[0]=JSON.parse(j); renderDpaTest(); }
+      else {
+        document.querySelectorAll('#dpaHost .mf-cor').forEach(function(b){ b.remove(); });
+        el('dpaFeedback').textContent=''; el('dpaFeedback').className='mp-feedback';
+      }
+      dpaCases(q).forEach(function(c, k){ const e=el(c.id); e.classList.remove('ok','bad','sol'); e.disabled=false; e.value=(v[k]==null?'':v[k]); }); };
     if(!dpaVerifie(Q1)) vus.push('la question fixe ne passe pas dpaVerifie');
     poser(Q1, []);
     const texte=el('dpaInstr').textContent.replace(/\\s+/g,' ')+' | '+el('dpaHost').textContent.replace(/\\s+/g,' ');
