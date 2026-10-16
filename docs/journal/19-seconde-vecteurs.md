@@ -1940,6 +1940,18 @@ nœud B (à 2 px) jusqu'à la souris (à 3 px), pointe comprise et sans clic,
 qui suit la souris qui bouge et s'efface à la fin fixée, puis le tracé de
 chaque pointe.
 
+**Puis la croix a quitté la pointe de la souris pendant le tracé (v525).**
+La demande (Turquet, octobre 2026) : « en seconde dans le 8.2.8, ne pas
+mettre de croix au bout de l'extrémité de la flèche de la souris quand on
+doit tracer un vecteur. » La croix de la v521 sur la pointe de la souris est
+retirée tant qu'une flèche reste à tracer, avant le début comme après :
+`curseur` cache `#cpsCurseur` dès que `trace` est vrai. Ce qui reste : la
+croix du début posé sur son nœud, la flèche vive du début jusqu'à la souris,
+le clic qui va au nœud le plus proche, et, à la dernière étape seulement, la
+croix A′ qui suit la souris avec sa lettre. Le banc navigateur (« 6
+quadragies sexies ») renverse ses deux mesures : aucune croix visible sous la
+souris, avant le tracé ni le début posé ; la flèche vive est toujours mesurée.
+
 ## {point-somme-difference} — construire un point par une somme ou une différence de deux vecteurs (8.15, v498)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
