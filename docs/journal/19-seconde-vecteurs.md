@@ -2329,3 +2329,108 @@ après JSON ; u⃗ + v⃗ juste sans chaînage (1) ; u⃗ + v⃗ à l'envers (no
 correction verte) ; le soutien ; le contexte du modèle ; et le 8.2.1 qui
 garde ses étapes et ses mots. Le glisser au doigt et à la souris est celui
 du 8.2.1, tenu par son banc navigateur (« 6 quadragies quater »).
+
+## {translation-pavage} — l'image d'un triangle dans un pavage (8.1.9, v525)
+
+**La demande** (Turquet, octobre 2026). Claude avait proposé onze idées
+d'exercices sur les vecteurs égaux, la translation et Chasles ; Turquet a
+retenu la première : « fais l'exercice 1 avec le pavage ». C'est la FIGURE
+ENTIÈRE qui glisse : le reste du thème ne déplaçait que des points. Ajouté en
+dernier du sous-thème « Vecteurs égaux » : 8.1.9, rien ne se renumérote.
+
+**Le pavage est un réseau, pas un dessin.** Deux vecteurs de base, e1 = (1, 0)
+et e2 selon la forme, 5 × 3 parallélogrammes, chacun coupé en deux triangles
+par une diagonale. Un triangle se repère par (i, j, t) : sa case et sa moitié.
+Une translation d'un vecteur du réseau (a, b) envoie (i, j, t) sur
+(i + a, j + b, t), c'est-à-dire sur la MÊME moitié. C'est ce qui sépare
+l'image de son voisin retourné, le piège de l'exercice.
+
+Trois formes (`TPV_PAVAGES`) :
+- des triangles équilatéraux ;
+- un quadrillage coupé, en triangles rectangles ;
+- des triangles quelconques.
+
+La pente des côtés obliques peut changer de sens (`sx`), la diagonale peut
+changer de côté (`dg`), sauf pour l'équilatéral.
+
+**Les numéros suivent l'ordre de lecture**, la bande du haut d'abord : l'élève
+trouve « le triangle 17 » sans fouiller. **Les lettres sont les seize nœuds du
+contour**, dans l'ordre du tour (`TPV_LETTRES`, sans I, O ni Q), et A part de
+l'un des quatre coins (`d0`). Posées dehors, le long de la normale sortante
+de leur côté (la somme des deux normales à un coin), elles ne recouvrent ni un
+trait ni un numéro.
+
+**Quatre lignes par pavage** (`TPV_PLAN`), barème 4 :
+- trois images à trouver, avec deux tournures : « l'image du triangle 15 par la
+  translation de vecteur SC est le triangle … » et « la translation qui
+  transforme B en G transforme le triangle 22 en le triangle … » ;
+- un vecteur à trouver : « la translation qui transforme le triangle 11 en le
+  triangle 5 a pour vecteur … ». Tout couple de lettres qui fait le bon chemin
+  est juste (`tpvVecsDe`), et la correction écrit le premier.
+
+Deux lignes n'ont jamais le même déplacement, ni des déplacements opposés. Un
+triangle ne sert qu'une fois dans le pavage, comme départ ou comme image. La
+première image a toujours une composante le long des côtés obliques : glisser
+seulement à l'horizontale ne demande pas de lire le pavage. Le départ est pris
+de préférence là où l'image à l'envers existe aussi, pour que le piège du sens
+soit posable. Trois pavages par séance (`TPV_NB`, `dmNbQuestions`), barème 12.
+
+**Les pièges nommés** (`tpvPourquoi`, sur la première case fausse) :
+- le triangle de DÉPART recopié ;
+- l'image À L'ENVERS : « tu as fait glisser dans le sens contraire » ;
+- le triangle RETOURNÉ : à la bonne place mais pas dans la bonne orientation,
+  car « une translation fait glisser la figure sans la tourner » ;
+- un numéro hors du pavage ;
+- sinon, le chemin dit avec les côtés du pavage (`tpvChemin` : « 2 côtés vers
+  la droite le long des côtés horizontaux, puis 1 côté vers le bas le long des
+  côtés obliques »).
+
+Pour le vecteur : écrit à l'envers, menant ailleurs, ou illisible.
+
+**Le dessin montre une ligne à la fois** (`tpvMontrer`). La ligne choisie (par
+le focus de sa case ou un clic) prend un liseré violet. Son triangle de départ
+prend un fond violet, le vecteur de l'énoncé une flèche violette entre ses deux
+lettres, et le numéro tapé un fond violet clair. Une fois la page VERROUILLÉE
+par la vérification :
+- l'image juste est bleue, la fausse rouge, la correction verte ;
+- une flèche verte va d'un triangle à l'autre.
+
+En soutien, rien ne se révèle : la condition est `test.locked`, pas la classe
+de la case, que la correction en direct pose aussi. Après la vérification, la
+première ligne fausse est montrée. Les numéros portent un halo blanc
+(`paint-order:stroke`) : les flèches les traversent sans les effacer.
+
+**Un clic sur un triangle écrit son numéro** (`tpvClicTri`) dans la case de
+la ligne montrée. Si cette ligne attend un vecteur, le numéro va dans la
+première case d'image libre. Les cases d'image sont `inputmode="numeric"`, donc
+servies par le pavé sur tablette ; la case du vecteur porte sa flèche en CSS
+(`.tpv-vc`, le dessin de `.vgt-vec`).
+
+**On range la forme, les lettres et les lignes** (`pav`, `dg`, `sx`, `d0`,
+`lignes`), jamais les réponses : `tpvLigne` recalcule l'image, l'image à
+l'envers, le retourné et les vecteurs justes.
+
+**Le banc** (`translationPavage`, banc principal) a un juge qui ne lit PAS le
+réseau de la page. Il relit le DESSIN : les sommets de chaque polygone, le
+numéro écrit DEDANS, la place de chaque lettre (le point dessiné le plus
+proche de son étiquette). Il fait ensuite glisser les sommets du triangle de
+départ du chemin d'une lettre à l'autre, et cherche le polygone qui tombe
+dessus.
+
+Ce qu'il vérifie :
+- **sur 120 séances**, chaque image, chaque image à l'envers et chaque liste
+  de vecteurs justes recalculées depuis le dessin ; les trois formes sorties ;
+  le plan des lignes ; aucun déplacement répété ni opposé ; aucun triangle
+  servi deux fois ; la première image en biais ;
+- **sur un pavage fixe** (quadrillage, A au coin bas gauche) : les tournures ;
+  la copie juste avec le second vecteur juste en minuscules (4/4) ; les sept
+  pièges peints en rouge et nommés ; le badge vert ; le dessin de la ligne
+  fausse (départ violet, correction verte, réponse rouge, flèche verte) ; la
+  case vide en correction ; la copie vide sans rouge ; le clic dans la ligne
+  montrée puis vers la première case libre ; le redessin après le JSON ; le
+  soutien qui peint sans révéler ni verrouiller ; le contexte du modèle.
+
+Trois sabotages ont été attrapés :
+- l'image remplacée par son retourné : « la page dit 27, le dessin 28 » ;
+- le mot « RETOURNÉ » retiré du message ;
+- le dessin jugé en soutien.
