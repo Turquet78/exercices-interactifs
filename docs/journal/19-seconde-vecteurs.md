@@ -2136,6 +2136,20 @@ navigateur (6 quadragies septies) mesure l'étape 2 sans hauteur au départ,
 puis entre l'étape 1 et le dessin, le curseur caché et le vecteur visible au
 point posé, et l'étape 2 verte comme l'étape 1.
 
+**Puis l'étape 2 a attendu l'étape 1 : plus de point posé avant les flèches bout à bout (v521)**
+La demande (Turquet, octobre 2026) : « en seconde dans le 8.2.9 on ne peut
+pas réaliser l'étape 2 avant l'étape 1. » Le bandeau de l'étape 2 était
+caché, mais le geste ne l'était pas : un clic sur un nœud, ou n'importe où
+dans le quadrillage, posait B′ dès la première seconde — et le bandeau
+caché réapparaissait (`q.sel` le montre). `cvpPose` refuse désormais de
+POSER un point tant que `cvpBoutABout` est faux ; RETIRER un point déjà posé
+reste permis. Un point posé à l'étape 2 reste posé si l'élève déplace
+ensuite ses flèches : le juge garde le cas « construction hors de B, B′
+juste » (1 sur 2), joué désormais dans cet ordre-là. Le juge vérifie qu'un
+clic avant les flèches ne pose rien, ne trace aucun vecteur et laisse
+l'étape 2 cachée ; le banc navigateur (6 quadragies septies) clique le
+quadrillage à la souris avant tout glisser et mesure que rien n'est posé.
+
 ## {tracer-vecteurs-opposes} — tracer −u⃗, −v⃗, −w⃗ (8.1.8, v516)
 
 **La demande** (Turquet, octobre 2026) : « en seconde faire un exercice comme
