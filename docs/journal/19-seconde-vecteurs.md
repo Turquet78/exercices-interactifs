@@ -2751,7 +2751,7 @@ points qui ne s'enchaînent pas, la case vide (correction), la copie vide
 sur une page fixe SANS figure : aucun dessin, une copie juste à points libres
 (Q, A, B), deux pièges ; enfin le contexte du modèle.
 
-## {milieu-vecteurs-egaux} — milieux et vecteurs égaux (8.1.11, v531)
+## {milieu-vecteurs-egaux} — milieux et vecteurs égaux (8.1.11, v532)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées proposées sur les
 vecteurs égaux, Turquet a retenu la n° 5 : « Milieu et vecteurs égaux » — un
@@ -2759,7 +2759,7 @@ triangle et les milieux de ses côtés, qui découpent trois parallélogrammes ;
 traduire « I est le milieu de [AB] » par une égalité de vecteurs, sans aucune
 multiplication par un réel, puis écrire tous les vecteurs égaux à un vecteur
 donné, comme au 8.1.3. Ajouté en dernier du sous-thème « Vecteurs égaux » :
-8.1.11, rien ne se renumérote — et le numéro a changé en route : écrit en 8.1.10 et v528, l'exercice a trouvé à la fusion de `main` le 8.1.10 pris par {vrai-faux-vecteurs} (une autre session, le même jour) et la v529 avec lui ; puis la v530, prise à son tour par le 8.2.8 et le 8.2.11 pendant que l'action tournait — le contrôle « version » l'a vu. Le dernier arrivé prend le suivant : v531. Les détails ci-dessous ont été décidés sans
+8.1.11, rien ne se renumérote — et le numéro a changé en route : écrit en 8.1.10 et v528, l'exercice a trouvé à la fusion de `main` le 8.1.10 pris par {vrai-faux-vecteurs} (une autre session, le même jour) et la v529 avec lui ; puis la v530, prise à son tour par le 8.2.8 et le 8.2.11 pendant que l'action tournait — le contrôle « version » l'a vu. Puis la v531, prise par le 8.2.9 et le 8.1.10 retouchés. Le dernier arrivé prend le suivant : v532. Les détails ci-dessous ont été décidés sans
 aller-retour, comme la demande le voulait.
 
 **La figure est tirée, jamais dessinée à la main.** Quatre formes
