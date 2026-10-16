@@ -2488,3 +2488,114 @@ Trois sabotages ont été attrapés :
 - l'image remplacée par son retourné : « la page dit 27, le dessin 28 » ;
 - le mot « RETOURNÉ » retiré du message ;
 - le dessin jugé en soutien.
+
+## {regle-parallelogramme} — la règle du parallélogramme (8.2.11, v528)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
+sur la somme de vecteurs, Turquet a retenu la sixième : « la règle du
+parallélogramme ». C'est la SECONDE méthode de construction de la somme, à
+côté du « bout à bout » du 8.2.1 : u⃗ et v⃗ partent du MÊME point. Ajouté en
+dernier du sous-thème « Somme de vecteurs » : 8.2.11, rien ne se renumérote.
+
+**La figure.** Le quadrillage du 8.2.1 (12 carreaux sur 8, `SVC_*`, les
+flèches de `svcFleche`) : trois croix A, B, C, u⃗ = AB⃗ en trait plein et
+v⃗ = AC⃗ en pointillés, tous deux partant de A. Les lettres se posent dans le
+coin le plus loin des segments de la figure ENTIÈRE — côtés ET diagonales
+(`spgLettre`, la recette de `cvpLettre`) : rien de ce que l'élève trace
+ensuite ne les recouvre. Les noms u et v se posent hors du parallélogramme
+(`svcCoteDehors`, avec le côté opposé).
+
+**Deux étapes, deux réponses** — les bandeaux bleus du 8.2.9, au-dessus du
+dessin, qui SONT les réponses notées (`spg-pt`, `spg-sm`) :
+- Étape 1 : « Place le point D tel que ABDC soit un parallélogramme : clique
+  son nœud », et en petit « Les sommets se suivent dans l'ordre A, B, D, C ».
+  Un clic pose D (un autre nœud le déplace, le même le retire) ; ses deux
+  côtés [BD] et [CD] se tracent en pointillés.
+- Étape 2, ouverte d'elle-même sous l'étape 1 dès que D est posé : « Trace le
+  vecteur u⃗ + v⃗ : c'est UNE diagonale du parallélogramme ABDC ». Le mot est
+  choisi : l'énoncé ne dit pas laquelle, choisir est l'exercice — c'est là
+  que tombe le piège. Un clic pose le début, une flèche élastique le suit
+  jusqu'à la pointe de la souris (la recette du 8.2.1, v520), un second clic
+  fixe la fin ; un clic de plus recommence, recliquer le début seul le
+  retire, Échap aussi.
+
+Chaque étape EFFECTUÉE passe au vert (`spg-fait`, le geste et pas sa
+justesse) ; la vérification peint ok bleu, bad rouge, sol vert.
+
+**Revenir à D.** À l'étape 2, un clic trace : il ne peut plus déplacer D (la
+fin de la diagonale tombe justement sur D). Le bouton « ↩ Déplacer le point
+D », sous le dessin, ramène à l'étape 1 ; là, un clic sur un autre nœud
+déplace D et rouvre l'étape 2, et « Garder ce point D » y revient sans rien
+changer. L'étape en cours ne se range pas (`spgEtape` : D posé, c'est
+l'étape 2) : la reprise d'une pause rouvre l'étape 2.
+
+**Un seul écouteur de clic**, à l'hôte, qui va au nœud le plus proche (la
+recette du 8.1.7) : aucune cible par nœud, rien de caché dans les 117 nœuds.
+La croix qui suit la souris porte « D » à l'étape 1, rien à l'étape 2, et se
+cache une fois la flèche finie. Ce que l'élève pose est VIOLET (`--crd-a`)
+tant que rien n'est jugé : le bleu dit « juste » et le vert « correction »
+depuis août 2026.
+
+**On range la figure et les gestes, jamais la réponse** : `ao`, `uc`, `vc`,
+`sel` (D), `sd`/`sf` (la flèche). `spgD(q)` recalcule D. Six questions par
+séance (`SPG_NB`, `dmNbQuestions`), barème 12.
+
+**Le tirage** (`spgGen`) : u⃗ et v⃗ de deux carreaux au moins, l'un au moins
+en biais, un angle franc (sinus ≥ 0,35 : jamais un parallélogramme
+aplati), les DEUX diagonales de deux carreaux au moins (le piège doit se
+lire), A, B, C et D à un carreau du bord.
+
+**Le juge** (`spgJuge`) : chaque réponse SEULE. D juste s'il est le sommet
+opposé à A ; la flèche juste si elle va de A au VRAI D — quel que soit le D
+posé : une diagonale juste ne rougit pas parce que le point est faux. **Un
+choix est nommé** : un représentant de u⃗ + v⃗ tracé ailleurs qu'en A est
+compté faux — l'exercice est la règle du parallélogramme, la diagonale ISSUE
+DE A — mais son message le dit (« Ta flèche a bien le chemin de u + v, mais
+la règle du parallélogramme la trace depuis A »). Si Turquet préfère
+l'accepter, c'est une ligne dans `spgJuge`.
+
+**Les pièges nommés** (`spgPourquoi`) :
+- l'AUTRE diagonale : « le vecteur BC vaut v − u, pas u + v » (ou « CB vaut
+  u − v ») — le piège de l'exercice ;
+- ABCD au lieu de ABDC (D = A + v − u), ou ADBC (D = A + u − v) : « Ton point
+  fait bien un parallélogramme avec A, B et C, mais pas ABDC » ;
+- D du mauvais côté de A (A − u − v), D posé sur A, B ou C ;
+- la diagonale à l'envers (DA), un côté au lieu de la diagonale, une flèche
+  qui part de A sans arriver au sommet opposé.
+Hors soutien, chaque message finit par le chemin (« BD = AC = v : depuis B, D
+est à … », « u + v = AD fait … ») ; en soutien, le piège seul, sans chemin.
+
+**Soutien** : la réponse juste se fige en bleu (D ne se déplace plus, la
+flèche ne se retrace plus), la fausse rougit et reste à reprendre ; rien ne
+se révèle. **Correction finale** : le vrai D en croix verte avec ses côtés et
+sa lettre s'il manquait ou était ailleurs, la diagonale AD⃗ verte nommée
+u⃗ + v⃗ si la flèche n'était pas elle.
+
+**Le contexte du modèle** (`ctxSpg`) : la figure, la méthode (D opposé à A,
+BD⃗ = AC⃗ = v⃗, la diagonale issue de A, l'autre vaut v⃗ − u⃗), et D sous
+clause de secret.
+
+**Les bancs.** Le principal (`regleParallelogramme`) a un juge qui ne lit
+PAS la question : il relit le DESSIN comme du TEXTE (la leçon du 8.1.9 —
+redessiner des centaines de figures dans jsdom épuise les 4 Go de l'action) :
+les trois croix, la lettre posée près de chacune, les deux flèches, et
+calcule D = B + C − A lui-même. Sur 200 séances (1 200 figures) : les clés
+rangées, aucune question répétée, u de A à B et v de A à C sur le dessin, le
+D de la page égal à celui du dessin, la construction relue acceptée par le
+juge et l'autre diagonale refusée, les contraintes du tirage. Puis une
+figure fixe — A (3 ; 2), u⃗ (4 ; 1), v⃗ (1 ; 3), D (8 ; 6) : l'énoncé, les
+étapes au-dessus du dessin, l'étape 2 cachée ; la copie vide (deux sol, D,
+ses côtés et AD⃗ en vert, rien de rouge, « Il te manquait 2 cases ») ; les
+gestes (D, la flèche commencée, retirée, Échap, finie et nommée u + v, le
+retour à l'étape 1, D déplacé puis retiré) ; la reprise après JSON ; la copie
+juste (2) ; ABCD + BC, ADBC + CB, D juste + DA, D faux + AD juste (la flèche
+juste reste bleue), le côté AB ; le soutien (faux nommé sans chemin, D juste
+figé, puis tout juste) ; le contexte du modèle. **Le banc navigateur**
+(« 6 quadragies novies ») joue tout à la vraie souris : la croix de D à
+moins de 3 px de la pointe, un clic à un cinquième de maille, l'étape 2
+ouverte entre l'étape 1 et le dessin, l'étape 1 verdie, les deux côtés
+tracés, la flèche élastique mesurée du début à la pointe et qui suit, plus
+rien qui suit une fois la flèche finie, « Déplacer le point D », la copie
+juste (2) et la copie vide (trois traits verts, rien de rouge). Le doigt sur
+tablette — un toucher par geste, sans croix ni flèche qui suivent — ne se
+joue dans aucun banc.
