@@ -9792,6 +9792,96 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies decies. TROIS VECTEURS BOUT À BOUT ===== */
+    /* {somme-trois-vecteurs} (8.2.15, demande de Turquet, octobre 2026, l'idée
+       n° 7) : l'élève fait glisser u, v, w À LA SOURIS bout à bout depuis le
+       point, clique le début de la somme À TRAVERS la prise de u (posée sur
+       le point), la flèche suit la souris, il clique la fin et vérifie ; puis,
+       sur une somme nulle, il appuie sur « C'est le vecteur nul ». jsdom n'a
+       pas de mise en page : le glisser et le clic à travers une prise ne se
+       voient qu'ici. */
+    titre('6 quadragies decies. TROIS VECTEURS BOUT À BOUT : GLISSER DEPUIS LE POINT, TRACER OU DIRE « NUL »');
+    if(!P.sommeTroisVecteurs){
+      ignorer('u, v, w glissent bout à bout depuis le point, la somme se trace en deux clics, le vecteur nul se déclare',
+        'ce niveau n\'a pas l\'exercice des trois vecteurs bout à bout');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.sommeTroisVecteurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      await s.page.evaluate(() => {
+        const f = nul => ({ l: 'A', po: [2, 2], uo: [1, 8], uc: [3, 1], vo: [6, 2], vc: [1, 3], wo: [10, 8], wc: nul ? [-4, -4] : [2, -2], up: null, vp: null, wp: null, sd: null, sf: null, dn: 0 });
+        test.questions[0] = f(false); test.questions[1] = f(true); test.idx = 0; renderStv();
+        document.querySelector('#stvGraph .stv-svg').scrollIntoView({ block: 'center' });
+      });
+      await s.page.waitForTimeout(150);
+      const mes = await s.page.evaluate(() => {
+        const svg = document.querySelector('#stvGraph .stv-svg'), r = svg.getBoundingClientRect();
+        const dehors = [...document.querySelectorAll('#stvGraph text')].filter(t => { const b = t.getBoundingClientRect();
+          return b.left < r.left - 1 || b.right > r.right + 1 || b.top < r.top - 1 || b.bottom > r.bottom + 1; }).length;
+        const pr = document.querySelector('#stvPrises .svc-prise'), sm = document.getElementById('stv-sm'), b = document.getElementById('stvNul').getBoundingClientRect();
+        return { svg: r.width > 400 && r.height > 280, dehors: dehors, touche: pr ? getComputedStyle(pr).touchAction : '',
+          dessus: sm.getBoundingClientRect().bottom <= r.top + 1, bouton: b.width > 40 && b.height > 20 };
+      });
+      if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      if(mes.dehors) dits.push(mes.dehors + ' nom(s) sortent du dessin');
+      if(mes.touche !== 'none') dits.push('une prise fait défiler la page sous le doigt (touch-action : ' + mes.touche + ')');
+      if(!mes.dessus) dits.push('les consignes ne se lisent pas au-dessus du dessin');
+      if(!mes.bouton) dits.push('le bouton « C’est le vecteur nul » ne se voit pas');
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
+        const svg = document.querySelector('#stvGraph .stv-svg'), r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        return { px: r.left + (STV_PX + x * STV_C) * r.width / vb.width, py: r.top + (STV_PY + (STV_H - y) * STV_C) * r.height / vb.height };
+      }, [x, y]);
+      const glisser = async (k, vers) => {
+        const e = await s.page.evaluate(k => { const q = test.questions[test.idx]; return { p: stvP(q, k), c: stvC(q, k) }; }, k);
+        const a = await pos(e.p[0] + e.c[0] / 2, e.p[1] + e.c[1] / 2), b = await pos(vers[0] + e.c[0] / 2, vers[1] + e.c[1] / 2);
+        await s.page.mouse.move(a.px, a.py); await s.page.mouse.down();
+        await s.page.mouse.move(b.px, b.py, { steps: 12 }); await s.page.mouse.up();
+        await s.page.waitForTimeout(120);
+      };
+      const clic = async (x, y, dx) => { const p = await pos(x + (dx || 0), y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); return p; };
+      await glisser(0, [2, 2]); await glisser(1, [5, 3]); await glisser(2, [6, 6]);
+      const ch = await s.page.evaluate(() => { const q = test.questions[test.idx], c = stvChaine(q); return { u: q.up, v: q.vp, w: q.wp, ok: !!c }; });
+      if(!ch.ok) dits.push('u, v, w glissés à la souris ne sont pas bout à bout depuis A : ' + JSON.stringify(ch));
+      /* le début de la somme est SOUS la prise de u : l'appui sans glisser pose au nœud */
+      await clic(2, 2, 0.15);
+      const sd = await s.page.evaluate(() => JSON.stringify(test.questions[test.idx].sd));
+      if(sd !== '[2,2]') dits.push('le clic sur A, à travers la prise de u, ne pose pas le début de la somme : ' + sd);
+      const pm = await pos(5.4, 3.6); await s.page.mouse.move(pm.px, pm.py, { steps: 3 }); await s.page.waitForTimeout(80);
+      const vif = await s.page.evaluate(() => { const l = document.querySelector('#stvVif line'); if(!l) return null;
+        const svg = l.ownerSVGElement, m = svg.getScreenCTM(), p = svg.createSVGPoint(); p.x = +l.getAttribute('x2'); p.y = +l.getAttribute('y2'); const b = p.matrixTransform(m);
+        return { x: b.x, y: b.y, pe: getComputedStyle(l).pointerEvents }; });
+      if(!vif || Math.hypot(vif.x - pm.px, vif.y - pm.py) > 3 || vif.pe !== 'none') dits.push('le début posé, la flèche ne suit pas la souris : ' + JSON.stringify(vif));
+      await clic(8, 4);
+      await s.page.click('#stvValidate'); await s.page.waitForTimeout(300);
+      const juste = await s.page.evaluate(() => ({ ch: document.getElementById('stv-ch').className, sm: document.getElementById('stv-sm').className, score: test.score,
+        trace: [...document.querySelectorAll('#stvTrace line.svc-e')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        prises: document.querySelectorAll('#stvPrises .svc-prise').length }));
+      if(!/\bok\b/.test(juste.ch) || !/\bok\b/.test(juste.sm) || juste.score !== 2) dits.push('la construction juste : ' + juste.ch + ' / ' + juste.sm + ' (score ' + juste.score + ')');
+      if(juste.trace !== 1) dits.push('la somme tracée ne se voit pas');
+      if(juste.prises) dits.push('les flèches se saisissent encore après la correction');
+      /* la somme nulle : le bouton, sans rien faire glisser */
+      await s.page.click('#stvNext'); await s.page.waitForTimeout(300);
+      await s.page.click('#stvNul'); await s.page.waitForTimeout(100);
+      const nul = await s.page.evaluate(() => { const b = document.getElementById('stvNul'), cs = getComputedStyle(b);
+        return { dn: test.questions[test.idx].dn, presse: b.getAttribute('aria-pressed'), fond: cs.backgroundColor }; });
+      if(nul.dn !== 1 || nul.presse !== 'true') dits.push('le bouton « C’est le vecteur nul » ne se presse pas');
+      await s.page.click('#stvValidate'); await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ ch: document.getElementById('stv-ch').className, sm: document.getElementById('stv-sm').className, score: test.score,
+        vert: [...document.querySelectorAll('#stvCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        rouge: document.querySelectorAll('#stvGraph .svc-eb').length }));
+      if(!/\bsol\b/.test(fin.ch) || !/\bok\b/.test(fin.sm) || fin.score !== 3) dits.push('somme nulle déclarée, flèches non touchées : ' + fin.ch + ' / ' + fin.sm + ' (score ' + fin.score + ')');
+      if(fin.vert !== 3) dits.push('la chaîne attendue ne se trace pas en vert (' + fin.vert + ' traits)');
+      if(fin.rouge) dits.push('quelque chose rougit sur le dessin');
+      verifier('u, v, w glissent bout à bout depuis le point, la somme se trace en deux clics, le vecteur nul se déclare', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran des trois vecteurs bout à bout ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 undevicies. antécédents : la droite se fait GLISSER ===== */
     /* {antecedents-droite} : le geste central est un GLISSER — la droite suit
        le pointeur enfoncé et s'accroche à la graduation la plus proche — puis

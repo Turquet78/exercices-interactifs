@@ -3394,3 +3394,141 @@ sans repli ni perte de variété. Le banc relit les deux règles sur le DESSIN ;
 éprouvé par sabotage — sans la règle des 120°, « la chaîne fait demi-tour
 entre les flèches 1 et 2 » ; avec les distances d'avant, « le point E est à
 31 px d'une flèche de la chaîne qui ne le touche pas ».
+
+## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.15, v538 — commencé comme 8.2.11 en v528 ; les exercices du thème 8 fusionnés pendant les bancs ont pris tour à tour les numéros 8.2.11 à 8.2.14 et les versions v528 à v537)
+
+**La demande** (Turquet, octobre 2026). Dans la liste d'idées d'exercices sur
+les vecteurs, Turquet a retenu la n° 7 : « Trois vecteurs bout à bout ». Sur
+un quadrillage, trois vecteurs u⃗, v⃗, w⃗ ; l'élève construit u⃗ + v⃗ + w⃗ en
+les enchaînant bout à bout à partir d'un point, puis trace le vecteur somme.
+De temps en temps, la somme revient au point de départ : c'est le vecteur
+nul, et l'élève le déclare. Ajouté en dernier du sous-thème « Somme de
+vecteurs » : 8.2.15, rien ne se renumérote.
+
+**Un moteur à lui, les pièces du 8.2.1.** Kind `stv`, écran `scr-stv`. Le
+geste est celui du 8.2.10 (glisser ET tracer ouverts à tout moment, rien ne
+se fige ni ne verdit avant « Vérifier ») ; les pièces sont celles du 8.2.1 :
+`svcFleche` (avec la géométrie `STV_GEO`), `svcNomPos`, `svcEcart`, la prise
+`.svc-prise`, le point et la flèche qui suivent la souris (`#stvCurseur`,
+`#stvVif`). Le 8.2.1 n'a pas été touché : ses questions, son écran et son
+banc sont les mêmes. Le quadrillage est plus grand que le sien (14 × 10
+carreaux de 34 unités) : trois flèches, un point et la construction doivent
+y tenir sans se gêner.
+
+**Les choix faits sans demander** (la consigne était de décider les détails
+raisonnables) :
+- **Le point de départ est donné** (`q.l`, tiré parmi A, B, E, M, P ; posé
+  en croix, sa lettre dans le coin le plus loin des flèches qui le touchent,
+  la recette du 8.2.9). « À partir d'un point » rend le chaînage jugeable :
+  la première flèche part du point, chaque début sur la fin de la précédente,
+  DANS L'ORDRE QUE L'ÉLÈVE VEUT (`stvChaine` essaie les six ordres).
+- **Deux réponses notées par question** (`stvCases`, barème 12 pour six
+  questions) : le chaînage (`stv-ch`) et la somme (`stv-sm`), jugées chacune
+  SEULE. La somme est juste dès que la flèche tracée en est un représentant,
+  où qu'elle soit — comme au 8.2.1 : on juge le vecteur, pas la place. Une
+  somme juste tracée sans avoir bougé les flèches vaut son point ; le
+  chaînage, vide, se corrige en vert.
+- **w⃗ en pointillés serrés** (`.stv-w`), v⃗ en tirets comme au 8.2.1, u⃗ en
+  trait plein : trois traits qu'on distingue sans les couleurs, qui restent
+  à la vérification.
+- **Le vecteur nul se déclare par un bouton**, « C'est le vecteur nul »,
+  posé dans la consigne de la somme et offert à CHAQUE question : réservé aux
+  sommes nulles, sa seule présence aurait donné la réponse. Appuyé, il
+  s'encre en sombre avec une coche (`stv-nul-on`) — ni bleu, ni vert, ni
+  rouge : c'est ce que l'élève a dit, pas un verdict. Déclarer efface la
+  flèche tracée ; tracer efface la déclaration ; un second appui la retire.
+  On range `q.dn` (0 ou 1).
+- **Combien de sommes nulles** : une question sur six (`stvBuildQuestions` :
+  `max(1, round(n / 6))`, aucune sous trois questions), à une place tirée —
+  une séance normale de six en a exactement une. La place passe par le
+  second argument de la fabrique de `distinctes()` (l'indice de la question).
+
+**On range les flèches et le point, jamais la réponse** : `l`, `po`,
+`uo`/`uc`, `vo`/`vc`, `wo`/`wc`, puis `up`/`vp`/`wp` (null tant qu'une
+flèche n'a pas bougé), `sd`/`sf`, `dn`. La somme et sa nullité se
+recalculent (`stvSomme`, `stvNulle`).
+
+**Le tirage est lisible** (`stvGen`) : chemins de −4 à 4 carreaux (w⃗
+jusqu'à 5 quand il compense u⃗ + v⃗), chacun d'au moins deux carreaux, deux
+flèches jamais parallèles ni presque (|u⃗ × v⃗| ≥ 4 pour chaque paire : la
+première capture d'une somme nulle montrait un triangle si plat qu'il se
+lisait mal) ; une somme non
+nulle d'au moins deux carreaux ; la construction u⃗, v⃗, w⃗ depuis le point
+tient dans le quadrillage (la correction la dessine) ; les trois flèches à
+plus de 1,2 carreau l'une de l'autre, leurs six extrémités à deux carreaux
+et à un carreau du bord ; le point à un carreau et demi de chaque flèche,
+aucune ne part déjà de lui. Simulé sous Node : 1 000 figures normales et
+1 000 nulles, toutes différentes, le repli jamais atteint, quelques
+millisecondes la figure.
+
+**Les pièges nommés** (`stvPourquoi`) :
+- la construction qui ne part pas du point (« pose le début d'une des
+  flèches sur A ») ;
+- deux DÉBUTS ensemble, deux FINS ensemble ;
+- des flèches qui ne se suivent pas ;
+- la somme déclarée nulle à tort ;
+- une flèche tracée pour une somme nulle : « les trois flèches REVIENNENT à
+  leur point de départ » ;
+- la somme à l'envers ;
+- la somme de deux vecteurs seulement : « tu as oublié le vecteur w ».
+Tout message faux finit par le chemin des trois vecteurs et celui de la
+somme (ou « on revient au point de départ »).
+
+**La correction** : chaque case bleue, rouge, ou verte (`sol`) si elle était
+vide. Le chaînage faux ou vide : les trois flèches recopiées en vert, en
+pointillés, depuis le point, dans l'ordre u⃗, v⃗, w⃗ (`stvConstruction`) ;
+la somme fausse ou vide : la flèche verte « u⃗ + v⃗ + w⃗ » du point au bout
+de la construction — ou, nulle, un cercle vert autour du point
+(`.stv-nul-sol`), et la phrase « La somme était le vecteur nul » quand la
+case était vide. En soutien, le juste se fige (flèches ou somme), le faux
+rougit et reste à reprendre, rien ne se révèle (`soutienEnDirect.sans`,
+comme « svc »).
+
+**Le banc** (`sommeTroisVecteurs`, banc principal) a son propre juge : sur
+200 séances, sa propre arithmétique (pas `stvSomme`) — six questions, une
+somme nulle exactement, à chaque place au fil des séances, les clés rangées,
+flèches d'au moins deux carreaux et jamais parallèles, la construction dans
+le quadrillage, aucune figure servie deux fois ; puis sur une figure fixe,
+il relit le DESSIN — les lignes du quadrillage tracé, chaque flèche
+dessinée ramenée à ses nœuds — et refait la somme lui-même pour juger la
+flèche verte de la correction. Il tient aussi : la copie vide (deux `sol`,
+trois copies et une somme vertes, rien de rouge, « Il te manquait 2
+cases », 0 sur 2) ; la flèche retenue au bord ; la copie juste après le
+JSON de la pause ; un autre ordre (w⃗, u⃗, v⃗) et la somme tracée ailleurs ;
+les cinq pièges nommés ; la somme nulle (déclarer et tracer s'effacent l'un
+l'autre ; déclarer est juste ; tracer est faux et nommé ; la copie vide
+entoure le point en vert) ; le soutien ; le contexte du modèle.
+**Le banc navigateur** (« 6 quadragies decies ») fait l'exercice à la
+souris : les trois flèches glissées bout à bout depuis le point, le début de
+la somme cliqué À TRAVERS la prise de u⃗ posée sur le point, la flèche qui
+suit la souris, la fin, « Vérifier » (2 sur 2) ; puis une somme nulle
+déclarée au bouton (le chaînage vide se trace en vert, rien ne rougit). Il
+mesure aussi que les consignes se lisent au-dessus du dessin, qu'aucun nom
+n'en sort et que les prises ne font pas défiler la page.
+
+**Le piège du 8.1.9, retrouvé.** La première version du contrôle tirait
+ses 200 séances par `TESTS[…].start()` : 200 figures posées dans le DOM.
+Verte sur la machine de travail (dont le tas n'est pas plafonné), elle a
+épuisé les 4 Go du banc de la Seconde sur l'action (« heap out of memory »,
+plus loin, dans les contrôles Python). Le tirage passe désormais par
+`stvBuildQuestions()`, sans dessin ; un seul démarrage réel reste, pour le
+kind, le barème et le nombre de questions. Cela n'a pas suffi : main était
+déjà au bord des 4 Go (rejoué en local sous ce plafond, son banc n'avait pas
+fini en trente minutes). La cause — les observateurs de mutations du banc qui
+gardaient chaque nœud retiré — a été trouvée et corrigée par le 8.1.12,
+fusionné pendant les bancs ; le relèvement à 6 Go essayé ici a été retiré
+(`17-verification-et-bancs.md`).
+
+Quatre sabotages ont été attrapés par le banc principal, chacun nommé :
+- une somme tracée À L'ENVERS acceptée par le juge (« la somme à l'envers :
+  ok ») — le soutien, du même coup, s'est verrouillé sur une copie fausse ;
+- le message « tu as oublié le vecteur w » retiré ;
+- le cercle vert de la somme nulle retiré (la correction traçait une flèche
+  du point au point) ;
+- plus aucune somme nulle au tirage (« une séance a 0 somme(s) nulle(s) »).
+
+Ce qu'aucun banc ne voit : le glisser au DOIGT sur tablette (celui du 8.2.1,
+`touch-action:none`, jamais joué), et la place du nom « u⃗ + v⃗ + w⃗ ». La
+première capture l'a montré posé sur la lettre du point : `stvCoteDehors`
+compte désormais le point parmi ce qu'il faut fuir ; aucun banc ne mesure
+ce chevauchement.

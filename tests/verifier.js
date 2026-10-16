@@ -4564,6 +4564,7 @@ function exercices(suite){
     lireSommeDessin(w, P);
     sommeVecteursLibre(w, P);
     demontrerChasles(w, P);
+    sommeTroisVecteurs(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
     recurrenceLimite(w, P);
@@ -14237,6 +14238,164 @@ function sommeVecteursLibre(w, P){
     currentTestId='somme-vecteurs'; TESTS['somme-vecteurs'].start(); clearTimeout(test.fbTimer);
     if(!el('svc-ch') || el('svc-ch').textContent.indexOf('Étape 1')!==0 || !document.querySelector('#svcGraph text.svc-mot')) vus.push('le 8.2.1 a perdu ses étapes ou ses mots');
     currentTestId=D.exercice;
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {somme-trois-vecteurs} (Seconde, 8.2.15 — demande de Turquet, octobre
+   2026, l'idée n° 7) : trois flèches u, v, w et un point sur un quadrillage ;
+   l'élève les fait glisser bout à bout à partir du point, puis trace
+   u + v + w — ou, une question sur six, déclare le vecteur nul. Le juge de ce
+   banc ne prend pas les chemins dans la question : il relit le DESSIN — le
+   quadrillage tracé, chaque flèche dessinée — et refait la somme lui-même ;
+   le tirage est éprouvé par sa propre arithmétique, jamais par stvSomme. */
+function sommeTroisVecteurs(w, P){
+  const nom = 'trois vecteurs bout à bout : la place, le tirage (un vecteur nul par séance), le dessin relu, le glisser depuis le point, la somme ou le vecteur nul, les pièges nommés, une case vide ne rougit pas';
+  if(!P.sommeTroisVecteurs){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice des trois vecteurs bout à bout');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.sommeTroisVecteurs)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['somme-vecteurs-libre']!=='8.2.10' || TEST_NUM['chasles-inserer-point']!=='8.2.11' || TEST_NUM['demontrer-parallelogramme']!=='8.2.12' || TEST_NUM['lire-somme-dessin']!=='8.2.14') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS.stv!==RAP_STV || !QIA_SUGG.stv) vus.push('le rappel ou les questions à l\\'IA manquent');
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const fb=function(){ return el('stvFeedback').textContent; };
+    const plus=function(a,b){ return [a[0]+b[0],a[1]+b[1]]; }, eg=function(a,b){ return !!a&&!!b&&a[0]===b[0]&&a[1]===b[1]; };
+
+    /* 1. le tirage, sur 200 séances : sa propre arithmétique. UN SEUL
+       démarrage réel ; les 199 autres séances sont tirées par
+       stvBuildQuestions(), SANS dessin — 200 figures posées dans le DOM ont
+       épuisé les 4 Go du banc de l'action (la leçon du 8.1.9, retrouvée) */
+    const CLES='dn,l,po,sd,sf,uc,uo,up,vc,vo,vp,wc,wo,wp';
+    TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='stv') vus.push('kind « '+test.kind+' » au lieu de stv');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    if(test.questions.length!==D.nb) vus.push(test.questions.length+' questions au lieu de '+D.nb);
+    let nuls=0, places={};
+    for(let s=0;s<200;s++){
+      const qs=s?stvBuildQuestions():test.questions;
+      let n=0; const cles={};
+      qs.forEach(function(q,i){
+        if(Object.keys(q).sort().join(',')!==CLES) vus.push('la question range : '+Object.keys(q).sort().join(','));
+        const c=[q.uc,q.vc,q.wc], o=[q.uo,q.vo,q.wo], s3=[c[0][0]+c[1][0]+c[2][0], c[0][1]+c[1][1]+c[2][1]];
+        const nul=s3[0]===0&&s3[1]===0; if(nul){ n++; places[i]=1; }
+        if(!nul && Math.max(Math.abs(s3[0]),Math.abs(s3[1]))<2) vus.push('une somme de moins de deux carreaux : '+s3);
+        c.forEach(function(v,k){ if(Math.max(Math.abs(v[0]),Math.abs(v[1]))<2) vus.push('une flèche de moins de deux carreaux');
+          for(let m=k+1;m<3;m++) if(Math.abs(v[0]*c[m][1]-v[1]*c[m][0])<4) vus.push('deux flèches (presque) parallèles : '+v+' et '+c[m]);
+          const f=plus(o[k],v); if(f[0]<1||f[0]>STV_W-1||f[1]<1||f[1]>STV_H-1||o[k][0]<1||o[k][0]>STV_W-1||o[k][1]<1||o[k][1]>STV_H-1) vus.push('une flèche touche le bord');
+          if(eg(o[k],q.po)) vus.push('une flèche part déjà du point'); });
+        let p=q.po; c.forEach(function(v){ p=plus(p,v); if(p[0]<0||p[0]>STV_W||p[1]<0||p[1]>STV_H) vus.push('la construction depuis le point sort du quadrillage'); });
+        const cle=JSON.stringify([q.po,q.uo,q.uc,q.vo,q.vc,q.wo,q.wc]); if(cles[cle]) vus.push('deux fois la même figure dans une séance'); cles[cle]=1;
+      });
+      if(n!==D.nuls) vus.push('une séance a '+n+' somme(s) nulle(s) au lieu de '+D.nuls);
+      nuls+=n;
+      if(vus.length) break;
+    }
+    if(Object.keys(places).length<D.nb) vus.push('le vecteur nul ne tombe jamais à certaines places : '+Object.keys(places).join(','));
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* 2. la figure fixe, relue sur le DESSIN : le quadrillage tracé, chaque flèche */
+    const fiche=function(nul){ return {l:'A', po:[2,2], uo:[1,8], uc:[3,1], vo:[6,2], vc:[1,3], wo:[10,8], wc:nul?[-4,-4]:[2,-2], up:null, vp:null, wp:null, sd:null, sf:null, dn:0}; };
+    for(let k=0;k<6;k++) test.questions[k]=fiche(k===5);
+    test.idx=0; test.locked=false; renderStv();
+    const grille=function(){ const xs={}, ys={};
+      document.querySelectorAll('#stvGraph line.vec-grid').forEach(function(l){ if(l.getAttribute('x1')===l.getAttribute('x2')) xs[+l.getAttribute('x1')]=1; else ys[+l.getAttribute('y1')]=1; });
+      return {xs:Object.keys(xs).map(Number).sort(function(a,b){ return a-b; }), ys:Object.keys(ys).map(Number).sort(function(a,b){ return b-a; })}; };
+    const G=grille();
+    const noeud=function(x,y){ let bi=0, bj=0; G.xs.forEach(function(v,i){ if(Math.abs(v-x)<Math.abs(G.xs[bi]-x)) bi=i; }); G.ys.forEach(function(v,j){ if(Math.abs(v-y)<Math.abs(G.ys[bj]-y)) bj=j; }); return [bi,bj]; };
+    const lu=function(cls){ const l=document.querySelector('#stvFl line.'+cls); if(!l) return null;
+      const a=noeud(+l.getAttribute('x1'),+l.getAttribute('y1')), b=noeud(+l.getAttribute('x2'),+l.getAttribute('y2')); return {d:a, c:[b[0]-a[0],b[1]-a[1]]}; };
+    if(G.xs.length!==STV_W+1 || G.ys.length!==STV_H+1) vus.push('le quadrillage dessiné a '+G.xs.length+' × '+G.ys.length+' lignes');
+    const fu=lu('svc-u'), fv=lu('svc-v'), fw=lu('stv-w');
+    if(!fu||!fv||!fw) return 'les trois flèches ne sont pas dessinées';
+    if(JSON.stringify([fu,fv,fw])!==JSON.stringify([{d:[1,8],c:[3,1]},{d:[6,2],c:[1,3]},{d:[10,8],c:[2,-2]}])) vus.push('le dessin ne montre pas les flèches de la question : '+JSON.stringify([fu,fv,fw]));
+    const S=[fu.c[0]+fv.c[0]+fw.c[0], fu.c[1]+fv.c[1]+fw.c[1]];
+    const noms=Array.from(document.querySelectorAll('#stvFl text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',');
+    if(noms!=='u,v,w') vus.push('le dessin ne nomme pas u, v et w : '+noms);
+    if(!document.querySelector('#stvFl .stv-pt') || (document.querySelector('#stvFl .stv-lettre')||{}).textContent!=='A') vus.push('le point A n\\'est pas dessiné avec sa lettre');
+    if(document.querySelectorAll('#stvPrises .svc-prise').length!==3) vus.push('les trois flèches n\\'ont pas leur prise pour glisser');
+    if(!el('stvInstr').classList.contains('enonce')) vus.push('l\\'énoncé n\\'est pas dans un élément .enonce');
+    if(!el('stv-ch')||!el('stv-sm')||!el('stv-ch').classList.contains('pts-case')||!el('stv-sm').classList.contains('pts-case')) vus.push('les deux réponses ne sont pas des pts-case');
+    if(!el('stvNul') || !el('stv-sm').contains(el('stvNul'))) vus.push('le bouton « C’est le vecteur nul » n\\'est pas dans la consigne de la somme');
+    const verifierIci=function(){ const av=test.score; checkStv(); clearTimeout(test.fbTimer); return test.score-av; };
+
+    /* 3. vérifier à vide : deux sol, la construction verte (trois copies et la somme), rien de rouge */
+    verifierIci();
+    if(classe('stv-ch')!=='sol' || classe('stv-sm')!=='sol') vus.push('vérifier à vide : '+classe('stv-ch')+' et '+classe('stv-sm')+' au lieu de sol');
+    if(document.querySelector('#stvGraph .svc-eb, #stvGraph .badc')) vus.push('vérifier à vide rougit quelque chose');
+    if(document.querySelectorAll('#stvCorr line.svc-s.svc-copie').length!==3 || document.querySelectorAll('#stvCorr line.svc-s:not(.svc-copie)').length!==1) vus.push('la construction attendue n\\'est pas tracée en vert (trois copies, une somme)');
+    const vert=document.querySelector('#stvCorr line.svc-s:not(.svc-copie)');
+    if(vert){ const a=noeud(+vert.getAttribute('x1'),+vert.getAttribute('y1')), b=noeud(+vert.getAttribute('x2'),+vert.getAttribute('y2'));
+      if(!eg(a,[2,2]) || b[0]-a[0]!==S[0] || b[1]-a[1]!==S[1]) vus.push('la somme verte va de '+a+' à '+b+' — le dessin dit '+S); }
+    if(fb().indexOf('Il te manquait 2 cases')<0) vus.push('le message ne dit pas « Il te manquait 2 cases » : '+fb().slice(0,90));
+    const a0=test.answers[test.answers.length-1];
+    if(!a0||a0.correct||a0.cases!==2||a0.justes!==0) vus.push('la réponse enregistrée ne compte pas 0 case juste sur 2');
+
+    /* 4. la copie juste : u, v, w depuis A, la somme tracée du début à la fin, après le JSON de la pause */
+    nextStv();
+    if(stvDeplacer(0,[20,20])!==true || JSON.stringify(test.questions[1].up)!=='['+(STV_W-3)+','+(STV_H-1)+']') vus.push('une flèche tirée hors du quadrillage n\\'y est pas retenue : '+JSON.stringify(test.questions[1].up));
+    stvDeplacer(0,[2,2]); stvDeplacer(1,[5,3]); stvDeplacer(2,[6,6]);
+    if(!stvChaine(test.questions[1])) vus.push('u, v, w mis bout à bout depuis A ne font pas une chaîne');
+    stvPose(2,2); stvPose(2+S[0],2+S[1]);
+    if(el('stvTrace').querySelectorAll('line.svc-e').length!==1) vus.push('la somme ne se trace pas au second clic');
+    const avant=JSON.stringify(test.questions[1]);
+    test.questions[1]=JSON.parse(avant); renderStv();
+    if(JSON.stringify(test.questions[1])!==avant || el('stvTrace').querySelectorAll('line.svc-e').length!==1) vus.push('la question ne se redessine pas après le JSON');
+    if(verifierIci()!==2 || classe('stv-ch')!=='ok' || classe('stv-sm')!=='ok') vus.push('la copie juste vaut '+test.score+' : '+classe('stv-ch')+' '+classe('stv-sm'));
+    if(el('stvCorr').children.length) vus.push('la correction se montre alors que tout est juste');
+
+    /* 5. un autre ordre (w, u, v) et la somme tracée ailleurs : juste */
+    nextStv();
+    stvDeplacer(2,[2,2]); stvDeplacer(0,[4,0]); stvDeplacer(1,[7,1]); stvPose(0,0); stvPose(S[0],S[1]);
+    if(verifierIci()!==2) vus.push('w, u, v depuis A et la somme tracée ailleurs : '+classe('stv-ch')+' '+classe('stv-sm'));
+
+    /* 6. les pièges, chacun nommé */
+    const piege=function(gestes, id, re, quoi){ nextStv(); gestes(); verifierIci();
+      if(classe(id)!=='bad' || !re.test(fb())) vus.push(quoi+' : '+classe(id)+' — '+fb().slice(0,120)); };
+    test.idx=2;
+    piege(function(){ stvDeplacer(0,[2,2]); stvDeplacer(1,[2,2]); }, 'stv-ch', /deux DÉBUTS/, 'deux débuts ensemble');
+    piege(function(){ stvDeplacer(0,[3,3]); stvDeplacer(1,[6,4]); stvDeplacer(2,[7,7]); }, 'stv-ch', /part du point A/, 'la construction qui ne part pas de A');
+    test.questions[5]=fiche(false); test.questions[2]=fiche(false); test.questions[3]=fiche(false); test.questions[4]=fiche(false);
+    test.idx=1; test.locked=false;
+    piege(function(){ stvPose(8,4); stvPose(2,2); }, 'stv-sm', /à l’envers/, 'la somme à l’envers');
+    piege(function(){ stvPose(2,2); stvPose(6,6); }, 'stv-sm', /oublié le vecteur w/, 'la somme qui oublie w');
+    piege(function(){ stvNul(); }, 'stv-sm', /n’est pas le vecteur nul/, 'le vecteur nul déclaré à tort');
+    if(classe('stv-ch')!=='sol') vus.push('le chaînage non touché rougit : '+classe('stv-ch'));
+
+    /* 7. la somme nulle : déclarer est juste, tracer est faux et nommé, la copie vide montre le point en vert */
+    const nulle=function(){ test.questions[0]=fiche(true); test.idx=0; test.locked=false; renderStv(); };
+    nulle(); stvPose(1,1); stvPose(3,3); stvNul();
+    if(test.questions[0].sd || test.questions[0].dn!==1 || el('stvTrace').children.length || !el('stvNul').classList.contains('stv-nul-on')) vus.push('déclarer nul n\\'efface pas la flèche ou ne s\\'affiche pas');
+    stvPose(1,1);
+    if(test.questions[0].dn!==0 || el('stvNul').classList.contains('stv-nul-on')) vus.push('tracer n\\'efface pas la déclaration');
+    stvPose(1,1); stvNul(); stvDeplacer(0,[2,2]); stvDeplacer(1,[5,3]); stvDeplacer(2,[6,6]);
+    if(verifierIci()!==2 || classe('stv-sm')!=='ok' || el('stvCorr').children.length) vus.push('la somme nulle déclarée et la chaîne juste : '+classe('stv-ch')+' '+classe('stv-sm'));
+    nulle(); stvPose(2,2); stvPose(5,5); verifierIci();
+    if(classe('stv-sm')!=='bad' || !/REVIENNENT/.test(fb()) || !document.querySelector('#stvCorr .stv-nul-sol') || document.querySelector('#stvCorr line.svc-s:not(.svc-copie)')) vus.push('une flèche tracée pour une somme nulle : '+classe('stv-sm')+' — '+fb().slice(0,120));
+    nulle(); verifierIci();
+    if(classe('stv-sm')!=='sol' || !/vecteur nul/.test(fb()) || document.querySelector('#stvGraph .svc-eb')) vus.push('la copie vide d\\'une somme nulle : '+classe('stv-sm')+' — '+fb().slice(0,120));
+
+    /* 8. le soutien : le faux rougit, le juste se fige, rien ne se révèle */
+    currentMode='soutien'; TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    test.questions[0]=fiche(false); test.idx=0; renderStv();
+    stvDeplacer(0,[2,2]); stvDeplacer(1,[5,3]); stvDeplacer(2,[6,6]); stvPose(8,4); stvPose(2,2); verifierIci();
+    if(test.locked || classe('stv-sm')!=='bad' || classe('stv-ch')!=='ok' || el('stvCorr').children.length) vus.push('soutien, somme fausse : '+classe('stv-ch')+' '+classe('stv-sm')+(test.locked?' verrouillé':''));
+    if(document.querySelectorAll('#stvPrises .svc-prise').length || stvDeplacer(0,[3,3])) vus.push('soutien : la chaîne juste ne se fige pas');
+    stvPose(2,2); stvPose(8,4); verifierIci();
+    if(!test.locked || classe('stv-sm')!=='ok') vus.push('soutien, juste : '+classe('stv-sm'));
+    currentMode='train';
+
+    /* 9. le contexte du modèle */
+    test.questions[0]=fiche(true); test.idx=0; test.locked=false; renderStv();
+    const ctx=conseilCtxCourant();
+    if(ctx.indexOf('STRICTEMENT SECRÈTE')<0 || ctx.indexOf('vecteur nul')<0 || ctx.indexOf('w (')<0) vus.push('le contexte du modèle ne décrit pas l\\'exercice : '+ctx.slice(0,120));
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
