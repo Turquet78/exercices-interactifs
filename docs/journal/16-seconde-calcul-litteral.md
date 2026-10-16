@@ -620,3 +620,46 @@ case ; puis les pièges : « 15 » sans son signe (rouge seul, message qui le
 nomme), −15 pour (−3) × (−5), 2x dans la bulle verte (message qui suit la
 flèche), « −20x−6x » non réduit et −14x (message de la grande accolade), 8x
 pour 4x × 2x, deux cases vides (la correction, jamais rouge), le barème de 60.
+
+## {developper-double-nu} — la double distributivité sans les flèches (7.11, v524)
+
+**La demande** (Turquet, octobre 2026) : « en seconde faire le même exercice
+que le 7.10 mais sans afficher les flèches, les formes qui entourent les
+nombres et sans les accolades ». C'est le 7.10 sans son échafaudage : les
+mêmes quatre pages, les mêmes quinze cases à la même place, le même juge et le
+même exemple — seul le dessin tombe.
+
+**Un moteur, deux identités.** Le 7.11 n'a rien recopié : les fonctions du
+7.10 lisent leur préfixe sur `test.kind` (`dvdP()` : « dvd » ou « dvn ») —
+cases `dvn-f-…`, `dvn-t-…`, `dvn-r-…`, écran `scr-dvn` —, `startDvd('dvn')`
+pose `kind:'dvn'` et `qId:'developper-double-nu'`, et `dvdSchema(…, nu)`
+remplace chaque bulle par un simple `.dvl-nb`, sans `<svg>` ni `data-fl` /
+`data-acc`. `dvlSuivre` n'est pas appelé : il n'y a rien à tracer. Le barème
+se calcule APRÈS l'`Object.assign` du kind, puisque `dvdCases` le lit.
+
+**Sans bulle, la case d'un facteur prend le cadre des autres**
+(`.dvn-schema .dvl-in.dvl-f`) : la case ronde sans bordure du 7.10 ne se
+voyait que dans sa bulle. La place que prenaient les flèches (46 px au-dessus,
+70 px sous la première ligne) et les accolades (30 px entre les rangées) se
+rend.
+
+**Ce qui parlait du dessin se reformule** : la consigne ne nomme plus ni
+couleur ni flèche (« le premier terme par le premier, puis par le second ; le
+second terme par le premier, puis par le second ») ; le pourquoi d'un facteur
+faux nomme les termes (« Le produit 2 multiplie le premier terme de la
+première parenthèse par le second terme de la seconde ») ; celui de la
+réduction ne parle plus de grande accolade. Dans l'exemple, un facteur
+négatif qui suit un « × » ou ouvre un produit prend ses parenthèses
+(« + (−3) × (−5) ») : la bulle ne les délimite plus. Les cases, elles,
+acceptent « −5 » comme « (−5) ».
+
+**Le juge** (`tests/verifier.js`, « développer avec la double distributivité
+sans les flèches ») : la place (7.11, le 7.10 immobile), l'identité (kind,
+qId, écran, barème de 60), puis la fiche du 7.10 au bouton avec des réponses
+écrites à la main — la copie juste de chaque page (15 cases), AUCUN dessin
+(ni `.dvl-bul`, ni `svg`, ni flèche ni accolade déclarée, ni mot de couleur),
+une consigne sans « flèche », « bulle » ni « accolade » ; l'exemple sans case,
+avec « (−3) × 2x » ; les pièges : « 15 » sans son signe (rouge seul, message
+nommé), le produit croisé (message qui nomme les termes, jamais la flèche),
+−14x (message sans accolade), deux cases vides (la correction) ; enfin le
+7.10 relancé garde ses bulles et ses cases `dvd-…`.
