@@ -1864,6 +1864,35 @@ puis 0000 une fois vérifié), trace une flèche fausse (pas de vert, pas de
 nom, pas de prise, le cadre qui le dit) ; le banc navigateur le rejoue à la
 souris et mesure le fond bleu du cadre à faire.
 
+**Puis le tracé s'est fait à la croix, une flèche a suivi la souris, et toutes les pointes se sont affinées (v521).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.8, quand il faut tracer un
+vecteur, mettre une croix sur la pointe de la flèche de la souris, puis quand
+on clique tracer un vecteur de ce point jusqu'à la pointe de la flèche de la
+souris ; quand on reclique le vecteur se fixe. Dans cet exercice tous les
+vecteurs dessinés doivent avoir une pointe plus fine. » **La croix** :
+`#cpsCurseur`, qui ne se montrait qu'à la dernière étape, se montre aussi
+tant qu'une flèche reste à tracer (`!cpsEtapes(q)[1]`) — sans la lettre A′,
+qui n'appartient qu'au point à placer. Le début posé se marque lui aussi
+d'une croix (`cpsCroix` prend `.deb` : le rond qui le marquait est caché sur
+ce dessin depuis la v514, le début posé ne se voyait plus). **La flèche qui
+suit la souris** : la recette de `svcVif` (8.2.1), un calque `#cpsVif` sans
+clic, sous la croix ; du début posé jusqu'à la souris elle-même, dans le
+style de la flèche qu'on trace (trait plein `svc-u` ou pointillés `svc-v`,
+à 80 %) ; elle s'efface au second clic, au début retiré, quand la souris
+quitte le dessin, et ne vit pas au doigt. Le clic de l'hôte va désormais au
+nœud le plus proche AUSSI pendant le tracé — le paragraphe de la v509 le
+refusait parce qu'un tel clic aurait posé un bout de flèche « à l'aveugle » :
+la croix sous la souris lui rend la vue. Il appelle `curseur` après chaque
+clic, celui d'un nœud compris, pour que la flèche parte dès le début posé.
+**Les pointes** : les six marqueurs du dessin (`pointe` dans `cpsSVG`)
+gardent leur longueur et perdent un tiers de leur largeur (`M0 1.8L10 5L0
+8.2z`) — tracées, glissées, corrigées, AA′ et la flèche vive : ce dessin
+seulement. Le banc navigateur (« 6 quadragies sexies ») mesure la croix sans
+lettre sur la souris avant le tracé, la croix du début posé, la flèche du
+nœud B (à 2 px) jusqu'à la souris (à 3 px), pointe comprise et sans clic,
+qui suit la souris qui bouge et s'efface à la fin fixée, puis le tracé de
+chaque pointe.
+
 ## {point-somme-difference} — construire un point par une somme ou une différence de deux vecteurs (8.15, v498)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
