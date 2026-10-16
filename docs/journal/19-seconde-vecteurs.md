@@ -2014,6 +2014,22 @@ croix A′ qui suit la souris avec sa lettre. Le banc navigateur (« 6
 quadragies sexies ») renverse ses deux mesures : aucune croix visible sous la
 souris, avant le tracé ni le début posé ; la flèche vive est toujours mesurée.
 
+**Puis la flèche fausse s'est peinte en ROUGE dès le tracé (v530).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.8 mettre les vecteurs en
+rouge si la réponse de l'élève ne correspond pas à ce qui est demandé. »
+Depuis la v517, une flèche tracée qui n'est pas le bon vecteur restait au
+dessin sans nom ni prise, dans l'encre de la flèche à tracer ; son cadre
+seul disait « Ce n’est pas le vecteur … ». `cpsDessiner` la peint désormais
+`svc-eb` (trait et pointe rouges, `cpsArrB`) dès qu'elle est tracée, sans
+attendre la vérification — même logique que le cadre, qui le disait déjà :
+le prix nommé à la v517 (l'élève l'apprend avant de vérifier, en évaluation
+aussi) ne change pas. Une flèche juste garde son encre jusqu'à la
+vérification ; le clic suivant retrace la fausse, et le rouge part avec
+elle. La règle « une case vide ne rougit jamais » n'est pas touchée : seule
+une flèche tracée peut rougir. Le juge lit `svc-eb` et `cpsArrB` sur la
+flèche fausse ; le banc navigateur (« 6 quadragies sexies ») mesure la
+dominante rouge de son trait calculé.
+
 ## {point-somme-difference} — construire un point par une somme ou une différence de deux vecteurs (8.15, v498)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
