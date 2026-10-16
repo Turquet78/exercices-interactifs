@@ -17,6 +17,32 @@ const path = require('path');
 const { JSDOM } = require('jsdom');
 
 const SUBSTITUT = `<script>
+/* LES RELEVÉS DES OBSERVATEURS DE MUTATIONS SE DÉLIVRENT À LA FIN DE CHAQUE
+   CONTRÔLE (octobre 2026). Un MutationObserver ne reçoit ses relevés qu'au
+   retour de la main (une microtâche), et chaque relevé garde en vie les nœuds
+   RETIRÉS du DOM. Le banc enchaîne des centaines de contrôles sans jamais
+   rendre la main : chaque écran redessiné restait en mémoire, et la Seconde a
+   fini par épuiser les 4 Go de l'action (« heap out of memory », au 8.1.11).
+   La page crée ses observateurs avec cette classe ; evaluer() (tests/
+   verifier.js) appelle __viderObservateurs() après chaque contrôle, qui leur
+   délivre ce qui attend, comme le navigateur au retour de la main. */
+(function(){
+  const MO=window.MutationObserver; if(typeof MO!=='function') return;
+  const vivants=new Set();
+  window.MutationObserver=class extends MO{
+    constructor(cb){ super(cb); this.__cb=cb; }
+    observe(c,o){ vivants.add(this); return super.observe(c,o); }
+    disconnect(){ vivants.delete(this); return super.disconnect(); }
+  };
+  window.__viderObservateurs=function(){
+    for(let tour=0; tour<5; tour++){
+      let rien=true;
+      vivants.forEach(function(o){ const r=o.takeRecords(); if(!r.length) return; rien=false;
+        try{ o.__cb.call(o, r, o); }catch(e){ setTimeout(function(){ throw e; }, 0); } });
+      if(rien) return;
+    }
+  };
+})();
 class __MathFieldFactice extends HTMLElement {
   get value(){ return this.__v || ''; }   set value(v){ this.__v = String(v); }
   getValue(){ return this.__v || ''; }    setValue(v){ this.__v = String(v); }

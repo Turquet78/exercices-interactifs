@@ -2849,7 +2849,230 @@ redessinait l'écran à chaque copie essayée (~25 rendus, 8,3 Mo retenus) ; il
 ne redessine plus que quand la question change et remet sinon les cases à
 zéro — 2,9 Mo retenus, mesurés avec `--expose-gc`.
 
-## {demontrer-chasles} — démontrer une égalité avec Chasles (8.2.13, v533 — prévu 8.2.11 en v528 ; pendant sa rédaction, v528 à v532 ont été prises par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et le 8.2.12, le 8.2.11 par {chasles-inserer-point} et le 8.2.12 par {demontrer-parallelogramme})
+## {milieu-vecteurs-egaux} — milieux et vecteurs égaux (8.1.12, v534)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées proposées sur les
+vecteurs égaux, Turquet a retenu la n° 5 : « Milieu et vecteurs égaux » — un
+triangle et les milieux de ses côtés, qui découpent trois parallélogrammes ;
+traduire « I est le milieu de [AB] » par une égalité de vecteurs, sans aucune
+multiplication par un réel, puis écrire tous les vecteurs égaux à un vecteur
+donné, comme au 8.1.3. Ajouté en dernier du sous-thème « Vecteurs égaux » :
+8.1.11, rien ne se renumérote — et le numéro a changé en route : écrit en 8.1.10 et v528, l'exercice a trouvé à la fusion de `main` le 8.1.10 pris par {vrai-faux-vecteurs} (une autre session, le même jour) et la v529 avec lui ; puis la v530, prise à son tour par le 8.2.8 et le 8.2.11 pendant que l'action tournait — le contrôle « version » l'a vu. Puis la v531, prise par le 8.2.9 et le 8.1.10 retouchés. Puis la v532, prise par le 8.2.12. Le dernier arrivé prend le suivant : v533. Les détails ci-dessous ont été décidés sans
+aller-retour, comme la demande le voulait.
+
+**La figure est tirée, jamais dessinée à la main.** Quatre formes
+(`VMI_FORMES` : quelconque, isocèle, rectangle, obtusangle) ; la base sur
+[0 ; 1], le troisième sommet au-dessus, puis une rotation de −30° à 30°, un
+miroir horizontal et/ou vertical, et les sommets permutés (le côté de la
+base n'est pas toujours le premier). Un triangle dont le plus petit angle
+passe sous 28° est retiré : à 24°, la première capture montrait un
+obtusangle si plat que ses milieux se serraient contre les côtés. Six
+lettres tirées (`VMI_LETTRES`, sans O, Q, ni W à Z) : les sommets dans
+l'ordre alphabétique, les milieux aussi. `n[0] n[1] n[2]` sont les sommets,
+`n[3+k]` le milieu du côté k, de `n[k]` à `n[k+1]`.
+
+**Cinq lignes, sept cases par figure** (`VMI_PLAN`), trois figures par
+séance (`VMI_NB`, `dmNbQuestions`), barème 21 :
+- **le milieu** : « « I est le milieu de [AB] » s'écrit, avec les points A,
+  I et B : AI = … ». La tête est AI, IB, IA ou BI ; la réponse est l'unique
+  vecteur du segment qui fait le même chemin. La phrase NOMME les trois
+  points : KJ est aussi égal à AI, mais c'est le parallélogramme qui le dit,
+  pas le milieu — le message le dit en ces termes (`ailleurs`), plutôt que
+  de compter faux une égalité vraie sans prévenir ;
+- **l'équivalence** : « AI = IB équivaut à : I est le milieu du segment
+  [ … ] », sur un AUTRE côté ; [AB] et [BA] sont justes, crochets tapés
+  ignorés. Le milieu écrit comme extrémité est nommé (`milieu`) ;
+- **le côté du triangle des milieux** : « JK = … », une case, tout vecteur
+  égal est juste. Il suit le TROISIÈME côté ;
+- **deux lignes « u = … = … »** comme au 8.1.3 (ordre libre, un vecteur
+  écrit deux fois n'est juste qu'une fois), sur les côtés des deux premières
+  lignes, dans le SENS CONTRAIRE de ce qu'elles affichent. La première
+  version prenait n'importe quel sens : la capture a montré « RG = … » en
+  tête de la ligne du milieu ET de la ligne « tous » — et « MB = BE », écrit
+  en toutes lettres dans la ligne de l'équivalence, donnait les réponses
+  d'une ligne « tous ». Le sens contraire ferme les deux.
+
+**Les pièges nommés** (`vmiPourquoi`, sur la première case fausse) :
+l'opposé (« même direction, même longueur, mais sens contraire »), le
+segment entier ou le côté entier (« le milieu partage le segment en deux
+moitiés », « un côté du triangle des milieux mesure la MOITIÉ du côté qui
+lui est parallèle »), une autre direction, le vecteur de tête recopié (« on
+cherche un AUTRE vecteur »), un doublon, une écriture illisible, et pour le
+segment, le milieu pris pour une extrémité ou un autre segment.
+
+**Le dessin** (`vmiSvg`) : les traits et les lettres du 8.3, les côtés du
+triangle des milieux un peu plus fins. Une lettre de sommet se pose dans le
+prolongement du centre de gravité vers le sommet — l'angle opposé par le
+sommet est libre de tout trait —, une lettre de milieu le long de la normale
+sortante de son côté (les côtés du triangle des milieux partent vers
+l'intérieur). Un halo blanc (`paint-order:stroke`) garde les lettres lisibles
+sous une flèche. La ligne choisie (focus ou clic) prend un liseré violet et
+son vecteur de tête une flèche violette (les deux vecteurs pour la ligne de
+l'équivalence), la saisie une flèche violet clair. Une fois la page
+VERROUILLÉE : juste en bleu, faux en rouge, correction en vert ; en soutien
+rien ne se révèle (la condition est `test.locked`).
+
+**Un clic sur un point écrit sa lettre** (`vmiClicPt`) dans la dernière case
+choisie, ou la première case libre de la ligne montrée : deux clics font un
+vecteur, un troisième recommence la case. Chaque point porte une cible ronde
+de 16 px (`circle.vmi-cible`), distincte du point dessiné (`circle.vmi-pt`).
+
+**Le badge vert sort de la colonne.** La case d'un vecteur est, comme au
+8.3, une colonne flèche + case (`.veg-v`) ; `corrChoix` pose le badge de la
+correction juste après la case, donc DANS la colonne, sous elle : la
+capture montrait la case soulevée et la rangée cassée. `checkVmiAnswer`
+déplace le badge après la colonne.
+
+**On range les sommets, les lettres et les vecteurs de tête** (`f`, `p`,
+`n`, `lignes[].t`, `lignes[].u`), jamais les réponses : `vmiLignes`
+recalcule les familles depuis les coordonnées.
+
+**Le banc** (`milieuVecteursEgaux`, banc principal) a un juge qui ne lit PAS
+les lettres de la question. Il relit le DESSIN comme du TEXTE (`vmiSvg(q)`,
+la leçon du 8.1.9 : rien n'est posé dans le DOM) : la place de chaque point,
+la lettre la plus proche. Il y trouve LUI-MÊME les trois milieux (un point au
+milieu de deux autres), puis recalcule chaque famille de vecteurs égaux.
+Sur 150 séances : six points nommés et distincts ; les milieux que l'énoncé
+annonce sont ceux du dessin ; aucun angle sous 20° ; aucune lettre à moins
+de 9 px d'un trait ni hors du dessin ; le plan des lignes ; la réponse du
+milieu, le segment de l'équivalence, chaque famille, égaux à ceux du dessin ;
+le milieu et l'équivalence sur deux côtés différents ; trois directions
+différentes pour les trois dernières lignes ; aucune ligne « tous » ne
+montre ni n'attend un vecteur écrit plus haut ; les quatre formes, les deux
+orientations, au moins 100 jeux de lettres. Puis une figure fixe (ABC, I, J,
+K), par le bouton : les phrases, la copie juste en minuscules, crochets et
+désordre (7/7), dix pièges peints en rouge et nommés, le premier d'un doublon
+resté bleu, le badge, les flèches rouge et verte, la case vide en
+correction, la copie vide sans rouge, le clic (deux lettres, puis on
+recommence), le redessin après le JSON, le soutien qui peint sans révéler ni
+verrouiller, le contexte du modèle.
+
+Cinq sabotages ont été attrapés :
+- la réponse du milieu prise dans toute la famille : « la page attend JH TN,
+  le dessin TN » ;
+- les milieux décalés d'un côté (l'énoncé et le dessin se contredisent) ;
+- le mot « OPPOSÉ » retiré du message — et ce sabotage a montré un défaut
+  réel : pour IA écrit à la place de IB, le message disait « C'est AI qui est
+  égal à AI » ; il dit désormais « un vecteur égal à AI va, lui aussi, de A
+  vers I » ;
+- les lignes « tous » remises dans le sens affiché : « la ligne de RN reprend
+  RN, écrit plus haut » ;
+- la correction montrée sur le dessin en soutien.
+## {translation-antecedent} — retrouver un point dont on connaît l'image (8.1.12, v534)
+
+**La demande** (Turquet, octobre 2026). C'est l'idée n° 2 de la liste proposée
+par Claude : « antécédent par une translation ». C'est le chemin INVERSE du
+8.1.4. Sur un quadrillage, un vecteur u⃗ est dessiné, ainsi que trois points
+A′, B′, C′, images de A, B et C par la translation de vecteur u⃗. L'élève
+place A, B et C d'un clic. L'exercice est ajouté en dernier du sous-thème
+« Vecteurs égaux », après le vrai ou faux du 8.1.10 et les milieux du
+8.1.11, fusionnés le même jour pendant que celui-ci attendait son action :
+8.1.12, rien ne se renumérote.
+
+**Le piège visé, et nommé** : suivre u⃗ depuis A′. On obtient alors l'IMAGE
+de A′, pas son antécédent. Le message le dit en clair : « tu as suivi u⃗ en
+partant de A′. Or c'est de A qu'on part pour arriver en A′ : depuis A′, il
+faut suivre u⃗ À L'ENVERS, c'est-à-dire le vecteur −u⃗ ». Le rappel (`RAP_TAN`)
+en fait son point ③, et le contexte du modèle le signale sur le point fautif
+(« l'élève a suivi u au lieu de −u »).
+
+Trois autres erreurs sont nommées (`tanPourquoi`) :
+- le point posé SUR A′ : « il faut que AA′⃗ soit égal à u⃗, qui n'est pas
+  nul » ;
+- l'antécédent d'un AUTRE point (A posé à la place de B) ;
+- sinon, le chemin de AA′ comparé à celui de u⃗, en carreaux (`vecMots`).
+
+**Le tirage** (`tanGen`) :
+- u⃗ est toujours en biais : ses deux composantes sont non nulles, et l'une
+  vaut au moins 2 en valeur absolue (au plus 4) ;
+- les trois points donnés et leurs trois antécédents sont à un carreau du bord
+  au moins, deux à deux non voisins (Tchebychev ≥ 2), et hors de la flèche
+  u⃗ ;
+- le PIÈGE de chaque point (M′ + u⃗) existe sur le quadrillage : l'erreur
+  doit pouvoir se faire pour pouvoir se nommer. Il ne tombe sur aucun point
+  dessiné ni sur un autre piège ;
+- la flèche verte de la correction (de M à M′) ne traverse aucun autre
+  point.
+
+Le quadrillage fait 16 × 10 carreaux. Quatre questions par séance (`TAN_NB`,
+`dmNbQuestions`), barème 12. Chaque question prend un jeu de lettres par son
+index : A B C, M N P, E F G, R S T (`TAN_NOMS`, `q.l`). Le prime s'écrit
+U+2032.
+
+**On range la figure, jamais la réponse** : `u`, `o` (l'origine de la flèche),
+`im` (les trois points donnés), `l`, et `p` (les points posés, `null` tant
+qu'ils manquent). `tanAnte` recalcule l'antécédent (M′ − u⃗) et `tanPiege` le
+piège (M′ + u⃗), depuis les données mêmes qui dessinent la figure.
+
+**Le geste, celui du 8.1.7 pour un point.** Un seul écouteur de clic, à
+l'hôte, va au nœud le plus proche (`tanClic(i, j)`, ce que joue le banc
+principal). Le clic pose le point EN COURS : le premier qui manque, ou celui
+dont l'élève a cliqué le cadre (`tanChoisir`). Un clic sur un point posé le
+reprend : il disparaît, son cadre redevient bleu, le clic suivant le repose.
+« Effacer mes points » retire tout. La croix et la lettre du point en cours
+suivent la souris (`#tanCurseur`, sans aimant) ; elles se cachent quand les
+trois points sont posés, et au doigt, faute de survol.
+
+Les choix faits sans demander, puisque l'idée était déjà retenue :
+- les points se nomment par leur cadre, et non après la pose comme au 8.1.4 :
+  l'antécédent de A′ s'appelle A, il n'y a rien à deviner ;
+- pas de touche Échap : reprendre un point, c'est cliquer dessus ;
+- le soutien ne peint pas à la pose. C'est la règle des points posés au clic
+  (« vec », « tvx » : `soutienEnDirect.sans`), car peindre le nœud au moment
+  de la pose dirait s'il est juste avant toute vérification.
+
+**Les couleurs.** u⃗ et les points donnés sont en noir. Les points de l'élève
+et leur cadre « en cours » suivent la recette du 8.1.7 : violet avant le
+jugement, cadre bleu pour le point en cours, vert « fait » quand il est posé.
+À la vérification :
+- la croix juste est bleue, la fausse rouge, avec la flèche de son point à
+  M′ (bleue ou rouge : c'est le vecteur MM′ de l'élève) ;
+- pour chaque point faux ou manquant, le BON point en VERT et la flèche
+  verte MM′ = u⃗ ;
+- un cadre vide passe en `sol` et ne rougit jamais.
+
+En soutien, les points posés se jugent à « Vérifier » (bleu, rouge), mais rien
+ne se révèle et rien ne se verrouille. Un point repris perd son verdict.
+
+**Les bancs.** Le banc principal (`translationAntecedent`) a un juge qui ne lit
+PAS les données de la page. Il relit le SVG comme du TEXTE, sans le poser dans
+le DOM (la leçon du 8.1.9) : les lignes du quadrillage (origine et maille), la
+flèche u⃗ (dont la pointe s'arrête 3 px avant le nœud), les croix noires et
+les lettres des points donnés. Il calcule ensuite lui-même M = M′ − u⃗ et le
+piège M′ + u⃗.
+
+Ce qu'il vérifie :
+- **sur 150 séances** : quatre questions distinctes, le jeu de lettres de
+  chaque rang, les clés rangées, aucune réponse au tirage, le JSON, chaque
+  antécédent et chaque piège relus sur le dessin, la lisibilité (bord,
+  voisins, flèche, piège sur le quadrillage et sur aucun point) ;
+- **sur une figure fixe** (u⃗ = (3 ; 2) ; A′ (7 ; 4), B′ (12 ; 6), C′ (6 ;
+  8)) : la place (8.1.12, voisins immobiles, pas de tables, rappel et
+  questions à l'IA ; le 8.1.10 et le 8.1.11 voisins) ; l'énoncé `.enonce` ; le geste (pose, reprise au reclic,
+  cadre choisi, retour au premier point manquant, « Effacer ») ; la reprise
+  après JSON ; la copie juste (trois ok, trois croix et trois flèches bleues,
+  aucune correction) ; le PIÈGE nommé « IMAGE de A′ … À L'ENVERS » avec C
+  posé sur C′ (bad, ok, bad, deux points et deux flèches verts, le vert de A
+  en (4 ; 2)) ; l'échange A/B nommé ; le chemin faux dit en carreaux ; la
+  copie vide (trois sol, « manquait 3 cases », rien de rouge) ; le soutien
+  (bad, ok, rien, sans révéler ni verrouiller, puis la copie corrigée
+  acceptée) ; la réponse enregistrée et le contexte du modèle (secret,
+  méthode, piège).
+
+Le banc navigateur (« 6 quadragies nonies ») joue tout à la vraie souris :
+- la croix de la souris à moins de 3 px de la pointe, avec sa lettre ;
+- un clic à un cinquième de maille qui pose A au nœud ;
+- la lettre qui passe à B, la croix cachée une fois les trois points posés ;
+- C repris d'un clic puis reposé ;
+- la copie juste (3, trois flèches bleues visibles) ;
+- le piège avec deux points vides (bad, sol, sol, le message, trois points
+  et trois flèches verts visibles, une flèche rouge).
+
+**Ce qu'aucun banc ne voit** : le geste au doigt sur une vraie tablette (un
+toucher pose le point, sans croix qui suit), et la lisibilité des étiquettes
+quand l'élève pose un point juste à côté d'une lettre donnée.
+
+## {demontrer-chasles} — démontrer une égalité avec Chasles (8.2.13, v535 — prévu 8.2.11 en v528 ; pendant sa rédaction, v528 à v534 ont été prises par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8, le 8.2.12, le 8.1.11 et le 8.1.12, le 8.2.11 par {chasles-inserer-point} et le 8.2.12 par {demontrer-parallelogramme})
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
 par Claude, Turquet a retenu la dixième : « Montrer que AB⃗ + CD⃗ = AD⃗ +
@@ -2983,14 +3206,23 @@ rendus : +42 Mo), avec ou sans vérification. Le contrôle redessinait la page
 avant chaque copie, dix-huit fois. Il remet désormais les cases à blanc
 (`vider()`) et ne redessine que là où le rendu est lui-même vérifié : trois
 fois. Le pavage (8.1.9) et la somme sans étapes (8.2.10) retiennent chacun
-plus de 40 Mo de la même façon ; la fuite par rendu elle-même (quelque chose
-garde les nœuds détachés) n'est pas corrigée ici et reste à chercher.
+plus de 40 Mo de la même façon.
+
+**Et la cause a été trouvée ailleurs, le même jour** — par la session du
+8.1.12, qui butait sur le même mur (`docs/journal/17-verification-et-bancs.md`,
+« Un banc jsdom qui ne rend jamais la main garde chaque nœud retiré »). Ce
+n'était pas une fuite de la page : les relevés des `MutationObserver` de la
+page gardent en vie chaque nœud qu'un `innerHTML` retire, tant que le banc ne
+rend pas la main — d'où le Mo « retenu par rendu » mesuré ici. Le harnais
+délivre désormais ces relevés après chaque contrôle (`__viderObservateurs()`),
+et le banc plafonne bien sous les 4 Go. La remise à blanc de ce contrôle
+(`vider()`) reste : elle ne coûte rien et allège le contrôle.
 
 Leçon pour le prochain exercice : **un banc se rejoue en local À LA LIMITE
 DE L'ACTION** (`node --max-old-space-size=4096 tests/verifier.js
-secondes.html`) ; un contrôle de banc ne redessine pas l'écran entre deux
-copies ; un cache se borne par ce qui est fini (le plan), jamais par ce qui
-est tiré.
+secondes.html`) — la machine de travail donne 8 Go de tas à Node, l'action
+4 ; et un cache se borne par ce qui est fini (le plan), jamais par ce qui est
+tiré.
 
 **Puis le contrôle du réglage « Questions » a rougi — au hasard du tirage.**
 Sur l'action, le banc a fini par aller au bout (936 contrôles), avec un seul

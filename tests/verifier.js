@@ -57,6 +57,9 @@ function titre(t){ console.log('\n' + t); }
 function evaluer(w, code){
   try { return { ok:true, valeur: w.eval(code) }; }
   catch(e){ return { ok:false, erreur: e.message }; }
+  /* les relevés en attente se délivrent : sans quoi chaque nœud retiré reste
+     en vie jusqu'au prochain retour de la main (tests/harnais.js) */
+  finally { try{ if(w.__viderObservateurs) w.__viderObservateurs(); }catch(e){} }
 }
 function verifierEval(w, intitule, code, juge, detail){
   const r = evaluer(w, code);
@@ -4556,6 +4559,8 @@ function exercices(suite){
     demontrerParallelogramme(w, P);
     chaslesInsererPoint(w, P);
     vraiFauxVecteurs(w, P);
+    milieuVecteursEgaux(w, P);
+    translationAntecedent(w, P);
     sommeVecteursLibre(w, P);
     demontrerChasles(w, P);
     tangenteExp(w, P);
@@ -12491,6 +12496,208 @@ function tracerVecteursEgaux(w, P){
   })()`, v => v === '', undefined);
 }
 
+/* {milieu-vecteurs-egaux} (Seconde, 8.1.11 — idée n° 5 retenue par Turquet,
+   octobre 2026) : un triangle et les milieux de ses côtés, cinq lignes. Le
+   juge de ce banc ne lit PAS les lettres rangées dans la question : il relit
+   le DESSIN — la place de chaque point, la lettre posée près de lui —, y
+   retrouve lui-même les trois milieux, et recalcule chaque famille de
+   vecteurs égaux depuis les points dessinés. Le SVG se lit comme du TEXTE
+   (vmiSvg), sans le poser dans le DOM : le banc jsdom est près de ses 4 Go. */
+function milieuVecteursEgaux(w, P){
+  const nom = 'milieux et vecteurs égaux : la place, le tirage relu sur le dessin, la correction, les pièges nommés, le clic sur un point';
+  if(!P.milieuVecteursEgaux){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice des milieux');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.milieuVecteursEgaux)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+
+    /* ---- 0. la place : 8.1.11, après le vrai ou faux ; pas de tables */
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['translation-pavage']!=='8.1.9' || TEST_NUM['vrai-faux-vecteurs']!=='8.1.10' || TEST_NUM['somme-vecteurs']!=='8.2.1') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS.vmi!==RAP_VMI || !QIA_SUGG.vmi) vus.push('le rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant : il relit le DESSIN ---------------------- */
+    const lire=function(src){
+      const att=function(t, a){ const m=new RegExp('\\\\s'+a+'="([^"]*)"').exec(t); return m ? m[1] : null; };
+      const vb=(att(src.match(/<svg[^>]*>/)[0],'viewBox')||'').split(' ').map(Number);
+      const ronds=(src.match(/<circle class="vmi-pt"[^>]*>/g)||[]).map(function(t){ return [+att(t,'cx'), +att(t,'cy')]; });
+      const traits=(src.match(/<line[^>]*>/g)||[]).map(function(t){ return [+att(t,'x1'), +att(t,'y1'), +att(t,'x2'), +att(t,'y2')]; });
+      const lets=(src.match(/<text class="veg-pt"[^>]*>[^<]*<\\/text>/g)||[]).map(function(t){
+        return {x:+att(t,'x'), y:+att(t,'y'), v:t.replace(/^<text[^>]*>|<\\/text>$/g,'').trim()}; });
+      const pts={};
+      lets.forEach(function(e){ let b=null, bd=1e9; ronds.forEach(function(r){ const d=Math.hypot(r[0]-e.x, r[1]-e.y); if(d<bd){ bd=d; b=r; } }); pts[e.v]=b; });
+      const meme=function(a, b){ return Math.abs(a[0]-b[0])<0.3 && Math.abs(a[1]-b[1])<0.3; };
+      const dep=function(v){ return [pts[v[1]][0]-pts[v[0]][0], pts[v[1]][1]-pts[v[0]][1]]; };
+      const noms=Object.keys(pts).sort();
+      const egaux=function(v){ const d=dep(v), r=[]; noms.forEach(function(X){ noms.forEach(function(Y){ if(X!==Y && X+Y!==v && meme(dep(X+Y), d)) r.push(X+Y); }); }); return r; };
+      /* les milieux, trouvés sur le dessin : M milieu de [XY] */
+      const milieux={};
+      noms.forEach(function(M){ noms.forEach(function(X){ noms.forEach(function(Y){
+        if(X<Y && M!==X && M!==Y && meme(pts[M], [(pts[X][0]+pts[Y][0])/2, (pts[X][1]+pts[Y][1])/2])) milieux[M]=X+Y; }); }); });
+      /* la distance d'une étiquette au trait le plus proche */
+      const loin=function(e){ let m=1e9; traits.forEach(function(t){ const ax=t[2]-t[0], ay=t[3]-t[1], l2=ax*ax+ay*ay||1;
+        const k=Math.max(0, Math.min(1, ((e.x-t[0])*ax+(e.y-t[1])*ay)/l2)); m=Math.min(m, Math.hypot(e.x-t[0]-k*ax, e.y-t[1]-k*ay)); }); return m; };
+      return {pts:pts, noms:noms, ronds:ronds, lets:lets, traits:traits, vb:vb, egaux:egaux, milieux:milieux, dep:dep, loin:loin, meme:meme};
+    };
+    const coll=function(a, b){ return Math.abs(a[0]*b[1]-a[1]*b[0])<0.5*Math.hypot(a[0],a[1]); };
+
+    /* ---- 1. le tirage : 150 séances, chaque ligne relue sur le dessin --- */
+    const formes={}, sens={}, lettres={};
+    for(let s=0;s<150 && vus.length<4;s++){
+      const qs=vmiBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' figures au lieu de '+D.nb); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      const cles=qs.map(function(q){ return JSON.stringify(q); });
+      if(new Set(cles).size!==cles.length) vus.push('deux figures identiques dans une séance');
+      qs.forEach(function(q){
+        formes[q.f]=true; lettres[q.n]=true;
+        const J=lire(vmiSvg(q));
+        if(J.noms.length!==6 || J.ronds.length!==6 || J.noms.some(function(L){ return !J.pts[L]; })) { vus.push('le dessin n’a pas six points nommés : '+J.noms.join('')); return; }
+        if(new Set(J.noms.map(function(L){ return J.pts[L].join(); })).size!==6) vus.push('deux lettres sur le même point');
+        const M=Object.keys(J.milieux).sort().join('');
+        if(M.length!==3) { vus.push('le dessin a '+M.length+' milieux au lieu de 3'); return; }
+        /* l'énoncé nomme les milieux comme le dessin les montre */
+        const n=q.n;
+        [[3,0,1],[4,1,2],[5,2,0]].forEach(function(t){ const s2=[n[t[1]],n[t[2]]].sort().join('');
+          if(J.milieux[n[t[0]]]!==s2) vus.push(n[t[0]]+' est dit milieu de ['+n[t[1]]+n[t[2]]+'], le dessin dit '+J.milieux[n[t[0]]]); });
+        if(vus.length) return;
+        const S=n.slice(0,3).split('').map(function(L){ return J.pts[L]; });
+        const cr=(S[1][0]-S[0][0])*(S[2][1]-S[0][1])-(S[1][1]-S[0][1])*(S[2][0]-S[0][0]); sens[cr>0?'+':'-']=true;
+        let amin=180; for(let k=0;k<3;k++){ const A=S[k], B=S[(k+1)%3], C=S[(k+2)%3];
+          const u=[B[0]-A[0],B[1]-A[1]], v=[C[0]-A[0],C[1]-A[1]];
+          amin=Math.min(amin, Math.acos((u[0]*v[0]+u[1]*v[1])/Math.hypot(u[0],u[1])/Math.hypot(v[0],v[1]))*180/Math.PI); }
+        if(amin<20) vus.push('un angle de '+amin.toFixed(0)+'° : le triangle est trop aplati');
+        J.lets.forEach(function(e){ if(J.loin(e)<9) vus.push('la lettre '+e.v+' touche un trait ('+J.loin(e).toFixed(1)+' px)');
+          if(e.x<8 || e.y<8 || e.x>J.vb[2]-8 || e.y>J.vb[3]-8) vus.push('la lettre '+e.v+' sort du dessin'); });
+        const L=vmiLignes(q);
+        if(L.map(function(l){ return l.t; }).join()!=='mil,seg,par,tous,tous') vus.push('plan des lignes '+L.map(function(l){ return l.t; }).join());
+        if(vmiCases(q).length!==7) vus.push(vmiCases(q).length+' cases au lieu de 7');
+        const cote=function(v){ return Object.keys(J.milieux).find(function(m){ return (J.milieux[m]+m).indexOf(v[0])>=0 && (J.milieux[m]+m).indexOf(v[1])>=0; }); };
+        L.forEach(function(l){
+          const eg=J.egaux(l.u);
+          if(l.t==='mil'){
+            const m=cote(l.u), sur=eg.filter(function(v){ return (J.milieux[m]+m).indexOf(v[0])>=0 && (J.milieux[m]+m).indexOf(v[1])>=0; });
+            if(!m || l.u.indexOf(m)<0) vus.push('la ligne du milieu '+l.u+' ne passe pas par un milieu');
+            if(sur.length!==1 || l.att.join()!==sur.join()) vus.push('milieu, '+l.u+' : la page attend '+l.att.join(' ')+', le dessin '+sur.join(' '));
+          } else if(l.t==='seg'){
+            const m=l.u[1];
+            if(!J.milieux[m]) vus.push(m+' n’est pas un milieu sur le dessin');
+            else {
+              if(!J.meme(J.dep(l.u), J.dep(l.u2)) || l.u2[0]!==m) vus.push(l.u+' = '+l.u2+' n’est pas une égalité du dessin');
+              if(l.att.slice().sort().join()!==[J.milieux[m], J.milieux[m][1]+J.milieux[m][0]].sort().join()) vus.push('segment de '+m+' : la page attend '+l.att.join(' ')+', le dessin ['+J.milieux[m]+']');
+            }
+          } else {
+            if(l.att.slice().sort().join()!==eg.slice().sort().join()) vus.push('vecteurs égaux à '+l.u+' : la page dit '+l.att.join(' ')+', le dessin '+eg.join(' '));
+            if(eg.length!==2) vus.push(l.u+' a '+eg.length+' vecteurs égaux sur le dessin');
+            if(l.t==='par' && !(J.milieux[l.u[0]] && J.milieux[l.u[1]])) vus.push(l.u+' n’est pas un côté du triangle des milieux');
+          }
+        });
+        if(cote(L[0].u)===cote(L[1].u)) vus.push('le milieu et le segment sont sur le même côté');
+        /* aucune ligne « tous » ne montre ni n'attend un vecteur que les deux premières lignes écrivent */
+        const montres=[L[0].u, L[1].u, L[1].u2];
+        L.slice(3).forEach(function(l){ [l.u].concat(l.att).forEach(function(v){ if(montres.indexOf(v)>=0) vus.push('la ligne de '+l.u+' reprend '+v+', écrit plus haut'); }); });
+        if(L.slice(3).some(function(l){ return l.att.indexOf(L[2].u)>=0 || l.u===L[2].u; })) vus.push('une ligne « tous » reprend '+L[2].u);
+        const ds=L.slice(2).map(function(l){ return J.dep(l.u); });
+        if(coll(ds[0],ds[1]) || coll(ds[0],ds[2]) || coll(ds[1],ds[2])) vus.push('deux des trois dernières lignes ont la même direction');
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    Object.keys(VMI_FORMES).forEach(function(f){ if(!formes[f]) vus.push('la forme '+f+' ne sort jamais en 150 séances'); });
+    if(!sens['+'] || !sens['-']) vus.push('la figure n’est jamais retournée');
+    if(Object.keys(lettres).length<100) vus.push('les lettres varient trop peu : '+Object.keys(lettres).length+' jeux');
+
+    /* ---- 2. une figure fixe, par le BOUTON ----------------------------
+       ABC, I milieu de [AB], J de [BC], K de [CA] :
+       AI = IB ; BJ = JC → [BC] ; IJ = AK = KC ; JK = IA = BI ; CJ = JB = KI. */
+    TESTS[D.exercice].start();
+    if(test.kind!=='vmi' || test.qId!==D.exercice) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    test.questions[0]={f:'quelconque', p:[[0,0],[1,0],[0.3,0.8]], n:'ABCIJK', lignes:[{t:'mil',u:'AI'},{t:'seg',u:'BJ'},{t:'par',u:'IJ'},{t:'tous',u:'JK'},{t:'tous',u:'CJ'}]};
+    test.idx=0;
+    const IDS=['vmi-0-0','vmi-1-0','vmi-2-0','vmi-3-0','vmi-3-1','vmi-4-0','vmi-4-1'];
+    const el=function(id){ return document.getElementById(id); };
+    const peint=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const fb=function(){ return el('vmiFeedback').textContent; };
+    /* les cases se remettent à zéro SANS redessiner : chaque rendu retient
+       ~0,7 Mo dans jsdom, et le banc de la Seconde est au bord de ses 4 Go
+       dans l'action — vingt rendus ici l'ont fait déborder */
+    const poser=function(v){ test.locked=false;
+      document.querySelectorAll('#vmiHost .mf-cor').forEach(function(b){ b.remove(); });
+      IDS.forEach(function(id,k){ const e=el(id); e.disabled=false; e.classList.remove('ok','bad','sol'); e.value=(v[k]==null?'':v[k]); });
+      el('vmiFeedback').textContent=''; el('vmiFeedback').className='mp-feedback'; };
+    test.locked=false; renderVmiTest(); poser([]);
+    if(IDS.some(function(id){ return !el(id); })) return 'les sept cases n’existent pas : '+IDS.filter(function(id){ return !el(id); }).join(' ');
+    const J=lire(document.querySelector('#vmiHost svg').outerHTML);
+    if(J.milieux.I!=='AB' || J.milieux.J!=='BC' || J.milieux.K!=='AC') return 'le dessin fixe ne met pas I, J, K aux milieux : '+JSON.stringify(J.milieux);
+    if(J.egaux('JK').sort().join()!=='BI,IA' || J.egaux('CJ').sort().join()!=='JB,KI' || J.egaux('IJ').sort().join()!=='AK,KC') return 'le dessin fixe ne donne pas les familles attendues';
+    const texte=el('vmiHost').textContent.replace(/\\s+/g,' ');
+    if(texte.indexOf('« I est le milieu de [AB] » s’écrit, avec les points A, I et B')<0) vus.push('la ligne du milieu dit « '+texte.slice(0,120)+' »');
+    if(texte.indexOf('équivaut à : J est le milieu du segment')<0) vus.push('la ligne du segment manque');
+    if(!el('vmiInstr').classList.contains('enonce') || el('vmiInstr').textContent.indexOf('I est le milieu de [AB], J celui de [BC] et K celui de [CA]')<0) vus.push('l’énoncé : « '+el('vmiInstr').textContent.slice(0,140)+' »');
+    /* la copie juste, minuscules, crochets, ordre libre */
+    poser(['IB','[cb]','kc','BI','IA','KI','jb']); checkVmiAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse : '+IDS.map(peint).join(', '));
+    if(!der || der.cases!==7) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 7');
+    if(!el('vmiNext')) vus.push('pas de bouton « Figure suivante »');
+    if(!document.querySelector('#vmiFl .vmi-fb')) vus.push('le vecteur juste n’est pas tracé en bleu');
+    /* les pièges, nommés */
+    const BON=['IB','BC','AK','IA','BI','JB','KI'];
+    const piege=function(k, v, id, mot, quoi){ const c=BON.slice(); c[k]=v; poser(c); checkVmiAnswer();
+      if(peint(id)!=='rouge') vus.push(quoi+' : la case est peinte '+peint(id));
+      else if(fb().indexOf(mot)<0) vus.push(quoi+' : le message dit « '+fb().slice(0,120)+' »'); };
+    piege(0, 'KJ', 'vmi-0-0', 'parallélogramme', 'un vecteur égal hors du segment');
+    piege(0, 'IA', 'vmi-0-0', 'OPPOSÉ', 'le milieu à l’envers');
+    piege(0, 'AB', 'vmi-0-0', 'moitiés', 'le segment entier');
+    piege(0, 'AI', 'vmi-0-0', 'AUTRE', 'le vecteur recopié');
+    piege(1, 'BJ', 'vmi-1-0', 'MILIEU', 'le milieu pris pour une extrémité');
+    piege(1, 'AC', 'vmi-1-0', 'pas de [AC]', 'un autre segment');
+    piege(2, 'AC', 'vmi-2-0', 'MOITIÉ', 'le côté entier pour un côté du triangle des milieux');
+    piege(2, 'IC', 'vmi-2-0', 'direction', 'une autre direction');
+    piege(5, 'Z1', 'vmi-4-0', 'n’est pas un vecteur', 'une écriture illisible');
+    piege(4, 'IA', 'vmi-3-1', 'deux fois', 'un vecteur écrit deux fois');
+    if(peint('vmi-3-0')!=='juste') vus.push('le premier IA n’est plus juste quand il est écrit deux fois');
+    const badge=el('vmi-3-1').parentNode.nextElementSibling;
+    if(badge==null || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='BI') vus.push('la correction du doublon n’écrit pas BI à côté');
+    if(!document.querySelector('#vmiFl .vmi-fr') || !document.querySelector('#vmiFl .vmi-fg')) vus.push('la ligne fausse ne montre pas sa réponse en rouge et sa correction en vert');
+    /* une case vide ne rougit pas : elle reçoit la correction */
+    const c2=BON.slice(); c2[1]=''; poser(c2); checkVmiAnswer();
+    if(peint('vmi-1-0')!=='correction' || el('vmi-1-0').value!=='BC') vus.push('la case vide : '+peint('vmi-1-0')+' « '+el('vmi-1-0').value+' »');
+    if(fb().indexOf('manquait')<0) vus.push('le message ne nomme pas la case manquante');
+    poser([]); checkVmiAnswer();
+    if(IDS.some(function(id){ return peint(id)==='rouge'; })) vus.push('la copie vide a du rouge');
+    if(el('vmi-3-0').value!=='BI' || el('vmi-3-1').value!=='IA') vus.push('la copie vide reçoit « '+el('vmi-3-0').value+' » et « '+el('vmi-3-1').value+' »');
+    /* le clic sur un point : deux lettres dans la case de la ligne montrée, puis on recommence */
+    poser([]);
+    vmiMontrer(3); vmiClicPt('J'); vmiClicPt('B');
+    if(el('vmi-3-0').value!=='JB') vus.push('deux clics sur J puis B écrivent « '+el('vmi-3-0').value+' »');
+    vmiClicPt('K');
+    if(el('vmi-3-0').value!=='K') vus.push('un troisième clic donne « '+el('vmi-3-0').value+' »');
+    if(!document.querySelector('#vmiFl .vmi-fv')) vus.push('la ligne montrée n’a pas son vecteur violet');
+    /* la reprise : la question survit au JSON */
+    const avant=JSON.stringify(test.questions[0]);
+    test.questions[0]=JSON.parse(avant); renderVmiTest();
+    if(JSON.stringify(test.questions[0])!==avant || document.querySelectorAll('#vmiHost circle.vmi-pt').length!==6) vus.push('la question ne se redessine pas après le JSON');
+    /* le soutien : peint au fil de la saisie, sans jamais montrer la correction */
+    currentMode='soutien'; poser([]);
+    el('vmi-3-0').value='JC'; el('vmi-3-0').dispatchEvent(new Event('input'));
+    if(peint('vmi-3-0')!=='rouge' || peint('vmi-3-1')!=='rien') vus.push('le soutien peint '+peint('vmi-3-0')+' la case remplie, '+peint('vmi-3-1')+' la vide');
+    checkVmiAnswer();
+    if(test.locked || document.querySelector('#vmiFl .vmi-fg')) vus.push('la vérification du soutien verrouille ou révèle');
+    el('vmi-3-0').value='BI'; checkVmiAnswer(true);
+    if(peint('vmi-3-0')!=='juste') vus.push('le soutien ne bleuit pas BI');
+    currentMode='train';
+    /* le contexte du modèle */
+    const ctx=ctxVmi(test.questions[0]).contexte;
+    if(ctx.indexOf('SECR')<0 || ctx.indexOf('IJ = AK = KC')<0 || ctx.indexOf('milieu')<0) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni les réponses');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* {vrai-faux-vecteurs} (Seconde, 8.1.10 — idée n° 4 retenue par Turquet,
    octobre 2026 : « vrai ou faux sur une figure à pièges ») : une figure,
    dix égalités de vecteurs à juger. Le juge de ce banc ne lit PAS les
@@ -13230,6 +13437,187 @@ function translationPavage(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* {translation-antecedent} (Seconde, 8.1.12 — idée n° 2 retenue par Turquet,
+   octobre 2026) : u⃗ et trois images A′, B′, C′ dessinées ; l'élève place A,
+   B et C d'un clic. Le juge NE LIT PAS les données de la page : il relit le
+   DESSIN — le quadrillage, la flèche u⃗, les croix et les lettres des points
+   donnés —, et calcule l'antécédent lui-même (M = M′ − u⃗). Il lit le SVG
+   comme du TEXTE (tanSVG), sans le poser dans le DOM : le banc jsdom de la
+   Seconde est près de ses 4 Go (la leçon du 8.1.9). */
+function translationAntecedent(w, P){
+  const nom = 'antécédent d\'un point par une translation : la place, le tirage relu sur le dessin, le clic, la correction verte, le piège de u⃗ suivi depuis M′';
+  if(!P.translationAntecedent){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice de l\'antécédent par une translation');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.translationAntecedent)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+
+    /* ---- 0. la place : 8.1.12, à la fin des vecteurs égaux ; pas de tables */
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['translation-pavage']!=='8.1.9' || TEST_NUM['vrai-faux-vecteurs']!=='8.1.10' || TEST_NUM['milieu-vecteurs-egaux']!=='8.1.11' || TEST_NUM['somme-vecteurs']!=='8.2.1') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS.tan!==RAP_TAN || !QIA_SUGG.tan) vus.push('le rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant : il relit le DESSIN ---------------------- */
+    const att=function(t, a){ const m=new RegExp('\\\\s'+a+'="([^"]*)"').exec(t); return m ? m[1] : null; };
+    const lire=function(src){
+      const vx=[], hy=[];
+      (src.match(/<line[^>]*class="vec-grid"[^>]*>/g)||[]).forEach(function(t){
+        const x1=+att(t,'x1'), x2=+att(t,'x2'), y1=+att(t,'y1'), y2=+att(t,'y2');
+        if(x1===x2) vx.push(x1); else if(y1===y2) hy.push(y1); });
+      vx.sort(function(a,b){ return a-b; }); hy.sort(function(a,b){ return a-b; });
+      const c=vx[1]-vx[0], px=vx[0], py=hy[0], W=vx.length-1, H=hy.length-1;
+      const noeud=function(x, y){ return [Math.round((x-px)/c), Math.round(H-(y-py)/c)]; };
+      /* la flèche u⃗ : son départ, et sa pointe arrêtée 3 px avant le nœud */
+      const fl=(src.match(/<line class="svc-u"[^>]*>/g)||[])[0];
+      let u=null, o=null;
+      if(fl){ const x1=+att(fl,'x1'), y1=+att(fl,'y1'), x2=+att(fl,'x2'), y2=+att(fl,'y2'), l=Math.hypot(x2-x1,y2-y1)||1;
+        o=noeud(x1,y1); const f=noeud(x2+3*(x2-x1)/l, y2+3*(y2-y1)/l); u=[f[0]-o[0], f[1]-o[1]]; }
+      const nomU=/<text class="svc-nom[^"]*"[^>]*>(<tspan[^>]*>)?u</.test(src);
+      /* les points donnés : chaque lettre va à la croix noire la plus proche */
+      const croix=(src.match(/<g class="tan-croix tan-donne"><line[^>]*>/g)||[]).map(function(t){
+        return [(+att(t,'x1') + +att(t,'x2'))/2, (+att(t,'y1') + +att(t,'y2'))/2]; });
+      const pts={};
+      (src.match(/<text class="tan-lbl tan-donne-t"[^>]*>[^<]*<\\/text>/g)||[]).forEach(function(t){
+        const x=+att(t,'x'), y=+att(t,'y'), L=t.replace(/^<text[^>]*>|<\\/text>$/g,'');
+        let b=null, bd=1e9; croix.forEach(function(r){ const d=Math.hypot(r[0]-x, r[1]-y); if(d<bd){ bd=d; b=r; } });
+        pts[L]=b ? noeud(b[0], b[1]) : null; });
+      return {W:W, H:H, u:u, o:o, nomU:nomU, pts:pts, n:croix.length};
+    };
+    const egal=function(a,b){ return !!a && !!b && a[0]===b[0] && a[1]===b[1]; };
+    const voisins=function(a,b){ return Math.abs(a[0]-b[0])<=1 && Math.abs(a[1]-b[1])<=1; };
+    /* une question relue sur son dessin : les antécédents, et ce qui la rend lisible */
+    const juger=function(q, quoi){
+      const J=lire(tanSVG(q)), noms=tanNoms(q), dits=[];
+      if(!J.u || !J.nomU) return [quoi+' : la flèche u⃗ nommée n’est pas dessinée'];
+      if(J.n!==3) dits.push(quoi+' : '+J.n+' croix noires au lieu de 3');
+      if(!J.u[0] || !J.u[1]) dits.push(quoi+' : u⃗ n’est pas en biais '+J.u);
+      const fin=[J.o[0]+J.u[0], J.o[1]+J.u[1]], cles=[];
+      const g=Math.max(Math.abs(J.u[0]),Math.abs(J.u[1])), fleche=[];
+      for(let t=0;t<=g;t++){ const x=J.o[0]+J.u[0]*t/g, y=J.o[1]+J.u[1]*t/g; if(x===Math.round(x)&&y===Math.round(y)) fleche.push([x,y]); }
+      noms.forEach(function(L, k){
+        const m=J.pts[L+'\\u2032'];
+        if(!m){ dits.push(quoi+' : la lettre '+L+'′ n’est pas dessinée'); return; }
+        const a=[m[0]-J.u[0], m[1]-J.u[1]], pg=[m[0]+J.u[0], m[1]+J.u[1]];
+        if(!egal(a, tanAnte(q,k))) dits.push(quoi+' : antécédent de '+L+'′ — la page dit '+tanAnte(q,k)+', le dessin '+a);
+        if(!egal(pg, tanPiege(q,k))) dits.push(quoi+' : piège de '+L+'′ — la page dit '+tanPiege(q,k)+', le dessin '+pg);
+        if(a[0]<1||a[0]>J.W-1||a[1]<1||a[1]>J.H-1) dits.push(quoi+' : '+L+' tombe au bord ou hors du quadrillage '+a);
+        if(pg[0]<0||pg[0]>J.W||pg[1]<0||pg[1]>J.H) dits.push(quoi+' : le piège de '+L+' sort du quadrillage — l’erreur ne pourrait pas se faire');
+        cles.push(m, a);
+      });
+      for(let i=0;i<cles.length;i++){
+        if(fleche.some(function(r){ return voisins(cles[i], r); })) dits.push(quoi+' : un point touche la flèche u⃗');
+        for(let j=i+1;j<cles.length;j++) if(voisins(cles[i], cles[j])) dits.push(quoi+' : deux points voisins '+cles[i]+' et '+cles[j]);
+      }
+      [0,1,2].forEach(function(k){ const pg=tanPiege(q,k);
+        if(cles.concat(fleche).some(function(r){ return egal(r,pg); })) dits.push(quoi+' : le piège de '+noms[k]+' tombe sur un point dessiné'); });
+      if(fin[0]<0||fin[0]>J.W||fin[1]<0||fin[1]>J.H) dits.push(quoi+' : la flèche u⃗ sort du quadrillage');
+      return dits;
+    };
+
+    /* ---- 1. le tirage : 150 séances, chaque question relue sur son dessin */
+    const jeux={};
+    for(let s=0;s<150 && vus.length<4;s++){
+      const qs=tanBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' questions au lieu de '+D.nb); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      const cles=qs.map(function(q){ return JSON.stringify([q.u,q.o,q.im]); });
+      if(new Set(cles).size!==cles.length) vus.push('deux questions identiques dans une séance');
+      qs.forEach(function(q, i){
+        if(q.l!==i%TAN_NOMS.length) vus.push('la question '+(i+1)+' prend le jeu de lettres '+q.l);
+        jeux[tanNoms(q).join('')]=true;
+        if(Object.keys(q).sort().join()!=='im,l,o,p,u') vus.push('clés rangées : '+Object.keys(q).sort().join());
+        if(q.p.some(function(r){ return r!==null; })) vus.push('une réponse est rangée au tirage');
+        juger(q, 'séance '+s+', question '+(i+1)).forEach(function(d){ vus.push(d); });
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    if(Object.keys(jeux).length!==4) vus.push('jeux de lettres sortis : '+Object.keys(jeux).join(' '));
+
+    /* ---- 2. une figure fixe, par le BOUTON -----------------------------
+       u⃗ = (3 ; 2), de (1 ; 7) à (4 ; 9) ; A′ (7 ; 4), B′ (12 ; 6), C′ (6 ; 8).
+       Donc A (4 ; 2), B (9 ; 4), C (3 ; 6) ; les pièges (10 ; 6), (15 ; 8), (9 ; 10). */
+    TESTS[D.exercice].start();
+    if(test.kind!=='tan' || test.qId!==D.exercice) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    const fixe=function(){ return {u:[3,2], o:[1,7], im:[[7,4],[12,6],[6,8]], l:0, p:[null,null,null]}; };
+    juger(fixe(), 'la figure fixe').forEach(function(d){ vus.push(d); });
+    const el=function(id){ return document.getElementById(id); };
+    const peint=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const peints=function(){ return [0,1,2].map(function(k){ return peint('tan-'+k); }).join(','); };
+    const fb=function(){ return el('tanFeedback').textContent; };
+    const nb=function(sel){ return document.querySelectorAll('#tanGraph '+sel).length; };
+    const poser=function(pts){ test.locked=false; test.questions[0]=fixe(); test.idx=0; renderTan();
+      (pts||[]).forEach(function(p){ tanClic(p[0], p[1]); }); };
+    poser();
+    if(!el('tanInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
+    if(!/A′, B′ et C′ sont les images des points A, B et C par la translation de vecteur u/.test(el('tanInstr').textContent)) vus.push('l’énoncé dit « '+el('tanInstr').textContent.slice(0,120)+' »');
+    if(nb('#tanEl .tan-croix') || nb('#tanCorr *')) vus.push('des points sont dessinés avant le premier clic');
+    if(!el('tan-0').classList.contains('tan-cours')) vus.push('le cadre de A n’est pas en cours (bleu) au départ');
+    /* le geste : poser, reprendre au reclic, choisir un cadre, effacer */
+    tanClic(4,2);
+    let q=test.questions[0];
+    if(!egal(q.p[0],[4,2]) || !el('tan-0').classList.contains('tan-fait') || !el('tan-1').classList.contains('tan-cours')) vus.push('le premier clic ne pose pas A, ou le cadre ne suit pas');
+    tanClic(4,2);
+    if(q.p[0]!==null || test.tanSel!==0 || !el('tan-0').classList.contains('tan-cours')) vus.push('recliquer A ne le reprend pas');
+    tanChoisir(2); tanClic(3,6);
+    if(!egal(q.p[2],[3,6]) || q.p[0]!==null) vus.push('le cadre de C choisi, le clic ne pose pas C : '+JSON.stringify(q.p));
+    tanClic(4,2);
+    if(!egal(q.p[0],[4,2])) vus.push('après C, le clic ne revient pas au premier point manquant');
+    tanEffacer();
+    if(q.p.some(function(r){ return r; }) || nb('#tanEl .tan-croix')) vus.push('« Effacer mes points » laisse des points');
+    /* la reprise : les points reviennent du JSON de la pause */
+    poser([[4,2],[9,4]]);
+    test.questions[0]=JSON.parse(JSON.stringify(test.questions[0])); renderTan();
+    if(nb('#tanEl .tan-croix')!==2 || !egal(test.questions[0].p[1],[9,4])) vus.push('les points posés ne reviennent pas après le JSON');
+    /* la copie juste */
+    poser([[4,2],[9,4],[3,6]]); checkTan();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct || peints()!=='ok,ok,ok') vus.push('la copie juste : '+peints());
+    if(!der || der.cases!==3) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 3');
+    if(nb('#tanEl .tan-croix.tan-x-ok')!==3 || nb('#tanEl .svc-e')!==3 || nb('#tanCorr *')) vus.push('la copie juste : '+nb('#tanEl .tan-croix.tan-x-ok')+' croix bleues, '+nb('#tanEl .svc-e')+' flèches bleues, correction « '+el('tanCorr').innerHTML.slice(0,40)+' »');
+    if(!el('tanNext') || !test.locked) vus.push('pas de bouton « Question suivante », ou la question n’est pas verrouillée');
+    /* LE PIÈGE : u⃗ suivi depuis A′ ; et C posé sur C′ */
+    poser([[10,6],[9,4],[6,8]]); checkTan();
+    if(peints()!=='bad,ok,bad') vus.push('le piège : '+peints());
+    if(!/IMAGE de A′/.test(fb()) || !/À L’ENVERS/.test(fb())) vus.push('le piège n’est pas nommé : « '+fb().slice(0,140)+' »');
+    if(!/posé sur C′/.test(fb())) vus.push('C posé sur C′ n’est pas nommé');
+    if(nb('#tanCorr .tan-x-sol')!==2 || nb('#tanCorr .svc-s')!==2) vus.push('la correction trace '+nb('#tanCorr .tan-x-sol')+' points verts et '+nb('#tanCorr .svc-s')+' flèches vertes au lieu de 2');
+    if(nb('#tanEl .tan-croix.tan-x-bad')!==2 || nb('#tanEl .svc-eb')!==1) vus.push('les points faux : '+nb('#tanEl .tan-croix.tan-x-bad')+' croix rouges, '+nb('#tanEl .svc-eb')+' flèche rouge (C sur C′ n’en a pas)');
+    const vert=document.querySelector('#tanCorr .tan-x-sol line');
+    if(!vert || +vert.getAttribute('x1')!==tanX(4)-6 || +vert.getAttribute('y1')!==tanY(2)-6) vus.push('le point vert de A n’est pas en (4 ; 2)');
+    if(test.score!==3+1) vus.push('score '+test.score+' au lieu de 4');
+    /* A et B échangés ; un point ailleurs */
+    poser([[9,4],[4,2],[3,6]]); checkTan();
+    if(!/antécédent de B′, pas celui de A′/.test(fb())) vus.push('l’échange n’est pas nommé : « '+fb().slice(0,120)+' »');
+    poser([[5,2],[9,4],[3,6]]); checkTan();
+    if(!/le chemin fait 2 carreaux vers la droite puis 2 carreaux vers le haut/.test(fb())) vus.push('le chemin faux n’est pas dit : « '+fb().slice(0,140)+' »');
+    /* la copie vide : rien de rouge, trois points verts */
+    poser(); checkTan();
+    if(peints()!=='sol,sol,sol' || nb('#tanCorr .tan-x-sol')!==3 || nb('.tan-croix.tan-x-bad')) vus.push('la copie vide : '+peints()+', '+nb('#tanCorr .tan-x-sol')+' points verts');
+    if(!/manquait 3 cases/.test(fb())) vus.push('le message de la copie vide : « '+fb().slice(0,80)+' »');
+    /* le soutien : juge les points posés, ne révèle rien, ne verrouille pas */
+    currentMode='soutien';
+    poser([[10,6],[9,4]]); checkTan();
+    if(test.locked || peints()!=='bad,ok,rien' || nb('#tanCorr *') || nb('.tan-croix.tan-x-sol')) vus.push('le soutien : '+peints()+(test.locked?', verrouillé':'')+', '+nb('#tanCorr *')+' traits de correction');
+    tanClic(10,6); tanClic(4,2);
+    if(!egal(test.questions[0].p[0],[4,2]) || peint('tan-0')!=='rien') vus.push('le point rouge repris et reposé garde son verdict');
+    tanClic(3,6); checkTan();
+    if(!test.locked || peints()!=='ok,ok,ok') vus.push('le soutien n’accepte pas la copie corrigée : '+peints());
+    currentMode='train';
+    /* la réponse enregistrée et le contexte du modèle */
+    poser([[10,6]]);
+    const ctx=ctxTan(test.questions[0]).contexte;
+    if(!/SECR/.test(ctx) || !/A = \\(4 ; 2\\)/.test(ctx) || !/envers/i.test(ctx) || !/au lieu de −u/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni le piège');
+    checkTan(); der=test.answers[test.answers.length-1];
+    if(!der || !/A \\(10 ; 6\\)/.test(der.given) || !/A \\(4 ; 2\\)/.test(der.answer)) vus.push('la réponse enregistrée : '+(der?der.given+' / '+der.answer:'aucune'));
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* {tracer-vecteurs-opposes} (Seconde, 8.1.8 — demande de Turquet, octobre
    2026 : « un exercice comme le 8.1.7 où on demande de tracer l'opposé de
    chaque vecteur ; on demandera de tracer −u, −v, −w dans l'énoncé »). Le
@@ -13414,11 +13802,10 @@ function demontrerChasles(w, P){
       return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
     const fb=function(){ return el('dchFeedback').textContent; };
     /* une copie : 4 + 4 + 3 vecteurs, puis les quatre justifications. La
-       page n'est PAS redessinée entre deux copies : dans jsdom, chaque rendu
-       de l'écran retient près d'un Mo jusqu'à la fin du banc (mesuré : 50
-       rendus, +42 Mo), et le banc de la Seconde n'a plus de marge sous ses
-       4 Go — dix-huit rendus suffisaient à le faire tomber sur l'action. On
-       remet les cases à blanc, comme une page neuve. */
+       page n'est pas redessinée entre deux copies : on remet les cases à
+       blanc, comme une page neuve — moins de travail pour le banc, dont les
+       4 Go de l'action sont comptés (voir docs/journal/17, « Un banc jsdom
+       qui ne rend jamais la main garde chaque nœud retiré »). */
     let neuve=false;
     const vider=function(){ test.locked=false;
       document.querySelectorAll('#dchHost .mf-cor').forEach(function(b){ b.remove(); });
