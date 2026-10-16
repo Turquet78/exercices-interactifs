@@ -2829,3 +2829,15 @@ vide sans rouge.
 croix qui suit la souris n'y vit pas), et la lisibilité de « u⃗ » dans la
 liste déroulante — la flèche combinante U+20D7 dépend de la fonte du
 système.
+
+**Puis le banc de la Seconde a débordé ses 4 Go dans l'action, et le
+correctif de #711 a été porté ici.** Mesurée contrôle par contrôle (un
+`gc()` avant chaque relevé), la mémoire retenue culminait à 4 233 Mo sur
+`main` SEUL et à 4 259 Mo avec cet exercice : la base dépassait déjà la
+limite, le 8.2.12 n'y ajoutait que 26 Mo. La cause, trouvée par la pull
+request #711 (8.1.11, encore ouverte) : les relevés des `MutationObserver`
+gardent en vie les nœuds retirés tant que le banc ne rend pas la main. Son
+correctif (`tests/harnais.js` et `evaluer()` dans `tests/verifier.js`) est
+porté tel quel, sans retouche, et se fondra sans conflit quand #711 arrivera
+sur `main`. Le banc de la Seconde repasse sous 4 Go (`--max-old-space-size=4096`
+en local : 935 contrôles verts).
