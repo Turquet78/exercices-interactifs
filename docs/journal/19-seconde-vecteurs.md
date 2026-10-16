@@ -2750,7 +2750,7 @@ points qui ne s'enchaînent pas, la case vide (correction), la copie vide
 (aucun rouge), la reprise après JSON, le soutien qui peint sans révéler ; et
 sur une page fixe SANS figure : aucun dessin, une copie juste à points libres
 (Q, A, B), deux pièges ; enfin le contexte du modèle.
-## {translation-antecedent} — retrouver un point dont on connaît l'image (8.1.11, v531)
+## {translation-antecedent} — retrouver un point dont on connaît l'image (8.1.11, v532)
 
 **La demande** (Turquet, octobre 2026). C'est l'idée n° 2 de la liste proposée
 par Claude : « antécédent par une translation ». C'est le chemin INVERSE du
