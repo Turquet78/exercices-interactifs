@@ -7244,7 +7244,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=527;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=528;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -57849,9 +57849,12 @@ function cpsDessiner(q){
   [0,1].forEach(function(k){
     const t=cpsFl(q,k), d=k?q.d2:q.d1;
     if(!t){ if(d){ const el=$('cpsn-'+d[0]+'-'+d[1]); if(el) el.classList.add('deb'); } return; }
-    const m=mq['t'+(k+1)], cls=m==='ok'?'svc-e':(m==='bad'?'svc-eb':(k?'svc-v':'svc-u'));
+    /* une flèche tracée qui n'est pas le vecteur demandé se peint en ROUGE
+       dès le tracé (demande de Turquet, octobre 2026), avant toute
+       vérification : son cadre dit déjà qu'il faut la retracer */
+    const juste=cpsJuste(q,k), m=mq['t'+(k+1)]||(juste?'':'bad');
+    const cls=m==='ok'?'svc-e':(m==='bad'?'svc-eb':(k?'svc-v':'svc-u'));
     const mk=m==='ok'?'cpsArrE':(m==='bad'?'cpsArrB':(k?'cpsArr1':'cpsArr0'));
-    const juste=cpsJuste(q,k);
     h+=svcFleche(t.s, t.f, {cls:cls+(k&&m?' svc-copie':''), marker:mk, nom:juste?cpsNom(q,k):'', depart:!m, geo:CPS_GEO});
     if(!test.locked&&!test.cpsFigeCh&&juste)
       prises+=`<line class="svc-prise" data-k="${k}" x1="${cpsX(t.s[0])}" y1="${cpsY(t.s[1])}" x2="${cpsX(t.f[0])}" y2="${cpsY(t.f[1])}" tabindex="0" role="button" aria-label="déplacer le vecteur ${cpsNom(q,k)} (flèches du clavier)"/>`;
