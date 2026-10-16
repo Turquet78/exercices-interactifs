@@ -2519,7 +2519,7 @@ Trois sabotages ont été attrapés :
 - le mot « RETOURNÉ » retiré du message ;
 - le dessin jugé en soutien.
 
-## {demontrer-parallelogramme} — démontrer qu'un quadrilatère est un parallélogramme (8.2.11, v528)
+## {demontrer-parallelogramme} — démontrer qu'un quadrilatère est un parallélogramme (8.2.11, v529)
 
 **La demande** (Turquet, octobre 2026, idée n° 11 parmi celles proposées) :
 une égalité vectorielle entre quatre points, qui se SIMPLIFIE par Chasles
