@@ -1544,6 +1544,31 @@ depuis D — 8 sur 8. Le banc navigateur (« 6 quadragies quinquies ») bouge
 la vraie souris près de A : croix A, aucun point rond ; « fais glisser »
 après les vecteurs, « Placer M » après le glisser.
 
+**Puis un vecteur faux rougit dès qu'il est tracé, et l'étape ③ attend les deux vecteurs justes (v529).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.5, pour l'étape 2, quand
+un vecteur tracé n'est pas bon, le mettre en rouge et ne pas passer à la
+suite de l'exercice : il faut que l'élève le corrige jusqu'à ce que le
+résultat soit bon ». **Le rouge** : `svrCoulVec` peint un vecteur tracé qui
+n'est pas égal au vecteur demandé en `svc-eb` (pointe `svrArrB`) dès sa fin
+posée, comme `svrCoulPt` pour les points (v525) ; avant, il restait bleu
+jusqu'à la vérification. **La suite fermée** : la v523 retenait déjà le
+GESTE sur un vecteur faux, mais rien n'empêchait de choisir à la main « Fais
+glisser » ou « Placer M », ni de faire glisser la copie du vecteur faux —
+la somme se construisait sur un vecteur faux. `svrOuvert(q,o)` ferme
+désormais `ch` et `M` tant que `t0` et `t1` ne sont pas tous deux justes :
+leurs boutons sont `disabled` (avec un `title` qui dit pourquoi), les copies
+n'ont pas de prise, `svrDeplacer` refuse, `svrOutil` et `svrPose` refusent,
+`svrSuivant` ne les propose pas. Le vecteur faux se retrace d'un clic
+(« un clic de plus recommence »). L'énoncé le dit en une phrase. Un
+brouillon d'avant la règle, copies et M déjà posés sur un vecteur faux, se
+relit et se juge comme avant, chaque réponse seule. Le juge
+(`tests/verifier.js`, copie « dans l'autre ordre ») tient BC⃗ à l'envers
+rouge avant la vérification, les deux boutons de l'étape ③ fermés, aucune
+prise, une copie qui ne glisse pas, « Placer M » refusé et le geste ramené
+à BC⃗ ; le banc navigateur (« 6 quadragies quinquies ») trace d'abord BC⃗
+faux à la souris, lit la couleur calculée du trait, l'étape ③ fermée, puis
+le retrace juste et fait la fiche comme avant.
+
 ## {chasles-alignes} — la relation de Chasles sur une droite (8.12, v494)
 
 **La demande** (Turquet, octobre 2026, le même jour que le 8.9 et avec la même phrase, mais une AUTRE fiche) : « en seconde fais un exercice comme
