@@ -9555,6 +9555,9 @@ if(require.main === module) (async () => {
       await clic(4.2, 4.9);
       e = await etat();
       if(JSON.stringify(e.u) !== '[[1,1],[4,5]]') dits.push('le second clic ne fixe pas l\'arrivée au nœud le plus proche : ' + JSON.stringify(e.u));
+      /* le cadre de la flèche à tracer est en bleu (fond bleu clair calculé), celui de u tracé ne l'est plus */
+      const fonds = await s.page.evaluate(() => ['tvx-u', 'tvx-v', 'tvx-w'].map(id => getComputedStyle(document.getElementById(id)).backgroundColor));
+      if(fonds[1] !== 'rgb(234, 240, 255)' || fonds[0] === fonds[1] || fonds[2] === fonds[1]) dits.push('le cadre à faire (②) n\'est pas le seul en bleu : ' + fonds.join(' / '));
       /* ④ un clic sur le DÉPART le reprend : la flèche va de la souris à l'arrivée fixe */
       await clic(1, 1);
       e = await etat();

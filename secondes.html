@@ -2500,6 +2500,7 @@
   #scr-tvx .tvg-cons.sol{border-color:var(--green);background:var(--green-soft)}
   #scr-tvx .tvg-cons.tvx-fait{border-color:var(--green);color:var(--green);background:var(--green-soft)}
   #scr-tvx .tvg-cons.tvx-fait::after{content:" ✓";font-weight:800}
+  #scr-tvx .tvg-cons.tvx-cours{border-color:var(--blue);background:#EAF0FF;color:var(--ink);box-shadow:inset 4px 0 0 var(--blue)}
   #scr-tvx .vec{font-size:1.1em}
   #tvxGraph .sv-svg{max-width:700px}
   .tvx-etape .tvx-sous{font-size:.88rem;color:var(--ink-soft)}
@@ -7160,7 +7161,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=520;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=521;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -58284,12 +58285,15 @@ function tvxConsigne(q){
 }
 /* Chaque flèche TRACÉE passe au vert — tracée, pas juste : la vérification
    seule dira si elle est bonne, et une consigne déjà marquée par elle garde
-   son verdict. */
+   son verdict. Le cadre de la flèche À TRACER (ou de celle dont une
+   extrémité est reprise) est en bleu, la recette de cps-cours (8.2.8). */
 function tvxFaits(q){
+  const cours=test.locked?-1:(test.tvxMob?test.tvxMob.k:tvxCourante(q));
   [0,1,2].forEach(function(k){
     const c=$('tvx-'+TVX_N[k]); if(!c) return;
     const verdict=c.classList.contains('ok')||c.classList.contains('bad')||c.classList.contains('sol');
-    c.classList.toggle('tvx-fait', !!tvxF(q,k)&&!verdict);
+    c.classList.toggle('tvx-fait', !!tvxF(q,k)&&!verdict&&k!==cours);
+    c.classList.toggle('tvx-cours', k===cours&&!verdict);
   });
 }
 /* Les gestes de la souris, écouteurs DÉLÉGUÉS à l'hôte (le dessin se
@@ -58361,7 +58365,7 @@ function tvxPourquoi(q,subs){
 }
 /* Peindre les trois consignes : bleu, rouge, ou vert si vide (final). */
 function tvxPeindre(subs, final){
-  subs.forEach(function(s){ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad','sol','tvx-fait');
+  subs.forEach(function(s){ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad','sol','tvx-fait','tvx-cours');
     if(s.ok) el.classList.add('ok'); else if(!s.vide) el.classList.add('bad'); else if(final) el.classList.add('sol'); });
 }
 /* Une place pour montrer en vert la flèche juste d'un vecteur manqué : au
