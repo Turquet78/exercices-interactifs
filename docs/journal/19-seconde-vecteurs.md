@@ -1467,10 +1467,14 @@ pas verte, ne pas passer à la suivante ». `svrSuivant` lit désormais
 l'enchaînement exprès, pour qu'un point faux ne retienne pas l'élève — c'est
 justement ce qui est demandé. Un point faux garde son geste : le clic
 suivant le repose ailleurs ; un vecteur faux garde le sien : le clic suivant
-recommence le tracé. Choisir un autre geste à la main reste possible, mais
-le prochain geste juste ramène au premier objectif encore gris, dans l'ordre
-de la fiche (B, C, D justes, A faux : retour à A). Rien n'enferme : un geste
-figé en soutien est sauté comme avant. Le juge (`tests/verifier.js`, copie
+recommence le tracé. Choisir un autre geste à la main reste possible ; un
+geste juste mène au premier objectif encore gris APRÈS lui, puis repart du
+début (A faux, B choisi à la main : B, C, D s'enchaînent, puis retour à A).
+La première écriture ramenait à A dès B juste — le clic destiné à C
+déplaçait alors A, et c'est le juge qui l'a montré à la première exécution.
+`svrSuivant(q, depuis)` part donc du geste en cours ; au rendu, sans geste,
+du début de la fiche. Rien n'enferme : un geste figé en soutien est sauté
+comme avant. Le juge (`tests/verifier.js`, copie
 « dans l'autre ordre ») tient A faux resté sur A, le retour à A après B, C,
 D justes, et BC⃗ à l'envers resté sur « Tracer BC⃗ » ; la copie juste du
 banc navigateur enchaîne toujours d'elle-même.

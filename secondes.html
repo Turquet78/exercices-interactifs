@@ -60991,12 +60991,18 @@ function svrJuste(q,o){
   if(o==='t0'||o==='t1'){ const k=+o[1], w=svrPaire(q,k), t=svrTrace(q,k); return !!t&&svrEgal(t.d,q.P[w[0]])&&svrEgal(t.f,q.P[w[1]]); }
   const k=SVR_NOMS.indexOf(o); return svrEgal(q.pl[k],q.P[k]);
 }
-/* Le geste suivant encore à faire, dans l'ordre de la fiche : tant qu'un
-   objectif n'est pas vert, on y reste (demande de Turquet, octobre 2026) —
-   un point faux se repose d'un clic, un vecteur faux se retrace. */
-function svrSuivant(q){
-  for(const o of SVR_OUTILS) if(!svrJuste(q,o)&&!(test.svrFige&&test.svrFige[svrIdOutil(o)])) return o;
-  return test.svrOutil;
+/* Le geste suivant encore à faire, dans l'ordre de la fiche : tant que
+   l'objectif du geste en cours n'est pas vert, on y reste (demande de
+   Turquet, octobre 2026) — un point faux se repose d'un clic, un vecteur faux
+   se retrace. Vert, on passe au premier objectif encore gris APRÈS lui, puis
+   on repart du début : un clic destiné à C ne déplace jamais A. Sans geste
+   en cours (depuis vide, au rendu), le premier gris de la fiche. */
+function svrSuivant(q, depuis){
+  const libre=function(o){ return !svrJuste(q,o)&&!(test.svrFige&&test.svrFige[svrIdOutil(o)]); };
+  const i=SVR_OUTILS.indexOf(depuis);
+  if(i>=0&&libre(depuis)) return depuis;
+  for(let n=1;n<=SVR_OUTILS.length;n++){ const o=SVR_OUTILS[(Math.max(i,-1)+n)%SVR_OUTILS.length]; if(libre(o)) return o; }
+  return depuis||test.svrOutil;
 }
 function svrOutil(o){
   if(test.locked||test.kind!=='svr'||SVR_OUTILS.indexOf(o)<0) return;
@@ -61028,7 +61034,7 @@ function svrPose(i,j){
     const k=SVR_NOMS.indexOf(o); if(k<0) return;
     if(svrEgal(q.pl[k],[i,j])) q.pl[k]=null; else { q.pl[k]=[i,j]; fini=true; }
   }
-  if(fini) test.svrOutil=svrSuivant(q);
+  if(fini) test.svrOutil=svrSuivant(q,o);
   svrDessiner(q); svrMajOutils(q);
   recoveryDirty=true;
 }
@@ -61154,7 +61160,7 @@ function svrMarqueSoutien(q,subs){
     if(el) el.classList.add(s.ok?'ok':'bad');
     if(s.ok) test.svrFige[s.id]=true;
   });
-  if(test.svrFige[svrIdOutil(test.svrOutil)]) test.svrOutil=svrSuivant(q);
+  if(test.svrFige[svrIdOutil(test.svrOutil)]) test.svrOutil=svrSuivant(q,test.svrOutil);
   svrDessiner(q); svrMajOutils(q);
 }
 /* Correction finale : tout figer ; chaque réponse en bleu, rouge, ou verte si
