@@ -1460,7 +1460,7 @@ juste vert, la flèche vive depuis le début et effacée au retrait ou à la
 fin ; le banc navigateur (« 6 quadragies quinquies ») bouge la vraie souris
 après le début de BC⃗ et mesure la flèche du début de BC⃗ jusqu'à elle.
 
-**Puis le geste ne passe à la suite que sur un objectif VERT (v521).** La
+**Puis le geste ne passe à la suite que sur un objectif VERT (v523).** La
 demande (Turquet, octobre 2026) : « dans le 8.2.5, tant qu'une case n'est
 pas verte, ne pas passer à la suivante ». `svrSuivant` lit désormais
 `svrJuste`, et `svrFait` a disparu : la v519 avait gardé « fait » pour
@@ -1481,7 +1481,7 @@ comme avant. Le juge (`tests/verifier.js`, copie
 D justes, et BC⃗ à l'envers resté sur « Tracer BC⃗ » ; la copie juste du
 banc navigateur enchaîne toujours d'elle-même.
 
-**Puis les pointes ont toutes pris la taille des pointillés, une croix M suit la souris, et la main a disparu (v522).**
+**Puis les pointes ont toutes pris la taille des pointillés, une croix M suit la souris, et la main a disparu (v523).**
 La demande (Turquet, octobre 2026) : « les pointes de tous les vecteurs aussi
 petites que celles des vecteurs en pointillés de ce même exercice ; quand on
 place le point final, afficher à la pointe de la flèche de la souris une
