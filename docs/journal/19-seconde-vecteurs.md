@@ -2263,7 +2263,7 @@ clic avant les flèches ne pose rien, ne trace aucun vecteur et laisse
 l'étape 2 cachée ; le banc navigateur (6 quadragies septies) clique le
 quadrillage à la souris avant tout glisser et mesure que rien n'est posé.
 
-**Puis les deux étapes se sont montrées dès le départ, chacune dans son encadré, et le cadre bleu passe de l’une à l’autre (v526)**
+**Puis les deux étapes se sont montrées dès le départ, chacune dans son encadré, et le cadre bleu passe de l’une à l’autre (v527)**
 La demande (Turquet, octobre 2026) : « dans le 8.2.9 il faudrait afficher
 les étapes 1 et 2 par un encadré, l'étape 1 ayant un fond bleu au départ et
 l'étape 2 un fond blanc au départ. Quand l'étape 1 est réalisée, le cadre de
