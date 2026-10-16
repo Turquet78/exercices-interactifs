@@ -664,7 +664,7 @@ nommé), le produit croisé (message qui nomme les termes, jamais la flèche),
 −14x (message sans accolade), deux cases vides (la correction) ; enfin le
 7.10 relancé garde ses bulles et ses cases `dvd-…`.
 
-## « x^2 » s'écrit x² dans la case — 7.9, 7.10 et 7.11 (v525)
+## « x^2 » s'écrit x² dans la case — 7.9, 7.10 et 7.11 (v526)
 
 **La demande** (Turquet, octobre 2026, capture du 7.10) : l'élève qui tape
 « x^2 » voyait « x^2 » dans la bulle et dans la case du résultat, pas un 2 en
