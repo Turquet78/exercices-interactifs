@@ -21529,7 +21529,7 @@ function developperDoubleNu(w, P){
       el.value=v; el.setSelectionRange(v.length, v.length); el.dispatchEvent(new Event('input')); return el.value; };
     const exposants=function(nom, id){
       [['8x^2','8x²'],['-3x**2','-3x²'],['x**2','x²'],['15x^','15x^']].forEach(function(e){
-        const lu=tape(id, e[0]); if(lu!==e[1]) vus.push(nom+' : « '+e[0]+' » s\'affiche « '+lu+' » au lieu de « '+e[1]+' »'); });
+        const lu=tape(id, e[0]); if(lu!==e[1]) vus.push(nom+' : « '+e[0]+' » s\\'affiche « '+lu+' » au lieu de « '+e[1]+' »'); });
     };
     test.idx=0; poser({}); exposants('7.11', 'dvn-t-0');
     const lu8=dvlLit(tape('dvn-t-0', '8x**2'));
