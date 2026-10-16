@@ -1864,6 +1864,35 @@ puis 0000 une fois vérifié), trace une flèche fausse (pas de vert, pas de
 nom, pas de prise, le cadre qui le dit) ; le banc navigateur le rejoue à la
 souris et mesure le fond bleu du cadre à faire.
 
+**Puis le tracé s'est fait à la croix, une flèche a suivi la souris, et toutes les pointes se sont affinées (v521).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.8, quand il faut tracer un
+vecteur, mettre une croix sur la pointe de la flèche de la souris, puis quand
+on clique tracer un vecteur de ce point jusqu'à la pointe de la flèche de la
+souris ; quand on reclique le vecteur se fixe. Dans cet exercice tous les
+vecteurs dessinés doivent avoir une pointe plus fine. » **La croix** :
+`#cpsCurseur`, qui ne se montrait qu'à la dernière étape, se montre aussi
+tant qu'une flèche reste à tracer (`!cpsEtapes(q)[1]`) — sans la lettre A′,
+qui n'appartient qu'au point à placer. Le début posé se marque lui aussi
+d'une croix (`cpsCroix` prend `.deb` : le rond qui le marquait est caché sur
+ce dessin depuis la v514, le début posé ne se voyait plus). **La flèche qui
+suit la souris** : la recette de `svcVif` (8.2.1), un calque `#cpsVif` sans
+clic, sous la croix ; du début posé jusqu'à la souris elle-même, dans le
+style de la flèche qu'on trace (trait plein `svc-u` ou pointillés `svc-v`,
+à 80 %) ; elle s'efface au second clic, au début retiré, quand la souris
+quitte le dessin, et ne vit pas au doigt. Le clic de l'hôte va désormais au
+nœud le plus proche AUSSI pendant le tracé — le paragraphe de la v509 le
+refusait parce qu'un tel clic aurait posé un bout de flèche « à l'aveugle » :
+la croix sous la souris lui rend la vue. Il appelle `curseur` après chaque
+clic, celui d'un nœud compris, pour que la flèche parte dès le début posé.
+**Les pointes** : les six marqueurs du dessin (`pointe` dans `cpsSVG`)
+gardent leur longueur et perdent un tiers de leur largeur (`M0 1.8L10 5L0
+8.2z`) — tracées, glissées, corrigées, AA′ et la flèche vive : ce dessin
+seulement. Le banc navigateur (« 6 quadragies sexies ») mesure la croix sans
+lettre sur la souris avant le tracé, la croix du début posé, la flèche du
+nœud B (à 2 px) jusqu'à la souris (à 3 px), pointe comprise et sans clic,
+qui suit la souris qui bouge et s'efface à la fin fixée, puis le tracé de
+chaque pointe.
+
 ## {point-somme-difference} — construire un point par une somme ou une différence de deux vecteurs (8.15, v498)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
@@ -2136,6 +2165,20 @@ navigateur (6 quadragies septies) mesure l'étape 2 sans hauteur au départ,
 puis entre l'étape 1 et le dessin, le curseur caché et le vecteur visible au
 point posé, et l'étape 2 verte comme l'étape 1.
 
+**Puis l'étape 2 a attendu l'étape 1 : plus de point posé avant les flèches bout à bout (v521)**
+La demande (Turquet, octobre 2026) : « en seconde dans le 8.2.9 on ne peut
+pas réaliser l'étape 2 avant l'étape 1. » Le bandeau de l'étape 2 était
+caché, mais le geste ne l'était pas : un clic sur un nœud, ou n'importe où
+dans le quadrillage, posait B′ dès la première seconde — et le bandeau
+caché réapparaissait (`q.sel` le montre). `cvpPose` refuse désormais de
+POSER un point tant que `cvpBoutABout` est faux ; RETIRER un point déjà posé
+reste permis. Un point posé à l'étape 2 reste posé si l'élève déplace
+ensuite ses flèches : le juge garde le cas « construction hors de B, B′
+juste » (1 sur 2), joué désormais dans cet ordre-là. Le juge vérifie qu'un
+clic avant les flèches ne pose rien, ne trace aucun vecteur et laisse
+l'étape 2 cachée ; le banc navigateur (6 quadragies septies) clique le
+quadrillage à la souris avant tout glisser et mesure que rien n'est posé.
+
 ## {tracer-vecteurs-opposes} — tracer −u⃗, −v⃗, −w⃗ (8.1.8, v516)
 
 **La demande** (Turquet, octobre 2026) : « en seconde faire un exercice comme
@@ -2177,3 +2220,16 @@ des flèches avec leur petite flèche, la copie juste (trois chemins à
 l'envers, après un passage par le JSON de la pause), le vecteur égal faux et
 nommé, la flèche verte de −u partie du départ de l'élève vers la gauche, la
 réponse enregistrée, le contexte du modèle, et le 8.1.7 qui reste le 8.1.7.
+
+**Puis le cadre à faire est passé en bleu (v521).** La demande (Turquet,
+octobre 2026) : « en seconde dans le 8.1.8, mettre en bleu le cadre que l'on
+doit réaliser sur le dessin ». La recette de `cps-cours` (8.2.8) : le cadre
+de la flèche à tracer prend `tvx-cours` — liseré et fond bleu clair —, posé
+par `tvxFaits` sur la première flèche sans arrivée (`tvxCourante`), ou sur
+celle dont une extrémité est reprise (`test.tvxMob`), qui quitte alors son
+vert « tracé ». Les trois tracées, aucun cadre n'est bleu ; la vérification
+l'efface (`tvxPeindre`), et la règle ne nomme aucune classe de verdict :
+« 9 bis » ne la lit pas. Même écran, même moteur : le 8.1.7 l'a aussi. Le
+banc principal suit le bleu (100, 010, 000, 100 à la reprise de u, 000 une
+fois vérifié) ; le banc navigateur mesure le fond bleu calculé du cadre ②
+une fois u tracé.

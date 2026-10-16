@@ -2509,6 +2509,7 @@
   #scr-tvx .tvg-cons.sol{border-color:var(--green);background:var(--green-soft)}
   #scr-tvx .tvg-cons.tvx-fait{border-color:var(--green);color:var(--green);background:var(--green-soft)}
   #scr-tvx .tvg-cons.tvx-fait::after{content:" ✓";font-weight:800}
+  #scr-tvx .tvg-cons.tvx-cours{border-color:var(--blue);background:#EAF0FF;color:var(--ink);box-shadow:inset 4px 0 0 var(--blue)}
   #scr-tvx .vec{font-size:1.1em}
   #tvxGraph .sv-svg{max-width:700px}
   .tvx-etape .tvx-sous{font-size:.88rem;color:var(--ink-soft)}
@@ -2583,6 +2584,10 @@
   .cps-svg .vec-t.badc .cps-x{stroke:var(--red)}
   .cps-svg .vec-t.missc .cps-x{stroke:var(--green)}
   .cps-svg .cvp-curseur .cps-x{fill:none;stroke:var(--blue-dark);stroke-width:2.6;stroke-linecap:round;opacity:.8}
+  /* le début d'une flèche commencée : sa croix ; la flèche qui va de lui à la souris ne prend aucun clic */
+  .cps-svg .vec-t.deb .cps-x{stroke:var(--blue-dark)}
+  .cps-svg #cpsVif{pointer-events:none}
+  .cps-svg .cps-vif{opacity:.8}
   /* le vecteur AA′, du point donné au point posé : violet tant qu'il n'est pas jugé */
   .cps-svg .cps-aa{stroke:var(--crd-a);stroke-width:2.6;stroke-linecap:round}
   .cps-svg .cps-aa-t{fill:var(--crd-a)} .cps-svg .cps-aa-f{stroke:var(--crd-a)}
@@ -57708,11 +57713,14 @@ function cpsSVG(q){
       +`<circle class="hit" cx="${X(i)}" cy="${Y(j)}" r="10"/><circle class="dot" cx="${X(i)}" cy="${Y(j)}" r="5"/>`
       +`<text class="vec-dlbl vec-lbl" x="${X(i)+8}" y="${Y(j)-8}">${L}</text></g>`;
   }
-  const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
+  /* une pointe FINE sur tous les vecteurs de ce dessin (demande de Turquet,
+     octobre 2026) : le triangle garde sa longueur, il perd un tiers de sa
+     largeur — tracés, glissés, corrigés, AA′ et la flèche qui suit la souris */
+  const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1.8L10 5L0 8.2z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg cps-svg" role="img" aria-label="Quadrillage : cinq points nommés, les vecteurs à tracer puis à faire glisser">`
     +'<defs>'+pointe('cpsArr0','var(--ink)')+pointe('cpsArr1','var(--ink-soft)')+pointe('cpsArrE','var(--blue)')
     +pointe('cpsArrB','var(--red)')+pointe('cpsArrS','var(--green)')+pointe('cpsArrA','var(--crd-a)')+'</defs>'
-    +g+'<g id="cpsCorr"></g><g id="cpsFl"></g><g id="cpsSol"></g>'+pts+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cpsPrises"></g>`
+    +g+'<g id="cpsCorr"></g><g id="cpsFl"></g><g id="cpsSol"></g>'+pts+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cpsPrises"></g><g id="cpsVif" aria-hidden="true"></g>`
     +`<g id="cpsCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><path class="cps-x" d="M-6 -6l12 12M-6 6l12 -12"/><text class="vec-lbl" x="8" y="-8">${L}</text></g></svg>`;
 }
 /* Les deux flèches tracées, à leur place du moment, et leurs prises. La
@@ -57756,7 +57764,7 @@ function cpsDessiner(q){
    la mémoire du banc principal dans l'action. */
 function cpsCroix(){
   document.querySelectorAll('#cpsGraph .vec-t .cps-x').forEach(function(x){ x.remove(); });
-  document.querySelectorAll('#cpsGraph .vec-t.sel, #cpsGraph .vec-t.okc, #cpsGraph .vec-t.badc, #cpsGraph .vec-t.missc').forEach(function(el){
+  document.querySelectorAll('#cpsGraph .vec-t.sel, #cpsGraph .vec-t.okc, #cpsGraph .vec-t.badc, #cpsGraph .vec-t.missc, #cpsGraph .vec-t.deb').forEach(function(el){
     const c=el.querySelector('.dot'); if(!c) return;
     const X=+c.getAttribute('cx'), Y=+c.getAttribute('cy');
     const x=document.createElementNS('http://www.w3.org/2000/svg','path');
@@ -57901,9 +57909,14 @@ function cpsBrancher(){
   /* À la dernière étape — les deux flèches bout à bout depuis le point, A′
      pas encore posé —, le point suit la pointe de la souris, PAR-DESSUS les
      flèches, comme au 8.2.9 ; posé, il ne la suit plus (demande de Turquet,
-     octobre 2026). Les deux flèches tracées, un clic n'importe où dans le
-     quadrillage pose le point au nœud le plus proche ; les nœuds et les
-     prises gardent leur propre clic. */
+     octobre 2026). Un clic n'importe où dans le quadrillage va au nœud le
+     plus proche ; les nœuds et les prises gardent leur propre clic.
+     PENDANT LE TRACÉ d'une flèche aussi (demande de Turquet, octobre 2026) :
+     une croix, sans lettre, est sur la pointe de la souris ; le début posé
+     (une croix sur son nœud), une flèche va de lui jusqu'à la pointe de la
+     souris — la souris elle-même, pas le nœud : la flèche suit la main, le
+     clic suivant la fixe au nœud le plus proche. Le dessin du geste, dans le
+     style de la flèche tracée, jamais un verdict ; rien n'en est rangé. */
   const vue=function(ev){
     const svg=host.querySelector('.cps-svg'); if(!svg) return null;
     const m=pas(svg), x=(ev.clientX-m.r.left)/m.k, y=(ev.clientY-m.r.top)/m.k;
@@ -57914,8 +57927,18 @@ function cpsBrancher(){
   const curseur=function(ev){
     const c=host.querySelector('#cpsCurseur'); if(!c) return;
     const q=test.kind==='cps'&&test.questions[test.idx];
-    const v=ev&&!gl&&q&&!test.locked&&!test.cpsFigePt&&!q.pt&&ev.pointerType!=='touch'&&cpsEtapes(q)[2]&&vue(ev);
+    const e=q&&cpsEtapes(q), trace=!!e&&!e[1];
+    const v=ev&&!gl&&q&&!test.locked&&ev.pointerType!=='touch'&&(trace||(e[2]&&!q.pt&&!test.cpsFigePt))&&vue(ev);
+    const vif=host.querySelector('#cpsVif');
+    let h='';
+    if(v&&trace){
+      const k=e[0]?1:0, d=k?q.d2:q.d1, f=k?q.f2:q.f1;
+      if(d&&!f){ const x1=cpsX(d[0]), y1=cpsY(d[1]);
+        if(Math.hypot(v.x-x1, v.y-y1)>6) h=`<line class="${k?'svc-v':'svc-u'} cps-vif" x1="${x1}" y1="${y1}" x2="${v.x.toFixed(1)}" y2="${v.y.toFixed(1)}" marker-end="url(#${k?'cpsArr1':'cpsArr0'})"/>`; }
+    }
+    if(vif) vif.innerHTML=h;
     if(!v){ c.style.display='none'; return; }
+    const lb=c.querySelector('.vec-lbl'); if(lb) lb.style.display=trace?'none':'';
     c.setAttribute('transform','translate('+v.x+' '+v.y+')');
     c.style.display='';
   };
@@ -57923,10 +57946,12 @@ function cpsBrancher(){
   host.addEventListener('pointerleave', function(){ curseur(null); });
   host.addEventListener('click', function(ev){
     /* le clic qui suit l'appui sur une prise est déjà traité : glisser ou poser */
-    const t=ev.target; if(!t.closest||!t.closest('.cps-svg')||t.closest('.vec-t, .vec-zone, .svc-prise')||apresPrise) return;
-    if(test.kind!=='cps'||test.locked) return;
-    const q=test.questions[test.idx]; if(!q||!cpsEtapes(q)[1]) return;
-    const v=vue(ev); if(v){ cpsPose(v.i,v.j); curseur(ev); }
+    const t=ev.target, q=test.kind==='cps'&&test.questions[test.idx];
+    if(q&&!test.locked&&t.closest&&t.closest('.cps-svg')&&!t.closest('.vec-t, .vec-zone, .svc-prise')&&!apresPrise){
+      const v=vue(ev); if(v) cpsPose(v.i,v.j); }
+    /* après le clic d'un nœud aussi : la flèche qui suit la souris part du
+       début qu'il vient de poser, ou s'efface sur la fin qu'il vient de fixer */
+    curseur(ev&&ev.pointerType!=='touch'?ev:null);
   });
   host.addEventListener('keydown', function(ev){
     const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
@@ -58355,12 +58380,15 @@ function tvxConsigne(q){
 }
 /* Chaque flèche TRACÉE passe au vert — tracée, pas juste : la vérification
    seule dira si elle est bonne, et une consigne déjà marquée par elle garde
-   son verdict. */
+   son verdict. Le cadre de la flèche À TRACER (ou de celle dont une
+   extrémité est reprise) est en bleu, la recette de cps-cours (8.2.8). */
 function tvxFaits(q){
+  const cours=test.locked?-1:(test.tvxMob?test.tvxMob.k:tvxCourante(q));
   [0,1,2].forEach(function(k){
     const c=$('tvx-'+TVX_N[k]); if(!c) return;
     const verdict=c.classList.contains('ok')||c.classList.contains('bad')||c.classList.contains('sol');
-    c.classList.toggle('tvx-fait', !!tvxF(q,k)&&!verdict);
+    c.classList.toggle('tvx-fait', !!tvxF(q,k)&&!verdict&&k!==cours);
+    c.classList.toggle('tvx-cours', k===cours&&!verdict);
   });
 }
 /* Les gestes de la souris, écouteurs DÉLÉGUÉS à l'hôte (le dessin se
@@ -58432,7 +58460,7 @@ function tvxPourquoi(q,subs){
 }
 /* Peindre les trois consignes : bleu, rouge, ou vert si vide (final). */
 function tvxPeindre(subs, final){
-  subs.forEach(function(s){ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad','sol','tvx-fait');
+  subs.forEach(function(s){ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad','sol','tvx-fait','tvx-cours');
     if(s.ok) el.classList.add('ok'); else if(!s.vide) el.classList.add('bad'); else if(final) el.classList.add('sol'); });
 }
 /* Une place pour montrer en vert la flèche juste d'un vecteur manqué : au
@@ -58851,6 +58879,10 @@ function cvpPose(i,j){
   if(test.locked||test.kind!=='cvp'||test.cvpFigePt) return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>SVC_W||j<0||j>SVC_H) return;
+  /* l'étape 2 attend l'étape 1 : pas de point posé tant que les flèches ne
+     sont pas bout à bout depuis le point (demande de Turquet, octobre 2026) ;
+     un point déjà posé se retire toujours */
+  if(!svcEgal(q.sel,[i,j]) && !cvpBoutABout(q) && !test.cvpFigeCh) return;
   q.sel=svcEgal(q.sel,[i,j])?null:[i,j];
   const pt=$('cvp-pt'); if(pt) pt.classList.remove('ok','bad');
   /* le point posé, plus de point au bout de la souris (demande de Turquet, octobre 2026) */
