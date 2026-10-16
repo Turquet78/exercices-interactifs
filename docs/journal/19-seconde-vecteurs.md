@@ -2014,6 +2014,22 @@ croix A′ qui suit la souris avec sa lettre. Le banc navigateur (« 6
 quadragies sexies ») renverse ses deux mesures : aucune croix visible sous la
 souris, avant le tracé ni le début posé ; la flèche vive est toujours mesurée.
 
+**Puis la flèche fausse s'est peinte en ROUGE dès le tracé (v530).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.8 mettre les vecteurs en
+rouge si la réponse de l'élève ne correspond pas à ce qui est demandé. »
+Depuis la v517, une flèche tracée qui n'est pas le bon vecteur restait au
+dessin sans nom ni prise, dans l'encre de la flèche à tracer ; son cadre
+seul disait « Ce n’est pas le vecteur … ». `cpsDessiner` la peint désormais
+`svc-eb` (trait et pointe rouges, `cpsArrB`) dès qu'elle est tracée, sans
+attendre la vérification — même logique que le cadre, qui le disait déjà :
+le prix nommé à la v517 (l'élève l'apprend avant de vérifier, en évaluation
+aussi) ne change pas. Une flèche juste garde son encre jusqu'à la
+vérification ; le clic suivant retrace la fausse, et le rouge part avec
+elle. La règle « une case vide ne rougit jamais » n'est pas touchée : seule
+une flèche tracée peut rougir. Le juge lit `svc-eb` et `cpsArrB` sur la
+flèche fausse ; le banc navigateur (« 6 quadragies sexies ») mesure la
+dominante rouge de son trait calculé.
+
 ## {point-somme-difference} — construire un point par une somme ou une différence de deux vecteurs (8.15, v498)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fais un exercice comme
@@ -2642,7 +2658,75 @@ Quatre sabotages ont été attrapés :
 - les flèches tracées avant la vérification : le soutien révèle, et le banc
   le dit deux fois.
 
-## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.11, v530 — v528 et v529 prises par le 8.2.9, le 8.1.10 et le 8.2.5)
+## {chasles-inserer-point} — Chasles : insérer un point (8.2.11, v530 — v528 puis v529 prises par le 8.2.9, le 8.1.10 et le 8.2.5 pendant la rédaction)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
+sur les vecteurs, Turquet a retenu la neuvième : « Chasles : insérer un
+point », le sens INVERSE des 8.2.2 à 8.2.7. Là, on réduisait une somme en un
+seul vecteur ; ici, on DÉCOMPOSE un vecteur. Ajouté en dernier du sous-thème
+« Somme de vecteurs » : 8.2.11, rien ne se renumérote.
+
+**Quatre formes de ligne** (`CHI_FORMES`, le plan `CHI_PLAN` = l, m, e, m, d) :
+- `l` — AC⃗ = A…⃗ + …C⃗ : un point LIBRE, une case d'une lettre sous chaque
+  flèche ; juste dès que les deux cases portent le même point ;
+- `m` — AC⃗ = …B⃗ + B…⃗ : le point B est IMPOSÉ, l'élève écrit le début et
+  la fin ; le piège est le chemin à l'envers (CB⃗ + BA⃗ = CA⃗) ;
+- `e` — AC⃗ = …⃗ + …⃗ « en passant par B » : les deux vecteurs entiers ; le
+  piège de la demande, AC⃗ = AB⃗ + CB⃗, se nomme (« CB part de C : […] AC = AB
+  + BC, pas AB + CB ») ;
+- `d` — AB⃗ = A…⃗ + …⃗ + …B⃗ : deux points insérés (une lettre, un vecteur,
+  une lettre).
+
+Onze cases par page. **Une page sur deux a une figure** : la première, celle
+du 8.2.2 (`chsPoints`, `chsSvg` — rectangle, carré, parallélogramme ou
+losange, et le centre), la seconde des points quelconques, sans dessin
+(`q.f`). `CHI_NB` = 2 pages, barème 22 ; `dmNbQuestions` allonge la séance en
+alternant. Deux exercices partagent le dessin, pas l'identité (kind `chi`,
+écran `scr-chi`, `RAP_CHI`, `QIA_SUGG.chi`, `ctxChi`).
+
+**Toute égalité juste est acceptée.** Le juge ne compare pas des lettres
+attendues : `chiSolutions()` énumère toutes les façons de remplir les cases
+qui rendent l'égalité vraie — par les déplacements de la figure, ou, sans
+figure, en lisant XY⃗ comme Y − X (deux vecteurs n'y sont égaux que s'ils ont
+les mêmes lettres). Sur la figure, AB⃗ = …E⃗ + E…⃗ s'écrit AE⃗ + EB⃗ mais aussi
+DE⃗ + EC⃗ (DC⃗ = AB⃗) ; le point libre peut être n'importe quel point (même A :
+AA⃗ + AC⃗ est vrai). « En passant par B » ajoute une seule exigence : le
+premier vecteur arrive en B, le second en part. Chaque case se juge contre
+les écritures qui restent possibles après les cases JUSTES qui la précèdent
+(la règle du 8.2.3) : dans AB⃗ + CB⃗, AB reste bleu. La correction écrit la
+décomposition par le point attendu (`p`, rangé) quand elle garde les cases
+justes, une autre écriture juste sinon. Le badge vert d'une case fausse sort
+de la flèche et écrit le vecteur ENTIER (une case d'une lettre, seule, n'en
+disait pas assez).
+
+**On range la figure, les lettres et les lignes** (`f`, `fig`, `fx`, `fy`,
+`n`, `lignes` : `t`, `v`, `p`), jamais les réponses.
+
+**Ce qui a été décidé sans demander** (la consigne était de ne pas demander) :
+l'ordre des quatre formes, deux `m` par page (le piège du sens est le plus
+fréquent), la figure du 8.2.2 plutôt qu'une nouvelle, et un point libre qui
+peut être une extrémité du vecteur (l'égalité est vraie : la refuser
+contredirait « toute décomposition juste est acceptée »).
+
+**Le banc** (`chaslesInsererPoint`, banc principal) a un juge INDÉPENDANT :
+sur une page à figure il relit les points sur le DESSIN (le SVG comme du
+texte, jamais posé dans le DOM — la leçon du 8.1.9 et des 4 Go de l'action) ;
+sans figure, il donne à chaque lettre des coordonnées quelconques dans
+l'espace. Sur 300 séances : chaque correction relue, le plan, la figure en
+première page et aucune en seconde, aucune lettre répétée dans une ligne,
+aucun vecteur demandé deux fois, chaque forme de figure tirée ; et, une
+séance sur dix, l'ensemble des écritures que la page accepte comparé à celui
+que le juge trouve, case par case. Puis par le bouton, sur une page fixe à
+figure : 11 cases, la copie juste, d'autres écritures justes en minuscules
+(E, DE + EC, AE + EC + CB), AB + CB (rouge, AB bleu, « pas AB + CB », badge
+BC hors de la flèche), le chemin à l'envers, le point qui ne se répète pas,
+le premier vecteur qui n'arrive pas en B, une lettre hors de la figure, deux
+points qui ne s'enchaînent pas, la case vide (correction), la copie vide
+(aucun rouge), la reprise après JSON, le soutien qui peint sans révéler ; et
+sur une page fixe SANS figure : aucun dessin, une copie juste à points libres
+(Q, A, B), deux pièges ; enfin le contexte du modèle.
+
+## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.12, v531 — v528 et v529 prises par le 8.2.9, le 8.1.10 et le 8.2.5 ; puis le 8.2.11 et la v530 par {chasles-inserer-point}, fusionné juste avant)
 
 **La demande** (Turquet, octobre 2026). Dans la liste d'idées d'exercices sur
 les vecteurs, Turquet a retenu la n° 7 : « Trois vecteurs bout à bout ». Sur
@@ -2650,7 +2734,7 @@ un quadrillage, trois vecteurs u⃗, v⃗, w⃗ ; l'élève construit u⃗ + v�
 les enchaînant bout à bout à partir d'un point, puis trace le vecteur somme.
 De temps en temps, la somme revient au point de départ : c'est le vecteur
 nul, et l'élève le déclare. Ajouté en dernier du sous-thème « Somme de
-vecteurs » : 8.2.11, rien ne se renumérote.
+vecteurs » : 8.2.12, rien ne se renumérote.
 
 **Un moteur à lui, les pièces du 8.2.1.** Kind `stv`, écran `scr-stv`. Le
 geste est celui du 8.2.10 (glisser ET tracer ouverts à tout moment, rien ne

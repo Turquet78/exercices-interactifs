@@ -9275,8 +9275,12 @@ if(require.main === module) (async () => {
       await clic(2, 4); await clic(5, 2);
       const faux = await s.page.evaluate(() => ({ f1: test.questions[test.idx].f1,
         cours: document.getElementById('cps-t1').classList.contains('cps-cours'), fait: document.getElementById('cps-t1').classList.contains('cps-fait'),
-        noms: [...document.querySelectorAll('#cpsFl text.svc-nom')].length, txt: document.getElementById('cps-t1').textContent }));
+        noms: [...document.querySelectorAll('#cpsFl text.svc-nom')].length, txt: document.getElementById('cps-t1').textContent,
+        trait: (() => { const l = document.querySelector('#cpsFl line'); return l ? getComputedStyle(l).stroke : ''; })() }));
       if(!faux.f1 || !faux.cours || faux.fait || faux.noms || faux.txt.indexOf('Ce n’est pas le vecteur') < 0) dits.push('une flèche fausse valide le cadre ① ou porte un nom : ' + JSON.stringify(faux));
+      /* … et elle se peint en ROUGE dès le tracé (v530) : la dominante du trait est le rouge */
+      { const c = (faux.trait.match(/\d+/g) || []).map(Number);
+        if(c.length < 3 || !(c[0] > 150 && c[0] > c[1] + 60 && c[0] > c[2] + 60)) dits.push('la flèche fausse ne s\'affiche pas en rouge dès le tracé : ' + faux.trait); }
       /* ① BC : B puis C — un clic à un cinquième de maille s'accroche au nœud.
          Pendant le tracé, AUCUNE croix sur la pointe de la souris (v527) ;
          le début posé (sa croix), une flèche va de lui jusqu'à la souris, et
@@ -9699,7 +9703,7 @@ if(require.main === module) (async () => {
     }
 
     /* ===== 6 quadragies novies. TROIS VECTEURS BOUT À BOUT ===== */
-    /* {somme-trois-vecteurs} (8.2.11, demande de Turquet, octobre 2026, l'idée
+    /* {somme-trois-vecteurs} (8.2.12, demande de Turquet, octobre 2026, l'idée
        n° 7) : l'élève fait glisser u, v, w À LA SOURIS bout à bout depuis le
        point, clique le début de la somme À TRAVERS la prise de u (posée sur
        le point), la flèche suit la souris, il clique la fin et vérifie ; puis,
