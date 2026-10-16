@@ -12751,9 +12751,12 @@ function lireSommeDessin(w, P){
         const lettres=[nomme(J.ch[0].a)];
         J.ch.forEach(function(f, i){ if(i && !J.meme(f.a, J.ch[i-1].b)) vus.push('la chaîne est coupée après la flèche '+i); lettres.push(nomme(f.b)); });
         if(lettres.some(function(x){ return !x; })) vus.push('une flèche de la chaîne ne relie pas deux points nommés');
-        /* u⃗ et v⃗ sont égaux à deux flèches CONSÉCUTIVES de la chaîne */
-        const iu=J.ch.findIndex(function(f){ return J.meme(J.dep(f), J.dep(U)); }), iv=J.ch.findIndex(function(f){ return J.meme(J.dep(f), J.dep(V)); });
-        if(iu<0 || iv<0 || Math.abs(iu-iv)!==1) vus.push('u et v ne sont pas égaux à deux flèches consécutives de la chaîne ('+iu+', '+iv+')');
+        /* u⃗ et v⃗ sont égaux à deux flèches CONSÉCUTIVES de la chaîne — deux
+           flèches de la chaîne peuvent être égales (une figure sur onze) :
+           on cherche TOUTES celles qui font le chemin, pas la première */
+        const egales=function(g){ return J.ch.map(function(f, i){ return J.meme(J.dep(f), J.dep(g)) ? i : -1; }).filter(function(i){ return i>=0; }); };
+        const iu=egales(U), iv=egales(V);
+        if(!iu.some(function(a){ return iv.some(function(b){ return Math.abs(a-b)===1; }); })) vus.push('u et v ne sont pas égaux à deux flèches consécutives de la chaîne ('+iu+' ; '+iv+')');
         /* les flèches libres passent loin des points nommés */
         [U, V, W].forEach(function(f){ Object.keys(J.pts).forEach(function(k){ if(distPS(J.pts[k], f.a, f.b)<30) vus.push('une flèche libre passe à '+Math.round(distPS(J.pts[k], f.a, f.b))+' px du point '+k); }); });
         const sm=plus(J.dep(U), J.dep(V)), w=J.dep(W);
