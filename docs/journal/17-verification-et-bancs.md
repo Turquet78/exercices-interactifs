@@ -335,4 +335,6 @@ de contrôles plus loin. C'est plus près de ce que fait un navigateur.
 `stvBuildQuestions()`, sans dessin. Faute de cause trouvée, elle avait d'abord
 relevé le tas du banc jsdom à 6 Go dans `controles.yml`. Le correctif du
 paragraphe précédent, fusionné entre-temps, rend ce relèvement inutile : il
-a été retiré avant la fusion, et `controles.yml` est celui de main.
+a été retiré avant la fusion, et `controles.yml` est celui de main. Rejoué en local
+sous `--max-old-space-size=4096`, avec le 8.2.13 : 938 contrôles passés, 2,6 Go
+de mémoire au plus haut.
