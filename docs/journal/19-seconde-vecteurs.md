@@ -2519,7 +2519,7 @@ Trois sabotages ont été attrapés :
 - le mot « RETOURNÉ » retiré du message ;
 - le dessin jugé en soutien.
 
-## {regle-parallelogramme} — la règle du parallélogramme (8.2.11, v528)
+## {regle-parallelogramme} — la règle du parallélogramme (8.2.11, v529)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
 sur la somme de vecteurs, Turquet a retenu la sixième : « la règle du
