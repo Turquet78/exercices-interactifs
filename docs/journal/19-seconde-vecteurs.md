@@ -2751,7 +2751,7 @@ points qui ne s'enchaînent pas, la case vide (correction), la copie vide
 sur une page fixe SANS figure : aucun dessin, une copie juste à points libres
 (Q, A, B), deux pièges ; enfin le contexte du modèle.
 
-## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.12, v531 — v528 à v530 et le numéro 8.2.11 pris pendant la rédaction, par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et « Chasles : insérer un point »)
+## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.12, v532 — v528 à v531 et le numéro 8.2.11 pris pendant la rédaction, par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et « Chasles : insérer un point »)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
 par Claude, Turquet a retenu l'idée n° 8, « lire une somme sur un dessin » :
