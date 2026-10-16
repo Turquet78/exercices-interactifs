@@ -9083,7 +9083,7 @@ if(require.main === module) (async () => {
       if(!mes.svg) dits.push('le repère ne se dessine pas (ou trop petit)');
       if(!mes.vec) dits.push('les vecteurs de l\'énoncé ne sont pas écrits avec leur flèche');
       if(mes.grad !== 19) dits.push(mes.grad + ' graduations au lieu de 19 (−5 à 5 et −4 à 4, sauf 0, puis 0)');
-      if(mes.boutons !== 7) dits.push(mes.boutons + ' boutons de gestes au lieu de 7');
+      if(mes.boutons !== 8) dits.push(mes.boutons + ' boutons de gestes au lieu de 8');
       const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
         const svg = document.querySelector('#svrGraph .svr-svg');
         const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
@@ -9100,6 +9100,13 @@ if(require.main === module) (async () => {
           prises: document.querySelectorAll('#svrPrises .svc-prise').length }; });
       /* ① les quatre points, d'un clic chacun : le geste avance tout seul ; le
          premier clic tombe à un cinquième de maille du nœud */
+      /* « placer A » : une croix et la lettre A à la pointe de la souris, et
+         aucun point rond au nœud survolé */
+      { const p = await pos(3.1, 3.9); await s.page.mouse.move(p.px, p.py, { steps: 3 }); await s.page.waitForTimeout(80);
+        const c = await s.page.evaluate(() => { const g = document.querySelector('#svrVif .svr-pt'), n = svrNoeud([3, 4]).querySelector('.dot');
+          return { lettre: g ? g.textContent : '', rond: getComputedStyle(n).stroke !== 'rgba(0, 0, 0, 0)' && getComputedStyle(n).stroke !== 'transparent' }; });
+        if(c.lettre !== 'A') dits.push('« placer A » : aucune croix A à la pointe de la souris');
+        if(c.rond) dits.push('survoler un nœud y montre un point rond'); }
       await clic(3, 4, 0.2); await clic(1, 2); await clic(3, 1); await clic(-2, -3);
       let e = await etat();
       if(JSON.stringify(e.pl) !== JSON.stringify(q0.P) || e.croix !== 4) dits.push('les quatre points ne se posent pas où l\'on clique : ' + JSON.stringify(e.pl));
@@ -9126,7 +9133,7 @@ if(require.main === module) (async () => {
       if(JSON.stringify(e.t) !== JSON.stringify([{ d: [1, 2], f: [3, 1] }, { d: [1, 2], f: [3, 4] }]))
         dits.push('les deux vecteurs ne se tracent pas en deux clics chacun : ' + JSON.stringify(e.t));
       if(e.fleches !== 2 || e.prises !== 2) dits.push(e.fleches + ' flèche(s) et ' + e.prises + ' prise(s) au lieu de 2 et 2');
-      if(e.outil !== 'M') dits.push('après les deux vecteurs, le geste n\'est pas « placer M » : ' + e.outil);
+      if(e.outil !== 'ch') dits.push('après les deux vecteurs, le geste n\'est pas « fais glisser » : ' + e.outil);
       /* ③ les copies glissent : BC de B jusqu'à D, BA de B jusqu'au bout de la copie de BC */
       const glisser = async (k, d) => {
         const q = await s.page.evaluate(k => { const q = test.questions[test.idx]; return { s: svrCopie(q, k), c: svrTv(q, k) }; }, k);
@@ -9141,8 +9148,9 @@ if(require.main === module) (async () => {
       if(JSON.stringify(e.cp) !== '[[-2,-3],[0,-4]]' || !e.ch) dits.push('les copies ne s\'accrochent pas bout à bout depuis D : ' + JSON.stringify(e.cp));
       if(JSON.stringify(e.t[0]) !== '{"d":[1,2],"f":[3,1]}') dits.push('glisser la copie a déplacé le vecteur tracé');
       if(e.fleches !== 4) dits.push(e.fleches + ' flèches au lieu de 4 (les deux vecteurs et leurs copies)');
-      /* les objectifs réalisés sont verts, sur fond vert clair ; avant M, le
-         survol d'un nœud y montre un point */
+      if(e.outil !== 'M') dits.push('les copies bout à bout, le geste ne passe pas à « placer M » : ' + e.outil);
+      /* les objectifs réalisés sont verts, sur fond vert clair ; le survol
+         d'un nœud n'y montre jamais de point rond */
       const vert = async id => await s.page.evaluate(id => { const cs = getComputedStyle(document.getElementById(id));
         const v = c => { const m = c.match(/\d+(\.\d+)?/g) || []; return m.length >= 3 && +m[1] > +m[0] && +m[1] > +m[2]; };
         return v(cs.borderTopColor) && v(cs.backgroundColor); }, id);
@@ -9150,7 +9158,7 @@ if(require.main === module) (async () => {
       if(await vert('svr-M')) dits.push('« Placer M » est vert avant que M soit posé');
       const survol = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py); await s.page.waitForTimeout(80);
         return await s.page.evaluate(([x, y]) => { const n = svrNoeud([x, y]).querySelector('.dot'); return getComputedStyle(n).stroke !== 'rgba(0, 0, 0, 0)' && getComputedStyle(n).stroke !== 'transparent'; }, [x, y]); };
-      if(!(await survol(-5, 4))) dits.push('avant M, survoler un nœud n\'y montre pas de point');
+      if(await survol(-5, 4)) dits.push('avant M, survoler un nœud y montre un point rond');
       /* « Placer M » : une croix M suit la pointe de la souris, et la souris
          ne montre jamais de main, ni près d'un nœud ni sur une copie */
       { const cur = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py); await s.page.waitForTimeout(80);

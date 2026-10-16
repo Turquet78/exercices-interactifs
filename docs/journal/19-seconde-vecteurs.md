@@ -1507,6 +1507,43 @@ croix M à la souris, la classe `svr-croix`, les trois pointes à
 (« 6 quadragies quinquies ») bouge la vraie souris près d'un nœud et sur une
 copie : croix M centrée sur la souris, aucun curseur `pointer` ni `grab`.
 
+**Puis une croix suit la souris pour CHAQUE point, le point rond a disparu, un point faux rougit, un vecteur égal compte, et le glisser est devenu un geste (v525).**
+La demande (Turquet, octobre 2026) : « dans le 8.2.5, je ne veux pas qu'un
+point rond apparaisse sur le quadrillage quand la souris est à côté ; quand
+on doit placer un point, une croix à l'extrémité de la flèche de la souris
+ainsi que le nom du point à placer ; un point mal placé en rouge sur le
+dessin ; à l'étape deux, on accepte un vecteur correct qui ne démarre pas du
+point demandé ; l'étape 3, impossible de la faire : on me demande de placer
+le point M directement ». **Le point rond** : sous `.svr-svg`, le survol
+d'un nœud ne montre plus rien (`.vec-t:not(.sel):hover .dot`) — le début
+posé d'un vecteur garde son point ; la classe `svr-repos` (M posé) a
+disparu avec la règle qu'elle portait. **La croix** de M (v523) vaut pour A,
+B, C, D : `svrVif` la dessine dès que le geste choisi est un point pas
+encore juste, avec SA lettre. **Le rouge** : `svrCoulPt` peint un point posé
+qui n'est pas à sa place en `eb` dès qu'il est posé — et la flèche DM⃗ vers
+un M faux avec lui ; avant, le rouge attendait la vérification. Le vert de
+l'objectif disait déjà juste ou non : le rouge n'apprend rien de plus, en
+devoir non plus. **Le vecteur égal** : `svrJuste` (et `svrJuge`, qui le lit
+désormais) compare le vecteur tracé au vecteur demandé, plus ses deux
+bouts ; le message « à l'envers » lit le vecteur opposé, où qu'il soit. La
+construction se juge comme avant sur les vecteurs de l'élève : un BA⃗ tracé
+depuis D est déjà au départ. **L'étape 3** : « Fais glisser … » n'était
+qu'une étiquette (`span`), hors de `SVR_OUTILS` — les deux vecteurs justes,
+`svrSuivant` sautait au geste « Placer M », la croix M suivait la souris, et
+un appui sur une copie sans assez de mouvement posait M. Le glisser est
+maintenant un geste (`ch`, bouton de l'étape ③) : les vecteurs justes y
+mènent, un clic sur un nœud n'y pose rien, aucune croix ne suit la souris,
+la prise garde sa main ouverte ; faire glisser une copie choisit ce geste,
+et les copies bout à bout depuis le point d'origine passent à « Placer M ».
+Huit boutons de gestes au lieu de sept ; le barème reste à 8. Le juge
+(`tests/verifier.js`) tient la croix A à la souris, la règle du survol, A
+faux rouge avant la vérification puis A et M rouges, le geste « fais
+glisser » après les vecteurs (un clic n'y pose pas M), le passage à M une
+fois bout à bout, et une copie où BC⃗ est tracé depuis (−5 ; 0) et BA⃗
+depuis D — 8 sur 8. Le banc navigateur (« 6 quadragies quinquies ») bouge
+la vraie souris près de A : croix A, aucun point rond ; « fais glisser »
+après les vecteurs, « Placer M » après le glisser.
+
 ## {chasles-alignes} — la relation de Chasles sur une droite (8.12, v494)
 
 **La demande** (Turquet, octobre 2026, le même jour que le 8.9 et avec la même phrase, mais une AUTRE fiche) : « en seconde fais un exercice comme
