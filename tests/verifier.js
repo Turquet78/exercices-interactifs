@@ -4525,6 +4525,7 @@ function exercices(suite){
     reduireProduit(w, P);
     developperDistributivite(w, P);
     developperDouble(w, P);
+    developperDoubleNu(w, P);
     translationGrille(w, P);
     vecteursEgauxTableau(w, P);
     vecteursEgaux(w, P);
@@ -21295,6 +21296,101 @@ function developperDouble(w, P){
     /* le barème : 4 pages de 15 cases */
     startDvd();
     if(test.maxScore!==60) vus.push('barème de '+test.maxScore+' au lieu de 60');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {developper-double-nu} — thème 7 « Calcul littéral », 7.11 : le 7.10 sans
+   son échafaudage (ni flèches, ni bulles, ni accolades), sur le même moteur.
+   Ce que ce contrôle tient : la place, l'identité (kind, qId, cases « dvn-… »),
+   l'ABSENCE de tout dessin, la copie juste de la fiche écrite ICI à la main, et
+   les pièges qui ne parlent plus de flèche ni d'accolade. */
+function developperDoubleNu(w, P){
+  const present = evaluer(w, "typeof startDvd==='function' && !!TESTS['developper-double-nu']");
+  if(!present.ok || !present.valeur){
+    ignorer('développer avec la double distributivité sans les flèches : la place, la page nue et la correction',
+      'ce niveau n\'a pas l\'exercice de double distributivité sans les flèches');
+    return;
+  }
+  verifierEval(w, 'développer avec la double distributivité sans les flèches : la place, la page nue et la correction', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='developper-double-nu';
+    if(TEST_NUM['developper-double-nu']!=='7.11') vus.push('numéro '+TEST_NUM['developper-double-nu']+' au lieu de 7.11');
+    if(TEST_NUM['developper-double']!=='7.10') vus.push('le 7.10 a bougé');
+    if(TABLES_SANS.indexOf('developper-double-nu')>=0) vus.push('le bouton des tables est retiré : chaque produit se calcule');
+
+    const M=function(c,d){ return {c:c,d:d}; };
+    const FICHE=[
+      {forme:'A', f1:[M(4,1),M(-3,0)], f2:[M(2,1),M(-5,0)]},
+      {forme:'B', f1:[M(3,1),M(-4,0)], f2:[M(5,1),M(-3,0)]},
+      {forme:'C', f1:[M(1,1),M(-2,0)], f2:[M(8,1),M(-1,0)]},
+      {forme:'D', f1:[M(3,1),M(-2,0)], f2:[M(2,1),M(5,0)]}
+    ];
+    const JUSTE=[
+      {f:['4x','2x','4x','(-5)','(-3)','2x','-3','(-5)'], t:['8x²','-20x','-6x','+15'], r:['8x^2','-26x','+15']},
+      {f:['3x','5x','3x','-3','-4','5x','(-4)','-3'], t:['15x^2','-9x','-20x','+12'], r:['15x²','-29x','+12']},
+      {f:['x','8x','x','-1','-2','8x','-2','-1'], t:['8x²','-x','-16x','+2'], r:['8x²','-17x','+2']},
+      {f:['3x','2x','3x','5','-2','2x','-2','+5'], t:['6x²','+15x','-4x','-10'], r:['6x²','+11x','-10']}
+    ];
+    const ids=function(j){
+      const o={}, J=JUSTE[j];
+      for(let i=0;i<4;i++){ o['dvn-f-'+i+'-1']=J.f[2*i]; o['dvn-f-'+i+'-2']=J.f[2*i+1]; o['dvn-t-'+i]=J.t[i]; }
+      J.r.forEach(function(v,m){ o['dvn-r-'+m]=v; });
+      return o;
+    };
+    startDvd('dvn');
+    if(test.kind!=='dvn' || test.qId!=='developper-double-nu') vus.push('identité '+test.kind+' / '+test.qId);
+    if(test.maxScore!==60) vus.push('barème de '+test.maxScore+' au lieu de 60');
+    if(!document.querySelector('#scr-dvn.on')) vus.push('l\\'écran du 7.11 n\\'est pas affiché');
+    test.questions=FICHE.map(function(q){ return JSON.parse(JSON.stringify(q)); });
+    const poser=function(vals){
+      test.locked=false; renderDvdTest();
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    for(let j=0;j<4;j++){
+      test.idx=j; const V=ids(j);
+      poser({});
+      const manque=Object.keys(V).filter(function(id){ return !document.getElementById(id); });
+      if(manque.length){ vus.push('page '+FICHE[j].forme+' : case(s) absente(s) '+manque.join(', ')); continue; }
+      /* la page est NUE : aucune bulle, aucun dessin, aucune flèche ni accolade déclarée, pas un mot de couleur */
+      const host=document.getElementById('dvnHost');
+      if(host.querySelector('.dvl-bul, svg, [data-fl], [data-acc], .dvl-mot')) vus.push('page '+FICHE[j].forme+' : un dessin reste affiché');
+      if(/flèche|accolade|bulle/i.test(host.querySelector('.dvl-consigne').textContent)) vus.push('la consigne parle encore de flèches, de bulles ou d\\'accolades');
+      poser(V); checkDvdAnswer();
+      const der=test.answers[test.answers.length-1];
+      if(!der || !der.correct) vus.push('la copie juste de la page '+FICHE[j].forme+' est comptée fausse');
+      const nv=Object.keys(V).filter(function(id){ return peint(id)!=='vert'; });
+      if(nv.length) vus.push('page '+FICHE[j].forme+' : '+nv.join(', ')+' non juste(s)');
+      if(!der || der.cases!==15) vus.push('page '+FICHE[j].forme+' : '+(der?der.cases:'?')+' cases au lieu de 15');
+      if(!der || !/^f-0-1 : /.test(der.given)) vus.push('la copie rangée ne nomme pas ses cases : '+(der&&der.given));
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    test.idx=0; poser({});
+    const ex=document.querySelector('#dvnHost .dvl-ex');
+    if(!ex) vus.push('l\\'exemple manque à la première page');
+    else {
+      if(ex.querySelector('input, .dvl-bul, svg')) vus.push('l\\'exemple porte une case ou un dessin');
+      if(!/\\(−3\\)\\s*×\\s*2/.test(ex.textContent) || !/26/.test(ex.textContent)) vus.push('l\\'exemple n\\'écrit pas (−3) × 2x entre parenthèses, ou pas −26x : '+ex.textContent);
+    }
+    /* les pièges : le signe oublié, le produit croisé (nommé sans flèche), la réduction (sans accolade), la case vide */
+    test.idx=0; poser(Object.assign(ids(0), {'dvn-t-3':'15'})); checkDvdAnswer();
+    if(peint('dvn-t-3')!=='rouge' || peint('dvn-t-2')!=='vert') vus.push('« 15 » sans son signe : '+peint('dvn-t-3')+', voisine '+peint('dvn-t-2'));
+    if(!/garde son signe/.test($('dvnFeedback').textContent)) vus.push('le message ne nomme pas le signe oublié : '+$('dvnFeedback').textContent);
+    test.idx=0; poser(Object.assign(ids(0), {'dvn-f-1-2':'2x'})); checkDvdAnswer();
+    if(peint('dvn-f-1-2')!=='rouge') vus.push('2x pour le second terme est peint en '+peint('dvn-f-1-2'));
+    const m2=$('dvnFeedback').textContent;
+    if(!/premier terme de la première parenthèse par le second terme de la seconde/.test(m2) || /flèche|bulle/.test(m2)) vus.push('le message du produit croisé : '+m2);
+    test.idx=0; poser(Object.assign(ids(0), {'dvn-r-1':'-14x'})); checkDvdAnswer();
+    const m3=$('dvnFeedback').textContent;
+    if(peint('dvn-r-1')!=='rouge' || !/se regroupent/.test(m3) || /accolade/.test(m3)) vus.push('la réduction fausse : '+peint('dvn-r-1')+' — '+m3);
+    test.idx=3; poser(Object.assign(ids(3), {'dvn-t-3':'', 'dvn-r-1':''})); checkDvdAnswer();
+    if(peint('dvn-t-3')!=='bleu' || peint('dvn-r-1')!=='bleu') vus.push('case vide peinte en '+peint('dvn-t-3')+' / '+peint('dvn-r-1'));
+    if((document.getElementById('dvn-r-1')||{}).value!=='+11x') vus.push('la correction de la case vide écrit '+(document.getElementById('dvn-r-1')||{}).value);
+    /* le 7.10 garde son dessin et ses cases « dvd-… » */
+    startDvd();
+    if(test.kind!=='dvd' || test.qId!=='developper-double' || !document.getElementById('dvd-f-0-1') || !document.querySelector('#dvdHost .dvl-bul')) vus.push('le 7.10 a perdu son identité ou ses bulles');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
