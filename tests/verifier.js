@@ -12274,6 +12274,7 @@ function tracerVecteursEgaux(w, P){
       return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
     const classes=function(){ return ['tvx-u','tvx-v','tvx-w'].map(classe).join(','); };
     const faits=function(){ return ['tvx-u','tvx-v','tvx-w'].map(function(id){ return el(id).classList.contains('tvx-fait')?1:0; }).join(''); };
+    const cours=function(){ return ['tvx-u','tvx-v','tvx-w'].map(function(id){ return el(id).classList.contains('tvx-cours')?1:0; }).join(''); };
     const fixe=function(){ return {vs:[[2,2,3,4],[7,8,4,-2],[13,2,-3,2]], d1:null, f1:null, d2:null, f2:null, d3:null, f3:null}; };
     const verifierIci=function(){ const av=test.score; checkTvx(); clearTimeout(test.fbTimer); return test.score-av; };
     const tracer=function(a,b){ tvxClic(a[0],a[1]); tvxClic(b[0],b[1]); };
@@ -12328,6 +12329,7 @@ function tracerVecteursEgaux(w, P){
     if(el('tvxEtape').textContent.indexOf('point de départ')<0) vus.push('la page ne dit pas de cliquer le point de départ : '+el('tvxEtape').textContent);
     if(!el('tvxCurseur') || el('tvxCurseur').style.display!=='none') vus.push('le point de la souris manque, ou se montre sans souris');
     if(faits()!=='000') vus.push('une étape passe au vert avant d\\'être faite : '+faits());
+    if(cours()!=='100') vus.push('le cadre à faire (①) n\\'est pas en bleu : '+cours());
 
     /* 3. vérifier à vide : rien ne rougit, la correction en vert */
     checkTvx(); clearTimeout(test.fbTimer);
@@ -12356,13 +12358,14 @@ function tracerVecteursEgaux(w, P){
     const nomsFl=Array.from(document.querySelectorAll('#tvxFl text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
     if(nomsFl!=='u') vus.push('la flèche tracée ne porte pas son nom : '+nomsFl);
     if(el('tvxPrises').querySelectorAll('.tvx-prise').length!==2) vus.push('la flèche tracée n\\'a pas une prise à chaque extrémité');
-    if(faits()!=='100') vus.push('u tracé, seule la première étape devrait être verte : '+faits());
+    if(faits()!=='100' || cours()!=='010') vus.push('u tracé, seule la première étape devrait être verte, la deuxième bleue : '+faits()+' / '+cours());
     if(el('tvxEtape').textContent.indexOf('égal à v')<0) vus.push('la page ne passe pas au vecteur v : '+el('tvxEtape').textContent);
     tracer([10,4],[14,2]); tracer([16,5],[13,7]);
-    if(faits()!=='111') vus.push('les trois tracés, les trois étapes devraient être vertes : '+faits());
+    if(faits()!=='111' || cours()!=='000') vus.push('les trois tracés, les trois étapes devraient être vertes, aucune bleue : '+faits()+' / '+cours());
     /* un clic sur le DÉPART de u le reprend : la flèche part de la souris jusqu'à l'arrivée fixe */
     tvxClic(1,1);
     if(!test.tvxMob || test.tvxMob.k!==0 || test.tvxMob.bout!=='d') vus.push('un clic sur le départ de u ne le reprend pas : '+JSON.stringify(test.tvxMob));
+    if(cours()!=='100' || faits()!=='011') vus.push('la flèche u reprise, son cadre devrait repasser en bleu : '+faits()+' / '+cours());
     if(el('tvxFl').querySelectorAll('line.tvx-el').length!==2) vus.push('la flèche reprise reste dessinée à sa place au lieu de suivre la souris');
     if(el('tvxEtape').textContent.indexOf('point de départ')<0) vus.push('la page ne dit pas de reposer le départ : '+el('tvxEtape').textContent);
     tvxClic(4,5);
@@ -12380,7 +12383,7 @@ function tracerVecteursEgaux(w, P){
     if(el('tvxFl').querySelectorAll('line.tvx-el').length!==3) vus.push('la reprise perd les flèches');
     if(verifierIci()!==3) vus.push('la copie juste ne vaut pas 3 : '+classes());
     if(classes()!=='ok,ok,ok') vus.push('la copie juste n\\'est pas peinte ok : '+classes());
-    if(faits()!=='000') vus.push('la marque « étape faite » reste après la vérification : '+faits());
+    if(faits()!=='000' || cours()!=='000') vus.push('la marque « étape faite » ou « en cours » reste après la vérification : '+faits()+' / '+cours());
     if(el('tvxCorr').children.length) vus.push('la correction se montre alors que tout est juste');
     if(el('tvxFl').querySelectorAll('line.svc-e').length!==3) vus.push('les flèches justes ne bleuissent pas');
     if(el('tvxFeedback').className.indexOf('good')<0) vus.push('la copie juste n\\'a pas de message vert');
@@ -13067,7 +13070,11 @@ function pointSommeDifference(w, P){
     if(el('cvpCorr').querySelectorAll('line.svc-s').length) vus.push('la construction juste est redoublée en vert');
     if(el('cvpFeedback').textContent.indexOf('au bout de la seconde flèche')<0) vus.push('le message ne dit pas où est B′');
     nextCvp(); clearTimeout(test.fbTimer);
-    cvpRetourner('v'); cvpDeplacer('u',[0,4]); cvpDeplacer('v',[3,5]); cvpPose(4,2);
+    /* l'étape 2 attend l'étape 1 : un clic avant les flèches bout à bout ne pose rien */
+    cvpPose(4,2);
+    if(test.questions[test.idx].sel || el('cvpEl').children.length || el('cvp-pt').style.display!=='none') vus.push('B′ se pose avant que les flèches soient bout à bout depuis B');
+    /* B′ posé à l'étape 2, puis les flèches déplacées hors de B : B′ reste */
+    cvpRetourner('v'); cvpDeplacer('u',[3,4]); cvpDeplacer('v',[6,5]); cvpPose(4,2); cvpDeplacer('u',[0,4]); cvpDeplacer('v',[3,5]);
     if(verifierIci()!==1) vus.push('construction hors de B, B′ juste : ne vaut pas 1');
     fb=el('cvpFeedback').textContent;
     if(classe('cvp-ch')!=='bad'||classe('cvp-pt')!=='ok'||fb.indexOf('part du point B')<0) vus.push('la construction qui ne part pas de B n\\'est pas rouge et nommée, ou B′ juste rougit : '+classe('cvp-pt')+' — '+fb.slice(0,120));
