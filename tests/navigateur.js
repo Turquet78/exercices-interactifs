@@ -9264,7 +9264,7 @@ if(require.main === module) (async () => {
         noms: [...document.querySelectorAll('#cpsFl text.svc-nom')].length, txt: document.getElementById('cps-t1').textContent }));
       if(!faux.f1 || !faux.cours || faux.fait || faux.noms || faux.txt.indexOf('Ce n’est pas le vecteur') < 0) dits.push('une flèche fausse valide le cadre ① ou porte un nom : ' + JSON.stringify(faux));
       /* ① BC : B puis C — un clic à un cinquième de maille s'accroche au nœud.
-         Pendant le tracé, AUCUNE croix sur la pointe de la souris (v526) ;
+         Pendant le tracé, AUCUNE croix sur la pointe de la souris (v527) ;
          le début posé (sa croix), une flèche va de lui jusqu'à la souris, et
          s'efface quand le second clic fixe la fin (demande de Turquet, v521) */
       const souris = async (x, y) => { const p = await pos(x, y);

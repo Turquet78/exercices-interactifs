@@ -1977,7 +1977,7 @@ nœud B (à 2 px) jusqu'à la souris (à 3 px), pointe comprise et sans clic,
 qui suit la souris qui bouge et s'efface à la fin fixée, puis le tracé de
 chaque pointe.
 
-**Puis la croix a quitté la pointe de la souris pendant le tracé (v526).**
+**Puis la croix a quitté la pointe de la souris pendant le tracé (v527).**
 La demande (Turquet, octobre 2026) : « en seconde dans le 8.2.8, ne pas
 mettre de croix au bout de l'extrémité de la flèche de la souris quand on
 doit tracer un vecteur. » La croix de la v521 sur la pointe de la souris est
