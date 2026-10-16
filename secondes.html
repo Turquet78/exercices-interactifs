@@ -2494,12 +2494,14 @@
   .svr-svg .svr-lbl{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px}
   .svr-svg .svr-pt.e .svr-lbl{fill:var(--blue-dark)} .svr-svg .svr-pt.eb .svr-lbl{fill:var(--red)} .svr-svg .svr-pt.s .svr-lbl{fill:var(--green)}
   .svr-svg .svr-nom{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px}
-  /* M posé : survoler un nœud n'y montre plus de point */
-  .vec-svg.svr-repos .vec-t:hover .dot{fill:transparent;stroke:transparent}
+  /* survoler un nœud n'y montre jamais de point rond : la croix et la
+     lettre du point à placer suivent la souris (demande de Turquet, octobre
+     2026) ; le début posé d'un vecteur garde son point */
+  .vec-svg.svr-svg .vec-t:not(.sel):hover .dot{fill:transparent;stroke:transparent}
   /* le vecteur qui suit la souris pendant un tracé de l'étape ② (svrVif) */
   #svrGraph #svrVif{pointer-events:none}
   #svrGraph .svr-vif{opacity:.75}
-  /* jamais de main près d'un nœud du repère ; la croix de M suivie, nulle part */
+  /* jamais de main près d'un nœud du repère ; la croix d'un point suivie, nulle part */
   .vec-svg.svr-svg .vec-t,.svc-svg.svr-svg.svr-croix .svc-prise{cursor:default}
   /* 8.15 {point-somme-difference} : le quadrillage et les flèches du 8.7 (.svc-svg),
      le point donné en croix (.vec-pt), A′ posé au clic comme au 8.5 ; deux
@@ -7192,7 +7194,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=524;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=525;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -60845,7 +60847,7 @@ const SVR_X0=-6, SVR_X1=6, SVR_Y0=-5, SVR_Y1=5;   /* le repère : les nœuds von
 const SVR_C=34, SVR_PX=30, SVR_PY=22;             /* un carreau en unités SVG, et les marges */
 const SVR_NB=3;
 const SVR_NOMS=['A','B','C','D'];
-const SVR_OUTILS=['A','B','C','D','t0','t1','M'];
+const SVR_OUTILS=['A','B','C','D','t0','t1','ch','M'];
 function svrFiche(){ return svrNeuve([[3,4],[1,2],[3,1],[-2,-3]], 3, [1,2], [1,0]); }
 function svrNeuve(P,o,a,b){ return {P:P, o:o, a:a, b:b, pl:[null,null,null,null], t:[null,null], cp:[null,null], m:null}; }
 function svrX(i){ return SVR_PX+(i-SVR_X0)*SVR_C; }
@@ -60930,7 +60932,7 @@ function svrJuge(q){
   for(let k=0;k<4;k++) subs.push({id:'svr-'+SVR_NOMS[k], k:k, ok:svrEgal(q.pl[k],q.P[k]), vide:!q.pl[k]});
   for(let k=0;k<2;k++){
     const w=svrPaire(q,k), t=svrTrace(q,k);
-    subs.push({id:'svr-t'+k, k:k, ok:!!t&&svrEgal(t.d,q.P[w[0]])&&svrEgal(t.f,q.P[w[1]]), vide:!t});
+    subs.push({id:'svr-t'+k, k:k, ok:svrJuste(q,'t'+k), vide:!t});
   }
   const ch=!!svrChaine(q);
   subs.push({id:'svr-ch', ok:ch, vide:!ch&&!q.cp[0]&&!q.cp[1]});
@@ -61062,6 +61064,9 @@ function svrNoeud(p){ return $('svrn-'+(p[0]-SVR_X0)+'-'+(p[1]-SVR_Y0)); }
 /* L'état peint d'une réponse : 'ok', 'bad' ou '' (pas encore jugée). */
 function svrEtat(id){ return (test.svrEtat&&test.svrEtat[id])||''; }
 function svrCoul(id){ const e=svrEtat(id); return e==='bad'?['svc-eb','svrArrB','eb']:['svc-e','svrArrE','e']; }
+/* Un point posé au mauvais nœud est rouge sur le dessin dès qu'il est posé
+   (demande de Turquet, octobre 2026), sans attendre la vérification. */
+function svrCoulPt(q,o){ return !svrJuste(q,o)?['svc-eb','svrArrB','eb']:svrCoul(svrIdOutil(o)); }
 /* Tout ce que l'élève a posé, à sa place du moment, et les prises. */
 function svrDessiner(q){
   const fl=$('svrFl'), pts=$('svrPts'), pr=$('svrPrises'); if(!fl||!pts||!pr) return;
@@ -61080,10 +61085,10 @@ function svrDessiner(q){
   /* M posé : la flèche du résultat, du point d'origine à M (demande de
      Turquet, octobre 2026) — bleue, rouge si M est faux */
   const O=q.P[q.o];
-  if(q.m&&!svrEgal(q.m,O)){ const c=svrCoul('svr-M'); f+=svrFleche(O, q.m, {cls:c[0]+' svr-res', marker:c[1], coul:c[0], nom:SVR_NOMS[q.o]+'M', et:svrEtiqResultat(q,q.m,svrNomsEleve(q))}); }
+  if(q.m&&!svrEgal(q.m,O)){ const c=svrCoulPt(q,'M'); f+=svrFleche(O, q.m, {cls:c[0]+' svr-res', marker:c[1], coul:c[0], nom:SVR_NOMS[q.o]+'M', et:svrEtiqResultat(q,q.m,svrNomsEleve(q))}); }
   let p='';
-  for(let k=0;k<4;k++) if(q.pl[k]) p+=svrCroix(q.pl[k], SVR_NOMS[k], svrCoul('svr-'+SVR_NOMS[k])[2]);
-  if(q.m) p+=svrCroix(q.m, 'M', svrCoul('svr-M')[2]);
+  for(let k=0;k<4;k++) if(q.pl[k]) p+=svrCroix(q.pl[k], SVR_NOMS[k], svrCoulPt(q,SVR_NOMS[k])[2]);
+  if(q.m) p+=svrCroix(q.m, 'M', svrCoulPt(q,'M')[2]);
   fl.innerHTML=f; pts.innerHTML=p; pr.innerHTML=prises;
   svrVif(q, test.svrSouris||null);
 }
@@ -61091,17 +61096,19 @@ function svrDessiner(q){
    début d'un vecteur de l'étape ② posé, une flèche va de ce début jusqu'à
    la pointe de la souris (m, dans le repère du dessin). Rien sans souris (au
    doigt, ou sortie du dessin), rien une fois corrigé.
-   Et le geste « Placer M » choisi, M pas encore juste : une croix et sa
-   lettre suivent la pointe de la souris (même demande). */
+   Et le geste d'un point choisi (A, B, C, D ou M), ce point pas encore
+   juste : une croix et sa lettre suivent la pointe de la souris (même
+   demande, étendue de M à tous les points). */
 function svrVif(q, m){
   const g=$('svrVif'); if(!g) return;
   const o=test.svrOutil, t=(o==='t0'||o==='t1')&&q&&q.t?q.t[+o[1]]:null;
-  const croix=!test.locked&&!!m&&o==='M'&&!!q&&!!q.P&&!svrJuste(q,'M');
+  const pt=o==='M'||SVR_NOMS.indexOf(o)>=0;
+  const croix=!test.locked&&!!m&&pt&&!!q&&!!q.P&&!svrJuste(q,o);
   const svg=document.querySelector('#svrGraph .svr-svg'); if(svg) svg.classList.toggle('svr-croix', croix);
   if(croix){
     const d=4;
     g.innerHTML=`<g class="svr-pt e svr-vif"><line x1="${m.x-d}" y1="${m.y-d}" x2="${m.x+d}" y2="${m.y+d}"/><line x1="${m.x-d}" y1="${m.y+d}" x2="${m.x+d}" y2="${m.y-d}"/>`
-      +`<text class="svr-lbl" x="${(m.x+6).toFixed(1)}" y="${(m.y-6).toFixed(1)}">M</text></g>`;
+      +`<text class="svr-lbl" x="${(m.x+6).toFixed(1)}" y="${(m.y-6).toFixed(1)}">${o}</text></g>`;
     return;
   }
   if(test.locked||!m||!t||!t.d||t.f){ g.innerHTML=''; return; }
@@ -61118,18 +61125,15 @@ function svrMajOutils(q){
     el.setAttribute('aria-pressed', test.svrOutil===o?'true':'false');
     el.disabled=!!test.locked||!!(test.svrFige&&test.svrFige[svrIdOutil(o)]);
   });
-  /* l'objectif du déplacement : réalisé quand les copies sont bout à bout
-     depuis le point d'origine */
-  const ch=$('svr-ch'); if(ch) ch.classList.toggle('fait', !test.locked&&!!svrChaine(q));
-  const svg=document.querySelector('#svrGraph .svr-svg');
-  if(svg) svg.classList.toggle('svr-repos', !test.locked&&test.svrOutil==='M'&&!!q.m);
 }
 /* L'objectif ne verdit que JUSTE (demande de Turquet, octobre 2026) : le
-   point à sa place, le vecteur du bon point au bon point, M au bout de la
-   construction. */
+   point à sa place, le vecteur ÉGAL au vecteur demandé — même s'il ne part
+   pas du point demandé (demande de Turquet, octobre 2026) —, les copies bout
+   à bout depuis le point d'origine, M au bout de la construction. */
 function svrJuste(q,o){
   if(o==='M') return svrEgal(q.m,svrM(q));
-  if(o==='t0'||o==='t1'){ const k=+o[1], w=svrPaire(q,k), t=svrTrace(q,k); return !!t&&svrEgal(t.d,q.P[w[0]])&&svrEgal(t.f,q.P[w[1]]); }
+  if(o==='ch') return !!svrChaine(q);
+  if(o==='t0'||o==='t1'){ const k=+o[1]; return svrEgal(svrTv(q,k), svrVec(q,svrPaire(q,k))); }
   const k=SVR_NOMS.indexOf(o); return svrEgal(q.pl[k],q.P[k]);
 }
 /* Le geste suivant encore à faire, dans l'ordre de la fiche : tant que
@@ -61141,7 +61145,7 @@ function svrJuste(q,o){
    verte. Sans geste en cours (au rendu), le premier gris de la fiche. */
 function svrSuivant(q, depuis){
   const libre=function(o){ return !svrJuste(q,o)&&!(test.svrFige&&test.svrFige[svrIdOutil(o)]); };
-  const etape=function(o){ return o==='M'?2:(o[0]==='t'?1:0); };
+  const etape=function(o){ return o==='M'||o==='ch'?2:(o[0]==='t'?1:0); };
   const i=SVR_OUTILS.indexOf(depuis);
   if(i>=0&&libre(depuis)) return depuis;
   if(i>=0) for(let j=i+1;j<SVR_OUTILS.length&&etape(SVR_OUTILS[j])===etape(depuis);j++) if(libre(SVR_OUTILS[j])) return SVR_OUTILS[j];
@@ -61161,6 +61165,7 @@ function svrPose(i,j){
   if(test.locked||test.kind!=='svr') return;
   const q=test.questions[test.idx]; if(!q||!svrDans([i,j])) return;
   const o=test.svrOutil, id=svrIdOutil(o);
+  if(o==='ch') return;                    /* le geste du glisser : un clic ne pose rien */
   if(test.svrFige&&test.svrFige[id]) return;
   if(!test.svrEtat) test.svrEtat={};
   delete test.svrEtat[id];
@@ -61196,6 +61201,8 @@ function svrDeplacer(k, p){
   q.cp[k]=svrEgal(np,t.d)?null:np;
   if(test.svrEtat) delete test.svrEtat['svr-ch'];
   const el=$('svr-ch'); if(el) el.classList.remove('ok','bad');
+  /* faire glisser, c'est le geste ③ ; bout à bout, on passe à M */
+  test.svrOutil=svrSuivant(q,'ch');
   svrDessiner(q); svrMajOutils(q);
   recoveryDirty=true;
   return true;
@@ -61279,8 +61286,9 @@ function svrPourquoi(q,subs){
   for(let k=0;k<2;k++){
     const s=subs[4+k]; if(s.ok||s.vide) continue;
     const w=svrPaire(q,k), t=svrTrace(q,k), N=svrNomVec(w);
-    if(svrEgal(t.d,q.P[w[1]])&&svrEgal(t.f,q.P[w[0]])) m.push('Le vecteur '+N+' est tracé à l’envers : il part de '+N[0]+' et arrive en '+N[1]+'.');
-    else m.push('Le vecteur '+N+' va du point '+N[0]+' au point '+N[1]+'.');
+    const v=svrVec(q,w), tv=svrTv(q,k);
+    if(tv[0]===-v[0]&&tv[1]===-v[1]) m.push('Le vecteur '+N+' est tracé à l’envers : il part de '+N[0]+' et arrive en '+N[1]+'.');
+    else m.push('Le vecteur '+N+' va du point '+N[0]+' au point '+N[1]+' : compte les carreaux pour aller de '+N[0]+' à '+N[1]+'.');
   }
   const ch=subs[6];
   if(!ch.ok&&!ch.vide){
@@ -61358,7 +61366,7 @@ function renderSvr(){
   $('svrBody').innerHTML='<div class="svr-etapes">'
     +'<div class="svr-et"><span class="svr-et-n">①</span>'+[0,1,2,3].map(function(k){ return b_(SVR_NOMS[k], SVR_NOMS[k]+svrCoord(q.P[k])); }).join('')+'</div>'
     +'<div class="svr-et"><span class="svr-et-n">②</span>'+b_('t0','Tracer '+svrVecHTML(a))+b_('t1','Tracer '+svrVecHTML(b))+'</div>'
-    +'<div class="svr-et"><span class="svr-et-n">③</span><span class="svr-out pts-case" id="svr-ch">Fais glisser '+svrVecHTML(a)+' et '+svrVecHTML(b)+' bout à bout, à partir de '+O+'</span>'+b_('M','Placer M')+'</div>'
+    +'<div class="svr-et"><span class="svr-et-n">③</span>'+b_('ch','Fais glisser '+svrVecHTML(a)+' et '+svrVecHTML(b)+' bout à bout, à partir de '+O)+b_('M','Placer M')+'</div>'
     +'</div>';
   $('svrGraph').innerHTML=svrSVG(q);
   svrDessiner(q); svrMajOutils(q);
