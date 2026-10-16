@@ -2751,7 +2751,7 @@ points qui ne s'enchaînent pas, la case vide (correction), la copie vide
 sur une page fixe SANS figure : aucun dessin, une copie juste à points libres
 (Q, A, B), deux pièges ; enfin le contexte du modèle.
 
-## {demontrer-chasles} — démontrer une égalité avec Chasles (8.2.12, v531 — prévu 8.2.11 en v528 ; pendant sa rédaction, v528 à v530 ont été prises par le 8.2.9, le 8.1.10, le 8.2.5 et le 8.2.8, et le 8.2.11 par {chasles-inserer-point})
+## {demontrer-chasles} — démontrer une égalité avec Chasles (8.2.12, v532 — prévu 8.2.11 en v528 ; pendant sa rédaction, v528 à v531 ont été prises par le 8.2.9, le 8.1.10, le 8.2.5 et le 8.2.8, et le 8.2.11 par {chasles-inserer-point})
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
 par Claude, Turquet a retenu la dixième : « Montrer que AB⃗ + CD⃗ = AD⃗ +
