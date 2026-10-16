@@ -330,6 +330,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Un NUMÉRO de section du banc ne désigne qu'une section — et un en-tête qui n'imprime pas son titre est pire qu'un titre absent.**
 - **Un contrôle qui ne s'applique pas se déclare, il ne se retire pas.**
 - **Une fonction déclarée deux fois au niveau global écrase la première en silence.**
+- **Un banc jsdom qui ne rend jamais la main garde chaque nœud retiré.** Les relevés des `MutationObserver` se délivrent après chaque contrôle (`__viderObservateurs()`, `tests/harnais.js`) ; sans quoi la Seconde épuise les 4 Go de l'action.
 
 ### La chronique des exercices, thème par thème
 
