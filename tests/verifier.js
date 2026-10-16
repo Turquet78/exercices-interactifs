@@ -4551,6 +4551,7 @@ function exercices(suite){
     pointSommeDifference(w, P);
     tracerVecteursEgaux(w, P);
     tracerVecteursOpposes(w, P);
+    sommeVecteursLibre(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
     recurrenceLimite(w, P);
@@ -12524,6 +12525,120 @@ function tracerVecteursOpposes(w, P){
     /* 6. le 8.1.7 reste le 8.1.7 */
     currentTestId='tracer-vecteurs-egaux'; TESTS['tracer-vecteurs-egaux'].start(); clearTimeout(test.fbTimer);
     if(el('tvxInstr').textContent.indexOf('égal au vecteur')<0 || el('tvxInstr').textContent.indexOf('−')>=0) vus.push('le 8.1.7 a changé d\\'énoncé : '+el('tvxInstr').textContent);
+    currentTestId=D.exercice;
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {somme-vecteurs-libre} (Seconde, 8.2.10 — demande de Turquet, octobre
+   2026 : « faire le même exercice que le 8.2.1, mais sans afficher les étapes
+   et sans afficher début et fin sur les vecteurs »). Le moteur du 8.2.1
+   (kind « svc ») avec q.libre : ce banc ne rejoue pas ce que le 8.2.1 tient
+   déjà (tirage, glisser retenu au bord, nom de u + v), mais ce qui CHANGE —
+   aucune étape, aucun mot « début » / « fin », glisser ET tracer ouverts à
+   tout moment sans rien figer ni verdir, une seule réponse notée (u + v),
+   la correction verte, q.libre relu après le JSON de la pause, et le 8.2.1
+   qui reste le 8.2.1. */
+function sommeVecteursLibre(w, P){
+  const nom = 'somme de vecteurs sans étapes : ni étapes ni « début » / « fin », glisser et tracer toujours ouverts, seule u + v est notée, une case vide ne rougit pas';
+  if(!P.sommeVecteursLibre){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice de la somme de vecteurs sans étapes');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.sommeVecteursLibre)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['point-somme-difference']!=='8.2.9') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const fiche=function(){ return {uo:[1,1], uc:[2,4], vo:[6,6], vc:[2,-2], up:null, vp:null, sd:null, sf:null, libre:1}; };
+    const verifierIci=function(){ const av=test.score; checkSvc(); clearTimeout(test.fbTimer); return test.score-av; };
+
+    /* 1. le tirage : TESTS lance la somme libre, q.libre rangé, barème 1 par question */
+    TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='svc') vus.push('kind « '+test.kind+' » au lieu de svc');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    if(test.questions.length!==D.nb) vus.push(test.questions.length+' questions au lieu de '+D.nb);
+    test.questions.forEach(function(q){
+      if(Object.keys(q).sort().join(',')!=='libre,sd,sf,uc,uo,up,vc,vo,vp' || q.libre!==1) vus.push('la question libre range : '+Object.keys(q).join(','));
+    });
+    if(svcBuildQuestions().some(function(q){ return 'libre' in q; })) vus.push('le 8.2.1 range libre : ses questions ont changé');
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    test.questions[0]=fiche(); test.questions[1]=fiche(); test.questions[2]=fiche(); test.questions[3]=fiche();
+    test.idx=0; test.locked=false; renderSvc();
+
+    /* 2. l'écran : aucune étape, aucun « début » ni « fin » */
+    const txt=el('svcInstr').textContent+' '+el('svcBody').textContent+' '+el('svcActions').textContent;
+    if(/[ÉE]tape/.test(txt)) vus.push('une étape s\\'affiche encore : '+txt.slice(0,160));
+    if(/début|fin\\b/.test(el('svcInstr').textContent+el('svcBody').textContent)) vus.push('l\\'énoncé parle encore de début ou de fin : '+txt.slice(0,160));
+    if(el('svc-ch')) vus.push('la case du chaînage (étape 1) existe encore');
+    if(!el('svc-sm') || !el('svc-sm').classList.contains('pts-case')) vus.push('la réponse u + v n\\'est pas une pts-case');
+    if(document.querySelector('#svcGraph text.svc-mot')) vus.push('le dessin écrit encore « '+document.querySelector('#svcGraph text.svc-mot').textContent+' »');
+    const noms=Array.from(document.querySelectorAll('#svcGraph text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',');
+    if(noms!=='u,v') vus.push('le dessin ne nomme pas u et v : '+noms);
+    if(document.querySelectorAll('#svcPrises .svc-prise').length!==2) vus.push('les deux flèches n\\'ont pas leur prise pour glisser');
+    if(el('svcValidate').textContent!=='Vérifier' || el('svcRetourA')) vus.push('les boutons sont ceux des étapes : '+el('svcActions').textContent);
+    if(el('svc-sm').className.match(/svc-(actif|attente|fait)/)) vus.push('la consigne porte une marque d\\'étape : '+el('svc-sm').className);
+
+    /* 3. vérifier à vide : sol, la construction en vert, rien de rouge */
+    checkSvc(); clearTimeout(test.fbTimer);
+    if(classe('svc-sm')!=='sol') vus.push('vérifier à vide : la consigne est '+classe('svc-sm')+' au lieu de sol');
+    if(document.querySelector('#svcGraph .vec-t.badc, #svcGraph .svc-eb')) vus.push('vérifier à vide rougit quelque chose');
+    if(document.querySelectorAll('#svcCorr line.svc-s').length!==2) vus.push('la construction attendue n\\'est pas tracée en vert');
+    if(el('svcFeedback').textContent.indexOf('Il te manquait 1 case')<0) vus.push('le message ne dit pas « Il te manquait 1 case » : '+el('svcFeedback').textContent.slice(0,90));
+    const a0=test.answers[test.answers.length-1];
+    if(!a0||a0.correct||a0.cases!==1||a0.justes!==0) vus.push('la réponse enregistrée ne compte pas 0 case juste sur 1');
+
+    /* 4. glisser ET tracer, dans n'importe quel ordre, sans que rien se fige */
+    nextSvc(); clearTimeout(test.fbTimer);
+    const q1=test.questions[1];
+    svcPose(1,1);
+    if(JSON.stringify(q1.sd)!=='[1,1]') vus.push('un clic ne commence pas u + v avant tout glisser');
+    if(!svcDeplacer('v',[3,5]) || !svcChaine(q1)) vus.push('v ne glisse pas au bout de u une fois u + v commencé');
+    if(svcAuto() || test.svcFigeCh || document.querySelectorAll('#svcPrises .svc-prise').length!==2) vus.push('les flèches bout à bout se figent ou ouvrent une étape');
+    if(svcDeplacer('u',[2,2])===false) vus.push('une flèche ne glisse plus une fois bout à bout');
+    svcDeplacer('u',[1,1]);
+    svcPose(5,3);
+    if(el('svcTrace').querySelectorAll('line.svc-e').length!==1) vus.push('u + v ne se trace pas au second clic');
+    if(el('svc-sm').classList.contains('svc-fait')) vus.push('u + v tracé verdit la consigne avant « Vérifier »');
+    /* la reprise : q.libre survit au JSON */
+    test.questions[1]=JSON.parse(JSON.stringify(q1)); renderSvc();
+    if(!test.questions[1].libre || 'et' in test.questions[1] || el('svc-ch')) vus.push('la reprise perd q.libre ou remet les étapes');
+    if(verifierIci()!==1 || classe('svc-sm')!=='ok') vus.push('la copie juste vaut '+test.score+' : '+classe('svc-sm'));
+    if(el('svcCorr').children.length) vus.push('la correction se montre alors que u + v est juste');
+
+    /* 5. u + v juste SANS les flèches bout à bout : seule u + v compte */
+    nextSvc(); clearTimeout(test.fbTimer);
+    svcPose(0,0); svcPose(4,2);
+    if(verifierIci()!==1 || classe('svc-sm')!=='ok' || el('svcFeedback').className.indexOf('good')<0) vus.push('u + v juste, flèches non déplacées : '+classe('svc-sm')+' — le chaînage, non noté, a compté');
+
+    /* 6. u + v à l'envers : faux et nommé, la construction verte */
+    nextSvc(); clearTimeout(test.fbTimer);
+    svcPose(5,3); svcPose(1,1);
+    if(verifierIci()!==0 || classe('svc-sm')!=='bad') vus.push('u + v à l\\'envers : '+classe('svc-sm'));
+    if(el('svcFeedback').textContent.indexOf('à l’envers')<0) vus.push('le message ne nomme pas la flèche à l\\'envers : '+el('svcFeedback').textContent.slice(0,120));
+    if(!document.querySelectorAll('#svcCorr line.svc-s').length) vus.push('la correction verte manque');
+
+    /* 7. le soutien : faux rougit, rien ne se révèle, le juste se fige */
+    currentMode='soutien'; TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    test.questions[0]=fiche(); test.idx=0; renderSvc();
+    svcPose(5,3); svcPose(1,1); checkSvc(); clearTimeout(test.fbTimer);
+    if(test.locked || classe('svc-sm')!=='bad' || el('svcCorr').children.length) vus.push('soutien, faux : verrouillé, pas rouge, ou la correction se révèle');
+    svcPose(1,1); svcPose(5,3); checkSvc(); clearTimeout(test.fbTimer);
+    if(!test.locked || classe('svc-sm')!=='ok') vus.push('soutien, juste : '+classe('svc-sm'));
+    currentMode='train';
+
+    /* 8. le contexte du modèle, et le 8.2.1 qui reste le 8.2.1 */
+    test.questions[0]=fiche(); test.idx=0; test.locked=false; renderSvc();
+    const ctx=conseilCtxCourant();
+    if(ctx.indexOf('SANS aide affichée')<0 || ctx.indexOf('étape 1')>=0) vus.push('le contexte du modèle ne décrit pas l\\'exercice sans étapes');
+    currentTestId='somme-vecteurs'; TESTS['somme-vecteurs'].start(); clearTimeout(test.fbTimer);
+    if(!el('svc-ch') || el('svc-ch').textContent.indexOf('Étape 1')!==0 || !document.querySelector('#svcGraph text.svc-mot')) vus.push('le 8.2.1 a perdu ses étapes ou ses mots');
     currentTestId=D.exercice;
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
