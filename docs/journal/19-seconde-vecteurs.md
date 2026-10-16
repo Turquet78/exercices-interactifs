@@ -2519,7 +2519,7 @@ Trois sabotages ont été attrapés :
 - le mot « RETOURNÉ » retiré du message ;
 - le dessin jugé en soutien.
 
-## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.11, v528)
+## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.11, v529 — fusionné après le 8.2.9, qui a pris la v528)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
 par Claude, Turquet a retenu l'idée n° 8, « lire une somme sur un dessin » :
