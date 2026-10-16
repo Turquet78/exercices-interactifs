@@ -9264,7 +9264,7 @@ if(require.main === module) (async () => {
         noms: [...document.querySelectorAll('#cpsFl text.svc-nom')].length, txt: document.getElementById('cps-t1').textContent }));
       if(!faux.f1 || !faux.cours || faux.fait || faux.noms || faux.txt.indexOf('Ce n’est pas le vecteur') < 0) dits.push('une flèche fausse valide le cadre ① ou porte un nom : ' + JSON.stringify(faux));
       /* ① BC : B puis C — un clic à un cinquième de maille s'accroche au nœud.
-         Pendant le tracé, une croix sans lettre suit la pointe de la souris ;
+         Pendant le tracé, AUCUNE croix sur la pointe de la souris (v527) ;
          le début posé (sa croix), une flèche va de lui jusqu'à la souris, et
          s'efface quand le second clic fixe la fin (demande de Turquet, v521) */
       const souris = async (x, y) => { const p = await pos(x, y);
@@ -9278,13 +9278,13 @@ if(require.main === module) (async () => {
           return { vu: getComputedStyle(c).display !== 'none', ecart: Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)),
             lettre: !!lb && getComputedStyle(lb).display !== 'none', vif: vif }; }, [p.px, p.py]); };
       let m0 = await souris(6.4, 5.6);
-      if(!m0.vu || m0.ecart > 3 || m0.lettre || m0.vif) dits.push('avant le tracé, la croix ne suit pas la souris (ou porte une lettre, ou une flèche) : ' + JSON.stringify(m0));
+      if(m0.vu || m0.vif) dits.push('avant le tracé, une croix (ou une flèche) suit la souris : ' + JSON.stringify(m0));
       await clic(5, 7, 0.2);
       const deb = await s.page.evaluate(() => !!document.querySelector('#cpsn-5-7.deb .cps-x'));
       if(!deb) dits.push('le début de BC posé ne se marque pas d\'une croix');
       m0 = await souris(7.3, 6.4);
       const b0 = await pos(5, 7);
-      if(!m0.vu || m0.ecart > 3 || m0.lettre) dits.push('le début posé, la croix ne suit pas la souris : ' + JSON.stringify(m0));
+      if(m0.vu) dits.push('le début posé, une croix est encore sur la pointe de la souris : ' + JSON.stringify(m0));
       if(!m0.vif || Math.hypot(m0.vif.p1[0] - b0.px, m0.vif.p1[1] - b0.py) > 2 || m0.vif.fin > 3 || !m0.vif.pointe || m0.vif.clic !== 'none')
         dits.push('le début posé, aucune flèche ne va de B jusqu\'à la souris : ' + JSON.stringify(m0.vif));
       const m1 = await souris(6.2, 5.3);
