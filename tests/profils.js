@@ -1246,8 +1246,7 @@ module.exports = {
       'python-for-renommer': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-trois-des': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'translation-quadrillage': 'la copie se trace sur le quadrillage : le banc ne sait pas la tracer',
-      'somme-vecteurs': 'la copie se trace sur le quadrillage : le banc ne sait pas la tracer',
-      'somme-vecteurs-libre': 'la copie se trace sur le quadrillage : le banc ne sait pas la tracer'
+      'somme-vecteurs': 'la copie se trace sur le quadrillage : le banc ne sait pas la tracer'
     } },
     /* tests/notes.js — la note enregistrée est celle qui s'affiche. Quand
        une copie vide n'atteint pas la fin (une colonne à colorier, une table
