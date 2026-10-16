@@ -621,7 +621,7 @@ nomme), −15 pour (−3) × (−5), 2x dans la bulle verte (message qui suit la
 flèche), « −20x−6x » non réduit et −14x (message de la grande accolade), 8x
 pour 4x × 2x, deux cases vides (la correction, jamais rouge), le barème de 60.
 
-## {developper-double-nu} — la double distributivité sans les flèches (7.11, v521)
+## {developper-double-nu} — la double distributivité sans les flèches (7.11, v522)
 
 **La demande** (Turquet, octobre 2026) : « en seconde faire le même exercice
 que le 7.10 mais sans afficher les flèches, les formes qui entourent les
