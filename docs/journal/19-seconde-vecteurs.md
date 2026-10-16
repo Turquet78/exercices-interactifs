@@ -2346,6 +2346,28 @@ commandes flottantes), et aucun `pointermove` n'atteint `#vepGraph`. Il la
 pose désormais au milieu du quadrillage, et son message nomme l'élément sous
 la souris s'il rougit encore.
 
+**Puis l'étape 1 n'a plus été validée par le seul geste : bout à bout, mais avec les bons vecteurs (v531)**
+La demande (Turquet, octobre 2026) : « en seconde dans le 8.2.9 ne pas
+valider l'étape 1 si l'élève a mis les vecteurs bout à bout et que ce ne
+sont pas les bons vecteurs. » Jusque-là, `cvpBoutABout` (le GESTE, sens des
+flèches ignoré) faisait l'étape 1 : u⃗ + v⃗ posés bout à bout depuis B pour
+BB′ = u⃗ − v⃗ passaient au vert et ouvraient l'étape 2. L'étape 1 est
+désormais faite quand `cvpEtape1` est vrai — `cvpChaine`, la lecture même
+du juge : chaque flèche dans le sens que l'égalité demande, bout à bout
+depuis le point. Ce qui en dépend a suivi : le vert et le cadre bleu
+(`cvpFaits`), le verrou de l'étape 2 (`cvpPose`) et le point qui suit la
+souris. Bout à bout mais dans le mauvais sens, l'étape 1 reste bleue et une
+phrase rouge, sous sa consigne (`#cvpAlerte`), dit « Tes flèches sont bout
+à bout, mais ce ne sont pas les bons vecteurs : relis les signes de BB′ =
+u⃗ − v⃗. » — sans nommer la flèche à retourner, que seule la correction
+nomme ; elle se tait une fois la question verrouillée. C'est un verdict en
+direct, que le v501 évitait exprès : la demande le veut, pour cette étape
+seulement. Le piège « signe oublié » du juge posait B′ après une chaîne
+fausse : ce geste n'existe plus, le juge vérifie donc l'étape 1 non faite,
+la phrase, et B′ refusé ; les contrôles de la croix rouge et du vecteur
+rouge passent sur la question « construction juste, B′ faux », où la
+phrase est aussi vue se taire quand v⃗ est retourné.
+
 ## {tracer-vecteurs-opposes} — tracer −u⃗, −v⃗, −w⃗ (8.1.8, v516)
 
 **La demande** (Turquet, octobre 2026) : « en seconde faire un exercice comme
@@ -2619,8 +2641,11 @@ celle du 2.x vrai-ou-faux) : `corrChoix` la peint, met « Faux » en badge vert
 **Le dessin montre une ligne à la fois** (`vfhMontrer`, au focus de la liste
 ou au clic sur la ligne). Le premier vecteur est violet (`--crd-a`), le
 second ambre (`--crd-b`), dans la ligne comme sur la figure. Avant la
-vérification, seulement des anneaux sur leurs quatre points : la figure
-reste à lire, rien n'est tracé. Une fois la page VERROUILLÉE, les deux
+vérification, RIEN sur la figure : la ligne prend son liseré, et c'est tout.
+(Jusqu'à la v530, des anneaux entouraient ses quatre points ; Turquet les a
+retirés en octobre 2026 : « ne pas mettre de rond autour des points de la
+figure quand on clique sur une case réponse ». Le banc clique sur une case
+et exige `#vfhFl` vide.) Une fois la page VERROUILLÉE, les deux
 flèches (la seconde en tirets), et la première ligne fausse est montrée. En
 soutien, rien ne se révèle : ni flèche, ni note — la condition est
 `test.locked`.
@@ -2644,7 +2669,7 @@ pixels, à 1 % près. Ce qu'il vérifie :
   juste (10/10) ; les notes qui nomment direction, sens et longueur ; les
   quatre pièges peints en rouge et nommés (avec « vecteur ED », « 2 fois plus
   court », « ABDE est un parallélogramme ») ; aucun parallélogramme nommé
-  pour OA = DO ; le badge « Faux » ; les anneaux avant, les flèches après ;
+  pour OA = DO ; le badge « Faux » ; rien sur la figure avant, les flèches après ;
   la case vide en correction ; la copie vide sans rouge ; le redessin après
   le JSON ; le soutien qui peint sans révéler ni verrouiller ; le contexte
   du modèle.
