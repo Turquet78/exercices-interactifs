@@ -2750,3 +2750,119 @@ points qui ne s'enchaînent pas, la case vide (correction), la copie vide
 (aucun rouge), la reprise après JSON, le soutien qui peint sans révéler ; et
 sur une page fixe SANS figure : aucun dessin, une copie juste à points libres
 (Q, A, B), deux pièges ; enfin le contexte du modèle.
+
+## {translations-successives} — deux translations à la suite (8.2.12, v532)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
+par Claude, Turquet a retenu la n° 3, « Deux translations à la suite » : le
+pont entre la translation (8.1) et la somme de vecteurs (8.2). Ajouté en
+dernier du sous-thème « Somme de vecteurs » : 8.2.12, rien ne se renumérote.
+Kind `tcp`, écran `scr-tcp`, préfixe réservé pour cette session — d'autres
+sessions remplissaient le thème 8 le même jour. Écrit comme 8.2.11 en v528, publié comme 8.2.12 en
+v532 : pendant que les bancs tournaient, `main` a pris la v528 (le 8.2.9), la
+v529 (le 8.1.10 et le 8.2.5), puis la v530 et le numéro 8.2.11
+({chasles-inserer-point}), puis la v531 (le 8.2.9 et le 8.1.10).
+
+**L'exercice.** Un quadrillage de 16 × 10, deux flèches u⃗ (trait plein) et
+v⃗ (pointillés), un point A. Quatre cadres d'étape au-dessus du dessin, la
+recette du 8.2.8 (le cadre à faire en bleu, `tcp-cours` ; un cadre fait en
+vert avec sa coche, `tcp-fait`) :
+- ① placer A′, image de A par la translation de vecteur u⃗ ;
+- ② placer A″, image de A′ par la translation de vecteur v⃗ ;
+- ③ « On passe directement de A à A″ par la translation de vecteur … » :
+  une liste, u⃗ + v⃗, u⃗ − v⃗, v⃗ − u⃗, −u⃗ − v⃗, dans un ordre tiré et rangé
+  (`q.ord`) ;
+- ④ tracer le vecteur AA″ (son début, puis sa fin).
+
+Barème 4 par question, quatre questions (`TCP_NB`, `dmNbQuestions`) : 16.
+
+**« Fait » veut dire « le geste est fait », pas « juste »** (le 8.2.8 d'avant
+la v517) : un A′ mal placé passe au vert comme un autre, seule la
+vérification juge. Décidé ainsi pour que l'évaluation ne dise rien avant
+« Vérifier » ; le prix est nommé : l'élève ne sait pas, avant de vérifier,
+qu'il s'est trompé de sens.
+
+**Chaque réponse se juge SEULE** (`tcpJuge`) — la règle « une case juste ne
+rougit pas parce qu'une autre est fausse » :
+- A′ est juste au nœud A + u⃗ ;
+- A″ est juste s'il est l'image de l'A′ DE L'ÉLÈVE par v⃗ (`tcpA2De`) : un A′
+  faux ne fait pas rougir un A″ bien construit à partir de lui ;
+- la flèche AA″ est juste si elle part de A et arrive au A″ attendu — ou au
+  A″ de l'élève, quand celui-ci est juste au sens précédent ;
+- la liste n'a qu'une bonne réponse, u⃗ + v⃗.
+
+**Les pièges nommés** (`tcpPourquoi`), tous de l'ordre ou du sens :
+- A′ dans le SENS CONTRAIRE de u⃗, A′ qui suit v⃗ au lieu de u⃗, A′ qui fait les
+  deux translations d'un coup ;
+- A″ dans le sens contraire de v⃗, A″ « reparti de A » (A + v⃗ : l'image de A,
+  pas de A′), A″ qui suit u⃗ une seconde fois ;
+- u⃗ − v⃗ (v⃗ à l'envers), v⃗ − u⃗ (u⃗ à l'envers), −u⃗ − v⃗ (« le chemin du
+  RETOUR ») ;
+- AA″ à l'envers (de A″ vers A), AA″ qui ne part pas de A, qui n'arrive pas
+  en A″.
+Le message finit par le chemin en carreaux : u⃗, v⃗, puis leur somme.
+
+**Le tirage** (`tcpGen`) : deux chemins d'au moins deux carreaux, jamais
+parallèles ; la somme ET la différence d'au moins deux carreaux (un piège du
+sens mène loin du bon nœud) ; A, A′ et A″ à un carreau du bord ; les flèches
+dessinées à un carreau et demi de A, A′, A″, à un carreau au moins de la
+construction, et l'une de l'autre. Deux questions d'une séance n'ont jamais
+les mêmes vecteurs (la clé de `distinctes` est `[uc, vc]`).
+
+**On range la figure et les gestes, jamais la réponse** : `uc`, `vc` (les
+chemins — pas `v`, que `CLE_HORS` écarte), `uo`, `vo`, `a`, `ord`, puis `p1`,
+`p2`, `ch` (l'indice choisi dans `TCP_OPTS`, `''` tant que rien), `d`, `f`.
+`tcpA1`/`tcpA2` recalculent les points.
+
+**Le geste.** Un clic n'importe où sur le quadrillage va au nœud le plus
+proche (un seul écouteur sur l'hôte, aucune cible par nœud : la leçon
+mémoire du 8.1.6 et du 8.1.9). Il pose A′, puis A″ (recliquer A′ avant de
+poser A″ le retire), puis trace AA″ (recliquer le début seul le retire ; un
+troisième clic recommence le tracé). « Effacer ma construction » reprend
+tout, sauf ce que le soutien a figé juste. Le point à placer suit la souris
+avec son nom (A′, puis A″) ; pendant le tracé, une flèche violette va du
+début posé à la souris, sans croix sur la pointe (la leçon du 8.2.8, v527).
+
+**La correction** : A′, A″ et AA″ de l'élève en bleu ou en rouge ; en vert la
+construction attendue (u⃗ depuis A, v⃗ depuis A′) quand A′ ou A″ n'était pas
+juste, les croix attendues, la flèche AA″ attendue, et la bonne translation
+écrite à côté de la liste (`#tcpCor`) — ou mise DANS la liste quand elle était
+vide. En soutien : le juste se fige, le faux rougit, rien ne se révèle. A″ ne
+se fige que sur un A′ juste (figé sur un A′ faux, il deviendrait faux dès que
+l'élève corrige A′).
+
+**Le banc** (`translationsSuccessives`, banc principal) a un juge qui ne lit
+pas les constantes de la page : il relit le SVG COMME DU TEXTE (`tcpSVG(q)`,
+jamais posé dans le DOM pour les 600 questions tirées) — la géométrie du
+quadrillage sur le cadre et le nombre de traits, u⃗ et v⃗ sur leurs flèches
+(la pointe s'arrête 3 px avant le nœud : il la prolonge), A sur sa croix.
+Sur 150 séances : A′ et A″ recalculés depuis le dessin, tout dans le
+quadrillage, les chemins assez longs et non parallèles, aucune flèche
+dessinée sur la construction, la bonne option qui mène de A à A″. Puis une
+figure fixe à l'écran : la liste dans l'ordre rangé, la copie vide (quatre
+sol, trois traits verts, rien de rouge, « Il te manquait 4 cases »), la
+copie juste posée pas à pas avec le reclic qui retire A′ et la reprise
+après JSON (4/4), quatre pièges à la fois (quatre rouges, quatre messages),
+A′ faux avec A″ et AA″ cohérents (rouge, bleu, bleu, bleu), le soutien et
+« Effacer », le contexte du modèle. **Le banc navigateur** (« 6 quadragies
+novies ») pose A′ et A″ à la souris, d'un clic décalé, mesure la croix qui
+suit la souris avec son nom, la flèche vive de A à la souris et son absence
+de croix, choisit dans la vraie liste, vérifie 4/4, puis corrige une copie
+vide sans rouge.
+
+**Ce qu'aucun banc ne voit** : le doigt sur tablette (le clic y passe, la
+croix qui suit la souris n'y vit pas), et la lisibilité de « u⃗ » dans la
+liste déroulante — la flèche combinante U+20D7 dépend de la fonte du
+système.
+
+**Puis le banc de la Seconde a débordé ses 4 Go dans l'action, et le
+correctif de #711 a été porté ici.** Mesurée contrôle par contrôle (un
+`gc()` avant chaque relevé), la mémoire retenue culminait à 4 233 Mo sur
+`main` SEUL et à 4 259 Mo avec cet exercice : la base dépassait déjà la
+limite, le 8.2.12 n'y ajoutait que 26 Mo. La cause, trouvée par la pull
+request #711 (8.1.11, encore ouverte) : les relevés des `MutationObserver`
+gardent en vie les nœuds retirés tant que le banc ne rend pas la main. Son
+correctif (`tests/harnais.js` et `evaluer()` dans `tests/verifier.js`) est
+porté tel quel, sans retouche, et se fondra sans conflit quand #711 arrivera
+sur `main`. Le banc de la Seconde repasse sous 4 Go (`--max-old-space-size=4096`
+en local : 935 contrôles verts).
