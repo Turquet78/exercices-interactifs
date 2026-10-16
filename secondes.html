@@ -2098,8 +2098,8 @@
   /* 8.1.10 {vrai-faux-vecteurs} : la figure à côté des dix égalités, sur deux
      colonnes quand l'écran le permet. La ligne montrée a son liseré violet
      (--crd-a) ; ses deux vecteurs prennent chacun leur encre — violet pour le
-     premier, ambre (--crd-b) pour le second —, et la figure les reprend :
-     des anneaux sur leurs points avant la vérification, des flèches après.
+     premier, ambre (--crd-b) pour le second —, et la figure les reprend
+     en flèches après la vérification (aucun anneau avant, v531).
      Ni l'une ni l'autre n'est une encre de verdict : « 9 bis » ne les lit pas. */
   .vfh-fig{flex:1 1 360px;max-width:520px;margin:0 auto 14px}
   .vfh-lignes{flex:1 1 380px;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:8px 10px;align-content:start}
@@ -2112,8 +2112,6 @@
   .vfh-l .itv-sel.vf{width:92px;font-size:1.25rem}
   .vfh-pq{flex:1 1 100%;font-size:.95rem;color:var(--ink-soft);padding-left:2.2em}
   .vfh-pq:empty{display:none}
-  .vfh-svg circle.vfh-au,.vfh-svg circle.vfh-aw{fill:none;stroke-width:2.5}
-  .vfh-svg circle.vfh-au{stroke:var(--crd-a)} .vfh-svg circle.vfh-aw{stroke:var(--crd-b)}
   .vfh-svg .vfh-fu line{stroke:var(--crd-a);stroke-width:3.5} .vfh-svg .vfh-fu polygon{fill:var(--crd-a)}
   .vfh-svg .vfh-fw line{stroke:var(--crd-b);stroke-width:3.5;stroke-dasharray:8 5} .vfh-svg .vfh-fw polygon{fill:var(--crd-b)}
   @media(max-width:520px){ .vfh-lignes{grid-template-columns:1fr} .vfh-pq{padding-left:0} }
@@ -7310,7 +7308,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=530;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=531;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -62781,25 +62779,21 @@ function vfhFleche(A, B, cls){
   return '<g class="'+cls+'"><line x1="'+f(A[0])+'" y1="'+f(A[1])+'" x2="'+f(bx)+'" y2="'+f(by)+'"/>'
     +'<polygon points="'+f(B[0])+','+f(B[1])+' '+f(bx-uy*e)+','+f(by+ux*e)+' '+f(bx+uy*e)+','+f(by-ux*e)+'"/></g>';
 }
-/* La ligne MONTRÉE sur le dessin. Avant la vérification, ses quatre points
-   seulement (des anneaux : violet pour le premier vecteur, ambre pour le
-   second) — la figure reste à lire. Une fois la page VERROUILLÉE, les deux
-   flèches, dans les mêmes encres, et la note dit ce qui manque. */
+/* La ligne MONTRÉE sur le dessin. Avant la vérification, RIEN sur la figure
+   (v531, demande de Turquet : plus d'anneau autour des points quand l'élève
+   clique sur une case) — seule la ligne prend son liseré, la figure reste à
+   lire. Une fois la page VERROUILLÉE, les deux flèches (violet pour le premier
+   vecteur, ambre pour le second), et la note dit ce qui manque. */
 function vfhMontrer(i){
   const host=$('vfhHost'); if(!host || !test.questions) return;
   const q=test.questions[test.idx]; if(!q || !q.lignes[i]) return;
   test.vfhVu=i;
   const pts=vfhPoints(q), K=vfhCadre(q), l=q.lignes[i];
   host.querySelectorAll('.vfh-l').forEach(function(e){ e.classList.toggle('vfh-actif', +e.getAttribute('data-i')===i); });
-  const N=function(L){ return K.P(pts[L]); }, f=function(v){ return v.toFixed(1); };
+  const N=function(L){ return K.P(pts[L]); };
   let fl='';
-  if(test.locked){
+  if(test.locked)
     fl+=vfhFleche(N(l.u[0]), N(l.u[1]), 'vfh-fu')+vfhFleche(N(l.w[0]), N(l.w[1]), 'vfh-fw');
-  } else {
-    const anneau=function(L, r, c){ const p=N(L); return '<circle class="'+c+'" cx="'+f(p[0])+'" cy="'+f(p[1])+'" r="'+r+'"/>'; };
-    l.u.split('').forEach(function(L){ fl+=anneau(L, 8, 'vfh-au'); });
-    l.w.split('').forEach(function(L){ fl+=anneau(L, l.u.indexOf(L)>=0 ? 12 : 8, 'vfh-aw'); });
-  }
   const g=$('vfhFl'); if(g) g.innerHTML=fl;
 }
 function vfhLigneHTML(l){
