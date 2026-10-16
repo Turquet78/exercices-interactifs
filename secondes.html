@@ -7522,7 +7522,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=536;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=537;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -64788,7 +64788,10 @@ function lsdGenQuestion(){
   const cheb=function(p,r){ return Math.max(Math.abs(p[0]-r[0]), Math.abs(p[1]-r[1])); };
   for(let att=0; att<600; att++){
     /* la chaîne : 5 points, 4 flèches qui tournent toujours (jamais deux
-       flèches consécutives alignées : leur somme se lirait sans rien chercher) */
+       flèches consécutives alignées : leur somme se lirait sans rien chercher),
+       et jamais de plus de 120° : une flèche qui repart presque en arrière se
+       couchait sur la précédente, et le point du milieu semblait posé sur le
+       trait (vu en ligne, v536 — une figure sur deux) */
     const pts=[[rnd(1,6), rnd(1,H-1)]], segs=[], ds=[];
     let ok=true;
     for(let i=0;i<4 && ok;i++){
@@ -64797,14 +64800,15 @@ function lsdGenQuestion(){
         const d=[rnd(-3,3), rnd(-3,3)];
         if(Math.abs(d[0])+Math.abs(d[1])<2) continue;
         if(i && ds[i-1][0]*d[1]-ds[i-1][1]*d[0]===0) continue;
+        if(i && ds[i-1][0]*d[0]+ds[i-1][1]*d[1] < -0.5*Math.hypot(ds[i-1][0],ds[i-1][1])*Math.hypot(d[0],d[1])) continue;
         const a=pts[i], b=lsdPlus(a, d);
         if(!dedans(b, 1)) continue;
         if(pts.some(function(p){ return cheb(p, b)<2; })) continue;
         /* le nouveau trait passe loin des points d'avant (son départ excepté)
            et des traits d'avant (le précédent le touche à son départ) */
-        if(pts.slice(0, i).some(function(p){ return lsdDistPS(p, a, b)<0.9; })) continue;
+        if(pts.slice(0, i).some(function(p){ return lsdDistPS(p, a, b)<1.2; })) continue;
         if(segs.slice(0, i ? i-1 : 0).some(function(s){ return lsdDistSS(a, b, s[0], s[1])<0.9; })) continue;
-        if(i && lsdDistPS(b, segs[i-1][0], segs[i-1][1])<0.9) continue;
+        if(segs.some(function(sg){ return lsdDistPS(b, sg[0], sg[1])<1.2; })) continue;
         bon=d;
       }
       if(!bon){ ok=false; break; }
@@ -64830,7 +64834,7 @@ function lsdGenQuestion(){
     const c=choix[rnd(0, choix.length-1)];
     /* le point isolé : de préférence au bout d'un autre vecteur égal à u⃗ + v⃗ */
     const loin=function(p){ return dedans(p, 1) && pts.every(function(r){ return cheb(r, p)>=2; })
-      && segs.every(function(sg){ return lsdDistPS(p, sg[0], sg[1])>=0.9; }); };
+      && segs.every(function(sg){ return lsdDistPS(p, sg[0], sg[1])>=1.2; }); };
     const isoles=[];
     pts.forEach(function(p, i){ if(i!==k){ const e=lsdPlus(p, s); if(loin(e)) isoles.push(e); } });
     let x=isoles.length && Math.random()<0.7 ? isoles[rnd(0, isoles.length-1)] : null;
