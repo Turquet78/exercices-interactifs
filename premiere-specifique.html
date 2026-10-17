@@ -1281,6 +1281,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    suivent la convention de {associer-coefficient} : juste en bleu, faux en
    rouge, correction en vert. */
 #pbHost .pt-row{margin:10px 0}
+/* 3.8 : plusieurs probabilités sur une rangée — chacune reste d'un bloc, le
+   repli (sur un téléphone) ne passe qu'ENTRE elles */
+#pbHost .pt-row.ind-rang{gap:12px 40px}
+.ind-p{display:inline-flex;align-items:center;gap:12px;white-space:nowrap}
 #pbHost .pb-enonce-ici .mp-instr{margin:16px 0 6px}
 .pb-def{font-family:"Nunito";font-weight:700;font-size:calc(1.05rem * var(--tab-nb,1));color:var(--ink);margin:10px 0;text-align:center}
 .pb-phrase{line-height:2.5}
@@ -2985,7 +2989,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=325;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=326;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -17925,7 +17929,11 @@ function checkPBAnswer(live){
   if(pbEstFiche()){ checkPBFiche(); return; }
   const q=test.questions[test.idx], att=pbAttendus(q), ids=Object.keys(att), soutien=isSoutien();
   const verd={}; let allOk=true, vide=false;
-  ids.forEach(id=>{ const v=pbLu(id); if(v==='') vide=true; verd[id]=(v===att[id]); if(!verd[id]) allOk=false; });
+  ids.forEach(id=>{ const v=pbLu(id); if(v==='') vide=true; verd[id]=(v===att[id]); });
+  /* une sorte de question peut juger autrement que « le texte attendu » :
+     le 3.8 accepte une fraction égale (indJuger) */
+  if(PBX[q.t] && PBX[q.t].juger) PBX[q.t].juger(q, att, verd);
+  ids.forEach(id=>{ if(!verd[id]) allOk=false; });
   if(soutien){
     /* En soutien l'élève corrige lui-même : une case juste se verrouille en
        bleu, une fausse rougit et reste à reprendre, une vide reste à remplir
@@ -18476,11 +18484,12 @@ PBX.pct={
    milieu valent donc 1 à 4 (total au plus 16) : le produit tombe sur T², au
    plus 256, et se calcule de tête. Avant (v324 et plus tôt), la méthode était
    P_X(Y) contre P(Y) en pourcentages, sur des effectifs de 50 à 200.
-   L'élève écrit P(X ∩ Y), P(X), P(Y) avec les effectifs, le produit SANS
-   simplifier (dénominateur T²), puis P(X ∩ Y) sur ce même dénominateur :
-   comparer deux fractions de même dénominateur, c'est comparer leurs
-   numérateurs. Chaque case attend UN nombre — une fraction simplifiée
-   serait une autre écriture, et la consigne le dit. Indépendance ⇔
+   L'élève écrit P(X ∩ Y), P(X), P(Y) avec les effectifs (une rangée), puis
+   le produit et P(X ∩ Y) sur le même dénominateur que lui (une seconde
+   rangée) : comparer deux fractions de même dénominateur, c'est comparer
+   leurs numérateurs. Une fraction simplifiée est juste (indJuger, v326) ;
+   les attendus restent les fractions des effectifs, T² pour le produit,
+   et c'est eux que la correction écrit. Indépendance ⇔
    n(A∩B) × n(Ā∩B̄) = n(Ā∩B) × n(A∩B̄), quels que soient X et Y.
    Indépendants une fois sur deux (à une près quand la séance est impaire),
    dans un ordre tiré. Le réglage « Questions » d'un devoir allonge la séance
@@ -18506,28 +18515,46 @@ function indNb(q){ const y=q.ev[0], x=q.ev[1]; return { s:pbEff(q,pbInter(y,x)),
 function indFrac(a, b, lab){
   return fEq('<span class="f-frac-input">'+pbMf(a,'numérateur de '+lab)+'<span class="f-fbar"></span>'+pbMf(b,'dénominateur de '+lab)+'</span>');
 }
+/* une probabilité et sa fraction, d'un seul bloc (voir .ind-p) */
+function indP(nom, a, b, lab){ return '<span class="ind-p">'+nom+indFrac(a,b,lab)+'</span>'; }
+/* LES FRACTIONS SIMPLIFIÉES SONT JUSTES (v326, demande de Turquet) : une
+   paire numérateur / dénominateur vaut ses deux points dès que la fraction
+   tapée est ÉGALE à l'attendue — 1/4 pour 4/16. La seconde P(X ∩ Y) se
+   compare au produit tel que l'élève l'a écrit : simplifié ou non, une
+   fraction égale est juste. Sinon chaque case se juge seule, comme partout :
+   un numérateur juste sous un dénominateur faux reste bleu. */
+const IND_PAIRES=[['pb-i1','pb-i2'],['pb-x1','pb-x2'],['pb-y1','pb-y2'],['pb-p1','pb-p2'],['pb-m1','pb-m2']];
+function indJuger(q, att, verd){
+  IND_PAIRES.forEach(([a,b])=>{
+    const n=pbLu(a), d=pbLu(b);
+    if(!/^\d+$/.test(n) || !/^[1-9]\d*$/.test(d)) return;
+    if(+n * +att[b] === +d * +att[a]){ verd[a]=true; verd[b]=true; }
+  });
+}
 /* P(X) × P(Y), en tête de rangée : à la taille des noms des autres rangées */
 function indNomProd(x,y){ return pbNomHTML(x,'T')+'<span class="pb-nom">&nbsp;×&nbsp;</span>'+pbNomHTML(y,'T'); }
 PBX.ind={
+  juger:indJuger,
   att(q){ const N=indNb(q);
     return { 'pb-i1':String(N.s), 'pb-i2':String(N.t), 'pb-x1':String(N.x), 'pb-x2':String(N.t), 'pb-y1':String(N.y), 'pb-y2':String(N.t),
              'pb-p1':String(N.x*N.y), 'pb-p2':String(N.t*N.t), 'pb-m1':String(N.s*N.t), 'pb-m2':String(N.t*N.t), 'pb-ind':q.ind }; },
   render(q){
     const y=q.ev[0], x=q.ev[1], s=pbInter(y,x);
     $('pbPrompt').innerHTML='Les évènements '+pbHTML(x)+' et '+pbHTML(y)+' sont-ils indépendants ? Calcule '+pbNomPetit(s,'T')+', '+pbNomPetit(x,'T')+' et '+pbNomPetit(y,'T')
-      +' avec les effectifs, puis '+pbNomPetit(x,'T')+' × '+pbNomPetit(y,'T')+' sans simplifier. Écris '+pbNomPetit(s,'T')+' sur le même dénominateur, et compare.';
+      +' avec les effectifs, puis '+pbNomPetit(x,'T')+' × '+pbNomPetit(y,'T')+'. Écris '+pbNomPetit(s,'T')+' sur le même dénominateur que ce produit, et compare.';
     /* les options sans lettres : une <option> ne sait pas dessiner la barre
        de Ē (voir pbAffMaj), et une phrase courte tient sur un téléphone */
     const opts=[{ v:'oui', t:'égales : indépendants' },
                 { v:'non', t:'différentes : pas indépendants' }];
     $('pbHost').innerHTML=pbxTable(q)
       +'<div class="pt-step">'
-        +'<div class="pt-row">'+pbNomHTML(s,'T')+indFrac('pb-i1','pb-i2','P('+pbTxt(s)+')')+'</div>'
-        +'<div class="pt-row">'+pbNomHTML(x,'T')+indFrac('pb-x1','pb-x2','P('+pbTxt(x)+')')+'</div>'
-        +'<div class="pt-row">'+pbNomHTML(y,'T')+indFrac('pb-y1','pb-y2','P('+pbTxt(y)+')')+'</div>'
-        +'<div class="pt-row">'+indNomProd(x,y)+indFrac('pb-p1','pb-p2','P('+pbTxt(x)+') × P('+pbTxt(y)+'), sans simplifier')+'</div>'
-        +'<p class="pb-def pb-centre">Sur le même dénominateur :</p>'
-        +'<div class="pt-row">'+pbNomHTML(s,'T')+indFrac('pb-m1','pb-m2','P('+pbTxt(s)+') sur le même dénominateur')+'</div>'
+        +'<div class="pt-row ind-rang">'
+          +indP(pbNomHTML(s,'T'), 'pb-i1','pb-i2','P('+pbTxt(s)+')')
+          +indP(pbNomHTML(x,'T'), 'pb-x1','pb-x2','P('+pbTxt(x)+')')
+          +indP(pbNomHTML(y,'T'), 'pb-y1','pb-y2','P('+pbTxt(y)+')')+'</div>'
+        +'<div class="pt-row ind-rang">'
+          +indP(indNomProd(x,y), 'pb-p1','pb-p2','P('+pbTxt(x)+') × P('+pbTxt(y)+')')
+          +indP(pbNomHTML(s,'T'), 'pb-m1','pb-m2','P('+pbTxt(s)+') sur le même dénominateur')+'</div>'
         +'<p class="pb-def pb-phrase pb-centre">'+pbNomPetit(s,'T')+' et '+pbNomPetit(x,'T')+' × '+pbNomPetit(y,'T')+' sont '+pbSel(q,'pb-ind',opts,'la conclusion','pb-mots pb-long')+'</p>'
       +'</div>';
     pbPlacerEnonce(true);
@@ -18544,8 +18571,8 @@ PBX.ind={
   ctx(q){
     const C=pbCtx(q), y=q.ev[0], x=q.ev[1], s=pbInter(y,x);
     return 'Tableau à double entrée qui représente '+C.ens+' : '+pbTxt('A')+' = « '+C.ind+' '+C.A+' », '+pbTxt('B')+' = « '+C.ind+' '+C.B+' ». '+pbEffTxt(pbValeurs(q.n))
-      +'L’élève calcule '+pbNomTxt(s,'T')+', '+pbNomTxt(x,'T')+' et '+pbNomTxt(y,'T')+' (fractions des effectifs, sans simplifier), puis le produit '+pbNomTxt(x,'T')+' × '+pbNomTxt(y,'T')
-      +' sans simplifier (numérateur fois numérateur, dénominateur fois dénominateur : le dénominateur est le carré du total), puis réécrit '+pbNomTxt(s,'T')+' sur ce même dénominateur, et conclut : '
+      +'L’élève calcule '+pbNomTxt(s,'T')+', '+pbNomTxt(x,'T')+' et '+pbNomTxt(y,'T')+' (fractions des effectifs ; une fraction simplifiée est acceptée), puis le produit '+pbNomTxt(x,'T')+' × '+pbNomTxt(y,'T')
+      +' (numérateur fois numérateur, dénominateur fois dénominateur — simplifié ou non), puis réécrit '+pbNomTxt(s,'T')+' sur le même dénominateur que ce produit, et conclut : '
       +pbTxt(x)+' et '+pbTxt(y)+' sont indépendants quand '+pbNomTxt(s,'T')+' = '+pbNomTxt(x,'T')+' × '+pbNomTxt(y,'T')+'. '
       +pbMethodeTxt();
   }
