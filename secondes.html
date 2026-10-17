@@ -22871,6 +22871,28 @@ function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dé
   if(!en.disabled) en.classList.add((ok||n===tn)?'ok':'bad');
   if(!ed.disabled) ed.classList.add((ok||(isPow10(d)&&d===td))?'ok':'bad');
 }
+/* a × b = b × a : le calcul global « … × … = … » des schémas de pourcentages
+   accepte ses deux facteurs dans l'un ou l'autre ordre (demande de Turquet,
+   octobre 2026 — une copie « 0,80 × 0,30 = 0,24 » rougissait deux cases
+   justes). Rend les cibles des deux cases, ÉCHANGÉES quand l'écriture de
+   l'élève colle mieux à rebours : le juge, la correction écrite et le compte
+   rendu suivent alors l'ordre de l'élève. vaut(s, cible) juge une case. */
+function facteursCommutes(sa,sb,ca,cb,vaut){
+  const droit=(vaut(sa,ca)?1:0)+(vaut(sb,cb)?1:0), croise=(vaut(sa,cb)?1:0)+(vaut(sb,ca)?1:0);
+  return croise>droit ? [cb,ca] : [ca,cb];
+}
+/* la même chose pour deux cases décimales identifiées, de cibles nA/d et nB/d */
+function facteursCommutesDec(idA,idB,nA,nB,d){
+  const lu=id=>{ const el=$(id); return el ? String(el.value==null?'':el.value).trim() : ''; };
+  return facteursCommutes(lu(idA),lu(idB),nA,nB,(s,n)=>{ const fr=parseDecToFrac(s); return !!fr && fr.n*d===n*fr.d; });
+}
+/* une liste de cases {id, dec} (4.1.10 à 4.1.13) : les deux facteurs du calcul
+   global échangent leur cible quand l'élève les a écrits à rebours */
+function casesCommutees(cases,idA,idB){
+  const a=cases.find(c=>c.id===idA), b=cases.find(c=>c.id===idB);
+  if(a && b) [a.dec,b.dec]=facteursCommutesDec(idA,idB,a.dec,b.dec,100);
+  return cases;
+}
 function liveColorDec(id,tn,td){                       // case décimale
   const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
   el.classList.remove('ok','bad'); if(v==='') return;
@@ -25056,19 +25078,20 @@ function checkPctChaineAnswer(live){
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
   const cible=pctcCible(q);
+  const [t1,t2]=facteursCommutesDec('pctcG1','pctcG2',q.P1,q.P2,100);   /* a × b = b × a */
   if(live){
     const col=(id,target)=>{ const el=$(id); if(!el||el.disabled) return; const val=v(id);
       el.classList.remove('ok','bad'); if(val==='') return;
       el.classList.add(decVaut(val,target)?'ok':'bad'); };   /* « 20,5 » ne vaut pas 20 */
     liveColorDec('pctcD1',q.P1,100); liveColorDec('pctcD2',q.P2,100);
-    liveColorDec('pctcG1',q.P1,100); liveColorDec('pctcG2',q.P2,100); liveColorDec('pctcG',q.comb,100);
+    liveColorDec('pctcG1',t1,100); liveColorDec('pctcG2',t2,100); liveColorDec('pctcG',q.comb,100);
     col('pctcC',cible);
     return;
   }
   const fr1=parseDecToFrac(v('pctcD1')), okD1=!!fr1 && fr1.n*100===q.P1*fr1.d;
   const fr2=parseDecToFrac(v('pctcD2')), okD2=!!fr2 && fr2.n*100===q.P2*fr2.d;
-  const frG1=parseDecToFrac(v('pctcG1')), okG1=!!frG1 && frG1.n*100===q.P1*frG1.d;
-  const frG2=parseDecToFrac(v('pctcG2')), okG2=!!frG2 && frG2.n*100===q.P2*frG2.d;
+  const frG1=parseDecToFrac(v('pctcG1')), okG1=!!frG1 && frG1.n*100===t1*frG1.d;
+  const frG2=parseDecToFrac(v('pctcG2')), okG2=!!frG2 && frG2.n*100===t2*frG2.d;
   const frG=parseDecToFrac(v('pctcG')), okG=!!frG && frG.n*100===q.comb*frG.d;
   const okC=decVaut(v('pctcC'),cible);   /* « 12,5 » ne vaut plus 12 */
   // une case vide ne rougit jamais (règle universelle) : mark() ne colore que
@@ -25085,7 +25108,7 @@ function checkPctChaineAnswer(live){
     $('pctcFeedback').textContent=`Réponse : 100 % × ${d1Str} = ${q.P1} %, puis ${q.P1} % × ${d2Str} = ${q.comb} % — en un seul calcul : ${d1Str} × ${d2Str} = ${gStr} — donc ${cible} %.`;
     $('pctcFeedback').className='mp-feedback bad';
     corTrainDec('pctcD1',d1Str); corTrainDec('pctcD2',d2Str);
-    corTrainDec('pctcG1',d1Str); corTrainDec('pctcG2',d2Str); corTrainDec('pctcG',gStr);
+    corTrainDec('pctcG1',pDecStr(t1)); corTrainDec('pctcG2',pDecStr(t2)); corTrainDec('pctcG',gStr);
     corTrainDec('pctcC',String(cible));
   }
   const enonce=pctcEnonce(q).replace(/<[^>]+>/g,'');
@@ -25300,7 +25323,7 @@ function checkPcsAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
-  const cases=pcsCases(q);
+  const cases=casesCommutees(pcsCases(q),'pcsG1','pcsG2');   /* a × b = b × a */
   if(live){
     cases.forEach(c=>{ const el=$(c.id); if(!el||el.disabled) return; const s=v(c.id);
       el.classList.remove('ok','bad'); if(s==='') return;
@@ -25454,7 +25477,7 @@ function checkPcpAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
-  const cases=pcpCases(q);
+  const cases=casesCommutees(pcpCases(q),'pcpG1','pcpG2');   /* a × b = b × a */
   if(live){
     cases.forEach(c=>{ const el=$(c.id); if(!el||el.disabled) return; const s=v(c.id);
       el.classList.remove('ok','bad'); if(s==='') return;
@@ -25705,7 +25728,7 @@ function checkPccAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
-  const cases=pccCases(q);
+  const cases=casesCommutees(pccCases(q),'pccG1','pccG2');   /* a × b = b × a */
   if(live){
     cases.forEach(c=>{ const el=$(c.id); if(!el||el.disabled) return; const s=v(c.id);
       el.classList.remove('ok','bad'); if(s==='') return;
@@ -25873,7 +25896,7 @@ function checkPsvAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
-  const cases=psvCases(q);
+  const cases=casesCommutees(psvCases(q),'psvG1','psvG2');   /* a × b = b × a */
   if(live){
     cases.forEach(c=>{ const el=$(c.id); if(!el||el.disabled) return; const s=v(c.id);
       el.classList.remove('ok','bad'); if(s==='') return;
@@ -27193,16 +27216,17 @@ function checkEvsAnswer(live){
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
   const gAbs=Math.abs(q.G), gc=q.c1*q.c2;                 /* le coefficient global, en dix-millièmes */
+  const [g1c,g2c]=facteursCommutesDec('evsG1','evsG2',q.c1,q.c2,100);   /* a × b = b × a */
   if(live){
     liveColorDec('evsP1',q.P1,100); liveColorDec('evsC1',q.c1,100);
     liveColorDec('evsP2',q.P2,100); liveColorDec('evsC2',q.c2,100);
-    liveColorDec('evsGP',gAbs,100); liveColorDec('evsG1',q.c1,100); liveColorDec('evsG2',q.c2,100); liveColorDec('evsG',gc,10000);
+    liveColorDec('evsGP',gAbs,100); liveColorDec('evsG1',g1c,100); liveColorDec('evsG2',g2c,100); liveColorDec('evsG',gc,10000);
     liveColorDec('evsT',gAbs,1);
     return;
   }
   const dec=(id,n,d)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
   const ok={ evsP1:dec('evsP1',q.P1,100), evsC1:dec('evsC1',q.c1,100), evsP2:dec('evsP2',q.P2,100), evsC2:dec('evsC2',q.c2,100),
-             evsGP:dec('evsGP',gAbs,100), evsG1:dec('evsG1',q.c1,100), evsG2:dec('evsG2',q.c2,100), evsG:dec('evsG',gc,10000), evsT:dec('evsT',gAbs,1) };
+             evsGP:dec('evsGP',gAbs,100), evsG1:dec('evsG1',g1c,100), evsG2:dec('evsG2',g2c,100), evsG:dec('evsG',gc,10000), evsT:dec('evsT',gAbs,1) };
   const bonS=q.G>0?'+':'−';
   // une case vide ne rougit jamais (règle universelle) : mark() ne colore que
   // les cases écrites, et chacune se juge SEULE contre sa valeur canonique
@@ -27220,7 +27244,7 @@ function checkEvsAnswer(live){
     $('evsFeedback').textContent=`Réponse : (1 ${q.s1<0?'−':'+'} ${d1}) × (1 ${q.s2<0?'−':'+'} ${d2}) = ${k1} × ${k2} = ${kg} = 1 ${bonS} ${dg} : ${BS_CTX[q.ci].sujet.charAt(0).toLowerCase()+BS_CTX[q.ci].sujet.slice(1)} subit globalement une ${mot} de ${gAbs} %.`;
     $('evsFeedback').className='mp-feedback bad';
     corTrainDec('evsP1',d1); corTrainDec('evsC1',k1); corTrainDec('evsP2',d2); corTrainDec('evsC2',k2);
-    corTrainDec('evsGP',dg); corTrainDec('evsG1',k1); corTrainDec('evsG2',k2); corTrainDec('evsG',kg); corTrainDec('evsT',String(gAbs));
+    corTrainDec('evsGP',dg); corTrainDec('evsG1',evsDec(g1c)); corTrainDec('evsG2',evsDec(g2c)); corTrainDec('evsG',kg); corTrainDec('evsT',String(gAbs));
     /* en entraînement, la case du coefficient global vient d'être corrigée
        (complétée si vide) : le signe et le mot se relisent dessus ; si l'élève
        y avait écrit un coefficient du mauvais côté de 1, on montre le bon
@@ -27469,18 +27493,19 @@ function checkEvcAnswer(live){
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
   const gAbs=Math.abs(q.G), gc=q.c1*q.c2;
+  const [g1c,g2c]=facteursCommutesDec('evcG1','evcG2',q.c1,q.c2,100);   /* a × b = b × a */
   const mots={evcW1:q.s1>0?'hausse':'baisse', evcW2:q.s2>0?'hausse':'baisse', evcW3:q.G>0?'hausse':'baisse'};
   const colSel=id=>{ const w=$(id); if(w&&!w.disabled){ w.classList.remove('ok','bad'); if(w.value) w.classList.add(w.value===mots[id]?'ok':'bad'); } };
   if(live){
     liveColorDec('evcP1',q.P1,100); liveColorDec('evcP2',q.P2,100);
-    liveColorDec('evcG1',q.c1,100); liveColorDec('evcG2',q.c2,100); liveColorDec('evcG',gc,10000); liveColorDec('evcGP',gAbs,100);
+    liveColorDec('evcG1',g1c,100); liveColorDec('evcG2',g2c,100); liveColorDec('evcG',gc,10000); liveColorDec('evcGP',gAbs,100);
     liveColorDec('evcT1',q.P1,1); liveColorDec('evcT2',q.P2,1); liveColorDec('evcT3',gAbs,1);
     Object.keys(mots).forEach(colSel);
     return;
   }
   const dec=(id,n,d)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
   const ok={ evcP1:dec('evcP1',q.P1,100), evcP2:dec('evcP2',q.P2,100),
-             evcG1:dec('evcG1',q.c1,100), evcG2:dec('evcG2',q.c2,100), evcG:dec('evcG',gc,10000), evcGP:dec('evcGP',gAbs,100),
+             evcG1:dec('evcG1',g1c,100), evcG2:dec('evcG2',g2c,100), evcG:dec('evcG',gc,10000), evcGP:dec('evcGP',gAbs,100),
              evcW1:v('evcW1')===mots.evcW1, evcT1:dec('evcT1',q.P1,1),
              evcW2:v('evcW2')===mots.evcW2, evcT2:dec('evcT2',q.P2,1),
              evcW3:v('evcW3')===mots.evcW3, evcT3:dec('evcT3',gAbs,1) };
@@ -27498,7 +27523,7 @@ function checkEvcAnswer(live){
   } else {
     $('evcFeedback').textContent=`Réponse : ${k1} × ${k2} = ${kg} = 1 ${bonS} ${dg}. La 1re évolution est une ${mots.evcW1} de ${q.P1} %, la 2e une ${mots.evcW2} de ${q.P2} %, et l’évolution globale une ${mots.evcW3} de ${gAbs} %.`;
     $('evcFeedback').className='mp-feedback bad';
-    corTrainDec('evcP1',d1); corTrainDec('evcP2',d2); corTrainDec('evcG1',k1); corTrainDec('evcG2',k2); corTrainDec('evcG',kg); corTrainDec('evcGP',dg);
+    corTrainDec('evcP1',d1); corTrainDec('evcP2',d2); corTrainDec('evcG1',evsDec(g1c)); corTrainDec('evcG2',evsDec(g2c)); corTrainDec('evcG',kg); corTrainDec('evcGP',dg);
     corTrainDec('evcT1',String(q.P1)); corTrainDec('evcT2',String(q.P2)); corTrainDec('evcT3',String(gAbs));
     Object.keys(mots).forEach(id=>{ const w=$(id); if(w&&currentMode==='train'&&!w.classList.contains('ok')){ w.value=mots[id]; w.classList.remove('bad'); w.classList.add('sol'); w.disabled=true; } });
     if(currentMode==='train'){
@@ -27625,18 +27650,19 @@ function checkEvpAnswer(live){
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
   const gAbs=Math.abs(q.G), gc=q.c1*q.c2;
+  const [g1c,g2c]=facteursCommutesDec('evpG1','evpG2',q.c1,q.c2,100);   /* a × b = b × a */
   const motG=q.G>0?'hausse':'baisse';
   const colSel=()=>{ const w=$('evpW3'); if(w&&!w.disabled){ w.classList.remove('ok','bad'); if(w.value) w.classList.add(w.value===motG?'ok':'bad'); } };
   if(live){
     liveColorDec('evpP1',q.P1,100); liveColorDec('evpP2',q.P2,100); liveColorDec('evpC1',q.c1,100); liveColorDec('evpC2',q.c2,100);
-    liveColorDec('evpG1',q.c1,100); liveColorDec('evpG2',q.c2,100); liveColorDec('evpG',gc,10000); liveColorDec('evpGP',gAbs,100);
+    liveColorDec('evpG1',g1c,100); liveColorDec('evpG2',g2c,100); liveColorDec('evpG',gc,10000); liveColorDec('evpGP',gAbs,100);
     liveColorDec('evpT3',gAbs,1);
     colSel();
     return;
   }
   const dec=(id,n,d)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
   const ok={ evpP1:dec('evpP1',q.P1,100), evpP2:dec('evpP2',q.P2,100), evpC1:dec('evpC1',q.c1,100), evpC2:dec('evpC2',q.c2,100),
-             evpG1:dec('evpG1',q.c1,100), evpG2:dec('evpG2',q.c2,100), evpG:dec('evpG',gc,10000), evpGP:dec('evpGP',gAbs,100),
+             evpG1:dec('evpG1',g1c,100), evpG2:dec('evpG2',g2c,100), evpG:dec('evpG',gc,10000), evpGP:dec('evpGP',gAbs,100),
              evpW3:v('evpW3')===motG, evpT3:dec('evpT3',gAbs,1) };
   // une case vide ne rougit jamais (règle universelle)
   const mark=(id,o)=>{ const el=$(id); el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(o?'ok':'bad'); el.disabled=o||!isSoutien(); };
@@ -27653,7 +27679,7 @@ function checkEvpAnswer(live){
     $('evpFeedback').textContent=`Réponse : (1 ${q.s1<0?'−':'+'} ${d1}) × (1 ${q.s2<0?'−':'+'} ${d2}) = ${k1} × ${k2} = ${kg} = 1 ${bonS} ${dg}. L’évolution globale est une ${motG} de ${gAbs} %.`;
     $('evpFeedback').className='mp-feedback bad';
     corTrainDec('evpP1',d1); corTrainDec('evpP2',d2); corTrainDec('evpC1',k1); corTrainDec('evpC2',k2);
-    corTrainDec('evpG1',k1); corTrainDec('evpG2',k2); corTrainDec('evpG',kg); corTrainDec('evpGP',dg); corTrainDec('evpT3',String(gAbs));
+    corTrainDec('evpG1',evsDec(g1c)); corTrainDec('evpG2',evsDec(g2c)); corTrainDec('evpG',kg); corTrainDec('evpGP',dg); corTrainDec('evpT3',String(gAbs));
     const w=$('evpW3'); if(w&&currentMode==='train'&&!w.classList.contains('ok')){ w.value=motG; w.classList.remove('bad'); w.classList.add('sol'); w.disabled=true; }
     if(currentMode==='train'){
       evpSigneMAJ();
@@ -29773,6 +29799,8 @@ function checkPpbSchema(live){
   const q=test.questions[test.idx]; if(!q || !q.aide) return;
   const C=ppbSchemaCases(q), ids=Object.keys(C).filter(id=>$(id));
   const v=id=>String($(id).value||'').trim();
+  if(C.ppbG1 && C.ppbG2 && $('ppbG1') && $('ppbG2'))                      /* a × b = b × a */
+    [C.ppbG1,C.ppbG2]=facteursCommutes(v('ppbG1'),v('ppbG2'),C.ppbG1,C.ppbG2,(s,t)=>{ const fr=parseDecToFrac(s); return !!fr && fr.n*t.d===t.n*fr.d; });
   const juste=function(id){ const t=C[id]; if(t.mot) return v(id)===t.mot; const fr=parseDecToFrac(v(id)); return !!fr && fr.n*t.d===t.n*fr.d; };
   if(live){
     ids.forEach(function(id){ const el=$(id); if(el.disabled) return; el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(juste(id)?'ok':'bad'); });
