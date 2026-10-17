@@ -1236,7 +1236,20 @@ module.exports = {
                        ne laisse plus 32 px au-dessus des touches. L'écart
                        mesuré entre le haut de la plaque et la première rangée
                        ne dépasse pas ce plafond, en pixels. */
-                    ecartHautMax: 4 },
+                    ecartHautMax: 4,
+                    /* LE CLAVIER B — les lettres, comme en Première (demande de
+                       Turquet, octobre 2026, sur le 4.5.10 : « on ne peut pas
+                       faire d'espace au clavier et le clavier virtuel ne propose
+                       pas le clavier qui possède l'alphabet »). La page ne tient
+                       aucune liste : le clavier suit la feuille de RÉDACTION
+                       (mlFeuille, mode 'redaction', classe mf-mots). Témoins :
+                       les deux problèmes rédigés, dont le juge efface les mots
+                       (ppbTexte). Bord opposé : le 4.5.9, dont le juge ne lit
+                       pas les mots — il garde sa feuille de calcul. */
+                    lettres: { versC: 'clavier B', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b', espace: 'espace',
+                               touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 14,
+                               exercices: ['pourcentages-problemes', 'pourcentages-problemes-sans-aide'],
+                               hors: ['synthese-pourcentages-redigee', 'somme-fractions-libre'] } },
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce','\u2190','\u2192'],
             /* LE PAVÉ A LA FORME DU CLAVIER MATHÉMATIQUE (demande de Turquet,
