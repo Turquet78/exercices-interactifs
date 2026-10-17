@@ -4531,6 +4531,7 @@ function exercices(suite){
     developperDoubleNu(w, P);
     vraiFauxCalcul(w, P);
     valeurExpression(w, P);
+    developperReduire(w, P);
     translationGrille(w, P);
     vecteursEgauxTableau(w, P);
     vecteursEgaux(w, P);
@@ -23598,6 +23599,129 @@ function vraiFauxCalcul(w, P){
     /* le contexte du modèle */
     const cx=ctxVfl(test.questions[0]).contexte;
     if(!/STRICTEMENT SECRÈTES/.test(cx) || cx.indexOf('2x + 3x = 5x')<0) vus.push('le contexte du modèle : '+cx.slice(0,120));
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {developper-reduire} — thème 7 « Calcul littéral », 7.14 : développer
+   puis réduire une somme de produits, dans UNE rangée d'égalités
+   (« on enchaîne 7.11 et 7.5 »). Ce que ce contrôle tient : la place,
+   l'identité, la rangée (deux « = » groupés avec leurs cases), 400 tirages
+   jugés par une SECONDE méthode (la valeur des polynômes en trois points),
+   puis quatre pages écrites ICI à la main, au bouton : la copie juste, les
+   termes développés dans un autre ordre, et les pièges. */
+function developperReduire(w, P){
+  const present = evaluer(w, "typeof startDvr==='function' && !!TESTS['developper-reduire']");
+  if(!present.ok || !present.valeur){
+    ignorer('développer puis réduire une somme de produits : la place, la rangée et la correction',
+      'ce niveau n\'a pas l\'exercice développer puis réduire');
+    return;
+  }
+  verifierEval(w, 'développer puis réduire une somme de produits : la place, la rangée et la correction', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='developper-reduire';
+    if(TEST_NUM['developper-reduire']!=='7.14') vus.push('numéro '+TEST_NUM['developper-reduire']+' au lieu de 7.14');
+    if(TEST_NUM['developper-double-nu']!=='7.11' || TEST_NUM['vrai-faux-calcul']!=='7.12' || TEST_NUM['valeur-expression']!=='7.13') vus.push('le 7.11, le 7.12 ou le 7.13 a bougé');
+    /* 400 tirages, jugés par la VALEUR : le développement et la forme réduite
+       valent l'expression en x = −2, 1 et 3 ; six termes développés, trois
+       termes réduits (x², x, nombre), aucun nul */
+    const val=function(ts, x){ return ts.reduce(function(a,t){ return a+t.c*Math.pow(x,t.d); },0); };
+    const valQ=function(q, x){ return q.prods.reduce(function(a,p){ return a+p.s*p.fs.reduce(function(m,f){ return m*val(f,x); },1); },0); };
+    for(let n=0;n<100 && vus.length<4;n++){
+      const qs=dvrBuildQuestions();
+      if(qs.map(function(q){ return q.forme; }).join('')!=='ABCD') vus.push('les formes '+qs.map(function(q){ return q.forme; }).join(''));
+      qs.forEach(function(q){
+        const L=dvrLignes(q);
+        if(L.dev.length!==6) vus.push(q.forme+' : '+L.dev.length+' termes développés');
+        if(L.reduite.map(function(t){ return t.d; }).join()!=='2,1,0' || L.reduite.some(function(t){ return t.c===0; })) vus.push(q.forme+' : forme réduite '+L.reduiteTxt);
+        [-2,1,3].forEach(function(x){
+          if(val(L.dev,x)!==valQ(q,x) || val(L.reduite,x)!==valQ(q,x)) vus.push(L.expr+' : faux en x = '+x);
+        });
+        if(L.dev.some(function(t){ return t.c===0; })) vus.push(L.expr+' : un terme nul');
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    const M=function(c,d){ return {c:c,d:d}; };
+    const FICHE=[
+      {forme:'A', prods:[{s:1, fs:[[M(1,1),M(-4,0)],[M(1,1),M(5,0)]]}, {s:-1, fs:[[M(3,1)],[M(1,1),M(-2,0)]]}]},
+      {forme:'B', prods:[{s:1, fs:[[M(2,1),M(3,0)],[M(1,1),M(-1,0)]]}, {s:1, fs:[[M(4,1)],[M(1,1),M(2,0)]]}]},
+      {forme:'C', prods:[{s:1, fs:[[M(3,1),M(-1,0)],[M(2,1),M(5,0)]]}, {s:-1, fs:[[M(4,0)],[M(1,1),M(-3,0)]]}]},
+      {forme:'D', prods:[{s:1, fs:[[M(2,1)],[M(3,1),M(-1,0)]]}, {s:-1, fs:[[M(1,1),M(4,0)],[M(2,1),M(-3,0)]]}]}
+    ];
+    const JUSTE=[
+      {t:['x²','+5x','-4x','-20','-3x^2','+6x'], r:['-2x²','+7x','-20'], e:'(x − 4)(x + 5) − 3x(x − 2)'},
+      {t:['2x²','-2x','+3x','-3','+4x²','+8x'], r:['6x²','+9x','-3'], e:'(2x + 3)(x − 1) + 4x(x + 2)'},
+      {t:['6x**2','+15x','-2x','-5','-4x','+12'], r:['6x²','+9x','+7'], e:'(3x − 1)(2x + 5) − 4(x − 3)'},
+      {t:['6x²','-2x','-2x²','+3x','-8x','+12'], r:['4x²','-7x','+12'], e:'2x(3x − 1) − (x + 4)(2x − 3)'}
+    ];
+    const ids=function(j){ const o={}, J=JUSTE[j];
+      J.t.forEach(function(v,i){ o['dvr-t-'+i]=v; }); J.r.forEach(function(v,m){ o['dvr-r-'+m]=v; }); return o; };
+    startDvr();
+    if(test.kind!=='dvr' || test.qId!=='developper-reduire') vus.push('identité '+test.kind+' / '+test.qId);
+    if(test.maxScore!==36) vus.push('barème de '+test.maxScore+' au lieu de 36');
+    if(!document.querySelector('#scr-dvr.on')) vus.push('l\\'écran du 7.14 n\\'est pas affiché');
+    test.questions=FICHE.map(function(q){ return JSON.parse(JSON.stringify(q)); });
+    const poser=function(vals){
+      test.locked=false; renderDvrTest();
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    for(let j=0;j<4;j++){
+      test.idx=j; const V=ids(j);
+      poser({});
+      const manque=Object.keys(V).filter(function(id){ return !document.getElementById(id); });
+      if(manque.length){ vus.push('page '+FICHE[j].forme+' : case(s) absente(s) '+manque.join(', ')); continue; }
+      /* UNE rangée : l'expression, puis deux « = » groupés, chacun avec SES cases */
+      const ch=document.querySelectorAll('#dvrHost .dvl-page .dvr-chaine');
+      if(ch.length!==1) vus.push('page '+FICHE[j].forme+' : '+ch.length+' rangée(s) au lieu d\\'une');
+      else {
+        const g=ch[0].querySelectorAll(':scope > .f-grp');
+        if(g.length!==2 || g[0].querySelectorAll('input').length!==6 || g[1].querySelectorAll('input').length!==3) vus.push('page '+FICHE[j].forme+' : les « = » ne sont pas groupés avec leurs cases (6 puis 3)');
+        const dep=(ch[0].querySelector('.dvr-depart')||{}).textContent||'';
+        if(dep.replace(/\\s+/g,' ')!==FICHE[j].forme+' = '+JUSTE[j].e) vus.push('page '+FICHE[j].forme+' : l\\'expression s\\'écrit « '+dep+' »');
+      }
+      poser(V); checkDvrAnswer();
+      const der=test.answers[test.answers.length-1];
+      if(!der || !der.correct) vus.push('la copie juste de la page '+FICHE[j].forme+' est comptée fausse');
+      const nv=Object.keys(V).filter(function(id){ return peint(id)!=='vert'; });
+      if(nv.length) vus.push('page '+FICHE[j].forme+' : '+nv.join(', ')+' non juste(s)');
+      if(!der || der.cases!==9) vus.push('page '+FICHE[j].forme+' : '+(der?der.cases:'?')+' cases au lieu de 9');
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    /* l'exemple de la demande, sur la première page seulement, sans case */
+    test.idx=0; poser({});
+    const ex=document.querySelector('#dvrHost .dvl-ex');
+    if(!ex) vus.push('l\\'exemple manque à la première page');
+    else if(ex.querySelector('input') || !/\\(x \\+ 2\\)\\(x − 3\\) − 2x\\(x \\+ 1\\)/.test(ex.textContent) || !/−x²\\s*−\\s*3x\\s*−\\s*6/.test(ex.textContent.replace(/\\s+/g,' '))) vus.push('l\\'exemple : '+ex.textContent);
+    test.idx=1; poser({}); if(document.querySelector('#dvrHost .dvl-ex')) vus.push('l\\'exemple reste sur la page B');
+    /* les termes développés dans un AUTRE ordre sont justes */
+    test.idx=0; poser(Object.assign(ids(0), {'dvr-t-0':'-3x²','dvr-t-1':'+6x','dvr-t-2':'+x²','dvr-t-4':'+5x','dvr-t-5':'-4x'})); checkDvrAnswer();
+    if(!test.answers[test.answers.length-1].correct) vus.push('les termes développés dans un autre ordre sont comptés faux');
+    /* le « − » devant le produit oublié sur le second terme : rouge seul, message nommé */
+    test.idx=0; poser(Object.assign(ids(0), {'dvr-t-5':'-6x'})); checkDvrAnswer();
+    const m1=$('dvrFeedback').textContent;
+    if(peint('dvr-t-5')!=='rouge' || peint('dvr-t-4')!=='vert' || !/change le signe de CHACUN/.test(m1)) vus.push('le signe « − » oublié : '+peint('dvr-t-5')+' — '+m1);
+    if((document.querySelector('#dvr-t-5 + .mf-cor')||{}).textContent!=='+6x') vus.push('la correction du signe oublié n\\'écrit pas +6x');
+    /* le signe d'un terme qui en suit un autre */
+    test.idx=0; poser(Object.assign(ids(0), {'dvr-t-1':'5x'})); checkDvrAnswer();
+    if(peint('dvr-t-1')!=='rouge' || !/garde son signe/.test($('dvrFeedback').textContent)) vus.push('« 5x » sans son signe : '+peint('dvr-t-1')+' — '+$('dvrFeedback').textContent);
+    /* la réduction fausse : le message regroupe les termes en x */
+    test.idx=3; poser(Object.assign(ids(3), {'dvr-r-1':'-13x'})); checkDvrAnswer();
+    const m3=$('dvrFeedback').textContent;
+    if(peint('dvr-r-1')!=='rouge' || peint('dvr-r-0')!=='vert' || !/regroupe les termes en x : −2x \\+ 3x − 8x = −7x/.test(m3)) vus.push('la réduction fausse : '+peint('dvr-r-1')+' — '+m3);
+    /* une réduction écrite dans le désordre est fausse : l'ordre x², x, nombre est demandé */
+    test.idx=3; poser(Object.assign(ids(3), {'dvr-r-0':'12','dvr-r-2':'+4x²'})); checkDvrAnswer();
+    if(peint('dvr-r-0')!=='rouge') vus.push('la forme réduite dans le désordre est peinte en '+peint('dvr-r-0'));
+    /* deux cases vides : la correction, jamais rouge, ni leurs voisines */
+    test.idx=1; poser(Object.assign(ids(1), {'dvr-t-3':'', 'dvr-r-2':''})); checkDvrAnswer();
+    if(peint('dvr-t-3')!=='bleu' || peint('dvr-r-2')!=='bleu' || peint('dvr-t-2')!=='vert') vus.push('cases vides peintes en '+peint('dvr-t-3')+' / '+peint('dvr-r-2'));
+    if((document.getElementById('dvr-t-3')||{}).value!=='−3' || (document.getElementById('dvr-r-2')||{}).value!=='−3') vus.push('la correction des cases vides écrit '+(document.getElementById('dvr-t-3')||{}).value+' / '+(document.getElementById('dvr-r-2')||{}).value);
+    /* « x^2 » s'affiche x² à la frappe */
+    test.idx=0; poser({});
+    const el=document.getElementById('dvr-t-0'); el.value='8x^2'; el.setSelectionRange(4,4); el.dispatchEvent(new Event('input'));
+    if(el.value!=='8x²') vus.push('« 8x^2 » s\\'affiche « '+el.value+' »');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
