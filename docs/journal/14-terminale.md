@@ -3117,3 +3117,62 @@ distinctes, puis les gestes sur la question de repli épinglée : copie juste
 (six cases), menu faux seul en rouge avec son pourquoi et la bonne courbe à
 côté, menu vide en vert jamais rouge, soutien sans verrou et coloré en
 direct, copie vide redemandée, neuf étiquettes, clause de secret.
+
+**Autour du théorème de convergence monotone : 5.4.4, 5.4.5, 5.4.6 et 5.5.2
+(octobre 2026, v389).** Demande de Turquet : « donne-moi des idées d'exercices
+en Terminale pour compléter le TCM », puis « fais les idées 1, 2, 7 et 10 ».
+Quatre exercices ajoutés en FIN de leur partie : aucun numéro existant ne
+bouge.
+
+- **{tcm-vrai-faux} (5.4.4) — les pièges du théorème.** Huit affirmations par
+  séance, quatre vraies et quatre fausses, tirées SANS REMISE parmi seize
+  (« croissante et majorée par M, donc lim = M », « bornée, donc convergente »,
+  « Uₙ < M et convergente, donc ℓ < M »…). Deux listes : vraie ou fausse, puis
+  UNE liste de justifications, la même pour toutes les affirmations — les
+  théorèmes, puis sept contre-exemples : (−1)ⁿ, (−1)ⁿ/(n+1), −n, (−1)ⁿ × n,
+  n + 2(−1)ⁿ, M − 1/(n+1), (M − 1) − 1/(n+1). Une liste propre à chaque
+  affirmation aurait trahi la réponse par sa longueur. Plusieurs
+  contre-exemples réfutent parfois la même affirmation (« majorée, donc
+  convergente » tombe devant (−1)ⁿ ET devant −n) : tous sont acceptés.
+- **{suite-croissante-non-majoree} (5.4.5) — le théorème voisin.**
+  Uₙ₊₁ = Uₙ + an + b ou Uₙ₊₁ = Uₙ² + Uₙ + b, les deux familles dans chaque
+  séance : a) croissante par le signe de la différence, b) récurrence Uₙ ≥ n,
+  c) comparaison, donc +∞, d) pas majorée (sinon le TCM la ferait converger),
+  donc divergente. La case « Uₖ₊₁ ≥ k + … » accepte tout v de 1 à b : la
+  minoration est vraie et suffit.
+- **{suite-somme-majoree} (5.4.6) — la limite existe, mais combien vaut-elle ?**
+  Sₙ = Σ 1/kᵖ, p = 2 puis p = 3 : S₁ et S₂, la croissance, la récurrence
+  Sₙ ≤ 2 − 1/n par 1/(k+1)ᵖ ≤ 1/(k(k+1)) = 1/k − 1/(k+1), le TCM, et la
+  question qui fait l'exercice : le théorème donne l'EXISTENCE, pas la
+  valeur (ℓ ≤ 2 seulement). La correction raconte π²/6 et Apéry. « Sₙ ≤ … »
+  accepte tout majorant ≥ 2 ; « ℓ ≤ … » attend 2, ce que donne le passage à
+  la limite.
+- **{suite-algo-approx} (5.5.2) — approcher ℓ à 10⁻ᵖ près.** La suite affine
+  du 5.5.1 et son vivier ; ℓ par passage à la limite, puis
+  `while abs(u - ℓ) >= 10⁻ᵖ` à compléter (comparaison choisie, ≥ ou > ;
+  tolérance écrite 0.001, 10**-3, 10**(-3), 1e-3 ou 1/1000), le rang lu dans
+  le tableau, et pourquoi la boucle s'arrête (la suite CONVERGE). Le tirage
+  part du rang : entre 5 et 40, et aucun écart à moins de 2·10⁻⁶ de 10⁻ᵖ,
+  pour que le tableau arrondi au millionième montre le rang du programme.
+
+**Un seul moteur pour les quatre** (`TCM4`, `tcm4Check`) : chaque exercice
+déclare ses cases, son juge, sa correction et sa phrase-clé ; vérification,
+soutien en direct, case vide jamais rougie, verrou et suite sont écrits une
+fois. Les cases et les listes sont celles du 5.4.2 (`sa2In`, `tclSel`,
+`corrCase`). Sur un téléphone, les phrases de ces écrans se replient (une
+`.sa2-t` est `nowrap`, et à 390 px « Hérédité : on suppose que Sₖ ≤ 2 − »
+sortait de la carte : vu sur la capture de la sonde, corrigé avant livraison).
+
+**Le contrôle (`tests/verifier.js`, `autourDuTcm`) ne croit pas la page sur
+parole** : il CALCULE 400 termes de chaque contre-exemple et exige que la liste
+acceptée pour chaque affirmation fausse soit exactement celle des suites qui
+remplissent ses hypothèses sans sa conclusion, et qu'aucune affirmation dite
+vraie ne tombe ; il vérifie Uₙ ≥ n et la croissance sur chaque tirage du 5.4.5,
+Sₙ ≤ 2 − 1/n sur 300 termes, EXÉCUTE la boucle du 5.5.2 sur 150 tirages, puis
+joue la copie de la correction sur les quatre écrans.
+
+**Exécuté avant livraison** : une sonde Playwright a fait chaque exercice
+entier à 1280 et 390 px, une question sur deux juste, l'autre avec une case
+fausse et le reste vide — juste en bleu, faux en rouge avec la correction à
+côté, vides complétées en vert, écran des résultats au bout, aucune erreur
+JavaScript, aucune page qui défile en largeur.
