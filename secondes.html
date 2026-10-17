@@ -41406,7 +41406,13 @@ const PQC_LIGNES=[
   {v:'moyenne', q:'Quelle est ta moyenne de maths ? ', ex:'13.75', t:'float'},
   {v:'litres', q:'Combien de litres d’eau bois-tu par jour ? ', ex:'1.5', t:'float'},
   {v:'temps', q:'Ton temps au 100 m, en secondes ? ', ex:'14.2', t:'float'},
-  {v:'poids', q:'Quel est le poids de ton cartable en kg ? ', ex:'6.5', t:'float'}
+  {v:'poids', q:'Quel est le poids de ton cartable en kg ? ', ex:'6.5', t:'float'},
+  {v:'nom', q:'Quel est ton nom de famille ? ', ex:'Martin', t:'input'},
+  {v:'pays', q:'Dans quel pays aimerais-tu voyager ? ', ex:'le Japon', t:'input'},
+  {v:'cousins', q:'Combien de cousins as-tu ? ', ex:'7', t:'int'},
+  {v:'etage', q:'À quel étage habites-tu ? ', ex:'4', t:'int'},
+  {v:'distance', q:'Quelle distance parcours-tu à vélo, en km ? ', ex:'12.5', t:'float'},
+  {v:'note', q:'Quelle note as-tu eue au dernier contrôle ? ', ex:'14.5', t:'float'}
 ];
 function pqcBuildQuestions(){
   const n=Math.min(dmNbQuestions(PQC_NB), Math.floor(PQC_LIGNES.length/PQC_PAR));
