@@ -1631,7 +1631,7 @@ du code et MESURE — pavé visible, aucune touche hors de l'écran, pas de
 défilement, au moins deux rangées, touches d'au moins 40 px —, puis tape les
 six chiffres au pavé.
 
-**Puis la SECONDE a reçu le clavier B des lettres — sur le 4.5.10.** Demande
+**Puis la SECONDE a reçu le clavier B des lettres — sur le 4.5.10 (v542).** Demande
 de Turquet (octobre 2026), copie d'écran du 4.5.10 à l'appui (« baisse18% »,
 collé) : « en seconde dans cet exercice on ne peut pas faire d'espace au
 clavier et le clavier virtuel ne propose pas le clavier avec les modes A B et
