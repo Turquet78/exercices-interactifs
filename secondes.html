@@ -4317,6 +4317,11 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
      body.halloween ; le cadre du dessin passe alors à la ligne quand les
      deux ne tiennent pas côte à côte (téléphone). */
   .hw-serpent{display:none;margin:0;max-width:100%;position:relative}
+  /* 6.1 et 6.2 : le dessin de l'exercice, au-dessus de l'énoncé, et son serpent d'Halloween à côté */
+  .pw-fig{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:4px 10px;margin:2px 0 8px}
+  .pw-img{width:220px;max-width:60%;height:auto}
+  /* les dessins des fiches du 6.2 : leur serpent d'Halloween passe à la ligne sur un téléphone, plutôt que de rétrécir à côté du dessin */
+  .pvm-fig,.ppc-fig,.ppd-fig,.pev-fig,.ppm-fig,.pel-fig,.pph-fig,.pgc-fig{flex-wrap:wrap;gap:4px 10px}
   body.halloween .hw-serpent{display:flex;justify-content:center;align-items:center;width:fit-content}
   .hw-serpent .hw-svg{width:280px;max-width:100%;height:auto;font-family:inherit}
   .hw-serpent .hw-img{position:absolute;left:0;top:0;width:50%;height:100%;object-fit:contain;object-position:center bottom}
@@ -12408,7 +12413,47 @@ const HW_SERPENTS={
   'python-input-ordre':    { v:'epouvantail', img:'dessins/secondes/python-input-ordre-halloween.webp', bulle:['Les lignes','dans l’ordre,','gare au corbeau !'], alt:'un serpent épouvantail, chapeau de paille, à côté d’un corbeau ; il dit : « Les lignes dans l’ordre, gare au corbeau ! »' },
   'python-input-arrondi':  { v:'chaudron', large:true, img:'dessins/secondes/python-input-arrondi-halloween.webp', bulle:['3.4499999…','Arrondis','ma potion !'], alt:'un serpent devant un chaudron de potion verte qui bouillonne ; il dit : « 3.4499999… Arrondis ma potion ! »' },
   'python-input-monnaie':  { v:'chauvesouris', large:true, img:'dessins/secondes/python-input-monnaie-halloween.webp', bulle:['Rends-moi','la monnaie, ou','je m’envole !'], alt:'un serpent aux ailes de chauve-souris ; il dit : « Rends-moi la monnaie, ou je m’envole ! »' },
-  'python-input-image':    { v:'hibou', large:true, img:'dessins/secondes/python-input-image-halloween.webp', bulle:['Hou hou…','f(2) vaut','combien ?'], alt:'un serpent sous la lune, à côté d’un hibou perché sur une branche ; il dit : « Hou hou… f(2) vaut combien ? »' }
+  'python-input-image':    { v:'hibou', large:true, img:'dessins/secondes/python-input-image-halloween.webp', bulle:['Hou hou…','f(2) vaut','combien ?'], alt:'un serpent sous la lune, à côté d’un hibou perché sur une branche ; il dit : « Hou hou… f(2) vaut combien ? »' },
+  /* Sous-thèmes 6.1 et 6.2 « variables » (demande de Turquet, octobre 2026 : « fais des dessins de serpent en rapport avec chaque exercice, et un autre pour Halloween ») : un déguisement par exercice, assorti à l'accessoire de son exercice. */
+  'python-affichage': { v:'sorciereaffichage', img:'dessins/secondes/python-affichage-halloween.webp', bulle:['Mon grimoire','affiche quoi ?','Devine !'], alt:'un serpent sorcier, chapeau pointu, devant un ordinateur qui exécute un print' },
+  'python-types': { v:'vampiretypes', img:'dessins/secondes/python-types-halloween.webp', bulle:['int, float, str…','chacun dans','son cercueil !'], alt:'un serpent vampire, cape et crocs, qui range des valeurs dans trois boîtes int, float et str' },
+  'python-afficher-variable': { v:'fantomeaffichervariable', img:'dessins/secondes/python-afficher-variable-halloween.webp', bulle:['BOUH ! Ma note','fantôme vaut 12'], alt:'un serpent fantôme, tout blanc, qui tient une case mémoire « note » contenant 12' },
+  'python-noms-variables': { v:'momienomsvariables', img:'dessins/secondes/python-noms-variables-halloween.webp', bulle:['2nom ? Interdit,','même pour','une momie !'], alt:'un serpent momie, enroulé de bandelettes, avec deux étiquettes de noms de variables' },
+  'python-nom-variable': { v:'citrouillenomvariable', img:'dessins/secondes/python-nom-variable-halloween.webp', bulle:['Je nomme ma case','nb_citrouilles !'], alt:'un serpent coiffé d’une citrouille qui écrit le nom d’une variable sur une case mémoire' },
+  'python-print': { v:'squeletteprint', img:'dessins/secondes/python-print-halloween.webp', bulle:['print des os :','clac, clac,','clac !'], alt:'un squelette de serpent devant un écran qui affiche « je suis en seconde »' },
+  'python-completer': { v:'zombiecompleter', img:'dessins/secondes/python-completer-halloween.webp', bulle:['La note est…','cerveau… 12 !'], alt:'un serpent zombie, recousu, devant un écran qui affiche « la note est : 12 »' },
+  'python-deux-lignes': { v:'diabledeuxlignes', img:'dessins/secondes/python-deux-lignes-halloween.webp', bulle:['Deux lignes','à écrire…','en enfer !'], alt:'un serpent diable, cornes rouges, qui complète deux lignes de print sur une feuille' },
+  'python-placer-variables': { v:'chatnoirplacervariables', img:'dessins/secondes/python-placer-variables-halloween.webp', bulle:['Miaou… chaque','nom à sa place !'], alt:'un serpent déguisé en chat noir qui place la pièce « nom » dans le trou d’un print' },
+  'python-tableau-valeurs': { v:'loupgaroutableauvaleurs', img:'dessins/secondes/python-tableau-valeurs-halloween.webp', bulle:['Un tableau…','sous la','pleine lune !'], alt:'un serpent loup-garou, oreilles pointues, qui tient un tableau de valeurs' },
+  'python-changer-valeurs': { v:'frankensteinchangervaleurs', img:'dessins/secondes/python-changer-valeurs-halloween.webp', bulle:['Je change a et b,','et tout revit !'], alt:'un serpent Frankenstein, boulons sur la tête, qui tourne les boutons de a et de b' },
+  'python-operations': { v:'pirateoperations', img:'dessins/secondes/python-operations-halloween.webp', bulle:['Plus, moins,','fois, divisé…','à l’abordage !'], alt:'un serpent pirate, bandeau sur l’œil, entouré des quatre opérations' },
+  'python-double-triple-carre': { v:'cyclopedoubletriplecarre', img:'dessins/secondes/python-double-triple-carre-halloween.webp', bulle:['Le double,','le triple… et','le carré !'], alt:'un serpent cyclope au grand œil unique, avec les pastilles fois 2, fois 3 et au carré' },
+  'python-chaines': { v:'chauvesourischaines', img:'dessins/secondes/python-chaines-halloween.webp', bulle:['Lou + ane :','je colle mes','ailes !'], alt:'un serpent aux ailes de chauve-souris qui colle deux morceaux de texte' },
+  'python-type-resultat': { v:'sorciertyperesultat', img:'dessins/secondes/python-type-resultat-halloween.webp', bulle:['7 / 2 = 3.5 :','un float','magique !'], alt:'un serpent sorcier, chapeau bleu étoilé, surpris que 7 / 2 donne 3.5' },
+  'python-texte-nombre': { v:'epouvantailtextenombre', img:'dessins/secondes/python-texte-nombre-halloween.webp', bulle:['Un texte + 15 ?','TypeError,','j’ai peur !'], alt:'un serpent épouvantail, chapeau de paille, inquiet devant une erreur TypeError' },
+  'python-pas-a-pas': { v:'vampirepasapas', img:'dessins/secondes/python-pas-a-pas-halloween.webp', bulle:['a, b, c…','mes cercueils','mémoire !'], alt:'un serpent vampire, cape et crocs, devant trois cases mémoire a, b et c' },
+  'python-valeur-case': { v:'momievaleurcase', img:'dessins/secondes/python-valeur-case-halloween.webp', bulle:['Dans ma case b,','il y a 2…','bandelettes !'], alt:'un serpent momie, enroulé de bandelettes, qui tient la case mémoire b' },
+  'python-pas-a-pas-calcul': { v:'sorcierepasapascalcul', img:'dessins/secondes/python-pas-a-pas-calcul-halloween.webp', bulle:['a + b dans','mon chaudron :','12 !'], alt:'un serpent sorcier, chapeau pointu, qui calcule a + b dans une case mémoire' },
+  'python-pas-a-pas-chaine': { v:'squelettepasapaschaine', img:'dessins/secondes/python-pas-a-pas-chaine-halloween.webp', bulle:['d = c + a,','os après os !'], alt:'un squelette de serpent qui calcule d = c + a avec ses cases mémoire' },
+  'python-echange-variables': { v:'fantomeechangevariables', img:'dessins/secondes/python-echange-variables-halloween.webp', bulle:['J’échange a et b','sans qu’on me','voie… BOUH !'], alt:'un serpent fantôme qui échange le contenu de deux verres a et b' },
+  'python-pas-a-pas-multiplication': { v:'diablepasapasmultiplication', img:'dessins/secondes/python-pas-a-pas-multiplication-halloween.webp', bulle:['l * 2 ?','Diaboliquement','facile !'], alt:'un serpent diable, cornes rouges, qui multiplie par 2 le contenu de la case l' },
+  'python-echange-par-lettres': { v:'chatnoirechangeparlettres', img:'dessins/secondes/python-echange-par-lettres-halloween.webp', bulle:['Les lettres','a, b, c… et','mes moustaches !'], alt:'un serpent déguisé en chat noir devant des cartes lettres a, b, c' },
+  'python-phrases-memoire': { v:'zombiephrasesmemoire', img:'dessins/secondes/python-phrases-memoire-halloween.webp', bulle:['Très bien,','je le note…','cerveau !'], alt:'un serpent zombie, recousu, qui note sur sa feuille ce que fait chaque ligne' },
+  'python-programme-calcul': { v:'citrouilleprogrammecalcul', img:'dessins/secondes/python-programme-calcul-halloween.webp', bulle:['Multiplier A,','puis le carré…','avant minuit !'], alt:'un serpent coiffé d’une citrouille, entouré des opérations d’un programme de calcul' },
+  'python-egal-affectation': { v:'loupgarouegalaffectation', img:'dessins/secondes/python-egal-affectation-halloween.webp', bulle:['n prend la','valeur 5…','AOUH !'], alt:'un serpent loup-garou qui fait tomber la valeur 5 dans la case mémoire n' },
+  'python-x-plus-pas-a-pas': { v:'frankensteinxpluspasapas', img:'dessins/secondes/python-x-plus-pas-a-pas-halloween.webp', bulle:['n = n + 3 :','je grandis !'], alt:'un serpent Frankenstein, boulons sur la tête, devant une case mémoire qui augmente de 3' },
+  'python-accumulateur': { v:'pirateaccumulateur', img:'dessins/secondes/python-accumulateur-halloween.webp', bulle:['Mon trésor :','total + 12,','moussaillon !'], alt:'un serpent pirate qui remplit sa tirelire étiquetée « total »' },
+  'python-priorites': { v:'cyclopepriorites', img:'dessins/secondes/python-priorites-halloween.webp', bulle:['D’abord les','parenthèses,','mon œil !'], alt:'un serpent cyclope devant le podium des priorités de calcul' },
+  'python-division-entiere': { v:'chauvesourisdivisionentiere', img:'dessins/secondes/python-division-entiere-halloween.webp', bulle:['50 // 6 = 8,','et il reste 2','œufs de dragon !'], alt:'un serpent aux ailes de chauve-souris devant une boîte d’œufs et deux œufs qui restent' },
+  'python-arrondir': { v:'sorcierarrondir', img:'dessins/secondes/python-arrondir-halloween.webp', bulle:['6.4499999…','Arrondis','ma potion !'], alt:'un serpent sorcier, chapeau bleu étoilé, qui vise une cible : 6.45' },
+  'python-valeur-depart': { v:'epouvantailvaleurdepart', img:'dessins/secondes/python-valeur-depart-halloween.webp', bulle:['Je remonte','le temps…','jusqu’au départ !'], alt:'un serpent épouvantail qui appuie sur le bouton retour pour retrouver la valeur de départ' },
+  'python-meme-resultat': { v:'roimemeresultat', img:'dessins/secondes/python-meme-resultat-halloween.webp', bulle:['Programme A','ou B ? Le','roi des ombres !'], alt:'un serpent roi des ombres, couronne noire, devant une balance qui compare deux programmes' },
+  'python-choisir-programme': { v:'sorcierechoisirprogramme', img:'dessins/secondes/python-choisir-programme-halloween.webp', bulle:['A, B, C ou D ?','Ma boule de','cristal sait !'], alt:'un serpent sorcier qui examine à la loupe quatre cartes A, B, C et D' },
+  'python-ordre-lignes': { v:'vampireordrelignes', img:'dessins/secondes/python-ordre-lignes-halloween.webp', bulle:['Remets mes','lignes en ordre,','ou je te mords !'], alt:'un serpent vampire qui remet en ordre trois lignes de programme' },
+  'python-variable-inconnue': { v:'fantomevariableinconnue', img:'dessins/secondes/python-variable-inconnue-halloween.webp', bulle:['NameError !','Cette variable','est un fantôme…'], alt:'un serpent fantôme inquiet devant une case mémoire vide et une erreur NameError' },
+  'python-debogage': { v:'momiedebogage', img:'dessins/secondes/python-debogage-halloween.webp', bulle:['Une petite bête','dans le code…','je la vois !'], alt:'un serpent momie qui cherche à la loupe la petite bête cachée dans un programme' },
+  'python-formule': { v:'diableformule', img:'dessins/secondes/python-formule-halloween.webp', bulle:['Prix TTC :','une formule','d’enfer !'], alt:'un serpent diable, cornes rouges, avec un ticket de caisse : HT fois 1,2 donne TTC' },
+  'python-traduire-algo': { v:'squelettetraduirealgo', img:'dessins/secondes/python-traduire-algo-halloween.webp', bulle:['a ← 4 devient','a = 4… clac !'], alt:'un squelette de serpent qui traduit un parchemin d’algorithme en Python' },
 };
 /* La bulle, en SVG, à droite ; le dessin, en <img>, posé par la feuille de
    styles sur la moitié gauche du même cadre (position:absolute, en %) — il
@@ -12427,6 +12472,65 @@ function hwSerpentHTML(id){
   const s=HW_SERPENTS[id]; if(!s) return '';
   return '<figure class="hw-serpent" data-hw="'+s.v+'" role="img" aria-label="'+s.alt+'">'+hwBulleSVG(s.bulle)
     +'<img class="hw-img'+(s.large?' hw-large':'')+'" src="'+s.img+'" alt="" width="150" height="216" decoding="async"></figure>';
+}
+/* ===== LES DESSINS DES SOUS-THÈMES 6.1 ET 6.2 « VARIABLES » =====
+   Demande de Turquet (octobre 2026) : « en seconde dans les algo pour les
+   variables, fais des dessins de serpent en rapport avec chaque exercice, et
+   un autre pour Halloween et chaque exercice aussi ». Le serpent des fiches,
+   un accessoire par exercice (la case mémoire, la tirelire du total, la
+   balance des deux programmes…), dessinés en SVG puis convertis en WebP.
+   Les neuf exercices du 6.2 qui ont déjà le dessin de leur fiche le gardent :
+   ils ne gagnent que leur serpent d'Halloween (HW_SERPENTS), posé à côté.
+   UN SEUL CROCHET, et aucun rendu retouché : dessinsVariables() passe après
+   chaque rendu enveloppé (en fin de fichier). Le dessin thématique se pose
+   AU-DESSUS de l'énoncé, hors de lui — un rendu qui réécrit l'énoncé ne
+   l'efface pas, et son texte de remplacement n'entre pas dans l'énoncé ; le
+   serpent d'Halloween se pose juste APRÈS le dessin de l'exercice (le sien
+   ou celui de la fiche), comme au 6.3, et seulement s'il n'y est pas déjà. */
+const DESSINS_VAR={
+  'python-affichage': { img:'dessins/secondes/python-affichage.webp', alt:'un serpent malicieux à côté d’un ordinateur qui exécute un print, et se demande ce qu’il va afficher', l:330, h:287 },
+  'python-types': { img:'dessins/secondes/python-types.webp', alt:'un serpent qui range des valeurs dans trois boîtes : int, float et str', l:330, h:291 },
+  'python-afficher-variable': { img:'dessins/secondes/python-afficher-variable.webp', alt:'un serpent qui tient une case mémoire étiquetée « note », qui contient 12', l:330, h:285 },
+  'python-noms-variables': { img:'dessins/secondes/python-noms-variables.webp', alt:'un serpent avec deux étiquettes de noms de variables : « nb_eleves », correct, et « 2nom », incorrect', l:330, h:285 },
+  'python-nom-variable': { img:'dessins/secondes/python-nom-variable.webp', alt:'un serpent qui écrit au crayon le nom « nb_filles » sur l’étiquette d’une case mémoire', l:330, h:283 },
+  'python-print': { img:'dessins/secondes/python-print.webp', alt:'un serpent devant un écran qui affiche « je suis en seconde »', l:330, h:287 },
+  'python-completer': { img:'dessins/secondes/python-completer.webp', alt:'un serpent devant un écran qui affiche « la note est : 12 »', l:330, h:287 },
+  'python-deux-lignes': { img:'dessins/secondes/python-deux-lignes.webp', alt:'un serpent qui complète au crayon deux lignes de print sur une feuille', l:330, h:289 },
+  'python-placer-variables': { img:'dessins/secondes/python-placer-variables.webp', alt:'un serpent qui place la pièce « nom » dans le trou d’un print, comme un puzzle', l:330, h:285 },
+  'python-tableau-valeurs': { img:'dessins/secondes/python-tableau-valeurs.webp', alt:'un serpent qui tient un tableau de valeurs : 1, 2, 3 et leurs images 5, 7, 9', l:330, h:287 },
+  'python-changer-valeurs': { img:'dessins/secondes/python-changer-valeurs.webp', alt:'un serpent qui tourne deux boutons réglant les valeurs de a et de b', l:330, h:285 },
+  'python-operations': { img:'dessins/secondes/python-operations.webp', alt:'un serpent entouré des quatre opérations : plus, moins, fois, divisé', l:330, h:294 },
+  'python-double-triple-carre': { img:'dessins/secondes/python-double-triple-carre.webp', alt:'un serpent avec trois pastilles : fois 2, fois 3 et au carré', l:330, h:290 },
+  'python-chaines': { img:'dessins/secondes/python-chaines.webp', alt:'un serpent qui colle deux morceaux de texte, « Lou » et « ane », pour faire « Louane »', l:330, h:285 },
+  'python-type-resultat': { img:'dessins/secondes/python-type-resultat.webp', alt:'un serpent surpris que 7 / 2 donne 3.5, un nombre de type float', l:330, h:289 },
+  'python-texte-nombre': { img:'dessins/secondes/python-texte-nombre.webp', alt:'un serpent inquiet devant un panneau attention : un texte plus un nombre provoque une erreur TypeError', l:330, h:297 },
+  'python-egal-affectation': { img:'dessins/secondes/python-egal-affectation.webp', alt:'un serpent qui fait tomber la valeur 5 dans la case mémoire n : n prend la valeur 5', l:330, h:287 },
+  'python-x-plus-pas-a-pas': { img:'dessins/secondes/python-x-plus-pas-a-pas.webp', alt:'un serpent devant une case mémoire dont la valeur augmente de 3 : la variable se calcule avec elle-même', l:330, h:288 },
+  'python-accumulateur': { img:'dessins/secondes/python-accumulateur.webp', alt:'un serpent qui glisse une pièce de plus dans une tirelire étiquetée « total »', l:330, h:284 },
+  'python-priorites': { img:'dessins/secondes/python-priorites.webp', alt:'un serpent à côté d’un podium des priorités : parenthèses, puissances, fois et divisé, plus et moins', l:330, h:285 },
+  'python-division-entiere': { img:'dessins/secondes/python-division-entiere.webp', alt:'un serpent devant une boîte de huit œufs, et deux œufs qui restent : le quotient et le reste', l:330, h:287 },
+  'python-arrondir': { img:'dessins/secondes/python-arrondir.webp', alt:'un serpent qui vise le centre d’une cible : 6.45, un nombre arrondi', l:330, h:284 },
+  'python-valeur-depart': { img:'dessins/secondes/python-valeur-depart.webp', alt:'un serpent qui appuie sur le bouton retour pour retrouver ce que contenait la case a au départ', l:330, h:301 },
+  'python-meme-resultat': { img:'dessins/secondes/python-meme-resultat.webp', alt:'un serpent devant une balance qui compare le programme A et le programme B', l:330, h:283 },
+  'python-choisir-programme': { img:'dessins/secondes/python-choisir-programme.webp', alt:'un serpent qui examine à la loupe quatre cartes A, B, C et D pour trouver le bon programme', l:330, h:283 },
+  'python-ordre-lignes': { img:'dessins/secondes/python-ordre-lignes.webp', alt:'un serpent qui remet dans l’ordre trois lignes de programme, avec des flèches vers le haut et vers le bas', l:330, h:286 },
+  'python-variable-inconnue': { img:'dessins/secondes/python-variable-inconnue.webp', alt:'un serpent inquiet devant une case mémoire vide étiquetée « quantite » et une erreur NameError', l:330, h:294 },
+  'python-debogage': { img:'dessins/secondes/python-debogage.webp', alt:'un serpent qui cherche à la loupe la petite bête cachée dans un programme', l:330, h:293 },
+  'python-formule': { img:'dessins/secondes/python-formule.webp', alt:'un serpent avec un ticket de caisse : le prix hors taxes fois 1,2 donne le prix TTC', l:330, h:295 },
+  'python-traduire-algo': { img:'dessins/secondes/python-traduire-algo.webp', alt:'un serpent qui traduit un parchemin « a ← 4 » en programme Python « a = 4 »', l:330, h:285 },
+};
+function dessinsVariables(){
+  const on=document.querySelector('section.screen.on'); if(!on) return;
+  const id=currentTestId, D=DESSINS_VAR[id];
+  const vieux=on.querySelector('.pw-fig');
+  if(vieux && vieux.getAttribute('data-id')!==id) vieux.remove();
+  if(D && !on.querySelector('.pw-fig')){
+    const instr=on.querySelector('.mp-instr'); if(!instr) return;
+    instr.insertAdjacentHTML('beforebegin', '<div class="pw-fig" data-id="'+id+'"><img class="pw-img" src="'+D.img+'" alt="'+D.alt+'" width="'+D.l+'" height="'+D.h+'"></div>');
+  }
+  if(!HW_SERPENTS[id] || on.querySelector('figure.hw-serpent')) return;
+  const img=on.querySelector('img[src*="dessins/"]:not(.hw-img)');
+  if(img) img.insertAdjacentHTML('afterend', hwSerpentHTML(id));
 }
 function pyRappelAvantHTML(k){
   const r=RAPPELS_ID[currentTestId] || RAPPELS[k];
@@ -75911,11 +76015,12 @@ function ctxVgt(q){
   return {nombre:'', contexte:c};
 }
 (function(){
-  const noms=['renderDvrTest','renderLsdTest','renderDpaTest','renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderTrl','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSpr','renderPpb','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderVgtTest','renderCitTest','renderCvlTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderDvlTest','renderDvdTest','renderVflTest','renderDvmTest','renderVec','renderVep','renderSvc','renderStv','renderCvp','renderCps','renderTvx','renderTan','renderSvr','renderVtrTest','renderVegTest','renderChsTest','renderCtvTest','renderChlTest','renderCspTest','renderChaTest','renderTpvTest','renderDchTest','renderChiTest','renderVfhTest','renderVmiTest','renderTdpTest','renderTdcTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPFR','renderPII','renderPIA','renderPIS','renderPMY','renderPTR','renderPFO','renderPGC','renderPRC','renderPCF','renderPKG','renderPCZ','renderPTE','renderPFL','renderPQC','renderPPR','renderPOD','renderPRD','renderPMO','renderPFX','renderPFN','renderPFK','renderPOF','renderPXY','renderPMT','renderPTM','renderPGT','renderPHM','renderPVO','renderPDU','renderPFE','renderPBL','renderPMN','renderPFV','renderPTDS','renderPFD','renderPFC','renderPFQ','renderPFI','renderPCI','renderPCE','renderPSM','renderPLO','renderPRL','renderPTT','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH','renderPWY','renderPWS','renderPWE','renderPWX','renderPWA','renderPWP','renderPWD','renderPWR','renderPWV','renderPWM','renderPWC','renderPWO','renderPWN','renderPWG','renderPWF','renderPWT'];
+  const noms=['renderDvrTest','renderLsdTest','renderDpaTest','renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderTrl','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSpr','renderPpb','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderVgtTest','renderCitTest','renderCvlTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderDvlTest','renderDvdTest','renderVflTest','renderDvmTest','renderVec','renderVep','renderSvc','renderStv','renderCvp','renderCps','renderTvx','renderTan','renderSvr','renderVtrTest','renderVegTest','renderChsTest','renderCtvTest','renderChlTest','renderCspTest','renderChaTest','renderTpvTest','renderDchTest','renderChiTest','renderVfhTest','renderVmiTest','renderTdpTest','renderTdcTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPFR','renderPII','renderPIA','renderPIS','renderPMY','renderPTR','renderPFO','renderPGC','renderPRC','renderPCF','renderPKG','renderPCZ','renderPTE','renderPFL','renderPQC','renderPPR','renderPOD','renderPRD','renderPMO','renderPFX','renderPFN','renderPFK','renderPOF','renderPXY','renderPMT','renderPTM','renderPGT','renderPHM','renderPVO','renderPDU','renderPFE','renderPBL','renderPMN','renderPFV','renderPTDS','renderPFD','renderPFC','renderPFQ','renderPFI','renderPCI','renderPCE','renderPSM','renderPLO','renderPRL','renderPTT','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH','renderPWY','renderPWS','renderPWE','renderPWX','renderPWA','renderPWP','renderPWD','renderPWR','renderPWV','renderPWM','renderPWC','renderPWO','renderPWN','renderPWG','renderPWF','renderPWT','pyxRenderCours','popRenderCours'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
       try{ pmUpgrade(document); pmJetons(); }catch(e){}
+      try{ dessinsVariables(); }catch(e){}
       return r; };
   });
   try{ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; }catch(e){}

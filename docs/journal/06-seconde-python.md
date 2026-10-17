@@ -6527,3 +6527,49 @@ SVG dans le style des autres. Banc jsdom (`pythonInputImage`) : la place,
 le tirage, l'écriture de f (x en italique, * et ** en Python), le juge sur
 trois copies justes et onze fausses, l'écran joué au clavier, la copie
 vide, le soutien, et les modèles comparés à CPython (32 exécutions).
+
+---
+
+**Puis chaque exercice des sous-thèmes 6.1 et 6.2 a reçu son serpent — et son
+serpent d'Halloween.** Demande de Turquet, octobre 2026 : « en seconde dans les
+algo pour les variables, fais des dessins de serpent en rapport avec chaque
+exercice, et un autre pour Halloween et chaque exercice aussi ». Trente-neuf
+exercices : trente n'avaient aucun dessin (les seize du 6.1, les quatorze
+« variables » du 6.2) et reçoivent un **dessin thématique** — le serpent des
+fiches avec l'accessoire de son exercice : la case mémoire « note » qui contient
+12, la tirelire « total », la balance des programmes A et B, la boîte d'œufs et
+ses deux œufs qui restent, la loupe sur la petite bête… Les neuf du 6.2 qui ont
+le dessin de leur fiche le **gardent**. Les trente-neuf reçoivent un **serpent
+d'Halloween**, déguisé (sorcier, vampire, fantôme, momie, citrouille, squelette,
+zombie, diable, chat noir, loup-garou, Frankenstein, pirate, cyclope,
+chauve-souris, épouvantail, roi des ombres), qui tient le même accessoire, sous
+un croissant de lune, avec sa bulle — trois lignes courtes qui parlent de SON
+exercice.
+
+**Dessinés en SVG, faute de générateur d'images** : un même serpent (corps,
+ventre clair, taches, grands yeux) et cinq expressions, composés par un script
+avec l'accessoire et le déguisement, rendus par Chromium, puis convertis en
+WebP (69 fichiers, 17 Ko en moyenne, 1,1 Mo en tout). Ils ont été regardés sur
+planches, et une première passe a été reprise (une main qui cachait une ligne
+de code, une carte qui débordait, deux étiquettes trop étroites, la lune pleine
+devenue croissant). Turquet peut remplacer n'importe lequel par un dessin à lui
+sous un nouveau nom (`dessins/LISEZMOI.md`).
+
+**UN SEUL CROCHET, aucun rendu retouché** : `dessinsVariables()` passe après
+chaque rendu enveloppé. Le dessin thématique (`DESSINS_VAR`) se pose AU-DESSUS
+de l'énoncé, hors de lui : un rendu qui réécrit l'énoncé ne l'efface pas, et
+son texte de remplacement n'entre pas dans le texte de l'énoncé. Le serpent
+d'Halloween se pose juste après le dessin de l'exercice, comme au 6.3, et
+seulement si l'écran n'en a pas déjà un — les dix-huit du 6.3 posent toujours
+le leur. Deux exercices s'ouvraient sur un écran de cours dont le rendu n'était
+pas enveloppé ({python-completer}, {python-operations}) : `pyxRenderCours` et
+`popRenderCours` ont rejoint l'enveloppe, sans quoi leur serpent n'apparaissait
+qu'à la question.
+
+**Le contrôle des serpents d'Halloween lit maintenant TROIS sous-thèmes**
+(`serpentsHalloween.sous`, une liste) et gagne un bord : chaque exercice des
+sous-thèmes déclarés dans `serpentsHalloween.dessin` (6.1 et 6.2) montre un
+dessin sur son écran. Éprouvé par sabotage : le crochet coupé, il rougit sur
+les exercices du 6.1 et du 6.2 (« aucun dessin sur son écran »), et ceux du
+6.3, qui posent leur serpent eux-mêmes, restent verts.
+
