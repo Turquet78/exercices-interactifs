@@ -643,3 +643,45 @@ sur deux étapes. Aucun banc ne pouvait le voir — celui qui existait interdit 
 numéros EN DUR, exactement l'inverse. Ça ne s'est vu que sur une capture de
 l'écran. Le rendu passe maintenant par `numeros()`, et le banc navigateur
 refuse toute accolade `{…}` désignant un exercice connu qui resterait affichée.
+
+**La flèche → passe à la case suivante en fin de saisie — dans TOUS les
+exercices.** Demande de Turquet, octobre 2026 : « quand on est sur une case et
+que l'on appuie sur → à la fin du texte saisi, passer à la case suivante ou au
+bouton Vérifier ; quand on n'est pas à la fin, passer au caractère suivant. »
+La règle existait déjà, mais par morceaux : la Terminale la tenait pour ses
+champs simples (`navCases`) et pour les cases MathLive de ses fiches
+(`creerFicheCases`, `FICHE_ECRANS`) ; la Seconde et la Première pour leurs
+seules cases `pm-mf` (`pmAdapter`, sur « move-out »). Partout ailleurs, → en fin
+de case ne faisait rien — les champs simples de la Seconde et de la Première
+(intervalles, pourcentages, tableaux…), les cases MathLive de la Terminale hors
+des fiches, les feuilles à lignes. Chaque morceau avait été posé là où on
+l'avait demandé.
+La règle tient désormais par deux portes posées sur le DOCUMENT, si bien qu'un
+exercice ajouté demain est couvert sans rien déclarer : un `keydown` pour les
+champs simples (curseur en fin, aucune sélection, aucune touche de modification
+— au milieu du texte, la flèche reste native et avance d'un caractère), et un
+`move-out` pour les cases MathLive (MathLive l'émet quand le curseur sort par
+le bord). Une case qui gère déjà sa sortie l'annule (`preventDefault`) et garde
+la main : la porte du document lit `defaultPrevented` et s'efface. La liste des
+cases (`pmNavListe` en Seconde et en Première, `navCasesListe` en Terminale)
+prend maintenant TOUTES les cases MathLive non verrouillées ni désactivées, et
+les champs `text`/`number` avec ou sans attribut `type` ; les zones de texte
+(éditeur Python, rédactions) n'y sont pas — → y déplace le curseur, comme on
+s'y attend. Le bouton visé est le premier bouton principal VISIBLE et actif
+de l'écran : `scr.querySelector('.btn-primary')` prenait le premier venu, caché
+ou non. ← au début d'une case revient à la précédente, symétrie que la
+Terminale et les cases `pm-mf` offraient déjà.
+Le contrôle vit dans la visite de la section 9 (« la flèche → en fin de case
+passe à la case suivante ou au bouton de vérification ») : sur chaque
+exercice, en entraînement, la première case vide reçoit le focus et on appuie
+VRAIMENT sur →, au clavier de Playwright ; le focus doit l'avoir quittée. Son
+second bord (« au milieu du texte saisi, → reste dans la case ») se mesure une
+fois par sorte de case : « 12 », ←, →. Les tables chronométrées n'ont ni autre
+case ni bouton « Vérifier » (Entrée valide) : elles sont nommées à l'écran,
+non mesurées. Mesuré sur la page d'avant la correction, il nommait 70
+exercices en Seconde, 12 en Première (le calcul mental, les opérations posées,
+les synthèses libres…) et 12 en Terminale (les limites graphiques, les
+rédactions, les récurrences…). Un piège de banc s'y est montré : une case MathLive qui
+vient de recevoir son PREMIER focus n'écoute pas encore le clavier — à 80 ms
+d'attente, la flèche s'y perdait sur un exercice parfaitement correct
+({fraction-pourcentage}, Seconde) ; à 250 ms, jamais.
