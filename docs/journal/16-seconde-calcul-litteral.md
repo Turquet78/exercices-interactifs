@@ -865,3 +865,54 @@ sans case ; les termes dans un autre ordre (justes) ; le « − » oublié sur l
 second terme (rouge seul, message nommé, correction +6x) ; « 5x » sans son
 signe ; la réduction fausse ; la forme réduite dans le désordre ; deux cases
 vides (la correction, jamais rouge).
+
+## {developper-signe-moins} — le signe − devant une parenthèse (7.15, v551)
+
+**La demande** (Turquet, octobre 2026) : « en seconde faire un exercice avec
+le signe − devant une parenthèse comme le 7.9 ». Le schéma est celui du 7.9
+— bulles, flèches, accolades — et ce qu'il donne à voir, c'est que le « − »
+devant la parenthèse est un FACTEUR : −(a + b) = (−1) × a + (−1) × b. Sur la
+première ligne, le « − » lui-même est entouré en rouge et les deux flèches en
+partent (aucun « × » ne le suit) ; sur la deuxième, l'élève écrit −1 dans les
+bulles rouges. « − » seul dans une bulle rouge est faux, et le message le
+nomme (« dans la bulle rouge, on écrit −1 ») : c'est tout l'exercice.
+
+**Six pages, une forme chacune** : −(x + b), −(ax − b), −(−ax + b),
+c − (ax + b), ax − (bx − c), k × (ax − b) − (a′x − b′). Seuls les nombres
+sont tirés ; une famille par page, comme le 7.9 (`dvmBuildQuestions`, pas de
+`distinctes()`). Les trois dernières se réduisent, et rien ne s'y annule : le
+tirage recommence si c = b (D), si a = b (E), si ka = a′ ou kb = b′ (F). La
+première page montre l'exemple rempli, −(x + 4) = −x − 4 ; la page A ne tire
+jamais b = 4.
+
+**Le terme écrit DEVANT la parenthèse est donné** (`q.seul`, D et E) : il se
+recopie sur chaque ligne, dans sa propre colonne de la grille, suivi d'un « + »
+sur la ligne des produits (7 − (3x + 2) = 7 + (−1) × 3x + (−1) × (+2)) — il
+ne compte aucune case. Avec lui, le premier résultat suit déjà un terme : il
+garde son signe, comme le second.
+
+**Le moteur est celui du 7.9** : `dvlLit`, `dvlJuste`, `dvlCorr`,
+`dvlExposant`, `dvlTrace` et `dvlSuivre`, sans y toucher. Seuls le calcul des
+lignes (`dvmLignes`) et la mise en page (`dvmSchema`) sont propres : un terme
+seul n'est pas un produit, et `dvlLignes` n'avait pas à l'apprendre. L'écouteur
+`resize` du 7.9 retrace aussi `#scr-dvm`.
+
+**Le pourquoi** de la première case fausse : le −1 caché (bulle rouge), la
+flèche suivie (bulle bleue ou verte), le produit — « multiplier par −1 change
+le signe du terme ; chaque terme de la parenthèse change de signe, le second
+aussi », l'erreur type −(2x − 5) = −2x − 5 —, le signe oublié, ou la
+réduction.
+
+**Le juge** (`tests/verifier.js`, « le signe − devant une parenthèse ») : la
+place (7.15, les 7.9 à 7.14 immobiles, bouton des tables présent), 300 tirages
+(les six formes dans l'ordre, les bornes, rien qui s'annule), puis six pages
+au bouton — −(x + 3), −(2x − 5), −(−3x + 4), 9 − (2x + 5), 7x − (3x − 2),
+3 × (2x − 1) − (4x − 5) —, réponses écrites À LA MAIN : la copie juste de
+chaque page (6, 6, 6, 8, 8 et 14 cases), flèches et accolades déclarées, la
+bulle rouge de l'énoncé qui porte « − » sans « × », le terme de devant écrit
+trois fois ; l'exemple sur la première page seulement, sans case ; puis les
+pièges : « − » seul dans la bulle rouge (rouge seul, message du −1), −5 pour
+(−1) × (−5) (message du signe qui change), −3x pour (−1) × (−3x), « 5 » sans
+son signe, 10x pour 7x − 3x, « 9-5 » non réduit, deux cases vides (la
+correction +5 et −1, jamais rouge), le barème de 48 ; enfin le 7.9 relancé
+garde ses bulles chiffrées.
