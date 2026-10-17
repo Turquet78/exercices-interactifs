@@ -3532,3 +3532,15 @@ Ce qu'aucun banc ne voit : le glisser au DOIGT sur tablette (celui du 8.2.1,
 première capture l'a montré posé sur la lettre du point : `stvCoteDehors`
 compte désormais le point parmi ce qu'il faut fuir ; aucun banc ne mesure
 ce chevauchement.
+
+**Le second vecteur de la somme passe à l'ORANGE (v539).** La demande
+(Turquet, octobre 2026) : « dans le 8.2.8, mettre le dernier vecteur de
+l'exercice dans une autre couleur ». AA′ avait déjà le sien (violet) ; c'est
+BD, le second vecteur tracé, qui se confondait avec BC — gris ardoise en
+pointillés à côté du bleu nuit. Il prend `--cps-v` (#D97706) : trait, pointe
+(`cpsArr1`), point de départ, nom et sa flèche, et la flèche vive qui suit la
+souris pendant son tracé — ni le bleu du juste, ni le rouge du faux, ni le
+vert de la correction, ni le violet de AA′. Les règles sont bornées à
+`.cps-svg` : le 8.7 et les autres hôtes de `svc-v` gardent leur gris. Jugée,
+la flèche passe en bleu ou en rouge comme avant ; la règle ne nomme aucune
+classe de verdict, « 9 bis » n'a pas à la lire.

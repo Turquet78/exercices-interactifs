@@ -2815,6 +2815,12 @@
   /* le vecteur AA′, du point donné au point posé : violet tant qu'il n'est pas jugé */
   .cps-svg .cps-aa{stroke:var(--crd-a);stroke-width:2.6;stroke-linecap:round}
   .cps-svg .cps-aa-t{fill:var(--crd-a)} .cps-svg .cps-aa-f{stroke:var(--crd-a)}
+  /* le SECOND vecteur de la somme (BD) dans une autre couleur que le premier
+     (demande de Turquet, octobre 2026) : orange, ni le bleu du juste, ni le
+     rouge du faux, ni le vert de la correction, ni le violet de AA′ */
+  :root{--cps-v:#D97706}
+  .cps-svg .svc-v{stroke:var(--cps-v);stroke-width:2.4}
+  .cps-svg .svc-v-o,.cps-svg .svc-v-t{fill:var(--cps-v)} .cps-svg .svc-v-f{stroke:var(--cps-v)}
   .cvp-outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:4px 0 12px}
   .cvp-outils .btn:disabled{opacity:.45;cursor:default}
   .cvp-svg .vec-t.sel .vec-dlbl,.cvp-svg .vec-t.okc .vec-dlbl,.cvp-svg .vec-t.badc .vec-dlbl,.cvp-svg .vec-t.missc .vec-dlbl{font-size:16px}
@@ -7550,7 +7556,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=538;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=539;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -58700,7 +58706,7 @@ function cpsSVG(q){
      largeur — tracés, glissés, corrigés, AA′ et la flèche qui suit la souris */
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1.8L10 5L0 8.2z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg cps-svg" role="img" aria-label="Quadrillage : cinq points nommés, les vecteurs à tracer puis à faire glisser">`
-    +'<defs>'+pointe('cpsArr0','var(--ink)')+pointe('cpsArr1','var(--ink-soft)')+pointe('cpsArrE','var(--blue)')
+    +'<defs>'+pointe('cpsArr0','var(--ink)')+pointe('cpsArr1','var(--cps-v)')+pointe('cpsArrE','var(--blue)')
     +pointe('cpsArrB','var(--red)')+pointe('cpsArrS','var(--green)')+pointe('cpsArrA','var(--crd-a)')+'</defs>'
     +g+'<g id="cpsCorr"></g><g id="cpsFl"></g><g id="cpsSol"></g>'+pts+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cpsPrises"></g><g id="cpsVif" aria-hidden="true"></g>`
     +`<g id="cpsCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><path class="cps-x" d="M-6 -6l12 12M-6 6l12 -12"/><text class="vec-lbl" x="8" y="-8">${L}</text></g></svg>`;
