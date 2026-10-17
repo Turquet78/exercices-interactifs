@@ -2985,7 +2985,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=324;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=325;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3052,14 +3052,25 @@ function pmBoutonPret(btn){
     btn.addEventListener('click',()=>btn.classList.remove('pm-pret'));
   }
 }
+/* TOUTES les cases ou l'eleve ecrit : cases mathematiques (pm-mf ou non), champs
+   texte et nombre (avec ou sans attribut type), menus deroulants. Les zones de texte
+   (textarea : editeur Python, feuilles libres) n'y sont pas : → y deplace le curseur. */
 function pmNavListe(){
   const scr=document.querySelector('.screen.on'); if(!scr) return [];
-  const els=scr.querySelectorAll('math-field.pm-mf, input[inputmode], input[type="text"], select');
+  const els=scr.querySelectorAll('math-field, input:not([type]), input[type="text"], input[type="number"], input[inputmode], select');
   return Array.prototype.filter.call(els, el=>{
     if(!el.offsetParent) return false;                 /* case masquee : on la saute */
-    if(el.tagName==='MATH-FIELD') return !el.readOnly;
+    if(el.tagName==='MATH-FIELD') return !el.readOnly && !el.disabled;
+    if(el.tagName==='INPUT' && (el.readOnly || el.type==='hidden')) return false;
     return !el.disabled;
   });
+}
+/* le bouton de verification : le premier bouton principal VISIBLE et actif de l'ecran */
+function pmBoutonVerif(){
+  const scr=document.querySelector('.screen.on'); if(!scr) return null;
+  const bs=scr.querySelectorAll('.btn-primary');
+  for(const b of bs){ if(b.offsetParent && !b.disabled) return b; }
+  return null;
 }
 function pmNavSuiv(el, dir){
   const L=pmNavListe(), i=L.indexOf(el);
@@ -3070,8 +3081,7 @@ function pmNavSuiv(el, dir){
     return;
   }
   if(dir>0){                                            /* apres la derniere case : le bouton */
-    const scr=document.querySelector('.screen.on');
-    const btn=scr && scr.querySelector('.btn-primary');
+    const btn=pmBoutonVerif();
     if(btn){                                            /* MathLive rend le focus apres nous : on insiste */
       const pose=n=>{
         try{ btn.focus(); }catch(e){}
@@ -3099,6 +3109,41 @@ function pmAdapter(el){
       pmNavSuiv(el,(d==='backward'||d==='upward')?-1:1);
     });
 }
+/* La fleche → (et ←) dans TOUS les exercices (demande de Turquet, octobre 2026) :
+   au milieu du texte saisi, elle avance d'un caractere (natif) ; en FIN de texte, elle
+   passe a la case suivante, et depuis la derniere case au bouton de verification.
+   ← au debut d'une case revient a la precedente. Deux portes, posees sur le document
+   pour qu'un exercice ajoute demain soit couvert sans rien declarer :
+   · les champs simples (keydown) — seulement curseur en fin, sans selection ;
+   · les cases MathLive (« move-out », emis quand le curseur sort par le bord) — une
+     case qui gere deja sa sortie (pm-mf, editeurs a lignes) l'annule, on la laisse.
+   Un exercice qui fait deja autre chose de la fleche (preventDefault) garde la main. */
+document.addEventListener('keydown', function(e){
+  if(e.defaultPrevented || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
+  if(e.key!=='ArrowRight' && e.key!=='ArrowLeft') return;
+  const el=e.target;
+  if(!el || el.tagName!=='INPUT') return;
+  const L=pmNavListe(); if(L.indexOf(el)<0) return;
+  let p0=null, p1=null;
+  try{ p0=el.selectionStart; p1=el.selectionEnd; }catch(err){ p0=null; }
+  if(p0!==null && p1!==null){                          /* type=number : pas de curseur lisible */
+    if(p0!==p1) return;                                /* selection en cours : natif */
+    if(e.key==='ArrowRight' && p0!==(el.value||'').length) return;
+    if(e.key==='ArrowLeft' && p0!==0) return;
+  }
+  if(e.key==='ArrowLeft' && L.indexOf(el)===0) return;
+  e.preventDefault();
+  pmNavSuiv(el, e.key==='ArrowRight'?1:-1);
+});
+document.addEventListener('move-out', function(ev){
+  if(ev.defaultPrevented) return;
+  const el=ev.target;
+  if(!el || el.tagName!=='MATH-FIELD' || pmNavListe().indexOf(el)<0) return;
+  const d=ev.detail && ev.detail.direction;
+  if(d!=='forward' && d!=='backward') return;
+  if(ev.cancelable) ev.preventDefault();
+  pmNavSuiv(el, d==='forward'?1:-1);
+});
 /* a appeler apres chaque rendu : transforme et adapte toutes les cases de l'ecran */
 function pmUpgrade(scope){
   const root=scope||document;

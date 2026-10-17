@@ -74,6 +74,7 @@ couvert sans rien avoir à déclarer.
 | Chaque exercice a son **bouton d'aide IA** | l'aide est écrite, rien n'y mène | « le bouton d'aide IA est présent sur chaque exercice » |
 | Aucune référence **`{identifiant}`** ne reste affichée | l'élève lit des accolades | « aucune référence {identifiant} ne reste affichée à l'élève » |
 | L'écran d'un exercice prend **toute la largeur**, et ses rangées ne se replient pas | une chaîne d'égalités se lit comme trois calculs séparés | « aucune rangée ne se replie » |
+| La flèche **→ en fin de saisie passe à la case suivante**, puis au bouton de vérification ; au milieu du texte, elle avance d'un caractère — deux portes sur le document (`keydown`, `move-out`), aucune déclaration | l'élève au clavier doit reprendre la souris à chaque case | « la flèche → en fin de case passe à la case suivante ou au bouton de vérification », « au milieu du texte saisi, → reste dans la case » |
 | Le **clavier mathématique** est atteignable sur tout écran à champ mathématique | sur tablette, l'élève ne peut plus rien écrire | « le clavier mathématique est atteignable sur tout écran à champ mathématique » |
 | Le **calcul écrit en tête de rangée** a la taille de sa rangée | l'énoncé de la chaîne se lit comme une note de bas de page devant les cases | « le calcul en tête de rangée s'écrit à la taille de sa rangée » |
 | La vérification peint le **juste en BLEU**, le faux en rouge, la **correction en VERT** | l'élève ne distingue plus sa réponse juste de la correction écrite par la page | « les règles .ok sont bleues, .sol et .mf-cor vertes, .bad rouges » |
@@ -188,6 +189,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Puis la VÉRIFICATION a levé la bulle — et c'est la partie Algorithmique qui l'a montré.**
 - **Puis la bulle a SUIVI la case que l'élève regarde — et le garde a rendu la main à la VÉRIFICATION.**
 - **`numeros()` ne passe que par trois entonnoirs.**
+- **La flèche → passe à la case suivante en fin de saisie — dans TOUS les exercices.**
 
 ### Verdicts, juges locaux et relecture par l'IA
 
