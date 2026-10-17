@@ -768,7 +768,7 @@ acceptée (« une correction juste non réduite : … Le reste est juste ! ») e
 l'erreur du moins remplacée par la bonne réponse (« −(2x − 7) = −2x + 7 : la
 page dit faux, le calcul vrai »).
 
-## {developper-signe-moins} — le signe − devant une parenthèse (7.13, v542)
+## {developper-signe-moins} — le signe − devant une parenthèse (7.13, v543)
 
 **La demande** (Turquet, octobre 2026) : « en seconde faire un exercice avec
 le signe − devant une parenthèse comme le 7.9 ». Le schéma est celui du 7.9

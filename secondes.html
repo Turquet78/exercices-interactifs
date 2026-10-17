@@ -2135,9 +2135,11 @@
   .tpv-vc::after{content:"";position:absolute;right:10px;top:2px;width:6px;height:6px;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(45deg)}
   @media(max-width:520px){ .tpv-fig{padding:6px 2px} .tpv-l{line-height:2} }
   /* 8.2.14 {lire-somme-dessin} : le quadrillage au-dessus des deux lignes.
-     La chaîne de flèches en bleu nuit, les trois vecteurs libres u⃗, v⃗, w⃗
-     en orange (l'encre de la flèche u⃗ du 8.1.4), leur nom en KaTeX_Math
-     coiffé d'une flèche. Chaque point nommé est une cible : un clic écrit sa
+     Les flèches de la figure en bleu nuit — la chaîne, les réponses et deux
+     flèches de plus (.lsd-bl, v542) —, les trois vecteurs libres u⃗, v⃗, w⃗
+     en ROUGE (--lsd-uvw, v542 : demande de Turquet, rouges sur le dessin,
+     dans l'énoncé et dans les questions), leur nom en KaTeX_Math coiffé
+     d'une flèche. Chaque point nommé est une cible : un clic écrit sa
      lettre dans la case choisie (liseré violet). La ligne montrée a son
      liseré violet ; les vecteurs écrits par l'élève s'y tracent en violet,
      puis, la page verrouillée, en bleu (juste), rouge (faux), vert
@@ -2148,13 +2150,16 @@
   .lsd-lignes{flex:1 1 100%}
   .lsd-svg{display:block;width:100%;max-width:540px;height:auto;touch-action:manipulation}
   .lsd-svg .lsd-grid{stroke:var(--ink-soft);stroke-width:.8;opacity:.4}
-  .lsd-svg .lsd-ch line{stroke:var(--blue-dark);stroke-width:2.4;stroke-linecap:round}
-  .lsd-svg .lsd-ch polygon{fill:var(--blue-dark)}
-  .lsd-svg .lsd-lib line{stroke:#C2410C;stroke-width:2.6;stroke-linecap:round}
-  .lsd-svg .lsd-lib polygon{fill:#C2410C}
+  #scr-lsd{--lsd-uvw:#D3202F}
+  .lsd-svg .lsd-ch line,.lsd-svg .lsd-bl line{stroke:var(--blue-dark);stroke-width:2.4;stroke-linecap:round}
+  .lsd-svg .lsd-ch polygon,.lsd-svg .lsd-bl polygon{fill:var(--blue-dark)}
+  .lsd-svg .lsd-lib line{stroke:var(--lsd-uvw);stroke-width:2.6;stroke-linecap:round}
+  .lsd-svg .lsd-lib polygon{fill:var(--lsd-uvw)}
   .lsd-svg .lsd-lib.lsd-vu line{stroke-width:4.2}
-  .lsd-svg .lsd-vn{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic;font-size:20px;fill:#C2410C}
-  .lsd-svg .lsd-vnf{fill:none;stroke:#C2410C;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+  .lsd-svg .lsd-vn{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic;font-size:20px;fill:var(--lsd-uvw)}
+  .lsd-svg .lsd-vnf{fill:none;stroke:var(--lsd-uvw);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+  .lsd-r,.lsd-n,.lsd-n .veg-fl{color:var(--lsd-uvw)}
+  #lsdInstr .lsd-bleu{color:var(--blue-dark)}
   .lsd-svg .lsd-pt{fill:var(--ink)}
   .lsd-svg .lsd-nom{font-family:"Fredoka",sans-serif;font-weight:600;font-size:17px;fill:var(--ink);pointer-events:none;stroke:#fff;stroke-width:4px;stroke-linejoin:round;paint-order:stroke}
   .lsd-svg .lsd-hit{fill:transparent;cursor:pointer}
@@ -7616,7 +7621,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=542;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=543;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -8384,7 +8389,7 @@ const TESTS={
   'somme-vecteurs': { name:'Somme de deux vecteurs\u00a0: un d\u00e9but va sur une fin', icon:'\u2795', desc:'Deux fl\u00e8ches u et v sur un quadrillage\u00a0: \u00e9tape 1, fais-les glisser bout \u00e0 bout \u2014 \u00ab\u00a0un d\u00e9but va sur une fin\u00a0\u00bb\u00a0; \u00e9tape 2, trace le vecteur u + v.', start:()=>startSvc() },
   'demontrer-chasles': { name:'D\u00e9montrer une \u00e9galit\u00e9 avec Chasles', icon:'\u270d\ufe0f', desc:'Une d\u00e9monstration \u00e0 trous\u00a0: \u00e9cris les vecteurs de chaque ligne, puis choisis sa justification \u2014 relation de Chasles, ordre de la somme, vecteurs oppos\u00e9s, parall\u00e9logramme\u2026', start:()=>startDch() },
   'somme-vecteurs-libre': { name:'Somme de deux vecteurs, sans \u00e9tapes', icon:'\u2795', desc:'Deux fl\u00e8ches u et v sur un quadrillage, sans les mots \u00ab\u00a0d\u00e9but\u00a0\u00bb et \u00ab\u00a0fin\u00a0\u00bb ni les \u00e9tapes\u00a0: fais-les glisser o\u00f9 tu veux, puis trace le vecteur u + v.', start:()=>startSvc(1) },
-  'lire-somme-dessin': { name:'Lire une somme de vecteurs sur un dessin', icon:'\ud83d\udd0d', desc:'Une cha\u00eene de fl\u00e8ches entre des points nomm\u00e9s, et trois vecteurs u, v, w trac\u00e9s \u00e0 part\u00a0: trouve le vecteur de la figure \u00e9gal \u00e0 u + v, puis \u00e9cris w comme la somme de deux vecteurs de la figure.', start:()=>startLsd() },
+  'lire-somme-dessin': { name:'Lire une somme de vecteurs sur un dessin', icon:'\ud83d\udd0d', desc:'Une cha\u00eene de fl\u00e8ches entre des points nomm\u00e9s, et trois vecteurs u, v, w trac\u00e9s \u00e0 part\u00a0: trouve le vecteur bleu de la figure \u00e9gal \u00e0 u + v, puis \u00e9cris w comme la somme de deux vecteurs bleus.', start:()=>startLsd() },
   'somme-trois-vecteurs': { name:'Trois vecteurs bout \u00e0 bout', icon:'\u2795', desc:'Trois fl\u00e8ches u, v, w et un point sur un quadrillage\u00a0: fais-les glisser bout \u00e0 bout \u00e0 partir du point, puis trace le vecteur u + v + w \u2014 ou dis que c\u2019est le vecteur nul.', start:()=>startStv() },
   'relation-chasles': { name:'La relation de Chasles', icon:'\ud83d\udd17', desc:'Un rectangle, un carr\u00e9, un parall\u00e9logramme ou un losange et ses diagonales, et des sommes de vecteurs \u00e0 compl\u00e9ter\u00a0: encha\u00eene-les avec la relation de Chasles, en changeant l\u2019ordre ou en rempla\u00e7ant un vecteur par un vecteur \u00e9gal.', start:()=>startChs() },
   'chasles-trois-vecteurs': { name:'Chasles avec trois vecteurs', icon:'\u26d3\ufe0f', desc:'Un parall\u00e9logramme de centre O et des sommes de deux ou trois vecteurs\u00a0: change l\u2019ordre, remplace un vecteur par un vecteur \u00e9gal, ajoute l\u2019oppos\u00e9, encha\u00eene \u2014 et reconnais le vecteur nul.', start:()=>startCtv() },
@@ -22855,6 +22860,28 @@ function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dé
   if(!en.disabled) en.classList.add((ok||n===tn)?'ok':'bad');
   if(!ed.disabled) ed.classList.add((ok||(isPow10(d)&&d===td))?'ok':'bad');
 }
+/* a × b = b × a : le calcul global « … × … = … » des schémas de pourcentages
+   accepte ses deux facteurs dans l'un ou l'autre ordre (demande de Turquet,
+   octobre 2026 — une copie « 0,80 × 0,30 = 0,24 » rougissait deux cases
+   justes). Rend les cibles des deux cases, ÉCHANGÉES quand l'écriture de
+   l'élève colle mieux à rebours : le juge, la correction écrite et le compte
+   rendu suivent alors l'ordre de l'élève. vaut(s, cible) juge une case. */
+function facteursCommutes(sa,sb,ca,cb,vaut){
+  const droit=(vaut(sa,ca)?1:0)+(vaut(sb,cb)?1:0), croise=(vaut(sa,cb)?1:0)+(vaut(sb,ca)?1:0);
+  return croise>droit ? [cb,ca] : [ca,cb];
+}
+/* la même chose pour deux cases décimales identifiées, de cibles nA/d et nB/d */
+function facteursCommutesDec(idA,idB,nA,nB,d){
+  const lu=id=>{ const el=$(id); return el ? String(el.value==null?'':el.value).trim() : ''; };
+  return facteursCommutes(lu(idA),lu(idB),nA,nB,(s,n)=>{ const fr=parseDecToFrac(s); return !!fr && fr.n*d===n*fr.d; });
+}
+/* une liste de cases {id, dec} (4.1.10 à 4.1.13) : les deux facteurs du calcul
+   global échangent leur cible quand l'élève les a écrits à rebours */
+function casesCommutees(cases,idA,idB){
+  const a=cases.find(c=>c.id===idA), b=cases.find(c=>c.id===idB);
+  if(a && b) [a.dec,b.dec]=facteursCommutesDec(idA,idB,a.dec,b.dec,100);
+  return cases;
+}
 function liveColorDec(id,tn,td){                       // case décimale
   const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
   el.classList.remove('ok','bad'); if(v==='') return;
@@ -25040,19 +25067,20 @@ function checkPctChaineAnswer(live){
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
   const cible=pctcCible(q);
+  const [t1,t2]=facteursCommutesDec('pctcG1','pctcG2',q.P1,q.P2,100);   /* a × b = b × a */
   if(live){
     const col=(id,target)=>{ const el=$(id); if(!el||el.disabled) return; const val=v(id);
       el.classList.remove('ok','bad'); if(val==='') return;
       el.classList.add(decVaut(val,target)?'ok':'bad'); };   /* « 20,5 » ne vaut pas 20 */
     liveColorDec('pctcD1',q.P1,100); liveColorDec('pctcD2',q.P2,100);
-    liveColorDec('pctcG1',q.P1,100); liveColorDec('pctcG2',q.P2,100); liveColorDec('pctcG',q.comb,100);
+    liveColorDec('pctcG1',t1,100); liveColorDec('pctcG2',t2,100); liveColorDec('pctcG',q.comb,100);
     col('pctcC',cible);
     return;
   }
   const fr1=parseDecToFrac(v('pctcD1')), okD1=!!fr1 && fr1.n*100===q.P1*fr1.d;
   const fr2=parseDecToFrac(v('pctcD2')), okD2=!!fr2 && fr2.n*100===q.P2*fr2.d;
-  const frG1=parseDecToFrac(v('pctcG1')), okG1=!!frG1 && frG1.n*100===q.P1*frG1.d;
-  const frG2=parseDecToFrac(v('pctcG2')), okG2=!!frG2 && frG2.n*100===q.P2*frG2.d;
+  const frG1=parseDecToFrac(v('pctcG1')), okG1=!!frG1 && frG1.n*100===t1*frG1.d;
+  const frG2=parseDecToFrac(v('pctcG2')), okG2=!!frG2 && frG2.n*100===t2*frG2.d;
   const frG=parseDecToFrac(v('pctcG')), okG=!!frG && frG.n*100===q.comb*frG.d;
   const okC=decVaut(v('pctcC'),cible);   /* « 12,5 » ne vaut plus 12 */
   // une case vide ne rougit jamais (règle universelle) : mark() ne colore que
@@ -25069,7 +25097,7 @@ function checkPctChaineAnswer(live){
     $('pctcFeedback').textContent=`Réponse : 100 % × ${d1Str} = ${q.P1} %, puis ${q.P1} % × ${d2Str} = ${q.comb} % — en un seul calcul : ${d1Str} × ${d2Str} = ${gStr} — donc ${cible} %.`;
     $('pctcFeedback').className='mp-feedback bad';
     corTrainDec('pctcD1',d1Str); corTrainDec('pctcD2',d2Str);
-    corTrainDec('pctcG1',d1Str); corTrainDec('pctcG2',d2Str); corTrainDec('pctcG',gStr);
+    corTrainDec('pctcG1',pDecStr(t1)); corTrainDec('pctcG2',pDecStr(t2)); corTrainDec('pctcG',gStr);
     corTrainDec('pctcC',String(cible));
   }
   const enonce=pctcEnonce(q).replace(/<[^>]+>/g,'');
@@ -25284,7 +25312,7 @@ function checkPcsAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
-  const cases=pcsCases(q);
+  const cases=casesCommutees(pcsCases(q),'pcsG1','pcsG2');   /* a × b = b × a */
   if(live){
     cases.forEach(c=>{ const el=$(c.id); if(!el||el.disabled) return; const s=v(c.id);
       el.classList.remove('ok','bad'); if(s==='') return;
@@ -25438,7 +25466,7 @@ function checkPcpAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
-  const cases=pcpCases(q);
+  const cases=casesCommutees(pcpCases(q),'pcpG1','pcpG2');   /* a × b = b × a */
   if(live){
     cases.forEach(c=>{ const el=$(c.id); if(!el||el.disabled) return; const s=v(c.id);
       el.classList.remove('ok','bad'); if(s==='') return;
@@ -25689,7 +25717,7 @@ function checkPccAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
-  const cases=pccCases(q);
+  const cases=casesCommutees(pccCases(q),'pccG1','pccG2');   /* a × b = b × a */
   if(live){
     cases.forEach(c=>{ const el=$(c.id); if(!el||el.disabled) return; const s=v(c.id);
       el.classList.remove('ok','bad'); if(s==='') return;
@@ -25857,7 +25885,7 @@ function checkPsvAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
-  const cases=psvCases(q);
+  const cases=casesCommutees(psvCases(q),'psvG1','psvG2');   /* a × b = b × a */
   if(live){
     cases.forEach(c=>{ const el=$(c.id); if(!el||el.disabled) return; const s=v(c.id);
       el.classList.remove('ok','bad'); if(s==='') return;
@@ -27177,16 +27205,17 @@ function checkEvsAnswer(live){
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
   const gAbs=Math.abs(q.G), gc=q.c1*q.c2;                 /* le coefficient global, en dix-millièmes */
+  const [g1c,g2c]=facteursCommutesDec('evsG1','evsG2',q.c1,q.c2,100);   /* a × b = b × a */
   if(live){
     liveColorDec('evsP1',q.P1,100); liveColorDec('evsC1',q.c1,100);
     liveColorDec('evsP2',q.P2,100); liveColorDec('evsC2',q.c2,100);
-    liveColorDec('evsGP',gAbs,100); liveColorDec('evsG1',q.c1,100); liveColorDec('evsG2',q.c2,100); liveColorDec('evsG',gc,10000);
+    liveColorDec('evsGP',gAbs,100); liveColorDec('evsG1',g1c,100); liveColorDec('evsG2',g2c,100); liveColorDec('evsG',gc,10000);
     liveColorDec('evsT',gAbs,1);
     return;
   }
   const dec=(id,n,d)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
   const ok={ evsP1:dec('evsP1',q.P1,100), evsC1:dec('evsC1',q.c1,100), evsP2:dec('evsP2',q.P2,100), evsC2:dec('evsC2',q.c2,100),
-             evsGP:dec('evsGP',gAbs,100), evsG1:dec('evsG1',q.c1,100), evsG2:dec('evsG2',q.c2,100), evsG:dec('evsG',gc,10000), evsT:dec('evsT',gAbs,1) };
+             evsGP:dec('evsGP',gAbs,100), evsG1:dec('evsG1',g1c,100), evsG2:dec('evsG2',g2c,100), evsG:dec('evsG',gc,10000), evsT:dec('evsT',gAbs,1) };
   const bonS=q.G>0?'+':'−';
   // une case vide ne rougit jamais (règle universelle) : mark() ne colore que
   // les cases écrites, et chacune se juge SEULE contre sa valeur canonique
@@ -27204,7 +27233,7 @@ function checkEvsAnswer(live){
     $('evsFeedback').textContent=`Réponse : (1 ${q.s1<0?'−':'+'} ${d1}) × (1 ${q.s2<0?'−':'+'} ${d2}) = ${k1} × ${k2} = ${kg} = 1 ${bonS} ${dg} : ${BS_CTX[q.ci].sujet.charAt(0).toLowerCase()+BS_CTX[q.ci].sujet.slice(1)} subit globalement une ${mot} de ${gAbs} %.`;
     $('evsFeedback').className='mp-feedback bad';
     corTrainDec('evsP1',d1); corTrainDec('evsC1',k1); corTrainDec('evsP2',d2); corTrainDec('evsC2',k2);
-    corTrainDec('evsGP',dg); corTrainDec('evsG1',k1); corTrainDec('evsG2',k2); corTrainDec('evsG',kg); corTrainDec('evsT',String(gAbs));
+    corTrainDec('evsGP',dg); corTrainDec('evsG1',evsDec(g1c)); corTrainDec('evsG2',evsDec(g2c)); corTrainDec('evsG',kg); corTrainDec('evsT',String(gAbs));
     /* en entraînement, la case du coefficient global vient d'être corrigée
        (complétée si vide) : le signe et le mot se relisent dessus ; si l'élève
        y avait écrit un coefficient du mauvais côté de 1, on montre le bon
@@ -27453,18 +27482,19 @@ function checkEvcAnswer(live){
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
   const gAbs=Math.abs(q.G), gc=q.c1*q.c2;
+  const [g1c,g2c]=facteursCommutesDec('evcG1','evcG2',q.c1,q.c2,100);   /* a × b = b × a */
   const mots={evcW1:q.s1>0?'hausse':'baisse', evcW2:q.s2>0?'hausse':'baisse', evcW3:q.G>0?'hausse':'baisse'};
   const colSel=id=>{ const w=$(id); if(w&&!w.disabled){ w.classList.remove('ok','bad'); if(w.value) w.classList.add(w.value===mots[id]?'ok':'bad'); } };
   if(live){
     liveColorDec('evcP1',q.P1,100); liveColorDec('evcP2',q.P2,100);
-    liveColorDec('evcG1',q.c1,100); liveColorDec('evcG2',q.c2,100); liveColorDec('evcG',gc,10000); liveColorDec('evcGP',gAbs,100);
+    liveColorDec('evcG1',g1c,100); liveColorDec('evcG2',g2c,100); liveColorDec('evcG',gc,10000); liveColorDec('evcGP',gAbs,100);
     liveColorDec('evcT1',q.P1,1); liveColorDec('evcT2',q.P2,1); liveColorDec('evcT3',gAbs,1);
     Object.keys(mots).forEach(colSel);
     return;
   }
   const dec=(id,n,d)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
   const ok={ evcP1:dec('evcP1',q.P1,100), evcP2:dec('evcP2',q.P2,100),
-             evcG1:dec('evcG1',q.c1,100), evcG2:dec('evcG2',q.c2,100), evcG:dec('evcG',gc,10000), evcGP:dec('evcGP',gAbs,100),
+             evcG1:dec('evcG1',g1c,100), evcG2:dec('evcG2',g2c,100), evcG:dec('evcG',gc,10000), evcGP:dec('evcGP',gAbs,100),
              evcW1:v('evcW1')===mots.evcW1, evcT1:dec('evcT1',q.P1,1),
              evcW2:v('evcW2')===mots.evcW2, evcT2:dec('evcT2',q.P2,1),
              evcW3:v('evcW3')===mots.evcW3, evcT3:dec('evcT3',gAbs,1) };
@@ -27482,7 +27512,7 @@ function checkEvcAnswer(live){
   } else {
     $('evcFeedback').textContent=`Réponse : ${k1} × ${k2} = ${kg} = 1 ${bonS} ${dg}. La 1re évolution est une ${mots.evcW1} de ${q.P1} %, la 2e une ${mots.evcW2} de ${q.P2} %, et l’évolution globale une ${mots.evcW3} de ${gAbs} %.`;
     $('evcFeedback').className='mp-feedback bad';
-    corTrainDec('evcP1',d1); corTrainDec('evcP2',d2); corTrainDec('evcG1',k1); corTrainDec('evcG2',k2); corTrainDec('evcG',kg); corTrainDec('evcGP',dg);
+    corTrainDec('evcP1',d1); corTrainDec('evcP2',d2); corTrainDec('evcG1',evsDec(g1c)); corTrainDec('evcG2',evsDec(g2c)); corTrainDec('evcG',kg); corTrainDec('evcGP',dg);
     corTrainDec('evcT1',String(q.P1)); corTrainDec('evcT2',String(q.P2)); corTrainDec('evcT3',String(gAbs));
     Object.keys(mots).forEach(id=>{ const w=$(id); if(w&&currentMode==='train'&&!w.classList.contains('ok')){ w.value=mots[id]; w.classList.remove('bad'); w.classList.add('sol'); w.disabled=true; } });
     if(currentMode==='train'){
@@ -27609,18 +27639,19 @@ function checkEvpAnswer(live){
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
   const gAbs=Math.abs(q.G), gc=q.c1*q.c2;
+  const [g1c,g2c]=facteursCommutesDec('evpG1','evpG2',q.c1,q.c2,100);   /* a × b = b × a */
   const motG=q.G>0?'hausse':'baisse';
   const colSel=()=>{ const w=$('evpW3'); if(w&&!w.disabled){ w.classList.remove('ok','bad'); if(w.value) w.classList.add(w.value===motG?'ok':'bad'); } };
   if(live){
     liveColorDec('evpP1',q.P1,100); liveColorDec('evpP2',q.P2,100); liveColorDec('evpC1',q.c1,100); liveColorDec('evpC2',q.c2,100);
-    liveColorDec('evpG1',q.c1,100); liveColorDec('evpG2',q.c2,100); liveColorDec('evpG',gc,10000); liveColorDec('evpGP',gAbs,100);
+    liveColorDec('evpG1',g1c,100); liveColorDec('evpG2',g2c,100); liveColorDec('evpG',gc,10000); liveColorDec('evpGP',gAbs,100);
     liveColorDec('evpT3',gAbs,1);
     colSel();
     return;
   }
   const dec=(id,n,d)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
   const ok={ evpP1:dec('evpP1',q.P1,100), evpP2:dec('evpP2',q.P2,100), evpC1:dec('evpC1',q.c1,100), evpC2:dec('evpC2',q.c2,100),
-             evpG1:dec('evpG1',q.c1,100), evpG2:dec('evpG2',q.c2,100), evpG:dec('evpG',gc,10000), evpGP:dec('evpGP',gAbs,100),
+             evpG1:dec('evpG1',g1c,100), evpG2:dec('evpG2',g2c,100), evpG:dec('evpG',gc,10000), evpGP:dec('evpGP',gAbs,100),
              evpW3:v('evpW3')===motG, evpT3:dec('evpT3',gAbs,1) };
   // une case vide ne rougit jamais (règle universelle)
   const mark=(id,o)=>{ const el=$(id); el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(o?'ok':'bad'); el.disabled=o||!isSoutien(); };
@@ -27637,7 +27668,7 @@ function checkEvpAnswer(live){
     $('evpFeedback').textContent=`Réponse : (1 ${q.s1<0?'−':'+'} ${d1}) × (1 ${q.s2<0?'−':'+'} ${d2}) = ${k1} × ${k2} = ${kg} = 1 ${bonS} ${dg}. L’évolution globale est une ${motG} de ${gAbs} %.`;
     $('evpFeedback').className='mp-feedback bad';
     corTrainDec('evpP1',d1); corTrainDec('evpP2',d2); corTrainDec('evpC1',k1); corTrainDec('evpC2',k2);
-    corTrainDec('evpG1',k1); corTrainDec('evpG2',k2); corTrainDec('evpG',kg); corTrainDec('evpGP',dg); corTrainDec('evpT3',String(gAbs));
+    corTrainDec('evpG1',evsDec(g1c)); corTrainDec('evpG2',evsDec(g2c)); corTrainDec('evpG',kg); corTrainDec('evpGP',dg); corTrainDec('evpT3',String(gAbs));
     const w=$('evpW3'); if(w&&currentMode==='train'&&!w.classList.contains('ok')){ w.value=motG; w.classList.remove('bad'); w.classList.add('sol'); w.disabled=true; }
     if(currentMode==='train'){
       evpSigneMAJ();
@@ -29757,6 +29788,8 @@ function checkPpbSchema(live){
   const q=test.questions[test.idx]; if(!q || !q.aide) return;
   const C=ppbSchemaCases(q), ids=Object.keys(C).filter(id=>$(id));
   const v=id=>String($(id).value||'').trim();
+  if(C.ppbG1 && C.ppbG2 && $('ppbG1') && $('ppbG2'))                      /* a × b = b × a */
+    [C.ppbG1,C.ppbG2]=facteursCommutes(v('ppbG1'),v('ppbG2'),C.ppbG1,C.ppbG2,(s,t)=>{ const fr=parseDecToFrac(s); return !!fr && fr.n*t.d===t.n*fr.d; });
   const juste=function(id){ const t=C[id]; if(t.mot) return v(id)===t.mot; const fr=parseDecToFrac(v(id)); return !!fr && fr.n*t.d===t.n*fr.d; };
   if(live){
     ids.forEach(function(id){ const el=$(id); if(el.disabled) return; el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(juste(id)?'ok':'bad'); });
@@ -65867,10 +65900,17 @@ function ctxDch(q){
    seconde se juge de même. Un vecteur déjà égal à w⃗ ne se complète par
    aucun vecteur non nul : il est faux, et nommé.
 
+   LES FLÈCHES BLEUES (v542, demande de Turquet) : l'énoncé dit de répondre
+   avec les vecteurs BLEUS de la figure, et chaque réponse attendue y est
+   tracée — la chaîne, le raccourci de u⃗ + v⃗, celui des deux premières
+   flèches d'un w⃗ de trois — avec DEUX flèches de plus (dx), qui ne servent
+   à aucune réponse, même lues à l'envers. Le juge accepte toujours tout
+   vecteur juste de la figure ; la correction écrit des vecteurs bleus.
+
    ON RANGE LA FIGURE ET LES INDICES, JAMAIS LES RÉPONSES : les points, la
    chaîne (ordre des lettres), l'origine des trois flèches libres, l'indice
-   de la somme (k, sw) et du raccourci (j, m). lsdVecs() recalcule u⃗, v⃗, w⃗,
-   lsdJuge() les réponses justes. */
+   de la somme (k, sw) et du raccourci (j, m), les deux flèches de plus
+   (dx). lsdVecs() recalcule u⃗, v⃗, w⃗, lsdJuge() les réponses justes. */
 const LSD_NB=4;                     /* figures par séance (réglage « Questions » d'un devoir) */
 const LSD_W=16, LSD_H=10;           /* le quadrillage : 16 × 10 carreaux */
 const LSD_LETTRES='ABCDEFGHJKLMNPRST';   /* sans I, O, Q (lettres ambiguës) ni U, V, W (les vecteurs libres) */
@@ -65894,13 +65934,37 @@ function lsdNommes(P, d){
   L.forEach(function(X){ L.forEach(function(Y){ if(X!==Y && lsdEg(lsdD(P, X+Y), d)) r.push(X+Y); }); });
   return r;
 }
-/* le vecteur de la figure qui complète v en w⃗ : v en premier, il part de
-   préférence de la fin de v ; v en second, il arrive de préférence à son début */
-function lsdComplete(P, w, v, premier){
+/* le vecteur de la figure qui complète v en w⃗ : de préférence une flèche
+   bleue (bl) ; v en premier, il part de préférence de la fin de v ; v en
+   second, il arrive de préférence à son début */
+function lsdComplete(P, w, v, premier, bl){
   const c=lsdNommes(P, lsdMoins(w, lsdD(P, v)));
   if(!c.length) return null;
-  const pref=c.find(function(r){ return premier ? r[0]===v[1] : r[1]===v[0]; });
-  return pref||c[0];
+  const suit=function(r){ return premier ? r[0]===v[1] : r[1]===v[0]; }, bleu=function(r){ return (bl||[]).indexOf(r)>=0; };
+  return c.find(function(r){ return bleu(r) && suit(r); }) || c.find(bleu) || c.find(suit) || c[0];
+}
+/* toutes les flèches bleues : la chaîne, le raccourci de u⃗ + v⃗, celui des
+   deux premières flèches d'un w⃗ de trois, puis les deux flèches de plus */
+function lsdBleues(q){
+  const r=lsdFleches(q), add=function(v){ if(r.indexOf(v)<0) r.push(v); };
+  add(lsdSomBon(q)); if(q.m===3) add(q.ch[q.j]+q.ch[q.j+2]);
+  (q.dx||[]).forEach(add);
+  return r;
+}
+/* un trait bleu ajouté à la figure : loin des points qu'il ne touche pas,
+   sans croiser ni frôler un autre trait, et, s'il en partage un bout, assez
+   ouvert pour ne pas se coucher dessus */
+function lsdTraitOk(a, b, pts, traits){
+  if(pts.some(function(p){ return !lsdEg(p, a) && !lsdEg(p, b) && lsdDistPS(p, a, b)<1; })) return false;
+  return traits.every(function(t){
+    const ea=lsdEg(t[0], a) || lsdEg(t[1], a), eb=lsdEg(t[0], b) || lsdEg(t[1], b);
+    if(ea && eb) return false;
+    if(ea || eb){
+      const O=ea ? a : b, X=lsdMoins(ea ? b : a, O), Y=lsdMoins(lsdEg(t[0], O) ? t[1] : t[0], O);
+      return (X[0]*Y[0]+X[1]*Y[1]) < Math.cos(25*Math.PI/180)*Math.hypot(X[0],X[1])*Math.hypot(Y[0],Y[1]);
+    }
+    return lsdDistSS(a, b, t[0], t[1])>=0.7;
+  });
 }
 /* distance d'un point à un segment, et entre deux segments (unités du quadrillage) */
 function lsdDistPS(p, a, b){
@@ -65966,16 +66030,42 @@ function lsdGenQuestion(){
     } });
     if(!choix.length) continue;
     const c=choix[rnd(0, choix.length-1)];
+    /* les réponses tracées en bleu (v542) : le raccourci de u⃗ + v⃗, et celui
+       des deux premières flèches d'un w⃗ de trois */
+    const rac=[[k, k+2]]; if(c.m===3 && c.j!==k) rac.push([c.j, c.j+2]);
+    const traits=segs.slice();
+    if(!rac.every(function(r){ const a=pts[r[0]], b=pts[r[1]];
+      if(!lsdTraitOk(a, b, pts, traits)) return false; traits.push([a, b]); return true; })) continue;
     /* le point isolé : de préférence au bout d'un autre vecteur égal à u⃗ + v⃗ */
     const loin=function(p){ return dedans(p, 1) && pts.every(function(r){ return cheb(r, p)>=2; })
-      && segs.every(function(sg){ return lsdDistPS(p, sg[0], sg[1])>=1.2; }); };
+      && traits.every(function(sg){ return lsdDistPS(p, sg[0], sg[1])>=1.2; }); };
     const isoles=[];
     pts.forEach(function(p, i){ if(i!==k){ const e=lsdPlus(p, s); if(loin(e)) isoles.push(e); } });
     let x=isoles.length && Math.random()<0.7 ? isoles[rnd(0, isoles.length-1)] : null;
     for(let e=0;e<200 && !x;e++){ const p=[rnd(1,W-1), rnd(1,H-1)]; if(loin(p)) x=p; }
     if(!x) continue;
     const tous=pts.concat([x]);
-    /* les trois flèches libres, loin des points, de la chaîne et l'une de l'autre */
+    /* les deux flèches bleues de plus : entre deux points nommés, et d'aucune
+       réponse — ni égale à u⃗ + v⃗ ou à w⃗, ni complétée en w⃗ par une flèche
+       bleue, même lue à l'envers (l'élève qui retourne une flèche écrit
+       encore un vecteur de la figure) */
+    const bleus=ds.concat(rac.map(function(r){ return lsdMoins(pts[r[1]], pts[r[0]]); }));
+    const pm=function(d){ return [d, [-d[0], -d[1]]]; };
+    const sert=function(d){
+      if(pm(d).some(function(e){ return lsdEg(e, s) || lsdEg(e, c.w); })) return true;
+      return bleus.concat([d]).some(function(b){ return pm(d).some(function(e){ return pm(b).some(function(f){ return lsdEg(lsdPlus(e, f), c.w); }); }); });
+    };
+    const paires=[];
+    tous.forEach(function(p, a){ tous.forEach(function(r, b){ if(a!==b) paires.push([a, b]); }); });
+    for(let i=paires.length-1;i>0;i--){ const r=rnd(0,i), t=paires[i]; paires[i]=paires[r]; paires[r]=t; }
+    const dx=[];
+    for(let n=0;n<paires.length && dx.length<2;n++){
+      const a=tous[paires[n][0]], b=tous[paires[n][1]], d=lsdMoins(b, a);
+      if(Math.abs(d[0])>7 || Math.abs(d[1])>7 || sert(d) || !lsdTraitOk(a, b, tous, traits)) continue;
+      dx.push(paires[n]); bleus.push(d); traits.push([a, b]);
+    }
+    if(dx.length<2) continue;
+    /* les trois flèches libres, loin des points, des flèches bleues et l'une de l'autre */
     const libres=[], dl=[sw ? ds[k+1] : ds[k], sw ? ds[k] : ds[k+1], c.w];
     for(let n=0;n<3 && ok;n++){
       const d=dl[n], cand=[];
@@ -65983,7 +66073,7 @@ function lsdGenQuestion(){
         const o=[ox,oy], f=lsdPlus(o, d);
         if(!dedans(o, 0) || !dedans(f, 0)) continue;
         if(tous.some(function(p){ return lsdDistPS(p, o, f)<1.2; })) continue;
-        if(segs.some(function(sg){ return lsdDistSS(o, f, sg[0], sg[1])<1; })) continue;
+        if(traits.some(function(sg){ return lsdDistSS(o, f, sg[0], sg[1])<1; })) continue;
         if(libres.some(function(l){ return lsdDistSS(o, f, l[0], l[1])<1.4; })) continue;
         cand.push(o);
       }
@@ -65996,10 +66086,11 @@ function lsdGenQuestion(){
     const L=LSD_LETTRES.split('');
     for(let i=L.length-1;i>0;i--){ const r=rnd(0,i), t=L[i]; L[i]=L[r]; L[r]=t; }
     const P={}; tous.forEach(function(p, i){ P[L[i]]=p; });
-    return {pts:P, ch:L.slice(0,5).join(''), uo:libres[0][0], vo:libres[1][0], wo:libres[2][0], k:k, sw:sw, j:c.j, m:c.m};
+    return {pts:P, ch:L.slice(0,5).join(''), uo:libres[0][0], vo:libres[1][0], wo:libres[2][0], k:k, sw:sw, j:c.j, m:c.m,
+      dx:dx.map(function(e){ return L[e[0]]+L[e[1]]; })};
   }
   /* vivier épuisé (jamais vu) : une figure sûre plutôt qu'une page figée */
-  return {pts:{K:[2,3],D:[4,6],M:[7,7],A:[9,4],F:[12,6],B:[14,8]}, ch:'KDMAF', uo:[11,0], vo:[13,1], wo:[1,9], k:0, sw:0, j:2, m:2};
+  return {pts:{K:[2,3],D:[4,6],M:[7,7],A:[9,4],F:[12,6],B:[14,8]}, ch:'KDMAF', uo:[11,0], vo:[13,1], wo:[1,9], k:0, sw:0, j:2, m:2, dx:['KA','MB']};
 }
 function lsdBuildQuestions(){
   return distinctes(dmNbQuestions(LSD_NB), lsdGenQuestion,
@@ -66027,7 +66118,8 @@ function lsdJuge(q, vals){
   /* w⃗ = … + … */
   const b=lire(1, 0, vals[1]), c=lire(1, 1, vals[2]);
   const db=b.lu && lsdD(P, b.lu), dc=c.lu && lsdD(P, c.lu);
-  const cb=b.lu ? lsdComplete(P, w, b.lu, true) : null, cc=c.lu ? lsdComplete(P, w, c.lu, false) : null;
+  const bl=lsdBleues(q);
+  const cb=b.lu ? lsdComplete(P, w, b.lu, true, bl) : null, cc=c.lu ? lsdComplete(P, w, c.lu, false, bl) : null;
   const canon=lsdDecBon(q);
   if(b.lu && c.lu && lsdEg(lsdPlus(db, dc), w)){ b.ok=c.ok=true; b.bon=b.lu; c.bon=c.lu; }
   else if(cb){ b.ok=true; b.bon=b.lu; c.bon=cb; }
@@ -66106,11 +66198,13 @@ function lsdFleche(A, B, cls, attr){
 function lsdSvg(q){
   const P=q.pts, V=lsdVecs(q), W=LSD_W, H=LSD_H, M=LSD_M, C=LSD_C, f=function(v){ return v.toFixed(1); };
   let h='<svg class="lsd-svg" viewBox="0 0 '+(2*M+W*C)+' '+(2*M+H*C)+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'
-    +esc('Un quadrillage : une chaîne de flèches '+q.ch.split('').join(', ')+', le point '+Object.keys(P).filter(function(L){ return q.ch.indexOf(L)<0; }).join('')+', et trois vecteurs u, v, w tracés à part')+'">';
+    +esc('Un quadrillage : les flèches bleues '+lsdBleues(q).join(', ')+' entre les points '+Object.keys(P).sort().join(', ')+', et trois vecteurs rouges u, v, w tracés à part')+'">';
   for(let x=0;x<=W;x++) h+='<line class="lsd-grid" x1="'+(M+x*C)+'" y1="'+M+'" x2="'+(M+x*C)+'" y2="'+(M+H*C)+'"/>';
   for(let y=0;y<=H;y++) h+='<line class="lsd-grid" x1="'+M+'" y1="'+(M+y*C)+'" x2="'+(M+W*C)+'" y2="'+(M+y*C)+'"/>';
   /* la chaîne */
   lsdFleches(q).forEach(function(v){ h+=lsdFleche(lsdXY(P[v[0]]), lsdXY(P[v[1]]), 'lsd-ch'); });
+  /* les autres flèches bleues : les réponses que la chaîne ne trace pas, et les deux de plus */
+  lsdBleues(q).slice(4).forEach(function(v){ h+=lsdFleche(lsdXY(P[v[0]]), lsdXY(P[v[1]]), 'lsd-bl'); });
   /* les trois flèches libres, leur nom au milieu, du côté le plus dégagé */
   const objets=Object.keys(P).map(function(L){ return P[L]; });
   LSD_NOMS.forEach(function(n){
@@ -66200,12 +66294,13 @@ function renderLsdTest(){
   $('lsdLiveScore').textContent=test.score;
   $('lsdFeedback').textContent=''; $('lsdFeedback').className='mp-feedback';
   $('lsdActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkLsdAnswer()">Vérifier</button>';
-  $('lsdInstr').innerHTML='Sur ce quadrillage, une chaîne de flèches relie des points nommés, et trois vecteurs '+svcVecHTML('u')+', '+svcVecHTML('v')+' et '+svcVecHTML('w')+' sont tracés à part. Réponds avec des <b>vecteurs de la figure</b> : deux lettres, dans l’ordre.'
+  const R=function(n){ return '<span class="lsd-r">'+svcVecHTML(n)+'</span>'; };
+  $('lsdInstr').innerHTML='Sur ce quadrillage, des flèches bleues relient des points nommés, et trois vecteurs '+R('u')+', '+R('v')+' et '+R('w')+' sont tracés à part, en rouge. Réponds avec les <b class="lsd-bleu">vecteurs bleus de la figure</b> : deux lettres, dans l’ordre.'
     +'<span class="trl-sous">Tu peux aussi cliquer sur deux points de la figure pour écrire leurs lettres.</span>';
   let h='<div class="chs-wrap lsd-wrap"><div class="veg-fig lsd-fig">'+lsdSvg(q)+'</div><div class="veg-lignes lsd-lignes">';
-  h+='<div class="veg-l lsd-l" id="lsd-l-0" data-i="0"><span class="lsd-q">Quel vecteur de la figure est égal à '+svcVecHTML('u')+' + '+svcVecHTML('v')+' ?</span>'
+  h+='<div class="veg-l lsd-l" id="lsd-l-0" data-i="0"><span class="lsd-q">Quel vecteur bleu de la figure est égal à '+R('u')+' + '+R('v')+' ?</span>'
     +'<span class="lsd-eg"><span class="veg-tete">'+lsdVN('u')+'</span>'+chsGrp('+', lsdVN('v'))+chsGrp('=', lsdCaseHTML('lsd-0-0', 'le vecteur de la figure égal à u + v'))+'</span></div>';
-  h+='<div class="veg-l lsd-l" id="lsd-l-1" data-i="1"><span class="lsd-q">Écris '+svcVecHTML('w')+' comme la somme de deux vecteurs de la figure.</span>'
+  h+='<div class="veg-l lsd-l" id="lsd-l-1" data-i="1"><span class="lsd-q">Écris '+R('w')+' comme la somme de deux vecteurs bleus de la figure.</span>'
     +'<span class="lsd-eg"><span class="veg-tete">'+lsdVN('w')+'</span>'+chsGrp('=', lsdCaseHTML('lsd-1-0', 'le premier vecteur de la somme égale à w'))
     +chsGrp('+', lsdCaseHTML('lsd-1-1', 'le second vecteur de la somme égale à w'))+'</span></div>';
   h+='</div></div>';
@@ -66281,8 +66376,8 @@ function ctxLsd(q){
   const s=lsdPlus(V.u.d, V.v.d), w=V.w.d;
   let c='L’élève lit une somme de vecteurs sur un quadrillage. Points nommés (pour TOI seulement, en carreaux, (colonne ; rangée) depuis le coin bas gauche) : '
    +Object.keys(P).map(function(L){ return L+' ('+P[L][0]+' ; '+P[L][1]+')'; }).join(', ')+'. '
-   +'Une chaîne de flèches est tracée : '+F.join(', ')+'. Trois vecteurs sont tracés à part, loin des points : u = '+dep(V.u.d)+', v = '+dep(V.v.d)+', w = '+dep(w)+'. '
-   +'Question 1 : « Quel vecteur de la figure est égal à u + v ? » (deux lettres). Question 2 : « Écris w comme la somme de deux vecteurs de la figure » (w = … + …). '
+   +'Une chaîne de flèches est tracée : '+F.join(', ')+'. Toutes les flèches bleues de la figure (l’élève doit répondre avec elles) : '+lsdBleues(q).join(', ')+'. Trois vecteurs rouges sont tracés à part, loin des points : u = '+dep(V.u.d)+', v = '+dep(V.v.d)+', w = '+dep(w)+'. '
+   +'Question 1 : « Quel vecteur bleu de la figure est égal à u + v ? » (deux lettres). Question 2 : « Écris w comme la somme de deux vecteurs bleus de la figure » (w = … + …). '
    +'Réponses attendues, STRICTEMENT SECRÈTES (toute écriture égale est acceptée) : u + v = '+lsdNommes(P, s).join(' ou ')+' ; w = '+lsdDecBon(q).join(' + ')+' (ou toute autre somme de deux vecteurs de la figure égale à w). '
    +'Méthode enseignée : on reconnaît sur la figure une flèche ÉGALE à u (même direction, même sens, même longueur), puis une flèche égale à v ; si le second vecteur part là où s’arrête le premier, la relation de Chasles donne la somme : AB + BC = AC. L’ordre d’une somme ne compte pas : u + v = v + u. Pour écrire w comme une somme, on cherche un vecteur de la figure égal à w, puis on passe par un point intermédiaire : AC = AB + BC. Ne jamais parler de coordonnées à l’élève : il compte des carreaux et suit des flèches.';
   if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';

@@ -4717,3 +4717,39 @@ rappel de cours (`RAP_PPS`, celui du 4.5.10 sans sa dernière phrase).
 bricolée) retombe sur la rédaction. Contrôle du banc principal, section des
 problèmes (`t6`), avec un témoin : la phrase du juge du 4.5.10 cite toujours
 l'aide, sans quoi le contrôle ne mesurerait rien.
+
+## Le calcul global accepte ses facteurs dans les deux ordres — a × b = b × a (Seconde et Première, octobre 2026)
+
+« Dans cet exercice en seconde il faut accepter que les facteurs de la
+multiplication soient inversés sur la grande flèche ; regarder si ce problème
+se pose ailleurs » (Turquet, octobre 2026, capture de l'aide schéma du 4.5.10 :
+« 0,80 × 0,30 = 0,24 » donnait deux cases rouges sur une copie juste, et
+« 4 cases justes sur 6 »).
+
+Le problème se posait partout où la rangée du coefficient global
+« … × … = … » a deux CASES pour ses facteurs : chaque case se jugeait contre
+SA cible (la première flèche, puis la seconde). Dix écrans : en Seconde
+{pourcentage-chaine} (et l'aide schéma du 4.5.9, qui emprunte son écran),
+{pourcentage-schema} et {pourcentage-schema-cadres} (forme « comb » ; dans les
+formes p1/p2 un facteur est ÉCRIT par la page, l'ordre ne peut pas s'inverser),
+{pourcentage-phrases}, {pourcentage-schema-vide}, les trois
+{evolutions-successives…}, et l'aide schéma du 4.5.10 / 4.5.11 ; en Première
+{evolutions-successives}. La Terminale n'a pas ce schéma.
+
+Un seul juge pour tous : `facteursCommutes(sa, sb, ca, cb, vaut)` compte les
+cases justes dans l'ordre droit et dans l'ordre croisé, et rend les cibles
+ÉCHANGÉES quand l'écriture de l'élève colle mieux à rebours (égalité : l'ordre
+droit). Les cibles échangées, le juge, la correction en direct du soutien et
+la correction verte écrite en entraînement suivent l'ordre de l'élève : un
+élève qui écrit « 0,80 × … » et se trompe sur la seconde case reçoit « 0,30 »
+en vert dans celle-là, pas « 0,80 » à côté de son « 0,80 ».
+`facteursCommutesDec` l'applique à deux cases décimales identifiées,
+`casesCommutees` aux listes `{id, dec}` du 4.1.10 au 4.1.13 ; l'aide schéma
+du 4.5.10 l'appelle sur ses cibles rationnelles. Le texte « Réponse : … »
+garde l'ordre du schéma.
+
+Contrôle du banc principal (« le calcul global « … × … = … » accepte ses deux
+facteurs dans l'un ou l'autre ordre », Seconde et Première) : sur chaque écran
+présent, les deux facteurs écrits à rebours doivent bleuir ; l'autre bord, un
+même facteur écrit deux fois, doit rougir la seconde case — sans quoi un juge
+qui accepterait tout passerait.

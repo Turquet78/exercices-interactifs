@@ -4713,6 +4713,7 @@ function exercices(suite){
     pourcentagePhrases(w, P);
     pourcentageSchemaCadres(w, P);
     pourcentageSchemaVide(w, P);
+    facteursGlobalCommutes(w, P);
     coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
@@ -13667,7 +13668,7 @@ function lireSommeDessin(w, P){
         let m; while((m=re.exec(src))){ const p=m[3].trim().split(/\\s+/)[0].split(',').map(Number);
           r.push({n:att(' '+m[1],'data-n'), a:[+att(' '+m[2],'x1'), +att(' '+m[2],'y1')], b:p}); }
         return r; };
-      const ch=fl('lsd-ch'), lib=fl('lsd-lib');
+      const ch=fl('lsd-ch'), lib=fl('lsd-lib'), bl=fl('lsd-bl');
       /* le nom de chaque flèche libre : le texte le plus proche de son milieu */
       const noms=(src.match(/<text class="lsd-vn"[^>]*>[^<]*<\\/text>/g)||[]).map(function(t){
         return {x:+att(t,'x'), y:+att(t,'y'), v:t.replace(/^<text[^>]*>|<\\/text>$/g,'').trim()}; });
@@ -13680,7 +13681,7 @@ function lireSommeDessin(w, P){
       const meme=function(a, b){ return Math.abs(a[0]-b[0])<0.5 && Math.abs(a[1]-b[1])<0.5; };
       const L=Object.keys(pts).sort(), vecs=[];
       L.forEach(function(X){ L.forEach(function(Y){ if(X!==Y) vecs.push(X+Y); }); });
-      return {pts:pts, ch:ch, libre:libre, dep:dep, D:D2, meme:meme, vecs:vecs};
+      return {pts:pts, ch:ch, bl:bl, libre:libre, dep:dep, D:D2, meme:meme, vecs:vecs};
     };
     const plus=function(a, b){ return [a[0]+b[0], a[1]+b[1]]; };
     const moins=function(a, b){ return [a[0]-b[0], a[1]-b[1]]; };
@@ -13732,6 +13733,7 @@ function lireSommeDessin(w, P){
         /* w⃗ : toutes les sommes de deux vecteurs de la figure, une par une */
         const complete=function(d){ return J.vecs.some(function(r){ return J.meme(J.D(r), d); }); };
         let canon=0;
+        const vide=lsdJuge(q, ['','','']);
         J.vecs.forEach(function(a){ J.vecs.forEach(function(b){
           const r=lsdJuge(q, ['', a, b]), juste=J.meme(plus(J.D(a), J.D(b)), w);
           if(juste) canon++;
@@ -13740,7 +13742,33 @@ function lireSommeDessin(w, P){
           if(!r[1].ok && !J.meme(plus(J.D(r[1].bon), J.D(r[2].bon)), w)) vus.push('la correction de w = '+a+' + '+b+' écrit '+r[1].bon+' + '+r[2].bon);
         }); });
         if(!canon) vus.push('aucune somme de deux vecteurs de la figure ne fait w');
-        const vide=lsdJuge(q, ['','','']);
+        /* les flèches BLEUES (v542) : l'énoncé dit d'y répondre. La réponse à
+           u + v y est tracée, une écriture de w aussi, et les flèches bleues
+           ajoutées à la chaîne sont des réponses, sauf DEUX — qui ne servent
+           à rien, même retournées. Chacune relie deux points nommés, loin
+           des points qu'elle ne touche pas. */
+        const bleues=J.ch.concat(J.bl), opp=function(d){ return [-d[0], -d[1]]; };
+        J.bl.forEach(function(f){ if(!nomme(f.a) || !nomme(f.b)) vus.push('une flèche bleue ne relie pas deux points nommés');
+          Object.keys(J.pts).forEach(function(k){ if(J.meme(J.pts[k], f.a) || J.meme(J.pts[k], f.b)) return;
+            if(distPS(J.pts[k], f.a, f.b)<27) vus.push('le point '+k+' est à '+Math.round(distPS(J.pts[k], f.a, f.b))+' px d’une flèche bleue qui ne le touche pas'); }); });
+        if(!bleues.some(function(f){ return J.meme(J.dep(f), sm); })) vus.push('la réponse à u + v n’est pas tracée en bleu');
+        if(!bleues.some(function(f){ return bleues.some(function(g){ return J.meme(plus(J.dep(f), J.dep(g)), w); }); })) vus.push('aucune somme de deux flèches bleues ne fait w');
+        const sert=function(f){ const d=J.dep(f);
+          return [d, opp(d)].some(function(e){ return J.meme(e, sm) || J.meme(e, w)
+            || bleues.some(function(g){ return [J.dep(g), opp(J.dep(g))].some(function(x){ return J.meme(plus(e, x), w); }); }); }); };
+        const deTrop=J.bl.filter(function(f){ return !sert(f); }).length;
+        if(deTrop!==2) vus.push(deTrop+' flèche(s) bleue(s) ne servent à aucune réponse, au lieu de 2');
+        const directe=function(f){ return J.meme(J.dep(f), sm) || bleues.some(function(g){ return J.meme(plus(J.dep(f), J.dep(g)), w); }); };
+        if(J.bl.some(function(f){ return sert(f) && !directe(f); })) vus.push('une flèche bleue ajoutée ne sert qu’à l’envers');
+        /* la correction écrit des vecteurs bleus */
+        const nomsBleus=bleues.map(function(f){ return nomme(f.a)+nomme(f.b); });
+        if([vide[0].bon, vide[1].bon, vide[2].bon].some(function(v){ return nomsBleus.indexOf(v)<0; })) vus.push('la correction de la copie vide écrit '+vide.map(function(x){ return x.bon; }).join(', ')+' : pas toutes des flèches bleues ('+nomsBleus.join(' ')+')');
+        /* une case de w juste et seule : la correction la complète par une
+           flèche bleue, quand une flèche bleue la complète */
+        nomsBleus.forEach(function(a){ [0,1].forEach(function(pos){
+          const r=lsdJuge(q, pos ? ['', '', a] : ['', a, '']), autre=r[pos ? 1 : 2];
+          const bleue=nomsBleus.some(function(g){ return J.meme(plus(J.D(a), J.D(g)), w); });
+          if(bleue && nomsBleus.indexOf(autre.bon)<0) vus.push('avec '+a+' seul, la correction de w écrit '+autre.bon+', qui n’est pas une flèche bleue'); }); });
         if(!J.meme(J.D(vide[0].bon), sm) || !J.meme(plus(J.D(vide[1].bon), J.D(vide[2].bon)), w)) vus.push('la correction de la copie vide est fausse sur le dessin');
       });
     }
@@ -13755,7 +13783,7 @@ function lireSommeDessin(w, P){
     TESTS[D.exercice].start();
     if(test.kind!=='lsd' || test.qId!==D.exercice) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
     if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
-    const fixe=function(sw){ return {pts:{K:[2,3],D:[4,6],M:[7,7],A:[9,4],F:[12,6],B:[14,8]}, ch:'KDMAF', uo:[11,0], vo:[13,1], wo:[1,9], k:0, sw:sw, j:2, m:2}; };
+    const fixe=function(sw){ return {pts:{K:[2,3],D:[4,6],M:[7,7],A:[9,4],F:[12,6],B:[14,8]}, ch:'KDMAF', uo:[11,0], vo:[13,1], wo:[1,9], k:0, sw:sw, j:2, m:2, dx:['KA','MB']}; };
     test.questions[0]=fixe(0); test.idx=0;
     const IDS=['lsd-0-0','lsd-1-0','lsd-1-1'];
     const el=function(id){ return document.getElementById(id); };
@@ -13783,8 +13811,13 @@ function lireSommeDessin(w, P){
     if(!J.meme(plus(J.dep(J.libre.u), J.dep(J.libre.v)), J.D('KM')) || !J.meme(J.D('AB'), J.D('KM')) || !J.meme(J.dep(J.libre.w), J.D('MF')))
       return 'le dessin de la figure fixe ne donne pas u + v = KM = AB et w = MF';
     const texte=el('lsdHost').textContent.replace(/\\s+/g,' ');
-    if(!/Quel vecteur de la figure est égal à u ?\\+ ?v/.test(texte)) vus.push('la question 1 dit « '+texte.slice(0,100)+' »');
-    if(!/comme la somme de deux vecteurs de la figure/.test(texte)) vus.push('la question 2 manque');
+    if(!/Quel vecteur bleu de la figure est égal à u ?\\+ ?v/.test(texte)) vus.push('la question 1 dit « '+texte.slice(0,100)+' »');
+    if(!/comme la somme de deux vecteurs bleus de la figure/.test(texte)) vus.push('la question 2 manque');
+    if(!/vecteurs bleus de la figure/.test(el('lsdInstr').textContent)) vus.push('l’énoncé ne dit pas de répondre avec les vecteurs bleus');
+    /* u, v, w en ROUGE dans l'énoncé et dans les questions (v542) */
+    const rouges=document.querySelectorAll('#lsdInstr .lsd-r, #lsdHost .lsd-q .lsd-r, #lsdHost .lsd-n');
+    if(rouges.length!==3+3+3) vus.push(rouges.length+' vecteurs u, v, w marqués rouges au lieu de 9');
+    if(J.bl.length!==3) vus.push('la figure fixe trace '+J.bl.length+' flèches bleues hors de la chaîne au lieu de 3 (KM, KA, MB)');
     if(!el('lsdInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
     /* la copie juste, écrite AUTREMENT que la page : AB (en minuscules) et MK + KF */
     poser(['ab','MK','KF']); checkLsdAnswer();
@@ -46265,6 +46298,72 @@ function pourcentageSchema(w, P){
     currentMode='train';
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
+}
+/* ---- a × b = b × a : LE CALCUL GLOBAL ACCEPTE SES FACTEURS DANS LES DEUX ORDRES ----
+   « dans cet exercice en seconde il faut accepter que les facteurs de la
+   multiplication soient inversés sur la grande flèche ; regarder si ce
+   problème se pose ailleurs » (Turquet, octobre 2026, sur l'aide schéma du
+   4.5.10 : « 0,80 × 0,30 = 0,24 » rougissait deux cases justes). Toutes les
+   rangées « … × … = … » du coefficient global passent par
+   facteursCommutes() ; ce contrôle écrit les deux facteurs À REBOURS sur
+   chaque écran qui en a une, et exige deux cases bleues. Un écran absent du
+   niveau est sauté ; un niveau qui n'en a aucun le dit. */
+function facteursGlobalCommutes(w, P){
+  const intitule = 'le calcul global « … × … = … » accepte ses deux facteurs dans l’un ou l’autre ordre';
+  const r = evaluer(w, `(function(){
+    const vus=[], vu=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    const setv=function(id,val){ const e=document.getElementById(id); if(e) e.value=String(val); };
+    const pct=function(q){ return [pDecStr(q.P1),pDecStr(q.P2)]; };
+    const coef=function(q){ return [evsDec(q.c1),evsDec(q.c2)]; };
+    const E=[
+      {k:'pctc', start:'startPctChaine', render:'renderPctChaineTest', check:'checkPctChaineAnswer', cib:pct, ok:function(q){ return q.P1!==q.P2; }},
+      {k:'pcs', start:'startPcs', render:'renderPcsTest', check:'checkPcsAnswer', cib:pct, ok:function(q){ return q.inc==='comb' && q.P1!==q.P2; }},
+      {k:'pcp', start:'startPcp', render:'renderPcpTest', check:'checkPcpAnswer', cib:pct, ok:function(q){ return q.P1!==q.P2; }},
+      {k:'pcc', start:'startPcc', render:'renderPccTest', check:'checkPccAnswer', cib:pct, ok:function(q){ return q.inc==='comb' && q.P1!==q.P2; }},
+      {k:'psv', start:'startPsv', render:'renderPsvTest', check:'checkPsvAnswer', cib:pct, ok:function(q){ return q.P1!==q.P2; }},
+      {k:'evs', start:'startEvolSucc', render:'renderEvsTest', check:'checkEvsAnswer', cib:coef, ok:function(q){ return q.c1!==q.c2; }},
+      {k:'evc', start:'startEvolSuccCoef', render:'renderEvcTest', check:'checkEvcAnswer', cib:coef, ok:function(q){ return q.c1!==q.c2; }},
+      {k:'evp', start:'startEvolSuccPhrases', render:'renderEvpTest', check:'checkEvpAnswer', cib:coef, ok:function(q){ return q.c1!==q.c2; }}
+    ];
+    E.forEach(function(e){
+      if(typeof window[e.start]!=='function') return;
+      let i=-1;
+      for(let essai=0; essai<10 && i<0; essai++){ window[e.start](); i=test.questions.findIndex(e.ok); }
+      if(i<0){ vus.push(e.k+' : aucune question à deux facteurs distincts'); return; }
+      test.idx=i; test.locked=false; window[e.render]();
+      const q=test.questions[i], c=e.cib(q), g1=e.k+'G1', g2=e.k+'G2';
+      if(!document.getElementById(g1) || document.getElementById(g1).tagName!=='MATH-FIELD' || document.getElementById(g2).tagName!=='MATH-FIELD'){ vus.push(e.k+' : les deux facteurs ne sont pas des cases'); return; }
+      setv(g1,c[1]); setv(g2,c[0]);
+      window[e.check]();
+      [g1,g2].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push(e.k+' : '+c[1]+' × '+c[0]+' à rebours, la case '+id+' n’est pas bleue ('+cls(id)+')'); });
+      /* l'autre bord : un facteur écrit deux fois n'est pas le produit */
+      test.idx=i; test.locked=false; window[e.render]();
+      setv(g1,c[0]); setv(g2,c[0]); window[e.check]();
+      if(!/\\bbad\\b/.test(cls(g2))) vus.push(e.k+' : '+c[0]+' × '+c[0]+' (un facteur écrit deux fois) — la seconde case ne rougit pas');
+      vu.push(e.k);
+    });
+    /* le 4.5.10 : l'aide schéma, sur une question dont le schéma a un calcul global */
+    if(typeof startPpb==='function'){
+      currentTestId='pourcentages-problemes';
+      let q=null;
+      for(let essai=0; essai<20 && !q; essai++){ startPpb(); q=test.questions.find(function(x){ const C=ppbSchemaCases(x); return C.ppbG1 && C.ppbG2 && C.ppbG1.n*C.ppbG2.d!==C.ppbG2.n*C.ppbG1.d; }); }
+      if(!q) vus.push('ppb : aucune question à calcul global');
+      else {
+        test.idx=test.questions.indexOf(q); test.locked=false; renderPpb(); ppbAideSchema();
+        const C=ppbSchemaCases(q);
+        setv('ppbG1',ppbRatTexte(C.ppbG2)); setv('ppbG2',ppbRatTexte(C.ppbG1)); checkPpbSchema();
+        ['ppbG1','ppbG2'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('ppb ('+q.fam+') : facteurs à rebours, la case '+id+' n’est pas bleue ('+cls(id)+')'); });
+        vu.push('ppb');
+      }
+    }
+    try{ show('theme'); }catch(_){}
+    return {vus:vus.slice(0,6).join(' | '), vu:vu.join(',')};
+  })()`);
+  if(!r.ok){ verifier(intitule, false, 'erreur JavaScript : ' + r.erreur); return; }
+  if(!r.valeur.vu && !r.valeur.vus){ ignorer(intitule, 'ce niveau n\'a aucun schéma à calcul global'); return; }
+  verifier(intitule + ' (' + r.valeur.vu + ')', r.valeur.vus === '', r.valeur.vus || undefined);
 }
 /* ---- {pourcentage-schema-cadres} : Seconde SEULE, LE 4.1.10 AVEC SES CADRES ---
    « en seconde fais un nouvel exercice comme le 4.1.10 en rajoutant les cadres
