@@ -767,7 +767,7 @@ séance). Deux sabotages éprouvent le contrôle : une correction non réduite
 acceptée (« une correction juste non réduite : … Le reste est juste ! ») et
 l'erreur du moins remplacée par la bonne réponse (« −(2x − 7) = −2x + 7 : la
 page dit faux, le calcul vrai »).
-## {developper-reduire} — développer puis réduire une somme de produits (7.13, v542)
+## {developper-reduire} — développer puis réduire une somme de produits (7.13, v543)
 
 **La demande** (Turquet, octobre 2026) : « créer un exercice dans calcul
 littéral sur Développer puis réduire une somme de produits. Par exemple
