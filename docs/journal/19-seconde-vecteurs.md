@@ -3533,6 +3533,38 @@ première capture l'a montré posé sur la lettre du point : `stvCoteDehors`
 compte désormais le point parmi ce qu'il faut fuir ; aucun banc ne mesure
 ce chevauchement.
 
+**Puis les étapes se sont encadrées (v540).** La demande (Turquet,
+octobre 2026) : « mettre en bleu le cadre de l'étape à faire, le mettre en
+vert quand il est réalisé et mettre en bleu le suivant ; s'il est réalisé, le
+mettre en vert. Quand on doit réaliser l'étape 1, ne pas afficher de point à
+l'extrémité de la souris ou sur le quadrillage. » La recette est celle du
+8.2.16 (`cvpFaits`) : `stvFaits` pose `stv-cours` (cadre et fond bleus) sur
+la première étape non faite, `stv-fait` (cadre, encre et fond verts, et sa
+coche) sur chaque étape EFFECTUÉE — effectuée, pas juste : l'étape 1 est faite
+quand les trois flèches sont bout à bout depuis le point (`stvEtape1`, la
+même chaîne que le juge), l'étape 2 quand la somme est tracée ou déclarée
+nulle. Une étape marquée par la vérification garde son verdict, et rien ne
+reste sous le verrou. Défaire la chaîne remet l'étape 1 en cours.
+
+**L'étape 2 attend l'étape 1** — c'est le prix de « aucun point pendant
+l'étape 1 » : un clic qui poserait un point qu'on ne montre pas serait pire.
+Tant que la chaîne n'est pas faite, le quadrillage porte `stv-etape1` (le
+nœud survolé ne montre plus son rond), le point au bout de la souris ne
+s'affiche pas, `stvPose` ne pose rien et « C'est le vecteur nul » est
+grisé ; un début déjà posé se retire toujours, une déclaration déjà faite
+aussi. Ce qui change donc : « une somme juste tracée sans avoir bougé les
+flèches vaut son point » n'est plus possible — la somme ne se trace
+qu'après la chaîne. Le barème ne bouge pas.
+
+**Les bancs.** Le banc principal tient les cadres (`C/-` au départ, `F/C`
+la chaîne faite, `F/F` la somme tracée, `C/F` la chaîne défaite, rien sous
+le verdict) et le clic sans effet pendant l'étape 1 ; ses pièges sur la
+somme font d'abord la chaîne. Le banc navigateur mesure la COULEUR des
+cadres calculée par le navigateur, survole un nœud pendant l'étape 1 (ni
+point au bout de la souris, ni rond sur le nœud), y clique sans rien poser,
+puis voit le point revenir à l'étape 2 ; la somme nulle se déclare après
+la chaîne, le bouton étant grisé avant.
+
 **Le second vecteur de la somme passe à l'ORANGE (v539).** La demande
 (Turquet, octobre 2026) : « dans le 8.2.8, mettre le dernier vecteur de
 l'exercice dans une autre couleur ». AA′ avait déjà le sien (violet) ; c'est
