@@ -4529,6 +4529,7 @@ function exercices(suite){
     developperDistributivite(w, P);
     developperDouble(w, P);
     developperDoubleNu(w, P);
+    developperSigneMoins(w, P);
     translationGrille(w, P);
     vecteursEgauxTableau(w, P);
     vecteursEgaux(w, P);
@@ -23192,6 +23193,166 @@ function developperDouble(w, P){
     /* le barème : 4 pages de 15 cases */
     startDvd();
     if(test.maxScore!==60) vus.push('barème de '+test.maxScore+' au lieu de 60');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {developper-signe-moins} — thème 7 « Calcul littéral », 7.12 : le signe −
+   devant une parenthèse, présenté comme le 7.9. Six pages −(x + b),
+   −(ax − b), −(−ax + b), c − (ax + b), ax − (bx − c), k(ax − b) − (a'x − b') ;
+   le « − » entouré en rouge, −1 dans les bulles rouges, le résultat de chaque
+   produit sous son accolade, les trois dernières pages réduites. Les réponses
+   attendues sont écrites ICI, à la main — jamais lues dans les fonctions de la
+   page qui corrigent. */
+function developperSigneMoins(w, P){
+  const present = evaluer(w, "typeof startDvm==='function' && typeof dvmLignes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le signe − devant une parenthèse : le tirage, la correction et la place dans le thème Calcul littéral',
+      'ce niveau n\'a pas l\'exercice du signe − devant une parenthèse');
+    return;
+  }
+  verifierEval(w, 'le signe − devant une parenthèse : le tirage, la correction et la place dans le thème Calcul littéral', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='developper-signe-moins';
+
+    /* ---- 0. la place : 7.12, les 7.9 à 7.11 immobiles ; les tables restent */
+    if(TEST_NUM['developper-signe-moins']!=='7.12') vus.push('numéro '+TEST_NUM['developper-signe-moins']+' au lieu de 7.12');
+    if(TEST_NUM['developper-distributivite']!=='7.9' || TEST_NUM['developper-double']!=='7.10' || TEST_NUM['developper-double-nu']!=='7.11')
+      vus.push('un exercice de 7.9 à 7.11 a bougé');
+    if(TABLES_SANS.indexOf('developper-signe-moins')>=0) vus.push('le bouton des tables est retiré : la page F a ses produits');
+
+    /* ---- 1. le tirage : les six formes, dans l'ordre, rien qui s'annule --- */
+    const dans=function(v,a,b){ return Number.isInteger(v) && v>=a && v<=b; };
+    const moins=function(p){ return p.cache===true && p.k.c===-1 && p.k.d===0; };
+    for(let i=0;i<300 && !vus.length;i++){
+      const qs=dvmBuildQuestions();
+      if(qs.length!==6){ vus.push(qs.length+' pages au lieu de 6'); break; }
+      if(qs.map(function(q){ return q.forme; }).join('')!=='ABCDEF') vus.push('formes '+qs.map(function(q){ return q.forme; }).join(''));
+      const p=function(n){ return qs[n].prods[0]; };
+      for(let n=0;n<5;n++) if(qs[n].prods.length!==1 || !moins(p(n))) vus.push('page '+'ABCDE'[n]+' : pas une parenthèse précédée de −');
+      if(vus.length) break;
+      if(qs[0].seul || p(0).a.c!==1 || p(0).a.d!==1 || !dans(p(0).b.c,2,9) || p(0).b.c===4) vus.push('A n\\'est pas −(x + b), b ≠ 4');
+      if(qs[1].seul || p(1).a.d!==1 || !dans(p(1).a.c,2,9) || !dans(-p(1).b.c,1,9)) vus.push('B n\\'est pas −(ax − b)');
+      if(qs[2].seul || p(2).a.d!==1 || !dans(-p(2).a.c,2,9) || !dans(p(2).b.c,1,9)) vus.push('C n\\'est pas −(−ax + b)');
+      const D=qs[3], E=qs[4], F=qs[5].prods;
+      if(!D.seul || D.seul.d!==0 || !dans(D.seul.c,2,15) || !dans(p(3).a.c,2,9) || p(3).a.d!==1 || !dans(p(3).b.c,1,9) || D.seul.c===p(3).b.c)
+        vus.push('D n\\'est pas c − (ax + b), c ≠ b');
+      if(!E.seul || E.seul.d!==1 || !dans(E.seul.c,2,9) || !dans(p(4).a.c,2,9) || p(4).a.d!==1 || !dans(-p(4).b.c,1,9) || E.seul.c===p(4).a.c)
+        vus.push('E n\\'est pas ax − (bx − c), a ≠ b');
+      if(qs[5].seul || F.length!==2 || F[0].cache || !dans(F[0].k.c,2,5) || F[0].k.d!==0 || !moins(F[1])) vus.push('F n\\'est pas k × (…) − (…)');
+      else {
+        if(F[0].k.c*F[0].a.c===F[1].a.c) vus.push('F : les termes en x s\\'annulent');
+        if(F[0].k.c*F[0].b.c===F[1].b.c) vus.push('F : les nombres s\\'annulent');
+      }
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 2. la correction, par le BOUTON, sur des pages écrites ici ------- */
+    const M=function(c,d){ return {c:c,d:d}; }, UN=M(-1,0);
+    const FICHE=[
+      {forme:'A', seul:null, prods:[{k:UN, a:M(1,1), b:M(3,0), cache:true}]},          /* −(x + 3) */
+      {forme:'B', seul:null, prods:[{k:UN, a:M(2,1), b:M(-5,0), cache:true}]},         /* −(2x − 5) */
+      {forme:'C', seul:null, prods:[{k:UN, a:M(-3,1), b:M(4,0), cache:true}]},         /* −(−3x + 4) */
+      {forme:'D', seul:M(9,0), prods:[{k:UN, a:M(2,1), b:M(5,0), cache:true}]},        /* 9 − (2x + 5) */
+      {forme:'E', seul:M(7,1), prods:[{k:UN, a:M(3,1), b:M(-2,0), cache:true}]},       /* 7x − (3x − 2) */
+      {forme:'F', seul:null, prods:[{k:M(3,0), a:M(2,1), b:M(-1,0)}, {k:UN, a:M(4,1), b:M(-5,0), cache:true}]}  /* 3 × (2x − 1) − (4x − 5) */
+    ];
+    const JUSTE=[
+      {f:['-1','x','-1','+3'], t:['-x','-3']},
+      {f:['-1','2x','(-1)','-5'], t:['-2x','+5']},
+      {f:['−1','-3x','-1','4'], t:['3x','-4']},
+      {f:['-1','2x','-1','+5'], t:['-2x','-5'], r:['-2x','+4']},
+      {f:['-1','3x','-1','(-2)'], t:['-3x','+2'], r:['4x','+2']},
+      {f:['3','2x','3','-1','-1','4x','-1','-5'], t:['6x','-3','-4x','+5'], r:['2x','+2']}
+    ];
+    const ids=function(j){
+      const o={}, J=JUSTE[j];
+      for(let i=0;i<J.t.length;i++){ o['dvm-f-'+i+'-1']=J.f[2*i]; o['dvm-f-'+i+'-2']=J.f[2*i+1]; o['dvm-t-'+i]=J.t[i]; }
+      (J.r||[]).forEach(function(v,m){ o['dvm-r-'+m]=v; });
+      return o;
+    };
+    startDvm();
+    if(test.kind!=='dvm' || test.qId!=='developper-signe-moins') vus.push('identité '+test.kind+' / '+test.qId);
+    if(!document.querySelector('#scr-dvm.on')) vus.push('l\\'écran du 7.12 n\\'est pas affiché');
+    test.questions=FICHE.map(function(q){ return JSON.parse(JSON.stringify(q)); });
+    const poser=function(vals){
+      test.locked=false; renderDvmTest();
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const CASES=[6,6,6,8,8,14];
+    for(let j=0;j<6;j++){
+      test.idx=j; const V=ids(j);
+      poser({});
+      const manque=Object.keys(V).filter(function(id){ return !document.getElementById(id); });
+      if(manque.length){ vus.push('page '+FICHE[j].forme+' : case(s) absente(s) '+manque.join(', ')); continue; }
+      const sc=document.querySelector('#dvmHost .dvl-page .dvl-schema');
+      const fl=sc?JSON.parse(sc.getAttribute('data-fl')||'[]'):[], acc=sc?JSON.parse(sc.getAttribute('data-acc')||'[]'):[];
+      const np=FICHE[j].prods.length;
+      if(fl.length!==4*np || acc.length!==2*np) vus.push('page '+FICHE[j].forme+' : '+fl.length+' flèches et '+acc.length+' accolades au lieu de '+(4*np)+' et '+(2*np));
+      if(document.querySelectorAll('#dvmHost .dvl-page .dvl-bul.dvl-k').length!==3*np) vus.push('page '+FICHE[j].forme+' : les bulles rouges ne sont pas une par facteur');
+      /* le « − » est la bulle rouge de la première ligne, sans « × » après lui */
+      const km=document.getElementById('dvm-e-k'+(np-1));
+      if(!km || km.textContent!=='−') vus.push('page '+FICHE[j].forme+' : la bulle rouge de l\\'énoncé porte « '+(km?km.textContent:'?')+' » au lieu de « − »');
+      else if(km.nextElementSibling && km.nextElementSibling.textContent==='×') vus.push('page '+FICHE[j].forme+' : un « × » suit le signe −');
+      const ns=document.querySelectorAll('#dvmHost .dvl-page .dvm-seul').length;
+      if(ns!==(FICHE[j].seul?3:0)) vus.push('page '+FICHE[j].forme+' : le terme de devant s\\'écrit '+ns+' fois au lieu de '+(FICHE[j].seul?3:0));
+      poser(V); checkDvmAnswer();
+      const der=test.answers[test.answers.length-1];
+      if(!der || !der.correct) vus.push('la copie juste de la page '+FICHE[j].forme+' est comptée fausse');
+      const nv=Object.keys(V).filter(function(id){ return peint(id)!=='vert'; });
+      if(nv.length) vus.push('page '+FICHE[j].forme+' : '+nv.join(', ')+' non juste(s)');
+      if(!der || der.cases!==CASES[j]) vus.push('page '+FICHE[j].forme+' : '+(der?der.cases:'?')+' cases au lieu de '+CASES[j]);
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    /* l'exemple ne s'affiche que sur la première page, et n'a aucune case */
+    test.idx=0; poser({});
+    const ex=document.querySelector('#dvmHost .dvl-ex');
+    if(!ex) vus.push('l\\'exemple −(x + 4) manque à la première page');
+    else {
+      if(ex.querySelector('input')) vus.push('l\\'exemple porte une case à remplir');
+      if(!/−x/.test(ex.textContent) || !/−4/.test(ex.textContent)) vus.push('l\\'exemple n\\'écrit pas −x − 4 : '+ex.textContent);
+    }
+    test.idx=1; poser({});
+    if(document.querySelector('#dvmHost .dvl-ex')) vus.push('l\\'exemple se répète sur la deuxième page');
+
+    /* ---- 3. les pièges ---------------------------------------------------- */
+    /* « − » seul dans la bulle rouge : c'est −1 qu'on attend */
+    test.idx=0; poser(Object.assign(ids(0), {'dvm-f-0-1':'-'})); checkDvmAnswer();
+    if(peint('dvm-f-0-1')!=='rouge') vus.push('« − » seul dans la bulle rouge est peint en '+peint('dvm-f-0-1'));
+    if(peint('dvm-f-1-1')!=='vert' || peint('dvm-t-0')!=='vert') vus.push('une case juste rougit à côté du « − » seul');
+    if(!/on écrit −1/.test($('dvmFeedback').textContent)) vus.push('le message ne nomme pas le −1 : '+$('dvmFeedback').textContent);
+    /* le second terme qui ne change pas de signe : −(2x − 5) = −2x − 5 */
+    test.idx=1; poser(Object.assign(ids(1), {'dvm-t-1':'-5'})); checkDvmAnswer();
+    if(peint('dvm-t-1')!=='rouge') vus.push('« −5 » pour (−1) × (−5) est peint en '+peint('dvm-t-1'));
+    if(!/change le signe/.test($('dvmFeedback').textContent)) vus.push('le message ne dit pas que −1 change le signe : '+$('dvmFeedback').textContent);
+    /* C : (−1) × (−3x) = 3x, écrit −3x */
+    test.idx=2; poser(Object.assign(ids(2), {'dvm-t-0':'-3x'})); checkDvmAnswer();
+    if(peint('dvm-t-0')!=='rouge') vus.push('« −3x » pour (−1) × (−3x) est peint en '+peint('dvm-t-0'));
+    /* le terme qui suit le terme de devant garde son signe : « 2x » sans signe, même faux de valeur, et « 5 » au lieu de « +5 » en F */
+    test.idx=5; poser(Object.assign(ids(5), {'dvm-t-3':'5'})); checkDvmAnswer();
+    if(peint('dvm-t-3')!=='rouge') vus.push('« 5 » sans son signe est peint en '+peint('dvm-t-3'));
+    if(!/garde son signe/.test($('dvmFeedback').textContent)) vus.push('le message ne nomme pas le signe oublié : '+$('dvmFeedback').textContent);
+    /* E : la réduction qui ajoute 7x et 3x */
+    test.idx=4; poser(Object.assign(ids(4), {'dvm-r-0':'10x'})); checkDvmAnswer();
+    if(peint('dvm-r-0')!=='rouge') vus.push('« 10x » pour 7x − 3x est peint en '+peint('dvm-r-0'));
+    if(!/même nature/.test($('dvmFeedback').textContent)) vus.push('le message de la réduction : '+$('dvmFeedback').textContent);
+    /* D : non réduit */
+    test.idx=3; poser(Object.assign(ids(3), {'dvm-r-1':'9-5'})); checkDvmAnswer();
+    if(peint('dvm-r-1')!=='rouge') vus.push('« 9-5 », non réduit, est peint en '+peint('dvm-r-1'));
+    /* une case vide ne rougit pas : elle reçoit la correction */
+    test.idx=1; poser(Object.assign(ids(1), {'dvm-t-1':'', 'dvm-f-1-1':''})); checkDvmAnswer();
+    if(peint('dvm-t-1')!=='bleu' || peint('dvm-f-1-1')!=='bleu') vus.push('case vide peinte en '+peint('dvm-t-1')+' / '+peint('dvm-f-1-1'));
+    if((document.getElementById('dvm-t-1')||{}).value!=='+5') vus.push('la correction de la case vide écrit '+(document.getElementById('dvm-t-1')||{}).value+' au lieu de +5');
+    if((document.getElementById('dvm-f-1-1')||{}).value!=='−1') vus.push('la correction de la bulle rouge vide écrit '+(document.getElementById('dvm-f-1-1')||{}).value+' au lieu de −1');
+
+    /* le barème : trois pages de 6 cases, deux de 8, puis 14 */
+    startDvm();
+    if(test.maxScore!==48) vus.push('barème de '+test.maxScore+' au lieu de 48');
+    /* le 7.9 n'a pas bougé : ses bulles rouges portent toujours un nombre */
+    startDvl();
+    if(test.kind!=='dvl' || !document.getElementById('dvl-e-k0') || document.getElementById('dvl-e-k0').textContent==='−') vus.push('le 7.9 a changé');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
