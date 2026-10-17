@@ -4646,6 +4646,7 @@ function exercices(suite){
     pythonInputSomme(w, P);
     pythonInputPrix(w, P);
     pythonInputComplements(w, P);
+    pythonInputImage(w, P);
     pythonVariablesComplements(w, P);
     pythonPileFace(w, P);
     pythonIfPlusGrandTrois(w, P);
@@ -35941,6 +35942,109 @@ function pythonInputPrix(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-input-image} (Seconde, 6.3.18) : l'image d'un nombre par une
+   fonction — demander x avec input, calculer f(x), l'afficher avec une
+   phrase, puis s'en servir pour lire une image. Le contrôle tient la place
+   (derrière {python-input-monnaie}), le tirage, le juge sur des copies justes
+   et fausses chacune avec son mot, l'écran joué comme un élève (la console
+   au clavier, les deux cases), la copie vide qui ne rougit pas, le soutien
+   qui ne révèle rien, puis compare les modèles à un vrai CPython. Aucun
+   accent grave ni antislash littéral dans le code évalué. */
+function pythonInputImage(w, P){
+  const nom = '{python-input-image} : l’image d’un nombre par une fonction';
+  if(!P.pythonInputImage){ ignorer(nom, 'ce niveau n\'a pas cet exercice'); return; }
+  const ID = P.pythonInputImage.exercice, NB = P.pythonInputImage.nb, NUM = P.pythonInputImage.numero;
+  const present = evaluer(w, "typeof startPFX==='function' && typeof pfxJuge==='function' && typeof pfxBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'startPFX / pfxJuge / pfxBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return; }
+
+  verifierEval(w, 'il suit {python-input-monnaie} dans le sous-thème 6.3, numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!st||st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-monnaie")+1) vus.push("il ne suit pas {python-input-monnaie}");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-monnaie"]!=="6.3.17"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'la séance : ' + NB + ' fonctions distinctes, la fiche en tête (3x² − 2x + 1), chaque fonction sort (300 séances) ; f s’écrit avec x en italique et en Python avec * et ** ; chaque modèle passe au juge', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pfxBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      if(qs[0].s!==0){ vus.push("la fiche n’ouvre pas la séance"); break; }
+      if(new Set(qs.map(function(q){ return q.s; })).size!==${NB}){ vus.push("deux fois la même fonction"); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!==""||q.val!=="") vus.push("question non vide au départ"); });
+    }
+    if(Object.keys(vues).length!==PFX_F.length) vus.push("des fonctions ne sortent jamais");
+    if(pfxCode({s:0})!=="3*x**2 - 2*x + 1") vus.push("la fiche en Python : "+pfxCode({s:0}));
+    if(pfxHTML({s:0}).indexOf("3<i>x</i>² − 2<i>x</i> + 1")<0) vus.push("la fiche écrite : "+pfxHTML({s:0}));
+    if(pfxCode({s:3})!=="-x**2 + 6*x") vus.push("−x² + 6x en Python : "+pfxCode({s:3}));
+    PFX_F.forEach(function(_, i){ const d=pfxJuge({s:i}, pfxModele({s:i})); if(!d.ok) vus.push("le modèle "+i+" : "+d.dits.join(" ")); });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'le juge accepte toute écriture juste (x*x, l’image dans le print, une autre phrase) et nomme chaque défaut — ^, ², 3x sans *, int, input sans conversion, aucune question, phrase absente, nombre écrit à la main, rien d’affiché, mauvais calcul, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0};
+    const I="x = float(input("+Q+"x ? "+Q+"))"+NL, ph=function(e){ return "print("+Q+"f(x) ="+Q+", "+e+")"; };
+    [I+ph("3*x*x - 2*x + 1"), I+"y = 1 - 2*x + 3*x**2"+NL+ph("y"), I+"print("+Q+"image :"+Q+", 3 * x ** 2 - 2 * x + 1)"].forEach(function(p){ const d=pfxJuge(q,p); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[[I+ph("3*x^2 - 2*x + 1"), /n’est pas une puissance/], [I+ph("3*x² - 2*x + 1"), /²/], [I+ph("3x**2 - 2*x + 1"), /3[*]x/],
+      ["x = int(input("+Q+"x ? "+Q+"))"+NL+ph("3*x**2 - 2*x + 1"), /ENTIERS/], ["x = input("+Q+"x ? "+Q+")"+NL+ph("3*x**2 - 2*x + 1"), /TOUJOURS un texte/],
+      ["x = 2.5"+NL+ph("3*x**2 - 2*x + 1"), /aucune question/], [I+"print(3*x**2 - 2*x + 1)", /sans phrase/], [I+ph("14.75"), /même nombre/],
+      [I+"y = 3*x**2", /n’affiche rien/], [I+ph("3*x**2 + 2*x + 1"), /Vérifie ton calcul/], ["", /vide/]];
+    cas.forEach(function(c){ const d=pfxJuge(q,c[0]); if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0])); else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | ")); });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'l’écran : le dessin et la définition avant l’énoncé, la fonction écrite ; « Exécuter » pose la question, Entrée affiche l’image ; programme juste et image juste valent 2 ; une copie vide ne rougit pas et reçoit le modèle et l’image en vert ; en soutien, une image fausse rougit sans rien révéler', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFX();
+    let q=test.questions[0];
+    if(test.maxScore!==${NB}*2) vus.push("barème "+test.maxScore);
+    if(!document.querySelector("#pfxInstr img.pz-img")) vus.push("pas de dessin");
+    if((document.getElementById("pfxAvant").textContent||"").length<40) vus.push("pas de définition avant l’énoncé");
+    if(document.getElementById("pfxInstr").textContent.indexOf("3x² − 2x + 1")<0) vus.push("la fonction n’est pas écrite : "+document.getElementById("pfxInstr").textContent);
+    const ta=document.getElementById("pfx-prog"); ta.value=pfxModele(q); ta.dispatchEvent(new Event("input",{bubbles:true}));
+    pfxExecuter();
+    const r=document.getElementById("pfxConsoleRep");
+    if(!r) vus.push("la console ne demande pas x");
+    else { r.value="2"; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); if(!/9[.]0/.test(document.getElementById("pfxConsole").textContent)) vus.push("la console : "+document.getElementById("pfxConsole").textContent); }
+    const v=document.getElementById("pfx-val"); v.value=String(pfxVal(q, PFX_XB[q.xb])).replace("-","−"); v.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPFX();
+    if(test.score!==2||!ta.classList.contains("ok")||!v.classList.contains("ok")) vus.push("la copie juste : "+test.score+" "+ta.className+" / "+v.className);
+    const a=test.answers[0]; if(!a||a.cases!==2||a.justes!==2) vus.push("la note : "+JSON.stringify(a));
+    nextPFX(); checkPFX();
+    const t2=document.getElementById("pfx-prog"), v2=document.getElementById("pfx-val");
+    if(t2.classList.contains("bad")||v2.classList.contains("bad")||!t2.classList.contains("sol")||!v2.classList.contains("sol")) vus.push("la copie vide : "+t2.className+" / "+v2.className);
+    currentMode="soutien"; startPFX(); q=test.questions[0];
+    const v3=document.getElementById("pfx-val"); v3.value="1000"; v3.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPFX();
+    if(!v3.classList.contains("bad")||test.locked||document.querySelector("#pfxHost .sol,#pfxHost .mf-cor")) vus.push("soutien : l’image fausse ne rougit pas, verrouille ou révèle");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPfx(q).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  const nomPy = 'ce que les modèles de {python-input-image} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PFX_F.forEach(function(_, i){ ["2.5","-3","0.1","7"].forEach(function(x){ const src=pfxModele({s:i}), r=pyRun(src,[x]); res.push([src,[x],r.prints.map(function(p){ return p.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]); }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* Les huit exercices qui complètent le sous-thème 6.3 « Input » (Seconde,
    6.3.10 à 6.3.17, demande de Turquet, octobre 2026 : « crée le 1 et 2 et 3
    et 5 dans le sous-thème input »). Le contrôle tient la place au menu (à la
@@ -35964,7 +36068,8 @@ function pythonInputComplements(w, P){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[], ids=${IDS};
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st) return "pas de sous-thème 6.3";
-    if(st.ids.slice(-ids.length).join(",")!==ids.join(",")||st.ids[st.ids.length-ids.length-1]!=="python-input-prix") vus.push("ils ne suivent pas {python-input-prix} : "+st.ids.join(","));
+    const i0=st.ids.indexOf("python-input-prix");
+    if(i0<0||st.ids.slice(i0+1, i0+1+ids.length).join(",")!==ids.join(",")) vus.push("ils ne suivent pas {python-input-prix} : "+st.ids.join(","));
     ids.forEach(function(id, i){ if(TEST_NUM[id]!=="6.3."+(10+i)) vus.push(id+" numéroté "+TEST_NUM[id]); if(!TESTS[id]||typeof TESTS[id].start!=="function") vus.push(id+" : pas d’entrée TESTS"); });
     if(TEST_NUM["${C.premier}"]!=="${C.numero}") vus.push("le premier est numéroté "+TEST_NUM["${C.premier}"]);
     if(TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");

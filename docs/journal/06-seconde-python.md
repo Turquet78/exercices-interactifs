@@ -6504,3 +6504,26 @@ et le vrai ou faux ne s'allongeait pas à cinq questions sur un devoir. Son
 tirage distribue maintenant une affirmation vraie et une fausse à chaque
 question, puis le reste — quatre par question au format normal, moins au-delà
 de quatre questions, et sept au plus : il n'y a que sept affirmations vraies.
+
+**Puis la section 4 est venue, réduite à UNE fonction : 6.3.18
+{python-input-image}, l'image d'un nombre par une fonction** (demande de
+Turquet, octobre 2026 : « crée aussi le 4 dans le sous-thème input avec une
+fonction » ; à la question de ce que « avec une fonction » voulait dire, la
+réponse a été « l'image par f, avec input » — pas de `def`, que
+l'interpréteur ne connaît pas). kind `pfx`. La fonction est donnée
+(f(x) = 3x² − 2x + 1, la fiche épinglée, puis d'autres fonctions du second
+degré, `PFX_F`) ; a) écrire le programme qui demande x (`float(input(…))`),
+calcule f(x), le range et l'affiche avec une phrase (1 case) ; b) s'en
+servir pour lire l'image d'un nombre donné (1 case, un nombre, virgule
+acceptée). Les deux se vérifient ensemble. **Le juge exécute avec x = 2.5 et
+x = −3** : des décimaux EXACTS en binaire, si bien que `3*x**2`, `3*x*x` et
+`1 - 2*x + 3*x**2` donnent le même nombre au bit près — la comparaison se
+fait à 1e-9 près quand même. Nommés : `^` (pas une puissance), `²`, `3x`
+sans `*`, `int` (2.5 refusé), `input` sans conversion, aucune question, la
+phrase absente, le nombre écrit à la main, rien d'affiché, un mauvais
+calcul. Le dessin (le serpent devant un tableau où est tracée une parabole)
+et le serpent d'Halloween (un hibou sous la lune, `hibou`) sont dessinés en
+SVG dans le style des autres. Banc jsdom (`pythonInputImage`) : la place,
+le tirage, l'écriture de f (x en italique, * et ** en Python), le juge sur
+trois copies justes et onze fausses, l'écran joué au clavier, la copie
+vide, le soutien, et les modèles comparés à CPython (32 exécutions).
