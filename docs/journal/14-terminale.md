@@ -3189,7 +3189,7 @@ bouge.
   affirmation aurait trahi la réponse par sa longueur. Plusieurs
   contre-exemples réfutent parfois la même affirmation (« majorée, donc
   convergente » tombe devant (−1)ⁿ ET devant −n) : tous sont acceptés.
-  **Puis les dix premiers termes (v390).** Demande de Turquet : « il faudrait
+  **Puis les dix premiers termes (v391).** Demande de Turquet : « il faudrait
   donner les 10 premiers termes en plus dans les contre-exemples proposés ».
   Un tableau sous la liste écrit, pour CHACUN des sept contre-exemples (pas
   seulement le bon : la liste ne doit rien trahir), U₀ à U₉ — fractions
