@@ -13858,7 +13858,13 @@ function lireSommeDessin(w, P){
     const badge=el('lsd-0-0').nextElementSibling;
     if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='KM') vus.push('la correction de u + v n’écrit pas KM à côté');
     if(!document.querySelector('#lsdFl .lsd-fr') || !document.querySelector('#lsdFl .lsd-fg')) vus.push('le dessin ne montre pas la réponse rouge et la correction verte');
-    if(!document.querySelector('#lsdHost g.lsd-lib.lsd-vu[data-n="u"]') || document.querySelector('#lsdHost g.lsd-lib.lsd-vu[data-n="w"]')) vus.push('la ligne montrée ne fait pas ressortir u et v');
+    /* u, v, w gardent la même épaisseur, quelle que soit la ligne montrée (v545) :
+       aucune règle de la feuille n'épaissit une flèche libre plus qu'une autre */
+    const epLib=new Set();
+    Array.from(document.styleSheets).forEach(function(sh){ Array.from(sh.cssRules||[]).forEach(function(r){
+      if(r.selectorText && /lsd-lib/.test(r.selectorText) && r.style && r.style.getPropertyValue('stroke-width')) epLib.add(r.selectorText+' → '+r.style.getPropertyValue('stroke-width')); }); });
+    if(epLib.size!==1) vus.push('les flèches rouges u, v, w n’ont pas une seule épaisseur : '+Array.from(epLib).join(' ; '));
+    if(document.querySelectorAll('#lsdHost g.lsd-lib').length!==3 || document.querySelector('#lsdHost g.lsd-lib:not([class="lsd-lib"])')) vus.push('une flèche rouge porte une classe de plus que les autres');
     /* une case vide ne rougit pas : elle reçoit la correction */
     poser(['KM','','']); checkLsdAnswer();
     if(peint('lsd-1-0')!=='correction' || el('lsd-1-0').value!=='MA' || el('lsd-1-1').value!=='AF') vus.push('les cases vides de w : '+peint('lsd-1-0')+' « '+el('lsd-1-0').value+' + '+el('lsd-1-1').value+' »');
@@ -48721,6 +48727,12 @@ function autourDuTcm(w, P){
       const opts=tvfOpts({af:k,M:3}).map(function(o){ return o[0]; });
       A.ok.forEach(function(o){ if(opts.indexOf(o)<0) vus.push('« '+k+' » attend '+o+', absent de la liste'); });
     });
+    /* les dix premiers termes écrits sous la liste : un par contre-exemple, et les bons */
+    const ceListe=tvfOpts({M:3}).map(function(o){ return o[0]; }).filter(function(c){ return CE[c]; });
+    if(TVF_CE.map(function(c){ return c[0]; }).join()!==ceListe.join()) vus.push('les termes affichés ne suivent pas les contre-exemples de la liste : '+TVF_CE.map(function(c){ return c[0]; }).join());
+    [2,3,4,5,6].forEach(function(M){ ceListe.forEach(function(c){ const t=tvfCeTermes(c,M);
+      if(t.length!==10) vus.push(c+' : '+t.length+' termes affichés au lieu de 10');
+      t.forEach(function(f,n){ if(Math.abs(f[0]/f[1]-CE[c](n,M))>1e-12) vus.push(c+' (M = '+M+') : U'+n+' affiché '+f[0]+'/'+f[1]+', vaut '+CE[c](n,M)); }); }); });
     const vuesAff={};
     for(let s=0;s<60;s++){
       const qs=tvfGenSession(), v=qs.filter(function(q){ return TVF_AFF[q.af].v; }).length, d={};

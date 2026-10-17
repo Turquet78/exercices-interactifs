@@ -2189,7 +2189,6 @@
   .lsd-svg .lsd-ch polygon,.lsd-svg .lsd-bl polygon{fill:var(--blue-dark)}
   .lsd-svg .lsd-lib line{stroke:var(--lsd-uvw);stroke-width:2.6;stroke-linecap:round}
   .lsd-svg .lsd-lib polygon{fill:var(--lsd-uvw)}
-  .lsd-svg .lsd-lib.lsd-vu line{stroke-width:4.2}
   .lsd-svg .lsd-vn{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic;font-size:20px;fill:var(--lsd-uvw)}
   .lsd-svg .lsd-vnf{fill:none;stroke:var(--lsd-uvw);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
   .lsd-r,.lsd-n,.lsd-n .veg-fl{color:var(--lsd-uvw)}
@@ -67753,8 +67752,6 @@ function lsdMontrer(i){
   const q=test.questions[test.idx]; if(!q) return;
   test.lsdVu=i;
   host.querySelectorAll('.lsd-l').forEach(function(e){ e.classList.toggle('lsd-actif', +e.getAttribute('data-i')===i); });
-  const siens=i ? ['w'] : ['u','v'];
-  host.querySelectorAll('g.lsd-lib').forEach(function(g){ g.classList.toggle('lsd-vu', siens.indexOf(g.getAttribute('data-n'))>=0); });
   const P=q.pts, N=function(v, cls){ return lsdFleche(lsdXY(P[v[0]]), lsdXY(P[v[1]]), cls); };
   const subs=lsdJuge(q, lsdCases(q).map(function(c){ const e=$(c.id); return e ? e.value : ''; }));
   let fl='';
