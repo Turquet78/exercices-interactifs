@@ -1134,7 +1134,7 @@ module.exports = {
        « tan » — {translation-antecedent}, 8.1.12 — pose ses points de même ;
        « stv » — {somme-trois-vecteurs}, 8.2.15 — fait glisser ses flèches
        comme « svc ». */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'vec', 'vep', 'svc', 'stv', 'svr', 'cvp', 'cps', 'tvx', 'tan', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pcz', 'pte', 'pfl', 'pqc', 'ppr', 'pod', 'prd', 'pmo', 'pof', 'pfn', 'pfk', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'pwy', 'pws', 'pwe', 'pwx', 'pwa', 'pwp', 'pwd', 'pwr', 'pwv', 'pwm', 'pwc', 'pwo', 'pwn', 'pwg', 'pwf', 'pwt', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'vec', 'vep', 'svc', 'stv', 'svr', 'cvp', 'cps', 'tvx', 'tan', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pcz', 'pte', 'pfl', 'pqc', 'ppr', 'pod', 'prd', 'pmo', 'pof', 'pfn', 'pfk', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1431,7 +1431,7 @@ module.exports = {
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
                   /* {vecteurs-egaux} (8.3) : on lit une figure, on ne multiplie rien */
-                  sans: ['somme-trois-vecteurs', 'python-input-concat', 'python-input-erreur-type', 'python-input-int-float', 'python-input-conversion', 'python-input-predire', 'python-input-ordre', 'python-input-arrondi', 'python-input-monnaie', 'demontrer-chasles', 'milieu-vecteurs-egaux', 'demontrer-parallelogramme', 'chasles-inserer-point', 'vrai-faux-vecteurs', 'lire-somme-dessin', 'translation-pavage', 'somme-vecteurs-libre', 'tracer-vecteurs-egaux', 'tracer-vecteurs-opposes', 'point-somme-difference', 'point-somme-vecteurs', 'somme-vecteurs-repere', 'somme-vecteurs', 'relation-chasles', 'chasles-trois-vecteurs', 'chasles-simplifier', 'chasles-alignes', 'chasles-sans-figure', 'translation-quadrillage', 'egalite-vectorielle-point', 'vecteurs-egaux', 'python-pile-face', 'python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
+                  sans: ['somme-trois-vecteurs', 'python-texte-nombre', 'python-egal-affectation', 'python-division-entiere', 'python-arrondir', 'python-choisir-programme', 'python-ordre-lignes', 'python-variable-inconnue', 'python-debogage', 'python-formule', 'python-traduire-algo', 'python-input-concat', 'python-input-erreur-type', 'python-input-int-float', 'python-input-conversion', 'python-input-predire', 'python-input-ordre', 'python-input-arrondi', 'python-input-monnaie', 'demontrer-chasles', 'milieu-vecteurs-egaux', 'demontrer-parallelogramme', 'chasles-inserer-point', 'vrai-faux-vecteurs', 'lire-somme-dessin', 'translation-pavage', 'somme-vecteurs-libre', 'tracer-vecteurs-egaux', 'tracer-vecteurs-opposes', 'point-somme-difference', 'point-somme-vecteurs', 'somme-vecteurs-repere', 'somme-vecteurs', 'relation-chasles', 'chasles-trois-vecteurs', 'chasles-simplifier', 'chasles-alignes', 'chasles-sans-figure', 'translation-quadrillage', 'egalite-vectorielle-point', 'vecteurs-egaux', 'python-pile-face', 'python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'vecteurs-egaux-tableau', 'soustraire-relatifs', 'translation-grille', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
@@ -1638,6 +1638,31 @@ module.exports = {
        6.3.17, demande de Turquet, octobre 2026 : « crée le 1 et 2 et 3 et 5 »).
        « nb » est la seconde source du compte de questions (la page a PZR_NB,
        PQC_NB, PPR_NB, POD_NB et PMO_NB). */
+    /* Les seize exercices qui complètent les sous-thèmes 6.1 « Print et
+       variable » (6.1.15, 6.1.16) et 6.2 « Variable et calcul » (6.2.10 à
+       6.2.23), demande de Turquet, octobre 2026 : « fais les tous ». Chaque
+       kind porte [identifiant, sous-thème], dans l'ordre du menu. « nb » est
+       la seconde source du compte de questions (la page a PW_NB). Aucune
+       correction au fil de la frappe (soutienEnDirect.sans) ; le bouton des
+       tables n'est retiré que là où l'élève écrit du code que la machine
+       calcule (tablesAide.sans). */
+    pythonVariablesComplements: { nb: 3, kinds: {
+      pwy: ['python-type-resultat', 1],
+      pws: ['python-texte-nombre', 1],
+      pwe: ['python-egal-affectation', 2],
+      pwx: ['python-x-plus-pas-a-pas', 2],
+      pwa: ['python-accumulateur', 2],
+      pwp: ['python-priorites', 2],
+      pwd: ['python-division-entiere', 2],
+      pwr: ['python-arrondir', 2],
+      pwv: ['python-valeur-depart', 2],
+      pwm: ['python-meme-resultat', 2],
+      pwc: ['python-choisir-programme', 2],
+      pwo: ['python-ordre-lignes', 2],
+      pwn: ['python-variable-inconnue', 2],
+      pwg: ['python-debogage', 2],
+      pwf: ['python-formule', 2],
+      pwt: ['python-traduire-algo', 2] } },
     pythonInputComplements: { premier: 'python-input-concat', numero: '6.3.10', nb: 3,
       ids: ['python-input-concat', 'python-input-erreur-type', 'python-input-int-float', 'python-input-conversion', 'python-input-predire', 'python-input-ordre', 'python-input-arrondi', 'python-input-monnaie'] },
     /* {python-pile-face} (6.7.7, derrière les six autres du sous-thème, sous-thème « Condition if else », demande de
