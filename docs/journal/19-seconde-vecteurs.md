@@ -2912,6 +2912,15 @@ l'équivalence), la saisie une flèche violet clair. Une fois la page
 VERROUILLÉE : juste en bleu, faux en rouge, correction en vert ; en soutien
 rien ne se révèle (la condition est `test.locked`).
 
+**Les trois flèches rouges ont TOUJOURS la même épaisseur** (v546, demande
+de Turquet sur capture) : la ligne montrée épaississait ses flèches libres
+(`lsd-vu`, 4,2 contre 2,6), si bien que u⃗ et v⃗ paraissaient plus fins que w⃗
+— une différence d'épaisseur qui ne veut rien dire et que l'élève cherche à
+lire. L'épaississement est retiré ; le liseré violet et les flèches violettes
+pointillées suffisent à dire quelle ligne est montrée. Le banc vérifie
+qu'aucune règle de la feuille n'épaissit une flèche libre plus qu'une autre,
+et qu'aucune ne porte de classe de plus.
+
 **Un clic sur un point écrit sa lettre** (`vmiClicPt`) dans la dernière case
 choisie, ou la première case libre de la ligne montrée : deux clics font un
 vecteur, un troisième recommence la case. Chaque point porte une cible ronde
@@ -3304,8 +3313,7 @@ juste. Le message est du texte brut : les vecteurs s'y écrivent sans flèche,
 comme au 8.2.1 — la flèche combinante U+20D7 se dessinait décalée dans la
 police du message (vu sur la capture, avant la PR).
 
-**Le dessin montre une ligne à la fois** (`lsdMontrer`) : liseré violet, ses
-flèches libres épaissies, les vecteurs écrits par l'élève tracés en violet
+**Le dessin montre une ligne à la fois** (`lsdMontrer`) : liseré violet, les vecteurs écrits par l'élève tracés en violet
 pointillé. La page VERROUILLÉE : le juste en bleu, le faux en rouge, la
 correction en vert. En soutien, rien ne se révèle (`test.locked`, comme au
 8.1.9).

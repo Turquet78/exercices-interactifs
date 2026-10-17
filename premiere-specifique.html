@@ -1281,6 +1281,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    suivent la convention de {associer-coefficient} : juste en bleu, faux en
    rouge, correction en vert. */
 #pbHost .pt-row{margin:10px 0}
+/* 3.8 : plusieurs probabilités sur une rangée — chacune reste d'un bloc, le
+   repli (sur un téléphone) ne passe qu'ENTRE elles */
+#pbHost .pt-row.ind-rang{gap:12px 40px}
+.ind-p{display:inline-flex;align-items:center;gap:12px;white-space:nowrap}
 #pbHost .pb-enonce-ici .mp-instr{margin:16px 0 6px}
 .pb-def{font-family:"Nunito";font-weight:700;font-size:calc(1.05rem * var(--tab-nb,1));color:var(--ink);margin:10px 0;text-align:center}
 .pb-phrase{line-height:2.5}
@@ -2985,7 +2989,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=324;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=327;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3500,7 +3504,7 @@ const TESTS={
   'probabilites-sens': { name:'Que veut dire cette probabilité ?', icon:'\ud83d\udcac', desc:'La page écrit une probabilité — P(A), P(A∩B), P sachant B… — et tu choisis la phrase qui la dit, parmi quatre : attention au « parmi » renversé, au « et » de l’intersection. Puis tu la calcules avec les effectifs du tableau.', start:()=>startPBSens() },
   'tableau-trois-colonnes': { name:'Un tableau à trois colonnes', icon:'\ud83d\udccb', desc:'Un tableau de trois colonnes (Seconde, Première, Terminale ; à pied, à vélo, en bus…) sur deux lignes : complète-le, puis calcule sept probabilités. Le contraire d’une colonne, c’est les deux autres.', start:()=>startPB3() },
   'frequences-arrondies': { name:'Probabilités en pourcentages', icon:'\ud83d\udcca', desc:'Une probabilité « sachant que » en pourcentage arrondi à l’unité, puis la phrase qui dit ce qu’elle signifie : « … % des garçons ont des lunettes », ou l’inverse ?', start:()=>startPBFreq() },
-  'independance': { name:'Évènements indépendants', icon:'\u2696\ufe0f', desc:'Un tableau par question : calcule P(B) et P sachant A en pourcentages, puis compare-les. Égales : savoir que A est réalisé ne change rien, A et B sont indépendants.', start:()=>startPBInd() },
+  'independance': { name:'Évènements indépendants', icon:'\u2696\ufe0f', desc:'Un tableau par question, aux petits effectifs : calcule P(A ∩ B) et P(A) × P(B), puis compare-les. Égales : A et B sont indépendants.', start:()=>startPBInd() },
   'automatismes-probabilites': { name:'Automatismes : probabilités', icon:'\u26a1', desc:'Une série flash de dix QCM : lire un tableau, un arbre pondéré, le contraire, un pourcentage, la notation P sachant A, un dé… Choisis la bonne proposition parmi quatre.', start:()=>startPBAuto() }
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
@@ -17925,7 +17929,11 @@ function checkPBAnswer(live){
   if(pbEstFiche()){ checkPBFiche(); return; }
   const q=test.questions[test.idx], att=pbAttendus(q), ids=Object.keys(att), soutien=isSoutien();
   const verd={}; let allOk=true, vide=false;
-  ids.forEach(id=>{ const v=pbLu(id); if(v==='') vide=true; verd[id]=(v===att[id]); if(!verd[id]) allOk=false; });
+  ids.forEach(id=>{ const v=pbLu(id); if(v==='') vide=true; verd[id]=(v===att[id]); });
+  /* une sorte de question peut juger autrement que « le texte attendu » :
+     le 3.8 accepte une fraction égale (indJuger) */
+  if(PBX[q.t] && PBX[q.t].juger) PBX[q.t].juger(q, att, verd);
+  ids.forEach(id=>{ if(!verd[id]) allOk=false; });
   if(soutien){
     /* En soutien l'élève corrige lui-même : une case juste se verrouille en
        bleu, une fausse rougit et reste à reprendre, une vide reste à remplir
@@ -18194,8 +18202,8 @@ function pbfCtxTexte(){
      somme des deux autres ;
    {frequences-arrondies} (3.7) — une probabilité conditionnelle en
      pourcentage arrondi à l'unité, puis la phrase qui l'interprète ;
-   {independance} (3.8) — P_X(Y) comparé à P(Y), un tableau par question,
-     indépendants une fois sur deux ;
+   {independance} (3.8) — P(X ∩ Y) comparé à P(X) × P(Y), un tableau par
+     question (P_X(Y) contre P(Y) jusqu'à la v324), indépendants une fois sur deux ;
    {automatismes-probabilites} (3.9) — une série flash de QCM, une question
      de chaque sorte : tableau, arbre, complémentaire, notation, dé…
    UN MOTEUR, CINQ IDENTITÉS DE PLUS : le kind reste « pb », l'écran
@@ -18468,25 +18476,35 @@ PBX.pct={
   }
 };
 
-/* ---- 3.8 {independance} : P_X(Y) et P(Y), égales ou non ? ----
+/* ---- 3.8 {independance} : P(X ∩ Y) et P(X) × P(Y), égales ou non ? ----
    Un tableau PAR question (le même contexte toute la séance) : X parmi A, Ā,
-   Y parmi B, B̄. Les deux probabilités tombent sur des pourcentages ENTIERS —
-   l'effectif total vaut 50, 100 ou 200, n(X) est un multiple de 10, et
-   P(Y), P_X(Y) des multiples de 10 % : l'égalité se lit sans arrondi, et une
-   égalité « à peu près » ne trompe personne. Indépendants une fois sur deux
-   (à une près quand la séance est impaire), dans un ordre tiré. Le réglage
-   « Questions » d'un devoir allonge la séance (dmNbQuestions). */
+   Y parmi B, B̄. Demande de Turquet (octobre 2026) : « comparer P(F ∩ T) et
+   P(F) × P(T) pour dire si c'est indépendant ou non, avec des nombres plus
+   petits que 5 dans les cases intérieures du tableau ». Les quatre cases du
+   milieu valent donc 1 à 4, et leur total vaut TOUJOURS 10 (demande de
+   Turquet, v327) : le produit tombe sur 100. Avec ces bornes, il n'existe
+   que HUIT tableaux indépendants (1-1-4-4, 2-2-3-3 et leurs permutations
+   qui gardent n(A∩B)·n(Ā∩B̄) = n(Ā∩B)·n(A∩B̄)) et 36 qui ne le sont pas ;
+   avec les quatre choix de X et Y, assez pour une séance sans redite. Avant (v324 et plus tôt), la méthode était
+   P_X(Y) contre P(Y) en pourcentages, sur des effectifs de 50 à 200.
+   L'élève écrit P(X ∩ Y), P(X), P(Y) avec les effectifs (une rangée), puis
+   le produit et P(X ∩ Y) sur le même dénominateur que lui (une seconde
+   rangée) : comparer deux fractions de même dénominateur, c'est comparer
+   leurs numérateurs. Une fraction simplifiée est juste (indJuger, v327) ;
+   les attendus restent les fractions des effectifs, T² pour le produit,
+   et c'est eux que la correction écrit. Indépendance ⇔
+   n(A∩B) × n(Ā∩B̄) = n(Ā∩B) × n(A∩B̄), quels que soient X et Y.
+   Indépendants une fois sur deux (à une près quand la séance est impaire),
+   dans un ordre tiré. Le réglage « Questions » d'un devoir allonge la séance
+   (dmNbQuestions). */
 function indTirage(indep){
   const X=pick(['A','nA']), Y=pick(['B','nB']);
   for(let e=0;e<1000;e++){
-    const T=pick([50,100,200]), x=10*rand(1,T/10-1), pY=10*rand(1,9), pc=indep ? pY : 10*rand(1,9);
-    if(!indep && pc===pY) continue;
-    const xy=x*pc/100, y=T*pY/100;
-    if([xy, x-xy, y-xy, T-x-y+xy].some(v=>v<1)) continue;
-    const cel=(isA,isB)=>{ const inX=(X==='A')===isA, inY=(Y==='B')===isB; return inX&&inY ? xy : inX ? x-xy : inY ? y-xy : T-x-y+xy; };
-    return { ev:[Y,X], ind:indep?'oui':'non', n:[cel(true,true),cel(false,true),cel(true,false),cel(false,false)] };
+    const n=[rand(1,4),rand(1,4),rand(1,4),rand(1,4)];
+    if(n[0]+n[1]+n[2]+n[3]!==10 || (n[0]*n[3]===n[1]*n[2])!==indep) continue;
+    return { ev:[Y,X], ind:indep?'oui':'non', n:n };
   }
-  return { ev:['B','A'], ind:'oui', n:[6,24,4,16] };
+  return { ev:['B','A'], ind:'oui', n:[2,2,3,3] };
 }
 function indSeance(){
   const nb=dmNbQuestions(4), ci=rand(0,PB_CTX.length-1), qs=[];
@@ -18494,40 +18512,71 @@ function indSeance(){
   ind.forEach(f=>qs.push(distincte(qs, ()=>Object.assign({ t:'ind', it:'ev', ci:ci, rep:{} }, indTirage(f)))));
   return qs;
 }
-function indPct(a,b){ return String(Math.round(100*a/b)); }
+/* les nombres de la question : intersection, X, Y, total */
+function indNb(q){ const y=q.ev[0], x=q.ev[1]; return { s:pbEff(q,pbInter(y,x)), x:pbEff(q,x), y:pbEff(q,y), t:pbEff(q,'T') }; }
+/* une fraction à deux cases, après son « = » */
+function indFrac(a, b, lab){
+  return fEq('<span class="f-frac-input">'+pbMf(a,'numérateur de '+lab)+'<span class="f-fbar"></span>'+pbMf(b,'dénominateur de '+lab)+'</span>');
+}
+/* une probabilité et sa fraction, d'un seul bloc (voir .ind-p) */
+function indP(nom, a, b, lab){ return '<span class="ind-p">'+nom+indFrac(a,b,lab)+'</span>'; }
+/* LES FRACTIONS SIMPLIFIÉES SONT JUSTES (v327, demande de Turquet) : une
+   paire numérateur / dénominateur vaut ses deux points dès que la fraction
+   tapée est ÉGALE à l'attendue — 1/4 pour 4/16. La seconde P(X ∩ Y) se
+   compare au produit tel que l'élève l'a écrit : simplifié ou non, une
+   fraction égale est juste. Sinon chaque case se juge seule, comme partout :
+   un numérateur juste sous un dénominateur faux reste bleu. */
+const IND_PAIRES=[['pb-i1','pb-i2'],['pb-x1','pb-x2'],['pb-y1','pb-y2'],['pb-p1','pb-p2'],['pb-m1','pb-m2']];
+function indJuger(q, att, verd){
+  IND_PAIRES.forEach(([a,b])=>{
+    const n=pbLu(a), d=pbLu(b);
+    if(!/^\d+$/.test(n) || !/^[1-9]\d*$/.test(d)) return;
+    if(+n * +att[b] === +d * +att[a]){ verd[a]=true; verd[b]=true; }
+  });
+}
+/* P(X) × P(Y), en tête de rangée : à la taille des noms des autres rangées */
+function indNomProd(x,y){ return pbNomHTML(x,'T')+'<span class="pb-nom">&nbsp;×&nbsp;</span>'+pbNomHTML(y,'T'); }
 PBX.ind={
-  att(q){ const y=q.ev[0], x=q.ev[1], s=pbInter(y,x);
-    return { 'pb-a1':String(pbEff(q,y)), 'pb-a2':String(pbEff(q,'T')), 'pb-pa':indPct(pbEff(q,y),pbEff(q,'T')),
-             'pb-n1':String(pbEff(q,s)), 'pb-n2':String(pbEff(q,x)), 'pb-pc':indPct(pbEff(q,s),pbEff(q,x)), 'pb-ind':q.ind }; },
+  juger:indJuger,
+  att(q){ const N=indNb(q);
+    return { 'pb-i1':String(N.s), 'pb-i2':String(N.t), 'pb-x1':String(N.x), 'pb-x2':String(N.t), 'pb-y1':String(N.y), 'pb-y2':String(N.t),
+             'pb-p1':String(N.x*N.y), 'pb-p2':String(N.t*N.t), 'pb-m1':String(N.s*N.t), 'pb-m2':String(N.t*N.t), 'pb-ind':q.ind }; },
   render(q){
-    const y=q.ev[0], x=q.ev[1];
-    $('pbPrompt').innerHTML='Les évènements '+pbHTML(x)+' et '+pbHTML(y)+' sont-ils indépendants ? Calcule '+pbNomPetit(y,'T')+' et '+pbNomPetit(y,x)
-      +' en pourcentages, puis compare-les.';
-    const opts=[{ v:'oui', t:'elles sont égales : '+pbTxt(x)+' et '+pbTxt(y)+' sont indépendants' },
-                { v:'non', t:'elles sont différentes : '+pbTxt(x)+' et '+pbTxt(y)+' ne sont pas indépendants' }];
+    const y=q.ev[0], x=q.ev[1], s=pbInter(y,x);
+    $('pbPrompt').innerHTML='Les évènements '+pbHTML(x)+' et '+pbHTML(y)+' sont-ils indépendants ? Calcule '+pbNomPetit(s,'T')+', '+pbNomPetit(x,'T')+' et '+pbNomPetit(y,'T')
+      +' avec les effectifs, puis '+pbNomPetit(x,'T')+' × '+pbNomPetit(y,'T')+'. Écris '+pbNomPetit(s,'T')+' sur le même dénominateur que ce produit, et compare.';
+    /* les options sans lettres : une <option> ne sait pas dessiner la barre
+       de Ē (voir pbAffMaj), et une phrase courte tient sur un téléphone */
+    const opts=[{ v:'oui', t:'égales : indépendants' },
+                { v:'non', t:'différentes : pas indépendants' }];
     $('pbHost').innerHTML=pbxTable(q)
       +'<div class="pt-step">'
-        +'<div class="pt-row">'+pbNomHTML(y,'T')
-          +fEq('<span class="f-frac-input">'+pbMf('pb-a1','numérateur : un effectif du tableau')+'<span class="f-fbar"></span>'+pbMf('pb-a2','dénominateur : un effectif du tableau')+'</span>')
-          +pbxPct('pb-pa','=','P sans condition, en pourcentage')+'</div>'
-        +pbxLigneEff(pbNomHTML(y,x), pbxPct('pb-pc','=','P sachant la condition, en pourcentage'))
-        +'<p class="pb-def pb-phrase pb-centre">Ces deux probabilités : '+pbSel(q,'pb-ind',opts,'la conclusion','pb-mots pb-long')+'</p>'
+        +'<div class="pt-row ind-rang">'
+          +indP(pbNomHTML(s,'T'), 'pb-i1','pb-i2','P('+pbTxt(s)+')')
+          +indP(pbNomHTML(x,'T'), 'pb-x1','pb-x2','P('+pbTxt(x)+')')
+          +indP(pbNomHTML(y,'T'), 'pb-y1','pb-y2','P('+pbTxt(y)+')')+'</div>'
+        +'<div class="pt-row ind-rang">'
+          +indP(indNomProd(x,y), 'pb-p1','pb-p2','P('+pbTxt(x)+') × P('+pbTxt(y)+')')
+          +indP(pbNomHTML(s,'T'), 'pb-m1','pb-m2','P('+pbTxt(s)+') sur le même dénominateur')+'</div>'
+        +'<p class="pb-def pb-phrase pb-centre">'+pbNomPetit(s,'T')+' et '+pbNomPetit(x,'T')+' × '+pbNomPetit(y,'T')+' sont '+pbSel(q,'pb-ind',opts,'la conclusion','pb-mots pb-long')+'</p>'
       +'</div>';
     pbPlacerEnonce(true);
   },
   pourquoi(q){
-    const y=q.ev[0], x=q.ev[1], s=pbInter(y,x), pa=indPct(pbEff(q,y),pbEff(q,'T')), pc=indPct(pbEff(q,s),pbEff(q,x));
-    return pbNomPetit(y,'T')+' = '+pbEff(q,y)+' sur '+pbEff(q,'T')+' = '+pa+' % ; parmi '+pbHTML(x)+' seulement, '+pbNomPetit(y,x)+' = '+pbEff(q,s)+' sur '+pbEff(q,x)+' = '+pc+' %. '
-      +(q.ind==='oui' ? 'Les deux sont égales : savoir que '+pbHTML(x)+' est réalisé ne change pas la probabilité de '+pbHTML(y)+' — ils sont indépendants.'
-                      : 'Elles sont différentes : savoir que '+pbHTML(x)+' est réalisé change la probabilité de '+pbHTML(y)+' — ils ne sont pas indépendants.');
+    const y=q.ev[0], x=q.ev[1], s=pbInter(y,x), N=indNb(q), T2=N.t*N.t;
+    return pbNomPetit(s,'T')+' = '+pbFr(N.s,N.t)+' ; '+pbNomPetit(x,'T')+' × '+pbNomPetit(y,'T')+' = '+pbFr(N.x,N.t)+' × '+pbFr(N.y,N.t)+' = '+pbFr(N.x*N.y,T2)
+      +' — et '+pbFr(N.s,N.t)+' = '+pbFr(N.s*N.t,T2)+' (en haut ET en bas × '+N.t+'). '
+      +(q.ind==='oui' ? 'Mêmes numérateurs : '+pbNomPetit(s,'T')+' = '+pbNomPetit(x,'T')+' × '+pbNomPetit(y,'T')+', '+pbHTML(x)+' et '+pbHTML(y)+' sont indépendants.'
+                      : N.s*N.t+' ≠ '+N.x*N.y+' : '+pbNomPetit(s,'T')+' ≠ '+pbNomPetit(x,'T')+' × '+pbNomPetit(y,'T')+', '+pbHTML(x)+' et '+pbHTML(y)+' ne sont pas indépendants.');
   },
-  label(q){ return pbTxt(q.ev[1])+' et '+pbTxt(q.ev[0])+' indépendants ? '+pbNomTxt(q.ev[0],'T')+' et '+pbNomTxt(q.ev[0],q.ev[1]); },
+  label(q){ const y=q.ev[0], x=q.ev[1]; return pbTxt(x)+' et '+pbTxt(y)+' indépendants ? '+pbNomTxt(pbInter(y,x),'T')+' et '+pbNomTxt(x,'T')+' × '+pbNomTxt(y,'T'); },
   dit(id,v){ return (id==='pb-ind' && v) ? (v==='oui' ? 'indépendants' : 'pas indépendants') : v; },
   ctx(q){
-    const C=pbCtx(q), y=q.ev[0], x=q.ev[1];
+    const C=pbCtx(q), y=q.ev[0], x=q.ev[1], s=pbInter(y,x);
     return 'Tableau à double entrée qui représente '+C.ens+' : '+pbTxt('A')+' = « '+C.ind+' '+C.A+' », '+pbTxt('B')+' = « '+C.ind+' '+C.B+' ». '+pbEffTxt(pbValeurs(q.n))
-      +'L’élève calcule '+pbNomTxt(y,'T')+' puis '+pbNomTxt(y,x)+' (fraction des effectifs, puis pourcentage exact), et conclut : '
-      +pbTxt(x)+' et '+pbTxt(y)+' sont indépendants quand '+pbNomTxt(y,x)+' = '+pbNomTxt(y,'T')+' (savoir que '+pbTxt(x)+' est réalisé ne change pas la probabilité de '+pbTxt(y)+'). '
+      +'L’élève calcule '+pbNomTxt(s,'T')+', '+pbNomTxt(x,'T')+' et '+pbNomTxt(y,'T')+' (fractions des effectifs ; une fraction simplifiée est acceptée), puis le produit '+pbNomTxt(x,'T')+' × '+pbNomTxt(y,'T')
+      +' (numérateur fois numérateur, dénominateur fois dénominateur — simplifié ou non), puis réécrit '+pbNomTxt(s,'T')+' sur le même dénominateur que ce produit, et conclut : '
+      +pbTxt(x)+' et '+pbTxt(y)+' sont indépendants quand '+pbNomTxt(s,'T')+' = '+pbNomTxt(x,'T')+' × '+pbNomTxt(y,'T')+'. '
       +pbMethodeTxt();
   }
 };
@@ -18555,8 +18604,14 @@ function autoChemin(q,f){
   const p=f.split('.'), pa=(p[0]==='A') ? q.pa : 10-q.pa, b=(p[0]==='A') ? q.b : q.c, pb=(p[1]==='B') ? b : 10-b;
   return [pa,pb];
 }
+/* Les lettres DÉFINIES : sans tableau qui les nomme en tête de colonne,
+   « P_J̄(P) » ne se lit pas — l'énoncé dit d'abord ce que désigne chaque
+   lettre (signalement de Turquet, octobre 2026). */
+function autoDef(C){
+  return 'On note '+pbHTML('A')+' l’évènement « '+esc(C.ind+' '+C.A)+' » et '+pbHTML('B')+' l’évènement « '+esc(C.ind+' '+C.B)+' ». ';
+}
 function autoProps(q){
-  const C=pbCtx(q), E=c=>pbEff(q,c), N=pbNomPetit;
+  const C=pbCtx(q), E=c=>pbEff(q,c), N=pbNomPetit, D=autoDef(C);
   switch(q.a){
     case 'case': { const p=q.e.split('.');
       return { fig:'tab', enonce:'On prend '+C.un+' au hasard dans '+pbNom(C)+'. Que vaut '+N(q.e,'T')+' ?',
@@ -18567,27 +18622,27 @@ function autoProps(q){
         props:[pbFr(E(s),E(x)), pbFr(E(s),E('T')), pbFr(E(s),E(y)), pbFr(E(x),E('T'))],
         pourquoi:'L’indice '+pbHTML(x)+' est la condition : on se restreint à '+pbHTML(x)+' ('+E(x)+') et on y compte '+pbHTML(s)+' ('+E(s)+').' }; }
     case 'contr': { const p=q.p/100;
-      return { enonce:'On sait que '+N(q.e,'T')+' = '+pbDec(p)+'. Que vaut '+N(pbNeg(q.e),'T')+' ?',
+      return { enonce:D+'On sait que '+N(q.e,'T')+' = '+pbDec(p)+'. Que vaut '+N(pbNeg(q.e),'T')+' ?',
         props:[pbDec(1-p), pbDec(p), pbDec(1+p), String(100-q.p)],
         pourquoi:N(pbNeg(q.e),'T')+' = 1 − '+N(q.e,'T')+' = 1 − '+pbDec(p)+' = '+pbDec(1-p)+'.' }; }
     case 'pct':
-      return { enonce:pbMaj(q.p+' % des '+C.tous+' '+C.pB)+'. On prend '+C.un+' au hasard. Que vaut '+N('B','T')+' ?',
+      return { enonce:D+pbMaj(q.p+' % des '+C.tous+' '+C.pB)+'. On prend '+C.un+' au hasard. Que vaut '+N('B','T')+' ?',
         props:[pbDec(q.p/100), String(q.p), pbDec(q.p/10), String(q.p/1000).replace('.',',')],
         pourquoi:q.p+' % = '+pbFr(q.p,100)+' = '+pbDec(q.p/100)+' : une probabilité est toujours comprise entre 0 et 1.' };
     case 'not': { const y=q.ev[0], x=q.ev[1];
-      return { enonce:pbMaj(pbPhrase(C,y,x))+' s’écrit :',
+      return { enonce:D+pbMaj(pbPhrase(C,y,x))+' s’écrit :',
         props:[N(y,x), N(x,y), N(pbInter(y,x),'T'), N(y,'T')],
         pourquoi:'Ce qui suit « parmi » est la condition : elle s’écrit en bas de P — '+N(y,x)+'.' }; }
     case 'prod': { const c=autoChemin(q,q.f);
-      return { fig:'arbre', enonce:'D’après l’arbre, que vaut '+N(q.f,'T')+' ?',
+      return { fig:'arbre', enonce:D+'D’après l’arbre, que vaut '+N(q.f,'T')+' ?',
         props:[pbDec(c[0]*c[1]/100), pbDec((c[0]+c[1])/10), pbDec(c[1]/10), pbDec(c[0]/10)],
         pourquoi:'Sur un arbre, on MULTIPLIE les probabilités le long du chemin : '+pbDec(c[0]/10)+' × '+pbDec(c[1]/10)+' = '+pbDec(c[0]*c[1]/100)+'.' }; }
     case 'manq': { const c=autoChemin(q,q.f+'.'+pbNeg(q.g)), s=c[1]/10;
-      return { fig:'arbre', manque:q.f+'.'+q.g, enonce:'D’après l’arbre, quelle probabilité manque sur la branche marquée « ? » ?',
+      return { fig:'arbre', manque:q.f+'.'+q.g, enonce:D+'D’après l’arbre, quelle probabilité manque sur la branche marquée « ? » ?',
         props:[pbDec(1-s), pbDec(s), pbDec(1-c[0]/10), pbDec(c[0]*c[1]/100)],
         pourquoi:'Les branches qui partent d’un même nœud ont pour somme 1 : 1 − '+pbDec(s)+' = '+pbDec(1-s)+'.' }; }
     case 'tot': { const c1=autoChemin(q,'A.'+q.g), c2=autoChemin(q,'nA.'+q.g), t=(c1[0]*c1[1]+c2[0]*c2[1])/100;
-      return { fig:'arbre', enonce:'D’après l’arbre, que vaut '+N(q.g,'T')+' ?',
+      return { fig:'arbre', enonce:D+'D’après l’arbre, que vaut '+N(q.g,'T')+' ?',
         props:[pbDec(t), pbDec((c1[1]+c2[1])/10), pbDec(c1[0]*c1[1]/100), pbDec(c1[1]*c2[1]/100)],
         pourquoi:'Deux chemins mènent à '+pbHTML(q.g)+' : on multiplie le long de chacun, puis on ADDITIONNE — '
           +pbDec(c1[0]/10)+' × '+pbDec(c1[1]/10)+' + '+pbDec(c2[0]/10)+' × '+pbDec(c2[1]/10)+' = '+pbDec(t)+'.' }; }
@@ -23415,9 +23470,9 @@ const RAP_FREQ=`<b>Une probabilité en pourcentage</b><br>
 <b>Ce qu’il signifie.</b> L’indice dit PARMI QUI on compte : \\(P_G(L)\\approx 62\\,\\%\\) signifie « environ 62 % des garçons ont des lunettes ».<br>
 <b>Le piège.</b> « 62 % des personnes à lunettes sont des garçons », c’est \\(P_L(G)\\) : on ne compte plus parmi les mêmes personnes. Et « 62 % des personnes de la classe sont des garçons et ont des lunettes », c’est \\(P(G\\cap L)\\).`;
 const RAP_IND=`<b>Deux évènements indépendants</b><br>
-<b>La définition.</b> \\(A\\) et \\(B\\) sont indépendants quand savoir que \\(A\\) est réalisé ne change pas la probabilité de \\(B\\) : \\(P_A(B)=P(B)\\).<br>
-<b>La méthode.</b> On calcule \\(P(B)=\\dfrac{B}{\\text{tout}}\\), puis \\(P_A(B)=\\dfrac{A\\cap B}{A}\\), en pourcentages, et on compare.<br>
-<b>Exemple.</b> 30 % des élèves font du sport en club, et 30 % des externes aussi : être externe ne change rien, les deux évènements sont indépendants. Si 45 % des externes en font, ils ne le sont pas.`;
+<b>La définition.</b> \\(A\\) et \\(B\\) sont indépendants quand \\(P(A\\cap B)=P(A)\\times P(B)\\) : savoir que \\(A\\) est réalisé ne change pas la probabilité de \\(B\\).<br>
+<b>La méthode.</b> Dans le tableau : \\(P(A\\cap B)=\\dfrac{A\\cap B}{\\text{tout}}\\), \\(P(A)=\\dfrac{A}{\\text{tout}}\\), \\(P(B)=\\dfrac{B}{\\text{tout}}\\). On multiplie : numérateur fois numérateur, dénominateur fois dénominateur. Puis on écrit \\(P(A\\cap B)\\) sur le même dénominateur, et on compare les numérateurs.<br>
+<b>Exemple.</b> Total 9, \\(A\\) = 3, \\(B\\) = 6, \\(A\\cap B\\) = 2 : \\(P(A)\\times P(B)=\\dfrac{3}{9}\\times\\dfrac{6}{9}=\\dfrac{18}{81}\\) et \\(P(A\\cap B)=\\dfrac{2}{9}=\\dfrac{18}{81}\\) — égales, \\(A\\) et \\(B\\) sont indépendants. Si \\(A\\cap B\\) valait 1, on aurait \\(\\dfrac{9}{81}\\neq\\dfrac{18}{81}\\) : pas indépendants.`;
 const RAP_AUTO=`<b>Les automatismes en probabilités</b><br>
 <b>Toujours entre 0 et 1.</b> Une probabilité vaut au moins 0 et au plus 1 : \\(35\\,\\%=0{,}35\\).<br>
 <b>Le contraire.</b> \\(P(\\overline{A})=1-P(A)\\).<br>
@@ -23625,7 +23680,7 @@ const QIA_SUGG={
   'probabilites-sens':["Comment lire l’indice sous P avec des mots ?","Quelle différence entre P(A∩B) et P_B(A) ?","Pourquoi P_A(B) et P_B(A) ne sont-elles pas égales ?","Que veut dire « parmi » dans une probabilité ?"],
   'tableau-trois-colonnes':["Comment compléter une case qui manque ?","Que représente le contraire d’une colonne ?","Par quoi divise-t-on dans une probabilité « sachant que » ?","Comment lire P_D(S) dans le tableau ?"],
   'frequences-arrondies':["Comment arrondir un pourcentage à l’unité ?","Comment transformer une fraction en pourcentage ?","Quelle différence entre « … % des garçons ont des lunettes » et « … % des personnes à lunettes sont des garçons » ?","Que dit l’indice sous P ?"],
-  'independance':["Que veut dire « indépendants » ?","Pourquoi compare-t-on P_A(B) et P(B) ?","Comment calculer P_A(B) dans le tableau ?","Deux évènements indépendants peuvent-ils arriver ensemble ?"],
+  'independance':["Que veut dire « indépendants » ?","Pourquoi compare-t-on P(A ∩ B) et P(A) × P(B) ?","Comment multiplier deux fractions ?","Comment mettre deux fractions sur le même dénominateur ?","Deux évènements indépendants peuvent-ils arriver ensemble ?"],
   'automatismes-probabilites':["Comment lire un arbre pondéré ?","Pourquoi multiplie-t-on le long d’une branche ?","Comment calculer P(B) avec un arbre ?","Pourquoi une probabilité est-elle entre 0 et 1 ?"],
   'lire-probabilites':["Que veut dire l’indice sous P ?","Comment lire P_A(B) avec le mot « parmi » ?","Quelle différence entre P_A(B) et P_B(A) ?","Que représente l’évènement contraire Ā ?"],
   pb:["Quelle différence entre P(A∩B) et P_B(A) ?","Comment trouver une case qui manque dans le tableau ?","Que veut dire « parmi » dans une probabilité conditionnelle ?","Que représente l’évènement contraire Ā ?"],

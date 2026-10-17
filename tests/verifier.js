@@ -4530,6 +4530,8 @@ function exercices(suite){
     developperDouble(w, P);
     developperDoubleNu(w, P);
     vraiFauxCalcul(w, P);
+    valeurExpression(w, P);
+    developperReduire(w, P);
     translationGrille(w, P);
     vecteursEgauxTableau(w, P);
     vecteursEgaux(w, P);
@@ -4643,6 +4645,8 @@ function exercices(suite){
     pythonInputFloat(w, P);
     pythonInputSomme(w, P);
     pythonInputPrix(w, P);
+    pythonInputComplements(w, P);
+    pythonVariablesComplements(w, P);
     pythonPileFace(w, P);
     pythonIfPlusGrandTrois(w, P);
     pythonForNom(w, P);
@@ -4722,8 +4726,11 @@ function exercices(suite){
     convexiteTroisCourbes(w, P);
     convexiteQcm(w, P);
     associerDeriveeSeconde(w, P);
+    convexiteTangente(w, P);
+    convexiteParametre(w, P);
     mineursTerminale(w, P);
     suiteVocabulaire(w, P);
+    autourDuTcm(w, P);
     etiquetteCourbe(w, P);
     etiquetteCourbeSeconde(w, P);
     fenetresDetachees(w, P);
@@ -13853,7 +13860,13 @@ function lireSommeDessin(w, P){
     const badge=el('lsd-0-0').nextElementSibling;
     if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='KM') vus.push('la correction de u + v n’écrit pas KM à côté');
     if(!document.querySelector('#lsdFl .lsd-fr') || !document.querySelector('#lsdFl .lsd-fg')) vus.push('le dessin ne montre pas la réponse rouge et la correction verte');
-    if(!document.querySelector('#lsdHost g.lsd-lib.lsd-vu[data-n="u"]') || document.querySelector('#lsdHost g.lsd-lib.lsd-vu[data-n="w"]')) vus.push('la ligne montrée ne fait pas ressortir u et v');
+    /* u, v, w gardent la même épaisseur, quelle que soit la ligne montrée (v546) :
+       aucune règle de la feuille n'épaissit une flèche libre plus qu'une autre */
+    const epLib=new Set();
+    Array.from(document.styleSheets).forEach(function(sh){ Array.from(sh.cssRules||[]).forEach(function(r){
+      if(r.selectorText && /lsd-lib/.test(r.selectorText) && r.style && r.style.getPropertyValue('stroke-width')) epLib.add(r.selectorText+' → '+r.style.getPropertyValue('stroke-width')); }); });
+    if(epLib.size!==1) vus.push('les flèches rouges u, v, w n’ont pas une seule épaisseur : '+Array.from(epLib).join(' ; '));
+    if(document.querySelectorAll('#lsdHost g.lsd-lib').length!==3 || document.querySelector('#lsdHost g.lsd-lib:not([class="lsd-lib"])')) vus.push('une flèche rouge porte une classe de plus que les autres');
     /* une case vide ne rougit pas : elle reçoit la correction */
     poser(['KM','','']); checkLsdAnswer();
     if(peint('lsd-1-0')!=='correction' || el('lsd-1-0').value!=='MA' || el('lsd-1-1').value!=='AF') vus.push('les cases vides de w : '+peint('lsd-1-0')+' « '+el('lsd-1-0').value+' + '+el('lsd-1-1').value+' »');
@@ -23253,6 +23266,107 @@ function developperDouble(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* {valeur-expression} — 7.13, thème « Calcul littéral » : calculer une
+   expression pour une valeur négative de x, avec le piège (−2)² contre −2².
+   Les attendus sont recalculés ICI par l'arithmétique de JavaScript, jamais
+   par les fonctions de la page qui corrigent ; la copie juste de la fiche
+   témoin est écrite À LA MAIN. */
+function valeurExpression(w, P){
+  const nom='calculer une expression pour une valeur : le tirage, la correction et la place en 7.13';
+  const present = evaluer(w, "typeof startCvl==='function' && typeof cvlCases==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de valeur d\'une expression'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='valeur-expression';
+
+    /* ---- 0. la place : 7.12, en dernier, rien d'autre ne bouge --------- */
+    const th=THEMES.find(function(t){ return t.num===7; });
+    if(!th || th.ids.indexOf('valeur-expression')<0) vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
+    if(TEST_NUM['valeur-expression']!=='7.13') vus.push('numéro '+TEST_NUM['valeur-expression']+' au lieu de 7.13');
+    if(TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['developper-double-nu']!=='7.11' || TEST_NUM['vrai-faux-calcul']!=='7.12') vus.push('l\\'exercice ajouté a renuméroté les autres');
+    if(TABLES_SANS.indexOf('valeur-expression')>=0) vus.push('le bouton des tables est retiré : on y multiplie');
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    for(let i=0;i<500 && !vus.length;i++){
+      const qs=cvlBuildQuestions();
+      if(qs.length!==3){ vus.push(qs.length+' pages au lieu de 3'); break; }
+      if(new Set(qs.map(function(q){ return JSON.stringify(q); })).size!==3) vus.push('deux pages identiques dans une séance');
+      qs.forEach(function(q){
+        const x=-q.k;
+        if(!(q.k>=2 && q.k<=5)) vus.push('x = '+x+' hors de −5…−2');
+        if(!(q.a>=2 && q.a<=5)) vus.push('a = '+q.a+' hors de 2…5');
+        [q.b,q.b2].forEach(function(b){ if(!(Math.abs(b)>=2 && Math.abs(b)<=7)) vus.push('coefficient de x '+b+' hors de ±2…7'); });
+        [q.c,q.c2].forEach(function(c){ if(!(Math.abs(c)>=1 && Math.abs(c)<=9)) vus.push('constante '+c+' hors de ±1…9'); });
+        const L=cvlCases(q), att={};
+        L.forEach(function(l){ att[l.id]=l.r; });
+        const ref={'cvl-car':Math.pow(x,2), 'cvl-opp':-Math.pow(q.k,2),
+          'cvl-A2':q.a*Math.pow(x,2), 'cvl-A1':q.b*x, 'cvl-A0':q.a*Math.pow(x,2)+q.b*x+q.c,
+          'cvl-B2':-Math.pow(x,2), 'cvl-B1':q.b2*x, 'cvl-B0':-Math.pow(x,2)+q.b2*x+q.c2};
+        if(L.length!==8) vus.push(L.length+' cases au lieu de 8');
+        Object.keys(ref).forEach(function(id){ if(att[id]!==ref[id]) vus.push(id+' attend '+att[id]+' au lieu de '+ref[id]+' (x = '+x+')'); });
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 2. la correction, par le BOUTON, sur la fiche témoin ------------
+       x = −2, A = 3x² − 2x + 1, B = −x² + 5x − 3 */
+    startCvl();
+    test.questions[test.idx]={k:2,a:3,b:-2,c:1,b2:5,c2:-3};
+    const JUSTE={'cvl-car':'4','cvl-opp':'−4','cvl-A2':'12','cvl-A1':'+4','cvl-A0':'17',
+                 'cvl-B2':'-4','cvl-B1':'−10','cvl-B0':'-17'};
+    const IDS=Object.keys(JUSTE);
+    const fb=function(){ return (document.getElementById('cvlFeedback')||{}).textContent||''; };
+    const poser=function(vals){
+      test.locked=false; renderCvlTest();
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    renderCvlTest();
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la page manque à l\\'écran';
+    const hote=(document.getElementById('cvlHost')||{}).textContent||'';
+    ['On prend x = −2','(−2)² =','−2² =','A = 3x² − 2x + 1','3x² = 3 × (−2)² =','−2x = −2 × (−2) =','A = 3 × (−2)² − 2 × (−2) + 1 =',
+     'B = −x² + 5x − 3','−x² = −(−2)² =','5x = 5 × (−2) =','B = −(−2)² + 5 × (−2) − 3 ='].forEach(function(s){
+      if(hote.indexOf(s)<0) vus.push('l\\'écran n\\'écrit pas « '+s+' »'); });
+    /* copie juste — « +4 », « −4 », « -4 » : le + est facultatif, le moins s'écrit des deux façons */
+    poser(JUSTE); checkCvlAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    IDS.forEach(function(id){ if(peint(id)!=='juste') vus.push('copie juste : '+id+' en '+peint(id)); });
+    if(!der || der.cases!==8) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 8');
+    /* PIÈGE 1 : −2² = +4, le signe mis au carré */
+    poser(Object.assign({},JUSTE,{'cvl-opp':'4'})); checkCvlAnswer();
+    if(peint('cvl-opp')!=='faux') vus.push('−2² = 4 peint en '+peint('cvl-opp'));
+    if(peint('cvl-car')!=='juste') vus.push('(−2)² juste peint en '+peint('cvl-car'));
+    if(!/pas de parenthèses/.test(fb())) vus.push('le message de −2² ne parle pas des parenthèses : '+fb());
+    /* PIÈGE 2 : (−2)² = −4 */
+    poser(Object.assign({},JUSTE,{'cvl-car':'-4'})); checkCvlAnswer();
+    if(peint('cvl-car')!=='faux') vus.push('(−2)² = −4 peint en '+peint('cvl-car'));
+    if(!/AU CARRÉ/.test(fb())) vus.push('le message de (−2)² ne dit pas que le signe est au carré');
+    /* PIÈGE 3 : −x² = +4 pour x = −2, le même piège dans l'expression */
+    poser(Object.assign({},JUSTE,{'cvl-B2':'4'})); checkCvlAnswer();
+    if(peint('cvl-B2')!=='faux') vus.push('−x² = 4 peint en '+peint('cvl-B2'));
+    if(!/−4/.test(fb()) || !/piège/.test(fb())) vus.push('le message de −x² ne nomme pas le piège : '+fb());
+    /* PIÈGE 4 : (3 × (−2))² = 36 */
+    poser(Object.assign({},JUSTE,{'cvl-A2':'36'})); checkCvlAnswer();
+    if(peint('cvl-A2')!=='faux') vus.push('3x² = 36 peint en '+peint('cvl-A2'));
+    if(!/ne porte que sur/.test(fb())) vus.push('le message de 3x² = 36 ne dit pas sur quoi porte le carré');
+    /* PIÈGE 5 : −2 × (−2) = −4, le signe du plus fort pris pour un produit */
+    poser(Object.assign({},JUSTE,{'cvl-A1':'-4'})); checkCvlAnswer();
+    if(peint('cvl-A1')!=='faux' || !/règle des signes/.test(fb())) vus.push('−2 × (−2) = −4 : '+peint('cvl-A1')+' / '+fb());
+    /* une case vide ne rougit pas, et ne fait pas rougir ses voisines */
+    poser(Object.assign({},JUSTE,{'cvl-A0':'','cvl-B1':''})); checkCvlAnswer();
+    ['cvl-A0','cvl-B1'].forEach(function(id){ if(peint(id)!=='correction') vus.push('case vide '+id+' peinte en '+peint(id)); });
+    if((document.getElementById('cvl-B1')||{}).value!=='−10') vus.push('la correction de la case vide n\\'écrit pas −10');
+    if(peint('cvl-B0')!=='juste' || peint('cvl-A1')!=='juste') vus.push('une case juste rougit parce qu\\'une voisine est vide');
+    /* une réponse illisible est fausse, pas vide */
+    poser(Object.assign({},JUSTE,{'cvl-B0':'-17,'})); checkCvlAnswer();
+    if(peint('cvl-B0')!=='faux') vus.push('« -17, » est peint en '+peint('cvl-B0'));
+    if(test.maxScore!==24) vus.push('barème de '+test.maxScore+' au lieu de 24');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* {developper-double-nu} — thème 7 « Calcul littéral », 7.11 : le 7.10 sans
    son échafaudage (ni flèches, ni bulles, ni accolades), sur le même moteur.
    Ce que ce contrôle tient : la place, l'identité (kind, qId, cases « dvn-… »),
@@ -23493,6 +23607,129 @@ function vraiFauxCalcul(w, P){
     /* le contexte du modèle */
     const cx=ctxVfl(test.questions[0]).contexte;
     if(!/STRICTEMENT SECRÈTES/.test(cx) || cx.indexOf('2x + 3x = 5x')<0) vus.push('le contexte du modèle : '+cx.slice(0,120));
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {developper-reduire} — thème 7 « Calcul littéral », 7.14 : développer
+   puis réduire une somme de produits, dans UNE rangée d'égalités
+   (« on enchaîne 7.11 et 7.5 »). Ce que ce contrôle tient : la place,
+   l'identité, la rangée (deux « = » groupés avec leurs cases), 400 tirages
+   jugés par une SECONDE méthode (la valeur des polynômes en trois points),
+   puis quatre pages écrites ICI à la main, au bouton : la copie juste, les
+   termes développés dans un autre ordre, et les pièges. */
+function developperReduire(w, P){
+  const present = evaluer(w, "typeof startDvr==='function' && !!TESTS['developper-reduire']");
+  if(!present.ok || !present.valeur){
+    ignorer('développer puis réduire une somme de produits : la place, la rangée et la correction',
+      'ce niveau n\'a pas l\'exercice développer puis réduire');
+    return;
+  }
+  verifierEval(w, 'développer puis réduire une somme de produits : la place, la rangée et la correction', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='developper-reduire';
+    if(TEST_NUM['developper-reduire']!=='7.14') vus.push('numéro '+TEST_NUM['developper-reduire']+' au lieu de 7.14');
+    if(TEST_NUM['developper-double-nu']!=='7.11' || TEST_NUM['vrai-faux-calcul']!=='7.12' || TEST_NUM['valeur-expression']!=='7.13') vus.push('le 7.11, le 7.12 ou le 7.13 a bougé');
+    /* 400 tirages, jugés par la VALEUR : le développement et la forme réduite
+       valent l'expression en x = −2, 1 et 3 ; six termes développés, trois
+       termes réduits (x², x, nombre), aucun nul */
+    const val=function(ts, x){ return ts.reduce(function(a,t){ return a+t.c*Math.pow(x,t.d); },0); };
+    const valQ=function(q, x){ return q.prods.reduce(function(a,p){ return a+p.s*p.fs.reduce(function(m,f){ return m*val(f,x); },1); },0); };
+    for(let n=0;n<100 && vus.length<4;n++){
+      const qs=dvrBuildQuestions();
+      if(qs.map(function(q){ return q.forme; }).join('')!=='ABCD') vus.push('les formes '+qs.map(function(q){ return q.forme; }).join(''));
+      qs.forEach(function(q){
+        const L=dvrLignes(q);
+        if(L.dev.length!==6) vus.push(q.forme+' : '+L.dev.length+' termes développés');
+        if(L.reduite.map(function(t){ return t.d; }).join()!=='2,1,0' || L.reduite.some(function(t){ return t.c===0; })) vus.push(q.forme+' : forme réduite '+L.reduiteTxt);
+        [-2,1,3].forEach(function(x){
+          if(val(L.dev,x)!==valQ(q,x) || val(L.reduite,x)!==valQ(q,x)) vus.push(L.expr+' : faux en x = '+x);
+        });
+        if(L.dev.some(function(t){ return t.c===0; })) vus.push(L.expr+' : un terme nul');
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    const M=function(c,d){ return {c:c,d:d}; };
+    const FICHE=[
+      {forme:'A', prods:[{s:1, fs:[[M(1,1),M(-4,0)],[M(1,1),M(5,0)]]}, {s:-1, fs:[[M(3,1)],[M(1,1),M(-2,0)]]}]},
+      {forme:'B', prods:[{s:1, fs:[[M(2,1),M(3,0)],[M(1,1),M(-1,0)]]}, {s:1, fs:[[M(4,1)],[M(1,1),M(2,0)]]}]},
+      {forme:'C', prods:[{s:1, fs:[[M(3,1),M(-1,0)],[M(2,1),M(5,0)]]}, {s:-1, fs:[[M(4,0)],[M(1,1),M(-3,0)]]}]},
+      {forme:'D', prods:[{s:1, fs:[[M(2,1)],[M(3,1),M(-1,0)]]}, {s:-1, fs:[[M(1,1),M(4,0)],[M(2,1),M(-3,0)]]}]}
+    ];
+    const JUSTE=[
+      {t:['x²','+5x','-4x','-20','-3x^2','+6x'], r:['-2x²','+7x','-20'], e:'(x − 4)(x + 5) − 3x(x − 2)'},
+      {t:['2x²','-2x','+3x','-3','+4x²','+8x'], r:['6x²','+9x','-3'], e:'(2x + 3)(x − 1) + 4x(x + 2)'},
+      {t:['6x**2','+15x','-2x','-5','-4x','+12'], r:['6x²','+9x','+7'], e:'(3x − 1)(2x + 5) − 4(x − 3)'},
+      {t:['6x²','-2x','-2x²','+3x','-8x','+12'], r:['4x²','-7x','+12'], e:'2x(3x − 1) − (x + 4)(2x − 3)'}
+    ];
+    const ids=function(j){ const o={}, J=JUSTE[j];
+      J.t.forEach(function(v,i){ o['dvr-t-'+i]=v; }); J.r.forEach(function(v,m){ o['dvr-r-'+m]=v; }); return o; };
+    startDvr();
+    if(test.kind!=='dvr' || test.qId!=='developper-reduire') vus.push('identité '+test.kind+' / '+test.qId);
+    if(test.maxScore!==36) vus.push('barème de '+test.maxScore+' au lieu de 36');
+    if(!document.querySelector('#scr-dvr.on')) vus.push('l\\'écran du 7.14 n\\'est pas affiché');
+    test.questions=FICHE.map(function(q){ return JSON.parse(JSON.stringify(q)); });
+    const poser=function(vals){
+      test.locked=false; renderDvrTest();
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    for(let j=0;j<4;j++){
+      test.idx=j; const V=ids(j);
+      poser({});
+      const manque=Object.keys(V).filter(function(id){ return !document.getElementById(id); });
+      if(manque.length){ vus.push('page '+FICHE[j].forme+' : case(s) absente(s) '+manque.join(', ')); continue; }
+      /* UNE rangée : l'expression, puis deux « = » groupés, chacun avec SES cases */
+      const ch=document.querySelectorAll('#dvrHost .dvl-page .dvr-chaine');
+      if(ch.length!==1) vus.push('page '+FICHE[j].forme+' : '+ch.length+' rangée(s) au lieu d\\'une');
+      else {
+        const g=ch[0].querySelectorAll(':scope > .f-grp');
+        if(g.length!==2 || g[0].querySelectorAll('input').length!==6 || g[1].querySelectorAll('input').length!==3) vus.push('page '+FICHE[j].forme+' : les « = » ne sont pas groupés avec leurs cases (6 puis 3)');
+        const dep=(ch[0].querySelector('.dvr-depart')||{}).textContent||'';
+        if(dep.replace(/\\s+/g,' ')!==FICHE[j].forme+' = '+JUSTE[j].e) vus.push('page '+FICHE[j].forme+' : l\\'expression s\\'écrit « '+dep+' »');
+      }
+      poser(V); checkDvrAnswer();
+      const der=test.answers[test.answers.length-1];
+      if(!der || !der.correct) vus.push('la copie juste de la page '+FICHE[j].forme+' est comptée fausse');
+      const nv=Object.keys(V).filter(function(id){ return peint(id)!=='vert'; });
+      if(nv.length) vus.push('page '+FICHE[j].forme+' : '+nv.join(', ')+' non juste(s)');
+      if(!der || der.cases!==9) vus.push('page '+FICHE[j].forme+' : '+(der?der.cases:'?')+' cases au lieu de 9');
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    /* l'exemple de la demande, sur la première page seulement, sans case */
+    test.idx=0; poser({});
+    const ex=document.querySelector('#dvrHost .dvl-ex');
+    if(!ex) vus.push('l\\'exemple manque à la première page');
+    else if(ex.querySelector('input') || !/\\(x \\+ 2\\)\\(x − 3\\) − 2x\\(x \\+ 1\\)/.test(ex.textContent) || !/−x²\\s*−\\s*3x\\s*−\\s*6/.test(ex.textContent.replace(/\\s+/g,' '))) vus.push('l\\'exemple : '+ex.textContent);
+    test.idx=1; poser({}); if(document.querySelector('#dvrHost .dvl-ex')) vus.push('l\\'exemple reste sur la page B');
+    /* les termes développés dans un AUTRE ordre sont justes */
+    test.idx=0; poser(Object.assign(ids(0), {'dvr-t-0':'-3x²','dvr-t-1':'+6x','dvr-t-2':'+x²','dvr-t-4':'+5x','dvr-t-5':'-4x'})); checkDvrAnswer();
+    if(!test.answers[test.answers.length-1].correct) vus.push('les termes développés dans un autre ordre sont comptés faux');
+    /* le « − » devant le produit oublié sur le second terme : rouge seul, message nommé */
+    test.idx=0; poser(Object.assign(ids(0), {'dvr-t-5':'-6x'})); checkDvrAnswer();
+    const m1=$('dvrFeedback').textContent;
+    if(peint('dvr-t-5')!=='rouge' || peint('dvr-t-4')!=='vert' || !/change le signe de CHACUN/.test(m1)) vus.push('le signe « − » oublié : '+peint('dvr-t-5')+' — '+m1);
+    if((document.querySelector('#dvr-t-5 + .mf-cor')||{}).textContent!=='+6x') vus.push('la correction du signe oublié n\\'écrit pas +6x');
+    /* le signe d'un terme qui en suit un autre */
+    test.idx=0; poser(Object.assign(ids(0), {'dvr-t-1':'5x'})); checkDvrAnswer();
+    if(peint('dvr-t-1')!=='rouge' || !/garde son signe/.test($('dvrFeedback').textContent)) vus.push('« 5x » sans son signe : '+peint('dvr-t-1')+' — '+$('dvrFeedback').textContent);
+    /* la réduction fausse : le message regroupe les termes en x */
+    test.idx=3; poser(Object.assign(ids(3), {'dvr-r-1':'-13x'})); checkDvrAnswer();
+    const m3=$('dvrFeedback').textContent;
+    if(peint('dvr-r-1')!=='rouge' || peint('dvr-r-0')!=='vert' || !/regroupe les termes en x : −2x \\+ 3x − 8x = −7x/.test(m3)) vus.push('la réduction fausse : '+peint('dvr-r-1')+' — '+m3);
+    /* une réduction écrite dans le désordre est fausse : l'ordre x², x, nombre est demandé */
+    test.idx=3; poser(Object.assign(ids(3), {'dvr-r-0':'12','dvr-r-2':'+4x²'})); checkDvrAnswer();
+    if(peint('dvr-r-0')!=='rouge') vus.push('la forme réduite dans le désordre est peinte en '+peint('dvr-r-0'));
+    /* deux cases vides : la correction, jamais rouge, ni leurs voisines */
+    test.idx=1; poser(Object.assign(ids(1), {'dvr-t-3':'', 'dvr-r-2':''})); checkDvrAnswer();
+    if(peint('dvr-t-3')!=='bleu' || peint('dvr-r-2')!=='bleu' || peint('dvr-t-2')!=='vert') vus.push('cases vides peintes en '+peint('dvr-t-3')+' / '+peint('dvr-r-2'));
+    if((document.getElementById('dvr-t-3')||{}).value!=='−3' || (document.getElementById('dvr-r-2')||{}).value!=='−3') vus.push('la correction des cases vides écrit '+(document.getElementById('dvr-t-3')||{}).value+' / '+(document.getElementById('dvr-r-2')||{}).value);
+    /* « x^2 » s'affiche x² à la frappe */
+    test.idx=0; poser({});
+    const el=document.getElementById('dvr-t-0'); el.value='8x^2'; el.setSelectionRange(4,4); el.dispatchEvent(new Event('input'));
+    if(el.value!=='8x²') vus.push('« 8x^2 » s\\'affiche « '+el.value+' »');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -31511,7 +31748,10 @@ function serpentsHalloween(w, P){
       const svg=fig.querySelector("svg.hw-svg"), textes=svg?[].map.call(svg.querySelectorAll("text"),function(t){ return t.textContent; }):[];
       if(!svg) vus.push(id+" : pas de SVG dans le serpent");
       else if(d.bulle.some(function(l){ return textes.indexOf(l)<0; })) vus.push(id+" : la bulle n’écrit pas « "+d.bulle.join(" / ")+" » : "+textes.join(" / "));
-      const img=fig.parentNode&&fig.parentNode.querySelector("img[src*='dessins/']");
+      /* le dessin du serpent est SON fichier ; le dessin de la fiche est l'autre image du cadre */
+      const hw=fig.querySelector("img.hw-img");
+      if(!hw||hw.getAttribute("src")!==d.img||d.img!=="dessins/secondes/"+id+"-halloween.webp") vus.push(id+" : le serpent ne montre pas son dessin dessins/secondes/"+id+"-halloween.webp : "+(hw?hw.getAttribute("src"):"aucune image"));
+      const img=fig.parentNode&&fig.parentNode.querySelector("img[src*='dessins/']:not(.hw-img)");
       if(!img) vus.push(id+" : le serpent n’est pas à côté du dessin de la fiche");
       else if(!(img.compareDocumentPosition(fig)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push(id+" : le serpent passe AVANT le dessin de la fiche");
       const stage=on.querySelector(".mp-stage");
@@ -32495,11 +32735,14 @@ function pythonProgrammeCalcul(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.2 « Variable et calcul », derrière {python-phrases-memoire}, numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+  /* Le bord « il ferme le 6.2 » a été RETOURNÉ, pas retiré, quand les seize
+     exercices « variables » l'ont suivi (6.2.10 à 6.2.23, octobre 2026) : il
+     reste derrière {python-phrases-memoire}, et {python-egal-affectation} le suit. */
+  verifierEval(w, 'il suit {python-phrases-memoire} dans le sous-thème 6.2 « Variable et calcul », numéroté ' + NUM + ', suivi de {python-egal-affectation}, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===2; });
     if(!st||!/variable et calcul/i.test(st.nom)) vus.push("pas de sous-thème 6.2 Variable et calcul");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-phrases-memoire") vus.push("il ne ferme pas le sous-thème derrière {python-phrases-memoire} : "+st.ids.join(","));
+    else { const i=st.ids.indexOf("${ID}"); if(i<1||st.ids[i-1]!=="python-phrases-memoire"||st.ids[i+1]!=="python-egal-affectation") vus.push("il n’est pas entre {python-phrases-memoire} et {python-egal-affectation} : "+st.ids.join(",")); }
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-phrases-memoire"]!=="6.2.8"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -33833,11 +34076,14 @@ function pythonChaines(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.1 « Print et variable », numéroté ' + NUM + ' derrière {python-double-triple-carre}, et rien d’autre ne bouge', `(function(){
+  /* Le bord « il ferme le 6.1 » a été RETOURNÉ, pas retiré, quand
+     {python-type-resultat} et {python-texte-nombre} l'ont suivi (6.1.15 et
+     6.1.16, octobre 2026). */
+  verifierEval(w, 'il suit {python-double-triple-carre} dans le sous-thème 6.1 « Print et variable », numéroté ' + NUM + ', suivi de {python-type-resultat}, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===1; });
     if(!st||!/print/i.test(st.nom)) vus.push("pas de sous-thème 6.1 Print et variable");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-double-triple-carre") vus.push("il ne ferme pas le sous-thème : "+st.ids.join(","));
+    else { const i=st.ids.indexOf("${ID}"); if(i<1||st.ids[i-1]!=="python-double-triple-carre"||st.ids[i+1]!=="python-type-resultat") vus.push("il n’est pas entre {python-double-triple-carre} et {python-type-resultat} : "+st.ids.join(",")); }
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -35514,11 +35760,11 @@ function pythonInputPrix(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ', derrière {python-input-rectangle} (l’exercice 9 du carnet), et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-input-rectangle} (l’exercice 9 du carnet) dans le sous-thème 6.3 « Input », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-input-rectangle") vus.push("il ne ferme pas le sous-thème derrière {python-input-rectangle} : "+st.ids.join(","));
+    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-rectangle")+1) vus.push("il ne suit pas {python-input-rectangle} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-somme"]!=="6.3.6"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-input-rectangle"]!=="6.3.8") vus.push("les autres ont bougé");
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -35692,6 +35938,534 @@ function pythonInputPrix(w, P){
   const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
   const ecarts = [];
   liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* Les huit exercices qui complètent le sous-thème 6.3 « Input » (Seconde,
+   6.3.10 à 6.3.17, demande de Turquet, octobre 2026 : « crée le 1 et 2 et 3
+   et 5 dans le sous-thème input »). Le contrôle tient la place au menu (à la
+   suite du 6.3.9, rien d'autre ne bouge), le tirage de chacun, chaque juge
+   sur des copies justes et fausses — chacune avec le mot qui la nomme —, les
+   trois étapes du moteur « réparer » jouées comme un élève (la console au
+   clavier, la porte du a), la liste du b), la copie du c)), la copie vide
+   qui ne rougit jamais, le soutien qui explique sans révéler, round() exact
+   et réservé au 6.3.16, puis compare à un vrai CPython tout ce que les
+   programmes de la page affichent. Aucun accent grave ni antislash littéral
+   dans le code évalué. */
+function pythonInputComplements(w, P){
+  const nom = 'les huit exercices qui complètent le sous-thème « Input »';
+  if(!P.pythonInputComplements){ ignorer(nom, 'ce niveau n\'a pas ces exercices'); return; }
+  const C = P.pythonInputComplements, NB = C.nb, IDS = JSON.stringify(C.ids);
+  const present = evaluer(w, "typeof pzrJuge==='function' && typeof pqcBuildQuestions==='function' && typeof pprAttendu==='function' && typeof podJuge==='function' && typeof pmoJuge==='function' && typeof pyAvecRound==='function'");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'pzrJuge / pqcBuildQuestions / pprAttendu / podJuge / pmoJuge / pyAvecRound introuvables alors que tests/profils.js déclare les exercices'); return; }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'ils suivent {python-input-prix} dans le sous-thème 6.3, numérotés de ' + C.numero + ' à 6.3.17, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[], ids=${IDS};
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!st) return "pas de sous-thème 6.3";
+    if(st.ids.slice(-ids.length).join(",")!==ids.join(",")||st.ids[st.ids.length-ids.length-1]!=="python-input-prix") vus.push("ils ne suivent pas {python-input-prix} : "+st.ids.join(","));
+    ids.forEach(function(id, i){ if(TEST_NUM[id]!=="6.3."+(10+i)) vus.push(id+" numéroté "+TEST_NUM[id]); if(!TESTS[id]||typeof TESTS[id].start!=="function") vus.push(id+" : pas d’entrée TESTS"); });
+    if(TEST_NUM["${C.premier}"]!=="${C.numero}") vus.push("le premier est numéroté "+TEST_NUM["${C.premier}"]);
+    if(TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. les tirages ---- */
+  verifierEval(w, 'les tirages : ' + NB + ' questions distinctes par séance, la fiche en tête de chaque exercice « réparer », chaque situation sort (300 séances) ; le 6.3.13 pose 12 questions toutes différentes, chaque série portant les trois types ; le 6.3.15 ne donne jamais un programme déjà dans l’ordre', `(function(){
+    const vus=[];
+    ["pcz","pte","pfl","prd"].forEach(function(k){
+      const vues={};
+      for(let s=0;s<300&&vus.length<4;s++){
+        const qs=pzrBuildQuestions(k);
+        if(qs.length!==${NB}){ vus.push(k+" : séance de "+qs.length); break; }
+        if(qs[0].s!==0){ vus.push(k+" : la fiche n’ouvre pas la séance"); break; }
+        const ss=qs.map(function(q){ return q.s; }); if(new Set(ss).size!==ss.length){ vus.push(k+" : deux fois la même situation"); break; }
+        qs.forEach(function(q){ vues[q.s]=1; if(q.etape!=="a"||q.prog!==""||q.choix!==""||q.perm.slice().sort().join("")!=="0123") vus.push(k+" : question mal formée "+JSON.stringify(q)); });
+      }
+      if(Object.keys(vues).length!==PZR[k].sits.length) vus.push(k+" : des situations ne sortent jamais");
+    });
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pqcBuildQuestions(), toutes=[];
+      if(qs.length!==${NB}) vus.push("pqc : séance de "+qs.length);
+      qs.forEach(function(q){ toutes.push.apply(toutes, q.l); const t=q.l.map(function(i){ return PQC_LIGNES[i].t; }); if(q.l.length!==4||PQC_FORMES.some(function(f){ return t.indexOf(f)<0; })) vus.push("pqc : série "+t.join(",")); });
+      if(new Set(toutes).size!==toutes.length) vus.push("pqc : une question revient");
+      const pr=pprBuildQuestions(); if(pr.length!==${NB}||new Set(pr.map(function(q){ return q.p; })).size!==${NB}) vus.push("ppr : séance "+JSON.stringify(pr));
+      const po=podBuildQuestions(); po.forEach(function(q){ if(q.o.every(function(x,j){ return x===j; })) vus.push("pod : programme déjà dans l’ordre"); if(q.bouge) vus.push("pod : déjà déplacé"); });
+      const pm=pmoBuildQuestions(); if(pm.length!==${NB}||pm[0].s!==0||new Set(pm.map(function(q){ return q.s; })).size!==${NB}) vus.push("pmo : séance "+JSON.stringify(pm));
+    }
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. les juges du moteur « réparer » ---- */
+  verifierEval(w, 'le c) des exercices « réparer » : chaque modèle passe, le programme donné non modifié est une copie VIDE, et chaque défaut est nommé — les deux textes encore collés, une seule réponse convertie, float pour des entiers, la phrase perdue, le résultat écrit à la main, le « 1 » entre guillemets, int qui refuse toujours, rien de converti, round oublié, à l’unité, au dixième', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    ["pcz","pte","pfl","prd"].forEach(function(k){ PZR[k].sits.forEach(function(S,i){
+      const q={s:i}; let d=pzrJuge(k,q,PZR[k].modele(S)); if(!d.ok) vus.push(k+i+" : le modèle est refusé : "+d.dits.join(" "));
+      d=pzrJuge(k,q,PZR[k].prog(S)+NL+NL); if(!d.vide||d.ok) vus.push(k+i+" : le programme donné n’est pas une copie vide");
+    }); });
+    const p=function(k){ return PZR[k].prog(PZR[k].sits[0]); }, m=function(k){ return PZR[k].modele(PZR[k].sits[0]); };
+    const cas=[
+      ["pcz", p("pcz")+NL+"# corrigé", /colle encore/],
+      ["pcz", p("pcz").replace("a = input", "a = int(input").replace("? "+Q+")", "? "+Q+"))"), /LES DEUX/],
+      ["pcz", m("pcz").split("int(input").join("float(input"), /ENTIERS/],
+      ["pcz", m("pcz").replace(Q+"La somme est"+Q+", ", ""), /phrase/],
+      ["pcz", m("pcz").replace("a + b", "12"), /toujours le même/],
+      ["pte", p("pte").replace("age + 1", "age + "+Q+"1"+Q), /entre guillemets/],
+      ["pte", p("pte")+NL+"# corrigé", /même erreur/],
+      ["pte", m("pte").replace("int(", "float("), /ENTIERS/],
+      ["pfl", p("pfl")+NL+"# corrigé", /refuse toujours/],
+      ["pfl", p("pfl").replace("int(input", "(input"), /TEXTE/],
+      ["prd", p("prd")+NL+"# corrigé", /pas encore arrondi/],
+      ["prd", p("prd").replace(", total,", ", round(total),"), /UNITÉ/],
+      ["prd", p("prd").replace(", total,", ", round(total, 1),"), /DIXIÈME/],
+      ["prd", p("prd").replace("total = prix * nombre", "total = round(prix * nombre, 2)"), null],
+      ["pcz", m("pcz").replace("a = int(input("+Q+"Premier nombre ? "+Q+"))", "a = int(input())"), /question/]
+    ];
+    cas.forEach(function(c){
+      const d=pzrJuge(c[0],{s:0},c[1]);
+      if(c[2]===null){ if(!d.ok) vus.push(c[0]+" : refusé à tort : "+JSON.stringify(c[1])+" — "+d.dits.join(" ")); return; }
+      if(d.ok||d.vide) vus.push(c[0]+" : accepté à tort : "+JSON.stringify(c[1]));
+      else if(!c[2].test(d.dits.join(" "))) vus.push(c[0]+" : "+JSON.stringify(c[1])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. les trois étapes, jouées comme un élève ---- */
+  verifierEval(w, 'les trois étapes : « Exécuter » pose la question dans la console, Entrée envoie la réponse ; une réponse qui ne montre pas le défaut laisse le a) ouvert ; le b) se choisit dans la liste, le c) se corrige et vaut 2 cases justes ; la copie non modifiée ne rougit pas et reçoit le modèle en vert', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    const repondre=function(k, v){ const r=document.getElementById(k+"ConsoleARep"); if(!r){ vus.push(k+" : la console ne demande rien"); return; } r.value=v; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); };
+    [["python-input-concat","pcz"],["python-input-erreur-type","pte"],["python-input-int-float","pfl"],["python-input-arrondi","prd"]].forEach(function(e){
+      const id=e[0], k=e[1]; currentTestId=id; TESTS[id].start();
+      const q=test.questions[0], S=pzrS(k,q);
+      if(!document.querySelector("#"+k+"Instr img.pz-img")) vus.push(k+" : pas de dessin en tête");
+      if((document.getElementById(k+"Avant").textContent||"").length<40) vus.push(k+" : pas de définition avant l’énoncé");
+      if(!document.getElementById(k+"Validate").disabled) vus.push(k+" : Vérifier est ouvert avant l’exécution");
+      if(k==="pfl"){ pzrExecuterA(); repondre(k,"2"); if(q.etape!=="a") vus.push("pfl : la réponse 2 ouvre le b) sans montrer l’erreur"); }
+      pzrExecuterA(); pzrRep(k,S).forEach(function(v){ repondre(k,v); });
+      if(q.etape!=="b"){ vus.push(k+" : le a) ne s’ouvre pas sur le b) ("+document.getElementById(k+"Feedback").textContent+")"); return; }
+      if(!document.getElementById(k+"EtapeA")||!document.getElementById(k+"EtapeB")) vus.push(k+" : les étapes ne restent pas à l’écran");
+      const sel=document.getElementById(k+"-choix"); sel.value="0"; sel.dispatchEvent(new Event("change",{bubbles:true}));
+      window["check"+k.toUpperCase()]();
+      if(!sel.classList.contains("ok")||test.score!==1) vus.push(k+" : le b) juste : "+sel.className+" "+test.score);
+      pzrVersC();
+      const ta=document.getElementById(k+"-prog");
+      if(!ta||ta.value!==PZR[k].prog(S)) vus.push(k+" : le c) ne s’ouvre pas sur le programme donné");
+      ta.value=PZR[k].modele(S); ta.dispatchEvent(new Event("input",{bubbles:true}));
+      window["check"+k.toUpperCase()]();
+      if(!ta.classList.contains("ok")||test.score!==2||!test.locked) vus.push(k+" : le c) juste : "+ta.className+" "+test.score);
+      const ans=test.answers[0]; if(!ans||ans.cases!==2||ans.justes!==2||!ans.correct) vus.push(k+" : la note ne compte pas 2 cases justes : "+JSON.stringify(ans));
+      if(!document.getElementById(k+"Next")) vus.push(k+" : pas de « Question suivante »");
+      window["next"+k.toUpperCase()]();
+      const q2=test.questions[1]; q2.etape="b"; q2.rep=pzrRep(k,pzrS(k,q2)); window["render"+k.toUpperCase()]();
+      const s2=document.getElementById(k+"-choix"); s2.value=String(q2.perm[0]===0?q2.perm[1]:q2.perm[0]); s2.dispatchEvent(new Event("change",{bubbles:true}));
+      window["check"+k.toUpperCase()]();
+      if(!s2.classList.contains("bad")||!document.querySelector("#"+k+"Host .pz-cor")) vus.push(k+" : le b) faux ne rougit pas ou ne reçoit pas la correction");
+      pzrVersC(); window["check"+k.toUpperCase()]();
+      const t2=document.getElementById(k+"-prog");
+      if(t2.classList.contains("bad")||!t2.classList.contains("sol")||t2.value!==PZR[k].modele(pzrS(k,q2))) vus.push(k+" : la copie non modifiée rougit ou ne reçoit pas le modèle : "+t2.className);
+    });
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le soutien ---- */
+  verifierEval(w, 'en soutien : un b) faux rougit sans verrouiller ni écrire la bonne explication, un c) faux rougit en nommant le défaut, sans révéler le modèle ; le contexte de l’IA a sa clause de secret', `(function(){
+    const vus=[], NL=String.fromCharCode(10);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="soutien"; currentDM=null; currentTestId="python-input-concat";
+    TESTS["python-input-concat"].start();
+    const q=test.questions[0], S=pzrS("pcz",q); q.etape="b"; q.rep=S.rep.slice(); renderPCZ();
+    const sel=document.getElementById("pcz-choix"); sel.value=String(q.perm.find(function(x){ return x!==0; })); sel.dispatchEvent(new Event("change",{bubbles:true}));
+    checkPCZ();
+    if(!sel.classList.contains("bad")||sel.disabled||document.querySelector("#pczHost .pz-cor")||q.bOk!==null) vus.push("soutien : le b) faux : "+sel.className);
+    sel.value="0"; sel.dispatchEvent(new Event("change",{bubbles:true})); checkPCZ(); pzrVersC();
+    const ta=document.getElementById("pcz-prog"); ta.value=PZR.pcz.prog(S)+NL+"# essai"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPCZ();
+    const fb=document.getElementById("pczFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : le c) faux ne rougit pas, ou verrouille");
+    if(!/colle encore/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pczModele .sol")||fb.indexOf("int(input("+String.fromCharCode(34)+"Premier")>=0) vus.push("soutien : le modèle est révélé");
+    ["pcz","pte","pfl","prd"].forEach(function(k){ test.kind=k; if(!/STRICTEMENT SECRÈTE/.test(ctxPzr({s:0,etape:"c",rep:[],prog:""}).contexte)) vus.push(k+" : le contexte de l’IA n’a pas sa clause de secret"); });
+    [ctxPqc(pqcBuildQuestions()[0]), ctxPpr(pprBuildQuestions()[0]), ctxPod(podBuildQuestions()[0]), ctxPmo({s:0,prog:""})].forEach(function(c,i){ if(!/STRICTEMENT SECR/.test(c.contexte)) vus.push("contexte "+i+" sans clause de secret"); });
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. input, int(input) ou float(input) ---- */
+  verifierEval(w, 'le 6.3.13 : quatre choix justes valent 4 ; une copie vide ne rougit pas et reçoit les bonnes écritures en vert ; un choix faux rougit et reçoit la sienne ; en soutien, rien ne verrouille', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-conversion";
+    TESTS["python-input-conversion"].start();
+    let q=test.questions[0];
+    if(test.maxScore!==${NB}*4) vus.push("barème "+test.maxScore);
+    q.l.forEach(function(i,j){ const s=document.getElementById("pqc-"+j); s.value=PQC_LIGNES[i].t; s.dispatchEvent(new Event("change",{bubbles:true})); });
+    checkPQC();
+    if(test.score!==4||document.querySelectorAll("#pqcHost select.ok").length!==4) vus.push("la copie juste : "+test.score);
+    const a=test.answers[0]; if(!a||a.cases!==4||a.justes!==4) vus.push("la note : "+JSON.stringify(a));
+    nextPQC(); q=test.questions[1];
+    const s0=document.getElementById("pqc-0"), faux=PQC_FORMES.find(function(f){ return f!==PQC_LIGNES[q.l[0]].t; });
+    s0.value=faux; s0.dispatchEvent(new Event("change",{bubbles:true}));
+    checkPQC();
+    if(!s0.classList.contains("bad")||!s0.parentNode.querySelector(".mf-cor")) vus.push("le choix faux ne rougit pas ou n’a pas sa correction");
+    if(document.querySelectorAll("#pqcHost select.bad").length!==1||document.querySelectorAll("#pqcHost select.sol").length!==3) vus.push("les cases vides rougissent ou ne reçoivent pas la correction");
+    currentMode="soutien"; TESTS["python-input-conversion"].start(); q=test.questions[0];
+    const s1=document.getElementById("pqc-1"); s1.value=PQC_FORMES.find(function(f){ return f!==PQC_LIGNES[q.l[1]].t; }); s1.dispatchEvent(new Event("change",{bubbles:true}));
+    checkPQC();
+    if(test.locked||!s1.classList.contains("bad")||document.querySelector("#pqcHost .sol,#pqcHost .mf-cor")) vus.push("soutien : verrouille ou révèle");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. prédire ce que le programme affiche ---- */
+  verifierEval(w, 'le 6.3.14 : la copie juste vaut une case par print ; la virgule française, les guillemets recopiés et le .0 oublié sont nommés ; une ligne vide ne rougit pas et reçoit la bonne en vert ; « Exécuter » n’apparaît qu’après la vérification', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-predire";
+    TESTS["python-input-predire"].start();
+    let q=test.questions[0], att=pprAttendu(q);
+    if(document.getElementById("pprRun")) vus.push("« Exécuter » est là avant la vérification");
+    att.forEach(function(a,j){ const e=document.getElementById("ppr-"+j); e.value=" "+a+"  "; e.dispatchEvent(new Event("input",{bubbles:true})); });
+    checkPPR();
+    if(test.score!==att.length) vus.push("la copie juste : "+test.score+" sur "+att.length);
+    if(!document.getElementById("pprRun")) vus.push("pas d’« Exécuter » après la vérification");
+    else { pprExecuter(); if(document.getElementById("pprConsole").hidden) vus.push("la console reste cachée"); }
+    nextPPR(); q=test.questions[1]; att=pprAttendu(q);
+    checkPPR();
+    if(document.querySelector("#pprHost input.bad")||document.querySelectorAll("#pprHost input.sol").length!==att.length) vus.push("la copie vide rougit ou ne reçoit pas la correction");
+    const d=[pprDiag("Prix : 2.5","Prix : 2,5"), pprDiag("Bonjour Léa", String.fromCharCode(34)+"Bonjour Léa"+String.fromCharCode(34)), pprDiag("4.0","4"), pprDiag("34","7")];
+    if(!/POINT/.test(d[0].dit||"")||!/guillemets/.test(d[1].dit||"")||!/4[.]0/.test(d[2].dit||"")||d[3].ok) vus.push("les diagnostics : "+JSON.stringify(d));
+    PPR_PROGS.forEach(function(P,i){ const n=pprCases({p:i}), a=pprAttendu({p:i,rep:P.rep()}); if(a.length!==n) vus.push("programme "+i+" : "+a.length+" lignes pour "+n+" cases"); });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. remettre les lignes dans l'ordre ---- */
+  verifierEval(w, 'le 6.3.15 : les flèches déplacent les lignes ; l’ordre juste vaut 1 ; un autre ordre qui fait la même chose est juste aussi ; une variable utilisée avant d’exister est nommée ; un programme non touché ne rougit pas et se remet en ordre en vert', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-ordre";
+    TESTS["python-input-ordre"].start();
+    let q=test.questions[0];
+    /* un tri par les flèches, comme un élève */
+    for(let tour=0;tour<40;tour++){ const i=q.o.findIndex(function(x,j){ return j<q.o.length-1 && q.o[j]>q.o[j+1]; }); if(i<0) break; podBouger(i,1); }
+    if(!q.o.every(function(x,j){ return x===j; })) vus.push("les flèches ne remettent pas en ordre : "+q.o.join(","));
+    checkPOD();
+    if(test.score!==1||!document.getElementById("pod-liste").classList.contains("ok")) vus.push("l’ordre juste : "+test.score);
+    nextPOD(); checkPOD();
+    const L=document.getElementById("pod-liste");
+    if(L.classList.contains("bad")||!L.classList.contains("sol")) vus.push("le programme non touché : "+L.className);
+    const j2={p:1, o:[0,1,3,2,4], bouge:true}; if(!podJuge(j2).ok) vus.push("« Bonjour » avant le calcul de l’âge est refusé");
+    const j3={p:0, o:[0,2,1,3], bouge:true}, d3=podJuge(j3); if(d3.ok||!/AVANT/.test(d3.dit)) vus.push("variable avant sa création : "+JSON.stringify(d3));
+    const j4={p:0, o:[1,0,2,3], bouge:true}, d4=podJuge(j4); if(d4.ok||!/ordre demandé/.test(d4.dit)) vus.push("questions échangées : "+JSON.stringify(d4));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. rendre la monnaie ---- */
+  verifierEval(w, 'le 6.3.17 : le juge accepte toute écriture juste (autres noms, un seul print) et nomme chaque défaut — / au lieu de //, float, le reste oublié, la phrase absente, rien d’affiché, les nombres écrits à la main, int oublié, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0,prog:""};
+    const I="s = int(input("+Q+"Somme ? "+Q+"))"+NL;
+    const justes=[pmoModele(q), I+"a = s // 20"+NL+"r = s % 20"+NL+"b = r // 5"+NL+"c = r % 5"+NL+"print("+Q+"billets de 20 :"+Q+", a, "+Q+"billets de 5 :"+Q+", b, "+Q+"pièces :"+Q+", c)"];
+    justes.forEach(function(p){ const d=pmoJuge(q,p); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const ph=function(a,b,c){ return "print("+Q+"billets de 20 :"+Q+", "+a+")"+NL+"print("+Q+"billets de 5 :"+Q+", "+b+")"+NL+"print("+Q+"pièces :"+Q+", "+c+")"; };
+    const cas=[
+      [I+ph("s / 20","(s % 20) / 5","s % 5"), /DÉCIMAL/],
+      [I.replace("int(","float(")+ph("s // 20","(s % 20) // 5","s % 5"), /ENTIERS/],
+      [I+ph("s // 20","s // 5","s // 1"), /RESTE/],
+      [I+"print(s // 20, (s % 20) // 5, s % 5)", /sans phrase/],
+      [I+"a = s // 20", /n’affiche rien/],
+      [I+ph("4","1","2"), /toujours les mêmes/],
+      ["s = input("+Q+"Somme ? "+Q+")"+NL+ph("s // 20","(s % 20) // 5","s % 5"), /TOUJOURS un texte/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){ const d=pmoJuge(q,c[0]); if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0])); else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | ")); });
+    PMO_COUPURES.forEach(function(S,i){ const d=pmoJuge({s:i},pmoModele({s:i})); if(!d.ok) vus.push("le modèle "+i+" : "+d.dits.join(" ")); });
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-monnaie";
+    TESTS["python-input-monnaie"].start();
+    const ta=document.getElementById("pmo-prog"); ta.value=pmoModele(test.questions[0]); ta.dispatchEvent(new Event("input",{bubbles:true}));
+    pmoExecuter(); const r=document.getElementById("pmoConsoleRep"); if(!r) vus.push("la console ne demande pas la somme"); else { r.value="87"; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); if(!/billets de 20 € : 4/.test(document.getElementById("pmoConsole").textContent)) vus.push("la console : "+document.getElementById("pmoConsole").textContent); }
+    checkPMO(); if(test.score!==1||!ta.classList.contains("ok")) vus.push("la copie juste : "+ta.className);
+    nextPMO(); checkPMO(); const t2=document.getElementById("pmo-prog"); if(t2.classList.contains("bad")||!t2.classList.contains("sol")) vus.push("la copie vide : "+t2.className);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 10. round : exact, et réservé au 6.3.16 ---- */
+  verifierEval(w, 'round() n’est exécuté que sous pyAvecRound (ailleurs il reste refusé en le nommant, comme les juges des autres fiches l’attendent), et il arrondit au pair : round(2.5) vaut 2, round(0.125, 2) vaut 0.12', `(function(){
+    const vus=[];
+    try{ pyRun("print(round(2.5))"); vus.push("round est exécuté hors du 6.3.16"); }catch(e){ if(!/round/.test(e.message)) vus.push("refus muet : "+e.message); }
+    const o=pyAvecRound(function(){ return pyRun("print(round(2.5), round(3.5), round(0.125, 2), round(2.675, 2), round(-1.5), round(7, 2))").out; });
+    if(o!=="2 4 0.12 2.67 -2 7"+String.fromCharCode(10)) vus.push("round : "+JSON.stringify(o));
+    try{ pyRun("print(round(2.5))"); vus.push("pyAvecRound laisse round permis après lui"); }catch(e){}
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 11. CPython ---- */
+  const nomPy = 'ce que les programmes des huit exercices affichent est ce qu’affiche un vrai CPython (round compris)';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[], NL=String.fromCharCode(10);
+    const sortie=function(src, rep, rd){ try{ const r=rd?pyAvecRound(function(){ return pyRun(src, rep.slice()); }):pyRun(src, rep.slice()); return r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+NL; }).join(""); }catch(e){ return "ERREUR"; } };
+    ["pcz","pte","pfl","prd"].forEach(function(k){ PZR[k].sits.forEach(function(S){
+      const R=PZR[k].ex.concat([pzrRep(k,S)]);
+      R.forEach(function(rep){ res.push([PZR[k].modele(S), rep, sortie(PZR[k].modele(S), rep, PZR[k].round)]); });
+      if(k==="pcz"||k==="prd") res.push([PZR[k].prog(S), pzrRep(k,S), sortie(PZR[k].prog(S), pzrRep(k,S), false)]);
+    }); });
+    PPR_PROGS.forEach(function(P){ for(let t=0;t<4;t++){ const rep=P.rep(); res.push([P.src, rep, sortie(P.src, rep, false)]); } });
+    POD_PROGS.forEach(function(P){ const n=P.l.filter(function(l){ return /input/.test(l); }).length; P.ex.forEach(function(rep){ res.push([P.l.join(NL), rep.slice(0,n), sortie(P.l.join(NL), rep.slice(0,n), false)]); }); });
+    PMO_COUPURES.forEach(function(S,i){ S.ex.concat([0, 1, 99]).forEach(function(v){ res.push([pmoModele({s:i}), [String(v)], sortie(pmoModele({s:i}), [String(v)], false)]); }); });
+    [0.125, 0.375, 2.675, 1.005, 2.5, 3.5, -2.5, 1.15*3, 0.65*9, 2.15*7, 123.456789, 0.1+0.2].forEach(function(x){ [0,1,2,3].forEach(function(n){ const src="print(round("+pyFloatRepr(x)+", "+n+"), round("+pyFloatRepr(x)+"))"; res.push([src, [], sortie(src, [], true)]); }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les programmes ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+
+/* Les seize exercices qui complètent les sous-thèmes 6.1 « Print et
+   variable » et 6.2 « Variable et calcul » (Seconde, 6.1.15, 6.1.16, 6.2.10
+   à 6.2.23, demande de Turquet, octobre 2026 : « fais les tous »). Le
+   contrôle tient la place au menu (à la suite du dernier de chaque
+   sous-thème, rien d'autre ne bouge), l'identité de chacun (son kind, son
+   écran, son rappel, ses questions d'aide), le tirage de chacun, chaque juge
+   sur des copies justes et fausses — chacune avec le mot qui la nomme —, la
+   seconde méthode (une copie qui écrit le résultat à la main est refusée),
+   la copie vide ou non modifiée qui ne rougit jamais, les écrans joués comme
+   un élève dans les deux modes, puis compare à un vrai CPython tout ce que
+   les programmes de la page affichent. Aucun accent grave ni antislash
+   littéral dans le code évalué. */
+function pythonVariablesComplements(w, P){
+  const nom = 'les seize exercices qui complètent les sous-thèmes « Print et variable » et « Variable et calcul »';
+  if(!P.pythonVariablesComplements){ ignorer(nom, 'ce niveau n\'a pas ces exercices'); return; }
+  const C = P.pythonVariablesComplements, NB = C.nb, K = JSON.stringify(C.kinds);
+  const present = evaluer(w, "typeof PW==='object' && typeof pwpJuge==='function' && typeof pwiJuge==='function' && typeof pwoJuge==='function'");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'PW / pwpJuge / pwiJuge / pwoJuge introuvables alors que tests/profils.js déclare les exercices'); return; }
+
+  /* ---- 1. la place au menu, et l'identité de chacun ---- */
+  verifierEval(w, 'ils suivent {python-chaines} (6.1.15 et 6.1.16) et {python-programme-calcul} (6.2.10 à 6.2.23), et rien d’autre ne bouge ; chacun a son kind, son écran, son rappel et ses questions d’aide', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[], KS=${K};
+    const s1=th.sous.find(function(s){ return s.num===1; }), s2=th.sous.find(function(s){ return s.num===2; });
+    const ids1=Object.keys(KS).filter(function(k){ return KS[k][1]===1; }).map(function(k){ return KS[k][0]; });
+    const ids2=Object.keys(KS).filter(function(k){ return KS[k][1]===2; }).map(function(k){ return KS[k][0]; });
+    if(s1.ids.slice(-ids1.length).join(",")!==ids1.join(",")||s1.ids[s1.ids.length-ids1.length-1]!=="python-chaines") vus.push("6.1 : "+s1.ids.join(","));
+    if(s2.ids.slice(-ids2.length).join(",")!==ids2.join(",")||s2.ids[s2.ids.length-ids2.length-1]!=="python-programme-calcul") vus.push("6.2 : "+s2.ids.join(","));
+    ids1.forEach(function(id, i){ if(TEST_NUM[id]!=="6.1."+(15+i)) vus.push(id+" numéroté "+TEST_NUM[id]); });
+    ids2.forEach(function(id, i){ if(TEST_NUM[id]!=="6.2."+(10+i)) vus.push(id+" numéroté "+TEST_NUM[id]); });
+    if(TEST_NUM["python-chaines"]!=="6.1.14"||TEST_NUM["python-programme-calcul"]!=="6.2.9"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
+    Object.keys(KS).forEach(function(k){
+      const id=KS[k][0];
+      if(!PW[k]||PW[k].id!==id) vus.push(k+" : PW ne le connaît pas sous "+id);
+      if(!TESTS[id]||typeof TESTS[id].start!=="function") vus.push(id+" : pas d’entrée TESTS");
+      if(!document.getElementById("scr-"+k)) vus.push(k+" : pas d’écran");
+      if(!RAPPELS[k]) vus.push(k+" : pas de rappel");
+      if(!QIA_SUGG[k]||QIA_SUGG[k].length<3) vus.push(k+" : pas de questions d’aide");
+      ["start","render","check","next"].forEach(function(f){ if(typeof window[f+k.toUpperCase()]!=="function") vus.push(k+" : pas de "+f+k.toUpperCase()); });
+    });
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. les tirages ---- */
+  verifierEval(w, 'les tirages : ' + NB + ' questions distinctes par séance, chaque situation sort (300 séances) ; le vrai ou faux pose 12 affirmations toutes différentes, chaque question en mêlant de vraies et de fausses ; les lignes à remettre en ordre ne sont jamais déjà dans un ordre qui marche', `(function(){
+    const vus=[];
+    Object.keys(PW).forEach(function(k){
+      const vues={};
+      for(let s=0;s<300&&vus.length<5;s++){
+        const qs=pwBuild(k);
+        if(qs.length!==${NB}){ vus.push(k+" : séance de "+qs.length); break; }
+        if(k==="pwe"){
+          const toutes=[]; qs.forEach(function(q){ toutes.push.apply(toutes, q.l); const v=q.l.map(function(i){ return PWE_AFF[i][1]; }); if(q.l.length!==4||v.indexOf(true)<0||v.indexOf(false)<0) vus.push("pwe : question "+JSON.stringify(q.l)); });
+          if(new Set(toutes).size!==toutes.length) vus.push("pwe : une affirmation revient");
+          toutes.forEach(function(i){ vues[i]=1; });
+          continue;
+        }
+        const ss=qs.map(function(q){ return q.s; }); if(new Set(ss).size!==ss.length){ vus.push(k+" : deux fois la même situation"); break; }
+        qs.forEach(function(q){ vues[q.s]=1;
+          if(k==="pwc" && q.perm.slice().sort().join("")!=="0123") vus.push("pwc : permutation "+q.perm);
+          if(k==="pwo"){ if(q.bouge) vus.push("pwo : déjà déplacé"); const S=PW.pwo.sits[q.s], r=pwoSortie(pwoSrc(S, q.o)), j=pwoSortie(pwoJuste(S)); if(!r.err && r.out===j.out) vus.push("pwo : programme déjà dans un ordre qui marche"); }
+        });
+      }
+      const n=k==="pwe"?PWE_AFF.length:PW[k].sits.length;
+      if(Object.keys(vues).length!==n) vus.push(k+" : des situations ne sortent jamais ("+Object.keys(vues).length+" sur "+n+")");
+    });
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. les juges du moteur à cases ---- */
+  verifierEval(w, 'le moteur à cases : chaque réponse attendue passe, une case vide n’est pas jugée, et chaque piège est nommé — l’ancienne valeur recopiée, la valeur de départ au lieu de la valeur actuelle, le .0 d’un float, la division / qui donne un float, // qui donne un int, les priorités, -x ** 2, la valeur affichée prise pour la valeur de départ, le programme choisi qui ne convient pas', `(function(){
+    const vus=[];
+    Object.keys(PW).forEach(function(k){ const C=PW[k]; if(C.moteur!=="cases") return;
+      const qs=k==="pwe"?[{s:0,l:PWE_AFF.map(function(_, i){ return i; }),r:[]}]:C.sits.map(function(_, i){ const q={s:i,r:[]}; if(C.fab) C.fab(q); return q; });
+      qs.forEach(function(q){ const its=pwiItems(k, q);
+        if(!its.length) vus.push(k+" situation "+q.s+" : aucune case");
+        its.forEach(function(it, j){
+          if(!it.att) vus.push(k+" situation "+q.s+" case "+j+" : pas de réponse attendue");
+          if(!pwiJuge(it, it.att).ok) vus.push(k+" situation "+q.s+" case "+j+" : la réponse attendue est refusée");
+          if(!pwiJuge(it, "").vide) vus.push(k+" situation "+q.s+" case "+j+" : la case vide est jugée");
+        });
+      });
+    });
+    const D=function(k, q, j, v, re){ const it=pwiItems(k, q)[j], d=pwiJuge(it, v); if(d.ok||d.vide||!re.test(d.dit||"")) vus.push(k+" "+JSON.stringify(q)+" case "+j+" « "+v+" » → "+JSON.stringify(d)); };
+    D("pwx", {s:0,r:[]}, 0, "5", /CHANGE/);
+    D("pwx", {s:0,r:[]}, 1, "10", /ACTUELLE/);
+    D("pwy", {s:1,r:[]}, 0, "3", /3[.]0/);
+    D("pwy", {s:1,r:[]}, 1, "int", /TOUJOURS un float/);
+    D("pwy", {s:0,r:[]}, 2, "3.5", /ENTIER/);
+    D("pwp", {s:0,r:[]}, 0, "21", /priorités/);
+    D("pwp", {s:2,r:[]}, 0, "9", /AVANT le signe moins/);
+    D("pwp", {s:1,r:[]}, 2, "15,0", /POINT/);
+    D("pwv", {s:0,r:[]}, 0, "11", /AFFICHÉE/);
+    D("pwv", {s:0,r:[]}, 0, "29", /DERNIÈRE/);
+    D("pwc", {s:0,r:[],perm:[0,1,2,3]}, 0, "1", /mauvais ordre/);
+    D("pwc", {s:0,r:[],perm:[0,1,2,3]}, 0, "2", /ne range rien/);
+    if(pwiJuge(pwiItems("pwp", {s:0,r:[]})[0], " 17 ").ok!==true) vus.push("pwp : les espaces autour du nombre ne sont pas ignorés");
+    PWC_SITS.forEach(function(S, i){ const o=S.p.map(function(p){ return pwSortie(p.join(String.fromCharCode(10))); }); if(o.slice(1).some(function(x){ return x===o[0]; })||o.some(function(x){ return x===null; })) vus.push("pwc situation "+i+" : le bon programme n’est pas le seul à afficher son résultat"); });
+    PWM_SITS.forEach(function(S, i){ const its=pwiItems("pwm", {s:i,r:[]}); if((its[0].att===its[1].att)!==(its[2].att==="oui")) vus.push("pwm situation "+i+" : la réponse oui/non ne suit pas les deux affichages"); });
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. les juges du moteur programme ---- */
+  verifierEval(w, 'le moteur programme : chaque modèle passe, le programme donné non modifié est une copie VIDE, un résultat écrit à la main est refusé par la seconde méthode, et chaque défaut est nommé — les guillemets autour du nom, / au lieu de //, l’ordre des deux nombres, le reste oublié, round oublié ou au mauvais chiffre, la virgule décimale, ^, ←, ×, « Afficher », le signe −, la variable utilisée avant d’exister, la casse, l’orthographe, le résultat faux inchangé', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    Object.keys(PW).forEach(function(k){ const C=PW[k]; if(C.moteur!=="prog") return;
+      C.sits.forEach(function(S, i){
+        const d=pwpJuge(k, S, C.modele(S)); if(!d.ok) vus.push(k+" situation "+i+" : le modèle est refusé — "+d.dits.join(" "));
+        const v=pwpJuge(k, S, C.depart(S)); if(!v.vide) vus.push(k+" situation "+i+" : le programme donné n’est pas une copie vide");
+        if(!pwpJuge(k, S, "").vide) vus.push(k+" situation "+i+" : la copie vide est jugée");
+        if(Object.keys(S.vars||{}).length){
+          const res=pwNombres(pwSortie(C.modele(S), C.round));
+          const main=C.depart(S).replace(/[ ]*$/,"")+(C.depart(S).trim()?"":Object.keys(S.vars).map(function(n){ return n+" = "+S.vars[n]; }).join(NL))+NL+"print("+res.join(", ")+")";
+          if(pwpJuge(k, S, main).ok) vus.push(k+" situation "+i+" : un résultat écrit à la main est accepté");
+        }
+      });
+    });
+    const J=function(k, i, src, re){ const d=pwpJuge(k, PW[k].sits[i], src); if(re===true){ if(!d.ok) vus.push(k+" refuse "+JSON.stringify(src)+" — "+d.dits.join(" ")); return; } if(d.ok||d.vide||!re.test(d.dits.join(" "))) vus.push(k+" "+JSON.stringify(src)+" → "+JSON.stringify(d)); };
+    J("pws", 0, "age = 15"+NL+"print("+Q+"J’ai"+Q+", "+Q+"age"+Q+", "+Q+"ans"+Q+")", /entre guillemets/);
+    J("pws", 0, "age = 15"+NL+"print("+Q+"J’ai 15 ans"+Q+")", /CALCULE/);
+    J("pws", 0, "age = 15"+NL+"print("+Q+"J’ai "+Q+" + age + "+Q+" ans"+Q+" + "+Q+Q+")", /texte et un nombre/);
+    J("pws", 0, "age = 15"+NL+"print("+Q+"J’ai "+Q+" + str(age) + "+Q+" ans"+Q+")", true);
+    J("pwd", 0, "oeufs = 50"+NL+"print(oeufs / 6)"+NL+"print(oeufs % 6)", /virgule/);
+    J("pwd", 0, "oeufs = 50"+NL+"print(oeufs % 6, oeufs // 6)", /mauvais ordre/);
+    J("pwd", 0, "oeufs = 50"+NL+"print(oeufs // 6)", /reste/);
+    J("pwd", 0, "oeufs = 50"+NL+"b = oeufs // 6"+NL+"r = oeufs - b * 6"+NL+"print("+Q+"boîtes"+Q+", b, "+Q+"reste"+Q+", r)", true);
+    J("pwr", 0, "prix = 19.99"+NL+"print(prix * 1.2)", /sans l’arrondir/);
+    J("pwr", 0, "prix = 19.99"+NL+"print(round(prix * 1.2, 1))", /2 chiffres/);
+    J("pwr", 1, "prix = 2.15"+NL+"nombre = 3"+NL+"print(round(prix * nombre, 2))", true);
+    J("pwf", 0, "prix_ht = 50"+NL+"print(prix_ht * 1,2)", /POINT/);
+    J("pwf", 2, "masse = 60"+NL+"taille = 1.6"+NL+"print(masse / taille ^ 2)", /[*][*]/);
+    J("pwf", 2, "masse = 60"+NL+"taille = 1.6"+NL+"print(masse / (taille * taille))", true);
+    J("pwt", 0, "a ← 4", /flèche/);
+    J("pwt", 0, "a = 4"+NL+"b = a + 3"+NL+"a = a × b"+NL+"print(a)", /étoile/);
+    J("pwt", 0, "a = 4"+NL+"b = a + 3"+NL+"a = a * b"+NL+"Afficher a", /print/);
+    J("pwt", 1, "x = 7"+NL+"y = x − 2"+NL+"x = x + y"+NL+"print(x)", /tiret/);
+    J("pwt", 0, "print(28)", /commencer comme l’algorithme/);
+    J("pwn", 0, "prix = 4"+NL+"total = prix * quantite"+NL+"quantite = 3"+NL+"print(total)"+NL+"# corrigé", /AVANT/);
+    J("pwn", 3, "Note = 12"+NL+"Note = note + 5"+NL+"print(Note) # ?", /majuscules/);
+    J("pwn", 2, "vitesse = 90"+NL+"temps = 2"+NL+"distance = vitese * temps"+NL+"print(distance) # ?", /orthographe/);
+    J("pwn", 3, "note = 12"+NL+"note = note + 5"+NL+"print(note)", true);
+    J("pwg", 0, "a = 12"+NL+"b = 16"+NL+"moyenne = a + b / 2"+NL+"print(moyenne) # ?", /toujours le même résultat faux/);
+    J("pwg", 1, "prix = 80"+NL+"prix_solde = prix - prix * 20 / 100"+NL+"print(prix_solde)", true);
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le moteur ordre ---- */
+  verifierEval(w, 'le moteur ordre : les flèches remettent en ordre et l’ordre juste vaut 1 ; deux lignes indépendantes échangées restent justes ; une variable utilisée avant d’exister est nommée ; un programme non touché ne rougit pas et se remet en ordre en vert', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-ordre-lignes";
+    TESTS["python-ordre-lignes"].start();
+    let q=test.questions[0];
+    for(let tour=0;tour<60;tour++){ const i=q.o.findIndex(function(x,j){ return j<q.o.length-1 && q.o[j]>q.o[j+1]; }); if(i<0) break; pwoBouger(i,1); }
+    if(!q.o.every(function(x,j){ return x===j; })) vus.push("les flèches ne remettent pas en ordre : "+q.o.join(","));
+    checkPWO();
+    if(test.score!==1||!document.getElementById("pwo-liste").classList.contains("ok")) vus.push("l’ordre juste : "+test.score);
+    nextPWO(); checkPWO();
+    const L=document.getElementById("pwo-liste");
+    if(L.classList.contains("bad")||!L.classList.contains("sol")) vus.push("le programme non touché : "+L.className);
+    const s2=PW.pwo.sits.findIndex(function(S){ return /échanger/.test(S.but); });
+    if(!pwoJuge("pwo", {s:s2, o:[1,0,2,3,4,5], bouge:true}).ok) vus.push("a = 4 et b = 9 échangées sont refusées");
+    const d=pwoJuge("pwo", {s:0, o:[1,0,2,3], bouge:true}); if(d.ok||!/AVANT/.test(d.dit)) vus.push("variable avant sa création : "+JSON.stringify(d));
+    const e=pwoJuge("pwo", {s:0, o:[0,2,1,3], bouge:true}); if(e.ok||!/ordre des étapes/.test(e.dit)) vus.push("étapes inversées : "+JSON.stringify(e));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. les écrans, joués comme un élève ---- */
+  verifierEval(w, 'les seize écrans : la définition avant l’énoncé à la question 1 seulement ; une copie juste vaut toutes ses cases ; une copie vide ne rougit jamais et reçoit la correction en vert ; « Exécuter » n’apparaît sur un écran à cases qu’après la vérification ; en soutien, une copie fausse rougit sans verrouiller ni révéler la réponse', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentDM=null;
+    Object.keys(PW).forEach(function(k){
+      const C=PW[k], K=k.toUpperCase(); currentTestId=C.id; currentMode="train";
+      TESTS[C.id].start();
+      if(test.kind!==k||!document.getElementById("scr-"+k).classList.contains("on")){ vus.push(k+" : l’écran ne s’ouvre pas"); return; }
+      const av=document.getElementById(k+"Avant");
+      if(!av||!av.querySelector(".pyx-cours")) vus.push(k+" : pas de définition avant l’énoncé");
+      if(C.moteur==="cases" && document.getElementById(k+"Run")) vus.push(k+" : « Exécuter » avant la vérification");
+      /* question 1 : la copie juste */
+      let q=test.questions[0], S=pwS(k, q), n=0;
+      if(C.moteur==="cases"){ const its=pwiItems(k, q); n=its.length; its.forEach(function(it, j){ const el=document.getElementById(k+"-"+j); el.value=it.att; el.dispatchEvent(new Event(it.type==="choix"?"change":"input",{bubbles:true})); }); }
+      else if(C.moteur==="prog"){ n=1; const ta=document.getElementById(k+"-prog"); ta.value=C.modele(S); ta.dispatchEvent(new Event("input",{bubbles:true})); }
+      else { n=1; for(let t=0;t<60;t++){ const i=q.o.findIndex(function(x,j){ return j<q.o.length-1 && q.o[j]>q.o[j+1]; }); if(i<0) break; pwoBouger(i,1); } }
+      window["check"+K]();
+      if(test.score!==n) vus.push(k+" : la copie juste vaut "+test.score+" sur "+n);
+      if(C.moteur==="cases" && C.exec && !document.getElementById(k+"Run")) vus.push(k+" : pas d’« Exécuter » après la vérification");
+      if(C.moteur==="cases" && C.exec){ pwiExecuter(); const c=document.getElementById(k+"Console"); if(!c||c.hidden||!c.textContent.trim()||/erreur/i.test(c.textContent)) vus.push(k+" : la console après vérification : "+(c&&c.textContent)); }
+      if(!document.getElementById(k+"Next")){ vus.push(k+" : pas de « Question suivante »"); return; }
+      /* question 2 : la copie vide */
+      window["next"+K]();
+      if(test.idx!==1) vus.push(k+" : la question 2 ne s’ouvre pas");
+      if(document.getElementById(k+"Avant").textContent.trim()) vus.push(k+" : la définition revient à la question 2");
+      window["check"+K]();
+      const scr=document.getElementById("scr-"+k);
+      if(scr.querySelector("input.bad, select.bad, textarea.bad, .pod-liste.bad")) vus.push(k+" : la copie vide rougit");
+      if(!scr.querySelector(".sol")) vus.push(k+" : la copie vide ne reçoit pas la correction en vert");
+      /* soutien : une copie fausse */
+      currentMode="soutien"; TESTS[C.id].start(); q=test.questions[0]; S=pwS(k, q);
+      let att="";
+      if(C.moteur==="cases"){ const its=pwiItems(k, q); att=pwiLibelle(its[0]); const el=document.getElementById(k+"-0"); if(its[0].type==="choix"){ el.value=its[0].opts.find(function(o){ return o[0]!==its[0].att; })[0]; el.dispatchEvent(new Event("change",{bubbles:true})); } else { el.value="99999"; el.dispatchEvent(new Event("input",{bubbles:true})); } }
+      else if(C.moteur==="prog"){ const ta=document.getElementById(k+"-prog"); ta.value=(C.depart(S)||"")+String.fromCharCode(10)+"print(99999)"; ta.dispatchEvent(new Event("input",{bubbles:true})); }
+      else { pwoBouger(0,1); if(pwoJuge(k, q).ok) pwoBouger(0,1); }
+      window["check"+K]();
+      if(test.locked) vus.push(k+" : en soutien, une copie fausse verrouille la question");
+      if(!scr.querySelector(".bad")) vus.push(k+" : en soutien, la copie fausse ne rougit pas");
+      if(scr.querySelector(".sol")) vus.push(k+" : en soutien, la correction est révélée");
+      if(C.moteur==="prog" && document.getElementById(k+"Modele").textContent.trim()) vus.push(k+" : en soutien, le modèle est révélé");
+      currentMode="train";
+    });
+    return vus.slice(0,6).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. CPython ---- */
+  const nomPy = 'ce que les programmes des seize exercices affichent est ce qu’affiche un vrai CPython (round compris)';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[], NL=String.fromCharCode(10);
+    const sortie=function(src, rd){ try{ const r=rd?pyAvecRound(function(){ return pyRun(src); }):pyRun(src); return r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+NL; }).join(""); }catch(e){ return "ERREUR"; } };
+    const ajoute=function(src, rd){ res.push([src, sortie(src, rd)]); };
+    Object.keys(PW).forEach(function(k){ const C=PW[k];
+      if(C.moteur==="prog") C.sits.forEach(function(S){
+        ajoute(C.modele(S), C.round);
+        if(Object.keys(S.vars||{}).length) ajoute(pwRemplacerTout(C.modele(S), S.autres), C.round);
+        if(C.repare && sortie(C.depart(S))!=="ERREUR") ajoute(C.depart(S));
+      });
+      else if(C.moteur==="ordre") C.sits.forEach(function(S){ ajoute(pwoJuste(S)); });
+      else if(k!=="pwe") C.sits.forEach(function(S, i){ const q={s:i,r:[]}; if(C.fab) C.fab(q); if(C.exec) C.exec(S, q).forEach(function(e){ ajoute(e.src); }); });
+    });
+    PWC_SITS.forEach(function(S){ S.p.forEach(function(p){ ajoute(p.join(NL)); }); });
+    PWY_SITS.forEach(function(S){ S.e.forEach(function(e){ ajoute(S.l.concat(["print("+e+")","print(type("+e+"))"]).join(NL)); }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les programmes ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src]) => src));
+  const ecarts = [];
+  liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
@@ -47611,6 +48385,163 @@ function associerDeriveeSeconde(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---- Convexité — une inégalité par une tangente (4.3.6) ----
+   La démonstration à trous « f″ ≥ 0 ⟹ f convexe ⟹ au-dessus de T ⟹
+   f(x) ≥ T(x) » (demande de Turquet, octobre 2026). Le contrôle relit
+   l'ÉNONCÉ AFFICHÉ — f, f′ et f″ telles que l'élève les lit, traduites en
+   fonctions —, puis refait tout par différences finies, jamais par cvtAns :
+   f′ est la dérivée de f, f″ celle de f′, le signe de f″ sur I (une grille de
+   points), la tangente en a (f(a), f′(a), pente et ordonnée à l'origine), et
+   l'inégalité attendue VRAIE en chaque point de I. Puis les gestes : la
+   copie juste vaut le point, une case fausse ne rougit qu'elle, une case vide
+   ne rougit jamais et reçoit la correction, le coefficient 1 de x s'omet, le
+   miroir de la conclusion suit l'équation écrite, le soutien colore en
+   direct, et le contexte du modèle porte la clause de secret. */
+function convexiteTangente(w, P){
+  const nom='convexité : l\'inégalité par une tangente est vraie sur I, et la démonstration à trous se juge case par case';
+  const present = evaluer(w, "typeof startCvt==='function' && typeof cvtBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'inégalité par une tangente');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='convexite-tangente';
+    const H=1e-4;
+    const der=function(g,x){ return (g(x+H)-g(x-H))/(2*H); };
+    /* l'écriture affichée, traduite : e<sup>…</sup> devient Math.exp(…), les
+       produits implicites reçoivent leur étoile */
+    const fn=function(html){
+      let t=String(html).replace(/<sup>/g,'^(').replace(/<\\/sup>/g,')').replace(/<[^>]+>/g,'')
+        .replace(/\\u2212/g,'-').replace(/\\s+/g,'');
+      t=t.replace(/e\\^\\(/g,'E(').replace(/\\^/g,'**');
+      t=t.replace(/(\\d)(x|E|\\()/g,'$1*$2').replace(/\\)(x|E|\\(|\\d)/g,')*$1').replace(/x(E|\\(|x)/g,'x*$1');
+      t=t.replace(/E\\(/g,'Math.exp(');
+      return new Function('x','return '+t+';');
+    };
+    const vusFam={};
+    const juge=function(q, ou){
+      const cles=Object.keys(q).filter(function(k){ return ['fam','k','p','a','c','b','v'].indexOf(k)<0; });
+      if(cles.length) vus.push(ou+' : la question range autre chose que ses paramètres : '+cles.join(','));
+      if(Object.keys(q).some(function(k){ return typeof q[k]!=='number' && k!=='fam'; })) vus.push(ou+' : un paramètre qui n\\'est pas un nombre');
+      vusFam[q.fam]=(vusFam[q.fam]||0)+1;
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'cvt', questions:[q], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+      show('cvt'); renderCvt();
+      const pr=document.getElementById('cvtPrompt').innerHTML;
+      const m=pr.match(/par <i>f<\\/i>\\(<i>x<\\/i>\\) = (.*?)\\. On admet[^]*?avec <i>f<\\/i> ′\\(<i>x<\\/i>\\) = (.*?) et <i>f<\\/i> ″\\(<i>x<\\/i>\\) = (.*?)\\. On note[^]*?d’abscisse (\\S+?)\\. /);
+      if(!m){ vus.push(ou+' : l\\'énoncé ne se relit pas : '+pr.slice(0,160)); return; }
+      let F, Fp, Fpp; try{ F=fn(m[1]); Fp=fn(m[2]); Fpp=fn(m[3]); }catch(e){ vus.push(ou+' : une expression affichée ne se lit pas : '+m[1]+' | '+m[2]+' | '+m[3]); return; }
+      const a=parseFloat(m[4].replace('\\u2212','-'));
+      const iv=pr.match(/sur <i>I<\\/i> = (ℝ|\\]−∞ ; (\\S+?)\\]|\\[(\\S+?) ; \\+∞\\[)/);
+      if(!iv){ vus.push(ou+' : l\\'intervalle I ne se lit pas'); return; }
+      const lo=iv[3]!=null?parseFloat(iv[3].replace('\\u2212','-')):-6, hi=iv[2]!=null?parseFloat(iv[2].replace('\\u2212','-')):6;
+      if(!(a>=lo && a<=hi)) vus.push(ou+' : le point de la tangente ('+a+') n\\'est pas dans I');
+      for(let x=lo;x<=hi;x+=0.25){
+        const e1=Math.abs(der(F,x)-Fp(x))/Math.max(1,Math.abs(Fp(x))), e2=Math.abs(der(Fp,x)-Fpp(x))/Math.max(1,Math.abs(Fpp(x)));
+        if(e1>1e-5){ vus.push(ou+' : f′ affichée n\\'est pas la dérivée de f (x = '+x+')'); break; }
+        if(e2>1e-5){ vus.push(ou+' : f″ affichée n\\'est pas la dérivée de f′ (x = '+x+')'); break; }
+      }
+      /* le signe de f″ sur I, la convexité, la tangente, l'inégalité */
+      const pts=[]; for(let x=lo;x<=hi+1e-9;x+=0.1) pts.push(x);
+      const conv=pts.every(function(x){ return Fpp(x)>=-1e-12; }), conc=pts.every(function(x){ return Fpp(x)<=1e-12; });
+      if(conv===conc) vus.push(ou+' : f″ change de signe sur I (ou y est nulle)');
+      const cases=cvtCases(q), bon={}; cases.forEach(function(c){ bon[c.id]=c.good; });
+      const cv=conv?'convexe':'concave';
+      if(bon['cvt-cv']!==cv) vus.push(ou+' : la page attend « '+bon['cvt-cv']+' », f″ dit '+cv);
+      if(bon['cvt-spp']!==(conv?'>=':'<=')) vus.push(ou+' : le signe attendu de f″ est faux');
+      if(bon['cvt-pos']!==(conv?'dessus':'dessous') || bon['cvt-in']!==(conv?'>=':'<=')) vus.push(ou+' : la position ou le sens de l\\'inégalité attendus sont faux');
+      const fa=F(a), fpa=der(F,a), pT=fa-fpa*a;
+      if(Math.abs(bon['cvt-fa']-fa)>1e-6 || Math.abs(bon['cvt-fpa']-fpa)>1e-5) vus.push(ou+' : f(a) ou f′(a) attendus faux ('+bon['cvt-fa']+', '+bon['cvt-fpa']+' pour '+fa+', '+fpa+')');
+      if(Math.abs(bon['cvt-m']-fpa)>1e-5) vus.push(ou+' : la pente attendue de T est fausse');
+      if(Math.abs((bon['cvt-p']||0)-pT)>1e-5) vus.push(ou+' : l\\'ordonnée à l\\'origine attendue de T est fausse');
+      if(bon['cvt-m']===0) vus.push(ou+' : une tangente horizontale (la case de la pente vaudrait 0)');
+      [bon['cvt-fa'],bon['cvt-fpa'],bon['cvt-m'],bon['cvt-p']||0].forEach(function(v){ if(v!==Math.round(v)) vus.push(ou+' : une valeur attendue non entière : '+v); });
+      if(('cvt-p' in bon)!==(Math.abs(pT)>1e-6)) vus.push(ou+' : la case de l\\'ordonnée à l\\'origine '+(('cvt-p' in bon)?'est posée alors qu\\'elle vaut 0':'manque'));
+      pts.forEach(function(x){ const d=F(x)-(fpa*x+pT); if(conv?d<-1e-6:d>1e-6) vus.push(ou+' : l\\'inégalité attendue est FAUSSE en x = '+x.toFixed(1)); });
+      cases.forEach(function(c){ if(c.type==='sel'){ const el=document.getElementById(c.id);
+        if(!el || !Array.prototype.some.call(el.options,function(o){ return o.value===c.good; })) vus.push(ou+' : le menu '+c.id+' ne propose pas la bonne réponse'); } });
+      if(q.v===1){ const T=document.getElementById('cvtPrompt').textContent;
+        if(!/Démontre que/.test(T) || T.indexOf(conv?'≥':'≤')<0) vus.push(ou+' : l\\'énoncé « démontre que » n\\'annonce pas la bonne inégalité'); }
+    };
+    for(let n=0;n<60 && !vus.length;n++){
+      const qs=cvtBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      if(new Set(qs.map(function(q){ return q.fam; })).size!==4) vus.push('les quatre familles ne sortent pas une fois chacune par séance');
+      qs.forEach(function(q,i){ juge(JSON.parse(JSON.stringify(q)),'séance '+n+', question '+(i+1)); });
+    }
+    /* et chaque jeu de paramètres possible, pas seulement ceux que le hasard a tirés */
+    CVT_EXP.forEach(function(c){ [0,1].forEach(function(v){ juge({fam:'exp',k:c[0],p:c[1],v:v},'exp '+c.join(',')); }); });
+    [1,2,3,-1,-2,-3].forEach(function(a){ [0,-3,3].forEach(function(c){ if(3*a*a+c!==0) juge({fam:'cub',a:a,c:c,v:0},'cub '+a+','+c); }); });
+    [0,1,-2].forEach(function(b){ juge({fam:'pe',b:b,v:0},'pe '+b); });
+    [0,-1,2,-2].forEach(function(b){ juge({fam:'pem',b:b,v:1},'pem '+b); });
+
+    /* ---- les gestes, sur deux questions FIXES ----
+       Q0 : e^x sur ℝ, tangente en 0 : y = x + 1 (pente 1 : l'omission) ;
+       Q1 : x³ sur ]−∞ ; 0], tangente en −1 : y = 3x + 2, concave. */
+    const Q0={fam:'exp',k:1,p:0,v:0}, Q1={fam:'cub',a:-1,c:0,v:1};
+    const JUSTE0={'cvt-f0':'>','cvt-spp':'>=','cvt-cv':'convexe','cvt-fa':'1','cvt-fpa':'1','cvt-m':'1','cvt-p':'+1','cvt-pos':'dessus','cvt-in':'>='};
+    const JUSTE1={'cvt-f0':'<=','cvt-spp':'<=','cvt-cv':'concave','cvt-fa':'-1','cvt-fpa':'3','cvt-m':'3','cvt-p':'2','cvt-pos':'dessous','cvt-in':'<='};
+    function pose(valeurs, mode, q){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'cvt', questions:[JSON.parse(JSON.stringify(q||Q0))], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+      show('cvt'); renderCvt();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkCvt();
+      const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+      return { score:test.score, fb:document.getElementById('cvtFeedback').textContent, cls:cls, cases:(test.answers[0]||{}).cases,
+        rouges:[].slice.call(document.querySelectorAll('#scr-cvt .bad')).filter(function(e){ return /^(INPUT|SELECT)$/.test(e.tagName); }).map(function(e){ return e.id; }) };
+    }
+    let r=pose(JUSTE0);
+    if(r.score!==1) vus.push('la copie juste (eˣ) ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==9) vus.push('la copie juste (eˣ) compte '+r.cases+' cases au lieu de 9');
+    if(!test.locked) vus.push('la copie juste ne verrouille pas');
+    if(document.getElementById('cvt-mir').textContent.replace(/\\s+/g,'')!=='x+1') vus.push('le miroir de la conclusion ne montre pas « x + 1 » une fois corrigé : '+document.getElementById('cvt-mir').textContent);
+    r=pose(Object.assign({},JUSTE0,{'cvt-m':''}));
+    if(r.score!==1) vus.push('le coefficient 1 de x omis (y = x + 1) est compté faux');
+    r=pose(Object.assign({},JUSTE0,{'cvt-m':'','cvt-p':'2'}));
+    if(r.rouges.join(',')!=='cvt-p' || !/\\bsol\\b/.test(r.cls('cvt-m'))) vus.push('une ligne fausse prend encore le vide pour un 1 : '+r.rouges.join(','));
+    r=pose(JUSTE1,'train',Q1);
+    if(r.score!==1) vus.push('la copie juste (x³, concave) ne vaut pas le point ('+r.fb+') — « -1 » au tiret et « 2 » sans signe doivent passer');
+    if(!/Démontre que/.test(document.getElementById('cvtPrompt').textContent)) vus.push('le visage « démontre que » ne s\\'affiche pas');
+    r=pose(Object.assign({},JUSTE0,{'cvt-pos':'dessous'}));
+    if(r.score!==0) vus.push('une position fausse vaut encore le point');
+    if(r.rouges.join(',')!=='cvt-pos') vus.push('une position fausse rougit autre chose qu\\'elle-même : '+r.rouges.join(','));
+    if(!/\\bok\\b/.test(r.cls('cvt-in'))) vus.push('l\\'inégalité juste à côté d\\'une position fausse n\\'est pas bleue');
+    { const b=document.getElementById('cvt-pos').nextElementSibling;
+      if(!b || !/mf-cor/.test(b.className) || b.textContent!=='au-dessus') vus.push('la bonne position ne s\\'affiche pas à côté du menu faux'); }
+    r=pose(Object.assign({},JUSTE0,{'cvt-fpa':'0'}));
+    if(r.rouges.join(',')!=='cvt-fpa') vus.push('f′(a) faux ne rougit pas seul : '+r.rouges.join(','));
+    /* la case vide ne rougit jamais, en entraînement comme en soutien */
+    r=pose({'cvt-cv':'convexe'});
+    if(r.rouges.length) vus.push('en entraînement, une case vide rougit : '+r.rouges.join(','));
+    if(!/\\bsol\\b/.test(r.cls('cvt-fa')) || document.getElementById('cvt-fa').value!=='1') vus.push('la case laissée vide ne reçoit pas la correction (sol)');
+    if(!/\\bsol\\b/.test(r.cls('cvt-in'))) vus.push('le menu laissé vide ne reçoit pas la correction (sol)');
+    r=pose({'cvt-cv':'concave','cvt-fa':'1'},'soutien');
+    if(r.rouges.join(',')!=='cvt-cv') vus.push('en soutien, autre chose que la convexité fausse rougit : '+r.rouges.join(','));
+    if(!/Revérifier/.test(document.getElementById('cvtActions').textContent)) vus.push('en soutien, une copie fausse n\\'offre pas « Revérifier »');
+    if(test.locked) vus.push('en soutien, une copie fausse verrouille l\\'écran');
+    if(!document.getElementById('cvt-fa').disabled) vus.push('en soutien, la case juste n\\'est pas verrouillée');
+    pose(null,'soutien');
+    { const s0=document.getElementById('cvt-f0'); s0.value='<'; s0.dispatchEvent(new Event('change'));
+      if(!/\\bbad\\b/.test(s0.className)) vus.push('en soutien, un signe faux ne se colore pas en direct');
+      const e=document.getElementById('cvt-fpa'); e.value='1'; e.dispatchEvent(new Event('input'));
+      if(!/\\bok\\b/.test(e.className)) vus.push('en soutien, f′(a) juste ne se colore pas en direct'); }
+    r=pose(null);
+    if(!/Complète au moins une case/.test(r.fb)) vus.push('une copie vide devrait demander de compléter, pas juger');
+    /* le miroir suit la saisie, et n'est pas une case */
+    { const m=document.getElementById('cvt-m'), p=document.getElementById('cvt-p');
+      m.value='-2'; m.dispatchEvent(new Event('input')); p.value='-3'; p.dispatchEvent(new Event('input'));
+      const t=document.getElementById('cvt-mir').textContent.replace(/\\s+/g,'');
+      if(t!=='\\u22122x\\u22123') vus.push('le miroir ne recopie pas l\\'équation écrite : « '+t+' »');
+      if(document.getElementById('cvt-mir').querySelector('input,select')) vus.push('le miroir porte une case'); }
+    { const c=cvtConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/T : y = x \\+ 1/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec les réponses'); }
+    currentMode='train';
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---- Convexité — QCM variés : six visages, une seule affirmation vraie ----
    La fiche « QCM convexité » (demande de Turquet, septembre 2026 : « en
    terminale faire des QCM variés comme sur le PDF ») : la courbe de f′, son
@@ -47789,6 +48720,115 @@ function mineursTerminale(w, P){
   })()`, v => v === '', undefined);
 }
 
+/* ---------- Le 4.3.7 : convexité — trouver un paramètre ----------
+   Demande de Turquet (octobre 2026). Le contrôle REFAIT l'analyse par ses
+   propres moyens, sur des centaines de tirages : la fonction de l'énoncé est
+   reconstruite depuis la question, dérivée par différences finies, et chaque
+   case attendue doit dire la même chose — f′ et f″ écrites dans les cases
+   valent les dérivées numériques, k annule f″ en x0 ET f″ y change de signe,
+   le Δ des cases est celui du trinôme de f″, et le seuil de a est exact
+   (convexe au seuil, pas convexe juste en dessous). Puis l'écran : la copie
+   juste vaut le point, une faute ne rougit qu'elle, une case vide ne rougit
+   jamais et reçoit la correction. */
+function convexiteParametre(w, P){
+  const nom='le 4.3.7 : convexité — trouver un paramètre (point d’inflexion imposé, convexité sur ℝ par le discriminant)';
+  const present = evaluer(w, "typeof startCVP==='function' && typeof cvpGen==='function' && typeof cvpCases==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice « trouver un paramètre »');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='convexite-parametre';
+    { const th=THEMES.filter(function(t){ return t.nom==='Étude de fonction'; })[0];
+      const st=th&&th.sous&&th.sous.filter(function(x){ return x.nom==="Convexité"; })[0];
+      if(!st || st.ids[st.ids.length-1]!=='convexite-parametre') vus.push("{convexite-parametre} ne ferme pas la partie « Convexité »");
+      if(TEST_NUM['convexite-parametre']!=='4.3.7') vus.push('le numéro n\\'est pas 4.3.7 : '+TEST_NUM['convexite-parametre']); }
+    const h=1e-3;
+    const d1=function(F,x){ return (F(x+h)-F(x-h))/(2*h); };
+    const d2=function(F,x){ return (F(x+h)-2*F(x)+F(x-h))/(h*h); };
+    const proche=function(u,v,t){ return Math.abs(u-v)<=(t||1e-3)*Math.max(1,Math.abs(v)); };
+    const fDe=function(q,k,a){
+      if(q.fam==='p3') return function(x){ return q.m*x*x*x+k*x*x+q.p*x+q.d; };
+      if(q.fam==='p4') return function(x){ return x*x*x*x+k*x*x*x+q.p*x+q.d; };
+      if(q.fam==='ex') return function(x){ return (x+k)*Math.exp(q.e*x); };
+      return function(x){ return (x*x+q.b*x+a)*Math.exp(q.e*x); };
+    };
+    const G=function(cs,id){ const c=cs.filter(function(x){ return x.id===id; })[0]; return c?c.good:undefined; };
+    const fams={};
+    for(let n=0;n<120;n++){
+      const S=cvpGenSession();
+      if(S.length!==5) { vus.push('la séance n\\'a pas cinq questions'); break; }
+      S.forEach(function(q){
+        fams[q.fam]=(fams[q.fam]||0)+1;
+        const cs=cvpCases(q), g=function(id){ return G(cs,id); };
+        const tag=JSON.stringify(q);
+        if(cvpEstInfl(q)){
+          const F=fDe(q,q.k), k=q.k;
+          if(Math.abs(d2(F,q.x0))>1e-2) vus.push(tag+' : f″(x0) ≠ 0 avec k = '+k);
+          if(!(d2(F,q.x0-0.5)*d2(F,q.x0+0.5)<0)) vus.push(tag+' : f″ ne change pas de signe en x0');
+          if(g('cvp-d1')!==k) vus.push(tag+' : la case k attend '+g('cvp-d1'));
+          if(g('cvp-e1')!=='change') vus.push(tag+' : le menu du changement de signe');
+          [0.37,-1.21,2.4].forEach(function(x){
+            let fp, fs, fsx0;
+            if(q.fam==='p3'){ fp=g('cvp-a1')*x*x+g('cvp-a2')*k*x+(g('cvp-a3')||0); fs=g('cvp-b1')*x+g('cvp-b2')*k; fsx0=g('cvp-c1')+g('cvp-c2')*k; }
+            else if(q.fam==='p4'){ fp=g('cvp-a1')*x*x*x+g('cvp-a2')*k*x*x+(g('cvp-a3')||0); fs=g('cvp-b1')*x*x+g('cvp-b2')*k*x; fsx0=g('cvp-c1')+g('cvp-c2')*k; }
+            else { fp=(q.e>0?(x+k+g('cvp-a1')):(-x-k+g('cvp-a1')))*Math.exp(q.e*x); fs=(x+k+g('cvp-b1'))*Math.exp(q.e*x); fsx0=g('cvp-c1')+k; }
+            if(!proche(fp,d1(F,x))) vus.push(tag+' : f′ des cases ≠ dérivée numérique en '+x);
+            if(!proche(fs,d2(F,x),5e-3)) vus.push(tag+' : f″ des cases ≠ dérivée seconde numérique en '+x);
+            if(Math.abs(fsx0)>1e-9) vus.push(tag+' : l\\'équation f″(x0) = 0 des cases ne s\\'annule pas');
+          });
+          if((q.fam==='p3'||q.fam==='p4') && !q.p && g('cvp-a3')!==undefined) vus.push(tag+' : une case de constante pour p = 0');
+        } else {
+          const seuil=g('cvp-e2');
+          if(g('cvp-d1')!=='le' || g('cvp-e1')!=='ge') vus.push(tag+' : les menus Δ ≤ 0 / a ≥');
+          [-3,0.5,4].forEach(function(a){
+            const F=fDe(q,0,a);
+            [0.37,-1.21,1.9].forEach(function(x){
+              const E=Math.exp(q.e*x);
+              const fp=(q.e>0?(x*x+g('cvp-a1')*x+a+g('cvp-a2')):(-x*x+g('cvp-a1')*x-a+g('cvp-a2')))*E;
+              const fs=(x*x+g('cvp-b1')*x+a+g('cvp-b2'))*E;
+              if(!proche(fp,d1(F,x))) vus.push(tag+' : f′ des cases ≠ dérivée numérique (a = '+a+', x = '+x+')');
+              if(!proche(fs,d2(F,x),5e-3)) vus.push(tag+' : f″ des cases ≠ dérivée seconde numérique (a = '+a+', x = '+x+')');
+            });
+            const B=g('cvp-b1'), C=a+g('cvp-b2');
+            if(Math.abs((g('cvp-c1')-g('cvp-c2')*a)-(B*B-4*C))>1e-9) vus.push(tag+' : le Δ des cases n\\'est pas celui du trinôme de f″');
+          });
+          const minF2=function(a){ const F=fDe(q,0,a); let m=Infinity; for(let x=-12;x<=12;x+=0.01) m=Math.min(m,(x*x+g('cvp-b1')*x+a+g('cvp-b2'))); return m; };
+          if(minF2(seuil)< -1e-9) vus.push(tag+' : au seuil a = '+seuil+', f″ prend une valeur négative');
+          if(minF2(seuil-0.05)>=0) vus.push(tag+' : juste sous le seuil a = '+seuil+', f″ reste positive — le seuil est faux');
+        }
+      });
+      if(vus.length>6) break;
+    }
+    ['p3','p4','ex','dp','dm'].forEach(function(f){ if(!fams[f]) vus.push('la famille '+f+' ne sort jamais'); });
+    /* ---- l'écran : la copie juste, une faute, une case vide ---- */
+    const pose=function(q, remplir){
+      Object.assign(test,{kind:'cvp', questions:[JSON.parse(JSON.stringify(q))], idx:0, score:0, answers:[], locked:false, startTime:Date.now(), maxScore:1});
+      show('cvp'); renderCVP();
+      cvpCases(q).forEach(function(x){ const el=document.getElementById(x.id); if(!el){ vus.push('case absente : '+x.id); return; } const v=remplir(x); if(v!=null) el.value=v; });
+      checkCVP();
+      return cvpCases(q).map(function(x){ const el=document.getElementById(x.id); return {id:x.id, cl:el?el.className:''}; });
+    };
+    const juste=function(x){ return x.type==='sel'?x.good:String(x.good).replace('.',',').replace('-','−'); };
+    [{fam:'p3',m:1,x0:2,p:0,d:1,k:-6},{fam:'p4',x0:-1,p:3,d:2,k:2},{fam:'ex',e:-1,x0:1,k:1},{fam:'dp',e:1,b:0},{fam:'dm',e:-1,b:1}].forEach(function(q){
+      let r=pose(q, juste);
+      if(test.score!==1 || r.some(function(c){ return !/\\bok\\b/.test(c.cl); })) vus.push(q.fam+' : la copie juste ne vaut pas le point ('+r.filter(function(c){ return !/\\bok\\b/.test(c.cl); }).map(function(c){ return c.id; }).join(', ')+')');
+      const cs=cvpCases(q), faux=cs[cs.length-1].id, vide=cs[0].id;
+      r=pose(q, function(x){ if(x.id===vide) return null; if(x.id===faux) return x.type==='sel'?(x.good==='change'?'garde':'lt'):'99'; return juste(x); });
+      r.forEach(function(c){
+        if(c.id===faux){ if(!/\\bbad\\b/.test(c.cl)) vus.push(q.fam+' : la case fausse '+c.id+' ne rougit pas'); }
+        else if(c.id===vide){ if(/\\bbad\\b/.test(c.cl) || !/\\bsol\\b/.test(c.cl)) vus.push(q.fam+' : la case vide '+c.id+' : '+c.cl); }
+        else if(!/\\bok\\b/.test(c.cl)) vus.push(q.fam+' : la case juste '+c.id+' n\\'est pas bleue quand une autre est fausse');
+      });
+      if(test.score!==0) vus.push(q.fam+' : une copie fausse vaut le point');
+    });
+    /* le seuil s'écrit aussi en fraction (9/4) ou en décimal (2,25) */
+    { const x={type:'num',good:2.25}; if(!cvpOk(x,'9/4')||!cvpOk(x,'2,25')||!cvpOk(x,'2.25')||cvpOk(x,'2')) vus.push('le seuil 9/4 ne se lit pas en fraction et en décimal'); }
+    return vus.slice(0,8).join(' | ');
+  })()`, v => v === '', undefined);
+}
 function convexiteQcm(w, P){
   const nom='convexité — QCM variés : six visages, une seule affirmation vraie';
   const present = evaluer(w, "typeof startCvq==='function' && typeof cvqBuildQuestions==='function'");
@@ -47977,6 +49017,148 @@ function convexiteQcm(w, P){
     if(r.score!==1) vus.push('la copie juste de l\\'exercice 6 (minimum en −1) ne vaut pas le point : '+r.fb);
     return vus.join(' | ');
   })()`, v => v === '', undefined);
+}
+/* ---------- Autour du théorème de convergence monotone (5.4.4 à 5.4.6, 5.5.2) ----------
+   Les quatre exercices de « fais les idées 1, 2, 7 et 10 » (octobre 2026).
+   Ce contrôle ne croit pas la page sur parole :
+   — le VRAI OU FAUX : chaque contre-exemple de la liste est CALCULÉ sur ses
+     400 premiers termes (sens, bornes, limite finie, +∞) et confronté à chaque
+     affirmation ; la liste « ok » de la page doit être EXACTEMENT celle des
+     contre-exemples qui remplissent les hypothèses sans la conclusion — en
+     refuser un valable donnerait tort à une copie juste ; et aucune
+     affirmation dite vraie ne doit tomber devant un contre-exemple ;
+   — CROISSANTE NON MAJORÉE : chaque tirage est croissant et vérifie Uₙ ≥ n
+     sur ses premiers termes, calculés ;
+   — LA SOMME MAJORÉE : Sₙ ≤ 2 − 1/n sur 300 termes, pour p = 2 et p = 3 ;
+   — L'ALGORITHME : la boucle de la correction, EXÉCUTÉE, renvoie le rang de
+     la page, et le tableau arrondi au millionième le montre au même rang ;
+   puis, pour les quatre, la copie de la correction vaut le point, et les
+   écritures équivalentes que les juges promettent passent. */
+function autourDuTcm(w, P){
+  const nom='autour du théorème de convergence monotone (5.4.4 à 5.4.6, 5.5.2)';
+  const present = evaluer(w, "typeof TCM4==='object' && typeof startTVF==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas ces exercices'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    const nums={'suite-vocabulaire':'5.4.1','suite-tcm-limite':'5.4.2','suite-synthese-variations':'5.4.3','tcm-vrai-faux':'5.4.4',
+      'suite-croissante-non-majoree':'5.4.5','suite-somme-majoree':'5.4.6','suite-algo-seuil':'5.5.1','suite-algo-approx':'5.5.2'};
+    Object.keys(nums).forEach(function(id){ if(TEST_NUM[id]!==nums[id]) vus.push(id+' porte le numéro '+TEST_NUM[id]+' au lieu de '+nums[id]); });
+
+    /* ---- le vrai ou faux, recalculé ---- */
+    const N=400;
+    const CE={ alt:function(n,M){ return Math.pow(-1,n); }, altn:function(n,M){ return Math.pow(-1,n)/(n+1); },
+      moinsn:function(n,M){ return -n; }, altnn:function(n,M){ return Math.pow(-1,n)*n; }, npm:function(n,M){ return n+2*Math.pow(-1,n); },
+      invM:function(n,M){ return M-1/(n+1); }, invM1:function(n,M){ return (M-1)-1/(n+1); } };
+    const props=function(f,M){
+      const t=[]; for(let n=0;n<N;n++) t.push(f(n,M));
+      let cr=true, de=true; for(let i=0;i<N-1;i++){ if(!(t[i+1]>t[i])) cr=false; if(!(t[i+1]<t[i])) de=false; }
+      const sup=Math.max.apply(null,t), inf=Math.min.apply(null,t), queue=t.slice(N/2);
+      const conv=Math.max.apply(null,queue)-Math.min.apply(null,queue)<0.01;
+      return { u0:t[0], cr:cr, de:de, mono:cr||de, maj:sup<N/4, min:inf>-N/4, bornee:sup<N/4&&inf>-N/4, sup:sup, inf:inf,
+        conv:conv, lim:conv?Math.round(t[N-1]*100)/100:null, pinf:Math.min.apply(null,queue)>N/8, minf:Math.max.apply(null,queue)<-N/8,
+        stricte:function(m){ return t.every(function(x){ return x<m; }); }, large:function(m){ return t.every(function(x){ return x<=m; }); } };
+    };
+    /* [hypothèses, conclusion] de chaque affirmation, sur les propriétés calculées */
+    const AFF={
+      majlim:  function(p,M){ return [p.cr && p.large(M), p.conv && p.lim===M]; },
+      bornee:  function(p){ return [p.bornee, p.conv]; },
+      convmono:function(p){ return [p.conv, p.mono]; },
+      croisinf:function(p){ return [p.cr, p.pinf]; },
+      majconv: function(p){ return [p.maj, p.conv]; },
+      nonmaj:  function(p){ return [!p.maj, p.pinf]; },
+      decconv: function(p){ return [p.de, p.conv]; },
+      infcrois:function(p){ return [p.pinf, p.cr]; },
+      strict:  function(p,M){ return [p.stricte(M) && p.conv, p.conv && p.lim<M]; },
+      tcmc:    function(p){ return [p.cr && p.maj, p.conv]; },
+      tcmd:    function(p){ return [p.de && p.inf>=0, p.conv]; },
+      divc:    function(p){ return [p.cr && !p.maj, p.pinf]; },
+      divd:    function(p){ return [p.de && !p.min, p.minf]; },
+      large:   function(p,M){ return [p.large(M) && p.conv, p.conv && p.lim<=M]; },
+      u0c:     function(p){ return [p.cr, p.inf>=p.u0]; },
+      u0d:     function(p){ return [p.de, p.sup<=p.u0]; }
+    };
+    const cles=Object.keys(TVF_AFF);
+    if(cles.length!==Object.keys(AFF).length || cles.some(function(k){ return !AFF[k]; })) vus.push('le contrôle ne connaît pas toutes les affirmations de la page : '+cles.join(','));
+    cles.forEach(function(k){ const A=TVF_AFF[k];
+      [2,3,4,5,6].forEach(function(M){
+        const refute=Object.keys(CE).filter(function(c){ const h=AFF[k](props(CE[c],M),M); return h[0] && !h[1]; });
+        if(A.v){ if(refute.length) vus.push('« '+k+' » est dite vraie, et '+refute.join(',')+' la réfute (M = '+M+')'); }
+        else {
+          const ok=A.ok.slice().sort().join(','), calc=refute.slice().sort().join(',');
+          if(ok!==calc) vus.push('« '+k+' » (M = '+M+') : la page accepte ['+ok+'], le calcul trouve ['+calc+']');
+        }
+      });
+      const opts=tvfOpts({af:k,M:3}).map(function(o){ return o[0]; });
+      A.ok.forEach(function(o){ if(opts.indexOf(o)<0) vus.push('« '+k+' » attend '+o+', absent de la liste'); });
+    });
+    /* les dix premiers termes écrits sous la liste : un par contre-exemple, et les bons */
+    const ceListe=tvfOpts({M:3}).map(function(o){ return o[0]; }).filter(function(c){ return CE[c]; });
+    if(TVF_CE.map(function(c){ return c[0]; }).join()!==ceListe.join()) vus.push('les termes affichés ne suivent pas les contre-exemples de la liste : '+TVF_CE.map(function(c){ return c[0]; }).join());
+    [2,3,4,5,6].forEach(function(M){ ceListe.forEach(function(c){ const t=tvfCeTermes(c,M);
+      if(t.length!==10) vus.push(c+' : '+t.length+' termes affichés au lieu de 10');
+      t.forEach(function(f,n){ if(Math.abs(f[0]/f[1]-CE[c](n,M))>1e-12) vus.push(c+' (M = '+M+') : U'+n+' affiché '+f[0]+'/'+f[1]+', vaut '+CE[c](n,M)); }); }); });
+    const vuesAff={};
+    for(let s=0;s<60;s++){
+      const qs=tvfGenSession(), v=qs.filter(function(q){ return TVF_AFF[q.af].v; }).length, d={};
+      qs.forEach(function(q){ d[q.af]=1; vuesAff[q.af]=1; if(TVF_AFF[q.af].M ? !(q.M>=2&&q.M<=6) : ('M' in q)) vus.push('M mal tiré pour '+q.af); });
+      if(qs.length!==8 || v!==4 || Object.keys(d).length!==8){ vus.push('séance du vrai ou faux : '+qs.length+' questions, '+v+' vraies, '+Object.keys(d).length+' affirmations distinctes'); break; }
+    }
+    if(Object.keys(vuesAff).length!==cles.length) vus.push('en 60 séances, seules '+Object.keys(vuesAff).length+' affirmations sur '+cles.length+' sont sorties');
+
+    /* ---- croissante non majorée : le tirage est honnête ---- */
+    const fams={};
+    for(let s=0;s<100;s++) tnmGenSession().forEach(function(q){ fams[q.fam]=1;
+      let u=q.c; for(let n=0;n<6;n++){ if(u<n) vus.push('tnm '+JSON.stringify(q)+' : U'+n+' = '+u+' < '+n); const v=tnmF(q,n,u); if(!(v>u)) vus.push('tnm '+JSON.stringify(q)+' : non croissante au rang '+n); u=v; } });
+    if(Object.keys(fams).length!==2) vus.push('tnm : une seule famille sort');
+
+    /* ---- la somme majorée ---- */
+    [2,3].forEach(function(p){ for(let n=1;n<=300;n++) if(ssmS(p,n)>2-1/n+1e-12){ vus.push('S'+n+' > 2 − 1/n pour p = '+p); break; } });
+
+    /* ---- l'algorithme : la boucle de la correction, exécutée ---- */
+    for(let s=0;s<150;s++){
+      const q=sapEssai(), eps=sapEps(q);
+      let u=q.u0, n=0; while(Math.abs(u-q.l)>=eps && n<1000){ u=q.a*u+q.b; n++; }
+      if(n!==q.n) vus.push('sap '+sagRecPlain(q)+' 10^-'+q.pe+' : la boucle renvoie '+n+', la page '+q.n);
+      const t=sapVals(q).map(function(x){ return Math.round(x*1e6)/1e6; });
+      const lu=t.findIndex(function(x){ return Math.abs(x-q.l)<eps; });
+      if(lu!==q.n) vus.push('sap : le tableau montre le rang '+lu+', la page attend '+q.n);
+      if(q.n<5||q.n>40) vus.push('sap : rang '+q.n+' hors de [5 ; 40]');
+    }
+    const q2={A:{p:7,q:10},a:0.7,b:3,l:10,u0:30,pe:2,n:0,decimalDisplay:true};
+    ['0.01','10**-2','10**(-2)','1e-2','1/100',' 0.01 '].forEach(function(r){ if(!sapJusteEps(r,q2)) vus.push('sap : « '+r+' » refusé pour 10^-2'); });
+    ['0.1','10**-3','10**(-2','0,01','1e-3',''].forEach(function(r){ if(sapJusteEps(r,q2)) vus.push('sap : « '+r+' » accepté pour 10^-2'); });
+    ['3+0.7*u','0.7*u+3','(7*u+30)/10'].forEach(function(r){ if(!TCM4.sap.juste('sap-upd',r,q2)) vus.push('sap : mise à jour « '+r+' » refusée'); });
+
+    /* ---- les juges : ce qu'ils promettent ---- */
+    const qt={fam:'lin',a:2,b:4,c:1};
+    if(!TCM4.tnm.juste('tnm-m','1',qt) || !TCM4.tnm.juste('tnm-m','4',qt) || TCM4.tnm.juste('tnm-m','5',qt) || TCM4.tnm.juste('tnm-m','0',qt)) vus.push('tnm-m : « k + v » doit accepter v de 1 à b, et seulement eux');
+    const qs3={p:3};
+    if(!TCM4.ssm.juste('ssm-s2','9/8',qs3) || !TCM4.ssm.juste('ssm-s2','1,125',qs3)) vus.push('ssm : S2 = 9/8 refusé en fraction ou en décimal');
+    if(!TCM4.ssm.juste('ssm-M','3',qs3) || TCM4.ssm.juste('ssm-M','1,9',qs3)) vus.push('ssm : tout majorant ≥ 2 doit passer, 1,9 non');
+    if(TCM4.ssm.juste('ssm-lm','3',qs3) || !TCM4.ssm.juste('ssm-lm','2',qs3)) vus.push('ssm : « ℓ ≤ … » attend 2, la limite de 2 − 1/n');
+
+    /* ---- la copie de la correction vaut le point, sur chacun des quatre ---- */
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    [['tcm-vrai-faux','tvf',function(){ return tvfGen('majlim'); }],['suite-croissante-non-majoree','tnm',function(){ return tnmGen('car'); }],
+     ['suite-somme-majoree','ssm',function(){ return {p:2}; }],['suite-algo-approx','sap',sapEssai]].forEach(function(x){
+      const k=x[1], E=TCM4[k];
+      currentTestId=x[0]; test.kind=k; test.questions=[x[2]()]; test.idx=0; test.score=0; test.answers=[]; test.maxScore=1; test.locked=false;
+      show(k); window['render'+k.toUpperCase()]();
+      const q=tcm4Q(), ids=E.ids(q);
+      const absents=ids.filter(function(id){ return !$(id); });
+      if(absents.length){ vus.push(k+' : cases absentes de l’écran : '+absents.join(',')); return; }
+      ids.forEach(function(id){ $(id).value=E.corr(id,q); });
+      window['check'+k.toUpperCase()]();
+      const pas=ids.filter(function(id){ return !$(id).classList.contains('ok'); });
+      if(test.score!==1 || pas.length) vus.push(k+' : la copie de la correction ne vaut pas le point ('+pas.join(',')+')');
+      if(!/next/.test($(E.pre+'Actions').innerHTML)) vus.push(k+' : pas de bouton vers la suite');
+      if(!RAPPELS[k]) vus.push(k+' : pas de rappel de cours');
+      if(!QIA_SUGG[k]) vus.push(k+' : pas de questions proposées à l’IA');
+      const ctx=conseilCtxCourant()||'';
+      if(!/JAMAIS/.test(ctx)) vus.push(k+' : le contexte du modèle n’a pas sa clause de secret');
+    });
+    return vus.slice(0,8).join(' | ');
+  })()`, v => v === '');
 }
 /* ---- Vocabulaire sur les suites : la fiche à cocher ----
    La fiche « Vocabulaire sur les suites » (demande de Turquet, septembre
@@ -51693,12 +52875,13 @@ function pythonPasAPas(w, P){
   })()`, v => v === '');
 
   /* ---- 10. la place au menu et les branchements ---- */
-  verifierEval(w, 'il vit dans le thème 6, numéroté 6.2.1 entre {python-chaines} et {python-valeur-case} — et rien d autre ne bouge : entrée TESTS, rappel de cours, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+  verifierEval(w, 'il vit dans le thème 6, numéroté 6.2.1 entre le dernier du 6.1 et {python-valeur-case} — et rien d autre ne bouge : entrée TESTS, rappel de cours, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[], i=th?th.ids.indexOf("${ID}"):-1;
     if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("theme 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(i<0) vus.push("l exercice n est pas dans le theme 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[i+1]!=="python-valeur-case") vus.push("il n est pas suivi de {python-valeur-case} : "+th.ids.join(","));
-    if(i>0&&th.ids[i-1]!=="python-chaines") vus.push("il ne suit pas {python-chaines} (6.1.14, qui ferme le 6.1) : "+(th&&th.ids.join(",")));
+    const s1=th&&th.sous&&th.sous.find(function(s){ return s.num===1; });
+    if(i>0&&s1&&th.ids[i-1]!==s1.ids[s1.ids.length-1]) vus.push("il ne suit pas le dernier exercice du 6.1 : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-operations"]!=="6.1.12"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["pourcentage"]!=="4.1.3")
       vus.push("l exercice ajoute a renumerote les autres");
