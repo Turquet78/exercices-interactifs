@@ -621,3 +621,15 @@ chaque question des cinq exercices, aucun débordement horizontal ; les
 captures relues question par question. Deux retouches en sont sorties : « Dans
 le camping, 35 % des vacanciers du camping » (le lieu dit deux fois), et un
 piège « 3/3 » au dé, remplacé par 1/6, 1/3, 3/12.
+
+**Les lettres du 3.9 se définissent dans l'énoncé (v325).** Signalement de
+Turquet, octobre 2026 : « La probabilité d'avoir 25 ans ou plus parmi les
+spectateurs qui ont acheté du pop-corn s'écrit : P_J̄(P) ? P(J̄ ∩ P) ? … » —
+on ne peut pas répondre, rien ne dit ce que sont J et P. Les questions à
+tableau le disaient (les en-têtes portent « J = moins de 25 ans »), les six
+autres sortes non : notation, contraire, pourcentage, et les trois questions
+d'arbre. `autoDef()` ouvre leur énoncé par « On note J l'évènement « Le
+spectateur a moins de 25 ans » et P l'évènement « Le spectateur a acheté du
+pop-corn ». » — les mots du contexte de la séance (`ind`, `A`, `B`), comme le
+3.1. Le dé et « ne peut pas être une probabilité » n'ont pas de lettres et
+n'en reçoivent pas.

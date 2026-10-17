@@ -2985,7 +2985,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=324;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=325;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -18555,8 +18555,14 @@ function autoChemin(q,f){
   const p=f.split('.'), pa=(p[0]==='A') ? q.pa : 10-q.pa, b=(p[0]==='A') ? q.b : q.c, pb=(p[1]==='B') ? b : 10-b;
   return [pa,pb];
 }
+/* Les lettres DÉFINIES : sans tableau qui les nomme en tête de colonne,
+   « P_J̄(P) » ne se lit pas — l'énoncé dit d'abord ce que désigne chaque
+   lettre (signalement de Turquet, octobre 2026). */
+function autoDef(C){
+  return 'On note '+pbHTML('A')+' l’évènement « '+esc(C.ind+' '+C.A)+' » et '+pbHTML('B')+' l’évènement « '+esc(C.ind+' '+C.B)+' ». ';
+}
 function autoProps(q){
-  const C=pbCtx(q), E=c=>pbEff(q,c), N=pbNomPetit;
+  const C=pbCtx(q), E=c=>pbEff(q,c), N=pbNomPetit, D=autoDef(C);
   switch(q.a){
     case 'case': { const p=q.e.split('.');
       return { fig:'tab', enonce:'On prend '+C.un+' au hasard dans '+pbNom(C)+'. Que vaut '+N(q.e,'T')+' ?',
@@ -18567,27 +18573,27 @@ function autoProps(q){
         props:[pbFr(E(s),E(x)), pbFr(E(s),E('T')), pbFr(E(s),E(y)), pbFr(E(x),E('T'))],
         pourquoi:'L’indice '+pbHTML(x)+' est la condition : on se restreint à '+pbHTML(x)+' ('+E(x)+') et on y compte '+pbHTML(s)+' ('+E(s)+').' }; }
     case 'contr': { const p=q.p/100;
-      return { enonce:'On sait que '+N(q.e,'T')+' = '+pbDec(p)+'. Que vaut '+N(pbNeg(q.e),'T')+' ?',
+      return { enonce:D+'On sait que '+N(q.e,'T')+' = '+pbDec(p)+'. Que vaut '+N(pbNeg(q.e),'T')+' ?',
         props:[pbDec(1-p), pbDec(p), pbDec(1+p), String(100-q.p)],
         pourquoi:N(pbNeg(q.e),'T')+' = 1 − '+N(q.e,'T')+' = 1 − '+pbDec(p)+' = '+pbDec(1-p)+'.' }; }
     case 'pct':
-      return { enonce:pbMaj(q.p+' % des '+C.tous+' '+C.pB)+'. On prend '+C.un+' au hasard. Que vaut '+N('B','T')+' ?',
+      return { enonce:D+pbMaj(q.p+' % des '+C.tous+' '+C.pB)+'. On prend '+C.un+' au hasard. Que vaut '+N('B','T')+' ?',
         props:[pbDec(q.p/100), String(q.p), pbDec(q.p/10), String(q.p/1000).replace('.',',')],
         pourquoi:q.p+' % = '+pbFr(q.p,100)+' = '+pbDec(q.p/100)+' : une probabilité est toujours comprise entre 0 et 1.' };
     case 'not': { const y=q.ev[0], x=q.ev[1];
-      return { enonce:pbMaj(pbPhrase(C,y,x))+' s’écrit :',
+      return { enonce:D+pbMaj(pbPhrase(C,y,x))+' s’écrit :',
         props:[N(y,x), N(x,y), N(pbInter(y,x),'T'), N(y,'T')],
         pourquoi:'Ce qui suit « parmi » est la condition : elle s’écrit en bas de P — '+N(y,x)+'.' }; }
     case 'prod': { const c=autoChemin(q,q.f);
-      return { fig:'arbre', enonce:'D’après l’arbre, que vaut '+N(q.f,'T')+' ?',
+      return { fig:'arbre', enonce:D+'D’après l’arbre, que vaut '+N(q.f,'T')+' ?',
         props:[pbDec(c[0]*c[1]/100), pbDec((c[0]+c[1])/10), pbDec(c[1]/10), pbDec(c[0]/10)],
         pourquoi:'Sur un arbre, on MULTIPLIE les probabilités le long du chemin : '+pbDec(c[0]/10)+' × '+pbDec(c[1]/10)+' = '+pbDec(c[0]*c[1]/100)+'.' }; }
     case 'manq': { const c=autoChemin(q,q.f+'.'+pbNeg(q.g)), s=c[1]/10;
-      return { fig:'arbre', manque:q.f+'.'+q.g, enonce:'D’après l’arbre, quelle probabilité manque sur la branche marquée « ? » ?',
+      return { fig:'arbre', manque:q.f+'.'+q.g, enonce:D+'D’après l’arbre, quelle probabilité manque sur la branche marquée « ? » ?',
         props:[pbDec(1-s), pbDec(s), pbDec(1-c[0]/10), pbDec(c[0]*c[1]/100)],
         pourquoi:'Les branches qui partent d’un même nœud ont pour somme 1 : 1 − '+pbDec(s)+' = '+pbDec(1-s)+'.' }; }
     case 'tot': { const c1=autoChemin(q,'A.'+q.g), c2=autoChemin(q,'nA.'+q.g), t=(c1[0]*c1[1]+c2[0]*c2[1])/100;
-      return { fig:'arbre', enonce:'D’après l’arbre, que vaut '+N(q.g,'T')+' ?',
+      return { fig:'arbre', enonce:D+'D’après l’arbre, que vaut '+N(q.g,'T')+' ?',
         props:[pbDec(t), pbDec((c1[1]+c2[1])/10), pbDec(c1[0]*c1[1]/100), pbDec(c1[1]*c2[1]/100)],
         pourquoi:'Deux chemins mènent à '+pbHTML(q.g)+' : on multiplie le long de chacun, puis on ADDITIONNE — '
           +pbDec(c1[0]/10)+' × '+pbDec(c1[1]/10)+' + '+pbDec(c2[0]/10)+' × '+pbDec(c2[1]/10)+' = '+pbDec(t)+'.' }; }
