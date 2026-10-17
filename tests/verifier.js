@@ -13859,7 +13859,7 @@ function lireSommeDessin(w, P){
        aucune règle de la feuille n'épaissit une flèche libre plus qu'une autre */
     const epLib=new Set();
     Array.from(document.styleSheets).forEach(function(sh){ Array.from(sh.cssRules||[]).forEach(function(r){
-      if(r.selectorText && /lsd-lib/.test(r.selectorText) && r.style && r.style.strokeWidth) epLib.add(r.selectorText+' → '+r.style.strokeWidth); }); });
+      if(r.selectorText && /lsd-lib/.test(r.selectorText) && r.style && r.style.getPropertyValue('stroke-width')) epLib.add(r.selectorText+' → '+r.style.getPropertyValue('stroke-width')); }); });
     if(epLib.size!==1) vus.push('les flèches rouges u, v, w n’ont pas une seule épaisseur : '+Array.from(epLib).join(' ; '));
     if(document.querySelectorAll('#lsdHost g.lsd-lib').length!==3 || document.querySelector('#lsdHost g.lsd-lib:not([class="lsd-lib"])')) vus.push('une flèche rouge porte une classe de plus que les autres');
     /* une case vide ne rougit pas : elle reçoit la correction */
