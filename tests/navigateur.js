@@ -9843,9 +9843,28 @@ if(require.main === module) (async () => {
         await s.page.waitForTimeout(120);
       };
       const clic = async (x, y, dx) => { const p = await pos(x + (dx || 0), y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); return p; };
+      /* l'étape 1 en cours : cadre bleu, aucun point au bout de la souris ni
+         sur le nœud survolé, et un clic ne pose rien */
+      const etat = () => s.page.evaluate(() => {
+        const ch = document.getElementById('stv-ch'), sm = document.getElementById('stv-sm'), c = document.getElementById('stvCurseur');
+        const teinte = e => { const m = getComputedStyle(e).borderTopColor.match(/\d+/g).map(Number); return m[2] > m[1] + 40 ? 'bleu' : m[1] > m[0] + 40 && m[1] > m[2] ? 'vert' : 'autre'; };
+        const sv = document.querySelector('#stvGraph .vec-t:hover .dot');
+        return { ch: teinte(ch), sm: teinte(sm), curseur: c.style.display !== 'none', survol: sv ? getComputedStyle(sv).fill : '', sd: test.questions[test.idx].sd };
+      });
+      const p7 = await pos(7, 5); await s.page.mouse.move(p7.px, p7.py, { steps: 3 }); await s.page.waitForTimeout(80);
+      const e1 = await etat();
+      if(e1.ch !== 'bleu' || e1.sm === 'bleu') dits.push('au départ, l\'étape 1 n\'est pas seule encadrée en bleu : ' + e1.ch + ' / ' + e1.sm);
+      if(e1.curseur) dits.push('pendant l\'étape 1, un point suit la souris');
+      if(e1.survol && !/rgba\(0, 0, 0, 0\)|transparent/.test(e1.survol)) dits.push('pendant l\'étape 1, le nœud survolé montre un point : ' + e1.survol);
+      await clic(7, 5);
+      if((await etat()).sd) dits.push('pendant l\'étape 1, un clic sur le quadrillage pose un point');
       await glisser(0, [2, 2]); await glisser(1, [5, 3]); await glisser(2, [6, 6]);
       const ch = await s.page.evaluate(() => { const q = test.questions[test.idx], c = stvChaine(q); return { u: q.up, v: q.vp, w: q.wp, ok: !!c }; });
       if(!ch.ok) dits.push('u, v, w glissés à la souris ne sont pas bout à bout depuis A : ' + JSON.stringify(ch));
+      await s.page.mouse.move(p7.px, p7.py, { steps: 3 }); await s.page.waitForTimeout(80);
+      const e2 = await etat();
+      if(e2.ch !== 'vert' || e2.sm !== 'bleu') dits.push('les flèches bout à bout, l\'étape 1 ne passe pas au vert ou l\'étape 2 en bleu : ' + e2.ch + ' / ' + e2.sm);
+      if(!e2.curseur) dits.push('l\'étape 2 en cours, aucun point ne suit la souris');
       /* le début de la somme est SOUS la prise de u : l'appui sans glisser pose au nœud */
       await clic(2, 2, 0.15);
       const sd = await s.page.evaluate(() => JSON.stringify(test.questions[test.idx].sd));
@@ -9863,8 +9882,10 @@ if(require.main === module) (async () => {
       if(!/\bok\b/.test(juste.ch) || !/\bok\b/.test(juste.sm) || juste.score !== 2) dits.push('la construction juste : ' + juste.ch + ' / ' + juste.sm + ' (score ' + juste.score + ')');
       if(juste.trace !== 1) dits.push('la somme tracée ne se voit pas');
       if(juste.prises) dits.push('les flèches se saisissent encore après la correction');
-      /* la somme nulle : le bouton, sans rien faire glisser */
+      /* la somme nulle : le bouton, une fois les flèches bout à bout */
       await s.page.click('#stvNext'); await s.page.waitForTimeout(300);
+      if(!(await s.page.evaluate(() => document.getElementById('stvNul').disabled))) dits.push('le bouton « C’est le vecteur nul » s\'offre pendant l\'étape 1');
+      await glisser(0, [2, 2]); await glisser(1, [5, 3]); await glisser(2, [6, 6]);
       await s.page.click('#stvNul'); await s.page.waitForTimeout(100);
       const nul = await s.page.evaluate(() => { const b = document.getElementById('stvNul'), cs = getComputedStyle(b);
         return { dn: test.questions[test.idx].dn, presse: b.getAttribute('aria-pressed'), fond: cs.backgroundColor }; });
@@ -9873,8 +9894,8 @@ if(require.main === module) (async () => {
       const fin = await s.page.evaluate(() => ({ ch: document.getElementById('stv-ch').className, sm: document.getElementById('stv-sm').className, score: test.score,
         vert: [...document.querySelectorAll('#stvCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
         rouge: document.querySelectorAll('#stvGraph .svc-eb').length }));
-      if(!/\bsol\b/.test(fin.ch) || !/\bok\b/.test(fin.sm) || fin.score !== 3) dits.push('somme nulle déclarée, flèches non touchées : ' + fin.ch + ' / ' + fin.sm + ' (score ' + fin.score + ')');
-      if(fin.vert !== 3) dits.push('la chaîne attendue ne se trace pas en vert (' + fin.vert + ' traits)');
+      if(!/\bok\b/.test(fin.ch) || !/\bok\b/.test(fin.sm) || fin.score !== 4) dits.push('somme nulle déclarée, flèches bout à bout : ' + fin.ch + ' / ' + fin.sm + ' (score ' + fin.score + ')');
+      if(fin.vert) dits.push('une correction verte se trace sur une copie juste (' + fin.vert + ' traits)');
       if(fin.rouge) dits.push('quelque chose rougit sur le dessin');
       verifier('u, v, w glissent bout à bout depuis le point, la somme se trace en deux clics, le vecteur nul se déclare', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran des trois vecteurs bout à bout ne lève aucune erreur JavaScript',
