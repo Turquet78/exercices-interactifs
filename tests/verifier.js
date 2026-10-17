@@ -31709,16 +31709,18 @@ function pythonNomVariable(w, P){
    de la fiche (jamais à sa place), avant la zone de travail, avec sa bulle et
    son texte de remplacement ; caché hors décor, montré sous body.halloween. */
 function serpentsHalloween(w, P){
-  const nom = 'les serpents d\'Halloween du sous-thème « Input »';
+  const nom = 'les serpents d\'Halloween des sous-thèmes Python';
   if(!P.serpentsHalloween){ ignorer(nom, 'ce niveau n\'a pas de serpents d\'Halloween'); return; }
-  const TH = P.serpentsHalloween.theme, SS = P.serpentsHalloween.sous;
+  /* `sous` : un sous-thème, ou une liste (6.1, 6.2 et 6.3 depuis octobre 2026) */
+  const TH = P.serpentsHalloween.theme, SS = [].concat(P.serpentsHalloween.sous), DESSIN = JSON.stringify(P.serpentsHalloween.dessin || []);
+  const IDS = '(function(){ const th=THEMES.find(function(t){ return t.num===' + TH + '; }); return ' + JSON.stringify(SS) + '.reduce(function(a,n){ const s=th&&th.sous&&th.sous.find(function(x){ return x.num===n; }); return a.concat(s?s.ids:["(sous-thème "+n+" introuvable)"]); },[]); })()';
   const present = evaluer(w, "typeof hwSerpentHTML==='function' && typeof HW_SERPENTS==='object'");
   if(!present.ok || !present.valeur){ verifier(nom, false, 'hwSerpentHTML / HW_SERPENTS introuvables alors que tests/profils.js les déclare'); return; }
-  verifierEval(w, 'chaque exercice du sous-thème ' + TH + '.' + SS + ' a son serpent d’Halloween, déguisé autrement que les autres, avec sa bulle et son texte de remplacement', `(function(){
-    const vus=[], th=THEMES.find(function(t){ return t.num===${TH}; }), s3=th&&th.sous&&th.sous.find(function(x){ return x.num===${SS}; });
-    if(!s3||!s3.ids.length) return "sous-thème ${TH}.${SS} introuvable";
+  verifierEval(w, 'chaque exercice des sous-thèmes ' + SS.map(n => TH + '.' + n).join(', ') + ' a son serpent d’Halloween, déguisé autrement que les autres, avec sa bulle et son texte de remplacement', `(function(){
+    const vus=[], ids=${IDS};
+    if(ids.length<${SS.length*5}) return "trop peu d’exercices lus dans les sous-thèmes : "+ids.join(",");
     const vars={};
-    s3.ids.forEach(function(id){
+    ids.forEach(function(id){
       const d=HW_SERPENTS[id];
       if(!d){ vus.push(id+" : pas d’entrée HW_SERPENTS"); return; }
       if(vars[d.v]) vus.push(id+" : le déguisement « "+d.v+" » sert déjà à "+vars[d.v]); vars[d.v]=id;
@@ -31732,11 +31734,12 @@ function serpentsHalloween(w, P){
     });
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
-  verifierEval(w, 'sur l’écran de chaque exercice du sous-thème, le serpent est posé à côté du dessin de la fiche, avant la zone de travail ; la feuille de styles le cache hors décor et le montre sous body.halloween', `(function(){
-    const vus=[], th=THEMES.find(function(t){ return t.num===${TH}; }), s3=th&&th.sous&&th.sous.find(function(x){ return x.num===${SS}; });
-    if(!s3) return "sous-thème introuvable";
+  verifierEval(w, 'sur l’écran de chaque exercice de ces sous-thèmes, le serpent est posé à côté du dessin de l’exercice, avant la zone de travail ; la feuille de styles le cache hors décor et le montre sous body.halloween ; chaque exercice des sous-thèmes ' + JSON.parse(DESSIN).map(n => TH + '.' + n).join(', ') + ' montre un dessin', `(function(){
+    const vus=[], ids=${IDS}, avecDessin=${DESSIN};
+    const th=THEMES.find(function(t){ return t.num===${TH}; });
+    const doivent=avecDessin.reduce(function(a,n){ const s=th.sous.find(function(x){ return x.num===n; }); return a.concat(s?s.ids:[]); },[]);
     document.body.classList.remove("halloween");
-    s3.ids.forEach(function(id){
+    ids.forEach(function(id){
       const d=HW_SERPENTS[id]; if(!d) return;
       currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId=id;
       try{ TESTS[id].start(); }catch(e){ vus.push(id+" : "+e.message); return; }
@@ -31753,6 +31756,7 @@ function serpentsHalloween(w, P){
       const hw=fig.querySelector("img.hw-img");
       if(!hw||hw.getAttribute("src")!==d.img||d.img!=="dessins/secondes/"+id+"-halloween.webp") vus.push(id+" : le serpent ne montre pas son dessin dessins/secondes/"+id+"-halloween.webp : "+(hw?hw.getAttribute("src"):"aucune image"));
       const img=fig.parentNode&&fig.parentNode.querySelector("img[src*='dessins/']:not(.hw-img)");
+      if(doivent.indexOf(id)>=0 && !on.querySelector("img[src*='dessins/']:not(.hw-img)")) vus.push(id+" : aucun dessin sur son écran");
       if(!img) vus.push(id+" : le serpent n’est pas à côté du dessin de la fiche");
       else if(!(img.compareDocumentPosition(fig)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push(id+" : le serpent passe AVANT le dessin de la fiche");
       const stage=on.querySelector(".mp-stage");
