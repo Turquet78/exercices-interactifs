@@ -3533,7 +3533,7 @@ première capture l'a montré posé sur la lettre du point : `stvCoteDehors`
 compte désormais le point parmi ce qu'il faut fuir ; aucun banc ne mesure
 ce chevauchement.
 
-**Puis les étapes se sont encadrées (v539).** La demande (Turquet,
+**Puis les étapes se sont encadrées (v540).** La demande (Turquet,
 octobre 2026) : « mettre en bleu le cadre de l'étape à faire, le mettre en
 vert quand il est réalisé et mettre en bleu le suivant ; s'il est réalisé, le
 mettre en vert. Quand on doit réaliser l'étape 1, ne pas afficher de point à
@@ -3564,3 +3564,15 @@ cadres calculée par le navigateur, survole un nœud pendant l'étape 1 (ni
 point au bout de la souris, ni rond sur le nœud), y clique sans rien poser,
 puis voit le point revenir à l'étape 2 ; la somme nulle se déclare après
 la chaîne, le bouton étant grisé avant.
+
+**Le second vecteur de la somme passe à l'ORANGE (v539).** La demande
+(Turquet, octobre 2026) : « dans le 8.2.8, mettre le dernier vecteur de
+l'exercice dans une autre couleur ». AA′ avait déjà le sien (violet) ; c'est
+BD, le second vecteur tracé, qui se confondait avec BC — gris ardoise en
+pointillés à côté du bleu nuit. Il prend `--cps-v` (#D97706) : trait, pointe
+(`cpsArr1`), point de départ, nom et sa flèche, et la flèche vive qui suit la
+souris pendant son tracé — ni le bleu du juste, ni le rouge du faux, ni le
+vert de la correction, ni le violet de AA′. Les règles sont bornées à
+`.cps-svg` : le 8.7 et les autres hôtes de `svc-v` gardent leur gris. Jugée,
+la flèche passe en bleu ou en rouge comme avant ; la règle ne nomme aucune
+classe de verdict, « 9 bis » n'a pas à la lire.
