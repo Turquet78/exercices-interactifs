@@ -4642,6 +4642,7 @@ function exercices(suite){
     pythonInputFloat(w, P);
     pythonInputSomme(w, P);
     pythonInputPrix(w, P);
+    pythonInputComplements(w, P);
     pythonPileFace(w, P);
     pythonIfPlusGrandTrois(w, P);
     pythonForNom(w, P);
@@ -35322,11 +35323,11 @@ function pythonInputPrix(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ', derrière {python-input-rectangle} (l’exercice 9 du carnet), et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-input-rectangle} (l’exercice 9 du carnet) dans le sous-thème 6.3 « Input », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-input-rectangle") vus.push("il ne ferme pas le sous-thème derrière {python-input-rectangle} : "+st.ids.join(","));
+    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-rectangle")+1) vus.push("il ne suit pas {python-input-rectangle} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-somme"]!=="6.3.6"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-input-rectangle"]!=="6.3.8") vus.push("les autres ont bougé");
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -35496,6 +35497,290 @@ function pythonInputPrix(w, P){
     return res;
   })())`);
   if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* Les huit exercices qui complètent le sous-thème 6.3 « Input » (Seconde,
+   6.3.10 à 6.3.17, demande de Turquet, octobre 2026 : « crée le 1 et 2 et 3
+   et 5 dans le sous-thème input »). Le contrôle tient la place au menu (à la
+   suite du 6.3.9, rien d'autre ne bouge), le tirage de chacun, chaque juge
+   sur des copies justes et fausses — chacune avec le mot qui la nomme —, les
+   trois étapes du moteur « réparer » jouées comme un élève (la console au
+   clavier, la porte du a), la liste du b), la copie du c)), la copie vide
+   qui ne rougit jamais, le soutien qui explique sans révéler, round() exact
+   et réservé au 6.3.16, puis compare à un vrai CPython tout ce que les
+   programmes de la page affichent. Aucun accent grave ni antislash littéral
+   dans le code évalué. */
+function pythonInputComplements(w, P){
+  const nom = 'les huit exercices qui complètent le sous-thème « Input »';
+  if(!P.pythonInputComplements){ ignorer(nom, 'ce niveau n\'a pas ces exercices'); return; }
+  const C = P.pythonInputComplements, NB = C.nb, IDS = JSON.stringify(C.ids);
+  const present = evaluer(w, "typeof pzrJuge==='function' && typeof pqcBuildQuestions==='function' && typeof pprAttendu==='function' && typeof podJuge==='function' && typeof pmoJuge==='function' && typeof pyAvecRound==='function'");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'pzrJuge / pqcBuildQuestions / pprAttendu / podJuge / pmoJuge / pyAvecRound introuvables alors que tests/profils.js déclare les exercices'); return; }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'ils suivent {python-input-prix} dans le sous-thème 6.3, numérotés de ' + C.numero + ' à 6.3.17, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[], ids=${IDS};
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!st) return "pas de sous-thème 6.3";
+    if(st.ids.slice(-ids.length).join(",")!==ids.join(",")||st.ids[st.ids.length-ids.length-1]!=="python-input-prix") vus.push("ils ne suivent pas {python-input-prix} : "+st.ids.join(","));
+    ids.forEach(function(id, i){ if(TEST_NUM[id]!=="6.3."+(10+i)) vus.push(id+" numéroté "+TEST_NUM[id]); if(!TESTS[id]||typeof TESTS[id].start!=="function") vus.push(id+" : pas d’entrée TESTS"); });
+    if(TEST_NUM["${C.premier}"]!=="${C.numero}") vus.push("le premier est numéroté "+TEST_NUM["${C.premier}"]);
+    if(TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. les tirages ---- */
+  verifierEval(w, 'les tirages : ' + NB + ' questions distinctes par séance, la fiche en tête de chaque exercice « réparer », chaque situation sort (300 séances) ; le 6.3.13 pose 12 questions toutes différentes, chaque série portant les trois types ; le 6.3.15 ne donne jamais un programme déjà dans l’ordre', `(function(){
+    const vus=[];
+    ["pcz","pte","pfl","prd"].forEach(function(k){
+      const vues={};
+      for(let s=0;s<300&&vus.length<4;s++){
+        const qs=pzrBuildQuestions(k);
+        if(qs.length!==${NB}){ vus.push(k+" : séance de "+qs.length); break; }
+        if(qs[0].s!==0){ vus.push(k+" : la fiche n’ouvre pas la séance"); break; }
+        const ss=qs.map(function(q){ return q.s; }); if(new Set(ss).size!==ss.length){ vus.push(k+" : deux fois la même situation"); break; }
+        qs.forEach(function(q){ vues[q.s]=1; if(q.etape!=="a"||q.prog!==""||q.choix!==""||q.perm.slice().sort().join("")!=="0123") vus.push(k+" : question mal formée "+JSON.stringify(q)); });
+      }
+      if(Object.keys(vues).length!==PZR[k].sits.length) vus.push(k+" : des situations ne sortent jamais");
+    });
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pqcBuildQuestions(), toutes=[];
+      if(qs.length!==${NB}) vus.push("pqc : séance de "+qs.length);
+      qs.forEach(function(q){ toutes.push.apply(toutes, q.l); const t=q.l.map(function(i){ return PQC_LIGNES[i].t; }); if(q.l.length!==4||PQC_FORMES.some(function(f){ return t.indexOf(f)<0; })) vus.push("pqc : série "+t.join(",")); });
+      if(new Set(toutes).size!==toutes.length) vus.push("pqc : une question revient");
+      const pr=pprBuildQuestions(); if(pr.length!==${NB}||new Set(pr.map(function(q){ return q.p; })).size!==${NB}) vus.push("ppr : séance "+JSON.stringify(pr));
+      const po=podBuildQuestions(); po.forEach(function(q){ if(q.o.every(function(x,j){ return x===j; })) vus.push("pod : programme déjà dans l’ordre"); if(q.bouge) vus.push("pod : déjà déplacé"); });
+      const pm=pmoBuildQuestions(); if(pm.length!==${NB}||pm[0].s!==0||new Set(pm.map(function(q){ return q.s; })).size!==${NB}) vus.push("pmo : séance "+JSON.stringify(pm));
+    }
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. les juges du moteur « réparer » ---- */
+  verifierEval(w, 'le c) des exercices « réparer » : chaque modèle passe, le programme donné non modifié est une copie VIDE, et chaque défaut est nommé — les deux textes encore collés, une seule réponse convertie, float pour des entiers, la phrase perdue, le résultat écrit à la main, le « 1 » entre guillemets, int qui refuse toujours, rien de converti, round oublié, à l’unité, au dixième', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    ["pcz","pte","pfl","prd"].forEach(function(k){ PZR[k].sits.forEach(function(S,i){
+      const q={s:i}; let d=pzrJuge(k,q,PZR[k].modele(S)); if(!d.ok) vus.push(k+i+" : le modèle est refusé : "+d.dits.join(" "));
+      d=pzrJuge(k,q,PZR[k].prog(S)+NL+NL); if(!d.vide||d.ok) vus.push(k+i+" : le programme donné n’est pas une copie vide");
+    }); });
+    const p=function(k){ return PZR[k].prog(PZR[k].sits[0]); }, m=function(k){ return PZR[k].modele(PZR[k].sits[0]); };
+    const cas=[
+      ["pcz", p("pcz")+NL+"# corrigé", /colle encore/],
+      ["pcz", p("pcz").replace("a = input", "a = int(input").replace("? "+Q+")", "? "+Q+"))"), /LES DEUX/],
+      ["pcz", m("pcz").split("int(input").join("float(input"), /ENTIERS/],
+      ["pcz", m("pcz").replace(Q+"La somme est"+Q+", ", ""), /phrase/],
+      ["pcz", m("pcz").replace("a + b", "12"), /toujours le même/],
+      ["pte", p("pte").replace("age + 1", "age + "+Q+"1"+Q), /entre guillemets/],
+      ["pte", p("pte")+NL+"# corrigé", /même erreur/],
+      ["pte", m("pte").replace("int(", "float("), /ENTIERS/],
+      ["pfl", p("pfl")+NL+"# corrigé", /refuse toujours/],
+      ["pfl", p("pfl").replace("int(input", "(input"), /TEXTE/],
+      ["prd", p("prd")+NL+"# corrigé", /pas encore arrondi/],
+      ["prd", p("prd").replace(", total,", ", round(total),"), /UNITÉ/],
+      ["prd", p("prd").replace(", total,", ", round(total, 1),"), /DIXIÈME/],
+      ["prd", p("prd").replace("total = prix * nombre", "total = round(prix * nombre, 2)"), null],
+      ["pcz", m("pcz").replace("a = int(input("+Q+"Premier nombre ? "+Q+"))", "a = int(input())"), /question/]
+    ];
+    cas.forEach(function(c){
+      const d=pzrJuge(c[0],{s:0},c[1]);
+      if(c[2]===null){ if(!d.ok) vus.push(c[0]+" : refusé à tort : "+JSON.stringify(c[1])+" — "+d.dits.join(" ")); return; }
+      if(d.ok||d.vide) vus.push(c[0]+" : accepté à tort : "+JSON.stringify(c[1]));
+      else if(!c[2].test(d.dits.join(" "))) vus.push(c[0]+" : "+JSON.stringify(c[1])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. les trois étapes, jouées comme un élève ---- */
+  verifierEval(w, 'les trois étapes : « Exécuter » pose la question dans la console, Entrée envoie la réponse ; une réponse qui ne montre pas le défaut laisse le a) ouvert ; le b) se choisit dans la liste, le c) se corrige et vaut 2 cases justes ; la copie non modifiée ne rougit pas et reçoit le modèle en vert', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    const repondre=function(k, v){ const r=document.getElementById(k+"ConsoleARep"); if(!r){ vus.push(k+" : la console ne demande rien"); return; } r.value=v; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); };
+    [["python-input-concat","pcz"],["python-input-erreur-type","pte"],["python-input-int-float","pfl"],["python-input-arrondi","prd"]].forEach(function(e){
+      const id=e[0], k=e[1]; currentTestId=id; TESTS[id].start();
+      const q=test.questions[0], S=pzrS(k,q);
+      if(!document.querySelector("#"+k+"Instr img.pz-img")) vus.push(k+" : pas de dessin en tête");
+      if((document.getElementById(k+"Avant").textContent||"").length<40) vus.push(k+" : pas de définition avant l’énoncé");
+      if(!document.getElementById(k+"Validate").disabled) vus.push(k+" : Vérifier est ouvert avant l’exécution");
+      if(k==="pfl"){ pzrExecuterA(); repondre(k,"2"); if(q.etape!=="a") vus.push("pfl : la réponse 2 ouvre le b) sans montrer l’erreur"); }
+      pzrExecuterA(); pzrRep(k,S).forEach(function(v){ repondre(k,v); });
+      if(q.etape!=="b"){ vus.push(k+" : le a) ne s’ouvre pas sur le b) ("+document.getElementById(k+"Feedback").textContent+")"); return; }
+      if(!document.getElementById(k+"EtapeA")||!document.getElementById(k+"EtapeB")) vus.push(k+" : les étapes ne restent pas à l’écran");
+      const sel=document.getElementById(k+"-choix"); sel.value="0"; sel.dispatchEvent(new Event("change",{bubbles:true}));
+      window["check"+k.toUpperCase()]();
+      if(!sel.classList.contains("ok")||test.score!==1) vus.push(k+" : le b) juste : "+sel.className+" "+test.score);
+      pzrVersC();
+      const ta=document.getElementById(k+"-prog");
+      if(!ta||ta.value!==PZR[k].prog(S)) vus.push(k+" : le c) ne s’ouvre pas sur le programme donné");
+      ta.value=PZR[k].modele(S); ta.dispatchEvent(new Event("input",{bubbles:true}));
+      window["check"+k.toUpperCase()]();
+      if(!ta.classList.contains("ok")||test.score!==2||!test.locked) vus.push(k+" : le c) juste : "+ta.className+" "+test.score);
+      const ans=test.answers[0]; if(!ans||ans.cases!==2||ans.justes!==2||!ans.correct) vus.push(k+" : la note ne compte pas 2 cases justes : "+JSON.stringify(ans));
+      if(!document.getElementById(k+"Next")) vus.push(k+" : pas de « Question suivante »");
+      window["next"+k.toUpperCase()]();
+      const q2=test.questions[1]; q2.etape="b"; q2.rep=pzrRep(k,pzrS(k,q2)); window["render"+k.toUpperCase()]();
+      const s2=document.getElementById(k+"-choix"); s2.value=String(q2.perm[0]===0?q2.perm[1]:q2.perm[0]); s2.dispatchEvent(new Event("change",{bubbles:true}));
+      window["check"+k.toUpperCase()]();
+      if(!s2.classList.contains("bad")||!document.querySelector("#"+k+"Host .pz-cor")) vus.push(k+" : le b) faux ne rougit pas ou ne reçoit pas la correction");
+      pzrVersC(); window["check"+k.toUpperCase()]();
+      const t2=document.getElementById(k+"-prog");
+      if(t2.classList.contains("bad")||!t2.classList.contains("sol")||t2.value!==PZR[k].modele(pzrS(k,q2))) vus.push(k+" : la copie non modifiée rougit ou ne reçoit pas le modèle : "+t2.className);
+    });
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le soutien ---- */
+  verifierEval(w, 'en soutien : un b) faux rougit sans verrouiller ni écrire la bonne explication, un c) faux rougit en nommant le défaut, sans révéler le modèle ; le contexte de l’IA a sa clause de secret', `(function(){
+    const vus=[], NL=String.fromCharCode(10);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="soutien"; currentDM=null; currentTestId="python-input-concat";
+    TESTS["python-input-concat"].start();
+    const q=test.questions[0], S=pzrS("pcz",q); q.etape="b"; q.rep=S.rep.slice(); renderPCZ();
+    const sel=document.getElementById("pcz-choix"); sel.value=String(q.perm.find(function(x){ return x!==0; })); sel.dispatchEvent(new Event("change",{bubbles:true}));
+    checkPCZ();
+    if(!sel.classList.contains("bad")||sel.disabled||document.querySelector("#pczHost .pz-cor")||q.bOk!==null) vus.push("soutien : le b) faux : "+sel.className);
+    sel.value="0"; sel.dispatchEvent(new Event("change",{bubbles:true})); checkPCZ(); pzrVersC();
+    const ta=document.getElementById("pcz-prog"); ta.value=PZR.pcz.prog(S)+NL+"# essai"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPCZ();
+    const fb=document.getElementById("pczFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : le c) faux ne rougit pas, ou verrouille");
+    if(!/colle encore/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pczModele .sol")||fb.indexOf("int(input("+String.fromCharCode(34)+"Premier")>=0) vus.push("soutien : le modèle est révélé");
+    ["pcz","pte","pfl","prd"].forEach(function(k){ test.kind=k; if(!/STRICTEMENT SECRÈTE/.test(ctxPzr({s:0,etape:"c",rep:[],prog:""}).contexte)) vus.push(k+" : le contexte de l’IA n’a pas sa clause de secret"); });
+    [ctxPqc(pqcBuildQuestions()[0]), ctxPpr(pprBuildQuestions()[0]), ctxPod(podBuildQuestions()[0]), ctxPmo({s:0,prog:""})].forEach(function(c,i){ if(!/STRICTEMENT SECR/.test(c.contexte)) vus.push("contexte "+i+" sans clause de secret"); });
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. input, int(input) ou float(input) ---- */
+  verifierEval(w, 'le 6.3.13 : quatre choix justes valent 4 ; une copie vide ne rougit pas et reçoit les bonnes écritures en vert ; un choix faux rougit et reçoit la sienne ; en soutien, rien ne verrouille', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-conversion";
+    TESTS["python-input-conversion"].start();
+    let q=test.questions[0];
+    if(test.maxScore!==${NB}*4) vus.push("barème "+test.maxScore);
+    q.l.forEach(function(i,j){ const s=document.getElementById("pqc-"+j); s.value=PQC_LIGNES[i].t; s.dispatchEvent(new Event("change",{bubbles:true})); });
+    checkPQC();
+    if(test.score!==4||document.querySelectorAll("#pqcHost select.ok").length!==4) vus.push("la copie juste : "+test.score);
+    const a=test.answers[0]; if(!a||a.cases!==4||a.justes!==4) vus.push("la note : "+JSON.stringify(a));
+    nextPQC(); q=test.questions[1];
+    const s0=document.getElementById("pqc-0"), faux=PQC_FORMES.find(function(f){ return f!==PQC_LIGNES[q.l[0]].t; });
+    s0.value=faux; s0.dispatchEvent(new Event("change",{bubbles:true}));
+    checkPQC();
+    if(!s0.classList.contains("bad")||!s0.parentNode.querySelector(".mf-cor")) vus.push("le choix faux ne rougit pas ou n’a pas sa correction");
+    if(document.querySelectorAll("#pqcHost select.bad").length!==1||document.querySelectorAll("#pqcHost select.sol").length!==3) vus.push("les cases vides rougissent ou ne reçoivent pas la correction");
+    currentMode="soutien"; TESTS["python-input-conversion"].start(); q=test.questions[0];
+    const s1=document.getElementById("pqc-1"); s1.value=PQC_FORMES.find(function(f){ return f!==PQC_LIGNES[q.l[1]].t; }); s1.dispatchEvent(new Event("change",{bubbles:true}));
+    checkPQC();
+    if(test.locked||!s1.classList.contains("bad")||document.querySelector("#pqcHost .sol,#pqcHost .mf-cor")) vus.push("soutien : verrouille ou révèle");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. prédire ce que le programme affiche ---- */
+  verifierEval(w, 'le 6.3.14 : la copie juste vaut une case par print ; la virgule française, les guillemets recopiés et le .0 oublié sont nommés ; une ligne vide ne rougit pas et reçoit la bonne en vert ; « Exécuter » n’apparaît qu’après la vérification', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-predire";
+    TESTS["python-input-predire"].start();
+    let q=test.questions[0], att=pprAttendu(q);
+    if(document.getElementById("pprRun")) vus.push("« Exécuter » est là avant la vérification");
+    att.forEach(function(a,j){ const e=document.getElementById("ppr-"+j); e.value=" "+a+"  "; e.dispatchEvent(new Event("input",{bubbles:true})); });
+    checkPPR();
+    if(test.score!==att.length) vus.push("la copie juste : "+test.score+" sur "+att.length);
+    if(!document.getElementById("pprRun")) vus.push("pas d’« Exécuter » après la vérification");
+    else { pprExecuter(); if(document.getElementById("pprConsole").hidden) vus.push("la console reste cachée"); }
+    nextPPR(); q=test.questions[1]; att=pprAttendu(q);
+    checkPPR();
+    if(document.querySelector("#pprHost input.bad")||document.querySelectorAll("#pprHost input.sol").length!==att.length) vus.push("la copie vide rougit ou ne reçoit pas la correction");
+    const d=[pprDiag("Prix : 2.5","Prix : 2,5"), pprDiag("Bonjour Léa", String.fromCharCode(34)+"Bonjour Léa"+String.fromCharCode(34)), pprDiag("4.0","4"), pprDiag("34","7")];
+    if(!/POINT/.test(d[0].dit||"")||!/guillemets/.test(d[1].dit||"")||!/4[.]0/.test(d[2].dit||"")||d[3].ok) vus.push("les diagnostics : "+JSON.stringify(d));
+    PPR_PROGS.forEach(function(P,i){ const n=pprCases({p:i}), a=pprAttendu({p:i,rep:P.rep()}); if(a.length!==n) vus.push("programme "+i+" : "+a.length+" lignes pour "+n+" cases"); });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. remettre les lignes dans l'ordre ---- */
+  verifierEval(w, 'le 6.3.15 : les flèches déplacent les lignes ; l’ordre juste vaut 1 ; un autre ordre qui fait la même chose est juste aussi ; une variable utilisée avant d’exister est nommée ; un programme non touché ne rougit pas et se remet en ordre en vert', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-ordre";
+    TESTS["python-input-ordre"].start();
+    let q=test.questions[0];
+    /* un tri par les flèches, comme un élève */
+    for(let tour=0;tour<40;tour++){ const i=q.o.findIndex(function(x,j){ return j<q.o.length-1 && q.o[j]>q.o[j+1]; }); if(i<0) break; podBouger(i,1); }
+    if(!q.o.every(function(x,j){ return x===j; })) vus.push("les flèches ne remettent pas en ordre : "+q.o.join(","));
+    checkPOD();
+    if(test.score!==1||!document.getElementById("pod-liste").classList.contains("ok")) vus.push("l’ordre juste : "+test.score);
+    nextPOD(); checkPOD();
+    const L=document.getElementById("pod-liste");
+    if(L.classList.contains("bad")||!L.classList.contains("sol")) vus.push("le programme non touché : "+L.className);
+    const j2={p:1, o:[0,1,3,2,4], bouge:true}; if(!podJuge(j2).ok) vus.push("« Bonjour » avant le calcul de l’âge est refusé");
+    const j3={p:0, o:[0,2,1,3], bouge:true}, d3=podJuge(j3); if(d3.ok||!/AVANT/.test(d3.dit)) vus.push("variable avant sa création : "+JSON.stringify(d3));
+    const j4={p:0, o:[1,0,2,3], bouge:true}, d4=podJuge(j4); if(d4.ok||!/ordre demandé/.test(d4.dit)) vus.push("questions échangées : "+JSON.stringify(d4));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. rendre la monnaie ---- */
+  verifierEval(w, 'le 6.3.17 : le juge accepte toute écriture juste (autres noms, un seul print) et nomme chaque défaut — / au lieu de //, float, le reste oublié, la phrase absente, rien d’affiché, les nombres écrits à la main, int oublié, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0,prog:""};
+    const I="s = int(input("+Q+"Somme ? "+Q+"))"+NL;
+    const justes=[pmoModele(q), I+"a = s // 20"+NL+"r = s % 20"+NL+"b = r // 5"+NL+"c = r % 5"+NL+"print("+Q+"billets de 20 :"+Q+", a, "+Q+"billets de 5 :"+Q+", b, "+Q+"pièces :"+Q+", c)"];
+    justes.forEach(function(p){ const d=pmoJuge(q,p); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const ph=function(a,b,c){ return "print("+Q+"billets de 20 :"+Q+", "+a+")"+NL+"print("+Q+"billets de 5 :"+Q+", "+b+")"+NL+"print("+Q+"pièces :"+Q+", "+c+")"; };
+    const cas=[
+      [I+ph("s / 20","(s % 20) / 5","s % 5"), /DÉCIMAL/],
+      [I.replace("int(","float(")+ph("s // 20","(s % 20) // 5","s % 5"), /ENTIERS/],
+      [I+ph("s // 20","s // 5","s // 1"), /RESTE/],
+      [I+"print(s // 20, (s % 20) // 5, s % 5)", /sans phrase/],
+      [I+"a = s // 20", /n’affiche rien/],
+      [I+ph("4","1","2"), /toujours les mêmes/],
+      ["s = input("+Q+"Somme ? "+Q+")"+NL+ph("s // 20","(s % 20) // 5","s % 5"), /TOUJOURS un texte/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){ const d=pmoJuge(q,c[0]); if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0])); else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | ")); });
+    PMO_COUPURES.forEach(function(S,i){ const d=pmoJuge({s:i},pmoModele({s:i})); if(!d.ok) vus.push("le modèle "+i+" : "+d.dits.join(" ")); });
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-monnaie";
+    TESTS["python-input-monnaie"].start();
+    const ta=document.getElementById("pmo-prog"); ta.value=pmoModele(test.questions[0]); ta.dispatchEvent(new Event("input",{bubbles:true}));
+    pmoExecuter(); const r=document.getElementById("pmoConsoleRep"); if(!r) vus.push("la console ne demande pas la somme"); else { r.value="87"; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); if(!/billets de 20 € : 4/.test(document.getElementById("pmoConsole").textContent)) vus.push("la console : "+document.getElementById("pmoConsole").textContent); }
+    checkPMO(); if(test.score!==1||!ta.classList.contains("ok")) vus.push("la copie juste : "+ta.className);
+    nextPMO(); checkPMO(); const t2=document.getElementById("pmo-prog"); if(t2.classList.contains("bad")||!t2.classList.contains("sol")) vus.push("la copie vide : "+t2.className);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 10. round : exact, et réservé au 6.3.16 ---- */
+  verifierEval(w, 'round() n’est exécuté que sous pyAvecRound (ailleurs il reste refusé en le nommant, comme les juges des autres fiches l’attendent), et il arrondit au pair : round(2.5) vaut 2, round(0.125, 2) vaut 0.12', `(function(){
+    const vus=[];
+    try{ pyRun("print(round(2.5))"); vus.push("round est exécuté hors du 6.3.16"); }catch(e){ if(!/round/.test(e.message)) vus.push("refus muet : "+e.message); }
+    const o=pyAvecRound(function(){ return pyRun("print(round(2.5), round(3.5), round(0.125, 2), round(2.675, 2), round(-1.5), round(7, 2))").out; });
+    if(o!=="2 4 0.12 2.67 -2 7"+String.fromCharCode(10)) vus.push("round : "+JSON.stringify(o));
+    try{ pyRun("print(round(2.5))"); vus.push("pyAvecRound laisse round permis après lui"); }catch(e){}
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 11. CPython ---- */
+  const nomPy = 'ce que les programmes des huit exercices affichent est ce qu’affiche un vrai CPython (round compris)';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[], NL=String.fromCharCode(10);
+    const sortie=function(src, rep, rd){ try{ const r=rd?pyAvecRound(function(){ return pyRun(src, rep.slice()); }):pyRun(src, rep.slice()); return r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+NL; }).join(""); }catch(e){ return "ERREUR"; } };
+    ["pcz","pte","pfl","prd"].forEach(function(k){ PZR[k].sits.forEach(function(S){
+      const R=PZR[k].ex.concat([pzrRep(k,S)]);
+      R.forEach(function(rep){ res.push([PZR[k].modele(S), rep, sortie(PZR[k].modele(S), rep, PZR[k].round)]); });
+      if(k==="pcz"||k==="prd") res.push([PZR[k].prog(S), pzrRep(k,S), sortie(PZR[k].prog(S), pzrRep(k,S), false)]);
+    }); });
+    PPR_PROGS.forEach(function(P){ for(let t=0;t<4;t++){ const rep=P.rep(); res.push([P.src, rep, sortie(P.src, rep, false)]); } });
+    POD_PROGS.forEach(function(P){ const n=P.l.filter(function(l){ return /input/.test(l); }).length; P.ex.forEach(function(rep){ res.push([P.l.join(NL), rep.slice(0,n), sortie(P.l.join(NL), rep.slice(0,n), false)]); }); });
+    PMO_COUPURES.forEach(function(S,i){ S.ex.concat([0, 1, 99]).forEach(function(v){ res.push([pmoModele({s:i}), [String(v)], sortie(pmoModele({s:i}), [String(v)], false)]); }); });
+    [0.125, 0.375, 2.675, 1.005, 2.5, 3.5, -2.5, 1.15*3, 0.65*9, 2.15*7, 123.456789, 0.1+0.2].forEach(function(x){ [0,1,2,3].forEach(function(n){ const src="print(round("+pyFloatRepr(x)+", "+n+"), round("+pyFloatRepr(x)+"))"; res.push([src, [], sortie(src, [], true)]); }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les programmes ne s\'exécutent pas : ' + paires.erreur); return; }
   const liste = JSON.parse(paires.valeur);
   const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
   const ecarts = [];
