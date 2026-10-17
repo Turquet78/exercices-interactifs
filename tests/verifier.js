@@ -31747,7 +31747,10 @@ function serpentsHalloween(w, P){
       const svg=fig.querySelector("svg.hw-svg"), textes=svg?[].map.call(svg.querySelectorAll("text"),function(t){ return t.textContent; }):[];
       if(!svg) vus.push(id+" : pas de SVG dans le serpent");
       else if(d.bulle.some(function(l){ return textes.indexOf(l)<0; })) vus.push(id+" : la bulle n’écrit pas « "+d.bulle.join(" / ")+" » : "+textes.join(" / "));
-      const img=fig.parentNode&&fig.parentNode.querySelector("img[src*='dessins/']");
+      /* le dessin du serpent est SON fichier ; le dessin de la fiche est l'autre image du cadre */
+      const hw=fig.querySelector("img.hw-img");
+      if(!hw||hw.getAttribute("src")!==d.img||d.img!=="dessins/secondes/"+id+"-halloween.webp") vus.push(id+" : le serpent ne montre pas son dessin dessins/secondes/"+id+"-halloween.webp : "+(hw?hw.getAttribute("src"):"aucune image"));
+      const img=fig.parentNode&&fig.parentNode.querySelector("img[src*='dessins/']:not(.hw-img)");
       if(!img) vus.push(id+" : le serpent n’est pas à côté du dessin de la fiche");
       else if(!(img.compareDocumentPosition(fig)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push(id+" : le serpent passe AVANT le dessin de la fiche");
       const stage=on.querySelector(".mp-stage");
