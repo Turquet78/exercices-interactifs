@@ -1264,6 +1264,10 @@ module.exports = {
        2026 : « en seconde, pour la création de devoir maison ou de fiche de
        travail, je souhaite que le professeur puisse mettre jusqu'à 20
        questions par exercice »). */
+    /* Le professeur pose une note sur un exercice d'un devoir ou d'une fiche
+       (demande de Turquet, octobre 2026 : « comme en terminale »). La note du
+       DEVOIR ENTIER, elle, n'est pas demandée ici : pas de « devoirEntier ». */
+    notesDevoir: { exercice: 'pourcentage', tableParametres: 'parametres_2nde', tableResultats: 'resultats_2nde' },
     reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20,
       /* le barème est la SOMME des cases tirées, et chaque démonstration a
          les siennes (4 à 20) : six courtes peuvent peser autant que quatre

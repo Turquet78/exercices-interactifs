@@ -491,6 +491,33 @@ la classe »), et il l'a fait.
 Terminale, `dmTotalEleve()` n'y est pas, et le contrôle s'y affiche « non
 applicable » plutôt que d'être tu.
 
+**Puis la Seconde a suivi pour la note d'un EXERCICE — et pour elle seule.**
+Demande de Turquet (octobre 2026) : « en seconde je souhaite pouvoir modifier
+les notes des élèves pour chaque exercice effectué en devoir maison ou fiche de
+travail comme en terminal ». Le détail par élève du bilan porte désormais,
+devoirs ET fiches, un champ sur 10 à droite de chaque exercice : c'est
+`noteForcee()`, `poserNoteDevoir()` et la ligne `notes` d'`ensureDevoir()`,
+recopiés de la Terminale au caractère près. `noteDevoirExo()` prend la
+signature de la Terminale (`bs, be, forcee, smax`) — les appels sans devoir
+(notes par thème, carnet par test) n'en passent que deux et ne changent pas.
+La note posée entre partout où entre la note d'un exercice : la carte de
+l'élève, l'ordre imposé des fiches (une note posée vaut « terminé »), le total
+du devoir, et donc le carnet des moyennes — sur 20 pour une fiche, par
+`dmNoteAff()`, comme le reste.
+**Ce qui est venu AVEC, parce que la Terminale l'avait payé** : `dmAttente()`
+(l'écran ne se vide plus pendant la relecture, le professeur garde sa place),
+le focus rendu au champ par sa clé, et `dmNotesPosees()` dans la décision de
+suppression — sans quoi un devoir noté à la main sans ligne dans
+`resultats_2nde` partirait avec ses notes. Les contrôles existaient déjà et
+s'affichaient « non applicable » en Seconde : ils s'y appliquent maintenant
+sans rien réécrire (le calcul et la survie au rechargement au banc jsdom,
+l'écran qui ne bouge pas, le GESTE au banc navigateur « 6 quindecies », par
+`notesDevoir` dans `tests/profils.js`).
+**La note du DEVOIR ENTIER n'a PAS suivi**, et c'est nommé : la demande porte
+sur les exercices. `notesDevoir`, `dmTotalEleve()` et `poserNoteDevoirEleve()`
+restent propres à la Terminale ; le profil de la Seconde ne déclare pas
+`devoirEntier`. La Première ne change pas.
+
 **Un exercice BONUS vaut 1 point, et ne fait jamais dépasser le maximum.**
 Demande de Turquet (août 2026), devoirs ET fiches, les trois niveaux : une case
 « Bonus (+1 pt) » sur la ligne de l'exercice dans l'éditeur. Un bonus vaut sa

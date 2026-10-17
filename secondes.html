@@ -224,6 +224,13 @@
   .dm-cell.todo{color:#8a6d12;background:#FCEFD8;border:1px solid #f2dca8}
   .dm-note{font-family:"Fredoka";font-weight:600;font-size:.82rem;padding:2px 11px;border-radius:999px;color:#fff;background:var(--blue);white-space:nowrap}
   .dm-note.none{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
+  .dm-note.posee{background:var(--violet,#6D28D9)}
+  .dm-obtenu{font-size:.78rem;color:var(--ink-soft);white-space:nowrap}
+  .dm-poser{display:inline-flex;align-items:center;gap:3px}
+  .dm-noteinput{width:54px;padding:3px 6px;border:1px solid var(--line);border-radius:8px;
+    font-family:"Fredoka";font-weight:600;font-size:.82rem;text-align:center;color:var(--ink);background:var(--surface)}
+  .dm-noteinput:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16)}
+  .dm-sur{font-size:.78rem;color:var(--ink-soft)}
   /* Le tableau des moyennes porte une colonne par devoir : à dix devoirs il
      dépasse la carte, et c'est LUI qui défile, jamais la page (la règle des
      contenus larges). Le zéro d'un devoir non fait s'écrit, mais en gris : la
@@ -7566,7 +7573,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=540;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=541;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -8136,7 +8143,13 @@ function ensureDevoir(d,i){
     actif: d.actif!==false,
     titre: d.titre || 'Devoir à la maison',
     cours: (typeof d.cours==='string')? d.cours : '',
-    exercices: Array.isArray(d.exercices)? d.exercices : []
+    exercices: Array.isArray(d.exercices)? d.exercices : [],
+    /* Les notes POSÉES par le professeur, « <id élève>|<id exercice> » -> note
+       sur 10 (demande de Turquet, octobre 2026 : « comme en terminale »). Sans
+       cette ligne, ensureDevoir les effacerait au premier rechargement : la
+       configuration est relue à chaque ouverture de l'onglet, et tout champ
+       qu'elle ne recopie pas disparaît SANS erreur. */
+    notes: (d.notes && typeof d.notes==='object' && !Array.isArray(d.notes)) ? d.notes : {}
   }, d.archive ? {archive:true} : {});
 }
 /* Garantit une LISTE de devoirs et migre l'ancien format « devoir » unique le cas échéant. */
@@ -13578,22 +13591,46 @@ function dmBest(did,id,m){ let b=null; (mesResultats||[]).concat(mesBrouillons||
 /* Note d'un exercice de devoir. Soutien vaut 5 pts (5×%), entraînement vaut 10 pts (10×%).
    Note /10 = points d'entraînement si (entraînement > soutien) OU si le soutien n'a pas été fait ;
    sinon points du soutien (au max 5). */
-function noteDevoirExo(bestSoutien, bestEntrain, smax){
+/* LA NOTE QUE LE PROFESSEUR A POSÉE sur un exercice d'un devoir ou d'une
+   fiche, pour un élève (demande de Turquet, octobre 2026 : « en seconde je
+   souhaite pouvoir modifier les notes des élèves pour chaque exercice […]
+   comme en terminale »). Elle se pose PAR-DESSUS : le travail de l'élève reste
+   enregistré tel quel, et le professeur voit côte à côte ce qui a été obtenu
+   et ce qu'il a mis. Rien n'est réécrit dans « resultats_2nde » — une note
+   corrigée par erreur serait sinon irrécupérable.
+   UN SEUL ENDROIT LA LIT : la liste des devoirs de l'élève, le détail d'un
+   devoir et le bilan du professeur s'en servent tous les trois — le même
+   texte qu'en Terminale. */
+function noteForcee(dev, eleveId, exoId){
+  const m = dev && dev.notes;
+  if(!m || typeof m!=='object' || !eleveId || !exoId) return undefined;
+  const v = m[eleveId+'|'+exoId];
+  return (typeof v==='number' && isFinite(v)) ? v : undefined;
+}
+function noteDevoirExo(bestSoutien, bestEntrain, forcee, smax){
   /* Le plafond du soutien se règle PAR EXERCICE du devoir (demande de Turquet,
      août 2026) : 5/10 par défaut, jusqu'à 10/10. Hors devoir, rien ne passe le
-     paramètre et le plafond reste 5 — le rattrapage libre ne change pas. */
+     paramètre et le plafond reste 5 — le rattrapage libre ne change pas. La
+     note POSÉE par le professeur, elle, prime toujours. */
   const plafond = dmPlafondSoutien(smax);
   const s = bestSoutien ? Math.min(plafond, bestSoutien.percent/100*plafond) : 0;
   const e = bestEntrain ? Math.min(10, bestEntrain.percent/100*10) : 0;
   const soutienFait = !!bestSoutien;
   const parEntrain = (e > s || !soutienFait);
-  const note = parEntrain ? e : s;
+  const auto = parEntrain ? e : s;
+  /* Une note posée est BORNÉE à 0–10 : elle vit dans un JSON qu'on peut éditer
+     à la main dans la base, et une valeur bricolée doit retomber sur quelque
+     chose de sensé plutôt que produire un 47/10. */
+  const posee = (typeof forcee==='number' && isFinite(forcee));
+  const note = posee ? Math.max(0, Math.min(10, forcee)) : auto;
   /* « termine » : au moins un essai mené au bout (ou mis en pause par le
-     bouton) — c'est lui que lit l'ordre imposé des fiches ; « provisoire » :
-     la note retenue vient d'un brouillon en cours, et l'écran le dit. */
-  const termine = !!(bestSoutien&&!bestSoutien.enCours) || !!(bestEntrain&&!bestEntrain.enCours);
-  const provisoire = parEntrain ? !!(bestEntrain&&bestEntrain.enCours) : !!(bestSoutien&&bestSoutien.enCours);
-  return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain), termine, provisoire };
+     bouton), ou une note posée — c'est lui que lit l'ordre imposé des fiches ;
+     « provisoire » : la note retenue vient d'un brouillon en cours, et l'écran
+     le dit — jamais quand le professeur a posé. */
+  const termine = posee || !!(bestSoutien&&!bestSoutien.enCours) || !!(bestEntrain&&!bestEntrain.enCours);
+  const provisoire = !posee && (parEntrain ? !!(bestEntrain&&bestEntrain.enCours) : !!(bestSoutien&&bestSoutien.enCours));
+  return { note, auto, posee, s, e, soutienFait, entrainFait:!!bestEntrain,
+           fait:(posee || soutienFait || !!bestEntrain), termine, provisoire };
 }
 function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
 /* LA NOTE D'UN DEVOIR À EXERCICES BONUS (demande de Turquet, août 2026) : un
@@ -13738,7 +13775,8 @@ function renderDevoirsList(){
   $('devoirsBody').innerHTML='<div class="dl-list">'+actifs.map((dev,idx)=>{
     const isLast=idx===0; const exos=dev.exercices||[];
     const tot=dmTotal(exos.map(ex=>{
-      const nd=noteDevoirExo(dmBest(dev.id,ex.id,'soutien'), dmBest(dev.id,ex.id,'train'), ex.smax);
+      const nd=noteDevoirExo(dmBest(dev.id,ex.id,'soutien'), dmBest(dev.id,ex.id,'train'),
+                             noteForcee(dev, currentEleve&&currentEleve.id, ex.id), ex.smax);
       return {note:nd.note, fait:nd.fait, bonus:dmEstBonus(ex)};
     }));
     const aff=dmNoteAff(dev.genre, tot.somme, tot.totMax);
@@ -13783,7 +13821,8 @@ function dmVerrouille(dev, testId){
   for(let i=0;i<exos.length;i++){
     if(exos[i].id===testId) return false;      /* lui-même, ou placé avant le premier non-fait */
     if(dmEstBonus(exos[i])) continue;          /* un bonus non fait ne bloque pas la suite */
-    const nd=noteDevoirExo(dmBest(dev.id,exos[i].id,'soutien'), dmBest(dev.id,exos[i].id,'train'), exos[i].smax);
+    const nd=noteDevoirExo(dmBest(dev.id,exos[i].id,'soutien'), dmBest(dev.id,exos[i].id,'train'),
+                           noteForcee(dev, currentEleve&&currentEleve.id, exos[i].id), exos[i].smax);
     /* un brouillon en cours compte pour la note, pas pour l'ordre : tant que
        l'exercice d'avant n'est pas mené au bout, le suivant reste fermé */
     if(!nd.termine) return true;               /* un exercice AVANT lui n'est pas terminé */
@@ -13803,7 +13842,8 @@ function renderDevoirDetail(devoirId){
   const parts=[];
   const cards=exos.map((ex,i)=>{
     const t=TESTS[ex.id];
-    const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'), ex.smax);
+    const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'),
+                           noteForcee(dev, currentEleve&&currentEleve.id, ex.id), ex.smax);
     const bonus=dmEstBonus(ex);
     parts.push({note:nd.note, fait:nd.fait, bonus:bonus}); if(nd.fait) faitQqch=true;
     const verrou=ordreImpose&&bloque&&!bonus;
@@ -22341,6 +22381,17 @@ function dmNotesDe(devId, rows){
   }).length;
 }
 
+/* LES NOTES POSÉES À LA MAIN COMPTENT AUSSI. Elles vivent dans la DÉFINITION
+   du devoir, pas dans « resultats_2nde » : la supprimer les emporterait, et un
+   exercice noté à la main sans que l'élève l'ait fait en ligne n'a AUCUNE
+   ligne dans la table — le devoir serait donc parti sans un mot, avec ses
+   notes. Le même texte qu'en Terminale, qui compte aussi la note du devoir
+   entier (absente ici : le compte en est simplement nul). */
+function dmNotesPosees(dev){
+  const cnt=function(o){ return (o && typeof o==='object' && !Array.isArray(o)) ? Object.keys(o).length : 0; };
+  return cnt(dev && dev.notes) + cnt(dev && dev.notesDevoir);
+}
+
 /* LA DÉCISION, et elle se prend sur un compte VRAI, jamais supposé. Si la base
    ne répond pas, on ARCHIVE : un doute se tranche du côté où rien n'est
    perdu — détruire sur une lecture ratée serait exactement le défaut qu'on
@@ -22349,7 +22400,7 @@ async function dmDecisionSuppression(dev){
   try{
     const {data,error}=await lireToutes(()=>sb.from(dmTableResultats()).select('*'));
     if(error) throw error;
-    const n=dmNotesDe(dev.id, data||[]);
+    const n=dmNotesDe(dev.id, data||[])+dmNotesPosees(dev);
     return { archiver:n>0, n:n, lecture:true };
   }catch(e){
     return { archiver:true, n:null, lecture:false };
@@ -22622,7 +22673,7 @@ function dmNoteDevoir(dev, eleveId, rows){
   const exd=liste.map(function(ex){
     const bs=dmMeilleur(rows,eleveId,dev.id,ex.id,'soutien');
     const be=dmMeilleur(rows,eleveId,dev.id,ex.id,'train');
-    const nd=noteDevoirExo(bs,be,ex.smax);
+    const nd=noteDevoirExo(bs,be,noteForcee(dev,eleveId,ex.id),ex.smax);
     if(nd.fait) nbFait++;
     return { ex:ex, nd:nd, bs:bs, be:be };
   });
@@ -22631,9 +22682,23 @@ function dmNoteDevoir(dev, eleveId, rows){
   return { somme:t.somme, totMax:t.totMax, nbFait:nbFait, nbExos:liste.length,
            fait:nbFait>0, exd:exd };
 }
+/* ON NE VIDE PAS UN ÉCRAN QU'ON VA REMPLIR AVEC LA MÊME CHOSE — le texte de
+   la Terminale. Poser une note redessine le bilan, et un bilan qui commencerait
+   par se réduire à « Chargement… » ferait perdre au professeur l'endroit où il
+   notait. La boîte GARDE son contenu pendant la lecture quand l'écran va dire
+   la même chose (même CLÉ), et repart sur « Chargement… » quand il va dire
+   autre chose — un autre devoir, une autre famille. Une lecture ratée efface
+   la clé. */
+function dmAttente(box, cle){
+  if(!box) return;
+  if(box.dataset.dmCle !== cle || !box.innerHTML.trim())
+    box.innerHTML='<p class="muted">Chargement…</p>';
+  box.dataset.dmCle = cle;
+}
+
 async function renderDmMoyennes(){
   const box=$('dmMoyennes'); if(!box) return;
-  box.innerHTML='<p class="muted">Chargement…</p>';
+  dmAttente(box, 'moy:'+dmGenre);
   try{
     const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
       sb.from('eleves_2nde').select('id,prenom'),
@@ -22642,7 +22707,7 @@ async function renderDmMoyennes(){
     if(e1)throw e1; if(e2)throw e2;
     dmMoyDernier=dmMoyennes(dmList, eleves||[], rows||[]);
     box.innerHTML=dmMoyennesHTML(dmMoyDernier);
-  }catch(e){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
+  }catch(e){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; box.dataset.dmCle=''; }
 }
 
 async function renderDevoirResultats(){
@@ -22651,10 +22716,12 @@ async function renderDevoirResultats(){
   renderDmMoyennes();
   const box=$('dmResults'); const dev=selectedDevoir();
   if($('dmResTitle')) $('dmResTitle').textContent = dev? ((dmGenre==='fiche'?'de la Fiche n°':'du Devoir n°')+dev.num) : '';
-  if(!dev){ box.innerHTML=''; return; }
+  if(!dev){ box.innerHTML=''; box.dataset.dmCle=''; return; }
   const exos=dev.exercices||[];
-  if(!exos.length){ box.innerHTML='<div class="empty">Ajoute au moins un exercice à ce devoir (et enregistre) pour suivre les résultats.</div>'; return; }
-  box.innerHTML='<p class="muted">Chargement…</p>';
+  if(!exos.length){ box.innerHTML='<div class="empty">Ajoute au moins un exercice à ce devoir (et enregistre) pour suivre les résultats.</div>'; box.dataset.dmCle=''; return; }
+  /* La clé est le devoir MONTRÉ : le même devoir garde son écran, un autre le
+     remplace par « Chargement… » — voir dmAttente(). */
+  dmAttente(box, 'res:'+dmGenre+':'+dev.id);
   try{
     const [{data:eleves,error:e1},{data:res,error:e2}]=await Promise.all([
       sb.from('eleves_2nde').select('id,prenom').order('prenom'),
@@ -22687,20 +22754,83 @@ async function renderDevoirResultats(){
       <div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Bilan de la classe</h3>
         <span class="badge ${moy===null?'':pctClass(Math.round(moy/totMax*100))}">${moy===null?'Moyenne : —':('Moyenne : '+fmtNote(dmNoteAff(dmGenre,moy,totMax).note)+' / '+surAff)}</span></div>
       <p class="note" style="margin:0 0 10px">Note du devoir par élève (chaque exercice sur 10, soutien plafonné à 5${exos.some(ex=>dmEstBonus(ex))?' ; un exercice bonus ajoute jusqu\u2019à 1 point sans dépasser le maximum':''})${GENRE_DEVOIRS[dmGenre].sur20?' ; la note de la fiche est ramenée sur 20':''}. « Exercices faits » = nombre d'exercices commencés sur ${exos.length} ; un exercice commencé mais non terminé compte, « en cours », pour ce que l\u2019élève a déjà validé.</p>
+      <p class="note" style="margin:0 0 10px">Tu peux <b>modifier la note d’un exercice</b> pour un élève : écris-la sur 10 dans le champ à droite de l’exercice, dans le détail par élève ci-dessous. Elle remplace la note obtenue (qui reste affichée à côté), et vider le champ la rend.</p>
       <table class="tbl"><thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead><tbody>${bilanRows}</tbody></table>
     </div>`;
     // 2) Détail par élève
     const cards=synth.map(x=>{
       const rows=x.exd.map(({ex,nd,bs,be})=>{
         const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell ${r.enCours?'encours':'done'}">${mlbl} ${r.enCours?'en cours · '+r.faites+'/'+r.nbQ+' q · ':''}${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
-        const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)}/10</span>`:`<span class="dm-note none">—/10</span>`;
-        return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${nb}</span></div>`;
+        /* La note POSÉE se voit à côté de celle qui a été OBTENUE, jamais à sa
+           place : le professeur doit pouvoir revenir en arrière en sachant
+           d'où il part. Le champ vaut la note affichée ; le vider rend la note
+           obtenue. escJS() et non esc() : ces deux identifiants partent dans
+           un attribut onchange, où une chaîne échappée en HTML serait décodée
+           AVANT que JavaScript ne la lise. */
+        const nb=nd.posee
+          ? `<span class="dm-note posee" title="Note posée par le professeur">${fmtNote(nd.note)}/10</span>`
+          : (nd.fait?`<span class="dm-note">${fmtNote(nd.note)}/10</span>`:`<span class="dm-note none">—/10</span>`);
+        const obtenu = nd.posee
+          ? `<span class="dm-obtenu">obtenu&nbsp;${nd.soutienFait||nd.entrainFait?fmtNote(nd.auto):'—'}</span>` : '';
+        const champ = `<span class="dm-poser">`
+          + `<input class="dm-noteinput" type="text" inputmode="decimal" value="${nd.posee?esc(fmtNote(nd.note)):''}"`
+          + ` placeholder="${nd.fait?esc(fmtNote(nd.auto)):'—'}" aria-label="Note posée pour ${esc(x.e.prenom)} sur ${esc(testNum(ex.id))}"`
+          + ` data-cle="${esc(x.e.id+'|'+ex.id)}"`
+          + ` onchange="poserNoteDevoir('${escJS(x.e.id)}','${escJS(ex.id)}',this.value)">`
+          + `<span class="dm-sur">/10</span></span>`;
+        return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${obtenu}${nb}${champ}</span></div>`;
       }).join('');
       const totLbl=x.fait?`Note : ${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}`:`Note : — / ${surAff}`;
       return `<div class="dm-rescard"><div class="dm-resname">${esc(x.e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
     }).join('');
+    /* ET LE CHAMP QUI A LE FOCUS LE GARDE. Le bilan est reconstruit à chaque
+       note posée : sans cela, le professeur qui passe d'une note à la suivante
+       par Tab voit le clavier retomber sur la page à chaque fois. Le champ se
+       repère par la CLÉ sous laquelle sa note est rangée — jamais par son
+       rang, que le rendu recrée. Et on ne rend le focus que s'il était DANS
+       cette boîte. */
+    const actif=document.activeElement;
+    const focusCle=(actif && box.contains(actif) && actif.getAttribute)
+      ? actif.getAttribute('data-cle') : null;
     box.innerHTML=bilan+'<div class="set-h">Détail par élève</div>'+cards;
-  }catch(err){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
+    if(focusCle){
+      const champs=box.querySelectorAll('.dm-noteinput');
+      for(let i=0;i<champs.length;i++){
+        if(champs[i].getAttribute('data-cle')!==focusCle) continue;
+        champs[i].focus();
+        try{ champs[i].setSelectionRange(champs[i].value.length, champs[i].value.length); }catch(e){}
+        break;
+      }
+    }
+  }catch(err){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; box.dataset.dmCle=''; }
+}
+
+/* POSER UNE NOTE — le texte de la Terminale. Le champ vide REND la note
+   obtenue : c'est la seule façon d'annuler, et elle doit être évidente. Une
+   saisie illisible n'écrase rien et le dit : sans ce refus, « 8,5,2 » ou
+   « huit » deviendrait NaN, et la note disparaîtrait sans un mot. La virgule
+   est acceptée — c'est ainsi qu'on écrit une note en France. */
+async function poserNoteDevoir(eleveId, exoId, brut){
+  const dev=selectedDevoir(); if(!dev) return;
+  readEditorIntoDevoir();
+  if(!dev.notes || typeof dev.notes!=='object') dev.notes={};
+  const cle=eleveId+'|'+exoId;
+  const t=String(brut==null?'':brut).trim().replace(',', '.');
+  let annonce;
+  if(t===''){ delete dev.notes[cle]; annonce='Note rendue à ce que l’élève a obtenu'; }
+  else {
+    const v=Number(t);
+    if(!isFinite(v) || t.match(/[^0-9.\-]/)){ toast('Note illisible — écris un nombre entre 0 et 10','err'); await renderDevoirResultats(); return; }
+    const borne=Math.max(0, Math.min(10, v));
+    dev.notes[cle]=borne;
+    annonce='Note posée : '+fmtNote(borne)+' / 10';
+    if(borne!==v) annonce+=' (ramenée dans 0–10)';
+  }
+  try{ await persistDevoirs(); toast(annonce+' ✓','ok'); }
+  catch(e){ toast('Enregistrement impossible — la note n’est pas gardée','err'); }
+  /* ATTENDU, et pas seulement lancé : qui attend poserNoteDevoir doit lire
+     l'écran d'APRÈS. */
+  await renderDevoirResultats();
 }
 
 
