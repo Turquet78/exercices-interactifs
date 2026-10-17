@@ -3058,14 +3058,72 @@ désormais la case « Majorée par … » de {suite-vocabulaire} (5.4.1), case d
 texte voisine d'un champ de limite, et le profil nomme ce qu'on tape, ce
 qu'on attend et le juge qui relit (`casesLimite.jetonTexte`).
 
-**{convexite-parametre} (4.3.5) : TROUVER UN PARAMÈTRE (octobre 2026, v388).**
+## Associer f, f′ et f″ — six courbes en désordre, trois triplets (4.3.5, v388)
+
+Demande de Turquet, octobre 2026 : « dans le sous-thème convexité, créer un
+exercice : associer f, f′ et f″ — six courbes en désordre, trois triplets à
+reconstituer. C'est le pendant d'{associer-derivee}. » Identifiant
+`associer-derivee-seconde`, genre `afd`, cinquième de la partie Convexité.
+
+**L'écran.** Les courbes de trois fonctions f, g, h sur [−3 ; 3], puis six
+courbes numérotées C1…C6 : leurs dérivées et leurs dérivées secondes, en
+désordre. Pour chaque fonction, deux menus : le numéro de la courbe de sa
+dérivée, celui de sa dérivée seconde. Trois questions par séance, tirées par
+`distinctes()`. Les cadres sont ceux de {convexite-trois-courbes}
+(`cvxCadreSVG`, qui a gagné un septième paramètre facultatif : l'indice de
+l'étiquette, g, h ou un numéro — sans lui, rien ne change) : la courbe sort
+du cadre là où elle file vers l'infini, comme sur une calculatrice, et la
+fenêtre en y se cale sur les extremums et les points d'inflexion
+(`afdFenetre`).
+
+**Le tirage.** Des polynômes de quatre genres — cubique à deux extremums,
+cubique monotone, quartique à trois extremums, quartique à un seul —, trois
+genres DIFFÉRENTS par question : il y a donc toujours une cubique et une
+quartique, et une parabole est tantôt une dérivée, tantôt une dérivée
+seconde. Le degré seul ne trie rien. f′ se choisit par ses zéros (entiers),
+f s'en déduit par intégration. La question ne range que les coefficients
+(`fs`) et l'ordre des six courbes (`ordre`, le code 2i pour la dérivée de la
+fonction i, 2i + 1 pour sa dérivée seconde) : la réponse se relit dans
+l'ordre, jamais rangée à côté.
+
+**L'unicité se lit, elle ne se décrète pas.** Une courbe g peut passer pour
+la dérivée de h tant qu'aucun point ne les contredit À L'ŒIL : g à 12 px au
+moins d'un côté de l'axe, h visible dans son cadre et montant ou descendant
+avec une pente d'écran d'au moins 0,25 (14°), dans l'autre sens
+(`afdDesaccord`). `afdSolutions` compte toutes les répartitions que rien ne
+contredit, et le tirage n'est retenu que s'il n'en reste qu'une. Les
+premiers seuils (8 px, 0,15) donnaient des tirages « uniques » dont un sur
+douze ne l'était plus dès qu'on exigeait un désaccord un peu plus franc :
+mesuré hors de la page, sur 200 tirages, puis la marge a été prise dans la
+page. Coût : 1,6 tirage par question, 18 ms. Un premier essai de contrôle
+avec un critère tout autre (15 à 25 % du maximum sur [−2,5 ; 2,5]) trouvait
+TOUT ambigu — une quartique qui file à 40 en x = 3 rend invisible, à cette
+mesure, tout ce qui se passe au milieu : un seuil relatif au maximum ne
+mesure pas ce que l'œil voit dans un cadre qui coupe la courbe.
+
+**Le pourquoi.** Un menu faux dit, relu sur les courbes, le point où le
+choix se contredit : « La courbe 4 ne peut pas être celle de f ′ : vers
+x = 1,5, elle est au-dessous de l'axe, alors que f y est croissante. » Pour
+une dérivée seconde, la comparaison se fait avec la VRAIE courbe de la
+dérivée. Si la courbe choisie ne contredit rien à elle seule, la phrase le
+dit : c'est le reste qui ne se répartit plus.
+
+**Le contrôle** (`tests/verifier.js`, `associerDeriveeSeconde`) relit chaque
+courbe par différences finies, recompte les 720 ordres des six courbes un
+par un avec son propre juge, sur une grille deux fois plus fine que celle de
+la page (il voit donc au moins ses désaccords), exige une seule répartition
+et que ce soit l'attendue, des degrés 3 et 4 mêlés, trois questions
+distinctes, puis les gestes sur la question de repli épinglée : copie juste
+(six cases), menu faux seul en rouge avec son pourquoi et la bonne courbe à
+côté, menu vide en vert jamais rouge, soutien sans verrou et coloré en
+direct, copie vide redemandée, neuf étiquettes, clause de secret.
+**{convexite-parametre} (4.3.6) : TROUVER UN PARAMÈTRE (octobre 2026, v389).**
 Demande de Turquet : « dans le sous-thème convexité, créer un exercice sur
 Trouver un paramètre — f(x) = x³ + kx² + 1 admet un point d'inflexion
 d'abscisse 2 : trouve k. Ou bien : pour quelles valeurs de a la fonction
 (x² + a)eˣ est-elle convexe sur ℝ ? (le discriminant de f″ intervient) ». Il
-ferme la partie Convexité : aucun numéro existant ne bouge. Le contrôle de
-{etude-algo-convexite} exigeait d'être le DERNIER de la partie ; il exige
-désormais d'y être, et c'est le 4.3.5 qui tient la dernière place.
+ferme la partie Convexité, après {associer-derivee-seconde} (4.3.5, né le
+même jour sur une autre branche) : aucun numéro existant ne bouge.
 
 **Le tirage** : cinq questions, une par famille, par `distinctes()` —
 mx³ + kx² (+ px) + d (k = −3m·x0 ; p vaut 0 une fois sur trois, comme dans
