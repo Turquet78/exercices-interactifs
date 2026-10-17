@@ -2912,7 +2912,7 @@ l'équivalence), la saisie une flèche violet clair. Une fois la page
 VERROUILLÉE : juste en bleu, faux en rouge, correction en vert ; en soutien
 rien ne se révèle (la condition est `test.locked`).
 
-**Les trois flèches rouges ont TOUJOURS la même épaisseur** (v544, demande
+**Les trois flèches rouges ont TOUJOURS la même épaisseur** (v545, demande
 de Turquet sur capture) : la ligne montrée épaississait ses flèches libres
 (`lsd-vu`, 4,2 contre 2,6), si bien que u⃗ et v⃗ paraissaient plus fins que w⃗
 — une différence d'épaisseur qui ne veut rien dire et que l'élève cherche à
