@@ -682,7 +682,7 @@ attend son 2 (« 15x^ » reste tel quel le temps de taper). Sous le bouton
 « 8x² », « -3x² », « x² » dans une case du 7.11, du 7.10 et du 7.9 ;
 « 15x^ » ne bouge pas ; la case convertie se lit toujours 8x².
 
-## {vrai-faux-calcul} — vrai ou faux sur des erreurs d'élèves (7.12, v539)
+## {vrai-faux-calcul} — vrai ou faux sur des erreurs d'élèves (7.12, v541 — v539 et v540 prises par le 8.2.8 et le 8.2.15)
 
 **La demande** (Turquet, octobre 2026) : « un vrai ou faux sur des erreurs
 d'élèves. Par exemple 2x + 3x = 5x², −(x − 2) = −x − 2, 3(x + 4) = 3x + 4.
