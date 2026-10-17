@@ -2966,7 +2966,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=323;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=324;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3838,6 +3838,21 @@ function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dé
   const ok = !isNaN(n)&&!isNaN(d)&&d>0&&isPow10(d)&&n*td===tn*d;
   if(!en.disabled) en.classList.add((ok||n===tn)?'ok':'bad');
   if(!ed.disabled) ed.classList.add((ok||(isPow10(d)&&d===td))?'ok':'bad');
+}
+/* a × b = b × a : le calcul global « … × … = … » des schémas de pourcentages
+   accepte ses deux facteurs dans l'un ou l'autre ordre (demande de Turquet,
+   octobre 2026 — une copie « 0,80 × 0,30 = 0,24 » rougissait deux cases
+   justes). Rend les cibles des deux cases, ÉCHANGÉES quand l'écriture de
+   l'élève colle mieux à rebours : le juge, la correction écrite et le compte
+   rendu suivent alors l'ordre de l'élève. vaut(s, cible) juge une case. */
+function facteursCommutes(sa,sb,ca,cb,vaut){
+  const droit=(vaut(sa,ca)?1:0)+(vaut(sb,cb)?1:0), croise=(vaut(sa,cb)?1:0)+(vaut(sb,ca)?1:0);
+  return croise>droit ? [cb,ca] : [ca,cb];
+}
+/* la même chose pour deux cases décimales identifiées, de cibles nA/d et nB/d */
+function facteursCommutesDec(idA,idB,nA,nB,d){
+  const lu=id=>{ const el=$(id); return el ? String(el.value==null?'':el.value).trim() : ''; };
+  return facteursCommutes(lu(idA),lu(idB),nA,nB,(s,n)=>{ const fr=parseDecToFrac(s); return !!fr && fr.n*d===n*fr.d; });
 }
 function liveColorDec(id,tn,td){                       // case décimale
   const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
@@ -18744,19 +18759,20 @@ function checkEvsAnswer(live){
   const q=test.questions[test.idx];
   const v=id=>String($(id).value==null?'':$(id).value).trim();
   const gAbs=Math.abs(q.G), gc=q.c1*q.c2;                 /* le coefficient global, en dix-millièmes */
+  const [g1c,g2c]=facteursCommutesDec('evsG1','evsG2',q.c1,q.c2,100);   /* a × b = b × a */
   const bonS=q.G>0?'+':'−';
   const motEl=$('evsMot');
   const liveMot=()=>{ if(!motEl||motEl.disabled) return; motEl.classList.remove('ok','bad'); if(v('evsMot')==='') return; motEl.classList.add(evsMotOk(v('evsMot'),bonS)?'ok':'bad'); };
   if(live){
     liveColorDec('evsP1',q.P1,100); liveColorDec('evsC1',q.c1,100);
     liveColorDec('evsP2',q.P2,100); liveColorDec('evsC2',q.c2,100);
-    liveColorDec('evsGP',gAbs,100); liveColorDec('evsG1',q.c1,100); liveColorDec('evsG2',q.c2,100); liveColorDec('evsG',gc,10000);
+    liveColorDec('evsGP',gAbs,100); liveColorDec('evsG1',g1c,100); liveColorDec('evsG2',g2c,100); liveColorDec('evsG',gc,10000);
     liveColorDec('evsT',gAbs,1); liveMot();
     return;
   }
   const dec=(id,n,d)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
   const ok={ evsP1:dec('evsP1',q.P1,100), evsC1:dec('evsC1',q.c1,100), evsP2:dec('evsP2',q.P2,100), evsC2:dec('evsC2',q.c2,100),
-             evsGP:dec('evsGP',gAbs,100), evsG1:dec('evsG1',q.c1,100), evsG2:dec('evsG2',q.c2,100), evsG:dec('evsG',gc,10000),
+             evsGP:dec('evsGP',gAbs,100), evsG1:dec('evsG1',g1c,100), evsG2:dec('evsG2',g2c,100), evsG:dec('evsG',gc,10000),
              evsMot:evsMotOk(v('evsMot'),bonS), evsT:dec('evsT',gAbs,1) };
   /* une case vide ne rougit jamais (règle universelle) : mark() ne colore que
      les cases écrites, et chacune se juge SEULE contre sa valeur canonique */
@@ -18774,7 +18790,7 @@ function checkEvsAnswer(live){
     $('evsFeedback').textContent=`Réponse : (1 ${q.s1<0?'−':'+'} ${d1}) × (1 ${q.s2<0?'−':'+'} ${d2}) = ${k1} × ${k2} = ${kg} = 1 ${bonS} ${dg} : ${evsMin(BS_CTX[q.ci].sujet)} subit globalement une ${mot} de ${gAbs} %.`;
     $('evsFeedback').className='mp-feedback bad';
     corTrainDec('evsP1',d1); corTrainDec('evsC1',k1); corTrainDec('evsP2',d2); corTrainDec('evsC2',k2);
-    corTrainDec('evsGP',dg); corTrainDec('evsG1',k1); corTrainDec('evsG2',k2); corTrainDec('evsG',kg); corTrainDec('evsMot',mot); corTrainDec('evsT',String(gAbs));
+    corTrainDec('evsGP',dg); corTrainDec('evsG1',evsDec(g1c)); corTrainDec('evsG2',evsDec(g2c)); corTrainDec('evsG',kg); corTrainDec('evsMot',mot); corTrainDec('evsT',String(gAbs));
     /* en entraînement, la case du coefficient global vient d'être corrigée
        (complétée si vide) : le signe se relit dessus ; si l'élève y avait
        écrit un coefficient du mauvais côté de 1, on montre le bon signe en
