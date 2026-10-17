@@ -3189,6 +3189,15 @@ bouge.
   affirmation aurait trahi la réponse par sa longueur. Plusieurs
   contre-exemples réfutent parfois la même affirmation (« majorée, donc
   convergente » tombe devant (−1)ⁿ ET devant −n) : tous sont acceptés.
+  **Puis les dix premiers termes (v391).** Demande de Turquet : « il faudrait
+  donner les 10 premiers termes en plus dans les contre-exemples proposés ».
+  Un tableau sous la liste écrit, pour CHACUN des sept contre-exemples (pas
+  seulement le bon : la liste ne doit rien trahir), U₀ à U₉ — fractions
+  empilées, déjà irréductibles (M(n+1) − 1 et n + 1 sont premiers entre eux),
+  avec le M de la question. Les termes sont des nombres (`tvfCeTermes`), pas
+  du texte : le banc principal les recompare aux suites qu'il calcule, pour
+  M de 2 à 6, et exige que le tableau suive les contre-exemples de la liste.
+  Le « ; » colle à son terme : au téléphone, un « ; … » seul ouvrait la ligne.
 - **{suite-croissante-non-majoree} (5.4.5) — le théorème voisin.**
   Uₙ₊₁ = Uₙ + an + b ou Uₙ₊₁ = Uₙ² + Uₙ + b, les deux familles dans chaque
   séance : a) croissante par le signe de la différence, b) récurrence Uₙ ≥ n,
