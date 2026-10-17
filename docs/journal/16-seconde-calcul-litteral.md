@@ -681,3 +681,79 @@ attend son 2 (« 15x^ » reste tel quel le temps de taper). Sous le bouton
 « -3x**2 », « x**2 » tapés avec un vrai événement `input` s'affichent
 « 8x² », « -3x² », « x² » dans une case du 7.11, du 7.10 et du 7.9 ;
 « 15x^ » ne bouge pas ; la case convertie se lit toujours 8x².
+
+## {vrai-faux-calcul} — vrai ou faux sur des erreurs d'élèves (7.12, v539)
+
+**La demande** (Turquet, octobre 2026) : « un vrai ou faux sur des erreurs
+d'élèves. Par exemple 2x + 3x = 5x², −(x − 2) = −x − 2, 3(x + 4) = 3x + 4.
+L'élève dit "faux" et corrige. On retrouve l'esprit de 8.1.10 (le vrai ou
+faux sur une figure à pièges). » Ajouté en dernier du thème 7 : 7.12, rien ne
+se renumérote. Kind `vfl`, écran `scr-vfl`.
+
+**Huit familles d'erreur** (`VFL_ERREURS`), chacune avec son tirage, son
+membre de gauche, sa bonne réponse et son erreur EXACTE :
+- `expo` — 2x + 3x = 5x² (les exposants s'ajoutent) ;
+- `nature` — 2x + 5 + 3x = 10x (un nombre mêlé aux x) ;
+- `produit` — 2x × 3x = 6x ou 5x² (x × x oublié, ou les coefficients
+  ajoutés) ;
+- `moins` — −(x − 2) = −x − 2 (le moins ne change que le premier signe) ;
+- `distrib` — 3(x + 4) = 3x + 4 (le facteur oublie le second terme) ;
+- `distribNeg` — −2(x − 3) = −2x − 6 (la règle des signes du second
+  produit) ;
+- `soustr` — 5x − (2x + 3) = 3x + 3 (le nombre ne change pas de signe) ;
+- `signes` — −3x − 2x = 5x (« moins par moins » appliqué à une somme).
+
+**Six égalités par page, six familles différentes, trois pages**
+(`VFL_L`, `VFL_NB`, `dmNbQuestions`). De 1 à 3 sont vraies (`VFL_VRAIES`) :
+la vraie et la fausse d'une famille ne diffèrent que par l'erreur, et le
+nombre de vraies change d'une page à l'autre — « tout est faux » ne se
+devine pas. Le tirage passe par `distinctes()`, la clé lit les familles et
+leurs nombres. On range la famille, les nombres et le verdict (`t`, `n`,
+`v`) ; `vflLignes()` recalcule les écritures.
+
+**L'élève dit « Faux » et corrige.** Chaque ligne a sa liste « ? / Vrai /
+Faux » (`itvSelHTML`, `TVF_OPT_VF`, comme au 8.1.10) et sa case de
+correction « LHS = … », avec le bouton x² du 7.5. La case n'apparaît que
+quand la liste dit « Faux » — par la règle CSS `:has(option[value="F"]:checked)`,
+pas par un écouteur : la reprise d'une pause repose les valeurs SANS
+événement, et la case revient d'elle-même. Toutes les lignes ont leur case,
+vraies comprises : une case réservée aux lignes fausses trahirait le
+verdict.
+
+**Une ligne fausse vaut deux cases, une vraie une seule** : la case de
+correction d'une ligne vraie n'est ni jugée ni peinte (elle ne compte donc
+pas dans `ptsEcran`), et se ferme à la vérification (`vfl-ferme`). Celle
+d'une ligne fausse s'ouvre (`vfl-montre`), quoi que l'élève ait choisi : une
+fausse crue vraie reçoit sa correction en vert, comme une case vide. Barème
+de la séance = 6 × 3 + le nombre de lignes fausses (`vflBareme`).
+
+**La correction se juge sur la valeur** (`redLit`, `redMeme` du 7.5) : réduite
+et égale au membre de gauche. « 2 − x » vaut « −x + 2 », « 12 + 3x » vaut
+« 3x + 12 » ; « 3x + 2x » est juste mais pas réduite, et le message le dit.
+« x^2 » s'écrit x² à la frappe (`dvlExposant`).
+
+**Le pourquoi** (`vflPourquoi`), sur la première vraie faute : la règle de
+la famille (« x RESTE x. Le carré vient d'un PRODUIT », « un moins devant une
+parenthèse change le signe de TOUS les termes »…) ; pour une vraie jugée
+fausse, « l'élève n'a pas fait d'erreur ici — vérifie en remplaçant x par
+2 ». Sous chaque ligne, une fois la page corrigée : « Faux : 2x + 3x = 5x, et
+non 5x². » ou « Vrai : … ».
+
+**Ce qui a été décidé sans demander** : les cinq familles ajoutées aux trois
+de la demande, six lignes par page, la case de correction présente sur
+TOUTES les lignes, et l'acceptation de toute écriture réduite de même
+valeur.
+
+**Le juge** (`tests/verifier.js`, `vraiFauxCalcul`) ne lit pas les familles :
+il évalue le TEXTE affiché de chaque membre en quatre valeurs de x. Sur 300
+séances : trois pages, six familles distinctes par page, de 1 à 3 vraies (et
+chacun des trois comptes sort), le verdict de la page égal à celui du calcul,
+la correction égale au membre de gauche et réduite, aucune égalité posée
+deux fois, les huit familles tirées. Puis les trois exemples de Turquet au
+bouton (avec 2x × 3x = 6x², −3x − 2x = −5x vraies et 2x + 5 + 3x = 10x
+fausse) : les écritures affichées, la copie juste (10/10) et d'autres
+écritures justes, l'erreur crue vraie (rouge, correction en vert, message
+qui nomme les exposants), l'erreur recopiée, la correction non réduite, la
+vraie jugée fausse (sa case de correction jamais peinte), la case vide, la
+copie vide sans rouge, « 6x^2 » → « 6x² », le JSON, le soutien, le contexte
+du modèle.
