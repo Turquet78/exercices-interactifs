@@ -603,6 +603,35 @@ sait lire pour un démarreur partagé (en second, il a rougi les cinq).
   Les deux pourcentages sont ENTIERS par construction (total 50, 100 ou 200,
   n(X) multiple de 10, pourcentages multiples de 10) : l'égalité se lit sans
   arrondi. Indépendants une fois sur deux. Lit `dmNbQuestions(4)`.
+  **Refondu en v325** (demande de Turquet, octobre 2026 : « comparer
+  P(F ∩ T) et P(F) × P(T) pour dire si c'est indépendant ou non, avec des
+  nombres plus petits que 5 dans les cases intérieures du tableau ») : les
+  quatre cases du milieu valent 1 à 4 (total ≤ 16), l'indépendance se tire
+  sur n(A∩B)·n(Ā∩B̄) = n(Ā∩B)·n(A∩B̄). Onze cases : P(X∩Y), P(X), P(Y) en
+  fractions des effectifs, le produit SANS simplifier (dénominateur T²),
+  P(X∩Y) réécrite sur T², puis la conclusion (« égales : indépendants » /
+  « différentes : pas indépendants » — options sans lettres : une `<option>`
+  ne dessine pas la barre, et la phrase longue était coupée à 390 px).
+  Chaque case attend un seul nombre ; la consigne dit « sans simplifier ».
+  Une pause d'avant la v325 se reprend : `att` ne lit que `q.n` et `q.ev`.
+  Vérifié dans Chromium (1280 et 390 px) : copie juste tapée dans les vraies
+  cases, 11/11 à chaque question, aucun débordement horizontal.
+  **v327** (demande de Turquet : « accepte aussi les fractions simplifiées,
+  et écris les trois premières probabilités sur une ligne et les deux
+  dernières sur une deuxième ligne ») : `indJuger`, branché par un crochet
+  `juger` de `PBX` dans `checkPBAnswer`, rend justes les deux cases d'une
+  paire dès que la fraction tapée est ÉGALE à l'attendue ; sinon chaque case
+  se juge seule. La seconde P(X∩Y) se compare donc au produit tel que l'élève
+  l'a écrit. Les attendus (et la correction verte) restent les fractions des
+  effectifs. Chaque probabilité est un bloc `.ind-p` insécable : sur
+  téléphone la rangée se replie ENTRE elles, jamais entre un nom et son
+  « = ». Vérifié dans Chromium : copie exacte, copie simplifiée (11/11),
+  produit faux (seules ses cases rougissent).
+  Puis, le même jour (« le total doit être de 10 à chaque fois ») : les quatre cases
+  valent 1 à 4 ET somment à 10 ; le produit tombe sur 100. Huit tableaux
+  indépendants seulement (1-1-4-4, 2-2-3-3 et permutations), 36 non
+  indépendants — avec les quatre choix de X et Y, `distincte` a de quoi
+  tirer une séance de 20 questions sans redite.
 - **3.9 {automatismes-probabilites}** — dix QCM, une question de chaque sorte
   (`AUTO_SORTES` : case d'un tableau, conditionnelle, contraire, pourcentage,
   notation, produit sur un arbre, branche manquante, probabilités totales,
@@ -621,3 +650,15 @@ chaque question des cinq exercices, aucun débordement horizontal ; les
 captures relues question par question. Deux retouches en sont sorties : « Dans
 le camping, 35 % des vacanciers du camping » (le lieu dit deux fois), et un
 piège « 3/3 » au dé, remplacé par 1/6, 1/3, 3/12.
+
+**Les lettres du 3.9 se définissent dans l’énoncé (v326).** Signalement de
+Turquet, octobre 2026 : « La probabilité d'avoir 25 ans ou plus parmi les
+spectateurs qui ont acheté du pop-corn s'écrit : P_J̄(P) ? P(J̄ ∩ P) ? … » —
+on ne peut pas répondre, rien ne dit ce que sont J et P. Les questions à
+tableau le disaient (les en-têtes portent « J = moins de 25 ans »), les six
+autres sortes non : notation, contraire, pourcentage, et les trois questions
+d'arbre. `autoDef()` ouvre leur énoncé par « On note J l'évènement « Le
+spectateur a moins de 25 ans » et P l'évènement « Le spectateur a acheté du
+pop-corn ». » — les mots du contexte de la séance (`ind`, `A`, `B`), comme le
+3.1. Le dé et « ne peut pas être une probabilité » n'ont pas de lettres et
+n'en reçoivent pas.

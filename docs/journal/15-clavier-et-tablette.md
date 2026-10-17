@@ -1630,3 +1630,52 @@ ouvre l'écran de connexion à 390 et 360 px de large, donne le focus à la case
 du code et MESURE — pavé visible, aucune touche hors de l'écran, pas de
 défilement, au moins deux rangées, touches d'au moins 40 px —, puis tape les
 six chiffres au pavé.
+
+**Puis la SECONDE a reçu le clavier B des lettres — sur le 4.5.10 (v542).** Demande
+de Turquet (octobre 2026), copie d'écran du 4.5.10 à l'appui (« baisse18% »,
+collé) : « en seconde dans cet exercice on ne peut pas faire d'espace au
+clavier et le clavier virtuel ne propose pas le clavier avec les modes A B et
+C qui possède l'alphabet ». Deux défauts, une seule cause : la feuille des
+problèmes rédigés (`ppbSheet`, le 4.5.10 et le 4.5.11) était en mode
+« calcul », où MathLive AVALE l'espace hors d'une fraction, et le clavier de
+la Seconde n'avait qu'UNE couche. **Le patron de la Première, repris tel
+quel** : la Seconde a, comme elle, un clavier à une couche — la couche des
+lettres s'y appelle donc **clavier B** (pas C : il n'y a pas de B à
+contourner), « clavier A » en revient. `buildKbTerm` reçoit le drapeau
+`lettres` et `formeA()`, `kbUnites` et `kbLettres` sont recopiés, et
+`applyKbLayout` passe le drapeau et pose `--kb-unites` ; la feuille de styles
+reçoit `--keycap-auto` / `--keycap-width` et `.kb-couche`. La feuille du
+4.5.10 passe en mode « redaction » (classe `mf-mots`, liste blanche des
+raccourcis, `mathModeSpace`), et `ppbEspaces` — le `salEspaces` de la
+Première, réduit à ses deux écouteurs — fait SORTIR l'espace d'une fraction,
+par la barre physique comme par la touche à l'écran : sans lui, « 21,73/26,5 »
+aurait gardé l'élève dans le dénominateur. Le juge ne change pas : `ppbTexte`
+coupait déjà la ligne aux mots, `sprNormaliser` efface les espaces.
+**Le périmètre est nommé.** Les autres feuilles rédigées de la Seconde
+(4.5.9 `spr`, les synthèses libres `psl`/`sal`, la feuille des fractions
+`sfl`, `mll`, `pf`) restent des feuilles de CALCUL : leur juge ne lit pas les
+mots — au 4.5.9, « hausse de 20 % » rend la ligne illisible —, et leur
+espace garde son rôle de sortie de fraction. Leur offrir les lettres
+inviterait à écrire ce que la page ne sait pas lire. Le 4.5.9 et le 4.5
+(`somme-fractions-libre`) sont le bord opposé déclaré
+(`clavierEcran.lettres.hors`). Les deux bancs existants (« le clavier B porte
+les lettres… » en jsdom, « 11 decies » au navigateur) s'appliquent désormais
+à la Seconde sans une ligne de banc nouvelle : seule la déclaration du profil
+a été ajoutée.
+
+**Puis le 4.5.9, le même jour : « fais pareil pour le 4.5.9 » (v547).** Le
+paragraphe précédent l'avait laissé hors du clavier B, parce que son juge ne
+lisait pas les mots : « hausse de 20 % » rendait la ligne illisible. Le portage
+a donc commencé par le juge, pas par le clavier : `checkSpr` passe la copie par
+`ppbTexte` avant `sprJuge`, comme `ppbJuge` le faisait déjà — la ligne se coupe
+à ses mots, « 1,25 × 1,4 = 1,75 soit une évolution de +75 % » se lit
+« 1,25*1,4 = 1,75 » puis « +75 % ». `sprPeindreLignes` lit par le même chemin
+(une ligne coupée en morceaux est bleue si tous ses calculs sont vrais, rouge
+si l'un est faux), puis la feuille passe en mode « redaction » et reçoit
+`ppbEspaces`. `ppbTexte` change deux autres choses au 4.5.9, nommées ici :
+« € » s'efface, et « ≈ » se lit « = » — les données du 4.5.9 sont des
+décimaux exacts, un arrondi n'y a pas d'objet. Vérifié dans Chromium sur les
+quatre sources (pctb, pctc, evs, evb), copies tapées au clavier physique avec
+« donc », « soit », « en tout » : quatre « Bravo », quatre lignes bleues. Le
+profil déplace le 4.5.9 de `hors` vers `exercices` ; le bord opposé reste la
+feuille des fractions du 4.5.

@@ -767,8 +767,106 @@ séance). Deux sabotages éprouvent le contrôle : une correction non réduite
 acceptée (« une correction juste non réduite : … Le reste est juste ! ») et
 l'erreur du moins remplacée par la bonne réponse (« −(2x − 7) = −2x + 7 : la
 page dit faux, le calcul vrai »).
+## {valeur-expression} — calculer une expression pour une valeur (7.13, v543 — le 7.12 et la v541 pris le même jour par {vrai-faux-calcul}, la v542 par le 8.2.14 et le calcul global)
 
-## {developper-signe-moins} — le signe − devant une parenthèse (7.13, v543)
+**La demande** (Turquet, octobre 2026) : « créer un exercice dans calcul
+littéral sur calculer une expression pour une valeur, par exemple
+3x² − 2x + 1 pour x = −2 — c'est le réinvestissement direct de 7.1 à 7.4,
+avec le piège (−2)² contre −2² ».
+
+**Une page = une valeur de x = trois blocs = huit cases.** x est toujours
+NÉGATIF (−2 à −5) : c'est là que vivent le piège et la règle des signes.
+① Le piège, face à face, sans expression autour : (−k)² puis −k². ② A =
+ax² + bx + c (a de 2 à 5, b de ±2 à ±7, c de ±1 à ±9, jamais nul) : la
+valeur de ax², celle de bx, puis A, sur une ligne qui écrit la substitution
+entière (« A = 3 × (−2)² − 2 × (−2) + 1 = »). ③ B = −x² + b′x + c′ : le
+même piège, cette fois DANS une expression (−x² = −(−2)² = −4), puis b′x,
+puis B. Chaque case est un geste des 7.1 à 7.4 : le carré (produit de deux
+relatifs égaux), les produits (règle des signes), la somme (signe du plus
+fort). Trois pages par `distinctes(dmNbQuestions(3), …)`, barème 24 ; la
+séance s'allonge depuis un devoir. Le bouton des tables reste : on y
+multiplie.
+
+**La page écrit la substitution, l'élève écrit les valeurs.** Une case de
+saisie libre pour « 3 × (−2)² − 2 × (−2) + 1 » demanderait un juge
+d'écriture ; c'est l'en-tête de chaque ligne qui montre la valeur remplacée
+AVEC ses parenthèses — le modèle à imiter —, et les cases ne prennent que des
+entiers, lus par `relLit` comme au 7.1.
+
+**On range les nombres, jamais les réponses** : `{k, a, b, c, b2, c2}` ;
+`cvlCases` recalcule chaque attendu dans la fonction qui corrige (son nom
+suit la convention que lit le barème d'un devoir).
+
+**Le message part de la première case fausse et nomme le piège** : −2² = 4
+(« il n'y a pas de parenthèses : le carré ne porte que sur 2 ») ;
+(−2)² = −4 (« la parenthèse met le signe AU CARRÉ ») ; −x² = 4 (« le − de
+−x² n'est pas au carré — c'est le piège du premier bloc ») ; 3x² = 36
+(« le carré ne porte que sur (−2) ») ; x² lu comme 2x ; le signe du plus
+fort pris pour un produit ; la somme des termes, réécrite valeur par valeur.
+
+**Le juge** (`tests/verifier.js`, « calculer une expression pour une
+valeur ») : la place (7.13, les 7.4, 7.11 et 7.12 immobiles, bouton des tables
+présent), 500 séances tirées (bornes de chaque nombre, trois pages
+distinctes, huit attendus contre `Math.pow`), puis la fiche témoin au
+bouton — x = −2, A = 3x² − 2x + 1, B = −x² + 5x − 3 — avec la copie juste
+écrite à la main (4, −4, 12, +4, 17, −4, −10, −17), le texte de l'écran
+(chaque substitution, avec ses parenthèses), les cinq pièges (rouges, leur
+voisine juste reste bleue, le message les nomme), deux cases vides (la
+correction, jamais rouge), une réponse illisible, le barème de 24.
+
+## {developper-reduire} — développer puis réduire une somme de produits (7.14, v545 — le 7.12 et le 7.13, les v541 à v544 pris le même jour par {vrai-faux-calcul}, {valeur-expression}, le 8.2.14, le calcul global et le 6.3)
+
+**La demande** (Turquet, octobre 2026) : « créer un exercice dans calcul
+littéral sur Développer puis réduire une somme de produits. Par exemple
+(x + 2)(x − 3) − 2x(x + 1) : on enchaîne 7.11 et 7.5 dans la même rangée
+d'égalités. » Kind `dvr`, écran `scr-dvr`.
+
+**UNE rangée d'égalités** : `A = (x + 2)(x − 3) − 2x(x + 1) = [6 cases] =
+[3 cases]`. Le premier « = » annonce les six termes du développement (quatre
+de la double distributivité, deux de la simple — le signe devant le produit
+compris), le second les trois termes de la forme réduite (x², x, nombre).
+Chaque « = » passe par `fEq` avec SES cases (`.dvr-termes`, insécable) : sur
+un écran étroit la rangée se replie avant un « = », jamais entre le signe et
+ses cases. La forme intermédiaire du 7.11 (les produits « a × c ») n'y est
+pas : six produits de plus auraient fait trois lignes, et la demande voulait
+une rangée.
+
+**Quatre pages, quatre formes** (`dvrGen`) : (x ± b)(x ± d) − kx(x ± f) — la
+forme de l'exemple —, (ax ± b)(cx ± d) + kx(ex ± f), (ax ± b)(cx ± d) − k(ex ± f),
+et kx(ex ± f) − (x ± b)(cx ± d), où le « − » change le signe des QUATRE termes.
+Aucun terme de la forme réduite ne s'annule (le tirage recommence) : toujours
+neuf cases, barème 36. La première page montre l'exemple de la demande, rempli :
+… = x² − 3x + 2x − 6 − 2x² − 2x = −x² − 3x − 6.
+
+**Les termes développés se lisent dans N'IMPORTE QUEL ORDRE** (`dvrJuger`) :
+rien ne les ordonne dans la rangée, et x² + 2x − 3x − 6 est aussi juste que
+x² − 3x + 2x − 6. Chaque case remplie prend un terme attendu encore libre de
+même valeur ; les cases fausses ou vides reçoivent, en correction, les termes
+restés libres. La forme réduite, elle, s'ordonne (x², x, nombre) : écrite
+dans le désordre, elle est fausse. Le terme qui en suit un autre garde son
+signe, comme au 7.9 ; la lecture d'un terme (`dvlLit`), la correction d'une
+case (`dvlCorr`) et « x^2 » → x² à la frappe (`dvlExposant`) sont ceux du 7.9.
+
+**Le message** part de la première case fausse : le signe oublié (« il garde
+son signe, +5x »), le « − » devant un produit appliqué au premier terme
+seulement (« Le signe « − » devant 3x(x − 2) change le signe de CHACUN de ses
+termes : − 3x(x − 2) = −3x² + 6x »), un produit mal développé (chaque produit
+développé), une réduction fausse (« On regroupe les termes en x : −2x + 3x −
+8x = −7x »).
+
+**Le juge** (`tests/verifier.js`, « développer puis réduire une somme de
+produits ») : la place (7.14, les 7.11 à 7.13 immobiles), 400 pages tirées jugées par
+une SECONDE méthode — la valeur de l'expression, du développement et de la
+forme réduite en x = −2, 1 et 3 —, six termes, trois termes réduits non nuls ;
+puis quatre pages écrites à la main, au bouton : une seule rangée, deux
+groupes « = » de 6 puis 3 cases, l'expression affichée, la copie juste
+(9/9, « x**2 » et « x^2 » compris) ; l'exemple sur la première page seulement,
+sans case ; les termes dans un autre ordre (justes) ; le « − » oublié sur le
+second terme (rouge seul, message nommé, correction +6x) ; « 5x » sans son
+signe ; la réduction fausse ; la forme réduite dans le désordre ; deux cases
+vides (la correction, jamais rouge).
+
+## {developper-signe-moins} — le signe − devant une parenthèse (7.15, v551)
 
 **La demande** (Turquet, octobre 2026) : « en seconde faire un exercice avec
 le signe − devant une parenthèse comme le 7.9 ». Le schéma est celui du 7.9
@@ -806,7 +904,7 @@ aussi », l'erreur type −(2x − 5) = −2x − 5 —, le signe oublié, ou la
 réduction.
 
 **Le juge** (`tests/verifier.js`, « le signe − devant une parenthèse ») : la
-place (7.13, les 7.9 à 7.12 immobiles, bouton des tables présent), 300 tirages
+place (7.15, les 7.9 à 7.14 immobiles, bouton des tables présent), 300 tirages
 (les six formes dans l'ordre, les bornes, rien qui s'annule), puis six pages
 au bouton — −(x + 3), −(2x − 5), −(−3x + 4), 9 − (2x + 5), 7x − (3x − 2),
 3 × (2x − 1) − (4x − 5) —, réponses écrites À LA MAIN : la copie juste de

@@ -678,6 +678,22 @@
   .lqn-def .sa2-frac .bar,.sa2-row .sa2-frac .bar{min-width:1.4em}
   .lqn-par{font-size:1.6em;font-weight:300;line-height:1}
   .lqn-car-row{padding-left:1.5em}
+  /* {tcm-vrai-faux} (5.4.4) : l'affirmation, et la somme du 5.4.6, en BLOC
+     centré sous la consigne — jamais dans un conteneur flex, où les indices
+     nus retomberaient sur la ligne (docs/journal/11). La liste des
+     justifications prend la largeur qu'il lui faut, sans sortir de la carte. */
+  .tvf-aff{display:block;text-align:center;font-size:1.2rem;margin:12px 0 4px;line-height:2.2}
+  .tvf-aff .sa2-frac{line-height:1.3}
+  .tvf-jrow .tvi-sel{max-width:100%;white-space:normal}
+  .tvf-ce{margin:16px 0 4px;overflow-x:auto}
+  .tvf-ce-t{font-weight:600;margin-bottom:6px}
+  .tvf-ce table{border-collapse:collapse;font-variant-numeric:tabular-nums}
+  .tvf-ce td{padding:6px 10px;border-top:1px solid var(--line);vertical-align:middle;line-height:1.9}
+  .tvf-ce td.tvf-ce-f{white-space:nowrap;font-weight:600}
+  .tvf-ce-u{white-space:nowrap}
+  /* Sur un téléphone, les phrases longues de ces quatre écrans se replient :
+     posées d'un bloc (.sa2-t est nowrap), elles sortaient de la carte. */
+  @media(max-width:600px){ #scr-tvf .sa2-t,#scr-tnm .sa2-t,#scr-ssm .sa2-t,#scr-sap .sa2-t{white-space:normal} }
   .sag-tabla-wrap{max-height:346px;overflow-y:auto;overflow-x:hidden;border:1.5px solid var(--line);border-radius:10px;margin:10px 0 4px;background:#fff}
   .sag-tabla{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
   .sag-tabla th{position:sticky;top:0;background:#eef2fb;padding:7px 12px;font-family:"Fredoka";font-weight:600;border-bottom:1.5px solid var(--line);text-align:center}
@@ -904,7 +920,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-sag,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-eav,#scr-sal,#scr-lqn{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -2594,6 +2610,20 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     </div>
   </section>
 
+  <!-- 4.3.6 CONVEXITÉ — rédiger une inégalité par une tangente : la démonstration à trous -->
+  <section class="screen" id="scr-cvt">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="cvtModeTag"></span><span class="q-idx" id="cvtQIdx">Question 1 / 4</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="cvtLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card tg-card">
+      <p class="tvi-prompt" id="cvtPrompt"></p>
+      <div id="cvtForm"></div>
+      <div class="mp-feedback" id="cvtFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="cvtActions"></div>
+    </div>
+  </section>
+
   <!-- 4.x TVI — LA SOLUTION α ET LE SIGNE : l'étude de la fiche menée au TVI.
        Placé APRÈS scr-ef, scr-ec et scr-afp : le tableau porte les ids ef-*
        partagés, et un écran plus haut dans le document gagnerait $() — le
@@ -2644,6 +2674,19 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
       <div id="eavForm"></div>
       <div class="mp-feedback" id="eavFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="eavActions"></div>
+    </div>
+  </section>
+  <!-- 4.3.7 CONVEXITÉ — trouver un paramètre (point d'inflexion imposé, ou convexité sur ℝ par le discriminant de f″) -->
+  <section class="screen" id="scr-cvp">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="cvpModeTag"></span><span class="q-idx" id="cvpQIdx">Question 1 / 5</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="cvpLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="enonce" id="cvpPrompt"></p>
+      <div id="cvpForm"></div>
+      <div class="mp-feedback" id="cvpFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="cvpActions"></div>
     </div>
   </section>
 
@@ -2795,6 +2838,45 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
       <div class="mp-actions" id="tclActions"></div>
     </div>
   </section>
+  <!-- 5.4.4 SUITES — VRAI OU FAUX SUR LE THÉORÈME DE CONVERGENCE MONOTONE (et le contre-exemple) -->
+  <section class="screen" id="scr-tvf">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tvfModeTag"></span><span class="q-idx" id="tvfQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="tvfLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="tvfPrompt"></p>
+      <div id="tvfBody"></div>
+      <div class="mp-feedback" id="tvfFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="tvfActions"></div>
+    </div>
+  </section>
+  <!-- 5.4.5 SUITES — CROISSANTE ET NON MAJORÉE : LA LIMITE +∞ -->
+  <section class="screen" id="scr-tnm">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tnmModeTag"></span><span class="q-idx" id="tnmQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="tnmLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="tnmPrompt"></p>
+      <div id="tnmBody"></div>
+      <div class="mp-feedback" id="tnmFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="tnmActions"></div>
+    </div>
+  </section>
+  <!-- 5.4.6 SUITES — LA SOMME DES 1/kᵖ, MAJORÉE : LA LIMITE EXISTE -->
+  <section class="screen" id="scr-ssm">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="ssmModeTag"></span><span class="q-idx" id="ssmQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="ssmLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="ssmPrompt"></p>
+      <div id="ssmBody"></div>
+      <div class="mp-feedback" id="ssmFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="ssmActions"></div>
+    </div>
+  </section>
   <!-- 6.14 SUITES — ALGORITHME (tableau de valeurs qui défile, boucle Python à seuil) -->
   <section class="screen" id="scr-sag">
     <div class="test-top">
@@ -2818,6 +2900,19 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
       </div>
       <div class="mp-feedback" id="sagFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="sagActions"></div>
+    </div>
+  </section>
+  <!-- 5.5.2 SUITES — ALGORITHME : APPROCHER ℓ À 10⁻ᵖ PRÈS -->
+  <section class="screen" id="scr-sap">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="sapModeTag"></span><span class="q-idx" id="sapQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="sapLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="sapPrompt"></p>
+      <div id="sapBody"></div>
+      <div class="mp-feedback" id="sapFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="sapActions"></div>
     </div>
   </section>
   <!-- 5.6.1 SUITES — LIMITE DE qⁿ (fiche « limite qⁿ » : lim Uₙ = …… avec ……) -->
@@ -3350,7 +3445,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=388;
+const APP_VERSION=393;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3560,7 +3655,9 @@ const TESTS={
   'etude-convexite': { name:'Étude de fonction et convexité', icon:'\u222a', desc:'La fiche 5, de bout en bout : les axes et les limites comme dans {tvi-alpha-signe}, f\u2009\u2032 démontrée comme dans {derivee-exp}, le tableau de variations comme dans {etude-fonction}, l\u2019unique solution de f(x) = k par le TVI, la tangente en 0 comme dans {equation-tangente}, puis f\u2009\u2033, son signe et la convexité, le point d\u2019inflexion, et la courbe sous sa tangente.', start:()=>startECV() },
   'convexite-qcm': { name:'Convexit\u00e9 \u2014 QCM vari\u00e9s', icon:'\u2611\ufe0f', desc:'La fiche \u00ab QCM convexit\u00e9 \u00bb, six visages par s\u00e9ance : la courbe de f\u2009\u2032, son tableau de variations, ou la courbe de f\u2009\u2033 \u2014 et \u00e0 chaque fois quatre affirmations dont UNE SEULE est vraie : f convexe ou concave sur un intervalle, extremum de f, tangente horizontale, point d\u2019inflexion, signe de f\u2009\u2033, extremum de f\u2009\u2032. Les pi\u00e8ges de la fiche y sont : l\u2019intervalle qui enjambe le point d\u2019inflexion, le z\u00e9ro de f\u2009\u2032 pris pour un point d\u2019inflexion, le sommet de f\u2009\u2032 pris pour un extremum de f \u2014 comme au {signe-derivee-qcm}.', start:()=>startCvq() },
   'associer-derivee-seconde': { name:'Associer f, f\u2009\u2032 et f\u2009\u2033', icon:'\ud83d\udd17', desc:'Le pendant d\u2019{associer-derivee} pour la convexit\u00e9, sans aucune formule : les courbes de trois fonctions f, g et h, et six courbes en d\u00e9sordre \u2014 leurs d\u00e9riv\u00e9es et leurs d\u00e9riv\u00e9es secondes. Reconstitue les trois triplets : la d\u00e9riv\u00e9e se lit sur le sens de variation, la d\u00e9riv\u00e9e seconde sur la convexit\u00e9.', start:()=>startAfd() },
+  'convexite-parametre': { name:'Convexit\u00e9 \u2014 trouver un param\u00e8tre', icon:'\ud835\udc58', desc:'Le param\u00e8tre se trouve par la d\u00e9riv\u00e9e seconde\u00a0: f(x) = x\u00b3 + kx\u00b2 + 1 admet un point d\u2019inflexion d\u2019abscisse 2 \u2014 trouve k (f\u2009\u2033 s\u2019annule en changeant de signe) ; ou bien\u00a0: pour quelles valeurs de a la fonction (x\u00b2 + bx + a)e^x est-elle convexe sur \u211d\u00a0? (le discriminant du trin\u00f4me de f\u2009\u2033 doit \u00eatre n\u00e9gatif ou nul). Cinq questions\u00a0: polyn\u00f4mes de degr\u00e9 3 et 4, (x + k)e^(\u00b1x), puis deux trin\u00f4mes.', start:()=>startCVP() },
   'etude-algo-convexite': { name:'Étude, algorithme et convexité', icon:'\ud83d\udcbb', desc:'La fiche « Prépa DS 2 » : f(x) = (ax + b)e^(−x), e^x ou e^(x−1). A — lire f et f\u2009\u2032 sur la courbe et la tangente, démontrer f\u2009\u2032 en littéral comme dans {derivee-exp}, en déduire a et b ; B — limites, tableau de variations, unique solution α par le TVI, puis l\u2019algorithme Python de balayage au pas de 0,1 et son tableau de valeurs ; C — f\u2009\u2033 calculée de la même façon, et la convexité présentée comme dans {etude-convexite}.', start:()=>startEAV() },
+  'convexite-tangente': { name:'Convexit\u00e9 \u2014 une in\u00e9galit\u00e9 par une tangente', icon:'\u270d\ufe0f', desc:'La d\u00e9monstration \u00e0 trous du bac : f\u2009\u2032 et f\u2009\u2033 sont donn\u00e9es. Le signe de f\u2009\u2033 sur un intervalle, donc la convexit\u00e9 de f, puis la tangente en a, la position de la courbe par rapport \u00e0 elle, et l\u2019in\u00e9galit\u00e9 qui en d\u00e9coule \u2014 e\u02e3 \u2265 x + 1, x\u00b3 \u2264 3x + 2 sur ]\u2212\u221e ; 0], et leurs cousines.', start:()=>startCvt() },
   'etude-fonction': { name:'\u00c9tude de fonction \u2014 signe de f\u2009\u2032 et variations', icon:'f\u2032', desc:'On te donne f et sa d\u00e9riv\u00e9e f\u2009\u2032 \u2014 produit avec e^(cx) ou e^(cx\u00b2) : trouve les racines de f\u2009\u2032, compl\u00e8te le signe de chaque facteur puis de f\u2009\u2032, les variations et les extremums de f, puis associe les courbes de f et de f\u2009\u2032.', start:()=>startEF() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
   'signe-quotient-carre': { name:'Signe de (ax+b)/(cx+d)\u00b2', icon:'\u00f7',
@@ -3580,6 +3677,10 @@ const TESTS={
   'recurrence-limite': { name:'R\u00e9currence \u2014 formule explicite et limite', icon:'lim', desc:'La fiche \u00ab puissance et r\u00e9currence \u00bb : U\u2080 et U\u2099\u208a\u2081 = \u00bd U\u2099 + b (ou 0,95U\u2099 + 1), et la formule U\u2099 = \u2113 + c \u00d7 q\u207f. a) D\u00e9montre-la par r\u00e9currence, r\u00e9dig\u00e9e comme dans \u00ab R\u00e9currence \u2014 d\u00e9montrer une formule \u00bb \u2014 initialisation calcul\u00e9e, hypoth\u00e8se, but, la cha\u00eene qui place la formule de U\u2099 dans la r\u00e9currence ; b) d\u00e9duis-en la limite de la suite, avec la raison : q\u207f tend vers 0 car \u22121 < q < 1.', start:()=>startRL() },
   'suite-variation-recurrence': { name:'Suites \u2014 sens de variation et r\u00e9currence', icon:'\ud83d\udcc9', desc:'La fiche enti\u00e8re, sur une suite U\u2099\u208a\u2081 = f\u2009(U\u2099)\u00a0: a) trace les 3 premiers termes en escalier sur le graphique, b) calcule U\u2081, c) conjecture le sens de variation et la limite, d) \u00e9tudie les variations de f, puis e) d\u00e9montre par r\u00e9currence l\u2019encadrement qui dit \u00e0 la fois que la suite est monotone et born\u00e9e \u2014 la cha\u00eene du {recurrence-encadrement}, avec f croissante pour conserver les in\u00e9galit\u00e9s.', start:()=>startSVR() },
   'suite-tcm-limite': { name:'Suites \u2014 convergence monotone et limite', icon:'\ud83c\udfaf', desc:'On te donne un encadrement de (U\u2099)\u00a0: lis-y le sens de variation, conclus avec le th\u00e9or\u00e8me de convergence monotone que la suite admet une limite finie, puis d\u00e9termine \u2113 par passage \u00e0 la limite dans U\u2099\u208a\u2081 = f\u2009(U\u2099) \u2014 la fiche, case par case.', start:()=>startTCL() },
+  'tcm-vrai-faux': { name:'Suites — vrai ou faux sur le théorème de convergence monotone', icon:'⚖️', desc:'Huit affirmations sur les suites — « croissante et majorée par 3, donc elle tend vers 3 », « bornée, donc convergente »… Dis si chacune est vraie ou fausse, puis choisis ce qui la justifie : le théorème si elle est vraie, un contre-exemple si elle est fausse.', start:()=>startTVF() },
+  'suite-croissante-non-majoree': { name:'Suites — croissante et non majorée : la limite +∞', icon:'📈', desc:'Le théorème voisin du théorème de convergence monotone : a) montre que la suite est croissante, b) démontre par récurrence que Uₙ ≥ n, c) déduis-en la limite par le théorème de comparaison, d) conclus qu’elle n’est pas majorée et qu’elle diverge.', start:()=>startTNM() },
+  'suite-somme-majoree': { name:'Suites — une somme majorée : la limite existe', icon:'∑', desc:'Sₙ = 1 + 1/2² + … + 1/n² : a) les premiers termes, b) la suite croît, c) la récurrence Sₙ ≤ 2 − 1/n, d) le théorème de convergence monotone la fait converger, e) mais il ne dit pas combien vaut la limite — seulement qu’elle est au plus 2. Puis la même chose avec les cubes.', start:()=>startSSM() },
+  'suite-algo-approx': { name:'Suites — algorithme : approcher la limite', icon:'🎯', desc:'Une suite Uₙ₊₁ = a Uₙ + b qui converge : a) trouve sa limite ℓ, b) complète l’algorithme Python qui s’arrête au premier rang où |Uₙ − ℓ| < 10⁻ᵖ, c) lis ce rang dans le tableau de valeurs, et dis pourquoi la boucle s’arrête toujours.', start:()=>startSAP() },
   'suite-limite-puissance': { name:'Suites \u2014 limite de q\u207f', icon:'\u221e', desc:'La fiche \u00ab limite q\u207f \u00bb\u00a0: pour chaque suite, d\u00e9termine sa limite en justifiant \u2014 \u00ab lim U\u2099 = \u2026 car \u2026 \u00bb, o\u00f9 l\u2019on choisit comment est la base de la puissance (2 > 1, ou \u22121 < 0,5 < 1). Huit suites, de q\u207f seul aux quotients et aux produits de puissances.', start:()=>startLQN() },
   'suite-algo-seuil': { name:'Suites \u2014 tableau de valeurs et algorithme Python', icon:'\ud83d\udd01', desc:'Une suite (U\u2099) d\u00e9finie par r\u00e9currence, toujours monotone et convergente\u00a0: a) \u00e0 l\u2019aide d\u2019un tableau de valeurs que l\u2019on peut faire d\u00e9filer au-del\u00e0 du rang 10, conjecture ses variations et sa limite\u00a0; b) compl\u00e8te l\u2019algorithme Python (une boucle while) pour qu\u2019il renvoie le rang du premier terme franchissant un seuil\u00a0; c) retrouve ce rang dans le tableau.', start:()=>startSAG() },
   'suite-synthese-variations': { name:'Suites \u2014 synth\u00e8se sur les variations', icon:'\ud83e\udde9', desc:'La fiche \u00ab Synth\u00e8se sur variations de suites \u00bb en entier, sur une suite U\u2099\u208a\u2081 = f\u2009(U\u2099) dont f est un QUOTIENT\u00a0: a) les premiers termes \u00e0 la calculatrice, b) le trac\u00e9 en escalier, c) la conjecture, d) les variations de f, e) la r\u00e9currence qui d\u00e9montre l\u2019encadrement, f) U\u2099\u208a\u2081 \u2212 U\u2099 mis sur un d\u00e9nominateur commun et le signe du quotient, g) les variations de la suite, h) le th\u00e9or\u00e8me de convergence monotone, i) la limite par produit en croix \u2014 une \u00e9quation du second degr\u00e9, deux solutions, et il faut choisir. Le trac\u00e9 et la r\u00e9currence viennent de {suite-variation-recurrence}, le th\u00e9or\u00e8me et le passage \u00e0 la limite de {suite-tcm-limite}.', start:()=>startSSV() },
@@ -3619,7 +3720,12 @@ const THEMES=[
       /* Puis le pendant d'{associer-derivee} (demande de Turquet, octobre
          2026 : « associer f, f′ et f″ — six courbes en désordre, trois
          triplets à reconstituer ») : le cinquième de la partie. */
-      { num:3, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm','etude-algo-convexite','associer-derivee-seconde'] },
+      /* Puis la démonstration à trous « convexité ⟹ tangente ⟹ inégalité »
+         (demande de Turquet, octobre 2026) la suit : 4.3.6. */
+      /* Puis « trouver un paramètre » (demande de Turquet, octobre 2026) — le
+         point d'inflexion imposé, la convexité sur ℝ par le discriminant de
+         f″ — ferme la partie : 4.3.7. */
+      { num:3, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm','etude-algo-convexite','associer-derivee-seconde','convexite-tangente','convexite-parametre'] },
       { num:4, nom:'Étude complète de fonction', ids:['etude-fonction','etude-exponentielle'] }
     ] },
   /* Le thème des Suites est découpé en PARTIES (demande de Turquet, septembre
@@ -3638,12 +3744,12 @@ const THEMES=[
       { num:1, nom:'Suite auxiliaire',                  ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suite-auxiliaire-redaction'] },
       { num:2, nom:'Récurrence et inégalité',           ids:['suites-encadrement','recurrence-encadrement','recurrence-complete','recurrence-redaction','suite-variation-recurrence','suite-variation-difference'] },
       { num:3, nom:'Récurrence et égalité',             ids:['recurrence-formule','recurrence-fractions'] },
-      { num:4, nom:'Théorème de convergence monotone',  ids:['suite-vocabulaire','suite-tcm-limite','suite-synthese-variations'] },
+      { num:4, nom:'Théorème de convergence monotone',  ids:['suite-vocabulaire','suite-tcm-limite','suite-synthese-variations','tcm-vrai-faux','suite-croissante-non-majoree','suite-somme-majoree'] },
       /* Cinquième partie (demande de Turquet, septembre 2026) : « en terminale
          dans la partie suite créer un sous thème "algorithme" ». {suite-algo-seuil}
          reprend la fiche « suites et algorithmique » — tableau de valeurs qui
          défile au-delà du rang 10, algorithme Python à seuil (while) à compléter. */
-      { num:5, nom:'Algorithme',                        ids:['suite-algo-seuil'] },
+      { num:5, nom:'Algorithme',                        ids:['suite-algo-seuil','suite-algo-approx'] },
       /* Sixième partie (demande de Turquet, octobre 2026) : la fiche « limite
          qⁿ » — lim Uₙ = …… avec …… —, {suite-limite-puissance}. Puis (octobre
          2026) « mettre le 5.1.5 et le 5.3.3 dans le thème 5.6 » : les deux
@@ -3845,7 +3951,7 @@ document.addEventListener('keydown', navCases);
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-ecv','scr-cvx','scr-eav','scr-sal'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -4288,7 +4394,12 @@ function conseilCtxCourant(){
   else if(test && test.kind==='sa2' && test.questions && test.questions[test.idx]){ c=sa2ConseilCtx(); }
   else if(test && test.kind==='tcl' && test.questions && test.questions[test.idx]){ c=tclConseilCtx(); }
   else if(test && test.kind==='sag' && test.questions && test.questions[test.idx]){ c=sagConseilCtx(); }
+  else if(test && test.kind==='tvf' && test.questions && test.questions[test.idx]){ c=tvfConseilCtx(); }
+  else if(test && test.kind==='tnm' && test.questions && test.questions[test.idx]){ c=tnmConseilCtx(); }
+  else if(test && test.kind==='ssm' && test.questions && test.questions[test.idx]){ c=ssmConseilCtx(); }
+  else if(test && test.kind==='sap' && test.questions && test.questions[test.idx]){ c=sapConseilCtx(); }
   else if(test && test.kind==='lqn' && test.questions && test.questions[test.idx]){ c=lqnConseilCtx(); }
+  else if(test && test.kind==='cvp' && test.questions && test.questions[test.idx]){ c=cvpConseilCtx(); }
   else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
   else if(test && test.kind==='svr' && test.questions && test.questions[test.idx]){ c=svrConseilCtx(); }
   else if(test && test.kind==='ssv' && test.questions && test.questions[test.idx]){ c=ssvConseilCtx(); }
@@ -4305,6 +4416,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='cvx' && test.questions && test.questions[test.idx]){ c=cvxConseilCtx(); }
   else if(test && test.kind==='cvq' && test.questions && test.questions[test.idx]){ c=cvqConseilCtx(); }
   else if(test && test.kind==='afd' && test.questions && test.questions[test.idx]){ c=afdConseilCtx(); }
+  else if(test && test.kind==='cvt' && test.questions && test.questions[test.idx]){ c=cvtConseilCtx(); }
   else if(test && test.kind==='eq' && test.questions && test.questions[test.idx]){ c=eqConseilCtx(); }
   else if(test && test.kind==='rc' && test.questions && test.questions[test.idx]){ c=rcConseilCtx(); }
   else if(test && test.kind==='rf' && test.questions && test.questions[test.idx]){ c=rfConseilCtx(); }
@@ -5333,7 +5445,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], sag:['sag',renderSAG], lqn:['lqn',renderLQN], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], cvp:['cvp',renderCVP], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5459,7 +5571,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','sag','lqn','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','eav','sal'];
+  const testScreens=['cvp','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
@@ -13754,6 +13866,257 @@ function cvqConseilCtx(){
      ? 'f est convexe là où f′ est CROISSANTE (f″ ≥ 0) et concave là où f′ décroît ; un point d’inflexion de f est un SOMMET de la courbe de f′ (f″ s’y annule) ; un extremum de f est un ZÉRO de f′ avec changement de signe (− puis + : minimum) ; la tangente est horizontale où f′ = 0. Faire repérer d’abord les sommets et les zéros de f′, puis relire chaque affirmation.'
      : 'f est convexe là où f″ est POSITIVE (au-dessus de l’axe) et f′ y est croissante ; là où f″ s’annule en changeant de signe, f′ admet un extremum (+ puis − : maximum) et f un point d’inflexion. Un sommet de f″ n’est rien de tout cela. Faire repérer d’abord les zéros de f″ et son signe, puis relire chaque affirmation.');
 }
+/* ================= Exercice Terminale : convexité — rédiger une inégalité par une tangente (kind 'cvt') =================
+   Demande de Turquet (octobre 2026 : « crée l'exercice 7 sur les tangentes et
+   inégalités ») : la démonstration À TROUS du geste classique du bac — f est
+   convexe (ou concave) sur I, donc sa courbe est au-dessus (au-dessous) de
+   chacune de ses tangentes sur I, d'où une inégalité. f′ et f″ sont DONNÉES
+   (« on admet que… », comme au bac) : le calcul des dérivées est le travail du
+   2.2.2 et du 2.2.4 ; ici on rédige le raisonnement. L'élève complète :
+     1. le signe de chaque facteur de f″ sur I, puis le signe de f″ ;
+     2. la convexité de f sur I ;
+     3. f(a), f′(a), et l'équation réduite de T : y = [m] x [p] ;
+     4. la position de la courbe par rapport à T ;
+     5. le sens de l'inégalité — son second membre est le MIROIR de T tel que
+        l'élève l'a écrit (rien à recopier, rien de révélé).
+   Quatre familles, une par question, en ordre mélangé :
+     · exp  — f(x) = e^(kx + p), convexe sur ℝ, a = −p/k entier : e^x ≥ x + 1,
+              e^(x−1) ≥ x… (f(a) = 1, f′(a) = k) ;
+     · cub  — f(x) = x³ + cx, f″(x) = 6x : convexe sur [0 ; +∞[ si a > 0,
+              concave sur ]−∞ ; 0] si a < 0 ; T : y = (3a² + c)x − 2a³ ;
+     · pe   — f(x) = (x + β)e^x, f″(x) = (x + β + 2)e^x, convexe sur
+              [−β − 2 ; +∞[, tangente en 0 : y = (β + 1)x + β ;
+     · pem  — f(x) = (x + β)e^(−x), f″(x) = (x + β − 2)e^(−x), concave sur
+              ]−∞ ; 2 − β], tangente en 0 : y = (1 − β)x + β.
+   La pente de T n'est jamais nulle (la ligne « y = [m] x » garderait une case
+   à 0), et la case de l'ordonnée à l'origine disparaît quand elle vaut 0,
+   comme au 4.2.2. Deux énoncés (q.v) : 0 « étudie… puis déduis-en une
+   inégalité » (rien n'est annoncé), 1 « démontre que f(x) ≥ … » (le sujet du
+   bac). La question ne range que ses PARAMÈTRES ; cvtAns(q) recalcule tout
+   — l'énoncé, la correction et le contexte de l'aide lisent la même fonction.
+   Les identifiants cvt-* n'appartiennent qu'à cet écran. */
+const CVT_EXP=[[1,0],[1,-1],[1,1],[1,-2],[1,2],[2,0],[3,0],[-1,0],[-2,0],[2,-2],[-1,1],[-1,-1]];
+const CVT_FAMS=['exp','cub','pe','pem'];
+function cvtGen(fam){
+  const v=pick([0,1]);
+  if(fam==='exp'){ const c=pick(CVT_EXP); return {fam:fam, k:c[0], p:c[1], v:v}; }
+  if(fam==='cub'){
+    for(let i=0;i<50;i++){ const a=pick([1,2,3,-1,-2,-3]), c=pick([0,-3,3]);
+      if(3*a*a+c!==0) return {fam:fam, a:a, c:c, v:v}; }
+    return {fam:fam, a:2, c:0, v:v};
+  }
+  if(fam==='pe') return {fam:fam, b:pick([0,1,-2]), v:v};
+  return {fam:'pem', b:pick([0,-1,2,-2]), v:v};
+}
+function cvtBuildQuestions(){
+  const fams=afqMelange(CVT_FAMS);
+  return distinctes(4, (_,i)=>cvtGen(fams[i]));
+}
+/* Écritures : l'exposant kx + p, un coefficient devant e, une parenthèse affine. */
+function cvtExpo(k,p){ return (k===1?'':k===-1?'−':numFmt(k))+'<i>x</i>'+txB(p); }
+function cvtE(k,p){ return 'e<sup>'+cvtExpo(k,p)+'</sup>'; }
+function cvtCoefE(c,k,p){ return (c===1?'':c===-1?'−':numFmt(c))+cvtE(k,p); }
+function cvtParE(c,k){ return (c===0 ? '<i>x</i> ' : '(<i>x</i>'+txB(c)+') ')+cvtE(k,0); }
+function cvtIntv(lo,hi){
+  if(lo==null && hi==null) return 'ℝ';
+  if(lo==null) return ']−∞ ; '+numFmt(hi)+']';
+  return '['+numFmt(lo)+' ; +∞[';
+}
+/* La bonne réponse, recalculée depuis les paramètres. fac : les facteurs de
+   f″ dont on lit le signe (exp : positif quoi qu'il arrive ; aff : x + c,
+   dont le signe se lit sur I). */
+function cvtAns(q){
+  const A={};
+  if(q.fam==='exp'){
+    A.a=-q.p/q.k; A.lo=null; A.hi=null;
+    A.f=cvtE(q.k,q.p); A.fp=cvtCoefE(q.k,q.k,q.p); A.fpp=cvtCoefE(q.k*q.k,q.k,q.p);
+    A.fac=[{t:'exp', h:cvtE(q.k,q.p), good:'>'}];
+    A.fa=1; A.fpa=q.k; A.cv='convexe';
+  } else if(q.fam==='cub'){
+    A.a=q.a; A.lo=(q.a>0?0:null); A.hi=(q.a>0?null:0);
+    A.f='<i>x</i><sup>3</sup>'+(q.c?' '+(q.c>0?'+':'−')+' '+numFmt(Math.abs(q.c))+'<i>x</i>':'');
+    A.fp='3<i>x</i><sup>2</sup>'+txB(q.c); A.fpp='6<i>x</i>';
+    A.cv=(q.a>0?'convexe':'concave');
+    A.fac=[{t:'aff', h:'<i>x</i>', good:(q.a>0?'>=':'<=')}];
+    A.fa=q.a*q.a*q.a+q.c*q.a; A.fpa=3*q.a*q.a+q.c;
+  } else if(q.fam==='pe'){
+    A.a=0; A.lo=-q.b-2; A.hi=null;
+    A.f=cvtParE(q.b,1); A.fp=cvtParE(q.b+1,1); A.fpp=cvtParE(q.b+2,1);
+    A.fac=[{t:'exp', h:cvtE(1,0), good:'>'},{t:'aff', h:(q.b+2===0?'<i>x</i>':'<i>x</i>'+txB(q.b+2)), good:'>='}];
+    A.fa=q.b; A.fpa=q.b+1; A.cv='convexe';
+  } else {
+    A.a=0; A.lo=null; A.hi=2-q.b;
+    /* f′(x) = (−x + 1 − β)e^(−x) : la parenthèse commence par −x */
+    A.f=cvtParE(q.b,-1); A.fp='('+txLin(-1,1-q.b)+') '+cvtE(-1,0); A.fpp=cvtParE(q.b-2,-1);
+    A.fac=[{t:'exp', h:cvtE(-1,0), good:'>'},{t:'aff', h:(q.b-2===0?'<i>x</i>':'<i>x</i>'+txB(q.b-2)), good:'<='}];
+    A.fa=q.b; A.fpa=1-q.b; A.cv='concave';
+  }
+  A.I=cvtIntv(A.lo,A.hi);
+  A.m=A.fpa; A.pT=A.fa-A.fpa*A.a;
+  A.spp=(A.cv==='convexe'?'>=':'<=');
+  A.pos=(A.cv==='convexe'?'dessus':'dessous');
+  A.ineg=A.spp;
+  return A;
+}
+function cvtT(A){ return A.pT===0 ? txAX(A.m) : txLin(A.m,A.pT); }
+const CVT_SYMB={'>':'> 0','<':'< 0','>=':'≥ 0','<=':'≤ 0'};
+function cvtSel(id,opts){
+  return '<select class="tvi-sel" id="'+id+'"><option value="">…</option>'+opts.map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('')+'</select>';
+}
+function cvtSigneSel(id,t){
+  return cvtSel(id, t==='exp' ? [['>','> 0'],['<','< 0']] : [['>=','≥ 0'],['<=','≤ 0']]);
+}
+/* Toutes les cases, avec leur bonne réponse : UNE liste, que le rendu, la
+   vérification, la correction et l'aide parcourent. */
+function cvtCases(q){
+  const A=cvtAns(q), out=[];
+  A.fac.forEach(function(f,i){ out.push({id:'cvt-f'+i, type:'sel', good:f.good, lib:CVT_SYMB[f.good]}); });
+  out.push({id:'cvt-spp', type:'sel', good:A.spp, lib:CVT_SYMB[A.spp]});
+  out.push({id:'cvt-cv', type:'sel', good:A.cv, lib:A.cv});
+  out.push({id:'cvt-fa', type:'int', good:A.fa});
+  out.push({id:'cvt-fpa', type:'int', good:A.fpa});
+  out.push({id:'cvt-m', type:'coef', good:A.m});
+  if(A.pT!==0) out.push({id:'cvt-p', type:'int', good:A.pT});
+  out.push({id:'cvt-pos', type:'sel', good:A.pos, lib:(A.pos==='dessus'?'au-dessus':'au-dessous')});
+  out.push({id:'cvt-in', type:'sel', good:A.ineg, lib:(A.ineg==='>='?'≥':'≤')});
+  return out;
+}
+function cvtFormHTML(q){
+  const A=cvtAns(q), a=numFmt(A.a), f='<i>f</i>', fp='<i>f</i> ′', fpp='<i>f</i> ″';
+  let h='';
+  h+='<p class="tx-part">1. Le signe de '+fpp+'(<i>x</i>) sur <i>I</i> = '+A.I+'</p>'
+    +'<div class="tg-line">Pour tout réel <i>x</i> de <i>I</i> : '
+    +A.fac.map(function(fc,i){ return '<span class="tg-coef"><span>'+fc.h+'</span> '+cvtSigneSel('cvt-f'+i,fc.t)+'</span>'; }).join(' et ')
+    +'</div>'
+    +'<div class="tg-line">donc <span class="tg-coef"><span>'+fpp+'(<i>x</i>) = '+A.fpp+'</span> '+cvtSigneSel('cvt-spp','aff')+'</span></div>';
+  h+='<p class="tx-part">2. La convexité de '+f+'</p>'
+    +'<div class="tg-line">La fonction '+f+' est donc '+cvtSel('cvt-cv',[['convexe','convexe'],['concave','concave']])+' sur <i>I</i>.</div>';
+  h+='<p class="tx-part">3. La tangente <i>T</i> au point d’abscisse '+a+'</p>'
+    +'<div class="tg-line"><span class="tg-eq">'+f+'('+a+') =</span> '+txInp('cvt-fa')+' <span style="margin-left:14px" class="tg-eq">'+fp+'('+a+') =</span> '+txInp('cvt-fpa')+'</div>'
+    +'<div class="tg-line"><span class="tg-eq"><i>T</i> : <i>y</i> = '+fp+'('+a+')(<i>x</i> − '+(A.a<0?'('+a+')':a)+') + '+f+'('+a+')</span></div>'
+    +'<div class="tg-line"><span class="tg-imp">⟺</span> <span class="tg-eq"><i>y</i> =</span> <span class="tg-coef">'+txInp('cvt-m')+'<i>x</i></span>'+(A.pT===0?'':' '+txInp('cvt-p'))+'</div>';
+  h+='<p class="tx-part">4. La position de la courbe</p>'
+    +'<div class="tg-line">Sur <i>I</i>, la courbe de '+f+' est donc située '+cvtSel('cvt-pos',[['dessus','au-dessus'],['dessous','au-dessous']])+' de sa tangente <i>T</i>.</div>';
+  h+='<p class="tx-part">5. Conclusion</p>'
+    +'<div class="tg-line">Pour tout réel <i>x</i> de <i>I</i> : <span class="tg-coef"><span>'+A.f+'</span> '+cvtSel('cvt-in',[['>=','≥'],['<=','≤']])+' <span class="cvt-mir" id="cvt-mir">…</span></span></div>';
+  return '<div class="tg-form">'+h+'</div>';
+}
+/* Le second membre de la conclusion recopie l'équation de T telle que l'élève
+   l'écrit (ou la correction, une fois la question corrigée) : ce n'est pas
+   une réponse, rien ne s'y juge. */
+function cvtMiroir(){
+  const mir=$('cvt-mir'); if(!mir) return;
+  if(test.locked && test.kind==='cvt'){ mir.innerHTML=cvtT(cvtAns(test.questions[test.idx])); return; }
+  const m=$('cvt-m'), p=$('cvt-p');
+  const rm=String(m?m.value:'').trim(), rp=String(p?p.value:'').trim();
+  if(rm==='' && rp===''){ mir.innerHTML='…'; return; }
+  const sp=rp.replace(/^\+/,'').replace(/^[-−–]/,'');
+  const signe=/^[-−–]/.test(rp)?' − ':' + ';
+  mir.innerHTML=esc(rm.replace(/^-$/,'−').replace(/^-/,'−'))+'<i>x</i>'+(rp===''?'':signe+esc(sp));
+}
+async function startCvt(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='convexite-tangente'; test.kind='cvt';
+  test.questions=cvtBuildQuestions();
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('cvt'); renderCvt();
+}
+function renderCvt(){
+  const q=test.questions[test.idx], A=cvtAns(q); test.locked=false;
+  $('cvtQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('cvtModeTag').innerHTML=modeTagHTML();
+  $('cvtLiveScore').textContent=test.score;
+  $('cvtFeedback').textContent=''; $('cvtFeedback').className='mp-feedback';
+  $('cvtActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkCvt()">Vérifier</button>';
+  const def='Soit <i>f</i> la fonction définie sur <i>I</i> = '+A.I+' par <i>f</i>(<i>x</i>) = '+A.f
+    +'. On admet que <i>f</i> est deux fois dérivable sur <i>I</i>, avec <i>f</i> ′(<i>x</i>) = '+A.fp
+    +' et <i>f</i> ″(<i>x</i>) = '+A.fpp+'. On note <i>T</i> la tangente à sa courbe au point d’abscisse '+numFmt(A.a)+'. ';
+  $('cvtPrompt').innerHTML=def+(q.v===1
+    ? '<b>Démontre que, pour tout réel <i>x</i> de <i>I</i>, '+A.f+' '+(A.ineg==='>='?'≥':'≤')+' '+cvtT(A)+'.</b> Complète la démonstration.'
+    : '<b>Étudie la convexité de <i>f</i> sur <i>I</i>, détermine <i>T</i>, puis déduis-en une inégalité.</b> Complète la démonstration.');
+  $('cvtForm').innerHTML=cvtFormHTML(q);
+  ['cvt-m','cvt-p'].forEach(function(id){ const el=$(id); if(el) el.addEventListener('input',cvtMiroir); });
+  setTimeout(cvtMiroir,0);   /* une reprise remet les saisies (restoreBoxes) après le rendu */
+  if(isSoutien()){
+    cvtCases(q).forEach(function(x){ const el=$(x.id); if(!el) return;
+      el.addEventListener(el.tagName==='SELECT'?'change':'input',function(){ checkCvt(true); }); });
+  }
+}
+/* Le coefficient 1 de x s'omet, comme au 4.2.2 (M76) : la case vide de m vaut
+   1 quand la case de p, sur la même ligne, est remplie et juste — c'est la
+   ligne qui prouve que le vide voulait dire 1. « − » seul vaut −1. */
+function cvtJuge(x, raw){
+  if(x.type==='sel') return raw===x.good;
+  const v=(x.type==='coef') ? tgParseCoef(raw) : tgParse(raw);
+  return v!==null && v===x.good;
+}
+function checkCvt(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], A=cvtAns(q), cases=cvtCases(q);
+  /* UNE CASE VIDE NE ROUGIT JAMAIS : on juge d'abord tout, on ne peint
+     qu'ensuite, et corrCase remplit la case vide en vert à la fin. */
+  let allOk=true, anyFilled=false;
+  const etats=cases.map(function(x){
+    const el=$(x.id); if(!el) return null;
+    const raw=String(el.value||''), vide=(raw.trim()==='');
+    if(!vide) anyFilled=true;
+    return {x:x, el:el, raw:raw, vide:vide, ok:cvtJuge(x,raw)};
+  }).filter(function(e){ return !!e; });
+  const em=etats.find(function(e){ return e.x.id==='cvt-m'; }), ep=etats.find(function(e){ return e.x.id==='cvt-p'; });
+  if(em && em.vide && A.m===1 && ep && !ep.vide && ep.ok){ em.ok=true; em.omis=true; }
+  etats.forEach(function(e){ if(!e.ok) allOk=false; });
+  const peindre=function(){ etats.forEach(function(e){
+    e.el.classList.remove('ok','bad');
+    if(!e.vide) e.el.classList.add(e.ok?'ok':'bad');
+  }); };
+  if(live){ peindre(); return; }
+  if(!anyFilled){ $('cvtFeedback').textContent='Complète au moins une case avant de vérifier.'; $('cvtFeedback').className='mp-feedback'; return; }
+  if(!allOk && isSoutien()){
+    peindre();
+    etats.forEach(function(e){ if(e.ok) e.el.disabled=true; });
+    $('cvtFeedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('cvtFeedback').className='mp-feedback bad';
+    $('cvtActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkCvt()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  etats.forEach(function(e){
+    if(e.omis){ e.el.classList.remove('ok','bad','sol'); e.el.classList.add('ok'); e.el.disabled=true; return; }
+    corrCase(e.x.id, (e.x.type==='sel')?String(e.x.good):numFmt(e.x.good), e.ok);
+  });
+  cvtMiroir();   /* verrouillée : le miroir montre l'équation corrigée */
+  if(allOk){
+    test.score++; $('cvtLiveScore').textContent=test.score;
+    $('cvtFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, démonstration complète !']);
+    $('cvtFeedback').className='mp-feedback good';
+  } else {
+    const nbVides=etats.filter(function(e){ return e.vide && !e.omis; }).length;
+    $('cvtFeedback').innerHTML='Quelques erreurs — ce qui est faux reste en rouge, la bonne réponse est à côté en vert'
+      +(nbVides?(nbVides>1?', et les cases restées vides ont été remplies en vert':', et la case restée vide a été remplie en vert'):'')+'.<br>'
+      +'Retiens la chaîne : <i>f</i> ″ ≥ 0 sur <i>I</i> ⟹ <i>f</i> convexe sur <i>I</i> ⟹ sa courbe est AU-DESSUS de chacune de ses tangentes sur <i>I</i> ⟹ <i>f</i>(<i>x</i>) ≥ (équation de la tangente). Avec <i>f</i> ″ ≤ 0, tout se retourne : concave, au-dessous, ≤.';
+    $('cvtFeedback').className='mp-feedback bad';
+  }
+  test.answers.push({...(ptsExo()||{}),q:'Convexité — inégalité par une tangente (question '+(test.idx+1)+')',
+    answer:'f″ '+CVT_SYMB[A.spp]+' sur '+A.I.replace(/<[^>]+>/g,'')+' — f '+A.cv+' — f('+A.a+') = '+A.fa+', f′('+A.a+') = '+A.fpa+' — T : y = '+cvtT(A).replace(/<[^>]+>/g,'')+' — courbe au-'+A.pos+' de T — f(x) '+(A.ineg==='>='?'≥':'≤')+' '+cvtT(A).replace(/<[^>]+>/g,''),
+    given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('cvtActions').innerHTML='<button class="btn btn-primary" onclick="nextCvt()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextCvt(){ if(test.idx<test.questions.length-1){ test.idx++; renderCvt(); } else finishTest(); }
+function cvtConseilCtx(){
+  const q=test.questions[test.idx], A=cvtAns(q), cases=cvtCases(q);
+  const brut=function(h){ return String(h).replace(/<sup>/g,'^(').replace(/<\/sup>/g,')').replace(/<[^>]+>/g,''); };
+  const lu=function(id){ const el=$(id); if(!el) return '(vide)'; const v=String(el.value||'').trim(); return v===''?'(vide)':'« '+v+' »'; };
+  return 'Exercice « Convexité — inégalité par une tangente ». f(x) = '+brut(A.f)+' sur I = '+brut(A.I)+' ; on admet f′(x) = '+brut(A.fp)+' et f″(x) = '+brut(A.fpp)+'. T est la tangente au point d’abscisse '+A.a+'. '
+   +'L’élève complète une démonstration à trous : le signe des facteurs de f″ sur I et le signe de f″, la convexité de f, f(a), f′(a) et l’équation réduite de T, la position de la courbe par rapport à T, puis le sens de l’inégalité f(x) ≥ ou ≤ (équation de T). '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : f″(x) '+CVT_SYMB[A.spp]+' sur I ; f est '+A.cv+' ; f('+A.a+') = '+A.fa+' ; f′('+A.a+') = '+A.fpa+' ; T : y = '+brut(cvtT(A))+' ; courbe au-'+A.pos+' de T ; inégalité : f(x) '+(A.ineg==='>='?'≥':'≤')+' '+brut(cvtT(A))+'. '
+   +'Saisies actuelles : '+cases.map(function(x){ return x.id.replace('cvt-','')+' '+lu(x.id); }).join(' ; ')
+   +'. Méthode à faire appliquer, sans donner la réponse : une exponentielle est toujours strictement positive ; le signe de x + c se lit sur l’intervalle I ; f″ ≥ 0 sur I veut dire f convexe sur I, et la courbe d’une fonction convexe est au-dessus de toutes ses tangentes (au-dessous si concave) ; T : y = f′(a)(x − a) + f(a), qu’on développe et réduit. Aide sur la PREMIÈRE case fausse ou vide.';
+}
 
 /* ================= Exercice Terminale : associer f, f′ et f″ (kind 'afd') =================
    Le pendant d'{associer-derivee} pour la convexité (demande de Turquet,
@@ -19233,6 +19596,11 @@ const RAP_CVQ=`<b>Convexité : répondre à un QCM depuis la courbe de f\u2009�
 \u2022 <b>Un tableau de variations de f\u2009′</b> se lit pareil : f est convexe sur les colonnes où la flèche monte, concave où elle descend ; un 0 posé au milieu d'une flèche est un zéro de f\u2009′, pas un changement de convexité.<br>
 \u2022 <b>Si c'est f\u2009″ qui est dessinée</b> : f est convexe là où f\u2009″ est POSITIVE (au-dessus de l'axe), f\u2009′ y est croissante ; là où f\u2009″ s'annule en changeant de signe, f\u2009′ admet un extremum (+ puis − : maximum) et f un point d'inflexion. Un sommet de f\u2009″ ne dit rien.<br>
 \u2022 <b>Une affirmation sur un intervalle</b> n'est vraie que si le point d'inflexion n'est PAS strictement à l'intérieur : un intervalle qui l'enjambe contient un changement de convexité. Une seule affirmation est vraie : élimine les trois pièges.`;
+const RAP_CVT=`<b>Convexité : démontrer une inégalité grâce à une tangente</b><br>
+\u2022 <b>Le signe de f\u2009″ sur I</b> : une exponentielle est TOUJOURS strictement positive ; le signe d'un facteur <i>x</i> + <i>c</i> se lit sur l'intervalle I (sur [−2 ; +∞[, <i>x</i> + 2 ≥ 0). Le signe d'un produit en découle.<br>
+\u2022 <b>f\u2009″ ≥ 0 sur I</b> : f est CONVEXE sur I, et sa courbe est située AU-DESSUS de chacune de ses tangentes sur I. <b>f\u2009″ ≤ 0 sur I</b> : f est CONCAVE, sa courbe est AU-DESSOUS de ses tangentes.<br>
+\u2022 <b>La tangente au point d'abscisse <i>a</i></b> : <i>y</i> = f\u2009′(<i>a</i>)(<i>x</i> − <i>a</i>) + f(<i>a</i>), qu'on développe et réduit en <i>y</i> = <i>mx</i> + <i>p</i>.<br>
+\u2022 <b>L'inégalité</b> : « au-dessus de T » veut dire f(<i>x</i>) ≥ <i>mx</i> + <i>p</i> pour tout <i>x</i> de I. Exemple : f(<i>x</i>) = e<sup><i>x</i></sup> est convexe sur ℝ (f\u2009″(<i>x</i>) = e<sup><i>x</i></sup> &gt; 0), sa tangente en 0 est <i>y</i> = <i>x</i> + 1, donc e<sup><i>x</i></sup> ≥ <i>x</i> + 1 pour tout réel <i>x</i>.`;
 const RAP_AFD=`<b>Associer f, f\u2009′ et f\u2009″ sur leurs courbes</b><br>
 \u2022 <b>La dérivée se lit sur le SENS de variation</b> : là où f croît, la courbe de f\u2009′ est au-dessus de l'axe ; là où f décroît, au-dessous. Chaque maximum ou minimum de f est un point où la courbe de f\u2009′ COUPE l'axe.<br>
 \u2022 <b>La dérivée seconde se lit sur la CONVEXITÉ</b> : là où f est convexe (la courbe « sourit », au-dessus de ses tangentes), la courbe de f\u2009″ est au-dessus de l'axe ; là où f est concave, au-dessous. Un point d'inflexion de f est un point où la courbe de f\u2009″ coupe l'axe.<br>
@@ -19281,7 +19649,36 @@ const RAP_LQN=`<b>Limite de q<sup><i>n</i></sup>, et des suites qui s’en dédu
 • <b>Somme et quotient</b> : on remplace chaque puissance par sa limite. 2 + 5 × 0,3<sup><i>n</i></sup> → 2 + 0 = 2 ; \\(\\frac{3+0{,}2^n}{5+0{,}2^n}\\) → \\(\\frac{3+0}{5+0}=\\frac{3}{5}\\) ; \\(\\frac{3}{1+2^n}\\) → 0, car le dénominateur tend vers +∞.<br>
 • <b>Une base en fraction</b> : \\(\\frac{5}{7}\\) est entre −1 et 1, donc \\(\\left(\\frac{5}{7}\\right)^n\\) → 0 ; \\(\\frac{7}{5}\\) &gt; 1, donc \\(\\left(\\frac{7}{5}\\right)^n\\) → +∞.<br>
 • <b>Un produit</b> : 3<sup><i>n</i></sup>(1 + 0,25<sup><i>n</i></sup>) → +∞ car lim 3<sup><i>n</i></sup> = +∞ (3 &gt; 1) et lim 0,25<sup><i>n</i></sup> = 0 (−1 &lt; 0,25 &lt; 1) : la parenthèse tend vers 1, et « +∞ × 1 = +∞ ».`;
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, sag:RAP_SAG, lqn:RAP_LQN, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD,
+const RAP_CVP=`<b>Trouver un paramètre grâce à la dérivée seconde</b><br>
+• <b>Convexité et signe de <i>f</i> ″</b> : <i>f</i> est convexe sur un intervalle si et seulement si <i>f</i> ″(<i>x</i>) ≥ 0 sur cet intervalle ; concave si <i>f</i> ″(<i>x</i>) ≤ 0.<br>
+• <b>Point d’inflexion</b> : la courbe admet un point d’inflexion d’abscisse <i>x</i><sub>0</sub> quand <i>f</i> ″ s’annule en <i>x</i><sub>0</sub> <b>en changeant de signe</b>. Pour trouver un paramètre <i>k</i>, on écrit <i>f</i> ″(<i>x</i><sub>0</sub>) = 0 et on résout en <i>k</i> ; puis on vérifie le changement de signe.<br>
+• <b>Exemple</b> : <i>f</i>(<i>x</i>) = <i>x</i><sup>3</sup> + <i>kx</i><sup>2</sup> + 1 ; <i>f</i> ′(<i>x</i>) = 3<i>x</i><sup>2</sup> + 2<i>kx</i> ; <i>f</i> ″(<i>x</i>) = 6<i>x</i> + 2<i>k</i>. Inflexion en 2 : 12 + 2<i>k</i> = 0, donc <i>k</i> = −6 ; et <i>f</i> ″(<i>x</i>) = 6(<i>x</i> − 2) change bien de signe en 2.<br>
+• <b>Avec une exponentielle</b> : (<i>uv</i>)′ = <i>u</i> ′<i>v</i> + <i>uv</i> ′, et (e<sup><i>x</i></sup>)′ = e<sup><i>x</i></sup>, (e<sup>−<i>x</i></sup>)′ = −e<sup>−<i>x</i></sup>. L’exponentielle est toujours strictement positive : <i>f</i> ″(<i>x</i>) = (trinôme) × e<sup>…</sup> a le signe du trinôme.<br>
+• <b>Convexe sur tout ℝ</b> : un trinôme <i>x</i><sup>2</sup> + <i>Bx</i> + <i>C</i> (coefficient 1 &gt; 0) est positif ou nul pour tout réel <i>x</i> si et seulement si son discriminant <b>Δ = <i>B</i><sup>2</sup> − 4<i>C</i> ≤ 0</b>. Exemple : (<i>x</i><sup>2</sup> + <i>a</i>)e<sup><i>x</i></sup> a pour dérivée seconde (<i>x</i><sup>2</sup> + 4<i>x</i> + <i>a</i> + 2)e<sup><i>x</i></sup> ; Δ = 16 − 4(<i>a</i> + 2) = 8 − 4<i>a</i> ≤ 0 ⟺ <i>a</i> ≥ 2.<br>
+• <b>L’inégalité est large</b> : si Δ = 0, <i>f</i> ″ s’annule en un seul point sans changer de signe — <i>f</i> reste convexe.`;
+const RAP_TVF=`<b>Le théorème de convergence monotone, et ses pièges</b><br>
+• <b>Le théorème</b> : une suite <b>croissante ET majorée</b> converge ; une suite <b>décroissante ET minorée</b> converge. Il faut les DEUX hypothèses, et la borne du BON côté.<br>
+• <b>Son voisin</b> : une suite croissante et <b>non majorée</b> tend vers +∞ ; une suite décroissante et non minorée tend vers −∞.<br>
+• <b>Le majorant n’est pas la limite</b> : si U<sub><i>n</i></sub> ≤ M pour tout <i>n</i> et que la suite converge vers ℓ, on sait seulement que ℓ ≤ M. Et une inégalité STRICTE devient LARGE à la limite : 3 − 1/(<i>n</i> + 1) &lt; 3 pour tout <i>n</i>, mais sa limite vaut 3.<br>
+• <b>Les réciproques sont fausses</b> : une suite convergente n’est pas forcément monotone ((−1)<sup><i>n</i></sup>/(<i>n</i> + 1) tend vers 0 en oscillant) ; une suite bornée n’est pas forcément convergente ((−1)<sup><i>n</i></sup>) ; une suite qui tend vers +∞ n’est pas forcément croissante (<i>n</i> + 2 × (−1)<sup><i>n</i></sup>).<br>
+• <b>Un contre-exemple</b> doit remplir TOUTES les hypothèses de l’affirmation, et ne pas en remplir la conclusion : on le vérifie en calculant ses premiers termes.`;
+const RAP_TNM=`<b>Une suite croissante et non majorée tend vers +∞</b><br>
+• <b>Croissante</b> : on étudie le signe de U<sub><i>n</i>+1</sub> − U<sub><i>n</i></sub>. Positif pour tout <i>n</i> : la suite est croissante.<br>
+• <b>La récurrence U<sub><i>n</i></sub> ≥ <i>n</i></b> : on vérifie l’initialisation (U<sub>0</sub> ≥ 0), puis, en supposant U<sub><i>k</i></sub> ≥ <i>k</i>, on part de U<sub><i>k</i>+1</sub>, on remplace U<sub><i>k</i></sub> par ce que dit l’hypothèse de récurrence, et on minore ce qui reste par un nombre positif pour arriver à U<sub><i>k</i>+1</sub> ≥ <i>k</i> + 1.<br>
+• <b>Le théorème de comparaison</b> : si U<sub><i>n</i></sub> ≥ V<sub><i>n</i></sub> pour tout <i>n</i> et que lim V<sub><i>n</i></sub> = +∞, alors lim U<sub><i>n</i></sub> = +∞. Ici V<sub><i>n</i></sub> = <i>n</i>.<br>
+• <b>Pourquoi elle n’est pas majorée</b> : si elle l’était, croissante et majorée, elle convergerait (théorème de convergence monotone) — impossible pour une suite qui tend vers +∞. Le théorème des suites croissantes non majorées dit la même chose dans l’autre sens.`;
+const RAP_SSM=`<b>Une somme croissante et majorée : la limite existe</b><br>
+• <b>Une somme qui s’allonge</b> : S<sub><i>n</i>+1</sub> = S<sub><i>n</i></sub> + (le terme suivant). Si ce terme est positif, S<sub><i>n</i>+1</sub> − S<sub><i>n</i></sub> &gt; 0 : la suite est croissante.<br>
+• <b>L’astuce de la récurrence</b> : 1/<i>k</i> − 1/(<i>k</i> + 1) = 1/(<i>k</i>(<i>k</i> + 1)), en réduisant au même dénominateur. Et comme <i>k</i>(<i>k</i> + 1) ≤ (<i>k</i> + 1)<sup>2</sup>, la fraction 1/(<i>k</i> + 1)<sup>2</sup> est plus PETITE que 1/(<i>k</i>(<i>k</i> + 1)) : entre deux fractions de numérateur 1, la plus petite a le plus grand dénominateur.<br>
+• <b>Le théorème de convergence monotone</b> : croissante et majorée par 2, la suite converge.<br>
+• <b>Ce qu’il ne dit pas</b> : la VALEUR de la limite. Par passage à la limite dans S<sub><i>n</i></sub> ≤ 2 − 1/<i>n</i>, on sait seulement que ℓ ≤ 2. Pour les carrés, la limite vaut π²/6 ≈ 1,645 — il a fallu Euler pour la trouver.`;
+const RAP_SAP=`<b>Approcher une limite avec un algorithme</b><br>
+• <b>La limite d’abord</b> : si U<sub><i>n</i>+1</sub> = <i>a</i> U<sub><i>n</i></sub> + <i>b</i> converge vers ℓ, alors ℓ = <i>a</i>ℓ + <i>b</i>, donc ℓ = <i>b</i> / (1 − <i>a</i>).<br>
+• <b>« U<sub><i>n</i></sub> est une valeur approchée de ℓ à 10<sup>−3</sup> près »</b> veut dire |U<sub><i>n</i></sub> − ℓ| &lt; 10<sup>−3</sup> : l’écart entre les deux, sans son signe, est plus petit que 0,001. En Python, la valeur absolue s’écrit <code>abs( )</code>.<br>
+• <b>La boucle <code>while</code></b> tourne TANT QUE sa condition est vraie : ici, tant qu’on est encore trop loin, <code>while abs(u - l) &gt;= 0.001:</code>. Elle s’arrête au premier rang où l’écart passe sous 10<sup>−3</sup>.<br>
+• <b>10<sup>−3</sup> en Python</b> : <code>0.001</code>, ou <code>10**-3</code>, ou <code>1e-3</code> — un point, jamais une virgule.<br>
+• <b>Pourquoi la boucle s’arrête</b> : la suite CONVERGE vers ℓ, donc l’écart |U<sub><i>n</i></sub> − ℓ| finit par devenir aussi petit qu’on veut. Pour une suite qui ne convergerait pas, le programme pourrait tourner sans fin.`;
+const RAPPELS={ cvp:RAP_CVP, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -22833,6 +23230,618 @@ function sagConseilCtx(){
     +'première fois — il peut être au-delà du rang 10, il faut alors faire défiler. '
     +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
 }
+/* ================= 5.4.4 à 5.4.6, et 5.5.2 — AUTOUR DU THÉORÈME DE CONVERGENCE MONOTONE =================
+   Demande de Turquet (octobre 2026) : « donne-moi des idées d'exercices en
+   Terminale pour compléter le TCM », puis « fais les idées 1, 2, 7 et 10 » :
+     5.4.4 {tcm-vrai-faux}               les PIÈGES du théorème — vrai ou faux, et le contre-exemple ;
+     5.4.5 {suite-croissante-non-majoree} le théorème VOISIN — croissante non majorée, donc +∞ ;
+     5.4.6 {suite-somme-majoree}          le TCM prouve que la limite EXISTE, pas ce qu'elle vaut ;
+     5.5.2 {suite-algo-approx}            l'algorithme qui approche ℓ à 10⁻ᵖ près.
+   Ajoutés en FIN de leur partie : aucun numéro existant ne bouge.
+
+   UN SEUL MOTEUR DE VÉRIFICATION POUR LES QUATRE (tcm4Check) : chaque exercice
+   déclare dans TCM4 ses cases, son juge, sa correction et sa phrase-clé ; la
+   vérification, la correction en direct du soutien, la case vide jamais
+   rougie, le verrou et la suite sont écrits une fois. Les cases et les listes
+   sont celles du 5.4.2 (sa2In, tclSel, corrCase) : un second jeu de cases
+   finirait par diverger.
+
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : la question ne
+   porte que ses données (l'affirmation et M ; a, b, U₀ ; l'exposant p ; la
+   suite et 10⁻ᵖ), et chaque juge recalcule ce qu'il attend. */
+const TCM4={};
+function tcm4Q(){ return test.questions[test.idx]; }
+function tcm4Render(kind){
+  const E=TCM4[kind], p=E.pre, q=tcm4Q(); test.locked=false;
+  $(p+'QIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $(p+'ModeTag').innerHTML=modeTagHTML();
+  $(p+'LiveScore').textContent=test.score;
+  $(p+'Feedback').textContent=''; $(p+'Feedback').className='mp-feedback';
+  $(p+'Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="'+E.check+'()">Vérifier</button>';
+  $(p+'Prompt').innerHTML=E.prompt(q);
+  $(p+'Body').innerHTML=E.body(q);
+  tcm4Ajuster(kind);
+  /* correction en direct du mode soutien (liveCheckCurrent() a un corps vide
+     en Terminale : chaque exercice branche ses écouteurs, comme le 5.4.2) */
+  if(isSoutien()){
+    E.ids(q).forEach(function(id){ const el=$(id); if(!el) return;
+      el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ window[E.check](true); }); });
+  }
+}
+function tcm4Ajuster(kind){ TCM4[kind].ids(tcm4Q()).forEach(function(id){ const e=$(id); if(e&&e.tagName==='INPUT') sa2Ajuster(e); }); }
+function tcm4Check(kind, live){
+  if(test.locked && !live) return;
+  const E=TCM4[kind], p=E.pre, q=tcm4Q(), ids=E.ids(q);
+  let allOk=true, anyFilled=false; const verd={};
+  ids.forEach(function(id){
+    const el=$(id); if(!el) return;
+    const raw=el.value==null?'':String(el.value);
+    const ok=E.juste(id, raw, q);
+    if(raw.trim()!=='') anyFilled=true;
+    el.classList.remove('ok','bad','sol');
+    /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR — en direct comme à la
+       vérification, en soutien comme en entraînement. */
+    if(raw.trim()!=='') el.classList.add(ok?'ok':'bad');
+    if(!ok) allOk=false;
+    if(live) return;
+    verd[id]=ok;
+    el.disabled=ok||!isSoutien();
+  });
+  if(live) return;
+  const fb=$(p+'Feedback');
+  if(!anyFilled){
+    fb.textContent='Complète au moins une case avant de vérifier.';
+    fb.className='mp-feedback';
+    ids.forEach(function(id){ const el=$(id); if(el){ el.classList.remove('ok','bad','sol'); el.disabled=false; } });
+    return;
+  }
+  if(!allOk && isSoutien()){
+    fb.textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $(p+'Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="'+E.check+'()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  const fin=E.apres ? '<br>'+E.apres(q) : '';
+  if(allOk){
+    test.score++; $(p+'LiveScore').textContent=test.score;
+    fb.innerHTML=esc(pick(['Parfait !','Très bien !','Excellent !','Bravo !']))+fin;
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML=msgCorrCouleurs(false)+'<br>'+E.cle(q)+fin;
+    fb.className='mp-feedback bad';
+    ids.forEach(function(id){ corrCase(id, E.corr(id,q), verd[id]===true); });
+    tcm4Ajuster(kind);          /* la réponse écrite en vert ne doit pas être coupée */
+  }
+  test.answers.push(Object.assign({}, ptsExo()||{}, {
+    q:E.plain(q), answer:E.answer(q), given:allOk?'✓':'incomplet', correct:allOk, type:kind}));
+  const last=test.idx===test.questions.length-1;
+  $(p+'Actions').innerHTML='<button class="btn btn-primary" onclick="'+E.next+'()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function tcm4Next(kind){ if(test.idx<test.questions.length-1){ test.idx++; tcm4Render(kind); } else finishTest(); }
+async function tcm4Start(id, kind, gen){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId=id; test.kind=kind;
+  test.questions=gen();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show(kind); tcm4Render(kind);
+}
+/* L'état des cases, pour le modèle — les valeurs des listes en clair */
+function tcm4Etat(kind){
+  return TCM4[kind].ids(tcm4Q()).map(function(id){ const el=$(id); let v=(el&&el.value)||'';
+    if(v && el.tagName==='SELECT'){ const o=Array.prototype.find.call(el.options, function(x){ return x.value===v; }); if(o) v=o.textContent; }
+    return id+'='+(v||'(vide)'); }).join(', ');
+}
+function tcm4Melange(a){ const r=a.slice(); for(let i=r.length-1;i>0;i--){ const j=rand(0,i); const t=r[i]; r[i]=r[j]; r[j]=t; } return r; }
+function tcm4Row(html){ return '<div class="sa2-row">'+html+'</div>'; }
+function tcm4T(t){ return '<span class="sa2-t">'+t+'</span>'; }
+function tcm4Part(lab, titre, html){ return '<div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">'+lab+')</span> '+titre+'</p><div class="sa2-ladder">'+html+'</div></div>'; }
+/* un nombre : entier, décimal (virgule ou point) ou fraction p/q — le lecteur du 5.4.2 */
+function tcm4Egal(raw, v){ const x=tclNb(raw); return isFinite(x) && Math.abs(x-v) <= 1e-9*Math.max(1,Math.abs(v)); }
+const TCM4_UN='<i>U</i><sub><i>n</i></sub>', TCM4_UN1='<i>U</i><sub><i>n</i>+1</sub>', TCM4_N='<i>n</i>';
+const TCM4_SUITE='('+TCM4_UN+')';
+function tcm4Lim(){ return '<span class="tcl-lim">lim<small>'+TCM4_N+'→+∞</small></span>'; }
+
+/* ---------------------------------------------------------------------------
+   5.4.4 {tcm-vrai-faux} — LES PIÈGES DU THÉORÈME
+   Huit affirmations par séance, quatre vraies et quatre fausses, en ordre
+   mélangé. L'élève dit si l'affirmation est vraie ou fausse, puis choisit
+   dans UNE liste ce qui la justifie : le théorème ou la propriété si elle est
+   vraie, un contre-exemple si elle est fausse. La liste est la même pour
+   toutes les affirmations — sinon sa longueur trahirait la réponse.
+
+   CHAQUE CONTRE-EXEMPLE A ÉTÉ RELU CONTRE CHAQUE AFFIRMATION, et la liste
+   « ok » de chacune nomme TOUS ceux qui la réfutent : refuser un
+   contre-exemple valable donnerait tort à une copie juste. (−1)ⁿ est bornée,
+   majorée, sans limite ; (−1)ⁿ/(n+1) converge sans être monotone ; −n
+   décroît, est majorée par 0 et tend vers −∞ ; (−1)ⁿ × n n'est ni majorée ni
+   minorée et n'a pas de limite ; n + 2 × (−1)ⁿ tend vers +∞ sans être
+   croissante ; M − 1/(n+1) croît, reste STRICTEMENT sous M et tend vers M ;
+   (M − 1) − 1/(n+1) croît, est majorée par M et tend vers M − 1 ≠ M. Le banc
+   principal refait ce tableau par le calcul, sur les termes de chaque suite.
+
+   Le nombre M ne se tire que pour les affirmations qui le portent ; les
+   autres l'écrivent 3 dans les contre-exemples de la liste. La séance tire
+   ses huit affirmations SANS REMISE : deux fois la même avec un autre M ne
+   ferait pas une autre question. */
+const TVF_AFF={
+  majlim:  {v:false, M:true,  ok:['invM1'],         t:'Si '+TCM4_SUITE+' est croissante et majorée par {M}, alors '+tcm4Lim()+' '+TCM4_UN+' = {M}.'},
+  bornee:  {v:false,          ok:['alt'],           t:'Si '+TCM4_SUITE+' est bornée, alors '+TCM4_SUITE+' est convergente.'},
+  convmono:{v:false,          ok:['altn'],          t:'Si '+TCM4_SUITE+' est convergente, alors '+TCM4_SUITE+' est monotone.'},
+  croisinf:{v:false,          ok:['invM','invM1'],  t:'Si '+TCM4_SUITE+' est croissante, alors '+tcm4Lim()+' '+TCM4_UN+' = +∞.'},
+  majconv: {v:false,          ok:['alt','moinsn'],  t:'Si '+TCM4_SUITE+' est majorée, alors '+TCM4_SUITE+' est convergente.'},
+  nonmaj:  {v:false,          ok:['altnn'],         t:'Si '+TCM4_SUITE+' n’est pas majorée, alors '+tcm4Lim()+' '+TCM4_UN+' = +∞.'},
+  decconv: {v:false,          ok:['moinsn'],        t:'Si '+TCM4_SUITE+' est décroissante, alors '+TCM4_SUITE+' est convergente.'},
+  infcrois:{v:false,          ok:['npm'],           t:'Si '+tcm4Lim()+' '+TCM4_UN+' = +∞, alors '+TCM4_SUITE+' est croissante.'},
+  strict:  {v:false, M:true,  ok:['invM'],          t:'Si '+TCM4_UN+' &lt; {M} pour tout '+TCM4_N+', et si '+TCM4_SUITE+' converge vers <i>ℓ</i>, alors <i>ℓ</i> &lt; {M}.'},
+  tcmc:    {v:true,           ok:['tcm'],           t:'Si '+TCM4_SUITE+' est croissante et majorée, alors '+TCM4_SUITE+' est convergente.'},
+  tcmd:    {v:true,           ok:['tcm'],           t:'Si '+TCM4_SUITE+' est décroissante et minorée par 0, alors '+TCM4_SUITE+' est convergente.'},
+  divc:    {v:true,           ok:['tdiv'],          t:'Si '+TCM4_SUITE+' est croissante et n’est pas majorée, alors '+tcm4Lim()+' '+TCM4_UN+' = +∞.'},
+  divd:    {v:true,           ok:['tdiv'],          t:'Si '+TCM4_SUITE+' est décroissante et n’est pas minorée, alors '+tcm4Lim()+' '+TCM4_UN+' = −∞.'},
+  large:   {v:true,  M:true,  ok:['pass'],          t:'Si '+TCM4_UN+' ≤ {M} pour tout '+TCM4_N+', et si '+TCM4_SUITE+' converge vers <i>ℓ</i>, alors <i>ℓ</i> ≤ {M}.'},
+  u0c:     {v:true,           ok:['u0c'],           t:'Si '+TCM4_SUITE+' est croissante, alors '+TCM4_SUITE+' est minorée par <i>U</i><sub>0</sub>.'},
+  u0d:     {v:true,           ok:['u0d'],           t:'Si '+TCM4_SUITE+' est décroissante, alors '+TCM4_SUITE+' est majorée par <i>U</i><sub>0</sub>.'}
+};
+/* Pourquoi, en une phrase — écrite sous la correction */
+const TVF_POURQUOI={
+  majlim:  'Le majorant n’est pas forcément la limite : la limite est seulement <b>inférieure ou égale</b> au majorant. {M−1} − 1/(<i>n</i> + 1) croît, est majorée par {M}, et tend vers {M−1}.',
+  bornee:  'Bornée ne suffit pas : il faut aussi la <b>monotonie</b>. (−1)<sup><i>n</i></sup> reste entre −1 et 1, mais oscille sans jamais se fixer.',
+  convmono:'Une suite peut converger en oscillant : (−1)<sup><i>n</i></sup>/(<i>n</i> + 1) tend vers 0 en changeant de signe à chaque rang.',
+  croisinf:'Croissante ne suffit pas pour +∞ : il faut aussi qu’elle ne soit <b>pas majorée</b>. {M} − 1/(<i>n</i> + 1) croît et tend vers {M}.',
+  majconv: 'Majorée ne suffit pas : il faut aussi qu’elle soit <b>croissante</b>. −<i>n</i> est majorée par 0 et tend vers −∞ ; (−1)<sup><i>n</i></sup> est majorée par 1 et n’a pas de limite.',
+  nonmaj:  'Non majorée ne veut pas dire « tend vers +∞ » : (−1)<sup><i>n</i></sup> × <i>n</i> dépasse tout nombre aux rangs pairs, mais redescend aux rangs impairs.',
+  decconv: 'Décroissante ne suffit pas : il faut aussi qu’elle soit <b>minorée</b>. −<i>n</i> décroît et tend vers −∞.',
+  infcrois:'Une suite peut tendre vers +∞ en zigzaguant : <i>n</i> + 2 × (−1)<sup><i>n</i></sup> vaut 2, −1, 4, 1, 6, 3… — elle tend vers +∞ sans être croissante.',
+  strict:  'Le passage à la limite transforme une inégalité stricte en inégalité <b>large</b> : {M} − 1/(<i>n</i> + 1) &lt; {M} pour tout <i>n</i>, et pourtant sa limite vaut {M}.',
+  tcmc:    'C’est le théorème de convergence monotone : une suite croissante et majorée converge.',
+  tcmd:    'C’est le théorème de convergence monotone : une suite décroissante et minorée converge.',
+  divc:    'C’est le théorème des suites monotones non bornées : croissante et non majorée, elle tend vers +∞.',
+  divd:    'C’est le théorème des suites monotones non bornées : décroissante et non minorée, elle tend vers −∞.',
+  large:   'Par passage à la limite, l’inégalité large se conserve : <i>U<sub>n</sub></i> ≤ {M} pour tout <i>n</i> donne <i>ℓ</i> ≤ {M}.',
+  u0c:     'Chaque terme est plus grand que le précédent : <i>U</i><sub>0</sub> ≤ <i>U</i><sub>1</sub> ≤ <i>U</i><sub>2</sub> ≤ …, donc tous les termes sont au moins égaux à <i>U</i><sub>0</sub>.',
+  u0d:     'Chaque terme est plus petit que le précédent : <i>U</i><sub>0</sub> ≥ <i>U</i><sub>1</sub> ≥ <i>U</i><sub>2</sub> ≥ …, donc tous les termes sont au plus égaux à <i>U</i><sub>0</sub>.'
+};
+function tvfM(q){ return q.M||3; }
+function tvfSub(s, q){ const M=tvfM(q); return s.replace(/\{M−1\}/g, String(M-1)).replace(/\{M\}/g, String(M)); }
+/* La liste des justifications : les propriétés d'abord, puis les contre-exemples. */
+function tvfOpts(q){
+  const M=tvfM(q);
+  return [['tcm','le théorème de convergence monotone'],
+          ['tdiv','une suite croissante non majorée tend vers +∞ (décroissante non minorée : vers −∞)'],
+          ['pass','le passage à la limite dans une inégalité large'],
+          ['u0c','Uₙ ≥ U₀ pour tout n, car la suite monte'],
+          ['u0d','Uₙ ≤ U₀ pour tout n, car la suite descend'],
+          ['alt','contre-exemple : Uₙ = (−1)ⁿ'],
+          ['altn','contre-exemple : Uₙ = (−1)ⁿ / (n + 1)'],
+          ['moinsn','contre-exemple : Uₙ = −n'],
+          ['altnn','contre-exemple : Uₙ = (−1)ⁿ × n'],
+          ['npm','contre-exemple : Uₙ = n + 2 × (−1)ⁿ'],
+          ['invM','contre-exemple : Uₙ = '+M+' − 1 / (n + 1)'],
+          ['invM1','contre-exemple : Uₙ = '+(M-1)+' − 1 / (n + 1)']];
+}
+/* Les dix premiers termes de chaque contre-exemple, écrits sous la liste
+   (demande de Turquet, octobre 2026) : l'élève vérifie d'un coup d'œil qu'un
+   contre-exemple remplit les hypothèses sans la conclusion. Chaque terme est
+   [numérateur, dénominateur] — M(n+1) − 1 et n + 1 sont premiers entre eux,
+   la fraction est donc déjà irréductible. Le banc principal les recalcule. */
+const TVF_CE=[['alt','(−1)<sup><i>n</i></sup>'],['altn','(−1)<sup><i>n</i></sup> / ('+TCM4_N+' + 1)'],['moinsn','−'+TCM4_N],
+  ['altnn','(−1)<sup><i>n</i></sup> × '+TCM4_N],['npm',TCM4_N+' + 2 × (−1)<sup><i>n</i></sup>'],['invM','{M} − 1 / ('+TCM4_N+' + 1)'],['invM1','{M−1} − 1 / ('+TCM4_N+' + 1)']];
+function tvfCeTermes(c, M){
+  const t=[];
+  for(let n=0;n<10;n++){ const s=n%2?-1:1;
+    t.push(c==='alt'?[s,1] : c==='altn'?[s,n+1] : c==='moinsn'?[-n,1] : c==='altnn'?[s*n,1] : c==='npm'?[n+2*s,1]
+      : c==='invM'?[M*(n+1)-1,n+1] : [(M-1)*(n+1)-1,n+1]); }
+  return t;
+}
+/* Chaque terme s'écrit en DÉCIMAL arrondi au centième, jamais en fraction
+   (demande de Turquet, octobre 2026) : 1/3 se lit 0,33, 5/2 se lit 2,5. Les
+   zéros de queue tombent — 1, pas 1,00. Le « ; » qui suit un terme reste sur
+   sa ligne : jamais un « ; … » seul en tête de ligne. */
+function tvfTermeDec(f){ const r=Math.round(Math.abs(f[0])/f[1]*100)/100; if(r===0) return '0';
+  return (f[0]<0?'−':'')+String(r).replace('.',','); }
+function tvfTermeHTML(f, n){ return '<span class="tvf-ce-u">'+tvfTermeDec(f)+(n<9?' ;':' ; …')+'</span>'; }
+function tvfCeTable(q){
+  const M=tvfM(q);
+  return '<div class="tvf-ce"><div class="tvf-ce-t">Les contre-exemples de la liste et leurs 10 premiers termes, de <i>U</i><sub>0</sub> à <i>U</i><sub>9</sub> (arrondis au centième) :</div><table>'
+    +TVF_CE.map(function(c){ return '<tr><td class="tvf-ce-f">'+TCM4_UN+' = '+tvfSub(c[1],{M:M})+'</td><td>'
+      +tvfCeTermes(c[0],M).map(tvfTermeHTML).join(' ')+'</td></tr>'; }).join('')+'</table></div>';
+}
+const TVF_OPT_VF=[['vrai','vraie'],['faux','fausse']];
+function tvfGen(af){ const q={af:af}; if(TVF_AFF[af].M) q.M=rand(2,6); return q; }
+function tvfGenSession(){
+  const cles=Object.keys(TVF_AFF);
+  const vraies=tcm4Melange(cles.filter(function(k){ return TVF_AFF[k].v; })).slice(0,4);
+  const fausses=tcm4Melange(cles.filter(function(k){ return !TVF_AFF[k].v; })).slice(0,4);
+  const plan=tcm4Melange(vraies.concat(fausses));
+  return distinctes(plan.length, function(u,i){ return tvfGen(plan[i]); });
+}
+TCM4.tvf={ pre:'tvf', check:'checkTVF', next:'nextTVF',
+  ids:function(){ return ['tvf-vf','tvf-j']; },
+  prompt:function(q){ return 'Dire si l’affirmation est vraie ou fausse. Si elle est <b>vraie</b>, choisir ce qui la justifie ; si elle est <b>fausse</b>, choisir un <b>contre-exemple</b>.'
+    +'<span class="tvf-aff">'+tvfSub(TVF_AFF[q.af].t, q)+'</span>'; },
+  body:function(q){
+    return tcm4Row(tcm4T('Cette affirmation est')+tclSel('tvf-vf',TVF_OPT_VF)+tcm4T('.'))
+      +'<div class="sa2-row tvf-jrow">'+tcm4T('Justification :')+tclSel('tvf-j',tvfOpts(q))+'</div>'
+      +tvfCeTable(q);
+  },
+  juste:function(id, raw, q){ const A=TVF_AFF[q.af];
+    if(id==='tvf-vf') return raw===(A.v?'vrai':'faux');
+    return A.ok.indexOf(raw)>=0; },
+  corr:function(id, q){ const A=TVF_AFF[q.af]; return id==='tvf-vf' ? (A.v?'vrai':'faux') : A.ok[0]; },
+  cle:function(q){ return tvfSub(TVF_POURQUOI[q.af], q); },
+  plain:function(q){ return tvfSub(TVF_AFF[q.af].t, q).replace(/<[^>]+>/g,'').replace(/limn→\+∞/g,'lim(n→+∞) ').replace(/&lt;/g,'<'); },
+  answer:function(q){ const A=TVF_AFF[q.af]; return (A.v?'vraie':'fausse')+' — '+((tvfOpts(q).find(function(o){ return o[0]===A.ok[0]; })||[])[1]||''); }
+};
+function startTVF(){ return tcm4Start('tcm-vrai-faux','tvf',tvfGenSession); }
+function renderTVF(){ tcm4Render('tvf'); }
+function checkTVF(live){ tcm4Check('tvf', live); }
+function nextTVF(){ tcm4Next('tvf'); }
+function tvfConseilCtx(){
+  const q=tcm4Q(), A=TVF_AFF[q.af];
+  return 'Exercice de Terminale : vrai ou faux sur le théorème de convergence monotone et ses pièges. '
+    +'Affirmation : « '+TCM4.tvf.plain(q)+' ». L’élève choisit « vraie » ou « fausse », puis dans une liste la propriété qui la justifie (si vraie) ou un contre-exemple (si fausse). '
+    +'Liste proposée : '+tvfOpts(q).map(function(o){ return o[1]; }).join(' ; ')+'. '
+    +'Sous la liste, l’élève voit les 10 premiers termes (U0 à U9) de chaque contre-exemple, en décimal arrondi au centième. '
+    +'Réponse attendue, à ne JAMAIS révéler : '+TCM4.tvf.answer(q)+'. '
+    +'Saisies actuelles de l’élève : '+tcm4Etat('tvf')+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne dis pas si l’affirmation est vraie ou fausse, et ne nomme pas le contre-exemple. '
+    +'Méthode : relire chaque hypothèse du théorème (monotone ET bornée du bon côté) ; pour un contre-exemple, vérifier qu’il remplit TOUTES les hypothèses de l’affirmation sans en remplir la conclusion — par exemple en calculant ses premiers termes. '
+    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
+
+/* ---------------------------------------------------------------------------
+   5.4.5 {suite-croissante-non-majoree} — CROISSANTE ET NON MAJORÉE : +∞
+   Le théorème VOISIN du TCM, et l'exercice type qui le fait travailler :
+   a) la suite est croissante (le signe de Uₙ₊₁ − Uₙ), b) une récurrence
+   montre Uₙ ≥ n, c) le théorème de COMPARAISON donne lim Uₙ = +∞, d) la
+   suite n'est donc pas majorée — sans quoi, croissante et majorée, elle
+   convergerait : elle diverge.
+
+   DEUX FAMILLES, l'une et l'autre dans chaque séance, en ordre mélangé :
+   Uₙ₊₁ = Uₙ + a n + b (a de 1 à 4, b de 1 à 5) et Uₙ₊₁ = Uₙ² + Uₙ + b (b de
+   1 à 5), avec U₀ de 0 à 6. Le tirage est HONNÊTE par construction : U₀ ≥ 0,
+   a n ≥ 0 et b ≥ 1 donnent Uₖ₊₁ ≥ k + b ≥ k + 1 ; Uₖ² ≥ 0 donne de même
+   Uₖ₊₁ ≥ Uₖ + b. Le banc principal le refait en calculant les termes.
+
+   « Uₖ₊₁ ≥ k + … » : la case accepte TOUT nombre v entre 1 et b — la
+   minoration Uₖ₊₁ ≥ k + v est vraie, et suffit à conclure ≥ k + 1 ; la
+   correction écrit b. */
+const TNM_OPT_CAR=[['n0','n ≥ 0'],['u2','Uₙ² ≥ 0'],['un0','Uₙ ≥ 0']];
+const TNM_OPT_SENS=[['cr','croissante'],['de','décroissante'],['cst','constante']];
+const TNM_OPT_HR=[['hr','l’hypothèse de récurrence'],['init','l’initialisation'],['tcm','le théorème de convergence monotone']];
+const TNM_OPT_LIM=[['inf','+∞'],['minf','−∞'],['0','0'],['1','1']];
+const TNM_OPT_MAJ=[['maj','majorée'],['min','minorée'],['cr','croissante']];
+function tnmGen(fam){
+  if(fam==='lin') return {fam:'lin', a:rand(1,4), b:rand(1,5), c:rand(0,6)};
+  return {fam:'car', b:rand(1,5), c:rand(0,4)};
+}
+function tnmGenSession(){ const f=tcm4Melange(['lin','car']); return distinctes(2, function(u,i){ return tnmGen(f[i]); }); }
+function tnmF(q, n, u){ return q.fam==='lin' ? u+q.a*n+q.b : u*u+u+q.b; }
+function tnmAn(q, v){ return (q.a===1?'':q.a+' ')+v; }
+function tnmRec(q){
+  const Uk='<i>U</i><sub><i>n</i></sub>';
+  return q.fam==='lin' ? TCM4_UN1+' = '+Uk+' + '+tnmAn(q,TCM4_N)+' + '+q.b : TCM4_UN1+' = '+Uk+'<sup>2</sup> + '+Uk+' + '+q.b;
+}
+function tnmPlain(q){ return 'U0 = '+q.c+' ; '+(q.fam==='lin' ? 'U(n+1) = U(n) + '+(q.a===1?'':q.a)+'n + '+q.b : 'U(n+1) = U(n)^2 + U(n) + '+q.b); }
+TCM4.tnm={ pre:'tnm', check:'checkTNM', next:'nextTNM',
+  ids:function(q){ return (q.fam==='lin'?['tnm-a1','tnm-b1']:['tnm-b1'])
+    .concat(['tnm-car','tnm-sens','tnm-u0'], q.fam==='lin'?['tnm-a2','tnm-b2']:['tnm-b2'], ['tnm-hr','tnm-m','tnm-ln','tnm-thm','tnm-lim','tnm-maj','tnm-conv']); },
+  prompt:function(q){ return 'Soit '+TCM4_SUITE+' la suite définie par <b><i>U</i><sub>0</sub> = '+q.c+'</b> et, pour tout entier naturel '+TCM4_N+', <b>'+tnmRec(q)+'</b>.'; },
+  body:function(q){
+    const lin=q.fam==='lin', Uk='<i>U</i><sub><i>k</i></sub>', Uk1='<i>U</i><sub><i>k</i>+1</sub>', k='<i>k</i>';
+    const a=lin ? tcm4Row(tcm4T(TCM4_UN1+' − '+TCM4_UN+' =')+sa2In('tnm-a1')+tcm4T(TCM4_N+' +')+sa2In('tnm-b1'))
+                : tcm4Row(tcm4T(TCM4_UN1+' − '+TCM4_UN+' = '+TCM4_UN+'<sup>2</sup> +')+sa2In('tnm-b1'));
+    const partA=a
+      +tcm4Row(tcm4T('Or')+tclSel('tnm-car',TNM_OPT_CAR)+tcm4T(', donc '+TCM4_UN1+' − '+TCM4_UN+' &gt; 0 pour tout '+TCM4_N+'.'))
+      +tcm4Row(tcm4T('La suite '+TCM4_SUITE+' est')+tclSel('tnm-sens',TNM_OPT_SENS)+tcm4T('.'));
+    let partB=tcm4Row(tcm4T('<b>Initialisation</b> : <i>U</i><sub>0</sub> =')+sa2In('tnm-u0')+tcm4T('≥ 0, donc la propriété est vraie au rang 0.'))
+      +tcm4Row(tcm4T('<b>Hérédité</b> : on suppose que '+Uk+' ≥ '+k+' pour un entier naturel '+k+'.'));
+    if(lin){
+      partB+=tcm4Row(tcm4T(Uk1+' = '+Uk+' +')+sa2In('tnm-a2')+tcm4T(k+' +')+sa2In('tnm-b2'))
+        +tcm4Row(tcm4T('Comme '+Uk+' ≥ '+k+' d’après')+tclSel('tnm-hr',TNM_OPT_HR)+tcm4T(', et comme '+tnmAn(q,k)+' ≥ 0 :'))
+        +tcm4Row(tcm4T(Uk1+' ≥ '+k+' +')+sa2In('tnm-m')+tcm4T('≥ '+k+' + 1.'));
+    } else {
+      partB+=tcm4Row(tcm4T(Uk1+' = '+Uk+'<sup>2</sup> + '+Uk+' +')+sa2In('tnm-b2'))
+        +tcm4Row(tcm4T('Comme '+Uk+'<sup>2</sup> ≥ 0, et '+Uk+' ≥ '+k+' d’après')+tclSel('tnm-hr',TNM_OPT_HR)+tcm4T(' :'))
+        +tcm4Row(tcm4T(Uk1+' ≥ '+k+' +')+sa2In('tnm-m')+tcm4T('≥ '+k+' + 1.'));
+    }
+    partB+=tcm4Row(tcm4T('La propriété est vraie au rang '+k+' + 1 : par récurrence, '+TCM4_UN+' ≥ '+TCM4_N+' pour tout '+TCM4_N+'.'));
+    const partC=tcm4Row(tcm4T('On a '+TCM4_UN+' ≥ '+TCM4_N+' pour tout '+TCM4_N+', et')+tcm4Lim()+tcm4T(TCM4_N+' =')+tclSel('tnm-ln',TNM_OPT_LIM)+tcm4T(';'))
+      +tcm4Row(tcm4T('d’après le')+tclSel('tnm-thm',TCL_OPT_THM)+tcm4T(',')+tcm4Lim()+tcm4T(TCM4_UN+' =')+tclSel('tnm-lim',TNM_OPT_LIM)+tcm4T('.'));
+    const partD=tcm4Row(tcm4T('La suite '+TCM4_SUITE+' est croissante, et elle n’est pas')+tclSel('tnm-maj',TNM_OPT_MAJ)+tcm4T(':'))
+      +tcm4Row(tcm4T('elle est')+tclSel('tnm-conv',TCL_OPT_CONV)+tcm4T('.'));
+    return tcm4Part('a','Montrer que la suite '+TCM4_SUITE+' est croissante.',partA)
+      +tcm4Part('b','Démontrer par récurrence que, pour tout entier naturel '+TCM4_N+', '+TCM4_UN+' ≥ '+TCM4_N+'.',partB)
+      +tcm4Part('c','En déduire la limite de la suite '+TCM4_SUITE+'.',partC)
+      +tcm4Part('d','La suite '+TCM4_SUITE+' peut-elle être majorée ? Converge-t-elle ?',partD);
+  },
+  juste:function(id, raw, q){
+    switch(id){
+      case 'tnm-a1': case 'tnm-a2': return tcm4Egal(raw, q.a);
+      case 'tnm-b1': case 'tnm-b2': return tcm4Egal(raw, q.b);
+      case 'tnm-u0':  return tcm4Egal(raw, q.c);
+      case 'tnm-m':  { const v=tclNb(raw); return isFinite(v) && v>=1-1e-9 && v<=q.b+1e-9; }
+      case 'tnm-car': return raw===(q.fam==='lin'?'n0':'u2');
+      case 'tnm-sens': return raw==='cr';
+      case 'tnm-hr':  return raw==='hr';
+      case 'tnm-ln': case 'tnm-lim': return raw==='inf';
+      case 'tnm-thm': return raw==='comp';
+      case 'tnm-maj': return raw==='maj';
+      case 'tnm-conv': return raw==='divergente';
+    }
+    return false;
+  },
+  corr:function(id, q){
+    switch(id){
+      case 'tnm-a1': case 'tnm-a2': return String(q.a);
+      case 'tnm-b1': case 'tnm-b2': case 'tnm-m': return String(q.b);
+      case 'tnm-u0': return String(q.c);
+      case 'tnm-car': return q.fam==='lin'?'n0':'u2';
+      case 'tnm-sens': return 'cr';
+      case 'tnm-hr': return 'hr';
+      case 'tnm-ln': case 'tnm-lim': return 'inf';
+      case 'tnm-thm': return 'comp';
+      case 'tnm-maj': return 'maj';
+      case 'tnm-conv': return 'divergente';
+    }
+    return '';
+  },
+  cle:function(q){ return 'La clé : une suite qui reste <b>au-dessus</b> de '+TCM4_N+' est poussée vers +∞ — c’est le théorème de <b>comparaison</b>. '
+    +'Et une suite croissante qui tend vers +∞ ne peut pas être majorée : si elle l’était, le théorème de convergence monotone la ferait converger.'; },
+  plain:function(q){ return tnmPlain(q); },
+  answer:function(q){ return 'croissante, Un ≥ n, lim Un = +∞ (comparaison), non majorée, divergente'; }
+};
+function startTNM(){ return tcm4Start('suite-croissante-non-majoree','tnm',tnmGenSession); }
+function renderTNM(){ tcm4Render('tnm'); }
+function checkTNM(live){ tcm4Check('tnm', live); }
+function nextTNM(){ tcm4Next('tnm'); }
+function tnmConseilCtx(){
+  const q=tcm4Q();
+  return 'Exercice de Terminale : suite croissante non majorée, limite +∞. Suite : '+tnmPlain(q)+'. '
+    +'a) l’élève montre que la suite est croissante par le signe de U(n+1) − U(n) ; b) il démontre par récurrence que U(n) ≥ n ; '
+    +'c) il en déduit la limite par le théorème de comparaison ; d) il conclut que la suite n’est pas majorée et diverge. '
+    +'Réponses attendues, à ne JAMAIS révéler : U(n+1) − U(n) = '+(q.fam==='lin'?(q.a+'n + '+q.b):('U(n)^2 + '+q.b))+', positif car '+(q.fam==='lin'?'n ≥ 0':'U(n)^2 ≥ 0')
+    +' ; U0 = '+q.c+' ; théorème de comparaison ; lim U(n) = +∞ ; pas majorée ; divergente. '
+    +'Saisies actuelles de l’élève : '+tcm4Etat('tnm')+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne aucune de ces valeurs ni le nom du théorème attendu. '
+    +'Méthode : pour l’hérédité, partir de U(k+1), remplacer U(k) par ce qu’on sait de lui (l’hypothèse de récurrence), minorer le reste par un nombre positif ; '
+    +'pour la limite, une suite plus grande qu’une suite qui tend vers +∞ tend aussi vers +∞. '
+    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
+
+/* ---------------------------------------------------------------------------
+   5.4.6 {suite-somme-majoree} — LA LIMITE EXISTE, MAIS COMBIEN VAUT-ELLE ?
+   Sₙ = 1 + 1/2ᵖ + … + 1/nᵖ, pour p = 2 (puis p = 3 à la seconde question) :
+   a) S₁ et S₂, b) la suite est croissante (on AJOUTE un terme positif),
+   c) la récurrence Sₙ ≤ 2 − 1/n — l'astuce 1/(k+1)ᵖ ≤ 1/(k(k+1)) = 1/k − 1/(k+1),
+   vraie pour p = 2 comme pour p = 3 puisque k(k+1) ≤ (k+1)² ≤ (k+1)³ —,
+   d) croissante et majorée par 2 : le TCM la fait converger, e) et c'est
+   TOUT ce qu'il dit : on sait seulement que ℓ ≤ 2. La limite vaut π²/6
+   (Euler) pour p = 2, et n'a pas de formule connue pour p = 3 (Apéry) : la
+   correction le raconte, l'exercice ne le demande pas.
+
+   S₁ et S₂ sont des décimaux exacts (1 ; 1,25 ; 1,125), acceptés aussi en
+   fraction. « Sₙ ≤ 2 − 1/n ≤ … » : la case accepte tout nombre au moins égal
+   à 2 — c'est un majorant —, mais « ℓ ≤ … » attend 2, la limite de 2 − 1/n :
+   c'est elle que le passage à la limite donne. */
+const SSM_SUP={2:'²',3:'³'};
+const SSM_OPT_D=function(p){ const s=SSM_SUP[p]; return [['d1','1 / (n + 1)'+s],['d0','1 / n'+s],['d2','1 / (n + 1)']]; };
+const SSM_OPT_SG=[['pos','&gt; 0'],['neg','&lt; 0'],['nul','= 0']];
+const SSM_OPT_T=[['t1','1 / (k(k + 1))'],['t2','1 / (k + 1)²'],['t0','1']];
+const SSM_OPT_CMP=[['le','≤'],['ge','≥']];
+const SSM_OPT_F=[['f1','1 / (k + 1)'],['f0','1 / k'],['f2','1 / (k + 1)²']];
+const SSM_OPT_VAL=[['exist','qu’elle a une limite, mais pas sa valeur'],['val','la valeur de sa limite'],['inf','que sa limite est +∞']];
+function ssmGenSession(){ return distinctes(2, function(u,i){ return {p:i===0?2:3}; }); }
+function ssmS(p, n){ let s=0; for(let k=1;k<=n;k++) s+=1/Math.pow(k,p); return s; }
+function ssmFrac(h, b){ return sa2Frac(h, b); }
+function ssmPk(p, base){ return base+'<sup>'+p+'</sup>'; }
+TCM4.ssm={ pre:'ssm', check:'checkSSM', next:'nextSSM',
+  ids:function(){ return ['ssm-s1','ssm-s2','ssm-d','ssm-sg','ssm-sens','ssm-i','ssm-hr','ssm-t','ssm-cmp','ssm-f','ssm-M','ssm-sens2','ssm-borne','ssm-thm','ssm-conv','ssm-lm','ssm-val']; },
+  prompt:function(q){ const p=q.p, S='<i>S</i><sub><i>n</i></sub>';
+    return 'Pour tout entier '+TCM4_N+' ≥ 1, on pose <span class="tvf-aff">'+S+' = 1 + '+ssmFrac('1',ssmPk(p,'2'))+' + '+ssmFrac('1',ssmPk(p,'3'))+' + … + '+ssmFrac('1',ssmPk(p,TCM4_N))+'</span>'
+      +'C’est la somme des inverses des '+(p===2?'carrés':'cubes')+' des entiers de 1 à '+TCM4_N+'.'; },
+  body:function(q){
+    const p=q.p, S=function(i){ return '<i>S</i><sub>'+i+'</sub>'; }, Sn=S('<i>n</i>'), Sn1=S('<i>n</i>+1'), Sk=S('<i>k</i>'), Sk1=S('<i>k</i>+1'), k='<i>k</i>';
+    const fk=ssmFrac('1',k), fk1=ssmFrac('1',k+' + 1'), fkp=ssmFrac('1','('+k+' + 1)<sup>'+p+'</sup>'), fn=ssmFrac('1',TCM4_N);
+    const partA=tcm4Row(tcm4T(S('1')+' =')+sa2In('ssm-s1')+tcm4T('&nbsp;&nbsp;et&nbsp;&nbsp;'+S('2')+' =')+sa2In('ssm-s2'));
+    const partB=tcm4Row(tcm4T(Sn1+' − '+Sn+' =')+tclSel('ssm-d',SSM_OPT_D(p))+tcm4T(', donc '+Sn1+' − '+Sn)+tclSel('ssm-sg',SSM_OPT_SG))
+      +tcm4Row(tcm4T('La suite ('+Sn+') est')+tclSel('ssm-sens',TNM_OPT_SENS)+tcm4T('.'));
+    const partC=tcm4Row(tcm4T('<b>Initialisation</b> : '+S('1')+' = 1 et 2 −')+ssmFrac('1','1')+tcm4T('=')+sa2In('ssm-i')+tcm4T(': la propriété est vraie au rang 1.'))
+      +tcm4Row(tcm4T('<b>Hérédité</b> : on suppose que '+Sk+' ≤ 2 −')+fk+tcm4T('pour un entier '+k+' ≥ 1.'))
+      +tcm4Row(tcm4T(Sk1+' = '+Sk+' +')+fkp+tcm4T('≤ 2 −')+fk+tcm4T('+')+fkp)
+      +tcm4Row(tcm4T('d’après')+tclSel('ssm-hr',TNM_OPT_HR)+tcm4T('.'))
+      +tcm4Row(tcm4T('Or')+fk+tcm4T('−')+fk1+tcm4T('=')+tclSel('ssm-t',SSM_OPT_T)+tcm4T(','))
+      +tcm4Row(tcm4T('et '+k+'('+k+' + 1)')+tclSel('ssm-cmp',SSM_OPT_CMP)+tcm4T('('+k+' + 1)<sup>'+p+'</sup>, donc')+fkp+tcm4T('≤')+fk+tcm4T('−')+fk1+tcm4T('.'))
+      +tcm4Row(tcm4T('Donc '+Sk1+' ≤ 2 −')+fk+tcm4T('+')+fk+tcm4T('−')+fk1+tcm4T('= 2 −')+tclSel('ssm-f',SSM_OPT_F))
+      +tcm4Row(tcm4T('La propriété est vraie au rang '+k+' + 1 : par récurrence, '+Sn+' ≤ 2 − 1/'+TCM4_N+' pour tout '+TCM4_N+' ≥ 1.'));
+    const partD=tcm4Row(tcm4T('Pour tout '+TCM4_N+' ≥ 1, '+Sn+' ≤ 2 −')+fn+tcm4T('≤')+sa2In('ssm-M')+tcm4T('.'))
+      +tcm4Row(tcm4T('La suite ('+Sn+') est')+tclSel('ssm-sens2',TNM_OPT_SENS)+tcm4T('et')+tclSel('ssm-borne',TCL_OPT_BORNE)+tcm4T(';'))
+      +tcm4Row(tcm4T('d’après le')+tclSel('ssm-thm',TCL_OPT_THM)+tcm4T(', elle est')+tclSel('ssm-conv',TCL_OPT_CONV)+tcm4T('.'));
+    const partE=tcm4Row(tcm4T('Par passage à la limite dans '+Sn+' ≤ 2 −')+fn+tcm4T(', sa limite <i>ℓ</i> vérifie <i>ℓ</i> ≤')+sa2In('ssm-lm')+tcm4T('.'))
+      +tcm4Row(tcm4T('Le théorème de convergence monotone nous apprend')+tclSel('ssm-val',SSM_OPT_VAL)+tcm4T('.'));
+    return tcm4Part('a','Calculer '+S('1')+' et '+S('2')+' (valeurs exactes).',partA)
+      +tcm4Part('b','Étudier le sens de variation de la suite ('+Sn+').',partB)
+      +tcm4Part('c','Démontrer par récurrence que, pour tout entier '+TCM4_N+' ≥ 1, '+Sn+' ≤ 2 − 1/'+TCM4_N+'.',partC)
+      +tcm4Part('d','En déduire que la suite ('+Sn+') converge.',partD)
+      +tcm4Part('e','Que sait-on de sa limite ?',partE);
+  },
+  juste:function(id, raw, q){
+    switch(id){
+      case 'ssm-s1': return tcm4Egal(raw, 1);
+      case 'ssm-s2': return tcm4Egal(raw, ssmS(q.p,2));
+      case 'ssm-i':  return tcm4Egal(raw, 1);
+      case 'ssm-M':  { const v=tclNb(raw); return isFinite(v) && v>=2-1e-9; }
+      case 'ssm-lm': return tcm4Egal(raw, 2);
+    }
+    return raw===TCM4.ssm.corr(id,q);
+  },
+  corr:function(id, q){
+    switch(id){
+      case 'ssm-s1': case 'ssm-i': return '1';
+      case 'ssm-s2': return tclNum(ssmS(q.p,2));
+      case 'ssm-M': case 'ssm-lm': return '2';
+      case 'ssm-d': return 'd1';   case 'ssm-sg': return 'pos';
+      case 'ssm-sens': case 'ssm-sens2': return 'cr';
+      case 'ssm-hr': return 'hr';  case 'ssm-t': return 't1';
+      case 'ssm-cmp': return 'le'; case 'ssm-f': return 'f1';
+      case 'ssm-borne': return 'maj'; case 'ssm-thm': return 'tcm';
+      case 'ssm-conv': return 'convergente'; case 'ssm-val': return 'exist';
+    }
+    return '';
+  },
+  cle:function(q){ return 'La clé : on passe de <i>S<sub>n</sub></i> à <i>S</i><sub><i>n</i>+1</sub> en <b>ajoutant</b> un nombre positif — la suite croît. Majorée par 2, elle converge d’après le théorème de convergence monotone ; '
+    +'mais le théorème dit seulement qu’une limite <b>existe</b> : il ne la calcule pas.'; },
+  apres:function(q){ return q.p===2
+    ? '<span class="msg-neutre">Pour la culture : cette limite vaut <b>π² / 6 ≈ 1,645</b> — Leonhard Euler l’a trouvée en 1735, et c’était un problème ouvert depuis près d’un siècle.</span>'
+    : '<span class="msg-neutre">Pour la culture : cette limite vaut environ <b>1,202</b> (la « constante d’Apéry ») — et personne ne lui connaît de formule simple.</span>'; },
+  plain:function(q){ return 'S(n) = somme des 1/k^'+q.p+' pour k de 1 à n'; },
+  answer:function(q){ return 'croissante, majorée par 2, convergente (TCM), limite ≤ 2'; }
+};
+function startSSM(){ return tcm4Start('suite-somme-majoree','ssm',ssmGenSession); }
+function renderSSM(){ tcm4Render('ssm'); }
+function checkSSM(live){ tcm4Check('ssm', live); }
+function nextSSM(){ tcm4Next('ssm'); }
+function ssmConseilCtx(){
+  const q=tcm4Q();
+  return 'Exercice de Terminale : S(n) = 1 + 1/2^'+q.p+' + … + 1/n^'+q.p+' (somme des inverses des '+(q.p===2?'carrés':'cubes')+'). '
+    +'a) calculer S1 et S2 ; b) S(n+1) − S(n) = 1/(n+1)^'+q.p+' > 0, la suite est croissante ; c) récurrence S(n) ≤ 2 − 1/n, avec 1/k − 1/(k+1) = 1/(k(k+1)) et k(k+1) ≤ (k+1)^'+q.p+' ; '
+    +'d) croissante et majorée par 2, elle converge par le théorème de convergence monotone ; e) par passage à la limite, ℓ ≤ 2, et le théorème ne donne pas la valeur de la limite. '
+    +'Réponses attendues, à ne JAMAIS révéler : S1 = 1, S2 = '+tclNum(ssmS(q.p,2))+'. '
+    +'Saisies actuelles de l’élève : '+tcm4Etat('ssm')+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne ni S1 ni S2, ni le choix attendu dans les listes. '
+    +'Méthode : pour l’hérédité, mettre 1/k − 1/(k+1) au même dénominateur, puis comparer les dénominateurs (une fraction de numérateur 1 est plus petite quand son dénominateur est plus grand). '
+    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
+
+/* ---------------------------------------------------------------------------
+   5.5.2 {suite-algo-approx} — APPROCHER ℓ À 10⁻ᵖ PRÈS
+   La suite du 5.5.1 (Uₙ₊₁ = a Uₙ + b, 0 < a < 1, son vivier SAG_AS), mais le
+   programme ne cherche plus un seuil : il s'arrête au premier rang où
+   |Uₙ − ℓ| < 10⁻ᵖ. a) ℓ par passage à la limite, b) le programme à
+   compléter — while abs(u − ℓ) ≥ 10⁻ᵖ —, c) le rang renvoyé, lu dans le
+   tableau, et pourquoi la boucle s'arrête forcément.
+
+   LE TIRAGE PART DU RANG, comme au 5.5.1 : on tire la raison, ℓ, U₀ et p,
+   on calcule le rang N = premier n où |U₀ − ℓ| aⁿ < 10⁻ᵖ, et on ne garde le
+   tirage que si N est entre 5 et 40 — le tableau en montre 50 — et qu'aucun
+   écart n'est à moins d'un millionième relatif de 10⁻ᵖ : le programme en
+   virgule flottante et le tableau arrondi au millionième disent alors le
+   même rang. Le banc principal exécute la boucle de la correction.
+
+   LE CODE EST JUGÉ COMME DU CALCUL (sagJusteU, sagJusteN du 5.5.1) : toute
+   écriture équivalente de la mise à jour passe. La tolérance 10⁻ᵖ s'écrit
+   « 0.001 », « 10**-3 », « 10**(-3) », « 1e-3 » ou « 1/1000 » ; la
+   comparaison se choisit (≥ ou > : aucun écart ne tombe sur 10⁻ᵖ). */
+const SAP_NMAX=50;
+const SAP_OPT_OP=[['ge','&gt;='],['gt','&gt;'],['le','&lt;='],['lt','&lt;'],['eq','==']];
+const SAP_OPT_STOP=[['conv','(Uₙ) converge vers ℓ : l’écart |Uₙ − ℓ| finit par passer sous 10⁻ᵖ'],
+                    ['mono','(Uₙ) est monotone'],['borne','(Uₙ) est bornée']];
+function sapEssai(){
+  for(let t=0;t<400;t++){
+    const A=pick(SAG_AS), a=A.p/A.q;
+    const kMax=Math.max(1, Math.floor(8/A.q)), k=rand(-kMax,kMax);
+    const l=k*A.q, b=k*(A.q-A.p);
+    const u0=l+pick([1,-1])*pick(SAG_ECARTS);
+    const pe=rand(1,3), eps=Math.pow(10,-pe);
+    let n=0; while(n<=SAP_NMAX && Math.abs(u0-l)*Math.pow(a,n)>=eps) n++;
+    if(n<5 || n>40) continue;
+    const g1=Math.abs(u0-l)*Math.pow(a,n), g0=Math.abs(u0-l)*Math.pow(a,n-1);
+    if(Math.abs(g1-eps)<1e-6*eps || Math.abs(g0-eps)<1e-6*eps) continue;
+    /* l'arrondi du tableau au millionième ne doit pas changer le rang lu */
+    if(eps-g1<2e-6 || g0-eps<2e-6) continue;
+    return {A:A, a:a, b:b, l:l, u0:u0, pe:pe, n:n, decimalDisplay:sagDecimalOK(A.q)};
+  }
+  return {A:{p:1,q:2}, a:0.5, b:1, l:2, u0:10, pe:1, n:7, decimalDisplay:true};   /* repli : |8 × 0,5ⁿ| < 0,1 dès n = 7 */
+}
+function sapGenSession(){ return distinctes(2, sapEssai); }
+function sapEps(q){ return Math.pow(10,-q.pe); }
+function sapVals(q){ const v=[q.u0]; let u=q.u0; for(let i=1;i<=SAP_NMAX;i++){ u=q.a*u+q.b; v.push(u); } return v; }
+/* 10⁻ᵖ en Python : décimal à point, puissance de 10, notation scientifique, ou quotient */
+function sapJusteEps(raw, q){
+  const s=String(raw==null?'':raw).replace(/\s+/g,''), eps=sapEps(q);
+  let m=s.match(/^10\*\*\(?-(\d+)\)?$/); if(m) return +m[1]===q.pe && (/\(/.test(s)===/\)/.test(s));
+  m=s.match(/^1e-(\d+)$/i); if(m) return +m[1]===q.pe;
+  let ast; try{ ast=sagParseArith(s); }catch(e){ return false; }
+  let v; try{ v=sagEvalAst(ast,{}); }catch(e){ return false; }
+  return isFinite(v) && Math.abs(v-eps)<=1e-12;
+}
+function sapEpsPy(q){ return '0.'+'0'.repeat(q.pe-1)+'1'; }
+function sapEpsH(q){ return '10<sup>−'+q.pe+'</sup>'; }
+TCM4.sap={ pre:'sap', check:'checkSAP', next:'nextSAP',
+  ids:function(){ return ['sap-lim','sap-u0','sap-l','sap-op','sap-eps','sap-upd','sap-n1','sap-N','sap-stop']; },
+  prompt:function(q){ return sagPromptHTML(q)+' On admet que cette suite est monotone et converge vers un réel <i>ℓ</i>.'; },
+  body:function(q){
+    const vals=sapVals(q);
+    let rows=''; for(let n=0;n<=SAP_NMAX;n++) rows+='<tr><td>'+n+'</td><td>'+SA.fmtH(vals[n])+'</td></tr>';
+    const tabla='<div class="sag-tabla-wrap"><table class="sag-tabla"><thead><tr><th>n</th><th>U<sub>n</sub></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    const partA=tcm4Row(tcm4T('En passant à la limite dans la relation de récurrence : <i>ℓ</i> =')+sa2In('sap-lim'));
+    const code='<div class="sag-code">'
+      +'<div class="sag-ligne">def approx():</div>'
+      +'<div class="sag-ligne sag-ind1">u = '+sa2In('sap-u0',true)+'</div>'
+      +'<div class="sag-ligne sag-ind1">n = 0</div>'
+      +'<div class="sag-ligne sag-ind1">while abs(u - '+sa2In('sap-l',true)+') '+tclSel('sap-op',SAP_OPT_OP)+' '+sa2In('sap-eps',true)+' :</div>'
+      +'<div class="sag-ligne sag-ind2">u = '+sa2In('sap-upd',true)+'</div>'
+      +'<div class="sag-ligne sag-ind2">n = '+sa2In('sap-n1',true)+'</div>'
+      +'<div class="sag-ligne sag-ind1">return n</div></div>';
+    const partC=tabla
+      +tcm4Row(tcm4T('Le programme renvoie <i>n</i> =')+sa2In('sap-N'))
+      +tcm4Row(tcm4T('La boucle s’arrête toujours, car')+tclSel('sap-stop',SAP_OPT_STOP.map(function(o){ return [o[0], o[1].replace('10⁻ᵖ','10^(−'+q.pe+')')]; })));
+    return tcm4Part('a','Déterminer la limite <i>ℓ</i> de la suite.',partA)
+      +tcm4Part('b','Compléter l’algorithme en Python pour qu’il renvoie le premier rang <i>n</i> tel que |<i>U<sub>n</sub></i> − <i>ℓ</i>| &lt; '+sapEpsH(q)+' (<code>abs</code> est la valeur absolue).',code)
+      +tcm4Part('c','À l’aide du tableau de valeurs, que l’on peut faire défiler, donner la valeur renvoyée par le programme.',partC);
+  },
+  juste:function(id, raw, q){
+    switch(id){
+      case 'sap-lim': case 'sap-l': return sagJusteLim(raw,q);
+      case 'sap-u0':  { const v=sa2Nb(raw); return isFinite(v) && Math.abs(v-q.u0)<=1e-9; }
+      case 'sap-op':  return raw==='ge' || raw==='gt';
+      case 'sap-eps': return sapJusteEps(raw,q);
+      case 'sap-upd': return sagJusteU(raw,q);
+      case 'sap-n1':  return sagJusteN(raw);
+      case 'sap-N':   return sagJusteN2(raw,q);
+      case 'sap-stop': return raw==='conv';
+    }
+    return false;
+  },
+  corr:function(id, q){
+    switch(id){
+      case 'sap-lim': return SA.fmtH(q.l);
+      case 'sap-l':   return sagPyNum(q.l);
+      case 'sap-u0':  return sagPyNum(q.u0);
+      case 'sap-op':  return 'ge';
+      case 'sap-eps': return sapEpsPy(q);
+      case 'sap-upd': return sagFormuleCorrTxt(q);
+      case 'sap-n1':  return 'n+1';
+      case 'sap-N':   return String(q.n);
+      case 'sap-stop': return 'conv';
+    }
+    return '';
+  },
+  cle:function(q){ return 'La clé : la boucle tourne <b>tant que</b> l’écart |<i>U<sub>n</sub></i> − <i>ℓ</i>| est encore trop grand (≥ '+sapEpsH(q)+'), et s’arrête au premier rang où il passe dessous. '
+    +'Comme la suite converge vers <i>ℓ</i>, ce rang existe toujours : U<sub><i>n</i></sub> est alors une valeur approchée de <i>ℓ</i> à '+sapEpsH(q)+' près.'; },
+  plain:function(q){ return sagRecPlain(q)+' ; |Un − ℓ| < 10^-'+q.pe; },
+  answer:function(q){ return 'ℓ = '+q.l+', n = '+q.n; }
+};
+function startSAP(){ return tcm4Start('suite-algo-approx','sap',sapGenSession); }
+function renderSAP(){ tcm4Render('sap'); }
+function checkSAP(live){ tcm4Check('sap', live); }
+function nextSAP(){ tcm4Next('sap'); }
+function sapConseilCtx(){
+  const q=tcm4Q();
+  return 'Exercice de Terminale : suite '+sagRecPlain(q)+', monotone et convergente. '
+    +'a) l’élève trouve la limite ℓ par passage à la limite (ℓ = aℓ + b) ; b) il complète un programme Python : u = U0, n = 0, while abs(u - ℓ) >= 10^-'+q.pe+' : u = (la relation de récurrence), n = n+1 ; return n ; '
+    +'c) il lit dans un tableau de valeurs (n de 0 à '+SAP_NMAX+') le premier rang où |U(n) − ℓ| < 10^-'+q.pe+', et explique que la boucle s’arrête car la suite converge. '
+    +'Réponses attendues, à ne JAMAIS révéler : ℓ = '+q.l+', mise à jour u = '+sagFormuleCorrTxt(q)+', rang n = '+q.n+'. '
+    +'Saisies actuelles de l’élève : '+tcm4Etat('sap')+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne ni ℓ, ni la ligne de code attendue, ni le rang. '
+    +'Méthode : la condition du while doit être VRAIE tant qu’on n’est pas encore assez près de ℓ ; 10^-'+q.pe+' s’écrit en Python avec un point décimal ou 10**-'+q.pe+' ; '
+    +'dans le tableau, chercher la première ligne où U(n) est à moins de 10^-'+q.pe+' de ℓ. '
+    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
 /* ================= 5.6.1 SUITES — LIMITE DE qⁿ, ET CE QUI S'EN DÉDUIT =================
    Demande de Turquet (octobre 2026) : « en terminale créer un exercice comme
    le pdf joint » — la fiche « limite qⁿ » : pour chaque suite, déterminer sa
@@ -23117,6 +24126,250 @@ function lqnConseilCtx(){
     +'Méthode à rappeler sans donner la réponse : si q > 1, q^n tend vers +∞ ; si −1 < q < 1, q^n tend vers 0 ; '
     +'on remplace chaque puissance par sa limite, puis on applique les règles sur les limites de sommes, produits (attention au signe du coefficient) et quotients. '
     +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
+/* ================= 4.3.7 CONVEXITÉ — TROUVER UN PARAMÈTRE (kind 'cvp') =================
+   Demande de Turquet (octobre 2026) : « dans le sous-thème convexité, créer
+   un exercice sur Trouver un paramètre — f(x) = x³ + kx² + 1 admet un point
+   d'inflexion d'abscisse 2 : trouve k. Ou bien : pour quelles valeurs de a la
+   fonction (x² + a)eˣ est-elle convexe sur ℝ ? (le discriminant de f″
+   intervient) ». Cinq questions, une par famille, dans cet ordre :
+     · p3 — f(x) = m x³ + k x² (+ p x) + d, inflexion en x0 : f″ = 6m x + 2k,
+            donc k = −3m·x0 ;
+     · p4 — f(x) = x⁴ + k x³ (+ p x) + d, inflexion en x0 ≠ 0 : f″ = 12x² + 6kx,
+            donc k = −2·x0 (x0 est racine SIMPLE de f″ : le signe change) ;
+     · ex — f(x) = (x + k)e^(εx), inflexion en x0 : f″ = (x + k + 2)eˣ ou
+            (x + k − 2)e^(−x), donc k = −x0 − 2 ou k = 2 − x0 ;
+     · dp, dm — f(x) = (x² + bx + a)e^(εx), ε = +1 puis −1 : f″ = (x² + Bx + a + C)
+            e^(εx), dont le discriminant vaut b² + 8 − 4a DANS LES DEUX CAS ; f est
+            convexe sur ℝ ⟺ Δ ≤ 0 ⟺ a ≥ (b² + 8)/4 (au seuil, f″ s'annule en un
+            seul point sans changer de signe : f reste convexe — l'inégalité est
+            LARGE).
+   Les constantes « en bout de parenthèse » s'écrivent avec leur signe, comme
+   au 4.3.2 (« y = [ ] x [ ] ») : la case porte « −2 », pas un « + » imposé.
+   Les cinq passent par distinctes(). */
+const CVP_FAMS=['p3','p4','ex','dp','dm'];
+function cvpGen(fam){
+  const q={fam:fam};
+  const nz=(a,b)=>{ let v; do{ v=rand(a,b); }while(v===0); return v; };
+  if(fam==='p3'){ q.m=pick([1,1,2,3]); q.x0=nz(-3,3); q.p=Math.random()<0.35?0:nz(-6,6); q.d=nz(-5,9); q.k=-3*q.m*q.x0; }
+  else if(fam==='p4'){ q.x0=nz(-3,3); q.p=Math.random()<0.35?0:nz(-6,6); q.d=nz(-5,9); q.k=-2*q.x0; }
+  else if(fam==='ex'){ q.e=Math.random()<0.5?1:-1; do{ q.x0=rand(-3,3); q.k=(q.e>0)?(-q.x0-2):(2-q.x0); }while(q.k===0); }
+  else { q.e=(fam==='dp')?1:-1; q.b=rand(-4,4); }
+  return q;
+}
+function cvpGenSession(){ return distinctes(CVP_FAMS.length, function(u,i){ return cvpGen(CVP_FAMS[i]); }); }
+function cvpEstInfl(q){ return q.fam==='p3'||q.fam==='p4'||q.fam==='ex'; }
+/* Toutes les cases, et la bonne réponse de chacune — UNE liste, lue par le
+   rendu, le juge, la correction et le contexte de l'aide. */
+function cvpCases(q){
+  const out=[], N=(id,good,nom)=>out.push({id:id,type:'num',good:good,nom:nom}), S=(id,good,nom)=>out.push({id:id,type:'sel',good:good,nom:nom});
+  if(q.fam==='p3'){
+    N('cvp-a1',3*q.m,'coefficient de x² dans f′'); N('cvp-a2',2,'coefficient de k x dans f′'); if(q.p) N('cvp-a3',q.p,'constante de f′');
+    N('cvp-b1',6*q.m,'coefficient de x dans f″'); N('cvp-b2',2,'coefficient de k dans f″');
+    N('cvp-c1',6*q.m*q.x0,'nombre de f″(x0)'); N('cvp-c2',2,'coefficient de k dans f″(x0)');
+  } else if(q.fam==='p4'){
+    N('cvp-a1',4,'coefficient de x³ dans f′'); N('cvp-a2',3,'coefficient de k x² dans f′'); if(q.p) N('cvp-a3',q.p,'constante de f′');
+    N('cvp-b1',12,'coefficient de x² dans f″'); N('cvp-b2',6,'coefficient de k x dans f″');
+    N('cvp-c1',12*q.x0*q.x0,'nombre de f″(x0)'); N('cvp-c2',6*q.x0,'coefficient de k dans f″(x0)');
+  } else if(q.fam==='ex'){
+    N('cvp-a1',1,'constante de la parenthèse de f′'); N('cvp-b1',(q.e>0)?2:-2,'constante de la parenthèse de f″');
+    N('cvp-c1',q.x0+((q.e>0)?2:-2),'nombre de l’équation f″(x0) = 0');
+  }
+  if(cvpEstInfl(q)){
+    N('cvp-d1',q.k,'valeur de k');
+    S('cvp-e1','change','menu : f″ change-t-elle de signe en x0');
+    return out;
+  }
+  const b=q.b;
+  if(q.e>0){ N('cvp-a1',b+2,'coefficient de x dans f′'); N('cvp-a2',b,'constante après a dans f′'); N('cvp-b1',b+4,'coefficient de x dans f″'); N('cvp-b2',2*b+2,'constante après a dans f″'); }
+  else     { N('cvp-a1',2-b,'coefficient de x dans f′'); N('cvp-a2',b,'constante après −a dans f′'); N('cvp-b1',b-4,'coefficient de x dans f″'); N('cvp-b2',2-2*b,'constante après a dans f″'); }
+  N('cvp-c1',b*b+8,'nombre de Δ'); N('cvp-c2',4,'coefficient de a dans Δ');
+  S('cvp-d1','le','menu : condition sur Δ'); S('cvp-e1','ge','menu : symbole de la condition sur a'); N('cvp-e2',(b*b+8)/4,'seuil de a');
+  return out;
+}
+function cvpSeuil(q){ return (q.b*q.b+8)/4; }
+function cvpOk(x, raw){
+  const t=String(raw==null?'':raw).trim();
+  if(t==='') return false;
+  if(x.type==='sel') return t===x.good;
+  const v=tgParseFrac(t); return v!=null && Math.abs(v-x.good)<1e-9;
+}
+function cvpVal(x){ return x.type==='sel'?x.good:numFmt(x.good); }
+/* ---- les écritures ---- */
+const CVP_X='<i>x</i>';
+function cvpExpE(e){ return '<span class="tx-e">e</span><sup>'+(e<0?'−':'')+CVP_X+'</sup>'; }
+function cvpMono(c, puis, premier){   /* c·x^puis, signe compris ; c ≠ 0 */
+  const s=c<0?(premier?'−':' − '):(premier?'':' + '), a=Math.abs(c);
+  const xp=puis===0?'':(CVP_X+(puis>1?'<sup>'+puis+'</sup>':''));
+  return s+((a===1&&puis>0)?'':a)+xp;
+}
+function cvpFxHTML(q){
+  if(q.fam==='p3') return cvpMono(q.m,3,true)+' + <i>k</i>'+CVP_X+'<sup>2</sup>'+(q.p?cvpMono(q.p,1):'')+cvpMono(q.d,0);
+  if(q.fam==='p4') return CVP_X+'<sup>4</sup> + <i>k</i>'+CVP_X+'<sup>3</sup>'+(q.p?cvpMono(q.p,1):'')+cvpMono(q.d,0);
+  if(q.fam==='ex') return '('+CVP_X+' + <i>k</i>) '+cvpExpE(q.e);
+  return '('+CVP_X+'<sup>2</sup>'+(q.b?cvpMono(q.b,1):'')+' + <i>a</i>) '+cvpExpE(q.e);
+}
+function cvpMonoTxt(c, puis, premier){
+  const s=c<0?(premier?'-':' - '):(premier?'':' + '), a=Math.abs(c);
+  return s+((a===1&&puis>0)?'':a)+(puis===0?'':('x'+(puis>1?'^'+puis:'')));
+}
+function cvpPlain(q){
+  const ex=e=>'e^('+(e<0?'-':'')+'x)';
+  if(q.fam==='p3') return 'f(x) = '+cvpMonoTxt(q.m,3,true)+' + kx^2'+(q.p?cvpMonoTxt(q.p,1):'')+cvpMonoTxt(q.d,0)+', point d’inflexion d’abscisse '+q.x0;
+  if(q.fam==='p4') return 'f(x) = x^4 + kx^3'+(q.p?cvpMonoTxt(q.p,1):'')+cvpMonoTxt(q.d,0)+', point d’inflexion d’abscisse '+q.x0;
+  if(q.fam==='ex') return 'f(x) = (x + k)'+ex(q.e)+', point d’inflexion d’abscisse '+q.x0;
+  return 'f(x) = (x^2'+(q.b?cvpMonoTxt(q.b,1):'')+' + a)'+ex(q.e)+', convexe sur R';
+}
+function cvpRep(q){ return cvpEstInfl(q)?('k = '+numFmt(q.k)):('a ≥ '+numFmt(cvpSeuil(q))); }
+function cvpSel(id, opts){
+  return '<select class="tvi-sel cvp-sel" id="'+id+'"><option value="">…</option>'
+    +opts.map(function(o){ return '<option value="'+o[0]+'">'+o[1]+'</option>'; }).join('')+'</select>';
+}
+const CVP_SIGNE=[['change','en changeant de signe'],['garde','sans changer de signe']];
+const CVP_DELTA=[['le','≤ 0'],['ge','≥ 0'],['lt','&lt; 0'],['gt','&gt; 0']];
+const CVP_INEG=[['ge','≥'],['le','≤'],['gt','&gt;'],['lt','&lt;']];
+function cvpFormHTML(q){
+  /* Une rangée .tg-line est un conteneur FLEX : chaque nœud de texte nu et
+     chaque <i>, <sup> y deviennent des éléments séparés par l'écart du flex
+     (« f″( x ) », « x , »). Le texte entre deux cases se pose donc d'un seul
+     tenant dans un <span> (T). */
+  const T=h=>'<span>'+h+'</span>';
+  const f='<i>f</i>', fp='<i>f</i> ′', fs='<i>f</i> ″', k='<i>k</i>', a='<i>a</i>', X=CVP_X, x2=X+'<sup>2</sup>', x3=X+'<sup>3</sup>';
+  const I=id=>txInp(id), sig='<span class="dexp-hint">(la constante s’écrit avec son signe)</span>';
+  const L=(h,cls)=>'<div class="tg-line'+(cls?' '+cls:'')+'">'+h+'</div>';
+  const eq='⟺';
+  let h='';
+  if(cvpEstInfl(q)){
+    const x0=numFmt(q.x0);
+    if(q.fam==='p3'){
+      h+=L(T(fp+'('+X+') =')+I('cvp-a1')+T(x2+' +')+I('cvp-a2')+T(k+X)+(q.p?I('cvp-a3')+sig:''));
+      h+=L(T(fs+'('+X+') =')+I('cvp-b1')+T(X+' +')+I('cvp-b2')+T(k));
+    } else if(q.fam==='p4'){
+      h+=L(T(fp+'('+X+') =')+I('cvp-a1')+T(x3+' +')+I('cvp-a2')+T(k+x2)+(q.p?I('cvp-a3')+sig:''));
+      h+=L(T(fs+'('+X+') =')+I('cvp-b1')+T(x2+' +')+I('cvp-b2')+T(k+X));
+    } else {
+      const neg=q.e<0;
+      h+=L(T(fp+'('+X+') = ('+(neg?'−'+X+' − '+k:X+' + '+k))+I('cvp-a1')+T(') '+cvpExpE(q.e))+sig);
+      h+=L(T(fs+'('+X+') = ('+X+' + '+k)+I('cvp-b1')+T(') '+cvpExpE(q.e)));
+    }
+    h+=L(T('La courbe admet un point d’inflexion d’abscisse '+x0+', donc '+fs+'('+x0+') = 0 :'), 'tx-avec');
+    if(q.fam==='ex') h+=L(T(fs+'('+x0+') = 0 '+eq)+I('cvp-c1')+T('+ '+k+' = 0')+'<span class="dexp-hint">(car e<sup>…</sup> &gt; 0 : seule la parenthèse peut s’annuler)</span>');
+    else h+=L(T(fs+'('+x0+') =')+I('cvp-c1')+T('+')+I('cvp-c2')+T(k+' = 0'));
+    h+=L(T(eq+' '+k+' =')+I('cvp-d1'));
+    h+=L(T('Réciproquement, avec cette valeur de '+k+', '+fs+' s’annule en '+x0)+cvpSel('cvp-e1',CVP_SIGNE)+T(': c’est bien un point d’inflexion.'));
+    return h;
+  }
+  const neg=q.e<0;
+  h+=L(T(fp+'('+X+') = ('+(neg?'−':'')+x2+' +')+I('cvp-a1')+T(X+' '+(neg?'−':'+')+' '+a)+I('cvp-a2')+T(') '+cvpExpE(q.e))+sig);
+  h+=L(T(fs+'('+X+') = ('+x2+' +')+I('cvp-b1')+T(X+' + '+a)+I('cvp-b2')+T(') '+cvpExpE(q.e)));
+  h+=L(T('Pour tout réel '+X+', '+cvpExpE(q.e)+' &gt; 0 : '+fs+'('+X+') a le signe du trinôme entre parenthèses, dont le discriminant vaut'), 'tx-avec');
+  h+=L(T('Δ =')+I('cvp-c1')+T('−')+I('cvp-c2')+T(a));
+  h+=L(T(f+' est convexe sur ℝ '+eq+' '+fs+'('+X+') ≥ 0 pour tout réel '+X+' '+eq+' Δ')+cvpSel('cvp-d1',CVP_DELTA));
+  h+=L(T(eq+' '+a)+cvpSel('cvp-e1',CVP_INEG)+I('cvp-e2'));
+  return h;
+}
+function cvpPromptHTML(q){
+  const fx='<i>f</i>(<i>x</i>) = '+cvpFxHTML(q);
+  if(cvpEstInfl(q)) return 'Soit '+fx+', où <i>k</i> est un nombre réel. La courbe de <i>f</i> admet un point d’inflexion d’abscisse '+numFmt(q.x0)+' : trouve <i>k</i>.';
+  return 'Soit '+fx+', définie sur ℝ, où <i>a</i> est un nombre réel. Pour quelles valeurs de <i>a</i> la fonction <i>f</i> est-elle convexe sur ℝ ?';
+}
+/* ---- cycle de vie ---- */
+async function startCVP(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='convexite-parametre'; test.kind='cvp';
+  test.questions=cvpGenSession();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent */
+  test.maxScore=test.questions.length;
+  show('cvp'); renderCVP();
+}
+function renderCVP(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('cvpQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('cvpModeTag').innerHTML=modeTagHTML();
+  $('cvpLiveScore').textContent=test.score;
+  $('cvpFeedback').textContent=''; $('cvpFeedback').className='mp-feedback';
+  $('cvpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkCVP()">Vérifier</button>';
+  $('cvpPrompt').innerHTML=cvpPromptHTML(q);
+  $('cvpForm').innerHTML=cvpFormHTML(q);
+  /* correction en direct du mode soutien (liveCheckCurrent() a un corps vide
+     en Terminale : chaque exercice branche lui-même ses écouteurs) */
+  if(isSoutien()){
+    cvpCases(q).forEach(function(x){ const el=$(x.id); if(el) el.addEventListener(x.type==='sel'?'change':'input', function(){ checkCVP(true); }); });
+  }
+}
+function cvpRetiens(q){
+  if(cvpEstInfl(q)) return 'La clé : en un point d’inflexion, <i>f</i> ″ s’annule <b>en changeant de signe</b>. On écrit donc <i>f</i> ″('+numFmt(q.x0)+') = 0, une équation d’inconnue <i>k</i> : ici <b><i>k</i> = '+numFmt(q.k)+'</b>. '
+    +'Puis on vérifie que <i>f</i> ″ change bien de signe en '+numFmt(q.x0)+' — s’annuler ne suffit pas.';
+  return 'La clé : '+cvpExpE(q.e)+' &gt; 0, donc <i>f</i> ″(<i>x</i>) a le signe du trinôme, dont le coefficient de <i>x</i><sup>2</sup> est 1 &gt; 0. Il est positif ou nul sur tout ℝ si et seulement si <b>Δ ≤ 0</b> : '
+    +numFmt(q.b*q.b+8)+' − 4<i>a</i> ≤ 0, c’est-à-dire <b><i>a</i> ≥ '+numFmt(cvpSeuil(q))+'</b>. L’inégalité est large : pour Δ = 0, <i>f</i> ″ ne s’annule qu’en un point, sans changer de signe — <i>f</i> reste convexe.';
+}
+function checkCVP(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], cases=cvpCases(q);
+  let allOk=true, anyFilled=false, vides=0; const verd={};
+  cases.forEach(function(x){
+    const el=$(x.id); if(!el) return;
+    const raw=String(el.value==null?'':el.value);
+    const ok=cvpOk(x, raw), rempli=raw.trim()!=='';
+    if(rempli) anyFilled=true; else vides++;
+    el.classList.remove('ok','bad','sol');
+    /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR — en direct comme à la vérification */
+    if(rempli) el.classList.add(ok?'ok':'bad');
+    if(!ok) allOk=false;
+    if(live) return;
+    verd[x.id]=ok;
+    el.disabled=!!(ok||!isSoutien());
+  });
+  if(live) return;
+  const fb=$('cvpFeedback');
+  if(!anyFilled){
+    fb.textContent='Complète au moins une case avant de vérifier.';
+    fb.className='mp-feedback';
+    cases.forEach(function(x){ const el=$(x.id); if(el){ el.classList.remove('ok','bad','sol'); el.disabled=false; } });
+    return;
+  }
+  if(!allOk && isSoutien()){
+    fb.innerHTML=vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('cvpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkCVP()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('cvpLiveScore').textContent=test.score;
+    fb.textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, paramètre trouvé !']);
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML=msgCorrCouleurs(vides>0)+'<br>'+cvpRetiens(q);
+    fb.className='mp-feedback bad';
+    cases.forEach(function(x){ corrCase(x.id, cvpVal(x), verd[x.id]===true); });
+  }
+  test.answers.push(Object.assign({}, ptsExo()||{}, {
+    q:'Convexité — trouver un paramètre : '+cvpPlain(q), answer:cvpRep(q),
+    given:allOk?'✓':'incomplet', correct:allOk, type:'cvp'}));
+  const last=test.idx===test.questions.length-1;
+  $('cvpActions').innerHTML='<button class="btn btn-primary" onclick="nextCVP()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextCVP(){ if(test.idx<test.questions.length-1){ test.idx++; renderCVP(); } else finishTest(); }
+/* Le contexte envoyé au modèle : l'énoncé, l'état des cases, et la clause de
+   secret — les réponses attendues sont STRICTEMENT SECRÈTES. */
+function cvpConseilCtx(){
+  const q=test.questions[test.idx], cases=cvpCases(q);
+  const etat=cases.map(function(x){ const el=$(x.id); const v=el?String(el.value||'').trim():''; return x.nom+' = '+(v===''?'(vide)':'« '+v+' »'); }).join(' ; ');
+  const methode=cvpEstInfl(q)
+    ? 'Méthode, sans donner la réponse : calculer f′ puis f″ ; un point d’inflexion d’abscisse x0 impose f″(x0) = 0, ce qui donne une équation du premier degré en k ; puis vérifier que f″ change de signe en x0 (s’annuler ne suffit pas).'
+      +(q.fam==='ex'?' Ici f est un produit : (uv)′ = u′v + uv′, avec (e^(εx))′ = ε·e^(εx) ; comme l’exponentielle ne s’annule jamais, seule la parenthèse de f″ peut valoir 0.':'')
+    : 'Méthode, sans donner la réponse : dériver deux fois le produit (uv)′ = u′v + uv′ ; l’exponentielle est strictement positive, donc f″ a le signe du trinôme ; ce trinôme a un coefficient 1 > 0 devant x², il est positif ou nul sur ℝ si et seulement si son discriminant est négatif ou nul (Δ ≤ 0, inégalité LARGE) ; on résout alors l’inéquation du premier degré en a.';
+  return 'Exercice de Terminale (convexité) : trouver un paramètre. '+cvpPlain(q)+'. '
+    +'Question posée : '+(cvpEstInfl(q)?'trouver k.':'pour quelles valeurs de a la fonction est-elle convexe sur R ?')+' '
+    +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
+    +cases.map(function(x){ return x.nom+' = '+(x.type==='sel'?x.good:numFmt(x.good)); }).join(' ; ')+' (conclusion : '+cvpRep(q)+'). '
+    +'Les menus valent : change = « en changeant de signe », le = « ≤ 0 » ou « ≤ », ge = « ≥ ». '
+    +'Saisies actuelles de l’élève : '+etat+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. '+methode+' Aide-le sur la PREMIÈRE case fausse ou vide.';
 }
 /* ================= 6.10 RÉCURRENCE — LA FORMULE EXPLICITE EN FRACTION =================
    Demande de Turquet (septembre 2026), repris de la fiche « récurrence et
@@ -27465,7 +28718,7 @@ function focusPremiereCase(){
   }, 0);
 }
 ['renderQuestion','renderTVI','renderTVI2','renderTVI3','renderTVINS','renderTVG','renderDHV','renderLG','renderLG2','renderLG3',
- 'renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderSV','renderTG','renderS1','renderS2','renderCvx'
+ 'renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderSV','renderTG','renderS1','renderS2','renderCvx','renderCvt'
 ].forEach(function(n){
   const f=window[n];
   if(typeof f==='function'){
@@ -27489,6 +28742,7 @@ try{
    imagé, programme de Terminale spécialité, définitions du cours autorisées, mais
    jamais les valeurs de l'exercice en cours. */
 const QIA_SUGG={
+  cvt:["Pourquoi la courbe d'une fonction convexe est-elle au-dessus de ses tangentes ?","Comment trouver le signe de f\u2009\u2033 sur un intervalle ?","Comment \u00e9crire l'\u00e9quation d'une tangente ?","Comment passer de \u00ab au-dessus de la tangente \u00bb \u00e0 une in\u00e9galit\u00e9 ?"],
   afd:["Comment reconna\u00eetre la courbe de f\u2009\u2032 en regardant celle de f ?","Comment lire la convexit\u00e9 de f sur la courbe de f\u2009\u2033 ?","Pourquoi f\u2009\u2033 s'annule-t-elle au sommet de la courbe de f\u2009\u2032 ?","Une parabole est-elle toujours une d\u00e9riv\u00e9e seconde ?"],
   cvq:["Comment lire la convexit\u00e9 de f sur la courbe de f\u2009\u2032 ?","Pourquoi un sommet de la courbe de f\u2009\u2032 est-il un point d'inflexion de f ?","Quelle diff\u00e9rence entre un z\u00e9ro de f\u2009\u2032 et un z\u00e9ro de f\u2009\u2033 ?","Comment lire la convexit\u00e9 de f sur la courbe de f\u2009\u2033 ?"],
   cvx:["Comment lire le signe de f\u2009\u2033 sur sa courbe ?","Pourquoi f\u2009\u2032 est-elle croissante l\u00e0 o\u00f9 f\u2009\u2033 est positive ?","Que se passe-t-il pour f au z\u00e9ro de f\u2009\u2033 ?","Comment trouver les variations de f \u00e0 partir de la courbe de f\u2009\u2032 ?"],
@@ -27533,6 +28787,11 @@ const QIA_SUGG={
   svr:["Faire un rappel de cours pour cet exercice.","Comment construit-on le tracé en escalier ?","À quoi sert la droite d’équation y = x ?","Comment dérive-t-on une fonction de la forme 1/(a − x) ?","Pourquoi f croissante conserve-t-elle les inégalités ?","Que veut dire « décroissante et minorée » ?"],
   ssv:["Faire un rappel de cours pour cet exercice.","Comment construit-on le tracé en escalier ?","Comment dérive-t-on un quotient ?","Pourquoi f croissante conserve-t-elle les inégalités ?","Comment mettre U\u2099 sur le même dénominateur ?","Comment lire le signe d\u2019un trinôme du second degré ?","Pourquoi le passage à la limite donne-t-il deux solutions ?","Comment choisir entre les deux valeurs possibles de \u2113 ?"],
   tcl:["Faire un rappel de cours pour cet exercice.","Comment lire le sens de variation dans l’encadrement ?","Pourquoi faut-il « croissante ET majorée » pour conclure ?","Pourquoi Uₙ₊₁ a-t-elle la même limite que Uₙ ?","Comment résoudre l’équation obtenue par passage à la limite ?"],
+  cvp:["Faire un rappel de cours pour cet exercice.","Comment trouver k quand on connaît l’abscisse du point d’inflexion ?","Pourquoi faut-il vérifier que f″ change de signe ?","Comment dérive-t-on un produit avec une exponentielle ?","Pourquoi le discriminant de f″ doit-il être négatif ou nul ?"],
+  tvf:["Faire un rappel de cours pour cet exercice.","Que faut-il exactement pour appliquer le théorème de convergence monotone ?","Comment trouver un contre-exemple ?","Une suite bornée est-elle forcément convergente ?","Pourquoi une inégalité stricte devient-elle large à la limite ?"],
+  tnm:["Faire un rappel de cours pour cet exercice.","Comment montrer qu’une suite est croissante ?","Comment rédiger l’hérédité de la récurrence ?","Que dit le théorème de comparaison ?","Pourquoi une suite croissante qui tend vers +∞ n’est-elle pas majorée ?"],
+  ssm:["Faire un rappel de cours pour cet exercice.","Pourquoi la suite des sommes est-elle croissante ?","Comment mettre 1/k − 1/(k+1) au même dénominateur ?","Comment comparer deux fractions de numérateur 1 ?","Pourquoi le théorème ne donne-t-il pas la valeur de la limite ?"],
+  sap:["Faire un rappel de cours pour cet exercice.","Comment trouver la limite par passage à la limite ?","Que fait abs() en Python ?","Comment écrire 10 puissance −3 en Python ?","Pourquoi la boucle s’arrête-t-elle forcément ?"],
   lqn:["Faire un rappel de cours pour cet exercice.","Quelle est la limite de q puissance n quand q > 1 ?","Que se passe-t-il quand la base est entre −1 et 1 ?","Que faut-il choisir après « car » ?","Comment trouver la limite d’un quotient de puissances ?"],
   sag:["Faire un rappel de cours pour cet exercice.","Comment lire la limite d’une suite sur un tableau de valeurs ?","Comment écrire la condition d’une boucle while en Python ?","Pourquoi le rang renvoyé peut-il dépasser 10 ?","Comment mettre à jour u à chaque tour de boucle ?"],
   svq:["Faire un rappel de cours pour cet exercice.","Quelle différence entre convergente et divergente ?","Une suite qui tend vers +∞ a-t-elle une limite ?","Que veut dire « bornée » ?","Comment voir sur le graphique qu’une suite n’est pas monotone ?","Une suite non monotone peut-elle converger ?"],

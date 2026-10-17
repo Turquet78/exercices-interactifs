@@ -1,6 +1,7 @@
 # Les dessins des exercices
 
-Les images que les exercices affichent — le serpent des exercices Python, le
+Les images que les exercices affichent — le serpent des exercices Python, ses
+déguisements d'Halloween (`<identifiant>-halloween.webp`, sous-thème 6.3), le
 schéma-bilan des ensembles de nombres — vivent ici, **en fichiers**, un dossier
 par niveau :
 

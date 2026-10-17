@@ -6255,3 +6255,275 @@ tiennent la règle sur les trois niveaux — un dessin ajouté demain en base64
 rougit le jour même. La règle et sa chronique : « Les dessins vivent en
 FICHIERS, jamais en base64 dans la page », dans `11-aides-et-interface.md` ;
 le mode d'emploi pour ajouter un dessin : `dessins/LISEZMOI.md`.
+
+---
+
+**Puis le sous-thème « Input » a appris à faire LIRE, RÉPARER et CHOISIR — huit
+exercices de 6.3.10 à 6.3.17.** Demande de Turquet, octobre 2026 : « donne-moi
+des idées d'exercices d'algo pour le thème input qui compléteraient mes
+exercices déjà produits », puis « crée le 1 et 2 et 3 et 5 dans le sous-thème
+input » : les sections 1 (les erreurs de type), 2 (choisir la conversion),
+3 (lire un programme) et 5 (les bonus) des idées proposées. Les neuf exercices
+d'avant font tous ÉCRIRE un programme juste ; aucun ne faisait lire un
+programme avec `input`, ni réparer l'erreur la plus fréquente des élèves.
+Ils sont ajoutés EN DERNIER dans le 6.3 : rien n'est renuméroté, et le
+contrôle du 6.3.9 (`pythonInputPrix`), qui exigeait de FERMER le sous-thème,
+exige désormais de suivre {python-input-rectangle}.
+
+| Numéro | Identifiant | kind | Ce que l'élève fait |
+|---|---|---|---|
+| 6.3.10 | `python-input-concat` | `pcz` | exécute `a + b` sans conversion (1215), choisit l'explication, corrige avec `int` |
+| 6.3.11 | `python-input-erreur-type` | `pte` | exécute `age + 1` sur un texte (TypeError), explique, corrige |
+| 6.3.12 | `python-input-int-float` | `pfl` | répond 1.65 à `int(input(…))` (ValueError), explique, corrige avec `float` |
+| 6.3.13 | `python-input-conversion` | `pqc` | choisit `input`, `int(input)` ou `float(input)` pour quatre questions |
+| 6.3.14 | `python-input-predire` | `ppr` | écrit, sans exécuter, ce que chaque `print` affiche |
+| 6.3.15 | `python-input-ordre` | `pod` | remet dans l'ordre les lignes mélangées (▲ ▼) |
+| 6.3.16 | `python-input-arrondi` | `prd` | voit `3.4499999999999997`, explique, corrige avec `round(total, 2)` |
+| 6.3.17 | `python-input-monnaie` | `pmo` | écrit le rendu de monnaie avec `//` et `%` |
+
+**LE MOTEUR « RÉPARER » (6.3.10, 6.3.11, 6.3.12, 6.3.16) : quatre identités,
+un moteur.** Chacun a son kind, son écran, son rappel, ses questions d'aide
+(la règle « deux exercices peuvent partager un moteur — mais pas leur
+identité ») ; le moteur se règle par `PZR[kind]`. Trois étapes sur le MÊME
+écran, le motif du 6.3.1 : a) exécuter le programme donné en répondant ce
+que l'énoncé demande — la console au clavier, `pzLancer`, le dialogue de
+`pynLancer` aux identifiants de l'écran ; b) choisir dans une liste ce qui
+explique le défaut (1 case) ; c) corriger le programme, préremplie avec le
+programme donné (1 case). **Le a) est une PORTE, pas une note, et il ne
+s'ouvre que si l'exécution a MONTRÉ le défaut** (`aVoit`) : l'élève qui
+répond 2 au lieu de 1.65 ne voit aucune erreur, et la page le lui dit au
+lieu de lui demander d'expliquer ce qu'il n'a pas vu. **Une copie identique au
+programme donné est une copie VIDE** (`pzMemeProgramme`, espaces de fin et
+lignes vides ignorés) : elle ne rougit jamais, et reçoit le modèle en vert.
+**Le juge du c) exécute** la copie avec deux jeux de réponses que l'élève ne
+connaît pas, et lit ce que les print AFFICHENT, en TEXTE : 27 n'est pas
+27.0, 3.45 n'est pas 3.4499999999999997. Nommés : les deux textes encore
+collés, une seule réponse convertie, `float` pour des entiers, `int` qui
+refuse toujours, rien de converti (un texte fois 2 se RÉPÈTE : « 2.52.5 » —
+trouvé par le banc à la première exécution), le « 1 » entre guillemets, la
+phrase perdue, le résultat écrit à la main, `round` oublié, à l'unité, au
+dixième. Le b) suit la doctrine du 6.3.1 : en soutien, un choix faux rougit
+sans verrouiller ni écrire la bonne explication.
+
+**`round()` EST EXACT, ET RÉSERVÉ AU 6.3.16.** L'interpréteur le refusait
+exprès : « Python arrondit au pair, et une imitation approximative
+afficherait une sortie fausse ». `pyArrondi` n'est pas une imitation : elle
+lit la valeur binaire EXACTE du nombre (`toFixed(100)`, exact dans les
+grandeurs du cours), garde le décimal le plus proche, et ne va au chiffre
+pair que sur une égalité EXACTE — round(2.5) vaut 2, round(0.125, 2) vaut
+0.12, round(2.675, 2) vaut 2.67, comme CPython. Mais cinq juges d'autres
+fiches (6.3.9, 6.6.10, 6.7.2, 6.7.5, 6.5.2) comptent sur le refus pour
+nommer round (« affiche le prix sans l'arrondir ») : `round` n'est donc
+exécuté que sous `pyAvecRound` (le 6.3.16 seul), et refusé partout ailleurs
+comme avant. Le banc tient les deux bords — refusé hors du 6.3.16, exact
+dedans, le permis rendu après —, et compare 48 arrondis à CPython.
+
+**6.3.13** : quatre questions par série, chacune avec un exemple de réponse
+(sans lui, « ton poids en kg » est entier ou décimal selon l'élève) ; les
+douze lignes d'une séance sont tirées SANS REMISE, et chaque série porte les
+trois types. **6.3.14** : « Exécuter » n'apparaît qu'APRÈS la vérification —
+avant, il donnerait la réponse ; la réponse attendue se relit dans `pyRun`,
+jamais rangée ; nommés : la virgule française, les guillemets recopiés, le
+.0 d'un float oublié. **6.3.15** : des boutons ▲ ▼ plutôt qu'un glisser (au
+doigt sur une tablette comme à la souris) ; le juge EXÉCUTE l'ordre de
+l'élève et compare la console à celle du programme juste, si bien que deux
+ordres qui font la même chose sont justes tous les deux (« Bonjour » avant
+ou après le calcul de l'âge) ; un programme non touché est une copie vide ;
+nommés : une variable utilisée avant d'exister, les questions échangées.
+**6.3.17** : la fiche (20 €, 5 €, 1 €) épinglée, puis d'autres coupures ; le
+juge lit les trois nombres attendus DANS L'ORDRE, sur des lignes qui portent
+des mots ; nommés : `/` au lieu de `//`, `float`, le reste oublié (chaque
+coupure comptée sur la somme entière), la phrase absente, les nombres écrits
+à la main.
+
+**Les dessins et les serpents.** Les fiches n'existent pas dans le carnet :
+les huit dessins (`dessins/secondes/python-input-*.webp`, 270 px, 11 à 20 Ko)
+sont dessinés en SVG dans le style des autres — le même serpent, un
+accessoire par exercice (l'ardoise « 12 + 15 = 1215 ? », le panneau rouge,
+la toise à 1.65 m, les cartes str/int/float, la boule de cristal, les blocs
+1-2-3, la loupe sur le ticket, la caisse) — et Turquet peut les remplacer par
+les siens sans toucher au code. Le contrôle des serpents d'Halloween exige un
+déguisement DIFFÉRENT par exercice du 6.3 : huit nouveaux (chat noir,
+loup-garou, Frankenstein, pirate, cyclope, épouvantail, chaudron,
+chauve-souris).
+
+Bancs : jsdom (`pythonInputComplements`) tient la place, les tirages (300
+séances), les quatre juges « réparer » sur leurs modèles et quinze copies
+fausses, les trois étapes jouées au clavier, le soutien, les quatre autres
+exercices (copies justes, fausses, vides), round, et compare à CPython les
+sorties de tous les programmes de la page (modèles, programmes donnés, à
+prédire, à ordonner, rendus de monnaie, arrondis). Le banc des pauses déclare
+les quatre « réparer » hors d'atteinte (`pauseReprise.horsAtteinte`), comme
+le 6.3.1 : une copie vide ne franchit pas la porte du a).
+
+---
+
+**Puis les sous-thèmes « Print et variable » et « Variable et calcul » ont
+appris à faire voir qu'une variable CHANGE — seize exercices, 6.1.15, 6.1.16
+et 6.2.10 à 6.2.23.** Demande de Turquet, octobre 2026 : « dans les algo en
+seconde pour le thème variable, donne-moi des idées pour compléter mes
+exercices », puis « fais les tous ». Les vingt-trois exercices d'avant font
+PRÉDIRE un affichage, SUIVRE la mémoire case par case et ÉCRIRE un print ou
+un programme de calcul ; aucun ne faisait voir qu'une variable peut se
+calculer avec ELLE-MÊME (`x = x + 3`, le cœur de toute boucle à venir), ni
+lire un programme à l'envers, ni réparer un programme faux sans `input`.
+Ajoutés EN DERNIER dans leur sous-thème : rien n'est renuméroté.
+
+| Numéro | Identifiant | kind | Moteur | Ce que l'élève fait |
+|---|---|---|---|---|
+| 6.1.15 | `python-type-resultat` | `pwy` | cases | dit ce qu'affichent `7 / 2`, `6 / 2`, `7 // 2`… et le type (int, float, str) |
+| 6.1.16 | `python-texte-nombre` | `pws` | programme | répare `"J’ai " + age + " ans"` (TypeError) avec des virgules ou `str` |
+| 6.2.10 | `python-egal-affectation` | `pwe` | cases | vrai ou faux sur le signe = (« x = x + 1 est impossible », « a = b et b = a… ») |
+| 6.2.11 | `python-x-plus-pas-a-pas` | `pwx` | cases | suit `x = x + 3`, `x = x * 2` ligne par ligne |
+| 6.2.12 | `python-accumulateur` | `pwa` | cases | suit un total et un compteur (`total = total + 12`, `nb = nb + 1`) |
+| 6.2.13 | `python-priorites` | `pwp` | cases | prédit `a + b * 3`, `(a + b) * 3`, `-x ** 2`… |
+| 6.2.14 | `python-division-entiere` | `pwd` | programme | écrit le quotient et le reste avec `//` et `%` (50 œufs, boîtes de 6) |
+| 6.2.15 | `python-arrondir` | `pwr` | programme | affiche un prix au centime, une moyenne au dixième, avec `round` |
+| 6.2.16 | `python-valeur-depart` | `pwv` | cases | retrouve la valeur de départ effacée d'un programme dont on voit l'affichage |
+| 6.2.17 | `python-meme-resultat` | `pwm` | cases | dit ce qu'affichent deux programmes aux lignes permutées, et s'ils affichent la même chose |
+| 6.2.18 | `python-choisir-programme` | `pwc` | cases | choisit, parmi quatre programmes presque identiques, le seul qui convient |
+| 6.2.19 | `python-ordre-lignes` | `pwo` | ordre | « Remettre un programme de calcul dans l'ordre » (▲ ▼), sans `input` — le nom « Remettre les lignes dans l'ordre » est celui du 6.3.15, et deux exercices ne portent pas le même nom |
+| 6.2.20 | `python-variable-inconnue` | `pwn` | programme | répare un NameError : variable utilisée trop tôt, casse, faute de frappe |
+| 6.2.21 | `python-debogage` | `pwg` | programme | répare un programme qui tourne mais calcule faux (`a + b / 2`, `c * 2`…) |
+| 6.2.22 | `python-formule` | `pwf` | programme | code une formule : prix TTC, soldes, IMC, °F, aire et périmètre, vitesse |
+| 6.2.23 | `python-traduire-algo` | `pwt` | programme | traduit un algorithme du manuel (`a ← 4`, `×`, « Afficher ») en Python |
+
+**TROIS MOTEURS, SEIZE IDENTITÉS** — la règle « deux exercices peuvent
+partager un moteur, mais pas leur identité » : chacun a son kind, son écran
+(`#scr-pw…`), son rappel (`RAP_PW…`), ses questions d'aide, son contexte pour
+le modèle (`ctxPw`, qui lit la configuration du kind) ; le moteur se règle
+par `PW[kind]`, et chaque kind a ses quatre fonctions d'une ligne
+(`startPWX`, `renderPWX`, `checkPWX`, `nextPWX`) — c'est par elles que
+passent la reprise (`afficherEcranDe`), la suite d'une question corrigée
+(`_suite` = `nextPWX`) et l'enveloppe des rendus. Les outils sont ceux du
+6.3 (`pzDemarrer`, `pzEntete`, `pzProgHTML`, `pzMemeProgramme`, `pprDiag`),
+repris, pas recopiés.
+
+**Le moteur À CASES** (`pwi…`, 8 exercices) : un programme montré, et des
+cases — un nombre, un texte ou une liste — jugées chacune seule ; chaque case
+vaut un point. La réponse attendue se RELIT dans `pyRun` (la valeur de la
+variable après la ligne, ce que le print affiche, le type), jamais rangée
+dans la question. « Exécuter » n'apparaît qu'APRÈS la vérification : avant,
+il donnerait la réponse. Les pièges nommés : l'ancienne valeur recopiée (la
+ligne CHANGE la variable), la valeur de DÉPART au lieu de la valeur actuelle
+(lue en rejouant la ligne sans les lignes qui l'ont changée entre-temps), le
+`.0` d'un float, la virgule française, les guillemets recopiés (les trois de
+`pprDiag`), la division `/` qui donne toujours un float, `//` qui donne un
+int, les priorités (chaque print porte ses valeurs-pièges, comptées à la
+main et éprouvées par le banc), la valeur affichée prise pour la valeur de
+départ, et, au 6.2.18, la raison propre de chaque programme qui ne convient
+pas. Au 6.2.18, l'écran mélange les quatre programmes (`q.perm`) et le banc
+exige que le bon programme soit le SEUL à afficher son résultat ; au 6.2.17,
+que le oui/non suive les deux affichages. Au 6.2.10, douze affirmations par
+séance tirées SANS REMISE dans seize, chaque question en mêlant de vraies et
+de fausses ; la raison de chacune s'écrit sous la case, une fois corrigée.
+
+**Le moteur PROGRAMME** (`pwp…`, 7 exercices) : une cellule — vide (6.2.23),
+préremplie avec les données (6.2.14, 6.2.15, 6.2.22) ou avec le programme à
+réparer (6.1.16, 6.2.20, 6.2.21) —, « Exécuter » libre, une console. **LE
+JUGE EXÉCUTE, PUIS REJOUE** la copie avec d'autres valeurs de départ que
+l'élève ne connaît pas (`S.autres`, la seconde méthode du 6.2.9) : la
+première ligne « nom = nombre » de chaque donnée reçoit une autre valeur, et
+la copie doit afficher ce qu'afficherait le MODÈLE avec ces valeurs-là — un
+`print(60.0)` écrit à la main se trahit, et le message le dit. Les nombres
+attendus se lisent dans la sortie du modèle, dans l'ordre, parmi ceux que la
+copie affiche : une phrase autour, d'autres noms de variables, un calcul en
+une ligne ou en trois passent tous. Ils se comparent à 1e-9 près (la masse
+divisée par `taille * taille` ou par `taille ** 2` ne diffèrent qu'au
+dernier chiffre), sauf au 6.2.15 où ils se comparent en TEXTE : 6.45 n'est
+pas 6.449999999999999 — c'est le sujet. Un nom changé de casse PARTOUT
+(`Note` devenu `note`, au 6.2.20) reste la même donnée. **Une copie
+identique au programme donné est une copie VIDE** (`pzMemeProgramme`) : elle
+ne rougit jamais et reçoit le modèle en vert. Les erreurs sont dites avec
+les mots du cours (`pwTraduire`) : `←`, `×`, `÷`, `−`, `^`, « Afficher », un
+NameError selon sa cause (utilisée AVANT d'exister, la casse, l'orthographe),
+texte + nombre, print sans parenthèses, guillemet non fermé ; et en sortie
+fausse : la virgule décimale (`1,2` fait lire deux nombres), `/` au lieu de
+`//`, les deux nombres inversés, le reste oublié, `round` oublié ou au
+mauvais nombre de chiffres, les guillemets autour du nom de la variable, le
+résultat faux INCHANGÉ (6.2.21). **`round` est permis au seul 6.2.15**
+(`round:true`, sous `pyAvecRound`) : les juges qui comptent sur son refus
+ailleurs ne bougent pas.
+
+**Le moteur ORDRE** (`pwo…`, 1 exercice) : celui du 6.3.15, sans `input` —
+le juge exécute l'ordre de l'élève et compare la console à celle du
+programme juste, si bien que `a = 4` et `b = 9` échangées restent justes.
+Le tirage ne livre JAMAIS un ordre qui marche déjà (il compare les sorties,
+pas les indices : un ordre différent mais équivalent serait une copie juste
+que l'élève n'aurait pas touchée, comptée vide).
+
+**Les recouvrements avec le 6.3, et pourquoi ils restent.** Quatre idées ont
+un cousin dans le sous-thème « Input » : l'ordre des lignes (6.3.15), la
+TypeError (6.3.11), `//` et `%` (6.3.17), `round` (6.3.16). Ceux du 6.3
+portent sur `input` (le texte qu'il rend, la conversion) ; ceux-ci portent
+sur la variable seule, sans rien à demander, là où l'élève la rencontre
+d'abord. Leurs programmes sont différents, et aucun moteur n'est partagé
+avec eux.
+
+**Le bouton des tables** reste là où l'élève CALCULE à la main (6.1.15,
+6.2.11 à 6.2.13, 6.2.16, 6.2.17) et part là où il écrit du code que la
+machine calcule (`TABLES_SANS`, et sa seconde source `tablesAide.sans`).
+Aucune correction au fil de la frappe (`soutienEnDirect.sans`). La
+définition s'écrit AVANT l'énoncé, à la question 1 seulement (`pyAvant`),
+pour les seize : aucune n'entre dans `pythonAvant.sans`. Pas de dessin :
+ces exercices n'ont pas de fiche, et Turquet peut en poser un par exercice
+plus tard (`dessins/LISEZMOI.md`).
+
+Bancs : jsdom (`pythonVariablesComplements`) tient la place (à la suite de
+{python-chaines} et de {python-programme-calcul}, rien d'autre ne bouge),
+l'identité de chacun (kind, écran, rappel, questions d'aide, les quatre
+fonctions), les tirages (300 séances), chaque case attendue de chaque
+situation, douze pièges nommés du moteur à cases, chaque modèle, chaque
+programme donné compté vide, chaque résultat écrit à la main refusé,
+vingt-cinq copies justes ou fausses du moteur programme avec le mot qui les
+nomme, le moteur ordre joué aux flèches, les seize écrans joués comme un
+élève dans les deux modes (copie juste, copie vide, copie fausse en
+soutien), et compare à un vrai CPython 215 exécutions (modèles, modèles
+rejoués, programmes donnés, programmes à prédire, les quatre programmes de
+chaque choix). Éprouvé par deux sabotages : la seconde méthode retirée
+(« un résultat écrit à la main est accepté », dans les sept exercices du
+moteur programme) et une case vide jugée fausse (« la copie vide rougit »,
+dans les huit du moteur à cases). La visite universelle du banc navigateur
+(section 9) et les bancs des notes et de la pause les ouvrent sans rien
+déclarer.
+
+**La première action a rougi neuf fois, et aucune sur un juge.** Ce que le
+banc local, coupé par l'environnement, n'avait pas pu montrer : les quatre
+fonctions de chaque kind étaient écrites sur UNE ligne, or le contrôle
+« chaque bouton appelle une fonction définie » ne lit que la PREMIÈRE
+déclaration d'une ligne (une par ligne désormais) ; cinq rappels écrivaient
+du code (`6 / 2`, `3.0`) dans la prose, lu comme une fraction plate ou un
+numéro d'exercice (il passe dans des balises `code`, comme au 6.1.12) ; la
+description du 6.2.15 citait `2.15` ; le 6.2.19 portait le nom du 6.3.15 ;
+la table des kinds du contrôle des rappels (`tests/profils.js`) ne les
+connaissait pas ; trois bords « il ferme le 6.1 / le 6.2 » et « il suit
+{python-chaines} » ont été RETOURNÉS, pas retirés ({python-chaines} suivi de
+{python-type-resultat}, {python-programme-calcul} suivi de
+{python-egal-affectation}, {python-pas-a-pas} derrière le DERNIER du 6.1) ;
+et le vrai ou faux ne s'allongeait pas à cinq questions sur un devoir. Son
+tirage distribue maintenant une affirmation vraie et une fausse à chaque
+question, puis le reste — quatre par question au format normal, moins au-delà
+de quatre questions, et sept au plus : il n'y a que sept affirmations vraies.
+
+**Puis la section 4 est venue, réduite à UNE fonction : 6.3.18
+{python-input-image}, l'image d'un nombre par une fonction** (demande de
+Turquet, octobre 2026 : « crée aussi le 4 dans le sous-thème input avec une
+fonction » ; à la question de ce que « avec une fonction » voulait dire, la
+réponse a été « l'image par f, avec input » — pas de `def`, que
+l'interpréteur ne connaît pas). kind `pfx`. La fonction est donnée
+(f(x) = 3x² − 2x + 1, la fiche épinglée, puis d'autres fonctions du second
+degré, `PFX_F`) ; a) écrire le programme qui demande x (`float(input(…))`),
+calcule f(x), le range et l'affiche avec une phrase (1 case) ; b) s'en
+servir pour lire l'image d'un nombre donné (1 case, un nombre, virgule
+acceptée). Les deux se vérifient ensemble. **Le juge exécute avec x = 2.5 et
+x = −3** : des décimaux EXACTS en binaire, si bien que `3*x**2`, `3*x*x` et
+`1 - 2*x + 3*x**2` donnent le même nombre au bit près — la comparaison se
+fait à 1e-9 près quand même. Nommés : `^` (pas une puissance), `²`, `3x`
+sans `*`, `int` (2.5 refusé), `input` sans conversion, aucune question, la
+phrase absente, le nombre écrit à la main, rien d'affiché, un mauvais
+calcul. Le dessin (le serpent devant un tableau où est tracée une parabole)
+et le serpent d'Halloween (un hibou sous la lune, `hibou`) sont dessinés en
+SVG dans le style des autres. Banc jsdom (`pythonInputImage`) : la place,
+le tirage, l'écriture de f (x en italique, * et ** en Python), le juge sur
+trois copies justes et onze fausses, l'écran joué au clavier, la copie
+vide, le soutien, et les modèles comparés à CPython (32 exécutions).
