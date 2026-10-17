@@ -757,3 +757,13 @@ qui nomme les exposants), l'erreur recopiée, la correction non réduite, la
 vraie jugée fausse (sa case de correction jamais peinte), la case vide, la
 copie vide sans rouge, « 6x^2 » → « 6x² », le JSON, le soutien, le contexte
 du modèle.
+
+Deux défauts trouvés par le juge à sa première exécution : 2x × 2x avec
+l'erreur « coefficients ajoutés » donnait 4x², qui est JUSTE (2 + 2 = 2 × 2 —
+les deux coefficients d'un produit sont désormais différents) ; et une même
+égalité revenait d'une page à l'autre (la clé de `distinctes()` lit la page
+entière : `vflGen` écarte maintenant tout membre de gauche déjà posé dans la
+séance). Deux sabotages éprouvent le contrôle : une correction non réduite
+acceptée (« une correction juste non réduite : … Le reste est juste ! ») et
+l'erreur du moins remplacée par la bonne réponse (« −(2x − 7) = −2x + 7 : la
+page dit faux, le calcul vrai »).

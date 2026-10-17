@@ -23407,7 +23407,7 @@ function vraiFauxCalcul(w, P){
     if(peint('vfl-c-2')!=='rouge') vus.push('« 2x+3x » pour 3(x + 4) : '+peint('vfl-c-2'));
     if(peint('vfl-3')!=='rouge' || peint('vfl-c-3')!=='rien') vus.push('la vraie jugée fausse : '+peint('vfl-3')+', sa correction '+peint('vfl-c-3'));
     if(peint('vfl-c-5')!=='rouge') vus.push('« 10x » recopié : '+peint('vfl-c-5'));
-    poser(['V','V','V','F','V','F'], ['', '', '', '', '', '']); checkVflAnswer();
+    poser(['F','F','F','F','V','F'], ['5x', '-x+2', '3x+12', '', '', '5x+5']); checkVflAnswer();
     if(!/VRAIE/.test(fb())) vus.push('la vraie jugée fausse : le message '+fb());
     poser(['F','F','F','V','V','F'], ['3x+2x', '', '', '', '', '']); checkVflAnswer();
     if(!/pas réduite/.test(fb())) vus.push('une correction juste non réduite : '+fb());
