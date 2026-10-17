@@ -767,3 +767,49 @@ séance). Deux sabotages éprouvent le contrôle : une correction non réduite
 acceptée (« une correction juste non réduite : … Le reste est juste ! ») et
 l'erreur du moins remplacée par la bonne réponse (« −(2x − 7) = −2x + 7 : la
 page dit faux, le calcul vrai »).
+## {valeur-expression} — calculer une expression pour une valeur (7.13, v543 — le 7.12 et la v541 pris le même jour par {vrai-faux-calcul}, la v542 par le 8.2.14 et le calcul global)
+
+**La demande** (Turquet, octobre 2026) : « créer un exercice dans calcul
+littéral sur calculer une expression pour une valeur, par exemple
+3x² − 2x + 1 pour x = −2 — c'est le réinvestissement direct de 7.1 à 7.4,
+avec le piège (−2)² contre −2² ».
+
+**Une page = une valeur de x = trois blocs = huit cases.** x est toujours
+NÉGATIF (−2 à −5) : c'est là que vivent le piège et la règle des signes.
+① Le piège, face à face, sans expression autour : (−k)² puis −k². ② A =
+ax² + bx + c (a de 2 à 5, b de ±2 à ±7, c de ±1 à ±9, jamais nul) : la
+valeur de ax², celle de bx, puis A, sur une ligne qui écrit la substitution
+entière (« A = 3 × (−2)² − 2 × (−2) + 1 = »). ③ B = −x² + b′x + c′ : le
+même piège, cette fois DANS une expression (−x² = −(−2)² = −4), puis b′x,
+puis B. Chaque case est un geste des 7.1 à 7.4 : le carré (produit de deux
+relatifs égaux), les produits (règle des signes), la somme (signe du plus
+fort). Trois pages par `distinctes(dmNbQuestions(3), …)`, barème 24 ; la
+séance s'allonge depuis un devoir. Le bouton des tables reste : on y
+multiplie.
+
+**La page écrit la substitution, l'élève écrit les valeurs.** Une case de
+saisie libre pour « 3 × (−2)² − 2 × (−2) + 1 » demanderait un juge
+d'écriture ; c'est l'en-tête de chaque ligne qui montre la valeur remplacée
+AVEC ses parenthèses — le modèle à imiter —, et les cases ne prennent que des
+entiers, lus par `relLit` comme au 7.1.
+
+**On range les nombres, jamais les réponses** : `{k, a, b, c, b2, c2}` ;
+`cvlCases` recalcule chaque attendu dans la fonction qui corrige (son nom
+suit la convention que lit le barème d'un devoir).
+
+**Le message part de la première case fausse et nomme le piège** : −2² = 4
+(« il n'y a pas de parenthèses : le carré ne porte que sur 2 ») ;
+(−2)² = −4 (« la parenthèse met le signe AU CARRÉ ») ; −x² = 4 (« le − de
+−x² n'est pas au carré — c'est le piège du premier bloc ») ; 3x² = 36
+(« le carré ne porte que sur (−2) ») ; x² lu comme 2x ; le signe du plus
+fort pris pour un produit ; la somme des termes, réécrite valeur par valeur.
+
+**Le juge** (`tests/verifier.js`, « calculer une expression pour une
+valeur ») : la place (7.13, les 7.4, 7.11 et 7.12 immobiles, bouton des tables
+présent), 500 séances tirées (bornes de chaque nombre, trois pages
+distinctes, huit attendus contre `Math.pow`), puis la fiche témoin au
+bouton — x = −2, A = 3x² − 2x + 1, B = −x² + 5x − 3 — avec la copie juste
+écrite à la main (4, −4, 12, +4, 17, −4, −10, −17), le texte de l'écran
+(chaque substitution, avec ses parenthèses), les cinq pièges (rouges, leur
+voisine juste reste bleue, le message les nomme), deux cases vides (la
+correction, jamais rouge), une réponse illisible, le barème de 24.
