@@ -518,6 +518,48 @@ sur les exercices. `notesDevoir`, `dmTotalEleve()` et `poserNoteDevoirEleve()`
 restent propres à la Terminale ; le profil de la Seconde ne déclare pas
 `devoirEntier`. La Première ne change pas.
 
+**Puis un SIGNALEMENT a mené à la note — et la Première a suivi, les trois
+niveaux.** Demande de Turquet (octobre 2026) : « quand je regarde un
+signalement pour tous les niveaux, je veux un bouton qui me permette d'aller
+directement à la note de l'élève pour cet exercice, qui peut être sur une
+fiche ou un devoir maison, pour pouvoir la modifier si je le veux ».
+Chaque carte de signalement porte désormais « ✎ Modifier la note · Devoir n°7 »
+(ou « Fiche n°3 ») : le clic ouvre l'onglet des devoirs sur ce devoir, attend
+son bilan, met en évidence (violet) le champ de la note de CET élève pour CET
+exercice et y pose le focus. « ← Retour aux signalements » se montre alors
+aussi sur l'écran du professeur (`sigRetour.onglet`), et rend la liste à la
+hauteur où elle avait été quittée.
+**Le devoir vient du signalement lui-même** : `signalementPayload()` range
+`_dm` (le `currentDM` du moment) dans le contexte, et le rejeu ne le recopie
+pas dans `test`. Un signalement plus ANCIEN, ou envoyé hors devoir, n'en porte
+pas : on propose alors chaque devoir ou fiche (non archivé) qui contient
+l'exercice, les trois plus récents, chacun NOMMÉ sur son bouton — le
+professeur choisit, rien n'est deviné à sa place. Les devoirs sont relus avec
+les signalements (`chargerSigDevoirs()`) : le bouton ne s'affiche que s'il mène
+quelque part. Le même texte dans les trois fichiers ; seul `sigOuvrirDevoir()`
+diffère, parce que l'onglet des devoirs n'est pas construit pareil.
+**La Première n'avait PAS de note posée** : elle l'a reçue ce jour-là, sinon le
+bouton aurait mené à une note qu'on ne peut pas modifier. `noteForcee()`,
+`noteDevoirExo(bs, be, forcee, smax)`, la ligne `notes` d'`ensureDevoir()`,
+`dmNotesPosees()` dans la décision de suppression, `dmAttente()` — le texte de
+la Seconde. Deux différences, et elles sont nommées : les champs vivent dans
+le DÉTAIL d'un élève (ouvert au clic sur sa ligne du bilan, et gardé ouvert
+quand une note posée redessine le bilan, `dmDetailOuvert`) ; et
+`poserNoteDevoir()` RELIT la configuration et n'écrit que les notes du devoir
+montré — la Première n'a pas de `persistDevoirs()`, et passer par `saveDM()`
+publierait en douce ce que l'éditeur porte de non enregistré. Et `saveDM()`
+recopie désormais `notes` : son nettoyage champ par champ l'aurait effacé au
+premier enregistrement du devoir — la porte par laquelle « archive » s'était
+déjà perdu.
+Contrôles : le profil de la Première déclare `notesDevoir` (avec `onglet` et
+`detail`), si bien que « 6 quindecies » y pose, relit et rend une note par le
+vrai champ, et que le contrôle du calcul (banc principal) s'y applique ; la
+page haute de douze champs n'existe pas en Première, et ce bord s'y déclare
+« non applicable ». Le geste depuis le signalement est éprouvé dans la même
+section, aux trois niveaux : deux signalements (avec et sans `_dm`) ont chacun
+leur bouton, le clic pose le focus sur la bonne clé, la note tapée part en
+base, et le retour rouvre les signalements.
+
 **Un exercice BONUS vaut 1 point, et ne fait jamais dépasser le maximum.**
 Demande de Turquet (août 2026), devoirs ET fiches, les trois niveaux : une case
 « Bonus (+1 pt) » sur la ligne de l'exercice dans l'éditeur. Un bonus vaut sa

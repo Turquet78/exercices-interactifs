@@ -2936,8 +2936,12 @@ if(require.main === module) (async () => {
           created_at:new Date(0).toISOString(), details:{ test:o.exo, mode:'train', dm:'dm-banc' } }];
         show('teacher');
       }, { params:N.tableParametres, res:N.tableResultats, exo:N.exercice, eleve:eleveId });
-      await s.page.evaluate(() => teacherTab('devoir'));
+      /* « onglet » : l'onglet des devoirs ne s'appelle pas pareil partout ;
+         « detail » : en Première, les champs de note vivent dans le détail
+         d'un élève, ouvert au clic sur sa ligne du bilan — on l'ouvre. */
+      await s.page.evaluate(o => teacherTab(o), N.onglet || 'devoir');
       await s.page.waitForTimeout(1200);
+      if(N.detail) await s.page.evaluate(id => dmStudentDetail(id, 'Banc'), eleveId);
 
       /* « .dm-exrow .dm-noteinput » et non « .dm-noteinput » : le bilan de la
          classe porte, plus haut dans la même page, le champ de la note du
@@ -3050,8 +3054,8 @@ if(require.main === module) (async () => {
         window.__faux.tables[o.params] = [{ id:1, valeurs:{ devoirs:[
           { id:'dm-banc', num:7, actif:true, titre:'Devoir du banc',
             exercices:o.exos.map(function(id){ return { id:id, modes:['train'] }; }) }] } }];
-        teacherTab('devoir');
-      }, { tEleves:P.tableEleves, params:N.tableParametres,
+        teacherTab(o.onglet);
+      }, { tEleves:P.tableEleves, params:N.tableParametres, onglet:N.onglet || 'devoir',
            exos:[N.exercice].concat(await s.page.evaluate(x => TEST_ORDER.filter(i => i !== x).slice(0, 2), N.exercice)) });
       await s.page.waitForTimeout(1400);
 
@@ -3069,7 +3073,12 @@ if(require.main === module) (async () => {
                  hauteur: Math.round(document.documentElement.scrollHeight),
                  y: Math.round(window.scrollY), top: Math.round(c.getBoundingClientRect().top) };
       });
-      if(!haut.assez){
+      if(N.detail){
+        /* En Première, le bilan ne porte AUCUN champ : ils vivent dans le
+           détail d'UN élève — une page haute de douze champs n'y existe pas. */
+        ignorer('poser une note ne déplace pas la page',
+          'les champs vivent dans le détail d\'un élève, ouvert au clic : pas de page haute à mesurer');
+      } else if(!haut.assez){
         verifier('poser une note ne déplace pas la page', false,
           'le bilan ne pose que ' + haut.n + ' champ(s) : rien à faire défiler, le contrôle ne mesure rien');
       } else {
@@ -3104,6 +3113,65 @@ if(require.main === module) (async () => {
           'focus sur « ' + String(bas.focus) + ' » (attendu « ' + haut.cle + ' ») — le champ dit « '
             + String(bas.valeur) + ' »');
       }
+
+      /* ---- DEPUIS UN SIGNALEMENT, LA NOTE DE L'ÉLÈVE ----
+         Demande de Turquet (octobre 2026) : « quand je regarde un signalement,
+         je veux un bouton qui me permette d'aller directement à la note de
+         l'élève pour cet exercice […] pour pouvoir la modifier ». Le GESTE
+         entier : le bouton est dans une carte rendue en innerHTML, son clic
+         change d'onglet, attend une lecture, et doit poser le focus sur LE
+         champ de CET élève pour CET exercice — et sur aucun autre.
+         DEUX SIGNALEMENTS : l'un porte son devoir (« _dm »), l'autre non
+         (envoyé avant ce jour) — il doit quand même mener au devoir qui
+         contient l'exercice, nommé sur le bouton. */
+      const sg = await s.page.evaluate(async o => {
+        const attendre = ms => new Promise(r => setTimeout(r, ms));
+        const r = {};
+        window.__faux.tables[TABLE_SIG] = [
+          { id:'sig-n1', created_at:'2026-10-01T10:00:00Z', eleve_id:o.eleve, exercice:o.exo, numero:'1.1',
+            mode:'train', message:'la note est fausse', contexte:{ kind:'cm', _dm:'dm-banc' }, capture:null },
+          { id:'sig-n2', created_at:'2026-09-01T10:00:00Z', eleve_id:o.eleve, exercice:o.exo, numero:'1.1',
+            mode:'train', message:'ancien signalement', contexte:null, capture:null }];
+        show('teacher'); teacherTab('signalements'); await attendre(600);
+        const boutons = [].slice.call(document.querySelectorAll('#sigListe button'))
+          .filter(b => /allerNoteSignalement/.test(b.getAttribute('onclick') || ''));
+        r.nbBoutons = boutons.length;
+        r.libelle = boutons[0] ? boutons[0].textContent : '';
+        const sansDm = boutons.filter(b => /sig-n2/.test(b.getAttribute('onclick'))).length;
+        r.sansDm = sansDm;
+        if(boutons[0]) boutons[0].click();
+        await attendre(1500);
+        const a = document.activeElement;
+        r.onglet = (document.querySelector('.tab.on') || { dataset:{} }).dataset.tab;
+        r.focus = a && a.getAttribute ? a.getAttribute('data-cle') : null;
+        r.cible = !!(a && a.classList && a.classList.contains('dm-cible'));
+        const b = document.getElementById('sigRetourBtn');
+        r.retour = !!b && b.getBoundingClientRect().width > 0;
+        /* le professeur tape la note, là où le bouton l'a mené */
+        if(a && a.classList && a.classList.contains('dm-noteinput')){
+          a.value = '8'; a.dispatchEvent(new Event('change', { bubbles:true }));
+        }
+        await attendre(1200);
+        const d = ((((window.__faux.tables[o.params] || [])[0] || {}).valeurs || {}).devoirs || [{}])[0];
+        r.notes = d.notes || null;
+        /* puis revient aux signalements */
+        if(b) b.click(); await attendre(500);
+        r.ongletApres = (document.querySelector('.tab.on') || { dataset:{} }).dataset.tab;
+        r.retourApres = !!b && b.getBoundingClientRect().width > 0;
+        return r;
+      }, { eleve:eleveId, exo:N.exercice, params:N.tableParametres });
+      const cleSg = eleveId + '|' + N.exercice;
+      verifier('chaque signalement propose d\'aller à la note, et nomme le devoir',
+        sg.nbBoutons === 2 && sg.sansDm === 1 && /Devoir n°7/.test(sg.libelle),
+        sg.nbBoutons + ' bouton(s), dont ' + sg.sansDm + ' pour le signalement sans devoir — libellé « ' + sg.libelle + ' »');
+      verifier('le bouton mène au champ de la note de CET élève pour CET exercice',
+        sg.onglet === (N.onglet || 'devoir') && sg.focus === cleSg && sg.cible && sg.retour,
+        'onglet « ' + sg.onglet + ' », focus sur « ' + String(sg.focus) + ' » (attendu « ' + cleSg
+          + ' »), mis en évidence : ' + sg.cible + ', bouton de retour : ' + sg.retour);
+      verifier('la note tapée là part en base, et le retour rouvre les signalements',
+        !!sg.notes && sg.notes[cleSg] === 8 && sg.ongletApres === 'signalements' && !sg.retourApres,
+        'notes : ' + JSON.stringify(sg.notes) + ' — onglet après le retour : ' + sg.ongletApres
+          + ', bouton encore visible : ' + sg.retourApres);
 
       verifier('poser une note ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));

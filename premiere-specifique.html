@@ -599,6 +599,9 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
     font-family:Fredoka,sans-serif;font-weight:600;font-size:.95rem;padding:11px 16px;border-radius:30px;
     background:var(--blue);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.22)}
   #sigRetourBtn[hidden]{display:none}
+  /* la note qu'un signalement a fait ouvrir : le professeur la voit tout de suite */
+  .dm-exrow.dm-cible{background:#F3E8FF;border-radius:8px;box-shadow:0 0 0 2px var(--violet,#6D28D9)}
+  .dm-noteinput.dm-cible{border-color:var(--violet,#6D28D9);box-shadow:0 0 0 3px rgba(109,40,217,.25)}
   body.pave-actif #sigRetourBtn,body.clavier-ouvert #sigRetourBtn{top:8px;bottom:auto;left:8px;padding:7px 12px;font-size:.85rem}
   .mp-feedback{min-height:26px;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.05rem;margin:16px 0 2px}
   .mp-feedback.good{color:var(--green)}.mp-feedback.bad{color:var(--red)}
@@ -942,6 +945,13 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   .dl-list{display:flex;flex-direction:column;gap:14px}
   .dm-note{font-family:"Fredoka";font-weight:600;font-size:.82rem;padding:2px 11px;border-radius:999px;color:#fff;background:var(--blue);white-space:nowrap}
   .dm-note.none{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
+  .dm-note.posee{background:var(--violet,#6D28D9)}
+  .dm-obtenu{font-size:.78rem;color:var(--ink-soft);white-space:nowrap}
+  .dm-poser{display:inline-flex;align-items:center;gap:3px}
+  .dm-noteinput{width:54px;padding:3px 6px;border:1px solid var(--line);border-radius:8px;
+    font-family:"Fredoka";font-weight:600;font-size:.82rem;text-align:center;color:var(--ink);background:var(--surface)}
+  .dm-noteinput:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16)}
+  .dm-sur{font-size:.78rem;color:var(--ink-soft)}
   /* Le tableau des moyennes porte une colonne par devoir : à dix devoirs il
      dépasse la carte, et c'est LUI qui défile, jamais la page (la règle des
      contenus larges). Le zéro d'un devoir non fait s'écrit, mais en gris : la
@@ -2989,7 +2999,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=327;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=328;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3648,7 +3658,11 @@ function famillesDevoirs(cfg){
    RECOPIÉ ici plutôt qu'oublié — ensureDevoir() normalise l'entrée, donc tout
    champ qu'elle ne nomme pas est effacé en silence. C'est le piège qui avait
    déjà emporté le drapeau « bonus » entre l'éditeur et l'écran de l'élève. */
-function ensureDevoir(d,i){ return Object.assign({ id:d.id||newDevoirId(), num:(typeof d.num==='number'?d.num:(i+1)), actif:d.actif!==false, titre:d.titre||'Devoir à la maison', cours:(typeof d.cours==='string')?d.cours:'', exercices:Array.isArray(d.exercices)?d.exercices:[] }, d.archive?{archive:true}:{}); }
+function ensureDevoir(d,i){ return Object.assign({ id:d.id||newDevoirId(), num:(typeof d.num==='number'?d.num:(i+1)), actif:d.actif!==false, titre:d.titre||'Devoir à la maison', cours:(typeof d.cours==='string')?d.cours:'', exercices:Array.isArray(d.exercices)?d.exercices:[],
+  /* Les notes POSÉES par le professeur, « <id élève>|<id exercice> » -> note
+     sur 10 (demande de Turquet, octobre 2026). Sans cette ligne, elles
+     s'effaceraient au premier rechargement, sans erreur. */
+  notes:(d.notes && typeof d.notes==='object' && !Array.isArray(d.notes)) ? d.notes : {} }, d.archive?{archive:true}:{}); }
 function normalizeCfg(cfg){ let ds=cfg.devoirs; if(!Array.isArray(ds)){ if(cfg.devoir&&typeof cfg.devoir==='object') ds=[Object.assign({id:'dm_1',num:1},cfg.devoir)]; else ds=[Object.assign({},DEFAULT_DEVOIR)]; } cfg.devoirs=ds.map((d,i)=>ensureDevoir(d,i)); cfg.fiches = Array.isArray(cfg.fiches)? cfg.fiches.map((d,i)=>ensureDevoir(d,i)) : []; cfg.cours = Array.isArray(cfg.cours)? cfg.cours.map((c,i)=>ensureCours(c,i)).filter(Boolean) : []; delete cfg.devoir; return cfg; }
 function testNum(id){ return TEST_NUM[id]||''; }
 function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):testName(id); }
@@ -4265,7 +4279,7 @@ function sigChemin(){
 
 function signalementPayload(message, chemin){
   let contexte=null;
-  try{ contexte=Object.assign({}, snapshotTest(), {_boxes:captureBoxes()}); }catch(e){ contexte={erreur:'instantané indisponible'}; }
+  try{ contexte=Object.assign({}, snapshotTest(), {_boxes:captureBoxes(), _dm:currentDM||null}); }catch(e){ contexte={erreur:'instantané indisponible'}; }
   return {
     eleve_id:currentEleve.id,
     exercice:currentTestId||'inconnu',
@@ -4428,6 +4442,88 @@ async function envoyerReponseSignalement(id){
 }
 
 let mesSignalements=[];
+/* ---------- Depuis un signalement, la note de l'élève ----------
+   Demande de Turquet (octobre 2026) : « quand je regarde un signalement, je
+   veux un bouton qui me permette d'aller directement à la note de l'élève
+   pour cet exercice, qui peut être sur une fiche ou un devoir maison, pour
+   pouvoir la modifier ». Le signalement porte, depuis ce jour, le devoir d'où
+   il est parti (« _dm » dans son contexte) : le bouton mène à CE devoir-là.
+   Un signalement plus ancien, ou envoyé hors devoir, n'en porte pas : on
+   propose alors chaque devoir ou fiche qui contient l'exercice (les trois
+   plus récents), NOMMÉ sur le bouton — le professeur choisit, rien n'est
+   deviné à sa place.
+   Les devoirs sont relus avec les signalements : le bouton n'est montré que
+   s'il mène quelque part. */
+var sigDevoirs=null;
+function sigDevoirContient(dev, exoId){
+  const liste=(typeof exercicesDevoir==='function') ? exercicesDevoir(dev) : ((dev&&dev.exercices)||[]);
+  return (liste||[]).some(function(ex){ return ex && ex.id===exoId; });
+}
+function sigNotesCandidats(r){
+  if(!sigDevoirs || !r || !r.exercice) return [];
+  const tous=[];
+  ['dm','fiche'].forEach(function(g){ (sigDevoirs[g]||[]).forEach(function(d){ if(d&&d.id) tous.push({g:g, d:d}); }); });
+  const dmId=r.contexte && r.contexte._dm;
+  if(dmId){
+    const c=tous.filter(function(x){ return x.d.id===dmId; })[0];
+    if(c) return [c];
+  }
+  return tous.filter(function(x){ return !dmEstArchive(x.d) && sigDevoirContient(x.d, r.exercice); })
+    .sort(function(a,b){ return (b.d.num||0)-(a.d.num||0); }).slice(0,3);
+}
+function sigBoutonsNote(r){
+  return sigNotesCandidats(r).map(function(c){
+    return `<button class="btn btn-sm btn-ghost" onclick="allerNoteSignalement('${escJS(r.id)}','${escJS(c.d.id)}')">✎ Modifier la note · ${esc(GENRE_DEVOIRS[c.g].badge)} n°${esc(String(c.d.num))}</button>`;
+  }).join('');
+}
+async function chargerSigDevoirs(){
+  try{
+    const cfg=await loadConfig();
+    sigDevoirs={ dm:cfg[GENRE_DEVOIRS.dm.cle]||[], fiche:cfg[GENRE_DEVOIRS.fiche.cle]||[] };
+  }catch(e){ sigDevoirs=null; }
+}
+async function allerNoteSignalement(id, devId){
+  const r=mesSignalements.find(x=>x.id===id); if(!r) return;
+  const c=sigNotesCandidats(r).filter(function(x){ return x.d.id===devId; })[0];
+  if(!c){ toast('Ce devoir est introuvable','err'); return; }
+  retenirSignalements(id); sigRetour.onglet=true;
+  majRetourSignalements('teacher');
+  const ok=await sigOuvrirDevoir(c.g, devId, r);
+  if(!ok) return;
+  /* Le champ se repère par la CLÉ sous laquelle sa note est rangée — jamais
+     par son rang. Les identifiants d'élève ne sont pas du même type d'un
+     niveau à l'autre : on compare des chaînes. */
+  const cle=String(r.eleve_id)+'|'+r.exercice;
+  const box=$('dmResults');
+  const champ=box ? [].slice.call(box.querySelectorAll('.dm-noteinput')).filter(function(x){
+    return x.getAttribute('data-cle')===cle; })[0] : null;
+  if(!champ){
+    toast(r.prenom+' n’a pas cet exercice dans ce '+GENRE_DEVOIRS[c.g].badge.toLowerCase(),'err');
+    return;
+  }
+  box.querySelectorAll('.dm-cible').forEach(function(x){ x.classList.remove('dm-cible'); });
+  champ.classList.add('dm-cible');
+  const ligne=champ.closest ? champ.closest('.dm-exrow') : null;
+  if(ligne) ligne.classList.add('dm-cible');
+  try{ (ligne||champ).scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){}
+  try{ champ.focus({preventScroll:true}); }catch(e){ champ.focus(); }
+}
+/* Ouvre le devoir dans l'onglet des devoirs, ATTEND son bilan, puis le
+   détail de l'élève : en Première, les champs de note vivent dans ce détail. */
+async function sigOuvrirDevoir(g, devId, r){
+  dmGenre=(g==='fiche')?'fiche':'dm'; dmSelId=devId;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab==='devoirs'));
+  document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));
+  $('pane-devoirs').classList.add('on');
+  await renderDevoirsAdmin();
+  if(dmSelId!==devId){
+    toast('Ce '+GENRE_DEVOIRS[dmGenre].badge.toLowerCase()+' est archivé : restaure-le pour modifier ses notes','err');
+    return false;
+  }
+  dmStudentDetail(r.eleve_id, r.prenom, true);
+  return true;
+}
+
 
 async function chargerSignalements(){
   const hote=$('sigListe'); if(!hote) return;
@@ -4438,7 +4534,8 @@ async function chargerSignalements(){
        à la relation — un détail qui se renomme sans prévenir. */
     const [sig, eleves] = await Promise.all([
       sb.from(TABLE_SIG).select('*').order('created_at',{ascending:false}).limit(200),
-      sb.from('eleves_1ere').select('id,prenom')
+      sb.from('eleves_1ere').select('id,prenom'),
+      chargerSigDevoirs()
     ]);
     if(sig.error){ hote.innerHTML='<p class="muted">Signalements non chargés : '+esc(sig.error.message||'erreur')+'</p>'; return; }
     const prenoms={}; (eleves.data||[]).forEach(e=>{ prenoms[e.id]=e.prenom; });
@@ -4478,6 +4575,7 @@ function renderSignalements(){
       <div class="sig-actions">
         <button class="btn btn-sm btn-primary" onclick="rejouerSignalement('${escJS(r.id)}')">Rejouer l\u2019écran</button>
         ${r.capture?`<button class="btn btn-sm btn-ghost" onclick="voirCaptureSignalement('${escJS(r.id)}')">Voir la copie d\u2019\u00e9cran</button>`:''}
+        ${sigBoutonsNote(r)}
         ${r.lu?'':`<button class="btn btn-sm btn-ghost" onclick="marquerSignalementLu('${escJS(r.id)}')">Marquer lu</button>`}
         <button class="btn btn-sm btn-ghost" onclick="repondreSignalement('${escJS(r.id)}')">${r.reponse?'Modifier ma réponse':'Répondre'}</button>
         <button class="btn btn-sm btn-ghost" onclick="supprimerSignalement('${escJS(r.id)}')">Supprimer</button>
@@ -4572,7 +4670,11 @@ async function supprimerSignalement(id){
 var sigRetour=null;
 function retenirSignalements(id){ sigRetour={ id:id, y:window.scrollY||0 }; }
 function majRetourSignalements(ecran){
-  const b=$('sigRetourBtn'); if(b) b.hidden=!(sigRetour && ecran!=='teacher');
+  /* Venu d'un signalement à la note d'un devoir, le professeur reste sur
+     l'écran du professeur : le bouton s'y montre donc aussi — et s'oublie dès
+     qu'il quitte cet écran, où il ne ramènerait à rien. */
+  if(sigRetour && sigRetour.onglet && ecran!=='teacher') sigRetour=null;
+  const b=$('sigRetourBtn'); if(b) b.hidden=!(sigRetour && (ecran!=='teacher' || sigRetour.onglet));
 }
 function retourSignalements(){
   const m=sigRetour; sigRetour=null; REJEU=false;
@@ -4609,7 +4711,7 @@ function rejouerSignalement(id){
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
   Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
-  const skip={_boxes:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
+  const skip={_boxes:1,_dm:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
   test.startTime=Date.now(); test.locked=false;
   const k=test.kind, boxes=d._boxes;
   if(!afficherEcranDe(k)){ REJEU=false; sigRetour=null; majRetourSignalements('teacher'); toast('Cet exercice ne sait pas être rejoué','err'); return; }
@@ -4964,7 +5066,8 @@ function dmVerrouille(dev, testId){
   for(let i=0;i<exos.length;i++){
     if(exos[i].id===testId) return false;      /* lui-même, ou placé avant le premier non-fait */
     if(dmEstBonus(exos[i])) continue;          /* un bonus non fait ne bloque pas la suite */
-    const nd=noteDevoirExo(dmBest(dev.id,exos[i].id,'soutien'), dmBest(dev.id,exos[i].id,'train'), exos[i].smax);
+    const nd=noteDevoirExo(dmBest(dev.id,exos[i].id,'soutien'), dmBest(dev.id,exos[i].id,'train'),
+                           noteForcee(dev, currentEleve&&currentEleve.id, exos[i].id), exos[i].smax);
     /* un brouillon en cours compte pour la note, pas pour l'ordre : tant que
        l'exercice d'avant n'est pas mené au bout, le suivant reste fermé */
     if(!nd.termine) return true;               /* un exercice AVANT lui n'est pas terminé */
@@ -5014,22 +5117,41 @@ function dmCandidat(r, devoirId, exoId, mode){
   return isPaused(r) ? dmNoteBrouillon(r) : r;
 }
 function dmBest(did,id,m){ let b=null; (mesResultats||[]).concat(mesBrouillons||[]).forEach(r=>{ const c=dmCandidat(r,did,id,m); if(c&&(b==null||c.percent>b.percent)) b=c; }); return b; }
-function noteDevoirExo(bestSoutien, bestEntrain, smax){
+/* LA NOTE QUE LE PROFESSEUR A POSÉE sur un exercice d'un devoir ou d'une
+   fiche, pour un élève (demande de Turquet, octobre 2026 : depuis un
+   signalement, « aller directement à la note de l'élève pour cet exercice
+   […] pour pouvoir la modifier »). Elle se pose PAR-DESSUS : le travail de
+   l'élève reste enregistré tel quel dans « resultats_1ere ». Le même texte
+   qu'en Seconde et en Terminale. */
+function noteForcee(dev, eleveId, exoId){
+  const m = dev && dev.notes;
+  if(!m || typeof m!=='object' || !eleveId || !exoId) return undefined;
+  const v = m[eleveId+'|'+exoId];
+  return (typeof v==='number' && isFinite(v)) ? v : undefined;
+}
+function noteDevoirExo(bestSoutien, bestEntrain, forcee, smax){
   /* Le plafond du soutien se règle PAR EXERCICE du devoir (demande de Turquet,
      août 2026) : 5/10 par défaut, jusqu'à 10/10. Hors devoir, rien ne passe le
-     paramètre et le plafond reste 5 — le rattrapage libre ne change pas. */
+     paramètre et le plafond reste 5 — le rattrapage libre ne change pas. La
+     note POSÉE par le professeur, elle, prime toujours. */
   const plafond = dmPlafondSoutien(smax);
   const s = bestSoutien ? (bestSoutien.percent/100*plafond) : 0;
   const e = bestEntrain ? (bestEntrain.percent/100*10) : 0;
   const soutienFait = !!bestSoutien;
   const parEntrain = (e > s || !soutienFait);
-  const note = parEntrain ? e : s;
+  const auto = parEntrain ? e : s;
+  /* Une note posée est BORNÉE à 0–10 : elle vit dans un JSON qu'on peut
+     éditer à la main dans la base. */
+  const posee = (typeof forcee==='number' && isFinite(forcee));
+  const note = posee ? Math.max(0, Math.min(10, forcee)) : auto;
   /* « termine » : au moins un essai mené au bout (ou mis en pause par le
-     bouton) — c'est lui que lit l'ordre imposé des fiches ; « provisoire » :
-     la note retenue vient d'un brouillon en cours, et l'écran le dit. */
-  const termine = !!(bestSoutien&&!bestSoutien.enCours) || !!(bestEntrain&&!bestEntrain.enCours);
-  const provisoire = parEntrain ? !!(bestEntrain&&bestEntrain.enCours) : !!(bestSoutien&&bestSoutien.enCours);
-  return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain), termine, provisoire };
+     bouton), ou une note posée — c'est lui que lit l'ordre imposé des
+     fiches ; « provisoire » : la note retenue vient d'un brouillon en cours,
+     et l'écran le dit — jamais quand le professeur a posé. */
+  const termine = posee || !!(bestSoutien&&!bestSoutien.enCours) || !!(bestEntrain&&!bestEntrain.enCours);
+  const provisoire = !posee && (parEntrain ? !!(bestEntrain&&bestEntrain.enCours) : !!(bestSoutien&&bestSoutien.enCours));
+  return { note, auto, posee, s, e, soutienFait, entrainFait:!!bestEntrain,
+           fait:(posee || soutienFait || !!bestEntrain), termine, provisoire };
 }
 function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
 /* LA NOTE D'UN DEVOIR À EXERCICES BONUS (demande de Turquet, août 2026) : un
@@ -5199,7 +5321,8 @@ function renderDevoirsList(){
   $('devoirsBody').innerHTML='<div class="dl-list">'+actifs.map((dev,idx)=>{
     const isLast=idx===0; const exos=(typeof exercicesDevoir==='function')?exercicesDevoir(dev):(dev.exercices||[]);
     const tot=dmTotal(exos.map(ex=>{
-      const nd=noteDevoirExo(dmBest(dev.id,ex.id,'soutien'), dmBest(dev.id,ex.id,'train'), ex.smax);
+      const nd=noteDevoirExo(dmBest(dev.id,ex.id,'soutien'), dmBest(dev.id,ex.id,'train'),
+                             noteForcee(dev, currentEleve&&currentEleve.id, ex.id), ex.smax);
       return {note:nd.note, fait:nd.fait, bonus:dmEstBonus(ex)};
     }));
     const aff=dmNoteAff(dev.genre, tot.somme, tot.totMax);
@@ -5236,7 +5359,8 @@ function renderDevoirDetail(devoirId){
   const parts=[];
   const cards=liste.map((ex,i)=>{
     const t=TESTS[ex.id];
-    const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'), ex.smax);
+    const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'),
+                           noteForcee(dev, currentEleve&&currentEleve.id, ex.id), ex.smax);
     const bonus=dmEstBonus(ex);
     parts.push({note:nd.note, fait:nd.fait, bonus:bonus}); if(nd.fait) faitQqch=true;
     const verrou=ordreImpose&&bloque&&!bonus;
@@ -20465,7 +20589,7 @@ function teacherTab(name){
   else if(name==='students')renderRoster();
   else if(name==='eval')renderEvalLocks();
   else if(name==='devoirs')renderDevoirsAdmin();
-  else if(name==='signalements')chargerSignalements();
+  else if(name==='signalements'){ if(sigRetour&&sigRetour.onglet){ sigRetour=null; majRetourSignalements('teacher'); } chargerSignalements(); }
   else if(name==='cours')chargerCoursProf();
 }
 function setTeacherMode(m){ teacherMode=m; $('segEval').classList.toggle('on',m==='eval'); $('segTrain').classList.toggle('on',m==='train'); $('segSoutien').classList.toggle('on',m==='soutien'); $('studentDetail').innerHTML=''; renderClassTable(); }
@@ -20582,7 +20706,9 @@ async function renderDevoirsAdmin(){
   const vifs=dmAdminList.filter(d=>!dmEstArchive(d));
   if(dmSelId && !vifs.some(d=>d.id===dmSelId)) dmSelId=null;
   if(!dmSelId && vifs.length) dmSelId=vifs[vifs.length-1].id;
-  renderDmTabs(); renderDmEditor(); renderDmResults();
+  /* ATTENDU : qui attend renderDevoirsAdmin — un signalement qui mène à une
+     note — doit trouver le bilan dessiné. */
+  renderDmTabs(); renderDmEditor(); await renderDmResults();
 }
 function renderDmTabs(){
   const G=GENRE_DEVOIRS[dmGenre];
@@ -20798,7 +20924,10 @@ async function saveDM(){
     /* « archive » recopié ici aussi : ce nettoyage est la SECONDE porte par
        laquelle un drapeau se perd — enregistrer un devoir archivé le
        désarchiverait, et ses notes quitteraient le carnet sans un mot. */
-    const clean=Object.assign({ id:d.id, num:d.num, actif:d.actif, titre:d.titre, cours:d.cours, exercices:d.exercices }, d.archive?{archive:true}:{});
+    /* et « notes » de même : les notes posées par le professeur vivent dans
+       la définition du devoir, et un devoir réenregistré les perdrait. */
+    const clean=Object.assign({ id:d.id, num:d.num, actif:d.actif, titre:d.titre, cours:d.cours, exercices:d.exercices },
+      d.archive?{archive:true}:{}, (d.notes&&Object.keys(d.notes).length)?{notes:d.notes}:{});
     const i=arr.findIndex(x=>x.id===d.id);
     if(i>=0) arr[i]=clean; else arr.push(clean);
     const maj={}; maj[cle]=arr;
@@ -20862,6 +20991,14 @@ function dmNotesDe(devId, rows){
   }).length;
 }
 
+/* LES NOTES POSÉES À LA MAIN COMPTENT AUSSI : elles vivent dans la
+   DÉFINITION du devoir, et un exercice noté à la main sans que l'élève l'ait
+   fait en ligne n'a AUCUNE ligne dans la table. Le même texte qu'en Seconde. */
+function dmNotesPosees(dev){
+  const cnt=function(o){ return (o && typeof o==='object' && !Array.isArray(o)) ? Object.keys(o).length : 0; };
+  return cnt(dev && dev.notes) + cnt(dev && dev.notesDevoir);
+}
+
 /* LA DÉCISION, et elle se prend sur un compte VRAI, jamais supposé. Si la base
    ne répond pas, on ARCHIVE : un doute se tranche du côté où rien n'est
    perdu — détruire sur une lecture ratée serait exactement le défaut qu'on
@@ -20870,7 +21007,7 @@ async function dmDecisionSuppression(dev){
   try{
     const {data,error}=await lireToutes(()=>sb.from(dmTableResultats()).select('*'));
     if(error) throw error;
-    const n=dmNotesDe(dev.id, data||[]);
+    const n=dmNotesDe(dev.id, data||[])+dmNotesPosees(dev);
     return { archiver:n>0, n:n, lecture:true };
   }catch(e){
     return { archiver:true, n:null, lecture:false };
@@ -21148,7 +21285,7 @@ function dmNoteDevoir(dev, eleveId, rows){
   const exd=liste.map(function(ex){
     const bs=dmMeilleur(rows,eleveId,dev.id,ex.id,'soutien');
     const be=dmMeilleur(rows,eleveId,dev.id,ex.id,'train');
-    const nd=noteDevoirExo(bs,be,ex.smax);
+    const nd=noteDevoirExo(bs,be,noteForcee(dev,eleveId,ex.id),ex.smax);
     if(nd.fait) nbFait++;
     return { ex:ex, nd:nd, bs:bs, be:be };
   });
@@ -21157,9 +21294,23 @@ function dmNoteDevoir(dev, eleveId, rows){
   return { somme:t.somme, totMax:t.totMax, nbFait:nbFait, nbExos:liste.length,
            fait:nbFait>0, exd:exd };
 }
+/* ON NE VIDE PAS UN ÉCRAN QU'ON VA REMPLIR AVEC LA MÊME CHOSE — le texte de
+   la Terminale et de la Seconde. Poser une note redessine le bilan, et un
+   bilan qui commencerait par se réduire à « Chargement… » ferait perdre au
+   professeur l'endroit où il notait. La boîte GARDE son contenu pendant la
+   lecture quand l'écran va dire la même chose (même CLÉ), et repart sur
+   « Chargement… » quand il va dire autre chose. Une lecture ratée efface la
+   clé. */
+function dmAttente(box, cle){
+  if(!box) return;
+  if(box.dataset.dmCle !== cle || !box.innerHTML.trim())
+    box.innerHTML='<p class="muted">Chargement…</p>';
+  box.dataset.dmCle = cle;
+}
+
 async function renderDmMoyennes(){
   const box=$('dmMoyennes'); if(!box) return;
-  box.innerHTML='<p class="muted">Chargement…</p>';
+  dmAttente(box, 'moy:'+dmGenre);
   try{
     const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
       sb.from('eleves_1ere').select('id,prenom'),
@@ -21168,7 +21319,7 @@ async function renderDmMoyennes(){
     if(e1)throw e1; if(e2)throw e2;
     dmMoyDernier=dmMoyennes(dmAdminList, eleves||[], rows||[]);
     box.innerHTML=dmMoyennesHTML(dmMoyDernier);
-  }catch(e){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
+  }catch(e){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; box.dataset.dmCle=''; }
 }
 
 async function renderDmResults(){
@@ -21177,11 +21328,15 @@ async function renderDmResults(){
      courtes ci-dessous. */
   renderDmMoyennes();
   const box=$('dmResults');
-  if(!dmSelId){ box.innerHTML=''; return; }
-  const d=dmCur(); if(!d){ box.innerHTML=''; return; }
+  if(!dmSelId){ box.innerHTML=''; box.dataset.dmCle=''; return; }
+  const d=dmCur(); if(!d){ box.innerHTML=''; box.dataset.dmCle=''; return; }
   const exos=(d.exercices||[]);
-  if(!exos.length){ box.innerHTML=`<div class="panel"><h3>Résultats ${dmGenre==='fiche'?'de la fiche':'du devoir'} n°${esc(String(d.num))}</h3><p class="muted" style="margin:0">Ajoute des exercices puis enregistre pour suivre les résultats de la classe.</p></div>`; return; }
-  box.innerHTML='<div class="panel"><h3>Bilan de la classe</h3><p class="muted">Chargement…</p></div>';
+  if(!exos.length){ box.innerHTML=`<div class="panel"><h3>Résultats ${dmGenre==='fiche'?'de la fiche':'du devoir'} n°${esc(String(d.num))}</h3><p class="muted" style="margin:0">Ajoute des exercices puis enregistre pour suivre les résultats de la classe.</p></div>`; box.dataset.dmCle=''; return; }
+  /* La clé est le devoir MONTRÉ : le même devoir garde son écran — et le
+     détail de l'élève ouvert —, un autre le remplace par « Chargement… ». */
+  const cle='res:'+dmGenre+':'+d.id;
+  if(box.dataset.dmCle!==cle) dmDetailOuvert=null;
+  dmAttente(box, cle);
   try{
     const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
       sb.from('eleves_1ere').select('id,prenom').order('prenom'),
@@ -21213,6 +21368,11 @@ async function renderDmResults(){
       return `<tr class="clickable" onclick="dmStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${badge}</td><td>${faits} / ${liste.length}</td></tr>`;
     }).join('');
     const moy=nbActifs?fmtNote(dmNoteAff(dmGenre,sommeClasse/nbActifs,totMax).note):'—';
+    /* LE CHAMP QUI A LE FOCUS LE GARDE, repéré par sa CLÉ — le texte de la
+       Seconde : le détail est reconstruit à chaque note posée. */
+    const actif=document.activeElement;
+    const focusCle=(actif && box.contains(actif) && actif.getAttribute)
+      ? actif.getAttribute('data-cle') : null;
     box.innerHTML=`
       <div class="panel">
         <h3>Bilan de la classe — devoir n°${esc(String(d.num))}</h3>
@@ -21222,24 +21382,99 @@ async function renderDmResults(){
         </div>
         <table class="tbl"><thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead><tbody>${bilanRows||''}</tbody></table>
         <p class="muted" style="font-size:.85rem;margin:10px 0 0">Clique sur un élève pour le détail par exercice. La note ne prend en compte que les essais faits <b>depuis ce devoir</b>.${GENRE_DEVOIRS[dmGenre].sur20?' La note de la fiche est ramenée sur 20.':''}</p>
+        <p class="muted" style="font-size:.85rem;margin:6px 0 0">Dans le détail d’un élève, tu peux <b>modifier la note d’un exercice</b> : écris-la sur 10 dans le champ à droite. Elle remplace la note obtenue (qui reste affichée à côté), et vider le champ la rend.</p>
       </div>
       <div id="dmStudentDetail"></div>`;
-  }catch(e){ box.innerHTML='<div class="panel"><h3>Bilan de la classe</h3><div class="empty">Connexion impossible.</div></div>'; }
+    if(dmDetailOuvert){
+      dmStudentDetail(dmDetailOuvert.eid, dmDetailOuvert.prenom, true);
+      if(focusCle){
+        const champs=box.querySelectorAll('.dm-noteinput');
+        for(let i=0;i<champs.length;i++){
+          if(champs[i].getAttribute('data-cle')!==focusCle) continue;
+          champs[i].focus();
+          try{ champs[i].setSelectionRange(champs[i].value.length, champs[i].value.length); }catch(e){}
+          break;
+        }
+      }
+    }
+  }catch(e){ box.innerHTML='<div class="panel"><h3>Bilan de la classe</h3><div class="empty">Connexion impossible.</div></div>'; box.dataset.dmCle=''; }
 }
-function dmStudentDetail(eid,prenom){
+/* L'élève dont le détail est ouvert : poser une note redessine le bilan, et
+   le détail doit rester sous les yeux du professeur. */
+let dmDetailOuvert=null;
+function dmStudentDetail(eid,prenom,sansDefiler){
   const d=dmCur(); if(!d) return;
+  dmDetailOuvert={eid:eid, prenom:prenom};
   /* Le détail lit le MÊME entonnoir que le bilan et que les moyennes. */
   const rows=dmNoteDevoir(d, eid, dmResRows||[]).exd.map(x=>{
     const px=x.ex, bs=x.bs, be=x.be, nd=x.nd;
     const bonus=dmEstBonus(px);
     const cells=(px.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const lbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell ${r.enCours?'encours':'done'}">${lbl} ${r.enCours?'en cours · '+r.faites+'/'+r.nbQ+' q · ':''}${r.percent}%</span>`:`<span class="dm-cell todo">${lbl} à faire</span>`; }).join(' ');
-    const nb=nd.fait?`<span class="dm-note">${bonus?fmtNote(nd.note/10)+' / 1':fmtNote(nd.note)+' / 10'}</span>`:`<span class="dm-note none">— / ${bonus?'1':'10'}</span>`;
-    return `<tr><td class="name">${bonus?'\u2b50 ':''}${esc(testLabel(px.id))}</td><td>${cells}</td><td>${nb}</td></tr>`;
+    const valeur=n=>bonus?fmtNote(n/10)+' / 1':fmtNote(n)+' / 10';
+    /* La note POSÉE se voit à côté de celle qui a été OBTENUE, jamais à sa
+       place. Le champ est TOUJOURS sur 10, bonus compris : c'est l'échelle de
+       la note rangée, que dmTotal ramène sur 1. escJS() pour les deux
+       identifiants qui partent dans l'attribut onchange. */
+    const nb=nd.posee
+      ? `<span class="dm-note posee" title="Note posée par le professeur">${valeur(nd.note)}</span>`
+      : (nd.fait?`<span class="dm-note">${valeur(nd.note)}</span>`:`<span class="dm-note none">— / ${bonus?'1':'10'}</span>`);
+    const obtenu = nd.posee
+      ? ` <span class="dm-obtenu">obtenu&nbsp;${nd.soutienFait||nd.entrainFait?fmtNote(nd.auto):'—'}</span>` : '';
+    const champ = `<span class="dm-poser">`
+      + `<input class="dm-noteinput" type="text" inputmode="decimal" value="${nd.posee?esc(fmtNote(nd.note)):''}"`
+      + ` placeholder="${nd.fait?esc(fmtNote(nd.auto)):'—'}" aria-label="Note posée pour ${esc(prenom)} sur ${esc(testNum(px.id))}"`
+      + ` data-cle="${esc(eid+'|'+px.id)}"`
+      + ` onchange="poserNoteDevoir('${escJS(eid)}','${escJS(px.id)}',this.value)">`
+      + `<span class="dm-sur">/10</span></span>`;
+    return `<tr class="dm-exrow"><td class="name">${bonus?'\u2b50 ':''}${esc(testLabel(px.id))}</td><td>${cells}</td><td>${nb}${obtenu}</td><td>${champ}</td></tr>`;
   }).join('');
-  const el=$('dmStudentDetail');
-  el.innerHTML=`<div class="panel"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">Détail — ${esc(prenom)}</h3><button class="btn-link" onclick="$('dmStudentDetail').innerHTML=''">Fermer</button></div>
-    <table class="tbl"><thead><tr><th>Exercice</th><th>Modes</th><th>Note</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const el=$('dmStudentDetail'); if(!el) return;
+  el.innerHTML=`<div class="panel"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">Détail — ${esc(prenom)}</h3><button class="btn-link" onclick="dmDetailOuvert=null;$('dmStudentDetail').innerHTML=''">Fermer</button></div>
+    <table class="tbl"><thead><tr><th>Exercice</th><th>Modes</th><th>Note</th><th>Modifier</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  if(!sansDefiler) el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* POSER UNE NOTE — le texte de la Seconde et de la Terminale, à l'écriture
+   près : la Première n'a pas de persistDevoirs(). On RELIT la configuration
+   et on ne touche qu'aux notes du devoir montré — l'éditeur peut porter des
+   modifications non enregistrées, et une note posée ne doit pas les publier
+   en douce. Le champ vide REND la note obtenue ; une saisie illisible
+   n'écrase rien et le dit ; la virgule est acceptée. */
+async function poserNoteDevoir(eleveId, exoId, brut){
+  const d=dmCur(); if(!d) return;
+  const cle=eleveId+'|'+exoId;
+  const t=String(brut==null?'':brut).trim().replace(',', '.');
+  let valeur, annonce;
+  if(t===''){ valeur=undefined; annonce='Note rendue à ce que l’élève a obtenu'; }
+  else {
+    const v=Number(t);
+    if(!isFinite(v) || t.match(/[^0-9.\-]/)){ toast('Note illisible — écris un nombre entre 0 et 10','err'); await renderDmResults(); return; }
+    valeur=Math.max(0, Math.min(10, v));
+    annonce='Note posée : '+fmtNote(valeur)+' / 10';
+    if(valeur!==v) annonce+=' (ramenée dans 0–10)';
+  }
+  const poser=function(dev){
+    const notes=Object.assign({}, (dev.notes && typeof dev.notes==='object' && !Array.isArray(dev.notes)) ? dev.notes : {});
+    if(valeur===undefined) delete notes[cle]; else notes[cle]=valeur;
+    return notes;
+  };
+  try{
+    cfg=await loadConfig();
+    if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
+    const cleG=dmCleGenre();
+    let trouve=false;
+    const arr=(cfg[cleG]||[]).map(function(x){
+      if(x.id!==d.id) return x;
+      trouve=true; return Object.assign({}, x, {notes:poser(x)});
+    });
+    if(!trouve) throw new Error('devoir non enregistré');
+    const maj={}; maj[cleG]=arr;
+    const {error}=await saveConfig(Object.assign({},cfg,maj)); if(error) throw error;
+    d.notes=poser(d);
+    toast(annonce+' ✓','ok');
+  }catch(e){ toast('Enregistrement impossible — la note n’est pas gardée','err'); }
+  /* ATTENDU : qui attend poserNoteDevoir doit lire l'écran d'APRÈS. */
+  await renderDmResults();
 }
 async function renderEvalLocks(){
   const box=$('lockList'); box.innerHTML='<p class="muted">Chargement…</p>';
