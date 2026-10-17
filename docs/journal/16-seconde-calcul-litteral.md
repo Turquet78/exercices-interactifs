@@ -682,7 +682,7 @@ attend son 2 (« 15x^ » reste tel quel le temps de taper). Sous le bouton
 « 8x² », « -3x² », « x² » dans une case du 7.11, du 7.10 et du 7.9 ;
 « 15x^ » ne bouge pas ; la case convertie se lit toujours 8x².
 
-## {developper-reduire} — développer puis réduire une somme de produits (7.12, v539)
+## {developper-reduire} — développer puis réduire une somme de produits (7.12, v541)
 
 **La demande** (Turquet, octobre 2026) : « créer un exercice dans calcul
 littéral sur Développer puis réduire une somme de produits. Par exemple
