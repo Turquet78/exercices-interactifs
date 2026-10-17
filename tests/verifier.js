@@ -14331,19 +14331,19 @@ function sommeTroisVecteurs(w, P){
        vert ; pendant l'étape 1, rien ne se trace ni ne se déclare, aucun point */
     const cadres=function(){ return ['stv-ch','stv-sm'].map(function(id){ return (el(id).classList.contains('stv-cours')?'C':'')+(el(id).classList.contains('stv-fait')?'F':'')||'-'; }).join('/'); };
     const svgE=function(){ return document.querySelector('#stvGraph .stv-svg').classList.contains('stv-etape1'); };
-    if(cadres()!=='C/-' || !svgE()) vus.push('au départ, l\'étape 1 n\'est pas seule en cours : '+cadres());
+    if(cadres()!=='C/-' || !svgE()) vus.push('au départ, l\\'étape 1 n\\'est pas seule en cours : '+cadres());
     stvPose(3,3); stvNul();
-    if(test.questions[0].sd || test.questions[0].dn || !el('stvNul').disabled) vus.push('pendant l\'étape 1, un clic pose un point ou le vecteur nul se déclare');
+    if(test.questions[0].sd || test.questions[0].dn || !el('stvNul').disabled) vus.push('pendant l\\'étape 1, un clic pose un point ou le vecteur nul se déclare');
     stvDeplacer(0,[2,2]);
-    if(cadres()!=='C/-') vus.push('une seule flèche placée, l\'étape 1 change : '+cadres());
+    if(cadres()!=='C/-') vus.push('une seule flèche placée, l\\'étape 1 change : '+cadres());
     stvDeplacer(1,[5,3]); stvDeplacer(2,[6,6]);
-    if(cadres()!=='F/C' || svgE() || el('stvNul').disabled) vus.push('les flèches bout à bout, l\'étape 1 ne passe pas au vert ou l\'étape 2 en bleu : '+cadres());
+    if(cadres()!=='F/C' || svgE() || el('stvNul').disabled) vus.push('les flèches bout à bout, l\\'étape 1 ne passe pas au vert ou l\\'étape 2 en bleu : '+cadres());
     stvPose(2,2);
-    if(cadres()!=='F/C') vus.push('le début seul posé, l\'étape 2 passe déjà : '+cadres());
+    if(cadres()!=='F/C') vus.push('le début seul posé, l\\'étape 2 passe déjà : '+cadres());
     stvPose(4,4);
-    if(cadres()!=='F/F') vus.push('la somme tracée, l\'étape 2 ne passe pas au vert : '+cadres());
+    if(cadres()!=='F/F') vus.push('la somme tracée, l\\'étape 2 ne passe pas au vert : '+cadres());
     stvDeplacer(0,[3,3]);
-    if(cadres()!=='C/F' || !svgE()) vus.push('la chaîne défaite, l\'étape 1 ne redevient pas en cours : '+cadres());
+    if(cadres()!=='C/F' || !svgE()) vus.push('la chaîne défaite, l\\'étape 1 ne redevient pas en cours : '+cadres());
     test.questions[0]=fiche(false); renderStv();
     if(cadres()!=='C/-') vus.push('la question redessinée garde ses cadres : '+cadres());
 
