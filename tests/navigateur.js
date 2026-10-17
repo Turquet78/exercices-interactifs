@@ -15830,7 +15830,9 @@ if(require.main === module) (async () => {
           if(!fig) return { pb: 'pas de serpent sur ' + on.id };
           const rf = fig.getBoundingClientRect(), svg = fig.querySelector('svg.hw-svg');
           const card = fig.closest('.card'), rc = card ? card.getBoundingClientRect() : null;
-          const img = fig.parentNode.querySelector('img[src*="dessins/"]'), ri = img ? img.getBoundingClientRect() : null;
+          const img = fig.parentNode.querySelector('img[src*="dessins/"]:not(.hw-img)'), ri = img ? img.getBoundingClientRect() : null;
+          /* le serpent lui-même est un dessin en fichier, posé sur la moitié gauche du cadre de la bulle */
+          const hw = fig.querySelector('img.hw-img'), rh = hw ? hw.getBoundingClientRect() : null;
           /* la bulle et ses deux lignes portent une classe : les étoiles du sorcier
              et les crocs blancs du vampire sont aussi des <text> et des <path fill="#fff"> */
           const textes = svg ? [...svg.querySelectorAll('text.hw-bulle-texte')] : [];
@@ -15850,6 +15852,8 @@ if(require.main === module) (async () => {
           const petits = textes.filter(t => parseFloat(getComputedStyle(t).fontSize) < 12).map(t => parseFloat(getComputedStyle(t).fontSize) + ' px « ' + t.textContent + ' »');
           return { ecran: on.id, variante: fig.getAttribute('data-hw'), largeur: rf.width, hauteur: rf.height,
                    svgH: svg ? svg.getBoundingClientRect().height : 0, imgL: ri ? ri.width : 0,
+                   hwL: rh ? rh.width : 0, hwH: rh ? rh.height : 0, hwCharge: !!hw && hw.complete && hw.naturalWidth > 0,
+                   hwDedans: !!rh && rh.left >= rf.left - 1 && rh.right <= rf.right + 1 && rh.top >= rf.top - 1 && rh.bottom <= rf.bottom + 1,
                    dansCarte: !!rc && rf.left >= rc.left - 1 && rf.right <= rc.right + 1,
                    largeurPage: document.documentElement.scrollWidth,
                    textes: textes.length, deborde, petits };
@@ -15871,11 +15875,13 @@ if(require.main === module) (async () => {
           if(sans.largeur > 0 || sans.hauteur > 0) pbs.push(id + ' : décor éteint, le serpent occupe ' + Math.round(sans.largeur) + '×' + Math.round(sans.hauteur) + ' px');
           /* décor allumé, grand écran */
           await s.page.evaluate(() => document.body.classList.add('halloween'));
+          await s.page.evaluate(() => { const i = document.querySelector('section.screen.on img.hw-img'); return i ? i.decode().catch(() => {}) : null; });
           await s.page.waitForTimeout(120);
           const avec = await mesurer();
           if(avec.pb){ pbs.push(id + ' : ' + avec.pb); continue; }
           if(!(avec.largeur > 150) || !(avec.svgH > 100)) pbs.push(id + ' : le serpent est rendu ' + Math.round(avec.largeur) + '×' + Math.round(avec.svgH) + ' px');
           if(!(avec.imgL > 100)) pbs.push(id + ' : le dessin de la fiche ne fait plus que ' + Math.round(avec.imgL) + ' px à côté du serpent');
+          if(!avec.hwCharge || !(avec.hwL > 100) || !(avec.hwH > 120) || !avec.hwDedans) pbs.push(id + ' : le dessin du serpent est ' + (avec.hwCharge ? 'rendu ' + Math.round(avec.hwL) + '×' + Math.round(avec.hwH) + ' px' + (avec.hwDedans ? '' : ', hors de son cadre') : 'non chargé'));
           /* la page peut déjà déborder sans le décor (le 6.3.7 à 360 px : un <code> de
              l'énoncé) — ce qu'on tient, c'est que le serpent n'élargit RIEN */
           if(!avec.dansCarte || avec.largeurPage > sans.largeurPage) pbs.push(id + ' : le serpent sort de la carte ou élargit la page (' + sans.largeurPage + ' → ' + avec.largeurPage + ' px)');
