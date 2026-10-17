@@ -18443,10 +18443,12 @@ function etudeAlgoConvexite(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='etude-algo-convexite';
 
-    /* ---- 0. la place au menu : le dernier de la partie « Convexité » ---- */
+    /* ---- 0. la place au menu : dans la partie « Convexité », au rang 4 —
+       elle la fermait ; {associer-derivee-seconde} (4.3.5, octobre 2026) est
+       venu après, et c'est le numéro qui tient le rang ---- */
     { const th=THEMES.filter(function(t){ return t.nom==='Étude de fonction'; })[0];
       const st=th&&th.sous&&th.sous.filter(function(x){ return x.nom==="Convexité"; })[0];
-      if(!st || st.ids[st.ids.length-1]!=='etude-algo-convexite') vus.push("{etude-algo-convexite} n'est pas dans la partie « Convexité » du thème Étude de fonction");
+      if(!st || st.ids.indexOf('etude-algo-convexite')<0) vus.push("{etude-algo-convexite} n'est pas dans la partie « Convexité » du thème Étude de fonction");
       if(TEST_NUM['etude-algo-convexite']!=='4.3.4') vus.push('le numéro n\\'est pas 4.3.4 : '+TEST_NUM['etude-algo-convexite']); }
 
     /* ---- 1. le tirage : (a, b, k, c) et rien d'autre ; les trois exponentielles sortent ---- */
@@ -47306,6 +47308,7 @@ function associerDeriveeSeconde(w, P){
       qs.forEach(function(q,i){ juge(q,'question '+(i+1)); });
     }
     juge(AFD_REPLI, 'la question de repli');
+    if(TEST_NUM['associer-derivee-seconde']!=='4.3.5') vus.push('le numéro n\\'est pas 4.3.5 (cinquième de la partie Convexité) : '+TEST_NUM['associer-derivee-seconde']);
 
     /* ---- les gestes, sur la question de repli ----
        ordre [3,0,5,2,1,4] : f′ = courbe 2, f″ = 5 ; g′ = 4, g″ = 1 ; h′ = 6, h″ = 3 */
