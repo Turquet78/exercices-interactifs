@@ -3240,7 +3240,7 @@ entier à 1280 et 390 px, une question sur deux juste, l'autre avec une case
 fausse et le reste vide — juste en bleu, faux en rouge avec la correction à
 côté, vides complétées en vert, écran des résultats au bout, aucune erreur
 JavaScript, aucune page qui défile en largeur.
-**{convexite-parametre} (4.3.7) : TROUVER UN PARAMÈTRE (octobre 2026, v391).**
+**{convexite-parametre} (4.3.7) : TROUVER UN PARAMÈTRE (octobre 2026, v392).**
 Demande de Turquet : « dans le sous-thème convexité, créer un exercice sur
 Trouver un paramètre — f(x) = x³ + kx² + 1 admet un point d'inflexion
 d'abscisse 2 : trouve k. Ou bien : pour quelles valeurs de a la fonction
