@@ -4530,6 +4530,7 @@ function exercices(suite){
     developperDouble(w, P);
     developperDoubleNu(w, P);
     vraiFauxCalcul(w, P);
+    valeurExpression(w, P);
     translationGrille(w, P);
     vecteursEgauxTableau(w, P);
     vecteursEgaux(w, P);
@@ -23252,6 +23253,107 @@ function developperDouble(w, P){
     /* le barème : 4 pages de 15 cases */
     startDvd();
     if(test.maxScore!==60) vus.push('barème de '+test.maxScore+' au lieu de 60');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {valeur-expression} — 7.13, thème « Calcul littéral » : calculer une
+   expression pour une valeur négative de x, avec le piège (−2)² contre −2².
+   Les attendus sont recalculés ICI par l'arithmétique de JavaScript, jamais
+   par les fonctions de la page qui corrigent ; la copie juste de la fiche
+   témoin est écrite À LA MAIN. */
+function valeurExpression(w, P){
+  const nom='calculer une expression pour une valeur : le tirage, la correction et la place en 7.13';
+  const present = evaluer(w, "typeof startCvl==='function' && typeof cvlCases==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de valeur d\'une expression'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='valeur-expression';
+
+    /* ---- 0. la place : 7.12, en dernier, rien d'autre ne bouge --------- */
+    const th=THEMES.find(function(t){ return t.num===7; });
+    if(!th || th.ids.indexOf('valeur-expression')<0) vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
+    if(TEST_NUM['valeur-expression']!=='7.13') vus.push('numéro '+TEST_NUM['valeur-expression']+' au lieu de 7.13');
+    if(TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['developper-double-nu']!=='7.11' || TEST_NUM['vrai-faux-calcul']!=='7.12') vus.push('l\\'exercice ajouté a renuméroté les autres');
+    if(TABLES_SANS.indexOf('valeur-expression')>=0) vus.push('le bouton des tables est retiré : on y multiplie');
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    for(let i=0;i<500 && !vus.length;i++){
+      const qs=cvlBuildQuestions();
+      if(qs.length!==3){ vus.push(qs.length+' pages au lieu de 3'); break; }
+      if(new Set(qs.map(function(q){ return JSON.stringify(q); })).size!==3) vus.push('deux pages identiques dans une séance');
+      qs.forEach(function(q){
+        const x=-q.k;
+        if(!(q.k>=2 && q.k<=5)) vus.push('x = '+x+' hors de −5…−2');
+        if(!(q.a>=2 && q.a<=5)) vus.push('a = '+q.a+' hors de 2…5');
+        [q.b,q.b2].forEach(function(b){ if(!(Math.abs(b)>=2 && Math.abs(b)<=7)) vus.push('coefficient de x '+b+' hors de ±2…7'); });
+        [q.c,q.c2].forEach(function(c){ if(!(Math.abs(c)>=1 && Math.abs(c)<=9)) vus.push('constante '+c+' hors de ±1…9'); });
+        const L=cvlCases(q), att={};
+        L.forEach(function(l){ att[l.id]=l.r; });
+        const ref={'cvl-car':Math.pow(x,2), 'cvl-opp':-Math.pow(q.k,2),
+          'cvl-A2':q.a*Math.pow(x,2), 'cvl-A1':q.b*x, 'cvl-A0':q.a*Math.pow(x,2)+q.b*x+q.c,
+          'cvl-B2':-Math.pow(x,2), 'cvl-B1':q.b2*x, 'cvl-B0':-Math.pow(x,2)+q.b2*x+q.c2};
+        if(L.length!==8) vus.push(L.length+' cases au lieu de 8');
+        Object.keys(ref).forEach(function(id){ if(att[id]!==ref[id]) vus.push(id+' attend '+att[id]+' au lieu de '+ref[id]+' (x = '+x+')'); });
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 2. la correction, par le BOUTON, sur la fiche témoin ------------
+       x = −2, A = 3x² − 2x + 1, B = −x² + 5x − 3 */
+    startCvl();
+    test.questions[test.idx]={k:2,a:3,b:-2,c:1,b2:5,c2:-3};
+    const JUSTE={'cvl-car':'4','cvl-opp':'−4','cvl-A2':'12','cvl-A1':'+4','cvl-A0':'17',
+                 'cvl-B2':'-4','cvl-B1':'−10','cvl-B0':'-17'};
+    const IDS=Object.keys(JUSTE);
+    const fb=function(){ return (document.getElementById('cvlFeedback')||{}).textContent||''; };
+    const poser=function(vals){
+      test.locked=false; renderCvlTest();
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    renderCvlTest();
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la page manque à l\\'écran';
+    const hote=(document.getElementById('cvlHost')||{}).textContent||'';
+    ['On prend x = −2','(−2)² =','−2² =','A = 3x² − 2x + 1','3x² = 3 × (−2)² =','−2x = −2 × (−2) =','A = 3 × (−2)² − 2 × (−2) + 1 =',
+     'B = −x² + 5x − 3','−x² = −(−2)² =','5x = 5 × (−2) =','B = −(−2)² + 5 × (−2) − 3 ='].forEach(function(s){
+      if(hote.indexOf(s)<0) vus.push('l\\'écran n\\'écrit pas « '+s+' »'); });
+    /* copie juste — « +4 », « −4 », « -4 » : le + est facultatif, le moins s'écrit des deux façons */
+    poser(JUSTE); checkCvlAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    IDS.forEach(function(id){ if(peint(id)!=='juste') vus.push('copie juste : '+id+' en '+peint(id)); });
+    if(!der || der.cases!==8) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 8');
+    /* PIÈGE 1 : −2² = +4, le signe mis au carré */
+    poser(Object.assign({},JUSTE,{'cvl-opp':'4'})); checkCvlAnswer();
+    if(peint('cvl-opp')!=='faux') vus.push('−2² = 4 peint en '+peint('cvl-opp'));
+    if(peint('cvl-car')!=='juste') vus.push('(−2)² juste peint en '+peint('cvl-car'));
+    if(!/pas de parenthèses/.test(fb())) vus.push('le message de −2² ne parle pas des parenthèses : '+fb());
+    /* PIÈGE 2 : (−2)² = −4 */
+    poser(Object.assign({},JUSTE,{'cvl-car':'-4'})); checkCvlAnswer();
+    if(peint('cvl-car')!=='faux') vus.push('(−2)² = −4 peint en '+peint('cvl-car'));
+    if(!/AU CARRÉ/.test(fb())) vus.push('le message de (−2)² ne dit pas que le signe est au carré');
+    /* PIÈGE 3 : −x² = +4 pour x = −2, le même piège dans l'expression */
+    poser(Object.assign({},JUSTE,{'cvl-B2':'4'})); checkCvlAnswer();
+    if(peint('cvl-B2')!=='faux') vus.push('−x² = 4 peint en '+peint('cvl-B2'));
+    if(!/−4/.test(fb()) || !/piège/.test(fb())) vus.push('le message de −x² ne nomme pas le piège : '+fb());
+    /* PIÈGE 4 : (3 × (−2))² = 36 */
+    poser(Object.assign({},JUSTE,{'cvl-A2':'36'})); checkCvlAnswer();
+    if(peint('cvl-A2')!=='faux') vus.push('3x² = 36 peint en '+peint('cvl-A2'));
+    if(!/ne porte que sur/.test(fb())) vus.push('le message de 3x² = 36 ne dit pas sur quoi porte le carré');
+    /* PIÈGE 5 : −2 × (−2) = −4, le signe du plus fort pris pour un produit */
+    poser(Object.assign({},JUSTE,{'cvl-A1':'-4'})); checkCvlAnswer();
+    if(peint('cvl-A1')!=='faux' || !/règle des signes/.test(fb())) vus.push('−2 × (−2) = −4 : '+peint('cvl-A1')+' / '+fb());
+    /* une case vide ne rougit pas, et ne fait pas rougir ses voisines */
+    poser(Object.assign({},JUSTE,{'cvl-A0':'','cvl-B1':''})); checkCvlAnswer();
+    ['cvl-A0','cvl-B1'].forEach(function(id){ if(peint(id)!=='correction') vus.push('case vide '+id+' peinte en '+peint(id)); });
+    if((document.getElementById('cvl-B1')||{}).value!=='−10') vus.push('la correction de la case vide n\\'écrit pas −10');
+    if(peint('cvl-B0')!=='juste' || peint('cvl-A1')!=='juste') vus.push('une case juste rougit parce qu\\'une voisine est vide');
+    /* une réponse illisible est fausse, pas vide */
+    poser(Object.assign({},JUSTE,{'cvl-B0':'-17,'})); checkCvlAnswer();
+    if(peint('cvl-B0')!=='faux') vus.push('« -17, » est peint en '+peint('cvl-B0'));
+    if(test.maxScore!==24) vus.push('barème de '+test.maxScore+' au lieu de 24');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
