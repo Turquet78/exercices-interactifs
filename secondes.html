@@ -7724,7 +7724,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=540;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=541;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -8567,7 +8567,7 @@ const TESTS={
   'python-input-prix': { name:'Le prix des pommes et des tomates', icon:'\ud83c\udf4e', desc:'\u00c9cris un programme qui demande le poids des pommes puis celui des tomates sous forme d\u00e9cimale, calcule le prix total \u00e0 payer et l\u2019affiche avec une phrase. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPKG() },
   'python-input-concat': { name:'Pourquoi 12 + 15 donne 1215 ?', icon:'\ud83e\udd14', desc:'Ce programme devait additionner deux nombres demand\u00e9s avec input, et il affiche 1215. Ex\u00e9cute-le, choisis ce qui l\u2019explique, puis corrige-le.', start:()=>startPCZ() },
   'python-input-erreur-type': { name:'Un texte plus un nombre : TypeError', icon:'\u26a0\ufe0f', desc:'Ce programme s\u2019arr\u00eate sur une erreur d\u00e8s qu\u2019on lui r\u00e9pond. Ex\u00e9cute-le, choisis ce qui l\u2019explique, puis corrige-le.', start:()=>startPTE() },
-  'python-input-int-float': { name:'int refuse 1.65 : il faut float', icon:'\ud83d\udccf', desc:'Ce programme refuse les nombres \u00e0 virgule. Ex\u00e9cute-le, choisis ce qui l\u2019explique, puis corrige-le avec float.', start:()=>startPFL() },
+  'python-input-int-float': { name:'int refuse un nombre \u00e0 virgule : il faut float', icon:'\ud83d\udccf', desc:'Ce programme refuse les nombres \u00e0 virgule. Ex\u00e9cute-le, choisis ce qui l\u2019explique, puis corrige-le avec float.', start:()=>startPFL() },
   'python-input-conversion': { name:'input, int(input) ou float(input) ?', icon:'\ud83c\udccf', desc:'Pour chaque question qu\u2019un programme pose, choisis l\u2019\u00e9criture qui range la r\u00e9ponse avec le bon type\u00a0: texte, entier ou d\u00e9cimal.', start:()=>startPQC() },
   'python-input-predire': { name:'Pr\u00e9dire ce que le programme affiche', icon:'\ud83d\udd2e', desc:'Un programme pose ses questions, l\u2019utilisateur r\u00e9pond\u00a0: \u00e9cris, sans l\u2019ex\u00e9cuter, ce que chaque print affiche.', start:()=>startPPR() },
   'python-input-ordre': { name:'Remettre les lignes dans l\u2019ordre', icon:'\ud83e\udde9', desc:'Les lignes d\u2019un programme qui pose des questions ont \u00e9t\u00e9 m\u00e9lang\u00e9es\u00a0: remets-les dans l\u2019ordre pour qu\u2019il fasse ce qu\u2019on demande.', start:()=>startPOD() },
@@ -11367,11 +11367,11 @@ On pourra utiliser une boucle qui va de 0 à 10.<br>
 /* Les rappels de 6.3.10 à 6.3.17 : la définition de l'écran, et rien de plus. */
 const RAP_PCZ=`<b>input rend toujours un texte</b><br>Ce que l’utilisateur tape est rangé sous forme de texte (str), même un nombre : le + colle alors deux textes.<br>Pour un nombre entier : <code class="inline">a = int(input("…"))</code>`;
 const RAP_PTE=`<b>Un texte plus un nombre : TypeError</b><br>input rend toujours un texte (str) : Python ne sait pas calculer entre un texte et un nombre, et s’arrête sur une erreur TypeError.<br>Pour un nombre entier : <code class="inline">age = int(input("…"))</code>`;
-const RAP_PFL=`<b>int ou float</b><br><code class="inline">int(input("…"))</code> : la réponse devient un nombre entier ; il refuse 1.65.<br><code class="inline">float(input("…"))</code> : la réponse devient un nombre décimal, écrit avec un point.`;
+const RAP_PFL=`<b>int ou float</b><br><code class="inline">int(input("…"))</code> : la réponse devient un nombre entier ; il refuse <code class="inline">1.65</code>.<br><code class="inline">float(input("…"))</code> : la réponse devient un nombre décimal, écrit avec un point.`;
 const RAP_PQC=`<b>input, int(input) ou float(input)</b><br><code class="inline">input("…")</code> : un texte (str).<br><code class="inline">int(input("…"))</code> : un nombre entier (int).<br><code class="inline">float(input("…"))</code> : un nombre décimal (float).`;
-const RAP_PPR=`<b>Prédire ce que le programme affiche</b><br>input rend toujours un texte : "3" + "4" donne 34, "3" * 2 donne 33.<br>int(…) et float(…) en font un nombre ; une division donne un float, qui s’affiche avec un point : 4.0.`;
+const RAP_PPR=`<b>Prédire ce que le programme affiche</b><br>input rend toujours un texte : "3" + "4" donne 34, "3" * 2 donne 33.<br>int(…) et float(…) en font un nombre ; une division donne un float, qui s’affiche avec un point : <code class="inline">4.0</code>.`;
 const RAP_POD=`<b>L’ordre des lignes</b><br>Python exécute les lignes de haut en bas : une variable reçoit sa valeur (avec =) avant qu’on s’en serve dans un calcul ou dans un print.`;
-const RAP_PRD=`<b>Arrondir avec round</b><br><code class="inline">round(nombre, 2)</code> arrondit avec 2 chiffres après la virgule : round(3.14159, 2) vaut 3.14.<br>Sans le 2, round(nombre) arrondit à l’unité.`;
+const RAP_PRD=`<b>Arrondir avec round</b><br><code class="inline">round(nombre, 2)</code> arrondit avec 2 chiffres après la virgule : <code class="inline">round(3.14159, 2)</code> vaut <code class="inline">3.14</code>.<br>Sans le 2, round(nombre) arrondit à l’unité.`;
 const RAP_PMO=`<b>// et %</b><br><code class="inline">a // b</code> : le quotient entier ; <code class="inline">a % b</code> : le reste.<br>47 // 20 vaut 2 et 47 % 20 vaut 7, car 47 = 2 × 20 + 7.`;
 const RAP_PKG=`<b>Le prix des pommes et des tomates</b><br>
 Formule : <code class="inline">Prix total = poids des pommes * 3,62 + poids des tomates * 5,57</code>`;
@@ -40871,11 +40871,19 @@ function pzEtapeHTML(k, e, enonce, corps){
   return '<div class="pyn-etape" id="'+k+'Etape'+e.toUpperCase()+'"><p class="pyn-titre">✏️ '+enonce+'</p>'+corps+'</div>';
 }
 /* Le dessin de la fiche et son serpent d'Halloween, à côté. */
-const PZ_TAILLES={'python-input-concat':[270,236], 'python-input-erreur-type':[270,249], 'python-input-int-float':[270,249], 'python-input-conversion':[270,228],
-  'python-input-predire':[270,252], 'python-input-ordre':[270,228], 'python-input-arrondi':[270,228], 'python-input-monnaie':[270,240]};
+const PZ_DESSINS={
+  'python-input-concat':['dessins/secondes/python-input-concat.webp',270,236],
+  'python-input-erreur-type':['dessins/secondes/python-input-erreur-type.webp',270,249],
+  'python-input-int-float':['dessins/secondes/python-input-int-float.webp',270,249],
+  'python-input-conversion':['dessins/secondes/python-input-conversion.webp',270,228],
+  'python-input-predire':['dessins/secondes/python-input-predire.webp',270,252],
+  'python-input-ordre':['dessins/secondes/python-input-ordre.webp',270,228],
+  'python-input-arrondi':['dessins/secondes/python-input-arrondi.webp',270,228],
+  'python-input-monnaie':['dessins/secondes/python-input-monnaie.webp',270,240]
+};
 function pzFigureHTML(id, alt){
-  const t=PZ_TAILLES[id]||[270,240];
-  return '<div class="pz-fig"><img class="pz-img" src="dessins/secondes/'+id+'.webp" alt="'+alt+'" width="'+t[0]+'" height="'+t[1]+'">'+hwSerpentHTML(id)+'</div>';
+  const t=PZ_DESSINS[id];
+  return '<div class="pz-fig"><img class="pz-img" src="'+t[0]+'" alt="'+alt+'" width="'+t[1]+'" height="'+t[2]+'">'+hwSerpentHTML(id)+'</div>';
 }
 function pzEntete(k){
   const K=k.toUpperCase();
