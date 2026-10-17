@@ -1663,7 +1663,7 @@ les lettres… » en jsdom, « 11 decies » au navigateur) s'appliquent désorma
 à la Seconde sans une ligne de banc nouvelle : seule la déclaration du profil
 a été ajoutée.
 
-**Puis le 4.5.9, le même jour : « fais pareil pour le 4.5.9 » (v546).** Le
+**Puis le 4.5.9, le même jour : « fais pareil pour le 4.5.9 » (v547).** Le
 paragraphe précédent l'avait laissé hors du clavier B, parce que son juge ne
 lisait pas les mots : « hausse de 20 % » rendait la ligne illisible. Le portage
 a donc commencé par le juge, pas par le clavier : `checkSpr` passe la copie par
