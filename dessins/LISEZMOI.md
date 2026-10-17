@@ -1,7 +1,8 @@
 # Les dessins des exercices
 
 Les images que les exercices affichent — le serpent des exercices Python, ses
-déguisements d'Halloween (`<identifiant>-halloween.webp`, sous-thème 6.3), le
+déguisements d'Halloween (`<identifiant>-halloween.webp`, sous-thèmes 6.1, 6.2
+et 6.3), le
 schéma-bilan des ensembles de nombres — vivent ici, **en fichiers**, un dossier
 par niveau :
 
@@ -54,3 +55,14 @@ Le profil du niveau (`tests/profils.js`, clé `dessins`) déclare le dossier :
 c'est le bord opposé des deux contrôles — un niveau qui déclare des dessins
 doit en offrir au banc, un niveau qui n'en déclare pas s'affiche « non
 applicable » plutôt que d'être tu.
+
+## Les dessins des sous-thèmes 6.1 et 6.2 « variables »
+
+Trente dessins thématiques (un accessoire par exercice) et trente-neuf serpents
+d'Halloween ont été dessinés en SVG, puis convertis en WebP (octobre 2026). Ils
+ne demandent aucun code par exercice : la table `DESSINS_VAR` (le dessin
+thématique, posé au-dessus de l'énoncé) et `HW_SERPENTS` (le serpent
+d'Halloween, posé à côté du dessin de l'exercice) suffisent, `dessinsVariables()`
+les pose après chaque rendu. Pour remplacer un dessin par un autre, il suffit
+de déposer le nouveau fichier sous un **nouveau nom** et de mettre la table à
+jour.

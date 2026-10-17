@@ -1830,7 +1830,12 @@ module.exports = {
        visible sous body.halloween seulement. `theme`/`sous` désignent le
        sous-thème lu dans THEMES : un exercice qui y entre demain doit gagner
        son serpent, et le banc le dit. */
-    serpentsHalloween: { theme: 6, sous: 3 },
+    /* Puis les sous-thèmes 6.1 et 6.2 « variables » (octobre 2026 : « fais des
+       dessins de serpent en rapport avec chaque exercice, et un autre pour
+       Halloween ») : un dessin par exercice (celui de la fiche, ou
+       DESSINS_VAR) et un serpent d'Halloween à côté. `dessin` : les
+       sous-thèmes dont chaque exercice doit montrer un dessin. */
+    serpentsHalloween: { theme: 6, sous: [1, 2, 3], dessin: [1, 2] },
     /* {python-chaine-tirets} (6.4.2, demande de Turquet, octobre 2026) :
        l'exercice 28 du carnet — ajouter « - » entre chaque caractère d'une
        chaîne avec une boucle for. Il suit {python-chaine-len} dans le
