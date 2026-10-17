@@ -4529,6 +4529,7 @@ function exercices(suite){
     developperDistributivite(w, P);
     developperDouble(w, P);
     developperDoubleNu(w, P);
+    vraiFauxCalcul(w, P);
     translationGrille(w, P);
     vecteursEgauxTableau(w, P);
     vecteursEgaux(w, P);
@@ -4712,6 +4713,7 @@ function exercices(suite){
     pourcentagePhrases(w, P);
     pourcentageSchemaCadres(w, P);
     pourcentageSchemaVide(w, P);
+    facteursGlobalCommutes(w, P);
     coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
@@ -4720,6 +4722,7 @@ function exercices(suite){
     signeDeriveeQcm(w, P);
     convexiteTroisCourbes(w, P);
     convexiteQcm(w, P);
+    associerDeriveeSeconde(w, P);
     mineursTerminale(w, P);
     suiteVocabulaire(w, P);
     etiquetteCourbe(w, P);
@@ -13665,7 +13668,7 @@ function lireSommeDessin(w, P){
         let m; while((m=re.exec(src))){ const p=m[3].trim().split(/\\s+/)[0].split(',').map(Number);
           r.push({n:att(' '+m[1],'data-n'), a:[+att(' '+m[2],'x1'), +att(' '+m[2],'y1')], b:p}); }
         return r; };
-      const ch=fl('lsd-ch'), lib=fl('lsd-lib');
+      const ch=fl('lsd-ch'), lib=fl('lsd-lib'), bl=fl('lsd-bl');
       /* le nom de chaque flèche libre : le texte le plus proche de son milieu */
       const noms=(src.match(/<text class="lsd-vn"[^>]*>[^<]*<\\/text>/g)||[]).map(function(t){
         return {x:+att(t,'x'), y:+att(t,'y'), v:t.replace(/^<text[^>]*>|<\\/text>$/g,'').trim()}; });
@@ -13678,7 +13681,7 @@ function lireSommeDessin(w, P){
       const meme=function(a, b){ return Math.abs(a[0]-b[0])<0.5 && Math.abs(a[1]-b[1])<0.5; };
       const L=Object.keys(pts).sort(), vecs=[];
       L.forEach(function(X){ L.forEach(function(Y){ if(X!==Y) vecs.push(X+Y); }); });
-      return {pts:pts, ch:ch, libre:libre, dep:dep, D:D2, meme:meme, vecs:vecs};
+      return {pts:pts, ch:ch, bl:bl, libre:libre, dep:dep, D:D2, meme:meme, vecs:vecs};
     };
     const plus=function(a, b){ return [a[0]+b[0], a[1]+b[1]]; };
     const moins=function(a, b){ return [a[0]-b[0], a[1]-b[1]]; };
@@ -13730,6 +13733,7 @@ function lireSommeDessin(w, P){
         /* w⃗ : toutes les sommes de deux vecteurs de la figure, une par une */
         const complete=function(d){ return J.vecs.some(function(r){ return J.meme(J.D(r), d); }); };
         let canon=0;
+        const vide=lsdJuge(q, ['','','']);
         J.vecs.forEach(function(a){ J.vecs.forEach(function(b){
           const r=lsdJuge(q, ['', a, b]), juste=J.meme(plus(J.D(a), J.D(b)), w);
           if(juste) canon++;
@@ -13738,7 +13742,33 @@ function lireSommeDessin(w, P){
           if(!r[1].ok && !J.meme(plus(J.D(r[1].bon), J.D(r[2].bon)), w)) vus.push('la correction de w = '+a+' + '+b+' écrit '+r[1].bon+' + '+r[2].bon);
         }); });
         if(!canon) vus.push('aucune somme de deux vecteurs de la figure ne fait w');
-        const vide=lsdJuge(q, ['','','']);
+        /* les flèches BLEUES (v542) : l'énoncé dit d'y répondre. La réponse à
+           u + v y est tracée, une écriture de w aussi, et les flèches bleues
+           ajoutées à la chaîne sont des réponses, sauf DEUX — qui ne servent
+           à rien, même retournées. Chacune relie deux points nommés, loin
+           des points qu'elle ne touche pas. */
+        const bleues=J.ch.concat(J.bl), opp=function(d){ return [-d[0], -d[1]]; };
+        J.bl.forEach(function(f){ if(!nomme(f.a) || !nomme(f.b)) vus.push('une flèche bleue ne relie pas deux points nommés');
+          Object.keys(J.pts).forEach(function(k){ if(J.meme(J.pts[k], f.a) || J.meme(J.pts[k], f.b)) return;
+            if(distPS(J.pts[k], f.a, f.b)<27) vus.push('le point '+k+' est à '+Math.round(distPS(J.pts[k], f.a, f.b))+' px d’une flèche bleue qui ne le touche pas'); }); });
+        if(!bleues.some(function(f){ return J.meme(J.dep(f), sm); })) vus.push('la réponse à u + v n’est pas tracée en bleu');
+        if(!bleues.some(function(f){ return bleues.some(function(g){ return J.meme(plus(J.dep(f), J.dep(g)), w); }); })) vus.push('aucune somme de deux flèches bleues ne fait w');
+        const sert=function(f){ const d=J.dep(f);
+          return [d, opp(d)].some(function(e){ return J.meme(e, sm) || J.meme(e, w)
+            || bleues.some(function(g){ return [J.dep(g), opp(J.dep(g))].some(function(x){ return J.meme(plus(e, x), w); }); }); }); };
+        const deTrop=J.bl.filter(function(f){ return !sert(f); }).length;
+        if(deTrop!==2) vus.push(deTrop+' flèche(s) bleue(s) ne servent à aucune réponse, au lieu de 2');
+        const directe=function(f){ return J.meme(J.dep(f), sm) || bleues.some(function(g){ return J.meme(plus(J.dep(f), J.dep(g)), w); }); };
+        if(J.bl.some(function(f){ return sert(f) && !directe(f); })) vus.push('une flèche bleue ajoutée ne sert qu’à l’envers');
+        /* la correction écrit des vecteurs bleus */
+        const nomsBleus=bleues.map(function(f){ return nomme(f.a)+nomme(f.b); });
+        if([vide[0].bon, vide[1].bon, vide[2].bon].some(function(v){ return nomsBleus.indexOf(v)<0; })) vus.push('la correction de la copie vide écrit '+vide.map(function(x){ return x.bon; }).join(', ')+' : pas toutes des flèches bleues ('+nomsBleus.join(' ')+')');
+        /* une case de w juste et seule : la correction la complète par une
+           flèche bleue, quand une flèche bleue la complète */
+        nomsBleus.forEach(function(a){ [0,1].forEach(function(pos){
+          const r=lsdJuge(q, pos ? ['', '', a] : ['', a, '']), autre=r[pos ? 1 : 2];
+          const bleue=nomsBleus.some(function(g){ return J.meme(plus(J.D(a), J.D(g)), w); });
+          if(bleue && nomsBleus.indexOf(autre.bon)<0) vus.push('avec '+a+' seul, la correction de w écrit '+autre.bon+', qui n’est pas une flèche bleue'); }); });
         if(!J.meme(J.D(vide[0].bon), sm) || !J.meme(plus(J.D(vide[1].bon), J.D(vide[2].bon)), w)) vus.push('la correction de la copie vide est fausse sur le dessin');
       });
     }
@@ -13753,7 +13783,7 @@ function lireSommeDessin(w, P){
     TESTS[D.exercice].start();
     if(test.kind!=='lsd' || test.qId!==D.exercice) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
     if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
-    const fixe=function(sw){ return {pts:{K:[2,3],D:[4,6],M:[7,7],A:[9,4],F:[12,6],B:[14,8]}, ch:'KDMAF', uo:[11,0], vo:[13,1], wo:[1,9], k:0, sw:sw, j:2, m:2}; };
+    const fixe=function(sw){ return {pts:{K:[2,3],D:[4,6],M:[7,7],A:[9,4],F:[12,6],B:[14,8]}, ch:'KDMAF', uo:[11,0], vo:[13,1], wo:[1,9], k:0, sw:sw, j:2, m:2, dx:['KA','MB']}; };
     test.questions[0]=fixe(0); test.idx=0;
     const IDS=['lsd-0-0','lsd-1-0','lsd-1-1'];
     const el=function(id){ return document.getElementById(id); };
@@ -13781,8 +13811,13 @@ function lireSommeDessin(w, P){
     if(!J.meme(plus(J.dep(J.libre.u), J.dep(J.libre.v)), J.D('KM')) || !J.meme(J.D('AB'), J.D('KM')) || !J.meme(J.dep(J.libre.w), J.D('MF')))
       return 'le dessin de la figure fixe ne donne pas u + v = KM = AB et w = MF';
     const texte=el('lsdHost').textContent.replace(/\\s+/g,' ');
-    if(!/Quel vecteur de la figure est égal à u ?\\+ ?v/.test(texte)) vus.push('la question 1 dit « '+texte.slice(0,100)+' »');
-    if(!/comme la somme de deux vecteurs de la figure/.test(texte)) vus.push('la question 2 manque');
+    if(!/Quel vecteur bleu de la figure est égal à u ?\\+ ?v/.test(texte)) vus.push('la question 1 dit « '+texte.slice(0,100)+' »');
+    if(!/comme la somme de deux vecteurs bleus de la figure/.test(texte)) vus.push('la question 2 manque');
+    if(!/vecteurs bleus de la figure/.test(el('lsdInstr').textContent)) vus.push('l’énoncé ne dit pas de répondre avec les vecteurs bleus');
+    /* u, v, w en ROUGE dans l'énoncé et dans les questions (v542) */
+    const rouges=document.querySelectorAll('#lsdInstr .lsd-r, #lsdHost .lsd-q .lsd-r, #lsdHost .lsd-n');
+    if(rouges.length!==3+3+3) vus.push(rouges.length+' vecteurs u, v, w marqués rouges au lieu de 9');
+    if(J.bl.length!==3) vus.push('la figure fixe trace '+J.bl.length+' flèches bleues hors de la chaîne au lieu de 3 (KM, KA, MB)');
     if(!el('lsdInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
     /* la copie juste, écrite AUTREMENT que la page : AB (en minuscules) et MK + KF */
     poser(['ab','MK','KF']); checkLsdAnswer();
@@ -18464,10 +18499,12 @@ function etudeAlgoConvexite(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='etude-algo-convexite';
 
-    /* ---- 0. la place au menu : le dernier de la partie « Convexité » ---- */
+    /* ---- 0. la place au menu : dans la partie « Convexité », au rang 4 —
+       elle la fermait ; {associer-derivee-seconde} (4.3.5, octobre 2026) est
+       venu après, et c'est le numéro qui tient le rang ---- */
     { const th=THEMES.filter(function(t){ return t.nom==='Étude de fonction'; })[0];
       const st=th&&th.sous&&th.sous.filter(function(x){ return x.nom==="Convexité"; })[0];
-      if(!st || st.ids[st.ids.length-1]!=='etude-algo-convexite') vus.push("{etude-algo-convexite} n'est pas dans la partie « Convexité » du thème Étude de fonction");
+      if(!st || st.ids.indexOf('etude-algo-convexite')<0) vus.push("{etude-algo-convexite} n'est pas dans la partie « Convexité » du thème Étude de fonction");
       if(TEST_NUM['etude-algo-convexite']!=='4.3.4') vus.push('le numéro n\\'est pas 4.3.4 : '+TEST_NUM['etude-algo-convexite']); }
 
     /* ---- 1. le tirage : (a, b, k, c) et rien d'autre ; les trois exponentielles sortent ---- */
@@ -23323,6 +23360,140 @@ function developperDoubleNu(w, P){
     exposants('7.10', 'dvd-t-0');
     startDvl(); test.idx=0; test.locked=false; renderDvlTest();
     exposants('7.9', 'dvl-t-0');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {vrai-faux-calcul} — thème 7 « Calcul littéral », 7.12 : six égalités
+   « écrites par un élève », à juger vraies ou fausses ; une fausse se
+   CORRIGE. Le juge de ce contrôle ne lit pas les familles de la page : il
+   évalue le TEXTE affiché de chaque égalité, membre par membre, en plusieurs
+   valeurs de x — un verdict faux dans la page ne peut donc pas se retrouver
+   dans le juge. Puis les exemples de Turquet eux-mêmes (2x + 3x = 5x²,
+   −(x − 2) = −x − 2, 3(x + 4) = 3x + 4), jugés par le bouton. */
+function vraiFauxCalcul(w, P){
+  const nom = 'vrai ou faux sur des erreurs de calcul littéral : la place, le tirage relu par le calcul, la correction';
+  const present = evaluer(w, "typeof startVfl==='function' && !!TESTS['vrai-faux-calcul']");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas le vrai ou faux sur des erreurs de calcul littéral');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='vrai-faux-calcul';
+
+    /* ---- 0. la place : 7.12, après le 7.11 ; le rappel, l'aide ---------- */
+    if(TEST_NUM['vrai-faux-calcul']!=='7.12') vus.push('numéro '+TEST_NUM['vrai-faux-calcul']+' au lieu de 7.12');
+    if(TEST_NUM['developper-double-nu']!=='7.11' || TEST_NUM['translation-grille']!=='8.1.1') vus.push('un voisin a bougé');
+    if(RAPPELS.vfl!==RAP_VFL || !QIA_SUGG.vfl) vus.push('le rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant : le texte affiché, évalué en x ------------- */
+    const val=function(t, x){
+      const js=t.split('−').join('-').split('×').join('*').split('x²').join('(x*x)')
+        .replace(/(\\d)(x|\\()/g, '$1*$2').replace(/-\\(/g, '-1*(').split(' ').join('');
+      return Function('x', 'return '+js)(x);
+    };
+    const egal=function(a, b){ return [2, 3, -1.5, 0.7].every(function(x){ return Math.abs(val(a, x)-val(b, x))<1e-9; }); };
+
+    /* ---- 1. le tirage : 300 séances ------------------------------------ */
+    const fam={}, nv={};
+    for(let s=0;s<300 && vus.length<4;s++){
+      const qs=vflBuildQuestions();
+      if(qs.length!==3){ vus.push(qs.length+' pages au lieu de 3'); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une page ne survit pas au JSON');
+      const vues={};
+      qs.forEach(function(q){
+        const L=vflLignes(q);
+        if(L.length!==6){ vus.push(L.length+' égalités au lieu de 6'); return; }
+        if(new Set(L.map(function(l){ return l.t; })).size!==6) vus.push('deux égalités de la même famille sur une page');
+        let n=0;
+        L.forEach(function(l){
+          fam[l.t]=true;
+          const k=l.g+' = '+l.d; if(vues[k]) vus.push('« '+k+' » posée deux fois'); vues[k]=true;
+          const vrai=egal(l.g, l.d);
+          if(vrai!==l.v) vus.push('« '+k+' » : la page dit '+(l.v?'vrai':'faux')+', le calcul '+(vrai?'vrai':'faux'));
+          if(!egal(l.g, l.bon)) vus.push('« '+l.g+' » : la correction '+l.bon+' est fausse');
+          const lu=redLit(l.bon); if(!lu || !lu.reduite) vus.push('la correction '+l.bon+' n’est pas réduite');
+          if(l.v) n++;
+        });
+        nv[n]=true;
+        if(n<1 || n>3) vus.push(n+' égalités vraies sur une page');
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    if(Object.keys(fam).length!==8) vus.push('familles tirées : '+Object.keys(fam).join(' '));
+    [1,2,3].forEach(function(n){ if(!nv[n]) vus.push('jamais '+n+' égalité(s) vraie(s) par page'); });
+
+    /* ---- 2. les exemples de Turquet, par le BOUTON ---------------------- */
+    TESTS['vrai-faux-calcul'].start();
+    if(test.kind!=='vfl' || test.qId!=='vrai-faux-calcul') vus.push('identité '+test.kind+' / '+test.qId);
+    if(!document.querySelector('#scr-vfl.on')) vus.push('l\\'écran du 7.12 n\\'est pas affiché');
+    if(test.maxScore!==test.questions.reduce(function(a, q){ return a+6+q.lignes.filter(function(l){ return !l.v; }).length; }, 0))
+      vus.push('barème '+test.maxScore);
+    test.questions[0]={lignes:[{t:'expo', n:[2,3], v:0}, {t:'moins', n:[1,2,-1], v:0}, {t:'distrib', n:[3,1,4,1], v:0},
+      {t:'produit', n:[2,3,0], v:1}, {t:'signes', n:[3,2], v:1}, {t:'nature', n:[2,5,3], v:0}]};
+    const ATT=['2x + 3x = 5x²', '−(x − 2) = −x − 2', '3(x + 4) = 3x + 4', '2x × 3x = 6x²', '−3x − 2x = −5x', '2x + 5 + 3x = 10x'];
+    const el=function(id){ return document.getElementById(id); };
+    const peint=function(id){ const c=el(id)?el(id).className:'';
+      return c.indexOf(' ok')>=0||c.indexOf('ok ')===0?'bleu':(c.indexOf('bad')>=0?'rouge':(c.indexOf('sol')>=0?'vert':'rien')); };
+    const fb=function(){ return el('vflFeedback').textContent; };
+    const poser=function(v, c){ test.idx=0; test.locked=false; test.score=0; renderVflTest();
+      for(let i=0;i<6;i++){ el('vfl-'+i).value=(v[i]==null?'':v[i]); el('vfl-c-'+i).value=(c[i]==null?'':c[i]); } };
+    poser([], []);
+    ATT.forEach(function(a, i){ const t=el('vfl-l-'+i).querySelector('.vfl-eg').textContent.split(' ').join(' ');
+      if(t!==a) vus.push('ligne '+(i+1)+' : « '+t+' » au lieu de « '+a+' »'); });
+    if(!el('vflInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un .enonce');
+    if(el('vfl-0').tagName!=='SELECT' || el('vfl-0').options.length!==3) vus.push('la case du verdict n’est pas une liste ? / Vrai / Faux');
+    if(document.querySelectorAll('#vflHost .vfl-in').length!==6) vus.push('chaque ligne doit offrir sa case de correction, vraie ou fausse : sinon la case trahit le verdict');
+
+    /* la copie juste, puis d'autres écritures justes */
+    const BON=['F','F','F','V','V','F'];
+    poser(BON, ['5x', '-x+2', '3x+12', '', '', '5x+5']); checkVflAnswer();
+    if(test.score!==10 || !/good/.test(el('vflFeedback').className)) vus.push('la copie juste vaut '+test.score+' / 10 : '+fb());
+    if(!el('vflNext')) vus.push('pas de bouton « Page suivante »');
+    if(!el('vfl-l-1').classList.contains('vfl-montre') || !el('vfl-l-3').classList.contains('vfl-ferme')) vus.push('les corrections ne se montrent ou ne se ferment pas');
+    if(peint('vfl-c-3')!=='rien') vus.push('la case de correction d’une ligne VRAIE est peinte');
+    if(!/et non 5x²/.test(el('vfl-pq-0').textContent) || !/Vrai/.test(el('vfl-pq-3').textContent)) vus.push('les notes : '+el('vfl-pq-0').textContent+' / '+el('vfl-pq-3').textContent);
+    poser(BON, ['5x', '2 − x', '12+3x', '', '', '5 + 5x']); checkVflAnswer();
+    if(test.score!==10) vus.push('« 2 − x », « 12+3x », « 5 + 5x » ne sont pas acceptées : '+test.score);
+
+    /* les pièges */
+    poser(['V','F','F','F','V','F'], ['', '-x-2', '2x+3x', 'zut', '', '10x']); checkVflAnswer();
+    if(peint('vfl-0')!=='rouge' || peint('vfl-c-0')!=='vert' || el('vfl-c-0').value!=='5x') vus.push('l’erreur crue vraie : '+peint('vfl-0')+', correction '+peint('vfl-c-0')+' « '+el('vfl-c-0').value+' »');
+    if(!/Ligne 1/.test(fb()) || !/RESTE/.test(fb())) vus.push('le message ne nomme pas l’erreur des exposants : '+fb());
+    if(peint('vfl-1')!=='bleu' || peint('vfl-c-1')!=='rouge') vus.push('−x − 2 recopié : '+peint('vfl-1')+' / '+peint('vfl-c-1'));
+    if(peint('vfl-c-2')!=='rouge') vus.push('« 2x+3x » pour 3(x + 4) : '+peint('vfl-c-2'));
+    if(peint('vfl-3')!=='rouge' || peint('vfl-c-3')!=='rien') vus.push('la vraie jugée fausse : '+peint('vfl-3')+', sa correction '+peint('vfl-c-3'));
+    if(peint('vfl-c-5')!=='rouge') vus.push('« 10x » recopié : '+peint('vfl-c-5'));
+    poser(['F','F','F','F','V','F'], ['5x', '-x+2', '3x+12', '', '', '5x+5']); checkVflAnswer();
+    if(!/VRAIE/.test(fb())) vus.push('la vraie jugée fausse : le message '+fb());
+    poser(['F','F','F','V','V','F'], ['3x+2x', '', '', '', '', '']); checkVflAnswer();
+    if(!/pas réduite/.test(fb())) vus.push('une correction juste non réduite : '+fb());
+    poser(['F','F','F','V','V','F'], ['5x', '', '', '', '', '']); checkVflAnswer();
+    if(!/Il te manquait/.test(fb()) || peint('vfl-c-1')!=='vert' || el('vfl-c-1').value!=='−x + 2') vus.push('la correction vide : '+peint('vfl-c-1')+' « '+el('vfl-c-1').value+' » — '+fb());
+    poser([], []); checkVflAnswer();
+    if(document.querySelector('#vflHost .bad')) vus.push('une copie vide rougit');
+    if(test.score!==0) vus.push('la copie vide vaut '+test.score);
+
+    /* x^2 s'écrit x² dans la case */
+    poser([], []); const c0=el('vfl-c-0'); c0.value='6x^2'; c0.dispatchEvent(new Event('input'));
+    if(c0.value!=='6x²') vus.push('« 6x^2 » s’affiche « '+c0.value+' »');
+
+    /* la page survit au JSON, le soutien peint sans verrouiller */
+    const avant=JSON.stringify(test.questions[0]);
+    test.questions=JSON.parse(JSON.stringify(test.questions)); poser([], []);
+    if(JSON.stringify(test.questions[0])!==avant || document.querySelectorAll('#vflHost .vfl-l').length!==6) vus.push('la page ne se redessine pas après le JSON');
+    currentMode='soutien'; poser([], []);
+    el('vfl-0').value='V'; el('vfl-0').dispatchEvent(new Event('change'));
+    if(peint('vfl-0')!=='rouge' || test.locked) vus.push('le soutien : '+peint('vfl-0')+(test.locked?', verrouillé':''));
+    el('vfl-0').value='F'; el('vfl-0').dispatchEvent(new Event('change'));
+    el('vfl-c-0').value='5x'; el('vfl-c-0').dispatchEvent(new Event('input'));
+    if(peint('vfl-0')!=='bleu' || peint('vfl-c-0')!=='bleu') vus.push('le soutien après correction : '+peint('vfl-0')+' / '+peint('vfl-c-0'));
+    currentMode='train';
+
+    /* le contexte du modèle */
+    const cx=ctxVfl(test.questions[0]).contexte;
+    if(!/STRICTEMENT SECRÈTES/.test(cx) || cx.indexOf('2x + 3x = 5x')<0) vus.push('le contexte du modèle : '+cx.slice(0,120));
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -46252,6 +46423,72 @@ function pourcentageSchema(w, P){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---- a × b = b × a : LE CALCUL GLOBAL ACCEPTE SES FACTEURS DANS LES DEUX ORDRES ----
+   « dans cet exercice en seconde il faut accepter que les facteurs de la
+   multiplication soient inversés sur la grande flèche ; regarder si ce
+   problème se pose ailleurs » (Turquet, octobre 2026, sur l'aide schéma du
+   4.5.10 : « 0,80 × 0,30 = 0,24 » rougissait deux cases justes). Toutes les
+   rangées « … × … = … » du coefficient global passent par
+   facteursCommutes() ; ce contrôle écrit les deux facteurs À REBOURS sur
+   chaque écran qui en a une, et exige deux cases bleues. Un écran absent du
+   niveau est sauté ; un niveau qui n'en a aucun le dit. */
+function facteursGlobalCommutes(w, P){
+  const intitule = 'le calcul global « … × … = … » accepte ses deux facteurs dans l’un ou l’autre ordre';
+  const r = evaluer(w, `(function(){
+    const vus=[], vu=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    const setv=function(id,val){ const e=document.getElementById(id); if(e) e.value=String(val); };
+    const pct=function(q){ return [pDecStr(q.P1),pDecStr(q.P2)]; };
+    const coef=function(q){ return [evsDec(q.c1),evsDec(q.c2)]; };
+    const E=[
+      {k:'pctc', start:'startPctChaine', render:'renderPctChaineTest', check:'checkPctChaineAnswer', cib:pct, ok:function(q){ return q.P1!==q.P2; }},
+      {k:'pcs', start:'startPcs', render:'renderPcsTest', check:'checkPcsAnswer', cib:pct, ok:function(q){ return q.inc==='comb' && q.P1!==q.P2; }},
+      {k:'pcp', start:'startPcp', render:'renderPcpTest', check:'checkPcpAnswer', cib:pct, ok:function(q){ return q.P1!==q.P2; }},
+      {k:'pcc', start:'startPcc', render:'renderPccTest', check:'checkPccAnswer', cib:pct, ok:function(q){ return q.inc==='comb' && q.P1!==q.P2; }},
+      {k:'psv', start:'startPsv', render:'renderPsvTest', check:'checkPsvAnswer', cib:pct, ok:function(q){ return q.P1!==q.P2; }},
+      {k:'evs', start:'startEvolSucc', render:'renderEvsTest', check:'checkEvsAnswer', cib:coef, ok:function(q){ return q.c1!==q.c2; }},
+      {k:'evc', start:'startEvolSuccCoef', render:'renderEvcTest', check:'checkEvcAnswer', cib:coef, ok:function(q){ return q.c1!==q.c2; }},
+      {k:'evp', start:'startEvolSuccPhrases', render:'renderEvpTest', check:'checkEvpAnswer', cib:coef, ok:function(q){ return q.c1!==q.c2; }}
+    ];
+    E.forEach(function(e){
+      if(typeof window[e.start]!=='function') return;
+      let i=-1;
+      for(let essai=0; essai<10 && i<0; essai++){ window[e.start](); i=test.questions.findIndex(e.ok); }
+      if(i<0){ vus.push(e.k+' : aucune question à deux facteurs distincts'); return; }
+      test.idx=i; test.locked=false; window[e.render]();
+      const q=test.questions[i], c=e.cib(q), g1=e.k+'G1', g2=e.k+'G2';
+      if(!document.getElementById(g1) || document.getElementById(g1).tagName!=='MATH-FIELD' || document.getElementById(g2).tagName!=='MATH-FIELD'){ vus.push(e.k+' : les deux facteurs ne sont pas des cases'); return; }
+      setv(g1,c[1]); setv(g2,c[0]);
+      window[e.check]();
+      [g1,g2].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push(e.k+' : '+c[1]+' × '+c[0]+' à rebours, la case '+id+' n’est pas bleue ('+cls(id)+')'); });
+      /* l'autre bord : un facteur écrit deux fois n'est pas le produit */
+      test.idx=i; test.locked=false; window[e.render]();
+      setv(g1,c[0]); setv(g2,c[0]); window[e.check]();
+      if(!/\\bbad\\b/.test(cls(g2))) vus.push(e.k+' : '+c[0]+' × '+c[0]+' (un facteur écrit deux fois) — la seconde case ne rougit pas');
+      vu.push(e.k);
+    });
+    /* le 4.5.10 : l'aide schéma, sur une question dont le schéma a un calcul global */
+    if(typeof startPpb==='function'){
+      currentTestId='pourcentages-problemes';
+      let q=null;
+      for(let essai=0; essai<20 && !q; essai++){ startPpb(); q=test.questions.find(function(x){ const C=ppbSchemaCases(x); return C.ppbG1 && C.ppbG2 && C.ppbG1.n*C.ppbG2.d!==C.ppbG2.n*C.ppbG1.d; }); }
+      if(!q) vus.push('ppb : aucune question à calcul global');
+      else {
+        test.idx=test.questions.indexOf(q); test.locked=false; renderPpb(); ppbAideSchema();
+        const C=ppbSchemaCases(q);
+        setv('ppbG1',ppbRatTexte(C.ppbG2)); setv('ppbG2',ppbRatTexte(C.ppbG1)); checkPpbSchema();
+        ['ppbG1','ppbG2'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('ppb ('+q.fam+') : facteurs à rebours, la case '+id+' n’est pas bleue ('+cls(id)+')'); });
+        vu.push('ppb');
+      }
+    }
+    try{ show('theme'); }catch(_){}
+    return {vus:vus.slice(0,6).join(' | '), vu:vu.join(',')};
+  })()`);
+  if(!r.ok){ verifier(intitule, false, 'erreur JavaScript : ' + r.erreur); return; }
+  if(!r.valeur.vu && !r.valeur.vus){ ignorer(intitule, 'ce niveau n\'a aucun schéma à calcul global'); return; }
+  verifier(intitule + ' (' + r.valeur.vu + ')', r.valeur.vus === '', r.valeur.vus || undefined);
+}
 /* ---- {pourcentage-schema-cadres} : Seconde SEULE, LE 4.1.10 AVEC SES CADRES ---
    « en seconde fais un nouvel exercice comme le 4.1.10 en rajoutant les cadres
    et le texte en gris comme sur le pdf » (Turquet, septembre 2026). Kind
@@ -47528,6 +47765,134 @@ function convexiteTroisCourbes(w, P){
     /* le contexte du modèle porte la clause de secret et les réponses */
     pose(null);
     { const c=cvxConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/extremum \\u22121 en 0/.test(c) || !/zéro de f′ : 1 ; zéro de f″ : 0/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec les réponses'); }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Associer f, f′ et f″ : six courbes en désordre, trois triplets ----
+   Le pendant d'{associer-derivee} pour la convexité (demande de Turquet,
+   octobre 2026). Le contrôle ne croit pas la page sur parole : il relit
+   chaque courbe par DIFFÉRENCES FINIES — la courbe rangée comme dérivée de
+   la fonction i doit être sa dérivée numérique, la dérivée seconde celle de
+   la dérivée —, puis recompte À SA FAÇON les répartitions que rien ne
+   contredit : les 720 ordres des six courbes, essayés un par un (jamais
+   afdSolutions ni afdDesaccord), avec un désaccord jugé par sa propre
+   arithmétique, sur une grille DEUX FOIS plus fine que celle de la page — il
+   voit donc au moins tous les désaccords qu'elle voit, et la répartition
+   attendue doit être la seule à survivre. Seule la géométrie des cadres
+   (afdFenetre, celle du dessin) est partagée. Puis la séance (trois
+   questions distinctes, des polynômes de degré 3 et de degré 4 mêlés — sans
+   quoi le degré trierait les courbes à lui seul —, la question ne range que
+   des nombres), et les gestes sur la question de repli ÉPINGLÉE : la copie
+   juste vaut le point et compte ses six cases, un menu faux ne rougit que
+   lui et dit POURQUOI sur les courbes, la case vide ne rougit jamais et
+   reçoit la correction, le soutien ne verrouille pas et colore en direct, la
+   copie vide redemande, les neuf cadres portent leur étiquette, et le
+   contexte du modèle porte la clause de secret. */
+function associerDeriveeSeconde(w, P){
+  const nom='associer f, f′ et f″ : les six courbes sont les dérivées, et une seule répartition se lit';
+  const present = evaluer(w, "typeof startAfd==='function' && typeof afdBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice « associer f, f′ et f″ »');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='associer-derivee-seconde';
+    const H=1e-4;
+    const val=function(c){ return function(x){ let y=0; for(let k=0;k<c.length;k++) y+=c[k]*Math.pow(x,k); return y; }; };
+    const der=function(g){ return function(x){ return (g(x+H)-g(x-H))/(2*H); }; };
+    /* le désaccord, à la façon du contrôle : g nettement d'un côté de l'axe,
+       h visible dans son cadre et nettement montante ou descendante de
+       l'autre côté — mêmes seuils que la page, grille de 0,025 */
+    const contredit=function(g, gc, h, hc){
+      const Wg=afdFenetre(gc), Wh=afdFenetre(hc), dh=der(h);
+      for(let i=0;i<=240;i++){ const x=-3+i*0.025, vh=h(x);
+        if(vh<Wh.ymin || vh>Wh.ymax) continue;
+        const vg=g(x), p=dh(x);
+        if(Math.abs(vg)*176/(Wg.ymax-Wg.ymin)>=12 && Math.abs(p)*(176/(Wh.ymax-Wh.ymin))/51>=0.25 && (vg>0)!==(p>0)) return true; }
+      return false; };
+    const ordres=[]; (function p(a,r){ if(!r.length){ ordres.push(a); return; } r.forEach(function(v,i){ p(a.concat([v]), r.filter(function(_,j){ return j!==i; })); }); })([],[0,1,2,3,4,5]);
+    const juge=function(q, ou){
+      const cles=Object.keys(q).filter(function(k){ return k!=='fs' && k!=='ordre'; });
+      if(cles.length) vus.push(ou+' : la question range autre chose que fs et ordre : '+cles.join(','));
+      if(!Array.isArray(q.fs) || q.fs.length!==3 || q.fs.some(function(c){ return !Array.isArray(c) || c.some(function(v){ return typeof v!=='number' || !isFinite(v); }); })){ vus.push(ou+' : fs n\\'est pas trois listes de nombres'); return; }
+      if(!Array.isArray(q.ordre) || q.ordre.slice().sort().join(',')!=='0,1,2,3,4,5'){ vus.push(ou+' : ordre n\\'est pas un ordre des six codes : '+JSON.stringify(q.ordre)); return; }
+      const degres=q.fs.map(function(c){ let d=c.length-1; while(d>0 && Math.abs(c[d])<1e-12) d--; return d; });
+      if(degres.some(function(d){ return d!==3 && d!==4; })) vus.push(ou+' : une fonction de degré '+degres.join(','));
+      if(degres.indexOf(3)<0 || degres.indexOf(4)<0) vus.push(ou+' : trois fonctions du même degré ('+degres.join(',')+') — le degré trierait les courbes à lui seul');
+      const C=afdCourbes(q), F=q.fs.map(val), G=C.map(val);
+      /* la courbe de rang j est bien la dérivée (ou la dérivée seconde) annoncée */
+      q.ordre.forEach(function(code, j){
+        const i=Math.floor(code/2), cible=(code%2===0)?der(F[i]):der(der(F[i]));
+        for(let x=-3;x<=3;x+=0.25){ if(Math.abs(cible(x)-G[j](x))>1e-3*Math.max(1,Math.abs(G[j](x)))){ vus.push(ou+' : la courbe '+(j+1)+' n\\'est pas la dérivée'+(code%2?' seconde':'')+' de '+AFD_NOMS[i]+' (x = '+x+')'); break; } } });
+      /* chaque cadre montre l'axe : un signe se lit */
+      C.concat(q.fs).forEach(function(c){ const W=afdFenetre(c); if(!(W.ymin<0 && W.ymax>0)) vus.push(ou+' : un cadre ne montre pas l\\'axe des abscisses'); });
+      /* la répartition attendue, puis toutes les autres */
+      const attendu=[0,1,2].map(function(i){ return [q.ordre.indexOf(2*i), q.ordre.indexOf(2*i+1)]; });
+      const D={}, S={};
+      const okD=function(i,j){ const k=i+'-'+j; if(!(k in D)) D[k]=!contredit(G[j],C[j],F[i],q.fs[i]); return D[k]; };
+      const okS=function(j,k2){ const k=j+'-'+k2; if(!(k in S)) S[k]=!contredit(G[k2],C[k2],G[j],C[j]); return S[k]; };
+      const survivants=ordres.filter(function(o){ return [0,1,2].every(function(i){ return okD(i,o[2*i]) && okS(o[2*i],o[2*i+1]); }); });
+      const sa=JSON.stringify(attendu);
+      if(!survivants.some(function(o){ return JSON.stringify([[o[0],o[1]],[o[2],o[3]],[o[4],o[5]]])===sa; })) vus.push(ou+' : la répartition attendue est contredite par les courbes');
+      if(survivants.length!==1) vus.push(ou+' : '+survivants.length+' répartitions se lisent sur les courbes, pas une seule');
+      const cases=afdCases(q);
+      if(cases.length!==6 || new Set(cases.map(function(c){ return c.id; })).size!==6) vus.push(ou+' : '+cases.length+' cases, ou deux du même identifiant');
+      cases.forEach(function(c){ const a=attendu[c.i][c.o]; if(c.good!==String(a)) vus.push(ou+' : la case '+c.id+' attend '+c.good+' au lieu de '+a); });
+    };
+    for(let n=0;n<25 && !vus.length;n++){
+      const qs=afdBuildQuestions();
+      if(qs.length!==3){ vus.push(qs.length+' questions au lieu de 3'); break; }
+      if(new Set(qs.map(cleQuestion)).size!==3) vus.push('deux questions de la séance reprennent les mêmes données');
+      qs.forEach(function(q,i){ juge(q,'question '+(i+1)); });
+    }
+    juge(AFD_REPLI, 'la question de repli');
+    if(TEST_NUM['associer-derivee-seconde']!=='4.3.5') vus.push('le numéro n\\'est pas 4.3.5 (cinquième de la partie Convexité) : '+TEST_NUM['associer-derivee-seconde']);
+
+    /* ---- les gestes, sur la question de repli ----
+       ordre [3,0,5,2,1,4] : f′ = courbe 2, f″ = 5 ; g′ = 4, g″ = 1 ; h′ = 6, h″ = 3 */
+    const JUSTE={'afd-d0':'1','afd-s0':'4','afd-d1':'3','afd-s1':'0','afd-d2':'5','afd-s2':'2'};
+    function pose(valeurs, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'afd', questions:[JSON.parse(JSON.stringify(AFD_REPLI))], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+      show('afd'); renderAfd();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkAfd();
+      const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+      return { score:test.score, fb:document.getElementById('afdFeedback').textContent, cls:cls, cases:(test.answers[0]||{}).cases,
+        rouges:[].slice.call(document.querySelectorAll('#scr-afd .bad')).filter(function(e){ return e.tagName==='SELECT'; }).map(function(e){ return e.id; }) };
+    }
+    let r=pose(JUSTE);
+    if(r.score!==1) vus.push('la copie juste ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==6) vus.push('la copie juste compte '+r.cases+' cases au lieu de 6');
+    if(!test.locked) vus.push('la copie juste ne verrouille pas');
+    { const et=[].slice.call(document.querySelectorAll('#afdHost svg .sv-cf')).map(function(e){ return e.textContent.replace(/\\s+/g,''); });
+      if(et.join(',')!=='Cf,Cg,Ch,C1,C2,C3,C4,C5,C6') vus.push('les neuf cadres ne portent pas leurs étiquettes : '+et.join(',')); }
+    r=pose(Object.assign({},JUSTE,{'afd-d0':'3'}));   /* la courbe 4 — celle de g′ — prise pour f′ */
+    if(r.score!==0) vus.push('un menu faux vaut encore le point');
+    if(r.rouges.join(',')!=='afd-d0') vus.push('un menu faux rougit autre chose que lui-même : '+r.rouges.join(','));
+    if(!/\\bok\\b/.test(r.cls('afd-s0'))) vus.push('le menu juste à côté d\\'un menu faux n\\'est pas bleu');
+    if(!/La courbe 4 ne peut pas être celle de f ′ : vers x = [−\\d,]+, elle est au-(dessus|dessous) de l’axe, alors que f y est (dé)?croissante/.test(r.fb)) vus.push('le pourquoi du menu faux ne se lit pas sur les courbes : '+r.fb);
+    { const b=document.getElementById('afd-d0').nextElementSibling;
+      if(!b || !/mf-cor/.test(b.className) || b.textContent!=='2') vus.push('la bonne courbe ne s\\'affiche pas à côté du menu faux'); }
+    r=pose({'afd-d0':'1'});
+    if(r.rouges.length) vus.push('en entraînement, un menu vide rougit : '+r.rouges.join(','));
+    if(!/\\bsol\\b/.test(r.cls('afd-s2')) || document.getElementById('afd-s2').value!=='2') vus.push('le menu laissé vide ne reçoit pas la correction (sol)');
+    r=pose({'afd-d0':'1','afd-s0':'0'},'soutien');
+    if(r.rouges.join(',')!=='afd-s0') vus.push('en soutien, autre chose que le menu faux rougit : '+r.rouges.join(','));
+    if(!/Revérifier/.test(document.getElementById('afdActions').textContent)) vus.push('en soutien, une copie fausse n\\'offre pas « Revérifier »');
+    if(test.locked) vus.push('en soutien, une copie fausse verrouille l\\'écran');
+    if(!document.getElementById('afd-d0').disabled) vus.push('en soutien, le menu juste n\\'est pas verrouillé');
+    pose(null,'soutien');
+    { const s=document.getElementById('afd-d1'); s.value='0'; s.dispatchEvent(new Event('change'));
+      if(!/\\bbad\\b/.test(s.className)) vus.push('en soutien, un menu faux ne se colore pas en direct');
+      s.value='3'; s.dispatchEvent(new Event('change'));
+      if(!/\\bok\\b/.test(s.className)) vus.push('en soutien, un menu juste ne se colore pas en direct'); }
+    r=pose(null);
+    if(!/Complète au moins une case/.test(r.fb)) vus.push('une copie vide devrait demander de compléter, pas juger');
+    { const c=afdConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/f′ = courbe 2, f″ = courbe 5 ; g′ = courbe 4, g″ = courbe 1 ; h′ = courbe 6, h″ = courbe 3/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec les réponses'); }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

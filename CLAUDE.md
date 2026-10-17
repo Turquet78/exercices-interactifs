@@ -314,7 +314,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Puis la barre du bas a disparu — en PREMIÈRE seulement, et le prix est nommé.**
 - **Et la bande du bas appartient au SYSTÈME : la Première y descendait.**
 - **LE CLAVIER ANCRÉ PREND LE BAS, LES COMMANDES MONTENT EN HAUT.**
-- **Là où l'élève rédige en MOTS, le clavier C porte les lettres.** (En Première, où le clavier n'a qu'une couche, c'est le clavier B.)
+- **Là où l'élève rédige en MOTS, le clavier C porte les lettres.** (En Première et en Seconde, où le clavier n'a qu'une couche, c'est le clavier B.)
 
 ### Vérification, bancs de test et numérotation des sections
 
@@ -344,8 +344,8 @@ tenus, les sabotages qui les ont éprouvés.
 - Fractions (Seconde et Première) — `docs/journal/07-fractions.md`
 - Pourcentages, évolutions et coefficients (Première, et Seconde depuis septembre 2026) — `docs/journal/10-premiere-pourcentages.md`
 - Terminale — dérivées, suites, récurrences et TVI — `docs/journal/14-terminale.md`
-- Seconde — calcul littéral (thème 7 : les nombres relatifs, somme et produit, réduire une somme, développer avec la distributivité, simple puis double, puis double sans les flèches) — `docs/journal/16-seconde-calcul-litteral.md`
-- Première — probabilités (thème 3 : lire une probabilité, le tableau à double entrée) — `docs/journal/18-premiere-probabilites.md`
+- Seconde — calcul littéral (thème 7 : les nombres relatifs, somme et produit, réduire une somme, développer avec la distributivité, simple puis double, puis double sans les flèches, le vrai ou faux sur des erreurs d’élèves) — `docs/journal/16-seconde-calcul-litteral.md`
+- Première — probabilités (thème 3 : lire une probabilité, le tableau à double entrée, le sens d’une probabilité, le tableau à trois colonnes, les pourcentages, l’indépendance, les automatismes) — `docs/journal/18-premiere-probabilites.md`
 - Seconde — vecteurs (thème 8 : l'image d'un point par une translation sur une grille, le tableau des vecteurs égaux, les vecteurs égaux d'une figure, la translation d'un point sur quadrillage, le quatrième point d'un parallélogramme, le point qui manque à une égalité de vecteurs et le nom du parallélogramme, la somme de deux vecteurs, la relation de Chasles, Chasles avec trois vecteurs, écrire plus simplement une somme de vecteurs, le point défini par une somme de vecteurs dans un repère, Chasles sur une droite jusqu’au vecteur nul, la relation de Chasles sans figure, le point construit par une somme de vecteurs, le point construit par une somme ou une différence de deux vecteurs, les vecteurs égaux à u⃗, v⃗, w⃗ à tracer à la souris, les vecteurs opposés −u⃗, −v⃗, −w⃗ à tracer, la somme de deux vecteurs sans étapes, l'image d'un triangle dans un pavage, le vrai ou faux sur une figure à pièges, les milieux d'un triangle et les vecteurs égaux, insérer un point par la relation de Chasles, démontrer qu'un quadrilatère est un parallélogramme, le point dont on connaît l'image par une translation, démontrer une égalité avec Chasles, lire une somme de vecteurs sur un dessin, trois vecteurs bout à bout) — `docs/journal/19-seconde-vecteurs.md`
 
 ## Ajouter un exercice
