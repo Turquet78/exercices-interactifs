@@ -767,7 +767,7 @@ séance). Deux sabotages éprouvent le contrôle : une correction non réduite
 acceptée (« une correction juste non réduite : … Le reste est juste ! ») et
 l'erreur du moins remplacée par la bonne réponse (« −(2x − 7) = −2x + 7 : la
 page dit faux, le calcul vrai »).
-## {valeur-expression} — calculer une expression pour une valeur (7.13, v542 — le 7.12 et la v541 pris le même jour par {vrai-faux-calcul})
+## {valeur-expression} — calculer une expression pour une valeur (7.13, v543 — le 7.12 et la v541 pris le même jour par {vrai-faux-calcul}, la v542 par le 8.2.14 et le calcul global)
 
 **La demande** (Turquet, octobre 2026) : « créer un exercice dans calcul
 littéral sur calculer une expression pour une valeur, par exemple
