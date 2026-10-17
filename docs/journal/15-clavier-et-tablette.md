@@ -1662,3 +1662,20 @@ inviterait à écrire ce que la page ne sait pas lire. Le 4.5.9 et le 4.5
 les lettres… » en jsdom, « 11 decies » au navigateur) s'appliquent désormais
 à la Seconde sans une ligne de banc nouvelle : seule la déclaration du profil
 a été ajoutée.
+
+**Puis le 4.5.9, le même jour : « fais pareil pour le 4.5.9 » (v547).** Le
+paragraphe précédent l'avait laissé hors du clavier B, parce que son juge ne
+lisait pas les mots : « hausse de 20 % » rendait la ligne illisible. Le portage
+a donc commencé par le juge, pas par le clavier : `checkSpr` passe la copie par
+`ppbTexte` avant `sprJuge`, comme `ppbJuge` le faisait déjà — la ligne se coupe
+à ses mots, « 1,25 × 1,4 = 1,75 soit une évolution de +75 % » se lit
+« 1,25*1,4 = 1,75 » puis « +75 % ». `sprPeindreLignes` lit par le même chemin
+(une ligne coupée en morceaux est bleue si tous ses calculs sont vrais, rouge
+si l'un est faux), puis la feuille passe en mode « redaction » et reçoit
+`ppbEspaces`. `ppbTexte` change deux autres choses au 4.5.9, nommées ici :
+« € » s'efface, et « ≈ » se lit « = » — les données du 4.5.9 sont des
+décimaux exacts, un arrondi n'y a pas d'objet. Vérifié dans Chromium sur les
+quatre sources (pctb, pctc, evs, evb), copies tapées au clavier physique avec
+« donc », « soit », « en tout » : quatre « Bravo », quatre lignes bleues. Le
+profil déplace le 4.5.9 de `hors` vers `exercices` ; le bord opposé reste la
+feuille des fractions du 4.5.

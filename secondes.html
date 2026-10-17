@@ -29816,9 +29816,11 @@ function sprPeindreLignes(){
     let t='';
     try{ t=String(window.mlDexp&&window.mlDexp.toPlain?window.mlDexp.toPlain(mf.getValue()):(mf.value||'')).trim(); }
     catch(e){ try{ t=String(mf.value||'').trim(); }catch(_){ t=''; } }
-    const l=sprLignes(t)[0];
-    if(!l || !l.lus || l.lus.length<2) return;
-    mf.classList.add(l.faux?'bad':'ok');
+    /* la ligne se coupe à ses mots, comme au 4.5.10 (ppbTexte) : « 0,82 soit
+       une baisse de 18 % » se lit sans « soit une baisse de » */
+    const L=sprLignes(ppbTexte(t)).filter(l=>l.lus && l.lus.length>=2);
+    if(!L.length) return;
+    mf.classList.add(L.some(l=>l.faux)?'bad':'ok');
   });
 }
 /* ---- L'emprunt de la zone de travail d'un exercice d'origine ---- */
@@ -29866,8 +29868,13 @@ function renderSpr(){
   $('sprHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">ta solution</div>
        <div class="dexp2-sheet" id="sprSheet"></div>
-       <p class="dexp-hint">Écris UN calcul par ligne. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Bloqué&nbsp;? Le bouton <b>Aide schéma</b> reprend la question sur le schéma.</p></div>`;
-  sprFeuille=mlFeuille({ conteneur:'sprSheet', mode:'calcul', prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
+       <p class="dexp-hint">Écris UN calcul par ligne. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. La barre d’espace écrit une espace (sur tablette, la touche <b>espace</b> et les lettres du <b>clavier B</b> sont sur le clavier à l’écran). Bloqué&nbsp;? Le bouton <b>Aide schéma</b> reprend la question sur le schéma.</p></div>`;
+  /* Une feuille de RÉDACTION, comme au 4.5.10 (demande de Turquet, octobre
+     2026 : « fais pareil pour le 4.5.9 ») : l'espace s'écrit et sort d'une
+     fraction (ppbEspaces), et le clavier B des lettres vient sur tablette
+     (mf-mots). Le juge lit la copie par ppbTexte : les mots tombent. */
+  sprFeuille=mlFeuille({ conteneur:'sprSheet', mode:'redaction', prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
+  ppbEspaces('sprSheet');
   /* revenu du schéma : la rédaction commencée avant l'aide est récrite */
   (Array.isArray(q.brouillon)?q.brouillon.filter(s=>s):[]).forEach(function(s,i){
     const L=(i===0)?sprFeuille.lignes[0]:sprFeuille.ajouterLigne(); if(!L||!L.mf) return;
@@ -29935,7 +29942,7 @@ function checkSpr(){
     fb.textContent='Écris d’abord ta solution. '+sprConsigne(q).replace(/^Rédige ta solution : /,'Il faut ');
     fb.className='mp-feedback bad';
     if(sprFeuille && sprFeuille.lignes[0]) sprFeuille.lignes[0].mf.focus(); return; }
-  const juge=sprJuge(q, rep), correct=juge.correct;
+  const juge=sprJuge(q, ppbTexte(rep)), correct=juge.correct;   /* les mots tombent, comme au 4.5.10 */
   sprPeindreLignes();
   if(isSoutien() && !correct){
     fb.textContent=juge.phrase; fb.className='mp-feedback bad';

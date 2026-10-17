@@ -1244,12 +1244,13 @@ module.exports = {
                        aucune liste : le clavier suit la feuille de RÉDACTION
                        (mlFeuille, mode 'redaction', classe mf-mots). Témoins :
                        les deux problèmes rédigés, dont le juge efface les mots
-                       (ppbTexte). Bord opposé : le 4.5.9, dont le juge ne lit
-                       pas les mots — il garde sa feuille de calcul. */
+                       (ppbTexte), puis le 4.5.9 (« fais pareil pour le 4.5.9 »),
+                       qui lit sa copie par le même ppbTexte. Bord opposé : la
+                       feuille des fractions du 4.5, qui reste de calcul. */
                     lettres: { versC: 'clavier B', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b', espace: 'espace',
                                touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 14,
-                               exercices: ['pourcentages-problemes', 'pourcentages-problemes-sans-aide'],
-                               hors: ['synthese-pourcentages-redigee', 'somme-fractions-libre'] } },
+                               exercices: ['pourcentages-problemes', 'pourcentages-problemes-sans-aide', 'synthese-pourcentages-redigee'],
+                               hors: ['somme-fractions-libre'] } },
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce','\u2190','\u2192'],
             /* LE PAVÉ A LA FORME DU CLAVIER MATHÉMATIQUE (demande de Turquet,
