@@ -914,7 +914,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-eav,#scr-sal,#scr-lqn{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-eav,#scr-sal,#scr-lqn{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -1466,6 +1466,14 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
      (les valeurs posées sur les nœuds, le 0 au milieu d'une flèche) ; les
      affirmations reprennent les cartes du 2.1.8 (.sdq-prop). ---- */
   .cvq-table{align-items:center;margin:8px 0 4px}
+  /* ---- {associer-derivee-seconde} : les trois fonctions, puis les six
+     courbes en désordre (des cadres un peu plus petits : neuf dessins), puis
+     un bloc de deux menus par fonction ---- */
+  .afd-courbes .cvx-g{flex-basis:300px;max-width:340px}
+  .afd-choix{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:6px 0 10px}
+  .afd-bloc{display:flex;flex-direction:column;gap:6px;border:1.5px solid var(--line);border-radius:12px;padding:8px 14px;background:var(--surface)}
+  .afd-nom{font-weight:800;color:var(--blue-dark)}
+  .afd-bloc label{white-space:nowrap}
   .cvq-tbl .vlab{white-space:nowrap}
 .lv-tblwrap{overflow-x:auto;margin:0 0 4px}
 .lv-vartbl2{border-collapse:collapse;margin:0 auto;font-family:'Nunito',sans-serif;border:1.6px solid var(--grid);table-layout:fixed}
@@ -2564,6 +2572,22 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     </div>
   </section>
 
+  <!-- 4.3.5 CONVEXITÉ — associer f, f′ et f″ : six courbes en désordre, trois triplets -->
+  <section class="screen" id="scr-afd">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="afdModeTag"></span><span class="q-idx" id="afdQIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="afdLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="tvi-prompt" id="afdPrompt"></p>
+      <div id="afdHost"></div>
+      <div class="mp-feedback" id="afdFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center">
+        <span id="afdActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkAfd()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- 2.2.3 CONVEXITÉ — QCM variés : six visages de la fiche, une seule affirmation vraie -->
   <section class="screen" id="scr-cvq">
     <div class="test-top">
@@ -3388,7 +3412,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=388;
+const APP_VERSION=389;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3597,6 +3621,7 @@ const TESTS={
   'etude-exponentielle': { name:'Étude complète — (ax+b)e\u207b\u02e3', icon:'\ud83d\udccb', desc:'L\u2019étude de la fiche, de bout en bout : les points d\u2019intersection avec les axes, la dérivée rédigée comme dans {derivee-exp-2}, le tableau de variations comme dans {etude-fonction}, l\u2019extremum, puis la tangente en x = 1 comme dans {tangente-exp}.', start:()=>startEC() },
   'etude-convexite': { name:'Étude de fonction et convexité', icon:'\u222a', desc:'La fiche 5, de bout en bout : les axes et les limites comme dans {tvi-alpha-signe}, f\u2009\u2032 démontrée comme dans {derivee-exp}, le tableau de variations comme dans {etude-fonction}, l\u2019unique solution de f(x) = k par le TVI, la tangente en 0 comme dans {equation-tangente}, puis f\u2009\u2033, son signe et la convexité, le point d\u2019inflexion, et la courbe sous sa tangente.', start:()=>startECV() },
   'convexite-qcm': { name:'Convexit\u00e9 \u2014 QCM vari\u00e9s', icon:'\u2611\ufe0f', desc:'La fiche \u00ab QCM convexit\u00e9 \u00bb, six visages par s\u00e9ance : la courbe de f\u2009\u2032, son tableau de variations, ou la courbe de f\u2009\u2033 \u2014 et \u00e0 chaque fois quatre affirmations dont UNE SEULE est vraie : f convexe ou concave sur un intervalle, extremum de f, tangente horizontale, point d\u2019inflexion, signe de f\u2009\u2033, extremum de f\u2009\u2032. Les pi\u00e8ges de la fiche y sont : l\u2019intervalle qui enjambe le point d\u2019inflexion, le z\u00e9ro de f\u2009\u2032 pris pour un point d\u2019inflexion, le sommet de f\u2009\u2032 pris pour un extremum de f \u2014 comme au {signe-derivee-qcm}.', start:()=>startCvq() },
+  'associer-derivee-seconde': { name:'Associer f, f\u2009\u2032 et f\u2009\u2033', icon:'\ud83d\udd17', desc:'Le pendant d\u2019{associer-derivee} pour la convexit\u00e9, sans aucune formule : les courbes de trois fonctions f, g et h, et six courbes en d\u00e9sordre \u2014 leurs d\u00e9riv\u00e9es et leurs d\u00e9riv\u00e9es secondes. Reconstitue les trois triplets : la d\u00e9riv\u00e9e se lit sur le sens de variation, la d\u00e9riv\u00e9e seconde sur la convexit\u00e9.', start:()=>startAfd() },
   'etude-algo-convexite': { name:'Étude, algorithme et convexité', icon:'\ud83d\udcbb', desc:'La fiche « Prépa DS 2 » : f(x) = (ax + b)e^(−x), e^x ou e^(x−1). A — lire f et f\u2009\u2032 sur la courbe et la tangente, démontrer f\u2009\u2032 en littéral comme dans {derivee-exp}, en déduire a et b ; B — limites, tableau de variations, unique solution α par le TVI, puis l\u2019algorithme Python de balayage au pas de 0,1 et son tableau de valeurs ; C — f\u2009\u2033 calculée de la même façon, et la convexité présentée comme dans {etude-convexite}.', start:()=>startEAV() },
   'etude-fonction': { name:'\u00c9tude de fonction \u2014 signe de f\u2009\u2032 et variations', icon:'f\u2032', desc:'On te donne f et sa d\u00e9riv\u00e9e f\u2009\u2032 \u2014 produit avec e^(cx) ou e^(cx\u00b2) : trouve les racines de f\u2009\u2032, compl\u00e8te le signe de chaque facteur puis de f\u2009\u2032, les variations et les extremums de f, puis associe les courbes de f et de f\u2009\u2032.', start:()=>startEF() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
@@ -3657,7 +3682,10 @@ const THEMES=[
       /* Puis la fiche « Prépa DS 2 » (demande de Turquet, octobre 2026) — la
          lecture graphique, l'algorithme de balayage et la convexité — ferme la
          partie : 2.2.4. */
-      { num:3, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm','etude-algo-convexite'] },
+      /* Puis le pendant d'{associer-derivee} (demande de Turquet, octobre
+         2026 : « associer f, f′ et f″ — six courbes en désordre, trois
+         triplets à reconstituer ») : le cinquième de la partie. */
+      { num:3, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm','etude-algo-convexite','associer-derivee-seconde'] },
       { num:4, nom:'Étude complète de fonction', ids:['etude-fonction','etude-exponentielle'] }
     ] },
   /* Le thème des Suites est découpé en PARTIES (demande de Turquet, septembre
@@ -4346,6 +4374,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='sdq' && test.questions && test.questions[test.idx]){ c=sdqConseilCtx(); }
   else if(test && test.kind==='cvx' && test.questions && test.questions[test.idx]){ c=cvxConseilCtx(); }
   else if(test && test.kind==='cvq' && test.questions && test.questions[test.idx]){ c=cvqConseilCtx(); }
+  else if(test && test.kind==='afd' && test.questions && test.questions[test.idx]){ c=afdConseilCtx(); }
   else if(test && test.kind==='eq' && test.questions && test.questions[test.idx]){ c=eqConseilCtx(); }
   else if(test && test.kind==='rc' && test.questions && test.questions[test.idx]){ c=rcConseilCtx(); }
   else if(test && test.kind==='rf' && test.questions && test.questions[test.idx]){ c=rfConseilCtx(); }
@@ -5374,7 +5403,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5500,7 +5529,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','eav','sal'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','eav','sal'];
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
@@ -13068,7 +13097,7 @@ function cvxBuildQuestions(){
    côté où elle part vers ±∞, comme sur l'écran d'une calculatrice. La marque
    et sa lecture (X = … Y = …) imitent le curseur de la calculatrice de la
    fiche ; l'étiquette Cf se pose dans le coin le plus loin de la courbe. */
-function cvxCadreSVG(fn, xa, xb, cles, etiq, marque){
+function cvxCadreSVG(fn, xa, xb, cles, etiq, marque, nom){
   const L=40,R=346,T=14,Bm=190;
   const lo=Math.min.apply(null,cles), hi=Math.max.apply(null,cles);
   const c=(lo+hi)/2, h=Math.max(0.9*(hi-lo), 1.2);
@@ -13092,7 +13121,9 @@ function cvxCadreSVG(fn, xa, xb, cles, etiq, marque){
   const coins=[[R-40,T+18],[L+18,T+18],[R-40,Bm-8],[L+18,Bm-8]];
   let best=coins[0], bd=-1;
   coins.forEach(function(p){ let dm=1e9; pts.forEach(function(t){ const dd=Math.hypot(t[0]-p[0],t[1]-p[1]); if(dd<dm) dm=dd; }); if(dm>bd){ bd=dm; best=p; } });
-  const cf='<text x="'+best[0].toFixed(1)+'" y="'+best[1].toFixed(1)+'" class="sv-cf">C<tspan dy="3" font-size="11" font-style="normal">f'+etiq+'</tspan></text>';
+  /* nom : l'indice de l'étiquette quand ce n'est pas f (g, h, ou le numéro
+     d'une courbe anonyme de {associer-derivee-seconde}) */
+  const cf='<text x="'+best[0].toFixed(1)+'" y="'+best[1].toFixed(1)+'" class="sv-cf">C<tspan dy="3" font-size="11" font-style="normal">'+(nom!=null?nom:'f'+etiq)+'</tspan></text>';
   let mq='';
   if(marque){ const mx=sx(marque.x).toFixed(1), my=sy(marque.y).toFixed(1);
     mq='<line x1="'+mx+'" y1="'+(sy(marque.y)-7).toFixed(1)+'" x2="'+mx+'" y2="'+(sy(marque.y)+7).toFixed(1)+'" class="cvx-croix"/>'
@@ -13794,6 +13825,259 @@ function cvqConseilCtx(){
      : 'f est convexe là où f″ est POSITIVE (au-dessus de l’axe) et f′ y est croissante ; là où f″ s’annule en changeant de signe, f′ admet un extremum (+ puis − : maximum) et f un point d’inflexion. Un sommet de f″ n’est rien de tout cela. Faire repérer d’abord les zéros de f″ et son signe, puis relire chaque affirmation.');
 }
 
+/* ================= Exercice Terminale : associer f, f′ et f″ (kind 'afd') =================
+   Le pendant d'{associer-derivee} pour la convexité (demande de Turquet,
+   octobre 2026 : « dans le sous-thème convexité, créer un exercice : associer
+   f, f′ et f″ — six courbes en désordre, trois triplets à reconstituer »).
+   On donne les courbes de trois fonctions f, g, h, puis six courbes
+   numérotées en désordre : leurs trois dérivées et leurs trois dérivées
+   secondes. L'élève choisit, pour chaque fonction, la courbe de sa dérivée et
+   celle de sa dérivée seconde. AUCUNE formule : la dérivée se lit sur le SENS
+   de variation (F croît là où F′ est au-dessus de l'axe), la dérivée seconde
+   sur la CONVEXITÉ — ou, ce qui revient au même, sur le sens de F′.
+   Les trois fonctions sont des polynômes de quatre genres — une cubique à
+   deux extremums (c2), une cubique monotone (c0), une quartique à trois
+   extremums (q3), une quartique à un seul (q1) —, trois genres DIFFÉRENTS
+   par question : les six courbes mêlent alors des paraboles qui sont tantôt
+   une dérivée (d'une cubique), tantôt une dérivée seconde (d'une quartique),
+   et le degré seul ne trie rien. f′ se choisit par ses zéros (des entiers
+   lisibles sur la grille), f s'en déduit par intégration.
+   LE TRIPLET EST UNIQUE PAR LECTURE, pas par construction : afdSolutions()
+   compte toutes les façons de répartir les six courbes qui ne contredisent
+   AUCUNE lecture visible — une courbe g peut être la dérivée de h tant que,
+   partout où g est nettement d'un côté de l'axe et où h monte ou descend
+   nettement dans son cadre, les deux disent la même chose (afdDesaccord) —,
+   et le tirage n'est retenu que s'il n'en reste qu'UNE. Le jugement est
+   volontairement indulgent (un désaccord trop fin pour se voir n'élimine
+   rien) : c'est ce qui rend l'unicité exigeante.
+   La question ne range que les coefficients des trois fonctions (fs) et
+   l'ordre des six courbes (ordre : le code 2i est la dérivée de la fonction
+   i, 2i + 1 sa dérivée seconde) — des nombres, la question part en base ;
+   la réponse attendue se relit dans l'ordre (afdAttendu), jamais rangée à
+   côté. Les cadres sont ceux de {convexite-trois-courbes} (cvxCadreSVG) : la
+   courbe SORT du cadre là où elle file vers l'infini, comme sur une
+   calculatrice. Les identifiants afd-* n'appartiennent qu'à cet écran. */
+const AFD_NOMS=['f','g','h'];
+const AFD_GENRES=['c2','c0','q3','q1'];
+const AFD_XA=-3, AFD_XB=3;
+const AFD_NBQ=3;
+function afdVal(c,x){ let y=0; for(let k=c.length-1;k>=0;k--) y=y*x+c[k]; return y; }
+function afdDer(c){ const d=[]; for(let k=1;k<c.length;k++) d.push(k*c[k]); return d.length?d:[0]; }
+function afdMul(a,b){ const r=[]; for(let k=0;k<a.length+b.length-1;k++) r.push(0);
+  a.forEach(function(u,i){ b.forEach(function(v,j){ r[i+j]+=u*v; }); }); return r; }
+/* Une fonction d'un genre, par ses coefficients (c[k] devant x^k) : f′ par
+   ses zéros, puis f par intégration, à une constante près. */
+function afdFonction(genre){
+  const a=pick([1,-1])*pick([0.5,1]);
+  let fp;
+  if(genre==='c2'){ const r1=rand(-2,0), r2=pick([r1+2,r1+3].filter(function(v){ return v<=2; })); fp=afdMul([-r1,1],[-r2,1]); }
+  else if(genre==='c0'){ const p=rand(-1,1), e=pick([1,2]); fp=[p*p+e,-2*p,1]; }
+  else if(genre==='q3'){ const R=pick([[-2,0,2],[-2,0,1],[-1,0,2],[-2,-1,1],[-1,1,2],[-2,1,2],[-2,-1,2],[-2,0,2]]); fp=afdMul(afdMul([-R[0],1],[-R[1],1]),[-R[2],1]); }
+  else { const r=rand(-1,1), p=rand(-1,1), e=pick([0.5,1,2]); fp=afdMul([-r,1],[p*p+e,-2*p,1]); }
+  return [rand(-2,2)].concat(fp.map(function(v,k){ return a*v/(k+1); }));
+}
+/* Les six courbes dans l'ordre de l'écran, par leurs coefficients. */
+function afdCourbes(q){
+  return q.ordre.map(function(code){ const f=q.fs[Math.floor(code/2)], d=afdDer(f); return (code%2===0)?d:afdDer(d); });
+}
+function afdAttendu(q, i){ return { d:q.ordre.indexOf(2*i), s:q.ordre.indexOf(2*i+1) }; }
+/* Les abscisses où un polynôme change de signe sur la fenêtre. */
+function afdZeros(c){
+  const z=[]; let prev=afdVal(c,AFD_XA);
+  for(let i=1;i<=600;i++){ const x=AFD_XA+i/100, v=afdVal(c,x);
+    if((prev<0&&v>=0)||(prev>0&&v<=0)) z.push(Math.round(x*100)/100);
+    prev=v; }
+  return z;
+}
+/* La fenêtre en y d'une courbe, calée comme celle de cvxCadreSVG : les
+   valeurs aux extremums et aux points d'inflexion, l'axe, et — pour une
+   courbe sans extremum, ou avec un seul — de quoi montrer la forme autour. */
+function afdFenetre(c){
+  const ext=afdZeros(afdDer(c)), inf=afdZeros(afdDer(afdDer(c))), cles=[0];
+  ext.concat(inf).forEach(function(x){ if(x>-2.6 && x<2.6) cles.push(afdVal(c,x)); });
+  if(!ext.length){ cles.push(afdVal(c,-2), afdVal(c,2)); }
+  else if(ext.length===1){ [ext[0]-1.5, ext[0]+1.5].forEach(function(x){ cles.push(afdVal(c, Math.max(AFD_XA, Math.min(AFD_XB, x)))); }); }
+  const lo=Math.min.apply(null,cles), hi=Math.max.apply(null,cles);
+  const m=(lo+hi)/2, h=Math.max(0.9*(hi-lo), 1.2);
+  return { cles:cles, ymin:m-h, ymax:m+h };
+}
+/* g peut-elle être la DÉRIVÉE de h, à l'œil ? On cherche un point où g est
+   NETTEMENT d'un côté de l'axe (12 px au moins, dans son cadre) alors que h,
+   visible dans le sien, monte ou descend NETTEMENT (une pente d'écran de
+   0,25 au moins, 14°) dans l'autre sens. Rend le désaccord le plus franc, ou
+   null. Les cadres font 306 px de large pour 6 unités, 176 px de haut. Avec
+   8 px et 0,15, un tirage sur douze retenu comme unique ne l'était plus dès
+   qu'on exigeait un désaccord un peu plus franc : la marge se prend ici. */
+function afdDesaccord(g, h){
+  const dh=afdDer(h), Wg=afdFenetre(g), Wh=afdFenetre(h);
+  const kg=176/(Wg.ymax-Wg.ymin), kh=176/(Wh.ymax-Wh.ymin), kx=306/(AFD_XB-AFD_XA);
+  let best=null;
+  for(let i=0;i<=120;i++){ const x=AFD_XA+i*(AFD_XB-AFD_XA)/120;
+    const vh=afdVal(h,x); if(vh<Wh.ymin || vh>Wh.ymax) continue;
+    const vg=afdVal(g,x), p=afdVal(dh,x);
+    const fg=Math.abs(vg)*kg, fh=Math.abs(p)*kh/kx;
+    if(fg<12 || fh<0.25 || (vg>0)===(p>0)) continue;
+    const force=Math.min(fg/12, fh/0.25);
+    if(!best || force>best.force) best={x:x, force:force, haut:vg>0, monte:p>0};
+  }
+  return best;
+}
+/* Toutes les répartitions des six courbes qu'aucune lecture ne contredit :
+   [[dérivée, dérivée seconde] pour f, pour g, pour h], en rangs d'écran. */
+function afdSolutions(q){
+  const C=afdCourbes(q);
+  const D=q.fs.map(function(f){ return C.map(function(g){ return !afdDesaccord(g,f); }); });
+  const S=C.map(function(h){ return C.map(function(g){ return !afdDesaccord(g,h); }); });
+  const sols=[], pris=[false,false,false,false,false,false], acc=[];
+  (function pose(i){
+    if(i===3){ sols.push(acc.map(function(p){ return p.slice(); })); return; }
+    for(let d=0;d<6;d++){ if(pris[d]||!D[i][d]) continue; pris[d]=true;
+      for(let s=0;s<6;s++){ if(pris[s]||!S[d][s]) continue; pris[s]=true; acc.push([d,s]); pose(i+1); acc.pop(); pris[s]=false; }
+      pris[d]=false; }
+  })(0);
+  return sols;
+}
+/* Repli, si 200 tirages n'ont rien donné : une question dont le contrôle
+   vérifie l'unicité comme celle de n'importe quel tirage. */
+const AFD_REPLI={ fs:[[1,-4,0,1/3],[0,0,-2,0,0.25],[-1,2,-1,1/3]], ordre:[3,0,5,2,1,4] };
+function afdGen(){
+  for(let att=0;att<200;att++){
+    const genres=afqMelange(AFD_GENRES).slice(0,3);
+    const q={ fs:genres.map(afdFonction), ordre:afqMelange([0,1,2,3,4,5]) };
+    if(afdSolutions(q).length===1) return q;
+  }
+  return JSON.parse(JSON.stringify(AFD_REPLI));
+}
+function afdBuildQuestions(){ return distinctes(AFD_NBQ, function(){ return afdGen(); }); }
+function afdCases(q){
+  const out=[];
+  q.fs.forEach(function(_,i){ const a=afdAttendu(q,i);
+    out.push({id:'afd-d'+i, good:String(a.d), i:i, o:0});
+    out.push({id:'afd-s'+i, good:String(a.s), i:i, o:1}); });
+  return out;
+}
+async function startAfd(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='associer-derivee-seconde'; test.kind='afd';
+  test.questions=afdBuildQuestions();
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('afd'); renderAfd();
+}
+function afdCadre(c, nom){
+  const W=afdFenetre(c);
+  return '<div class="cvx-g"><div class="sv-graph">'+cvxCadreSVG(function(x){ return afdVal(c,x); }, AFD_XA, AFD_XB, W.cles, '', null, nom)+'</div></div>';
+}
+function renderAfd(){
+  const q=test.questions[test.idx], C=afdCourbes(q); test.locked=false;
+  $('afdQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('afdModeTag').innerHTML=modeTagHTML();
+  $('afdLiveScore').textContent=test.score;
+  $('afdFeedback').textContent=''; $('afdFeedback').className='mp-feedback';
+  $('afdActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkAfd()">Vérifier</button>';
+  $('afdPrompt').innerHTML='On donne les courbes de trois fonctions <i>f</i>, <i>g</i> et <i>h</i> définies et deux fois dérivables sur [−3 ; 3]. Les six courbes numérotées sont, en désordre, celles de leurs dérivées <i>f</i> ′, <i>g</i> ′, <i>h</i> ′ et de leurs dérivées secondes <i>f</i> ″, <i>g</i> ″, <i>h</i> ″. Reconstitue les trois triplets : chaque courbe sert une seule fois.';
+  const sel=function(id){ return '<select class="tvi-sel" id="'+id+'"><option value="">…</option>'
+    +C.map(function(_,j){ return '<option value="'+j+'">'+(j+1)+'</option>'; }).join('')+'</select>'; };
+  $('afdHost').innerHTML='<p class="af-instr">Les trois fonctions :</p>'
+    +'<div class="cvx-graphs afd-fonctions">'+q.fs.map(function(f,i){ return afdCadre(f, AFD_NOMS[i]); }).join('')+'</div>'
+    +'<p class="af-instr">Les six courbes, en désordre :</p>'
+    +'<div class="cvx-graphs afd-courbes">'+C.map(function(c,j){ return afdCadre(c, String(j+1)); }).join('')+'</div>'
+    +'<p class="af-instr">Les trois triplets — écris le numéro de chaque courbe :</p>'
+    +'<div class="afd-choix">'+AFD_NOMS.map(function(n,i){
+      return '<div class="afd-bloc"><span class="afd-nom">Pour <i>'+n+'</i></span>'
+        +'<label>courbe de <i>'+n+'</i> ′ : '+sel('afd-d'+i)+'</label>'
+        +'<label>courbe de <i>'+n+'</i> ″ : '+sel('afd-s'+i)+'</label></div>';
+    }).join('')+'</div>';
+  if(isSoutien()){
+    afdCases(q).forEach(function(x){ const el=$(x.id); if(el) el.addEventListener('change',function(){ checkAfd(true); }); });
+  }
+}
+/* Le pourquoi d'un choix faux, relu sur les courbes : le point où la courbe
+   choisie contredit la fonction (pour une dérivée) ou la VRAIE courbe de sa
+   dérivée (pour une dérivée seconde). */
+function afdPourquoi(q, x, j){
+  const C=afdCourbes(q), n=AFD_NOMS[x.i], F='<i>'+n+'</i>';
+  const k=afdAttendu(q,x.i).d;
+  const h=(x.o===0)?q.fs[x.i]:C[k];
+  const d=afdDesaccord(C[j], h);
+  const role=F+(x.o===0?' ′':' ″');
+  if(!d) return 'La courbe '+(j+1)+' ne contredit pas, à elle seule, '+(x.o===0?'les variations de '+F:'la courbe '+(k+1)+' de '+F+' ′')+' — mais alors le reste ne se répartit plus : chaque courbe ne sert qu’une fois.';
+  const ou='vers <i>x</i> = '+numFmt(Math.round(d.x*2)/2);
+  return 'La courbe '+(j+1)+' ne peut pas être celle de '+role+' : '+ou+', elle est '+(d.haut?'au-dessus':'au-dessous')+' de l’axe, alors que '
+    +(x.o===0 ? F+' y est '+(d.monte?'croissante':'décroissante') : 'la courbe '+(k+1)+' — celle de '+F+' ′ — y '+(d.monte?'monte':'descend'))+'.';
+}
+function checkAfd(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], cases=afdCases(q);
+  /* UNE CASE VIDE NE ROUGIT JAMAIS : on juge tout, on ne peint qu'ensuite,
+     et corrCase remplit la case vide en vert à la fin. */
+  let allOk=true, anyFilled=false;
+  const etats=cases.map(function(x){
+    const el=$(x.id); if(!el) return null;
+    const raw=String(el.value||''), vide=(raw==='');
+    const ok=(raw===x.good);
+    if(!vide) anyFilled=true;
+    if(!ok) allOk=false;
+    return {x:x, el:el, ok:ok, vide:vide, raw:raw};
+  }).filter(function(e){ return !!e; });
+  const peindre=function(){ etats.forEach(function(e){
+    e.el.classList.remove('ok','bad');
+    if(!e.vide) e.el.classList.add(e.ok?'ok':'bad');
+  }); };
+  if(live){ peindre(); return; }
+  if(!anyFilled){ $('afdFeedback').textContent='Complète au moins une case avant de vérifier.'; $('afdFeedback').className='mp-feedback'; return; }
+  if(!allOk && isSoutien()){
+    peindre();
+    etats.forEach(function(e){ if(e.ok) e.el.disabled=true; });
+    $('afdFeedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('afdFeedback').className='mp-feedback bad';
+    $('afdActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkAfd()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  etats.forEach(function(e){ corrCase(e.x.id, e.x.good, e.ok); });
+  if(allOk){
+    test.score++; $('afdLiveScore').textContent=test.score;
+    $('afdFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, les trois triplets sont reconstitués !']);
+    $('afdFeedback').className='mp-feedback good';
+  } else {
+    const nbVides=etats.filter(function(e){ return e.vide; }).length;
+    const raisons=etats.filter(function(e){ return !e.ok && !e.vide; }).slice(0,3).map(function(e){ return afdPourquoi(q, e.x, parseInt(e.raw,10)); });
+    $('afdFeedback').innerHTML='Quelques erreurs — ce qui est faux reste en rouge, la bonne réponse est à côté en vert'
+      +(nbVides?(nbVides>1?', et les cases restées vides ont été remplies en vert':', et la case restée vide a été remplie en vert'):'')+'.<br>'
+      +(raisons.length?raisons.join('<br>')+'<br>':'')
+      +'Retiens : la dérivée se lit sur le SENS de variation (<i>f</i> croît là où <i>f</i> ′ est au-dessus de l’axe, et change de sens là où <i>f</i> ′ le coupe) ; la dérivée seconde sur la CONVEXITÉ (<i>f</i> est convexe là où <i>f</i> ″ est au-dessus de l’axe — c’est là que <i>f</i> ′ croît).';
+    $('afdFeedback').className='mp-feedback bad';
+  }
+  const dit=function(i){ const a=afdAttendu(q,i); return AFD_NOMS[i]+'′ : courbe '+(a.d+1)+', '+AFD_NOMS[i]+'″ : courbe '+(a.s+1); };
+  test.answers.push({...(ptsExo()||{}),q:'Associer f, f′ et f″ (question '+(test.idx+1)+')',
+    answer:[0,1,2].map(dit).join(' ; '),
+    given:etats.map(function(e){ return e.vide?'—':String(parseInt(e.raw,10)+1); }).join(' '), correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('afdActions').innerHTML='<button class="btn btn-primary" onclick="nextAfd()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextAfd(){ if(test.idx<test.questions.length-1){ test.idx++; renderAfd(); } else finishTest(); }
+/* Ce que montre une courbe, en mots — le modèle ne voit pas les dessins. */
+function afdLecture(c){
+  const r=function(x){ return numFmt(Math.round(x*10)/10); };
+  const z=afdZeros(c), e=afdZeros(afdDer(c));
+  const sg=[]; [AFD_XA].concat(z).forEach(function(a,i){ const b=(i<z.length)?z[i]:AFD_XB; sg.push(afdVal(c,(a+b)/2)>0?'+':'−'); });
+  return 'coupe l’axe en '+(z.length?z.map(r).join(' et '):'aucun point')+' (signe '+sg.join(' puis ')+'), change de sens en '+(e.length?e.map(r).join(' et '):'aucun point');
+}
+function afdConseilCtx(){
+  const q=test.questions[test.idx], C=afdCourbes(q), cases=afdCases(q);
+  const lu=function(id){ const el=$(id); if(!el) return '(vide)'; const v=String(el.value||''); return v===''?'(vide)':'courbe '+(parseInt(v,10)+1); };
+  return 'Exercice « Associer f, f′ et f″ ». On donne les courbes de trois fonctions f, g, h sur [−3 ; 3], et six courbes numérotées de 1 à 6, en désordre : leurs dérivées et leurs dérivées secondes. L’élève indique, pour chaque fonction, le numéro de la courbe de sa dérivée et celui de la courbe de sa dérivée seconde ; chaque courbe sert une fois. '
+   +'Ce que montrent les courbes : '+q.fs.map(function(f,i){ return 'la courbe de '+AFD_NOMS[i]+' '+afdLecture(f); }).join(' ; ')+' ; '
+   +C.map(function(c,j){ return 'la courbe '+(j+1)+' '+afdLecture(c); }).join(' ; ')+'. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
+   +[0,1,2].map(function(i){ const a=afdAttendu(q,i); return AFD_NOMS[i]+'′ = courbe '+(a.d+1)+', '+AFD_NOMS[i]+'″ = courbe '+(a.s+1); }).join(' ; ')+'. '
+   +'Saisies actuelles : '+cases.map(function(x){ return AFD_NOMS[x.i]+(x.o===0?'′':'″')+' '+lu(x.id); }).join(' ; ')+'. '
+   +'Méthode à faire appliquer, sans donner les numéros : une dérivée est positive là où la fonction croît, et s’annule là où elle change de sens ; une dérivée seconde est positive là où la fonction est convexe, et s’annule en changeant de signe à ses points d’inflexion — c’est aussi la dérivée de la dérivée, donc elle s’annule là où la courbe de la dérivée a un sommet.';
+}
 
 async function startEF(){
   if(!currentEleve){ accueil(); return; }
@@ -19019,6 +19303,11 @@ const RAP_CVQ=`<b>Convexité : répondre à un QCM depuis la courbe de f\u2009�
 \u2022 <b>Un tableau de variations de f\u2009′</b> se lit pareil : f est convexe sur les colonnes où la flèche monte, concave où elle descend ; un 0 posé au milieu d'une flèche est un zéro de f\u2009′, pas un changement de convexité.<br>
 \u2022 <b>Si c'est f\u2009″ qui est dessinée</b> : f est convexe là où f\u2009″ est POSITIVE (au-dessus de l'axe), f\u2009′ y est croissante ; là où f\u2009″ s'annule en changeant de signe, f\u2009′ admet un extremum (+ puis − : maximum) et f un point d'inflexion. Un sommet de f\u2009″ ne dit rien.<br>
 \u2022 <b>Une affirmation sur un intervalle</b> n'est vraie que si le point d'inflexion n'est PAS strictement à l'intérieur : un intervalle qui l'enjambe contient un changement de convexité. Une seule affirmation est vraie : élimine les trois pièges.`;
+const RAP_AFD=`<b>Associer f, f\u2009′ et f\u2009″ sur leurs courbes</b><br>
+\u2022 <b>La dérivée se lit sur le SENS de variation</b> : là où f croît, la courbe de f\u2009′ est au-dessus de l'axe ; là où f décroît, au-dessous. Chaque maximum ou minimum de f est un point où la courbe de f\u2009′ COUPE l'axe.<br>
+\u2022 <b>La dérivée seconde se lit sur la CONVEXITÉ</b> : là où f est convexe (la courbe « sourit », au-dessus de ses tangentes), la courbe de f\u2009″ est au-dessus de l'axe ; là où f est concave, au-dessous. Un point d'inflexion de f est un point où la courbe de f\u2009″ coupe l'axe.<br>
+\u2022 <b>f\u2009″ est aussi la dérivée de f\u2009′</b> : une fois f\u2009′ trouvée, f\u2009″ est positive là où f\u2009′ croît, et s'annule aux SOMMETS de la courbe de f\u2009′ — c'est souvent la façon la plus sûre de la reconnaître.<br>
+\u2022 <b>Le degré ne suffit pas</b> : une parabole peut être la dérivée d'une fonction comme la dérivée seconde d'une autre. Vérifie chaque choix par les deux lectures, et souviens-toi que chaque courbe ne sert qu'une fois.`;
 const RAP_SVR=`<b>Sens de variation d’une suite U<sub>n+1</sub> = f (U<sub>n</sub>)</b><br>
 • <b>Le tracé en escalier</b> : on part de U<sub>0</sub> sur l’axe des abscisses, on MONTE jusqu’à la courbe — la hauteur lue est U<sub>1</sub> —, puis on rejoint la droite d’équation <i>y</i> = <i>x</i> pour ramener U<sub>1</sub> sur l’axe, et on recommence. La droite <i>y</i> = <i>x</i> ne sert qu’à cela : reporter une hauteur sur l’axe des abscisses.<br>
 • <b>Une récurrence qui dit le sens ET la borne</b> : au lieu de démontrer séparément que la suite décroît et qu’elle est minorée, on démontre d’un seul coup un encadrement qui contient les deux, par exemple 1 ≤ U<sub>n+1</sub> ≤ U<sub>n</sub> ≤ 2.<br>
@@ -19084,7 +19373,7 @@ const RAP_SAP=`<b>Approcher une limite avec un algorithme</b><br>
 • <b>La boucle <code>while</code></b> tourne TANT QUE sa condition est vraie : ici, tant qu’on est encore trop loin, <code>while abs(u - l) &gt;= 0.001:</code>. Elle s’arrête au premier rang où l’écart passe sous 10<sup>−3</sup>.<br>
 • <b>10<sup>−3</sup> en Python</b> : <code>0.001</code>, ou <code>10**-3</code>, ou <code>1e-3</code> — un point, jamais une virgule.<br>
 • <b>Pourquoi la boucle s’arrête</b> : la suite CONVERGE vers ℓ, donc l’écart |U<sub><i>n</i></sub> − ℓ| finit par devenir aussi petit qu’on veut. Pour une suite qui ne convergerait pas, le programme pourrait tourner sans fin.`;
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -27875,6 +28164,7 @@ try{
    imagé, programme de Terminale spécialité, définitions du cours autorisées, mais
    jamais les valeurs de l'exercice en cours. */
 const QIA_SUGG={
+  afd:["Comment reconna\u00eetre la courbe de f\u2009\u2032 en regardant celle de f ?","Comment lire la convexit\u00e9 de f sur la courbe de f\u2009\u2033 ?","Pourquoi f\u2009\u2033 s'annule-t-elle au sommet de la courbe de f\u2009\u2032 ?","Une parabole est-elle toujours une d\u00e9riv\u00e9e seconde ?"],
   cvq:["Comment lire la convexit\u00e9 de f sur la courbe de f\u2009\u2032 ?","Pourquoi un sommet de la courbe de f\u2009\u2032 est-il un point d'inflexion de f ?","Quelle diff\u00e9rence entre un z\u00e9ro de f\u2009\u2032 et un z\u00e9ro de f\u2009\u2033 ?","Comment lire la convexit\u00e9 de f sur la courbe de f\u2009\u2033 ?"],
   cvx:["Comment lire le signe de f\u2009\u2033 sur sa courbe ?","Pourquoi f\u2009\u2032 est-elle croissante l\u00e0 o\u00f9 f\u2009\u2033 est positive ?","Que se passe-t-il pour f au z\u00e9ro de f\u2009\u2033 ?","Comment trouver les variations de f \u00e0 partir de la courbe de f\u2009\u2032 ?"],
   sdq:["Comment lire le signe de f\u2009\u2032 sur sa courbe ?","Pourquoi un sommet de la courbe de f\u2009\u2032 n'est-il pas un extremum de f ?","Comment savoir si c'est un minimum ou un maximum ?","Que veut dire \u00ab f est d\u00e9croissante sur un intervalle \u00bb quand f\u2009\u2032 s'annule dedans ?"],
