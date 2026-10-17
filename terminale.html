@@ -3448,7 +3448,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=394;
+const APP_VERSION=395;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3861,11 +3861,13 @@ function navCasesListe(){
   const scr=document.querySelector('.screen.on');
   if(!scr) return [];
   const out=[];
-  scr.querySelectorAll('input, select').forEach(el=>{
-    if(el.disabled) return;
+  scr.querySelectorAll('input, select, math-field').forEach(el=>{
+    if(el.tagName==='MATH-FIELD'){ if(el.readOnly || el.disabled) return; }
+    else if(el.disabled) return;
     if(el.tagName==='INPUT'){
       const t=(el.getAttribute('type')||'text').toLowerCase();
       if(t!=='text' && t!=='number') return;
+      if(el.readOnly) return;
     }
     let a=el, cache=false;
     /* masqué par style.display OU par l'attribut hidden : le formulaire
@@ -3878,7 +3880,12 @@ function navCasesListe(){
 }
 function boutonVerif(){
   const scr=document.querySelector('.screen.on');
-  return scr ? scr.querySelector('.mp-actions .btn-primary:not([disabled])') : null;
+  if(!scr) return null;
+  const b=scr.querySelector('.mp-actions .btn-primary:not([disabled])');
+  if(b) return b;
+  /* écran sans .mp-actions : le premier bouton principal VISIBLE et actif */
+  for(const x of scr.querySelectorAll('.btn-primary')){ if(x.offsetParent && !x.disabled) return x; }
+  return null;
 }
 function navCases(e){
   if(e.shiftKey||e.ctrlKey||e.altKey||e.metaKey) return;
@@ -3905,7 +3912,7 @@ function navCases(e){
     return;
   }
   if(e.key!=='ArrowRight' && e.key!=='ArrowLeft') return;
-  if(!el) return;
+  if(!el || e.defaultPrevented) return;
   if(el.tagName==='BUTTON'){
     /* ← depuis le bouton de vérification : retour à la dernière case */
     if(e.key!=='ArrowLeft' || el!==boutonVerif()) return;
@@ -3947,6 +3954,36 @@ function navCases(e){
   }
 }
 document.addEventListener('keydown', navCases);
+/* Les cases MathLive suivent la même règle (demande de Turquet, octobre 2026) : MathLive
+   émet « move-out » quand le curseur sort par le bord — → en fin de saisie, ← au début.
+   Une case qui gère déjà sa sortie (fiches, cases du 6.2…) l'annule : on la laisse. */
+function navCasesMF(cible, dir){
+  if(cible){
+    try{ cible.focus(); }catch(err){}
+    if(cible.tagName==='INPUT'){
+      const L2=(cible.value||'').length, pos=dir>0?0:L2;
+      try{ cible.setSelectionRange(pos,pos); }catch(err){}
+    }
+    return;
+  }
+  if(dir<0) return;
+  const btn=boutonVerif(); if(!btn) return;
+  /* MathLive termine son traitement APRÈS nous et reprendrait un focus immédiat */
+  const pose=n=>{ try{ btn.focus(); }catch(err){} if(n>0 && document.activeElement!==btn) setTimeout(()=>pose(n-1),40); };
+  setTimeout(()=>pose(2),0);
+}
+document.addEventListener('move-out', function(ev){
+  if(ev.defaultPrevented) return;
+  const el=ev.target;
+  if(!el || el.tagName!=='MATH-FIELD') return;
+  const d=ev.detail && ev.detail.direction;
+  if(d!=='forward' && d!=='backward') return;
+  const liste=navCasesListe(), i=liste.indexOf(el);
+  if(i<0) return;
+  if(ev.cancelable) ev.preventDefault();
+  const dir=d==='forward'?1:-1;
+  navCasesMF(liste[i+dir], dir);
+});
 /* --- Anti-triche « coller » : dans les cases des exercices, seul un coller provenant d'une copie
    faite DANS la page est accepté ; tout coller venu de l'extérieur (autre site, autre application)
    est bloqué, ainsi que le glisser-déposer. Limite assumée : aucun navigateur n'expose le site

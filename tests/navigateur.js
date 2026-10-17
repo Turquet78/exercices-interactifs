@@ -15000,6 +15000,7 @@ if(require.main === module) (async () => {
           dessinsCasses.push(num + ' ' + id + ' (' + mode + ', ' + moment + ') ' + d.src + ' — ' + d.etat);
         }
       };
+      const flechesBloquees = [], flecheMilieuSort = [], flecheMilieu = {}, flechesSansCible = new Set(); let nFleches = 0;
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -15420,6 +15421,80 @@ if(require.main === module) (async () => {
           nIndicesFlex += (vu.nIndices || 0);
           if(vu.indices && vu.indices.length)
             indicesPlats.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.indices[0]);
+          /* LA FLÈCHE → EN FIN DE CASE PASSE À LA SUIVANTE — sur TOUS les
+             exercices (demande de Turquet, octobre 2026). Au milieu du texte
+             saisi, → avance d'un caractère ; en fin de texte, elle quitte la
+             case pour la suivante, ou pour le bouton de vérification depuis la
+             dernière. On le mesure au CLAVIER, pour de vrai : la première case
+             de l'écran (vide, donc curseur en fin) reçoit le focus, on appuie
+             sur →, et le focus doit avoir quitté la case pour une autre case ou
+             un bouton. Le bord opposé — au milieu du texte, on reste dans la
+             case — se mesure une fois par sorte de case (champ simple, case
+             MathLive) : « 12 », ←, → ne quitte pas la case. */
+          if(mode === 'train'){
+            const fl = await s.page.evaluate(() => {
+              const on = document.querySelector('section.screen.on'); if(!on) return null;
+              const vis = e => { const q = e.getBoundingClientRect();
+                return q.width > 0 && q.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
+              const c = [...on.querySelectorAll('math-field, input')].find(e => {
+                if(!vis(e)) return false;
+                if(e.tagName === 'MATH-FIELD') return !e.readOnly && !e.disabled;
+                const t = (e.getAttribute('type') || 'text').toLowerCase();
+                return (t === 'text' || t === 'number') && !e.disabled && !e.readOnly;
+              });
+              if(!c) return null;
+              /* rien où aller — ni autre case, ni bouton principal (les tables
+                 chronométrées : Entrée valide, il n'y a pas de « Vérifier ») :
+                 le contrôle ne s'applique pas, et l'exercice est NOMMÉ */
+              const autres = [...on.querySelectorAll('math-field, input, select, .btn-primary')]
+                .filter(e => e !== c && vis(e) && !e.disabled && !e.readOnly
+                  && (e.tagName !== 'INPUT' || /^(text|number)$/.test((e.getAttribute('type') || 'text').toLowerCase())));
+              if(!autres.length) return { sansCible: true };
+              document.querySelectorAll('[data-banc-fleche]').forEach(e => e.removeAttribute('data-banc-fleche'));
+              c.setAttribute('data-banc-fleche', '1');
+              c.focus();
+              if(c.tagName === 'INPUT'){ const L = (c.value || '').length; try { c.setSelectionRange(L, L); } catch(e){} }
+              else { try { c.position = c.lastOffset; } catch(e){} }
+              return { tag: c.tagName, id: c.id || '(sans id)', vide: c.tagName === 'INPUT' ? !(c.value || '') : !String(c.getValue ? c.getValue() : '') };
+            });
+            if(fl && fl.sansCible) flechesSansCible.add(await s.page.evaluate(i => TEST_NUM[i], id));
+            if(fl && fl.vide){
+              /* une case MathLive qui vient de prendre le focus pour la première
+                 fois n'écoute pas encore le clavier : à 80 ms, la flèche s'y
+                 perdait une fois sur cent vingt (mesuré, octobre 2026) */
+              await s.page.waitForTimeout(250);
+              const sorte = fl.tag === 'INPUT' ? 'champ' : 'mf';
+              if(!flecheMilieu[sorte]){
+                await s.page.keyboard.type('12', { delay: 20 });
+                await s.page.keyboard.press('ArrowLeft');
+                await s.page.keyboard.press('ArrowRight');
+                await s.page.waitForTimeout(150);
+                const reste = await s.page.evaluate(() => {
+                  const c = document.querySelector('[data-banc-fleche]');
+                  const ici = c && (document.activeElement === c);
+                  if(c){ if(c.tagName === 'INPUT') c.value = ''; else try { c.setValue(''); } catch(e){} }
+                  if(c) c.focus();
+                  return ici;
+                });
+                flecheMilieu[sorte] = (await s.page.evaluate(i => TEST_NUM[i], id)) + ' ' + fl.id + (reste ? '' : ' — ✗');
+                if(!reste) flecheMilieuSort.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' ' + fl.id + ' (' + sorte + ')');
+                await s.page.waitForTimeout(80);
+              }
+              await s.page.keyboard.press('ArrowRight');
+              await s.page.waitForTimeout(220);
+              const ou = await s.page.evaluate(() => {
+                const c = document.querySelector('[data-banc-fleche]');
+                const a = document.activeElement;
+                if(c) c.removeAttribute('data-banc-fleche');
+                const r = !a || a === c ? 'resté dans la case'
+                  : /^(MATH-FIELD|INPUT|SELECT|BUTTON)$/.test(a.tagName) ? '' : 'focus sur ' + a.tagName;
+                try { if(a && a.blur) a.blur(); } catch(e){}
+                return r;
+              });
+              nFleches++;
+              if(ou) flechesBloquees.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' ' + fl.id + ' — ' + ou);
+            }
+          }
           /* UNE CASE VIDE NE ROUGIT JAMAIS — sur TOUS les exercices.
              C'est la règle que la Seconde a réapprise trois fois en une seule
              journée d'août 2026, chaque fois sur un exercice différent, et
@@ -15560,6 +15635,17 @@ if(require.main === module) (async () => {
          saute des exercices en silence rend le banc vert sur ce qu'il ne
          vérifie plus. */
       const dispenses = (P.casesVides && P.casesVides.sans) || [];
+      verifier('la flèche → en fin de case passe à la case suivante ou au bouton de vérification',
+        nFleches > 0 && flechesBloquees.length === 0,
+        nFleches ? flechesBloquees.length + ' exercice(s) : ' + flechesBloquees.slice(0, 6).join(' | ')
+                 : 'aucune case mesurée — le contrôle ne mesure rien');
+      verifier('au milieu du texte saisi, → reste dans la case (champ simple et case MathLive)',
+        !!flecheMilieu.champ && !!flecheMilieu.mf && flecheMilieuSort.length === 0,
+        flecheMilieuSort.length ? 'la case a été quittée : ' + flecheMilieuSort.join(' | ')
+          : 'sorte(s) jamais mesurée(s) : ' + ['champ', 'mf'].filter(k => !flecheMilieu[k]).join(', '));
+      if(flechesSansCible.size)
+        console.log('   · ' + flechesSansCible.size + ' exercice(s) sans autre case ni bouton où aller (flèche non mesurée) : '
+          + [...flechesSansCible].join(', '));
       verifier('aucune case laissée vide ne rougit à la vérification',
         videsRouges.length === 0,
         videsRouges.length + ' exercice(s) : ' + videsRouges.slice(0, 6).join(' | '));
