@@ -4719,6 +4719,7 @@ function exercices(suite){
     signeDeriveeQcm(w, P);
     convexiteTroisCourbes(w, P);
     convexiteQcm(w, P);
+    convexiteTangente(w, P);
     mineursTerminale(w, P);
     suiteVocabulaire(w, P);
     etiquetteCourbe(w, P);
@@ -18442,10 +18443,11 @@ function etudeAlgoConvexite(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='etude-algo-convexite';
 
-    /* ---- 0. la place au menu : le dernier de la partie « Convexité » ---- */
+    /* ---- 0. la place au menu : le quatrième de la partie « Convexité »
+       (il la fermait ; {convexite-tangente}, 4.3.5, le suit depuis octobre 2026) ---- */
     { const th=THEMES.filter(function(t){ return t.nom==='Étude de fonction'; })[0];
       const st=th&&th.sous&&th.sous.filter(function(x){ return x.nom==="Convexité"; })[0];
-      if(!st || st.ids[st.ids.length-1]!=='etude-algo-convexite') vus.push("{etude-algo-convexite} n'est pas dans la partie « Convexité » du thème Étude de fonction");
+      if(!st || st.ids[3]!=='etude-algo-convexite') vus.push("{etude-algo-convexite} n'est pas dans la partie « Convexité » du thème Étude de fonction");
       if(TEST_NUM['etude-algo-convexite']!=='4.3.4') vus.push('le numéro n\\'est pas 4.3.4 : '+TEST_NUM['etude-algo-convexite']); }
 
     /* ---- 1. le tirage : (a, b, k, c) et rien d'autre ; les trois exponentielles sortent ---- */
@@ -47222,6 +47224,163 @@ function convexiteTroisCourbes(w, P){
     /* le contexte du modèle porte la clause de secret et les réponses */
     pose(null);
     { const c=cvxConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/extremum \\u22121 en 0/.test(c) || !/zéro de f′ : 1 ; zéro de f″ : 0/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec les réponses'); }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Convexité — une inégalité par une tangente (4.3.5) ----
+   La démonstration à trous « f″ ≥ 0 ⟹ f convexe ⟹ au-dessus de T ⟹
+   f(x) ≥ T(x) » (demande de Turquet, octobre 2026). Le contrôle relit
+   l'ÉNONCÉ AFFICHÉ — f, f′ et f″ telles que l'élève les lit, traduites en
+   fonctions —, puis refait tout par différences finies, jamais par cvtAns :
+   f′ est la dérivée de f, f″ celle de f′, le signe de f″ sur I (une grille de
+   points), la tangente en a (f(a), f′(a), pente et ordonnée à l'origine), et
+   l'inégalité attendue VRAIE en chaque point de I. Puis les gestes : la
+   copie juste vaut le point, une case fausse ne rougit qu'elle, une case vide
+   ne rougit jamais et reçoit la correction, le coefficient 1 de x s'omet, le
+   miroir de la conclusion suit l'équation écrite, le soutien colore en
+   direct, et le contexte du modèle porte la clause de secret. */
+function convexiteTangente(w, P){
+  const nom='convexité : l\'inégalité par une tangente est vraie sur I, et la démonstration à trous se juge case par case';
+  const present = evaluer(w, "typeof startCvt==='function' && typeof cvtBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'inégalité par une tangente');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='convexite-tangente';
+    const H=1e-4;
+    const der=function(g,x){ return (g(x+H)-g(x-H))/(2*H); };
+    /* l'écriture affichée, traduite : e<sup>…</sup> devient Math.exp(…), les
+       produits implicites reçoivent leur étoile */
+    const fn=function(html){
+      let t=String(html).replace(/<sup>/g,'^(').replace(/<\\/sup>/g,')').replace(/<[^>]+>/g,'')
+        .replace(/\\u2212/g,'-').replace(/\\s+/g,'');
+      t=t.replace(/e\\^\\(/g,'E(').replace(/\\^/g,'**');
+      t=t.replace(/(\\d)(x|E|\\()/g,'$1*$2').replace(/\\)(x|E|\\(|\\d)/g,')*$1').replace(/x(E|\\(|x)/g,'x*$1');
+      t=t.replace(/E\\(/g,'Math.exp(');
+      return new Function('x','return '+t+';');
+    };
+    const vusFam={};
+    const juge=function(q, ou){
+      const cles=Object.keys(q).filter(function(k){ return ['fam','k','p','a','c','b','v'].indexOf(k)<0; });
+      if(cles.length) vus.push(ou+' : la question range autre chose que ses paramètres : '+cles.join(','));
+      if(Object.keys(q).some(function(k){ return typeof q[k]!=='number' && k!=='fam'; })) vus.push(ou+' : un paramètre qui n\\'est pas un nombre');
+      vusFam[q.fam]=(vusFam[q.fam]||0)+1;
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'cvt', questions:[q], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+      show('cvt'); renderCvt();
+      const pr=document.getElementById('cvtPrompt').innerHTML;
+      const m=pr.match(/par <i>f<\\/i>\\(<i>x<\\/i>\\) = (.*?)\\. On admet[^]*?avec <i>f<\\/i> ′\\(<i>x<\\/i>\\) = (.*?) et <i>f<\\/i> ″\\(<i>x<\\/i>\\) = (.*?)\\. On note[^]*?d’abscisse (\\S+?)\\. /);
+      if(!m){ vus.push(ou+' : l\\'énoncé ne se relit pas : '+pr.slice(0,160)); return; }
+      let F, Fp, Fpp; try{ F=fn(m[1]); Fp=fn(m[2]); Fpp=fn(m[3]); }catch(e){ vus.push(ou+' : une expression affichée ne se lit pas : '+m[1]+' | '+m[2]+' | '+m[3]); return; }
+      const a=parseFloat(m[4].replace('\\u2212','-'));
+      const iv=pr.match(/sur <i>I<\\/i> = (ℝ|\\]−∞ ; (\\S+?)\\]|\\[(\\S+?) ; \\+∞\\[)/);
+      if(!iv){ vus.push(ou+' : l\\'intervalle I ne se lit pas'); return; }
+      const lo=iv[3]!=null?parseFloat(iv[3].replace('\\u2212','-')):-6, hi=iv[2]!=null?parseFloat(iv[2].replace('\\u2212','-')):6;
+      if(!(a>=lo && a<=hi)) vus.push(ou+' : le point de la tangente ('+a+') n\\'est pas dans I');
+      for(let x=lo;x<=hi;x+=0.25){
+        const e1=Math.abs(der(F,x)-Fp(x))/Math.max(1,Math.abs(Fp(x))), e2=Math.abs(der(Fp,x)-Fpp(x))/Math.max(1,Math.abs(Fpp(x)));
+        if(e1>1e-5){ vus.push(ou+' : f′ affichée n\\'est pas la dérivée de f (x = '+x+')'); break; }
+        if(e2>1e-5){ vus.push(ou+' : f″ affichée n\\'est pas la dérivée de f′ (x = '+x+')'); break; }
+      }
+      /* le signe de f″ sur I, la convexité, la tangente, l'inégalité */
+      const pts=[]; for(let x=lo;x<=hi+1e-9;x+=0.1) pts.push(x);
+      const conv=pts.every(function(x){ return Fpp(x)>=-1e-12; }), conc=pts.every(function(x){ return Fpp(x)<=1e-12; });
+      if(conv===conc) vus.push(ou+' : f″ change de signe sur I (ou y est nulle)');
+      const cases=cvtCases(q), bon={}; cases.forEach(function(c){ bon[c.id]=c.good; });
+      const cv=conv?'convexe':'concave';
+      if(bon['cvt-cv']!==cv) vus.push(ou+' : la page attend « '+bon['cvt-cv']+' », f″ dit '+cv);
+      if(bon['cvt-spp']!==(conv?'>=':'<=')) vus.push(ou+' : le signe attendu de f″ est faux');
+      if(bon['cvt-pos']!==(conv?'dessus':'dessous') || bon['cvt-in']!==(conv?'>=':'<=')) vus.push(ou+' : la position ou le sens de l\\'inégalité attendus sont faux');
+      const fa=F(a), fpa=der(F,a), pT=fa-fpa*a;
+      if(Math.abs(bon['cvt-fa']-fa)>1e-6 || Math.abs(bon['cvt-fpa']-fpa)>1e-5) vus.push(ou+' : f(a) ou f′(a) attendus faux ('+bon['cvt-fa']+', '+bon['cvt-fpa']+' pour '+fa+', '+fpa+')');
+      if(Math.abs(bon['cvt-m']-fpa)>1e-5) vus.push(ou+' : la pente attendue de T est fausse');
+      if(Math.abs((bon['cvt-p']||0)-pT)>1e-5) vus.push(ou+' : l\\'ordonnée à l\\'origine attendue de T est fausse');
+      if(bon['cvt-m']===0) vus.push(ou+' : une tangente horizontale (la case de la pente vaudrait 0)');
+      [bon['cvt-fa'],bon['cvt-fpa'],bon['cvt-m'],bon['cvt-p']||0].forEach(function(v){ if(v!==Math.round(v)) vus.push(ou+' : une valeur attendue non entière : '+v); });
+      if(('cvt-p' in bon)!==(Math.abs(pT)>1e-6)) vus.push(ou+' : la case de l\\'ordonnée à l\\'origine '+(('cvt-p' in bon)?'est posée alors qu\\'elle vaut 0':'manque'));
+      pts.forEach(function(x){ const d=F(x)-(fpa*x+pT); if(conv?d<-1e-6:d>1e-6) vus.push(ou+' : l\\'inégalité attendue est FAUSSE en x = '+x.toFixed(1)); });
+      cases.forEach(function(c){ if(c.type==='sel'){ const el=document.getElementById(c.id);
+        if(!el || !Array.prototype.some.call(el.options,function(o){ return o.value===c.good; })) vus.push(ou+' : le menu '+c.id+' ne propose pas la bonne réponse'); } });
+      if(q.v===1){ const T=document.getElementById('cvtPrompt').textContent;
+        if(!/Démontre que/.test(T) || T.indexOf(conv?'≥':'≤')<0) vus.push(ou+' : l\\'énoncé « démontre que » n\\'annonce pas la bonne inégalité'); }
+    };
+    for(let n=0;n<60 && !vus.length;n++){
+      const qs=cvtBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      if(new Set(qs.map(function(q){ return q.fam; })).size!==4) vus.push('les quatre familles ne sortent pas une fois chacune par séance');
+      qs.forEach(function(q,i){ juge(JSON.parse(JSON.stringify(q)),'séance '+n+', question '+(i+1)); });
+    }
+    /* et chaque jeu de paramètres possible, pas seulement ceux que le hasard a tirés */
+    CVT_EXP.forEach(function(c){ [0,1].forEach(function(v){ juge({fam:'exp',k:c[0],p:c[1],v:v},'exp '+c.join(',')); }); });
+    [1,2,3,-1,-2,-3].forEach(function(a){ [0,-3,3].forEach(function(c){ if(3*a*a+c!==0) juge({fam:'cub',a:a,c:c,v:0},'cub '+a+','+c); }); });
+    [0,1,-2].forEach(function(b){ juge({fam:'pe',b:b,v:0},'pe '+b); });
+    [0,-1,2,-2].forEach(function(b){ juge({fam:'pem',b:b,v:1},'pem '+b); });
+
+    /* ---- les gestes, sur deux questions FIXES ----
+       Q0 : e^x sur ℝ, tangente en 0 : y = x + 1 (pente 1 : l'omission) ;
+       Q1 : x³ sur ]−∞ ; 0], tangente en −1 : y = 3x + 2, concave. */
+    const Q0={fam:'exp',k:1,p:0,v:0}, Q1={fam:'cub',a:-1,c:0,v:1};
+    const JUSTE0={'cvt-f0':'>','cvt-spp':'>=','cvt-cv':'convexe','cvt-fa':'1','cvt-fpa':'1','cvt-m':'1','cvt-p':'+1','cvt-pos':'dessus','cvt-in':'>='};
+    const JUSTE1={'cvt-f0':'<=','cvt-spp':'<=','cvt-cv':'concave','cvt-fa':'-1','cvt-fpa':'3','cvt-m':'3','cvt-p':'2','cvt-pos':'dessous','cvt-in':'<='};
+    function pose(valeurs, mode, q){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'cvt', questions:[JSON.parse(JSON.stringify(q||Q0))], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+      show('cvt'); renderCvt();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkCvt();
+      const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+      return { score:test.score, fb:document.getElementById('cvtFeedback').textContent, cls:cls, cases:(test.answers[0]||{}).cases,
+        rouges:[].slice.call(document.querySelectorAll('#scr-cvt .bad')).filter(function(e){ return /^(INPUT|SELECT)$/.test(e.tagName); }).map(function(e){ return e.id; }) };
+    }
+    let r=pose(JUSTE0);
+    if(r.score!==1) vus.push('la copie juste (eˣ) ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==9) vus.push('la copie juste (eˣ) compte '+r.cases+' cases au lieu de 9');
+    if(!test.locked) vus.push('la copie juste ne verrouille pas');
+    if(document.getElementById('cvt-mir').textContent.replace(/\\s+/g,'')!=='x+1') vus.push('le miroir de la conclusion ne montre pas « x + 1 » une fois corrigé : '+document.getElementById('cvt-mir').textContent);
+    r=pose(Object.assign({},JUSTE0,{'cvt-m':''}));
+    if(r.score!==1) vus.push('le coefficient 1 de x omis (y = x + 1) est compté faux');
+    r=pose(Object.assign({},JUSTE0,{'cvt-m':'','cvt-p':'2'}));
+    if(r.rouges.join(',')!=='cvt-p' || !/\\bsol\\b/.test(r.cls('cvt-m'))) vus.push('une ligne fausse prend encore le vide pour un 1 : '+r.rouges.join(','));
+    r=pose(JUSTE1,'train',Q1);
+    if(r.score!==1) vus.push('la copie juste (x³, concave) ne vaut pas le point ('+r.fb+') — « -1 » au tiret et « 2 » sans signe doivent passer');
+    if(!/Démontre que/.test(document.getElementById('cvtPrompt').textContent)) vus.push('le visage « démontre que » ne s\\'affiche pas');
+    r=pose(Object.assign({},JUSTE0,{'cvt-pos':'dessous'}));
+    if(r.score!==0) vus.push('une position fausse vaut encore le point');
+    if(r.rouges.join(',')!=='cvt-pos') vus.push('une position fausse rougit autre chose qu\\'elle-même : '+r.rouges.join(','));
+    if(!/\\bok\\b/.test(r.cls('cvt-in'))) vus.push('l\\'inégalité juste à côté d\\'une position fausse n\\'est pas bleue');
+    { const b=document.getElementById('cvt-pos').nextElementSibling;
+      if(!b || !/mf-cor/.test(b.className) || b.textContent!=='au-dessus') vus.push('la bonne position ne s\\'affiche pas à côté du menu faux'); }
+    r=pose(Object.assign({},JUSTE0,{'cvt-fpa':'0'}));
+    if(r.rouges.join(',')!=='cvt-fpa') vus.push('f′(a) faux ne rougit pas seul : '+r.rouges.join(','));
+    /* la case vide ne rougit jamais, en entraînement comme en soutien */
+    r=pose({'cvt-cv':'convexe'});
+    if(r.rouges.length) vus.push('en entraînement, une case vide rougit : '+r.rouges.join(','));
+    if(!/\\bsol\\b/.test(r.cls('cvt-fa')) || document.getElementById('cvt-fa').value!=='1') vus.push('la case laissée vide ne reçoit pas la correction (sol)');
+    if(!/\\bsol\\b/.test(r.cls('cvt-in'))) vus.push('le menu laissé vide ne reçoit pas la correction (sol)');
+    r=pose({'cvt-cv':'concave','cvt-fa':'1'},'soutien');
+    if(r.rouges.join(',')!=='cvt-cv') vus.push('en soutien, autre chose que la convexité fausse rougit : '+r.rouges.join(','));
+    if(!/Revérifier/.test(document.getElementById('cvtActions').textContent)) vus.push('en soutien, une copie fausse n\\'offre pas « Revérifier »');
+    if(test.locked) vus.push('en soutien, une copie fausse verrouille l\\'écran');
+    if(!document.getElementById('cvt-fa').disabled) vus.push('en soutien, la case juste n\\'est pas verrouillée');
+    pose(null,'soutien');
+    { const s0=document.getElementById('cvt-f0'); s0.value='<'; s0.dispatchEvent(new Event('change'));
+      if(!/\\bbad\\b/.test(s0.className)) vus.push('en soutien, un signe faux ne se colore pas en direct');
+      const e=document.getElementById('cvt-fpa'); e.value='1'; e.dispatchEvent(new Event('input'));
+      if(!/\\bok\\b/.test(e.className)) vus.push('en soutien, f′(a) juste ne se colore pas en direct'); }
+    r=pose(null);
+    if(!/Complète au moins une case/.test(r.fb)) vus.push('une copie vide devrait demander de compléter, pas juger');
+    /* le miroir suit la saisie, et n'est pas une case */
+    { const m=document.getElementById('cvt-m'), p=document.getElementById('cvt-p');
+      m.value='-2'; m.dispatchEvent(new Event('input')); p.value='-3'; p.dispatchEvent(new Event('input'));
+      const t=document.getElementById('cvt-mir').textContent.replace(/\\s+/g,'');
+      if(t!=='\\u22122x\\u22123') vus.push('le miroir ne recopie pas l\\'équation écrite : « '+t+' »');
+      if(document.getElementById('cvt-mir').querySelector('input,select')) vus.push('le miroir porte une case'); }
+    { const c=cvtConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/T : y = x \\+ 1/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec les réponses'); }
+    currentMode='train';
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
