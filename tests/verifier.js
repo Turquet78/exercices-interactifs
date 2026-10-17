@@ -13859,7 +13859,7 @@ function lireSommeDessin(w, P){
     const badge=el('lsd-0-0').nextElementSibling;
     if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='KM') vus.push('la correction de u + v n’écrit pas KM à côté');
     if(!document.querySelector('#lsdFl .lsd-fr') || !document.querySelector('#lsdFl .lsd-fg')) vus.push('le dessin ne montre pas la réponse rouge et la correction verte');
-    /* u, v, w gardent la même épaisseur, quelle que soit la ligne montrée (v545) :
+    /* u, v, w gardent la même épaisseur, quelle que soit la ligne montrée (v546) :
        aucune règle de la feuille n'épaissit une flèche libre plus qu'une autre */
     const epLib=new Set();
     Array.from(document.styleSheets).forEach(function(sh){ Array.from(sh.cssRules||[]).forEach(function(r){
