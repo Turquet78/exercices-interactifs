@@ -997,6 +997,44 @@ la saison — et l'élève, lui, la lisait en 11 dès ce matin. Deux réponses :
   l'écran montre ; ce que l'écran ne montre qu'à une date se force, ou il
   ne se mesure pas.
 
+**Puis les serpents sont devenus des DESSINS — le corps en fichier, la bulle
+en SVG.** (Demande de Turquet, octobre 2026, v548 : « on ne peut toujours pas
+faire des dessins plus jolis avec Claude ? ».) Claude ne génère pas d'images ;
+les dix-sept serpents SVG du 6.3, tracés courbe par courbe, restaient raides à
+côté des dessins des fiches. Le partage retenu : Claude a rendu ses SVG en PNG
+comme CROQUIS (le déguisement, les accessoires) et écrit les consignes d'un
+générateur d'images, avec quatre serpents des fiches comme références de
+STYLE ; Turquet a généré les dix-sept sur une seule planche, puis Claude les a
+découpés (une cellule par serpent, chaque composante de la planche rangée dans
+la cellule qui en a la plus grande part — la chauve-souris du vampire
+touchait celle du fantôme et se nomme dans le script), détourés (le blanc du
+papier relié au bord ; les trous de papier ENFERMÉS — entre le balai et la
+sorcière, dans la toile — reconnus à leur blanc PUR, quand le drap du fantôme
+et le blanc des yeux sont un peu cassés et restent) et passés en WebP :
+`dessins/secondes/<identifiant>-halloween.webp`, 10 à 18 Ko chacun.
+Trois décisions :
+* **le générateur ne dessine ni texte ni bulle** : la bulle parle de SON
+  exercice, et un générateur écrit encore mal. `hwBulleSVG` garde la bulle,
+  ses lignes courtes et ses 12 px ; le dessin est un `<img class="hw-img">`
+  posé par la feuille de styles sur la moitié GAUCHE du cadre de la bulle
+  (`position:absolute`, en %) — il suit la bulle à toutes les largeurs. Un
+  dessin plus large que haut (`large:true` : le chaudron, la chauve-souris)
+  prend toute la largeur SOUS la bulle, sans quoi il tombait à 150 px ;
+* **le chemin s'écrit EN CLAIR dans `HW_SERPENTS`** (`img:'dessins/…'`) : le
+  banc jsdom relève les dessins par leur chemin dans le TEXTE de la page — un
+  chemin composé (`'dessins/secondes/'+id+…`) aurait rendu les dix-sept
+  fichiers « orphelins » ;
+* **pas de `loading="lazy"`**, bien que le dessin soit caché hors saison :
+  dans Chromium, `decode()` sur une image paresseuse en `display:none` ne
+  rend JAMAIS la main (mesuré : pendu à 5 s), et le contrôle universel des
+  dessins attend chaque `decode()` du document. Le prix est nommé : ouvrir un
+  exercice du 6.3 hors saison charge son serpent (~13 Ko) pour rien.
+Les contrôles suivent : le banc jsdom exige que chaque serpent montre SON
+fichier (`<identifiant>-halloween.webp`), et le « 9 quater » le veut chargé,
+rendu (plus de 100 × 120 px) et dans son cadre ; le dessin de la fiche se
+cherche désormais par `img[src*="dessins/"]:not(.hw-img)` — sans quoi, sur un
+écran sans fiche, le serpent se serait pris pour elle.
+
 **Les dessins vivent en FICHIERS, jamais en base64 dans la page.** Jusqu'en
 octobre 2026, chaque dessin d'exercice — le serpent du thème Python, le
 schéma-bilan des ensembles de nombres — était écrit dans `secondes.html` en
