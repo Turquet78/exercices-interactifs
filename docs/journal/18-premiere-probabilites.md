@@ -603,6 +603,19 @@ sait lire pour un démarreur partagé (en second, il a rougi les cinq).
   Les deux pourcentages sont ENTIERS par construction (total 50, 100 ou 200,
   n(X) multiple de 10, pourcentages multiples de 10) : l'égalité se lit sans
   arrondi. Indépendants une fois sur deux. Lit `dmNbQuestions(4)`.
+  **Refondu en v325** (demande de Turquet, octobre 2026 : « comparer
+  P(F ∩ T) et P(F) × P(T) pour dire si c'est indépendant ou non, avec des
+  nombres plus petits que 5 dans les cases intérieures du tableau ») : les
+  quatre cases du milieu valent 1 à 4 (total ≤ 16), l'indépendance se tire
+  sur n(A∩B)·n(Ā∩B̄) = n(Ā∩B)·n(A∩B̄). Onze cases : P(X∩Y), P(X), P(Y) en
+  fractions des effectifs, le produit SANS simplifier (dénominateur T²),
+  P(X∩Y) réécrite sur T², puis la conclusion (« égales : indépendants » /
+  « différentes : pas indépendants » — options sans lettres : une `<option>`
+  ne dessine pas la barre, et la phrase longue était coupée à 390 px).
+  Chaque case attend un seul nombre ; la consigne dit « sans simplifier ».
+  Une pause d'avant la v325 se reprend : `att` ne lit que `q.n` et `q.ev`.
+  Vérifié dans Chromium (1280 et 390 px) : copie juste tapée dans les vraies
+  cases, 11/11 à chaque question, aucun débordement horizontal.
 - **3.9 {automatismes-probabilites}** — dix QCM, une question de chaque sorte
   (`AUTO_SORTES` : case d'un tableau, conditionnelle, contraire, pourcentage,
   notation, produit sur un arbre, branche manquante, probabilités totales,
