@@ -4529,6 +4529,7 @@ function exercices(suite){
     developperDistributivite(w, P);
     developperDouble(w, P);
     developperDoubleNu(w, P);
+    vraiFauxCalcul(w, P);
     translationGrille(w, P);
     vecteursEgauxTableau(w, P);
     vecteursEgaux(w, P);
@@ -23325,6 +23326,140 @@ function developperDoubleNu(w, P){
     exposants('7.10', 'dvd-t-0');
     startDvl(); test.idx=0; test.locked=false; renderDvlTest();
     exposants('7.9', 'dvl-t-0');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {vrai-faux-calcul} — thème 7 « Calcul littéral », 7.12 : six égalités
+   « écrites par un élève », à juger vraies ou fausses ; une fausse se
+   CORRIGE. Le juge de ce contrôle ne lit pas les familles de la page : il
+   évalue le TEXTE affiché de chaque égalité, membre par membre, en plusieurs
+   valeurs de x — un verdict faux dans la page ne peut donc pas se retrouver
+   dans le juge. Puis les exemples de Turquet eux-mêmes (2x + 3x = 5x²,
+   −(x − 2) = −x − 2, 3(x + 4) = 3x + 4), jugés par le bouton. */
+function vraiFauxCalcul(w, P){
+  const nom = 'vrai ou faux sur des erreurs de calcul littéral : la place, le tirage relu par le calcul, la correction';
+  const present = evaluer(w, "typeof startVfl==='function' && !!TESTS['vrai-faux-calcul']");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas le vrai ou faux sur des erreurs de calcul littéral');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='vrai-faux-calcul';
+
+    /* ---- 0. la place : 7.12, après le 7.11 ; le rappel, l'aide ---------- */
+    if(TEST_NUM['vrai-faux-calcul']!=='7.12') vus.push('numéro '+TEST_NUM['vrai-faux-calcul']+' au lieu de 7.12');
+    if(TEST_NUM['developper-double-nu']!=='7.11' || TEST_NUM['translation-grille']!=='8.1.1') vus.push('un voisin a bougé');
+    if(RAPPELS.vfl!==RAP_VFL || !QIA_SUGG.vfl) vus.push('le rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant : le texte affiché, évalué en x ------------- */
+    const val=function(t, x){
+      const js=t.split('−').join('-').split('×').join('*').split('x²').join('(x*x)')
+        .replace(/(\\d)(x|\\()/g, '$1*$2').replace(/-\\(/g, '-1*(').split(' ').join('');
+      return Function('x', 'return '+js)(x);
+    };
+    const egal=function(a, b){ return [2, 3, -1.5, 0.7].every(function(x){ return Math.abs(val(a, x)-val(b, x))<1e-9; }); };
+
+    /* ---- 1. le tirage : 300 séances ------------------------------------ */
+    const fam={}, nv={};
+    for(let s=0;s<300 && vus.length<4;s++){
+      const qs=vflBuildQuestions();
+      if(qs.length!==3){ vus.push(qs.length+' pages au lieu de 3'); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une page ne survit pas au JSON');
+      const vues={};
+      qs.forEach(function(q){
+        const L=vflLignes(q);
+        if(L.length!==6){ vus.push(L.length+' égalités au lieu de 6'); return; }
+        if(new Set(L.map(function(l){ return l.t; })).size!==6) vus.push('deux égalités de la même famille sur une page');
+        let n=0;
+        L.forEach(function(l){
+          fam[l.t]=true;
+          const k=l.g+' = '+l.d; if(vues[k]) vus.push('« '+k+' » posée deux fois'); vues[k]=true;
+          const vrai=egal(l.g, l.d);
+          if(vrai!==l.v) vus.push('« '+k+' » : la page dit '+(l.v?'vrai':'faux')+', le calcul '+(vrai?'vrai':'faux'));
+          if(!egal(l.g, l.bon)) vus.push('« '+l.g+' » : la correction '+l.bon+' est fausse');
+          const lu=redLit(l.bon); if(!lu || !lu.reduite) vus.push('la correction '+l.bon+' n’est pas réduite');
+          if(l.v) n++;
+        });
+        nv[n]=true;
+        if(n<1 || n>3) vus.push(n+' égalités vraies sur une page');
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    if(Object.keys(fam).length!==8) vus.push('familles tirées : '+Object.keys(fam).join(' '));
+    [1,2,3].forEach(function(n){ if(!nv[n]) vus.push('jamais '+n+' égalité(s) vraie(s) par page'); });
+
+    /* ---- 2. les exemples de Turquet, par le BOUTON ---------------------- */
+    TESTS['vrai-faux-calcul'].start();
+    if(test.kind!=='vfl' || test.qId!=='vrai-faux-calcul') vus.push('identité '+test.kind+' / '+test.qId);
+    if(!document.querySelector('#scr-vfl.on')) vus.push('l\\'écran du 7.12 n\\'est pas affiché');
+    if(test.maxScore!==test.questions.reduce(function(a, q){ return a+6+q.lignes.filter(function(l){ return !l.v; }).length; }, 0))
+      vus.push('barème '+test.maxScore);
+    test.questions[0]={lignes:[{t:'expo', n:[2,3], v:0}, {t:'moins', n:[1,2,-1], v:0}, {t:'distrib', n:[3,1,4,1], v:0},
+      {t:'produit', n:[2,3,0], v:1}, {t:'signes', n:[3,2], v:1}, {t:'nature', n:[2,5,3], v:0}]};
+    const ATT=['2x + 3x = 5x²', '−(x − 2) = −x − 2', '3(x + 4) = 3x + 4', '2x × 3x = 6x²', '−3x − 2x = −5x', '2x + 5 + 3x = 10x'];
+    const el=function(id){ return document.getElementById(id); };
+    const peint=function(id){ const c=el(id)?el(id).className:'';
+      return c.indexOf(' ok')>=0||c.indexOf('ok ')===0?'bleu':(c.indexOf('bad')>=0?'rouge':(c.indexOf('sol')>=0?'vert':'rien')); };
+    const fb=function(){ return el('vflFeedback').textContent; };
+    const poser=function(v, c){ test.idx=0; test.locked=false; test.score=0; renderVflTest();
+      for(let i=0;i<6;i++){ el('vfl-'+i).value=(v[i]==null?'':v[i]); el('vfl-c-'+i).value=(c[i]==null?'':c[i]); } };
+    poser([], []);
+    ATT.forEach(function(a, i){ const t=el('vfl-l-'+i).querySelector('.vfl-eg').textContent.split(' ').join(' ');
+      if(t!==a) vus.push('ligne '+(i+1)+' : « '+t+' » au lieu de « '+a+' »'); });
+    if(!el('vflInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un .enonce');
+    if(el('vfl-0').tagName!=='SELECT' || el('vfl-0').options.length!==3) vus.push('la case du verdict n’est pas une liste ? / Vrai / Faux');
+    if(document.querySelectorAll('#vflHost .vfl-in').length!==6) vus.push('chaque ligne doit offrir sa case de correction, vraie ou fausse : sinon la case trahit le verdict');
+
+    /* la copie juste, puis d'autres écritures justes */
+    const BON=['F','F','F','V','V','F'];
+    poser(BON, ['5x', '-x+2', '3x+12', '', '', '5x+5']); checkVflAnswer();
+    if(test.score!==10 || !/good/.test(el('vflFeedback').className)) vus.push('la copie juste vaut '+test.score+' / 10 : '+fb());
+    if(!el('vflNext')) vus.push('pas de bouton « Page suivante »');
+    if(!el('vfl-l-1').classList.contains('vfl-montre') || !el('vfl-l-3').classList.contains('vfl-ferme')) vus.push('les corrections ne se montrent ou ne se ferment pas');
+    if(peint('vfl-c-3')!=='rien') vus.push('la case de correction d’une ligne VRAIE est peinte');
+    if(!/et non 5x²/.test(el('vfl-pq-0').textContent) || !/Vrai/.test(el('vfl-pq-3').textContent)) vus.push('les notes : '+el('vfl-pq-0').textContent+' / '+el('vfl-pq-3').textContent);
+    poser(BON, ['5x', '2 − x', '12+3x', '', '', '5 + 5x']); checkVflAnswer();
+    if(test.score!==10) vus.push('« 2 − x », « 12+3x », « 5 + 5x » ne sont pas acceptées : '+test.score);
+
+    /* les pièges */
+    poser(['V','F','F','F','V','F'], ['', '-x-2', '2x+3x', 'zut', '', '10x']); checkVflAnswer();
+    if(peint('vfl-0')!=='rouge' || peint('vfl-c-0')!=='vert' || el('vfl-c-0').value!=='5x') vus.push('l’erreur crue vraie : '+peint('vfl-0')+', correction '+peint('vfl-c-0')+' « '+el('vfl-c-0').value+' »');
+    if(!/Ligne 1/.test(fb()) || !/RESTE/.test(fb())) vus.push('le message ne nomme pas l’erreur des exposants : '+fb());
+    if(peint('vfl-1')!=='bleu' || peint('vfl-c-1')!=='rouge') vus.push('−x − 2 recopié : '+peint('vfl-1')+' / '+peint('vfl-c-1'));
+    if(peint('vfl-c-2')!=='rouge') vus.push('« 2x+3x » pour 3(x + 4) : '+peint('vfl-c-2'));
+    if(peint('vfl-3')!=='rouge' || peint('vfl-c-3')!=='rien') vus.push('la vraie jugée fausse : '+peint('vfl-3')+', sa correction '+peint('vfl-c-3'));
+    if(peint('vfl-c-5')!=='rouge') vus.push('« 10x » recopié : '+peint('vfl-c-5'));
+    poser(['F','F','F','F','V','F'], ['5x', '-x+2', '3x+12', '', '', '5x+5']); checkVflAnswer();
+    if(!/VRAIE/.test(fb())) vus.push('la vraie jugée fausse : le message '+fb());
+    poser(['F','F','F','V','V','F'], ['3x+2x', '', '', '', '', '']); checkVflAnswer();
+    if(!/pas réduite/.test(fb())) vus.push('une correction juste non réduite : '+fb());
+    poser(['F','F','F','V','V','F'], ['5x', '', '', '', '', '']); checkVflAnswer();
+    if(!/Il te manquait/.test(fb()) || peint('vfl-c-1')!=='vert' || el('vfl-c-1').value!=='−x + 2') vus.push('la correction vide : '+peint('vfl-c-1')+' « '+el('vfl-c-1').value+' » — '+fb());
+    poser([], []); checkVflAnswer();
+    if(document.querySelector('#vflHost .bad')) vus.push('une copie vide rougit');
+    if(test.score!==0) vus.push('la copie vide vaut '+test.score);
+
+    /* x^2 s'écrit x² dans la case */
+    poser([], []); const c0=el('vfl-c-0'); c0.value='6x^2'; c0.dispatchEvent(new Event('input'));
+    if(c0.value!=='6x²') vus.push('« 6x^2 » s’affiche « '+c0.value+' »');
+
+    /* la page survit au JSON, le soutien peint sans verrouiller */
+    const avant=JSON.stringify(test.questions[0]);
+    test.questions=JSON.parse(JSON.stringify(test.questions)); poser([], []);
+    if(JSON.stringify(test.questions[0])!==avant || document.querySelectorAll('#vflHost .vfl-l').length!==6) vus.push('la page ne se redessine pas après le JSON');
+    currentMode='soutien'; poser([], []);
+    el('vfl-0').value='V'; el('vfl-0').dispatchEvent(new Event('change'));
+    if(peint('vfl-0')!=='rouge' || test.locked) vus.push('le soutien : '+peint('vfl-0')+(test.locked?', verrouillé':''));
+    el('vfl-0').value='F'; el('vfl-0').dispatchEvent(new Event('change'));
+    el('vfl-c-0').value='5x'; el('vfl-c-0').dispatchEvent(new Event('input'));
+    if(peint('vfl-0')!=='bleu' || peint('vfl-c-0')!=='bleu') vus.push('le soutien après correction : '+peint('vfl-0')+' / '+peint('vfl-c-0'));
+    currentMode='train';
+
+    /* le contexte du modèle */
+    const cx=ctxVfl(test.questions[0]).contexte;
+    if(!/STRICTEMENT SECRÈTES/.test(cx) || cx.indexOf('2x + 3x = 5x')<0) vus.push('le contexte du modèle : '+cx.slice(0,120));
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
