@@ -13855,7 +13855,13 @@ function lireSommeDessin(w, P){
     const badge=el('lsd-0-0').nextElementSibling;
     if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='KM') vus.push('la correction de u + v n’écrit pas KM à côté');
     if(!document.querySelector('#lsdFl .lsd-fr') || !document.querySelector('#lsdFl .lsd-fg')) vus.push('le dessin ne montre pas la réponse rouge et la correction verte');
-    if(!document.querySelector('#lsdHost g.lsd-lib.lsd-vu[data-n="u"]') || document.querySelector('#lsdHost g.lsd-lib.lsd-vu[data-n="w"]')) vus.push('la ligne montrée ne fait pas ressortir u et v');
+    /* u, v, w gardent la même épaisseur, quelle que soit la ligne montrée (v544) :
+       aucune règle de la feuille n'épaissit une flèche libre plus qu'une autre */
+    const epLib=new Set();
+    Array.from(document.styleSheets).forEach(function(sh){ Array.from(sh.cssRules||[]).forEach(function(r){
+      if(r.selectorText && /lsd-lib/.test(r.selectorText) && r.style && r.style.strokeWidth) epLib.add(r.selectorText+' → '+r.style.strokeWidth); }); });
+    if(epLib.size!==1) vus.push('les flèches rouges u, v, w n’ont pas une seule épaisseur : '+Array.from(epLib).join(' ; '));
+    if(document.querySelectorAll('#lsdHost g.lsd-lib').length!==3 || document.querySelector('#lsdHost g.lsd-lib:not([class="lsd-lib"])')) vus.push('une flèche rouge porte une classe de plus que les autres');
     /* une case vide ne rougit pas : elle reçoit la correction */
     poser(['KM','','']); checkLsdAnswer();
     if(peint('lsd-1-0')!=='correction' || el('lsd-1-0').value!=='MA' || el('lsd-1-1').value!=='AF') vus.push('les cases vides de w : '+peint('lsd-1-0')+' « '+el('lsd-1-0').value+' + '+el('lsd-1-1').value+' »');
