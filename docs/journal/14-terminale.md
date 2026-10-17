@@ -3198,6 +3198,13 @@ bouge.
   du texte : le banc principal les recompare aux suites qu'il calcule, pour
   M de 2 à 6, et exige que le tableau suive les contre-exemples de la liste.
   Le « ; » colle à son terme : au téléphone, un « ; … » seul ouvrait la ligne.
+  **Puis en décimal (v392).** « Je veux des valeurs décimales au centième près
+  et non des fractions » : chaque terme s'écrit arrondi au centième, virgule
+  française, zéros de queue retirés (1/3 → 0,33 ; 5/2 → 2,5 ; 1 reste 1), et
+  l'en-tête le dit. Les termes restent rangés en fractions exactes
+  (`tvfCeTermes`) ; seul l'affichage arrondit (`tvfTermeDec`). Le banc relit
+  ce que l'élève lit : un décimal à deux chiffres au plus, à 0,005 de la vraie
+  valeur, et plus aucune fraction dans le tableau.
 - **{suite-croissante-non-majoree} (5.4.5) — le théorème voisin.**
   Uₙ₊₁ = Uₙ + an + b ou Uₙ₊₁ = Uₙ² + Uₙ + b, les deux familles dans chaque
   séance : a) croissante par le signe de la différence, b) récurrence Uₙ ≥ n,

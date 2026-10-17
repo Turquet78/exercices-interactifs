@@ -48732,7 +48732,11 @@ function autourDuTcm(w, P){
     if(TVF_CE.map(function(c){ return c[0]; }).join()!==ceListe.join()) vus.push('les termes affichés ne suivent pas les contre-exemples de la liste : '+TVF_CE.map(function(c){ return c[0]; }).join());
     [2,3,4,5,6].forEach(function(M){ ceListe.forEach(function(c){ const t=tvfCeTermes(c,M);
       if(t.length!==10) vus.push(c+' : '+t.length+' termes affichés au lieu de 10');
-      t.forEach(function(f,n){ if(Math.abs(f[0]/f[1]-CE[c](n,M))>1e-12) vus.push(c+' (M = '+M+') : U'+n+' affiché '+f[0]+'/'+f[1]+', vaut '+CE[c](n,M)); }); }); });
+      t.forEach(function(f,n){ if(Math.abs(f[0]/f[1]-CE[c](n,M))>1e-12) vus.push(c+' (M = '+M+') : U'+n+' affiché '+f[0]+'/'+f[1]+', vaut '+CE[c](n,M));
+        /* ce que l'élève LIT : un décimal au centième, jamais une fraction */
+        const lu=tvfTermeDec(f), v=Number(lu.replace('−','-').replace(',','.'));
+        if(!/^−?[0-9]+(,[0-9]{1,2})?$/.test(lu) || Math.abs(v-CE[c](n,M))>0.005+1e-12) vus.push(c+' (M = '+M+') : U'+n+' s’écrit « '+lu+' », vaut '+CE[c](n,M)); }); }); });
+    if(/sa2-frac/.test(tvfCeTable({M:3}))) vus.push('le tableau des termes écrit encore des fractions');
     const vuesAff={};
     for(let s=0;s<60;s++){
       const qs=tvfGenSession(), v=qs.filter(function(q){ return TVF_AFF[q.af].v; }).length, d={};
