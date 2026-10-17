@@ -141,6 +141,13 @@ module.exports = {
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements_1ere', exercice: 'pourcentage' },
+    /* Le professeur pose une note sur un exercice d'un devoir ou d'une fiche
+       (demande de Turquet, octobre 2026 : depuis un signalement, « aller
+       directement à la note de l'élève […] pour pouvoir la modifier », les
+       trois niveaux). En Première l'onglet s'appelle « devoirs », et les
+       champs vivent dans le DÉTAIL d'un élève, ouvert au clic. */
+    notesDevoir: { exercice: 'pourcentage', tableParametres: 'parametres_1ere', tableResultats: 'resultats_1ere',
+      onglet: 'devoirs', detail: true },
     /* La fenêtre « Soutien » se saisit n'importe où, et pas seulement par sa
        barre de titre. Un exercice de ce niveau qui a un mode soutien suffit :
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que

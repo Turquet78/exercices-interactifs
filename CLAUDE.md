@@ -219,6 +219,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Un exercice BONUS vaut 1 point, et ne fait jamais dépasser le maximum.**
 - **Puis le mot « BONUS » s'est ÉCRIT, et partout où l'exercice se montre.**
 - **La Seconde et la Première ne changent pas, et c'est nommé**
+- **Puis un SIGNALEMENT a mené à la note — et la Première a suivi, les trois niveaux.** Le signalement range son devoir (`_dm`) ; la Première pose ses notes dans le détail d'un élève.
 - **Le carnet de notes du professeur : une moyenne par élève, un devoir par colonne.**
 - **Supprimer un devoir ne perd plus ses notes : il s'ARCHIVE.**
 - **Une fiche de travail se fait DANS L'ORDRE ; un devoir reste tout ouvert.**

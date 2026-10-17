@@ -488,6 +488,9 @@
     font-family:Fredoka,sans-serif;font-weight:600;font-size:.95rem;padding:11px 16px;border-radius:30px;
     background:var(--blue);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.22)}
   #sigRetourBtn[hidden]{display:none}
+  /* la note qu'un signalement a fait ouvrir : le professeur la voit tout de suite */
+  .dm-exrow.dm-cible{background:#F3E8FF;border-radius:8px;box-shadow:0 0 0 2px var(--violet,#6D28D9)}
+  .dm-noteinput.dm-cible{border-color:var(--violet,#6D28D9);box-shadow:0 0 0 3px rgba(109,40,217,.25)}
   body.pave-actif #sigRetourBtn,body.clavier-ouvert #sigRetourBtn{top:8px;bottom:auto;left:8px;padding:7px 12px;font-size:.85rem}
   .mp-feedback{min-height:26px;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.05rem;margin:16px 0 2px}
   .mp-feedback.good{color:var(--green)}.mp-feedback.bad{color:var(--red)}
@@ -8142,7 +8145,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=556;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=558;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -13857,7 +13860,7 @@ function sigChemin(){
 
 function signalementPayload(message, chemin){
   let contexte=null;
-  try{ contexte=Object.assign({}, snapshotTest(), {_boxes:captureBoxes()}); }catch(e){ contexte={erreur:'instantané indisponible'}; }
+  try{ contexte=Object.assign({}, snapshotTest(), {_boxes:captureBoxes(), _dm:currentDM||null}); }catch(e){ contexte={erreur:'instantané indisponible'}; }
   return {
     eleve_id:currentEleve.id,
     exercice:currentTestId||'inconnu',
@@ -14020,6 +14023,84 @@ async function envoyerReponseSignalement(id){
 }
 
 let mesSignalements=[];
+/* ---------- Depuis un signalement, la note de l'élève ----------
+   Demande de Turquet (octobre 2026) : « quand je regarde un signalement, je
+   veux un bouton qui me permette d'aller directement à la note de l'élève
+   pour cet exercice, qui peut être sur une fiche ou un devoir maison, pour
+   pouvoir la modifier ». Le signalement porte, depuis ce jour, le devoir d'où
+   il est parti (« _dm » dans son contexte) : le bouton mène à CE devoir-là.
+   Un signalement plus ancien, ou envoyé hors devoir, n'en porte pas : on
+   propose alors chaque devoir ou fiche qui contient l'exercice (les trois
+   plus récents), NOMMÉ sur le bouton — le professeur choisit, rien n'est
+   deviné à sa place.
+   Les devoirs sont relus avec les signalements : le bouton n'est montré que
+   s'il mène quelque part. */
+var sigDevoirs=null;
+function sigDevoirContient(dev, exoId){
+  const liste=(typeof exercicesDevoir==='function') ? exercicesDevoir(dev) : ((dev&&dev.exercices)||[]);
+  return (liste||[]).some(function(ex){ return ex && ex.id===exoId; });
+}
+function sigNotesCandidats(r){
+  if(!sigDevoirs || !r || !r.exercice) return [];
+  const tous=[];
+  ['dm','fiche'].forEach(function(g){ (sigDevoirs[g]||[]).forEach(function(d){ if(d&&d.id) tous.push({g:g, d:d}); }); });
+  const dmId=r.contexte && r.contexte._dm;
+  if(dmId){
+    const c=tous.filter(function(x){ return x.d.id===dmId; })[0];
+    if(c) return [c];
+  }
+  return tous.filter(function(x){ return !dmEstArchive(x.d) && sigDevoirContient(x.d, r.exercice); })
+    .sort(function(a,b){ return (b.d.num||0)-(a.d.num||0); }).slice(0,3);
+}
+function sigBoutonsNote(r){
+  return sigNotesCandidats(r).map(function(c){
+    return `<button class="btn btn-sm btn-ghost" onclick="allerNoteSignalement('${escJS(r.id)}','${escJS(c.d.id)}')">✎ Modifier la note · ${esc(GENRE_DEVOIRS[c.g].badge)} n°${esc(String(c.d.num))}</button>`;
+  }).join('');
+}
+async function chargerSigDevoirs(){
+  try{
+    const cfg=await loadConfig();
+    sigDevoirs={ dm:cfg[GENRE_DEVOIRS.dm.cle]||[], fiche:cfg[GENRE_DEVOIRS.fiche.cle]||[] };
+  }catch(e){ sigDevoirs=null; }
+}
+async function allerNoteSignalement(id, devId){
+  const r=mesSignalements.find(x=>x.id===id); if(!r) return;
+  const c=sigNotesCandidats(r).filter(function(x){ return x.d.id===devId; })[0];
+  if(!c){ toast('Ce devoir est introuvable','err'); return; }
+  retenirSignalements(id); sigRetour.onglet=true;
+  majRetourSignalements('teacher');
+  const ok=await sigOuvrirDevoir(c.g, devId, r);
+  if(!ok) return;
+  /* Le champ se repère par la CLÉ sous laquelle sa note est rangée — jamais
+     par son rang. Les identifiants d'élève ne sont pas du même type d'un
+     niveau à l'autre : on compare des chaînes. */
+  const cle=String(r.eleve_id)+'|'+r.exercice;
+  const box=$('dmResults');
+  const champ=box ? [].slice.call(box.querySelectorAll('.dm-noteinput')).filter(function(x){
+    return x.getAttribute('data-cle')===cle; })[0] : null;
+  if(!champ){
+    toast(r.prenom+' n’a pas cet exercice dans ce '+GENRE_DEVOIRS[c.g].badge.toLowerCase(),'err');
+    return;
+  }
+  box.querySelectorAll('.dm-cible').forEach(function(x){ x.classList.remove('dm-cible'); });
+  champ.classList.add('dm-cible');
+  const ligne=champ.closest ? champ.closest('.dm-exrow') : null;
+  if(ligne) ligne.classList.add('dm-cible');
+  try{ (ligne||champ).scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){}
+  try{ champ.focus({preventScroll:true}); }catch(e){ champ.focus(); }
+}
+/* Ouvre le devoir dans l'onglet des devoirs et ATTEND son bilan : le champ
+   de la note n'existe qu'une fois le bilan dessiné. */
+async function sigOuvrirDevoir(g, devId, r){
+  readEditorIntoDevoir();
+  dmGenre=(g==='fiche')?'fiche':'dm'; dmSelId=devId;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab==='devoir'));
+  document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));
+  $('pane-devoir').classList.add('on');
+  await loadDevoirTab();
+  return true;
+}
+
 
 async function chargerSignalements(){
   const hote=$('sigListe'); if(!hote) return;
@@ -14030,7 +14111,8 @@ async function chargerSignalements(){
        à la relation — un détail qui se renomme sans prévenir. */
     const [sig, eleves] = await Promise.all([
       sb.from(TABLE_SIG).select('*').order('created_at',{ascending:false}).limit(200),
-      sb.from('eleves_2nde').select('id,prenom')
+      sb.from('eleves_2nde').select('id,prenom'),
+      chargerSigDevoirs()
     ]);
     if(sig.error){ hote.innerHTML='<p class="muted">Signalements non chargés : '+esc(sig.error.message||'erreur')+'</p>'; return; }
     const prenoms={}; (eleves.data||[]).forEach(e=>{ prenoms[e.id]=e.prenom; });
@@ -14069,6 +14151,7 @@ function renderSignalements(){
       <div class="sig-actions">
         <button class="btn btn-sm btn-primary" onclick="rejouerSignalement('${escJS(r.id)}')">Rejouer l’écran</button>
         ${r.capture?`<button class="btn btn-sm btn-ghost" onclick="voirCaptureSignalement('${escJS(r.id)}')">Voir la copie d’écran</button>`:''}
+        ${sigBoutonsNote(r)}
         ${r.lu?'':`<button class="btn btn-sm btn-ghost" onclick="marquerSignalementLu('${escJS(r.id)}')">Marquer lu</button>`}
         <button class="btn btn-sm btn-ghost" onclick="repondreSignalement('${escJS(r.id)}')">${r.reponse?'Modifier ma réponse':'Répondre'}</button>
         <button class="btn btn-sm btn-ghost" onclick="supprimerSignalement('${escJS(r.id)}')">Supprimer</button>
@@ -14163,7 +14246,11 @@ async function supprimerSignalement(id){
 var sigRetour=null;
 function retenirSignalements(id){ sigRetour={ id:id, y:window.scrollY||0 }; }
 function majRetourSignalements(ecran){
-  const b=$('sigRetourBtn'); if(b) b.hidden=!(sigRetour && ecran!=='teacher');
+  /* Venu d'un signalement à la note d'un devoir, le professeur reste sur
+     l'écran du professeur : le bouton s'y montre donc aussi — et s'oublie dès
+     qu'il quitte cet écran, où il ne ramènerait à rien. */
+  if(sigRetour && sigRetour.onglet && ecran!=='teacher') sigRetour=null;
+  const b=$('sigRetourBtn'); if(b) b.hidden=!(sigRetour && (ecran!=='teacher' || sigRetour.onglet));
 }
 function retourSignalements(){
   const m=sigRetour; sigRetour=null; REJEU=false;
@@ -14198,7 +14285,7 @@ function rejouerSignalement(id){
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
   Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
-  const skip={_boxes:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
+  const skip={_boxes:1,_dm:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
   test.startTime=Date.now(); test.locked=false;
   /* Les questions reviennent du JSON sans leurs fonctions — courbes, tangentes.
      Un rendu lancé avant rehydrateQuestions() échoue sur un exercice à graphe,
@@ -22624,7 +22711,7 @@ function teacherTab(name){
   else if(name==='students')renderRoster();
   else if(name==='eval')renderEvalLocks();
   else if(name==='devoir')loadDevoirTab();
-  else if(name==='signalements')chargerSignalements();
+  else if(name==='signalements'){ if(sigRetour&&sigRetour.onglet){ sigRetour=null; majRetourSignalements('teacher'); } chargerSignalements(); }
   else if(name==='cours')chargerCoursProf();
 }
 function setTeacherMode(m){ teacherMode=m; $('segEval').classList.toggle('on',m==='eval'); $('segTrain').classList.toggle('on',m==='train'); $('segSoutien').classList.toggle('on',m==='soutien'); $('studentDetail').innerHTML=''; renderClassTable(); }
@@ -22960,7 +23047,9 @@ async function loadDevoirTab(){
   if(!dmList.length) dmList=[ensureDevoir({ id:newDevoirId(dmGenre), num:1, actif:(dmGenre!=='fiche'),
     titre:GENRE_DEVOIRS[dmGenre].defTitre, cours:'', exercices:[] },0)];
   if(!dmSelId || !dmList.some(d=>d.id===dmSelId)) dmSelId=dmList[0].id;
-  renderDmGenres(); renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
+  /* ATTENDU : qui attend loadDevoirTab — un signalement qui mène à une note —
+     doit trouver le bilan dessiné. */
+  renderDmGenres(); renderDevoirSelector(); renderDevoirEditor(); await renderDevoirResultats();
 }
 function selectedDevoir(){ return dmList.find(d=>d.id===dmSelId)||dmList.filter(d=>!dmEstArchive(d))[0]||dmList[0]; }
 function renderDevoirSelector(){
