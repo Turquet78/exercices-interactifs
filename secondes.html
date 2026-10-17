@@ -2629,6 +2629,16 @@
   .svc-svg .stv-w-f{stroke:var(--ink-soft)}
   .stv-svg #stvVif{pointer-events:none}
   .stv-svg .stv-nul-sol{fill:none;stroke:var(--green);stroke-width:2.6}
+  /* l'étape EN COURS (stv-cours) a le cadre et le fond bleus ; une étape
+     EFFECTUÉE (pas encore vérifiée) prend le cadre, l'encre et le fond verts,
+     et sa coche — la recette du 8.2.16 (demande de Turquet, octobre 2026) ;
+     pendant l'étape 1, aucun point au bout de la souris ni sur le
+     quadrillage : on fait glisser, on ne trace pas encore */
+  #scr-stv .tvg-cons.stv-cours{border-color:var(--blue);background:#EAF0FF}
+  #scr-stv .tvg-cons.stv-fait{border-color:var(--green);color:var(--green);background:var(--green-soft)}
+  #scr-stv .tvg-cons.stv-fait::after{content:" ✓";font-weight:800}
+  .stv-svg.stv-etape1 .vec-t{cursor:default}
+  .stv-svg.stv-etape1 .vec-t:hover .dot{fill:transparent;stroke:transparent}
   /* 8.14 {point-somme-vecteurs} : le quadrillage et les flèches du 8.7, cinq
      croix nommées comme au 8.5 ; le début d'une flèche commencée se marque en
      bleu (.deb) en attendant sa fin */
@@ -2815,6 +2825,12 @@
   /* le vecteur AA′, du point donné au point posé : violet tant qu'il n'est pas jugé */
   .cps-svg .cps-aa{stroke:var(--crd-a);stroke-width:2.6;stroke-linecap:round}
   .cps-svg .cps-aa-t{fill:var(--crd-a)} .cps-svg .cps-aa-f{stroke:var(--crd-a)}
+  /* le SECOND vecteur de la somme (BD) dans une autre couleur que le premier
+     (demande de Turquet, octobre 2026) : orange, ni le bleu du juste, ni le
+     rouge du faux, ni le vert de la correction, ni le violet de AA′ */
+  :root{--cps-v:#D97706}
+  .cps-svg .svc-v{stroke:var(--cps-v);stroke-width:2.4}
+  .cps-svg .svc-v-o,.cps-svg .svc-v-t{fill:var(--cps-v)} .cps-svg .svc-v-f{stroke:var(--cps-v)}
   .cvp-outils{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:4px 0 12px}
   .cvp-outils .btn:disabled{opacity:.45;cursor:default}
   .cvp-svg .vec-t.sel .vec-dlbl,.cvp-svg .vec-t.okc .vec-dlbl,.cvp-svg .vec-t.badc .vec-dlbl,.cvp-svg .vec-t.missc .vec-dlbl{font-size:16px}
@@ -7550,7 +7566,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=538;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=540;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -58267,18 +58283,44 @@ function stvTracer(q, etat){
   const b=$('stvNul');
   if(b){ b.classList.toggle('stv-nul-on', !!q.dn); b.setAttribute('aria-pressed', q.dn?'true':'false');
     b.disabled=!!(test.locked||test.stvFigeSm); }
+  stvFaits(q);
   if(!complet){ t.innerHTML=''; return; }
   const bad=etat==='bad';
   t.innerHTML=svcFleche(q.sd, q.sf, {cls:bad?'svc-eb':'svc-e', marker:bad?'stvArrB':'stvArrE', nom:'u+v+w',
     cote:stvCoteDehors(q.sd, q.sf, stvAutres(q), q.po), geo:STV_GEO});
 }
+/* L'étape 1 est faite quand les trois flèches sont bout à bout depuis le
+   point (ou figées justes, en soutien). */
+function stvEtape1(q){ return !!(test.stvFigeCh||stvChaine(q)); }
+/* Chaque étape EFFECTUÉE passe au vert, comme au 8.2.16 : les flèches bout à
+   bout depuis le point, puis la somme tracée ou déclarée nulle.
+   « Effectuée », pas « juste » — une étape déjà marquée par la vérification
+   (ok, bad, sol) garde son verdict. L'étape EN COURS (stv-cours) est la
+   première qui n'est pas faite : le cadre bleu passe de l'une à l'autre.
+   Pendant l'étape 1, le quadrillage ne montre aucun point (stv-etape1). */
+function stvFaits(q){
+  const fait=[stvEtape1(q), !!(q.dn||(q.sd&&q.sf))], cours=fait[0]?(fait[1]?-1:1):0;
+  const svg=document.querySelector('#stvGraph .stv-svg');
+  if(svg) svg.classList.toggle('stv-etape1', !fait[0]&&!test.locked);
+  const b=$('stvNul'); if(b&&!q.dn&&!fait[0]) b.disabled=true;
+  else if(b) b.disabled=!!(test.locked||test.stvFigeSm);
+  ['stv-ch','stv-sm'].forEach(function(id,n){
+    const c=$(id); if(!c) return;
+    const verdict=test.locked||c.classList.contains('ok')||c.classList.contains('bad')||c.classList.contains('sol');
+    c.classList.toggle('stv-fait', fait[n]&&!verdict);
+    c.classList.toggle('stv-cours', n===cours&&!verdict);
+  });
+}
 /* Tracer la somme : le premier clic pose le début, le second la fin ; un
    clic de plus recommence ; recliquer le début seul le retire. Tracer
-   retire la déclaration « vecteur nul ». */
+   retire la déclaration « vecteur nul ». L'étape 2 attend l'étape 1 : rien
+   ne se pose tant que les flèches ne sont pas bout à bout depuis le point
+   — un début déjà posé se retire toujours. */
 function stvPose(i,j){
   if(test.locked||test.kind!=='stv'||test.stvFigeSm) return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>STV_W||j<0||j>STV_H) return;
+  if(!stvEtape1(q) && !(q.sd&&!q.sf&&svcEgal(q.sd,[i,j]))) return;
   if(q.sd&&!q.sf){ if(svcEgal(q.sd,[i,j])) q.sd=null; else q.sf=[i,j]; }
   else { q.sd=[i,j]; q.sf=null; }
   q.dn=0;
@@ -58291,6 +58333,7 @@ function stvPose(i,j){
 function stvNul(){
   if(test.locked||test.kind!=='stv'||test.stvFigeSm) return;
   const q=test.questions[test.idx]; if(!q) return;
+  if(!q.dn&&!stvEtape1(q)) return;
   q.dn=q.dn?0:1;
   if(q.dn){ q.sd=null; q.sf=null; }
   const el=$('stv-sm'); if(el) el.classList.remove('ok','bad');
@@ -58309,6 +58352,7 @@ function stvDeplacer(k, p){
   if(k===0) q.up=np; else if(k===1) q.vp=np; else q.wp=np;
   const el=$('stv-ch'); if(el) el.classList.remove('ok','bad');
   stvDessinerFleches(q);
+  stvFaits(q);
   recoveryDirty=true;
   return true;
 }
@@ -58366,7 +58410,7 @@ function stvBrancher(){
   const curseur=function(ev){
     const c=host.querySelector('#stvCurseur'), vif=host.querySelector('#stvVif'); if(!c) return;
     const q=test.kind==='stv'&&test.questions[test.idx];
-    const v=ev&&!gl&&q&&!(q.sd&&q.sf)&&!test.locked&&!test.stvFigeSm&&ev.pointerType!=='touch'&&vue(ev);
+    const v=ev&&!gl&&q&&!(q.sd&&q.sf)&&!test.locked&&!test.stvFigeSm&&ev.pointerType!=='touch'&&stvEtape1(q)&&vue(ev);
     let h='';
     if(v&&q.sd){
       const x1=stvX(q.sd[0]), y1=stvY(q.sd[1]);
@@ -58700,7 +58744,7 @@ function cpsSVG(q){
      largeur — tracés, glissés, corrigés, AA′ et la flèche qui suit la souris */
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1.8L10 5L0 8.2z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg cps-svg" role="img" aria-label="Quadrillage : cinq points nommés, les vecteurs à tracer puis à faire glisser">`
-    +'<defs>'+pointe('cpsArr0','var(--ink)')+pointe('cpsArr1','var(--ink-soft)')+pointe('cpsArrE','var(--blue)')
+    +'<defs>'+pointe('cpsArr0','var(--ink)')+pointe('cpsArr1','var(--cps-v)')+pointe('cpsArrE','var(--blue)')
     +pointe('cpsArrB','var(--red)')+pointe('cpsArrS','var(--green)')+pointe('cpsArrA','var(--crd-a)')+'</defs>'
     +g+'<g id="cpsCorr"></g><g id="cpsFl"></g><g id="cpsSol"></g>'+pts+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}<g id="cpsPrises"></g><g id="cpsVif" aria-hidden="true"></g>`
     +`<g id="cpsCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><path class="cps-x" d="M-6 -6l12 12M-6 6l12 -12"/><text class="vec-lbl" x="8" y="-8">${L}</text></g></svg>`;
