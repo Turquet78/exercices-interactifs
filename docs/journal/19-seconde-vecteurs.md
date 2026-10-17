@@ -3396,7 +3396,7 @@ entre les flèches 1 et 2 » ; avec les distances d'avant, « le point E est à
 31 px d'une flèche de la chaîne qui ne le touche pas ».
 
 **Puis l'énoncé a dit de répondre avec les flèches BLEUES, et u⃗, v⃗, w⃗ sont
-devenus rouges** (v541 — v539 et v540 pris pendant les bancs par le 8.2.8 et le 8.2.15 ; demande de Turquet : « préciser qu'il faut répondre
+devenus rouges** (v542 — v539 à v541 pris pendant les bancs par le 8.2.8, le 8.2.15 et le 7.12 ; demande de Turquet : « préciser qu'il faut répondre
 avec des vecteurs bleus de la figure ; écrire u, v, w en rouge dans l'énoncé
 et dans les questions ; les vecteurs bleus des réponses doivent être tracés,
 ainsi que deux supplémentaires »). Jusque-là, la réponse à u⃗ + v⃗ était le

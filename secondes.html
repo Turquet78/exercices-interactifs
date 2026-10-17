@@ -2134,8 +2134,8 @@
   @media(max-width:520px){ .tpv-fig{padding:6px 2px} .tpv-l{line-height:2} }
   /* 8.2.14 {lire-somme-dessin} : le quadrillage au-dessus des deux lignes.
      Les flèches de la figure en bleu nuit — la chaîne, les réponses et deux
-     flèches de plus (.lsd-bl, v541) —, les trois vecteurs libres u⃗, v⃗, w⃗
-     en ROUGE (--lsd-uvw, v541 : demande de Turquet, rouges sur le dessin,
+     flèches de plus (.lsd-bl, v542) —, les trois vecteurs libres u⃗, v⃗, w⃗
+     en ROUGE (--lsd-uvw, v542 : demande de Turquet, rouges sur le dessin,
      dans l'énoncé et dans les questions), leur nom en KaTeX_Math coiffé
      d'une flèche. Chaque point nommé est une cible : un clic écrit sa
      lettre dans la case choisie (liseré violet). La ligne montrée a son
@@ -7603,7 +7603,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=541;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=542;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -65581,7 +65581,7 @@ function ctxDch(q){
    seconde se juge de même. Un vecteur déjà égal à w⃗ ne se complète par
    aucun vecteur non nul : il est faux, et nommé.
 
-   LES FLÈCHES BLEUES (v541, demande de Turquet) : l'énoncé dit de répondre
+   LES FLÈCHES BLEUES (v542, demande de Turquet) : l'énoncé dit de répondre
    avec les vecteurs BLEUS de la figure, et chaque réponse attendue y est
    tracée — la chaîne, le raccourci de u⃗ + v⃗, celui des deux premières
    flèches d'un w⃗ de trois — avec DEUX flèches de plus (dx), qui ne servent
@@ -65711,7 +65711,7 @@ function lsdGenQuestion(){
     } });
     if(!choix.length) continue;
     const c=choix[rnd(0, choix.length-1)];
-    /* les réponses tracées en bleu (v541) : le raccourci de u⃗ + v⃗, et celui
+    /* les réponses tracées en bleu (v542) : le raccourci de u⃗ + v⃗, et celui
        des deux premières flèches d'un w⃗ de trois */
     const rac=[[k, k+2]]; if(c.m===3 && c.j!==k) rac.push([c.j, c.j+2]);
     const traits=segs.slice();

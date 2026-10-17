@@ -13740,7 +13740,7 @@ function lireSommeDessin(w, P){
           if(!r[1].ok && !J.meme(plus(J.D(r[1].bon), J.D(r[2].bon)), w)) vus.push('la correction de w = '+a+' + '+b+' écrit '+r[1].bon+' + '+r[2].bon);
         }); });
         if(!canon) vus.push('aucune somme de deux vecteurs de la figure ne fait w');
-        /* les flèches BLEUES (v541) : l'énoncé dit d'y répondre. La réponse à
+        /* les flèches BLEUES (v542) : l'énoncé dit d'y répondre. La réponse à
            u + v y est tracée, une écriture de w aussi, et les flèches bleues
            ajoutées à la chaîne sont des réponses, sauf DEUX — qui ne servent
            à rien, même retournées. Chacune relie deux points nommés, loin
@@ -13812,7 +13812,7 @@ function lireSommeDessin(w, P){
     if(!/Quel vecteur bleu de la figure est égal à u ?\\+ ?v/.test(texte)) vus.push('la question 1 dit « '+texte.slice(0,100)+' »');
     if(!/comme la somme de deux vecteurs bleus de la figure/.test(texte)) vus.push('la question 2 manque');
     if(!/vecteurs bleus de la figure/.test(el('lsdInstr').textContent)) vus.push('l’énoncé ne dit pas de répondre avec les vecteurs bleus');
-    /* u, v, w en ROUGE dans l'énoncé et dans les questions (v541) */
+    /* u, v, w en ROUGE dans l'énoncé et dans les questions (v542) */
     const rouges=document.querySelectorAll('#lsdInstr .lsd-r, #lsdHost .lsd-q .lsd-r, #lsdHost .lsd-n');
     if(rouges.length!==3+3+3) vus.push(rouges.length+' vecteurs u, v, w marqués rouges au lieu de 9');
     if(J.bl.length!==3) vus.push('la figure fixe trace '+J.bl.length+' flèches bleues hors de la chaîne au lieu de 3 (KM, KA, MB)');
