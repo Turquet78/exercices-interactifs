@@ -4719,6 +4719,7 @@ function exercices(suite){
     signeDeriveeQcm(w, P);
     convexiteTroisCourbes(w, P);
     convexiteQcm(w, P);
+    associerDeriveeSeconde(w, P);
     mineursTerminale(w, P);
     suiteVocabulaire(w, P);
     etiquetteCourbe(w, P);
@@ -18463,10 +18464,12 @@ function etudeAlgoConvexite(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='etude-algo-convexite';
 
-    /* ---- 0. la place au menu : le dernier de la partie « Convexité » ---- */
+    /* ---- 0. la place au menu : dans la partie « Convexité », au rang 4 —
+       elle la fermait ; {associer-derivee-seconde} (4.3.5, octobre 2026) est
+       venu après, et c'est le numéro qui tient le rang ---- */
     { const th=THEMES.filter(function(t){ return t.nom==='Étude de fonction'; })[0];
       const st=th&&th.sous&&th.sous.filter(function(x){ return x.nom==="Convexité"; })[0];
-      if(!st || st.ids[st.ids.length-1]!=='etude-algo-convexite') vus.push("{etude-algo-convexite} n'est pas dans la partie « Convexité » du thème Étude de fonction");
+      if(!st || st.ids.indexOf('etude-algo-convexite')<0) vus.push("{etude-algo-convexite} n'est pas dans la partie « Convexité » du thème Étude de fonction");
       if(TEST_NUM['etude-algo-convexite']!=='4.3.4') vus.push('le numéro n\\'est pas 4.3.4 : '+TEST_NUM['etude-algo-convexite']); }
 
     /* ---- 1. le tirage : (a, b, k, c) et rien d'autre ; les trois exponentielles sortent ---- */
@@ -47243,6 +47246,134 @@ function convexiteTroisCourbes(w, P){
     /* le contexte du modèle porte la clause de secret et les réponses */
     pose(null);
     { const c=cvxConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/extremum \\u22121 en 0/.test(c) || !/zéro de f′ : 1 ; zéro de f″ : 0/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec les réponses'); }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Associer f, f′ et f″ : six courbes en désordre, trois triplets ----
+   Le pendant d'{associer-derivee} pour la convexité (demande de Turquet,
+   octobre 2026). Le contrôle ne croit pas la page sur parole : il relit
+   chaque courbe par DIFFÉRENCES FINIES — la courbe rangée comme dérivée de
+   la fonction i doit être sa dérivée numérique, la dérivée seconde celle de
+   la dérivée —, puis recompte À SA FAÇON les répartitions que rien ne
+   contredit : les 720 ordres des six courbes, essayés un par un (jamais
+   afdSolutions ni afdDesaccord), avec un désaccord jugé par sa propre
+   arithmétique, sur une grille DEUX FOIS plus fine que celle de la page — il
+   voit donc au moins tous les désaccords qu'elle voit, et la répartition
+   attendue doit être la seule à survivre. Seule la géométrie des cadres
+   (afdFenetre, celle du dessin) est partagée. Puis la séance (trois
+   questions distinctes, des polynômes de degré 3 et de degré 4 mêlés — sans
+   quoi le degré trierait les courbes à lui seul —, la question ne range que
+   des nombres), et les gestes sur la question de repli ÉPINGLÉE : la copie
+   juste vaut le point et compte ses six cases, un menu faux ne rougit que
+   lui et dit POURQUOI sur les courbes, la case vide ne rougit jamais et
+   reçoit la correction, le soutien ne verrouille pas et colore en direct, la
+   copie vide redemande, les neuf cadres portent leur étiquette, et le
+   contexte du modèle porte la clause de secret. */
+function associerDeriveeSeconde(w, P){
+  const nom='associer f, f′ et f″ : les six courbes sont les dérivées, et une seule répartition se lit';
+  const present = evaluer(w, "typeof startAfd==='function' && typeof afdBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice « associer f, f′ et f″ »');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='associer-derivee-seconde';
+    const H=1e-4;
+    const val=function(c){ return function(x){ let y=0; for(let k=0;k<c.length;k++) y+=c[k]*Math.pow(x,k); return y; }; };
+    const der=function(g){ return function(x){ return (g(x+H)-g(x-H))/(2*H); }; };
+    /* le désaccord, à la façon du contrôle : g nettement d'un côté de l'axe,
+       h visible dans son cadre et nettement montante ou descendante de
+       l'autre côté — mêmes seuils que la page, grille de 0,025 */
+    const contredit=function(g, gc, h, hc){
+      const Wg=afdFenetre(gc), Wh=afdFenetre(hc), dh=der(h);
+      for(let i=0;i<=240;i++){ const x=-3+i*0.025, vh=h(x);
+        if(vh<Wh.ymin || vh>Wh.ymax) continue;
+        const vg=g(x), p=dh(x);
+        if(Math.abs(vg)*176/(Wg.ymax-Wg.ymin)>=12 && Math.abs(p)*(176/(Wh.ymax-Wh.ymin))/51>=0.25 && (vg>0)!==(p>0)) return true; }
+      return false; };
+    const ordres=[]; (function p(a,r){ if(!r.length){ ordres.push(a); return; } r.forEach(function(v,i){ p(a.concat([v]), r.filter(function(_,j){ return j!==i; })); }); })([],[0,1,2,3,4,5]);
+    const juge=function(q, ou){
+      const cles=Object.keys(q).filter(function(k){ return k!=='fs' && k!=='ordre'; });
+      if(cles.length) vus.push(ou+' : la question range autre chose que fs et ordre : '+cles.join(','));
+      if(!Array.isArray(q.fs) || q.fs.length!==3 || q.fs.some(function(c){ return !Array.isArray(c) || c.some(function(v){ return typeof v!=='number' || !isFinite(v); }); })){ vus.push(ou+' : fs n\\'est pas trois listes de nombres'); return; }
+      if(!Array.isArray(q.ordre) || q.ordre.slice().sort().join(',')!=='0,1,2,3,4,5'){ vus.push(ou+' : ordre n\\'est pas un ordre des six codes : '+JSON.stringify(q.ordre)); return; }
+      const degres=q.fs.map(function(c){ let d=c.length-1; while(d>0 && Math.abs(c[d])<1e-12) d--; return d; });
+      if(degres.some(function(d){ return d!==3 && d!==4; })) vus.push(ou+' : une fonction de degré '+degres.join(','));
+      if(degres.indexOf(3)<0 || degres.indexOf(4)<0) vus.push(ou+' : trois fonctions du même degré ('+degres.join(',')+') — le degré trierait les courbes à lui seul');
+      const C=afdCourbes(q), F=q.fs.map(val), G=C.map(val);
+      /* la courbe de rang j est bien la dérivée (ou la dérivée seconde) annoncée */
+      q.ordre.forEach(function(code, j){
+        const i=Math.floor(code/2), cible=(code%2===0)?der(F[i]):der(der(F[i]));
+        for(let x=-3;x<=3;x+=0.25){ if(Math.abs(cible(x)-G[j](x))>1e-3*Math.max(1,Math.abs(G[j](x)))){ vus.push(ou+' : la courbe '+(j+1)+' n\\'est pas la dérivée'+(code%2?' seconde':'')+' de '+AFD_NOMS[i]+' (x = '+x+')'); break; } } });
+      /* chaque cadre montre l'axe : un signe se lit */
+      C.concat(q.fs).forEach(function(c){ const W=afdFenetre(c); if(!(W.ymin<0 && W.ymax>0)) vus.push(ou+' : un cadre ne montre pas l\\'axe des abscisses'); });
+      /* la répartition attendue, puis toutes les autres */
+      const attendu=[0,1,2].map(function(i){ return [q.ordre.indexOf(2*i), q.ordre.indexOf(2*i+1)]; });
+      const D={}, S={};
+      const okD=function(i,j){ const k=i+'-'+j; if(!(k in D)) D[k]=!contredit(G[j],C[j],F[i],q.fs[i]); return D[k]; };
+      const okS=function(j,k2){ const k=j+'-'+k2; if(!(k in S)) S[k]=!contredit(G[k2],C[k2],G[j],C[j]); return S[k]; };
+      const survivants=ordres.filter(function(o){ return [0,1,2].every(function(i){ return okD(i,o[2*i]) && okS(o[2*i],o[2*i+1]); }); });
+      const sa=JSON.stringify(attendu);
+      if(!survivants.some(function(o){ return JSON.stringify([[o[0],o[1]],[o[2],o[3]],[o[4],o[5]]])===sa; })) vus.push(ou+' : la répartition attendue est contredite par les courbes');
+      if(survivants.length!==1) vus.push(ou+' : '+survivants.length+' répartitions se lisent sur les courbes, pas une seule');
+      const cases=afdCases(q);
+      if(cases.length!==6 || new Set(cases.map(function(c){ return c.id; })).size!==6) vus.push(ou+' : '+cases.length+' cases, ou deux du même identifiant');
+      cases.forEach(function(c){ const a=attendu[c.i][c.o]; if(c.good!==String(a)) vus.push(ou+' : la case '+c.id+' attend '+c.good+' au lieu de '+a); });
+    };
+    for(let n=0;n<25 && !vus.length;n++){
+      const qs=afdBuildQuestions();
+      if(qs.length!==3){ vus.push(qs.length+' questions au lieu de 3'); break; }
+      if(new Set(qs.map(cleQuestion)).size!==3) vus.push('deux questions de la séance reprennent les mêmes données');
+      qs.forEach(function(q,i){ juge(q,'question '+(i+1)); });
+    }
+    juge(AFD_REPLI, 'la question de repli');
+    if(TEST_NUM['associer-derivee-seconde']!=='4.3.5') vus.push('le numéro n\\'est pas 4.3.5 (cinquième de la partie Convexité) : '+TEST_NUM['associer-derivee-seconde']);
+
+    /* ---- les gestes, sur la question de repli ----
+       ordre [3,0,5,2,1,4] : f′ = courbe 2, f″ = 5 ; g′ = 4, g″ = 1 ; h′ = 6, h″ = 3 */
+    const JUSTE={'afd-d0':'1','afd-s0':'4','afd-d1':'3','afd-s1':'0','afd-d2':'5','afd-s2':'2'};
+    function pose(valeurs, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'afd', questions:[JSON.parse(JSON.stringify(AFD_REPLI))], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+      show('afd'); renderAfd();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkAfd();
+      const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+      return { score:test.score, fb:document.getElementById('afdFeedback').textContent, cls:cls, cases:(test.answers[0]||{}).cases,
+        rouges:[].slice.call(document.querySelectorAll('#scr-afd .bad')).filter(function(e){ return e.tagName==='SELECT'; }).map(function(e){ return e.id; }) };
+    }
+    let r=pose(JUSTE);
+    if(r.score!==1) vus.push('la copie juste ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==6) vus.push('la copie juste compte '+r.cases+' cases au lieu de 6');
+    if(!test.locked) vus.push('la copie juste ne verrouille pas');
+    { const et=[].slice.call(document.querySelectorAll('#afdHost svg .sv-cf')).map(function(e){ return e.textContent.replace(/\\s+/g,''); });
+      if(et.join(',')!=='Cf,Cg,Ch,C1,C2,C3,C4,C5,C6') vus.push('les neuf cadres ne portent pas leurs étiquettes : '+et.join(',')); }
+    r=pose(Object.assign({},JUSTE,{'afd-d0':'3'}));   /* la courbe 4 — celle de g′ — prise pour f′ */
+    if(r.score!==0) vus.push('un menu faux vaut encore le point');
+    if(r.rouges.join(',')!=='afd-d0') vus.push('un menu faux rougit autre chose que lui-même : '+r.rouges.join(','));
+    if(!/\\bok\\b/.test(r.cls('afd-s0'))) vus.push('le menu juste à côté d\\'un menu faux n\\'est pas bleu');
+    if(!/La courbe 4 ne peut pas être celle de f ′ : vers x = [−\\d,]+, elle est au-(dessus|dessous) de l’axe, alors que f y est (dé)?croissante/.test(r.fb)) vus.push('le pourquoi du menu faux ne se lit pas sur les courbes : '+r.fb);
+    { const b=document.getElementById('afd-d0').nextElementSibling;
+      if(!b || !/mf-cor/.test(b.className) || b.textContent!=='2') vus.push('la bonne courbe ne s\\'affiche pas à côté du menu faux'); }
+    r=pose({'afd-d0':'1'});
+    if(r.rouges.length) vus.push('en entraînement, un menu vide rougit : '+r.rouges.join(','));
+    if(!/\\bsol\\b/.test(r.cls('afd-s2')) || document.getElementById('afd-s2').value!=='2') vus.push('le menu laissé vide ne reçoit pas la correction (sol)');
+    r=pose({'afd-d0':'1','afd-s0':'0'},'soutien');
+    if(r.rouges.join(',')!=='afd-s0') vus.push('en soutien, autre chose que le menu faux rougit : '+r.rouges.join(','));
+    if(!/Revérifier/.test(document.getElementById('afdActions').textContent)) vus.push('en soutien, une copie fausse n\\'offre pas « Revérifier »');
+    if(test.locked) vus.push('en soutien, une copie fausse verrouille l\\'écran');
+    if(!document.getElementById('afd-d0').disabled) vus.push('en soutien, le menu juste n\\'est pas verrouillé');
+    pose(null,'soutien');
+    { const s=document.getElementById('afd-d1'); s.value='0'; s.dispatchEvent(new Event('change'));
+      if(!/\\bbad\\b/.test(s.className)) vus.push('en soutien, un menu faux ne se colore pas en direct');
+      s.value='3'; s.dispatchEvent(new Event('change'));
+      if(!/\\bok\\b/.test(s.className)) vus.push('en soutien, un menu juste ne se colore pas en direct'); }
+    r=pose(null);
+    if(!/Complète au moins une case/.test(r.fb)) vus.push('une copie vide devrait demander de compléter, pas juger');
+    { const c=afdConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/f′ = courbe 2, f″ = courbe 5 ; g′ = courbe 4, g″ = courbe 1 ; h′ = courbe 6, h″ = courbe 3/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec les réponses'); }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
