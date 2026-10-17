@@ -15725,16 +15725,17 @@ if(require.main === module) (async () => {
        son cadre, rien qui déborde de la carte ni de l'écran — sur un grand
        écran et sur un téléphone de 360 px —, et, décor éteint, rien du tout. */
     if(P.serpentsHalloween){
-      titre('9 quater. LES SERPENTS D\'HALLOWEEN DU SOUS-THÈME « INPUT »');
+      titre('9 quater. LES SERPENTS D\'HALLOWEEN DES SOUS-THÈMES PYTHON (6.1, 6.2, 6.3)');
       s = await ouvrir(chromium, ml);
       if(await connecter(s.page) !== 'scr-space'){
         ignorer('les serpents d\'Halloween se montrent sous le décor, à côté du dessin de la fiche', 'connexion impossible — rien à mesurer');
       } else {
-        const TH = P.serpentsHalloween.theme, SS = P.serpentsHalloween.sous;
-        /* page.evaluate ne passe qu'UN argument : les deux numéros vont dans un objet */
+        /* `sous` : un sous-thème, ou une liste (6.1, 6.2 et 6.3 depuis octobre 2026) */
+        const TH = P.serpentsHalloween.theme, SS = [].concat(P.serpentsHalloween.sous);
+        /* page.evaluate ne passe qu'UN argument : les numéros vont dans un objet */
         const ids = await s.page.evaluate(({ t, u }) => {
-          const th = THEMES.find(x => x.num === t), s3 = th && th.sous && th.sous.find(x => x.num === u);
-          return s3 ? s3.ids.slice() : [];
+          const th = THEMES.find(x => x.num === t);
+          return u.reduce((a, n) => { const s3 = th && th.sous && th.sous.find(x => x.num === n); return a.concat(s3 ? s3.ids : []); }, []);
         }, { t: TH, u: SS });
         const pbs = [], vus = [];
         const mesurer = () => s.page.evaluate(() => {
@@ -15815,8 +15816,8 @@ if(require.main === module) (async () => {
           vus.push(id + ':' + avec.variante);
         }
         verifier('les serpents d\'Halloween se montrent sous le décor, à côté du dessin de la fiche, bulle lisible à 12 px au moins, sans déborder (grand écran et 360 px) — et pas du tout décor éteint',
-          ids.length > 0 && pbs.length === 0, pbs.length ? pbs.slice(0, 3).join(' | ') : 'aucun exercice dans le sous-thème ' + TH + '.' + SS);
-        verifier('le sous-thème ' + TH + '.' + SS + ' compte ' + ids.length + ' serpents, tous différents',
+          ids.length > 0 && pbs.length === 0, pbs.length ? pbs.slice(0, 3).join(' | ') : 'aucun exercice dans les sous-thèmes ' + SS.map(n => TH + '.' + n).join(', '));
+        verifier('les sous-thèmes ' + SS.map(n => TH + '.' + n).join(', ') + ' comptent ' + ids.length + ' serpents, tous différents',
           ids.length > 0 && new Set(vus.map(v => v.split(':')[1])).size === ids.length, vus.join(', '));
         verifier('les serpents d\'Halloween ne lèvent aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
