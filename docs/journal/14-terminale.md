@@ -3240,3 +3240,50 @@ entier à 1280 et 390 px, une question sur deux juste, l'autre avec une case
 fausse et le reste vide — juste en bleu, faux en rouge avec la correction à
 côté, vides complétées en vert, écran des résultats au bout, aucune erreur
 JavaScript, aucune page qui défile en largeur.
+**{convexite-parametre} (4.3.7) : TROUVER UN PARAMÈTRE (octobre 2026, v392).**
+Demande de Turquet : « dans le sous-thème convexité, créer un exercice sur
+Trouver un paramètre — f(x) = x³ + kx² + 1 admet un point d'inflexion
+d'abscisse 2 : trouve k. Ou bien : pour quelles valeurs de a la fonction
+(x² + a)eˣ est-elle convexe sur ℝ ? (le discriminant de f″ intervient) ». Il
+ferme la partie Convexité, après {associer-derivee-seconde} (4.3.5) et
+{convexite-tangente} (4.3.6), nés le même jour sur d'autres branches : aucun
+numéro existant ne bouge.
+
+**Le tirage** : cinq questions, une par famille, par `distinctes()` —
+mx³ + kx² (+ px) + d (k = −3m·x0 ; p vaut 0 une fois sur trois, comme dans
+l'exemple de la demande), x⁴ + kx³ (+ px) + d (k = −2·x0, x0 ≠ 0), (x + k)e^(±x)
+(k = −x0 − 2 ou 2 − x0, jamais 0), puis (x² + bx + a)eˣ et (x² + bx + a)e^(−x),
+b de −4 à 4. Le discriminant du trinôme de f″ vaut b² + 8 − 4a DANS LES DEUX
+CAS : le seuil est a ≥ (b² + 8)/4 — entier pour b pair, 9/4 ou 17/4 pour b
+impair, accepté en fraction ou en décimal (`tgParseFrac`).
+
+**La démarche est découpée en cases** (`txInp`, comme au 4.3.2) : f′ et f″
+coefficient par coefficient, f″(x0) = 0 écrite, k ; puis un menu « en
+changeant de signe / sans changer de signe » — s'annuler ne suffit pas, et
+la phrase de la fiche le fait dire. Côté discriminant : f′, f″, Δ = [ ] − [ ]a,
+le menu « Δ ≤ 0 » (l'inégalité est LARGE : au seuil, f″ ne s'annule qu'en un
+point), puis « a [≥] [seuil] ». Les constantes en bout de parenthèse
+s'écrivent avec leur signe. Aucune case ne révèle la précédente : la ligne
+« e^x > 0, donc f″ a le signe du trinôme » ne recopie pas le trinôme.
+
+**Le texte entre deux cases tient dans UN `<span>`.** La première capture a
+montré « f″( x ) » et « x , » écartés : `.tg-line` est un conteneur flex, et
+chaque nœud de texte nu, chaque `<i>`, chaque `<sup>` y devient un élément
+séparé par l'écart du flex. `cvpFormHTML` pose tout le texte entre deux cases
+par `T()`.
+
+**Le contrôle (`tests/verifier.js`, `convexiteParametre`) REFAIT l'analyse**
+sur 120 séances : la fonction de l'énoncé reconstruite depuis la question,
+dérivée par différences finies ; f′ et f″ ÉCRITES DANS LES CASES attendues
+doivent valoir les dérivées numériques en trois points ; k annule f″ en x0
+et f″ y change de signe ; le Δ des cases est B² − 4C du trinôme des cases ;
+au seuil f″ reste ≥ 0, juste en dessous elle passe sous 0. Puis l'écran, une
+copie par famille : la juste vaut le point, la fausse rougit seule, la vide
+ne rougit pas et reçoit la correction en vert. Éprouvé par deux sabotages
+(k = −2m·x0, Δ = b² + 4 − 4a) : chacun rougit le contrôle.
+
+**Exécuté avant livraison** : une sonde Playwright a fait les cinq questions
+à 1280 et à 390 px (une sur deux juste, une sur deux avec des cases fausses
+et des vides) — cases justes en bleu, fausses en rouge avec la correction à
+côté, vides complétées en vert, l'écran des résultats au bout, aucune erreur
+JavaScript, aucun débordement en largeur.

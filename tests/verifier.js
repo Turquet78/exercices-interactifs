@@ -4726,6 +4726,7 @@ function exercices(suite){
     convexiteQcm(w, P);
     associerDeriveeSeconde(w, P);
     convexiteTangente(w, P);
+    convexiteParametre(w, P);
     mineursTerminale(w, P);
     suiteVocabulaire(w, P);
     autourDuTcm(w, P);
@@ -48465,6 +48466,115 @@ function mineursTerminale(w, P){
   })()`, v => v === '', undefined);
 }
 
+/* ---------- Le 4.3.7 : convexité — trouver un paramètre ----------
+   Demande de Turquet (octobre 2026). Le contrôle REFAIT l'analyse par ses
+   propres moyens, sur des centaines de tirages : la fonction de l'énoncé est
+   reconstruite depuis la question, dérivée par différences finies, et chaque
+   case attendue doit dire la même chose — f′ et f″ écrites dans les cases
+   valent les dérivées numériques, k annule f″ en x0 ET f″ y change de signe,
+   le Δ des cases est celui du trinôme de f″, et le seuil de a est exact
+   (convexe au seuil, pas convexe juste en dessous). Puis l'écran : la copie
+   juste vaut le point, une faute ne rougit qu'elle, une case vide ne rougit
+   jamais et reçoit la correction. */
+function convexiteParametre(w, P){
+  const nom='le 4.3.7 : convexité — trouver un paramètre (point d’inflexion imposé, convexité sur ℝ par le discriminant)';
+  const present = evaluer(w, "typeof startCVP==='function' && typeof cvpGen==='function' && typeof cvpCases==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice « trouver un paramètre »');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='convexite-parametre';
+    { const th=THEMES.filter(function(t){ return t.nom==='Étude de fonction'; })[0];
+      const st=th&&th.sous&&th.sous.filter(function(x){ return x.nom==="Convexité"; })[0];
+      if(!st || st.ids[st.ids.length-1]!=='convexite-parametre') vus.push("{convexite-parametre} ne ferme pas la partie « Convexité »");
+      if(TEST_NUM['convexite-parametre']!=='4.3.7') vus.push('le numéro n\\'est pas 4.3.7 : '+TEST_NUM['convexite-parametre']); }
+    const h=1e-3;
+    const d1=function(F,x){ return (F(x+h)-F(x-h))/(2*h); };
+    const d2=function(F,x){ return (F(x+h)-2*F(x)+F(x-h))/(h*h); };
+    const proche=function(u,v,t){ return Math.abs(u-v)<=(t||1e-3)*Math.max(1,Math.abs(v)); };
+    const fDe=function(q,k,a){
+      if(q.fam==='p3') return function(x){ return q.m*x*x*x+k*x*x+q.p*x+q.d; };
+      if(q.fam==='p4') return function(x){ return x*x*x*x+k*x*x*x+q.p*x+q.d; };
+      if(q.fam==='ex') return function(x){ return (x+k)*Math.exp(q.e*x); };
+      return function(x){ return (x*x+q.b*x+a)*Math.exp(q.e*x); };
+    };
+    const G=function(cs,id){ const c=cs.filter(function(x){ return x.id===id; })[0]; return c?c.good:undefined; };
+    const fams={};
+    for(let n=0;n<120;n++){
+      const S=cvpGenSession();
+      if(S.length!==5) { vus.push('la séance n\\'a pas cinq questions'); break; }
+      S.forEach(function(q){
+        fams[q.fam]=(fams[q.fam]||0)+1;
+        const cs=cvpCases(q), g=function(id){ return G(cs,id); };
+        const tag=JSON.stringify(q);
+        if(cvpEstInfl(q)){
+          const F=fDe(q,q.k), k=q.k;
+          if(Math.abs(d2(F,q.x0))>1e-2) vus.push(tag+' : f″(x0) ≠ 0 avec k = '+k);
+          if(!(d2(F,q.x0-0.5)*d2(F,q.x0+0.5)<0)) vus.push(tag+' : f″ ne change pas de signe en x0');
+          if(g('cvp-d1')!==k) vus.push(tag+' : la case k attend '+g('cvp-d1'));
+          if(g('cvp-e1')!=='change') vus.push(tag+' : le menu du changement de signe');
+          [0.37,-1.21,2.4].forEach(function(x){
+            let fp, fs, fsx0;
+            if(q.fam==='p3'){ fp=g('cvp-a1')*x*x+g('cvp-a2')*k*x+(g('cvp-a3')||0); fs=g('cvp-b1')*x+g('cvp-b2')*k; fsx0=g('cvp-c1')+g('cvp-c2')*k; }
+            else if(q.fam==='p4'){ fp=g('cvp-a1')*x*x*x+g('cvp-a2')*k*x*x+(g('cvp-a3')||0); fs=g('cvp-b1')*x*x+g('cvp-b2')*k*x; fsx0=g('cvp-c1')+g('cvp-c2')*k; }
+            else { fp=(q.e>0?(x+k+g('cvp-a1')):(-x-k+g('cvp-a1')))*Math.exp(q.e*x); fs=(x+k+g('cvp-b1'))*Math.exp(q.e*x); fsx0=g('cvp-c1')+k; }
+            if(!proche(fp,d1(F,x))) vus.push(tag+' : f′ des cases ≠ dérivée numérique en '+x);
+            if(!proche(fs,d2(F,x),5e-3)) vus.push(tag+' : f″ des cases ≠ dérivée seconde numérique en '+x);
+            if(Math.abs(fsx0)>1e-9) vus.push(tag+' : l\\'équation f″(x0) = 0 des cases ne s\\'annule pas');
+          });
+          if((q.fam==='p3'||q.fam==='p4') && !q.p && g('cvp-a3')!==undefined) vus.push(tag+' : une case de constante pour p = 0');
+        } else {
+          const seuil=g('cvp-e2');
+          if(g('cvp-d1')!=='le' || g('cvp-e1')!=='ge') vus.push(tag+' : les menus Δ ≤ 0 / a ≥');
+          [-3,0.5,4].forEach(function(a){
+            const F=fDe(q,0,a);
+            [0.37,-1.21,1.9].forEach(function(x){
+              const E=Math.exp(q.e*x);
+              const fp=(q.e>0?(x*x+g('cvp-a1')*x+a+g('cvp-a2')):(-x*x+g('cvp-a1')*x-a+g('cvp-a2')))*E;
+              const fs=(x*x+g('cvp-b1')*x+a+g('cvp-b2'))*E;
+              if(!proche(fp,d1(F,x))) vus.push(tag+' : f′ des cases ≠ dérivée numérique (a = '+a+', x = '+x+')');
+              if(!proche(fs,d2(F,x),5e-3)) vus.push(tag+' : f″ des cases ≠ dérivée seconde numérique (a = '+a+', x = '+x+')');
+            });
+            const B=g('cvp-b1'), C=a+g('cvp-b2');
+            if(Math.abs((g('cvp-c1')-g('cvp-c2')*a)-(B*B-4*C))>1e-9) vus.push(tag+' : le Δ des cases n\\'est pas celui du trinôme de f″');
+          });
+          const minF2=function(a){ const F=fDe(q,0,a); let m=Infinity; for(let x=-12;x<=12;x+=0.01) m=Math.min(m,(x*x+g('cvp-b1')*x+a+g('cvp-b2'))); return m; };
+          if(minF2(seuil)< -1e-9) vus.push(tag+' : au seuil a = '+seuil+', f″ prend une valeur négative');
+          if(minF2(seuil-0.05)>=0) vus.push(tag+' : juste sous le seuil a = '+seuil+', f″ reste positive — le seuil est faux');
+        }
+      });
+      if(vus.length>6) break;
+    }
+    ['p3','p4','ex','dp','dm'].forEach(function(f){ if(!fams[f]) vus.push('la famille '+f+' ne sort jamais'); });
+    /* ---- l'écran : la copie juste, une faute, une case vide ---- */
+    const pose=function(q, remplir){
+      Object.assign(test,{kind:'cvp', questions:[JSON.parse(JSON.stringify(q))], idx:0, score:0, answers:[], locked:false, startTime:Date.now(), maxScore:1});
+      show('cvp'); renderCVP();
+      cvpCases(q).forEach(function(x){ const el=document.getElementById(x.id); if(!el){ vus.push('case absente : '+x.id); return; } const v=remplir(x); if(v!=null) el.value=v; });
+      checkCVP();
+      return cvpCases(q).map(function(x){ const el=document.getElementById(x.id); return {id:x.id, cl:el?el.className:''}; });
+    };
+    const juste=function(x){ return x.type==='sel'?x.good:String(x.good).replace('.',',').replace('-','−'); };
+    [{fam:'p3',m:1,x0:2,p:0,d:1,k:-6},{fam:'p4',x0:-1,p:3,d:2,k:2},{fam:'ex',e:-1,x0:1,k:1},{fam:'dp',e:1,b:0},{fam:'dm',e:-1,b:1}].forEach(function(q){
+      let r=pose(q, juste);
+      if(test.score!==1 || r.some(function(c){ return !/\\bok\\b/.test(c.cl); })) vus.push(q.fam+' : la copie juste ne vaut pas le point ('+r.filter(function(c){ return !/\\bok\\b/.test(c.cl); }).map(function(c){ return c.id; }).join(', ')+')');
+      const cs=cvpCases(q), faux=cs[cs.length-1].id, vide=cs[0].id;
+      r=pose(q, function(x){ if(x.id===vide) return null; if(x.id===faux) return x.type==='sel'?(x.good==='change'?'garde':'lt'):'99'; return juste(x); });
+      r.forEach(function(c){
+        if(c.id===faux){ if(!/\\bbad\\b/.test(c.cl)) vus.push(q.fam+' : la case fausse '+c.id+' ne rougit pas'); }
+        else if(c.id===vide){ if(/\\bbad\\b/.test(c.cl) || !/\\bsol\\b/.test(c.cl)) vus.push(q.fam+' : la case vide '+c.id+' : '+c.cl); }
+        else if(!/\\bok\\b/.test(c.cl)) vus.push(q.fam+' : la case juste '+c.id+' n\\'est pas bleue quand une autre est fausse');
+      });
+      if(test.score!==0) vus.push(q.fam+' : une copie fausse vaut le point');
+    });
+    /* le seuil s'écrit aussi en fraction (9/4) ou en décimal (2,25) */
+    { const x={type:'num',good:2.25}; if(!cvpOk(x,'9/4')||!cvpOk(x,'2,25')||!cvpOk(x,'2.25')||cvpOk(x,'2')) vus.push('le seuil 9/4 ne se lit pas en fraction et en décimal'); }
+    return vus.slice(0,8).join(' | ');
+  })()`, v => v === '', undefined);
+}
 function convexiteQcm(w, P){
   const nom='convexité — QCM variés : six visages, une seule affirmation vraie';
   const present = evaluer(w, "typeof startCvq==='function' && typeof cvqBuildQuestions==='function'");
