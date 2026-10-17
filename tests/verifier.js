@@ -48154,6 +48154,12 @@ function autourDuTcm(w, P){
       const opts=tvfOpts({af:k,M:3}).map(function(o){ return o[0]; });
       A.ok.forEach(function(o){ if(opts.indexOf(o)<0) vus.push('« '+k+' » attend '+o+', absent de la liste'); });
     });
+    /* les dix premiers termes écrits sous la liste : un par contre-exemple, et les bons */
+    const ceListe=tvfOpts({M:3}).map(function(o){ return o[0]; }).filter(function(c){ return CE[c]; });
+    if(TVF_CE.map(function(c){ return c[0]; }).join()!==ceListe.join()) vus.push('les termes affichés ne suivent pas les contre-exemples de la liste : '+TVF_CE.map(function(c){ return c[0]; }).join());
+    [2,3,4,5,6].forEach(function(M){ ceListe.forEach(function(c){ const t=tvfCeTermes(c,M);
+      if(t.length!==10) vus.push(c+' : '+t.length+' termes affichés au lieu de 10');
+      t.forEach(function(f,n){ if(Math.abs(f[0]/f[1]-CE[c](n,M))>1e-12) vus.push(c+' (M = '+M+') : U'+n+' affiché '+f[0]+'/'+f[1]+', vaut '+CE[c](n,M)); }); }); });
     const vuesAff={};
     for(let s=0;s<60;s++){
       const qs=tvfGenSession(), v=qs.filter(function(q){ return TVF_AFF[q.af].v; }).length, d={};
