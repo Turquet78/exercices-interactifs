@@ -914,7 +914,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-eav,#scr-sal,#scr-lqn{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -2604,6 +2604,20 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     </div>
   </section>
 
+  <!-- 4.3.6 CONVEXITÉ — rédiger une inégalité par une tangente : la démonstration à trous -->
+  <section class="screen" id="scr-cvt">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="cvtModeTag"></span><span class="q-idx" id="cvtQIdx">Question 1 / 4</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="cvtLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card tg-card">
+      <p class="tvi-prompt" id="cvtPrompt"></p>
+      <div id="cvtForm"></div>
+      <div class="mp-feedback" id="cvtFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="cvtActions"></div>
+    </div>
+  </section>
+
   <!-- 4.x TVI — LA SOLUTION α ET LE SIGNE : l'étude de la fiche menée au TVI.
        Placé APRÈS scr-ef, scr-ec et scr-afp : le tableau porte les ids ef-*
        partagés, et un écran plus haut dans le document gagnerait $() — le
@@ -3623,6 +3637,7 @@ const TESTS={
   'convexite-qcm': { name:'Convexit\u00e9 \u2014 QCM vari\u00e9s', icon:'\u2611\ufe0f', desc:'La fiche \u00ab QCM convexit\u00e9 \u00bb, six visages par s\u00e9ance : la courbe de f\u2009\u2032, son tableau de variations, ou la courbe de f\u2009\u2033 \u2014 et \u00e0 chaque fois quatre affirmations dont UNE SEULE est vraie : f convexe ou concave sur un intervalle, extremum de f, tangente horizontale, point d\u2019inflexion, signe de f\u2009\u2033, extremum de f\u2009\u2032. Les pi\u00e8ges de la fiche y sont : l\u2019intervalle qui enjambe le point d\u2019inflexion, le z\u00e9ro de f\u2009\u2032 pris pour un point d\u2019inflexion, le sommet de f\u2009\u2032 pris pour un extremum de f \u2014 comme au {signe-derivee-qcm}.', start:()=>startCvq() },
   'associer-derivee-seconde': { name:'Associer f, f\u2009\u2032 et f\u2009\u2033', icon:'\ud83d\udd17', desc:'Le pendant d\u2019{associer-derivee} pour la convexit\u00e9, sans aucune formule : les courbes de trois fonctions f, g et h, et six courbes en d\u00e9sordre \u2014 leurs d\u00e9riv\u00e9es et leurs d\u00e9riv\u00e9es secondes. Reconstitue les trois triplets : la d\u00e9riv\u00e9e se lit sur le sens de variation, la d\u00e9riv\u00e9e seconde sur la convexit\u00e9.', start:()=>startAfd() },
   'etude-algo-convexite': { name:'Étude, algorithme et convexité', icon:'\ud83d\udcbb', desc:'La fiche « Prépa DS 2 » : f(x) = (ax + b)e^(−x), e^x ou e^(x−1). A — lire f et f\u2009\u2032 sur la courbe et la tangente, démontrer f\u2009\u2032 en littéral comme dans {derivee-exp}, en déduire a et b ; B — limites, tableau de variations, unique solution α par le TVI, puis l\u2019algorithme Python de balayage au pas de 0,1 et son tableau de valeurs ; C — f\u2009\u2033 calculée de la même façon, et la convexité présentée comme dans {etude-convexite}.', start:()=>startEAV() },
+  'convexite-tangente': { name:'Convexit\u00e9 \u2014 une in\u00e9galit\u00e9 par une tangente', icon:'\u270d\ufe0f', desc:'La d\u00e9monstration \u00e0 trous du bac : f\u2009\u2032 et f\u2009\u2033 sont donn\u00e9es. Le signe de f\u2009\u2033 sur un intervalle, donc la convexit\u00e9 de f, puis la tangente en a, la position de la courbe par rapport \u00e0 elle, et l\u2019in\u00e9galit\u00e9 qui en d\u00e9coule \u2014 e\u02e3 \u2265 x + 1, x\u00b3 \u2264 3x + 2 sur ]\u2212\u221e ; 0], et leurs cousines.', start:()=>startCvt() },
   'etude-fonction': { name:'\u00c9tude de fonction \u2014 signe de f\u2009\u2032 et variations', icon:'f\u2032', desc:'On te donne f et sa d\u00e9riv\u00e9e f\u2009\u2032 \u2014 produit avec e^(cx) ou e^(cx\u00b2) : trouve les racines de f\u2009\u2032, compl\u00e8te le signe de chaque facteur puis de f\u2009\u2032, les variations et les extremums de f, puis associe les courbes de f et de f\u2009\u2032.', start:()=>startEF() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
   'signe-quotient-carre': { name:'Signe de (ax+b)/(cx+d)\u00b2', icon:'\u00f7',
@@ -3685,7 +3700,9 @@ const THEMES=[
       /* Puis le pendant d'{associer-derivee} (demande de Turquet, octobre
          2026 : « associer f, f′ et f″ — six courbes en désordre, trois
          triplets à reconstituer ») : le cinquième de la partie. */
-      { num:3, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm','etude-algo-convexite','associer-derivee-seconde'] },
+      /* Puis la démonstration à trous « convexité ⟹ tangente ⟹ inégalité »
+         (demande de Turquet, octobre 2026) la suit : 4.3.6. */
+      { num:3, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm','etude-algo-convexite','associer-derivee-seconde','convexite-tangente'] },
       { num:4, nom:'Étude complète de fonction', ids:['etude-fonction','etude-exponentielle'] }
     ] },
   /* Le thème des Suites est découpé en PARTIES (demande de Turquet, septembre
@@ -3948,7 +3965,7 @@ document.addEventListener('move-out', function(ev){
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-ecv','scr-cvx','scr-eav','scr-sal'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -4412,6 +4429,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='cvx' && test.questions && test.questions[test.idx]){ c=cvxConseilCtx(); }
   else if(test && test.kind==='cvq' && test.questions && test.questions[test.idx]){ c=cvqConseilCtx(); }
   else if(test && test.kind==='afd' && test.questions && test.questions[test.idx]){ c=afdConseilCtx(); }
+  else if(test && test.kind==='cvt' && test.questions && test.questions[test.idx]){ c=cvtConseilCtx(); }
   else if(test && test.kind==='eq' && test.questions && test.questions[test.idx]){ c=eqConseilCtx(); }
   else if(test && test.kind==='rc' && test.questions && test.questions[test.idx]){ c=rcConseilCtx(); }
   else if(test && test.kind==='rf' && test.questions && test.questions[test.idx]){ c=rfConseilCtx(); }
@@ -5440,7 +5458,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5566,7 +5584,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','eav','sal'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
@@ -13861,6 +13879,257 @@ function cvqConseilCtx(){
      ? 'f est convexe là où f′ est CROISSANTE (f″ ≥ 0) et concave là où f′ décroît ; un point d’inflexion de f est un SOMMET de la courbe de f′ (f″ s’y annule) ; un extremum de f est un ZÉRO de f′ avec changement de signe (− puis + : minimum) ; la tangente est horizontale où f′ = 0. Faire repérer d’abord les sommets et les zéros de f′, puis relire chaque affirmation.'
      : 'f est convexe là où f″ est POSITIVE (au-dessus de l’axe) et f′ y est croissante ; là où f″ s’annule en changeant de signe, f′ admet un extremum (+ puis − : maximum) et f un point d’inflexion. Un sommet de f″ n’est rien de tout cela. Faire repérer d’abord les zéros de f″ et son signe, puis relire chaque affirmation.');
 }
+/* ================= Exercice Terminale : convexité — rédiger une inégalité par une tangente (kind 'cvt') =================
+   Demande de Turquet (octobre 2026 : « crée l'exercice 7 sur les tangentes et
+   inégalités ») : la démonstration À TROUS du geste classique du bac — f est
+   convexe (ou concave) sur I, donc sa courbe est au-dessus (au-dessous) de
+   chacune de ses tangentes sur I, d'où une inégalité. f′ et f″ sont DONNÉES
+   (« on admet que… », comme au bac) : le calcul des dérivées est le travail du
+   2.2.2 et du 2.2.4 ; ici on rédige le raisonnement. L'élève complète :
+     1. le signe de chaque facteur de f″ sur I, puis le signe de f″ ;
+     2. la convexité de f sur I ;
+     3. f(a), f′(a), et l'équation réduite de T : y = [m] x [p] ;
+     4. la position de la courbe par rapport à T ;
+     5. le sens de l'inégalité — son second membre est le MIROIR de T tel que
+        l'élève l'a écrit (rien à recopier, rien de révélé).
+   Quatre familles, une par question, en ordre mélangé :
+     · exp  — f(x) = e^(kx + p), convexe sur ℝ, a = −p/k entier : e^x ≥ x + 1,
+              e^(x−1) ≥ x… (f(a) = 1, f′(a) = k) ;
+     · cub  — f(x) = x³ + cx, f″(x) = 6x : convexe sur [0 ; +∞[ si a > 0,
+              concave sur ]−∞ ; 0] si a < 0 ; T : y = (3a² + c)x − 2a³ ;
+     · pe   — f(x) = (x + β)e^x, f″(x) = (x + β + 2)e^x, convexe sur
+              [−β − 2 ; +∞[, tangente en 0 : y = (β + 1)x + β ;
+     · pem  — f(x) = (x + β)e^(−x), f″(x) = (x + β − 2)e^(−x), concave sur
+              ]−∞ ; 2 − β], tangente en 0 : y = (1 − β)x + β.
+   La pente de T n'est jamais nulle (la ligne « y = [m] x » garderait une case
+   à 0), et la case de l'ordonnée à l'origine disparaît quand elle vaut 0,
+   comme au 4.2.2. Deux énoncés (q.v) : 0 « étudie… puis déduis-en une
+   inégalité » (rien n'est annoncé), 1 « démontre que f(x) ≥ … » (le sujet du
+   bac). La question ne range que ses PARAMÈTRES ; cvtAns(q) recalcule tout
+   — l'énoncé, la correction et le contexte de l'aide lisent la même fonction.
+   Les identifiants cvt-* n'appartiennent qu'à cet écran. */
+const CVT_EXP=[[1,0],[1,-1],[1,1],[1,-2],[1,2],[2,0],[3,0],[-1,0],[-2,0],[2,-2],[-1,1],[-1,-1]];
+const CVT_FAMS=['exp','cub','pe','pem'];
+function cvtGen(fam){
+  const v=pick([0,1]);
+  if(fam==='exp'){ const c=pick(CVT_EXP); return {fam:fam, k:c[0], p:c[1], v:v}; }
+  if(fam==='cub'){
+    for(let i=0;i<50;i++){ const a=pick([1,2,3,-1,-2,-3]), c=pick([0,-3,3]);
+      if(3*a*a+c!==0) return {fam:fam, a:a, c:c, v:v}; }
+    return {fam:fam, a:2, c:0, v:v};
+  }
+  if(fam==='pe') return {fam:fam, b:pick([0,1,-2]), v:v};
+  return {fam:'pem', b:pick([0,-1,2,-2]), v:v};
+}
+function cvtBuildQuestions(){
+  const fams=afqMelange(CVT_FAMS);
+  return distinctes(4, (_,i)=>cvtGen(fams[i]));
+}
+/* Écritures : l'exposant kx + p, un coefficient devant e, une parenthèse affine. */
+function cvtExpo(k,p){ return (k===1?'':k===-1?'−':numFmt(k))+'<i>x</i>'+txB(p); }
+function cvtE(k,p){ return 'e<sup>'+cvtExpo(k,p)+'</sup>'; }
+function cvtCoefE(c,k,p){ return (c===1?'':c===-1?'−':numFmt(c))+cvtE(k,p); }
+function cvtParE(c,k){ return (c===0 ? '<i>x</i> ' : '(<i>x</i>'+txB(c)+') ')+cvtE(k,0); }
+function cvtIntv(lo,hi){
+  if(lo==null && hi==null) return 'ℝ';
+  if(lo==null) return ']−∞ ; '+numFmt(hi)+']';
+  return '['+numFmt(lo)+' ; +∞[';
+}
+/* La bonne réponse, recalculée depuis les paramètres. fac : les facteurs de
+   f″ dont on lit le signe (exp : positif quoi qu'il arrive ; aff : x + c,
+   dont le signe se lit sur I). */
+function cvtAns(q){
+  const A={};
+  if(q.fam==='exp'){
+    A.a=-q.p/q.k; A.lo=null; A.hi=null;
+    A.f=cvtE(q.k,q.p); A.fp=cvtCoefE(q.k,q.k,q.p); A.fpp=cvtCoefE(q.k*q.k,q.k,q.p);
+    A.fac=[{t:'exp', h:cvtE(q.k,q.p), good:'>'}];
+    A.fa=1; A.fpa=q.k; A.cv='convexe';
+  } else if(q.fam==='cub'){
+    A.a=q.a; A.lo=(q.a>0?0:null); A.hi=(q.a>0?null:0);
+    A.f='<i>x</i><sup>3</sup>'+(q.c?' '+(q.c>0?'+':'−')+' '+numFmt(Math.abs(q.c))+'<i>x</i>':'');
+    A.fp='3<i>x</i><sup>2</sup>'+txB(q.c); A.fpp='6<i>x</i>';
+    A.cv=(q.a>0?'convexe':'concave');
+    A.fac=[{t:'aff', h:'<i>x</i>', good:(q.a>0?'>=':'<=')}];
+    A.fa=q.a*q.a*q.a+q.c*q.a; A.fpa=3*q.a*q.a+q.c;
+  } else if(q.fam==='pe'){
+    A.a=0; A.lo=-q.b-2; A.hi=null;
+    A.f=cvtParE(q.b,1); A.fp=cvtParE(q.b+1,1); A.fpp=cvtParE(q.b+2,1);
+    A.fac=[{t:'exp', h:cvtE(1,0), good:'>'},{t:'aff', h:(q.b+2===0?'<i>x</i>':'<i>x</i>'+txB(q.b+2)), good:'>='}];
+    A.fa=q.b; A.fpa=q.b+1; A.cv='convexe';
+  } else {
+    A.a=0; A.lo=null; A.hi=2-q.b;
+    /* f′(x) = (−x + 1 − β)e^(−x) : la parenthèse commence par −x */
+    A.f=cvtParE(q.b,-1); A.fp='('+txLin(-1,1-q.b)+') '+cvtE(-1,0); A.fpp=cvtParE(q.b-2,-1);
+    A.fac=[{t:'exp', h:cvtE(-1,0), good:'>'},{t:'aff', h:(q.b-2===0?'<i>x</i>':'<i>x</i>'+txB(q.b-2)), good:'<='}];
+    A.fa=q.b; A.fpa=1-q.b; A.cv='concave';
+  }
+  A.I=cvtIntv(A.lo,A.hi);
+  A.m=A.fpa; A.pT=A.fa-A.fpa*A.a;
+  A.spp=(A.cv==='convexe'?'>=':'<=');
+  A.pos=(A.cv==='convexe'?'dessus':'dessous');
+  A.ineg=A.spp;
+  return A;
+}
+function cvtT(A){ return A.pT===0 ? txAX(A.m) : txLin(A.m,A.pT); }
+const CVT_SYMB={'>':'> 0','<':'< 0','>=':'≥ 0','<=':'≤ 0'};
+function cvtSel(id,opts){
+  return '<select class="tvi-sel" id="'+id+'"><option value="">…</option>'+opts.map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('')+'</select>';
+}
+function cvtSigneSel(id,t){
+  return cvtSel(id, t==='exp' ? [['>','> 0'],['<','< 0']] : [['>=','≥ 0'],['<=','≤ 0']]);
+}
+/* Toutes les cases, avec leur bonne réponse : UNE liste, que le rendu, la
+   vérification, la correction et l'aide parcourent. */
+function cvtCases(q){
+  const A=cvtAns(q), out=[];
+  A.fac.forEach(function(f,i){ out.push({id:'cvt-f'+i, type:'sel', good:f.good, lib:CVT_SYMB[f.good]}); });
+  out.push({id:'cvt-spp', type:'sel', good:A.spp, lib:CVT_SYMB[A.spp]});
+  out.push({id:'cvt-cv', type:'sel', good:A.cv, lib:A.cv});
+  out.push({id:'cvt-fa', type:'int', good:A.fa});
+  out.push({id:'cvt-fpa', type:'int', good:A.fpa});
+  out.push({id:'cvt-m', type:'coef', good:A.m});
+  if(A.pT!==0) out.push({id:'cvt-p', type:'int', good:A.pT});
+  out.push({id:'cvt-pos', type:'sel', good:A.pos, lib:(A.pos==='dessus'?'au-dessus':'au-dessous')});
+  out.push({id:'cvt-in', type:'sel', good:A.ineg, lib:(A.ineg==='>='?'≥':'≤')});
+  return out;
+}
+function cvtFormHTML(q){
+  const A=cvtAns(q), a=numFmt(A.a), f='<i>f</i>', fp='<i>f</i> ′', fpp='<i>f</i> ″';
+  let h='';
+  h+='<p class="tx-part">1. Le signe de '+fpp+'(<i>x</i>) sur <i>I</i> = '+A.I+'</p>'
+    +'<div class="tg-line">Pour tout réel <i>x</i> de <i>I</i> : '
+    +A.fac.map(function(fc,i){ return '<span class="tg-coef"><span>'+fc.h+'</span> '+cvtSigneSel('cvt-f'+i,fc.t)+'</span>'; }).join(' et ')
+    +'</div>'
+    +'<div class="tg-line">donc <span class="tg-coef"><span>'+fpp+'(<i>x</i>) = '+A.fpp+'</span> '+cvtSigneSel('cvt-spp','aff')+'</span></div>';
+  h+='<p class="tx-part">2. La convexité de '+f+'</p>'
+    +'<div class="tg-line">La fonction '+f+' est donc '+cvtSel('cvt-cv',[['convexe','convexe'],['concave','concave']])+' sur <i>I</i>.</div>';
+  h+='<p class="tx-part">3. La tangente <i>T</i> au point d’abscisse '+a+'</p>'
+    +'<div class="tg-line"><span class="tg-eq">'+f+'('+a+') =</span> '+txInp('cvt-fa')+' <span style="margin-left:14px" class="tg-eq">'+fp+'('+a+') =</span> '+txInp('cvt-fpa')+'</div>'
+    +'<div class="tg-line"><span class="tg-eq"><i>T</i> : <i>y</i> = '+fp+'('+a+')(<i>x</i> − '+(A.a<0?'('+a+')':a)+') + '+f+'('+a+')</span></div>'
+    +'<div class="tg-line"><span class="tg-imp">⟺</span> <span class="tg-eq"><i>y</i> =</span> <span class="tg-coef">'+txInp('cvt-m')+'<i>x</i></span>'+(A.pT===0?'':' '+txInp('cvt-p'))+'</div>';
+  h+='<p class="tx-part">4. La position de la courbe</p>'
+    +'<div class="tg-line">Sur <i>I</i>, la courbe de '+f+' est donc située '+cvtSel('cvt-pos',[['dessus','au-dessus'],['dessous','au-dessous']])+' de sa tangente <i>T</i>.</div>';
+  h+='<p class="tx-part">5. Conclusion</p>'
+    +'<div class="tg-line">Pour tout réel <i>x</i> de <i>I</i> : <span class="tg-coef"><span>'+A.f+'</span> '+cvtSel('cvt-in',[['>=','≥'],['<=','≤']])+' <span class="cvt-mir" id="cvt-mir">…</span></span></div>';
+  return '<div class="tg-form">'+h+'</div>';
+}
+/* Le second membre de la conclusion recopie l'équation de T telle que l'élève
+   l'écrit (ou la correction, une fois la question corrigée) : ce n'est pas
+   une réponse, rien ne s'y juge. */
+function cvtMiroir(){
+  const mir=$('cvt-mir'); if(!mir) return;
+  if(test.locked && test.kind==='cvt'){ mir.innerHTML=cvtT(cvtAns(test.questions[test.idx])); return; }
+  const m=$('cvt-m'), p=$('cvt-p');
+  const rm=String(m?m.value:'').trim(), rp=String(p?p.value:'').trim();
+  if(rm==='' && rp===''){ mir.innerHTML='…'; return; }
+  const sp=rp.replace(/^\+/,'').replace(/^[-−–]/,'');
+  const signe=/^[-−–]/.test(rp)?' − ':' + ';
+  mir.innerHTML=esc(rm.replace(/^-$/,'−').replace(/^-/,'−'))+'<i>x</i>'+(rp===''?'':signe+esc(sp));
+}
+async function startCvt(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='convexite-tangente'; test.kind='cvt';
+  test.questions=cvtBuildQuestions();
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('cvt'); renderCvt();
+}
+function renderCvt(){
+  const q=test.questions[test.idx], A=cvtAns(q); test.locked=false;
+  $('cvtQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('cvtModeTag').innerHTML=modeTagHTML();
+  $('cvtLiveScore').textContent=test.score;
+  $('cvtFeedback').textContent=''; $('cvtFeedback').className='mp-feedback';
+  $('cvtActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkCvt()">Vérifier</button>';
+  const def='Soit <i>f</i> la fonction définie sur <i>I</i> = '+A.I+' par <i>f</i>(<i>x</i>) = '+A.f
+    +'. On admet que <i>f</i> est deux fois dérivable sur <i>I</i>, avec <i>f</i> ′(<i>x</i>) = '+A.fp
+    +' et <i>f</i> ″(<i>x</i>) = '+A.fpp+'. On note <i>T</i> la tangente à sa courbe au point d’abscisse '+numFmt(A.a)+'. ';
+  $('cvtPrompt').innerHTML=def+(q.v===1
+    ? '<b>Démontre que, pour tout réel <i>x</i> de <i>I</i>, '+A.f+' '+(A.ineg==='>='?'≥':'≤')+' '+cvtT(A)+'.</b> Complète la démonstration.'
+    : '<b>Étudie la convexité de <i>f</i> sur <i>I</i>, détermine <i>T</i>, puis déduis-en une inégalité.</b> Complète la démonstration.');
+  $('cvtForm').innerHTML=cvtFormHTML(q);
+  ['cvt-m','cvt-p'].forEach(function(id){ const el=$(id); if(el) el.addEventListener('input',cvtMiroir); });
+  setTimeout(cvtMiroir,0);   /* une reprise remet les saisies (restoreBoxes) après le rendu */
+  if(isSoutien()){
+    cvtCases(q).forEach(function(x){ const el=$(x.id); if(!el) return;
+      el.addEventListener(el.tagName==='SELECT'?'change':'input',function(){ checkCvt(true); }); });
+  }
+}
+/* Le coefficient 1 de x s'omet, comme au 4.2.2 (M76) : la case vide de m vaut
+   1 quand la case de p, sur la même ligne, est remplie et juste — c'est la
+   ligne qui prouve que le vide voulait dire 1. « − » seul vaut −1. */
+function cvtJuge(x, raw){
+  if(x.type==='sel') return raw===x.good;
+  const v=(x.type==='coef') ? tgParseCoef(raw) : tgParse(raw);
+  return v!==null && v===x.good;
+}
+function checkCvt(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], A=cvtAns(q), cases=cvtCases(q);
+  /* UNE CASE VIDE NE ROUGIT JAMAIS : on juge d'abord tout, on ne peint
+     qu'ensuite, et corrCase remplit la case vide en vert à la fin. */
+  let allOk=true, anyFilled=false;
+  const etats=cases.map(function(x){
+    const el=$(x.id); if(!el) return null;
+    const raw=String(el.value||''), vide=(raw.trim()==='');
+    if(!vide) anyFilled=true;
+    return {x:x, el:el, raw:raw, vide:vide, ok:cvtJuge(x,raw)};
+  }).filter(function(e){ return !!e; });
+  const em=etats.find(function(e){ return e.x.id==='cvt-m'; }), ep=etats.find(function(e){ return e.x.id==='cvt-p'; });
+  if(em && em.vide && A.m===1 && ep && !ep.vide && ep.ok){ em.ok=true; em.omis=true; }
+  etats.forEach(function(e){ if(!e.ok) allOk=false; });
+  const peindre=function(){ etats.forEach(function(e){
+    e.el.classList.remove('ok','bad');
+    if(!e.vide) e.el.classList.add(e.ok?'ok':'bad');
+  }); };
+  if(live){ peindre(); return; }
+  if(!anyFilled){ $('cvtFeedback').textContent='Complète au moins une case avant de vérifier.'; $('cvtFeedback').className='mp-feedback'; return; }
+  if(!allOk && isSoutien()){
+    peindre();
+    etats.forEach(function(e){ if(e.ok) e.el.disabled=true; });
+    $('cvtFeedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('cvtFeedback').className='mp-feedback bad';
+    $('cvtActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkCvt()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  etats.forEach(function(e){
+    if(e.omis){ e.el.classList.remove('ok','bad','sol'); e.el.classList.add('ok'); e.el.disabled=true; return; }
+    corrCase(e.x.id, (e.x.type==='sel')?String(e.x.good):numFmt(e.x.good), e.ok);
+  });
+  cvtMiroir();   /* verrouillée : le miroir montre l'équation corrigée */
+  if(allOk){
+    test.score++; $('cvtLiveScore').textContent=test.score;
+    $('cvtFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, démonstration complète !']);
+    $('cvtFeedback').className='mp-feedback good';
+  } else {
+    const nbVides=etats.filter(function(e){ return e.vide && !e.omis; }).length;
+    $('cvtFeedback').innerHTML='Quelques erreurs — ce qui est faux reste en rouge, la bonne réponse est à côté en vert'
+      +(nbVides?(nbVides>1?', et les cases restées vides ont été remplies en vert':', et la case restée vide a été remplie en vert'):'')+'.<br>'
+      +'Retiens la chaîne : <i>f</i> ″ ≥ 0 sur <i>I</i> ⟹ <i>f</i> convexe sur <i>I</i> ⟹ sa courbe est AU-DESSUS de chacune de ses tangentes sur <i>I</i> ⟹ <i>f</i>(<i>x</i>) ≥ (équation de la tangente). Avec <i>f</i> ″ ≤ 0, tout se retourne : concave, au-dessous, ≤.';
+    $('cvtFeedback').className='mp-feedback bad';
+  }
+  test.answers.push({...(ptsExo()||{}),q:'Convexité — inégalité par une tangente (question '+(test.idx+1)+')',
+    answer:'f″ '+CVT_SYMB[A.spp]+' sur '+A.I.replace(/<[^>]+>/g,'')+' — f '+A.cv+' — f('+A.a+') = '+A.fa+', f′('+A.a+') = '+A.fpa+' — T : y = '+cvtT(A).replace(/<[^>]+>/g,'')+' — courbe au-'+A.pos+' de T — f(x) '+(A.ineg==='>='?'≥':'≤')+' '+cvtT(A).replace(/<[^>]+>/g,''),
+    given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('cvtActions').innerHTML='<button class="btn btn-primary" onclick="nextCvt()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextCvt(){ if(test.idx<test.questions.length-1){ test.idx++; renderCvt(); } else finishTest(); }
+function cvtConseilCtx(){
+  const q=test.questions[test.idx], A=cvtAns(q), cases=cvtCases(q);
+  const brut=function(h){ return String(h).replace(/<sup>/g,'^(').replace(/<\/sup>/g,')').replace(/<[^>]+>/g,''); };
+  const lu=function(id){ const el=$(id); if(!el) return '(vide)'; const v=String(el.value||'').trim(); return v===''?'(vide)':'« '+v+' »'; };
+  return 'Exercice « Convexité — inégalité par une tangente ». f(x) = '+brut(A.f)+' sur I = '+brut(A.I)+' ; on admet f′(x) = '+brut(A.fp)+' et f″(x) = '+brut(A.fpp)+'. T est la tangente au point d’abscisse '+A.a+'. '
+   +'L’élève complète une démonstration à trous : le signe des facteurs de f″ sur I et le signe de f″, la convexité de f, f(a), f′(a) et l’équation réduite de T, la position de la courbe par rapport à T, puis le sens de l’inégalité f(x) ≥ ou ≤ (équation de T). '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : f″(x) '+CVT_SYMB[A.spp]+' sur I ; f est '+A.cv+' ; f('+A.a+') = '+A.fa+' ; f′('+A.a+') = '+A.fpa+' ; T : y = '+brut(cvtT(A))+' ; courbe au-'+A.pos+' de T ; inégalité : f(x) '+(A.ineg==='>='?'≥':'≤')+' '+brut(cvtT(A))+'. '
+   +'Saisies actuelles : '+cases.map(function(x){ return x.id.replace('cvt-','')+' '+lu(x.id); }).join(' ; ')
+   +'. Méthode à faire appliquer, sans donner la réponse : une exponentielle est toujours strictement positive ; le signe de x + c se lit sur l’intervalle I ; f″ ≥ 0 sur I veut dire f convexe sur I, et la courbe d’une fonction convexe est au-dessus de toutes ses tangentes (au-dessous si concave) ; T : y = f′(a)(x − a) + f(a), qu’on développe et réduit. Aide sur la PREMIÈRE case fausse ou vide.';
+}
 
 /* ================= Exercice Terminale : associer f, f′ et f″ (kind 'afd') =================
    Le pendant d'{associer-derivee} pour la convexité (demande de Turquet,
@@ -19340,6 +19609,11 @@ const RAP_CVQ=`<b>Convexité : répondre à un QCM depuis la courbe de f\u2009�
 \u2022 <b>Un tableau de variations de f\u2009′</b> se lit pareil : f est convexe sur les colonnes où la flèche monte, concave où elle descend ; un 0 posé au milieu d'une flèche est un zéro de f\u2009′, pas un changement de convexité.<br>
 \u2022 <b>Si c'est f\u2009″ qui est dessinée</b> : f est convexe là où f\u2009″ est POSITIVE (au-dessus de l'axe), f\u2009′ y est croissante ; là où f\u2009″ s'annule en changeant de signe, f\u2009′ admet un extremum (+ puis − : maximum) et f un point d'inflexion. Un sommet de f\u2009″ ne dit rien.<br>
 \u2022 <b>Une affirmation sur un intervalle</b> n'est vraie que si le point d'inflexion n'est PAS strictement à l'intérieur : un intervalle qui l'enjambe contient un changement de convexité. Une seule affirmation est vraie : élimine les trois pièges.`;
+const RAP_CVT=`<b>Convexité : démontrer une inégalité grâce à une tangente</b><br>
+\u2022 <b>Le signe de f\u2009″ sur I</b> : une exponentielle est TOUJOURS strictement positive ; le signe d'un facteur <i>x</i> + <i>c</i> se lit sur l'intervalle I (sur [−2 ; +∞[, <i>x</i> + 2 ≥ 0). Le signe d'un produit en découle.<br>
+\u2022 <b>f\u2009″ ≥ 0 sur I</b> : f est CONVEXE sur I, et sa courbe est située AU-DESSUS de chacune de ses tangentes sur I. <b>f\u2009″ ≤ 0 sur I</b> : f est CONCAVE, sa courbe est AU-DESSOUS de ses tangentes.<br>
+\u2022 <b>La tangente au point d'abscisse <i>a</i></b> : <i>y</i> = f\u2009′(<i>a</i>)(<i>x</i> − <i>a</i>) + f(<i>a</i>), qu'on développe et réduit en <i>y</i> = <i>mx</i> + <i>p</i>.<br>
+\u2022 <b>L'inégalité</b> : « au-dessus de T » veut dire f(<i>x</i>) ≥ <i>mx</i> + <i>p</i> pour tout <i>x</i> de I. Exemple : f(<i>x</i>) = e<sup><i>x</i></sup> est convexe sur ℝ (f\u2009″(<i>x</i>) = e<sup><i>x</i></sup> &gt; 0), sa tangente en 0 est <i>y</i> = <i>x</i> + 1, donc e<sup><i>x</i></sup> ≥ <i>x</i> + 1 pour tout réel <i>x</i>.`;
 const RAP_AFD=`<b>Associer f, f\u2009′ et f\u2009″ sur leurs courbes</b><br>
 \u2022 <b>La dérivée se lit sur le SENS de variation</b> : là où f croît, la courbe de f\u2009′ est au-dessus de l'axe ; là où f décroît, au-dessous. Chaque maximum ou minimum de f est un point où la courbe de f\u2009′ COUPE l'axe.<br>
 \u2022 <b>La dérivée seconde se lit sur la CONVEXITÉ</b> : là où f est convexe (la courbe « sourit », au-dessus de ses tangentes), la courbe de f\u2009″ est au-dessus de l'axe ; là où f est concave, au-dessous. Un point d'inflexion de f est un point où la courbe de f\u2009″ coupe l'axe.<br>
@@ -19410,7 +19684,7 @@ const RAP_SAP=`<b>Approcher une limite avec un algorithme</b><br>
 • <b>La boucle <code>while</code></b> tourne TANT QUE sa condition est vraie : ici, tant qu’on est encore trop loin, <code>while abs(u - l) &gt;= 0.001:</code>. Elle s’arrête au premier rang où l’écart passe sous 10<sup>−3</sup>.<br>
 • <b>10<sup>−3</sup> en Python</b> : <code>0.001</code>, ou <code>10**-3</code>, ou <code>1e-3</code> — un point, jamais une virgule.<br>
 • <b>Pourquoi la boucle s’arrête</b> : la suite CONVERGE vers ℓ, donc l’écart |U<sub><i>n</i></sub> − ℓ| finit par devenir aussi petit qu’on veut. Pour une suite qui ne convergerait pas, le programme pourrait tourner sans fin.`;
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -28177,7 +28451,7 @@ function focusPremiereCase(){
   }, 0);
 }
 ['renderQuestion','renderTVI','renderTVI2','renderTVI3','renderTVINS','renderTVG','renderDHV','renderLG','renderLG2','renderLG3',
- 'renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderSV','renderTG','renderS1','renderS2','renderCvx'
+ 'renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderSV','renderTG','renderS1','renderS2','renderCvx','renderCvt'
 ].forEach(function(n){
   const f=window[n];
   if(typeof f==='function'){
@@ -28201,6 +28475,7 @@ try{
    imagé, programme de Terminale spécialité, définitions du cours autorisées, mais
    jamais les valeurs de l'exercice en cours. */
 const QIA_SUGG={
+  cvt:["Pourquoi la courbe d'une fonction convexe est-elle au-dessus de ses tangentes ?","Comment trouver le signe de f\u2009\u2033 sur un intervalle ?","Comment \u00e9crire l'\u00e9quation d'une tangente ?","Comment passer de \u00ab au-dessus de la tangente \u00bb \u00e0 une in\u00e9galit\u00e9 ?"],
   afd:["Comment reconna\u00eetre la courbe de f\u2009\u2032 en regardant celle de f ?","Comment lire la convexit\u00e9 de f sur la courbe de f\u2009\u2033 ?","Pourquoi f\u2009\u2033 s'annule-t-elle au sommet de la courbe de f\u2009\u2032 ?","Une parabole est-elle toujours une d\u00e9riv\u00e9e seconde ?"],
   cvq:["Comment lire la convexit\u00e9 de f sur la courbe de f\u2009\u2032 ?","Pourquoi un sommet de la courbe de f\u2009\u2032 est-il un point d'inflexion de f ?","Quelle diff\u00e9rence entre un z\u00e9ro de f\u2009\u2032 et un z\u00e9ro de f\u2009\u2033 ?","Comment lire la convexit\u00e9 de f sur la courbe de f\u2009\u2033 ?"],
   cvx:["Comment lire le signe de f\u2009\u2033 sur sa courbe ?","Pourquoi f\u2009\u2032 est-elle croissante l\u00e0 o\u00f9 f\u2009\u2033 est positive ?","Que se passe-t-il pour f au z\u00e9ro de f\u2009\u2033 ?","Comment trouver les variations de f \u00e0 partir de la courbe de f\u2009\u2032 ?"],
