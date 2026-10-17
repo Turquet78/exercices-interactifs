@@ -1431,6 +1431,25 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #pbHost .pb-case.pb-transp .pb-sel{background:transparent;border-color:rgba(187,208,247,.35);box-shadow:none}
 #pbHost .pb-case.pb-transp .pb-aff{opacity:.22}
 #pbHost .pbf-q .pb-ind .pb-sel,#pbHost .pbf-q .pb-ind .pb-aff{width:46px;height:28px;font-size:calc(.9rem * var(--tab-nb,1))}
+/* 3.5 à 3.9 : les phrases à choisir prennent la largeur qu'il leur faut, sans
+   jamais sortir de l'écran ; le « % » après sa case, à la taille des nombres ;
+   les propositions d'un QCM et l'arbre pondéré du 3.9. */
+#pbHost .pb-sel.pb-long{max-width:100%;padding:0 12px;font-size:calc(1rem * var(--tab-nb,1));text-align:left;text-align-last:left}
+.pb-est{font-family:"Nunito";font-weight:700}
+.pb-pct{font-family:"Fredoka";font-weight:600;font-size:calc(1.45rem * var(--tab-nb,1));color:var(--ink);margin-left:6px}
+.pb-nomp{white-space:nowrap}
+.pb-nomp sub{font-size:.72em}
+.pbq-props{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px;max-width:640px;margin:4px auto}
+.pbq-prop{display:flex;align-items:center;gap:12px;padding:8px 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface);
+  font-family:"Fredoka";font-weight:600;font-size:calc(1.3rem * var(--tab-nb,1));color:var(--ink)}
+.pbq-prop>b{font-family:"Nunito";font-size:.85em;color:var(--ink-soft)}
+.pbq-fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.1}
+.pbq-bar{align-self:stretch;height:2px;background:currentColor;margin:2px 0;border-radius:1px}
+.pb-arbre{display:block;margin:2px auto;max-width:100%;height:auto;color:var(--ink)}
+.pb-arbre-l{font-family:KaTeX_Math,"Cambria Math","Times New Roman",serif;font-style:italic;font-size:22px;fill:currentColor}
+.pb-arbre-p{font-family:"Fredoka";font-weight:600;font-size:16px;fill:var(--blue-dark)}
+.pb-arbre-q{fill:var(--red);font-size:19px}
+@media(max-width:560px){ .pbq-props{grid-template-columns:1fr} .pb-tab3 th,.pb-tab3 td{padding:3px 3px} .pb-tab3 td{min-width:44px} }
 @media(max-width:560px){ #pbHost .pb-ind .pb-sel,#pbHost .pb-ind .pb-aff,#pbHost .pbf-q .pb-ind .pb-sel,#pbHost .pbf-q .pb-ind .pb-aff{width:42px} }
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
@@ -2966,7 +2985,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=323;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=324;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3477,7 +3496,12 @@ const TESTS={
   /* Octobre 2026 : le 5.12 de la Seconde, nombres de 1 à 5, produit borné à 6
      et simplification par étapes (voir l'en-tête de startSpf). */
   'somme-produit-fractions': { name:'Une somme avec un produit dedans', icon:'\u2795', desc:'a/b + c/d\u00d7e/f, ou a/b \u2212 c/d\u00d7e/f\u00a0: la multiplication se calcule D\u2019ABORD, puis la somme (ou la diff\u00e9rence, toujours positive) se termine en croisant les d\u00e9nominateurs, ou sur un d\u00e9nominateur commun plus petit \u2014 et on simplifie la fraction finale si elle se simplifie. Une \u00e9tape par ligne, le \u00ab\u00a0=\u00a0\u00bb en t\u00eate. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startSpf() },
-  'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() }
+  'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() },
+  'probabilites-sens': { name:'Que veut dire cette probabilité ?', icon:'\ud83d\udcac', desc:'La page écrit une probabilité — P(A), P(A∩B), P sachant B… — et tu choisis la phrase qui la dit, parmi quatre : attention au « parmi » renversé, au « et » de l’intersection. Puis tu la calcules avec les effectifs du tableau.', start:()=>startPBSens() },
+  'tableau-trois-colonnes': { name:'Un tableau à trois colonnes', icon:'\ud83d\udccb', desc:'Un tableau de trois colonnes (Seconde, Première, Terminale ; à pied, à vélo, en bus…) sur deux lignes : complète-le, puis calcule sept probabilités. Le contraire d’une colonne, c’est les deux autres.', start:()=>startPB3() },
+  'frequences-arrondies': { name:'Probabilités en pourcentages', icon:'\ud83d\udcca', desc:'Une probabilité « sachant que » en pourcentage arrondi à l’unité, puis la phrase qui dit ce qu’elle signifie : « … % des garçons ont des lunettes », ou l’inverse ?', start:()=>startPBFreq() },
+  'independance': { name:'Évènements indépendants', icon:'\u2696\ufe0f', desc:'Un tableau par question : calcule P(B) et P sachant A en pourcentages, puis compare-les. Égales : savoir que A est réalisé ne change rien, A et B sont indépendants.', start:()=>startPBInd() },
+  'automatismes-probabilites': { name:'Automatismes : probabilités', icon:'\u26a1', desc:'Une série flash de dix QCM : lire un tableau, un arbre pondéré, le contraire, un pourcentage, la notation P sachant A, un dé… Choisis la bonne proposition parmi quatre.', start:()=>startPBAuto() }
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
 const FRAC_INFO={
@@ -3517,7 +3541,10 @@ const THEMES=[
      « proba 1 ». */
   /* Ordre revu par Turquet, octobre 2026 : {probabilites-ecriture} (d'abord
      3.4) remonte entre {lire-probabilites} et {tableau-probabilites}. */
-  { num:3, nom:'Probabilit\u00e9s', ids:['lire-probabilites','probabilites-ecriture','tableau-probabilites','probabilites-fiche'] },
+  /* Puis, le même mois, cinq exercices de plus (3.5 à 3.9), ajoutés EN
+     DERNIER : ils ne renumérotent rien. */
+  { num:3, nom:'Probabilit\u00e9s', ids:['lire-probabilites','probabilites-ecriture','tableau-probabilites','probabilites-fiche',
+    'probabilites-sens','tableau-trois-colonnes','frequences-arrondies','independance','automatismes-probabilites'] },
   /* Demande de Turquet, octobre 2026 : « mettre l'exercice de seconde 5.11 en
      première dans un nouveau thème fraction ». Ajouté EN DERNIER, il ne
      renumérote rien. {somme-fractions} reste dans le calcul mental : un
@@ -3652,7 +3679,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -3838,6 +3865,21 @@ function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dé
   const ok = !isNaN(n)&&!isNaN(d)&&d>0&&isPow10(d)&&n*td===tn*d;
   if(!en.disabled) en.classList.add((ok||n===tn)?'ok':'bad');
   if(!ed.disabled) ed.classList.add((ok||(isPow10(d)&&d===td))?'ok':'bad');
+}
+/* a × b = b × a : le calcul global « … × … = … » des schémas de pourcentages
+   accepte ses deux facteurs dans l'un ou l'autre ordre (demande de Turquet,
+   octobre 2026 — une copie « 0,80 × 0,30 = 0,24 » rougissait deux cases
+   justes). Rend les cibles des deux cases, ÉCHANGÉES quand l'écriture de
+   l'élève colle mieux à rebours : le juge, la correction écrite et le compte
+   rendu suivent alors l'ordre de l'élève. vaut(s, cible) juge une case. */
+function facteursCommutes(sa,sb,ca,cb,vaut){
+  const droit=(vaut(sa,ca)?1:0)+(vaut(sb,cb)?1:0), croise=(vaut(sa,cb)?1:0)+(vaut(sb,ca)?1:0);
+  return croise>droit ? [cb,ca] : [ca,cb];
+}
+/* la même chose pour deux cases décimales identifiées, de cibles nA/d et nB/d */
+function facteursCommutesDec(idA,idB,nA,nB,d){
+  const lu=id=>{ const el=$(id); return el ? String(el.value==null?'':el.value).trim() : ''; };
+  return facteursCommutes(lu(idA),lu(idB),nA,nB,(s,n)=>{ const fr=parseDecToFrac(s); return !!fr && fr.n*d===n*fr.d; });
 }
 function liveColorDec(id,tn,td){                       // case décimale
   const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
@@ -17401,22 +17443,28 @@ const PB_CTX=[
      J pour « jeune » : moins de 25 ans). Demande de Turquet, octobre 2026 :
      « que les lettres ne soient pas toujours A et B, mais correspondent aux
      évènements ». Les CODES restent A, B, nA, nB partout (réponses, pause,
-     juge) : seule l'écriture change, par pbLettre. */
+     juge) : seule l'écriture change, par pbLettre.
+     « tous » et p… (v324) : les mots AU PLURIEL des phrases qui interprètent
+     un pourcentage, au {frequences-arrondies} — « … % des garçons ont des
+     lunettes », « … % des personnes de la classe sont des garçons ». */
   { let:{A:'G',B:'L'}, ind:'La personne', A:'est un garçon', nA:'est une fille', B:'a des lunettes', nB:'n’a pas de lunettes',
     cA:'garçons', cnA:'filles', lB:'a des lunettes', lnB:'n’a pas de lunettes',
     nom:'la classe', de:'de la classe', ens:'une classe',
     un:'une personne', le:'la personne', iA:'être un garçon', inA:'être une fille', iB:'avoir des lunettes', inB:'ne pas avoir de lunettes',
-    gA:'les garçons', gnA:'les filles', gB:'les personnes qui ont des lunettes', gnB:'les personnes qui n’ont pas de lunettes' },
+    gA:'les garçons', gnA:'les filles', gB:'les personnes qui ont des lunettes', gnB:'les personnes qui n’ont pas de lunettes',
+    tous:'personnes de la classe', pA:'sont des garçons', pnA:'sont des filles', pB:'ont des lunettes', pnB:'n’ont pas de lunettes' },
   { let:{A:'E',B:'S'}, ind:'L’élève', A:'est externe', nA:'est demi-pensionnaire', B:'fait du sport en club', nB:'ne fait pas de sport en club',
     cA:'externes', cnA:'demi-pensionnaires', lB:'fait du sport en club', lnB:'n’en fait pas',
     nom:'la classe', de:'de la classe', ens:'une classe',
     un:'un élève', le:'l’élève', iA:'être externe', inA:'être demi-pensionnaire', iB:'faire du sport en club', inB:'ne pas faire de sport en club',
-    gA:'les externes', gnA:'les demi-pensionnaires', gB:'les élèves qui font du sport en club', gnB:'les élèves qui ne font pas de sport en club' },
+    gA:'les externes', gnA:'les demi-pensionnaires', gB:'les élèves qui font du sport en club', gnB:'les élèves qui ne font pas de sport en club',
+    tous:'élèves de la classe', pA:'sont externes', pnA:'sont demi-pensionnaires', pB:'font du sport en club', pnB:'ne font pas de sport en club' },
   { let:{A:'B',B:'C'}, ind:'L’élève', A:'prend le bus', nA:'ne prend pas le bus', B:'mange à la cantine', nB:'ne mange pas à la cantine',
     cA:'prend le bus', cnA:'ne prend pas le bus', lB:'mange à la cantine', lnB:'n’y mange pas',
     nom:'la classe', de:'de la classe', ens:'une classe',
     un:'un élève', le:'l’élève', iA:'prendre le bus', inA:'ne pas prendre le bus', iB:'manger à la cantine', inB:'ne pas manger à la cantine',
-    gA:'les élèves qui prennent le bus', gnA:'les élèves qui ne prennent pas le bus', gB:'les élèves qui mangent à la cantine', gnB:'les élèves qui ne mangent pas à la cantine' },
+    gA:'les élèves qui prennent le bus', gnA:'les élèves qui ne prennent pas le bus', gB:'les élèves qui mangent à la cantine', gnB:'les élèves qui ne mangent pas à la cantine',
+    tous:'élèves de la classe', pA:'prennent le bus', pnA:'ne prennent pas le bus', pB:'mangent à la cantine', pnB:'ne mangent pas à la cantine' },
   /* PAS TOUJOURS UNE CLASSE (demande de Turquet, octobre 2026 : « diversifie
      plus les énoncés, pas toujours une classe »). Chaque contexte nomme son
      ensemble : nom (« dans l’entreprise »), de (« tout l’effectif du club »),
@@ -17425,27 +17473,32 @@ const PB_CTX=[
     cA:'temps plein', cnA:'temps partiel', lB:'vient en voiture', lnB:'n’y vient pas en voiture',
     nom:'l’entreprise', de:'de l’entreprise', ens:'une entreprise',
     un:'un salarié', le:'le salarié', iA:'travailler à temps plein', inA:'travailler à temps partiel', iB:'venir au travail en voiture', inB:'ne pas venir au travail en voiture',
-    gA:'les salariés à temps plein', gnA:'les salariés à temps partiel', gB:'les salariés qui viennent en voiture', gnB:'les salariés qui ne viennent pas en voiture' },
+    gA:'les salariés à temps plein', gnA:'les salariés à temps partiel', gB:'les salariés qui viennent en voiture', gnB:'les salariés qui ne viennent pas en voiture',
+    tous:'salariés de l’entreprise', pA:'travaillent à temps plein', pnA:'travaillent à temps partiel', pB:'viennent au travail en voiture', pnB:'ne viennent pas au travail en voiture' },
   { let:{A:'M',B:'C'}, ind:'L’adhérent', A:'est majeur', nA:'est mineur', B:'fait de la compétition', nB:'ne fait pas de compétition',
     cA:'majeurs', cnA:'mineurs', lB:'fait de la compétition', lnB:'n’en fait pas',
     nom:'le club', de:'du club', ens:'un club de sport',
     un:'un adhérent', le:'l’adhérent', iA:'être majeur', inA:'être mineur', iB:'faire de la compétition', inB:'ne pas faire de compétition',
-    gA:'les adhérents majeurs', gnA:'les adhérents mineurs', gB:'les adhérents qui font de la compétition', gnB:'les adhérents qui ne font pas de compétition' },
+    gA:'les adhérents majeurs', gnA:'les adhérents mineurs', gB:'les adhérents qui font de la compétition', gnB:'les adhérents qui ne font pas de compétition',
+    tous:'adhérents du club', pA:'sont majeurs', pnA:'sont mineurs', pB:'font de la compétition', pnB:'ne font pas de compétition' },
   { let:{A:'J',B:'P'}, ind:'Le spectateur', A:'a moins de 25 ans', nA:'a 25 ans ou plus', B:'a acheté du pop-corn', nB:'n’a pas acheté de pop-corn',
     cA:'moins de 25 ans', cnA:'25 ans ou plus', lB:'a acheté du pop-corn', lnB:'n’en a pas acheté',
     nom:'la salle', de:'de la salle', ens:'une salle de cinéma',
     un:'un spectateur', le:'le spectateur', iA:'avoir moins de 25 ans', inA:'avoir 25 ans ou plus', iB:'avoir acheté du pop-corn', inB:'ne pas avoir acheté de pop-corn',
-    gA:'les spectateurs de moins de 25 ans', gnA:'les spectateurs de 25 ans ou plus', gB:'les spectateurs qui ont acheté du pop-corn', gnB:'les spectateurs qui n’ont pas acheté de pop-corn' },
+    gA:'les spectateurs de moins de 25 ans', gnA:'les spectateurs de 25 ans ou plus', gB:'les spectateurs qui ont acheté du pop-corn', gnB:'les spectateurs qui n’ont pas acheté de pop-corn',
+    tous:'spectateurs de la salle', pA:'ont moins de 25 ans', pnA:'ont 25 ans ou plus', pB:'ont acheté du pop-corn', pnB:'n’ont pas acheté de pop-corn' },
   { let:{A:'F',B:'T'}, ind:'Le vacancier', A:'est français', nA:'est étranger', B:'loge sous une tente', nB:'ne loge pas sous une tente',
     cA:'français', cnA:'étrangers', lB:'loge sous une tente', lnB:'n’y loge pas',
     nom:'le camping', de:'du camping', ens:'un camping',
     un:'un vacancier', le:'le vacancier', iA:'être français', inA:'être étranger', iB:'loger sous une tente', inB:'ne pas loger sous une tente',
-    gA:'les vacanciers français', gnA:'les vacanciers étrangers', gB:'les vacanciers qui logent sous une tente', gnB:'les vacanciers qui ne logent pas sous une tente' },
+    gA:'les vacanciers français', gnA:'les vacanciers étrangers', gB:'les vacanciers qui logent sous une tente', gnB:'les vacanciers qui ne logent pas sous une tente',
+    tous:'vacanciers du camping', pA:'sont français', pnA:'sont étrangers', pB:'logent sous une tente', pnB:'ne logent pas sous une tente' },
   { let:{A:'C',B:'L'}, ind:'Le joueur', A:'joue sur console', nA:'ne joue pas sur console', B:'joue en ligne', nB:'ne joue pas en ligne',
     cA:'sur console', cnA:'pas sur console', lB:'joue en ligne', lnB:'pas en ligne',
     nom:'le tournoi', de:'du tournoi', ens:'un tournoi de jeux vidéo',
     un:'un joueur', le:'le joueur', iA:'jouer sur console', inA:'ne pas jouer sur console', iB:'jouer en ligne', inB:'ne pas jouer en ligne',
-    gA:'les joueurs sur console', gnA:'les joueurs qui ne jouent pas sur console', gB:'les joueurs qui jouent en ligne', gnB:'les joueurs qui ne jouent pas en ligne' }
+    gA:'les joueurs sur console', gnA:'les joueurs qui ne jouent pas sur console', gB:'les joueurs qui jouent en ligne', gnB:'les joueurs qui ne jouent pas en ligne',
+    tous:'joueurs du tournoi', pA:'jouent sur console', pnA:'ne jouent pas sur console', pB:'jouent en ligne', pnB:'ne jouent pas en ligne' }
 ];
 /* Les neuf cases du tableau, ligne par ligne : la ligne B, la ligne B̄, la
    ligne des totaux. Le code d'un évènement désigne sa case. */
@@ -17593,14 +17646,15 @@ function lpEnonce(q){
 /* La lettre AFFICHÉE d'un code (« A » ou « B ») : celle du contexte de la
    séance (PB_CTX, « let »). Une pause sans « let » garde A et B. */
 function pbLettre(e){
-  const q=test.questions && test.questions[0], C=q && PB_CTX[q.ci];
+  /* le tableau à trois colonnes du 3.6 a ses contextes à lui (PB3_CTX) */
+  const q=test.questions && test.questions[0], C=q && pbCtx(q);
   return (C && C.let && C.let[e]) || e;
 }
 /* L'indice VIDE de P se dit « rien » au 3.1 ; sur la fiche (3.3) il se dit
    « tout » — on prend parmi tout (demande de Turquet, octobre 2026). */
 function pbRien(){ return (typeof test!=='undefined' && test.qId==='probabilites-fiche') ? 'tout' : 'rien'; }
-function pbTxt(c){ return c==='0' ? pbRien() : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? pbLettre(e.charAt(1))+'̅' : pbLettre(e)).join(' ∩ '); }
-function pbHTML(c){ return c==='0' ? '<span class="pb-rien">'+pbRien()+'</span>' : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? '<i class="pb-bar">'+pbLettre(e.charAt(1))+'</i>' : '<i>'+pbLettre(e)+'</i>').join(' ∩ '); }
+function pbTxt(c){ return c==='0' ? pbRien() : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? pbLettre(e.slice(1))+'̅' : pbLettre(e)).join(' ∩ '); }
+function pbHTML(c){ return c==='0' ? '<span class="pb-rien">'+pbRien()+'</span>' : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? '<i class="pb-bar">'+pbLettre(e.slice(1))+'</i>' : '<i>'+pbLettre(e)+'</i>').join(' ∩ '); }
 /* Le tableau et la méthode en texte, pour le modèle : avec les lettres de la séance. */
 function pbEffTxt(v){
   return 'Effectifs : '+pbTxt('A.B')+' = '+v[0]+', '+pbTxt('nA.B')+' = '+v[1]+', total '+pbTxt('B')+' = '+v[2]+', '+pbTxt('A.nB')+' = '+v[3]+', '+pbTxt('nA.nB')+' = '+v[4]+', total '+pbTxt('nB')+' = '+v[5]
@@ -17622,6 +17676,8 @@ function pbNomHTML(y,x){
 }
 /* Les cases d'une question, et ce qu'on attend dans chacune. */
 function pbAttendus(q){
+  /* les sortes de questions des 3.5 à 3.9 portent leurs cases elles-mêmes (PBX) */
+  if(PBX[q.t]) return PBX[q.t].att(q);
   if(q.t==='tab'){
     /* depuis la v306, les phrases contraires sont une question à part (« phr »),
        posée avant le tableau */
@@ -17756,6 +17812,7 @@ function renderPBTest(){
   $('pbLiveScore').textContent=test.score;
   $('pbFeedback').textContent=''; $('pbFeedback').className='mp-feedback';
   $('pbActions').innerHTML='<button class="btn btn-primary" onclick="checkPBAnswer()">Vérifier</button>';
+  if(PBX[q.t]){ PBX[q.t].render(q); return; }
   if(q.t==='tab' || q.t==='phr'){
     /* v306 : les phrases contraires d'abord, SANS le tableau ; le tableau
        vient à la question suivante (au 3.3, à compléter) */
@@ -17835,11 +17892,13 @@ function renderPBTest(){
 function pbLu(id){
   const el=$(id); if(!el) return '';
   if(el.tagName==='SELECT') return String(el.value||'');
-  return String(pmPlain(el)||'').replace(/\s/g,'');
+  /* un pourcentage s'écrit avec ou sans son « % » : la page l'écrit après la case */
+  return String(pmPlain(el)||'').replace(/\s/g,'').replace(/\\?%$/,'');
 }
 /* Le message nomme la MÉTHODE de la question, avec ses nombres : « faux »
    tout court ne dit pas où reprendre. */
 function pbPourquoi(q){
+  if(PBX[q.t]) return PBX[q.t].pourquoi(q);
   if(q.t==='tab'){
     const C=PB_CTX[q.ci]||PB_CTX[0];
     return 'Dans le tableau, chaque total est la somme de sa ligne (ou de sa colonne) : une case qui manque se trouve par une soustraction.';
@@ -17894,14 +17953,16 @@ function checkPBAnswer(live){
       : pbPourquoi(q);
     $('pbFeedback').className='mp-feedback bad';
   }
-  const dit=v=>((PB_EVTS.indexOf(v)>=0 || v==='0') ? pbTxt(v) : v);
+  const X=PBX[q.t];
+  const dit=(v,id)=>(X && X.dit) ? X.dit(id,v,q) : X ? v : ((PB_EVTS.indexOf(v)>=0 || v==='0') ? pbTxt(v) : v);
   test.answers.push({...(ptsExo()||{}),
-    q: q.t==='tab' ? 'Compléter le tableau'
+    q: X ? X.label(q)
+     : q.t==='tab' ? 'Compléter le tableau'
      : q.t==='phr' ? 'Compléter les phrases contraires'
      : q.t==='ln' ? 'P'+(pbItem(q)[1]==='T' ? '' : '_'+pbTxt(pbItem(q)[1]))+'('+pbTxt(pbItem(q)[0])+')'
                    : lpEnonce(q)+' — P'+(pbItem(q)[1]==='T' ? '' : '_'+pbTxt(pbItem(q)[1]))+'('+pbTxt(pbItem(q)[0])+')',
-    answer: ids.map(id=>dit(att[id])).join(' ; '),
-    given: ids.map(id=>dit(pbLu(id))||'?').join(' ; '),
+    answer: ids.map(id=>dit(att[id],id)).join(' ; '),
+    given: ids.map(id=>dit(pbLu(id),id)||'?').join(' ; '),
     correct: allOk});
   const last=test.idx===test.questions.length-1;
   $('pbActions').innerHTML='<button class="btn btn-primary" id="pbNext" onclick="nextPBQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
@@ -18121,6 +18182,515 @@ function pbfCtxTexte(){
     +pbMethodeTxt()
     +'L’erreur classique est de diviser par le total dans une probabilité conditionnelle.';
 }
+/* ---------- 3.5 à 3.9 : CINQ EXERCICES DE PLUS SUR LE MÊME MOTEUR ----------
+   Demande de Turquet (octobre 2026) : « fais l'exercice 3)h) et 4)k) et 4)l)
+   et 4)m) et 5)n) » — cinq des idées proposées pour compléter le thème :
+   {probabilites-sens} (3.5) — la page écrit P_L(G̅) ; l'élève choisit la
+     phrase qui la dit, parmi quatre dont les trois pièges du thème (le
+     renversement, l'intersection, la probabilité sans condition), puis la
+     calcule avec les effectifs ;
+   {tableau-trois-colonnes} (3.6) — un tableau 3 × 2 : il n'y a plus UN
+     contraire, la colonne se cherche, et le contraire d'une colonne est la
+     somme des deux autres ;
+   {frequences-arrondies} (3.7) — une probabilité conditionnelle en
+     pourcentage arrondi à l'unité, puis la phrase qui l'interprète ;
+   {independance} (3.8) — P_X(Y) comparé à P(Y), un tableau par question,
+     indépendants une fois sur deux ;
+   {automatismes-probabilites} (3.9) — une série flash de QCM, une question
+     de chaque sorte : tableau, arbre, complémentaire, notation, dé…
+   UN MOTEUR, CINQ IDENTITÉS DE PLUS : le kind reste « pb », l'écran
+   #scr-pbtest, le juge checkPBAnswer, la fin finishPB. Chaque sorte de
+   question (q.t) range dans PBX ses cases attendues (att), son rendu
+   (render), son message (pourquoi), son intitulé pour le bilan (label), la
+   lecture d'un choix (dit) et le contexte du modèle (ctx) : le reste du
+   moteur ne la connaît que par là. CHAQUE CASE SE JUGE SEULE, comme partout
+   dans le thème : une case juste ne rougit jamais pour une voisine. Les
+   propositions et leur ordre sont rangés dans la question (opts, ordre),
+   jamais retirés à l'affichage. */
+function pbCtx(q){ return (q && q.c3) ? (PB3_CTX[q.ci]||PB3_CTX[0]) : (PB_CTX[q && q.ci]||PB_CTX[0]); }
+function pbNeg(e){ return e.charAt(0)==='n' ? e.slice(1) : 'n'+e; }
+/* un évènement simple de L'AUTRE critère */
+function pbAutre(e){ return /A$/.test(e) ? pick(['B','nB']) : pick(['A','nA']); }
+function pbNomTxt(y,x){ return x==='T' ? 'P('+pbTxt(y)+')' : 'P_'+pbTxt(x)+'('+pbTxt(y)+')'; }
+/* le nom DANS une phrase : à la taille du texte, pas à celle des lignes de calcul */
+function pbNomPetit(y,x){ return '<span class="pb-nomp"><i>P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+')</span>'; }
+function pbDec(v){ return String(Math.round(v*100)/100).replace('.',',').replace('-','−'); }
+function pbFr(a,b){ return '<span class="pbq-fr"><span>'+a+'</span><span class="pbq-bar"></span><span>'+b+'</span></span>'; }
+function pbMaj(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+/* « la probabilité d'être un garçon parmi les filles » : les mots de PB_CTX */
+function pbPhrase(C,y,x){
+  const py=y.split('.').map(e=>lpDe(C['i'+e])).join(' et ');
+  return 'la probabilité '+py+(x==='T' ? ' dans '+pbNom(C) : ' parmi '+C['g'+x]);
+}
+/* La ligne des effectifs : P…(…) = effectif / effectif. */
+function pbxLigneEff(nom, suite){
+  return '<div class="pt-row">'+nom
+    +fEq('<span class="f-frac-input">'+pbMf('pb-n1','numérateur : un effectif du tableau')
+      +'<span class="f-fbar"></span>'+pbMf('pb-n2','dénominateur : un effectif du tableau')+'</span>')
+    +(suite||'')+'</div>';
+}
+/* Un pourcentage : « = » ou « ≈ », la case, puis « % » — le signe ne se
+   sépare jamais de la case qu'il annonce. */
+function pbxPct(id, signe, lab){
+  return '<span class="f-grp"><span class="f-eq">'+signe+'</span>'+pbMf(id, lab)+'<span class="pb-pct">%</span></span>';
+}
+function pbxTable(q){ return '<div class="pt-step">'+pbTableHTML(q,false)+'</div><div class="pt-step pb-enonce-ici" id="pbEnonceIci"></div>'; }
+const PBX={};
+
+/* ---- 3.5 {probabilites-sens} : que veut dire cette probabilité ? ---- */
+function pbSensPieges(y,x){
+  if(x!=='T') return [[x,y],[pbInter(y,x),'T'],[y,'T']];
+  if(y.indexOf('.')>=0){ const p=y.split('.'); return [[p[1],p[0]],[p[0],p[1]],[pick(p),'T']]; }
+  return [[pbNeg(y),'T'],[y,pbAutre(y)],[pbInter(y,pbAutre(y)),'T']];
+}
+function sensSeance(){
+  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[];
+  pbSeptTirees().forEach(e=>qs.push(distincte(qs, ()=>({ t:'sens', it:'ev', ev:e, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{},
+    opts:qdMelanger([e].concat(pbSensPieges(e[0],e[1]))).map(c=>c[0]+'|'+c[1]) }))));
+  return qs;
+}
+function pbCode(c){ const p=String(c).split('|'); return { y:p[0], x:p[1] }; }
+PBX.sens={
+  att(q){ const y=q.ev[0], x=q.ev[1];
+    return { 'pb-sens':y+'|'+x, 'pb-n1':String(pbEff(q,pbInter(y,x))), 'pb-n2':String(pbEff(q,x)) }; },
+  render(q){
+    const C=pbCtx(q), nom=pbNomHTML(q.ev[0], q.ev[1]);
+    $('pbPrompt').innerHTML='Que veut dire cette probabilité ? Choisis la phrase qui la dit, puis calcule-la avec les effectifs du tableau.';
+    const opts=q.opts.map(c=>{ const k=pbCode(c); return { v:c, t:pbMaj(pbPhrase(C,k.y,k.x)) }; });
+    $('pbHost').innerHTML=pbxTable(q)
+      +'<div class="pt-step">'
+        +'<p class="pb-def pb-phrase pb-centre">'+nom+' <span class="pb-est">est</span> '
+          +pbSel(q,'pb-sens',opts,'la phrase qui dit cette probabilité','pb-mots pb-long')+'</p>'
+        +pbxLigneEff(nom)
+      +'</div>';
+    pbPlacerEnonce(true);
+  },
+  pourquoi(q){
+    const C=pbCtx(q), y=q.ev[0], x=q.ev[1], s=pbInter(y,x);
+    if(x==='T') return (y.indexOf('.')>=0 ? '« ∩ » se dit « et », et ' : '')+'P sans indice regarde TOUT l’effectif : c’est « '+pbPhrase(C,y,x)+' ». '
+      +'On compte '+pbHTML(y)+' parmi tout : '+pbEff(q,y)+' sur '+pbEff(q,'T')+'.';
+    return 'L’indice '+pbHTML(x)+' est la CONDITION, il se dit « parmi » : c’est « '+pbPhrase(C,y,x)+' » — pas « parmi '+C['g'+y]+' ». '
+      +'On se place parmi '+pbHTML(x)+' ('+pbEff(q,x)+') et on y compte '+pbHTML(s)+' : '+pbEff(q,s)+' sur '+pbEff(q,x)+'.';
+  },
+  label(q){ return pbNomTxt(q.ev[0], q.ev[1])+' : la phrase, puis les effectifs'; },
+  dit(id,v,q){ if(id!=='pb-sens' || !v) return v; const k=pbCode(v); return pbPhrase(pbCtx(q),k.y,k.x); },
+  ctx(q){
+    const C=pbCtx(q);
+    return 'Tableau à double entrée qui représente '+C.ens+' : '+pbTxt('A')+' = « '+C.ind+' '+C.A+' », '+pbTxt('B')+' = « '+C.ind+' '+C.B+' ». '+pbEffTxt(pbValeurs(q.n))
+      +'La page écrit la probabilité '+pbNomTxt(q.ev[0],q.ev[1])+'. L’élève choisit, parmi quatre phrases, celle qui la dit : '
+      +q.opts.map(c=>{ const k=pbCode(c); return '« '+pbPhrase(C,k.y,k.x)+' »'; }).join(', ')
+      +'. Les pièges : le renversement (P_X(Y) lu P_Y(X)), l’intersection (« et » au lieu de « parmi »), la probabilité sans condition. '
+      +'Puis il écrit la fraction des EFFECTIFS du tableau, sans la simplifier. '+pbMethodeTxt();
+  }
+};
+
+/* ---- 3.6 {tableau-trois-colonnes} : un tableau 3 × 2 ----
+   Trois colonnes (C1, C2, C3 : trois classes, trois moyens de transport…) et
+   une ligne B, B̄. Les douze cases, ligne par ligne : la ligne B (et son
+   total), la ligne B̄, la ligne des totaux. Six cases DONNÉES, jamais une
+   ligne entière, et le tableau se résout pas à pas (pbResolubleDans). Le
+   contraire d'une colonne, C̄2, est TOUT SAUF C2 : la somme des deux autres
+   colonnes — l'élève ne le lit dans aucune case. Les codes C1, C2, C3 restent
+   les codes ; pbLettre en écrit l'initiale du contexte. */
+const PB3_CTX=[
+  { let:{C1:'S',C2:'P',C3:'T',B:'D'}, c1:'Seconde', c2:'Première', c3:'Terminale', lB:'demi-pensionnaire', lnB:'externe',
+    ens:'les élèves d’un lycée', nom:'le lycée', un:'un élève', ind:'L’élève',
+    C1:'est en Seconde', C2:'est en Première', C3:'est en Terminale', B:'est demi-pensionnaire', nB:'est externe' },
+  { let:{C1:'P',C2:'V',C3:'B',B:'H'}, c1:'à pied', c2:'à vélo', c3:'en bus', lB:'habite en ville', lnB:'hors de la ville',
+    ens:'les élèves d’un collège, selon leur façon de venir', nom:'le collège', un:'un élève', ind:'L’élève',
+    C1:'vient à pied', C2:'vient à vélo', C3:'vient en bus', B:'habite en ville', nB:'habite hors de la ville' },
+  { let:{C1:'C',C2:'A',C3:'N',B:'M'}, c1:'comédie', c2:'action', c3:'animation', lB:'majeur', lnB:'mineur',
+    ens:'les spectateurs d’un cinéma, selon le film choisi', nom:'le cinéma', un:'un spectateur', ind:'Le spectateur',
+    C1:'voit une comédie', C2:'voit un film d’action', C3:'voit un film d’animation', B:'est majeur', nB:'est mineur' },
+  { let:{C1:'F',C2:'B',C3:'T',B:'C'}, c1:'football', c2:'basket', c3:'tennis', lB:'compétition', lnB:'loisir',
+    ens:'les adhérents d’un club omnisport', nom:'le club', un:'un adhérent', ind:'L’adhérent',
+    C1:'fait du football', C2:'fait du basket', C3:'fait du tennis', B:'fait de la compétition', nB:'pratique en loisir' },
+  { let:{C1:'V',C2:'P',C3:'L',B:'D'}, c1:'viande', c2:'poisson', c3:'légumes', lB:'prend un dessert', lnB:'sans dessert',
+    ens:'les clients d’un restaurant, selon le plat choisi', nom:'le restaurant', un:'un client', ind:'Le client',
+    C1:'prend de la viande', C2:'prend du poisson', C3:'prend le plat de légumes', B:'prend un dessert', nB:'ne prend pas de dessert' }
+];
+/* m = les six cases du milieu : [C1∩B, C2∩B, C3∩B, C1∩B̄, C2∩B̄, C3∩B̄] */
+function pb3Valeurs(m){
+  const rB=m[0]+m[1]+m[2], rN=m[3]+m[4]+m[5];
+  return [m[0],m[1],m[2],rB, m[3],m[4],m[5],rN, m[0]+m[3],m[1]+m[4],m[2]+m[5],rB+rN];
+}
+const PB3_LIGNES=[[0,1,2,3],[4,5,6,7],[8,9,10,11],[0,4,8],[1,5,9],[2,6,10],[3,7,11]];
+function pbResolubleDans(k, lignes, nb){
+  const su=new Set(k);
+  if(lignes.some(l=>l.every(i=>su.has(i)))) return false;
+  let avance=true;
+  while(avance){ avance=false;
+    lignes.forEach(l=>{ const manque=l.filter(i=>!su.has(i)); if(manque.length===1){ su.add(manque[0]); avance=true; } }); }
+  return su.size===nb;
+}
+function pb3Tableau(){
+  const m=qdMelanger([2,3,4,5,6,7,8,9,10,11,12,13,14,15]).slice(0,6), v=pb3Valeurs(m), jeux=[];
+  const rec=(dep, k)=>{
+    if(k.length===6){ const vs=k.map(i=>v[i]); if(new Set(vs).size===6 && pbResolubleDans(k, PB3_LIGNES, 12)) jeux.push(k.slice()); return; }
+    for(let i=dep;i<12;i++){ k.push(i); rec(i+1,k); k.pop(); }
+  };
+  rec(0, []);
+  /* les six cases du milieu sont toujours un jeu valable : la liste n'est jamais vide */
+  return { m:m, k:pick(jeux) };
+}
+function pb3Eff(q,c){
+  const v=pb3Valeurs(q.m); let r;
+  if(c==='T') return v[11];
+  if(c==='B') return v[3];
+  if(c==='nB') return v[7];
+  if((r=/^C(\d)$/.exec(c))) return v[7+(+r[1])];
+  if((r=/^nC(\d)$/.exec(c))) return v[11]-v[7+(+r[1])];
+  if((r=/^C(\d)\.B$/.exec(c))) return v[(+r[1])-1];
+  if((r=/^C(\d)\.nB$/.exec(c))) return v[3+(+r[1])];
+  return NaN;
+}
+/* l'intersection s'écrit la colonne d'abord : P_D(S) se calcule sur S∩D */
+function pb3Inter(y,x){ return x==='T' ? y : (/^C\d$/.test(y) ? y+'.'+x : x+'.'+y); }
+function pb3TableHTML(q, saisie){
+  const C=pbCtx(q), v=pb3Valeurs(q.m);
+  const noms=['C1.B','C2.B','C3.B','B','C1.nB','C2.nB','C3.nB','nB','C1','C2','C3',''];
+  const cel=i=>{
+    const lab='<span class="pb-cl">'+(noms[i] ? pbHTML(noms[i]) : '&nbsp;')+'</span>';
+    const dedans=(saisie && q.k.indexOf(i)<0)
+      ? pbMf('pb-c'+i, 'effectif'+(noms[i]?' de '+pbTxt(noms[i]):' total'))
+      : '<span class="pb-v">'+v[i]+'</span>';
+    return '<td>'+lab+dedans+'</td>';
+  };
+  const ligne=(t,a)=>'<tr><th>'+t+'</th>'+a.map(cel).join('')+'</tr>';
+  return '<table class="pb-tab pb-tab3">'
+    +'<tr><th></th><th>'+pbHTML('C1')+' = '+esc(C.c1)+'</th><th>'+pbHTML('C2')+' = '+esc(C.c2)+'</th><th>'+pbHTML('C3')+' = '+esc(C.c3)+'</th><th>total</th></tr>'
+    +ligne(pbHTML('B')+' = '+esc(C.lB),[0,1,2,3])+ligne(pbHTML('nB')+' = '+esc(C.lnB),[4,5,6,7])+ligne('total',[8,9,10,11])
+    +'</table>';
+}
+function pb3Seance(){
+  const t=pb3Tableau(), ci=rand(0,PB3_CTX.length-1), qs=[];
+  const pose=o=>qs.push(distincte(qs, ()=>Object.assign(o,{ c3:1, m:t.m.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+  pose({ t:'tab3' });
+  const cols=qdMelanger(['C1','C2','C3']), rows=['B','nB'], conds=[];
+  ['C1','C2','C3'].forEach(c=>rows.forEach(r=>{ conds.push([r,c]); conds.push([c,r]); }));
+  /* une colonne, une ligne, le contraire d'une colonne, une intersection, puis trois conditionnelles */
+  [[cols[0],'T'],[pick(rows),'T'],['n'+cols[1],'T'],[cols[2]+'.'+pick(rows),'T']]
+    .concat(qdMelanger(conds).slice(0,3)).forEach(e=>pose({ t:'p3', ev:e }));
+  return qs;
+}
+function pb3CtxTxt(q){
+  const C=pbCtx(q), v=pb3Valeurs(q.m), L=e=>pbTxt(e);
+  return 'Tableau à TROIS colonnes qui représente '+C.ens+' : '+L('C1')+' = « '+C.ind+' '+C.C1+' », '+L('C2')+' = « '+C.ind+' '+C.C2+' », '
+    +L('C3')+' = « '+C.ind+' '+C.C3+' » ; '+L('B')+' = « '+C.ind+' '+C.B+' », '+L('nB')+' = « '+C.ind+' '+C.nB+' ». '
+    +'Effectifs : ligne '+L('B')+' : '+v[0]+', '+v[1]+', '+v[2]+' (total '+v[3]+') ; ligne '+L('nB')+' : '+v[4]+', '+v[5]+', '+v[6]+' (total '+v[7]+') ; '
+    +'totaux des colonnes : '+v[8]+', '+v[9]+', '+v[10]+' ; total '+v[11]+'. ';
+}
+PBX.tab3={
+  att(q){ const v=pb3Valeurs(q.m), a={}; for(let i=0;i<12;i++) if(q.k.indexOf(i)<0) a['pb-c'+i]=String(v[i]); return a; },
+  render(q){
+    $('pbPrompt').innerHTML='Le tableau représente '+esc(pbCtx(q).ens)+'. Complète les cases qui manquent.';
+    $('pbHost').innerHTML='<div class="pt-step"><div class="pt-lab">Chaque total est la somme de sa ligne, ou de sa colonne</div>'+pb3TableHTML(q,true)+'</div>';
+  },
+  pourquoi(){ return 'Dans le tableau, chaque total est la somme de sa ligne (trois cases) ou de sa colonne (deux cases) : une case qui manque se trouve par une soustraction.'; },
+  label(){ return 'Compléter le tableau'; },
+  ctx(q){ return pb3CtxTxt(q)+'L’élève complète les six cases manquantes du tableau ; six nombres sont donnés. '; }
+};
+PBX.p3={
+  att(q){ const y=q.ev[0], x=q.ev[1]; return { 'pb-n1':String(pb3Eff(q,pb3Inter(y,x))), 'pb-n2':String(pb3Eff(q,x)) }; },
+  render(q){
+    $('pbPrompt').innerHTML='Calcule cette probabilité avec les effectifs du tableau.';
+    $('pbHost').innerHTML='<div class="pt-step">'+pb3TableHTML(q,false)+'</div><div class="pt-step pb-enonce-ici" id="pbEnonceIci"></div>'
+      +'<div class="pt-step">'+pbxLigneEff(pbNomHTML(q.ev[0],q.ev[1]))+'</div>';
+    pbPlacerEnonce(true);
+  },
+  pourquoi(q){
+    const y=q.ev[0], x=q.ev[1], s=pb3Inter(y,x), a=pb3Eff(q,s), b=pb3Eff(q,x);
+    if(x==='T') return (/^nC/.test(y)
+        ? pbHTML(y)+', c’est TOUT SAUF '+pbHTML(y.slice(1))+' : on additionne les deux autres colonnes, '+a+' en tout. '
+        : '')+'Sans indice, on compte '+pbHTML(y)+' parmi tout : '+a+' sur '+b+'.';
+    return 'On se place parmi '+pbHTML(x)+' seulement ('+b+') et on y compte ceux qui sont aussi '+pbHTML(y)+', c’est-à-dire '+pbHTML(s)+' : '
+      +a+' sur '+b+' — le dénominateur est '+pbHTML(x)+', pas tout.';
+  },
+  label(q){ return pbNomTxt(q.ev[0], q.ev[1]); },
+  ctx(q){ return pb3CtxTxt(q)+'La page écrit '+pbNomTxt(q.ev[0],q.ev[1])+' ; l’élève écrit la fraction des EFFECTIFS, sans la simplifier. '
+    +'Le contraire d’une colonne (barre au-dessus) est tout sauf cette colonne : la somme des deux autres. '+pbMethodeTxt(); }
+};
+
+/* ---- 3.7 {frequences-arrondies} : le pourcentage arrondi, et ce qu'il dit ----
+   Six probabilités conditionnelles DIFFÉRENTES sur un même tableau, aux
+   effectifs plus grands (de 3 à 40) : l'élève écrit la fraction des effectifs,
+   son pourcentage arrondi à l'unité, puis choisit la phrase qui l'interprète.
+   Les quatre phrases sont celles des pièges : la bonne (« … % des garçons ont
+   des lunettes »), le RENVERSEMENT (« … % des personnes à lunettes sont des
+   garçons »), l'intersection, la probabilité sans condition. Les phrases
+   écrivent « … % » : le nombre lui-même donnerait la case d'à côté. Aucun
+   tableau dont un pourcentage tombe pile sur une demie : l'arrondi y serait
+   discutable. Les mots au pluriel (p…, tous) sont dans PB_CTX. */
+function pbTableauPct(){
+  for(let e=0;e<500;e++){
+    const n=qdMelanger(Array.from({length:38},(_,i)=>i+3)).slice(0,4), q={n:n};
+    if(PB_CONDS.every(c=>{ const p=100*pbEff(q,pbInter(c[0],c[1]))/pbEff(q,c[1]); return Math.abs(p-Math.floor(p)-0.5)>1e-9; })) return n;
+  }
+  return [12,7,25,31];
+}
+function pbSansArt(s){ return String(s).replace(/^les /,''); }
+function pbInterp(C,c){
+  const k=pbCode(c);
+  if(k.x!=='T') return '… % des '+pbSansArt(C['g'+k.x])+' '+C['p'+k.y];
+  return '… % des '+C.tous+' '+k.y.split('.').map(e=>C['p'+e]).join(' et ');
+}
+function freqSeance(){
+  const n=pbTableauPct(), ci=rand(0,PB_CTX.length-1), qs=[];
+  qdMelanger(PB_CONDS.map(c=>c.slice())).slice(0,6).forEach(e=>qs.push(distincte(qs, ()=>({ t:'pct', it:'ev', ev:e, n:n.slice(), ci:ci, rep:{},
+    opts:qdMelanger([e,[e[1],e[0]],[pbInter(e[0],e[1]),'T'],[e[0],'T']]).map(c=>c[0]+'|'+c[1]) }))));
+  return qs;
+}
+PBX.pct={
+  att(q){ const y=q.ev[0], x=q.ev[1], a=pbEff(q,pbInter(y,x)), b=pbEff(q,x);
+    return { 'pb-n1':String(a), 'pb-n2':String(b), 'pb-pc':String(Math.round(100*a/b)), 'pb-int':y+'|'+x }; },
+  render(q){
+    const C=pbCtx(q), nom=pbNomHTML(q.ev[0],q.ev[1]);
+    $('pbPrompt').innerHTML='Calcule cette probabilité, puis écris-la en pourcentage arrondi à l’unité. Choisis enfin la phrase qui dit ce que signifie ce pourcentage.';
+    const opts=q.opts.map(c=>({ v:c, t:pbInterp(C,c) }));
+    $('pbHost').innerHTML=pbxTable(q)
+      +'<div class="pt-step">'+pbxLigneEff(nom, pbxPct('pb-pc','≈','le pourcentage, arrondi à l’unité'))
+        +'<p class="pb-def pb-phrase pb-centre">Cela signifie : '+pbSel(q,'pb-int',opts,'ce que signifie ce pourcentage','pb-mots pb-long')+'</p>'
+      +'</div>';
+    pbPlacerEnonce(true);
+  },
+  pourquoi(q){
+    const C=pbCtx(q), y=q.ev[0], x=q.ev[1], a=pbEff(q,pbInter(y,x)), b=pbEff(q,x), p=Math.round(100*a/b);
+    return 'On se place parmi '+pbHTML(x)+' : '+a+' sur '+b+', soit '+a+' ÷ '+b+' ≈ '+pbDec(Math.round(1000*a/b)/10)+' %, arrondi à '+p+' %. '
+      +'Et l’indice '+pbHTML(x)+' se lit « parmi » : '+p+' % des '+pbSansArt(C['g'+x])+' '+C['p'+y]+' — pas l’inverse.';
+  },
+  label(q){ return pbNomTxt(q.ev[0], q.ev[1])+' en pourcentage, et sa phrase'; },
+  dit(id,v,q){ return (id==='pb-int' && v) ? pbInterp(pbCtx(q),v) : v; },
+  ctx(q){
+    const C=pbCtx(q);
+    return 'Tableau à double entrée qui représente '+C.ens+' : '+pbTxt('A')+' = « '+C.ind+' '+C.A+' », '+pbTxt('B')+' = « '+C.ind+' '+C.B+' ». '+pbEffTxt(pbValeurs(q.n))
+      +'La page écrit '+pbNomTxt(q.ev[0],q.ev[1])+'. L’élève écrit la fraction des effectifs, puis le pourcentage arrondi à l’unité, puis choisit la phrase qui l’interprète parmi : '
+      +q.opts.map(c=>'« '+pbInterp(C,c)+' »').join(', ')+'. Le piège : le renversement (« … % des Y sont X » au lieu de « … % des X sont Y »). '+pbMethodeTxt();
+  }
+};
+
+/* ---- 3.8 {independance} : P_X(Y) et P(Y), égales ou non ? ----
+   Un tableau PAR question (le même contexte toute la séance) : X parmi A, Ā,
+   Y parmi B, B̄. Les deux probabilités tombent sur des pourcentages ENTIERS —
+   l'effectif total vaut 50, 100 ou 200, n(X) est un multiple de 10, et
+   P(Y), P_X(Y) des multiples de 10 % : l'égalité se lit sans arrondi, et une
+   égalité « à peu près » ne trompe personne. Indépendants une fois sur deux
+   (à une près quand la séance est impaire), dans un ordre tiré. Le réglage
+   « Questions » d'un devoir allonge la séance (dmNbQuestions). */
+function indTirage(indep){
+  const X=pick(['A','nA']), Y=pick(['B','nB']);
+  for(let e=0;e<1000;e++){
+    const T=pick([50,100,200]), x=10*rand(1,T/10-1), pY=10*rand(1,9), pc=indep ? pY : 10*rand(1,9);
+    if(!indep && pc===pY) continue;
+    const xy=x*pc/100, y=T*pY/100;
+    if([xy, x-xy, y-xy, T-x-y+xy].some(v=>v<1)) continue;
+    const cel=(isA,isB)=>{ const inX=(X==='A')===isA, inY=(Y==='B')===isB; return inX&&inY ? xy : inX ? x-xy : inY ? y-xy : T-x-y+xy; };
+    return { ev:[Y,X], ind:indep?'oui':'non', n:[cel(true,true),cel(false,true),cel(true,false),cel(false,false)] };
+  }
+  return { ev:['B','A'], ind:'oui', n:[6,24,4,16] };
+}
+function indSeance(){
+  const nb=dmNbQuestions(4), ci=rand(0,PB_CTX.length-1), qs=[];
+  const ind=qdMelanger(Array.from({length:nb},(_,i)=>i<Math.floor(nb/2)));
+  ind.forEach(f=>qs.push(distincte(qs, ()=>Object.assign({ t:'ind', it:'ev', ci:ci, rep:{} }, indTirage(f)))));
+  return qs;
+}
+function indPct(a,b){ return String(Math.round(100*a/b)); }
+PBX.ind={
+  att(q){ const y=q.ev[0], x=q.ev[1], s=pbInter(y,x);
+    return { 'pb-a1':String(pbEff(q,y)), 'pb-a2':String(pbEff(q,'T')), 'pb-pa':indPct(pbEff(q,y),pbEff(q,'T')),
+             'pb-n1':String(pbEff(q,s)), 'pb-n2':String(pbEff(q,x)), 'pb-pc':indPct(pbEff(q,s),pbEff(q,x)), 'pb-ind':q.ind }; },
+  render(q){
+    const y=q.ev[0], x=q.ev[1];
+    $('pbPrompt').innerHTML='Les évènements '+pbHTML(x)+' et '+pbHTML(y)+' sont-ils indépendants ? Calcule '+pbNomPetit(y,'T')+' et '+pbNomPetit(y,x)
+      +' en pourcentages, puis compare-les.';
+    const opts=[{ v:'oui', t:'elles sont égales : '+pbTxt(x)+' et '+pbTxt(y)+' sont indépendants' },
+                { v:'non', t:'elles sont différentes : '+pbTxt(x)+' et '+pbTxt(y)+' ne sont pas indépendants' }];
+    $('pbHost').innerHTML=pbxTable(q)
+      +'<div class="pt-step">'
+        +'<div class="pt-row">'+pbNomHTML(y,'T')
+          +fEq('<span class="f-frac-input">'+pbMf('pb-a1','numérateur : un effectif du tableau')+'<span class="f-fbar"></span>'+pbMf('pb-a2','dénominateur : un effectif du tableau')+'</span>')
+          +pbxPct('pb-pa','=','P sans condition, en pourcentage')+'</div>'
+        +pbxLigneEff(pbNomHTML(y,x), pbxPct('pb-pc','=','P sachant la condition, en pourcentage'))
+        +'<p class="pb-def pb-phrase pb-centre">Ces deux probabilités : '+pbSel(q,'pb-ind',opts,'la conclusion','pb-mots pb-long')+'</p>'
+      +'</div>';
+    pbPlacerEnonce(true);
+  },
+  pourquoi(q){
+    const y=q.ev[0], x=q.ev[1], s=pbInter(y,x), pa=indPct(pbEff(q,y),pbEff(q,'T')), pc=indPct(pbEff(q,s),pbEff(q,x));
+    return pbNomPetit(y,'T')+' = '+pbEff(q,y)+' sur '+pbEff(q,'T')+' = '+pa+' % ; parmi '+pbHTML(x)+' seulement, '+pbNomPetit(y,x)+' = '+pbEff(q,s)+' sur '+pbEff(q,x)+' = '+pc+' %. '
+      +(q.ind==='oui' ? 'Les deux sont égales : savoir que '+pbHTML(x)+' est réalisé ne change pas la probabilité de '+pbHTML(y)+' — ils sont indépendants.'
+                      : 'Elles sont différentes : savoir que '+pbHTML(x)+' est réalisé change la probabilité de '+pbHTML(y)+' — ils ne sont pas indépendants.');
+  },
+  label(q){ return pbTxt(q.ev[1])+' et '+pbTxt(q.ev[0])+' indépendants ? '+pbNomTxt(q.ev[0],'T')+' et '+pbNomTxt(q.ev[0],q.ev[1]); },
+  dit(id,v){ return (id==='pb-ind' && v) ? (v==='oui' ? 'indépendants' : 'pas indépendants') : v; },
+  ctx(q){
+    const C=pbCtx(q), y=q.ev[0], x=q.ev[1];
+    return 'Tableau à double entrée qui représente '+C.ens+' : '+pbTxt('A')+' = « '+C.ind+' '+C.A+' », '+pbTxt('B')+' = « '+C.ind+' '+C.B+' ». '+pbEffTxt(pbValeurs(q.n))
+      +'L’élève calcule '+pbNomTxt(y,'T')+' puis '+pbNomTxt(y,x)+' (fraction des effectifs, puis pourcentage exact), et conclut : '
+      +pbTxt(x)+' et '+pbTxt(y)+' sont indépendants quand '+pbNomTxt(y,x)+' = '+pbNomTxt(y,'T')+' (savoir que '+pbTxt(x)+' est réalisé ne change pas la probabilité de '+pbTxt(y)+'). '
+      +pbMethodeTxt();
+  }
+};
+
+/* ---- 3.9 {automatismes-probabilites} : la série flash ----
+   Dix sortes de questions, une de chaque (puis dans un ordre tiré à nouveau
+   quand un devoir allonge la séance) : lire une case, une conditionnelle
+   dans un tableau, le complémentaire, un pourcentage devenu probabilité, la
+   notation, le produit le long d'un chemin, la branche qui manque, les
+   probabilités totales, le nombre qui ne peut pas être une probabilité, le
+   dé. Quatre propositions a) b) c) d), écrites par la page — fractions
+   empilées, noms P_X(Y) avec leur indice — et l'élève choisit la LETTRE
+   dans une liste : la seule case de la question. Les propositions se
+   calculent sur les données de la question (autoProps), et leur ordre est
+   tiré à la génération (q.ordre) : la page les redessine à l'identique,
+   après une pause comme au rejeu. Une question dont deux propositions
+   s'écriraient pareil est tirée à nouveau. */
+const AUTO_SORTES=['case','cond','contr','pct','not','prod','manq','tot','imp','de'];
+const AUTO_IMP=['1,2','1,05','−0,3','3/2'], AUTO_VAL=['0','1','0,99','2/3','0,5','1/4'];
+const AUTO_DE=[{t:'un nombre pair',n:3},{t:'un multiple de 3',n:2},{t:'un nombre supérieur ou égal à 5',n:2},
+               {t:'un 6',n:1},{t:'un nombre inférieur ou égal à 4',n:4},{t:'un nombre premier',n:3}];
+function autoNb(s){ return /\//.test(s) ? pbFr(s.split('/')[0], s.split('/')[1]) : s; }
+/* les deux probabilités d'un chemin de l'arbre, en dixièmes */
+function autoChemin(q,f){
+  const p=f.split('.'), pa=(p[0]==='A') ? q.pa : 10-q.pa, b=(p[0]==='A') ? q.b : q.c, pb=(p[1]==='B') ? b : 10-b;
+  return [pa,pb];
+}
+function autoProps(q){
+  const C=pbCtx(q), E=c=>pbEff(q,c), N=pbNomPetit;
+  switch(q.a){
+    case 'case': { const p=q.e.split('.');
+      return { fig:'tab', enonce:'On prend '+C.un+' au hasard dans '+pbNom(C)+'. Que vaut '+N(q.e,'T')+' ?',
+        props:[pbFr(E(q.e),E('T')), pbFr(E(q.e),E(p[0])), pbFr(E(q.e),E(p[1])), pbFr(E(p[0]),E('T'))],
+        pourquoi:'Sans indice, on divise par TOUT l’effectif : '+E(q.e)+' sur '+E('T')+'.' }; }
+    case 'cond': { const y=q.ev[0], x=q.ev[1], s=pbInter(y,x);
+      return { fig:'tab', enonce:'On prend '+C.un+' au hasard dans '+pbNom(C)+'. Que vaut '+N(y,x)+' ?',
+        props:[pbFr(E(s),E(x)), pbFr(E(s),E('T')), pbFr(E(s),E(y)), pbFr(E(x),E('T'))],
+        pourquoi:'L’indice '+pbHTML(x)+' est la condition : on se restreint à '+pbHTML(x)+' ('+E(x)+') et on y compte '+pbHTML(s)+' ('+E(s)+').' }; }
+    case 'contr': { const p=q.p/100;
+      return { enonce:'On sait que '+N(q.e,'T')+' = '+pbDec(p)+'. Que vaut '+N(pbNeg(q.e),'T')+' ?',
+        props:[pbDec(1-p), pbDec(p), pbDec(1+p), String(100-q.p)],
+        pourquoi:N(pbNeg(q.e),'T')+' = 1 − '+N(q.e,'T')+' = 1 − '+pbDec(p)+' = '+pbDec(1-p)+'.' }; }
+    case 'pct':
+      return { enonce:pbMaj(q.p+' % des '+C.tous+' '+C.pB)+'. On prend '+C.un+' au hasard. Que vaut '+N('B','T')+' ?',
+        props:[pbDec(q.p/100), String(q.p), pbDec(q.p/10), String(q.p/1000).replace('.',',')],
+        pourquoi:q.p+' % = '+pbFr(q.p,100)+' = '+pbDec(q.p/100)+' : une probabilité est toujours comprise entre 0 et 1.' };
+    case 'not': { const y=q.ev[0], x=q.ev[1];
+      return { enonce:pbMaj(pbPhrase(C,y,x))+' s’écrit :',
+        props:[N(y,x), N(x,y), N(pbInter(y,x),'T'), N(y,'T')],
+        pourquoi:'Ce qui suit « parmi » est la condition : elle s’écrit en bas de P — '+N(y,x)+'.' }; }
+    case 'prod': { const c=autoChemin(q,q.f);
+      return { fig:'arbre', enonce:'D’après l’arbre, que vaut '+N(q.f,'T')+' ?',
+        props:[pbDec(c[0]*c[1]/100), pbDec((c[0]+c[1])/10), pbDec(c[1]/10), pbDec(c[0]/10)],
+        pourquoi:'Sur un arbre, on MULTIPLIE les probabilités le long du chemin : '+pbDec(c[0]/10)+' × '+pbDec(c[1]/10)+' = '+pbDec(c[0]*c[1]/100)+'.' }; }
+    case 'manq': { const c=autoChemin(q,q.f+'.'+pbNeg(q.g)), s=c[1]/10;
+      return { fig:'arbre', manque:q.f+'.'+q.g, enonce:'D’après l’arbre, quelle probabilité manque sur la branche marquée « ? » ?',
+        props:[pbDec(1-s), pbDec(s), pbDec(1-c[0]/10), pbDec(c[0]*c[1]/100)],
+        pourquoi:'Les branches qui partent d’un même nœud ont pour somme 1 : 1 − '+pbDec(s)+' = '+pbDec(1-s)+'.' }; }
+    case 'tot': { const c1=autoChemin(q,'A.'+q.g), c2=autoChemin(q,'nA.'+q.g), t=(c1[0]*c1[1]+c2[0]*c2[1])/100;
+      return { fig:'arbre', enonce:'D’après l’arbre, que vaut '+N(q.g,'T')+' ?',
+        props:[pbDec(t), pbDec((c1[1]+c2[1])/10), pbDec(c1[0]*c1[1]/100), pbDec(c1[1]*c2[1]/100)],
+        pourquoi:'Deux chemins mènent à '+pbHTML(q.g)+' : on multiplie le long de chacun, puis on ADDITIONNE — '
+          +pbDec(c1[0]/10)+' × '+pbDec(c1[1]/10)+' + '+pbDec(c2[0]/10)+' × '+pbDec(c2[1]/10)+' = '+pbDec(t)+'.' }; }
+    case 'imp':
+      return { enonce:'Lequel de ces nombres ne peut pas être une probabilité ?',
+        props:[autoNb(AUTO_IMP[q.w])].concat(q.vs.map(i=>autoNb(AUTO_VAL[i]))),
+        pourquoi:'Une probabilité est toujours comprise entre 0 et 1 : '+autoNb(AUTO_IMP[q.w])+' n’en est pas une.' };
+    case 'de': { const d=AUTO_DE[q.k], n=d.n;
+      const pieges=[[6-n,6],[1,6],[1,n],[n,12],[n,6-n]].filter(f=>f[1]>0 && !(f[0]===n && f[1]===6)).map(f=>pbFr(f[0],f[1]));
+      const vus=[pbFr(n,6)]; pieges.forEach(p=>{ if(vus.indexOf(p)<0 && vus.length<4) vus.push(p); });
+      return { enonce:'On lance un dé équilibré à six faces. Quelle est la probabilité d’obtenir '+d.t+' ?', props:vus,
+        pourquoi:'Le dé a six issues, toutes également probables, et '+n+' d’entre elles réalisent l’évènement : '+pbFr(n,6)+'.' }; }
+  }
+  return { enonce:'', props:['','','',''], pourquoi:'' };
+}
+function autoQuestion(a, ci){
+  for(let e=0;e<300;e++){
+    const q={ t:'auto', a:a, ci:ci, rep:{} };
+    if(a==='case'||a==='cond'){ q.n=pbTableau().n; if(a==='case') q.e=pick(PB_INTER); else q.ev=pick(PB_CONDS).slice(); }
+    else if(a==='contr'){ q.p=pick([5,15,25,35,45,55,65,75,85,95].concat([12,24,38,46,62,74,88])); q.e=pick(['A','B']); }
+    else if(a==='pct'){ q.p=pick([12,15,24,35,38,45,52,64,75,86]); }
+    else if(a==='not'){ q.ev=pick(PB_CONDS).slice(); }
+    else if(a==='prod'||a==='manq'||a==='tot'){ q.pa=rand(2,8); q.b=rand(1,9); q.c=rand(1,9);
+      if(q.b===q.c) continue;
+      if(a==='prod') q.f=pick(PB_INTER); else if(a==='manq'){ q.f=pick(['A','nA']); q.g=pick(['B','nB']); } else q.g=pick(['B','nB']); }
+    else if(a==='imp'){ q.w=rand(0,AUTO_IMP.length-1); q.vs=qdMelanger([0,1,2,3,4,5]).slice(0,3); }
+    else if(a==='de'){ q.k=rand(0,AUTO_DE.length-1); }
+    const pr=autoProps(q).props;
+    if(pr.length===4 && new Set(pr).size===4){ q.ordre=qdMelanger([0,1,2,3]); return q; }
+  }
+  return { t:'auto', a:'imp', ci:ci, rep:{}, w:0, vs:[0,1,2], ordre:[0,1,2,3] };
+}
+function autoSeance(){
+  const nb=dmNbQuestions(AUTO_SORTES.length), ci=rand(0,PB_CTX.length-1), sortes=[], qs=[];
+  while(sortes.length<nb) sortes.push(...qdMelanger(AUTO_SORTES.slice()));
+  sortes.slice(0,nb).forEach(a=>qs.push(distincte(qs, ()=>autoQuestion(a, ci))));
+  return qs;
+}
+const AUTO_LETTRES=['a','b','c','d'];
+function autoBonne(q){ return AUTO_LETTRES[q.ordre.indexOf(0)]; }
+/* L'arbre pondéré, dessiné : A et Ā, puis B et B̄ sous chacun. Les lettres
+   sont celles du contexte (pbLettre), en italique de fonte mathématique, la
+   barre des contraires est un trait — un caractère combinant tomberait à
+   côté de la lettre (voir i.pb-bar). */
+function autoArbreSVG(q){
+  const t10=v=>pbDec(v/10), lab={ 'A':t10(q.pa), 'nA':t10(10-q.pa), 'A.B':t10(q.b), 'A.nB':t10(10-q.b), 'nA.B':t10(q.c), 'nA.nB':t10(10-q.c) };
+  if(q.manque) lab[q.manque]='?';
+  const lettre=(e,x,y)=>{ const bar=e.charAt(0)==='n', L=pbLettre(bar ? e.slice(1) : e);
+    return '<text x="'+x+'" y="'+y+'" text-anchor="middle" class="pb-arbre-l">'+esc(L)+'</text>'
+      +(bar ? '<line x1="'+(x-6)+'" y1="'+(y-17)+'" x2="'+(x+8)+'" y2="'+(y-17)+'" stroke="currentColor" stroke-width="2"/>' : ''); };
+  const br=(x1,y1,x2,y2,t,dy)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="currentColor" stroke-width="2"/>'
+    +'<text x="'+((x1+x2)/2)+'" y="'+((y1+y2)/2+dy)+'" text-anchor="middle" class="pb-arbre-p'+(t==='?'?' pb-arbre-q':'')+'">'+t+'</text>';
+  return '<svg class="pb-arbre" viewBox="0 0 320 210" width="320" height="210" role="img" aria-label="arbre pondéré">'
+    +br(14,105,118,52,lab['A'],-8)+br(14,105,118,158,lab['nA'],20)
+    +lettre('A',130,60)+lettre('nA',130,166)
+    +br(142,48,262,22,lab['A.B'],-7)+br(142,56,262,84,lab['A.nB'],18)
+    +br(142,154,262,126,lab['nA.B'],-7)+br(142,162,262,190,lab['nA.nB'],18)
+    +lettre('B',278,30)+lettre('nB',278,92)+lettre('B',278,134)+lettre('nB',278,198)
+    +'</svg>';
+}
+PBX.auto={
+  att(q){ return { 'pb-qcm':autoBonne(q) }; },
+  render(q){
+    const P=autoProps(q);
+    $('pbPrompt').innerHTML=P.enonce;
+    const fig=P.fig==='tab' ? '<div class="pt-step">'+pbTableHTML(q,false)+'</div>'
+            : P.fig==='arbre' ? '<div class="pt-step">'+autoArbreSVG(Object.assign({ manque:P.manque }, q))+'</div>' : '';
+    const props=q.ordre.map((k,i)=>'<div class="pbq-prop"><b>'+AUTO_LETTRES[i]+')</b><span>'+P.props[k]+'</span></div>').join('');
+    $('pbHost').innerHTML=fig+'<div class="pt-step pb-enonce-ici" id="pbEnonceIci"></div>'
+      +'<div class="pt-step"><div class="pbq-props">'+props+'</div>'
+      +'<p class="pb-def pb-phrase pb-centre">Ta réponse : '
+        +pbSel(q,'pb-qcm',AUTO_LETTRES.map(l=>({ v:l, t:l+')' })),'la lettre de la bonne proposition')+'</p></div>';
+    pbPlacerEnonce(true);
+  },
+  pourquoi(q){ return 'La bonne réponse est '+autoBonne(q)+'). '+autoProps(q).pourquoi; },
+  label(q){ return String(autoProps(q).enonce).replace(/<[^>]+>/g,''); },
+  dit(id,v){ return v ? v+')' : v; },
+  ctx(q){
+    const P=autoProps(q), net=s=>String(s).replace(/<span class="pbq-fr"><span>([^<]*)<\/span><span class="pbq-bar"><\/span><span>([^<]*)<\/span><\/span>/g,'$1/$2').replace(/<[^>]+>/g,'');
+    return 'Série d’automatismes sur les probabilités, en QCM : quatre propositions, l’élève choisit la lettre. '
+      +(P.fig==='tab' ? 'Tableau : '+pbTxt('A')+' = « '+pbCtx(q).ind+' '+pbCtx(q).A+' », '+pbTxt('B')+' = « '+pbCtx(q).ind+' '+pbCtx(q).B+' ». '+pbEffTxt(pbValeurs(q.n)) : '')
+      +(P.fig==='arbre' ? 'Arbre pondéré : P('+pbTxt('A')+') = '+pbDec(q.pa/10)+', P_'+pbTxt('A')+'('+pbTxt('B')+') = '+pbDec(q.b/10)+', P_'+pbTxt('nA')+'('+pbTxt('B')+') = '+pbDec(q.c/10)
+          +(P.manque ? ' ; une branche est marquée « ? ». ' : '. ') : '')
+      +'Question : « '+net(P.enonce)+' ». Propositions : '+q.ordre.map((k,i)=>AUTO_LETTRES[i]+') '+net(P.props[k])).join(' ; ')+'. ';
+  }
+};
+
+/* Les démarreurs des 3.5 à 3.9 : le moteur de {tableau-probabilites}, leur
+   identité à chacun — la note part sous test.qId. */
+function pbDemarrer(qId, qs){
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pb', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.qId=qId;
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pbtest'); renderPBTest();
+}
+async function startPBSens(){ if(!currentEleve){ accueil(); return; } pbDemarrer('probabilites-sens', sensSeance()); }
+async function startPB3(){ if(!currentEleve){ accueil(); return; } pbDemarrer('tableau-trois-colonnes', pb3Seance()); }
+async function startPBFreq(){ if(!currentEleve){ accueil(); return; } pbDemarrer('frequences-arrondies', freqSeance()); }
+async function startPBInd(){ if(!currentEleve){ accueil(); return; } pbDemarrer('independance', indSeance()); }
+async function startPBAuto(){ if(!currentEleve){ accueil(); return; } pbDemarrer('automatismes-probabilites', autoSeance()); }
 async function finishPB(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
@@ -18133,6 +18703,7 @@ async function finishPB(){
 }
 /* Le contexte envoyé au modèle. */
 function pbCtxTexte(q){
+  if(PBX[q.t]) return PBX[q.t].ctx(q)+'Les réponses attendues sont STRICTEMENT SECRÈTES.';
   const C=PB_CTX[q.ci]||PB_CTX[0], v=pbValeurs(q.n);
   let c='Tableau à double entrée qui représente '+(C.ens||'une classe')+' : '+pbTxt('A')+' = « '+C.ind+' '+C.A+' », '+pbTxt('B')+' = « '+C.ind+' '+C.B+' ». '
     +pbEffTxt(v);
@@ -18744,19 +19315,20 @@ function checkEvsAnswer(live){
   const q=test.questions[test.idx];
   const v=id=>String($(id).value==null?'':$(id).value).trim();
   const gAbs=Math.abs(q.G), gc=q.c1*q.c2;                 /* le coefficient global, en dix-millièmes */
+  const [g1c,g2c]=facteursCommutesDec('evsG1','evsG2',q.c1,q.c2,100);   /* a × b = b × a */
   const bonS=q.G>0?'+':'−';
   const motEl=$('evsMot');
   const liveMot=()=>{ if(!motEl||motEl.disabled) return; motEl.classList.remove('ok','bad'); if(v('evsMot')==='') return; motEl.classList.add(evsMotOk(v('evsMot'),bonS)?'ok':'bad'); };
   if(live){
     liveColorDec('evsP1',q.P1,100); liveColorDec('evsC1',q.c1,100);
     liveColorDec('evsP2',q.P2,100); liveColorDec('evsC2',q.c2,100);
-    liveColorDec('evsGP',gAbs,100); liveColorDec('evsG1',q.c1,100); liveColorDec('evsG2',q.c2,100); liveColorDec('evsG',gc,10000);
+    liveColorDec('evsGP',gAbs,100); liveColorDec('evsG1',g1c,100); liveColorDec('evsG2',g2c,100); liveColorDec('evsG',gc,10000);
     liveColorDec('evsT',gAbs,1); liveMot();
     return;
   }
   const dec=(id,n,d)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
   const ok={ evsP1:dec('evsP1',q.P1,100), evsC1:dec('evsC1',q.c1,100), evsP2:dec('evsP2',q.P2,100), evsC2:dec('evsC2',q.c2,100),
-             evsGP:dec('evsGP',gAbs,100), evsG1:dec('evsG1',q.c1,100), evsG2:dec('evsG2',q.c2,100), evsG:dec('evsG',gc,10000),
+             evsGP:dec('evsGP',gAbs,100), evsG1:dec('evsG1',g1c,100), evsG2:dec('evsG2',g2c,100), evsG:dec('evsG',gc,10000),
              evsMot:evsMotOk(v('evsMot'),bonS), evsT:dec('evsT',gAbs,1) };
   /* une case vide ne rougit jamais (règle universelle) : mark() ne colore que
      les cases écrites, et chacune se juge SEULE contre sa valeur canonique */
@@ -18774,7 +19346,7 @@ function checkEvsAnswer(live){
     $('evsFeedback').textContent=`Réponse : (1 ${q.s1<0?'−':'+'} ${d1}) × (1 ${q.s2<0?'−':'+'} ${d2}) = ${k1} × ${k2} = ${kg} = 1 ${bonS} ${dg} : ${evsMin(BS_CTX[q.ci].sujet)} subit globalement une ${mot} de ${gAbs} %.`;
     $('evsFeedback').className='mp-feedback bad';
     corTrainDec('evsP1',d1); corTrainDec('evsC1',k1); corTrainDec('evsP2',d2); corTrainDec('evsC2',k2);
-    corTrainDec('evsGP',dg); corTrainDec('evsG1',k1); corTrainDec('evsG2',k2); corTrainDec('evsG',kg); corTrainDec('evsMot',mot); corTrainDec('evsT',String(gAbs));
+    corTrainDec('evsGP',dg); corTrainDec('evsG1',evsDec(g1c)); corTrainDec('evsG2',evsDec(g2c)); corTrainDec('evsG',kg); corTrainDec('evsMot',mot); corTrainDec('evsT',String(gAbs));
     /* en entraînement, la case du coefficient global vient d'être corrigée
        (complétée si vide) : le signe se relit dessus ; si l'élève y avait
        écrit un coefficient du mauvais côté de 1, on montre le bon signe en
@@ -22826,6 +23398,32 @@ const RAP_LP=`<b>Traduire une phrase en probabilité</b><br>
 <b>Lire la phrase.</b> Ce qu’on veut avoir va entre les parenthèses ; ce qui suit « parmi », « sachant que » ou « qui » va en indice.<br>
 Piège classique : diviser par le total alors que la phrase se restreint à un groupe — le dénominateur est l’effectif de ce groupe.`;
 /* {lire-probabilites} depuis la v296 : le nom est donné, on le LIT. */
+const RAP_SENS=`<b>Lire le nom d’une probabilité</b><br>
+<b>Sans indice.</b> \\(P(G)\\) regarde TOUT l’effectif : « la probabilité d’être un garçon <b>dans la classe</b> ».<br>
+<b>Avec un indice.</b> L’indice est la CONDITION, il se dit « <b>parmi</b> » : \\(P_L(G)\\) est « la probabilité d’être un garçon <b>parmi</b> les personnes qui ont des lunettes ».<br>
+<b>L’intersection.</b> « ∩ » se dit « <b>et</b> » : \\(P(G\\cap L)\\) est « la probabilité d’être un garçon ET d’avoir des lunettes », dans toute la classe.<br>
+<b>Les pièges.</b> \\(P_L(G)\\) et \\(P_G(L)\\) ne disent pas la même chose : on ne se place pas parmi les mêmes personnes. Et \\(P(G\\cap L)\\) n’a pas de condition : on divise par tout.<br>
+<b>Calculer.</b> \\(P_L(G)=\\dfrac{G\\cap L}{L}\\) ; \\(P(G)=\\dfrac{G}{\\text{tout}}\\).`;
+const RAP_TAB3=`<b>Un tableau à trois colonnes</b><br>
+<b>Les totaux.</b> Le total d’une LIGNE est la somme de ses trois cases ; celui d’une COLONNE, la somme de ses deux cases. Une case qui manque se trouve par une soustraction.<br>
+<b>Sans condition.</b> \\(P(S)=\\dfrac{S}{\\text{tout}}\\) : l’effectif de la colonne, sur l’effectif total.<br>
+<b>Le contraire d’une colonne.</b> \\(\\overline{S}\\), c’est « tout sauf \\(S\\) » : les DEUX autres colonnes. \\(P(\\overline{S})=\\dfrac{P+T}{\\text{tout}}\\), ou \\(1-P(S)\\).<br>
+<b>Probabilité conditionnelle.</b> \\(P_D(S)=\\dfrac{S\\cap D}{D}\\) : on se place sur la ligne \\(D\\), et on y lit la case de la colonne \\(S\\). \\(P_S(D)=\\dfrac{S\\cap D}{S}\\) : on se place dans la colonne \\(S\\).<br>
+Piège classique : diviser par le total dans une probabilité conditionnelle.`;
+const RAP_FREQ=`<b>Une probabilité en pourcentage</b><br>
+<b>Le calcul.</b> \\(P_G(L)=\\dfrac{G\\cap L}{G}\\), par exemple \\(\\dfrac{8}{13}\\approx 0{,}615\\), soit environ \\(62\\,\\%\\) : on multiplie par 100, puis on arrondit à l’unité — le chiffre des dixièmes décide (61,5 donne 62 ; 61,4 donne 61).<br>
+<b>Ce qu’il signifie.</b> L’indice dit PARMI QUI on compte : \\(P_G(L)\\approx 62\\,\\%\\) signifie « environ 62 % des garçons ont des lunettes ».<br>
+<b>Le piège.</b> « 62 % des personnes à lunettes sont des garçons », c’est \\(P_L(G)\\) : on ne compte plus parmi les mêmes personnes. Et « 62 % des personnes de la classe sont des garçons et ont des lunettes », c’est \\(P(G\\cap L)\\).`;
+const RAP_IND=`<b>Deux évènements indépendants</b><br>
+<b>La définition.</b> \\(A\\) et \\(B\\) sont indépendants quand savoir que \\(A\\) est réalisé ne change pas la probabilité de \\(B\\) : \\(P_A(B)=P(B)\\).<br>
+<b>La méthode.</b> On calcule \\(P(B)=\\dfrac{B}{\\text{tout}}\\), puis \\(P_A(B)=\\dfrac{A\\cap B}{A}\\), en pourcentages, et on compare.<br>
+<b>Exemple.</b> 30 % des élèves font du sport en club, et 30 % des externes aussi : être externe ne change rien, les deux évènements sont indépendants. Si 45 % des externes en font, ils ne le sont pas.`;
+const RAP_AUTO=`<b>Les automatismes en probabilités</b><br>
+<b>Toujours entre 0 et 1.</b> Une probabilité vaut au moins 0 et au plus 1 : \\(35\\,\\%=0{,}35\\).<br>
+<b>Le contraire.</b> \\(P(\\overline{A})=1-P(A)\\).<br>
+<b>Dans un tableau.</b> \\(P(A\\cap B)=\\dfrac{A\\cap B}{\\text{tout}}\\) ; \\(P_A(B)=\\dfrac{A\\cap B}{A}\\) — on divise par l’évènement écrit en bas de \\(P\\).<br>
+<b>Sur un arbre.</b> Les branches d’un même nœud ont pour somme 1. On MULTIPLIE le long d’un chemin : \\(P(A\\cap B)=P(A)\\times P_A(B)\\). Pour \\(P(B)\\), on ADDITIONNE les chemins qui mènent à \\(B\\).<br>
+<b>Un dé équilibré.</b> Six issues également probables : \\(P=\\dfrac{\\text{nombre d’issues favorables}}{6}\\).`;
 const RAP_LN=`<b>Lire une probabilité</b><br>
 <b>Sans indice.</b> \\(P(L)\\) est la probabilité d’avoir \\(L\\) parmi TOUT l’effectif :<br>
 \\(P(L)=\\dfrac{L \\text{ parmi tout}}{\\text{parmi tout}}=\\dfrac{L}{\\text{tout}}\\), par exemple \\(\\dfrac{7}{20}\\) s’il y a 7 élèves à lunettes sur 20.<br>
@@ -22938,7 +23536,7 @@ const RAP_DBP=`<b>Devoir blanc : neuf questions sur les pourcentages</b><br>
 Bloqué sur une question rédigée ? Le bouton <b>Aide méthode</b> affiche les cases de l’exercice d’origine ; un autre bouton te ramène à la version rédigée.`;
 const RAP_SGL=`<b>Synthèse générale rédigée : deux familles de questions, deux rédactions</b><br>
 Une question sur <b>un pourcentage</b> — prendre, augmenter ou diminuer, comme dans {synthese-pourcentages-libre} : tu choisis la proposition, puis tu JUSTIFIES en écrivant ta vérification. Une question sur <b>deux évolutions successives</b>, comme dans {synthese-evolutions-successives-libre} : tu RÉDIGES tout le calcul, puis tu conclus en mots. Dans les deux cas, la feuille est celle de {synthese-diminutions-libre-dix} : la barre d’espace écrit une espace, la touche % est sur le clavier.<br><br>`+RAP_SPL+`<br><br>`+RAP_ESL;
-const RAPPELS_ID={ 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -23024,6 +23622,11 @@ const QIA_SUGG={
   rvf:["Pourquoi on ne met pas au m\u00eame d\u00e9nominateur pour multiplier\u00a0?","Comment trouver le d\u00e9nominateur commun quand ils sont diff\u00e9rents\u00a0?","Pourquoi diviser par une fraction, c\u2019est multiplier par son inverse\u00a0?","Comment \u00e9crire un entier en fraction\u00a0?"],
   'probabilites-ecriture':["Quelle différence entre P(A∩B) et P_B(A) ?","Par quoi divise-t-on dans P_A(B) ?","Comment lire P(Ā) dans le tableau ?","Pourquoi le dénominateur n’est-il pas toujours le total ?"],
   'probabilites-fiche':["Comment savoir s’il faut un indice sous P ?","Quelle différence entre une probabilité sans condition et une probabilité « parmi … » ?","Pourquoi le dénominateur n’est-il pas toujours le total ?","Que représente l’évènement contraire Ā ?"],
+  'probabilites-sens':["Comment lire l’indice sous P avec des mots ?","Quelle différence entre P(A∩B) et P_B(A) ?","Pourquoi P_A(B) et P_B(A) ne sont-elles pas égales ?","Que veut dire « parmi » dans une probabilité ?"],
+  'tableau-trois-colonnes':["Comment compléter une case qui manque ?","Que représente le contraire d’une colonne ?","Par quoi divise-t-on dans une probabilité « sachant que » ?","Comment lire P_D(S) dans le tableau ?"],
+  'frequences-arrondies':["Comment arrondir un pourcentage à l’unité ?","Comment transformer une fraction en pourcentage ?","Quelle différence entre « … % des garçons ont des lunettes » et « … % des personnes à lunettes sont des garçons » ?","Que dit l’indice sous P ?"],
+  'independance':["Que veut dire « indépendants » ?","Pourquoi compare-t-on P_A(B) et P(B) ?","Comment calculer P_A(B) dans le tableau ?","Deux évènements indépendants peuvent-ils arriver ensemble ?"],
+  'automatismes-probabilites':["Comment lire un arbre pondéré ?","Pourquoi multiplie-t-on le long d’une branche ?","Comment calculer P(B) avec un arbre ?","Pourquoi une probabilité est-elle entre 0 et 1 ?"],
   'lire-probabilites':["Que veut dire l’indice sous P ?","Comment lire P_A(B) avec le mot « parmi » ?","Quelle différence entre P_A(B) et P_B(A) ?","Que représente l’évènement contraire Ā ?"],
   pb:["Quelle différence entre P(A∩B) et P_B(A) ?","Comment trouver une case qui manque dans le tableau ?","Que veut dire « parmi » dans une probabilité conditionnelle ?","Que représente l’évènement contraire Ā ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]
