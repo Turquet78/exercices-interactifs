@@ -32732,11 +32732,14 @@ function pythonProgrammeCalcul(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.2 « Variable et calcul », derrière {python-phrases-memoire}, numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+  /* Le bord « il ferme le 6.2 » a été RETOURNÉ, pas retiré, quand les seize
+     exercices « variables » l'ont suivi (6.2.10 à 6.2.23, octobre 2026) : il
+     reste derrière {python-phrases-memoire}, et {python-egal-affectation} le suit. */
+  verifierEval(w, 'il suit {python-phrases-memoire} dans le sous-thème 6.2 « Variable et calcul », numéroté ' + NUM + ', suivi de {python-egal-affectation}, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===2; });
     if(!st||!/variable et calcul/i.test(st.nom)) vus.push("pas de sous-thème 6.2 Variable et calcul");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-phrases-memoire") vus.push("il ne ferme pas le sous-thème derrière {python-phrases-memoire} : "+st.ids.join(","));
+    else { const i=st.ids.indexOf("${ID}"); if(i<1||st.ids[i-1]!=="python-phrases-memoire"||st.ids[i+1]!=="python-egal-affectation") vus.push("il n’est pas entre {python-phrases-memoire} et {python-egal-affectation} : "+st.ids.join(",")); }
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-phrases-memoire"]!=="6.2.8"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -34070,11 +34073,14 @@ function pythonChaines(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.1 « Print et variable », numéroté ' + NUM + ' derrière {python-double-triple-carre}, et rien d’autre ne bouge', `(function(){
+  /* Le bord « il ferme le 6.1 » a été RETOURNÉ, pas retiré, quand
+     {python-type-resultat} et {python-texte-nombre} l'ont suivi (6.1.15 et
+     6.1.16, octobre 2026). */
+  verifierEval(w, 'il suit {python-double-triple-carre} dans le sous-thème 6.1 « Print et variable », numéroté ' + NUM + ', suivi de {python-type-resultat}, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===1; });
     if(!st||!/print/i.test(st.nom)) vus.push("pas de sous-thème 6.1 Print et variable");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-double-triple-carre") vus.push("il ne ferme pas le sous-thème : "+st.ids.join(","));
+    else { const i=st.ids.indexOf("${ID}"); if(i<1||st.ids[i-1]!=="python-double-triple-carre"||st.ids[i+1]!=="python-type-resultat") vus.push("il n’est pas entre {python-double-triple-carre} et {python-type-resultat} : "+st.ids.join(",")); }
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -52866,12 +52872,13 @@ function pythonPasAPas(w, P){
   })()`, v => v === '');
 
   /* ---- 10. la place au menu et les branchements ---- */
-  verifierEval(w, 'il vit dans le thème 6, numéroté 6.2.1 entre {python-chaines} et {python-valeur-case} — et rien d autre ne bouge : entrée TESTS, rappel de cours, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+  verifierEval(w, 'il vit dans le thème 6, numéroté 6.2.1 entre le dernier du 6.1 et {python-valeur-case} — et rien d autre ne bouge : entrée TESTS, rappel de cours, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[], i=th?th.ids.indexOf("${ID}"):-1;
     if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("theme 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(i<0) vus.push("l exercice n est pas dans le theme 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[i+1]!=="python-valeur-case") vus.push("il n est pas suivi de {python-valeur-case} : "+th.ids.join(","));
-    if(i>0&&th.ids[i-1]!=="python-chaines") vus.push("il ne suit pas {python-chaines} (6.1.14, qui ferme le 6.1) : "+(th&&th.ids.join(",")));
+    const s1=th&&th.sous&&th.sous.find(function(s){ return s.num===1; });
+    if(i>0&&s1&&th.ids[i-1]!==s1.ids[s1.ids.length-1]) vus.push("il ne suit pas le dernier exercice du 6.1 : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-operations"]!=="6.1.12"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["pourcentage"]!=="4.1.3")
       vus.push("l exercice ajoute a renumerote les autres");

@@ -6382,7 +6382,7 @@ Ajoutés EN DERNIER dans leur sous-thème : rien n'est renuméroté.
 | 6.2.16 | `python-valeur-depart` | `pwv` | cases | retrouve la valeur de départ effacée d'un programme dont on voit l'affichage |
 | 6.2.17 | `python-meme-resultat` | `pwm` | cases | dit ce qu'affichent deux programmes aux lignes permutées, et s'ils affichent la même chose |
 | 6.2.18 | `python-choisir-programme` | `pwc` | cases | choisit, parmi quatre programmes presque identiques, le seul qui convient |
-| 6.2.19 | `python-ordre-lignes` | `pwo` | ordre | remet dans l'ordre (▲ ▼) les lignes d'un programme sans `input` |
+| 6.2.19 | `python-ordre-lignes` | `pwo` | ordre | « Remettre un programme de calcul dans l'ordre » (▲ ▼), sans `input` — le nom « Remettre les lignes dans l'ordre » est celui du 6.3.15, et deux exercices ne portent pas le même nom |
 | 6.2.20 | `python-variable-inconnue` | `pwn` | programme | répare un NameError : variable utilisée trop tôt, casse, faute de frappe |
 | 6.2.21 | `python-debogage` | `pwg` | programme | répare un programme qui tourne mais calcule faux (`a + b / 2`, `c * 2`…) |
 | 6.2.22 | `python-formule` | `pwf` | programme | code une formule : prix TTC, soldes, IMC, °F, aire et périmètre, vitesse |
@@ -6486,3 +6486,21 @@ moteur programme) et une case vide jugée fausse (« la copie vide rougit »,
 dans les huit du moteur à cases). La visite universelle du banc navigateur
 (section 9) et les bancs des notes et de la pause les ouvrent sans rien
 déclarer.
+
+**La première action a rougi neuf fois, et aucune sur un juge.** Ce que le
+banc local, coupé par l'environnement, n'avait pas pu montrer : les quatre
+fonctions de chaque kind étaient écrites sur UNE ligne, or le contrôle
+« chaque bouton appelle une fonction définie » ne lit que la PREMIÈRE
+déclaration d'une ligne (une par ligne désormais) ; cinq rappels écrivaient
+du code (`6 / 2`, `3.0`) dans la prose, lu comme une fraction plate ou un
+numéro d'exercice (il passe dans des balises `code`, comme au 6.1.12) ; la
+description du 6.2.15 citait `2.15` ; le 6.2.19 portait le nom du 6.3.15 ;
+la table des kinds du contrôle des rappels (`tests/profils.js`) ne les
+connaissait pas ; trois bords « il ferme le 6.1 / le 6.2 » et « il suit
+{python-chaines} » ont été RETOURNÉS, pas retirés ({python-chaines} suivi de
+{python-type-resultat}, {python-programme-calcul} suivi de
+{python-egal-affectation}, {python-pas-a-pas} derrière le DERNIER du 6.1) ;
+et le vrai ou faux ne s'allongeait pas à cinq questions sur un devoir. Son
+tirage distribue maintenant une affirmation vraie et une fausse à chaque
+question, puis le reste — quatre par question au format normal, moins au-delà
+de quatre questions, et sept au plus : il n'y a que sept affirmations vraies.

@@ -8959,11 +8959,11 @@ const TESTS={
   'python-accumulateur': { name:'Le total et le compteur, ligne par ligne', icon:'🧺', desc:'total = total + 12 : un total commence à 0 et chaque ligne lui ajoute une valeur. Suis un panier, un score, un porte-monnaie ligne par ligne.', start:()=>startPWA() },
   'python-priorites': { name:'Les priorités de calcul en Python', icon:'🧮', desc:'a + b * 3, (a + b) * 3, -x ** 2 : sans exécuter, écris ce que chaque print affiche. Python suit les priorités des mathématiques.', start:()=>startPWP() },
   'python-division-entiere': { name:'Le quotient et le reste : // et %', icon:'🥚', desc:'50 œufs dans des boîtes de 6 : combien de boîtes pleines, combien d’œufs restent ? Écris le programme avec // (le quotient entier) et % (le reste).', start:()=>startPWD() },
-  'python-arrondir': { name:'Arrondir un résultat avec round', icon:'🎯', desc:'2.15 * 3 donne 6.449999999999999 : écris un programme qui affiche un prix au centime, une moyenne au dixième, avec round(nombre, 2) ou round(nombre, 1).', start:()=>startPWR() },
+  'python-arrondir': { name:'Arrondir un résultat avec round', icon:'🎯', desc:'Python affiche parfois un prix avec quinze chiffres après la virgule : écris un programme qui affiche un prix au centime, une moyenne au dixième, avec round.', start:()=>startPWR() },
   'python-valeur-depart': { name:'Retrouver la valeur de départ', icon:'⏪', desc:'La première ligne du programme est effacée, et il affiche 11 : quelle valeur avait la variable au départ ? Remonte le programme en défaisant chaque étape.', start:()=>startPWV() },
   'python-meme-resultat': { name:'Deux programmes, le même résultat ?', icon:'⚖️', desc:'Deux programmes avec les mêmes lignes, dans un ordre différent : qu’affiche chacun ? Affichent-ils la même chose ?', start:()=>startPWM() },
   'python-choisir-programme': { name:'Quel programme convient ?', icon:'🔍', desc:'Quatre programmes presque identiques, un seul fait ce qu’on demande : suis-les ligne par ligne et trouve le bon.', start:()=>startPWC() },
-  'python-ordre-lignes': { name:'Remettre les lignes dans l’ordre', icon:'🧩', desc:'Les lignes d’un programme ont été mélangées : remets-les dans l’ordre avec ▲ et ▼, pour qu’il fasse ce qu’on demande.', start:()=>startPWO() },
+  'python-ordre-lignes': { name:'Remettre un programme de calcul dans l’ordre', icon:'🧩', desc:'Les lignes d’un programme ont été mélangées : remets-les dans l’ordre avec ▲ et ▼, pour qu’il fasse ce qu’on demande.', start:()=>startPWO() },
   'python-variable-inconnue': { name:'Une variable utilisée trop tôt : NameError', icon:'❓', desc:'Ce programme s’arrête sur une erreur NameError : une variable est utilisée avant d’avoir reçu sa valeur, ou son nom est mal écrit. Exécute-le, puis corrige-le.', start:()=>startPWN() },
   'python-debogage': { name:'Trouver l’erreur : le résultat est faux', icon:'🐞', desc:'Le programme s’exécute sans erreur… mais la moyenne, le périmètre ou le prix soldé qu’il affiche est faux. Trouve l’erreur et corrige-la.', start:()=>startPWG() },
   'python-formule': { name:'Coder une formule de la vie courante', icon:'🧾', desc:'Le prix TTC, un prix soldé, l’IMC, les degrés Fahrenheit : écris la ligne de calcul avec les noms des variables, puis affiche le résultat.', start:()=>startPWF() },
@@ -11662,21 +11662,21 @@ const RAP_PFV=`<b>Définition <code class="inline">for</code> nombre <code class
 /* {python-programme-calcul} : la fiche n'a pas de définition — le rappel ne
    dit que son coup de pouce, mot pour mot. */
 /* Les seize exercices « variables » (6.1.15, 6.1.16, 6.2.10 à 6.2.23) : le rappel redit la définition du cours. */
-const RAP_PWY=`<b>Le type du résultat</b><br>Un calcul entre deux int donne un int — sauf la division /, qui donne TOUJOURS un float : 6 / 2 vaut 3.0, 7 / 2 vaut 3.5.<br>// donne le quotient entier et % le reste : 7 // 2 vaut 3 et 7 % 2 vaut 1 (des int).<br>Dès qu’un float entre dans le calcul, le résultat est un float : 5 * 2.0 vaut 10.0.<br>Un texte (str) répété avec * reste un texte : "ab" * 3 vaut "ababab".`;
+const RAP_PWY=`<b>Le type du résultat</b><br>Un calcul entre deux int donne un int — sauf la division <code>/</code>, qui donne TOUJOURS un float : <code>6 / 2</code> vaut <code>3.0</code>, <code>7 / 2</code> vaut <code>3.5</code>.<br><code>//</code> donne le quotient entier et <code>%</code> le reste : <code>7 // 2</code> vaut <code>3</code> et <code>7 % 2</code> vaut <code>1</code> (des int).<br>Dès qu’un float entre dans le calcul, le résultat est un float : <code>5 * 2.0</code> vaut <code>10.0</code>.<br>Un texte (str) répété avec <code>*</code> reste un texte : <code>"ab" * 3</code> vaut <code>"ababab"</code>.`;
 const RAP_PWS=`<b>Un texte et un nombre dans le même print</b><br>Le signe + colle deux textes, ou ajoute deux nombres. Mais Python ne sait pas faire « texte + nombre » : il s’arrête sur une erreur TypeError.<br>Pour afficher un texte suivi d’un nombre, on les sépare par des virgules : print("J’ai", age, "ans") — Python met un espace entre chaque morceau.<br>Ou bien on change le nombre en texte avec str : "J’ai " + str(age) + " ans".`;
 const RAP_PWE=`<b>Le signe = de Python</b><br>n = 5 se lit « n prend la valeur 5 » : le = RANGE une valeur dans une variable, ce n’est pas une égalité.<br>Python calcule d’abord ce qui est à droite du =, avec les valeurs actuelles, puis range le résultat dans la variable de gauche : n = n + 1 ajoute 1 à n.<br>À gauche du =, il y a toujours le nom d’une variable. Une variable ne garde que sa dernière valeur. == compare deux valeurs, il ne range rien.`;
 const RAP_PWX=`<b>Une variable qui se calcule avec elle-même</b><br>Dans x = x + 3, Python calcule d’abord x + 3 avec la valeur ACTUELLE de x, puis range le résultat dans x : l’ancienne valeur est remplacée.<br>Exemple : x = 5, puis x = x + 3 → x contient 8 ; puis x = x * 2 → x contient 16.<br>On suit le programme ligne par ligne : chaque ligne calcule avec ce que les lignes au-dessus ont rangé.`;
 const RAP_PWA=`<b>Le total et le compteur</b><br>Un total commence à 0 : total = 0. Puis chaque ligne total = total + 12 lui ajoute une valeur : la variable garde la somme de tout ce qui a été ajouté.<br>Un compteur fait pareil, de 1 en 1 : nb = nb + 1.<br>Exemple : total = 0, total = total + 12, total = total + 8 → total contient 20.`;
-const RAP_PWP=`<b>Les priorités de calcul</b><br>Python calcule dans le même ordre qu’en mathématiques :<br>1. les parenthèses ;<br>2. les puissances ** ;<br>3. la multiplication * et la division / ;<br>4. l’addition + et la soustraction -.<br>À priorité égale, de gauche à droite : 10 - 4 - 2 vaut 4.<br>-3 ** 2 vaut -9 (la puissance passe avant le signe moins) ; (-3) ** 2 vaut 9.<br>La division / donne toujours un float : 10 / 2 vaut 5.0.`;
-const RAP_PWD=`<b>Le quotient et le reste : // et %</b><br>a // b donne le quotient ENTIER de la division de a par b ; a % b donne son reste.<br>Exemple : 17 // 5 vaut 3 et 17 % 5 vaut 2, car 17 = 5 × 3 + 2.<br>La division / donne un nombre à virgule : 17 / 5 vaut 3.4.`;
-const RAP_PWR=`<b>Arrondir avec round</b><br>round(nombre, 2) arrondit un nombre avec 2 chiffres après la virgule (au centième, au centime) ; round(nombre, 1) au dixième ; round(nombre) à l’unité.<br>Exemple : round(3.14159, 2) vaut 3.14.<br>Python calcule parfois avec de minuscules erreurs : 2.15 * 3 donne 6.449999999999999 — round(2.15 * 3, 2) affiche 6.45.`;
+const RAP_PWP=`<b>Les priorités de calcul</b><br>Python calcule dans le même ordre qu’en mathématiques :<br>1. les parenthèses ;<br>2. les puissances <code>**</code> ;<br>3. la multiplication <code>*</code> et la division <code>/</code> ;<br>4. l’addition <code>+</code> et la soustraction <code>-</code>.<br>À priorité égale, de gauche à droite : <code>10 - 4 - 2</code> vaut <code>4</code>.<br><code>-3 ** 2</code> vaut <code>-9</code> (la puissance passe avant le signe moins) ; <code>(-3) ** 2</code> vaut <code>9</code>.<br>La division <code>/</code> donne toujours un float : <code>10 / 2</code> vaut <code>5.0</code>.`;
+const RAP_PWD=`<b>Le quotient et le reste : // et %</b><br><code>a // b</code> donne le quotient ENTIER de la division de a par b ; <code>a % b</code> donne son reste.<br>Exemple : <code>17 // 5</code> vaut <code>3</code> et <code>17 % 5</code> vaut <code>2</code>, car 17 = 5 × 3 + 2.<br>La division <code>/</code> donne un nombre à virgule : <code>17 / 5</code> vaut <code>3.4</code>.`;
+const RAP_PWR=`<b>Arrondir avec round</b><br><code>round(nombre, 2)</code> arrondit un nombre avec 2 chiffres après la virgule (au centième, au centime) ; <code>round(nombre, 1)</code> au dixième ; <code>round(nombre)</code> à l’unité.<br>Exemple : <code>round(3.14159, 2)</code> vaut <code>3.14</code>.<br>Python calcule parfois avec de minuscules erreurs : <code>2.15 * 3</code> donne <code>6.449999999999999</code> — <code>round(2.15 * 3, 2)</code> affiche <code>6.45</code>.`;
 const RAP_PWV=`<b>Remonter un programme</b><br>Pour retrouver la valeur de départ d’une variable, on part du résultat affiché et on défait les étapes une à une, en commençant par la DERNIÈRE, avec l’opération contraire.<br>Une multiplication se défait par une division, une addition par une soustraction, une soustraction par une addition.<br>Exemple : a = ?, a = a * 3, a = a - 4 affiche 11 : 11 + 4 = 15, puis 15 ÷ 3 = 5 ; a valait 5.`;
 const RAP_PWM=`<b>L’ordre des lignes compte</b><br>Python exécute les lignes de haut en bas, et chaque ligne calcule avec les valeurs rangées au-dessus d’elle.<br>Deux programmes qui ont les mêmes lignes dans un ordre différent peuvent donc afficher des résultats différents — ou le même, si l’ordre ne change rien aux calculs (ajouter 4 puis 6, ou 6 puis 4).`;
 const RAP_PWC=`<b>Lire un programme pas à pas</b><br>Pour savoir ce qu’affiche un programme, on le suit ligne par ligne en notant ce que contient chaque variable.<br>Les pièges : l’ordre des étapes ; une ligne comme n + 8 qui calcule sans rien ranger (seule une ligne avec = change une variable) ; des parenthèses qui changent le calcul.`;
 const RAP_PWO=`<b>L’ordre des lignes</b><br>Python exécute les lignes de haut en bas. Une variable doit recevoir sa valeur (avec =) avant qu’on s’en serve, et chaque calcul se fait avec les valeurs rangées au-dessus de lui : l’ordre des étapes compte. Le print vient après le calcul de ce qu’il affiche.`;
 const RAP_PWN=`<b>Une variable doit exister avant d’être utilisée</b><br>Python lit le programme de haut en bas. S’il rencontre une variable qui n’a pas encore reçu de valeur — ou dont le nom est mal écrit —, il s’arrête sur une erreur NameError, qui nomme la variable inconnue.<br>Python distingue les majuscules des minuscules : Note et note sont deux variables différentes.`;
 const RAP_PWG=`<b>Un programme qui tourne n’est pas forcément juste</b><br>Un programme peut s’exécuter sans erreur et afficher un résultat faux : Python fait exactement ce qui est écrit.<br>Pour trouver l’erreur : calculer à la main le résultat attendu, puis relire chaque ligne — des parenthèses oubliées, une mauvaise opération, une ligne qui calcule sans ranger.`;
-const RAP_PWF=`<b>Coder une formule</b><br>Une formule se code en une ligne : la variable qui reçoit le résultat à gauche du =, le calcul à droite, avec les noms des variables.<br>× s’écrit *, ÷ s’écrit /, le carré s’écrit ** 2, et la virgule d’un nombre décimal est un point : 1.2.<br>Exemple : prix_ttc = prix_ht * 1.2, puis print(prix_ttc).`;
+const RAP_PWF=`<b>Coder une formule</b><br>Une formule se code en une ligne : la variable qui reçoit le résultat à gauche du <code>=</code>, le calcul à droite, avec les noms des variables.<br>× s’écrit <code>*</code>, ÷ s’écrit <code>/</code>, le carré s’écrit <code>** 2</code>, et la virgule d’un nombre décimal est un point : <code>1.2</code>.<br>Exemple : <code>prix_ttc = prix_ht * 1.2</code>, puis <code>print(prix_ttc)</code>.`;
 const RAP_PWT=`<b>De l’algorithme à Python</b><br>Dans un algorithme, a ← 4 se lit « a prend la valeur 4 » : en Python, la flèche s’écrit a = 4.<br>× s’écrit *, ÷ s’écrit /, − s’écrit -, et « Afficher a » s’écrit print(a).<br>Chaque ligne de l’algorithme devient une ligne du programme, dans le même ordre.`;
 const RAP_PGC=`<b>Coder un programme de calcul</b><br>
 - A prend la valeur 5 signifie : <code class="inline">A = 5</code><br>
@@ -38156,15 +38156,19 @@ const PWE_AFF=[
   ['<code>prix = prix * 2</code> double la valeur rangée dans <code>prix</code>.', true, 'prix * 2 se calcule avec l’ancienne valeur de prix, et le double est rangé dans prix.']
 ];
 const PWE_PAR=4;
+/* Chaque question reçoit d'abord UNE affirmation vraie et UNE fausse, puis
+   le reste se distribue : quatre par question au format normal, moins quand
+   un devoir en demande davantage — jamais une affirmation répétée. Il y a
+   sept affirmations vraies : un devoir ne peut pas dépasser sept questions. */
 function pweBuild(){
-  const n=Math.min(dmNbQuestions(PW_NB), Math.floor(PWE_AFF.length/PWE_PAR));
-  let tas, qs;
-  for(let essai=0; essai<200; essai++){
-    tas=ensShuffle(PWE_AFF.map(function(_, i){ return i; }));
-    qs=[];
-    for(let i=0;i<n;i++) qs.push({s:0, l:tas.slice(i*PWE_PAR, (i+1)*PWE_PAR), r:[]});
-    if(qs.every(function(q){ const v=q.l.map(function(i){ return PWE_AFF[i][1]; }); return v.indexOf(true)>=0 && v.indexOf(false)>=0; })) break;
-  }
+  const vraies=ensShuffle(PWE_AFF.map(function(_, i){ return i; }).filter(function(i){ return PWE_AFF[i][1]; }));
+  const fausses=ensShuffle(PWE_AFF.map(function(_, i){ return i; }).filter(function(i){ return !PWE_AFF[i][1]; }));
+  const n=Math.min(dmNbQuestions(PW_NB), vraies.length, fausses.length);
+  const par=Math.min(PWE_PAR, Math.floor(PWE_AFF.length/n));
+  const qs=[];
+  for(let i=0;i<n;i++) qs.push({s:0, l:[vraies.pop(), fausses.pop()], r:[]});
+  const reste=ensShuffle(vraies.concat(fausses));
+  qs.forEach(function(q){ while(q.l.length<par) q.l.push(reste.pop()); q.l=ensShuffle(q.l); });
   return qs;
 }
 
@@ -38601,22 +38605,70 @@ PW.pwn.erreur=function(S, src, err){ return pwTraduire(src, err); };
 PW.pwt.erreur=function(S, src, err){ return pwTraduire(src, err); };
 
 /* ---- Cycle de vie : un démarreur, un rendu, une vérification, une suite par kind ---- */
-function startPWY(){ pwDemarrer('pwy'); }  function renderPWY(){ pwRender(); }  function checkPWY(live){ pwCheck(live); }  function nextPWY(){ pzSuivant(renderPWY); }
-function startPWS(){ pwDemarrer('pws'); }  function renderPWS(){ pwRender(); }  function checkPWS(live){ pwCheck(live); }  function nextPWS(){ pzSuivant(renderPWS); }
-function startPWE(){ pwDemarrer('pwe'); }  function renderPWE(){ pwRender(); }  function checkPWE(live){ pwCheck(live); }  function nextPWE(){ pzSuivant(renderPWE); }
-function startPWX(){ pwDemarrer('pwx'); }  function renderPWX(){ pwRender(); }  function checkPWX(live){ pwCheck(live); }  function nextPWX(){ pzSuivant(renderPWX); }
-function startPWA(){ pwDemarrer('pwa'); }  function renderPWA(){ pwRender(); }  function checkPWA(live){ pwCheck(live); }  function nextPWA(){ pzSuivant(renderPWA); }
-function startPWP(){ pwDemarrer('pwp'); }  function renderPWP(){ pwRender(); }  function checkPWP(live){ pwCheck(live); }  function nextPWP(){ pzSuivant(renderPWP); }
-function startPWD(){ pwDemarrer('pwd'); }  function renderPWD(){ pwRender(); }  function checkPWD(live){ pwCheck(live); }  function nextPWD(){ pzSuivant(renderPWD); }
-function startPWR(){ pwDemarrer('pwr'); }  function renderPWR(){ pwRender(); }  function checkPWR(live){ pwCheck(live); }  function nextPWR(){ pzSuivant(renderPWR); }
-function startPWV(){ pwDemarrer('pwv'); }  function renderPWV(){ pwRender(); }  function checkPWV(live){ pwCheck(live); }  function nextPWV(){ pzSuivant(renderPWV); }
-function startPWM(){ pwDemarrer('pwm'); }  function renderPWM(){ pwRender(); }  function checkPWM(live){ pwCheck(live); }  function nextPWM(){ pzSuivant(renderPWM); }
-function startPWC(){ pwDemarrer('pwc'); }  function renderPWC(){ pwRender(); }  function checkPWC(live){ pwCheck(live); }  function nextPWC(){ pzSuivant(renderPWC); }
-function startPWO(){ pwDemarrer('pwo'); }  function renderPWO(){ pwRender(); }  function checkPWO(live){ pwCheck(live); }  function nextPWO(){ pzSuivant(renderPWO); }
-function startPWN(){ pwDemarrer('pwn'); }  function renderPWN(){ pwRender(); }  function checkPWN(live){ pwCheck(live); }  function nextPWN(){ pzSuivant(renderPWN); }
-function startPWG(){ pwDemarrer('pwg'); }  function renderPWG(){ pwRender(); }  function checkPWG(live){ pwCheck(live); }  function nextPWG(){ pzSuivant(renderPWG); }
-function startPWF(){ pwDemarrer('pwf'); }  function renderPWF(){ pwRender(); }  function checkPWF(live){ pwCheck(live); }  function nextPWF(){ pzSuivant(renderPWF); }
-function startPWT(){ pwDemarrer('pwt'); }  function renderPWT(){ pwRender(); }  function checkPWT(live){ pwCheck(live); }  function nextPWT(){ pzSuivant(renderPWT); }
+function startPWY(){ pwDemarrer('pwy'); }
+function renderPWY(){ pwRender(); }
+function checkPWY(live){ pwCheck(live); }
+function nextPWY(){ pzSuivant(renderPWY); }
+function startPWS(){ pwDemarrer('pws'); }
+function renderPWS(){ pwRender(); }
+function checkPWS(live){ pwCheck(live); }
+function nextPWS(){ pzSuivant(renderPWS); }
+function startPWE(){ pwDemarrer('pwe'); }
+function renderPWE(){ pwRender(); }
+function checkPWE(live){ pwCheck(live); }
+function nextPWE(){ pzSuivant(renderPWE); }
+function startPWX(){ pwDemarrer('pwx'); }
+function renderPWX(){ pwRender(); }
+function checkPWX(live){ pwCheck(live); }
+function nextPWX(){ pzSuivant(renderPWX); }
+function startPWA(){ pwDemarrer('pwa'); }
+function renderPWA(){ pwRender(); }
+function checkPWA(live){ pwCheck(live); }
+function nextPWA(){ pzSuivant(renderPWA); }
+function startPWP(){ pwDemarrer('pwp'); }
+function renderPWP(){ pwRender(); }
+function checkPWP(live){ pwCheck(live); }
+function nextPWP(){ pzSuivant(renderPWP); }
+function startPWD(){ pwDemarrer('pwd'); }
+function renderPWD(){ pwRender(); }
+function checkPWD(live){ pwCheck(live); }
+function nextPWD(){ pzSuivant(renderPWD); }
+function startPWR(){ pwDemarrer('pwr'); }
+function renderPWR(){ pwRender(); }
+function checkPWR(live){ pwCheck(live); }
+function nextPWR(){ pzSuivant(renderPWR); }
+function startPWV(){ pwDemarrer('pwv'); }
+function renderPWV(){ pwRender(); }
+function checkPWV(live){ pwCheck(live); }
+function nextPWV(){ pzSuivant(renderPWV); }
+function startPWM(){ pwDemarrer('pwm'); }
+function renderPWM(){ pwRender(); }
+function checkPWM(live){ pwCheck(live); }
+function nextPWM(){ pzSuivant(renderPWM); }
+function startPWC(){ pwDemarrer('pwc'); }
+function renderPWC(){ pwRender(); }
+function checkPWC(live){ pwCheck(live); }
+function nextPWC(){ pzSuivant(renderPWC); }
+function startPWO(){ pwDemarrer('pwo'); }
+function renderPWO(){ pwRender(); }
+function checkPWO(live){ pwCheck(live); }
+function nextPWO(){ pzSuivant(renderPWO); }
+function startPWN(){ pwDemarrer('pwn'); }
+function renderPWN(){ pwRender(); }
+function checkPWN(live){ pwCheck(live); }
+function nextPWN(){ pzSuivant(renderPWN); }
+function startPWG(){ pwDemarrer('pwg'); }
+function renderPWG(){ pwRender(); }
+function checkPWG(live){ pwCheck(live); }
+function nextPWG(){ pzSuivant(renderPWG); }
+function startPWF(){ pwDemarrer('pwf'); }
+function renderPWF(){ pwRender(); }
+function checkPWF(live){ pwCheck(live); }
+function nextPWF(){ pzSuivant(renderPWF); }
+function startPWT(){ pwDemarrer('pwt'); }
+function renderPWT(){ pwRender(); }
+function checkPWT(live){ pwCheck(live); }
+function nextPWT(){ pzSuivant(renderPWT); }
 
 /* ---- Le contexte envoyé au modèle ---- */
 function ctxPw(q){
