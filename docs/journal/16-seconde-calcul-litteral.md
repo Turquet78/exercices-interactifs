@@ -814,7 +814,7 @@ bouton — x = −2, A = 3x² − 2x + 1, B = −x² + 5x − 3 — avec la copi
 voisine juste reste bleue, le message les nomme), deux cases vides (la
 correction, jamais rouge), une réponse illisible, le barème de 24.
 
-## {developper-reduire} — développer puis réduire une somme de produits (7.14, v544 — le 7.12 et le 7.13, les v541 à v543 pris le même jour par {vrai-faux-calcul}, {valeur-expression}, le 8.2.14 et le calcul global)
+## {developper-reduire} — développer puis réduire une somme de produits (7.14, v545 — le 7.12 et le 7.13, les v541 à v544 pris le même jour par {vrai-faux-calcul}, {valeur-expression}, le 8.2.14, le calcul global et le 6.3)
 
 **La demande** (Turquet, octobre 2026) : « créer un exercice dans calcul
 littéral sur Développer puis réduire une somme de produits. Par exemple
