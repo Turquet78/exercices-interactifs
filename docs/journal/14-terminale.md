@@ -3198,7 +3198,7 @@ bouge.
   du texte : le banc principal les recompare aux suites qu'il calcule, pour
   M de 2 à 6, et exige que le tableau suive les contre-exemples de la liste.
   Le « ; » colle à son terme : au téléphone, un « ; … » seul ouvrait la ligne.
-  **Puis en décimal (v392).** « Je veux des valeurs décimales au centième près
+  **Puis en décimal (v393).** « Je veux des valeurs décimales au centième près
   et non des fractions » : chaque terme s'écrit arrondi au centième, virgule
   française, zéros de queue retirés (1/3 → 0,33 ; 5/2 → 2,5 ; 1 reste 1), et
   l'en-tête le dit. Les termes restent rangés en fractions exactes
