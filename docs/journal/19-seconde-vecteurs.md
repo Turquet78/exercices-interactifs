@@ -3395,6 +3395,59 @@ sans repli ni perte de variété. Le banc relit les deux règles sur le DESSIN ;
 entre les flèches 1 et 2 » ; avec les distances d'avant, « le point E est à
 31 px d'une flèche de la chaîne qui ne le touche pas ».
 
+**Puis l'énoncé a dit de répondre avec les flèches BLEUES, et u⃗, v⃗, w⃗ sont
+devenus rouges** (v539, demande de Turquet : « préciser qu'il faut répondre
+avec des vecteurs bleus de la figure ; écrire u, v, w en rouge dans l'énoncé
+et dans les questions ; les vecteurs bleus des réponses doivent être tracés,
+ainsi que deux supplémentaires »). Jusque-là, la réponse à u⃗ + v⃗ était le
+raccourci de deux flèches de la chaîne, que la figure ne traçait pas, et un
+w⃗ de trois flèches passait par un vecteur invisible : l'élève devait écrire
+deux lettres qu'aucun trait ne reliait.
+- **Les réponses sont tracées** (`lsdBleues`) : la chaîne, le raccourci
+  `ch[k] → ch[k+2]` de u⃗ + v⃗, et, pour m = 3, `ch[j] → ch[j+2]` — de la même
+  encre que la chaîne (classe `lsd-bl`, que le juge du banc distingue de
+  `lsd-ch`). Ces raccourcis se recalculent : seules les deux flèches de plus
+  se rangent (`q.dx`, deux lettres chacune ; une question d'avant, sans `dx`,
+  se redessine sans elles).
+- **Deux flèches de plus**, entre deux des six points, qui ne servent à
+  AUCUNE réponse, même retournées : ni ± (u⃗ + v⃗), ni ± w⃗, ni complétées en w⃗
+  par une flèche bleue lue dans un sens ou dans l'autre — l'élève qui
+  retourne une flèche écrit encore un vecteur de la figure, et la page le
+  compterait juste. Pour la figure de secours, FB et BM se complétaient
+  l'une l'autre (FB retourné, plus BM retourné, fait w⃗) : ce sont KA et MB.
+- **Chaque trait ajouté** (`lsdTraitOk`) passe à 1 carreau au moins des
+  points qu'il ne touche pas, ne croise ni ne frôle (0,7) un autre trait, et
+  s'ouvre d'au moins 25° sur un trait dont il partage un bout ; u⃗, v⃗, w⃗ se
+  posent loin de TOUS les traits bleus. Mesuré sur 3 000 figures : aucun
+  repli sur la figure de secours, 7 ms par figure.
+- **Le juge n'a pas changé** : tout vecteur juste de la figure est accepté,
+  bleu ou non (le banc le tient toujours, vecteur par vecteur). Mais la
+  correction écrit des flèches bleues : `lsdComplete` préfère une flèche
+  bleue, puis celle qui s'enchaîne.
+- **Le rouge** est un jeton de l'écran (`--lsd-uvw`, #D3202F), sur le dessin,
+  dans l'énoncé (`.lsd-r`) et dans les questions (`.lsd-n`). Les mots
+  « vecteurs bleus de la figure » sont écrits en bleu nuit : la règle de
+  l'énoncé sur `b` les peignait d'abord en rouge — vu sur la capture, pas
+  par un banc ; le sélecteur porte maintenant l'identifiant de l'énoncé.
+
+Le banc relit les flèches bleues sur le DESSIN : chacune relie deux points
+nommés, à 27 px au moins des autres ; la réponse à u⃗ + v⃗ et une écriture de
+w⃗ y sont tracées ; parmi les flèches ajoutées à la chaîne, exactement DEUX
+ne servent à rien (même retournées), aucune ne sert « seulement à
+l'envers » ; la correction de la copie vide n'écrit que des flèches bleues ;
+l'énoncé dit « vecteurs bleus de la figure », et les neuf u⃗, v⃗, w⃗ de
+l'énoncé et des questions portent la classe rouge. Trois sabotages, le
+contrôle joué seul dans Chromium : le raccourci de u⃗ + v⃗ retiré du dessin
+(« la réponse à u + v n’est pas tracée en bleu ») ; les flèches de plus
+tirées sans filtre (« 1 flèche(s) bleue(s) ne servent à aucune réponse, au
+lieu de 2 », « une flèche bleue ajoutée ne sert qu’à l’envers ») ;
+`lsdComplete` qui ne préfère plus les flèches bleues — passé VERT la
+première fois : la copie vide se corrige par l'écriture de la page, déjà
+bleue, et rien ne regardait la case seule. Le contrôle juge maintenant,
+pour chaque flèche bleue écrite seule dans une case de w⃗, la flèche qui la
+complète (« avec HP seul, la correction de w écrit MJ, qui n’est pas une
+flèche bleue »).
+
 ## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.15, v538 — commencé comme 8.2.11 en v528 ; les exercices du thème 8 fusionnés pendant les bancs ont pris tour à tour les numéros 8.2.11 à 8.2.14 et les versions v528 à v537)
 
 **La demande** (Turquet, octobre 2026). Dans la liste d'idées d'exercices sur
