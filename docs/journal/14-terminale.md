@@ -2864,6 +2864,61 @@ trois premières cases soient a, a, b et que la ligne réduite soit la dérivée
 de f (différences finies) ; « −1 » à la place de b, « 3 » à la place de −3
 rougissent seuls.
 
+**{convexite-tangente} (4.3.6, v390) : UNE INÉGALITÉ PAR UNE TANGENTE, LA
+DÉMONSTRATION À TROUS.** Demande de Turquet (octobre 2026), après une liste
+d'idées pour compléter la partie Convexité : « crée l'exercice 7 sur les
+tangentes et inégalités ». La septième idée était la rédaction à trous, la
+première l'inégalité par la tangente : l'exercice est les deux, c'est-à-dire le
+geste du bac « f″ ≥ 0 sur I ⟹ f convexe ⟹ courbe au-dessus de ses tangentes ⟹
+f(x) ≥ T(x) », écrit en cinq étapes dont l'élève remplit les trous. f′ et f″
+sont DONNÉES (« on admet que… ») : les dériver est le travail du 4.3.2 et du
+4.3.4, ici on rédige le raisonnement.
+**Le tirage** : quatre familles, une par question, en ordre mélangé —
+e^(kx + p) convexe sur ℝ (a = −p/k entier : e^x ≥ x + 1, e^(x−1) ≥ x,
+e^(2x) ≥ 2x + 1…) ; x³ + cx avec f″ = 6x, convexe sur [0 ; +∞[ si a > 0,
+concave sur ]−∞ ; 0] si a < 0 ; (x + β)e^x convexe sur [−β − 2 ; +∞[ ; et
+(x + β)e^(−x) concave sur ]−∞ ; 2 − β], ces deux dernières avec la tangente
+en 0. Tout tombe sur des entiers ; la pente de T n'est jamais nulle (la case
+« y = [m] x » attendrait 0), et la case de l'ordonnée à l'origine disparaît
+quand elle vaut 0, comme au 4.2.2. Deux énoncés : « étudie… puis déduis-en
+une inégalité » (rien n'est annoncé) et « démontre que f(x) ≥ … » (le sujet
+du bac).
+**Le signe de f″ se lit FACTEUR PAR FACTEUR, par des menus de symboles** :
+« e^x [> 0] et x + 2 [≥ 0], donc f″(x) = (x + 2)e^x [≥ 0] ». Un menu de
+justifications écrites aurait mis des exposants dans des `<option>`, qui
+n'acceptent pas de HTML ; les symboles seuls, eux, s'y écrivent.
+**Le second membre de la conclusion est un MIROIR** de l'équation de T telle
+que l'élève l'écrit (`cvtMiroir`, un `<span>`, pas une case : rien ne s'y
+juge, rien ne compte dans la note) : l'écrire en clair aurait donné la
+réponse du 3, le redemander aurait fait recopier. Une fois la question
+verrouillée, le miroir montre l'équation corrigée — vu sur capture : un
+rafraîchissement passé après la correction réécrivait « −1x + 2 » depuis la
+saisie.
+**Le coefficient 1 de x s'omet** (M76, comme au 4.2.2) : la case vide de la
+pente vaut 1 quand la case de l'ordonnée à l'origine, sur la même ligne, est
+remplie et juste ; une ligne fausse garde son vide, qui reçoit la correction.
+**Le contrôle (`tests/verifier.js`, `convexiteTangente`) relit l'ÉNONCÉ
+AFFICHÉ** — f, f′ et f″ traduites en fonctions depuis le HTML — puis refait
+tout par différences finies, jamais par `cvtAns` : f′ dérivée de f, f″ de f′,
+le signe de f″ sur une grille de I, f(a), f′(a), la pente et l'ordonnée à
+l'origine, et l'inégalité attendue VRAIE en chaque point de I ; sur 60
+séances et sur CHAQUE jeu de paramètres possible. Puis les gestes : copie
+juste, case fausse seule rouge, case vide jamais rouge, omission du 1,
+miroir, soutien en direct, clause de secret. Éprouvé par sabotage (f″ de
+e^(2x) affichée 2e^(2x), concavité de (x + β)e^(−x) retournée) : les deux
+attrapés. Son seuil s'est trompé une fois, à la première exécution : la
+dérivée numérique fait 10⁻⁹ d'erreur sur e^(x−1), et une ordonnée à l'origine
+nulle se lisait non nulle à 10⁻⁹ près — 10⁻⁶ suffit.
+**Le banc navigateur a rougi une fois** sur « aucun indice ne remonte sur la
+ligne de sa lettre » : « e^x » et « x³ » posés NUS dans un `.tg-coef` (un
+conteneur flex) devenaient des items et perdaient leur exposant. Pour un code
+neuf, la correction est celle du rendu natif : l'expression est enveloppée
+dans un `<span>`, l'exposant n'est plus enfant direct du flex.
+Il devait être le 4.3.5, en v388 : {associer-derivee-seconde} a pris l'un et
+l'autre pendant que les contrôles tournaient, et la fusion de main l'a fait
+passer en 4.3.6, v389, après lui — puis en v390, la v389 étant prise par la
+convergence monotone avant le passage des contrôles.
+
 **Le thème de la Dérivée a rejoint celui de l'Étude de fonction (octobre
 2026, v373).** Demande de Turquet : « mettre le thème dérivée dans le thème
 étude de fonction ». Le thème 4 · Étude de fonction a désormais quatre
