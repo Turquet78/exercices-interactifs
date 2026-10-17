@@ -2989,7 +2989,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=326;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=327;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -18481,8 +18481,11 @@ PBX.pct={
    Y parmi B, B̄. Demande de Turquet (octobre 2026) : « comparer P(F ∩ T) et
    P(F) × P(T) pour dire si c'est indépendant ou non, avec des nombres plus
    petits que 5 dans les cases intérieures du tableau ». Les quatre cases du
-   milieu valent donc 1 à 4 (total au plus 16) : le produit tombe sur T², au
-   plus 256, et se calcule de tête. Avant (v324 et plus tôt), la méthode était
+   milieu valent donc 1 à 4, et leur total vaut TOUJOURS 10 (demande de
+   Turquet, v327) : le produit tombe sur 100. Avec ces bornes, il n'existe
+   que HUIT tableaux indépendants (1-1-4-4, 2-2-3-3 et leurs permutations
+   qui gardent n(A∩B)·n(Ā∩B̄) = n(Ā∩B)·n(A∩B̄)) et 36 qui ne le sont pas ;
+   avec les quatre choix de X et Y, assez pour une séance sans redite. Avant (v324 et plus tôt), la méthode était
    P_X(Y) contre P(Y) en pourcentages, sur des effectifs de 50 à 200.
    L'élève écrit P(X ∩ Y), P(X), P(Y) avec les effectifs (une rangée), puis
    le produit et P(X ∩ Y) sur le même dénominateur que lui (une seconde
@@ -18498,10 +18501,10 @@ function indTirage(indep){
   const X=pick(['A','nA']), Y=pick(['B','nB']);
   for(let e=0;e<1000;e++){
     const n=[rand(1,4),rand(1,4),rand(1,4),rand(1,4)];
-    if((n[0]*n[3]===n[1]*n[2])!==indep) continue;
+    if(n[0]+n[1]+n[2]+n[3]!==10 || (n[0]*n[3]===n[1]*n[2])!==indep) continue;
     return { ev:[Y,X], ind:indep?'oui':'non', n:n };
   }
-  return { ev:['B','A'], ind:'oui', n:[1,2,2,4] };
+  return { ev:['B','A'], ind:'oui', n:[2,2,3,3] };
 }
 function indSeance(){
   const nb=dmNbQuestions(4), ci=rand(0,PB_CTX.length-1), qs=[];

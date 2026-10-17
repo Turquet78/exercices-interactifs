@@ -627,6 +627,11 @@ sait lire pour un démarreur partagé (en second, il a rougi les cinq).
   téléphone la rangée se replie ENTRE elles, jamais entre un nom et son
   « = ». Vérifié dans Chromium : copie exacte, copie simplifiée (11/11),
   produit faux (seules ses cases rougissent).
+  **v327** (« le total doit être de 10 à chaque fois ») : les quatre cases
+  valent 1 à 4 ET somment à 10 ; le produit tombe sur 100. Huit tableaux
+  indépendants seulement (1-1-4-4, 2-2-3-3 et permutations), 36 non
+  indépendants — avec les quatre choix de X et Y, `distincte` a de quoi
+  tirer une séance de 20 questions sans redite.
 - **3.9 {automatismes-probabilites}** — dix QCM, une question de chaque sorte
   (`AUTO_SORTES` : case d'un tableau, conditionnelle, contraire, pourcentage,
   notation, produit sur un arbre, branche manquante, probabilités totales,
