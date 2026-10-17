@@ -13738,7 +13738,7 @@ function lireSommeDessin(w, P){
           if(!r[1].ok && !J.meme(plus(J.D(r[1].bon), J.D(r[2].bon)), w)) vus.push('la correction de w = '+a+' + '+b+' écrit '+r[1].bon+' + '+r[2].bon);
         }); });
         if(!canon) vus.push('aucune somme de deux vecteurs de la figure ne fait w');
-        /* les flèches BLEUES (v539) : l'énoncé dit d'y répondre. La réponse à
+        /* les flèches BLEUES (v541) : l'énoncé dit d'y répondre. La réponse à
            u + v y est tracée, une écriture de w aussi, et les flèches bleues
            ajoutées à la chaîne sont des réponses, sauf DEUX — qui ne servent
            à rien, même retournées. Chacune relie deux points nommés, loin
@@ -13810,7 +13810,7 @@ function lireSommeDessin(w, P){
     if(!/Quel vecteur bleu de la figure est égal à u ?\\+ ?v/.test(texte)) vus.push('la question 1 dit « '+texte.slice(0,100)+' »');
     if(!/comme la somme de deux vecteurs bleus de la figure/.test(texte)) vus.push('la question 2 manque');
     if(!/vecteurs bleus de la figure/.test(el('lsdInstr').textContent)) vus.push('l’énoncé ne dit pas de répondre avec les vecteurs bleus');
-    /* u, v, w en ROUGE dans l'énoncé et dans les questions (v539) */
+    /* u, v, w en ROUGE dans l'énoncé et dans les questions (v541) */
     const rouges=document.querySelectorAll('#lsdInstr .lsd-r, #lsdHost .lsd-q .lsd-r, #lsdHost .lsd-n');
     if(rouges.length!==3+3+3) vus.push(rouges.length+' vecteurs u, v, w marqués rouges au lieu de 9');
     if(J.bl.length!==3) vus.push('la figure fixe trace '+J.bl.length+' flèches bleues hors de la chaîne au lieu de 3 (KM, KA, MB)');
@@ -14357,6 +14357,27 @@ function sommeTroisVecteurs(w, P){
     if(!el('stv-ch')||!el('stv-sm')||!el('stv-ch').classList.contains('pts-case')||!el('stv-sm').classList.contains('pts-case')) vus.push('les deux réponses ne sont pas des pts-case');
     if(!el('stvNul') || !el('stv-sm').contains(el('stvNul'))) vus.push('le bouton « C’est le vecteur nul » n\\'est pas dans la consigne de la somme');
     const verifierIci=function(){ const av=test.score; checkStv(); clearTimeout(test.fbTimer); return test.score-av; };
+    const chainer=function(){ stvDeplacer(0,[2,2]); stvDeplacer(1,[5,3]); stvDeplacer(2,[6,6]); };
+
+    /* 2 bis. les cadres des étapes : l'étape en cours en bleu, l'étape faite en
+       vert ; pendant l'étape 1, rien ne se trace ni ne se déclare, aucun point */
+    const cadres=function(){ return ['stv-ch','stv-sm'].map(function(id){ return (el(id).classList.contains('stv-cours')?'C':'')+(el(id).classList.contains('stv-fait')?'F':'')||'-'; }).join('/'); };
+    const svgE=function(){ return document.querySelector('#stvGraph .stv-svg').classList.contains('stv-etape1'); };
+    if(cadres()!=='C/-' || !svgE()) vus.push('au départ, l\\'étape 1 n\\'est pas seule en cours : '+cadres());
+    stvPose(3,3); stvNul();
+    if(test.questions[0].sd || test.questions[0].dn || !el('stvNul').disabled) vus.push('pendant l\\'étape 1, un clic pose un point ou le vecteur nul se déclare');
+    stvDeplacer(0,[2,2]);
+    if(cadres()!=='C/-') vus.push('une seule flèche placée, l\\'étape 1 change : '+cadres());
+    stvDeplacer(1,[5,3]); stvDeplacer(2,[6,6]);
+    if(cadres()!=='F/C' || svgE() || el('stvNul').disabled) vus.push('les flèches bout à bout, l\\'étape 1 ne passe pas au vert ou l\\'étape 2 en bleu : '+cadres());
+    stvPose(2,2);
+    if(cadres()!=='F/C') vus.push('le début seul posé, l\\'étape 2 passe déjà : '+cadres());
+    stvPose(4,4);
+    if(cadres()!=='F/F') vus.push('la somme tracée, l\\'étape 2 ne passe pas au vert : '+cadres());
+    stvDeplacer(0,[3,3]);
+    if(cadres()!=='C/F' || !svgE()) vus.push('la chaîne défaite, l\\'étape 1 ne redevient pas en cours : '+cadres());
+    test.questions[0]=fiche(false); renderStv();
+    if(cadres()!=='C/-') vus.push('la question redessinée garde ses cadres : '+cadres());
 
     /* 3. vérifier à vide : deux sol, la construction verte (trois copies et la somme), rien de rouge */
     verifierIci();
@@ -14396,20 +14417,20 @@ function sommeTroisVecteurs(w, P){
     piege(function(){ stvDeplacer(0,[3,3]); stvDeplacer(1,[6,4]); stvDeplacer(2,[7,7]); }, 'stv-ch', /part du point A/, 'la construction qui ne part pas de A');
     test.questions[5]=fiche(false); test.questions[2]=fiche(false); test.questions[3]=fiche(false); test.questions[4]=fiche(false);
     test.idx=1; test.locked=false;
-    piege(function(){ stvPose(8,4); stvPose(2,2); }, 'stv-sm', /à l’envers/, 'la somme à l’envers');
-    piege(function(){ stvPose(2,2); stvPose(6,6); }, 'stv-sm', /oublié le vecteur w/, 'la somme qui oublie w');
-    piege(function(){ stvNul(); }, 'stv-sm', /n’est pas le vecteur nul/, 'le vecteur nul déclaré à tort');
-    if(classe('stv-ch')!=='sol') vus.push('le chaînage non touché rougit : '+classe('stv-ch'));
+    piege(function(){ chainer(); stvPose(8,4); stvPose(2,2); }, 'stv-sm', /à l’envers/, 'la somme à l’envers');
+    piege(function(){ chainer(); stvPose(2,2); stvPose(6,6); }, 'stv-sm', /oublié le vecteur w/, 'la somme qui oublie w');
+    piege(function(){ chainer(); stvNul(); }, 'stv-sm', /n’est pas le vecteur nul/, 'le vecteur nul déclaré à tort');
+    if(document.querySelector('#stvBody .stv-fait, #stvBody .stv-cours')) vus.push('la marque « étape faite » ou « en cours » reste sous le verdict');
 
     /* 7. la somme nulle : déclarer est juste, tracer est faux et nommé, la copie vide montre le point en vert */
     const nulle=function(){ test.questions[0]=fiche(true); test.idx=0; test.locked=false; renderStv(); };
-    nulle(); stvPose(1,1); stvPose(3,3); stvNul();
+    nulle(); chainer(); stvPose(1,1); stvPose(3,3); stvNul();
     if(test.questions[0].sd || test.questions[0].dn!==1 || el('stvTrace').children.length || !el('stvNul').classList.contains('stv-nul-on')) vus.push('déclarer nul n\\'efface pas la flèche ou ne s\\'affiche pas');
     stvPose(1,1);
     if(test.questions[0].dn!==0 || el('stvNul').classList.contains('stv-nul-on')) vus.push('tracer n\\'efface pas la déclaration');
-    stvPose(1,1); stvNul(); stvDeplacer(0,[2,2]); stvDeplacer(1,[5,3]); stvDeplacer(2,[6,6]);
+    stvPose(1,1); stvNul();
     if(verifierIci()!==2 || classe('stv-sm')!=='ok' || el('stvCorr').children.length) vus.push('la somme nulle déclarée et la chaîne juste : '+classe('stv-ch')+' '+classe('stv-sm'));
-    nulle(); stvPose(2,2); stvPose(5,5); verifierIci();
+    nulle(); chainer(); stvPose(2,2); stvPose(5,5); verifierIci();
     if(classe('stv-sm')!=='bad' || !/REVIENNENT/.test(fb()) || !document.querySelector('#stvCorr .stv-nul-sol') || document.querySelector('#stvCorr line.svc-s:not(.svc-copie)')) vus.push('une flèche tracée pour une somme nulle : '+classe('stv-sm')+' — '+fb().slice(0,120));
     nulle(); verifierIci();
     if(classe('stv-sm')!=='sol' || !/vecteur nul/.test(fb()) || document.querySelector('#stvGraph .svc-eb')) vus.push('la copie vide d\\'une somme nulle : '+classe('stv-sm')+' — '+fb().slice(0,120));
