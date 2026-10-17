@@ -4725,6 +4725,7 @@ function exercices(suite){
     convexiteParametre(w, P);
     mineursTerminale(w, P);
     suiteVocabulaire(w, P);
+    autourDuTcm(w, P);
     etiquetteCourbe(w, P);
     etiquetteCourbeSeconde(w, P);
     fenetresDetachees(w, P);
@@ -48087,6 +48088,142 @@ function convexiteQcm(w, P){
     if(r.score!==1) vus.push('la copie juste de l\\'exercice 6 (minimum en −1) ne vaut pas le point : '+r.fb);
     return vus.join(' | ');
   })()`, v => v === '', undefined);
+}
+/* ---------- Autour du théorème de convergence monotone (5.4.4 à 5.4.6, 5.5.2) ----------
+   Les quatre exercices de « fais les idées 1, 2, 7 et 10 » (octobre 2026).
+   Ce contrôle ne croit pas la page sur parole :
+   — le VRAI OU FAUX : chaque contre-exemple de la liste est CALCULÉ sur ses
+     400 premiers termes (sens, bornes, limite finie, +∞) et confronté à chaque
+     affirmation ; la liste « ok » de la page doit être EXACTEMENT celle des
+     contre-exemples qui remplissent les hypothèses sans la conclusion — en
+     refuser un valable donnerait tort à une copie juste ; et aucune
+     affirmation dite vraie ne doit tomber devant un contre-exemple ;
+   — CROISSANTE NON MAJORÉE : chaque tirage est croissant et vérifie Uₙ ≥ n
+     sur ses premiers termes, calculés ;
+   — LA SOMME MAJORÉE : Sₙ ≤ 2 − 1/n sur 300 termes, pour p = 2 et p = 3 ;
+   — L'ALGORITHME : la boucle de la correction, EXÉCUTÉE, renvoie le rang de
+     la page, et le tableau arrondi au millionième le montre au même rang ;
+   puis, pour les quatre, la copie de la correction vaut le point, et les
+   écritures équivalentes que les juges promettent passent. */
+function autourDuTcm(w, P){
+  const nom='autour du théorème de convergence monotone (5.4.4 à 5.4.6, 5.5.2)';
+  const present = evaluer(w, "typeof TCM4==='object' && typeof startTVF==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas ces exercices'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    const nums={'suite-vocabulaire':'5.4.1','suite-tcm-limite':'5.4.2','suite-synthese-variations':'5.4.3','tcm-vrai-faux':'5.4.4',
+      'suite-croissante-non-majoree':'5.4.5','suite-somme-majoree':'5.4.6','suite-algo-seuil':'5.5.1','suite-algo-approx':'5.5.2'};
+    Object.keys(nums).forEach(function(id){ if(TEST_NUM[id]!==nums[id]) vus.push(id+' porte le numéro '+TEST_NUM[id]+' au lieu de '+nums[id]); });
+
+    /* ---- le vrai ou faux, recalculé ---- */
+    const N=400;
+    const CE={ alt:function(n,M){ return Math.pow(-1,n); }, altn:function(n,M){ return Math.pow(-1,n)/(n+1); },
+      moinsn:function(n,M){ return -n; }, altnn:function(n,M){ return Math.pow(-1,n)*n; }, npm:function(n,M){ return n+2*Math.pow(-1,n); },
+      invM:function(n,M){ return M-1/(n+1); }, invM1:function(n,M){ return (M-1)-1/(n+1); } };
+    const props=function(f,M){
+      const t=[]; for(let n=0;n<N;n++) t.push(f(n,M));
+      let cr=true, de=true; for(let i=0;i<N-1;i++){ if(!(t[i+1]>t[i])) cr=false; if(!(t[i+1]<t[i])) de=false; }
+      const sup=Math.max.apply(null,t), inf=Math.min.apply(null,t), queue=t.slice(N/2);
+      const conv=Math.max.apply(null,queue)-Math.min.apply(null,queue)<0.01;
+      return { u0:t[0], cr:cr, de:de, mono:cr||de, maj:sup<N/4, min:inf>-N/4, bornee:sup<N/4&&inf>-N/4, sup:sup, inf:inf,
+        conv:conv, lim:conv?Math.round(t[N-1]*100)/100:null, pinf:Math.min.apply(null,queue)>N/8, minf:Math.max.apply(null,queue)<-N/8,
+        stricte:function(m){ return t.every(function(x){ return x<m; }); }, large:function(m){ return t.every(function(x){ return x<=m; }); } };
+    };
+    /* [hypothèses, conclusion] de chaque affirmation, sur les propriétés calculées */
+    const AFF={
+      majlim:  function(p,M){ return [p.cr && p.large(M), p.conv && p.lim===M]; },
+      bornee:  function(p){ return [p.bornee, p.conv]; },
+      convmono:function(p){ return [p.conv, p.mono]; },
+      croisinf:function(p){ return [p.cr, p.pinf]; },
+      majconv: function(p){ return [p.maj, p.conv]; },
+      nonmaj:  function(p){ return [!p.maj, p.pinf]; },
+      decconv: function(p){ return [p.de, p.conv]; },
+      infcrois:function(p){ return [p.pinf, p.cr]; },
+      strict:  function(p,M){ return [p.stricte(M) && p.conv, p.conv && p.lim<M]; },
+      tcmc:    function(p){ return [p.cr && p.maj, p.conv]; },
+      tcmd:    function(p){ return [p.de && p.inf>=0, p.conv]; },
+      divc:    function(p){ return [p.cr && !p.maj, p.pinf]; },
+      divd:    function(p){ return [p.de && !p.min, p.minf]; },
+      large:   function(p,M){ return [p.large(M) && p.conv, p.conv && p.lim<=M]; },
+      u0c:     function(p){ return [p.cr, p.inf>=p.u0]; },
+      u0d:     function(p){ return [p.de, p.sup<=p.u0]; }
+    };
+    const cles=Object.keys(TVF_AFF);
+    if(cles.length!==Object.keys(AFF).length || cles.some(function(k){ return !AFF[k]; })) vus.push('le contrôle ne connaît pas toutes les affirmations de la page : '+cles.join(','));
+    cles.forEach(function(k){ const A=TVF_AFF[k];
+      [2,3,4,5,6].forEach(function(M){
+        const refute=Object.keys(CE).filter(function(c){ const h=AFF[k](props(CE[c],M),M); return h[0] && !h[1]; });
+        if(A.v){ if(refute.length) vus.push('« '+k+' » est dite vraie, et '+refute.join(',')+' la réfute (M = '+M+')'); }
+        else {
+          const ok=A.ok.slice().sort().join(','), calc=refute.slice().sort().join(',');
+          if(ok!==calc) vus.push('« '+k+' » (M = '+M+') : la page accepte ['+ok+'], le calcul trouve ['+calc+']');
+        }
+      });
+      const opts=tvfOpts({af:k,M:3}).map(function(o){ return o[0]; });
+      A.ok.forEach(function(o){ if(opts.indexOf(o)<0) vus.push('« '+k+' » attend '+o+', absent de la liste'); });
+    });
+    const vuesAff={};
+    for(let s=0;s<60;s++){
+      const qs=tvfGenSession(), v=qs.filter(function(q){ return TVF_AFF[q.af].v; }).length, d={};
+      qs.forEach(function(q){ d[q.af]=1; vuesAff[q.af]=1; if(TVF_AFF[q.af].M ? !(q.M>=2&&q.M<=6) : ('M' in q)) vus.push('M mal tiré pour '+q.af); });
+      if(qs.length!==8 || v!==4 || Object.keys(d).length!==8){ vus.push('séance du vrai ou faux : '+qs.length+' questions, '+v+' vraies, '+Object.keys(d).length+' affirmations distinctes'); break; }
+    }
+    if(Object.keys(vuesAff).length!==cles.length) vus.push('en 60 séances, seules '+Object.keys(vuesAff).length+' affirmations sur '+cles.length+' sont sorties');
+
+    /* ---- croissante non majorée : le tirage est honnête ---- */
+    const fams={};
+    for(let s=0;s<100;s++) tnmGenSession().forEach(function(q){ fams[q.fam]=1;
+      let u=q.c; for(let n=0;n<6;n++){ if(u<n) vus.push('tnm '+JSON.stringify(q)+' : U'+n+' = '+u+' < '+n); const v=tnmF(q,n,u); if(!(v>u)) vus.push('tnm '+JSON.stringify(q)+' : non croissante au rang '+n); u=v; } });
+    if(Object.keys(fams).length!==2) vus.push('tnm : une seule famille sort');
+
+    /* ---- la somme majorée ---- */
+    [2,3].forEach(function(p){ for(let n=1;n<=300;n++) if(ssmS(p,n)>2-1/n+1e-12){ vus.push('S'+n+' > 2 − 1/n pour p = '+p); break; } });
+
+    /* ---- l'algorithme : la boucle de la correction, exécutée ---- */
+    for(let s=0;s<150;s++){
+      const q=sapEssai(), eps=sapEps(q);
+      let u=q.u0, n=0; while(Math.abs(u-q.l)>=eps && n<1000){ u=q.a*u+q.b; n++; }
+      if(n!==q.n) vus.push('sap '+sagRecPlain(q)+' 10^-'+q.pe+' : la boucle renvoie '+n+', la page '+q.n);
+      const t=sapVals(q).map(function(x){ return Math.round(x*1e6)/1e6; });
+      const lu=t.findIndex(function(x){ return Math.abs(x-q.l)<eps; });
+      if(lu!==q.n) vus.push('sap : le tableau montre le rang '+lu+', la page attend '+q.n);
+      if(q.n<5||q.n>40) vus.push('sap : rang '+q.n+' hors de [5 ; 40]');
+    }
+    const q2={A:{p:7,q:10},a:0.7,b:3,l:10,u0:30,pe:2,n:0,decimalDisplay:true};
+    ['0.01','10**-2','10**(-2)','1e-2','1/100',' 0.01 '].forEach(function(r){ if(!sapJusteEps(r,q2)) vus.push('sap : « '+r+' » refusé pour 10^-2'); });
+    ['0.1','10**-3','10**(-2','0,01','1e-3',''].forEach(function(r){ if(sapJusteEps(r,q2)) vus.push('sap : « '+r+' » accepté pour 10^-2'); });
+    ['3+0.7*u','0.7*u+3','(7*u+30)/10'].forEach(function(r){ if(!TCM4.sap.juste('sap-upd',r,q2)) vus.push('sap : mise à jour « '+r+' » refusée'); });
+
+    /* ---- les juges : ce qu'ils promettent ---- */
+    const qt={fam:'lin',a:2,b:4,c:1};
+    if(!TCM4.tnm.juste('tnm-m','1',qt) || !TCM4.tnm.juste('tnm-m','4',qt) || TCM4.tnm.juste('tnm-m','5',qt) || TCM4.tnm.juste('tnm-m','0',qt)) vus.push('tnm-m : « k + v » doit accepter v de 1 à b, et seulement eux');
+    const qs3={p:3};
+    if(!TCM4.ssm.juste('ssm-s2','9/8',qs3) || !TCM4.ssm.juste('ssm-s2','1,125',qs3)) vus.push('ssm : S2 = 9/8 refusé en fraction ou en décimal');
+    if(!TCM4.ssm.juste('ssm-M','3',qs3) || TCM4.ssm.juste('ssm-M','1,9',qs3)) vus.push('ssm : tout majorant ≥ 2 doit passer, 1,9 non');
+    if(TCM4.ssm.juste('ssm-lm','3',qs3) || !TCM4.ssm.juste('ssm-lm','2',qs3)) vus.push('ssm : « ℓ ≤ … » attend 2, la limite de 2 − 1/n');
+
+    /* ---- la copie de la correction vaut le point, sur chacun des quatre ---- */
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    [['tcm-vrai-faux','tvf',function(){ return tvfGen('majlim'); }],['suite-croissante-non-majoree','tnm',function(){ return tnmGen('car'); }],
+     ['suite-somme-majoree','ssm',function(){ return {p:2}; }],['suite-algo-approx','sap',sapEssai]].forEach(function(x){
+      const k=x[1], E=TCM4[k];
+      currentTestId=x[0]; test.kind=k; test.questions=[x[2]()]; test.idx=0; test.score=0; test.answers=[]; test.maxScore=1; test.locked=false;
+      show(k); window['render'+k.toUpperCase()]();
+      const q=tcm4Q(), ids=E.ids(q);
+      const absents=ids.filter(function(id){ return !$(id); });
+      if(absents.length){ vus.push(k+' : cases absentes de l’écran : '+absents.join(',')); return; }
+      ids.forEach(function(id){ $(id).value=E.corr(id,q); });
+      window['check'+k.toUpperCase()]();
+      const pas=ids.filter(function(id){ return !$(id).classList.contains('ok'); });
+      if(test.score!==1 || pas.length) vus.push(k+' : la copie de la correction ne vaut pas le point ('+pas.join(',')+')');
+      if(!/next/.test($(E.pre+'Actions').innerHTML)) vus.push(k+' : pas de bouton vers la suite');
+      if(!RAPPELS[k]) vus.push(k+' : pas de rappel de cours');
+      if(!QIA_SUGG[k]) vus.push(k+' : pas de questions proposées à l’IA');
+      const ctx=conseilCtxCourant()||'';
+      if(!/JAMAIS/.test(ctx)) vus.push(k+' : le contexte du modèle n’a pas sa clause de secret');
+    });
+    return vus.slice(0,8).join(' | ');
+  })()`, v => v === '');
 }
 /* ---- Vocabulaire sur les suites : la fiche à cocher ----
    La fiche « Vocabulaire sur les suites » (demande de Turquet, septembre
