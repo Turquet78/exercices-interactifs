@@ -949,6 +949,60 @@ les pièges : −5 pour −(−5) (rouge seul, message du signe qui change), « 
 sans son signe, 10x pour 7x − 3x, une case vide (la correction +5) ; enfin le
 7.15 relancé garde ses bulles, ses cases de facteur et son barème de 48.
 
+## {developper-distributivite-nu} — développer avec la distributivité, sans les flèches, dans l'ordre qu'on veut (7.17, v561)
+
+**La demande** (Turquet, octobre 2026) : « en seconde faire un exercice
+exactement comme le 7.9 mais sans les flèches, sans les encerclements des
+termes, sans les accolades. L'ordre des termes n'a pas d'importance ici. »
+C'est le 7.9 sans son échafaudage, comme le 7.11 pour le 7.10 : les mêmes six
+pages, le même tirage, les mêmes 44 cases à la même place (les deux facteurs
+de chaque produit, le résultat de chaque produit, la forme réduite de F) et le
+même exemple — seul le dessin tombe, et l'ordre se libère.
+
+**Un moteur, deux identités.** `dvlP()` lit le préfixe sur `test.kind`
+(« dvl » ou « dvo ») — cases `dvo-f-…`, `dvo-t-…`, `dvo-r-…`, écran `scr-dvo` —,
+`startDvl('dvo')` pose `kind:'dvo'` et `qId:'developper-distributivite-nu'`, et
+le barème se calcule APRÈS l'`Object.assign` du kind, puisque `dvlCases` le
+lit. `dvlSchema(…, nu)` écrit l'expression d'un trait (dans un `<span>`, comme
+au 7.11) et remplace chaque bulle par un `.dvl-nb`, sans `<svg>` ni `data-fl` /
+`data-acc` ; `dvlSuivre` n'est pas appelé. Le schéma prend la classe
+`dvn-schema` du 7.11 : les cases des facteurs y ont leur cadre, la place des
+flèches et des accolades se rend.
+
+**L'ordre libre est un juge à part, pas un 7.9 assoupli** (`dvoVerdicts`,
+appelé par `dvlVerdicts` ; le 7.9 garde `dvlJuste`, case par case). Chaque
+case reçoit le terme attendu ENCORE LIBRE qui a sa valeur : un produit se juge
+par paire, ses deux facteurs dans les deux sens (2x × 4 = 4 × 2x) ; une paire
+dont un seul facteur est juste garde ce facteur ; les résultats et la forme
+réduite se jugent terme à terme. Un terme écrit deux fois ne compte qu'une
+fois — la seconde case rougit, et sa correction est le terme que personne n'a
+pris (jamais deux fois le même badge). Les cases déjà validées en soutien
+(désactivées) se servent en premier : un doublon écrit plus loin ne leur
+reprend pas leur terme, ce qui laisserait une case verte et figée devenir
+fausse. Le « + » d'un terme qui en suit un autre se lit sur la PLACE de la
+case, comme au 7.9 : « 8 +4x » est juste, « 8 4x » ne l'est pas, et le message
+le nomme — en forme réduite aussi.
+
+**Ce qui parlait du dessin se reformule** : la consigne ne nomme plus ni
+couleur, ni flèche, ni accolade, et dit que l'ordre des termes n'a pas
+d'importance ; le pourquoi d'un facteur faux nomme la règle et liste les
+produits attendus « dans l'ordre que tu veux », celui d'un résultat faux
+liste chaque produit et son résultat. Dans l'exemple, « 5 × 3 » (sans bulle,
+le « +3 » du 7.9 n'a plus de quoi se lire).
+
+**Le juge** (`tests/verifier.js`, « développer avec la distributivité sans
+les flèches ») : la place (7.17, le 7.9 et le 7.16 immobiles, bouton des
+tables présent), l'identité (kind, qId, écran, barème de 44), puis la fiche du
+7.9 au bouton avec des réponses écrites À LA MAIN, deux fois : dans l'ordre de
+la fiche, puis dans le désordre (produits échangés, facteurs retournés,
+résultats et forme réduite à l'envers) — toutes vertes, 6 et 14 cases ; AUCUN
+dessin, une consigne sans couleur ni flèche et qui dit l'ordre libre ;
+l'exemple sans case ; les pièges : « 4x » sans son signe après « 8 » (rouge
+seul, message nommé), le même produit écrit deux fois (rouge, le facteur juste
+du doublon reste vert), 2x pour x × 2x, deux cases vides (la correction +8x et
+2x, les termes non pris), la forme réduite sans signe puis non réduite ; enfin
+le 7.9 relancé garde ses bulles, et le désordre y reste faux.
+
 ## La forme réduite s'écrit dans n'importe quel ordre — 7.9, 7.11, 7.14, 7.15, 7.16 (v562)
 
 **La demande** (Turquet, octobre 2026, captures du 7.14, du 7.15 et du 7.16 à
@@ -959,10 +1013,12 @@ réduites justes, comptées fausses parce que la consigne voulait « le terme en
 x d'abord, puis le nombre ».
 
 **Un appariement, partagé** (`dvlApparier`) : c'est le juge du 7.14
-(`dvrJuger`) sorti de son exercice. Les cases d'un même LOT (`c.lot`) se
+(`dvrJuger`) sorti de son exercice — le 7.17, arrivé le même jour, garde le
+sien (`dvoVerdicts`, qui juge aussi les produits par paire) ; `dvlVerdicts`
+lui passe la main, et juge le 7.9 par `dvlParLots`. Les cases d'un même LOT (`c.lot`) se
 lisent dans n'importe quel ordre : chaque case remplie prend un terme attendu
 encore libre de même valeur ; les cases fausses ou vides reçoivent, en
-correction, les termes restés libres. `dvlVerdicts(cases)` juge une page :
+correction, les termes restés libres. `dvlParLots(cases)` juge une page :
 une case sans lot à sa place (`dvlJuste`), les autres par lot. Le terme qui
 en suit un autre garde son signe, quelle que soit sa place : c'est la PLACE
 qui exige le signe, pas le terme (« 7 − 2x » est juste ; « −2x 7 » ne l'est
