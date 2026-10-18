@@ -2138,9 +2138,11 @@ module.exports = {
        les quatre rangées de sa mémoire, son barème — UNE réponse par ligne,
        quatre lignes — et son numéro au menu. */
     pythonPasAPasChaine: { exercice: 'python-pas-a-pas-chaine', nb: 3,
-                          fiche: { prog: ['a = 10', 'b = 2', 'c = a+b', 'd = c+a'],
-                                   memoire: [['a', '10'], ['b', '2'], ['c', '12'], ['d', '22']],
-                                   fin: { a: '10', b: '2', c: '12', d: '22' },
+                          /* a = 8 (et non plus 10, d valait alors 22) : aucune case
+                             du sous-thème 6.2 ne passe 20 (octobre 2026) */
+                          fiche: { prog: ['a = 8', 'b = 2', 'c = a+b', 'd = c+a'],
+                                   memoire: [['a', '8'], ['b', '2'], ['c', '10'], ['d', '18']],
+                                   fin: { a: '8', b: '2', c: '10', d: '18' },
                                    bareme: 12, numero: '6.2.4' } },
     /* {python-echange-variables} : la fiche du PDF « variable pas à pas 5 »,
        calquée sur {python-valeur-case} — a = 10, b = 2, c = a, a = b, b = c,
@@ -2214,8 +2216,10 @@ module.exports = {
        bord OPPOSÉ de « le bouton des tables n'est proposé que là où il
        sert ». */
     pythonPasAPasMultiplication: { exercice: 'python-pas-a-pas-multiplication',
-                                   fiche: { prog: ['k = 10', 'l = 2', 'm = l*2', 'l = m-k'],
-                                            memoire: [['k', '10'], ['l', '2'], ['m', '4'], ['l', '-6']] } },
+                                   /* l = 7 (et non plus 2, la dernière ligne donnait -6) :
+                                      aucune case du sous-thème 6.2 ne sort de [0 ; 20] (octobre 2026) */
+                                   fiche: { prog: ['k = 10', 'l = 7', 'm = l*2', 'l = m-k'],
+                                            memoire: [['k', '10'], ['l', '7'], ['m', '14'], ['l', '4']] } },
     /* {python-echange-par-lettres} (5.20, demande de Turquet, septembre 2026,
        sur un PDF transcrit : « Compléter le programme uniquement avec les
        lettres k, l ou m pour que la valeur de k=10 et l=2 soient échangées »

@@ -6691,3 +6691,38 @@ cadres (`.pvm-fig` … `.pgc-fig`) se replient déjà sur deux lignes depuis l'a
 des serpents ; `.pap-fig` n'était pas dans la liste, car son dessin, plus petit,
 laissait jusque-là de la place à côté. Avec un dessin de 400 px, il en manquait.
 Reproduit en local (17 px), corrigé (278 px) en ajoutant `.pap-fig` à la règle.
+
+**Puis toute case à trouver du 6.2 a tenu entre 0 et 20 (v567).** Demande de
+Turquet, octobre 2026 : « dans le thème variable et calcul, toutes les cases
+mémoire à trouver sont des nombres entre 0 et 20 ». La mesure d'abord, sur la
+page chargée : le tirage commun du pas à pas (`papValeurs`) allait de 2 à 99 ;
+le 6.2.3 additionnait deux de ces nombres (jusqu'à 148), le 6.2.4 en faisait
+2a + b (jusqu'à 137), le 6.2.6 doublait l puis retirait k (de −16 à 40) ; et
+cinq exercices aux situations écrites à la main sortaient aussi — 49 et 64 au
+6.2.11, 42, 50 et 70 au 6.2.12, 144 et −9 au 6.2.13, 51 et 110 en route au
+6.2.16, 30 et 81 au 6.2.17.
+
+* `papValeurs(n, ok)` tire de 2 à `PAP_MAX` (20), et refait le tirage tant
+  que `ok` refuse : le 6.2.3 exige a + b ≤ 20, le 6.2.4 2a + b ≤ 20
+  (2 max − min en soustraction). Le 6.2.6 tire l de 2 à 10 et k de 2 à 2l,
+  donc m = 2l ≤ 20 et m − k ≥ 0 ; k ≠ l reste exclu (M61).
+* **Les deux fiches épinglées ont bougé**, parce que la demande dit « toutes » :
+  celle du 6.2.4 part de a = 8 (c = 10, d = 18, au lieu de d = 22) ; celle du
+  6.2.6 garde k = 10 et prend l = 7 (m = 14, puis l = 4, au lieu de −6). Les
+  PDF sur papier, eux, portent toujours les anciennes valeurs. Le rappel du
+  6.2.6 perd son point « le résultat peut être négatif », et l'aide IA ne le
+  dit plus.
+* Les situations écrites à la main sont réécrites en gardant chaque piège : au
+  6.2.13, `-x ** 2` devient `-x ** 2 + 10` (1, le piège 19 garde la leçon « la
+  puissance passe avant le signe moins ») ; `(a * b) ** 2` devient
+  `(a * b) ** 2 - 20`. Les contrôles qui citaient les anciennes valeurs (21,
+  9, 17) suivent.
+
+Hors du champ, et nommés par le contrôle : les exercices où l'élève ÉCRIT un
+programme, le remet en ordre ou CHOISIT parmi quatre (6.2.9, 6.2.10, 6.2.14,
+6.2.15, 6.2.18 à 6.2.23) — aucune case à trouver. Un nouveau contrôle (banc
+principal, « dans le sous-thème « Variable et calcul », chaque case mémoire à
+trouver vaut un nombre de 0 à 20 ») tire 300 séances de chaque exercice tiré,
+relit chaque situation écrite, exécute chaque programme ligne par ligne et relit
+chaque valeur rangée ; un exercice ajouté au sous-thème sans être rangé le fait
+rougir, et une mesure à zéro case aussi. Éprouvé par trois sabotages : une valeur tirée forcée à 55, une ligne du 6.2.11 qui monte à 36, un identifiant neuf dans le sous-thème — chacun nommé.

@@ -4837,6 +4837,50 @@ function mineursFonctionsPython(w, P){
     })()`, v => v === '', undefined);
   else ignorer('lvReadInt lit un entier strictement : « 2abc » et « 1/2 » illisibles, « −2 » (U+2212) vaut −2', 'ce niveau n\'a pas les cases de lecture graphique');
 
+  /* LE SOUS-THÈME 6.2 « VARIABLE ET CALCUL » : TOUTE CASE MÉMOIRE À TROUVER
+     VAUT UN NOMBRE DE 0 À 20 (demande de Turquet, octobre 2026). Chaque
+     exercice du sous-thème est rangé ici : ceux où l'élève écrit ce que
+     contient une case — on tire 300 séances (ou on lit chaque situation) et
+     on exécute chaque programme ligne par ligne, chaque valeur rangée relue —,
+     et ceux où il n'en trouve aucune (il écrit, remet en ordre ou choisit un
+     programme), NOMMÉS. Un exercice ajouté au sous-thème sans être rangé fait
+     rougir le contrôle : il n'en sort pas en silence. */
+  if(a("typeof papValeurs==='function' && typeof PW==='object'"))
+    verifierEval(w, 'dans le sous-thème « Variable et calcul », chaque case mémoire à trouver vaut un nombre de 0 à 20', `(function(){
+      const NL=String.fromCharCode(10), vus=[]; let lues=0;
+      function lire(L, ou){
+        for(let i=1;i<=L.length;i++){
+          let e; try{ e=pyRun(L.slice(0, i).join(NL)).env; }catch(x){ vus.push(ou+' : '+x.message); return; }
+          for(const n in e){ const v=e[n]; if(!v || (v.t!=='int' && v.t!=='float')) continue; lues++;
+            if(!(v.v>=0 && v.v<=20)) vus.push(ou+' : '+n+' = '+pyRep(v)+' ('+L.join(' ; ')+')'); }
+        }
+      }
+      const lig=function(q){ return q.lignes.map(function(l){ return l.nom+' = '+l.expr; }); };
+      const tires={'python-pas-a-pas':papBuildQuestions, 'python-valeur-case':pvmBuildQuestions, 'python-pas-a-pas-calcul':ppcBuildQuestions,
+        'python-pas-a-pas-chaine':ppdBuildQuestions, 'python-echange-variables':pevBuildQuestions, 'python-pas-a-pas-multiplication':ppmBuildQuestions,
+        'python-phrases-memoire':pphBuildQuestions};
+      const lus={
+        'python-echange-par-lettres':function(){ const r=[]; for(let t=0;t<300;t++) pelBuildQuestions().forEach(function(q){ r.push(['a = '+q.a,'b = '+q.b]); }); return r; },
+        'python-x-plus-pas-a-pas':function(){ return PWX_SITS.map(function(S){ return S.l; }); },
+        'python-accumulateur':function(){ return PWA_SITS.map(function(S){ return S.l; }); },
+        'python-priorites':function(){ return PWP_SITS.map(function(S){ return S.l.map(function(l){ return l.replace(/^print[(](.*)[)]$/, 'affiche = $1'); }); }); },
+        'python-valeur-depart':function(){ return PWV_SITS.map(function(S){ return pwvProg(S, S.a).split(NL); }); },
+        'python-meme-resultat':function(){ const r=[]; PWM_SITS.forEach(function(S){ r.push(S.A, S.B); }); return r; }
+      };
+      const sans=['python-programme-calcul','python-egal-affectation','python-division-entiere','python-arrondir','python-choisir-programme',
+        'python-ordre-lignes','python-variable-inconnue','python-debogage','python-formule','python-traduire-algo'];
+      let ids=null; THEMES.forEach(function(T){ (T.subs||T.sous||[]).forEach(function(st){ if(st.nom==='Variable et calcul') ids=st.ids; }); });
+      if(!ids) return 'le sous-thème « Variable et calcul » est introuvable dans THEMES';
+      ids.forEach(function(id){
+        if(tires[id]){ for(let t=0;t<300;t++) tires[id]().forEach(function(q){ lire(lig(q), id); }); }
+        else if(lus[id]) lus[id]().forEach(function(L){ lire(L.filter(function(l){ return !/^print[(]/.test(l); }), id); });
+        else if(sans.indexOf(id)<0) vus.push(id+' : exercice du sous-thème rangé nulle part (cases à relire, ou sans case à trouver)');
+      });
+      if(!lues) vus.push('aucune case relue : le contrôle ne mesure rien');
+      return vus.slice(0, 5).join(' | ');
+    })()`, v => v === '', undefined);
+  else ignorer('dans le sous-thème « Variable et calcul », chaque case mémoire à trouver vaut un nombre de 0 à 20', 'ce niveau n\'a pas le sous-thème');
+
   /* M61 — le pas à pas de la multiplication ne tire jamais k = l : la
      dernière ligne réécrirait l avec sa propre valeur, et le piège disparaîtrait */
   if(a("typeof ppmGen==='function'"))
@@ -36859,14 +36903,14 @@ function pythonVariablesComplements(w, P){
     D("pwy", {s:1,r:[]}, 0, "3", /3[.]0/);
     D("pwy", {s:1,r:[]}, 1, "int", /TOUJOURS un float/);
     D("pwy", {s:0,r:[]}, 2, "3.5", /ENTIER/);
-    D("pwp", {s:0,r:[]}, 0, "21", /priorités/);
-    D("pwp", {s:2,r:[]}, 0, "9", /AVANT le signe moins/);
+    D("pwp", {s:0,r:[]}, 0, "15", /priorités/);
+    D("pwp", {s:2,r:[]}, 0, "19", /AVANT le signe moins/);
     D("pwp", {s:1,r:[]}, 2, "15,0", /POINT/);
     D("pwv", {s:0,r:[]}, 0, "11", /AFFICHÉE/);
     D("pwv", {s:0,r:[]}, 0, "29", /DERNIÈRE/);
     D("pwc", {s:0,r:[],perm:[0,1,2,3]}, 0, "1", /mauvais ordre/);
     D("pwc", {s:0,r:[],perm:[0,1,2,3]}, 0, "2", /ne range rien/);
-    if(pwiJuge(pwiItems("pwp", {s:0,r:[]})[0], " 17 ").ok!==true) vus.push("pwp : les espaces autour du nombre ne sont pas ignorés");
+    if(pwiJuge(pwiItems("pwp", {s:0,r:[]})[0], " 11 ").ok!==true) vus.push("pwp : les espaces autour du nombre ne sont pas ignorés");
     PWC_SITS.forEach(function(S, i){ const o=S.p.map(function(p){ return pwSortie(p.join(String.fromCharCode(10))); }); if(o.slice(1).some(function(x){ return x===o[0]; })||o.some(function(x){ return x===null; })) vus.push("pwc situation "+i+" : le bon programme n’est pas le seul à afficher son résultat"); });
     PWM_SITS.forEach(function(S, i){ const its=pwiItems("pwm", {s:i,r:[]}); if((its[0].att===its[1].att)!==(its[2].att==="oui")) vus.push("pwm situation "+i+" : la réponse oui/non ne suit pas les deux affichages"); });
     return vus.slice(0,5).join(" | ");
