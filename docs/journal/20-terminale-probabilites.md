@@ -49,3 +49,66 @@ pas de largeur posée (`sa2Ajuster` ne joue qu'à la saisie), et la correction
 écrite par `corrCase` non plus — l'input nu prenait sa largeur par défaut et
 repliait sa rangée sous l'étiquette. Le rendu et la correction ajustent donc
 chaque case.
+
+## {arbre-probabilites-fiche} (6.1.2) : l'arbre de la fiche, les cinq situations
+
+Demande de Turquet (octobre 2026), avec la « fiche 2 — tous les exercices avec
+un arbre » : « les exercices ne donnent que les probabilités, comme dans les
+exercices 2 à 5 du pdf — il n'y a donc pas de phrase ; la première question
+est compléter l'arbre avec les probabilités données et les probabilités
+contraires qu'il est possible de trouver ; l'arbre a la présentation du pdf,
+P(A) = … et P_A(B) = … sur les branches, P(A ∩ B) = … au bout des quatre
+chemins, P(B) = … avec l'accolade et le + ; les questions suivantes font
+calculer comme les cinq exercices, dans un champ où l'élève écrit son
+opération, les étapes s'il y en a, et le résultat — pas de formule avec des
+lettres, sauf en fonction de x ; le clavier adapté ; les lettres varient ; les
+cinq situations sont présentes ».
+
+**La séance EST la fiche** : cinq questions, la situation k en question k
+(`apfGenSession`). Ce que chacune donne, et ce qu'elle fait calculer :
+1. P(A), P_A(B̄), P_Ā(B) → P(A∩B), P(Ā∩B), P(B), P_B(A) ;
+2. P(A), P(A∩B), P(Ā∩B) → P_A(B), P_Ā(B), P(B), P_B(A) ;
+3. P(A), P(B), P(A∩B) → P_A(B), P(Ā∩B), P_Ā(B) ;
+4. P_A(B), P_Ā(B), P(A) = x → démontrer P(B) = (p − q)x + q, puis, P(B)
+   donné, l'équation et x ;
+5. P_A(B), P_Ā(B), P(B) → on pose P(A) = x : P(B) en fonction de x,
+   l'équation, et P(A).
+Les nombres de la fiche ne sont pas repris (celle du 5 est même incohérente :
+P(B) = 0,18 avec P_A(B) = 0,9 et P_Ā(B) = 0,7 est impossible) ; ils sont
+tirés en centièmes, de sorte que chaque division de la fiche tombe juste —
+sauf P_B(A), qui s'arrondit (« ≈ »).
+
+**Le a) n'ouvre que ce qui s'écrit sans calcul** (`apfArbreCases`) : les
+données, à leur place sur l'arbre (une intersection donnée va au bout de son
+chemin, P(B) donné dans la case de l'accolade), et leurs contraires. Les autres
+cases restent « … ». En situation 4, P(A) = x et P(Ā) = 1 − x s'écrivent dans
+l'arbre : ces deux cases-là lisent x.
+
+**L'arbre est une grille, et ses traits se posent sur la grille rendue.**
+Huit demi-rangées : Ω au milieu, A et Ā aux quarts, les quatre fins de chemin
+aux huitièmes impairs ; chaque étiquette de branche est dans la demi-rangée
+au-dessus (branche qui monte) ou au-dessous (branche qui descend) de son
+trait, si bien qu'aucun trait ne la traverse. Les traits, les flèches et
+l'accolade sont un SVG recalculé par `apfTraits()` sur les rectangles RENDUS,
+à chaque changement de taille (ResizeObserver) : une case s'élargit avec la
+saisie, la correction s'écrit à côté — un dessin à coordonnées fixes
+décrocherait. Plus large qu'un téléphone, l'arbre défile dans son cadre ; la
+page, elle, ne défile pas en largeur (mesuré à 390 px).
+
+**Le juge d'une ligne de calcul** (`apfJugeChaine`) découpe la ligne aux « = »
+et « ≈ », lit chaque membre (+ − × ÷ et parenthèses, la virgule, la
+multiplication implicite ; « 0,4x0,9 » tapé au clavier est un produit) et
+exige : chaque membre vaut la réponse (au 10⁻⁹ près ; après « ≈ », à la
+précision des décimales écrites, deux au moins) ; le dernier est un nombre ou
+une fraction ; et il y a un calcul — un résultat seul est refusé, la consigne
+dit « en détaillant les étapes ». La raison s'affiche sous la vérification. En
+fonction de x (`apfJugeDemo`), chaque membre est comparé à la cible en trois
+valeurs de x, et le dernier doit être réduit ; l'équation (`apfJugeEq`) est
+acceptée sous toute forme linéaire dont la solution est la bonne. Les
+corrections que la page écrit passent par ce même juge — vérifié sur les cinq
+situations : une copie faite des corrections est parfaite.
+
+**Le clavier** : chaque case porte ses touches (`data-pave-plus`) — + × ( ) =
+≈, et x là où l'on calcule en fonction de x — que le pavé des tablettes pose
+sur sa seconde rangée ; et une rangée de jetons sous les calculs sert
+l'ordinateur, dont le clavier n'a ni ×, ni ÷, ni ≈.
