@@ -13707,7 +13707,7 @@ if(require.main === module) (async () => {
       if(!fig.fichier) fd.push('pas de dessin en fichier dans dessins/secondes/');
       if(!fig.charge) fd.push('image non chargée');
       if(!(fig.large >= 120)) fd.push('largeur ' + Math.round(fig.large) + ' px');
-      verifier('le dessin du serpent « Trop facile ! » ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
+      verifier('le dessin des deux serpents « que contient b ? » ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
         !fd.length, fd.join(' | '));
       /* 2. LA VALEUR SE TAPE POUR DE VRAI, et le verdict s'encre en BLEU */
       const bons = await s.page.evaluate(() => { const q = test.questions[test.idx];
@@ -13868,7 +13868,7 @@ if(require.main === module) (async () => {
       if(!fig.fichier) fd.push('pas de dessin en fichier dans dessins/secondes/');
       if(!fig.charge) fd.push('image non chargée');
       if(!(fig.large >= 120)) fd.push('largeur ' + Math.round(fig.large) + ' px');
-      verifier('le dessin du serpent au champagne ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
+      verifier('le dessin du serpent qui calcule c = a + b ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
         !fd.length, fd.join(' | '));
       /* 2. LES DEUX LIGNES LITTÉRALES SE TAPENT ET SE JUGENT COMME AVANT */
       for(let k = 0; k < nL - 1; k++){

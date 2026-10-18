@@ -6670,3 +6670,17 @@ Une scène qui parle ne se lit pas à 220 px : ces dessins portent `large:true`
 dans `DESSINS_VAR`, qui leur donne la classe `pw-large` (400 px, 94 % au plus de
 la largeur). Les quatorze serpents sans parole posés la veille (`-2.webp`) sont
 supprimés ; les nouveaux s'appellent `-3.webp`.
+
+**Puis les neuf premiers dessins du 6.2 ont parlé à leur tour (v565).** Les
+dessins d'origine du 6.2.1 au 6.2.9 (« Pour l'instant tout va bien ! », « Trop
+facile ! », le champagne, le bonnet rasta…) étaient de beaux serpents, mais sans
+rapport avec l'exercice. Turquet les a fait refaire sur le même modèle que le
+6.2.10 à 6.2.23 : une scène qui montre ce que fait l'exercice (la bille 10 rangée
+dans le carton a, les deux verres et le troisième pour l'échange, le carton l où
+brille 12…) et une bulle au texte imposé, qui sert d'étiquette. Les neuf bulles
+ont été relues : aucune faute. Fichiers neufs `-2.webp`, anciens supprimés ;
+chaque classe d'image (`pap-img` … `pgc-img`) passe à 400 px, 94 % au plus.
+Deux bancs nommaient l'ancien dessin : le texte de remplacement attendu par
+`pythonPasAPas` (« Pour l'instant tout va bien » devient « je range 10 dans a »)
+et deux libellés du banc navigateur (« Trop facile ! », « le champagne »). Les
+anciens dessins restent dans l'historique, si Turquet veut les revoir.
