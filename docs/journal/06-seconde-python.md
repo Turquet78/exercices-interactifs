@@ -6647,3 +6647,26 @@ variable inconnue), le seau de bonbons (la formule), le pirate (l'ordre des
 lignes), le pharaon (traduire un algorithme) et le grimoire (choisir le
 programme). Le 6.2 compte désormais vingt-trois serpents tous différents ; le 6.1
 garde les seize de la première planche. Les bulles suivent le déguisement.
+
+**Puis le 6.2 a reçu des dessins qui PARLENT (v564).** Turquet a voulu, pour
+chacun des quatorze exercices du 6.2 qui n'avaient pas de dessin de fiche
+(6.2.10 à 6.2.23), une scène avec une bulle, dans le style de ses dessins du
+6.2.1 à 6.2.9 et du dialogue sur `input`. Les consignes données au générateur
+fixaient le texte exact de chaque bulle (« n = 5, c'est une égalité ? » / « Non :
+n prend la valeur 5 ! », « Combien avec la TVA ? » / « Prix × 1,2 ! »…) : la
+bulle sert aussi d'étiquette, et c'est elle qui rattache chaque image à son
+exercice, quel que soit le nom du fichier. Les quatorze bulles ont été relues
+une à une : aucune faute.
+
+Les dix premières images sont venues séparées, les quatre dernières aussi, mais
+recadrées dans une planche avec une étiquette « D20 »… et un liseré de la case
+voisine ; elles ont été redécoupées dans la planche elle-même, avec une marge
+qui écarte les traits de la grille, et l'étiquette est jetée. Le fond blanc est
+détouré par remplissage depuis le bord, derrière une barrière d'un pixel autour
+de tout ce qui n'est pas blanc : sans elle, le blanc des bulles fuyait par
+l'anticrénelage de leur contour et les bulles disparaissaient.
+
+Une scène qui parle ne se lit pas à 220 px : ces dessins portent `large:true`
+dans `DESSINS_VAR`, qui leur donne la classe `pw-large` (400 px, 94 % au plus de
+la largeur). Les quatorze serpents sans parole posés la veille (`-2.webp`) sont
+supprimés ; les nouveaux s'appellent `-3.webp`.
