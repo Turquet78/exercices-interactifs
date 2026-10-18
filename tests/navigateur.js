@@ -13980,7 +13980,7 @@ if(require.main === module) (async () => {
       if(vu.nom !== A.fiche.memoire[0][0]) dits.push('le nom de la case écrit par la page : ' + JSON.stringify(vu.nom));
       if(vu.case !== 'INPUT') dits.push('la case de la valeur : ' + JSON.stringify(vu.case));
       if(vu.bilan) dits.push('le bilan de la mémoire est affiché avant la fin du programme');
-      verifier('la fiche épinglée (a = 10, b = 2, c = a+b, d = c+a) est rendue en DEUX colonnes, le repère ▶ sur la première ligne, et le nom de la case ÉCRIT',
+      verifier('la fiche épinglée (' + A.fiche.prog.join(', ') + ') est rendue en DEUX colonnes, le repère ▶ sur la première ligne, et le nom de la case ÉCRIT',
         !dits.length, dits.slice(0, 3).join(' | '));
       /* 2. LES TROIS PREMIÈRES LIGNES SE TAPENT ET SE JUGENT, LE ▶ AVANCE, LE TABLEAU GRANDIT */
       const marche = [];
