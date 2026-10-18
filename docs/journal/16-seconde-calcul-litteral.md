@@ -664,6 +664,34 @@ nommé), le produit croisé (message qui nomme les termes, jamais la flèche),
 −14x (message sans accolade), deux cases vides (la correction) ; enfin le
 7.10 relancé garde ses bulles et ses cases `dvd-…`.
 
+## Les produits du 7.11 dans l'ordre qu'on veut (v565 — v564 prise par les dessins du 6.2)
+
+**La demande** (Turquet, octobre 2026, capture du 7.11 sur
+B = (5x − 8)(8x − 4)) : « accepter que l'ordre soit différent ». L'élève
+avait écrit 5x × (−4) + 5x × 8x + (−8) × (−4) + (−8) × 8x, puis
+−20x + 40x² + 32 − 64x : tout juste, et douze cases rouges, parce que le 7.11
+jugeait chaque case contre le produit de SA place.
+
+**Le juge du 7.17 sert le 7.11** : `dvoVerdicts(q, cases, L)` reçoit
+désormais ses lignes (`dvdLignes` au 7.11, `dvlLignes` par défaut) ;
+`dvdVerdicts` le choisit au 7.11 et laisse au 7.10 `dvlParLots` — l'ordre des
+flèches y compte toujours. Les produits s'apparient par paire, facteurs dans
+les deux sens ; les résultats et la forme réduite, terme à terme ; le « + »
+d'un terme qui en suit un autre se lit sur la place de la case. La consigne
+dit que l'ordre est libre ; le contexte envoyé au modèle aussi.
+
+**Le pourquoi parle du produit que le juge a donné à la rangée**, pas de
+celui de sa place (« Ce produit multiplie le second terme de la première
+parenthèse par le second terme de la seconde ») ; même chose pour un
+résultat faux ou sans son signe.
+
+**Le juge** (`tests/verifier.js`, contrôle du 7.11) : la copie de la page A
+dans le désordre de la capture (produits échangés, facteurs retournés,
+résultats et forme réduite dans un autre ordre) est entière juste ; le même
+produit écrit deux fois ne compte qu'une fois — le facteur juste de la rangée
+reste bleu, le message nomme le produit qui manque ; le 7.10 compte toujours
+ce désordre faux.
+
 ## « x^2 » s'écrit x² dans la case — 7.9, 7.10 et 7.11 (v526)
 
 **La demande** (Turquet, octobre 2026, capture du 7.10) : l'élève qui tape
