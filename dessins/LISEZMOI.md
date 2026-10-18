@@ -60,7 +60,7 @@ applicable » plutôt que d'être tu.
 
 Trente dessins thématiques (un accessoire par exercice) et trente-neuf serpents
 d'Halloween ont d'abord été dessinés en SVG, puis convertis en WebP (octobre
-2026). Ils ont ensuite été remplacés (v561) par une planche générée par
+2026). Ils ont ensuite été remplacés (v562) par une planche générée par
 Turquet : 46 serpents ordinaires (une émotion et un objet chacun) et 16 serpents
 d'Halloween, découpés et détourés. Les dessins thématiques portent le suffixe
 `-2.webp` ; les serpents d'Halloween gardent leur nom `<identifiant>-halloween.webp`,

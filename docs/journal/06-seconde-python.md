@@ -6607,7 +6607,7 @@ les exercices du 6.1 et du 6.2 (« aucun dessin sur son écran »), et ceux du
 
 
 
-**Puis les dessins des variables ont été remplacés par une planche générée (v561).**
+**Puis les dessins des variables ont été remplacés par une planche générée (v562).**
 Turquet a fait produire par un générateur d'images une planche de 62 serpents
 dans le style des fiches : 46 serpents ordinaires, chacun avec une émotion
 franche (peur, étonnement, épuisement, joie, fierté, panique…) et un objet sans
