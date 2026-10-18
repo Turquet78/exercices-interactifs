@@ -949,7 +949,7 @@ les pièges : −5 pour −(−5) (rouge seul, message du signe qui change), « 
 sans son signe, 10x pour 7x − 3x, une case vide (la correction +5) ; enfin le
 7.15 relancé garde ses bulles, ses cases de facteur et son barème de 48.
 
-## La forme réduite s'écrit dans n'importe quel ordre — 7.9, 7.11, 7.14, 7.15, 7.16 (v561)
+## La forme réduite s'écrit dans n'importe quel ordre — 7.9, 7.11, 7.14, 7.15, 7.16 (v562)
 
 **La demande** (Turquet, octobre 2026, captures du 7.14, du 7.15 et du 7.16 à
 l'appui) : « on ne veut pas forcément ordonner les termes au résultat ; de

@@ -23129,7 +23129,7 @@ function developperDistributivite(w, P){
     if(peint('dvl-r-1')!=='rouge') vus.push('« 7 » sans son signe (forme réduite) est peint en '+peint('dvl-r-1'));
     test.idx=5; poser(Object.assign(ids(5), {'dvl-r-0':'6x-8x'})); checkDvlAnswer();
     if(peint('dvl-r-0')!=='rouge') vus.push('« 6x-8x », non réduit, est peint en '+peint('dvl-r-0'));
-    /* la forme réduite dans un autre ordre est juste (v561) ; le terme qui suit garde son signe */
+    /* la forme réduite dans un autre ordre est juste (v562) ; le terme qui suit garde son signe */
     test.idx=5; poser(Object.assign(ids(5), {'dvl-r-0':'7','dvl-r-1':'-2x'})); checkDvlAnswer();
     if(!test.answers[test.answers.length-1].correct || peint('dvl-r-0')!=='vert' || peint('dvl-r-1')!=='vert') vus.push('« 7 − 2x » est compté faux : '+peint('dvl-r-0')+' / '+peint('dvl-r-1'));
     test.idx=5; poser(Object.assign(ids(5), {'dvl-r-0':'7','dvl-r-1':''})); checkDvlAnswer();
@@ -23520,7 +23520,7 @@ function developperSigneMoins(w, P){
     /* D : non réduit */
     test.idx=3; poser(Object.assign(ids(3), {'dvm-r-1':'9-5'})); checkDvmAnswer();
     if(peint('dvm-r-1')!=='rouge') vus.push('« 9-5 », non réduit, est peint en '+peint('dvm-r-1'));
-    /* la forme réduite dans un autre ordre est juste (v561) */
+    /* la forme réduite dans un autre ordre est juste (v562) */
     test.idx=3; poser(Object.assign(ids(3), {'dvm-r-0':'4','dvm-r-1':'-2x'})); checkDvmAnswer();
     if(!test.answers[test.answers.length-1].correct) vus.push('« 4 − 2x » (7.15) est compté faux : '+peint('dvm-r-0')+' / '+peint('dvm-r-1'));
     /* mais les résultats sous les accolades restent à leur place */
@@ -23621,7 +23621,7 @@ function developperSigneMoinsNu(w, P){
     if(peint('dvs-t-3')!=='rouge' || !/garde son signe/.test($('dvsFeedback').textContent)) vus.push('« 5 » sans son signe : '+peint('dvs-t-3')+' — '+$('dvsFeedback').textContent);
     test.idx=4; poser(Object.assign(ids(4), {'dvs-r-0':'10x'})); checkDvmAnswer();
     if(peint('dvs-r-0')!=='rouge') vus.push('« 10x » pour 7x − 3x est peint en '+peint('dvs-r-0'));
-    /* sans accolade, l'ordre des termes est libre — développement et forme réduite (v561) */
+    /* sans accolade, l'ordre des termes est libre — développement et forme réduite (v562) */
     test.idx=3; poser(Object.assign(ids(3), {'dvs-t-0':'-5','dvs-t-1':'-2x','dvs-r-0':'4','dvs-r-1':'-2x'})); checkDvmAnswer();
     if(!test.answers[test.answers.length-1].correct) vus.push('9 − 5 − 2x = 4 − 2x (7.16) est compté faux : '+['dvs-t-0','dvs-t-1','dvs-r-0','dvs-r-1'].map(peint).join(', '));
     test.idx=1; poser(Object.assign(ids(1), {'dvs-t-0':'5','dvs-t-1':'-2x'})); checkDvmAnswer();
@@ -23722,7 +23722,7 @@ function developperDoubleNu(w, P){
     test.idx=0; poser(Object.assign(ids(0), {'dvn-r-1':'-14x'})); checkDvdAnswer();
     const m3=$('dvnFeedback').textContent;
     if(peint('dvn-r-1')!=='rouge' || !/se regroupent/.test(m3) || /accolade/.test(m3)) vus.push('la réduction fausse : '+peint('dvn-r-1')+' — '+m3);
-    /* la forme réduite dans un autre ordre est juste (v561) */
+    /* la forme réduite dans un autre ordre est juste (v562) */
     test.idx=3; poser(Object.assign(ids(3), {'dvn-r-0':'-10','dvn-r-1':'+6x²','dvn-r-2':'+11x'})); checkDvdAnswer();
     if(!test.answers[test.answers.length-1].correct) vus.push('−10 + 6x² + 11x (7.11) est compté faux : '+['dvn-r-0','dvn-r-1','dvn-r-2'].map(peint).join(', '));
     test.idx=0; poser(Object.assign(ids(0), {'dvn-r-0':'-14x','dvn-r-1':'15x²'})); checkDvdAnswer();
@@ -23994,7 +23994,7 @@ function developperReduire(w, P){
     test.idx=3; poser(Object.assign(ids(3), {'dvr-r-1':'-13x'})); checkDvrAnswer();
     const m3=$('dvrFeedback').textContent;
     if(peint('dvr-r-1')!=='rouge' || peint('dvr-r-0')!=='vert' || !/regroupe les termes en x : −2x \\+ 3x − 8x = −7x/.test(m3)) vus.push('la réduction fausse : '+peint('dvr-r-1')+' — '+m3);
-    /* la forme réduite dans un autre ordre est juste (v561) ; le terme qui suit garde son signe */
+    /* la forme réduite dans un autre ordre est juste (v562) ; le terme qui suit garde son signe */
     test.idx=3; poser(Object.assign(ids(3), {'dvr-r-0':'12','dvr-r-2':'+4x²'})); checkDvrAnswer();
     if(!test.answers[test.answers.length-1].correct) vus.push('la forme réduite dans un autre ordre est comptée fausse : '+['dvr-r-0','dvr-r-1','dvr-r-2'].map(peint).join(', '));
     test.idx=3; poser(Object.assign(ids(3), {'dvr-r-0':'12','dvr-r-2':'4x²'})); checkDvrAnswer();
