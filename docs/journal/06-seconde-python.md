@@ -6684,3 +6684,10 @@ Deux bancs nommaient l'ancien dessin : le texte de remplacement attendu par
 `pythonPasAPas` (« Pour l'instant tout va bien » devient « je range 10 dans a »)
 et deux libellés du banc navigateur (« Trop facile ! », « le champagne »). Les
 anciens dessins restent dans l'historique, si Turquet veut les revoir.
+
+Le banc navigateur a attrapé le seul oubli de cette mise à jour : à 360 px, sous
+le décor d'Halloween, le serpent du 6.2.1 était écrasé à 17 px. Les huit autres
+cadres (`.pvm-fig` … `.pgc-fig`) se replient déjà sur deux lignes depuis l'arrivée
+des serpents ; `.pap-fig` n'était pas dans la liste, car son dessin, plus petit,
+laissait jusque-là de la place à côté. Avec un dessin de 400 px, il en manquait.
+Reproduit en local (17 px), corrigé (278 px) en ajoutant `.pap-fig` à la règle.
