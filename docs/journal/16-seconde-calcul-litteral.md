@@ -916,3 +916,35 @@ pièges : « − » seul dans la bulle rouge (rouge seul, message du −1), −5
 son signe, 10x pour 7x − 3x, « 9-5 » non réduit, deux cases vides (la
 correction +5 et −1, jamais rouge), le barème de 48 ; enfin le 7.9 relancé
 garde ses bulles chiffrées.
+
+## {developper-signe-moins-nu} — le signe − devant une parenthèse, sans les flèches (7.16, v559)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais le même exercice
+sans les flèches et sans les cercles qui entourent les nombres, sans les
+accolades, et sans l'étape avec des multiplications ». C'est le 7.15 sans
+son échafaudage : les mêmes six pages, le même tirage, le même juge ; l'élève
+écrit directement le développement terme par terme (le terme de devant,
+donné, recopié en tête), puis la forme réduite. Vingt cases : 2, 2, 2, 4, 4
+et 6.
+
+**Un moteur, deux identités**, comme le 7.11 pour le 7.10 : `dvmP()` lit le
+préfixe sur `test.kind` (« dvm » ou « dvs »), `dvmCases` saute les cases de
+facteur en « dvs », `dvsSchema` écrit l'expression en clair et une case par
+terme, sans `<svg>` ni `data-fl` / `data-acc` ; `dvlSuivre` n'est pas appelé.
+`startDvm('dvs')` pose `kind:'dvs'` et `qId:'developper-signe-moins-nu'`, et
+le barème se calcule APRÈS l'`Object.assign` du kind, puisque `dvmCases` le
+lit. Le préfixe « dvz » était déjà pris par l'exemple du 7.11 : d'où « dvs ».
+
+**Ce qui parlait du dessin se reformule** : la consigne dit que le signe −
+change le signe de chaque terme, sans flèche ni bulle ; le pourquoi d'un
+terme faux reste « (−1) × (−5) = 5 : multiplier par −1 change le signe du
+terme », qui ne nomme aucun dessin.
+
+**Le juge** (`tests/verifier.js`, « le signe − devant une parenthèse sans les
+flèches ») : la place (7.16, le 7.15 immobile), l'identité (kind, qId, écran,
+barème de 20), puis les six pages du 7.15 au bouton avec des réponses écrites
+à la main — la copie juste de chaque page, AUCUN dessin ni case de facteur,
+une consigne sans « flèche », « bulle » ni « accolade » ; l'exemple sans case ;
+les pièges : −5 pour −(−5) (rouge seul, message du signe qui change), « 5 »
+sans son signe, 10x pour 7x − 3x, une case vide (la correction +5) ; enfin le
+7.15 relancé garde ses bulles, ses cases de facteur et son barème de 48.

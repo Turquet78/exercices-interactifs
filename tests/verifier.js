@@ -4533,6 +4533,7 @@ function exercices(suite){
     valeurExpression(w, P);
     developperReduire(w, P);
     developperSigneMoins(w, P);
+    developperSigneMoinsNu(w, P);
     translationGrille(w, P);
     vecteursEgauxTableau(w, P);
     vecteursEgaux(w, P);
@@ -23526,6 +23527,94 @@ function developperSigneMoins(w, P){
     /* le 7.9 n'a pas bougé : ses bulles rouges portent toujours un nombre */
     startDvl();
     if(test.kind!=='dvl' || !document.getElementById('dvl-e-k0') || document.getElementById('dvl-e-k0').textContent==='−') vus.push('le 7.9 a changé');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {developper-signe-moins-nu} — thème 7 « Calcul littéral », 7.16 : le 7.15
+   sans son échafaudage (ni flèches, ni bulles, ni accolades, ni ligne des
+   produits), sur le même moteur. Ce que ce contrôle tient : la place,
+   l'identité (kind, qId, cases « dvs-… »), l'ABSENCE de tout dessin et de toute
+   case de facteur, la copie juste écrite ICI à la main, les pièges, et le 7.15
+   qui garde son schéma. */
+function developperSigneMoinsNu(w, P){
+  const present = evaluer(w, "typeof startDvm==='function' && !!TESTS['developper-signe-moins-nu']");
+  if(!present.ok || !present.valeur){
+    ignorer('le signe − devant une parenthèse sans les flèches : la place, l\'identité et la correction',
+      'ce niveau n\'a pas l\'exercice du signe − sans les flèches');
+    return;
+  }
+  verifierEval(w, 'le signe − devant une parenthèse sans les flèches : la place, l\'identité et la correction', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='developper-signe-moins-nu';
+    if(TEST_NUM['developper-signe-moins-nu']!=='7.16') vus.push('numéro '+TEST_NUM['developper-signe-moins-nu']+' au lieu de 7.16');
+    if(TEST_NUM['developper-signe-moins']!=='7.15') vus.push('le 7.15 a bougé');
+    if(TABLES_SANS.indexOf('developper-signe-moins-nu')>=0) vus.push('le bouton des tables est retiré : la page F a ses produits');
+
+    const M=function(c,d){ return {c:c,d:d}; }, UN=M(-1,0);
+    const FICHE=[
+      {forme:'A', seul:null, prods:[{k:UN, a:M(1,1), b:M(3,0), cache:true}]},          /* −(x + 3) */
+      {forme:'B', seul:null, prods:[{k:UN, a:M(2,1), b:M(-5,0), cache:true}]},         /* −(2x − 5) */
+      {forme:'C', seul:null, prods:[{k:UN, a:M(-3,1), b:M(4,0), cache:true}]},         /* −(−3x + 4) */
+      {forme:'D', seul:M(9,0), prods:[{k:UN, a:M(2,1), b:M(5,0), cache:true}]},        /* 9 − (2x + 5) */
+      {forme:'E', seul:M(7,1), prods:[{k:UN, a:M(3,1), b:M(-2,0), cache:true}]},       /* 7x − (3x − 2) */
+      {forme:'F', seul:null, prods:[{k:M(3,0), a:M(2,1), b:M(-1,0)}, {k:UN, a:M(4,1), b:M(-5,0), cache:true}]}  /* 3 × (2x − 1) − (4x − 5) */
+    ];
+    const JUSTE=[
+      {t:['-x','-3']}, {t:['-2x','+5']}, {t:['3x','-4']},
+      {t:['-2x','-5'], r:['-2x','+4']}, {t:['-3x','+2'], r:['4x','+2']},
+      {t:['6x','-3','-4x','+5'], r:['2x','+2']}
+    ];
+    const ids=function(j){ const o={}, J=JUSTE[j];
+      J.t.forEach(function(v,i){ o['dvs-t-'+i]=v; }); (J.r||[]).forEach(function(v,m){ o['dvs-r-'+m]=v; }); return o; };
+    startDvm('dvs');
+    if(test.kind!=='dvs' || test.qId!=='developper-signe-moins-nu') vus.push('identité '+test.kind+' / '+test.qId);
+    if(!document.querySelector('#scr-dvs.on')) vus.push('l\\'écran du 7.16 n\\'est pas affiché');
+    if(test.maxScore!==20) vus.push('barème de '+test.maxScore+' au lieu de 20');
+    test.questions=FICHE.map(function(q){ return JSON.parse(JSON.stringify(q)); });
+    const poser=function(vals){
+      test.locked=false; renderDvmTest();
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const CASES=[2,2,2,4,4,6];
+    for(let j=0;j<6;j++){
+      test.idx=j; const V=ids(j);
+      poser({});
+      const host=document.getElementById('dvsHost');
+      const manque=Object.keys(V).filter(function(id){ return !document.getElementById(id); });
+      if(manque.length){ vus.push('page '+FICHE[j].forme+' : case(s) absente(s) '+manque.join(', ')); continue; }
+      if(host.querySelectorAll('input').length!==CASES[j]) vus.push('page '+FICHE[j].forme+' : '+host.querySelectorAll('input').length+' cases au lieu de '+CASES[j]);
+      if(host.querySelector('.dvl-bul, svg, [data-fl], [data-acc], .dvl-mot, [id^="dvs-f-"]')) vus.push('page '+FICHE[j].forme+' : un dessin ou une case de facteur reste affiché');
+      if(/flèche|bulle|accolade/i.test(host.querySelector('.dvl-consigne').textContent)) vus.push('la consigne parle encore de flèches, de bulles ou d\\'accolades');
+      poser(V); checkDvmAnswer();
+      const der=test.answers[test.answers.length-1];
+      if(!der || !der.correct) vus.push('la copie juste de la page '+FICHE[j].forme+' est comptée fausse');
+      const nv=Object.keys(V).filter(function(id){ return peint(id)!=='vert'; });
+      if(nv.length) vus.push('page '+FICHE[j].forme+' : '+nv.join(', ')+' non juste(s)');
+      if(!der || der.cases!==CASES[j]) vus.push('page '+FICHE[j].forme+' : '+(der?der.cases:'?')+' cases notées au lieu de '+CASES[j]);
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    test.idx=0; poser({});
+    const ex=document.querySelector('#dvsHost .dvl-ex');
+    if(!ex) vus.push('l\\'exemple −(x + 4) manque à la première page');
+    else if(ex.querySelector('input, .dvl-bul, svg')) vus.push('l\\'exemple porte une case ou un dessin');
+    test.idx=1; poser({});
+    if(document.querySelector('#dvsHost .dvl-ex')) vus.push('l\\'exemple se répète sur la deuxième page');
+    /* les pièges : le second terme qui ne change pas de signe, le signe oublié, la réduction, la case vide */
+    test.idx=1; poser(Object.assign(ids(1), {'dvs-t-1':'-5'})); checkDvmAnswer();
+    if(peint('dvs-t-1')!=='rouge' || peint('dvs-t-0')!=='vert') vus.push('−5 pour −(−5) : '+peint('dvs-t-1')+', voisine '+peint('dvs-t-0'));
+    if(!/change le signe/.test($('dvsFeedback').textContent) || /bulle|flèche/.test($('dvsFeedback').textContent)) vus.push('le message du signe qui change : '+$('dvsFeedback').textContent);
+    test.idx=5; poser(Object.assign(ids(5), {'dvs-t-3':'5'})); checkDvmAnswer();
+    if(peint('dvs-t-3')!=='rouge' || !/garde son signe/.test($('dvsFeedback').textContent)) vus.push('« 5 » sans son signe : '+peint('dvs-t-3')+' — '+$('dvsFeedback').textContent);
+    test.idx=4; poser(Object.assign(ids(4), {'dvs-r-0':'10x'})); checkDvmAnswer();
+    if(peint('dvs-r-0')!=='rouge') vus.push('« 10x » pour 7x − 3x est peint en '+peint('dvs-r-0'));
+    test.idx=1; poser(Object.assign(ids(1), {'dvs-t-1':''})); checkDvmAnswer();
+    if(peint('dvs-t-1')!=='bleu' || (document.getElementById('dvs-t-1')||{}).value!=='+5') vus.push('case vide : '+peint('dvs-t-1')+', « '+(document.getElementById('dvs-t-1')||{}).value+' »');
+    /* le 7.15 garde son schéma et ses cases de facteur */
+    currentTestId='developper-signe-moins'; startDvm();
+    if(test.kind!=='dvm' || test.maxScore!==48 || !document.getElementById('dvm-f-0-1') || !document.querySelector('#dvmHost .dvl-bul')) vus.push('le 7.15 a perdu son schéma ('+test.kind+', barème '+test.maxScore+')');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
