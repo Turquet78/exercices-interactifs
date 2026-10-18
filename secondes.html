@@ -8179,7 +8179,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=563;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=564;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -59587,8 +59587,8 @@ function dvlCases(q){
    déjà validées (désactivées en soutien) se servent en premier : un doublon
    écrit plus loin ne leur reprend pas leur terme. Le « + » d'un terme qui en
    suit un autre se lit sur la PLACE de la case, comme au 7.9. */
-function dvoVerdicts(q, cases){
-  const L=dvlLignes(q);
+function dvoVerdicts(q, cases, L){
+  L=L||dvlLignes(q);   /* le 7.11 lui passe ses propres lignes (dvdLignes) */
   const eq=function(lu, t){ return !!lu && lu.c===t.c && lu.d===t.d; };
   const val=function(c){ const el=$(c.id); return el ? String(el.value==null?'':el.value).trim() : ''; };
   const fige=function(c){ const el=$(c.id); return el && el.disabled ? 0 : 1; };
@@ -60017,7 +60017,13 @@ function ctxDvl(q){
    et sans les accolades ») : mêmes pages, mêmes cases, même juge — seul le
    dessin tombe. Il partage ce moteur ; son identité est à lui (test.kind,
    test.qId, ses identifiants de cases « dvn-… », son écran). dvdP() lit le
-   préfixe sur test.kind, et chaque fonction ci-dessous le suit. */
+   préfixe sur test.kind, et chaque fonction ci-dessous le suit.
+
+   AU 7.11, L'ORDRE DES PRODUITS EST LIBRE (Turquet, octobre 2026, v564 :
+   « accepter que l'ordre soit différent ») : 5x × (−4) avant 5x × 8x, les
+   facteurs retournés, les résultats dans le même désordre — le juge du 7.17
+   (dvoVerdicts) sur les lignes du 7.10 (dvdVerdicts). Le 7.10 garde l'ordre
+   de ses flèches. */
 const DVD_FORMES=['A','B','C','D'];
 /* le préfixe des cases et de l'écran : « dvd » (7.10) ou « dvn » (7.11, nu) */
 function dvdP(){ return test.kind==='dvn' ? 'dvn' : 'dvd'; }
@@ -60143,6 +60149,13 @@ function dvdExempleHTML(nu){
   L.reduite.forEach(function(t,m){ v[pre+'r-'+m]=dvlEcrit(t,true,m>0); });
   return '<div class="dvl-ex"><div class="dvl-ex-tt">Exemple</div>'+dvdSchema(DVD_EXEMPLE, pre, v, nu)+'</div>';
 }
+/* le verdict de chaque case : au 7.10, à sa place (la forme réduite exceptée
+   au 7.11, qui a son lot) ; au 7.11, dans l'ordre qu'on veut */
+/* deux termes égaux {c, d} */
+function dvlMeme(u, v){ return !!u && !!v && u.c===v.c && u.d===v.d; }
+function dvdVerdicts(q, cases){
+  return dvdP()==='dvn' ? dvoVerdicts(q, cases, dvdLignes(q)) : dvlParLots(cases);
+}
 function dvdCarre(){ redCarre(test.dvdFocus || dvdP()+'-t-0'); }
 function renderDvdTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -60154,8 +60167,8 @@ function renderDvdTest(){
   $(P+'Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkDvdAnswer()">Vérifier</button>';
   const L=dvdLignes(q);
   const consigne=nu
-    ? '<p class="dvl-consigne">Développe <b>'+L.nom+'</b> : chaque terme de la première parenthèse multiplie chaque terme de la seconde. Écris les quatre produits dans l’ordre — le premier terme par le premier, puis par le second ; le second terme par le premier, puis par le second. '
-      +'Écris ensuite le résultat de chaque produit, puis réduis : les deux termes en <i>x</i> n’en font plus qu’un, et les trois termes de la forme réduite s’écrivent dans l’ordre que tu veux. Le terme qui en suit un autre garde son signe : <b>−20<i>x</i></b>, <b>+15</b>.</p>'
+    ? '<p class="dvl-consigne">Développe <b>'+L.nom+'</b> : chaque terme de la première parenthèse multiplie chaque terme de la seconde. Écris les quatre produits — chaque terme de la première parenthèse par le premier, puis par le second terme de la seconde —, dans l’ordre que tu veux. '
+      +'Écris ensuite le résultat de chaque produit, puis réduis : les deux termes en <i>x</i> n’en font plus qu’un. Les produits, leurs résultats et les trois termes de la forme réduite s’écrivent dans l’ordre que tu veux. Le terme qui en suit un autre garde son signe : <b>−20<i>x</i></b>, <b>+15</b>.</p>'
     : '<p class="dvl-consigne dvd-consigne">Développe <b>'+L.nom+'</b> en suivant les flèches : le terme <span class="dvl-mot dvl-mk">rouge</span> multiplie le terme <span class="dvl-mot dvl-ma">bleu</span>, puis le terme <span class="dvl-mot dvl-mb">vert</span> ; le terme <span class="dvl-mot dvl-mn">noir</span> multiplie à son tour le bleu, puis le vert. '
     +'Sous chaque accolade, écris le résultat du produit ; puis réduis : le terme en <i>x</i>² d’abord, les deux termes en <i>x</i> de la grande accolade n’en font plus qu’un, puis le nombre. Le terme qui en suit un autre garde son signe : <b>−20<i>x</i></b>, <b>+15</b>.</p>';
   $(P+'Host').innerHTML=(test.idx===0 ? dvdExempleHTML(nu) : '')
@@ -60179,20 +60192,29 @@ function dvdPourquoi(q, subs){
   const c=f.c, L=dvdLignes(q), COUL={k:'rouge', n:'noire', a:'bleue', b:'verte'}, nu=dvdP()==='dvn';
   if(c.role==='k' || c.role==='f'){
     const p=c.p;
-    /* 7.11 : plus de bulle ni de flèche à suivre — on nomme les termes */
-    if(nu) return 'Le produit '+(p.i+1)+' multiplie le '+(p.c1==='k'?'premier':'second')+' terme de la première parenthèse par le '+(p.c2==='a'?'premier':'second')+' terme de la seconde : c’est '+p.bonK+' × '+dvdPar(p.bonF)+'.';
+    /* 7.11 : plus de bulle ni de flèche à suivre — on nomme les termes. Les
+       produits s'y écrivent dans l'ordre qu'on veut : on parle de celui que
+       le juge a donné à cette rangée, pas de celui de sa place */
+    if(nu){
+      const ff=subs.filter(function(s){ return (s.c.role==='k' || s.c.role==='f') && s.c.p.i===p.i; }).map(function(s){ return s.att; });
+      const pp=L.prods.find(function(r){ return ff.length===2 && ((dvlMeme(r.k,ff[0]) && dvlMeme(r.f,ff[1])) || (dvlMeme(r.k,ff[1]) && dvlMeme(r.f,ff[0]))); }) || p;
+      return 'Ce produit multiplie le '+(pp.c1==='k'?'premier':'second')+' terme de la première parenthèse par le '+(pp.c2==='a'?'premier':'second')+' terme de la seconde : c’est '+pp.bonK+' × '+dvdPar(pp.bonF)+'.';
+    }
     return 'Suis la flèche : le produit '+(p.i+1)+' relie la bulle '+COUL[p.c1]+' à la bulle '+COUL[p.c2]+'. C’est donc '+p.bonK+' × '+dvdPar(p.bonF)+'.';
   }
   const lu=dvlLit(f.el.value);
   /* 7.11 : la forme réduite s'écrit dans n'importe quel ordre — la case
      fausse parle du terme de même degré que ce que l'élève a écrit */
   let att=c.att, m=c.m, bon=c.bon;
+  /* 7.11 : la case parle du terme que le juge lui a donné, pas de sa place */
+  if(nu && f.att && c.role==='t'){ att=f.att; bon=f.bon; }
   if(c.lot && lu){ const i=L.reduite.findIndex(function(t){ return t.d===lu.d; });
     if(i>=0){ att=L.reduite[i]; m=i; bon=dvlEcrit(att,false,c.signe); } }
   if(lu && lu.c===att.c && lu.d===att.d && c.signe && !lu.signe)
     return 'Le résultat est juste, mais il suit un autre terme : il garde son signe, '+bon+'.';
   if(c.role==='t'){
-    const p=c.p;
+    /* 7.11 : le résultat dont parle la correction, où qu'il soit écrit */
+    const p=(nu && f.att && L.prods.find(function(r){ return dvlMeme(r.res, f.att); })) || c.p;
     return p.bonK+' × '+dvdPar(p.bonF)+' = '+redEcrit([p.res],false)+' : la règle des signes d’abord, puis les nombres se multiplient'+(p.res.d===2?', et x × x = x²':'')+'.';
   }
   if(m===1) return (nu?'Les deux termes en x se regroupent':'Sous la grande accolade, les deux termes en x se regroupent')+' : '+L.prods[1].bonT+' '+L.prods[2].bonT+' = '+bon+'.';
@@ -60201,7 +60223,7 @@ function dvdPourquoi(q, subs){
 function checkDvdAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
-  const cases=dvdCases(q), P=dvdP(), verdicts=dvlParLots(cases);
+  const cases=dvdCases(q), P=dvdP(), verdicts=dvdVerdicts(q, cases);
   if(live){   /* soutien : on ne juge que les cases déjà remplies */
     if(!isSoutien()) return;
     cases.forEach(function(c,k){ const el=$(c.id); if(!el || el.disabled) return;
@@ -60212,7 +60234,7 @@ function checkDvdAnswer(live){
     return;
   }
   const subs=cases.map(function(c,k){ const el=$(c.id);
-    return {c:c, el:el, ok:verdicts[k].ok, bon:verdicts[k].bon, vide:!el || String(el.value).trim()===''}; });
+    return {c:c, el:el, ok:verdicts[k].ok, bon:verdicts[k].bon, att:verdicts[k].att, vide:!el || String(el.value).trim()===''}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
   const pourquoi=dvdPourquoi(q, subs);
@@ -60253,10 +60275,10 @@ function startDvd(kind){
 }
 function ctxDvd(q){
   const L=dvdLignes(q);
-  const cs=dvdCases(q), v=dvlParLots(cs);
+  const cs=dvdCases(q), v=dvdVerdicts(q, cs);
   const faux=cs.filter(function(c,k){ const el=$(c.id); return el && String(el.value).trim()!=='' && !v[k].ok; }).length;
   if(dvdP()==='dvn'){
-    let n='L’élève développe '+L.nom+' = '+L.expr+' avec la double distributivité, SANS schéma (ni flèches, ni bulles, ni accolades) : il écrit d’abord les quatre produits dans l’ordre (premier terme de la première parenthèse par chacun de la seconde, puis le second), puis le résultat de chaque produit, puis la forme réduite : le terme en x², les deux termes en x regroupés, le nombre — ses trois termes dans n’importe quel ordre. '
+    let n='L’élève développe '+L.nom+' = '+L.expr+' avec la double distributivité, SANS schéma (ni flèches, ni bulles, ni accolades) : il écrit d’abord les quatre produits (chaque terme de la première parenthèse par chacun de la seconde), puis le résultat de chaque produit, puis la forme réduite : le terme en x², les deux termes en x regroupés, le nombre. L’ORDRE EST LIBRE partout : les produits, les facteurs d’un produit, les résultats et les termes de la forme réduite. '
      +'Réponses attendues, STRICTEMENT SECRÈTES : '+L.nom+' = '+L.produits+' = '+L.developpe+' = '+L.reduiteTxt+'. '
      +'Méthode enseignée : (a + b) × (c + d) = a × c + a × d + b × c + b × d ; chaque produit suit la règle des signes, et x × x = x². Un terme qui en suit un autre garde son signe (−20x, +15).';
     if(faux) n+=' Il s’est trompé sur '+faux+' case(s).';

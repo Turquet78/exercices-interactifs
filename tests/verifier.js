@@ -23856,6 +23856,29 @@ function developperDoubleNu(w, P){
     test.idx=0; poser(Object.assign(ids(0), {'dvn-r-1':'-14x'})); checkDvdAnswer();
     const m3=$('dvnFeedback').textContent;
     if(peint('dvn-r-1')!=='rouge' || !/se regroupent/.test(m3) || /accolade/.test(m3)) vus.push('la réduction fausse : '+peint('dvn-r-1')+' — '+m3);
+    /* les produits dans un autre ordre sont justes (v564, la capture de
+       Turquet : le premier terme par le SECOND d'abord), les facteurs
+       retournés, les résultats et la forme réduite dans le même désordre */
+    const DESORDRE={'dvn-f-0-1':'4x','dvn-f-0-2':'(-5)','dvn-f-1-1':'4x','dvn-f-1-2':'2x','dvn-t-0':'-20x','dvn-t-1':'+8x²',
+      'dvn-f-2-1':'-5','dvn-f-2-2':'-3','dvn-f-3-1':'2x','dvn-f-3-2':'(-3)','dvn-t-2':'+15','dvn-t-3':'-6x',
+      'dvn-r-0':'15','dvn-r-1':'-26x','dvn-r-2':'+8x²'};
+    test.idx=0; poser(DESORDRE); checkDvdAnswer();
+    const nd=Object.keys(DESORDRE).filter(function(id){ return peint(id)!=='vert'; });
+    if(nd.length || !test.answers[test.answers.length-1].correct) vus.push('la copie juste dans le désordre (7.11) : '+nd.join(', ')+' non juste(s)');
+    /* le même produit écrit deux fois ne compte qu'une fois, et le message nomme celui qui manque */
+    test.idx=0; poser(Object.assign({}, DESORDRE, {'dvn-f-2-1':'4x','dvn-f-2-2':'-5','dvn-t-2':'-20x'})); checkDvdAnswer();
+    if(peint('dvn-f-0-1')!=='vert' || peint('dvn-f-0-2')!=='vert') vus.push('le premier produit juste n\\'est plus vert');
+    /* la rangée garde son « −5 », juste : il appartient au produit qui manque, (−3) × (−5) */
+    if(peint('dvn-f-2-1')!=='rouge' || peint('dvn-f-2-2')!=='vert') vus.push('4x × (−5) écrit deux fois : '+peint('dvn-f-2-1')+', '+peint('dvn-f-2-2'));
+    if(peint('dvn-t-2')!=='rouge') vus.push('« −20x » écrit deux fois est peint en '+peint('dvn-t-2'));
+    const m5=$('dvnFeedback').textContent;
+    if(!/second terme de la première parenthèse/.test(m5) || /flèche|bulle/.test(m5)) vus.push('le message du produit en double : '+m5);
+    /* le 7.10 garde l'ordre de ses flèches */
+    startDvd(); test.questions=FICHE.map(function(q){ return JSON.parse(JSON.stringify(q)); }); test.idx=0; test.locked=false; renderDvdTest();
+    Object.keys(DESORDRE).forEach(function(id){ const el=document.getElementById(id.replace(/^dvn-/,'dvd-')); if(el) el.value=DESORDRE[id]; });
+    checkDvdAnswer();
+    if(peint('dvd-f-0-2')!=='rouge') vus.push('au 7.10, le désordre des produits est compté juste : l\\'ordre des flèches y compte encore');
+    startDvd('dvn'); test.questions=FICHE.map(function(q){ return JSON.parse(JSON.stringify(q)); });
     /* la forme réduite dans un autre ordre est juste (v563) */
     test.idx=3; poser(Object.assign(ids(3), {'dvn-r-0':'-10','dvn-r-1':'+6x²','dvn-r-2':'+11x'})); checkDvdAnswer();
     if(!test.answers[test.answers.length-1].correct) vus.push('−10 + 6x² + 11x (7.11) est compté faux : '+['dvn-r-0','dvn-r-1','dvn-r-2'].map(peint).join(', '));
