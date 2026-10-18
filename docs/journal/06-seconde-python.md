@@ -6639,3 +6639,11 @@ chacun sert une fois dans le 6.1, et au plus deux fois dans le 6.2 ; la clé
 d'un déguisement disparu (le pirate, le roi des ombres, le sorcier au chapeau
 bleu) sont réécrites pour le nouveau ; les plus larges (le chaudron, le cyclope,
 le vampire à la grande cape) prennent `large:true`.
+
+Le même jour, une seconde planche de Turquet a donné **sept serpents d'Halloween
+de plus**, pour que le 6.2 n'en répète plus aucun : le château hanté (le même
+résultat ?), la toile d'araignée (déboguer), le fantôme aux flammes bleues (la
+variable inconnue), le seau de bonbons (la formule), le pirate (l'ordre des
+lignes), le pharaon (traduire un algorithme) et le grimoire (choisir le
+programme). Le 6.2 compte désormais vingt-trois serpents tous différents ; le 6.1
+garde les seize de la première planche. Les bulles suivent le déguisement.

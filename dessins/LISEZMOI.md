@@ -64,8 +64,9 @@ d'Halloween ont d'abord été dessinés en SVG, puis convertis en WebP (octobre
 Turquet : 46 serpents ordinaires (une émotion et un objet chacun) et 16 serpents
 d'Halloween, découpés et détourés. Les dessins thématiques portent le suffixe
 `-2.webp` ; les serpents d'Halloween gardent leur nom `<identifiant>-halloween.webp`,
-que le banc exige. Seize déguisements pour trente-neuf exercices : chacun sert
-deux ou trois fois, une fois dans le 6.1 et au plus deux fois dans le 6.2. Ils
+que le banc exige. Le 6.1 prend les seize serpents
+d'Halloween de la première planche ; le 6.2 en reprend seize et en ajoute sept,
+tirés d'une seconde planche : ses vingt-trois serpents sont tous différents. Ils
 ne demandent aucun code par exercice : la table `DESSINS_VAR` (le dessin
 thématique, posé au-dessus de l'énoncé) et `HW_SERPENTS` (le serpent
 d'Halloween, posé à côté du dessin de l'exercice) suffisent, `dessinsVariables()`
