@@ -1003,7 +1003,7 @@ du doublon reste vert), 2x pour x × 2x, deux cases vides (la correction +8x et
 2x, les termes non pris), la forme réduite sans signe puis non réduite ; enfin
 le 7.9 relancé garde ses bulles, et le désordre y reste faux.
 
-## La forme réduite s'écrit dans n'importe quel ordre — 7.9, 7.11, 7.14, 7.15, 7.16 (v562)
+## La forme réduite s'écrit dans n'importe quel ordre — 7.9, 7.11, 7.14, 7.15, 7.16 (v563)
 
 **La demande** (Turquet, octobre 2026, captures du 7.14, du 7.15 et du 7.16 à
 l'appui) : « on ne veut pas forcément ordonner les termes au résultat ; de
