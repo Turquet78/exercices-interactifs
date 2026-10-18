@@ -948,3 +948,49 @@ une consigne sans « flèche », « bulle » ni « accolade » ; l'exemple sans 
 les pièges : −5 pour −(−5) (rouge seul, message du signe qui change), « 5 »
 sans son signe, 10x pour 7x − 3x, une case vide (la correction +5) ; enfin le
 7.15 relancé garde ses bulles, ses cases de facteur et son barème de 48.
+
+## La forme réduite s'écrit dans n'importe quel ordre — 7.9, 7.11, 7.14, 7.15, 7.16 (v561)
+
+**La demande** (Turquet, octobre 2026, captures du 7.14, du 7.15 et du 7.16 à
+l'appui) : « on ne veut pas forcément ordonner les termes au résultat ; de
+plus l'ordre des cases n'est pas important ici ». Le 7.16 peignait en rouge
+« 9 − 7x » pour −7x + 9, et le 7.15 « 5 − 8x » pour −8x + 5 : des formes
+réduites justes, comptées fausses parce que la consigne voulait « le terme en
+x d'abord, puis le nombre ».
+
+**Un appariement, partagé** (`dvlApparier`) : c'est le juge du 7.14
+(`dvrJuger`) sorti de son exercice. Les cases d'un même LOT (`c.lot`) se
+lisent dans n'importe quel ordre : chaque case remplie prend un terme attendu
+encore libre de même valeur ; les cases fausses ou vides reçoivent, en
+correction, les termes restés libres. `dvlVerdicts(cases)` juge une page :
+une case sans lot à sa place (`dvlJuste`), les autres par lot. Le terme qui
+en suit un autre garde son signe, quelle que soit sa place : c'est la PLACE
+qui exige le signe, pas le terme (« 7 − 2x » est juste ; « −2x 7 » ne l'est
+pas).
+
+**Ce qui est en lot, et ce qui ne l'est pas** : la forme réduite du 7.9
+(page F), du 7.11, du 7.14, du 7.15 et du 7.16 ; les termes développés du
+7.14 (déjà libres) et du 7.16 — sans accolade, rien n'attache un terme à sa
+case. Restent à leur place : les résultats sous les accolades (7.9, 7.10,
+7.15), les produits et leurs résultats du 7.11 (« dans l'ordre », la consigne
+le demande), et toute la forme réduite du 7.10, dont chaque case est sous la
+colonne qui la produit. Les consignes ne disent plus « le terme en x
+d'abord » : elles disent « dans l'ordre que tu veux » ; les noms des cases
+pour le lecteur d'écran (« terme 2 de la forme réduite ») ne nomment plus un
+degré.
+
+**Le pourquoi suit ce que l'élève a écrit**, pas la place : au 7.11 et au
+7.14, une réduction fausse parle du degré du terme écrit (« −14x » en
+première case : « les deux termes en x se regroupent ») ; le signe oublié se
+reconnaît sur n'importe quel terme du lot (« 2 » en première case du 7.16,
+page E : « il garde son signe, +2 »).
+
+**Le juge** (`tests/verifier.js`, dans les contrôles de chaque exercice) :
+la forme réduite dans un autre ordre, juste aux cinq (7.9 F, 7.11 D, 7.14 D,
+7.15 D, 7.16 D) ; le 7.14 qui exigeait l'ordre x², x, nombre est retourné ;
+le développement du 7.16 dans un autre ordre, juste (pages B et D) ; une
+case vide après un terme pris hors de sa place reçoit le terme restant
+(7.9 : « 7 », puis −2x) ; le signe oublié sur la dernière place (7.14 : « 4x² »)
+et à une autre place (7.16) ; la réduction fausse à une autre place (7.11,
+7.14) ; et, en face, le 7.15 garde ses accolades : un résultat sous la
+mauvaise accolade reste rouge.

@@ -8163,7 +8163,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=560;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=561;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -59543,7 +59543,7 @@ function dvlCases(q){
   });
   L.prods.forEach(function(p){ cs.push({id:'dvl-t-'+p.i, bon:p.bonT, att:p.res, p:p, role:'t', signe:p.i>0}); });
   if(L.reduite) L.reduite.forEach(function(t,m){
-    cs.push({id:'dvl-r-'+m, bon:dvlEcrit(t,false,m>0), att:t, role:'r', signe:m>0}); });
+    cs.push({id:'dvl-r-'+m, bon:dvlEcrit(t,false,m>0), att:t, role:'r', signe:m>0, lot:'r'}); });
   return cs;
 }
 /* Ce que l'élève a écrit dans UNE case, lu comme UN terme : {c, d, signe}, ou
@@ -59572,6 +59572,37 @@ function dvlJuste(c, el){
   const lu=dvlLit(el.value);
   if(!lu || lu.c!==c.att.c || lu.d!==c.att.d) return false;
   return !c.signe || lu.signe;
+}
+/* Les cases d'un même LOT se lisent dans N'IMPORTE QUEL ORDRE (Turquet,
+   octobre 2026 : 7.9, 7.11, 7.14 à 7.16) — « −7x + 9 » et « 9 − 7x » sont la
+   même forme réduite. Chaque case remplie prend un terme attendu encore libre
+   de même valeur (avec son signe si elle suit une autre case) ; les cases
+   fausses ou vides reçoivent, en correction, les termes restés libres.
+   cs : [{att, signe}], valeurs : les textes saisis. Rend [{ok, bon}]. */
+function dvlApparier(cs, valeurs){
+  const libre=cs.map(function(){ return true; });
+  const out=cs.map(function(c, k){
+    const lu=dvlLit(valeurs[k]);
+    if(!lu || (c.signe && !lu.signe)) return {ok:false};
+    const j=cs.findIndex(function(d,i){ return libre[i] && d.att.c===lu.c && d.att.d===lu.d; });
+    if(j<0) return {ok:false};
+    libre[j]=false;
+    return {ok:true, bon:dvlEcrit(cs[j].att,false,c.signe)};
+  });
+  const reste=cs.filter(function(d,i){ return libre[i]; });
+  out.forEach(function(o,k){ if(!o.ok){ const t=reste.shift(); o.bon=t ? dvlEcrit(t.att,false,cs[k].signe) : ''; } });
+  return out;
+}
+/* Le verdict de chaque case d'une page, dans l'ordre de ses cases : une case
+   sans lot se juge à sa place (dvlJuste), celles d'un lot s'apparient. */
+function dvlVerdicts(cases){
+  const out=cases.map(function(c){ return c.lot ? null : {ok:dvlJuste(c,$(c.id)), bon:c.bon}; }), lots={};
+  cases.forEach(function(c,k){ if(c.lot) (lots[c.lot]=lots[c.lot]||[]).push(k); });
+  Object.keys(lots).forEach(function(n){ const ks=lots[n];
+    dvlApparier(ks.map(function(k){ return cases[k]; }), ks.map(function(k){ const el=$(cases[k].id); return el ? el.value : ''; }))
+      .forEach(function(o,i){ out[ks[i]]=o; });
+  });
+  return out;
 }
 /* Le schéma d'une page. vals : null pour les cases de l'élève, ou un objet
    {id: texte} pour l'exemple rempli (aucune case, que du texte). pre : le
@@ -59617,7 +59648,7 @@ function dvlSchema(q, pre, vals){
   /* ④ la forme réduite (deux produits) */
   if(L.reduite){
     h+='<div class="dvl-l dvl-l4">'+nom;
-    L.reduite.forEach(function(t, m){ h+='<span class="dvl-res">'+casee(pre+'r-'+m, 'dvl-t', m===0?'le terme en x de la forme réduite':'le nombre de la forme réduite, avec son signe')+'</span>'; });
+    L.reduite.forEach(function(t, m){ h+='<span class="dvl-res">'+casee(pre+'r-'+m, 'dvl-t', 'terme '+(m+1)+' de la forme réduite'+(m>0?', avec son signe':''))+'</span>'; });
     h+='</div>';
   }
   return '<div class="dvl-schema" data-fl=\''+JSON.stringify(fl)+'\' data-acc=\''+JSON.stringify(acc)+'\'>'
@@ -59704,7 +59735,7 @@ function renderDvlTest(){
   const carre=L.prods.some(function(p){ return p.res.d===2; });
   let h=(test.idx===0 ? dvlExempleHTML() : '')
     +'<p class="dvl-consigne">Développe <b>'+L.nom+'</b> en suivant les flèches : dans les bulles, le facteur <span class="dvl-mot dvl-mk">rouge</span> multiplie le terme <span class="dvl-mot dvl-ma">bleu</span>, puis le terme <span class="dvl-mot dvl-mb">vert</span> ; sous chaque accolade, écris le résultat du produit'
-    +(L.reduite ? ', puis réduis : le terme en <i>x</i> d’abord, puis le nombre.' : '.')+' Le terme qui en suit un autre garde son signe : <b>+15</b>, <b>−4</b>.</p>'
+    +(L.reduite ? ', puis réduis : les termes de la forme réduite s’écrivent dans l’ordre que tu veux.' : '.')+' Le terme qui en suit un autre garde son signe : <b>+15</b>, <b>−4</b>.</p>'
     +'<div class="dvl-page">'+dvlSchema(q, 'dvl-', null)+'</div>'
     +(carre ? '<div class="dvl-outils"><button class="btn btn-ghost red-sq" type="button" tabindex="-1" onmousedown="event.preventDefault()" onclick="dvlCarre()" aria-label="écrire x au carré"><i>x</i>²</button><span class="dvl-astuce">ou tape <i>x</i>^2, <i>x</i>**2</span></div>' : '');
   $('dvlHost').innerHTML=h;
@@ -59759,24 +59790,24 @@ function dvlPourquoi(q, subs){
 function checkDvlAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
-  const cases=dvlCases(q);
+  const cases=dvlCases(q), verdicts=dvlVerdicts(cases);
   if(live){   /* soutien : on ne juge que les cases déjà remplies */
     if(!isSoutien()) return;
-    cases.forEach(function(c){ const el=$(c.id); if(!el || el.disabled) return;
+    cases.forEach(function(c,k){ const el=$(c.id); if(!el || el.disabled) return;
       el.classList.remove('ok','bad');
       if(String(el.value).trim()==='') return;
-      el.classList.add(dvlJuste(c,el)?'ok':'bad');
+      el.classList.add(verdicts[k].ok?'ok':'bad');
     });
     return;
   }
-  const subs=cases.map(function(c){ const el=$(c.id);
-    return {c:c, el:el, ok:dvlJuste(c,el), vide:!el || String(el.value).trim()===''}; });
+  const subs=cases.map(function(c,k){ const el=$(c.id);
+    return {c:c, el:el, ok:verdicts[k].ok, bon:verdicts[k].bon, vide:!el || String(el.value).trim()===''}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
   const pourquoi=dvlPourquoi(q, subs);
   const L=dvlLignes(q);
   const saisi=subs.map(function(s){ return s.el?String(s.el.value).trim():''; });
-  subs.forEach(function(s){ dvlCorr(s.el, s.c.bon, s.ok); });
+  subs.forEach(function(s){ dvlCorr(s.el, s.bon, s.ok); });
   dvlTrace();
   if(!allOk && isSoutien()){ soutienAgain('dvlFeedback','dvlActions','checkDvlAnswer','dvlHost'); return; }
   test.locked=true;
@@ -59808,9 +59839,10 @@ function startDvl(){
 }
 function ctxDvl(q){
   const L=dvlLignes(q);
-  const faux=dvlCases(q).filter(function(c){ const el=$(c.id); return el && String(el.value).trim()!=='' && !dvlJuste(c,el); }).length;
+  const cs=dvlCases(q), v=dvlVerdicts(cs);
+  const faux=cs.filter(function(c,k){ const el=$(c.id); return el && String(el.value).trim()!=='' && !v[k].ok; }).length;
   let c='L’élève développe '+L.nom+' = '+L.expr+' avec la distributivité, en suivant des flèches dessinées : le facteur devant la parenthèse (entouré en rouge) multiplie le premier terme (entouré en bleu), puis le second (entouré en vert). '
-   +'Il écrit d’abord les produits dans des bulles ('+L.nom+' = k × a + k × b), puis le résultat de chaque produit sous une accolade'+(L.reduite?', puis la forme réduite':'')+'. '
+   +'Il écrit d’abord les produits dans des bulles ('+L.nom+' = k × a + k × b), puis le résultat de chaque produit sous une accolade'+(L.reduite?', puis la forme réduite, ses termes dans n’importe quel ordre':'')+'. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : '+L.nom+' = '+L.prods.map(function(p){ return p.bonK+' × '+(p.coul==='b'?'('+p.bonF+')':p.bonF); }).join(' + ')
    +' = '+L.developpe+(L.reduite?' = '+L.reduiteTxt:'')+'. '
    +'Méthode enseignée : k × (a + b) = k × a + k × b ; chaque produit suit la règle des signes, et x × x = x². Un terme qui en suit un autre garde son signe (+15, −4).';
@@ -59905,7 +59937,7 @@ function dvdCases(q){
   });
   L.prods.forEach(function(p){ cs.push({id:P+'-t-'+p.i, bon:p.bonT, att:p.res, p:p, role:'t', signe:p.i>0}); });
   L.reduite.forEach(function(t,m){
-    cs.push({id:P+'-r-'+m, bon:dvlEcrit(t,false,m>0), att:t, role:'r', m:m, signe:m>0}); });
+    cs.push({id:P+'-r-'+m, bon:dvlEcrit(t,false,m>0), att:t, role:'r', m:m, signe:m>0, lot:P==='dvn' ? 'r' : null}); });
   return cs;
 }
 /* Le schéma d'une page — même écriture que dvlSchema. vals : null pour les
@@ -59955,9 +59987,9 @@ function dvdSchema(q, pre, vals, nu){
   });
   acc.push([pre+'c-1', pre+'c-2']);
   h+=nom
-    +'<span class="dvl-res" style="grid-column:2">'+casee(pre+'r-0', 'dvl-t', 'le terme en x² de la forme réduite')+'</span>'
-    +'<span class="dvl-res" style="grid-column:4 / 7">'+casee(pre+'r-1', 'dvl-t', 'le terme en x de la forme réduite, avec son signe')+'</span>'
-    +'<span class="dvl-res" style="grid-column:8">'+casee(pre+'r-2', 'dvl-t', 'le nombre de la forme réduite, avec son signe')+'</span>';
+    +'<span class="dvl-res" style="grid-column:2">'+casee(pre+'r-0', 'dvl-t', nu?'terme 1 de la forme réduite':'le terme en x² de la forme réduite')+'</span>'
+    +'<span class="dvl-res" style="grid-column:4 / 7">'+casee(pre+'r-1', 'dvl-t', nu?'terme 2 de la forme réduite, avec son signe':'le terme en x de la forme réduite, avec son signe')+'</span>'
+    +'<span class="dvl-res" style="grid-column:8">'+casee(pre+'r-2', 'dvl-t', nu?'terme 3 de la forme réduite, avec son signe':'le nombre de la forme réduite, avec son signe')+'</span>';
   h+='</div>';
   if(nu) return '<div class="dvl-schema dvn-schema">'+h+'</div>';
   return '<div class="dvl-schema dvd-schema" data-fl=\''+JSON.stringify(fl)+'\' data-acc=\''+JSON.stringify(acc)+'\'>'
@@ -59989,7 +60021,7 @@ function renderDvdTest(){
   const L=dvdLignes(q);
   const consigne=nu
     ? '<p class="dvl-consigne">Développe <b>'+L.nom+'</b> : chaque terme de la première parenthèse multiplie chaque terme de la seconde. Écris les quatre produits dans l’ordre — le premier terme par le premier, puis par le second ; le second terme par le premier, puis par le second. '
-      +'Écris ensuite le résultat de chaque produit, puis réduis : le terme en <i>x</i>² d’abord, les deux termes en <i>x</i> n’en font plus qu’un, puis le nombre. Le terme qui en suit un autre garde son signe : <b>−20<i>x</i></b>, <b>+15</b>.</p>'
+      +'Écris ensuite le résultat de chaque produit, puis réduis : les deux termes en <i>x</i> n’en font plus qu’un, et les trois termes de la forme réduite s’écrivent dans l’ordre que tu veux. Le terme qui en suit un autre garde son signe : <b>−20<i>x</i></b>, <b>+15</b>.</p>'
     : '<p class="dvl-consigne dvd-consigne">Développe <b>'+L.nom+'</b> en suivant les flèches : le terme <span class="dvl-mot dvl-mk">rouge</span> multiplie le terme <span class="dvl-mot dvl-ma">bleu</span>, puis le terme <span class="dvl-mot dvl-mb">vert</span> ; le terme <span class="dvl-mot dvl-mn">noir</span> multiplie à son tour le bleu, puis le vert. '
     +'Sous chaque accolade, écris le résultat du produit ; puis réduis : le terme en <i>x</i>² d’abord, les deux termes en <i>x</i> de la grande accolade n’en font plus qu’un, puis le nombre. Le terme qui en suit un autre garde son signe : <b>−20<i>x</i></b>, <b>+15</b>.</p>';
   $(P+'Host').innerHTML=(test.idx===0 ? dvdExempleHTML(nu) : '')
@@ -60018,36 +60050,41 @@ function dvdPourquoi(q, subs){
     return 'Suis la flèche : le produit '+(p.i+1)+' relie la bulle '+COUL[p.c1]+' à la bulle '+COUL[p.c2]+'. C’est donc '+p.bonK+' × '+dvdPar(p.bonF)+'.';
   }
   const lu=dvlLit(f.el.value);
-  if(lu && lu.c===c.att.c && lu.d===c.att.d && c.signe && !lu.signe)
-    return 'Le résultat est juste, mais il suit un autre terme : il garde son signe, '+c.bon+'.';
+  /* 7.11 : la forme réduite s'écrit dans n'importe quel ordre — la case
+     fausse parle du terme de même degré que ce que l'élève a écrit */
+  let att=c.att, m=c.m, bon=c.bon;
+  if(c.lot && lu){ const i=L.reduite.findIndex(function(t){ return t.d===lu.d; });
+    if(i>=0){ att=L.reduite[i]; m=i; bon=dvlEcrit(att,false,c.signe); } }
+  if(lu && lu.c===att.c && lu.d===att.d && c.signe && !lu.signe)
+    return 'Le résultat est juste, mais il suit un autre terme : il garde son signe, '+bon+'.';
   if(c.role==='t'){
     const p=c.p;
     return p.bonK+' × '+dvdPar(p.bonF)+' = '+redEcrit([p.res],false)+' : la règle des signes d’abord, puis les nombres se multiplient'+(p.res.d===2?', et x × x = x²':'')+'.';
   }
-  if(c.m===1) return (nu?'Les deux termes en x se regroupent':'Sous la grande accolade, les deux termes en x se regroupent')+' : '+L.prods[1].bonT+' '+L.prods[2].bonT+' = '+c.bon+'.';
-  return 'Il n’y a qu’un seul terme '+(c.m===0?'en x²':'sans x')+' : '+c.bon+' descend tel quel.';
+  if(m===1) return (nu?'Les deux termes en x se regroupent':'Sous la grande accolade, les deux termes en x se regroupent')+' : '+L.prods[1].bonT+' '+L.prods[2].bonT+' = '+bon+'.';
+  return 'Il n’y a qu’un seul terme '+(m===0?'en x²':'sans x')+' : '+bon+' descend tel quel.';
 }
 function checkDvdAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
-  const cases=dvdCases(q), P=dvdP();
+  const cases=dvdCases(q), P=dvdP(), verdicts=dvlVerdicts(cases);
   if(live){   /* soutien : on ne juge que les cases déjà remplies */
     if(!isSoutien()) return;
-    cases.forEach(function(c){ const el=$(c.id); if(!el || el.disabled) return;
+    cases.forEach(function(c,k){ const el=$(c.id); if(!el || el.disabled) return;
       el.classList.remove('ok','bad');
       if(String(el.value).trim()==='') return;
-      el.classList.add(dvlJuste(c,el)?'ok':'bad');
+      el.classList.add(verdicts[k].ok?'ok':'bad');
     });
     return;
   }
-  const subs=cases.map(function(c){ const el=$(c.id);
-    return {c:c, el:el, ok:dvlJuste(c,el), vide:!el || String(el.value).trim()===''}; });
+  const subs=cases.map(function(c,k){ const el=$(c.id);
+    return {c:c, el:el, ok:verdicts[k].ok, bon:verdicts[k].bon, vide:!el || String(el.value).trim()===''}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
   const pourquoi=dvdPourquoi(q, subs);
   const L=dvdLignes(q);
   const saisi=subs.map(function(s){ return s.el?String(s.el.value).trim():''; });
-  subs.forEach(function(s){ dvlCorr(s.el, s.c.bon, s.ok); });
+  subs.forEach(function(s){ dvlCorr(s.el, s.bon, s.ok); });
   dvlTrace();
   if(!allOk && isSoutien()){ soutienAgain(P+'Feedback',P+'Actions','checkDvdAnswer',P+'Host'); return; }
   test.locked=true;
@@ -60082,9 +60119,10 @@ function startDvd(kind){
 }
 function ctxDvd(q){
   const L=dvdLignes(q);
-  const faux=dvdCases(q).filter(function(c){ const el=$(c.id); return el && String(el.value).trim()!=='' && !dvlJuste(c,el); }).length;
+  const cs=dvdCases(q), v=dvlVerdicts(cs);
+  const faux=cs.filter(function(c,k){ const el=$(c.id); return el && String(el.value).trim()!=='' && !v[k].ok; }).length;
   if(dvdP()==='dvn'){
-    let n='L’élève développe '+L.nom+' = '+L.expr+' avec la double distributivité, SANS schéma (ni flèches, ni bulles, ni accolades) : il écrit d’abord les quatre produits dans l’ordre (premier terme de la première parenthèse par chacun de la seconde, puis le second), puis le résultat de chaque produit, puis la forme réduite : le terme en x², les deux termes en x regroupés, le nombre. '
+    let n='L’élève développe '+L.nom+' = '+L.expr+' avec la double distributivité, SANS schéma (ni flèches, ni bulles, ni accolades) : il écrit d’abord les quatre produits dans l’ordre (premier terme de la première parenthèse par chacun de la seconde, puis le second), puis le résultat de chaque produit, puis la forme réduite : le terme en x², les deux termes en x regroupés, le nombre — ses trois termes dans n’importe quel ordre. '
      +'Réponses attendues, STRICTEMENT SECRÈTES : '+L.nom+' = '+L.produits+' = '+L.developpe+' = '+L.reduiteTxt+'. '
      +'Méthode enseignée : (a + b) × (c + d) = a × c + a × d + b × c + b × d ; chaque produit suit la règle des signes, et x × x = x². Un terme qui en suit un autre garde son signe (−20x, +15).';
     if(faux) n+=' Il s’est trompé sur '+faux+' case(s).';
@@ -60362,8 +60400,8 @@ function ctxVfl(q){
    rien ne les ordonne dans la rangée, et x² + 2x − 3x − 6 est aussi juste que
    x² − 3x + 2x − 6. Chaque case remplie prend un terme attendu encore libre ;
    une case fausse ou vide reçoit, en correction, un des termes restés libres.
-   La forme réduite, elle, s'ordonne : le terme en x², puis en x, puis le nombre.
-   Le terme qui en suit un autre garde son signe, comme au 7.9.
+   La forme réduite aussi (octobre 2026, v561) : −2x² − 2x − 6 et
+   −6 − 2x − 2x² sont justes l'une et l'autre. Le terme qui en suit un autre garde son signe, comme au 7.9.
 
    ON RANGE LES FACTEURS, JAMAIS LES RÉPONSES : dvrLignes() recalcule tout ;
    la lecture d'un terme est celle du 7.9 (dvlLit), la correction d'une case
@@ -60418,27 +60456,20 @@ function dvrLignes(q){
 }
 function dvrCases(q){
   const L=dvrLignes(q), cs=[];
-  L.dev.forEach(function(t,i){ cs.push({id:'dvr-t-'+i, role:'t', i:i, signe:i>0}); });
+  L.dev.forEach(function(t,i){ cs.push({id:'dvr-t-'+i, role:'t', i:i, att:t, signe:i>0}); });
   L.reduite.forEach(function(t,m){ cs.push({id:'dvr-r-'+m, role:'r', m:m, att:t, signe:m>0, bon:dvlEcrit(t,false,m>0)}); });
   return cs;
 }
 /* Le verdict de chaque case, dans l'ordre de dvrCases : {ok, bon}. Les termes
-   développés se prennent dans n'importe quel ordre — chaque case remplie prend
-   un terme attendu encore libre de même valeur (avec son signe s'il suit un
-   autre terme) ; les cases restantes reçoivent les termes restés libres. */
+   développés, puis ceux de la forme réduite, se prennent chacun dans
+   n'importe quel ordre (dvlApparier). */
 function dvrJuger(q, valeurs){
-  const L=dvrLignes(q), cs=dvrCases(q), libre=L.dev.map(function(){ return true; });
-  const out=cs.map(function(c, k){
-    const lu=dvlLit(valeurs[k]);
-    if(c.role==='r') return {ok:!!lu && lu.c===c.att.c && lu.d===c.att.d && (!c.signe || lu.signe), bon:c.bon};
-    if(!lu || (c.signe && !lu.signe)) return {ok:false};
-    const j=L.dev.findIndex(function(t,i){ return libre[i] && t.c===lu.c && t.d===lu.d; });
-    if(j<0) return {ok:false};
-    libre[j]=false;
-    return {ok:true, bon:dvlEcrit(L.dev[j],false,c.i>0)};
+  const cs=dvrCases(q), out=[];
+  ['t','r'].forEach(function(role){
+    const ks=[]; cs.forEach(function(c,k){ if(c.role===role) ks.push(k); });
+    dvlApparier(ks.map(function(k){ return cs[k]; }), ks.map(function(k){ return valeurs[k]; }))
+      .forEach(function(o,i){ out[ks[i]]=o; });
   });
-  const reste=L.dev.filter(function(t,i){ return libre[i]; });
-  out.forEach(function(o,k){ if(!o.ok && cs[k].role==='t'){ const t=reste.shift(); o.bon=t ? dvlEcrit(t,false,cs[k].i>0) : ''; } });
   return out;
 }
 /* La rangée d'égalités. vals : null pour les cases de l'élève, ou un tableau
@@ -60452,7 +60483,7 @@ function dvrRangee(q, vals){
   };
   let dev='', red='';
   L.dev.forEach(function(t,i){ dev+=casee('dvr-t-'+i, i, 'terme développé '+(i+1)+(i>0?', avec son signe':'')); });
-  L.reduite.forEach(function(t,m){ red+=casee('dvr-r-'+m, L.dev.length+m, ['le terme en x² de la forme réduite','le terme en x de la forme réduite, avec son signe','le nombre de la forme réduite, avec son signe'][m]); });
+  L.reduite.forEach(function(t,m){ red+=casee('dvr-r-'+m, L.dev.length+m, 'terme '+(m+1)+' de la forme réduite'+(m>0?', avec son signe':'')); });
   return '<div class="dvr-chaine"><span class="dvr-depart">'+L.nom+' = '+L.exprH+'</span>'
     +fEq('<span class="dvr-termes">'+dev+'</span>')+fEq('<span class="dvr-termes">'+red+'</span>')+'</div>';
 }
@@ -60475,7 +60506,7 @@ function renderDvrTest(){
   const L=dvrLignes(q);
   $('dvrHost').innerHTML=(test.idx===0 ? dvrExempleHTML() : '')
     +'<p class="dvl-consigne">Développe <b>'+L.nom+'</b>, puis réduis, dans la même rangée d’égalités. Après le premier « = », écris les '+L.dev.length+' termes du développement, un par case : chaque produit se développe, et le signe écrit devant un produit s’applique à chacun de ses termes. '
-      +'Après le second « = », la forme réduite : le terme en <i>x</i>² d’abord, puis le terme en <i>x</i>, puis le nombre. Le terme qui en suit un autre garde son signe : <b>−3<i>x</i></b>, <b>+2<i>x</i></b>.</p>'
+      +'Après le second « = », la forme réduite. Les termes s’écrivent dans l’ordre que tu veux. Le terme qui en suit un autre garde son signe : <b>−3<i>x</i></b>, <b>+2<i>x</i></b>.</p>'
     +'<div class="dvl-page">'+dvrRangee(q, null)+'</div>'
     +'<div class="dvl-outils"><button class="btn btn-ghost red-sq" type="button" tabindex="-1" onmousedown="event.preventDefault()" onclick="dvrCarre()" aria-label="écrire x au carré"><i>x</i>²</button><span class="dvl-astuce">ou tape <i>x</i>^2, <i>x</i>**2</span></div>';
   test.dvrFocus=null;
@@ -60492,18 +60523,20 @@ function dvrPourquoi(q, subs){
   const f=subs.find(function(s){ return !s.ok && !s.vide; });
   if(!f) return '';
   const c=f.c, L=dvrLignes(q), lu=dvlLit(f.el.value);
-  if(lu && c.signe && !lu.signe && (c.role==='r' ? (lu.c===c.att.c && lu.d===c.att.d)
-      : L.dev.some(function(t){ return t.c===lu.c && t.d===lu.d; })))
+  if(lu && c.signe && !lu.signe && (c.role==='r' ? L.reduite : L.dev).some(function(t){ return t.c===lu.c && t.d===lu.d; }))
     return 'Le terme est juste, mais il suit un autre terme : il garde son signe, +'+redEcrit([lu],false)+'.';
   if(c.role==='t'){
     const moins=L.prods.findIndex(function(P){ return P.p.s<0 && lu && P.termes.some(function(t){ return t.c===-lu.c && t.d===lu.d; }); });
     if(moins>=0) return 'Le signe « − » devant '+L.produitTxt(moins).replace(/^− /,'')+' change le signe de CHACUN de ses termes : '+L.produitTxt(moins)+' = '+redEcrit(L.prods[moins].termes,false)+'.';
     return 'Développe chaque produit, terme par terme : '+L.prods.map(function(P,i){ return L.produitTxt(i)+' = '+redEcrit(P.termes,false); }).join(' ; ')+'.';
   }
-  const deg=c.att.d, ts=L.dev.filter(function(t){ return t.d===deg; });
+  /* la forme réduite s'écrit dans n'importe quel ordre : on parle du degré de
+     ce que l'élève a écrit, à défaut de celui de la place */
+  const att=(lu && L.reduite.find(function(t){ return t.d===lu.d; })) || c.att;
+  const deg=att.d, ts=L.dev.filter(function(t){ return t.d===deg; });
   const nature=['nombres','termes en x','termes en x²'][deg];
-  if(ts.length===1) return 'Il n’y a qu’un seul terme '+(deg===0?'sans x':(deg===1?'en x':'en x²'))+' : '+c.bon+' descend tel quel.';
-  return 'On regroupe les '+nature+' : '+redEcrit(ts,false)+' = '+redEcrit([c.att],false)+'.';
+  if(ts.length===1) return 'Il n’y a qu’un seul terme '+(deg===0?'sans x':(deg===1?'en x':'en x²'))+' : '+dvlEcrit(att,false,c.signe)+' descend tel quel.';
+  return 'On regroupe les '+nature+' : '+redEcrit(ts,false)+' = '+redEcrit([att],false)+'.';
 }
 function checkDvrAnswer(live){
   if(test.locked) return;
@@ -60561,7 +60594,7 @@ function ctxDvr(q){
   const els=dvrCases(q).map(function(c){ return $(c.id); });
   const v=dvrJuger(q, els.map(function(el){ return el ? el.value : ''; }));
   const faux=els.filter(function(el,k){ return el && String(el.value).trim()!=='' && !v[k].ok; }).length;
-  let c='L’élève développe puis réduit '+L.nom+' = '+L.expr+', dans une seule rangée d’égalités : après le premier « = », les '+L.dev.length+' termes du développement, un par case (double distributivité pour le produit de deux parenthèses, simple distributivité pour l’autre, et le signe devant un produit s’applique à chacun de ses termes) ; après le second « = », la forme réduite : le terme en x², le terme en x, le nombre. '
+  let c='L’élève développe puis réduit '+L.nom+' = '+L.expr+', dans une seule rangée d’égalités : après le premier « = », les '+L.dev.length+' termes du développement, un par case (double distributivité pour le produit de deux parenthèses, simple distributivité pour l’autre, et le signe devant un produit s’applique à chacun de ses termes) ; après le second « = », la forme réduite : le terme en x², le terme en x, le nombre — dans n’importe quel ordre. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : '+L.nom+' = '+L.expr+' = '+L.developpe+' = '+L.reduiteTxt+'. '
    +'Les termes développés peuvent être écrits dans n’importe quel ordre. Méthode enseignée : (a + b)(c + d) = ac + ad + bc + bd ; k(a + b) = ka + kb ; un « − » devant un produit change le signe de chacun de ses termes ; on regroupe ensuite les termes de même nature (x², x, nombres). Un terme qui en suit un autre garde son signe (+2x, −6).';
   if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
@@ -60579,7 +60612,7 @@ function ctxDvr(q){
 
    SIX PAGES, UNE FORME CHACUNE, DANS CET ORDRE : −(x + b), −(ax − b),
    −(−ax + b), c − (ax + b), ax − (bx − c), k × (ax − b) − (a'x − b'). Les
-   trois dernières se réduisent (le terme en x d'abord, puis le nombre), et
+   trois dernières se réduisent (dans n'importe quel ordre, v561), et
    rien ne s'y annule (le tirage recommence). Le terme qui PRÉCÈDE la
    parenthèse (c, ax) est donné : il se recopie sur chaque ligne, dans sa
    colonne, sans case. La première page montre l'exemple rempli :
@@ -60668,9 +60701,11 @@ function dvmCases(q){
     cs.push({id:P+'-f-'+p.i+'-1', bon:p.bonK, att:p.k, p:p, role:'k'});
     cs.push({id:P+'-f-'+p.i+'-2', bon:p.bonF, att:p.f, p:p, role:'f'});
   });
-  L.prods.forEach(function(p){ cs.push({id:P+'-t-'+p.i, bon:p.bonT, att:p.res, p:p, role:'t', signe:p.i>0 || !!L.seul}); });
+  /* 7.16 : sans accolade, rien ne lie un terme développé à sa place — ils se
+     lisent dans n'importe quel ordre ; la forme réduite aussi, aux deux */
+  L.prods.forEach(function(p){ cs.push({id:P+'-t-'+p.i, bon:p.bonT, att:p.res, p:p, role:'t', signe:p.i>0 || !!L.seul, lot:P==='dvs' ? 't' : null}); });
   if(L.reduite) L.reduite.forEach(function(t,m){
-    cs.push({id:P+'-r-'+m, bon:dvlEcrit(t,false,m>0), att:t, role:'r', signe:m>0}); });
+    cs.push({id:P+'-r-'+m, bon:dvlEcrit(t,false,m>0), att:t, role:'r', signe:m>0, lot:'r'}); });
   return cs;
 }
 /* Le schéma nu du 7.16 : l'expression écrite en clair, puis le développement
@@ -60695,7 +60730,7 @@ function dvsSchema(q, pre, vals){
   h+='</div>';
   if(L.reduite){
     h+='<div class="dvl-l dvl-l4">'+nom;
-    L.reduite.forEach(function(t, m){ h+='<span class="dvl-res">'+casee(pre+'r-'+m, m===0?'le premier terme de la forme réduite':'le nombre de la forme réduite, avec son signe')+'</span>'; });
+    L.reduite.forEach(function(t, m){ h+='<span class="dvl-res">'+casee(pre+'r-'+m, 'terme '+(m+1)+' de la forme réduite'+(m>0?', avec son signe':''))+'</span>'; });
     h+='</div>';
   }
   return '<div class="dvl-schema dvn-schema dvs-schema">'+h+'</div>';
@@ -60749,7 +60784,7 @@ function dvmSchema(q, pre, vals){
   /* ④ la forme réduite */
   if(L.reduite){
     h+='<div class="dvl-l dvl-l4">'+nom;
-    L.reduite.forEach(function(t, m){ h+='<span class="dvl-res">'+casee(pre+'r-'+m, 'dvl-t', m===0?'le premier terme de la forme réduite':'le nombre de la forme réduite, avec son signe')+'</span>'; });
+    L.reduite.forEach(function(t, m){ h+='<span class="dvl-res">'+casee(pre+'r-'+m, 'dvl-t', 'terme '+(m+1)+' de la forme réduite'+(m>0?', avec son signe':''))+'</span>'; });
     h+='</div>';
   }
   return '<div class="dvl-schema dvm-schema" data-fl=\''+JSON.stringify(fl)+'\' data-acc=\''+JSON.stringify(acc)+'\'>'
@@ -60775,16 +60810,16 @@ function renderDvmTest(){
   $(P+'Host').innerHTML=(test.idx===0 ? dvmExempleHTML() : '')
     +(nu ? '<p class="dvl-consigne">Développe <b>'+L.nom+'</b>. Le signe − devant une parenthèse change le signe de <b>chaque</b> terme de la parenthèse'
       +(deux ? ' ; le nombre devant l’autre parenthèse la multiplie terme par terme' : '')
-      +'. Écris le résultat terme par terme'
+      +'. Écris le résultat terme par terme, dans l’ordre que tu veux'
       +(L.seul ? ' — le terme <b>'+dvlEcrit(L.seul,true,false)+'</b>, devant, ne change pas' : '')
-      +(L.reduite ? ', puis réduis : le terme en <i>x</i> d’abord, puis le nombre.' : '.')
+      +(L.reduite ? ', puis réduis : les termes s’écrivent dans l’ordre que tu veux.' : '.')
       +' Le terme qui en suit un autre garde son signe : <b>−4</b>, <b>+3</b>.</p>'
       +'<div class="dvl-page">'+dvsSchema(q, 'dvs-', null)+'</div>' :
     '<p class="dvl-consigne">Développe <b>'+L.nom+'</b> en suivant les flèches. Le signe <span class="dvl-mot dvl-mk">−</span> devant une parenthèse est un facteur : c’est (−1) ×. '
     +(deux ? 'Dans chaque bulle rouge, écris le facteur : le nombre devant la parenthèse, ou −1 pour le signe − ; ' : 'Dans les bulles rouges, écris −1 ; ')
     +'il multiplie le terme <span class="dvl-mot dvl-ma">bleu</span>, puis le terme <span class="dvl-mot dvl-mb">vert</span>. Sous chaque accolade, écris le résultat du produit'
     +(L.seul ? ' — le terme <b>'+dvlEcrit(L.seul,true,false)+'</b>, devant, ne change pas' : '')
-    +(L.reduite ? ', puis réduis : le terme en <i>x</i> d’abord, puis le nombre.' : '.')
+    +(L.reduite ? ', puis réduis : les termes de la forme réduite s’écrivent dans l’ordre que tu veux.' : '.')
     +' Le terme qui en suit un autre garde son signe : <b>−4</b>, <b>+3</b>.</p>'
     +'<div class="dvl-page">'+dvmSchema(q, 'dvm-', null)+'</div>');
   dvmCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
@@ -60806,8 +60841,11 @@ function dvmPourquoi(q, subs){
     return 'Suis les flèches : elles partent de la bulle rouge ('+p.bonK+') et vont vers chaque terme de la parenthèse. Le produit '+(p.i+1)+' est donc '+dvmProduit(p)+'.';
   if(c.role==='t'){
     const lu=dvlLit(f.el.value);
-    if(lu && lu.c===c.att.c && lu.d===c.att.d && c.signe && !lu.signe)
-      return 'Le résultat est juste, mais il suit un autre terme : il garde son signe, '+c.bon+'.';
+    /* 7.16 : le terme oublié de son signe peut être celui d'une autre place */
+    const t=lu && (c.lot ? subs.map(function(s){ return s.c; }).filter(function(d){ return d.lot===c.lot; }) : [c])
+      .find(function(d){ return d.att.c===lu.c && d.att.d===lu.d; });
+    if(t && c.signe && !lu.signe)
+      return 'Le résultat est juste, mais il suit un autre terme : il garde son signe, '+dvlEcrit(t.att,false,true)+'.';
     if(p.cache)
       return dvmProduit(p)+' = '+redEcrit([p.res],false)+' : multiplier par −1 change le signe du terme. Chaque terme de la parenthèse change de signe, le second aussi.';
     return dvmProduit(p)+' = '+redEcrit([p.res],false)+' : la règle des signes d’abord, puis les nombres se multiplient.';
@@ -60817,24 +60855,24 @@ function dvmPourquoi(q, subs){
 function checkDvmAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx], P=dvmP();
-  const cases=dvmCases(q);
+  const cases=dvmCases(q), verdicts=dvlVerdicts(cases);
   if(live){   /* soutien : on ne juge que les cases déjà remplies */
     if(!isSoutien()) return;
-    cases.forEach(function(c){ const el=$(c.id); if(!el || el.disabled) return;
+    cases.forEach(function(c,k){ const el=$(c.id); if(!el || el.disabled) return;
       el.classList.remove('ok','bad');
       if(String(el.value).trim()==='') return;
-      el.classList.add(dvlJuste(c,el)?'ok':'bad');
+      el.classList.add(verdicts[k].ok?'ok':'bad');
     });
     return;
   }
-  const subs=cases.map(function(c){ const el=$(c.id);
-    return {c:c, el:el, ok:dvlJuste(c,el), vide:!el || String(el.value).trim()===''}; });
+  const subs=cases.map(function(c,k){ const el=$(c.id);
+    return {c:c, el:el, ok:verdicts[k].ok, bon:verdicts[k].bon, vide:!el || String(el.value).trim()===''}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
   const pourquoi=dvmPourquoi(q, subs);
   const L=dvmLignes(q);
   const saisi=subs.map(function(s){ return s.el?String(s.el.value).trim():''; });
-  subs.forEach(function(s){ dvlCorr(s.el, s.c.bon, s.ok); });
+  subs.forEach(function(s){ dvlCorr(s.el, s.bon, s.ok); });
   dvlTrace();
   if(!allOk && isSoutien()){ soutienAgain(P+'Feedback',P+'Actions','checkDvmAnswer',P+'Host'); return; }
   test.locked=true;
@@ -60868,16 +60906,17 @@ function startDvm(kind){
 }
 function ctxDvm(q){
   const L=dvmLignes(q);
-  const faux=dvmCases(q).filter(function(c){ const el=$(c.id); return el && String(el.value).trim()!=='' && !dvlJuste(c,el); }).length;
+  const cs=dvmCases(q), v=dvlVerdicts(cs);
+  const faux=cs.filter(function(c,k){ const el=$(c.id); return el && String(el.value).trim()!=='' && !v[k].ok; }).length;
   if(dvmP()==='dvs'){
-    let n='L’élève développe '+L.nom+' = '+L.expr+' : une parenthèse précédée d’un signe −, SANS schéma (ni flèches, ni bulles, ni accolades, ni ligne des produits) : il écrit directement le résultat terme par terme'+(L.reduite?', puis la forme réduite':'')+'. '
+    let n='L’élève développe '+L.nom+' = '+L.expr+' : une parenthèse précédée d’un signe −, SANS schéma (ni flèches, ni bulles, ni accolades, ni ligne des produits) : il écrit directement le résultat terme par terme, dans n’importe quel ordre'+(L.reduite?', puis la forme réduite, dans n’importe quel ordre aussi':'')+'. '
      +'Réponses attendues, STRICTEMENT SECRÈTES : '+L.nom+' = '+L.developpe+(L.reduite?' = '+L.reduiteTxt:'')+'. '
      +'Méthode enseignée : −(a + b) = −a − b ; le signe − devant une parenthèse change le signe de CHAQUE terme de la parenthèse ; c − (a + b) = c − a − b. Un terme qui en suit un autre garde son signe (−4, +3).';
     if(faux) n+=' Il s’est trompé sur '+faux+' case(s).';
     return {nombre:'', contexte:n};
   }
   let c='L’élève développe '+L.nom+' = '+L.expr+' : une parenthèse précédée d’un signe −. Le schéma montre que ce signe − est un facteur −1 (entouré en rouge), qui multiplie le premier terme de la parenthèse (entouré en bleu), puis le second (entouré en vert), en suivant des flèches. '
-   +'Il écrit d’abord les produits dans des bulles ('+L.nom+' = '+(L.seul?'… + ':'')+'(−1) × a + (−1) × b), puis le résultat de chaque produit sous une accolade'+(L.reduite?', puis la forme réduite':'')+'. '
+   +'Il écrit d’abord les produits dans des bulles ('+L.nom+' = '+(L.seul?'… + ':'')+'(−1) × a + (−1) × b), puis le résultat de chaque produit sous une accolade'+(L.reduite?', puis la forme réduite, ses termes dans n’importe quel ordre':'')+'. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : '+L.nom+' = '+L.produits+' = '+L.developpe+(L.reduite?' = '+L.reduiteTxt:'')+'. '
    +'Méthode enseignée : −(a + b) = (−1) × a + (−1) × b = −a − b ; multiplier par −1 change le signe de CHAQUE terme de la parenthèse ; c − (a + b) = c − a − b. Un terme qui en suit un autre garde son signe (−4, +3).';
   if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
