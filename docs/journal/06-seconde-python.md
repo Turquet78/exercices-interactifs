@@ -6365,6 +6365,20 @@ dix minutes en cache) et `PZ_DESSINS` porte leurs vraies dimensions (172 à
 dessin du 6.3.18 ({python-input-image}), venu après la planche, reste celui
 de Claude.
 
+**Puis le 6.3.18 a suivi, ses DEUX dessins à la fois** (octobre 2026,
+v561 : « prépare la consigne pour le 6.3.18 aussi »). Le dessin de la fiche
+(le serpent professeur, la parabole en U, « f(x) » en italique — seul texte
+demandé) et le serpent d'Halloween (le hibou sous la lune, SANS texte : la
+bulle reste à la page) sont venus côte à côte sur une image de 1942 px.
+Détourage : seul le CIEL enfermé entre les branches se vide (blanc pur, plus
+de 5 000 px) ; le tableau blanc, un peu gris (245), reste. Les deux fichiers
+prennent un nom neuf (`python-input-image-2.webp`,
+`python-input-image-halloween-2.webp`), réduits à 440 et 340 px (25 et
+30 Ko). Le contrôle des serpents d'Halloween (`tests/verifier.js`) acceptait
+seulement `<identifiant>-halloween.webp` : il admet désormais le suffixe
+d'un dessin renommé (`-halloween-2.webp`), parce que la règle du cache
+(`dessins/LISEZMOI.md`) l'exige.
+
 Bancs : jsdom (`pythonInputComplements`) tient la place, les tirages (300
 séances), les quatre juges « réparer » sur leurs modèles et quinze copies
 fausses, les trois étapes jouées au clavier, le soutien, les quatre autres
