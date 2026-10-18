@@ -1366,16 +1366,16 @@
   .pmy-img{width:260px;max-width:70%;height:auto}
   /* Le serpent au champagne de {python-pas-a-pas-calcul}, en tête de l'écran (demande de Turquet, octobre 2026). */
   .ppc-fig{display:flex;justify-content:center;margin:2px 0}
-  .ppc-img{width:190px;max-width:55%;height:auto}
+  .ppc-img{width:400px;max-width:94%;height:auto}
   /* {python-pas-a-pas} : le dessin en tête de l'exercice — le serpent « Pour l'instant tout va bien ! » */
   .pap-fig{display:flex;justify-content:center;margin:2px 0 6px}
-  .pap-img{width:150px;max-width:45%;height:auto}
+  .pap-img{width:400px;max-width:94%;height:auto}
   /* {python-input-evolution} : le dessin de la fiche (les deux serpents), l'exemple en console, et le coup de pouce en code */
   .pvo-fig{display:flex;justify-content:center;margin:2px 0}
   .pvo-img{width:330px;max-width:92%;height:auto}
   /* {python-valeur-case} : le dessin en tête de l'écran — le serpent qui lit et dit « Trop facile ! » */
   .pvm-fig{display:flex;justify-content:center;margin:2px 0}
-  .pvm-img{width:200px;max-width:60%;height:auto}
+  .pvm-img{width:400px;max-width:94%;height:auto}
   .pvo-exemple{display:flex;gap:6px 22px;flex-wrap:wrap;align-items:flex-start;margin:6px 0 10px 12px;font-weight:400}
   .pvo-exemple .py-code{font-size:.98rem;line-height:1.5}
   .pvo-etape{margin:6px 0 0}
@@ -1433,25 +1433,25 @@
   .pia-img{width:220px;max-width:60%;height:auto}
   /* {python-echange-par-lettres} : le serpent perplexe en tête de l'exercice, décoratif */
   .pel-fig{display:flex;justify-content:center;margin:2px 0}
-  .pel-img{width:190px;max-width:52%;height:auto}
+  .pel-img{width:400px;max-width:94%;height:auto}
   /* {python-pas-a-pas-chaine} (6.2.4) : le dessin en tête de l'exercice — le serpent à lunettes devant son ordinateur (demande de Turquet, octobre 2026), décoratif */
   .ppd-fig{display:flex;justify-content:center;margin:2px 0 8px}
-  .ppd-img{width:200px;max-width:55%;height:auto}
+  .ppd-img{width:400px;max-width:94%;height:auto}
   /* {python-input-int} (6.3.3) et {python-input-float} (6.3.5) : le dessin de LEUR fiche (les deux serpents et la boîte « age » ou « taille »), décoratif, en tête du premier écran partagé */
   .pii-fig{display:flex;justify-content:center;margin:2px 0 10px}
   .pii-img{width:300px;max-width:84%;height:auto}
   /* {python-echange-variables} : le dessin en tête de l'exercice — le serpent au bonnet qui dit « Moi là monté sur Python ! » (demande de Turquet, octobre 2026), décoratif */
   .pev-fig{display:flex;justify-content:center;margin:2px 0 8px}
-  .pev-img{width:200px;max-width:55%;height:auto}
+  .pev-img{width:400px;max-width:94%;height:auto}
   /* {python-phrases-memoire} : le dessin de la fiche en tête de l'écran — le serpent qui note, « Très bien, je le note. » —, décoratif */
   .pph-fig{display:flex;justify-content:center;margin:2px 0 6px}
-  .pph-img{width:230px;max-width:62%;height:auto}
+  .pph-img{width:400px;max-width:94%;height:auto}
   /* {python-pas-a-pas-multiplication} : le dessin de la fiche en tête de l'exercice, décoratif */
   .ppm-fig{display:flex;justify-content:center;margin:2px 0}
-  .ppm-img{width:220px;max-width:60%;height:auto}
+  .ppm-img{width:400px;max-width:94%;height:auto}
   /* {python-programme-calcul} : le serpent qui pense aux quatre opérations, en tête de l'énoncé (décoratif) */
   .pgc-fig{display:flex;justify-content:center;margin:0 0 8px}
-  .pgc-img{width:170px;max-width:50%;height:auto}
+  .pgc-img{width:400px;max-width:94%;height:auto}
   .pkg-prix p{margin:6px 0;font-weight:800;font-size:1.35rem;line-height:1.25;color:#2f5a1a;text-align:center}
   .pyi-cours{margin:0 0 10px}
   /* {python-input} (6.3.2) : le serpent dans son hamac, décoratif, en tête du premier écran */
@@ -4324,7 +4324,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   .pw-img{width:220px;max-width:60%;height:auto}
   .pw-img.pw-large{width:400px;max-width:94%}
   /* les dessins des fiches du 6.2 : leur serpent d'Halloween passe à la ligne sur un téléphone, plutôt que de rétrécir à côté du dessin */
-  .pvm-fig,.ppc-fig,.ppd-fig,.pev-fig,.ppm-fig,.pel-fig,.pph-fig,.pgc-fig{flex-wrap:wrap;gap:4px 10px}
+  .pap-fig,.pvm-fig,.ppc-fig,.ppd-fig,.pev-fig,.ppm-fig,.pel-fig,.pph-fig,.pgc-fig{flex-wrap:wrap;gap:4px 10px}
   body.halloween .hw-serpent{display:flex;justify-content:center;align-items:center;width:fit-content}
   .hw-serpent .hw-svg{width:280px;max-width:100%;height:auto;font-family:inherit}
   .hw-serpent .hw-img{position:absolute;left:0;top:0;width:50%;height:100%;object-fit:contain;object-position:center bottom}
@@ -8180,7 +8180,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=565;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=566;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -37843,9 +37843,9 @@ function pgcDiag(src, q){
    tête de l'écran, avant le programme de calcul (demande de Turquet, octobre
    2026 : « placer cette image en seconde dans l'exercice 6.2.9 au début »).
    Détouré, en WebP (10 Ko), un fichier de dessins/secondes/ comme les autres dessins du thème. */
-const PGC_IMG='dessins/secondes/python-programme-calcul.webp';
+const PGC_IMG='dessins/secondes/python-programme-calcul-2.webp';
 function pgcFigHTML(){
-  return '<div class="pgc-fig"><img class="pgc-img" src="'+PGC_IMG+'" alt="un serpent qui pense aux quatre opérations : plus, moins, fois, divisé" width="233" height="273"></div>';
+  return '<div class="pgc-fig"><img class="pgc-img" src="'+PGC_IMG+'" alt="deux serpents : le cuisinier lit sa recette « A prend la valeur 5… puis multiplier A par 3 ! », l’autre tape : « Une ligne par étape ! »" width="760" height="515"></div>';
 }
 function pgcEnonceGeneralHTML(q){
   const S=pgcSit(q);
@@ -53984,9 +53984,9 @@ const PAP_NB=3;
    définitions, et renderPAP ne le pose qu'UNE fois : le rendu se rejoue à
    chaque ligne du programme, et reposer l'image à chaque fois la ferait
    clignoter. */
-const PAP_IMG='dessins/secondes/python-pas-a-pas.webp';
+const PAP_IMG='dessins/secondes/python-pas-a-pas-2.webp';
 function papDessinHTML(){
-  return '<img class="pap-img" src="'+PAP_IMG+'" alt="un serpent dit : « Pour l’instant tout va bien ! »" width="288" height="396">';
+  return '<img class="pap-img" src="'+PAP_IMG+'" alt="un serpent range la bille 10 dans le carton a, à côté des cartons b et c, et dit : « Ligne 1 : je range 10 dans a. »" width="760" height="448">';
 }
 /* La fiche, épinglée en première question : le programme du papier, au
    caractère près — et c'est le visage « voisine », la copie prenant la case
@@ -54366,9 +54366,9 @@ const PVM_NB=3;
    (13 Ko, un fichier de dessins/secondes/ depuis octobre 2026), comme PKG_IMG,
    PDU_IMG et PVO_IMG. Il ne dépend pas de la question : renderPVM le pose à
    chaque dessin, la reprise d'une pause le retrouve donc aussi. */
-const PVM_IMG='dessins/secondes/python-valeur-case.webp';
+const PVM_IMG='dessins/secondes/python-valeur-case-2.webp';
 function pvmDessinHTML(){
-  return '<div class="pvm-fig"><img class="pvm-img" src="'+PVM_IMG+'" alt="un serpent qui lit un livre et dit : « Trop facile ! »" width="314" height="289"></div>';
+  return '<div class="pvm-fig"><img class="pvm-img" src="'+PVM_IMG+'" alt="deux serpents devant les cartons a, b et c : « Et maintenant, que contient b ? » — « 2, c’est écrit ! »" width="760" height="486"></div>';
 }
 /* Une réponse par ligne — la valeur, et elle seule. C'est aussi le POIDS de
    la question pour la coupe d'un devoir (la convention xxxCases). */
@@ -54797,9 +54797,9 @@ function ppcToutJuste(q){
 /* Le dessin en tête de l'écran (demande de Turquet, octobre 2026 : « placer
    cette image en seconde dans l'exercice 6.2.3 au début ») : le serpent qui
    sabre le champagne, détouré, WebP de 11 Ko — le même geste que PDU_IMG. */
-const PPC_IMG='dessins/secondes/python-pas-a-pas-calcul.webp';
+const PPC_IMG='dessins/secondes/python-pas-a-pas-calcul-2.webp';
 function ppcDessinHTML(){
-  return '<img class="ppc-img" src="'+PPC_IMG+'" alt="un serpent à lunettes de soleil qui fait sauter le bouchon d’une bouteille de champagne" width="284" height="327">';
+  return '<img class="ppc-img" src="'+PPC_IMG+'" alt="un serpent tient les billes 10 et 2 au-dessus du carton c et dit : « c = a + b : je calcule d’abord ! »" width="760" height="554">';
 }
 function renderPPC(){
   const q=test.questions[test.idx];
@@ -54980,9 +54980,9 @@ function ctxPpc(q){
    serpent à lunettes qui programme, détouré du fond blanc de la capture, en
    WebP (10 Ko, un fichier de dessins/secondes/ depuis octobre 2026), posé UNE fois
    dans #ppdFig, avant le rappel et la consigne. Décoratif. */
-const PPD_IMG='dessins/secondes/python-pas-a-pas-chaine.webp';
+const PPD_IMG='dessins/secondes/python-pas-a-pas-chaine-2.webp';
 function ppdFigureHTML(){
-  return '<img class="ppd-img" src="'+PPD_IMG+'" alt="un serpent à lunettes qui tape un programme sur son ordinateur" width="256" height="235">';
+  return '<img class="ppd-img" src="'+PPD_IMG+'" alt="deux serpents : « Pour d, il me faut c… » — « Je l’ai déjà calculé ! », en tendant le carton c" width="760" height="511">';
 }
 const PPD_NB=3;
 const PPD_FICHE={vis:'fiche', lignes:[{nom:'a',expr:'10'},{nom:'b',expr:'2'},{nom:'c',expr:'a+b'},{nom:'d',expr:'c+a'}]};
@@ -55305,9 +55305,9 @@ function pevCases(q){
    (13 Ko, un fichier de dessins/secondes/ depuis octobre 2026), posé UNE fois dans
    #pevFig, avant le rappel et la consigne ; décoratif, il ne porte rien que
    l'élève ait à lire. */
-const PEV_IMG='dessins/secondes/python-echange-variables.webp';
+const PEV_IMG='dessins/secondes/python-echange-variables-2.webp';
 function pevFigureHTML(){
-  return '<img class="pev-img" src="'+PEV_IMG+'" alt="un serpent coiffé d’un bonnet rasta dit : « Moi là monté sur Python ! »" width="251" height="245">';
+  return '<img class="pev-img" src="'+PEV_IMG+'" alt="deux serpents : l’un tient les verres a et b et dit « Sans un troisième verre, impossible ! », l’autre tend le verre c : « Tiens, prends celui-là ! »" width="760" height="472">';
 }
 async function startPEV(){
   if(!currentEleve){ accueil(); return; }
@@ -55742,9 +55742,9 @@ function ppmBuildQuestions(){
    devant son ordinateur, détouré, en WebP (8 Ko), posé EN TÊTE de l'écran —
    après le rappel de cours, avant la consigne —, à chaque question. Décoratif :
    rien ne s'y lit, le juge ne le connaît pas. Même motif que PHM_IMG. */
-const PPM_IMG='dessins/secondes/python-pas-a-pas-multiplication.webp';
+const PPM_IMG='dessins/secondes/python-pas-a-pas-multiplication-2.webp';
 function ppmEtiquetteHTML(){
-  return '<img class="ppm-img" src="'+PPM_IMG+'" alt="un serpent fatigué, la langue pendante, devant son ordinateur portable" width="257" height="242">';
+  return '<img class="ppm-img" src="'+PPM_IMG+'" alt="deux serpents : « Je parie que l vaut 6 ! » — « Perdu : la dernière ligne l’a doublé ! », devant le carton l qui contient 12" width="760" height="556">';
 }
 async function startPPM(){
   if(!currentEleve){ accueil(); return; }
@@ -56109,9 +56109,9 @@ function ctxPpm(q){
 /* Le dessin posé EN TÊTE de l'exercice (demande de Turquet, octobre 2026) : un
    serpent perplexe devant un point d'interrogation — décoratif, en WebP
    (7 Ko), un fichier de dessins/secondes/ comme PKG_IMG, PDU_IMG, PVO_IMG et PHM_IMG. */
-const PEL_IMG='dessins/secondes/python-echange-par-lettres.webp';
+const PEL_IMG='dessins/secondes/python-echange-par-lettres-2.webp';
 function pelFigHTML(){
-  return '<img class="pel-img" src="'+PEL_IMG+'" alt="un serpent perplexe devant un point d’interrogation" width="327" height="269">';
+  return '<img class="pel-img" src="'+PEL_IMG+'" alt="un serpent aligne des cartes de lettres c = a et en tient une autre, b : « c = a… puis a = b… »" width="760" height="614">';
 }
 const PEL_NB=3;
 /* La fiche, épinglée en première question : le programme du PDF, au
@@ -56482,9 +56482,9 @@ function pphPhrasesHTML(q){
    UNE fois en tête de la carte — avant le rappel et la consigne — et jamais
    redessiné : renderPPH se rejoue à chaque ligne exécutée, et un dessin
    reconstruit à chaque étape clignoterait. */
-const PPH_IMG='dessins/secondes/python-phrases-memoire.webp';
+const PPH_IMG='dessins/secondes/python-phrases-memoire-2.webp';
 function pphEtiquetteHTML(){
-  return '<img class="pph-img" src="'+PPH_IMG+'" alt="un serpent qui écrit sur une feuille : « Très bien, je le note. »" width="352" height="293">';
+  return '<img class="pph-img" src="'+PPH_IMG+'" alt="deux serpents : l’un lit b = a sur un écran, l’autre écrit dans un cahier : « b prend la valeur de a. »" width="760" height="483">';
 }
 function renderPPH(){
   const q=test.questions[test.idx], n=q.lignes.length;

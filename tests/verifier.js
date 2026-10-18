@@ -53475,14 +53475,14 @@ function pythonPasAPas(w, P){
   })()`, v => v === '');
 
   /* ---- 11 bis. le dessin en tête de l'écran ---- */
-  verifierEval(w, 'le dessin de tête (le serpent « Pour l’instant tout va bien ! ») ouvre la carte de l’exercice, en WebP dans dessins/secondes/, avec son texte de remplacement, au-dessus des définitions — et un second rendu ne le repose pas', `(function(){
+  verifierEval(w, 'le dessin de tête (le serpent « Ligne 1 : je range 10 dans a. ») ouvre la carte de l’exercice, en WebP dans dessins/secondes/, avec son texte de remplacement, au-dessus des définitions — et un second rendu ne le repose pas', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPAP();
     const vus=[];
     const card=document.querySelector("#scr-pap .card"), fig=document.getElementById("papDessin"), img=fig&&fig.querySelector("img.pap-img");
     if(!card||!fig||card.firstElementChild!==fig) vus.push("le dessin n’ouvre pas la carte");
     if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("pas de dessin WebP dans dessins/secondes/");
-    if(!img||!/Pour l.instant tout va bien/.test(img.getAttribute("alt")||"")) vus.push("le texte de remplacement : "+(img&&img.getAttribute("alt")));
+    if(!img||!/je range 10 dans a/.test(img.getAttribute("alt")||"")) vus.push("le texte de remplacement : "+(img&&img.getAttribute("alt")));
     const avant=document.getElementById("papAvant");
     if(fig&&avant&&!(fig.compareDocumentPosition(avant)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas au-dessus des définitions");
     renderPAP();
