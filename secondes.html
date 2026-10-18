@@ -4322,6 +4322,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   /* 6.1 et 6.2 : le dessin de l'exercice, au-dessus de l'énoncé, et son serpent d'Halloween à côté */
   .pw-fig{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:4px 10px;margin:2px 0 8px}
   .pw-img{width:220px;max-width:60%;height:auto}
+  .pw-img.pw-large{width:400px;max-width:94%}
   /* les dessins des fiches du 6.2 : leur serpent d'Halloween passe à la ligne sur un téléphone, plutôt que de rétrécir à côté du dessin */
   .pvm-fig,.ppc-fig,.ppd-fig,.pev-fig,.ppm-fig,.pel-fig,.pph-fig,.pgc-fig{flex-wrap:wrap;gap:4px 10px}
   body.halloween .hw-serpent{display:flex;justify-content:center;align-items:center;width:fit-content}
@@ -8179,7 +8180,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=563;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=564;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -12554,20 +12555,20 @@ const DESSINS_VAR={
   'python-chaines': { img:'dessins/secondes/python-chaines-2.webp', alt:'un serpent ravi, entouré de cœurs : deux textes collés font un seul texte', l:294, h:284 },
   'python-type-resultat': { img:'dessins/secondes/python-type-resultat-2.webp', alt:'un serpent très étonné, les yeux écarquillés : le résultat n’a pas le type attendu', l:300, h:300 },
   'python-texte-nombre': { img:'dessins/secondes/python-texte-nombre-2.webp', alt:'un serpent épuisé et en sueur, sous de petits nuages : un texte plus un nombre, ça ne marche pas', l:304, h:294 },
-  'python-egal-affectation': { img:'dessins/secondes/python-egal-affectation-2.webp', alt:'un serpent qui lève le doigt avec un point d’exclamation : le signe = range une valeur dans la variable', l:298, h:294 },
-  'python-x-plus-pas-a-pas': { img:'dessins/secondes/python-x-plus-pas-a-pas-2.webp', alt:'un serpent qui soulève un haltère en transpirant : la variable grandit à chaque ligne', l:312, h:276 },
-  'python-accumulateur': { img:'dessins/secondes/python-accumulateur-2.webp', alt:'un serpent amoureux de son sac de pièces en euros : le total s’accumule', l:322, h:294 },
-  'python-priorites': { img:'dessins/secondes/python-priorites-2.webp', alt:'un serpent fier, qui tient un trophée numéro 1 : certaines opérations passent en premier', l:254, h:270 },
-  'python-division-entiere': { img:'dessins/secondes/python-division-entiere-2.webp', alt:'un serpent en sueur devant une pile de livres à partager : le quotient et le reste', l:326, h:250 },
-  'python-arrondir': { img:'dessins/secondes/python-arrondir-2.webp', alt:'un serpent fier à côté d’une cible, une flèche plantée au centre : un résultat arrondi', l:314, h:260 },
-  'python-valeur-depart': { img:'dessins/secondes/python-valeur-depart-2.webp', alt:'un serpent pensif, la main sous le menton, qui cherche la valeur de départ', l:246, h:288 },
-  'python-meme-resultat': { img:'dessins/secondes/python-meme-resultat-2.webp', alt:'un serpent qui compare avec une règle : les deux programmes donnent-ils le même résultat ?', l:300, h:272 },
-  'python-choisir-programme': { img:'dessins/secondes/python-choisir-programme-2.webp', alt:'un serpent qui examine à la loupe, pour choisir le bon programme', l:292, h:270 },
-  'python-ordre-lignes': { img:'dessins/secondes/python-ordre-lignes-2.webp', alt:'un serpent qui tremble de panique : les lignes du programme sont dans le désordre', l:245, h:286 },
-  'python-variable-inconnue': { img:'dessins/secondes/python-variable-inconnue-2.webp', alt:'un serpent triste, un mouchoir à la main, devant une croix rouge : cette variable n’existe pas', l:324, h:260 },
-  'python-debogage': { img:'dessins/secondes/python-debogage-2.webp', alt:'un serpent qui a une idée, une ampoule allumée à côté de lui : il a trouvé l’erreur', l:264, h:280 },
-  'python-formule': { img:'dessins/secondes/python-formule-2.webp', alt:'un serpent qui montre une carte avec un signe de multiplication : le prix fois 1,2', l:240, h:270 },
-  'python-traduire-algo': { img:'dessins/secondes/python-traduire-algo-2.webp', alt:'un serpent qui tient le globe terrestre : il traduit l’algorithme dans la langue de Python', l:350, h:264 },
+  'python-egal-affectation': { img:'dessins/secondes/python-egal-affectation-3.webp', alt:'deux serpents : l’un demande « n = 5, c’est une égalité ? », l’autre range une bille dans le carton n et répond « Non : n prend la valeur 5 ! »', l:760, h:490, large:true },
+  'python-x-plus-pas-a-pas': { img:'dessins/secondes/python-x-plus-pas-a-pas-3.webp', alt:'deux serpents : l’un s’étonne « n = n + 3 ? C’est faux ! », l’autre ajoute trois billes dans un bocal et répond « Non : n grandit de 3. »', l:760, h:506, large:true },
+  'python-accumulateur': { img:'dessins/secondes/python-accumulateur-3.webp', alt:'un serpent ravi glisse une pièce dans une tirelire cochon et dit « Encore 12 dans le total ! »', l:760, h:614, large:true },
+  'python-priorites': { img:'dessins/secondes/python-priorites-3.webp', alt:'un serpent à lunettes montre un petit escalier et dit « D’abord les parenthèses, puis les puissances ! »', l:760, h:546, large:true },
+  'python-division-entiere': { img:'dessins/secondes/python-division-entiere-3.webp', alt:'un serpent devant huit boîtes d’œufs pleines et deux œufs à côté dit « 8 boîtes pleines… et il reste 2 œufs ! »', l:760, h:580, large:true },
+  'python-arrondir': { img:'dessins/secondes/python-arrondir-3.webp', alt:'un serpent fier à côté d’une cible dit « J’arrondis à deux chiffres après la virgule ! »', l:760, h:633, large:true },
+  'python-valeur-depart': { img:'dessins/secondes/python-valeur-depart-3.webp', alt:'deux serpents : l’un demande « Que valait a au départ ? », l’autre tient un sablier et répond « Je remonte le programme ! »', l:760, h:521, large:true },
+  'python-meme-resultat': { img:'dessins/secondes/python-meme-resultat-3.webp', alt:'deux serpents tiennent les cartes A et B : « Mon programme affiche 12 ! » — « Le mien aussi ! »', l:760, h:611, large:true },
+  'python-choisir-programme': { img:'dessins/secondes/python-choisir-programme-3.webp', alt:'un serpent examine à la loupe quatre cartes A, B, C, D et se demande « Lequel affiche vraiment 20 ? »', l:760, h:538, large:true },
+  'python-ordre-lignes': { img:'dessins/secondes/python-ordre-lignes-3.webp', alt:'deux serpents : l’un, paniqué, tient des bandes de papier et dit « Mes lignes sont mélangées ! », l’autre répond « D’abord, on donne une valeur à n. »', l:760, h:537, large:true },
+  'python-variable-inconnue': { img:'dessins/secondes/python-variable-inconnue-3.webp', alt:'un serpent inquiet devant un carton vide dit « NameError ? Elle n’existe pas encore ! »', l:710, h:467, large:true },
+  'python-debogage': { img:'dessins/secondes/python-debogage-3.webp', alt:'un serpent détective, loupe à la main, trouve une coccinelle sur une feuille et dit « Trouvé ! La petite bête est ici ! »', l:717, h:469, large:true },
+  'python-formule': { img:'dessins/secondes/python-formule-3.webp', alt:'deux serpents à la caisse : « Combien avec la TVA ? » — « Prix × 1,2 ! »', l:745, h:487, large:true },
+  'python-traduire-algo': { img:'dessins/secondes/python-traduire-algo-3.webp', alt:'un vieux serpent savant montre « a ← 4 », un jeune serpent devant un ordinateur répond « En Python : a = 4 ! »', l:740, h:455, large:true },
 };
 function dessinsVariables(){
   const on=document.querySelector('section.screen.on'); if(!on) return;
@@ -12576,7 +12577,7 @@ function dessinsVariables(){
   if(vieux && vieux.getAttribute('data-id')!==id) vieux.remove();
   if(D && !on.querySelector('.pw-fig')){
     const instr=on.querySelector('.mp-instr'); if(!instr) return;
-    instr.insertAdjacentHTML('beforebegin', '<div class="pw-fig" data-id="'+id+'"><img class="pw-img" src="'+D.img+'" alt="'+D.alt+'" width="'+D.l+'" height="'+D.h+'"></div>');
+    instr.insertAdjacentHTML('beforebegin', '<div class="pw-fig" data-id="'+id+'"><img class="pw-img'+(D.large?' pw-large':'')+'" src="'+D.img+'" alt="'+D.alt+'" width="'+D.l+'" height="'+D.h+'"></div>');
   }
   if(!HW_SERPENTS[id] || on.querySelector('figure.hw-serpent')) return;
   const img=on.querySelector('img[src*="dessins/"]:not(.hw-img)');
