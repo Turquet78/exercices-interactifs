@@ -6671,7 +6671,7 @@ dans `DESSINS_VAR`, qui leur donne la classe `pw-large` (400 px, 94 % au plus de
 la largeur). Les quatorze serpents sans parole posés la veille (`-2.webp`) sont
 supprimés ; les nouveaux s'appellent `-3.webp`.
 
-**Puis les neuf premiers dessins du 6.2 ont parlé à leur tour (v565).** Les
+**Puis les neuf premiers dessins du 6.2 ont parlé à leur tour (v566).** Les
 dessins d'origine du 6.2.1 au 6.2.9 (« Pour l'instant tout va bien ! », « Trop
 facile ! », le champagne, le bonnet rasta…) étaient de beaux serpents, mais sans
 rapport avec l'exercice. Turquet les a fait refaire sur le même modèle que le

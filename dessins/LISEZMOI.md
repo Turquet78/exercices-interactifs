@@ -65,7 +65,7 @@ Turquet : 46 serpents ordinaires (une émotion et un objet chacun) et 16 serpent
 d'Halloween, découpés et détourés. Les dessins thématiques portent le suffixe
 `-2.webp`, sauf les quatorze du 6.2.10 au 6.2.23, remplacés en v564 par des scènes
 avec une bulle (`-3.webp`, affichées en grand par `large:true`) ; les neuf dessins de fiche du 6.2.1 au
-6.2.9 ont eux aussi été refaits en scènes avec une bulle (v565, `-2.webp`) ; les serpents d'Halloween gardent leur nom `<identifiant>-halloween.webp`,
+6.2.9 ont eux aussi été refaits en scènes avec une bulle (v566, `-2.webp`) ; les serpents d'Halloween gardent leur nom `<identifiant>-halloween.webp`,
 que le banc exige. Le 6.1 prend les seize serpents
 d'Halloween de la première planche ; le 6.2 en reprend seize et en ajoute sept,
 tirés d'une seconde planche : ses vingt-trois serpents sont tous différents. Ils
