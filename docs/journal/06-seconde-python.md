@@ -6591,3 +6591,37 @@ dessin sur son écran. Éprouvé par sabotage : le crochet coupé, il rougit sur
 les exercices du 6.1 et du 6.2 (« aucun dessin sur son écran »), et ceux du
 6.3, qui posent leur serpent eux-mêmes, restent verts.
 
+
+
+**Puis les dessins des variables ont été remplacés par une planche générée (v561).**
+Turquet a fait produire par un générateur d'images une planche de 62 serpents
+dans le style des fiches : 46 serpents ordinaires, chacun avec une émotion
+franche (peur, étonnement, épuisement, joie, fierté, panique…) et un objet sans
+texte, et 16 serpents d'Halloween en scène (sorcière au chaudron, vampire,
+fantôme, momie, citrouille, diable, squelette, Frankenstein, deux loups-garous,
+faucheuse, chauve-souris, cyclope, chaudron, épouvantail, chat noir). La
+recette qui a marché est notée pour la suite : quatre références de style, un
+message de départ, un message court par image, et **aucun texte dans l'image**
+— les consignes qui demandaient « print(a) » ou « nb_filles » sur les objets
+produisaient des dessins chargés et des corrections sans fin.
+
+La planche est découpée rangée par rangée, les coupes entre serpents placées
+au creux du profil des colonnes, puis forcées à la main là où deux dessins se
+touchent (la carte « × » et la calculatrice, le quadrillage et le trophée,
+l'ardoise et ses voisins). Chaque composant détouré (fond blanc relié au bord
+de l'image, le blanc enfermé reste) est rattaché à la case qui contient son
+centre ; un composant soudé à ses voisins est recoupé à la case. Les éclats
+fins restés en bord de case sont jetés. Agrandis deux fois (les serpents de la
+planche ne font que 150 px), les dessins restent nets au contour épais du style.
+
+Les trente dessins thématiques prennent un nom neuf (`-2.webp`), contre le cache
+de GitHub Pages ; les anciens sont supprimés (le banc des orphelins le tient).
+Les serpents d'Halloween, eux, gardent `<identifiant>-halloween.webp` : le
+contrôle « chaque exercice … a son serpent d'Halloween » exige ce nom exact. Un
+élève qui a ouvert la page dans les dix dernières minutes peut donc revoir
+l'ancien serpent une fois. Seize déguisements pour trente-neuf exercices :
+chacun sert une fois dans le 6.1, et au plus deux fois dans le 6.2 ; la clé
+`v` reste unique par exercice, comme le banc l'exige. Les bulles qui parlaient
+d'un déguisement disparu (le pirate, le roi des ombres, le sorcier au chapeau
+bleu) sont réécrites pour le nouveau ; les plus larges (le chaudron, le cyclope,
+le vampire à la grande cape) prennent `large:true`.

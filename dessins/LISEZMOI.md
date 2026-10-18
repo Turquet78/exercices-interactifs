@@ -59,7 +59,13 @@ applicable » plutôt que d'être tu.
 ## Les dessins des sous-thèmes 6.1 et 6.2 « variables »
 
 Trente dessins thématiques (un accessoire par exercice) et trente-neuf serpents
-d'Halloween ont été dessinés en SVG, puis convertis en WebP (octobre 2026). Ils
+d'Halloween ont d'abord été dessinés en SVG, puis convertis en WebP (octobre
+2026). Ils ont ensuite été remplacés (v561) par une planche générée par
+Turquet : 46 serpents ordinaires (une émotion et un objet chacun) et 16 serpents
+d'Halloween, découpés et détourés. Les dessins thématiques portent le suffixe
+`-2.webp` ; les serpents d'Halloween gardent leur nom `<identifiant>-halloween.webp`,
+que le banc exige. Seize déguisements pour trente-neuf exercices : chacun sert
+deux ou trois fois, une fois dans le 6.1 et au plus deux fois dans le 6.2. Ils
 ne demandent aucun code par exercice : la table `DESSINS_VAR` (le dessin
 thématique, posé au-dessus de l'énoncé) et `HW_SERPENTS` (le serpent
 d'Halloween, posé à côté du dessin de l'exercice) suffisent, `dessinsVariables()`
