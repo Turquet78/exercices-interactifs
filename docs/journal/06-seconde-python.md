@@ -6347,6 +6347,24 @@ déguisement DIFFÉRENT par exercice du 6.3 : huit nouveaux (chat noir,
 loup-garou, Frankenstein, pirate, cyclope, épouvantail, chaudron,
 chauve-souris).
 
+**Puis Turquet les a remplacés par des dessins GÉNÉRÉS** (octobre 2026, v560 :
+« je voudrais que les autres serpents du thème input faits par Claude soient
+modifiés aussi par le même procédé » — celui des serpents d'Halloween,
+`docs/journal/11-aides-et-interface.md`). Les huit dessins SVG ont servi de
+croquis, quatre serpents des fiches de références de style ; Turquet a généré
+une planche de 4 × 2, que Claude a découpée et détourée. Différence avec
+Halloween : ces dessins portent du TEXTE qui fait l'exercice (« 12 + 15 =
+1215 ? », « 1.65 m » avec un point, str/int/float, « 3,45 € ») — vérifié sur
+la planche avant tout —, et le blanc ENFERMÉ y est du dessin (les cartes,
+l'étiquette de la toise, le ticket, le panneau) : seuls se vident trois trous
+de papier nommés par leur position (sous l'ardoise, derrière le poteau, entre
+les cubes et le serpent). Les fichiers prennent un nom NEUF
+(`python-input-*-2.webp`, `dessins/LISEZMOI.md` : GitHub Pages garde l'ancien
+dix minutes en cache) et `PZ_DESSINS` porte leurs vraies dimensions (172 à
+246 px de large, affichés à 220 : la planche ne faisait que 1024 px). Le
+dessin du 6.3.18 ({python-input-image}), venu après la planche, reste celui
+de Claude.
+
 Bancs : jsdom (`pythonInputComplements`) tient la place, les tirages (300
 séances), les quatre juges « réparer » sur leurs modèles et quinze copies
 fausses, les trois étapes jouées au clavier, le soutien, les quatre autres
