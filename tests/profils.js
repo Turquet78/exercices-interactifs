@@ -2138,9 +2138,11 @@ module.exports = {
        les quatre rangées de sa mémoire, son barème — UNE réponse par ligne,
        quatre lignes — et son numéro au menu. */
     pythonPasAPasChaine: { exercice: 'python-pas-a-pas-chaine', nb: 3,
-                          fiche: { prog: ['a = 10', 'b = 2', 'c = a+b', 'd = c+a'],
-                                   memoire: [['a', '10'], ['b', '2'], ['c', '12'], ['d', '22']],
-                                   fin: { a: '10', b: '2', c: '12', d: '22' },
+                          /* a = 8 (et non plus 10, d valait alors 22) : aucune case
+                             du sous-thème 6.2 ne passe 20 (octobre 2026) */
+                          fiche: { prog: ['a = 8', 'b = 2', 'c = a+b', 'd = c+a'],
+                                   memoire: [['a', '8'], ['b', '2'], ['c', '10'], ['d', '18']],
+                                   fin: { a: '8', b: '2', c: '10', d: '18' },
                                    bareme: 12, numero: '6.2.4' } },
     /* {python-echange-variables} : la fiche du PDF « variable pas à pas 5 »,
        calquée sur {python-valeur-case} — a = 10, b = 2, c = a, a = b, b = c,
@@ -2214,8 +2216,10 @@ module.exports = {
        bord OPPOSÉ de « le bouton des tables n'est proposé que là où il
        sert ». */
     pythonPasAPasMultiplication: { exercice: 'python-pas-a-pas-multiplication',
-                                   fiche: { prog: ['k = 10', 'l = 2', 'm = l*2', 'l = m-k'],
-                                            memoire: [['k', '10'], ['l', '2'], ['m', '4'], ['l', '-6']] } },
+                                   /* l = 7 (et non plus 2, la dernière ligne donnait -6) :
+                                      aucune case du sous-thème 6.2 ne sort de [0 ; 20] (octobre 2026) */
+                                   fiche: { prog: ['k = 10', 'l = 7', 'm = l*2', 'l = m-k'],
+                                            memoire: [['k', '10'], ['l', '7'], ['m', '14'], ['l', '4']] } },
     /* {python-echange-par-lettres} (5.20, demande de Turquet, septembre 2026,
        sur un PDF transcrit : « Compléter le programme uniquement avec les
        lettres k, l ou m pour que la valeur de k=10 et l=2 soient échangées »
@@ -2305,7 +2309,7 @@ module.exports = {
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
       "{python-pas-a-pas-calcul} (5.16) n'a pas de fonction jsdom dédiée (contrairement à {python-pas-a-pas} et {python-valeur-case}) : elle rejouerait la ligne de CALCUL par une SECONDE arithmétique indépendante, un chantier remis à plus tard (« c'est un autre sujet »). Le banc navigateur (« 6 tricies sedecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 12) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
       "{python-echange-variables} (5.18, 5.17 à l'origine — une collision de numéro avec {python-pas-a-pas-chaine} résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée non plus, pour une raison différente du 5.16 : sa question OUVERTE finale (l'explication de l'échange) n'est PAS un verdict arithmétique qu'une seconde méthode locale pourrait rejouer, c'est une idée en langage naturel jugée par le modèle (docs/journal/08-verdicts-et-juges.md). Le banc navigateur (« 6 tricies duodevicies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2), PUIS stubbe l'appel réseau de la question ouverte pour éprouver le verdict correct et le verdict faux, sans jamais approcher le vrai modèle ; les contrôles universels des deux bancs couvrent le reste sans rien déclarer.",
-      "{python-pas-a-pas-multiplication} (5.19, 5.18 à l'origine — une SECONDE collision sur ce même numéro, cette fois avec {python-echange-variables}, résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée, pour la même raison que le 5.16 : la ligne de MULTIPLICATION et la RÉAFFECTATION finale se rejoueraient par une seconde arithmétique indépendante, le même chantier remis à plus tard. Le banc navigateur (« 6 tricies undevicies », le numéral « 6 tricies duodevicies » ayant été pris entre-temps sur `main` par {python-echange-variables}) couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2, 4, -6) : une prédiction FAUSSE, révélée en rouge avec la vraie valeur en vert, suivie du pas à pas complet et d'un « Recommencer avec d'autres valeurs », PUIS une prédiction JUSTE sur le nouveau tirage menant à « Question suivante » ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
+      "{python-pas-a-pas-multiplication} (5.19, 5.18 à l'origine — une SECONDE collision sur ce même numéro, cette fois avec {python-echange-variables}, résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée, pour la même raison que le 5.16 : la ligne de MULTIPLICATION et la RÉAFFECTATION finale se rejoueraient par une seconde arithmétique indépendante, le même chantier remis à plus tard. Le banc navigateur (« 6 tricies undevicies », le numéral « 6 tricies duodevicies » ayant été pris entre-temps sur `main` par {python-echange-variables}) couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 7, 14, 4) : une prédiction FAUSSE, révélée en rouge avec la vraie valeur en vert, suivie du pas à pas complet et d'un « Recommencer avec d'autres valeurs », PUIS une prédiction JUSTE sur le nouveau tirage menant à « Question suivante » ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
     ],
   },
 

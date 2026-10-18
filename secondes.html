@@ -8180,7 +8180,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=566;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=567;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10723,7 +10723,7 @@ const QIA_SUGG={
   ppd:["Que veut dire la ligne d = c+a ?","Pourquoi calcule-t-on avec ce que contient la case c, et non avec a+b écrit sur la ligne d’avant ?","Comment savoir si une ligne recopie, calcule, ou calcule à partir d’un calcul déjà fait ?","À quoi sert d’exécuter un programme ligne par ligne ?"],
   ppc:["Que veut dire la ligne c = a+b ?","Comment calculer la valeur d’une case quand la ligne fait un calcul avec deux autres cases ?","Pourquoi le calcul utilise-t-il ce que les cases CONTIENNENT, et pas les chiffres de l’énoncé ?","À quoi sert d’exécuter un programme ligne par ligne ?"],
   pev:["Pourquoi a-t-on besoin d’une troisième case c pour échanger a et b ?","Que se passerait-il si on écrivait a = b puis b = a, sans passer par c ?","Comment expliquer avec mes mots ce qui arrive aux cases a et b à la fin du programme ?","À quoi sert d’exécuter un programme ligne par ligne ?"],
-  ppm:["Pourquoi la case l peut-elle changer de valeur deux fois dans le même programme ?","Comment deviner la valeur finale d’une case sans exécuter le programme à la main ?","Le résultat peut être négatif : comment le savoir avant de calculer ?","À quoi sert d’exécuter un programme ligne par ligne après avoir deviné ?"],
+  ppm:["Pourquoi la case l peut-elle changer de valeur deux fois dans le même programme ?","Comment deviner la valeur finale d’une case sans exécuter le programme à la main ?","Pourquoi la valeur finale de l n’est-elle pas celle de la deuxième ligne ?","À quoi sert d’exécuter un programme ligne par ligne après avoir deviné ?"],
   pel:["Pourquoi ne peut-on pas juste écrire k = l puis l = k ?","À quoi sert la troisième case mémoire ?","Comment savoir si mon programme a vraiment échangé les deux valeurs ?","Existe-t-il une autre façon d’écrire les trois lignes qui marche aussi ?"],
   pph:["Que veut dire la ligne a = 10 ?","Dans c = b, quelle case reçoit le nombre ?","Pourquoi la case b garde-t-elle son nombre après c = b ?","Pourquoi exécuter un programme ligne par ligne ?"],
   ptt:["Que fait range(len(chaine)) ?","Que veut dire chaine[k] ?","Pourquoi faut-il créer chaine_bis = \"\" avant la boucle ?","Pourquoi mon print affiche-t-il plusieurs lignes ?"],
@@ -12102,8 +12102,8 @@ Exécuter « pas à pas », c’est s’arrêter après chaque ligne pour recopi
 const RAP_PPD=`<b>Une case déjà CALCULÉE peut nourrir un autre calcul</b><br>
 Quand Python lit <code class="inline">a = 10</code>, il réserve une case de la mémoire, l’appelle <code class="inline">a</code>, et y range le nombre 10. Le nom de la case est donné par la ligne ; ce qu’on te demande, c’est <b>ce qu’elle contient</b>.<br>
 <b>① Un NOMBRE écrit à droite du signe égal se range tel quel</b> : après <code class="inline">b = 2</code>, la case <code class="inline">b</code> contient 2.<br>
-<b>② Un CALCUL écrit à droite se fait avec ce que les cases CONTIENNENT</b> : si <code class="inline">a</code> contient 10 et <code class="inline">b</code> contient 2, alors <code class="inline">c = a + b</code> range 12 dans <code class="inline">c</code>.<br>
-<b>③ Une case déjà CALCULÉE peut à son tour nourrir un calcul</b> : la case <code class="inline">c</code> contient maintenant 12, et non plus « a + b » — donc <code class="inline">d = c + a</code> calcule avec 12 et 10, jamais avec les chiffres 2 et 10 de l’énoncé.<br>
+<b>② Un CALCUL écrit à droite se fait avec ce que les cases CONTIENNENT</b> : si <code class="inline">a</code> contient 8 et <code class="inline">b</code> contient 2, alors <code class="inline">c = a + b</code> range 10 dans <code class="inline">c</code>.<br>
+<b>③ Une case déjà CALCULÉE peut à son tour nourrir un calcul</b> : la case <code class="inline">c</code> contient maintenant 10, et non plus « a + b » — donc <code class="inline">d = c + a</code> calcule avec 10 et 8, jamais avec les chiffres 2 et 8 de l’énoncé.<br>
 <b>④ Python lit les lignes UNE PAR UNE</b>, de haut en bas : une case ne peut nourrir un calcul que si une ligne d’avant l’a déjà remplie.<br>
 Exécuter « pas à pas », c’est s’arrêter après chaque ligne pour regarder ce que les cases contiennent VRAIMENT à cet instant — même quand ce contenu vient lui-même d’un calcul.`;
 /* Le rappel du 5.19 : la case peut être RÉÉCRITE — la leçon propre à cet
@@ -12114,11 +12114,10 @@ Exécuter « pas à pas », c’est s’arrêter après chaque ligne pour regard
    les yeux). */
 const RAP_PPM=`<b>Une case peut être RÉÉCRITE par une ligne plus loin</b><br>
 Quand Python lit <code class="inline">a = 10</code>, il réserve une case de la mémoire, l’appelle <code class="inline">a</code>, et y range le nombre 10. Le nom de la case est donné par la ligne ; ce qu’on te demande, c’est <b>ce qu’elle contient</b>.<br>
-<b>① Un NOMBRE écrit à droite du signe égal se range tel quel</b> : après <code class="inline">l = 2</code>, la case <code class="inline">l</code> contient 2.<br>
-<b>② Un CALCUL écrit à droite se fait avec ce que les cases CONTIENNENT</b>, jamais avec ce qui est écrit dans l’énoncé — et il peut ADDITIONNER, SOUSTRAIRE ou <b>MULTIPLIER</b> : si <code class="inline">l</code> contient 2, alors <code class="inline">m = l*2</code> range 4 dans <code class="inline">m</code>.<br>
+<b>① Un NOMBRE écrit à droite du signe égal se range tel quel</b> : après <code class="inline">l = 7</code>, la case <code class="inline">l</code> contient 7.<br>
+<b>② Un CALCUL écrit à droite se fait avec ce que les cases CONTIENNENT</b>, jamais avec ce qui est écrit dans l’énoncé — et il peut ADDITIONNER, SOUSTRAIRE ou <b>MULTIPLIER</b> : si <code class="inline">l</code> contient 7, alors <code class="inline">m = l*2</code> range 14 dans <code class="inline">m</code>.<br>
 <b>③ Une case DÉJÀ REMPLIE peut être RÉÉCRITE</b> : si une ligne plus loin écrit à nouveau <code class="inline">l = ...</code>, c’est SA nouvelle valeur qui compte désormais — la première est perdue, comme si tu effaçais un tableau pour y écrire autre chose.<br>
-<b>④ Le résultat d’un calcul peut être négatif</b> : rien n’empêche <code class="inline">m-k</code> de descendre sous 0 si <code class="inline">m</code> contient moins que <code class="inline">k</code>.<br>
-<b>⑤ Python lit les lignes UNE PAR UNE</b>, de haut en bas : la valeur FINALE d’une case est toujours celle de la DERNIÈRE ligne qui l’a remplie, jamais la première.<br>
+<b>④ Python lit les lignes UNE PAR UNE</b>, de haut en bas : la valeur FINALE d’une case est toujours celle de la DERNIÈRE ligne qui l’a remplie, jamais la première.<br>
 Deviner la valeur finale d’une case, c’est donc suivre le programme jusqu’au bout AVANT de répondre — et vérifier ensuite pas à pas, ligne après ligne.`;
 /* Le rappel du 5.18 : la même leçon que celle du 5.15 (une case DONNÉE,
    l'élève écrit sa valeur), plus la raison d'être de la case intermédiaire —
@@ -38467,37 +38466,40 @@ function pweBuild(){
   return qs;
 }
 
-/* 6.2.11 — une variable qui se calcule avec elle-même. */
+/* 6.2.11 — une variable qui se calcule avec elle-même. Comme tout le
+   sous-thème 6.2, chaque valeur que l'élève écrit reste dans [0 ; 20]
+   (PAP_MAX — demande de Turquet, octobre 2026) : 6.2.11, 6.2.12, 6.2.13,
+   6.2.16 et 6.2.17 ont été réécrits pour cela, et le banc relit chaque case. */
 const PWX_SITS=[
   {l:['x = 5','x = x + 3','x = x * 2','x = x - 4']},
-  {l:['n = 10','n = n - 3','n = n * n','n = n + 1']},
-  {l:['a = 4','a = a * 3','a = a + a','a = a - 10']},
+  {l:['n = 10','n = n - 6','n = n * n','n = n + 1']},
+  {l:['a = 3','a = a * 3','a = a + a','a = a - 10']},
   {l:['x = 2','y = x + 1','x = x + y','y = y * x']},
-  {l:['p = 7','p = p - 9','p = p * 2','p = p + 20']},
-  {l:['t = 3','t = t * t','t = t - 1','t = t * t']},
-  {l:['k = 1','k = k + 1','k = k * 10','k = k + k']},
-  {l:['a = 6','b = a - 2','a = a * b','b = b + a']}
+  {l:['p = 11','p = p - 9','p = p * 2','p = p + 15']},
+  {l:['t = 3','t = t * t','t = t - 5','t = t * t']},
+  {l:['k = 1','k = k + 1','k = k * 5','k = k + k']},
+  {l:['a = 4','b = a - 2','a = a * b','b = b + a']}
 ];
 /* 6.2.12 — le total et le compteur. */
 const PWA_SITS=[
-  {scene:'Un panier en ligne : <code>total</code> est le prix total, en euros, des articles ajoutés.', l:['total = 0','total = total + 12','total = total + 8','total = total + 5']},
-  {scene:'Un jeu : <code>points</code> compte les points du joueur, qui en gagne et en perd.', l:['points = 0','points = points + 10','points = points - 3','points = points + 25']},
-  {scene:'Une caisse : <code>total</code> est la somme payée, <code>nb</code> compte les articles passés.', l:['total = 0','nb = 0','total = total + 14','nb = nb + 1','total = total + 9','nb = nb + 1']},
-  {scene:'Une semaine de vélo : <code>km</code> compte les kilomètres parcourus.', l:['km = 0','km = km + 42','km = km + 21','km = km + 7']},
-  {scene:'Un porte-monnaie : <code>argent</code> est ce qu’il contient, en euros.', l:['argent = 50','argent = argent - 12','argent = argent - 15','argent = argent + 20']},
+  {scene:'Un panier en ligne : <code>total</code> est le prix total, en euros, des articles ajoutés.', l:['total = 0','total = total + 7','total = total + 8','total = total + 5']},
+  {scene:'Un jeu : <code>points</code> compte les points du joueur, qui en gagne et en perd.', l:['points = 0','points = points + 10','points = points - 3','points = points + 12']},
+  {scene:'Une caisse : <code>total</code> est la somme payée, <code>nb</code> compte les articles passés.', l:['total = 0','nb = 0','total = total + 8','nb = nb + 1','total = total + 9','nb = nb + 1']},
+  {scene:'Une semaine de vélo : <code>km</code> compte les kilomètres parcourus.', l:['km = 0','km = km + 8','km = km + 5','km = km + 4']},
+  {scene:'Un porte-monnaie : <code>argent</code> est ce qu’il contient, en euros.', l:['argent = 20','argent = argent - 12','argent = argent - 5','argent = argent + 15']},
   {scene:'Un concours : <code>score</code> additionne les notes obtenues, <code>essais</code> compte les épreuves passées.', l:['score = 0','essais = 0','score = score + 3','essais = essais + 1','score = score + 5','essais = essais + 1']}
 ];
 /* 6.2.13 — les priorités : les lignes du programme, et pour chaque print
    ses pièges [valeur, ce qu'elle trahit]. */
 const PWP_GAUCHE='Python suit les priorités du calcul, comme en mathématiques : d’abord les parenthèses, puis les puissances **, puis * et /, et seulement ensuite + et −.';
 const PWP_SITS=[
-  {l:['a = 2','b = 5','print(a + b * 3)','print((a + b) * 3)','print(a * b ** 2)'], p:[[['21',PWP_GAUCHE]],[],[['100','La puissance ** passe AVANT la multiplication : b ** 2 vaut 25, puis a * 25.']]]},
+  {l:['a = 2','b = 3','print(a + b * 3)','print((a + b) * 3)','print(a * b ** 2)'], p:[[['15',PWP_GAUCHE]],[],[['36','La puissance ** passe AVANT la multiplication : b ** 2 vaut 9, puis a * 9.']]]},
   {l:['n = 10','print(n - 4 - 2)','print(n - (4 - 2))','print(n + n / 2)'], p:[[['8','Deux soustractions de suite se font de GAUCHE à droite : (10 − 4) − 2.']],[],[['10.0',PWP_GAUCHE],['15','La division / donne toujours un float : 10 / 2 vaut 5.0, donc le résultat s’écrit avec un point.']]]},
-  {l:['x = 3','print(-x ** 2)','print((-x) ** 2)','print(2 * x ** 2)'], p:[[['9','La puissance passe AVANT le signe moins : -x ** 2 vaut −(3²) = −9. Pour élever −3 au carré, il faut des parenthèses.']],[],[['36','La puissance passe AVANT la multiplication : x ** 2 vaut 9, puis 2 * 9.']]]},
-  {l:['a = 20','b = 4','print(a / b * 5)','print(a / (b * 5))','print(a - b * 2)'], p:[[['1.0','* et / se font de GAUCHE à droite : (20 / 4) * 5.'],['25','La division / donne toujours un float : le résultat s’écrit avec un point.']],[['1','La division / donne toujours un float : le résultat s’écrit avec un point.']],[['32',PWP_GAUCHE]]]},
-  {l:['p = 7','q = 8','print(p + q / 2)','print((p + q) / 2)','print(3 * (p - 2) + q)'], p:[[['7.5',PWP_GAUCHE]],[],[['27','La parenthèse se calcule d’abord : p − 2 vaut 5, puis 3 * 5, puis + q.']]]},
+  {l:['x = 3','print(-x ** 2 + 10)','print((-x) ** 2)','print(2 * x ** 2)'], p:[[['19','La puissance passe AVANT le signe moins : -x ** 2 vaut −(3²) = −9, puis + 10. Pour élever −3 au carré, il faut des parenthèses.']],[],[['36','La puissance passe AVANT la multiplication : x ** 2 vaut 9, puis 2 * 9.']]]},
+  {l:['a = 12','b = 3','print(a / b * 2)','print(a / (b * 2))','print(a - b * 2)'], p:[[['2.0','* et / se font de GAUCHE à droite : (12 / 3) * 2.'],['8','La division / donne toujours un float : le résultat s’écrit avec un point.']],[['2','La division / donne toujours un float : le résultat s’écrit avec un point.']],[['18',PWP_GAUCHE]]]},
+  {l:['p = 7','q = 3','print(p + q / 2)','print((p + q) / 2)','print(3 * (p - 2) + q)'], p:[[['5.0',PWP_GAUCHE]],[],[['22','La parenthèse se calcule d’abord : p − 2 vaut 5, puis 3 * 5, puis + q.']]]},
   {l:['n = 2','print(n ** 3 + 1)','print(n ** (3 + 1))','print(5 + n * 3 - 1)'], p:[[['16','La puissance passe AVANT l’addition : n ** 3 vaut 8, puis + 1.']],[['9','La parenthèse se calcule d’abord : 3 + 1 vaut 4, puis n ** 4.']],[['20',PWP_GAUCHE]]]},
-  {l:['a = 4','b = 3','print(a * b ** 2 - 6)','print((a * b) ** 2)','print(a + b * a + b)'], p:[[['138','La puissance passe AVANT la multiplication : b ** 2 vaut 9, puis a * 9, puis − 6.']],[],[['31',PWP_GAUCHE]]]}
+  {l:['a = 2','b = 3','print(a * b ** 2 - 6)','print((a * b) ** 2 - 20)','print(a + b * a + b)'], p:[[['30','La puissance passe AVANT la multiplication : b ** 2 vaut 9, puis a * 9, puis − 6.']],[],[['13',PWP_GAUCHE]]]}
 ];
 /* 6.1.15 — le type du résultat : les données, puis deux calculs. */
 const PWY_SITS=[
@@ -38515,13 +38517,13 @@ function pwyValeur(S, e){ return pwPrints(S.l.concat(['print('+e+')']).join('\n'
 /* 6.2.16 — retrouver la valeur de départ : la variable, sa valeur, les étapes. */
 const PWV_SITS=[
   {v:'a', a:5, l:['a = a * 3','a = a - 4']},
-  {v:'n', a:7, l:['n = n + 6','n = n * 2']},
-  {v:'x', a:4, l:['x = x * 5','x = x + 3','x = x - 10']},
-  {v:'b', a:9, l:['b = b - 2','b = b * 4']},
-  {v:'n', a:6, l:['n = n * 2','n = n + 5','n = n * 3']},
-  {v:'p', a:3, l:['p = p + 8','p = p * 10','p = p - 50']},
-  {v:'t', a:12, l:['t = t - 7','t = t * 6']},
-  {v:'a', a:8, l:['a = a * 4','a = a - 12','a = a + 1']}
+  {v:'n', a:3, l:['n = n + 6','n = n * 2']},
+  {v:'x', a:3, l:['x = x * 5','x = x + 3','x = x - 10']},
+  {v:'b', a:6, l:['b = b - 2','b = b * 4']},
+  {v:'n', a:2, l:['n = n * 2','n = n + 5','n = n * 2']},
+  {v:'p', a:3, l:['p = p + 2','p = p * 4','p = p - 12']},
+  {v:'t', a:12, l:['t = t - 9','t = t * 6']},
+  {v:'a', a:4, l:['a = a * 4','a = a - 12','a = a + 1']}
 ];
 function pwvProg(S, a){ return [S.v+' = '+(a==null?'?':a)].concat(S.l, ['print('+S.v+')']).join('\n'); }
 function pwvFin(S){ return pwPrints(pwvProg(S, S.a))[0]; }
@@ -38530,10 +38532,10 @@ const PWM_SITS=[
   {A:['x = 3','y = x + 2','x = 10','print(y)'], B:['x = 3','x = 10','y = x + 2','print(y)']},
   {A:['a = 4','b = 6','c = a + b','print(c)'], B:['b = 6','a = 4','c = a + b','print(c)']},
   {A:['n = 5','n = n + 1','n = n * 2','print(n)'], B:['n = 5','n = n * 2','n = n + 1','print(n)']},
-  {A:['n = 5','n = n * 2','n = n * 3','print(n)'], B:['n = 5','n = n * 3','n = n * 2','print(n)']},
+  {A:['n = 2','n = n * 2','n = n * 3','print(n)'], B:['n = 2','n = n * 3','n = n * 2','print(n)']},
   {A:['a = 2','b = a','a = 7','print(b)'], B:['a = 2','a = 7','b = a','print(b)']},
   {A:['x = 1','x = x + 4','x = x + 6','print(x)'], B:['x = 1','x = x + 6','x = x + 4','print(x)']},
-  {A:['t = 9','t = t - 4','t = t * t','print(t)'], B:['t = 9','t = t * t','t = t - 4','print(t)']},
+  {A:['t = 4','t = t - 1','t = t * t','print(t)'], B:['t = 4','t = t * t','t = t - 1','print(t)']},
   {A:['p = 8','q = p - 3','print(q)'], B:['q = 5','p = q + 3','print(q)']}
 ];
 /* 6.2.18 — quel programme affiche ce résultat ? Le premier programme est le
@@ -54041,10 +54043,19 @@ function papGen(vis, noms, vals){
   return [{nom:noms[0],expr:String(vals[0])},{nom:noms[1],expr:String(vals[1])},
           {nom:noms[2],expr:noms[1]},{nom:noms[3],expr:noms[2]}];
 }
-function papValeurs(n){
-  const v=[];
-  while(v.length<n){ const x=rand(2,99); if(v.indexOf(x)<0) v.push(x); }
-  return v;
+/* TOUTE CASE À TROUVER VAUT DE 0 À 20 (demande de Turquet, octobre 2026 :
+   « dans le thème variable et calcul, toutes les cases mémoire à trouver
+   sont des nombres entre 0 et 20 ») : les littéraux se tirent de 2 à 20, et
+   un visage qui CALCULE passe sa borne à papValeurs — « ok » écarte le
+   tirage dont une case calculée sortirait de [0 ; 20]. Le banc tire chaque
+   exercice du sous-thème et relit chaque case (PAP_MAX, tests/verifier.js). */
+const PAP_MAX=20;
+function papValeurs(n, ok){
+  for(;;){
+    const v=[];
+    while(v.length<n){ const x=rand(2,PAP_MAX); if(v.indexOf(x)<0) v.push(x); }
+    if(!ok || ok(v)) return v;
+  }
 }
 /* L'ordre des propositions est TIRÉ par question et conservé : à étape égale,
    le rang de la bonne varie. */
@@ -54721,7 +54732,7 @@ function ppcBuildQuestions(){
   const qs=[ppcQuestion(PPC_FICHE.vis, PPC_FICHE.lignes.map(function(l){ return {nom:l.nom, expr:l.expr}; }))];
   const jeux=ensShuffle(PAP_JEUX.slice()).slice(0, PPC_NB-1);
   ensShuffle(['soustraction','copie-addition']).slice(0, PPC_NB-1).forEach(function(vis, i){
-    qs.push(ppcQuestion(vis, ppcGen(vis, jeux[i], papValeurs(2))));
+    qs.push(ppcQuestion(vis, ppcGen(vis, jeux[i], papValeurs(2, function(v){ return vis!=='copie-addition' || v[0]+v[1]<=PAP_MAX; }))));
   });
   return qs;
 }
@@ -54985,7 +54996,10 @@ function ppdFigureHTML(){
   return '<img class="ppd-img" src="'+PPD_IMG+'" alt="deux serpents : « Pour d, il me faut c… » — « Je l’ai déjà calculé ! », en tendant le carton c" width="760" height="511">';
 }
 const PPD_NB=3;
-const PPD_FICHE={vis:'fiche', lignes:[{nom:'a',expr:'10'},{nom:'b',expr:'2'},{nom:'c',expr:'a+b'},{nom:'d',expr:'c+a'}]};
+/* La fiche du PDF portait a = 10 : d = c + a y valait 22. Depuis qu'aucune
+   case à trouver ne passe 20 (octobre 2026), elle part de a = 8 — c = 10,
+   d = 18 —, le programme gardé au caractère près pour le reste. */
+const PPD_FICHE={vis:'fiche', lignes:[{nom:'a',expr:'8'},{nom:'b',expr:'2'},{nom:'c',expr:'a+b'},{nom:'d',expr:'c+a'}]};
 /* Les lignes d'un visage. « chaine-soustraction » tire le PLUS GRAND en
    premier (la leçon du 5.16, reprise à l'identique) ; les deux visages
    calculent d = c + a — la MÊME forme que la fiche : une case déjà calculée
@@ -55004,7 +55018,10 @@ function ppdBuildQuestions(){
   const qs=[ppdQuestion(PPD_FICHE.vis, PPD_FICHE.lignes.map(function(l){ return {nom:l.nom, expr:l.expr}; }))];
   const jeux=ensShuffle(PAP_JEUX.slice()).slice(0, PPD_NB-1);
   ensShuffle(['chaine-addition','chaine-soustraction']).slice(0, PPD_NB-1).forEach(function(vis, i){
-    qs.push(ppdQuestion(vis, ppdGen(vis, jeux[i], papValeurs(2))));
+    /* d = c + a vaut 2a + b (2 max − min en soustraction) : la plus grande
+       case de la question, bornée à PAP_MAX */
+    qs.push(ppdQuestion(vis, ppdGen(vis, jeux[i], papValeurs(2, function(v){
+      return (vis==='chaine-soustraction' ? 2*Math.max(v[0], v[1])-Math.min(v[0], v[1]) : 2*v[0]+v[1])<=PAP_MAX; }))));
   });
   return qs;
 }
@@ -55717,21 +55734,25 @@ function ppmCases(q){
   q.lignes.forEach(function(l, k){ c.push({id:'ppm-val-'+k, cle:'val'}); });
   return c;
 }
-function ppmQuestion(k, l){ return {vis:(k===10&&l===2)?'fiche':'tire', k:k, l:l, lignes:ppmProg(k, l)}; }
-/* k et l tirés entre 2 et 20 : assez petits pour un calcul de tête, assez
-   variés pour que m-k change de signe d'un tirage à l'autre — la prédiction
-   resterait triviale si le résultat était toujours du même signe. La fiche
-   du PDF (10, 2) n'est jamais retirée par hasard. Et k n'est JAMAIS égal à
-   l : m-k vaudrait alors 2l-l = l, la dernière ligne réécrirait l avec sa
-   propre valeur, et le piège de la réaffectation — tout l'exercice —
-   disparaîtrait (4,7 % des tirages ; audit, M61). */
+/* LA FICHE DU PDF (k = 10, l = 2) FAISAIT DESCENDRE l À −6 : m-k y était
+   négatif exprès. Depuis qu'aucune case à trouver ne sort de [0 ; 20]
+   (demande de Turquet, octobre 2026), la fiche garde k = 10 et prend l = 7 :
+   m = 14, puis l = 4 — la réaffectation, le vrai piège, est intacte. */
+const PPM_FICHE={k:10, l:7};
+function ppmQuestion(k, l){ return {vis:(k===PPM_FICHE.k&&l===PPM_FICHE.l)?'fiche':'tire', k:k, l:l, lignes:ppmProg(k, l)}; }
+/* l tiré de 2 à 10, pour que m = l*2 ne passe pas 20 ; k de 2 à m, pour que
+   m-k ne descende pas sous 0 — chaque case de la question reste dans
+   [0 ; PAP_MAX]. La fiche n'est jamais retirée par hasard. Et k n'est JAMAIS
+   égal à l : m-k vaudrait alors 2l-l = l, la dernière ligne réécrirait l avec
+   sa propre valeur, et le piège de la réaffectation — tout l'exercice —
+   disparaîtrait (audit, M61). */
 function ppmGen(){
   let k, l;
-  do{ k=rand(2,20); l=rand(2,20); } while((k===10 && l===2) || k===l);
+  do{ l=rand(2,PAP_MAX/2); k=rand(2,2*l); } while((k===PPM_FICHE.k && l===PPM_FICHE.l) || k===l);
   return {k:k, l:l};
 }
 function ppmBuildQuestions(){
-  const qs=[ppmQuestion(10, 2)];
+  const qs=[ppmQuestion(PPM_FICHE.k, PPM_FICHE.l)];
   for(let i=1;i<PPM_NB;i++) qs.push(distincte(qs, function(){ const kl=ppmGen(); return ppmQuestion(kl.k, kl.l); }));
   return qs;
 }
@@ -56034,7 +56055,7 @@ function ctxPpm(q){
     c+='La case l est RÉÉCRITE par la dernière ligne : sa valeur finale n’est PAS celle qu’elle reçoit en ligne 2. ';
     c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même si l’élève insiste) : l vaut '+papAns(q, q.lignes.length-1).val+' à la fin. ';
     c+='Ce que l’élève a écrit : « '+((ve&&ve.value)||'(rien)')+' ». ';
-    c+='Règles à rappeler sans donner la réponse : une variable est une CASE de la mémoire ; une case déjà écrite peut être RÉÉCRITE par une ligne plus loin, et c’est alors sa DERNIÈRE valeur qui compte ; un calcul (comme l*2 ou m-k) se fait avec ce que les cases CONTIENNENT, jamais les chiffres de l’énoncé — et le résultat peut être négatif.';
+    c+='Règles à rappeler sans donner la réponse : une variable est une CASE de la mémoire ; une case déjà écrite peut être RÉÉCRITE par une ligne plus loin, et c’est alors sa DERNIÈRE valeur qui compte ; un calcul (comme l*2 ou m-k) se fait avec ce que les cases CONTIENNENT, jamais les chiffres de l’énoncé.';
     return {nombre:'', contexte:c};
   }
   const k=(typeof test.ppmEtape==='number')?Math.min(test.ppmEtape, q.lignes.length-1):0;
@@ -56127,7 +56148,7 @@ function pelBuildQuestions(){
   const qs=[pelQuestion(PEL_FICHE.v1, PEL_FICHE.v2, PEL_FICHE.t, PEL_FICHE.a, PEL_FICHE.b)];
   const jeux=ensShuffle(PEL_JEUX.slice()).slice(0, PEL_NB-1);
   jeux.forEach(function(j){
-    const vals=papValeurs(2);          /* deux entiers distincts, 2 à 99 — la même réserve que le pas à pas */
+    const vals=papValeurs(2);          /* deux entiers distincts, 2 à 20 — la même réserve que le pas à pas */
     qs.push(pelQuestion(j[0], j[1], j[2], vals[0], vals[1]));
   });
   return qs;

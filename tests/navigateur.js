@@ -13922,9 +13922,9 @@ if(require.main === module) (async () => {
        qui est PROPRE au 5.17 : la ligne « d = c+a » lit une case (c) qui est
        elle-même le résultat d'un calcul, et non un littéral — le message
        d'une réponse fausse doit encore nommer un CALCUL, jamais une recopie,
-       et le bilan final doit porter la valeur VRAIE de d (22) même après une
+       et le bilan final doit porter la valeur VRAIE de d (18) même après une
        erreur. Aucune seconde arithmétique n'est rejouée : la fiche ÉPINGLÉE
-       porte des valeurs CONNUES (10, 2, 12, 22), lues dans tests/profils.js. */
+       porte des valeurs CONNUES (8, 2, 10, 18), lues dans tests/profils.js. */
     titre('6 tricies septdecies. LE PROGRAMME PAS À PAS, QUAND UN CALCUL EN LIT UN AUTRE');
     if(!P.pythonPasAPasChaine){
       ignorer('le programme pas à pas : un calcul qui lit une case déjà calculée se juge, se corrige et se bilan-te comme un calcul',
@@ -13980,7 +13980,7 @@ if(require.main === module) (async () => {
       if(vu.nom !== A.fiche.memoire[0][0]) dits.push('le nom de la case écrit par la page : ' + JSON.stringify(vu.nom));
       if(vu.case !== 'INPUT') dits.push('la case de la valeur : ' + JSON.stringify(vu.case));
       if(vu.bilan) dits.push('le bilan de la mémoire est affiché avant la fin du programme');
-      verifier('la fiche épinglée (a = 10, b = 2, c = a+b, d = c+a) est rendue en DEUX colonnes, le repère ▶ sur la première ligne, et le nom de la case ÉCRIT',
+      verifier('la fiche épinglée (' + A.fiche.prog.join(', ') + ') est rendue en DEUX colonnes, le repère ▶ sur la première ligne, et le nom de la case ÉCRIT',
         !dits.length, dits.slice(0, 3).join(' | '));
       /* 2. LES TROIS PREMIÈRES LIGNES SE TAPENT ET SE JUGENT, LE ▶ AVANCE, LE TABLEAU GRANDIT */
       const marche = [];
@@ -14269,7 +14269,7 @@ if(require.main === module) (async () => {
        mesuré ailleurs, pas remesuré ici), puis à « Recommencer avec d'autres
        valeurs » plutôt qu'à « Question suivante » ; une prédiction JUSTE,
        elle, mène directement à la question suivante une fois le pas à pas
-       terminé. La fiche ÉPINGLÉE (10, 2, 4, -6, lue dans tests/profils.js)
+       terminé. La fiche ÉPINGLÉE (10, 7, 14, 4, lue dans tests/profils.js)
        sert la première prédiction ; le second tirage est ALÉATOIRE — le banc
        lit k et l rendus par la page pour calculer sa propre prédiction juste,
        plutôt que de supposer des valeurs qu'il ne connaît pas d'avance.
@@ -14353,7 +14353,7 @@ if(require.main === module) (async () => {
       if(guessFaux.badgeTxt.trim() !== A.fiche.memoire[3][1] || dom(guessFaux.badgeEncre) !== 'vert')
         gd.push('la vraie valeur en vert : ' + JSON.stringify({ t: guessFaux.badgeTxt, e: guessFaux.badgeEncre }));
       if(!guessFaux.disabled) gd.push('la prédiction jugée reste modifiable');
-      verifier('une prédiction fausse (l = 999) se peint en rouge, révèle la vraie valeur (-6) en vert, et fait passer en phase « verifier »',
+      verifier('une prédiction fausse (l = 999) se peint en rouge, révèle la vraie valeur (' + A.fiche.memoire[3][1] + ') en vert, et fait passer en phase « verifier »',
         !gd.length, gd.slice(0, 3).join(' | '));
       /* 4. LE PAS À PAS, LES QUATRE LIGNES — DONT UN SIGNE MOINS AU CLAVIER */
       for(let k = 0; k < nL; k++){
@@ -14379,7 +14379,7 @@ if(require.main === module) (async () => {
       Object.keys(etatFinal).forEach(nom => { if(finFaux.bilan.indexOf(nom) < 0 || finFaux.bilan.indexOf(etatFinal[nom]) < 0) bd.push('le bilan ne dit pas que ' + nom + ' contient ' + etatFinal[nom]); });
       if(finFaux.suivant) bd.push('« Question suivante » apparaît alors que la prédiction était fausse');
       if(!/Recommencer/.test(finFaux.bouton)) bd.push('le bouton après une prédiction fausse : ' + JSON.stringify(finFaux.bouton));
-      verifier('le bilan porte la valeur VRAIE de chaque case (dont -6, réécrite), et le bouton propose de RECOMMENCER',
+      verifier('le bilan porte la valeur VRAIE de chaque case (dont ' + A.fiche.memoire[3][1] + ', réécrite), et le bouton propose de RECOMMENCER',
         !bd.length, bd.slice(0, 3).join(' | ') + ' : ' + finFaux.bilan.slice(0, 200));
       /* 5. RECOMMENCER : LE SCORE DES LIGNES JETÉES REVIENT À ZÉRO */
       verifier('les points des quatre lignes de la tentative jetée ont été ajoutés puis retirés : le score revient à 0 avant le nouveau tirage',
