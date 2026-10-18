@@ -664,7 +664,7 @@ nommé), le produit croisé (message qui nomme les termes, jamais la flèche),
 −14x (message sans accolade), deux cases vides (la correction) ; enfin le
 7.10 relancé garde ses bulles et ses cases `dvd-…`.
 
-## Les produits du 7.11 dans l'ordre qu'on veut (v564)
+## Les produits du 7.11 dans l'ordre qu'on veut (v565 — v564 prise par les dessins du 6.2)
 
 **La demande** (Turquet, octobre 2026, capture du 7.11 sur
 B = (5x − 8)(8x − 4)) : « accepter que l'ordre soit différent ». L'élève

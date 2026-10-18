@@ -23856,7 +23856,7 @@ function developperDoubleNu(w, P){
     test.idx=0; poser(Object.assign(ids(0), {'dvn-r-1':'-14x'})); checkDvdAnswer();
     const m3=$('dvnFeedback').textContent;
     if(peint('dvn-r-1')!=='rouge' || !/se regroupent/.test(m3) || /accolade/.test(m3)) vus.push('la réduction fausse : '+peint('dvn-r-1')+' — '+m3);
-    /* les produits dans un autre ordre sont justes (v564, la capture de
+    /* les produits dans un autre ordre sont justes (v565, la capture de
        Turquet : le premier terme par le SECOND d'abord), les facteurs
        retournés, les résultats et la forme réduite dans le même désordre */
     const DESORDRE={'dvn-f-0-1':'4x','dvn-f-0-2':'(-5)','dvn-f-1-1':'4x','dvn-f-1-2':'2x','dvn-t-0':'-20x','dvn-t-1':'+8x²',
