@@ -4534,6 +4534,7 @@ function exercices(suite){
     developperReduire(w, P);
     developperSigneMoins(w, P);
     developperSigneMoinsNu(w, P);
+    developperDistributiviteNu(w, P);
     translationGrille(w, P);
     vecteursEgauxTableau(w, P);
     vecteursEgaux(w, P);
@@ -23530,6 +23531,139 @@ function developperSigneMoins(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* {developper-distributivite-nu} — thème 7 « Calcul littéral », 7.17 : le 7.9
+   sans son échafaudage (ni flèches, ni bulles, ni accolades), sur le même
+   moteur, et L'ORDRE DES TERMES LIBRE. Ce que ce contrôle tient : la place,
+   l'identité (kind, qId, cases « dvo-… »), l'ABSENCE de tout dessin, la copie
+   juste écrite ICI à la main — dans l'ordre de la fiche, puis dans le
+   désordre —, les pièges (un terme écrit deux fois ne compte qu'une fois, le
+   signe oublié, la case vide), et le 7.9 qui garde son schéma et son ordre. */
+function developperDistributiviteNu(w, P){
+  const present = evaluer(w, "typeof startDvl==='function' && !!TESTS['developper-distributivite-nu']");
+  if(!present.ok || !present.valeur){
+    ignorer('développer avec la distributivité sans les flèches : la place, la page nue et la correction dans l\'ordre libre',
+      'ce niveau n\'a pas l\'exercice de distributivité sans les flèches');
+    return;
+  }
+  verifierEval(w, 'développer avec la distributivité sans les flèches : la place, la page nue et la correction dans l\'ordre libre', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='developper-distributivite-nu';
+    if(TEST_NUM['developper-distributivite-nu']!=='7.17') vus.push('numéro '+TEST_NUM['developper-distributivite-nu']+' au lieu de 7.17');
+    if(TEST_NUM['developper-distributivite']!=='7.9' || TEST_NUM['developper-signe-moins-nu']!=='7.16') vus.push('le 7.9 ou le 7.16 a bougé');
+    if(TABLES_SANS.indexOf('developper-distributivite-nu')>=0) vus.push('le bouton des tables est retiré : chaque produit se calcule');
+
+    const M=function(c,d){ return {c:c,d:d}; };
+    const FICHE=[
+      {forme:'A', prods:[{k:M(4,0), a:M(1,1), b:M(2,0)}]},          /* 4 × (x + 2) */
+      {forme:'B', prods:[{k:M(4,0), a:M(2,1), b:M(-1,0)}]},         /* 4 × (2x − 1) */
+      {forme:'C', prods:[{k:M(-3,0), a:M(2,1), b:M(-5,0)}]},        /* −3 × (2x − 5) */
+      {forme:'D', prods:[{k:M(1,1), a:M(2,1), b:M(-1,0)}]},         /* x × (2x − 1) */
+      {forme:'E', prods:[{k:M(3,1), a:M(2,1), b:M(-5,0)}]},         /* 3x × (2x − 5) */
+      {forme:'F', prods:[{k:M(3,0), a:M(2,1), b:M(-1,0)}, {k:M(-2,0), a:M(4,1), b:M(-5,0)}]}  /* 3 × (2x − 1) − 2 × (4x − 5) */
+    ];
+    /* la copie juste, dans l'ordre de la fiche */
+    const JUSTE=[
+      {f:['4','x','4','2'], t:['4x','+8']},
+      {f:['4','2x','4','(-1)'], t:['8x','-4']},
+      {f:['-3','2x','(-3)','-5'], t:['-6x','+15']},
+      {f:['x','2x','x','-1'], t:['2x²','-x']},
+      {f:['3x','2x','3x','-5'], t:['6x^2','-15x']},
+      {f:['3','2x','3','-1','-2','4x','-2','-5'], t:['6x','-3','-8x','+10'], r:['-2x','+7']}
+    ];
+    /* la MÊME copie, dans le désordre : les produits échangés, les facteurs
+       retournés, les résultats et la forme réduite dans l'autre sens */
+    const DESORDRE=[
+      {f:['2','4','x','4'], t:['8','+4x']},
+      {f:['-1','4','2x','4'], t:['-4','+8x']},
+      {f:['-5','-3','-3','2x'], t:['15','-6x']},
+      {f:['-1','x','2x','x'], t:['-x','+2x²']},
+      {f:['-5','3x','2x','3x'], t:['-15x','+6x²']},
+      {f:['-5','-2','4x','-2','-1','3','2x','3'], t:['10','-8x','-3','+6x'], r:['7','-2x']}
+    ];
+    const ids=function(J){
+      const o={};
+      for(let i=0;i<J.t.length;i++){ o['dvo-f-'+i+'-1']=J.f[2*i]; o['dvo-f-'+i+'-2']=J.f[2*i+1]; o['dvo-t-'+i]=J.t[i]; }
+      (J.r||[]).forEach(function(v,m){ o['dvo-r-'+m]=v; });
+      return o;
+    };
+    startDvl('dvo');
+    if(test.kind!=='dvo' || test.qId!=='developper-distributivite-nu') vus.push('identité '+test.kind+' / '+test.qId);
+    if(!document.querySelector('#scr-dvo.on')) vus.push('l\\'écran du 7.17 n\\'est pas affiché');
+    if(test.maxScore!==44) vus.push('barème de '+test.maxScore+' au lieu de 44');
+    test.questions=FICHE.map(function(q){ return JSON.parse(JSON.stringify(q)); });
+    const poser=function(vals){
+      test.locked=false; renderDvlTest();
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const CASES=[6,6,6,6,6,14];
+    [['dans l\\'ordre',JUSTE],['dans le désordre',DESORDRE]].forEach(function(jeu){
+      for(let j=0;j<6;j++){
+        test.idx=j; const V=ids(jeu[1][j]);
+        poser({});
+        const host=document.getElementById('dvoHost');
+        const manque=Object.keys(V).filter(function(id){ return !document.getElementById(id); });
+        if(manque.length){ vus.push('page '+FICHE[j].forme+' : case(s) absente(s) '+manque.join(', ')); continue; }
+        if(host.querySelectorAll('input').length!==CASES[j]) vus.push('page '+FICHE[j].forme+' : '+host.querySelectorAll('input').length+' cases au lieu de '+CASES[j]);
+        if(host.querySelector('.dvl-bul, svg, [data-fl], [data-acc], .dvl-mot')) vus.push('page '+FICHE[j].forme+' : un dessin reste affiché');
+        if(/flèche|bulle|accolade|rouge|bleu|vert/i.test(host.querySelector('.dvl-consigne').textContent)) vus.push('la consigne parle encore de flèches, de bulles, d\\'accolades ou de couleurs');
+        if(!/ordre des termes n.a pas d.importance/i.test(host.querySelector('.dvl-consigne').textContent)) vus.push('la consigne ne dit pas que l\\'ordre est libre');
+        poser(V); checkDvlAnswer();
+        const der=test.answers[test.answers.length-1];
+        if(!der || !der.correct) vus.push('la copie juste '+jeu[0]+' de la page '+FICHE[j].forme+' est comptée fausse');
+        const nv=Object.keys(V).filter(function(id){ return peint(id)!=='vert'; });
+        if(nv.length) vus.push('page '+FICHE[j].forme+' '+jeu[0]+' : '+nv.join(', ')+' non juste(s)');
+        if(!der || der.cases!==CASES[j]) vus.push('page '+FICHE[j].forme+' : '+(der?der.cases:'?')+' cases notées au lieu de '+CASES[j]);
+      }
+    });
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    test.idx=0; poser({});
+    const ex=document.querySelector('#dvoHost .dvl-ex');
+    if(!ex) vus.push('l\\'exemple 5 × (x + 3) manque à la première page');
+    else if(ex.querySelector('input, .dvl-bul, svg')) vus.push('l\\'exemple porte une case ou un dessin');
+    test.idx=1; poser({});
+    if(document.querySelector('#dvoHost .dvl-ex')) vus.push('l\\'exemple se répète sur la deuxième page');
+
+    /* ---- les pièges ---- */
+    /* le second terme SANS son signe, même dans le désordre : « 4x » après « 8 » */
+    test.idx=0; poser(Object.assign(ids(DESORDRE[0]), {'dvo-t-1':'4x'})); checkDvlAnswer();
+    if(peint('dvo-t-1')!=='rouge' || peint('dvo-t-0')!=='vert') vus.push('« 4x » sans son signe : '+peint('dvo-t-1')+', voisine '+peint('dvo-t-0'));
+    if(!/garde son signe/.test($('dvoFeedback').textContent)) vus.push('le message ne nomme pas le signe oublié : '+$('dvoFeedback').textContent);
+    /* le même produit écrit deux fois ne compte qu'une fois — la correction donne l'autre */
+    test.idx=1; poser(Object.assign(ids(JUSTE[1]), {'dvo-f-1-1':'4', 'dvo-f-1-2':'2x', 'dvo-t-1':'+8x'})); checkDvlAnswer();
+    if(peint('dvo-f-0-1')!=='vert' || peint('dvo-f-0-2')!=='vert') vus.push('le premier produit juste n\\'est pas vert');
+    if(peint('dvo-f-1-2')!=='rouge') vus.push('« 2x » écrit deux fois est peint en '+peint('dvo-f-1-2'));
+    if(peint('dvo-f-1-1')!=='vert') vus.push('le facteur 4 du second produit, juste, est peint en '+peint('dvo-f-1-1'));
+    if(peint('dvo-t-1')!=='rouge') vus.push('« +8x » écrit deux fois est peint en '+peint('dvo-t-1'));
+    if(/flèche|bulle|accolade/.test($('dvoFeedback').textContent)) vus.push('le message parle de flèche : '+$('dvoFeedback').textContent);
+    /* D : x × 2x = 2x², écrit 2x */
+    test.idx=3; poser(Object.assign(ids(JUSTE[3]), {'dvo-t-0':'2x'})); checkDvlAnswer();
+    if(peint('dvo-t-0')!=='rouge') vus.push('2x pour x × 2x est peint en '+peint('dvo-t-0'));
+    /* les cases vides ne rougissent pas : la correction est le terme que personne n'a pris */
+    test.idx=1; poser(Object.assign(ids(DESORDRE[1]), {'dvo-t-1':'', 'dvo-f-1-1':''})); checkDvlAnswer();
+    if(peint('dvo-t-1')!=='bleu' || peint('dvo-f-1-1')!=='bleu') vus.push('case vide peinte en '+peint('dvo-t-1')+' / '+peint('dvo-f-1-1'));
+    if((document.getElementById('dvo-t-1')||{}).value!=='+8x') vus.push('la correction de la case vide écrit '+(document.getElementById('dvo-t-1')||{}).value+' au lieu de +8x');
+    if((document.getElementById('dvo-f-1-1')||{}).value!=='2x') vus.push('la correction du facteur vide écrit '+(document.getElementById('dvo-f-1-1')||{}).value+' au lieu de 2x');
+    /* F : la forme réduite sans signe, puis non réduite */
+    test.idx=5; poser(Object.assign(ids(DESORDRE[5]), {'dvo-r-1':'2x'})); checkDvlAnswer();
+    if(peint('dvo-r-1')!=='rouge' || peint('dvo-r-0')!=='vert') vus.push('« 2x » sans son signe (forme réduite) : '+peint('dvo-r-1')+', voisine '+peint('dvo-r-0'));
+    test.idx=5; poser(Object.assign(ids(JUSTE[5]), {'dvo-r-0':'6x-8x'})); checkDvlAnswer();
+    if(peint('dvo-r-0')!=='rouge') vus.push('« 6x-8x », non réduit, est peint en '+peint('dvo-r-0'));
+
+    /* le 7.9 garde ses bulles, et son ordre : le désordre y est faux */
+    currentTestId='developper-distributivite'; startDvl();
+    if(test.kind!=='dvl' || test.maxScore!==44 || !document.getElementById('dvl-f-0-1') || !document.querySelector('#dvlHost .dvl-bul')) vus.push('le 7.9 a perdu son schéma ('+test.kind+')');
+    else {
+      test.questions=FICHE.map(function(q){ return JSON.parse(JSON.stringify(q)); }); test.idx=1; test.locked=false; renderDvlTest();
+      const o=ids(DESORDRE[1]); Object.keys(o).forEach(function(id){ const el=document.getElementById(id.replace(/^dvo-/,'dvl-')); if(el) el.value=o[id]; });
+      checkDvlAnswer();
+      if(peint('dvl-t-0')!=='rouge') vus.push('au 7.9, le désordre est compté juste : l\\'ordre y compte encore');
+    }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* {developper-signe-moins-nu} — thème 7 « Calcul littéral », 7.16 : le 7.15
    sans son échafaudage (ni flèches, ni bulles, ni accolades, ni ligne des
    produits), sur le même moteur. Ce que ce contrôle tient : la place,
@@ -32004,7 +32138,8 @@ function serpentsHalloween(w, P){
       else if(d.bulle.some(function(l){ return textes.indexOf(l)<0; })) vus.push(id+" : la bulle n’écrit pas « "+d.bulle.join(" / ")+" » : "+textes.join(" / "));
       /* le dessin du serpent est SON fichier ; le dessin de la fiche est l'autre image du cadre */
       const hw=fig.querySelector("img.hw-img");
-      if(!hw||hw.getAttribute("src")!==d.img||d.img!=="dessins/secondes/"+id+"-halloween.webp") vus.push(id+" : le serpent ne montre pas son dessin dessins/secondes/"+id+"-halloween.webp : "+(hw?hw.getAttribute("src"):"aucune image"));
+      /* un dessin MODIFIÉ se renomme (-halloween-2.webp…) : GitHub Pages garde l'ancien dix minutes en cache */
+      if(!hw||hw.getAttribute("src")!==d.img||d.img.indexOf("dessins/secondes/"+id+"-halloween")!==0||!/^-halloween(-[0-9]+)?[.]webp$/.test(d.img.slice(("dessins/secondes/"+id).length))) vus.push(id+" : le serpent ne montre pas son dessin dessins/secondes/"+id+"-halloween.webp : "+(hw?hw.getAttribute("src"):"aucune image"));
       const img=fig.parentNode&&fig.parentNode.querySelector("img[src*='dessins/']:not(.hw-img)");
       if(doivent.indexOf(id)>=0 && !on.querySelector("img[src*='dessins/']:not(.hw-img)")) vus.push(id+" : aucun dessin sur son écran");
       if(!img) vus.push(id+" : le serpent n’est pas à côté du dessin de la fiche");
