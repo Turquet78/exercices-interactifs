@@ -7437,12 +7437,40 @@ if(require.main === module) (async () => {
       s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
       await connecter(s.page);
       const dits = [];
+      /* TAPER, PUIS RELIRE (octobre 2026). La première version donnait le
+         focus, attendait 60 ms et tapait : sur la machine de l'action, chargée,
+         MathLive met parfois plus longtemps à prendre le focus, et les
+         chiffres destinés à une case partaient dans la PRÉCÉDENTE — reproduit
+         ici en ralentissant le processeur de Chromium (×6) : « 3 », prévu pour
+         spf-pn, tombait dans spf-b2, qui lisait « 23 ». La copie devenait
+         fausse et le contrôle rougissait au hasard (deux PR qui ne touchaient
+         pas la Première). Désormais on attend que la case AIT le focus, on
+         relit ce qu'elle contient, et un écart se retape (case vidée) ; s'il
+         persiste après trois saisies, il est NOMMÉ : la mesure ne parle plus
+         que du juge de la page, jamais de la vitesse de la machine. */
+      const lireCase = i => { const e = document.getElementById(i); if(!e) return null;
+        return e.tagName === 'MATH-FIELD' ? e.getValue() : String(e.value); };
       const tape = async (id, v) => {
-        const ok = await s.page.evaluate(i => { const el = document.getElementById(i); if(!el) return false; el.focus(); return true; }, id);
-        if(!ok){ dits.push('pas de case ' + id); return; }
-        await s.page.waitForTimeout(60);
-        await s.page.keyboard.type(String(v), { delay: 20 });
-        await s.page.waitForTimeout(120);
+        const voulu = String(v);
+        let lu = null;
+        for(let essai = 0; essai < 3; essai++){
+          const ok = await s.page.evaluate(i => { const el = document.getElementById(i); if(!el) return false; el.focus(); return true; }, id);
+          if(!ok){ dits.push('pas de case ' + id); return; }
+          try {
+            await s.page.waitForFunction(i => { const el = document.getElementById(i);
+              return !!el && (document.activeElement === el || (typeof el.hasFocus === 'function' && el.hasFocus())); }, id, { timeout: 3000 });
+          } catch(e){}
+          await s.page.waitForTimeout(60);
+          if(essai > 0){ await s.page.keyboard.press('Control+A'); await s.page.keyboard.press('Backspace'); }
+          await s.page.keyboard.type(voulu, { delay: 20 });
+          try {
+            await s.page.waitForFunction(([i, w, lire]) => new Function('i', lire)(i) === w,
+              [id, voulu, 'return (' + lireCase.toString() + ')(i);'], { timeout: 1500 });
+          } catch(e){}
+          lu = await s.page.evaluate(lireCase, id);
+          if(lu === voulu){ await s.page.waitForTimeout(120); return; }
+        }
+        dits.push('la case ' + id + ' lit « ' + lu + ' » au lieu de « ' + voulu + ' » après trois saisies');
       };
       /* « p » nomme le moteur lu : l'écran de la somme reste dans la page
          quand on passe au produit, et ses cases y gardent leurs valeurs. */
