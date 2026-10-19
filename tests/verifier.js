@@ -28422,10 +28422,22 @@ function clavierLitteral(w, P){
       if(!TESTS[id] || typeof TESTS[id].start!=='function'){ vus.push(id+' : aucun démarreur'); return; }
       currentTestId=id;
       try{ TESTS[id].start(); }catch(e){ vus.push(id+' : le démarrage lève « '+e.message+' »'); return; }
-      try{ paveBrancher(); }catch(e){}
       const scr=document.querySelector('section.screen.on'); if(!scr){ vus.push(id+' : aucun écran ouvert'); return; }
-      const ins=[].slice.call(scr.querySelectorAll('input[type="text"]'));
-      if(!ins.length){ vus.push(id+' : aucune case de texte sur l’écran'); return; }
+      /* TOUTES les pages de l'exercice : la première page du 7.8 est faite
+         de listes, ses cases de texte sont sur la seconde. Le rendu de la
+         page est la fonction render<Kind>Test / render<Kind>, retrouvée par
+         le kind de la séance ; on tourne les pages par test.idx. */
+      const k=String(test.kind||''), K=k.charAt(0).toUpperCase()+k.slice(1);
+      const rendu=window['render'+K+'Test']||window['render'+K];
+      const nb=Array.isArray(test.questions)?test.questions.length:1;
+      let ins=[];
+      for(let pg=0; pg<nb; pg++){
+        if(pg>0){ if(typeof rendu!=='function') break; test.idx=pg; test.locked=false; try{ rendu(); }catch(e){ vus.push(id+' : la page '+(pg+1)+' lève « '+e.message+' »'); break; } }
+        try{ paveBrancher(); }catch(e){}
+        ins=ins.concat([].slice.call(scr.querySelectorAll('input[type="text"]')));
+        if(ins.length) break;
+      }
+      if(!ins.length){ vus.push(id+' : aucune case de texte sur aucune page'); return; }
       ins.forEach(function(el){
         cases++;
         const m=el.getAttribute('inputmode');
