@@ -137,6 +137,21 @@ nouvelle ligne »).
   reçoit « x = … » en vert, et l'équation, si la ligne 1 est vide. Sous les
   lignes, la résolution entière s'écrit en vert.
 
+**Puis les x TAPÉS se sont écrits en italique arrondi** (demande de Turquet,
+octobre 2026 : « écrire les x en italique, pour avoir un caractère aux traits
+arrondis »). Dans le texte, le filet `italiquerX` les tenait déjà ; restaient
+les CASES — ce que l'élève tape, et les corrections que la page y écrit. Une
+case de saisie ne met pas une lettre dans une balise : c'est la police qui le
+fait. La police « ApfX » ne couvre que le caractère x (`unicode-range:
+U+0078`) et le prend dans `KaTeX_Math-Italic.woff2`, déjà chargée pour
+MathLive ; placée en tête de la pile des cases du 6.1.2, elle ne sert que le
+x — chiffres et signes restent en Nunito, et le curseur suit le vrai texte
+(rien n'est superposé à la case). Un piège pour le vérifier : le banc
+navigateur sert la bibliothèque `mathlive@0.110.0` depuis son cache, et
+TOUTES les fontes KaTeX y sont alors en échec — celle du texte comme
+celle-ci. Pour voir le rendu, il faut servir le fichier de la fonte à la page
+(`page.route`).
+
 ## {arbre-probabilites-bac} (6.1.3) : l'exercice de bac, la formule avant le calcul
 
 Demande de Turquet (octobre 2026), avec la « fiche 5 — probabilité bac »

@@ -338,3 +338,35 @@ paragraphe précédent, fusionné entre-temps, rend ce relèvement inutile : il
 a été retiré avant la fusion, et `controles.yml` est celui de main. Rejoué en local
 sous `--max-old-space-size=4096`, avec cet exercice (alors 8.2.13) : 938 contrôles passés, 2,6 Go
 de mémoire au plus haut.
+
+**Un contrôle qui TAPE au clavier attend que la case ait le focus, puis relit
+ce qu'elle contient** (octobre 2026). Le « 6 terdecies bis » du banc
+navigateur — la simplification par étapes de la Première, tapée dans les vraies
+cases MathLive — rougissait au hasard sur l'action : deux pull requests qui ne
+touchaient que la Terminale (#759, #763) ont vu une copie juste comptée fausse,
+puis verte à la relance. La cause s'est montrée en REPRODUISANT, jamais en
+relançant : avec le processeur de Chromium ralenti six fois
+(`Emulation.setCPUThrottlingRate`), une saisie sur quatre fautait — le « 3 »
+destiné à `spf-pn` tombait dans `spf-b2`, qui lisait « 23 ». L'assistant
+`tape` donnait le focus, attendait 60 ms et tapait : sous charge, MathLive met
+plus longtemps à prendre le focus, et les touches partaient encore dans la case
+précédente. Désormais il attend que la case AIT le focus (`activeElement`, ou
+`hasFocus()` d'un champ MathLive), relit sa valeur, retape une case vidée en cas
+d'écart, et NOMME l'écart s'il persiste après trois saisies. Mesuré : zéro faute
+sur six séances à ×6, puis six à ×12 ; l'attente du focus a suffi, aucune
+reprise n'a servi. Le jugement de la page reste mesuré à l'identique — seule
+la vitesse de la machine est sortie du contrôle.
+
+**Puis le clavier de la Terminale, dans la même veine — sans que le défaut se
+laisse reproduire, et c'est dit.** Le contrôle « les touches ≤ ≥ < > = du
+clavier à l'écran écrivent dans la ligne du {recurrence-redaction} » avait
+rougi une fois sur l'action (#756 : « touches trouvées : le lt gt eq », « ≥ »
+introuvable juste après « ≤ »), vert à la relance. Ralenti six puis seize fois,
+le processeur de Chromium n'a jamais fait fauter l'ancien assistant (treize
+séances) : la cause reste inconnue, et le correctif est DÉFENSIF, sans
+prétendre plus. `cliquerCap` cherchait la touche d'un seul coup d'œil, 140 ms
+après le clic d'avant ; il la cherche désormais jusqu'à 4 s, et une touche qui
+écrit n'est comptée qu'une fois son symbole arrivé dans la ligne aplatie. Une
+touche trouvée mais sans effet vaut `'muet'` et se nomme dans le message
+(« cliquées sans rien écrire : ge ») — distincte d'une touche absente, qui
+reste `false`. Le contrôle exige `=== true` pour chacune.
