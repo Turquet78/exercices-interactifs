@@ -185,6 +185,7 @@ pre)` — le juge du 6.1.2 sorti de ses identifiants. Les cases de l'arbre
 acceptent aussi le pourcentage de l'énoncé : « 5 % » vaut 0,05. Une copie
 faite des corrections de la page est parfaite (essayé dans Chromium, à
 1280 px et à 390 px).
+
 ## {proba-phrase-formule} (6.2.1) : comprendre une question — associer phrase et formule
 
 Demande de Turquet (octobre 2026), avec la « fiche 4 — Comprendre une
