@@ -229,6 +229,18 @@ en vert à côté (`mf-cor`), non choisi : la bonne écriture s'y écrit en vert
 Pour P(M) inconnue, la case est dans « On pose [……] = x ». Le choix de
 l'événement des premières branches, lui, reste en cartes : il ouvre l'arbre.
 
+**Puis la lettre de la première branche est devenue modifiable** (demande de
+Turquet, octobre 2026 : « il faut pouvoir changer la lettre sur la première
+branche si on le souhaite »). Le choix de l'événement n'est plus définitif au
+clic : il se change jusqu'à « Vérifier », dans tous les modes, et ne se juge
+qu'à ce moment-là — la carte choisie est seulement marquée (`apc-pris`). En
+soutien, il se juge en direct et se fige quand il est juste. L'arbre SUIT la
+lettre choisie : l'autre événement en tête, il est écrit dans l'autre sens,
+et l'élève voit qu'il ne peut pas y placer les données ; changer de lettre le
+redessine en gardant les nombres à leur place (`data-sens` sur la zone). Un
+arbre dans le mauvais sens n'a aucune case juste ; à la vérification, il
+reprend le bon sens, ses cases repartent vides et reçoivent la correction.
+
 ## {proba-phrase-formule} (6.1.4, d’abord 6.2.1) : comprendre une question — associer phrase et formule
 
 Demande de Turquet (octobre 2026), avec la « fiche 4 — Comprendre une
