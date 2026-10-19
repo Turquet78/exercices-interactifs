@@ -186,6 +186,20 @@ acceptent aussi le pourcentage de l'énoncé : « 5 % » vaut 0,05. Une copie
 faite des corrections de la page est parfaite (essayé dans Chromium, à
 1280 px et à 390 px).
 
+**Puis la question est devenue une phrase, et l'élève choisit l'ÉCRITURE,
+plus la formule** (demande de Turquet, octobre 2026 : « des énoncés sous forme
+de phrase, et l'élève doit simplement choisir la bonne écriture littérale,
+par exemple P(L), P(L ∩ M) ou P_M(L), avant de faire les calculs »). Les
+questions n'écrivent plus aucun P(…) : « Démontrer que la probabilité que le
+test soit positif est égale à 0,235 », « Déterminer la probabilité que la
+personne soit malade ». Les quatre cartes proposent l'écriture de la
+probabilité cherchée, avec les pièges de la fiche 4 : la conditionnelle
+retournée (P_M(T) pour P_T(M)), l'intersection pour la conditionnelle, la
+probabilité seule ; pour l'erreur, les deux intersections « croisées »
+contre les deux « droites ». La question où P(M) est inconnue se choisit
+P(M), puis s'ouvre comme avant sur « on pose P(M) = x ». Le reste ne change
+pas : le choix se juge au clic, compte une réponse, ouvre la ligne de calcul.
+
 ## {proba-phrase-formule} (6.1.4, d’abord 6.2.1) : comprendre une question — associer phrase et formule
 
 Demande de Turquet (octobre 2026), avec la « fiche 4 — Comprendre une
@@ -252,4 +266,4 @@ l'exercice de bac : il devient le **6.1.4**. La partie « Comprendre une
 question » (6.2), vidée, disparaît — une partie sans exercice afficherait un
 titre sur rien. Les numéros naissent de `THEMES` : rien d'autre à renuméroter,
 l'identifiant ne change pas, et les résultats déjà enregistrés le retrouvent.
-Terminale v401.
+Terminale v402.
