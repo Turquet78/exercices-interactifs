@@ -334,7 +334,13 @@ KaTeX_Math-Italic), la touche x du pavé doit porter un `<i>`, et sur la
 première case à × le banc TAPE « 2*3x4 » au clavier : 2×3x4 attendu là où x
 est offert, 2×3×4 ailleurs. Son bord opposé est le drapeau `casesCalculTexte`
 de `tests/profils.js` (Terminale : avec des frappes de « * » ; Seconde : des
-cases à x seulement ; la Première n'en a aucune, non applicable). Le
-gestionnaire n'existe qu'en Terminale : une case à × ajoutée demain en Seconde
-ou en Première rougira le contrôle jusqu'à ce qu'on l'y porte.
-Terminale v405, Seconde v569.
+cases à x seulement ; la Première n'en a aucune, non applicable).
+
+**Et le gestionnaire est entré dans le moteur du pavé**, que le banc principal
+exige identique aux trois niveaux (`MOTEUR_PAVE`, « le pavé numérique est
+identique à celui de la Terminale ») : c'est ce contrôle-là qui a rougi à la
+première exécution, `paveSup` ayant changé en Terminale et en Seconde avec deux
+commentaires différents, et pas du tout en Première. `paveSup` et
+`caseCalculEcrire` sont désormais les mêmes, octet pour octet, dans les trois
+pages : une case à × ajoutée demain en Seconde ou en Première écrit « × » sans
+rien porter. Terminale v405, Seconde v569, Première v330.

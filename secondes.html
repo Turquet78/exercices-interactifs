@@ -75892,13 +75892,38 @@ function paveSup(el){
   const s=document.getElementById('paveSup'); if(!s) return;
   const l=((el && el.getAttribute && el.getAttribute('data-pave-plus'))||'').split(' ').filter(function(t){ return t.length; });
   /* la touche de l'inconnue s'écrit comme l'inconnue : <i>x</i>, l'italique
-     arrondi (x et x²) — un x droit se lirait comme le signe × */
+     arrondi — un x droit à côté de la touche × se lirait comme elle */
   const h=l.map(function(t){
     return '<button type="button" class="pave-t pave-plus" data-t="'+t+'">'+t.replace(/^x/,'<i>x</i>')+'</button>'; }).join('');
   if(s.innerHTML!==h) s.innerHTML=h;
   const p=document.getElementById('paveNum');
   if(p) p.classList.toggle('pave-2r', l.length>0);
 }
+/* UNE CASE DE CALCUL EN TEXTE ÉCRIT « × » (demande de Turquet, octobre 2026 :
+   « pouvoir écrire une formule mathématique, avec un × pour le *, la lettre x
+   en italique pour l'inconnue »). Une case dont le pavé offre × est une case
+   de calcul : « * » tapé au clavier y devient « × » sous les doigts de
+   l'élève ; et si elle n'offre PAS la touche x — pas d'inconnue, « pas de
+   lettres » —, un x tapé est un signe de multiplication et s'écrit « × » lui
+   aussi (le juge le lisait déjà ainsi : « 0,4x0,9 », apfNorm). Là où x est
+   l'inconnue, il reste x, en italique par la police (« ApfX ») ; un X
+   majuscule s'y écrit x. Remplacer un caractère par un caractère garde le
+   curseur où il était. Gestionnaire en CAPTURE, sur le document : il passe
+   avant ceux de la case (sa2Ajuster, la correction en direct du soutien),
+   qui lisent donc déjà le ×, et un exercice ajouté demain est couvert sans
+   rien déclarer. */
+function caseCalculEcrire(el){
+  if(!el || el.tagName!=='INPUT' || !el.getAttribute) return;
+  const l=(el.getAttribute('data-pave-plus')||'').split(' ');
+  if(l.indexOf('×')<0) return;
+  const avecX=l.indexOf('x')>=0, v=String(el.value||'');
+  const w=avecX ? v.replace(/\*/g,'×').replace(/X/g,'x') : v.replace(/[*xX]/g,'×');
+  if(w===v) return;
+  const d=el.selectionStart, f=el.selectionEnd;
+  el.value=w;
+  try{ if(d!=null) el.setSelectionRange(d, f); }catch(e){}
+}
+document.addEventListener('input', function(e){ if(!e.isComposing) caseCalculEcrire(e.target); }, true);
 function paveInserer(el,t){
   if(el.tagName==='MATH-FIELD'){
     try{ el.executeCommand(t==='⌫' ? 'deleteBackward' : ['insert', t]); }catch(e){}
