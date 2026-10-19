@@ -355,4 +355,4 @@ première exécution, `paveSup` ayant changé en Terminale et en Seconde avec de
 commentaires différents, et pas du tout en Première. `paveSup` et
 `caseCalculEcrire` sont désormais les mêmes, octet pour octet, dans les trois
 pages : une case à × ajoutée demain en Seconde ou en Première écrit « × » sans
-rien porter. Terminale v405, Seconde v569, Première v330.
+rien porter. Terminale v406, Seconde v569, Première v330.
