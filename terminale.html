@@ -790,6 +790,16 @@
   .apc-pourquoi:empty{display:none}
   .apc-etape{margin:8px 0 4px}
   .apc-q{margin-top:10px}
+  .apc-slotw{position:relative;display:inline-block;vertical-align:middle}
+  .apc-slot{min-width:3.4em;min-height:36px;padding:2px 8px;border:2px solid #BBD0F7;border-radius:8px;background:#F3F7FF;font:inherit;font-size:1.15rem;color:var(--ink);cursor:pointer;white-space:nowrap}
+  .apc-slot:disabled{cursor:default;color:var(--ink)}
+  .apc-slot.ok{border-color:var(--blue);background:#EAF2FF}
+  .apc-slot.bad{border-color:var(--red);background:#FDECEE}
+  .apc-slot.sol{border-color:var(--green);background:#E8F7EF;color:var(--green)}
+  .apc-menu{position:absolute;left:0;top:100%;z-index:60;margin-top:4px;display:flex;flex-direction:column;gap:2px;padding:4px;min-width:100%;
+            background:#fff;border:1.5px solid var(--line);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.15)}
+  .apc-opt{border:none;background:none;padding:6px 12px;text-align:left;font:inherit;font-size:1.1rem;border-radius:6px;cursor:pointer;color:var(--ink);white-space:nowrap}
+  .apc-opt:hover,.apc-opt:focus{background:#EAF2FF;outline:none}
   /* {tcm-vrai-faux} (5.4.4) : l'affirmation, et la somme du 5.4.6, en BLOC
      centré sous la consigne — jamais dans un conteneur flex, où les indices
      nus retomberaient sur la ligne (docs/journal/11). La liste des
@@ -25468,6 +25478,7 @@ function apcCartesHTML(q, g){
     +'</div><p class="apc-pourquoi" id="apc-h-'+g+'"></p>';
 }
 function apcPeindre(q, g){
+  if(g!=='ev') return apcSlotPeindre(q, +g.slice(1));
   const box=$('apc-g-'+g); if(!box) return;
   const ch=q.ch[g], soutien=isSoutien(), fini=test.locked || (ch!==undefined && (ch===0 || !soutien));
   box.querySelectorAll('.apc-carte').forEach(function(el){
@@ -25482,6 +25493,46 @@ function apcPeindre(q, g){
   });
   const h=$('apc-h-'+g); if(h) h.innerHTML=(ch!==undefined && ch!==0) || (ch===undefined && test.locked) ? apcPourquoi(q,g) : '';
 }
+/* LA CASE ÉTROITE DEVANT LE « = » (demande de Turquet, octobre 2026 : « …… =
+   devant le champ du calcul, les …… une case étroite où l'on choisit la bonne
+   écriture littérale ; l'élève fait son calcul derrière le = »). Un bouton
+   qui ouvre un petit menu des quatre écritures — une liste <select> ne sait
+   pas écrire un indice ni une barre. Le choix est rangé dans q.ch (la pause le
+   garde) ; il se juge à « Vérifier » comme une case (en direct en soutien) :
+   juste en bleu, faux en rouge avec la bonne écriture en vert à côté, non
+   choisi : la bonne écriture s'y écrit en vert. Une réponse comptée
+   (pts-case), la correction d'à côté n'en est pas une. */
+function apcSlotHTML(i){ return '<span class="apc-slotw"><button type="button" class="apc-slot" id="apc-s'+i+'" aria-label="choisir l’écriture de la probabilité" onclick="apcMenu('+i+')"></button></span>'; }
+function apcSlotPeindre(q, i){
+  const el=$('apc-s'+i); if(!el) return;
+  const ch=q.ch['f'+i], F=apcFormules(q, q.subs[i]), soutien=isSoutien(), juge=test.locked || (soutien && ch!==undefined);
+  el.classList.remove('ok','bad','sol','pts-case');
+  const cor=el.parentNode.nextElementSibling; if(cor && cor.classList.contains('mf-cor')) cor.remove();
+  if(ch===undefined && test.locked){ el.innerHTML=F[0]; el.classList.add('pts-case','sol'); }
+  else el.innerHTML=ch===undefined ? '<span class="apf-pts">……</span>' : F[ch];
+  if(ch!==undefined && juge){
+    el.classList.add('pts-case', ch===0?'ok':'bad');
+    if(ch!==0 && test.locked) el.parentNode.insertAdjacentHTML('afterend','<span class="mf-cor">'+F[0]+'</span>');
+  }
+  el.disabled=!!(test.locked || (soutien && ch===0));
+  const h=$('apc-h-f'+i); if(h) h.innerHTML=((juge && ch!==undefined && ch!==0) || (ch===undefined && test.locked)) ? apcPourquoi(q,'f'+i) : '';
+}
+function apcFermerMenu(){ document.querySelectorAll('.apc-menu').forEach(function(m){ m.remove(); }); }
+function apcMenu(i){
+  const q=test.questions[test.idx], el=$('apc-s'+i); if(!q || !el || el.disabled || test.locked) return;
+  const ouvert=el.parentNode.querySelector('.apc-menu'); apcFermerMenu(); if(ouvert) return;
+  const F=apcFormules(q, q.subs[i]);
+  el.insertAdjacentHTML('afterend','<span class="apc-menu" role="listbox">'+q.perm[i].map(function(k){
+    return '<button type="button" class="apc-opt" role="option" onclick="apcPrendre('+i+','+k+')">'+F[k]+'</button>'; }).join('')+'</span>');
+  const o=el.parentNode.querySelector('.apc-opt'); if(o) o.focus();
+}
+function apcPrendre(i, k){
+  const q=test.questions[test.idx]; if(!q || test.locked) return;
+  q.ch['f'+i]=k; apcFermerMenu(); apcSlotPeindre(q, i);
+  const c=$('apc-c'+(i+1)); if(c && q.subs[i]!=='x') c.focus();
+}
+document.addEventListener('click', function(e){ if(!e.target.closest || !e.target.closest('.apc-slotw')) apcFermerMenu(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') apcFermerMenu(); });
 function apcArbreHTML(q){ return apfGrilleHTML('apc', function(e){ return apfEv(q,e); }, function(k){ return apcCaseHTML(q,k); }); }
 function apcLigneHTML(k){
   const c=s=>'<input class="sa2-in apf-eqin" id="apc-r'+k+s+'" type="text" autocomplete="off" spellcheck="false" inputmode="numeric" data-pave-plus="x ( ) + ×">';
@@ -25489,13 +25540,13 @@ function apcLigneHTML(k){
 }
 function apcSuiteHTML(q, i){
   const sub=q.subs[i], L=apcLignes(q, sub), P=e=>apfP(q,e);
-  const ligne=(l, xs, ph)=>'<div class="apf-row"><span class="apf-lab">'+l.lab+' =</span>'
-    +'<input class="sa2-in apf-calc" id="apc-c'+(i+1)+'" type="text" autocomplete="off" spellcheck="false" inputmode="numeric"'
-    +' data-pave-plus="'+(xs?'x ':'')+'+ × ( ) = ≈" placeholder="'+ph+'"></div>';
-  if(sub!=='x') return '<p class="apc-etape">Écris le calcul avec les nombres de l’arbre, puis le résultat :</p>'+ligne(L[0], false, 'calcul = résultat');
-  return '<p class="apc-etape">On pose '+P('A')+' = <i>x</i>, donc '+P('nA')+' = 1 − <i>x</i>. Exprime '+P('B')+' en fonction de <i>x</i>, puis réduis :</p>'
-    +ligne(L[0], true, 'calcul en x = forme réduite')
-    +'<p class="apc-etape">'+P('B')+' = '+apfNb(L[1].pb)+' : écris l’équation vérifiée par <i>x</i>, puis résous-la pour trouver '+P('A')+'.</p>'
+  const champ=(xs, ph)=>'<input class="sa2-in apf-calc" id="apc-c'+(i+1)+'" type="text" autocomplete="off" spellcheck="false" inputmode="numeric"'
+    +' data-pave-plus="'+(xs?'x ':'')+'+ × ( ) = ≈" placeholder="'+ph+'">';
+  const pq='<p class="apc-pourquoi" id="apc-h-f'+i+'"></p>';
+  if(sub!=='x') return '<div class="apf-row">'+apcSlotHTML(i)+'<span class="apf-lab">=</span>'+champ(false, 'calcul = résultat')+'</div>'+pq;
+  return '<p class="apc-etape">On pose '+apcSlotHTML(i)+' = <i>x</i>. Exprime '+P('B')+' en fonction de <i>x</i>, puis réduis :</p>'+pq
+    +'<div class="apf-row"><span class="apf-lab">'+L[0].lab+' =</span>'+champ(true, 'calcul en x = forme réduite')+'</div>'
+    +'<p class="apc-etape">'+P('B')+' = '+apfNb(L[1].pb)+' : écris l’équation vérifiée par <i>x</i>, puis résous-la.</p>'
     +'<div class="apf-resol" id="apcResol">'+Array.from({length:apcNLig(q)},function(u,k){ return apcLigneHTML(k+1); }).join('')+'</div>'
     +'<p class="apf-astuce">Une étape par ligne. La touche Entrée ajoute une ligne.</p>';
 }
@@ -25503,7 +25554,8 @@ function apcBrancherCase(el){ if(isSoutien()) el.addEventListener('input', funct
 /* ce qu'un choix ouvre : l'arbre (le choix de l'événement), ou les lignes de
    calcul de la question (le choix de la formule) — une seule fois */
 function apcReveler(q, g){
-  const zone=g==='ev' ? $('apcArbreSuite') : $('apcSuite'+g.slice(1));
+  const zone=g==='ev' ? $('apcArbreSuite') : null;
+  if(g!=='ev'){ apcSlotPeindre(q, +g.slice(1)); return; }
   if(!zone || zone.innerHTML) return;
   if(g==='ev'){
     zone.innerHTML='<p class="apf-cons"><b>b)</b> La page a écrit les probabilités sur l’arbre. Complète-le avec les données de l’énoncé et les probabilités contraires que l’on peut en déduire.</p>'
@@ -25511,8 +25563,7 @@ function apcReveler(q, g){
     APC_ARBRE.forEach(function(k){ const el=$(apcCaseId(k)); if(el){ sa2Ajuster(el); apcBrancherCase(el); } });
     apfSuivreTraits('apc');
   } else {
-    zone.innerHTML=apcSuiteHTML(q, +g.slice(1));
-    zone.querySelectorAll('input').forEach(apcBrancherCase);
+    apcSlotPeindre(q, +g.slice(1));
   }
 }
 function apcChoisir(g, k){
@@ -25564,13 +25615,13 @@ function renderAPC(){
   $('apcArbre').innerHTML='<p class="apf-cons"><b>1.</b> Représenter les données de l’énoncé à l’aide d’un arbre pondéré.</p>'
     +'<p class="apf-cons"><b>a)</b> Quel événement places-tu sur les premières branches, celles qui partent de Ω ?</p>'
     +apcCartesHTML(q,'ev')+'<div id="apcArbreSuite"></div>';
-  $('apcQuestions').innerHTML='<p class="apf-cons"><b>2.</b> Pour chaque question, choisis d’abord l’écriture de la probabilité cherchée, puis écris le calcul.</p>'
+  $('apcQuestions').innerHTML='<p class="apf-cons"><b>2.</b> Pour chaque question, choisis dans la case <span class="apf-pts">……</span> l’écriture de la probabilité cherchée, puis écris le calcul derrière le signe =.</p>'
     +q.subs.map(function(sub,i){
-      return '<div class="apc-q"><p class="apf-cons"><b>'+APF_LETTRE_Q.charAt(i)+')</b> '+apcQuestion(q,sub)+'</p>'
-        +'<p class="apc-etape">Quelle écriture correspond à cette probabilité ?</p>'+apcCartesHTML(q,'f'+i)+'<div id="apcSuite'+i+'"></div></div>';
+      return '<div class="apc-q"><p class="apf-cons"><b>'+APF_LETTRE_Q.charAt(i)+')</b> '+apcQuestion(q,sub)+'</p>'+apcSuiteHTML(q,i)+'</div>';
     }).join('')+apfJetonsHTML(q, q.subs.indexOf('x')>=0);
-  /* la reprise après une pause : les choix déjà faits se redessinent, et ce qu'ils avaient ouvert aussi */
-  apcGroupes(q).forEach(function(g){ apcPeindre(q,g); const ch=q.ch[g]; if(ch!==undefined && (ch===0 || !isSoutien())) apcReveler(q,g); });
+  $('apcQuestions').querySelectorAll('input').forEach(apcBrancherCase);
+  /* la reprise après une pause : les choix déjà faits se redessinent, et l'arbre qu'ouvrait le premier */
+  apcGroupes(q).forEach(function(g){ apcPeindre(q,g); const ch=q.ch[g]; if(g==='ev' && ch!==undefined && (ch===0 || !isSoutien())) apcReveler(q,g); });
 }
 /* Juge tout ce qui est à l'écran : les choix (q.ch) et les cases. */
 function apcJugerTout(q, live){
@@ -25610,13 +25661,14 @@ function checkAPC(live){
   const raisonsTxt=r=>r.length ? '<br>À revoir : '+r.filter(function(x,i){ return r.indexOf(x)===i; }).join(' ; ')+'.' : '';
   if(!J.allOk && isSoutien()){
     const manque=apcGroupes(q).some(function(g){ return q.ch[g]!==0; });
-    fb.innerHTML='Presque ! '+(manque?'Choisis la bonne proposition là où il en manque une, puis c':'C')+'orrige les cases en rouge, et revérifie.'+raisonsTxt(J.raisons);
+    apcGroupes(q).forEach(function(g){ if(g!=='ev') apcSlotPeindre(q, +g.slice(1)); });
+    fb.innerHTML='Presque ! '+(manque?'Choisis la bonne écriture là où il en manque une, puis c':'C')+'orrige les cases en rouge, et revérifie.'+raisonsTxt(J.raisons);
     fb.className='mp-feedback bad';
     $('apcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkAPC()">Revérifier</button>';
     return;
   }
   /* la question se clôt : tout ce qu'un choix n'avait pas ouvert s'ouvre, pour recevoir sa correction */
-  test.locked=true;
+  test.locked=true; apcFermerMenu();
   apcGroupes(q).forEach(function(g){ apcReveler(q,g); apcPeindre(q,g); });
   J=apcJugerTout(q, false);
   if(J.allOk){
