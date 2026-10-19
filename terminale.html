@@ -784,6 +784,7 @@
              border:2px solid #DCE7FB;border-radius:12px;font:inherit;font-size:1.08rem;color:var(--ink);cursor:pointer;text-align:center;line-height:1.35}
   .apc-carte:hover:not(:disabled){border-color:var(--blue)}
   .apc-carte:disabled{cursor:default;opacity:1;color:var(--ink)}
+  .apc-carte.apc-pris{border-color:var(--ink);border-width:2.5px;background:#F3F7FF}
   .apc-carte.ok{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.18)}
   .apc-carte.sol{border-color:var(--green);border-style:dashed;box-shadow:0 0 0 3px rgba(31,169,113,.18)}
   .apc-carte.bad{border-color:var(--red);box-shadow:0 0 0 3px rgba(214,69,80,.15)}
@@ -25462,7 +25463,7 @@ function apcIdsUniques(q){ return apcIds(q).filter(function(id){ return !/^apc-r
 function apcLigneDe(q, id){ const i=+id.slice(5)-1; return apcLignes(q, q.subs[i])[0]; }
 function apcResolDe(q){ const i=q.subs.indexOf('x'); return i<0 ? null : apcLignes(q,'x')[1]; }
 function apcJuger(q, id, raw){
-  if(/^apc-t-/.test(id)) return {ok:apcJugeCase(q, id.slice(6).replace('-','.'), raw)};
+  if(/^apc-t-/.test(id)) return {ok:q.ch.ev===0 && apcJugeCase(q, id.slice(6).replace('-','.'), raw)};   /* un arbre écrit dans le mauvais sens n'a aucune case juste */
   const l=apcLigneDe(q, id);
   return l.t==='demo' ? apfJugeDemo(raw,l) : apfJugeChaine(raw,l);
 }
@@ -25484,18 +25485,23 @@ function apcCartesHTML(q, g){
 function apcPeindre(q, g){
   if(g!=='ev') return apcSlotPeindre(q, +g.slice(1));
   const box=$('apc-g-'+g); if(!box) return;
-  const ch=q.ch[g], soutien=isSoutien(), fini=test.locked || (ch!==undefined && (ch===0 || !soutien));
+  /* LA LETTRE DE LA PREMIÈRE BRANCHE SE CHANGE (demande de Turquet, octobre
+     2026 : « il faut pouvoir changer la lettre sur la première branche si on
+     le souhaite ») : le choix reste ouvert jusqu'à « Vérifier », dans tous
+     les modes, et ne se juge qu'à ce moment-là (en direct en soutien, où un
+     choix juste se fige). Avant, la carte choisie est seulement marquée. */
+  const ch=q.ch[g], soutien=isSoutien(), juge=test.locked || soutien, fini=test.locked || (soutien && ch===0);
   box.querySelectorAll('.apc-carte').forEach(function(el){
     const k=+el.getAttribute('data-k');
-    el.classList.remove('ok','bad','sol','pts-case','hors-note');
+    el.classList.remove('ok','bad','sol','pts-case','hors-note','apc-pris');
     /* une seule réponse comptée par choix : la carte choisie ; la bonne,
        montrée à côté d'un mauvais choix, est une correction hors note */
-    if(ch===k) el.classList.add('pts-case', k===0?'ok':'bad');
-    else if(k===0 && ch!==undefined && !soutien) el.classList.add('sol','hors-note');
+    if(ch===k) el.classList.add.apply(el.classList, juge ? ['pts-case', k===0?'ok':'bad'] : ['apc-pris']);
+    else if(k===0 && ch!==undefined && test.locked) el.classList.add('sol','hors-note');
     else if(k===0 && ch===undefined && test.locked) el.classList.add('pts-case','sol');
     el.disabled=fini;
   });
-  const h=$('apc-h-'+g); if(h) h.innerHTML=(ch!==undefined && ch!==0) || (ch===undefined && test.locked) ? apcPourquoi(q,g) : '';
+  const h=$('apc-h-'+g); if(h) h.innerHTML=(juge && ch!==undefined && ch!==0) || (ch===undefined && test.locked) ? apcPourquoi(q,g) : '';
 }
 /* LA CASE ÉTROITE DEVANT LE « = » (demande de Turquet, octobre 2026 : « …… =
    devant le champ du calcul, les …… une case étroite où l'on choisit la bonne
@@ -25560,11 +25566,22 @@ function apcBrancherCase(el){ if(isSoutien()) el.addEventListener('input', funct
 function apcReveler(q, g){
   const zone=g==='ev' ? $('apcArbreSuite') : null;
   if(g!=='ev'){ apcSlotPeindre(q, +g.slice(1)); return; }
-  if(!zone || zone.innerHTML) return;
+  if(!zone) return;
+  /* l'arbre suit la lettre choisie : l'autre événement en tête, l'arbre est
+     écrit dans l'autre sens — l'élève voit qu'il ne peut pas y placer les
+     données. Changer de lettre redessine l'arbre en gardant les nombres à
+     leur place ; à la vérification, il reprend le bon sens (et un arbre fait
+     dans le mauvais sens repart de cases vides, qui reçoivent la correction). */
+  const sens=(q.ch.ev===1 && !test.locked) ? '1' : '0';
+  if(zone.innerHTML && zone.getAttribute('data-sens')===sens) return;
   if(g==='ev'){
+    const garde={}; if(!(test.locked && zone.getAttribute('data-sens')==='1'))
+      APC_ARBRE.forEach(function(k){ const el=$(apcCaseId(k)); if(el && el.value) garde[k]=el.value; });
+    const vue=sens==='1' ? Object.assign({}, q, {lettres:[q.lettres[1], q.lettres[0]]}) : q;
+    zone.setAttribute('data-sens', sens);
     zone.innerHTML='<p class="apf-cons"><b>b)</b> La page a écrit les probabilités sur l’arbre. Complète-le avec les données de l’énoncé et les probabilités contraires que l’on peut en déduire.</p>'
-      +apcArbreHTML(q);
-    APC_ARBRE.forEach(function(k){ const el=$(apcCaseId(k)); if(el){ sa2Ajuster(el); apcBrancherCase(el); } });
+      +apcArbreHTML(vue);
+    APC_ARBRE.forEach(function(k){ const el=$(apcCaseId(k)); if(el){ if(garde[k]) el.value=garde[k]; sa2Ajuster(el); apcBrancherCase(el); } });
     apfSuivreTraits('apc');
   } else {
     apcSlotPeindre(q, +g.slice(1));
@@ -25572,11 +25589,11 @@ function apcReveler(q, g){
 }
 function apcChoisir(g, k){
   const q=test.questions[test.idx]; if(!q || test.locked) return;
-  const ch=q.ch[g];
-  if(ch!==undefined && (ch===0 || !isSoutien())) return;   /* un choix juste, ou fait hors soutien, est définitif */
+  if(isSoutien() && q.ch[g]===0) return;   /* en soutien, un choix juste se fige ; ailleurs, il se change jusqu'à « Vérifier » */
   q.ch[g]=k;
   apcPeindre(q, g);
-  if(k===0 || !isSoutien()) apcReveler(q, g);
+  apcReveler(q, g);
+  if(isSoutien()) checkAPC(true);
 }
 function apcAjouterLigne(){
   const q=test.questions[test.idx], b=$('apcResol'); if(!b || test.locked) return null;
@@ -25625,7 +25642,7 @@ function renderAPC(){
     }).join('')+apfJetonsHTML(q, q.subs.indexOf('x')>=0);
   $('apcQuestions').querySelectorAll('input').forEach(apcBrancherCase);
   /* la reprise après une pause : les choix déjà faits se redessinent, et l'arbre qu'ouvrait le premier */
-  apcGroupes(q).forEach(function(g){ apcPeindre(q,g); const ch=q.ch[g]; if(g==='ev' && ch!==undefined && (ch===0 || !isSoutien())) apcReveler(q,g); });
+  apcGroupes(q).forEach(function(g){ apcPeindre(q,g); const ch=q.ch[g]; if(g==='ev' && ch!==undefined) apcReveler(q,g); });
 }
 /* Juge tout ce qui est à l'écran : les choix (q.ch) et les cases. */
 function apcJugerTout(q, live){
