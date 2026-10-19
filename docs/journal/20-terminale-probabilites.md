@@ -112,3 +112,27 @@ situations : une copie faite des corrections est parfaite.
 ≈, et x là où l'on calcule en fonction de x — que le pavé des tablettes pose
 sur sa seconde rangée ; et une rangée de jetons sous les calculs sert
 l'ordinateur, dont le clavier n'a ni ×, ni ÷, ni ≈.
+
+**Puis la barre des contraires est montée, et la résolution s'est écrite ligne
+par ligne** (demande de Turquet, octobre 2026 : « les barres au-dessus des
+lettres un peu plus haut ; quand on doit résoudre une équation pour trouver x,
+des champs de la forme … = … par ligne, avec deux lignes ; Entrée crée une
+nouvelle ligne »).
+- La barre de `i.apb-nb` n'est plus un `text-decoration: overline`, que le
+  navigateur colle au ras de la lettre : c'est un trait (`::before`) posé en
+  haut d'une boîte `inline-block` rembourrée de 0,3 em — la recette de
+  `i.pb-bar` en Première. Le 6.1.1 en profite aussi.
+- Aux situations 4 et 5, « Équation : [ … ] » et « P(A) = x = [ … ] » sont
+  devenus UN bloc de résolution (`t:'resol'`) : chaque ligne est
+  « [ … ] = [ … ] », deux lignes au départ ; Entrée dans la case de gauche
+  passe à droite, dans celle de droite passe à la ligne suivante — créée si
+  c'est la dernière (le gestionnaire est en capture et arrête la touche :
+  `navCases` l'aurait envoyée au bouton Vérifier). Le nombre de lignes est
+  rangé dans la question (`q.nLig`), pour la reprise après une pause.
+- Le juge du bloc (`apfJugeResol`) : chaque ligne remplie est une équation
+  ÉQUIVALENTE à celle de l'énoncé — linéaire, même solution —, la dernière
+  donne « x = nombre », et il en faut deux au moins (l'équation, puis sa
+  solution : « x = 0,2 » seul ne démontre rien). Une ligne laissée vide n'est
+  pas une faute ; il manque la conclusion ? la première ligne vide qui suit
+  reçoit « x = … » en vert, et l'équation, si la ligne 1 est vide. Sous les
+  lignes, la résolution entière s'écrit en vert.
