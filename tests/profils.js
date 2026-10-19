@@ -923,6 +923,18 @@ module.exports = {
        lève), et le PAVÉ des tablettes, qui doit porter les six mêmes symboles
        sur une seconde rangée — data-pave-plus. */
     ecrireSolutions: { exercice: 'ecrire-solutions', touches: ['[', ']', ';', 'U', '{', '}'] },
+    /* Thème 7 (calcul littéral) : les cases de TEXTE où l'élève écrit une
+       expression sont confiées au pavé des tablettes (inputmode="numeric") et
+       lui demandent en plus x, ², + et les parenthèses — data-pave-plus, une
+       seule liste (LIT_TOUCHES). Demande de Turquet, octobre 2026 : « le
+       clavier virtuel pour les tablettes ou téléphones adapté à l'exercice ».
+       Chaque exercice nommé est lancé, et TOUTES ses cases de texte doivent
+       porter le même clavier : une case oubliée rendrait le clavier du
+       système, sans x². */
+    clavierLitteral: { touches: ['x', '²', '+', '(', ')'],
+      exercices: ['reduire-somme', 'reduire-produit', 'developper-distributivite', 'developper-distributivite-nu',
+                  'developper-double', 'developper-double-nu', 'developper-signe-moins', 'developper-signe-moins-nu',
+                  'developper-reduire', 'vrai-faux-calcul'] },
     /* {placer-image} : le point se POSE au clic sur le graphe d’{image-nombre} — le
        calcul clic → nœud ne se voit que dans un vrai navigateur. */
     placerImage: { exercice: 'placer-image' },

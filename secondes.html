@@ -59258,6 +59258,31 @@ function ctxSrl(q){
   return {nombre:'', contexte:c};
 }
 
+/* ===== LE CLAVIER DES TABLETTES POUR LE CALCUL LITTÉRAL (thème 7) ============
+   Demande de Turquet (octobre 2026) : « en Seconde, dans le thème calcul
+   littéral, je veux que le clavier virtuel pour les tablettes ou téléphones
+   soit adapté à l'exercice : la lettre x, la touche puissance 2, les touches
+   + et −, peut-être des parenthèses ».
+   Les cases de ces exercices sont des <input> de TEXTE (une expression :
+   « 5x », « −x² + 3 », « (−2) ») : sur tablette elles ouvraient le clavier du
+   SYSTÈME — un clavier de lettres, où x² est introuvable et où les chiffres
+   se cachent derrière une touche. Le pavé des tablettes (paveBrancher) ne
+   s'attache qu'aux cases DÉCLARÉES numériques (inputmode="numeric") et porte
+   déjà les chiffres, la virgule, le −, ⌫, ⏎ et les flèches ; une case qui
+   attend AUTRE CHOSE nomme ses touches dans data-pave-plus, et le pavé les
+   pose sur une SECONDE rangée (le mécanisme du 5.6 {ecrire-solutions}, qui
+   y met ses crochets et son U). Ici : x, ², +, ( et ). Le − est déjà sur
+   le pavé ; les parenthèses servent aux facteurs négatifs des bulles de la
+   distributivité, « (−2) », que dvlLit() accepte. Le ² s'insère tel quel :
+   tous les lecteurs du thème (redLit, dvlLit…) lisent « x² » comme « x^2 ».
+   UNE SEULE LISTE pour les huit sortes de cases (7.5, 7.8, 7.9 à 7.11,
+   7.12, 7.14 à 7.17), lue par litPave() et comparée à tests/profils.js :
+   deux cases du même thème n'auront jamais deux claviers. Sur ordinateur,
+   rien ne change : inputmode n'a d'effet que sur un écran tactile, et le
+   clavier physique écrit toujours x^2 ou x**2. */
+const LIT_TOUCHES=['x','²','+','(',')'];
+function litPave(){ return ' inputmode="numeric" data-pave-plus="'+LIT_TOUCHES.join(' ')+'"'; }
+
 /* ===== EXERCICE : RÉDUIRE CHAQUE PRODUIT AVEC x ==============================
    (identifiant « reduire-produit », kind « rpd », thème 7.8 — Calcul littéral)
    Demandé par Turquet en septembre 2026, d'après une fiche papier « Réduire
@@ -59395,7 +59420,7 @@ function renderRpdTest(){
         +'</div></div>';
     } else {
       h+='<div class="red-l"><span class="red-expr">'+l.lettre+'. '+l.exprH+' =</span>'
-        +'<input class="red-in" id="rpd-r-'+l.i+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="le résultat réduit de '+esc(l.expr)+'">'
+        +'<input class="red-in" id="rpd-r-'+l.i+'" type="text"'+litPave()+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="le résultat réduit de '+esc(l.expr)+'">'
         +'<button class="btn btn-ghost red-sq" type="button" tabindex="-1" onclick="redCarre(\'rpd-r-'+l.i+'\')" aria-label="écrire x au carré"><i>x</i>²</button>'
         +'</div>';
     }
@@ -59736,7 +59761,7 @@ function dvlSchema(q, pre, vals, nu){
     : function(coul, id, contenu){ return '<span class="dvl-bul dvl-'+coul+'" id="'+id+'">'+contenu+'</span>'; };
   const casee=function(id, cls, aria){
     if(vals) return '<span class="dvl-val">'+(vals[id]||'')+'</span>';
-    return '<input class="dvl-in '+cls+'" id="'+id+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+aria+'">';
+    return '<input class="dvl-in '+cls+'" id="'+id+'" type="text"'+litPave()+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+aria+'">';
   };
   /* ① l'expression de départ, ses bulles et ses flèches — nu : d'un trait,
      dans un <span> en ligne (posé nu dans le flex, le texte rognerait
@@ -60113,7 +60138,7 @@ function dvdSchema(q, pre, vals, nu){
     : function(coul, id, contenu){ return '<span class="dvl-bul dvl-'+coul+'" id="'+id+'">'+contenu+'</span>'; };
   const casee=function(id, cls, aria){
     if(vals) return '<span class="dvl-val">'+(vals[id]||'')+'</span>';
-    return '<input class="dvl-in '+cls+'" id="'+id+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+aria+'">';
+    return '<input class="dvl-in '+cls+'" id="'+id+'" type="text"'+litPave()+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+aria+'">';
   };
   /* ① l'expression de départ : quatre bulles, deux flèches par-dessus (du
      rouge), deux par-dessous (du noir) */
@@ -60464,7 +60489,7 @@ function vflLigneHTML(l){
     +itvSelHTML('vfl-'+l.i, TVF_OPT_VF, 'l’égalité '+l.g+' = '+l.d+' est-elle vraie ou fausse ?', 'vf vfl-sel')
     +'<span class="vfl-cor"><span class="vfl-lbl">Correction&nbsp;:</span>'
     +'<span class="red-expr">'+vflH(l.g)+' =</span>'
-    +'<input class="red-in vfl-in" id="vfl-c-'+l.i+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="la correction de '+esc(l.g)+'">'
+    +'<input class="red-in vfl-in" id="vfl-c-'+l.i+'" type="text"'+litPave()+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="la correction de '+esc(l.g)+'">'
     +'<button class="btn btn-ghost red-sq" type="button" tabindex="-1" onclick="redCarre(\'vfl-c-'+l.i+'\')" aria-label="écrire x au carré"><i>x</i>²</button></span>'
     +'<span class="vfh-pq" id="vfl-pq-'+l.i+'"></span></div>';
 }
@@ -60657,7 +60682,7 @@ function dvrRangee(q, vals){
   const L=dvrLignes(q);
   const casee=function(id, k, aria){
     if(vals) return '<span class="dvl-val">'+vals[k]+'</span>';
-    return '<input class="dvl-in dvl-t" id="'+id+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+aria+'">';
+    return '<input class="dvl-in dvl-t" id="'+id+'" type="text"'+litPave()+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+aria+'">';
   };
   let dev='', red='';
   L.dev.forEach(function(t,i){ dev+=casee('dvr-t-'+i, i, 'terme développé '+(i+1)+(i>0?', avec son signe':'')); });
@@ -60893,7 +60918,7 @@ function dvsSchema(q, pre, vals){
   const nom='<span class="dvl-nom">'+L.nom+' =</span>';
   const casee=function(id, aria){
     if(vals) return '<span class="dvl-val">'+(vals[id]||'')+'</span>';
-    return '<input class="dvl-in dvl-t" id="'+id+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+aria+'">';
+    return '<input class="dvl-in dvl-t" id="'+id+'" type="text"'+litPave()+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+aria+'">';
   };
   const par=function(p){ return '('+dvlEcrit(p.a,true,false)+' '+(p.b.c<0?'−':'+')+' '+redEcrit([{c:Math.abs(p.b.c), d:p.b.d}],true)+')'; };
   let e=L.seul ? dvlEcrit(L.seul,true,false)+' ' : '';
@@ -60923,7 +60948,7 @@ function dvmSchema(q, pre, vals){
   const bulle=function(coul, id, contenu){ return '<span class="dvl-bul dvl-'+coul+'" id="'+id+'">'+contenu+'</span>'; };
   const casee=function(id, cls, aria){
     if(vals) return '<span class="dvl-val">'+(vals[id]||'')+'</span>';
-    return '<input class="dvl-in '+cls+'" id="'+id+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+aria+'">';
+    return '<input class="dvl-in '+cls+'" id="'+id+'" type="text"'+litPave()+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+aria+'">';
   };
   const seul=L.seul ? '<span class="dvl-res dvm-seul">'+dvlEcrit(L.seul,true,false)+'</span>' : '';
   /* ① l'expression de départ : le « − » est une bulle rouge, les flèches en partent */
@@ -74051,7 +74076,7 @@ function renderRedTest(){
     +'<div class="red-lignes">';
   redLignes(q).forEach(function(l){
     h+='<div class="red-l"><span class="red-expr">'+l.exprH+' =</span>'
-      +'<input class="red-in" id="red-r-'+l.i+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="la forme réduite de '+esc(l.expr)+'">'
+      +'<input class="red-in" id="red-r-'+l.i+'" type="text"'+litPave()+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="la forme réduite de '+esc(l.expr)+'">'
       +'<button class="btn btn-ghost red-sq" type="button" tabindex="-1" onclick="redCarre(\'red-r-'+l.i+'\')" aria-label="écrire x au carré"><i>x</i>²</button>'
       +'</div>';
   });
