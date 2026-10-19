@@ -200,6 +200,20 @@ contre les deux « droites ». La question où P(M) est inconnue se choisit
 P(M), puis s'ouvre comme avant sur « on pose P(M) = x ». Le reste ne change
 pas : le choix se juge au clic, compte une réponse, ouvre la ligne de calcul.
 
+**Puis l'écriture s'est choisie DANS la ligne de calcul, devant le « = »**
+(demande de Turquet, octobre 2026 : « que l'on écrive simplement …… = devant
+le champ du calcul, les …… représentant une case étroite où l'on choisit la
+bonne écriture littérale ; l'élève fait son calcul dans le champ derrière le
+= »). Les quatre cartes ont disparu : la ligne est « [……] = [calcul] », et la
+case étroite ouvre un petit menu des quatre écritures. Ce n'est pas une
+liste `<select>` : une option de liste n'écrit ni indice ni barre, et P_T(M)
+s'y lirait « P_T(M) ». La ligne de calcul est ouverte d'emblée (plus rien ne
+la cache derrière le choix) ; le choix se juge à « Vérifier » comme une case
+— en direct en soutien —, juste en bleu, faux en rouge avec la bonne écriture
+en vert à côté (`mf-cor`), non choisi : la bonne écriture s'y écrit en vert.
+Pour P(M) inconnue, la case est dans « On pose [……] = x ». Le choix de
+l'événement des premières branches, lui, reste en cartes : il ouvre l'arbre.
+
 ## {proba-phrase-formule} (6.2.1) : comprendre une question — associer phrase et formule
 
 Demande de Turquet (octobre 2026), avec la « fiche 4 — Comprendre une
