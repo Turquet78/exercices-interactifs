@@ -3609,7 +3609,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=400;
+const APP_VERSION=401;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3848,7 +3848,7 @@ const TESTS={
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
   'arbre-probabilites-fiche': { name:'Probabilités \u2014 arbre : les cinq situations de la fiche', icon:'\ud83c\udf32', desc:'Seulement des probabilités, et l\u2019arbre de la fiche : complète-le avec les données et leurs contraires, puis écris chaque calcul en détaillant les étapes \u2014 intersections, P(B), probabilités conditionnelles, et P(B) en fonction de x.', start:()=>startAPF() },
-  'arbre-probabilites-bac': { name:'Probabilités \u2014 arbre : un exercice de bac', icon:'\ud83e\uddea', desc:'Un énoncé en phrases, comme au bac : choisis l\u2019événement des premières branches, complète l\u2019arbre, puis, pour chaque question, choisis la bonne formule avant d\u2019écrire le calcul \u2014 jusqu\u2019à poser P(A) = x et résoudre l\u2019équation.', start:()=>startAPC() },
+  'arbre-probabilites-bac': { name:'Probabilités \u2014 arbre : un exercice de bac', icon:'\ud83e\uddea', desc:'Un énoncé en phrases, comme au bac : choisis l\u2019événement des premières branches, complète l\u2019arbre, puis, pour chaque question posée en phrase, choisis la bonne écriture \u2014 P(A), P(A \u2229 B) ou P_A(B)\u2026 \u2014 avant d\u2019écrire le calcul \u2014 jusqu\u2019à poser P(A) = x et résoudre l\u2019équation.', start:()=>startAPC() },
   'suite-limite-puissance': { name:'Suites \u2014 limite de q\u207f', icon:'\u221e', desc:'La fiche \u00ab limite q\u207f \u00bb\u00a0: pour chaque suite, d\u00e9termine sa limite en justifiant \u2014 \u00ab lim U\u2099 = \u2026 car \u2026 \u00bb, o\u00f9 l\u2019on choisit comment est la base de la puissance (2 > 1, ou \u22121 < 0,5 < 1). Huit suites, de q\u207f seul aux quotients et aux produits de puissances.', start:()=>startLQN() },
   'suite-algo-seuil': { name:'Suites \u2014 tableau de valeurs et algorithme Python', icon:'\ud83d\udd01', desc:'Une suite (U\u2099) d\u00e9finie par r\u00e9currence, toujours monotone et convergente\u00a0: a) \u00e0 l\u2019aide d\u2019un tableau de valeurs que l\u2019on peut faire d\u00e9filer au-del\u00e0 du rang 10, conjecture ses variations et sa limite\u00a0; b) compl\u00e8te l\u2019algorithme Python (une boucle while) pour qu\u2019il renvoie le rang du premier terme franchissant un seuil\u00a0; c) retrouve ce rang dans le tableau.', start:()=>startSAG() },
   'suite-synthese-variations': { name:'Suites \u2014 synth\u00e8se sur les variations', icon:'\ud83e\udde9', desc:'La fiche \u00ab Synth\u00e8se sur variations de suites \u00bb en entier, sur une suite U\u2099\u208a\u2081 = f\u2009(U\u2099) dont f est un QUOTIENT\u00a0: a) les premiers termes \u00e0 la calculatrice, b) le trac\u00e9 en escalier, c) la conjecture, d) les variations de f, e) la r\u00e9currence qui d\u00e9montre l\u2019encadrement, f) U\u2099\u208a\u2081 \u2212 U\u2099 mis sur un d\u00e9nominateur commun et le signe du quotient, g) les variations de la suite, h) le th\u00e9or\u00e8me de convergence monotone, i) la limite par produit en croix \u2014 une \u00e9quation du second degr\u00e9, deux solutions, et il faut choisir. Le trac\u00e9 et la r\u00e9currence viennent de {suite-variation-recurrence}, le th\u00e9or\u00e8me et le passage \u00e0 la limite de {suite-tcm-limite}.', start:()=>startSSV() },
@@ -19957,7 +19957,7 @@ const RAP_APF=RAP_APB+`<br>
 const RAP_APC=RAP_APF+`<br>
 • <b>Le premier niveau de l’arbre</b> : on y place l’événement dont dépendent les probabilités conditionnelles de l’énoncé. « La probabilité que le test soit positif sachant que la personne est malade » est <i>P</i><sub><i>M</i></sub>(<i>T</i>) : <i>M</i> part de Ω, <i>T</i> vient au second niveau.<br>
 • <b>Un pourcentage est une probabilité</b> : « 5 % des Français » donne <i>P</i>(<i>M</i>) = 0,05.<br>
-• <b>Choisir la formule avant de calculer</b> : une intersection se lit sur un chemin (on multiplie) ; une probabilité « totale » additionne les chemins qui y mènent ; « sachant que <i>T</i> » au lieu de « sachant que <i>M</i> » se calcule en divisant l’intersection par <i>P</i>(<i>T</i>). Un résultat « erroné » rassemble les chemins où les deux événements ne vont pas ensemble : <i>P</i>(<i>M</i> ∩ <i class="apb-nb">T</i>) + <i>P</i>(<i class="apb-nb">M</i> ∩ <i>T</i>).<br>
+• <b>Écrire la probabilité avant de calculer</b> : ce que l’on SAIT (« sachant que <i>T</i> ») se met en indice — <i>P</i><sub><i>T</i></sub>(<i>M</i>) ; « et », sans condition, c’est une intersection — <i>P</i>(<i>M</i> ∩ <i>T</i>) ; aucune condition, c’est <i>P</i>(<i>T</i>). Puis le calcul : une intersection se lit sur un chemin (on multiplie) ; une probabilité « totale » additionne les chemins qui y mènent ; « sachant que <i>T</i> » au lieu de « sachant que <i>M</i> » se calcule en divisant l’intersection par <i>P</i>(<i>T</i>). Un résultat « erroné » rassemble les chemins où les deux événements ne vont pas ensemble : <i>P</i>(<i>M</i> ∩ <i class="apb-nb">T</i>) + <i>P</i>(<i class="apb-nb">M</i> ∩ <i>T</i>).<br>
 • <b>Quand <i>P</i>(<i>M</i>) est inconnue</b> : on pose <i>P</i>(<i>M</i>) = <i>x</i>, on exprime <i>P</i>(<i>T</i>) en fonction de <i>x</i>, puis on résout l’équation que donne la valeur connue de <i>P</i>(<i>T</i>).`;
 const RAP_CQP=`<b>Comprendre une question en probabilité</b><br>
 • <b>Ce que l’on SAIT, en indice</b> : « sachant que l’individu est malade », « parmi les malades », « on choisit un malade », « quand on est malade », « l’individu choisi est malade : quelle est sa probabilité… » — on ne regarde plus que les malades. C’est une probabilité <b>conditionnelle</b> : <i>P</i><sub><i>M</i></sub>(<i>T</i>), la condition en indice, ce que l’on cherche entre les parenthèses.<br>
@@ -25381,45 +25381,48 @@ function apcLignes(q, sub){
           {t:'resol', lab:'Résolution', labT:'résolution de l’équation', a:k, b:c, pb:pb, sol:x0,
            etapes:[[apfLin(k,c), apfNb(pb)], [apfLin(k,0), apfNb(+(pb-c).toFixed(6))], ['x', apfNb(x0)]]}];
 }
+/* LA QUESTION EST UNE PHRASE (demande de Turquet, octobre 2026 : « des
+   énoncés sous forme de phrase, et l'élève doit simplement choisir la bonne
+   écriture littérale, P(L), P(L ∩ M) ou P_M(L), avant de faire les
+   calculs ») : aucune écriture P(…) dans la question — c'est l'élève qui la
+   trouve. */
 function apcQuestion(q, sub){
-  const C=APC_CTX[q.c], P=e=>apfP(q,e), V=apcV(q);
-  if(sub==='B') return 'Démontrer que '+P('B')+' = '+apfNb(APF_D(V.B))+'. (On écrira les formules !)';
+  const C=APC_CTX[q.c], V=apcV(q);
+  if(sub==='B') return 'Démontrer que la probabilité '+apcQue(C.s.B)+' est égale à '+apfNb(APF_D(V.B))+'.';
   if(sub==='BA') return 'Quelle est la probabilité '+apcQue(C.s.A)+' sachant '+apcQue(C.i.B)+' ? (Arrondir à 0,01 près.)';
   if(sub==='nBnA') return 'Quelle est la probabilité '+apcQue(C.s.nA)+' sachant '+apcQue(C.i.nB)+' ? (Arrondir à 0,01 près.)';
   if(sub==='err') return 'Quelle est la probabilité '+apcQue(C.err)+' ?';
-  return 'On reprend la même situation, mais '+P('A')+' est désormais inconnue : les probabilités conditionnelles de l’énoncé ne changent pas, et l’on sait que '
-    +P('B')+' = '+apfNb(APF_D(q.bx))+'. Déterminer '+P('A')+'.';
+  return 'On reprend la même situation, mais on ne connaît plus la probabilité '+apcQue(C.s.A)+' : les probabilités conditionnelles de l’énoncé ne changent pas, '
+    +'et la probabilité '+apcQue(C.s.B)+' vaut maintenant '+apfNb(APF_D(q.bx))+'. Déterminer la probabilité '+apcQue(C.s.A)+'.';
 }
 /* « que » devant une voyelle s'élide : « sachant qu’il pleut » */
 function apcQue(t){ return (/^[aeiouyéèêàâîôûh]/i.test(t) ? 'qu’' : 'que ')+t; }
 function apcFr(n,d){ return '<span class="apc-fr"><span>'+n+'</span><span>'+d+'</span></span>'; }
-/* les quatre formules proposées ; la première est la bonne (q.perm les mélange) */
+/* les quatre écritures littérales proposées ; la première est la bonne
+   (q.perm les mélange). Les pièges sont les confusions de la fiche 4 : la
+   conditionnelle retournée (P_A(B) pour P_B(A)), l'intersection pour la
+   conditionnelle, la probabilité seule. */
 function apcFormules(q, sub){
-  const P=e=>apfP(q,e), Pc=(c,e)=>apfPc(q,c,e), Pi=(e,f)=>apfPi(q,e,f), X='<i>x</i>';
-  const poser='On pose '+P('A')+' = '+X+' et on exprime '+P('B')+' en fonction de '+X;
-  if(sub==='B') return [P('B')+' = '+P('A')+' × '+Pc('A','B')+' + '+P('nA')+' × '+Pc('nA','B'),
-    P('B')+' = '+Pc('A','B')+' + '+Pc('nA','B'), P('B')+' = '+P('A')+' × '+Pc('A','B'), poser];
-  if(sub==='BA') return [Pc('B','A')+' = '+apcFr(Pi('A','B'),P('B')), Pc('B','A')+' = '+apcFr(Pi('A','B'),P('A')),
-    Pc('B','A')+' = '+Pc('A','B'), Pc('B','A')+' = '+apcFr(P('B'),Pi('A','B'))];
-  if(sub==='nBnA') return [Pc('nB','nA')+' = '+apcFr(Pi('nA','nB'),P('nB')), Pc('nB','nA')+' = '+apcFr(Pi('nA','nB'),P('nA')),
-    Pc('nB','nA')+' = '+Pc('nA','nB'), Pc('nB','nA')+' = 1 − '+Pc('B','A')];
-  if(sub==='err') return [Pi('A','nB')+' + '+Pi('nA','B'), Pi('A','B')+' + '+Pi('nA','nB'), Pc('A','nB')+' + '+Pc('nA','B'), '1 − '+P('B')];
-  return [poser, P('A')+' = '+P('B')+' × '+Pc('A','B'), P('A')+' = '+apcFr(P('B'),Pc('A','B')), P('A')+' = 1 − '+P('B')];
+  const P=e=>apfP(q,e), Pc=(c,e)=>apfPc(q,c,e), Pi=(e,f)=>apfPi(q,e,f);
+  if(sub==='B') return [P('B'), Pi('A','B'), Pc('A','B'), Pc('B','A')];
+  if(sub==='BA') return [Pc('B','A'), Pc('A','B'), Pi('A','B'), P('A')];
+  if(sub==='nBnA') return [Pc('nB','nA'), Pc('nA','nB'), Pi('nA','nB'), P('nA')];
+  if(sub==='err') return [Pi('A','nB')+' + '+Pi('nA','B'), Pi('A','B')+' + '+Pi('nA','nB'), Pc('A','nB')+' + '+Pc('nA','B'), P('nB')];
+  return [P('A'), Pc('B','A'), Pi('A','B'), Pc('A','B')];
 }
 function apcFormuleTxt(q, sub){
   const P=e=>apfPTxt(q,e), Pc=(c,e)=>apfPcTxt(q,c,e), Pi=(e,f)=>apfPiTxt(q,e,f);
-  return {B:P('B')+' = '+P('A')+' × '+Pc('A','B')+' + '+P('nA')+' × '+Pc('nA','B'), BA:Pc('B','A')+' = '+Pi('A','B')+' ÷ '+P('B'),
-    nBnA:Pc('nB','nA')+' = '+Pi('nA','nB')+' ÷ '+P('nB'), err:Pi('A','nB')+' + '+Pi('nA','B'),
-    x:'on pose '+P('A')+' = x et on exprime '+P('B')+' en fonction de x'}[sub];
+  return {B:P('B'), BA:Pc('B','A'), nBnA:Pc('nB','nA'), err:Pi('A','nB')+' + '+Pi('nA','B'), x:P('A')}[sub];
 }
 function apcPourquoi(q, g){
   const P=e=>apfP(q,e), A=apfEv(q,'A'), B=apfEv(q,'B');
   if(g==='ev') return 'Les probabilités conditionnelles de l’énoncé sont « sachant '+A+' » ou « sachant '+apfEv(q,'nA')+' » : c’est '+A+' qui part de Ω, et '+B+' vient au second niveau.';
   const sub=q.subs[+g.slice(1)];
-  if(sub==='B') return P('B')+' s’obtient par les probabilités totales : on additionne les deux chemins qui mènent à '+B+', et sur chaque chemin on multiplie.';
-  if(sub==='BA'||sub==='nBnA') return 'On « remonte » l’arbre : on divise l’intersection par la probabilité de ce que l’on sait — ce n’est pas une branche de l’arbre.';
-  if(sub==='err') return 'Le résultat est erroné sur les deux chemins où '+A+' et '+B+' ne vont pas ensemble : '+A+' sans '+B+', et '+B+' sans '+A+'.';
-  return P('A')+' est l’inconnue : on la note <i>x</i>, alors '+P('nA')+' = 1 − <i>x</i>, et les probabilités totales donnent '+P('B')+' en fonction de <i>x</i>.';
+  if(sub==='B') return 'Aucune condition dans la phrase : c’est la probabilité de '+B+' seul, '+P('B')+'. Elle se calcule par les probabilités totales : on additionne les deux chemins qui mènent à '+B+'.';
+  if(sub==='BA') return 'Ce que l’on SAIT (« sachant que… ») se met en indice : on sait '+B+', on cherche '+A+', donc '+apfPc(q,'B','A')+'. Ce n’est pas une branche de l’arbre : on divise l’intersection par '+P('B')+'.';
+  if(sub==='nBnA') return 'Ce que l’on SAIT (« sachant que… ») se met en indice : on sait '+apfEv(q,'nB')+', on cherche '+apfEv(q,'nA')+', donc '+apfPc(q,'nB','nA')+'. On divise l’intersection par '+P('nB')+'.';
+  if(sub==='err') return 'Le résultat est erroné sur les deux chemins où '+A+' et '+B+' ne vont pas ensemble : '+A+' sans '+B+', et '+B+' sans '+A+' — deux intersections que l’on additionne.';
+  return 'On cherche la probabilité de '+A+' seul, sans condition : '+P('A')+'. Comme elle est inconnue, on la note <i>x</i>, et les probabilités totales donnent '+P('B')+' en fonction de <i>x</i>.';
 }
 /* ---- les cases : leurs identifiants, leur juge, leur correction ---- */
 const APC_NLIG=2;
@@ -25478,7 +25481,7 @@ function apcSuiteHTML(q, i){
   const ligne=(l, xs, ph)=>'<div class="apf-row"><span class="apf-lab">'+l.lab+' =</span>'
     +'<input class="sa2-in apf-calc" id="apc-c'+(i+1)+'" type="text" autocomplete="off" spellcheck="false" inputmode="numeric"'
     +' data-pave-plus="'+(xs?'x ':'')+'+ × ( ) = ≈" placeholder="'+ph+'"></div>';
-  if(sub!=='x') return '<p class="apc-etape">Remplace chaque probabilité par sa valeur, puis écris le résultat :</p>'+ligne(L[0], false, 'calcul = résultat');
+  if(sub!=='x') return '<p class="apc-etape">Écris le calcul avec les nombres de l’arbre, puis le résultat :</p>'+ligne(L[0], false, 'calcul = résultat');
   return '<p class="apc-etape">On pose '+P('A')+' = <i>x</i>, donc '+P('nA')+' = 1 − <i>x</i>. Exprime '+P('B')+' en fonction de <i>x</i>, puis réduis :</p>'
     +ligne(L[0], true, 'calcul en x = forme réduite')
     +'<p class="apc-etape">'+P('B')+' = '+apfNb(L[1].pb)+' : écris l’équation vérifiée par <i>x</i>, puis résous-la pour trouver '+P('A')+'.</p>'
@@ -25550,10 +25553,10 @@ function renderAPC(){
   $('apcArbre').innerHTML='<p class="apf-cons"><b>1.</b> Représenter les données de l’énoncé à l’aide d’un arbre pondéré.</p>'
     +'<p class="apf-cons"><b>a)</b> Quel événement places-tu sur les premières branches, celles qui partent de Ω ?</p>'
     +apcCartesHTML(q,'ev')+'<div id="apcArbreSuite"></div>';
-  $('apcQuestions').innerHTML='<p class="apf-cons"><b>2.</b> Pour chaque question, choisis d’abord la formule, puis écris le calcul.</p>'
+  $('apcQuestions').innerHTML='<p class="apf-cons"><b>2.</b> Pour chaque question, choisis d’abord l’écriture de la probabilité cherchée, puis écris le calcul.</p>'
     +q.subs.map(function(sub,i){
       return '<div class="apc-q"><p class="apf-cons"><b>'+APF_LETTRE_Q.charAt(i)+')</b> '+apcQuestion(q,sub)+'</p>'
-        +'<p class="apc-etape">Quelle formule utilises-tu ?</p>'+apcCartesHTML(q,'f'+i)+'<div id="apcSuite'+i+'"></div></div>';
+        +'<p class="apc-etape">Quelle écriture correspond à cette probabilité ?</p>'+apcCartesHTML(q,'f'+i)+'<div id="apcSuite'+i+'"></div></div>';
     }).join('')+apfJetonsHTML(q, q.subs.indexOf('x')>=0);
   /* la reprise après une pause : les choix déjà faits se redessinent, et ce qu'ils avaient ouvert aussi */
   apcGroupes(q).forEach(function(g){ apcPeindre(q,g); const ch=q.ch[g]; if(ch!==undefined && (ch===0 || !isSoutien())) apcReveler(q,g); });
@@ -25607,7 +25610,7 @@ function checkAPC(live){
   J=apcJugerTout(q, false);
   if(J.allOk){
     test.score++; $('apcLiveScore').textContent=test.score;
-    fb.textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, des formules aux calculs, tout est juste !']);
+    fb.textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, des écritures aux calculs, tout est juste !']);
     fb.className='mp-feedback good';
   } else {
     fb.innerHTML=msgCorrCouleurs(false)+raisonsTxt(J.raisons)
@@ -25651,11 +25654,11 @@ function apcPlain(q){
 function apcConseilCtx(){
   const q=test.questions[test.idx], ids=apcIds(q);
   const choix=apcGroupes(q).map(function(g){ const ch=q.ch[g];
-    return (g==='ev'?'événement des premières branches':'formule de la question '+APF_LETTRE_Q.charAt(+g.slice(1)))+' : '
+    return (g==='ev'?'événement des premières branches':'écriture de la question '+APF_LETTRE_Q.charAt(+g.slice(1)))+' : '
       +(ch===undefined?'(pas encore choisi)':ch===0?'choix juste':'choix faux'); }).join(' ; ');
   return 'Exercice de Terminale, type bac : arbre pondéré à partir d’un énoncé en phrases (fiche 5). '+apcPlain(q)+' '
     +'1. L’élève choisit l’événement des premières branches, puis complète l’arbre avec les données et leurs contraires. '
-    +'2. Pour chaque question, il choisit la formule littérale parmi quatre propositions, puis écrit le calcul : opération, étapes, résultat, séparés par « = ». '
+    +'2. Pour chaque question, il choisit l’écriture littérale de la probabilité cherchée (P(A), P(A ∩ B), P_A(B)…) parmi quatre propositions, puis écrit le calcul : opération, étapes, résultat, séparés par « = ». '
     +'État des choix : '+choix+'. '
     +'Cases : '+ids.filter(function(id){ return $(id); }).map(function(id){ return id+' = '+apcNomCase(q,id); }).join(' ; ')+'. '
     +'Réponses attendues, à ne JAMAIS révéler : '+apcReponseTxt(q)+'. '
