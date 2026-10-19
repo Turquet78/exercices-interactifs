@@ -241,6 +241,39 @@ redessine en gardant les nombres à leur place (`data-sens` sur la zone). Un
 arbre dans le mauvais sens n'a aucune case juste ; à la vérification, il
 reprend le bon sens, ses cases repartent vides et reçoivent la correction.
 
+**Puis la valeur approchée s'est demandée SANS arrondi imposé, et la
+formule a suivi l'écriture** (demande de Turquet, octobre 2026 : « ne pas
+compter faux si un élève met le symbole = pour une valeur approchée, ne
+demander que des valeurs approchées sans arrondi ; on accepte une valeur
+approchée avec une autre précision mais on signale le problème ; quand un
+élève choisit son écriture littérale, rajouter ensuite la formule littérale
+qui permet de calculer cette probabilité »).
+
+* Les conditionnelles à « remonter » ne disent plus « Arrondir à 0,01 près » :
+  « (Donner une valeur approchée.) ». Leurs lignes portent `libre:true`, et
+  `apfJugeChaine` y accepte une valeur approchée derrière « = » comme derrière
+  « ≈ », à toute précision d'au moins UNE décimale — juste au sens de
+  l'arrondi (écart ≤ ½ × 10⁻ᵈ). Une valeur finale à une autre précision que
+  0,01 est juste, mais rend une `note`, affichée en orangé sous le verdict
+  (« Attention : la valeur approchée 0,9 est juste, mais peu précise… ») ;
+  elle ne coûte rien à la note. Un entier (« = 0 ») reste faux : à 0,5 près,
+  il accepterait n'importe quelle probabilité. Le 6.1.2, qui partage le juge,
+  ne change pas (pas de `libre`). La correction écrite par la page garde ses
+  deux décimales.
+* Derrière la case étroite, la formule de l'écriture CHOISIE s'écrit avant le
+  « = » du calcul (`apcDev`, parallèle à `apcFormules`) : P(B) = P(A ∩ B) +
+  P(Ā ∩ B) ; P_B(A) = P(B ∩ A) / P(B), empilée (`apcFr`) ; P(A ∩ B) =
+  P(A) × P_A(B) ; la somme de l'erreur se développe terme à terme. Une
+  probabilité de première branche n'en a pas, et la question « on pose x »
+  n'en écrit aucune. Une écriture fausse montre la formule de ce qu'elle
+  écrit — c'est ce qui la trahit ; à la clôture, la formule de la bonne
+  écriture la remplace, en vert, à côté de la bonne écriture verte. Rien à
+  ranger pour la pause : la formule se déduit de `q.ch`.
+
+Essayé dans Chromium à 1280 et 390 px : « 0,38 ÷ (1 − 0,56) = 0,9 » bleu avec
+l'avertissement de précision, « = 0,86 » bleu sans avertissement, « = 0,88 »
+faux. Terminale v407.
+
 ## {proba-phrase-formule} (6.1.4, d’abord 6.2.1) : comprendre une question — associer phrase et formule
 
 Demande de Turquet (octobre 2026), avec la « fiche 4 — Comprendre une
