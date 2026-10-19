@@ -137,6 +137,55 @@ nouvelle ligne »).
   reçoit « x = … » en vert, et l'équation, si la ligne 1 est vide. Sous les
   lignes, la résolution entière s'écrit en vert.
 
+## {arbre-probabilites-bac} (6.1.3) : l'exercice de bac, la formule avant le calcul
+
+Demande de Turquet (octobre 2026), avec la « fiche 5 — probabilité bac »
+(fiabilité d'un test de dépistage : 5 % de malades, P_M(T) = 0,9,
+P_M̄(T̄) = 0,8 ; démontrer P(T) = 0,235, P_T(M) à 0,01 près, la probabilité
+d'un résultat erroné) : « quand on demande de compléter l'arbre, un arbre
+présenté comme le 6.1.2 ; l'élève choisit d'abord l'événement de la première
+branche, le programme complète alors toutes les formules littérales de
+l'arbre avec les deux lettres de l'exercice ; puis l'élève complète l'arbre
+avec les valeurs comme au 6.1.2. Pour chaque question suivante, l'élève
+trouve la bonne formule littérale parmi des propositions, puis la réponse se
+présente comme au 6.1.2. Une proposition peut être “en posant P(A) = x et en
+exprimant P(B) en fonction de x” : on présente alors P(B) en fonction de x,
+puis la résolution de l'équation, comme au 6.1.2. »
+
+**Un énoncé en phrases, cinq mises en situation** (`APC_CTX`) : dépistage
+(M/T), filtre anti-spam (S/F), contrôle de pièces (D/R), carte de fidélité
+(C/A), pluie et bus (J/R). Chacune porte ses lettres, ses phrases (au
+subjonctif après « la probabilité que », à l'indicatif après « sachant que »,
+élidées par `apcQue` : « sachant qu'il pleut »), ses viviers de pourcentages,
+et la forme de sa seconde donnée — P_Ā(B̄) comme sur la fiche, ou P_Ā(B).
+Trois exercices par séance, trois mises en situation différentes.
+
+**Les questions** : a) démontrer P(B) = … ; b) une conditionnelle à
+« remonter », P_B(A) ou P_B̄(Ā), à 0,01 près ; c) la probabilité d'un
+résultat erroné (là où la situation en a un) ou, une fois par séance au
+moins, P(A) inconnue avec P(B) donné — la question « on pose x ».
+
+**Un choix se juge au clic, parce qu'il ouvre la suite.** L'événement des
+premières branches ouvre l'arbre (la grille du 6.1.2, factorisée :
+`apfGrilleHTML(pre, …)`, `apfTraits(pre)`) ; la formule d'une question ouvre
+ses lignes de calcul. Choisie juste : bleue ; fausse : rouge, et la bonne
+montrée en vert, en tirets, avec une phrase qui dit pourquoi. En soutien,
+l'élève rechoisit ; ailleurs, le premier choix est définitif. Chaque choix
+compte UNE réponse dans la note (`pts-case` sur la carte choisie, la
+correction montrée est `hors-note`) ; un choix jamais fait reçoit, à la
+vérification, la bonne carte en `pts-case sol` — compté non juste — et ses
+lignes s'ouvrent pour recevoir leur correction. L'état des choix vit dans la
+question (`q.ch`) : la reprise après une pause les redessine, avec ce qu'ils
+avaient ouvert.
+
+**Les juges sont ceux du 6.1.2** : `apfJugeChaine` pour chaque calcul (« ≈ »
+à deux décimales au moins pour un arrondi), `apfJugeDemo` pour P(B) en
+fonction de x, et la résolution ligne par ligne par `apfJugeResolL(l, n,
+pre)` — le juge du 6.1.2 sorti de ses identifiants. Les cases de l'arbre
+acceptent aussi le pourcentage de l'énoncé : « 5 % » vaut 0,05. Une copie
+faite des corrections de la page est parfaite (essayé dans Chromium, à
+1280 px et à 390 px).
+
 ## {proba-phrase-formule} (6.2.1) : comprendre une question — associer phrase et formule
 
 Demande de Turquet (octobre 2026), avec la « fiche 4 — Comprendre une
