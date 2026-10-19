@@ -15053,6 +15053,7 @@ if(require.main === module) (async () => {
         }
       };
       const flechesBloquees = [], flecheMilieuSort = [], flecheMilieu = {}, flechesSansCible = new Set(); let nFleches = 0;
+      const casesCalculDits = []; let nCasesCalcul = 0, nCasesFois = 0;
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -15547,6 +15548,85 @@ if(require.main === module) (async () => {
               if(ou) flechesBloquees.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' ' + fl.id + ' — ' + ou);
             }
           }
+          /* UNE CASE DE CALCUL EN TEXTE ÉCRIT « × », ET LE x EN ITALIQUE
+             ARRONDI — sur TOUS les exercices (demande de Turquet, octobre
+             2026, au 6.1.2 et au 6.1.3 : « pouvoir écrire une formule
+             mathématique, avec un × pour le *, la lettre x en italique pour
+             l'inconnue, un clavier adapté pour la tablette, comme pour tous
+             les exercices — et que cela soit signalé pour les prochains »).
+             Une case en texte dont le pavé offre × ou x (data-pave-plus) est
+             une case de calcul. On y mesure, pour de vrai :
+             · là où x est offert, le x s'écrit en italique — fonte du texte
+               italique, ou une fonte posée en tête de pile qui prend son x dans
+               KaTeX_Math-Italic (« ApfX ») ;
+             · sur le pavé des tablettes, la touche x s'écrit <i>x</i> ;
+             · là où × est offert, « 2*3x4 » TAPÉ AU CLAVIER s'écrit 2×3x4 (x
+               offert : l'inconnue) ou 2×3×4 (pas de x : un signe de produit). */
+          if(mode === 'train'){
+            const cc = await s.page.evaluate(() => {
+              const on = document.querySelector('section.screen.on'); if(!on) return null;
+              const vis = e => { const q = e.getBoundingClientRect();
+                return q.width > 0 && q.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
+              const touches = e => (e.getAttribute('data-pave-plus') || '').split(' ');
+              const cases = [...on.querySelectorAll('input[data-pave-plus]')].filter(e =>
+                (e.getAttribute('type') || 'text').toLowerCase() === 'text' && vis(e) && !e.disabled && !e.readOnly
+                && (touches(e).indexOf('×') >= 0 || touches(e).some(t => /^x/.test(t))));
+              if(!cases.length) return { n: 0 };
+              /* les @font-face du document — la récursion teste la LONGUEUR de
+                 cssRules : depuis l'imbrication CSS, toute règle en porte un,
+                 souvent vide (le piège du 9 bis) */
+              const faces = [];
+              const marcher = rs => { for(const r of rs){
+                if(r instanceof CSSFontFaceRule) faces.push(r);
+                else if(r.cssRules && r.cssRules.length) marcher(r.cssRules); } };
+              for(const f of document.styleSheets){ try { marcher(f.cssRules); } catch(e){} }
+              const sans = q => String(q || '').replace(/["']/g, '').trim();
+              const dits = [];
+              for(const c of cases){
+                const T = touches(c), nom = c.id || c.className || '(sans id)';
+                if(T.some(t => /^x/.test(t))){
+                  const cs = getComputedStyle(c), tete = sans(cs.fontFamily.split(',')[0]);
+                  const ok = /italic|oblique/.test(cs.fontStyle) || faces.some(f =>
+                    sans(f.style.getPropertyValue('font-family')) === tete
+                    && /KaTeX_Math-Italic/.test(f.style.getPropertyValue('src')));
+                  if(!ok) dits.push(nom + ' : le x s’y écrit droit (police « ' + tete + ' »)');
+                  if(typeof paveSup === 'function' && document.getElementById('paveSup')){
+                    paveSup(c);
+                    const b = document.querySelector('#paveSup button[data-t^="x"]');
+                    if(!b || !b.querySelector('i')) dits.push(nom + ' : la touche x du pavé s’écrit droite');
+                    paveSup(null);
+                  }
+                }
+              }
+              const f = cases.find(c => touches(c).indexOf('×') >= 0);
+              document.querySelectorAll('[data-banc-fois]').forEach(e => e.removeAttribute('data-banc-fois'));
+              if(f){ f.setAttribute('data-banc-fois', '1'); f.value = ''; f.focus(); }
+              return { n: cases.length, dits, fois: f ? { id: f.id || '(sans id)', avecX: touches(f).indexOf('x') >= 0 } : null };
+            });
+            if(cc && cc.n){
+              const num = await s.page.evaluate(i => TEST_NUM[i], id);
+              nCasesCalcul += cc.n;
+              cc.dits.forEach(d => casesCalculDits.push(num + ' ' + d));
+              if(cc.fois){
+                /* un contrôle qui TAPE attend que la case ait le focus */
+                try { await s.page.waitForFunction(() => document.activeElement === document.querySelector('[data-banc-fois]'), null, { timeout: 2000 }); } catch(e){}
+                await s.page.keyboard.type('2*3x4', { delay: 20 });
+                await s.page.waitForTimeout(80);
+                const v = await s.page.evaluate(() => {
+                  const c = document.querySelector('[data-banc-fois]'); if(!c) return null;
+                  const r = { v: c.value, ici: document.activeElement === c };
+                  c.removeAttribute('data-banc-fois'); c.value = '';
+                  c.dispatchEvent(new Event('input', { bubbles: true })); c.blur();
+                  return r;
+                });
+                const attendu = cc.fois.avecX ? '2×3x4' : '2×3×4';
+                if(v && v.ici){
+                  nCasesFois++;
+                  if(v.v !== attendu) casesCalculDits.push(num + ' ' + cc.fois.id + ' : « 2*3x4 » tapé s’écrit « ' + v.v + ' », attendu « ' + attendu + ' »');
+                } else casesCalculDits.push(num + ' ' + cc.fois.id + ' : la case n’a pas pris le focus — rien n’a pu être tapé');
+              }
+            }
+          }
           /* UNE CASE VIDE NE ROUGIT JAMAIS — sur TOUS les exercices.
              C'est la règle que la Seconde a réapprise trois fois en une seule
              journée d'août 2026, chaque fois sur un exercice différent, et
@@ -15686,6 +15766,19 @@ if(require.main === module) (async () => {
       /* Ce qui est DÉCLARÉ est nommé à l'écran, jamais tu : un contrôle qui
          saute des exercices en silence rend le banc vert sur ce qu'il ne
          vérifie plus. */
+      /* le COMPTE et la liste ENTIÈRE ; et le BORD OPPOSÉ : le niveau qui
+         DÉCLARE des cases de calcul en texte (tests/profils.js,
+         « casesCalculTexte ») doit en offrir au banc — et des cases à × s'il
+         les déclare ; celui qui n'en déclare pas s'affiche « non applicable ». */
+      verifier('une case de calcul en texte écrit « × » pour « * », et le x en italique (case et touche du pavé)',
+        casesCalculDits.length === 0, casesCalculDits.length + ' cas — ' + casesCalculDits.join(' | '));
+      if(P.casesCalculTexte)
+        verifier('des cases de calcul en texte sont bien relevées (le contrôle du × et du x mesure quelque chose)',
+          nCasesCalcul > 0 && (!P.casesCalculTexte.fois || nCasesFois > 0),
+          nCasesCalcul + ' case(s) relevée(s), ' + nCasesFois + ' frappe(s) de « * » mesurée(s)');
+      else
+        ignorer('des cases de calcul en texte sont bien relevées (le contrôle du × et du x mesure quelque chose)',
+          'ce niveau ne déclare aucune case de calcul en texte (mesuré : ' + nCasesCalcul + ')');
       const dispenses = (P.casesVides && P.casesVides.sans) || [];
       verifier('la flèche → en fin de case passe à la case suivante ou au bouton de vérification',
         nFleches > 0 && flechesBloquees.length === 0,

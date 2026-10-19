@@ -8180,7 +8180,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=568;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=569;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -75891,8 +75891,10 @@ function paveHTML(){
 function paveSup(el){
   const s=document.getElementById('paveSup'); if(!s) return;
   const l=((el && el.getAttribute && el.getAttribute('data-pave-plus'))||'').split(' ').filter(function(t){ return t.length; });
+  /* la touche de l'inconnue s'écrit comme l'inconnue : <i>x</i>, l'italique
+     arrondi (x et x²) — un x droit se lirait comme le signe × */
   const h=l.map(function(t){
-    return '<button type="button" class="pave-t pave-plus" data-t="'+t+'">'+t+'</button>'; }).join('');
+    return '<button type="button" class="pave-t pave-plus" data-t="'+t+'">'+t.replace(/^x/,'<i>x</i>')+'</button>'; }).join('');
   if(s.innerHTML!==h) s.innerHTML=h;
   const p=document.getElementById('paveNum');
   if(p) p.classList.toggle('pave-2r', l.length>0);
