@@ -136,3 +136,61 @@ nouvelle ligne »).
   pas une faute ; il manque la conclusion ? la première ligne vide qui suit
   reçoit « x = … » en vert, et l'équation, si la ligne 1 est vide. Sous les
   lignes, la résolution entière s'écrit en vert.
+
+## {proba-phrase-formule} (6.2.1) : comprendre une question — associer phrase et formule
+
+Demande de Turquet (octobre 2026), avec la « fiche 4 — Comprendre une
+question en probabilité » : « créer un exercice comme le pdf qui permet
+d'associer une phrase à une formule ; il faut voir toutes les phrases et les
+formules sur l'écran sans avoir à faire défiler l'écran pour toutes les voir
+(sur tablette aussi) ; varier les situations, les phrases possibles et les
+formules — ce n'est pas grave si on ne peut pas évaluer toutes les formules
+comme sur le pdf ». Il ouvre la partie 2 du thème, « Comprendre une
+question » : 6.2.1 ; aucun numéro existant ne bouge.
+
+**L'écran est celui de la fiche** : une situation, deux événements définis,
+puis huit phrases numérotées à gauche et huit formules en désordre à droite,
+chacune précédée d'un « ( … ) » — un menu où l'élève choisit le NUMÉRO de la
+phrase, comme on l'écrit sur le papier. Une phrase déjà choisie pâlit
+(`cqpMarquerPrises`) : on voit celles qui restent. Rien ne se calcule — les
+données numériques de la fiche ne servent pas, la question est de LIRE.
+
+**Une formule désigne un OBJET, et deux formules jamais le même.** Dix-sept
+objets : P(X) pour les quatre littéraux, les quatre intersections, les huit
+conditionnelles (dans les deux sens : P_M(T) et P_T(M)), et P(A ∪ B). Une
+question en prend huit, dont toujours le « cœur » de la fiche — une
+intersection et ses DEUX conditionnelles, les trois phrases que l'on confond —
+et au plus deux probabilités sans condition. Les FORMES d'un même objet
+(`f`) : P(T) ou sa somme des probabilités totales, P_M(T) ou
+« P_M(T) = P(M ∩ T) / P(M) » empilé — jamais les deux formes d'un objet dans
+la même question, puisqu'elles iraient avec la même phrase.
+
+**Les phrases** : chaque situation (`CQP_CTX`, huit : dépistage, usine
+jour/nuit, lycée, magasin, vaccin, auto-école, filtre à spams, bac) dit
+chaque littéral de cinq façons — infinitif, verbe après le sujet,
+subjonctif, groupe que l'on prend « parmi », individu que l'on choisit — et
+les tournures (`v`) les assemblent : quatre pour P(X), trois pour une
+intersection (plus « n'être ni … ni … » pour Ā ∩ B̄ là où la situation le dit
+naturellement), six pour une conditionnelle (« sachant que », « parmi »,
+« l'individu choisi … : quelle est sa probabilité », « on choisit un … »,
+« on sait que … : quelle est la probabilité qu'il … », « quand … »), deux pour
+la réunion. Les tournures d'un même genre se distribuent sans remise dans une
+question. Trois questions par séance (`dmNbQuestions(3)`), trois situations
+différentes.
+
+**Tout se voit sans défiler.** Deux colonnes dès 700 px de large, les
+formules sur deux colonnes à partir de 1100 px ; et l'en-tête de
+l'application (logo, titre, numéro) prend à lui seul 230 px : si la zone des
+phrases et des formules descend sous les commandes flottantes du bas,
+`cqpCadrer()` remonte l'écran jusqu'à l'énoncé, qui tient alors avec toute
+la zone. Mesuré dans Chromium : ordinateur 1280 × 720 et 1366 × 650, tablette
+768 × 1024 et 1024 × 700, iPad Pro 1024 × 1366 — énoncé, huit phrases, huit
+formules et bouton « Vérifier » à l'écran, sans défilement horizontal. Sur un
+téléphone (390 px) les deux colonnes s'empilent et l'écran défile : la
+demande portait sur la tablette.
+
+**Le juge** est celui d'{associer-derivee-seconde} : chaque menu est juste
+ou faux, une case vide n'est jamais rouge et reçoit le bon numéro en vert ;
+un numéro faux reste rouge, le bon s'écrit à côté (`corrCase`), et le
+pourquoi dit ce que la phrase attendue contenait — une condition, « et »,
+« ou », ou rien (`cqpPourquoi`). En soutien, la correction est en direct.
