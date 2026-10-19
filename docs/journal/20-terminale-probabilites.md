@@ -152,7 +152,70 @@ TOUTES les fontes KaTeX y sont alors en échec — celle du texte comme
 celle-ci. Pour voir le rendu, il faut servir le fichier de la fonte à la page
 (`page.route`).
 
-## {proba-phrase-formule} (6.2.1) : comprendre une question — associer phrase et formule
+## {arbre-probabilites-bac} (6.1.3) : l'exercice de bac, la formule avant le calcul
+
+Demande de Turquet (octobre 2026), avec la « fiche 5 — probabilité bac »
+(fiabilité d'un test de dépistage : 5 % de malades, P_M(T) = 0,9,
+P_M̄(T̄) = 0,8 ; démontrer P(T) = 0,235, P_T(M) à 0,01 près, la probabilité
+d'un résultat erroné) : « quand on demande de compléter l'arbre, un arbre
+présenté comme le 6.1.2 ; l'élève choisit d'abord l'événement de la première
+branche, le programme complète alors toutes les formules littérales de
+l'arbre avec les deux lettres de l'exercice ; puis l'élève complète l'arbre
+avec les valeurs comme au 6.1.2. Pour chaque question suivante, l'élève
+trouve la bonne formule littérale parmi des propositions, puis la réponse se
+présente comme au 6.1.2. Une proposition peut être “en posant P(A) = x et en
+exprimant P(B) en fonction de x” : on présente alors P(B) en fonction de x,
+puis la résolution de l'équation, comme au 6.1.2. »
+
+**Un énoncé en phrases, cinq mises en situation** (`APC_CTX`) : dépistage
+(M/T), filtre anti-spam (S/F), contrôle de pièces (D/R), carte de fidélité
+(C/A), pluie et bus (J/R). Chacune porte ses lettres, ses phrases (au
+subjonctif après « la probabilité que », à l'indicatif après « sachant que »,
+élidées par `apcQue` : « sachant qu'il pleut »), ses viviers de pourcentages,
+et la forme de sa seconde donnée — P_Ā(B̄) comme sur la fiche, ou P_Ā(B).
+Trois exercices par séance, trois mises en situation différentes.
+
+**Les questions** : a) démontrer P(B) = … ; b) une conditionnelle à
+« remonter », P_B(A) ou P_B̄(Ā), à 0,01 près ; c) la probabilité d'un
+résultat erroné (là où la situation en a un) ou, une fois par séance au
+moins, P(A) inconnue avec P(B) donné — la question « on pose x ».
+
+**Un choix se juge au clic, parce qu'il ouvre la suite.** L'événement des
+premières branches ouvre l'arbre (la grille du 6.1.2, factorisée :
+`apfGrilleHTML(pre, …)`, `apfTraits(pre)`) ; la formule d'une question ouvre
+ses lignes de calcul. Choisie juste : bleue ; fausse : rouge, et la bonne
+montrée en vert, en tirets, avec une phrase qui dit pourquoi. En soutien,
+l'élève rechoisit ; ailleurs, le premier choix est définitif. Chaque choix
+compte UNE réponse dans la note (`pts-case` sur la carte choisie, la
+correction montrée est `hors-note`) ; un choix jamais fait reçoit, à la
+vérification, la bonne carte en `pts-case sol` — compté non juste — et ses
+lignes s'ouvrent pour recevoir leur correction. L'état des choix vit dans la
+question (`q.ch`) : la reprise après une pause les redessine, avec ce qu'ils
+avaient ouvert.
+
+**Les juges sont ceux du 6.1.2** : `apfJugeChaine` pour chaque calcul (« ≈ »
+à deux décimales au moins pour un arrondi), `apfJugeDemo` pour P(B) en
+fonction de x, et la résolution ligne par ligne par `apfJugeResolL(l, n,
+pre)` — le juge du 6.1.2 sorti de ses identifiants. Les cases de l'arbre
+acceptent aussi le pourcentage de l'énoncé : « 5 % » vaut 0,05. Une copie
+faite des corrections de la page est parfaite (essayé dans Chromium, à
+1280 px et à 390 px).
+
+**Puis la question est devenue une phrase, et l'élève choisit l'ÉCRITURE,
+plus la formule** (demande de Turquet, octobre 2026 : « des énoncés sous forme
+de phrase, et l'élève doit simplement choisir la bonne écriture littérale,
+par exemple P(L), P(L ∩ M) ou P_M(L), avant de faire les calculs »). Les
+questions n'écrivent plus aucun P(…) : « Démontrer que la probabilité que le
+test soit positif est égale à 0,235 », « Déterminer la probabilité que la
+personne soit malade ». Les quatre cartes proposent l'écriture de la
+probabilité cherchée, avec les pièges de la fiche 4 : la conditionnelle
+retournée (P_M(T) pour P_T(M)), l'intersection pour la conditionnelle, la
+probabilité seule ; pour l'erreur, les deux intersections « croisées »
+contre les deux « droites ». La question où P(M) est inconnue se choisit
+P(M), puis s'ouvre comme avant sur « on pose P(M) = x ». Le reste ne change
+pas : le choix se juge au clic, compte une réponse, ouvre la ligne de calcul.
+
+## {proba-phrase-formule} (6.1.4, d’abord 6.2.1) : comprendre une question — associer phrase et formule
 
 Demande de Turquet (octobre 2026), avec la « fiche 4 — Comprendre une
 question en probabilité » : « créer un exercice comme le pdf qui permet
@@ -209,3 +272,13 @@ ou faux, une case vide n'est jamais rouge et reçoit le bon numéro en vert ;
 un numéro faux reste rouge, le bon s'écrit à côté (`corrCase`), et le
 pourquoi dit ce que la phrase attendue contenait — une condition, « et »,
 « ou », ou rien (`cqpPourquoi`). En soutien, la correction est en direct.
+
+## Le 6.2.1 rejoint l'arbre de probabilité : il devient le 6.1.4
+
+Demande de Turquet (octobre 2026) : « mettre le 6.2.1 dans le thème arbre de
+probabilité ». {proba-phrase-formule} passe en fin du sous-thème 6.1, après
+l'exercice de bac : il devient le **6.1.4**. La partie « Comprendre une
+question » (6.2), vidée, disparaît — une partie sans exercice afficherait un
+titre sur rien. Les numéros naissent de `THEMES` : rien d'autre à renuméroter,
+l'identifiant ne change pas, et les résultats déjà enregistrés le retrouvent.
+Terminale v402.

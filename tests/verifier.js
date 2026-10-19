@@ -4621,6 +4621,7 @@ function exercices(suite){
     construireMaxMin(w, P);
     solutionsGraphique(w, P);
     ecrireSolutions(w, P);
+    clavierLitteral(w, P);
     exercicesBonus(w, P);
     bonusEcrit(w, P);
     meilleureNoteCompte(w, P);
@@ -28393,6 +28394,74 @@ function equationGraphique(w, P){
      verrouillé et ne bloque jamais la suite.
    Plus l'éditeur, qui doit emporter le drapeau sans jamais écrire le défaut,
    et l'écran de l'élève, qui doit AFFICHER le bonus sur 1 et non sur 10. */
+/* ---- Thème 7 (calcul littéral) : le clavier des tablettes porte x, x², +, ( ) ----
+   Demande de Turquet (octobre 2026) : « le clavier virtuel pour les tablettes
+   ou téléphones adapté à l'exercice ». Les cases de ces exercices sont des
+   <input> de TEXTE : sans déclaration, le clavier du SYSTÈME s'ouvrait, sans
+   x². Chaque exercice du profil est LANCÉ et toutes ses cases de texte sont
+   relevées : chacune doit être confiée au pavé (inputmode="numeric" — ou
+   "none", si le pavé est déjà passé) et nommer les mêmes touches en plus
+   (data-pave-plus = LIT_TOUCHES = la liste du profil : deux sources). Une
+   page qui lance aussi le pavé (window.__paveForce) voit la seconde rangée
+   se poser pour de vrai, et une touche écrire dans la case en levant
+   « input ». Hors profil, le contrôle est ignoré. */
+function clavierLitteral(w, P){
+  const D = P.clavierLitteral;
+  if(!D || !D.exercices || !D.exercices.length){
+    ignorer('calcul littéral : le clavier des tablettes porte x, x², + et les parenthèses', 'ce niveau ne déclare pas clavierLitteral');
+    return;
+  }
+  verifierEval(w, 'calcul littéral : le clavier des tablettes porte x, x², + et les parenthèses (' + D.exercices.length + ' exercices)', `(function(){
+    const vus=[], ATT=${JSON.stringify(D.touches)}, IDS=${JSON.stringify(D.exercices)};
+    if(typeof LIT_TOUCHES==='undefined' || typeof litPave!=='function') return 'la page n’a pas LIT_TOUCHES / litPave()';
+    if(LIT_TOUCHES.join(' ')!==ATT.join(' ')) vus.push('LIT_TOUCHES = ['+LIT_TOUCHES.join(' ')+'] au lieu de ['+ATT.join(' ')+']');
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    window.__paveForce=true; try{ paveObserver(); }catch(e){}
+    let cases=0;
+    IDS.forEach(function(id){
+      if(!TESTS[id] || typeof TESTS[id].start!=='function'){ vus.push(id+' : aucun démarreur'); return; }
+      currentTestId=id;
+      try{ TESTS[id].start(); }catch(e){ vus.push(id+' : le démarrage lève « '+e.message+' »'); return; }
+      const scr=document.querySelector('section.screen.on'); if(!scr){ vus.push(id+' : aucun écran ouvert'); return; }
+      /* TOUTES les pages de l'exercice : la première page du 7.8 est faite
+         de listes, ses cases de texte sont sur la seconde. Le rendu de la
+         page est la fonction render<Kind>Test / render<Kind>, retrouvée par
+         le kind de la séance ; on tourne les pages par test.idx. */
+      const k=String(test.kind||''), K=k.charAt(0).toUpperCase()+k.slice(1);
+      const rendu=window['render'+K+'Test']||window['render'+K];
+      const nb=Array.isArray(test.questions)?test.questions.length:1;
+      let ins=[];
+      for(let pg=0; pg<nb; pg++){
+        if(pg>0){ if(typeof rendu!=='function') break; test.idx=pg; test.locked=false; try{ rendu(); }catch(e){ vus.push(id+' : la page '+(pg+1)+' lève « '+e.message+' »'); break; } }
+        try{ paveBrancher(); }catch(e){}
+        ins=ins.concat([].slice.call(scr.querySelectorAll('input[type="text"]')));
+        if(ins.length) break;
+      }
+      if(!ins.length){ vus.push(id+' : aucune case de texte sur aucune page'); return; }
+      ins.forEach(function(el){
+        cases++;
+        const m=el.getAttribute('inputmode');
+        if(m!=='numeric' && m!=='none') vus.push(id+' : la case '+el.id+' garde le clavier du système (inputmode='+m+')');
+        if(el.getAttribute('data-pave-plus')!==ATT.join(' ')) vus.push(id+' : la case '+el.id+' demande « '+el.getAttribute('data-pave-plus')+' » au lieu de « '+ATT.join(' ')+' »');
+      });
+      /* la seconde rangée se pose, et une touche écrit dans la case */
+      const el=ins[0]; try{ el.focus(); }catch(e){}
+      try{ paveMontrer(); }catch(e){}
+      const plus=[].slice.call(document.querySelectorAll('#paveNum .pave-plus')).map(function(b){ return b.getAttribute('data-t'); });
+      if(plus.join(' ')!==ATT.join(' ')) vus.push(id+' : le pavé pose ['+plus.join(' ')+'] au lieu de ['+ATT.join(' ')+']');
+      const avant=el.value; let n=0; const ec=function(){ n++; }; el.addEventListener('input', ec);
+      try{ paveInserer(el,'x'); paveInserer(el,'x²'); }catch(e){ vus.push(id+' : paveInserer lève « '+e.message+' »'); }
+      if(el.value!==avant+'xx²') vus.push(id+' : les touches x puis x² n’écrivent pas « xx² » dans la case (« '+el.value+' »)');
+      if(n!==2) vus.push(id+' : une touche n’a pas levé « input »');
+      el.removeEventListener('input', ec); el.value=avant;
+    });
+    try{ document.activeElement && document.activeElement.blur(); }catch(e){}
+    delete window.__paveForce;
+    if(!cases && !vus.length) vus.push('aucune case relevée : le contrôle ne mesure rien');
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '');
+}
+
 function exercicesBonus(w, P){
   const present = evaluer(w, "typeof dmTotal==='function' && typeof dmEstBonus==='function'");
   if(!present.ok || !present.valeur){
