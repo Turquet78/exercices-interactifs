@@ -59271,16 +59271,19 @@ function ctxSrl(q){
    déjà les chiffres, la virgule, le −, ⌫, ⏎ et les flèches ; une case qui
    attend AUTRE CHOSE nomme ses touches dans data-pave-plus, et le pavé les
    pose sur une SECONDE rangée (le mécanisme du 5.6 {ecrire-solutions}, qui
-   y met ses crochets et son U). Ici : x, ², +, ( et ). Le − est déjà sur
+   y met ses crochets et son U). Ici : x, x², +, ( et ). Le − est déjà sur
    le pavé ; les parenthèses servent aux facteurs négatifs des bulles de la
-   distributivité, « (−2) », que dvlLit() accepte. Le ² s'insère tel quel :
-   tous les lecteurs du thème (redLit, dvlLit…) lisent « x² » comme « x^2 ».
+   distributivité, « (−2) », que dvlLit() accepte. La touche « x² » insère
+   « x² » d'un bloc, comme le bouton x² que ces écrans portent déjà
+   (redCarre) : un ² seul, sur une touche, se lisait mal et laissait l'élève
+   deviner qu'il faut d'abord un x. Tous les lecteurs du thème (redLit,
+   dvlLit…) lisent « x² » comme « x^2 ».
    UNE SEULE LISTE pour les huit sortes de cases (7.5, 7.8, 7.9 à 7.11,
    7.12, 7.14 à 7.17), lue par litPave() et comparée à tests/profils.js :
    deux cases du même thème n'auront jamais deux claviers. Sur ordinateur,
    rien ne change : inputmode n'a d'effet que sur un écran tactile, et le
    clavier physique écrit toujours x^2 ou x**2. */
-const LIT_TOUCHES=['x','²','+','(',')'];
+const LIT_TOUCHES=['x','x²','+','(',')'];
 function litPave(){ return ' inputmode="numeric" data-pave-plus="'+LIT_TOUCHES.join(' ')+'"'; }
 
 /* ===== EXERCICE : RÉDUIRE CHAQUE PRODUIT AVEC x ==============================

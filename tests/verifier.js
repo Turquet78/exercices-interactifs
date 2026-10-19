@@ -28394,7 +28394,7 @@ function equationGraphique(w, P){
      verrouillé et ne bloque jamais la suite.
    Plus l'éditeur, qui doit emporter le drapeau sans jamais écrire le défaut,
    et l'écran de l'élève, qui doit AFFICHER le bonus sur 1 et non sur 10. */
-/* ---- Thème 7 (calcul littéral) : le clavier des tablettes porte x, ², +, ( ) ----
+/* ---- Thème 7 (calcul littéral) : le clavier des tablettes porte x, x², +, ( ) ----
    Demande de Turquet (octobre 2026) : « le clavier virtuel pour les tablettes
    ou téléphones adapté à l'exercice ». Les cases de ces exercices sont des
    <input> de TEXTE : sans déclaration, le clavier du SYSTÈME s'ouvrait, sans
@@ -28408,10 +28408,10 @@ function equationGraphique(w, P){
 function clavierLitteral(w, P){
   const D = P.clavierLitteral;
   if(!D || !D.exercices || !D.exercices.length){
-    ignorer('calcul littéral : le clavier des tablettes porte x, ², + et les parenthèses', 'ce niveau ne déclare pas clavierLitteral');
+    ignorer('calcul littéral : le clavier des tablettes porte x, x², + et les parenthèses', 'ce niveau ne déclare pas clavierLitteral');
     return;
   }
-  verifierEval(w, 'calcul littéral : le clavier des tablettes porte x, ², + et les parenthèses (' + D.exercices.length + ' exercices)', `(function(){
+  verifierEval(w, 'calcul littéral : le clavier des tablettes porte x, x², + et les parenthèses (' + D.exercices.length + ' exercices)', `(function(){
     const vus=[], ATT=${JSON.stringify(D.touches)}, IDS=${JSON.stringify(D.exercices)};
     if(typeof LIT_TOUCHES==='undefined' || typeof litPave!=='function') return 'la page n’a pas LIT_TOUCHES / litPave()';
     if(LIT_TOUCHES.join(' ')!==ATT.join(' ')) vus.push('LIT_TOUCHES = ['+LIT_TOUCHES.join(' ')+'] au lieu de ['+ATT.join(' ')+']');
@@ -28450,8 +28450,8 @@ function clavierLitteral(w, P){
       const plus=[].slice.call(document.querySelectorAll('#paveNum .pave-plus')).map(function(b){ return b.getAttribute('data-t'); });
       if(plus.join(' ')!==ATT.join(' ')) vus.push(id+' : le pavé pose ['+plus.join(' ')+'] au lieu de ['+ATT.join(' ')+']');
       const avant=el.value; let n=0; const ec=function(){ n++; }; el.addEventListener('input', ec);
-      try{ paveInserer(el,'x'); paveInserer(el,'²'); }catch(e){ vus.push(id+' : paveInserer lève « '+e.message+' »'); }
-      if(el.value!==avant+'x²') vus.push(id+' : les touches n’écrivent pas « x² » dans la case (« '+el.value+' »)');
+      try{ paveInserer(el,'x'); paveInserer(el,'x²'); }catch(e){ vus.push(id+' : paveInserer lève « '+e.message+' »'); }
+      if(el.value!==avant+'xx²') vus.push(id+' : les touches x puis x² n’écrivent pas « xx² » dans la case (« '+el.value+' »)');
       if(n!==2) vus.push(id+' : une touche n’a pas levé « input »');
       el.removeEventListener('input', ec); el.value=avant;
     });
