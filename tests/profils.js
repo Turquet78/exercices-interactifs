@@ -777,6 +777,10 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'secondes.html': {
+    /* Les cases de calcul en TEXTE : celles du calcul littéral (litPave :
+       x, x², +, ( )) offrent x mais pas × — le banc y mesure le x en
+       italique et la touche du pavé ; aucune frappe de « * ». */
+    casesCalculTexte: { fois: false },
     /* Les tirages par familles : voir le profil de la Terminale. */
     tiragesParFamilles: {
       startReconnaitreCoef: 'aug, dim, pre : trois familles différentes'
@@ -2754,6 +2758,11 @@ module.exports = {
        applicable » — un contrôle qui ne s'applique pas se déclare, il ne se
        retire pas. */
     indicesEnFlex: true,
+    /* Les cases de calcul en TEXTE (data-pave-plus offrant × ou x : 6.1.2,
+       6.1.3) : le banc navigateur y tape « 2*3x4 » et exige ×, et le x en
+       italique. Ce drapeau est le BORD OPPOSÉ — ce niveau en a à mesurer, et
+       des cases à × (fois). */
+    casesCalculTexte: { fois: true },
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même

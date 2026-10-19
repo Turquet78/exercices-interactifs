@@ -308,3 +308,51 @@ question » (6.2), vidée, disparaît — une partie sans exercice afficherait u
 titre sur rien. Les numéros naissent de `THEMES` : rien d'autre à renuméroter,
 l'identifiant ne change pas, et les résultats déjà enregistrés le retrouvent.
 Terminale v402.
+
+## Une case de calcul en texte écrit « × », et le x en italique — partout
+
+Demande de Turquet (octobre 2026) : « dans les exercices de probabilité en
+Terminale, il faut pouvoir écrire une formule mathématique, avec un × pour le
+*, la lettre x aux traits arrondis (italique) pour l'inconnue, un clavier
+virtuel adapté pour le mode tablette, comme pour tous les exercices de ce
+site ; il faudrait que cela soit signalé pour les prochains exercices ».
+
+**Ce qui manquait, vu dans Chromium à 820 px** : au 6.1.2 et au 6.1.3, les
+lignes de calcul sont des `<input>` de texte — pas des cases MathLive, dont le
+raccourci « * » → `\times` est réglé pour tout le niveau. « 0,4*0,9 » restait
+donc écrit avec l'astérisque ; et dans une ligne « pas de lettres », un x tapé
+entre deux nombres — que le juge lisait déjà comme un produit (`apfNorm`)
+— s'affichait en italique, comme l'inconnue qu'il n'était pas. Sur le pavé des
+tablettes, la touche x s'écrivait droite, à côté de la touche ×.
+
+**La règle n'est plus celle d'un exercice : c'est celle d'une SORTE de case.**
+Une case en texte dont le pavé offre × (`data-pave-plus`) est une case de
+calcul ; un gestionnaire `input` posé EN CAPTURE sur le document
+(`caseCalculEcrire`) y réécrit « * » en « × » sous les doigts de l'élève — et,
+si la case n'offre pas la touche x, le x aussi ; là où x est l'inconnue, un X
+majuscule s'écrit x. Un caractère pour un caractère : le curseur ne bouge pas.
+En capture, il passe avant `sa2Ajuster` et la correction en direct du
+soutien, qui lisent déjà le ×. La police « ApfX » (le x de KaTeX_Math-Italic)
+s'applique à toute case en texte qui offre x (`input[data-pave-plus~="x"]`),
+plus seulement aux classes du 6.1.2 ; et `paveSup` écrit la touche x — et x²
+en Seconde — en `<i>x</i>`. Les juges ne changent pas : ils lisaient déjà ×.
+
+**Le contrôle va partout** (banc navigateur, section 9, « une case de calcul
+en texte écrit « × » pour « * », et le x en italique ») : sur chaque exercice
+visité, chaque case en texte qui offre × ou x est relevée ; le x doit s'y
+écrire en italique (fonte du texte italique — les cases du calcul littéral de
+la Seconde sont en Times italique — ou une fonte de tête qui prend son x dans
+KaTeX_Math-Italic), la touche x du pavé doit porter un `<i>`, et sur la
+première case à × le banc TAPE « 2*3x4 » au clavier : 2×3x4 attendu là où x
+est offert, 2×3×4 ailleurs. Son bord opposé est le drapeau `casesCalculTexte`
+de `tests/profils.js` (Terminale : avec des frappes de « * » ; Seconde : des
+cases à x seulement ; la Première n'en a aucune, non applicable).
+
+**Et le gestionnaire est entré dans le moteur du pavé**, que le banc principal
+exige identique aux trois niveaux (`MOTEUR_PAVE`, « le pavé numérique est
+identique à celui de la Terminale ») : c'est ce contrôle-là qui a rougi à la
+première exécution, `paveSup` ayant changé en Terminale et en Seconde avec deux
+commentaires différents, et pas du tout en Première. `paveSup` et
+`caseCalculEcrire` sont désormais les mêmes, octet pour octet, dans les trois
+pages : une case à × ajoutée demain en Seconde ou en Première écrit « × » sans
+rien porter. Terminale v406, Seconde v569, Première v330.
