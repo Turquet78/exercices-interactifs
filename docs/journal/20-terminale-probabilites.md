@@ -200,7 +200,7 @@ contre les deux « droites ». La question où P(M) est inconnue se choisit
 P(M), puis s'ouvre comme avant sur « on pose P(M) = x ». Le reste ne change
 pas : le choix se juge au clic, compte une réponse, ouvre la ligne de calcul.
 
-## {proba-phrase-formule} (6.2.1) : comprendre une question — associer phrase et formule
+## {proba-phrase-formule} (6.1.4, d’abord 6.2.1) : comprendre une question — associer phrase et formule
 
 Demande de Turquet (octobre 2026), avec la « fiche 4 — Comprendre une
 question en probabilité » : « créer un exercice comme le pdf qui permet
@@ -257,3 +257,13 @@ ou faux, une case vide n'est jamais rouge et reçoit le bon numéro en vert ;
 un numéro faux reste rouge, le bon s'écrit à côté (`corrCase`), et le
 pourquoi dit ce que la phrase attendue contenait — une condition, « et »,
 « ou », ou rien (`cqpPourquoi`). En soutien, la correction est en direct.
+
+## Le 6.2.1 rejoint l'arbre de probabilité : il devient le 6.1.4
+
+Demande de Turquet (octobre 2026) : « mettre le 6.2.1 dans le thème arbre de
+probabilité ». {proba-phrase-formule} passe en fin du sous-thème 6.1, après
+l'exercice de bac : il devient le **6.1.4**. La partie « Comprendre une
+question » (6.2), vidée, disparaît — une partie sans exercice afficherait un
+titre sur rien. Les numéros naissent de `THEMES` : rien d'autre à renuméroter,
+l'identifiant ne change pas, et les résultats déjà enregistrés le retrouvent.
+Terminale v402.
