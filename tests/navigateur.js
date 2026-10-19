@@ -5849,8 +5849,30 @@ if(require.main === module) (async () => {
         if(!c) return null; const r = c.getBoundingClientRect();
         return (r.width > 4 && r.height > 4) ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null;
       }, txt);
-      const cliquerCap = async (txt) => { const p = await trouverCap(txt);
-        if(p){ await s.page.mouse.click(p.x, p.y); await s.page.waitForTimeout(140); } return !!p; };
+      /* CHERCHER LA TOUCHE, PUIS VÉRIFIER QU'ELLE A ÉCRIT (octobre 2026). Le
+         clavier attendu stable à l'ouverture et à chaque bascule, la touche
+         restait cherchée d'UN coup d'œil, 140 ms après le clic d'avant — et
+         l'action a rougi une fois sur « ≥ » introuvable juste après « ≤ »
+         (#756 ; vert à la relance, jamais reproduit en local, même processeur
+         ralenti seize fois). La touche se cherche donc jusqu'à 4 s ; et celle
+         qui ÉCRIT (« ecrit ») n'est comptée que quand son symbole est arrivé
+         dans la ligne aplatie — une touche trouvée mais muette se NOMME
+         (« muet ») au lieu de se confondre avec une touche absente. */
+      const ligneRR = () => s.page.evaluate(() => { const l = rrTexte().split('\n'); return l[l.length - 1]; });
+      const cliquerCap = async (txt, ecrit) => {
+        let p = null; const t0 = Date.now();
+        while(!(p = await trouverCap(txt)) && Date.now() - t0 < 4000) await s.page.waitForTimeout(150);
+        if(!p) return false;
+        const avant = ecrit ? await ligneRR() : null;
+        await s.page.mouse.click(p.x, p.y);
+        if(!ecrit){ await s.page.waitForTimeout(140); return true; }
+        const t1 = Date.now();
+        while(Date.now() - t1 < 2000){
+          if((await ligneRR()).split(ecrit).length > avant.split(ecrit).length) return true;
+          await s.page.waitForTimeout(100);
+        }
+        return 'muet';
+      };
       const kbRects = { ouvert: await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible)), stable: kbRects0.stable };
       /* et la touche « clavier B » (les mots vivent dans le profil), dans la
          fenêtre FLOTTANTE de l'ordinateur : un libellé de neuf lettres dans
@@ -5870,12 +5892,12 @@ if(require.main === module) (async () => {
          désormais sur les DEUX couches (demande de Turquet, septembre 2026) :
          « = » sur le clavier A, ≤ ≥ < > avec les variables sur le clavier B —
          on bascule au milieu, par la touche même, et on revient. */
-      kbRects.eq = await cliquerCap('=');
+      kbRects.eq = await cliquerCap('=', '=');
       kbRects.versB = await cliquerCap(P.clavierEcran ? P.clavierEcran.versB : 'clavier B');
       await s.page.waitForTimeout(200);
       kbRects.stableB = await clavierStable();
-      kbRects.le = await cliquerCap('≤'); kbRects.ge = await cliquerCap('≥');
-      kbRects.lt = await cliquerCap('<'); kbRects.gt = await cliquerCap('>');
+      kbRects.le = await cliquerCap('≤', '≤'); kbRects.ge = await cliquerCap('≥', '≥');
+      kbRects.lt = await cliquerCap('<', '<'); kbRects.gt = await cliquerCap('>', '>');
       await cliquerCap(P.clavierEcran ? P.clavierEcran.versA : 'clavier A');
       await s.page.waitForTimeout(200);
       await clavierStable();
@@ -5903,7 +5925,7 @@ if(require.main === module) (async () => {
         return !(vk && vk.visible) && !(w && w.classList.contains('open'));
       });
       verifier('les touches ≤ ≥ < > = du clavier à l\'écran écrivent dans la ligne du {recurrence-redaction}',
-        kbRects.ouvert && kbRects.le && kbRects.ge && kbRects.lt && kbRects.gt && kbRects.eq
+        kbRects.ouvert && ['le', 'ge', 'lt', 'gt', 'eq'].every(t => kbRects[t] === true)
           && kbTape.indexOf('≤') >= 0 && kbTape.indexOf('≥') >= 0
           && kbTape.indexOf('<') >= 0 && kbTape.indexOf('>') >= 0
           && kbTape.indexOf('=') >= 0 && kbFerme,
@@ -5911,6 +5933,8 @@ if(require.main === module) (async () => {
           + (kbRects.stable && kbRects.stableB ? '' : 'le clavier changeait encore après 6 s ; ')
           + (kbRects.versB ? '' : 'la touche de bascule est introuvable ; ')
           + 'touches trouvées : ' + ['le', 'ge', 'lt', 'gt', 'eq'].filter(t => kbRects[t]).join(' ')
+          + (['le', 'ge', 'lt', 'gt', 'eq'].some(t => kbRects[t] === 'muet')
+              ? ' (cliquées sans rien écrire : ' + ['le', 'ge', 'lt', 'gt', 'eq'].filter(t => kbRects[t] === 'muet').join(' ') + ')' : '')
           + ', ligne lue : ' + JSON.stringify(kbTape.slice(0, 60))
           + (kbFerme ? '' : ' — ET LE CLAVIER RESTE OUVERT'));
       verifier('le raccourci « >= » écrit ≥ dans la feuille du {recurrence-redaction}',

@@ -356,3 +356,17 @@ d'écart, et NOMME l'écart s'il persiste après trois saisies. Mesuré : zéro 
 sur six séances à ×6, puis six à ×12 ; l'attente du focus a suffi, aucune
 reprise n'a servi. Le jugement de la page reste mesuré à l'identique — seule
 la vitesse de la machine est sortie du contrôle.
+
+**Puis le clavier de la Terminale, dans la même veine — sans que le défaut se
+laisse reproduire, et c'est dit.** Le contrôle « les touches ≤ ≥ < > = du
+clavier à l'écran écrivent dans la ligne du {recurrence-redaction} » avait
+rougi une fois sur l'action (#756 : « touches trouvées : le lt gt eq », « ≥ »
+introuvable juste après « ≤ »), vert à la relance. Ralenti six puis seize fois,
+le processeur de Chromium n'a jamais fait fauter l'ancien assistant (treize
+séances) : la cause reste inconnue, et le correctif est DÉFENSIF, sans
+prétendre plus. `cliquerCap` cherchait la touche d'un seul coup d'œil, 140 ms
+après le clic d'avant ; il la cherche désormais jusqu'à 4 s, et une touche qui
+écrit n'est comptée qu'une fois son symbole arrivé dans la ligne aplatie. Une
+touche trouvée mais sans effet vaut `'muet'` et se nomme dans le message
+(« cliquées sans rien écrire : ge ») — distincte d'une touche absente, qui
+reste `false`. Le contrôle exige `=== true` pour chacune.
