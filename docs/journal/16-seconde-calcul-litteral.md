@@ -664,6 +664,34 @@ nommé), le produit croisé (message qui nomme les termes, jamais la flèche),
 −14x (message sans accolade), deux cases vides (la correction) ; enfin le
 7.10 relancé garde ses bulles et ses cases `dvd-…`.
 
+## Les produits du 7.11 dans l'ordre qu'on veut (v565 — v564 prise par les dessins du 6.2)
+
+**La demande** (Turquet, octobre 2026, capture du 7.11 sur
+B = (5x − 8)(8x − 4)) : « accepter que l'ordre soit différent ». L'élève
+avait écrit 5x × (−4) + 5x × 8x + (−8) × (−4) + (−8) × 8x, puis
+−20x + 40x² + 32 − 64x : tout juste, et douze cases rouges, parce que le 7.11
+jugeait chaque case contre le produit de SA place.
+
+**Le juge du 7.17 sert le 7.11** : `dvoVerdicts(q, cases, L)` reçoit
+désormais ses lignes (`dvdLignes` au 7.11, `dvlLignes` par défaut) ;
+`dvdVerdicts` le choisit au 7.11 et laisse au 7.10 `dvlParLots` — l'ordre des
+flèches y compte toujours. Les produits s'apparient par paire, facteurs dans
+les deux sens ; les résultats et la forme réduite, terme à terme ; le « + »
+d'un terme qui en suit un autre se lit sur la place de la case. La consigne
+dit que l'ordre est libre ; le contexte envoyé au modèle aussi.
+
+**Le pourquoi parle du produit que le juge a donné à la rangée**, pas de
+celui de sa place (« Ce produit multiplie le second terme de la première
+parenthèse par le second terme de la seconde ») ; même chose pour un
+résultat faux ou sans son signe.
+
+**Le juge** (`tests/verifier.js`, contrôle du 7.11) : la copie de la page A
+dans le désordre de la capture (produits échangés, facteurs retournés,
+résultats et forme réduite dans un autre ordre) est entière juste ; le même
+produit écrit deux fois ne compte qu'une fois — le facteur juste de la rangée
+reste bleu, le message nomme le produit qui manque ; le 7.10 compte toujours
+ce désordre faux.
+
 ## « x^2 » s'écrit x² dans la case — 7.9, 7.10 et 7.11 (v526)
 
 **La demande** (Turquet, octobre 2026, capture du 7.10) : l'élève qui tape
@@ -681,3 +709,372 @@ attend son 2 (« 15x^ » reste tel quel le temps de taper). Sous le bouton
 « -3x**2 », « x**2 » tapés avec un vrai événement `input` s'affichent
 « 8x² », « -3x² », « x² » dans une case du 7.11, du 7.10 et du 7.9 ;
 « 15x^ » ne bouge pas ; la case convertie se lit toujours 8x².
+
+## {vrai-faux-calcul} — vrai ou faux sur des erreurs d'élèves (7.12, v541 — v539 et v540 prises par le 8.2.8 et le 8.2.15)
+
+**La demande** (Turquet, octobre 2026) : « un vrai ou faux sur des erreurs
+d'élèves. Par exemple 2x + 3x = 5x², −(x − 2) = −x − 2, 3(x + 4) = 3x + 4.
+L'élève dit "faux" et corrige. On retrouve l'esprit de 8.1.10 (le vrai ou
+faux sur une figure à pièges). » Ajouté en dernier du thème 7 : 7.12, rien ne
+se renumérote. Kind `vfl`, écran `scr-vfl`.
+
+**Huit familles d'erreur** (`VFL_ERREURS`), chacune avec son tirage, son
+membre de gauche, sa bonne réponse et son erreur EXACTE :
+- `expo` — 2x + 3x = 5x² (les exposants s'ajoutent) ;
+- `nature` — 2x + 5 + 3x = 10x (un nombre mêlé aux x) ;
+- `produit` — 2x × 3x = 6x ou 5x² (x × x oublié, ou les coefficients
+  ajoutés) ;
+- `moins` — −(x − 2) = −x − 2 (le moins ne change que le premier signe) ;
+- `distrib` — 3(x + 4) = 3x + 4 (le facteur oublie le second terme) ;
+- `distribNeg` — −2(x − 3) = −2x − 6 (la règle des signes du second
+  produit) ;
+- `soustr` — 5x − (2x + 3) = 3x + 3 (le nombre ne change pas de signe) ;
+- `signes` — −3x − 2x = 5x (« moins par moins » appliqué à une somme).
+
+**Six égalités par page, six familles différentes, trois pages**
+(`VFL_L`, `VFL_NB`, `dmNbQuestions`). De 1 à 3 sont vraies (`VFL_VRAIES`) :
+la vraie et la fausse d'une famille ne diffèrent que par l'erreur, et le
+nombre de vraies change d'une page à l'autre — « tout est faux » ne se
+devine pas. Le tirage passe par `distinctes()`, la clé lit les familles et
+leurs nombres. On range la famille, les nombres et le verdict (`t`, `n`,
+`v`) ; `vflLignes()` recalcule les écritures.
+
+**L'élève dit « Faux » et corrige.** Chaque ligne a sa liste « ? / Vrai /
+Faux » (`itvSelHTML`, `TVF_OPT_VF`, comme au 8.1.10) et sa case de
+correction « LHS = … », avec le bouton x² du 7.5. La case n'apparaît que
+quand la liste dit « Faux » — par la règle CSS `:has(option[value="F"]:checked)`,
+pas par un écouteur : la reprise d'une pause repose les valeurs SANS
+événement, et la case revient d'elle-même. Toutes les lignes ont leur case,
+vraies comprises : une case réservée aux lignes fausses trahirait le
+verdict.
+
+**Une ligne fausse vaut deux cases, une vraie une seule** : la case de
+correction d'une ligne vraie n'est ni jugée ni peinte (elle ne compte donc
+pas dans `ptsEcran`), et se ferme à la vérification (`vfl-ferme`). Celle
+d'une ligne fausse s'ouvre (`vfl-montre`), quoi que l'élève ait choisi : une
+fausse crue vraie reçoit sa correction en vert, comme une case vide. Barème
+de la séance = 6 × 3 + le nombre de lignes fausses (`vflBareme`).
+
+**La correction se juge sur la valeur** (`redLit`, `redMeme` du 7.5) : réduite
+et égale au membre de gauche. « 2 − x » vaut « −x + 2 », « 12 + 3x » vaut
+« 3x + 12 » ; « 3x + 2x » est juste mais pas réduite, et le message le dit.
+« x^2 » s'écrit x² à la frappe (`dvlExposant`).
+
+**Le pourquoi** (`vflPourquoi`), sur la première vraie faute : la règle de
+la famille (« x RESTE x. Le carré vient d'un PRODUIT », « un moins devant une
+parenthèse change le signe de TOUS les termes »…) ; pour une vraie jugée
+fausse, « l'élève n'a pas fait d'erreur ici — vérifie en remplaçant x par
+2 ». Sous chaque ligne, une fois la page corrigée : « Faux : 2x + 3x = 5x, et
+non 5x². » ou « Vrai : … ».
+
+**Ce qui a été décidé sans demander** : les cinq familles ajoutées aux trois
+de la demande, six lignes par page, la case de correction présente sur
+TOUTES les lignes, et l'acceptation de toute écriture réduite de même
+valeur.
+
+**Le juge** (`tests/verifier.js`, `vraiFauxCalcul`) ne lit pas les familles :
+il évalue le TEXTE affiché de chaque membre en quatre valeurs de x. Sur 300
+séances : trois pages, six familles distinctes par page, de 1 à 3 vraies (et
+chacun des trois comptes sort), le verdict de la page égal à celui du calcul,
+la correction égale au membre de gauche et réduite, aucune égalité posée
+deux fois, les huit familles tirées. Puis les trois exemples de Turquet au
+bouton (avec 2x × 3x = 6x², −3x − 2x = −5x vraies et 2x + 5 + 3x = 10x
+fausse) : les écritures affichées, la copie juste (10/10) et d'autres
+écritures justes, l'erreur crue vraie (rouge, correction en vert, message
+qui nomme les exposants), l'erreur recopiée, la correction non réduite, la
+vraie jugée fausse (sa case de correction jamais peinte), la case vide, la
+copie vide sans rouge, « 6x^2 » → « 6x² », le JSON, le soutien, le contexte
+du modèle.
+
+Deux défauts trouvés par le juge à sa première exécution : 2x × 2x avec
+l'erreur « coefficients ajoutés » donnait 4x², qui est JUSTE (2 + 2 = 2 × 2 —
+les deux coefficients d'un produit sont désormais différents) ; et une même
+égalité revenait d'une page à l'autre (la clé de `distinctes()` lit la page
+entière : `vflGen` écarte maintenant tout membre de gauche déjà posé dans la
+séance). Deux sabotages éprouvent le contrôle : une correction non réduite
+acceptée (« une correction juste non réduite : … Le reste est juste ! ») et
+l'erreur du moins remplacée par la bonne réponse (« −(2x − 7) = −2x + 7 : la
+page dit faux, le calcul vrai »).
+## {valeur-expression} — calculer une expression pour une valeur (7.13, v543 — le 7.12 et la v541 pris le même jour par {vrai-faux-calcul}, la v542 par le 8.2.14 et le calcul global)
+
+**La demande** (Turquet, octobre 2026) : « créer un exercice dans calcul
+littéral sur calculer une expression pour une valeur, par exemple
+3x² − 2x + 1 pour x = −2 — c'est le réinvestissement direct de 7.1 à 7.4,
+avec le piège (−2)² contre −2² ».
+
+**Une page = une valeur de x = trois blocs = huit cases.** x est toujours
+NÉGATIF (−2 à −5) : c'est là que vivent le piège et la règle des signes.
+① Le piège, face à face, sans expression autour : (−k)² puis −k². ② A =
+ax² + bx + c (a de 2 à 5, b de ±2 à ±7, c de ±1 à ±9, jamais nul) : la
+valeur de ax², celle de bx, puis A, sur une ligne qui écrit la substitution
+entière (« A = 3 × (−2)² − 2 × (−2) + 1 = »). ③ B = −x² + b′x + c′ : le
+même piège, cette fois DANS une expression (−x² = −(−2)² = −4), puis b′x,
+puis B. Chaque case est un geste des 7.1 à 7.4 : le carré (produit de deux
+relatifs égaux), les produits (règle des signes), la somme (signe du plus
+fort). Trois pages par `distinctes(dmNbQuestions(3), …)`, barème 24 ; la
+séance s'allonge depuis un devoir. Le bouton des tables reste : on y
+multiplie.
+
+**La page écrit la substitution, l'élève écrit les valeurs.** Une case de
+saisie libre pour « 3 × (−2)² − 2 × (−2) + 1 » demanderait un juge
+d'écriture ; c'est l'en-tête de chaque ligne qui montre la valeur remplacée
+AVEC ses parenthèses — le modèle à imiter —, et les cases ne prennent que des
+entiers, lus par `relLit` comme au 7.1.
+
+**On range les nombres, jamais les réponses** : `{k, a, b, c, b2, c2}` ;
+`cvlCases` recalcule chaque attendu dans la fonction qui corrige (son nom
+suit la convention que lit le barème d'un devoir).
+
+**Le message part de la première case fausse et nomme le piège** : −2² = 4
+(« il n'y a pas de parenthèses : le carré ne porte que sur 2 ») ;
+(−2)² = −4 (« la parenthèse met le signe AU CARRÉ ») ; −x² = 4 (« le − de
+−x² n'est pas au carré — c'est le piège du premier bloc ») ; 3x² = 36
+(« le carré ne porte que sur (−2) ») ; x² lu comme 2x ; le signe du plus
+fort pris pour un produit ; la somme des termes, réécrite valeur par valeur.
+
+**Le juge** (`tests/verifier.js`, « calculer une expression pour une
+valeur ») : la place (7.13, les 7.4, 7.11 et 7.12 immobiles, bouton des tables
+présent), 500 séances tirées (bornes de chaque nombre, trois pages
+distinctes, huit attendus contre `Math.pow`), puis la fiche témoin au
+bouton — x = −2, A = 3x² − 2x + 1, B = −x² + 5x − 3 — avec la copie juste
+écrite à la main (4, −4, 12, +4, 17, −4, −10, −17), le texte de l'écran
+(chaque substitution, avec ses parenthèses), les cinq pièges (rouges, leur
+voisine juste reste bleue, le message les nomme), deux cases vides (la
+correction, jamais rouge), une réponse illisible, le barème de 24.
+
+## {developper-reduire} — développer puis réduire une somme de produits (7.14, v545 — le 7.12 et le 7.13, les v541 à v544 pris le même jour par {vrai-faux-calcul}, {valeur-expression}, le 8.2.14, le calcul global et le 6.3)
+
+**La demande** (Turquet, octobre 2026) : « créer un exercice dans calcul
+littéral sur Développer puis réduire une somme de produits. Par exemple
+(x + 2)(x − 3) − 2x(x + 1) : on enchaîne 7.11 et 7.5 dans la même rangée
+d'égalités. » Kind `dvr`, écran `scr-dvr`.
+
+**UNE rangée d'égalités** : `A = (x + 2)(x − 3) − 2x(x + 1) = [6 cases] =
+[3 cases]`. Le premier « = » annonce les six termes du développement (quatre
+de la double distributivité, deux de la simple — le signe devant le produit
+compris), le second les trois termes de la forme réduite (x², x, nombre).
+Chaque « = » passe par `fEq` avec SES cases (`.dvr-termes`, insécable) : sur
+un écran étroit la rangée se replie avant un « = », jamais entre le signe et
+ses cases. La forme intermédiaire du 7.11 (les produits « a × c ») n'y est
+pas : six produits de plus auraient fait trois lignes, et la demande voulait
+une rangée.
+
+**Quatre pages, quatre formes** (`dvrGen`) : (x ± b)(x ± d) − kx(x ± f) — la
+forme de l'exemple —, (ax ± b)(cx ± d) + kx(ex ± f), (ax ± b)(cx ± d) − k(ex ± f),
+et kx(ex ± f) − (x ± b)(cx ± d), où le « − » change le signe des QUATRE termes.
+Aucun terme de la forme réduite ne s'annule (le tirage recommence) : toujours
+neuf cases, barème 36. La première page montre l'exemple de la demande, rempli :
+… = x² − 3x + 2x − 6 − 2x² − 2x = −x² − 3x − 6.
+
+**Les termes développés se lisent dans N'IMPORTE QUEL ORDRE** (`dvrJuger`) :
+rien ne les ordonne dans la rangée, et x² + 2x − 3x − 6 est aussi juste que
+x² − 3x + 2x − 6. Chaque case remplie prend un terme attendu encore libre de
+même valeur ; les cases fausses ou vides reçoivent, en correction, les termes
+restés libres. La forme réduite, elle, s'ordonne (x², x, nombre) : écrite
+dans le désordre, elle est fausse. Le terme qui en suit un autre garde son
+signe, comme au 7.9 ; la lecture d'un terme (`dvlLit`), la correction d'une
+case (`dvlCorr`) et « x^2 » → x² à la frappe (`dvlExposant`) sont ceux du 7.9.
+
+**Le message** part de la première case fausse : le signe oublié (« il garde
+son signe, +5x »), le « − » devant un produit appliqué au premier terme
+seulement (« Le signe « − » devant 3x(x − 2) change le signe de CHACUN de ses
+termes : − 3x(x − 2) = −3x² + 6x »), un produit mal développé (chaque produit
+développé), une réduction fausse (« On regroupe les termes en x : −2x + 3x −
+8x = −7x »).
+
+**Le juge** (`tests/verifier.js`, « développer puis réduire une somme de
+produits ») : la place (7.14, les 7.11 à 7.13 immobiles), 400 pages tirées jugées par
+une SECONDE méthode — la valeur de l'expression, du développement et de la
+forme réduite en x = −2, 1 et 3 —, six termes, trois termes réduits non nuls ;
+puis quatre pages écrites à la main, au bouton : une seule rangée, deux
+groupes « = » de 6 puis 3 cases, l'expression affichée, la copie juste
+(9/9, « x**2 » et « x^2 » compris) ; l'exemple sur la première page seulement,
+sans case ; les termes dans un autre ordre (justes) ; le « − » oublié sur le
+second terme (rouge seul, message nommé, correction +6x) ; « 5x » sans son
+signe ; la réduction fausse ; la forme réduite dans le désordre ; deux cases
+vides (la correction, jamais rouge).
+
+## {developper-signe-moins} — le signe − devant une parenthèse (7.15, v551)
+
+**La demande** (Turquet, octobre 2026) : « en seconde faire un exercice avec
+le signe − devant une parenthèse comme le 7.9 ». Le schéma est celui du 7.9
+— bulles, flèches, accolades — et ce qu'il donne à voir, c'est que le « − »
+devant la parenthèse est un FACTEUR : −(a + b) = (−1) × a + (−1) × b. Sur la
+première ligne, le « − » lui-même est entouré en rouge et les deux flèches en
+partent (aucun « × » ne le suit) ; sur la deuxième, l'élève écrit −1 dans les
+bulles rouges. « − » seul dans une bulle rouge est faux, et le message le
+nomme (« dans la bulle rouge, on écrit −1 ») : c'est tout l'exercice.
+
+**Six pages, une forme chacune** : −(x + b), −(ax − b), −(−ax + b),
+c − (ax + b), ax − (bx − c), k × (ax − b) − (a′x − b′). Seuls les nombres
+sont tirés ; une famille par page, comme le 7.9 (`dvmBuildQuestions`, pas de
+`distinctes()`). Les trois dernières se réduisent, et rien ne s'y annule : le
+tirage recommence si c = b (D), si a = b (E), si ka = a′ ou kb = b′ (F). La
+première page montre l'exemple rempli, −(x + 4) = −x − 4 ; la page A ne tire
+jamais b = 4.
+
+**Le terme écrit DEVANT la parenthèse est donné** (`q.seul`, D et E) : il se
+recopie sur chaque ligne, dans sa propre colonne de la grille, suivi d'un « + »
+sur la ligne des produits (7 − (3x + 2) = 7 + (−1) × 3x + (−1) × (+2)) — il
+ne compte aucune case. Avec lui, le premier résultat suit déjà un terme : il
+garde son signe, comme le second.
+
+**Le moteur est celui du 7.9** : `dvlLit`, `dvlJuste`, `dvlCorr`,
+`dvlExposant`, `dvlTrace` et `dvlSuivre`, sans y toucher. Seuls le calcul des
+lignes (`dvmLignes`) et la mise en page (`dvmSchema`) sont propres : un terme
+seul n'est pas un produit, et `dvlLignes` n'avait pas à l'apprendre. L'écouteur
+`resize` du 7.9 retrace aussi `#scr-dvm`.
+
+**Le pourquoi** de la première case fausse : le −1 caché (bulle rouge), la
+flèche suivie (bulle bleue ou verte), le produit — « multiplier par −1 change
+le signe du terme ; chaque terme de la parenthèse change de signe, le second
+aussi », l'erreur type −(2x − 5) = −2x − 5 —, le signe oublié, ou la
+réduction.
+
+**Le juge** (`tests/verifier.js`, « le signe − devant une parenthèse ») : la
+place (7.15, les 7.9 à 7.14 immobiles, bouton des tables présent), 300 tirages
+(les six formes dans l'ordre, les bornes, rien qui s'annule), puis six pages
+au bouton — −(x + 3), −(2x − 5), −(−3x + 4), 9 − (2x + 5), 7x − (3x − 2),
+3 × (2x − 1) − (4x − 5) —, réponses écrites À LA MAIN : la copie juste de
+chaque page (6, 6, 6, 8, 8 et 14 cases), flèches et accolades déclarées, la
+bulle rouge de l'énoncé qui porte « − » sans « × », le terme de devant écrit
+trois fois ; l'exemple sur la première page seulement, sans case ; puis les
+pièges : « − » seul dans la bulle rouge (rouge seul, message du −1), −5 pour
+(−1) × (−5) (message du signe qui change), −3x pour (−1) × (−3x), « 5 » sans
+son signe, 10x pour 7x − 3x, « 9-5 » non réduit, deux cases vides (la
+correction +5 et −1, jamais rouge), le barème de 48 ; enfin le 7.9 relancé
+garde ses bulles chiffrées.
+
+## {developper-signe-moins-nu} — le signe − devant une parenthèse, sans les flèches (7.16, v559)
+
+**La demande** (Turquet, octobre 2026) : « en seconde fais le même exercice
+sans les flèches et sans les cercles qui entourent les nombres, sans les
+accolades, et sans l'étape avec des multiplications ». C'est le 7.15 sans
+son échafaudage : les mêmes six pages, le même tirage, le même juge ; l'élève
+écrit directement le développement terme par terme (le terme de devant,
+donné, recopié en tête), puis la forme réduite. Vingt cases : 2, 2, 2, 4, 4
+et 6.
+
+**Un moteur, deux identités**, comme le 7.11 pour le 7.10 : `dvmP()` lit le
+préfixe sur `test.kind` (« dvm » ou « dvs »), `dvmCases` saute les cases de
+facteur en « dvs », `dvsSchema` écrit l'expression en clair et une case par
+terme, sans `<svg>` ni `data-fl` / `data-acc` ; `dvlSuivre` n'est pas appelé.
+`startDvm('dvs')` pose `kind:'dvs'` et `qId:'developper-signe-moins-nu'`, et
+le barème se calcule APRÈS l'`Object.assign` du kind, puisque `dvmCases` le
+lit. Le préfixe « dvz » était déjà pris par l'exemple du 7.11 : d'où « dvs ».
+
+**Ce qui parlait du dessin se reformule** : la consigne dit que le signe −
+change le signe de chaque terme, sans flèche ni bulle ; le pourquoi d'un
+terme faux reste « (−1) × (−5) = 5 : multiplier par −1 change le signe du
+terme », qui ne nomme aucun dessin.
+
+**Le juge** (`tests/verifier.js`, « le signe − devant une parenthèse sans les
+flèches ») : la place (7.16, le 7.15 immobile), l'identité (kind, qId, écran,
+barème de 20), puis les six pages du 7.15 au bouton avec des réponses écrites
+à la main — la copie juste de chaque page, AUCUN dessin ni case de facteur,
+une consigne sans « flèche », « bulle » ni « accolade » ; l'exemple sans case ;
+les pièges : −5 pour −(−5) (rouge seul, message du signe qui change), « 5 »
+sans son signe, 10x pour 7x − 3x, une case vide (la correction +5) ; enfin le
+7.15 relancé garde ses bulles, ses cases de facteur et son barème de 48.
+
+## {developper-distributivite-nu} — développer avec la distributivité, sans les flèches, dans l'ordre qu'on veut (7.17, v561)
+
+**La demande** (Turquet, octobre 2026) : « en seconde faire un exercice
+exactement comme le 7.9 mais sans les flèches, sans les encerclements des
+termes, sans les accolades. L'ordre des termes n'a pas d'importance ici. »
+C'est le 7.9 sans son échafaudage, comme le 7.11 pour le 7.10 : les mêmes six
+pages, le même tirage, les mêmes 44 cases à la même place (les deux facteurs
+de chaque produit, le résultat de chaque produit, la forme réduite de F) et le
+même exemple — seul le dessin tombe, et l'ordre se libère.
+
+**Un moteur, deux identités.** `dvlP()` lit le préfixe sur `test.kind`
+(« dvl » ou « dvo ») — cases `dvo-f-…`, `dvo-t-…`, `dvo-r-…`, écran `scr-dvo` —,
+`startDvl('dvo')` pose `kind:'dvo'` et `qId:'developper-distributivite-nu'`, et
+le barème se calcule APRÈS l'`Object.assign` du kind, puisque `dvlCases` le
+lit. `dvlSchema(…, nu)` écrit l'expression d'un trait (dans un `<span>`, comme
+au 7.11) et remplace chaque bulle par un `.dvl-nb`, sans `<svg>` ni `data-fl` /
+`data-acc` ; `dvlSuivre` n'est pas appelé. Le schéma prend la classe
+`dvn-schema` du 7.11 : les cases des facteurs y ont leur cadre, la place des
+flèches et des accolades se rend.
+
+**L'ordre libre est un juge à part, pas un 7.9 assoupli** (`dvoVerdicts`,
+appelé par `dvlVerdicts` ; le 7.9 garde `dvlJuste`, case par case). Chaque
+case reçoit le terme attendu ENCORE LIBRE qui a sa valeur : un produit se juge
+par paire, ses deux facteurs dans les deux sens (2x × 4 = 4 × 2x) ; une paire
+dont un seul facteur est juste garde ce facteur ; les résultats et la forme
+réduite se jugent terme à terme. Un terme écrit deux fois ne compte qu'une
+fois — la seconde case rougit, et sa correction est le terme que personne n'a
+pris (jamais deux fois le même badge). Les cases déjà validées en soutien
+(désactivées) se servent en premier : un doublon écrit plus loin ne leur
+reprend pas leur terme, ce qui laisserait une case verte et figée devenir
+fausse. Le « + » d'un terme qui en suit un autre se lit sur la PLACE de la
+case, comme au 7.9 : « 8 +4x » est juste, « 8 4x » ne l'est pas, et le message
+le nomme — en forme réduite aussi.
+
+**Ce qui parlait du dessin se reformule** : la consigne ne nomme plus ni
+couleur, ni flèche, ni accolade, et dit que l'ordre des termes n'a pas
+d'importance ; le pourquoi d'un facteur faux nomme la règle et liste les
+produits attendus « dans l'ordre que tu veux », celui d'un résultat faux
+liste chaque produit et son résultat. Dans l'exemple, « 5 × 3 » (sans bulle,
+le « +3 » du 7.9 n'a plus de quoi se lire).
+
+**Le juge** (`tests/verifier.js`, « développer avec la distributivité sans
+les flèches ») : la place (7.17, le 7.9 et le 7.16 immobiles, bouton des
+tables présent), l'identité (kind, qId, écran, barème de 44), puis la fiche du
+7.9 au bouton avec des réponses écrites À LA MAIN, deux fois : dans l'ordre de
+la fiche, puis dans le désordre (produits échangés, facteurs retournés,
+résultats et forme réduite à l'envers) — toutes vertes, 6 et 14 cases ; AUCUN
+dessin, une consigne sans couleur ni flèche et qui dit l'ordre libre ;
+l'exemple sans case ; les pièges : « 4x » sans son signe après « 8 » (rouge
+seul, message nommé), le même produit écrit deux fois (rouge, le facteur juste
+du doublon reste vert), 2x pour x × 2x, deux cases vides (la correction +8x et
+2x, les termes non pris), la forme réduite sans signe puis non réduite ; enfin
+le 7.9 relancé garde ses bulles, et le désordre y reste faux.
+
+## La forme réduite s'écrit dans n'importe quel ordre — 7.9, 7.11, 7.14, 7.15, 7.16 (v563)
+
+**La demande** (Turquet, octobre 2026, captures du 7.14, du 7.15 et du 7.16 à
+l'appui) : « on ne veut pas forcément ordonner les termes au résultat ; de
+plus l'ordre des cases n'est pas important ici ». Le 7.16 peignait en rouge
+« 9 − 7x » pour −7x + 9, et le 7.15 « 5 − 8x » pour −8x + 5 : des formes
+réduites justes, comptées fausses parce que la consigne voulait « le terme en
+x d'abord, puis le nombre ».
+
+**Un appariement, partagé** (`dvlApparier`) : c'est le juge du 7.14
+(`dvrJuger`) sorti de son exercice — le 7.17, arrivé le même jour, garde le
+sien (`dvoVerdicts`, qui juge aussi les produits par paire) ; `dvlVerdicts`
+lui passe la main, et juge le 7.9 par `dvlParLots`. Les cases d'un même LOT (`c.lot`) se
+lisent dans n'importe quel ordre : chaque case remplie prend un terme attendu
+encore libre de même valeur ; les cases fausses ou vides reçoivent, en
+correction, les termes restés libres. `dvlParLots(cases)` juge une page :
+une case sans lot à sa place (`dvlJuste`), les autres par lot. Le terme qui
+en suit un autre garde son signe, quelle que soit sa place : c'est la PLACE
+qui exige le signe, pas le terme (« 7 − 2x » est juste ; « −2x 7 » ne l'est
+pas).
+
+**Ce qui est en lot, et ce qui ne l'est pas** : la forme réduite du 7.9
+(page F), du 7.11, du 7.14, du 7.15 et du 7.16 ; les termes développés du
+7.14 (déjà libres) et du 7.16 — sans accolade, rien n'attache un terme à sa
+case. Restent à leur place : les résultats sous les accolades (7.9, 7.10,
+7.15), les produits et leurs résultats du 7.11 (« dans l'ordre », la consigne
+le demande), et toute la forme réduite du 7.10, dont chaque case est sous la
+colonne qui la produit. Les consignes ne disent plus « le terme en x
+d'abord » : elles disent « dans l'ordre que tu veux » ; les noms des cases
+pour le lecteur d'écran (« terme 2 de la forme réduite ») ne nomment plus un
+degré.
+
+**Le pourquoi suit ce que l'élève a écrit**, pas la place : au 7.11 et au
+7.14, une réduction fausse parle du degré du terme écrit (« −14x » en
+première case : « les deux termes en x se regroupent ») ; le signe oublié se
+reconnaît sur n'importe quel terme du lot (« 2 » en première case du 7.16,
+page E : « il garde son signe, +2 »).
+
+**Le juge** (`tests/verifier.js`, dans les contrôles de chaque exercice) :
+la forme réduite dans un autre ordre, juste aux cinq (7.9 F, 7.11 D, 7.14 D,
+7.15 D, 7.16 D) ; le 7.14 qui exigeait l'ordre x², x, nombre est retourné ;
+le développement du 7.16 dans un autre ordre, juste (pages B et D) ; une
+case vide après un terme pris hors de sa place reçoit le terme restant
+(7.9 : « 7 », puis −2x) ; le signe oublié sur la dernière place (7.14 : « 4x² »)
+et à une autre place (7.16) ; la réduction fausse à une autre place (7.11,
+7.14) ; et, en face, le 7.15 garde ses accolades : un résultat sous la
+mauvaise accolade reste rouge.

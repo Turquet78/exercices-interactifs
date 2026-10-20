@@ -94,6 +94,9 @@ begin
     -- l'arrêter au niveau du droit de table plutôt qu'à la politique est une
     -- barrière de plus.
     execute format('grant insert, select, update, delete on public.%I to authenticated', si);
+    -- Et la clé de service (fonctions Edge, scripts), que Supabase ne dote plus
+    -- d'office depuis le 30 octobre 2026 sur une table neuve.
+    execute format('grant select, insert, update, delete on public.%I to service_role', si);
 
     -- L'élève ne signale que sous son propre nom. Sans ce contrôle, n'importe
     -- qui pourrait déposer un signalement au nom d'un autre.

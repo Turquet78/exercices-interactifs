@@ -284,6 +284,15 @@ async function cliquerPastille(page, prenom, delai){
   await page.waitForTimeout(150);                              /* la page met le focus au code après 60 ms */
   return true;
 }
+/* Le dernier chiffre du code lance la connexion tout seul (octobre 2026) :
+   le banc ne clique plus « Entrer » — un second appel derrière un code refusé
+   lirait la case vidée et répondrait « Écris ton code » par-dessus « Code
+   incorrect ». Il attend que la tentative ait rendu son verdict. Le bouton
+   « Entrer », lui, garde son contrôle propre (section de la connexion). */
+async function saisirCode(page, code){
+  await page.fill('#loginPin', code);
+  await page.waitForFunction(() => typeof connexionEnCours === 'undefined' || !connexionEnCours, null, { timeout: 5000 }).catch(() => {});
+}
 async function connecter(page){
   /* La page s'ouvre DIRECTEMENT sur la connexion : l'écran « Choisis ton rôle »
      a disparu avec le bouton du professeur. Le banc n'a donc plus de premier
@@ -291,8 +300,7 @@ async function connecter(page){
      L'élève CLIQUE son prénom (les pastilles sont revenues, décision de
      Turquet du 14 octobre 2026) : la case du code n'apparaît qu'après. */
   if(!await cliquerPastille(page, PRENOM_CONTROLE)) return ecranVisible(page);
-  await page.fill('#loginPin', CODE_CONTROLE);
-  await page.click('#modeCo button.btn-primary');              /* « Entrer » */
+  await saisirCode(page, CODE_CONTROLE);
   await page.waitForTimeout(500);
   return ecranVisible(page);
 }
@@ -651,8 +659,7 @@ if(require.main === module) (async () => {
     const entrerPastille = async code => {
       if(!await cliquerPastille(s.page, PRENOM_CONTROLE, 3000)) return '(aucune pastille « ' + PRENOM_CONTROLE + ' » à cliquer)';
       if(!(await ecranConnexion()).code) return '(la case du code reste cachée après le clic)';
-      await s.page.fill('#loginPin', code);
-      await s.page.click('#modeCo button.btn-primary');
+      await saisirCode(s.page, code);
       await s.page.waitForTimeout(500);
       return ecranVisible(s.page);
     };
@@ -661,8 +668,7 @@ if(require.main === module) (async () => {
       if(!e.prenom) return '(aucun champ « Ton prénom » à l\'écran : ' + (e.message || 'rien') + ')';
       if(!e.code) return '(la case du code reste cachée à côté du champ « Ton prénom »)';
       await s.page.fill('#loginPrenom', prenom);
-      await s.page.fill('#loginPin', code);
-      await s.page.click('#modeCo button.btn-primary');
+      await saisirCode(s.page, code);
       await s.page.waitForTimeout(500);
       return ecranVisible(s.page);
     };
@@ -720,8 +726,7 @@ if(require.main === module) (async () => {
         const clic = await cliquerPastille(s.page, PRENOM_CONTROLE, 3000);
         choix = clic ? await ecranConnexion() : null;
         if(choix && choix.code){
-          await s.page.fill('#loginPin', CODE_CONTROLE);
-          await s.page.click('#modeCo button.btn-primary');
+          await saisirCode(s.page, CODE_CONTROLE);
           await s.page.waitForTimeout(500);
           apres = await ecranVisible(s.page);
           cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
@@ -778,8 +783,7 @@ if(require.main === module) (async () => {
           premiere = lu.choisie; tete = lu.tete;
           attendue = premiere === 'cle-controle' ? 'cle-controle-bis' : 'cle-controle';
           if((await ecranConnexion()).code){
-            await s.page.fill('#loginPin', attendue === 'cle-controle-bis' ? CODE_BIS : CODE_CONTROLE);
-            await s.page.click('#modeCo button.btn-primary');
+            await saisirCode(s.page, attendue === 'cle-controle-bis' ? CODE_BIS : CODE_CONTROLE);
             await s.page.waitForTimeout(500);
             apres = await ecranVisible(s.page);
             cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
@@ -820,8 +824,7 @@ if(require.main === module) (async () => {
         await sortir();
         clic = await cliquerPastille(s.page, 'Zélie', 3000);
         if(clic && (await ecranConnexion()).code){
-          await s.page.fill('#loginPin', CODE_CONTROLE);
-          await s.page.click('#modeCo button.btn-primary');
+          await saisirCode(s.page, CODE_CONTROLE);
           await s.page.waitForTimeout(500);
           apres = await ecranVisible(s.page);
           toastS = await lireToast();
@@ -859,8 +862,7 @@ if(require.main === module) (async () => {
         }, { t: P.tableEleves, c: CODE_CONTROLE });
         clic = await cliquerPastille(s.page, 'Zoé', 3000);
         if(clic && (await ecranConnexion()).code){
-          await s.page.fill('#loginPin', CODE_CONTROLE);
-          await s.page.click('#modeCo button.btn-primary');
+          await saisirCode(s.page, CODE_CONTROLE);
           await s.page.waitForTimeout(500);
           apres = await ecranVisible(s.page);
           cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
@@ -900,13 +902,11 @@ if(require.main === module) (async () => {
           clic = await s.page.evaluate(() => !!selectedEleve && selectedEleve.id === 'eleve-controle-sans-cle');
         }
         if(clic && (await ecranConnexion()).code){
-          await s.page.fill('#loginPin', CODE_FAUX);
-          await s.page.click('#modeCo button.btn-primary');
+          await saisirCode(s.page, CODE_FAUX);
           await s.page.waitForTimeout(500);
           apres1 = await ecranVisible(s.page); toastH = await lireToast();
           t1 = essais(await depuis(r0)).map(e => (e.ok ? 'ok:' : 'refus:') + e.courriel);
-          await s.page.fill('#loginPin', CODE_CONTROLE);
-          await s.page.click('#modeCo button.btn-primary');
+          await saisirCode(s.page, CODE_CONTROLE);
           await s.page.waitForTimeout(500);
           apres2 = await ecranVisible(s.page);
           cle2 = await s.page.evaluate(() => currentEleve && currentEleve.cle);
@@ -925,6 +925,96 @@ if(require.main === module) (async () => {
           : t1.length !== 1 || t1[0].indexOf('refus:cle-controle@') !== 0 ? 'tentatives : ' + (t1.join(', ') || 'aucune') + ' — attendu : la seule clé de l\'homonyme, refusée'
           : !toastH || !/pas encore relié/.test(toastH.texte) || !/Code incorrect/.test(toastH.texte) ? 'message : ' + JSON.stringify(toastH)
           : 'avec le code de l\'homonyme : écran ' + apres2 + ', clé « ' + cle2 + ' »');
+    }
+
+    /* LE DERNIER CHIFFRE LANCE LA CONNEXION, ET LA CASE DIT OÙ ELLE EN EST
+       (demande de Turquet, octobre 2026 : « quand le code élève est correct
+       à la dernière frappe, laisser comprendre en encadrant en vert que c'est
+       validé et qu'il suffit d'attendre »). Tapé AU CLAVIER, touche par
+       touche, avec une vérification qui prend 600 ms comme au lycée :
+       - pendant la vérification, la case est « en cours » (bleue qui pulse),
+         et un « Entrée » tapé à ce moment ne relance RIEN — une seule
+         tentative contre la limitation de cadence ;
+       - un code refusé : rouge, « Code incorrect », la case vidée ; la
+         frappe suivante efface le rouge ;
+       - un code accepté : VERTE, « C'est bon », puis l'espace s'ouvre —
+         et jamais verte avant la réponse de Supabase ;
+       - cinq chiffres ne lancent rien, et le bouton « Entrer » connecte
+         toujours (un code posé sans frappe, comme un remplissage du système). */
+    {
+      const lireCase = () => s.page.evaluate(() => {
+        const c = document.getElementById('loginPin'), m = document.getElementById('pinEtat');
+        return { classes: [...c.classList].filter(k => k.indexOf('pin-') === 0 && k !== 'pin-input').join(' '),
+                 message: m ? m.textContent.trim() : '(aucun #pinEtat)', valeur: c.value, ecran: ((document.querySelector('.screen.on') || {}).id) || '' };
+      });
+      const attendre = () => s.page.waitForFunction(() => !connexionEnCours, null, { timeout: 5000 }).catch(() => {});
+      let clic, pendant, nEssais, refuse, efface, pendant2, accepte, apres, apresSortie, cinq, nCinq, bouton, nBouton;
+      try{
+        await sortir();
+        await s.page.evaluate(() => { window.__faux.delaiConnexion = 600; });
+        clic = await cliquerPastille(s.page, PRENOM_CONTROLE, 3000);
+        if(clic && (await ecranConnexion()).code){
+          await s.page.waitForTimeout(150);
+          let r = await repere();
+          await s.page.type('#loginPin', CODE_FAUX, { delay: 30 });
+          pendant = await lireCase();
+          await s.page.keyboard.press('Enter');
+          await attendre();
+          nEssais = essais(await depuis(r)).length;
+          refuse = await lireCase();
+          await s.page.keyboard.type(CODE_CONTROLE[0]);
+          efface = await lireCase();
+          await s.page.keyboard.type(CODE_CONTROLE.slice(1), { delay: 30 });
+          pendant2 = await lireCase();
+          await attendre();
+          accepte = await lireCase();
+          await s.page.waitForTimeout(300);
+          apres = await ecranVisible(s.page);
+          await sortir();
+          apresSortie = await lireCase();
+          await s.page.evaluate(() => { window.__faux.delaiConnexion = 0; });
+          if(await cliquerPastille(s.page, PRENOM_CONTROLE, 3000)){
+            await s.page.waitForTimeout(150);
+            r = await repere();
+            await s.page.type('#loginPin', CODE_CONTROLE.slice(0, -1));
+            await s.page.waitForTimeout(300);
+            cinq = await lireCase(); nCinq = essais(await depuis(r)).length;
+            await s.page.evaluate(c => { document.getElementById('loginPin').value = c; }, CODE_CONTROLE);
+            await s.page.click('#modeCo button.btn-primary');
+            await attendre(); await s.page.waitForTimeout(300);
+            bouton = await ecranVisible(s.page); nBouton = essais(await depuis(r)).length;
+          }
+        }
+      } finally {
+        await s.page.evaluate(() => { window.__faux.delaiConnexion = 0; });
+        await sortir();
+      }
+      const okClic = clic && !!pendant;
+      verifier('le dernier chiffre tapé lance la connexion, et un « Entrée » pendant la vérification n\'en relance pas une seconde',
+        okClic && /pin-attente/.test(pendant.classes) && /Vérification/.test(pendant.message) && nEssais === 1,
+        !okClic ? 'aucune pastille « ' + PRENOM_CONTROLE + ' » à cliquer, ou la case du code reste cachée'
+          : !/pin-attente/.test(pendant.classes) ? 'après le dernier chiffre, la case n\'est pas « en cours » : ' + JSON.stringify(pendant)
+          : nEssais + ' tentative(s) de connexion pour un code tapé puis « Entrée » — attendu : 1');
+      verifier('un code refusé rougit la case, la vide et le dit ; la frappe suivante efface le rouge',
+        okClic && refuse.classes === 'pin-refus' && refuse.valeur === '' && /incorrect/i.test(refuse.message)
+          && efface.classes === '' && efface.message === '',
+        !okClic ? 'contrôle précédent impossible'
+          : refuse.classes !== 'pin-refus' || refuse.valeur !== '' || !/incorrect/i.test(refuse.message) ? 'après le code faux : ' + JSON.stringify(refuse)
+          : 'après une nouvelle frappe : ' + JSON.stringify(efface));
+      verifier('un code accepté passe la case au VERT, « C\'est bon », et jamais avant la réponse ; elle redevient neutre à la sortie',
+        okClic && /pin-attente/.test(pendant2.classes) && !/pin-valide/.test(pendant2.classes)
+          && accepte.classes === 'pin-valide' && /C.est bon/.test(accepte.message) && apres === 'scr-space'
+          && apresSortie.classes === '' && apresSortie.message === '',
+        !okClic ? 'contrôle précédent impossible'
+          : !/pin-attente/.test(pendant2.classes) || /pin-valide/.test(pendant2.classes) ? 'pendant la vérification du bon code : ' + JSON.stringify(pendant2)
+          : accepte.classes !== 'pin-valide' || !/C.est bon/.test(accepte.message) ? 'code accepté : ' + JSON.stringify(accepte)
+          : apres !== 'scr-space' ? 'écran atteint : ' + apres
+          : 'après la sortie, la case garde : ' + JSON.stringify(apresSortie));
+      verifier('un code incomplet ne lance rien, et le bouton « Entrer » connecte toujours',
+        okClic && !!cinq && nCinq === 0 && cinq.classes === '' && bouton === 'scr-space' && nBouton === 1,
+        !okClic || !cinq ? 'contrôle impossible (pastille introuvable après la sortie)'
+          : nCinq ? nCinq + ' tentative(s) avec un chiffre de moins que le code'
+          : 'bouton « Entrer » : écran ' + bouton + ', ' + nBouton + ' tentative(s)');
     }
 
     /* LE DOUBLON D'UNE LIGNE SANS CLÉ : l'élève non relié lit « pas encore
@@ -2936,8 +3026,12 @@ if(require.main === module) (async () => {
           created_at:new Date(0).toISOString(), details:{ test:o.exo, mode:'train', dm:'dm-banc' } }];
         show('teacher');
       }, { params:N.tableParametres, res:N.tableResultats, exo:N.exercice, eleve:eleveId });
-      await s.page.evaluate(() => teacherTab('devoir'));
+      /* « onglet » : l'onglet des devoirs ne s'appelle pas pareil partout ;
+         « detail » : en Première, les champs de note vivent dans le détail
+         d'un élève, ouvert au clic sur sa ligne du bilan — on l'ouvre. */
+      await s.page.evaluate(o => teacherTab(o), N.onglet || 'devoir');
       await s.page.waitForTimeout(1200);
+      if(N.detail) await s.page.evaluate(id => dmStudentDetail(id, 'Banc'), eleveId);
 
       /* « .dm-exrow .dm-noteinput » et non « .dm-noteinput » : le bilan de la
          classe porte, plus haut dans la même page, le champ de la note du
@@ -3050,8 +3144,8 @@ if(require.main === module) (async () => {
         window.__faux.tables[o.params] = [{ id:1, valeurs:{ devoirs:[
           { id:'dm-banc', num:7, actif:true, titre:'Devoir du banc',
             exercices:o.exos.map(function(id){ return { id:id, modes:['train'] }; }) }] } }];
-        teacherTab('devoir');
-      }, { tEleves:P.tableEleves, params:N.tableParametres,
+        teacherTab(o.onglet);
+      }, { tEleves:P.tableEleves, params:N.tableParametres, onglet:N.onglet || 'devoir',
            exos:[N.exercice].concat(await s.page.evaluate(x => TEST_ORDER.filter(i => i !== x).slice(0, 2), N.exercice)) });
       await s.page.waitForTimeout(1400);
 
@@ -3069,7 +3163,12 @@ if(require.main === module) (async () => {
                  hauteur: Math.round(document.documentElement.scrollHeight),
                  y: Math.round(window.scrollY), top: Math.round(c.getBoundingClientRect().top) };
       });
-      if(!haut.assez){
+      if(N.detail){
+        /* En Première, le bilan ne porte AUCUN champ : ils vivent dans le
+           détail d'UN élève — une page haute de douze champs n'y existe pas. */
+        ignorer('poser une note ne déplace pas la page',
+          'les champs vivent dans le détail d\'un élève, ouvert au clic : pas de page haute à mesurer');
+      } else if(!haut.assez){
         verifier('poser une note ne déplace pas la page', false,
           'le bilan ne pose que ' + haut.n + ' champ(s) : rien à faire défiler, le contrôle ne mesure rien');
       } else {
@@ -3104,6 +3203,65 @@ if(require.main === module) (async () => {
           'focus sur « ' + String(bas.focus) + ' » (attendu « ' + haut.cle + ' ») — le champ dit « '
             + String(bas.valeur) + ' »');
       }
+
+      /* ---- DEPUIS UN SIGNALEMENT, LA NOTE DE L'ÉLÈVE ----
+         Demande de Turquet (octobre 2026) : « quand je regarde un signalement,
+         je veux un bouton qui me permette d'aller directement à la note de
+         l'élève pour cet exercice […] pour pouvoir la modifier ». Le GESTE
+         entier : le bouton est dans une carte rendue en innerHTML, son clic
+         change d'onglet, attend une lecture, et doit poser le focus sur LE
+         champ de CET élève pour CET exercice — et sur aucun autre.
+         DEUX SIGNALEMENTS : l'un porte son devoir (« _dm »), l'autre non
+         (envoyé avant ce jour) — il doit quand même mener au devoir qui
+         contient l'exercice, nommé sur le bouton. */
+      const sg = await s.page.evaluate(async o => {
+        const attendre = ms => new Promise(r => setTimeout(r, ms));
+        const r = {};
+        window.__faux.tables[TABLE_SIG] = [
+          { id:'sig-n1', created_at:'2026-10-01T10:00:00Z', eleve_id:o.eleve, exercice:o.exo, numero:'1.1',
+            mode:'train', message:'la note est fausse', contexte:{ kind:'cm', _dm:'dm-banc' }, capture:null },
+          { id:'sig-n2', created_at:'2026-09-01T10:00:00Z', eleve_id:o.eleve, exercice:o.exo, numero:'1.1',
+            mode:'train', message:'ancien signalement', contexte:null, capture:null }];
+        show('teacher'); teacherTab('signalements'); await attendre(600);
+        const boutons = [].slice.call(document.querySelectorAll('#sigListe button'))
+          .filter(b => /allerNoteSignalement/.test(b.getAttribute('onclick') || ''));
+        r.nbBoutons = boutons.length;
+        r.libelle = boutons[0] ? boutons[0].textContent : '';
+        const sansDm = boutons.filter(b => /sig-n2/.test(b.getAttribute('onclick'))).length;
+        r.sansDm = sansDm;
+        if(boutons[0]) boutons[0].click();
+        await attendre(1500);
+        const a = document.activeElement;
+        r.onglet = (document.querySelector('.tab.on') || { dataset:{} }).dataset.tab;
+        r.focus = a && a.getAttribute ? a.getAttribute('data-cle') : null;
+        r.cible = !!(a && a.classList && a.classList.contains('dm-cible'));
+        const b = document.getElementById('sigRetourBtn');
+        r.retour = !!b && b.getBoundingClientRect().width > 0;
+        /* le professeur tape la note, là où le bouton l'a mené */
+        if(a && a.classList && a.classList.contains('dm-noteinput')){
+          a.value = '8'; a.dispatchEvent(new Event('change', { bubbles:true }));
+        }
+        await attendre(1200);
+        const d = ((((window.__faux.tables[o.params] || [])[0] || {}).valeurs || {}).devoirs || [{}])[0];
+        r.notes = d.notes || null;
+        /* puis revient aux signalements */
+        if(b) b.click(); await attendre(500);
+        r.ongletApres = (document.querySelector('.tab.on') || { dataset:{} }).dataset.tab;
+        r.retourApres = !!b && b.getBoundingClientRect().width > 0;
+        return r;
+      }, { eleve:eleveId, exo:N.exercice, params:N.tableParametres });
+      const cleSg = eleveId + '|' + N.exercice;
+      verifier('chaque signalement propose d\'aller à la note, et nomme le devoir',
+        sg.nbBoutons === 2 && sg.sansDm === 1 && /Devoir n°7/.test(sg.libelle),
+        sg.nbBoutons + ' bouton(s), dont ' + sg.sansDm + ' pour le signalement sans devoir — libellé « ' + sg.libelle + ' »');
+      verifier('le bouton mène au champ de la note de CET élève pour CET exercice',
+        sg.onglet === (N.onglet || 'devoir') && sg.focus === cleSg && sg.cible && sg.retour,
+        'onglet « ' + sg.onglet + ' », focus sur « ' + String(sg.focus) + ' » (attendu « ' + cleSg
+          + ' »), mis en évidence : ' + sg.cible + ', bouton de retour : ' + sg.retour);
+      verifier('la note tapée là part en base, et le retour rouvre les signalements',
+        !!sg.notes && sg.notes[cleSg] === 8 && sg.ongletApres === 'signalements' && !sg.retourApres,
+        'notes : ' + JSON.stringify(sg.notes) + ' — onglet après le retour : ' + sg.ongletApres
+          + ', bouton encore visible : ' + sg.retourApres);
 
       verifier('poser une note ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
@@ -5781,8 +5939,30 @@ if(require.main === module) (async () => {
         if(!c) return null; const r = c.getBoundingClientRect();
         return (r.width > 4 && r.height > 4) ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null;
       }, txt);
-      const cliquerCap = async (txt) => { const p = await trouverCap(txt);
-        if(p){ await s.page.mouse.click(p.x, p.y); await s.page.waitForTimeout(140); } return !!p; };
+      /* CHERCHER LA TOUCHE, PUIS VÉRIFIER QU'ELLE A ÉCRIT (octobre 2026). Le
+         clavier attendu stable à l'ouverture et à chaque bascule, la touche
+         restait cherchée d'UN coup d'œil, 140 ms après le clic d'avant — et
+         l'action a rougi une fois sur « ≥ » introuvable juste après « ≤ »
+         (#756 ; vert à la relance, jamais reproduit en local, même processeur
+         ralenti seize fois). La touche se cherche donc jusqu'à 4 s ; et celle
+         qui ÉCRIT (« ecrit ») n'est comptée que quand son symbole est arrivé
+         dans la ligne aplatie — une touche trouvée mais muette se NOMME
+         (« muet ») au lieu de se confondre avec une touche absente. */
+      const ligneRR = () => s.page.evaluate(() => { const l = rrTexte().split('\n'); return l[l.length - 1]; });
+      const cliquerCap = async (txt, ecrit) => {
+        let p = null; const t0 = Date.now();
+        while(!(p = await trouverCap(txt)) && Date.now() - t0 < 4000) await s.page.waitForTimeout(150);
+        if(!p) return false;
+        const avant = ecrit ? await ligneRR() : null;
+        await s.page.mouse.click(p.x, p.y);
+        if(!ecrit){ await s.page.waitForTimeout(140); return true; }
+        const t1 = Date.now();
+        while(Date.now() - t1 < 2000){
+          if((await ligneRR()).split(ecrit).length > avant.split(ecrit).length) return true;
+          await s.page.waitForTimeout(100);
+        }
+        return 'muet';
+      };
       const kbRects = { ouvert: await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible)), stable: kbRects0.stable };
       /* et la touche « clavier B » (les mots vivent dans le profil), dans la
          fenêtre FLOTTANTE de l'ordinateur : un libellé de neuf lettres dans
@@ -5802,12 +5982,12 @@ if(require.main === module) (async () => {
          désormais sur les DEUX couches (demande de Turquet, septembre 2026) :
          « = » sur le clavier A, ≤ ≥ < > avec les variables sur le clavier B —
          on bascule au milieu, par la touche même, et on revient. */
-      kbRects.eq = await cliquerCap('=');
+      kbRects.eq = await cliquerCap('=', '=');
       kbRects.versB = await cliquerCap(P.clavierEcran ? P.clavierEcran.versB : 'clavier B');
       await s.page.waitForTimeout(200);
       kbRects.stableB = await clavierStable();
-      kbRects.le = await cliquerCap('≤'); kbRects.ge = await cliquerCap('≥');
-      kbRects.lt = await cliquerCap('<'); kbRects.gt = await cliquerCap('>');
+      kbRects.le = await cliquerCap('≤', '≤'); kbRects.ge = await cliquerCap('≥', '≥');
+      kbRects.lt = await cliquerCap('<', '<'); kbRects.gt = await cliquerCap('>', '>');
       await cliquerCap(P.clavierEcran ? P.clavierEcran.versA : 'clavier A');
       await s.page.waitForTimeout(200);
       await clavierStable();
@@ -5835,7 +6015,7 @@ if(require.main === module) (async () => {
         return !(vk && vk.visible) && !(w && w.classList.contains('open'));
       });
       verifier('les touches ≤ ≥ < > = du clavier à l\'écran écrivent dans la ligne du {recurrence-redaction}',
-        kbRects.ouvert && kbRects.le && kbRects.ge && kbRects.lt && kbRects.gt && kbRects.eq
+        kbRects.ouvert && ['le', 'ge', 'lt', 'gt', 'eq'].every(t => kbRects[t] === true)
           && kbTape.indexOf('≤') >= 0 && kbTape.indexOf('≥') >= 0
           && kbTape.indexOf('<') >= 0 && kbTape.indexOf('>') >= 0
           && kbTape.indexOf('=') >= 0 && kbFerme,
@@ -5843,6 +6023,8 @@ if(require.main === module) (async () => {
           + (kbRects.stable && kbRects.stableB ? '' : 'le clavier changeait encore après 6 s ; ')
           + (kbRects.versB ? '' : 'la touche de bascule est introuvable ; ')
           + 'touches trouvées : ' + ['le', 'ge', 'lt', 'gt', 'eq'].filter(t => kbRects[t]).join(' ')
+          + (['le', 'ge', 'lt', 'gt', 'eq'].some(t => kbRects[t] === 'muet')
+              ? ' (cliquées sans rien écrire : ' + ['le', 'ge', 'lt', 'gt', 'eq'].filter(t => kbRects[t] === 'muet').join(' ') + ')' : '')
           + ', ligne lue : ' + JSON.stringify(kbTape.slice(0, 60))
           + (kbFerme ? '' : ' — ET LE CLAVIER RESTE OUVERT'));
       verifier('le raccourci « >= » écrit ≥ dans la feuille du {recurrence-redaction}',
@@ -7369,12 +7551,40 @@ if(require.main === module) (async () => {
       s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
       await connecter(s.page);
       const dits = [];
+      /* TAPER, PUIS RELIRE (octobre 2026). La première version donnait le
+         focus, attendait 60 ms et tapait : sur la machine de l'action, chargée,
+         MathLive met parfois plus longtemps à prendre le focus, et les
+         chiffres destinés à une case partaient dans la PRÉCÉDENTE — reproduit
+         ici en ralentissant le processeur de Chromium (×6) : « 3 », prévu pour
+         spf-pn, tombait dans spf-b2, qui lisait « 23 ». La copie devenait
+         fausse et le contrôle rougissait au hasard (deux PR qui ne touchaient
+         pas la Première). Désormais on attend que la case AIT le focus, on
+         relit ce qu'elle contient, et un écart se retape (case vidée) ; s'il
+         persiste après trois saisies, il est NOMMÉ : la mesure ne parle plus
+         que du juge de la page, jamais de la vitesse de la machine. */
+      const lireCase = i => { const e = document.getElementById(i); if(!e) return null;
+        return e.tagName === 'MATH-FIELD' ? e.getValue() : String(e.value); };
       const tape = async (id, v) => {
-        const ok = await s.page.evaluate(i => { const el = document.getElementById(i); if(!el) return false; el.focus(); return true; }, id);
-        if(!ok){ dits.push('pas de case ' + id); return; }
-        await s.page.waitForTimeout(60);
-        await s.page.keyboard.type(String(v), { delay: 20 });
-        await s.page.waitForTimeout(120);
+        const voulu = String(v);
+        let lu = null;
+        for(let essai = 0; essai < 3; essai++){
+          const ok = await s.page.evaluate(i => { const el = document.getElementById(i); if(!el) return false; el.focus(); return true; }, id);
+          if(!ok){ dits.push('pas de case ' + id); return; }
+          try {
+            await s.page.waitForFunction(i => { const el = document.getElementById(i);
+              return !!el && (document.activeElement === el || (typeof el.hasFocus === 'function' && el.hasFocus())); }, id, { timeout: 3000 });
+          } catch(e){}
+          await s.page.waitForTimeout(60);
+          if(essai > 0){ await s.page.keyboard.press('Control+A'); await s.page.keyboard.press('Backspace'); }
+          await s.page.keyboard.type(voulu, { delay: 20 });
+          try {
+            await s.page.waitForFunction(([i, w, lire]) => new Function('i', lire)(i) === w,
+              [id, voulu, 'return (' + lireCase.toString() + ')(i);'], { timeout: 1500 });
+          } catch(e){}
+          lu = await s.page.evaluate(lireCase, id);
+          if(lu === voulu){ await s.page.waitForTimeout(120); return; }
+        }
+        dits.push('la case ' + id + ' lit « ' + lu + ' » au lieu de « ' + voulu + ' » après trois saisies');
       };
       /* « p » nomme le moteur lu : l'écran de la somme reste dans la page
          quand on passe au produit, et ses cases y gardent leurs valeurs. */
@@ -9702,14 +9912,215 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 quadragies novies. DEUX TRANSLATIONS À LA SUITE : A′, A″, LA LISTE, AA″ ===== */
-    /* {translations-successives} (8.2.12, octobre 2026) : un clic n'importe
+    /* ===== 6 quadragies nonies. ANTÉCÉDENT PAR UNE TRANSLATION : LA CROIX SUIT LA SOURIS, LE CLIC POSE LE POINT ===== */
+    /* {translation-antecedent} (8.1.12, idée n° 2 retenue par Turquet,
+       octobre 2026) : la croix et la lettre du point en cours suivent la
+       souris ; un clic pose le point au nœud le plus proche, un clic sur un
+       point posé le reprend. jsdom n'a ni souris ni mise en page : le point
+       qui suit, l'aimant du clic et les flèches de la correction à l'écran ne
+       se voient qu'ici. Le banc principal joue tanClic(i, j). */
+    titre('6 quadragies nonies. ANTÉCÉDENT PAR UNE TRANSLATION : LA CROIX SUIT LA SOURIS, LE CLIC POSE LE POINT');
+    if(!P.translationAntecedent){
+      ignorer('les antécédents se posent au clic, la croix suit la souris, un point se reprend',
+        'ce niveau n\'a pas l\'exercice de l\'antécédent par une translation');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.translationAntecedent.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* u⃗ = (3 ; 2) ; A′ (7 ; 4), B′ (12 ; 6), C′ (6 ; 8) : A (4 ; 2), B (9 ; 4), C (3 ; 6) */
+      const fixe = () => { test.questions[test.idx] = { u: [3, 2], o: [1, 7], im: [[7, 4], [12, 6], [6, 8]], l: 0, p: [null, null, null] };
+        renderTan(); document.querySelector('#tanGraph .tan-svg').scrollIntoView({ block: 'center' }); };
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      const taille = await s.page.evaluate(() => { const r = document.querySelector('#tanGraph .tan-svg').getBoundingClientRect(); return [r.width, r.height]; });
+      if(!(taille[0] > 450 && taille[1] > 280)) dits.push('le quadrillage ne se dessine pas (ou trop petit) : ' + taille.join(' × '));
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
+        const svg = document.querySelector('#tanGraph .tan-svg');
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        return { px: r.left + (TAN_PX + x * TAN_C) * r.width / vb.width, py: r.top + (TAN_PY + (TAN_H - y) * TAN_C) * r.height / vb.height };
+      }, [x, y]);
+      const vers = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(60); return p; };
+      const clic = async (x, y) => { const p = await vers(x, y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(100); };
+      /* la croix de la souris : à combien de pixels de la pointe, et sa lettre (ou « caché ») */
+      const curseur = async p => await s.page.evaluate(([x, y]) => { const c = document.getElementById('tanCurseur'); if(!c) return 'absent';
+        if(getComputedStyle(c).display === 'none') return 'caché';
+        const l = c.querySelector('line'); if(!l) return 'vide';
+        const b = l.getBoundingClientRect();
+        return Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)) + ' ' + c.querySelector('text').textContent; }, [p.px, p.py]);
+      const poses = async () => await s.page.evaluate(() => JSON.stringify(test.questions[test.idx].p));
+      const visibles = async sel => await s.page.evaluate(sel => [...document.querySelectorAll(sel)].filter(e => { const r = e.getBoundingClientRect(); return r.width + r.height > 8; }).length, sel);
+      let p = await vers(5.3, 3.2);
+      let c = await curseur(p);
+      if(!/^[0-3] A$/.test(c)) dits.push('la croix ne suit pas la pointe de la souris avec la lettre A : ' + c);
+      /* un clic à un cinquième de maille pose A au nœud (4 ; 2) */
+      await clic(4.2, 1.8);
+      if(await poses() !== '[[4,2],null,null]') dits.push('le clic ne pose pas A au nœud le plus proche : ' + await poses());
+      if(await visibles('#tanEl .tan-croix line') !== 2) dits.push('la croix de A ne se voit pas');
+      p = await vers(8.4, 2.4);
+      c = await curseur(p);
+      if(!/ B$/.test(c)) dits.push('après A, la croix de la souris ne porte pas B : ' + c);
+      await clic(9.2, 4.1); await clic(3, 6);
+      p = await vers(11.4, 2.4);
+      if(await curseur(p) !== 'caché') dits.push('les trois points posés, la croix suit encore la souris');
+      /* un clic sur C le reprend ; il se repose ailleurs */
+      await clic(3, 6);
+      if(await poses() !== '[[4,2],[9,4],null]') dits.push('un clic sur C ne le reprend pas : ' + await poses());
+      p = await vers(2.7, 5.7);
+      c = await curseur(p);
+      if(!/ C$/.test(c)) dits.push('C repris, la croix de la souris ne porte pas C : ' + c);
+      await clic(2.8, 5.8);
+      await s.page.click('#tanValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
+        cls: [0, 1, 2].map(k => document.getElementById('tan-' + k).className).join(' / '),
+        bouton: document.getElementById('tanNext') ? document.getElementById('tanNext').textContent : '' }));
+      if(fin.score !== 3 || !fin.locked) dits.push('la copie juste vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller') + ' : ' + fin.cls);
+      if(await visibles('#tanEl line.svc-e') !== 3) dits.push('les trois flèches MM′ bleues ne se voient pas');
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* question suivante : le piège (u⃗ suivi depuis A′), B et C laissés vides */
+      await s.page.click('#tanNext');
+      await s.page.waitForTimeout(400);
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      await clic(10, 6);
+      await s.page.click('#tanValidate');
+      await s.page.waitForTimeout(300);
+      const faux = await s.page.evaluate(() => ({ cls: [0, 1, 2].map(k => document.getElementById('tan-' + k).className),
+        fb: document.getElementById('tanFeedback').textContent, score: test.score }));
+      if(!/\bbad\b/.test(faux.cls[0]) || !/\bsol\b/.test(faux.cls[1]) || !/\bsol\b/.test(faux.cls[2])) dits.push('le piège : ' + faux.cls.join(' / '));
+      if(!/IMAGE de A′/.test(faux.fb)) dits.push('le piège n\'est pas nommé : ' + faux.fb.slice(0, 100));
+      if(await visibles('#tanCorr line.svc-s') !== 3 || await visibles('#tanCorr .tan-x-sol line') !== 6) dits.push('la correction ne montre pas les trois bons points et leurs flèches vertes');
+      if(await visibles('#tanEl line.svc-eb') !== 1) dits.push('la flèche rouge du point faux ne se voit pas');
+      if(faux.score !== 3) dits.push('la copie fausse rapporte des points (score ' + faux.score + ')');
+      verifier('les antécédents se posent au clic, la croix suit la souris, un point se reprend', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de l\'antécédent par une translation ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 quadragies decies. TROIS VECTEURS BOUT À BOUT ===== */
+    /* {somme-trois-vecteurs} (8.2.15, demande de Turquet, octobre 2026, l'idée
+       n° 7) : l'élève fait glisser u, v, w À LA SOURIS bout à bout depuis le
+       point, clique le début de la somme À TRAVERS la prise de u (posée sur
+       le point), la flèche suit la souris, il clique la fin et vérifie ; puis,
+       sur une somme nulle, il appuie sur « C'est le vecteur nul ». jsdom n'a
+       pas de mise en page : le glisser et le clic à travers une prise ne se
+       voient qu'ici. */
+    titre('6 quadragies decies. TROIS VECTEURS BOUT À BOUT : GLISSER DEPUIS LE POINT, TRACER OU DIRE « NUL »');
+    if(!P.sommeTroisVecteurs){
+      ignorer('u, v, w glissent bout à bout depuis le point, la somme se trace en deux clics, le vecteur nul se déclare',
+        'ce niveau n\'a pas l\'exercice des trois vecteurs bout à bout');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.sommeTroisVecteurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      await s.page.evaluate(() => {
+        const f = nul => ({ l: 'A', po: [2, 2], uo: [1, 8], uc: [3, 1], vo: [6, 2], vc: [1, 3], wo: [10, 8], wc: nul ? [-4, -4] : [2, -2], up: null, vp: null, wp: null, sd: null, sf: null, dn: 0 });
+        test.questions[0] = f(false); test.questions[1] = f(true); test.idx = 0; renderStv();
+        document.querySelector('#stvGraph .stv-svg').scrollIntoView({ block: 'center' });
+      });
+      await s.page.waitForTimeout(150);
+      const mes = await s.page.evaluate(() => {
+        const svg = document.querySelector('#stvGraph .stv-svg'), r = svg.getBoundingClientRect();
+        const dehors = [...document.querySelectorAll('#stvGraph text')].filter(t => { const b = t.getBoundingClientRect();
+          return b.left < r.left - 1 || b.right > r.right + 1 || b.top < r.top - 1 || b.bottom > r.bottom + 1; }).length;
+        const pr = document.querySelector('#stvPrises .svc-prise'), sm = document.getElementById('stv-sm'), b = document.getElementById('stvNul').getBoundingClientRect();
+        return { svg: r.width > 400 && r.height > 280, dehors: dehors, touche: pr ? getComputedStyle(pr).touchAction : '',
+          dessus: sm.getBoundingClientRect().bottom <= r.top + 1, bouton: b.width > 40 && b.height > 20 };
+      });
+      if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      if(mes.dehors) dits.push(mes.dehors + ' nom(s) sortent du dessin');
+      if(mes.touche !== 'none') dits.push('une prise fait défiler la page sous le doigt (touch-action : ' + mes.touche + ')');
+      if(!mes.dessus) dits.push('les consignes ne se lisent pas au-dessus du dessin');
+      if(!mes.bouton) dits.push('le bouton « C’est le vecteur nul » ne se voit pas');
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
+        const svg = document.querySelector('#stvGraph .stv-svg'), r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        return { px: r.left + (STV_PX + x * STV_C) * r.width / vb.width, py: r.top + (STV_PY + (STV_H - y) * STV_C) * r.height / vb.height };
+      }, [x, y]);
+      const glisser = async (k, vers) => {
+        const e = await s.page.evaluate(k => { const q = test.questions[test.idx]; return { p: stvP(q, k), c: stvC(q, k) }; }, k);
+        const a = await pos(e.p[0] + e.c[0] / 2, e.p[1] + e.c[1] / 2), b = await pos(vers[0] + e.c[0] / 2, vers[1] + e.c[1] / 2);
+        await s.page.mouse.move(a.px, a.py); await s.page.mouse.down();
+        await s.page.mouse.move(b.px, b.py, { steps: 12 }); await s.page.mouse.up();
+        await s.page.waitForTimeout(120);
+      };
+      const clic = async (x, y, dx) => { const p = await pos(x + (dx || 0), y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); return p; };
+      /* l'étape 1 en cours : cadre bleu, aucun point au bout de la souris ni
+         sur le nœud survolé, et un clic ne pose rien */
+      const etat = () => s.page.evaluate(() => {
+        const ch = document.getElementById('stv-ch'), sm = document.getElementById('stv-sm'), c = document.getElementById('stvCurseur');
+        const teinte = e => { const m = getComputedStyle(e).borderTopColor.match(/\d+/g).map(Number); return m[2] > m[1] + 40 ? 'bleu' : m[1] > m[0] + 40 && m[1] > m[2] ? 'vert' : 'autre'; };
+        const sv = document.querySelector('#stvGraph .vec-t:hover .dot');
+        return { ch: teinte(ch), sm: teinte(sm), curseur: c.style.display !== 'none', survol: sv ? getComputedStyle(sv).fill : '', sd: test.questions[test.idx].sd };
+      });
+      const p7 = await pos(7, 5); await s.page.mouse.move(p7.px, p7.py, { steps: 3 }); await s.page.waitForTimeout(80);
+      const e1 = await etat();
+      if(e1.ch !== 'bleu' || e1.sm === 'bleu') dits.push('au départ, l\'étape 1 n\'est pas seule encadrée en bleu : ' + e1.ch + ' / ' + e1.sm);
+      if(e1.curseur) dits.push('pendant l\'étape 1, un point suit la souris');
+      if(e1.survol && !/rgba\(0, 0, 0, 0\)|transparent/.test(e1.survol)) dits.push('pendant l\'étape 1, le nœud survolé montre un point : ' + e1.survol);
+      await clic(7, 5);
+      if((await etat()).sd) dits.push('pendant l\'étape 1, un clic sur le quadrillage pose un point');
+      await glisser(0, [2, 2]); await glisser(1, [5, 3]); await glisser(2, [6, 6]);
+      const ch = await s.page.evaluate(() => { const q = test.questions[test.idx], c = stvChaine(q); return { u: q.up, v: q.vp, w: q.wp, ok: !!c }; });
+      if(!ch.ok) dits.push('u, v, w glissés à la souris ne sont pas bout à bout depuis A : ' + JSON.stringify(ch));
+      await s.page.mouse.move(p7.px, p7.py, { steps: 3 }); await s.page.waitForTimeout(80);
+      const e2 = await etat();
+      if(e2.ch !== 'vert' || e2.sm !== 'bleu') dits.push('les flèches bout à bout, l\'étape 1 ne passe pas au vert ou l\'étape 2 en bleu : ' + e2.ch + ' / ' + e2.sm);
+      if(!e2.curseur) dits.push('l\'étape 2 en cours, aucun point ne suit la souris');
+      /* le début de la somme est SOUS la prise de u : l'appui sans glisser pose au nœud */
+      await clic(2, 2, 0.15);
+      const sd = await s.page.evaluate(() => JSON.stringify(test.questions[test.idx].sd));
+      if(sd !== '[2,2]') dits.push('le clic sur A, à travers la prise de u, ne pose pas le début de la somme : ' + sd);
+      const pm = await pos(5.4, 3.6); await s.page.mouse.move(pm.px, pm.py, { steps: 3 }); await s.page.waitForTimeout(80);
+      const vif = await s.page.evaluate(() => { const l = document.querySelector('#stvVif line'); if(!l) return null;
+        const svg = l.ownerSVGElement, m = svg.getScreenCTM(), p = svg.createSVGPoint(); p.x = +l.getAttribute('x2'); p.y = +l.getAttribute('y2'); const b = p.matrixTransform(m);
+        return { x: b.x, y: b.y, pe: getComputedStyle(l).pointerEvents }; });
+      if(!vif || Math.hypot(vif.x - pm.px, vif.y - pm.py) > 3 || vif.pe !== 'none') dits.push('le début posé, la flèche ne suit pas la souris : ' + JSON.stringify(vif));
+      await clic(8, 4);
+      await s.page.click('#stvValidate'); await s.page.waitForTimeout(300);
+      const juste = await s.page.evaluate(() => ({ ch: document.getElementById('stv-ch').className, sm: document.getElementById('stv-sm').className, score: test.score,
+        trace: [...document.querySelectorAll('#stvTrace line.svc-e')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        prises: document.querySelectorAll('#stvPrises .svc-prise').length }));
+      if(!/\bok\b/.test(juste.ch) || !/\bok\b/.test(juste.sm) || juste.score !== 2) dits.push('la construction juste : ' + juste.ch + ' / ' + juste.sm + ' (score ' + juste.score + ')');
+      if(juste.trace !== 1) dits.push('la somme tracée ne se voit pas');
+      if(juste.prises) dits.push('les flèches se saisissent encore après la correction');
+      /* la somme nulle : le bouton, une fois les flèches bout à bout */
+      await s.page.click('#stvNext'); await s.page.waitForTimeout(300);
+      if(!(await s.page.evaluate(() => document.getElementById('stvNul').disabled))) dits.push('le bouton « C’est le vecteur nul » s\'offre pendant l\'étape 1');
+      await glisser(0, [2, 2]); await glisser(1, [5, 3]); await glisser(2, [6, 6]);
+      await s.page.click('#stvNul'); await s.page.waitForTimeout(100);
+      const nul = await s.page.evaluate(() => { const b = document.getElementById('stvNul'), cs = getComputedStyle(b);
+        return { dn: test.questions[test.idx].dn, presse: b.getAttribute('aria-pressed'), fond: cs.backgroundColor }; });
+      if(nul.dn !== 1 || nul.presse !== 'true') dits.push('le bouton « C’est le vecteur nul » ne se presse pas');
+      await s.page.click('#stvValidate'); await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ ch: document.getElementById('stv-ch').className, sm: document.getElementById('stv-sm').className, score: test.score,
+        vert: [...document.querySelectorAll('#stvCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        rouge: document.querySelectorAll('#stvGraph .svc-eb').length }));
+      if(!/\bok\b/.test(fin.ch) || !/\bok\b/.test(fin.sm) || fin.score !== 4) dits.push('somme nulle déclarée, flèches bout à bout : ' + fin.ch + ' / ' + fin.sm + ' (score ' + fin.score + ')');
+      if(fin.vert) dits.push('une correction verte se trace sur une copie juste (' + fin.vert + ' traits)');
+      if(fin.rouge) dits.push('quelque chose rougit sur le dessin');
+      verifier('u, v, w glissent bout à bout depuis le point, la somme se trace en deux clics, le vecteur nul se déclare', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran des trois vecteurs bout à bout ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 quadragies undecies. DEUX TRANSLATIONS À LA SUITE : A′, A″, LA LISTE, AA″ ===== */
+    /* {translations-successives} (8.2.16, octobre 2026) : un clic n'importe
        où sur le quadrillage va au nœud le plus proche — A′, puis A″, puis le
        début et la fin de AA″ ; le point à placer suit la souris avec son nom,
        et pendant le tracé une flèche va du début à la souris, sans croix sur
        la pointe. jsdom n'a pas de mise en page : le clic → nœud, la croix qui
        suit la souris et la flèche vive ne se voient qu'ici. */
-    titre('6 quadragies novies. DEUX TRANSLATIONS À LA SUITE : A′, A″, LA LISTE, AA″');
+    titre('6 quadragies undecies. DEUX TRANSLATIONS À LA SUITE : A′, A″, LA LISTE, AA″');
     if(!P.translationsSuccessives){
       ignorer('A′ et A″ se posent au clic, la liste se choisit, AA″ se trace en deux clics',
         'ce niveau n\'a pas l\'exercice des deux translations à la suite');
@@ -10231,7 +10642,12 @@ if(require.main === module) (async () => {
           if(!large && m.demo.debord <= 2) dits.push('à 900 px la démonstration ne défile pas : elle a trouvé la place ailleurs'); }
       };
       jugerGrilles(await mesurerGrilles(), true);
-      await s.page.setViewportSize({ width: 900, height: 950 });
+      /* 900 × 700, en PAYSAGE : la grille doit y manquer de place (cadre de
+         780 px, --card-max) et défiler dans sa boîte. À 900 × 950 — un portrait —,
+         le cadre prend depuis octobre 2026 toute la largeur de l'écran
+         (body.ecran-exo) : la démonstration y tenait, et la mesure du défilement
+         n'avait plus rien à mesurer. */
+      await s.page.setViewportSize({ width: 900, height: 700 });
       await s.page.waitForTimeout(300);
       jugerGrilles(await mesurerGrilles(), false);
       /* LE VISAGE CROISSANT, rendu pour de vrai à 1400 px : c'est lui que le décalage
@@ -13531,7 +13947,7 @@ if(require.main === module) (async () => {
       if(!fig.fichier) fd.push('pas de dessin en fichier dans dessins/secondes/');
       if(!fig.charge) fd.push('image non chargée');
       if(!(fig.large >= 120)) fd.push('largeur ' + Math.round(fig.large) + ' px');
-      verifier('le dessin du serpent « Trop facile ! » ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
+      verifier('le dessin des deux serpents « que contient b ? » ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
         !fd.length, fd.join(' | '));
       /* 2. LA VALEUR SE TAPE POUR DE VRAI, et le verdict s'encre en BLEU */
       const bons = await s.page.evaluate(() => { const q = test.questions[test.idx];
@@ -13692,7 +14108,7 @@ if(require.main === module) (async () => {
       if(!fig.fichier) fd.push('pas de dessin en fichier dans dessins/secondes/');
       if(!fig.charge) fd.push('image non chargée');
       if(!(fig.large >= 120)) fd.push('largeur ' + Math.round(fig.large) + ' px');
-      verifier('le dessin du serpent au champagne ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
+      verifier('le dessin du serpent qui calcule c = a + b ouvre l\'écran : premier dans la carte, en fichier, chargé et visible',
         !fd.length, fd.join(' | '));
       /* 2. LES DEUX LIGNES LITTÉRALES SE TAPENT ET SE JUGENT COMME AVANT */
       for(let k = 0; k < nL - 1; k++){
@@ -13746,9 +14162,9 @@ if(require.main === module) (async () => {
        qui est PROPRE au 5.17 : la ligne « d = c+a » lit une case (c) qui est
        elle-même le résultat d'un calcul, et non un littéral — le message
        d'une réponse fausse doit encore nommer un CALCUL, jamais une recopie,
-       et le bilan final doit porter la valeur VRAIE de d (22) même après une
+       et le bilan final doit porter la valeur VRAIE de d (18) même après une
        erreur. Aucune seconde arithmétique n'est rejouée : la fiche ÉPINGLÉE
-       porte des valeurs CONNUES (10, 2, 12, 22), lues dans tests/profils.js. */
+       porte des valeurs CONNUES (8, 2, 10, 18), lues dans tests/profils.js. */
     titre('6 tricies septdecies. LE PROGRAMME PAS À PAS, QUAND UN CALCUL EN LIT UN AUTRE');
     if(!P.pythonPasAPasChaine){
       ignorer('le programme pas à pas : un calcul qui lit une case déjà calculée se juge, se corrige et se bilan-te comme un calcul',
@@ -13804,7 +14220,7 @@ if(require.main === module) (async () => {
       if(vu.nom !== A.fiche.memoire[0][0]) dits.push('le nom de la case écrit par la page : ' + JSON.stringify(vu.nom));
       if(vu.case !== 'INPUT') dits.push('la case de la valeur : ' + JSON.stringify(vu.case));
       if(vu.bilan) dits.push('le bilan de la mémoire est affiché avant la fin du programme');
-      verifier('la fiche épinglée (a = 10, b = 2, c = a+b, d = c+a) est rendue en DEUX colonnes, le repère ▶ sur la première ligne, et le nom de la case ÉCRIT',
+      verifier('la fiche épinglée (' + A.fiche.prog.join(', ') + ') est rendue en DEUX colonnes, le repère ▶ sur la première ligne, et le nom de la case ÉCRIT',
         !dits.length, dits.slice(0, 3).join(' | '));
       /* 2. LES TROIS PREMIÈRES LIGNES SE TAPENT ET SE JUGENT, LE ▶ AVANCE, LE TABLEAU GRANDIT */
       const marche = [];
@@ -14093,7 +14509,7 @@ if(require.main === module) (async () => {
        mesuré ailleurs, pas remesuré ici), puis à « Recommencer avec d'autres
        valeurs » plutôt qu'à « Question suivante » ; une prédiction JUSTE,
        elle, mène directement à la question suivante une fois le pas à pas
-       terminé. La fiche ÉPINGLÉE (10, 2, 4, -6, lue dans tests/profils.js)
+       terminé. La fiche ÉPINGLÉE (10, 7, 14, 4, lue dans tests/profils.js)
        sert la première prédiction ; le second tirage est ALÉATOIRE — le banc
        lit k et l rendus par la page pour calculer sa propre prédiction juste,
        plutôt que de supposer des valeurs qu'il ne connaît pas d'avance.
@@ -14177,7 +14593,7 @@ if(require.main === module) (async () => {
       if(guessFaux.badgeTxt.trim() !== A.fiche.memoire[3][1] || dom(guessFaux.badgeEncre) !== 'vert')
         gd.push('la vraie valeur en vert : ' + JSON.stringify({ t: guessFaux.badgeTxt, e: guessFaux.badgeEncre }));
       if(!guessFaux.disabled) gd.push('la prédiction jugée reste modifiable');
-      verifier('une prédiction fausse (l = 999) se peint en rouge, révèle la vraie valeur (-6) en vert, et fait passer en phase « verifier »',
+      verifier('une prédiction fausse (l = 999) se peint en rouge, révèle la vraie valeur (' + A.fiche.memoire[3][1] + ') en vert, et fait passer en phase « verifier »',
         !gd.length, gd.slice(0, 3).join(' | '));
       /* 4. LE PAS À PAS, LES QUATRE LIGNES — DONT UN SIGNE MOINS AU CLAVIER */
       for(let k = 0; k < nL; k++){
@@ -14203,7 +14619,7 @@ if(require.main === module) (async () => {
       Object.keys(etatFinal).forEach(nom => { if(finFaux.bilan.indexOf(nom) < 0 || finFaux.bilan.indexOf(etatFinal[nom]) < 0) bd.push('le bilan ne dit pas que ' + nom + ' contient ' + etatFinal[nom]); });
       if(finFaux.suivant) bd.push('« Question suivante » apparaît alors que la prédiction était fausse');
       if(!/Recommencer/.test(finFaux.bouton)) bd.push('le bouton après une prédiction fausse : ' + JSON.stringify(finFaux.bouton));
-      verifier('le bilan porte la valeur VRAIE de chaque case (dont -6, réécrite), et le bouton propose de RECOMMENCER',
+      verifier('le bilan porte la valeur VRAIE de chaque case (dont ' + A.fiche.memoire[3][1] + ', réécrite), et le bouton propose de RECOMMENCER',
         !bd.length, bd.slice(0, 3).join(' | ') + ' : ' + finFaux.bilan.slice(0, 200));
       /* 5. RECOMMENCER : LE SCORE DES LIGNES JETÉES REVIENT À ZÉRO */
       verifier('les points des quatre lignes de la tentative jetée ont été ajoutés puis retirés : le score revient à 0 avant le nouveau tirage',
@@ -14824,6 +15240,8 @@ if(require.main === module) (async () => {
           dessinsCasses.push(num + ' ' + id + ' (' + mode + ', ' + moment + ') ' + d.src + ' — ' + d.etat);
         }
       };
+      const flechesBloquees = [], flecheMilieuSort = [], flecheMilieu = {}, flechesSansCible = new Set(); let nFleches = 0;
+      const casesCalculDits = []; let nCasesCalcul = 0, nCasesFois = 0;
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -15244,6 +15662,159 @@ if(require.main === module) (async () => {
           nIndicesFlex += (vu.nIndices || 0);
           if(vu.indices && vu.indices.length)
             indicesPlats.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.indices[0]);
+          /* LA FLÈCHE → EN FIN DE CASE PASSE À LA SUIVANTE — sur TOUS les
+             exercices (demande de Turquet, octobre 2026). Au milieu du texte
+             saisi, → avance d'un caractère ; en fin de texte, elle quitte la
+             case pour la suivante, ou pour le bouton de vérification depuis la
+             dernière. On le mesure au CLAVIER, pour de vrai : la première case
+             de l'écran (vide, donc curseur en fin) reçoit le focus, on appuie
+             sur →, et le focus doit avoir quitté la case pour une autre case ou
+             un bouton. Le bord opposé — au milieu du texte, on reste dans la
+             case — se mesure une fois par sorte de case (champ simple, case
+             MathLive) : « 12 », ←, → ne quitte pas la case. */
+          if(mode === 'train'){
+            const fl = await s.page.evaluate(() => {
+              const on = document.querySelector('section.screen.on'); if(!on) return null;
+              const vis = e => { const q = e.getBoundingClientRect();
+                return q.width > 0 && q.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
+              const c = [...on.querySelectorAll('math-field, input')].find(e => {
+                if(!vis(e)) return false;
+                if(e.tagName === 'MATH-FIELD') return !e.readOnly && !e.disabled;
+                const t = (e.getAttribute('type') || 'text').toLowerCase();
+                return (t === 'text' || t === 'number') && !e.disabled && !e.readOnly;
+              });
+              if(!c) return null;
+              /* rien où aller — ni autre case, ni bouton principal (les tables
+                 chronométrées : Entrée valide, il n'y a pas de « Vérifier ») :
+                 le contrôle ne s'applique pas, et l'exercice est NOMMÉ */
+              const autres = [...on.querySelectorAll('math-field, input, select, .btn-primary')]
+                .filter(e => e !== c && vis(e) && !e.disabled && !e.readOnly
+                  && (e.tagName !== 'INPUT' || /^(text|number)$/.test((e.getAttribute('type') || 'text').toLowerCase())));
+              if(!autres.length) return { sansCible: true };
+              document.querySelectorAll('[data-banc-fleche]').forEach(e => e.removeAttribute('data-banc-fleche'));
+              c.setAttribute('data-banc-fleche', '1');
+              c.focus();
+              if(c.tagName === 'INPUT'){ const L = (c.value || '').length; try { c.setSelectionRange(L, L); } catch(e){} }
+              else { try { c.position = c.lastOffset; } catch(e){} }
+              return { tag: c.tagName, id: c.id || '(sans id)', vide: c.tagName === 'INPUT' ? !(c.value || '') : !String(c.getValue ? c.getValue() : '') };
+            });
+            if(fl && fl.sansCible) flechesSansCible.add(await s.page.evaluate(i => TEST_NUM[i], id));
+            if(fl && fl.vide){
+              /* une case MathLive qui vient de prendre le focus pour la première
+                 fois n'écoute pas encore le clavier : à 80 ms, la flèche s'y
+                 perdait une fois sur cent vingt (mesuré, octobre 2026) */
+              await s.page.waitForTimeout(250);
+              const sorte = fl.tag === 'INPUT' ? 'champ' : 'mf';
+              if(!flecheMilieu[sorte]){
+                await s.page.keyboard.type('12', { delay: 20 });
+                await s.page.keyboard.press('ArrowLeft');
+                await s.page.keyboard.press('ArrowRight');
+                await s.page.waitForTimeout(150);
+                const reste = await s.page.evaluate(() => {
+                  const c = document.querySelector('[data-banc-fleche]');
+                  const ici = c && (document.activeElement === c);
+                  if(c){ if(c.tagName === 'INPUT') c.value = ''; else try { c.setValue(''); } catch(e){} }
+                  if(c) c.focus();
+                  return ici;
+                });
+                flecheMilieu[sorte] = (await s.page.evaluate(i => TEST_NUM[i], id)) + ' ' + fl.id + (reste ? '' : ' — ✗');
+                if(!reste) flecheMilieuSort.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' ' + fl.id + ' (' + sorte + ')');
+                await s.page.waitForTimeout(80);
+              }
+              await s.page.keyboard.press('ArrowRight');
+              await s.page.waitForTimeout(220);
+              const ou = await s.page.evaluate(() => {
+                const c = document.querySelector('[data-banc-fleche]');
+                const a = document.activeElement;
+                if(c) c.removeAttribute('data-banc-fleche');
+                const r = !a || a === c ? 'resté dans la case'
+                  : /^(MATH-FIELD|INPUT|SELECT|BUTTON)$/.test(a.tagName) ? '' : 'focus sur ' + a.tagName;
+                try { if(a && a.blur) a.blur(); } catch(e){}
+                return r;
+              });
+              nFleches++;
+              if(ou) flechesBloquees.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' ' + fl.id + ' — ' + ou);
+            }
+          }
+          /* UNE CASE DE CALCUL EN TEXTE ÉCRIT « × », ET LE x EN ITALIQUE
+             ARRONDI — sur TOUS les exercices (demande de Turquet, octobre
+             2026, au 6.1.2 et au 6.1.3 : « pouvoir écrire une formule
+             mathématique, avec un × pour le *, la lettre x en italique pour
+             l'inconnue, un clavier adapté pour la tablette, comme pour tous
+             les exercices — et que cela soit signalé pour les prochains »).
+             Une case en texte dont le pavé offre × ou x (data-pave-plus) est
+             une case de calcul. On y mesure, pour de vrai :
+             · là où x est offert, le x s'écrit en italique — fonte du texte
+               italique, ou une fonte posée en tête de pile qui prend son x dans
+               KaTeX_Math-Italic (« ApfX ») ;
+             · sur le pavé des tablettes, la touche x s'écrit <i>x</i> ;
+             · là où × est offert, « 2*3x4 » TAPÉ AU CLAVIER s'écrit 2×3x4 (x
+               offert : l'inconnue) ou 2×3×4 (pas de x : un signe de produit). */
+          if(mode === 'train'){
+            const cc = await s.page.evaluate(() => {
+              const on = document.querySelector('section.screen.on'); if(!on) return null;
+              const vis = e => { const q = e.getBoundingClientRect();
+                return q.width > 0 && q.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
+              const touches = e => (e.getAttribute('data-pave-plus') || '').split(' ');
+              const cases = [...on.querySelectorAll('input[data-pave-plus]')].filter(e =>
+                (e.getAttribute('type') || 'text').toLowerCase() === 'text' && vis(e) && !e.disabled && !e.readOnly
+                && (touches(e).indexOf('×') >= 0 || touches(e).some(t => /^x/.test(t))));
+              if(!cases.length) return { n: 0 };
+              /* les @font-face du document — la récursion teste la LONGUEUR de
+                 cssRules : depuis l'imbrication CSS, toute règle en porte un,
+                 souvent vide (le piège du 9 bis) */
+              const faces = [];
+              const marcher = rs => { for(const r of rs){
+                if(r instanceof CSSFontFaceRule) faces.push(r);
+                else if(r.cssRules && r.cssRules.length) marcher(r.cssRules); } };
+              for(const f of document.styleSheets){ try { marcher(f.cssRules); } catch(e){} }
+              const sans = q => String(q || '').replace(/["']/g, '').trim();
+              const dits = [];
+              for(const c of cases){
+                const T = touches(c), nom = c.id || c.className || '(sans id)';
+                if(T.some(t => /^x/.test(t))){
+                  const cs = getComputedStyle(c), tete = sans(cs.fontFamily.split(',')[0]);
+                  const ok = /italic|oblique/.test(cs.fontStyle) || faces.some(f =>
+                    sans(f.style.getPropertyValue('font-family')) === tete
+                    && /KaTeX_Math-Italic/.test(f.style.getPropertyValue('src')));
+                  if(!ok) dits.push(nom + ' : le x s’y écrit droit (police « ' + tete + ' »)');
+                  if(typeof paveSup === 'function' && document.getElementById('paveSup')){
+                    paveSup(c);
+                    const b = document.querySelector('#paveSup button[data-t^="x"]');
+                    if(!b || !b.querySelector('i')) dits.push(nom + ' : la touche x du pavé s’écrit droite');
+                    paveSup(null);
+                  }
+                }
+              }
+              const f = cases.find(c => touches(c).indexOf('×') >= 0);
+              document.querySelectorAll('[data-banc-fois]').forEach(e => e.removeAttribute('data-banc-fois'));
+              if(f){ f.setAttribute('data-banc-fois', '1'); f.value = ''; f.focus(); }
+              return { n: cases.length, dits, fois: f ? { id: f.id || '(sans id)', avecX: touches(f).indexOf('x') >= 0 } : null };
+            });
+            if(cc && cc.n){
+              const num = await s.page.evaluate(i => TEST_NUM[i], id);
+              nCasesCalcul += cc.n;
+              cc.dits.forEach(d => casesCalculDits.push(num + ' ' + d));
+              if(cc.fois){
+                /* un contrôle qui TAPE attend que la case ait le focus */
+                try { await s.page.waitForFunction(() => document.activeElement === document.querySelector('[data-banc-fois]'), null, { timeout: 2000 }); } catch(e){}
+                await s.page.keyboard.type('2*3x4', { delay: 20 });
+                await s.page.waitForTimeout(80);
+                const v = await s.page.evaluate(() => {
+                  const c = document.querySelector('[data-banc-fois]'); if(!c) return null;
+                  const r = { v: c.value, ici: document.activeElement === c };
+                  c.removeAttribute('data-banc-fois'); c.value = '';
+                  c.dispatchEvent(new Event('input', { bubbles: true })); c.blur();
+                  return r;
+                });
+                const attendu = cc.fois.avecX ? '2×3x4' : '2×3×4';
+                if(v && v.ici){
+                  nCasesFois++;
+                  if(v.v !== attendu) casesCalculDits.push(num + ' ' + cc.fois.id + ' : « 2*3x4 » tapé s’écrit « ' + v.v + ' », attendu « ' + attendu + ' »');
+                } else casesCalculDits.push(num + ' ' + cc.fois.id + ' : la case n’a pas pris le focus — rien n’a pu être tapé');
+              }
+            }
+          }
           /* UNE CASE VIDE NE ROUGIT JAMAIS — sur TOUS les exercices.
              C'est la règle que la Seconde a réapprise trois fois en une seule
              journée d'août 2026, chaque fois sur un exercice différent, et
@@ -15383,7 +15954,31 @@ if(require.main === module) (async () => {
       /* Ce qui est DÉCLARÉ est nommé à l'écran, jamais tu : un contrôle qui
          saute des exercices en silence rend le banc vert sur ce qu'il ne
          vérifie plus. */
+      /* le COMPTE et la liste ENTIÈRE ; et le BORD OPPOSÉ : le niveau qui
+         DÉCLARE des cases de calcul en texte (tests/profils.js,
+         « casesCalculTexte ») doit en offrir au banc — et des cases à × s'il
+         les déclare ; celui qui n'en déclare pas s'affiche « non applicable ». */
+      verifier('une case de calcul en texte écrit « × » pour « * », et le x en italique (case et touche du pavé)',
+        casesCalculDits.length === 0, casesCalculDits.length + ' cas — ' + casesCalculDits.join(' | '));
+      if(P.casesCalculTexte)
+        verifier('des cases de calcul en texte sont bien relevées (le contrôle du × et du x mesure quelque chose)',
+          nCasesCalcul > 0 && (!P.casesCalculTexte.fois || nCasesFois > 0),
+          nCasesCalcul + ' case(s) relevée(s), ' + nCasesFois + ' frappe(s) de « * » mesurée(s)');
+      else
+        ignorer('des cases de calcul en texte sont bien relevées (le contrôle du × et du x mesure quelque chose)',
+          'ce niveau ne déclare aucune case de calcul en texte (mesuré : ' + nCasesCalcul + ')');
       const dispenses = (P.casesVides && P.casesVides.sans) || [];
+      verifier('la flèche → en fin de case passe à la case suivante ou au bouton de vérification',
+        nFleches > 0 && flechesBloquees.length === 0,
+        nFleches ? flechesBloquees.length + ' exercice(s) : ' + flechesBloquees.slice(0, 6).join(' | ')
+                 : 'aucune case mesurée — le contrôle ne mesure rien');
+      verifier('au milieu du texte saisi, → reste dans la case (champ simple et case MathLive)',
+        !!flecheMilieu.champ && !!flecheMilieu.mf && flecheMilieuSort.length === 0,
+        flecheMilieuSort.length ? 'la case a été quittée : ' + flecheMilieuSort.join(' | ')
+          : 'sorte(s) jamais mesurée(s) : ' + ['champ', 'mf'].filter(k => !flecheMilieu[k]).join(', '));
+      if(flechesSansCible.size)
+        console.log('   · ' + flechesSansCible.size + ' exercice(s) sans autre case ni bouton où aller (flèche non mesurée) : '
+          + [...flechesSansCible].join(', '));
       verifier('aucune case laissée vide ne rougit à la vérification',
         videsRouges.length === 0,
         videsRouges.length + ' exercice(s) : ' + videsRouges.slice(0, 6).join(' | '));
@@ -15617,16 +16212,17 @@ if(require.main === module) (async () => {
        son cadre, rien qui déborde de la carte ni de l'écran — sur un grand
        écran et sur un téléphone de 360 px —, et, décor éteint, rien du tout. */
     if(P.serpentsHalloween){
-      titre('9 quater. LES SERPENTS D\'HALLOWEEN DU SOUS-THÈME « INPUT »');
+      titre('9 quater. LES SERPENTS D\'HALLOWEEN DES SOUS-THÈMES PYTHON (6.1, 6.2, 6.3)');
       s = await ouvrir(chromium, ml);
       if(await connecter(s.page) !== 'scr-space'){
         ignorer('les serpents d\'Halloween se montrent sous le décor, à côté du dessin de la fiche', 'connexion impossible — rien à mesurer');
       } else {
-        const TH = P.serpentsHalloween.theme, SS = P.serpentsHalloween.sous;
-        /* page.evaluate ne passe qu'UN argument : les deux numéros vont dans un objet */
+        /* `sous` : un sous-thème, ou une liste (6.1, 6.2 et 6.3 depuis octobre 2026) */
+        const TH = P.serpentsHalloween.theme, SS = [].concat(P.serpentsHalloween.sous);
+        /* page.evaluate ne passe qu'UN argument : les numéros vont dans un objet */
         const ids = await s.page.evaluate(({ t, u }) => {
-          const th = THEMES.find(x => x.num === t), s3 = th && th.sous && th.sous.find(x => x.num === u);
-          return s3 ? s3.ids.slice() : [];
+          const th = THEMES.find(x => x.num === t);
+          return u.reduce((a, n) => { const s3 = th && th.sous && th.sous.find(x => x.num === n); return a.concat(s3 ? s3.ids : []); }, []);
         }, { t: TH, u: SS });
         const pbs = [], vus = [];
         const mesurer = () => s.page.evaluate(() => {
@@ -15636,7 +16232,9 @@ if(require.main === module) (async () => {
           if(!fig) return { pb: 'pas de serpent sur ' + on.id };
           const rf = fig.getBoundingClientRect(), svg = fig.querySelector('svg.hw-svg');
           const card = fig.closest('.card'), rc = card ? card.getBoundingClientRect() : null;
-          const img = fig.parentNode.querySelector('img[src*="dessins/"]'), ri = img ? img.getBoundingClientRect() : null;
+          const img = fig.parentNode.querySelector('img[src*="dessins/"]:not(.hw-img)'), ri = img ? img.getBoundingClientRect() : null;
+          /* le serpent lui-même est un dessin en fichier, posé sur la moitié gauche du cadre de la bulle */
+          const hw = fig.querySelector('img.hw-img'), rh = hw ? hw.getBoundingClientRect() : null;
           /* la bulle et ses deux lignes portent une classe : les étoiles du sorcier
              et les crocs blancs du vampire sont aussi des <text> et des <path fill="#fff"> */
           const textes = svg ? [...svg.querySelectorAll('text.hw-bulle-texte')] : [];
@@ -15656,6 +16254,8 @@ if(require.main === module) (async () => {
           const petits = textes.filter(t => parseFloat(getComputedStyle(t).fontSize) < 12).map(t => parseFloat(getComputedStyle(t).fontSize) + ' px « ' + t.textContent + ' »');
           return { ecran: on.id, variante: fig.getAttribute('data-hw'), largeur: rf.width, hauteur: rf.height,
                    svgH: svg ? svg.getBoundingClientRect().height : 0, imgL: ri ? ri.width : 0,
+                   hwL: rh ? rh.width : 0, hwH: rh ? rh.height : 0, hwCharge: !!hw && hw.complete && hw.naturalWidth > 0,
+                   hwDedans: !!rh && rh.left >= rf.left - 1 && rh.right <= rf.right + 1 && rh.top >= rf.top - 1 && rh.bottom <= rf.bottom + 1,
                    dansCarte: !!rc && rf.left >= rc.left - 1 && rf.right <= rc.right + 1,
                    largeurPage: document.documentElement.scrollWidth,
                    textes: textes.length, deborde, petits };
@@ -15677,11 +16277,13 @@ if(require.main === module) (async () => {
           if(sans.largeur > 0 || sans.hauteur > 0) pbs.push(id + ' : décor éteint, le serpent occupe ' + Math.round(sans.largeur) + '×' + Math.round(sans.hauteur) + ' px');
           /* décor allumé, grand écran */
           await s.page.evaluate(() => document.body.classList.add('halloween'));
+          await s.page.evaluate(() => { const i = document.querySelector('section.screen.on img.hw-img'); return i ? i.decode().catch(() => {}) : null; });
           await s.page.waitForTimeout(120);
           const avec = await mesurer();
           if(avec.pb){ pbs.push(id + ' : ' + avec.pb); continue; }
           if(!(avec.largeur > 150) || !(avec.svgH > 100)) pbs.push(id + ' : le serpent est rendu ' + Math.round(avec.largeur) + '×' + Math.round(avec.svgH) + ' px');
           if(!(avec.imgL > 100)) pbs.push(id + ' : le dessin de la fiche ne fait plus que ' + Math.round(avec.imgL) + ' px à côté du serpent');
+          if(!avec.hwCharge || !(avec.hwL > 100) || !(avec.hwH > 120) || !avec.hwDedans) pbs.push(id + ' : le dessin du serpent est ' + (avec.hwCharge ? 'rendu ' + Math.round(avec.hwL) + '×' + Math.round(avec.hwH) + ' px' + (avec.hwDedans ? '' : ', hors de son cadre') : 'non chargé'));
           /* la page peut déjà déborder sans le décor (le 6.3.7 à 360 px : un <code> de
              l'énoncé) — ce qu'on tient, c'est que le serpent n'élargit RIEN */
           if(!avec.dansCarte || avec.largeurPage > sans.largeurPage) pbs.push(id + ' : le serpent sort de la carte ou élargit la page (' + sans.largeurPage + ' → ' + avec.largeurPage + ' px)');
@@ -15701,8 +16303,8 @@ if(require.main === module) (async () => {
           vus.push(id + ':' + avec.variante);
         }
         verifier('les serpents d\'Halloween se montrent sous le décor, à côté du dessin de la fiche, bulle lisible à 12 px au moins, sans déborder (grand écran et 360 px) — et pas du tout décor éteint',
-          ids.length > 0 && pbs.length === 0, pbs.length ? pbs.slice(0, 3).join(' | ') : 'aucun exercice dans le sous-thème ' + TH + '.' + SS);
-        verifier('le sous-thème ' + TH + '.' + SS + ' compte ' + ids.length + ' serpents, tous différents',
+          ids.length > 0 && pbs.length === 0, pbs.length ? pbs.slice(0, 3).join(' | ') : 'aucun exercice dans les sous-thèmes ' + SS.map(n => TH + '.' + n).join(', '));
+        verifier('les sous-thèmes ' + SS.map(n => TH + '.' + n).join(', ') + ' comptent ' + ids.length + ' serpents, tous différents',
           ids.length > 0 && new Set(vus.map(v => v.split(':')[1])).size === ids.length, vus.join(', '));
         verifier('les serpents d\'Halloween ne lèvent aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
@@ -16061,9 +16663,42 @@ if(require.main === module) (async () => {
               : touches ? touches + ' touche(s) hors de l\'écran'
               : (q.gauche < 0 || q.droite > w) ? 'le pavé va de ' + q.gauche + ' à ' + q.droite + 'px sur ' + w
               : q.rangees < 2 ? 'une seule rangée' : q.petites + ' touche(s) trop petites');
-          const code = await frapper(sc.page, '#loginPin', ['1', '2', '3', '4', '5', '6']);
-          verifier('à ' + w + ' px en portrait, le pavé écrit le code', code.valeur === '123456' && code.focus === true,
-            '« ' + code.valeur + ' », focus ' + (code.focus ? 'gardé' : 'perdu'));
+          /* LE RECTANGLE DE CALCULATRICE (octobre 2026, « une ligne ou un
+             rectangle ? ») : sur un téléphone debout, les chiffres sont dans
+             leurs colonnes — 7 8 9 au-dessus de 4 5 6, au-dessus de 1 2 3,
+             au-dessus du 0 —, aux trois niveaux. Mesuré au rectangle de
+             chaque touche : un repli en rangées qui garderait l'ordre 1…0
+             mettrait le 9 sous le 1. */
+          const grille = await sc.page.evaluate(() => {
+            const r = t => { const b = document.querySelector('#paveNum .pave-t[data-t="' + t + '"]'); if(!b) return null; const q = b.getBoundingClientRect(); return { x: q.left + q.width / 2, y: q.top + q.height / 2 }; };
+            const p = {}; '0123456789'.split('').forEach(t => { p[t] = r(t); });
+            if(Object.values(p).some(v => !v)) return { manque: true };
+            const memeRangee = (a, b) => Math.abs(p[a].y - p[b].y) < 4, memeColonne = (a, b) => Math.abs(p[a].x - p[b].x) < 4;
+            const fautes = [];
+            [['7','8','9'], ['4','5','6'], ['1','2','3']].forEach(([a, b, c]) => {
+              if(!memeRangee(a, b) || !memeRangee(b, c) || !(p[a].x < p[b].x && p[b].x < p[c].x)) fautes.push(a + b + c + ' pas sur une rangée, de gauche à droite');
+            });
+            [['7','4','1'], ['8','5','2'], ['9','6','3']].forEach(([a, b, c]) => {
+              if(!memeColonne(a, b) || !memeColonne(b, c) || !(p[a].y < p[b].y && p[b].y < p[c].y)) fautes.push(a + b + c + ' pas dans une colonne, de haut en bas');
+            });
+            if(!(p['0'].y > p['1'].y + 4) || p['0'].x > p['3'].x) fautes.push('le 0 n\'est pas sous la rangée 1 2 3');
+            return { fautes: fautes };
+          });
+          verifier('à ' + w + ' px en portrait, le pavé est un rectangle de calculatrice : 7 8 9 / 4 5 6 / 1 2 3 / 0',
+            !grille.manque && grille.fautes.length === 0,
+            grille.manque ? 'des chiffres manquent au pavé' : grille.fautes.join(' ; '));
+          /* le DERNIER chiffre lance la connexion (octobre 2026) : le pavé
+             écrit les premiers en gardant le focus, et le dernier, frappé au
+             pavé comme un doigt le ferait, ouvre l'espace de l'élève */
+          const debut = await frapper(sc.page, '#loginPin', CODE_CONTROLE.slice(0, -1).split(''));
+          await frapper(sc.page, '#loginPin', [CODE_CONTROLE.slice(-1)]);
+          await sc.page.waitForFunction(() => !connexionEnCours, null, { timeout: 5000 }).catch(() => {});
+          await sc.page.waitForTimeout(300);
+          const arrivee = await ecranVisible(sc.page);
+          verifier('à ' + w + ' px en portrait, le pavé écrit le code, et son dernier chiffre connecte l\'élève',
+            debut.valeur === CODE_CONTROLE.slice(0, -1) && debut.focus === true && arrivee === 'scr-space',
+            debut.valeur !== CODE_CONTROLE.slice(0, -1) || !debut.focus ? '« ' + debut.valeur + ' », focus ' + (debut.focus ? 'gardé' : 'perdu')
+              : 'après le dernier chiffre, écran ' + arrivee);
         } finally { await sc.nav.close(); }
       }
 

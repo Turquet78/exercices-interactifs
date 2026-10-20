@@ -2864,6 +2864,61 @@ trois premières cases soient a, a, b et que la ligne réduite soit la dérivée
 de f (différences finies) ; « −1 » à la place de b, « 3 » à la place de −3
 rougissent seuls.
 
+**{convexite-tangente} (4.3.6, v390) : UNE INÉGALITÉ PAR UNE TANGENTE, LA
+DÉMONSTRATION À TROUS.** Demande de Turquet (octobre 2026), après une liste
+d'idées pour compléter la partie Convexité : « crée l'exercice 7 sur les
+tangentes et inégalités ». La septième idée était la rédaction à trous, la
+première l'inégalité par la tangente : l'exercice est les deux, c'est-à-dire le
+geste du bac « f″ ≥ 0 sur I ⟹ f convexe ⟹ courbe au-dessus de ses tangentes ⟹
+f(x) ≥ T(x) », écrit en cinq étapes dont l'élève remplit les trous. f′ et f″
+sont DONNÉES (« on admet que… ») : les dériver est le travail du 4.3.2 et du
+4.3.4, ici on rédige le raisonnement.
+**Le tirage** : quatre familles, une par question, en ordre mélangé —
+e^(kx + p) convexe sur ℝ (a = −p/k entier : e^x ≥ x + 1, e^(x−1) ≥ x,
+e^(2x) ≥ 2x + 1…) ; x³ + cx avec f″ = 6x, convexe sur [0 ; +∞[ si a > 0,
+concave sur ]−∞ ; 0] si a < 0 ; (x + β)e^x convexe sur [−β − 2 ; +∞[ ; et
+(x + β)e^(−x) concave sur ]−∞ ; 2 − β], ces deux dernières avec la tangente
+en 0. Tout tombe sur des entiers ; la pente de T n'est jamais nulle (la case
+« y = [m] x » attendrait 0), et la case de l'ordonnée à l'origine disparaît
+quand elle vaut 0, comme au 4.2.2. Deux énoncés : « étudie… puis déduis-en
+une inégalité » (rien n'est annoncé) et « démontre que f(x) ≥ … » (le sujet
+du bac).
+**Le signe de f″ se lit FACTEUR PAR FACTEUR, par des menus de symboles** :
+« e^x [> 0] et x + 2 [≥ 0], donc f″(x) = (x + 2)e^x [≥ 0] ». Un menu de
+justifications écrites aurait mis des exposants dans des `<option>`, qui
+n'acceptent pas de HTML ; les symboles seuls, eux, s'y écrivent.
+**Le second membre de la conclusion est un MIROIR** de l'équation de T telle
+que l'élève l'écrit (`cvtMiroir`, un `<span>`, pas une case : rien ne s'y
+juge, rien ne compte dans la note) : l'écrire en clair aurait donné la
+réponse du 3, le redemander aurait fait recopier. Une fois la question
+verrouillée, le miroir montre l'équation corrigée — vu sur capture : un
+rafraîchissement passé après la correction réécrivait « −1x + 2 » depuis la
+saisie.
+**Le coefficient 1 de x s'omet** (M76, comme au 4.2.2) : la case vide de la
+pente vaut 1 quand la case de l'ordonnée à l'origine, sur la même ligne, est
+remplie et juste ; une ligne fausse garde son vide, qui reçoit la correction.
+**Le contrôle (`tests/verifier.js`, `convexiteTangente`) relit l'ÉNONCÉ
+AFFICHÉ** — f, f′ et f″ traduites en fonctions depuis le HTML — puis refait
+tout par différences finies, jamais par `cvtAns` : f′ dérivée de f, f″ de f′,
+le signe de f″ sur une grille de I, f(a), f′(a), la pente et l'ordonnée à
+l'origine, et l'inégalité attendue VRAIE en chaque point de I ; sur 60
+séances et sur CHAQUE jeu de paramètres possible. Puis les gestes : copie
+juste, case fausse seule rouge, case vide jamais rouge, omission du 1,
+miroir, soutien en direct, clause de secret. Éprouvé par sabotage (f″ de
+e^(2x) affichée 2e^(2x), concavité de (x + β)e^(−x) retournée) : les deux
+attrapés. Son seuil s'est trompé une fois, à la première exécution : la
+dérivée numérique fait 10⁻⁹ d'erreur sur e^(x−1), et une ordonnée à l'origine
+nulle se lisait non nulle à 10⁻⁹ près — 10⁻⁶ suffit.
+**Le banc navigateur a rougi une fois** sur « aucun indice ne remonte sur la
+ligne de sa lettre » : « e^x » et « x³ » posés NUS dans un `.tg-coef` (un
+conteneur flex) devenaient des items et perdaient leur exposant. Pour un code
+neuf, la correction est celle du rendu natif : l'expression est enveloppée
+dans un `<span>`, l'exposant n'est plus enfant direct du flex.
+Il devait être le 4.3.5, en v388 : {associer-derivee-seconde} a pris l'un et
+l'autre pendant que les contrôles tournaient, et la fusion de main l'a fait
+passer en 4.3.6, v389, après lui — puis en v390, la v389 étant prise par la
+convergence monotone avant le passage des contrôles.
+
 **Le thème de la Dérivée a rejoint celui de l'Étude de fonction (octobre
 2026, v373).** Demande de Turquet : « mettre le thème dérivée dans le thème
 étude de fonction ». Le thème 4 · Étude de fonction a désormais quatre
@@ -3057,3 +3112,208 @@ posé la veille sur la case « avec », a perdu son témoin avec elle : il vise
 désormais la case « Majorée par … » de {suite-vocabulaire} (5.4.1), case de
 texte voisine d'un champ de limite, et le profil nomme ce qu'on tape, ce
 qu'on attend et le juge qui relit (`casesLimite.jetonTexte`).
+
+## Associer f, f′ et f″ — six courbes en désordre, trois triplets (4.3.5, v388)
+
+Demande de Turquet, octobre 2026 : « dans le sous-thème convexité, créer un
+exercice : associer f, f′ et f″ — six courbes en désordre, trois triplets à
+reconstituer. C'est le pendant d'{associer-derivee}. » Identifiant
+`associer-derivee-seconde`, genre `afd`, cinquième de la partie Convexité.
+
+**L'écran.** Les courbes de trois fonctions f, g, h sur [−3 ; 3], puis six
+courbes numérotées C1…C6 : leurs dérivées et leurs dérivées secondes, en
+désordre. Pour chaque fonction, deux menus : le numéro de la courbe de sa
+dérivée, celui de sa dérivée seconde. Trois questions par séance, tirées par
+`distinctes()`. Les cadres sont ceux de {convexite-trois-courbes}
+(`cvxCadreSVG`, qui a gagné un septième paramètre facultatif : l'indice de
+l'étiquette, g, h ou un numéro — sans lui, rien ne change) : la courbe sort
+du cadre là où elle file vers l'infini, comme sur une calculatrice, et la
+fenêtre en y se cale sur les extremums et les points d'inflexion
+(`afdFenetre`).
+
+**Le tirage.** Des polynômes de quatre genres — cubique à deux extremums,
+cubique monotone, quartique à trois extremums, quartique à un seul —, trois
+genres DIFFÉRENTS par question : il y a donc toujours une cubique et une
+quartique, et une parabole est tantôt une dérivée, tantôt une dérivée
+seconde. Le degré seul ne trie rien. f′ se choisit par ses zéros (entiers),
+f s'en déduit par intégration. La question ne range que les coefficients
+(`fs`) et l'ordre des six courbes (`ordre`, le code 2i pour la dérivée de la
+fonction i, 2i + 1 pour sa dérivée seconde) : la réponse se relit dans
+l'ordre, jamais rangée à côté.
+
+**L'unicité se lit, elle ne se décrète pas.** Une courbe g peut passer pour
+la dérivée de h tant qu'aucun point ne les contredit À L'ŒIL : g à 12 px au
+moins d'un côté de l'axe, h visible dans son cadre et montant ou descendant
+avec une pente d'écran d'au moins 0,25 (14°), dans l'autre sens
+(`afdDesaccord`). `afdSolutions` compte toutes les répartitions que rien ne
+contredit, et le tirage n'est retenu que s'il n'en reste qu'une. Les
+premiers seuils (8 px, 0,15) donnaient des tirages « uniques » dont un sur
+douze ne l'était plus dès qu'on exigeait un désaccord un peu plus franc :
+mesuré hors de la page, sur 200 tirages, puis la marge a été prise dans la
+page. Coût : 1,6 tirage par question, 18 ms. Un premier essai de contrôle
+avec un critère tout autre (15 à 25 % du maximum sur [−2,5 ; 2,5]) trouvait
+TOUT ambigu — une quartique qui file à 40 en x = 3 rend invisible, à cette
+mesure, tout ce qui se passe au milieu : un seuil relatif au maximum ne
+mesure pas ce que l'œil voit dans un cadre qui coupe la courbe.
+
+**Le pourquoi.** Un menu faux dit, relu sur les courbes, le point où le
+choix se contredit : « La courbe 4 ne peut pas être celle de f ′ : vers
+x = 1,5, elle est au-dessous de l'axe, alors que f y est croissante. » Pour
+une dérivée seconde, la comparaison se fait avec la VRAIE courbe de la
+dérivée. Si la courbe choisie ne contredit rien à elle seule, la phrase le
+dit : c'est le reste qui ne se répartit plus.
+
+**Le contrôle** (`tests/verifier.js`, `associerDeriveeSeconde`) relit chaque
+courbe par différences finies, recompte les 720 ordres des six courbes un
+par un avec son propre juge, sur une grille deux fois plus fine que celle de
+la page (il voit donc au moins ses désaccords), exige une seule répartition
+et que ce soit l'attendue, des degrés 3 et 4 mêlés, trois questions
+distinctes, puis les gestes sur la question de repli épinglée : copie juste
+(six cases), menu faux seul en rouge avec son pourquoi et la bonne courbe à
+côté, menu vide en vert jamais rouge, soutien sans verrou et coloré en
+direct, copie vide redemandée, neuf étiquettes, clause de secret.
+
+**Autour du théorème de convergence monotone : 5.4.4, 5.4.5, 5.4.6 et 5.5.2
+(octobre 2026, v389).** Demande de Turquet : « donne-moi des idées d'exercices
+en Terminale pour compléter le TCM », puis « fais les idées 1, 2, 7 et 10 ».
+Quatre exercices ajoutés en FIN de leur partie : aucun numéro existant ne
+bouge.
+
+- **{tcm-vrai-faux} (5.4.4) — les pièges du théorème.** Huit affirmations par
+  séance, quatre vraies et quatre fausses, tirées SANS REMISE parmi seize
+  (« croissante et majorée par M, donc lim = M », « bornée, donc convergente »,
+  « Uₙ < M et convergente, donc ℓ < M »…). Deux listes : vraie ou fausse, puis
+  UNE liste de justifications, la même pour toutes les affirmations — les
+  théorèmes, puis sept contre-exemples : (−1)ⁿ, (−1)ⁿ/(n+1), −n, (−1)ⁿ × n,
+  n + 2(−1)ⁿ, M − 1/(n+1), (M − 1) − 1/(n+1). Une liste propre à chaque
+  affirmation aurait trahi la réponse par sa longueur. Plusieurs
+  contre-exemples réfutent parfois la même affirmation (« majorée, donc
+  convergente » tombe devant (−1)ⁿ ET devant −n) : tous sont acceptés.
+  **Puis les dix premiers termes (v391).** Demande de Turquet : « il faudrait
+  donner les 10 premiers termes en plus dans les contre-exemples proposés ».
+  Un tableau sous la liste écrit, pour CHACUN des sept contre-exemples (pas
+  seulement le bon : la liste ne doit rien trahir), U₀ à U₉ — fractions
+  empilées, déjà irréductibles (M(n+1) − 1 et n + 1 sont premiers entre eux),
+  avec le M de la question. Les termes sont des nombres (`tvfCeTermes`), pas
+  du texte : le banc principal les recompare aux suites qu'il calcule, pour
+  M de 2 à 6, et exige que le tableau suive les contre-exemples de la liste.
+  Le « ; » colle à son terme : au téléphone, un « ; … » seul ouvrait la ligne.
+  **Puis en décimal (v393).** « Je veux des valeurs décimales au centième près
+  et non des fractions » : chaque terme s'écrit arrondi au centième, virgule
+  française, zéros de queue retirés (1/3 → 0,33 ; 5/2 → 2,5 ; 1 reste 1), et
+  l'en-tête le dit. Les termes restent rangés en fractions exactes
+  (`tvfCeTermes`) ; seul l'affichage arrondit (`tvfTermeDec`). Le banc relit
+  ce que l'élève lit : un décimal à deux chiffres au plus, à 0,005 de la vraie
+  valeur, et plus aucune fraction dans le tableau.
+- **{suite-croissante-non-majoree} (5.4.5) — le théorème voisin.**
+  Uₙ₊₁ = Uₙ + an + b ou Uₙ₊₁ = Uₙ² + Uₙ + b, les deux familles dans chaque
+  séance : a) croissante par le signe de la différence, b) récurrence Uₙ ≥ n,
+  c) comparaison, donc +∞, d) pas majorée (sinon le TCM la ferait converger),
+  donc divergente. La case « Uₖ₊₁ ≥ k + … » accepte tout v de 1 à b : la
+  minoration est vraie et suffit.
+- **{suite-somme-majoree} (5.4.6) — la limite existe, mais combien vaut-elle ?**
+  Sₙ = Σ 1/kᵖ, p = 2 puis p = 3 : S₁ et S₂, la croissance, la récurrence
+  Sₙ ≤ 2 − 1/n par 1/(k+1)ᵖ ≤ 1/(k(k+1)) = 1/k − 1/(k+1), le TCM, et la
+  question qui fait l'exercice : le théorème donne l'EXISTENCE, pas la
+  valeur (ℓ ≤ 2 seulement). La correction raconte π²/6 et Apéry. « Sₙ ≤ … »
+  accepte tout majorant ≥ 2 ; « ℓ ≤ … » attend 2, ce que donne le passage à
+  la limite.
+- **{suite-algo-approx} (5.5.2) — approcher ℓ à 10⁻ᵖ près.** La suite affine
+  du 5.5.1 et son vivier ; ℓ par passage à la limite, puis
+  `while abs(u - ℓ) >= 10⁻ᵖ` à compléter (comparaison choisie, ≥ ou > ;
+  tolérance écrite 0.001, 10**-3, 10**(-3), 1e-3 ou 1/1000), le rang lu dans
+  le tableau, et pourquoi la boucle s'arrête (la suite CONVERGE). Le tirage
+  part du rang : entre 5 et 40, et aucun écart à moins de 2·10⁻⁶ de 10⁻ᵖ,
+  pour que le tableau arrondi au millionième montre le rang du programme.
+
+**Un seul moteur pour les quatre** (`TCM4`, `tcm4Check`) : chaque exercice
+déclare ses cases, son juge, sa correction et sa phrase-clé ; vérification,
+soutien en direct, case vide jamais rougie, verrou et suite sont écrits une
+fois. Les cases et les listes sont celles du 5.4.2 (`sa2In`, `tclSel`,
+`corrCase`). Sur un téléphone, les phrases de ces écrans se replient (une
+`.sa2-t` est `nowrap`, et à 390 px « Hérédité : on suppose que Sₖ ≤ 2 − »
+sortait de la carte : vu sur la capture de la sonde, corrigé avant livraison).
+
+**Le contrôle (`tests/verifier.js`, `autourDuTcm`) ne croit pas la page sur
+parole** : il CALCULE 400 termes de chaque contre-exemple et exige que la liste
+acceptée pour chaque affirmation fausse soit exactement celle des suites qui
+remplissent ses hypothèses sans sa conclusion, et qu'aucune affirmation dite
+vraie ne tombe ; il vérifie Uₙ ≥ n et la croissance sur chaque tirage du 5.4.5,
+Sₙ ≤ 2 − 1/n sur 300 termes, EXÉCUTE la boucle du 5.5.2 sur 150 tirages, puis
+joue la copie de la correction sur les quatre écrans.
+
+**Exécuté avant livraison** : une sonde Playwright a fait chaque exercice
+entier à 1280 et 390 px, une question sur deux juste, l'autre avec une case
+fausse et le reste vide — juste en bleu, faux en rouge avec la correction à
+côté, vides complétées en vert, écran des résultats au bout, aucune erreur
+JavaScript, aucune page qui défile en largeur.
+**{convexite-parametre} (4.3.7) : TROUVER UN PARAMÈTRE (octobre 2026, v392).**
+Demande de Turquet : « dans le sous-thème convexité, créer un exercice sur
+Trouver un paramètre — f(x) = x³ + kx² + 1 admet un point d'inflexion
+d'abscisse 2 : trouve k. Ou bien : pour quelles valeurs de a la fonction
+(x² + a)eˣ est-elle convexe sur ℝ ? (le discriminant de f″ intervient) ». Il
+ferme la partie Convexité, après {associer-derivee-seconde} (4.3.5) et
+{convexite-tangente} (4.3.6), nés le même jour sur d'autres branches : aucun
+numéro existant ne bouge.
+
+**Le tirage** : cinq questions, une par famille, par `distinctes()` —
+mx³ + kx² (+ px) + d (k = −3m·x0 ; p vaut 0 une fois sur trois, comme dans
+l'exemple de la demande), x⁴ + kx³ (+ px) + d (k = −2·x0, x0 ≠ 0), (x + k)e^(±x)
+(k = −x0 − 2 ou 2 − x0, jamais 0), puis (x² + bx + a)eˣ et (x² + bx + a)e^(−x),
+b de −4 à 4. Le discriminant du trinôme de f″ vaut b² + 8 − 4a DANS LES DEUX
+CAS : le seuil est a ≥ (b² + 8)/4 — entier pour b pair, 9/4 ou 17/4 pour b
+impair, accepté en fraction ou en décimal (`tgParseFrac`).
+
+**La démarche est découpée en cases** (`txInp`, comme au 4.3.2) : f′ et f″
+coefficient par coefficient, f″(x0) = 0 écrite, k ; puis un menu « en
+changeant de signe / sans changer de signe » — s'annuler ne suffit pas, et
+la phrase de la fiche le fait dire. Côté discriminant : f′, f″, Δ = [ ] − [ ]a,
+le menu « Δ ≤ 0 » (l'inégalité est LARGE : au seuil, f″ ne s'annule qu'en un
+point), puis « a [≥] [seuil] ». Les constantes en bout de parenthèse
+s'écrivent avec leur signe. Aucune case ne révèle la précédente : la ligne
+« e^x > 0, donc f″ a le signe du trinôme » ne recopie pas le trinôme.
+
+**Le texte entre deux cases tient dans UN `<span>`.** La première capture a
+montré « f″( x ) » et « x , » écartés : `.tg-line` est un conteneur flex, et
+chaque nœud de texte nu, chaque `<i>`, chaque `<sup>` y devient un élément
+séparé par l'écart du flex. `cvpFormHTML` pose tout le texte entre deux cases
+par `T()`.
+
+**Le contrôle (`tests/verifier.js`, `convexiteParametre`) REFAIT l'analyse**
+sur 120 séances : la fonction de l'énoncé reconstruite depuis la question,
+dérivée par différences finies ; f′ et f″ ÉCRITES DANS LES CASES attendues
+doivent valoir les dérivées numériques en trois points ; k annule f″ en x0
+et f″ y change de signe ; le Δ des cases est B² − 4C du trinôme des cases ;
+au seuil f″ reste ≥ 0, juste en dessous elle passe sous 0. Puis l'écran, une
+copie par famille : la juste vaut le point, la fausse rougit seule, la vide
+ne rougit pas et reçoit la correction en vert. Éprouvé par deux sabotages
+(k = −2m·x0, Δ = b² + 4 − 4a) : chacun rougit le contrôle.
+
+**Exécuté avant livraison** : une sonde Playwright a fait les cinq questions
+à 1280 et à 390 px (une sur deux juste, une sur deux avec des cases fausses
+et des vides) — cases justes en bleu, fausses en rouge avec la correction à
+côté, vides complétées en vert, l'écran des résultats au bout, aucune erreur
+JavaScript, aucun débordement en largeur.
+
+**« ∞ » sans signe vaut +∞, partout — décision de Turquet (octobre 2026), qui
+renverse M80.** Le lot de l'audit avait unifié dans le sens du refus : « ∞ »
+nu refusé dans toute case de limite, avec un message (`limAvisSigne`). La
+règle retenue est l'autre : un « ∞ » nu, « inf » ou « infini », se lit +∞
+dans toute case de limite — lectures graphiques (lg, lg2, lg3), 4.6, suites
+(svq, lqn), études de fonctions (asg, eav) —, et −∞ garde son signe. Une
+seule fonction le sait, `lgLimOK` (`t==='+∞' || t==='∞'`), et toutes les
+cases de limite passent par elle (le contrôle qui relit la SOURCE et exige
+que chaque appel à lgLimOK lise une case de limite le tient) ; `limNonSignee` et `limAvisSigne` sont retirées, avec leurs
+quatorze appels ; l'attendu envoyé au modèle du 3.5 dit « « ∞ » SANS signe
+vaut +∞ et s'accepte comme tel ». Le contrôle du lot J est retourné : « ∞ »,
+« inf » et « infini » doivent passer pour +∞, être refusés pour −∞, et
+`limAvisSigne` ne doit plus exister ; le 6.4.1 pose « inf » comme seconde
+copie juste. Le paragraphe M80 ci-dessus reste : il raconte l'état d'avant,
+avec ses raisons.
+La chasse adversariale qui a suivi (trois angles, dix-neuf réfutations) a
+trouvé ce que le lot J avait fait en silence : `lgAttenduIA`, l'attendu
+envoyé au modèle des 3.2, 3.3 et 3.4, disait avant M80 « « ∞ » sans signe
+vaut +∞ » et M80 avait RETIRÉ cette phrase — c'était son moyen d'exiger le
+signe du modèle. Elle est remise, et le contrôle du lot J exige désormais
+que `lgAttenduIA` et `lrAttenduIA` la disent tous deux. Les commentaires qui
+racontaient encore « ∞ signé exigé » (3.5, lqn) sont à jour.
