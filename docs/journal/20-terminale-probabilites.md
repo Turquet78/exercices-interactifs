@@ -337,6 +337,18 @@ trois menus dans Chromium : à 768 px, 748 px de cadre partout (Terminale :
 560 avant ; Seconde et Première : 728) ; à 390 px, 370 ; aucune page ne
 défile en largeur. Terminale v408, Seconde v570, Première v331.
 
+**Ce que le banc navigateur a trouvé** à la première exécution : deux échecs,
+aucun dans le 6.1.3. D'abord un défaut réel, que la nouvelle largeur a mis au
+jour : à 600 et 390 px, au {recurrence-fractions} et au {recurrence-complete},
+un « = » se séparait de sa case (`rfr-i4`, `rec-t2`). Dans un cadre de
+560 px, le repli tombait ailleurs ; dans un cadre plus large, il tombait
+entre eux. Les deux sont désormais collés par `tEq`, la fabrique qui le
+faisait déjà pour `rfr-n0` juste à côté. Ensuite une mesure qui ne mesurait
+plus rien : au {suite-variation-recurrence}, la grille de la démonstration
+devait défiler « à 900 px », mesurée à 900 × 950 — un portrait, où elle tient
+désormais. La mesure se fait à 900 × 700, en paysage, dans le cadre de
+780 px qu'elle éprouvait.
+
 ## {proba-phrase-formule} (6.1.4, d’abord 6.2.1) : comprendre une question — associer phrase et formule
 
 Demande de Turquet (octobre 2026), avec la « fiche 4 — Comprendre une

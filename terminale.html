@@ -21982,9 +21982,10 @@ function renderREC(){
   $('recJetons').innerHTML=recJetonsHTML();
   const idx0=q.n0, idx1=q.n0+1, idx2=q.n0+2;
   $('recA').innerHTML='<p class="tvi-instr"><span class="su-lab">a)</span> Calcule les 3 premiers termes de la suite <b>au dixi\u00e8me pr\u00e8s</b>&nbsp;:</p>'
-    +'<div class="rec-ligne">'+recSub(idx0)+' = '+recMF('rec-t0')
-    +'&nbsp;&nbsp;;&nbsp;&nbsp; '+recSub(idx1)+' = '+recMF('rec-t1')
-    +'&nbsp;&nbsp;;&nbsp;&nbsp; '+recSub(idx2)+' = '+recMF('rec-t2')+'</div>';
+    /* chaque « Uₖ = » collé à sa case (tEq) : la rangée se replie ENTRE les termes, jamais entre le « = » et la case */
+    +'<div class="rec-ligne">'+tEq(recSub(idx0)+' = ', recMF('rec-t0'))
+    +'&nbsp;&nbsp;;&nbsp;&nbsp; '+tEq(recSub(idx1)+' = ', recMF('rec-t1'))
+    +'&nbsp;&nbsp;;&nbsp;&nbsp; '+tEq(recSub(idx2)+' = ', recMF('rec-t2'))+'</div>';
   $('recProg').innerHTML='<p class="tvi-instr">Le programme affiche les termes suivants (de '+recSub(q.n0+3)+' \u00e0 '+recSub(q.n0+10)+', tronqu\u00e9s au milli\u00e8me)&nbsp;:</p>'
     +'<p class="rec-prog">'+q.prog.map((v,i)=>recSub(q.n0+3+i)+' \u2248 '+recTrunc3(v)).join('&nbsp;&nbsp;;&nbsp;&nbsp; ')+'</p>';
   $('recB').innerHTML='<p class="tvi-instr"><span class="su-lab">b)</span> Compl\u00e8te les conjectures&nbsp;:</p>'
@@ -26594,7 +26595,7 @@ function renderRFR(){
   const inF=function(i1,i2){ return F(rfrIn(i1,true), rfrIn(i2,true)); };   /* fraction à deux cases */
   $('rfrPartB').innerHTML=
      '<div class="sa2-row rfr-row"><b>Initialisation</b>'+T('(vrai pour '+n)+tEq(T('='), rfrIn('rfr-n0'))+T(')&nbsp;: '+U+'<sub>0</sub> =')+rfrIn('rfr-i1')
-      +T('et')+F(rfrIn('rfr-i2')+T('+ '+a), rfrIn('rfr-i3')+T('+ '+b))+T('=')+rfrIn('rfr-i4')+'</div>'
+      +T('et')+F(rfrIn('rfr-i2')+T('+ '+a), rfrIn('rfr-i3')+T('+ '+b))+tEq(T('='), rfrIn('rfr-i4'))+'</div>'
     +'<div class="sa2-row rfr-row"><b>Hérédité</b>'+T('— on <b>suppose</b> que c’est vrai pour '+n+'&nbsp;: '+Un+' =')+inF('rfr-h1','rfr-h2')+'</div>'
     +'<div class="sa2-row rfr-row"><b>Montrons</b>'+T('que c’est vrai pour '+n+' + 1&nbsp;: '+Un1+' =')+inF('rfr-m1','rfr-m2')+'</div>'
     +'<div class="sa2-ladder rfr-chaine">'

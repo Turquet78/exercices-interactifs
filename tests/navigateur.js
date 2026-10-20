@@ -10459,7 +10459,12 @@ if(require.main === module) (async () => {
           if(!large && m.demo.debord <= 2) dits.push('à 900 px la démonstration ne défile pas : elle a trouvé la place ailleurs'); }
       };
       jugerGrilles(await mesurerGrilles(), true);
-      await s.page.setViewportSize({ width: 900, height: 950 });
+      /* 900 × 700, en PAYSAGE : la grille doit y manquer de place (cadre de
+         780 px, --card-max) et défiler dans sa boîte. À 900 × 950 — un portrait —,
+         le cadre prend depuis octobre 2026 toute la largeur de l'écran
+         (body.ecran-exo) : la démonstration y tenait, et la mesure du défilement
+         n'avait plus rien à mesurer. */
+      await s.page.setViewportSize({ width: 900, height: 700 });
       await s.page.waitForTimeout(300);
       jugerGrilles(await mesurerGrilles(), false);
       /* LE VISAGE CROISSANT, rendu pour de vrai à 1400 px : c'est lui que le décalage
