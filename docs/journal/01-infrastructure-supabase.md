@@ -1242,3 +1242,32 @@ bouton « Entrer » connecte toujours un code posé sans frappe. Les neuf
 contrôles qui remplissaient le code puis cliquaient « Entrer » passent par
 `saisirCode()`, qui attend le verdict au lieu de cliquer : le clic de trop
 était justement le second appel que le verrou refuse.
+
+**Une table créée par une migration écrit ses droits de table — Supabase ne
+les donne plus d'office (octobre 2026).** Le 20 octobre 2026, Supabase a
+prévenu : à partir du 30 octobre, une table NÉE dans `public` n'est plus
+accessible à l'API (`supabase-js`, PostgREST) sans `grant` explicite. Les
+tables existantes gardent leurs droits : le projet en ligne n'a rien à faire.
+Ce qui change, c'est une base RECRÉÉE — nouveau projet, restauration d'une
+sauvegarde, migrations rejouées. Les migrations 003 et 004 écrivaient déjà
+leurs droits (leçon de 003, « une table née après le grant … on all tables ») ;
+la 001 non : `professeurs` ne tenait son droit de lecture que du don
+automatique. Les trois niveaux et `prof.html` se reconnaissent professeur par
+`from('professeurs').select('user_id')` : sur une base recréée après le
+30 octobre, la réponse aurait été « permission denied », et le professeur
+n'était plus reconnu nulle part. `est_prof()`, `security definer`, aurait
+continué de marcher — d'où des politiques justes et une page aveugle.
+Le banc de la base, qui ne fait AUCUN don implicite, était déjà la base
+d'après le 30 octobre ; il ne l'a pas vu parce qu'aucun contrôle ne lisait
+`professeurs` sous le rôle `authenticated`. Deux contrôles l'en chargent
+(section 2) : le professeur lit sa ligne et elle seule ; la clé de service
+(`service_role`, celle de `sauvegarde.mjs`) lit `professeurs` et les
+signalements — elle traverse la RLS, pas l'absence de droit. Éprouvés
+dans les deux sens : sans le `grant` de 001, « permission denied for table
+professeurs » ; sans celui de 003 pour `service_role`, « … signalements_2nde ».
+Le banc imprime désormais la ligne `ERROR` de PostgreSQL quand l'échec ne
+vient pas d'un `exige()` : il n'en montrait que la première ligne, une NOTICE
+d'en-tête vide. **Toute migration qui crée une table y écrit ses `grant`
+(`authenticated` selon l'usage, `service_role` ; `anon` seulement si un
+visiteur doit la lire), et un contrôle de `tests/base-controles.sql` la lit
+sous le rôle qui s'en sert.**
