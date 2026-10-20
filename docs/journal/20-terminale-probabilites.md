@@ -405,6 +405,46 @@ vert ; résolution directe « 0,56/0,8 = 0,7 » bleue, ses quatre étapes hors
 note ; aucun défilement horizontal. Fusionné par-dessus les lignes MathLive
 du même jour : Terminale v411.
 
+**Puis la question « on pose x » a reçu SON arbre, avec x et 1 − x**
+(demande de Turquet, octobre 2026 : « quand on doit exprimer en fonction de
+x, si ce n'est pas déjà fait, demander avant d'exprimer en fonction de x de
+compléter un arbre comme dans les consignes de cet exercice, sauf que l'élève
+devra placer x et 1 − x sur les branches aussi ; s'il s'agit d'un deuxième
+arbre, le premier ne doit plus rester forcément visible en entier, il peut
+défiler vers le haut et être masqué partiellement ou totalement »). La
+demande nommait « le 6.3.1 », qui n'existe pas : c'est le 6.1.3, le seul dont
+la question en x vient APRÈS un premier arbre chiffré (au 6.1.2, l'arbre de
+la situation 4 porte déjà x — « si ce n'est pas déjà fait »).
+
+* Entre « On pose [……] = x » et « Exprime P(B) en fonction de x », un second
+  arbre : la grille du premier (`apfGrilleHTML('apx', …)`), six cases
+  (`apx-t-…`) — x et 1 − x sur les premières branches, puis les quatre
+  conditionnelles de l'énoncé, qui ne changent pas ; intersections et P(B)
+  restent « … ». x et 1 − x se jugent comme expressions (`apxJugeCase` :
+  `apfParse` avec x, `apfEgal` — « -x+1 » vaut « 1 − x ») ; les
+  conditionnelles par le juge du premier arbre (le pourcentage accepté). Les
+  deux cases du haut offrent x au pavé (`data-pave-plus="x …"`), les autres
+  non : un x y devient ×. Six réponses comptées de plus.
+* Le second arbre est toujours écrit dans le BON sens, quelle que soit la
+  lettre choisie au 1. a) : il n'a pas de choix à lui.
+* **Il colle dans SA question, par-dessus le premier.** Classe `apc-fixe`
+  (les mêmes règles collantes) et `apx-fixe` (z-index 6, un cran au-dessus) ;
+  son parent est le bloc `.apc-q` de la question en x, si bien qu'il colle
+  pendant toute la question — expression, résolution, phrase réponse — et
+  repart ensuite, rendant la place au premier, qui colle dans tout le cadre.
+  Le premier arbre n'est donc plus visible en entier pendant la question en
+  x : le second monte sur lui, le masque en partie, puis entièrement.
+  `--apc-arbre-h` (la réserve de `scroll-padding-top`) prend la hauteur du
+  plus haut des deux.
+* À la reprise, les cases des deux arbres reprennent la largeur de leur
+  saisie (`sa2Ajuster`) — celles du premier ne la reprenaient pas non plus.
+
+Essayé dans Chromium à 1280 × 900 et 390 × 844 : en bas de la résolution, le
+premier arbre collé à 0, le second à 0 par-dessus (à 1280 px, la question
+s'arrête plus tôt : le second s'arrête à 93 px et masque le bas du premier) ;
+« x », « 1-x » bleus, une conditionnelle fausse rouge avec la bonne en vert à
+côté, une case vide remplie en vert ; aucune erreur de page. Terminale v413.
+
 ## En portrait, le cadre d'un exercice prend la largeur de l'écran — les trois niveaux
 
 Demande de Turquet (octobre 2026) : « en mode portrait, que le cadre blanc de
