@@ -340,7 +340,8 @@ défile en largeur. Terminale v409, Seconde v571, Première v332.
 **Ce que le banc navigateur a trouvé** à la première exécution : deux échecs,
 aucun dans le 6.1.3. D'abord un défaut réel, que la nouvelle largeur a mis au
 jour : à 600 et 390 px, au {recurrence-fractions} et au {recurrence-complete},
-un « = » se séparait de sa case (`rfr-i4`, `rec-t2`). Dans un cadre de
+un « = » se séparait de sa case (`rfr-i4`, `rec-t2` ; puis, sur le
+serveur de l'action, à 820 px, `rec-i-v` — « vrai car U₀ = … »). Dans un cadre de
 560 px, le repli tombait ailleurs ; dans un cadre plus large, il tombait
 entre eux. Les deux sont désormais collés par `tEq`, la fabrique qui le
 faisait déjà pour `rfr-n0` juste à côté. Ensuite une mesure qui ne mesurait

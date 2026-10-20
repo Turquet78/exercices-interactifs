@@ -22066,7 +22066,7 @@ function renderREC(){
   $('recC').innerHTML='<p class="tvi-instr"><span class="su-lab">c)</span> D\u00e9montre par r\u00e9currence que <b>'+encTex(String(q.m)+' \\le U_n \\le '+String(q.M), q.m+' \u2264 U\u2099 \u2264 '+q.M)+'</b> pour tout entier <i>n</i> \u2265 '+q.n0+'.</p>'
     +'<div class="rec-ligne"><b>Initialisation</b> (au d\u00e9part <i>n</i> '+tEq('=', recMF('rec-n0'))+')&nbsp;: '
     +recMF('rec-i-m')+' \u2264 '+recMFidx('rec-i-i')+' \u2264 '+recMF('rec-i-M')
-    +', vrai car '+recMFidx('rec-i-i2')+' = '+recMF('rec-i-v')+'.</div>'
+    +', vrai car '+tEq(recMFidx('rec-i-i2')+' = ', recMF('rec-i-v'))+'.</div>'
     +'<div class="rec-her">'
     +'<span class="rec-hlab"><b>H\u00e9r\u00e9dit\u00e9</b>&nbsp;:</span>'
     +'<div class="rec-ligne rec-hline">on '+recSel('rec-v1',q.v1)+' que c\u2019est vrai pour '+recMF('rec-p1')+'&nbsp;: '
