@@ -554,3 +554,22 @@ commentaires différents, et pas du tout en Première. `paveSup` et
 `caseCalculEcrire` sont désormais les mêmes, octet pour octet, dans les trois
 pages : une case à × ajoutée demain en Seconde ou en Première écrit « × » sans
 rien porter. Terminale v406, Seconde v569, Première v330.
+
+**Puis la précision s'est IMPOSÉE, et la troncature est devenue juste**
+(demande de Turquet, octobre 2026 : « préciser que l'on souhaite une valeur
+approchée à 10⁻² près dans l'énoncé ; il faut accepter une valeur approchée
+au centième près et pas forcément la valeur arrondie »). La capture jointe :
+« 0,17 / 0,234 = 0,72 » rouge, devant une correction « ≈ 0,73 » — 0,72 est
+pourtant à 0,01 près de 0,7265….
+
+* Les deux conditionnelles à remonter disent « (Donner une valeur approchée à
+  10⁻² près.) ».
+* Sur une ligne `libre`, `apfJugeChaine` accepte toute valeur DÉCIMALE à 0,01
+  près de la valeur exacte, derrière « = » comme derrière « ≈ » : l'arrondi
+  (0,73), la troncature (0,72), une valeur plus précise (0,7265). 0,71 ou 0,7
+  restent faux. La `note` de précision disparaît : la précision est dans
+  l'énoncé, il n'y a plus rien à signaler. Une fraction non exacte reste
+  fausse (ce n'est pas une valeur approchée décimale).
+* Le 6.1.2 (sans `libre`) garde son juge : « ≈ » au sens de l'arrondi, au
+  moins deux décimales. La correction garde ses deux décimales arrondies.
+  Terminale v412.
