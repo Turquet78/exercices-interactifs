@@ -10113,6 +10113,218 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies undecies. DEUX TRANSLATIONS À LA SUITE : A′, A″, LA LISTE, AA″ ===== */
+    /* {translations-successives} (8.2.16, octobre 2026) : un clic n'importe
+       où sur le quadrillage va au nœud le plus proche — A′, puis A″, puis le
+       début et la fin de AA″ ; le point à placer suit la souris avec son nom,
+       et pendant le tracé une flèche va du début à la souris, sans croix sur
+       la pointe. jsdom n'a pas de mise en page : le clic → nœud, la croix qui
+       suit la souris et la flèche vive ne se voient qu'ici. */
+    titre('6 quadragies undecies. DEUX TRANSLATIONS À LA SUITE : A′, A″, LA LISTE, AA″');
+    if(!P.translationsSuccessives){
+      ignorer('A′ et A″ se posent au clic, la liste se choisit, AA″ se trace en deux clics',
+        'ce niveau n\'a pas l\'exercice des deux translations à la suite');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.translationsSuccessives.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* u = (3 ; 1), v = (1 ; −3), A en (6 ; 5) : A′ en (9 ; 6), A″ en (10 ; 3) */
+      const fixe = () => { test.questions[test.idx] = { uc: [3, 1], vc: [1, -3], uo: [1, 7], vo: [1, 4], a: [6, 5], ord: [2, 0, 3, 1], p1: null, p2: null, ch: '', d: null, f: null };
+        renderTcp(); document.querySelector('#tcpGraph .tcp-svg').scrollIntoView({ block: 'center' }); };
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      const taille = await s.page.evaluate(() => { const r = document.querySelector('#tcpGraph .tcp-svg').getBoundingClientRect(); return r.width > 450 && r.height > 280; });
+      if(!taille) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
+        const svg = document.querySelector('#tcpGraph .tcp-svg'), r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const k = r.width / vb.width;
+        return { px: r.left + (TCP_PX + x * TCP_C) * k, py: r.top + (TCP_PY + (TCP_H - y) * TCP_C) * k };
+      }, [x, y]);
+      const clic = async (x, y) => { const p = await pos(x, y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      const souris = async (x, y) => { const p = await pos(x, y);
+        await s.page.mouse.move(p.px - 12, p.py - 12); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(80);
+        return await s.page.evaluate(([x, y]) => { const c = document.getElementById('tcpCurseur'), b = c.querySelector('.tcp-x').getBoundingClientRect();
+          const l = document.querySelector('#tcpVif line');
+          let vif = null;
+          if(l){ const svg = l.ownerSVGElement, m = svg.getScreenCTM(), pt = (a, b) => { const q = svg.createSVGPoint(); q.x = a; q.y = b; return q.matrixTransform(m); };
+            const p1 = pt(+l.getAttribute('x1'), +l.getAttribute('y1')), p2 = pt(+l.getAttribute('x2'), +l.getAttribute('y2'));
+            vif = { p1: [p1.x, p1.y], fin: Math.round(Math.hypot(p2.x - x, p2.y - y)) }; }
+          return { vu: getComputedStyle(c).display !== 'none', ecart: Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)),
+            lettre: c.querySelector('text').textContent, vif: vif }; }, [p.px, p.py]); };
+      /* ① A′ : la croix suit la souris avec « A′ », un clic décalé d'un quart de maille va au nœud */
+      let m = await souris(8.6, 6.3);
+      if(!m.vu || m.ecart > 3 || m.lettre !== 'A′') dits.push('la croix A′ ne suit pas la souris : ' + JSON.stringify(m));
+      await clic(9.25, 5.8);
+      let q = await s.page.evaluate(() => test.questions[test.idx]);
+      if(JSON.stringify(q.p1) !== '[9,6]') dits.push('un clic près de (9 ; 6) pose A′ en ' + JSON.stringify(q.p1));
+      m = await souris(10.4, 3.3);
+      if(!m.vu || m.lettre !== 'A″') dits.push('la croix ne passe pas à « A″ » : ' + JSON.stringify(m));
+      await clic(9.8, 3.2);
+      /* ③ la liste, ④ AA″ : plus de croix sur la souris ; le début posé, une flèche va de A à la souris */
+      await s.page.selectOption('#tcpSel', '0');
+      m = await souris(7.4, 4.4);
+      if(m.vu || m.vif) dits.push('avant le tracé de AA″, une croix ou une flèche suit la souris : ' + JSON.stringify(m));
+      await clic(6, 5);
+      m = await souris(8.3, 3.6);
+      const a0 = await pos(6, 5);
+      if(m.vu) dits.push('pendant le tracé, une croix est sur la pointe de la souris');
+      if(!m.vif || Math.hypot(m.vif.p1[0] - a0.px, m.vif.p1[1] - a0.py) > 2 || m.vif.fin > 3) dits.push('aucune flèche ne va de A jusqu\'à la souris : ' + JSON.stringify(m.vif));
+      await clic(10, 3);
+      q = await s.page.evaluate(() => ({ q: test.questions[test.idx], vif: document.querySelectorAll('#tcpVif line').length,
+        aa: [...document.querySelectorAll('#tcpCons line.tcp-aa')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        noms: [...document.querySelectorAll('#tcpCons .tcp-pt text')].map(t => t.textContent).join(',') }));
+      if(JSON.stringify([q.q.p2, q.q.d, q.q.f, q.q.ch]) !== '[[10,3],[6,5],[10,3],"0"]') dits.push('la copie posée à la souris : ' + JSON.stringify(q.q));
+      if(q.vif || q.aa !== 1 || q.noms !== 'A′,A″') dits.push('le dessin après le tracé : ' + JSON.stringify({ vif: q.vif, aa: q.aa, noms: q.noms }));
+      await s.page.click('#tcpValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
+        cls: ['tcp-p1', 'tcp-p2', 'tcp-ch', 'tcp-tr'].map(id => /\bok\b/.test(document.getElementById(id).className)).join(),
+        bouton: document.getElementById('tcpNext') ? document.getElementById('tcpNext').textContent : '' }));
+      if(fin.score !== 4 || !fin.locked || fin.cls !== 'true,true,true,true') dits.push('la copie juste : ' + JSON.stringify(fin));
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* la copie vide : quatre cadres verts, la construction verte, rien de rouge */
+      await s.page.click('#tcpNext');
+      await s.page.waitForTimeout(400);
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      await s.page.click('#tcpValidate');
+      await s.page.waitForTimeout(300);
+      const vide = await s.page.evaluate(() => ({
+        cls: ['tcp-p1', 'tcp-p2', 'tcp-ch', 'tcp-tr'].map(id => document.getElementById(id).className),
+        vert: [...document.querySelectorAll('#tcpCorr line.svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        rouge: !!document.querySelector('#tcpGraph .svc-eb, #tcpGraph .tcp-faux, #scr-tcp .tvg-cons.bad') }));
+      if(!vide.cls.every(c => /\bsol\b/.test(c))) dits.push('la copie vide ne passe pas en vert : ' + vide.cls.join(' / '));
+      if(vide.vert !== 3) dits.push('la correction ne trace pas u, v et AA″ en vert (' + vide.vert + ')');
+      if(vide.rouge) dits.push('la copie vide rougit quelque chose');
+      verifier('A′ et A″ se posent au clic, la croix suit la souris, la liste se choisit, AA″ se trace en deux clics', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran des deux translations à la suite ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 quadragies duodecies. LA RÈGLE DU PARALLÉLOGRAMME : D AU CLIC, PUIS LA DIAGONALE EN DEUX CLICS ===== */
+    /* {regle-parallelogramme} (8.2.17, l'idée n° 6 retenue par Turquet,
+       octobre 2026) : une croix suit la souris ; un clic pose D au nœud le
+       plus proche, ses deux côtés se tracent et l'étape 2 s'ouvre sous
+       l'étape 1 ; puis un clic pose le début de u + v, une flèche va de lui
+       à la pointe de la souris, un second clic fixe la fin. jsdom n'a ni
+       souris ni mise en page : la croix qui suit, la flèche élastique,
+       l'aimant du clic et la place des étapes ne se voient qu'ici. */
+    titre('6 quadragies duodecies. LA RÈGLE DU PARALLÉLOGRAMME : D AU CLIC, PUIS LA DIAGONALE EN DEUX CLICS');
+    if(!P.regleParallelogramme){
+      ignorer('la règle du parallélogramme : D se pose au clic, la diagonale se trace en deux clics, la flèche suit la souris',
+        'ce niveau n\'a pas l\'exercice de la règle du parallélogramme');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.regleParallelogramme.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* une figure fixe : A (3 ; 2), u (4 ; 1), v (1 ; 3) — D attendu en (8 ; 6) */
+      const fixe = () => { test.questions[test.idx] = { ao: [3, 2], uc: [4, 1], vc: [1, 3], sel: null, sd: null, sf: null };
+        renderSpg(); document.querySelector('#spgGraph .spg-svg').scrollIntoView({ block: 'center' }); };
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      const mes = await s.page.evaluate(() => {
+        const svg = document.querySelector('#spgGraph .spg-svg'), g = svg.getBoundingClientRect();
+        const e1 = document.getElementById('spg-pt').getBoundingClientRect(), e2 = document.getElementById('spg-sm').getBoundingClientRect();
+        return { svg: g.width > 500 && g.height > 280, dessus: e1.height > 10 && e1.bottom <= g.top + 1, cache: e2.height === 0 };
+      });
+      if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      if(!mes.dessus) dits.push('l\'étape 1 ne s\'affiche pas au-dessus du dessin');
+      if(!mes.cache) dits.push('l\'étape 2 se montre avant que D soit posé');
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
+        const svg = document.querySelector('#spgGraph .spg-svg');
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const kx = r.width / vb.width, ky = r.height / vb.height;
+        return { px: r.left + (SVC_PX + x * SVC_C) * kx, py: r.top + (SVC_PY + (SVC_H - y) * SVC_C) * ky };
+      }, [x, y]);
+      const vers = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py, { steps: 4 }); await s.page.waitForTimeout(60); return p; };
+      const clic = async (x, y) => { const p = await vers(x, y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(100); };
+      /* la croix de la souris : à combien de pixels de la pointe (ou « cachée »), et sa lettre */
+      const croix = async p => await s.page.evaluate(([x, y]) => { const c = document.getElementById('spgCurseur'); if(!c) return 'absente';
+        if(getComputedStyle(c).display === 'none') return 'cachée';
+        const b = c.querySelector('path.crx').getBoundingClientRect();
+        return Math.round(Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y)) + ' ' + c.querySelector('text').textContent; }, [p.px, p.py]);
+      const vif = async () => await s.page.evaluate(() => { const l = document.querySelector('#spgVif line.spg-vif'); if(!l) return null;
+        const m = l.ownerSVGElement.getScreenCTM(), P = (x, y) => { const p = l.ownerSVGElement.createSVGPoint(); p.x = x; p.y = y; return p.matrixTransform(m); };
+        const a = P(+l.getAttribute('x1'), +l.getAttribute('y1')), b = P(+l.getAttribute('x2'), +l.getAttribute('y2'));
+        return { a: [a.x, a.y], b: [b.x, b.y], pointe: !!l.getAttribute('marker-end'), clic: getComputedStyle(l).pointerEvents }; });
+      const pres = (u, p, t) => u && Math.hypot(u[0] - p.px, u[1] - p.py) < (t || 4);
+      const etat = async () => await s.page.evaluate(() => { const q = test.questions[test.idx]; return JSON.stringify([q.sel, q.sd, q.sf]); });
+      /* ① la croix de D suit la souris avant tout clic */
+      let p = await vers(6.3, 4.2);
+      let c = await croix(p);
+      if(!/^[0-3] D$/.test(c)) dits.push('la croix de D ne suit pas la pointe de la souris : ' + c);
+      /* ② un clic à un cinquième de maille pose D au nœud (8 ; 6), l'étape 2 s'ouvre sous l'étape 1 */
+      await clic(8.2, 5.8);
+      if(await etat() !== '[[8,6],null,null]') dits.push('le clic ne pose pas D au nœud le plus proche : ' + await etat());
+      const et2 = await s.page.evaluate(() => { const g = document.querySelector('#spgGraph .spg-svg').getBoundingClientRect();
+        const a = document.getElementById('spg-pt'), b = document.getElementById('spg-sm'), ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+        const cotes = [...document.querySelectorAll('#spgEl line.spg-cote-a')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8 && getComputedStyle(l).stroke !== 'none'; }).length;
+        return { entre: rb.height > 20 && rb.top >= ra.bottom - 1 && rb.bottom <= g.top + 1,
+          vert: getComputedStyle(a).backgroundColor !== getComputedStyle(b).backgroundColor, cotes: cotes }; });
+      if(!et2.entre) dits.push('l\'étape 2 ne s\'ouvre pas entre l\'étape 1 et le dessin');
+      if(!et2.vert) dits.push('l\'étape 1 faite garde le fond de l\'étape à faire');
+      if(et2.cotes !== 2) dits.push('les deux côtés [BD] et [CD] ne se tracent pas (' + et2.cotes + ')');
+      /* ③ le début de u + v, puis la flèche qui va de lui à la pointe de la souris */
+      p = await vers(5.5, 3.5);
+      c = await croix(p);
+      if(!/^[0-3] $/.test(c)) dits.push('à l\'étape 2, la croix ne suit plus la souris : ' + c);
+      await clic(2.8, 2.2);
+      if(await etat() !== '[[8,6],[3,2],null]') dits.push('le clic ne pose pas le début de la flèche en A : ' + await etat());
+      p = await vers(6.4, 4.3);
+      let l = await vif(), nA = await pos(3, 2);
+      if(!l || !pres(l.a, nA, 3) || !pres(l.b, p, 4) || !l.pointe || l.clic !== 'none') dits.push('la flèche ne va pas du début à la pointe de la souris : ' + JSON.stringify(l));
+      p = await vers(7.1, 3.9);
+      l = await vif();
+      if(!l || !pres(l.b, p, 4)) dits.push('la flèche ne suit pas la souris quand elle bouge');
+      /* ④ le second clic fixe la fin ; plus de croix, plus de flèche élastique */
+      await clic(7.8, 6.1);
+      if(await etat() !== '[[8,6],[3,2],[8,6]]') dits.push('le second clic ne fixe pas la fin au nœud le plus proche : ' + await etat());
+      p = await vers(5, 7);
+      if(await croix(p) !== 'cachée' || await vif()) dits.push('la flèche finie, une croix ou une flèche suit encore la souris');
+      /* ⑤ « Déplacer le point D » : D se déplace, la flèche reste */
+      await s.page.click('#spgRetour'); await s.page.waitForTimeout(100);
+      await clic(5, 5);
+      if(await etat() !== '[[5,5],[3,2],[8,6]]') dits.push('D ne se déplace pas par « Déplacer le point D » : ' + await etat());
+      await s.page.click('#spgRetour'); await s.page.waitForTimeout(100);
+      await clic(8, 6);
+      await s.page.click('#spgValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, locked: test.locked,
+        bleu: [...document.querySelectorAll('#spgEl line.svc-e')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length,
+        bouton: document.getElementById('spgNext') ? document.getElementById('spgNext').textContent : '' }));
+      if(fin.score !== 2 || !fin.locked) dits.push('la copie juste vaut ' + fin.score + (fin.locked ? '' : ', sans verrouiller'));
+      if(fin.bleu !== 1) dits.push('la diagonale juste ne passe pas en bleu');
+      if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
+      /* ⑥ question suivante : la copie vide se corrige en vert, sans rien de rouge */
+      await s.page.click('#spgNext');
+      await s.page.waitForTimeout(400);
+      await s.page.evaluate(fixe);
+      await s.page.waitForTimeout(150);
+      await s.page.click('#spgValidate');
+      await s.page.waitForTimeout(300);
+      const vide = await s.page.evaluate(() => ({
+        cls: ['spg-pt', 'spg-sm'].map(id => document.getElementById(id).className),
+        vert: [...document.querySelectorAll('#spgCorr line')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8 && getComputedStyle(l).stroke !== 'none'; }).length,
+        rouge: !!document.querySelector('#spgGraph .svc-eb, #spgGraph .spg-xb, #spgBody .bad'), score: test.score }));
+      if(!vide.cls.every(k => /\bsol\b/.test(k))) dits.push('la copie vide ne passe pas en vert : ' + vide.cls.join(' / '));
+      if(vide.vert !== 3) dits.push('la correction ne trace pas en vert les deux côtés et la diagonale (' + vide.vert + ')');
+      if(vide.rouge) dits.push('la copie vide rougit quelque chose');
+      if(vide.score !== 2) dits.push('la copie vide rapporte des points (score ' + vide.score + ' au lieu de 2)');
+      verifier('la règle du parallélogramme : D se pose au clic, la diagonale se trace en deux clics, la flèche suit la souris', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de la règle du parallélogramme ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 undevicies. antécédents : la droite se fait GLISSER ===== */
     /* {antecedents-droite} : le geste central est un GLISSER — la droite suit
        le pointeur enfoncé et s'accroche à la graduation la plus proche — puis

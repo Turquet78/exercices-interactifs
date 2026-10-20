@@ -4571,6 +4571,8 @@ function exercices(suite){
     sommeVecteursLibre(w, P);
     demontrerChasles(w, P);
     sommeTroisVecteurs(w, P);
+    translationsSuccessives(w, P);
+    regleParallelogramme(w, P);
     vecteursColineaires(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
@@ -14668,6 +14670,349 @@ function sommeTroisVecteurs(w, P){
     test.questions[0]=fiche(true); test.idx=0; test.locked=false; renderStv();
     const ctx=conseilCtxCourant();
     if(ctx.indexOf('STRICTEMENT SECRÈTE')<0 || ctx.indexOf('vecteur nul')<0 || ctx.indexOf('w (')<0) vus.push('le contexte du modèle ne décrit pas l\\'exercice : '+ctx.slice(0,120));
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+function translationsSuccessives(w, P){
+  const nom = 'deux translations à la suite : la place, le tirage relu sur le dessin, A′ puis A″, la liste, le vecteur AA″, chaque réponse seule, les pièges du sens nommés';
+  if(!P.translationsSuccessives){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice des deux translations à la suite');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.translationsSuccessives)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const classes=function(){ return ['tcp-p1','tcp-p2','tcp-ch','tcp-tr'].map(classe).join(','); };
+
+    /* ---- 0. la place : 8.2.11, à la fin de la somme de vecteurs ; pas de tables */
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['somme-vecteurs-libre']!=='8.2.10' || TEST_NUM['translation-pavage']!=='8.1.9') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS.tcp!==RAP_TCP || !QIA_SUGG.tcp) vus.push('le rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant : il relit le DESSIN, comme du texte ------- */
+    /* la géométrie se lit sur le quadrillage dessiné (le cadre, le nombre de
+       traits), u⃗ et v⃗ sur leurs flèches (la pointe s'arrête 3 px avant le
+       nœud : on la prolonge), A sur sa croix — aucune constante de la page */
+    const lire=function(src){
+      const att=function(t,a){ const m=new RegExp(' '+a+'="([^"]*)"').exec(t); return m?m[1]:null; };
+      const cadre=(src.match(/<rect [^>]*class="vec-cadre"[^>]*>/)||[''])[0];
+      const verts=(src.match(/<line [^>]*class="vec-grid"[^>]*>/g)||[]).filter(function(t){ return att(t,'x1')===att(t,'x2'); }).length;
+      const hors=(src.match(/<line [^>]*class="vec-grid"[^>]*>/g)||[]).length-verts;
+      const W=verts-1, H=hors-1, x0=+att(cadre,'x'), y0=+att(cadre,'y'), c=+att(cadre,'width')/W;
+      const noeud=function(x,y){ return [Math.round((x-x0)/c), H-Math.round((y-y0)/c)]; };
+      const fleche=function(cls){ const t=(src.match(new RegExp('<line class="svc-'+cls+' [^>]*>'))||[''])[0]; if(!t) return null;
+        const x1=+att(t,'x1'), y1=+att(t,'y1'), x2=+att(t,'x2'), y2=+att(t,'y2'), l=Math.hypot(x2-x1,y2-y1);
+        const d=noeud(x1,y1), f=noeud(x2+3*(x2-x1)/l, y2+3*(y2-y1)/l); return {d:d, w:[f[0]-d[0], f[1]-d[1]]}; };
+      const a=(src.match(/<g class="vec-pt tcp-a"><line [^>]*>/)||[''])[0];
+      return {W:W, H:H, u:fleche('u'), v:fleche('v'), A:a?noeud(+att(a,'x1')+5, +att(a,'y1')+5):null};
+    };
+    const plus=function(p,w){ return [p[0]+w[0], p[1]+w[1]]; };
+    const eg=function(p,r){ return !!(p&&r&&p[0]===r[0]&&p[1]===r[1]); };
+    const cheb=function(w){ return Math.max(Math.abs(w[0]),Math.abs(w[1])); };
+
+    /* ---- 1. le tirage : 150 séances, chaque question relue sur le dessin */
+    for(let s=0;s<150 && vus.length<4;s++){
+      const qs=tcpBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' questions au lieu de '+D.nb); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      const cles=qs.map(function(q){ return JSON.stringify([q.uc,q.vc]); });
+      if(new Set(cles).size!==cles.length) vus.push('deux questions aux mêmes vecteurs dans une séance');
+      qs.forEach(function(q){
+        if(Object.keys(q).sort().join(',')!=='a,ch,d,f,ord,p1,p2,uc,uo,vc,vo') vus.push('la question range : '+Object.keys(q).join(','));
+        if(q.ord.slice().sort().join()!=='0,1,2,3') vus.push('l\\'ordre de la liste : '+q.ord.join());
+        const J=lire(tcpSVG(q));
+        if(!J.u||!J.v||!J.A){ vus.push('le dessin ne porte pas u, v et A'); return; }
+        const A1=plus(J.A,J.u.w), A2=plus(A1,J.v.w);
+        if(!eg(tcpA1(q),A1) || !eg(tcpA2(q),A2)) vus.push('la page attend A′ '+tcpA1(q)+' et A″ '+tcpA2(q)+', le dessin dit '+A1+' et '+A2);
+        const dans=function(p){ return p[0]>=1&&p[0]<=J.W-1&&p[1]>=1&&p[1]<=J.H-1; };
+        if(!dans(J.A)||!dans(A1)||!dans(A2)) vus.push('A, A′ ou A″ au bord ou dehors : '+J.A+' '+A1+' '+A2);
+        if(cheb(J.u.w)<2||cheb(J.v.w)<2||cheb(plus(J.u.w,J.v.w))<2||cheb([J.u.w[0]-J.v.w[0],J.u.w[1]-J.v.w[1]])<2) vus.push('un chemin trop court : u '+J.u.w+', v '+J.v.w);
+        if(J.u.w[0]*J.v.w[1]-J.u.w[1]*J.v.w[0]===0) vus.push('u et v parallèles');
+        /* les flèches dessinées ne passent sur aucun des trois points */
+        [J.u, J.v].forEach(function(F){ const f=plus(F.d,F.w);
+          [J.A,A1,A2].forEach(function(K){ for(let t=0;t<=10;t++){ const x=F.d[0]+t/10*(f[0]-F.d[0]), y=F.d[1]+t/10*(f[1]-F.d[1]);
+            if(Math.hypot(x-K[0],y-K[1])<1.4){ vus.push('une flèche dessinée passe sur un point de la construction'); return; } } }); });
+        /* la liste : la bonne option est u + v, et elle fait le chemin de A à A″ */
+        if(tcpOptTxt(0)!=='u\\u20d7 + v\\u20d7' || !eg(tcpOptW(q,0), [A2[0]-J.A[0], A2[1]-J.A[1]])) vus.push('la bonne option n\\'est pas u + v, ou ne mène pas de A à A″');
+        if(tcpOptTxt(3)!=='\\u2212u\\u20d7 \\u2212 v\\u20d7') vus.push('l\\'option du retour s\\'écrit '+tcpOptTxt(3));
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 2. une figure fixe, à l'écran ------------------------------ */
+    const fiche=function(){ return {uc:[3,1], vc:[1,-3], uo:[1,7], vo:[1,4], a:[6,5], ord:[2,0,3,1], p1:null, p2:null, ch:'', d:null, f:null}; };
+    const verifierIci=function(){ const av=test.score; checkTcp(); clearTimeout(test.fbTimer); return test.score-av; };
+    const fixe=function(){ for(let k=0;k<test.questions.length;k++) test.questions[k]=fiche(); test.idx=0; test.locked=false; renderTcp(); };
+    TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='tcp') vus.push('kind « '+test.kind+' » au lieu de tcp');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    fixe();
+    const J=lire(el('tcpGraph').innerHTML);
+    if(!eg(J.A,[6,5]) || !eg(J.u.w,[3,1]) || !eg(J.v.w,[1,-3])) vus.push('le dessin de la figure fixe : A '+J.A+', u '+(J.u&&J.u.w)+', v '+(J.v&&J.v.w));
+    const noms=Array.from(document.querySelectorAll('#tcpGraph text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',');
+    if(noms!=='u,v') vus.push('le dessin ne nomme pas u et v : '+noms);
+    if(['tcp-p1','tcp-p2','tcp-ch','tcp-tr'].some(function(id){ return !el(id)||!el(id).classList.contains('pts-case'); })) vus.push('les quatre étapes ne sont pas des pts-case');
+    const opts=Array.from(el('tcpSel').options).map(function(o){ return o.textContent; }).join('|');
+    if(opts!=='?|v\\u20d7 \\u2212 u\\u20d7|u\\u20d7 + v\\u20d7|\\u2212u\\u20d7 \\u2212 v\\u20d7|u\\u20d7 \\u2212 v\\u20d7') vus.push('la liste, dans l\\'ordre rangé : '+opts);
+    if(!el('tcp-p1').classList.contains('tcp-cours')) vus.push('la première étape n\\'est pas en bleu au départ');
+    if(el('tcpInstr').textContent.indexOf('translation de vecteur u')<0) vus.push('l\\'énoncé : '+el('tcpInstr').textContent.slice(0,120));
+
+    /* la copie vide : quatre sol, rien de rouge, la construction verte */
+    if(verifierIci()!==0 || classes()!=='sol,sol,sol,sol') vus.push('copie vide : '+classes());
+    if(document.querySelector('#tcpGraph .tcp-faux, #tcpGraph .svc-eb')) vus.push('la copie vide rougit le dessin');
+    if(document.querySelectorAll('#tcpCorr line.svc-s').length!==3 || document.querySelectorAll('#tcpCorr .tcp-corr').length!==2) vus.push('la correction verte de la copie vide : '+el('tcpCorr').innerHTML.slice(0,100));
+    if(el('tcpSel').value!=='0' || !el('tcpSel').disabled) vus.push('la liste vide ne montre pas u + v');
+    if(el('tcpFeedback').textContent.indexOf('Il te manquait 4 cases')<0) vus.push('le message de la copie vide : '+el('tcpFeedback').textContent.slice(0,80));
+    const a0=test.answers[test.answers.length-1];
+    if(!a0||a0.correct||a0.cases!==4||a0.justes!==0) vus.push('la réponse enregistrée ne compte pas 0 case juste sur 4');
+
+    /* la copie juste : A′, puis A″, la liste, AA″ ; la reprise après JSON */
+    nextTcp(); clearTimeout(test.fbTimer);
+    tcpPose(9,6);
+    if(!el('tcp-p1').classList.contains('tcp-fait') || !el('tcp-p2').classList.contains('tcp-cours')) vus.push('A′ posé : l\\'étape 1 ne passe pas au vert, ou la 2 au bleu');
+    tcpPose(9,6);
+    if(test.questions[1].p1) vus.push('recliquer A′ ne le retire pas');
+    tcpPose(9,6); tcpPose(10,3); tcpChoix('0');
+    tcpPose(6,5);
+    if(el('tcp-tr').textContent.indexOf('maintenant sa fin')<0) vus.push('le début posé, la consigne ne demande pas la fin : '+el('tcp-tr').textContent);
+    tcpPose(10,3);
+    if(document.querySelectorAll('#tcpCons line.tcp-aa').length!==1) vus.push('AA″ ne se trace pas en violet');
+    if(['tcp-p1','tcp-p2','tcp-ch','tcp-tr'].some(function(id){ return el(id).classList.contains('ok'); })) vus.push('une étape se juge avant « Vérifier »');
+    test.questions[1]=JSON.parse(JSON.stringify(test.questions[1])); renderTcp();
+    if(el('tcpSel').value!=='0' || document.querySelectorAll('#tcpCons .tcp-pt').length!==2) vus.push('la reprise perd le choix ou les points');
+    if(verifierIci()!==4 || classes()!=='ok,ok,ok,ok') vus.push('la copie juste : '+classes());
+    if(el('tcpCorr').innerHTML) vus.push('la correction se montre sur une copie juste');
+    if(el('tcpFeedback').className.indexOf('good')<0) vus.push('la copie juste n\\'a pas son message vert');
+
+    /* les pièges du sens : A′ à l'envers, A″ reparti de A, la liste du retour, AA″ à l'envers */
+    nextTcp(); clearTimeout(test.fbTimer);
+    tcpPose(3,4); tcpPose(7,2); tcpChoix('3'); tcpPose(10,3); tcpPose(6,5);
+    if(verifierIci()!==0 || classes()!=='bad,bad,bad,bad') vus.push('quatre pièges : '+classes());
+    const fb=el('tcpFeedback').textContent;
+    ['SENS CONTRAIRE de u','reparti de A','RETOUR','À L’ENVERS'].forEach(function(m){ if(fb.indexOf(m)<0) vus.push('le message ne dit pas « '+m+' » : '+fb.slice(0,200)); });
+    if(!el('tcpCor')) vus.push('la bonne translation n\\'est pas écrite en vert à côté de la liste');
+    if(document.querySelectorAll('#tcpCons .tcp-faux').length!==2 || !document.querySelector('#tcpCons line.svc-eb')) vus.push('les points et la flèche faux ne sont pas rouges');
+    if(document.querySelectorAll('#tcpCorr .tcp-corr').length!==2) vus.push('A′ et A″ attendus ne sont pas en vert');
+
+    /* une case juste ne rougit pas parce qu'une AUTRE est fausse : A′ faux
+       (5 ; 6), A″ image de CET A′ par v, AA″ vers ce A″ — seul A′ est faux */
+    nextTcp(); clearTimeout(test.fbTimer);
+    tcpPose(5,6); tcpPose(8,-1);
+    if(test.questions[3].p2) vus.push('un nœud hors du quadrillage se pose');
+    tcpPose(6,3); tcpChoix('0'); tcpPose(6,5); tcpPose(6,3);
+    const av=test.score; checkTcp(); clearTimeout(test.fbTimer);
+    if(test.score-av!==3 || classes()!=='bad,ok,ok,ok') vus.push('A′ faux, A″ et AA″ cohérents : '+classes());
+    if(el('tcpFeedback').textContent.indexOf('pas au bon nœud')<0) vus.push('le message ne dit pas que A′ n\\'est pas au bon nœud : '+el('tcpFeedback').textContent.slice(0,140));
+
+    /* ---- 3. le soutien : le faux rougit, rien ne se révèle, le juste se fige */
+    currentMode='soutien'; TESTS[D.exercice].start(); clearTimeout(test.fbTimer); fixe();
+    tcpPose(9,6); tcpPose(8,9); tcpChoix('1'); checkTcp(); clearTimeout(test.fbTimer);
+    if(test.locked || classes()!=='ok,bad,bad,rien') vus.push('soutien, copie à moitié : '+classes()+(test.locked?' (verrouillé)':''));
+    if(el('tcpCorr').innerHTML || el('tcpCor')) vus.push('le soutien révèle la correction');
+    tcpEffacer();
+    if(!test.questions[0].p1 || test.questions[0].p2) vus.push('« Effacer » efface A′ figé juste, ou garde A″ faux');
+    tcpPose(10,3); tcpChoix('0'); tcpPose(6,5); tcpPose(10,3); checkTcp(); clearTimeout(test.fbTimer);
+    if(!test.locked || classes()!=='ok,ok,ok,ok') vus.push('soutien, copie reprise : '+classes());
+    currentMode='train';
+
+    /* ---- 4. le contexte du modèle ----------------------------------- */
+    fixe(); tcpPose(9,6);
+    const ctx=conseilCtxCourant();
+    if(ctx.indexOf('STRICTEMENT SECRÈTE')<0 || ctx.indexOf('A′ posé en (9 ; 6)')<0 || ctx.indexOf('A″ en (10 ; 3)')<0) vus.push('le contexte du modèle : '+ctx.slice(0,160));
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {regle-parallelogramme} (Seconde, 8.2.17 — l'idée n° 6 retenue par
+   Turquet, octobre 2026) : u⃗ = AB⃗ et v⃗ = AC⃗ de même origine A ; placer D
+   tel que ABDC soit un parallélogramme, puis tracer u⃗ + v⃗ = AD⃗. Le juge
+   du tirage ne lit pas la question : il relit le DESSIN, comme du TEXTE
+   (le 8.1.9 l'a appris : redessiner des centaines de figures dans jsdom
+   épuise les 4 Go de l'action) — les trois croix, la lettre posée près de
+   chacune, les deux flèches — et calcule D lui-même : D = B + C − A. */
+function regleParallelogramme(w, P){
+  const nom = 'règle du parallélogramme : la place, le tirage relu sur le dessin, D puis u + v jugés chacun seul, l\'autre diagonale nommée, une case vide ne rougit pas';
+  if(!P.regleParallelogramme){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice de la règle du parallélogramme');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.regleParallelogramme)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+
+    /* ---- 0. la place : 8.2.11, à la fin de la somme de vecteurs ---------- */
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['somme-vecteurs-libre']!=='8.2.10' || TEST_NUM['translation-pavage']!=='8.1.9') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS.spg!==RAP_SPG || !QIA_SUGG.spg) vus.push('le rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant : il relit le DESSIN, sans le poser dans le DOM */
+    const lire=function(src){
+      const att=function(t, a){ const m=new RegExp('\\\\s'+a+'="([^"]*)"').exec(t); return m ? +m[1] : NaN; };
+      const noeud=function(x, y){ return [Math.round((x-SVC_PX)/SVC_C), SVC_H-Math.round((y-SVC_PY)/SVC_C)]; };
+      const croix=(src.match(/<g class="vec-pt"><line[^>]*>/g)||[]).map(function(t){
+        return [(att(t,'x1')+att(t,'x2'))/2, (att(t,'y1')+att(t,'y2'))/2]; });
+      const pts={};
+      (src.match(/<text class="vec-lbl"[^>]*>[A-D]<\\/text>/g)||[]).forEach(function(t){
+        const x=att(t,'x'), y=att(t,'y'), L=t.replace(/^<text[^>]*>|<\\/text>$/g,'');
+        let b=null, bd=1e9; croix.forEach(function(c){ const d=Math.hypot(c[0]-x, c[1]-y); if(d<bd){ bd=d; b=c; } });
+        if(b) pts[L]=noeud(b[0], b[1]); });
+      const fl=function(cls){ const t=new RegExp('<line class="'+cls+'"[^>]*>').exec(src); if(!t) return null;
+        return {d:noeud(att(t[0],'x1'), att(t[0],'y1')), f:noeud(att(t[0],'x2'), att(t[0],'y2'))}; };
+      return {croix:croix.length, pts:pts, u:fl('svc-u'), v:fl('svc-v')};
+    };
+    const meme=function(a, b){ return !!(a&&b&&a[0]===b[0]&&a[1]===b[1]); };
+    const dansG=function(p){ return p[0]>=1&&p[0]<=SVC_W-1&&p[1]>=1&&p[1]<=SVC_H-1; };
+
+    /* ---- 1. le tirage, sur 120 séances (720 figures, comme le 8.1.9 : le banc de l'action est près de ses 4 Go) */
+    TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='spg') vus.push('kind « '+test.kind+' » au lieu de spg');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    if(test.questions.length!==D.nb) vus.push(test.questions.length+' questions au lieu de '+D.nb);
+    for(let s=0;s<120&&vus.length<4;s++){
+      const qs=spgBuildQuestions();
+      if(new Set(qs.map(cleQuestion)).size!==qs.length) vus.push('séance '+s+' : deux questions identiques');
+      qs.forEach(function(q){
+        if(Object.keys(q).sort().join(',')!=='ao,sd,sel,sf,uc,vc') vus.push('la question range : '+Object.keys(q).join(','));
+        const L=lire(spgSVG(q)), A=L.pts.A, B=L.pts.B, C=L.pts.C;
+        if(L.croix!==3 || !A || !B || !C || L.pts.D) { vus.push('le dessin ne porte pas trois croix A, B, C : '+JSON.stringify(L.pts)); return; }
+        if(!L.u || !meme(L.u.d,A) || !meme(L.u.f,B)) vus.push('la flèche u ne va pas de A à B sur le dessin');
+        if(!L.v || !meme(L.v.d,A) || !meme(L.v.f,C)) vus.push('la flèche v ne va pas de A à C sur le dessin');
+        const u=[B[0]-A[0],B[1]-A[1]], v=[C[0]-A[0],C[1]-A[1]], Dd=[B[0]+C[0]-A[0], B[1]+C[1]-A[1]];
+        if(!meme(spgD(q),Dd)) vus.push('la page attend D en '+JSON.stringify(spgD(q))+', le dessin en '+JSON.stringify(Dd));
+        const j=spgJuge(Object.assign({}, q, {sel:Dd, sd:A, sf:Dd}));
+        if(!j[0].ok || !j[1].ok) vus.push('le juge refuse la construction relue sur le dessin');
+        const j2=spgJuge(Object.assign({}, q, {sel:Dd, sd:B, sf:C}));
+        if(j2[1].ok) vus.push('le juge accepte l\\'autre diagonale BC');
+        const assez=function(w){ return Math.max(Math.abs(w[0]),Math.abs(w[1]))>=2; };
+        if(!assez(u)||!assez(v)||!assez([u[0]+v[0],u[1]+v[1]])||!assez([v[0]-u[0],v[1]-u[1]])) vus.push('un chemin de moins de deux carreaux : u '+u+', v '+v);
+        if(u[0]*u[1]===0&&v[0]*v[1]===0) vus.push('u et v tous deux sur les lignes du quadrillage');
+        if(Math.abs(u[0]*v[1]-u[1]*v[0])<0.35*Math.hypot(u[0],u[1])*Math.hypot(v[0],v[1])) vus.push('un parallélogramme aplati : u '+u+', v '+v);
+        if(![A,B,C,Dd].every(dansG)) vus.push('un sommet touche le bord ou sort du quadrillage');
+        if(JSON.parse(JSON.stringify(q)).uc+''!==q.uc+'') vus.push('la question ne passe pas le JSON');
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 2. la figure fixe : A (3 ; 2), u (4 ; 1), v (1 ; 3) — D (8 ; 6) */
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const fiche=function(){ return {ao:[3,2], uc:[4,1], vc:[1,3], sel:null, sd:null, sf:null}; };
+    const verifierIci=function(){ const av=test.score; checkSpg(); clearTimeout(test.fbTimer); return test.score-av; };
+    const pose=function(){ for(let k=0;k<arguments.length;k++) spgClic(arguments[k][0], arguments[k][1]); };
+    const fb=function(){ return el('spgFeedback').textContent; };
+    for(let k=0;k<test.questions.length;k++) test.questions[k]=fiche();
+    test.questions.push(fiche());   /* une septième question, pour le dernier piège */
+    test.idx=0; test.locked=false; renderSpg();
+    const ins=el('spgInstr');
+    if(!ins.classList.contains('enonce') || ins.textContent.indexOf('règle du parallélogramme')<0 || ins.querySelectorAll('.vgt-vec').length!==2) vus.push('l\\'énoncé ne nomme pas AB, AC et la règle du parallélogramme : '+ins.textContent);
+    if(!(el('spgBody').compareDocumentPosition(el('spgGraph')) & 4)) vus.push('les étapes ne s\\'affichent pas au-dessus du dessin');
+    ['spg-pt','spg-sm'].forEach(function(id){ if(!el(id)||!el(id).classList.contains('pts-case')||!el(id).classList.contains('cvp-etape')) vus.push(id+' n\\'est pas un bandeau pts-case'); });
+    if(el('spg-pt').textContent.indexOf('Étape 1')!==0 || el('spg-pt').textContent.indexOf('ABDC')<0 || el('spg-sm').textContent.indexOf('Étape 2')!==0) vus.push('les étapes ne s\\'intitulent pas Étape 1 (ABDC) et Étape 2');
+    if(el('spg-sm').style.display!=='none') vus.push('l\\'étape 2 se montre avant que D soit posé');
+    if(el('spgEl').children.length || el('spgCorr').children.length || el('spgOutils').textContent) vus.push('quelque chose est posé avant le premier clic');
+    const noms=Array.from(document.querySelectorAll('#spgFig text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',');
+    if(noms!=='u,v') vus.push('le dessin ne nomme pas u et v : '+noms);
+    if(document.querySelector('#spgGraph .vec-t')) vus.push('une cible par nœud : un seul écouteur suffit');
+
+    /* ---- 3. vérifier à vide : sol, D et AD en vert, rien de rouge ------ */
+    checkSpg(); clearTimeout(test.fbTimer);
+    if(classe('spg-pt')!=='sol' || classe('spg-sm')!=='sol') vus.push('vérifier à vide : '+classe('spg-pt')+' et '+classe('spg-sm')+' au lieu de sol');
+    if(document.querySelector('#spgBody .bad, #spgGraph .spg-xb, #spgGraph .svc-eb, #spgGraph .spg-cote-b')) vus.push('vérifier à vide rougit quelque chose');
+    if(document.querySelectorAll('#spgCorr line.spg-cote-s').length!==2 || !document.querySelector('#spgCorr .spg-xs') || document.querySelectorAll('#spgCorr line.svc-s').length!==1) vus.push('la correction ne trace pas en vert D, ses deux côtés et la diagonale AD');
+    if(el('spgCorr').textContent.replace(/\\s/g,'').indexOf('D')<0) vus.push('le D vert n\\'est pas nommé');
+    if(fb().indexOf('Il te manquait 2 cases')<0) vus.push('le message ne dit pas « Il te manquait 2 cases » : '+fb().slice(0,90));
+    const a0=test.answers[test.answers.length-1];
+    if(!a0||a0.correct||a0.cases!==2||a0.justes!==0) vus.push('la réponse enregistrée ne compte pas 0 case juste sur 2');
+    if(el('spgOutils').textContent) vus.push('le bouton pour déplacer D reste après la correction');
+
+    /* ---- 4. les gestes, la reprise, la copie juste --------------------- */
+    nextSpg(); clearTimeout(test.fbTimer);
+    let q=test.questions[1];
+    pose([8,6]);
+    if(!meme(q.sel,[8,6]) || spgEtape(q)!==2) vus.push('un clic ne pose pas D, ou n\\'ouvre pas l\\'étape 2');
+    if(el('spg-sm').style.display==='none' || !el('spg-pt').classList.contains('spg-fait')) vus.push('D posé : l\\'étape 1 ne verdit pas, ou l\\'étape 2 reste cachée');
+    if(document.querySelectorAll('#spgEl line.spg-cote-a').length!==2 || !document.querySelector('#spgEl .spg-xa')) vus.push('D posé : ses deux côtés et sa croix violets ne se tracent pas');
+    if(!el('spgRetour')) vus.push('aucun bouton pour revenir déplacer D');
+    pose([3,2]);
+    if(!meme(q.sd,[3,2]) || q.sf || !meme(q.sel,[8,6])) vus.push('à l\\'étape 2, un clic ne commence pas la flèche (ou déplace D)');
+    pose([3,2]);
+    if(q.sd) vus.push('recliquer le début seul ne le retire pas');
+    pose([3,2]); spgAnnuler();
+    if(q.sd) vus.push('Échap ne retire pas le début posé');
+    pose([3,2],[8,6]);
+    if(!meme(q.sf,[8,6]) || document.querySelectorAll('#spgEl line.spg-el').length!==1 || !el('spg-sm').classList.contains('spg-fait')) vus.push('la flèche ne se trace pas en violet au second clic, ou l\\'étape 2 ne verdit pas');
+    const nomEl=Array.from(document.querySelectorAll('#spgEl text.svc-nom')).map(function(t){ return t.textContent; }).join();
+    if(nomEl!=='u+v' || document.querySelectorAll('#spgEl path.svc-nfl').length!==1) vus.push('la flèche tracée ne s\\'appelle pas u + v : '+nomEl);
+    spgRevenir(true);
+    if(spgEtape(q)!==1 || el('spg-pt').classList.contains('spg-fait')) vus.push('« Déplacer le point D » ne ramène pas à l\\'étape 1');
+    pose([5,5]);
+    if(!meme(q.sel,[5,5]) || spgEtape(q)!==2 || !meme(q.sd,[3,2])) vus.push('D ne se déplace pas, ou la flèche se perd');
+    spgRevenir(true); pose([5,5]);
+    if(q.sel || el('spg-sm').style.display==='none') vus.push('recliquer D ne le retire pas, ou l\\'étape 2 tracée se cache');
+    pose([3,2]);
+    if(!meme(q.sel,[3,2]) || q.sd&&!meme(q.sd,[3,2])) vus.push('D retiré, un clic ne pose pas D');
+    spgRevenir(true); pose([8,6]);
+    /* la reprise : la question passe le JSON, l'étape 2 revient d'elle-même */
+    test.questions[1]=JSON.parse(JSON.stringify(q)); renderSpg(); q=test.questions[1];
+    if(spgEtape(q)!==2 || !document.querySelector('#spgEl line.spg-el') || el('spg-sm').style.display==='none') vus.push('la reprise perd D, la flèche ou l\\'étape 2');
+    if(verifierIci()!==2 || classe('spg-pt')!=='ok' || classe('spg-sm')!=='ok') vus.push('la copie juste vaut '+test.score+' : '+classe('spg-pt')+', '+classe('spg-sm'));
+    if(el('spgCorr').children.length || !document.querySelector('#spgEl line.svc-e') || document.querySelectorAll('#spgEl line.spg-cote-e').length!==2) vus.push('copie juste : la correction se montre, ou la flèche et les côtés ne bleuissent pas');
+    if(el('spgFeedback').className.indexOf('good')<0) vus.push('copie juste sans message de réussite');
+
+    /* ---- 5. les pièges nommés ------------------------------------------ */
+    nextSpg(); clearTimeout(test.fbTimer);
+    pose([0,4],[7,3],[4,5]);
+    if(verifierIci()!==0 || classe('spg-pt')!=='bad' || classe('spg-sm')!=='bad') vus.push('ABCD et BC : '+classe('spg-pt')+', '+classe('spg-sm'));
+    if(fb().indexOf('ABCD')<0 || fb().indexOf('AUTRE diagonale')<0 || fb().indexOf('BC vaut v − u')<0) vus.push('ABCD ou l\\'autre diagonale BC non nommés : '+fb().slice(0,200));
+    if(!document.querySelector('#spgCorr .spg-xs') || document.querySelectorAll('#spgCorr line.svc-s').length!==1 || !document.querySelector('#spgEl .spg-xb') || !document.querySelector('#spgEl line.svc-eb')) vus.push('le faux ne rougit pas, ou la correction verte manque');
+    nextSpg(); clearTimeout(test.fbTimer);
+    pose([6,0],[4,5],[7,3]);
+    if(verifierIci()!==0 || fb().indexOf('ADBC')<0 || fb().indexOf('CB vaut u − v')<0) vus.push('ADBC et CB non nommés : '+fb().slice(0,200));
+    nextSpg(); clearTimeout(test.fbTimer);
+    pose([8,6],[8,6],[3,2]);
+    if(verifierIci()!==1 || classe('spg-pt')!=='ok' || classe('spg-sm')!=='bad' || fb().indexOf('à l’envers')<0) vus.push('D juste, DA à l\\'envers : '+classe('spg-pt')+', '+classe('spg-sm')+' — '+fb().slice(0,120));
+    if(document.querySelectorAll('#spgCorr line.spg-cote-s').length) vus.push('D juste : la correction redessine D');
+    nextSpg(); clearTimeout(test.fbTimer);
+    pose([7,7],[3,2],[8,6]);
+    if(verifierIci()!==1 || classe('spg-pt')!=='bad' || classe('spg-sm')!=='ok') vus.push('D faux, AD juste : '+classe('spg-pt')+', '+classe('spg-sm')+' — la flèche juste a rougi à cause du point');
+    if(fb().indexOf('BD = AC = v')<0) vus.push('le D faux ne dit pas BD = AC = v : '+fb().slice(0,160));
+    if(document.querySelectorAll('#spgCorr line.svc-s').length) vus.push('AD juste : la correction retrace la diagonale');
+    nextSpg(); clearTimeout(test.fbTimer);
+    pose([8,6],[3,2],[7,3]);
+    checkSpg(); clearTimeout(test.fbTimer);
+    if(fb().indexOf('un côté du parallélogramme')<0) vus.push('le côté AB tracé au lieu de la diagonale n\\'est pas nommé : '+fb().slice(0,160));
+
+    /* ---- 6. le soutien : le faux rougit, le juste se fige, rien ne se révèle */
+    currentMode='soutien'; TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    test.questions[0]=fiche(); test.idx=0; renderSpg(); q=test.questions[0];
+    pose([0,4],[7,3],[12,7]);
+    checkSpg(); clearTimeout(test.fbTimer);
+    if(test.locked || classe('spg-pt')!=='bad' || classe('spg-sm')!=='bad' || el('spgCorr').children.length) vus.push('soutien, faux : verrouillé, pas rouge, ou la correction se révèle');
+    if(fb().indexOf('ABCD')<0 || fb().indexOf('depuis A')<0 || /carreau/.test(fb())) vus.push('soutien : le piège n\\'est pas nommé, ou le chemin est donné : '+fb().slice(0,200));
+    spgRevenir(true); pose([8,6]);
+    if(classe('spg-pt')!=='rien' || !document.querySelector('#spgEl .spg-xa')) vus.push('soutien : D déplacé garde son rouge');
+    checkSpg(); clearTimeout(test.fbTimer);
+    if(test.locked || classe('spg-pt')!=='ok' || !test.spgFigePt || el('spgRetour')) vus.push('soutien : D juste ne se fige pas');
+    spgRevenir(true);
+    if(spgEtape(q)!==2) vus.push('soutien : D figé se déplace encore');
+    pose([3,2],[8,6]); checkSpg(); clearTimeout(test.fbTimer);
+    if(!test.locked || classe('spg-sm')!=='ok') vus.push('soutien, tout juste : '+classe('spg-sm'));
+    currentMode='train';
+
+    /* ---- 7. le contexte du modèle ---------------------------------------- */
+    TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    test.questions[0]=fiche(); test.idx=0; renderSpg();
+    const ctx=conseilCtxCourant();
+    if(ctx.indexOf('SECRÈTE')<0 || ctx.indexOf('ABDC')<0 || ctx.indexOf('(8 ; 6)')<0 || ctx.indexOf('pas encore posé')<0 || ctx.indexOf('v − u')<0) vus.push('le contexte du modèle ne décrit pas la figure, D sous secret et le piège : '+ctx.slice(0,120));
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
