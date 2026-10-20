@@ -400,6 +400,15 @@ begin
   set local role authenticated;
   set local request.jwt.claim.sub = '99999999-9999-9999-9999-999999999999';
 
+  -- La page se reconnaît professeur en lisant SA ligne de professeurs (les
+  -- trois niveaux et prof.html, « from('professeurs') »). Cette table naît de
+  -- la migration 001, APRÈS le « grant … on all tables » du projet : son droit
+  -- de lecture ne lui venait que du don automatique de Supabase, qui cesse le
+  -- 30 octobre 2026 pour toute table créée ensuite. Ce banc, qui n'a jamais eu
+  -- ce don, est donc la base telle qu'elle renaîtrait après cette date.
+  select count(*) into n from public.professeurs;
+  perform pg_temp.exige('il lit sa ligne de professeurs, et elle seule (' || n || ')', n = 1);
+
   select count(*) into n from public.resultats_2nde;
   perform pg_temp.exige('il voit toutes les notes de la classe (' || n || ')', n = 3);
 
@@ -434,6 +443,24 @@ begin
     perform pg_temp.exige('il supprime un signalement traité', found);
   end if;
 
+  reset role;
+end $$;
+
+-- La CLÉ DE SERVICE traverse la RLS, mais pas l'absence de droit de table :
+-- la sauvegarde (supabase/sauvegarde.mjs) lit professeurs avec elle. Sur une
+-- table créée par une migration, ce droit doit être écrit (voir 001).
+do $$
+declare n int;
+begin
+  raise notice '';
+  raise notice '3 bis. LA CLÉ DE SERVICE';
+  set local role service_role;
+  select count(*) into n from public.professeurs;
+  perform pg_temp.exige('elle lit toute la table professeurs (' || n || ')', n >= 1);
+  if to_regclass('public.signalements_2nde') is not null then
+    select count(*) into n from public.signalements_2nde;
+    perform pg_temp.exige('elle lit les signalements', true);
+  end if;
   reset role;
 end $$;
 
