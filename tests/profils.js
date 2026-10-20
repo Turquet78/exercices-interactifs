@@ -203,7 +203,10 @@ module.exports = {
        elle donne à ses cartes une largeur propre par une variable unique
        (--card-max, paliers 560 / 780 / 1040 / 1200), avec une gouttière
        voulue — son fichier l'écrit en toutes lettres et interdit de la
-       redéclarer. Le banc l'affiche « non applicable » plutôt que de le taire. */
+       redéclarer. Le banc l'affiche « non applicable » plutôt que de le taire.
+       (En PORTRAIT, depuis octobre 2026, la Terminale lève elle aussi cette
+       borne sur ses écrans d'exercice — body.ecran-exo ; le banc visite en
+       paysage, où les paliers restent la règle.) */
     cadrePleineLargeur: true,
 
 
