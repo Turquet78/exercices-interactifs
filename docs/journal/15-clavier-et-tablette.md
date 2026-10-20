@@ -1679,3 +1679,23 @@ quatre sources (pctb, pctc, evs, evb), copies tapées au clavier physique avec
 « donc », « soit », « en tout » : quatre « Bravo », quatre lignes bleues. Le
 profil déplace le 4.5.9 de `hors` vers `exercices` ; le bord opposé reste la
 feuille des fractions du 4.5.
+
+**Puis le pavé du téléphone debout est devenu un RECTANGLE DE CALCULATRICE —
+en Terminale, la seule qui ne l'était pas.** Question de Turquet (octobre
+2026) : « disposition du clavier sur une ligne ou sur un rectangle ? ». En
+Seconde et en Première, la forme du clavier (plus haut) donnait déjà
+7 8 9 / 4 5 6 / 1 2 3 / 0 sur un téléphone debout. La Terminale repliait sa
+rangée unique en rangées de 8 qui gardaient l'ordre 1…0 : le 9 et le 0
+tombaient seuls sous le 1 et le 2, loin de leurs voisins. Sous le même seuil
+(`orientation:portrait` et `max-width:789px`), le pavé passe en grille de
+cinq colonnes : « 7 8 9 ⌫ ⌫ / 4 5 6 − / / 1 2 3 ⏎ ⏎ / 0 0 , ⏎ ⏎ » — le 0
+double et ⏎ haut de deux rangées, comme sur un pavé numérique ; colonnes de
+40 à 88 px (65 px sur 360 px de large). Au-delà du seuil et couché, rien ne
+change. Les touches supplémentaires d'une case (`#paveSup`, `display:contents`)
+se rangent en rangées de plus sous le rectangle. Le contrôle du code sur
+téléphone (§ 11, 390 et 360 px, les trois niveaux) gagne une mesure au
+rectangle de chaque touche : 7 8 9, 4 5 6, 1 2 3 chacun sur une rangée de
+gauche à droite, 7 4 1, 8 5 2, 9 6 3 chacun dans une colonne de haut en bas,
+et le 0 dessous. Le même contrôle tape désormais le code au pavé jusqu'au
+dernier chiffre, qui connecte l'élève (paragraphe « Le dernier chiffre du code
+lance la connexion », journal 01).

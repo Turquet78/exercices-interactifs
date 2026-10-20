@@ -297,6 +297,22 @@
      proposerait d'ENREGISTRER le code d'un élève sur un poste partagé — le
      piège « Sans balise <form> » du journal 11. */
   #loginPin{-webkit-text-security:disc}
+  /* L'ÉTAT DE LA CASE DU CODE (demande de Turquet, octobre 2026) : le sixième
+     chiffre lance la connexion tout seul, et la case dit où elle en est —
+     bleue qui pulse pendant que Supabase vérifie, VERTE une fois le code
+     accepté (« il n'y a plus qu'à attendre »), rouge et secouée s'il est
+     refusé. Jamais verte AVANT la réponse : la page ne connaît pas le code,
+     elle ne peut pas savoir qu'il est juste. Les classes ne s'appellent ni
+     ok ni bad : ce ne sont pas des verdicts d'exercice. */
+  .pin-input{transition:border-color .2s,box-shadow .2s}
+  .pin-input.pin-attente{border-color:var(--blue);animation:pinPulse 1s ease-in-out infinite}
+  .pin-input.pin-valide{border-color:var(--green);border-width:2.5px;box-shadow:0 0 0 4px var(--green-soft)}
+  .pin-input.pin-refus{border-color:var(--red);box-shadow:0 0 0 4px var(--red-soft);animation:pinSecousse .4s}
+  @keyframes pinPulse{0%,100%{box-shadow:0 0 0 0 rgba(43,80,200,.35)}50%{box-shadow:0 0 0 6px rgba(43,80,200,0)}}
+  @keyframes pinSecousse{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+  .pin-etat{min-height:1.4em;margin-top:8px;font-weight:700;font-size:.95rem;color:var(--ink-soft)}
+  .pin-etat.pin-etat-valide{color:var(--green)}
+  .pin-etat.pin-etat-refus{color:var(--red)}
 
   .hello{font-family:"Fredoka";font-weight:600;font-size:1.7rem;margin:0 0 2px}
   .stats{display:flex;gap:12px;margin:16px 0;flex-wrap:wrap}
@@ -4398,6 +4414,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
             <input class="pin-input" id="loginPin" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off" enterkeyhint="go">
             <button type="button" class="btn btn-primary" onclick="connexionEleve()">Entrer</button>
           </div>
+          <div class="pin-etat" id="pinEtat" role="status" aria-live="polite"></div>
         </div>
       </form>
 
@@ -8180,7 +8197,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=569;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=570;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -13476,7 +13493,7 @@ function loginMode(m){
 async function renderLoginNames(){
   loginMode('co'); selectedEleve=null; listeEleves=[];
   $('chipsRow').hidden=false; $('prenomRow').hidden=true; $('pinRow').hidden=true;
-  $('loginPrenom').value=''; $('loginPin').value='';
+  $('loginPrenom').value=''; $('loginPin').value=''; etatCode('');
   const box=$('nameChips'); box.innerHTML='<span class="muted">Chargement…</span>';
   try{
     let {data,error}=await sb.from('eleves_2nde').select('id,prenom,cle').order('prenom');
@@ -13510,7 +13527,7 @@ async function renderLoginNames(){
       b.type='button'; b.className='chip'; b.textContent=e.prenom;
       b.onclick=()=>{ selectedEleve=e;
         document.querySelectorAll('#nameChips .chip').forEach(c=>c.classList.remove('sel'));
-        b.classList.add('sel'); $('pinRow').hidden=false; $('loginPin').value=''; setTimeout(()=>$('loginPin').focus(),60);
+        b.classList.add('sel'); $('pinRow').hidden=false; $('loginPin').value=''; etatCode(''); setTimeout(()=>$('loginPin').focus(),60);
       };
       box.appendChild(b);
     });
@@ -13566,83 +13583,107 @@ async function clesDuPrenom(prenom,avecLignesSansCle){
      - le PRÉNOM TAPÉ, le repli de transition (état B, #prenomRow visible) :
        les clés de ce prénom, par clesDuPrenom.
    Ni l'un ni l'autre : l'élève n'a encore rien choisi. */
+/* L'état de la case du code — voir .pin-attente dans la feuille de styles.
+   etatCode('') la rend neutre. */
+let connexionEnCours=false;
+function etatCode(etat,texte){
+  const c=$('loginPin'), m=$('pinEtat');
+  if(!c) return;
+  c.classList.remove('pin-attente','pin-valide','pin-refus');
+  if(etat) c.classList.add('pin-'+etat);
+  if(m){ m.textContent=texte||''; m.className='pin-etat'+(etat?' pin-etat-'+etat:''); }
+}
 async function connexionEleve(){
+  /* Une seule tentative à la fois : le sixième chiffre lance la connexion,
+     et l'élève qui appuie ENSUITE sur « Entrer » ou ⏎ en relancerait une
+     seconde — deux essais contre la limitation de cadence, et un « Code
+     incorrect » qui viderait la case pendant que le premier entre. */
+  if(connexionEnCours) return;
   const choisi=selectedEleve, parPrenom=!choisi&&!$('prenomRow').hidden;
   if(!choisi&&!parPrenom){ toast('Choisis ton prénom'); return; }
   const prenom=parPrenom?val('loginPrenom').trim():'';
   if(parPrenom&&!prenom){ toast('Écris ton prénom'); $('loginPrenom').focus(); return; }
   const pin=val('loginPin').trim();
   if(!pin){ toast('Écris ton code'); $('loginPin').focus(); return; }
-  /* La pastille choisie d'abord, puis celles qui portent le même prénom
-     (normalisé) : c'est le code qui départage, comme dans le repli. Sans
-     elles, l'élève qui clique la « Léa » de sa voisine lirait « Code
-     incorrect » avec son propre code juste. Aucune requête de plus : la
-     liste est déjà lue. */
-  let cles=choisi?[choisi.cle].concat(listeEleves.filter(e=>e!==choisi&&normaliserPrenom(e.prenom)===normaliserPrenom(choisi.prenom)).map(e=>e.cle))
-                    .filter(c=>c!=null&&c!=='').map(String):null;
-  /* Une pastille SANS clé (élève ajouté à la main dans la table, jamais relié
-     à un compte) n'a pas d'adresse de connexion. Mais la liste a pu être lue
-     AVANT que le professeur ne la relie — « Nouveau code » pose la clé : sa
-     ligne se RELIT, une seule, au moment de valider. Toujours sans clé et
-     sans homonyme : tenter « null@… » répondrait « Code incorrect » quel que
-     soit le code, ce qui est faux — la page dit ce qui manque. */
-  let sansCle=!!choisi&&(choisi.cle==null||choisi.cle==='');
-  if(sansCle){
-    const {data:frais,error:errFrais}=await sb.from('eleves_2nde').select('cle').eq('id',choisi.id).maybeSingle();
-    if(errFrais){ try{ console.warn('relecture de la pastille :', errFrais.code, errFrais.message); }catch(e){} toast('Connexion impossible — réessaie','err'); return; }
-    if(frais&&frais.cle!=null&&frais.cle!==''){ choisi.cle=frais.cle; cles.unshift(String(frais.cle)); sansCle=false; }
-  }
-  if(choisi&&!cles.length){ toast('Ton compte n\'est pas encore relié — préviens ton professeur','err'); return; }
-  if(!cles){
-    const {data,error}=await clesDuPrenom(prenom);
-    if(error){ toast('Connexion impossible — réessaie','err'); return; }
-    if(!data.length){ toast('Prénom inconnu : vérifie l\'orthographe, ou crée ton compte','err'); $('loginPrenom').focus(); return; }
-    cles=data;
-  }
-  /* Le code n'est plus comparé ici : cette page ne le connaît pas. Supabase
-     le vérifie, et lui seul détient de quoi le faire. Tant que la comparaison
-     était faite dans le navigateur, deux lignes dans la console suffisaient à
-     entrer sous n'importe quel prénom.
-     Deux élèves peuvent porter le même prénom : chaque clé est essayée dans
-     l'ordre — celle de la pastille cliquée d'abord, puis ses homonymes ; dans
-     le repli, celles du prénom tapé — et c'est le code qui départage. */
-  for(const cle of cles){
-    const {error:errCo}=await sb.auth.signInWithPassword({email:courrielDe(cle),password:motDePasseDe(pin)});
-    if(errCo){
-      /* Seul un CODE REFUSÉ passe à la clé suivante. Une limitation de cadence
-         (429 — une classe entière derrière l'adresse de l'établissement), une
-         coupure réseau, un compte non confirmé ne sont pas un code faux :
-         dire « Code incorrect », vider la case et faire retaper aggraverait
-         la cadence. On s'arrête, on le dit, et le code reste dans sa case.
-         Pas « tout statut 400 » : un compte non confirmé (400,
-         email_not_confirmed) ou une adresse refusée répondent 400 aussi, et
-         ne sont pas un code faux — seul invalid_credentials l'est. */
-      const refus=errCo.code==='invalid_credentials'||/invalid login credentials/i.test(errCo.message||'');
-      if(refus) continue;
-      try{ console.warn('connexion :', errCo.status, errCo.code, errCo.message); }catch(e){}
-      toast('Connexion impossible — réessaie dans une minute','err'); return;
+  connexionEnCours=true; etatCode('attente','Vérification de ton code…');
+  try{
+    /* La pastille choisie d'abord, puis celles qui portent le même prénom
+       (normalisé) : c'est le code qui départage, comme dans le repli. Sans
+       elles, l'élève qui clique la « Léa » de sa voisine lirait « Code
+       incorrect » avec son propre code juste. Aucune requête de plus : la
+       liste est déjà lue. */
+    let cles=choisi?[choisi.cle].concat(listeEleves.filter(e=>e!==choisi&&normaliserPrenom(e.prenom)===normaliserPrenom(choisi.prenom)).map(e=>e.cle))
+                      .filter(c=>c!=null&&c!=='').map(String):null;
+    /* Une pastille SANS clé (élève ajouté à la main dans la table, jamais relié
+       à un compte) n'a pas d'adresse de connexion. Mais la liste a pu être lue
+       AVANT que le professeur ne la relie — « Nouveau code » pose la clé : sa
+       ligne se RELIT, une seule, au moment de valider. Toujours sans clé et
+       sans homonyme : tenter « null@… » répondrait « Code incorrect » quel que
+       soit le code, ce qui est faux — la page dit ce qui manque. */
+    let sansCle=!!choisi&&(choisi.cle==null||choisi.cle==='');
+    if(sansCle){
+      const {data:frais,error:errFrais}=await sb.from('eleves_2nde').select('cle').eq('id',choisi.id).maybeSingle();
+      if(errFrais){ try{ console.warn('relecture de la pastille :', errFrais.code, errFrais.message); }catch(e){} toast('Connexion impossible — réessaie','err'); return; }
+      if(frais&&frais.cle!=null&&frais.cle!==''){ choisi.cle=frais.cle; cles.unshift(String(frais.cle)); sansCle=false; }
     }
-    /* Connecté : on relit SA ligne. C'est elle qui porte l'identifiant sous
-       lequel ses notes s'enregistrent — et dans l'état B, la table ne se lit
-       qu'une fois connecté. Un compte sans ligne — un élève retiré de la table
-       mais pas de l'authentification — n'entre pas, et la session se referme. */
-    const {data:ligne,error:errLigne}=await sb.from('eleves_2nde').select('id,prenom,cle').eq('cle',cle).single();
-    if(errLigne||!ligne){
-      /* La session se referme : un compte sans ligne ne doit pas rester
-         connecté sur un poste partagé. Si la fermeture échoue, on le dit —
-         c'est l'élève suivant qui en hériterait. */
-      const {error:errSortie}=await sb.auth.signOut();
-      toast(errSortie ? 'Compte introuvable — ferme l\'onglet et préviens ton professeur'
-                      : 'Compte introuvable — préviens ton professeur','err');
-      return;
+    if(choisi&&!cles.length){ toast('Ton compte n\'est pas encore relié — préviens ton professeur','err'); return; }
+    if(!cles){
+      const {data,error}=await clesDuPrenom(prenom);
+      if(error){ toast('Connexion impossible — réessaie','err'); return; }
+      if(!data.length){ toast('Prénom inconnu : vérifie l\'orthographe, ou crée ton compte','err'); $('loginPrenom').focus(); return; }
+      cles=data;
     }
-    currentEleve=ligne; await ouvrirEspace(); return;
+    /* Le code n'est plus comparé ici : cette page ne le connaît pas. Supabase
+       le vérifie, et lui seul détient de quoi le faire. Tant que la comparaison
+       était faite dans le navigateur, deux lignes dans la console suffisaient à
+       entrer sous n'importe quel prénom.
+       Deux élèves peuvent porter le même prénom : chaque clé est essayée dans
+       l'ordre — celle de la pastille cliquée d'abord, puis ses homonymes ; dans
+       le repli, celles du prénom tapé — et c'est le code qui départage. */
+    for(const cle of cles){
+      const {error:errCo}=await sb.auth.signInWithPassword({email:courrielDe(cle),password:motDePasseDe(pin)});
+      if(errCo){
+        /* Seul un CODE REFUSÉ passe à la clé suivante. Une limitation de cadence
+           (429 — une classe entière derrière l'adresse de l'établissement), une
+           coupure réseau, un compte non confirmé ne sont pas un code faux :
+           dire « Code incorrect », vider la case et faire retaper aggraverait
+           la cadence. On s'arrête, on le dit, et le code reste dans sa case.
+           Pas « tout statut 400 » : un compte non confirmé (400,
+           email_not_confirmed) ou une adresse refusée répondent 400 aussi, et
+           ne sont pas un code faux — seul invalid_credentials l'est. */
+        const refus=errCo.code==='invalid_credentials'||/invalid login credentials/i.test(errCo.message||'');
+        if(refus) continue;
+        try{ console.warn('connexion :', errCo.status, errCo.code, errCo.message); }catch(e){}
+        toast('Connexion impossible — réessaie dans une minute','err'); return;
+      }
+      /* Connecté : on relit SA ligne. C'est elle qui porte l'identifiant sous
+         lequel ses notes s'enregistrent — et dans l'état B, la table ne se lit
+         qu'une fois connecté. Un compte sans ligne — un élève retiré de la table
+         mais pas de l'authentification — n'entre pas, et la session se referme. */
+      const {data:ligne,error:errLigne}=await sb.from('eleves_2nde').select('id,prenom,cle').eq('cle',cle).single();
+      if(errLigne||!ligne){
+        /* La session se referme : un compte sans ligne ne doit pas rester
+           connecté sur un poste partagé. Si la fermeture échoue, on le dit —
+           c'est l'élève suivant qui en hériterait. */
+        const {error:errSortie}=await sb.auth.signOut();
+        toast(errSortie ? 'Compte introuvable — ferme l\'onglet et préviens ton professeur'
+                        : 'Compte introuvable — préviens ton professeur','err');
+        return;
+      }
+      etatCode('valide','✓ C\'est bon — tes exercices arrivent, attends un instant…');
+      currentEleve=ligne; await ouvrirEspace(); return;
+    }
+    /* Une pastille sans clé dont un HOMONYME est relié : seules les clés de
+       l'homonyme ont été essayées. Le code était peut-être juste — celui d'un
+       compte que personne n'a encore relié : « Code incorrect » seul mentirait. */
+    toast(sansCle?'Code incorrect — ou ton compte n\'est pas encore relié : préviens ton professeur':'Code incorrect','err');
+    etatCode('refus','✗ Code incorrect — réessaie');
+    $('loginPin').value=''; $('loginPin').focus();
+  }finally{
+    connexionEnCours=false;
+    /* sorti sans verdict (panne, compte non relié…) : le toast l'a dit, la case redevient neutre */
+    if($('loginPin').classList.contains('pin-attente')) etatCode('');
   }
-  /* Une pastille sans clé dont un HOMONYME est relié : seules les clés de
-     l'homonyme ont été essayées. Le code était peut-être juste — celui d'un
-     compte que personne n'a encore relié : « Code incorrect » seul mentirait. */
-  toast(sansCle?'Code incorrect — ou ton compte n\'est pas encore relié : préviens ton professeur':'Code incorrect','err');
-  $('loginPin').value=''; $('loginPin').focus();
 }
 /* Un code donne par le professeur est tire au hasard : il ne se retient pas.
    L'eleve doit pouvoir le remplacer par le sien. Aucune fonction Edge ici —
@@ -75817,6 +75858,16 @@ document.addEventListener('input',e=>{
 /* Entrée dans le prénom (le repli de transition) passe au code ; Entrée dans le code entre. */
 $('loginPrenom').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('loginPin').focus();}});
 $('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();connexionEleve();}});
+/* Le dernier chiffre tapé — au clavier, au pavé de la tablette ou collé — lance
+   la connexion : plus de « Entrer » à chercher. Seulement si le prénom est
+   connu (la pastille, ou le champ du repli rempli) : sinon « Écris ton
+   prénom » arracherait le focus au milieu du code. Retaper efface le rouge. */
+$('loginPin').addEventListener('input',()=>{
+  const c=$('loginPin');
+  if(c.classList.contains('pin-refus')) etatCode('');
+  if(new RegExp('^\\d{'+CHIFFRES_CODE+'}$').test(c.value.trim())
+     &&(selectedEleve||($('prenomRow').hidden?'':val('loginPrenom').trim()))) connexionEleve();
+});
 /* L'identifiant est celui du compte Supabase du professeur. Il est posé depuis
    la constante, jamais recopié : deux écritures qui divergent, c'est le défaut
    qu'on a déjà payé avec DOMAINE_COMPTES. */
