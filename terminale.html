@@ -787,6 +787,14 @@
   .sa2-in.apf-eqin{flex:1 1 9em;min-width:6em;max-width:18em;text-align:center}
   .apf-astuce{font-size:.9em;opacity:.8;margin:4px 0 0}
   .apc-mb{min-width:6.5em;text-align:right;white-space:nowrap}
+  /* 6.1.3 : les lignes de calcul sont des champs MathLive — une division
+     s'y écrit en fraction empilée, le x en italique arrondi. Elles gardent la
+     taille de leur rangée (la règle de toute case). */
+  math-field.dexp-mf.apc-mf{font-size:inherit;font-weight:700;min-height:2em;padding:2px 8px;vertical-align:middle;box-sizing:border-box}
+  math-field.dexp-mf.apc-mf.apf-calc{flex:1 1 16em;min-width:10em;max-width:40em}
+  math-field.dexp-mf.apc-mf.apf-eqin{flex:1 1 9em;min-width:6em;max-width:18em}
+  math-field.dexp-mf.apc-mf.hors-note{opacity:.4}
+  .apf-row .mf-cor{font-size:1em}
   .apc-mb.apc-cor{color:var(--green)}
   /* ---- {proba-phrase-formule} : toutes les phrases et toutes les formules
      sur un seul écran, sans défiler — deux colonnes dès la tablette en
@@ -3724,7 +3732,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=409;
+const APP_VERSION=410;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -25051,7 +25059,7 @@ function apfMembres(raw, avecX){
   for(let k=0;k<parts.length;k+=2) m.push({s:parts[k], approx:k>0 && parts[k-1]==='≈'});
   return m;
 }
-function apfEstNombre(s){ return /^-?(\d+\.?\d*|\.\d+)$/.test(s) || /^-?\d+\/\d+$/.test(s); }
+function apfEstNombre(s){ return /^-?(\d+\.?\d*|\.\d+)$/.test(s) || /^-?\(?\d+\)?\/\(?\d+\)?$/.test(s); }   /* « 9/47 », ou « (9)/(47) » : une fraction MathLive aplatie */
 /* LE JUGE D'UNE LIGNE DE CALCUL. Rend {ok, pourquoi, note}.
    Une ligne « libre » (l.libre, le 6.1.3 : une valeur approchée demandée sans
    précision imposée — demande de Turquet, octobre 2026) accepte une valeur
@@ -25276,13 +25284,21 @@ document.addEventListener('keydown', function(e){
 /* la rangée de jetons : ce que le clavier d'un ordinateur n'écrit pas
    d'une touche (×, ÷, ≈) et, là où l'on calcule en fonction de x, x */
 let apfDerniere=null;
-function apfJetonsHTML(q, avecX){
-  const J=['×','÷','+','−','(',')','=','≈'].concat((avecX===undefined?apfAvecX(q):avecX)?['x']:[]);
+function apfJetonsHTML(q, avecX, mf){
+  /* mf (le 6.1.3) : les lignes sont des champs MathLive — la division est une
+     FRACTION, et c'est la barre « Insérer : » de la page (pmJetons : fraction,
+     clavier mathématique, raccourcis) qui l'offre, pas un jeton « ÷ » */
+  const J=['×'].concat(mf?[]:['÷']).concat(['+','−','(',')','=','≈']).concat((avecX===undefined?apfAvecX(q):avecX)?['x']:[]);
   return '<div class="apf-jetons" aria-label="symboles">'+J.map(function(t){
     return '<button type="button" class="apf-jeton" onmousedown="event.preventDefault()" onclick="apfJeton(\''+t+'\')">'+(t==='x'?'<i>x</i>':t)+'</button>'; }).join('')+'</div>';
 }
+const APF_JETON_TEX={'×':'\\times', '÷':'\\div', '≈':'\\approx', '−':'-'};
 function apfJeton(t){
   const el=apfDerniere; if(!el || el.disabled || !document.body.contains(el)) return;
+  if(el.tagName==='MATH-FIELD'){   /* un champ MathLive : l'insertion LaTeX lève elle-même « input » */
+    try{ el.focus(); el.executeCommand(['insert', APF_JETON_TEX[t]||t]); }catch(e){}
+    return;
+  }
   const d=el.selectionStart==null?el.value.length:el.selectionStart, f=el.selectionEnd==null?el.value.length:el.selectionEnd;
   el.value=el.value.slice(0,d)+t+el.value.slice(f); el.focus();
   try{ el.setSelectionRange(d+t.length, d+t.length); }catch(e){}
@@ -25518,20 +25534,33 @@ function apcJugeCase(q, k, raw){
 function apcLignes(q, sub){
   const V=apcV(q), D=APF_D, P=e=>apfP(q,e), Pt=e=>apfPTxt(q,e);
   const a=D(V.A), na=D(V.nA), p=D(V['A.B']), np=D(V['A.nB']), c=D(V['nA.B']), nc=D(V['nA.nB']);
+  /* corr : la correction en clair ; tex : la même, en LaTeX pour la case
+     MathLive — toute division s'y écrit en FRACTION (demande de Turquet,
+     octobre 2026 : « les réponses doivent présenter les calculs sous forme
+     fractionnaire pour les divisions ») */
+  const N=apfNb, F=(n,d)=>'\\frac{'+n+'}{'+d+'}';
   if(sub==='B') return [{t:'ch', lab:P('B'), labT:Pt('B'), v:D(V.B),
-    corr:apfNb(a)+' × '+apfNb(p)+' + '+apfNb(na)+' × '+apfNb(c)+' = '+apfNb(D(V.AB))+' + '+apfNb(D(V.nAB))+' = '+apfNb(D(V.B))}];
+    corr:N(a)+' × '+N(p)+' + '+N(na)+' × '+N(c)+' = '+N(D(V.AB))+' + '+N(D(V.nAB))+' = '+N(D(V.B)),
+    tex:N(a)+'\\times '+N(p)+'+'+N(na)+'\\times '+N(c)+'='+N(D(V.AB))+'+'+N(D(V.nAB))+'='+N(D(V.B))}];
   if(sub==='BA'){ const v=V.AB/V.B; return [{t:'ch', lab:apfPc(q,'B','A'), labT:apfPcTxt(q,'B','A'), v:v, libre:true,
-    corr:apfNb(D(V.AB))+' ÷ '+apfNb(D(V.B))+apcArr(v)}]; }
+    corr:N(D(V.AB))+' ÷ '+N(D(V.B))+apcArr(v), tex:F(N(D(V.AB)), N(D(V.B)))+apcArrTex(v)}]; }
   if(sub==='nBnA'){ const nb=10000-V.B, v=V.nAnB/nb; return [{t:'ch', lab:apfPc(q,'nB','nA'), labT:apfPcTxt(q,'nB','nA'), v:v, libre:true,
-    corr:apfNb(D(V.nAnB))+' ÷ (1 − '+apfNb(D(V.B))+') = '+apfNb(D(V.nAnB))+' ÷ '+apfNb(D(nb))+apcArr(v)}]; }
+    corr:N(D(V.nAnB))+' ÷ (1 − '+N(D(V.B))+') = '+N(D(V.nAnB))+' ÷ '+N(D(nb))+apcArr(v),
+    tex:F(N(D(V.nAnB)), '1-'+N(D(V.B)))+'='+F(N(D(V.nAnB)), N(D(nb)))+apcArrTex(v)}]; }
   if(sub==='err') return [{t:'ch', lab:apfPi(q,'A','nB')+' + '+apfPi(q,'nA','B'), labT:apfPiTxt(q,'A','nB')+' + '+apfPiTxt(q,'nA','B'), v:D(V.AnB+V.nAB),
-    corr:apfNb(a)+' × '+apfNb(np)+' + '+apfNb(na)+' × '+apfNb(c)+' = '+apfNb(D(V.AnB))+' + '+apfNb(D(V.nAB))+' = '+apfNb(D(V.AnB+V.nAB))}];
+    corr:N(a)+' × '+N(np)+' + '+N(na)+' × '+N(c)+' = '+N(D(V.AnB))+' + '+N(D(V.nAB))+' = '+N(D(V.AnB+V.nAB)),
+    tex:N(a)+'\\times '+N(np)+'+'+N(na)+'\\times '+N(c)+'='+N(D(V.AnB))+'+'+N(D(V.nAB))+'='+N(D(V.AnB+V.nAB))}];
   /* x : P(B) = P_A(B)·x + P_Ā(B)·(1 − x) = (p − c)x + c, puis l'équation P(B) = b */
-  const k=+(p-c).toFixed(6), pb=D(q.bx), x0=q.x0/100;
-  return [{t:'demo', lab:P('B'), labT:Pt('B')+' en fonction de x', a:k, b:c, corr:apfNb(p)+'x + '+apfNb(c)+'(1 − x) = '+apfLin(k,c)},
+  const k=+(p-c).toFixed(6), pb=D(q.bx), x0=q.x0/100, pbc=+(pb-c).toFixed(6);
+  return [{t:'demo', lab:P('B'), labT:Pt('B')+' en fonction de x', a:k, b:c, corr:N(p)+'x + '+N(c)+'(1 − x) = '+apfLin(k,c),
+           tex:N(p)+'x+'+N(c)+'(1-x)='+apfLin(k,c)},
           {t:'resol', lab:'Résolution', labT:'résolution de l’équation', a:k, b:c, pb:pb, sol:x0,
-           etapes:[[apfLin(k,c), apfNb(pb)], [apfLin(k,0), apfNb(+(pb-c).toFixed(6))], ['x', apfNb(x0)]]}];
+           etapes:[[apfLin(k,c), N(pb)], [apfLin(k,0), N(pbc)], ['x', N(x0)]],
+           /* la dernière étape est une division : sa correction s'écrit en fraction */
+           etapesTex:[N(pb), N(pbc), F(N(pbc), N(k))+'='+N(x0)]}];
 }
+/* la valeur approchée de la correction, en LaTeX : « = » si le quotient tombe juste, « ≈ » sinon */
+function apcArrTex(v){ const r=Math.round(v*100)/100; return Math.abs(r-v)<1e-12 ? '='+apfNb(r) : '\\approx '+r.toFixed(2).replace('.',','); }
 /* LA QUESTION EST UNE PHRASE (demande de Turquet, octobre 2026 : « des
    énoncés sous forme de phrase, et l'élève doit simplement choisir la bonne
    écriture littérale, P(L), P(L ∩ M) ou P_M(L), avant de faire les
@@ -25604,7 +25633,7 @@ function apcResolIds(){ const r=[]; for(let k=1;k<=APC_RES;k++) r.push('apc-r'+k
 /* la forme réduite a·x + b écrite au bout de la ligne P(B) = … ; null tant qu'il n'y en a pas */
 function apcExprEleve(q){
   const i=q.subs.indexOf('x'), el=i<0 ? null : $('apc-c'+(i+1)); if(!el) return null;
-  const M=apfMembres(el.value, true); if(!M) return null;
+  const M=apfMembres(apcLire(el), true); if(!M) return null;
   const s=M[M.length-1].s;
   if(!/^-?(\d+\.?\d*)?x([+-]\d+\.?\d*)?$/.test(s) && !/^-?\d+\.?\d*[+-](\d+\.?\d*)?x$/.test(s)) return null;
   const f=apfParse(s, true); if(!f) return null;
@@ -25651,6 +25680,42 @@ function apcCorr(q, id){
   if(/^apc-t-/.test(id)) return apfNb(APF_D(apcV(q)[id.slice(6).replace('-','.')]));
   if(/^apc-r/.test(id)) return apcResolDe(q).etapes[+id.slice(5)-1][1];
   return apcLigneDe(q, id).corr;
+}
+/* la correction d'une case MathLive, en LaTeX (les divisions en fraction) */
+function apcCorrTex(q, id){
+  if(/^apc-r/.test(id)) return apcResolDe(q).etapesTex[+id.slice(5)-1];
+  const l=apcLigneDe(q, id); return l.tex || l.corr;
+}
+/* LES LIGNES DE CALCUL SONT DES CHAMPS MATHLIVE (demande de Turquet, octobre
+   2026 : « les réponses doivent présenter les calculs sous forme fractionnaire
+   pour les divisions ») : l'élève écrit une fraction empilée, le x s'écrit de
+   lui-même en italique arrondi, « * » devient ×. Le juge, lui, lit du TEXTE :
+   apcLire aplatit le LaTeX (\frac{a}{b} → (a)/(b), \times → *, \approx → ≈)
+   par le même toPlain que les autres champs de la page, après saClean (les
+   résidus de fin de saisie). Une case en texte (l'arbre) se lit telle quelle. */
+function apcLire(el){
+  if(!el) return '';
+  if(el.tagName!=='MATH-FIELD') return String(el.value==null?'':el.value);
+  let lx=''; try{ lx=String(el.getValue?el.getValue():''); }catch(e){}
+  lx=lx.replace(/\\(?:approx|simeq)(?![A-Za-z])/g,'≈').replace(/\\div(?![A-Za-z])/g,'÷').replace(/\\%/g,'%');
+  const net=saClean(lx);
+  try{ return window.mlDexp ? window.mlDexp.toPlain(net===''?lx:net) : ''; }catch(e){ return ''; }
+}
+/* corrCase pour une case MathLive : la correction s'écrit en LaTeX (une
+   fraction empilée), dans la case vide ou à côté de la case fausse */
+function apcCorrCase(id, tex, clair, ok){
+  const el=$(id); if(!el) return;
+  if(el.tagName!=='MATH-FIELD'){ corrCase(id, clair, ok); return; }
+  const vide=apcLire(el).trim()==='', lx=mlTexN(tex);
+  el.classList.remove('ok','bad','sol');
+  if(ok) el.classList.add('ok');
+  else if(vide){ try{ el.setValue(lx); }catch(e){} el.classList.add('sol'); }
+  else {
+    el.classList.add('bad');
+    if(!(el.nextElementSibling && el.nextElementSibling.classList && el.nextElementSibling.classList.contains('mf-cor')))
+      el.insertAdjacentHTML('afterend','<span class="mf-cor">'+mlTex(lx, esc(clair))+'</span>');
+  }
+  el.disabled=true;
 }
 /* ---- le rendu ---- */
 function apcGroupes(q){ return ['ev'].concat(q.subs.map(function(u,i){ return 'f'+i; })); }
@@ -25732,17 +25797,17 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') apcFermer
 function apcArbreHTML(q){ return apfGrilleHTML('apc', function(e){ return apfEv(q,e); }, function(k){ return apcCaseHTML(q,k); }); }
 function apcLigneHTML(k){
   return '<div class="apf-row apf-eqrow"><span class="apf-lab apc-mb" id="apc-m'+k+'"><span class="apf-pts">……</span></span><span class="apf-lab">=</span>'
-    +'<input class="sa2-in apf-eqin" id="apc-r'+k+'" type="text" autocomplete="off" spellcheck="false" inputmode="numeric" data-pave-plus="( ) + ×"></div>';
+    +'<math-field class="dexp-mf apc-mf apf-eqin" id="apc-r'+k+'" aria-label="étape '+k+' de la résolution"></math-field></div>';
 }
 function apcSuiteHTML(q, i){
   const sub=q.subs[i], L=apcLignes(q, sub), P=e=>apfP(q,e);
-  const champ=(xs, ph)=>'<input class="sa2-in apf-calc" id="apc-c'+(i+1)+'" type="text" autocomplete="off" spellcheck="false" inputmode="numeric"'
-    +' data-pave-plus="'+(xs?'x ':'')+'+ × ( ) = ≈" placeholder="'+ph+'">';
+  /* un champ MathLive : la division s'écrit en fraction empilée, le x en italique (apcLire le relit en texte) */
+  const champ=(xs, ph)=>'<math-field class="dexp-mf apc-mf apf-calc" id="apc-c'+(i+1)+'" aria-label="'+ph+'"></math-field>';
   const pq='<p class="apc-pourquoi" id="apc-h-f'+i+'"></p>';
   if(sub!=='x') return '<div class="apf-row">'+apcSlotHTML(i)+'<span class="apc-dev" id="apc-d'+i+'"></span><span class="apf-lab">=</span>'+champ(false, 'calcul = résultat')+'</div>'+pq;
   return '<p class="apc-etape">On pose '+apcSlotHTML(i)+' = <i>x</i>. Exprime '+P('B')+' en fonction de <i>x</i>, puis réduis :</p>'+pq
     +'<div class="apf-row"><span class="apf-lab">'+L[0].lab+' =</span>'+champ(true, 'calcul en x = forme réduite')+'</div>'
-    +'<p class="apc-etape">'+P('B')+' = '+apfNb(L[1].pb)+' : résous l’équation, étape par étape.</p>'
+    +'<p class="apc-etape">'+P('B')+' = '+apfNb(L[1].pb)+' : résous l’équation — étape par étape, ou directement dans la dernière ligne (le calcul, puis la valeur de <i>x</i>).</p>'
     +'<p class="apf-astuce" id="apc-prep">Les étapes se préparent dès que tu as écrit '+P('B')+' sous forme réduite.</p>'
     +'<div class="apf-resol" id="apcResol">'+Array.from({length:APC_RES},function(u,k){ return apcLigneHTML(k+1); }).join('')+'</div>';
 }
@@ -25750,6 +25815,14 @@ function apcBrancherCase(el){
   const q=test.questions[test.idx];
   if(q && el.id==='apc-c'+(q.subs.indexOf('x')+1)) el.addEventListener('input', function(){ apcPreparer(test.questions[test.idx]); });
   if(isSoutien()) el.addEventListener('input', function(){ checkAPC(true); });
+  /* Entrée dans un champ MathLive : la case suivante, puis le bouton Vérifier (navCases ne connaît que les <input>) */
+  if(el.tagName==='MATH-FIELD') el.addEventListener('keydown', function(e){
+    if(e.key!=='Enter' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
+    e.preventDefault(); e.stopPropagation();
+    const liste=navCasesListe(), i=liste.indexOf(el);
+    if(i>=0 && i<liste.length-1){ try{ liste[i+1].focus(); }catch(err){} }
+    else { const b=boutonVerif(); if(b) b.click(); }
+  }, true);
 }
 /* ce qu'un choix ouvre : l'arbre (le choix de l'événement), ou les lignes de
    calcul de la question (le choix de la formule) — une seule fois */
@@ -25793,8 +25866,8 @@ function apcEnonceHTML(q){
   return C.intro+' '+C.pA.replace('{a}', q.a)
     +'<ul class="apc-donnees"><li>La probabilité '+apcQue(C.s.B)+' sachant '+apcQue(C.i.A)+' est '+apfNb(APF_D(V['A.B']))+'.</li><li>'+d2+'</li></ul>'
     +C.choix+'<br>On note : '+A+' l’événement « '+C.def[0]+' » et '+B+' l’événement « '+C.def[1]+' ».'
-    +'<span class="apf-mode">Dans les lignes de calcul, écris l’opération avec les nombres, les étapes s’il y en a, puis le résultat, séparés par « = » '
-    +'(« ≈ » pour un arrondi).</span>';
+    +'<span class="apf-mode">Dans les lignes de calcul, écris l’opération avec les nombres, puis le résultat, séparés par « = » (« ≈ » pour un arrondi) — '
+    +'directement, sans étape intermédiaire si tu n’en as pas besoin. Une division s’écrit en fraction : touche « / » du clavier, ou le bouton « fraction » de la barre « Insérer ».</span>';
 }
 /* ---- cycle de vie ---- */
 async function startAPC(){
@@ -25823,8 +25896,9 @@ function renderAPC(){
   $('apcQuestions').innerHTML='<p class="apf-cons"><b>2.</b> Pour chaque question, choisis dans la case <span class="apf-pts">……</span> l’écriture de la probabilité cherchée, puis écris le calcul derrière le signe =.</p>'
     +q.subs.map(function(sub,i){
       return '<div class="apc-q"><p class="apf-cons"><b>'+APF_LETTRE_Q.charAt(i)+')</b> '+apcQuestion(q,sub)+'</p>'+apcSuiteHTML(q,i)+'</div>';
-    }).join('')+apfJetonsHTML(q, q.subs.indexOf('x')>=0);
-  $('apcQuestions').querySelectorAll('input').forEach(apcBrancherCase);
+    }).join('')+apfJetonsHTML(q, q.subs.indexOf('x')>=0, true);
+  $('apcQuestions').querySelectorAll('input, math-field').forEach(apcBrancherCase);
+  if(window.mlDexp) window.mlDexp.upgrade($('apcQuestions'));   /* clavier de la Terminale, « * » → ×, correctifs communs */
   /* la reprise après une pause : les choix déjà faits se redessinent, et l'arbre qu'ouvrait le premier */
   apcGroupes(q).forEach(function(g){ apcPeindre(q,g); const ch=q.ch[g]; if(g==='ev' && ch!==undefined) apcReveler(q,g); });
   apcPreparer(q);
@@ -25834,9 +25908,22 @@ function apcJugerTout(q, live){
   const verd={}, raisons=[], notes=[];
   let allOk=apcGroupes(q).every(function(g){ return q.ch[g]===0; });
   let anyFilled=apcGroupes(q).some(function(g){ return q.ch[g]!==undefined; });
+  /* LA RÉSOLUTION DIRECTE (demande de Turquet, octobre 2026 : « accepter que
+     l'élève écrive le calcul avec les bonnes valeurs et donne directement le
+     résultat, sans passer par les résultats intermédiaires ») : si la dernière
+     étape « x = … » est juste et que les deux premières sont restées vides,
+     elles ne sont pas demandées — hors note, sans correction. */
+  const direct=(function(){
+    if(q.subs.indexOf('x')<0 || !$('apc-r'+APC_RES)) return false;
+    for(let k=1;k<APC_RES;k++) if(apcLire($('apc-r'+k)).trim()!=='') return false;
+    const raw=apcLire($('apc-r'+APC_RES)); return raw.trim()!=='' && apcJugeResolCase(q, APC_RES, raw).ok;
+  })();
   apcIds(q).forEach(function(id){
     const el=$(id); if(!el){ allOk=false; return; }
-    const raw=String(el.value==null?'':el.value), rempli=raw.trim()!=='';
+    const raw=apcLire(el), rempli=raw.trim()!=='';
+    const nonDemandee=direct && /^apc-r/.test(id) && +id.slice(5)<APC_RES;
+    el.classList.toggle('hors-note', nonDemandee);
+    if(nonDemandee){ el.classList.remove('ok','bad','sol'); verd[id]='direct'; if(!live) el.disabled=true; return; }
     const j=rempli ? apcJuger(q, id, raw) : {ok:false};
     el.classList.remove('ok','bad','sol');
     if(rempli){ anyFilled=true; el.classList.add(j.ok?'ok':'bad'); }   /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR */
@@ -25858,7 +25945,7 @@ function checkAPC(live){
   if(!J.anyFilled){
     fb.textContent='Fais au moins un choix ou complète une case avant de vérifier.';
     fb.className='mp-feedback';
-    apcIds(q).forEach(function(id){ const el=$(id); if(el){ el.classList.remove('ok','bad','sol'); el.disabled=false; } });
+    apcIds(q).forEach(function(id){ const el=$(id); if(el){ el.classList.remove('ok','bad','sol','hors-note'); el.disabled=false; } });
     return;
   }
   const raisonsTxt=r=>r.length ? '<br>À revoir : '+r.filter(function(x,i){ return r.indexOf(x)===i; }).join(' ; ')+'.' : '';
@@ -25886,7 +25973,8 @@ function checkAPC(live){
       +'on <b>multiplie</b> le long d’un chemin, on <b>additionne</b> les chemins qui mènent au même événement, et l’on <b>divise</b> par la probabilité de ce que l’on sait pour « remonter » l’arbre.';
     fb.className='mp-feedback bad';
     apcIds(q).forEach(function(id){
-      corrCase(id, apcCorr(q,id), J.verd[id]===true); const el=$(id); if(el && /^apc-t-/.test(id)) sa2Ajuster(el); });
+      if(J.verd[id]==='direct') return;   /* une étape non demandée (résolution directe) ne reçoit pas de correction */
+      apcCorrCase(id, apcCorrTex(q,id), apcCorr(q,id), J.verd[id]===true); const el=$(id); if(el && /^apc-t-/.test(id)) sa2Ajuster(el); });
   }
   test.answers.push(Object.assign({}, ptsExo()||{}, {
     q:apcPlain(q), answer:apcReponseTxt(q), given:J.allOk?'✓':'incomplet', correct:J.allOk, type:'apc'}));
@@ -25920,12 +26008,12 @@ function apcConseilCtx(){
       +(ch===undefined?'(pas encore choisi)':ch===0?'choix juste':'choix faux'); }).join(' ; ');
   return 'Exercice de Terminale, type bac : arbre pondéré à partir d’un énoncé en phrases (fiche 5). '+apcPlain(q)+' '
     +'1. L’élève choisit l’événement des premières branches, puis complète l’arbre avec les données et leurs contraires. '
-    +'2. Pour chaque question, il choisit l’écriture littérale de la probabilité cherchée (P(A), P(A ∩ B), P_A(B)…) parmi quatre propositions, puis écrit le calcul : opération, étapes, résultat, séparés par « = ». '
+    +'2. Pour chaque question, il choisit l’écriture littérale de la probabilité cherchée (P(A), P(A ∩ B), P_A(B)…) parmi quatre propositions, puis écrit le calcul : opération puis résultat, séparés par « = », les divisions en fraction ; aucune étape intermédiaire n’est exigée (la résolution de l’équation peut se faire directement dans la dernière ligne). '
     +'Une valeur approchée est demandée sans précision imposée : « = » comme « ≈ » sont acceptés devant elle, à toute précision ; une précision autre que 0,01 est juste, mais signalée. '
     +'État des choix : '+choix+'. '
     +'Cases : '+ids.filter(function(id){ return $(id); }).map(function(id){ return id+' = '+apcNomCase(q,id); }).join(' ; ')+'. '
     +'Réponses attendues, à ne JAMAIS révéler : '+apcReponseTxt(q)+'. '
-    +'Saisies actuelles de l’élève : '+ids.filter(function(id){ return $(id); }).map(function(id){ const el=$(id); return id+'='+(el.value||'(vide)'); }).join(', ')+'. '
+    +'Saisies actuelles de l’élève : '+ids.filter(function(id){ return $(id); }).map(function(id){ return id+'='+(apcLire($(id)).trim()||'(vide)'); }).join(', ')+'. '
     +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs, aucun de ces calculs, et ne dis pas quelle proposition est la bonne. '
     +'Méthode à rappeler sans donner la réponse : l’événement du premier niveau est celui dont dépendent les probabilités conditionnelles de l’énoncé ; somme 1 sur les branches d’un même nœud ; '
     +'on multiplie le long d’un chemin ; P(B) est la somme des chemins qui mènent à B ; P_B(A) = P(A∩B) ÷ P(B) ; avec P(A) = x, P(B) = P_A(B)·x + P_Ā(B)·(1 − x), que l’on réduit, puis on résout l’équation. '
@@ -32185,6 +32273,8 @@ function kbVarsFor(id){
   if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-formule' || id === 'recurrence-limite' || id === 'recurrence-complete' || id === 'suite-auxiliaire-redaction' || id === 'suite-auxiliaire-limite' || id === 'suite-variation-difference') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
   /* 2.2.4 : la dérivée se démontre EN LITTÉRAL (u = ax + b) — les lettres a et b sur le clavier A */
   if(id === 'etude-algo-convexite') return [{latex:"f"},{latex:"x"},{latex:"a"},{latex:"b"}];
+  /* 6.1.3 : les lignes de calcul sont des champs MathLive — x (l'inconnue) et ≈ (la valeur approchée) sur le clavier A */
+  if(id === 'arbre-probabilites-bac') return [{latex:"x"},{latex:"\\approx",tooltip:"environ égal"}];
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;
@@ -32279,6 +32369,7 @@ function configureField(mf){
     if(sc["*"] !== "\\times"){ sc["*"] = "\\times"; ch = true; }   /* '*' au clavier -> croix × (multiplication) */
     if(sc["va"] !== "\\longrightarrow"){ sc["va"] = "\\longrightarrow"; ch = true; }   /* 'va' -> fleche « tend vers » */
     if(sc["inf"] !== "\\infty"){ sc["inf"] = "\\infty"; ch = true; }   /* 'inf' -> infini */
+    if(sc["~="] !== "\\approx"){ sc["~="] = "\\approx"; ch = true; }   /* '~=' -> ≈ (valeur approchée, 6.1.3) */
     if(sc["int"] !== "\\int_{#?}^{#?}#?\\,dx"){ sc["int"] = "\\int_{#?}^{#?}#?\\,dx"; ch = true; }   /* 'int' -> integrale complete bornes + dx, comme la touche ecran */
     if(mf._motsFR){   /* champ redaction (3.5) : l'eleve tape des mots francais -> liste blanche ("or"->\lor casse "horizontale", "and" casse "quand", "in" casse "moins", "lim" casse "limite"...) */
       const garder = ["xx","*","va","inf","int","ln","sqrt","pi","->","-->",">=","<=","!="];
