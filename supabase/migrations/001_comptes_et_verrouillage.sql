@@ -66,6 +66,16 @@ create table if not exists public.professeurs (
 );
 alter table public.professeurs enable row level security;
 
+-- LES DROITS DE TABLE, EXPLICITEMENT. Une politique RLS filtre les lignes ;
+-- elle ne donne aucun droit. Cette table les tenait du don automatique de
+-- Supabase aux tables nées dans « public » — don qui cesse le 30 octobre 2026
+-- pour toute table créée ensuite (nouveau projet, base recréée, restauration).
+-- Sans ce grant, la page reçoit « permission denied » en lisant la ligne du
+-- professeur, et le professeur n'est plus reconnu. Lecture seule : un compte
+-- ne s'inscrit pas lui-même professeur. service_role : la sauvegarde la lit.
+grant select on public.professeurs to authenticated;
+grant select, insert, update, delete on public.professeurs to service_role;
+
 -- est_prof() est SECURITY DEFINER : elle lit professeurs SANS repasser par la
 -- RLS. Sans cela, une politique qui interroge professeurs déclencherait la
 -- politique de professeurs, qui l'interrogerait à nouveau — récursion infinie,

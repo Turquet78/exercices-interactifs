@@ -405,6 +405,66 @@ vert ; résolution directe « 0,56/0,8 = 0,7 » bleue, ses quatre étapes hors
 note ; aucun défilement horizontal. Fusionné par-dessus les lignes MathLive
 du même jour : Terminale v411.
 
+**Puis la question « on pose x » a reçu SON arbre, avec x et 1 − x**
+(demande de Turquet, octobre 2026 : « quand on doit exprimer en fonction de
+x, si ce n'est pas déjà fait, demander avant d'exprimer en fonction de x de
+compléter un arbre comme dans les consignes de cet exercice, sauf que l'élève
+devra placer x et 1 − x sur les branches aussi ; s'il s'agit d'un deuxième
+arbre, le premier ne doit plus rester forcément visible en entier, il peut
+défiler vers le haut et être masqué partiellement ou totalement »). La
+demande nommait « le 6.3.1 », qui n'existe pas : c'est le 6.1.3, le seul dont
+la question en x vient APRÈS un premier arbre chiffré (au 6.1.2, l'arbre de
+la situation 4 porte déjà x — « si ce n'est pas déjà fait »).
+
+* Entre « On pose [……] = x » et « Exprime P(B) en fonction de x », un second
+  arbre : la grille du premier (`apfGrilleHTML('apx', …)`), six cases
+  (`apx-t-…`) — x et 1 − x sur les premières branches, puis les quatre
+  conditionnelles de l'énoncé, qui ne changent pas ; intersections et P(B)
+  restent « … ». x et 1 − x se jugent comme expressions (`apxJugeCase` :
+  `apfParse` avec x, `apfEgal` — « -x+1 » vaut « 1 − x ») ; les
+  conditionnelles par le juge du premier arbre (le pourcentage accepté). Les
+  deux cases du haut offrent x au pavé (`data-pave-plus="x …"`), les autres
+  non : un x y devient ×. Six réponses comptées de plus.
+* Le second arbre est toujours écrit dans le BON sens, quelle que soit la
+  lettre choisie au 1. a) : il n'a pas de choix à lui.
+* **Il colle dans SA question, par-dessus le premier.** Classe `apc-fixe`
+  (les mêmes règles collantes) et `apx-fixe` (z-index 6, un cran au-dessus) ;
+  son parent est le bloc `.apc-q` de la question en x, si bien qu'il colle
+  pendant toute la question — expression, résolution, phrase réponse — et
+  repart ensuite, rendant la place au premier, qui colle dans tout le cadre.
+  Le premier arbre n'est donc plus visible en entier pendant la question en
+  x : le second monte sur lui, le masque en partie, puis entièrement.
+  `--apc-arbre-h` (la réserve de `scroll-padding-top`) prend la hauteur du
+  plus haut des deux.
+* À la reprise, les cases des deux arbres reprennent la largeur de leur
+  saisie (`sa2Ajuster`) — celles du premier ne la reprenaient pas non plus.
+
+Essayé dans Chromium à 1280 × 900 et 390 × 844 : en bas de la résolution, le
+premier arbre collé à 0, le second à 0 par-dessus (à 1280 px, la question
+s'arrête plus tôt : le second s'arrête à 93 px et masque le bas du premier) ;
+« x », « 1-x » bleus, une conditionnelle fausse rouge avec la bonne en vert à
+côté, une case vide remplie en vert ; aucune erreur de page. Terminale v413.
+
+**Puis l'arbre en x a ouvert sa case P(B), au bout de l'accolade** (demande
+de Turquet, octobre 2026 — « le 6.3.1 » encore, c'est-à-dire le 6.1.3 :
+« mettre aussi une case pour la probabilité extérieure à l'arbre qui
+représente la somme des probabilités de deux chemins de cet arbre »).
+
+* `APX_ARBRE` = les six branches + `B` : la case de l'accolade du second
+  arbre devient `apx-t-B`. Sa valeur est la NOUVELLE P(B) que donne la
+  question (`q.bx`), pas celle du premier arbre (`apcV(q).B`) : les deux
+  diffèrent toujours, P(A) ayant changé. Le juge des cases est sorti de
+  `apcV` (`apcJugeVal(cible, raw)`) pour la recevoir ; « 43 % » y vaut 0,43
+  comme ailleurs.
+* La consigne de l'arbre la nomme (« … et P(B), qui vaut maintenant 0,43 »),
+  le contexte envoyé à l'IA aussi. Les intersections restent « … ». Sept
+  réponses comptées de plus, au lieu de six.
+
+Essayé dans Chromium à 1280 px : la case est au bout de la flèche de
+l'accolade ; remplie juste, bleue ; la valeur du premier arbre, refusée ; les
+cases vides reçoivent la correction en vert ; aucune erreur de page.
+Terminale v414.
+
 ## En portrait, le cadre d'un exercice prend la largeur de l'écran — les trois niveaux
 
 Demande de Turquet (octobre 2026) : « en mode portrait, que le cadre blanc de
@@ -554,3 +614,22 @@ commentaires différents, et pas du tout en Première. `paveSup` et
 `caseCalculEcrire` sont désormais les mêmes, octet pour octet, dans les trois
 pages : une case à × ajoutée demain en Seconde ou en Première écrit « × » sans
 rien porter. Terminale v406, Seconde v569, Première v330.
+
+**Puis la précision s'est IMPOSÉE, et la troncature est devenue juste**
+(demande de Turquet, octobre 2026 : « préciser que l'on souhaite une valeur
+approchée à 10⁻² près dans l'énoncé ; il faut accepter une valeur approchée
+au centième près et pas forcément la valeur arrondie »). La capture jointe :
+« 0,17 / 0,234 = 0,72 » rouge, devant une correction « ≈ 0,73 » — 0,72 est
+pourtant à 0,01 près de 0,7265….
+
+* Les deux conditionnelles à remonter disent « (Donner une valeur approchée à
+  10⁻² près.) ».
+* Sur une ligne `libre`, `apfJugeChaine` accepte toute valeur DÉCIMALE à 0,01
+  près de la valeur exacte, derrière « = » comme derrière « ≈ » : l'arrondi
+  (0,73), la troncature (0,72), une valeur plus précise (0,7265). 0,71 ou 0,7
+  restent faux. La `note` de précision disparaît : la précision est dans
+  l'énoncé, il n'y a plus rien à signaler. Une fraction non exacte reste
+  fausse (ce n'est pas une valeur approchée décimale).
+* Le 6.1.2 (sans `libre`) garde son juge : « ≈ » au sens de l'arrondi, au
+  moins deux décimales. La correction garde ses deux décimales arrondies.
+  Terminale v412.

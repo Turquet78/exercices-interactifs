@@ -753,6 +753,10 @@
     .apf-arbre-defile.apc-fixe{position:sticky;top:0;z-index:5;background:var(--surface);padding:6px 0 4px;
       border-bottom:1.5px solid var(--line);box-shadow:0 6px 10px -8px rgba(15,23,42,.25)}
     body.clavier-ouvert .apf-arbre-defile.apc-fixe{top:56px}   /* les commandes montent en haut quand le clavier est ancré */
+    /* le second arbre, celui de la question « on pose x », colle dans SA
+       question et passe par-dessus le premier : celui-ci peut alors être
+       masqué, en partie ou entièrement (demande de Turquet, octobre 2026) */
+    .apf-arbre-defile.apx-fixe{z-index:6}
     html:has(#scr-apc.on .apc-fixe){scroll-padding-top:calc(var(--apc-arbre-h,0px) + 12px)}
     /* « overflow-x:hidden » sur html ET body (la ceinture de la largeur) fait
        du body un conteneur de défilement qui ne défile jamais : l'arbre y
@@ -3746,7 +3750,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=412;
+const APP_VERSION=415;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -5827,7 +5831,8 @@ async function resumeTest(mode){
   if(!afficherEcranDe(test.kind)){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   if(suite){ test.locked=true; toast('Question déjà corrigée : on passe à la suivante.','ok'); window[suite](); return; }   /* ni les cases ni le verdict ne reviennent : la question est faite */
   restoreBoxes(draft);   // et on recolore les cases déjà complètes
-  if(test.kind==='apc') apcPreparer(test.questions[test.idx]);   /* les étapes de la résolution suivent la ligne P(B) remise en place */
+  if(test.kind==='apc'){ apcPreparer(test.questions[test.idx]);   /* les étapes de la résolution suivent la ligne P(B) remise en place */
+    document.querySelectorAll('#scr-apc .apf-in').forEach(sa2Ajuster); }   /* les cases des arbres reprennent la largeur de leur saisie */
 }
 
 /* ---------- Connexion à Supabase ---------- */
@@ -25245,31 +25250,26 @@ function apfMembres(raw, avecX){
 }
 function apfEstNombre(s){ return /^-?(\d+\.?\d*|\.\d+)$/.test(s) || /^-?\(?\d+\)?\/\(?\d+\)?$/.test(s); }   /* « 9/47 », ou « (9)/(47) » : une fraction MathLive aplatie */
 /* LE JUGE D'UNE LIGNE DE CALCUL. Rend {ok, pourquoi, note}.
-   Une ligne « libre » (l.libre, le 6.1.3 : une valeur approchée demandée sans
-   précision imposée — demande de Turquet, octobre 2026) accepte une valeur
-   approchée derrière « = » comme derrière « ≈ », et à toute précision d'au
-   moins une décimale ; une précision autre que 0,01 est juste, mais signalée
-   (note). */
+   Une ligne « libre » (l.libre, le 6.1.3 : une valeur approchée demandée à
+   10⁻² près — demande de Turquet, octobre 2026) accepte une valeur approchée
+   derrière « = » comme derrière « ≈ », dès qu'elle est à 0,01 près de la
+   valeur exacte : l'arrondi (0,73) comme la troncature (0,72), ou plus
+   précise (0,7265). */
 function apfJugeChaine(raw, l){
   const M=apfMembres(raw, !!l.x); if(!M) return {ok:false};
   if(M.some(function(m){ return !m.s; })) return {ok:false, pourquoi:'un membre est vide'};
-  let dFin=null;
   for(const m of M){
     const f=apfParse(m.s, !!l.x); if(!f) return {ok:false, pourquoi:'« '+m.s.replace(/\./g,',')+' » ne se lit pas comme un calcul'};
     const v=f(0.5), exact=Math.abs(v-l.v)<1e-9;
-    if(m.approx || (l.libre && !exact && apfEstNombre(m.s))){
+    if(l.libre && !exact && (m.approx || apfEstNombre(m.s))){
+      if(!/^-?(\d+\.?\d*|\.\d+)$/.test(m.s) || Math.abs(v-l.v)>0.01+1e-12) return {ok:false};
+    } else if(m.approx){
       const d=(m.s.split('.')[1]||'').length;
-      if(!apfEstNombre(m.s) || d<(l.libre?1:2) || Math.abs(v-l.v)>0.5*Math.pow(10,-d)+1e-12) return {ok:false};
-      if(m===M[M.length-1] && !exact) dFin=d;
+      if(!apfEstNombre(m.s) || d<2 || Math.abs(v-l.v)>0.5*Math.pow(10,-d)+1e-12) return {ok:false};
     } else if(!exact) return {ok:false};
   }
   if(!apfEstNombre(M[M.length-1].s)) return {ok:false, pourquoi:'la ligne doit finir par le résultat'};
   if(M.length<2 || apfEstNombre(M[0].s)) return {ok:false, pourquoi:'écris le calcul, pas seulement le résultat'};
-  if(l.libre && dFin!==null && dFin!==2){
-    const s=M[M.length-1].s.replace(/\./g,',');
-    return {ok:true, note:dFin<2 ? 'la valeur approchée '+s+' est juste, mais peu précise : on la donne d’habitude à 0,01 près (deux décimales)'
-                                  : 'la valeur approchée '+s+' est juste ; on la donne d’habitude à 0,01 près (deux décimales)'};
-  }
   return {ok:true};
 }
 function apfJugeDemo(raw, l){
@@ -25375,7 +25375,7 @@ function apfGrilleHTML(pre, ev, cas){
 function apfTraits(pre){
   pre=pre||'apf';
   const g=$(pre+'Grille'), s=$(pre+'Traits'); if(!g||!s) return;
-  if(pre==='apc' && g.parentNode) document.documentElement.style.setProperty('--apc-arbre-h', g.parentNode.offsetHeight+'px');
+  if(pre==='apc' || pre==='apx') document.documentElement.style.setProperty('--apc-arbre-h', Math.max.apply(null, ['apcGrille','apxGrille'].map(function(id){ const e=$(id); return e && e.parentNode ? e.parentNode.offsetHeight : 0; }))+'px');   /* le plus haut des deux arbres du 6.1.3 */
   const R=g.getBoundingClientRect(), r=id=>{ const e=$(id); if(!e) return null; const b=e.getBoundingClientRect();
     return {l:b.left-R.left, r:b.right-R.left, t:b.top-R.top, b:b.bottom-R.top, cy:(b.top+b.bottom)/2-R.top}; };
   const O=r(pre+'-n-O'), A=r(pre+'-n-A'), nA=r(pre+'-n-nA'), F=[1,2,3,4].map(i=>r(pre+'-f'+i)), acc=r(pre+'-acc'), pb=r(pre+'-pb');
@@ -25697,7 +25697,7 @@ function apcV(q){
   return {A:a*100, nA:(100-a)*100, 'A.B':p*100, 'A.nB':(100-p)*100, 'nA.B':c*100, 'nA.nB':(100-c)*100,
           AB:AB, AnB:a*(100-p), nAB:nAB, nAnB:(100-a)*(100-c), B:AB+nAB};
 }
-/* la correction donne la valeur approchée à 0,01 près (aucune précision n'est imposée à l'élève : apfJugeChaine, l.libre) : « = » si le quotient tombe juste en deux décimales, « ≈ » sinon */
+/* la correction donne la valeur approchée à 0,01 près (l'élève peut aussi tronquer : apfJugeChaine, l.libre) : « = » si le quotient tombe juste en deux décimales, « ≈ » sinon */
 function apcArr(v){ const r=Math.round(v*100)/100; return Math.abs(r-v)<1e-12 ? ' = '+apfNb(r) : ' ≈ '+r.toFixed(2).replace('.',','); }
 /* ---- les cases de l'arbre : toutes les branches (les données et leurs contraires) ---- */
 const APC_ARBRE=['A','nA','A.B','A.nB','nA.B','nA.nB'];
@@ -25709,10 +25709,11 @@ function apcCaseHTML(q, k){
     +'</span>';
 }
 /* une case de l'arbre : un nombre, un calcul, ou un pourcentage (« 5 % » vaut 0,05) */
-function apcJugeCase(q, k, raw){
+function apcJugeCase(q, k, raw){ return apcJugeVal(APF_D(apcV(q)[k]), raw); }
+function apcJugeVal(cible, raw){
   const m=/^\s*(\d+(?:[.,]\d+)?)\s*%\s*$/.exec(String(raw==null?'':raw));
   const v=m ? parseFloat(m[1].replace(',','.'))/100 : (function(){ const f=apfParse(apfNorm(raw,false),false); return f?f(0.5):NaN; })();
-  return isFinite(v) && Math.abs(v-APF_D(apcV(q)[k]))<1e-9;
+  return isFinite(v) && Math.abs(v-cible)<1e-9;
 }
 /* ---- les questions : énoncé, formules proposées, lignes de calcul ---- */
 function apcLignes(q, sub){
@@ -25753,8 +25754,8 @@ function apcArrTex(v){ const r=Math.round(v*100)/100; return Math.abs(r-v)<1e-12
 function apcQuestion(q, sub){
   const C=APC_CTX[q.c], V=apcV(q);
   if(sub==='B') return 'Démontrer que la probabilité '+apcQue(C.s.B)+' est égale à '+apfNb(APF_D(V.B))+'.';
-  if(sub==='BA') return 'Quelle est la probabilité '+apcQue(C.s.A)+' sachant '+apcQue(C.i.B)+' ? (Donner une valeur approchée.)';
-  if(sub==='nBnA') return 'Quelle est la probabilité '+apcQue(C.s.nA)+' sachant '+apcQue(C.i.nB)+' ? (Donner une valeur approchée.)';
+  if(sub==='BA') return 'Quelle est la probabilité '+apcQue(C.s.A)+' sachant '+apcQue(C.i.B)+' ? (Donner une valeur approchée à 10<sup>−2</sup>&nbsp;près.)';
+  if(sub==='nBnA') return 'Quelle est la probabilité '+apcQue(C.s.nA)+' sachant '+apcQue(C.i.nB)+' ? (Donner une valeur approchée à 10<sup>−2</sup>&nbsp;près.)';
   if(sub==='err') return 'Quelle est la probabilité '+apcQue(C.err)+' ?';
   return 'On reprend la même situation, mais on ne connaît plus la probabilité '+apcQue(C.s.A)+' : les probabilités conditionnelles de l’énoncé ne changent pas, '
     +'et la probabilité '+apcQue(C.s.B)+' vaut maintenant '+apfNb(APF_D(q.bx))+'. Déterminer la probabilité '+apcQue(C.s.A)+'.';
@@ -25878,7 +25879,7 @@ function apcJugeResolCase(q, id, raw){
 }
 function apcIds(q){
   let ids=APC_ARBRE.map(apcCaseId);
-  q.subs.forEach(function(sub,i){ ids.push('apc-c'+(i+1)); if(sub==='x') ids=ids.concat(apcResolIds(q)); });
+  q.subs.forEach(function(sub,i){ if(sub==='x') ids=ids.concat(APX_ARBRE.map(apxCaseId)); ids.push('apc-c'+(i+1)); if(sub==='x') ids=ids.concat(apcResolIds(q)); });
   return ids;
 }
 function apcIdsUniques(q){ return apcIds(q); }   /* les trois étapes de la résolution sont trois réponses distinctes */
@@ -25886,17 +25887,20 @@ function apcLigneDe(q, id){ const i=+id.slice(5)-1; return apcLignes(q, q.subs[i
 function apcResolDe(q){ const i=q.subs.indexOf('x'); return i<0 ? null : apcLignes(q,'x')[1]; }
 function apcJuger(q, id, raw){
   if(/^apc-t-/.test(id)) return {ok:q.ch.ev===0 && apcJugeCase(q, id.slice(6).replace('-','.'), raw)};   /* un arbre écrit dans le mauvais sens n'a aucune case juste */
+  if(/^apx-t-/.test(id)) return {ok:apxJugeCase(q, id.slice(6).replace('-','.'), raw)};
   if(/^apc-r/.test(id)) return apcJugeResolCase(q, id, raw);
   const l=apcLigneDe(q, id);
   return l.t==='demo' ? apfJugeDemo(raw,l) : apfJugeChaine(raw,l);
 }
 function apcCorr(q, id){
   if(/^apc-t-/.test(id)) return apfNb(APF_D(apcV(q)[id.slice(6).replace('-','.')]));
+  if(/^apx-t-/.test(id)) return apxCorr(q, id.slice(6).replace('-','.'));
   if(/^apc-r/.test(id)) return apcResolCorr(q, id);
   return apcLigneDe(q, id).corr;
 }
 /* la correction d'une case MathLive, en LaTeX (les divisions en fraction) */
 function apcCorrTex(q, id){
+  if(/^ap[cx]-t-/.test(id)) return apcCorr(q, id);   /* les cases des arbres sont en texte */
   if(/^apc-r/.test(id)) return apcResolCorrTex(q, id);
   const l=apcLigneDe(q, id); return l.tex || l.corr;
 }
@@ -26009,6 +26013,41 @@ function apcPrendre(i, k){
 document.addEventListener('click', function(e){ if(!e.target.closest || !e.target.closest('.apc-slotw')) apcFermerMenu(); });
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') apcFermerMenu(); });
 function apcArbreHTML(q){ return apfGrilleHTML('apc', function(e){ return apfEv(q,e); }, function(k){ return apcCaseHTML(q,k); }); }
+/* L'ARBRE EN x (demande de Turquet, octobre 2026 : « quand on doit exprimer
+   en fonction de x, demander avant de compléter un arbre comme dans les
+   consignes de cet exercice, sauf que l'élève devra placer x et 1 − x sur les
+   branches aussi ; s'il s'agit d'un deuxième arbre, le premier ne doit plus
+   rester forcément visible en entier, il peut défiler vers le haut et être
+   masqué »). La question « on pose x » ouvre sur un SECOND arbre, la grille du
+   premier (préfixe apx) : l'élève y place x et 1 − x sur les premières
+   branches, puis les probabilités conditionnelles de l'énoncé, qui ne changent
+   pas ; les intersections restent « … ». Il est toujours écrit dans le bon
+   sens. Il colle en haut de l'écran dans sa question (apx-fixe), par-dessus le
+   premier arbre, qui reprend sa place sous les questions. Puis (demande de
+   Turquet, octobre 2026 : « mettre aussi une case pour la probabilité
+   extérieure à l'arbre qui représente la somme des probabilités de deux
+   chemins ») la case P(B) de l'accolade s'ouvre aussi : l'élève y écrit la
+   NOUVELLE valeur de P(B) que donne la question (q.bx), pas celle du premier
+   arbre. Sept réponses comptées de plus. */
+const APX_ARBRE=APC_ARBRE.concat('B');
+function apxCaseId(k){ return 'apx-t-'+k.replace('.','-'); }
+function apxAttendu(q, k){ return k==='A' ? {a:1, b:0} : k==='nA' ? {a:-1, b:1} : k==='B' ? {v:APF_D(q.bx)} : {v:APF_D(apcV(q)[k])}; }
+function apxCaseHTML(q, k){
+  return '<span class="apf-lab">'+apfCaseLab(q,k)+' = '
+    +(APX_ARBRE.indexOf(k)>=0 ? '<input class="sa2-in apf-in" id="'+apxCaseId(k)+'" type="text" autocomplete="off" inputmode="numeric"'
+            +' data-pave-plus="'+(k==='A'||k==='nA'?'x ':'')+'( ) + ×" oninput="sa2Ajuster(this)">' : '<span class="apf-pts">…</span>')
+    +'</span>';
+}
+/* x et 1 − x se jugent comme expressions (« 1-x », « -x+1 ») ; les conditionnelles comme au premier arbre */
+function apxJugeCase(q, k, raw){
+  const e=apxAttendu(q, k); if(e.v!==undefined) return apcJugeVal(e.v, raw);
+  const f=apfParse(apfNorm(raw, true), true); return !!f && apfEgal(f, e.a, e.b);
+}
+function apxCorr(q, k){ const e=apxAttendu(q, k); return e.v!==undefined ? apfNb(e.v) : k==='A' ? 'x' : '1 − x'; }
+function apxArbreHTML(q){
+  return apfGrilleHTML('apx', function(e){ return apfEv(q,e); }, function(k){ return apxCaseHTML(q,k); })
+    .replace('class="apf-arbre-defile"', 'class="apf-arbre-defile apc-fixe apx-fixe"');
+}
 /* une case de la résolution, un champ MathLive ; « op », la case étroite de l'opération, « fr », une case de la fraction */
 function apcResIn(id, cls, lab){ return '<math-field class="dexp-mf apc-mf apf-eqin'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+lab+'"></math-field>'; }
 /* une ligne : « ⇔ [membre de gauche] = [membre de droite] » ; la première sans ⇔ */
@@ -26031,7 +26070,10 @@ function apcSuiteHTML(q, i){
   const champ=(xs, ph)=>'<math-field class="dexp-mf apc-mf apf-calc" id="apc-c'+(i+1)+'" aria-label="'+ph+'"></math-field>';
   const pq='<p class="apc-pourquoi" id="apc-h-f'+i+'"></p>';
   if(sub!=='x') return '<div class="apf-row">'+apcSlotHTML(i)+'<span class="apc-dev" id="apc-d'+i+'"></span><span class="apf-lab">=</span>'+champ(false, 'calcul = résultat')+'</div>'+pq;
-  return '<p class="apc-etape">On pose '+apcSlotHTML(i)+' = <i>x</i>. Exprime '+P('B')+' en fonction de <i>x</i>, puis réduis :</p>'+pq
+  return '<p class="apc-etape">On pose '+apcSlotHTML(i)+' = <i>x</i>.</p>'+pq
+    +'<p class="apc-etape">Complète l’arbre de cette situation : <i>x</i> et 1 − <i>x</i> sur les premières branches, puis les probabilités conditionnelles de l’énoncé, et '+P('B')+', qui vaut maintenant '+apfNb(L[1].pb)+'.</p>'
+    +apxArbreHTML(q)
+    +'<p class="apc-etape">Exprime '+P('B')+' en fonction de <i>x</i>, puis réduis :</p>'
     +'<div class="apf-row"><span class="apf-lab">'+L[0].lab+' =</span>'+champ(true, 'calcul en x = forme réduite')+'</div>'
     +'<p class="apc-etape">'+P('B')+' = '+apfNb(L[1].pb)+' : résous l’équation — étape par étape, ou directement la valeur de <i>x</i> dans la ligne « <i>x</i> = » —, puis réponds par une phrase.</p>'
     +'<p class="apf-astuce" id="apc-prep">Les étapes se préparent dès que tu as écrit '+P('B')+' sous forme réduite.</p>'
@@ -26124,6 +26166,7 @@ function renderAPC(){
       return '<div class="apc-q"><p class="apf-cons"><b>'+APF_LETTRE_Q.charAt(i)+')</b> '+apcQuestion(q,sub)+'</p>'+apcSuiteHTML(q,i)+'</div>';
     }).join('')+apfJetonsHTML(q, q.subs.indexOf('x')>=0, true);
   $('apcQuestions').querySelectorAll('input, math-field').forEach(apcBrancherCase);
+  if($('apxGrille')){ APX_ARBRE.forEach(function(k){ const el=$(apxCaseId(k)); if(el) sa2Ajuster(el); }); apfSuivreTraits('apx'); }
   if(window.mlDexp) window.mlDexp.upgrade($('apcQuestions'));   /* clavier de la Terminale, « * » → ×, correctifs communs */
   /* la reprise après une pause : les choix déjà faits se redessinent, et l'arbre qu'ouvrait le premier */
   apcGroupes(q).forEach(function(g){ apcPeindre(q,g); const ch=q.ch[g]; if(g==='ev' && ch!==undefined) apcReveler(q,g); });
@@ -26157,7 +26200,7 @@ function apcJugerTout(q, live){
     if(!j.ok) allOk=false;
     if(live) return;
     if(rempli && !j.ok && j.pourquoi) raisons.push(j.pourquoi);
-    if(rempli && j.ok && j.note) notes.push(j.note);   /* juste, mais signalé : une valeur approchée d'une autre précision que 0,01 */
+    if(rempli && j.ok && j.note) notes.push(j.note);   /* juste, mais signalé (aucun juge du 6.1.3 n'en rend plus depuis la précision à 10⁻²) */
     verd[id]=j.ok;
     el.disabled=!!(j.ok||!isSoutien());
   });
@@ -26201,17 +26244,18 @@ function checkAPC(live){
     fb.className='mp-feedback bad';
     apcIds(q).forEach(function(id){
       if(J.verd[id]==='direct') return;   /* une étape non demandée (résolution directe) ne reçoit pas de correction */
-      apcCorrCase(id, apcCorrTex(q,id), apcCorr(q,id), J.verd[id]===true); const el=$(id); if(el && /^apc-t-/.test(id)) sa2Ajuster(el); });
+      apcCorrCase(id, apcCorrTex(q,id), apcCorr(q,id), J.verd[id]===true); const el=$(id); if(el && /^ap[cx]-t-/.test(id)) sa2Ajuster(el); });
   }
   test.answers.push(Object.assign({}, ptsExo()||{}, {
     q:apcPlain(q), answer:apcReponseTxt(q), given:J.allOk?'✓':'incomplet', correct:J.allOk, type:'apc'}));
   const last=test.idx===test.questions.length-1;
   $('apcActions').innerHTML='<button class="btn btn-primary" onclick="nextAPC()">'+(last?'Voir mes résultats':'Exercice suivant')+'</button>';
-  apfTraits('apc');
+  apfTraits('apc'); apfTraits('apx');
 }
 function nextAPC(){ if(test.idx<test.questions.length-1){ test.idx++; renderAPC(); } else finishTest(); }
 function apcNomCase(q, id){
   if(/^apc-t-/.test(id)) return 'arbre '+apfCaseLab(q, id.slice(6).replace('-','.'), true);
+  if(/^apx-t-/.test(id)) return 'arbre en x '+apfCaseLab(q, id.slice(6).replace('-','.'), true);
   if(/^apc-r/.test(id)) return {'apc-r1':'résolution : opération faite sur les deux membres', 'apc-r2':'résolution : second membre après l’opération', 'apc-r3n':'résolution : numérateur de la fraction qui donne x', 'apc-r3d':'résolution : dénominateur de la fraction qui donne x', 'apc-r3':'résolution : valeur de x', 'apc-r4':'phrase réponse : la probabilité trouvée'}[id];   /* le membre de gauche est la forme réduite : la nommer la révélerait */
   const i=+id.slice(5)-1; return 'question '+APF_LETTRE_Q.charAt(i)+') : ligne '+apcLigneDe(q,id).labT;
 }
@@ -26235,8 +26279,8 @@ function apcConseilCtx(){
       +(ch===undefined?'(pas encore choisi)':ch===0?'choix juste':'choix faux'); }).join(' ; ');
   return 'Exercice de Terminale, type bac : arbre pondéré à partir d’un énoncé en phrases (fiche 5). '+apcPlain(q)+' '
     +'1. L’élève choisit l’événement des premières branches, puis complète l’arbre avec les données et leurs contraires. '
-    +'2. Pour chaque question, il choisit l’écriture littérale de la probabilité cherchée (P(A), P(A ∩ B), P_A(B)…) parmi quatre propositions, puis écrit le calcul : opération puis résultat, séparés par « = », les divisions en fraction ; aucune étape intermédiaire n’est exigée (la résolution de l’équation peut se faire directement dans la dernière ligne). '
-    +'Une valeur approchée est demandée sans précision imposée : « = » comme « ≈ » sont acceptés devant elle, à toute précision ; une précision autre que 0,01 est juste, mais signalée. '
+    +'2. Pour chaque question, il choisit l’écriture littérale de la probabilité cherchée (P(A), P(A ∩ B), P_A(B)…) parmi quatre propositions ; dans la question où P(A) est inconnue (on pose P(A) = x), il complète d’abord un second arbre, avec x et 1 − x sur les premières branches, les mêmes probabilités conditionnelles, et la nouvelle valeur de P(B) dans la case de l’accolade ; puis il écrit le calcul : opération puis résultat, séparés par « = », les divisions en fraction ; aucune étape intermédiaire n’est exigée (la résolution de l’équation peut se faire directement dans la dernière ligne). '
+    +'Une valeur approchée est demandée à 10^-2 près : « = » comme « ≈ » sont acceptés devant elle, et toute valeur à 0,01 près de la valeur exacte est juste — l’arrondi au centième comme la troncature (0,72 ou 0,73 pour 0,7265…). '
     +'État des choix : '+choix+'. '
     +'Cases : '+ids.filter(function(id){ return $(id); }).map(function(id){ return id+' = '+apcNomCase(q,id); }).join(' ; ')+'. '
     +'Réponses attendues, à ne JAMAIS révéler : '+apcReponseTxt(q)+'. '

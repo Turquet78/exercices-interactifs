@@ -48,7 +48,11 @@ jobs:
           node-version: 22
       - run: npm install
       - name: ${{ matrix.niveau }}
-        run: node tests/verifier.js ${{ matrix.niveau }}
+        # Le banc jsdom de la Seconde touchait le plafond par défaut du tas
+        # (4 Go) et mourait « heap out of memory » sans qu'aucun contrôle
+        # échoue ; la machine de l'action a 16 Go (décision de Turquet,
+        # octobre 2026 : « monte la mémoire à 6 Go »).
+        run: node --max-old-space-size=6144 tests/verifier.js ${{ matrix.niveau }}
 
   # Les deux autres travaux remplacent Supabase par un double en mémoire — exprès,
   # pour qu'aucun contrôle n'approche les comptes réels. Ils sont donc aveugles

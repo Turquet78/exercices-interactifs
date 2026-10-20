@@ -3637,3 +3637,357 @@ vert de la correction, ni le violet de AA′. Les règles sont bornées à
 `.cps-svg` : le 8.7 et les autres hôtes de `svc-v` gardent leur gris. Jugée,
 la flèche passe en bleu ou en rouge comme avant ; la règle ne nomme aucune
 classe de verdict, « 9 bis » n'a pas à la lire.
+
+## {translations-successives} — deux translations à la suite (8.2.16, v572)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
+par Claude, Turquet a retenu la n° 3, « Deux translations à la suite » : le
+pont entre la translation (8.1) et la somme de vecteurs (8.2). Ajouté en
+dernier du sous-thème « Somme de vecteurs » : 8.2.16, rien ne se renumérote.
+Kind `tcp`, écran `scr-tcp`, préfixe réservé pour cette session — d'autres
+sessions remplissaient le thème 8 le même jour. Écrit comme 8.2.11 en v528, publié comme 8.2.16 en
+v572 (le 20 octobre) : pendant que les bancs tournaient, `main` a pris la v528 (le 8.2.9), la
+v529 (le 8.1.10 et le 8.2.5), puis la v530 et le numéro 8.2.11
+({chasles-inserer-point}), puis la v531 (le 8.2.9 et le 8.1.10) ; la pull request est ensuite restée
+ouverte quatre jours, pendant lesquels `main` a reçu 327 commits (jusqu'à la
+v571, et les 8.2.12 à 8.2.15).
+
+**L'exercice.** Un quadrillage de 16 × 10, deux flèches u⃗ (trait plein) et
+v⃗ (pointillés), un point A. Quatre cadres d'étape au-dessus du dessin, la
+recette du 8.2.8 (le cadre à faire en bleu, `tcp-cours` ; un cadre fait en
+vert avec sa coche, `tcp-fait`) :
+- ① placer A′, image de A par la translation de vecteur u⃗ ;
+- ② placer A″, image de A′ par la translation de vecteur v⃗ ;
+- ③ « On passe directement de A à A″ par la translation de vecteur … » :
+  une liste, u⃗ + v⃗, u⃗ − v⃗, v⃗ − u⃗, −u⃗ − v⃗, dans un ordre tiré et rangé
+  (`q.ord`) ;
+- ④ tracer le vecteur AA″ (son début, puis sa fin).
+
+Barème 4 par question, quatre questions (`TCP_NB`, `dmNbQuestions`) : 16.
+
+**« Fait » veut dire « le geste est fait », pas « juste »** (le 8.2.8 d'avant
+la v517) : un A′ mal placé passe au vert comme un autre, seule la
+vérification juge. Décidé ainsi pour que l'évaluation ne dise rien avant
+« Vérifier » ; le prix est nommé : l'élève ne sait pas, avant de vérifier,
+qu'il s'est trompé de sens.
+
+**Chaque réponse se juge SEULE** (`tcpJuge`) — la règle « une case juste ne
+rougit pas parce qu'une autre est fausse » :
+- A′ est juste au nœud A + u⃗ ;
+- A″ est juste s'il est l'image de l'A′ DE L'ÉLÈVE par v⃗ (`tcpA2De`) : un A′
+  faux ne fait pas rougir un A″ bien construit à partir de lui ;
+- la flèche AA″ est juste si elle part de A et arrive au A″ attendu — ou au
+  A″ de l'élève, quand celui-ci est juste au sens précédent ;
+- la liste n'a qu'une bonne réponse, u⃗ + v⃗.
+
+**Les pièges nommés** (`tcpPourquoi`), tous de l'ordre ou du sens :
+- A′ dans le SENS CONTRAIRE de u⃗, A′ qui suit v⃗ au lieu de u⃗, A′ qui fait les
+  deux translations d'un coup ;
+- A″ dans le sens contraire de v⃗, A″ « reparti de A » (A + v⃗ : l'image de A,
+  pas de A′), A″ qui suit u⃗ une seconde fois ;
+- u⃗ − v⃗ (v⃗ à l'envers), v⃗ − u⃗ (u⃗ à l'envers), −u⃗ − v⃗ (« le chemin du
+  RETOUR ») ;
+- AA″ à l'envers (de A″ vers A), AA″ qui ne part pas de A, qui n'arrive pas
+  en A″.
+Le message finit par le chemin en carreaux : u⃗, v⃗, puis leur somme.
+
+**Le tirage** (`tcpGen`) : deux chemins d'au moins deux carreaux, jamais
+parallèles ; la somme ET la différence d'au moins deux carreaux (un piège du
+sens mène loin du bon nœud) ; A, A′ et A″ à un carreau du bord ; les flèches
+dessinées à un carreau et demi de A, A′, A″, à un carreau au moins de la
+construction, et l'une de l'autre. Deux questions d'une séance n'ont jamais
+les mêmes vecteurs (la clé de `distinctes` est `[uc, vc]`).
+
+**On range la figure et les gestes, jamais la réponse** : `uc`, `vc` (les
+chemins — pas `v`, que `CLE_HORS` écarte), `uo`, `vo`, `a`, `ord`, puis `p1`,
+`p2`, `ch` (l'indice choisi dans `TCP_OPTS`, `''` tant que rien), `d`, `f`.
+`tcpA1`/`tcpA2` recalculent les points.
+
+**Le geste.** Un clic n'importe où sur le quadrillage va au nœud le plus
+proche (un seul écouteur sur l'hôte, aucune cible par nœud : la leçon
+mémoire du 8.1.6 et du 8.1.9). Il pose A′, puis A″ (recliquer A′ avant de
+poser A″ le retire), puis trace AA″ (recliquer le début seul le retire ; un
+troisième clic recommence le tracé). « Effacer ma construction » reprend
+tout, sauf ce que le soutien a figé juste. Le point à placer suit la souris
+avec son nom (A′, puis A″) ; pendant le tracé, une flèche violette va du
+début posé à la souris, sans croix sur la pointe (la leçon du 8.2.8, v527).
+
+**La correction** : A′, A″ et AA″ de l'élève en bleu ou en rouge ; en vert la
+construction attendue (u⃗ depuis A, v⃗ depuis A′) quand A′ ou A″ n'était pas
+juste, les croix attendues, la flèche AA″ attendue, et la bonne translation
+écrite à côté de la liste (`#tcpCor`) — ou mise DANS la liste quand elle était
+vide. En soutien : le juste se fige, le faux rougit, rien ne se révèle. A″ ne
+se fige que sur un A′ juste (figé sur un A′ faux, il deviendrait faux dès que
+l'élève corrige A′).
+
+**Le banc** (`translationsSuccessives`, banc principal) a un juge qui ne lit
+pas les constantes de la page : il relit le SVG COMME DU TEXTE (`tcpSVG(q)`,
+jamais posé dans le DOM pour les 600 questions tirées) — la géométrie du
+quadrillage sur le cadre et le nombre de traits, u⃗ et v⃗ sur leurs flèches
+(la pointe s'arrête 3 px avant le nœud : il la prolonge), A sur sa croix.
+Sur 150 séances : A′ et A″ recalculés depuis le dessin, tout dans le
+quadrillage, les chemins assez longs et non parallèles, aucune flèche
+dessinée sur la construction, la bonne option qui mène de A à A″. Puis une
+figure fixe à l'écran : la liste dans l'ordre rangé, la copie vide (quatre
+sol, trois traits verts, rien de rouge, « Il te manquait 4 cases »), la
+copie juste posée pas à pas avec le reclic qui retire A′ et la reprise
+après JSON (4/4), quatre pièges à la fois (quatre rouges, quatre messages),
+A′ faux avec A″ et AA″ cohérents (rouge, bleu, bleu, bleu), le soutien et
+« Effacer », le contexte du modèle. **Le banc navigateur** (« 6 quadragies
+undecies » — le numéral « novies » a été pris entre-temps par
+{translation-antecedent}, sous la graphie « nonies ») pose A′ et A″ à la souris, d'un clic décalé, mesure la croix qui
+suit la souris avec son nom, la flèche vive de A à la souris et son absence
+de croix, choisit dans la vraie liste, vérifie 4/4, puis corrige une copie
+vide sans rouge.
+
+**Ce qu'aucun banc ne voit** : le doigt sur tablette (le clic y passe, la
+croix qui suit la souris n'y vit pas), et la lisibilité de « u⃗ » dans la
+liste déroulante — la flèche combinante U+20D7 dépend de la fonte du
+système.
+
+**Puis le banc de la Seconde a débordé ses 4 Go dans l'action, et le
+correctif de #711 a été porté ici.** Mesurée contrôle par contrôle (un
+`gc()` avant chaque relevé), la mémoire retenue culminait à 4 233 Mo sur
+`main` SEUL et à 4 259 Mo avec cet exercice : la base dépassait déjà la
+limite, le 8.2.12 n'y ajoutait que 26 Mo. La cause, trouvée par la pull
+request #711 (8.1.12, fusionnée depuis sur `main`) : les relevés des `MutationObserver`
+gardent en vie les nœuds retirés tant que le banc ne rend pas la main. Son
+correctif (`tests/harnais.js` et `evaluer()` dans `tests/verifier.js`) est
+porté tel quel, sans retouche, et se fondra sans conflit quand #711 arrivera
+sur `main`. Le banc de la Seconde repasse sous 4 Go (`--max-old-space-size=4096`
+en local : 935 contrôles verts).
+
+## {regle-parallelogramme} — la règle du parallélogramme (8.2.17, v573 — fusionné après les 8.2.11 à 8.2.16 : sa pull request attendait que le banc de la Seconde cesse de manquer de mémoire)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
+sur la somme de vecteurs, Turquet a retenu la sixième : « la règle du
+parallélogramme ». C'est la SECONDE méthode de construction de la somme, à
+côté du « bout à bout » du 8.2.1 : u⃗ et v⃗ partent du MÊME point. Ajouté en
+dernier du sous-thème « Somme de vecteurs » : 8.2.17, rien ne se renumérote.
+
+**La figure.** Le quadrillage du 8.2.1 (12 carreaux sur 8, `SVC_*`, les
+flèches de `svcFleche`) : trois croix A, B, C, u⃗ = AB⃗ en trait plein et
+v⃗ = AC⃗ en pointillés, tous deux partant de A. Les lettres se posent dans le
+coin le plus loin des segments de la figure ENTIÈRE — côtés ET diagonales
+(`spgLettre`, la recette de `cvpLettre`) : rien de ce que l'élève trace
+ensuite ne les recouvre. Les noms u et v se posent hors du parallélogramme
+(`svcCoteDehors`, avec le côté opposé).
+
+**Deux étapes, deux réponses** — les bandeaux bleus du 8.2.9, au-dessus du
+dessin, qui SONT les réponses notées (`spg-pt`, `spg-sm`) :
+- Étape 1 : « Place le point D tel que ABDC soit un parallélogramme : clique
+  son nœud », et en petit « Les sommets se suivent dans l'ordre A, B, D, C ».
+  Un clic pose D (un autre nœud le déplace, le même le retire) ; ses deux
+  côtés [BD] et [CD] se tracent en pointillés.
+- Étape 2, ouverte d'elle-même sous l'étape 1 dès que D est posé : « Trace le
+  vecteur u⃗ + v⃗ : c'est UNE diagonale du parallélogramme ABDC ». Le mot est
+  choisi : l'énoncé ne dit pas laquelle, choisir est l'exercice — c'est là
+  que tombe le piège. Un clic pose le début, une flèche élastique le suit
+  jusqu'à la pointe de la souris (la recette du 8.2.1, v520), un second clic
+  fixe la fin ; un clic de plus recommence, recliquer le début seul le
+  retire, Échap aussi.
+
+Chaque étape EFFECTUÉE passe au vert (`spg-fait`, le geste et pas sa
+justesse) ; la vérification peint ok bleu, bad rouge, sol vert.
+
+**Revenir à D.** À l'étape 2, un clic trace : il ne peut plus déplacer D (la
+fin de la diagonale tombe justement sur D). Le bouton « ↩ Déplacer le point
+D », sous le dessin, ramène à l'étape 1 ; là, un clic sur un autre nœud
+déplace D et rouvre l'étape 2, et « Garder ce point D » y revient sans rien
+changer. L'étape en cours ne se range pas (`spgEtape` : D posé, c'est
+l'étape 2) : la reprise d'une pause rouvre l'étape 2.
+
+**Un seul écouteur de clic**, à l'hôte, qui va au nœud le plus proche (la
+recette du 8.1.7) : aucune cible par nœud, rien de caché dans les 117 nœuds.
+La croix qui suit la souris porte « D » à l'étape 1, rien à l'étape 2, et se
+cache une fois la flèche finie. Ce que l'élève pose est VIOLET (`--crd-a`)
+tant que rien n'est jugé : le bleu dit « juste » et le vert « correction »
+depuis août 2026.
+
+**On range la figure et les gestes, jamais la réponse** : `ao`, `uc`, `vc`,
+`sel` (D), `sd`/`sf` (la flèche). `spgD(q)` recalcule D. Six questions par
+séance (`SPG_NB`, `dmNbQuestions`), barème 12.
+
+**Le tirage** (`spgGen`) : u⃗ et v⃗ de deux carreaux au moins, l'un au moins
+en biais, un angle franc (sinus ≥ 0,35 : jamais un parallélogramme
+aplati), les DEUX diagonales de deux carreaux au moins (le piège doit se
+lire), A, B, C et D à un carreau du bord.
+
+**Le juge** (`spgJuge`) : chaque réponse SEULE. D juste s'il est le sommet
+opposé à A ; la flèche juste si elle va de A au VRAI D — quel que soit le D
+posé : une diagonale juste ne rougit pas parce que le point est faux. **Un
+choix est nommé** : un représentant de u⃗ + v⃗ tracé ailleurs qu'en A est
+compté faux — l'exercice est la règle du parallélogramme, la diagonale ISSUE
+DE A — mais son message le dit (« Ta flèche a bien le chemin de u + v, mais
+la règle du parallélogramme la trace depuis A »). Si Turquet préfère
+l'accepter, c'est une ligne dans `spgJuge`.
+
+**Les pièges nommés** (`spgPourquoi`) :
+- l'AUTRE diagonale : « le vecteur BC vaut v − u, pas u + v » (ou « CB vaut
+  u − v ») — le piège de l'exercice ;
+- ABCD au lieu de ABDC (D = A + v − u), ou ADBC (D = A + u − v) : « Ton point
+  fait bien un parallélogramme avec A, B et C, mais pas ABDC » ;
+- D du mauvais côté de A (A − u − v), D posé sur A, B ou C ;
+- la diagonale à l'envers (DA), un côté au lieu de la diagonale, une flèche
+  qui part de A sans arriver au sommet opposé.
+Hors soutien, chaque message finit par le chemin (« BD = AC = v : depuis B, D
+est à … », « u + v = AD fait … ») ; en soutien, le piège seul, sans chemin.
+
+**Soutien** : la réponse juste se fige en bleu (D ne se déplace plus, la
+flèche ne se retrace plus), la fausse rougit et reste à reprendre ; rien ne
+se révèle. **Correction finale** : le vrai D en croix verte avec ses côtés et
+sa lettre s'il manquait ou était ailleurs, la diagonale AD⃗ verte nommée
+u⃗ + v⃗ si la flèche n'était pas elle.
+
+**Le contexte du modèle** (`ctxSpg`) : la figure, la méthode (D opposé à A,
+BD⃗ = AC⃗ = v⃗, la diagonale issue de A, l'autre vaut v⃗ − u⃗), et D sous
+clause de secret.
+
+**Les bancs.** Le principal (`regleParallelogramme`) a un juge qui ne lit
+PAS la question : il relit le DESSIN comme du TEXTE (la leçon du 8.1.9 —
+redessiner des centaines de figures dans jsdom épuise les 4 Go de l'action) :
+les trois croix, la lettre posée près de chacune, les deux flèches, et
+calcule D = B + C − A lui-même. Sur 120 séances (720 figures — la première version en tirait 200 ; l'action, dont le tas est borné à 4 Go quand une machine de travail en offre 8, a manqué de mémoire sur la PR, un peu plus loin dans le banc : à ce bord, chaque contrôle compte) : les clés
+rangées, aucune question répétée, u de A à B et v de A à C sur le dessin, le
+D de la page égal à celui du dessin, la construction relue acceptée par le
+juge et l'autre diagonale refusée, les contraintes du tirage. Puis une
+figure fixe — A (3 ; 2), u⃗ (4 ; 1), v⃗ (1 ; 3), D (8 ; 6) : l'énoncé, les
+étapes au-dessus du dessin, l'étape 2 cachée ; la copie vide (deux sol, D,
+ses côtés et AD⃗ en vert, rien de rouge, « Il te manquait 2 cases ») ; les
+gestes (D, la flèche commencée, retirée, Échap, finie et nommée u + v, le
+retour à l'étape 1, D déplacé puis retiré) ; la reprise après JSON ; la copie
+juste (2) ; ABCD + BC, ADBC + CB, D juste + DA, D faux + AD juste (la flèche
+juste reste bleue), le côté AB ; le soutien (faux nommé sans chemin, D juste
+figé, puis tout juste) ; le contexte du modèle. **Le banc navigateur**
+(« 6 quadragies novies ») joue tout à la vraie souris : la croix de D à
+moins de 3 px de la pointe, un clic à un cinquième de maille, l'étape 2
+ouverte entre l'étape 1 et le dessin, l'étape 1 verdie, les deux côtés
+tracés, la flèche élastique mesurée du début à la pointe et qui suit, plus
+rien qui suit une fois la flèche finie, « Déplacer le point D », la copie
+juste (2) et la copie vide (trois traits verts, rien de rouge). Le doigt sur
+tablette — un toucher par geste, sans croix ni flèche qui suivent — ne se
+joue dans aucun banc.
+
+## Le sous-thème 8.3 « Vecteurs colinéaires » — {construire-multiple-vecteur}, {identifier-multiple-vecteur}, {identifier-multiple-non-entier}, {vecteurs-colineaires-figure} (8.3.1 à 8.3.4, v574 — v572 et v573 prises par les 8.2.16 et 8.2.17 pendant la rédaction)
+
+**La demande** (Turquet, octobre 2026) : « en seconde créer 4 exercices comme
+sur le pdf qui seront dans le sous-thème vecteurs colinéaires du thème
+vecteurs ». Le PDF est la « Fiche 1 : vecteurs colinéaires » : l'exercice 1
+(construire 2u⃗, ½u⃗, −2u⃗, −⅓u⃗, ⅔u⃗, −⅚u⃗, 5/3 u⃗ à partir d'un u⃗ dessiné),
+l'exercice 2 (u⃗, v⃗, w⃗ et dix vecteurs a. à j. : « chacun est obtenu en
+multipliant u⃗, v⃗ ou w⃗ par un réel k ; identifier chacun d'entre eux » —
+des k comme −1,5, ¾, −5/4), l'exercice 3 (une figure de vecteurs AB⃗, CD⃗…
+et dix lignes « AB⃗ et GH⃗ ? □ Non □ Oui car AB⃗ = … GH⃗ »), et, page 2,
+l'EXEMPLE 1 — l'exercice 2 avec des k entiers. Quatre exercices, dans l'ordre
+qui monte : construire (8.3.1), l'exemple à k entiers (8.3.2), l'exercice 2
+à k décimaux ou fractionnaires (8.3.3), colinéaires ou non (8.3.4). Un
+troisième sous-thème du thème 8 : rien ne se renumérote.
+
+**Trois moteurs pour quatre exercices.** Le 8.3.1 est le moteur du 8.1.7
+(`tvx`), comme le 8.1.8 l'était déjà : même geste, même juge, même écran. La
+question porte `q.ks` — trois coefficients `[numérateur, dénominateur]`,
+rangés — et un seul vecteur donné, `q.vs[0]`. Tout ce qui change passe par
+les fonctions que le 8.1.8 avait ouvertes : `tvxVec`/`tvxOrig` lisent u⃗
+pour les trois flèches, `tvxCible` multiplie son chemin par le coefficient,
+`tvxNom`/`tvxNomHTML` écrivent « ⅔u », et une seule nouvelle, `tvxTrace`,
+pose le nom d'une flèche : `svcFleche` ne sait écrire que des lettres, le
+nom « −⅚u⃗ » s'écrit à part (`kvSvgNom`), la fraction EMPILÉE (deux `tspan`
+à 14 px et un trait `kv-barre` qui prend la couleur de la flèche par sa
+classe `-f`), le signe droit, la petite flèche sur la seule lettre. Le nom
+change de côté quand il sortirait du quadrillage (une flèche couchée sur le
+bord du haut l'écrit dessous) — vu sur la première capture, où la
+correction −⅔u⃗ posée sur la rangée du haut écrivait son nom hors du
+dessin. Les 8.3.2 et 8.3.3 partagent `kvi` (`q.fr = 1` au 8.3.3, l'identité
+suit `currentTestId`) ; le 8.3.4 est `kco`. Ce que les trois partagent est
+nommé `kv…` : l'écriture d'un coefficient (`kvTxt` en texte, `kvMot` pour le
+modèle, `kvSaisie` comme l'élève la tape, `kvHTML` à l'écran — la fraction
+de `sfFracInner`, le signe centré sur son trait par un `inline-flex`), la
+lecture d'une saisie (`kvLit` : « −1,5 », « -3/2 », « 1.5 », « .5 » ; « 1/0 »
+et « 2/ » ne sont pas des nombres), le quadrillage et la pose des flèches.
+
+**Le tirage du 8.3.1** (`tvxGenK`) : trois coefficients distincts parmi
+vingt-deux (de −3 à 3, demis, tiers, quarts, ±5/6), au moins une fraction,
+au moins un positif et un négatif ; u⃗ a pour composantes des multiples du
+PPCM des dénominateurs (au plus 6), pour que chaque flèche tombe sur des
+nœuds, et chaque flèche tient dans le quadrillage avec un carreau de
+marge. Deux questions sont la même si u⃗ et les coefficients le sont, où que
+u⃗ soit posé (`tvxCleK`). **Le juge** est celui du 8.1.7. **Les pièges
+nommés** lisent le coefficient : à l'envers, « le coefficient est négatif,
+donc ⅔u a le sens CONTRAIRE de u » (ou positif, le MÊME) ; la bonne
+direction sans la bonne longueur, « ⅔u mesure 2/3 fois la longueur de u » ;
+puis le chemin de u, celui de k u, celui de la flèche.
+
+**Le 8.3.2 et le 8.3.3** (`kviGen`) : trois directions deux à deux non
+parallèles, dont une horizontale ou verticale ; chaque vecteur donné est sa
+direction multipliée par un entier choisi pour que ses coefficients tombent
+sur des nœuds (2, 3 ou 4 au 8.3.3 pour une direction d'un carreau) ; six
+vecteurs nommés, deux par vecteur donné, de coefficients différents, jamais
+1 ; au 8.3.3, quatre au moins ne sont pas entiers. On range la figure
+(`q.bs`, puis une ligne `[x, y, vecteur donné, numérateur, dénominateur]`
+par vecteur nommé), jamais la réponse : le chemin se recalcule (`kviVec`).
+**Deux réponses par vecteur nommé**, jugées chacune seule : le vecteur (une
+liste u, v, w) et le coefficient (une case, `inputmode="numeric"` et la
+touche « / » au pavé de la tablette, `data-pave-plus`). Le bon coefficient
+devant le mauvais vecteur vaut une case sur deux. Deux pages par séance,
+barème 24. Les vecteurs nommés et u⃗, v⃗, w⃗ sont dans deux dessins, comme sur
+la fiche ; les lignes se rangent en grille.
+
+**Le 8.3.4** (`kcoGen`) : trois directions, huit vecteurs (trois, trois et
+deux par direction, chacun sa direction multipliée par un entier de −4 à
+4), cinq paires dont deux à quatre colinéaires, le réel jamais 1. **Le piège
+de la fiche est tiré exprès** : deux des trois directions sont PROCHES
+(`kcoProches`, moins de 20° — (2 ; 1) et (3 ; 1), (1 ; 1) et (2 ; 1)), et les
+paires non colinéaires se prennent d'abord parmi elles : des flèches presque
+parallèles qui ne le sont pas. **Une réponse par ligne, et c'est la ligne
+qui est la `pts-case`** : « Non » juste si les vecteurs ne sont pas
+colinéaires, « Oui » juste s'ils le sont ET que le réel est le bon ; « Oui »
+sans réel est faux. La case du réel ne prend AUCUNE classe de verdict —
+elle serait une seconde réponse comptée par `ptsEcran()`, et une case vide
+qui rougit — : c'est la ligne qui bleuit, rougit ou verdit, la bonne
+réponse écrite à côté d'une ligne fausse (`mf-cor`), la ligne vide remplie
+par la correction. Taper un réel enfonce « Oui ». Le bouton enfoncé est
+rangé dans la question (`q.choisi`, que `CLE_HORS` écarte déjà de la clé de
+`distinctes()`) : une pause le rend ; la case du réel revient par
+`restoreBoxes`.
+
+**Le soutien** ne juge qu'à la vérification, pour les deux nouveaux moteurs
+(`soutienEnDirect.sans`) : trois vecteurs dans une liste, deux boutons —
+colorer au choix, ce serait faire deviner. Les rappels (`RAP_KVX` par
+identifiant, `RAP_KVI`, `RAP_KCO`) donnent la définition « il existe un
+réel k tel que v⃗ = k u⃗ », le sens par le signe, la longueur par la valeur,
+et la méthode des carreaux ; le contrôle des rappels a rougi au premier
+passage sur « (−3/2) » écrit à plat : la fraction s'empile, et ce que
+l'élève TAPE (« −3/2 ») est dans une balise `code`. Les messages en texte
+écrivent les vecteurs sans flèche (« a », « AB ») : le caractère combinant
+U+20D7 s'affichait comme un blanc dans le message du verdict — vu sur la
+capture, invisible dans jsdom.
+Le 8.3.3 s'appelait d'abord {identifier-multiple-fractions} : le contrôle des
+fractions irréductibles démarre tout identifiant qui contient « fraction »,
+et il a rougi au premier passage (« aucune fraction de départ reconnue ») —
+à juste titre, ce n'est pas un calcul de fractions. L'identifiant est devenu
+{identifier-multiple-non-entier} avant toute mise en ligne, plutôt qu'une
+dispense qui aurait dit faux.
+
+**Les bancs.** Le principal (`vecteursColineaires`, « vecteurs colinéaires ») :
+les quatre places (8.3.1 à 8.3.4, les voisins immobiles, pas de bouton des
+tables), les rappels et les questions à l'IA, `kvLit` sur onze écritures ;
+au 8.3.1, deux cents tirages (clés rangées, coefficients, u⃗ dans le
+quadrillage, chaque k u⃗ sur un nœud), le 8.1.7 et le 8.1.8 sans `ks`, une
+figure fixe (u⃗ seul, ½ et −5/6 empilés dans l'énoncé et sous les flèches),
+la copie juste après le JSON, puis 2u⃗ à l'envers, ½u⃗ trop long et le
+dernier absent (bad, bad, sol, les deux pièges nommés, trois flèches
+vertes) ; aux 8.3.2 et 8.3.3, deux cents tirages chacun (directions,
+coefficients irréductibles et jamais 1, entiers ou non, flèches sur des
+nœuds dans le quadrillage), la copie juste écrite à la virgule, au tiret et
+en fraction, le rendu après JSON, la copie vide (douze corrections vertes,
+rien de rouge), le bon coefficient devant le mauvais vecteur ; au 8.3.4,
+deux cents tirages (paires distinctes, deux à quatre colinéaires, jamais 1,
+une paire presque parallèle au moins, flèches dans le quadrillage), une
+figure fixe, « Oui » enfoncé en tapant, les boutons rendus après le JSON, la
+copie juste, puis « Oui » sans réel, « Non » sur des colinéaires et « Oui »
+sur des presque parallèles (bad, bad, sol, bad, sol), aucune couleur de
+verdict sur la case du réel, le pourquoi, la ligne vide remplie. Les
+contrôles universels du banc navigateur (section 9) les visitent comme les
+autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
+navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
+flèche, lui, ne se mesure qu'à l'œil.
