@@ -316,6 +316,57 @@ lui), 390 × 844 (299 px), 1280 × 800 ; 844 × 390, non collé. Expression
 fausse « 0,5x + 0,3 » : membres « 0,5x + 0,3 », « 0,5x », « x » préparés ; à
 la clôture, « 0,8x + 0,1 » et « 0,8x » en vert. Terminale v409.
 
+**Puis les lignes de calcul sont devenues des champs MathLive, le calcul
+direct a été accepté partout, et la résolution peut se faire en une ligne**
+(demande de Turquet, octobre 2026 : « accepter que l'élève écrive le calcul
+avec les bonnes valeurs et donne directement le résultat, sans passer par les
+résultats intermédiaires, pour toutes les questions ; les réponses doivent
+présenter les calculs sous forme fractionnaire pour les divisions »).
+
+* Les cases `apc-c…` (les calculs des questions) et `apc-r…` (les étapes de
+  la résolution) sont des `<math-field class="dexp-mf apc-mf">` : une
+  division s'y écrit en fraction EMPILÉE (touche « / », ou le bouton
+  « fraction » de la barre « Insérer : » que `pmJetons` pose sous tout écran
+  à champ mathématique — c'est elle qui porte aussi le bouton du clavier),
+  « * » devient × et le x s'écrit de lui-même en italique arrondi. Les
+  cases de l'ARBRE restent des `<input>` en texte : des nombres seuls, et le
+  pavé des tablettes les sert (elles tiennent le contrôle
+  `casesCalculTexte` du banc). Les jetons `×`, `+`, `−`, `(`, `)`, `=`,
+  `≈`, `x` insèrent du LaTeX dans un champ MathLive (`APF_JETON_TEX`) ; le
+  clavier A du 6.1.3 porte x et ≈ (`kbVarsFor`), et « ~= » tapé au clavier
+  fait ≈.
+* **Le juge lit du texte, pas du LaTeX** : `apcLire` aplatit la saisie par
+  le `toPlain` de la page (`\frac{a}{b}` → `(a)/(b)`, `\times` → `*`),
+  après avoir traduit `\approx` en « ≈ » et `\div` en « ÷ » — `toPlain` ne
+  les connaît pas, et un `\approx` resté tel quel aurait fait d'une ligne
+  juste « un calcul qui ne se lit pas ». `apfEstNombre` accepte la fraction
+  aplatie « (9)/(47) » comme résultat, à côté de « 9/47 ». Les juges
+  eux-mêmes (`apfJugeChaine`, `apfJugeDemo`, `apcJugeResolCase`) ne changent
+  pas : ils acceptaient déjà « valeurs = résultat » sans étape
+  intermédiaire, et le grand quotient direct
+  « (0,05 × 0,9)/(0,05 × 0,9 + 0,95 × 0,2) ≈ 0,19 » passe.
+* **La résolution directe** : si la dernière étape « x = … » est juste et
+  que les deux premières sont restées vides, elles ne sont pas demandées —
+  classe `hors-note` (que `ptsEcran` exclut), ni couleur ni correction, et
+  la note compte 14 cases sur 14 au lieu de 14 sur 16. Dès qu'une des deux
+  premières est écrite, ou que la dernière est fausse ou vide, les trois
+  comptent comme avant. La consigne le dit : « étape par étape, ou
+  directement dans la dernière ligne ».
+* **Les corrections en fraction** : chaque ligne porte `tex` à côté de
+  `corr`, et la dernière étape de la résolution `etapesTex` —
+  `\frac{0,45}{0,75} = 0,6`. `apcCorrCase` écrit ce LaTeX dans la case vide
+  (`setValue`, via `mlTexN` pour les virgules) et le dessine à côté de la
+  case fausse (`mlTex`, dans le `.mf-cor`) ; une case en texte passe par
+  `corrCase` comme avant. La reprise après une pause relit les champs par
+  `captureBoxes`, qui sait déjà lire et écrire un `math-field` ; Entrée dans
+  un champ passe à la case suivante puis au bouton Vérifier (`navCases` ne
+  connaît que les `<input>`).
+
+Essayé dans Chromium, à 1280 et 390 px, en entraînement et en soutien : une
+copie faite des corrections est parfaite (13/13, 14/14 avec la résolution
+directe, 16/16 étape par étape) ; une division fausse montre la fraction
+verte à côté ; aucune erreur de page. Terminale v410.
+
 **Puis la résolution s'est écrite COMME SUR LA FICHE, avec ses équivalences
 et une phrase réponse** (demande de Turquet, octobre 2026, avec la fiche
 « équation » : « 0,2x − 0,1 = 0,6 ; 0,2x = 0,6 …… ; 0,2x = …… ; x = ……/……
@@ -326,9 +377,15 @@ et une phrase réponse** (demande de Turquet, octobre 2026, avec la fiche
   « ⇔ a·x = P(B) [……] » (l'opération faite sur les deux membres, `apc-r1`,
   case étroite `apc-op`), « ⇔ a·x = [……] » (`apc-r2`), « ⇔ x = [……]/[……] =
   [……] » (une fraction de deux cases, `sa2Frac`, `apc-r3n` / `apc-r3d`, puis
-  `apc-r3`). Puis la phrase : « Conclusion : la probabilité que … est égale à
+  `apc-r3`) — des champs MathLive, comme les autres lignes depuis la veille
+  (`apcResIn`). Le ⇔ est collé à son membre de gauche, les « = » restent
+  alignés (`apc-mbw`). Puis la phrase : « Conclusion : la probabilité que … est égale à
   [……]. » (`apc-r4`, la phrase de la mise en situation, `C.s.A`). Six
   réponses comptées au lieu de trois.
+* La résolution directe reste permise : si la valeur de x (`apc-r3`, qui
+  peut porter « fraction = valeur ») est juste et que les quatre cases qui y
+  mènent sont vides, elles sont hors note (`APC_RES_ETAPES`) ; la phrase
+  réponse reste due.
 * Les membres de gauche se préparent comme avant (`apcPreparer`, quatre
   membres : a·x + b, a·x, a·x, x), d'après l'expression de l'élève, et à la
   clôture les bons les remplacent, en vert.
@@ -344,7 +401,9 @@ et une phrase réponse** (demande de Turquet, octobre 2026, avec la fiche
 
 Essayé dans Chromium à 1280 et 390 px : copie juste bleue, « 0,6 » faux à la
 ligne 3 rouge avec « 0,044 » en vert à côté, phrase réponse vide remplie en
-vert ; aucun défilement horizontal. Terminale v410.
+vert ; résolution directe « 0,56/0,8 = 0,7 » bleue, ses quatre étapes hors
+note ; aucun défilement horizontal. Fusionné par-dessus les lignes MathLive
+du même jour : Terminale v411.
 
 ## En portrait, le cadre d'un exercice prend la largeur de l'écran — les trois niveaux
 
