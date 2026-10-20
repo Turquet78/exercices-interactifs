@@ -371,17 +371,17 @@ touche trouvée mais sans effet vaut `'muet'` et se nomme dans le message
 (« cliquées sans rien écrire : ge ») — distincte d'une touche absente, qui
 reste `false`. Le contrôle exige `=== true` pour chacune.
 
-**Le banc jsdom tourne avec un tas de 6 Go dans l'action** (octobre 2026,
-décision de Turquet : « monte la mémoire à 6 Go »). Le banc de la Seconde
-touchait le plafond par défaut de Node sur la machine de l'action (4 Go — une
-machine de travail à 15 Go en offre 8, d'où des bancs verts en local et rouges
-sur la PR) : mesuré sous `--max-old-space-size=4096`, `main` montait à
-4308 Mo, et l'ajout du 8.2.16 {regle-parallelogramme} l'a fait mourir deux fois
-« JavaScript heap out of memory », sans un seul contrôle en échec — alléger son
-propre contrôle (200 séances ramenées à 120) n'y a rien changé : c'est le banc
-entier, un exercice de plus partout, qui déborde. `controles.yml` lance
-désormais `node --max-old-space-size=6144 tests/verifier.js` ; la machine a
-16 Go. Ce n'est pas une licence : la leçon du 8.1.9 (relire un SVG comme du
-texte plutôt que redessiner des centaines de figures dans jsdom) reste la règle
-de chaque contrôle.
+**Puis le tas du banc jsdom est remonté à 6 Go dans l'action, en MARGE** (octobre 2026,
+décision de Turquet : « monte la mémoire à 6 Go »). La pull request du
+{regle-parallelogramme} avait débordé deux fois (« heap out of memory » sur
+`controles (secondes.html)`, aucun contrôle en échec) AVANT que le correctif des
+`MutationObserver` ci-dessus n'arrive sur main ; mesuré alors sous
+`--max-old-space-size=4096`, `main` montait à 4308 Mo. Turquet a demandé le
+relèvement à ce moment-là, et il est gardé : `controles.yml` lance
+`node --max-old-space-size=6144 tests/verifier.js` (la machine de l'action a
+16 Go). Ce n'est plus le remède — le correctif des observateurs l'est, et le
+banc plafonne autour de 2,5 Go —, c'est une marge : un débordement qui
+reviendrait se lirait dans la mémoire mesurée, pas dans un banc mort. Ce n'est
+pas non plus une licence : un contrôle relit un SVG comme du texte plutôt que
+de redessiner des centaines de figures (la leçon du 8.1.9).
 
