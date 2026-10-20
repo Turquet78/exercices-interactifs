@@ -28066,11 +28066,12 @@ function jugeArithmetique(w, P){
        n'affirment plus « déjà irréductible ». */
     const qR={n1:1,d1:2,n2:5,d2:3,a1:1,a2:5,b1:2,b2:3,P:5,Q:6};
     const jR=cas('le produit par la route du même dénominateur, résultat 30/36 (5.7)', qR, '(1)/(2)*(5)/(3)\\n= (3)/(6)*(10)/(6)\\n= (30)/(36)', 'mll', 'juste');
-    if(jR.sait && jR.correct && jR.reductible!==true) vus.push('5.7 : 30/36 est juste mais le juge ne le dit pas « reductible »');
+    /* en Première, c'est redIrreductible, à l'appel, qui REFUSE un résultat réductible (journal 07) : le drapeau n'y est pas attendu */
+    if(typeof redIrreductible!=='function' && jR.sait && jR.correct && jR.reductible!==true) vus.push('5.7 : 30/36 est juste mais le juge ne le dit pas « reductible »');
     const jR2=cas('le produit au résultat irréductible (5.7)', qR, '(1)/(2)*(5)/(3)\\n= (5)/(6)', 'mll', 'juste');
     if(jR2.reductible) vus.push('5.7 : 5/6 est irréductible et le juge le dit « reductible »');
     const jRD=cas('le quotient avec son inverse, résultat 42/20 (5.9)', qD, '(3)/(5)\\\\div(2)/(7)\\n= (3)/(5)*(7)/(2)\\n= (42)/(20)', 'dll', 'juste');
-    if(jRD.sait && jRD.correct && jRD.reductible!==true) vus.push('5.9 : 42/20 est juste mais le juge ne le dit pas « reductible »');
+    if(typeof redIrreductible!=='function' && jRD.sait && jRD.correct && jRD.reductible!==true) vus.push('5.9 : 42/20 est juste mais le juge ne le dit pas « reductible »');
     cas('le quotient 42/20 sans l\\'étape de l\\'inverse : le modèle reste juge', qD, '(3)/(5)\\\\div(2)/(7)\\n= (42)/(20)', 'dll', 'je-ne-sais-pas');
     const qR5={n1:1,d1:2,n2:1,d2:3,op:'+',D:6,N1:3,N2:2,N:5,Nr:5,Dr:6};
     cas('la somme au résultat 10/12 reste refusée (5.5)', qR5, '(1)/(2)+(1)/(3)\\n= (3)/(6)+(2)/(6)\\n= (10)/(12)', 'sfl', 'faux (simplifier)');
