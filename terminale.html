@@ -8290,7 +8290,7 @@ function nextTVI3(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVI
 /* Une fonction définie sur UN SEUL intervalle ; l'élève écrit lui-même les deux limites aux
    bornes du domaine (« quand x → … , f(x) → … », une ligne par borne). Vérification par
    l'IA (action 'verif') : seul le contenu mathématique compte — mots, ponctuation, style de
-   flèche et ordre des lignes sont ignorés ; l'infini doit être signé. */
+   flèche et ordre des lignes sont ignorés ; « ∞ » sans signe vaut +∞ (octobre 2026). */
 function lrNum(n){ return (n<0?'−':'')+Math.abs(n); }
 function lrTerme(c){ if(c===0) return ''; return ' '+(c<0?'−':'+')+' '+Math.abs(c); }
 function lrKdev(k, corps){ return (k===1?'':(k===-1?'−':lrNum(k)))+corps; }
@@ -9807,7 +9807,7 @@ function lgAttenduIA(c){
     return '('+s.lab+') limite = '+limTxt+' ; choix = '+(s.typ==='ah'?'une asymptote horizontale, d’équation y = '+numFmt(s.eq):(s.typ==='av'?'une asymptote verticale, d’équation x = '+numFmt(s.eq):'pas d’asymptote horizontale ou verticale'));
   }).join(' ; ');
   return 'Réponses attendues, cas par cas : '+L
-    +'. RÈGLE STRICTE : correct = true SI ET SEULEMENT SI, pour CHAQUE cas, la limite est exacte ET le bon choix est fait ET l’équation d’asymptote est exacte quand il y en a une ; sinon correct = false. Tolérances : un tiret simple « - » vaut le signe moins « − » ; la virgule décimale vaut le point. '
+    +'. RÈGLE STRICTE : correct = true SI ET SEULEMENT SI, pour CHAQUE cas, la limite est exacte ET le bon choix est fait ET l’équation d’asymptote est exacte quand il y en a une ; sinon correct = false. Tolérances : « ∞ » SANS signe (ou inf, infini) vaut +∞ ; un tiret simple « - » vaut le signe moins « − » ; la virgule décimale vaut le point. '
     +'FEEDBACK COURT — 4 phrases maximum : commente UNIQUEMENT les cas faux, en faisant imaginer un point qui se déplace sur la courbe vers la cible (vers quelle hauteur ou vers quel infini se dirige-t-il ?) et en rappelant la règle : limite FINIE L quand x tend vers ±∞ ⇒ asymptote horizontale y = L ; limite INFINIE quand x tend vers un réel a ⇒ asymptote verticale x = a ; sinon pas d’asymptote. NE DONNE JAMAIS les valeurs correctes ni les bons choix, puis valide le reste en une seule courte phrase. Ne pose AUCUNE question et ne demande AUCUNE autre donnée : réponds uniquement ton verdict et ton commentaire.';
 }
 function lgReponseTxt(c){
@@ -9918,7 +9918,7 @@ async function checkLG(){
     if((tv==='ah'||tv==='av')&&!ev) manque=true;
   });
   if(manque){ toast('Complète chaque cas : la limite, le choix, et l’équation s’il y a une asymptote'); return; }
-  /* VERDICT LOCAL exact (limite, choix, équation — mêmes tolérances que l’IA : ∞ toujours signé,
+  /* VERDICT LOCAL exact (limite, choix, équation — mêmes tolérances que l’IA : « ∞ » nu vaut +∞,
      tiret, virgule). L’IA rédige seulement le commentaire des erreurs, conservé uniquement
      s’il est d’accord avec ce verdict. */
   const fautes=[];
@@ -24285,7 +24285,7 @@ function sapConseilCtx(){
    « 0,5 < 1 » sont vrais, mais ne suffisent pas.
 
    LES LIMITES PASSENT PAR limHTML / limLire / lgLimOK, comme toutes les
-   cases de limite de la page : même clavier qu'au 3.5, ∞ signé exigé. */
+   cases de limite de la page : même clavier qu'au 3.5, « ∞ » nu lu +∞ (octobre 2026). */
 const LQN_GRANDS=[1.05,1.1,1.2,1.3,1.5,2,2.5,3,4,5];
 const LQN_PETITS=[0.1,0.2,0.25,0.3,0.4,0.5,0.6,0.7,0.75,0.8,0.9,0.95];
 const LQN_FRACS=[[1,2],[2,3],[3,4],[4,5],[5,6],[5,7],[3,5],[2,5],[4,7],[7,9],[3,7],[5,8]];
@@ -24358,7 +24358,7 @@ function lqnNombre(t){
   try{ const v=sagEvalAst(sagParseArith(t),{}); return (typeof v==='number'&&isFinite(v))?v:NaN; }catch(e){ return NaN; }
 }
 /* une limite FINIE s'écrit aussi en fraction (\frac{3}{5} rend « (3)/(5) ») ;
-   tout le reste — ∞ signé, décimal exact — est l'affaire de lgLimOK */
+   tout le reste — « ∞ » nu lu +∞, −∞ signé, décimal exact — est l'affaire de lgLimOK */
 function lqnLimOK(L, raw){
   const t=String(raw==null?'':raw).trim();
   if(typeof L==='number' && t.indexOf('/')>=0){

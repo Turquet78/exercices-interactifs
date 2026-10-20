@@ -3302,11 +3302,18 @@ règle retenue est l'autre : un « ∞ » nu, « inf » ou « infini », se lit 
 dans toute case de limite — lectures graphiques (lg, lg2, lg3), 4.6, suites
 (svq, lqn), études de fonctions (asg, eav) —, et −∞ garde son signe. Une
 seule fonction le sait, `lgLimOK` (`t==='+∞' || t==='∞'`), et toutes les
-cases de limite passent par elle (le contrôle « chaque appel à lgLimOK() »
-le tient) ; `limNonSignee` et `limAvisSigne` sont retirées, avec leurs
+cases de limite passent par elle (le contrôle qui relit la SOURCE et exige
+que chaque appel à lgLimOK lise une case de limite le tient) ; `limNonSignee` et `limAvisSigne` sont retirées, avec leurs
 quatorze appels ; l'attendu envoyé au modèle du 3.5 dit « « ∞ » SANS signe
 vaut +∞ et s'accepte comme tel ». Le contrôle du lot J est retourné : « ∞ »,
 « inf » et « infini » doivent passer pour +∞, être refusés pour −∞, et
 `limAvisSigne` ne doit plus exister ; le 6.4.1 pose « inf » comme seconde
 copie juste. Le paragraphe M80 ci-dessus reste : il raconte l'état d'avant,
 avec ses raisons.
+La chasse adversariale qui a suivi (trois angles, dix-neuf réfutations) a
+trouvé ce que le lot J avait fait en silence : `lgAttenduIA`, l'attendu
+envoyé au modèle des 3.2, 3.3 et 3.4, disait avant M80 « « ∞ » sans signe
+vaut +∞ » et M80 avait RETIRÉ cette phrase — c'était son moyen d'exiger le
+signe du modèle. Elle est remise, et le contrôle du lot J exige désormais
+que `lgAttenduIA` et `lrAttenduIA` la disent tous deux. Les commentaires qui
+racontaient encore « ∞ signé exigé » (3.5, lqn) sont à jour.

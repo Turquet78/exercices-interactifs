@@ -49344,6 +49344,8 @@ function mineursTerminale(w, P){
     if(lgLimOK({lim:'−∞'},'∞') || lgLimOK({lim:'−∞'},'inf')) vus.push('« ∞ » sans signe accepté pour −∞ : seul +∞ se sous-entend');
     if(!lgLimOK({lim:'+∞'},'+∞') || !lgLimOK({lim:'+∞'},'+inf') || !lgLimOK({lim:'−∞'},'-∞')) vus.push('une limite infinie SIGNÉE est refusée');
     if(typeof limAvisSigne==='function') vus.push('limAvisSigne existe encore : le message « s\\'écrit avec son signe » n\\'a plus de raison d\\'être');
+    /* et l'attendu envoyé au modèle le dit, aux 3.2-3.4 (lgAttenduIA, que lg2/lg3 réutilisent) comme au 3.5 (lrAttenduIA) : la chasse adversariale d'octobre 2026 a vu que M80 avait RETIRÉ cette tolérance du 3.2 */
+    [['lgAttenduIA',lgAttenduIA],['lrAttenduIA',lrAttenduIA]].forEach(function(f){ if(!/SANS signe[^.]*vaut [+]∞/.test(String(f[1]))) vus.push(f[0]+' : l\\'attendu envoyé au modèle ne dit pas que « ∞ » sans signe vaut +∞'); });
 
     /* ---- M81 : le crochet de l'infini ---- */
     { const a=tvi3AttenduIA({raison:'horsbornes',vGL:'−∞',vDL:'7',kL:'9',fname:'f',v:'x'}).replace(/\u00a0/g,' ');
