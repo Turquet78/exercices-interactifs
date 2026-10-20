@@ -49241,12 +49241,25 @@ function convexiteTangente(w, P){
    copie en soutien (neutre, ouverte, « Il te manque 1 case »), et la copie
    BLANCHE (aucun rouge, tout en sol, 0 sur N). Les N attendus sont écrits
    ICI, jamais relus dans la page ; les miroirs du dénominateur (dq-mirror)
-   ne comptent pas, comme dans ptsEcran. Éprouvé par sabotage (la ligne
-   d'avant M75 remise au 4.1.3, le bad remis sur le vide, la convention du
-   soutien retirée) : chaque bord rougit. */
+   ne comptent pas, comme dans ptsEcran. Puis (relecture d'octobre 2026) la
+   correction écrite suit l'APPARIEMENT RETENU, jamais la position : le juge
+   accepte les termes d'une ligne développée dans l'ordre qu'on veut et les
+   deux facteurs d'un produit dans les deux sens, et la valeur de la position
+   d'une case vide pouvait déjà être dans la case bleue d'à côté (« −x »
+   complété à côté d'un « −x » juste). Chaque copie imparfaite jouée ici se
+   RELIT révélée — le bleu gardé, le vert écrit, le badge du rouge — et doit
+   être jugée juste ; les copies mesurées par la relecture (la ligne
+   développée « −x », [vide], « −3 » ; la substitution à paire inversée ; la
+   substitution en ordre 2 sous des définitions en ordre 1 ; le 4.1.4 au
+   « 1 » en tête) reçoivent le terme resté libre, écrit ici. Le garde ne
+   nomme que les trois fonctions de vérification, présentes à toutes les
+   versions de la Terminale : une page à l'ancien comportement rougit, elle
+   ne s'ignore pas. Éprouvé par sabotage (la ligne d'avant M75 remise au
+   4.1.3, le bad remis sur le vide, la convention du soutien retirée, la
+   correction remise à la position) : chaque bord rougit. */
 function casesVidesDerivees41(w, P){
-  const nom = '4.1 : une case vide ne rougit jamais — sol sur une ligne fausse (note inchangée), ok sur une ligne juste, neutre en soutien';
-  const present = evaluer(w, "typeof dexpEtats==='function' && typeof checkDexp==='function' && typeof checkDexp3==='function' && typeof checkDexpQ==='function'");
+  const nom = '4.1 : une case vide ne rougit jamais — sol sur une ligne fausse (note inchangée), ok sur une ligne juste, neutre en soutien, la correction par le terme resté libre';
+  const present = evaluer(w, "typeof checkDexp==='function' && typeof checkDexp3==='function' && typeof checkDexpQ==='function'");
   if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas les dérivées du 4.1'); return; }
   verifierEval(w, nom, `(function(){
     const vus=[];
@@ -49263,21 +49276,48 @@ function casesVidesDerivees41(w, P){
       { num:'4.1.1', id:'derivee-exp', kind:'dexp', lvl:1, rendu:renderDexp, check:checkDexp, N:12,
         q:{type:'dexp', a:1, b:2, k:-1, uStr:polyToStr([2,1]), vTxt:expMenu(-1), duTxt:numFmt(1), dvTxt:vprimeMenu(-1), dcoef:[-1,-1], facAns:polyFr([-1,-1]), expHtml:expCore(-1)},
         juste:{'dexp-u':'x+2','dexp-du':'1','dexp-v':'e^(-x)','dexp-dv':'-e^(-x)','dexp-s2a':'1','dexp-s2b':'e^(-x)','dexp-s2c':'x+2','dexp-s2d':'-e^(-x)','dexp-s3a':'1','dexp-s3b':'-x','dexp-s3c':'-2','dexp-fac':'-x-1'},
-        vide:'dexp-s3a', faux:{'dexp-s3c':'-3'}, autre:{'dexp-fac':'-x+1'}, s2vide:'dexp-s2a', s2faux:{'dexp-s2d':'-2e^(-x)'} },
+        vide:'dexp-s3a', faux:{'dexp-s3c':'-3'}, autre:{'dexp-fac':'-x+1'}, s2vide:'dexp-s2a', s2faux:{'dexp-s2d':'-2e^(-x)'},
+        cas:[ /* termes attendus : 1, −x, −2 ; facteurs : u′ = 1, v = e^(−x), u = x+2, v′ = −e^(−x) */
+          {nom:'ligne développée « −x », [vide], « −3 »', V:{'dexp-s3a':'-x','dexp-s3b':'','dexp-s3c':'-3'}, sol:{'dexp-s3b':'1'}, badge:{'dexp-s3c':'\u22122'}},
+          {nom:'substitution à paire inversée, e^(−x) × [vide]', V:{'dexp-s2a':'e^(-x)','dexp-s2b':'','dexp-s2d':'-2e^(-x)'}, sol:{'dexp-s2b':'1'}, badge:{'dexp-s2d':'\u2212e^(\u2212x)'}},
+          {nom:'substitution en ordre 2 sous des définitions en ordre 1', V:{'dexp-s2a':'-e^(-x)','dexp-s2b':'','dexp-s2c':'e^(-x)','dexp-s2d':'2'}, sol:{'dexp-s2b':'x+2'}, badge:{'dexp-s2d':'1'}} ] },
       { num:'4.1.3', id:'derivee-exp-3', kind:'dexp', lvl:3, rendu:renderDexp3, check:checkDexp3, N:12,
         q:{type:'dexp3', deg:1, ka:2, b:1, k:-1, aStr:'2x', daTxt:'2', bxStr:'x', expHtml:expCore(-1), dvTxt:vprimeMenu(-1), dcoef:[1,-1], facAns:polyFr([1,-1])},
         juste:{'d3-da':'2','d3-u':'x','d3-du':'1','d3-v':'e^(-x)','d3-dv':'-e^(-x)','d3-s2a':'1','d3-s2b':'e^(-x)','d3-s2c':'x','d3-s2d':'-e^(-x)','d3-s3a':'1','d3-s3b':'-x','d3-fac':'1-x'},
-        vide:'d3-s3a', faux:{'d3-s3b':'-2x'}, autre:{'d3-fac':'1+x'} },
+        vide:'d3-s3a', faux:{'d3-s3b':'-2x'}, autre:{'d3-fac':'1+x'},
+        cas:[ /* facteurs : u′ = 1, v = e^(−x), u = x, v′ = −e^(−x) */
+          {nom:'substitution à paire inversée, e^(−x) × [vide]', V:{'d3-s2a':'e^(-x)','d3-s2b':'','d3-s2d':'-2e^(-x)'}, sol:{'d3-s2b':'1'}, badge:{'d3-s2d':'\u2212e^(\u2212x)'}} ] },
       { num:'4.1.4', id:'derivee-exp-quotient', kind:'dexpq', lvl:1, rendu:renderDexpQ, check:checkDexpQ, N:13,
         q:{type:'dexpq', a:-1, b:2, k:-1, vStr:polyToStr([2,-1]), dvTxt:numFmt(-1), uTxt:expMenu(-1), duTxt:vprimeMenu(-1), numCoef:[-1,1], facAns:polyFr([-1,1]), expHtml:expCore(-1)},
         juste:{'dq-u':'e^(-x)','dq-du':'-e^(-x)','dq-v':'-x+2','dq-dv':'-1','dq-s2a':'-e^(-x)','dq-s2b':'-x+2','dq-s2c':'e^(-x)','dq-s2d':'-1','dq-s2e':'(-x+2)^2','dq-s3a':'x','dq-s3b':'-2','dq-s3c':'1','dq-s3d':'(-x+2)^2','dq-fac':'x-1','dq-facd':'(-x+2)^2'},
-        vide:'dq-s3c', faux:{'dq-s3b':'-3'}, autre:{'dq-fac':'x+1'} }
+        vide:'dq-s3c', faux:{'dq-s3b':'-3'}, autre:{'dq-fac':'x+1'}, miroirs:['dq-s3d','dq-facd'], source:'dq-s2e',
+        cas:[ /* termes attendus : x, −2, 1 ; facteurs : u′ = −e^(−x), v = −x+2, u = e^(−x), v′ = −1 */
+          {nom:'ligne développée « 1 », « −2 », « −3 »', V:{'dq-s3a':'1','dq-s3b':'-2','dq-s3c':'-3'}, badge:{'dq-s3c':'x'}},
+          {nom:'ligne développée « 1 », « −3 », [vide]', V:{'dq-s3a':'1','dq-s3b':'-3','dq-s3c':''}, sol:{'dq-s3c':'x'}, badge:{'dq-s3b':'\u22122'}},
+          {nom:'substitution à paire inversée, (−x+2) × [vide]', V:{'dq-s2a':'-x+2','dq-s2b':'','dq-s2d':'1'}, sol:{'dq-s2b':'-e^(-x)'}, badge:{'dq-s2d':'\u22121'}} ] }
     ];
     EXOS.forEach(function(E){
       const ouvrir=function(mode){ currentMode=mode; currentTestId=E.id; test.kind=E.kind; test.dexpLevel=E.lvl;
         test.questions=[E.q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false; show('dexp'); E.rendu(); };
       const copie=function(){ const V=Object.assign({},E.juste); for(let i=0;i<arguments.length;i++) Object.assign(V,arguments[i]); return V; };
       const P=E.num+' : ';
+      /* la copie RÉVÉLÉE après « Vérifier » : le bleu gardé, le vert écrit (la
+         case, sans ses accolades), le badge du rouge (sans son <sup>) ; un
+         miroir recopie sa source */
+      const revelee=function(){ const V={};
+        Object.keys(E.juste).forEach(function(id){ const e=document.getElementById(id); if(!e) return;
+          if(cls(id,'ok')||cls(id,'sol')) V[id]=String(e.getValue()||'').replace(/\\^\\{([^}]*)\\}/g,'^($1)');
+          else if(cls(id,'bad')){ const anc=(e.closest&&e.closest('.dexp-pwrap'))||e, b=anc.nextElementSibling;
+            V[id]=(b&&b.classList&&b.classList.contains('mf-cor'))?b.innerHTML.replace(/<sup>([^<]*)<\\/sup>/g,'^($1)').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&'):null; }
+          else V[id]=null; });
+        (E.miroirs||[]).forEach(function(id){ V[id]=V[E.source]; });
+        return V; };
+      const rejuge=function(quoi){ const V=revelee(); const manque=Object.keys(V).filter(function(id){ return V[id]==null; });
+        if(manque.length){ vus.push(P+quoi+' : aucune valeur révélée pour '+manque.join(', ')); return; }
+        ouvrir('train'); pose(V); E.check();
+        if(!(test.answers[0]&&test.answers[0].correct)) vus.push(P+quoi+' : la copie révélée (bleu gardé, vert écrit, badge du rouge) n\\'est pas jugée juste — rouges : '+rouges().join(', ')); };
+      const lireBadge=function(id){ const e=document.getElementById(id), anc=(e&&e.closest&&e.closest('.dexp-pwrap'))||e, b=anc&&anc.nextElementSibling;
+        return (b&&b.classList&&b.classList.contains('mf-cor'))?b.innerHTML.replace(/<sup>([^<]*)<\\/sup>/g,'^($1)').replace(/\\s/g,''):'(aucun badge)'; };
       /* 0. la copie juste passe — sinon c'est le contrôle qui a tort */
       ouvrir('train'); pose(E.juste); E.check();
       if(!(test.answers[0]&&test.answers[0].correct)){ vus.push(P+'la copie témoin juste ne passe pas ('+rouges().join(', ')+')'); return; }
@@ -49294,6 +49334,7 @@ function casesVidesDerivees41(w, P){
       { const fb=document.getElementById('dexpFeedback').innerHTML;
         if(fb.indexOf('compl\u00e9t\u00e9es')<0) vus.push(P+'le message ne dit pas que les cases oubliées ont été complétées');
         if(fb.indexOf('La bonne d')<0) vus.push(P+'la bonne démarche a disparu du message'); }
+      rejuge('ligne fausse à case vide');
       /* 2. ligne développée JUSTE, une case vide (le 1 omis), une autre case fausse : ok, N−1 sur N */
       ouvrir('train'); { const V=copie(E.autre); V[E.vide]=''; pose(V); } E.check();
       m=ptsEcran();
@@ -49315,11 +49356,26 @@ function casesVidesDerivees41(w, P){
         const sols=on?[...on.querySelectorAll('math-field.sol')].filter(e=>!e.closest('.dq-mirror')&&!e.classList.contains('dq-mirror')).length:0;
         if(sols!==E.N) vus.push(P+'copie blanche : '+sols+' case(s) en sol, attendu '+E.N);
         if(!m || m.cases!==E.N || m.justes!==0) vus.push(P+'copie blanche : note '+(m?m.justes+' sur '+m.cases:'(aucune)')+', attendu 0 sur '+E.N); }
+      rejuge('copie blanche');
       /* 5. (4.1.1) la ligne de SUBSTITUTION fausse à case vide : sol, non ok — c'est le reste trouvé par relecture */
       if(E.s2vide){
         ouvrir('train'); { const V=copie(E.s2faux); V[E.s2vide]=''; pose(V); } E.check();
         if(!cls(E.s2vide,'sol') || cls(E.s2vide,'ok') || cls(E.s2vide,'bad')) vus.push(P+'substitution fausse : la case vide (u′ = 1 omis) n\\'est pas en sol');
+        rejuge('substitution fausse à case vide');
       }
+      /* 6. la correction suit l'appariement RETENU, jamais la position (relecture
+         d'octobre 2026) : sur les copies mesurées par la relecture, la case vide
+         reçoit en sol, et la case fausse en badge, le terme resté LIBRE — et la
+         copie révélée se rejuge juste */
+      (E.cas||[]).forEach(function(C){
+        ouvrir('train'); pose(copie(C.V)); E.check();
+        Object.keys(C.sol||{}).forEach(function(id){ const v=valeur(id).replace(/\\^\\{([^}]*)\\}/g,'^($1)').replace(/\\s/g,'');
+          if(!cls(id,'sol')) vus.push(P+C.nom+' : '+id+' n\\'est pas en sol');
+          else if(v!==C.sol[id]) vus.push(P+C.nom+' : '+id+' reçoit « '+v+' », attendu « '+C.sol[id]+' »'); });
+        Object.keys(C.badge||{}).forEach(function(id){ const v=lireBadge(id);
+          if(!cls(id,'bad')) vus.push(P+C.nom+' : '+id+' n\\'est pas rouge');
+          else if(v!==C.badge[id]) vus.push(P+C.nom+' : le badge de '+id+' dit « '+v+' », attendu « '+C.badge[id]+' »'); });
+        rejuge(C.nom); });
     });
     currentMode='train'; test.dexpLevel=1;
     return vus.slice(0,6).join(' | ');
