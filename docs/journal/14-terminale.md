@@ -3317,3 +3317,16 @@ vaut +∞ » et M80 avait RETIRÉ cette phrase — c'était son moyen d'exiger l
 signe du modèle. Elle est remise, et le contrôle du lot J exige désormais
 que `lgAttenduIA` et `lrAttenduIA` la disent tous deux. Les commentaires qui
 racontaient encore « ∞ signé exigé » (3.5, lqn) sont à jour.
+
+**Une case vide ne rougit plus aux trois dérivées du 4.1 — décision de
+Turquet (octobre 2026), option b du point M75.** « Vérifier » rougissait toute
+case vide des 4.1.1, 4.1.3 et 4.1.4. En entraînement, le vide d'une ligne JUSTE
+reste le 1 omis (ok, bleu, compté) ; tout autre vide reçoit sa valeur en sol,
+vert, compté non juste — la note ne change pas (le b) du 3.6 : `dexpEtats`,
+`dexpReveler`, `msgCorrCouleurs`) ; en soutien il reste neutre, ouvert, nommé.
+Trois restes corrigés : le 4.1.3 passait le vide lu 1 contre les termes
+restants, les substitutions l'appariaient à u′ = 1, et la correction écrite
+par POSITION contredisait la case bleue voisine — le juge rend `sol`, le terme
+resté libre (`dexpSolTermes`, `dexpSolPaire`). Tenu par `casesVidesDerivees41`
+(la copie révélée rejugée juste), le lot J étendu et le contrôle universel du
+navigateur, éprouvés par sabotage ; 4.4.1, 4.1.9 et 5.2.2 restent dispensés.

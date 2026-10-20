@@ -1344,7 +1344,10 @@ module.exports = {
        (demande de Turquet, octobre 2026 : « comme en terminale »). La note du
        DEVOIR ENTIER, elle, n'est pas demandée ici : pas de « devoirEntier ». */
     notesDevoir: { exercice: 'pourcentage', tableParametres: 'parametres_2nde', tableResultats: 'resultats_2nde' },
-    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20,
+    /* {simplifier-barres} y est depuis octobre 2026 : son tirage écrivait
+       « 6 » en dur, la séance gardait six questions quelle que soit la
+       fiche — il lit dmNbQuestions() et DOIT s'allonger. */
+    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage', 'simplifier-barres'], nbQMax: 20,
       /* le barème est la SOMME des cases tirées, et chaque démonstration a
          les siennes (4 à 20) : six courtes peuvent peser autant que quatre
          longues. Le contrôle de l'exercice (demontrerChasles) tient le
@@ -2607,8 +2610,11 @@ module.exports = {
        août 2026), et non plus 15 — les trois niveaux tous représentés. */
     nbQuestionsSignePremier: 5,
 
-    casesVides: { sans: ['derivee-exp', 'derivee-exp-3', 'derivee-exp-quotient',
-                         'etude-fonction', 'etude-quotient', 'recurrence-encadrement'] },
+    /* Les trois dérivées du 4.1 (4.1.1, 4.1.3, 4.1.4) sont SORTIES de la
+       dispense en octobre 2026 (décision de Turquet, point M75 de l'audit,
+       option b) : une case vide y reçoit sa correction en vert, et le contrôle
+       universel les couvre. Restent 4.4.1, 4.1.9 et 5.2.2 — hors décision. */
+    casesVides: { sans: ['etude-fonction', 'etude-quotient', 'recurrence-encadrement'] },
     /* L'inconnue « x » s'écrit en italique (décision de Turquet, septembre
        2026). Ces exercices sont ANTÉRIEURS à la règle : leur « x » droit est
        une dette nommée, à rembourser un par un — la liste ne grandit jamais. */
@@ -2918,7 +2924,7 @@ module.exports = {
 
     lacunes: [
       "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",
-      "six exercices rougissent encore une case laissée VIDE (2.1, 2.3, 2.4, 5.2, 5.3, 6.4) : ce niveau ne remplace jamais les réponses de l'élève, et la règle de la Seconde y changerait le calcul de la note — décision à prendre, pas correction technique",
+      "trois exercices rougissent encore une case laissée VIDE (4.4.1 {etude-fonction}, 4.1.9 {etude-quotient}, 5.2.2 {recurrence-encadrement}) : ce niveau ne remplace jamais les réponses de l'élève, et la règle de la Seconde y changerait le calcul de la note — décision à prendre, pas correction technique. Les trois dérivées du 4.1 (4.1.1, 4.1.3, 4.1.4) en sont sorties en octobre 2026 (M75, option b : le vide reçoit sa correction en vert, compté non juste, la note inchangée)",
       "liveCheckCurrent() a un corps vide : la correction du mode soutien passe par submitAnswer et par un check… propre à chaque exercice, donc aucun contrôle de coloration en direct n'est transposable — c'est pourquoi « soutienEnDirect » n'est pas déclaré ici, et que le contrôle correspondant s'affiche « non applicable »",
       "le contexte envoyé au modèle n'est vérifié que pour l'exercice témoin (dexp) : la table kind -> générateur des 23 autres exercices reste à écrire",
       "aucun audit de générateur : les 45 générateurs de Terminale n'ont pas d'invariants déclarés (les 15 de la Première en ont)",

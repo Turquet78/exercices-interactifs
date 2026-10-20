@@ -4710,6 +4710,7 @@ function exercices(suite){
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
+    numerateurSeulPourcentage(w, P);
     coefficientGlobalCourt(w, P);
     coefficientGlobalCourtBaisses(w, P);
     coefficientDeuxDecimalesSynthese(w, P);
@@ -4738,6 +4739,7 @@ function exercices(suite){
     convexiteTangente(w, P);
     convexiteParametre(w, P);
     mineursTerminale(w, P);
+    casesVidesDerivees41(w, P);
     suiteVocabulaire(w, P);
     autourDuTcm(w, P);
     etiquetteCourbe(w, P);
@@ -5686,7 +5688,9 @@ function devoirBlancClique(w, apres){
    accepte une copie fausse et la page refuse quand même ; quand le juge
    s'abstient, le modèle redevient seul juge, sans bloc VERDICT dans la
    règle ; et quand le modèle est en panne, le juge répond seul au lieu de
-   bloquer l'élève. */
+   bloquer l'élève. Un cinquième depuis octobre 2026 : au 5.7, un résultat
+   égal mais réductible (30/36) gagne son point, en vert, avec « pense à
+   simplifier » — sous un modèle en panne comme sous un modèle qui refuse. */
 function jugeArithmetiqueClique(w, apres){
   const present = evaluer(w, "typeof libreJuge==='function' && typeof checkSFL==='function'");
   if(!present.ok || !present.valeur){
@@ -5772,6 +5776,38 @@ function jugeArithmetiqueClique(w, apres){
         vus.push('4.9 : la division multipliée sans retourner passe sous un modèle qui accepte, score '+test.score);
       const fb5=(document.getElementById('mllFeedback')||{}).textContent||'';
       if(fb5.indexOf('stubbé')>=0) vus.push('4.9 : le modèle contredit le verdict et sa prose s\\'affiche quand même');
+    }
+
+    /* 6. 5.7 : un résultat ÉGAL mais RÉDUCTIBLE est juste (option C, octobre
+       2026). Sous un modèle en panne, la page donne le point et écrit
+       elle-même « pense à simplifier », en vert ; sous un modèle qui refuse,
+       le verdict prime, la prose du modèle est remplacée par la même phrase. */
+    if(typeof checkMLL==='function'){
+      const qR={n1:1,d1:2,n2:5,d2:3,a1:1,a2:5,b1:2,b2:3,P:5,Q:6};
+      const copieR='(1)/(2)*(5)/(3)\\n= (3)/(6)*(10)/(6)\\n= (30)/(36)';
+      const couleurMLL=function(){ const c=(document.getElementById('mllFeedback')||{}).className||'';
+        return /\\bgood\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
+      /* et sous un modèle qui ACCEPTE sans dire « simplifie » (relecture du lot,
+         octobre 2026) : la page ajoute elle-même la phrase à sa prose */
+      for(const M of [{panne:true, correct:false, nom:'modèle en panne'},{panne:false, correct:false, nom:'modèle qui refuse'},{panne:false, correct:true, accepte:true, nom:'modèle qui accepte sans le dire'}]){
+        Object.keys(test).forEach(function(k){ delete test[k]; });
+        Object.assign(test,{kind:'mll', questions:[qR], idx:0, score:0,
+          answers:[], startTime:Date.now(), locked:false, mllBusy:false});
+        test.qId='multiplier-fractions-libre'; test.mllDepart='depart';
+        mllFeuille=feuille(copieR); envoye=null;
+        const f=document.getElementById('mllFeedback'); if(f){ f.textContent=''; f.className='mp-feedback'; }
+        MODELE={correct:M.correct, panne:M.panne};
+        await checkMLL();
+        if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true)
+          vus.push('5.7, 30/36 sous '+M.nom+' : la page devait donner le point, score '+test.score);
+        if(couleurMLL()!=='vert') vus.push('5.7, 30/36 sous '+M.nom+' : peint « '+couleurMLL()+' » au lieu de vert');
+        const fbR=(document.getElementById('mllFeedback')||{}).textContent||'';
+        if(!/simplifi/i.test(fbR)) vus.push('5.7, 30/36 sous '+M.nom+' : la page ne dit pas « pense à simplifier » : '+fbR.slice(0,80));
+        if(!M.accepte && fbR.indexOf('stubbé')>=0) vus.push('5.7, 30/36 sous '+M.nom+' : la prose du modèle qui contredit le verdict s\\'affiche');
+        if(M.accepte && fbR.indexOf('stubbé')<0) vus.push('5.7, 30/36 sous '+M.nom+' : la prose du modèle, qui ne contredit rien, a disparu');
+      }
+      if(!envoye || String(envoye.question||'').indexOf('RÉDUCTIBLE')<0)
+        vus.push('5.7, 30/36 : le verdict envoyé au modèle ne dit pas que le résultat est réductible');
     }
     return vus.join(' | ');
   })()`, function(r){
@@ -28694,6 +28730,47 @@ function jugeArithmetique(w, P){
        Sans ce cas, un sabotage qui acceptait n'importe quel produit restait
        vert : l'égalité fausse attrapait tous les autres avant lui. */
     cas('un produit vrai qui n\\'est pas l\\'inverse : le modèle reste juge', qD, '(3)/(5)\\\\div(2)/(7)\\n= (21)/(2)*(1)/(5)\\n= (21)/(10)', 'dll', 'je-ne-sais-pas');
+    /* UN RÉSULTAT ÉGAL MAIS RÉDUCTIBLE EST JUSTE au 5.7 et au 5.9 (décision de
+       Turquet, octobre 2026, option C) : la route du même dénominateur
+       « 1/2 × 5/3 = 3/6 × 10/6 = 30/36 » vaut 5/6, le point est acquis, et la
+       page dit « pense à simplifier ». Le drapeau vient APRÈS les
+       abstentions (l'inverse manquant au 5.9 s'abstient toujours) ; le 5.5
+       (sfl) garde son refus « simplifier » ; et les textes envoyés au modèle
+       n'affirment plus « déjà irréductible ». */
+    const qR={n1:1,d1:2,n2:5,d2:3,a1:1,a2:5,b1:2,b2:3,P:5,Q:6};
+    const jR=cas('le produit par la route du même dénominateur, résultat 30/36 (5.7)', qR, '(1)/(2)*(5)/(3)\\n= (3)/(6)*(10)/(6)\\n= (30)/(36)', 'mll', 'juste');
+    /* en Première, c'est redIrreductible, à l'appel, qui REFUSE un résultat réductible (journal 07) : le drapeau n'y est pas attendu */
+    if(typeof redIrreductible!=='function' && jR.sait && jR.correct && jR.reductible!==true) vus.push('5.7 : 30/36 est juste mais le juge ne le dit pas « reductible »');
+    const jR2=cas('le produit au résultat irréductible (5.7)', qR, '(1)/(2)*(5)/(3)\\n= (5)/(6)', 'mll', 'juste');
+    if(jR2.reductible) vus.push('5.7 : 5/6 est irréductible et le juge le dit « reductible »');
+    const jRD=cas('le quotient avec son inverse, résultat 42/20 (5.9)', qD, '(3)/(5)\\\\div(2)/(7)\\n= (3)/(5)*(7)/(2)\\n= (42)/(20)', 'dll', 'juste');
+    if(typeof redIrreductible!=='function' && jRD.sait && jRD.correct && jRD.reductible!==true) vus.push('5.9 : 42/20 est juste mais le juge ne le dit pas « reductible »');
+    cas('le quotient 42/20 sans l\\'étape de l\\'inverse : le modèle reste juge', qD, '(3)/(5)\\\\div(2)/(7)\\n= (42)/(20)', 'dll', 'je-ne-sais-pas');
+    const qR5={n1:1,d1:2,n2:1,d2:3,op:'+',D:6,N1:3,N2:2,N:5,Nr:5,Dr:6};
+    cas('la somme au résultat 10/12 reste refusée (5.5)', qR5, '(1)/(2)+(1)/(3)\\n= (3)/(6)+(2)/(6)\\n= (10)/(12)', 'sfl', 'faux (simplifier)');
+    if(jR.reductible){
+      const s=libreSecours(jR);
+      if(!/simplifi/i.test(s)) vus.push('5.7 : la phrase de secours d\\'un résultat réductible ne parle pas de simplifier : '+s);
+      if(!/juste/i.test(s)) vus.push('5.7 : la phrase de secours d\\'un résultat réductible ne dit pas que le calcul est juste : '+s);
+      const v=libreVerdictIA(jR);
+      if(v.indexOf('vaut true')<0) vus.push('5.7 : le verdict envoyé au modèle sur 30/36 ne dit pas « correct »');
+      if(!/RÉDUCTIBLE/.test(v)) vus.push('5.7 : le verdict envoyé au modèle ne dit pas que le résultat est réductible');
+      if(!/sans le compter comme une faute/.test(v)) vus.push('5.7 : le verdict envoyé au modèle ne lui interdit pas de compter la simplification comme une faute');
+    }
+    if(typeof mllAttenduIA==='function' && typeof mllCtxTexte==='function'){
+      const invAvant=test.inv;
+      [false,true].forEach(function(inv){
+        test.inv=inv;
+        const q=inv?qD:qR;
+        [['la règle (mllAttenduIA)', mllAttenduIA(q)], ['le contexte de l\\'aide (mllCtxTexte)', mllCtxTexte(q)]].forEach(function(p){
+          const nom=(inv?'5.9':'5.7')+' : '+p[0];
+          if(/déjà irréductible/.test(p[1])) vus.push(nom+' affirme encore que le résultat est « déjà irréductible »');
+          if(p[1].indexOf('Toute fraction ÉGALE à '+q.P+'/'+q.Q+' est acceptée')<0) vus.push(nom+' n\\'accepte pas toute fraction égale à '+q.P+'/'+q.Q);
+          if(!/sans réclamer la simplification comme une faute/.test(p[1])) vus.push(nom+' ne dit pas au modèle de ne pas réclamer la simplification');
+        });
+      });
+      if(invAvant===undefined) delete test.inv; else test.inv=invAvant;
+    }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -46515,6 +46592,133 @@ function paireFausseCaseFautive(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---- LE P ÉCRIT SEUL AU NUMÉRATEUR D'UN P/100 EST BLEU, LA PAIRE RESTE EXIGÉE
+   Décision de Turquet (octobre 2026, option 1) sur les évolutions
+   successives — 4.2.7 {hausses-successives}, 4.2.8 {hausses-successives-cent},
+   4.3.7 {baisses-successives} en Seconde, leurs jumeaux 2.2.7, 2.2.8, 2.3.7 et
+   le 2.5.4 {synthese-evolutions-successives} en Première. Leurs fractions
+   « taux sur 100 » (hs1n/hs1d…) étaient peintes par marqueFracSaufVide, la
+   convention « vide vaut 1 » née sur le 1.7, où un entier seul EST une
+   réponse : « 20 » seul en haut de 20/100 y ROUGISSAIT, l'entraînement posait
+   « 20/100 » en vert à côté du 20 rouge, et le soutien envoyait le focus sur
+   ce 20 juste. Ces P/100 passent désormais par le juge du 4.2.1 / 2.2.1
+   (marqueFracPaire en Seconde, marqueFracAncre en Première) : le P écrit au
+   numérateur reste bleu que le dénominateur soit faux OU vide, le dénominateur
+   se juge seul. La NOTE ne change pas — la question reste fausse tant que la
+   paire n'est pas écrite — ; ce qui change est la couleur du numérateur juste
+   (bleu, verrouillé en soutien), le message du soutien (« Complète ta
+   réponse » au lieu de « Corrige les cases en rouge ») et le « P/100 » vert qui
+   ne se pose plus. L'ancre est le P EXACT : « 7 » seul reste rouge. Et les
+   fractions de COEFFICIENT et de PRODUIT gardent « vide vaut 1 » — au 4.2.8 la
+   fraction produit 2000/100 vaut 20, et « 20 » seul y est un entier légitime.
+   Éprouvé par sabotage : hs1n remis sur marqueFracSaufVide, le contrôle rougit
+   (« 20 seul … bad au lieu de ok », « Corrige les cases en rouge », « P/100 »
+   posé à côté). Et le bord du PRODUIT mesure le peintre, pas seulement le
+   verdict : en Première, « 20 » seul reste bleu sous marqueFracAncre aussi
+   (fracOk lit déjà le vide comme 1 — relecture, octobre 2026), c'est le
+   numérateur CANONIQUE écrit seul (2000, dénominateur vide) qui tranche —
+   rouge sous « vide vaut 1 », bleu sous l'ancre. Sabotage sur les deux
+   niveaux : hsc1pn passé à marqueFracPaire (Seconde) ou à marqueFracAncre
+   avec ok1p (Première), le contrôle rougit. */
+function numerateurSeulPourcentage(w, P){
+  const present = evaluer(w, "typeof checkHSAnswer==='function' && typeof checkHSCAnswer==='function' && typeof checkBSAnswer==='function' && typeof genHausses==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('évolutions successives : le P écrit seul au numérateur d\'un P/100 est bleu, la paire reste exigée',
+      'ce niveau n\'a pas les hausses et baisses successives');
+    return;
+  }
+  verifierEval(w, 'évolutions successives : le P écrit seul au numérateur d\'un P/100 est bleu, la paire reste exigée', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentDM=null;
+    const teinte=function(id){ const el=document.getElementById(id); if(!el) return 'absente';
+      return el.classList.contains('ok')?'ok':el.classList.contains('bad')?'bad':el.classList.contains('sol')?'sol':'rien'; };
+    const corACote=function(id){ const el=document.getElementById(id), wrap=el&&el.closest('.f-frac-input'), s=wrap&&wrap.nextElementSibling;
+      return !!(s&&s.classList&&s.classList.contains('mf-cor')); };
+    const deux=function(P){ return P<10?'0'+P:''+P; };
+    const exos=[
+      {nom:'hausses successives', kind:'hs', qId:'hausses-successives', gen:function(){ return genHausses([]); },
+       ecran:'hstest', rendu:renderHSTest, check:checkHSAnswer, fb:'hsFeedback', n:'hs1n', d:'hs1d',
+       copie:function(q){ return {hs1n:q.P1,hs1d:100,hs1p:deux(q.P1),hs1dec:deux(q.P1),hs2n:q.P2,hs2d:100,hs2p:deux(q.P2),hs2dec:deux(q.P2),
+         hsAn:q.fA.num,hsAd:q.fA.den,hsBn:q.fB.num,hsBd:q.fB.den,hsPn:q.prodNum,hsPd:q.prodDen,hsDec:q.coefStr,hsP:q.hausseStr}; }},
+      {nom:'hausses successives en partant de 100', kind:'hsc', qId:'hausses-successives-cent', gen:genHaussesCent,
+       ecran:'hsctest', rendu:renderHSCTest, check:checkHSCAnswer, fb:'hscFeedback', n:'hsc1n', d:'hsc1d',
+       prodN:'hsc1pn', prodD:'hsc1pd', prod:function(q){ return hscAns(q).prod1/100; }, prodCanon:function(q){ return hscAns(q).prod1; },
+       copie:function(q){ const a=hscAns(q); return {hsc1n:q.P1,hsc1d:100,hsc1m:100,hsc1pn:a.prod1,hsc1pd:100,hsc1a:a.aug1,hsc1sa:100,hsc1sb:a.aug1,hsc1sr:a.v1,
+         hsc2n:q.P2,hsc2d:100,hsc2m:a.v1,hsc2pn:a.prod2,hsc2pd:100,hsc2a:a.aug2,hsc2sa:a.v1,hsc2sb:a.aug2,hsc2sr:a.v2,hscFin:a.v2,hscPour:a.h,hscPct:a.h}; }},
+      {nom:'baisses successives', kind:'bs', qId:'baisses-successives', gen:function(){ return genBaisses([]); },
+       ecran:'bstest', rendu:renderBSTest, check:checkBSAnswer, fb:'bsFeedback', n:'bs1n', d:'bs1d',
+       copie:function(q){ return {bs1n:q.P1,bs1d:100,bs1p:q.P1,bs1dec:q.c1,bs2n:q.P2,bs2d:100,bs2p:q.P2,bs2dec:q.c2,
+         bsAn:q.fA.num,bsAd:q.fA.den,bsBn:q.fB.num,bsBd:q.fB.den,bsPn:q.prodNum,bsPd:q.prodDen,bsDec:q.coefStr,bsP:q.baisseStr}; }}
+    ];
+    /* la synthèse de la Première porte les mêmes P/100, par les coefficients et en partant de 100 */
+    if(typeof checkEssAnswer==='function' && typeof essQuestion==='function'){
+      exos.push({nom:'synthèse des évolutions (coefficients)', kind:'ess', qId:'synthese-evolutions-successives',
+        gen:function(){ const q=essQuestion(1,20,1,50); q.meth='coef'; q.choisi=1; return q; },
+        ecran:'esstest', rendu:renderEssTest, check:checkEssAnswer, fb:'essFeedback', n:'ess1n', d:'ess1d',
+        copie:function(q){ const a=essAns(q); return {ess1n:q.P1,ess1d:100,ess1p:deux(q.P1),ess1dec:essCoefStr(q.s1,a.c1).slice(2),
+          ess2n:q.P2,ess2d:100,ess2p:deux(q.P2),ess2dec:essCoefStr(q.s2,a.c2).slice(2),
+          essAn:a.fA.num,essAd:a.fA.den,essBn:a.fB.num,essBd:a.fB.den,essPn:a.prodNum,essPd:a.prodDen,essDec:a.coefStr,essP:a.pct}; }});
+      exos.push({nom:'synthèse des évolutions (en partant de 100)', kind:'ess', qId:'synthese-evolutions-successives',
+        gen:function(){ const q=essQuestion(1,20,1,50); q.meth='cent'; q.choisi=1; return q; },
+        ecran:'esstest', rendu:renderEssTest, check:checkEssAnswer, fb:'essFeedback', n:'essc1n', d:'essc1d',
+        prodN:'essc1pn', prodD:'essc1pd', prod:function(q){ return essAns(q).prod1/100; }, prodCanon:function(q){ return essAns(q).prod1; },
+        copie:function(q){ const a=essAns(q); return {essc1n:q.P1,essc1d:100,essc1m:100,essc1pn:a.prod1,essc1pd:100,essc1a:a.aug1,essc1sa:100,essc1sb:a.aug1,essc1sr:a.v1,
+          essc2n:q.P2,essc2d:100,essc2m:a.v1,essc2pn:a.prod2,essc2pd:100,essc2a:a.aug2,essc2sa:a.v1,essc2sb:a.aug2,essc2sr:a.v2,esscFin:a.v2,esscPour:a.pct,esscPct:a.pct}; }});
+    }
+    const monter=function(e,mode){
+      currentMode=mode; currentTestId=e.qId;
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q=e.gen();
+      Object.assign(test,{kind:e.kind, qId:e.qId, questions:[q], idx:0, score:0, answers:[], startTime:Date.now(), locked:false, maxScore:1});
+      show(e.ecran); e.rendu();
+      return q; };
+    const pose=function(id,v){ const el=document.getElementById(id); if(el) el.value=String(v); else vus.push('la case '+id+' manque à l\\'écran'); };
+    const poser=function(o){ Object.keys(o).forEach(function(id){ pose(id,o[id]); }); };
+    exos.forEach(function(e){
+      /* 1. soutien : le P seul est bleu et verrouillé ; le dénominateur vide reste
+         neutre et ouvert ; le message demande de COMPLÉTER ; rien n'est noté */
+      let q=monter(e,'soutien'); pose(e.n,q.P1); e.check();
+      if(teinte(e.n)!=='ok') vus.push(e.nom+', soutien : « '+q.P1+' » seul au numérateur de '+q.P1+'/100 est '+teinte(e.n)+' au lieu de ok');
+      if(!document.getElementById(e.n).disabled) vus.push(e.nom+', soutien : le P juste reste ouvert au lieu d\\'être verrouillé');
+      if(teinte(e.d)!=='rien') vus.push(e.nom+', soutien : le dénominateur VIDE est '+teinte(e.d)+' — une case vide ne reçoit aucune couleur');
+      if(document.getElementById(e.d).disabled) vus.push(e.nom+', soutien : le dénominateur vide est verrouillé');
+      const fb=document.getElementById(e.fb).textContent;
+      if(fb.indexOf('Complète ta réponse')<0) vus.push(e.nom+', soutien : le message dit « '+fb+' » au lieu de « Complète ta réponse, puis revérifie. »');
+      if(test.locked||test.score!==0) vus.push(e.nom+', soutien : le P seul verrouille la question ou la note');
+      /* 2. l'ancre est le P EXACT : un autre entier seul rougit */
+      q=monter(e,'soutien'); const faux=(q.P1===7?8:7); pose(e.n,faux); e.check();
+      if(teinte(e.n)!=='bad') vus.push(e.nom+' : « '+faux+' » seul au numérateur de '+q.P1+'/100 est '+teinte(e.n)+' au lieu de rouge');
+      /* 3. entraînement : le P seul reste bleu, le 100 s'écrit en vert dans la
+         case vide, et aucun « P/100 » vert ne se pose à côté du P juste */
+      q=monter(e,'train'); pose(e.n,q.P1); e.check();
+      if(teinte(e.n)!=='ok') vus.push(e.nom+', entraînement : le P seul est '+teinte(e.n)+' au lieu de ok');
+      if(teinte(e.d)!=='sol'||document.getElementById(e.d).value!=='100') vus.push(e.nom+', entraînement : le dénominateur vide ne reçoit pas « 100 » en vert ('+teinte(e.d)+')');
+      if(corACote(e.n)) vus.push(e.nom+', entraînement : un « '+q.P1+'/100 » vert se pose encore à côté du P juste');
+      if(test.score!==0||!test.answers[0]||test.answers[0].correct) vus.push(e.nom+', entraînement : le P seul vaut le point');
+      /* 4. la NOTE : la copie juste SANS le dénominateur de ① reste fausse, le P y
+         reste bleu ; avec lui, elle vaut le point */
+      q=monter(e,'train'); const c=e.copie(q); delete c[e.d]; poser(c); e.check();
+      if(test.score!==0) vus.push(e.nom+' : la copie juste SANS le dénominateur de ① vaut le point');
+      if(teinte(e.n)!=='ok') vus.push(e.nom+' : dans la copie sans dénominateur, le P est '+teinte(e.n)+' au lieu de ok');
+      q=monter(e,'train'); poser(e.copie(q)); e.check();
+      if(test.score!==1) vus.push(e.nom+' : la copie juste ne vaut pas le point ('+test.score+')');
+      /* 5. la fraction PRODUIT garde « vide vaut 1 » : 2000/100 = 20, « 20 » seul y est juste */
+      if(e.prodN){ q=monter(e,'soutien'); const pv=e.prod(q); pose(e.prodN,pv); e.check();
+        if(teinte(e.prodN)!=='ok') vus.push(e.nom+' : « '+pv+' » seul à la fraction PRODUIT est '+teinte(e.prodN)+' — elle garde « vide vaut 1 »');
+        if(teinte(e.prodD)!=='rien') vus.push(e.nom+' : le dénominateur vide de la fraction produit est '+teinte(e.prodD)); }
+      /* 5 bis. et c'est le PEINTRE qui se mesure, pas le seul verdict : le
+         numérateur CANONIQUE écrit seul (2000, dénominateur vide) ROUGIT — « vide
+         vaut 1 » le lit 2000, pas 20 — là où l'ancre (marqueFracPaire,
+         marqueFracAncre) le bleuirait ; en Première, « 20 » seul est bleu sous
+         les deux peintres, fracOk lisant déjà le vide comme 1 */
+      if(e.prodN){ q=monter(e,'soutien'); const pc=e.prodCanon(q); pose(e.prodN,pc); e.check();
+        if(teinte(e.prodN)!=='bad') vus.push(e.nom+' : « '+pc+' » seul (le numérateur canonique) à la fraction PRODUIT est '+teinte(e.prodN)+' au lieu de rouge — « vide vaut 1 » lit '+pc+', pas '+(pc/100));
+        if(teinte(e.prodD)!=='rien') vus.push(e.nom+' : le dénominateur vide sous le numérateur canonique du produit est '+teinte(e.prodD)); }
+    });
+    currentMode='train';
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---- 2.3.7 : LA MÊME RÈGLE SUR LES DEUX BAISSES ---------------------------
    « fais la même chose pour le 2.3.7 » (Turquet, septembre 2026), après la
    règle posée sur le 2.2.7 : le coefficient global ne doit s'écrire qu'avec
@@ -49896,6 +50100,163 @@ function convexiteTangente(w, P){
    pas, la carte cliquée choisit, le tableau de l'exercice 4 pose ses nœuds
    et ses valeurs sans dessiner de courbe, la courbe de f″ s'étiquette Cf″,
    la phrase « on admet que » lit la courbe, et la clause de secret. */
+/* ---------- 4.1 : une case VIDE ne rougit jamais — sol sur une ligne fausse, ok sur une ligne juste ----------
+   Décision de Turquet (octobre 2026, point M75 de l'audit, option b) : sur les
+   trois dérivées du 4.1 (4.1.1 {derivee-exp}, 4.1.3 {derivee-exp-3}, 4.1.4
+   {derivee-exp-quotient}), à la vérification en ENTRAÎNEMENT, une case laissée
+   vide ne rougit jamais. Sur une ligne JUSTE, le vide est le coefficient 1
+   omis : « ok », bleu, compté juste. Sur une ligne FAUSSE, ou pour toute
+   autre case vide, la case reçoit la valeur attendue en « sol » (vert) et
+   compte NON juste — au dénominateur de ptsEcran, donc la note est celle
+   d'hier, où la case rougissait. En SOUTIEN, le vide reste neutre et ouvert,
+   et le message nomme ce qui manque. Le contrôle joue, sur une question
+   FIXE de chaque exercice (a = 1, b = 1, −a = 1 : un terme vaut 1), quatre
+   copies : la ligne fausse à case vide (sol, non bad, valeur écrite, note
+   N−2 sur N, le faux avec sa correction à côté, le message dit « complétées »),
+   la ligne juste à case vide avec une autre faute (ok, N−1 sur N), la même
+   copie en soutien (neutre, ouverte, « Il te manque 1 case »), et la copie
+   BLANCHE (aucun rouge, tout en sol, 0 sur N). Les N attendus sont écrits
+   ICI, jamais relus dans la page ; les miroirs du dénominateur (dq-mirror)
+   ne comptent pas, comme dans ptsEcran. Puis (relecture d'octobre 2026) la
+   correction écrite suit l'APPARIEMENT RETENU, jamais la position : le juge
+   accepte les termes d'une ligne développée dans l'ordre qu'on veut et les
+   deux facteurs d'un produit dans les deux sens, et la valeur de la position
+   d'une case vide pouvait déjà être dans la case bleue d'à côté (« −x »
+   complété à côté d'un « −x » juste). Chaque copie imparfaite jouée ici se
+   RELIT révélée — le bleu gardé, le vert écrit, le badge du rouge — et doit
+   être jugée juste ; les copies mesurées par la relecture (la ligne
+   développée « −x », [vide], « −3 » ; la substitution à paire inversée ; la
+   substitution en ordre 2 sous des définitions en ordre 1 ; le 4.1.4 au
+   « 1 » en tête) reçoivent le terme resté libre, écrit ici. Le garde ne
+   nomme que les trois fonctions de vérification, présentes à toutes les
+   versions de la Terminale : une page à l'ancien comportement rougit, elle
+   ne s'ignore pas. Éprouvé par sabotage (la ligne d'avant M75 remise au
+   4.1.3, le bad remis sur le vide, la convention du soutien retirée, la
+   correction remise à la position) : chaque bord rougit. */
+function casesVidesDerivees41(w, P){
+  const nom = '4.1 : une case vide ne rougit jamais — sol sur une ligne fausse (note inchangée), ok sur une ligne juste, neutre en soutien, la correction par le terme resté libre';
+  const present = evaluer(w, "typeof checkDexp==='function' && typeof checkDexp3==='function' && typeof checkDexpQ==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas les dérivées du 4.1'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentDM=null;
+    const pose=function(V){ Object.keys(V).forEach(function(id){ const e=document.getElementById(id); if(e) e.setValue(V[id]); }); };
+    const cls=function(id,c){ const e=document.getElementById(id); return !!(e && e.classList.contains(c)); };
+    const badge=function(id){ const e=document.getElementById(id); if(!e) return false;
+      const anc=(e.closest && e.closest('.dexp-pwrap'))||e; const b=anc.nextElementSibling; return !!(b && b.classList && b.classList.contains('mf-cor')); };
+    const valeur=function(id){ const e=document.getElementById(id); return e ? String(e.getValue()||'') : ''; };
+    const rouges=function(){ const on=document.querySelector('.screen.on'); return on ? [...on.querySelectorAll('math-field.bad')].map(e=>e.id) : ['(aucun écran)']; };
+    /* chaque exercice : sa question fixe, son rendu, son juge, sa copie juste, la case
+       vide et la case fausse de la ligne développée, une autre case à fausser, N */
+    const EXOS=[
+      { num:'4.1.1', id:'derivee-exp', kind:'dexp', lvl:1, rendu:renderDexp, check:checkDexp, N:12,
+        q:{type:'dexp', a:1, b:2, k:-1, uStr:polyToStr([2,1]), vTxt:expMenu(-1), duTxt:numFmt(1), dvTxt:vprimeMenu(-1), dcoef:[-1,-1], facAns:polyFr([-1,-1]), expHtml:expCore(-1)},
+        juste:{'dexp-u':'x+2','dexp-du':'1','dexp-v':'e^(-x)','dexp-dv':'-e^(-x)','dexp-s2a':'1','dexp-s2b':'e^(-x)','dexp-s2c':'x+2','dexp-s2d':'-e^(-x)','dexp-s3a':'1','dexp-s3b':'-x','dexp-s3c':'-2','dexp-fac':'-x-1'},
+        vide:'dexp-s3a', faux:{'dexp-s3c':'-3'}, autre:{'dexp-fac':'-x+1'}, s2vide:'dexp-s2a', s2faux:{'dexp-s2d':'-2e^(-x)'},
+        cas:[ /* termes attendus : 1, −x, −2 ; facteurs : u′ = 1, v = e^(−x), u = x+2, v′ = −e^(−x) */
+          {nom:'ligne développée « −x », [vide], « −3 »', V:{'dexp-s3a':'-x','dexp-s3b':'','dexp-s3c':'-3'}, sol:{'dexp-s3b':'1'}, badge:{'dexp-s3c':'\u22122'}},
+          {nom:'substitution à paire inversée, e^(−x) × [vide]', V:{'dexp-s2a':'e^(-x)','dexp-s2b':'','dexp-s2d':'-2e^(-x)'}, sol:{'dexp-s2b':'1'}, badge:{'dexp-s2d':'\u2212e^(\u2212x)'}},
+          {nom:'substitution en ordre 2 sous des définitions en ordre 1', V:{'dexp-s2a':'-e^(-x)','dexp-s2b':'','dexp-s2c':'e^(-x)','dexp-s2d':'2'}, sol:{'dexp-s2b':'x+2'}, badge:{'dexp-s2d':'1'}} ] },
+      { num:'4.1.3', id:'derivee-exp-3', kind:'dexp', lvl:3, rendu:renderDexp3, check:checkDexp3, N:12,
+        q:{type:'dexp3', deg:1, ka:2, b:1, k:-1, aStr:'2x', daTxt:'2', bxStr:'x', expHtml:expCore(-1), dvTxt:vprimeMenu(-1), dcoef:[1,-1], facAns:polyFr([1,-1])},
+        juste:{'d3-da':'2','d3-u':'x','d3-du':'1','d3-v':'e^(-x)','d3-dv':'-e^(-x)','d3-s2a':'1','d3-s2b':'e^(-x)','d3-s2c':'x','d3-s2d':'-e^(-x)','d3-s3a':'1','d3-s3b':'-x','d3-fac':'1-x'},
+        vide:'d3-s3a', faux:{'d3-s3b':'-2x'}, autre:{'d3-fac':'1+x'},
+        cas:[ /* facteurs : u′ = 1, v = e^(−x), u = x, v′ = −e^(−x) */
+          {nom:'substitution à paire inversée, e^(−x) × [vide]', V:{'d3-s2a':'e^(-x)','d3-s2b':'','d3-s2d':'-2e^(-x)'}, sol:{'d3-s2b':'1'}, badge:{'d3-s2d':'\u2212e^(\u2212x)'}} ] },
+      { num:'4.1.4', id:'derivee-exp-quotient', kind:'dexpq', lvl:1, rendu:renderDexpQ, check:checkDexpQ, N:13,
+        q:{type:'dexpq', a:-1, b:2, k:-1, vStr:polyToStr([2,-1]), dvTxt:numFmt(-1), uTxt:expMenu(-1), duTxt:vprimeMenu(-1), numCoef:[-1,1], facAns:polyFr([-1,1]), expHtml:expCore(-1)},
+        juste:{'dq-u':'e^(-x)','dq-du':'-e^(-x)','dq-v':'-x+2','dq-dv':'-1','dq-s2a':'-e^(-x)','dq-s2b':'-x+2','dq-s2c':'e^(-x)','dq-s2d':'-1','dq-s2e':'(-x+2)^2','dq-s3a':'x','dq-s3b':'-2','dq-s3c':'1','dq-s3d':'(-x+2)^2','dq-fac':'x-1','dq-facd':'(-x+2)^2'},
+        vide:'dq-s3c', faux:{'dq-s3b':'-3'}, autre:{'dq-fac':'x+1'}, miroirs:['dq-s3d','dq-facd'], source:'dq-s2e',
+        cas:[ /* termes attendus : x, −2, 1 ; facteurs : u′ = −e^(−x), v = −x+2, u = e^(−x), v′ = −1 */
+          {nom:'ligne développée « 1 », « −2 », « −3 »', V:{'dq-s3a':'1','dq-s3b':'-2','dq-s3c':'-3'}, badge:{'dq-s3c':'x'}},
+          {nom:'ligne développée « 1 », « −3 », [vide]', V:{'dq-s3a':'1','dq-s3b':'-3','dq-s3c':''}, sol:{'dq-s3c':'x'}, badge:{'dq-s3b':'\u22122'}},
+          {nom:'substitution à paire inversée, (−x+2) × [vide]', V:{'dq-s2a':'-x+2','dq-s2b':'','dq-s2d':'1'}, sol:{'dq-s2b':'-e^(-x)'}, badge:{'dq-s2d':'\u22121'}} ] }
+    ];
+    EXOS.forEach(function(E){
+      const ouvrir=function(mode){ currentMode=mode; currentTestId=E.id; test.kind=E.kind; test.dexpLevel=E.lvl;
+        test.questions=[E.q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false; show('dexp'); E.rendu(); };
+      const copie=function(){ const V=Object.assign({},E.juste); for(let i=0;i<arguments.length;i++) Object.assign(V,arguments[i]); return V; };
+      const P=E.num+' : ';
+      /* la copie RÉVÉLÉE après « Vérifier » : le bleu gardé, le vert écrit (la
+         case, sans ses accolades), le badge du rouge (sans son <sup>) ; un
+         miroir recopie sa source */
+      const revelee=function(){ const V={};
+        Object.keys(E.juste).forEach(function(id){ const e=document.getElementById(id); if(!e) return;
+          if(cls(id,'ok')||cls(id,'sol')) V[id]=String(e.getValue()||'').replace(/\\^\\{([^}]*)\\}/g,'^($1)');
+          else if(cls(id,'bad')){ const anc=(e.closest&&e.closest('.dexp-pwrap'))||e, b=anc.nextElementSibling;
+            V[id]=(b&&b.classList&&b.classList.contains('mf-cor'))?b.innerHTML.replace(/<sup>([^<]*)<\\/sup>/g,'^($1)').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&'):null; }
+          else V[id]=null; });
+        (E.miroirs||[]).forEach(function(id){ V[id]=V[E.source]; });
+        return V; };
+      const rejuge=function(quoi){ const V=revelee(); const manque=Object.keys(V).filter(function(id){ return V[id]==null; });
+        if(manque.length){ vus.push(P+quoi+' : aucune valeur révélée pour '+manque.join(', ')); return; }
+        ouvrir('train'); pose(V); E.check();
+        if(!(test.answers[0]&&test.answers[0].correct)) vus.push(P+quoi+' : la copie révélée (bleu gardé, vert écrit, badge du rouge) n\\'est pas jugée juste — rouges : '+rouges().join(', ')); };
+      const lireBadge=function(id){ const e=document.getElementById(id), anc=(e&&e.closest&&e.closest('.dexp-pwrap'))||e, b=anc&&anc.nextElementSibling;
+        return (b&&b.classList&&b.classList.contains('mf-cor'))?b.innerHTML.replace(/<sup>([^<]*)<\\/sup>/g,'^($1)').replace(/\\s/g,''):'(aucun badge)'; };
+      /* 0. la copie juste passe — sinon c'est le contrôle qui a tort */
+      ouvrir('train'); pose(E.juste); E.check();
+      if(!(test.answers[0]&&test.answers[0].correct)){ vus.push(P+'la copie témoin juste ne passe pas ('+rouges().join(', ')+')'); return; }
+      /* 1. ligne développée FAUSSE, une case vide : sol, non bad, la valeur écrite, la note N−2 sur N */
+      ouvrir('train'); { const V=copie(E.faux); V[E.vide]=''; pose(V); } E.check();
+      let m=ptsEcran();
+      if(cls(E.vide,'bad')) vus.push(P+'la case vide d\\'une ligne fausse ROUGIT');
+      if(!cls(E.vide,'sol')) vus.push(P+'la case vide d\\'une ligne fausse n\\'est pas en sol');
+      if(valeur(E.vide)==='') vus.push(P+'la case vide d\\'une ligne fausse n\\'a pas reçu sa correction');
+      const idFaux=Object.keys(E.faux)[0];
+      if(!cls(idFaux,'bad')) vus.push(P+'la case fausse n\\'est pas rouge');
+      if(!badge(idFaux)) vus.push(P+'la case fausse n\\'a pas sa correction à côté');
+      if(!m || m.cases!==E.N || m.justes!==E.N-2) vus.push(P+'ligne fausse à case vide : note '+(m?m.justes+' sur '+m.cases:'(aucune)')+', attendu '+(E.N-2)+' sur '+E.N);
+      { const fb=document.getElementById('dexpFeedback').innerHTML;
+        if(fb.indexOf('compl\u00e9t\u00e9es')<0) vus.push(P+'le message ne dit pas que les cases oubliées ont été complétées');
+        if(fb.indexOf('La bonne d')<0) vus.push(P+'la bonne démarche a disparu du message'); }
+      rejuge('ligne fausse à case vide');
+      /* 2. ligne développée JUSTE, une case vide (le 1 omis), une autre case fausse : ok, N−1 sur N */
+      ouvrir('train'); { const V=copie(E.autre); V[E.vide]=''; pose(V); } E.check();
+      m=ptsEcran();
+      if(!cls(E.vide,'ok')) vus.push(P+'la case vide d\\'une ligne juste (1 omis) n\\'est pas ok');
+      if(!m || m.cases!==E.N || m.justes!==E.N-1) vus.push(P+'ligne juste à case vide : note '+(m?m.justes+' sur '+m.cases:'(aucune)')+', attendu '+(E.N-1)+' sur '+E.N);
+      /* 3. la copie 1 en SOUTIEN : la case vide reste neutre et ouverte, le message nomme ce qui manque */
+      ouvrir('soutien'); { const V=copie(E.faux); V[E.vide]=''; pose(V); } E.check();
+      { const e=document.getElementById(E.vide);
+        if(cls(E.vide,'ok')||cls(E.vide,'bad')||cls(E.vide,'sol')) vus.push(P+'en soutien, la case vide reçoit une couleur');
+        if(e && e.readOnly) vus.push(P+'en soutien, la case vide est verrouillée');
+        if(test.locked) vus.push(P+'en soutien, la copie incomplète se verrouille');
+        const fb=document.getElementById('dexpFeedback').textContent;
+        if(fb.indexOf('Il te manque 1 case')<0) vus.push(P+'en soutien, le message ne nomme pas la case qui manque : « '+fb.slice(0,60)+' »'); }
+      /* 4. la copie BLANCHE en entraînement : aucun rouge, tout en sol, 0 sur N */
+      ouvrir('train'); E.check();
+      m=ptsEcran();
+      { const r=rouges(); if(r.length) vus.push(P+'copie blanche : '+r.length+' case(s) rouge(s) — '+r.slice(0,3).join(', '));
+        const on=document.querySelector('.screen.on');
+        const sols=on?[...on.querySelectorAll('math-field.sol')].filter(e=>!e.closest('.dq-mirror')&&!e.classList.contains('dq-mirror')).length:0;
+        if(sols!==E.N) vus.push(P+'copie blanche : '+sols+' case(s) en sol, attendu '+E.N);
+        if(!m || m.cases!==E.N || m.justes!==0) vus.push(P+'copie blanche : note '+(m?m.justes+' sur '+m.cases:'(aucune)')+', attendu 0 sur '+E.N); }
+      rejuge('copie blanche');
+      /* 5. (4.1.1) la ligne de SUBSTITUTION fausse à case vide : sol, non ok — c'est le reste trouvé par relecture */
+      if(E.s2vide){
+        ouvrir('train'); { const V=copie(E.s2faux); V[E.s2vide]=''; pose(V); } E.check();
+        if(!cls(E.s2vide,'sol') || cls(E.s2vide,'ok') || cls(E.s2vide,'bad')) vus.push(P+'substitution fausse : la case vide (u′ = 1 omis) n\\'est pas en sol');
+        rejuge('substitution fausse à case vide');
+      }
+      /* 6. la correction suit l'appariement RETENU, jamais la position (relecture
+         d'octobre 2026) : sur les copies mesurées par la relecture, la case vide
+         reçoit en sol, et la case fausse en badge, le terme resté LIBRE — et la
+         copie révélée se rejuge juste */
+      (E.cas||[]).forEach(function(C){
+        ouvrir('train'); pose(copie(C.V)); E.check();
+        Object.keys(C.sol||{}).forEach(function(id){ const v=valeur(id).replace(/\\^\\{([^}]*)\\}/g,'^($1)').replace(/\\s/g,'');
+          if(!cls(id,'sol')) vus.push(P+C.nom+' : '+id+' n\\'est pas en sol');
+          else if(v!==C.sol[id]) vus.push(P+C.nom+' : '+id+' reçoit « '+v+' », attendu « '+C.sol[id]+' »'); });
+        Object.keys(C.badge||{}).forEach(function(id){ const v=lireBadge(id);
+          if(!cls(id,'bad')) vus.push(P+C.nom+' : '+id+' n\\'est pas rouge');
+          else if(v!==C.badge[id]) vus.push(P+C.nom+' : le badge de '+id+' dit « '+v+' », attendu « '+C.badge[id]+' »'); });
+        rejuge(C.nom); });
+    });
+    currentMode='train'; test.dexpLevel=1;
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---------- Terminale : les constats MINEURS de l'audit d'octobre 2026 (lot J) ----------
    Douze petits défauts de la Terminale, chacun tenu ici par le bord qui l'a
    montré — un bug corrigé devient un contrôle. Les juges sont appelés sur des
@@ -49905,9 +50266,13 @@ function convexiteTangente(w, P){
    · M74 — la lettre de la fonction (f, g) n'est pas une autre question : la clé
      de distincte() l'ignore, et 400 séances du 1.3 ne posent jamais deux fois
      la même courbe sous deux lettres ;
-   · M75 — une case VIDE de la ligne développée du 2.1.1, sur une ligne FAUSSE,
+   · M75 — une case VIDE de la ligne développée du 4.1.1, sur une ligne FAUSSE,
      n'est jamais juste (quand a = 1, le vide lu « 1 » tombait sur le terme a) ;
-     sur une ligne JUSTE, le facteur 1 omis reste accepté ;
+     sur une ligne JUSTE, le facteur 1 omis reste accepté. Étendu en octobre
+     2026 (option b de la décision de Turquet) à la ligne développée du 4.1.3
+     — qui passait encore le vide contre les termes restants, bleu quand
+     b = 1 — et aux lignes de SUBSTITUTION des 4.1.1, 4.1.3 et 4.1.4, où le
+     vide lu 1 s'appariait à u′ = a (ou b) quand ce coefficient vaut 1 ;
    · M76 — « m = [ ] e^… » : le coefficient 1 de e s'omet au 5.5 quand
      l'exposant est juste (le 5.2 est tenu par le contrôle de la tangente) ;
    · M77 — « + 0 » n'apparaît plus dans l'énoncé de {suites}, et « Recommencer »
@@ -49961,6 +50326,58 @@ function mineursTerminale(w, P){
         pose('dexp-s3c',s3c);
         r=dexpVerdicts();
         if(!r.groups.s3) vus.push('M75 : la ligne juste au facteur 1 omis (« + e^(kx) ») est refusée');
+        /* la ligne de SUBSTITUTION, même règle : s2a vide (u′ = a = 1 omis) et
+           s2d faux — la ligne est fausse, la case vide n'est pas juste ; s2d
+           réparé, la ligne est juste et le 1 omis passe */
+        const expS='e^('+q.expHtml+')', dexpS=(q.k===1?'':(q.k===-1?'-':String(q.k)))+expS;
+        pose('dexp-s2a',''); pose('dexp-s2b',expS); pose('dexp-s2c',q.uStr); pose('dexp-s2d',String(q.k+1)+expS);
+        r=dexpVerdicts();
+        if(r.groups.s2) vus.push('M75 : une ligne de substitution fausse (4.1.1) est jugée juste');
+        if(r.verdicts['dexp-s2a']) vus.push('M75 : la case VIDE d\\'une substitution fausse (4.1.1) est comptée juste quand a = 1');
+        pose('dexp-s2d',dexpS);
+        r=dexpVerdicts();
+        if(!r.groups.s2 || !r.verdicts['dexp-s2a']) vus.push('M75 : la substitution juste au facteur 1 omis (4.1.1) est refusée');
+      } }
+    /* ---- M75, le 4.1.3 : la ligne développée et la substitution, b = 1 ---- */
+    { let q=null; for(let t=0;t<500 && !q;t++){ const g=genDexp3(); if(g.b===1 && (g.k===-1||g.k===2)) q=g; }
+      if(!q) vus.push('M75 : aucun tirage du 4.1.3 avec b = 1 en 500 essais');
+      else {
+        currentTestId='derivee-exp-3'; test.kind='dexp'; test.dexpLevel=3; test.questions=[q]; test.idx=0; test.locked=false;
+        show('dexp'); renderDexp3();
+        const pose=function(id,v){ const e=document.getElementById(id); if(e) e.setValue(v); };
+        const s3b=String(q.b*q.k)+'x';
+        pose('d3-s3a',''); pose('d3-s3b',String(q.b*q.k+1)+'x');
+        let r=d3Verdicts();
+        if(r.groups.s3) vus.push('M75 : une ligne développée fausse du 4.1.3 est jugée juste');
+        if(r.verdicts['d3-s3a']) vus.push('M75 : la case VIDE d\\'une ligne développée fausse du 4.1.3 est comptée juste quand b = 1');
+        pose('d3-s3b',s3b);
+        r=d3Verdicts();
+        if(!r.groups.s3 || !r.verdicts['d3-s3a']) vus.push('M75 : la ligne développée juste au facteur 1 omis (4.1.3) est refusée');
+        const expS='e^('+q.expHtml+')', dexpS=(q.k===1?'':(q.k===-1?'-':String(q.k)))+expS;
+        pose('d3-s2a',''); pose('d3-s2b',expS); pose('d3-s2c','x'); pose('d3-s2d',String(q.k+1)+expS);
+        r=d3Verdicts();
+        if(r.groups.s2) vus.push('M75 : une substitution fausse du 4.1.3 est jugée juste');
+        if(r.verdicts['d3-s2a']) vus.push('M75 : la case VIDE d\\'une substitution fausse du 4.1.3 est comptée juste quand b = 1');
+        pose('d3-s2d',dexpS);
+        r=d3Verdicts();
+        if(!r.groups.s2 || !r.verdicts['d3-s2a']) vus.push('M75 : la substitution juste au facteur 1 omis (4.1.3) est refusée');
+        test.dexpLevel=1;
+      } }
+    /* ---- M75, le 4.1.4 : la substitution, v′ = a = 1 ---- */
+    { let q=null; for(let t=0;t<500 && !q;t++){ const g=genDexpQ(); if(g.a===1 && g.b!==0 && (g.k===-1||g.k===2)) q=g; }
+      if(!q) vus.push('M75 : aucun tirage du 4.1.4 avec a = 1 en 500 essais');
+      else {
+        currentTestId='derivee-exp-quotient'; test.kind='dexpq'; test.dexpLevel=1; test.questions=[q]; test.idx=0; test.locked=false;
+        show('dexp'); renderDexpQ();
+        const pose=function(id,v){ const e=document.getElementById(id); if(e) e.setValue(v); };
+        const expS='e^('+q.expHtml+')', dexpS=(q.k===1?'':(q.k===-1?'-':String(q.k)))+expS;
+        pose('dq-s2a',String(q.k+1)+expS); pose('dq-s2b',q.vStr); pose('dq-s2c',expS); pose('dq-s2d',''); pose('dq-s2e','('+q.vStr+')^2');
+        let r=dqVerdicts();
+        if(r.groups.s2) vus.push('M75 : une substitution fausse du 4.1.4 est jugée juste');
+        if(r.verdicts['dq-s2d']) vus.push('M75 : la case VIDE d\\'une substitution fausse du 4.1.4 est comptée juste quand a = 1');
+        pose('dq-s2a',dexpS);
+        r=dqVerdicts();
+        if(!r.groups.s2 || !r.verdicts['dq-s2d']) vus.push('M75 : la substitution juste au facteur 1 omis (4.1.4) est refusée');
       } }
 
     /* ---- M76 : le coefficient 1 de e s'omet au 5.5 ---- */
@@ -51703,6 +52120,72 @@ function simplifierBarres(w, P){
     r=juger(avec({'smp-fn':null}));
     if(r.correct) vus.push('une copie à laquelle il manque une réponse est comptée terminée');
     if(r.justes!==4) vus.push('la demi-copie juste vaut '+r.justes+' au lieu de 4');
+
+    /* ---- 5. LES GESTES SONT BORNÉS (décision de Turquet, octobre 2026, audit
+       T2/A3, option g). Sans la borne, smpClicL(41) posait selL = 41 sur 40
+       parts : rien ne le montrait tant que seul un segment de la barre
+       pouvait appeler le geste ; les boutons « − » « + » l\\'appellent hors
+       de la barre et l\\'auraient trouvé aussitôt. ---------------------- */
+    test.locked=false; renderSmpTest();
+    const qb=test.questions[test.idx];
+    qb.selL=0; qb.selR=0;
+    smpClicL(qb.b+1); if(qb.selL!==qb.b) vus.push('smpClicL('+(qb.b+1)+') pose selL = '+qb.selL+' sur une barre de '+qb.b+' parts');
+    smpClicL(qb.b+7); if(qb.selL!==qb.b) vus.push('une part de plus sur une barre pleine pose selL = '+qb.selL+' (attendu '+qb.b+')');
+    qb.selL=0; smpClicL(-1); if(qb.selL!==0) vus.push('smpClicL(-1) sur une barre vide pose selL = '+qb.selL);
+    smpClicL(0); if(qb.selL!==0) vus.push('smpClicL(0) sur une barre vide pose selL = '+qb.selL);
+    smpClicL('abc'); if(qb.selL!==0) vus.push('smpClicL(\\'abc\\') pose selL = '+qb.selL);
+    smpClicR(qb.d+5); if(qb.selR!==qb.d) vus.push('smpClicR('+(qb.d+5)+') pose selR = '+qb.selR+' sur une barre de '+qb.d+' parts');
+    smpClicR(-3); if(qb.selR!==0) vus.push('smpClicR(-3) pose selR = '+qb.selR);
+    /* et le geste ordinaire n\\'a pas changé : la part i colorie jusqu\\'à i,
+       recliquer la dernière efface d\\'un cran, jusqu\\'à vider la barre */
+    qb.selL=0; smpClicL(5); if(qb.selL!==5) vus.push('cliquer la part 5 colorie '+qb.selL+' part(s)');
+    smpClicL(5); if(qb.selL!==4) vus.push('recliquer la dernière part laisse '+qb.selL+' au lieu de 4');
+    smpClicL(1); smpClicL(1); if(qb.selL!==0) vus.push('recliquer la part 1 seule coloriée laisse '+qb.selL+' au lieu de vider la barre');
+    if(((document.getElementById('smpValL')||{}).textContent||'').indexOf('…')<0) vus.push('une barre vidée ne relit pas « … » à côté');
+
+    /* ---- 6. LES BOUTONS « − » « + » DES ÉCRANS TACTILES : absents au
+       pointeur fin, présents et nommés en tactile, le pas passe par le geste
+       borné, la fraction lue suit, et le verrouillage les grise. La taille
+       (44 px) se mesure au banc navigateur. ------------------------------ */
+    delete window.__tabletteForce;
+    renderSmpTest();
+    const nbFin=document.querySelectorAll('#smpHost .smp-pm').length;
+    if(nbFin!==0) vus.push('sur ordinateur, '+nbFin+' bouton(s) « − » « + » apparaissent sous les barres');
+    window.__tabletteForce=true;
+    try{
+      renderSmpTest();
+      const q2=test.questions[test.idx]; q2.selL=0; q2.selR=0; smpMajCol();
+      const btn=function(cote,pas){ return document.querySelector('#smpHost .smp-pm-row[data-cote="'+cote+'"] .smp-pm[data-pas="'+pas+'"]'); };
+      const bL=btn('L',1), bLm=btn('L',-1), bR=btn('R',1), bRm=btn('R',-1);
+      const tous=document.querySelectorAll('#smpHost .smp-pm').length;
+      if(!bL||!bLm||!bR||!bRm||tous!==4) vus.push('en tactile, il manque un bouton : '+tous+' en tout, [−L, +L, −R, +R] = '+[bLm,bL,bRm,bR].map(function(b){ return b?'ok':'absent'; }).join(' '));
+      else {
+        if(bL.tagName!=='BUTTON'||bL.getAttribute('type')!=='button') vus.push('le bouton « + » n\\'est pas un <button type="button"> : '+bL.tagName+' '+bL.getAttribute('type'));
+        [[bL,'une part de plus sur la barre partagée en '+q2.b],[bLm,'une part de moins sur la barre partagée en '+q2.b],
+         [bR,'une part de plus sur la barre partagée en '+q2.d],[bRm,'une part de moins sur la barre partagée en '+q2.d]].forEach(function(pr){
+          if(pr[0].getAttribute('aria-label')!==pr[1]) vus.push('un bouton se nomme « '+pr[0].getAttribute('aria-label')+' » au lieu de « '+pr[1]+' »'); });
+        const luL=function(){ return ((document.getElementById('smpValL')||{}).textContent||'').replace(/\\s/g,''); };
+        bL.click(); bL.click();
+        if(q2.selL!==2) vus.push('deux pressions sur « + » colorient '+q2.selL+' part(s) au lieu de 2');
+        if(document.querySelectorAll('#smpBarL .smp-seg.on').length!==2) vus.push('après deux « + », '+document.querySelectorAll('#smpBarL .smp-seg.on').length+' part(s) peinte(s)');
+        if(luL()!=='2/'+q2.b) vus.push('après deux « + », on lit « '+luL()+' » à côté de la 1re barre au lieu de 2/'+q2.b);
+        bLm.click(); if(q2.selL!==1) vus.push('« − » après deux « + » laisse '+q2.selL+' part(s)');
+        bLm.click(); bLm.click(); if(q2.selL!==0) vus.push('« − » sur une barre vide pose selL = '+q2.selL);
+        if(luL()!=='…') vus.push('une barre vidée au bouton relit « '+luL()+' » au lieu de « … »');
+        q2.selL=q2.b-1; smpMajCol(); bL.click(); if(q2.selL!==q2.b) vus.push('« + » sur la dernière part laisse '+q2.selL+' au lieu de '+q2.b);
+        bL.click(); if(q2.selL!==q2.b) vus.push('« + » sur une barre pleine pose selL = '+q2.selL+' ('+q2.b+' parts)');
+        if(luL()!==q2.b+'/'+q2.b) vus.push('barre pleine, on lit « '+luL()+' » au lieu de '+q2.b+'/'+q2.b);
+        bR.click(); if(q2.selR!==1) vus.push('« + » de la 2de barre colorie '+q2.selR+' part(s)');
+        bRm.click(); bRm.click(); if(q2.selR!==0) vus.push('« − » de la 2de barre vide pose selR = '+q2.selR);
+        /* au verrouillage, les boutons sont inactifs : la copie juste verrouille */
+        q2.selL=8; q2.selR=2; smpMajCol();
+        CASES.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(id==='smp-fn')?'2':'4'; });
+        checkSmpAnswer();
+        if(!test.locked) vus.push('la copie juste ne verrouille pas la question');
+        if(!(bL.disabled&&bLm.disabled&&bR.disabled&&bRm.disabled)) vus.push('au verrouillage, des boutons « − » « + » restent actifs');
+        bL.click(); bRm.click(); if(q2.selL!==8||q2.selR!==2) vus.push('un bouton pressé après le verrouillage change le coloriage : '+q2.selL+' / '+q2.selR);
+      }
+    } finally { delete window.__tabletteForce; }
 
     return vus.join(' | ');
   })()`, v => v === '', undefined);

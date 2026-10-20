@@ -3025,7 +3025,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=332;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=333;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -13218,8 +13218,11 @@ function checkHSAnswer(live){
     [$('hsVn'),$('hsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
   }
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  marqueFracSaufVide('hs1n','hs1d',q.P1,100,soutien); marqueSaufVide('hs1p',ok1p,soutien); marqueSaufVide('hs1dec',ok1d,soutien);
-  marqueFracSaufVide('hs2n','hs2d',q.P2,100,soutien); marqueSaufVide('hs2p',ok2p,soutien); marqueSaufVide('hs2dec',ok2d,soutien);
+  /* les P/100 de l'étape ① passent par le juge du 2.2.1 (marqueFracAncre) : le P
+     écrit seul reste bleu, le dénominateur se juge seul — la convention « vide
+     vaut 1 » reste aux coefficients et au produit (décision de Turquet, octobre 2026) */
+  marqueFracAncre('hs1n','hs1d',ok1,q.P1,100,soutien); marqueSaufVide('hs1p',ok1p,soutien); marqueSaufVide('hs1dec',ok1d,soutien);
+  marqueFracAncre('hs2n','hs2d',ok2,q.P2,100,soutien); marqueSaufVide('hs2p',ok2p,soutien); marqueSaufVide('hs2dec',ok2d,soutien);
   marqueFracSaufVide('hsAn','hsAd',hsTgA.num,hsTgA.den,soutien); marqueFracSaufVide('hsBn','hsBd',hsTgB.num,hsTgB.den,soutien);
   marqueFracSaufVide('hsPn','hsPd',q.prodNum,q.prodDen,soutien); marqueSaufVide('hsDec',okC,soutien); marqueSaufVide('hsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;
@@ -13454,10 +13457,12 @@ function checkHSCAnswer(live){
   const ok2f=fracOk('hsc2n','hsc2d',q.P2,100),  ok2m=decEst('hsc2m',a.v1);
   const ok2p=fracOk('hsc2pn','hsc2pd',a.prod2,100), ok2a=decEst('hsc2a',a.aug2), ok2r=decEst('hsc2sr',a.v2);
   const okFin=decEst('hscFin',a.v2), okPour=decEst('hscPour',a.h), okPct=decEst('hscPct',a.h);
-  marqueFracSaufVide('hsc1n','hsc1d',q.P1,100,soutien);   marqueSaufVide('hsc1m',ok1m,soutien);
+  /* les P/100 : le juge du 2.2.1 (marqueFracAncre) ; les fractions PRODUIT
+     gardent « vide vaut 1 » — 2000/100 = 20, et « 20 » seul y est juste */
+  marqueFracAncre('hsc1n','hsc1d',ok1f,q.P1,100,soutien); marqueSaufVide('hsc1m',ok1m,soutien);
   marqueFracSaufVide('hsc1pn','hsc1pd',a.prod1,100,soutien); marqueSaufVide('hsc1a',ok1a,soutien);
   marqueSaufVide('hsc1sa',s1.ok[0],soutien); marqueSaufVide('hsc1sb',s1.ok[1],soutien); marqueSaufVide('hsc1sr',ok1r,soutien);
-  marqueFracSaufVide('hsc2n','hsc2d',q.P2,100,soutien);   marqueSaufVide('hsc2m',ok2m,soutien);
+  marqueFracAncre('hsc2n','hsc2d',ok2f,q.P2,100,soutien); marqueSaufVide('hsc2m',ok2m,soutien);
   marqueFracSaufVide('hsc2pn','hsc2pd',a.prod2,100,soutien); marqueSaufVide('hsc2a',ok2a,soutien);
   marqueSaufVide('hsc2sa',s2.ok[0],soutien); marqueSaufVide('hsc2sb',s2.ok[1],soutien); marqueSaufVide('hsc2sr',ok2r,soutien);
   marqueSaufVide('hscFin',okFin,soutien); marqueSaufVide('hscPour',okPour,soutien); marqueSaufVide('hscPct',okPct,soutien);
@@ -13912,8 +13917,9 @@ function checkEssAnswer(live){
     if(v('essVn')!=='' || v('essVd')!=='') marqueFracSaufVide('essVn','essVd',a.pct,100,soutien);
     marqueSaufVide('essVp',decOk('essVp','0,',a.pct,100),soutien);
     marqueSaufVide('essVc',decOk('essVc',tete(s4),a.prodNum,a.prodDen),soutien);
-    marqueFracSaufVide('ess1n','ess1d',q.P1,100,soutien); marqueSaufVide('ess1p',ok1p,soutien); marqueSaufVide('ess1dec',ok1d,soutien);
-    marqueFracSaufVide('ess2n','ess2d',q.P2,100,soutien); marqueSaufVide('ess2p',ok2p,soutien); marqueSaufVide('ess2dec',ok2d,soutien);
+    /* les P/100 : le juge du 2.2.1 (marqueFracAncre), comme au 2.2.7 */
+    marqueFracAncre('ess1n','ess1d',ok1,q.P1,100,soutien); marqueSaufVide('ess1p',ok1p,soutien); marqueSaufVide('ess1dec',ok1d,soutien);
+    marqueFracAncre('ess2n','ess2d',ok2,q.P2,100,soutien); marqueSaufVide('ess2p',ok2p,soutien); marqueSaufVide('ess2dec',ok2d,soutien);
     marqueFracSaufVide('essAn','essAd',tgA.num,tgA.den,soutien); marqueFracSaufVide('essBn','essBd',tgB.num,tgB.den,soutien);
     marqueFracSaufVide('essPn','essPd',a.prodNum,a.prodDen,soutien); marqueSaufVide('essDec',okC,soutien); marqueSaufVide('essP',okP,soutien);
     peindreSens();
@@ -13954,10 +13960,11 @@ function checkEssAnswer(live){
     const ok2f=fracOk('essc2n','essc2d',q.P2,100),   ok2m=decEst('essc2m',a.v1);
     const ok2p=fracOk('essc2pn','essc2pd',a.prod2,100), ok2a=decEst('essc2a',a.aug2), ok2r=decEst('essc2sr',a.v2);
     const okFin=decEst('esscFin',a.v2), okPour=decEst('esscPour',a.pct), okPct=decEst('esscPct',a.pct);
-    marqueFracSaufVide('essc1n','essc1d',q.P1,100,soutien);    marqueSaufVide('essc1m',ok1m,soutien);
+    /* les P/100 : le juge du 2.2.1 (marqueFracAncre), comme au 2.2.8 ; les produits gardent « vide vaut 1 » */
+    marqueFracAncre('essc1n','essc1d',ok1f,q.P1,100,soutien); marqueSaufVide('essc1m',ok1m,soutien);
     marqueFracSaufVide('essc1pn','essc1pd',a.prod1,100,soutien); marqueSaufVide('essc1a',ok1a,soutien);
     marqueSaufVide('essc1sa',s1.ok[0],soutien); marqueSaufVide('essc1sb',s1.ok[1],soutien); marqueSaufVide('essc1sr',ok1r,soutien);
-    marqueFracSaufVide('essc2n','essc2d',q.P2,100,soutien);    marqueSaufVide('essc2m',ok2m,soutien);
+    marqueFracAncre('essc2n','essc2d',ok2f,q.P2,100,soutien); marqueSaufVide('essc2m',ok2m,soutien);
     marqueFracSaufVide('essc2pn','essc2pd',a.prod2,100,soutien); marqueSaufVide('essc2a',ok2a,soutien);
     marqueSaufVide('essc2sa',s2.ok[0],soutien); marqueSaufVide('essc2sb',s2.ok[1],soutien); marqueSaufVide('essc2sr',ok2r,soutien);
     marqueSaufVide('esscFin',okFin,soutien); marqueSaufVide('esscPour',okPour,soutien); marqueSaufVide('esscPct',okPct,soutien);
@@ -19258,8 +19265,9 @@ function checkBSAnswer(live){
     [$('bsVn'),$('bsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
   }
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  marqueFracSaufVide('bs1n','bs1d',q.P1,100,soutien); marqueSaufVide('bs1p',ok1p,soutien); marqueSaufVide('bs1dec',ok1d,soutien);
-  marqueFracSaufVide('bs2n','bs2d',q.P2,100,soutien); marqueSaufVide('bs2p',ok2p,soutien); marqueSaufVide('bs2dec',ok2d,soutien);
+  /* les P/100 de l'étape ① : le juge du 2.2.1 (marqueFracAncre), comme au 2.2.7 */
+  marqueFracAncre('bs1n','bs1d',ok1,q.P1,100,soutien); marqueSaufVide('bs1p',ok1p,soutien); marqueSaufVide('bs1dec',ok1d,soutien);
+  marqueFracAncre('bs2n','bs2d',ok2,q.P2,100,soutien); marqueSaufVide('bs2p',ok2p,soutien); marqueSaufVide('bs2dec',ok2d,soutien);
   marqueFracSaufVide('bsAn','bsAd',bsTgA.num,bsTgA.den,soutien); marqueFracSaufVide('bsBn','bsBd',bsTgB.num,bsTgB.den,soutien);
   marqueFracSaufVide('bsPn','bsPd',q.prodNum,q.prodDen,soutien); marqueSaufVide('bsDec',okC,soutien); marqueSaufVide('bsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;

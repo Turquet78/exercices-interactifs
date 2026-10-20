@@ -3750,7 +3750,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=414;
+const APP_VERSION=415;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -11301,12 +11301,12 @@ function dexpVerdicts(){
   const o2={'dexp-u':checkExprFn(U,expf),'dexp-du':checkExprFn(DU,dexpf),'dexp-v':checkExprFn(V,poly),'dexp-dv':checkExprFn(DV,dpoly)};
   const n1=Object.values(o1).filter(Boolean).length, n2=Object.values(o2).filter(Boolean).length;
   const order = n2>n1 ? 2 : (n1>n2 ? 1 : (o2['dexp-u']&&!o1['dexp-u'] ? 2 : 1));   /* égalité : la définition posée en u départage */
-  const verdicts = order===2 ? o2 : o1;
+  const verdicts = order===2 ? o2 : o1, sol={};   /* sol : ce que la correction écrit sur une ligne fausse (dexpSolTermes, dexpSolPaire) */
   const f1=dexpCompile1('dexp-s2a'),f2=dexpCompile1('dexp-s2b'),f3=dexpCompile1('dexp-s2c'),f4=dexpCompile1('dexp-s2d');
   const s2ok=!!(f1&&f2&&f3&&f4)&&cmpFns(x=>f1(x)*f2(x)+f3(x)*f4(x), fprime);
   const eqF=(f,g)=>!!f&&!!g&&cmpFns(f,g);
   const bestPair=(A,B,fa,fb)=>{ const d1=(eqF(A,fa)?1:0)+(eqF(B,fb)?1:0), d2=(eqF(A,fb)?1:0)+(eqF(B,fa)?1:0);
-    return d2>d1 ? {v:[eqF(A,fb),eqF(B,fa)],n:d2} : {v:[eqF(A,fa),eqF(B,fb)],n:d1}; };
+    return d2>d1 ? {v:[eqF(A,fb),eqF(B,fa)],n:d2,sw:true} : {v:[eqF(A,fa),eqF(B,fb)],n:d1,sw:false}; };
   if(s2ok){ verdicts['dexp-s2a']=verdicts['dexp-s2b']=verdicts['dexp-s2c']=verdicts['dexp-s2d']=true; }
   else{
     /* ligne fausse : chaque case est jugée contre les facteurs attendus (u'·v + v'·u, paires et ordres libres) */
@@ -11315,6 +11315,19 @@ function dexpVerdicts(){
     const un=(RA1.n+RB1.n)>=(RA2.n+RB2.n);
     const va=un?RA1.v:RA2.v, vb=un?RB1.v:RB2.v;
     verdicts['dexp-s2a']=va[0]; verdicts['dexp-s2b']=va[1]; verdicts['dexp-s2c']=vb[0]; verdicts['dexp-s2d']=vb[1];
+    /* et une case VIDE d'une ligne FAUSSE n'est jamais juste (M75, octobre
+       2026) : lue 1 par dexpCompile1, elle s'appariait à u′ = a quand a = 1,
+       et la case que l'élève n'avait pas remplie passait au bleu. Le
+       « facteur 1 omis » ne vaut que sur une ligne juste dans son ensemble. */
+    DEXP_S2.filter(id=>dexpCellValue(id)==='').forEach(id=>{ verdicts[id]=false; });
+    /* ce que la correction écrit suit l'appariement RETENU — l'arrangement
+       (un) et le sens de chaque paire (sw) —, jamais la position ; une ligne
+       sans aucune case juste garde les valeurs de l'ordre u/v posé */
+    if(DEXP_S2.some(id=>verdicts[id])){
+      const PA=un?RA1:RA2, PB=un?RB1:RB2, S=dexpFacteurs(c);
+      Object.assign(sol, dexpSolPaire(DEXP_S2.slice(0,2), verdicts, un?[S.dpoly,S.exp]:[S.dexp,S.poly], PA.sw),
+                         dexpSolPaire(DEXP_S2.slice(2), verdicts, un?[S.dexp,S.poly]:[S.dpoly,S.exp], PB.sw));
+    }
   }
   const g1=dexpCompile0('dexp-s3a'),g2=dexpCompile0('dexp-s3b'),g3=dexpCompile0('dexp-s3c');
   const s3ok=!!(g1&&g2&&g3)&&cmpFns(x=>(g1(x)+g2(x)+g3(x))*Math.exp(c.k*x), fprime);
@@ -11334,9 +11347,12 @@ function dexpVerdicts(){
        ligne juste dans son ensemble — c'est elle qui prouve que le vide
        voulait dire 1. Sur une ligne fausse, le vide pris pour 1 tombait sur
        un terme qui valait 1, et la case que l'élève n'avait pas remplie
-       passait au bleu, comptée juste dans la note. Elle reçoit le sort des
-       autres cases vides de l'exercice (voir « lacunes » du profil). */
+       passait au bleu, comptée juste dans la note. À la vérification, elle
+       reçoit sa correction en vert (sol), comptée non juste — dexpEtats. */
     ids.filter(id=>dexpCellValue(id)==='').forEach(id=>{ verdicts[id]=false; });
+    /* la correction d'une case vide ou fausse : un terme resté sans case juste */
+    { const vals=[numFmt(c.a), polyFr([0,c.a*c.k])]; if(c.b!==0) vals.push(numFmt(c.b*c.k));
+      Object.assign(sol, dexpSolTermes(ids, verdicts, used, vals)); }
     /* l'erreur du signalement de Julien (août 2026) : le TERME ENTIER écrit
        dans la case du coefficient — « 3xe^{−x} » dans une case déjà suivie de
        e^{−x}, si bien que le terme affiché vaut (3xe^{−x})·e^{−x}. La bonne
@@ -11347,7 +11363,7 @@ function dexpVerdicts(){
       return terms.some(t=>eqF(f, x=>t(x)*Math.exp(c.k*x))); });
   }
   verdicts['dexp-fac']=checkExprFn(dexpCellValue('dexp-fac'), x=>polyEval(c.dcoef,x));
-  return {verdicts, order, groups:{s2:s2ok, s3:s3ok, s3TermeEntier}};
+  return {verdicts, order, groups:{s2:s2ok, s3:s3ok, s3TermeEntier}, sol};
 }
 /* Lecture d'une case math : on retire D'ABORD les residus de fin de saisie avec saClean
    (exposant vide « 2^{} », \placeholder{}, operateur isole). Sans ce nettoyage, une reponse
@@ -11496,35 +11512,123 @@ function dexpRevealSolution(key){
   $('dexpFeedback').textContent='Voici la solution de cette case pour t\u2019aider \u2014 continue avec le reste.';
   $('dexpFeedback').className='mp-feedback';
 }
+/* ---- LA VÉRIFICATION DES TROIS DÉRIVÉES DU 4.1 (4.1.1, 4.1.3, 4.1.4) ----
+   Une case laissée VIDE ne rougit jamais (décision de Turquet, octobre 2026,
+   point M75 de l'audit, option b) : à la vérification en entraînement, une
+   case vide d'une ligne (ou d'un bloc) JUSTE est le coefficient 1 omis — elle
+   est « ok », bleue, comptée juste ; toute autre case vide reçoit la valeur
+   attendue en « sol », verte, comptée NON juste (ptsEcran la compte au
+   dénominateur : la note est celle d'hier, où elle rougissait). La convention
+   est celle du b) du 3.6 (checkASG, rfReveal, msgCorrCouleurs). En soutien,
+   une case vide reste neutre et ouverte, et le message dit ce qui manque.
+   dexpEtats lit les verdicts du juge : un verdict faux sur une case vide est
+   « vide », un verdict vrai sur une case vide est le 1 omis d'une ligne juste. */
+function dexpEtats(verdicts){
+  const etats={}; let vides=0, allOk=true;
+  Object.keys(verdicts).forEach(id=>{ if(!$(id)) return;
+    const ok=!!verdicts[id], vide=!ok && dexpCellValue(id)==='';
+    etats[id]={ok:ok, vide:vide}; if(vide) vides++; if(!ok) allOk=false; });
+  return {etats:etats, vides:vides, allOk:allOk};
+}
+/* soutien : le juste se verrouille en bleu, le faux reste ouvert en rouge, le
+   VIDE reste ouvert et sans couleur ; `fixes` : les miroirs, jamais ouverts */
+function dexpPeindreSoutien(etats, setEdit, fixes){
+  Object.keys(etats).forEach(id=>{ const el=$(id), e=etats[id]; if(!el) return;
+    el.classList.remove('ok','bad','sol');
+    if(!e.vide) el.classList.add(e.ok?'ok':'bad');
+    setEdit(el, !e.ok && !(fixes && fixes.indexOf(id)>=0)); });
+}
+function dexpMsgSoutien(vides){
+  return vides>0
+    ? 'Il te manque '+vides+' case(s) \u2014 compl\u00e8te-les, puis corrige les cases en rouge et rev\u00e9rifie.'
+    : 'Pas tout \u00e0 fait \u2014 corrige ce qui est en rouge, puis rev\u00e9rifie.';
+}
+/* entraînement, copie imparfaite : la convention commune (rfReveal) — le juste
+   en bleu, le faux en rouge AVEC ce que l'élève a écrit et la bonne réponse à
+   côté, le vide complété en vert. `S2` : les cases entre parenthèses, dont
+   les parenthèses suivent le contenu ; `miroirs` : une case recopiée, fausse,
+   rougit sans badge — la bonne réponse est déjà à côté de sa source. */
+function dexpReveler(etats, sol, S2, miroirs){
+  Object.keys(etats).forEach(id=>{ const e=etats[id], el=$(id); if(!el) return;
+    const val=sol[id];
+    if(val==null || (miroirs && miroirs.indexOf(id)>=0 && !e.ok && !e.vide)){
+      el.classList.remove('ok','bad','sol'); el.classList.add(e.ok?'ok':'bad'); el.readOnly=true; return; }
+    rfReveal(id, asgML(val), val, e.ok, e.vide);
+  });
+  (S2||[]).forEach(id=>{ const el=$(id), w=el&&el.closest&&el.closest('.dexp-pwrap');
+    if(w) w.classList.toggle('show-paren', dexpNeedParens(dexpCellValue(id), DEXP_FIRSTS.indexOf(id)>=0)); });
+}
+/* les quatre facteurs du 4.1.1, écrits comme la correction les écrit */
+function dexpFacteurs(c){
+  const coefDisp=(c.k===1?'':(c.k===-1?'\u2212':numFmt(c.k))), exp='e^('+c.expHtml+')';
+  return {poly:c.uStr, dpoly:c.duTxt, exp:exp, dexp:coefDisp+exp};
+}
+/* les valeurs que la correction écrit, par POSITION, dans l'ordre u/v retenu
+   sur la copie ; sur une ligne fausse, le `sol` du juge les remplace */
+function dexpSolutions(c, order){
+  const {poly, dpoly, exp, dexp}=dexpFacteurs(c), s={};
+  if(order===2){ s['dexp-u']=exp; s['dexp-du']=dexp; s['dexp-v']=poly; s['dexp-dv']=dpoly;
+    s['dexp-s2a']=dexp; s['dexp-s2b']=poly; s['dexp-s2c']=exp; s['dexp-s2d']=dpoly; }
+  else { s['dexp-u']=poly; s['dexp-du']=dpoly; s['dexp-v']=exp; s['dexp-dv']=dexp;
+    s['dexp-s2a']=dpoly; s['dexp-s2b']=exp; s['dexp-s2c']=poly; s['dexp-s2d']=dexp; }
+  s['dexp-s3a']=numFmt(c.a); s['dexp-s3b']=polyFr([0,c.a*c.k]); s['dexp-s3c']=numFmt(c.b*c.k); s['dexp-fac']=c.facAns;
+  return s;
+}
+/* Sur une ligne FAUSSE, la correction écrit le terme ou le facteur RESTÉ sans
+   case juste — jamais la valeur de la position (relecture d'octobre 2026). Le
+   juge accepte les termes de la ligne développée dans l'ordre qu'on veut, et
+   les deux facteurs d'un produit dans les deux sens : la valeur de la position
+   d'une case vide pouvait déjà être dans la case bleue d'à côté, et la ligne
+   « corrigée » (−x) + (−x) + (−2) n'était pas f′. Une case juste garde son
+   terme ; une case vide ou fausse reçoit un terme libre — le sien quand sa
+   position l'est encore, sinon le premier qui reste. `used` est la table des
+   termes pris par les cases justes, celle du juge. */
+function dexpSolTermes(ids, verdicts, used, vals){
+  const libre=vals.map((v,i)=>!used[i]), s={};
+  ids.forEach((id,i)=>{ if(verdicts[id]) return;
+    const j=(i<vals.length && libre[i]) ? i : libre.indexOf(true);
+    if(j>=0){ libre[j]=false; s[id]=vals[j]; } });
+  return s;
+}
+/* un produit de deux cases jugé dans les deux sens (bestPair ; `sw` : les
+   facteurs retenus à l'envers) : la case non juste reçoit le facteur que sa
+   voisine juste n'a pas pris */
+function dexpSolPaire(ids, verdicts, vals, sw){
+  const v=sw?[vals[1],vals[0]]:vals, s={};
+  ids.forEach((id,i)=>{ if(!verdicts[id]) s[id]=v[i]; });
+  return s;
+}
 function checkDexp(){
   if(test.locked) return;
   const c=test.questions[test.idx];
-  const {verdicts:tests, order, groups}=dexpVerdicts();
+  const {verdicts:tests, order, groups, sol}=dexpVerdicts();
   /* la phrase qui nomme l'erreur du terme entier recopié dans une case de coefficient */
   const expSup='e<sup>'+esc(c.expHtml)+'</sup>';
   const avertTerme=(groups&&groups.s3TermeEntier)
     ? '\u26a0 Dans la ligne d\u00e9velopp\u00e9e, '+expSup+' est d\u00e9j\u00e0 \u00e9crit APR\u00c8S chaque case\u00a0: \u00e9cris seulement le COEFFICIENT dans la case. Y r\u00e9\u00e9crire '+expSup+' fait un terme qui vaut \u00ab\u00a0coefficient \u00d7 '+expSup+' \u00d7 '+expSup+'\u00a0\u00bb \u2014 c\u2019est pour cela que la case est compt\u00e9e fausse.'
     : '';
   const setEdit=(el,on)=>{ if(el.tagName==='MATH-FIELD'){ el.readOnly=!on; } else if(el.tagName==='INPUT')el.disabled=!on; else el.contentEditable=on?'true':'false'; };
-  const mark=(id,ok)=>{const el=$(id);if(el){el.classList.remove('ok','bad','sol');el.classList.add(ok?'ok':'bad');setEdit(el, !ok && isSoutien());}};
-  Object.keys(tests).forEach(id=>mark(id,tests[id]));
-  const allOk=Object.values(tests).every(Boolean);
+  const {etats, vides, allOk}=dexpEtats(tests);
   if(!allOk && isSoutien()){
-    if(avertTerme){ $('dexpFeedback').innerHTML=avertTerme; }
-    else { $('dexpFeedback').textContent='Pas tout à fait \u2014 corrige ce qui est en rouge, puis rev\u00e9rifie.'; }
+    dexpPeindreSoutien(etats, setEdit);
+    $('dexpFeedback').innerHTML=dexpMsgSoutien(vides)+(avertTerme?'<br>'+avertTerme:'');
     $('dexpFeedback').className='mp-feedback bad';
     $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp()">Rev\u00e9rifier</button>';
     return;
   }
   test.locked=true;
-  Object.keys(tests).forEach(id=>{const el=$(id);if(el)setEdit(el,false);});
   if(allOk){
+    Object.keys(etats).forEach(id=>{const el=$(id);if(el){el.classList.remove('ok','bad','sol');el.classList.add('ok');setEdit(el,false);}});
     test.score++; $('dexpLiveScore').textContent=test.score;
     $('dexpFeedback').textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo !']);
     $('dexpFeedback').className='mp-feedback good';
   } else {
-    // On NE remplace PAS les réponses de l'élève : les cases justes restent vertes,
-    // les fausses restent rouges avec ce qu'il a écrit. La bonne démarche est montrée en dessous.
+    // On ne remplace JAMAIS une réponse de l'élève : la case juste reste bleue, la fausse
+    // reste rouge avec ce qu'il a écrit et la bonne réponse à côté ; SEULES les cases VIDES
+    // reçoivent leur correction, en vert (sol), comptées non justes (M75, octobre 2026).
+    // Sur une ligne fausse, la valeur écrite est le terme resté libre (sol du juge), pas
+    // celui de la position. La bonne démarche entière est montrée en dessous.
+    dexpReveler(etats, Object.assign(dexpSolutions(c, order), sol), DEXP_S2);
     const kc=numFmt(c.k); const coefDisp=(c.k===1?'':(c.k===-1?'\u2212':kc));
     const polyH=esc(c.uStr), dpolyH=esc(c.duTxt);
     const expH='e<sup>'+esc(c.expHtml)+'</sup>', dexpH=esc(coefDisp)+'e<sup>'+esc(c.expHtml)+'</sup>';
@@ -11554,7 +11658,7 @@ function checkDexp(){
         '\u00a0\u00a0\u00a0\u00a0'+L('='+eT+'\\left('+mlTexN(c.facAns)+'\\right)')+
         '</div>';
     }
-    $('dexpFeedback').innerHTML = (avertTerme?'<div style="margin-bottom:8px">'+avertTerme+'</div>':'') + (texHtml || oldHtml);
+    $('dexpFeedback').innerHTML = msgCorrCouleurs(vides>0) + (avertTerme?'<div style="margin-top:8px">'+avertTerme+'</div>':'') + '<div style="margin-top:8px">'+(texHtml || oldHtml)+'</div>';
     $('dexpFeedback').className='mp-feedback bad';
   }
   test.answers.push({...(ptsExo()||{}),q:`D\u00e9riv\u00e9e de (${c.uStr})e^(${c.expHtml})`, answer:'e^('+c.expHtml+')('+c.facAns+')', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
@@ -11644,13 +11748,13 @@ function d3Verdicts(){
   const o2={'d3-u':checkExprFn(U,expf),'d3-du':checkExprFn(DU,dexpf),'d3-v':checkExprFn(V,polyB),'d3-dv':checkExprFn(DV,dpolyB)};
   const n1=Object.values(o1).filter(Boolean).length, n2=Object.values(o2).filter(Boolean).length;
   const order = n2>n1 ? 2 : (n1>n2 ? 1 : (o2['d3-u']&&!o1['d3-u'] ? 2 : 1));
-  const verdicts = order===2 ? o2 : o1;
+  const verdicts = order===2 ? o2 : o1, sol={};   /* sol : ce que la correction écrit sur une ligne fausse */
   verdicts['d3-da']=checkExprFn(dexpCellValue('d3-da'), daF);
   const f1=dexpCompile1('d3-s2a'),f2=dexpCompile1('d3-s2b'),f3=dexpCompile1('d3-s2c'),f4=dexpCompile1('d3-s2d');
   const s2ok=!!(f1&&f2&&f3&&f4)&&cmpFns(x=>f1(x)*f2(x)+f3(x)*f4(x), fpProd);
   const eqF=(f,g)=>!!f&&!!g&&cmpFns(f,g);
   const bestPair=(A,B,fa,fb)=>{ const d1=(eqF(A,fa)?1:0)+(eqF(B,fb)?1:0), d2=(eqF(A,fb)?1:0)+(eqF(B,fa)?1:0);
-    return d2>d1 ? {v:[eqF(A,fb),eqF(B,fa)],n:d2} : {v:[eqF(A,fa),eqF(B,fb)],n:d1}; };
+    return d2>d1 ? {v:[eqF(A,fb),eqF(B,fa)],n:d2,sw:true} : {v:[eqF(A,fa),eqF(B,fb)],n:d1,sw:false}; };
   if(s2ok){ D3_S2.forEach(id=>verdicts[id]=true); }
   else{
     const RA1=bestPair(f1,f2,dpolyB,expf), RB1=bestPair(f3,f4,dexpf,polyB);
@@ -11658,6 +11762,15 @@ function d3Verdicts(){
     const un=(RA1.n+RB1.n)>=(RA2.n+RB2.n);
     const va=un?RA1.v:RA2.v, vb=un?RB1.v:RB2.v;
     verdicts['d3-s2a']=va[0]; verdicts['d3-s2b']=va[1]; verdicts['d3-s2c']=vb[0]; verdicts['d3-s2d']=vb[1];
+    /* une case VIDE d'une ligne FAUSSE n'est jamais juste (M75) : lue 1, elle
+       s'appariait à u′ = b quand b = 1 */
+    D3_S2.filter(id=>dexpCellValue(id)==='').forEach(id=>{ verdicts[id]=false; });
+    /* la correction suit l'appariement retenu (voir dexpVerdicts) */
+    if(D3_S2.some(id=>verdicts[id])){
+      const PA=un?RA1:RA2, PB=un?RB1:RB2, S=d3Facteurs(c);
+      Object.assign(sol, dexpSolPaire(D3_S2.slice(0,2), verdicts, un?[S.du,S.v]:[S.dv,S.u], PA.sw),
+                         dexpSolPaire(D3_S2.slice(2), verdicts, un?[S.dv,S.u]:[S.du,S.v], PB.sw));
+    }
   }
   const g1=dexpCompile0('d3-s3a'), g2=dexpCompile0('d3-s3b');
   const s3ok=!!(g1&&g2)&&cmpFns(x=>(g1(x)+g2(x))*Math.exp(c.k*x), fpProd);
@@ -11667,11 +11780,17 @@ function d3Verdicts(){
     const pass=lst=>lst.forEach(id=>{ const f=dexpCompile0(id); let ok=false;
       for(let i=0;i<2;i++){ if(!used[i]&&eqF(f,terms[i])){ used[i]=true; ok=true; break; } }
       verdicts[id]=ok; });
-    pass(D3_S3.filter(id=>dexpCellValue(id)!==''));
-    pass(D3_S3.filter(id=>dexpCellValue(id)===''));
+    pass(D3_S3.filter(id=>dexpCellValue(id)!==''));   /* les cases saisies choisissent leur terme d'abord */
+    /* Une case VIDE d'une ligne FAUSSE n'est jamais juste (M75, octobre 2026) :
+       cette ligne passait encore le vide — lu 1 — contre les termes restants,
+       et quand b = 1 la case que l'élève n'avait pas remplie passait au bleu.
+       La lecture « coefficient 1 omis » ne vaut que pour une ligne juste dans
+       son ensemble ; ici le vide reçoit sa correction en vert, non juste. */
+    D3_S3.filter(id=>dexpCellValue(id)==='').forEach(id=>{ verdicts[id]=false; });
+    Object.assign(sol, dexpSolTermes(D3_S3, verdicts, used, [numFmt(c.b), polyFr([0,c.b*c.k])]));
   }
   verdicts['d3-fac']=checkExprFn(dexpCellValue('d3-fac'), x=>polyEval(c.dcoef,x));
-  return {verdicts, order, groups:{s2:s2ok, s3:s3ok}};
+  return {verdicts, order, groups:{s2:s2ok, s3:s3ok}, sol};
 }
 function d3LiveCheck(id){
   if(!isSoutien() || test.locked) return;
@@ -11742,28 +11861,49 @@ function d3RevealSolution(key){
   $('dexpFeedback').textContent='Voici la solution de cette case pour t\u2019aider \u2014 continue avec le reste.';
   $('dexpFeedback').className='mp-feedback';
 }
+/* les quatre facteurs du 4.1.3, écrits comme la correction les écrit */
+function d3Facteurs(c){
+  const coefDisp=(c.k===1?'':(c.k===-1?'\u2212':numFmt(c.k))), v='e^('+c.expHtml+')';
+  return {u:c.bxStr, v:v, du:numFmt(c.b), dv:coefDisp+v};
+}
+/* les valeurs que la correction du 4.1.3 écrit, par position, dans l'ordre u/v
+   retenu ; sur une ligne fausse, le `sol` du juge les remplace */
+function d3Solutions(c, order){
+  const {u:uS, v:vS, du:duS, dv:dvS}=d3Facteurs(c), s={};
+  s['d3-da']=c.daTxt;
+  if(order===2){ s['d3-u']=vS; s['d3-du']=dvS; s['d3-v']=uS; s['d3-dv']=duS;
+    s['d3-s2a']=dvS; s['d3-s2b']=uS; s['d3-s2c']=vS; s['d3-s2d']=duS; }
+  else { s['d3-u']=uS; s['d3-du']=duS; s['d3-v']=vS; s['d3-dv']=dvS;
+    s['d3-s2a']=duS; s['d3-s2b']=vS; s['d3-s2c']=uS; s['d3-s2d']=dvS; }
+  s['d3-s3a']=numFmt(c.b); s['d3-s3b']=polyFr([0,c.b*c.k]); s['d3-fac']=c.facAns;
+  return s;
+}
 function checkDexp3(){
   if(test.locked) return;
   const c=test.questions[test.idx];
-  const {verdicts:tests}=d3Verdicts();
+  const {verdicts:tests, order, sol}=d3Verdicts();
   const setEdit=(el,on)=>{ if(el.tagName==='MATH-FIELD'){ el.readOnly=!on; } else if(el.tagName==='INPUT') el.disabled=!on; };
-  const mark=(id,ok)=>{const el=$(id);if(el){el.classList.remove('ok','bad','sol');el.classList.add(ok?'ok':'bad');setEdit(el, !ok && isSoutien());}};
-  Object.keys(tests).forEach(id=>mark(id,tests[id]));
-  const allOk=Object.values(tests).every(Boolean);
+  /* une case vide ne rougit jamais : la convention des trois dérivées du 4.1 (dexpEtats) */
+  const {etats, vides, allOk}=dexpEtats(tests);
   if(!allOk && isSoutien()){
-    $('dexpFeedback').textContent='Pas tout à fait \u2014 corrige ce qui est en rouge, puis rev\u00e9rifie.';
+    dexpPeindreSoutien(etats, setEdit);
+    $('dexpFeedback').textContent=dexpMsgSoutien(vides);
     $('dexpFeedback').className='mp-feedback bad';
     $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp3()">Rev\u00e9rifier</button>';
     return;
   }
   test.locked=true;
-  Object.keys(tests).forEach(id=>{const el=$(id);if(el)setEdit(el,false);});
   ['d3-da3','d3-da4'].forEach(id=>{const el=$(id);if(el&&el.tagName==='MATH-FIELD')el.readOnly=true;});
   if(allOk){
+    Object.keys(etats).forEach(id=>{const el=$(id);if(el){el.classList.remove('ok','bad','sol');el.classList.add('ok');setEdit(el,false);}});
     test.score++; $('dexpLiveScore').textContent=test.score;
     $('dexpFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo !']);
     $('dexpFeedback').className='mp-feedback good';
   } else {
+    /* seules les cases VIDES reçoivent leur correction (en vert) ; la dérivée du
+       monôme, corrigée dans sa case, se recopie dans ses miroirs */
+    dexpReveler(etats, Object.assign(d3Solutions(c, order), sol), D3_S2);
+    d3SyncDa();
     const eT='e^{'+mlTexN(c.expHtml)+'}', aT=d3ATex(c), daT=mlTexN(c.daTxt);
     const uT=mlTexN(c.bxStr), duT=mlTexN(numFmt(c.b)), dvT=mlTexN(c.dvTxt).replace('e^(','e^{').replace(')','}');
     let texHtml=null;
@@ -11781,7 +11921,7 @@ function checkDexp3(){
     }
     const oldHtml='<div style="text-align:left;display:inline-block;line-height:1.9"><b>La bonne démarche :</b><br>'+
       esc(d3DfPlain(c)).replace(/\^/g,'^')+'</div>';
-    $('dexpFeedback').innerHTML = texHtml || oldHtml;
+    $('dexpFeedback').innerHTML = msgCorrCouleurs(vides>0)+'<div style="margin-top:8px">'+(texHtml || oldHtml)+'</div>';
     $('dexpFeedback').className='mp-feedback bad';
   }
   test.answers.push({...(ptsExo()||{}),q:'Dérivée de '+d3FxPlain(c), answer:d3DfPlain(c), given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
@@ -11977,13 +12117,21 @@ function dqVerdicts(){
   const vsq=x=>{const v=c.a*x+c.b; return v*v;};
   const eqF=(f,g)=>!!f&&!!g&&cmpFnsAt(f,g,DQ_PTS);
   const bestPair=(A,B,fa,fb)=>{ const d1=(eqF(A,fa)?1:0)+(eqF(B,fb)?1:0), d2=(eqF(A,fb)?1:0)+(eqF(B,fa)?1:0);
-    return d2>d1 ? [eqF(A,fb),eqF(B,fa)] : [eqF(A,fa),eqF(B,fb)]; };
+    return d2>d1 ? {v:[eqF(A,fb),eqF(B,fa)],sw:true} : {v:[eqF(A,fa),eqF(B,fb)],sw:false}; };
+  const sol={};   /* ce que la correction écrit sur une ligne fausse (dexpSolTermes, dexpSolPaire) */
   if(s2ok){ DQ_S2.forEach(id=>{ verdicts[id]=true; }); }
   else{
     /* ligne fausse : chaque case est jugée contre les facteurs attendus (u'×v − u×v', ordres internes libres) */
     const va=bestPair(f1,f2,dexpf,poly), vb=bestPair(f3,f4,expf,dpoly);
-    verdicts['dq-s2a']=va[0]; verdicts['dq-s2b']=va[1]; verdicts['dq-s2c']=vb[0]; verdicts['dq-s2d']=vb[1];
+    verdicts['dq-s2a']=va.v[0]; verdicts['dq-s2b']=va.v[1]; verdicts['dq-s2c']=vb.v[0]; verdicts['dq-s2d']=vb.v[1];
     verdicts['dq-s2e']=eqF(cf1('dq-s2e'), vsq);
+    /* une case VIDE d'une ligne FAUSSE n'est jamais juste (M75) : lue 1, elle
+       s'appariait à v′ = a quand a = 1 */
+    DQ_S2.filter(id=>dexpCellValue(id)==='').forEach(id=>{ verdicts[id]=false; });
+    /* la correction suit le sens retenu de chaque paire */
+    { const S=dqFacteurs(c);
+      Object.assign(sol, dexpSolPaire(DQ_S2.slice(0,2), verdicts, [S.du,S.v], va.sw),
+                         dexpSolPaire(DQ_S2.slice(2,4), verdicts, [S.u,S.dv], vb.sw)); }
   }
   const g1=cf0('dq-s3a'),g2=cf0('dq-s3b'),g3=cf0('dq-s3c'),g4=cf('dq-s3d');
   const s3ok=!!(g1&&g2&&g3&&g4)&&cmpFnsAt(x=>((g1(x)+g2(x)+g3(x))*Math.exp(c.k*x))/g4(x), fprime, DQ_PTS);
@@ -12002,14 +12150,17 @@ function dqVerdicts(){
        ligne juste dans son ensemble — c'est elle qui prouve que le vide
        voulait dire 1. Sur une ligne fausse, le vide pris pour 1 tombait sur
        un terme qui valait 1, et la case que l'élève n'avait pas remplie
-       passait au bleu, comptée juste dans la note. Elle reçoit le sort des
-       autres cases vides de l'exercice (voir « lacunes » du profil). */
+       passait au bleu, comptée juste dans la note. À la vérification, elle
+       reçoit sa correction en vert (sol), comptée non juste — dexpEtats. */
     ids.filter(id=>dexpCellValue(id)==='').forEach(id=>{ verdicts[id]=false; });
+    /* la correction d'une case vide ou fausse : un terme resté sans case juste */
+    { const vals=[polyFr([0,c.a*c.k])]; if(c.b!==0) vals.push(numFmt(c.b*c.k)); vals.push(numFmt(-c.a));
+      Object.assign(sol, dexpSolTermes(ids, verdicts, used, vals)); }
     verdicts['dq-s3d']=eqF(cf0('dq-s3d'), vsq);
   }
   verdicts['dq-fac']=checkExprFnAt(dexpCellValue('dq-fac'), x=>polyEval(c.numCoef,x), DQ_PTS);
   verdicts['dq-facd']=checkExprFnAt(dexpCellValue('dq-facd'), x=>{const v=c.a*x+c.b; return v*v;}, DQ_PTS);
-  return {verdicts, groups:{s2:s2ok, s3:s3ok}};
+  return {verdicts, groups:{s2:s2ok, s3:s3ok}, sol};
 }
 function dqLiveCheck(id){
   if(!isSoutien() || test.locked) return;
@@ -12093,27 +12244,46 @@ function dqRevealSolution(key){
   $('dexpFeedback').textContent='Voici la solution de cette case pour t\u2019aider \u2014 continue avec le reste.';
   $('dexpFeedback').className='mp-feedback';
 }
+/* les quatre facteurs du 4.1.4 (u = numérateur, v = dénominateur), écrits comme la correction les écrit */
+function dqFacteurs(c){
+  const coefDisp=(c.k===1?'':(c.k===-1?'\u2212':numFmt(c.k))), exp='e^('+c.expHtml+')';
+  return {u:exp, du:coefDisp+exp, v:c.vStr, dv:c.dvTxt};
+}
+/* les valeurs que la correction du 4.1.4 écrit, par position ; sur une ligne
+   fausse, le `sol` du juge les remplace */
+const DQ_MIROIRS=['dq-s3d','dq-facd'];
+function dqSolutions(c){
+  const {u:exp, du:dexp}=dqFacteurs(c), den='('+c.vStr+')^(2)', s={};
+  s['dq-u']=exp; s['dq-du']=dexp; s['dq-v']=c.vStr; s['dq-dv']=c.dvTxt;
+  s['dq-s2a']=dexp; s['dq-s2b']=c.vStr; s['dq-s2c']=exp; s['dq-s2d']=c.dvTxt; s['dq-s2e']=den;
+  s['dq-s3a']=polyFr([0,c.a*c.k]); s['dq-s3b']=numFmt(c.b*c.k); s['dq-s3c']=numFmt(-c.a); s['dq-s3d']=den;
+  s['dq-fac']=c.facAns; s['dq-facd']=den;
+  return s;
+}
 function checkDexpQ(){
   if(test.locked) return;
   const c=test.questions[test.idx];
-  const {verdicts:tests}=dqVerdicts();
+  const {verdicts:tests, sol}=dqVerdicts();
   const setEdit=(el,on)=>{ if(el.tagName==='MATH-FIELD'){ el.readOnly=!on; } };
-  const mark=(id,ok)=>{const el=$(id);if(el){el.classList.remove('ok','bad','sol');el.classList.add(ok?'ok':'bad');setEdit(el, !ok && isSoutien() && id!=='dq-s3d' && id!=='dq-facd');}};
-  Object.keys(tests).forEach(id=>mark(id,tests[id]));
-  const allOk=Object.values(tests).every(Boolean);
+  /* une case vide ne rougit jamais : la convention des trois dérivées du 4.1 (dexpEtats) */
+  const {etats, vides, allOk}=dexpEtats(tests);
   if(!allOk && isSoutien()){
-    $('dexpFeedback').textContent='Pas tout \u00e0 fait \u2014 corrige ce qui est en rouge, puis rev\u00e9rifie.';
+    dexpPeindreSoutien(etats, setEdit, DQ_MIROIRS);
+    $('dexpFeedback').textContent=dexpMsgSoutien(vides);
     $('dexpFeedback').className='mp-feedback bad';
     $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexpQ()">Rev\u00e9rifier</button>';
     return;
   }
   test.locked=true;
-  Object.keys(tests).forEach(id=>{const el=$(id);if(el)setEdit(el,false);});
   if(allOk){
+    Object.keys(etats).forEach(id=>{const el=$(id);if(el){el.classList.remove('ok','bad','sol');el.classList.add('ok');setEdit(el,false);}});
     test.score++; $('dexpLiveScore').textContent=test.score;
     $('dexpFeedback').textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo !']);
     $('dexpFeedback').className='mp-feedback good';
   } else {
+    /* seules les cases VIDES reçoivent leur correction (en vert) ; un miroir du
+       dénominateur suit sa source, sans badge à lui */
+    dexpReveler(etats, Object.assign(dqSolutions(c), sol), DQ_S2.slice(0,4), DQ_MIROIRS);
     const kc=numFmt(c.k); const coefDisp=(c.k===1?'':(c.k===-1?'\u2212':kc));
     let texHtml=null;
     if(window.mlDexp && window.mlDexp.tex){
@@ -12137,7 +12307,7 @@ function checkDexpQ(){
       '<i>u</i> = '+expH+' \u00a0 <i>v</i> = '+esc(c.vStr)+' \u00a0 <i>u\u2032</i> = '+esc(coefDisp)+expH+' \u00a0 <i>v\u2032</i> = '+esc(c.dvTxt)+'<br>'+
       '<i>f</i>\u00a0\u2032(<i>x</i>) = [ ('+esc(coefDisp)+expH+')\u00d7('+esc(c.vStr)+') \u2212 '+expH+'\u00d7'+esc(c.dvTxt)+' ] / ('+esc(c.vStr)+')\u00b2<br>'+
       '\u00a0\u00a0= [ '+expH+' ( '+exprToHtml(c.facAns)+' ) ] / ('+esc(c.vStr)+')\u00b2</div>';
-    $('dexpFeedback').innerHTML = texHtml || oldHtml;
+    $('dexpFeedback').innerHTML = msgCorrCouleurs(vides>0)+'<div style="margin-top:8px">'+(texHtml || oldHtml)+'</div>';
     $('dexpFeedback').className='mp-feedback bad';
   }
   test.answers.push({...(ptsExo()||{}),q:`D\u00e9riv\u00e9e de e^(${c.expHtml})/(${c.vStr})`, answer:'e^('+c.expHtml+')('+c.facAns+') / ('+c.vStr+')\u00b2', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
