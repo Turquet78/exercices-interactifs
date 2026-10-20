@@ -284,6 +284,15 @@ async function cliquerPastille(page, prenom, delai){
   await page.waitForTimeout(150);                              /* la page met le focus au code après 60 ms */
   return true;
 }
+/* Le dernier chiffre du code lance la connexion tout seul (octobre 2026) :
+   le banc ne clique plus « Entrer » — un second appel derrière un code refusé
+   lirait la case vidée et répondrait « Écris ton code » par-dessus « Code
+   incorrect ». Il attend que la tentative ait rendu son verdict. Le bouton
+   « Entrer », lui, garde son contrôle propre (section de la connexion). */
+async function saisirCode(page, code){
+  await page.fill('#loginPin', code);
+  await page.waitForFunction(() => typeof connexionEnCours === 'undefined' || !connexionEnCours, null, { timeout: 5000 }).catch(() => {});
+}
 async function connecter(page){
   /* La page s'ouvre DIRECTEMENT sur la connexion : l'écran « Choisis ton rôle »
      a disparu avec le bouton du professeur. Le banc n'a donc plus de premier
@@ -291,8 +300,7 @@ async function connecter(page){
      L'élève CLIQUE son prénom (les pastilles sont revenues, décision de
      Turquet du 14 octobre 2026) : la case du code n'apparaît qu'après. */
   if(!await cliquerPastille(page, PRENOM_CONTROLE)) return ecranVisible(page);
-  await page.fill('#loginPin', CODE_CONTROLE);
-  await page.click('#modeCo button.btn-primary');              /* « Entrer » */
+  await saisirCode(page, CODE_CONTROLE);
   await page.waitForTimeout(500);
   return ecranVisible(page);
 }
@@ -651,8 +659,7 @@ if(require.main === module) (async () => {
     const entrerPastille = async code => {
       if(!await cliquerPastille(s.page, PRENOM_CONTROLE, 3000)) return '(aucune pastille « ' + PRENOM_CONTROLE + ' » à cliquer)';
       if(!(await ecranConnexion()).code) return '(la case du code reste cachée après le clic)';
-      await s.page.fill('#loginPin', code);
-      await s.page.click('#modeCo button.btn-primary');
+      await saisirCode(s.page, code);
       await s.page.waitForTimeout(500);
       return ecranVisible(s.page);
     };
@@ -661,8 +668,7 @@ if(require.main === module) (async () => {
       if(!e.prenom) return '(aucun champ « Ton prénom » à l\'écran : ' + (e.message || 'rien') + ')';
       if(!e.code) return '(la case du code reste cachée à côté du champ « Ton prénom »)';
       await s.page.fill('#loginPrenom', prenom);
-      await s.page.fill('#loginPin', code);
-      await s.page.click('#modeCo button.btn-primary');
+      await saisirCode(s.page, code);
       await s.page.waitForTimeout(500);
       return ecranVisible(s.page);
     };
@@ -720,8 +726,7 @@ if(require.main === module) (async () => {
         const clic = await cliquerPastille(s.page, PRENOM_CONTROLE, 3000);
         choix = clic ? await ecranConnexion() : null;
         if(choix && choix.code){
-          await s.page.fill('#loginPin', CODE_CONTROLE);
-          await s.page.click('#modeCo button.btn-primary');
+          await saisirCode(s.page, CODE_CONTROLE);
           await s.page.waitForTimeout(500);
           apres = await ecranVisible(s.page);
           cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
@@ -778,8 +783,7 @@ if(require.main === module) (async () => {
           premiere = lu.choisie; tete = lu.tete;
           attendue = premiere === 'cle-controle' ? 'cle-controle-bis' : 'cle-controle';
           if((await ecranConnexion()).code){
-            await s.page.fill('#loginPin', attendue === 'cle-controle-bis' ? CODE_BIS : CODE_CONTROLE);
-            await s.page.click('#modeCo button.btn-primary');
+            await saisirCode(s.page, attendue === 'cle-controle-bis' ? CODE_BIS : CODE_CONTROLE);
             await s.page.waitForTimeout(500);
             apres = await ecranVisible(s.page);
             cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
@@ -820,8 +824,7 @@ if(require.main === module) (async () => {
         await sortir();
         clic = await cliquerPastille(s.page, 'Zélie', 3000);
         if(clic && (await ecranConnexion()).code){
-          await s.page.fill('#loginPin', CODE_CONTROLE);
-          await s.page.click('#modeCo button.btn-primary');
+          await saisirCode(s.page, CODE_CONTROLE);
           await s.page.waitForTimeout(500);
           apres = await ecranVisible(s.page);
           toastS = await lireToast();
@@ -859,8 +862,7 @@ if(require.main === module) (async () => {
         }, { t: P.tableEleves, c: CODE_CONTROLE });
         clic = await cliquerPastille(s.page, 'Zoé', 3000);
         if(clic && (await ecranConnexion()).code){
-          await s.page.fill('#loginPin', CODE_CONTROLE);
-          await s.page.click('#modeCo button.btn-primary');
+          await saisirCode(s.page, CODE_CONTROLE);
           await s.page.waitForTimeout(500);
           apres = await ecranVisible(s.page);
           cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
@@ -900,13 +902,11 @@ if(require.main === module) (async () => {
           clic = await s.page.evaluate(() => !!selectedEleve && selectedEleve.id === 'eleve-controle-sans-cle');
         }
         if(clic && (await ecranConnexion()).code){
-          await s.page.fill('#loginPin', CODE_FAUX);
-          await s.page.click('#modeCo button.btn-primary');
+          await saisirCode(s.page, CODE_FAUX);
           await s.page.waitForTimeout(500);
           apres1 = await ecranVisible(s.page); toastH = await lireToast();
           t1 = essais(await depuis(r0)).map(e => (e.ok ? 'ok:' : 'refus:') + e.courriel);
-          await s.page.fill('#loginPin', CODE_CONTROLE);
-          await s.page.click('#modeCo button.btn-primary');
+          await saisirCode(s.page, CODE_CONTROLE);
           await s.page.waitForTimeout(500);
           apres2 = await ecranVisible(s.page);
           cle2 = await s.page.evaluate(() => currentEleve && currentEleve.cle);
@@ -925,6 +925,96 @@ if(require.main === module) (async () => {
           : t1.length !== 1 || t1[0].indexOf('refus:cle-controle@') !== 0 ? 'tentatives : ' + (t1.join(', ') || 'aucune') + ' — attendu : la seule clé de l\'homonyme, refusée'
           : !toastH || !/pas encore relié/.test(toastH.texte) || !/Code incorrect/.test(toastH.texte) ? 'message : ' + JSON.stringify(toastH)
           : 'avec le code de l\'homonyme : écran ' + apres2 + ', clé « ' + cle2 + ' »');
+    }
+
+    /* LE DERNIER CHIFFRE LANCE LA CONNEXION, ET LA CASE DIT OÙ ELLE EN EST
+       (demande de Turquet, octobre 2026 : « quand le code élève est correct
+       à la dernière frappe, laisser comprendre en encadrant en vert que c'est
+       validé et qu'il suffit d'attendre »). Tapé AU CLAVIER, touche par
+       touche, avec une vérification qui prend 600 ms comme au lycée :
+       - pendant la vérification, la case est « en cours » (bleue qui pulse),
+         et un « Entrée » tapé à ce moment ne relance RIEN — une seule
+         tentative contre la limitation de cadence ;
+       - un code refusé : rouge, « Code incorrect », la case vidée ; la
+         frappe suivante efface le rouge ;
+       - un code accepté : VERTE, « C'est bon », puis l'espace s'ouvre —
+         et jamais verte avant la réponse de Supabase ;
+       - cinq chiffres ne lancent rien, et le bouton « Entrer » connecte
+         toujours (un code posé sans frappe, comme un remplissage du système). */
+    {
+      const lireCase = () => s.page.evaluate(() => {
+        const c = document.getElementById('loginPin'), m = document.getElementById('pinEtat');
+        return { classes: [...c.classList].filter(k => k.indexOf('pin-') === 0 && k !== 'pin-input').join(' '),
+                 message: m ? m.textContent.trim() : '(aucun #pinEtat)', valeur: c.value, ecran: ((document.querySelector('.screen.on') || {}).id) || '' };
+      });
+      const attendre = () => s.page.waitForFunction(() => !connexionEnCours, null, { timeout: 5000 }).catch(() => {});
+      let clic, pendant, nEssais, refuse, efface, pendant2, accepte, apres, apresSortie, cinq, nCinq, bouton, nBouton;
+      try{
+        await sortir();
+        await s.page.evaluate(() => { window.__faux.delaiConnexion = 600; });
+        clic = await cliquerPastille(s.page, PRENOM_CONTROLE, 3000);
+        if(clic && (await ecranConnexion()).code){
+          await s.page.waitForTimeout(150);
+          let r = await repere();
+          await s.page.type('#loginPin', CODE_FAUX, { delay: 30 });
+          pendant = await lireCase();
+          await s.page.keyboard.press('Enter');
+          await attendre();
+          nEssais = essais(await depuis(r)).length;
+          refuse = await lireCase();
+          await s.page.keyboard.type(CODE_CONTROLE[0]);
+          efface = await lireCase();
+          await s.page.keyboard.type(CODE_CONTROLE.slice(1), { delay: 30 });
+          pendant2 = await lireCase();
+          await attendre();
+          accepte = await lireCase();
+          await s.page.waitForTimeout(300);
+          apres = await ecranVisible(s.page);
+          await sortir();
+          apresSortie = await lireCase();
+          await s.page.evaluate(() => { window.__faux.delaiConnexion = 0; });
+          if(await cliquerPastille(s.page, PRENOM_CONTROLE, 3000)){
+            await s.page.waitForTimeout(150);
+            r = await repere();
+            await s.page.type('#loginPin', CODE_CONTROLE.slice(0, -1));
+            await s.page.waitForTimeout(300);
+            cinq = await lireCase(); nCinq = essais(await depuis(r)).length;
+            await s.page.evaluate(c => { document.getElementById('loginPin').value = c; }, CODE_CONTROLE);
+            await s.page.click('#modeCo button.btn-primary');
+            await attendre(); await s.page.waitForTimeout(300);
+            bouton = await ecranVisible(s.page); nBouton = essais(await depuis(r)).length;
+          }
+        }
+      } finally {
+        await s.page.evaluate(() => { window.__faux.delaiConnexion = 0; });
+        await sortir();
+      }
+      const okClic = clic && !!pendant;
+      verifier('le dernier chiffre tapé lance la connexion, et un « Entrée » pendant la vérification n\'en relance pas une seconde',
+        okClic && /pin-attente/.test(pendant.classes) && /Vérification/.test(pendant.message) && nEssais === 1,
+        !okClic ? 'aucune pastille « ' + PRENOM_CONTROLE + ' » à cliquer, ou la case du code reste cachée'
+          : !/pin-attente/.test(pendant.classes) ? 'après le dernier chiffre, la case n\'est pas « en cours » : ' + JSON.stringify(pendant)
+          : nEssais + ' tentative(s) de connexion pour un code tapé puis « Entrée » — attendu : 1');
+      verifier('un code refusé rougit la case, la vide et le dit ; la frappe suivante efface le rouge',
+        okClic && refuse.classes === 'pin-refus' && refuse.valeur === '' && /incorrect/i.test(refuse.message)
+          && efface.classes === '' && efface.message === '',
+        !okClic ? 'contrôle précédent impossible'
+          : refuse.classes !== 'pin-refus' || refuse.valeur !== '' || !/incorrect/i.test(refuse.message) ? 'après le code faux : ' + JSON.stringify(refuse)
+          : 'après une nouvelle frappe : ' + JSON.stringify(efface));
+      verifier('un code accepté passe la case au VERT, « C\'est bon », et jamais avant la réponse ; elle redevient neutre à la sortie',
+        okClic && /pin-attente/.test(pendant2.classes) && !/pin-valide/.test(pendant2.classes)
+          && accepte.classes === 'pin-valide' && /C.est bon/.test(accepte.message) && apres === 'scr-space'
+          && apresSortie.classes === '' && apresSortie.message === '',
+        !okClic ? 'contrôle précédent impossible'
+          : !/pin-attente/.test(pendant2.classes) || /pin-valide/.test(pendant2.classes) ? 'pendant la vérification du bon code : ' + JSON.stringify(pendant2)
+          : accepte.classes !== 'pin-valide' || !/C.est bon/.test(accepte.message) ? 'code accepté : ' + JSON.stringify(accepte)
+          : apres !== 'scr-space' ? 'écran atteint : ' + apres
+          : 'après la sortie, la case garde : ' + JSON.stringify(apresSortie));
+      verifier('un code incomplet ne lance rien, et le bouton « Entrer » connecte toujours',
+        okClic && !!cinq && nCinq === 0 && cinq.classes === '' && bouton === 'scr-space' && nBouton === 1,
+        !okClic || !cinq ? 'contrôle impossible (pastille introuvable après la sortie)'
+          : nCinq ? nCinq + ' tentative(s) avec un chiffre de moins que le code'
+          : 'bouton « Entrer » : écran ' + bouton + ', ' + nBouton + ' tentative(s)');
     }
 
     /* LE DOUBLON D'UNE LIGNE SANS CLÉ : l'élève non relié lit « pas encore
@@ -16475,9 +16565,42 @@ if(require.main === module) (async () => {
               : touches ? touches + ' touche(s) hors de l\'écran'
               : (q.gauche < 0 || q.droite > w) ? 'le pavé va de ' + q.gauche + ' à ' + q.droite + 'px sur ' + w
               : q.rangees < 2 ? 'une seule rangée' : q.petites + ' touche(s) trop petites');
-          const code = await frapper(sc.page, '#loginPin', ['1', '2', '3', '4', '5', '6']);
-          verifier('à ' + w + ' px en portrait, le pavé écrit le code', code.valeur === '123456' && code.focus === true,
-            '« ' + code.valeur + ' », focus ' + (code.focus ? 'gardé' : 'perdu'));
+          /* LE RECTANGLE DE CALCULATRICE (octobre 2026, « une ligne ou un
+             rectangle ? ») : sur un téléphone debout, les chiffres sont dans
+             leurs colonnes — 7 8 9 au-dessus de 4 5 6, au-dessus de 1 2 3,
+             au-dessus du 0 —, aux trois niveaux. Mesuré au rectangle de
+             chaque touche : un repli en rangées qui garderait l'ordre 1…0
+             mettrait le 9 sous le 1. */
+          const grille = await sc.page.evaluate(() => {
+            const r = t => { const b = document.querySelector('#paveNum .pave-t[data-t="' + t + '"]'); if(!b) return null; const q = b.getBoundingClientRect(); return { x: q.left + q.width / 2, y: q.top + q.height / 2 }; };
+            const p = {}; '0123456789'.split('').forEach(t => { p[t] = r(t); });
+            if(Object.values(p).some(v => !v)) return { manque: true };
+            const memeRangee = (a, b) => Math.abs(p[a].y - p[b].y) < 4, memeColonne = (a, b) => Math.abs(p[a].x - p[b].x) < 4;
+            const fautes = [];
+            [['7','8','9'], ['4','5','6'], ['1','2','3']].forEach(([a, b, c]) => {
+              if(!memeRangee(a, b) || !memeRangee(b, c) || !(p[a].x < p[b].x && p[b].x < p[c].x)) fautes.push(a + b + c + ' pas sur une rangée, de gauche à droite');
+            });
+            [['7','4','1'], ['8','5','2'], ['9','6','3']].forEach(([a, b, c]) => {
+              if(!memeColonne(a, b) || !memeColonne(b, c) || !(p[a].y < p[b].y && p[b].y < p[c].y)) fautes.push(a + b + c + ' pas dans une colonne, de haut en bas');
+            });
+            if(!(p['0'].y > p['1'].y + 4) || p['0'].x > p['3'].x) fautes.push('le 0 n\'est pas sous la rangée 1 2 3');
+            return { fautes: fautes };
+          });
+          verifier('à ' + w + ' px en portrait, le pavé est un rectangle de calculatrice : 7 8 9 / 4 5 6 / 1 2 3 / 0',
+            !grille.manque && grille.fautes.length === 0,
+            grille.manque ? 'des chiffres manquent au pavé' : grille.fautes.join(' ; '));
+          /* le DERNIER chiffre lance la connexion (octobre 2026) : le pavé
+             écrit les premiers en gardant le focus, et le dernier, frappé au
+             pavé comme un doigt le ferait, ouvre l'espace de l'élève */
+          const debut = await frapper(sc.page, '#loginPin', CODE_CONTROLE.slice(0, -1).split(''));
+          await frapper(sc.page, '#loginPin', [CODE_CONTROLE.slice(-1)]);
+          await sc.page.waitForFunction(() => !connexionEnCours, null, { timeout: 5000 }).catch(() => {});
+          await sc.page.waitForTimeout(300);
+          const arrivee = await ecranVisible(sc.page);
+          verifier('à ' + w + ' px en portrait, le pavé écrit le code, et son dernier chiffre connecte l\'élève',
+            debut.valeur === CODE_CONTROLE.slice(0, -1) && debut.focus === true && arrivee === 'scr-space',
+            debut.valeur !== CODE_CONTROLE.slice(0, -1) || !debut.focus ? '« ' + debut.valeur + ' », focus ' + (debut.focus ? 'gardé' : 'perdu')
+              : 'après le dernier chiffre, écran ' + arrivee);
         } finally { await sc.nav.close(); }
       }
 
