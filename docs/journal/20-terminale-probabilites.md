@@ -314,7 +314,7 @@ visible quand on fait défiler vers le bas »).
 Mesuré dans Chromium : 768 × 1024 (arbre 363 px collé à 0, la case visée sous
 lui), 390 × 844 (299 px), 1280 × 800 ; 844 × 390, non collé. Expression
 fausse « 0,5x + 0,3 » : membres « 0,5x + 0,3 », « 0,5x », « x » préparés ; à
-la clôture, « 0,8x + 0,1 » et « 0,8x » en vert. Terminale v408.
+la clôture, « 0,8x + 0,1 » et « 0,8x » en vert. Terminale v409.
 
 ## En portrait, le cadre d'un exercice prend la largeur de l'écran — les trois niveaux
 
@@ -335,7 +335,7 @@ rembourrage du cadre à 20 px × 14 px. Les menus gardent leur colonne ; le
 paysage et l'ordinateur ne changent pas. Mesuré sur chaque exercice des
 trois menus dans Chromium : à 768 px, 748 px de cadre partout (Terminale :
 560 avant ; Seconde et Première : 728) ; à 390 px, 370 ; aucune page ne
-défile en largeur. Terminale v408, Seconde v570, Première v331.
+défile en largeur. Terminale v409, Seconde v571, Première v332.
 
 **Ce que le banc navigateur a trouvé** à la première exécution : deux échecs,
 aucun dans le 6.1.3. D'abord un défaut réel, que la nouvelle largeur a mis au
