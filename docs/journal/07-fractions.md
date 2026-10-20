@@ -1900,3 +1900,22 @@ puis le résultat direct sans l'inverse (refusé). Le banc navigateur (« 6
 terdecies bis ») tape au clavier la copie au facteur enlevé, puis la rédigée
 15/10, refusée avec « pas simplifié ». Éprouvé par sabotage : la route
 simplifiée et la route directe coupées, six écarts nommés.
+
+**Sur un écran TACTILE, chaque barre du 5.1 a ses boutons « − » et « + »**
+(décision de Turquet, octobre 2026, point T2/A3 de l'audit, option g — le
+toucher direct de la barre reste). Une part de 40 fait 17 px sur une tablette
+debout : aucun doigt n'en vise une, et {simplifier-barres} n'avait que ce
+geste. Quand `tabletteActive()` est vrai, chaque barre reçoit sous elle deux
+vrais `<button>` de 44 px, nommés (« une part de plus sur la barre partagée en
+36 »), qui passent par le MÊME geste que le segment (`smpPas` → `smpClicL`) ;
+la fraction lue suit, le verrouillage les grise ; sur ordinateur, rien ne
+change (la barre est enveloppée dans `.smp-pile`, qui prend sa place). Deux
+défauts partis avec : les gestes sont BORNÉS à [0, b] — `smpClicL(41)` posait
+41 sur 40 parts —, sur le RÉSULTAT du geste et non l'argument (recliquer la
+part 1 doit vider la barre) ; et le tirage lit `dmNbQuestions()` au lieu d'un
+« 6 » en dur (profil `allonge`). Contrôles : le contrôle jsdom de l'exercice
+(borne, boutons, pas, grisage) et le banc navigateur « 6 sexdecies » (contexte
+tactile forcé comme en 11 bis : 44 px mesurés, bornes pressées, barre touchée,
+768 px). Sept sabotages, chacun rouge sur son bord : borne retirée (« selL =
+−1 », « 16/15 »), boutons jamais, boutons toujours, seuil à 480, boutons de
+30 px, grisage retiré, pas sans redessin, « 6 » remis.
