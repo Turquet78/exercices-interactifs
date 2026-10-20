@@ -3638,7 +3638,7 @@ vert de la correction, ni le violet de AA′. Les règles sont bornées à
 la flèche passe en bleu ou en rouge comme avant ; la règle ne nomme aucune
 classe de verdict, « 9 bis » n'a pas à la lire.
 
-## {vecteurs-criteres} et {vecteurs-egaux-justifier} — comparer deux vecteurs, puis égaux ou pas et pourquoi (8.1.13 et 8.1.14, v574 — v572 et v573 prises pendant les bancs par le 8.2.16 et le 8.2.17)
+## {vecteurs-criteres} et {vecteurs-egaux-justifier} — comparer deux vecteurs, puis égaux ou pas et pourquoi (8.1.13 et 8.1.14, v575 — v572 à v574 prises pendant les bancs par le 8.2.16, le 8.2.17 et le sous-thème 8.3)
 
 **La demande** (Turquet, octobre 2026) : « créer un exercice dans égalité
 de vecteurs, qui donne deux vecteurs et qui demande de compléter par vrai ou
@@ -3947,3 +3947,127 @@ rien qui suit une fois la flèche finie, « Déplacer le point D », la copie
 juste (2) et la copie vide (trois traits verts, rien de rouge). Le doigt sur
 tablette — un toucher par geste, sans croix ni flèche qui suivent — ne se
 joue dans aucun banc.
+
+## Le sous-thème 8.3 « Vecteurs colinéaires » — {construire-multiple-vecteur}, {identifier-multiple-vecteur}, {identifier-multiple-non-entier}, {vecteurs-colineaires-figure} (8.3.1 à 8.3.4, v574 — v572 et v573 prises par les 8.2.16 et 8.2.17 pendant la rédaction)
+
+**La demande** (Turquet, octobre 2026) : « en seconde créer 4 exercices comme
+sur le pdf qui seront dans le sous-thème vecteurs colinéaires du thème
+vecteurs ». Le PDF est la « Fiche 1 : vecteurs colinéaires » : l'exercice 1
+(construire 2u⃗, ½u⃗, −2u⃗, −⅓u⃗, ⅔u⃗, −⅚u⃗, 5/3 u⃗ à partir d'un u⃗ dessiné),
+l'exercice 2 (u⃗, v⃗, w⃗ et dix vecteurs a. à j. : « chacun est obtenu en
+multipliant u⃗, v⃗ ou w⃗ par un réel k ; identifier chacun d'entre eux » —
+des k comme −1,5, ¾, −5/4), l'exercice 3 (une figure de vecteurs AB⃗, CD⃗…
+et dix lignes « AB⃗ et GH⃗ ? □ Non □ Oui car AB⃗ = … GH⃗ »), et, page 2,
+l'EXEMPLE 1 — l'exercice 2 avec des k entiers. Quatre exercices, dans l'ordre
+qui monte : construire (8.3.1), l'exemple à k entiers (8.3.2), l'exercice 2
+à k décimaux ou fractionnaires (8.3.3), colinéaires ou non (8.3.4). Un
+troisième sous-thème du thème 8 : rien ne se renumérote.
+
+**Trois moteurs pour quatre exercices.** Le 8.3.1 est le moteur du 8.1.7
+(`tvx`), comme le 8.1.8 l'était déjà : même geste, même juge, même écran. La
+question porte `q.ks` — trois coefficients `[numérateur, dénominateur]`,
+rangés — et un seul vecteur donné, `q.vs[0]`. Tout ce qui change passe par
+les fonctions que le 8.1.8 avait ouvertes : `tvxVec`/`tvxOrig` lisent u⃗
+pour les trois flèches, `tvxCible` multiplie son chemin par le coefficient,
+`tvxNom`/`tvxNomHTML` écrivent « ⅔u », et une seule nouvelle, `tvxTrace`,
+pose le nom d'une flèche : `svcFleche` ne sait écrire que des lettres, le
+nom « −⅚u⃗ » s'écrit à part (`kvSvgNom`), la fraction EMPILÉE (deux `tspan`
+à 14 px et un trait `kv-barre` qui prend la couleur de la flèche par sa
+classe `-f`), le signe droit, la petite flèche sur la seule lettre. Le nom
+change de côté quand il sortirait du quadrillage (une flèche couchée sur le
+bord du haut l'écrit dessous) — vu sur la première capture, où la
+correction −⅔u⃗ posée sur la rangée du haut écrivait son nom hors du
+dessin. Les 8.3.2 et 8.3.3 partagent `kvi` (`q.fr = 1` au 8.3.3, l'identité
+suit `currentTestId`) ; le 8.3.4 est `kco`. Ce que les trois partagent est
+nommé `kv…` : l'écriture d'un coefficient (`kvTxt` en texte, `kvMot` pour le
+modèle, `kvSaisie` comme l'élève la tape, `kvHTML` à l'écran — la fraction
+de `sfFracInner`, le signe centré sur son trait par un `inline-flex`), la
+lecture d'une saisie (`kvLit` : « −1,5 », « -3/2 », « 1.5 », « .5 » ; « 1/0 »
+et « 2/ » ne sont pas des nombres), le quadrillage et la pose des flèches.
+
+**Le tirage du 8.3.1** (`tvxGenK`) : trois coefficients distincts parmi
+vingt-deux (de −3 à 3, demis, tiers, quarts, ±5/6), au moins une fraction,
+au moins un positif et un négatif ; u⃗ a pour composantes des multiples du
+PPCM des dénominateurs (au plus 6), pour que chaque flèche tombe sur des
+nœuds, et chaque flèche tient dans le quadrillage avec un carreau de
+marge. Deux questions sont la même si u⃗ et les coefficients le sont, où que
+u⃗ soit posé (`tvxCleK`). **Le juge** est celui du 8.1.7. **Les pièges
+nommés** lisent le coefficient : à l'envers, « le coefficient est négatif,
+donc ⅔u a le sens CONTRAIRE de u » (ou positif, le MÊME) ; la bonne
+direction sans la bonne longueur, « ⅔u mesure 2/3 fois la longueur de u » ;
+puis le chemin de u, celui de k u, celui de la flèche.
+
+**Le 8.3.2 et le 8.3.3** (`kviGen`) : trois directions deux à deux non
+parallèles, dont une horizontale ou verticale ; chaque vecteur donné est sa
+direction multipliée par un entier choisi pour que ses coefficients tombent
+sur des nœuds (2, 3 ou 4 au 8.3.3 pour une direction d'un carreau) ; six
+vecteurs nommés, deux par vecteur donné, de coefficients différents, jamais
+1 ; au 8.3.3, quatre au moins ne sont pas entiers. On range la figure
+(`q.bs`, puis une ligne `[x, y, vecteur donné, numérateur, dénominateur]`
+par vecteur nommé), jamais la réponse : le chemin se recalcule (`kviVec`).
+**Deux réponses par vecteur nommé**, jugées chacune seule : le vecteur (une
+liste u, v, w) et le coefficient (une case, `inputmode="numeric"` et la
+touche « / » au pavé de la tablette, `data-pave-plus`). Le bon coefficient
+devant le mauvais vecteur vaut une case sur deux. Deux pages par séance,
+barème 24. Les vecteurs nommés et u⃗, v⃗, w⃗ sont dans deux dessins, comme sur
+la fiche ; les lignes se rangent en grille.
+
+**Le 8.3.4** (`kcoGen`) : trois directions, huit vecteurs (trois, trois et
+deux par direction, chacun sa direction multipliée par un entier de −4 à
+4), cinq paires dont deux à quatre colinéaires, le réel jamais 1. **Le piège
+de la fiche est tiré exprès** : deux des trois directions sont PROCHES
+(`kcoProches`, moins de 20° — (2 ; 1) et (3 ; 1), (1 ; 1) et (2 ; 1)), et les
+paires non colinéaires se prennent d'abord parmi elles : des flèches presque
+parallèles qui ne le sont pas. **Une réponse par ligne, et c'est la ligne
+qui est la `pts-case`** : « Non » juste si les vecteurs ne sont pas
+colinéaires, « Oui » juste s'ils le sont ET que le réel est le bon ; « Oui »
+sans réel est faux. La case du réel ne prend AUCUNE classe de verdict —
+elle serait une seconde réponse comptée par `ptsEcran()`, et une case vide
+qui rougit — : c'est la ligne qui bleuit, rougit ou verdit, la bonne
+réponse écrite à côté d'une ligne fausse (`mf-cor`), la ligne vide remplie
+par la correction. Taper un réel enfonce « Oui ». Le bouton enfoncé est
+rangé dans la question (`q.choisi`, que `CLE_HORS` écarte déjà de la clé de
+`distinctes()`) : une pause le rend ; la case du réel revient par
+`restoreBoxes`.
+
+**Le soutien** ne juge qu'à la vérification, pour les deux nouveaux moteurs
+(`soutienEnDirect.sans`) : trois vecteurs dans une liste, deux boutons —
+colorer au choix, ce serait faire deviner. Les rappels (`RAP_KVX` par
+identifiant, `RAP_KVI`, `RAP_KCO`) donnent la définition « il existe un
+réel k tel que v⃗ = k u⃗ », le sens par le signe, la longueur par la valeur,
+et la méthode des carreaux ; le contrôle des rappels a rougi au premier
+passage sur « (−3/2) » écrit à plat : la fraction s'empile, et ce que
+l'élève TAPE (« −3/2 ») est dans une balise `code`. Les messages en texte
+écrivent les vecteurs sans flèche (« a », « AB ») : le caractère combinant
+U+20D7 s'affichait comme un blanc dans le message du verdict — vu sur la
+capture, invisible dans jsdom.
+Le 8.3.3 s'appelait d'abord {identifier-multiple-fractions} : le contrôle des
+fractions irréductibles démarre tout identifiant qui contient « fraction »,
+et il a rougi au premier passage (« aucune fraction de départ reconnue ») —
+à juste titre, ce n'est pas un calcul de fractions. L'identifiant est devenu
+{identifier-multiple-non-entier} avant toute mise en ligne, plutôt qu'une
+dispense qui aurait dit faux.
+
+**Les bancs.** Le principal (`vecteursColineaires`, « vecteurs colinéaires ») :
+les quatre places (8.3.1 à 8.3.4, les voisins immobiles, pas de bouton des
+tables), les rappels et les questions à l'IA, `kvLit` sur onze écritures ;
+au 8.3.1, deux cents tirages (clés rangées, coefficients, u⃗ dans le
+quadrillage, chaque k u⃗ sur un nœud), le 8.1.7 et le 8.1.8 sans `ks`, une
+figure fixe (u⃗ seul, ½ et −5/6 empilés dans l'énoncé et sous les flèches),
+la copie juste après le JSON, puis 2u⃗ à l'envers, ½u⃗ trop long et le
+dernier absent (bad, bad, sol, les deux pièges nommés, trois flèches
+vertes) ; aux 8.3.2 et 8.3.3, deux cents tirages chacun (directions,
+coefficients irréductibles et jamais 1, entiers ou non, flèches sur des
+nœuds dans le quadrillage), la copie juste écrite à la virgule, au tiret et
+en fraction, le rendu après JSON, la copie vide (douze corrections vertes,
+rien de rouge), le bon coefficient devant le mauvais vecteur ; au 8.3.4,
+deux cents tirages (paires distinctes, deux à quatre colinéaires, jamais 1,
+une paire presque parallèle au moins, flèches dans le quadrillage), une
+figure fixe, « Oui » enfoncé en tapant, les boutons rendus après le JSON, la
+copie juste, puis « Oui » sans réel, « Non » sur des colinéaires et « Oui »
+sur des presque parallèles (bad, bad, sol, bad, sol), aucune couleur de
+verdict sur la case du réel, le pourquoi, la ligne vide remplie. Les
+contrôles universels du banc navigateur (section 9) les visitent comme les
+autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
+navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
+flèche, lui, ne se mesure qu'à l'œil.
