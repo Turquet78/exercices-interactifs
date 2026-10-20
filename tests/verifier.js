@@ -49244,7 +49244,8 @@ function convexiteTangente(w, P){
    · M79 — les limites, les équations d'asymptote et les solutions exactes sont
      EXACTES (« 2,1 » refusé pour 2, « 2,0 » accepté) ; une cible non décimale
      (1/3) garde le dixième ;
-   · M80 — « ∞ » sans signe est refusé partout, « +∞ » et « +inf » acceptés ;
+   · M80, renversé en octobre 2026 (décision de Turquet) — « ∞ » sans signe
+     VAUT +∞ partout, « +∞ » et « +inf » acceptés, −∞ garde son signe ;
    · M81 — « k ∉ ]−∞ ; 7] » : crochet ouvert du côté de l'infini ;
    · M83 — le tableau de la famille logarithme a sa double barre en a, la
      limite −∞ à sa DROITE, et l'énoncé écrit ]a ; +∞[ ;
@@ -49338,10 +49339,11 @@ function mineursTerminale(w, P){
     if(!numOkExact(0.33,1/3)) vus.push('M79 : une cible NON décimale (1/3) a perdu sa tolérance au dixième');
     if(numOkExact(0.26,0.25)) vus.push('M79 : une cible décimale (0,25) accepte 0,26');
 
-    /* ---- M80 : une limite infinie est signée ---- */
-    if(lgLimOK({lim:'+∞'},'∞') || lgLimOK({lim:'+∞'},'inf')) vus.push('M80 : « ∞ » sans signe accepté pour +∞');
-    if(!lgLimOK({lim:'+∞'},'+∞') || !lgLimOK({lim:'+∞'},'+inf') || !lgLimOK({lim:'−∞'},'-∞')) vus.push('M80 : une limite infinie SIGNÉE est refusée');
-    if(!limNonSignee('∞') || limNonSignee('+∞')) vus.push('M80 : limNonSignee ne reconnaît pas « ∞ » seul');
+    /* ---- M80, renversé : « ∞ » sans signe vaut +∞ partout (Turquet, octobre 2026) ---- */
+    if(!lgLimOK({lim:'+∞'},'∞') || !lgLimOK({lim:'+∞'},'inf') || !lgLimOK({lim:'+∞'},'infini')) vus.push('« ∞ » sans signe refusé pour +∞ : il vaut +∞ partout (décision d\'octobre 2026)');
+    if(lgLimOK({lim:'−∞'},'∞') || lgLimOK({lim:'−∞'},'inf')) vus.push('« ∞ » sans signe accepté pour −∞ : seul +∞ se sous-entend');
+    if(!lgLimOK({lim:'+∞'},'+∞') || !lgLimOK({lim:'+∞'},'+inf') || !lgLimOK({lim:'−∞'},'-∞')) vus.push('une limite infinie SIGNÉE est refusée');
+    if(typeof limAvisSigne==='function') vus.push('limAvisSigne existe encore : le message « s\'écrit avec son signe » n\'a plus de raison d\'être');
 
     /* ---- M81 : le crochet de l'infini ---- */
     { const a=tvi3AttenduIA({raison:'horsbornes',vGL:'−∞',vDL:'7',kL:'9',fname:'f',v:'x'}).replace(/\u00a0/g,' ');
@@ -49976,13 +49978,13 @@ function suiteVocabulaire(w, P){
     if(r.score!==0) vus.push('« majorée » cochée sur une suite qui tend vers +∞ vaut le point');
     if(!/\\bbad\\b/.test(cls('#svq-c-maj'))) vus.push('« majorée » cochée à tort ne rougit pas');
     if(r.cases!==8) vus.push('l\\'exemple 3 compte '+r.cases+' cases au lieu de 8 (pas de majorant à écrire)');
-    /* la limite infinie s'écrit SIGNÉE, comme partout (M80, octobre 2026) :
-       « +inf » est la copie juste, « inf » seul est refusé, et le dit */
+    /* « inf » sans signe vaut +∞, comme partout (décision de Turquet, octobre
+       2026, qui renverse M80) : « +inf » et « inf » sont deux copies justes */
     r=pose(Q2, [['sens','cro'],['min'],['lim','a'],['nat','div']], {'svq-min':'1','svq-lim':'+inf'});
-    if(r.score!==1) vus.push('la copie juste de l\\'exemple 3 (limite « +inf », divergente) ne vaut pas le point ('+r.fb+')');
+    if(r.score!==1) vus.push('la copie juste de l\'exemple 3 (limite « +inf », divergente) ne vaut pas le point ('+r.fb+')');
     { const r2=pose(Q2, [['sens','cro'],['min'],['lim','a'],['nat','div']], {'svq-min':'1','svq-lim':'inf'});
-      if(r2.score!==0) vus.push('« inf » sans signe vaut +∞ : une limite infinie doit être signée');
-      else if(!/avec son signe/.test(r2.fb)) vus.push('« inf » sans signe est refusé sans que le message dise pourquoi ('+r2.fb+')'); }
+      if(r2.score!==1) vus.push('« inf » sans signe ne vaut pas +∞ au 6.4.1 ('+r2.fb+') : il le vaut partout depuis octobre 2026');
+      if(/avec son signe/.test(r2.fb)) vus.push('le message demande encore le signe de l\'infini'); }
     r=pose(Q2, [['sens','cro'],['min'],['lim','a'],['nat','div']], {'svq-min':'1','svq-lim':'+inf'});
     if(!/\\bok\\b/.test(cls('#svq-c-maj'))) vus.push('« majorée » laissée décochée à raison n\\'est pas bleue');
     r=pose(Q2, [['sens','cro'],['min'],['lim','a'],['nat','conv']], {'svq-min':'1','svq-lim':'+∞'});

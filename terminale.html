@@ -3684,7 +3684,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=408;
+const APP_VERSION=409;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -8365,7 +8365,7 @@ function lrAttenduIA(c){
     +'ÉCRITURE COMPLÈTE EXIGÉE : chaque limite doit faire apparaître les DEUX membres — ce vers quoi tend x (la borne) ET ce vers quoi tend f(x) — clairement associés. Une réponse qui se contente de valeurs (« +∞ et 2 », « −∞ ; +∞ », une liste de résultats), ou qui ne dit pas que c’est f(x) qui tend vers la valeur, est FAUSSE même si les valeurs sont exactes ; le feedback doit alors demander d’écrire la phrase complète. '
     +'Les formes d’expression restent libres : flèche (→, ->, ⟶) ou mots (« tend vers », « se rapproche de », « approche »), notation « lim … = … », « y » à la place de f(x) ; et les deux membres peuvent être écrits sur une seule ligne ou sur deux lignes consécutives. '
     +'Le petit signe de côté sur une borne finie (exposant + ou −) est FACULTATIF ; s’il est écrit, il doit être du bon côté. '
-    +'Une limite infinie doit être SIGNÉE : « ∞ » sans signe est insuffisant. Accepter +inf, +infini, « plus l’infini » (idem en négatif). '
+    +'Une limite infinie s’écrit +∞ ou −∞ ; « ∞ » SANS signe (ou inf, infini) vaut +∞ et s’accepte comme tel. Accepter +inf, +infini, « plus l’infini » (idem en négatif). '
     +'Chacune des deux bornes doit apparaître exactement une fois sur l’ensemble de la réponse. '
     +'ASYMPTOTES attendues pour toute la courbe : '+lrAsymTexte(c)+'. '
     +'L’équation exacte est obligatoire (x = … pour une verticale, y = … pour une horizontale ; espaces facultatifs ; signe moins écrit - ou − ; formulation et ordre libres). '
@@ -9775,23 +9775,18 @@ function limInsInf(id,signe){
   }catch(e){}
 }
 /* Comparaisons locales (le verdict IA reste autoritaire pour le score). */
-/* UNE LIMITE INFINIE EST SIGNÉE, partout (audit d'octobre 2026, M80) : « ∞ »
-   seul valait +∞ aux 3.2, 3.3, 3.4 et 4.6, et le 3.5 le refusait (« doit être
-   SIGNÉE ») — deux règles pour la même écriture. C'est celle du programme qui
-   reste : « ∞ » sans signe ne dit pas de quel côté la fonction part. Le refus
-   se DIT à l'élève (limAvisSigne), sans quoi la case rougirait sans raison
-   lisible. */
-function limNonSignee(raw){ return String(raw==null?'':raw).replace(/\s+/g,'').replace(/infini|inf/gi,'∞')==='∞'; }
-function limAvisSigne(ecran){
-  const scr=$(ecran); if(!scr) return '';
-  const vu=[].some.call(scr.querySelectorAll('math-field.lim-mf'), el=>el.id && limNonSignee(limLire(el.id)));
-  return vu ? '<br>Une limite infinie s’écrit avec son signe : <b>+∞</b> ou <b>−∞</b> — « ∞ » seul ne dit pas de quel côté la fonction part.' : '';
-}
+/* « ∞ » SANS SIGNE VAUT +∞, partout (décision de Turquet, octobre 2026). Le
+   lot M80 de l'audit avait fait l'inverse — refus partout, avec un message
+   (limAvisSigne) — pour unifier le 3.5, qui refusait, et les lectures
+   graphiques, qui acceptaient. La règle retenue est l'autre : un « ∞ » nu, ou
+   « inf », « infini », se lit +∞ dans toute case de limite ; −∞ garde son
+   signe. Une seule fonction le sait, lgLimOK, et toutes les cases de limite
+   passent par elle ; l'attendu envoyé au modèle (lrAttendu) le dit aussi. */
 function lgLimOK(sub, raw){
   const brut=String(raw==null?'':raw).trim();
   if(brut==='') return false;
   const t=brut.replace(/\s+/g,'').replace(/infini|inf/gi,'∞').replace(/-/g,'−');
-  if(sub.lim==='+∞') return t==='+∞';   /* « ∞ » seul : refusé, comme au 3.5 (M80) */
+  if(sub.lim==='+∞') return t==='+∞' || t==='∞';   /* « ∞ » seul vaut +∞ (décision d'octobre 2026) */
   if(sub.lim==='−∞') return t==='−∞';
   const v=Number(brut.replace(/−/g,'-').replace(/,/g,'.'));
   return numOkExact(v,sub.lim);   /* limite finie : EXACTE (M79) */
@@ -9951,7 +9946,7 @@ async function checkLG(){
   }
   if(!correct && isSoutien()){
     lgMarqueSoutien(c);
-    $('lgFeedback').innerHTML=((fbHTML||'Ce n’est pas encore ça. Utilise ▶ : imagine le point qui se déplace vers la cible — vers quelle hauteur (ou quel infini) va-t-il ? Corrige les cases en rouge puis revérifie.'))+limAvisSigne('scr-lg');
+    $('lgFeedback').innerHTML=((fbHTML||'Ce n’est pas encore ça. Utilise ▶ : imagine le point qui se déplace vers la cible — vers quelle hauteur (ou quel infini) va-t-il ? Corrige les cases en rouge puis revérifie.'));
     $('lgFeedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
     $('lgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG()">Revérifier</button>';
     return;
@@ -9963,7 +9958,7 @@ async function checkLG(){
     $('lgFeedback').innerHTML=esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']));
     $('lgFeedback').className='mp-feedback good';
   } else {
-    $('lgFeedback').innerHTML=((fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : les bonnes réponses sont en badges verts, et les asymptotes sont maintenant étiquetées sur le graphique.')+limAvisSigne('scr-lg');
+    $('lgFeedback').innerHTML=((fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : les bonnes réponses sont en badges verts, et les asymptotes sont maintenant étiquetées sur le graphique.');
     $('lgFeedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
   }
   const TL={ah:'asymptote horizontale',av:'asymptote verticale',rien:'pas d’asymptote'};
@@ -10327,7 +10322,7 @@ async function checkLG2(){
   }
   if(!correct && isSoutien()){
     lg2MarqueSoutien(c);
-    $('lg2Feedback').innerHTML=((fbHTML||'Ce n’est pas encore ça. Imagine un point qui se déplace sur la courbe vers chaque cible, puis relis ton tableau : les flèches suivent la courbe, et les limites se placent aux extrémités des flèches. Corrige les cases en rouge puis revérifie.'))+limAvisSigne('scr-lg2');
+    $('lg2Feedback').innerHTML=((fbHTML||'Ce n’est pas encore ça. Imagine un point qui se déplace sur la courbe vers chaque cible, puis relis ton tableau : les flèches suivent la courbe, et les limites se placent aux extrémités des flèches. Corrige les cases en rouge puis revérifie.'));
     $('lg2Feedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
     $('lg2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG2()">Revérifier</button>';
     return;
@@ -10339,7 +10334,7 @@ async function checkLG2(){
     $('lg2Feedback').innerHTML=esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']));
     $('lg2Feedback').className='mp-feedback good';
   } else {
-    $('lg2Feedback').innerHTML=((fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : les bonnes réponses sont en badges verts, et les asymptotes sont maintenant tracées et étiquetées sur le graphique.')+limAvisSigne('scr-lg2');
+    $('lg2Feedback').innerHTML=((fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : les bonnes réponses sont en badges verts, et les asymptotes sont maintenant tracées et étiquetées sur le graphique.');
     $('lg2Feedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
   }
   const TL={ah:'asymptote horizontale',av:'asymptote verticale',rien:'pas d’asymptote'};
@@ -10472,7 +10467,7 @@ async function checkLG3(){
   }
   if(!correct && isSoutien()){
     lgSubsMarqueSoutien(c,'lg3');
-    $('lg3Feedback').innerHTML=((fbHTML||'Ce n’est pas encore ça. Relis le tableau : la limite de chaque cas est la valeur écrite à l’extrémité de la flèche correspondante ; une valeur finie aux bornes infinies donne une asymptote horizontale, et des flèches qui filent vers l’infini de part et d’autre d’une double barre donnent une asymptote verticale. Corrige les cases en rouge puis revérifie.'))+limAvisSigne('scr-lg3');
+    $('lg3Feedback').innerHTML=((fbHTML||'Ce n’est pas encore ça. Relis le tableau : la limite de chaque cas est la valeur écrite à l’extrémité de la flèche correspondante ; une valeur finie aux bornes infinies donne une asymptote horizontale, et des flèches qui filent vers l’infini de part et d’autre d’une double barre donnent une asymptote verticale. Corrige les cases en rouge puis revérifie.'));
     $('lg3Feedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
     $('lg3Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG3()">Revérifier</button>';
     return;
@@ -10484,7 +10479,7 @@ async function checkLG3(){
     $('lg3Feedback').innerHTML=esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']));
     $('lg3Feedback').className='mp-feedback good';
   } else {
-    $('lg3Feedback').innerHTML=((fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : les bonnes réponses sont en badges verts.')+limAvisSigne('scr-lg3');
+    $('lg3Feedback').innerHTML=((fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : les bonnes réponses sont en badges verts.');
     $('lg3Feedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
   }
   const TL={ah:'asymptote horizontale',av:'asymptote verticale',rien:'pas d’asymptote'};
@@ -18334,7 +18329,7 @@ function checkASG(live){
     return;
   }
   if(!allOk && isSoutien()){
-    $('asgFeedback').innerHTML=((vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.')+avertTerme)+limAvisSigne('scr-asg');
+    $('asgFeedback').innerHTML=((vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.')+avertTerme);
     $('asgFeedback').className='mp-feedback bad';
     cases.forEach(x=>{ const el=$(x.id); if(!el) return; asgDis(el, !!(etats[x.id] && etats[x.id].ok)); });
     $('asgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkASG()">Revérifier</button>';
@@ -18347,7 +18342,7 @@ function checkASG(live){
     $('asgFeedback').className='mp-feedback good';
     cases.forEach(x=>{ const el=$(x.id); if(el) asgDis(el,true); });
   } else {
-    $('asgFeedback').innerHTML=(msgCorrCouleurs(vides>0)+avertTerme)+limAvisSigne('scr-asg');
+    $('asgFeedback').innerHTML=(msgCorrCouleurs(vides>0)+avertTerme);
     $('asgFeedback').className='mp-feedback bad';
     cases.forEach(x=>{ const e=etats[x.id]||{ok:false,vide:true};
       const el=$(x.id); if(!el) return;
@@ -19146,7 +19141,7 @@ function checkEAV(live){
     return;
   }
   if(!allOk && isSoutien()){
-    fb.innerHTML=(vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.')+avertTerme+limAvisSigne('scr-eav');
+    fb.innerHTML=(vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.')+avertTerme;
     fb.className='mp-feedback bad';
     cases.forEach(x=>{ const el=$(x.id); if(!el) return; dis(el, !!(etats[x.id] && etats[x.id].ok)); });
     $('eavActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEAV()">Revérifier</button>';
@@ -19159,7 +19154,7 @@ function checkEAV(live){
     fb.className='mp-feedback good';
     cases.forEach(x=>{ const el=$(x.id); if(el) dis(el,true); });
   } else {
-    fb.innerHTML=msgCorrCouleurs(vides>0)+'<br>'+nOk+' cases justes sur '+nTot+'.'+avertTerme+limAvisSigne('scr-eav');
+    fb.innerHTML=msgCorrCouleurs(vides>0)+'<br>'+nOk+' cases justes sur '+nTot+'.'+avertTerme;
     fb.className='mp-feedback bad';
     cases.forEach(x=>{ const e=etats[x.id]||{ok:false,vide:true};
       const el=$(x.id); if(!el) return;
@@ -24505,7 +24500,7 @@ function checkLQN(live){
     return;
   }
   if(!allOk && isSoutien()){
-    fb.innerHTML='Presque ! Corrige les cases en rouge, puis revérifie.'+limAvisSigne('scr-lqn');
+    fb.innerHTML='Presque ! Corrige les cases en rouge, puis revérifie.';
     fb.className='mp-feedback bad';
     $('lqnActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLQN()">Revérifier</button>';
     return;
@@ -24517,7 +24512,7 @@ function checkLQN(live){
     fb.textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, limite trouvée et justifiée !']);
     fb.className='mp-feedback good';
   } else {
-    fb.innerHTML=msgCorrCouleurs(false)+limAvisSigne('scr-lqn')
+    fb.innerHTML=msgCorrCouleurs(false)
       +'<br>La clé : si <b><i>q</i> &gt; 1</b>, alors <i>q</i><sup><i>n</i></sup> → +∞ ; si <b>−1 &lt; <i>q</i> &lt; 1</b>, alors <i>q</i><sup><i>n</i></sup> → 0. '
       +'On remplace ensuite chaque puissance par sa limite, et on conclut avec les règles sur les sommes, produits et quotients de limites.';
     fb.className='mp-feedback bad';
@@ -28380,7 +28375,7 @@ function checkSVQ(){
   }
   if(!allOk&&isSoutien()){
     svqPeindre(etats,false);
-    $('svqFeedback').innerHTML='Presque ! Corrige ce qui est en rouge — ou ce qui manque —, puis revérifie.'+limAvisSigne('scr-svq');
+    $('svqFeedback').innerHTML='Presque ! Corrige ce qui est en rouge — ou ce qui manque —, puis revérifie.';
     $('svqFeedback').className='mp-feedback bad';
     $('svqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSVQ()">Revérifier</button>';
     return;
@@ -28397,7 +28392,7 @@ function checkSVQ(){
     $('svqFeedback').innerHTML=msgCorrCouleurs(oubliees)
       +'<br>Ce que le graphique montre : la suite est <b>'+svqPhrase(a)+'</b>'
       +'<br>Retiens : <b>convergente</b> veut dire « a une limite FINIE » ; une limite <b>infinie</b>, ou pas de limite du tout, c’est <b>divergente</b>. '
-      +'<b>Bornée</b> veut dire majorée ET minorée.'+limAvisSigne('scr-svq');
+      +'<b>Bornée</b> veut dire majorée ET minorée.';
     $('svqFeedback').className='mp-feedback bad';
   }
   test.answers.push({...(ptsExo()||{}),

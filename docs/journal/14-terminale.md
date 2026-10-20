@@ -3294,3 +3294,19 @@ ne rougit pas et reçoit la correction en vert. Éprouvé par deux sabotages
 et des vides) — cases justes en bleu, fausses en rouge avec la correction à
 côté, vides complétées en vert, l'écran des résultats au bout, aucune erreur
 JavaScript, aucun débordement en largeur.
+
+**« ∞ » sans signe vaut +∞, partout — décision de Turquet (octobre 2026), qui
+renverse M80.** Le lot de l'audit avait unifié dans le sens du refus : « ∞ »
+nu refusé dans toute case de limite, avec un message (`limAvisSigne`). La
+règle retenue est l'autre : un « ∞ » nu, « inf » ou « infini », se lit +∞
+dans toute case de limite — lectures graphiques (lg, lg2, lg3), 4.6, suites
+(svq, lqn), études de fonctions (asg, eav) —, et −∞ garde son signe. Une
+seule fonction le sait, `lgLimOK` (`t==='+∞' || t==='∞'`), et toutes les
+cases de limite passent par elle (le contrôle « chaque appel à lgLimOK() »
+le tient) ; `limNonSignee` et `limAvisSigne` sont retirées, avec leurs
+quatorze appels ; l'attendu envoyé au modèle du 3.5 dit « « ∞ » SANS signe
+vaut +∞ et s'accepte comme tel ». Le contrôle du lot J est retourné : « ∞ »,
+« inf » et « infini » doivent passer pour +∞, être refusés pour −∞, et
+`limAvisSigne` ne doit plus exister ; le 6.4.1 pose « inf » comme seconde
+copie juste. Le paragraphe M80 ci-dessus reste : il raconte l'état d'avant,
+avec ses raisons.
