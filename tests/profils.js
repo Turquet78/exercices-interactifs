@@ -110,7 +110,8 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'chasles-inserer-point':'chi', 'regle-parallelogramme':'spg', 'translation-pavage':'tpv', 'vrai-faux-vecteurs':'vfh', 'vecteurs-egaux':'veg', 'relation-chasles':'chs', 'chasles-sans-figure':'chl', 'chasles-trois-vecteurs':'ctv', 'chasles-simplifier':'csp', 'point-somme-difference':'cvp', 'chasles-alignes':'cha', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'vecteurs-egaux-tableau':'vgt', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'developper-distributivite':'dvl', 'developper-double':'dvd', 'developper-double-nu':'dvn', 'parallelogramme-point':'vec', 'egalite-vectorielle-point':'vep', 'somme-vecteurs':'svc', 'somme-vecteurs-libre':'svc', 'point-somme-vecteurs':'cps', 'tracer-vecteurs-egaux':'tvx', 'tracer-vecteurs-opposes':'tvx', 'somme-vecteurs-repere':'svr', 'translation-grille':'vtr', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc','python-if-frais-port':'pcf', 'python-input-prix':'pkg', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-if-plus-grand-trois':'pgt', 'translation-quadrillage':'trl', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv', 'python-for-images-entiers':'pfk','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-if-cinema':'pci', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
+               'python-type-resultat':'pwy', 'python-texte-nombre':'pws', 'python-egal-affectation':'pwe', 'python-x-plus-pas-a-pas':'pwx', 'python-accumulateur':'pwa', 'python-priorites':'pwp', 'python-division-entiere':'pwd', 'python-arrondir':'pwr', 'python-valeur-depart':'pwv', 'python-meme-resultat':'pwm', 'python-choisir-programme':'pwc', 'python-ordre-lignes':'pwo', 'python-variable-inconnue':'pwn', 'python-debogage':'pwg', 'python-formule':'pwf', 'python-traduire-algo':'pwt',
+               'synthese-fonction':'syn', 'translation-antecedent':'tan', 'chasles-inserer-point':'chi', 'translation-pavage':'tpv', 'demontrer-parallelogramme':'dpa', 'vrai-faux-vecteurs':'vfh', 'lire-somme-dessin':'lsd', 'demontrer-chasles':'dch', 'milieu-vecteurs-egaux':'vmi', 'somme-trois-vecteurs':'stv', 'regle-parallelogramme':'spg', 'vecteurs-egaux':'veg', 'relation-chasles':'chs', 'chasles-sans-figure':'chl', 'chasles-trois-vecteurs':'ctv', 'chasles-simplifier':'csp', 'point-somme-difference':'cvp', 'chasles-alignes':'cha', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'vecteurs-egaux-tableau':'vgt', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'developper-distributivite':'dvl', 'developper-double':'dvd', 'developper-double-nu':'dvn', 'valeur-expression':'cvl', 'vrai-faux-calcul':'vfl', 'developper-reduire':'dvr', 'developper-signe-moins':'dvm', 'developper-signe-moins-nu':'dvs', 'developper-distributivite-nu':'dvo', 'parallelogramme-point':'vec', 'egalite-vectorielle-point':'vep', 'somme-vecteurs':'svc', 'somme-vecteurs-libre':'svc', 'point-somme-vecteurs':'cps', 'tracer-vecteurs-egaux':'tvx', 'tracer-vecteurs-opposes':'tvx', 'somme-vecteurs-repere':'svr', 'translation-grille':'vtr', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc','python-if-frais-port':'pcf', 'python-input-prix':'pkg', 'python-input-concat':'pcz', 'python-input-erreur-type':'pte', 'python-input-int-float':'pfl', 'python-input-conversion':'pqc', 'python-input-predire':'ppr', 'python-input-ordre':'pod', 'python-input-arrondi':'prd', 'python-input-monnaie':'pmo', 'python-input-image':'pfx', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-if-plus-grand-trois':'pgt', 'translation-quadrillage':'trl', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv', 'python-for-images-entiers':'pfk','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-if-cinema':'pci', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -140,6 +141,13 @@ module.exports = {
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements_1ere', exercice: 'pourcentage' },
+    /* Le professeur pose une note sur un exercice d'un devoir ou d'une fiche
+       (demande de Turquet, octobre 2026 : depuis un signalement, « aller
+       directement à la note de l'élève […] pour pouvoir la modifier », les
+       trois niveaux). En Première l'onglet s'appelle « devoirs », et les
+       champs vivent dans le DÉTAIL d'un élève, ouvert au clic. */
+    notesDevoir: { exercice: 'pourcentage', tableParametres: 'parametres_1ere', tableResultats: 'resultats_1ere',
+      onglet: 'devoirs', detail: true },
     /* La fenêtre « Soutien » se saisit n'importe où, et pas seulement par sa
        barre de titre. Un exercice de ce niveau qui a un mode soutien suffit :
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
@@ -195,7 +203,10 @@ module.exports = {
        elle donne à ses cartes une largeur propre par une variable unique
        (--card-max, paliers 560 / 780 / 1040 / 1200), avec une gouttière
        voulue — son fichier l'écrit en toutes lettres et interdit de la
-       redéclarer. Le banc l'affiche « non applicable » plutôt que de le taire. */
+       redéclarer. Le banc l'affiche « non applicable » plutôt que de le taire.
+       (En PORTRAIT, depuis octobre 2026, la Terminale lève elle aussi cette
+       borne sur ses écrans d'exercice — body.ecran-exo ; le banc visite en
+       paysage, où les paliers restent la règle.) */
     cadrePleineLargeur: true,
 
 
@@ -769,6 +780,10 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'secondes.html': {
+    /* Les cases de calcul en TEXTE : celles du calcul littéral (litPave :
+       x, x², +, ( )) offrent x mais pas × — le banc y mesure le x en
+       italique et la touche du pavé ; aucune frappe de « * ». */
+    casesCalculTexte: { fois: false },
     /* Les tirages par familles : voir le profil de la Terminale. */
     tiragesParFamilles: {
       startReconnaitreCoef: 'aug, dim, pre : trois familles différentes'
@@ -915,6 +930,18 @@ module.exports = {
        lève), et le PAVÉ des tablettes, qui doit porter les six mêmes symboles
        sur une seconde rangée — data-pave-plus. */
     ecrireSolutions: { exercice: 'ecrire-solutions', touches: ['[', ']', ';', 'U', '{', '}'] },
+    /* Thème 7 (calcul littéral) : les cases de TEXTE où l'élève écrit une
+       expression sont confiées au pavé des tablettes (inputmode="numeric") et
+       lui demandent en plus x, x², + et les parenthèses — data-pave-plus, une
+       seule liste (LIT_TOUCHES). Demande de Turquet, octobre 2026 : « le
+       clavier virtuel pour les tablettes ou téléphones adapté à l'exercice ».
+       Chaque exercice nommé est lancé, et TOUTES ses cases de texte doivent
+       porter le même clavier : une case oubliée rendrait le clavier du
+       système, sans x². */
+    clavierLitteral: { touches: ['x', 'x²', '+', '(', ')'],
+      exercices: ['reduire-somme', 'reduire-produit', 'developper-distributivite', 'developper-distributivite-nu',
+                  'developper-double', 'developper-double-nu', 'developper-signe-moins', 'developper-signe-moins-nu',
+                  'developper-reduire', 'vrai-faux-calcul'] },
     /* {placer-image} : le point se POSE au clic sur le graphe d’{image-nombre} — le
        calcul clic → nœud ne se voit que dans un vrai navigateur. */
     placerImage: { exercice: 'placer-image' },
@@ -944,12 +971,19 @@ module.exports = {
        moteur du 8.2.1 sans étapes ni mots « début » / « fin » — une seule
        réponse notée par question, la flèche u⃗ + v⃗. */
     sommeVecteursLibre: { exercice: 'somme-vecteurs-libre', numero: '8.2.10', nb: 8, bareme: 8 },
-    /* {regle-parallelogramme} (8.2.12, l'idée n° 6 retenue par Turquet,
+    /* {somme-trois-vecteurs} (8.2.15, demande de Turquet, octobre 2026 —
+       l'idée n° 7) : u⃗, v⃗, w⃗ glissent bout à bout à partir d'un point,
+       puis l'élève trace u⃗ + v⃗ + w⃗ ou le déclare nul. Deux réponses par
+       question. « nb » est la seconde source du compte (la page a STV_NB) ;
+       « bareme » celle du barème ; « nuls » le nombre de questions dont la
+       somme est le vecteur nul. */
+    sommeTroisVecteurs: { exercice: 'somme-trois-vecteurs', numero: '8.2.15', nb: 6, bareme: 12, nuls: 1 },
+    /* {regle-parallelogramme} (8.2.16, l'idée n° 6 retenue par Turquet,
        octobre 2026) : u⃗ = AB⃗ et v⃗ = AC⃗ de même origine ; placer D tel que
        ABDC soit un parallélogramme, puis tracer u⃗ + v⃗ = AD⃗ — deux réponses
        par question. « nb » est la seconde source du compte (la page a
        SPG_NB) ; « bareme » celle du barème. */
-    regleParallelogramme: { exercice: 'regle-parallelogramme', numero: '8.2.12', nb: 6, bareme: 12 },
+    regleParallelogramme: { exercice: 'regle-parallelogramme', numero: '8.2.16', nb: 6, bareme: 12 },
     /* {somme-vecteurs-repere} (8.11, demande de Turquet, octobre 2026, la
        « fiche 10 sur somme de vecteur ») : placer quatre points dans un
        repère, tracer deux vecteurs, en faire glisser des copies bout à bout
@@ -989,6 +1023,32 @@ module.exports = {
        égalités à juger par figure. « nb » est la seconde source du compte (la
        page a VFH_NB) ; « bareme » celle du barème. */
     vraiFauxVecteurs: { exercice: 'vrai-faux-vecteurs', numero: '8.1.10', nb: 3, bareme: 30 },
+    /* {milieu-vecteurs-egaux} (8.1.11, idée n° 5 retenue par Turquet, octobre
+       2026) : un triangle et les milieux de ses côtés, cinq lignes et sept
+       cases par figure. « nb » est la seconde source du compte (la page a
+       VMI_NB) ; « bareme » celle du barème. */
+    milieuVecteursEgaux: { exercice: 'milieu-vecteurs-egaux', numero: '8.1.11', nb: 3, bareme: 21 },
+    /* {demontrer-parallelogramme} (8.2.12, demande de Turquet, octobre 2026,
+       idée n° 11) : une égalité de vecteurs qui se simplifie par Chasles
+       jusqu'à AB = DC, puis le nom du parallélogramme — ABCD, jamais ABDC.
+       « nb » est la seconde source du compte (la page a DPA_NB). */
+    demontrerParallelogramme: { exercice: 'demontrer-parallelogramme', numero: '8.2.12', nb: 4 },
+    /* {translation-antecedent} (8.1.12, idée n° 2 retenue par Turquet,
+       octobre 2026) : u⃗ et trois images A′, B′, C′ ; l'élève place A, B, C
+       d'un clic. Quatre questions de trois points. */
+    translationAntecedent: { exercice: 'translation-antecedent', numero: '8.1.12', nb: 4, bareme: 12 },
+    /* {demontrer-chasles} (8.2.13, l'idée n° 10 retenue par Turquet, octobre
+       2026) : une démonstration à trous, des vecteurs et une justification
+       par ligne. « nb » est la seconde source du compte (la page a DCH_NB) ;
+       « cases » celles de l'exemple de la demande (11 vecteurs, 4
+       justifications) — le barème d'une séance dépend des plans tirés. */
+    demontrerChasles: { exercice: 'demontrer-chasles', numero: '8.2.13', nb: 4, cases: 15 },
+    /* {lire-somme-dessin} (8.2.14, idée n° 8 retenue par Turquet, octobre
+       2026) : une chaîne de flèches entre des points nommés, u⃗, v⃗, w⃗ tracés
+       à part ; « u⃗ + v⃗ = … » et « w⃗ = … + … » — trois cases par figure.
+       « nb » est la seconde source du compte (la page a LSD_NB) ; « bareme »
+       celle du barème. */
+    lireSommeDessin: { exercice: 'lire-somme-dessin', numero: '8.2.14', nb: 4, bareme: 12 },
     /* {point-somme-difference} (8.15, demande de Turquet, octobre 2026 : « fais
        un exercice comme l'exercice 1 du pdf, en déplaçant les vecteurs comme
        dans le 8.7 ») : u⃗ et v⃗ glissent et se retournent, bout à bout à
@@ -1034,7 +1094,7 @@ module.exports = {
     /* Les exercices de rapidité portés de la Première : pas d'aide IA, comme là-bas.
        Et le 4.6.7, SANS AUCUNE AIDE par demande (Turquet, octobre 2026 : « il ne
        faut aucune aide ») — AIDE_SANS dans la page. */
-    aideIA: { sans: ['tables-multiplication', 'tables-multiplication-2', 'calcul-mental', 'tableau-proportions-trois-colonnes-directes'] },
+    aideIA: { sans: ['translation-antecedent', 'translation-antecedent', 'tables-multiplication', 'tables-multiplication-2', 'calcul-mental', 'tableau-proportions-trois-colonnes-directes'] },
     /* Les poses du calcul mental, portées de la Première avec leurs contrôles
        — voir le profil de la Première pour la doctrine. */
     operationPosee: { exercice: 'addition-soustraction', hote: 'aspHost' },
@@ -1103,8 +1163,11 @@ module.exports = {
        — {somme-vecteurs-repere}, 8.11 — de même : points, vecteurs tracés et
        copies glissées se dessinent, et ne se jugent qu'à la vérification ; et
        « cps » — {point-somme-vecteurs}, 8.14 — trace, glisse et pose de même ;
-       « tvx » — {tracer-vecteurs-egaux}, 8.1.7 — trace ses flèches de même. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'vec', 'vep', 'svc', 'svr', 'cvp', 'spg', 'cps', 'tvx', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pof', 'pfn', 'pfk', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+       « tvx » — {tracer-vecteurs-egaux}, 8.1.7 — trace ses flèches de même ;
+       « tan » — {translation-antecedent}, 8.1.12 — pose ses points de même ;
+       « stv » — {somme-trois-vecteurs}, 8.2.15 — fait glisser ses flèches
+       comme « svc ». */
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'pwy', 'pws', 'pwe', 'pwx', 'pwa', 'pwp', 'pwd', 'pwr', 'pwv', 'pwm', 'pwc', 'pwo', 'pwn', 'pwg', 'pwf', 'pwt', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'vec', 'vep', 'svc', 'stv', 'svr', 'cvp', 'spg', 'cps', 'tvx', 'tan', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pcz', 'pte', 'pfl', 'pqc', 'ppr', 'pod', 'prd', 'pmo', 'pfx', 'pof', 'pfn', 'pfk', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1206,7 +1269,21 @@ module.exports = {
                        ne laisse plus 32 px au-dessus des touches. L'écart
                        mesuré entre le haut de la plaque et la première rangée
                        ne dépasse pas ce plafond, en pixels. */
-                    ecartHautMax: 4 },
+                    ecartHautMax: 4,
+                    /* LE CLAVIER B — les lettres, comme en Première (demande de
+                       Turquet, octobre 2026, sur le 4.5.10 : « on ne peut pas
+                       faire d'espace au clavier et le clavier virtuel ne propose
+                       pas le clavier qui possède l'alphabet »). La page ne tient
+                       aucune liste : le clavier suit la feuille de RÉDACTION
+                       (mlFeuille, mode 'redaction', classe mf-mots). Témoins :
+                       les deux problèmes rédigés, dont le juge efface les mots
+                       (ppbTexte), puis le 4.5.9 (« fais pareil pour le 4.5.9 »),
+                       qui lit sa copie par le même ppbTexte. Bord opposé : la
+                       feuille des fractions du 4.5, qui reste de calcul. */
+                    lettres: { versC: 'clavier B', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b', espace: 'espace',
+                               touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 14,
+                               exercices: ['pourcentages-problemes', 'pourcentages-problemes-sans-aide', 'synthese-pourcentages-redigee'],
+                               hors: ['somme-fractions-libre'] } },
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce','\u2190','\u2192'],
             /* LE PAVÉ A LA FORME DU CLAVIER MATHÉMATIQUE (demande de Turquet,
@@ -1234,7 +1311,16 @@ module.exports = {
        2026 : « en seconde, pour la création de devoir maison ou de fiche de
        travail, je souhaite que le professeur puisse mettre jusqu'à 20
        questions par exercice »). */
-    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20 },
+    /* Le professeur pose une note sur un exercice d'un devoir ou d'une fiche
+       (demande de Turquet, octobre 2026 : « comme en terminale »). La note du
+       DEVOIR ENTIER, elle, n'est pas demandée ici : pas de « devoirEntier ». */
+    notesDevoir: { exercice: 'pourcentage', tableParametres: 'parametres_2nde', tableResultats: 'resultats_2nde' },
+    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20,
+      /* le barème est la SOMME des cases tirées, et chaque démonstration a
+         les siennes (4 à 20) : six courtes peuvent peser autant que quatre
+         longues. Le contrôle de l'exercice (demontrerChasles) tient le
+         barème case par case. */
+      baremeParCases: { 'demontrer-chasles': 'une démonstration a 4 à 20 cases selon son plan' } },
     tableResultats: 'resultats_2nde',
     /* tests/pause.js — une question corrigée ne se rejuge pas à la reprise
        (« pauseReprise » : la clé « pause », plus bas, sert déjà les bancs
@@ -1265,6 +1351,10 @@ module.exports = {
       'python-echange-par-lettres': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-input-reponse': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-input-int': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-input-concat': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-input-erreur-type': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-input-int-float': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-input-arrondi': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-input-float': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-for-renommer': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-trois-des': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
@@ -1379,7 +1469,7 @@ module.exports = {
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
                   /* {vecteurs-egaux} (8.3) : on lit une figure, on ne multiplie rien */
-                  sans: ['regle-parallelogramme', 'chasles-inserer-point', 'vrai-faux-vecteurs', 'translation-pavage', 'somme-vecteurs-libre', 'tracer-vecteurs-egaux', 'tracer-vecteurs-opposes', 'point-somme-difference', 'point-somme-vecteurs', 'somme-vecteurs-repere', 'somme-vecteurs', 'relation-chasles', 'chasles-trois-vecteurs', 'chasles-simplifier', 'chasles-alignes', 'chasles-sans-figure', 'translation-quadrillage', 'egalite-vectorielle-point', 'vecteurs-egaux', 'python-pile-face', 'python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
+                  sans: ['regle-parallelogramme', 'somme-trois-vecteurs', 'python-input-image', 'python-texte-nombre', 'python-egal-affectation', 'python-division-entiere', 'python-arrondir', 'python-choisir-programme', 'python-ordre-lignes', 'python-variable-inconnue', 'python-debogage', 'python-formule', 'python-traduire-algo', 'python-input-concat', 'python-input-erreur-type', 'python-input-int-float', 'python-input-conversion', 'python-input-predire', 'python-input-ordre', 'python-input-arrondi', 'python-input-monnaie', 'demontrer-chasles', 'milieu-vecteurs-egaux', 'demontrer-parallelogramme', 'chasles-inserer-point', 'vrai-faux-vecteurs', 'lire-somme-dessin', 'translation-pavage', 'somme-vecteurs-libre', 'tracer-vecteurs-egaux', 'tracer-vecteurs-opposes', 'point-somme-difference', 'point-somme-vecteurs', 'somme-vecteurs-repere', 'somme-vecteurs', 'relation-chasles', 'chasles-trois-vecteurs', 'chasles-simplifier', 'chasles-alignes', 'chasles-sans-figure', 'translation-quadrillage', 'egalite-vectorielle-point', 'vecteurs-egaux', 'python-pile-face', 'python-if-frais-port', 'python-if-location', 'python-if-plus-grand-trois', 'python-if-plus-grand', 'python-if-else', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'vecteurs-egaux-tableau', 'soustraire-relatifs', 'translation-grille', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
@@ -1582,6 +1672,42 @@ module.exports = {
        que le programme AFFICHE. « nb » est la seconde source du compte
        (la page a PKG_NB). */
     pythonInputPrix: { exercice: 'python-input-prix', nb: 3, numero: '6.3.9' },
+    /* Les huit exercices qui complètent le sous-thème 6.3 « Input » (6.3.10 à
+       6.3.17, demande de Turquet, octobre 2026 : « crée le 1 et 2 et 3 et 5 »).
+       « nb » est la seconde source du compte de questions (la page a PZR_NB,
+       PQC_NB, PPR_NB, POD_NB et PMO_NB). */
+    /* Les seize exercices qui complètent les sous-thèmes 6.1 « Print et
+       variable » (6.1.15, 6.1.16) et 6.2 « Variable et calcul » (6.2.10 à
+       6.2.23), demande de Turquet, octobre 2026 : « fais les tous ». Chaque
+       kind porte [identifiant, sous-thème], dans l'ordre du menu. « nb » est
+       la seconde source du compte de questions (la page a PW_NB). Aucune
+       correction au fil de la frappe (soutienEnDirect.sans) ; le bouton des
+       tables n'est retiré que là où l'élève écrit du code que la machine
+       calcule (tablesAide.sans). */
+    pythonVariablesComplements: { nb: 3, kinds: {
+      pwy: ['python-type-resultat', 1],
+      pws: ['python-texte-nombre', 1],
+      pwe: ['python-egal-affectation', 2],
+      pwx: ['python-x-plus-pas-a-pas', 2],
+      pwa: ['python-accumulateur', 2],
+      pwp: ['python-priorites', 2],
+      pwd: ['python-division-entiere', 2],
+      pwr: ['python-arrondir', 2],
+      pwv: ['python-valeur-depart', 2],
+      pwm: ['python-meme-resultat', 2],
+      pwc: ['python-choisir-programme', 2],
+      pwo: ['python-ordre-lignes', 2],
+      pwn: ['python-variable-inconnue', 2],
+      pwg: ['python-debogage', 2],
+      pwf: ['python-formule', 2],
+      pwt: ['python-traduire-algo', 2] } },
+    /* {python-input-image} (6.3.18, demande de Turquet, octobre 2026 : « crée
+       aussi le 4 dans le sous-thème input avec une fonction ») : demander x,
+       calculer f(x), l'afficher, puis lire une image. « nb » est la seconde
+       source du compte (la page a PFX_NB). */
+    pythonInputImage: { exercice: 'python-input-image', nb: 3, numero: '6.3.18' },
+    pythonInputComplements: { premier: 'python-input-concat', numero: '6.3.10', nb: 3,
+      ids: ['python-input-concat', 'python-input-erreur-type', 'python-input-int-float', 'python-input-conversion', 'python-input-predire', 'python-input-ordre', 'python-input-arrondi', 'python-input-monnaie'] },
     /* {python-pile-face} (6.7.7, derrière les six autres du sous-thème, sous-thème « Condition if else », demande de
        Turquet, octobre 2026) : l'exercice 7 du carnet — jouons à pile ou face,
        six questions qui montent un jeu (a à f). Le juge EXÉCUTE, en imposant
@@ -1736,7 +1862,12 @@ module.exports = {
        visible sous body.halloween seulement. `theme`/`sous` désignent le
        sous-thème lu dans THEMES : un exercice qui y entre demain doit gagner
        son serpent, et le banc le dit. */
-    serpentsHalloween: { theme: 6, sous: 3 },
+    /* Puis les sous-thèmes 6.1 et 6.2 « variables » (octobre 2026 : « fais des
+       dessins de serpent en rapport avec chaque exercice, et un autre pour
+       Halloween ») : un dessin par exercice (celui de la fiche, ou
+       DESSINS_VAR) et un serpent d'Halloween à côté. `dessin` : les
+       sous-thèmes dont chaque exercice doit montrer un dessin. */
+    serpentsHalloween: { theme: 6, sous: [1, 2, 3], dessin: [1, 2] },
     /* {python-chaine-tirets} (6.4.2, demande de Turquet, octobre 2026) :
        l'exercice 28 du carnet — ajouter « - » entre chaque caractère d'une
        chaîne avec une boucle for. Il suit {python-chaine-len} dans le
@@ -2032,9 +2163,11 @@ module.exports = {
        les quatre rangées de sa mémoire, son barème — UNE réponse par ligne,
        quatre lignes — et son numéro au menu. */
     pythonPasAPasChaine: { exercice: 'python-pas-a-pas-chaine', nb: 3,
-                          fiche: { prog: ['a = 10', 'b = 2', 'c = a+b', 'd = c+a'],
-                                   memoire: [['a', '10'], ['b', '2'], ['c', '12'], ['d', '22']],
-                                   fin: { a: '10', b: '2', c: '12', d: '22' },
+                          /* a = 8 (et non plus 10, d valait alors 22) : aucune case
+                             du sous-thème 6.2 ne passe 20 (octobre 2026) */
+                          fiche: { prog: ['a = 8', 'b = 2', 'c = a+b', 'd = c+a'],
+                                   memoire: [['a', '8'], ['b', '2'], ['c', '10'], ['d', '18']],
+                                   fin: { a: '8', b: '2', c: '10', d: '18' },
                                    bareme: 12, numero: '6.2.4' } },
     /* {python-echange-variables} : la fiche du PDF « variable pas à pas 5 »,
        calquée sur {python-valeur-case} — a = 10, b = 2, c = a, a = b, b = c,
@@ -2108,8 +2241,10 @@ module.exports = {
        bord OPPOSÉ de « le bouton des tables n'est proposé que là où il
        sert ». */
     pythonPasAPasMultiplication: { exercice: 'python-pas-a-pas-multiplication',
-                                   fiche: { prog: ['k = 10', 'l = 2', 'm = l*2', 'l = m-k'],
-                                            memoire: [['k', '10'], ['l', '2'], ['m', '4'], ['l', '-6']] } },
+                                   /* l = 7 (et non plus 2, la dernière ligne donnait -6) :
+                                      aucune case du sous-thème 6.2 ne sort de [0 ; 20] (octobre 2026) */
+                                   fiche: { prog: ['k = 10', 'l = 7', 'm = l*2', 'l = m-k'],
+                                            memoire: [['k', '10'], ['l', '7'], ['m', '14'], ['l', '4']] } },
     /* {python-echange-par-lettres} (5.20, demande de Turquet, septembre 2026,
        sur un PDF transcrit : « Compléter le programme uniquement avec les
        lettres k, l ou m pour que la valeur de k=10 et l=2 soient échangées »
@@ -2199,7 +2334,7 @@ module.exports = {
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
       "{python-pas-a-pas-calcul} (5.16) n'a pas de fonction jsdom dédiée (contrairement à {python-pas-a-pas} et {python-valeur-case}) : elle rejouerait la ligne de CALCUL par une SECONDE arithmétique indépendante, un chantier remis à plus tard (« c'est un autre sujet »). Le banc navigateur (« 6 tricies sedecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 12) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
       "{python-echange-variables} (5.18, 5.17 à l'origine — une collision de numéro avec {python-pas-a-pas-chaine} résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée non plus, pour une raison différente du 5.16 : sa question OUVERTE finale (l'explication de l'échange) n'est PAS un verdict arithmétique qu'une seconde méthode locale pourrait rejouer, c'est une idée en langage naturel jugée par le modèle (docs/journal/08-verdicts-et-juges.md). Le banc navigateur (« 6 tricies duodevicies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2), PUIS stubbe l'appel réseau de la question ouverte pour éprouver le verdict correct et le verdict faux, sans jamais approcher le vrai modèle ; les contrôles universels des deux bancs couvrent le reste sans rien déclarer.",
-      "{python-pas-a-pas-multiplication} (5.19, 5.18 à l'origine — une SECONDE collision sur ce même numéro, cette fois avec {python-echange-variables}, résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée, pour la même raison que le 5.16 : la ligne de MULTIPLICATION et la RÉAFFECTATION finale se rejoueraient par une seconde arithmétique indépendante, le même chantier remis à plus tard. Le banc navigateur (« 6 tricies undevicies », le numéral « 6 tricies duodevicies » ayant été pris entre-temps sur `main` par {python-echange-variables}) couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2, 4, -6) : une prédiction FAUSSE, révélée en rouge avec la vraie valeur en vert, suivie du pas à pas complet et d'un « Recommencer avec d'autres valeurs », PUIS une prédiction JUSTE sur le nouveau tirage menant à « Question suivante » ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
+      "{python-pas-a-pas-multiplication} (5.19, 5.18 à l'origine — une SECONDE collision sur ce même numéro, cette fois avec {python-echange-variables}, résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée, pour la même raison que le 5.16 : la ligne de MULTIPLICATION et la RÉAFFECTATION finale se rejoueraient par une seconde arithmétique indépendante, le même chantier remis à plus tard. Le banc navigateur (« 6 tricies undevicies », le numéral « 6 tricies duodevicies » ayant été pris entre-temps sur `main` par {python-echange-variables}) couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 7, 14, 4) : une prédiction FAUSSE, révélée en rouge avec la vraie valeur en vert, suivie du pas à pas complet et d'un « Recommencer avec d'autres valeurs », PUIS une prédiction JUSTE sur le nouveau tirage menant à « Question suivante » ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
     ],
   },
 
@@ -2632,6 +2767,11 @@ module.exports = {
        applicable » — un contrôle qui ne s'applique pas se déclare, il ne se
        retire pas. */
     indicesEnFlex: true,
+    /* Les cases de calcul en TEXTE (data-pave-plus offrant × ou x : 6.1.2,
+       6.1.3) : le banc navigateur y tape « 2*3x4 » et exige ×, et le x en
+       italique. Ce drapeau est le BORD OPPOSÉ — ce niveau en a à mesurer, et
+       des cases à × (fois). */
+    casesCalculTexte: { fois: true },
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même

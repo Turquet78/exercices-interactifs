@@ -2346,6 +2346,28 @@ commandes flottantes), et aucun `pointermove` n'atteint `#vepGraph`. Il la
 pose désormais au milieu du quadrillage, et son message nomme l'élément sous
 la souris s'il rougit encore.
 
+**Puis l'étape 1 n'a plus été validée par le seul geste : bout à bout, mais avec les bons vecteurs (v531)**
+La demande (Turquet, octobre 2026) : « en seconde dans le 8.2.9 ne pas
+valider l'étape 1 si l'élève a mis les vecteurs bout à bout et que ce ne
+sont pas les bons vecteurs. » Jusque-là, `cvpBoutABout` (le GESTE, sens des
+flèches ignoré) faisait l'étape 1 : u⃗ + v⃗ posés bout à bout depuis B pour
+BB′ = u⃗ − v⃗ passaient au vert et ouvraient l'étape 2. L'étape 1 est
+désormais faite quand `cvpEtape1` est vrai — `cvpChaine`, la lecture même
+du juge : chaque flèche dans le sens que l'égalité demande, bout à bout
+depuis le point. Ce qui en dépend a suivi : le vert et le cadre bleu
+(`cvpFaits`), le verrou de l'étape 2 (`cvpPose`) et le point qui suit la
+souris. Bout à bout mais dans le mauvais sens, l'étape 1 reste bleue et une
+phrase rouge, sous sa consigne (`#cvpAlerte`), dit « Tes flèches sont bout
+à bout, mais ce ne sont pas les bons vecteurs : relis les signes de BB′ =
+u⃗ − v⃗. » — sans nommer la flèche à retourner, que seule la correction
+nomme ; elle se tait une fois la question verrouillée. C'est un verdict en
+direct, que le v501 évitait exprès : la demande le veut, pour cette étape
+seulement. Le piège « signe oublié » du juge posait B′ après une chaîne
+fausse : ce geste n'existe plus, le juge vérifie donc l'étape 1 non faite,
+la phrase, et B′ refusé ; les contrôles de la croix rouge et du vecteur
+rouge passent sur la question « construction juste, B′ faux », où la
+phrase est aussi vue se taire quand v⃗ est retourné.
+
 ## {tracer-vecteurs-opposes} — tracer −u⃗, −v⃗, −w⃗ (8.1.8, v516)
 
 **La demande** (Turquet, octobre 2026) : « en seconde faire un exercice comme
@@ -2619,8 +2641,11 @@ celle du 2.x vrai-ou-faux) : `corrChoix` la peint, met « Faux » en badge vert
 **Le dessin montre une ligne à la fois** (`vfhMontrer`, au focus de la liste
 ou au clic sur la ligne). Le premier vecteur est violet (`--crd-a`), le
 second ambre (`--crd-b`), dans la ligne comme sur la figure. Avant la
-vérification, seulement des anneaux sur leurs quatre points : la figure
-reste à lire, rien n'est tracé. Une fois la page VERROUILLÉE, les deux
+vérification, RIEN sur la figure : la ligne prend son liseré, et c'est tout.
+(Jusqu'à la v530, des anneaux entouraient ses quatre points ; Turquet les a
+retirés en octobre 2026 : « ne pas mettre de rond autour des points de la
+figure quand on clique sur une case réponse ». Le banc clique sur une case
+et exige `#vfhFl` vide.) Une fois la page VERROUILLÉE, les deux
 flèches (la seconde en tirets), et la première ligne fausse est montrée. En
 soutien, rien ne se révèle : ni flèche, ni note — la condition est
 `test.locked`.
@@ -2644,7 +2669,7 @@ pixels, à 1 % près. Ce qu'il vérifie :
   juste (10/10) ; les notes qui nomment direction, sens et longueur ; les
   quatre pièges peints en rouge et nommés (avec « vecteur ED », « 2 fois plus
   court », « ABDE est un parallélogramme ») ; aucun parallélogramme nommé
-  pour OA = DO ; le badge « Faux » ; les anneaux avant, les flèches après ;
+  pour OA = DO ; le badge « Faux » ; rien sur la figure avant, les flèches après ;
   la case vide en correction ; la copie vide sans rouge ; le redessin après
   le JSON ; le soutien qui peint sans révéler ni verrouiller ; le contexte
   du modèle.
@@ -2726,13 +2751,900 @@ points qui ne s'enchaînent pas, la case vide (correction), la copie vide
 sur une page fixe SANS figure : aucun dessin, une copie juste à points libres
 (Q, A, B), deux pièges ; enfin le contexte du modèle.
 
-## {regle-parallelogramme} — la règle du parallélogramme (8.2.12, v531 — le 8.2.11 et les v528 à v530 pris par les exercices fusionnés avant lui)
+## {demontrer-parallelogramme} — démontrer qu'un quadrilatère est un parallélogramme (8.2.12, v532 — numéro et versions pris en route : 8.2.11 par {chasles-inserer-point}, v528 à v531 par les retouches du 8.2.9, du 8.1.10, du 8.2.5 et du 8.2.8)
+
+**La demande** (Turquet, octobre 2026, idée n° 11 parmi celles proposées) :
+une égalité vectorielle entre quatre points, qui se SIMPLIFIE par Chasles
+jusqu'à une égalité du type AB = DC, des étapes à trous, puis le NOM du
+parallélogramme — ABCD, jamais ABDC : le piège de l'ordre des lettres, déjà
+nommé au 8.1.6. Ajouté en dernier du sous-thème « Somme de vecteurs » :
+8.2.12, rien ne se renumérote. Pas de figure : tout se lit sur les lettres.
+
+**La question range le tour et les formes, jamais les réponses.** `t` est le
+tour du parallélogramme (une permutation des quatre lettres W X Y Z : la
+démonstration aboutit à WX = ZY) ; `f` la forme de l'énoncé ; `g` et `d` les
+deux membres (un type et ses lettres intermédiaires) ; `sw` échange les
+membres à l'écran ; `r` est le vecteur retiré. Les étapes (`dpaLignes`) et
+les réponses (`dpaCases`) se recalculent.
+
+Trois formes :
+- `egal` : membre = membre, chacun d'un type — `seul` (déjà un vecteur),
+  `c2` (PT + TQ), `c3` (PT + TS + SQ), `ordre` (TQ + PT : on change
+  l'ordre), `moins` (PT − QT : soustraire, c'est ajouter l'opposé), `nul`
+  (PQ + RS + SR : le vecteur nul) ;
+- `zero` : AB + CD = 0, la ligne « On retire CD aux deux membres : AB = − CD
+  = … » ;
+- `retire` : un même vecteur ajouté aux deux membres. Il n'est ni un vecteur
+  déjà écrit, ni son opposé, et ne s'enchaîne avec AUCUN terme de l'égalité
+  (le sens compté) : NM + ML = LN − KN + ML proposait Chasles (NM + ML = NL)
+  au lieu du retrait, et le premier tirage le sortait.
+
+Le plan d'une séance (`DPA_PLAN`, `DPA_NB` = 4, `dmNbQuestions`) : Chasles
+simple, puis l'ordre ou la soustraction, puis le zéro ou le retrait, puis un
+mélange avec le vecteur nul. Une case = un point ; le barème varie donc avec
+le tirage (de 2 à 6 cases par question).
+
+**Chaque tirage est VÉRIFIÉ par la page** (`dpaVerifie`) : chaque case
+attendue est un vrai vecteur, chaque membre écrit avec ses bonnes cases vaut
+son départ, et l'hypothèse revient exactement à WX = ZY (sa combinaison de
+points vaut ±(X + Z − W − Y)). Un tirage refusé est retiré.
+
+**Le juge lit le calcul.** Sans figure, XY vaut Y − X ; une case est juste
+dès que sa combinaison est celle qui manque à son membre (AA, BB ou 0 pour le
+vecteur nul, en minuscules si l'on veut). Seule l'étape qui CHANGE L'ORDRE
+se juge lettre à lettre : ses deux cases doivent être les vecteurs de la
+somme, remis pour s'enchaîner. La case de vecteur porte sa flèche en CSS
+(`.dpa-vc`, posée sur la case seule) ; la correction (`mf-cor`) se réécrit
+sous sa propre flèche (`dpaBadge`).
+
+**Le nom** se juge comme au 8.1.6 : huit écritures justes (quatre départs,
+deux sens), lues sur l'égalité AFFICHÉE — si l'énoncé échange les membres,
+DC = AB, le nom de la correction est DCBA, et le piège DCAB.
+
+**Les pièges nommés** (`dpaPourquoi`, sur la première case fausse) : le nom
+recopié dans l'ORDRE des lettres de l'égalité (ABDC) ; un nom qui traverse ;
+un nom qui n'a pas les quatre lettres ; le vecteur soustrait recopié sans
+l'OPPOSÉ (− BC laissé BC) ; un résultat dans le mauvais sens ; l'ordre qui ne
+s'enchaîne pas ; RS + SR pris pour autre chose que le vecteur nul ; un
+vecteur retiré qui n'est pas commun aux deux membres ; un vecteur illisible ;
+sinon, la relation de Chasles redite sur le membre.
+
+Le soutien peint au fil de la saisie et à la vérification, sans révéler ni
+verrouiller (`corrChoix`). Pas de bouton des tables. Le contexte du modèle
+(`ctxDpa`) porte l'hypothèse, les étapes, les réponses sous clause de secret,
+la méthode et le piège.
+
+**Le banc** (`tests/verifier.js`, « démontrer un parallélogramme ») a un juge
+qui ne lit PAS les réponses de la page : il relit le HTML affiché comme du
+TEXTE (l'hypothèse, chaque étape — sans le poser dans le DOM, la leçon du
+8.1.9), en tire les combinaisons de points, recalcule chaque case attendue,
+et déduit les sommets opposés du parallélogramme des SIGNES de l'hypothèse
+(deux points de même signe sont opposés) : le nom de la page doit faire le
+tour, le piège doit traverser. Sur 150 séances : les trois formes et les six
+types sortent, aucune question répétée, la question ne range que t, f, g, d,
+sw, r. Puis par le bouton, quatre questions fixes (AC − BC = DA + AC ;
+CB + AC + DB = DC + DB ; AB + CD = 0 ; DC = AB + BD + DB) : l'énoncé, les
+étapes, la copie juste en minuscules, CDAB juste, BB et 0 pour le vecteur
+nul, les neuf pièges peints en rouge et nommés, le badge fléché, une case
+juste qui ne rougit pas pour sa voisine, la case vide en correction, la
+copie vide sans rouge, le JSON, le soutien, le contexte du modèle.
+
+Trois sabotages ont été attrapés :
+- le nom de la correction remplacé par le piège : « le nom QNMP ne fait pas
+  le tour », sur les séances tirées comme sur la question fixe ;
+- la soustraction écrite sans l'opposé (PT − TQ au lieu de PT − QT) :
+  `dpaVerifie` refuse alors tous ces tirages, et le banc le voit — « le
+  membre moins ne sort jamais » ;
+- le mot « ORDRE » retiré du message du piège.
+
+Regardé dans Chromium à 1280 et à 390 px : l'hypothèse centrée sous
+l'énoncé, une ligne par étape, la flèche sur chaque case, la correction
+fléchée à côté de la case fausse ; sur téléphone, les membres passent à la
+ligne avant un « = », jamais au milieu d'un vecteur.
+
+**Puis le banc a rendu sa mémoire.** Le premier passage dans l'action est
+tombé en « heap out of memory » : le banc de la Seconde, près de ses 4 Go,
+recevait le même jour une dizaine d'exercices du thème 8. Le contrôle
+redessinait l'écran à chaque copie essayée (~25 rendus, 8,3 Mo retenus) ; il
+ne redessine plus que quand la question change et remet sinon les cases à
+zéro — 2,9 Mo retenus, mesurés avec `--expose-gc`.
+
+## {milieu-vecteurs-egaux} — milieux et vecteurs égaux (8.1.12, v534)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées proposées sur les
+vecteurs égaux, Turquet a retenu la n° 5 : « Milieu et vecteurs égaux » — un
+triangle et les milieux de ses côtés, qui découpent trois parallélogrammes ;
+traduire « I est le milieu de [AB] » par une égalité de vecteurs, sans aucune
+multiplication par un réel, puis écrire tous les vecteurs égaux à un vecteur
+donné, comme au 8.1.3. Ajouté en dernier du sous-thème « Vecteurs égaux » :
+8.1.11, rien ne se renumérote — et le numéro a changé en route : écrit en 8.1.10 et v528, l'exercice a trouvé à la fusion de `main` le 8.1.10 pris par {vrai-faux-vecteurs} (une autre session, le même jour) et la v529 avec lui ; puis la v530, prise à son tour par le 8.2.8 et le 8.2.11 pendant que l'action tournait — le contrôle « version » l'a vu. Puis la v531, prise par le 8.2.9 et le 8.1.10 retouchés. Puis la v532, prise par le 8.2.12. Le dernier arrivé prend le suivant : v533. Les détails ci-dessous ont été décidés sans
+aller-retour, comme la demande le voulait.
+
+**La figure est tirée, jamais dessinée à la main.** Quatre formes
+(`VMI_FORMES` : quelconque, isocèle, rectangle, obtusangle) ; la base sur
+[0 ; 1], le troisième sommet au-dessus, puis une rotation de −30° à 30°, un
+miroir horizontal et/ou vertical, et les sommets permutés (le côté de la
+base n'est pas toujours le premier). Un triangle dont le plus petit angle
+passe sous 28° est retiré : à 24°, la première capture montrait un
+obtusangle si plat que ses milieux se serraient contre les côtés. Six
+lettres tirées (`VMI_LETTRES`, sans O, Q, ni W à Z) : les sommets dans
+l'ordre alphabétique, les milieux aussi. `n[0] n[1] n[2]` sont les sommets,
+`n[3+k]` le milieu du côté k, de `n[k]` à `n[k+1]`.
+
+**Cinq lignes, sept cases par figure** (`VMI_PLAN`), trois figures par
+séance (`VMI_NB`, `dmNbQuestions`), barème 21 :
+- **le milieu** : « « I est le milieu de [AB] » s'écrit, avec les points A,
+  I et B : AI = … ». La tête est AI, IB, IA ou BI ; la réponse est l'unique
+  vecteur du segment qui fait le même chemin. La phrase NOMME les trois
+  points : KJ est aussi égal à AI, mais c'est le parallélogramme qui le dit,
+  pas le milieu — le message le dit en ces termes (`ailleurs`), plutôt que
+  de compter faux une égalité vraie sans prévenir ;
+- **l'équivalence** : « AI = IB équivaut à : I est le milieu du segment
+  [ … ] », sur un AUTRE côté ; [AB] et [BA] sont justes, crochets tapés
+  ignorés. Le milieu écrit comme extrémité est nommé (`milieu`) ;
+- **le côté du triangle des milieux** : « JK = … », une case, tout vecteur
+  égal est juste. Il suit le TROISIÈME côté ;
+- **deux lignes « u = … = … »** comme au 8.1.3 (ordre libre, un vecteur
+  écrit deux fois n'est juste qu'une fois), sur les côtés des deux premières
+  lignes, dans le SENS CONTRAIRE de ce qu'elles affichent. La première
+  version prenait n'importe quel sens : la capture a montré « RG = … » en
+  tête de la ligne du milieu ET de la ligne « tous » — et « MB = BE », écrit
+  en toutes lettres dans la ligne de l'équivalence, donnait les réponses
+  d'une ligne « tous ». Le sens contraire ferme les deux.
+
+**Les pièges nommés** (`vmiPourquoi`, sur la première case fausse) :
+l'opposé (« même direction, même longueur, mais sens contraire »), le
+segment entier ou le côté entier (« le milieu partage le segment en deux
+moitiés », « un côté du triangle des milieux mesure la MOITIÉ du côté qui
+lui est parallèle »), une autre direction, le vecteur de tête recopié (« on
+cherche un AUTRE vecteur »), un doublon, une écriture illisible, et pour le
+segment, le milieu pris pour une extrémité ou un autre segment.
+
+**Le dessin** (`vmiSvg`) : les traits et les lettres du 8.3, les côtés du
+triangle des milieux un peu plus fins. Une lettre de sommet se pose dans le
+prolongement du centre de gravité vers le sommet — l'angle opposé par le
+sommet est libre de tout trait —, une lettre de milieu le long de la normale
+sortante de son côté (les côtés du triangle des milieux partent vers
+l'intérieur). Un halo blanc (`paint-order:stroke`) garde les lettres lisibles
+sous une flèche. La ligne choisie (focus ou clic) prend un liseré violet et
+son vecteur de tête une flèche violette (les deux vecteurs pour la ligne de
+l'équivalence), la saisie une flèche violet clair. Une fois la page
+VERROUILLÉE : juste en bleu, faux en rouge, correction en vert ; en soutien
+rien ne se révèle (la condition est `test.locked`).
+
+**Les trois flèches rouges ont TOUJOURS la même épaisseur** (v546, demande
+de Turquet sur capture) : la ligne montrée épaississait ses flèches libres
+(`lsd-vu`, 4,2 contre 2,6), si bien que u⃗ et v⃗ paraissaient plus fins que w⃗
+— une différence d'épaisseur qui ne veut rien dire et que l'élève cherche à
+lire. L'épaississement est retiré ; le liseré violet et les flèches violettes
+pointillées suffisent à dire quelle ligne est montrée. Le banc vérifie
+qu'aucune règle de la feuille n'épaissit une flèche libre plus qu'une autre,
+et qu'aucune ne porte de classe de plus.
+
+**Un clic sur un point écrit sa lettre** (`vmiClicPt`) dans la dernière case
+choisie, ou la première case libre de la ligne montrée : deux clics font un
+vecteur, un troisième recommence la case. Chaque point porte une cible ronde
+de 16 px (`circle.vmi-cible`), distincte du point dessiné (`circle.vmi-pt`).
+
+**Le badge vert sort de la colonne.** La case d'un vecteur est, comme au
+8.3, une colonne flèche + case (`.veg-v`) ; `corrChoix` pose le badge de la
+correction juste après la case, donc DANS la colonne, sous elle : la
+capture montrait la case soulevée et la rangée cassée. `checkVmiAnswer`
+déplace le badge après la colonne.
+
+**On range les sommets, les lettres et les vecteurs de tête** (`f`, `p`,
+`n`, `lignes[].t`, `lignes[].u`), jamais les réponses : `vmiLignes`
+recalcule les familles depuis les coordonnées.
+
+**Le banc** (`milieuVecteursEgaux`, banc principal) a un juge qui ne lit PAS
+les lettres de la question. Il relit le DESSIN comme du TEXTE (`vmiSvg(q)`,
+la leçon du 8.1.9 : rien n'est posé dans le DOM) : la place de chaque point,
+la lettre la plus proche. Il y trouve LUI-MÊME les trois milieux (un point au
+milieu de deux autres), puis recalcule chaque famille de vecteurs égaux.
+Sur 150 séances : six points nommés et distincts ; les milieux que l'énoncé
+annonce sont ceux du dessin ; aucun angle sous 20° ; aucune lettre à moins
+de 9 px d'un trait ni hors du dessin ; le plan des lignes ; la réponse du
+milieu, le segment de l'équivalence, chaque famille, égaux à ceux du dessin ;
+le milieu et l'équivalence sur deux côtés différents ; trois directions
+différentes pour les trois dernières lignes ; aucune ligne « tous » ne
+montre ni n'attend un vecteur écrit plus haut ; les quatre formes, les deux
+orientations, au moins 100 jeux de lettres. Puis une figure fixe (ABC, I, J,
+K), par le bouton : les phrases, la copie juste en minuscules, crochets et
+désordre (7/7), dix pièges peints en rouge et nommés, le premier d'un doublon
+resté bleu, le badge, les flèches rouge et verte, la case vide en
+correction, la copie vide sans rouge, le clic (deux lettres, puis on
+recommence), le redessin après le JSON, le soutien qui peint sans révéler ni
+verrouiller, le contexte du modèle.
+
+Cinq sabotages ont été attrapés :
+- la réponse du milieu prise dans toute la famille : « la page attend JH TN,
+  le dessin TN » ;
+- les milieux décalés d'un côté (l'énoncé et le dessin se contredisent) ;
+- le mot « OPPOSÉ » retiré du message — et ce sabotage a montré un défaut
+  réel : pour IA écrit à la place de IB, le message disait « C'est AI qui est
+  égal à AI » ; il dit désormais « un vecteur égal à AI va, lui aussi, de A
+  vers I » ;
+- les lignes « tous » remises dans le sens affiché : « la ligne de RN reprend
+  RN, écrit plus haut » ;
+- la correction montrée sur le dessin en soutien.
+## {translation-antecedent} — retrouver un point dont on connaît l'image (8.1.12, v534)
+
+**La demande** (Turquet, octobre 2026). C'est l'idée n° 2 de la liste proposée
+par Claude : « antécédent par une translation ». C'est le chemin INVERSE du
+8.1.4. Sur un quadrillage, un vecteur u⃗ est dessiné, ainsi que trois points
+A′, B′, C′, images de A, B et C par la translation de vecteur u⃗. L'élève
+place A, B et C d'un clic. L'exercice est ajouté en dernier du sous-thème
+« Vecteurs égaux », après le vrai ou faux du 8.1.10 et les milieux du
+8.1.11, fusionnés le même jour pendant que celui-ci attendait son action :
+8.1.12, rien ne se renumérote.
+
+**Le piège visé, et nommé** : suivre u⃗ depuis A′. On obtient alors l'IMAGE
+de A′, pas son antécédent. Le message le dit en clair : « tu as suivi u⃗ en
+partant de A′. Or c'est de A qu'on part pour arriver en A′ : depuis A′, il
+faut suivre u⃗ À L'ENVERS, c'est-à-dire le vecteur −u⃗ ». Le rappel (`RAP_TAN`)
+en fait son point ③, et le contexte du modèle le signale sur le point fautif
+(« l'élève a suivi u au lieu de −u »).
+
+Trois autres erreurs sont nommées (`tanPourquoi`) :
+- le point posé SUR A′ : « il faut que AA′⃗ soit égal à u⃗, qui n'est pas
+  nul » ;
+- l'antécédent d'un AUTRE point (A posé à la place de B) ;
+- sinon, le chemin de AA′ comparé à celui de u⃗, en carreaux (`vecMots`).
+
+**Le tirage** (`tanGen`) :
+- u⃗ est toujours en biais : ses deux composantes sont non nulles, et l'une
+  vaut au moins 2 en valeur absolue (au plus 4) ;
+- les trois points donnés et leurs trois antécédents sont à un carreau du bord
+  au moins, deux à deux non voisins (Tchebychev ≥ 2), et hors de la flèche
+  u⃗ ;
+- le PIÈGE de chaque point (M′ + u⃗) existe sur le quadrillage : l'erreur
+  doit pouvoir se faire pour pouvoir se nommer. Il ne tombe sur aucun point
+  dessiné ni sur un autre piège ;
+- la flèche verte de la correction (de M à M′) ne traverse aucun autre
+  point.
+
+Le quadrillage fait 16 × 10 carreaux. Quatre questions par séance (`TAN_NB`,
+`dmNbQuestions`), barème 12. Chaque question prend un jeu de lettres par son
+index : A B C, M N P, E F G, R S T (`TAN_NOMS`, `q.l`). Le prime s'écrit
+U+2032.
+
+**On range la figure, jamais la réponse** : `u`, `o` (l'origine de la flèche),
+`im` (les trois points donnés), `l`, et `p` (les points posés, `null` tant
+qu'ils manquent). `tanAnte` recalcule l'antécédent (M′ − u⃗) et `tanPiege` le
+piège (M′ + u⃗), depuis les données mêmes qui dessinent la figure.
+
+**Le geste, celui du 8.1.7 pour un point.** Un seul écouteur de clic, à
+l'hôte, va au nœud le plus proche (`tanClic(i, j)`, ce que joue le banc
+principal). Le clic pose le point EN COURS : le premier qui manque, ou celui
+dont l'élève a cliqué le cadre (`tanChoisir`). Un clic sur un point posé le
+reprend : il disparaît, son cadre redevient bleu, le clic suivant le repose.
+« Effacer mes points » retire tout. La croix et la lettre du point en cours
+suivent la souris (`#tanCurseur`, sans aimant) ; elles se cachent quand les
+trois points sont posés, et au doigt, faute de survol.
+
+Les choix faits sans demander, puisque l'idée était déjà retenue :
+- les points se nomment par leur cadre, et non après la pose comme au 8.1.4 :
+  l'antécédent de A′ s'appelle A, il n'y a rien à deviner ;
+- pas de touche Échap : reprendre un point, c'est cliquer dessus ;
+- le soutien ne peint pas à la pose. C'est la règle des points posés au clic
+  (« vec », « tvx » : `soutienEnDirect.sans`), car peindre le nœud au moment
+  de la pose dirait s'il est juste avant toute vérification.
+
+**Les couleurs.** u⃗ et les points donnés sont en noir. Les points de l'élève
+et leur cadre « en cours » suivent la recette du 8.1.7 : violet avant le
+jugement, cadre bleu pour le point en cours, vert « fait » quand il est posé.
+À la vérification :
+- la croix juste est bleue, la fausse rouge, avec la flèche de son point à
+  M′ (bleue ou rouge : c'est le vecteur MM′ de l'élève) ;
+- pour chaque point faux ou manquant, le BON point en VERT et la flèche
+  verte MM′ = u⃗ ;
+- un cadre vide passe en `sol` et ne rougit jamais.
+
+En soutien, les points posés se jugent à « Vérifier » (bleu, rouge), mais rien
+ne se révèle et rien ne se verrouille. Un point repris perd son verdict.
+
+**Les bancs.** Le banc principal (`translationAntecedent`) a un juge qui ne lit
+PAS les données de la page. Il relit le SVG comme du TEXTE, sans le poser dans
+le DOM (la leçon du 8.1.9) : les lignes du quadrillage (origine et maille), la
+flèche u⃗ (dont la pointe s'arrête 3 px avant le nœud), les croix noires et
+les lettres des points donnés. Il calcule ensuite lui-même M = M′ − u⃗ et le
+piège M′ + u⃗.
+
+Ce qu'il vérifie :
+- **sur 150 séances** : quatre questions distinctes, le jeu de lettres de
+  chaque rang, les clés rangées, aucune réponse au tirage, le JSON, chaque
+  antécédent et chaque piège relus sur le dessin, la lisibilité (bord,
+  voisins, flèche, piège sur le quadrillage et sur aucun point) ;
+- **sur une figure fixe** (u⃗ = (3 ; 2) ; A′ (7 ; 4), B′ (12 ; 6), C′ (6 ;
+  8)) : la place (8.1.12, voisins immobiles, pas de tables, rappel et
+  questions à l'IA ; le 8.1.10 et le 8.1.11 voisins) ; l'énoncé `.enonce` ; le geste (pose, reprise au reclic,
+  cadre choisi, retour au premier point manquant, « Effacer ») ; la reprise
+  après JSON ; la copie juste (trois ok, trois croix et trois flèches bleues,
+  aucune correction) ; le PIÈGE nommé « IMAGE de A′ … À L'ENVERS » avec C
+  posé sur C′ (bad, ok, bad, deux points et deux flèches verts, le vert de A
+  en (4 ; 2)) ; l'échange A/B nommé ; le chemin faux dit en carreaux ; la
+  copie vide (trois sol, « manquait 3 cases », rien de rouge) ; le soutien
+  (bad, ok, rien, sans révéler ni verrouiller, puis la copie corrigée
+  acceptée) ; la réponse enregistrée et le contexte du modèle (secret,
+  méthode, piège).
+
+Le banc navigateur (« 6 quadragies nonies ») joue tout à la vraie souris :
+- la croix de la souris à moins de 3 px de la pointe, avec sa lettre ;
+- un clic à un cinquième de maille qui pose A au nœud ;
+- la lettre qui passe à B, la croix cachée une fois les trois points posés ;
+- C repris d'un clic puis reposé ;
+- la copie juste (3, trois flèches bleues visibles) ;
+- le piège avec deux points vides (bad, sol, sol, le message, trois points
+  et trois flèches verts visibles, une flèche rouge).
+
+**Ce qu'aucun banc ne voit** : le geste au doigt sur une vraie tablette (un
+toucher pose le point, sans croix qui suit), et la lisibilité des étiquettes
+quand l'élève pose un point juste à côté d'une lettre donnée.
+
+## {demontrer-chasles} — démontrer une égalité avec Chasles (8.2.13, v535 — prévu 8.2.11 en v528 ; pendant sa rédaction, v528 à v534 ont été prises par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8, le 8.2.12, le 8.1.11 et le 8.1.12, le 8.2.11 par {chasles-inserer-point} et le 8.2.12 par {demontrer-parallelogramme})
+
+**La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
+par Claude, Turquet a retenu la dixième : « Montrer que AB⃗ + CD⃗ = AD⃗ +
+CB⃗ » (et d'autres égalités, tirées), une rédaction à trous, étape par
+étape — chaque étape a ses cases (des vecteurs) ET sa justification à choisir
+dans une liste. « Premier pas vers la démonstration ; toute écriture juste
+d'une étape acceptée. » Ajouté en dernier du sous-thème « Somme de
+vecteurs » : 8.2.13, rien ne se renumérote. Les détails ci-dessous ont été
+décidés sans aller-retour (consigne de la demande) ; ils sont nommés pour
+pouvoir être repris.
+
+**Une démonstration est un plan** (`DCH_DEMOS`, douze plans) : le membre de
+gauche, celui de droite, et les étapes — chacune une justification et, sauf la
+dernière, un nombre de cases. **La dernière ligne est le membre de droite,
+déjà écrit** : on sait où l'on va, on cherche comment y aller ; elle n'a que
+sa justification. Six plans sur des points quelconques (AB + CD = AD + CB ;
+AB + CD + BC = AD ; AB − CB = AC ; AB + BC + CA = 0 ; AB − AC + BC = 0 ;
+AB + CD − AD = CB), six sur un parallélogramme ABCD (AB + AD = AC ; BA + BC =
+BD ; AB + CD = 0 ; AB + CB = DB ; MA + MC = MB + MD, la plus longue, cinq
+étapes ; MA + DC = MB). Les lettres se renomment (`q.n`, sans I, O ni Q :
+le O se lirait 0) ; la tournure se tire (« Montrer », « Démontrer »,
+« Prouver que », `q.v`). **La première page est toujours l'exemple de la
+demande, avec ses lettres** ; les trois suivantes sont trois autres plans,
+jamais deux fois le même (`DCH_NB` = 4, `dmNbQuestions`, `distinctes()` avec
+le plan pour clé tant qu'il en reste).
+
+**Six justifications** (`DCH_JUST`, dans cet ordre dans la liste) : relation
+de Chasles ; on change l'ordre de la somme ; vecteurs opposés : leur somme
+est le vecteur nul ; ajouter le vecteur nul ne change rien ; soustraire un
+vecteur, c'est ajouter son opposé ; vecteurs égaux car ABCD est un
+parallélogramme — cette dernière n'est proposée que sur un parallélogramme,
+et porte son nom. La liste dit les règles EN MOTS, sans « AB⃗ + BA⃗ = 0⃗ »
+de l'idée : des lettres de l'énoncé souffleraient la réponse, et la première
+version, écrite « u⃗ + (−u⃗) = 0⃗ », s'affichait avec des carrés vides — la
+flèche combinante (U+20D7) n'a pas de dessin dans la police des listes, et
+une `<option>` ne peut pas poser la flèche en CSS comme `.vgt-vec`. Vu à
+l'écran, dans Chromium, pas par un banc. Sur un téléphone, la liste prend
+toute la ligne sous les cases (`flex:1 1 0;min-width:0`) : à sa largeur
+naturelle, la plus longue justification débordait de la carte.
+
+**Toute écriture juste est acceptée — et c'est une ÉNUMÉRATION, pas une
+liste de réponses.** `dchSuites` donne toutes les lignes qu'une étape tire de
+la précédente selon sa justification : Chasles décompose un vecteur en
+passant par N'IMPORTE QUEL point de l'énoncé, ou réunit deux vecteurs qui
+s'enchaînent (plusieurs à la fois si les cases l'exigent) ; l'ordre prend
+n'importe quelle permutation ; les opposés remplacent deux vecteurs voisins
+XY + YX par 0 ; le nul se retire ; la soustraction change tous les « − XY »
+en « + YX » ; le parallélogramme remplace un ou plusieurs vecteurs par un
+égal. `dchChaines` garde les rédactions complètes qui arrivent au membre de
+droite (à l'ordre près pour la dernière ligne) : 24 pour l'exemple, 48 pour
+MA + MC = MB + MD, une seule pour AB + AD = AC. **Une case est juste s'il
+existe une rédaction complète qui la porte avec les cases justes avant
+elle** (le principe de `cspRemplit`, 8.2.4) ; la correction prend la première
+qui reste, celle du plan d'abord. Ainsi AB + CD = AC + CB + CA + AD (passer
+par C puis par A) est juste autant que AD + DB + CB + BD.
+
+**Une étape vraie qui ne mène nulle part est fausse, et le message le dit.**
+Pour AB + AD = AC, remplacer AB par DC est une égalité juste, mais DC +
+AD ne se réunit pas par Chasles : la rédaction s'arrête. Le plan a un nombre
+de lignes fixé ; refuser cette ligne sans le dire serait un mensonge, la
+compter juste laisserait l'élève dans une impasse. Le message : « … est une
+étape juste, mais elle ne mène pas à AC avec les étapes qui suivent. Il
+fallait par exemple AB + BC. »
+
+**Une justification est juste dès qu'elle explique le passage** de la ligne
+d'avant (corrigée si elle était fausse) à la sienne (`dchExplique`) :
+AB + BA = 0 se justifie par les vecteurs opposés, ou par Chasles (AB + BA =
+AA). Sa correction est celle du plan.
+
+**Les pièges nommés** (`dchPourquoi`, sur la première case fausse) : un
+vecteur illisible ou hors de l'énoncé ; une ligne qui ne vaut plus la
+précédente (la somme se lit comme une combinaison de points, `dchComb`, et,
+sur un parallélogramme, le quatrième sommet vaut P0 + P2 − P1 — sans quoi
+AB + BC aurait « valu » autre chose que AB + AD) ; l'étape juste sans issue ;
+une ligne égale mais pas l'étape demandée (un vecteur changé pendant un
+changement d'ordre) ; la mauvaise justification. Chaque message dit ce que
+fait la règle, avec les lettres de l'étape quand il les trouve (`dchExemple` :
+« ici, AB = AD + DB »). La première version citait la PREMIÈRE
+transformation de l'étape : sur MA + MC = MB + BA + MD + DA, elle disait
+« ici, MA = MB + BA » — la moitié que l'élève avait juste. `dchChangements`
+rend chaque transformation avec les places qu'elle occupe, et le message
+cite celle qui couvre la case fausse : « ici, MC = MD + DC ». Vu en lisant
+le message à l'écran.
+
+**La mise en page est celle d'une copie** : le membre de gauche ouvre la
+première ligne, les suivantes en portent une copie INVISIBLE pour que leurs
+« = » tombent sous le premier (`.dch-fant`, retirée sur un téléphone), et la
+justification se choisit au bout de la ligne, après « car ». Vecteurs, signes
+et cases sont ceux du 8.1.3 (`.veg-v`, `.veg-eq`, `.veg-in`) ; la liste a sa
+classe (`.dch-sel`) et les trois encres de verdict. Une case vide reçoit la
+correction en vert (`corrChoix`), une liste vide aussi ; en soutien, rien ne
+se révèle. Le vecteur nul s'écrit 0, ou une lettre répétée (AA).
+
+**On range le plan, les lettres et la tournure** (`t`, `n`, `v`), jamais
+les réponses : tout se recalcule. Le verdict reste à la page.
+
+**Le banc** (`demontrerChasles`, banc principal) a un juge qui ne lit PAS les
+plans : il donne aux points des coordonnées au hasard (le quatrième sommet
+d'un parallélogramme par la règle du parallélogramme) et vérifie, en nombres,
+sur 200 séances, que l'égalité à démontrer est vraie et que CHAQUE ligne de
+CHAQUE rédaction acceptée vaut le membre de gauche ; il relit la forme de
+chaque étape du plan selon sa justification (l'ordre ne change que l'ordre,
+l'opposé fait apparaître un 0, le nul le retire…) ; il exige les douze plans
+sortis, la première page de la demande, jamais deux fois le même plan. Puis,
+par le bouton, sur l'exemple : l'énoncé, la liste sans parallélogramme (cinq
+justifications), la copie juste (15 cases), une AUTRE rédaction juste en
+minuscules avec AA pour le nul et Chasles pour justifier AC + CA = 0, cinq
+pièges peints en rouge et nommés, le badge vert, la case et la liste vides en
+correction, la copie vide sans rouge, le JSON, le soutien qui peint sans
+révéler ni verrouiller ; sur un parallélogramme EFGH : l'énoncé, la
+justification qui porte son nom, EF + FG = EG juste, HG + EH « ne mène pas » ;
+enfin le contexte du modèle.
+
+**Puis l'action a manqué de mémoire — et ce n'était pas le mémo.** Sur la
+machine de travail (8 Go de tas), tout était vert ; sur l'action (4 Go), le
+banc principal de la Seconde est tombé en « heap out of memory », bien après
+le contrôle de l'exercice, deux fois au même endroit. Rejoué en local avec
+`node --max-old-space-size=4096`, puis coupé en deux :
+- `main` seule passe à 4 Go, mais tombe à 3,8 Go : **le banc de la Seconde a
+  moins de 200 Mo de marge** ;
+- la branche passe à 4 Go si l'on retire le seul contrôle `demontrerChasles`.
+
+Premier soupçon, le mémo des rédactions, rangé par JEU DE LETTRES tirées
+(sans borne, le banc tirant des centaines de séances) : corrigé — les
+rédactions se calculent une fois par PLAN, sur ses propres lettres, puis se
+renomment (`dchChaines`, douze entrées quoi qu'il arrive) — mais le banc
+tombait toujours. La mesure, avec `--expose-gc` et `heapUsed` autour du
+contrôle, a dit le reste : 400 séances tirées et jugées ne retiennent rien ;
+**chaque rendu de l'écran retient près d'un Mo jusqu'à la fin du banc** (50
+rendus : +42 Mo), avec ou sans vérification. Le contrôle redessinait la page
+avant chaque copie, dix-huit fois. Il remet désormais les cases à blanc
+(`vider()`) et ne redessine que là où le rendu est lui-même vérifié : trois
+fois. Le pavage (8.1.9) et la somme sans étapes (8.2.10) retiennent chacun
+plus de 40 Mo de la même façon.
+
+**Et la cause a été trouvée ailleurs, le même jour** — par la session du
+8.1.12, qui butait sur le même mur (`docs/journal/17-verification-et-bancs.md`,
+« Un banc jsdom qui ne rend jamais la main garde chaque nœud retiré »). Ce
+n'était pas une fuite de la page : les relevés des `MutationObserver` de la
+page gardent en vie chaque nœud qu'un `innerHTML` retire, tant que le banc ne
+rend pas la main — d'où le Mo « retenu par rendu » mesuré ici. Le harnais
+délivre désormais ces relevés après chaque contrôle (`__viderObservateurs()`),
+et le banc plafonne bien sous les 4 Go. La remise à blanc de ce contrôle
+(`vider()`) reste : elle ne coûte rien et allège le contrôle.
+
+Leçon pour le prochain exercice : **un banc se rejoue en local À LA LIMITE
+DE L'ACTION** (`node --max-old-space-size=4096 tests/verifier.js
+secondes.html`) — la machine de travail donne 8 Go de tas à Node, l'action
+4 ; et un cache se borne par ce qui est fini (le plan), jamais par ce qui est
+tiré.
+
+**Puis le contrôle du réglage « Questions » a rougi — au hasard du tirage.**
+Sur l'action, le banc a fini par aller au bout (936 contrôles), avec un seul
+échec : « la séance passe de 4 à 6 questions, mais le barème reste 39 ». Ce
+contrôle universel suppose qu'une séance plus longue pèse plus de points ;
+c'est vrai quand chaque question a le même nombre de cases, pas ici : une
+démonstration a de 4 à 20 cases selon son plan, et six démonstrations courtes
+peuvent peser autant que quatre longues (15 + 4 + 4 + 4 + 4 + 8 = 15 + 12 + 4
++ 8 = 39). Le barème, lui, était juste : c'est la somme des cases réellement
+tirées, et le contrôle de l'exercice le tient (`maxScore` = somme de
+`dchCases`). L'exercice se déclare donc dans le profil
+(`reglagesDevoirs.baremeParCases`, raison comprise) ; la déclaration rougit
+si elle ne désigne plus un exercice qui s'allonge. Ce bord n'était sorti dans
+aucune des exécutions locales : il ne sort que sur certains tirages.
+
+
+## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.14, v536 — v528 à v535 et les numéros 8.2.11 à 8.2.13 pris pendant la rédaction, par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et « Chasles : insérer un point »)
+
+**La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
+par Claude, Turquet a retenu l'idée n° 8, « lire une somme sur un dessin » :
+une chaîne de flèches déjà tracée entre des points nommés, et deux questions
+— « quel vecteur de la figure est égal à u⃗ + v⃗ ? » et « écris w⃗ comme somme
+de deux vecteurs de la figure » —, toutes les écritures justes acceptées.
+Ajouté en dernier du sous-thème « Somme de vecteurs » : 8.2.14, rien ne se
+renumérote. Kind `lsd`, écran `scr-lsd`.
+
+**Les choix faits sans redemander** (la consigne était de décider les
+détails raisonnables) :
+- **des cases de deux lettres, pas un QCM** : c'est l'écriture du 8.2.2
+  (`.veg-in` sous une flèche), et un QCM aurait donné la réponse à choisir ;
+- **u⃗, v⃗, w⃗ sont tracés À PART**, en orange, loin des points (au moins
+  1,2 carreau de chaque point nommé, 1 carreau de la chaîne, 1,4 carreau l'un
+  de l'autre) : si u⃗ était le nom d'une flèche de la chaîne, « u⃗ + v⃗ » se
+  lirait sur les étiquettes sans regarder le dessin. Ici, l'élève doit
+  reconnaître la flèche de la chaîne qui fait le même chemin que u⃗ ;
+- **un quadrillage**, 16 × 10 carreaux : il permet de compter, et le juge
+  du banc tranche au pixel près ;
+- **quatre figures par séance** (`LSD_NB`, `dmNbQuestions`), trois cases
+  chacune : barème 12.
+
+**Le tirage** (`lsdGenQuestion`). Cinq points en chaîne, quatre flèches de
+composantes au plus 3 ; deux flèches consécutives ne sont jamais alignées
+(leur somme se lirait sans rien chercher), aucun trait ne frôle un point ou
+un autre trait (0,9 carreau), deux points ne sont jamais voisins.
+- **u⃗ + v⃗** : u⃗ et v⃗ sont égaux à deux flèches CONSÉCUTIVES (k, k + 1) —
+  une fois sur deux dans l'ordre inverse (`sw`) : v⃗ + u⃗ se lit pareil, et le
+  message le dit (« on peut changer l'ordre d'une somme »).
+- **w⃗** est le raccourci de deux flèches (`m = 2`), ou de trois (`m = 3`, une
+  fois sur trois environ) : l'écriture attendue passe alors par un vecteur
+  que la chaîne ne trace pas (`XZ + ZT`). Jamais la somme de u⃗ + v⃗, ni son
+  opposée, ni une flèche de la chaîne.
+- **un sixième point, isolé**, est posé sept fois sur dix au bout d'un AUTRE
+  vecteur égal à u⃗ + v⃗ : « toutes les écritures justes » ont alors quelque
+  chose à accepter.
+- Les lettres sont six au hasard (sans I, O, Q, ni U, V, W qui nomment les
+  vecteurs libres) : la chaîne ne suit pas l'alphabet, il faut la lire.
+
+**On range la figure et les indices, jamais les réponses** : `pts`, `ch`
+(l'ordre de la chaîne), `uo`, `vo`, `wo` (l'origine des flèches libres), `k`,
+`sw`, `j`, `m`. `lsdVecs` recalcule u⃗, v⃗, w⃗ ; `lsdJuge` les réponses.
+
+**Le juge** (`lsdJuge`, sans le DOM : il prend les trois chaînes écrites).
+- u⃗ + v⃗ : juste si le vecteur écrit fait le même chemin, quelles que soient
+  ses lettres.
+- w⃗ = … + … : les deux cases justes si la somme fait w⃗. Sinon la première
+  est juste si un vecteur de la figure la COMPLÈTE (w⃗ − PQ en est un) : elle
+  commence une écriture juste, et la correction écrit dans la seconde ce qui
+  la complète — de préférence le vecteur qui part de sa fin (Chasles). À
+  défaut, la seconde se juge de même. Un vecteur déjà égal à w⃗ ne se complète
+  par aucun vecteur non nul : il est faux, et nommé.
+
+**Les pièges nommés** (`lsdPourquoi`, sur la première case fausse) : le
+vecteur illisible ; u⃗ + v⃗ à l'envers (« l'OPPOSÉ ») ; u⃗ seul, v⃗ seul ; la
+différence u⃗ − v⃗ ou v⃗ − u⃗ ; w⃗ écrit en UN vecteur (« DEUX vecteurs ») ;
+une somme opposée à w⃗ ; deux vecteurs qui s'enchaînent mais n'arrivent pas
+au bout de w⃗ (« DK + KA = DA, et DA n'est pas égal à w ») — ou reviennent au
+départ (le vecteur nul) ; le second vecteur qui ne complète pas un premier
+juste. Le message est du texte brut : les vecteurs s'y écrivent sans flèche,
+comme au 8.2.1 — la flèche combinante U+20D7 se dessinait décalée dans la
+police du message (vu sur la capture, avant la PR).
+
+**Le dessin montre une ligne à la fois** (`lsdMontrer`) : liseré violet, les vecteurs écrits par l'élève tracés en violet
+pointillé. La page VERROUILLÉE : le juste en bleu, le faux en rouge, la
+correction en vert. En soutien, rien ne se révèle (`test.locked`, comme au
+8.1.9).
+
+**Un clic sur un point écrit sa lettre** (`lsdClicPt`) dans la case choisie
+(liseré violet, `lsd-cible`) ; deux lettres posées, la main passe à la case
+vide suivante ; un clic dans une case pleine la recommence. Sur tablette,
+c'est le geste qui évite le clavier du système.
+
+**Le banc** (`lireSommeDessin`, banc principal) a un juge qui ne lit PAS les
+données de la page : il relit le SVG comme du TEXTE (la leçon du 8.1.9) — les
+points (le rond le plus proche de chaque lettre), les flèches de la chaîne et
+les trois flèches libres (le début du trait, la pointe), leur nom (le texte
+le plus proche du milieu). Sur 50 séances, il vérifie : la chaîne continue
+d'un point nommé à l'autre ; u⃗ et v⃗ égaux à deux flèches consécutives ; les
+flèches libres à plus de 30 px de chaque point ; pour CHACUN des 30 vecteurs
+de la figure, le verdict de la page sur « u⃗ + v⃗ = … » contre celui du
+dessin ; pour CHACUNE des 900 sommes de deux vecteurs, le verdict des deux
+cases de w⃗ (et la correction, qui doit faire w⃗) ; que `m = 3`, `sw = 1` et
+une seconde écriture de u⃗ + v⃗ sortent. Sur une figure fixe (K → D → M → A →
+F, B isolé) : les copies justes écrites AUTREMENT (`ab`, `MK + KF`), les dix
+pièges peints en rouge et nommés, l'ordre inverse, le badge vert, le dessin
+de la correction, les cases vides en correction (et la seconde qui COMPLÈTE
+une première juste : `MK` → `KF`), la copie vide sans rouge, les clics, le
+redessin après le JSON, le soutien sans révélation, le contexte du modèle.
+
+**Deux pièges du banc, pris à la première exécution.** Le juge cherchait LA
+flèche de la chaîne égale à u⃗ (`findIndex`) : une chaîne sur onze a deux
+flèches égales, et le juge accusait à tort u⃗ et v⃗ de ne pas être
+consécutifs — il cherche maintenant TOUTES les flèches qui font le chemin.
+Puis la figure fixe, relue à l'écran par `outerHTML`, a planté le juge : la
+sérialisation réécrit `<line …/>` en `<line …></line>`, que l'expression
+régulière écrite sur `lsdSvg` ne lisait pas. Les deux écritures se lisent.
+Et la règle de la case ciblée, `.veg-in.lsd-cible:not(.ok):not(.bad):not(.sol)`,
+a fait rougir « 9 bis » : un sélecteur qui NOMME une classe de verdict, même
+dans `:not()`, est lu comme une règle de verdict, et son violet passait pour
+du bleu. La case ciblée prend un halo (`box-shadow`), plus une bordure.
+
+**Trois sabotages ont été attrapés** (le contrôle seul, joué dans Chromium) :
+- la page n'accepte plus que SON écriture de u⃗ + v⃗ : « u + v = AB : la page
+  dit faux, le dessin juste » ;
+- le juge de w⃗ oublie qu'une case se complète : « w = DF + DH : la page dit
+  false/false, le dessin false/true » ;
+- le dessin jugé en soutien : « la vérification du soutien verrouille ou
+  révèle ».
+
+**Puis l'action a manqué de mémoire, et le contrôle a cessé de redessiner.**
+Après la fusion du 8.2.11 « Chasles : insérer un point », le banc principal de
+la Seconde est mort dans l'action (« JavaScript heap out of memory », 4 Go),
+loin après ce contrôle, sur celui de `pourcentage-chaine`. Reproduit en local
+sous `--max-old-space-size=4096` : sans ce contrôle, le banc passe ; avec, il
+meurt au même endroit. Pourtant, joué seul, il ne retenait que 21 Mo, et
+« pourcentage-chaine » après lui tenait en 200 Mo. La mémoire était RENDUE
+dès que la page reprenait la main (75 Mo deux secondes plus tard) : jsdom
+garde ce que le DOM a touché jusqu'à la fin de la tâche en cours, et le
+banc enchaîne ses contrôles sans jamais rendre la main. Chaque contrôle qui
+dessine ajoute donc sa part à un tas qui frôle déjà 4 Go. Ici, `poser()`
+redessinait la figure fixe à chaque piège, une vingtaine de fois. Elle se
+dessine maintenant une fois, et les cases se remettent à neuf entre deux
+copies : 6 Mo retenus au lieu de 21, et les trois sabotages toujours attrapés.
+La marge du banc reste mince pour tout le monde : un contrôle qui dessine
+dessine le moins possible.
+
+**Et l'allègement n'a pas suffi : la cause était ailleurs, et une autre PR
+l'avait trouvée.** Le run suivant de l'action est mort de la même façon, et
+`main` lui-même passait ou non selon le tirage (rouge après le 8.2.11, vert
+après le 8.2.8). La PR #711 (8.1.11, l'antécédent par une translation) a nommé
+la cause exacte : les relevés des `MutationObserver` ne sont délivrés qu'au
+retour de la main, et chaque relevé garde en vie les nœuds RETIRÉS du DOM.
+Son correctif — `tests/harnais.js` enveloppe `MutationObserver`, `evaluer()`
+délivre les relevés après chaque contrôle — est porté ici À L'IDENTIQUE, pour
+que celle des deux PR qui passe la seconde n'ait rien à résoudre. La chronique
+du correctif est celle de la #711 (`docs/journal/17-verification-et-bancs.md`) ;
+mesuré ici, ce contrôle ne retient plus que 1 à 2 Mo par passage.
+
+**Puis la page en ligne a montré ce qu'aucun banc ne regardait : la chaîne
+faisait demi-tour** (v537). Sur la capture de la v536 publiée, N → K puis
+K → P : la seconde flèche repartait presque en arrière, se couchait sur la
+première, et N semblait posé sur le trait K → P. Le tirage interdisait deux
+flèches consécutives ALIGNÉES, pas un retour aigu. Mesuré sur 3 000 figures :
+une sur deux avait un demi-tour de plus de 120°, une sur huit un point à moins
+de 1,2 carreau d'une flèche qui ne le touche pas. Le tirage refuse maintenant
+les deux (angle entre deux flèches consécutives au plus 120°, tout point à
+1,2 carreau au moins de chaque flèche qui ne le touche pas) : 0 sur 3 000,
+sans repli ni perte de variété. Le banc relit les deux règles sur le DESSIN ;
+éprouvé par sabotage — sans la règle des 120°, « la chaîne fait demi-tour
+entre les flèches 1 et 2 » ; avec les distances d'avant, « le point E est à
+31 px d'une flèche de la chaîne qui ne le touche pas ».
+
+**Puis l'énoncé a dit de répondre avec les flèches BLEUES, et u⃗, v⃗, w⃗ sont
+devenus rouges** (v542 — v539 à v541 pris pendant les bancs par le 8.2.8, le 8.2.15 et le 7.12 ; demande de Turquet : « préciser qu'il faut répondre
+avec des vecteurs bleus de la figure ; écrire u, v, w en rouge dans l'énoncé
+et dans les questions ; les vecteurs bleus des réponses doivent être tracés,
+ainsi que deux supplémentaires »). Jusque-là, la réponse à u⃗ + v⃗ était le
+raccourci de deux flèches de la chaîne, que la figure ne traçait pas, et un
+w⃗ de trois flèches passait par un vecteur invisible : l'élève devait écrire
+deux lettres qu'aucun trait ne reliait.
+- **Les réponses sont tracées** (`lsdBleues`) : la chaîne, le raccourci
+  `ch[k] → ch[k+2]` de u⃗ + v⃗, et, pour m = 3, `ch[j] → ch[j+2]` — de la même
+  encre que la chaîne (classe `lsd-bl`, que le juge du banc distingue de
+  `lsd-ch`). Ces raccourcis se recalculent : seules les deux flèches de plus
+  se rangent (`q.dx`, deux lettres chacune ; une question d'avant, sans `dx`,
+  se redessine sans elles).
+- **Deux flèches de plus**, entre deux des six points, qui ne servent à
+  AUCUNE réponse, même retournées : ni ± (u⃗ + v⃗), ni ± w⃗, ni complétées en w⃗
+  par une flèche bleue lue dans un sens ou dans l'autre — l'élève qui
+  retourne une flèche écrit encore un vecteur de la figure, et la page le
+  compterait juste. Pour la figure de secours, FB et BM se complétaient
+  l'une l'autre (FB retourné, plus BM retourné, fait w⃗) : ce sont KA et MB.
+- **Chaque trait ajouté** (`lsdTraitOk`) passe à 1 carreau au moins des
+  points qu'il ne touche pas, ne croise ni ne frôle (0,7) un autre trait, et
+  s'ouvre d'au moins 25° sur un trait dont il partage un bout ; u⃗, v⃗, w⃗ se
+  posent loin de TOUS les traits bleus. Mesuré sur 3 000 figures : aucun
+  repli sur la figure de secours, 7 ms par figure.
+- **Le juge n'a pas changé** : tout vecteur juste de la figure est accepté,
+  bleu ou non (le banc le tient toujours, vecteur par vecteur). Mais la
+  correction écrit des flèches bleues : `lsdComplete` préfère une flèche
+  bleue, puis celle qui s'enchaîne.
+- **Le rouge** est un jeton de l'écran (`--lsd-uvw`, #D3202F), sur le dessin,
+  dans l'énoncé (`.lsd-r`) et dans les questions (`.lsd-n`). Les mots
+  « vecteurs bleus de la figure » sont écrits en bleu nuit : la règle de
+  l'énoncé sur `b` les peignait d'abord en rouge — vu sur la capture, pas
+  par un banc ; le sélecteur porte maintenant l'identifiant de l'énoncé.
+
+Le banc relit les flèches bleues sur le DESSIN : chacune relie deux points
+nommés, à 27 px au moins des autres ; la réponse à u⃗ + v⃗ et une écriture de
+w⃗ y sont tracées ; parmi les flèches ajoutées à la chaîne, exactement DEUX
+ne servent à rien (même retournées), aucune ne sert « seulement à
+l'envers » ; la correction de la copie vide n'écrit que des flèches bleues ;
+l'énoncé dit « vecteurs bleus de la figure », et les neuf u⃗, v⃗, w⃗ de
+l'énoncé et des questions portent la classe rouge. Trois sabotages, le
+contrôle joué seul dans Chromium : le raccourci de u⃗ + v⃗ retiré du dessin
+(« la réponse à u + v n’est pas tracée en bleu ») ; les flèches de plus
+tirées sans filtre (« 1 flèche(s) bleue(s) ne servent à aucune réponse, au
+lieu de 2 », « une flèche bleue ajoutée ne sert qu’à l’envers ») ;
+`lsdComplete` qui ne préfère plus les flèches bleues — passé VERT la
+première fois : la copie vide se corrige par l'écriture de la page, déjà
+bleue, et rien ne regardait la case seule. Le contrôle juge maintenant,
+pour chaque flèche bleue écrite seule dans une case de w⃗, la flèche qui la
+complète (« avec HP seul, la correction de w écrit MJ, qui n’est pas une
+flèche bleue »).
+
+## {somme-trois-vecteurs} — trois vecteurs bout à bout (8.2.15, v538 — commencé comme 8.2.11 en v528 ; les exercices du thème 8 fusionnés pendant les bancs ont pris tour à tour les numéros 8.2.11 à 8.2.14 et les versions v528 à v537)
+
+**La demande** (Turquet, octobre 2026). Dans la liste d'idées d'exercices sur
+les vecteurs, Turquet a retenu la n° 7 : « Trois vecteurs bout à bout ». Sur
+un quadrillage, trois vecteurs u⃗, v⃗, w⃗ ; l'élève construit u⃗ + v⃗ + w⃗ en
+les enchaînant bout à bout à partir d'un point, puis trace le vecteur somme.
+De temps en temps, la somme revient au point de départ : c'est le vecteur
+nul, et l'élève le déclare. Ajouté en dernier du sous-thème « Somme de
+vecteurs » : 8.2.15, rien ne se renumérote.
+
+**Un moteur à lui, les pièces du 8.2.1.** Kind `stv`, écran `scr-stv`. Le
+geste est celui du 8.2.10 (glisser ET tracer ouverts à tout moment, rien ne
+se fige ni ne verdit avant « Vérifier ») ; les pièces sont celles du 8.2.1 :
+`svcFleche` (avec la géométrie `STV_GEO`), `svcNomPos`, `svcEcart`, la prise
+`.svc-prise`, le point et la flèche qui suivent la souris (`#stvCurseur`,
+`#stvVif`). Le 8.2.1 n'a pas été touché : ses questions, son écran et son
+banc sont les mêmes. Le quadrillage est plus grand que le sien (14 × 10
+carreaux de 34 unités) : trois flèches, un point et la construction doivent
+y tenir sans se gêner.
+
+**Les choix faits sans demander** (la consigne était de décider les détails
+raisonnables) :
+- **Le point de départ est donné** (`q.l`, tiré parmi A, B, E, M, P ; posé
+  en croix, sa lettre dans le coin le plus loin des flèches qui le touchent,
+  la recette du 8.2.9). « À partir d'un point » rend le chaînage jugeable :
+  la première flèche part du point, chaque début sur la fin de la précédente,
+  DANS L'ORDRE QUE L'ÉLÈVE VEUT (`stvChaine` essaie les six ordres).
+- **Deux réponses notées par question** (`stvCases`, barème 12 pour six
+  questions) : le chaînage (`stv-ch`) et la somme (`stv-sm`), jugées chacune
+  SEULE. La somme est juste dès que la flèche tracée en est un représentant,
+  où qu'elle soit — comme au 8.2.1 : on juge le vecteur, pas la place. Une
+  somme juste tracée sans avoir bougé les flèches vaut son point ; le
+  chaînage, vide, se corrige en vert.
+- **w⃗ en pointillés serrés** (`.stv-w`), v⃗ en tirets comme au 8.2.1, u⃗ en
+  trait plein : trois traits qu'on distingue sans les couleurs, qui restent
+  à la vérification.
+- **Le vecteur nul se déclare par un bouton**, « C'est le vecteur nul »,
+  posé dans la consigne de la somme et offert à CHAQUE question : réservé aux
+  sommes nulles, sa seule présence aurait donné la réponse. Appuyé, il
+  s'encre en sombre avec une coche (`stv-nul-on`) — ni bleu, ni vert, ni
+  rouge : c'est ce que l'élève a dit, pas un verdict. Déclarer efface la
+  flèche tracée ; tracer efface la déclaration ; un second appui la retire.
+  On range `q.dn` (0 ou 1).
+- **Combien de sommes nulles** : une question sur six (`stvBuildQuestions` :
+  `max(1, round(n / 6))`, aucune sous trois questions), à une place tirée —
+  une séance normale de six en a exactement une. La place passe par le
+  second argument de la fabrique de `distinctes()` (l'indice de la question).
+
+**On range les flèches et le point, jamais la réponse** : `l`, `po`,
+`uo`/`uc`, `vo`/`vc`, `wo`/`wc`, puis `up`/`vp`/`wp` (null tant qu'une
+flèche n'a pas bougé), `sd`/`sf`, `dn`. La somme et sa nullité se
+recalculent (`stvSomme`, `stvNulle`).
+
+**Le tirage est lisible** (`stvGen`) : chemins de −4 à 4 carreaux (w⃗
+jusqu'à 5 quand il compense u⃗ + v⃗), chacun d'au moins deux carreaux, deux
+flèches jamais parallèles ni presque (|u⃗ × v⃗| ≥ 4 pour chaque paire : la
+première capture d'une somme nulle montrait un triangle si plat qu'il se
+lisait mal) ; une somme non
+nulle d'au moins deux carreaux ; la construction u⃗, v⃗, w⃗ depuis le point
+tient dans le quadrillage (la correction la dessine) ; les trois flèches à
+plus de 1,2 carreau l'une de l'autre, leurs six extrémités à deux carreaux
+et à un carreau du bord ; le point à un carreau et demi de chaque flèche,
+aucune ne part déjà de lui. Simulé sous Node : 1 000 figures normales et
+1 000 nulles, toutes différentes, le repli jamais atteint, quelques
+millisecondes la figure.
+
+**Les pièges nommés** (`stvPourquoi`) :
+- la construction qui ne part pas du point (« pose le début d'une des
+  flèches sur A ») ;
+- deux DÉBUTS ensemble, deux FINS ensemble ;
+- des flèches qui ne se suivent pas ;
+- la somme déclarée nulle à tort ;
+- une flèche tracée pour une somme nulle : « les trois flèches REVIENNENT à
+  leur point de départ » ;
+- la somme à l'envers ;
+- la somme de deux vecteurs seulement : « tu as oublié le vecteur w ».
+Tout message faux finit par le chemin des trois vecteurs et celui de la
+somme (ou « on revient au point de départ »).
+
+**La correction** : chaque case bleue, rouge, ou verte (`sol`) si elle était
+vide. Le chaînage faux ou vide : les trois flèches recopiées en vert, en
+pointillés, depuis le point, dans l'ordre u⃗, v⃗, w⃗ (`stvConstruction`) ;
+la somme fausse ou vide : la flèche verte « u⃗ + v⃗ + w⃗ » du point au bout
+de la construction — ou, nulle, un cercle vert autour du point
+(`.stv-nul-sol`), et la phrase « La somme était le vecteur nul » quand la
+case était vide. En soutien, le juste se fige (flèches ou somme), le faux
+rougit et reste à reprendre, rien ne se révèle (`soutienEnDirect.sans`,
+comme « svc »).
+
+**Le banc** (`sommeTroisVecteurs`, banc principal) a son propre juge : sur
+200 séances, sa propre arithmétique (pas `stvSomme`) — six questions, une
+somme nulle exactement, à chaque place au fil des séances, les clés rangées,
+flèches d'au moins deux carreaux et jamais parallèles, la construction dans
+le quadrillage, aucune figure servie deux fois ; puis sur une figure fixe,
+il relit le DESSIN — les lignes du quadrillage tracé, chaque flèche
+dessinée ramenée à ses nœuds — et refait la somme lui-même pour juger la
+flèche verte de la correction. Il tient aussi : la copie vide (deux `sol`,
+trois copies et une somme vertes, rien de rouge, « Il te manquait 2
+cases », 0 sur 2) ; la flèche retenue au bord ; la copie juste après le
+JSON de la pause ; un autre ordre (w⃗, u⃗, v⃗) et la somme tracée ailleurs ;
+les cinq pièges nommés ; la somme nulle (déclarer et tracer s'effacent l'un
+l'autre ; déclarer est juste ; tracer est faux et nommé ; la copie vide
+entoure le point en vert) ; le soutien ; le contexte du modèle.
+**Le banc navigateur** (« 6 quadragies decies ») fait l'exercice à la
+souris : les trois flèches glissées bout à bout depuis le point, le début de
+la somme cliqué À TRAVERS la prise de u⃗ posée sur le point, la flèche qui
+suit la souris, la fin, « Vérifier » (2 sur 2) ; puis une somme nulle
+déclarée au bouton (le chaînage vide se trace en vert, rien ne rougit). Il
+mesure aussi que les consignes se lisent au-dessus du dessin, qu'aucun nom
+n'en sort et que les prises ne font pas défiler la page.
+
+**Le piège du 8.1.9, retrouvé.** La première version du contrôle tirait
+ses 200 séances par `TESTS[…].start()` : 200 figures posées dans le DOM.
+Verte sur la machine de travail (dont le tas n'est pas plafonné), elle a
+épuisé les 4 Go du banc de la Seconde sur l'action (« heap out of memory »,
+plus loin, dans les contrôles Python). Le tirage passe désormais par
+`stvBuildQuestions()`, sans dessin ; un seul démarrage réel reste, pour le
+kind, le barème et le nombre de questions. Cela n'a pas suffi : main était
+déjà au bord des 4 Go (rejoué en local sous ce plafond, son banc n'avait pas
+fini en trente minutes). La cause — les observateurs de mutations du banc qui
+gardaient chaque nœud retiré — a été trouvée et corrigée par le 8.1.12,
+fusionné pendant les bancs ; le relèvement à 6 Go essayé ici a été retiré
+(`17-verification-et-bancs.md`).
+
+Quatre sabotages ont été attrapés par le banc principal, chacun nommé :
+- une somme tracée À L'ENVERS acceptée par le juge (« la somme à l'envers :
+  ok ») — le soutien, du même coup, s'est verrouillé sur une copie fausse ;
+- le message « tu as oublié le vecteur w » retiré ;
+- le cercle vert de la somme nulle retiré (la correction traçait une flèche
+  du point au point) ;
+- plus aucune somme nulle au tirage (« une séance a 0 somme(s) nulle(s) »).
+
+Ce qu'aucun banc ne voit : le glisser au DOIGT sur tablette (celui du 8.2.1,
+`touch-action:none`, jamais joué), et la place du nom « u⃗ + v⃗ + w⃗ ». La
+première capture l'a montré posé sur la lettre du point : `stvCoteDehors`
+compte désormais le point parmi ce qu'il faut fuir ; aucun banc ne mesure
+ce chevauchement.
+
+**Puis les étapes se sont encadrées (v540).** La demande (Turquet,
+octobre 2026) : « mettre en bleu le cadre de l'étape à faire, le mettre en
+vert quand il est réalisé et mettre en bleu le suivant ; s'il est réalisé, le
+mettre en vert. Quand on doit réaliser l'étape 1, ne pas afficher de point à
+l'extrémité de la souris ou sur le quadrillage. » La recette est celle du
+8.2.16 (`cvpFaits`) : `stvFaits` pose `stv-cours` (cadre et fond bleus) sur
+la première étape non faite, `stv-fait` (cadre, encre et fond verts, et sa
+coche) sur chaque étape EFFECTUÉE — effectuée, pas juste : l'étape 1 est faite
+quand les trois flèches sont bout à bout depuis le point (`stvEtape1`, la
+même chaîne que le juge), l'étape 2 quand la somme est tracée ou déclarée
+nulle. Une étape marquée par la vérification garde son verdict, et rien ne
+reste sous le verrou. Défaire la chaîne remet l'étape 1 en cours.
+
+**L'étape 2 attend l'étape 1** — c'est le prix de « aucun point pendant
+l'étape 1 » : un clic qui poserait un point qu'on ne montre pas serait pire.
+Tant que la chaîne n'est pas faite, le quadrillage porte `stv-etape1` (le
+nœud survolé ne montre plus son rond), le point au bout de la souris ne
+s'affiche pas, `stvPose` ne pose rien et « C'est le vecteur nul » est
+grisé ; un début déjà posé se retire toujours, une déclaration déjà faite
+aussi. Ce qui change donc : « une somme juste tracée sans avoir bougé les
+flèches vaut son point » n'est plus possible — la somme ne se trace
+qu'après la chaîne. Le barème ne bouge pas.
+
+**Les bancs.** Le banc principal tient les cadres (`C/-` au départ, `F/C`
+la chaîne faite, `F/F` la somme tracée, `C/F` la chaîne défaite, rien sous
+le verdict) et le clic sans effet pendant l'étape 1 ; ses pièges sur la
+somme font d'abord la chaîne. Le banc navigateur mesure la COULEUR des
+cadres calculée par le navigateur, survole un nœud pendant l'étape 1 (ni
+point au bout de la souris, ni rond sur le nœud), y clique sans rien poser,
+puis voit le point revenir à l'étape 2 ; la somme nulle se déclare après
+la chaîne, le bouton étant grisé avant.
+
+**Le second vecteur de la somme passe à l'ORANGE (v539).** La demande
+(Turquet, octobre 2026) : « dans le 8.2.8, mettre le dernier vecteur de
+l'exercice dans une autre couleur ». AA′ avait déjà le sien (violet) ; c'est
+BD, le second vecteur tracé, qui se confondait avec BC — gris ardoise en
+pointillés à côté du bleu nuit. Il prend `--cps-v` (#D97706) : trait, pointe
+(`cpsArr1`), point de départ, nom et sa flèche, et la flèche vive qui suit la
+souris pendant son tracé — ni le bleu du juste, ni le rouge du faux, ni le
+vert de la correction, ni le violet de AA′. Les règles sont bornées à
+`.cps-svg` : le 8.7 et les autres hôtes de `svc-v` gardent leur gris. Jugée,
+la flèche passe en bleu ou en rouge comme avant ; la règle ne nomme aucune
+classe de verdict, « 9 bis » n'a pas à la lire.
+
+## {regle-parallelogramme} — la règle du parallélogramme (8.2.16, v572 — fusionné quatre jours après les 8.2.11 à 8.2.15, que l'action laissait passer quand le banc de la Seconde, avec lui, manquait de mémoire)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
 sur la somme de vecteurs, Turquet a retenu la sixième : « la règle du
 parallélogramme ». C'est la SECONDE méthode de construction de la somme, à
 côté du « bout à bout » du 8.2.1 : u⃗ et v⃗ partent du MÊME point. Ajouté en
-dernier du sous-thème « Somme de vecteurs » : 8.2.12, rien ne se renumérote.
+dernier du sous-thème « Somme de vecteurs » : 8.2.16, rien ne se renumérote.
 
 **La figure.** Le quadrillage du 8.2.1 (12 carreaux sur 8, `SVC_*`, les
 flèches de `svcFleche`) : trois croix A, B, C, u⃗ = AB⃗ en trait plein et

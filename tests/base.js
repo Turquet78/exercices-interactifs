@@ -699,7 +699,11 @@ bilan('010 demande à PostgREST de recharger son cache de schéma',
 console.log('\n2. CE QUE CHAQUE RÔLE OBTIENT DE LA BASE');
 const ctrl = psql('banc', ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
 if(ctrl.erreur){
-  const ligne = (String(ctrl.erreur).match(/ÉCHEC : (.*)/) || [])[1] || String(ctrl.erreur).split('\n')[0];
+  /* Une erreur de PostgreSQL elle-même (« permission denied »…) n'a pas de
+     « ÉCHEC : » ; sa première ligne est alors une NOTICE d'en-tête, muette —
+     c'est la ligne « ERROR » qui porte le motif. */
+  const texte = String(ctrl.erreur);
+  const ligne = (texte.match(/ÉCHEC : (.*)/) || [])[1] || (texte.match(/ERROR: +(.*)/) || [])[1] || texte.split('\n')[0];
   bilan('les politiques tiennent', false, ligne);
 }else{
   let lus = 0;

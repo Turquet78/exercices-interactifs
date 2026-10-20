@@ -1,6 +1,8 @@
 # Les dessins des exercices
 
-Les images que les exercices affichent — le serpent des exercices Python, le
+Les images que les exercices affichent — le serpent des exercices Python, ses
+déguisements d'Halloween (`<identifiant>-halloween.webp`, sous-thèmes 6.1, 6.2
+et 6.3), le
 schéma-bilan des ensembles de nombres — vivent ici, **en fichiers**, un dossier
 par niveau :
 
@@ -53,3 +55,23 @@ Le profil du niveau (`tests/profils.js`, clé `dessins`) déclare le dossier :
 c'est le bord opposé des deux contrôles — un niveau qui déclare des dessins
 doit en offrir au banc, un niveau qui n'en déclare pas s'affiche « non
 applicable » plutôt que d'être tu.
+
+## Les dessins des sous-thèmes 6.1 et 6.2 « variables »
+
+Trente dessins thématiques (un accessoire par exercice) et trente-neuf serpents
+d'Halloween ont d'abord été dessinés en SVG, puis convertis en WebP (octobre
+2026). Ils ont ensuite été remplacés (v562) par une planche générée par
+Turquet : 46 serpents ordinaires (une émotion et un objet chacun) et 16 serpents
+d'Halloween, découpés et détourés. Les dessins thématiques portent le suffixe
+`-2.webp`, sauf les quatorze du 6.2.10 au 6.2.23, remplacés en v564 par des scènes
+avec une bulle (`-3.webp`, affichées en grand par `large:true`) ; les neuf dessins de fiche du 6.2.1 au
+6.2.9 ont eux aussi été refaits en scènes avec une bulle (v566, `-2.webp`) ; les serpents d'Halloween gardent leur nom `<identifiant>-halloween.webp`,
+que le banc exige. Le 6.1 prend les seize serpents
+d'Halloween de la première planche ; le 6.2 en reprend seize et en ajoute sept,
+tirés d'une seconde planche : ses vingt-trois serpents sont tous différents. Ils
+ne demandent aucun code par exercice : la table `DESSINS_VAR` (le dessin
+thématique, posé au-dessus de l'énoncé) et `HW_SERPENTS` (le serpent
+d'Halloween, posé à côté du dessin de l'exercice) suffisent, `dessinsVariables()`
+les pose après chaque rendu. Pour remplacer un dessin par un autre, il suffit
+de déposer le nouveau fichier sous un **nouveau nom** et de mettre la table à
+jour.
