@@ -445,6 +445,26 @@ s'arrête plus tôt : le second s'arrête à 93 px et masque le bas du premier) 
 « x », « 1-x » bleus, une conditionnelle fausse rouge avec la bonne en vert à
 côté, une case vide remplie en vert ; aucune erreur de page. Terminale v413.
 
+**Puis l'arbre en x a ouvert sa case P(B), au bout de l'accolade** (demande
+de Turquet, octobre 2026 — « le 6.3.1 » encore, c'est-à-dire le 6.1.3 :
+« mettre aussi une case pour la probabilité extérieure à l'arbre qui
+représente la somme des probabilités de deux chemins de cet arbre »).
+
+* `APX_ARBRE` = les six branches + `B` : la case de l'accolade du second
+  arbre devient `apx-t-B`. Sa valeur est la NOUVELLE P(B) que donne la
+  question (`q.bx`), pas celle du premier arbre (`apcV(q).B`) : les deux
+  diffèrent toujours, P(A) ayant changé. Le juge des cases est sorti de
+  `apcV` (`apcJugeVal(cible, raw)`) pour la recevoir ; « 43 % » y vaut 0,43
+  comme ailleurs.
+* La consigne de l'arbre la nomme (« … et P(B), qui vaut maintenant 0,43 »),
+  le contexte envoyé à l'IA aussi. Les intersections restent « … ». Sept
+  réponses comptées de plus, au lieu de six.
+
+Essayé dans Chromium à 1280 px : la case est au bout de la flèche de
+l'accolade ; remplie juste, bleue ; la valeur du premier arbre, refusée ; les
+cases vides reçoivent la correction en vert ; aucune erreur de page.
+Terminale v414.
+
 ## En portrait, le cadre d'un exercice prend la largeur de l'écran — les trois niveaux
 
 Demande de Turquet (octobre 2026) : « en mode portrait, que le cadre blanc de
