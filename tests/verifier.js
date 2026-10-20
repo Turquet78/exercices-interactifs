@@ -45864,7 +45864,13 @@ function paireFausseCaseFautive(w, P){
    fraction produit 2000/100 vaut 20, et « 20 » seul y est un entier légitime.
    Éprouvé par sabotage : hs1n remis sur marqueFracSaufVide, le contrôle rougit
    (« 20 seul … bad au lieu de ok », « Corrige les cases en rouge », « P/100 »
-   posé à côté). */
+   posé à côté). Et le bord du PRODUIT mesure le peintre, pas seulement le
+   verdict : en Première, « 20 » seul reste bleu sous marqueFracAncre aussi
+   (fracOk lit déjà le vide comme 1 — relecture, octobre 2026), c'est le
+   numérateur CANONIQUE écrit seul (2000, dénominateur vide) qui tranche —
+   rouge sous « vide vaut 1 », bleu sous l'ancre. Sabotage sur les deux
+   niveaux : hsc1pn passé à marqueFracPaire (Seconde) ou à marqueFracAncre
+   avec ok1p (Première), le contrôle rougit. */
 function numerateurSeulPourcentage(w, P){
   const present = evaluer(w, "typeof checkHSAnswer==='function' && typeof checkHSCAnswer==='function' && typeof checkBSAnswer==='function' && typeof genHausses==='function'");
   if(!present.ok || !present.valeur){
@@ -45887,7 +45893,7 @@ function numerateurSeulPourcentage(w, P){
          hsAn:q.fA.num,hsAd:q.fA.den,hsBn:q.fB.num,hsBd:q.fB.den,hsPn:q.prodNum,hsPd:q.prodDen,hsDec:q.coefStr,hsP:q.hausseStr}; }},
       {nom:'hausses successives en partant de 100', kind:'hsc', qId:'hausses-successives-cent', gen:genHaussesCent,
        ecran:'hsctest', rendu:renderHSCTest, check:checkHSCAnswer, fb:'hscFeedback', n:'hsc1n', d:'hsc1d',
-       prodN:'hsc1pn', prodD:'hsc1pd', prod:function(q){ return hscAns(q).prod1/100; },
+       prodN:'hsc1pn', prodD:'hsc1pd', prod:function(q){ return hscAns(q).prod1/100; }, prodCanon:function(q){ return hscAns(q).prod1; },
        copie:function(q){ const a=hscAns(q); return {hsc1n:q.P1,hsc1d:100,hsc1m:100,hsc1pn:a.prod1,hsc1pd:100,hsc1a:a.aug1,hsc1sa:100,hsc1sb:a.aug1,hsc1sr:a.v1,
          hsc2n:q.P2,hsc2d:100,hsc2m:a.v1,hsc2pn:a.prod2,hsc2pd:100,hsc2a:a.aug2,hsc2sa:a.v1,hsc2sb:a.aug2,hsc2sr:a.v2,hscFin:a.v2,hscPour:a.h,hscPct:a.h}; }},
       {nom:'baisses successives', kind:'bs', qId:'baisses-successives', gen:function(){ return genBaisses([]); },
@@ -45906,7 +45912,7 @@ function numerateurSeulPourcentage(w, P){
       exos.push({nom:'synthèse des évolutions (en partant de 100)', kind:'ess', qId:'synthese-evolutions-successives',
         gen:function(){ const q=essQuestion(1,20,1,50); q.meth='cent'; q.choisi=1; return q; },
         ecran:'esstest', rendu:renderEssTest, check:checkEssAnswer, fb:'essFeedback', n:'essc1n', d:'essc1d',
-        prodN:'essc1pn', prodD:'essc1pd', prod:function(q){ return essAns(q).prod1/100; },
+        prodN:'essc1pn', prodD:'essc1pd', prod:function(q){ return essAns(q).prod1/100; }, prodCanon:function(q){ return essAns(q).prod1; },
         copie:function(q){ const a=essAns(q); return {essc1n:q.P1,essc1d:100,essc1m:100,essc1pn:a.prod1,essc1pd:100,essc1a:a.aug1,essc1sa:100,essc1sb:a.aug1,essc1sr:a.v1,
           essc2n:q.P2,essc2d:100,essc2m:a.v1,essc2pn:a.prod2,essc2pd:100,essc2a:a.aug2,essc2sa:a.v1,essc2sb:a.aug2,essc2sr:a.v2,esscFin:a.v2,esscPour:a.pct,esscPct:a.pct}; }});
     }
@@ -45951,6 +45957,14 @@ function numerateurSeulPourcentage(w, P){
       if(e.prodN){ q=monter(e,'soutien'); const pv=e.prod(q); pose(e.prodN,pv); e.check();
         if(teinte(e.prodN)!=='ok') vus.push(e.nom+' : « '+pv+' » seul à la fraction PRODUIT est '+teinte(e.prodN)+' — elle garde « vide vaut 1 »');
         if(teinte(e.prodD)!=='rien') vus.push(e.nom+' : le dénominateur vide de la fraction produit est '+teinte(e.prodD)); }
+      /* 5 bis. et c'est le PEINTRE qui se mesure, pas le seul verdict : le
+         numérateur CANONIQUE écrit seul (2000, dénominateur vide) ROUGIT — « vide
+         vaut 1 » le lit 2000, pas 20 — là où l'ancre (marqueFracPaire,
+         marqueFracAncre) le bleuirait ; en Première, « 20 » seul est bleu sous
+         les deux peintres, fracOk lisant déjà le vide comme 1 */
+      if(e.prodN){ q=monter(e,'soutien'); const pc=e.prodCanon(q); pose(e.prodN,pc); e.check();
+        if(teinte(e.prodN)!=='bad') vus.push(e.nom+' : « '+pc+' » seul (le numérateur canonique) à la fraction PRODUIT est '+teinte(e.prodN)+' au lieu de rouge — « vide vaut 1 » lit '+pc+', pas '+(pc/100));
+        if(teinte(e.prodD)!=='rien') vus.push(e.nom+' : le dénominateur vide sous le numérateur canonique du produit est '+teinte(e.prodD)); }
     });
     currentMode='train';
     return vus.join(' | ');

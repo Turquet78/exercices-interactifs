@@ -422,7 +422,8 @@ dénominateur vide (vide vaut 1 au contrôle final : le 17 de 0,04 × 17) —
 COEFFICIENT et de PRODUIT seulement (leurs P/100 ne sont PAS des entiers
 possibles, et ont quitté cette convention en octobre 2026 — voir en fin de
 fichier) — et leur correction en direct appliquait cette convention au
-numérateur en cours de frappe : 4/1 se comparait à 4/100, et rougissait. La règle des paires, encore, une case plus loin : un numérateur
+numérateur en cours de frappe : 4/1 se comparait à 4/100, et rougissait.
+La règle des paires, encore, une case plus loin : un numérateur
 seul se juge sur sa PROMESSE — « ok » s'il est déjà juste en entier, RIEN
 s'il peut encore mener à une fraction égale, rouge seulement s'il ne mène
 nulle part (aux fractions « toute écriture égale acceptée », presque tout
@@ -4777,3 +4778,9 @@ P/100 est bleu, la paire reste exigée »), sur chaque écran, en soutien et en
 entraînement, copie juste sans son dénominateur comprise ; éprouvé par deux
 sabotages : `hs1n` remis sur `marqueFracSaufVide` (six bords rougissent), la
 fraction produit du 4.2.8 passée à `marqueFracPaire` (« 20 » seul y rougit).
+En Première, ce second sabotage (`hsc1pn` passé à `marqueFracAncre`, avec le
+`ok1p` de l'appelant) laissait « 20 » seul BLEU : `fracOk` lit déjà le vide
+comme 1, et le bord n'y tenait que le VERDICT, pas le peintre (relecture,
+octobre 2026). Le bord mesure donc le peintre lui-même : le numérateur
+CANONIQUE écrit seul (2000, dénominateur vide) doit ROUGIR — « vide vaut 1 »
+lit 2000, pas 20 — là où l'ancre le bleuirait ; éprouvé sur les deux niveaux.
