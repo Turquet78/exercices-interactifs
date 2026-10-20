@@ -5682,7 +5682,9 @@ function devoirBlancClique(w, apres){
    accepte une copie fausse et la page refuse quand même ; quand le juge
    s'abstient, le modèle redevient seul juge, sans bloc VERDICT dans la
    règle ; et quand le modèle est en panne, le juge répond seul au lieu de
-   bloquer l'élève. */
+   bloquer l'élève. Un cinquième depuis octobre 2026 : au 5.7, un résultat
+   égal mais réductible (30/36) gagne son point, en vert, avec « pense à
+   simplifier » — sous un modèle en panne comme sous un modèle qui refuse. */
 function jugeArithmetiqueClique(w, apres){
   const present = evaluer(w, "typeof libreJuge==='function' && typeof checkSFL==='function'");
   if(!present.ok || !present.valeur){
@@ -5768,6 +5770,35 @@ function jugeArithmetiqueClique(w, apres){
         vus.push('4.9 : la division multipliée sans retourner passe sous un modèle qui accepte, score '+test.score);
       const fb5=(document.getElementById('mllFeedback')||{}).textContent||'';
       if(fb5.indexOf('stubbé')>=0) vus.push('4.9 : le modèle contredit le verdict et sa prose s\\'affiche quand même');
+    }
+
+    /* 6. 5.7 : un résultat ÉGAL mais RÉDUCTIBLE est juste (option C, octobre
+       2026). Sous un modèle en panne, la page donne le point et écrit
+       elle-même « pense à simplifier », en vert ; sous un modèle qui refuse,
+       le verdict prime, la prose du modèle est remplacée par la même phrase. */
+    if(typeof checkMLL==='function'){
+      const qR={n1:1,d1:2,n2:5,d2:3,a1:1,a2:5,b1:2,b2:3,P:5,Q:6};
+      const copieR='(1)/(2)*(5)/(3)\\n= (3)/(6)*(10)/(6)\\n= (30)/(36)';
+      const couleurMLL=function(){ const c=(document.getElementById('mllFeedback')||{}).className||'';
+        return /\\bgood\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
+      for(const M of [{panne:true, correct:false, nom:'modèle en panne'},{panne:false, correct:false, nom:'modèle qui refuse'}]){
+        Object.keys(test).forEach(function(k){ delete test[k]; });
+        Object.assign(test,{kind:'mll', questions:[qR], idx:0, score:0,
+          answers:[], startTime:Date.now(), locked:false, mllBusy:false});
+        test.qId='multiplier-fractions-libre'; test.mllDepart='depart';
+        mllFeuille=feuille(copieR); envoye=null;
+        const f=document.getElementById('mllFeedback'); if(f){ f.textContent=''; f.className='mp-feedback'; }
+        MODELE={correct:M.correct, panne:M.panne};
+        await checkMLL();
+        if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true)
+          vus.push('5.7, 30/36 sous '+M.nom+' : la page devait donner le point, score '+test.score);
+        if(couleurMLL()!=='vert') vus.push('5.7, 30/36 sous '+M.nom+' : peint « '+couleurMLL()+' » au lieu de vert');
+        const fbR=(document.getElementById('mllFeedback')||{}).textContent||'';
+        if(!/simplifi/i.test(fbR)) vus.push('5.7, 30/36 sous '+M.nom+' : la page ne dit pas « pense à simplifier » : '+fbR.slice(0,80));
+        if(fbR.indexOf('stubbé')>=0) vus.push('5.7, 30/36 sous '+M.nom+' : la prose du modèle qui contredit le verdict s\\'affiche');
+      }
+      if(!envoye || String(envoye.question||'').indexOf('RÉDUCTIBLE')<0)
+        vus.push('5.7, 30/36 : le verdict envoyé au modèle ne dit pas que le résultat est réductible');
     }
     return vus.join(' | ');
   })()`, function(r){
@@ -28021,6 +28052,46 @@ function jugeArithmetique(w, P){
        Sans ce cas, un sabotage qui acceptait n'importe quel produit restait
        vert : l'égalité fausse attrapait tous les autres avant lui. */
     cas('un produit vrai qui n\\'est pas l\\'inverse : le modèle reste juge', qD, '(3)/(5)\\\\div(2)/(7)\\n= (21)/(2)*(1)/(5)\\n= (21)/(10)', 'dll', 'je-ne-sais-pas');
+    /* UN RÉSULTAT ÉGAL MAIS RÉDUCTIBLE EST JUSTE au 5.7 et au 5.9 (décision de
+       Turquet, octobre 2026, option C) : la route du même dénominateur
+       « 1/2 × 5/3 = 3/6 × 10/6 = 30/36 » vaut 5/6, le point est acquis, et la
+       page dit « pense à simplifier ». Le drapeau vient APRÈS les
+       abstentions (l'inverse manquant au 5.9 s'abstient toujours) ; le 5.5
+       (sfl) garde son refus « simplifier » ; et les textes envoyés au modèle
+       n'affirment plus « déjà irréductible ». */
+    const qR={n1:1,d1:2,n2:5,d2:3,a1:1,a2:5,b1:2,b2:3,P:5,Q:6};
+    const jR=cas('le produit par la route du même dénominateur, résultat 30/36 (5.7)', qR, '(1)/(2)*(5)/(3)\\n= (3)/(6)*(10)/(6)\\n= (30)/(36)', 'mll', 'juste');
+    if(jR.sait && jR.correct && jR.reductible!==true) vus.push('5.7 : 30/36 est juste mais le juge ne le dit pas « reductible »');
+    const jR2=cas('le produit au résultat irréductible (5.7)', qR, '(1)/(2)*(5)/(3)\\n= (5)/(6)', 'mll', 'juste');
+    if(jR2.reductible) vus.push('5.7 : 5/6 est irréductible et le juge le dit « reductible »');
+    const jRD=cas('le quotient avec son inverse, résultat 42/20 (5.9)', qD, '(3)/(5)\\\\div(2)/(7)\\n= (3)/(5)*(7)/(2)\\n= (42)/(20)', 'dll', 'juste');
+    if(jRD.sait && jRD.correct && jRD.reductible!==true) vus.push('5.9 : 42/20 est juste mais le juge ne le dit pas « reductible »');
+    cas('le quotient 42/20 sans l\\'étape de l\\'inverse : le modèle reste juge', qD, '(3)/(5)\\\\div(2)/(7)\\n= (42)/(20)', 'dll', 'je-ne-sais-pas');
+    const qR5={n1:1,d1:2,n2:1,d2:3,op:'+',D:6,N1:3,N2:2,N:5,Nr:5,Dr:6};
+    cas('la somme au résultat 10/12 reste refusée (5.5)', qR5, '(1)/(2)+(1)/(3)\\n= (3)/(6)+(2)/(6)\\n= (10)/(12)', 'sfl', 'faux (simplifier)');
+    if(jR.reductible){
+      const s=libreSecours(jR);
+      if(!/simplifi/i.test(s)) vus.push('5.7 : la phrase de secours d\\'un résultat réductible ne parle pas de simplifier : '+s);
+      if(!/juste/i.test(s)) vus.push('5.7 : la phrase de secours d\\'un résultat réductible ne dit pas que le calcul est juste : '+s);
+      const v=libreVerdictIA(jR);
+      if(v.indexOf('vaut true')<0) vus.push('5.7 : le verdict envoyé au modèle sur 30/36 ne dit pas « correct »');
+      if(!/RÉDUCTIBLE/.test(v)) vus.push('5.7 : le verdict envoyé au modèle ne dit pas que le résultat est réductible');
+      if(!/sans le compter comme une faute/.test(v)) vus.push('5.7 : le verdict envoyé au modèle ne lui interdit pas de compter la simplification comme une faute');
+    }
+    if(typeof mllAttenduIA==='function' && typeof mllCtxTexte==='function'){
+      const invAvant=test.inv;
+      [false,true].forEach(function(inv){
+        test.inv=inv;
+        const q=inv?qD:qR;
+        [['la règle (mllAttenduIA)', mllAttenduIA(q)], ['le contexte de l\\'aide (mllCtxTexte)', mllCtxTexte(q)]].forEach(function(p){
+          const nom=(inv?'5.9':'5.7')+' : '+p[0];
+          if(/déjà irréductible/.test(p[1])) vus.push(nom+' affirme encore que le résultat est « déjà irréductible »');
+          if(p[1].indexOf('Toute fraction ÉGALE à '+q.P+'/'+q.Q+' est acceptée')<0) vus.push(nom+' n\\'accepte pas toute fraction égale à '+q.P+'/'+q.Q);
+          if(!/sans réclamer la simplification comme une faute/.test(p[1])) vus.push(nom+' ne dit pas au modèle de ne pas réclamer la simplification');
+        });
+      });
+      if(invAvant===undefined) delete test.inv; else test.inv=invAvant;
+    }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
