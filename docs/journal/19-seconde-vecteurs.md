@@ -3637,3 +3637,84 @@ vert de la correction, ni le violet de AA′. Les règles sont bornées à
 `.cps-svg` : le 8.7 et les autres hôtes de `svc-v` gardent leur gris. Jugée,
 la flèche passe en bleu ou en rouge comme avant ; la règle ne nomme aucune
 classe de verdict, « 9 bis » n'a pas à la lire.
+
+## {vecteurs-criteres} et {vecteurs-egaux-justifier} — comparer deux vecteurs, puis égaux ou pas et pourquoi (8.1.13 et 8.1.14, v572)
+
+**La demande** (Turquet, octobre 2026) : « créer un exercice dans égalité
+de vecteurs, qui donne deux vecteurs et qui demande de compléter par vrai ou
+faux les affirmations : même longueur, même direction (c'est-à-dire
+parallèle) ; si c'est la même direction, demander : même sens ; puis comme
+dernière affirmation : les vecteurs sont égaux. L'élève doit avoir
+différents exemples complémentaires qui permettent de voir toutes les
+situations possibles. Puis un deuxième exercice, qui donne deux vecteurs,
+qui demande si l'affirmation “les vecteurs sont égaux” est vraie ou fausse ;
+si c'est faux, on demande de choisir la bonne justification parmi : pas la
+même longueur, pas la même direction (c'est-à-dire pas parallèles), pas le
+même sens. Dans ces deux exercices, pour direction, on précisera que cela
+signifie intuitivement parallèle. »
+
+**Un moteur, deux écrans.** Les deux exercices tirent les mêmes questions
+(`vcrBuildQuestions`) : deux vecteurs u et v sur un quadrillage de 14 × 7
+carreaux, l'un dans la moitié gauche, l'autre dans la moitié droite — les
+flèches ne se croisent jamais. On range les deux vecteurs (origine et
+déplacement, en carreaux), jamais les réponses : `vcrCrit` relit chaque
+critère en entiers (longueurs au carré, produit en croix, produit scalaire).
+Le dessin reprend `svcFleche` du 8.2 — u violet (`--crd-a`), v ambre
+(`--crd-b`), dans le dessin comme dans le texte ; aucune règle ne touche une
+classe de verdict.
+
+**Six situations, une par question** (`VCR_SITS`, ordre tiré ; un devoir
+plus long recommence le cycle) : égaux ; opposés ; même direction et même
+sens mais pas la même longueur ; même direction, sens contraire, pas la même
+longueur ; même longueur, pas la même direction ; ni l'un ni l'autre. Deux
+vecteurs de même longueur et de directions différentes ont les MÊMES nombres
+de carreaux, échangés ou retournés : la longueur se compte sans Pythagore.
+« Ni l'un ni l'autre » part de là et ajoute ou retire un carreau à une
+étape : l'écart est petit, la longueur ne se devine pas au premier coup
+d'œil. Aucune flèche ne fait moins de deux carreaux.
+
+**La ligne du sens s'ouvre sur la réponse de L'ÉLÈVE, pas sur la vraie
+direction.** Ouverte d'après la vérité, sa seule présence aurait donné la
+réponse de la ligne d'avant. Elle s'ouvre donc quand l'élève répond « Vrai »
+à la direction, se referme (et oublie son choix) s'il revient à « Faux »,
+et les numéros suivent les lignes visibles (`vcrMajLignes`). À la
+vérification, la page tranche : même direction mais ligne fermée, elle
+s'ouvre et reçoit la correction en vert, comme une case vide ; pas la même
+direction mais ligne ouverte, elle se grise, ne compte pas, et sa note dit
+« sans objet : on ne compare pas leur sens ». Le barème suit : 4 cases
+quand les vecteurs ont la même direction, 3 sinon (22 pour une séance de
+six). La reprise après une pause remet les choix par `restoreBoxes`, qui ne
+déclenche aucun événement : `resumeTest` rappelle donc `vcrMaj()` et
+`vejMaj()`, sans quoi le sens choisi serait revenu dans une ligne cachée.
+
+**Au 8.1.14, la justification suit la même règle**, ouverte par « Faux ».
+Quand deux critères manquent (ni la même direction ni la même longueur ;
+sens contraire et pas la même longueur), les deux justifications sont
+justes, et la note les nomme toutes les deux. « Pas le même sens » n'est
+JAMAIS une justification de deux vecteurs qui ne sont pas parallèles : le
+sens ne se compare qu'entre deux vecteurs de même direction, et le message
+le dit. Barème : 1 case pour deux vecteurs égaux, 2 sinon (11 pour six).
+
+**Un piège de dessin, vu en ouvrant la page.** Les deux écrans gardent
+chacun leur dessin, et les pointes de flèche étaient des `<marker>` de même
+identifiant : au 8.1.14, `url(#vcrArru)` trouvait d'abord le marqueur du
+8.1.13, dans un écran caché — et un marqueur pris dans un sous-arbre
+`display:none` ne se dessine pas. Les flèches du 8.1.14 n'avaient plus de
+pointe, sans aucune erreur. Les marqueurs portent maintenant le nom de
+l'écran (`vcrArru`, `vejArru`). Aucun banc jsdom ne l'aurait vu : il ne
+dessine rien.
+
+**Le banc** (`vecteursCriteres`, banc principal) relit le DESSIN, pas la
+question : le rond de départ et la pointe de chaque flèche, ramenés au
+quadrillage, puis il juge lui-même chaque critère — 200 séances, chacune
+doit montrer les six situations, chaque flèche dans le quadrillage, d'au
+moins deux carreaux, sans chevaucher l'autre. Puis, par le bouton : la ligne
+du sens fermée au départ, ouverte par « Vrai », refermée et vidée par
+« Faux », la renumérotation ; la copie juste (4 cases, puis 3) ; la
+direction dite fausse (le sens s'ouvre en vert) ; le sens ouvert à tort
+(gris, sans objet, hors note) ; la copie vide sans rouge ; la reprise ; le
+soutien ; au 8.1.14, les deux justifications acceptées, « pas le même sens »
+refusé avec son message, la justification ouverte à tort sur deux vecteurs
+égaux. Éprouvé par sabotage : un « égaux » qui oublie le sens, une
+justification « sens » acceptée hors direction, une ligne du sens qui ne se
+ferme plus, une situation retirée du tirage — chacun rougit.

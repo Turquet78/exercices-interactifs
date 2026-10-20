@@ -4565,6 +4565,7 @@ function exercices(suite){
     demontrerParallelogramme(w, P);
     chaslesInsererPoint(w, P);
     vraiFauxVecteurs(w, P);
+    vecteursCriteres(w, P);
     milieuVecteursEgaux(w, P);
     translationAntecedent(w, P);
     lireSommeDessin(w, P);
@@ -12917,6 +12918,179 @@ function vraiFauxVecteurs(w, P){
     /* le contexte du modèle */
     const ctx=ctxVfh(test.questions[0]).contexte;
     if(!/SECR/.test(ctx) || !/pas la même direction/.test(ctx) || !/parallélogramme/.test(ctx) || !/AB = ED/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni les réponses');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {vecteurs-criteres} et {vecteurs-egaux-justifier} (Seconde, 8.1.13 et
+   8.1.14 — demande de Turquet, octobre 2026) : deux vecteurs sur un
+   quadrillage ; au 8.1.13, même longueur, même direction, même sens (demandé
+   seulement si l'élève dit « même direction »), égaux ; au 8.1.14, égaux ou
+   pas, et la justification. Le juge de ce banc ne lit PAS les vecteurs
+   rangés dans la question : il relit le DESSIN — le point de départ de
+   chaque flèche, la pointe de son trait —, le ramène au quadrillage, et juge
+   lui-même chaque critère. */
+function vecteursCriteres(w, P){
+  const nom = 'comparer deux vecteurs (8.1.13, 8.1.14) : la place, les six situations relues sur le dessin, la ligne du sens qui s\'ouvre sur la réponse de l\'élève, la justification, le soutien';
+  if(!P.vecteursCriteres){
+    ignorer(nom, 'ce niveau n\'a pas les exercices qui comparent deux vecteurs');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.vecteursCriteres)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+
+    /* ---- 0. la place : 8.1.13 et 8.1.14, après l'antécédent ; pas de tables */
+    if(TEST_NUM[D.criteres]!==D.numeros[0] || TEST_NUM[D.justifier]!==D.numeros[1]) vus.push('numéros '+TEST_NUM[D.criteres]+' et '+TEST_NUM[D.justifier]);
+    if(TEST_NUM['translation-antecedent']!=='8.1.12' || TEST_NUM['somme-vecteurs']!=='8.2.1') vus.push('un voisin du thème 8 a bougé');
+    [D.criteres, D.justifier].forEach(function(id){ if(TABLES_SANS.indexOf(id)<0) vus.push(id+' : le bouton des tables est proposé'); });
+    if(RAPPELS.vcr!==RAP_VCR || RAPPELS.vej!==RAP_VEJ || !QIA_SUGG.vcr || !QIA_SUGG.vej) vus.push('un rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant : les flèches relues sur le dessin -------- */
+    const lire=function(src){
+      const att=function(t, a){ const m=new RegExp('\\\\s'+a+'="([^"]*)"').exec(t); return m ? +m[1] : NaN; };
+      const fl={};
+      ['u','v'].forEach(function(n){
+        const l=(src.match(new RegExp('<line class="vcr-'+n+'"[^>]*>'))||[])[0], o=(src.match(new RegExp('<circle class="vcr-'+n+'-o"[^>]*>'))||[])[0];
+        if(!l || !o){ fl[n]=null; return; }
+        const x0=att(o,'cx'), y0=att(o,'cy'), x1=att(l,'x2'), y1=att(l,'y2'), d=Math.hypot(x1-x0, y1-y0);
+        /* la pointe s'arrête avant le nœud : on la prolonge jusqu'au nœud le plus proche */
+        const g=function(x){ return (x-VCR_P)/VCR_C; };
+        const ex=x1+(x1-x0)/d*3, ey=y1+(y1-y0)/d*3;
+        fl[n]={o:[g(x0), VCR_H-g(y0)], w:[Math.round(g(ex))-g(x0), -(Math.round(g(ey))-g(y0))], brut:[g(ex), g(ey)]};
+      });
+      return fl;
+    };
+    const juge=function(u, v){
+      const L=u[0]*u[0]+u[1]*u[1]===v[0]*v[0]+v[1]*v[1], Dd=u[0]*v[1]-u[1]*v[0]===0, S=Dd && u[0]*v[0]+u[1]*v[1]>0;
+      return {L:L, D:Dd, S:S, E:L&&Dd&&S};
+    };
+    const SIT={egaux:'LDS', oppose:'LD', 'plus-long':'DS', 'long-oppose':'D', direction:'L', 'dir-long':''};
+
+    /* ---- 1. le tirage : 200 séances, chaque question relue sur le dessin */
+    test.kind='vcr';
+    for(let s=0;s<200 && vus.length<4;s++){
+      const qs=vcrBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' questions au lieu de '+D.nb); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      const vues={};
+      qs.forEach(function(q){
+        const J=lire(vcrSvg(q));
+        if(!J.u || !J.v){ vus.push('une flèche manque au dessin'); return; }
+        ['u','v'].forEach(function(n){ const b=J[n].brut;
+          if(Math.abs(b[0]-Math.round(b[0]))>0.02 || Math.abs(b[1]-Math.round(b[1]))>0.02) vus.push('la pointe de '+n+' ne tombe pas sur un nœud');
+          const o=J[n].o, e=[o[0]+J[n].w[0], o[1]+J[n].w[1]];
+          if([o[0],e[0]].some(function(x){ return x<0 || x>VCR_W; }) || [o[1],e[1]].some(function(y){ return y<0 || y>VCR_H; })) vus.push('la flèche '+n+' sort du quadrillage');
+          if(J[n].w[0]*J[n].w[0]+J[n].w[1]*J[n].w[1]<4) vus.push('la flèche '+n+' fait moins de deux carreaux'); });
+        /* les deux flèches ne se touchent pas : l'une à gauche, l'autre à droite */
+        const xs=function(n){ return [J[n].o[0], J[n].o[0]+J[n].w[0]]; };
+        if(Math.max.apply(null, xs('u'))>=Math.min.apply(null, xs('v')) && Math.max.apply(null, xs('v'))>=Math.min.apply(null, xs('u'))) vus.push('les deux flèches se chevauchent');
+        const c=juge(J.u.w, J.v.w), p=vcrCrit(q), lu=(c.L?'L':'')+(c.D?'D':'')+(c.S?'S':'');
+        if(lu!==SIT[q.s]) vus.push('situation '+q.s+', le dessin dit « '+lu+' »');
+        if(c.L!==p.L || c.D!==p.D || c.S!==p.S || c.E!==p.E) vus.push('la page ne juge pas comme le dessin ('+q.s+')');
+        vues[q.s]=1;
+      });
+      if(Object.keys(vues).length!==6) vus.push('une séance de six ne montre pas les six situations : '+Object.keys(vues).join(' '));
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    const el=function(id){ return document.getElementById(id); };
+    const peint=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const cache=function(id){ return el(id).classList.contains('vcr-cache'); };
+    const choisir=function(id, v){ el(id).value=v; el(id).dispatchEvent(new Event('change')); };
+
+    /* ---- 2. le 8.1.13, par le BOUTON, sur deux questions fixes ----------
+       Q1 : u = (2 ; 1), v = (−2 ; −1) — opposés : V, V, F, F.
+       Q2 : u = (2 ; 1), v = (1 ; 2) — même longueur, pas parallèles : V, F, (sans objet), F. */
+    currentTestId=D.criteres; TESTS[D.criteres].start();
+    if(test.kind!=='vcr' || test.qId!==D.criteres) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
+    if(test.maxScore!==D.baremes[0]) vus.push('barème du 8.1.13 : '+test.maxScore+' au lieu de '+D.baremes[0]);
+    const Q1={s:'oppose', u:[1,2,2,1], v:[9,4,-2,-1]}, Q2={s:'direction', u:[1,2,2,1], v:[9,2,1,2]};
+    const poser=function(q, v){ test.questions[0]=JSON.parse(JSON.stringify(q)); test.idx=0; test.locked=false; renderVcrTest();
+      [1,0,2,3].forEach(function(k){ if(v[k]!=null){ choisir('vcr-'+k, v[k]); } }); };
+    const fb=function(k){ return el(k+'Feedback').textContent; };
+    poser(Q1, []);
+    if(!el('vcrInstr').classList.contains('enonce') || !/parallèles/.test(el('vcrInstr').textContent)) vus.push('l’énoncé n’est pas dans un .enonce, ou ne dit pas que la direction, c’est parallèle');
+    if(!/intuitivement, ils sont parallèles/.test(el('vcr-l-1').textContent)) vus.push('la ligne de la direction ne précise pas « intuitivement parallèles »');
+    if(!cache('vcr-l-2')) vus.push('la ligne du sens est ouverte avant toute réponse');
+    choisir('vcr-1', 'V');
+    if(cache('vcr-l-2')) vus.push('« Vrai » à la direction n’ouvre pas la ligne du sens');
+    if(el('vcr-num-3').textContent!=='4)') vus.push('la ligne des vecteurs égaux n’est pas numérotée 4) quand le sens est ouvert');
+    choisir('vcr-2', 'F'); choisir('vcr-1', 'F');
+    if(!cache('vcr-l-2') || el('vcr-2').value!=='') vus.push('« Faux » à la direction ne referme pas la ligne du sens, ou ne la vide pas');
+    if(el('vcr-num-3').textContent!=='3)') vus.push('la ligne des vecteurs égaux n’est pas renumérotée 3)');
+    /* la copie juste */
+    poser(Q1, ['V','V','F','F']); checkVcrAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct || der.cases!==4) vus.push('la copie juste de Q1 : '+JSON.stringify(der&&{c:der.correct, n:der.cases}));
+    if(!el('vcrNext')) vus.push('pas de bouton « Question suivante »');
+    if(!/sens contraires/.test(el('vcr-pq-2').textContent) || !/pas le même sens/.test(el('vcr-pq-3').textContent)) vus.push('les notes de Q1 : « '+el('vcr-pq-2').textContent+' », « '+el('vcr-pq-3').textContent+' »');
+    /* « Faux » à la direction : la ligne du sens s'ouvre à la correction, en vert */
+    poser(Q1, ['V','F',null,'F']); checkVcrAnswer();
+    if(peint('vcr-1')!=='rouge' || cache('vcr-l-2') || peint('vcr-2')!=='correction' || el('vcr-2').value!=='F') vus.push('Q1, direction dite fausse : direction '+peint('vcr-1')+', sens '+(cache('vcr-l-2')?'caché':peint('vcr-2')));
+    if(!/parallèles/.test(fb('vcr'))) vus.push('Q1, le message ne dit pas que les flèches sont parallèles : « '+fb('vcr').slice(0,140)+' »');
+    der=test.answers[test.answers.length-1];
+    if(der.cases!==4) vus.push('Q1 : la note compte '+der.cases+' cases au lieu de 4');
+    /* le piège de la longueur seule : « égaux » dit vrai */
+    poser(Q1, ['V','V','F','V']); checkVcrAnswer();
+    if(peint('vcr-3')!=='rouge' || !/pas le même sens/.test(fb('vcr'))) vus.push('Q1, « égaux » dit vrai : '+peint('vcr-3')+', « '+fb('vcr').slice(0,140)+' »');
+    /* Q2 : pas la même direction ; l'élève dit le contraire et ouvre le sens */
+    poser(Q2, ['V','V','V','F']); checkVcrAnswer();
+    if(peint('vcr-1')!=='rouge' || peint('vcr-2')!=='rien' || !el('vcr-2').disabled || !/Sans objet/.test(el('vcr-pq-2').textContent)) vus.push('Q2, le sens ouvert à tort : '+peint('vcr-2')+', note « '+el('vcr-pq-2').textContent+' »');
+    der=test.answers[test.answers.length-1];
+    if(der.cases!==3) vus.push('Q2 : la note compte '+der.cases+' cases au lieu de 3');
+    if(!/ne sont pas parallèles/.test(fb('vcr'))) vus.push('Q2, le message : « '+fb('vcr').slice(0,140)+' »');
+    poser(Q2, ['V','F',null,'F']); checkVcrAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der.correct || der.cases!==3 || !cache('vcr-l-2')) vus.push('la copie juste de Q2 : '+JSON.stringify({c:der.correct, n:der.cases})+(cache('vcr-l-2')?'':', le sens s’est ouvert'));
+    /* une copie vide n'a pas de rouge */
+    poser(Q1, []); checkVcrAnswer();
+    if(['vcr-0','vcr-1','vcr-2','vcr-3'].some(function(i){ return peint(i)==='rouge'; })) vus.push('la copie vide a du rouge');
+    /* la reprise : la direction remise par restoreBoxes rouvre le sens */
+    test.locked=false; renderVcrTest(); restoreBoxes({'vcr-1':'V','vcr-2':'F'}); vcrMaj();
+    if(cache('vcr-l-2') || el('vcr-2').value!=='F') vus.push('la reprise ne rouvre pas la ligne du sens');
+    /* le soutien : peint au fil des choix, sans révéler */
+    currentMode='soutien'; poser(Q1, []);
+    choisir('vcr-0', 'F');
+    if(peint('vcr-0')!=='rouge' || peint('vcr-3')!=='rien') vus.push('le soutien peint '+peint('vcr-0')+' la case choisie, '+peint('vcr-3')+' la vide');
+    checkVcrAnswer();
+    if(test.locked || el('vcr-pq-0').textContent) vus.push('la vérification du soutien verrouille ou révèle');
+    currentMode='train';
+    const ctx=ctxVcr(Q1).contexte;
+    if(!/SECR/.test(ctx) || !/parallèles/.test(ctx) || !/4\\) faux/.test(ctx)) vus.push('le contexte du 8.1.13 ne porte ni la clause de secret, ni la méthode, ni les réponses');
+
+    /* ---- 3. le 8.1.14 ----------------------------------------------------
+       Q3 : u = (2 ; 1), v = (1 ; 3) — ni la même direction, ni la même
+       longueur : deux justifications justes, jamais « pas le même sens ».
+       Q4 : u = v = (2 ; 1) — égaux. */
+    currentTestId=D.justifier; TESTS[D.justifier].start();
+    if(test.kind!=='vej' || test.qId!==D.justifier) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
+    if(test.maxScore!==D.baremes[1]) vus.push('barème du 8.1.14 : '+test.maxScore+' au lieu de '+D.baremes[1]);
+    const Q3={s:'dir-long', u:[1,2,2,1], v:[9,2,1,3]}, Q4={s:'egaux', u:[1,2,2,1], v:[9,4,2,1]};
+    const poserJ=function(q, v){ test.questions[0]=JSON.parse(JSON.stringify(q)); test.idx=0; test.locked=false; renderVejTest();
+      [0,1].forEach(function(k){ if(v[k]!=null) choisir('vej-'+k, v[k]); }); };
+    poserJ(Q3, []);
+    if(!/parallèles/.test(el('vejInstr').textContent)) vus.push('l’énoncé du 8.1.14 ne dit pas que la direction, c’est parallèle');
+    if(!cache('vej-l-1')) vus.push('la justification est ouverte avant toute réponse');
+    if(el('vej-1').options.length!==4 || !/pas parallèles/.test(el('vej-1').textContent)) vus.push('la liste des justifications : « '+el('vej-1').textContent+' »');
+    choisir('vej-0', 'F');
+    if(cache('vej-l-1')) vus.push('« Faux » n’ouvre pas la justification');
+    ['D','L'].forEach(function(j){ poserJ(Q3, ['F', j]); checkVejAnswer();
+      const d=test.answers[test.answers.length-1];
+      if(!d.correct || d.cases!==2) vus.push('Q3, la justification '+j+' est comptée fausse'); });
+    poserJ(Q3, ['F','S']); checkVejAnswer();
+    if(peint('vej-1')!=='rouge' || !/ne compare pas leur sens/.test(fb('vej'))) vus.push('Q3, « pas le même sens » : '+peint('vej-1')+', « '+fb('vej').slice(0,160)+' »');
+    if(!/Les deux justifications sont justes/.test(el('vej-pq-1').textContent)) vus.push('Q3, la note ne nomme pas les deux justifications : « '+el('vej-pq-1').textContent+' »');
+    poserJ(Q3, ['V']); checkVejAnswer();
+    if(peint('vej-0')!=='rouge' || cache('vej-l-1') || peint('vej-1')!=='correction') vus.push('Q3, « égaux » dit vrai : la justification ne s’ouvre pas en vert');
+    poserJ(Q4, ['F','L']); checkVejAnswer();
+    der=test.answers[test.answers.length-1];
+    if(peint('vej-0')!=='rouge' || peint('vej-1')!=='rien' || !el('vej-1').disabled || der.cases!==1) vus.push('Q4, égaux dits faux : la justification '+peint('vej-1')+', '+der.cases+' case(s)');
+    poserJ(Q4, ['V']); checkVejAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der.correct || der.cases!==1) vus.push('la copie juste de Q4');
+    const ctx2=ctxVej(Q3).contexte;
+    if(!/SECR/.test(ctx2) || !/pas la même longueur/.test(ctx2) || !/jamais une justification/.test(ctx2)) vus.push('le contexte du 8.1.14');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
