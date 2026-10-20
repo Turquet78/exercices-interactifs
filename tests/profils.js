@@ -1309,7 +1309,10 @@ module.exports = {
        (demande de Turquet, octobre 2026 : « comme en terminale »). La note du
        DEVOIR ENTIER, elle, n'est pas demandée ici : pas de « devoirEntier ». */
     notesDevoir: { exercice: 'pourcentage', tableParametres: 'parametres_2nde', tableResultats: 'resultats_2nde' },
-    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20,
+    /* {simplifier-barres} y est depuis octobre 2026 : son tirage écrivait
+       « 6 » en dur, la séance gardait six questions quelle que soit la
+       fiche — il lit dmNbQuestions() et DOIT s'allonger. */
+    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage', 'simplifier-barres'], nbQMax: 20,
       /* le barème est la SOMME des cases tirées, et chaque démonstration a
          les siennes (4 à 20) : six courtes peuvent peser autant que quatre
          longues. Le contrôle de l'exercice (demontrerChasles) tient le

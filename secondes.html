@@ -1595,10 +1595,29 @@
    L'étiquette a donc une largeur FIXE : « partagée en 40 » et « partagée en 5 »
    n'ont pas la même longueur, et sans elle les deux barres seraient décalées
    l'une par rapport à l'autre. */
-.smp-zone{display:flex;flex-direction:column;align-items:stretch;gap:14px;padding:4px 0 0}
+.smp-zone{display:flex;flex-direction:column;align-items:stretch;gap:14px;padding:4px 0 0;--smp-h:62px}
 .smp-ligne{display:flex;align-items:center;gap:14px}
-.smp-bar{position:relative;display:flex;flex:1 1 auto;max-width:1080px;height:62px;
+/* LA PILE prend la place que la barre prenait seule : la barre, et sur un
+   écran TACTILE ses deux boutons « − » et « + » dessous (décision de Turquet,
+   octobre 2026, audit T2/A3). Sur ordinateur la pile ne contient que la
+   barre, et rien ne bouge : les deux barres gardent la même longueur et le
+   même bord gauche, que le banc navigateur mesure. */
+.smp-pile{display:flex;flex-direction:column;align-items:stretch;flex:1 1 auto;max-width:1080px;min-width:0}
+.smp-bar{position:relative;display:flex;height:var(--smp-h);
   border:2.5px solid var(--ink);border-radius:10px;overflow:hidden;background:var(--surface)}
+/* Les boutons d'une barre : de vrais <button>, 44 px au moins — la taille
+   d'un doigt (WCAG 2.5.8). Ils ne se grisent qu'au VERROUILLAGE ; aux bornes
+   c'est le geste qui est borné (smpClicL, smpClicR), et le bouton reste
+   pressable sans effet. */
+.smp-pm-row{display:flex;gap:10px;margin-top:6px}
+.smp-pm{font-family:"Fredoka";font-weight:700;font-size:1.6rem;line-height:1;min-width:44px;min-height:44px;padding:0 16px;
+  border:2px solid var(--ink);border-radius:12px;background:var(--surface);color:var(--blue-dark);cursor:pointer;touch-action:manipulation}
+.smp-pm:disabled{opacity:.4;cursor:default}
+/* En rangée, l'étiquette et la fraction lue se centrent sur la BARRE, pas sur
+   la pile : sans quoi elles descendraient à la hauteur des boutons. */
+.smp-ligne.smp-tact{align-items:flex-start}
+.smp-tact .smp-lab,.smp-tact .smp-val{min-height:var(--smp-h)}
+.smp-tact .smp-lab{display:flex;align-items:center;justify-content:flex-end}
 .smp-bar .smp-seg{display:block;flex:1 1 0;margin:0;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer}
 .smp-bar .smp-seg+.smp-seg{border-left:2px solid var(--ink)}
 .smp-bar .smp-seg.on{background:#BBD0F7}
@@ -1621,15 +1640,20 @@
 .smp-donc{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;
   margin-top:12px;min-height:1.4em;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--ink)}
 @media(max-width:760px){ .smp-lab{flex-basis:96px;font-size:.85rem} .smp-val{flex-basis:66px;font-size:1.15rem}
-  .smp-bar{height:50px} .smp-ligne{gap:8px} }
+  .smp-zone{--smp-h:50px} .smp-ligne{gap:8px} }
 /* SUR UN TÉLÉPHONE, L'ÉTIQUETTE PASSE AU-DESSUS DE LA BARRE (audit d'octobre
    2026, T2). En ligne, l'étiquette (96 px) et la fraction lue (66 px) prenaient
    la moitié des 340 px de la carte : la barre « partagée en 20 » n'en gardait
    que 100, des parts de 4 px qu'aucun doigt ne vise. Empilées, les deux barres
    prennent toute la carte et partent toujours du même bord — c'est ce que
-   l'exercice compare. */
-@media(max-width:480px){ .smp-ligne{flex-direction:column;align-items:stretch;gap:4px}
-  .smp-lab{flex:none;text-align:left} .smp-bar{flex:none;width:100%} .smp-val{flex:none;justify-content:center;min-height:2.2em} }
+   l'exercice compare.
+   ET SUR UNE TABLETTE DEBOUT AUSSI (décision de Turquet, octobre 2026) : le
+   seuil est passé de 480 à 800 px. Mesuré au banc à 768 px : la barre passe
+   de 408 à 700 px — 40 parts de 10 px deviennent 40 parts de 17 px, et les
+   boutons « − » « + » font le reste. */
+@media(max-width:800px){ .smp-ligne,.smp-ligne.smp-tact{flex-direction:column;align-items:stretch;gap:4px}
+  .smp-ligne .smp-lab{flex:none;text-align:left;justify-content:flex-start;min-height:0} .smp-pile{flex:none;width:100%;max-width:none}
+  .smp-ligne .smp-val{flex:none;justify-content:center;min-height:2.2em} }
 #smpPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
 /* Les mêmes réglages que #sfHost, RECOPIÉS plutôt qu'ajoutés à ses sélecteurs :
    le bloc « sf » est le même texte dans les deux niveaux, et la Première n'a pas
@@ -58593,7 +58617,17 @@ async function startPF(){
    CINQ RÉPONSES PAR QUESTION, et les deux barres en font partie : elles
    portent la classe « pts-case » pour que la note AFFICHÉE compte ce que la
    note ENREGISTRÉE compte. Sans elle, l'écran annonçait « 3 cases justes sur 3 »
-   sur une question qui en vaut 5. */
+   sur une question qui en vaut 5.
+
+   SUR UN ÉCRAN TACTILE, CHAQUE BARRE A SES BOUTONS « − » ET « + » (décision de
+   Turquet, octobre 2026, sur le point T2/A3 de l'audit — option g). Une part
+   de 40 fait 17 px sur une tablette debout : un doigt n'en vise pas une.
+   Les deux boutons, sous la barre, colorient une part de plus ou de moins
+   par le MÊME geste que le toucher direct (smpPas → smpClicL/smpClicR), qui
+   reste permis ; la fraction lue à côté suit chaque pression. Ils ne se
+   montrent que si tabletteActive() — sur ordinateur, rien ne change — et se
+   grisent au verrouillage. Les gestes eux-mêmes sont BORNÉS à [0, b] et
+   [0, d] : sans la borne, smpClicL(41) posait selL = 41 sur 40 parts. */
 /* Le dénominateur de départ va de 4 à 40 (demande de Turquet, août 2026).
    40 est la borne du DESSIN : à 1080 px de barre, une part fait encore 27 px ;
    au-delà elle cesse d'être cliquable. Les deux vont ensemble — élargir le
@@ -58609,16 +58643,21 @@ function smpGen(){
   const n=pick(ns);
   return { a:n*k, b:d*k, n:n, d:d, k:k, selL:0, selR:0 };
 }
-/* Série sans répétition : les 6 fractions d'un même test sont différentes. Le
-   garde-fou évite toute boucle infinie si le vivier venait à rétrécir. */
+/* Série sans répétition : les fractions d'un même test sont différentes. Le
+   garde-fou évite toute boucle infinie si le vivier venait à rétrécir.
+   Le NOMBRE de questions se lit au tirage (dmNbQuestions) : depuis un devoir,
+   le réglage « Questions » allonge la séance — la coupe ne sait que réduire
+   (règle de septembre 2026, « 6 » était écrit en dur ici jusqu'en octobre). Le
+   barème suit : startSmp pose maxScore sur ce qui a été tiré. */
 function smpBuildQuestions(){
+  const nb=dmNbQuestions(6);
   const vus=new Set(), qs=[]; let garde=400;
-  while(qs.length<6 && garde-->0){
+  while(qs.length<nb && garde-->0){
     const q=smpGen(), s=q.a+'/'+q.b;
     if(vus.has(s)) continue;
     vus.add(s); qs.push(q);
   }
-  while(qs.length<6) qs.push(smpGen());
+  while(qs.length<nb) qs.push(smpGen());
   return qs;
 }
 /* La même fraction empilée que partout ailleurs, et par la MÊME fonction :
@@ -58642,10 +58681,19 @@ function renderSmpTest(){
     '<div class="smp-seg'+(i<sel?' on':'')+'" onclick="'+fn+'('+(i+1)+')"'+segAttr('partagée en '+nb+' : ',i,nb,i<sel)+'></div>').join('');
   /* Étiquette, barre, puis la fraction que l'élève vient de colorier. Les deux
      lignes l'une SOUS l'autre : c'est ce qui met les deux longueurs coloriées
-     bout à bout dans le regard. */
-  const ligne=(lab,idBar,nb,sel,fn,idVal,val)=>
-    '<div class="smp-ligne"><div class="smp-lab">'+lab+'</div>'
-     +'<div class="smp-bar pts-case" id="'+idBar+'">'+seg(nb,sel,fn)+'</div>'
+     bout à bout dans le regard.
+     Sur un écran TACTILE, la barre reçoit sous elle ses deux boutons « − » et
+     « + » (tabletteActive — le banc force l'écran par window.__tabletteForce) :
+     de vrais <button>, nommés pour un lecteur d'écran, 44 px au moins. */
+  const tact=(typeof tabletteActive==='function') && tabletteActive();
+  const pm=(cote,nb)=> !tact ? '' :
+    '<div class="smp-pm-row" data-cote="'+cote+'">'
+     +'<button type="button" class="smp-pm" data-pas="-1" onclick="smpPas(\''+cote+'\',-1)" aria-label="une part de moins sur la barre partagée en '+nb+'">−</button>'
+     +'<button type="button" class="smp-pm" data-pas="1" onclick="smpPas(\''+cote+'\',1)" aria-label="une part de plus sur la barre partagée en '+nb+'">+</button>'
+    +'</div>';
+  const ligne=(lab,idBar,nb,sel,fn,idVal,val,cote)=>
+    '<div class="smp-ligne'+(tact?' smp-tact':'')+'"><div class="smp-lab">'+lab+'</div>'
+     +'<div class="smp-pile"><div class="smp-bar pts-case" id="'+idBar+'">'+seg(nb,sel,fn)+'</div>'+pm(cote,nb)+'</div>'
      +'<div class="smp-val" id="'+idVal+'">'+val+'</div></div>';
   /* Toute case est ENVELOPPÉE (.sf-case) : la correction du mode entraînement
      s'insère juste après elle, et posée nue dans une fraction elle en
@@ -58655,9 +58703,9 @@ function renderSmpTest(){
     '<div class="pt-step"><div class="pt-lab">Méthode 1 : la même longueur, partagée autrement</div>'
      +'<div class="smp-zone">'
        +ligne('partagée en '+q.b,'smpBarL',q.b,q.selL,'smpClicL','smpValL',
-              q.selL?smpFracHTML(q.selL,q.b):'…')
+              q.selL?smpFracHTML(q.selL,q.b):'…','L')
        +ligne('partagée en '+q.d,'smpBarR',q.d,q.selR,'smpClicR','smpValR',
-              q.selR?smpFracHTML(q.selR,q.d):'…')
+              q.selR?smpFracHTML(q.selR,q.d):'…','R')
      +'</div>'
      +'<div class="smp-donc" id="smpDonc"></div></div>'
     +'<div class="pt-step"><div class="pt-lab">Méthode 2 : divise en haut ET en bas par le même nombre</div>'
@@ -58692,10 +58740,28 @@ function smpMajCol(){
   $('smpValL').innerHTML = q.selL ? smpFracHTML(q.selL,q.b) : '…';
   $('smpValR').innerHTML = q.selR ? smpFracHTML(q.selR,q.d) : '…';
 }
+/* BORNÉS à [0, b] et [0, d] : la barre n'a que b parts, et « une de moins »
+   sur une barre vide la laisse vide. Sans la borne, smpClicL(41) posait
+   selL = 41 sur 40 parts — rien ne le montrait tant que seul un segment
+   pouvait appeler le geste ; les boutons « − » « + » l'appellent hors de la
+   barre. La borne porte sur le RÉSULTAT du geste, pas sur l'argument : recliquer
+   la part 1 d'une barre coloriée d'une part doit la vider, pas la laisser. */
 function smpClicL(i){ if(test.locked) return; const q=test.questions[test.idx];
-  q.selL=(q.selL===i?i-1:i); smpMajCol(); autoSave(); if(isSoutien()) checkSmpAnswer(true); }
+  i=Math.round(Number(i)); if(!Number.isFinite(i)) return;
+  q.selL=Math.max(0,Math.min(q.b,(q.selL===i?i-1:i))); smpMajCol(); autoSave(); if(isSoutien()) checkSmpAnswer(true); }
 function smpClicR(i){ if(test.locked) return; const q=test.questions[test.idx];
-  q.selR=(q.selR===i?i-1:i); smpMajCol(); autoSave(); if(isSoutien()) checkSmpAnswer(true); }
+  i=Math.round(Number(i)); if(!Number.isFinite(i)) return;
+  q.selR=Math.max(0,Math.min(q.d,(q.selR===i?i-1:i))); smpMajCol(); autoSave(); if(isSoutien()) checkSmpAnswer(true); }
+/* Les boutons des écrans tactiles : une part de plus (+1) ou de moins (−1),
+   par le MÊME geste que le toucher de la barre — borné par lui. */
+function smpPas(cote,delta){
+  const q=test.questions[test.idx]; if(!q) return;
+  if(cote==='R') smpClicR(q.selR+delta); else smpClicL(q.selL+delta);
+}
+/* Au verrouillage, les boutons se grisent ; smpClicL/R refusent déjà le geste. */
+function smpBoutons(){
+  document.querySelectorAll('#smpHost .smp-pm').forEach(function(b){ b.disabled=!!test.locked; });
+}
 /* UNE COLONNE LAISSÉE VIDE NE ROUGIT PAS. Rouge veut dire FAUX ; une colonne
    que l'élève n'a pas coloriée n'est pas une erreur, elle reçoit la correction
    en vert comme une case de saisie. C'est la règle que la Seconde a réapprise
@@ -58758,7 +58824,7 @@ function checkSmpAnswer(live){
      message — une case vide n'est pas une erreur de calcul. */
   const allOk = justes===5;
   if(!allOk && soutien){ soutienAgain('smpFeedback','smpActions','checkSmpAnswer','smpHost'); return; }
-  test.locked=true;
+  test.locked=true; smpBoutons();
   test.score+=justes; $('smpLiveScore').textContent=test.score;
   if(allOk){
     $('smpFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']);

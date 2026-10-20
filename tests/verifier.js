@@ -51444,6 +51444,72 @@ function simplifierBarres(w, P){
     if(r.correct) vus.push('une copie à laquelle il manque une réponse est comptée terminée');
     if(r.justes!==4) vus.push('la demi-copie juste vaut '+r.justes+' au lieu de 4');
 
+    /* ---- 5. LES GESTES SONT BORNÉS (décision de Turquet, octobre 2026, audit
+       T2/A3, option g). Sans la borne, smpClicL(41) posait selL = 41 sur 40
+       parts : rien ne le montrait tant que seul un segment de la barre
+       pouvait appeler le geste ; les boutons « − » « + » l\\'appellent hors
+       de la barre et l\\'auraient trouvé aussitôt. ---------------------- */
+    test.locked=false; renderSmpTest();
+    const qb=test.questions[test.idx];
+    qb.selL=0; qb.selR=0;
+    smpClicL(qb.b+1); if(qb.selL!==qb.b) vus.push('smpClicL('+(qb.b+1)+') pose selL = '+qb.selL+' sur une barre de '+qb.b+' parts');
+    smpClicL(qb.b+7); if(qb.selL!==qb.b) vus.push('une part de plus sur une barre pleine pose selL = '+qb.selL+' (attendu '+qb.b+')');
+    qb.selL=0; smpClicL(-1); if(qb.selL!==0) vus.push('smpClicL(-1) sur une barre vide pose selL = '+qb.selL);
+    smpClicL(0); if(qb.selL!==0) vus.push('smpClicL(0) sur une barre vide pose selL = '+qb.selL);
+    smpClicL('abc'); if(qb.selL!==0) vus.push('smpClicL(\\'abc\\') pose selL = '+qb.selL);
+    smpClicR(qb.d+5); if(qb.selR!==qb.d) vus.push('smpClicR('+(qb.d+5)+') pose selR = '+qb.selR+' sur une barre de '+qb.d+' parts');
+    smpClicR(-3); if(qb.selR!==0) vus.push('smpClicR(-3) pose selR = '+qb.selR);
+    /* et le geste ordinaire n\\'a pas changé : la part i colorie jusqu\\'à i,
+       recliquer la dernière efface d\\'un cran, jusqu\\'à vider la barre */
+    qb.selL=0; smpClicL(5); if(qb.selL!==5) vus.push('cliquer la part 5 colorie '+qb.selL+' part(s)');
+    smpClicL(5); if(qb.selL!==4) vus.push('recliquer la dernière part laisse '+qb.selL+' au lieu de 4');
+    smpClicL(1); smpClicL(1); if(qb.selL!==0) vus.push('recliquer la part 1 seule coloriée laisse '+qb.selL+' au lieu de vider la barre');
+    if(((document.getElementById('smpValL')||{}).textContent||'').indexOf('…')<0) vus.push('une barre vidée ne relit pas « … » à côté');
+
+    /* ---- 6. LES BOUTONS « − » « + » DES ÉCRANS TACTILES : absents au
+       pointeur fin, présents et nommés en tactile, le pas passe par le geste
+       borné, la fraction lue suit, et le verrouillage les grise. La taille
+       (44 px) se mesure au banc navigateur. ------------------------------ */
+    delete window.__tabletteForce;
+    renderSmpTest();
+    const nbFin=document.querySelectorAll('#smpHost .smp-pm').length;
+    if(nbFin!==0) vus.push('sur ordinateur, '+nbFin+' bouton(s) « − » « + » apparaissent sous les barres');
+    window.__tabletteForce=true;
+    try{
+      renderSmpTest();
+      const q2=test.questions[test.idx]; q2.selL=0; q2.selR=0; smpMajCol();
+      const btn=function(cote,pas){ return document.querySelector('#smpHost .smp-pm-row[data-cote="'+cote+'"] .smp-pm[data-pas="'+pas+'"]'); };
+      const bL=btn('L',1), bLm=btn('L',-1), bR=btn('R',1), bRm=btn('R',-1);
+      const tous=document.querySelectorAll('#smpHost .smp-pm').length;
+      if(!bL||!bLm||!bR||!bRm||tous!==4) vus.push('en tactile, il manque un bouton : '+tous+' en tout, [−L, +L, −R, +R] = '+[bLm,bL,bRm,bR].map(function(b){ return b?'ok':'absent'; }).join(' '));
+      else {
+        if(bL.tagName!=='BUTTON'||bL.getAttribute('type')!=='button') vus.push('le bouton « + » n\\'est pas un <button type="button"> : '+bL.tagName+' '+bL.getAttribute('type'));
+        [[bL,'une part de plus sur la barre partagée en '+q2.b],[bLm,'une part de moins sur la barre partagée en '+q2.b],
+         [bR,'une part de plus sur la barre partagée en '+q2.d],[bRm,'une part de moins sur la barre partagée en '+q2.d]].forEach(function(pr){
+          if(pr[0].getAttribute('aria-label')!==pr[1]) vus.push('un bouton se nomme « '+pr[0].getAttribute('aria-label')+' » au lieu de « '+pr[1]+' »'); });
+        const luL=function(){ return ((document.getElementById('smpValL')||{}).textContent||'').replace(/\\s/g,''); };
+        bL.click(); bL.click();
+        if(q2.selL!==2) vus.push('deux pressions sur « + » colorient '+q2.selL+' part(s) au lieu de 2');
+        if(document.querySelectorAll('#smpBarL .smp-seg.on').length!==2) vus.push('après deux « + », '+document.querySelectorAll('#smpBarL .smp-seg.on').length+' part(s) peinte(s)');
+        if(luL()!=='2/'+q2.b) vus.push('après deux « + », on lit « '+luL()+' » à côté de la 1re barre au lieu de 2/'+q2.b);
+        bLm.click(); if(q2.selL!==1) vus.push('« − » après deux « + » laisse '+q2.selL+' part(s)');
+        bLm.click(); bLm.click(); if(q2.selL!==0) vus.push('« − » sur une barre vide pose selL = '+q2.selL);
+        if(luL()!=='…') vus.push('une barre vidée au bouton relit « '+luL()+' » au lieu de « … »');
+        q2.selL=q2.b-1; smpMajCol(); bL.click(); if(q2.selL!==q2.b) vus.push('« + » sur la dernière part laisse '+q2.selL+' au lieu de '+q2.b);
+        bL.click(); if(q2.selL!==q2.b) vus.push('« + » sur une barre pleine pose selL = '+q2.selL+' ('+q2.b+' parts)');
+        if(luL()!==q2.b+'/'+q2.b) vus.push('barre pleine, on lit « '+luL()+' » au lieu de '+q2.b+'/'+q2.b);
+        bR.click(); if(q2.selR!==1) vus.push('« + » de la 2de barre colorie '+q2.selR+' part(s)');
+        bRm.click(); bRm.click(); if(q2.selR!==0) vus.push('« − » de la 2de barre vide pose selR = '+q2.selR);
+        /* au verrouillage, les boutons sont inactifs : la copie juste verrouille */
+        q2.selL=8; q2.selR=2; smpMajCol();
+        CASES.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(id==='smp-fn')?'2':'4'; });
+        checkSmpAnswer();
+        if(!test.locked) vus.push('la copie juste ne verrouille pas la question');
+        if(!(bL.disabled&&bLm.disabled&&bR.disabled&&bRm.disabled)) vus.push('au verrouillage, des boutons « − » « + » restent actifs');
+        bL.click(); bRm.click(); if(q2.selL!==8||q2.selR!==2) vus.push('un bouton pressé après le verrouillage change le coloriage : '+q2.selL+' / '+q2.selR);
+      }
+    } finally { delete window.__tabletteForce; }
+
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

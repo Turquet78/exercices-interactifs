@@ -1699,3 +1699,15 @@ gauche à droite, 7 4 1, 8 5 2, 9 6 3 chacun dans une colonne de haut en bas,
 et le 0 dessous. Le même contrôle tape désormais le code au pavé jusqu'au
 dernier chiffre, qui connecte l'élève (paragraphe « Le dernier chiffre du code
 lance la connexion », journal 01).
+
+**Puis, sur une TABLETTE DEBOUT, les barres du 5.1 de la Seconde ont pris la
+carte.** La règle du téléphone qui empile l'étiquette au-dessus de la barre
+(audit T2, octobre 2026) ne jouait que sous 480 px : à 768 px, étiquette et
+fraction lue restaient EN LIGNE, et la barre « partagée en 40 » n'avait que
+408 px — des parts de 10 px. Décision de Turquet (octobre 2026) : le seuil
+monte à 800 px. Mesuré au banc à 768 px : 700 px de barre, des parts de 17 px,
+l'étiquette au-dessus, les deux barres à la même longueur et au même bord. Sur
+une tablette couchée la rangée reste, et les boutons « − » « + » (journal 07)
+tiennent le doigt. Contrôle : « sur une tablette debout (768 px), la barre
+prend la carte : 600 px au moins, l'étiquette au-dessus » (banc navigateur,
+6 sexdecies) ; éprouvé en remettant 480 : 408 px, étiquette à côté, rouge.

@@ -8180,7 +8180,120 @@ if(require.main === module) (async () => {
 
       verifier('les deux barres vont exactement aussi loin',
         dits.length === 0, dits.slice(0, 3).join(' | '));
+      /* 3. SUR ORDINATEUR, AUCUN BOUTON « − » « + » : ils sont faits pour le
+            doigt, et rien ne change au pointeur fin. */
+      const finPm = await s.page.evaluate(() => document.querySelectorAll('#smpHost .smp-pm').length);
+      verifier('sur ordinateur, les barres n\'ont aucun bouton « − » « + »',
+        finPm === 0, finPm + ' bouton(s) sous les barres au pointeur fin');
       verifier('l\'écran des deux barres ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+
+      /* 4. SUR UN ÉCRAN TACTILE, CHAQUE BARRE A SES BOUTONS « − » ET « + »
+            (décision de Turquet, octobre 2026, audit T2/A3, option g) : de
+            vrais boutons de 44 px au moins, SOUS la barre, qui colorient une
+            part de plus ou de moins et s'arrêtent aux bornes ; la fraction
+            lue à côté suit chaque pression ; le toucher direct de la barre
+            reste permis ; au verrouillage, ils se grisent. Le banc force
+            l'écran tactile comme la section 11 bis : window.__tabletteForce,
+            la requête média appartenant au navigateur. */
+      s = await ouvrir(chromium, ml, { viewport: { width: 1180, height: 820 }, hasTouch: true });
+      await connecter(s.page);
+      await s.page.evaluate(() => { window.__tabletteForce = true; });
+      await s.page.evaluate(id => openTest(id), P.barresSimplifier.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(1200);
+      const ditsT = [];
+      const mesPm = await s.page.evaluate(() => {
+        const out = { barres: 0, boutons: [] };
+        ['smpBarL', 'smpBarR'].forEach(id => {
+          const bar = document.getElementById(id); if(!bar) return; out.barres++;
+          const rb = bar.getBoundingClientRect();
+          [...bar.parentElement.querySelectorAll('.smp-pm')].forEach(b => { const r = b.getBoundingClientRect();
+            out.boutons.push({ barre: id, pas: b.dataset.pas, w: Math.round(r.width), h: Math.round(r.height),
+                               sous: r.top >= rb.bottom - 1 && r.left >= rb.left - 1,
+                               tag: b.tagName, type: b.getAttribute('type'), label: b.getAttribute('aria-label') || '' }); });
+        });
+        return out;
+      });
+      if(mesPm.barres !== 2) ditsT.push('les barres sont absentes');
+      ['smpBarL', 'smpBarR'].forEach(id => { const b = mesPm.boutons.filter(x => x.barre === id);
+        if(b.length !== 2 || !b.some(x => x.pas === '1') || !b.some(x => x.pas === '-1'))
+          ditsT.push(id + ' : ' + b.length + ' bouton(s) au lieu de « − » et « + »'); });
+      mesPm.boutons.forEach(b => {
+        const nom = '« ' + (b.pas === '1' ? '+' : '−') + ' » de ' + b.barre;
+        if(b.w < 44 || b.h < 44) ditsT.push('le bouton ' + nom + ' fait ' + b.w + ' × ' + b.h + ' px (44 au moins)');
+        if(!b.sous) ditsT.push('le bouton ' + nom + ' n\'est pas sous sa barre');
+        if(b.tag !== 'BUTTON' || b.type !== 'button') ditsT.push('le bouton ' + nom + ' est un ' + b.tag + ' ' + b.type);
+        if(!/^une part de (plus|moins) sur la barre partagée en \d+$/.test(b.label)) ditsT.push('le bouton ' + nom + ' se nomme « ' + b.label + ' »');
+      });
+      const selPm = (cote, pas) => '#smpHost .smp-pm-row[data-cote="' + cote + '"] .smp-pm[data-pas="' + pas + '"]';
+      const etatBarres = () => s.page.evaluate(() => { const q = test.questions[test.idx];
+        const lu = id => ((document.getElementById(id) || {}).textContent || '').replace(/\s/g, '');
+        return { selL: q.selL, selR: q.selR, b: q.b, d: q.d, luL: lu('smpValL'), luR: lu('smpValR'),
+                 onL: document.querySelectorAll('#smpBarL .smp-seg.on').length, onR: document.querySelectorAll('#smpBarR .smp-seg.on').length }; });
+      if(ditsT.length === 0){
+        /* « + » colorie une part de plus, la fraction lue suit */
+        await s.page.click(selPm('L', 1)); await s.page.click(selPm('L', 1));
+        let e = await etatBarres();
+        if(e.selL !== 2 || e.onL !== 2) ditsT.push('deux pressions sur « + » colorient ' + e.selL + ' part(s), ' + e.onL + ' peinte(s)');
+        if(e.luL !== '2/' + e.b) ditsT.push('après deux « + », on lit « ' + e.luL + ' » au lieu de 2/' + e.b);
+        /* « − » en retire une, et s'arrête à 0 */
+        await s.page.click(selPm('L', -1)); e = await etatBarres();
+        if(e.selL !== 1 || e.onL !== 1) ditsT.push('« − » après deux « + » laisse ' + e.selL + ' part(s), ' + e.onL + ' peinte(s)');
+        await s.page.click(selPm('L', -1)); await s.page.click(selPm('L', -1)); e = await etatBarres();
+        if(e.selL !== 0 || e.onL !== 0 || e.luL !== '…') ditsT.push('« − » sur une barre vide : selL = ' + e.selL + ', ' + e.onL + ' peinte(s), on lit « ' + e.luL + ' »');
+        /* « + » s'arrête à b */
+        await s.page.evaluate(() => { const q = test.questions[test.idx]; q.selL = q.b - 1; smpMajCol(); });
+        await s.page.click(selPm('L', 1)); await s.page.click(selPm('L', 1)); e = await etatBarres();
+        if(e.selL !== e.b || e.onL !== e.b) ditsT.push('« + » sur une barre pleine : selL = ' + e.selL + ', ' + e.onL + ' peinte(s), pour ' + e.b + ' parts');
+        if(e.luL !== e.b + '/' + e.b) ditsT.push('barre pleine, on lit « ' + e.luL + ' » au lieu de ' + e.b + '/' + e.b);
+        /* la barre de droite aussi — et le toucher DIRECT de la barre reste permis */
+        await s.page.click(selPm('R', 1)); e = await etatBarres();
+        if(e.selR !== 1 || e.luR !== '1/' + e.d) ditsT.push('« + » de la 2de barre : selR = ' + e.selR + ', on lit « ' + e.luR + ' »');
+        await s.page.tap('#smpBarR .smp-seg:nth-child(2)'); e = await etatBarres();
+        if(e.selR !== 2 || e.onR !== 2) ditsT.push('le toucher direct de la 2e part ne colorie plus : selR = ' + e.selR + ', ' + e.onR + ' peinte(s)');
+        for(let i = 0; i < 3; i++) await s.page.click(selPm('R', -1));
+        e = await etatBarres();
+        if(e.selR !== 0 || e.luR !== '…') ditsT.push('trois « − » sur deux parts : selR = ' + e.selR + ', on lit « ' + e.luR + ' »');
+        /* au verrouillage, les boutons sont inactifs */
+        const verrou = await s.page.evaluate(() => { const q = test.questions[test.idx];
+          q.selL = q.a; q.selR = q.n; smpMajCol();
+          ['smp-q1', 'smp-q2'].forEach(id => { document.getElementById(id).value = String(q.k); });
+          document.getElementById('smp-fn').value = String(q.n);
+          checkSmpAnswer();
+          const bts = [...document.querySelectorAll('#smpHost .smp-pm')];
+          return { locked: test.locked, n: bts.length, inactifs: bts.every(b => b.disabled) }; });
+        if(!verrou.locked) ditsT.push('la copie juste ne verrouille pas la question');
+        if(verrou.n !== 4 || !verrou.inactifs) ditsT.push('au verrouillage, des boutons « − » « + » restent actifs (' + verrou.n + ' boutons)');
+      }
+      verifier('en tactile, chaque barre a ses boutons « − » « + » de 44 px, qui colorient une part de plus ou de moins dans les bornes',
+        ditsT.length === 0, ditsT.slice(0, 3).join(' | '));
+
+      /* 5. SUR UNE TABLETTE DEBOUT (768 px), L'ÉTIQUETTE PASSE AU-DESSUS ET LA
+            BARRE PREND LA CARTE : le seuil de la règle du téléphone est monté
+            de 480 à 800 px (même décision). Mesuré avant : 364 px ; après :
+            656 px. Les deux barres gardent la même longueur et le même bord. */
+      await s.page.setViewportSize({ width: 768, height: 1024 });
+      await s.page.waitForTimeout(400);
+      const debout = await s.page.evaluate(() => {
+        const L = document.getElementById('smpBarL'), R = document.getElementById('smpBarR'); if(!L || !R) return null;
+        const a = L.getBoundingClientRect(), b = R.getBoundingClientRect();
+        const lab = L.closest('.smp-ligne').querySelector('.smp-lab').getBoundingClientRect();
+        const val = document.getElementById('smpValL').getBoundingClientRect();
+        const seg = L.querySelector('.smp-seg');
+        return { lG: Math.round(a.width), lD: Math.round(b.width), xG: Math.round(a.left), xD: Math.round(b.left),
+                 dessus: lab.bottom <= a.top + 1, parts: L.querySelectorAll('.smp-seg').length,
+                 /* et la fraction lue se centre SOUS la barre, au lieu de rester collée au bord gauche */
+                 ecartVal: Math.round(Math.abs((val.left + val.right) / 2 - (a.left + a.right) / 2)),
+                 lSeg: seg ? Math.round(seg.getBoundingClientRect().width * 10) / 10 : 0 }; });
+      verifier('sur une tablette debout (768 px), la barre prend la carte : 600 px au moins, l\'étiquette au-dessus',
+        !!debout && debout.lG >= 600 && debout.lD >= 600 && debout.lG === debout.lD && debout.xG === debout.xD && debout.dessus && debout.ecartVal <= 40,
+        debout ? (debout.lG + ' / ' + debout.lD + ' px de barre, bords ' + debout.xG + ' / ' + debout.xD + ', étiquette '
+                  + (debout.dessus ? 'au-dessus' : 'à côté') + ', fraction lue à ' + debout.ecartVal + ' px du milieu, '
+                  + debout.parts + ' parts de ' + debout.lSeg + ' px') : 'barres absentes');
+      verifier('l\'écran des deux barres en tactile ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
