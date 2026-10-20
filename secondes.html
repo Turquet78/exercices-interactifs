@@ -32063,8 +32063,11 @@ function checkHSAnswer(live){
     [$('hsVn'),$('hsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
   }
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  marqueFracSaufVide('hs1n','hs1d',q.P1,100,soutien); marqueSaufVide('hs1p',ok1p,soutien); marqueSaufVide('hs1dec',ok1d,soutien);
-  marqueFracSaufVide('hs2n','hs2d',q.P2,100,soutien); marqueSaufVide('hs2p',ok2p,soutien); marqueSaufVide('hs2dec',ok2d,soutien);
+  /* les P/100 de l'étape ① passent par le juge du 4.2.1 : le P écrit seul reste
+     bleu, le dénominateur se juge seul — la convention « vide vaut 1 » reste
+     aux coefficients et au produit (décision de Turquet, octobre 2026) */
+  marqueFracPaire('hs1n','hs1d',q.P1,100,soutien); marqueSaufVide('hs1p',ok1p,soutien); marqueSaufVide('hs1dec',ok1d,soutien);
+  marqueFracPaire('hs2n','hs2d',q.P2,100,soutien); marqueSaufVide('hs2p',ok2p,soutien); marqueSaufVide('hs2dec',ok2d,soutien);
   marqueFracSaufVide('hsAn','hsAd',hsTgA.num,hsTgA.den,soutien); marqueFracSaufVide('hsBn','hsBd',hsTgB.num,hsTgB.den,soutien);
   marqueFracSaufVide('hsPn','hsPd',q.prodNum,q.prodDen,soutien); marqueSaufVide('hsDec',okC,soutien); marqueSaufVide('hsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;
@@ -32299,10 +32302,12 @@ function checkHSCAnswer(live){
   const ok2f=fracOk('hsc2n','hsc2d',q.P2,100),  ok2m=decEst('hsc2m',a.v1);
   const ok2p=fracOk('hsc2pn','hsc2pd',a.prod2,100), ok2a=decEst('hsc2a',a.aug2), ok2r=decEst('hsc2sr',a.v2);
   const okFin=decEst('hscFin',a.v2), okPour=decEst('hscPour',a.h), okPct=decEst('hscPct',a.h);
-  marqueFracSaufVide('hsc1n','hsc1d',q.P1,100,soutien);   marqueSaufVide('hsc1m',ok1m,soutien);
+  /* les P/100 : le juge du 4.2.1 (marqueFracPaire) ; les fractions PRODUIT
+     gardent « vide vaut 1 » — 2000/100 = 20, et « 20 » seul y est juste */
+  marqueFracPaire('hsc1n','hsc1d',q.P1,100,soutien);     marqueSaufVide('hsc1m',ok1m,soutien);
   marqueFracSaufVide('hsc1pn','hsc1pd',a.prod1,100,soutien); marqueSaufVide('hsc1a',ok1a,soutien);
   marqueSaufVide('hsc1sa',s1.ok[0],soutien); marqueSaufVide('hsc1sb',s1.ok[1],soutien); marqueSaufVide('hsc1sr',ok1r,soutien);
-  marqueFracSaufVide('hsc2n','hsc2d',q.P2,100,soutien);   marqueSaufVide('hsc2m',ok2m,soutien);
+  marqueFracPaire('hsc2n','hsc2d',q.P2,100,soutien);    marqueSaufVide('hsc2m',ok2m,soutien);
   marqueFracSaufVide('hsc2pn','hsc2pd',a.prod2,100,soutien); marqueSaufVide('hsc2a',ok2a,soutien);
   marqueSaufVide('hsc2sa',s2.ok[0],soutien); marqueSaufVide('hsc2sb',s2.ok[1],soutien); marqueSaufVide('hsc2sr',ok2r,soutien);
   marqueSaufVide('hscFin',okFin,soutien); marqueSaufVide('hscPour',okPour,soutien); marqueSaufVide('hscPct',okPct,soutien);
@@ -32600,8 +32605,9 @@ function checkBSAnswer(live){
     [$('bsVn'),$('bsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
   }
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  marqueFracSaufVide('bs1n','bs1d',q.P1,100,soutien); marqueSaufVide('bs1p',ok1p,soutien); marqueSaufVide('bs1dec',ok1d,soutien);
-  marqueFracSaufVide('bs2n','bs2d',q.P2,100,soutien); marqueSaufVide('bs2p',ok2p,soutien); marqueSaufVide('bs2dec',ok2d,soutien);
+  /* les P/100 de l'étape ① : le juge du 4.2.1 (marqueFracPaire), comme au 4.2.7 */
+  marqueFracPaire('bs1n','bs1d',q.P1,100,soutien); marqueSaufVide('bs1p',ok1p,soutien); marqueSaufVide('bs1dec',ok1d,soutien);
+  marqueFracPaire('bs2n','bs2d',q.P2,100,soutien); marqueSaufVide('bs2p',ok2p,soutien); marqueSaufVide('bs2dec',ok2d,soutien);
   marqueFracSaufVide('bsAn','bsAd',bsTgA.num,bsTgA.den,soutien); marqueFracSaufVide('bsBn','bsBd',bsTgB.num,bsTgB.den,soutien);
   marqueFracSaufVide('bsPn','bsPd',q.prodNum,q.prodDen,soutien); marqueSaufVide('bsDec',okC,soutien); marqueSaufVide('bsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;

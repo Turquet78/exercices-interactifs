@@ -418,9 +418,12 @@ capture (août 2026, le 1.7 en soutien) : sur « 0,04 × 17 », le 4 tapé au
 numérateur ROUGISSAIT pendant que l'élève écrivait son dénominateur. Quatre
 exercices de la Première acceptent un facteur ENTIER en laissant son
 dénominateur vide (vide vaut 1 au contrôle final : le 17 de 0,04 × 17) —
-1.7, 1.8, 2.2.7, 2.3.7 — et leur correction en direct appliquait cette
-convention au numérateur en cours de frappe : 4/1 se comparait à 4/100, et
-rougissait. La règle des paires, encore, une case plus loin : un numérateur
+1.7 et 1.8 pour leurs facteurs, 2.2.7 et 2.3.7 pour leurs fractions de
+COEFFICIENT et de PRODUIT seulement (leurs P/100 ne sont PAS des entiers
+possibles, et ont quitté cette convention en octobre 2026 — voir en fin de
+fichier) — et leur correction en direct appliquait cette convention au
+numérateur en cours de frappe : 4/1 se comparait à 4/100, et rougissait.
+La règle des paires, encore, une case plus loin : un numérateur
 seul se juge sur sa PROMESSE — « ok » s'il est déjà juste en entier, RIEN
 s'il peut encore mener à une fraction égale, rouge seulement s'il ne mène
 nulle part (aux fractions « toute écriture égale acceptée », presque tout
@@ -447,7 +450,8 @@ seul garde la convention du facteur entier — vide vaut 1, « 4 » seul dit 4,
 faux devant 0,04 — c'est le bord du paragraphe précédent, et le premier jet
 du correctif l'écrasait : le contrôle existant l'a rattrapé à la première
 exécution. `marqueFracSaufVide` porte la règle à la vérification (1.7, 1.8,
-2.2.7, 2.3.7), `liveColorFrac` et `liveColorFracPow10` en direct — dans les
+et les coefficients et produits du 2.2.7 et du 2.3.7), `liveColorFrac` et
+`liveColorFracPow10` en direct — dans les
 DEUX fichiers, la Seconde ayant les mêmes fonctions — et la vérification du
 2.1.3 des deux niveaux suit. La capture est épinglée au contrôle, cinq
 sabotages nommés — et l'un d'eux est d'abord resté VERT : la vérification
@@ -4753,3 +4757,30 @@ facteurs dans l'un ou l'autre ordre », Seconde et Première) : sur chaque écra
 présent, les deux facteurs écrits à rebours doivent bleuir ; l'autre bord, un
 même facteur écrit deux fois, doit rougir la seconde case — sans quoi un juge
 qui accepterait tout passerait.
+
+## Le P écrit seul au numérateur d'un P/100 est bleu — les évolutions successives rejoignent le juge du 4.2.1 (Seconde et Première, octobre 2026)
+
+Décision de Turquet (octobre 2026, option 1). Les P/100 du 4.2.7, du 4.2.8 et
+du 4.3.7 — et de leurs jumeaux 2.2.7, 2.2.8, 2.3.7, 2.5.4 — étaient peints par
+`marqueFracSaufVide`, la convention « vide vaut 1 » née sur le 1.7, où un
+entier seul EST une réponse : « 20 » seul en haut de 20/100 y était ROUGE,
+l'entraînement posait « 20/100 » en vert à côté, le soutien y envoyait le
+focus. Ils passent par le juge du 4.2.1 / 2.2.1 — `marqueFracPaire` en
+Seconde, `marqueFracAncre` en Première, qui reçoit le verdict de paire de
+l'appelant (`ok1`, `ok2`, `ok1f`, `ok2f`) : le P reste bleu (verrouillé en
+soutien) que le dénominateur soit faux ou vide, le dénominateur se juge seul,
+le soutien dit « Complète ta réponse » (aucune case rouge : `soutienAgain`),
+et rien ne se pose à côté. La NOTE ne change pas (`ok1` calculé à part : la
+paire reste exigée) ; « 7 » seul reste rouge ; coefficients, produits (le
+2000/100 = 20 du 4.2.8), 1.7 et 1.8 gardent « vide vaut 1 ». Contrôle du banc
+principal (« évolutions successives : le P écrit seul au numérateur d'un
+P/100 est bleu, la paire reste exigée »), sur chaque écran, en soutien et en
+entraînement, copie juste sans son dénominateur comprise ; éprouvé par deux
+sabotages : `hs1n` remis sur `marqueFracSaufVide` (six bords rougissent), la
+fraction produit du 4.2.8 passée à `marqueFracPaire` (« 20 » seul y rougit).
+En Première, ce second sabotage (`hsc1pn` passé à `marqueFracAncre`, avec le
+`ok1p` de l'appelant) laissait « 20 » seul BLEU : `fracOk` lit déjà le vide
+comme 1, et le bord n'y tenait que le VERDICT, pas le peintre (relecture,
+octobre 2026). Le bord mesure donc le peintre lui-même : le numérateur
+CANONIQUE écrit seul (2000, dénominateur vide) doit ROUGIR — « vide vaut 1 »
+lit 2000, pas 20 — là où l'ancre le bleuirait ; éprouvé sur les deux niveaux.

@@ -4706,6 +4706,7 @@ function exercices(suite){
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
+    numerateurSeulPourcentage(w, P);
     coefficientGlobalCourt(w, P);
     coefficientGlobalCourtBaisses(w, P);
     coefficientDeuxDecimalesSynthese(w, P);
@@ -45840,6 +45841,133 @@ function paireFausseCaseFautive(w, P){
       const paires=src.match(/marqueSaufVide\\('[a-z]+[0-9]?[nd]'/g)||[];
       if(paires.length) vus.push(fn+' peint encore une paire par un verdict unique : '+paires.join(','));
     });
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- LE P ÉCRIT SEUL AU NUMÉRATEUR D'UN P/100 EST BLEU, LA PAIRE RESTE EXIGÉE
+   Décision de Turquet (octobre 2026, option 1) sur les évolutions
+   successives — 4.2.7 {hausses-successives}, 4.2.8 {hausses-successives-cent},
+   4.3.7 {baisses-successives} en Seconde, leurs jumeaux 2.2.7, 2.2.8, 2.3.7 et
+   le 2.5.4 {synthese-evolutions-successives} en Première. Leurs fractions
+   « taux sur 100 » (hs1n/hs1d…) étaient peintes par marqueFracSaufVide, la
+   convention « vide vaut 1 » née sur le 1.7, où un entier seul EST une
+   réponse : « 20 » seul en haut de 20/100 y ROUGISSAIT, l'entraînement posait
+   « 20/100 » en vert à côté du 20 rouge, et le soutien envoyait le focus sur
+   ce 20 juste. Ces P/100 passent désormais par le juge du 4.2.1 / 2.2.1
+   (marqueFracPaire en Seconde, marqueFracAncre en Première) : le P écrit au
+   numérateur reste bleu que le dénominateur soit faux OU vide, le dénominateur
+   se juge seul. La NOTE ne change pas — la question reste fausse tant que la
+   paire n'est pas écrite — ; ce qui change est la couleur du numérateur juste
+   (bleu, verrouillé en soutien), le message du soutien (« Complète ta
+   réponse » au lieu de « Corrige les cases en rouge ») et le « P/100 » vert qui
+   ne se pose plus. L'ancre est le P EXACT : « 7 » seul reste rouge. Et les
+   fractions de COEFFICIENT et de PRODUIT gardent « vide vaut 1 » — au 4.2.8 la
+   fraction produit 2000/100 vaut 20, et « 20 » seul y est un entier légitime.
+   Éprouvé par sabotage : hs1n remis sur marqueFracSaufVide, le contrôle rougit
+   (« 20 seul … bad au lieu de ok », « Corrige les cases en rouge », « P/100 »
+   posé à côté). Et le bord du PRODUIT mesure le peintre, pas seulement le
+   verdict : en Première, « 20 » seul reste bleu sous marqueFracAncre aussi
+   (fracOk lit déjà le vide comme 1 — relecture, octobre 2026), c'est le
+   numérateur CANONIQUE écrit seul (2000, dénominateur vide) qui tranche —
+   rouge sous « vide vaut 1 », bleu sous l'ancre. Sabotage sur les deux
+   niveaux : hsc1pn passé à marqueFracPaire (Seconde) ou à marqueFracAncre
+   avec ok1p (Première), le contrôle rougit. */
+function numerateurSeulPourcentage(w, P){
+  const present = evaluer(w, "typeof checkHSAnswer==='function' && typeof checkHSCAnswer==='function' && typeof checkBSAnswer==='function' && typeof genHausses==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('évolutions successives : le P écrit seul au numérateur d\'un P/100 est bleu, la paire reste exigée',
+      'ce niveau n\'a pas les hausses et baisses successives');
+    return;
+  }
+  verifierEval(w, 'évolutions successives : le P écrit seul au numérateur d\'un P/100 est bleu, la paire reste exigée', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentDM=null;
+    const teinte=function(id){ const el=document.getElementById(id); if(!el) return 'absente';
+      return el.classList.contains('ok')?'ok':el.classList.contains('bad')?'bad':el.classList.contains('sol')?'sol':'rien'; };
+    const corACote=function(id){ const el=document.getElementById(id), wrap=el&&el.closest('.f-frac-input'), s=wrap&&wrap.nextElementSibling;
+      return !!(s&&s.classList&&s.classList.contains('mf-cor')); };
+    const deux=function(P){ return P<10?'0'+P:''+P; };
+    const exos=[
+      {nom:'hausses successives', kind:'hs', qId:'hausses-successives', gen:function(){ return genHausses([]); },
+       ecran:'hstest', rendu:renderHSTest, check:checkHSAnswer, fb:'hsFeedback', n:'hs1n', d:'hs1d',
+       copie:function(q){ return {hs1n:q.P1,hs1d:100,hs1p:deux(q.P1),hs1dec:deux(q.P1),hs2n:q.P2,hs2d:100,hs2p:deux(q.P2),hs2dec:deux(q.P2),
+         hsAn:q.fA.num,hsAd:q.fA.den,hsBn:q.fB.num,hsBd:q.fB.den,hsPn:q.prodNum,hsPd:q.prodDen,hsDec:q.coefStr,hsP:q.hausseStr}; }},
+      {nom:'hausses successives en partant de 100', kind:'hsc', qId:'hausses-successives-cent', gen:genHaussesCent,
+       ecran:'hsctest', rendu:renderHSCTest, check:checkHSCAnswer, fb:'hscFeedback', n:'hsc1n', d:'hsc1d',
+       prodN:'hsc1pn', prodD:'hsc1pd', prod:function(q){ return hscAns(q).prod1/100; }, prodCanon:function(q){ return hscAns(q).prod1; },
+       copie:function(q){ const a=hscAns(q); return {hsc1n:q.P1,hsc1d:100,hsc1m:100,hsc1pn:a.prod1,hsc1pd:100,hsc1a:a.aug1,hsc1sa:100,hsc1sb:a.aug1,hsc1sr:a.v1,
+         hsc2n:q.P2,hsc2d:100,hsc2m:a.v1,hsc2pn:a.prod2,hsc2pd:100,hsc2a:a.aug2,hsc2sa:a.v1,hsc2sb:a.aug2,hsc2sr:a.v2,hscFin:a.v2,hscPour:a.h,hscPct:a.h}; }},
+      {nom:'baisses successives', kind:'bs', qId:'baisses-successives', gen:function(){ return genBaisses([]); },
+       ecran:'bstest', rendu:renderBSTest, check:checkBSAnswer, fb:'bsFeedback', n:'bs1n', d:'bs1d',
+       copie:function(q){ return {bs1n:q.P1,bs1d:100,bs1p:q.P1,bs1dec:q.c1,bs2n:q.P2,bs2d:100,bs2p:q.P2,bs2dec:q.c2,
+         bsAn:q.fA.num,bsAd:q.fA.den,bsBn:q.fB.num,bsBd:q.fB.den,bsPn:q.prodNum,bsPd:q.prodDen,bsDec:q.coefStr,bsP:q.baisseStr}; }}
+    ];
+    /* la synthèse de la Première porte les mêmes P/100, par les coefficients et en partant de 100 */
+    if(typeof checkEssAnswer==='function' && typeof essQuestion==='function'){
+      exos.push({nom:'synthèse des évolutions (coefficients)', kind:'ess', qId:'synthese-evolutions-successives',
+        gen:function(){ const q=essQuestion(1,20,1,50); q.meth='coef'; q.choisi=1; return q; },
+        ecran:'esstest', rendu:renderEssTest, check:checkEssAnswer, fb:'essFeedback', n:'ess1n', d:'ess1d',
+        copie:function(q){ const a=essAns(q); return {ess1n:q.P1,ess1d:100,ess1p:deux(q.P1),ess1dec:essCoefStr(q.s1,a.c1).slice(2),
+          ess2n:q.P2,ess2d:100,ess2p:deux(q.P2),ess2dec:essCoefStr(q.s2,a.c2).slice(2),
+          essAn:a.fA.num,essAd:a.fA.den,essBn:a.fB.num,essBd:a.fB.den,essPn:a.prodNum,essPd:a.prodDen,essDec:a.coefStr,essP:a.pct}; }});
+      exos.push({nom:'synthèse des évolutions (en partant de 100)', kind:'ess', qId:'synthese-evolutions-successives',
+        gen:function(){ const q=essQuestion(1,20,1,50); q.meth='cent'; q.choisi=1; return q; },
+        ecran:'esstest', rendu:renderEssTest, check:checkEssAnswer, fb:'essFeedback', n:'essc1n', d:'essc1d',
+        prodN:'essc1pn', prodD:'essc1pd', prod:function(q){ return essAns(q).prod1/100; }, prodCanon:function(q){ return essAns(q).prod1; },
+        copie:function(q){ const a=essAns(q); return {essc1n:q.P1,essc1d:100,essc1m:100,essc1pn:a.prod1,essc1pd:100,essc1a:a.aug1,essc1sa:100,essc1sb:a.aug1,essc1sr:a.v1,
+          essc2n:q.P2,essc2d:100,essc2m:a.v1,essc2pn:a.prod2,essc2pd:100,essc2a:a.aug2,essc2sa:a.v1,essc2sb:a.aug2,essc2sr:a.v2,esscFin:a.v2,esscPour:a.pct,esscPct:a.pct}; }});
+    }
+    const monter=function(e,mode){
+      currentMode=mode; currentTestId=e.qId;
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q=e.gen();
+      Object.assign(test,{kind:e.kind, qId:e.qId, questions:[q], idx:0, score:0, answers:[], startTime:Date.now(), locked:false, maxScore:1});
+      show(e.ecran); e.rendu();
+      return q; };
+    const pose=function(id,v){ const el=document.getElementById(id); if(el) el.value=String(v); else vus.push('la case '+id+' manque à l\\'écran'); };
+    const poser=function(o){ Object.keys(o).forEach(function(id){ pose(id,o[id]); }); };
+    exos.forEach(function(e){
+      /* 1. soutien : le P seul est bleu et verrouillé ; le dénominateur vide reste
+         neutre et ouvert ; le message demande de COMPLÉTER ; rien n'est noté */
+      let q=monter(e,'soutien'); pose(e.n,q.P1); e.check();
+      if(teinte(e.n)!=='ok') vus.push(e.nom+', soutien : « '+q.P1+' » seul au numérateur de '+q.P1+'/100 est '+teinte(e.n)+' au lieu de ok');
+      if(!document.getElementById(e.n).disabled) vus.push(e.nom+', soutien : le P juste reste ouvert au lieu d\\'être verrouillé');
+      if(teinte(e.d)!=='rien') vus.push(e.nom+', soutien : le dénominateur VIDE est '+teinte(e.d)+' — une case vide ne reçoit aucune couleur');
+      if(document.getElementById(e.d).disabled) vus.push(e.nom+', soutien : le dénominateur vide est verrouillé');
+      const fb=document.getElementById(e.fb).textContent;
+      if(fb.indexOf('Complète ta réponse')<0) vus.push(e.nom+', soutien : le message dit « '+fb+' » au lieu de « Complète ta réponse, puis revérifie. »');
+      if(test.locked||test.score!==0) vus.push(e.nom+', soutien : le P seul verrouille la question ou la note');
+      /* 2. l'ancre est le P EXACT : un autre entier seul rougit */
+      q=monter(e,'soutien'); const faux=(q.P1===7?8:7); pose(e.n,faux); e.check();
+      if(teinte(e.n)!=='bad') vus.push(e.nom+' : « '+faux+' » seul au numérateur de '+q.P1+'/100 est '+teinte(e.n)+' au lieu de rouge');
+      /* 3. entraînement : le P seul reste bleu, le 100 s'écrit en vert dans la
+         case vide, et aucun « P/100 » vert ne se pose à côté du P juste */
+      q=monter(e,'train'); pose(e.n,q.P1); e.check();
+      if(teinte(e.n)!=='ok') vus.push(e.nom+', entraînement : le P seul est '+teinte(e.n)+' au lieu de ok');
+      if(teinte(e.d)!=='sol'||document.getElementById(e.d).value!=='100') vus.push(e.nom+', entraînement : le dénominateur vide ne reçoit pas « 100 » en vert ('+teinte(e.d)+')');
+      if(corACote(e.n)) vus.push(e.nom+', entraînement : un « '+q.P1+'/100 » vert se pose encore à côté du P juste');
+      if(test.score!==0||!test.answers[0]||test.answers[0].correct) vus.push(e.nom+', entraînement : le P seul vaut le point');
+      /* 4. la NOTE : la copie juste SANS le dénominateur de ① reste fausse, le P y
+         reste bleu ; avec lui, elle vaut le point */
+      q=monter(e,'train'); const c=e.copie(q); delete c[e.d]; poser(c); e.check();
+      if(test.score!==0) vus.push(e.nom+' : la copie juste SANS le dénominateur de ① vaut le point');
+      if(teinte(e.n)!=='ok') vus.push(e.nom+' : dans la copie sans dénominateur, le P est '+teinte(e.n)+' au lieu de ok');
+      q=monter(e,'train'); poser(e.copie(q)); e.check();
+      if(test.score!==1) vus.push(e.nom+' : la copie juste ne vaut pas le point ('+test.score+')');
+      /* 5. la fraction PRODUIT garde « vide vaut 1 » : 2000/100 = 20, « 20 » seul y est juste */
+      if(e.prodN){ q=monter(e,'soutien'); const pv=e.prod(q); pose(e.prodN,pv); e.check();
+        if(teinte(e.prodN)!=='ok') vus.push(e.nom+' : « '+pv+' » seul à la fraction PRODUIT est '+teinte(e.prodN)+' — elle garde « vide vaut 1 »');
+        if(teinte(e.prodD)!=='rien') vus.push(e.nom+' : le dénominateur vide de la fraction produit est '+teinte(e.prodD)); }
+      /* 5 bis. et c'est le PEINTRE qui se mesure, pas le seul verdict : le
+         numérateur CANONIQUE écrit seul (2000, dénominateur vide) ROUGIT — « vide
+         vaut 1 » le lit 2000, pas 20 — là où l'ancre (marqueFracPaire,
+         marqueFracAncre) le bleuirait ; en Première, « 20 » seul est bleu sous
+         les deux peintres, fracOk lisant déjà le vide comme 1 */
+      if(e.prodN){ q=monter(e,'soutien'); const pc=e.prodCanon(q); pose(e.prodN,pc); e.check();
+        if(teinte(e.prodN)!=='bad') vus.push(e.nom+' : « '+pc+' » seul (le numérateur canonique) à la fraction PRODUIT est '+teinte(e.prodN)+' au lieu de rouge — « vide vaut 1 » lit '+pc+', pas '+(pc/100));
+        if(teinte(e.prodD)!=='rien') vus.push(e.nom+' : le dénominateur vide sous le numérateur canonique du produit est '+teinte(e.prodD)); }
+    });
+    currentMode='train';
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
