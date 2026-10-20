@@ -4571,6 +4571,7 @@ function exercices(suite){
     sommeVecteursLibre(w, P);
     demontrerChasles(w, P);
     sommeTroisVecteurs(w, P);
+    vecteursColineaires(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
     recurrenceLimite(w, P);
@@ -13963,6 +13964,159 @@ function lireSommeDessin(w, P){
    faux et NOMMÉ), la correction verte dans le sens opposé, q.op relu après
    le JSON de la pause, l'identité (rappel, questions à l'IA) par
    l'identifiant. */
+/* Le sous-thème 8.3 « Vecteurs colinéaires » (Seconde, demande de Turquet,
+   octobre 2026 : « créer 4 exercices comme sur le pdf » — la « Fiche 1 :
+   vecteurs colinéaires »). Trois moteurs pour quatre exercices :
+   {construire-multiple-vecteur} (8.3.1) est le moteur du 8.1.7 qui trace
+   k u⃗ (q.ks) ; {identifier-multiple-vecteur} et
+   {identifier-multiple-non-entier} (8.3.2, 8.3.3) partagent « kvi » ;
+   {vecteurs-colineaires-figure} (8.3.4) est « kco ». Pour chacun : la place,
+   le tirage sur deux cents séances, la copie juste, la copie vide, les
+   pièges nommés, la reprise après un passage par le JSON de la pause. */
+function vecteursColineaires(w, P){
+  const nom = 'vecteurs colinéaires : construire k u, reconnaître k u, k v, k w, colinéaires ou non — la place, le tirage, le juge, la reprise';
+  if(!P.vecteursColineaires){
+    ignorer(nom, 'ce niveau n\'a pas le sous-thème des vecteurs colinéaires');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.vecteursColineaires)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(e){ const c=e?' '+e.className+' ':'';
+      return c.indexOf(' ok ')>=0?'ok':(c.indexOf(' bad ')>=0?'bad':(c.indexOf(' sol ')>=0?'sol':'rien')); };
+    const entier=function(x){ return Math.abs(x-Math.round(x))<1e-9; };
+    const para=function(a,b){ return a[0]*b[1]-a[1]*b[0]===0; };
+    ['construire','identifier','fractions','figure'].forEach(function(k){
+      const d=D[k]; if(TEST_NUM[d.exercice]!==d.numero) vus.push(d.exercice+' porte le numéro '+TEST_NUM[d.exercice]+' au lieu de '+d.numero);
+      if(TABLES_SANS.indexOf(d.exercice)<0) vus.push(d.exercice+' : le bouton des tables est proposé, on ne multiplie rien'); });
+    if(TEST_NUM['somme-trois-vecteurs']!=='8.2.15' || TEST_NUM['tracer-vecteurs-opposes']!=='8.1.8') vus.push('un voisin du thème 8 a bougé');
+    if(RAPPELS_ID[D.construire.exercice]!==RAP_KVX || !QIA_SUGG_ID[D.construire.exercice]) vus.push('le 8.3.1 n\\'a pas son rappel ou ses questions à l\\'IA');
+    if(RAPPELS.kvi!==RAP_KVI || RAPPELS.kco!==RAP_KCO || !QIA_SUGG.kvi || !QIA_SUGG.kco) vus.push('kvi ou kco n\\'a pas son rappel ou ses questions à l\\'IA');
+    ['1,5','-1,5','−3/2','3 / 2','.5','2','-2','abc','1/0','2/','--1'].forEach(function(s,i){
+      const att=[1.5,-1.5,-1.5,1.5,0.5,2,-2,NaN,NaN,NaN,NaN][i], v=kvLit(s);
+      if(!(isNaN(att)?isNaN(v):Math.abs(v-att)<1e-9)) vus.push('kvLit(« '+s+' ») rend '+v+' au lieu de '+att); });
+
+    /* ===== 8.3.1 : construire k u (le moteur du 8.1.7) ===== */
+    currentTestId=D.construire.exercice; TESTS[D.construire.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='tvx' || test.maxScore!==D.construire.bareme || test.questions.length!==D.construire.nb) vus.push('8.3.1 : kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
+    for(let n=0;n<200;n++){
+      const qs=tvxBuildQuestions(false,true);
+      const cles=qs.map(tvxCleK); if(new Set(cles).size!==qs.length){ vus.push('8.3.1 : deux questions identiques dans une séance'); break; }
+      const q=qs[n%qs.length], u=q.vs[0], ks=q.ks;
+      if(Object.keys(q).sort().join(',')!=='d1,d2,d3,f1,f2,f3,ks,vs' || q.vs.length!==1 || ks.length!==3){ vus.push('8.3.1 range : '+JSON.stringify(q)); break; }
+      if(new Set(ks.map(function(c){ return c[0]/c[1]; })).size!==3 || !ks.some(function(c){ return c[1]>1; }) || !ks.some(function(c){ return c[0]<0; }) || !ks.some(function(c){ return c[0]>0; })){ vus.push('8.3.1 : coefficients '+JSON.stringify(ks)); break; }
+      if(u[0]<1||u[0]>TVX_W-1||u[1]<1||u[1]>TVX_H-1||u[0]+u[2]<1||u[0]+u[2]>TVX_W-1||u[1]+u[3]<1||u[1]+u[3]>TVX_H-1){ vus.push('8.3.1 : u sort du quadrillage '+JSON.stringify(u)); break; }
+      if(ks.some(function(c,k){ const t=tvxCible(q,k); return !entier(t[0])||!entier(t[1])||Math.abs(t[0])>TVX_W-2||Math.abs(t[1])>TVX_H-2; })){ vus.push('8.3.1 : une flèche k u ne tombe pas sur un nœud ou ne tient pas : '+JSON.stringify(q)); break; }
+    }
+    if(tvxBuildQuestions().some(function(q){ return 'ks' in q; }) || tvxBuildQuestions(true).some(function(q){ return 'ks' in q; })) vus.push('le 8.1.7 ou le 8.1.8 range ks : leurs questions ont changé');
+    const fixeK=function(){ return {vs:[[3,4,6,0]], d1:null, f1:null, d2:null, f2:null, d3:null, f3:null, ks:[[2,1],[1,2],[-5,6]]}; };
+    const tracer=function(a,b){ tvxClic(a[0],a[1]); tvxClic(b[0],b[1]); };
+    test.questions[0]=fixeK(); test.idx=0; renderTvx();
+    if(el('tvxInstr').querySelectorAll('.sf-f').length!==2 || el('tvxInstr').textContent.indexOf('représentant')<0) vus.push('8.3.1 : l\\'énoncé n\\'écrit pas ½ et −5/6 empilés : '+el('tvxInstr').textContent);
+    if(document.querySelectorAll('#tvxDonnes line.svc-u').length!==1) vus.push('8.3.1 : le dessin ne montre pas u seul');
+    if(el('tvxEtape').textContent.indexOf('Trace le vecteur 2')<0) vus.push('8.3.1 : la page ne dit pas de tracer 2u : '+el('tvxEtape').textContent);
+    tracer([1,1],[13,1]); tracer([1,3],[4,3]); tracer([10,7],[5,7]);
+    if(document.querySelectorAll('#tvxFl line.kv-barre').length!==2) vus.push('8.3.1 : les noms ½u et −5/6 u n\\'ont pas leur fraction empilée');
+    const q1=test.questions[0]; test.questions[0]=JSON.parse(JSON.stringify(q1)); renderTvx();
+    let av=test.score; checkTvx(); clearTimeout(test.fbTimer);
+    if(test.score-av!==3 || ['tvx-u','tvx-v','tvx-w'].map(function(i){ return classe(el(i)); }).join(',')!=='ok,ok,ok') vus.push('8.3.1 : la copie juste vaut '+(test.score-av));
+    nextTvx(); clearTimeout(test.fbTimer);
+    test.questions[1]=fixeK(); renderTvx();
+    tracer([14,1],[2,1]); tracer([1,3],[3,3]);
+    av=test.score; checkTvx(); clearTimeout(test.fbTimer);
+    const fbK=el('tvxFeedback').textContent;
+    if(test.score-av!==0 || ['tvx-u','tvx-v','tvx-w'].map(function(i){ return classe(el(i)); }).join(',')!=='bad,bad,sol') vus.push('8.3.1 : 2u à l\\'envers, ½u trop long, le dernier absent : '+['tvx-u','tvx-v','tvx-w'].map(function(i){ return classe(el(i)); }).join(','));
+    if(fbK.indexOf('mauvais sens')<0 || fbK.indexOf('MÊME sens')<0 || fbK.indexOf('pas la bonne longueur')<0 || fbK.indexOf('2u fait donc 12 carreaux vers la droite')<0) vus.push('8.3.1 : le message ne nomme pas le sens ou la longueur : '+fbK.slice(0,240));
+    if(document.querySelectorAll('#tvxCorr line.svc-s').length!==3 || !document.querySelector('#tvxCorr line.kv-barre')) vus.push('8.3.1 : la correction ne trace pas les trois flèches vertes, nommées');
+    if(conseilCtxCourant().indexOf('−5/6 u')<0) vus.push('8.3.1 : le contexte du modèle ne nomme pas −5/6 u');
+
+    /* ===== 8.3.2 et 8.3.3 : reconnaître k u, k v, k w ===== */
+    [['identifier',false],['fractions',true]].forEach(function(m){
+      const d=D[m[0]], fr=m[1], et=d.numero+' : ';
+      currentTestId=d.exercice; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+      if(test.kind!=='kvi' || test.maxScore!==d.bareme || test.questions.length!==d.nb) vus.push(et+'kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
+      if(!!test.questions[0].fr!==fr) vus.push(et+'q.fr vaut '+test.questions[0].fr);
+      for(let n=0;n<200;n++){
+        const q=kviGen(fr), cs=q.l.map(function(_,i){ return kviCo(q,i); });
+        if(q.l.length!==KVI_NL || q.bs.length!==3 || para(q.bs[0],q.bs[1])||para(q.bs[0],q.bs[2])||para(q.bs[1],q.bs[2])){ vus.push(et+'la figure : '+JSON.stringify(q)); break; }
+        if([0,1,2].some(function(k){ return q.l.filter(function(x){ return x[2]===k; }).length!==2; })){ vus.push(et+'un vecteur donné ne sert pas deux fois'); break; }
+        if(cs.some(function(c){ return c[0]===c[1] || gcd(c[0],c[1])!==1 || c[1]<1; })){ vus.push(et+'un coefficient vaut 1 ou n\\'est pas irréductible : '+JSON.stringify(cs)); break; }
+        if(!fr && cs.some(function(c){ return c[1]!==1; })){ vus.push(et+'un coefficient n\\'est pas entier'); break; }
+        if(fr && cs.filter(function(c){ return c[1]>1; }).length<4){ vus.push(et+'moins de quatre coefficients non entiers'); break; }
+        if(q.l.some(function(x,i){ const v=kviVec(q,i); return !entier(v[0])||!entier(v[1])||x[0]<1||x[0]>KVI_W-1||x[1]<1||x[1]>KVI_H-1||x[0]+v[0]<1||x[0]+v[0]>KVI_W-1||x[1]+v[1]<1||x[1]+v[1]>KVI_H-1; })){ vus.push(et+'une flèche sort du quadrillage ou d\\'un nœud : '+JSON.stringify(q)); break; }
+        if(fr!==!!q.fr){ vus.push(et+'q.fr mal rangé'); break; }
+      }
+      const q=test.questions[0];
+      /* la copie juste, écrite comme un élève : virgule, tiret, fraction */
+      q.l.forEach(function(x,i){ const c=kviCo(q,i); el('kvi-k-'+i).value=(i%2?String(c[0]/c[1]).replace('.',','):kvSaisie(c).replace('−','-')); el('kvi-v-'+i).value=KVI_N[x[2]]; });
+      const q0=JSON.parse(JSON.stringify(q));
+      av=test.score; checkKvi();
+      if(test.score-av!==12 || document.querySelectorAll('#scr-kvi .ok').length!==12) vus.push(et+'la copie juste vaut '+(test.score-av));
+      /* la reprise : la question revient du JSON, les cases se rejugent pareil */
+      test.questions[0]=q0; renderKvi();
+      if(document.querySelectorAll('#kviHost .kvi-svg').length!==2 || document.querySelectorAll('#kviHost .kv-in').length!==6) vus.push(et+'le rendu après JSON n\\'a pas ses deux figures et ses six cases');
+      nextKvi();
+      /* la copie vide : rien de rouge, douze corrections vertes */
+      checkKvi();
+      if(document.querySelector('#scr-kvi input.bad, #scr-kvi select.bad') || document.querySelectorAll('#scr-kvi .sol').length!==12) vus.push(et+'la copie vide rougit ou ne remplit pas ses douze cases');
+      if(el('kviFeedback').textContent.indexOf('Il te manquait 12 cases')<0) vus.push(et+'le message de la copie vide : '+el('kviFeedback').textContent.slice(0,90));
+      /* le bon coefficient devant le mauvais vecteur : une case sur deux, et le pourquoi */
+      test.idx=0; test.questions[0]=JSON.parse(JSON.stringify(q0)); renderKvi();
+      const c0=kviCo(test.questions[0],0);
+      el('kvi-k-0').value=kvSaisie(c0); el('kvi-v-0').value=KVI_N[(test.questions[0].l[0][2]+1)%3];
+      av=test.score; checkKvi();
+      if(test.score-av!==1 || classe(el('kvi-k-0'))!=='ok' || classe(el('kvi-v-0'))!=='bad') vus.push(et+'bon coefficient, mauvais vecteur : '+classe(el('kvi-k-0'))+', '+classe(el('kvi-v-0')));
+      if(el('kviFeedback').textContent.indexOf('est parallèle à')<0 || el('kviFeedback').textContent.indexOf('Donc a =')<0) vus.push(et+'le pourquoi ne dit pas la direction et le coefficient : '+el('kviFeedback').textContent.slice(0,200));
+    });
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0) vus.push('kvi : le contexte du modèle n\\'a pas sa clause de secret');
+
+    /* ===== 8.3.4 : colinéaires ou non ? ===== */
+    const d4=D.figure;
+    currentTestId=d4.exercice; TESTS[d4.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='kco' || test.maxScore!==d4.bareme || test.questions.length!==d4.nb) vus.push('8.3.4 : kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
+    for(let n=0;n<200;n++){
+      const q=kcoGen();
+      if(q.v.length!==8 || q.p.length!==KCO_NP){ vus.push('8.3.4 : la figure '+JSON.stringify(q)); break; }
+      const cle=q.p.map(function(p){ return Math.min(p[0],p[1])+'-'+Math.max(p[0],p[1]); });
+      if(new Set(cle).size!==KCO_NP || q.p.some(function(p){ return p[0]===p[1]; })){ vus.push('8.3.4 : une paire revient'); break; }
+      const cos=q.p.map(function(p){ return kcoCo(q,p[0],p[1]); }), nc=cos.filter(function(c){ return c; }).length;
+      if(nc<2 || nc>4){ vus.push('8.3.4 : '+nc+' paires colinéaires'); break; }
+      if(cos.some(function(c){ return c && c[0]===1 && c[1]===1; })){ vus.push('8.3.4 : un réel vaut 1'); break; }
+      if(!q.p.some(function(p,k){ return !cos[k] && kcoProches(q.v[p[0]].slice(2), q.v[p[1]].slice(2)); })){ vus.push('8.3.4 : aucune paire non colinéaire n\\'a de flèches presque parallèles'); break; }
+      if(q.v.some(function(v){ return v[0]<1||v[0]>KCO_W-1||v[1]<1||v[1]>KCO_H-1||v[0]+v[2]<1||v[0]+v[2]>KCO_W-1||v[1]+v[3]<1||v[1]+v[3]>KCO_H-1; })){ vus.push('8.3.4 : une flèche sort du quadrillage'); break; }
+    }
+    const fixeC=function(){ return {v:[[1,8,4,2],[11,9,-2,0],[15,9,3,3],[1,4,2,1],[6,1,-4,0],[14,1,-4,-4],[1,1,3,1],[17,5,2,0]],
+      p:[[0,3],[1,4],[2,5],[0,6],[7,1]], choisi:['','','','',''] }; };
+    test.questions[0]=fixeC(); test.idx=0; renderKco();
+    if(document.querySelectorAll('#kcoHost .kco-svg text.kco-lt').length!==16) vus.push('8.3.4 : la figure ne nomme pas ses seize extrémités');
+    /* la copie juste : 2, 1/2, −3/4, non (presque parallèles), −1 */
+    const taper=function(k,v){ const e=el('kco-k-'+k); e.value=v; e.dispatchEvent(new Event('input')); };
+    taper(0,'2'); taper(1,'0,5'); taper(2,'-3/4'); kcoChoix(3,'non'); taper(4,'−1');
+    if(test.questions[0].choisi.join(',')!=='oui,oui,oui,non,oui') vus.push('8.3.4 : taper un réel n\\'enfonce pas « Oui » : '+test.questions[0].choisi.join(','));
+    const qc=JSON.parse(JSON.stringify(test.questions[0]));
+    test.questions[0]=qc; renderKco();
+    if(!el('kco-o-0').classList.contains('kco-on') || !el('kco-n-3').classList.contains('kco-on')) vus.push('8.3.4 : les boutons enfoncés ne reviennent pas après le JSON');
+    taper(0,'2'); taper(1,'1/2'); taper(2,'−0,75'); taper(4,'-1');
+    av=test.score; checkKco();
+    if(test.score-av!==5 || document.querySelectorAll('#scr-kco .kco-l.ok').length!==5) vus.push('8.3.4 : la copie juste vaut '+(test.score-av));
+    if(!el('kco-k-0').disabled || !el('kco-n-0').disabled) vus.push('8.3.4 : les lignes restent modifiables après la correction');
+    /* les pièges : « Oui » sans réel, « Non » sur une paire colinéaire, « Oui » sur des flèches presque parallèles */
+    nextKco(); test.questions[1]=fixeC(); renderKco();
+    kcoChoix(0,'oui'); kcoChoix(1,'non'); taper(3,'2');
+    av=test.score; checkKco();
+    const lc=[0,1,2,3,4].map(function(k){ return classe(el('kco-r-'+k)); }).join(',');
+    if(test.score-av!==0 || lc!=='bad,bad,sol,bad,sol') vus.push('8.3.4 : oui sans réel, non sur colinéaires, oui sur presque parallèles : '+lc);
+    if(document.querySelector('#scr-kco input.bad, #scr-kco input.ok, #scr-kco input.sol')) vus.push('8.3.4 : la case du réel prend une couleur de verdict — elle compterait deux fois');
+    const fbC=el('kcoFeedback').textContent;
+    if(fbC.indexOf('AB fait 4 carreaux vers la droite puis 2 carreaux vers le haut')<0 || fbC.indexOf('AB = 2 GH')<0) vus.push('8.3.4 : le pourquoi de la première ligne fausse : '+fbC.slice(0,200));
+    if(el('kco-r-0').querySelector('.mf-cor')===null || el('kco-r-3').querySelector('.mf-cor').textContent!=='Non') vus.push('8.3.4 : la bonne réponse ne s\\'écrit pas à côté d\\'une ligne fausse');
+    if(el('kco-k-2').value!=='−3/4' || !el('kco-o-2').classList.contains('kco-on')) vus.push('8.3.4 : la ligne vide n\\'est pas remplie par la correction');
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0 || conseilCtxCourant().indexOf('oui, k = 2')<0) vus.push('8.3.4 : le contexte du modèle');
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 function tracerVecteursOpposes(w, P){
   const nom = 'vecteurs opposés à tracer : l\'énoncé demande −u, −v, −w, le chemin à l\'envers est juste, le vecteur égal est faux et nommé, la correction trace l\'opposé';
   if(!P.tracerVecteursOpposes){
