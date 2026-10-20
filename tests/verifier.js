@@ -5783,7 +5783,9 @@ function jugeArithmetiqueClique(w, apres){
       const copieR='(1)/(2)*(5)/(3)\\n= (3)/(6)*(10)/(6)\\n= (30)/(36)';
       const couleurMLL=function(){ const c=(document.getElementById('mllFeedback')||{}).className||'';
         return /\\bgood\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
-      for(const M of [{panne:true, correct:false, nom:'modèle en panne'},{panne:false, correct:false, nom:'modèle qui refuse'}]){
+      /* et sous un modèle qui ACCEPTE sans dire « simplifie » (relecture du lot,
+         octobre 2026) : la page ajoute elle-même la phrase à sa prose */
+      for(const M of [{panne:true, correct:false, nom:'modèle en panne'},{panne:false, correct:false, nom:'modèle qui refuse'},{panne:false, correct:true, accepte:true, nom:'modèle qui accepte sans le dire'}]){
         Object.keys(test).forEach(function(k){ delete test[k]; });
         Object.assign(test,{kind:'mll', questions:[qR], idx:0, score:0,
           answers:[], startTime:Date.now(), locked:false, mllBusy:false});
@@ -5797,7 +5799,8 @@ function jugeArithmetiqueClique(w, apres){
         if(couleurMLL()!=='vert') vus.push('5.7, 30/36 sous '+M.nom+' : peint « '+couleurMLL()+' » au lieu de vert');
         const fbR=(document.getElementById('mllFeedback')||{}).textContent||'';
         if(!/simplifi/i.test(fbR)) vus.push('5.7, 30/36 sous '+M.nom+' : la page ne dit pas « pense à simplifier » : '+fbR.slice(0,80));
-        if(fbR.indexOf('stubbé')>=0) vus.push('5.7, 30/36 sous '+M.nom+' : la prose du modèle qui contredit le verdict s\\'affiche');
+        if(!M.accepte && fbR.indexOf('stubbé')>=0) vus.push('5.7, 30/36 sous '+M.nom+' : la prose du modèle qui contredit le verdict s\\'affiche');
+        if(M.accepte && fbR.indexOf('stubbé')<0) vus.push('5.7, 30/36 sous '+M.nom+' : la prose du modèle, qui ne contredit rien, a disparu');
       }
       if(!envoye || String(envoye.question||'').indexOf('RÉDUCTIBLE')<0)
         vus.push('5.7, 30/36 : le verdict envoyé au modèle ne dit pas que le résultat est réductible');

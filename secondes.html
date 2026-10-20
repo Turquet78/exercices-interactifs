@@ -8230,7 +8230,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=571;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=572;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -58290,6 +58290,10 @@ async function checkMLL(){
      elle raconte l'autre verdict pendant que la page peint le bon. Elle est
      remplacée par la phrase du juge. */
   if(juge.sait && (res.correct===true)!==juge.correct) res={ correct:juge.correct, feedback:libreSecours(juge) };
+  /* un résultat ÉGAL mais réductible est juste (décision d'octobre 2026) : la
+     page garantit la phrase « pense à simplifier », même si le modèle, qui
+     accepte, a oublié de la dire — relecture du lot, octobre 2026 */
+  if(juge.sait && juge.correct && juge.reductible && !/simplif|r[ée]duct|r[ée]duire/i.test(res.feedback||'')) res={ correct:true, feedback:(res.feedback?res.feedback+' ':'')+libreSecours(juge) };
   const correct=juge.sait ? juge.correct : (res.correct===true);
   /* Les phrases qui commentent la vérification sont VERTES quand c'est bon,
      ROUGES quand c'est faux (demande de Turquet, août 2026) — comme tous les

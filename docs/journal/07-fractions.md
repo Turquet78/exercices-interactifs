@@ -1949,6 +1949,6 @@ part 1 doit vider la barre) ; et le tirage lit `dmNbQuestions()` au lieu d'un
 « 6 » en dur (profil `allonge`). Contrôles : le contrôle jsdom de l'exercice
 (borne, boutons, pas, grisage) et le banc navigateur « 6 sexdecies » (contexte
 tactile forcé comme en 11 bis : 44 px mesurés, bornes pressées, barre touchée,
-768 px). Sept sabotages, chacun rouge sur son bord : borne retirée (« selL =
+768 px). Huit sabotages, chacun rouge sur son bord : borne retirée (« selL =
 −1 », « 16/15 »), boutons jamais, boutons toujours, seuil à 480, boutons de
 30 px, grisage retiré, pas sans redessin, « 6 » remis.

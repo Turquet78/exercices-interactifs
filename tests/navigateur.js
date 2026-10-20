@@ -8273,8 +8273,8 @@ if(require.main === module) (async () => {
 
       /* 5. SUR UNE TABLETTE DEBOUT (768 px), L'ÉTIQUETTE PASSE AU-DESSUS ET LA
             BARRE PREND LA CARTE : le seuil de la règle du téléphone est monté
-            de 480 à 800 px (même décision). Mesuré avant : 364 px ; après :
-            656 px. Les deux barres gardent la même longueur et le même bord. */
+            de 480 à 800 px (même décision). Mesuré avant : 408 px ; après :
+            700 px. Les deux barres gardent la même longueur et le même bord. */
       await s.page.setViewportSize({ width: 768, height: 1024 });
       await s.page.waitForTimeout(400);
       const debout = await s.page.evaluate(() => {

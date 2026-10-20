@@ -80,7 +80,9 @@ lieu de bloquer l'élève.
 **TROIS positions, pas deux, et c'est ce qui rend le juge sûr** : il ne REFUSE
 que sur un fait prouvable (une égalité fausse ; un résultat non simplifié — au
 5.5 seulement : depuis octobre 2026, au 5.7 et au 5.9, un résultat ÉGAL mais
-réductible est JUSTE et seulement signalé, voir le journal des fractions) et
+réductible est JUSTE et seulement signalé, voir le journal des fractions ;
+en Première, les rédigées du 4.4 et du 4.5 le REFUSENT toujours, par
+`redIrreductible`) et
 n'ACCEPTE que lorsque tout est positivement vérifié ; une étape qu'il ne
 reconnaît pas, une écriture qui lui échappe, un résultat écrit comme un calcul
 le font S'ABSTENIR — le modèle reste alors seul juge, comme avant. Refuser
