@@ -105,6 +105,20 @@
 @media (min-width:860px){ :root{--card-max:780px} }
 @media (min-width:1080px){ :root{--card-max:1040px} }
 @media (min-width:1400px){ :root{--card-max:1200px} }
+/* ---- EN PORTRAIT, LE CADRE D'UN EXERCICE PREND LA LARGEUR DE L'ÉCRAN ----
+   Demande de Turquet (octobre 2026) : « en mode portrait, le cadre blanc de
+   l'exercice plus large pour mieux exploiter la largeur de l'écran ». Une
+   tablette en portrait (768 à 834 px) tombait sous le premier palier : un
+   cadre de 560 px centré, plus de 200 px de marges vides ; à 1024 px, la
+   colonne de 780 px. Sur un écran d'exercice (body.ecran-exo, posé par
+   show()), le portrait lève les deux bornes et réduit les gouttières — les
+   menus, du texte, gardent leur colonne. Le paysage et l'ordinateur ne
+   changent pas : ce sont leurs paliers qui sont la règle ci-dessus. */
+@media (orientation:portrait) and (max-width:1100px){
+  body.ecran-exo{--card-max:none}
+  body.ecran-exo .wrap{max-width:none;padding-left:10px;padding-right:10px}
+  body.ecran-exo .screen.on>.card{padding:20px 14px}
+}
 
   .mast{display:flex;align-items:center;gap:12px;margin-bottom:22px}
   .mast .logo{width:42px;height:42px;border-radius:12px;background:var(--blue);display:grid;place-items:center;color:#fff;font-family:"Fredoka";font-weight:700;font-size:24px;box-shadow:var(--shadow-sm);flex:none}
@@ -722,6 +736,30 @@
      traits posés en SVG sur la grille rendue (apfTraits). Plus large qu'un
      téléphone : l'arbre défile DANS son cadre, la page ne défile pas. */
   .apf-arbre-defile{overflow-x:auto;max-width:100%;margin:6px 0 10px;padding-bottom:4px}
+  /* {arbre-probabilites-bac} (6.1.3) : L'ARBRE RESTE EN HAUT DE L'ÉCRAN
+     (demande de Turquet, octobre 2026 : « que l'arbre reste en haut de
+     l'écran, toujours visible quand on fait défiler vers le bas »). Un
+     élément collé (sticky) ne sort pas de son parent : les deux conteneurs
+     de l'arbre (#apcArbre, #apcArbreSuite) s'effacent de la mise en page
+     (display:contents), si bien que l'arbre colle dans le CADRE de
+     l'exercice, celui des questions — il reste visible jusqu'au bas du
+     cadre. Fond plein : les lignes qui défilent passent dessous. Sous
+     560 px de haut (un téléphone couché), il ne colle pas : il couvrirait
+     presque tout l'écran. Les cases qu'il cacherait se laissent atteindre :
+     scroll-padding-top réserve sa hauteur (--apc-arbre-h, mesurée par
+     apfTraits) quand le focus fait défiler la page. */
+  #apcArbre,#apcArbreSuite{display:contents}
+  @media (min-height:560px){
+    .apf-arbre-defile.apc-fixe{position:sticky;top:0;z-index:5;background:var(--surface);padding:6px 0 4px;
+      border-bottom:1.5px solid var(--line);box-shadow:0 6px 10px -8px rgba(15,23,42,.25)}
+    body.clavier-ouvert .apf-arbre-defile.apc-fixe{top:56px}   /* les commandes montent en haut quand le clavier est ancré */
+    html:has(#scr-apc.on .apc-fixe){scroll-padding-top:calc(var(--apc-arbre-h,0px) + 12px)}
+    /* « overflow-x:hidden » sur html ET body (la ceinture de la largeur) fait
+       du body un conteneur de défilement qui ne défile jamais : l'arbre y
+       collerait, et partirait avec la page. « clip » coupe pareil sans créer
+       de conteneur ; un navigateur qui ne le connaît pas garde « hidden ». */
+    body:has(#scr-apc.on .apc-fixe){overflow-x:hidden;overflow-x:clip}
+  }
   .apf-arbre{position:relative;display:grid;grid-template-columns:auto auto auto auto auto 54px auto;
              grid-template-rows:repeat(8,minmax(44px,auto));column-gap:16px;align-items:center;font-size:1.1rem;width:max-content;margin:0 auto}
   .apf-arbre>div{position:relative;z-index:1}
@@ -748,6 +786,8 @@
   .apf-eqrow{flex-wrap:nowrap}
   .sa2-in.apf-eqin{flex:1 1 9em;min-width:6em;max-width:18em;text-align:center}
   .apf-astuce{font-size:.9em;opacity:.8;margin:4px 0 0}
+  .apc-mb{min-width:6.5em;text-align:right;white-space:nowrap}
+  .apc-mb.apc-cor{color:var(--green)}
   /* ---- {proba-phrase-formule} : toutes les phrases et toutes les formules
      sur un seul écran, sans défiler — deux colonnes dès la tablette en
      portrait ; les formules sur deux colonnes à leur tour quand la place le
@@ -5765,6 +5805,7 @@ async function resumeTest(mode){
   if(!afficherEcranDe(test.kind)){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   if(suite){ test.locked=true; toast('Question déjà corrigée : on passe à la suivante.','ok'); window[suite](); return; }   /* ni les cases ni le verdict ne reviennent : la question est faite */
   restoreBoxes(draft);   // et on recolore les cases déjà complètes
+  if(test.kind==='apc') apcPreparer(test.questions[test.idx]);   /* les étapes de la résolution suivent la ligne P(B) remise en place */
 }
 
 /* ---------- Connexion à Supabase ---------- */
@@ -5866,6 +5907,7 @@ function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['cvp','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','apb','apf','apc','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
+  document.body.classList.toggle('ecran-exo', testScreens.includes(name));   /* le portrait y donne au cadre toute la largeur */
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
@@ -22005,9 +22047,10 @@ function renderREC(){
   $('recJetons').innerHTML=recJetonsHTML();
   const idx0=q.n0, idx1=q.n0+1, idx2=q.n0+2;
   $('recA').innerHTML='<p class="tvi-instr"><span class="su-lab">a)</span> Calcule les 3 premiers termes de la suite <b>au dixi\u00e8me pr\u00e8s</b>&nbsp;:</p>'
-    +'<div class="rec-ligne">'+recSub(idx0)+' = '+recMF('rec-t0')
-    +'&nbsp;&nbsp;;&nbsp;&nbsp; '+recSub(idx1)+' = '+recMF('rec-t1')
-    +'&nbsp;&nbsp;;&nbsp;&nbsp; '+recSub(idx2)+' = '+recMF('rec-t2')+'</div>';
+    /* chaque « Uₖ = » collé à sa case (tEq) : la rangée se replie ENTRE les termes, jamais entre le « = » et la case */
+    +'<div class="rec-ligne">'+tEq(recSub(idx0)+' = ', recMF('rec-t0'))
+    +'&nbsp;&nbsp;;&nbsp;&nbsp; '+tEq(recSub(idx1)+' = ', recMF('rec-t1'))
+    +'&nbsp;&nbsp;;&nbsp;&nbsp; '+tEq(recSub(idx2)+' = ', recMF('rec-t2'))+'</div>';
   $('recProg').innerHTML='<p class="tvi-instr">Le programme affiche les termes suivants (de '+recSub(q.n0+3)+' \u00e0 '+recSub(q.n0+10)+', tronqu\u00e9s au milli\u00e8me)&nbsp;:</p>'
     +'<p class="rec-prog">'+q.prog.map((v,i)=>recSub(q.n0+3+i)+' \u2248 '+recTrunc3(v)).join('&nbsp;&nbsp;;&nbsp;&nbsp; ')+'</p>';
   $('recB').innerHTML='<p class="tvi-instr"><span class="su-lab">b)</span> Compl\u00e8te les conjectures&nbsp;:</p>'
@@ -22018,7 +22061,7 @@ function renderREC(){
   $('recC').innerHTML='<p class="tvi-instr"><span class="su-lab">c)</span> D\u00e9montre par r\u00e9currence que <b>'+encTex(String(q.m)+' \\le U_n \\le '+String(q.M), q.m+' \u2264 U\u2099 \u2264 '+q.M)+'</b> pour tout entier <i>n</i> \u2265 '+q.n0+'.</p>'
     +'<div class="rec-ligne"><b>Initialisation</b> (au d\u00e9part <i>n</i> '+tEq('=', recMF('rec-n0'))+')&nbsp;: '
     +recMF('rec-i-m')+' \u2264 '+recMFidx('rec-i-i')+' \u2264 '+recMF('rec-i-M')
-    +', vrai car '+recMFidx('rec-i-i2')+' = '+recMF('rec-i-v')+'.</div>'
+    +', vrai car '+tEq(recMFidx('rec-i-i2')+' = ', recMF('rec-i-v'))+'.</div>'
     +'<div class="rec-her">'
     +'<span class="rec-hlab"><b>H\u00e9r\u00e9dit\u00e9</b>&nbsp;:</span>'
     +'<div class="rec-ligne rec-hline">on '+recSel('rec-v1',q.v1)+' que c\u2019est vrai pour '+recMF('rec-p1')+'&nbsp;: '
@@ -25140,6 +25183,7 @@ function apfGrilleHTML(pre, ev, cas){
 function apfTraits(pre){
   pre=pre||'apf';
   const g=$(pre+'Grille'), s=$(pre+'Traits'); if(!g||!s) return;
+  if(pre==='apc' && g.parentNode) document.documentElement.style.setProperty('--apc-arbre-h', g.parentNode.offsetHeight+'px');
   const R=g.getBoundingClientRect(), r=id=>{ const e=$(id); if(!e) return null; const b=e.getBoundingClientRect();
     return {l:b.left-R.left, r:b.right-R.left, t:b.top-R.top, b:b.bottom-R.top, cy:(b.top+b.bottom)/2-R.top}; };
   const O=r(pre+'-n-O'), A=r(pre+'-n-A'), nA=r(pre+'-n-nA'), F=[1,2,3,4].map(i=>r(pre+'-f'+i)), acc=r(pre+'-acc'), pb=r(pre+'-pb');
@@ -25221,12 +25265,12 @@ function apfAjouterLigne(){
    (navCases) l'aurait envoyée à la case suivante, ou au bouton Vérifier. */
 document.addEventListener('keydown', function(e){
   const t=e.target; if(e.key!=='Enter' || !t || !t.id) return;
-  const m=/^(ap[fc])-r(\d+)([gd])$/.exec(t.id); if(!m) return;   /* apf : 6.1.2 ; apc : 6.1.3 */
+  const m=/^(apf)-r(\d+)([gd])$/.exec(t.id); if(!m) return;   /* le 6.1.2 ; le 6.1.3 a trois lignes préparées, que la navigation commune parcourt */
   e.preventDefault(); e.stopPropagation();
   if(test.locked) return;
   let cible;
   if(m[3]==='g') cible=$(m[1]+'-r'+m[2]+'d');
-  else cible=$(m[1]+'-r'+(+m[2]+1)+'g') || (m[1]==='apc' ? apcAjouterLigne() : apfAjouterLigne());
+  else cible=$(m[1]+'-r'+(+m[2]+1)+'g') || apfAjouterLigne();
   if(cible) cible.focus();
 }, true);
 /* la rangée de jetons : ce que le clavier d'un ordinateur n'écrit pas
@@ -25548,25 +25592,64 @@ function apcPourquoi(q, g){
   return 'On cherche la probabilité de '+A+' seul, sans condition : '+P('A')+'. Comme elle est inconnue, on la note <i>x</i>, et les probabilités totales donnent '+P('B')+' en fonction de <i>x</i>.';
 }
 /* ---- les cases : leurs identifiants, leur juge, leur correction ---- */
-const APC_NLIG=2;
-function apcNLig(q){ return Math.max(APC_NLIG, q.nLig||0); }
-function apcResolIds(q){ const r=[]; for(let k=1;k<=apcNLig(q);k++) r.push('apc-r'+k+'g','apc-r'+k+'d'); return r; }
+/* LA RÉSOLUTION EN TROIS ÉTAPES PRÉPARÉES (demande de Turquet, octobre
+   2026 : « quand il y a une équation avec x, les 3 étapes sont préparées
+   quand l'élève a déterminé avant l'expression en fonction de x : 0,2x − 0,1
+   = …, puis 0,2x = …, puis x = … »). Les membres de gauche sont écrits par la
+   page (des textes, pas des cases : ils ne comptent pas), à partir de la
+   forme réduite que l'élève a écrite au bout de sa ligne P(B) = … ; l'élève
+   remplit les trois membres de droite, apc-r1, apc-r2, apc-r3. */
+const APC_RES=3;
+function apcResolIds(){ const r=[]; for(let k=1;k<=APC_RES;k++) r.push('apc-r'+k); return r; }
+/* la forme réduite a·x + b écrite au bout de la ligne P(B) = … ; null tant qu'il n'y en a pas */
+function apcExprEleve(q){
+  const i=q.subs.indexOf('x'), el=i<0 ? null : $('apc-c'+(i+1)); if(!el) return null;
+  const M=apfMembres(el.value, true); if(!M) return null;
+  const s=M[M.length-1].s;
+  if(!/^-?(\d+\.?\d*)?x([+-]\d+\.?\d*)?$/.test(s) && !/^-?\d+\.?\d*[+-](\d+\.?\d*)?x$/.test(s)) return null;
+  const f=apfParse(s, true); if(!f) return null;
+  const b=f(0), a=f(1)-b; if(!isFinite(a) || !isFinite(b) || Math.abs(a)<1e-12) return null;
+  return {a:+a.toFixed(6), b:+b.toFixed(6)};
+}
+function apcMembresTxt(e, html){ return [apfLin(e.a,e.b,html), apfLin(e.a,0,html), html?'<i>x</i>':'x']; }
+/* écrit les trois membres de gauche : ceux de l'élève ; à la clôture, les bons (en vert s'ils diffèrent) */
+function apcPreparer(q){
+  if(!q || q.subs.indexOf('x')<0 || !$('apc-m1')) return;
+  const l=apcResolDe(q), bon={a:l.a, b:l.b}, e=apcExprEleve(q);
+  const juste=e && Math.abs(e.a-bon.a)<1e-9 && Math.abs(e.b-bon.b)<1e-9;
+  const Me=e ? apcMembresTxt(e, true) : null, M=test.locked ? apcMembresTxt(bon, true) : Me;
+  for(let k=1;k<=APC_RES;k++){
+    const sp=$('apc-m'+k); if(!sp) continue;
+    sp.innerHTML=M ? M[k-1] : '<span class="apf-pts">……</span>';
+    sp.classList.toggle('apc-cor', !!(test.locked && !juste && (!Me || Me[k-1]!==M[k-1])));   /* en vert, le membre que la page a dû corriger */
+  }
+  const h=$('apc-prep'); if(h) h.style.display=(M || test.locked) ? 'none' : '';
+}
+/* les membres de droite : un nombre, ou un calcul qui y mène (« 0,5 − 0,1 = 0,4 ») ; le dernier membre est un nombre */
+function apcJugeResolCase(q, k, raw){
+  const l=apcResolDe(q), cible=[l.pb, +(l.pb-l.b).toFixed(6), l.sol][k-1];
+  const M=apfMembres(raw, false); if(!M) return {ok:false};
+  for(const m of M){ const f=m.s && apfParse(m.s, false); if(!f || Math.abs(f(0)-cible)>1e-9) return {ok:false}; }
+  if(!apfEstNombre(M[M.length-1].s)) return {ok:false, pourquoi:'termine chaque étape de la résolution par un nombre'};
+  return {ok:true};
+}
 function apcIds(q){
   let ids=APC_ARBRE.map(apcCaseId);
   q.subs.forEach(function(sub,i){ ids.push('apc-c'+(i+1)); if(sub==='x') ids=ids.concat(apcResolIds(q)); });
   return ids;
 }
-function apcIdsUniques(q){ return apcIds(q).filter(function(id){ return !/^apc-r/.test(id) || id==='apc-r1g'; }); }
+function apcIdsUniques(q){ return apcIds(q); }   /* les trois étapes de la résolution sont trois réponses distinctes */
 function apcLigneDe(q, id){ const i=+id.slice(5)-1; return apcLignes(q, q.subs[i])[0]; }
 function apcResolDe(q){ const i=q.subs.indexOf('x'); return i<0 ? null : apcLignes(q,'x')[1]; }
 function apcJuger(q, id, raw){
   if(/^apc-t-/.test(id)) return {ok:q.ch.ev===0 && apcJugeCase(q, id.slice(6).replace('-','.'), raw)};   /* un arbre écrit dans le mauvais sens n'a aucune case juste */
+  if(/^apc-r/.test(id)) return apcJugeResolCase(q, +id.slice(5), raw);
   const l=apcLigneDe(q, id);
   return l.t==='demo' ? apfJugeDemo(raw,l) : apfJugeChaine(raw,l);
 }
 function apcCorr(q, id){
   if(/^apc-t-/.test(id)) return apfNb(APF_D(apcV(q)[id.slice(6).replace('-','.')]));
-  if(/^apc-r/.test(id)) return apfResolTxt(apcResolDe(q));
+  if(/^apc-r/.test(id)) return apcResolDe(q).etapes[+id.slice(5)-1][1];
   return apcLigneDe(q, id).corr;
 }
 /* ---- le rendu ---- */
@@ -25648,8 +25731,8 @@ document.addEventListener('click', function(e){ if(!e.target.closest || !e.targe
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') apcFermerMenu(); });
 function apcArbreHTML(q){ return apfGrilleHTML('apc', function(e){ return apfEv(q,e); }, function(k){ return apcCaseHTML(q,k); }); }
 function apcLigneHTML(k){
-  const c=s=>'<input class="sa2-in apf-eqin" id="apc-r'+k+s+'" type="text" autocomplete="off" spellcheck="false" inputmode="numeric" data-pave-plus="x ( ) + ×">';
-  return '<div class="apf-row apf-eqrow">'+c('g')+'<span class="apf-lab">=</span>'+c('d')+'</div>';
+  return '<div class="apf-row apf-eqrow"><span class="apf-lab apc-mb" id="apc-m'+k+'"><span class="apf-pts">……</span></span><span class="apf-lab">=</span>'
+    +'<input class="sa2-in apf-eqin" id="apc-r'+k+'" type="text" autocomplete="off" spellcheck="false" inputmode="numeric" data-pave-plus="( ) + ×"></div>';
 }
 function apcSuiteHTML(q, i){
   const sub=q.subs[i], L=apcLignes(q, sub), P=e=>apfP(q,e);
@@ -25659,11 +25742,15 @@ function apcSuiteHTML(q, i){
   if(sub!=='x') return '<div class="apf-row">'+apcSlotHTML(i)+'<span class="apc-dev" id="apc-d'+i+'"></span><span class="apf-lab">=</span>'+champ(false, 'calcul = résultat')+'</div>'+pq;
   return '<p class="apc-etape">On pose '+apcSlotHTML(i)+' = <i>x</i>. Exprime '+P('B')+' en fonction de <i>x</i>, puis réduis :</p>'+pq
     +'<div class="apf-row"><span class="apf-lab">'+L[0].lab+' =</span>'+champ(true, 'calcul en x = forme réduite')+'</div>'
-    +'<p class="apc-etape">'+P('B')+' = '+apfNb(L[1].pb)+' : écris l’équation vérifiée par <i>x</i>, puis résous-la.</p>'
-    +'<div class="apf-resol" id="apcResol">'+Array.from({length:apcNLig(q)},function(u,k){ return apcLigneHTML(k+1); }).join('')+'</div>'
-    +'<p class="apf-astuce">Une étape par ligne. La touche Entrée ajoute une ligne.</p>';
+    +'<p class="apc-etape">'+P('B')+' = '+apfNb(L[1].pb)+' : résous l’équation, étape par étape.</p>'
+    +'<p class="apf-astuce" id="apc-prep">Les étapes se préparent dès que tu as écrit '+P('B')+' sous forme réduite.</p>'
+    +'<div class="apf-resol" id="apcResol">'+Array.from({length:APC_RES},function(u,k){ return apcLigneHTML(k+1); }).join('')+'</div>';
 }
-function apcBrancherCase(el){ if(isSoutien()) el.addEventListener('input', function(){ checkAPC(true); }); }
+function apcBrancherCase(el){
+  const q=test.questions[test.idx];
+  if(q && el.id==='apc-c'+(q.subs.indexOf('x')+1)) el.addEventListener('input', function(){ apcPreparer(test.questions[test.idx]); });
+  if(isSoutien()) el.addEventListener('input', function(){ checkAPC(true); });
+}
 /* ce qu'un choix ouvre : l'arbre (le choix de l'événement), ou les lignes de
    calcul de la question (le choix de la formule) — une seule fois */
 function apcReveler(q, g){
@@ -25685,6 +25772,7 @@ function apcReveler(q, g){
     zone.innerHTML='<p class="apf-cons"><b>b)</b> La page a écrit les probabilités sur l’arbre. Complète-le avec les données de l’énoncé et les probabilités contraires que l’on peut en déduire.</p>'
       +apcArbreHTML(vue);
     APC_ARBRE.forEach(function(k){ const el=$(apcCaseId(k)); if(el){ if(garde[k]) el.value=garde[k]; sa2Ajuster(el); apcBrancherCase(el); } });
+    const fixe=zone.querySelector('.apf-arbre-defile'); if(fixe) fixe.classList.add('apc-fixe');   /* l'arbre reste en haut de l'écran */
     apfSuivreTraits('apc');
   } else {
     apcSlotPeindre(q, +g.slice(1));
@@ -25697,13 +25785,6 @@ function apcChoisir(g, k){
   apcPeindre(q, g);
   apcReveler(q, g);
   if(isSoutien()) checkAPC(true);
-}
-function apcAjouterLigne(){
-  const q=test.questions[test.idx], b=$('apcResol'); if(!b || test.locked) return null;
-  q.nLig=apcNLig(q)+1;
-  b.insertAdjacentHTML('beforeend', apcLigneHTML(q.nLig));
-  ['g','d'].forEach(function(s){ const el=$('apc-r'+q.nLig+s); if(el) apcBrancherCase(el); });
-  return $('apc-r'+q.nLig+'g');
 }
 function apcEnonceHTML(q){
   const C=APC_CTX[q.c], V=apcV(q), A=apfEv(q,'A'), B=apfEv(q,'B');
@@ -25746,21 +25827,18 @@ function renderAPC(){
   $('apcQuestions').querySelectorAll('input').forEach(apcBrancherCase);
   /* la reprise après une pause : les choix déjà faits se redessinent, et l'arbre qu'ouvrait le premier */
   apcGroupes(q).forEach(function(g){ apcPeindre(q,g); const ch=q.ch[g]; if(g==='ev' && ch!==undefined) apcReveler(q,g); });
+  apcPreparer(q);
 }
 /* Juge tout ce qui est à l'écran : les choix (q.ch) et les cases. */
 function apcJugerTout(q, live){
   const verd={}, raisons=[], notes=[];
   let allOk=apcGroupes(q).every(function(g){ return q.ch[g]===0; });
   let anyFilled=apcGroupes(q).some(function(g){ return q.ch[g]!==undefined; });
-  const l=apcResolDe(q), R=(l && $('apc-r1g')) ? apfJugeResolL(l, apcNLig(q), 'apc-r') : null;
-  if(l && (!R || !R.ok)) allOk=false;
-  if(R && !live) R.raisons.forEach(function(r){ raisons.push(r); });
   apcIds(q).forEach(function(id){
     const el=$(id); if(!el){ allOk=false; return; }
-    const raw=String(el.value==null?'':el.value), rempli=raw.trim()!=='', resol=/^apc-r/.test(id);
-    const j=resol ? {ok:!!R.V[id]} : rempli ? apcJuger(q, id, raw) : {ok:false};
+    const raw=String(el.value==null?'':el.value), rempli=raw.trim()!=='';
+    const j=rempli ? apcJuger(q, id, raw) : {ok:false};
     el.classList.remove('ok','bad','sol');
-    if(resol && !rempli){ verd[id]=false; if(!live) el.disabled=!isSoutien(); return; }   /* une ligne vide de la résolution n'est pas une faute */
     if(rempli){ anyFilled=true; el.classList.add(j.ok?'ok':'bad'); }   /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR */
     if(!j.ok) allOk=false;
     if(live) return;
@@ -25769,7 +25847,7 @@ function apcJugerTout(q, live){
     verd[id]=j.ok;
     el.disabled=!!(j.ok||!isSoutien());
   });
-  return {verd:verd, raisons:raisons, notes:notes, allOk:allOk, anyFilled:anyFilled, R:R};
+  return {verd:verd, raisons:raisons, notes:notes, allOk:allOk, anyFilled:anyFilled};
 }
 function checkAPC(live){
   if(test.locked && !live) return;
@@ -25796,6 +25874,7 @@ function checkAPC(live){
   /* la question se clôt : tout ce qu'un choix n'avait pas ouvert s'ouvre, pour recevoir sa correction */
   test.locked=true; apcFermerMenu();
   apcGroupes(q).forEach(function(g){ apcReveler(q,g); apcPeindre(q,g); });
+  apcPreparer(q);   /* les membres de gauche : les bons, en vert si l'élève en avait écrit d'autres */
   J=apcJugerTout(q, false);
   if(J.allOk){
     test.score++; $('apcLiveScore').textContent=test.score;
@@ -25807,13 +25886,7 @@ function checkAPC(live){
       +'on <b>multiplie</b> le long d’un chemin, on <b>additionne</b> les chemins qui mènent au même événement, et l’on <b>divise</b> par la probabilité de ce que l’on sait pour « remonter » l’arbre.';
     fb.className='mp-feedback bad';
     apcIds(q).forEach(function(id){
-      if(/^apc-r/.test(id)) return;
       corrCase(id, apcCorr(q,id), J.verd[id]===true); const el=$(id); if(el && /^apc-t-/.test(id)) sa2Ajuster(el); });
-    const R=J.R;
-    if(R && !R.ok){
-      Object.keys(R.att).forEach(function(id){ if(!$(id)){ test.locked=false; apcAjouterLigne(); test.locked=true; } const el=$(id); if(el && !el.value.trim()) corrCase(id, R.att[id], false); });
-      $('apcResol').insertAdjacentHTML('afterend','<p class="apf-resol-cor">Correction : '+R.l.etapes.map(function(e){ return esc(e[0]+' = '+e[1]); }).join('<br>')+'</p>');
-    }
   }
   test.answers.push(Object.assign({}, ptsExo()||{}, {
     q:apcPlain(q), answer:apcReponseTxt(q), given:J.allOk?'✓':'incomplet', correct:J.allOk, type:'apc'}));
@@ -25824,7 +25897,7 @@ function checkAPC(live){
 function nextAPC(){ if(test.idx<test.questions.length-1){ test.idx++; renderAPC(); } else finishTest(); }
 function apcNomCase(q, id){
   if(/^apc-t-/.test(id)) return 'arbre '+apfCaseLab(q, id.slice(6).replace('-','.'), true);
-  if(/^apc-r/.test(id)){ const m=/^apc-r(\d+)([gd])$/.exec(id); return 'résolution, ligne '+m[1]+(m[2]==='g'?' (gauche)':' (droite)'); }
+  if(/^apc-r/.test(id)) return 'résolution, étape '+id.slice(5)+' (membre de droite)';   /* le membre de gauche est la forme réduite : la nommer la révélerait */
   const i=+id.slice(5)-1; return 'question '+APF_LETTRE_Q.charAt(i)+') : ligne '+apcLigneDe(q,id).labT;
 }
 function apcReponseTxt(q){
@@ -26587,7 +26660,7 @@ function renderRFR(){
   const inF=function(i1,i2){ return F(rfrIn(i1,true), rfrIn(i2,true)); };   /* fraction à deux cases */
   $('rfrPartB').innerHTML=
      '<div class="sa2-row rfr-row"><b>Initialisation</b>'+T('(vrai pour '+n)+tEq(T('='), rfrIn('rfr-n0'))+T(')&nbsp;: '+U+'<sub>0</sub> =')+rfrIn('rfr-i1')
-      +T('et')+F(rfrIn('rfr-i2')+T('+ '+a), rfrIn('rfr-i3')+T('+ '+b))+T('=')+rfrIn('rfr-i4')+'</div>'
+      +T('et')+F(rfrIn('rfr-i2')+T('+ '+a), rfrIn('rfr-i3')+T('+ '+b))+tEq(T('='), rfrIn('rfr-i4'))+'</div>'
     +'<div class="sa2-row rfr-row"><b>Hérédité</b>'+T('— on <b>suppose</b> que c’est vrai pour '+n+'&nbsp;: '+Un+' =')+inF('rfr-h1','rfr-h2')+'</div>'
     +'<div class="sa2-row rfr-row"><b>Montrons</b>'+T('que c’est vrai pour '+n+' + 1&nbsp;: '+Un1+' =')+inF('rfr-m1','rfr-m2')+'</div>'
     +'<div class="sa2-ladder rfr-chaine">'

@@ -274,6 +274,82 @@ Essayé dans Chromium à 1280 et 390 px : « 0,38 ÷ (1 − 0,56) = 0,9 » bleu 
 l'avertissement de précision, « = 0,86 » bleu sans avertissement, « = 0,88 »
 faux. Terminale v407.
 
+**Puis la résolution s'est PRÉPARÉE en trois étapes, et l'arbre est resté en
+haut de l'écran** (demande de Turquet, octobre 2026 : « quand il y a une
+équation avec x, que les 3 étapes soient préparées quand l'élève a déterminé
+avant l'expression en fonction de x, par exemple 0,2x − 0,1 = …, puis
+0,2x = …, puis x = … » ; « que l'arbre reste en haut de l'écran, toujours
+visible quand on fait défiler vers le bas »).
+
+* Le bloc de lignes « [ … ] = [ … ] » à ajouter par Entrée a disparu du
+  6.1.3 (le 6.1.2 le garde). Trois lignes fixes : le membre de GAUCHE est un
+  texte écrit par la page — la forme réduite a·x + b, puis a·x, puis x —, le
+  membre de droite une case (`apc-r1`, `apc-r2`, `apc-r3`). Les membres de
+  gauche se lisent dans la ligne P(B) = … de l'élève (`apcExprEleve` : son
+  dernier membre, s'il est réduit), à chaque frappe ; tant qu'il n'y en a
+  pas, ils restent « …… ». Ils suivent l'expression de l'élève, même
+  fausse — c'est la sienne qu'il résout ; à la clôture, les bons membres les
+  remplacent, en vert là où ils diffèrent (`apcPreparer`). Rien à ranger pour
+  la pause : la reprise relit la ligne P(B) remise en place.
+* Le juge (`apcJugeResolCase`) : chaque case vaut sa cible — P(B), P(B) − b,
+  puis la solution — et peut écrire le calcul qui y mène
+  (« 0,42 − 0,1 = 0,32 ») ; le dernier membre est un nombre. Les cibles sont
+  celles de la BONNE expression : une expression fausse rend fausses les
+  étapes qui en dépendent. Trois réponses comptées, comme trois cases ; une
+  case vide reçoit sa valeur en vert.
+* L'arbre est collé en haut (`position:sticky`, classe `apc-fixe`). Un
+  élément collé ne sort pas de son parent : `#apcArbre` et `#apcArbreSuite`
+  passent en `display:contents`, et l'arbre colle dans le cadre de
+  l'exercice, celui des questions. **Le piège** : `overflow-x:hidden` sur
+  `html` ET `body` (la ceinture de la largeur) fait du body un conteneur de
+  défilement qui ne défile jamais — l'arbre « collait » au body et partait
+  avec la page (mesuré : -208 px). Sur cet écran, le body prend
+  `overflow-x:clip`, qui coupe pareil sans créer de conteneur. Et
+  `scroll-padding-top` réserve la hauteur de l'arbre (`--apc-arbre-h`, posée
+  par `apfTraits`) : une case qui reçoit le focus ne passe pas dessous. Sous
+  560 px de haut (téléphone couché), l'arbre ne colle pas : il couvrirait
+  l'écran. Quand le clavier est ancré, il colle 56 px plus bas, sous les
+  commandes montées en haut.
+
+Mesuré dans Chromium : 768 × 1024 (arbre 363 px collé à 0, la case visée sous
+lui), 390 × 844 (299 px), 1280 × 800 ; 844 × 390, non collé. Expression
+fausse « 0,5x + 0,3 » : membres « 0,5x + 0,3 », « 0,5x », « x » préparés ; à
+la clôture, « 0,8x + 0,1 » et « 0,8x » en vert. Terminale v409.
+
+## En portrait, le cadre d'un exercice prend la largeur de l'écran — les trois niveaux
+
+Demande de Turquet (octobre 2026) : « en mode portrait, que le cadre blanc de
+l'exercice soit plus large pour mieux exploiter la largeur de l'écran ;
+vérifier que ce soit fait pour les autres exercices du site ».
+
+**Mesuré avant** : en Terminale, la largeur des cartes suit `--card-max`
+(560 / 780 / 1040 / 1200) — une tablette en portrait (768 à 834 px) tombait
+sous le premier palier : un cadre de 560 px centré, plus de 200 px vides ; à
+1024 px, la colonne de 780 px. La Seconde et la Première prenaient déjà la
+largeur (`body.plein-ecran`), à 20 px de gouttière plus 26 px de rembourrage.
+
+**La règle** : en portrait (jusqu'à 1100 px de large), sur un écran
+d'exercice, la Terminale lève `--card-max` et la colonne (`body.ecran-exo`,
+posé par `show()`) ; les trois niveaux ramènent la gouttière à 10 px et le
+rembourrage du cadre à 20 px × 14 px. Les menus gardent leur colonne ; le
+paysage et l'ordinateur ne changent pas. Mesuré sur chaque exercice des
+trois menus dans Chromium : à 768 px, 748 px de cadre partout (Terminale :
+560 avant ; Seconde et Première : 728) ; à 390 px, 370 ; aucune page ne
+défile en largeur. Terminale v409, Seconde v571, Première v332.
+
+**Ce que le banc navigateur a trouvé** à la première exécution : deux échecs,
+aucun dans le 6.1.3. D'abord un défaut réel, que la nouvelle largeur a mis au
+jour : à 600 et 390 px, au {recurrence-fractions} et au {recurrence-complete},
+un « = » se séparait de sa case (`rfr-i4`, `rec-t2` ; puis, sur le
+serveur de l'action, à 820 px, `rec-i-v` — « vrai car U₀ = … »). Dans un cadre de
+560 px, le repli tombait ailleurs ; dans un cadre plus large, il tombait
+entre eux. Les deux sont désormais collés par `tEq`, la fabrique qui le
+faisait déjà pour `rfr-n0` juste à côté. Ensuite une mesure qui ne mesurait
+plus rien : au {suite-variation-recurrence}, la grille de la démonstration
+devait défiler « à 900 px », mesurée à 900 × 950 — un portrait, où elle tient
+désormais. La mesure se fait à 900 × 700, en paysage, dans le cadre de
+780 px qu'elle éprouvait.
+
 ## {proba-phrase-formule} (6.1.4, d’abord 6.2.1) : comprendre une question — associer phrase et formule
 
 Demande de Turquet (octobre 2026), avec la « fiche 4 — Comprendre une

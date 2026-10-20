@@ -91,6 +91,15 @@
      lire d'un trait. La classe est posée par show(), sur les seuls écrans
      d'exercice — le menu, lui, garde sa colonne. */
   body.plein-ecran .wrap{max-width:none;}
+  /* EN PORTRAIT, LES GOUTTIÈRES SE RÉDUISENT (demande de Turquet, octobre
+     2026 : « en mode portrait, le cadre blanc de l'exercice plus large pour
+     mieux exploiter la largeur de l'écran », sur tout le site) : 10 px de
+     chaque côté de l'écran au lieu de 20, et 14 px dans le cadre au lieu
+     de 26 — la règle même de la Terminale. Le paysage ne change pas. */
+  @media (orientation:portrait) and (max-width:1100px){
+    body.plein-ecran .wrap{padding-left:10px;padding-right:10px}
+    body.plein-ecran .screen.on>.card{padding:20px 14px}
+  }
   /* L'ÉCRAN « EXERCICES PAR THÈME » PREND TOUTE LA LARGEUR, et ses cartes
      gagnent des colonnes (demande de Turquet, août 2026). Cette décision
      REMPLACE, pour cet écran-là seulement, « le menu garde sa colonne » :
@@ -8197,7 +8206,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=570;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=571;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
