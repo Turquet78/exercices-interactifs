@@ -370,3 +370,18 @@ après le clic d'avant ; il la cherche désormais jusqu'à 4 s, et une touche qu
 touche trouvée mais sans effet vaut `'muet'` et se nomme dans le message
 (« cliquées sans rien écrire : ge ») — distincte d'une touche absente, qui
 reste `false`. Le contrôle exige `=== true` pour chacune.
+
+**Puis le tas du banc jsdom est remonté à 6 Go dans l'action, en MARGE** (octobre 2026,
+décision de Turquet : « monte la mémoire à 6 Go »). La pull request du
+{regle-parallelogramme} avait débordé deux fois (« heap out of memory » sur
+`controles (secondes.html)`, aucun contrôle en échec) AVANT que le correctif des
+`MutationObserver` ci-dessus n'arrive sur main ; mesuré alors sous
+`--max-old-space-size=4096`, `main` montait à 4308 Mo. Turquet a demandé le
+relèvement à ce moment-là, et il est gardé : `controles.yml` lance
+`node --max-old-space-size=6144 tests/verifier.js` (la machine de l'action a
+16 Go). Ce n'est plus le remède — le correctif des observateurs l'est, et le
+banc plafonne autour de 2,5 Go —, c'est une marge : un débordement qui
+reviendrait se lirait dans la mémoire mesurée, pas dans un banc mort. Ce n'est
+pas non plus une licence : un contrôle relit un SVG comme du texte plutôt que
+de redessiner des centaines de figures (la leçon du 8.1.9).
+
