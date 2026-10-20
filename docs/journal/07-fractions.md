@@ -1900,3 +1900,36 @@ puis le résultat direct sans l'inverse (refusé). Le banc navigateur (« 6
 terdecies bis ») tape au clavier la copie au facteur enlevé, puis la rédigée
 15/10, refusée avec « pas simplifié ». Éprouvé par sabotage : la route
 simplifiée et la route directe coupées, six écarts nommés.
+
+**Puis le 5.7 et le 5.9 de la Seconde ont accepté un résultat ÉGAL mais NON
+SIMPLIFIÉ (octobre 2026, option C).** Décision de Turquet, parmi quatre
+options sur les rédigées de fractions : au 5.7 {multiplier-fractions-libre}
+et au 5.9 {diviser-fractions-libre}, un résultat final égal à P/Q mais
+réductible — la route du même dénominateur « 1/2 × 5/3 = 3/6 × 10/6 =
+30/36 », ou au 5.9 « 3/5 ÷ 2/7 = 3/5 × 7/2 = 42/20 » — compte JUSTE, avec
+un message « pense à simplifier ». Le 5.5 {somme-fractions-libre} ne change
+pas : l'irréductible y reste exigé. Avant, le juge (`libreJuge`, genres
+`mll`/`dll`) ne comparait que des VALEURS et acceptait déjà ces copies — sans
+rien dire, pendant que les trois textes envoyés au modèle affirmaient « cette
+fraction est déjà irréductible, il n'y a rien à simplifier » : vrai de P/Q,
+faux de la copie, et le modèle félicitait 30/36 comme une forme finie.
+Maintenant le verdict positif porte `reductible:true`, posé APRÈS toutes les
+abstentions (l'inverse manquant au 5.9 s'abstient toujours, moins de deux
+morceaux aussi) et après le refus `simplifier` du 5.5, qui reste ;
+`libreVerdictIA` dit au modèle « réductible : dis-le en une phrase, sans
+donner le nombre, sans le compter comme une faute » ; `libreSecours` écrit
+« Ton calcul est juste. Le résultat peut encore se simplifier : cherche un
+nombre qui divise le haut et le bas. » — en vert, c'est un point gagné —
+quand le modèle est muet ou le contredit ; `mllAttenduIA` et `mllCtxTexte`
+disent « toute fraction ÉGALE à P/Q est acceptée comme résultat final ; si
+elle n'est pas simplifiée, le signaler en une phrase, sans réclamer la
+simplification comme une faute ». Tenu par « le juge arithmétique des
+rédactions » (30/36 et 42/20 justes ET réductibles, 5/6 sans drapeau, 42/20
+sans inverse abstenu, 10/12 au 5.5 refusé, la phrase de secours, le verdict
+et les quatre textes relus) et par « le verdict du juge arithmétique prime »
+(30/36 CLIQUÉ sous un modèle en panne puis sous un modèle qui refuse : le
+point, le vert, la phrase). Éprouvé par quatre sabotages : le drapeau retiré
+du juge (deux contrôles rouges, cinq écarts), un seul des textes revenu à
+« déjà irréductible » (trois écarts, le texte nommé), la phrase de secours
+muette (les deux contrôles), et le refus du 5.5 retiré (« 10/12 : juste au
+lieu de faux (simplifier) »).
