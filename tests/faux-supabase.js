@@ -61,6 +61,12 @@ window.__faux = {
      six chiffres — une classe entière derrière l'adresse de l'établissement
      la rencontre. Ce n'est PAS un code faux, et la page ne doit pas le dire. */
   cadence: false,
+  /* Poser window.__faux.delaiConnexion = n fait répondre signInWithPassword
+     après n millisecondes : le temps que met Supabase, au lycée, à vérifier un
+     code. Sans lui, la vérification ne dure qu'une microtâche, et l'état « en
+     cours » de la case du code — comme le second appui sur « Entrer » pendant
+     ce temps — ne se verrait jamais. */
+  delaiConnexion: 0,
   /* Poser window.__faux.nonConfirme = true fait répondre « Email not
      confirmed » (400, email_not_confirmed) : le réglage « confirmation par
      courriel » resté actif sur le projet, qu'aucun banc ne voit. Un 400 n'est
@@ -290,6 +296,10 @@ window.supabase = {
          plus que lui demander son avis. */
       auth: {
         signInWithPassword(id){
+          const r = this._signIn(id);
+          return F.delaiConnexion ? r.then(v => new Promise(ok => setTimeout(() => ok(v), F.delaiConnexion))) : r;
+        },
+        _signIn(id){
           const courriel = id && id.email, mdp = id && id.password;
           const c = F.comptes[courriel];
           if(F.cadence){

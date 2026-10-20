@@ -1200,3 +1200,45 @@ bilan).
 **Les notes enregistrées n'ont rien à réparer** : rien n'était faux en base,
 seule la LECTURE du professeur était tronquée. Recharger le tableau de bord
 suffit.
+
+**Le dernier chiffre du code lance la connexion, et la case dit où elle en
+est.** Demande de Turquet (octobre 2026) : « quand le code élève est correct à
+la dernière frappe, laisser comprendre en encadrant en vert le cadre du mot de
+passe que c'est validé et qu'il suffit d'attendre ». Sur tablette, l'élève
+tapait six chiffres, cherchait « Entrer », et ne voyait rien pendant la ou les
+deux secondes de la vérification — alors il retapait. Désormais un écouteur
+`input` sur `#loginPin` appelle `connexionEleve()` dès que la case porte
+`CHIFFRES_CODE` chiffres, que la frappe vienne du clavier, du pavé de la
+tablette (`paveInserer` émet `input`) ou d'un collage — et seulement si le
+prénom est connu (pastille cliquée, ou champ du repli rempli) : sinon « Écris
+ton prénom » arracherait le focus au milieu du code. `etatCode()` pose sur la
+case `pin-attente` (bleue qui pulse, « Vérification de ton code… »),
+`pin-valide` (VERTE, « ✓ C'est bon — tes exercices arrivent… ») ou
+`pin-refus` (rouge, secouée, « ✗ Code incorrect »), et écrit la phrase dans
+`#pinEtat` (`aria-live`). **Jamais verte avant la réponse** : la page ne
+connaît pas le code (paragraphe « L'authentification vit dans Supabase »), le
+vert se pose après la relecture de la ligne de l'élève, juste avant
+`ouvrirEspace()`. Les classes ne s'appellent ni `ok` ni `bad` : le contrôle des
+couleurs de verdict (« 9 bis ») lit toute règle `.ok` comme une case juste,
+qui doit être BLEUE.
+**Une seule tentative à la fois** (`connexionEnCours`) : l'élève qui appuie
+sur « Entrer » ou ⏎ juste après le sixième chiffre en lançait une seconde —
+deux essais contre la limitation de cadence, et, derrière un code refusé, une
+case vidée qui répondait « Écris ton code » par-dessus « Code incorrect ».
+Le corps de la fonction vit dans un `try…finally` qui relâche le verrou et
+rend la case neutre si elle sort sans verdict (panne, compte non relié : le
+toast le dit). La frappe suivante efface le rouge ; la liste redessinée (la
+sortie) et le clic sur une pastille rendent la case neutre.
+**Le banc.** Le double de Supabase sait maintenant faire attendre sa réponse
+(`__faux.delaiConnexion`) : sans lui, la vérification ne dure qu'une
+microtâche et l'état « en cours » ne se voit jamais. Quatre contrôles
+(banc navigateur, section de la connexion), le code tapé au clavier touche
+par touche : le dernier chiffre lance la connexion et un « Entrée » pendant la
+vérification n'en relance pas une seconde (une seule tentative au journal) ;
+un code refusé rougit, vide et le dit, la frappe suivante efface le rouge ; un
+code accepté passe au vert APRÈS l'état « en cours », jamais pendant, puis la
+case redevient neutre à la sortie ; cinq chiffres ne lancent rien, et le
+bouton « Entrer » connecte toujours un code posé sans frappe. Les neuf
+contrôles qui remplissaient le code puis cliquaient « Entrer » passent par
+`saisirCode()`, qui attend le verdict au lieu de cliquer : le clic de trop
+était justement le second appel que le verrou refuse.
