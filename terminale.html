@@ -3746,7 +3746,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=411;
+const APP_VERSION=412;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -25075,31 +25075,26 @@ function apfMembres(raw, avecX){
 }
 function apfEstNombre(s){ return /^-?(\d+\.?\d*|\.\d+)$/.test(s) || /^-?\(?\d+\)?\/\(?\d+\)?$/.test(s); }   /* « 9/47 », ou « (9)/(47) » : une fraction MathLive aplatie */
 /* LE JUGE D'UNE LIGNE DE CALCUL. Rend {ok, pourquoi, note}.
-   Une ligne « libre » (l.libre, le 6.1.3 : une valeur approchée demandée sans
-   précision imposée — demande de Turquet, octobre 2026) accepte une valeur
-   approchée derrière « = » comme derrière « ≈ », et à toute précision d'au
-   moins une décimale ; une précision autre que 0,01 est juste, mais signalée
-   (note). */
+   Une ligne « libre » (l.libre, le 6.1.3 : une valeur approchée demandée à
+   10⁻² près — demande de Turquet, octobre 2026) accepte une valeur approchée
+   derrière « = » comme derrière « ≈ », dès qu'elle est à 0,01 près de la
+   valeur exacte : l'arrondi (0,73) comme la troncature (0,72), ou plus
+   précise (0,7265). */
 function apfJugeChaine(raw, l){
   const M=apfMembres(raw, !!l.x); if(!M) return {ok:false};
   if(M.some(function(m){ return !m.s; })) return {ok:false, pourquoi:'un membre est vide'};
-  let dFin=null;
   for(const m of M){
     const f=apfParse(m.s, !!l.x); if(!f) return {ok:false, pourquoi:'« '+m.s.replace(/\./g,',')+' » ne se lit pas comme un calcul'};
     const v=f(0.5), exact=Math.abs(v-l.v)<1e-9;
-    if(m.approx || (l.libre && !exact && apfEstNombre(m.s))){
+    if(l.libre && !exact && (m.approx || apfEstNombre(m.s))){
+      if(!/^-?(\d+\.?\d*|\.\d+)$/.test(m.s) || Math.abs(v-l.v)>0.01+1e-12) return {ok:false};
+    } else if(m.approx){
       const d=(m.s.split('.')[1]||'').length;
-      if(!apfEstNombre(m.s) || d<(l.libre?1:2) || Math.abs(v-l.v)>0.5*Math.pow(10,-d)+1e-12) return {ok:false};
-      if(m===M[M.length-1] && !exact) dFin=d;
+      if(!apfEstNombre(m.s) || d<2 || Math.abs(v-l.v)>0.5*Math.pow(10,-d)+1e-12) return {ok:false};
     } else if(!exact) return {ok:false};
   }
   if(!apfEstNombre(M[M.length-1].s)) return {ok:false, pourquoi:'la ligne doit finir par le résultat'};
   if(M.length<2 || apfEstNombre(M[0].s)) return {ok:false, pourquoi:'écris le calcul, pas seulement le résultat'};
-  if(l.libre && dFin!==null && dFin!==2){
-    const s=M[M.length-1].s.replace(/\./g,',');
-    return {ok:true, note:dFin<2 ? 'la valeur approchée '+s+' est juste, mais peu précise : on la donne d’habitude à 0,01 près (deux décimales)'
-                                  : 'la valeur approchée '+s+' est juste ; on la donne d’habitude à 0,01 près (deux décimales)'};
-  }
   return {ok:true};
 }
 function apfJugeDemo(raw, l){
@@ -25527,7 +25522,7 @@ function apcV(q){
   return {A:a*100, nA:(100-a)*100, 'A.B':p*100, 'A.nB':(100-p)*100, 'nA.B':c*100, 'nA.nB':(100-c)*100,
           AB:AB, AnB:a*(100-p), nAB:nAB, nAnB:(100-a)*(100-c), B:AB+nAB};
 }
-/* la correction donne la valeur approchée à 0,01 près (aucune précision n'est imposée à l'élève : apfJugeChaine, l.libre) : « = » si le quotient tombe juste en deux décimales, « ≈ » sinon */
+/* la correction donne la valeur approchée à 0,01 près (l'élève peut aussi tronquer : apfJugeChaine, l.libre) : « = » si le quotient tombe juste en deux décimales, « ≈ » sinon */
 function apcArr(v){ const r=Math.round(v*100)/100; return Math.abs(r-v)<1e-12 ? ' = '+apfNb(r) : ' ≈ '+r.toFixed(2).replace('.',','); }
 /* ---- les cases de l'arbre : toutes les branches (les données et leurs contraires) ---- */
 const APC_ARBRE=['A','nA','A.B','A.nB','nA.B','nA.nB'];
@@ -25583,8 +25578,8 @@ function apcArrTex(v){ const r=Math.round(v*100)/100; return Math.abs(r-v)<1e-12
 function apcQuestion(q, sub){
   const C=APC_CTX[q.c], V=apcV(q);
   if(sub==='B') return 'Démontrer que la probabilité '+apcQue(C.s.B)+' est égale à '+apfNb(APF_D(V.B))+'.';
-  if(sub==='BA') return 'Quelle est la probabilité '+apcQue(C.s.A)+' sachant '+apcQue(C.i.B)+' ? (Donner une valeur approchée.)';
-  if(sub==='nBnA') return 'Quelle est la probabilité '+apcQue(C.s.nA)+' sachant '+apcQue(C.i.nB)+' ? (Donner une valeur approchée.)';
+  if(sub==='BA') return 'Quelle est la probabilité '+apcQue(C.s.A)+' sachant '+apcQue(C.i.B)+' ? (Donner une valeur approchée à 10<sup>−2</sup>&nbsp;près.)';
+  if(sub==='nBnA') return 'Quelle est la probabilité '+apcQue(C.s.nA)+' sachant '+apcQue(C.i.nB)+' ? (Donner une valeur approchée à 10<sup>−2</sup>&nbsp;près.)';
   if(sub==='err') return 'Quelle est la probabilité '+apcQue(C.err)+' ?';
   return 'On reprend la même situation, mais on ne connaît plus la probabilité '+apcQue(C.s.A)+' : les probabilités conditionnelles de l’énoncé ne changent pas, '
     +'et la probabilité '+apcQue(C.s.B)+' vaut maintenant '+apfNb(APF_D(q.bx))+'. Déterminer la probabilité '+apcQue(C.s.A)+'.';
@@ -25987,7 +25982,7 @@ function apcJugerTout(q, live){
     if(!j.ok) allOk=false;
     if(live) return;
     if(rempli && !j.ok && j.pourquoi) raisons.push(j.pourquoi);
-    if(rempli && j.ok && j.note) notes.push(j.note);   /* juste, mais signalé : une valeur approchée d'une autre précision que 0,01 */
+    if(rempli && j.ok && j.note) notes.push(j.note);   /* juste, mais signalé (aucun juge du 6.1.3 n'en rend plus depuis la précision à 10⁻²) */
     verd[id]=j.ok;
     el.disabled=!!(j.ok||!isSoutien());
   });
@@ -26066,7 +26061,7 @@ function apcConseilCtx(){
   return 'Exercice de Terminale, type bac : arbre pondéré à partir d’un énoncé en phrases (fiche 5). '+apcPlain(q)+' '
     +'1. L’élève choisit l’événement des premières branches, puis complète l’arbre avec les données et leurs contraires. '
     +'2. Pour chaque question, il choisit l’écriture littérale de la probabilité cherchée (P(A), P(A ∩ B), P_A(B)…) parmi quatre propositions, puis écrit le calcul : opération puis résultat, séparés par « = », les divisions en fraction ; aucune étape intermédiaire n’est exigée (la résolution de l’équation peut se faire directement dans la dernière ligne). '
-    +'Une valeur approchée est demandée sans précision imposée : « = » comme « ≈ » sont acceptés devant elle, à toute précision ; une précision autre que 0,01 est juste, mais signalée. '
+    +'Une valeur approchée est demandée à 10^-2 près : « = » comme « ≈ » sont acceptés devant elle, et toute valeur à 0,01 près de la valeur exacte est juste — l’arrondi au centième comme la troncature (0,72 ou 0,73 pour 0,7265…). '
     +'État des choix : '+choix+'. '
     +'Cases : '+ids.filter(function(id){ return $(id); }).map(function(id){ return id+' = '+apcNomCase(q,id); }).join(' ; ')+'. '
     +'Réponses attendues, à ne JAMAIS révéler : '+apcReponseTxt(q)+'. '
