@@ -4734,6 +4734,7 @@ function exercices(suite){
     convexiteTangente(w, P);
     convexiteParametre(w, P);
     mineursTerminale(w, P);
+    casesVidesDerivees41(w, P);
     suiteVocabulaire(w, P);
     autourDuTcm(w, P);
     etiquetteCourbe(w, P);
@@ -49223,6 +49224,107 @@ function convexiteTangente(w, P){
    pas, la carte cliquée choisit, le tableau de l'exercice 4 pose ses nœuds
    et ses valeurs sans dessiner de courbe, la courbe de f″ s'étiquette Cf″,
    la phrase « on admet que » lit la courbe, et la clause de secret. */
+/* ---------- 4.1 : une case VIDE ne rougit jamais — sol sur une ligne fausse, ok sur une ligne juste ----------
+   Décision de Turquet (octobre 2026, point M75 de l'audit, option b) : sur les
+   trois dérivées du 4.1 (4.1.1 {derivee-exp}, 4.1.3 {derivee-exp-3}, 4.1.4
+   {derivee-exp-quotient}), à la vérification en ENTRAÎNEMENT, une case laissée
+   vide ne rougit jamais. Sur une ligne JUSTE, le vide est le coefficient 1
+   omis : « ok », bleu, compté juste. Sur une ligne FAUSSE, ou pour toute
+   autre case vide, la case reçoit la valeur attendue en « sol » (vert) et
+   compte NON juste — au dénominateur de ptsEcran, donc la note est celle
+   d'hier, où la case rougissait. En SOUTIEN, le vide reste neutre et ouvert,
+   et le message nomme ce qui manque. Le contrôle joue, sur une question
+   FIXE de chaque exercice (a = 1, b = 1, −a = 1 : un terme vaut 1), quatre
+   copies : la ligne fausse à case vide (sol, non bad, valeur écrite, note
+   N−2 sur N, le faux avec sa correction à côté, le message dit « complétées »),
+   la ligne juste à case vide avec une autre faute (ok, N−1 sur N), la même
+   copie en soutien (neutre, ouverte, « Il te manque 1 case »), et la copie
+   BLANCHE (aucun rouge, tout en sol, 0 sur N). Les N attendus sont écrits
+   ICI, jamais relus dans la page ; les miroirs du dénominateur (dq-mirror)
+   ne comptent pas, comme dans ptsEcran. Éprouvé par sabotage (la ligne
+   d'avant M75 remise au 4.1.3, le bad remis sur le vide, la convention du
+   soutien retirée) : chaque bord rougit. */
+function casesVidesDerivees41(w, P){
+  const nom = '4.1 : une case vide ne rougit jamais — sol sur une ligne fausse (note inchangée), ok sur une ligne juste, neutre en soutien';
+  const present = evaluer(w, "typeof dexpEtats==='function' && typeof checkDexp==='function' && typeof checkDexp3==='function' && typeof checkDexpQ==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas les dérivées du 4.1'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentDM=null;
+    const pose=function(V){ Object.keys(V).forEach(function(id){ const e=document.getElementById(id); if(e) e.setValue(V[id]); }); };
+    const cls=function(id,c){ const e=document.getElementById(id); return !!(e && e.classList.contains(c)); };
+    const badge=function(id){ const e=document.getElementById(id); if(!e) return false;
+      const anc=(e.closest && e.closest('.dexp-pwrap'))||e; const b=anc.nextElementSibling; return !!(b && b.classList && b.classList.contains('mf-cor')); };
+    const valeur=function(id){ const e=document.getElementById(id); return e ? String(e.getValue()||'') : ''; };
+    const rouges=function(){ const on=document.querySelector('.screen.on'); return on ? [...on.querySelectorAll('math-field.bad')].map(e=>e.id) : ['(aucun écran)']; };
+    /* chaque exercice : sa question fixe, son rendu, son juge, sa copie juste, la case
+       vide et la case fausse de la ligne développée, une autre case à fausser, N */
+    const EXOS=[
+      { num:'4.1.1', id:'derivee-exp', kind:'dexp', lvl:1, rendu:renderDexp, check:checkDexp, N:12,
+        q:{type:'dexp', a:1, b:2, k:-1, uStr:polyToStr([2,1]), vTxt:expMenu(-1), duTxt:numFmt(1), dvTxt:vprimeMenu(-1), dcoef:[-1,-1], facAns:polyFr([-1,-1]), expHtml:expCore(-1)},
+        juste:{'dexp-u':'x+2','dexp-du':'1','dexp-v':'e^(-x)','dexp-dv':'-e^(-x)','dexp-s2a':'1','dexp-s2b':'e^(-x)','dexp-s2c':'x+2','dexp-s2d':'-e^(-x)','dexp-s3a':'1','dexp-s3b':'-x','dexp-s3c':'-2','dexp-fac':'-x-1'},
+        vide:'dexp-s3a', faux:{'dexp-s3c':'-3'}, autre:{'dexp-fac':'-x+1'}, s2vide:'dexp-s2a', s2faux:{'dexp-s2d':'-2e^(-x)'} },
+      { num:'4.1.3', id:'derivee-exp-3', kind:'dexp', lvl:3, rendu:renderDexp3, check:checkDexp3, N:12,
+        q:{type:'dexp3', deg:1, ka:2, b:1, k:-1, aStr:'2x', daTxt:'2', bxStr:'x', expHtml:expCore(-1), dvTxt:vprimeMenu(-1), dcoef:[1,-1], facAns:polyFr([1,-1])},
+        juste:{'d3-da':'2','d3-u':'x','d3-du':'1','d3-v':'e^(-x)','d3-dv':'-e^(-x)','d3-s2a':'1','d3-s2b':'e^(-x)','d3-s2c':'x','d3-s2d':'-e^(-x)','d3-s3a':'1','d3-s3b':'-x','d3-fac':'1-x'},
+        vide:'d3-s3a', faux:{'d3-s3b':'-2x'}, autre:{'d3-fac':'1+x'} },
+      { num:'4.1.4', id:'derivee-exp-quotient', kind:'dexpq', lvl:1, rendu:renderDexpQ, check:checkDexpQ, N:13,
+        q:{type:'dexpq', a:-1, b:2, k:-1, vStr:polyToStr([2,-1]), dvTxt:numFmt(-1), uTxt:expMenu(-1), duTxt:vprimeMenu(-1), numCoef:[-1,1], facAns:polyFr([-1,1]), expHtml:expCore(-1)},
+        juste:{'dq-u':'e^(-x)','dq-du':'-e^(-x)','dq-v':'-x+2','dq-dv':'-1','dq-s2a':'-e^(-x)','dq-s2b':'-x+2','dq-s2c':'e^(-x)','dq-s2d':'-1','dq-s2e':'(-x+2)^2','dq-s3a':'x','dq-s3b':'-2','dq-s3c':'1','dq-s3d':'(-x+2)^2','dq-fac':'x-1','dq-facd':'(-x+2)^2'},
+        vide:'dq-s3c', faux:{'dq-s3b':'-3'}, autre:{'dq-fac':'x+1'} }
+    ];
+    EXOS.forEach(function(E){
+      const ouvrir=function(mode){ currentMode=mode; currentTestId=E.id; test.kind=E.kind; test.dexpLevel=E.lvl;
+        test.questions=[E.q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false; show('dexp'); E.rendu(); };
+      const copie=function(){ const V=Object.assign({},E.juste); for(let i=0;i<arguments.length;i++) Object.assign(V,arguments[i]); return V; };
+      const P=E.num+' : ';
+      /* 0. la copie juste passe — sinon c'est le contrôle qui a tort */
+      ouvrir('train'); pose(E.juste); E.check();
+      if(!(test.answers[0]&&test.answers[0].correct)){ vus.push(P+'la copie témoin juste ne passe pas ('+rouges().join(', ')+')'); return; }
+      /* 1. ligne développée FAUSSE, une case vide : sol, non bad, la valeur écrite, la note N−2 sur N */
+      ouvrir('train'); { const V=copie(E.faux); V[E.vide]=''; pose(V); } E.check();
+      let m=ptsEcran();
+      if(cls(E.vide,'bad')) vus.push(P+'la case vide d\\'une ligne fausse ROUGIT');
+      if(!cls(E.vide,'sol')) vus.push(P+'la case vide d\\'une ligne fausse n\\'est pas en sol');
+      if(valeur(E.vide)==='') vus.push(P+'la case vide d\\'une ligne fausse n\\'a pas reçu sa correction');
+      const idFaux=Object.keys(E.faux)[0];
+      if(!cls(idFaux,'bad')) vus.push(P+'la case fausse n\\'est pas rouge');
+      if(!badge(idFaux)) vus.push(P+'la case fausse n\\'a pas sa correction à côté');
+      if(!m || m.cases!==E.N || m.justes!==E.N-2) vus.push(P+'ligne fausse à case vide : note '+(m?m.justes+' sur '+m.cases:'(aucune)')+', attendu '+(E.N-2)+' sur '+E.N);
+      { const fb=document.getElementById('dexpFeedback').innerHTML;
+        if(fb.indexOf('compl\u00e9t\u00e9es')<0) vus.push(P+'le message ne dit pas que les cases oubliées ont été complétées');
+        if(fb.indexOf('La bonne d')<0) vus.push(P+'la bonne démarche a disparu du message'); }
+      /* 2. ligne développée JUSTE, une case vide (le 1 omis), une autre case fausse : ok, N−1 sur N */
+      ouvrir('train'); { const V=copie(E.autre); V[E.vide]=''; pose(V); } E.check();
+      m=ptsEcran();
+      if(!cls(E.vide,'ok')) vus.push(P+'la case vide d\\'une ligne juste (1 omis) n\\'est pas ok');
+      if(!m || m.cases!==E.N || m.justes!==E.N-1) vus.push(P+'ligne juste à case vide : note '+(m?m.justes+' sur '+m.cases:'(aucune)')+', attendu '+(E.N-1)+' sur '+E.N);
+      /* 3. la copie 1 en SOUTIEN : la case vide reste neutre et ouverte, le message nomme ce qui manque */
+      ouvrir('soutien'); { const V=copie(E.faux); V[E.vide]=''; pose(V); } E.check();
+      { const e=document.getElementById(E.vide);
+        if(cls(E.vide,'ok')||cls(E.vide,'bad')||cls(E.vide,'sol')) vus.push(P+'en soutien, la case vide reçoit une couleur');
+        if(e && e.readOnly) vus.push(P+'en soutien, la case vide est verrouillée');
+        if(test.locked) vus.push(P+'en soutien, la copie incomplète se verrouille');
+        const fb=document.getElementById('dexpFeedback').textContent;
+        if(fb.indexOf('Il te manque 1 case')<0) vus.push(P+'en soutien, le message ne nomme pas la case qui manque : « '+fb.slice(0,60)+' »'); }
+      /* 4. la copie BLANCHE en entraînement : aucun rouge, tout en sol, 0 sur N */
+      ouvrir('train'); E.check();
+      m=ptsEcran();
+      { const r=rouges(); if(r.length) vus.push(P+'copie blanche : '+r.length+' case(s) rouge(s) — '+r.slice(0,3).join(', '));
+        const on=document.querySelector('.screen.on');
+        const sols=on?[...on.querySelectorAll('math-field.sol')].filter(e=>!e.closest('.dq-mirror')&&!e.classList.contains('dq-mirror')).length:0;
+        if(sols!==E.N) vus.push(P+'copie blanche : '+sols+' case(s) en sol, attendu '+E.N);
+        if(!m || m.cases!==E.N || m.justes!==0) vus.push(P+'copie blanche : note '+(m?m.justes+' sur '+m.cases:'(aucune)')+', attendu 0 sur '+E.N); }
+      /* 5. (4.1.1) la ligne de SUBSTITUTION fausse à case vide : sol, non ok — c'est le reste trouvé par relecture */
+      if(E.s2vide){
+        ouvrir('train'); { const V=copie(E.s2faux); V[E.s2vide]=''; pose(V); } E.check();
+        if(!cls(E.s2vide,'sol') || cls(E.s2vide,'ok') || cls(E.s2vide,'bad')) vus.push(P+'substitution fausse : la case vide (u′ = 1 omis) n\\'est pas en sol');
+      }
+    });
+    currentMode='train'; test.dexpLevel=1;
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---------- Terminale : les constats MINEURS de l'audit d'octobre 2026 (lot J) ----------
    Douze petits défauts de la Terminale, chacun tenu ici par le bord qui l'a
    montré — un bug corrigé devient un contrôle. Les juges sont appelés sur des
@@ -49232,9 +49334,13 @@ function convexiteTangente(w, P){
    · M74 — la lettre de la fonction (f, g) n'est pas une autre question : la clé
      de distincte() l'ignore, et 400 séances du 1.3 ne posent jamais deux fois
      la même courbe sous deux lettres ;
-   · M75 — une case VIDE de la ligne développée du 2.1.1, sur une ligne FAUSSE,
+   · M75 — une case VIDE de la ligne développée du 4.1.1, sur une ligne FAUSSE,
      n'est jamais juste (quand a = 1, le vide lu « 1 » tombait sur le terme a) ;
-     sur une ligne JUSTE, le facteur 1 omis reste accepté ;
+     sur une ligne JUSTE, le facteur 1 omis reste accepté. Étendu en octobre
+     2026 (option b de la décision de Turquet) à la ligne développée du 4.1.3
+     — qui passait encore le vide contre les termes restants, bleu quand
+     b = 1 — et aux lignes de SUBSTITUTION des 4.1.1, 4.1.3 et 4.1.4, où le
+     vide lu 1 s'appariait à u′ = a (ou b) quand ce coefficient vaut 1 ;
    · M76 — « m = [ ] e^… » : le coefficient 1 de e s'omet au 5.5 quand
      l'exposant est juste (le 5.2 est tenu par le contrôle de la tangente) ;
    · M77 — « + 0 » n'apparaît plus dans l'énoncé de {suites}, et « Recommencer »
@@ -49288,6 +49394,58 @@ function mineursTerminale(w, P){
         pose('dexp-s3c',s3c);
         r=dexpVerdicts();
         if(!r.groups.s3) vus.push('M75 : la ligne juste au facteur 1 omis (« + e^(kx) ») est refusée');
+        /* la ligne de SUBSTITUTION, même règle : s2a vide (u′ = a = 1 omis) et
+           s2d faux — la ligne est fausse, la case vide n'est pas juste ; s2d
+           réparé, la ligne est juste et le 1 omis passe */
+        const expS='e^('+q.expHtml+')', dexpS=(q.k===1?'':(q.k===-1?'-':String(q.k)))+expS;
+        pose('dexp-s2a',''); pose('dexp-s2b',expS); pose('dexp-s2c',q.uStr); pose('dexp-s2d',String(q.k+1)+expS);
+        r=dexpVerdicts();
+        if(r.groups.s2) vus.push('M75 : une ligne de substitution fausse (4.1.1) est jugée juste');
+        if(r.verdicts['dexp-s2a']) vus.push('M75 : la case VIDE d\\'une substitution fausse (4.1.1) est comptée juste quand a = 1');
+        pose('dexp-s2d',dexpS);
+        r=dexpVerdicts();
+        if(!r.groups.s2 || !r.verdicts['dexp-s2a']) vus.push('M75 : la substitution juste au facteur 1 omis (4.1.1) est refusée');
+      } }
+    /* ---- M75, le 4.1.3 : la ligne développée et la substitution, b = 1 ---- */
+    { let q=null; for(let t=0;t<500 && !q;t++){ const g=genDexp3(); if(g.b===1 && (g.k===-1||g.k===2)) q=g; }
+      if(!q) vus.push('M75 : aucun tirage du 4.1.3 avec b = 1 en 500 essais');
+      else {
+        currentTestId='derivee-exp-3'; test.kind='dexp'; test.dexpLevel=3; test.questions=[q]; test.idx=0; test.locked=false;
+        show('dexp'); renderDexp3();
+        const pose=function(id,v){ const e=document.getElementById(id); if(e) e.setValue(v); };
+        const s3b=String(q.b*q.k)+'x';
+        pose('d3-s3a',''); pose('d3-s3b',String(q.b*q.k+1)+'x');
+        let r=d3Verdicts();
+        if(r.groups.s3) vus.push('M75 : une ligne développée fausse du 4.1.3 est jugée juste');
+        if(r.verdicts['d3-s3a']) vus.push('M75 : la case VIDE d\\'une ligne développée fausse du 4.1.3 est comptée juste quand b = 1');
+        pose('d3-s3b',s3b);
+        r=d3Verdicts();
+        if(!r.groups.s3 || !r.verdicts['d3-s3a']) vus.push('M75 : la ligne développée juste au facteur 1 omis (4.1.3) est refusée');
+        const expS='e^('+q.expHtml+')', dexpS=(q.k===1?'':(q.k===-1?'-':String(q.k)))+expS;
+        pose('d3-s2a',''); pose('d3-s2b',expS); pose('d3-s2c','x'); pose('d3-s2d',String(q.k+1)+expS);
+        r=d3Verdicts();
+        if(r.groups.s2) vus.push('M75 : une substitution fausse du 4.1.3 est jugée juste');
+        if(r.verdicts['d3-s2a']) vus.push('M75 : la case VIDE d\\'une substitution fausse du 4.1.3 est comptée juste quand b = 1');
+        pose('d3-s2d',dexpS);
+        r=d3Verdicts();
+        if(!r.groups.s2 || !r.verdicts['d3-s2a']) vus.push('M75 : la substitution juste au facteur 1 omis (4.1.3) est refusée');
+        test.dexpLevel=1;
+      } }
+    /* ---- M75, le 4.1.4 : la substitution, v′ = a = 1 ---- */
+    { let q=null; for(let t=0;t<500 && !q;t++){ const g=genDexpQ(); if(g.a===1 && g.b!==0 && (g.k===-1||g.k===2)) q=g; }
+      if(!q) vus.push('M75 : aucun tirage du 4.1.4 avec a = 1 en 500 essais');
+      else {
+        currentTestId='derivee-exp-quotient'; test.kind='dexpq'; test.dexpLevel=1; test.questions=[q]; test.idx=0; test.locked=false;
+        show('dexp'); renderDexpQ();
+        const pose=function(id,v){ const e=document.getElementById(id); if(e) e.setValue(v); };
+        const expS='e^('+q.expHtml+')', dexpS=(q.k===1?'':(q.k===-1?'-':String(q.k)))+expS;
+        pose('dq-s2a',String(q.k+1)+expS); pose('dq-s2b',q.vStr); pose('dq-s2c',expS); pose('dq-s2d',''); pose('dq-s2e','('+q.vStr+')^2');
+        let r=dqVerdicts();
+        if(r.groups.s2) vus.push('M75 : une substitution fausse du 4.1.4 est jugée juste');
+        if(r.verdicts['dq-s2d']) vus.push('M75 : la case VIDE d\\'une substitution fausse du 4.1.4 est comptée juste quand a = 1');
+        pose('dq-s2a',dexpS);
+        r=dqVerdicts();
+        if(!r.groups.s2 || !r.verdicts['dq-s2d']) vus.push('M75 : la substitution juste au facteur 1 omis (4.1.4) est refusée');
       } }
 
     /* ---- M76 : le coefficient 1 de e s'omet au 5.5 ---- */

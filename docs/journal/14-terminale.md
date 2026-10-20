@@ -3317,3 +3317,33 @@ vaut +∞ » et M80 avait RETIRÉ cette phrase — c'était son moyen d'exiger l
 signe du modèle. Elle est remise, et le contrôle du lot J exige désormais
 que `lgAttenduIA` et `lrAttenduIA` la disent tous deux. Les commentaires qui
 racontaient encore « ∞ signé exigé » (3.5, lqn) sont à jour.
+
+**Une case vide ne rougit plus aux trois dérivées du 4.1 — décision de
+Turquet (octobre 2026), option b du point M75.** Au 4.1.1, au 4.1.3 et au
+4.1.4, « Vérifier » peignait en rouge toute case laissée vide — u, v, u′, v′,
+substitution, développement, factorisation —, ce que la dispense
+`casesVides.sans` du profil nommait comme une décision à prendre. Elle est
+prise : en entraînement, une case vide d'une ligne JUSTE reste le coefficient
+1 omis, « ok » bleue et comptée ; toute autre case vide reçoit la valeur
+attendue en « sol », verte, comptée NON juste — `ptsEcran` la garde au
+dénominateur, la note est celle d'hier. La convention est celle du b) du 3.6
+(`rfReveal`, `msgCorrCouleurs(vides>0)`) : le faux reste rouge avec sa
+correction à côté, la bonne démarche s'affiche toujours en dessous. En
+soutien, le vide reste neutre et ouvert, et le message dit « Il te manque N
+case(s) ». Trois fonctions communes la portent (`dexpEtats`,
+`dexpPeindreSoutien`, `dexpReveler`) et chaque exercice n'écrit que ses
+valeurs (`dexpSolutions`, `d3Solutions`, `dqSolutions`). Deux restes relus en
+passant : le 4.1.3 passait encore le vide — lu 1 — contre les termes restants
+de la ligne développée (bleu quand b = 1), et la ligne de SUBSTITUTION des
+trois exercices appariait le vide lu 1 à u′ = a quand a = 1 ; même règle
+partout, juste seulement si la ligne entière l'est. Tenu par le contrôle
+« 4.1 : une case vide ne rougit jamais — sol sur une ligne fausse (note
+inchangée), ok sur une ligne juste, neutre en soutien » (`casesVidesDerivees41`,
+`tests/verifier.js` : quatre copies fixes par exercice, les N attendus écrits
+dans le banc), par le lot J étendu (M75 : 4.1.3 et les substitutions), et par
+le contrôle universel du navigateur, dont les trois exercices sont sortis de
+la dispense. Éprouvé par cinq sabotages (la ligne d'avant M75 remise au 4.1.3,
+le vide repeint en rouge, chaque substitution rendue à l'ancien appariement,
+le soutien qui colore le vide) : chacun rougit. Restent dispensés, hors
+décision : 4.4.1, 4.1.9 et 5.2.2, qui rougissent encore une copie blanche
+(13, 30 et 23 cases rouges, mesurées).
