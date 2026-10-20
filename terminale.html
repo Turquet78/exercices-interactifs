@@ -26073,7 +26073,10 @@ function apcSuiteHTML(q, i){
   return '<p class="apc-etape">On pose '+apcSlotHTML(i)+' = <i>x</i>.</p>'+pq
     +'<p class="apc-etape">Complète l’arbre de cette situation : <i>x</i> et 1 − <i>x</i> sur les premières branches, puis les probabilités conditionnelles de l’énoncé, et '+P('B')+', qui vaut maintenant '+apfNb(L[1].pb)+'.</p>'
     +apxArbreHTML(q)
-    +'<p class="apc-etape">Exprime '+P('B')+' en fonction de <i>x</i>, puis réduis :</p>'
+    /* la cible est donnée (demande de Turquet, octobre 2026 : « l'aide doit
+       être par exemple : démontrer que P(T) = 0,8x − 0,1 ») : l'élève écrit
+       le calcul en x jusqu'à cette forme réduite, puis résout comme avant */
+    +'<p class="apc-etape">Démontre que '+P('B')+' = '+apfLin(L[0].a, L[0].b, true)+' :</p>'
     +'<div class="apf-row"><span class="apf-lab">'+L[0].lab+' =</span>'+champ(true, 'calcul en x = forme réduite')+'</div>'
     +'<p class="apc-etape">'+P('B')+' = '+apfNb(L[1].pb)+' : résous l’équation — étape par étape, ou directement la valeur de <i>x</i> dans la ligne « <i>x</i> = » —, puis réponds par une phrase.</p>'
     +'<p class="apf-astuce" id="apc-prep">Les étapes se préparent dès que tu as écrit '+P('B')+' sous forme réduite.</p>'
@@ -26279,7 +26282,7 @@ function apcConseilCtx(){
       +(ch===undefined?'(pas encore choisi)':ch===0?'choix juste':'choix faux'); }).join(' ; ');
   return 'Exercice de Terminale, type bac : arbre pondéré à partir d’un énoncé en phrases (fiche 5). '+apcPlain(q)+' '
     +'1. L’élève choisit l’événement des premières branches, puis complète l’arbre avec les données et leurs contraires. '
-    +'2. Pour chaque question, il choisit l’écriture littérale de la probabilité cherchée (P(A), P(A ∩ B), P_A(B)…) parmi quatre propositions ; dans la question où P(A) est inconnue (on pose P(A) = x), il complète d’abord un second arbre, avec x et 1 − x sur les premières branches, les mêmes probabilités conditionnelles, et la nouvelle valeur de P(B) dans la case de l’accolade ; puis il écrit le calcul : opération puis résultat, séparés par « = », les divisions en fraction ; aucune étape intermédiaire n’est exigée (la résolution de l’équation peut se faire directement dans la dernière ligne). '
+    +'2. Pour chaque question, il choisit l’écriture littérale de la probabilité cherchée (P(A), P(A ∩ B), P_A(B)…) parmi quatre propositions ; dans la question où P(A) est inconnue (on pose P(A) = x), il complète d’abord un second arbre, avec x et 1 − x sur les premières branches, les mêmes probabilités conditionnelles, et la nouvelle valeur de P(B) dans la case de l’accolade ; puis il DÉMONTRE que P(B) est égale à la forme réduite en x que la consigne lui donne (cette expression est affichée : elle n’est pas secrète) ; puis il écrit le calcul : opération puis résultat, séparés par « = », les divisions en fraction ; aucune étape intermédiaire n’est exigée (la résolution de l’équation peut se faire directement dans la dernière ligne). '
     +'Une valeur approchée est demandée à 10^-2 près : « = » comme « ≈ » sont acceptés devant elle, et toute valeur à 0,01 près de la valeur exacte est juste — l’arrondi au centième comme la troncature (0,72 ou 0,73 pour 0,7265…). '
     +'État des choix : '+choix+'. '
     +'Cases : '+ids.filter(function(id){ return $(id); }).map(function(id){ return id+' = '+apcNomCase(q,id); }).join(' ; ')+'. '

@@ -465,6 +465,19 @@ l'accolade ; remplie juste, bleue ; la valeur du premier arbre, refusée ; les
 cases vides reçoivent la correction en vert ; aucune erreur de page.
 Terminale v414.
 
+**Puis la question en x a DONNÉ sa cible : « Démontre que P(B) = … »**
+(demande de Turquet, octobre 2026 : « quand on doit déterminer x, après
+avoir complété l'arbre avec x et 1 − x, l'aide doit être par exemple :
+démontrer que P(T) = 0,8x − 0,1 ; puis l'exercice continue comme prévu »).
+Encore nommé « le 6.3.1 » : c'est le 6.1.3. La consigne « Exprime P(B) en
+fonction de x, puis réduis » devient « Démontre que P(B) = a·x + b », la
+forme réduite de la question (`apfLin(L[0].a, L[0].b, true)`, le x en
+italique). Rien d'autre ne bouge : la ligne « P(B) = [……] » et son juge
+(`apfJugeDemo` : le calcul en x, au moins deux membres, le dernier réduit),
+la préparation des étapes, la résolution et la phrase réponse. La
+description envoyée au modèle dit que cette expression est affichée, donc
+pas secrète. Terminale v415.
+
 ## En portrait, le cadre d'un exercice prend la largeur de l'écran — les trois niveaux
 
 Demande de Turquet (octobre 2026) : « en mode portrait, que le cadre blanc de
