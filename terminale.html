@@ -796,6 +796,20 @@
   math-field.dexp-mf.apc-mf.hors-note{opacity:.4}
   .apf-row .mf-cor{font-size:1em}
   .apc-mb.apc-cor{color:var(--green)}
+  .apc-mbw{display:inline-flex;justify-content:flex-end;align-items:baseline;gap:.6em;min-width:9em;white-space:nowrap}   /* ⇔ collé à son membre, les « = » alignés */
+  #apcResol .apc-mb{min-width:0}
+  math-field.dexp-mf.apc-mf.apf-eqin.apc-op{flex:0 1 5em;min-width:4em;max-width:7em}
+  #apcResol .sa2-frac math-field.dexp-mf.apc-mf.apf-eqin{flex:none;width:6em;min-width:0}
+  #apcResol .sa2-frac .bar{min-width:6em}
+  .apc-concl math-field.dexp-mf.apc-mf.apf-eqin{display:inline-block;width:7em;min-width:0}
+  @media(max-width:600px){
+    #apcResol .apc-mbw{min-width:0;gap:.35em}
+    #apcResol .apf-eqrow{gap:4px}
+    #apcResol math-field.dexp-mf.apc-mf.apf-eqin{flex:1 1 4em;min-width:3.5em}
+    #apcResol .sa2-frac math-field.dexp-mf.apc-mf.apf-eqin{flex:none;width:4.2em}
+    #apcResol .sa2-frac .bar{min-width:4.2em}
+    #apcResol .mf-cor{flex:0 1 auto;min-width:0}
+  }
   /* ---- {proba-phrase-formule} : toutes les phrases et toutes les formules
      sur un seul écran, sans défiler — deux colonnes dès la tablette en
      portrait ; les formules sur deux colonnes à leur tour quand la place le
@@ -3732,7 +3746,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=410;
+const APP_VERSION=411;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -25628,8 +25642,19 @@ function apcPourquoi(q, g){
    page (des textes, pas des cases : ils ne comptent pas), à partir de la
    forme réduite que l'élève a écrite au bout de sa ligne P(B) = … ; l'élève
    remplit les trois membres de droite, apc-r1, apc-r2, apc-r3. */
-const APC_RES=3;
-function apcResolIds(){ const r=[]; for(let k=1;k<=APC_RES;k++) r.push('apc-r'+k); return r; }
+/* PUIS LA RÉSOLUTION S'EST ÉCRITE COMME SUR LA FICHE, AVEC SES ÉQUIVALENCES
+   ET UNE PHRASE RÉPONSE (demande de Turquet, octobre 2026, avec la fiche
+   « équation » : « 0,2x − 0,1 = 0,6 ; 0,2x = 0,6 …… ; 0,2x = …… ; x = ……/……
+   = …… », « tu peux compléter avec des équivalences et une phrase réponse »).
+   La première ligne, l'équation, est écrite par la page ; puis l'élève écrit
+   l'opération faite sur les deux membres (apc-r1, « − 0,1 »), le second
+   membre calculé (apc-r2), la fraction qui isole x (apc-r3n / apc-r3d) et sa
+   valeur (apc-r3) ; la phrase réponse se termine par la probabilité trouvée
+   (apc-r4). Six réponses comptées ; en résolution directe (apc-r3 juste, les
+   quatre premières vides), quatre ne sont pas demandées. */
+const APC_RES=['apc-r1','apc-r2','apc-r3n','apc-r3d','apc-r3','apc-r4'];
+const APC_RES_X='apc-r3', APC_RES_ETAPES=['apc-r1','apc-r2','apc-r3n','apc-r3d'];   /* la valeur de x ; les étapes qui y mènent */
+function apcResolIds(){ return APC_RES.slice(); }
 /* la forme réduite a·x + b écrite au bout de la ligne P(B) = … ; null tant qu'il n'y en a pas */
 function apcExprEleve(q){
   const i=q.subs.indexOf('x'), el=i<0 ? null : $('apc-c'+(i+1)); if(!el) return null;
@@ -25640,23 +25665,42 @@ function apcExprEleve(q){
   const b=f(0), a=f(1)-b; if(!isFinite(a) || !isFinite(b) || Math.abs(a)<1e-12) return null;
   return {a:+a.toFixed(6), b:+b.toFixed(6)};
 }
-function apcMembresTxt(e, html){ return [apfLin(e.a,e.b,html), apfLin(e.a,0,html), html?'<i>x</i>':'x']; }
-/* écrit les trois membres de gauche : ceux de l'élève ; à la clôture, les bons (en vert s'ils diffèrent) */
+/* les membres de gauche des quatre lignes : a·x + b, a·x, a·x, x */
+function apcMembresTxt(e, html){ const ax=apfLin(e.a,0,html); return [apfLin(e.a,e.b,html), ax, ax, html?'<i>x</i>':'x']; }
+const APC_NMB=4;
+/* écrit les membres de gauche : ceux de l'élève ; à la clôture, les bons (en vert s'ils diffèrent) */
 function apcPreparer(q){
   if(!q || q.subs.indexOf('x')<0 || !$('apc-m1')) return;
   const l=apcResolDe(q), bon={a:l.a, b:l.b}, e=apcExprEleve(q);
   const juste=e && Math.abs(e.a-bon.a)<1e-9 && Math.abs(e.b-bon.b)<1e-9;
   const Me=e ? apcMembresTxt(e, true) : null, M=test.locked ? apcMembresTxt(bon, true) : Me;
-  for(let k=1;k<=APC_RES;k++){
+  for(let k=1;k<=APC_NMB;k++){
     const sp=$('apc-m'+k); if(!sp) continue;
     sp.innerHTML=M ? M[k-1] : '<span class="apf-pts">……</span>';
     sp.classList.toggle('apc-cor', !!(test.locked && !juste && (!Me || Me[k-1]!==M[k-1])));   /* en vert, le membre que la page a dû corriger */
   }
   const h=$('apc-prep'); if(h) h.style.display=(M || test.locked) ? 'none' : '';
 }
-/* les membres de droite : un nombre, ou un calcul qui y mène (« 0,5 − 0,1 = 0,4 ») ; le dernier membre est un nombre */
-function apcJugeResolCase(q, k, raw){
-  const l=apcResolDe(q), cible=[l.pb, +(l.pb-l.b).toFixed(6), l.sol][k-1];
+/* ce que vaut chaque case de la résolution — les cibles de la BONNE expression */
+function apcResolCible(q, id){
+  const l=apcResolDe(q), d=+(l.pb-l.b).toFixed(6);
+  return {'apc-r1':-l.b, 'apc-r2':d, 'apc-r3n':d, 'apc-r3d':l.a, 'apc-r3':l.sol, 'apc-r4':l.sol}[id];
+}
+function apcResolCorr(q, id){
+  const v=apcResolCible(q, id);
+  return id==='apc-r1' ? (v<0?'− ':'+ ')+apfNb(Math.abs(v)) : apfNb(v);
+}
+function apcResolCorrTex(q, id){ const v=apcResolCible(q, id); return id==='apc-r1' ? (v<0?'-':'+')+apfNb(Math.abs(v)) : apfNb(v); }
+/* l'opération (« − 0,1 ») : un signe, puis le nombre ajouté aux deux membres ;
+   les autres cases : un nombre, ou un calcul qui y mène (« 0,6 + 0,1 = 0,7 »,
+   une fraction), le dernier membre étant un nombre */
+function apcJugeResolCase(q, id, raw){
+  const cible=apcResolCible(q, id);
+  if(id==='apc-r1'){
+    const t=apfNorm(raw, false);
+    if(!/^[+-]/.test(t)) return {ok:false, pourquoi:'écris l’opération faite sur les deux membres avec son signe, par exemple « − 0,3 »'};
+    const f=apfParse(t, false); return {ok:!!f && Math.abs(f(0)-cible)<1e-9};
+  }
   const M=apfMembres(raw, false); if(!M) return {ok:false};
   for(const m of M){ const f=m.s && apfParse(m.s, false); if(!f || Math.abs(f(0)-cible)>1e-9) return {ok:false}; }
   if(!apfEstNombre(M[M.length-1].s)) return {ok:false, pourquoi:'termine chaque étape de la résolution par un nombre'};
@@ -25672,18 +25716,18 @@ function apcLigneDe(q, id){ const i=+id.slice(5)-1; return apcLignes(q, q.subs[i
 function apcResolDe(q){ const i=q.subs.indexOf('x'); return i<0 ? null : apcLignes(q,'x')[1]; }
 function apcJuger(q, id, raw){
   if(/^apc-t-/.test(id)) return {ok:q.ch.ev===0 && apcJugeCase(q, id.slice(6).replace('-','.'), raw)};   /* un arbre écrit dans le mauvais sens n'a aucune case juste */
-  if(/^apc-r/.test(id)) return apcJugeResolCase(q, +id.slice(5), raw);
+  if(/^apc-r/.test(id)) return apcJugeResolCase(q, id, raw);
   const l=apcLigneDe(q, id);
   return l.t==='demo' ? apfJugeDemo(raw,l) : apfJugeChaine(raw,l);
 }
 function apcCorr(q, id){
   if(/^apc-t-/.test(id)) return apfNb(APF_D(apcV(q)[id.slice(6).replace('-','.')]));
-  if(/^apc-r/.test(id)) return apcResolDe(q).etapes[+id.slice(5)-1][1];
+  if(/^apc-r/.test(id)) return apcResolCorr(q, id);
   return apcLigneDe(q, id).corr;
 }
 /* la correction d'une case MathLive, en LaTeX (les divisions en fraction) */
 function apcCorrTex(q, id){
-  if(/^apc-r/.test(id)) return apcResolDe(q).etapesTex[+id.slice(5)-1];
+  if(/^apc-r/.test(id)) return apcResolCorrTex(q, id);
   const l=apcLigneDe(q, id); return l.tex || l.corr;
 }
 /* LES LIGNES DE CALCUL SONT DES CHAMPS MATHLIVE (demande de Turquet, octobre
@@ -25795,9 +25839,21 @@ function apcPrendre(i, k){
 document.addEventListener('click', function(e){ if(!e.target.closest || !e.target.closest('.apc-slotw')) apcFermerMenu(); });
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') apcFermerMenu(); });
 function apcArbreHTML(q){ return apfGrilleHTML('apc', function(e){ return apfEv(q,e); }, function(k){ return apcCaseHTML(q,k); }); }
-function apcLigneHTML(k){
-  return '<div class="apf-row apf-eqrow"><span class="apf-lab apc-mb" id="apc-m'+k+'"><span class="apf-pts">……</span></span><span class="apf-lab">=</span>'
-    +'<math-field class="dexp-mf apc-mf apf-eqin" id="apc-r'+k+'" aria-label="étape '+k+' de la résolution"></math-field></div>';
+/* une case de la résolution, un champ MathLive ; « op », la case étroite de l'opération, « fr », une case de la fraction */
+function apcResIn(id, cls, lab){ return '<math-field class="dexp-mf apc-mf apf-eqin'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+lab+'"></math-field>'; }
+/* une ligne : « ⇔ [membre de gauche] = [membre de droite] » ; la première sans ⇔ */
+function apcLigneHTML(k, droite){
+  return '<div class="apf-row apf-eqrow"><span class="apf-lab apc-mbw">'+(k>1?'<span class="apc-eqv">⇔</span>':'')+'<span class="apc-mb" id="apc-m'+k+'"><span class="apf-pts">……</span></span></span>'
+    +'<span class="apf-lab">=</span>'+droite+'</div>';
+}
+function apcResolHTML(q, L){
+  const C=APC_CTX[q.c], pb=apfNb(L[1].pb);
+  return '<div class="apf-resol" id="apcResol">'
+    +apcLigneHTML(1, '<span class="apf-lab">'+pb+'</span>')
+    +apcLigneHTML(2, '<span class="apf-lab">'+pb+'</span>'+apcResIn('apc-r1', 'apc-op', 'opération faite sur les deux membres'))
+    +apcLigneHTML(3, apcResIn('apc-r2', '', 'second membre'))
+    +apcLigneHTML(4, sa2Frac(apcResIn('apc-r3n', 'apc-frin', 'numérateur'), apcResIn('apc-r3d', 'apc-frin', 'dénominateur'))+'<span class="apf-lab">=</span>'+apcResIn('apc-r3', '', 'valeur de x'))
+    +'</div><p class="apc-etape apc-concl">Conclusion : la probabilité '+apcQue(C.s.A)+' est égale à '+apcResIn('apc-r4', 'apc-concl-in', 'la probabilité trouvée')+'.</p>';
 }
 function apcSuiteHTML(q, i){
   const sub=q.subs[i], L=apcLignes(q, sub), P=e=>apfP(q,e);
@@ -25807,9 +25863,9 @@ function apcSuiteHTML(q, i){
   if(sub!=='x') return '<div class="apf-row">'+apcSlotHTML(i)+'<span class="apc-dev" id="apc-d'+i+'"></span><span class="apf-lab">=</span>'+champ(false, 'calcul = résultat')+'</div>'+pq;
   return '<p class="apc-etape">On pose '+apcSlotHTML(i)+' = <i>x</i>. Exprime '+P('B')+' en fonction de <i>x</i>, puis réduis :</p>'+pq
     +'<div class="apf-row"><span class="apf-lab">'+L[0].lab+' =</span>'+champ(true, 'calcul en x = forme réduite')+'</div>'
-    +'<p class="apc-etape">'+P('B')+' = '+apfNb(L[1].pb)+' : résous l’équation — étape par étape, ou directement dans la dernière ligne (le calcul, puis la valeur de <i>x</i>).</p>'
+    +'<p class="apc-etape">'+P('B')+' = '+apfNb(L[1].pb)+' : résous l’équation — étape par étape, ou directement la valeur de <i>x</i> dans la ligne « <i>x</i> = » —, puis réponds par une phrase.</p>'
     +'<p class="apf-astuce" id="apc-prep">Les étapes se préparent dès que tu as écrit '+P('B')+' sous forme réduite.</p>'
-    +'<div class="apf-resol" id="apcResol">'+Array.from({length:APC_RES},function(u,k){ return apcLigneHTML(k+1); }).join('')+'</div>';
+    +apcResolHTML(q, L);
 }
 function apcBrancherCase(el){
   const q=test.questions[test.idx];
@@ -25910,18 +25966,19 @@ function apcJugerTout(q, live){
   let anyFilled=apcGroupes(q).some(function(g){ return q.ch[g]!==undefined; });
   /* LA RÉSOLUTION DIRECTE (demande de Turquet, octobre 2026 : « accepter que
      l'élève écrive le calcul avec les bonnes valeurs et donne directement le
-     résultat, sans passer par les résultats intermédiaires ») : si la dernière
-     étape « x = … » est juste et que les deux premières sont restées vides,
-     elles ne sont pas demandées — hors note, sans correction. */
+     résultat, sans passer par les résultats intermédiaires ») : si la valeur
+     de x est juste et que les étapes qui y mènent (l'opération, le second
+     membre, la fraction) sont restées vides, elles ne sont pas demandées —
+     hors note, sans correction. La phrase réponse, elle, est toujours due. */
   const direct=(function(){
-    if(q.subs.indexOf('x')<0 || !$('apc-r'+APC_RES)) return false;
-    for(let k=1;k<APC_RES;k++) if(apcLire($('apc-r'+k)).trim()!=='') return false;
-    const raw=apcLire($('apc-r'+APC_RES)); return raw.trim()!=='' && apcJugeResolCase(q, APC_RES, raw).ok;
+    if(q.subs.indexOf('x')<0 || !$(APC_RES_X)) return false;
+    if(APC_RES_ETAPES.some(function(id){ return apcLire($(id)).trim()!==''; })) return false;
+    const raw=apcLire($(APC_RES_X)); return raw.trim()!=='' && apcJugeResolCase(q, APC_RES_X, raw).ok;
   })();
   apcIds(q).forEach(function(id){
     const el=$(id); if(!el){ allOk=false; return; }
     const raw=apcLire(el), rempli=raw.trim()!=='';
-    const nonDemandee=direct && /^apc-r/.test(id) && +id.slice(5)<APC_RES;
+    const nonDemandee=direct && APC_RES_ETAPES.indexOf(id)>=0;
     el.classList.toggle('hors-note', nonDemandee);
     if(nonDemandee){ el.classList.remove('ok','bad','sol'); verd[id]='direct'; if(!live) el.disabled=true; return; }
     const j=rempli ? apcJuger(q, id, raw) : {ok:false};
@@ -25985,7 +26042,7 @@ function checkAPC(live){
 function nextAPC(){ if(test.idx<test.questions.length-1){ test.idx++; renderAPC(); } else finishTest(); }
 function apcNomCase(q, id){
   if(/^apc-t-/.test(id)) return 'arbre '+apfCaseLab(q, id.slice(6).replace('-','.'), true);
-  if(/^apc-r/.test(id)) return 'résolution, étape '+id.slice(5)+' (membre de droite)';   /* le membre de gauche est la forme réduite : la nommer la révélerait */
+  if(/^apc-r/.test(id)) return {'apc-r1':'résolution : opération faite sur les deux membres', 'apc-r2':'résolution : second membre après l’opération', 'apc-r3n':'résolution : numérateur de la fraction qui donne x', 'apc-r3d':'résolution : dénominateur de la fraction qui donne x', 'apc-r3':'résolution : valeur de x', 'apc-r4':'phrase réponse : la probabilité trouvée'}[id];   /* le membre de gauche est la forme réduite : la nommer la révélerait */
   const i=+id.slice(5)-1; return 'question '+APF_LETTRE_Q.charAt(i)+') : ligne '+apcLigneDe(q,id).labT;
 }
 function apcReponseTxt(q){

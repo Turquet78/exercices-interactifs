@@ -367,6 +367,44 @@ copie faite des corrections est parfaite (13/13, 14/14 avec la résolution
 directe, 16/16 étape par étape) ; une division fausse montre la fraction
 verte à côté ; aucune erreur de page. Terminale v410.
 
+**Puis la résolution s'est écrite COMME SUR LA FICHE, avec ses équivalences
+et une phrase réponse** (demande de Turquet, octobre 2026, avec la fiche
+« équation » : « 0,2x − 0,1 = 0,6 ; 0,2x = 0,6 …… ; 0,2x = …… ; x = ……/……
+= …… » — « tu peux compléter avec des équivalences et une phrase réponse »).
+
+* Quatre lignes, la première écrite par la page — l'équation entière,
+  « a·x + b = P(B) » —, les trois suivantes ouvertes par « ⇔ » :
+  « ⇔ a·x = P(B) [……] » (l'opération faite sur les deux membres, `apc-r1`,
+  case étroite `apc-op`), « ⇔ a·x = [……] » (`apc-r2`), « ⇔ x = [……]/[……] =
+  [……] » (une fraction de deux cases, `sa2Frac`, `apc-r3n` / `apc-r3d`, puis
+  `apc-r3`) — des champs MathLive, comme les autres lignes depuis la veille
+  (`apcResIn`). Le ⇔ est collé à son membre de gauche, les « = » restent
+  alignés (`apc-mbw`). Puis la phrase : « Conclusion : la probabilité que … est égale à
+  [……]. » (`apc-r4`, la phrase de la mise en situation, `C.s.A`). Six
+  réponses comptées au lieu de trois.
+* La résolution directe reste permise : si la valeur de x (`apc-r3`, qui
+  peut porter « fraction = valeur ») est juste et que les quatre cases qui y
+  mènent sont vides, elles sont hors note (`APC_RES_ETAPES`) ; la phrase
+  réponse reste due.
+* Les membres de gauche se préparent comme avant (`apcPreparer`, quatre
+  membres : a·x + b, a·x, a·x, x), d'après l'expression de l'élève, et à la
+  clôture les bons les remplacent, en vert.
+* Le juge (`apcJugeResolCase(q, id, raw)`, cibles dans `apcResolCible`) :
+  l'opération doit commencer par un signe et valoir −b (« − 0,1 ») ; un
+  nombre sans signe est faux, avec la raison dite. Les autres cases gardent
+  la règle d'avant : un nombre, ou un calcul qui y mène, terminé par un
+  nombre. Le numérateur vaut P(B) − b, le dénominateur a. Les cibles restent
+  celles de la BONNE expression.
+* Sur téléphone (≤ 600 px), les membres de gauche perdent leur largeur
+  réservée et les cases se resserrent : à 390 px, la ligne « x = fraction =
+  [……] » sortait de l'écran, et la correction verte de la ligne 3 aussi.
+
+Essayé dans Chromium à 1280 et 390 px : copie juste bleue, « 0,6 » faux à la
+ligne 3 rouge avec « 0,044 » en vert à côté, phrase réponse vide remplie en
+vert ; résolution directe « 0,56/0,8 = 0,7 » bleue, ses quatre étapes hors
+note ; aucun défilement horizontal. Fusionné par-dessus les lignes MathLive
+du même jour : Terminale v411.
+
 ## En portrait, le cadre d'un exercice prend la largeur de l'écran — les trois niveaux
 
 Demande de Turquet (octobre 2026) : « en mode portrait, que le cadre blanc de
