@@ -14259,14 +14259,16 @@ function vecteursColineaires(w, P){
       const d=D[m[0]], fr=m[1], et=d.numero+' : ';
       currentTestId=d.exercice; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
       if(test.kind!=='kvi' || test.maxScore!==d.bareme || test.questions.length!==d.nb) vus.push(et+'kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
-      if(!!test.questions[0].fr!==fr) vus.push(et+'q.fr vaut '+test.questions[0].fr);
+      /* au 8.3.3, la première page n'a que des entiers, les suivantes que des fractions */
+      test.questions.forEach(function(qq,k){ const f=fr&&k>0, cs=qq.l.map(function(_,i){ return kviCo(qq,i); });
+        if(!!qq.fr!==f || cs.some(function(c){ return f?c[1]===1:c[1]!==1; })) vus.push(et+'la page '+(k+1)+' doit n\'avoir que des '+(f?'fractions':'entiers')+' : '+JSON.stringify(cs)); });
       for(let n=0;n<200;n++){
         const q=kviGen(fr), cs=q.l.map(function(_,i){ return kviCo(q,i); });
         if(q.l.length!==KVI_NL || q.bs.length!==3 || para(q.bs[0],q.bs[1])||para(q.bs[0],q.bs[2])||para(q.bs[1],q.bs[2])){ vus.push(et+'la figure : '+JSON.stringify(q)); break; }
         if([0,1,2].some(function(k){ return q.l.filter(function(x){ return x[2]===k; }).length!==2; })){ vus.push(et+'un vecteur donné ne sert pas deux fois'); break; }
         if(cs.some(function(c){ return c[0]===c[1] || gcd(c[0],c[1])!==1 || c[1]<1; })){ vus.push(et+'un coefficient vaut 1 ou n\\'est pas irréductible : '+JSON.stringify(cs)); break; }
         if(!fr && cs.some(function(c){ return c[1]!==1; })){ vus.push(et+'un coefficient n\\'est pas entier'); break; }
-        if(fr && cs.filter(function(c){ return c[1]>1; }).length<4){ vus.push(et+'moins de quatre coefficients non entiers'); break; }
+        if(fr && cs.some(function(c){ return c[1]===1; })){ vus.push(et+'un coefficient entier sur une page de fractions'); break; }
         if(q.l.some(function(x,i){ const v=kviVec(q,i); return !entier(v[0])||!entier(v[1])||x[0]<1||x[0]>KVI_W-1||x[1]<1||x[1]>KVI_H-1||x[0]+v[0]<1||x[0]+v[0]>KVI_W-1||x[1]+v[1]<1||x[1]+v[1]>KVI_H-1; })){ vus.push(et+'une flèche sort du quadrillage ou d\\'un nœud : '+JSON.stringify(q)); break; }
         if(fr!==!!q.fr){ vus.push(et+'q.fr mal rangé'); break; }
         /* les noms ne se chevauchent pas (8.3.3 : a et b, l'un sur l'autre) — relu
@@ -14281,6 +14283,8 @@ function vecteursColineaires(w, P){
           else if(dseg(a,fls[j])<15) heurt='le nom '+KVI_L[i]+' sur le trait de '+KVI_L[j]; }); });
         if(heurt){ vus.push(et+heurt+' : '+JSON.stringify(q)); break; }
       }
+      /* au 8.3.3, la copie juste se joue sur une page de fractions */
+      if(fr){ test.questions[0]=JSON.parse(JSON.stringify(test.questions[1])); renderKvi(); }
       const q=test.questions[0];
       /* la copie juste, écrite comme un élève : virgule, tiret, fraction */
       q.l.forEach(function(x,i){ const c=kviCo(q,i); el('kvi-k-'+i).value=(i%2?String(c[0]/c[1]).replace('.',','):kvSaisie(c).replace('−','-')); el('kvi-v-'+i).value=KVI_N[x[2]]; });

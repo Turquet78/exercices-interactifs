@@ -8588,7 +8588,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=590;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=591;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9436,7 +9436,7 @@ const TESTS={
   'tracer-vecteurs-opposes': { name:'Tracer des vecteurs oppos\u00e9s', icon:'\u21a9\ufe0f', desc:'Trois vecteurs u, v et w sur un quadrillage\u00a0: trace les vecteurs \u2212u, \u2212v et \u2212w. Un clic pose le point de d\u00e9part, un second clic le point d\u2019arriv\u00e9e\u00a0; un clic sur le d\u00e9part ou l\u2019arriv\u00e9e d\u2019une fl\u00e8che la reprend.', start:()=>startTvx(true) },
   'construire-multiple-vecteur': { name:'Construire un vecteur k\u00a0u', icon:'\u270f\ufe0f', desc:'Un vecteur u sur un quadrillage\u00a0: trace 3u, \u2212u puis \u22123u\u00a0; ou \u00bdu, \u2212\u00bdu puis \u22123/2\u00a0u. Le coefficient dit le sens (positif\u00a0: le m\u00eame, n\u00e9gatif\u00a0: le contraire) et multiplie le chemin de u.', start:()=>startTvx(false,true) },
   'identifier-multiple-vecteur': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w', icon:'\ud83d\udd0d', desc:'Trois vecteurs u, v et w, puis six vecteurs a, b, c\u2026\u00a0: chacun est u, v ou w multipli\u00e9 par un entier k. Trouve le vecteur et le coefficient.', start:()=>startKvi(false) },
-  'identifier-multiple-non-entier': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w (k d\u00e9cimal ou fraction)', icon:'\ud83d\udd0d', desc:'Comme l\u2019exercice pr\u00e9c\u00e9dent, mais k peut valoir \u22121,5, \u00be, 5/2\u2026 Trouve le vecteur et le coefficient.', start:()=>startKvi(true) },
+  'identifier-multiple-non-entier': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w (k d\u00e9cimal ou fraction)', icon:'\ud83d\udd0d', desc:'D\u2019abord k entier, positif ou n\u00e9gatif ; puis k en fraction : \u22123/2, \u00be, 5/2\u2026 Trouve le vecteur et le coefficient.', start:()=>startKvi(true) },
   'vecteurs-colineaires-figure': { name:'Colin\u00e9aires ou non\u00a0?', icon:'\u2194\ufe0f', desc:'Une figure de vecteurs AB, CD, EF\u2026\u00a0: pour chaque paire, dis s\u2019ils sont colin\u00e9aires et, si oui, \u00e9cris le r\u00e9el k tel que AB = k GH.', start:()=>startKco() },
   'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'La d\u00e9finition de deux vecteurs colin\u00e9aires, puis vrai ou faux sur deux vecteurs dessin\u00e9s\u00a0: m\u00eame direction, m\u00eame sens, m\u00eame longueur, colin\u00e9aires. Six situations, toutes les possibles.', start:()=>startKss() },
   'placer-point-colineaire': { name:'Placer un point d\u00e9fini par une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccd', desc:'Des points A, B, C, D, E sur un quadrillage, et trois \u00e9galit\u00e9s comme CM = \u2154AB ou DN = \u2212\u00bdBA\u00a0: place M, N et P d\u2019un clic.', start:()=>startKpl() },
@@ -65327,9 +65327,10 @@ const KV_DIRS=[[1,0],[0,1],[1,1],[1,-1],[2,1],[2,-1],[1,2],[1,-2],[3,1],[3,-1]];
    vecteurs u⃗, v⃗, w⃗ dessinés à part, puis une figure de vecteurs nommés
    a⃗, b⃗, c⃗… ; « chacun de ces vecteurs est obtenu en multipliant u⃗, v⃗ ou
    w⃗ par un réel k : identifier chacun d'entre eux ». L'exemple (8.3.2) n'a
-   que des coefficients entiers (2, −3, −1…) ; l'exercice (8.3.3) des
-   décimaux et des fractions (−1,5 ; ¾ ; −5/4…). La question porte q.fr = 1
-   au 8.3.3 (rangé, relu à la reprise) ; l'identité suit currentTestId.
+   que des coefficients entiers (2, −3, −1…) ; l'exercice (8.3.3) commence
+   par une page d'entiers, puis ses pages suivantes n'ont que des fractions
+   (−1,5 ; ¾ ; −5/4…). Une page de fractions porte q.fr = 1 (rangé, relu à
+   la reprise) ; l'identité suit currentTestId.
 
    ON RANGE LA FIGURE, JAMAIS LA RÉPONSE : q.bs, les trois vecteurs u⃗, v⃗, w⃗
    (leurs chemins) ; q.l, une ligne par vecteur nommé — [origine x, origine
@@ -65347,7 +65348,7 @@ const KV_DIRS=[[1,0],[0,1],[1,1],[1,-1],[2,1],[2,-1],[1,2],[1,-2],[3,1],[3,-1]];
    horizontale ou verticale ; chaque vecteur donné est sa direction
    multipliée par un entier choisi pour que ses coefficients tombent sur des
    nœuds ; six vecteurs nommés, deux par vecteur donné, de coefficients
-   différents, jamais 1 ; au 8.3.3, quatre au moins ne sont pas entiers. */
+   différents, jamais 1 ; sur une page de fractions, aucun n'est entier. */
 const KVI_W=20, KVI_H=12, KVI_C=30, KVI_PX=24, KVI_PY=24;
 const KVI_GEO={c:KVI_C, px:KVI_PX, py:KVI_PY, h:KVI_H};
 const KVI_NB=2, KVI_NL=6;
@@ -65368,6 +65369,7 @@ function kviGen(fr){
       for(let den=1;den<=4;den++) for(let num=-12;num<=12;num++){
         if(!num||gcd(num,den)!==1||m%den||Math.abs(num/den)>3||num===den) continue;
         if(!fr&&den>1) continue;
+        if(fr&&den===1) continue;
         cs.push([num,den]);
       }
       bs.push(b); vivier.push(cs);
@@ -65382,7 +65384,6 @@ function kviGen(fr){
       const c=pick(cs); l.push([0,0,k,c[0],c[1]]);
     });
     if(!ok) continue;
-    if(fr&&l.filter(function(x){ return x[4]>1; }).length<4) continue;
     if(!l.some(function(x){ return x[3]<0; })||!l.some(function(x){ return x[3]>0; })) continue;
     ensShuffle(l);
     const q={bs:bs, l:l};
@@ -65393,12 +65394,17 @@ function kviGen(fr){
     return q;
   }
   /* repli — jamais atteint en pratique, mais juste : la figure de la fiche */
-  return fr ? {bs:[[4,0],[4,2],[-2,-2]], l:[[1,10,0,2,1],[4,7,1,-1,2],[17,9,2,3,2],[12,2,0,-3,2],[8,4,1,3,2],[3,1,2,-1,2]], fr:1}
+  return fr ? {bs:[[4,0],[4,2],[-2,-2]], l:[[1,10,0,1,2],[4,7,1,-1,2],[17,9,2,3,2],[12,2,0,-3,2],[8,4,1,3,2],[3,1,2,-1,2]], fr:1}
             : {bs:[[3,0],[3,1],[2,-2]], l:[[1,10,0,2,1],[10,10,1,-2,1],[3,6,2,-1,1],[16,2,0,-1,1],[11,6,1,2,1],[15,9,2,2,1]]};
 }
 /* Deux pages sont la même si leurs vecteurs donnés et leurs coefficients le sont, où que les flèches soient posées. */
 function kviCle(q){ return JSON.stringify([q.bs, q.l.map(function(x){ return x.slice(2); })]); }
-function kviBuildQuestions(fr){ return distinctes(dmNbQuestions(KVI_NB), function(){ return kviGen(fr); }, kviCle); }
+/* AU 8.3.3, LES ENTIERS D'ABORD, PUIS LES FRACTIONS (demande de Turquet,
+   octobre 2026 : « dans la 1re question mettre que des multiplications avec
+   des facteurs entiers positifs ou négatifs, puis dans la deuxième question
+   mettre des fractions comme coefficient multiplicateur ») : la première page
+   est celle du 8.3.2, les suivantes n'ont que des coefficients non entiers. */
+function kviBuildQuestions(fr){ return distinctes(dmNbQuestions(KVI_NB), function(_,i){ return kviGen(fr&&i>0); }, kviCle); }
 function kviCases(q){ const c=[]; q.l.forEach(function(_,i){ c.push('kvi-k-'+i, 'kvi-v-'+i); }); return c; }
 /* u⃗, v⃗, w⃗ côte à côte, sur une bande de quadrillage, comme sur la fiche. */
 function kviSvgDonnes(q){
