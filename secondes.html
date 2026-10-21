@@ -2886,7 +2886,7 @@
   .tvx-svg .tvx-el{stroke:var(--crd-a);stroke-width:2.6;stroke-linecap:round}
   .tvx-svg .tvx-el-t{fill:var(--crd-a)} .tvx-svg .tvx-el-f{stroke:var(--crd-a)}
   .tvx-svg .tvx-vif{pointer-events:none}
-  .tvx-svg .kv-grad{stroke-width:2.4;stroke-linecap:round}
+  .tvx-svg .kv-grad{stroke-width:2.4;stroke-linecap:round} .tvx-svg .svc-u-f{stroke:var(--ink)}
   .tvx-svg .tvx-croix line{stroke:var(--crd-a);stroke-width:2.4;stroke-linecap:round}
   .tvx-svg .tvx-croix.tvx-ok line{stroke:var(--blue)}
   .tvx-svg .tvx-croix.tvx-bad line{stroke:var(--red)}
@@ -8564,7 +8564,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=583;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=584;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -12808,7 +12808,7 @@ const RAP_KVX=`<b>Construire le vecteur k<span class="vec"><i>u</i></span></b><b
 <b>② Son sens</b> : celui de <span class="vec"><i>u</i></span> si k est <b>positif</b>, le sens <b>contraire</b> si k est <b>négatif</b>.<br>
 <b>③ Sa longueur</b> : celle de <span class="vec"><i>u</i></span> multipliée par k sans son signe — 2<span class="vec"><i>u</i></span> est deux fois plus long, ½<span class="vec"><i>u</i></span> deux fois plus court.<br>
 <b>④ Sur un quadrillage</b>, on compte le chemin de <span class="vec"><i>u</i></span> (tant de carreaux vers la droite ou la gauche, puis vers le haut ou le bas) et on <b>multiplie chaque nombre par k</b>. Exemple : si <span class="vec"><i>u</i></span> fait 6 carreaux vers la droite et 3 vers le haut, ⅔<span class="vec"><i>u</i></span> fait 4 carreaux vers la droite et 2 vers le haut, et −⅓<span class="vec"><i>u</i></span> fait 2 carreaux vers la gauche et 1 vers le bas.<br>
-<b>⑤ Une fraction se construit par étapes</b> : pour ${kvHTML([-3,2],'u')}, on trace d'abord ½<span class="vec"><i>u</i></span> (la moitié du chemin), puis −½<span class="vec"><i>u</i></span> (le même chemin à l'envers), puis trois fois −½<span class="vec"><i>u</i></span> bout à bout — la flèche ${kvHTML([-3,2],'u')} se découpe à l'écran en trois morceaux, de petits traits en travers.`;
+<b>⑤ Une fraction se construit par étapes</b> : pour ${kvHTML([-3,2],'u')}, on trace d'abord ½<span class="vec"><i>u</i></span> (la moitié du chemin), puis −½<span class="vec"><i>u</i></span> (le même chemin à l'envers), puis trois fois −½<span class="vec"><i>u</i></span> bout à bout — à l'écran, <span class="vec"><i>u</i></span> se découpe en deux morceaux (chacun vaut ½<span class="vec"><i>u</i></span>) et la flèche ${kvHTML([-3,2],'u')} en trois, de petits traits en travers.`;
 
 /* 8.3.2 {identifier-multiple-vecteur} et 8.3.3 {identifier-multiple-non-entier} */
 const RAP_KVI=`<b>Reconnaître un vecteur k<span class="vec"><i>u</i></span></b><br>
@@ -64685,10 +64685,18 @@ function tvxTrace(q,k,a,b,cls,mk){
    dans l'échelle : −3/2 u, ce sont trois −½u bout à bout, et l'élève le voit.
    De petits traits en travers, aux |a| − 1 coupures, de la couleur de la
    flèche (-f) ; sur la flèche de l'élève, la correction, et la flèche qui
-   suit la souris. Rien pour un entier ni pour ±1/b : un seul morceau. */
+   suit la souris. Rien pour un entier ni pour ±1/b : un seul morceau.
+   ET u⃗ LUI-MÊME SE DÉCOUPE EN b MORCEAUX (demande de Turquet, octobre 2026 :
+   « je veux que tu découpes aussi le vecteur u en b morceaux à l'écran ») :
+   le morceau 1/b u se lit sur u⃗ avant d'être tracé (tvxSVG), à l'encre de u⃗.
+   b est le dénominateur commun des trois coefficients — celui de l'échelle. */
 function tvxGrad(q,k,a,b,c0){
-  const c=q.ks&&q.ks[k], n=c?Math.abs(c[0]):1;
-  if(!c||c[1]===1||n<2) return '';
+  const c=q.ks&&q.ks[k];
+  return c&&c[1]>1 ? tvxCoupes(Math.abs(c[0]),a,b,c0) : '';
+}
+/* n − 1 petits traits en travers d'un segment de a à b (repère du dessin) : n morceaux égaux. */
+function tvxCoupes(n,a,b,c0){
+  if(n<2) return '';
   const dx=b.x-a.x, dy=b.y-a.y, l=Math.hypot(dx,dy); if(l<6) return '';
   const px=-dy/l*7, py=dx/l*7;
   let h='';
@@ -64793,6 +64801,7 @@ function tvxSVG(q){
   (q.ks?[0]:[0,1,2]).forEach(function(k){
     const o=tvxOrig(q,k), w=tvxVec(q,k);
     donnes+=svcFleche(o, [o[0]+w[0], o[1]+w[1]], {cls:'svc-u', marker:'tvxArr0', nom:tvxDonne(q,k), depart:true, geo:TVX_GEO});
+    if(q.ks) donnes+=tvxCoupes(q.ks.reduce(function(m,c){ return m*c[1]/gcd(m,c[1]); },1), {x:tvxX(o[0]),y:tvxY(o[1])}, {x:tvxX(o[0]+w[0]),y:tvxY(o[1]+w[1])}, 'svc-u');
   });
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tvx-svg" role="img" aria-label="${q.ks?'Quadrillage : le vecteur u, et les vecteurs '+[0,1,2].map(function(k){ return tvxNom(q,k); }).join(', ')+' à tracer':'Quadrillage : les vecteurs u, v et w, et les vecteurs '+(q.op?'opposés':'égaux')+' à tracer'}">`
@@ -65239,9 +65248,14 @@ function kvGrille(G,w){
 }
 function kvPointe(id){ return '<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink)"/></marker>'; }
 /* Poser des chemins sur un quadrillage w × h : chacun à un carreau du bord,
-   à « ecart » carreaux des autres ; null quand l'un ne trouve pas de place. */
-function kvPoser(ws,w,h,ecart){
-  const boites=[], pos=[];
+   à « ecart » carreaux des autres ; null quand l'un ne trouve pas de place.
+   LES NOMS NE SE CHEVAUCHENT PAS (demande de Turquet, octobre 2026 : au
+   8.3.3, a⃗ et b⃗, deux flèches verticales à une colonne l'une de l'autre,
+   écrivaient leurs noms l'un sur l'autre) : avec « noms », le nom de chaque
+   flèche — posé par svcNomPos, à 17 px du milieu, côté perpendiculaire — se
+   tient loin des noms et des traits déjà posés (kvNomLibre). */
+function kvPoser(ws,w,h,ecart,noms){
+  const boites=[], pos=[], fl=[];
   for(const v of ws){
     let pose=null;
     for(let t=0;t<200&&!pose;t++){
@@ -65249,12 +65263,34 @@ function kvPoser(ws,w,h,ecart){
       if(f[0]<1||f[0]>w-1||f[1]<1||f[1]>h-1) continue;
       const b=[Math.min(o[0],f[0]),Math.min(o[1],f[1]),Math.max(o[0],f[0]),Math.max(o[1],f[1])];
       if(boites.some(function(c){ return b[0]-ecart<c[2]&&c[0]<b[2]+ecart&&b[1]-ecart<c[3]&&c[1]<b[3]+ecart; })) continue;
-      pose=o; boites.push(b);
+      if(noms&&!kvNomLibre(fl,[o,f])) continue;
+      pose=o; boites.push(b); fl.push([o,f]);
     }
     if(!pose) return null;
     pos.push(pose);
   }
   return pos;
+}
+/* Le centre du nom d'une flèche [o, f], en carreaux (l'axe des ordonnées
+   monte) : svcNomPos, à 17 px sur des carreaux de 30. */
+function kvNomCentre(a){
+  const dx=a[1][0]-a[0][0], dy=a[1][1]-a[0][1], l=Math.hypot(dx,dy)||1, e=17/30;
+  return [(a[0][0]+a[1][0])/2+dy/l*e, (a[0][1]+a[1][1])/2-dx/l*e];
+}
+function kvDistSeg(p,a){
+  const ax=a[0][0], ay=a[0][1], dx=a[1][0]-ax, dy=a[1][1]-ay, l2=dx*dx+dy*dy||1;
+  const t=Math.max(0,Math.min(1,((p[0]-ax)*dx+(p[1]-ay)*dy)/l2));
+  return Math.hypot(p[0]-ax-t*dx, p[1]-ay-t*dy);
+}
+/* Une flèche peut se poser si son nom ne touche ni un nom ni un trait déjà
+   posés, et si aucun nom déjà posé ne touche son trait. Un nom (une lettre
+   coiffée de sa flèche) tient environ 0,6 carreau de large, 0,7 de haut. */
+function kvNomLibre(fl,a){
+  const n=kvNomCentre(a);
+  return fl.every(function(b){
+    const m=kvNomCentre(b);
+    return !(Math.abs(n[0]-m[0])<0.8&&Math.abs(n[1]-m[1])<0.9)&&kvDistSeg(n,b)>=0.5&&kvDistSeg(m,a)>=0.5;
+  });
 }
 /* Les directions des figures : deux à deux non parallèles (une direction et
    son opposée sont la même). */
@@ -65326,7 +65362,7 @@ function kviGen(fr){
     if(!l.some(function(x){ return x[3]<0; })||!l.some(function(x){ return x[3]>0; })) continue;
     ensShuffle(l);
     const q={bs:bs, l:l};
-    const ws=l.map(function(x,i){ return kviVec(q,i); }), pos=kvPoser(ws, KVI_W, KVI_H, 2)||kvPoser(ws, KVI_W, KVI_H, 1);
+    const ws=l.map(function(x,i){ return kviVec(q,i); }), pos=kvPoser(ws, KVI_W, KVI_H, 2, 1)||kvPoser(ws, KVI_W, KVI_H, 1, 1);
     if(!pos) continue;
     pos.forEach(function(p,i){ l[i][0]=p[0]; l[i][1]=p[1]; });
     if(fr) q.fr=1;

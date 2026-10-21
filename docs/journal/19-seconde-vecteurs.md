@@ -4167,6 +4167,35 @@ dans cet ordre, la fraction empilée de la consigne au 8.3.3, et la
 fraction lue et écrite (`kvLatex`, `kvLit`). Vu dans Chromium : la fraction
 tapée « −3/2 » s'empile, se juge, survit à la pause empilée.
 
+### Les 8.3.2, 8.3.3 et 8.3.5 : les noms des flèches ne se chevauchent plus (v583 — v581 et v582 prises par les 8.3.1, 8.3.5, 8.3.6 et 8.3.9)
+
+Demande de Turquet, octobre 2026, capture du 8.3.3 à l'appui : « il ne faut
+pas que les écritures se chevauchent comme dans l'image avec a et b ». Deux
+flèches verticales, a⃗ vers le haut et b⃗ vers le bas, posées à UNE colonne
+l'une de l'autre : chacune écrit son nom à 17 px de son milieu, côté
+perpendiculaire — a⃗ à droite de son trait, b⃗ à gauche du sien — et les deux
+noms tombaient au même endroit. `kvPoser` ne tenait que l'écart des BOÎTES
+des flèches, et son repli à un carreau (`kvPoser(…, 1)`) laissait passer ce
+cas : 42 figures sur 3 000 tirages avaient deux noms l'un sur l'autre.
+
+* **`kvPoser` prend un cinquième argument, `noms`** : chaque flèche n'est posée
+  que si son nom (`kvNomCentre`, la position de `svcNomPos` en carreaux) se
+  tient à l'écart des noms déjà posés (0,8 carreau en largeur, 0,9 en hauteur)
+  et à un demi-carreau des traits déjà posés — et si aucun nom déjà posé ne
+  touche son trait (`kvNomLibre`). Le 8.3.2/8.3.3 (`kvi`) et le 8.3.5 (`kss`)
+  le passent ; le 8.3.4 (`kco`) écrit des lettres aux extrémités, pas des
+  noms au milieu, et garde son placement.
+* Après : 0 figure sur 3 000, et le repli de `kviGen` n'est jamais atteint.
+
+Le banc principal (`vecteursColineaires`) relit, sur les deux cents tirages
+de chaque exercice, les noms EN PIXELS par `svcNomPos`, comme le dessin les
+pose : deux noms à moins de 24 × 27 px, ou un nom à moins de 15 px du trait
+d'une autre flèche, et il rougit en nommant les deux lettres. Sur l'ancien
+placement, 1,4 % de figures fautives par tirage : sur quatre cents tirages,
+le contrôle l'attrape presque à coup sûr. Éprouvé par sabotage (le
+placement d'avant rétabli au 8.3.2/8.3.3) : rouge, « 8.3.2 : le nom a sur
+le trait de e ».
+
 ### Le 8.3.1 : la flèche a/b u⃗ se DÉCOUPE en |a| morceaux (v582)
 
 Demande de Turquet, octobre 2026 (écrite « 8.3.2 » — le seul exercice du
@@ -4183,6 +4212,17 @@ ni pour ±1/b : un seul morceau. Le rappel ⑤ le dit. Contrôles (banc
 principal, figure fixe) : la flèche −5/6 u⃗ de l'élève porte quatre traits,
 ni 2u⃗ ni ½u⃗ n'en portent, et la correction verte −5/6 u⃗ en porte quatre
 verts. Vu à l'œil dans Chromium (tracé en cours et après vérification).
+
+**Puis u⃗ lui-même s'est découpé en b morceaux (v583 — v582 prise par le 8.3.5).** Turquet, le même
+jour : « je veux que tu découpes aussi le vecteur u en b morceaux à l'écran ».
+Le vecteur donné porte b − 1 petits traits à son encre (`svc-u-f`), posés par
+`tvxSVG` dès l'affichage : le morceau 1/b u se lit sur u⃗ avant d'être tracé,
+et se retrouve ensuite |a| fois sur la flèche a/b u⃗. b est le dénominateur
+commun des trois coefficients (`tvxCoupes`, le découpage partagé avec
+`tvxGrad`) : dans un vrai tirage, c'est celui de l'échelle ; la figure fixe
+du banc (2, ½, −5/6) découpe u⃗ en six. Rien sur u⃗ à l'échelle des entiers.
+Contrôle (banc principal) : cinq traits sur u⃗ dans la figure fixe. Vu à
+l'œil dans Chromium (u⃗ en trois, −5/3 u⃗ en cinq).
 
 ## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 
@@ -4411,7 +4451,7 @@ du sens fermée avant toute réponse, ouverte par « Vrai » ; une copie juste
 pour la corriger ; « Vrai » à la direction de deux vecteurs non parallèles,
 rouge, ligne du sens refermée et hors note ; le pourquoi par Pythagore.
 
-## 8.3.5 : les deux vecteurs seulement, et le coefficient k u⃗ sur sa ligne (v583)
+## 8.3.5 : les deux vecteurs seulement, et le coefficient k u⃗ sur sa ligne (v584 — v583 prise par les 8.3.1, 8.3.2, 8.3.3 et 8.3.5 pendant les bancs)
 
 **La demande** (Turquet, octobre 2026, une capture de la correction
 « v⃗ = 3u⃗ : ils sont colinéaires » à l'appui) : « dans la correction le

@@ -14233,6 +14233,8 @@ function vecteursColineaires(w, P){
     test.questions[0]=fixeK(); test.idx=0; renderTvx();
     if(el('tvxInstr').querySelectorAll('.sf-f').length!==2 || el('tvxInstr').textContent.indexOf('représentant')<0) vus.push('8.3.1 : l\\'énoncé n\\'écrit pas ½ et −5/6 empilés : '+el('tvxInstr').textContent);
     if(document.querySelectorAll('#tvxDonnes line.svc-u').length!==1) vus.push('8.3.1 : le dessin ne montre pas u seul');
+    /* u se découpe en 6 morceaux (le dénominateur commun, 6) : cinq petits traits à l'encre de u */
+    if(document.querySelectorAll('#tvxDonnes line.kv-grad.svc-u-f').length!==5) vus.push('8.3.1 : u n\\'est pas découpé en six morceaux : '+document.querySelectorAll('#tvxDonnes line.kv-grad').length+' traits');
     if(el('tvxEtape').textContent.indexOf('Trace le vecteur 2')<0) vus.push('8.3.1 : la page ne dit pas de tracer 2u : '+el('tvxEtape').textContent);
     tracer([1,1],[13,1]); tracer([1,3],[4,3]); tracer([10,7],[5,7]);
     if(document.querySelectorAll('#tvxFl line.kv-barre').length!==2) vus.push('8.3.1 : les noms ½u et −5/6 u n\\'ont pas leur fraction empilée');
@@ -14267,6 +14269,17 @@ function vecteursColineaires(w, P){
         if(fr && cs.filter(function(c){ return c[1]>1; }).length<4){ vus.push(et+'moins de quatre coefficients non entiers'); break; }
         if(q.l.some(function(x,i){ const v=kviVec(q,i); return !entier(v[0])||!entier(v[1])||x[0]<1||x[0]>KVI_W-1||x[1]<1||x[1]>KVI_H-1||x[0]+v[0]<1||x[0]+v[0]>KVI_W-1||x[1]+v[1]<1||x[1]+v[1]>KVI_H-1; })){ vus.push(et+'une flèche sort du quadrillage ou d\\'un nœud : '+JSON.stringify(q)); break; }
         if(fr!==!!q.fr){ vus.push(et+'q.fr mal rangé'); break; }
+        /* les noms ne se chevauchent pas (8.3.3 : a et b, l'un sur l'autre) — relu
+           en pixels par svcNomPos, comme le dessin les pose */
+        const px=function(p){ return [KVI_PX+p[0]*KVI_C, KVI_PY+(KVI_H-p[1])*KVI_C]; };
+        const fls=q.l.map(function(x,i){ const v=kviVec(q,i); return [px([x[0],x[1]]), px([x[0]+v[0],x[1]+v[1]])]; });
+        const nms=fls.map(function(f){ return svcNomPos(f[0][0],f[0][1],f[1][0],f[1][1],'a',1); });
+        const dseg=function(p,f){ const dx=f[1][0]-f[0][0], dy=f[1][1]-f[0][1], t=Math.max(0,Math.min(1,((p.x-f[0][0])*dx+(p.y-f[0][1])*dy)/(dx*dx+dy*dy))); return Math.hypot(p.x-f[0][0]-t*dx, p.y-f[0][1]-t*dy); };
+        let heurt='';
+        nms.forEach(function(a,i){ nms.forEach(function(b,j){ if(heurt||i===j) return;
+          if(i<j&&Math.abs(a.x-b.x)<24&&Math.abs(a.y-b.y)<27) heurt=KVI_L[i]+' et '+KVI_L[j]+' écrits l\\'un sur l\\'autre';
+          else if(dseg(a,fls[j])<15) heurt='le nom '+KVI_L[i]+' sur le trait de '+KVI_L[j]; }); });
+        if(heurt){ vus.push(et+heurt+' : '+JSON.stringify(q)); break; }
       }
       const q=test.questions[0];
       /* la copie juste, écrite comme un élève : virgule, tiret, fraction */
