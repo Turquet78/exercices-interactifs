@@ -14475,60 +14475,68 @@ function vecteursColineairesSuite(w, P){
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0 || conseilCtxCourant().indexOf('direction faux')<0) vus.push('8.3.5 : le contexte du modèle, au vrai ou faux');
 
     /* ===== 8.3.6 : placer un point défini par une égalité de vecteurs ===== */
-    /* chaque point part de son propre point de départ : CM = k AB, DN = k AB, EP = k BA */
+    /* une égalité par question, CM = k AB ; quatre questions : k entier positif,
+       entier négatif, fraction positive, fraction négative, chacune son vecteur */
     lancer(D.placer, 'kpl');
     for(let n=0;n<200;n++){
-      const qs=kplBuildQuestions(), q=qs[n%qs.length];
-      if(qs[0].r.some(function(r){ return r[0]; })){ vus.push('8.3.6 : la première page ne s\\'en tient pas à CM = k AB'); break; }
-      if(!Array.isArray(q.o)||q.o.length!==3){ vus.push('8.3.6 : pas trois points de départ '+JSON.stringify(q)); break; }
-      const ab=[q.b[0]-q.a[0], q.b[1]-q.a[1]];
-      if(q.o.some(function(o){ return (o[0]-q.a[0])*ab[1]-(o[1]-q.a[1])*ab[0]===0; })){ vus.push('8.3.6 : un point de départ sur la droite (AB) '+JSON.stringify(q)); break; }
-      const ps=[0,1,2].map(function(k){ return kplCible(q,k); });
-      if(ps.concat(q.o).some(function(p){ return !entier(p[0])||!entier(p[1])||p[0]<1||p[0]>KPL_W-1||p[1]<1||p[1]>KPL_H-1; })){ vus.push('8.3.6 : un point hors du quadrillage ou hors des nœuds '+JSON.stringify(q)); break; }
-      const tous=ps.concat([q.a,q.b]).concat(q.o).map(function(p){ return p.join(','); });
-      if(new Set(tous).size!==8){ vus.push('8.3.6 : deux points confondus '+JSON.stringify(q)); break; }
-      if(!q.r.some(function(r){ return r[1]<0; }) || !q.r.some(function(r){ return r[2]>1; })){ vus.push('8.3.6 : réels '+JSON.stringify(q.r)); break; }
+      const qs=kplBuildQuestions(), i=n%qs.length, q=qs[i];
+      if(qs.length!==4){ vus.push('8.3.6 : '+qs.length+' questions au lieu de 4'); break; }
+      if(qs[0].r[0][0]){ vus.push('8.3.6 : la première question ne s\\'en tient pas à CM = k AB'); break; }
+      if(q.r.length!==1||q.o.length!==1||q.p.length!==1){ vus.push('8.3.6 : pas UNE égalité par question '+JSON.stringify(q)); break; }
+      const c=q.r[0], fam=[c[1]>0&&c[2]===1, c[1]<0&&c[2]===1, c[1]>0&&c[2]>1, c[1]<0&&c[2]>1];
+      if(!fam[i%4]){ vus.push('8.3.6 : la question '+(i+1)+' n\\'est pas « '+KPL_FAM[i%4]+' » : '+JSON.stringify(c)); break; }
+      if(new Set(qs.map(function(x){ return x.l; })).size!==4){ vus.push('8.3.6 : deux questions ont les mêmes lettres'); break; }
+      const ab=[q.b[0]-q.a[0], q.b[1]-q.a[1]], o=q.o[0];
+      if((o[0]-q.a[0])*ab[1]-(o[1]-q.a[1])*ab[0]===0){ vus.push('8.3.6 : le point de départ sur la droite (AB) '+JSON.stringify(q)); break; }
+      const ps=[kplCible(q,0), o, q.a, q.b];
+      if(ps.some(function(p){ return !entier(p[0])||!entier(p[1])||p[0]<1||p[0]>KPL_W-1||p[1]<1||p[1]>KPL_H-1; })){ vus.push('8.3.6 : un point hors du quadrillage ou hors des nœuds '+JSON.stringify(q)); break; }
+      if(new Set(ps.map(function(p){ return p.join(','); })).size!==4){ vus.push('8.3.6 : deux points confondus '+JSON.stringify(q)); break; }
     }
-    /* A(3;3), B(9;3) ; C(2;6), D(10;8), E(5;1) ; CM = ⅔AB, DN = ½BA, EP = −⅓AB */
-    const fixeP=function(){ return {a:[3,3], b:[9,3], l:0, o:[[2,6],[10,8],[5,1]], r:[[0,2,3],[1,1,2],[0,-1,3]], p:[null,null,null]}; };
+    /* A(3;3), B(9;3), C(2;6) ; CM = ⅔AB : M(6;6) */
+    const fixeP=function(o,r){ return {a:[3,3], b:[9,3], l:0, o:[o||[2,6]], r:[r||[0,2,3]], p:[null]}; };
     test.questions[0]=fixeP(); test.idx=0; renderKpl();
-    if(el('kpl-1').innerHTML.indexOf('DN')<0 || el('kpl-1').innerHTML.indexOf('BA')<0 || el('kpl-1').querySelectorAll('.sf-f').length!==1) vus.push('8.3.6 : le cadre de N n\\'écrit pas DN = ½BA empilé : '+el('kpl-1').textContent);
-    if(['C','D','E'].some(function(L){ return [].some.call(document.querySelectorAll('#kplDonnes text'), function(t){ return t.textContent===L; })===false; })) vus.push('8.3.6 : les points de départ C, D, E ne sont pas dessinés');
-    if([0,1,2].map(function(k){ return kplCible(test.questions[0],k).join(','); }).join(' ')!=='6,6 7,8 3,1') vus.push('8.3.6 : les cibles '+[0,1,2].map(function(k){ return kplCible(test.questions[0],k); }).join(' '));
-    /* le vecteur suit la souris, du point de départ du point en cours au nœud survolé */
+    if(document.querySelectorAll('#kplBody .tvg-cons').length!==1) vus.push('8.3.6 : plus d\\'une égalité à l\\'écran');
+    if(el('kpl-0').innerHTML.indexOf('CM')<0 || el('kpl-0').innerHTML.indexOf('AB')<0 || el('kpl-0').querySelectorAll('.sf-f').length!==1) vus.push('8.3.6 : le cadre de M n\\'écrit pas CM = ⅔AB empilé : '+el('kpl-0').textContent);
+    if(['A','B','C'].some(function(L){ return [].some.call(document.querySelectorAll('#kplDonnes text'), function(t){ return t.textContent===L; })===false; })) vus.push('8.3.6 : A, B, C ne sont pas dessinés');
+    if(kplCible(test.questions[0],0).join(',')!=='6,6') vus.push('8.3.6 : la cible '+kplCible(test.questions[0],0));
+    /* le vecteur suit la souris, du point de départ au nœud survolé */
     kplVif(test.questions[0],0,[4,4]);
     if(document.querySelectorAll('#kplVif line.kpl-fl.kpl-vif').length!==1) vus.push('8.3.6 : aucun vecteur ne suit la souris');
     kplVif(test.questions[0],0,[2,6]);
     if(document.querySelectorAll('#kplVif line').length) vus.push('8.3.6 : un vecteur nul est tracé sur le point de départ');
-    kplClic(6,6); kplClic(7,8); kplClic(3,1);
+    kplClic(6,6);
     json(); renderKpl();
-    if(document.querySelectorAll('#kplEl .tan-croix').length!==3) vus.push('8.3.6 : les points posés ne reviennent pas après le JSON');
-    if(document.querySelectorAll('#kplEl line.kpl-fl').length!==3) vus.push('8.3.6 : les vecteurs des points posés ne restent pas tracés');
+    if(document.querySelectorAll('#kplEl .tan-croix').length!==1) vus.push('8.3.6 : le point posé ne revient pas après le JSON');
+    if(document.querySelectorAll('#kplEl line.kpl-fl').length!==1) vus.push('8.3.6 : le vecteur du point posé ne reste pas tracé');
     av=test.score; checkKpl();
-    if(test.score-av!==3 || ['kpl-0','kpl-1','kpl-2'].map(function(i){ return classe(el(i)); }).join(',')!=='ok,ok,ok') vus.push('8.3.6 : la copie juste vaut '+(test.score-av));
-    if(document.querySelectorAll('#kplEl line.svc-e').length!==3 || el('kplVif').innerHTML) vus.push('8.3.6 : après la vérification, les vecteurs justes ne sont pas bleus');
+    if(test.score-av!==1 || classe(el('kpl-0'))!=='ok') vus.push('8.3.6 : la copie juste vaut '+(test.score-av));
+    if(document.querySelectorAll('#kplEl line.svc-e').length!==1 || el('kplVif').innerHTML) vus.push('8.3.6 : après la vérification, le vecteur juste n\\'est pas bleu');
+    /* question 2 : CM = −½AB depuis C(8;6) ; le point posé du mauvais côté, en (11;6) */
     nextKpl(); clearTimeout(test.fbTimer);
-    test.questions[1]=fixeP(); renderKpl();
-    kplClic(-1,0);
-    kplClic(8,6); kplClic(6,3);
+    test.questions[1]=fixeP([8,6],[0,-1,2]); renderKpl();
+    kplClic(-1,0); kplClic(11,6);
     av=test.score; checkKpl();
-    const lp=['kpl-0','kpl-1','kpl-2'].map(function(i){ return classe(el(i)); }).join(',');
-    if(test.score-av!==0 || lp!=='bad,bad,sol') vus.push('8.3.6 : CM à la mauvaise distance, DN parti de B, P absent : '+lp);
     const fbP=el('kplFeedback').textContent;
-    if(fbP.indexOf('pas à la bonne distance')<0 || fbP.indexOf('parallèle à (AB) passant par C')<0) vus.push('8.3.6 : le pourquoi de M : '+fbP.slice(0,300));
-    if(fbP.indexOf('Ton point N est parti de B')<0) vus.push('8.3.6 : le pourquoi de N : '+fbP.slice(0,300));
-    if(document.querySelectorAll('#kplCorr line.svc-s').length!==3) vus.push('8.3.6 : la correction ne trace pas les trois flèches vertes');
-    if(document.querySelectorAll('#kplEl line.svc-eb').length!==2) vus.push('8.3.6 : les vecteurs faux ne sont pas rouges');
-    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0) vus.push('8.3.6 : le contexte du modèle');
+    if(test.score-av!==0 || classe(el('kpl-0'))!=='bad' || fbP.indexOf('mauvais côté')<0) vus.push('8.3.6 : le mauvais côté : '+classe(el('kpl-0'))+' — '+fbP.slice(0,300));
+    if(document.querySelectorAll('#kplCorr line.svc-s').length!==1 || document.querySelectorAll('#kplEl line.svc-eb').length!==1) vus.push('8.3.6 : la correction verte et le vecteur rouge');
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0) vus.push('8.3.6 : le contexte du modèle');
+    /* question 3 : parti de A au lieu de C */
     nextKpl(); clearTimeout(test.fbTimer);
     test.questions[2]=fixeP(); renderKpl();
-    kplClic(3,7); kplClic(7,8); kplClic(7,1);
-    av=test.score; checkKpl();
-    const fbP3=el('kplFeedback').textContent;
-    if(test.score-av!==1 || fbP3.indexOf('mauvais côté')<0 || fbP3.indexOf('n’est pas sur la parallèle')<0) vus.push('8.3.6 : EP du mauvais côté, M hors de la parallèle : '+fbP3.slice(0,300));
-    /* un brouillon d'avant les points de départ se tire à neuf, sans planter */
-    test.questions[2]={a:[3,3], b:[9,3], l:0, r:[[0,0,2,3],[1,1,1,2],[0,1,1,3]], p:[[7,3],null,null]}; test.locked=false; renderKpl();
-    if(!Array.isArray(test.questions[2].o) || document.querySelectorAll('#kplDonnes .tan-croix').length!==5) vus.push('8.3.6 : un ancien brouillon ne se retire pas');
+    kplClic(7,3); checkKpl();
+    if(el('kplFeedback').textContent.indexOf('Ton point M est parti de A')<0) vus.push('8.3.6 : le pourquoi « parti de A » : '+el('kplFeedback').textContent.slice(0,300));
+    /* question 4 : sur la parallèle à la mauvaise distance, puis hors de la parallèle, puis vide */
+    nextKpl(); clearTimeout(test.fbTimer);
+    [[[8,6],'pas à la bonne distance'],[[3,7],'n’est pas sur la parallèle à (AB) passant par C'],[null,'']].forEach(function(x){
+      test.questions[3]=fixeP(); test.locked=false; renderKpl();
+      if(x[0]) kplClic(x[0][0],x[0][1]);
+      checkKpl();
+      const f=el('kplFeedback').textContent;
+      if(x[0] ? f.indexOf(x[1])<0 : classe(el('kpl-0'))!=='sol') vus.push('8.3.6 : '+(x[1]||'le point vide')+' : '+classe(el('kpl-0'))+' — '+f.slice(0,300));
+    });
+    /* un brouillon à trois égalités se tire à neuf, sans planter */
+    test.questions[3]={a:[3,3], b:[9,3], l:0, o:[[2,6],[10,8],[5,1]], r:[[0,2,3],[1,1,2],[0,-1,3]], p:[[6,6],null,null]}; test.locked=false; renderKpl();
+    if(test.questions[3].r.length!==1 || document.querySelectorAll('#kplDonnes .tan-croix').length!==3 || document.querySelectorAll('#kplBody .tvg-cons').length!==1) vus.push('8.3.6 : un ancien brouillon ne se retire pas');
 
     /* ===== 8.3.7 : relier égalité et dessin, puis phrase et cas ===== */
     lancer(D.phrase, 'kph');
