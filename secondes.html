@@ -2987,10 +2987,7 @@
      n'est pas jugé (bleu juste, rouge faux : svc-e, svc-eb), pâli quand il suit la souris */
   .kpl-svg .kpl-fl{stroke:var(--crd-a);stroke-width:2.4;stroke-linecap:round}
   .kpl-svg .kpl-vif{opacity:.6}
-  .kph-cartes{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 14px;margin:0 auto 16px;max-width:900px}
-  .kph-carte{display:inline-flex;align-items:center;gap:12px;border:1.5px solid #D6E2F8;border-radius:14px;padding:8px 16px;background:var(--surface);font-family:"Fredoka";font-weight:500;font-size:1.3rem;color:var(--ink)}
   .kph-lt{font-weight:700;color:var(--blue-dark)}
-  .kph-carte .vgt-vec{font-size:1.05em}
   .kph-l .kph-t{flex:1 1 320px;font-family:"Nunito",sans-serif;font-weight:600;font-size:1.1rem;line-height:1.45}
   .kph-l .kph-rep{display:inline-flex;align-items:center;gap:10px;margin-left:auto}
   .kph-l .kph-num{font-weight:700}
@@ -2998,6 +2995,11 @@
   .kph-pq .vgt-vec{color:inherit}
   .kph-l .kph-et{font-size:.92rem;color:var(--ink-soft);font-weight:600}
   .kph-l .itv-sel.kph-seld{width:78px}
+  .kph-eg .kph-rel{font-family:"Fredoka";font-weight:500;font-size:1.3rem;color:var(--ink)}
+  .kph-eg .kph-rel .vgt-vec{font-size:1.05em}
+  .kph-cas{display:block;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.15rem;color:var(--ink);margin:2px 0 6px;white-space:nowrap}
+  .kph-cas .kph-lt{margin-right:.4em}
+  .kph-titre{margin-top:18px}
   .kph-figs .kv-fig{flex:0 1 330px}
   .kph-svg{max-width:320px}
   .kph-svg .kph-dr{stroke:var(--ink-soft);stroke-width:1.6}
@@ -8588,7 +8590,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=591;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=593;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9436,11 +9438,11 @@ const TESTS={
   'tracer-vecteurs-opposes': { name:'Tracer des vecteurs oppos\u00e9s', icon:'\u21a9\ufe0f', desc:'Trois vecteurs u, v et w sur un quadrillage\u00a0: trace les vecteurs \u2212u, \u2212v et \u2212w. Un clic pose le point de d\u00e9part, un second clic le point d\u2019arriv\u00e9e\u00a0; un clic sur le d\u00e9part ou l\u2019arriv\u00e9e d\u2019une fl\u00e8che la reprend.', start:()=>startTvx(true) },
   'construire-multiple-vecteur': { name:'Construire un vecteur k\u00a0u', icon:'\u270f\ufe0f', desc:'Un vecteur u sur un quadrillage\u00a0: trace 3u, \u2212u puis \u22123u\u00a0; ou \u00bdu, \u2212\u00bdu puis \u22123/2\u00a0u. Le coefficient dit le sens (positif\u00a0: le m\u00eame, n\u00e9gatif\u00a0: le contraire) et multiplie le chemin de u.', start:()=>startTvx(false,true) },
   'identifier-multiple-vecteur': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w', icon:'\ud83d\udd0d', desc:'Trois vecteurs u, v et w, puis six vecteurs a, b, c\u2026\u00a0: chacun est u, v ou w multipli\u00e9 par un entier k. Trouve le vecteur et le coefficient.', start:()=>startKvi(false) },
-  'identifier-multiple-non-entier': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w (k d\u00e9cimal ou fraction)', icon:'\ud83d\udd0d', desc:'Comme l\u2019exercice pr\u00e9c\u00e9dent, mais k peut valoir \u22121,5, \u00be, 5/2\u2026 Trouve le vecteur et le coefficient.', start:()=>startKvi(true) },
+  'identifier-multiple-non-entier': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w (k d\u00e9cimal ou fraction)', icon:'\ud83d\udd0d', desc:'D\u2019abord k entier, positif ou n\u00e9gatif ; puis k en fraction : \u22123/2, \u00be, 5/2\u2026 Trouve le vecteur et le coefficient.', start:()=>startKvi(true) },
   'vecteurs-colineaires-figure': { name:'Colin\u00e9aires ou non\u00a0?', icon:'\u2194\ufe0f', desc:'Une figure de vecteurs AB, CD, EF\u2026\u00a0: pour chaque paire, dis s\u2019ils sont colin\u00e9aires et, si oui, \u00e9cris le r\u00e9el k tel que AB = k GH.', start:()=>startKco() },
   'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'La d\u00e9finition de deux vecteurs colin\u00e9aires, puis vrai ou faux sur deux vecteurs dessin\u00e9s\u00a0: m\u00eame direction, m\u00eame sens, m\u00eame longueur, colin\u00e9aires. Six situations, toutes les possibles.', start:()=>startKss() },
   'placer-point-colineaire': { name:'Placer un point d\u00e9fini par une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccd', desc:'Des points A, B, C sur un quadrillage et une \u00e9galit\u00e9 comme CM = \u2154AB\u00a0: place M d\u2019un clic. Quatre questions\u00a0: k entier positif, entier n\u00e9gatif, fraction positive, fraction n\u00e9gative.', start:()=>startKpl() },
-  'phrase-relation-colineaire': { name:'Associer une phrase, un dessin et une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udd17', desc:'\u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb, \u00ab\u00a0M est sur [AB] et AM est le tiers de AB\u00a0\u00bb\u2026\u00a0: pour chaque phrase, choisis le dessin sur une droite, puis l\u2019\u00e9galit\u00e9 AM = kAB qui la traduit. Un dessin et une \u00e9galit\u00e9 sont de trop.', start:()=>startKph() },
+  'phrase-relation-colineaire': { name:'Associer une \u00e9galit\u00e9 de vecteurs, un dessin et une phrase', icon:'\ud83d\udd17', desc:'\u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb, \u00ab\u00a0M est sur [AB] et AM est le tiers de AB\u00a0\u00bb\u2026\u00a0: relie d\u2019abord chaque \u00e9galit\u00e9 AM = kAB \u00e0 son dessin sur une droite, puis chaque phrase au cas qui la traduit. Un cas est de trop.', start:()=>startKph() },
   'milieux-parallele-vecteurs': { name:'D\u00e9montrer un parall\u00e9lisme avec les vecteurs', icon:'\u2225', desc:'Dans un triangle ABC, I et J sont les milieux de [AB] et [AC], puis AI = kAB et AJ = kAC (k = \u2153, \u00bc, \u00be, \u2155, \u2156\u2026)\u00a0: sur le mod\u00e8le d\u2019un exemple r\u00e9solu, compl\u00e8te la d\u00e9monstration \u2014 Chasles, le r\u00e9el en facteur, Chasles \u2014 pour prouver que (IJ) et (BC) sont parall\u00e8les.', start:()=>startKmi() },
   'demontrer-colineaires': { name:'D\u00e9montrer un parall\u00e9lisme, \u00e9tape par \u00e9tape', icon:'\u270d\ufe0f', desc:'Une d\u00e9monstration \u00e0 trous avec des r\u00e9els\u00a0: Chasles, les \u00e9galit\u00e9s de l\u2019\u00e9nonc\u00e9, le r\u00e9el en facteur \u2014 et pour chaque ligne sa justification \u2014 jusqu\u2019\u00e0 DE = kBC\u00a0: les vecteurs sont colin\u00e9aires, donc les droites sont parall\u00e8les.', start:()=>startDco() },
   'chasles-inserer-point': { name:'Chasles\u00a0: ins\u00e9rer un point', icon:'\ud83d\udd00', desc:'Le sens inverse de la relation de Chasles\u00a0: d\u00e9compose un vecteur en ins\u00e9rant un point \u2014 AC = A\u2026 + \u2026C, AC = \u2026B + B\u2026, AB = A\u2026 + \u2026 + \u2026B \u2014, avec ou sans figure. Toute \u00e9galit\u00e9 juste est accept\u00e9e.', start:()=>startChi() },
@@ -12866,7 +12868,8 @@ const RAP_KPH=`<b>Traduire une phrase par une égalité de vecteurs</b><br>
 <b>① <span class="vgt-vec">AM</span> = k<span class="vgt-vec">AB</span> dit deux choses</b> : de quel côté de A se trouve M, et à quelle distance.<br>
 <b>② Le côté</b> : k positif, M est du même côté de A que B ; k négatif, de l'autre côté de A.<br>
 <b>③ La distance</b> : AM vaut k fois AB, sans le signe. M milieu de [AB] : <span class="vgt-vec">AM</span> = ${kvHTML([1,2],'')}<span class="vgt-vec">AB</span>. B milieu de [AM] : <span class="vgt-vec">AM</span> = 2<span class="vgt-vec">AB</span>. A milieu de [BM] : <span class="vgt-vec">AM</span> = −<span class="vgt-vec">AB</span>.<br>
-<b>④ Méthode</b> : on dessine les trois points sur une droite, au brouillon, puis on lit le côté et la distance.`;
+<b>④ Sur un dessin</b> : on regarde de quel côté de A est M, puis on compte AM en longueurs AB — les graduations découpent AB en parts égales.<br>
+<b>⑤ Une phrase</b> : on la traduit de la même façon, côté puis distance, et on cherche le cas (l'égalité et son dessin) qui dit la même chose.`;
 const RAP_KMI=`<b>Démontrer un parallélisme avec les vecteurs</b><br>
 <b>① Chasles</b>, en passant par le sommet A : <span class="vgt-vec">IJ</span> = <span class="vgt-vec">IA</span> + <span class="vgt-vec">AJ</span>.<br>
 <b>② Chaque vecteur avec un côté</b> : si <span class="vgt-vec">AI</span> = k<span class="vgt-vec">AB</span>, son opposé est <span class="vgt-vec">IA</span> = k<span class="vgt-vec">BA</span> (ou −k<span class="vgt-vec">AB</span>). Si I est le milieu de [AB], k = ${kvHTML([1,2],'')}.<br>
@@ -65327,9 +65330,10 @@ const KV_DIRS=[[1,0],[0,1],[1,1],[1,-1],[2,1],[2,-1],[1,2],[1,-2],[3,1],[3,-1]];
    vecteurs u⃗, v⃗, w⃗ dessinés à part, puis une figure de vecteurs nommés
    a⃗, b⃗, c⃗… ; « chacun de ces vecteurs est obtenu en multipliant u⃗, v⃗ ou
    w⃗ par un réel k : identifier chacun d'entre eux ». L'exemple (8.3.2) n'a
-   que des coefficients entiers (2, −3, −1…) ; l'exercice (8.3.3) des
-   décimaux et des fractions (−1,5 ; ¾ ; −5/4…). La question porte q.fr = 1
-   au 8.3.3 (rangé, relu à la reprise) ; l'identité suit currentTestId.
+   que des coefficients entiers (2, −3, −1…) ; l'exercice (8.3.3) commence
+   par une page d'entiers, puis ses pages suivantes n'ont que des fractions
+   (−1,5 ; ¾ ; −5/4…). Une page de fractions porte q.fr = 1 (rangé, relu à
+   la reprise) ; l'identité suit currentTestId.
 
    ON RANGE LA FIGURE, JAMAIS LA RÉPONSE : q.bs, les trois vecteurs u⃗, v⃗, w⃗
    (leurs chemins) ; q.l, une ligne par vecteur nommé — [origine x, origine
@@ -65347,7 +65351,7 @@ const KV_DIRS=[[1,0],[0,1],[1,1],[1,-1],[2,1],[2,-1],[1,2],[1,-2],[3,1],[3,-1]];
    horizontale ou verticale ; chaque vecteur donné est sa direction
    multipliée par un entier choisi pour que ses coefficients tombent sur des
    nœuds ; six vecteurs nommés, deux par vecteur donné, de coefficients
-   différents, jamais 1 ; au 8.3.3, quatre au moins ne sont pas entiers. */
+   différents, jamais 1 ; sur une page de fractions, aucun n'est entier. */
 const KVI_W=20, KVI_H=12, KVI_C=30, KVI_PX=24, KVI_PY=24;
 const KVI_GEO={c:KVI_C, px:KVI_PX, py:KVI_PY, h:KVI_H};
 const KVI_NB=2, KVI_NL=6;
@@ -65368,6 +65372,7 @@ function kviGen(fr){
       for(let den=1;den<=4;den++) for(let num=-12;num<=12;num++){
         if(!num||gcd(num,den)!==1||m%den||Math.abs(num/den)>3||num===den) continue;
         if(!fr&&den>1) continue;
+        if(fr&&den===1) continue;
         cs.push([num,den]);
       }
       bs.push(b); vivier.push(cs);
@@ -65382,7 +65387,6 @@ function kviGen(fr){
       const c=pick(cs); l.push([0,0,k,c[0],c[1]]);
     });
     if(!ok) continue;
-    if(fr&&l.filter(function(x){ return x[4]>1; }).length<4) continue;
     if(!l.some(function(x){ return x[3]<0; })||!l.some(function(x){ return x[3]>0; })) continue;
     ensShuffle(l);
     const q={bs:bs, l:l};
@@ -65393,12 +65397,17 @@ function kviGen(fr){
     return q;
   }
   /* repli — jamais atteint en pratique, mais juste : la figure de la fiche */
-  return fr ? {bs:[[4,0],[4,2],[-2,-2]], l:[[1,10,0,2,1],[4,7,1,-1,2],[17,9,2,3,2],[12,2,0,-3,2],[8,4,1,3,2],[3,1,2,-1,2]], fr:1}
+  return fr ? {bs:[[4,0],[4,2],[-2,-2]], l:[[1,10,0,1,2],[4,7,1,-1,2],[17,9,2,3,2],[12,2,0,-3,2],[8,4,1,3,2],[3,1,2,-1,2]], fr:1}
             : {bs:[[3,0],[3,1],[2,-2]], l:[[1,10,0,2,1],[10,10,1,-2,1],[3,6,2,-1,1],[16,2,0,-1,1],[11,6,1,2,1],[15,9,2,2,1]]};
 }
 /* Deux pages sont la même si leurs vecteurs donnés et leurs coefficients le sont, où que les flèches soient posées. */
 function kviCle(q){ return JSON.stringify([q.bs, q.l.map(function(x){ return x.slice(2); })]); }
-function kviBuildQuestions(fr){ return distinctes(dmNbQuestions(KVI_NB), function(){ return kviGen(fr); }, kviCle); }
+/* AU 8.3.3, LES ENTIERS D'ABORD, PUIS LES FRACTIONS (demande de Turquet,
+   octobre 2026 : « dans la 1re question mettre que des multiplications avec
+   des facteurs entiers positifs ou négatifs, puis dans la deuxième question
+   mettre des fractions comme coefficient multiplicateur ») : la première page
+   est celle du 8.3.2, les suivantes n'ont que des coefficients non entiers. */
+function kviBuildQuestions(fr){ return distinctes(dmNbQuestions(KVI_NB), function(_,i){ return kviGen(fr&&i>0); }, kviCle); }
 function kviCases(q){ const c=[]; q.l.forEach(function(_,i){ c.push('kvi-k-'+i, 'kvi-v-'+i); }); return c; }
 /* u⃗, v⃗, w⃗ côte à côte, sur une bande de quadrillage, comme sur la fiche. */
 function kviSvgDonnes(q){
@@ -66458,15 +66467,20 @@ function ctxKpl(q){
    Puis les DESSINS (demande de Turquet, octobre 2026) : chaque égalité a le
    sien, les trois points sur une droite horizontale, AB à la même longueur
    d'un dessin à l'autre, la droite graduée au pas de AB/d (d, dénominateur
-   du réel). L'élève associe la phrase au dessin (I à VI), puis à l'égalité :
-   deux listes par phrase, deux points. Le dessin de trop est celui de
-   l'égalité de trop.
+   du réel).
+
+   Puis DEUX ÉTAPES (demande de Turquet, octobre 2026) : d'abord, sans les
+   phrases, chaque égalité se relie à son dessin (six listes, I à VI) ; une
+   fois l'étape corrigée, chaque égalité et son dessin forment un CAS (a à
+   f), les phrases s'affichent, et chacune se relie à son cas (cinq listes ;
+   le cas de trop est l'égalité de trop). Onze points par question. La
+   première vérification ne verrouille pas : elle range les choix (q.e1) et
+   leurs points (q.s1) dans la question, qui voyage avec la pause.
 
    ON RANGE LES INDICES, JAMAIS LA RÉPONSE : q.ph (les phrases, indices dans
-   KPH_PHR), q.c (les six réels, dans l'ordre des cartes), q.d (l'ordre des
-   dessins : des indices dans q.c), q.l (le jeu de lettres). La bonne carte
-   d'une phrase est celle qui porte son réel ; son bon dessin, celui de
-   cette carte. */
+   KPH_PHR), q.c (les six réels, dans l'ordre des égalités a à f), q.d
+   (l'ordre des dessins : des indices dans q.c), q.l (le jeu de lettres).
+   Le bon cas d'une phrase est celui qui porte son réel. */
 const KPH_NB=3, KPH_NP=5, KPH_ROM=['I','II','III','IV','V','VI'];
 const KPH_NOMS=[['A','B','M'],['E','F','N'],['R','S','T'],['C','D','P']];
 const KPH_PHR=[
@@ -66495,9 +66509,12 @@ function kphMeme(a,b){ return a[0]*b[1]===a[1]*b[0]; }
 function kphBonne(q,i){ const k=KPH_PHR[q.ph[i]].k; return q.c.findIndex(function(c){ return kphMeme(c,k); }); }
 /* l'ordre des dessins (indices dans q.c) ; une pause d'avant les dessins n'a pas de q.d */
 function kphD(q){ return Array.isArray(q.d)&&q.d.length===q.c.length ? q.d : q.c.map(function(_,j){ return q.c.length-1-j; }); }
-/* le dessin (0 à 5) qui représente la phrase i */
-function kphBonneD(q,i){ return kphD(q).indexOf(kphBonne(q,i)); }
-function kphCases(q){ return q.ph.reduce(function(a,_,i){ return a.concat(['kph-d-'+i,'kph-'+i]); },[]); }
+/* six cases à l'étape 1 (le dessin de chaque égalité), cinq à l'étape 2 (le cas de chaque phrase) */
+function kphCases(q){ return q.c.map(function(_,j){ return 'kph-e-'+j; }).concat(q.ph.map(function(_,i){ return 'kph-'+i; })); }
+/* le dessin (0 à 5, dans l'ordre I à VI) de l'égalité j */
+function kphBonE(q,j){ return kphD(q).indexOf(j); }
+/* l'étape 1 est corrigée quand q.e1 (les dessins choisis, '' pour une liste laissée vide) est rangé */
+function kphEtape2(q){ return Array.isArray(q.e1)&&q.e1.length===q.c.length; }
 /* Le dessin de AX = kAB : A en 0, B en 1, X en k, sur une droite horizontale ;
    AB a la même longueur U dans les six dessins d'une page (celle qui loge le
    plus large : −3 tient de −3 à 1), le tout centré ; A et B nommés dessus, X dessous. */
@@ -66529,36 +66546,48 @@ function kphBuildQuestions(){
 }
 function renderKph(){
   const q=test.questions[test.idx]; test.locked=false;
-  const n=kphNoms(q);
+  const n=kphNoms(q), e2=kphEtape2(q), L='abcdef';
   $('kphIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('kphModeTag').innerHTML=modeTagHTML();
-  $('kphInstr').innerHTML='Les points '+n[0]+', '+n[1]+' et '+n[2]+' sont alignés. Pour chaque phrase, choisis le dessin qui la représente, puis l’égalité de vecteurs qui la traduit.'
-    +'<span class="kv-sous">Un des six dessins et une des six égalités ne correspondent à aucune phrase.</span>';
-  const opts=q.c.map(function(_,j){ return [String(j), 'abcdef'[j]]; });
-  const optsD=KPH_ROM.map(function(R,j){ return [String(j), R]; });
+  $('kphInstr').innerHTML=e2
+    ? 'Les points '+n[0]+', '+n[1]+' et '+n[2]+' sont alignés. Chaque égalité est reliée à son dessin : ce sont les six cas a à f. Pour chaque phrase, choisis le cas qui la traduit.'
+      +'<span class="kv-sous">Un des six cas ne correspond à aucune phrase.</span>'
+    : 'Les points '+n[0]+', '+n[1]+' et '+n[2]+' sont alignés. Relie chaque égalité de vecteurs au dessin qui la représente.'
+      +'<span class="kv-sous">Chaque dessin va avec une seule égalité. Les phrases viendront ensuite.</span>';
+  const optsD=KPH_ROM.map(function(R,r){ return [String(r), R]; });
   let h='<div class="kv-figs kph-figs">';
-  kphD(q).forEach(function(j,r){ h+='<div class="kv-fig"><span class="kv-fig-t">Dessin '+KPH_ROM[r]+'</span>'+kphDessinSVG(q,q.c[j])+'</div>'; });
-  h+='</div><div class="kph-cartes">';
-  q.c.forEach(function(c,j){ h+='<div class="kph-carte"><b class="kph-lt">'+'abcdef'[j]+'</b><span class="kph-rel">'+kphRelHTML(q,c)+'</span></div>'; });
-  h+='</div><div class="kv-lignes">';
-  q.ph.forEach(function(_,i){
-    h+='<div class="kv-l kph-l" id="kph-r-'+i+'"><span class="kph-num">'+(i+1)+'.</span><span class="kph-t">'+kphTexte(q,i)+'</span>'
-      +'<span class="kph-rep"><span class="kph-et">dessin</span>'+itvSelHTML('kph-d-'+i, optsD, 'le dessin qui représente la phrase '+(i+1), 'kph-seld')
-      +'<span class="kph-et">égalité</span>'+itvSelHTML('kph-'+i, opts, 'l’égalité qui traduit la phrase '+(i+1), 'kph-sel')+'<span class="kph-pq" id="kph-pq-'+i+'"></span></span></div>';
+  kphD(q).forEach(function(j,r){ h+='<div class="kv-fig"><span class="kv-fig-t">Dessin '+KPH_ROM[r]+'</span>'+kphDessinSVG(q,q.c[j])
+    +(e2?'<span class="kph-cas"><b class="kph-lt">cas '+L[j]+'</b> '+kphRelHTML(q,q.c[j])+'</span>':'')+'</div>'; });
+  h+='</div><div class="kv-lignes kph-egs">';
+  q.c.forEach(function(c,j){
+    h+='<div class="kv-l kph-l kph-eg" id="kph-e-r-'+j+'"><b class="kph-lt">'+L[j]+'</b><span class="kph-rel">'+kphRelHTML(q,c)+'</span>'
+      +'<span class="kph-rep"><span class="kph-et">dessin</span>'+itvSelHTML('kph-e-'+j, optsD, 'le dessin de l’égalité '+L[j], 'kph-seld')+'</span></div>';
   });
-  $('kphHost').innerHTML=h+'</div>';
-  kphCases(q).forEach(function(id){ const el=$(id); if(!el) return;
+  h+='</div>';
+  if(e2){
+    const opts=q.c.map(function(_,j){ return [String(j), L[j]]; });
+    h+='<div class="kss-titre kph-titre">Les phrases</div><div class="kv-lignes">';
+    q.ph.forEach(function(_,i){
+      h+='<div class="kv-l kph-l" id="kph-r-'+i+'"><span class="kph-num">'+(i+1)+'.</span><span class="kph-t">'+kphTexte(q,i)+'</span>'
+        +'<span class="kph-rep"><span class="kph-et">cas</span>'+itvSelHTML('kph-'+i, opts, 'le cas qui traduit la phrase '+(i+1), 'kph-sel')+'<span class="kph-pq" id="kph-pq-'+i+'"></span></span></div>';
+    });
+    h+='</div>';
+  }
+  $('kphHost').innerHTML=h;
+  /* l'étape 1, déjà corrigée, se remontre telle que la vérification l'a laissée — et ne se rejoue plus */
+  if(e2) q.c.forEach(function(_,j){ const el=$('kph-e-'+j); if(!el) return; const b=String(kphBonE(q,j));
+    el.value=q.e1[j]; corrChoix(el, b, q.e1[j]===b); el.disabled=true; });
+  kphCases(q).forEach(function(id){ const el=$(id); if(!el||el.disabled) return;
     el.addEventListener('change', function(){ recoveryDirty=true; clearTimeout(test.kphSave); test.kphSave=setTimeout(autoSave,1000); }); });
   $('kphFeedback').textContent=''; $('kphFeedback').className='mp-feedback';
   $('kphActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="kphValidate" type="button" onclick="checkKph()">Vérifier</button>';
 }
-/* deux cases par phrase, dans l'ordre de l'écran : le dessin (dessin:true), puis l'égalité */
+/* les cases de l'étape en cours : à l'étape 1, le dessin de chaque égalité (j) ; à l'étape 2, le cas de chaque phrase (i) */
 function kphJuge(q){
-  return q.ph.reduce(function(a,_,i){
-    [['kph-d-'+i, kphBonneD(q,i), true], ['kph-'+i, kphBonne(q,i), false]].forEach(function(x){
-      const el=$(x[0]), v=el?String(el.value||''):'', b=String(x[1]);
-      a.push({id:x[0], el:el, i:i, dessin:x[2], bon:b, brut:v, ok:v===b, vide:v===''}); });
-    return a; },[]);
+  if(!kphEtape2(q)) return q.c.map(function(_,j){ const el=$('kph-e-'+j), v=el?String(el.value||''):'', b=String(kphBonE(q,j));
+    return {id:'kph-e-'+j, el:el, j:j, bon:b, brut:v, ok:v===b, vide:v===''}; });
+  return q.ph.map(function(_,i){ const el=$('kph-'+i), v=el?String(el.value||''):'', b=String(kphBonne(q,i));
+    return {id:'kph-'+i, el:el, i:i, bon:b, brut:v, ok:v===b, vide:v===''}; });
 }
 /* ce que dit une égalité AX = kAB, en mots : le côté de A, puis la longueur */
 function kphDit(q,c){
@@ -66568,30 +66597,43 @@ function kphDit(q,c){
 }
 function kphPourquoi(q,subs){
   const f=subs.find(function(s){ return !s.ok&&!s.vide; }); if(!f) return '';
-  const k=KPH_PHR[q.ph[f.i]].k;
-  if(f.dessin){ const c=q.c[kphD(q)[+f.brut]];
-    return 'Phrase '+(f.i+1)+' : '+kphDit(q,k)+'. Le dessin '+KPH_ROM[+f.brut]+' montre autre chose : '+kphDit(q,c)+'.'; }
-  const c=q.c[+f.brut];
-  return 'Phrase '+(f.i+1)+' : '+kphDit(q,k)+' — en vecteurs, '+kphRelTxt(q,k)+'. L’égalité '+'abcdef'[+f.brut]+', '+kphRelTxt(q,c)+', dit autre chose : '+kphDit(q,c)+'.';
+  if(f.j!=null){ const c=q.c[f.j], d=q.c[kphD(q)[+f.brut]];
+    return 'L’égalité '+'abcdef'[f.j]+', '+kphRelTxt(q,c)+', dit : '+kphDit(q,c)+'. Le dessin '+KPH_ROM[+f.brut]+' montre autre chose : '+kphDit(q,d)+'.'; }
+  const k=KPH_PHR[q.ph[f.i]].k, c=q.c[+f.brut];
+  return 'Phrase '+(f.i+1)+' : '+kphDit(q,k)+' — en vecteurs, '+kphRelTxt(q,k)+'. Le cas '+'abcdef'[+f.brut]+', '+kphRelTxt(q,c)+', dit autre chose : '+kphDit(q,c)+'.';
 }
+/* Deux vérifications par question. La première juge les dessins, compte ses
+   points, range les choix (q.e1) et montre les phrases SANS verrouiller la
+   question : c'est la seconde, sur les phrases, qui la clôt et pousse sa
+   réponse. Une pause entre les deux reprend aux phrases, l'étape 1 corrigée
+   telle quelle (q.e1 voyage avec la question) — rien ne s'y rejuge. */
 function checkKph(){
   if(test.locked) return;
-  const q=test.questions[test.idx], subs=kphJuge(q);
+  const q=test.questions[test.idx], subs=kphJuge(q), e2=kphEtape2(q);
   const n=subs.filter(function(s){ return s.ok; }).length, tout=n===subs.length;
   const pourquoi=kphPourquoi(q,subs);
   subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); });
   if(!tout&&isSoutien()){ soutienAgain('kphFeedback','kphActions','checkKph','kphHost'); return; }
-  test.locked=true;
-  q.ph.forEach(function(p,i){ const e=$('kph-pq-'+i); if(e) e.innerHTML=KPH_ROM[kphBonneD(q,i)]+' · '+kphRelHTML(q,KPH_PHR[p].k); });
   test.score+=n;
-  if(tout){ $('kphFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('kphFeedback').className='mp-feedback good'; }
+  if(!e2){
+    q.e1=subs.map(function(s){ return s.brut; }); q.s1=n;
+    renderKph();
+    $('kphFeedback').textContent=(tout ? 'Bravo, chaque égalité est reliée à son dessin ! ' : msgAvecVides(subs, pourquoi)+' ')+'Maintenant, les phrases.';
+    $('kphFeedback').className='mp-feedback '+(tout?'good':'bad');
+    autoSave();
+    const t=document.querySelector('#kphHost .kph-titre'); if(t) setTimeout(function(){ try{ t.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){} },60);
+    return;
+  }
+  test.locked=true;
+  q.ph.forEach(function(p,i){ const e=$('kph-pq-'+i); if(e) e.innerHTML='cas '+'abcdef'[kphBonne(q,i)]+' · '+kphRelHTML(q,KPH_PHR[p].k); });
+  const parfait=tout&&q.s1===q.c.length;
+  if(tout){ $('kphFeedback').textContent=parfait?pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']):'Les phrases sont toutes justes !'; $('kphFeedback').className='mp-feedback good'; }
   else { $('kphFeedback').textContent=msgAvecVides(subs, pourquoi); $('kphFeedback').className='mp-feedback bad'; }
-  const carte=function(v){ return v===''||v==null ? '?' : 'abcdef'[+v]+' ('+kphRelTxt(q,q.c[+v])+')'; };
-  const dess=function(v){ return v===''||v==null ? '?' : 'dessin '+KPH_ROM[+v]; };
-  test.answers.push({...(ptsExo()||{}), correct:tout,
-    q:'Phrase, dessin et égalité — '+q.ph.map(function(_,i){ return (i+1)+'. '+kphTexte(q,i); }).join(' '),
-    answer:q.ph.map(function(_,i){ return (i+1)+' : '+dess(String(kphBonneD(q,i)))+', '+carte(String(kphBonne(q,i))); }).join(' ; '),
-    given:q.ph.map(function(_,i){ return (i+1)+' : '+dess(subs[2*i].brut)+', '+carte(subs[2*i+1].brut); }).join(' ; ')});
+  const L='abcdef', R=function(v){ return v===''||v==null ? '?' : KPH_ROM[+v]; }, cas=function(v){ return v===''||v==null ? '?' : 'cas '+L[+v]+' ('+kphRelTxt(q,q.c[+v])+')'; };
+  test.answers.push({...(ptsExo()||{}), correct:parfait,
+    q:'Égalité et dessin, puis phrase et cas — '+q.ph.map(function(_,i){ return (i+1)+'. '+kphTexte(q,i); }).join(' '),
+    answer:q.c.map(function(_,j){ return L[j]+' → dessin '+R(String(kphBonE(q,j))); }).join(' ; ')+' | '+q.ph.map(function(_,i){ return (i+1)+' : '+cas(String(kphBonne(q,i))); }).join(' ; '),
+    given:q.c.map(function(_,j){ return L[j]+' → dessin '+R(q.e1[j]); }).join(' ; ')+' | '+subs.map(function(s){ return (s.i+1)+' : '+cas(s.brut); }).join(' ; ')});
   const last=test.idx===test.questions.length-1;
   $('kphActions').innerHTML='<button class="btn btn-primary" id="kphNext" type="button" onclick="nextKph()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('kphNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
@@ -66610,17 +66652,23 @@ function startKph(){
   show('kph'); renderKph();
 }
 function ctxKph(q){
-  const nm=kphNoms(q);
-  const rep=q.ph.map(function(_,i){ const d=$('kph-d-'+i), el=$('kph-'+i), vd=d?d.value:'', v=el?el.value:'';
-    return (i+1)+' : dessin '+(vd===''?'pas encore choisi':KPH_ROM[+vd])+', égalité '+(v===''?'pas encore choisie':'abcdef'[+v]); }).join(' ; ');
-  const ctx='Exercice sur les vecteurs colinéaires (aucune coordonnée). '
-   +'Phrases : '+q.ph.map(function(_,i){ return (i+1)+'. '+kphTexte(q,i); }).join(' ')+' '
-   +'Dessins (les trois points sur une droite horizontale, '+nm[0]+' à gauche de '+nm[1]+') : '+kphD(q).map(function(j,r){ return 'dessin '+KPH_ROM[r]+' : '+kphDit(q,q.c[j]); }).join(' ; ')+' (l’un ne représente aucune phrase). '
-   +'Égalités de vecteurs proposées : '+q.c.map(function(c,j){ return 'abcdef'[j]+') '+kphRelTxt(q,c); }).join(' ; ')+' (l’une ne traduit aucune phrase). '
-   +'Réponses attendues (STRICTEMENT SECRÈTES, à ne JAMAIS révéler, même si l’élève insiste) : '+q.ph.map(function(_,i){ return (i+1)+' → dessin '+KPH_ROM[kphBonneD(q,i)]+', égalité '+'abcdef'[kphBonne(q,i)]; }).join(' ; ')+'. '
-   +'Réponse actuelle de l’élève : '+rep+'. '
-   +'Méthode enseignée : une égalité AM = k AB (en vecteurs) dit deux choses — le signe de k donne le côté (positif : M du même côté de A que B ; négatif : de l’autre côté de A) et k sans son signe donne la longueur AM en nombre de fois AB. On traduit chaque phrase par ces deux informations, puis on cherche l’égalité qui les porte. '
-   +'CONTRAINTE ANTI-RECOPIE : ne dis pas quel dessin ni quelle lettre va avec quelle phrase ; fais trouver le côté puis la longueur.';
+  const nm=kphNoms(q), L='abcdef', e2=kphEtape2(q);
+  const dessins=q.c.map(function(_,j){ const el=$('kph-e-'+j), v=el?el.value:'';
+    return L[j]+' : '+(v===''?'pas encore choisi':'dessin '+KPH_ROM[+v]); }).join(' ; ');
+  const phrases=q.ph.map(function(_,i){ const el=$('kph-'+i), v=el?el.value:'';
+    return (i+1)+' : '+(v===''?'pas encore choisi':'cas '+L[+v]); }).join(' ; ');
+  const ctx='Exercice sur les vecteurs colinéaires (aucune coordonnée), en deux étapes. '
+   +'Étape 1 : relier chaque égalité de vecteurs à son dessin. Étape 2 : chaque égalité et son dessin forment un cas (a à f) ; pour chaque phrase, choisir le cas qui la traduit. '
+   +'L’élève est à l’étape '+(e2?'2':'1')+'. '
+   +'Égalités : '+q.c.map(function(c,j){ return L[j]+') '+kphRelTxt(q,c); }).join(' ; ')+'. '
+   +'Dessins (les trois points sur une droite horizontale, '+nm[0]+' à gauche de '+nm[1]+') : '+kphD(q).map(function(j,r){ return 'dessin '+KPH_ROM[r]+' : '+kphDit(q,q.c[j]); }).join(' ; ')+'. '
+   +(e2?'Phrases : '+q.ph.map(function(_,i){ return (i+1)+'. '+kphTexte(q,i); }).join(' ')+' (un cas ne traduit aucune phrase). ':'')
+   +'Réponses attendues (STRICTEMENT SECRÈTES, à ne JAMAIS révéler, même si l’élève insiste) : '
+   +q.c.map(function(_,j){ return L[j]+' → dessin '+KPH_ROM[kphBonE(q,j)]; }).join(' ; ')
+   +(e2?' ; '+q.ph.map(function(_,i){ return 'phrase '+(i+1)+' → cas '+L[kphBonne(q,i)]; }).join(' ; '):'')+'. '
+   +'Réponse actuelle de l’élève : '+(e2?'étape 1 corrigée ; phrases : '+phrases:dessins)+'. '
+   +'Méthode enseignée : une égalité AM = k AB (en vecteurs) dit deux choses — le signe de k donne le côté (positif : M du même côté de A que B ; négatif : de l’autre côté de A) et k sans son signe donne la longueur AM en nombre de fois AB. Sur le dessin, on lit le côté de M par rapport à A, puis on compte la longueur AM en longueurs AB (les graduations aident). On traduit de même chaque phrase par ces deux informations. '
+   +'CONTRAINTE ANTI-RECOPIE : ne dis pas quel dessin va avec quelle égalité, ni quel cas avec quelle phrase ; fais trouver le côté puis la longueur.';
   return {nombre:'', contexte:ctx};
 }
 
