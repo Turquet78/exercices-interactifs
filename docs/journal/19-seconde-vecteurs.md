@@ -4086,7 +4086,7 @@ navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
 flèche, lui, ne se mesure qu'à l'œil.
 
 **Puis le réel du 8.3.4 s'est écrit EMPILÉ** (demande de Turquet, octobre
-2026, Seconde v576 : « dans le 8.3.4, il faut une écriture fractionnaire et
+2026, Seconde v577 : « dans le 8.3.4, il faut une écriture fractionnaire et
 pas en ligne pour les fractions »). La case du réel était un `<input>` : l'élève
 tapait « −3/4 » en ligne, à côté d'une correction (`mf-cor`) qui, elle,
 empilait déjà. Elle est devenue une case MathLive (`pmMF('kco-in', …)`), où la
