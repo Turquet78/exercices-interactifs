@@ -4537,6 +4537,33 @@ employée) ; l'aide (dessinée, reprise, masquée, « [schéma] »). **Ce qui ne
 l'est pas** : comme au 4.5.9, rien ne frappe une copie dans une vraie
 MathLive — les copies épinglées sont écrites comme `toPlain` les rend.
 
+**Puis deux calculs sur UNE ligne, séparés par la barre d'espace** (signalement
+de Seconde, octobre 2026, remise de 8 % sur 103 €). La copie : « 94,76/103 =
+0,92   94,76/0,92 = 103 le pourcentage est de 8 % », puis « 1 − 0,92 = 0,08
+0,08 × 100 ». Le juge répondait « Ton pourcentage est le bon, mais il faut le
+justifier » alors que la division juste était écrite : `sprNormaliser` retire
+les espaces, les deux calculs se recollaient (« 0,92(94,76)/(0,92) »,
+« 0,080,08 »), les deux lignes devenaient illisibles et la copie ne gardait
+que « 8 % ». `couperCalculsEspaces` coupe désormais la ligne à une espace
+quand ce qui précède a déjà son « = » suivi d'un membre complet, et que ce
+qui suit commence un nouveau calcul — un nombre ou une parenthèse porteur
+d'une opération ou d'un « % » avant son propre « = ». Ne coupent pas : une
+copie espacée (« 936/900 = 104/100 », rien après le « = »), un séparateur de
+milliers (« = 1 500 », « = 1 000 × 2 »). Sur demande de Turquet (« corriger
+ce problème s'il se pose ailleurs »), la coupe sert TOUS les juges de feuille
+rédigée qui lisent un calcul par ligne : `ppbTexte` (4.5.10, 4.5.11, et le
+4.5.9 qui lit par lui) et `salJuge` — en Seconde (4.2.10) comme en Première
+(tous ses appels : sal, psl, dbp), plus `eslJuge` en Première. Là, la ligne recollée faisait abstenir le
+juge et livrait la copie au seul modèle — le verdict arithmétique ne se
+confie pas à un modèle. Restent HORS de la coupe, exprès : `pslJuge` et `librePieces` (Première)
+relient les lignes en UNE chaîne d'égalités — y couper inventerait une
+égalité que l'élève n'a pas écrite ; les lecteurs de copie de la Terminale
+sautent un morceau illisible sans rendre de verdict. Épinglé dans les
+copies du banc (la copie signalée acceptée ; sans la division, toujours
+refusée ; une diminution puis une soustraction sur une ligne, lue par
+`salJuge`) ; éprouvé par la version d'avant, qui rend mot pour mot la phrase
+de la capture.
+
 **Puis l'aide schéma est devenue CELLE DU 4.5.9** (Turquet, octobre 2026 :
 « je souhaite que le bouton aide schéma fonctionne exactement comme le 4.5.9,
 avec les mêmes schémas et la même méthode de résolution »). Le schéma dessiné,

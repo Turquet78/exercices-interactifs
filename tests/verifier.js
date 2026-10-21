@@ -10025,6 +10025,7 @@ function syntheseAugLibreRedigee(w, P){
       ['le quotient avec la mauvaise proposition', qQuot, 3, '936/900 = 104/100', true, false],
       ['le quotient sur une baisse',   qFinD, 1, '570/600 = 95/100',            true,  true ],
       ['un commentaire illisible n\\'annule pas une voie montrée', qFin, 1, '1,05 × 600 = 630\\ndonc ça marche', true, true ],
+      ['deux calculs sur une ligne, séparés par la barre d\\'espace', qFinD, 1, '0,05 × 600 = 30   600 − 30 = 570', true, true ],
     ];
     cas.forEach(function(c){
       const q=JSON.parse(JSON.stringify(c[1])); q.choisi=c[2];
@@ -48033,6 +48034,7 @@ function problemesPourcentages(w, P){
     const S={grp:'deux',fam:'successives',c:0,s1:1,s2:1,P1:10,P2:20,K:13200,G10:320,aide:false};
     const K={grp:'val',fam:'cantine',inc:'eleves',N:600,P:9,F:546,t0:500,P2:4,T:520,aide:false};
     const A={grp:'val',fam:'ancien',o:4,pi:1,P:30,N:5300,F:3710,aide:false};
+    const M={grp:'pct',fam:'remise',o:2,pi:0,P:8,N:10300,F:9476,aide:false};
     const cas=[
       [H,'42*1.2=50.40€',true], [H,'42\\\\times1.2=50.4',true], [H,'42x1.2=50.4',true], [H,'42*0.2=8.4\\n42+8.4=50.4',false],
       [H,'50.4',false], [H,'42*1.2=50',false],
@@ -48043,7 +48045,10 @@ function problemesPourcentages(w, P){
       [C,'0.6*0.3=0.18\\n18\\\\%',true], [C,'0.4*0.3=0.12\\n12\\\\%',false], [C,'1-0.4=0.6\\n0.6*0.3=0.18=18\\\\%',true],
       [S,'1.1*1.2=1.32\\n+32\\\\%',true], [S,'1.1*1.2=1.32\\n32\\\\%',false], [S,'10+20=30\\n+30\\\\%',false],
       [K,'546/0.91=600élèves',true], [K,'520/1.04=500',false],
-      [A,'37.10/0.7=53',true], [A,'37.1*0.7=25.97',false]
+      [A,'37.10/0.7=53',true], [A,'37.1*0.7=25.97',false],
+      /* deux calculs sur une ligne, séparés par la barre d'espace — la copie signalée (remise de 8 % sur 103 €) */
+      [M,'(94.76)/(103)=0.92 (94.76)/(0.92)=103 le pourcentage est de 8\\%\n1-0.92=0.08 0.08*100',true],
+      [M,'1-0.92=0.08 0.08*100\n8\\%',false], [H,'42*1.2 = 50.40',true], [A,'37.10/0.7 = 53',true]
     ];
     cas.forEach(function(c,i){
       let r; try{ r=ppbJuge(c[0], c[1]); }catch(e){ vus.push('cas '+i+' : '+e.message); return; }
