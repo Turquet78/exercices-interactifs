@@ -4269,7 +4269,7 @@ figure A(3 ; 3), B(9 ; 3), C(2 ; 6), D(10 ; 8), E(5 ; 1) et éprouve la copie
 juste, la mauvaise distance sur la parallèle, le départ pris en B, le mauvais
 côté et le point hors de la parallèle.
 
-**Puis le vecteur de l'élève s'est tracé** (v583, demande de Turquet,
+**Puis le vecteur de l'élève s'est tracé** (v584, demande de Turquet,
 octobre 2026 : « que le vecteur soit tracé entre le point de départ et le
 point à placer quand l'élève déplace son point, et qu'il reste une fois le
 point placé »). Pendant que la souris survole le quadrillage, une flèche
