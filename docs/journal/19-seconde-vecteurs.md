@@ -4085,7 +4085,7 @@ autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
 navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
 flèche, lui, ne se mesure qu'à l'œil.
 
-**Puis le 8.3.1 a monté une échelle (v576).** Turquet, octobre 2026 : « en
+**Puis le 8.3.1 a monté une échelle (v577 — v576 prise par le 8.3.2 pendant les bancs).** Turquet, octobre 2026 : « en
 seconde dans le 8.3.1, demander soit un multiple entier de u, et on doit
 tracer k u, −u et −k u ; soit une fraction a/b de u, et on demande de tracer
 1/b u puis −1/b u puis a/b u ». Les trois coefficients ne se tirent plus au
