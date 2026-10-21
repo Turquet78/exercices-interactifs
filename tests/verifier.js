@@ -14271,7 +14271,7 @@ function vecteursColineaires(w, P){
         const dseg=function(p,f){ const dx=f[1][0]-f[0][0], dy=f[1][1]-f[0][1], t=Math.max(0,Math.min(1,((p.x-f[0][0])*dx+(p.y-f[0][1])*dy)/(dx*dx+dy*dy))); return Math.hypot(p.x-f[0][0]-t*dx, p.y-f[0][1]-t*dy); };
         let heurt='';
         nms.forEach(function(a,i){ nms.forEach(function(b,j){ if(heurt||i===j) return;
-          if(i<j&&Math.abs(a.x-b.x)<24&&Math.abs(a.y-b.y)<27) heurt=KVI_L[i]+' et '+KVI_L[j]+' écrits l\'un sur l\'autre';
+          if(i<j&&Math.abs(a.x-b.x)<24&&Math.abs(a.y-b.y)<27) heurt=KVI_L[i]+' et '+KVI_L[j]+' écrits l\\'un sur l\\'autre';
           else if(dseg(a,fls[j])<15) heurt='le nom '+KVI_L[i]+' sur le trait de '+KVI_L[j]; }); });
         if(heurt){ vus.push(et+heurt+' : '+JSON.stringify(q)); break; }
       }

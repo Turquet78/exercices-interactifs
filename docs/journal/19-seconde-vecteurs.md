@@ -4192,7 +4192,9 @@ de chaque exercice, les noms EN PIXELS par `svcNomPos`, comme le dessin les
 pose : deux noms à moins de 24 × 27 px, ou un nom à moins de 15 px du trait
 d'une autre flèche, et il rougit en nommant les deux lettres. Sur l'ancien
 placement, 1,4 % de figures fautives par tirage : sur quatre cents tirages,
-le contrôle l'attrape presque à coup sûr.
+le contrôle l'attrape presque à coup sûr. Éprouvé par sabotage (le
+placement d'avant rétabli au 8.3.2/8.3.3) : rouge, « 8.3.2 : le nom a sur
+le trait de e ».
 
 ## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 
