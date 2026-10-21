@@ -772,3 +772,33 @@ Essayé dans Chromium : types 1, 2, 3, 5, 7 et le 6.1.3 — second arbre caché
 puis ouvert au choix de l'événement, recopie case par case, une case
 retouchée dans le second arbre gardée quand le premier change, aucune erreur
 de page. Terminale v417.
+
+**Puis les étiquettes se sont posées LE LONG de leur branche** (demande de
+Turquet, octobre 2026, sur une capture du type 2 : « l'écriture et la case
+donnant la probabilité de chaque branche alignées avec cette branche et
+centrées sur elle », et P_N(B) = … de la branche du milieu ne doit plus
+chevaucher la branche du dessus ; question posée : penchées le long du
+trait, la case aussi — c'est la réponse). Les sept types et les deux arbres
+(`apt`, `apy`) passent par la même grille : tous en profitent. Les
+étiquettes sortent de la grille (`position:absolute`, `grid-area:auto` — un
+enfant absolu d'une grille garde sinon sa CELLULE pour repère) et
+`aptEtiquettes` les pose sur les traits rendus : au milieu du trait,
+tournées de son angle, au-dessus d'une branche qui monte (et de celle du
+milieu), au-dessous d'une branche qui descend. Les colonnes des branches
+(`--apt-c2`, `--apt-c4`) ne sont plus tenues par les étiquettes : elles
+prennent la longueur que celles-ci demandent — 40 px d'air à chaque bout
+(le nœud, la flèche), aucune pente au-delà de 51°, et, pour la branche du
+MILIEU, le texte puis la case (plus haute, plus à droite) restent à 7 px
+sous la branche qui monte vers la première. Un nœud à trois branches a des
+rangées plus hautes (`--apt-rh3`, 60 px ; 52 sous 600 px) : à 44 px, la
+branche du milieu aurait demandé plus de quatre fois la largeur de son
+étiquette. Les colonnes se recalculent quand une étiquette grandit (la
+correction écrite à côté de la case, après « Vérifier ») : l'arbre
+s'élargit alors un peu. Un piège vu à l'écran : la barre d'un événement
+contraire (`i.apb-nb::before`, une bordure fine) se dessinait en
+pointillés une fois penchée ; dans l'arbre, c'est un fond plein. Sur un
+téléphone, l'arbre du type 2 fait 500 à 580 px de large : il défile dans
+son cadre, comme l'annonçait déjà `.apf-arbre-defile`. Essayé dans Chromium
+à 1280 et 390 px, les sept types, l'arbre dans les deux sens et l'arbre en
+x : une case penchée se tape, → passe à la suivante, la vérification peint
+dessus. Terminale v418.
