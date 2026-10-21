@@ -14451,20 +14451,34 @@ function vecteursColineairesSuite(w, P){
       if(q.ph.length!==5 || q.c.length!==6 || new Set(q.ph).size!==5){ vus.push('8.3.7 : '+JSON.stringify(q)); break; }
       if(new Set(q.c.map(function(c){ return c[0]/c[1]; })).size!==6){ vus.push('8.3.7 : deux égalités identiques '+JSON.stringify(q.c)); break; }
       if(q.ph.some(function(_,i){ return kphBonne(q,i)<0; })){ vus.push('8.3.7 : une phrase sans égalité '+JSON.stringify(q)); break; }
+      if(!q.d || q.d.slice().sort().join()!=='0,1,2,3,4,5'){ vus.push('8.3.7 : l’ordre des dessins '+JSON.stringify(q.d)); break; }
+      /* chaque point d'un dessin reste dans son cadre (le −3 du leurre en sortait) */
+      const hors=q.c.find(function(c){ return (kphDessinSVG(q,c).match(/<text[^>]* x="[^"]*"/g)||[]).some(function(t){ const x=+t.match(/ x="([^"]*)"/)[1]; return !(x>=10&&x<=310); }); });
+      if(hors){ vus.push('8.3.7 : un point sort du dessin de '+JSON.stringify(hors)+' '+JSON.stringify(q.c)); break; }
     }
     if(KPH_PHR.length!==new Set(KPH_PHR.map(function(p){ return p.k[0]/p.k[1]; })).size) vus.push('8.3.7 : deux phrases ont le même réel');
-    test.questions[0]={l:0, ph:[0,1,2,7,11], c:[[2,1],[-1,2],[1,2],[3,1],[-1,1],[-2,1]]}; test.idx=0; json(); renderKph();
-    if(document.querySelectorAll('#kphHost .kph-carte').length!==6 || document.querySelectorAll('#kphHost select').length!==5) vus.push('8.3.7 : six cartes et cinq listes');
-    ['2','0','4','3','1'].forEach(function(v,i){ el('kph-'+i).value=v; });
+    /* q.d : le dessin I est celui de la carte 5 (−2), II de la carte 4 (−1)… le dessin VI, de la carte 0 */
+    test.questions[0]={l:0, ph:[0,1,2,7,11], c:[[2,1],[-1,2],[1,2],[3,1],[-1,1],[-2,1]], d:[5,4,3,2,1,0]}; test.idx=0; json(); renderKph();
+    if(document.querySelectorAll('#kphHost .kph-carte').length!==6 || document.querySelectorAll('#kphHost select').length!==10 || document.querySelectorAll('#kphHost svg.kph-svg').length!==6) vus.push('8.3.7 : six cartes, six dessins et dix listes');
+    /* le dessin de −2 : M à gauche de A, A au milieu de [MB] en abscisse */
+    const xs=Array.from(document.querySelectorAll('#kphHost svg.kph-svg')[0].querySelectorAll('text')).map(function(t){ return +t.getAttribute('x'); });
+    if(!(xs[2]<xs[0] && Math.abs((xs[0]-xs[2])-2*(xs[1]-xs[0]))<0.5)) vus.push('8.3.7 : le dessin de AM = −2AB '+xs.join(','));
+    ['2','0','4','3','1'].forEach(function(v,i){ el('kph-'+i).value=v; el('kph-d-'+i).value=String(5-(+v)); });
     av=test.score; checkKph();
-    if(test.score-av!==5) vus.push('8.3.7 : la copie juste vaut '+(test.score-av));
+    if(test.score-av!==10) vus.push('8.3.7 : la copie juste vaut '+(test.score-av));
     nextKph(); clearTimeout(test.fbTimer);
-    test.questions[1]={l:0, ph:[0,1,2,7,11], c:[[2,1],[-1,2],[1,2],[3,1],[-1,1],[-2,1]]}; renderKph();
+    test.questions[1]={l:0, ph:[0,1,2,7,11], c:[[2,1],[-1,2],[1,2],[3,1],[-1,1],[-2,1]], d:[5,4,3,2,1,0]}; renderKph();
     el('kph-0').value='1';
     av=test.score; checkKph();
-    if(test.score-av!==0 || classe(el('kph-0'))!=='bad' || document.querySelectorAll('#scr-kph select.sol').length!==4) vus.push('8.3.7 : ½ pris pour −½ ; les vides : '+classe(el('kph-0')));
+    if(test.score-av!==0 || classe(el('kph-0'))!=='bad' || document.querySelectorAll('#scr-kph select.sol').length!==9) vus.push('8.3.7 : ½ pris pour −½ ; les vides : '+classe(el('kph-0')));
     const fbH=el('kphFeedback').textContent;
     if(fbH.indexOf('de l’autre côté de A')<0 || fbH.indexOf('du même côté de A que B')<0) vus.push('8.3.7 : le pourquoi ne dit pas le côté : '+fbH.slice(0,220));
+    nextKph(); clearTimeout(test.fbTimer);
+    test.questions[2]={l:0, ph:[0,1,2,7,11], c:[[2,1],[-1,2],[1,2],[3,1],[-1,1],[-2,1]], d:[5,4,3,2,1,0]}; renderKph();
+    el('kph-d-0').value='4'; el('kph-0').value='2';
+    av=test.score; checkKph();
+    if(test.score-av!==1 || classe(el('kph-d-0'))!=='bad' || classe(el('kph-0'))!=='ok') vus.push('8.3.7 : le dessin faux, l’égalité juste : '+classe(el('kph-d-0'))+','+classe(el('kph-0')));
+    if(el('kphFeedback').textContent.indexOf('Le dessin V montre autre chose')<0) vus.push('8.3.7 : le pourquoi du dessin : '+el('kphFeedback').textContent.slice(0,220));
 
     /* ===== 8.3.8 : démontrer un parallélisme avec les vecteurs ===== */
     lancer(D.milieux, 'kmi');
