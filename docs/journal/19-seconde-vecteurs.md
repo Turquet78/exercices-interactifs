@@ -4196,6 +4196,30 @@ le contrôle l'attrape presque à coup sûr. Éprouvé par sabotage (le
 placement d'avant rétabli au 8.3.2/8.3.3) : rouge, « 8.3.2 : le nom a sur
 le trait de e ».
 
+### Le 8.3.3 : une page d'entiers, PUIS des pages de fractions (v592 — v591 prise par le 8.3.7)
+
+Demande de Turquet, octobre 2026 : « dans la 1re question mettre que des
+multiplications avec des facteurs entiers positifs ou négatifs, puis dans
+la deuxième question mettre des fractions comme coefficient multiplicateur
+positif ou négatif ». Avant, chaque page mêlait les deux (quatre non
+entiers au moins sur six).
+
+* `kviBuildQuestions` lit le rang de la page (`distinctes` passe `i` à la
+  fabrique) : la page 1 du 8.3.3 est tirée comme au 8.3.2 (`kviGen(false)`,
+  sans `q.fr`, la consigne ne parle pas de fraction) ; les suivantes par
+  `kviGen(true)`, qui n'admet plus aucun dénominateur 1. Les signes restent
+  mêlés sur chaque page (le tirage l'exigeait déjà). Le repli des fractions
+  a perdu son seul coefficient entier.
+* Un devoir à plus de deux questions : la première en entiers, toutes les
+  autres en fractions.
+* Le 8.3.2 ne change pas ; la description du menu du 8.3.3 le dit.
+
+Le banc principal relit chaque page de la séance (page 1 : que des entiers,
+sans `q.fr` ; les suivantes : que des fractions, `q.fr`), et ses deux cents
+tirages de `kviGen(true)` n'admettent plus un seul entier ; la copie juste
+du 8.3.3 se joue sur la page de fractions. Mesuré à part : 3 000 tirages,
+aucun entier sur une page de fractions, le repli jamais atteint.
+
 ### Le 8.3.1 : la flèche a/b u⃗ se DÉCOUPE en |a| morceaux (v582)
 
 Demande de Turquet, octobre 2026 (écrite « 8.3.2 » — le seul exercice du
