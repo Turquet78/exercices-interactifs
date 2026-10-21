@@ -4516,7 +4516,7 @@ du sens fermée avant toute réponse, ouverte par « Vrai » ; une copie juste
 pour la corriger ; « Vrai » à la direction de deux vecteurs non parallèles,
 rouge, ligne du sens refermée et hors note ; le pourquoi par Pythagore.
 
-## 8.3.5 : les deux vecteurs seulement, et le coefficient k u⃗ sur sa ligne (v586 — v583 à v585 prises par les 8.3.1, 8.3.2, 8.3.3, 8.3.5, 8.3.6 et 8.3.7 pendant les bancs)
+## 8.3.5 : les deux vecteurs seulement, et le coefficient k u⃗ sur sa ligne (v587 — v583 à v586 prises par les 8.3.1, 8.3.2, 8.3.3, 8.3.5, 8.3.6, 8.3.7 et 8.3.8 pendant les bancs)
 
 **La demande** (Turquet, octobre 2026, une capture de la correction
 « v⃗ = 3u⃗ : ils sont colinéaires » à l'appui) : « dans la correction le
