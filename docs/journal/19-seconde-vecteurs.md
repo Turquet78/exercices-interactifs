@@ -4085,7 +4085,7 @@ autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
 navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
 flèche, lui, ne se mesure qu'à l'œil.
 
-## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v576)
+## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 
 **La demande** (Turquet, octobre 2026) : sur quinze idées proposées pour
 compléter la Fiche 1, « faire les 12, 13, 14 et 15 — je ne veux pas de
