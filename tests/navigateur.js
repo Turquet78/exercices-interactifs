@@ -15530,7 +15530,7 @@ if(require.main === module) (async () => {
                 return r.width > 0 && r.height > 0 && getComputedStyle(e).display !== 'none';
               };
               const b = [...on.querySelectorAll('button')].filter(visible)
-                .find(x => !x.disabled && /^(Commencer|Démarrer|C'est parti|Niveau 1|J’ai compris)/.test(x.textContent.trim()));
+                .find(x => !x.disabled && /^(Commencer|Démarrer|C'est parti|Niveau 1|J’ai compris|Type 1\b)/.test(x.textContent.trim()));
               if(b){ b.click(); return true; }
               /* {python-completer} ouvre sur son COURS, et sa porte ne s'ouvre
                  qu'une fois l'exemple exécuté (demande de Turquet, septembre
@@ -16807,7 +16807,7 @@ if(require.main === module) (async () => {
         await page.evaluate(() => {
           const vis = e => { const q = e.getBoundingClientRect(); return q.width > 0 && q.height > 0; };
           const b = [...document.querySelectorAll('button')].filter(vis)
-            .find(x => /^(Commencer|Démarrer|C'est parti|Niveau 1)/.test(x.textContent.trim()));
+            .find(x => /^(Commencer|Démarrer|C'est parti|Niveau 1|Type 1\b)/.test(x.textContent.trim()));
           if(b) b.click();
         });
         await page.waitForTimeout(700);
