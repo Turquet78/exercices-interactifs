@@ -4515,3 +4515,42 @@ du sens fermée avant toute réponse, ouverte par « Vrai » ; une copie juste
 à 4 points ; une copie vide qui ne rougit pas et rouvre la ligne du sens
 pour la corriger ; « Vrai » à la direction de deux vecteurs non parallèles,
 rouge, ligne du sens refermée et hors note ; le pourquoi par Pythagore.
+
+## 8.3.5 : les deux vecteurs seulement, et le coefficient k u⃗ sur sa ligne (v587 — v583 à v586 prises par les 8.3.1, 8.3.2, 8.3.3, 8.3.5, 8.3.6, 8.3.7 et 8.3.8 pendant les bancs)
+
+**La demande** (Turquet, octobre 2026, une capture de la correction
+« v⃗ = 3u⃗ : ils sont colinéaires » à l'appui) : « dans la correction le
+facteur est mal centré verticalement. Vérifier pour tous les exercices de
+vecteur colinéaire qu'il n'y ait pas ce problème. » Puis : « supprimer les
+questions 7 et 8. Je ne veux que les questions avec 2 vecteurs. »
+
+**Le coefficient.** `kvHTML()` écrit « −3u⃗ » ou « ⅔u⃗ » dans un
+`.kv-co`, un `inline-flex` centré (`align-items:center`,
+`vertical-align:middle`) — fait pour poser le signe sur le trait d'une
+fraction. Mais la lettre `.vec` réserve au-dessus d'elle la place de sa
+flèche (`padding-top:.45em`) : centrée avec le 3, sa boîte montait le 3 et
+descendait le u⃗ — 4 px sous le v⃗ dans la capture ; et « middle » posait
+encore le tout 1 à 2 px sous la ligne. Même défaut partout où `kvHTML()`
+écrit un réel avec ou sans lettre : 8.3.1 à 8.3.9, les rappels, les
+corrections. Deux règles le tiennent : sans fraction, le `.kv-co` s'aligne
+sur la ligne d'écriture (`align-items:baseline; vertical-align:baseline` —
+le réel, le signe et la lettre retombent sur la ligne du texte, mesuré à
+0 px) ; avec une fraction, la lettre se centre sur le trait sans compter sa
+flèche (`margin-top:-.45em`, la flèche déborde vers le haut, dans la hauteur
+de la fraction) — de 2,9 px à 0,9 px du trait.
+
+**Contrôlé partout** (`tests/navigateur.js`, section 9, après la
+vérification qui écrit les corrections) : sur chaque `.kv-co` visible, une
+sonde vide posée dans chaque morceau — son bas EST la ligne d'écriture —
+doit tomber à 1 px de celle du texte qui précède ; la lettre d'un
+coefficient fractionnaire, à 2 px du trait. Un niveau sans `kvHTML` le
+déclare non applicable.
+
+**Les questions 7 et 8 retirées.** Les deux pages « u⃗ et sept vecteurs
+colinéaires, dessinés ou donnés par leur réel » qui suivaient les six
+situations du vrai ou faux ne se tirent plus : la séance est faite des six
+situations, et d'elles seules (6 pages, 22 points). Un devoir qui demande
+plus de six pages reprend les situations, sur d'autres vecteurs
+(`distinctes()` l'assure). Le générateur `kssGen` et ses réels sont partis ;
+le rendu et le juge de ces pages restent (`renderKssKu`, `kssCases`) : un
+brouillon de pause d'avant peut en porter une, et le banc les tient encore.

@@ -2898,6 +2898,13 @@
      du 8.1.1 (.vtr-l) ; un coefficient s'écrit en ligne, le signe centré sur le trait de
      sa fraction (.kv-co) */
   .kv-co{display:inline-flex;align-items:center;gap:.1em;vertical-align:middle;white-space:nowrap}
+  /* Sans fraction, le réel et la lettre s'alignent sur la LIGNE d'écriture : centrés,
+     la lettre (.vec) descendait de la moitié de la place de sa flèche, et le tout de
+     l'écart entre « middle » et le milieu d'un chiffre (« v⃗ = 3u⃗ » du 8.3.5,
+     signalé par Turquet, octobre 2026). Avec une fraction, la lettre se centre sur
+     le trait sans compter sa flèche, qui déborde vers le haut. */
+  .kv-co:not(:has(.sf-f)){align-items:baseline;vertical-align:baseline}
+  .kv-co:has(.sf-f) > .vec{margin-top:-.45em}
   .kv-co .sf-f{font-size:.8em;font-style:normal}
   .kv-co .kv-sg,.kv-co .kv-n{font-style:normal}
   /* sans fraction, le « 3 » ou le « − » se pose sur la LIGNE des lettres du
@@ -8582,7 +8589,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=586;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=587;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9432,7 +9439,7 @@ const TESTS={
   'identifier-multiple-vecteur': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w', icon:'\ud83d\udd0d', desc:'Trois vecteurs u, v et w, puis six vecteurs a, b, c\u2026\u00a0: chacun est u, v ou w multipli\u00e9 par un entier k. Trouve le vecteur et le coefficient.', start:()=>startKvi(false) },
   'identifier-multiple-non-entier': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w (k d\u00e9cimal ou fraction)', icon:'\ud83d\udd0d', desc:'Comme l\u2019exercice pr\u00e9c\u00e9dent, mais k peut valoir \u22121,5, \u00be, 5/2\u2026 Trouve le vecteur et le coefficient.', start:()=>startKvi(true) },
   'vecteurs-colineaires-figure': { name:'Colin\u00e9aires ou non\u00a0?', icon:'\u2194\ufe0f', desc:'Une figure de vecteurs AB, CD, EF\u2026\u00a0: pour chaque paire, dis s\u2019ils sont colin\u00e9aires et, si oui, \u00e9cris le r\u00e9el k tel que AB = k GH.', start:()=>startKco() },
-  'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'La d\u00e9finition de deux vecteurs colin\u00e9aires, puis vrai ou faux sur deux vecteurs dessin\u00e9s\u00a0: m\u00eame direction, m\u00eame sens, m\u00eame longueur, colin\u00e9aires. Puis des vecteurs colin\u00e9aires \u00e0 u, dessin\u00e9s ou donn\u00e9s par leur r\u00e9el k (\u22122u, \u2154u\u2026)\u00a0: dis s\u2019ils ont le m\u00eame sens que u ou le sens contraire, et s\u2019ils sont plus longs, plus courts ou aussi longs.', start:()=>startKss() },
+  'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'La d\u00e9finition de deux vecteurs colin\u00e9aires, puis vrai ou faux sur deux vecteurs dessin\u00e9s\u00a0: m\u00eame direction, m\u00eame sens, m\u00eame longueur, colin\u00e9aires. Six situations, toutes les possibles.', start:()=>startKss() },
   'placer-point-colineaire': { name:'Placer un point d\u00e9fini par une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccd', desc:'Des points A, B, C, D, E sur un quadrillage, et trois \u00e9galit\u00e9s comme CM = \u2154AB ou DN = \u2212\u00bdBA\u00a0: place M, N et P d\u2019un clic.', start:()=>startKpl() },
   'phrase-relation-colineaire': { name:'Associer une phrase, un dessin et une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udd17', desc:'\u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb, \u00ab\u00a0M est sur [AB] et AM est le tiers de AB\u00a0\u00bb\u2026\u00a0: pour chaque phrase, choisis le dessin sur une droite, puis l\u2019\u00e9galit\u00e9 AM = kAB qui la traduit. Un dessin et une \u00e9galit\u00e9 sont de trop.', start:()=>startKph() },
   'milieux-parallele-vecteurs': { name:'D\u00e9montrer un parall\u00e9lisme avec les vecteurs', icon:'\u2225', desc:'Dans un triangle ABC, I et J sont les milieux de [AB] et [AC], puis AI = kAB et AJ = kAC (k = \u2153, \u00bc, \u00be, \u2155, \u2156\u2026)\u00a0: sur le mod\u00e8le d\u2019un exemple r\u00e9solu, compl\u00e8te la d\u00e9monstration \u2014 Chasles, le r\u00e9el en facteur, Chasles \u2014 pour prouver que (IJ) et (BC) sont parall\u00e8les.', start:()=>startKmi() },
@@ -65787,55 +65794,26 @@ function ctxKco(q){
    numérateur, dénominateur), q.s (les réels des vecteurs sans dessin).
    kssAtt() relit les réponses sur le réel. Deux réponses par vecteur
    (kssCases), jugées chacune seule. */
-const KSS_NB=2, KSS_NF=4, KSS_ND=3;
 const KSS_W=20, KSS_H=10, KSS_C=30, KSS_PX=24, KSS_PY=24;
 const KSS_GEO={c:KSS_C, px:KSS_PX, py:KSS_PY, h:KSS_H};
 const KSS_L='abcdefg';
 const KSS_SENS=[['m','le même sens que'],['c','le sens contraire de']];
 const KSS_LONG=[['p','plus long que'],['c','plus court que'],['e','aussi long que']];
-/* les réels des vecteurs sans dessin */
-const KSS_POOL=[[-3,1],[-2,1],[-5,2],[-3,2],[-1,1],[-4,5],[-2,3],[-1,2],[-1,3],[-1,4],[1,4],[1,3],[1,2],[2,5],[3,4],[4,3],[3,2],[5,2],[2,1],[3,1]];
 function kssN(q){ return q.l.length+q.s.length; }
 function kssVec(q,i){ const l=q.l[i]; return [q.u[0]*l[2]/l[3], q.u[1]*l[2]/l[3]]; }
 function kssCo(q,i){ return i<q.l.length ? [q.l[i][2], q.l[i][3]] : q.s[i-q.l.length]; }
 /* les deux réponses attendues : le sens (m : même, c : contraire), la longueur (p : plus long, c : plus court, e : aussi long) */
 function kssAtt(c){ const a=Math.abs(c[0]); return {s:c[0]>0?'m':'c', l:a>c[1]?'p':(a<c[1]?'c':'e')}; }
-/* une liste de réels montre les quatre cas : un positif, un négatif, un plus court, un plus long */
-function kssVarie(cs){
-  return cs.some(function(c){ return c[0]>0; }) && cs.some(function(c){ return c[0]<0; })
-    && cs.some(function(c){ return Math.abs(c[0])<c[1]; }) && cs.some(function(c){ return Math.abs(c[0])>c[1]; });
-}
-function kssGen(){
-  for(let essai=0;essai<4000;essai++){
-    const d=pick(KV_DIRS), m=pick([2,3,4]), sg=rand(0,1)?1:-1;
-    const u=[d[0]*m*sg, d[1]*m*sg];
-    if(Math.max(Math.abs(u[0]),Math.abs(u[1]))>6) continue;
-    const tient=function(w){ return Math.abs(w[0])<=KSS_W-4 && Math.abs(w[1])<=KSS_H-2 && Math.hypot(w[0],w[1])>=1.9; };
-    const cs=[];
-    for(let den=1;den<=4;den++) for(let num=-12;num<=12;num++){
-      if(!num||gcd(num,den)!==1||m%den||num===den||Math.abs(num/den)>3) continue;
-      if(tient([u[0]*num/den, u[1]*num/den])) cs.push([num,den]);
-    }
-    if(cs.length<KSS_NF) continue;
-    const ks=ensShuffle(cs).slice(0,KSS_NF);
-    if(!kssVarie(ks)) continue;
-    const ws=[u].concat(ks.map(function(c){ return [u[0]*c[0]/c[1], u[1]*c[0]/c[1]]; }));
-    const pos=kvPoser(ws, KSS_W, KSS_H, 2, 1)||kvPoser(ws, KSS_W, KSS_H, 1, 1);
-    if(!pos) continue;
-    /* sans dessin : le piège du réel négatif PLUS COURT est toujours là */
-    const s=ensShuffle(KSS_POOL.slice()).slice(0,KSS_ND);
-    if(!kssVarie(s) || !s.some(function(c){ return c[0]<0 && -c[0]<c[1]; })) continue;
-    return {u:u, o:pos[0], l:ks.map(function(c,i){ return [pos[i+1][0], pos[i+1][1], c[0], c[1]]; }), s:s};
-  }
-  /* repli — jamais atteint en pratique */
-  return {u:[4,2], o:[1,1], l:[[10,9,-2,1],[12,2,1,2],[13,5,3,2],[7,4,-1,2]], s:[[-2,3],[5,2],[1,3]]};
-}
 /* Deux pages sont la même si u⃗ et les réels le sont, où que les flèches soient posées. */
 function kssCle(q){ return q.t==='vf' ? JSON.stringify(['vf', q.c, q.u, q.v]) : JSON.stringify([q.u, q.l.map(function(x){ return x.slice(2); }), q.s]); }
-/* les six situations du vrai ou faux d'abord, dans un ordre tiré, puis les pages du sens et de la longueur */
+/* Les six situations du vrai ou faux, dans un ordre tiré — et rien d'autre :
+   les deux pages de u⃗ et de ses sept vecteurs qui les suivaient sont retirées
+   (Turquet, octobre 2026 : « je ne veux que les questions avec 2 vecteurs »).
+   Leur rendu reste (renderKssKu), pour un brouillon de pause qui en porterait
+   encore. Un devoir qui demande plus de six pages reprend les situations. */
 function kssBuildQuestions(){
-  const n=dmNbQuestions(KSS_NVF+KSS_NB), ordre=ensShuffle([0,1,2,3,4,5]), nvf=Math.min(n,KSS_NVF);
-  return distinctes(n, function(_,i){ return i<nvf ? kssVfGen(ordre[i]) : kssGen(); }, kssCle);
+  const n=dmNbQuestions(KSS_NVF), ordre=ensShuffle([0,1,2,3,4,5]);
+  return distinctes(n, function(_,i){ return kssVfGen(ordre[i%KSS_NVF]); }, kssCle);
 }
 function kssCases(q){ if(q.t==='vf') return kssVfCases(q); const c=[]; for(let i=0;i<kssN(q);i++) c.push('kss-s-'+i, 'kss-l-'+i); return c; }
 function kssSvg(q){

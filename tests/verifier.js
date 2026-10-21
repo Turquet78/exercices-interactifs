@@ -14401,19 +14401,19 @@ function vecteursColineairesSuite(w, P){
     lancer(D.sens, 'kss');
     for(let n=0;n<200;n++){
       const qs=kssBuildQuestions(); if(new Set(qs.map(kssCle)).size!==qs.length){ vus.push('8.3.5 : deux pages identiques'); break; }
-      /* les six premières pages : une par situation, et chaque situation est bien celle qu'elle dit */
-      const vf=qs.slice(0,KSS_NVF);
-      if(vf.some(function(p){ return p.t!=='vf'; }) || qs.slice(KSS_NVF).some(function(p){ return p.t; }) || new Set(vf.map(function(p){ return p.c; })).size!==KSS_NVF){ vus.push('8.3.5 : les six situations ne sont pas toutes posées en tête '+JSON.stringify(qs.map(function(p){ return p.t?p.c:'k'; }))); break; }
+      /* six pages, une par situation, chacune celle qu'elle dit — et plus aucune
+         page de u⃗ et de ses sept vecteurs (« je ne veux que les questions avec
+         2 vecteurs ») */
+      const vf=qs;
+      if(qs.length!==KSS_NVF || vf.some(function(p){ return p.t!=='vf'; }) || new Set(vf.map(function(p){ return p.c; })).size!==KSS_NVF){ vus.push('8.3.5 : la séance n\\'est pas faite des six situations, et d\\'elles seules '+JSON.stringify(qs.map(function(p){ return p.t?p.c:'k'; }))); break; }
       const pv=vf[n%KSS_NVF], av0=kssVfAtt(pv), st=KSS_SIT[pv.c];
       if((av0.d==='v')!==!!st[0] || (st[0] && (av0.s==='v')!==!!st[1]) || (av0.l==='v')!==!!st[2] || av0.c!==av0.d){ vus.push('8.3.5 : la page ne montre pas sa situation '+JSON.stringify(pv)); break; }
       const horsV=function(p){ return p[0]<1||p[0]>KSS_VW-1||p[1]<1||p[1]>KSS_VH-1; };
       if(horsV(pv.o)||horsV(pv.p)||horsV([pv.o[0]+pv.u[0],pv.o[1]+pv.u[1]])||horsV([pv.p[0]+pv.v[0],pv.p[1]+pv.v[1]])){ vus.push('8.3.5 : une flèche du vrai ou faux hors du quadrillage '+JSON.stringify(pv)); break; }
       if(av0.col && (kssVfK(pv)[0]*pv.u[0]!==pv.v[0]*kssVfK(pv)[1] || kssVfK(pv)[0]*pv.u[1]!==pv.v[1]*kssVfK(pv)[1])){ vus.push('8.3.5 : le réel k ne donne pas v = k u '+JSON.stringify(pv)); break; }
-      const q=qs[KSS_NVF+n%(qs.length-KSS_NVF)], cs=q.l.map(function(x){ return [x[2],x[3]]; });
-      if(q.l.length!==4 || q.s.length!==3 || !kssVarie(cs) || !kssVarie(q.s) || !q.s.some(function(c){ return c[0]<0 && -c[0]<c[1]; })){ vus.push('8.3.5 : réels '+JSON.stringify([cs,q.s])); break; }
-      const hors=function(p){ return p[0]<1||p[0]>KSS_W-1||p[1]<1||p[1]>KSS_H-1; };
-      if(hors(q.o)||hors([q.o[0]+q.u[0],q.o[1]+q.u[1]])||q.l.some(function(x,i){ const v=kssVec(q,i); return !entier(v[0])||!entier(v[1])||hors(x)||hors([x[0]+v[0],x[1]+v[1]]); })){ vus.push('8.3.5 : une flèche hors du quadrillage ou hors des nœuds '+JSON.stringify(q)); break; }
     }
+    /* une page de u⃗ et de ses sept vecteurs ne se tire plus, mais un brouillon
+       de pause d'avant peut en porter une : son rendu et son juge restent tenus */
     test.questions[0]={u:[4,2], o:[1,1], l:[[10,9,-2,1],[12,2,1,2],[13,5,3,2],[7,4,-1,2]], s:[[-2,3],[-1,1],[-3,1]]};
     json(); renderKss();
     if(document.querySelectorAll('#kssHost select').length!==14 || document.querySelectorAll('#kssHost .kss-svg line.svc-u').length!==4 || !document.querySelector('#kssHost line.vcr-u')) vus.push('8.3.5 : la page n\\'a pas ses quatorze listes, ses quatre flèches et u en violet');
