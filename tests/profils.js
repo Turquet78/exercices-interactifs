@@ -1034,7 +1034,7 @@ module.exports = {
        a KSS_NVF, KPL_NB, KPH_NB, KMI_NB). */
     vecteursColineairesSuite: {
       sens:    { exercice: 'colineaires-sens-longueur', numero: '8.3.5', nb: 6, bareme: 22 },
-      placer:  { exercice: 'placer-point-colineaire', numero: '8.3.6', nb: 3, bareme: 9 },
+      placer:  { exercice: 'placer-point-colineaire', numero: '8.3.6', nb: 4, bareme: 4 },
       phrase:  { exercice: 'phrase-relation-colineaire', numero: '8.3.7', nb: 3, bareme: 33 },
       milieux: { exercice: 'milieux-parallele-vecteurs', numero: '8.3.8', nb: 4, bareme: 52 },
     },
