@@ -190,7 +190,7 @@ fois, le 6.1.2 le reçoit d'un coup.
 Essayé dans Chromium à 1280 et 390 px, les cinq situations : une copie faite
 des corrections est parfaite ; pour P_B(A) = 0,8276…, « 0,82 », « ≈ 0,83 »
 et « ≈ 0,8276 » sont justes, « 0,81 » faux ; une copie vide reçoit ses
-fractions vertes ; aucune erreur de page. Terminale v419.
+fractions vertes ; aucune erreur de page. Terminale v420.
 
 ## {arbre-probabilites-bac} (6.1.3) : l'exercice de bac, la formule avant le calcul
 
