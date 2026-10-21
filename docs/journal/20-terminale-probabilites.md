@@ -646,3 +646,85 @@ pourtant à 0,01 près de 0,7265….
 * Le 6.1.2 (sans `libre`) garde son juge : « ≈ » au sens de l'arrondi, au
   moins deux décimales. La correction garde ses deux décimales arrondies.
   Terminale v412.
+
+## {arbre-probabilites-bac-types} (6.1.5) : sept exercices de bac, choisis par leur numéro
+
+Demande de Turquet (octobre 2026), avec le PDF « Exercice arbre proba bac »
+(sept sujets : tomates de deux fournisseurs, lames d'escrime de trois
+fabricants, réacteurs nucléaires, planches de surf, transports en commun,
+filles et études d'ingénieur, navire et cabines) : « faire un exercice qui
+contienne les 7 types d'exercices du pdf ; l'élève choisit d'abord un numéro
+entre 1 et 7 ; chaque exercice reprend les mêmes questions dans le même
+ordre ; changer le thème et les valeurs numériques ; chaque question respecte
+les consignes de présentation du 6.1.3 — quand il faut déterminer une
+probabilité sur une branche intérieure connaissant la probabilité d'un
+événement qui représente deux chemins de l'arbre, toujours proposer les
+étapes : poser x = …, compléter l'arbre avec x et 1 − x et la probabilité en
+fin d'arbre, démontrer par exemple P(T) = 0,5x − 0,1, puis résoudre
+l'équation avec la même présentation ».
+
+**Le choix d'abord.** L'écran s'ouvre sur sept cartes « Type 1 … Type 7 » ;
+le tirage ne se fait qu'au clic (`aptChoisirType`). Tant que rien n'est
+choisi, `test.questions` reste celui d'avant : la photo papier d'un devoir le
+voit et dit « ne sait pas s'énoncer », le banc des séances distinctes ne le
+mesure pas, et l'enregistrement automatique est coupé (`recoveryClosed`) —
+sans quoi un brouillon aurait rangé la séance d'un AUTRE exercice sous ce
+nom. Une séance tire `dmNbQuestions(1)` exercices du type choisi, sur des
+thèmes différents. Les bancs (navigateur, notes, pause) franchissent ce
+premier écran comme un « Commencer » : leur liste des boutons de départ
+reconnaît « Type 1 ».
+
+**Les mêmes questions, sur d'autres thèmes** (`APT_TYPES`, trois thèmes par
+type, aucun repris du PDF). Les clés sont abstraites : A, B, C pour les
+premières branches, E, F, G pour les secondes ; le thème leur donne leur
+lettre (« -C » : C barre) et leurs phrases (subjonctif après « la probabilité
+que », le même sans sujet après « et », indicatif après « sachant que », et
+deux tournures pour les interprétations). Les nombres (`q.d`) sont des
+dix-millièmes entiers, tirés par type sous contraintes : au 1, P(C) a au plus
+une décimale en pourcentage et l'affirmation « k fois moins de chances » est
+vraie une fois sur deux, exactement (le rapport vaut k) ou nettement fausse ;
+au 4, la part en bon état est comparée à 3/4, 2/3, 7/10 ou 4/5, jamais à
+moins de 0,01 du seuil ; au 6, les pourcentages ont deux décimales, comme
+dans le sujet (33,75 %).
+
+**Le plan d'un type** (`aptPlan`) écrit ses questions dans l'ordre du sujet,
+avec quatre sortes de pièces : la ligne « [……] = formule = [calcul] » du
+6.1.3 (écriture choisie dans la case étroite, ses trois pièges, sa formule) ;
+l'arbre, ouvert par le choix de l'événement des premières branches ; des
+cartes (une interprétation : la bonne phrase contre la conditionnelle et la
+conditionnelle retournée ; une affirmation : Oui / Non) ; et la branche en x.
+
+**La branche intérieure passe par x** (types 1, 3 et 7) : « On pose [……] = x »
+(au 3, l'énoncé pose déjà x et le premier arbre l'écrit, l'élève y place
+1 − x : ni second « on pose », ni second arbre), puis l'arbre en x — toutes
+les branches, x et 1 − x sur celles du nœud inconnu, et la probabilité
+totale au bout de l'accolade —, « Démontre que P(…) = a·x + b », la
+résolution à quatre lignes du 6.1.3 avec ses ⇔ et une phrase réponse. Au 7,
+x n'est pas décimal : la valeur de x et la phrase réponse acceptent toute
+valeur à 10⁻² près (`aptResolTol`).
+
+**Une exception, nommée** : au type 5, la proportion de la dernière question
+est une branche intérieure, mais le sujet la fait DÉDUIRE de la question 3
+(P(R̄ ∩ J) = P(J) − P(R ∩ J), puis la division par P(R̄)) : l'ordre des
+questions du sujet l'emporte, et la ligne accepte la division de la valeur
+exacte comme celle de l'arrondi (`vs`).
+
+**L'arbre est une grille générale** (`aptGrilleHTML`, `aptTraits`) : celle du
+6.1.2 n'a que deux branches par nœud, les types 2 et 3 en ont trois au
+premier niveau, le 4 trois au second. Deux demi-rangées par fin de chemin ;
+une étiquette au-dessus de sa branche quand elle monte, au-dessous quand elle
+descend. Essayé dans Chromium : l'étiquette d'une branche du MILIEU, qui est
+horizontale, chevauchait le trait montant vers la première (P(B) au 2,
+P_Ā(J) au 4) ; elle se pose désormais au bout de sa branche (`apt-mil`). Le
+choix de l'événement suit la règle du 6.1.3 : modifiable jusqu'à
+« Vérifier », l'arbre écrit dans l'autre sens si la lettre est fausse (ses
+cases ne sont jamais justes), remis dans le bon sens à la clôture.
+
+**Les juges** : `aptJugeChaine` est celui du 6.1.3 avec la précision de la
+question (10⁻² ou 10⁻³, l'arrondi comme la troncature) ; une donnée à lire
+(1. a) du type 7) se contente du nombre seul, « 75 % » compris. Essayé dans
+Chromium à 1280 et 390 px, les sept types : une copie faite des corrections
+de la page est parfaite (27 cases sur 27 au type 1), une copie vide reçoit
+toutes ses corrections en vert, aucune erreur de page. La case de
+l'opération de la résolution, trop étroite pour « − 0,546 », a été élargie.
+Terminale v416.

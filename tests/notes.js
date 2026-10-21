@@ -157,7 +157,7 @@ const SAUT = () => {
   if(!on) return false;
   const visible = e => { if(!e || e.hidden) return false; const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).display !== 'none'; };
   const b = [...on.querySelectorAll('button')].filter(visible)
-    .find(x => !x.disabled && /^(Commencer|Démarrer|C'est parti|Niveau 1|J’ai compris)/.test(x.textContent.trim()));
+    .find(x => !x.disabled && /^(Commencer|Démarrer|C'est parti|Niveau 1|J’ai compris|Type 1\b)/.test(x.textContent.trim()));
   if(b){ b.click(); return true; }
   const r = [...on.querySelectorAll('button')].filter(visible)
     .find(x => !x.disabled && /exemple/i.test(x.textContent) && /^▶/.test(x.textContent.trim()));
