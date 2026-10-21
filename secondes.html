@@ -2956,6 +2956,18 @@
   .kss-u .vec{color:var(--crd-a)}
   .kss-l .itv-sel.kss-sel{width:auto;min-width:176px;font-size:1.1rem;padding:0 10px}
   .kss-pq,.kph-pq{color:var(--green);font-weight:600;font-size:1.05rem}
+  /* la première partie du 8.3.5 : la définition encadrée, puis le vrai ou faux.
+     La ligne du sens s'ouvre quand l'élève répond « Vrai » à la direction ; la
+     vérification l'ouvre (kss-on) ou la ferme (kss-off) selon les vecteurs. */
+  .kss-defn{display:block;border-left:4px solid var(--crd-a);background:var(--surface);border-radius:10px;padding:8px 12px;margin:0 0 10px}
+  .kss-vf .kss-vfl{justify-content:space-between}
+  .kss-l .kss-t.kss-aff{white-space:normal;flex:1 1 240px}
+  .kss-l .itv-sel.kss-vsel{min-width:110px}
+  .kss-vf .kss-vsl{display:none}
+  .kss-vf:has(#kss-vd option[value="v"]:checked) .kss-vsl,.kss-vf .kss-vsl.kss-on{display:flex}
+  .kss-vf .kss-vsl.kss-off{display:none!important}
+  .kss-vpq:empty{display:none}
+  .kss-vpq{text-align:center}
   #scr-kpl .tvg-cons{cursor:pointer}
   #scr-kpl .tvg-cons.sol{border-color:var(--green);background:var(--green-soft)}
   #scr-kpl .tvg-cons.tan-fait{border-color:var(--green);color:var(--green);background:var(--green-soft)}
@@ -9408,7 +9420,7 @@ const TESTS={
   'identifier-multiple-vecteur': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w', icon:'\ud83d\udd0d', desc:'Trois vecteurs u, v et w, puis six vecteurs a, b, c\u2026\u00a0: chacun est u, v ou w multipli\u00e9 par un entier k. Trouve le vecteur et le coefficient.', start:()=>startKvi(false) },
   'identifier-multiple-non-entier': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w (k d\u00e9cimal ou fraction)', icon:'\ud83d\udd0d', desc:'Comme l\u2019exercice pr\u00e9c\u00e9dent, mais k peut valoir \u22121,5, \u00be, 5/2\u2026 Trouve le vecteur et le coefficient.', start:()=>startKvi(true) },
   'vecteurs-colineaires-figure': { name:'Colin\u00e9aires ou non\u00a0?', icon:'\u2194\ufe0f', desc:'Une figure de vecteurs AB, CD, EF\u2026\u00a0: pour chaque paire, dis s\u2019ils sont colin\u00e9aires et, si oui, \u00e9cris le r\u00e9el k tel que AB = k GH.', start:()=>startKco() },
-  'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'Des vecteurs colin\u00e9aires \u00e0 u, dessin\u00e9s ou donn\u00e9s par leur r\u00e9el k (\u22122u, \u2154u\u2026)\u00a0: dis s\u2019ils ont le m\u00eame sens que u ou le sens contraire, et s\u2019ils sont plus longs, plus courts ou aussi longs.', start:()=>startKss() },
+  'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'La d\u00e9finition de deux vecteurs colin\u00e9aires, puis vrai ou faux sur deux vecteurs dessin\u00e9s\u00a0: m\u00eame direction, m\u00eame sens, m\u00eame longueur, colin\u00e9aires. Puis des vecteurs colin\u00e9aires \u00e0 u, dessin\u00e9s ou donn\u00e9s par leur r\u00e9el k (\u22122u, \u2154u\u2026)\u00a0: dis s\u2019ils ont le m\u00eame sens que u ou le sens contraire, et s\u2019ils sont plus longs, plus courts ou aussi longs.', start:()=>startKss() },
   'placer-point-colineaire': { name:'Placer un point d\u00e9fini par une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccd', desc:'Des points A, B, C, D, E sur un quadrillage, et trois \u00e9galit\u00e9s comme CM = \u2154AB ou DN = \u2212\u00bdBA\u00a0: place M, N et P d\u2019un clic.', start:()=>startKpl() },
   'phrase-relation-colineaire': { name:'Associer une phrase, un dessin et une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udd17', desc:'\u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb, \u00ab\u00a0M est sur [AB] et AM est le tiers de AB\u00a0\u00bb\u2026\u00a0: pour chaque phrase, choisis le dessin sur une droite, puis l\u2019\u00e9galit\u00e9 AM = kAB qui la traduit. Un dessin et une \u00e9galit\u00e9 sont de trop.', start:()=>startKph() },
   'milieux-parallele-vecteurs': { name:'D\u00e9montrer un parall\u00e9lisme avec les vecteurs', icon:'\u2225', desc:'Dans un triangle ABC, I et J sont les milieux de [AB] et [AC], puis AI = kAB et AJ = kAC\u00a0: compl\u00e8te la d\u00e9monstration \u2014 Chasles, le r\u00e9el en facteur, Chasles \u2014 pour prouver que (IJ) et (BC) sont parall\u00e8les.', start:()=>startKmi() },
@@ -11246,7 +11258,7 @@ const QIA_SUGG={
   chs:["Que dit la relation de Chasles\u00a0?","Que faire quand les deux vecteurs ne s\u2019encha\u00eenent pas\u00a0?","Comment trouver un vecteur \u00e9gal dans la figure\u00a0?","Pourquoi soustraire CA, c\u2019est ajouter AC\u00a0?"],
   cha:["Que dit la relation de Chasles\u00a0?","Comment remplacer un vecteur par un vecteur \u00e9gal sur la droite\u00a0?","Qu\u2019est-ce que le vecteur nul\u00a0?","Comment encha\u00eener trois vecteurs\u00a0?"],
   kvi:["Comment reconna\u00eetre si un vecteur est un multiple de u, de v ou de w\u00a0?","Comment trouver le signe de k\u00a0?","Comment calculer k \u00e0 partir des carreaux\u00a0?","Que veut dire a = \u22122v\u00a0?","Comment \u00e9crire k quand ce n\u2019est pas un entier\u00a0?"],
-  kss:["Comment savoir si k u a le m\u00eame sens que u\u00a0?","\u22123u est-il plus court que u\u00a0?","Que fait un r\u00e9el entre 0 et 1\u00a0?","Comment lire k sur le dessin\u00a0?"],
+  kss:["Qu\u2019est-ce que deux vecteurs colin\u00e9aires\u00a0?","Deux vecteurs de m\u00eame longueur ont-ils forc\u00e9ment la m\u00eame direction\u00a0?","Comment savoir si k u a le m\u00eame sens que u\u00a0?","\u22123u est-il plus court que u\u00a0?","Que fait un r\u00e9el entre 0 et 1\u00a0?","Comment lire k sur le dessin\u00a0?"],
   kpl:["Comment placer M tel que CM = \u2154AB\u00a0?","Que change le signe moins\u00a0?","De quel point faut-il partir\u00a0?","Pourquoi (CM) est-elle parall\u00e8le \u00e0 (AB)\u00a0?"],
   kph:["Comment traduire \u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb avec des vecteurs\u00a0?","Comment savoir si k est positif ou n\u00e9gatif\u00a0?","Que veut dire AM = \u2212AB\u00a0?","Comment trouver la valeur de k\u00a0?"],
   kmi:["Pourquoi passer par le point A\u00a0?","Comment \u00e9crire IA avec AB\u00a0?","Comment mettre un r\u00e9el en facteur dans une somme de vecteurs\u00a0?","Pourquoi des vecteurs colin\u00e9aires donnent-ils des droites parall\u00e8les\u00a0?"],
@@ -12819,7 +12831,10 @@ const RAP_KCO=`<b>Vecteurs colinéaires</b><br>
 <b>④ Le piège</b> : des flèches PRESQUE parallèles ne suffisent pas — on vérifie avec les carreaux.`;
 
 /* 8.3.5 à 8.3.8 */
-const RAP_KSS=`<b>Le sens et la longueur de k<span class="vec"><i>u</i></span></b><br>
+const RAP_KSS=`<b>Vecteurs colinéaires : direction, sens, longueur</b><br>
+<b>Définition</b> : <span class="vec"><i>u</i></span> et <span class="vec"><i>v</i></span> sont <b>colinéaires</b> s'il existe un réel k tel que <span class="vec"><i>v</i></span> = k<span class="vec"><i>u</i></span> — pour deux vecteurs non nuls, s'ils ont la <b>même direction</b> (flèches parallèles). Le sens et la longueur n'y comptent pas.<br>
+<b>Le sens</b> ne se compare qu'entre deux vecteurs de même direction. <b>La longueur</b> se compare toujours : en comptant les carreaux, ou par Pythagore.<br>
+<b>Le sens et la longueur de k<span class="vec"><i>u</i></span></b><br>
 <b>① Le signe de k donne le sens</b> : k positif, k<span class="vec"><i>u</i></span> a le même sens que <span class="vec"><i>u</i></span> ; k négatif, le sens contraire.<br>
 <b>② k sans son signe donne la longueur</b> : plus grand que 1, k<span class="vec"><i>u</i></span> est plus long que <span class="vec"><i>u</i></span> ; plus petit que 1, plus court ; égal à 1, aussi long.<br>
 <b>③ Le piège</b> : un réel négatif ne raccourcit pas le vecteur. −3<span class="vec"><i>u</i></span> est trois fois plus LONG que <span class="vec"><i>u</i></span>, retourné ; ${kvHTML([-1,2],'u')} est deux fois plus court, retourné.<br>
@@ -65768,9 +65783,13 @@ function kssGen(){
   return {u:[4,2], o:[1,1], l:[[10,9,-2,1],[12,2,1,2],[13,5,3,2],[7,4,-1,2]], s:[[-2,3],[5,2],[1,3]]};
 }
 /* Deux pages sont la même si u⃗ et les réels le sont, où que les flèches soient posées. */
-function kssCle(q){ return JSON.stringify([q.u, q.l.map(function(x){ return x.slice(2); }), q.s]); }
-function kssBuildQuestions(){ return distinctes(dmNbQuestions(KSS_NB), kssGen, kssCle); }
-function kssCases(q){ const c=[]; for(let i=0;i<kssN(q);i++) c.push('kss-s-'+i, 'kss-l-'+i); return c; }
+function kssCle(q){ return q.t==='vf' ? JSON.stringify(['vf', q.c, q.u, q.v]) : JSON.stringify([q.u, q.l.map(function(x){ return x.slice(2); }), q.s]); }
+/* les six situations du vrai ou faux d'abord, dans un ordre tiré, puis les pages du sens et de la longueur */
+function kssBuildQuestions(){
+  const n=dmNbQuestions(KSS_NVF+KSS_NB), ordre=ensShuffle([0,1,2,3,4,5]), nvf=Math.min(n,KSS_NVF);
+  return distinctes(n, function(_,i){ return i<nvf ? kssVfGen(ordre[i]) : kssGen(); }, kssCle);
+}
+function kssCases(q){ if(q.t==='vf') return kssVfCases(q); const c=[]; for(let i=0;i<kssN(q);i++) c.push('kss-s-'+i, 'kss-l-'+i); return c; }
 function kssSvg(q){
   let d=svcFleche(q.o, [q.o[0]+q.u[0], q.o[1]+q.u[1]], {cls:'vcr-u', marker:'kssArrU', nom:'u', geo:KSS_GEO});
   q.l.forEach(function(x,i){ const v=kssVec(q,i);
@@ -65791,6 +65810,13 @@ function renderKss(){
   const q=test.questions[test.idx]; test.locked=false;
   $('kssIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('kssModeTag').innerHTML=modeTagHTML();
+  if(q.t==='vf') renderKssVf(q); else renderKssKu(q);
+  kssCases(q).forEach(function(id){ const el=$(id); if(!el) return;
+    el.addEventListener('change', function(){ recoveryDirty=true; clearTimeout(test.kssSave); test.kssSave=setTimeout(autoSave,1000); }); });
+  $('kssFeedback').textContent=''; $('kssFeedback').className='mp-feedback';
+  $('kssActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="kssValidate" type="button" onclick="checkKss()">Vérifier</button>';
+}
+function renderKssKu(q){
   const U=tvxVecHTML('u'), noms=function(a,b){ return KSS_L.slice(a,b).split('').map(tvxVecHTML).join(', '); };
   $('kssInstr').innerHTML='Les vecteurs '+noms(0,q.l.length)+' sont colinéaires au vecteur '+U+' : chacun est égal à <i>k</i>'+U+' pour un réel <i>k</i>. '
     +'Pour chacun, dis s’il a le <b>même sens</b> que '+U+' ou le <b>sens contraire</b>, et s’il est <b>plus long</b>, <b>plus court</b> ou <b>aussi long</b> que '+U+'.'
@@ -65801,10 +65827,6 @@ function renderKss(){
   h+='<div class="kss-titre">Sans dessin</div>';
   for(let i=q.l.length;i<kssN(q);i++) h+=kssLigneHTML(q,i);
   $('kssHost').innerHTML=h+'</div>';
-  kssCases(q).forEach(function(id){ const el=$(id); if(!el) return;
-    el.addEventListener('change', function(){ recoveryDirty=true; clearTimeout(test.kssSave); test.kssSave=setTimeout(autoSave,1000); }); });
-  $('kssFeedback').textContent=''; $('kssFeedback').className='mp-feedback';
-  $('kssActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="kssValidate" type="button" onclick="checkKss()">Vérifier</button>';
 }
 function kssJuge(q){
   const subs=[];
@@ -65839,7 +65861,8 @@ function kssNote(q,i){
 }
 function checkKss(){
   if(test.locked) return;
-  const q=test.questions[test.idx], subs=kssJuge(q);
+  const q=test.questions[test.idx]; if(q.t==='vf'){ checkKssVf(q); return; }
+  const subs=kssJuge(q);
   const n=subs.filter(function(s){ return s.ok; }).length, tout=n===subs.length;
   const pourquoi=kssPourquoi(q,subs);
   subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); });
@@ -65855,6 +65878,9 @@ function checkKss(){
     answer:[...Array(kssN(q)).keys()].map(function(i){ const a=kssAtt(kssCo(q,i)); return KSS_L[i]+' : '+lib('s',a.s)+' u, '+lib('l',a.l)+' u'; }).join(' ; '),
     given:[...Array(kssN(q)).keys()].map(function(i){ const s=$('kss-s-'+i), l=$('kss-l-'+i);
       return KSS_L[i]+' : '+lib('s',s&&s.value)+' u, '+lib('l',l&&l.value)+' u'; }).join(' ; ')});
+  kssSuite();
+}
+function kssSuite(){
   const last=test.idx===test.questions.length-1;
   $('kssActions').innerHTML='<button class="btn btn-primary" id="kssNext" type="button" onclick="nextKss()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('kssNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
@@ -65873,6 +65899,7 @@ function startKss(){
   show('kss'); renderKss();
 }
 function ctxKss(q){
+  if(q.t==='vf') return ctxKssVf(q);
   const lib=function(t,v){ const o=(t==='s'?KSS_SENS:KSS_LONG).find(function(x){ return x[0]===v; }); return o?o[1]+' u':'pas encore répondu'; };
   const ids=[...Array(kssN(q)).keys()];
   const ctx='Exercice de GÉOMÉTRIE sur quadrillage (tu ne vois pas le dessin ; description exacte). Le vecteur u fait '+vecMots(q.u[0],q.u[1])+'. '
@@ -65883,6 +65910,158 @@ function ctxKss(q){
    +'Réponse actuelle de l’élève : '+ids.map(function(i){ const s=$('kss-s-'+i), l=$('kss-l-'+i); return KSS_L[i]+' : '+lib('s',s&&s.value)+', '+lib('l',l&&l.value); }).join(' ; ')+'. '
    +'Méthode enseignée : si v = k u, le SIGNE de k donne le sens (positif : même sens ; négatif : sens contraire) et la valeur de k SANS son signe donne la longueur (plus grande que 1 : plus long ; plus petite que 1 : plus court ; égale à 1 : aussi long). Un réel négatif ne raccourcit pas le vecteur : −3u est trois fois plus long que u. Sur le dessin, on compare les carreaux des deux flèches. Ne parle jamais de coordonnées. '
    +'CONTRAINTE ANTI-RECOPIE : ne donne ni le sens ni la longueur d’un vecteur ; fais regarder le signe et la taille du réel.';
+  return {nombre:'', contexte:ctx};
+}
+
+/* ===== 8.3.5, PREMIÈRE PARTIE : LA DÉFINITION, PUIS VRAI OU FAUX ==========
+   (demande de Turquet, octobre 2026 : « donner la définition de deux vecteurs
+   colinéaires, puis donner deux vecteurs à l'écran et demander de compléter
+   par vrai ou faux : ces deux vecteurs ont la même direction ; ces vecteurs
+   ont le même sens, quand on a donné deux vecteurs de même direction ; ces
+   vecteurs ont la même longueur ; ces vecteurs sont colinéaires — on évaluera
+   toutes les situations possibles »). La séance ouvre sur SIX pages, une par
+   situation (KSS_SIT), dans un ordre tiré ; les pages du sens et de la
+   longueur de k u⃗ suivent.
+
+   LE SENS NE SE DEMANDE QU'À DEUX VECTEURS DE MÊME DIRECTION — mais une ligne
+   « même sens » posée d'office sur ces pages-là, et absente des autres,
+   donnerait la réponse aux deux affirmations de direction. Elle s'ouvre donc
+   quand l'élève répond « Vrai » à la première (une règle :has, aucune
+   variable : la reprise d'une pause la rouvre d'elle-même). À la
+   vérification, la page tranche : de même direction, la ligne s'ouvre et se
+   juge (vide, la correction l'écrit) ; de directions différentes, elle se
+   ferme et ne compte pas. Quatre réponses par page de même direction, trois
+   sinon.
+
+   ON RANGE LA FIGURE, JAMAIS LA RÉPONSE : q.c (la situation), q.u et q.v
+   (les chemins), q.o et q.p (les origines). kssVfAtt() relit tout sur les
+   chemins. */
+const KSS_NVF=6, KSS_VW=18, KSS_VH=9;
+const KSS_VGEO={c:KSS_C, px:KSS_PX, py:KSS_PY, h:KSS_VH};
+const KSS_VF=[['v','Vrai'],['f','Faux']];
+/* les six situations : même direction ?, même sens ?, même longueur ? */
+const KSS_SIT=[[1,1,1],[1,1,0],[1,0,1],[1,0,0],[0,0,1],[0,0,0]];
+/* les réels des vecteurs de même direction et d'autre longueur */
+const KSS_VK=[[2,1],[3,1],[1,2],[3,2],[2,3],[1,3]];
+/* les affirmations, dans l'ordre de la page : la clé, l'id, le texte */
+const KSS_AFF=[['d','kss-vd','Ces deux vecteurs ont la même direction.'],['s','kss-vs','Ces vecteurs ont le même sens.'],
+  ['l','kss-vl','Ces vecteurs ont la même longueur.'],['c','kss-vc','Ces vecteurs sont colinéaires.']];
+function kssVfAtt(q){
+  const u=q.u, v=q.v, col=u[0]*v[1]-u[1]*v[0]===0;
+  return {d:col?'v':'f', s:(u[0]*v[0]+u[1]*v[1]>0)?'v':'f', l:(u[0]*u[0]+u[1]*u[1]===v[0]*v[0]+v[1]*v[1])?'v':'f', c:col?'v':'f', col:col};
+}
+/* le réel k tel que v = k u, quand ils sont colinéaires */
+function kssVfK(q){
+  const u=q.u, v=q.v, i=u[0]?0:1, g=gcd(Math.abs(v[i]),Math.abs(u[i]));
+  return [v[i]/g*(u[i]<0?-1:1), Math.abs(u[i])/g];
+}
+function kssVfGen(c){
+  const s=KSS_SIT[c], tient=function(w){ return Math.abs(w[0])<=KSS_VW-4 && Math.abs(w[1])<=KSS_VH-2 && Math.hypot(w[0],w[1])>=1.9; };
+  for(let essai=0;essai<4000;essai++){
+    let u, v;
+    if(s[0]){
+      const k=s[2]?[1,1]:pick(KSS_VK), d=pick(KV_DIRS), m=k[1]*pick([1,2,3]), sg=rand(0,1)?1:-1;
+      u=[d[0]*m*sg, d[1]*m*sg];
+      const kk=s[1]?k[0]:-k[0];
+      v=[u[0]*kk/k[1], u[1]*kk/k[1]];
+    } else if(s[2]){
+      /* même longueur, autre direction : v est u tourné d'un quart de tour ou retourné en miroir */
+      const a=rand(0,4), b=rand(0,4); if(a===b&&!a) continue;
+      u=[a*(rand(0,1)?1:-1), b*(rand(0,1)?1:-1)];
+      const cs=[[u[1],u[0]],[-u[1],u[0]],[u[1],-u[0]],[-u[0],u[1]],[u[0],-u[1]]]
+        .filter(function(w){ return w[0]*u[1]-w[1]*u[0]!==0; });
+      if(!cs.length) continue;
+      v=pick(cs);
+    } else {
+      u=[rand(-6,6), rand(-4,4)]; v=[rand(-6,6), rand(-4,4)];
+      const cr=u[0]*v[1]-u[1]*v[0], lu=Math.hypot(u[0],u[1]), lv=Math.hypot(v[0],v[1]);
+      if(!cr || Math.max(lu,lv)/Math.min(lu,lv)<1.35) continue;
+      /* le piège, une fois sur deux : deux flèches PRESQUE parallèles */
+      if(rand(0,1) && Math.abs(cr)/(lu*lv)>0.3) continue;
+    }
+    if(!tient(u)||!tient(v)) continue;
+    if(rand(0,1)){ const t=u; u=v; v=t; }
+    const pos=kvPoser([u,v], KSS_VW, KSS_VH, 2)||kvPoser([u,v], KSS_VW, KSS_VH, 1);
+    if(!pos) continue;
+    return {t:'vf', c:c, u:u, v:v, o:pos[0], p:pos[1]};
+  }
+  /* repli — jamais atteint en pratique */
+  return [{t:'vf',c:0,u:[3,1],v:[3,1],o:[2,2],p:[10,5]},{t:'vf',c:1,u:[2,1],v:[4,2],o:[2,2],p:[9,3]},{t:'vf',c:2,u:[3,-1],v:[-3,1],o:[2,6],p:[14,3]},
+    {t:'vf',c:3,u:[2,2],v:[-4,-4],o:[2,2],p:[15,6]},{t:'vf',c:4,u:[3,1],v:[1,3],o:[2,2],p:[10,3]},{t:'vf',c:5,u:[4,2],v:[3,2],o:[2,2],p:[10,4]}][c];
+}
+function kssVfCases(q){ return ['kss-vd'].concat(kssVfAtt(q).col?['kss-vs']:[]).concat(['kss-vl','kss-vc']); }
+function kssVfSvg(q){
+  const d=svcFleche(q.o, [q.o[0]+q.u[0], q.o[1]+q.u[1]], {cls:'vcr-u', marker:'kssArrU', nom:'u', geo:KSS_VGEO})
+    +svcFleche(q.p, [q.p[0]+q.v[0], q.p[1]+q.v[1]], {cls:'svc-u', marker:'kssArr', nom:'v', geo:KSS_VGEO});
+  const pu='<marker id="kssArrU" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--crd-a)"/></marker>';
+  return '<svg viewBox="0 0 '+(2*KSS_PX+KSS_VW*KSS_C)+' '+(2*KSS_PY+KSS_VH*KSS_C)+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg vcr-svg kss-svg kss-vsvg" role="img" aria-label="Quadrillage : le vecteur u, en violet, et le vecteur v">'
+    +'<defs>'+kvPointe('kssArr')+pu+'</defs>'+kvGrille(KSS_VGEO,KSS_VW)+d+'</svg>';
+}
+function renderKssVf(q){
+  const U='<span class="kss-u">'+tvxVecHTML('u')+'</span>', V=tvxVecHTML('v');
+  $('kssInstr').innerHTML='<span class="kss-defn"><b>Définition</b> — deux vecteurs '+U+' et '+V+' sont <b>colinéaires</b> lorsqu’il existe un réel <i>k</i> tel que '+V+' = <i>k</i>'+U+'. '
+    +'Pour deux vecteurs non nuls, cela veut dire qu’ils ont la <b>même direction</b> : leurs flèches sont parallèles, qu’elles aillent dans le même sens ou en sens contraires, qu’elles aient la même longueur ou non.</span>'
+    +'Voici deux vecteurs '+U+' et '+V+'. Pour chaque affirmation, choisis <b>Vrai</b> ou <b>Faux</b>.'
+    +'<span class="kv-sous">Si tu réponds « Vrai » à la première, une affirmation sur le sens s’ajoute.</span>';
+  let h='<div class="kv-figs"><div class="kv-fig kv-fig-l">'+kssVfSvg(q)+'</div></div><div class="kv-lignes kss-vf">';
+  KSS_AFF.forEach(function(a){
+    h+='<div class="kv-l kss-l kss-vfl'+(a[0]==='s'?' kss-vsl':'')+'" id="'+a[1]+'-r"><span class="kss-t kss-aff">'+a[2]+'</span>'
+      +itvSelHTML(a[1], KSS_VF, a[2], 'kss-sel kss-vsel')+'</div>';
+  });
+  $('kssHost').innerHTML=h+'<div class="kss-pq kss-vpq" id="kss-vpq"></div></div>';
+}
+function kssVfJuge(q){
+  const a=kssVfAtt(q);
+  return KSS_AFF.filter(function(x){ return x[0]!=='s'||a.col; }).map(function(x){
+    const el=$(x[1]), v=el?String(el.value||''):'';
+    return {id:x[1], el:el, t:x[0], bon:a[x[0]], brut:v, ok:v===a[x[0]], vide:v===''};
+  });
+}
+/* « 3 carreaux vers la droite puis 1 carreau vers le haut » ; la longueur, par Pythagore */
+function kssVfLong(w){ const c=w[0]*w[0]+w[1]*w[1], r=Math.round(Math.sqrt(c)); return r*r===c ? String(r) : '√'+c; }
+/* Le pourquoi, dit sur la PREMIÈRE réponse fausse. */
+function kssVfPourquoi(q,subs){
+  const f=subs.find(function(s){ return !s.ok&&!s.vide; }); if(!f) return '';
+  const a=kssVfAtt(q), k=a.col?kssVfK(q):null;
+  const chem='u fait '+vecMots(q.u[0],q.u[1])+', v fait '+vecMots(q.v[0],q.v[1])+'. ';
+  if(f.t==='d'||f.t==='c'){
+    const def=f.t==='c' ? 'Par la définition, deux vecteurs non nuls sont colinéaires exactement quand ils ont la même direction. ' : '';
+    return def+chem+(a.col ? 'Chaque nombre de carreaux de u est multiplié par le même réel : v = '+kssProd(k,'u')+'. Leurs flèches sont parallèles : ils ont la même direction, donc ils sont colinéaires.'
+                           : 'On ne passe pas de l’un à l’autre en multipliant les deux nombres de carreaux par un même réel : leurs flèches ne sont pas parallèles, même si elles en ont l’air. Ils n’ont pas la même direction, donc ils ne sont pas colinéaires.');
+  }
+  if(f.t==='s') return chem+'v = '+kssProd(k,'u')+' : le réel est '+(k[0]>0?'POSITIF, les deux flèches vont du même côté — même sens.':'NÉGATIF, la flèche de v va du côté opposé — sens contraire.');
+  if(a.col) return chem+'v = '+kssProd(k,'u')+' : sans son signe, le réel vaut '+kssAbs(k)+(a.l==='v'?', donc u et v ont la même longueur — le signe ne change que le sens.':', pas 1 : v est '+(Math.abs(k[0])>k[1]?'plus long':'plus court')+' que u.');
+  return chem+'Par Pythagore, u mesure '+kssVfLong(q.u)+' carreaux et v '+kssVfLong(q.v)+(a.l==='v'?' : la même longueur, même si les directions sont différentes.':' : les longueurs sont différentes.');
+}
+function checkKssVf(q){
+  const subs=kssVfJuge(q), a=kssVfAtt(q);
+  const n=subs.filter(function(s){ return s.ok; }).length, tout=n===subs.length;
+  const pourquoi=kssVfPourquoi(q,subs);
+  subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); });
+  if(!tout&&isSoutien()){ soutienAgain('kssFeedback','kssActions','checkKss','kssHost'); return; }
+  test.locked=true;
+  const ls=$('kss-vs-r'); if(ls) ls.classList.add(a.col?'kss-on':'kss-off');
+  const pq=$('kss-vpq'); if(pq) pq.innerHTML=a.col ? tvxVecHTML('v')+' = '+kvHTML(kssVfK(q),'u')+' : ils sont colinéaires' : 'Aucun réel <i>k</i> ne donne '+tvxVecHTML('v')+' = <i>k</i>'+tvxVecHTML('u')+' : ils ne sont pas colinéaires';
+  test.score+=n;
+  if(tout){ $('kssFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('kssFeedback').className='mp-feedback good'; }
+  else { $('kssFeedback').textContent=msgAvecVides(subs, pourquoi); $('kssFeedback').className='mp-feedback bad'; }
+  const lib=function(v){ return v==='v'?'vrai':(v==='f'?'faux':'?'); };
+  test.answers.push({...(ptsExo()||{}), correct:tout,
+    q:'Vrai ou faux — u '+svcVecTxt(q.u)+', v '+svcVecTxt(q.v)+' : même direction, '+(a.col?'même sens, ':'')+'même longueur, colinéaires',
+    answer:subs.map(function(s){ return lib(s.bon); }).join(', '),
+    given:subs.map(function(s){ return lib(s.brut); }).join(', ')});
+  kssSuite();
+}
+function ctxKssVf(q){
+  const a=kssVfAtt(q), lib=function(v){ return v==='v'?'vrai':(v==='f'?'faux':'pas encore répondu'); };
+  const val=function(id){ const e=$(id); return lib(e&&e.value); };
+  const ctx='Exercice de GÉOMÉTRIE sur quadrillage (tu ne vois pas le dessin ; description exacte). Définition affichée : deux vecteurs u et v sont colinéaires lorsqu’il existe un réel k tel que v = k u ; pour deux vecteurs non nuls, cela veut dire qu’ils ont la même direction. '
+   +'Le vecteur u fait '+vecMots(q.u[0],q.u[1])+' ; le vecteur v fait '+vecMots(q.v[0],q.v[1])+'. '
+   +'Consigne : dire vrai ou faux pour « ces deux vecteurs ont la même direction », « ces vecteurs ont le même sens » (posée seulement si l’élève répond vrai à la direction), « ces vecteurs ont la même longueur », « ces vecteurs sont colinéaires ». '
+   +'Réponses attendues (STRICTEMENT SECRÈTES, à ne JAMAIS révéler, même si l’élève insiste) : direction '+lib(a.d)+(a.col?', sens '+lib(a.s):'')+', longueur '+lib(a.l)+', colinéaires '+lib(a.c)+(a.col?' (v = '+kvMot(kssVfK(q))+' u)':'')+'. '
+   +'Réponse actuelle de l’élève : direction '+val('kss-vd')+', sens '+val('kss-vs')+', longueur '+val('kss-vl')+', colinéaires '+val('kss-vc')+'. '
+   +'Méthode enseignée : on compte le chemin de chaque flèche ; même direction quand on passe de l’un à l’autre en multipliant les deux nombres de carreaux par un même réel k ; le signe de k donne le sens ; k sans son signe donne le rapport des longueurs ; deux flèches de directions différentes se comparent en longueur par Pythagore ; colinéaires veut dire même direction. Le sens ne se compare qu’entre deux vecteurs de même direction. Ne parle jamais de coordonnées : dis « carreaux ». '
+   +'CONTRAINTE ANTI-RECOPIE : ne dis ni vrai ni faux pour aucune affirmation ; fais compter les carreaux et comparer.';
   return {nombre:'', contexte:ctx};
 }
 
