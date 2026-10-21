@@ -4167,6 +4167,23 @@ dans cet ordre, la fraction empilée de la consigne au 8.3.3, et la
 fraction lue et écrite (`kvLatex`, `kvLit`). Vu dans Chromium : la fraction
 tapée « −3/2 » s'empile, se juge, survit à la pause empilée.
 
+### Le 8.3.1 : la flèche a/b u⃗ se DÉCOUPE en |a| morceaux (v581)
+
+Demande de Turquet, octobre 2026 (écrite « 8.3.2 » — le seul exercice du
+sous-thème où l'on DESSINE est le 8.3.1) : « quand on doit dessiner une
+fraction d'un vecteur, par exemple a/b de u, découper le vecteur en question
+en a morceaux à l'écran à l'aide de petits traits ». Chaque morceau vaut
+1/b u⃗ — la flèche tracée en premier dans l'échelle — : −5/2 u⃗, ce sont cinq
+−½u⃗ bout à bout, et l'élève le voit. `tvxGrad` pose |a| − 1 petits traits en
+travers (14 px, classe `kv-grad`, la couleur de la flèche par son `-f`) sur
+la flèche de l'élève, sur la correction verte, et sur la flèche qui suit la
+souris pendant le tracé (`tvxVif`) — les traits se déplacent avec elle, et
+chaque morceau se compare à la flèche 1/b u⃗ déjà posée. Rien pour un entier
+ni pour ±1/b : un seul morceau. Le rappel ⑤ le dit. Contrôles (banc
+principal, figure fixe) : la flèche −5/6 u⃗ de l'élève porte quatre traits,
+ni 2u⃗ ni ½u⃗ n'en portent, et la correction verte −5/6 u⃗ en porte quatre
+verts. Vu à l'œil dans Chromium (tracé en cours et après vérification).
+
 ## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 
 **La demande** (Turquet, octobre 2026) : sur quinze idées proposées pour
@@ -4207,6 +4224,22 @@ point, sur la droite à la mauvaise distance, hors de la droite. Les lettres
 A et B se posent dans le prolongement de la flèche : à la place de celles du
 8.1.12, la lettre de B tombait sur la pointe.
 
+**Puis chaque point a eu son point de départ** (v581, demande de Turquet,
+octobre 2026 : « pour chaque point M, N et P un point de départ différent C, D
+et E ; les formules à trouver sont de la forme CM⃗ = kAB⃗ »). Trois points
+C, D, E sont dessinés en plus de A et B, chacun tiré HORS de la droite (AB) :
+M part de C, N de D, P de E, et le vecteur de référence reste AB⃗ (ou BA⃗
+après la première page). M n'est donc plus sur (AB), mais sur la parallèle à
+(AB) passant par C — le rappel, le pourquoi et le contexte du modèle le
+disent ainsi. Une égalité se range `[référence, numérateur, dénominateur]`,
+les départs dans `q.o` ; les jeux de lettres portent cinq lettres (A B C D E,
+E F G H K, R S T U V, C D E F G). Le piège « parti de l'autre point » cherche
+désormais parmi A, B et les deux autres départs. Un brouillon d'avant (sans
+`q.o`) se tire à neuf au chargement plutôt que de planter. Le banc fixe la
+figure A(3 ; 3), B(9 ; 3), C(2 ; 6), D(10 ; 8), E(5 ; 1) et éprouve la copie
+juste, la mauvaise distance sur la parallèle, le départ pris en B, le mauvais
+côté et le point hors de la parallèle.
+
 **8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
 trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
 du côté opposé à B…), cinq par page ; six cartes AM⃗ = kAB⃗ lettrées a à f,
@@ -4214,7 +4247,7 @@ dont une de trop, prise de préférence comme l'OPPOSÉE d'un réel juste. Le
 pourquoi traduit la phrase et la carte choisie en « côté de A, puis
 longueur », côte à côte.
 
-Puis les **dessins** (demande de Turquet, octobre 2026, v581) : chaque
+Puis les **dessins** (demande de Turquet, octobre 2026, v582) : chaque
 égalité a le sien — A, B et M sur une droite horizontale, graduée au pas de
 AB/d (d, dénominateur du réel), M en violet et nommé dessous. L'élève
 associe chaque phrase à un dessin (I à VI), puis à une égalité : deux listes
@@ -4252,3 +4285,92 @@ la copie vide (rien de rouge, tout en vert) ; les pièges nommés ; au 8.3.8,
 la rédaction du manuel ET une rédaction dans l'autre ordre avec les formes
 opposées, chacune à 13 sur 13. Éprouvé par deux sabotages (un juge de
 longueur faussé, une forme juste du 8.3.8 retirée), chacun attrapé.
+
+## {demontrer-colineaires} — démontrer un parallélisme, étape par étape (8.3.9, v581)
+
+**La demande** (Turquet, octobre 2026) : « en seconde créer un exercice dans
+vecteurs colinéaires comme le 8.2.13 mais avec en plus des multiplications de
+vecteurs. La conclusion peut être donc les vecteurs sont colinéaires et donc
+les droites sont parallèles. » Ajouté en dernier du sous-thème 8.3 : 8.3.9,
+rien ne se renumérote. Les détails ci-dessous ont été décidés sans
+aller-retour ; ils sont nommés pour pouvoir être repris.
+
+**Ce qui le distingue du 8.3.8** ({milieux-parallele-vecteurs}), qui démontre
+déjà IJ⃗ = kBC⃗ : la rédaction du 8.3.8 a ses étiquettes ÉCRITES au bout des
+lignes ; celle-ci, comme au 8.2.13, fait CHOISIR la justification de chaque
+ligne, et accepte toute rédaction juste qui suit le plan. Et elle a trois
+plans, dont deux que le 8.3.8 n'a pas.
+
+**Le moteur est celui du 8.2.13** (`dch`), recopié et non partagé : ses
+lignes y sont des listes de vecteurs, elles sont ici des TERMES — un vecteur
+seul, un réel et un vecteur (2BA⃗), un réel en facteur de deux vecteurs
+(2(BA⃗ + AC⃗)). Chaque étape du plan dit sa justification et la FORME de sa
+ligne (`'v'`, `'c'`, `'f'`), d'où les cases : la forme guide l'élève autant
+qu'elle borne l'énumération.
+
+**Trois plans** (`DCO_DEMOS`), sur le triangle ABC et les points D, E :
+* **0** — AD⃗ = kAB⃗, AE⃗ = kAC⃗, k > 0 : DE⃗ = DA⃗ + AE⃗ = kBA⃗ + kAC⃗ =
+  k(BA⃗ + AC⃗) = kBC⃗. La première page est l'exemple (k = 2, lettres ABCDE),
+  la deuxième celle des MILIEUX (k = ½, l'énoncé dit « milieu du segment »,
+  et DB⃗ = ½AB⃗ s'ajoute aux égalités) ;
+* **1** — les mêmes avec k < 0 (la troisième page) : DA⃗ = |k|AB⃗ et
+  AE⃗ = |k|CA⃗ ne s'enchaînent pas, il faut changer l'ordre avant de mettre
+  en facteur : DE⃗ = |k|CB⃗ ;
+* **2** — BD⃗ = kAB⃗, CE⃗ = kAC⃗ (la quatrième page) : DE⃗ = DB⃗ + BC⃗ + CE⃗
+  (Chasles par DEUX points) = kBA⃗ + BC⃗ + kAC⃗ = BC⃗ + kBA⃗ + kAC⃗ =
+  BC⃗ + k(BA⃗ + AC⃗) = BC⃗ + kBC⃗ = (1 + k)BC⃗ — « on additionne les réels
+  devant un même vecteur ». C'est la ligne qui demande le plus : 30 cases.
+Jamais k = −1 (DE⃗ = CB⃗ rendrait « de même longueur » vrai aussi), jamais
+k = 1 au plan 2 (1BA⃗ + 1AC⃗ n'a pas de réel à mettre en facteur).
+
+**Cinq justifications** (`DCO_JUST`) : relation de Chasles ; on utilise les
+égalités de l'énoncé ; on change l'ordre de la somme ; on met le réel en
+facteur ; on additionne les réels devant un même vecteur. Sans flèches dans
+la liste, pour la même raison qu'au 8.2.13 (U+20D7 n'a pas de dessin dans la
+police des `<option>`).
+
+**Toute écriture juste qui suit le plan est acceptée** (`dcoChaines`, mémo
+par plan et par réel, sur les lettres du plan) : Chasles passe par n'importe
+quel point, par deux points d'un coup, ou réunit deux vecteurs qui
+s'enchaînent, même entre parenthèses ; l'énoncé se lit dans les deux sens
+(AD⃗ = 2AB⃗ donne DA⃗ = 2BA⃗) ; la dernière ligne, seule, s'écrit aussi
+−kCB⃗. **Dans une somme, les réels sont positifs** — −2AB⃗ s'écrit 2BA⃗ — et
+la consigne le dit : un « + −2AB⃗ » se lirait mal, et c'est exactement le
+geste que le plan 1 fait travailler. Une case est juste s'il existe une
+rédaction complète qui la porte avec les cases justes avant elle ; une
+étape vraie qui ne mène nulle part (DE⃗ = DB⃗ + BE⃗ au plan 0) est fausse, et
+le message le dit.
+
+**Le réel est une case MathLive** (`pmMF('dco-co', …)`), comme aux 8.3.2 à
+8.3.4 : la touche / empile la fraction ; la lecture passe par `kvLit`, la
+correction d'une case vide par `kvLatex`, le badge d'une case fausse par
+`kvHTML`. Le vecteur est la case fléchée du 8.1.11 (`.veg-in`), son badge
+sort de la colonne flèche + case comme au 8.3.8. La conclusion reprend les
+deux listes du 8.3.8 (`KMI_CONCL1`, `KMI_CONCL2`) : colinéaires, puis
+parallèles.
+
+**Les pièges nommés** (`dcoPourquoi`, sur la première case fausse) : le sens
+oublié (DA⃗ = 2AB⃗ : « DA va dans le sens contraire de AD ») ; la ligne qui ne
+vaut plus la précédente (lue en coordonnées libres, jamais montrées,
+`dcoValeur`) ; l'étape juste sans issue ; l'égalité juste qui n'est pas
+l'étape demandée ; la mauvaise justification ; un réel ou un vecteur
+illisible ; la conclusion « égaux » ou « sécantes ».
+
+**On range le plan, le réel, les lettres et la tournure** (`t`, `k`, `n`,
+`v`, et `mil`), jamais les réponses. `distinctes()` sur (plan, réel,
+milieux) : une séance ne pose jamais deux fois la même démonstration.
+
+**Le banc** (`demontrerColineaires`, banc principal) a un juge qui ne lit
+PAS les plans : il place A, B, C au hasard, construit D et E d'après
+l'énoncé, et vérifie en nombres, sur 200 séances, que chaque ligne de chaque
+rédaction acceptée vaut DE⃗, que la dernière est un réel fois BC⃗, qu'aucune
+somme n'écrit de réel négatif, que k n'est jamais ±1 et que les trois plans
+sortent. Puis, par le bouton : l'énoncé, la case MathLive, la copie juste
+(17 cases), une autre écriture juste (minuscules, « (2)/(1) », −2CB⃗), sept
+pièges peints en rouge et nommés, le badge, la case et la liste vides en
+correction, la copie vide sans rouge, le JSON, le soutien qui peint sans
+révéler ni verrouiller ; le plan à regrouper juste à 30 cases, et
+« BC + 2BC = 2BC » nommé ; enfin le contexte du modèle.
+Éprouvé par deux sabotages, chacun attrapé : l'énoncé lu sans changer le
+sens d'un vecteur retourné (plus aucune rédaction acceptée), et le message
+du sens oublié réécrit (le piège n'est plus nommé).
