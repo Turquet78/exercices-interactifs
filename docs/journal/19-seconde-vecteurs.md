@@ -4196,7 +4196,7 @@ le contrôle l'attrape presque à coup sûr. Éprouvé par sabotage (le
 placement d'avant rétabli au 8.3.2/8.3.3) : rouge, « 8.3.2 : le nom a sur
 le trait de e ».
 
-### Le 8.3.3 : une page d'entiers, PUIS des pages de fractions (v591)
+### Le 8.3.3 : une page d'entiers, PUIS des pages de fractions (v592 — v591 prise par le 8.3.7)
 
 Demande de Turquet, octobre 2026 : « dans la 1re question mettre que des
 multiplications avec des facteurs entiers positifs ou négatifs, puis dans
