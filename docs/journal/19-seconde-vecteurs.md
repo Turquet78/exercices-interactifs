@@ -4213,6 +4213,17 @@ principal, figure fixe) : la flèche −5/6 u⃗ de l'élève porte quatre trait
 ni 2u⃗ ni ½u⃗ n'en portent, et la correction verte −5/6 u⃗ en porte quatre
 verts. Vu à l'œil dans Chromium (tracé en cours et après vérification).
 
+**Puis u⃗ lui-même s'est découpé en b morceaux (v583 — v582 prise par le 8.3.5).** Turquet, le même
+jour : « je veux que tu découpes aussi le vecteur u en b morceaux à l'écran ».
+Le vecteur donné porte b − 1 petits traits à son encre (`svc-u-f`), posés par
+`tvxSVG` dès l'affichage : le morceau 1/b u se lit sur u⃗ avant d'être tracé,
+et se retrouve ensuite |a| fois sur la flèche a/b u⃗. b est le dénominateur
+commun des trois coefficients (`tvxCoupes`, le découpage partagé avec
+`tvxGrad`) : dans un vrai tirage, c'est celui de l'échelle ; la figure fixe
+du banc (2, ½, −5/6) découpe u⃗ en six. Rien sur u⃗ à l'échelle des entiers.
+Contrôle (banc principal) : cinq traits sur u⃗ dans la figure fixe. Vu à
+l'œil dans Chromium (u⃗ en trois, −5/3 u⃗ en cinq).
+
 ## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 
 **La demande** (Turquet, octobre 2026) : sur quinze idées proposées pour
@@ -4287,6 +4298,22 @@ du côté opposé à B…), cinq par page ; six cartes AM⃗ = kAB⃗ lettrées 
 dont une de trop, prise de préférence comme l'OPPOSÉE d'un réel juste. Le
 pourquoi traduit la phrase et la carte choisie en « côté de A, puis
 longueur », côte à côte.
+
+Puis les **dessins** (demande de Turquet, octobre 2026, v584) : chaque
+égalité a le sien — A, B et M sur une droite horizontale, graduée au pas de
+AB/d (d, dénominateur du réel), M en violet et nommé dessous. L'élève
+associe chaque phrase à un dessin (I à VI), puis à une égalité : deux listes
+par phrase, deux points ; le dessin de trop est celui de l'égalité de trop,
+et l'ordre des dessins (`q.d`) se tire à part de celui des cartes. AB a la
+même longueur dans les six dessins d'une page, celle qui loge le plus
+large : à 90 px fixes, le leurre −3 sortait du cadre à la première capture
+— le banc relit désormais l'abscisse de chaque nom, sur deux cents tirages.
+Une pause d'avant les dessins n'a pas de `q.d` : `kphD()` en rend un ordre
+fixe. Le même jour, un coefficient **sans fraction** (« 3 », « − », « −2 »)
+s'est posé sur la ligne des lettres de son vecteur : `.kv-co` est en
+`vertical-align:middle` pour centrer une fraction sur son trait, et un
+entier seul descendait sous AB⃗ ; `kvHTML` lui ajoute `kv-ent`, aligné sur
+la ligne de base — ce qui vaut pour tous les 8.3.
 
 **8.3.8, démontrer un parallélisme** (`kmi`). La démonstration du manuel,
 en treize cases : IJ⃗ = IA⃗ + AJ⃗ = kBA⃗ + kAC⃗ = k(BA⃗ + AC⃗) = kBC⃗,
