@@ -14233,6 +14233,8 @@ function vecteursColineaires(w, P){
     test.questions[0]=fixeK(); test.idx=0; renderTvx();
     if(el('tvxInstr').querySelectorAll('.sf-f').length!==2 || el('tvxInstr').textContent.indexOf('représentant')<0) vus.push('8.3.1 : l\\'énoncé n\\'écrit pas ½ et −5/6 empilés : '+el('tvxInstr').textContent);
     if(document.querySelectorAll('#tvxDonnes line.svc-u').length!==1) vus.push('8.3.1 : le dessin ne montre pas u seul');
+    /* u se découpe en 6 morceaux (le dénominateur commun, 6) : cinq petits traits à l'encre de u */
+    if(document.querySelectorAll('#tvxDonnes line.kv-grad.svc-u-f').length!==5) vus.push('8.3.1 : u n\\'est pas découpé en six morceaux : '+document.querySelectorAll('#tvxDonnes line.kv-grad').length+' traits');
     if(el('tvxEtape').textContent.indexOf('Trace le vecteur 2')<0) vus.push('8.3.1 : la page ne dit pas de tracer 2u : '+el('tvxEtape').textContent);
     tracer([1,1],[13,1]); tracer([1,3],[4,3]); tracer([10,7],[5,7]);
     if(document.querySelectorAll('#tvxFl line.kv-barre').length!==2) vus.push('8.3.1 : les noms ½u et −5/6 u n\\'ont pas leur fraction empilée');

@@ -2886,7 +2886,7 @@
   .tvx-svg .tvx-el{stroke:var(--crd-a);stroke-width:2.6;stroke-linecap:round}
   .tvx-svg .tvx-el-t{fill:var(--crd-a)} .tvx-svg .tvx-el-f{stroke:var(--crd-a)}
   .tvx-svg .tvx-vif{pointer-events:none}
-  .tvx-svg .kv-grad{stroke-width:2.4;stroke-linecap:round}
+  .tvx-svg .kv-grad{stroke-width:2.4;stroke-linecap:round} .tvx-svg .svc-u-f{stroke:var(--ink)}
   .tvx-svg .tvx-croix line{stroke:var(--crd-a);stroke-width:2.4;stroke-linecap:round}
   .tvx-svg .tvx-croix.tvx-ok line{stroke:var(--blue)}
   .tvx-svg .tvx-croix.tvx-bad line{stroke:var(--red)}
@@ -12801,7 +12801,7 @@ const RAP_KVX=`<b>Construire le vecteur k<span class="vec"><i>u</i></span></b><b
 <b>② Son sens</b> : celui de <span class="vec"><i>u</i></span> si k est <b>positif</b>, le sens <b>contraire</b> si k est <b>négatif</b>.<br>
 <b>③ Sa longueur</b> : celle de <span class="vec"><i>u</i></span> multipliée par k sans son signe — 2<span class="vec"><i>u</i></span> est deux fois plus long, ½<span class="vec"><i>u</i></span> deux fois plus court.<br>
 <b>④ Sur un quadrillage</b>, on compte le chemin de <span class="vec"><i>u</i></span> (tant de carreaux vers la droite ou la gauche, puis vers le haut ou le bas) et on <b>multiplie chaque nombre par k</b>. Exemple : si <span class="vec"><i>u</i></span> fait 6 carreaux vers la droite et 3 vers le haut, ⅔<span class="vec"><i>u</i></span> fait 4 carreaux vers la droite et 2 vers le haut, et −⅓<span class="vec"><i>u</i></span> fait 2 carreaux vers la gauche et 1 vers le bas.<br>
-<b>⑤ Une fraction se construit par étapes</b> : pour ${kvHTML([-3,2],'u')}, on trace d'abord ½<span class="vec"><i>u</i></span> (la moitié du chemin), puis −½<span class="vec"><i>u</i></span> (le même chemin à l'envers), puis trois fois −½<span class="vec"><i>u</i></span> bout à bout — la flèche ${kvHTML([-3,2],'u')} se découpe à l'écran en trois morceaux, de petits traits en travers.`;
+<b>⑤ Une fraction se construit par étapes</b> : pour ${kvHTML([-3,2],'u')}, on trace d'abord ½<span class="vec"><i>u</i></span> (la moitié du chemin), puis −½<span class="vec"><i>u</i></span> (le même chemin à l'envers), puis trois fois −½<span class="vec"><i>u</i></span> bout à bout — à l'écran, <span class="vec"><i>u</i></span> se découpe en deux morceaux (chacun vaut ½<span class="vec"><i>u</i></span>) et la flèche ${kvHTML([-3,2],'u')} en trois, de petits traits en travers.`;
 
 /* 8.3.2 {identifier-multiple-vecteur} et 8.3.3 {identifier-multiple-non-entier} */
 const RAP_KVI=`<b>Reconnaître un vecteur k<span class="vec"><i>u</i></span></b><br>
@@ -64678,10 +64678,18 @@ function tvxTrace(q,k,a,b,cls,mk){
    dans l'échelle : −3/2 u, ce sont trois −½u bout à bout, et l'élève le voit.
    De petits traits en travers, aux |a| − 1 coupures, de la couleur de la
    flèche (-f) ; sur la flèche de l'élève, la correction, et la flèche qui
-   suit la souris. Rien pour un entier ni pour ±1/b : un seul morceau. */
+   suit la souris. Rien pour un entier ni pour ±1/b : un seul morceau.
+   ET u⃗ LUI-MÊME SE DÉCOUPE EN b MORCEAUX (demande de Turquet, octobre 2026 :
+   « je veux que tu découpes aussi le vecteur u en b morceaux à l'écran ») :
+   le morceau 1/b u se lit sur u⃗ avant d'être tracé (tvxSVG), à l'encre de u⃗.
+   b est le dénominateur commun des trois coefficients — celui de l'échelle. */
 function tvxGrad(q,k,a,b,c0){
-  const c=q.ks&&q.ks[k], n=c?Math.abs(c[0]):1;
-  if(!c||c[1]===1||n<2) return '';
+  const c=q.ks&&q.ks[k];
+  return c&&c[1]>1 ? tvxCoupes(Math.abs(c[0]),a,b,c0) : '';
+}
+/* n − 1 petits traits en travers d'un segment de a à b (repère du dessin) : n morceaux égaux. */
+function tvxCoupes(n,a,b,c0){
+  if(n<2) return '';
   const dx=b.x-a.x, dy=b.y-a.y, l=Math.hypot(dx,dy); if(l<6) return '';
   const px=-dy/l*7, py=dx/l*7;
   let h='';
@@ -64786,6 +64794,7 @@ function tvxSVG(q){
   (q.ks?[0]:[0,1,2]).forEach(function(k){
     const o=tvxOrig(q,k), w=tvxVec(q,k);
     donnes+=svcFleche(o, [o[0]+w[0], o[1]+w[1]], {cls:'svc-u', marker:'tvxArr0', nom:tvxDonne(q,k), depart:true, geo:TVX_GEO});
+    if(q.ks) donnes+=tvxCoupes(q.ks.reduce(function(m,c){ return m*c[1]/gcd(m,c[1]); },1), {x:tvxX(o[0]),y:tvxY(o[1])}, {x:tvxX(o[0]+w[0]),y:tvxY(o[1]+w[1])}, 'svc-u');
   });
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tvx-svg" role="img" aria-label="${q.ks?'Quadrillage : le vecteur u, et les vecteurs '+[0,1,2].map(function(k){ return tvxNom(q,k); }).join(', ')+' à tracer':'Quadrillage : les vecteurs u, v et w, et les vecteurs '+(q.op?'opposés':'égaux')+' à tracer'}">`
