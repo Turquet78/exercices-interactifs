@@ -4167,6 +4167,23 @@ dans cet ordre, la fraction empilée de la consigne au 8.3.3, et la
 fraction lue et écrite (`kvLatex`, `kvLit`). Vu dans Chromium : la fraction
 tapée « −3/2 » s'empile, se juge, survit à la pause empilée.
 
+### Le 8.3.1 : la flèche a/b u⃗ se DÉCOUPE en |a| morceaux (v581)
+
+Demande de Turquet, octobre 2026 (écrite « 8.3.2 » — le seul exercice du
+sous-thème où l'on DESSINE est le 8.3.1) : « quand on doit dessiner une
+fraction d'un vecteur, par exemple a/b de u, découper le vecteur en question
+en a morceaux à l'écran à l'aide de petits traits ». Chaque morceau vaut
+1/b u⃗ — la flèche tracée en premier dans l'échelle — : −5/2 u⃗, ce sont cinq
+−½u⃗ bout à bout, et l'élève le voit. `tvxGrad` pose |a| − 1 petits traits en
+travers (14 px, classe `kv-grad`, la couleur de la flèche par son `-f`) sur
+la flèche de l'élève, sur la correction verte, et sur la flèche qui suit la
+souris pendant le tracé (`tvxVif`) — les traits se déplacent avec elle, et
+chaque morceau se compare à la flèche 1/b u⃗ déjà posée. Rien pour un entier
+ni pour ±1/b : un seul morceau. Le rappel ⑤ le dit. Contrôles (banc
+principal, figure fixe) : la flèche −5/6 u⃗ de l'élève porte quatre traits,
+ni 2u⃗ ni ½u⃗ n'en portent, et la correction verte −5/6 u⃗ en porte quatre
+verts. Vu à l'œil dans Chromium (tracé en cours et après vérification).
+
 ## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 
 **La demande** (Turquet, octobre 2026) : sur quinze idées proposées pour
@@ -4206,6 +4223,22 @@ de BA⃗. Les pièges nommés : le mauvais côté (le signe), parti de l'autre
 point, sur la droite à la mauvaise distance, hors de la droite. Les lettres
 A et B se posent dans le prolongement de la flèche : à la place de celles du
 8.1.12, la lettre de B tombait sur la pointe.
+
+**Puis chaque point a eu son point de départ** (v581, demande de Turquet,
+octobre 2026 : « pour chaque point M, N et P un point de départ différent C, D
+et E ; les formules à trouver sont de la forme CM⃗ = kAB⃗ »). Trois points
+C, D, E sont dessinés en plus de A et B, chacun tiré HORS de la droite (AB) :
+M part de C, N de D, P de E, et le vecteur de référence reste AB⃗ (ou BA⃗
+après la première page). M n'est donc plus sur (AB), mais sur la parallèle à
+(AB) passant par C — le rappel, le pourquoi et le contexte du modèle le
+disent ainsi. Une égalité se range `[référence, numérateur, dénominateur]`,
+les départs dans `q.o` ; les jeux de lettres portent cinq lettres (A B C D E,
+E F G H K, R S T U V, C D E F G). Le piège « parti de l'autre point » cherche
+désormais parmi A, B et les deux autres départs. Un brouillon d'avant (sans
+`q.o`) se tire à neuf au chargement plutôt que de planter. Le banc fixe la
+figure A(3 ; 3), B(9 ; 3), C(2 ; 6), D(10 ; 8), E(5 ; 1) et éprouve la copie
+juste, la mauvaise distance sur la parallèle, le départ pris en B, le mauvais
+côté et le point hors de la parallèle.
 
 **8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
 trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
