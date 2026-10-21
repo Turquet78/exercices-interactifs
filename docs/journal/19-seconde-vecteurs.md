@@ -4071,3 +4071,33 @@ contrôles universels du banc navigateur (section 9) les visitent comme les
 autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
 navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
 flèche, lui, ne se mesure qu'à l'œil.
+
+**Puis le réel du 8.3.4 s'est écrit EMPILÉ** (demande de Turquet, octobre
+2026, Seconde v576 : « dans le 8.3.4, il faut une écriture fractionnaire et
+pas en ligne pour les fractions »). La case du réel était un `<input>` : l'élève
+tapait « −3/4 » en ligne, à côté d'une correction (`mf-cor`) qui, elle,
+empilait déjà. Elle est devenue une case MathLive (`pmMF('kco-in', …)`), où la
+touche / pose le trait — la consigne le dit, et montre la fraction empilée au
+lieu de « (−3/2) ». Trois endroits ont suivi, et en oublier un rendait la
+fraction en ligne ou la réponse fausse :
+
+* **la lecture** : `value` d'une case MathLive rend le texte de `toPlain`,
+  « -(3)/(4) » ; `kvLit` retire les parenthèses, et lit aussi un `\frac{3}{4}`
+  brut et le « {,} » décimal — le double du banc jsdom, qui ne convertit rien,
+  rend le LaTeX tel quel ;
+* **la correction** d'une ligne vide écrit `kvLatex(c)` (« -\frac{3}{4} »),
+  plus `kvSaisie` : du texte posé dans MathLive s'y affiche en ligne ;
+* **la reprise** d'une pause remet le texte rangé par `captureBoxes`
+  (« -(3)/(4) ») : le setter de `pmAdapter` passe désormais par
+  `pmVersLatex`, qui relève chaque « (a)/(b) » en `\frac{a}{b}`, du plus
+  profond au plus large, et laisse intact un texte qui porte déjà du LaTeX.
+  Ce setter sert toutes les cases `pm-mf` de la Seconde : une fraction tapée
+  dans n'importe laquelle revenait en ligne après une pause, et revient
+  empilée.
+
+L'Entrée ne valide plus directement : comme dans toute case `pm-mf`, elle passe
+à la case suivante, puis au bouton « Vérifier ». Le 8.3.3, dont les cases de
+coefficient sont toujours des `<input>`, n'a pas changé — la demande ne
+portait que sur le 8.3.4. Contrôles (banc principal) : la case du réel est un
+`math-field`, la lecture de « -(3)/(4) », de `\frac` et de « 1{,}5 »,
+`pmVersLatex`, et la correction écrite en `\frac`.
