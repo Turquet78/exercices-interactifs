@@ -2907,6 +2907,9 @@
   .kv-co:has(.sf-f) > .vec{margin-top:-.45em}
   .kv-co .sf-f{font-size:.8em;font-style:normal}
   .kv-co .kv-sg,.kv-co .kv-n{font-style:normal}
+  /* sans fraction, le « 3 » ou le « − » se pose sur la LIGNE des lettres du
+     vecteur (vertical-align:middle le faisait descendre sous elles) */
+  .kv-co.kv-ent{vertical-align:baseline;align-items:baseline}
   .kv-sous{display:block;font-size:.88rem;font-weight:400;margin-top:6px;color:var(--ink-soft)}
   .kv-figs{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:12px 24px;margin:0 auto 16px}
   .kv-fig{display:flex;flex-direction:column;align-items:center;gap:4px;max-width:100%;background:var(--surface);border:1.5px solid #D6E2F8;border-radius:14px;padding:8px 10px 4px}
@@ -2979,7 +2982,11 @@
   #scr-kpl .tvg-cons.tan-cours{border-color:var(--blue);background:#EAF0FF;color:var(--ink);box-shadow:inset 4px 0 0 var(--blue)}
   #scr-kpl .vgt-vec{font-size:1.1em}
   #kplGraph .sv-svg{max-width:640px}
-  .kpl-svg #kplCorr,.kpl-svg #kplEl,.kpl-svg #kplDonnes{pointer-events:none}
+  .kpl-svg #kplCorr,.kpl-svg #kplEl,.kpl-svg #kplDonnes,.kpl-svg #kplVif{pointer-events:none}
+  /* le vecteur de l'élève, de son point de départ à son point : violet tant qu'il
+     n'est pas jugé (bleu juste, rouge faux : svc-e, svc-eb), pâli quand il suit la souris */
+  .kpl-svg .kpl-fl{stroke:var(--crd-a);stroke-width:2.4;stroke-linecap:round}
+  .kpl-svg .kpl-vif{opacity:.6}
   .kph-cartes{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 14px;margin:0 auto 16px;max-width:900px}
   .kph-carte{display:inline-flex;align-items:center;gap:12px;border:1.5px solid #D6E2F8;border-radius:14px;padding:8px 16px;background:var(--surface);font-family:"Fredoka";font-weight:500;font-size:1.3rem;color:var(--ink)}
   .kph-lt{font-weight:700;color:var(--blue-dark)}
@@ -2989,6 +2996,16 @@
   .kph-l .kph-num{font-weight:700}
   .kph-l .itv-sel.kph-sel{width:64px}
   .kph-pq .vgt-vec{color:inherit}
+  .kph-l .kph-et{font-size:.92rem;color:var(--ink-soft);font-weight:600}
+  .kph-l .itv-sel.kph-seld{width:78px}
+  .kph-figs .kv-fig{flex:0 1 330px}
+  .kph-svg{max-width:320px}
+  .kph-svg .kph-dr{stroke:var(--ink-soft);stroke-width:1.6}
+  .kph-svg .kph-gr{stroke:#AFC3E6;stroke-width:1.4}
+  .kph-svg .kph-pt line{stroke:var(--blue-dark);stroke-width:2.2;stroke-linecap:round}
+  .kph-svg .kph-pt.kph-m line{stroke:var(--crd-a)}
+  .kph-svg .kph-nom{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;fill:var(--blue-dark)}
+  .kph-svg .kph-nom.kph-m{fill:var(--crd-a)}
   .kmi-fig{flex:1 1 320px;max-width:480px;margin:0 auto}
   .kmi-lignes{flex:1 1 540px}
   .kmi-svg .kmi-ij{stroke:var(--crd-a);stroke-width:3}
@@ -8564,7 +8581,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=584;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=586;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9416,7 +9433,7 @@ const TESTS={
   'vecteurs-colineaires-figure': { name:'Colin\u00e9aires ou non\u00a0?', icon:'\u2194\ufe0f', desc:'Une figure de vecteurs AB, CD, EF\u2026\u00a0: pour chaque paire, dis s\u2019ils sont colin\u00e9aires et, si oui, \u00e9cris le r\u00e9el k tel que AB = k GH.', start:()=>startKco() },
   'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'La d\u00e9finition de deux vecteurs colin\u00e9aires, puis vrai ou faux sur deux vecteurs dessin\u00e9s\u00a0: m\u00eame direction, m\u00eame sens, m\u00eame longueur, colin\u00e9aires. Six situations, toutes les possibles.', start:()=>startKss() },
   'placer-point-colineaire': { name:'Placer un point d\u00e9fini par une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccd', desc:'Des points A, B, C, D, E sur un quadrillage, et trois \u00e9galit\u00e9s comme CM = \u2154AB ou DN = \u2212\u00bdBA\u00a0: place M, N et P d\u2019un clic.', start:()=>startKpl() },
-  'phrase-relation-colineaire': { name:'Associer une phrase et une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udd17', desc:'\u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb, \u00ab\u00a0M est sur [AB] et AM est le tiers de AB\u00a0\u00bb\u2026\u00a0: pour chaque phrase, choisis l\u2019\u00e9galit\u00e9 AM = kAB qui la traduit. Une \u00e9galit\u00e9 est de trop.', start:()=>startKph() },
+  'phrase-relation-colineaire': { name:'Associer une phrase, un dessin et une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udd17', desc:'\u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb, \u00ab\u00a0M est sur [AB] et AM est le tiers de AB\u00a0\u00bb\u2026\u00a0: pour chaque phrase, choisis le dessin sur une droite, puis l\u2019\u00e9galit\u00e9 AM = kAB qui la traduit. Un dessin et une \u00e9galit\u00e9 sont de trop.', start:()=>startKph() },
   'milieux-parallele-vecteurs': { name:'D\u00e9montrer un parall\u00e9lisme avec les vecteurs', icon:'\u2225', desc:'Dans un triangle ABC, I et J sont les milieux de [AB] et [AC], puis AI = kAB et AJ = kAC\u00a0: compl\u00e8te la d\u00e9monstration \u2014 Chasles, le r\u00e9el en facteur, Chasles \u2014 pour prouver que (IJ) et (BC) sont parall\u00e8les.', start:()=>startKmi() },
   'demontrer-colineaires': { name:'D\u00e9montrer un parall\u00e9lisme, \u00e9tape par \u00e9tape', icon:'\u270d\ufe0f', desc:'Une d\u00e9monstration \u00e0 trous avec des r\u00e9els\u00a0: Chasles, les \u00e9galit\u00e9s de l\u2019\u00e9nonc\u00e9, le r\u00e9el en facteur \u2014 et pour chaque ligne sa justification \u2014 jusqu\u2019\u00e0 DE = kBC\u00a0: les vecteurs sont colin\u00e9aires, donc les droites sont parall\u00e8les.', start:()=>startDco() },
   'chasles-inserer-point': { name:'Chasles\u00a0: ins\u00e9rer un point', icon:'\ud83d\udd00', desc:'Le sens inverse de la relation de Chasles\u00a0: d\u00e9compose un vecteur en ins\u00e9rant un point \u2014 AC = A\u2026 + \u2026C, AC = \u2026B + B\u2026, AB = A\u2026 + \u2026 + \u2026B \u2014, avec ou sans figure. Toute \u00e9galit\u00e9 juste est accept\u00e9e.', start:()=>startChi() },
@@ -65191,7 +65208,7 @@ function kvSaisie(c){ return (c[0]<0?'−':'')+Math.abs(c[0])+(c[1]>1?'/'+c[1]:'
 function kvLatex(c){ return (c[0]<0?'-':'')+(c[1]>1?'\\frac{'+Math.abs(c[0])+'}{'+c[1]+'}':Math.abs(c[0])); }
 function kvHTML(c,L){
   const n=Math.abs(c[0]), d=c[1];
-  return '<span class="kv-co">'+(c[0]<0?'<span class="kv-sg">−</span>':'')
+  return '<span class="kv-co'+(d===1?' kv-ent':'')+'">'+(c[0]<0?'<span class="kv-sg">−</span>':'')
     +(d===1?(n===1?'':'<span class="kv-n">'+n+'</span>'):sfFracInner(String(n),String(d)))
     +(L?tvxVecHTML(L):'')+'</span>';
 }
@@ -66165,15 +66182,30 @@ function kplSVG(q){
   q.o.forEach(function(p,k){ donnes+=tanCroix(p,'tan-donne')+tanEtiquette(p, n[2+k], 'tan-donne-t'); });
   const pointe=function(id,coul){ return '<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+coul+'"/></marker>'; };
   return '<svg viewBox="0 0 '+Wd+' '+Hd+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tan-svg kpl-svg" role="img" aria-label="Quadrillage : les points '+n[0]+' et '+n[1]+', le vecteur '+n[0]+n[1]+', les points de départ '+n.slice(2).join(', ')+', et les points '+KPL_PTS.join(', ')+' à placer">'
-    +'<defs>'+pointe('kplArr0','var(--ink)')+pointe('kplArrS','var(--green)')+'</defs>'
-    +kvGrille(KPL_GEO,KPL_W)+'<g id="kplDonnes">'+donnes+'</g><g id="kplCorr"></g><g id="kplEl"></g>'
+    +'<defs>'+pointe('kplArr0','var(--ink)')+pointe('kplArrS','var(--green)')+pointe('kplArrP','var(--crd-a)')+pointe('kplArrE','var(--blue)')+pointe('kplArrB','var(--red)')+'</defs>'
+    +kvGrille(KPL_GEO,KPL_W)+'<g id="kplDonnes">'+donnes+'</g><g id="kplCorr"></g><g id="kplVif"></g><g id="kplEl"></g>'
     +'<g id="kplCurseur" class="tan-curseur" aria-hidden="true" style="display:none"></g></svg>';
 }
-/* Les points de l'élève : violets avant le jugement, puis bleus (justes) ou rouges (faux). */
+/* Le vecteur de l'élève, de son point de départ au nœud r (demande de Turquet,
+   octobre 2026 : « que le vecteur soit tracé entre le point de départ et le point
+   à placer quand l'élève déplace son point, et qu'il reste une fois le point
+   placé »). Rien quand r est le point de départ lui-même. */
+function kplFlecheEleve(q,k,r,m,vif){
+  const O=kplOrig(q,k); if(!r||tanEgal(O,r)) return '';
+  const cls=m==='ok'?'svc-e':(m==='bad'?'svc-eb':'kpl-fl'), mk=m==='ok'?'kplArrE':(m==='bad'?'kplArrB':'kplArrP');
+  return svcFleche(O, r, {cls:cls+(vif?' kpl-vif':''), marker:mk, geo:KPL_GEO});
+}
+/* La flèche qui suit la souris : du point de départ du point en cours au nœud survolé. */
+function kplVif(q,k,r){
+  const el=$('kplVif'); if(!el) return;
+  el.innerHTML=(q&&k>=0&&r) ? kplFlecheEleve(q,k,r,'',true) : '';
+}
+/* Les points de l'élève et leurs vecteurs : violets avant le jugement, puis bleus (justes) ou rouges (faux). */
 function kplDessiner(q){
   const el=$('kplEl'); if(!el) return;
   const mq=test.kplMarque||[];
   let h='';
+  [0,1,2].forEach(function(k){ h+=kplFlecheEleve(q,k,q.p[k],mq[k]||'',false); });
   [0,1,2].forEach(function(k){
     const r=q.p[k]; if(!r) return;
     const m=mq[k]||'', cls=m==='ok'?'tan-x-ok':(m==='bad'?'tan-x-bad':'');
@@ -66249,7 +66281,8 @@ function kplBrancher(){
       const L=KPL_PTS[k];
       if(c.getAttribute('data-l')!==L){ c.innerHTML=tanCurseurHTML(L); c.setAttribute('data-l',L); }
       c.setAttribute('transform','translate('+v.x.toFixed(1)+' '+v.y.toFixed(1)+')'); c.style.display='';
-    } else c.style.display='none';
+      kplVif(q,k,[v.i,v.j]);
+    } else { c.style.display='none'; kplVif(q,-1,null); }
   };
   host.addEventListener('pointermove', suivre);
   host.addEventListener('pointerleave', function(){ suivre(null); });
@@ -66351,6 +66384,7 @@ function checkKpl(){
   const pourquoi=kplPourquoi(q,subs);
   kplFinal(q,subs); kplConsigne(q);
   const cu=$('kplCurseur'); if(cu) cu.style.display='none';
+  kplVif(q,-1,null);
   test.score+=n;
   if(n===3){ $('kplFeedback').textContent=pick(['Parfait !','Très bien placé !','Excellent !','Exactement !']); $('kplFeedback').className='mp-feedback good'; }
   else {
@@ -66407,10 +66441,19 @@ function ctxKpl(q){
    de trop, tirée de préférence comme l'OPPOSÉE d'une juste (½ et −½) : le
    sens se lit sur le signe, et c'est là qu'on se trompe.
 
+   Puis les DESSINS (demande de Turquet, octobre 2026) : chaque égalité a le
+   sien, les trois points sur une droite horizontale, AB à la même longueur
+   d'un dessin à l'autre, la droite graduée au pas de AB/d (d, dénominateur
+   du réel). L'élève associe la phrase au dessin (I à VI), puis à l'égalité :
+   deux listes par phrase, deux points. Le dessin de trop est celui de
+   l'égalité de trop.
+
    ON RANGE LES INDICES, JAMAIS LA RÉPONSE : q.ph (les phrases, indices dans
-   KPH_PHR), q.c (les six réels, dans l'ordre des cartes), q.l (le jeu de
-   lettres). La bonne carte d'une phrase est celle qui porte son réel. */
-const KPH_NB=3, KPH_NP=5;
+   KPH_PHR), q.c (les six réels, dans l'ordre des cartes), q.d (l'ordre des
+   dessins : des indices dans q.c), q.l (le jeu de lettres). La bonne carte
+   d'une phrase est celle qui porte son réel ; son bon dessin, celui de
+   cette carte. */
+const KPH_NB=3, KPH_NP=5, KPH_ROM=['I','II','III','IV','V','VI'];
 const KPH_NOMS=[['A','B','M'],['E','F','N'],['R','S','T'],['C','D','P']];
 const KPH_PHR=[
   {k:[1,2],  t:'{X} est le milieu du segment [{A}{B}].'},
@@ -66436,7 +66479,27 @@ function kphRelTxt(q,c){ const n=kphNoms(q); return n[0]+n[2]+' = '+(c[0]===1&&c
 function kphMeme(a,b){ return a[0]*b[1]===a[1]*b[0]; }
 /* la carte (0 à 5) qui traduit la phrase i */
 function kphBonne(q,i){ const k=KPH_PHR[q.ph[i]].k; return q.c.findIndex(function(c){ return kphMeme(c,k); }); }
-function kphCases(q){ return q.ph.map(function(_,i){ return 'kph-'+i; }); }
+/* l'ordre des dessins (indices dans q.c) ; une pause d'avant les dessins n'a pas de q.d */
+function kphD(q){ return Array.isArray(q.d)&&q.d.length===q.c.length ? q.d : q.c.map(function(_,j){ return q.c.length-1-j; }); }
+/* le dessin (0 à 5) qui représente la phrase i */
+function kphBonneD(q,i){ return kphD(q).indexOf(kphBonne(q,i)); }
+function kphCases(q){ return q.ph.reduce(function(a,_,i){ return a.concat(['kph-d-'+i,'kph-'+i]); },[]); }
+/* Le dessin de AX = kAB : A en 0, B en 1, X en k, sur une droite horizontale ;
+   AB a la même longueur U dans les six dessins d'une page (celle qui loge le
+   plus large : −3 tient de −3 à 1), le tout centré ; A et B nommés dessus, X dessous. */
+function kphDessinSVG(q,c){
+  const W=320, Y=30, large=Math.max.apply(null, q.c.map(function(e){ const t=e[0]/e[1]; return Math.max(1,t)-Math.min(0,t); }));
+  const n=kphNoms(q), k=c[0]/c[1], U=Math.min(90, (W-50)/large);
+  const lo=Math.min(0,k), hi=Math.max(1,k), x0=W/2-(lo+hi)/2*U, X=function(t){ return (x0+t*U).toFixed(1); };
+  let h='<svg class="sv-svg kph-svg" viewBox="0 0 '+W+' 66" role="img" aria-label="'+esc('points '+n.join(', ')+' sur une droite')+'">'
+    +'<line class="kph-dr" x1="6" y1="'+Y+'" x2="'+(W-6)+'" y2="'+Y+'"/>';
+  for(let j=Math.ceil(lo*c[1]-1e-9); j<=Math.floor(hi*c[1]+1e-9); j++)
+    h+='<line class="kph-gr" x1="'+X(j/c[1])+'" y1="'+(Y-5)+'" x2="'+X(j/c[1])+'" y2="'+(Y+5)+'"/>';
+  const pt=function(t,L,m){ const x=+X(t);
+    return '<g class="kph-pt'+(m?' kph-m':'')+'"><line x1="'+(x-5)+'" y1="'+(Y-5)+'" x2="'+(x+5)+'" y2="'+(Y+5)+'"/><line x1="'+(x-5)+'" y1="'+(Y+5)+'" x2="'+(x+5)+'" y2="'+(Y-5)+'"/></g>'
+      +'<text class="kph-nom'+(m?' kph-m':'')+'" x="'+x+'" y="'+(m?Y+28:Y-12)+'" text-anchor="middle">'+L+'</text>'; };
+  return h+pt(0,n[0])+pt(1,n[1])+pt(k,n[2],true)+'</svg>';
+}
 function kphGen(l){
   const ph=ensShuffle(KPH_PHR.map(function(_,i){ return i; })).slice(0,KPH_NP);
   const ks=ph.map(function(i){ return KPH_PHR[i].k; });
@@ -66444,7 +66507,7 @@ function kphGen(l){
   /* le leurre : de préférence l'opposé d'un réel juste */
   const opp=libres.filter(function(c){ return ks.some(function(k){ return kphMeme(k,[-c[0],c[1]]); }); });
   const leurre=pick(opp.length?opp:libres);
-  return {l:l, ph:ph, c:ensShuffle(ks.concat([leurre]))};
+  return {l:l, ph:ph, c:ensShuffle(ks.concat([leurre])), d:ensShuffle([0,1,2,3,4,5])};
 }
 function kphBuildQuestions(){
   return distinctes(dmNbQuestions(KPH_NB), function(_,i){ return kphGen(i%KPH_NOMS.length); },
@@ -66455,15 +66518,19 @@ function renderKph(){
   const n=kphNoms(q);
   $('kphIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('kphModeTag').innerHTML=modeTagHTML();
-  $('kphInstr').innerHTML='Les points '+n[0]+', '+n[1]+' et '+n[2]+' sont alignés. Pour chaque phrase, choisis l’égalité de vecteurs qui la traduit.'
-    +'<span class="kv-sous">Une des six égalités ne traduit aucune phrase.</span>';
+  $('kphInstr').innerHTML='Les points '+n[0]+', '+n[1]+' et '+n[2]+' sont alignés. Pour chaque phrase, choisis le dessin qui la représente, puis l’égalité de vecteurs qui la traduit.'
+    +'<span class="kv-sous">Un des six dessins et une des six égalités ne correspondent à aucune phrase.</span>';
   const opts=q.c.map(function(_,j){ return [String(j), 'abcdef'[j]]; });
-  let h='<div class="kph-cartes">';
+  const optsD=KPH_ROM.map(function(R,j){ return [String(j), R]; });
+  let h='<div class="kv-figs kph-figs">';
+  kphD(q).forEach(function(j,r){ h+='<div class="kv-fig"><span class="kv-fig-t">Dessin '+KPH_ROM[r]+'</span>'+kphDessinSVG(q,q.c[j])+'</div>'; });
+  h+='</div><div class="kph-cartes">';
   q.c.forEach(function(c,j){ h+='<div class="kph-carte"><b class="kph-lt">'+'abcdef'[j]+'</b><span class="kph-rel">'+kphRelHTML(q,c)+'</span></div>'; });
   h+='</div><div class="kv-lignes">';
   q.ph.forEach(function(_,i){
     h+='<div class="kv-l kph-l" id="kph-r-'+i+'"><span class="kph-num">'+(i+1)+'.</span><span class="kph-t">'+kphTexte(q,i)+'</span>'
-      +'<span class="kph-rep">'+itvSelHTML('kph-'+i, opts, 'l’égalité qui traduit la phrase '+(i+1), 'kph-sel')+'<span class="kph-pq" id="kph-pq-'+i+'"></span></span></div>';
+      +'<span class="kph-rep"><span class="kph-et">dessin</span>'+itvSelHTML('kph-d-'+i, optsD, 'le dessin qui représente la phrase '+(i+1), 'kph-seld')
+      +'<span class="kph-et">égalité</span>'+itvSelHTML('kph-'+i, opts, 'l’égalité qui traduit la phrase '+(i+1), 'kph-sel')+'<span class="kph-pq" id="kph-pq-'+i+'"></span></span></div>';
   });
   $('kphHost').innerHTML=h+'</div>';
   kphCases(q).forEach(function(id){ const el=$(id); if(!el) return;
@@ -66471,9 +66538,13 @@ function renderKph(){
   $('kphFeedback').textContent=''; $('kphFeedback').className='mp-feedback';
   $('kphActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="kphValidate" type="button" onclick="checkKph()">Vérifier</button>';
 }
+/* deux cases par phrase, dans l'ordre de l'écran : le dessin (dessin:true), puis l'égalité */
 function kphJuge(q){
-  return q.ph.map(function(_,i){ const el=$('kph-'+i), v=el?String(el.value||''):'', b=String(kphBonne(q,i));
-    return {id:'kph-'+i, el:el, i:i, bon:b, brut:v, ok:v===b, vide:v===''}; });
+  return q.ph.reduce(function(a,_,i){
+    [['kph-d-'+i, kphBonneD(q,i), true], ['kph-'+i, kphBonne(q,i), false]].forEach(function(x){
+      const el=$(x[0]), v=el?String(el.value||''):'', b=String(x[1]);
+      a.push({id:x[0], el:el, i:i, dessin:x[2], bon:b, brut:v, ok:v===b, vide:v===''}); });
+    return a; },[]);
 }
 /* ce que dit une égalité AX = kAB, en mots : le côté de A, puis la longueur */
 function kphDit(q,c){
@@ -66483,7 +66554,10 @@ function kphDit(q,c){
 }
 function kphPourquoi(q,subs){
   const f=subs.find(function(s){ return !s.ok&&!s.vide; }); if(!f) return '';
-  const k=KPH_PHR[q.ph[f.i]].k, c=q.c[+f.brut];
+  const k=KPH_PHR[q.ph[f.i]].k;
+  if(f.dessin){ const c=q.c[kphD(q)[+f.brut]];
+    return 'Phrase '+(f.i+1)+' : '+kphDit(q,k)+'. Le dessin '+KPH_ROM[+f.brut]+' montre autre chose : '+kphDit(q,c)+'.'; }
+  const c=q.c[+f.brut];
   return 'Phrase '+(f.i+1)+' : '+kphDit(q,k)+' — en vecteurs, '+kphRelTxt(q,k)+'. L’égalité '+'abcdef'[+f.brut]+', '+kphRelTxt(q,c)+', dit autre chose : '+kphDit(q,c)+'.';
 }
 function checkKph(){
@@ -66494,15 +66568,16 @@ function checkKph(){
   subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); });
   if(!tout&&isSoutien()){ soutienAgain('kphFeedback','kphActions','checkKph','kphHost'); return; }
   test.locked=true;
-  q.ph.forEach(function(p,i){ const e=$('kph-pq-'+i); if(e) e.innerHTML=kphRelHTML(q,KPH_PHR[p].k); });
+  q.ph.forEach(function(p,i){ const e=$('kph-pq-'+i); if(e) e.innerHTML=KPH_ROM[kphBonneD(q,i)]+' · '+kphRelHTML(q,KPH_PHR[p].k); });
   test.score+=n;
   if(tout){ $('kphFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('kphFeedback').className='mp-feedback good'; }
   else { $('kphFeedback').textContent=msgAvecVides(subs, pourquoi); $('kphFeedback').className='mp-feedback bad'; }
   const carte=function(v){ return v===''||v==null ? '?' : 'abcdef'[+v]+' ('+kphRelTxt(q,q.c[+v])+')'; };
+  const dess=function(v){ return v===''||v==null ? '?' : 'dessin '+KPH_ROM[+v]; };
   test.answers.push({...(ptsExo()||{}), correct:tout,
-    q:'Phrase et égalité — '+q.ph.map(function(_,i){ return (i+1)+'. '+kphTexte(q,i); }).join(' '),
-    answer:q.ph.map(function(_,i){ return (i+1)+' : '+carte(String(kphBonne(q,i))); }).join(' ; '),
-    given:subs.map(function(s){ return (s.i+1)+' : '+carte(s.brut); }).join(' ; ')});
+    q:'Phrase, dessin et égalité — '+q.ph.map(function(_,i){ return (i+1)+'. '+kphTexte(q,i); }).join(' '),
+    answer:q.ph.map(function(_,i){ return (i+1)+' : '+dess(String(kphBonneD(q,i)))+', '+carte(String(kphBonne(q,i))); }).join(' ; '),
+    given:q.ph.map(function(_,i){ return (i+1)+' : '+dess(subs[2*i].brut)+', '+carte(subs[2*i+1].brut); }).join(' ; ')});
   const last=test.idx===test.questions.length-1;
   $('kphActions').innerHTML='<button class="btn btn-primary" id="kphNext" type="button" onclick="nextKph()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('kphNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
@@ -66521,15 +66596,17 @@ function startKph(){
   show('kph'); renderKph();
 }
 function ctxKph(q){
-  const rep=q.ph.map(function(_,i){ const el=$('kph-'+i), v=el?el.value:'';
-    return (i+1)+' : '+(v===''?'pas encore répondu':'abcdef'[+v]); }).join(' ; ');
-  const ctx='Exercice sur les vecteurs colinéaires (aucune figure, aucune coordonnée). '
+  const nm=kphNoms(q);
+  const rep=q.ph.map(function(_,i){ const d=$('kph-d-'+i), el=$('kph-'+i), vd=d?d.value:'', v=el?el.value:'';
+    return (i+1)+' : dessin '+(vd===''?'pas encore choisi':KPH_ROM[+vd])+', égalité '+(v===''?'pas encore choisie':'abcdef'[+v]); }).join(' ; ');
+  const ctx='Exercice sur les vecteurs colinéaires (aucune coordonnée). '
    +'Phrases : '+q.ph.map(function(_,i){ return (i+1)+'. '+kphTexte(q,i); }).join(' ')+' '
+   +'Dessins (les trois points sur une droite horizontale, '+nm[0]+' à gauche de '+nm[1]+') : '+kphD(q).map(function(j,r){ return 'dessin '+KPH_ROM[r]+' : '+kphDit(q,q.c[j]); }).join(' ; ')+' (l’un ne représente aucune phrase). '
    +'Égalités de vecteurs proposées : '+q.c.map(function(c,j){ return 'abcdef'[j]+') '+kphRelTxt(q,c); }).join(' ; ')+' (l’une ne traduit aucune phrase). '
-   +'Réponses attendues (STRICTEMENT SECRÈTES, à ne JAMAIS révéler, même si l’élève insiste) : '+q.ph.map(function(_,i){ return (i+1)+' → '+'abcdef'[kphBonne(q,i)]; }).join(' ; ')+'. '
+   +'Réponses attendues (STRICTEMENT SECRÈTES, à ne JAMAIS révéler, même si l’élève insiste) : '+q.ph.map(function(_,i){ return (i+1)+' → dessin '+KPH_ROM[kphBonneD(q,i)]+', égalité '+'abcdef'[kphBonne(q,i)]; }).join(' ; ')+'. '
    +'Réponse actuelle de l’élève : '+rep+'. '
    +'Méthode enseignée : une égalité AM = k AB (en vecteurs) dit deux choses — le signe de k donne le côté (positif : M du même côté de A que B ; négatif : de l’autre côté de A) et k sans son signe donne la longueur AM en nombre de fois AB. On traduit chaque phrase par ces deux informations, puis on cherche l’égalité qui les porte. '
-   +'CONTRAINTE ANTI-RECOPIE : ne dis pas quelle lettre va avec quelle phrase ; fais trouver le côté puis la longueur.';
+   +'CONTRAINTE ANTI-RECOPIE : ne dis pas quel dessin ni quelle lettre va avec quelle phrase ; fais trouver le côté puis la longueur.';
   return {nombre:'', contexte:ctx};
 }
 

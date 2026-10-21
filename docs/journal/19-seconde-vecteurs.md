@@ -4280,12 +4280,40 @@ figure A(3 ; 3), B(9 ; 3), C(2 ; 6), D(10 ; 8), E(5 ; 1) et éprouve la copie
 juste, la mauvaise distance sur la parallèle, le départ pris en B, le mauvais
 côté et le point hors de la parallèle.
 
+**Puis le vecteur de l'élève s'est tracé** (v585, demande de Turquet,
+octobre 2026 : « que le vecteur soit tracé entre le point de départ et le
+point à placer quand l'élève déplace son point, et qu'il reste une fois le
+point placé »). Pendant que la souris survole le quadrillage, une flèche
+violette pâlie va du point de départ du point en cours au nœud survolé — le
+nœud où le clic posera le point, pas la position exacte du pointeur
+(`kplVif`, calque `#kplVif`). Une fois le point posé, sa flèche reste, violette
+(`kplFlecheEleve`, dans `#kplEl`) ; à la vérification elle devient bleue si le
+point est juste, rouge s'il est faux, à côté de la flèche verte de la
+correction. Rien n'est tracé sur le point de départ lui-même (vecteur nul). Au
+doigt, sans survol, la flèche n'apparaît qu'au point posé.
+
 **8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
 trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
 du côté opposé à B…), cinq par page ; six cartes AM⃗ = kAB⃗ lettrées a à f,
 dont une de trop, prise de préférence comme l'OPPOSÉE d'un réel juste. Le
 pourquoi traduit la phrase et la carte choisie en « côté de A, puis
 longueur », côte à côte.
+
+Puis les **dessins** (demande de Turquet, octobre 2026, v584) : chaque
+égalité a le sien — A, B et M sur une droite horizontale, graduée au pas de
+AB/d (d, dénominateur du réel), M en violet et nommé dessous. L'élève
+associe chaque phrase à un dessin (I à VI), puis à une égalité : deux listes
+par phrase, deux points ; le dessin de trop est celui de l'égalité de trop,
+et l'ordre des dessins (`q.d`) se tire à part de celui des cartes. AB a la
+même longueur dans les six dessins d'une page, celle qui loge le plus
+large : à 90 px fixes, le leurre −3 sortait du cadre à la première capture
+— le banc relit désormais l'abscisse de chaque nom, sur deux cents tirages.
+Une pause d'avant les dessins n'a pas de `q.d` : `kphD()` en rend un ordre
+fixe. Le même jour, un coefficient **sans fraction** (« 3 », « − », « −2 »)
+s'est posé sur la ligne des lettres de son vecteur : `.kv-co` est en
+`vertical-align:middle` pour centrer une fraction sur son trait, et un
+entier seul descendait sous AB⃗ ; `kvHTML` lui ajoute `kv-ent`, aligné sur
+la ligne de base — ce qui vaut pour tous les 8.3.
 
 **8.3.8, démontrer un parallélisme** (`kmi`). La démonstration du manuel,
 en treize cases : IJ⃗ = IA⃗ + AJ⃗ = kBA⃗ + kAC⃗ = k(BA⃗ + AC⃗) = kBC⃗,
@@ -4451,7 +4479,7 @@ du sens fermée avant toute réponse, ouverte par « Vrai » ; une copie juste
 pour la corriger ; « Vrai » à la direction de deux vecteurs non parallèles,
 rouge, ligne du sens refermée et hors note ; le pourquoi par Pythagore.
 
-## 8.3.5 : les deux vecteurs seulement, et le coefficient k u⃗ sur sa ligne (v584 — v583 prise par les 8.3.1, 8.3.2, 8.3.3 et 8.3.5 pendant les bancs)
+## 8.3.5 : les deux vecteurs seulement, et le coefficient k u⃗ sur sa ligne (v586 — v583 à v585 prises par les 8.3.1, 8.3.2, 8.3.3, 8.3.5, 8.3.6 et 8.3.7 pendant les bancs)
 
 **La demande** (Turquet, octobre 2026, une capture de la correction
 « v⃗ = 3u⃗ : ils sont colinéaires » à l'appui) : « dans la correction le
