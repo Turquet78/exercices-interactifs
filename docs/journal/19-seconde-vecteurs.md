@@ -4315,6 +4315,26 @@ s'est posé sur la ligne des lettres de son vecteur : `.kv-co` est en
 entier seul descendait sous AB⃗ ; `kvHTML` lui ajoute `kv-ent`, aligné sur
 la ligne de base — ce qui vaut pour tous les 8.3.
 
+Puis **deux étapes** (demande de Turquet, octobre 2026, v591) : « demander
+d'abord de faire correspondre chaque égalité au bon dessin en enlevant les
+phrases ; quand toutes les égalités sont reliées au bon dessin, afficher
+alors les phrases ». L'étape 1 : six égalités, une liste « dessin » chacune
+(I à VI) — plus de dessin ni d'égalité de trop, la correspondance est
+complète. Sa vérification compte ses six points mais NE VERROUILLE PAS : elle
+range les choix dans la question (`q.e1`, `q.s1`), et la page se redessine à
+l'étape 2 — chaque dessin porte alors son cas (« cas b · AM⃗ = −½AB⃗ »),
+l'étape 1 reste à l'écran, corrigée et désactivée, et les cinq phrases
+viennent dessous, une liste « cas » chacune ; le cas de trop est l'égalité de
+trop. C'est la seconde vérification qui verrouille et pousse la réponse :
+onze cases, 33 points sur trois questions. En soutien, l'étape 1 se
+revérifie jusqu'à être juste ; en entraînement, la correction la complète en
+vert. Pourquoi pas deux questions par page : la coupe d'un devoir
+(`dmAppliquerNbQ`) garde les N premières ENTRÉES du tirage, elle aurait coupé
+une paire en deux. Et pourquoi `q.e1` dans la question : une pause entre les
+deux étapes reprend aux phrases, l'étape 1 telle que la vérification l'a
+laissée, et un nouveau « Vérifier » n'y rejuge rien — le banc principal le
+tient en rejouant la question depuis son JSON entre les deux étapes.
+
 **8.3.8, démontrer un parallélisme** (`kmi`). La démonstration du manuel,
 en treize cases : IJ⃗ = IA⃗ + AJ⃗ = kBA⃗ + kAC⃗ = k(BA⃗ + AC⃗) = kBC⃗,
 puis « colinéaires » et « parallèles ». Première page : les milieux (k = ½) ;
