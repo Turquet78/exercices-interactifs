@@ -14217,7 +14217,11 @@ function vecteursColineaires(w, P){
       const cles=qs.map(tvxCleK); if(new Set(cles).size!==qs.length){ vus.push('8.3.1 : deux questions identiques dans une séance'); break; }
       const q=qs[n%qs.length], u=q.vs[0], ks=q.ks;
       if(Object.keys(q).sort().join(',')!=='d1,d2,d3,f1,f2,f3,ks,vs' || q.vs.length!==1 || ks.length!==3){ vus.push('8.3.1 range : '+JSON.stringify(q)); break; }
-      if(new Set(ks.map(function(c){ return c[0]/c[1]; })).size!==3 || !ks.some(function(c){ return c[1]>1; }) || !ks.some(function(c){ return c[0]<0; }) || !ks.some(function(c){ return c[0]>0; })){ vus.push('8.3.1 : coefficients '+JSON.stringify(ks)); break; }
+      /* l'échelle qui monte : k u, −u, −k u (k entier de 2 à 4) ; ou 1/b u, −1/b u, a/b u (a/b irréductible, |a| ≥ 2) —
+         l'entier aux questions impaires, la fraction aux paires */
+      const ent=ks[0][1]===1 && ks[0][0]>=2 && ks[0][0]<=4 && ks[1][0]===-1 && ks[1][1]===1 && ks[2][0]===-ks[0][0] && ks[2][1]===1;
+      const b=ks[0][1], fra=b>=2 && b<=4 && ks[0][0]===1 && ks[1][0]===-1 && ks[1][1]===b && ks[2][1]===b && Math.abs(ks[2][0])>=2 && Math.abs(ks[2][0])<=5 && gcd(Math.abs(ks[2][0]),b)===1;
+      if(!(ent || fra) || (n%qs.length)%2!==(fra?1:0)){ vus.push('8.3.1 : coefficients '+JSON.stringify(ks)+' à la question '+(n%qs.length+1)); break; }
       if(u[0]<1||u[0]>TVX_W-1||u[1]<1||u[1]>TVX_H-1||u[0]+u[2]<1||u[0]+u[2]>TVX_W-1||u[1]+u[3]<1||u[1]+u[3]>TVX_H-1){ vus.push('8.3.1 : u sort du quadrillage '+JSON.stringify(u)); break; }
       if(ks.some(function(c,k){ const t=tvxCible(q,k); return !entier(t[0])||!entier(t[1])||Math.abs(t[0])>TVX_W-2||Math.abs(t[1])>TVX_H-2; })){ vus.push('8.3.1 : une flèche k u ne tombe pas sur un nœud ou ne tient pas : '+JSON.stringify(q)); break; }
     }

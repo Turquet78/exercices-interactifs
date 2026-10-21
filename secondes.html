@@ -8420,7 +8420,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=575;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=576;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9255,7 +9255,7 @@ const TESTS={
   'point-somme-vecteurs': { name:'Construire un point avec une somme de vecteurs', icon:'\ud83d\udccd', desc:'Cinq points sur un quadrillage\u00a0: construis le point A\u2032 tel que AA\u2032 = BC + BD. Trace d\u2019abord les deux vecteurs, fais-les glisser bout \u00e0 bout \u00e0 partir de A \u2014 un d\u00e9but va sur une fin \u2014, puis place le point.', start:()=>startCps() },
   'tracer-vecteurs-egaux': { name:'Tracer des vecteurs \u00e9gaux', icon:'\u270f\ufe0f', desc:'Trois vecteurs u, v et w sur un quadrillage\u00a0: trace un vecteur \u00e9gal \u00e0 chacun. Un clic pose le point de d\u00e9part, un second clic le point d\u2019arriv\u00e9e\u00a0; un clic sur le d\u00e9part ou l\u2019arriv\u00e9e d\u2019une fl\u00e8che la reprend.', start:()=>startTvx() },
   'tracer-vecteurs-opposes': { name:'Tracer des vecteurs oppos\u00e9s', icon:'\u21a9\ufe0f', desc:'Trois vecteurs u, v et w sur un quadrillage\u00a0: trace les vecteurs \u2212u, \u2212v et \u2212w. Un clic pose le point de d\u00e9part, un second clic le point d\u2019arriv\u00e9e\u00a0; un clic sur le d\u00e9part ou l\u2019arriv\u00e9e d\u2019une fl\u00e8che la reprend.', start:()=>startTvx(true) },
-  'construire-multiple-vecteur': { name:'Construire un vecteur k\u00a0u', icon:'\u270f\ufe0f', desc:'Un vecteur u sur un quadrillage\u00a0: trace les vecteurs 2u, \u00bdu, \u2212\u2153u\u2026 Le coefficient dit le sens (positif\u00a0: le m\u00eame, n\u00e9gatif\u00a0: le contraire) et multiplie le chemin de u.', start:()=>startTvx(false,true) },
+  'construire-multiple-vecteur': { name:'Construire un vecteur k\u00a0u', icon:'\u270f\ufe0f', desc:'Un vecteur u sur un quadrillage\u00a0: trace 3u, \u2212u puis \u22123u\u00a0; ou \u00bdu, \u2212\u00bdu puis \u22123/2\u00a0u. Le coefficient dit le sens (positif\u00a0: le m\u00eame, n\u00e9gatif\u00a0: le contraire) et multiplie le chemin de u.', start:()=>startTvx(false,true) },
   'identifier-multiple-vecteur': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w', icon:'\ud83d\udd0d', desc:'Trois vecteurs u, v et w, puis six vecteurs a, b, c\u2026\u00a0: chacun est u, v ou w multipli\u00e9 par un entier k. Trouve le vecteur et le coefficient.', start:()=>startKvi(false) },
   'identifier-multiple-non-entier': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w (k d\u00e9cimal ou fraction)', icon:'\ud83d\udd0d', desc:'Comme l\u2019exercice pr\u00e9c\u00e9dent, mais k peut valoir \u22121,5, \u00be, 5/2\u2026 Trouve le vecteur et le coefficient.', start:()=>startKvi(true) },
   'vecteurs-colineaires-figure': { name:'Colin\u00e9aires ou non\u00a0?', icon:'\u2194\ufe0f', desc:'Une figure de vecteurs AB, CD, EF\u2026\u00a0: pour chaque paire, dis s\u2019ils sont colin\u00e9aires et, si oui, \u00e9cris le r\u00e9el k tel que AB = k GH.', start:()=>startKco() },
@@ -12626,7 +12626,8 @@ const RAP_KVX=`<b>Construire le vecteur k<span class="vec"><i>u</i></span></b><b
 <b>① Le vecteur k<span class="vec"><i>u</i></span></b> (k un réel non nul) a la <b>même direction</b> que <span class="vec"><i>u</i></span> : sa flèche est parallèle à celle de <span class="vec"><i>u</i></span>.<br>
 <b>② Son sens</b> : celui de <span class="vec"><i>u</i></span> si k est <b>positif</b>, le sens <b>contraire</b> si k est <b>négatif</b>.<br>
 <b>③ Sa longueur</b> : celle de <span class="vec"><i>u</i></span> multipliée par k sans son signe — 2<span class="vec"><i>u</i></span> est deux fois plus long, ½<span class="vec"><i>u</i></span> deux fois plus court.<br>
-<b>④ Sur un quadrillage</b>, on compte le chemin de <span class="vec"><i>u</i></span> (tant de carreaux vers la droite ou la gauche, puis vers le haut ou le bas) et on <b>multiplie chaque nombre par k</b>. Exemple : si <span class="vec"><i>u</i></span> fait 6 carreaux vers la droite et 3 vers le haut, ⅔<span class="vec"><i>u</i></span> fait 4 carreaux vers la droite et 2 vers le haut, et −⅓<span class="vec"><i>u</i></span> fait 2 carreaux vers la gauche et 1 vers le bas.`;
+<b>④ Sur un quadrillage</b>, on compte le chemin de <span class="vec"><i>u</i></span> (tant de carreaux vers la droite ou la gauche, puis vers le haut ou le bas) et on <b>multiplie chaque nombre par k</b>. Exemple : si <span class="vec"><i>u</i></span> fait 6 carreaux vers la droite et 3 vers le haut, ⅔<span class="vec"><i>u</i></span> fait 4 carreaux vers la droite et 2 vers le haut, et −⅓<span class="vec"><i>u</i></span> fait 2 carreaux vers la gauche et 1 vers le bas.<br>
+<b>⑤ Une fraction se construit par étapes</b> : pour ${kvHTML([-3,2],'u')}, on trace d'abord ½<span class="vec"><i>u</i></span> (la moitié du chemin), puis −½<span class="vec"><i>u</i></span> (le même chemin à l'envers), puis trois fois −½<span class="vec"><i>u</i></span> bout à bout.`;
 
 /* 8.3.2 {identifier-multiple-vecteur} et 8.3.3 {identifier-multiple-non-entier} */
 const RAP_KVI=`<b>Reconnaître un vecteur k<span class="vec"><i>u</i></span></b><br>
@@ -64507,19 +64508,31 @@ function tvxGen(op){
   /* repli — jamais atteint en pratique */
   return tvxQuestion([[2,2,3,4],[7,8,4,-2],[13,2,-3,2]],op);
 }
-/* 8.3.1 : trois coefficients distincts — au moins une fraction, au moins un
-   positif et un négatif, comme sur la fiche (2, ½, −2, −⅓, ⅔, −⅚, 5/3) —, et
-   un vecteur u⃗ dont chaque composante est un multiple des dénominateurs :
-   les trois flèches tombent sur des nœuds. Chaque flèche, et u⃗ lui-même,
-   tient dans le quadrillage avec un carreau de marge de chaque côté. */
-const TVX_KS=[[2,1],[3,1],[-1,1],[-2,1],[-3,1],[1,2],[-1,2],[3,2],[-3,2],[5,2],[1,3],[-1,3],[2,3],[-2,3],[4,3],[5,3],[-4,3],[1,4],[3,4],[-3,4],[5,6],[-5,6]];
-function tvxGenK(){
+/* 8.3.1 : deux sortes de questions, l'échelle qui monte (demande de Turquet,
+   octobre 2026 : « demander soit un multiple entier de u, et on doit tracer
+   k u, −u et −k u ; soit une fraction a/b de u, et on trace 1/b u, puis
+   −1/b u, puis a/b u »). Les trois coefficients sont rangés DANS L'ORDRE où
+   ils se tracent : l'entier k (2 à 4), puis −1, puis −k ; ou la part 1/b
+   (b de 2 à 4), son opposée, puis a/b (irréductible, |a| de 2 à 5, de signe
+   tiré). Une séance alterne : l'entier aux questions impaires (1, 3…), la
+   fraction aux paires. u⃗ a pour composantes des multiples de b — les trois
+   flèches tombent sur des nœuds —, et chaque flèche, u⃗ compris, tient dans
+   le quadrillage avec un carreau de marge de chaque côté. */
+function tvxKsEntier(){ const k=rand(2,4); return [[k,1],[-1,1],[-k,1]]; }
+function tvxKsFraction(){
+  for(;;){
+    const b=rand(2,4), a=rand(2,5);
+    if(gcd(a,b)!==1) continue;
+    const sg=Math.random()<0.5?-1:1;
+    return [[1,b],[-1,b],[sg*a,b]];
+  }
+}
+function tvxGenK(_,i){
   const tient=function(w){ return Math.abs(w[0])<=TVX_W-2&&Math.abs(w[1])<=TVX_H-2; };
+  const frac=i===undefined?Math.random()<0.5:i%2===1;
   for(let essai=0;essai<5000;essai++){
-    const ks=ensShuffle(TVX_KS.slice()).slice(0,3);
-    if(!ks.some(function(c){ return c[1]>1; })||!ks.some(function(c){ return c[0]<0; })||!ks.some(function(c){ return c[0]>0; })) continue;
-    const L=ks.reduce(function(m,c){ return m*c[1]/gcd(m,c[1]); },1);
-    if(L>6) continue;
+    const ks=frac?tvxKsFraction():tvxKsEntier();
+    const L=ks[0][1];
     const u=[L*rand(-2,2), L*rand(-2,2)];
     if(Math.max(Math.abs(u[0]),Math.abs(u[1]))<2||!tient(u)) continue;
     if(!ks.every(function(c){ return tient([u[0]*c[0]/c[1], u[1]*c[0]/c[1]]); })) continue;
@@ -64527,7 +64540,7 @@ function tvxGenK(){
     if(o[0]+u[0]<1||o[0]+u[0]>TVX_W-1||o[1]+u[1]<1||o[1]+u[1]>TVX_H-1) continue;
     return tvxQuestion([[o[0],o[1],u[0],u[1]]],0,ks);
   }
-  return tvxQuestion([[3,4,6,0]],0,[[2,1],[1,2],[-5,6]]);
+  return frac?tvxQuestion([[3,4,4,2]],0,[[1,2],[-1,2],[-3,2]]):tvxQuestion([[3,4,3,1]],0,[[2,1],[-1,1],[-2,1]]);
 }
 /* Deux questions du 8.3.1 sont la même si u⃗ et les coefficients le sont, où que u⃗ soit posé. */
 function tvxCleK(q){ return JSON.stringify([q.vs[0][2], q.vs[0][3], q.ks.map(String).sort()]); }
@@ -64824,7 +64837,7 @@ function renderTvx(){
   $('tvxIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('tvxModeTag').innerHTML=modeTagHTML();
   $('tvxInstr').innerHTML=q.ks
-    ? 'Voici le vecteur '+tvxVecHTML('u')+'. Construis un représentant de chacun des vecteurs '+tvxNomHTML(q,0)+', '+tvxNomHTML(q,1)+' et '+tvxNomHTML(q,2)+'.'
+    ? 'Voici le vecteur '+tvxVecHTML('u')+'. Construis un représentant du vecteur '+tvxNomHTML(q,0)+', puis du vecteur '+tvxNomHTML(q,1)+', puis du vecteur '+tvxNomHTML(q,2)+'.'
     : q.op
     ? 'Trace les vecteurs '+tvxNomHTML(q,0)+', '+tvxNomHTML(q,1)+' et '+tvxNomHTML(q,2)+', opposés aux vecteurs '+tvxVecHTML('u')+', '+tvxVecHTML('v')+' et '+tvxVecHTML('w')+'.'
     : 'Trace un vecteur égal au vecteur '+tvxVecHTML('u')+', puis un vecteur égal au vecteur '+tvxVecHTML('v')+', puis un vecteur égal au vecteur '+tvxVecHTML('w')+'.';
