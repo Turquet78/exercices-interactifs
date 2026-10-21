@@ -863,10 +863,13 @@
   .apc-carte.apt-type b{color:var(--blue-dark)}
   .apc-cartes.apt-cartes{grid-template-columns:1fr;max-width:900px}
   .apt-cartes .apc-carte{justify-content:flex-start;text-align:left}
-  /* la branche du MILIEU d'un nœud à trois branches est horizontale : son étiquette se pose au bout, loin du trait qui monte vers la première */
-  .apt-arbre .apf-b.apt-mil{justify-self:end}
+  /* l'étiquette de chaque branche se pose LE LONG de la branche, penchée comme elle et centrée sur son milieu (aptEtiquettes) ;
+     les colonnes des branches prennent la longueur que demandent les étiquettes */
+  .apt-arbre{grid-template-columns:auto var(--apt-c2,120px) auto var(--apt-c4,160px) auto 54px auto}
+  .apt-arbre>.apf-b{position:absolute;grid-area:auto!important;left:0;top:0;padding:0!important;transform-origin:0 0;white-space:nowrap}
+  .apt-arbre>.apf-b i.apb-nb::before{border-top:0;height:max(1.5px,.075em);background:currentColor}   /* une bordure fine, penchée, se dessine en pointillés */
   #aptResol math-field.dexp-mf.apc-mf.apf-eqin.apc-op{flex:0 1 7em;min-width:5.5em;max-width:9em}
-  @media(max-width:600px){ .apt-arbre{--apt-rh:36px} }
+  @media(max-width:600px){ .apt-arbre{--apt-rh:36px;--apt-rh3:52px} }
   .apc-donnees{margin:6px 0 6px 1.2em;padding:0}
   .apc-donnees li{margin:2px 0}
   .apc-cartes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 4px}
@@ -3775,7 +3778,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=417;
+const APP_VERSION=418;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -26873,17 +26876,19 @@ function aptGenSession(ty){
 function aptGrilleHTML(pre, T, ev, cas, fin){
   let R=0; const pos=T.n1.map(function(k){ const n=T.n2[k].length, s=R+1; R+=2*n; return {k:k, s:s, n:n}; });
   const mid=R/2;
-  let h='<div class="apf-arbre-defile"><div class="apf-arbre apt-arbre" id="'+pre+'Grille" style="grid-template-rows:repeat('+R+',minmax(var(--apt-rh,44px),auto))">'
+  /* un nœud à TROIS branches a des rangées plus hautes : l'étiquette de sa branche du milieu passe sous la branche du dessus */
+  const rangs=pos.map(function(p){ return 'repeat('+(2*p.n)+',minmax(var('+(p.n>2?'--apt-rh3,60px':'--apt-rh,44px')+'),auto))'; }).join(' ');
+  let h='<div class="apf-arbre-defile"><div class="apf-arbre apt-arbre" id="'+pre+'Grille" style="grid-template-rows:'+rangs+'">'
     +'<svg class="apf-traits" id="'+pre+'Traits" aria-hidden="true"></svg>'
     +'<div class="apf-nd" id="'+pre+'-n-O" style="grid-column:1;grid-row:1/'+(R+1)+'">Ω</div>';
   let f0=null, f1=null;
   pos.forEach(function(p,i){
     const cN=p.s-1+p.n, haut=cN<=mid;
-    h+='<div class="apf-b '+(haut?'apf-haut':'apf-bas')+(cN===mid?' apt-mil':'')+'" style="grid-column:2;grid-row:'+(haut ? p.s+'/'+(cN+1) : (cN+1)+'/'+(p.s+2*p.n))+'">'+cas('1',p.k)+'</div>'
+    h+='<div class="apf-b '+(haut?'apf-haut':'apf-bas')+(cN===mid?' apt-mil':'')+'" id="'+pre+'-b-'+i+'" style="grid-column:2;grid-row:'+(haut ? p.s+'/'+(cN+1) : (cN+1)+'/'+(p.s+2*p.n))+'">'+cas('1',p.k)+'</div>'
       +'<div class="apf-nd" id="'+pre+'-n-'+i+'" style="grid-column:3;grid-row:'+p.s+'/'+(p.s+2*p.n)+'">'+ev(p.k)+'</div>';
     T.n2[p.k].forEach(function(e,j){
       const r0=p.s+2*j, ht=r0<=cN;
-      h+='<div class="apf-b '+(ht?'apf-haut':'apf-bas')+(r0===cN?' apt-mil':'')+'" style="grid-column:4;grid-row:'+(ht?r0:r0+1)+'">'+cas('2',p.k,e)+'</div>'
+      h+='<div class="apf-b '+(ht?'apf-haut':'apf-bas')+(r0===cN?' apt-mil':'')+'" id="'+pre+'-b-'+i+'-'+j+'" style="grid-column:4;grid-row:'+(ht?r0:r0+1)+'">'+cas('2',p.k,e)+'</div>'
         +'<div class="apf-f'+(fin && e===fin ? ' apt-som' : '')+'" id="'+pre+'-f-'+i+'-'+j+'" style="grid-column:5;grid-row:'+r0+'/'+(r0+2)+'">'+cas('i',p.k,e)+'</div>';
       if(fin && e===fin){ if(f0===null) f0=r0; f1=r0+2; }
     });
@@ -26901,12 +26906,17 @@ function aptTraits(pre){
   const o=box(O), fl=pre+'Fl';
   const ln=(x1,y1,x2,y2,f)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'"'+(f?' marker-end="url(#'+fl+')"':'')+'/>';
   let h='<defs><marker id="'+fl+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>';
+  const br=[], n1=[];   /* chaque branche : ses deux bouts, son étiquette, sa colonne, la branche AU-DESSUS d'elle au même nœud */
   for(let i=0;;i++){
     const nd=$(pre+'-n-'+i); if(!nd) break;
     const L=box(nd.firstElementChild||nd), cy=box(nd).cy;
     h+=ln(o.r+3, o.cy, L.l-4, cy);
-    for(let j=0;;j++){ const f=$(pre+'-f-'+i+'-'+j); if(!f) break; const F=box(f); h+=ln(L.r+4, cy, F.l-4, F.cy, 1); }
+    n1.push({x1:o.r+3, y1:o.cy, x2:L.l-4, y2:cy, e:$(pre+'-b-'+i), c:1, sur:n1[n1.length-1]});
+    let sur=null;
+    for(let j=0;;j++){ const f=$(pre+'-f-'+i+'-'+j); if(!f) break; const F=box(f); h+=ln(L.r+4, cy, F.l-4, F.cy, 1);
+      const b={x1:L.r+4, y1:cy, x2:F.l-4, y2:F.cy, e:$(pre+'-b-'+i+'-'+j), c:3, sur:sur}; br.push(b); sur=b; }
   }
+  aptEtiquettes(g, n1.concat(br));
   const acc=$(pre+'-acc'), pb=$(pre+'-pb');
   if(acc && pb){
     const plus=box(acc.firstElementChild), pl=box(pb.firstElementChild||pb);
@@ -26915,6 +26925,41 @@ function aptTraits(pre){
   }
   s.setAttribute('width', g.scrollWidth); s.setAttribute('height', g.scrollHeight);
   s.innerHTML=h;
+}
+/* LES ÉTIQUETTES SE POSENT LE LONG DE LEUR BRANCHE (demande de Turquet,
+   octobre 2026 : « l'écriture et la case de chaque branche alignées avec
+   cette branche et centrées sur elle ») : penchées comme le trait, au milieu
+   du trait, au-dessus d'une branche qui monte, au-dessous d'une branche qui
+   descend — hors de la grille, posées ici sur les traits rendus. Les
+   colonnes des branches (--apt-c2, --apt-c4) s'allongent jusqu'à ce que
+   chaque étiquette tienne sur sa branche, et que celle d'une branche du
+   MILIEU, horizontale, passe sous le trait qui monte vers la branche du
+   dessus sans le toucher : son coin gauche est le point serré. */
+function aptEtiquettes(g, br){
+  const cols=getComputedStyle(g).gridTemplateColumns.split(' ').map(parseFloat), besoin={1:0, 3:0};
+  br.forEach(function(b){
+    const e=b.e; if(!e) return;
+    const w=e.offsetWidth, hh=e.offsetHeight, dx=b.x2-b.x1, dy=b.y2-b.y1;
+    let d=Math.max(Math.sqrt(Math.max(0, (w+80)*(w+80)-dy*dy)), 0.8*Math.abs(dy));   /* l'étiquette tient sur sa branche, 40 px d'air à chaque bout (le nœud, la flèche) ; aucune branche plus raide que 51° */
+    if(b.sur && e.classList.contains('apt-mil')){
+      /* la montée S de la branche du dessus ; chaque morceau de l'étiquette (le texte, puis la case, plus haute mais plus à droite)
+         doit rester sous elle, 7 px d'air : à l'abscisse dx/2 − w/2 + xo, le trait est à S·(dx/2 − w/2 + xo)/dx au-dessus du nôtre */
+      const S=b.y1-b.sur.y2;
+      [e.firstElementChild, e.querySelector('input')].forEach(function(m){
+        if(!m) return;
+        const xo=m.offsetLeft, Hp=hh-m.offsetTop+10;
+        d=Math.max(d, S/2>Hp+2 ? S*(w/2-xo)/(S/2-Hp)+8 : 4*w);
+      });
+    }
+    besoin[b.c]=Math.max(besoin[b.c], cols[b.c]+d-dx);
+    const a=Math.atan2(dy,dx)*180/Math.PI, haut=e.classList.contains('apf-haut');
+    e.style.left=((b.x1+b.x2)/2)+'px'; e.style.top=((b.y1+b.y2)/2)+'px';
+    e.style.transform='rotate('+a.toFixed(2)+'deg) translate(-50%,'+(haut?'calc(-100% - 3px)':'3px')+')';
+  });
+  [[1,'--apt-c2'],[3,'--apt-c4']].forEach(function(c){
+    const v=Math.ceil(Math.max(40, besoin[c[0]]));
+    if(cols[c[0]]>0 && Math.abs(v-cols[c[0]])>1) g.style.setProperty(c[1], v+'px');
+  });
 }
 const aptObs={};
 function aptSuivreTraits(pre){
