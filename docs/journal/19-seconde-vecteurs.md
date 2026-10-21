@@ -4322,3 +4322,6 @@ pièges peints en rouge et nommés, le badge, la case et la liste vides en
 correction, la copie vide sans rouge, le JSON, le soutien qui peint sans
 révéler ni verrouiller ; le plan à regrouper juste à 30 cases, et
 « BC + 2BC = 2BC » nommé ; enfin le contexte du modèle.
+Éprouvé par deux sabotages, chacun attrapé : l'énoncé lu sans changer le
+sens d'un vecteur retourné (plus aucune rédaction acceptée), et le message
+du sens oublié réécrit (le piège n'est plus nommé).
