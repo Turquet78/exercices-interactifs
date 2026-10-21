@@ -4012,6 +4012,19 @@ devant le mauvais vecteur vaut une case sur deux. Deux pages par séance,
 barème 24. Les vecteurs nommés et u⃗, v⃗, w⃗ sont dans deux dessins, comme sur
 la fiche ; les lignes se rangent en grille.
 
+**La ligne se lit « a⃗ = k × u⃗ »** (v576, demande de Turquet : « afficher
+les flèches dans les cases représentant un nom de vecteur, rendre les cases
+plus étroites et rajouter entre les cases le signe × ») : un « × » entre la
+case du coefficient (64 px) et la liste du vecteur (52 px). Une `<option>`
+ne prend pas de HTML, et la flèche combinante U+20D7 n'y est PAS dessinée
+dans la case fermée (essayée, invisible dans Chromium) : la flèche est un
+`::before` du cadre `.kv-vc` qui enveloppe la liste, effacé tant que « ? »
+est choisi (`:has(option[value=""]:checked)`), de la couleur du verdict
+(`:has(.ok/.bad/.sol)`). Le badge vert du bon vecteur posé par
+`corrChoix` sort du cadre (sa flèche resterait centrée sur la liste ET le
+badge) et s'écrit `tvxVecHTML`, flèche comprise. L'écart des lignes passe à
+6 px : une ligne fausse, avec ses deux badges, se repliait — déjà avant.
+
 **Le 8.3.4** (`kcoGen`) : trois directions, huit vecteurs (trois, trois et
 deux par direction, chacun sa direction multipliée par un entier de −4 à
 4), cinq paires dont deux à quatre colinéaires, le réel jamais 1. **Le piège
