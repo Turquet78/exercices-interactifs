@@ -4270,7 +4270,7 @@ la rédaction du manuel ET une rédaction dans l'autre ordre avec les formes
 opposées, chacune à 13 sur 13. Éprouvé par deux sabotages (un juge de
 longueur faussé, une forme juste du 8.3.8 retirée), chacun attrapé.
 
-## {demontrer-colineaires} — démontrer un parallélisme, étape par étape (8.3.9, v581)
+## {demontrer-colineaires} — démontrer un parallélisme, étape par étape (8.3.9, v582 — v581 portée aussi par les 8.3.1 et 8.3.6, fusionnés le même quart d'heure)
 
 **La demande** (Turquet, octobre 2026) : « en seconde créer un exercice dans
 vecteurs colinéaires comme le 8.2.13 mais avec en plus des multiplications de
@@ -4358,3 +4358,8 @@ révéler ni verrouiller ; le plan à regrouper juste à 30 cases, et
 Éprouvé par deux sabotages, chacun attrapé : l'énoncé lu sans changer le
 sens d'un vecteur retourné (plus aucune rédaction acceptée), et le message
 du sens oublié réécrit (le piège n'est plus nommé).
+
+**Puis le numéro a été relu à la fusion** : les 8.3.1, 8.3.6 et 8.3.9 sont
+partis en ligne le même quart d'heure, tous trois en v581 — trois pages
+différentes sous un seul numéro, et un état combiné qu'aucune action n'avait
+rejoué. La v582 les porte ensemble, et l'action les a rejoués ensemble.
