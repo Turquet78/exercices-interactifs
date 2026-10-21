@@ -4071,3 +4071,37 @@ contrôles universels du banc navigateur (section 9) les visitent comme les
 autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
 navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
 flèche, lui, ne se mesure qu'à l'œil.
+
+### Les 8.3.2 et 8.3.3 s'écrivent « a⃗ = [k] × [u⃗] » (v576)
+
+Demande de Turquet, octobre 2026, sur le 8.3.3 : « afficher les flèches dans
+les cases représentant un nom de vecteur, rendre les cases plus étroites,
+rajouter entre les cases le signe × ; une écriture fractionnaire et pas en
+ligne pour les fractions ». Le moteur `kvi` est commun : le 8.3.2 suit.
+
+* **Le coefficient est une case MathLive** (`pmMF('kv-mf', …)`) : la touche /
+  EMPILE la fraction, et la case l'affiche empilée. Elle se lit à plat par
+  `pmPlain` — `\frac{3}{2}` y devient « (3)/(2) » (`struct`), que `kvLit` ne
+  lisait pas : `kviPlat` ôte les parenthèses avant `kvEgal`. La correction
+  s'écrit en LaTeX (`kviLatex`, « −\frac{3}{2} »), empilée elle aussi ; le
+  badge vert d'une case fausse, que `corrChoix` écrit en texte, est récrit en
+  HTML par `kviBadge` (`kvHTML` pour le coefficient).
+* **La liste du vecteur porte sa flèche DANS la case** : `.kv-vsel` l'enveloppe
+  et trace la flèche par `::before`/`::after`, au-dessus de la lettre (un
+  `<option>` n'a pas de HTML, et U+20D7 s'y affiche en blanc, voir plus haut).
+  Elle prend la couleur du verdict (`:has(select.ok)`…). Le badge du vecteur
+  sort de l'enveloppe, sans quoi la flèche se recentrerait sur les deux.
+* **« × » entre les deux cases** (`.kv-fois`), et les cases rétrécies : 50 px
+  pour la liste (84 avant), 46 px au moins pour le coefficient, qui grandit
+  avec ce qu'on y écrit.
+* **Le pourquoi s'écrit en HTML** : vecteurs fléchés (`tvxVecHTML`) et
+  fractions empilées (`kvHTML`) ; la consigne du 8.3.3 empile son exemple.
+* **La reprise rend sa barre à une fraction** — dans `restoreBoxes`, pour
+  TOUTE case MathLive : la pause range la case à plat, « −(3)/(2) », et la
+  réécrire telle quelle la mettait en ligne, parenthèses comprises. Une
+  saisie entière de la forme `(a)/(b)` redevient `\frac{a}{b}`.
+
+Le banc principal exige les six lignes « case MathLive, ×, liste fléchée »
+dans cet ordre, la fraction empilée de la consigne au 8.3.3, et les deux
+sens de la fraction (`kviLatex`, `kviPlat`). Vu dans Chromium : la fraction
+tapée « −3/2 » s'empile, se juge, survit à la pause empilée.

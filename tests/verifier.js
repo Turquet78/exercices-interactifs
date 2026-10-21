@@ -14267,7 +14267,16 @@ function vecteursColineaires(w, P){
       if(test.score-av!==12 || document.querySelectorAll('#scr-kvi .ok').length!==12) vus.push(et+'la copie juste vaut '+(test.score-av));
       /* la reprise : la question revient du JSON, les cases se rejugent pareil */
       test.questions[0]=q0; renderKvi();
-      if(document.querySelectorAll('#kviHost .kvi-svg').length!==2 || document.querySelectorAll('#kviHost .kv-in').length!==6) vus.push(et+'le rendu après JSON n\\'a pas ses deux figures et ses six cases');
+      if(document.querySelectorAll('#kviHost .kvi-svg').length!==2 || document.querySelectorAll('#kviHost math-field.kv-mf').length!==6) vus.push(et+'le rendu après JSON n\\'a pas ses deux figures et ses six cases');
+      /* « a⃗ = [k] × [u⃗] » (octobre 2026) : le coefficient dans une case MathLive,
+         un « × » entre les deux cases, la liste coiffée de sa flèche ; au 8.3.3 la
+         consigne écrit sa fraction EMPILÉE */
+      if(document.querySelectorAll('#kviHost .kv-l').length!==6 || [].some.call(document.querySelectorAll('#kviHost .kv-l'), function(l){
+          const k=l.querySelector('math-field.kv-mf'), f=l.querySelector('.kv-fois'), w=l.querySelector('.kv-vsel > select.kv-sel');
+          return !k||!f||!w||f.textContent!=='×'||!(k.compareDocumentPosition(f)&4)||!(f.compareDocumentPosition(w)&4); }))
+        vus.push(et+'une ligne n\\'écrit pas « a = [k] × [u fléché] »');
+      if(fr && !el('kviInstr').querySelector('.sf-f')) vus.push(et+'la consigne n\\'écrit pas sa fraction empilée');
+      if(kviLatex([-3,2])!=='-\\\\frac{3}{2}' || kviLatex([2,1])!=='2' || !kvEgal(kviPlat('-(3)/(2)'),[-3,2])) vus.push(et+'la fraction de la case MathLive ne se lit ou ne s\\'écrit pas empilée');
       nextKvi();
       /* la copie vide : rien de rouge, douze corrections vertes */
       checkKvi();
