@@ -4085,7 +4085,8 @@ autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
 navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
 flèche, lui, ne se mesure qu'à l'œil.
 
-**Puis le 8.3.1 a monté une échelle (v577 — v576 prise par le 8.3.2 pendant les bancs).** Turquet, octobre 2026 : « en
+<<<<<<< HEAD
+**Puis le 8.3.1 a monté une échelle (v579 — v576 à v578 prises par les 8.3.2, 8.3.5 à 8.3.8 et 8.3.4 pendant les bancs).** Turquet, octobre 2026 : « en
 seconde dans le 8.3.1, demander soit un multiple entier de u, et on doit
 tracer k u, −u et −k u ; soit une fraction a/b de u, et on demande de tracer
 1/b u puis −1/b u puis a/b u ». Les trois coefficients ne se tirent plus au
@@ -4102,3 +4103,104 @@ et le rappel gagne un ⑤ : la fraction se construit par étapes. Rien d'autre
 ne change — ni le juge, ni le geste, ni la clé (`tvxCleK`). Le banc principal
 tient la nouvelle forme sur deux cents séances (l'échelle, et la sorte qui
 suit le rang de la question).
+=======
+**Puis le réel du 8.3.4 s'est écrit EMPILÉ** (demande de Turquet, octobre
+2026, Seconde v578 : « dans le 8.3.4, il faut une écriture fractionnaire et
+pas en ligne pour les fractions »). La case du réel était un `<input>` : l'élève
+tapait « −3/4 » en ligne, à côté d'une correction (`mf-cor`) qui, elle,
+empilait déjà. Elle est devenue une case MathLive (`pmMF('kco-in', …)`), où la
+touche / pose le trait — la consigne le dit, et montre la fraction empilée au
+lieu de « (−3/2) ». Trois endroits ont suivi, et en oublier un rendait la
+fraction en ligne ou la réponse fausse :
+
+* **la lecture** : `value` d'une case MathLive rend le texte de `toPlain`,
+  « -(3)/(4) » ; `kvLit` retire les parenthèses, et lit aussi un `\frac{3}{4}`
+  brut et le « {,} » décimal — le double du banc jsdom, qui ne convertit rien,
+  rend le LaTeX tel quel ;
+* **la correction** d'une ligne vide écrit `kvLatex(c)` (« -\frac{3}{4} »),
+  plus `kvSaisie` : du texte posé dans MathLive s'y affiche en ligne ;
+* **la reprise** d'une pause remet le texte rangé par `captureBoxes`
+  (« -(3)/(4) ») : le setter de `pmAdapter` passe désormais par
+  `pmVersLatex`, qui relève chaque « (a)/(b) » en `\frac{a}{b}`, du plus
+  profond au plus large, et laisse intact un texte qui porte déjà du LaTeX.
+  Ce setter sert toutes les cases `pm-mf` de la Seconde : une fraction tapée
+  dans n'importe laquelle revenait en ligne après une pause, et revient
+  empilée.
+
+L'Entrée ne valide plus directement : comme dans toute case `pm-mf`, elle passe
+à la case suivante, puis au bouton « Vérifier ». Le 8.3.3, dont les cases de
+coefficient sont toujours des `<input>`, n'a pas changé — la demande ne
+portait que sur le 8.3.4. Contrôles (banc principal) : la case du réel est un
+`math-field`, la lecture de « -(3)/(4) », de `\frac` et de « 1{,}5 »,
+`pmVersLatex`, et la correction écrite en `\frac`.
+
+## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
+
+**La demande** (Turquet, octobre 2026) : sur quinze idées proposées pour
+compléter la Fiche 1, « faire les 12, 13, 14 et 15 — je ne veux pas de
+coordonnées de vecteurs ». Les idées à coordonnées (k u⃗ calculé, le
+déterminant, l'alignement en repère) sont écartées ; les quatre retenues se
+lisent sur un quadrillage, sur une figure ou sur une phrase. Rangées dans
+l'ordre qui monte, à la suite du 8.3.4 : lire (8.3.5), construire (8.3.6),
+traduire (8.3.7), démontrer (8.3.8). Rien ne se renumérote.
+
+**Quatre moteurs, une même règle de jugement** : rien ne se colore avant
+« Vérifier » (`soutienEnDirect.sans`) — des listes à deux ou trois choix,
+des points à cliquer, une rédaction dont les cases se jugent ensemble. On
+range les données, jamais la réponse ; tout se recalcule.
+
+**8.3.5, même sens ou sens contraire ? plus long ou plus court ?** (`kss`).
+Un u⃗ violet et quatre vecteurs dessinés qui lui sont colinéaires (le
+tirage de `kviGen` : direction, multiple, réels dont le dénominateur divise
+le multiple, `kvPoser`), puis trois vecteurs « sans dessin » donnés par leur
+réel (e⃗ = −⅔u⃗). Deux listes par vecteur, quatorze cases par page, deux
+pages. Les réels de chaque groupe montrent les quatre cas (`kssVarie`), et
+le groupe sans dessin porte TOUJOURS un réel entre −1 et 0 : le piège visé
+est « négatif donc plus court ». Le pourquoi lit le signe pour le sens, la
+valeur sans le signe pour la longueur, et le nomme quand c'est lui.
+Le contrôle a d'abord laissé passer un sabotage (« aussi long » jugé
+« plus long ») : sa figure fixe n'avait pas de réel −1. Elle en a un.
+
+**8.3.6, placer un point défini par une égalité** (`kpl`). Le geste, les
+croix et les étiquettes du 8.1.12 (`tan`), d'où une géométrie de quadrillage
+IDENTIQUE (écrite en nombres : `TAN_W` est déclaré plus bas dans la page, et
+une constante lue avant sa déclaration lève une erreur au chargement). Deux
+points A et B, AB⃗ d'au moins quatre carreaux — à deux carreaux, les trois
+points se serraient sur un bout de droite (vu sur la première capture) —,
+trois égalités `[origine, référence, numérateur, dénominateur]` : la
+première page n'écrit que AM⃗ = kAB⃗, les suivantes partent aussi de B, ou
+de BA⃗. Les pièges nommés : le mauvais côté (le signe), parti de l'autre
+point, sur la droite à la mauvaise distance, hors de la droite. Les lettres
+A et B se posent dans le prolongement de la flèche : à la place de celles du
+8.1.12, la lettre de B tombait sur la pointe.
+
+**8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
+trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
+du côté opposé à B…), cinq par page ; six cartes AM⃗ = kAB⃗ lettrées a à f,
+dont une de trop, prise de préférence comme l'OPPOSÉE d'un réel juste. Le
+pourquoi traduit la phrase et la carte choisie en « côté de A, puis
+longueur », côte à côte.
+
+**8.3.8, démontrer un parallélisme** (`kmi`). La démonstration du manuel,
+en treize cases : IJ⃗ = IA⃗ + AJ⃗ = kBA⃗ + kAC⃗ = k(BA⃗ + AC⃗) = kBC⃗,
+puis « colinéaires » et « parallèles ». Première page : les milieux (k = ½) ;
+les suivantes, AI⃗ = kAB⃗ et AJ⃗ = kAC⃗, k tiré parmi ⅓, ⅔, ¼, ¾, 2, 3/2,
+−½ (un k par page, `distinctes()` sur k). La figure est celle du 8.1.11
+(`vmiSommets`), les côtés prolongés en pointillés quand I et J en sortent.
+**Toute écriture juste est acceptée** : l'ordre des sommes, −kAB⃗ pour IA⃗,
+−k(AB⃗ + CA⃗), −kCB⃗ ; une case de réel se juge avec le vecteur qu'elle
+multiplie (devant AB⃗, IA⃗ attend −k). La première ligne doit passer par le
+sommet : IB⃗ + BJ⃗ est vrai mais ne mène pas aux côtés, et le message le
+dit. Sur la première capture, la conclusion écrivait ses vecteurs avec la
+case-flèche des lignes (`.veg-v`) au milieu du texte : les flèches se
+décalaient et la ligne se repliait ; elle les écrit en `.vgt-vec`.
+
+**Les bancs.** Le principal (`vecteursColineairesSuite`) : les quatre
+places et leurs voisins, les rappels et les questions à l'IA ; deux cents
+tirages par moteur (réels, nœuds, quadrillage, points distincts, une carte
+juste par phrase, k distincts) ; la copie juste après le JSON de la pause ;
+la copie vide (rien de rouge, tout en vert) ; les pièges nommés ; au 8.3.8,
+la rédaction du manuel ET une rédaction dans l'autre ordre avec les formes
+opposées, chacune à 13 sur 13. Éprouvé par deux sabotages (un juge de
+longueur faussé, une forme juste du 8.3.8 retirée), chacun attrapé.
+>>>>>>> origin/main
