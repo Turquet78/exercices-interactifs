@@ -2917,7 +2917,18 @@
   .kv-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue)}
   .kv-in.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
   .kv-in.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
-  #scr-kvi .plc-sel.kv-sel{width:84px;font-family:"Times New Roman",serif;font-style:italic;font-size:1.3rem;padding:0}
+  #scr-kvi .kv-in{width:64px}
+  #scr-kvi .kv-l{gap:8px 6px}
+  /* la case du vecteur porte sa flèche dès qu'un vecteur est choisi (une
+     <option> ne prend pas de HTML, et la flèche combinante U+20D7 n'y est pas
+     dessinée) : de la couleur de la case, bleue, rouge ou verte au verdict */
+  #scr-kvi .kv-vc{position:relative;display:inline-flex;color:var(--blue-dark)}
+  #scr-kvi .kv-vc::before{content:'\2192';position:absolute;top:3px;left:0;right:0;text-align:center;font-size:.85rem;line-height:1;pointer-events:none;color:inherit}
+  #scr-kvi .kv-vc:has(option[value=""]:checked)::before{content:none}
+  #scr-kvi .kv-vc:has(.ok){color:var(--blue)}
+  #scr-kvi .kv-vc:has(.bad){color:var(--red)}
+  #scr-kvi .kv-vc:has(.sol){color:var(--green)}
+  #scr-kvi .plc-sel.kv-sel{width:52px;font-family:"Times New Roman",serif;font-style:italic;font-size:1.3rem;padding:0}
   #scr-kvi .mf-cor{font-family:"Fredoka"}
   .kco-l .kco-q{white-space:nowrap}
   .kco-l .kco-rep{display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-left:auto}
@@ -8420,7 +8431,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=575;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=576;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -65128,7 +65139,7 @@ function renderKvi(){
   q.l.forEach(function(_,i){
     h+='<div class="kv-l"><span class="kv-nom">'+tvxVecHTML(KVI_L[i])+'</span><span class="kv-eg">=</span>'
       +'<input class="kv-in" id="kvi-k-'+i+'" type="text" inputmode="numeric" data-pave-plus="/" autocomplete="off" spellcheck="false" aria-label="le coefficient k du vecteur '+KVI_L[i]+'">'
-      +'<select class="plc-sel kv-sel" id="kvi-v-'+i+'" aria-label="le vecteur u, v ou w multiplié pour obtenir '+KVI_L[i]+'">'+opts+'</select></div>';
+      +'<span class="kv-eg kv-fois">×</span><span class="kv-vc"><select class="plc-sel kv-sel" id="kvi-v-'+i+'" aria-label="le vecteur u, v ou w multiplié pour obtenir '+KVI_L[i]+'">'+opts+'</select></span></div>';
   });
   $('kviHost').innerHTML=h+'</div>';
   kviCases(q).forEach(function(id){ const el=$(id); if(!el) return;
@@ -65164,6 +65175,10 @@ function checkKvi(){
   const n=subs.filter(function(s){ return s.ok; }).length, tout=n===subs.length;
   const pourquoi=kviPourquoi(q,subs);
   subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); });
+  /* le badge du bon vecteur porte sa flèche, et sort du cadre de la case
+     (.kv-vc), dont la flèche se centre sur la seule liste */
+  q.l.forEach(function(x,i){ const ev=$('kvi-v-'+i), b=ev&&ev.nextElementSibling;
+    if(b&&b.classList.contains('mf-cor')){ b.innerHTML=tvxVecHTML(KVI_N[x[2]]); ev.parentNode.after(b); } });
   if(!tout&&isSoutien()){ soutienAgain('kviFeedback','kviActions','checkKvi','kviHost'); return; }
   test.locked=true;
   test.score+=n;
