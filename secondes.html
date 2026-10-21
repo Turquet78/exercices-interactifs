@@ -8522,7 +8522,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=580;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=581;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9373,7 +9373,7 @@ const TESTS={
   'identifier-multiple-non-entier': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w (k d\u00e9cimal ou fraction)', icon:'\ud83d\udd0d', desc:'Comme l\u2019exercice pr\u00e9c\u00e9dent, mais k peut valoir \u22121,5, \u00be, 5/2\u2026 Trouve le vecteur et le coefficient.', start:()=>startKvi(true) },
   'vecteurs-colineaires-figure': { name:'Colin\u00e9aires ou non\u00a0?', icon:'\u2194\ufe0f', desc:'Une figure de vecteurs AB, CD, EF\u2026\u00a0: pour chaque paire, dis s\u2019ils sont colin\u00e9aires et, si oui, \u00e9cris le r\u00e9el k tel que AB = k GH.', start:()=>startKco() },
   'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'Des vecteurs colin\u00e9aires \u00e0 u, dessin\u00e9s ou donn\u00e9s par leur r\u00e9el k (\u22122u, \u2154u\u2026)\u00a0: dis s\u2019ils ont le m\u00eame sens que u ou le sens contraire, et s\u2019ils sont plus longs, plus courts ou aussi longs.', start:()=>startKss() },
-  'placer-point-colineaire': { name:'Placer un point d\u00e9fini par une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccd', desc:'Deux points A et B sur un quadrillage, et trois \u00e9galit\u00e9s comme AM = \u2154AB ou BN = \u2212\u00bdAB\u00a0: place M, N et P d\u2019un clic.', start:()=>startKpl() },
+  'placer-point-colineaire': { name:'Placer un point d\u00e9fini par une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccd', desc:'Des points A, B, C, D, E sur un quadrillage, et trois \u00e9galit\u00e9s comme CM = \u2154AB ou DN = \u2212\u00bdBA\u00a0: place M, N et P d\u2019un clic.', start:()=>startKpl() },
   'phrase-relation-colineaire': { name:'Associer une phrase et une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udd17', desc:'\u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb, \u00ab\u00a0M est sur [AB] et AM est le tiers de AB\u00a0\u00bb\u2026\u00a0: pour chaque phrase, choisis l\u2019\u00e9galit\u00e9 AM = kAB qui la traduit. Une \u00e9galit\u00e9 est de trop.', start:()=>startKph() },
   'milieux-parallele-vecteurs': { name:'D\u00e9montrer un parall\u00e9lisme avec les vecteurs', icon:'\u2225', desc:'Dans un triangle ABC, I et J sont les milieux de [AB] et [AC], puis AI = kAB et AJ = kAC\u00a0: compl\u00e8te la d\u00e9monstration \u2014 Chasles, le r\u00e9el en facteur, Chasles \u2014 pour prouver que (IJ) et (BC) sont parall\u00e8les.', start:()=>startKmi() },
   'chasles-inserer-point': { name:'Chasles\u00a0: ins\u00e9rer un point', icon:'\ud83d\udd00', desc:'Le sens inverse de la relation de Chasles\u00a0: d\u00e9compose un vecteur en ins\u00e9rant un point \u2014 AC = A\u2026 + \u2026C, AC = \u2026B + B\u2026, AB = A\u2026 + \u2026 + \u2026B \u2014, avec ou sans figure. Toute \u00e9galit\u00e9 juste est accept\u00e9e.', start:()=>startChi() },
@@ -11208,7 +11208,7 @@ const QIA_SUGG={
   cha:["Que dit la relation de Chasles\u00a0?","Comment remplacer un vecteur par un vecteur \u00e9gal sur la droite\u00a0?","Qu\u2019est-ce que le vecteur nul\u00a0?","Comment encha\u00eener trois vecteurs\u00a0?"],
   kvi:["Comment reconna\u00eetre si un vecteur est un multiple de u, de v ou de w\u00a0?","Comment trouver le signe de k\u00a0?","Comment calculer k \u00e0 partir des carreaux\u00a0?","Que veut dire a = \u22122v\u00a0?","Comment \u00e9crire k quand ce n\u2019est pas un entier\u00a0?"],
   kss:["Comment savoir si k u a le m\u00eame sens que u\u00a0?","\u22123u est-il plus court que u\u00a0?","Que fait un r\u00e9el entre 0 et 1\u00a0?","Comment lire k sur le dessin\u00a0?"],
-  kpl:["Comment placer M tel que AM = \u2154AB\u00a0?","Que change le signe moins\u00a0?","De quel point faut-il partir\u00a0?","Pourquoi M est-il sur la droite (AB)\u00a0?"],
+  kpl:["Comment placer M tel que CM = \u2154AB\u00a0?","Que change le signe moins\u00a0?","De quel point faut-il partir\u00a0?","Pourquoi (CM) est-elle parall\u00e8le \u00e0 (AB)\u00a0?"],
   kph:["Comment traduire \u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb avec des vecteurs\u00a0?","Comment savoir si k est positif ou n\u00e9gatif\u00a0?","Que veut dire AM = \u2212AB\u00a0?","Comment trouver la valeur de k\u00a0?"],
   kmi:["Pourquoi passer par le point A\u00a0?","Comment \u00e9crire IA avec AB\u00a0?","Comment mettre un r\u00e9el en facteur dans une somme de vecteurs\u00a0?","Pourquoi des vecteurs colin\u00e9aires donnent-ils des droites parall\u00e8les\u00a0?"],
   kco:["Qu\u2019est-ce que deux vecteurs colin\u00e9aires\u00a0?","Comment savoir si deux vecteurs sont colin\u00e9aires sur un quadrillage\u00a0?","Comment trouver le r\u00e9el k\u00a0?","Deux vecteurs de sens contraires peuvent-ils \u00eatre colin\u00e9aires\u00a0?","Pourquoi des fl\u00e8ches presque parall\u00e8les ne suffisent-elles pas\u00a0?"],
@@ -12774,11 +12774,11 @@ const RAP_KSS=`<b>Le sens et la longueur de k<span class="vec"><i>u</i></span></
 <b>② k sans son signe donne la longueur</b> : plus grand que 1, k<span class="vec"><i>u</i></span> est plus long que <span class="vec"><i>u</i></span> ; plus petit que 1, plus court ; égal à 1, aussi long.<br>
 <b>③ Le piège</b> : un réel négatif ne raccourcit pas le vecteur. −3<span class="vec"><i>u</i></span> est trois fois plus LONG que <span class="vec"><i>u</i></span>, retourné ; ${kvHTML([-1,2],'u')} est deux fois plus court, retourné.<br>
 <b>④ Sur le dessin</b>, on compare les flèches : même côté ou côtés opposés, puis les carreaux.`;
-const RAP_KPL=`<b>Placer un point M tel que <span class="vgt-vec">AM</span> = k<span class="vgt-vec">AB</span></b><br>
-<b>① On part de la première lettre</b> du vecteur : A pour <span class="vgt-vec">AM</span>, B pour <span class="vgt-vec">BM</span>.<br>
-<b>② M est sur la droite (AB)</b> : <span class="vgt-vec">AM</span> et <span class="vgt-vec">AB</span> sont colinéaires, donc A, B et M sont alignés.<br>
-<b>③ Le signe de k donne le côté</b> : positif, on va dans le sens de <span class="vgt-vec">AB</span> ; négatif, dans le sens contraire.<br>
-<b>④ La longueur</b> : AM vaut k fois AB, sans le signe. Sur le quadrillage, on multiplie chaque nombre de carreaux du chemin de A à B par k : pour ${kvHTML([2,3],'')}<span class="vgt-vec">AB</span>, si AB fait 6 carreaux vers la droite et 3 vers le haut, AM en fait 4 et 2.`;
+const RAP_KPL=`<b>Placer un point M tel que <span class="vgt-vec">CM</span> = k<span class="vgt-vec">AB</span></b><br>
+<b>① On part de la première lettre</b> du vecteur : C pour <span class="vgt-vec">CM</span>, D pour <span class="vgt-vec">DN</span>.<br>
+<b>② M est sur la parallèle à (AB) passant par C</b> : <span class="vgt-vec">CM</span> et <span class="vgt-vec">AB</span> sont colinéaires, donc les droites (CM) et (AB) sont parallèles.<br>
+<b>③ Le signe de k donne le sens</b> : positif, on va dans le sens de <span class="vgt-vec">AB</span> ; négatif, dans le sens contraire.<br>
+<b>④ La longueur</b> : CM vaut k fois AB, sans le signe. Sur le quadrillage, on multiplie chaque nombre de carreaux du chemin de A à B par k, et on fait ce chemin en partant de C : pour <span class="vgt-vec">CM</span> = ${kvHTML([2,3],'')}<span class="vgt-vec">AB</span>, si AB fait 6 carreaux vers la droite et 3 vers le haut, on part de C et on fait 4 carreaux vers la droite et 2 vers le haut.`;
 const RAP_KPH=`<b>Traduire une phrase par une égalité de vecteurs</b><br>
 <b>① <span class="vgt-vec">AM</span> = k<span class="vgt-vec">AB</span> dit deux choses</b> : de quel côté de A se trouve M, et à quelle distance.<br>
 <b>② Le côté</b> : k positif, M est du même côté de A que B ; k négatif, de l'autre côté de A.<br>
@@ -65831,24 +65831,32 @@ function ctxKss(q){
    et AB⃗ colinéaires disent que A, B et M sont alignés).
 
    ON RANGE LA FIGURE ET LES POINTS POSÉS, JAMAIS LA RÉPONSE : q.a et q.b (les
-   deux points), q.r (trois égalités [origine (0 : A, 1 : B), vecteur de
-   référence (0 : AB⃗, 1 : BA⃗), numérateur, dénominateur]), q.l (le jeu de
-   lettres) et q.p (les points posés). kplCible() recalcule le point attendu.
-   La première page de la séance n'écrit que AM⃗ = kAB⃗ ; les suivantes
-   partent aussi de B, ou de BA⃗. */
+   deux points), q.o (les trois points de départ C, D, E), q.r (trois égalités
+   [vecteur de référence (0 : AB⃗, 1 : BA⃗), numérateur, dénominateur]), q.l
+   (le jeu de lettres) et q.p (les points posés). kplCible() recalcule le point
+   attendu. La première page de la séance n'écrit que CM⃗ = kAB⃗ ; les
+   suivantes prennent aussi BA⃗.
+
+   CHAQUE POINT A SON POINT DE DÉPART (demande de Turquet, octobre 2026 :
+   « pour chaque point M, N et P un point de départ différent C, D et E ; les
+   formules à trouver sont de la forme CM⃗ = kAB⃗ ») : M part de C, N de D,
+   P de E, trois points posés HORS de la droite (AB). M n'est donc plus sur
+   (AB) mais sur la parallèle à (AB) passant par C. Un brouillon d'avant
+   (sans q.o) se retire au chargement : sa question est tirée à neuf. */
 /* la géométrie du 8.1.12 (TAN_W…), écrite en nombres : ses constantes sont déclarées
    plus bas dans la page, et ses croix (tanCroix, tanEtiquette) servent ici */
 const KPL_W=16, KPL_H=10, KPL_C=34, KPL_PX=30, KPL_PY=30;
 const KPL_GEO={c:KPL_C, px:KPL_PX, py:KPL_PY, h:KPL_H};
 const KPL_NB=3;
-const KPL_NOMS=[['A','B'],['E','F'],['R','S'],['C','D']];
+/* les deux points de la droite, puis les points de départ de M, N et P */
+const KPL_NOMS=[['A','B','C','D','E'],['E','F','G','H','K'],['R','S','T','U','V'],['C','D','E','F','G']];
 const KPL_PTS=['M','N','P'];
 function kplNoms(q){ return KPL_NOMS[(q&&q.l>=0&&q.l<KPL_NOMS.length)?q.l:0]; }
-function kplOrig(q,k){ return q.r[k][0] ? q.b : q.a; }
-function kplRef(q,k){ const s=q.r[k][1]?-1:1; return [s*(q.b[0]-q.a[0]), s*(q.b[1]-q.a[1])]; }
-function kplCible(q,k){ const O=kplOrig(q,k), w=kplRef(q,k), r=q.r[k]; return [O[0]+w[0]*r[2]/r[3], O[1]+w[1]*r[2]/r[3]]; }
-/* les noms de l'égalité k : le vecteur posé (« AM »), son origine, le vecteur de référence (« AB » ou « BA ») */
-function kplRel(q,k){ const n=kplNoms(q), r=q.r[k]; return {o:n[r[0]], g:n[r[0]]+KPL_PTS[k], ref:r[1]?n[1]+n[0]:n[0]+n[1], c:[r[2],r[3]]}; }
+function kplOrig(q,k){ return q.o[k]; }
+function kplRef(q,k){ const s=q.r[k][0]?-1:1; return [s*(q.b[0]-q.a[0]), s*(q.b[1]-q.a[1])]; }
+function kplCible(q,k){ const O=kplOrig(q,k), w=kplRef(q,k), r=q.r[k]; return [O[0]+w[0]*r[1]/r[2], O[1]+w[1]*r[1]/r[2]]; }
+/* les noms de l'égalité k : le vecteur posé (« CM »), son origine, le vecteur de référence (« AB » ou « BA ») */
+function kplRel(q,k){ const n=kplNoms(q), r=q.r[k]; return {o:n[2+k], g:n[2+k]+KPL_PTS[k], ref:r[0]?n[1]+n[0]:n[0]+n[1], c:[r[1],r[2]]}; }
 function kplRelHTML(q,k){ const t=kplRel(q,k); return '<span class="vgt-vec">'+t.g+'</span> = '+kvHTML(t.c,'')+'<span class="vgt-vec">'+t.ref+'</span>'; }
 function kplRelTxt(q,k){ const t=kplRel(q,k); return t.g+' = '+(t.c[0]===-1&&t.c[1]===1 ? '−' : kvTxt(t.c)+' ')+t.ref; }
 function kplCases(q){ return ['kpl-0','kpl-1','kpl-2']; }
@@ -65871,26 +65879,29 @@ function kplGen(l){
       if(!num||gcd(num,den)!==1||m%den||num===den||Math.abs(num/den)>2.5) continue;
       cs.push([num,den]);
     }
-    const q={a:a, b:b, l:l, r:[], p:[null,null,null]}, pris=[a,b];
+    const q={a:a, b:b, l:l, o:[], r:[], p:[null,null,null]}, pris=[a,b];
     let ok=true;
     for(let k=0;k<3&&ok;k++){
       let r=null;
       for(let t=0;t<150&&!r;t++){
-        const c=pick(cs), e=[l===0?0:rand(0,1), l===0?0:rand(0,1), c[0], c[1]];
-        q.r[k]=e;
+        /* le point de départ : un nœud libre, hors de la droite (AB) */
+        const O=[rand(1,KPL_W-1), rand(1,KPL_H-1)];
+        if((O[0]-a[0])*ab[1]-(O[1]-a[1])*ab[0]===0||pris.some(function(x){ return tanEgal(x,O); })) continue;
+        const c=pick(cs), e=[l===0?0:rand(0,1), c[0], c[1]];
+        q.o[k]=O; q.r[k]=e;
         const p=kplCible(q,k);
         if(!dans(p)||pris.some(function(x){ return tanEgal(x,p); })) continue;
-        r=e; pris.push(p);
+        r=e; pris.push(O,p);
       }
       if(!r) ok=false;
     }
     if(!ok) continue;
-    if(!q.r.some(function(x){ return x[2]<0; }) || !q.r.some(function(x){ return x[3]>1; })) continue;
-    if(l>0 && !q.r.some(function(x){ return x[0]||x[1]; })) continue;
+    if(!q.r.some(function(x){ return x[1]<0; }) || !q.r.some(function(x){ return x[2]>1; })) continue;
+    if(l>0 && !q.r.some(function(x){ return x[0]; })) continue;
     return q;
   }
   /* repli — jamais atteint en pratique */
-  return {a:[3,3], b:[9,3], l:l, r:[[0,0,1,3],[0,0,-1,3],[0,0,3,2]], p:[null,null,null]};
+  return {a:[3,3], b:[9,3], l:l, o:[[2,6],[13,8],[8,1]], r:[[0,1,3],[0,-1,3],[0,3,2]], p:[null,null,null]};
 }
 function kplBuildQuestions(){ return distinctes(dmNbQuestions(KPL_NB), function(_,i){ return kplGen(i%KPL_NOMS.length); }); }
 function kplSVG(q){
@@ -65900,8 +65911,10 @@ function kplSVG(q){
   const ab=[q.b[0]-q.a[0], q.b[1]-q.a[1]], l=Math.hypot(ab[0],ab[1])||1;
   [q.a, q.b].forEach(function(p,k){ const s=k?1:-1, x=tanX(p[0])+s*ab[0]/l*20, y=tanY(p[1])-s*ab[1]/l*20+6;
     donnes+=tanCroix(p,'tan-donne')+'<text class="tan-lbl tan-donne-t" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="middle">'+n[k]+'</text>'; });
+  /* les trois points de départ */
+  q.o.forEach(function(p,k){ donnes+=tanCroix(p,'tan-donne')+tanEtiquette(p, n[2+k], 'tan-donne-t'); });
   const pointe=function(id,coul){ return '<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+coul+'"/></marker>'; };
-  return '<svg viewBox="0 0 '+Wd+' '+Hd+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tan-svg kpl-svg" role="img" aria-label="Quadrillage : les points '+n[0]+' et '+n[1]+', le vecteur '+n[0]+n[1]+', et les points '+KPL_PTS.join(', ')+' à placer">'
+  return '<svg viewBox="0 0 '+Wd+' '+Hd+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tan-svg kpl-svg" role="img" aria-label="Quadrillage : les points '+n[0]+' et '+n[1]+', le vecteur '+n[0]+n[1]+', les points de départ '+n.slice(2).join(', ')+', et les points '+KPL_PTS.join(', ')+' à placer">'
     +'<defs>'+pointe('kplArr0','var(--ink)')+pointe('kplArrS','var(--green)')+'</defs>'
     +kvGrille(KPL_GEO,KPL_W)+'<g id="kplDonnes">'+donnes+'</g><g id="kplCorr"></g><g id="kplEl"></g>'
     +'<g id="kplCurseur" class="tan-curseur" aria-hidden="true" style="display:none"></g></svg>';
@@ -66008,14 +66021,16 @@ function kplPourquoi(q,subs){
   subs.forEach(function(s,k){
     if(s.ok||s.vide) return;
     const r=q.p[k], t=kplRel(q,k), O=kplOrig(q,k), w=kplRef(q,k), c=t.c, M=KPL_PTS[k];
-    const autreO=q.r[k][0] ? q.a : q.b, autre=q.r[k][0] ? n[0] : n[1];
-    const inverse=[O[0]-w[0]*c[0]/c[1], O[1]-w[1]*c[0]/c[1]], parti=[autreO[0]+w[0]*c[0]/c[1], autreO[1]+w[1]*c[0]/c[1]];
+    /* les autres points du dessin d'où l'élève a pu partir : A, B et les deux autres départs */
+    const autres=[[q.a,n[0]],[q.b,n[1]]].concat([0,1,2].filter(function(j){ return j!==k; }).map(function(j){ return [q.o[j],n[2+j]]; }));
+    const inverse=[O[0]-w[0]*c[0]/c[1], O[1]-w[1]*c[0]/c[1]];
+    const parti=autres.find(function(x){ return tanEgal(r,[x[0][0]+w[0]*c[0]/c[1], x[0][1]+w[1]*c[0]/c[1]]); });
     const d=[r[0]-O[0], r[1]-O[1]], aligne=d[0]*w[1]-d[1]*w[0]===0;
-    const rel=kplRelTxt(q,k);
+    const rel=kplRelTxt(q,k), para='la parallèle à ('+n[0]+n[1]+') passant par '+t.o;
     if(tanEgal(r,inverse)) m.push(rel+' : le réel '+kvTxt(c).replace(/^−$/,'−1')+' est '+(c[0]<0?'NÉGATIF, donc '+t.g+' a le sens CONTRAIRE de '+t.ref+' : '+M+' est de l’autre côté de '+t.o:'POSITIF, donc '+t.g+' a le MÊME sens que '+t.ref)+'. Ton point '+M+' est du mauvais côté de '+t.o+'.');
-    else if(tanEgal(r,parti)) m.push(rel+' : le vecteur '+t.g+' part de '+t.o+'. Ton point '+M+' est parti de '+autre+'.');
-    else if(aligne) m.push(rel+' : ton point '+M+' est bien sur la droite ('+n[0]+n[1]+'), mais pas à la bonne distance de '+t.o+' : '+t.o+M+' doit mesurer '+kssAbs(c)+' fois '+n[0]+n[1]+'.');
-    else m.push(rel+' : ton point '+M+' n’est pas sur la droite ('+n[0]+n[1]+'). Les vecteurs '+t.g+' et '+t.ref+' sont colinéaires, donc '+n[0]+', '+n[1]+' et '+M+' sont alignés.');
+    else if(parti) m.push(rel+' : le vecteur '+t.g+' part de '+t.o+'. Ton point '+M+' est parti de '+parti[1]+'.');
+    else if(aligne) m.push(rel+' : ton point '+M+' est bien sur '+para+', mais pas à la bonne distance de '+t.o+' : '+t.o+M+' doit mesurer '+kssAbs(c)+' fois '+n[0]+n[1]+'.');
+    else m.push(rel+' : ton point '+M+' n’est pas sur '+para+'. Les vecteurs '+t.g+' et '+t.ref+' sont colinéaires, donc les droites ('+t.o+M+') et ('+n[0]+n[1]+') sont parallèles.');
   });
   return m.join(' ');
 }
@@ -66043,12 +66058,14 @@ function renderKpl(){
   const q=test.questions[test.idx];
   test.locked=false; test.kplSel=-1; test.kplMarque=[];
   const pt=function(p){ return Array.isArray(p)&&p.length===2&&p[0]>=0&&p[0]<=KPL_W&&p[1]>=0&&p[1]<=KPL_H?p:null; };
+  /* un brouillon d'avant les points de départ (v580 et avant) : la question se tire à neuf */
+  if(!Array.isArray(q.o)||q.o.length!==3) Object.assign(q, kplGen(q.l>=0&&q.l<KPL_NOMS.length?q.l:0));
   if(!Array.isArray(q.p)||q.p.length!==3) q.p=[null,null,null];
   q.p=q.p.map(pt);
   const n=kplNoms(q);
   $('kplIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('kplModeTag').innerHTML=modeTagHTML();
-  $('kplInstr').innerHTML='Les points '+n[0]+' et '+n[1]+' sont placés sur le quadrillage. Place les points '+KPL_PTS.join(', ').replace(/, ([^,]*)$/,' et $1')+' définis par les égalités de vecteurs ci-dessous.'
+  $('kplInstr').innerHTML='Les points '+n.join(', ').replace(/, ([^,]*)$/,' et $1')+' sont placés sur le quadrillage. Place les points '+KPL_PTS.join(', ').replace(/, ([^,]*)$/,' et $1')+' définis par les égalités de vecteurs ci-dessous.'
     +'<span class="tan-sous">Clique le nœud du quadrillage où se trouve le point : une croix s’y pose. Pour déplacer un point, clique dessus, puis clique sa nouvelle place.</span>';
   $('kplBody').innerHTML=[0,1,2].map(function(k){
       return '<div class="tvg-cons pts-case" id="kpl-'+k+'" onclick="kplChoisir('+k+')">'+['①','②','③'][k]+' Le point '+KPL_PTS[k]+' tel que '+kplRelHTML(q,k)+'</div>'; }).join('')
@@ -66075,7 +66092,7 @@ function checkKpl(){
     const faux=subs.some(function(s){ return !s.ok&&!s.vide; });
     let m=faux?'Ce n’est pas encore ça : un point rouge n’a pas la bonne place. Clique dessus pour le reprendre. ':'';
     if(subs.some(function(s){ return s.vide; })) m+='Il reste un point à placer. ';
-    m+='Pars de la première lettre du vecteur, suis la droite des deux points donnés, dans le sens que donne le signe du réel, sur une longueur multipliée par le réel sans son signe.';
+    m+='Pars de la première lettre du vecteur, avance parallèlement à la droite ('+kplNoms(q)[0]+kplNoms(q)[1]+'), dans le sens que donne le signe du réel, sur une longueur multipliée par le réel sans son signe.';
     $('kplFeedback').textContent=m; $('kplFeedback').className='mp-feedback bad';
     kplBoutons('Revérifier');
     return;
@@ -66087,13 +66104,14 @@ function checkKpl(){
   test.score+=n;
   if(n===3){ $('kplFeedback').textContent=pick(['Parfait !','Très bien placé !','Excellent !','Exactement !']); $('kplFeedback').className='mp-feedback good'; }
   else {
-    const methode=' Pour placer M tel que AM = k AB, on part de A ; on suit la droite (AB), du côté de B si k est positif, du côté opposé s’il est négatif ; AM mesure k fois AB, sans le signe. Les flèches vertes montrent le bon chemin.';
+    const L=kplNoms(q), A=L[0], B=L[1], C=L[2];
+    const methode=' Pour placer M tel que '+C+'M = k '+A+B+', on part de '+C+' ; on avance parallèlement à ('+A+B+'), dans le sens de '+A+' vers '+B+' si k est positif, dans le sens contraire s’il est négatif ; '+C+'M mesure k fois '+A+B+', sans le signe. Les flèches vertes montrent le bon chemin.';
     $('kplFeedback').textContent=msgAvecVides(subs, pourquoi+methode); $('kplFeedback').className='mp-feedback bad';
   }
   const pos=function(p){ return p?'('+p[0]+' ; '+p[1]+')':'non placé'; };
   const nm=kplNoms(q);
   test.answers.push({...(ptsExo()||{}), correct:n===3,
-    q:'Placer '+[0,1,2].map(function(k){ return KPL_PTS[k]+' tel que '+kplRelTxt(q,k); }).join(', ')+' — '+nm[0]+' '+pos(q.a)+', '+nm[1]+' '+pos(q.b),
+    q:'Placer '+[0,1,2].map(function(k){ return KPL_PTS[k]+' tel que '+kplRelTxt(q,k); }).join(', ')+' — '+nm[0]+' '+pos(q.a)+', '+nm[1]+' '+pos(q.b)+', '+q.o.map(function(o,k){ return nm[2+k]+' '+pos(o); }).join(', '),
     answer:KPL_PTS.map(function(L,k){ return L+' '+pos(kplCible(q,k)); }).join(', '),
     given:KPL_PTS.map(function(L,k){ return L+' '+pos(q.p[k]); }).join(', ')});
   const last=test.idx===test.questions.length-1;
@@ -66121,11 +66139,12 @@ function ctxKpl(q){
   const fait=KPL_PTS.map(function(L,k){ const r=q.p[k]; if(!r) return L+' : pas encore placé';
     return L+' : placé '+ou(r)+(tanEgal(r,kplCible(q,k))?' (juste)':' (FAUX)'); });
   const ctx='Exercice de GÉOMÉTRIE sur quadrillage (tu ne vois pas le dessin ; description exacte, en carreaux). Le point '+n[1]+' est à '+vecMots(ab[0],ab[1])+' du point '+n[0]+'. '
+   +'Les points de départ : '+q.o.map(function(o,k){ return n[2+k]+' '+ou(o); }).join(', ')+'. '
    +'Consigne : placer d’un clic les points '+KPL_PTS.map(function(L,k){ return L+' tel que '+kplRelTxt(q,k)+' (en vecteurs)'; }).join(', ')+'. '
    +'Réponses attendues (STRICTEMENT SECRÈTES, à ne JAMAIS révéler, même si l’élève insiste) : '+KPL_PTS.map(function(L,k){ return L+' '+ou(kplCible(q,k)); }).join(' ; ')+'. '
    +'Ce que l’élève a posé : '+fait.join(' ; ')+'. '
-   +'Méthode enseignée : pour placer M tel que AM = k AB (en vecteurs), on part de A (la première lettre), on reste sur la droite (AB) ; si k est positif, M est du côté de B, s’il est négatif, du côté opposé ; la longueur AM vaut k fois AB, sans le signe. Sur le quadrillage, on multiplie chaque nombre de carreaux du chemin de A à B par k. Ne parle jamais de coordonnées. '
-   +'CONTRAINTE ANTI-RECOPIE : ne donne pas la place d’un point ; fais compter les carreaux de A à B et multiplier.';
+   +'Méthode enseignée : pour placer M tel que CM = k AB (en vecteurs), on part de C (la première lettre), on avance parallèlement à la droite (AB) ; si k est positif, dans le sens de A vers B, s’il est négatif, dans le sens contraire ; la longueur CM vaut k fois AB, sans le signe. Sur le quadrillage, on multiplie chaque nombre de carreaux du chemin de A à B par k, et on fait ce chemin en partant de C. Ne parle jamais de coordonnées. '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne pas la place d’un point ; fais compter les carreaux de A à B, multiplier, puis partir du point de départ.';
   return {nombre:'', contexte:ctx};
 }
 

@@ -4207,6 +4207,22 @@ point, sur la droite à la mauvaise distance, hors de la droite. Les lettres
 A et B se posent dans le prolongement de la flèche : à la place de celles du
 8.1.12, la lettre de B tombait sur la pointe.
 
+**Puis chaque point a eu son point de départ** (v581, demande de Turquet,
+octobre 2026 : « pour chaque point M, N et P un point de départ différent C, D
+et E ; les formules à trouver sont de la forme CM⃗ = kAB⃗ »). Trois points
+C, D, E sont dessinés en plus de A et B, chacun tiré HORS de la droite (AB) :
+M part de C, N de D, P de E, et le vecteur de référence reste AB⃗ (ou BA⃗
+après la première page). M n'est donc plus sur (AB), mais sur la parallèle à
+(AB) passant par C — le rappel, le pourquoi et le contexte du modèle le
+disent ainsi. Une égalité se range `[référence, numérateur, dénominateur]`,
+les départs dans `q.o` ; les jeux de lettres portent cinq lettres (A B C D E,
+E F G H K, R S T U V, C D E F G). Le piège « parti de l'autre point » cherche
+désormais parmi A, B et les deux autres départs. Un brouillon d'avant (sans
+`q.o`) se tire à neuf au chargement plutôt que de planter. Le banc fixe la
+figure A(3 ; 3), B(9 ; 3), C(2 ; 6), D(10 ; 8), E(5 ; 1) et éprouve la copie
+juste, la mauvaise distance sur la parallèle, le départ pris en B, le mauvais
+côté et le point hors de la parallèle.
+
 **8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
 trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
 du côté opposé à B…), cinq par page ; six cartes AM⃗ = kAB⃗ lettrées a à f,
