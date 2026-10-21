@@ -1930,10 +1930,9 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
         </div>
         <div id="pinRow" hidden style="margin-top:14px">
           <label class="lab" for="loginPin">Ton code à 6 chiffres</label>
-          <div class="row">
-            <input class="pin-input" id="loginPin" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off" enterkeyhint="go">
-            <button type="button" class="btn btn-primary" onclick="connexionEleve()">Entrer</button>
-          </div>
+          <!-- Plus de bouton « Entrer » (décision de Turquet, octobre 2026) : le
+               dernier chiffre lance la connexion, et la touche Entrée aussi. -->
+          <input class="pin-input" id="loginPin" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off" enterkeyhint="go">
           <div class="pin-etat" id="pinEtat" role="status" aria-live="polite"></div>
         </div>
       </form>
@@ -3025,7 +3024,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=333;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=334;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.

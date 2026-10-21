@@ -288,7 +288,8 @@ async function cliquerPastille(page, prenom, delai){
    le banc ne clique plus « Entrer » — un second appel derrière un code refusé
    lirait la case vidée et répondrait « Écris ton code » par-dessus « Code
    incorrect ». Il attend que la tentative ait rendu son verdict. Le bouton
-   « Entrer », lui, garde son contrôle propre (section de la connexion). */
+   « Entrer » a disparu (octobre 2026) : la touche Entrée garde son contrôle
+   propre (section de la connexion). */
 async function saisirCode(page, code){
   await page.fill('#loginPin', code);
   await page.waitForFunction(() => typeof connexionEnCours === 'undefined' || !connexionEnCours, null, { timeout: 5000 }).catch(() => {});
@@ -939,8 +940,9 @@ if(require.main === module) (async () => {
          frappe suivante efface le rouge ;
        - un code accepté : VERTE, « C'est bon », puis l'espace s'ouvre —
          et jamais verte avant la réponse de Supabase ;
-       - cinq chiffres ne lancent rien, et le bouton « Entrer » connecte
-         toujours (un code posé sans frappe, comme un remplissage du système). */
+       - cinq chiffres ne lancent rien ; un code posé sans frappe (comme un
+         remplissage du système) se connecte par la touche Entrée — il n'y a
+         plus de bouton « Entrer » (octobre 2026), et le contrôle le vérifie. */
     {
       const lireCase = () => s.page.evaluate(() => {
         const c = document.getElementById('loginPin'), m = document.getElementById('pinEtat');
@@ -948,7 +950,7 @@ if(require.main === module) (async () => {
                  message: m ? m.textContent.trim() : '(aucun #pinEtat)', valeur: c.value, ecran: ((document.querySelector('.screen.on') || {}).id) || '' };
       });
       const attendre = () => s.page.waitForFunction(() => !connexionEnCours, null, { timeout: 5000 }).catch(() => {});
-      let clic, pendant, nEssais, refuse, efface, pendant2, accepte, apres, apresSortie, cinq, nCinq, bouton, nBouton;
+      let clic, pendant, nEssais, refuse, efface, pendant2, accepte, apres, apresSortie, cinq, nCinq, bouton, nBouton, nBoutons;
       try{
         await sortir();
         await s.page.evaluate(() => { window.__faux.delaiConnexion = 600; });
@@ -980,7 +982,9 @@ if(require.main === module) (async () => {
             await s.page.waitForTimeout(300);
             cinq = await lireCase(); nCinq = essais(await depuis(r)).length;
             await s.page.evaluate(c => { document.getElementById('loginPin').value = c; }, CODE_CONTROLE);
-            await s.page.click('#modeCo button.btn-primary');
+            nBoutons = await s.page.evaluate(() => document.querySelectorAll('#pinRow button').length);
+            await s.page.focus('#loginPin');
+            await s.page.keyboard.press('Enter');
             await attendre(); await s.page.waitForTimeout(300);
             bouton = await ecranVisible(s.page); nBouton = essais(await depuis(r)).length;
           }
@@ -1010,11 +1014,12 @@ if(require.main === module) (async () => {
           : accepte.classes !== 'pin-valide' || !/C.est bon/.test(accepte.message) ? 'code accepté : ' + JSON.stringify(accepte)
           : apres !== 'scr-space' ? 'écran atteint : ' + apres
           : 'après la sortie, la case garde : ' + JSON.stringify(apresSortie));
-      verifier('un code incomplet ne lance rien, et le bouton « Entrer » connecte toujours',
-        okClic && !!cinq && nCinq === 0 && cinq.classes === '' && bouton === 'scr-space' && nBouton === 1,
+      verifier('un code incomplet ne lance rien, il n\'y a plus de bouton « Entrer », et la touche Entrée connecte',
+        okClic && !!cinq && nCinq === 0 && cinq.classes === '' && nBoutons === 0 && bouton === 'scr-space' && nBouton === 1,
         !okClic || !cinq ? 'contrôle impossible (pastille introuvable après la sortie)'
           : nCinq ? nCinq + ' tentative(s) avec un chiffre de moins que le code'
-          : 'bouton « Entrer » : écran ' + bouton + ', ' + nBouton + ' tentative(s)');
+          : nBoutons ? nBoutons + ' bouton(s) encore à côté de la case du code'
+          : 'touche Entrée : écran ' + bouton + ', ' + nBouton + ' tentative(s)');
     }
 
     /* LE DOUBLON D'UNE LIGNE SANS CLÉ : l'élève non relié lit « pas encore
