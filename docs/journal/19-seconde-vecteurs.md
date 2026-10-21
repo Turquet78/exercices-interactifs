@@ -4292,6 +4292,24 @@ point est juste, rouge s'il est faux, à côté de la flèche verte de la
 correction. Rien n'est tracé sur le point de départ lui-même (vecteur nul). Au
 doigt, sans survol, la flèche n'apparaît qu'au point posé.
 
+**Puis une égalité par question** (v591, demande de Turquet, octobre 2026 :
+« faire une égalité par question et non trois ; une question avec une
+multiplication par un entier positif, puis un entier négatif, puis une
+fraction positive, puis une fraction négative ; on changera de vecteur et de
+point de départ à chaque question »). La séance compte quatre questions
+(`KPL_NB`), une famille de k chacune, dans cet ordre (`KPL_FAM` ; `kplGen(l,
+f)`, f = i % 4) : 2 ou 3 ; −1, −2 ou −3 ; une fraction positive non entière ;
+une fraction négative non entière. Chaque question a son jeu de trois lettres
+(A B C, E F G, R S T, C D E), son vecteur et son point de départ, et un seul
+point M à placer : CM⃗ = kAB⃗ (kBA⃗ possible après la première). AB⃗ peut
+descendre à deux carreaux : avec k = 3, un vecteur de quatre carreaux
+sortait du quadrillage. Le moteur garde ses tableaux (`q.o`, `q.r`, `q.p`),
+de longueur 1, et lit tout sur `q.r.length` (`kplKs`) ; un brouillon à trois
+égalités se tire à neuf au chargement. Le banc éprouve la famille de chaque
+question sur deux cents tirages, la copie juste, le mauvais côté, le départ
+pris en A, la mauvaise distance, le point hors de la parallèle, le point
+vide et l'ancien brouillon.
+
 **8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
 trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
 du côté opposé à B…), cinq par page ; six cartes AM⃗ = kAB⃗ lettrées a à f,

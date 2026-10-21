@@ -8588,7 +8588,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=590;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=591;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9439,7 +9439,7 @@ const TESTS={
   'identifier-multiple-non-entier': { name:'Reconna\u00eetre k\u00a0u, k\u00a0v ou k\u00a0w (k d\u00e9cimal ou fraction)', icon:'\ud83d\udd0d', desc:'Comme l\u2019exercice pr\u00e9c\u00e9dent, mais k peut valoir \u22121,5, \u00be, 5/2\u2026 Trouve le vecteur et le coefficient.', start:()=>startKvi(true) },
   'vecteurs-colineaires-figure': { name:'Colin\u00e9aires ou non\u00a0?', icon:'\u2194\ufe0f', desc:'Une figure de vecteurs AB, CD, EF\u2026\u00a0: pour chaque paire, dis s\u2019ils sont colin\u00e9aires et, si oui, \u00e9cris le r\u00e9el k tel que AB = k GH.', start:()=>startKco() },
   'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'La d\u00e9finition de deux vecteurs colin\u00e9aires, puis vrai ou faux sur deux vecteurs dessin\u00e9s\u00a0: m\u00eame direction, m\u00eame sens, m\u00eame longueur, colin\u00e9aires. Six situations, toutes les possibles.', start:()=>startKss() },
-  'placer-point-colineaire': { name:'Placer un point d\u00e9fini par une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccd', desc:'Des points A, B, C, D, E sur un quadrillage, et trois \u00e9galit\u00e9s comme CM = \u2154AB ou DN = \u2212\u00bdBA\u00a0: place M, N et P d\u2019un clic.', start:()=>startKpl() },
+  'placer-point-colineaire': { name:'Placer un point d\u00e9fini par une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccd', desc:'Des points A, B, C sur un quadrillage et une \u00e9galit\u00e9 comme CM = \u2154AB\u00a0: place M d\u2019un clic. Quatre questions\u00a0: k entier positif, entier n\u00e9gatif, fraction positive, fraction n\u00e9gative.', start:()=>startKpl() },
   'phrase-relation-colineaire': { name:'Associer une phrase, un dessin et une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udd17', desc:'\u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb, \u00ab\u00a0M est sur [AB] et AM est le tiers de AB\u00a0\u00bb\u2026\u00a0: pour chaque phrase, choisis le dessin sur une droite, puis l\u2019\u00e9galit\u00e9 AM = kAB qui la traduit. Un dessin et une \u00e9galit\u00e9 sont de trop.', start:()=>startKph() },
   'milieux-parallele-vecteurs': { name:'D\u00e9montrer un parall\u00e9lisme avec les vecteurs', icon:'\u2225', desc:'Dans un triangle ABC, I et J sont les milieux de [AB] et [AC], puis AI = kAB et AJ = kAC (k = \u2153, \u00bc, \u00be, \u2155, \u2156\u2026)\u00a0: sur le mod\u00e8le d\u2019un exemple r\u00e9solu, compl\u00e8te la d\u00e9monstration \u2014 Chasles, le r\u00e9el en facteur, Chasles \u2014 pour prouver que (IJ) et (BC) sont parall\u00e8les.', start:()=>startKmi() },
   'demontrer-colineaires': { name:'D\u00e9montrer un parall\u00e9lisme, \u00e9tape par \u00e9tape', icon:'\u270d\ufe0f', desc:'Une d\u00e9monstration \u00e0 trous avec des r\u00e9els\u00a0: Chasles, les \u00e9galit\u00e9s de l\u2019\u00e9nonc\u00e9, le r\u00e9el en facteur \u2014 et pour chaque ligne sa justification \u2014 jusqu\u2019\u00e0 DE = kBC\u00a0: les vecteurs sont colin\u00e9aires, donc les droites sont parall\u00e8les.', start:()=>startDco() },
@@ -66116,14 +66116,26 @@ function ctxKssVf(q){
    formules à trouver sont de la forme CM⃗ = kAB⃗ ») : M part de C, N de D,
    P de E, trois points posés HORS de la droite (AB). M n'est donc plus sur
    (AB) mais sur la parallèle à (AB) passant par C. Un brouillon d'avant
-   (sans q.o) se retire au chargement : sa question est tirée à neuf. */
+   (sans q.o) se retire au chargement : sa question est tirée à neuf.
+
+   UNE ÉGALITÉ PAR QUESTION (demande de Turquet, octobre 2026 : « faire une
+   égalité par question et non trois ; une question avec un entier positif,
+   puis un entier négatif, puis une fraction positive, puis une fraction
+   négative ; on change de vecteur et de point de départ à chaque question »).
+   Quatre questions, un seul point M chacune : CM⃗ = kAB⃗, k tiré dans la
+   famille de la question (kplGen(l, f), f = KPL_FAM). Le moteur garde ses
+   tableaux (q.o, q.r, q.p), de longueur 1 : tout se lit sur q.r.length. Un
+   brouillon à trois égalités se tire à neuf au chargement. */
 /* la géométrie du 8.1.12 (TAN_W…), écrite en nombres : ses constantes sont déclarées
    plus bas dans la page, et ses croix (tanCroix, tanEtiquette) servent ici */
 const KPL_W=16, KPL_H=10, KPL_C=34, KPL_PX=30, KPL_PY=30;
 const KPL_GEO={c:KPL_C, px:KPL_PX, py:KPL_PY, h:KPL_H};
-const KPL_NB=3;
-/* les deux points de la droite, puis les points de départ de M, N et P */
-const KPL_NOMS=[['A','B','C','D','E'],['E','F','G','H','K'],['R','S','T','U','V'],['C','D','E','F','G']];
+const KPL_NB=4;
+/* les deux points de la droite, puis le point de départ de M — un jeu par question */
+const KPL_NOMS=[['A','B','C'],['E','F','G'],['R','S','T'],['C','D','E']];
+/* les quatre familles de k, une par question, dans cet ordre */
+const KPL_FAM=['entier positif','entier négatif','fraction positive','fraction négative'];
+function kplKs(q){ return q.r.map(function(_,k){ return k; }); }
 const KPL_PTS=['M','N','P'];
 function kplNoms(q){ return KPL_NOMS[(q&&q.l>=0&&q.l<KPL_NOMS.length)?q.l:0]; }
 function kplOrig(q,k){ return q.o[k]; }
@@ -66133,51 +66145,45 @@ function kplCible(q,k){ const O=kplOrig(q,k), w=kplRef(q,k), r=q.r[k]; return [O
 function kplRel(q,k){ const n=kplNoms(q), r=q.r[k]; return {o:n[2+k], g:n[2+k]+KPL_PTS[k], ref:r[0]?n[1]+n[0]:n[0]+n[1], c:[r[1],r[2]]}; }
 function kplRelHTML(q,k){ const t=kplRel(q,k); return '<span class="vgt-vec">'+t.g+'</span> = '+kvHTML(t.c,'')+'<span class="vgt-vec">'+t.ref+'</span>'; }
 function kplRelTxt(q,k){ const t=kplRel(q,k); return t.g+' = '+(t.c[0]===-1&&t.c[1]===1 ? '−' : kvTxt(t.c)+' ')+t.ref; }
-function kplCases(q){ return ['kpl-0','kpl-1','kpl-2']; }
+function kplCases(q){ return kplKs(q).map(function(k){ return 'kpl-'+k; }); }
 function kplCourant(q){
-  if(test.kplSel>=0 && test.kplSel<3) return test.kplSel;
-  for(let k=0;k<3;k++) if(!q.p[k]) return k;
+  if(test.kplSel>=0 && test.kplSel<q.r.length) return test.kplSel;
+  for(let k=0;k<q.r.length;k++) if(!q.p[k]) return k;
   return -1;
 }
-function kplGen(l){
+/* La question l (jeu de lettres) de la famille f (0 : entier positif, 1 : entier
+   négatif, 2 : fraction positive, 3 : fraction négative) : A, B, le départ C hors
+   de (AB), et l'égalité CM⃗ = kAB⃗ (ou kBA⃗ après la première question). */
+function kplGen(l,f){
+  f=(f>=0&&f<KPL_FAM.length)?f:0;
   const dans=function(p){ return p[0]>=1&&p[0]<=KPL_W-1&&p[1]>=1&&p[1]<=KPL_H-1; };
   for(let essai=0;essai<4000;essai++){
-    const d=pick(KV_DIRS), sg=rand(0,1)?1:-1, m=pick([2,3,4,6]);
+    const d=pick(KV_DIRS), sg=rand(0,1)?1:-1, m=pick([1,2,3,4,6]);
     const ab=[d[0]*m*sg, d[1]*m*sg];
-    /* AB d'au moins quatre carreaux : les trois points ne se serrent pas sur un bout de droite */
-    if(Math.abs(ab[0])>8||Math.abs(ab[1])>6||Math.max(Math.abs(ab[0]),Math.abs(ab[1]))<4) continue;
+    /* AB d'au moins deux carreaux, et qui tient dans le quadrillage */
+    if(Math.abs(ab[0])>8||Math.abs(ab[1])>6||Math.max(Math.abs(ab[0]),Math.abs(ab[1]))<2) continue;
     const a=[rand(1,KPL_W-1), rand(1,KPL_H-1)], b=[a[0]+ab[0], a[1]+ab[1]];
     if(!dans(b)) continue;
     const cs=[];
-    for(let den=1;den<=4;den++) for(let num=-8;num<=8;num++){
-      if(!num||gcd(num,den)!==1||m%den||num===den||Math.abs(num/den)>2.5) continue;
-      cs.push([num,den]);
+    if(f<2) [2,3].forEach(function(e){ cs.push([f?-e:e,1]); });
+    if(f===1) cs.push([-1,1]);
+    if(f>=2) for(let den=2;den<=4;den++) for(let num=1;num<=8;num++){
+      if(gcd(num,den)!==1||m%den||num/den>2.5) continue;
+      cs.push([f===3?-num:num,den]);
     }
-    const q={a:a, b:b, l:l, o:[], r:[], p:[null,null,null]}, pris=[a,b];
-    let ok=true;
-    for(let k=0;k<3&&ok;k++){
-      let r=null;
-      for(let t=0;t<150&&!r;t++){
-        /* le point de départ : un nœud libre, hors de la droite (AB) */
-        const O=[rand(1,KPL_W-1), rand(1,KPL_H-1)];
-        if((O[0]-a[0])*ab[1]-(O[1]-a[1])*ab[0]===0||pris.some(function(x){ return tanEgal(x,O); })) continue;
-        const c=pick(cs), e=[l===0?0:rand(0,1), c[0], c[1]];
-        q.o[k]=O; q.r[k]=e;
-        const p=kplCible(q,k);
-        if(!dans(p)||pris.some(function(x){ return tanEgal(x,p); })) continue;
-        r=e; pris.push(O,p);
-      }
-      if(!r) ok=false;
-    }
-    if(!ok) continue;
-    if(!q.r.some(function(x){ return x[1]<0; }) || !q.r.some(function(x){ return x[2]>1; })) continue;
-    if(l>0 && !q.r.some(function(x){ return x[0]; })) continue;
+    if(!cs.length) continue;
+    const O=[rand(1,KPL_W-1), rand(1,KPL_H-1)];
+    /* le point de départ : un nœud libre, hors de la droite (AB) */
+    if((O[0]-a[0])*ab[1]-(O[1]-a[1])*ab[0]===0||tanEgal(O,a)||tanEgal(O,b)) continue;
+    const c=pick(cs), q={a:a, b:b, l:l, o:[O], r:[[l===0?0:rand(0,1), c[0], c[1]]], p:[null]};
+    const p=kplCible(q,0);
+    if(!dans(p)||[a,b,O].some(function(x){ return tanEgal(x,p); })) continue;
     return q;
   }
   /* repli — jamais atteint en pratique */
-  return {a:[3,3], b:[9,3], l:l, o:[[2,6],[13,8],[8,1]], r:[[0,1,3],[0,-1,3],[0,3,2]], p:[null,null,null]};
+  return {a:[3,3], b:[9,3], l:l, o:[[2,6]], r:[[0,[2,-2,2,-2][f],[1,1,3,3][f]]], p:[null]};
 }
-function kplBuildQuestions(){ return distinctes(dmNbQuestions(KPL_NB), function(_,i){ return kplGen(i%KPL_NOMS.length); }); }
+function kplBuildQuestions(){ return distinctes(dmNbQuestions(KPL_NB), function(_,i){ return kplGen(i%KPL_NOMS.length, i%KPL_FAM.length); }); }
 function kplSVG(q){
   const Wd=2*KPL_PX+KPL_W*KPL_C, Hd=2*KPL_PY+KPL_H*KPL_C, n=kplNoms(q);
   let donnes=svcFleche(q.a, q.b, {cls:'svc-u', marker:'kplArr0', geo:KPL_GEO});
@@ -66185,10 +66191,10 @@ function kplSVG(q){
   const ab=[q.b[0]-q.a[0], q.b[1]-q.a[1]], l=Math.hypot(ab[0],ab[1])||1;
   [q.a, q.b].forEach(function(p,k){ const s=k?1:-1, x=tanX(p[0])+s*ab[0]/l*20, y=tanY(p[1])-s*ab[1]/l*20+6;
     donnes+=tanCroix(p,'tan-donne')+'<text class="tan-lbl tan-donne-t" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="middle">'+n[k]+'</text>'; });
-  /* les trois points de départ */
+  /* le point de départ */
   q.o.forEach(function(p,k){ donnes+=tanCroix(p,'tan-donne')+tanEtiquette(p, n[2+k], 'tan-donne-t'); });
   const pointe=function(id,coul){ return '<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+coul+'"/></marker>'; };
-  return '<svg viewBox="0 0 '+Wd+' '+Hd+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tan-svg kpl-svg" role="img" aria-label="Quadrillage : les points '+n[0]+' et '+n[1]+', le vecteur '+n[0]+n[1]+', les points de départ '+n.slice(2).join(', ')+', et les points '+KPL_PTS.join(', ')+' à placer">'
+  return '<svg viewBox="0 0 '+Wd+' '+Hd+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tan-svg kpl-svg" role="img" aria-label="Quadrillage : les points '+n[0]+' et '+n[1]+', le vecteur '+n[0]+n[1]+', le point de départ '+n.slice(2).join(', ')+', et le point '+KPL_PTS.slice(0,q.r.length).join(', ')+' à placer">'
     +'<defs>'+pointe('kplArr0','var(--ink)')+pointe('kplArrS','var(--green)')+pointe('kplArrP','var(--crd-a)')+pointe('kplArrE','var(--blue)')+pointe('kplArrB','var(--red)')+'</defs>'
     +kvGrille(KPL_GEO,KPL_W)+'<g id="kplDonnes">'+donnes+'</g><g id="kplCorr"></g><g id="kplVif"></g><g id="kplEl"></g>'
     +'<g id="kplCurseur" class="tan-curseur" aria-hidden="true" style="display:none"></g></svg>';
@@ -66212,8 +66218,8 @@ function kplDessiner(q){
   const el=$('kplEl'); if(!el) return;
   const mq=test.kplMarque||[];
   let h='';
-  [0,1,2].forEach(function(k){ h+=kplFlecheEleve(q,k,q.p[k],mq[k]||'',false); });
-  [0,1,2].forEach(function(k){
+  kplKs(q).forEach(function(k){ h+=kplFlecheEleve(q,k,q.p[k],mq[k]||'',false); });
+  kplKs(q).forEach(function(k){
     const r=q.p[k]; if(!r) return;
     const m=mq[k]||'', cls=m==='ok'?'tan-x-ok':(m==='bad'?'tan-x-bad':'');
     h+=tanCroix(r,cls)+tanEtiquette(r, KPL_PTS[k], 'tan-el-t'+(cls?' '+cls:''));
@@ -66234,7 +66240,7 @@ function kplClic(i,j){
   recoveryDirty=true; clearTimeout(test.kplSave); test.kplSave=setTimeout(autoSave,1200);
 }
 function kplChoisir(k){
-  if(test.locked||test.kind!=='kpl'||!(k>=0&&k<3)) return;
+  if(test.locked||test.kind!=='kpl'||!(k>=0&&k<test.questions[test.idx].r.length)) return;
   test.kplSel=k; kplConsigne(test.questions[test.idx]);
 }
 function kplEffaceMarque(k){
@@ -66244,14 +66250,14 @@ function kplEffaceMarque(k){
 function kplEffacer(){
   if(test.locked||test.kind!=='kpl') return;
   const q=test.questions[test.idx]; if(!q) return;
-  q.p=[null,null,null]; test.kplSel=-1; [0,1,2].forEach(kplEffaceMarque);
+  q.p=q.r.map(function(){ return null; }); test.kplSel=-1; kplKs(q).forEach(kplEffaceMarque);
   kplDessiner(q); kplConsigne(q);
   recoveryDirty=true;
 }
 function kplConsigne(q){
   if(!q) return;
   const k=test.locked?-1:kplCourant(q);
-  [0,1,2].forEach(function(j){
+  kplKs(q).forEach(function(j){
     const c=$('kpl-'+j); if(!c) return;
     const verdict=c.classList.contains('ok')||c.classList.contains('bad')||c.classList.contains('sol');
     c.classList.toggle('tan-fait', !!q.p[j]&&!verdict&&j!==k);
@@ -66261,7 +66267,8 @@ function kplConsigne(q){
   if(test.locked){ el.innerHTML=''; return; }
   if(k>=0) el.innerHTML='Clique le nœud où se trouve le point <b>'+KPL_PTS[k]+'</b> tel que '+kplRelHTML(q,k)+'.'
     +(q.p[k]?'':' <span class="tan-sous">(Pour déplacer un point déjà posé, clique dessus.)</span>');
-  else el.innerHTML='Les trois points sont posés. Pour en déplacer un, clique dessus (ou son cadre) ; puis clique « Vérifier ».';
+  else el.innerHTML=q.r.length===1 ? 'Le point '+KPL_PTS[0]+' est posé. Pour le déplacer, clique dessus ; puis clique « Vérifier ».'
+    : 'Les points sont posés. Pour en déplacer un, clique dessus (ou son cadre) ; puis clique « Vérifier ».';
 }
 /* les gestes de la souris, délégués à l'hôte, comme au 8.1.12 */
 function kplBrancher(){
@@ -66302,7 +66309,7 @@ function kplBrancher(){
   });
 }
 function kplJuge(q){
-  return [0,1,2].map(function(k){ const r=q.p[k];
+  return kplKs(q).map(function(k){ const r=q.p[k];
     return {id:'kpl-'+k, el:null, ok:!!r&&tanEgal(r,kplCible(q,k)), vide:!r}; });
 }
 /* Les erreurs nommées, point par point. */
@@ -66311,8 +66318,8 @@ function kplPourquoi(q,subs){
   subs.forEach(function(s,k){
     if(s.ok||s.vide) return;
     const r=q.p[k], t=kplRel(q,k), O=kplOrig(q,k), w=kplRef(q,k), c=t.c, M=KPL_PTS[k];
-    /* les autres points du dessin d'où l'élève a pu partir : A, B et les deux autres départs */
-    const autres=[[q.a,n[0]],[q.b,n[1]]].concat([0,1,2].filter(function(j){ return j!==k; }).map(function(j){ return [q.o[j],n[2+j]]; }));
+    /* les autres points du dessin d'où l'élève a pu partir : A, B et les autres départs */
+    const autres=[[q.a,n[0]],[q.b,n[1]]].concat(kplKs(q).filter(function(j){ return j!==k; }).map(function(j){ return [q.o[j],n[2+j]]; }));
     const inverse=[O[0]-w[0]*c[0]/c[1], O[1]-w[1]*c[0]/c[1]];
     const parti=autres.find(function(x){ return tanEgal(r,[x[0][0]+w[0]*c[0]/c[1], x[0][1]+w[1]*c[0]/c[1]]); });
     const d=[r[0]-O[0], r[1]-O[1]], aligne=d[0]*w[1]-d[1]*w[0]===0;
@@ -66348,17 +66355,17 @@ function renderKpl(){
   const q=test.questions[test.idx];
   test.locked=false; test.kplSel=-1; test.kplMarque=[];
   const pt=function(p){ return Array.isArray(p)&&p.length===2&&p[0]>=0&&p[0]<=KPL_W&&p[1]>=0&&p[1]<=KPL_H?p:null; };
-  /* un brouillon d'avant les points de départ (v580 et avant) : la question se tire à neuf */
-  if(!Array.isArray(q.o)||q.o.length!==3) Object.assign(q, kplGen(q.l>=0&&q.l<KPL_NOMS.length?q.l:0));
-  if(!Array.isArray(q.p)||q.p.length!==3) q.p=[null,null,null];
+  /* un brouillon d'avant (sans point de départ, ou à trois égalités) : la question se tire à neuf */
+  if(!Array.isArray(q.o)||!Array.isArray(q.r)||q.r.length!==1||q.o.length!==1) Object.assign(q, kplGen(test.idx%KPL_NOMS.length, test.idx%KPL_FAM.length));
+  if(!Array.isArray(q.p)||q.p.length!==q.r.length) q.p=q.r.map(function(){ return null; });
   q.p=q.p.map(pt);
   const n=kplNoms(q);
   $('kplIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('kplModeTag').innerHTML=modeTagHTML();
-  $('kplInstr').innerHTML='Les points '+n.join(', ').replace(/, ([^,]*)$/,' et $1')+' sont placés sur le quadrillage. Place les points '+KPL_PTS.join(', ').replace(/, ([^,]*)$/,' et $1')+' définis par les égalités de vecteurs ci-dessous.'
-    +'<span class="tan-sous">Clique le nœud du quadrillage où se trouve le point : une croix s’y pose. Pour déplacer un point, clique dessus, puis clique sa nouvelle place.</span>';
-  $('kplBody').innerHTML=[0,1,2].map(function(k){
-      return '<div class="tvg-cons pts-case" id="kpl-'+k+'" onclick="kplChoisir('+k+')">'+['①','②','③'][k]+' Le point '+KPL_PTS[k]+' tel que '+kplRelHTML(q,k)+'</div>'; }).join('')
+  $('kplInstr').innerHTML='Les points '+n.join(', ').replace(/, ([^,]*)$/,' et $1')+' sont placés sur le quadrillage. Place le point '+KPL_PTS[0]+' défini par l’égalité de vecteurs ci-dessous.'
+    +'<span class="tan-sous">Clique le nœud du quadrillage où se trouve le point : une croix s’y pose. Pour le déplacer, clique dessus, puis clique sa nouvelle place.</span>';
+  $('kplBody').innerHTML=kplKs(q).map(function(k){
+      return '<div class="tvg-cons pts-case" id="kpl-'+k+'" onclick="kplChoisir('+k+')">'+(q.r.length>1?['①','②','③'][k]+' ':'')+'Le point '+KPL_PTS[k]+' tel que '+kplRelHTML(q,k)+'</div>'; }).join('')
     +'<div class="cvp-etape tan-etape" id="kplEtape" aria-live="polite"></div>';
   $('kplGraph').innerHTML=kplSVG(q);
   kplDessiner(q); kplConsigne(q);
@@ -66374,13 +66381,13 @@ function checkKpl(){
   if(test.locked) return;
   const q=test.questions[test.idx];
   const subs=kplJuge(q), n=subs.filter(function(s){ return s.ok; }).length;
-  if(n<3 && isSoutien()){
+  if(n<subs.length && isSoutien()){
     /* soutien : les points posés se jugent, rien ne se révèle, rien ne se verrouille */
     kplPeindre(subs,false);
     test.kplMarque=subs.map(function(s){ return s.ok?'ok':(s.vide?'':'bad'); });
     test.kplSel=-1; kplDessiner(q); kplConsigne(q);
     const faux=subs.some(function(s){ return !s.ok&&!s.vide; });
-    let m=faux?'Ce n’est pas encore ça : un point rouge n’a pas la bonne place. Clique dessus pour le reprendre. ':'';
+    let m=faux?'Ce n’est pas encore ça : le point rouge n’a pas la bonne place. Clique dessus pour le reprendre. ':'';
     if(subs.some(function(s){ return s.vide; })) m+='Il reste un point à placer. ';
     m+='Pars de la première lettre du vecteur, avance parallèlement à la droite ('+kplNoms(q)[0]+kplNoms(q)[1]+'), dans le sens que donne le signe du réel, sur une longueur multipliée par le réel sans son signe.';
     $('kplFeedback').textContent=m; $('kplFeedback').className='mp-feedback bad';
@@ -66393,7 +66400,7 @@ function checkKpl(){
   const cu=$('kplCurseur'); if(cu) cu.style.display='none';
   kplVif(q,-1,null);
   test.score+=n;
-  if(n===3){ $('kplFeedback').textContent=pick(['Parfait !','Très bien placé !','Excellent !','Exactement !']); $('kplFeedback').className='mp-feedback good'; }
+  if(n===subs.length){ $('kplFeedback').textContent=pick(['Parfait !','Très bien placé !','Excellent !','Exactement !']); $('kplFeedback').className='mp-feedback good'; }
   else {
     const L=kplNoms(q), A=L[0], B=L[1], C=L[2];
     const methode=' Pour placer M tel que '+C+'M = k '+A+B+', on part de '+C+' ; on avance parallèlement à ('+A+B+'), dans le sens de '+A+' vers '+B+' si k est positif, dans le sens contraire s’il est négatif ; '+C+'M mesure k fois '+A+B+', sans le signe. Les flèches vertes montrent le bon chemin.';
@@ -66401,10 +66408,10 @@ function checkKpl(){
   }
   const pos=function(p){ return p?'('+p[0]+' ; '+p[1]+')':'non placé'; };
   const nm=kplNoms(q);
-  test.answers.push({...(ptsExo()||{}), correct:n===3,
-    q:'Placer '+[0,1,2].map(function(k){ return KPL_PTS[k]+' tel que '+kplRelTxt(q,k); }).join(', ')+' — '+nm[0]+' '+pos(q.a)+', '+nm[1]+' '+pos(q.b)+', '+q.o.map(function(o,k){ return nm[2+k]+' '+pos(o); }).join(', '),
-    answer:KPL_PTS.map(function(L,k){ return L+' '+pos(kplCible(q,k)); }).join(', '),
-    given:KPL_PTS.map(function(L,k){ return L+' '+pos(q.p[k]); }).join(', ')});
+  test.answers.push({...(ptsExo()||{}), correct:n===subs.length,
+    q:'Placer '+kplKs(q).map(function(k){ return KPL_PTS[k]+' tel que '+kplRelTxt(q,k); }).join(', ')+' — '+nm[0]+' '+pos(q.a)+', '+nm[1]+' '+pos(q.b)+', '+q.o.map(function(o,k){ return nm[2+k]+' '+pos(o); }).join(', '),
+    answer:kplKs(q).map(function(k){ return KPL_PTS[k]+' '+pos(kplCible(q,k)); }).join(', '),
+    given:kplKs(q).map(function(k){ return KPL_PTS[k]+' '+pos(q.p[k]); }).join(', ')});
   const last=test.idx===test.questions.length-1;
   $('kplActions').innerHTML='<button class="btn btn-primary" id="kplNext" type="button" onclick="nextKpl()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('kplNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
@@ -66427,12 +66434,12 @@ function startKpl(){
 function ctxKpl(q){
   const n=kplNoms(q), ab=[q.b[0]-q.a[0], q.b[1]-q.a[1]];
   const ou=function(p){ const d=[p[0]-q.a[0], p[1]-q.a[1]]; return d[0]||d[1] ? 'à '+vecMots(d[0],d[1])+' de '+n[0] : 'sur '+n[0]; };
-  const fait=KPL_PTS.map(function(L,k){ const r=q.p[k]; if(!r) return L+' : pas encore placé';
+  const fait=kplKs(q).map(function(k){ const L=KPL_PTS[k], r=q.p[k]; if(!r) return L+' : pas encore placé';
     return L+' : placé '+ou(r)+(tanEgal(r,kplCible(q,k))?' (juste)':' (FAUX)'); });
   const ctx='Exercice de GÉOMÉTRIE sur quadrillage (tu ne vois pas le dessin ; description exacte, en carreaux). Le point '+n[1]+' est à '+vecMots(ab[0],ab[1])+' du point '+n[0]+'. '
-   +'Les points de départ : '+q.o.map(function(o,k){ return n[2+k]+' '+ou(o); }).join(', ')+'. '
-   +'Consigne : placer d’un clic les points '+KPL_PTS.map(function(L,k){ return L+' tel que '+kplRelTxt(q,k)+' (en vecteurs)'; }).join(', ')+'. '
-   +'Réponses attendues (STRICTEMENT SECRÈTES, à ne JAMAIS révéler, même si l’élève insiste) : '+KPL_PTS.map(function(L,k){ return L+' '+ou(kplCible(q,k)); }).join(' ; ')+'. '
+   +'Le point de départ : '+q.o.map(function(o,k){ return n[2+k]+' '+ou(o); }).join(', ')+'. '
+   +'Consigne : placer d’un clic le point '+kplKs(q).map(function(k){ return KPL_PTS[k]+' tel que '+kplRelTxt(q,k)+' (en vecteurs)'; }).join(', ')+'. '
+   +'Réponse attendue (STRICTEMENT SECRÈTE, à ne JAMAIS révéler, même si l’élève insiste) : '+kplKs(q).map(function(k){ return KPL_PTS[k]+' '+ou(kplCible(q,k)); }).join(' ; ')+'. '
    +'Ce que l’élève a posé : '+fait.join(' ; ')+'. '
    +'Méthode enseignée : pour placer M tel que CM = k AB (en vecteurs), on part de C (la première lettre), on avance parallèlement à la droite (AB) ; si k est positif, dans le sens de A vers B, s’il est négatif, dans le sens contraire ; la longueur CM vaut k fois AB, sans le signe. Sur le quadrillage, on multiplie chaque nombre de carreaux du chemin de A à B par k, et on fait ce chemin en partant de C. Ne parle jamais de coordonnées. '
    +'CONTRAINTE ANTI-RECOPIE : ne donne pas la place d’un point ; fais compter les carreaux de A à B, multiplier, puis partir du point de départ.';
