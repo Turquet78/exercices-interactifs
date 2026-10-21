@@ -4236,3 +4236,40 @@ la copie vide (rien de rouge, tout en vert) ; les pièges nommés ; au 8.3.8,
 la rédaction du manuel ET une rédaction dans l'autre ordre avec les formes
 opposées, chacune à 13 sur 13. Éprouvé par deux sabotages (un juge de
 longueur faussé, une forme juste du 8.3.8 retirée), chacun attrapé.
+
+### Le 8.3.8 : un exemple résolu avant l'énoncé, et les tiers, quarts et cinquièmes (v581)
+
+**La demande** (Turquet, octobre 2026) : « mettre un exemple de démonstration
+du même genre avant l'énoncé comme modèle pour l'élève, présenté avec les
+mêmes étapes et les mêmes remarques à chaque étape que dans l'exercice » ; et
+« des exercices avec 1/3 ou 1/4 ou 3/4, ou 1/5, 2/5, 3/5, 4/5, avec les mêmes
+démonstrations ».
+
+**L'exemple** (`kmiExemple`, `kmiExempleHTML`, posé dans `#kmiEx` juste avant
+`#kmiInstr`) : un cadre violet en pointillés, étiqueté « Exemple », qui reprend
+l'énoncé, une figure et les cinq lignes de la rédaction remplies, chacune avec
+la remarque de la ligne correspondante de l'exercice (relation de Chasles,
+chaque vecteur avec un côté du triangle, le réel en facteur, relation de
+Chasles), puis la conclusion avec « colinéaires » et « parallèles ». Il n'a
+aucune case et ne compte pas dans la note. Il se DÉDUIT de la question, sans
+hasard : il ne change donc ni au redessin ni à la reprise d'une pause, et rien
+de plus ne se range dans le brouillon. Le triangle est fixe ; ses lettres sont
+les trois premières de `KMI_LETTRES` qui ne servent pas à la question ; ses
+points sont l'autre paire (IJ ↔ MN) ; son réel est le suivant dans la même
+famille que celui de la question (à la page des milieux, ce sont aussi des
+milieux). Le modèle est donc le même geste, jamais la réponse recopiée. Le
+contexte envoyé au modèle d'IA le mentionne, pour qu'il puisse y renvoyer
+l'élève.
+
+**Les réels** : trois familles (`KMI_FAM`). Page 1, les milieux ; page 2, un
+tiers ou un quart (⅓, ⅔, ¼, ¾) ; page 3, un cinquième (⅕, ⅖, ⅗, ⅘) ; à partir
+de la page 4, n'importe lequel des onze, y compris 2, 3/2 et −½ (les points
+hors des côtés). `KMI_NB` passe de 3 à 4 démonstrations (52 cases au lieu de
+39).
+
+**Le banc** (`vecteursColineairesSuite`) : sur deux cents tirages, la page 2
+dans la famille des tiers et des quarts, la page 3 dans celle des cinquièmes ;
+l'exemple de chaque page a d'autres lettres, d'autres points et un autre réel
+(des milieux à la page des milieux) ; à l'écran, l'exemple est placé juste
+avant l'énoncé, a cinq lignes, quatre remarques, une figure, ses fractions
+empilées et aucune case.
