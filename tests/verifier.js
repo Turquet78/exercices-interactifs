@@ -14303,6 +14303,11 @@ function vecteursColineaires(w, P){
       p:[[0,3],[1,4],[2,5],[0,6],[7,1]], choisi:['','','','',''] }; };
     test.questions[0]=fixeC(); test.idx=0; renderKco();
     if(document.querySelectorAll('#kcoHost .kco-svg text.kco-lt').length!==16) vus.push('8.3.4 : la figure ne nomme pas ses seize extrémités');
+    /* la fraction s'écrit EMPILÉE : la case du réel est une case MathLive, sa lecture (« -(3)/(4) »,
+       un \\frac brut) est comprise, et le texte rangé par la pause redevient une fraction */
+    if(!el('kco-k-0') || el('kco-k-0').tagName!=='MATH-FIELD') vus.push('8.3.4 : la case du réel n\\'est pas une case MathLive — la fraction s\\'y écrit en ligne');
+    if(!kvEgal('-(3)/(4)',[-3,4]) || !kvEgal('-\\\\frac{3}{4}',[-3,4]) || !kvEgal('(1{,}5)',[3,2])) vus.push('8.3.4 : la lecture d\\'une case MathLive');
+    if(pmVersLatex('-(3)/(4)')!=='-\\\\frac{3}{4}' || pmVersLatex('2')!=='2' || pmVersLatex('\\\\frac{1}{2}')!=='\\\\frac{1}{2}') vus.push('8.3.4 : la reprise ne rend pas la fraction empilée : '+pmVersLatex('-(3)/(4)'));
     /* la copie juste : 2, 1/2, −3/4, non (presque parallèles), −1 */
     const taper=function(k,v){ const e=el('kco-k-'+k); e.value=v; e.dispatchEvent(new Event('input')); };
     taper(0,'2'); taper(1,'0,5'); taper(2,'-3/4'); kcoChoix(3,'non'); taper(4,'−1');
@@ -14320,11 +14325,11 @@ function vecteursColineaires(w, P){
     av=test.score; checkKco();
     const lc=[0,1,2,3,4].map(function(k){ return classe(el('kco-r-'+k)); }).join(',');
     if(test.score-av!==0 || lc!=='bad,bad,sol,bad,sol') vus.push('8.3.4 : oui sans réel, non sur colinéaires, oui sur presque parallèles : '+lc);
-    if(document.querySelector('#scr-kco input.bad, #scr-kco input.ok, #scr-kco input.sol')) vus.push('8.3.4 : la case du réel prend une couleur de verdict — elle compterait deux fois');
+    if(document.querySelector('#scr-kco .kco-in.bad, #scr-kco .kco-in.ok, #scr-kco .kco-in.sol')) vus.push('8.3.4 : la case du réel prend une couleur de verdict — elle compterait deux fois');
     const fbC=el('kcoFeedback').textContent;
     if(fbC.indexOf('AB fait 4 carreaux vers la droite puis 2 carreaux vers le haut')<0 || fbC.indexOf('AB = 2 GH')<0) vus.push('8.3.4 : le pourquoi de la première ligne fausse : '+fbC.slice(0,200));
     if(el('kco-r-0').querySelector('.mf-cor')===null || el('kco-r-3').querySelector('.mf-cor').textContent!=='Non') vus.push('8.3.4 : la bonne réponse ne s\\'écrit pas à côté d\\'une ligne fausse');
-    if(el('kco-k-2').value!=='−3/4' || !el('kco-o-2').classList.contains('kco-on')) vus.push('8.3.4 : la ligne vide n\\'est pas remplie par la correction');
+    if(el('kco-k-2').value.indexOf('frac')<0 || !kvEgal(el('kco-k-2').value,[-3,4]) || !el('kco-o-2').classList.contains('kco-on')) vus.push('8.3.4 : la ligne vide n\\'est pas remplie par la correction');
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0 || conseilCtxCourant().indexOf('oui, k = 2')<0) vus.push('8.3.4 : le contexte du modèle');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
