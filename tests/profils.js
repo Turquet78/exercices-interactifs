@@ -1036,7 +1036,7 @@ module.exports = {
       sens:    { exercice: 'colineaires-sens-longueur', numero: '8.3.5', nb: 8, bareme: 50 },
       placer:  { exercice: 'placer-point-colineaire', numero: '8.3.6', nb: 3, bareme: 9 },
       phrase:  { exercice: 'phrase-relation-colineaire', numero: '8.3.7', nb: 3, bareme: 30 },
-      milieux: { exercice: 'milieux-parallele-vecteurs', numero: '8.3.8', nb: 3, bareme: 39 },
+      milieux: { exercice: 'milieux-parallele-vecteurs', numero: '8.3.8', nb: 4, bareme: 52 },
     },
     /* {translation-pavage} (8.1.9, demande de Turquet, octobre 2026 : « fais
        l'exercice 1 avec le pavage ») : un pavage de 30 triangles numérotés,
