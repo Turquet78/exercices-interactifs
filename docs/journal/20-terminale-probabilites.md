@@ -728,3 +728,47 @@ de la page est parfaite (27 cases sur 27 au type 1), une copie vide reçoit
 toutes ses corrections en vert, aucune erreur de page. La case de
 l'opération de la résolution, trop étroite pour « − 0,546 », a été élargie.
 Terminale v416.
+
+**Puis l'accolade a rejoint la fin des chemins, et le second arbre a attendu
+le premier** (demande de Turquet, octobre 2026 : « au type 1, placer aussi la
+probabilité totale en fin d'arbre, donnée dans l'énoncé, même si la première
+question ne s'en sert pas ; que les extrémités de l'accolade partent bien de
+la fin des deux chemins ; ne pas afficher le deuxième arbre tant que le
+premier ne l'est pas ; remplir l'arbre en x avec les valeurs déjà données par
+l'élève — et les autres types, et le 6.1.3, s'ils sont concernés »).
+
+* **La probabilité totale au premier arbre** : `aptT` nomme `fin`,
+  l'événement dont l'énoncé DONNE la probabilité totale — types 1 et 7 (dans
+  l'introduction), 3 et 5 (un peu plus loin dans l'énoncé, ce que la consigne
+  de l'arbre dit). Le premier arbre l'écrit au bout de son accolade, une case
+  de plus (`apt-t-fin`, jugée sur `T.fin`). Aux types 2, 4 et 6, P(E) est à
+  démontrer ou à calculer : pas d'accolade au premier arbre. Un arbre écrit
+  dans le mauvais sens n'a pas d'accolade (E y est au premier niveau) ; la
+  valeur de la case attend à part (`data-fin`) le retour au bon sens. Au
+  type 7, « compléter les quatre pointillés » devient « les pointillés ».
+* **L'accolade** (`apfAccolade`, commune aux 6.1.2, 6.1.3 et 6.1.5) : ses
+  pointes étaient au bord HAUT de la première cellule additionnée et au bord
+  BAS de la dernière — à mi-hauteur entre deux fins de chemin, au milieu de
+  rien. Elles sont désormais à la hauteur des fins de chemin additionnées, et
+  un trait relie le bout de chaque écriture « P(A ∩ B) = … » à l'accolade :
+  à sa pointe pour la première et la dernière, à son dos pour celle du milieu
+  (trois chemins aux types 2 et 3). La pointe se pose à la hauteur du « + ».
+  Au 6.1.5, la grille marque les fins additionnées (`apt-som`).
+* **Le second arbre attend le premier** (`aptXZone`, `apcXZone`, attribut
+  `hidden`, que `navCasesListe` saute) : une ligne dit qu'il s'affichera dès
+  que l'arbre de la question 1 sera en place ; il s'ouvre avec lui
+  (`aptXOuvrir`, `apxOuvrir`), et à la clôture si l'élève n'avait rien
+  choisi.
+* **Le second arbre reprend le premier** (`aptCopier`, `apxCopier`) : au
+  6.1.5, toutes les cases sauf les deux branches du nœud inconnu (x et
+  1 − x), probabilité de l'accolade comprise — c'est la même ; au 6.1.3, les
+  quatre conditionnelles (P(B) y prend une NOUVELLE valeur, x et 1 − x
+  remplacent P(A)). Une case recopiée suit le premier arbre tant que l'élève
+  ne l'a pas réécrite (`data-copie`) ; une case qu'il a écrite lui-même n'est
+  jamais écrasée ; rien ne se recopie d'un arbre écrit dans le mauvais sens,
+  ni après la clôture. Les cases recopiées restent des réponses comptées.
+
+Essayé dans Chromium : types 1, 2, 3, 5, 7 et le 6.1.3 — second arbre caché
+puis ouvert au choix de l'événement, recopie case par case, une case
+retouchée dans le second arbre gardée quand le premier change, aucune erreur
+de page. Terminale v417.
