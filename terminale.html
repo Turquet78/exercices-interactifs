@@ -748,7 +748,7 @@
      presque tout l'écran. Les cases qu'il cacherait se laissent atteindre :
      scroll-padding-top réserve sa hauteur (--apc-arbre-h, mesurée par
      apfTraits) quand le focus fait défiler la page. */
-  #apcArbre,#apcArbreSuite{display:contents}
+  #apcArbre,#apcArbreSuite,#aptArbreSuite{display:contents}
   @media (min-height:560px){
     .apf-arbre-defile.apc-fixe{position:sticky;top:0;z-index:5;background:var(--surface);padding:6px 0 4px;
       border-bottom:1.5px solid var(--line);box-shadow:0 6px 10px -8px rgba(15,23,42,.25)}
@@ -757,12 +757,12 @@
        question et passe par-dessus le premier : celui-ci peut alors être
        masqué, en partie ou entièrement (demande de Turquet, octobre 2026) */
     .apf-arbre-defile.apx-fixe{z-index:6}
-    html:has(#scr-apc.on .apc-fixe){scroll-padding-top:calc(var(--apc-arbre-h,0px) + 12px)}
+    html:has(#scr-apc.on .apc-fixe),html:has(#scr-apt.on .apc-fixe){scroll-padding-top:calc(var(--apc-arbre-h,0px) + 12px)}
     /* « overflow-x:hidden » sur html ET body (la ceinture de la largeur) fait
        du body un conteneur de défilement qui ne défile jamais : l'arbre y
        collerait, et partirait avec la page. « clip » coupe pareil sans créer
        de conteneur ; un navigateur qui ne le connaît pas garde « hidden ». */
-    body:has(#scr-apc.on .apc-fixe){overflow-x:hidden;overflow-x:clip}
+    body:has(#scr-apc.on .apc-fixe),body:has(#scr-apt.on .apc-fixe){overflow-x:hidden;overflow-x:clip}
   }
   .apf-arbre{position:relative;display:grid;grid-template-columns:auto auto auto auto auto 54px auto;
              grid-template-rows:repeat(8,minmax(44px,auto));column-gap:16px;align-items:center;font-size:1.1rem;width:max-content;margin:0 auto}
@@ -801,18 +801,18 @@
   .apf-row .mf-cor{font-size:1em}
   .apc-mb.apc-cor{color:var(--green)}
   .apc-mbw{display:inline-flex;justify-content:flex-end;align-items:baseline;gap:.6em;min-width:9em;white-space:nowrap}   /* ⇔ collé à son membre, les « = » alignés */
-  #apcResol .apc-mb{min-width:0}
+  #apcResol .apc-mb,#aptResol .apc-mb{min-width:0}
   math-field.dexp-mf.apc-mf.apf-eqin.apc-op{flex:0 1 5em;min-width:4em;max-width:7em}
-  #apcResol .sa2-frac math-field.dexp-mf.apc-mf.apf-eqin{flex:none;width:6em;min-width:0}
-  #apcResol .sa2-frac .bar{min-width:6em}
+  #apcResol .sa2-frac math-field.dexp-mf.apc-mf.apf-eqin,#aptResol .sa2-frac math-field.dexp-mf.apc-mf.apf-eqin{flex:none;width:6em;min-width:0}
+  #apcResol .sa2-frac .bar,#aptResol .sa2-frac .bar{min-width:6em}
   .apc-concl math-field.dexp-mf.apc-mf.apf-eqin{display:inline-block;width:7em;min-width:0}
   @media(max-width:600px){
-    #apcResol .apc-mbw{min-width:0;gap:.35em}
-    #apcResol .apf-eqrow{gap:4px}
-    #apcResol math-field.dexp-mf.apc-mf.apf-eqin{flex:1 1 4em;min-width:3.5em}
-    #apcResol .sa2-frac math-field.dexp-mf.apc-mf.apf-eqin{flex:none;width:4.2em}
-    #apcResol .sa2-frac .bar{min-width:4.2em}
-    #apcResol .mf-cor{flex:0 1 auto;min-width:0}
+    #apcResol .apc-mbw,#aptResol .apc-mbw{min-width:0;gap:.35em}
+    #apcResol .apf-eqrow,#aptResol .apf-eqrow{gap:4px}
+    #apcResol math-field.dexp-mf.apc-mf.apf-eqin,#aptResol math-field.dexp-mf.apc-mf.apf-eqin{flex:1 1 4em;min-width:3.5em}
+    #apcResol .sa2-frac math-field.dexp-mf.apc-mf.apf-eqin,#aptResol .sa2-frac math-field.dexp-mf.apc-mf.apf-eqin{flex:none;width:4.2em}
+    #apcResol .sa2-frac .bar,#aptResol .sa2-frac .bar{min-width:4.2em}
+    #apcResol .mf-cor,#aptResol .mf-cor{flex:0 1 auto;min-width:0}
   }
   /* ---- {proba-phrase-formule} : toutes les phrases et toutes les formules
      sur un seul écran, sans défiler — deux colonnes dès la tablette en
@@ -857,6 +857,16 @@
      l'événement des premières branches, puis la formule de chaque question —
      sur des cartes qu'on touche du doigt. Juste choisi : bleu ; faux : rouge ;
      la bonne montrée : verte, en tirets. */
+  /* {arbre-probabilites-bac-types} (6.1.5) : le choix de l'exercice (1 à 7), et les cartes d'une interprétation, une phrase par ligne */
+  .apt-types{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:8px 0 4px}
+  .apc-carte.apt-type{flex-direction:column;align-items:flex-start;justify-content:flex-start;text-align:left;gap:4px;padding:10px 14px}
+  .apc-carte.apt-type b{color:var(--blue-dark)}
+  .apc-cartes.apt-cartes{grid-template-columns:1fr;max-width:900px}
+  .apt-cartes .apc-carte{justify-content:flex-start;text-align:left}
+  /* la branche du MILIEU d'un nœud à trois branches est horizontale : son étiquette se pose au bout, loin du trait qui monte vers la première */
+  .apt-arbre .apf-b.apt-mil{justify-self:end}
+  #aptResol math-field.dexp-mf.apc-mf.apf-eqin.apc-op{flex:0 1 7em;min-width:5.5em;max-width:9em}
+  @media(max-width:600px){ .apt-arbre{--apt-rh:36px} }
   .apc-donnees{margin:6px 0 6px 1.2em;padding:0}
   .apc-donnees li{margin:2px 0}
   .apc-cartes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 4px}
@@ -1133,7 +1143,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-apb,#scr-apf,#scr-apc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-apb,#scr-apf,#scr-apc,#scr-apt{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -3218,6 +3228,21 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     </div>
   </section>
 
+  <!-- 6.1.5 PROBABILITÉS — SEPT EXERCICES DE BAC (le numéro de l'exercice choisi d'abord, puis ses questions) -->
+  <section class="screen" id="scr-apt">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="aptModeTag"></span><span class="q-idx" id="aptQIdx">Choix de l’exercice</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="aptLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card" id="aptChoix"></div>
+    <div class="card tvi-card s1-card" id="aptCarte" hidden>
+      <div class="enonce" id="aptPrompt"></div>
+      <div id="aptCorps"></div>
+      <div class="mp-feedback" id="aptFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="aptActions"></div>
+    </div>
+  </section>
+
   <!-- 6.1.4 PROBABILITÉS — COMPRENDRE UNE QUESTION (associer chaque phrase à sa formule) -->
   <section class="screen" id="scr-cqp">
     <div class="test-top">
@@ -3750,7 +3775,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=415;
+const APP_VERSION=416;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3990,6 +4015,7 @@ const TESTS={
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
   'arbre-probabilites-fiche': { name:'Probabilités \u2014 arbre : les cinq situations de la fiche', icon:'\ud83c\udf32', desc:'Seulement des probabilités, et l\u2019arbre de la fiche : complète-le avec les données et leurs contraires, puis écris chaque calcul en détaillant les étapes \u2014 intersections, P(B), probabilités conditionnelles, et P(B) en fonction de x.', start:()=>startAPF() },
   'arbre-probabilites-bac': { name:'Probabilités \u2014 arbre : un exercice de bac', icon:'\ud83e\uddea', desc:'Un énoncé en phrases, comme au bac : choisis l\u2019événement des premières branches, complète l\u2019arbre, puis, pour chaque question posée en phrase, choisis la bonne écriture \u2014 P(A), P(A \u2229 B) ou P_A(B)\u2026 \u2014 avant d\u2019écrire le calcul \u2014 jusqu\u2019à poser P(A) = x et résoudre l\u2019équation.', start:()=>startAPC() },
+  'arbre-probabilites-bac-types': { name:'Probabilités \u2014 arbre : sept exercices de bac', icon:'\ud83c\udf93', desc:'Choisis d\u2019abord ton exercice de bac, de 1 à 7 : chacun reprend les questions d\u2019un sujet, dans le même ordre, sur un autre thème et avec d\u2019autres nombres \u2014 l\u2019arbre, l\u2019écriture de chaque probabilité avant son calcul, et, pour une branche inconnue, x et 1 \u2212 x jusqu\u2019à l\u2019équation.', start:()=>startAPT() },
   'suite-limite-puissance': { name:'Suites \u2014 limite de q\u207f', icon:'\u221e', desc:'La fiche \u00ab limite q\u207f \u00bb\u00a0: pour chaque suite, d\u00e9termine sa limite en justifiant \u2014 \u00ab lim U\u2099 = \u2026 car \u2026 \u00bb, o\u00f9 l\u2019on choisit comment est la base de la puissance (2 > 1, ou \u22121 < 0,5 < 1). Huit suites, de q\u207f seul aux quotients et aux produits de puissances.', start:()=>startLQN() },
   'suite-algo-seuil': { name:'Suites \u2014 tableau de valeurs et algorithme Python', icon:'\ud83d\udd01', desc:'Une suite (U\u2099) d\u00e9finie par r\u00e9currence, toujours monotone et convergente\u00a0: a) \u00e0 l\u2019aide d\u2019un tableau de valeurs que l\u2019on peut faire d\u00e9filer au-del\u00e0 du rang 10, conjecture ses variations et sa limite\u00a0; b) compl\u00e8te l\u2019algorithme Python (une boucle while) pour qu\u2019il renvoie le rang du premier terme franchissant un seuil\u00a0; c) retrouve ce rang dans le tableau.', start:()=>startSAG() },
   'suite-synthese-variations': { name:'Suites \u2014 synth\u00e8se sur les variations', icon:'\ud83e\udde9', desc:'La fiche \u00ab Synth\u00e8se sur variations de suites \u00bb en entier, sur une suite U\u2099\u208a\u2081 = f\u2009(U\u2099) dont f est un QUOTIENT\u00a0: a) les premiers termes \u00e0 la calculatrice, b) le trac\u00e9 en escalier, c) la conjecture, d) les variations de f, e) la r\u00e9currence qui d\u00e9montre l\u2019encadrement, f) U\u2099\u208a\u2081 \u2212 U\u2099 mis sur un d\u00e9nominateur commun et le signe du quotient, g) les variations de la suite, h) le th\u00e9or\u00e8me de convergence monotone, i) la limite par produit en croix \u2014 une \u00e9quation du second degr\u00e9, deux solutions, et il faut choisir. Le trac\u00e9 et la r\u00e9currence viennent de {suite-variation-recurrence}, le th\u00e9or\u00e8me et le passage \u00e0 la limite de {suite-tcm-limite}.', start:()=>startSSV() },
@@ -4074,7 +4100,7 @@ const THEMES=[
          deuxième partie (6.2.1) ; puis (octobre 2026) « mettre le 6.2.1 dans
          le thème arbre de probabilité » : elle y devient le 6.1.4, et la
          partie vidée disparaît. */
-      { num:1, nom:'Arbre de probabilité', ids:['arbre-probabilites','arbre-probabilites-fiche','arbre-probabilites-bac','proba-phrase-formule'] }
+      { num:1, nom:'Arbre de probabilité', ids:['arbre-probabilites','arbre-probabilites-fiche','arbre-probabilites-bac','proba-phrase-formule','arbre-probabilites-bac-types'] }
     ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
@@ -4758,6 +4784,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='apb' && test.questions && test.questions[test.idx]){ c=apbConseilCtx(); }
   else if(test && test.kind==='apf' && test.questions && test.questions[test.idx]){ c=apfConseilCtx(); }
   else if(test && test.kind==='apc' && test.questions && test.questions[test.idx]){ c=apcConseilCtx(); }
+  else if(test && test.kind==='apt' && test.questions && test.questions[test.idx] && test.questions[test.idx].ty){ c=aptConseilCtx(); }
   else if(test && test.kind==='cqp' && test.questions && test.questions[test.idx]){ c=cqpConseilCtx(); }
   else if(test && test.kind==='cvp' && test.questions && test.questions[test.idx]){ c=cvpConseilCtx(); }
   else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
@@ -5805,7 +5832,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5833,6 +5860,7 @@ async function resumeTest(mode){
   restoreBoxes(draft);   // et on recolore les cases déjà complètes
   if(test.kind==='apc'){ apcPreparer(test.questions[test.idx]);   /* les étapes de la résolution suivent la ligne P(B) remise en place */
     document.querySelectorAll('#scr-apc .apf-in').forEach(sa2Ajuster); }   /* les cases des arbres reprennent la largeur de leur saisie */
+  if(test.kind==='apt'){ aptPreparer(test.questions[test.idx]); document.querySelectorAll('#scr-apt .apf-in').forEach(sa2Ajuster); }   /* le 6.1.5, de même */
 }
 
 /* ---------- Connexion à Supabase ---------- */
@@ -5933,7 +5961,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['cvp','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','apb','apf','apc','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
+  const testScreens=['cvp','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','apb','apf','apc','apt','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
   document.body.classList.toggle('ecran-exo', testScreens.includes(name));   /* le portrait y donne au cadre toute la largeur */
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -20335,7 +20363,7 @@ const RAP_SAP=`<b>Approcher une limite avec un algorithme</b><br>
 • <b>La boucle <code>while</code></b> tourne TANT QUE sa condition est vraie : ici, tant qu’on est encore trop loin, <code>while abs(u - l) &gt;= 0.001:</code>. Elle s’arrête au premier rang où l’écart passe sous 10<sup>−3</sup>.<br>
 • <b>10<sup>−3</sup> en Python</b> : <code>0.001</code>, ou <code>10**-3</code>, ou <code>1e-3</code> — un point, jamais une virgule.<br>
 • <b>Pourquoi la boucle s’arrête</b> : la suite CONVERGE vers ℓ, donc l’écart |U<sub><i>n</i></sub> − ℓ| finit par devenir aussi petit qu’on veut. Pour une suite qui ne convergerait pas, le programme pourrait tourner sans fin.`;
-const RAPPELS={ cvp:RAP_CVP, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
+const RAPPELS={ cvp:RAP_CVP, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -25488,7 +25516,7 @@ function apfJeton(t){
   try{ el.setSelectionRange(d+t.length, d+t.length); }catch(e){}
   el.dispatchEvent(new Event('input',{bubbles:true}));
 }
-document.addEventListener('focusin', function(e){ const t=e.target; if(t && t.id && /^ap[fc]-[tcr]/.test(t.id)) apfDerniere=t; });
+document.addEventListener('focusin', function(e){ const t=e.target; if(t && t.id && /^ap[fcty]-[tcr]/.test(t.id)) apfDerniere=t; });
 /* ---- cycle de vie ---- */
 async function startAPF(){
   if(!currentEleve){ accueil(); return; }
@@ -26291,6 +26319,1056 @@ function apcConseilCtx(){
     +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs, aucun de ces calculs, et ne dis pas quelle proposition est la bonne. '
     +'Méthode à rappeler sans donner la réponse : l’événement du premier niveau est celui dont dépendent les probabilités conditionnelles de l’énoncé ; somme 1 sur les branches d’un même nœud ; '
     +'on multiplie le long d’un chemin ; P(B) est la somme des chemins qui mènent à B ; P_B(A) = P(A∩B) ÷ P(B) ; avec P(A) = x, P(B) = P_A(B)·x + P_Ā(B)·(1 − x), que l’on réduit, puis on résout l’équation. '
+    +'Aide-le sur la PREMIÈRE étape fausse ou non faite, sans donner la réponse.';
+}
+/* ================= 6.1.5 PROBABILITÉS — SEPT EXERCICES DE BAC (kind 'apt') =================
+   Demande de Turquet (octobre 2026), avec le PDF « Exercice arbre proba
+   bac » : sept exercices de bac ; l'élève choisit d'abord son exercice par
+   son numéro (1 à 7). Chacun reprend les questions de son modèle, dans le
+   même ordre, sur un autre thème et avec d'autres nombres, et chaque
+   question se présente comme au 6.1.3 : l'événement des premières branches
+   choisi sur des cartes, l'écriture de la probabilité choisie dans la case
+   étroite devant le « = », sa formule, puis le calcul. Une branche
+   INTÉRIEURE retrouvée à partir d'une probabilité qui réunit deux chemins
+   passe TOUJOURS par les étapes du 6.1.3 : on pose [……] = x, on complète
+   l'arbre avec x, 1 − x et la probabilité au bout de l'accolade, on
+   démontre P(…) = a·x + b, on résout l'équation, puis une phrase réponse.
+   Les clés sont abstraites : A, B, C désignent les événements des
+   premières branches ; E, F, G ceux du second niveau. Le thème
+   (APT_TYPES[ty].th[c]) leur donne leur lettre (« -C » : C barre) et leurs
+   phrases — s : au subjonctif, après « la probabilité que » ; sp : le même,
+   sans son sujet, après « et » ; i : à l'indicatif, après « sachant que » ;
+   rel, adj : les deux tournures d'une interprétation (« proviennent du
+   fournisseur A », « du fournisseur A »). Les nombres de la question (q.d)
+   sont des dix-millièmes entiers : 6000 pour 60 %. */
+const APT_TYPES=[null,
+  /* 1 — deux origines ; une branche intérieure retrouvée par la probabilité totale ; une affirmation à vérifier */
+  { nom:'Deux origines : retrouver une branche, puis vérifier une affirmation',
+    th:[
+      { L:{A:'A',B:'B',E:'R',F:'-R'}, qui:'il',
+        intro:d=>'Une jardinerie achète ses rosiers à deux pépiniéristes, A et B. Il a été constaté que :<ul class="apc-donnees"><li>'+aptPct(d.c)+' des rosiers reprennent après plantation ;</li><li>'+aptPct(d.a)+' des rosiers proviennent du pépiniériste A ;</li><li>parmi les rosiers du pépiniériste A, la proportion de rosiers qui reprennent est de '+aptPct(d.p)+'.</li></ul>On choisit au hasard un rosier vendu par la jardinerie.',
+        fam:['le pépiniériste qui a fourni le rosier','le rosier reprend, ou ne reprend pas'],
+        s:{A:'le rosier provienne du pépiniériste A',B:'le rosier provienne du pépiniériste B',E:'le rosier reprenne',F:'le rosier ne reprenne pas'},
+        sp:{A:'provienne du pépiniériste A',B:'provienne du pépiniériste B',E:'reprenne',F:'ne reprenne pas'},
+        i:{A:'le rosier provient du pépiniériste A',B:'le rosier provient du pépiniériste B',E:'le rosier reprend',F:'le rosier ne reprend pas'},
+        claim:k=>'Le rosier choisi ne reprend pas. Le gérant estime qu’il y a '+k+' fois moins de chances qu’il provienne du pépiniériste A que du pépiniériste B. A-t-il raison ?' },
+      { L:{A:'A',B:'B',E:'S',F:'-S'}, qui:'elle',
+        intro:d=>'Une boutique vend des ordinateurs reconditionnés par deux ateliers, A et B. Il a été constaté que :<ul class="apc-donnees"><li>'+aptPct(d.c)+' des ordinateurs fonctionnent sans panne pendant la première année ;</li><li>'+aptPct(d.a)+' des ordinateurs viennent de l’atelier A ;</li><li>parmi les ordinateurs de l’atelier A, la proportion de ceux qui fonctionnent sans panne la première année est de '+aptPct(d.p)+'.</li></ul>On choisit au hasard un ordinateur vendu par la boutique.',
+        fam:['l’atelier qui a reconditionné l’ordinateur','l’ordinateur fonctionne sans panne, ou non'],
+        s:{A:'l’ordinateur vienne de l’atelier A',B:'l’ordinateur vienne de l’atelier B',E:'l’ordinateur fonctionne sans panne la première année',F:'l’ordinateur tombe en panne la première année'},
+        sp:{A:'vienne de l’atelier A',B:'vienne de l’atelier B',E:'fonctionne sans panne la première année',F:'tombe en panne la première année'},
+        i:{A:'l’ordinateur vient de l’atelier A',B:'l’ordinateur vient de l’atelier B',E:'l’ordinateur fonctionne sans panne la première année',F:'l’ordinateur tombe en panne la première année'},
+        claim:k=>'L’ordinateur choisi tombe en panne la première année. La responsable de la boutique estime qu’il y a '+k+' fois moins de chances qu’il vienne de l’atelier A que de l’atelier B. A-t-elle raison ?' },
+      { L:{A:'A',B:'B',E:'V',F:'-V'}, qui:'il',
+        intro:d=>'Une coopérative ramasse les pommes de deux vergers, A et B. Il a été constaté que :<ul class="apc-donnees"><li>'+aptPct(d.c)+' des pommes sont vendues en catégorie I ;</li><li>'+aptPct(d.a)+' des pommes proviennent du verger A ;</li><li>parmi les pommes du verger A, la proportion de pommes vendues en catégorie I est de '+aptPct(d.p)+'.</li></ul>On choisit au hasard une pomme ramassée par la coopérative.',
+        fam:['le verger d’où vient la pomme','la pomme est vendue en catégorie I, ou non'],
+        s:{A:'la pomme provienne du verger A',B:'la pomme provienne du verger B',E:'la pomme soit vendue en catégorie I',F:'la pomme ne soit pas vendue en catégorie I'},
+        sp:{A:'provienne du verger A',B:'provienne du verger B',E:'soit vendue en catégorie I',F:'ne soit pas vendue en catégorie I'},
+        i:{A:'la pomme provient du verger A',B:'la pomme provient du verger B',E:'la pomme est vendue en catégorie I',F:'la pomme n’est pas vendue en catégorie I'},
+        claim:k=>'La pomme choisie n’est pas vendue en catégorie I. Le responsable de la coopérative estime qu’il y a '+k+' fois moins de chances qu’elle provienne du verger A que du verger B. A-t-il raison ?' }
+    ] },
+  /* 2 — trois origines ; une intersection à interpréter, la probabilité totale, puis remonter l'arbre */
+  { nom:'Trois origines : interpréter, probabilité totale, puis remonter l’arbre',
+    th:[
+      { L:{A:'A',B:'B',C:'C',E:'D',F:'-D'},
+        intro:d=>'Un fabricant d’ampoules LED garantit qu’une ampoule fonctionne plus de 20 000 heures. Un grossiste se fournit auprès de trois usines : son stock est composé de '+aptPct(d.a)+' d’ampoules de l’usine A, de '+aptPct(d.b)+' d’ampoules de l’usine B, le reste venant de l’usine C. Une étude de qualité a montré que :<ul class="apc-donnees"><li>'+aptPct(d.pa)+' des ampoules de l’usine A fonctionnent plus de 20 000 heures ;</li><li>'+aptPct(d.pb)+' des ampoules de l’usine B fonctionnent plus de 20 000 heures ;</li><li>'+aptPct(d.pc)+' des ampoules de l’usine C fonctionnent plus de 20 000 heures.</li></ul>On choisit au hasard une ampoule du stock.',
+        fam:['l’usine qui a fabriqué l’ampoule','l’ampoule fonctionne plus de 20 000 heures, ou non'],
+        s:{A:'l’ampoule provienne de l’usine A',B:'l’ampoule provienne de l’usine B',C:'l’ampoule provienne de l’usine C',E:'l’ampoule fonctionne plus de 20 000 heures',F:'l’ampoule ne fonctionne pas plus de 20 000 heures'},
+        sp:{A:'provienne de l’usine A',B:'provienne de l’usine B',C:'provienne de l’usine C',E:'fonctionne plus de 20 000 heures',F:'ne fonctionne pas plus de 20 000 heures'},
+        i:{A:'l’ampoule provient de l’usine A',B:'l’ampoule provient de l’usine B',C:'l’ampoule provient de l’usine C',E:'l’ampoule fonctionne plus de 20 000 heures',F:'l’ampoule ne fonctionne pas plus de 20 000 heures'},
+        pop:'des ampoules du stock', rel:{A:'proviennent de l’usine A',F:'ne fonctionnent pas plus de 20 000 heures'}, adj:{A:'de l’usine A',F:'qui ne fonctionnent pas plus de 20 000 heures'} },
+      { L:{A:'A',B:'B',C:'C',E:'N',F:'-N'},
+        intro:d=>'Un magasin de sport vend des casques de vélo provenant de trois fabricants : '+aptPct(d.a)+' des casques viennent du fabricant A, '+aptPct(d.b)+' du fabricant B, le reste du fabricant C. Un laboratoire a vérifié la conformité des casques à la norme de sécurité :<ul class="apc-donnees"><li>'+aptPct(d.pa)+' des casques du fabricant A sont conformes ;</li><li>'+aptPct(d.pb)+' des casques du fabricant B sont conformes ;</li><li>'+aptPct(d.pc)+' des casques du fabricant C sont conformes.</li></ul>On choisit au hasard un casque vendu par le magasin.',
+        fam:['le fabricant du casque','le casque est conforme à la norme, ou non'],
+        s:{A:'le casque vienne du fabricant A',B:'le casque vienne du fabricant B',C:'le casque vienne du fabricant C',E:'le casque soit conforme à la norme',F:'le casque ne soit pas conforme à la norme'},
+        sp:{A:'vienne du fabricant A',B:'vienne du fabricant B',C:'vienne du fabricant C',E:'soit conforme à la norme',F:'ne soit pas conforme à la norme'},
+        i:{A:'le casque vient du fabricant A',B:'le casque vient du fabricant B',C:'le casque vient du fabricant C',E:'le casque est conforme à la norme',F:'le casque n’est pas conforme à la norme'},
+        pop:'des casques vendus', rel:{A:'viennent du fabricant A',F:'ne sont pas conformes à la norme'}, adj:{A:'du fabricant A',F:'non conformes à la norme'} },
+      { L:{A:'A',B:'B',C:'C',E:'U',F:'-U'},
+        intro:d=>'Un garage monte des pneus produits par trois usines : '+aptPct(d.a)+' des pneus viennent de l’usine A, '+aptPct(d.b)+' de l’usine B, et les autres de l’usine C. Un test d’usure a montré que :<ul class="apc-donnees"><li>'+aptPct(d.pa)+' des pneus de l’usine A réussissent le test ;</li><li>'+aptPct(d.pb)+' des pneus de l’usine B réussissent le test ;</li><li>'+aptPct(d.pc)+' des pneus de l’usine C réussissent le test.</li></ul>On choisit au hasard un pneu monté par le garage.',
+        fam:['l’usine qui a produit le pneu','le pneu réussit le test d’usure, ou non'],
+        s:{A:'le pneu vienne de l’usine A',B:'le pneu vienne de l’usine B',C:'le pneu vienne de l’usine C',E:'le pneu réussisse le test d’usure',F:'le pneu échoue au test d’usure'},
+        sp:{A:'vienne de l’usine A',B:'vienne de l’usine B',C:'vienne de l’usine C',E:'réussisse le test d’usure',F:'échoue au test d’usure'},
+        i:{A:'le pneu vient de l’usine A',B:'le pneu vient de l’usine B',C:'le pneu vient de l’usine C',E:'le pneu réussit le test d’usure',F:'le pneu échoue au test d’usure'},
+        pop:'des pneus montés', rel:{A:'viennent de l’usine A',F:'échouent au test d’usure'}, adj:{A:'de l’usine A',F:'qui échouent au test d’usure'} }
+    ] },
+  /* 3 — trois états ; la branche inconnue x est donnée dans l'énoncé, puis retrouvée */
+  { nom:'Trois états : déterminer la branche inconnue x, puis remonter l’arbre',
+    th:[
+      { L:{A:'P',B:'R',C:'N',E:'I',F:'-I'},
+        intro:d=>'Le service technique d’une ville contrôle les ascenseurs de ses bâtiments publics. On considère que :<ul class="apc-donnees"><li>'+aptPct(d.a)+' des ascenseurs sont en panne ;</li><li>'+aptPct(d.r)+' des ascenseurs fonctionnent en service réduit ;</li><li>les autres ascenseurs fonctionnent normalement.</li></ul>Parmi les ascenseurs en panne, '+aptPct(d.pa)+' sont inspectés ce mois-ci et, parmi ceux qui fonctionnent en service réduit, '+aptPct(d.pr)+' sont inspectés ce mois-ci. On choisit un ascenseur au hasard.',
+        fam:['l’état de l’ascenseur','l’ascenseur est inspecté ce mois-ci, ou non'],
+        s:{A:'l’ascenseur soit en panne',B:'l’ascenseur fonctionne en service réduit',C:'l’ascenseur fonctionne normalement',E:'l’ascenseur soit inspecté ce mois-ci',F:'l’ascenseur ne soit pas inspecté ce mois-ci'},
+        sp:{A:'soit en panne',B:'fonctionne en service réduit',C:'fonctionne normalement',E:'soit inspecté ce mois-ci',F:'ne soit pas inspecté ce mois-ci'},
+        i:{A:'l’ascenseur est en panne',B:'l’ascenseur fonctionne en service réduit',C:'l’ascenseur fonctionne normalement',E:'l’ascenseur est inspecté ce mois-ci',F:'l’ascenseur n’est pas inspecté ce mois-ci'} },
+      { L:{A:'A',B:'B',C:'N',E:'M',F:'-M'},
+        intro:d=>'Un parc éolien programme les visites de maintenance de ses éoliennes. On considère que :<ul class="apc-donnees"><li>'+aptPct(d.a)+' des éoliennes sont à l’arrêt ;</li><li>'+aptPct(d.r)+' des éoliennes sont bridées ;</li><li>les autres éoliennes produisent normalement.</li></ul>Parmi les éoliennes à l’arrêt, '+aptPct(d.pa)+' reçoivent une visite de maintenance cette semaine et, parmi les éoliennes bridées, '+aptPct(d.pr)+' en reçoivent une. On choisit une éolienne du parc au hasard.',
+        fam:['l’état de l’éolienne','l’éolienne reçoit une visite de maintenance, ou non'],
+        s:{A:'l’éolienne soit à l’arrêt',B:'l’éolienne soit bridée',C:'l’éolienne produise normalement',E:'l’éolienne reçoive une visite de maintenance',F:'l’éolienne ne reçoive pas de visite de maintenance'},
+        sp:{A:'soit à l’arrêt',B:'soit bridée',C:'produise normalement',E:'reçoive une visite de maintenance',F:'ne reçoive pas de visite de maintenance'},
+        i:{A:'l’éolienne est à l’arrêt',B:'l’éolienne est bridée',C:'l’éolienne produit normalement',E:'l’éolienne reçoit une visite de maintenance',F:'l’éolienne ne reçoit pas de visite de maintenance'} },
+      { L:{A:'U',B:'R',C:'N',E:'S',F:'-S'},
+        intro:d=>'Dans le service des urgences d’un hôpital, on classe les patients selon la gravité de leur état. On considère que :<ul class="apc-donnees"><li>'+aptPct(d.a)+' des patients sont en urgence vitale ;</li><li>'+aptPct(d.r)+' des patients sont en urgence relative ;</li><li>les autres patients ne sont pas en situation d’urgence.</li></ul>Parmi les patients en urgence vitale, '+aptPct(d.pa)+' passent un scanner et, parmi les patients en urgence relative, '+aptPct(d.pr)+' passent un scanner. On choisit un patient au hasard.',
+        fam:['la gravité de l’état du patient','le patient passe un scanner, ou non'],
+        s:{A:'le patient soit en urgence vitale',B:'le patient soit en urgence relative',C:'le patient ne soit pas en situation d’urgence',E:'le patient passe un scanner',F:'le patient ne passe pas de scanner'},
+        sp:{A:'soit en urgence vitale',B:'soit en urgence relative',C:'ne soit pas en situation d’urgence',E:'passe un scanner',F:'ne passe pas de scanner'},
+        i:{A:'le patient est en urgence vitale',B:'le patient est en urgence relative',C:'le patient n’est pas en situation d’urgence',E:'le patient passe un scanner',F:'le patient ne passe pas de scanner'} }
+    ] },
+  /* 4 — un arbre à deux puis trois branches ; interpréter une intersection, retrouver deux branches, vérifier une affirmation */
+  { nom:'Deux et trois branches : interpréter, retrouver une branche, vérifier une affirmation',
+    th:[
+      { L:{A:'K',B:'-K',E:'B',F:'R',G:'E'},
+        intro:d=>'Un loueur de vélos possède des vélos classiques et des vélos électriques. Les vélos classiques représentent '+aptPct(d.m)+' de sa flotte. Le gérant observe qu’après chaque saison :<ul class="apc-donnees"><li>'+aptPct(d.b1)+' des vélos classiques sont en bon état et reloués la saison suivante ; les autres sont réformés ;</li><li>'+aptPct(d.b2)+' des vélos électriques sont en bon état ; les autres sont soit réformés, soit envoyés en réparation.</li></ul>Après une saison, on choisit un vélo au hasard et on s’intéresse aux événements suivants :',
+        def:{A:'le vélo est classique',E:'le vélo est en bon état',F:'le vélo est réformé',G:'le vélo est envoyé en réparation'},
+        fam:['le type de vélo : classique ou électrique','l’état du vélo après la saison'],
+        s:{A:'le vélo soit classique',B:'le vélo soit électrique',E:'le vélo soit en bon état',F:'le vélo soit réformé',G:'le vélo soit envoyé en réparation'},
+        sp:{A:'soit classique',B:'soit électrique',E:'soit en bon état',F:'soit réformé',G:'soit envoyé en réparation'},
+        i:{A:'le vélo est classique',B:'le vélo est électrique',E:'le vélo est en bon état',F:'le vélo est réformé',G:'le vélo est envoyé en réparation'},
+        pop:'des vélos de la flotte', rel:{B:'sont électriques',F:'sont réformés'}, adj:{B:'électriques',F:'réformés'},
+        choisi:'On a choisi un vélo électrique.', claim:f=>'Le gérant affirme qu’après une saison, au moins '+f+' des vélos sont en bon état. A-t-il raison ?', qui:'il' },
+      { L:{A:'P',B:'-P',E:'B',F:'R',G:'L'},
+        intro:d=>'Une médiathèque prête des livres de poche et des livres grand format. Les livres de poche représentent '+aptPct(d.m)+' de ses livres. La responsable observe qu’après une année de prêts :<ul class="apc-donnees"><li>'+aptPct(d.b1)+' des livres de poche sont en bon état et restent en rayon ; les autres sont retirés ;</li><li>'+aptPct(d.b2)+' des livres grand format sont en bon état ; les autres sont soit retirés, soit envoyés à la reliure.</li></ul>Après une année, on choisit un livre au hasard et on s’intéresse aux événements suivants :',
+        def:{A:'le livre est un livre de poche',E:'le livre est en bon état',F:'le livre est retiré',G:'le livre est envoyé à la reliure'},
+        fam:['le format du livre : poche ou grand format','l’état du livre après l’année'],
+        s:{A:'le livre soit un livre de poche',B:'le livre soit un grand format',E:'le livre soit en bon état',F:'le livre soit retiré',G:'le livre soit envoyé à la reliure'},
+        sp:{A:'soit un livre de poche',B:'soit un grand format',E:'soit en bon état',F:'soit retiré',G:'soit envoyé à la reliure'},
+        i:{A:'le livre est un livre de poche',B:'le livre est un grand format',E:'le livre est en bon état',F:'le livre est retiré',G:'le livre est envoyé à la reliure'},
+        pop:'des livres de la médiathèque', rel:{B:'sont des grands formats',F:'sont retirés'}, adj:{B:'grand format',F:'retirés'},
+        choisi:'On a choisi un livre grand format.', claim:f=>'La responsable affirme qu’après une année, au moins '+f+' des livres sont en bon état. A-t-elle raison ?', qui:'elle' },
+      { L:{A:'A',B:'-A',E:'B',F:'J',G:'C'},
+        intro:d=>'Un club de tennis prête à ses débutants des raquettes en aluminium et, aux joueurs confirmés, des raquettes en graphite. Les raquettes en aluminium représentent '+aptPct(d.m)+' des raquettes du club. L’entraîneur observe qu’après une saison :<ul class="apc-donnees"><li>'+aptPct(d.b1)+' des raquettes en aluminium sont en bon état ; les autres sont jetées ;</li><li>'+aptPct(d.b2)+' des raquettes en graphite sont en bon état ; les autres sont soit jetées, soit recordées.</li></ul>Après une saison, on choisit une raquette au hasard et on s’intéresse aux événements suivants :',
+        def:{A:'la raquette est en aluminium',E:'la raquette est en bon état',F:'la raquette est jetée',G:'la raquette est recordée'},
+        fam:['la matière de la raquette : aluminium ou graphite','l’état de la raquette après la saison'],
+        s:{A:'la raquette soit en aluminium',B:'la raquette soit en graphite',E:'la raquette soit en bon état',F:'la raquette soit jetée',G:'la raquette soit recordée'},
+        sp:{A:'soit en aluminium',B:'soit en graphite',E:'soit en bon état',F:'soit jetée',G:'soit recordée'},
+        i:{A:'la raquette est en aluminium',B:'la raquette est en graphite',E:'la raquette est en bon état',F:'la raquette est jetée',G:'la raquette est recordée'},
+        pop:'des raquettes du club', rel:{B:'sont en graphite',F:'sont jetées'}, adj:{B:'en graphite',F:'jetées'},
+        choisi:'On a choisi une raquette en graphite.', claim:f=>'L’entraîneur affirme qu’après une saison, au moins '+f+' des raquettes sont en bon état. A-t-il raison ?', qui:'il' }
+    ] },
+  /* 5 — une probabilité totale donnée : retrouver une intersection, puis une proportion */
+  { nom:'Une probabilité totale donnée : une intersection, puis une proportion',
+    th:[
+      { L:{A:'C',B:'-C',E:'J',F:'-J'},
+        intro:d=>'D’après une étude, les personnes qui vont au cinéma au moins une fois par mois représentent '+aptPct(d.r)+' de la population française. Parmi ces spectateurs réguliers, '+aptPct(d.j)+' ont moins de 25 ans. On interroge une personne au hasard et on note :',
+        def:{A:'la personne interrogée va au cinéma au moins une fois par mois',E:'la personne interrogée a moins de 25 ans'},
+        fam:['la personne va au cinéma au moins une fois par mois, ou non','la personne a moins de 25 ans, ou non'],
+        s:{A:'la personne aille au cinéma au moins une fois par mois',B:'la personne n’aille pas au cinéma au moins une fois par mois',E:'la personne ait moins de 25 ans',F:'la personne ait 25 ans ou plus'},
+        sp:{A:'aille au cinéma au moins une fois par mois',B:'n’aille pas au cinéma au moins une fois par mois',E:'ait moins de 25 ans',F:'ait 25 ans ou plus'},
+        i:{A:'la personne va au cinéma au moins une fois par mois',B:'la personne ne va pas au cinéma au moins une fois par mois',E:'la personne a moins de 25 ans',F:'la personne a 25 ans ou plus'},
+        jeunes:'les personnes de moins de 25 ans', q3:'soit une personne de moins de 25 ans qui ne va pas au cinéma au moins une fois par mois', q4:'des personnes de moins de 25 ans parmi celles qui ne vont pas au cinéma au moins une fois par mois' },
+      { L:{A:'S',B:'-S',E:'F',F:'-F'},
+        intro:d=>'D’après une étude, les personnes qui pratiquent un sport en club représentent '+aptPct(d.r)+' de la population d’une région. Parmi ces sportifs licenciés, '+aptPct(d.j)+' sont des femmes. On interroge une personne de la région au hasard et on note :',
+        def:{A:'la personne interrogée pratique un sport en club',E:'la personne interrogée est une femme'},
+        fam:['la personne pratique un sport en club, ou non','la personne est une femme, ou non'],
+        s:{A:'la personne pratique un sport en club',B:'la personne ne pratique pas de sport en club',E:'la personne soit une femme',F:'la personne soit un homme'},
+        sp:{A:'pratique un sport en club',B:'ne pratique pas de sport en club',E:'soit une femme',F:'soit un homme'},
+        i:{A:'la personne pratique un sport en club',B:'la personne ne pratique pas de sport en club',E:'la personne est une femme',F:'la personne est un homme'},
+        jeunes:'les femmes', q3:'soit une femme qui ne pratique pas de sport en club', q4:'des femmes parmi les personnes qui ne pratiquent pas de sport en club' },
+      { L:{A:'M',B:'-M',E:'R',F:'-R'},
+        intro:d=>'D’après une étude, les habitants inscrits à la médiathèque représentent '+aptPct(d.r)+' de la population d’une ville. Parmi ces inscrits, '+aptPct(d.j)+' sont retraités. On interroge un habitant de la ville au hasard et on note :',
+        def:{A:'l’habitant interrogé est inscrit à la médiathèque',E:'l’habitant interrogé est retraité'},
+        fam:['l’habitant est inscrit à la médiathèque, ou non','l’habitant est retraité, ou non'],
+        s:{A:'l’habitant soit inscrit à la médiathèque',B:'l’habitant ne soit pas inscrit à la médiathèque',E:'l’habitant soit retraité',F:'l’habitant ne soit pas retraité'},
+        sp:{A:'soit inscrit à la médiathèque',B:'ne soit pas inscrit à la médiathèque',E:'soit retraité',F:'ne soit pas retraité'},
+        i:{A:'l’habitant est inscrit à la médiathèque',B:'l’habitant n’est pas inscrit à la médiathèque',E:'l’habitant est retraité',F:'l’habitant n’est pas retraité'},
+        jeunes:'les retraités', q3:'soit un retraité qui n’est pas inscrit à la médiathèque', q4:'des retraités parmi les habitants qui ne sont pas inscrits à la médiathèque' }
+    ] },
+  /* 6 — l'arbre, une intersection, la probabilité totale, puis remonter l'arbre (à 10⁻³ près) */
+  { nom:'Un arbre à deux niveaux : intersection, probabilité totale, puis remonter l’arbre',
+    th:[
+      { L:{A:'J',B:'-J',E:'T',F:'-T'},
+        intro:d=>'Un club d’échecs organise un grand tournoi. Ses membres sont des juniors ou des adultes :<ul class="apc-donnees"><li>'+aptPct(d.f)+' des membres sont des juniors, les autres sont des adultes ;</li><li>parmi les juniors, '+aptPct(d.pf)+' participent au tournoi ;</li><li>parmi les adultes, '+aptPct(d.pg)+' participent au tournoi.</li></ul>On interroge au hasard un membre du club et on considère les événements suivants :',
+        def:{A:'le membre est un junior',E:'le membre participe au tournoi'},
+        fam:['le membre est un junior, ou un adulte','le membre participe au tournoi, ou non'],
+        s:{A:'le membre soit un junior',B:'le membre soit un adulte',E:'le membre participe au tournoi',F:'le membre ne participe pas au tournoi'},
+        sp:{A:'soit un junior',B:'soit un adulte',E:'participe au tournoi',F:'ne participe pas au tournoi'},
+        i:{A:'le membre est un junior',B:'le membre est un adulte',E:'le membre participe au tournoi',F:'le membre ne participe pas au tournoi'} },
+      { L:{A:'T',B:'-T',E:'V',F:'-V'},
+        intro:d=>'Une entreprise s’intéresse aux trajets de ses salariés :<ul class="apc-donnees"><li>'+aptPct(d.f)+' des salariés travaillent à temps partiel, les autres à temps plein ;</li><li>parmi les salariés à temps partiel, '+aptPct(d.pf)+' viennent travailler à vélo ;</li><li>parmi les salariés à temps plein, '+aptPct(d.pg)+' viennent travailler à vélo.</li></ul>On interroge au hasard un salarié de l’entreprise et on considère les événements suivants :',
+        def:{A:'le salarié travaille à temps partiel',E:'le salarié vient travailler à vélo'},
+        fam:['le salarié travaille à temps partiel, ou à temps plein','le salarié vient à vélo, ou non'],
+        s:{A:'le salarié travaille à temps partiel',B:'le salarié travaille à temps plein',E:'le salarié vienne travailler à vélo',F:'le salarié ne vienne pas travailler à vélo'},
+        sp:{A:'travaille à temps partiel',B:'travaille à temps plein',E:'vienne travailler à vélo',F:'ne vienne pas travailler à vélo'},
+        i:{A:'le salarié travaille à temps partiel',B:'le salarié travaille à temps plein',E:'le salarié vient travailler à vélo',F:'le salarié ne vient pas travailler à vélo'} },
+      { L:{A:'B',B:'-B',E:'E',F:'-E'},
+        intro:d=>'Dans une université, on s’intéresse aux étudiants qui ont un emploi à côté de leurs études :<ul class="apc-donnees"><li>'+aptPct(d.f)+' des étudiants sont boursiers ;</li><li>parmi les étudiants boursiers, '+aptPct(d.pf)+' ont un emploi étudiant ;</li><li>parmi les étudiants non boursiers, '+aptPct(d.pg)+' ont un emploi étudiant.</li></ul>On interroge au hasard un étudiant de l’université et on considère les événements suivants :',
+        def:{A:'l’étudiant est boursier',E:'l’étudiant a un emploi étudiant'},
+        fam:['l’étudiant est boursier, ou non','l’étudiant a un emploi étudiant, ou non'],
+        s:{A:'l’étudiant soit boursier',B:'l’étudiant ne soit pas boursier',E:'l’étudiant ait un emploi étudiant',F:'l’étudiant n’ait pas d’emploi étudiant'},
+        sp:{A:'soit boursier',B:'ne soit pas boursier',E:'ait un emploi étudiant',F:'n’ait pas d’emploi étudiant'},
+        i:{A:'l’étudiant est boursier',B:'l’étudiant n’est pas boursier',E:'l’étudiant a un emploi étudiant',F:'l’étudiant n’a pas d’emploi étudiant'} }
+    ] },
+  /* 7 — donner une probabilité, l'arbre, remonter, puis la branche inconnue en posant x, et l'interpréter */
+  { nom:'Donner une probabilité, remonter l’arbre, puis retrouver une branche en posant x',
+    th:[
+      { L:{A:'P',B:'-P',E:'D',F:'-D'},
+        intro:d=>'Un hôtel propose à ses clients de réserver une place de parking et le petit-déjeuner. Parmi l’ensemble des clients, on constate que '+aptPct(d.v)+' réservent une place de parking et, parmi ces derniers, '+aptPct(d.pv)+' réservent le petit-déjeuner. On sait par ailleurs que '+aptPct(d.c)+' des clients réservent le petit-déjeuner. On choisit un client de l’hôtel au hasard, et on considère les événements suivants :',
+        def:{A:'le client réserve une place de parking',E:'le client réserve le petit-déjeuner'},
+        fam:['le client réserve une place de parking, ou non','le client réserve le petit-déjeuner, ou non'],
+        s:{A:'le client réserve une place de parking',B:'le client ne réserve pas de place de parking',E:'le client réserve le petit-déjeuner',F:'le client ne réserve pas le petit-déjeuner'},
+        sp:{A:'réserve une place de parking',B:'ne réserve pas de place de parking',E:'réserve le petit-déjeuner',F:'ne réserve pas le petit-déjeuner'},
+        i:{A:'le client réserve une place de parking',B:'le client ne réserve pas de place de parking',E:'le client réserve le petit-déjeuner',F:'le client ne réserve pas le petit-déjeuner'},
+        pop:'des clients', rel:{B:'ne réservent pas de place de parking',E:'réservent le petit-déjeuner'}, adj:{B:'qui ne réservent pas de place de parking',E:'qui réservent le petit-déjeuner'} },
+      { L:{A:'V',B:'-V',E:'P',F:'-P'},
+        intro:d=>'Un festival de musique dure trois jours. Parmi les festivaliers, '+aptPct(d.v)+' viennent en voiture et, parmi eux, '+aptPct(d.pv)+' achètent le pass des trois jours. On sait par ailleurs que '+aptPct(d.c)+' des festivaliers achètent le pass des trois jours. On choisit un festivalier au hasard, et on considère les événements suivants :',
+        def:{A:'le festivalier vient en voiture',E:'le festivalier achète le pass des trois jours'},
+        fam:['le festivalier vient en voiture, ou non','le festivalier achète le pass, ou non'],
+        s:{A:'le festivalier vienne en voiture',B:'le festivalier ne vienne pas en voiture',E:'le festivalier achète le pass des trois jours',F:'le festivalier n’achète pas le pass des trois jours'},
+        sp:{A:'vienne en voiture',B:'ne vienne pas en voiture',E:'achète le pass des trois jours',F:'n’achète pas le pass des trois jours'},
+        i:{A:'le festivalier vient en voiture',B:'le festivalier ne vient pas en voiture',E:'le festivalier achète le pass des trois jours',F:'le festivalier n’achète pas le pass des trois jours'},
+        pop:'des festivaliers', rel:{B:'ne viennent pas en voiture',E:'achètent le pass des trois jours'}, adj:{B:'qui ne viennent pas en voiture',E:'qui achètent le pass des trois jours'} },
+      { L:{A:'A',B:'-A',E:'G',F:'-G'},
+        intro:d=>'Un musée propose à ses visiteurs un audioguide et une visite guidée. Parmi les visiteurs, '+aptPct(d.v)+' louent un audioguide et, parmi eux, '+aptPct(d.pv)+' suivent aussi la visite guidée. On sait par ailleurs que '+aptPct(d.c)+' des visiteurs suivent la visite guidée. On choisit un visiteur du musée au hasard, et on considère les événements suivants :',
+        def:{A:'le visiteur loue un audioguide',E:'le visiteur suit la visite guidée'},
+        fam:['le visiteur loue un audioguide, ou non','le visiteur suit la visite guidée, ou non'],
+        s:{A:'le visiteur loue un audioguide',B:'le visiteur ne loue pas d’audioguide',E:'le visiteur suive la visite guidée',F:'le visiteur ne suive pas la visite guidée'},
+        sp:{A:'loue un audioguide',B:'ne loue pas d’audioguide',E:'suive la visite guidée',F:'ne suive pas la visite guidée'},
+        i:{A:'le visiteur loue un audioguide',B:'le visiteur ne loue pas d’audioguide',E:'le visiteur suit la visite guidée',F:'le visiteur ne suit pas la visite guidée'},
+        pop:'des visiteurs', rel:{B:'ne louent pas d’audioguide',E:'suivent la visite guidée'}, adj:{B:'qui ne louent pas d’audioguide',E:'qui suivent la visite guidée'} }
+    ] }
+];
+/* un pourcentage de l'énoncé, à partir de dix-millièmes : 3375 → « 33,75 % » */
+function aptPct(v){ return '<span class="apf-lab">'+apfNb(v/100)+'&nbsp;%</span>'; }
+const aptR=v=>Math.round(v*1e9)/1e9;
+const APT_NOMBRES=['','une','deux','trois','quatre','cinq'];
+/* ---- le tirage : un générateur par exercice, qui rend les nombres q.d (dix-millièmes entiers) ---- */
+function aptEntre(a,b,pas){ const t=[]; for(let v=a;v<=b+1e-9;v+=(pas||1)) t.push(v); return t; }
+const aptCands={};
+function aptCandidats(ty){
+  if(aptCands[ty]) return aptCands[ty];
+  const c=[];
+  if(ty===1){
+    /* P(A), P_A(E), P_B(E) en % ; P(E) a au plus une décimale en % ; l'affirmation « k fois moins »
+       vraie quand le rapport P(B ∩ F) / P(A ∩ F) vaut exactement k, fausse quand il s'en écarte nettement */
+    aptEntre(40,75,5).forEach(function(a){ aptEntre(88,98).forEach(function(p){ aptEntre(70,95).forEach(function(q){
+      if(p===q || (a*p+(100-a)*q)%10) return;
+      const r=(100-a)*(100-q)/(a*(100-p));
+      [2,3].forEach(function(k){
+        if(Math.abs(r-k)<1e-9) c.push({a:a*100,p:p*100,q:q*100,k:k,vrai:1});
+        else if(Math.abs(r-k)>=0.3 && r>1 && r<4.5) c.push({a:a*100,p:p*100,q:q*100,k:k,vrai:0});
+      });
+    }); }); });
+  }
+  if(ty===4){
+    /* P(M), P_M(E), P_M̄(E), P_M̄(F) en % ; la part en bon état comparée à un seuil, ni trop près ni égale */
+    const S=[[3,4],[2,3],[7,10],[4,5]];
+    aptEntre(60,85,5).forEach(function(m){ aptEntre(60,85,5).forEach(function(b1){ aptEntre(40,70,5).forEach(function(b2){ aptEntre(10,30,5).forEach(function(r2){
+      if(100-b2-r2<5) return;
+      const pb=(m*b1+(100-m)*b2)/10000;
+      S.forEach(function(s,i){ const f=s[0]/s[1]; if(Math.abs(pb-f)<0.01) return; c.push({m:m*100,b1:b1*100,b2:b2*100,r2:r2*100,s:i,vrai:pb>=f?1:0}); });
+    }); }); }); });
+  }
+  return aptCands[ty]=c;
+}
+function aptGenD(ty){
+  if(ty===1 || ty===4){ const vrai=Math.random()<0.5?1:0, t=aptCandidats(ty).filter(function(x){ return x.vrai===vrai; }); const d=Object.assign({}, pick(t)); if(ty===1) d.c=(d.a*d.p+(10000-d.a)*d.q)/10000; return d; }
+  if(ty===2){
+    for(;;){ const a=rand(8,13)*5, b=rand(2,5)*5, pa=rand(80,97), pb=rand(80,97), pc=rand(80,97);
+      if(100-a-b<10 || pa===pb || pb===pc || pa===pc) continue;
+      return {a:a*100, b:b*100, pa:pa*100, pb:pb*100, pc:pc*100}; }
+  }
+  if(ty===3){
+    for(;;){ const a=rand(2,6)*5, r=rand(4,15), pa=rand(14,19)*5, pr=rand(8,15)*5, x=pick([10,15,20,25,30,35,40]), n=100-a-r;
+      if(n<50 || (a*pa+r*pr+n*x)%10) continue;
+      return {a:a*100, r:r*100, pa:pa*100, pr:pr*100, x:x*100, c:(a*pa+r*pr+n*x)}; }
+  }
+  if(ty===5){
+    for(;;){ const r=rand(12,30), j=rand(20,45), pj=rand(8,20);
+      const nbj=pj*100-r*j;   /* P(B ∩ E), en dix-millièmes : pj % − r % × j % */
+      if(nbj<200 || nbj>1500) continue;
+      const x=nbj/(100-r)/100; if(x<0.03 || x>0.5) continue;
+      return {r:r*100, j:j*100, pj:pj*100}; }
+  }
+  if(ty===6){
+    for(;;){ const f=rand(30,60), pf=rand(80,180)*25, pg=rand(160,260)*25; if(Math.abs(pf-pg)<500) continue;
+      return {f:f*100, pf:pf, pg:pg}; }
+  }
+  /* 7 : P(V), P_V(E), P(E) ; la branche P_V̄(E) se retrouve en posant x */
+  for(;;){ const v=rand(4,9)*5, pv=rand(12,18)*5, c=rand(50,85), x=(c*100-v*pv)/(100-v)/100;
+    if(x<0.25 || x>0.95) continue;
+    return {v:v*100, pv:pv*100, c:c*100}; }
+}
+/* L'ARBRE DE LA QUESTION : n1, les premières branches ; n2, les secondes ;
+   p1, p2 en dix-millièmes ; inc, les branches inconnues de l'énoncé (elles
+   restent « … » dans le premier arbre) ; fixe, une branche que l'énoncé
+   écrit lui-même (x, au 3). */
+function aptT(q){
+  const d=q.d, D2=['E','F'], c=x=>10000-x;
+  switch(q.ty){
+    case 1: return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.a,B:c(d.a)}, p2:{A:{E:d.p,F:c(d.p)},B:{E:d.q,F:c(d.q)}}, inc:['B-E','B-F']};
+    case 2: { const pc=10000-d.a-d.b; return {n1:['A','B','C'], n2:{A:D2,B:D2,C:D2}, p1:{A:d.a,B:d.b,C:pc}, p2:{A:{E:d.pa,F:c(d.pa)},B:{E:d.pb,F:c(d.pb)},C:{E:d.pc,F:c(d.pc)}}, inc:[]}; }
+    case 3: { const n=10000-d.a-d.r; return {n1:['A','B','C'], n2:{A:D2,B:D2,C:D2}, p1:{A:d.a,B:d.r,C:n}, p2:{A:{E:d.pa,F:c(d.pa)},B:{E:d.pr,F:c(d.pr)},C:{E:d.x,F:c(d.x)}}, inc:[], fixe:{'C-E':'x'}}; }
+    case 4: return {n1:['A','B'], n2:{A:['E','F'],B:['E','F','G']}, p1:{A:d.m,B:c(d.m)}, p2:{A:{E:d.b1,F:c(d.b1)},B:{E:d.b2,F:d.r2,G:10000-d.b2-d.r2}}, inc:['B-F','B-G']};
+    case 5: { const x=(d.pj*10000-d.r*d.j)/(10000-d.r); return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.r,B:c(d.r)}, p2:{A:{E:d.j,F:c(d.j)},B:{E:x,F:c(x)}}, inc:['B-E','B-F']}; }
+    case 6: return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.f,B:c(d.f)}, p2:{A:{E:d.pf,F:c(d.pf)},B:{E:d.pg,F:c(d.pg)}}, inc:[]};
+    default: { const x=(d.c*10000-d.v*d.pv)/(10000-d.v); return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.v,B:c(d.v)}, p2:{A:{E:d.pv,F:c(d.pv)},B:{E:x,F:c(x)}}, inc:['B-E','B-F']}; }
+  }
+}
+/* ---- les lettres et les écritures ---- */
+function aptTh(q){ return APT_TYPES[q.ty].th[q.c]; }
+function aptNiv1(k){ return 'ABC'.indexOf(k)>=0; }
+function aptOrd(a,b){ return aptNiv1(a) ? [a,b] : [b,a]; }   /* une intersection s'écrit dans l'ordre de l'arbre : P(A ∩ E) */
+function aptEv(q,k){ const L=aptTh(q).L[k], b=L.charAt(0)==='-'; return '<i class="apb-ev'+(b?' apb-nb':'')+'">'+(b?L.slice(1):L)+'</i>'; }
+function aptEvT(q,k){ const L=aptTh(q).L[k]; return L.charAt(0)==='-' ? L.slice(1)+'̄' : L; }
+function aptP(q,e){ return '<i>P</i>('+aptEv(q,e)+')'; }
+function aptPc(q,c,e){ return '<i>P</i><sub>'+aptEv(q,c)+'</sub>('+aptEv(q,e)+')'; }
+function aptPi(q,a,b){ const o=aptOrd(a,b); return '<i>P</i>('+aptEv(q,o[0])+' ∩ '+aptEv(q,o[1])+')'; }
+/* une écriture : ['p', e] = P(e) ; ['c', c, e] = P_c(e) ; ['i', a, b] = P(a ∩ b) */
+function aptW(q,w){ return w[0]==='p' ? aptP(q,w[1]) : w[0]==='c' ? aptPc(q,w[1],w[2]) : aptPi(q,w[1],w[2]); }
+function aptWT(q,w){
+  if(w[0]==='p') return 'P('+aptEvT(q,w[1])+')';
+  if(w[0]==='c') return 'P_'+aptEvT(q,w[1])+'('+aptEvT(q,w[2])+')';
+  const o=aptOrd(w[1],w[2]); return 'P('+aptEvT(q,o[0])+' ∩ '+aptEvT(q,o[1])+')';
+}
+/* ---- les valeurs ---- */
+function aptV1(q,k){ return aptT(q).p1[k]/1e4; }
+function aptV2(q,k,e){ return aptT(q).p2[k][e]/1e4; }
+function aptVi(q,a,b){ const o=aptOrd(a,b); return aptR(aptV1(q,o[0])*aptV2(q,o[0],o[1])); }
+function aptParents(q,e){ const T=aptT(q); return T.n1.filter(function(k){ return T.n2[k].indexOf(e)>=0; }); }
+function aptVp(q,e){ return aptNiv1(e) ? aptV1(q,e) : aptR(aptParents(q,e).reduce(function(s,k){ return s+aptVi(q,k,e); },0)); }
+function aptVc(q,c,e){ return (aptNiv1(c) && !aptNiv1(e)) ? aptV2(q,c,e) : aptVi(q,c,e)/aptVp(q,c); }
+function aptVal(q,w){ return w[0]==='p' ? aptVp(q,w[1]) : w[0]==='c' ? aptVc(q,w[1],w[2]) : aptVi(q,w[1],w[2]); }
+/* ---- les phrases ---- */
+const aptS=(q,k)=>aptTh(q).s[k], aptI=(q,k)=>aptTh(q).i[k];
+function aptQp(q,e){ return 'la probabilité '+apcQue(aptS(q,e)); }
+function aptQi(q,a,b){ const o=aptOrd(a,b); return 'la probabilité '+apcQue(aptS(q,o[0]))+' et '+aptTh(q).sp[o[1]]; }
+function aptQc(q,c,e){ return 'la probabilité '+apcQue(aptS(q,e))+' sachant '+apcQue(aptI(q,c)); }
+function aptCap(t){ return t.charAt(0).toUpperCase()+t.slice(1); }
+/* la précision demandée : 10⁻² ou 10⁻³ près */
+function aptPrec(tol){ return '(Donner une valeur approchée à 10<sup>−'+(tol<0.005?3:2)+'</sup>&nbsp;près.)'; }
+function aptDec(tol){ return tol<0.005 ? 3 : 2; }
+/* « = v » si v tombe juste à la précision demandée, « ≈ v » sinon */
+function aptExact(v,tol){ const k=aptDec(tol||0.01), r=Math.round(v*Math.pow(10,k))/Math.pow(10,k); return Math.abs(r-v)<1e-12; }
+function aptArr(v,tol,tex){ const k=aptDec(tol||0.01); return aptExact(v,tol) ? (tex?'=':' = ')+apfNb(v) : (tex?'\\approx ':' ≈ ')+v.toFixed(k).replace('.',','); }
+function aptArrN(v,tol){ return aptExact(v,tol) ? apfNb(v) : v.toFixed(aptDec(tol)).replace('.',','); }
+/* ---- les formules qui suivent une écriture (comme apcDev au 6.1.3) ---- */
+function aptDev(q,w){
+  if(w[0]==='p') return aptNiv1(w[1]) ? '' : aptParents(q,w[1]).map(function(k){ return aptPi(q,k,w[1]); }).join(' + ');
+  if(w[0]==='i'){ const o=aptOrd(w[1],w[2]); return aptP(q,o[0])+' × '+aptPc(q,o[0],o[1]); }
+  return apcFr(aptPi(q,w[1],w[2]), aptP(q,w[1]));
+}
+/* les écritures proposées à côté de la bonne : les confusions de la fiche 4 */
+function aptPieges(q,w){
+  if(w[0]==='i') return [['c',w[1],w[2]], ['c',w[2],w[1]], ['p',w[2]]];
+  if(w[0]==='p'){ const k=aptParents(q,w[1])[0]; return [['i',k,w[1]], ['c',k,w[1]], ['c',w[1],k]]; }
+  return [['c',w[2],w[1]], ['i',w[1],w[2]], ['p',w[2]]];
+}
+/* ---- les corrections : le calcul en clair et en LaTeX (les divisions en fraction) ---- */
+const aptN=apfNb, aptFr=(n,d)=>'\\frac{'+n+'}{'+d+'}';
+function aptLigneI(q,a,b){   /* P(A ∩ E) = P(A) × P_A(E) */
+  const o=aptOrd(a,b), x=aptV1(q,o[0]), y=aptV2(q,o[0],o[1]), v=aptVi(q,a,b);
+  return {v:v, corr:aptN(x)+' × '+aptN(y)+' = '+aptN(v), tex:aptN(x)+'\\times '+aptN(y)+'='+aptN(v)};
+}
+function aptLigneP(q,e){     /* P(E) par les probabilités totales */
+  const K=aptParents(q,e), f=K.map(function(k){ return [aptV1(q,k), aptV2(q,k,e)]; }), t=K.map(function(k){ return aptVi(q,k,e); });
+  return {v:aptVp(q,e),
+    corr:f.map(function(z){ return aptN(z[0])+' × '+aptN(z[1]); }).join(' + ')+' = '+t.map(aptN).join(' + ')+' = '+aptN(aptVp(q,e)),
+    tex:f.map(function(z){ return aptN(z[0])+'\\times '+aptN(z[1]); }).join('+')+'='+t.map(aptN).join('+')+'='+aptN(aptVp(q,e))};
+}
+/* un quotient : num / den, den pouvant s'écrire « 1 − p » ; tol : la précision demandée */
+function aptLigneQ(num, den, v, tol, unMoins){
+  const n=aptN(num), d=aptN(den);
+  if(unMoins!==undefined) return {v:v, tol:tol,
+    corr:n+' ÷ (1 − '+aptN(unMoins)+') = '+n+' ÷ '+d+aptArr(v,tol), tex:aptFr(n,'1-'+aptN(unMoins))+'='+aptFr(n,d)+aptArr(v,tol,true)};
+  return {v:v, tol:tol, corr:n+' ÷ '+d+aptArr(v,tol), tex:aptFr(n,d)+aptArr(v,tol,true)};
+}
+/* ---- LE PLAN : chaque exercice écrit ses questions dans l'ordre de son modèle ---- */
+function aptPlan(q){
+  const P=[]; let ns=0, nc=0, ng=0;
+  const B={
+    titre:function(html){ P.push({k:'titre', html:html}); },
+    texte:function(html){ P.push({k:'texte', html:html}); },
+    arbre:function(){ P.push({k:'arbre'}); },
+    /* une ligne « [……] = formule = [calcul] » : w la bonne écriture, l ce que vaut le calcul */
+    ligne:function(w, l, o){ o=o||{}; ns++; nc++; P.push({k:'ligne', s:'s'+ns, c:'apt-c'+nc, w:w, opts:[w].concat(o.pieges||aptPieges(q,w)), l:l, dev0:o.dev0, intro:o.intro}); },
+    /* des cartes : la première est la bonne ; fixe : l'ordre n'est pas mélangé (Oui, puis Non) */
+    cartes:function(opts, pourquoi, fixe){ ng++; P.push({k:'cartes', g:'g'+ng, opts:opts, pourquoi:pourquoi, fixe:fixe}); },
+    /* la branche intérieure retrouvée en posant x : u le nœud, e la branche, f sa contraire */
+    x:function(o){ if(o.pose){ ns++; o.s='s'+ns; } nc++; o.c='apt-c'+nc; P.push(Object.assign({k:'x'}, o)); }
+  };
+  const th=aptTh(q), T=aptT(q), tq=APT_TYPES[q.ty], Q=(n,t)=>'<b>'+n+'</b> '+t;
+  if(q.ty!==7) B.titre(Q('1.', 'Représenter la situation à l’aide d’un arbre pondéré.'));
+  if(q.ty===7){
+    B.titre(Q('1. a)', 'Donner '+aptQp(q,'E')+'.'));
+    B.ligne(['p','E'], {v:aptVp(q,'E'), lit:true, corr:aptN(aptVp(q,'E')), tex:aptN(aptVp(q,'E'))}, {dev0:'', pieges:[['c','A','E'],['i','A','E'],['c','E','A']]});
+    B.titre('<b>b)</b> Représenter la situation à l’aide d’un arbre pondéré, et compléter les quatre pointillés.');
+  }
+  B.arbre();
+  if(q.ty===1){
+    B.titre(Q('2. a)', 'Déterminer '+aptQi(q,'A','E')+'.'));
+    B.ligne(['i','A','E'], aptLigneI(q,'A','E'));
+    B.titre(Q('b)', 'Démontrer que '+aptQc(q,'B','E')+' est égale à '+aptN(aptV2(q,'B','E'))+'.'));
+    B.x({u:'B', e:'E', f:'F', pose:true, arbre:true});
+    const k=q.d.k, pF=1-aptVp(q,'E'), iA=aptVi(q,'A','F'), iB=aptVi(q,'B','F');
+    B.titre(Q('c)', th.claim(APT_NOMBRES[k])));
+    B.texte('Calcule d’abord '+aptQc(q,'F','A')+', puis '+aptQc(q,'F','B')+' :');
+    const pE=aptVp(q,'E'), lq=function(k, I){ const a=aptN(aptV1(q,k)), b=aptN(aptV2(q,k,'F')), v=I/pF;
+      return {v:v, tol:0.01, corr:a+' × '+b+' ÷ (1 − '+aptN(pE)+') = '+aptN(I)+' ÷ '+aptN(aptR(pF))+aptArr(v,0.01),
+              tex:aptFr(a+'\\times '+b, '1-'+aptN(pE))+'='+aptFr(aptN(I), aptN(aptR(pF)))+aptArr(v,0.01,true)}; };
+    const qa=lq('A', iA), qb=lq('B', iB);
+    B.ligne(['c','F','A'], qa); B.ligne(['c','F','B'], qb);
+    const r=iB/iA, oui=th.qui+' a raison.', non=th.qui+' a tort.';
+    B.texte('Alors, '+(th.qui==='il'?'a-t-il':'a-t-elle')+' raison ?');
+    B.cartes(q.d.vrai ? ['Oui : '+oui, 'Non : '+non] : ['Non : '+non, 'Oui : '+oui],
+      aptPc(q,'F','B')+' ÷ '+aptPc(q,'F','A')+' = '+aptPi(q,'B','F')+' ÷ '+aptPi(q,'A','F')+' = '+aptN(iB)+' ÷ '+aptN(iA)+(Math.abs(r-k)<1e-9 ? ' = '+k+' : il y a bien '+APT_NOMBRES[k]+' fois moins de chances.' : ' ≈ '+r.toFixed(2).replace('.',',')+' : ce n’est pas '+k+'.'), true);
+  }
+  if(q.ty===2){
+    const v=aptVi(q,'A','F'), pc=aptN(v*100);
+    B.titre(Q('2.', 'Déterminer '+aptQi(q,'A','F')+', puis interpréter ce résultat dans le contexte de l’exercice.'));
+    B.ligne(['i','A','F'], aptLigneI(q,'A','F'));
+    B.texte('Interprétation :');
+    B.cartes([pc+' % '+th.pop+' '+th.rel.A+' et '+th.rel.F+'.', pc+' % '+th.pop+' '+th.adj.A+' '+th.rel.F+'.', pc+' % '+th.pop+' '+th.adj.F+' '+th.rel.A+'.'],
+      'C’est une intersection : « '+th.rel.A+' » ET « '+th.rel.F+' », parmi l’ensemble '+th.pop+'. « '+aptCap(th.adj.A)+' » ou « '+th.adj.F+' » seraient des probabilités conditionnelles.');
+    B.titre(Q('3.', 'Démontrer que '+aptQp(q,'E')+' est égale à '+aptN(aptVp(q,'E'))+'.'));
+    B.ligne(['p','E'], aptLigneP(q,'E'));
+    const pE=aptVp(q,'E'), iB=aptVi(q,'B','F'), vB=iB/(1-pE);
+    B.titre(Q('4.', 'Sachant '+apcQue(aptI(q,'F'))+', déterminer '+aptQp(q,'B')+'. '+(aptExact(vB,0.001)?'':aptPrec(0.001))));
+    B.ligne(['c','F','B'], aptLigneQ(iB, aptR(1-pE), vB, 0.001, pE));
+  }
+  if(q.ty===3){
+    B.titre(Q('2.', 'Calculer '+aptQi(q,'A','E')+'.'));
+    B.ligne(['i','A','E'], aptLigneI(q,'A','E'));
+    const pE=aptVp(q,'E');
+    B.texte('On sait de plus que '+aptQp(q,'E')+' est égale à '+aptN(pE)+'.');
+    B.titre(Q('3.', 'Montrer que la probabilité <i>x</i> est égale à '+aptN(aptV2(q,'C','E'))+'.'));
+    B.x({u:'C', e:'E', f:'F', pose:false, arbre:false});
+    const i=aptVi(q,'C','E'), v=i/pE;
+    B.titre(Q('4.', 'Sachant '+apcQue(aptI(q,'E'))+', déterminer '+aptQp(q,'C')+'. '+(aptExact(v,0.01)?'':aptPrec(0.01))));
+    const l=aptLigneQ(i, pE, v, 0.01);
+    l.corr=aptN(aptV1(q,'C'))+' × '+aptN(aptV2(q,'C','E'))+' ÷ '+aptN(pE)+' = '+l.corr;
+    l.tex=aptFr(aptN(aptV1(q,'C'))+'\\times '+aptN(aptV2(q,'C','E')), aptN(pE))+'='+l.tex;
+    B.ligne(['c','E','C'], l);
+  }
+  if(q.ty===4){
+    const v=aptVi(q,'B','F');
+    B.titre(Q('2.', 'On sait que '+aptQi(q,'B','F')+' est égale à '+aptN(v)+'.'));
+    B.titre('<b>a)</b> Interpréter cette égalité dans le contexte de l’exercice.');
+    const pc=aptN(v*100);
+    B.cartes([pc+' % '+th.pop+' '+th.rel.B+' et '+th.rel.F+'.', pc+' % '+th.pop+' '+th.adj.B+' '+th.rel.F+'.', pc+' % '+th.pop+' '+th.adj.F+' '+th.rel.B+'.'],
+      'C’est une intersection : « '+th.rel.B+' » ET « '+th.rel.F+' », parmi l’ensemble '+th.pop+'. Les deux autres phrases décrivent des probabilités conditionnelles.');
+    const g=aptV2(q,'B','G'), f=aptV2(q,'B','F');
+    B.titre('<b>b)</b> '+th.choisi+' Démontrer que '+aptQp(q,'G')+' est égale à '+aptN(g)+'.');
+    B.ligne(['c','B','F'], {v:f, corr:aptN(v)+' ÷ '+aptN(aptV1(q,'B'))+' = '+aptN(f), tex:aptFr(aptN(v), aptN(aptV1(q,'B')))+'='+aptN(f)},
+      {intro:'D’abord, '+aptQc(q,'B','F')+' :', pieges:[['c','F','B'],['i','B','F'],['p','F']]});
+    B.ligne(['c','B','G'], {v:g, corr:'1 − '+aptN(aptV2(q,'B','E'))+' − '+aptN(f)+' = '+aptN(g), tex:'1-'+aptN(aptV2(q,'B','E'))+'-'+aptN(f)+'='+aptN(g)},
+      {intro:'Puis, les branches qui partent de '+aptEv(q,'B')+' ayant pour somme 1 :', dev0:'1 − '+aptPc(q,'B','E')+' − '+aptPc(q,'B','F')});
+    const S=[[3,4],[2,3],[7,10],[4,5]][q.d.s], fr=apcFr(S[0],S[1]), pE=aptVp(q,'E');
+    B.titre(Q('3.', th.claim(fr)));
+    B.texte('Calcule '+aptQp(q,'E')+' :');
+    B.ligne(['p','E'], aptLigneP(q,'E'));
+    B.texte('Alors, '+(th.qui==='il'?'a-t-il':'a-t-elle')+' raison ?');
+    const oui='Oui : '+th.qui+' a raison.', non='Non : '+th.qui+' a tort.';
+    B.cartes(q.d.vrai ? [oui, non] : [non, oui],
+      aptP(q,'E')+' = '+aptN(pE)+' et '+fr+' ≈ '+(S[0]/S[1]).toFixed(3).replace('.',',')+' : '+aptN(pE)+(q.d.vrai?' est supérieur ou égal à ':' est inférieur à ')+fr+'.', true);
+  }
+  if(q.ty===5){
+    const pj=q.d.pj/1e4, iA=aptVi(q,'A','E'), iB=aptR(pj-iA), a3=Math.round(iB*1000)/1000;
+    B.titre(Q('2.', 'Calculer '+aptQi(q,'A','E')+'.'));
+    B.ligne(['i','A','E'], aptLigneI(q,'A','E'));
+    B.titre(Q('3.', 'D’après cette même étude, '+th.jeunes+' représentent '+aptPct(q.d.pj)+' de la population. Montrer que la probabilité que la personne interrogée '+th.q3+' est '+aptN(a3)+' à 10<sup>−3</sup>&nbsp;près.'));
+    B.ligne(['i','B','E'], {v:iB, tol:0.001, corr:aptN(pj)+' − '+aptN(iA)+' = '+aptN(iB)+(aptExact(iB,0.001)?'':' ≈ '+aptN(a3)), tex:aptN(pj)+'-'+aptN(iA)+'='+aptN(iB)+(aptExact(iB,0.001)?'':'\\approx '+aptN(a3))},
+      {dev0:aptP(q,'E')+' − '+aptPi(q,'A','E')});
+    const pB=aptV1(q,'B'), v=iB/pB;
+    B.titre(Q('4.', 'En déduire la proportion '+th.q4+'. '+(aptExact(v,0.001)?'':aptPrec(0.001))));
+    const l=aptLigneQ(iB, pB, v, 0.001); l.vs=[v, a3/pB];   /* avec la valeur exacte de la question 3, ou son arrondi */
+    l.corr=aptN(iB)+' ÷ (1 − '+aptN(aptV1(q,'A'))+') = '+l.corr; l.tex=aptFr(aptN(iB), '1-'+aptN(aptV1(q,'A')))+'='+l.tex;
+    B.ligne(['c','B','E'], l);
+  }
+  if(q.ty===6){
+    B.titre(Q('2.', 'Calculer '+aptQi(q,'A','E')+'.'));
+    B.ligne(['i','A','E'], aptLigneI(q,'A','E'));
+    B.titre(Q('3.', 'Démontrer que '+aptQp(q,'E')+' est égale à '+aptN(aptVp(q,'E'))+'.'));
+    B.ligne(['p','E'], aptLigneP(q,'E'));
+    const i=aptVi(q,'A','E'), v=i/aptVp(q,'E');
+    B.titre(Q('4.', 'Sachant '+apcQue(aptI(q,'E'))+', quelle est '+aptQp(q,'A')+' ? '+(aptExact(v,0.001)?'':aptPrec(0.001))));
+    B.ligne(['c','E','A'], aptLigneQ(i, aptVp(q,'E'), v, 0.001));
+  }
+  if(q.ty===7){
+    B.titre(Q('2.', 'Calculer '+aptQi(q,'A','E')+'.'));
+    B.ligne(['i','A','E'], aptLigneI(q,'A','E'));
+    const i=aptVi(q,'A','E'), pE=aptVp(q,'E'), v=i/pE;
+    B.titre(Q('3.', 'Sachant '+apcQue(aptI(q,'E'))+', déterminer '+aptQp(q,'A')+'. '+(aptExact(v,0.01)?'':aptPrec(0.01))));
+    B.ligne(['c','E','A'], aptLigneQ(i, pE, v, 0.01));
+    const x=aptV2(q,'B','E'), pc=aptN(Math.round(x*100));
+    B.titre(Q('4.', 'Déterminer '+aptQc(q,'B','E')+'. '+(aptExact(x,0.01)?'':aptPrec(0.01))+' Interpréter le résultat dans le contexte de l’exercice.'));
+    B.x({u:'B', e:'E', f:'F', pose:true, arbre:true, tol:0.01});
+    B.texte('Interprétation :');
+    const env=aptExact(x,0.01) ? '' : 'Environ ';
+    B.cartes([env+pc+' % '+th.pop+' '+th.adj.B+' '+th.rel.E+'.', env+pc+' % '+th.pop+' '+th.rel.B+' et '+th.rel.E+'.', env+pc+' % '+th.pop+' '+th.adj.E+' '+th.rel.B+'.'],
+      'C’est une probabilité conditionnelle : on se place parmi '+th.pop.replace(/^des /,'les ')+' '+th.adj.B+' (ce que l’on SAIT), et l’on regarde la part '+th.pop+' '+th.adj.E+'.');
+  }
+  return P;
+}
+/* ---- les parts du plan ---- */
+function aptPart(q, cle){ return aptPlan(q).find(function(p){ return p.s===cle || p.g===cle || p.c===cle; }); }
+function aptXPart(q){ return aptPlan(q).find(function(p){ return p.k==='x'; }); }
+function aptGroupes(q){ const g=['ev']; aptPlan(q).forEach(function(p){ if(p.s) g.push(p.s); if(p.g) g.push(p.g); }); return g; }
+/* ---- le tirage d'une question, puis d'une séance ---- */
+function aptGen(ty, c){
+  const q={ty:ty, c:c, d:aptGenD(ty), ch:{}, perm:{}};
+  q.evp=apcMelange([0,1]);
+  aptPlan(q).forEach(function(p){
+    if(p.s) q.perm[p.s]=apcMelange(p.k==='x' ? [0,1,2,3] : p.opts.map(function(u,i){ return i; }));
+    if(p.g) q.perm[p.g]=p.fixe ? (p.opts[0].indexOf('Oui')===0 ? [0,1] : [1,0]) : apcMelange(p.opts.map(function(u,i){ return i; }));
+  });
+  return q;
+}
+function aptGenSession(ty){
+  const n=Math.min(dmNbQuestions(1), APT_TYPES[ty].th.length), ordre=apcMelange(APT_TYPES[ty].th.map(function(u,i){ return i; }));
+  return distinctes(n, function(u,i){ return aptGen(ty, ordre[i]); });
+}
+/* ---- LES ARBRES : une grille pour tout arbre à deux niveaux ----
+   La grille du 6.1.2 (apfGrilleHTML) n'a que deux branches à chaque nœud ;
+   les exercices 2 et 3 en ont trois au premier niveau, le 4 trois au second.
+   Même dessin, mêmes classes : deux demi-rangées par fin de chemin, Ω au
+   milieu, chaque étiquette au-dessus ou au-dessous de sa branche selon
+   qu'elle monte ou qu'elle descend, les traits posés sur la grille rendue
+   (aptTraits). fin : l'événement dont la probabilité s'écrit au bout de
+   l'accolade (l'arbre en x). */
+function aptGrilleHTML(pre, T, ev, cas, fin){
+  let R=0; const pos=T.n1.map(function(k){ const n=T.n2[k].length, s=R+1; R+=2*n; return {k:k, s:s, n:n}; });
+  const mid=R/2;
+  let h='<div class="apf-arbre-defile"><div class="apf-arbre apt-arbre" id="'+pre+'Grille" style="grid-template-rows:repeat('+R+',minmax(var(--apt-rh,44px),auto))">'
+    +'<svg class="apf-traits" id="'+pre+'Traits" aria-hidden="true"></svg>'
+    +'<div class="apf-nd" id="'+pre+'-n-O" style="grid-column:1;grid-row:1/'+(R+1)+'">Ω</div>';
+  let f0=null, f1=null;
+  pos.forEach(function(p,i){
+    const cN=p.s-1+p.n, haut=cN<=mid;
+    h+='<div class="apf-b '+(haut?'apf-haut':'apf-bas')+(cN===mid?' apt-mil':'')+'" style="grid-column:2;grid-row:'+(haut ? p.s+'/'+(cN+1) : (cN+1)+'/'+(p.s+2*p.n))+'">'+cas('1',p.k)+'</div>'
+      +'<div class="apf-nd" id="'+pre+'-n-'+i+'" style="grid-column:3;grid-row:'+p.s+'/'+(p.s+2*p.n)+'">'+ev(p.k)+'</div>';
+    T.n2[p.k].forEach(function(e,j){
+      const r0=p.s+2*j, ht=r0<=cN;
+      h+='<div class="apf-b '+(ht?'apf-haut':'apf-bas')+(r0===cN?' apt-mil':'')+'" style="grid-column:4;grid-row:'+(ht?r0:r0+1)+'">'+cas('2',p.k,e)+'</div>'
+        +'<div class="apf-f" id="'+pre+'-f-'+i+'-'+j+'" style="grid-column:5;grid-row:'+r0+'/'+(r0+2)+'">'+cas('i',p.k,e)+'</div>';
+      if(fin && e===fin){ if(f0===null) f0=r0; f1=r0+2; }
+    });
+  });
+  if(fin && f0!==null) h+='<div class="apf-acc" id="'+pre+'-acc" style="grid-column:6;grid-row:'+f0+'/'+f1+'"><span class="apf-plus">+</span></div>'
+    +'<div class="apf-nd apf-pb" id="'+pre+'-pb" style="grid-column:7;grid-row:'+f0+'/'+f1+'">'+cas('f',fin)+'</div>';
+  return h+'</div></div>';
+}
+/* les traits : Ω vers chaque nœud, chaque nœud vers ses fins de chemin ; l'accolade, s'il y en a une */
+function aptTraits(pre){
+  const g=$(pre+'Grille'), s=$(pre+'Traits'); if(!g||!s) return;
+  document.documentElement.style.setProperty('--apc-arbre-h', Math.max.apply(null, ['aptGrille','apyGrille'].map(function(id){ const e=$(id); return e && e.parentNode ? e.parentNode.offsetHeight : 0; }))+'px');   /* le plus haut des deux arbres */
+  const G=g.getBoundingClientRect(), box=e=>{ const b=e.getBoundingClientRect(); return {l:b.left-G.left, r:b.right-G.left, t:b.top-G.top, b:b.bottom-G.top, cy:(b.top+b.bottom)/2-G.top}; };
+  const O=$(pre+'-n-O'); if(!O) return;
+  const o=box(O), fl=pre+'Fl';
+  const ln=(x1,y1,x2,y2,f)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'"'+(f?' marker-end="url(#'+fl+')"':'')+'/>';
+  let h='<defs><marker id="'+fl+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>';
+  for(let i=0;;i++){
+    const nd=$(pre+'-n-'+i); if(!nd) break;
+    const L=box(nd.firstElementChild||nd), cy=box(nd).cy;
+    h+=ln(o.r+3, o.cy, L.l-4, cy);
+    for(let j=0;;j++){ const f=$(pre+'-f-'+i+'-'+j); if(!f) break; const F=box(f); h+=ln(L.r+4, cy, F.l-4, F.cy, 1); }
+  }
+  const acc=$(pre+'-acc'), pb=$(pre+'-pb');
+  if(acc && pb){
+    const A=box(acc), x=A.l+4, y1=A.t+4, y2=A.b-4, ym=(y1+y2)/2, w=10;
+    h+='<path class="apf-acc-p" d="M'+x+','+y1+' q'+w+',0 '+w+','+w+' L'+(x+w)+','+(ym-w)+' q0,'+w+' '+w+','+w+' q-'+w+',0 -'+w+','+w+' L'+(x+w)+','+(y2-w)+' q0,'+w+' -'+w+','+w+'"/>';
+    const plus=box(acc.firstElementChild), pl=box(pb.firstElementChild||pb);
+    h+=ln(plus.r+3, ym, pl.l-3, ym, 1);
+  }
+  s.setAttribute('width', g.scrollWidth); s.setAttribute('height', g.scrollHeight);
+  s.innerHTML=h;
+}
+const aptObs={};
+function aptSuivreTraits(pre){
+  try{ if(aptObs[pre]) aptObs[pre].disconnect(); }catch(e){}
+  const g=$(pre+'Grille'); if(!g) return;
+  if(typeof ResizeObserver==='function'){ const o=aptObs[pre]=new ResizeObserver(function(){ aptTraits(pre); }); o.observe(g); g.querySelectorAll('.apf-b,.apf-f,.apf-pb').forEach(function(e){ o.observe(e); }); }
+  requestAnimationFrame(function(){ aptTraits(pre); });
+}
+/* ---- les cases des deux arbres ----
+   apt-t-… : le premier arbre (les données de l'énoncé et leurs contraires ;
+   une branche inconnue reste « … », une branche que l'énoncé écrit, x, est
+   écrite) ; apy-t-… : l'arbre en x (toutes les branches, x et 1 − x, et la
+   probabilité au bout de l'accolade, apy-t-fin). Clé d'une case : « A »
+   (premier niveau) ou « A-E » (second). */
+function aptCaseId(pre,k){ return pre+'-t-'+k; }
+function aptCaseIn(pre, k, avecX){
+  return '<input class="sa2-in apf-in" id="'+aptCaseId(pre,k)+'" type="text" autocomplete="off" inputmode="numeric" data-pave-plus="'+(avecX?'x ':'')+'( ) + ×" oninput="sa2Ajuster(this)">';
+}
+function aptLab(q, kind, a, b){ return kind==='1'||kind==='f' ? aptP(q,a) : kind==='2' ? aptPc(q,a,b) : aptPi(q,a,b); }
+/* ce qu'attend une case : {v} un nombre, {a, b} l'expression a·x + b */
+function aptAttendu(q, pre, k){
+  const T=aptT(q), X=aptXPart(q);
+  if(k==='fin') return {v:aptVp(q, X.e)};
+  const m=k.split('-');
+  if(m.length===1) return {v:T.p1[k]/1e4};
+  if(pre==='apy' && X && m[0]===X.u) return m[1]===X.e ? {a:1, b:0} : {a:-1, b:1};
+  if(T.fixe && T.fixe[X.u+'-'+X.e] && m[0]===X.u) return m[1]===X.e ? {a:1, b:0} : {a:-1, b:1};
+  return {v:T.p2[m[0]][m[1]]/1e4};
+}
+function aptJugeCase(q, pre, k, raw){
+  const e=aptAttendu(q, pre, k); if(e.v!==undefined) return apcJugeVal(e.v, raw);
+  const f=apfParse(apfNorm(raw, true), true); return !!f && apfEgal(f, e.a, e.b);
+}
+function aptCaseCorr(q, pre, k){ const e=aptAttendu(q, pre, k); return e.v!==undefined ? apfNb(e.v) : e.a===1 ? 'x' : '1 − x'; }
+function aptArbreHTML(q, sens){
+  const T=aptT(q), inc=T.inc||[], fixe=T.fixe||{};
+  if(sens==='1'){
+    /* l'arbre dans l'autre sens : le second niveau en tête — l'élève voit qu'il
+       ne peut pas y placer les données ; aucune de ses cases n'est juste */
+    const n1=[]; T.n1.forEach(function(k){ T.n2[k].forEach(function(e){ if(n1.indexOf(e)<0) n1.push(e); }); });
+    const n2={}; n1.forEach(function(e){ n2[e]=aptParents(q,e); });
+    return aptGrilleHTML('apt', {n1:n1, n2:n2}, function(k){ return aptEv(q,k); }, function(kind,a,b){
+      if(kind==='i') return '<span class="apf-lab">'+aptPi(q,a,b)+' = <span class="apf-pts">…</span></span>';
+      return '<span class="apf-lab">'+aptLab(q,kind,a,b)+' = '+aptCaseIn('apt', kind==='1'?a:a+'-'+b, false)+'</span>'; });
+  }
+  return aptGrilleHTML('apt', T, function(k){ return aptEv(q,k); }, function(kind,a,b){
+    const lab=aptLab(q,kind,a,b), k=kind==='1'?a:a+'-'+b;
+    if(kind==='i') return '<span class="apf-lab">'+lab+' = <span class="apf-pts">…</span></span>';
+    if(fixe[k]) return '<span class="apf-lab">'+lab+' = <i>'+fixe[k]+'</i></span>';
+    if(inc.indexOf(k)>=0) return '<span class="apf-lab">'+lab+' = <span class="apf-pts">…</span></span>';
+    const avecX=kind==='2' && Object.keys(fixe).some(function(f){ return f.split('-')[0]===a; });
+    return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apt', k, avecX)+'</span>'; });
+}
+function aptArbreXHTML(q){
+  const T=aptT(q), X=aptXPart(q);
+  return aptGrilleHTML('apy', T, function(k){ return aptEv(q,k); }, function(kind,a,b){
+    const lab=aptLab(q,kind,a,b);
+    if(kind==='i') return '<span class="apf-lab">'+lab+' = <span class="apf-pts">…</span></span>';
+    if(kind==='f') return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apy', 'fin', false)+'</span>';
+    return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apy', kind==='1'?a:a+'-'+b, kind==='2' && a===X.u)+'</span>'; }, X.e)
+    .replace('class="apf-arbre-defile"', 'class="apf-arbre-defile apc-fixe apx-fixe"');
+}
+/* les identifiants des cases d'un arbre, dans l'ordre de la grille */
+function aptArbreIds(q, sens){
+  const T=aptT(q), ids=[];
+  if(sens==='1'){
+    const n1=[]; T.n1.forEach(function(k){ T.n2[k].forEach(function(e){ if(n1.indexOf(e)<0) n1.push(e); }); });
+    n1.forEach(function(e){ ids.push('apt-t-'+e); aptParents(q,e).forEach(function(k){ ids.push('apt-t-'+e+'-'+k); }); });
+    return ids;
+  }
+  T.n1.forEach(function(k){ ids.push('apt-t-'+k); T.n2[k].forEach(function(e){ const c=k+'-'+e; if((T.inc||[]).indexOf(c)<0 && !(T.fixe||{})[c]) ids.push('apt-t-'+c); }); });
+  return ids;
+}
+function aptArbreXIds(q){ const T=aptT(q), ids=[]; T.n1.forEach(function(k){ ids.push('apy-t-'+k); T.n2[k].forEach(function(e){ ids.push('apy-t-'+k+'-'+e); }); }); ids.push('apy-t-fin'); return ids; }
+function aptSens(q){ return (q.ch.ev===1 && !test.locked) ? '1' : '0'; }
+/* ---- LA BRANCHE INCONNUE EN x : la démonstration, puis la résolution (comme au 6.1.3) ---- */
+function aptXDemo(q, X){
+  /* P(e) = Σ P(k) × P_k(e) pour les nœuds connus, + P(u)·x = a·x + b */
+  const T=aptT(q), K=aptParents(q, X.e), a=aptV1(q, X.u), connus=K.filter(function(k){ return k!==X.u; });
+  const b=aptR(connus.reduce(function(s,k){ return s+aptVi(q,k,X.e); },0));
+  const tx=K.map(function(k){ return k===X.u ? aptN(a)+'x' : aptN(aptV1(q,k))+' × '+aptN(aptV2(q,k,X.e)); });
+  const tt=K.map(function(k){ return k===X.u ? aptN(a)+'x' : aptN(aptV1(q,k))+'\\times '+aptN(aptV2(q,k,X.e)); });
+  const mid=K.map(function(k){ return k===X.u ? aptN(a)+'x' : aptN(aptVi(q,k,X.e)); });
+  const pb=aptVp(q, X.e), sol=T.p2[X.u][X.e]/1e4;
+  return {t:'demo', a:a, b:b, pb:pb, sol:sol, tol:X.tol,
+    corr:tx.join(' + ')+(connus.length>1 ? ' = '+mid.join(' + ') : '')+' = '+apfLin(a,b),
+    tex:tt.join('+')+(connus.length>1 ? '='+mid.join('+') : '')+'='+apfLin(a,b)};
+}
+const APT_RES=['apt-r1','apt-r2','apt-r3n','apt-r3d','apt-r3','apt-r4'];
+const APT_RES_X='apt-r3', APT_RES_ETAPES=['apt-r1','apt-r2','apt-r3n','apt-r3d'];
+function aptResolCible(q, id){
+  const l=aptXDemo(q, aptXPart(q)), d=aptR(l.pb-l.b);
+  return {'apt-r1':-l.b, 'apt-r2':d, 'apt-r3n':d, 'apt-r3d':l.a, 'apt-r3':l.sol, 'apt-r4':l.sol}[id];
+}
+function aptResolTol(q, id){ const l=aptXDemo(q, aptXPart(q)); return (id==='apt-r3'||id==='apt-r4') && l.tol && !aptExact(l.sol, l.tol) ? l.tol : 0; }
+function aptResolCorr(q, id, tex){
+  const v=aptResolCible(q, id), tol=aptResolTol(q, id), l=aptXDemo(q, aptXPart(q));
+  if(id==='apt-r1') return (v<0?(tex?'-':'− '):'+ ')+apfNb(Math.abs(v));
+  if(id==='apt-r3' && tex) return aptFr(apfNb(aptR(l.pb-l.b)), apfNb(l.a))+(tol ? '\\approx '+aptArrN(v,tol) : '='+apfNb(v));
+  return tol ? aptArrN(v,tol) : apfNb(v);
+}
+function aptJugeResolCase(q, id, raw){
+  const cible=aptResolCible(q, id);
+  if(id==='apt-r1'){
+    const t=apfNorm(raw, false);
+    if(!/^[+-]/.test(t)) return {ok:false, pourquoi:'écris l’opération faite sur les deux membres avec son signe, par exemple « − 0,3 »'};
+    const f=apfParse(t, false); return {ok:!!f && Math.abs(f(0)-cible)<1e-9};
+  }
+  const j=aptJugeChaine1(raw, {lit:true, tol:aptResolTol(q, id)}, cible);
+  if(!j.ok && !j.pourquoi && (function(){ const M=apfMembres(raw,false); return M && M.length && !apfEstNombre(M[M.length-1].s); })()) return {ok:false, pourquoi:'termine chaque étape de la résolution par un nombre'};
+  return j;
+}
+/* la forme réduite a·x + b écrite au bout de la démonstration ; null tant qu'il n'y en a pas */
+function aptExprEleve(q){
+  const X=aptXPart(q), el=X ? $(X.c) : null; if(!el) return null;
+  const M=apfMembres(apcLire(el), true); if(!M) return null;
+  const s=M[M.length-1].s;
+  if(!/^-?(\d+\.?\d*)?x([+-]\d+\.?\d*)?$/.test(s) && !/^-?\d+\.?\d*[+-](\d+\.?\d*)?x$/.test(s)) return null;
+  const f=apfParse(s, true); if(!f) return null;
+  const b=f(0), a=f(1)-b; if(!isFinite(a) || !isFinite(b) || Math.abs(a)<1e-12) return null;
+  return {a:+a.toFixed(6), b:+b.toFixed(6)};
+}
+function aptPreparer(q){
+  const X=q && aptXPart(q); if(!X || !$('apt-m1')) return;
+  const l=aptXDemo(q, X), bon={a:l.a, b:l.b}, e=aptExprEleve(q);
+  const juste=e && Math.abs(e.a-bon.a)<1e-9 && Math.abs(e.b-bon.b)<1e-9;
+  const Me=e ? apcMembresTxt(e, true) : null, M=test.locked ? apcMembresTxt(bon, true) : Me;
+  for(let k=1;k<=APC_NMB;k++){
+    const sp=$('apt-m'+k); if(!sp) continue;
+    sp.innerHTML=M ? M[k-1] : '<span class="apf-pts">……</span>';
+    sp.classList.toggle('apc-cor', !!(test.locked && !juste && (!Me || Me[k-1]!==M[k-1])));
+  }
+  const h=$('apt-prep'); if(h) h.style.display=(M || test.locked) ? 'none' : '';
+}
+/* ---- LE JUGE D'UNE LIGNE DE CALCUL : celui du 6.1.3 (apfJugeChaine), avec
+   la précision de la question (tol : 10⁻² ou 10⁻³ — toute valeur décimale à
+   tol près de la valeur exacte, l'arrondi comme la troncature), plusieurs
+   valeurs exactes possibles (vs : au 5.4, l'élève divise la valeur exacte de
+   la question 3 ou son arrondi), et la lecture d'une donnée (lit : le nombre
+   seul suffit, « 75 % » vaut 0,75). */
+function aptJugeChaine1(raw, l, cible){
+  if(l.lit && apcJugeVal(cible, raw)) return {ok:true};
+  const M=apfMembres(raw, false); if(!M) return {ok:false};
+  if(M.some(function(m){ return !m.s; })) return {ok:false, pourquoi:'un membre est vide'};
+  for(const m of M){
+    const f=apfParse(m.s, false); if(!f) return {ok:false, pourquoi:'« '+m.s.replace(/\./g,',')+' » ne se lit pas comme un calcul'};
+    const v=f(0.5);
+    if(Math.abs(v-cible)<1e-9) continue;
+    if(l.tol && /^-?(\d+\.?\d*|\.\d+)$/.test(m.s) && Math.abs(v-cible)<=l.tol+1e-12) continue;
+    return {ok:false};
+  }
+  if(!apfEstNombre(M[M.length-1].s)) return {ok:false, pourquoi:'la ligne doit finir par le résultat'};
+  if(!l.lit && (M.length<2 || apfEstNombre(M[0].s))) return {ok:false, pourquoi:'écris le calcul, pas seulement le résultat'};
+  return {ok:true};
+}
+function aptJugeChaine(raw, l){
+  const vs=l.vs || [l.v]; let j0=null;
+  for(const v of vs){ const j=aptJugeChaine1(raw, l, v); if(j.ok) return j; if(!j0 || (!j0.pourquoi && j.pourquoi)) j0=j; }
+  return j0;
+}
+/* ---- les cases : leurs identifiants, leur juge, leur correction ---- */
+function aptIds(q){
+  let ids=aptArbreIds(q, aptSens(q));
+  aptPlan(q).forEach(function(p){
+    if(p.k==='ligne') ids.push(p.c);
+    if(p.k==='x'){ if(p.arbre) ids=ids.concat(aptArbreXIds(q)); ids.push(p.c); ids=ids.concat(APT_RES); }
+  });
+  return ids;
+}
+function aptLigneDe(q, id){ const p=aptPart(q, id); return !p ? null : p.k==='x' ? aptXDemo(q, p) : p.l; }
+function aptJuger(q, id, raw){
+  if(/^apt-t-/.test(id)) return {ok:q.ch.ev===0 && aptJugeCase(q, 'apt', id.slice(6), raw)};   /* un arbre écrit dans le mauvais sens n'a aucune case juste */
+  if(/^apy-t-/.test(id)) return {ok:aptJugeCase(q, 'apy', id.slice(6), raw)};
+  if(/^apt-r/.test(id)) return aptJugeResolCase(q, id, raw);
+  const l=aptLigneDe(q, id);
+  return l.t==='demo' ? apfJugeDemo(raw, l) : aptJugeChaine(raw, l);
+}
+function aptCorr(q, id){
+  if(/^ap[ty]-t-/.test(id)) return aptCaseCorr(q, id.slice(0,3), id.slice(6));
+  if(/^apt-r/.test(id)) return aptResolCorr(q, id, false);
+  return aptLigneDe(q, id).corr;
+}
+function aptCorrTex(q, id){
+  if(/^ap[ty]-t-/.test(id)) return aptCorr(q, id);
+  if(/^apt-r/.test(id)) return aptResolCorr(q, id, true);
+  const l=aptLigneDe(q, id); return l.tex || l.corr;
+}
+/* ---- les choix : l'événement des premières branches, les écritures, les cartes ---- */
+function aptCartesHTML(q, g, opts, ordre){
+  return '<div class="apc-cartes'+(g==='ev'?' apc-cartes-ev':' apt-cartes')+'" id="apt-g-'+g+'">'+ordre.map(function(k){
+    return '<button type="button" class="apc-carte" data-k="'+k+'" onclick="aptChoisir(\''+g+'\','+k+')"><span>'+opts[k]+'</span></button>'; }).join('')
+    +'</div><p class="apc-pourquoi" id="apt-h-'+g+'"></p>';
+}
+function aptEvOpts(q){
+  const th=aptTh(q), T=aptT(q), l1=T.n1.map(function(k){ return aptEv(q,k); }), l2=[];
+  T.n1.forEach(function(k){ T.n2[k].forEach(function(e){ const h=aptEv(q,e); if(l2.indexOf(h)<0) l2.push(h); }); });
+  return [l1.join(', ')+' : '+th.fam[0], l2.join(', ')+' : '+th.fam[1]];
+}
+function aptPourquoiEv(q){
+  const T=aptT(q), A=T.n1.map(function(k){ return aptEv(q,k); }).join(', ');
+  return 'Les probabilités conditionnelles de l’énoncé sont « sachant » '+A+' : ce sont '+A+' qui partent de Ω ; les autres événements viennent au second niveau.';
+}
+function aptPeindreCartes(q, g){
+  const box=$('apt-g-'+g); if(!box) return;
+  /* comme au 6.1.3 : le choix se change jusqu'à « Vérifier » et ne se juge qu'à ce moment-là (en direct en soutien, où un choix juste se fige) */
+  const ch=q.ch[g], soutien=isSoutien(), juge=test.locked || soutien, fini=test.locked || (soutien && ch===0);
+  box.querySelectorAll('.apc-carte').forEach(function(el){
+    const k=+el.getAttribute('data-k');
+    el.classList.remove('ok','bad','sol','pts-case','hors-note','apc-pris');
+    if(ch===k) el.classList.add.apply(el.classList, juge ? ['pts-case', k===0?'ok':'bad'] : ['apc-pris']);
+    else if(k===0 && ch!==undefined && test.locked) el.classList.add('sol','hors-note');
+    else if(k===0 && ch===undefined && test.locked) el.classList.add('pts-case','sol');
+    el.disabled=fini;
+  });
+  const p=g==='ev' ? null : aptPart(q, g), h=$('apt-h-'+g);
+  if(h) h.innerHTML=(juge && ch!==undefined && ch!==0) || (ch===undefined && test.locked) ? (g==='ev' ? aptPourquoiEv(q) : p.pourquoi) : '';
+}
+/* la case étroite devant le « = » : un petit menu des quatre écritures (comme apcSlotHTML) */
+function aptSlotHTML(s){ return '<span class="apc-slotw"><button type="button" class="apc-slot" id="apt-'+s+'" aria-label="choisir l’écriture de la probabilité" onclick="aptMenu(\''+s+'\')"></button></span>'; }
+function aptSlotOpts(q, p){ const w=p.k==='x' ? [['c',p.u,p.e],['c',p.e,p.u],['i',p.u,p.e],['p',p.e]] : p.opts; return w; }
+function aptSlotPeindre(q, s){
+  const el=$('apt-'+s), p=aptPart(q, s); if(!el || !p) return;
+  const ch=q.ch[s], W=aptSlotOpts(q,p), soutien=isSoutien(), juge=test.locked || (soutien && ch!==undefined);
+  el.classList.remove('ok','bad','sol','pts-case');
+  const cor=el.parentNode.nextElementSibling; if(cor && cor.classList.contains('mf-cor')) cor.remove();
+  if(ch===undefined && test.locked){ el.innerHTML=aptW(q,W[0]); el.classList.add('pts-case','sol'); }
+  else el.innerHTML=ch===undefined ? '<span class="apf-pts">……</span>' : aptW(q,W[ch]);
+  if(ch!==undefined && juge){
+    el.classList.add('pts-case', ch===0?'ok':'bad');
+    if(ch!==0 && test.locked) el.parentNode.insertAdjacentHTML('afterend','<span class="mf-cor">'+aptW(q,W[0])+'</span>');
+  }
+  el.disabled=!!(test.locked || (soutien && ch===0));
+  /* la formule de l'écriture choisie ; à la clôture, celle de la bonne, en vert, si l'élève ne l'avait pas */
+  const dv=$('apt-dv-'+s);
+  if(dv){
+    const D=W.map(function(w,i){ return i===0 && p.dev0!==undefined ? p.dev0 : aptDev(q,w); }), vert=test.locked && ch!==0, f=vert ? D[0] : ch===undefined ? '' : D[ch];
+    dv.innerHTML=f ? '= '+f : ''; dv.classList.toggle('apc-cor', !!(vert && f));
+  }
+  const h=$('apt-h-'+s); if(h) h.innerHTML=((juge && ch!==undefined && ch!==0) || (ch===undefined && test.locked)) ? aptPourquoiW(q, W[0]) : '';
+}
+function aptPourquoiW(q, w){
+  if(w[0]==='p') return 'Aucune condition dans la phrase : c’est la probabilité de '+aptEv(q,w[1])+' seul, '+aptP(q,w[1])+(aptNiv1(w[1])?', lue sur une première branche.':'. Elle se calcule par les probabilités totales : on additionne les chemins qui mènent à '+aptEv(q,w[1])+'.');
+  if(w[0]==='i') return '« et », sans rien savoir d’avance : les deux à la fois, une intersection, '+aptPi(q,w[1],w[2])+'. On multiplie le long du chemin.';
+  return 'Ce que l’on SAIT (« sachant que… ») se met en indice : on sait '+aptEv(q,w[1])+', on cherche '+aptEv(q,w[2])+', donc '+aptPc(q,w[1],w[2])+'.';
+}
+function aptMenu(s){
+  const q=test.questions[test.idx], el=$('apt-'+s); if(!q || !el || el.disabled || test.locked) return;
+  const ouvert=el.parentNode.querySelector('.apc-menu'); apcFermerMenu(); if(ouvert) return;
+  const W=aptSlotOpts(q, aptPart(q, s));
+  el.insertAdjacentHTML('afterend','<span class="apc-menu" role="listbox">'+q.perm[s].map(function(k){
+    return '<button type="button" class="apc-opt" role="option" onclick="aptPrendre(\''+s+'\','+k+')">'+aptW(q,W[k])+'</button>'; }).join('')+'</span>');
+  const o=el.parentNode.querySelector('.apc-opt'); if(o) o.focus();
+}
+function aptPrendre(s, k){
+  const q=test.questions[test.idx]; if(!q || test.locked) return;
+  q.ch[s]=k; apcFermerMenu(); aptSlotPeindre(q, s);
+  const p=aptPart(q, s), c=p && p.k==='ligne' ? $(p.c) : null; if(c) c.focus();
+  if(isSoutien()) checkAPT(true);
+}
+/* l'arbre suit le choix de l'événement des premières branches (comme au 6.1.3) */
+function aptReveler(q){
+  const zone=$('aptArbreSuite'); if(!zone || (q.ch.ev===undefined && !test.locked)) return;   /* sans choix, l'arbre ne s'ouvre qu'à la clôture, pour recevoir sa correction */
+  const sens=aptSens(q);
+  if(zone.innerHTML && zone.getAttribute('data-sens')===sens) return;
+  /* changer de sens garde les nombres déjà écrits, case par case dans l'ordre de la grille ; un arbre fait dans le mauvais sens repart vide à la clôture */
+  const avant=zone.getAttribute('data-sens'), garde=(test.locked && avant==='1') ? [] : aptArbreIds(q, avant||'0').map(function(id){ const el=$(id); return el ? el.value : ''; });
+  zone.setAttribute('data-sens', sens);
+  zone.innerHTML='<p class="apf-cons">La page a écrit les probabilités sur l’arbre. Complète-le avec les données de l’énoncé et les probabilités contraires que l’on peut en déduire.</p>'+aptArbreHTML(q, sens);
+  aptArbreIds(q, sens).forEach(function(id,i){ const el=$(id); if(el){ if(garde[i]) el.value=garde[i]; sa2Ajuster(el); aptBrancher(el); } });
+  const fixe=zone.querySelector('.apf-arbre-defile'); if(fixe) fixe.classList.add('apc-fixe');   /* l'arbre reste en haut de l'écran */
+  aptSuivreTraits('apt');
+}
+function aptChoisir(g, k){
+  const q=test.questions[test.idx]; if(!q || test.locked) return;
+  if(isSoutien() && q.ch[g]===0) return;   /* en soutien, un choix juste se fige ; ailleurs, il se change jusqu'à « Vérifier » */
+  q.ch[g]=k;
+  aptPeindreCartes(q, g);
+  if(g==='ev') aptReveler(q);
+  if(isSoutien()) checkAPT(true);
+}
+function aptBrancher(el){
+  const q=test.questions[test.idx], X=q && aptXPart(q);
+  if(X && el.id===X.c) el.addEventListener('input', function(){ aptPreparer(test.questions[test.idx]); });
+  if(isSoutien()) el.addEventListener('input', function(){ checkAPT(true); });
+  if(el.tagName==='MATH-FIELD') el.addEventListener('keydown', function(e){
+    if(e.key!=='Enter' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
+    e.preventDefault(); e.stopPropagation();
+    const liste=navCasesListe(), i=liste.indexOf(el);
+    if(i>=0 && i<liste.length-1){ try{ liste[i+1].focus(); }catch(err){} }
+    else { const b=boutonVerif(); if(b) b.click(); }
+  }, true);
+}
+/* ---- le rendu d'une question ---- */
+function aptChamp(id, lab, cls){ return '<math-field class="dexp-mf apc-mf '+(cls||'apf-calc')+'" id="'+id+'" aria-label="'+lab+'"></math-field>'; }
+function aptResIn(id, cls, lab){ return '<math-field class="dexp-mf apc-mf apf-eqin'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+lab+'"></math-field>'; }
+function aptLigneEqHTML(k, droite){
+  return '<div class="apf-row apf-eqrow"><span class="apf-lab apc-mbw">'+(k>1?'<span class="apc-eqv">⇔</span>':'')+'<span class="apc-mb" id="apt-m'+k+'"><span class="apf-pts">……</span></span></span>'
+    +'<span class="apf-lab">=</span>'+droite+'</div>';
+}
+function aptPartHTML(q, p){
+  if(p.k==='titre') return '<p class="apf-cons">'+p.html+'</p>';
+  if(p.k==='texte') return '<p class="apc-etape">'+p.html+'</p>';
+  if(p.k==='arbre') return '<p class="apf-cons">Quel événement places-tu sur les premières branches, celles qui partent de Ω ?</p>'
+    +aptCartesHTML(q, 'ev', aptEvOpts(q), q.evp)+'<div id="aptArbreSuite"></div>';
+  if(p.k==='cartes') return aptCartesHTML(q, p.g, p.opts, q.perm[p.g]);
+  if(p.k==='ligne') return (p.intro ? '<p class="apc-etape">'+p.intro+'</p>' : '')
+    +'<div class="apf-row">'+aptSlotHTML(p.s)+'<span class="apc-dev" id="apt-dv-'+p.s+'"></span><span class="apf-lab">=</span>'+aptChamp(p.c, p.l.lit ? 'valeur lue dans l’énoncé' : 'calcul = résultat')+'</div>'
+    +'<p class="apc-pourquoi" id="apt-h-'+p.s+'"></p>';
+  /* la branche inconnue en x */
+  const l=aptXDemo(q, p), E=aptP(q, p.e), pb=apfNb(l.pb), cible=apfLin(l.a, l.b, true);
+  let h='';
+  if(p.pose) h+='<p class="apc-etape">On pose '+aptSlotHTML(p.s)+' = <i>x</i>.</p><p class="apc-pourquoi" id="apt-h-'+p.s+'"></p>';
+  if(p.arbre) h+='<p class="apc-etape">Complète l’arbre de cette situation : <i>x</i> et 1 − <i>x</i> sur les branches qui partent de '+aptEv(q,p.u)+', les autres probabilités, et '+E+', qui vaut '+pb+', au bout de l’accolade.</p>'+aptArbreXHTML(q);
+  h+='<p class="apc-etape">Démontre que '+E+' = '+cible+' :</p>'
+    +'<div class="apf-row"><span class="apf-lab">'+E+' =</span>'+aptChamp(p.c, 'calcul en x = forme réduite')+'</div>'
+    +'<p class="apc-etape">'+E+' = '+pb+' : résous l’équation — étape par étape, ou directement la valeur de <i>x</i> dans la ligne « <i>x</i> = » —, puis réponds par une phrase.</p>'
+    +'<p class="apf-astuce" id="apt-prep">Les étapes se préparent dès que tu as écrit '+E+' sous forme réduite.</p>'
+    +'<div class="apf-resol" id="aptResol">'
+    +aptLigneEqHTML(1, '<span class="apf-lab">'+pb+'</span>')
+    +aptLigneEqHTML(2, '<span class="apf-lab">'+pb+'</span>'+aptResIn('apt-r1', 'apc-op', 'opération faite sur les deux membres'))
+    +aptLigneEqHTML(3, aptResIn('apt-r2', '', 'second membre'))
+    +aptLigneEqHTML(4, sa2Frac(aptResIn('apt-r3n', 'apc-frin', 'numérateur'), aptResIn('apt-r3d', 'apc-frin', 'dénominateur'))+'<span class="apf-lab">=</span>'+aptResIn('apt-r3', '', 'valeur de x'))
+    +'</div><p class="apc-etape apc-concl">Conclusion : '+aptQc(q, p.u, p.e)+(aptResolTol(q,'apt-r4') ? ' vaut environ ' : ' est égale à ')+aptResIn('apt-r4', 'apc-concl-in', 'la probabilité trouvée')+'.</p>';
+  return h;
+}
+function aptEnonceHTML(q){
+  const th=aptTh(q), L=th.L;
+  const keys=['A','B','C','E','F','G'].filter(function(k){ return L[k] && L[k].charAt(0)!=='-'; });
+  const def=k=>aptCap((th.def && th.def[k]) || th.i[k]);
+  let h=th.intro(q.d)+(/:\s*$/.test(th.intro(q.d).replace(/<[^>]+>/g,'')) ? '' : ' On désigne par :')
+    +'<ul class="apc-donnees">'+keys.map(function(k){ return '<li>'+aptEv(q,k)+' l’événement « '+def(k)+' » ;</li>'; }).join('')+'</ul>';
+  if(keys.length<Object.keys(L).length) h+='Pour un événement <i>X</i> quelconque, on note <i class="apb-nb">X</i> son événement contraire.';
+  if(q.ty===3) h+='<br>On note <i>x</i> '+aptQc(q,'C','E')+', c’est-à-dire <i>x</i> = '+aptPc(q,'C','E')+'.';
+  return h+'<span class="apf-mode">Dans les lignes de calcul, écris l’opération avec les nombres, puis le résultat, séparés par « = » (« ≈ » pour une valeur approchée) — '
+    +'directement, sans étape intermédiaire si tu n’en as pas besoin. Une division s’écrit en fraction : touche « / » du clavier, ou le bouton « fraction » de la barre « Insérer ».</span>';
+}
+/* ---- le choix de l'exercice (1 à 7), puis le cycle de vie ---- */
+function aptChoixHTML(){
+  return '<p class="apf-cons">Choisis ton exercice de bac : chacun reprend les questions d’un sujet, dans le même ordre, sur un autre thème et avec d’autres nombres.</p>'
+    +'<div class="apt-types">'+APT_TYPES.map(function(t,i){ return !t ? '' :
+      '<button type="button" class="apc-carte apt-type" onclick="aptChoisirType('+i+')"><b>Type '+i+'</b> <span>'+t.nom+'</span></button>'; }).join('')+'</div>';
+}
+async function startAPT(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null;
+  recoveryClosed=true;   /* rien à enregistrer tant que l'exercice n'est pas choisi : test.questions est encore celui d'avant */
+  cfg=await loadConfig();
+  currentTestId='arbre-probabilites-bac-types'; test.kind='apt'; test.locked=false;
+  $('aptModeTag').innerHTML=modeTagHTML();
+  $('aptQIdx').textContent='Choix de l’exercice';
+  $('aptLiveScore').textContent='0';
+  $('aptChoix').innerHTML=aptChoixHTML();
+  $('aptChoix').hidden=false; $('aptCarte').hidden=true;
+  show('apt');
+}
+function aptChoisirType(ty){
+  if(!APT_TYPES[ty]) return;
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='apt';
+  test.questions=aptGenSession(ty);
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.maxScore=test.questions.length;
+  renderAPT();
+}
+function renderAPT(){
+  const q=test.questions && test.questions[test.idx];
+  if(!q || !APT_TYPES[q.ty]){ startAPT(); return; }   /* une séance qui n'est pas la sienne : retour au choix */
+  test.locked=false;
+  if(!q.ch) q.ch={};
+  $('aptChoix').hidden=true; $('aptCarte').hidden=false;
+  $('aptQIdx').textContent='Exercice de bac type '+q.ty+(test.questions.length>1 ? ' — '+(test.idx+1)+' / '+test.questions.length : '');
+  $('aptModeTag').innerHTML=modeTagHTML();
+  $('aptLiveScore').textContent=test.score;
+  $('aptFeedback').textContent=''; $('aptFeedback').className='mp-feedback';
+  $('aptActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkAPT()">Vérifier</button>';
+  $('aptPrompt').innerHTML=aptEnonceHTML(q);
+  const plan=aptPlan(q);
+  $('aptCorps').innerHTML=plan.map(function(p){ return aptPartHTML(q,p); }).join('')+apfJetonsHTML(q, true, true);
+  $('aptCorps').querySelectorAll('input, math-field').forEach(aptBrancher);
+  if($('apyGrille')){ aptArbreXIds(q).forEach(function(id){ const el=$(id); if(el) sa2Ajuster(el); }); aptSuivreTraits('apy'); }
+  if(window.mlDexp) window.mlDexp.upgrade($('aptCorps'));   /* clavier de la Terminale, « * » → ×, correctifs communs */
+  /* la reprise après une pause : les choix déjà faits se redessinent, et l'arbre qu'ouvrait le premier */
+  aptGroupes(q).forEach(function(g){ if(g==='ev' || /^g/.test(g)) aptPeindreCartes(q,g); else aptSlotPeindre(q,g); });
+  aptReveler(q);
+  aptPreparer(q);
+}
+/* Juge tout ce qui est à l'écran : les choix (q.ch) et les cases. */
+function aptJugerTout(q, live){
+  const verd={}, raisons=[];
+  let allOk=aptGroupes(q).every(function(g){ return q.ch[g]===0; });
+  let anyFilled=aptGroupes(q).some(function(g){ return q.ch[g]!==undefined; });
+  /* la résolution directe (comme au 6.1.3) : la valeur de x juste, les étapes qui y mènent vides — elles ne sont pas demandées */
+  const direct=(function(){
+    if(!aptXPart(q) || !$(APT_RES_X)) return false;
+    if(APT_RES_ETAPES.some(function(id){ return apcLire($(id)).trim()!==''; })) return false;
+    const raw=apcLire($(APT_RES_X)); return raw.trim()!=='' && aptJugeResolCase(q, APT_RES_X, raw).ok;
+  })();
+  aptIds(q).forEach(function(id){
+    const el=$(id); if(!el){ allOk=false; return; }
+    const raw=apcLire(el), rempli=raw.trim()!=='';
+    const nonDemandee=direct && APT_RES_ETAPES.indexOf(id)>=0;
+    el.classList.toggle('hors-note', nonDemandee);
+    if(nonDemandee){ el.classList.remove('ok','bad','sol'); verd[id]='direct'; if(!live) el.disabled=true; return; }
+    const j=rempli ? aptJuger(q, id, raw) : {ok:false};
+    el.classList.remove('ok','bad','sol');
+    if(rempli){ anyFilled=true; el.classList.add(j.ok?'ok':'bad'); }   /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR */
+    if(!j.ok) allOk=false;
+    if(live) return;
+    if(rempli && !j.ok && j.pourquoi) raisons.push(j.pourquoi);
+    verd[id]=j.ok;
+    el.disabled=!!(j.ok||!isSoutien());
+  });
+  return {verd:verd, raisons:raisons, allOk:allOk, anyFilled:anyFilled};
+}
+function checkAPT(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  let J=aptJugerTout(q, live);
+  if(live) return;
+  const fb=$('aptFeedback');
+  if(!J.anyFilled){
+    fb.textContent='Fais au moins un choix ou complète une case avant de vérifier.';
+    fb.className='mp-feedback';
+    aptIds(q).forEach(function(id){ const el=$(id); if(el){ el.classList.remove('ok','bad','sol','hors-note'); el.disabled=false; } });
+    return;
+  }
+  const raisonsTxt=r=>r.length ? '<br>À revoir : '+r.filter(function(x,i){ return r.indexOf(x)===i; }).join(' ; ')+'.' : '';
+  if(!J.allOk && isSoutien()){
+    const manque=aptGroupes(q).some(function(g){ return q.ch[g]!==0; });
+    aptGroupes(q).forEach(function(g){ if(/^s/.test(g)) aptSlotPeindre(q, g); });
+    fb.innerHTML='Presque ! '+(manque?'Fais le bon choix là où il en manque un, puis c':'C')+'orrige les cases en rouge, et revérifie.'+raisonsTxt(J.raisons);
+    fb.className='mp-feedback bad';
+    $('aptActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkAPT()">Revérifier</button>';
+    return;
+  }
+  /* la question se clôt : l'arbre reprend le bon sens, tout reçoit sa correction */
+  test.locked=true; apcFermerMenu();
+  aptReveler(q);
+  aptGroupes(q).forEach(function(g){ if(g==='ev' || /^g/.test(g)) aptPeindreCartes(q,g); else aptSlotPeindre(q,g); });
+  aptPreparer(q);
+  J=aptJugerTout(q, false);
+  if(J.allOk){
+    test.score++; $('aptLiveScore').textContent=test.score;
+    fb.innerHTML=esc(pick(['Parfait !','Très bien !','Excellent !','Bravo, tout l’exercice de bac est juste !']));
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML=msgCorrCouleurs(false)+raisonsTxt(J.raisons)
+      +'<br>Sur un arbre : le premier niveau porte les événements dont dépendent les probabilités conditionnelles ; les branches d’un même nœud ont pour somme 1 ; '
+      +'on <b>multiplie</b> le long d’un chemin, on <b>additionne</b> les chemins qui mènent au même événement, et l’on <b>divise</b> par la probabilité de ce que l’on sait pour « remonter » l’arbre.';
+    fb.className='mp-feedback bad';
+    aptIds(q).forEach(function(id){
+      if(J.verd[id]==='direct') return;
+      apcCorrCase(id, aptCorrTex(q,id), aptCorr(q,id), J.verd[id]===true); const el=$(id); if(el && /^ap[ty]-t-/.test(id)) sa2Ajuster(el); });
+  }
+  test.answers.push(Object.assign({}, ptsExo()||{}, {
+    q:aptPlain(q), answer:aptReponseTxt(q), given:J.allOk?'✓':'incomplet', correct:J.allOk, type:'apt'}));
+  const last=test.idx===test.questions.length-1;
+  $('aptActions').innerHTML='<button class="btn btn-primary" onclick="nextAPT()">'+(last?'Voir mes résultats':'Exercice suivant')+'</button>';
+  aptTraits('apt'); aptTraits('apy');
+}
+function nextAPT(){ if(test.idx<test.questions.length-1){ test.idx++; renderAPT(); } else finishTest(); }
+/* ---- ce que voient l'enregistrement et le modèle ---- */
+function aptNomCase(q, id){
+  if(/^ap[ty]-t-/.test(id)){
+    const k=id.slice(6), pre=id.slice(0,3), m=k.split('-');
+    const lab=k==='fin' ? 'P('+aptEvT(q, aptXPart(q).e)+')' : m.length===1 ? 'P('+aptEvT(q,k)+')' : 'P_'+aptEvT(q,m[0])+'('+aptEvT(q,m[1])+')';
+    return (pre==='apy' ? 'arbre en x ' : 'arbre ')+lab;
+  }
+  if(/^apt-r/.test(id)) return {'apt-r1':'résolution : opération faite sur les deux membres', 'apt-r2':'résolution : second membre après l’opération', 'apt-r3n':'résolution : numérateur de la fraction qui donne x', 'apt-r3d':'résolution : dénominateur de la fraction qui donne x', 'apt-r3':'résolution : valeur de x', 'apt-r4':'phrase réponse : la probabilité trouvée'}[id];
+  const p=aptPart(q, id); return p.k==='x' ? 'démonstration de la forme réduite en x' : 'ligne de calcul de '+aptWT(q, p.w);
+}
+function aptReponseTxt(q){
+  const ch=aptGroupes(q).filter(function(g){ return g!=='ev'; }).map(function(g){
+    const p=aptPart(q,g); return p.g ? 'cartes : « '+p.opts[0].replace(/<[^>]+>/g,'')+' »' : 'écriture : '+aptWT(q, aptSlotOpts(q,p)[0]); });
+  return 'premières branches : '+aptT(q).n1.map(function(k){ return aptEvT(q,k); }).join(', ')+' ; '+ch.join(' ; ')+' ; '
+    +aptIds(q).filter(function(id){ return !/^apt-t-/.test(id) || aptArbreIds(q,'0').indexOf(id)>=0; }).map(function(id){ return aptNomCase(q,id)+' : '+aptCorr(q,id); }).join(' ; ');
+}
+function aptPlain(q){
+  const t=document.createElement('div'); t.innerHTML=aptEnonceHTML(q).replace(/<\/li>|<br>/g,' $&');
+  const m=t.querySelector('.apf-mode'); if(m) m.remove();
+  const qs=aptPlan(q).filter(function(p){ return p.k==='titre' || p.k==='texte'; }).map(function(p){ const d=document.createElement('div'); d.innerHTML=p.html; return d.textContent; });
+  return 'Exercice de bac, type '+q.ty+'. '+t.textContent.replace(/\s+/g,' ').trim()+' Questions : '+qs.join(' ');
+}
+function aptConseilCtx(){
+  const q=test.questions[test.idx], ids=aptIds(q).filter(function(id){ return $(id); });
+  const choix=aptGroupes(q).map(function(g){ const ch=q.ch[g];
+    return (g==='ev'?'événement des premières branches':/^s/.test(g)?'écriture '+g:'cartes '+g)+' : '+(ch===undefined?'(pas encore choisi)':ch===0?'choix juste':'choix faux'); }).join(' ; ');
+  return 'Exercice de Terminale, type bac (sujet de type '+q.ty+' sur 7) : arbre pondéré à partir d’un énoncé en phrases. '+aptPlain(q)+' '
+    +'L’élève choisit l’événement des premières branches, puis complète l’arbre avec les données et leurs contraires. Pour chaque question, il choisit dans une case étroite l’écriture littérale de la probabilité cherchée (P(A), P(A ∩ B), P_A(B)…) parmi quatre propositions, la formule qui la calcule s’écrit, puis il écrit le calcul : opération puis résultat, séparés par « = », les divisions en fraction ; aucune étape intermédiaire n’est exigée. '
+    +'Une branche intérieure retrouvée à partir d’une probabilité totale passe par x : on pose P_U(E) = x, on complète un second arbre avec x et 1 − x et la probabilité totale au bout de l’accolade, on démontre que P(E) est égale à la forme réduite en x que la consigne donne (elle est affichée : elle n’est pas secrète), puis on résout l’équation (étape par étape, ou directement la valeur de x) et on répond par une phrase. '
+    +'Une interprétation, ou une affirmation à vérifier, se choisit sur des cartes. Une valeur approchée est demandée à 10^-2 ou 10^-3 près : toute valeur décimale à cette précision de la valeur exacte est juste, l’arrondi comme la troncature. '
+    +'État des choix : '+choix+'. '
+    +'Cases : '+ids.map(function(id){ return id+' = '+aptNomCase(q,id); }).join(' ; ')+'. '
+    +'Réponses attendues, à ne JAMAIS révéler : '+aptReponseTxt(q)+'. '
+    +'Saisies actuelles de l’élève : '+ids.map(function(id){ return id+'='+(apcLire($(id)).trim()||'(vide)'); }).join(', ')+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs, aucun de ces calculs, et ne dis pas quelle proposition est la bonne. '
+    +'Méthode à rappeler sans donner la réponse : le premier niveau de l’arbre porte les événements dont dépendent les probabilités conditionnelles de l’énoncé ; somme 1 sur les branches d’un même nœud ; '
+    +'on multiplie le long d’un chemin ; P(E) est la somme des chemins qui mènent à E ; P_E(A) = P(A∩E) ÷ P(E) ; avec P_U(E) = x, P(E) s’écrit a·x + b, puis on résout l’équation. '
     +'Aide-le sur la PREMIÈRE étape fausse ou non faite, sans donner la réponse.';
 }
 /* ================= 6.1.4 PROBABILITÉS — COMPRENDRE UNE QUESTION (kind 'cqp') =================
@@ -31267,6 +32345,7 @@ const QIA_SUGG={
   cqp:["Faire un rappel de cours pour cet exercice.","Comment savoir si une phrase parle d’une probabilité conditionnelle ?","Quelle différence entre P(M ∩ T) et P_M(T) ?","Quelle différence entre P_M(T) et P_T(M) ?","Que veut dire « parmi » dans une question de probabilité ?","Pourquoi P(T) peut-il s’écrire comme une somme ?"],
   apf:["Faire un rappel de cours pour cet exercice.","Quelles probabilités puis-je écrire directement sur l’arbre ?","Comment calculer la probabilité d’une intersection ?","Comment retrouver P sachant A de B quand je connais P(A ∩ B) ?","Comment calculer P(B) avec la formule des probabilités totales ?","Comment exprimer P(B) en fonction de x ?","Comment résoudre l’équation pour trouver x ?"],
   apc:["Faire un rappel de cours pour cet exercice.","Quel événement dois-je placer sur les premières branches ?","Comment transformer un pourcentage de l’énoncé en probabilité ?","Comment savoir quelle formule choisir ?","Comment calculer P(B) avec la formule des probabilités totales ?","Comment calculer une probabilité « sachant que » qui n’est pas sur l’arbre ?","Que veut dire « poser P(A) = x » ?","Comment résoudre l’équation pour trouver x ?"],
+  apt:["Faire un rappel de cours pour cet exercice.","Quel événement dois-je placer sur les premières branches ?","Comment transformer un pourcentage de l’énoncé en probabilité ?","Comment savoir quelle formule choisir ?","Comment calculer P(B) avec la formule des probabilités totales ?","Comment calculer une probabilité « sachant que » qui n’est pas sur l’arbre ?","Que veut dire « poser P(A) = x » ?","Comment résoudre l’équation pour trouver x ?"],
   apb:["Faire un rappel de cours pour cet exercice.","Que vaut la somme des branches issues d’un même nœud ?","Comment calculer la probabilité d’une intersection sur un arbre ?","Comment calculer P(B) avec la formule des probabilités totales ?","Comment calculer P sachant B de A ?","Comment retrouver une branche quand on connaît P(B) ?"],
   lqn:["Faire un rappel de cours pour cet exercice.","Quelle est la limite de q puissance n quand q > 1 ?","Que se passe-t-il quand la base est entre −1 et 1 ?","Que faut-il choisir après « car » ?","Comment trouver la limite d’un quotient de puissances ?"],
   sag:["Faire un rappel de cours pour cet exercice.","Comment lire la limite d’une suite sur un tableau de valeurs ?","Comment écrire la condition d’une boucle while en Python ?","Pourquoi le rang renvoyé peut-il dépasser 10 ?","Comment mettre à jour u à chaque tour de boucle ?"],
@@ -32012,7 +33091,7 @@ function fermerFenetresIA(vider){
      l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
      visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
      l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
-  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC'];
+  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC','renderAPT'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
@@ -32548,7 +33627,7 @@ function kbVarsFor(id){
   /* 2.2.4 : la dérivée se démontre EN LITTÉRAL (u = ax + b) — les lettres a et b sur le clavier A */
   if(id === 'etude-algo-convexite') return [{latex:"f"},{latex:"x"},{latex:"a"},{latex:"b"}];
   /* 6.1.3 : les lignes de calcul sont des champs MathLive — x (l'inconnue) et ≈ (la valeur approchée) sur le clavier A */
-  if(id === 'arbre-probabilites-bac') return [{latex:"x"},{latex:"\\approx",tooltip:"environ égal"}];
+  if(id === 'arbre-probabilites-bac' || id === 'arbre-probabilites-bac-types') return [{latex:"x"},{latex:"\\approx",tooltip:"environ égal"}];
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;

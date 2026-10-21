@@ -4085,7 +4085,55 @@ autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
 navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
 flèche, lui, ne se mesure qu'à l'œil.
 
-### Les 8.3.2 et 8.3.3 : la fraction s'EMPILE dans la case (v579 — v577 et v578 prises par les 8.3.5 à 8.3.8 et le 8.3.4)
+**Puis le 8.3.1 a monté une échelle (v579 — v576 à v578 prises par les 8.3.2, 8.3.5 à 8.3.8 et 8.3.4 pendant les bancs).** Turquet, octobre 2026 : « en
+seconde dans le 8.3.1, demander soit un multiple entier de u, et on doit
+tracer k u, −u et −k u ; soit une fraction a/b de u, et on demande de tracer
+1/b u puis −1/b u puis a/b u ». Les trois coefficients ne se tirent plus au
+hasard parmi vingt-deux : ils forment une échelle, rangée dans `q.ks` DANS
+L'ORDRE où ils se tracent (`tvxCourante` prend la première flèche sans
+arrivée, l'ordre de la consigne suit). L'entier k va de 2 à 4
+(`tvxKsEntier`) ; la fraction a/b est irréductible, b de 2 à 4, |a| de 2 à 5,
+de signe tiré (`tvxKsFraction`) — ½, −½ puis −3/2, comme dans la demande.
+`tvxGenK` lit le rang que lui passe `distinctes()` : l'entier aux questions
+1, 3…, la fraction aux questions 2, 4… — une séance de trois questions a
+toujours les deux sortes. u⃗ a pour composantes des multiples de b. L'énoncé
+dit l'ordre (« un représentant du vecteur ½u⃗, puis du vecteur −½u⃗, puis… »),
+et le rappel gagne un ⑤ : la fraction se construit par étapes. Rien d'autre
+ne change — ni le juge, ni le geste, ni la clé (`tvxCleK`). Le banc principal
+tient la nouvelle forme sur deux cents séances (l'échelle, et la sorte qui
+suit le rang de la question).
+
+**Puis le réel du 8.3.4 s'est écrit EMPILÉ** (demande de Turquet, octobre
+2026, Seconde v578 : « dans le 8.3.4, il faut une écriture fractionnaire et
+pas en ligne pour les fractions »). La case du réel était un `<input>` : l'élève
+tapait « −3/4 » en ligne, à côté d'une correction (`mf-cor`) qui, elle,
+empilait déjà. Elle est devenue une case MathLive (`pmMF('kco-in', …)`), où la
+touche / pose le trait — la consigne le dit, et montre la fraction empilée au
+lieu de « (−3/2) ». Trois endroits ont suivi, et en oublier un rendait la
+fraction en ligne ou la réponse fausse :
+
+* **la lecture** : `value` d'une case MathLive rend le texte de `toPlain`,
+  « -(3)/(4) » ; `kvLit` retire les parenthèses, et lit aussi un `\frac{3}{4}`
+  brut et le « {,} » décimal — le double du banc jsdom, qui ne convertit rien,
+  rend le LaTeX tel quel ;
+* **la correction** d'une ligne vide écrit `kvLatex(c)` (« -\frac{3}{4} »),
+  plus `kvSaisie` : du texte posé dans MathLive s'y affiche en ligne ;
+* **la reprise** d'une pause remet le texte rangé par `captureBoxes`
+  (« -(3)/(4) ») : le setter de `pmAdapter` passe désormais par
+  `pmVersLatex`, qui relève chaque « (a)/(b) » en `\frac{a}{b}`, du plus
+  profond au plus large, et laisse intact un texte qui porte déjà du LaTeX.
+  Ce setter sert toutes les cases `pm-mf` de la Seconde : une fraction tapée
+  dans n'importe laquelle revenait en ligne après une pause, et revient
+  empilée.
+
+L'Entrée ne valide plus directement : comme dans toute case `pm-mf`, elle passe
+à la case suivante, puis au bouton « Vérifier ». Le 8.3.3, dont les cases de
+coefficient sont toujours des `<input>`, n'a pas changé — la demande ne
+portait que sur le 8.3.4. Contrôles (banc principal) : la case du réel est un
+`math-field`, la lecture de « -(3)/(4) », de `\frac` et de « 1{,}5 »,
+`pmVersLatex`, et la correction écrite en `\frac`.
+
+### Les 8.3.2 et 8.3.3 : la fraction s'EMPILE dans la case (v580 — v577 à v579 prises par les 8.3.5 à 8.3.8, le 8.3.4 et le 8.3.1)
 
 Demande de Turquet, octobre 2026, sur le 8.3.3 : les flèches, les cases
 étroites et le « × » (déjà faits en v576 par une session parallèle, voir
@@ -4118,36 +4166,6 @@ Le banc principal exige les six lignes « case MathLive, ×, liste fléchée »
 dans cet ordre, la fraction empilée de la consigne au 8.3.3, et la
 fraction lue et écrite (`kvLatex`, `kvLit`). Vu dans Chromium : la fraction
 tapée « −3/2 » s'empile, se juge, survit à la pause empilée.
-
-**Puis le réel du 8.3.4 s'est écrit EMPILÉ** (demande de Turquet, octobre
-2026, Seconde v578 : « dans le 8.3.4, il faut une écriture fractionnaire et
-pas en ligne pour les fractions »). La case du réel était un `<input>` : l'élève
-tapait « −3/4 » en ligne, à côté d'une correction (`mf-cor`) qui, elle,
-empilait déjà. Elle est devenue une case MathLive (`pmMF('kco-in', …)`), où la
-touche / pose le trait — la consigne le dit, et montre la fraction empilée au
-lieu de « (−3/2) ». Trois endroits ont suivi, et en oublier un rendait la
-fraction en ligne ou la réponse fausse :
-
-* **la lecture** : `value` d'une case MathLive rend le texte de `toPlain`,
-  « -(3)/(4) » ; `kvLit` retire les parenthèses, et lit aussi un `\frac{3}{4}`
-  brut et le « {,} » décimal — le double du banc jsdom, qui ne convertit rien,
-  rend le LaTeX tel quel ;
-* **la correction** d'une ligne vide écrit `kvLatex(c)` (« -\frac{3}{4} »),
-  plus `kvSaisie` : du texte posé dans MathLive s'y affiche en ligne ;
-* **la reprise** d'une pause remet le texte rangé par `captureBoxes`
-  (« -(3)/(4) ») : le setter de `pmAdapter` passe désormais par
-  `pmVersLatex`, qui relève chaque « (a)/(b) » en `\frac{a}{b}`, du plus
-  profond au plus large, et laisse intact un texte qui porte déjà du LaTeX.
-  Ce setter sert toutes les cases `pm-mf` de la Seconde : une fraction tapée
-  dans n'importe laquelle revenait en ligne après une pause, et revient
-  empilée.
-
-L'Entrée ne valide plus directement : comme dans toute case `pm-mf`, elle passe
-à la case suivante, puis au bouton « Vérifier ». Le 8.3.3, dont les cases de
-coefficient sont toujours des `<input>`, n'a pas changé — la demande ne
-portait que sur le 8.3.4. Contrôles (banc principal) : la case du réel est un
-`math-field`, la lecture de « -(3)/(4) », de `\frac` et de « 1{,}5 »,
-`pmVersLatex`, et la correction écrite en `\frac`.
 
 ## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 
