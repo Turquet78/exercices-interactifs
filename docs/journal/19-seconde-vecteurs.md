@@ -4184,7 +4184,7 @@ principal, figure fixe) : la flèche −5/6 u⃗ de l'élève porte quatre trait
 ni 2u⃗ ni ½u⃗ n'en portent, et la correction verte −5/6 u⃗ en porte quatre
 verts. Vu à l'œil dans Chromium (tracé en cours et après vérification).
 
-**Puis u⃗ lui-même s'est découpé en b morceaux (v582).** Turquet, le même
+**Puis u⃗ lui-même s'est découpé en b morceaux (v583 — v582 prise par le 8.3.5).** Turquet, le même
 jour : « je veux que tu découpes aussi le vecteur u en b morceaux à l'écran ».
 Le vecteur donné porte b − 1 petits traits à son encre (`svc-u-f`), posés par
 `tvxSVG` dès l'affichage : le morceau 1/b u se lit sur u⃗ avant d'être tracé,
