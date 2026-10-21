@@ -2960,7 +2960,11 @@
   #scr-kpl .tvg-cons.tan-cours{border-color:var(--blue);background:#EAF0FF;color:var(--ink);box-shadow:inset 4px 0 0 var(--blue)}
   #scr-kpl .vgt-vec{font-size:1.1em}
   #kplGraph .sv-svg{max-width:640px}
-  .kpl-svg #kplCorr,.kpl-svg #kplEl,.kpl-svg #kplDonnes{pointer-events:none}
+  .kpl-svg #kplCorr,.kpl-svg #kplEl,.kpl-svg #kplDonnes,.kpl-svg #kplVif{pointer-events:none}
+  /* le vecteur de l'élève, de son point de départ à son point : violet tant qu'il
+     n'est pas jugé (bleu juste, rouge faux : svc-e, svc-eb), pâli quand il suit la souris */
+  .kpl-svg .kpl-fl{stroke:var(--crd-a);stroke-width:2.4;stroke-linecap:round}
+  .kpl-svg .kpl-vif{opacity:.6}
   .kph-cartes{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 14px;margin:0 auto 16px;max-width:900px}
   .kph-carte{display:inline-flex;align-items:center;gap:12px;border:1.5px solid #D6E2F8;border-radius:14px;padding:8px 16px;background:var(--surface);font-family:"Fredoka";font-weight:500;font-size:1.3rem;color:var(--ink)}
   .kph-lt{font-weight:700;color:var(--blue-dark)}
@@ -8545,7 +8549,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=581;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=582;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -65972,15 +65976,30 @@ function kplSVG(q){
   q.o.forEach(function(p,k){ donnes+=tanCroix(p,'tan-donne')+tanEtiquette(p, n[2+k], 'tan-donne-t'); });
   const pointe=function(id,coul){ return '<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+coul+'"/></marker>'; };
   return '<svg viewBox="0 0 '+Wd+' '+Hd+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tan-svg kpl-svg" role="img" aria-label="Quadrillage : les points '+n[0]+' et '+n[1]+', le vecteur '+n[0]+n[1]+', les points de départ '+n.slice(2).join(', ')+', et les points '+KPL_PTS.join(', ')+' à placer">'
-    +'<defs>'+pointe('kplArr0','var(--ink)')+pointe('kplArrS','var(--green)')+'</defs>'
-    +kvGrille(KPL_GEO,KPL_W)+'<g id="kplDonnes">'+donnes+'</g><g id="kplCorr"></g><g id="kplEl"></g>'
+    +'<defs>'+pointe('kplArr0','var(--ink)')+pointe('kplArrS','var(--green)')+pointe('kplArrP','var(--crd-a)')+pointe('kplArrE','var(--blue)')+pointe('kplArrB','var(--red)')+'</defs>'
+    +kvGrille(KPL_GEO,KPL_W)+'<g id="kplDonnes">'+donnes+'</g><g id="kplCorr"></g><g id="kplVif"></g><g id="kplEl"></g>'
     +'<g id="kplCurseur" class="tan-curseur" aria-hidden="true" style="display:none"></g></svg>';
 }
-/* Les points de l'élève : violets avant le jugement, puis bleus (justes) ou rouges (faux). */
+/* Le vecteur de l'élève, de son point de départ au nœud r (demande de Turquet,
+   octobre 2026 : « que le vecteur soit tracé entre le point de départ et le point
+   à placer quand l'élève déplace son point, et qu'il reste une fois le point
+   placé »). Rien quand r est le point de départ lui-même. */
+function kplFlecheEleve(q,k,r,m,vif){
+  const O=kplOrig(q,k); if(!r||tanEgal(O,r)) return '';
+  const cls=m==='ok'?'svc-e':(m==='bad'?'svc-eb':'kpl-fl'), mk=m==='ok'?'kplArrE':(m==='bad'?'kplArrB':'kplArrP');
+  return svcFleche(O, r, {cls:cls+(vif?' kpl-vif':''), marker:mk, geo:KPL_GEO});
+}
+/* La flèche qui suit la souris : du point de départ du point en cours au nœud survolé. */
+function kplVif(q,k,r){
+  const el=$('kplVif'); if(!el) return;
+  el.innerHTML=(q&&k>=0&&r) ? kplFlecheEleve(q,k,r,'',true) : '';
+}
+/* Les points de l'élève et leurs vecteurs : violets avant le jugement, puis bleus (justes) ou rouges (faux). */
 function kplDessiner(q){
   const el=$('kplEl'); if(!el) return;
   const mq=test.kplMarque||[];
   let h='';
+  [0,1,2].forEach(function(k){ h+=kplFlecheEleve(q,k,q.p[k],mq[k]||'',false); });
   [0,1,2].forEach(function(k){
     const r=q.p[k]; if(!r) return;
     const m=mq[k]||'', cls=m==='ok'?'tan-x-ok':(m==='bad'?'tan-x-bad':'');
@@ -66056,7 +66075,8 @@ function kplBrancher(){
       const L=KPL_PTS[k];
       if(c.getAttribute('data-l')!==L){ c.innerHTML=tanCurseurHTML(L); c.setAttribute('data-l',L); }
       c.setAttribute('transform','translate('+v.x.toFixed(1)+' '+v.y.toFixed(1)+')'); c.style.display='';
-    } else c.style.display='none';
+      kplVif(q,k,[v.i,v.j]);
+    } else { c.style.display='none'; kplVif(q,-1,null); }
   };
   host.addEventListener('pointermove', suivre);
   host.addEventListener('pointerleave', function(){ suivre(null); });
@@ -66158,6 +66178,7 @@ function checkKpl(){
   const pourquoi=kplPourquoi(q,subs);
   kplFinal(q,subs); kplConsigne(q);
   const cu=$('kplCurseur'); if(cu) cu.style.display='none';
+  kplVif(q,-1,null);
   test.score+=n;
   if(n===3){ $('kplFeedback').textContent=pick(['Parfait !','Très bien placé !','Excellent !','Exactement !']); $('kplFeedback').className='mp-feedback good'; }
   else {
