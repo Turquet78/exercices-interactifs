@@ -4338,7 +4338,7 @@ la rédaction du manuel ET une rédaction dans l'autre ordre avec les formes
 opposées, chacune à 13 sur 13. Éprouvé par deux sabotages (un juge de
 longueur faussé, une forme juste du 8.3.8 retirée), chacun attrapé.
 
-### Le 8.3.8 : un exemple résolu avant l'énoncé, et les tiers, quarts et cinquièmes (v585 — v581 à v584 prises par les 8.3.1, 8.3.2, 8.3.3, 8.3.5, 8.3.6, 8.3.7 et 8.3.9 pendant les bancs)
+### Le 8.3.8 : un exemple résolu avant l'énoncé, et les tiers, quarts et cinquièmes (v586 — v581 à v585 prises par les 8.3.1, 8.3.2, 8.3.3, 8.3.5, 8.3.6, 8.3.7 et 8.3.9 pendant les bancs)
 
 **La demande** (Turquet, octobre 2026) : « mettre un exemple de démonstration
 du même genre avant l'énoncé comme modèle pour l'élève, présenté avec les
