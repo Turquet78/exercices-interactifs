@@ -4167,7 +4167,7 @@ dans cet ordre, la fraction empilée de la consigne au 8.3.3, et la
 fraction lue et écrite (`kvLatex`, `kvLit`). Vu dans Chromium : la fraction
 tapée « −3/2 » s'empile, se juge, survit à la pause empilée.
 
-### Le 8.3.1 : la flèche a/b u⃗ se DÉCOUPE en |a| morceaux (v581)
+### Le 8.3.1 : la flèche a/b u⃗ se DÉCOUPE en |a| morceaux (v582)
 
 Demande de Turquet, octobre 2026 (écrite « 8.3.2 » — le seul exercice du
 sous-thème où l'on DESSINE est le 8.3.1) : « quand on doit dessiner une
@@ -4369,3 +4369,55 @@ révéler ni verrouiller ; le plan à regrouper juste à 30 cases, et
 Éprouvé par deux sabotages, chacun attrapé : l'énoncé lu sans changer le
 sens d'un vecteur retourné (plus aucune rédaction acceptée), et le message
 du sens oublié réécrit (le piège n'est plus nommé).
+
+## 8.3.5 : la définition, puis vrai ou faux sur deux vecteurs — six situations en tête de séance (v582)
+
+**La demande** (Turquet, octobre 2026) : « dans le 8.3.5, donner la
+définition de deux vecteurs colinéaires, puis donner deux vecteurs à l'écran
+et demander de compléter par vrai ou faux : ces deux vecteurs ont la même
+direction ; ces vecteurs ont le même sens, quand on a donné deux vecteurs de
+même direction ; ces vecteurs ont la même longueur ; ces vecteurs sont
+colinéaires. On évaluera toutes les situations possibles. »
+
+**Ajoutée, pas substituée.** Les deux pages du sens et de la longueur de
+k u⃗ restent : elles SUIVENT. La séance s'ouvre sur six pages de vrai ou
+faux (`q.t === 'vf'`), une par situation de `KSS_SIT`, dans un ordre tiré :
+égaux ; même direction et même sens, autre longueur ; opposés ; même
+direction, sens contraire, autre longueur ; directions différentes, même
+longueur (v⃗ est u⃗ tourné d'un quart de tour ou retourné en miroir) ;
+directions différentes, autres longueurs (une fois sur deux, deux flèches
+PRESQUE parallèles — le piège du 8.3.4). Huit pages, 50 points :
+4 × 4 + 2 × 3 = 22 pour le vrai ou faux, 28 pour la suite. Le réglage
+« Questions » d'un devoir coupe dans cet ordre : à 3, trois situations
+tirées ; au-delà de 8, des pages de k u⃗ en plus.
+
+**La définition** s'écrit en tête de chaque page, encadrée de violet :
+v⃗ = k u⃗, et pour deux vecteurs non nuls, la même direction. La quatrième
+affirmation (« colinéaires ») a donc toujours la réponse de la première —
+c'est le sujet de la page, et le pourquoi le dit (« par la définition… »).
+
+**Le sens ne se demande qu'à deux vecteurs de même direction — et c'est un
+piège pour la page elle-même.** Une ligne « même sens » posée d'office sur
+les quatre pages de même direction, absente des deux autres, aurait donné
+la réponse aux affirmations de direction et de colinéarité dès le premier
+coup d'œil. Elle s'ouvre donc quand l'élève répond « Vrai » à la direction —
+une règle CSS `:has(#kss-vd option[value="v"]:checked)`, sans variable : la
+reprise d'une pause remet la valeur, la ligne se rouvre d'elle-même. La
+vérification tranche ensuite : de même direction, la ligne s'ouvre
+(`kss-on`) et se juge — laissée fermée par un « Faux », elle reçoit la
+correction verte et ne compte pas juste ; de directions différentes, elle
+se ferme (`kss-off`) et sort de la note (`kssVfCases` : trois cases).
+
+**Le pourquoi** lit les chemins (`vecMots`) : un réel k commun pour la
+direction, son signe pour le sens, sa valeur sans le signe pour la
+longueur ; deux flèches de directions différentes se comparent par
+Pythagore (« u mesure √20 carreaux »). Sous la page corrigée :
+« v⃗ = −2u⃗ : ils sont colinéaires », ou « aucun réel k… ».
+
+**Contrôlés** (`tests/verifier.js`, la section des 8.3.5 à 8.3.8) : sur deux
+cents séances, les six situations en tête, chacune celle qu'elle dit, ses
+flèches dans le quadrillage, le réel k qui donne bien v⃗ = k u⃗ ; la ligne
+du sens fermée avant toute réponse, ouverte par « Vrai » ; une copie juste
+à 4 points ; une copie vide qui ne rougit pas et rouvre la ligne du sens
+pour la corriger ; « Vrai » à la direction de deux vecteurs non parallèles,
+rouge, ligne du sens refermée et hors note ; le pourquoi par Pythagore.

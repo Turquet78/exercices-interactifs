@@ -1025,13 +1025,15 @@ module.exports = {
       figure:     { exercice: 'vecteurs-colineaires-figure', numero: '8.3.4', nb: 2, bareme: 10 },
     },
     /* la suite du sous-thème 8.3, sans coordonnées (demande de Turquet,
-       octobre 2026 : « faire les 12, 13, 14 et 15 ») : sept vecteurs à deux
-       réponses par page (8.3.5), trois points par page (8.3.6), cinq phrases
+       octobre 2026 : « faire les 12, 13, 14 et 15 ») : six pages de vrai ou
+       faux, une par situation (quatre réponses à deux vecteurs de même
+       direction, trois sinon : 4 × 4 + 2 × 3 = 22), puis deux pages de sept
+       vecteurs à deux réponses (8.3.5), trois points par page (8.3.6), cinq phrases
        par page (8.3.7), treize cases par démonstration (8.3.8). « nb » et
        « bareme » sont les secondes sources du compte (la page a KSS_NB,
        KPL_NB, KPH_NB, KMI_NB). */
     vecteursColineairesSuite: {
-      sens:    { exercice: 'colineaires-sens-longueur', numero: '8.3.5', nb: 2, bareme: 28 },
+      sens:    { exercice: 'colineaires-sens-longueur', numero: '8.3.5', nb: 8, bareme: 50 },
       placer:  { exercice: 'placer-point-colineaire', numero: '8.3.6', nb: 3, bareme: 9 },
       phrase:  { exercice: 'phrase-relation-colineaire', numero: '8.3.7', nb: 3, bareme: 15 },
       milieux: { exercice: 'milieux-parallele-vecteurs', numero: '8.3.8', nb: 3, bareme: 39 },
