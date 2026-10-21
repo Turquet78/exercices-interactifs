@@ -4085,6 +4085,25 @@ autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
 navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
 flèche, lui, ne se mesure qu'à l'œil.
 
+<<<<<<< HEAD
+**Puis le 8.3.1 a monté une échelle (v579 — v576 à v578 prises par les 8.3.2, 8.3.5 à 8.3.8 et 8.3.4 pendant les bancs).** Turquet, octobre 2026 : « en
+seconde dans le 8.3.1, demander soit un multiple entier de u, et on doit
+tracer k u, −u et −k u ; soit une fraction a/b de u, et on demande de tracer
+1/b u puis −1/b u puis a/b u ». Les trois coefficients ne se tirent plus au
+hasard parmi vingt-deux : ils forment une échelle, rangée dans `q.ks` DANS
+L'ORDRE où ils se tracent (`tvxCourante` prend la première flèche sans
+arrivée, l'ordre de la consigne suit). L'entier k va de 2 à 4
+(`tvxKsEntier`) ; la fraction a/b est irréductible, b de 2 à 4, |a| de 2 à 5,
+de signe tiré (`tvxKsFraction`) — ½, −½ puis −3/2, comme dans la demande.
+`tvxGenK` lit le rang que lui passe `distinctes()` : l'entier aux questions
+1, 3…, la fraction aux questions 2, 4… — une séance de trois questions a
+toujours les deux sortes. u⃗ a pour composantes des multiples de b. L'énoncé
+dit l'ordre (« un représentant du vecteur ½u⃗, puis du vecteur −½u⃗, puis… »),
+et le rappel gagne un ⑤ : la fraction se construit par étapes. Rien d'autre
+ne change — ni le juge, ni le geste, ni la clé (`tvxCleK`). Le banc principal
+tient la nouvelle forme sur deux cents séances (l'échelle, et la sorte qui
+suit le rang de la question).
+=======
 **Puis le réel du 8.3.4 s'est écrit EMPILÉ** (demande de Turquet, octobre
 2026, Seconde v578 : « dans le 8.3.4, il faut une écriture fractionnaire et
 pas en ligne pour les fractions »). La case du réel était un `<input>` : l'élève
@@ -4184,3 +4203,4 @@ la copie vide (rien de rouge, tout en vert) ; les pièges nommés ; au 8.3.8,
 la rédaction du manuel ET une rédaction dans l'autre ordre avec les formes
 opposées, chacune à 13 sur 13. Éprouvé par deux sabotages (un juge de
 longueur faussé, une forme juste du 8.3.8 retirée), chacun attrapé.
+>>>>>>> origin/main
