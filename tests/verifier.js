@@ -4571,6 +4571,7 @@ function exercices(suite){
     lireSommeDessin(w, P);
     sommeVecteursLibre(w, P);
     demontrerChasles(w, P);
+    demontrerColineaires(w, P);
     sommeTroisVecteurs(w, P);
     translationsSuccessives(w, P);
     regleParallelogramme(w, P);
@@ -14792,6 +14793,171 @@ function demontrerChasles(w, P){
     test.questions[0]={t:0, n:'ABCDM', v:0}; vider();
     const ctx=ctxDch(test.questions[0]).contexte;
     if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/AD \\+ DB \\+ CB \\+ BD/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni la rédaction attendue');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {demontrer-colineaires} (Seconde, 8.3.9 — demande de Turquet, octobre
+   2026 : « comme le 8.2.13 mais avec en plus des multiplications de
+   vecteurs ; la conclusion : les vecteurs sont colinéaires et donc les
+   droites sont parallèles »). Le juge INDÉPENDANT ne lit pas les plans de la
+   page : il place A, B, C au hasard, construit D et E d'après l'énoncé
+   (AD = kAB et AE = kAC, ou BD = kAB et CE = kAC) et vérifie, en nombres,
+   que CHAQUE ligne de CHAQUE rédaction acceptée vaut DE, et que la dernière
+   est un réel fois BC. Puis, par le bouton : la copie juste et une autre, les
+   pièges nommés, la case vide, la copie vide, le soutien, le plan à
+   regrouper (BC + 2BC = 3BC). */
+function demontrerColineaires(w, P){
+  const nom = 'démontrer un parallélisme étape par étape : la place, les rédactions relues en nombres, la copie juste et une autre, les pièges nommés, le soutien';
+  if(!P.demontrerColineaires){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice de démonstration de parallélisme étape par étape');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.demontrerColineaires)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+
+    /* ---- 0. la place : 8.3.9, après le 8.3.8 ; pas de tables ------------ */
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['milieux-parallele-vecteurs']!=='8.3.8' || TEST_NUM['demontrer-chasles']!=='8.2.13') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé');
+    if(RAPPELS.dco!==RAP_DCO || !QIA_SUGG.dco) vus.push('le rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant : des coordonnées au hasard ---------------- */
+    const coords=function(q){
+      const c={}, L=q.n.split(''), k=q.k[0]/q.k[1];
+      [0,1,2].forEach(function(i){ c[L[i]]=[Math.round(Math.random()*40-20), Math.round(Math.random()*40-20)]; });
+      const A=c[L[0]], B=c[L[1]], C=c[L[2]], o1=q.t===2 ? B : A, o2=q.t===2 ? C : A;
+      c[L[3]]=[o1[0]+k*(B[0]-A[0]), o1[1]+k*(B[1]-A[1])]; c[L[4]]=[o2[0]+k*(C[0]-A[0]), o2[1]+k*(C[1]-A[1])];
+      return c;
+    };
+    const val=function(c, l){ let x=0, y=0;
+      l.forEach(function(t){ const k=t.c[0]/t.c[1]; (t.g || [t.v]).forEach(function(v){ x+=k*(c[v[1]][0]-c[v[0]][0]); y+=k*(c[v[1]][1]-c[v[0]][1]); }); });
+      return [x, y]; };
+    const egal=function(a, b){ return Math.abs(a[0]-b[0])<1e-9 && Math.abs(a[1]-b[1])<1e-9; };
+
+    /* ---- 1. le tirage : 200 séances --------------------------------------- */
+    const plans={};
+    for(let s=0;s<200 && vus.length<4;s++){
+      const qs=dcoBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' démonstrations au lieu de '+D.nb); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      if(qs[0].t!==0 || qs[0].n!=='ABCDE' || qs[0].k.join('/')!=='2/1') vus.push('la première page n’est pas l’exemple : '+JSON.stringify(qs[0]));
+      if(!qs[1].mil || qs[1].k.join('/')!=='1/2') vus.push('la deuxième page n’est pas celle des milieux : '+JSON.stringify(qs[1]));
+      const cles=qs.map(function(q){ return q.t+'|'+q.k.join('/')+'|'+(q.mil?1:0); });
+      if(new Set(cles).size!==cles.length) vus.push('la même démonstration deux fois : '+cles.join(' '));
+      qs.forEach(function(q){
+        plans[q.t]=true;
+        if(new Set(q.n.split('')).size!==5 || /[IOQ]/.test(q.n)) vus.push('lettres « '+q.n+' »');
+        if(Math.abs(q.k[0])===q.k[1]) vus.push('le réel '+q.k.join('/')+' rend « égaux » ou « de même longueur » vrai');
+        const Dm=dcoDemo(q), c=coords(q), L=q.n, g=val(c, [{c:[1,1], v:L[3]+L[4]}]);
+        const chs=dcoChaines(q);
+        if(!chs.length){ vus.push('aucune rédaction acceptée pour le plan '+q.t); return; }
+        if(JSON.stringify(chs[0])!==JSON.stringify(Dm.c)) vus.push('la correction n’est pas la rédaction du plan '+q.t);
+        chs.forEach(function(ch){
+          ch.forEach(function(l, k){
+            if(!egal(val(c, l), g)) vus.push('plan '+q.t+' (k = '+q.k.join('/')+'), ligne '+(k+1)+' acceptée mais FAUSSE : '+dcoTxt(l));
+            if(l.length!==DCO_DEMOS[q.t].e[k][1].length) vus.push('plan '+q.t+', ligne '+(k+1)+' : '+l.length+' termes');
+          });
+          const f=ch[ch.length-1];
+          if(f.length!==1 || f[0].g || [L[1]+L[2], L[2]+L[1]].indexOf(f[0].v)<0) vus.push('plan '+q.t+' : la dernière ligne n’est pas un réel fois '+L[1]+L[2]+' : '+dcoTxt(f));
+          /* une somme n'écrit que des réels positifs ; seule la dernière ligne peut être négative */
+          ch.slice(0,-1).forEach(function(l){ l.forEach(function(t){ if(t.c[0]<0) vus.push('un réel négatif dans une somme : '+dcoTxt(l)); }); });
+        });
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    DCO_DEMOS.forEach(function(T, t){ if(!plans[t]) vus.push('le plan '+t+' ne sort jamais en 200 séances'); });
+
+    /* ---- 2. l'exemple, par le BOUTON ---------------------------------------
+       AD = 2AB et AE = 2AC : DE = DA + AE = 2BA + 2AC = 2(BA + AC) = 2BC. */
+    TESTS[D.exercice].start();
+    if(test.kind!=='dco' || test.qId!==D.exercice) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
+    if(test.maxScore!==test.questions.reduce(function(a,q){ return a+dcoCases(q).length; },0)) vus.push('barème '+test.maxScore);
+    test.questions[0]={t:0, k:[2,1], n:'ABCDE', v:0}; test.idx=0;
+    const el=function(id){ return document.getElementById(id); };
+    let IDS=dcoCases(test.questions[0]).map(function(c){ return c.id; });
+    if(IDS.length!==D.cases) return IDS.length+' cases sur l’exemple au lieu de '+D.cases;
+    const peint=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const fb=function(){ return el('dcoFeedback').textContent; };
+    let neuve=false;
+    const vider=function(){ test.locked=false;
+      document.querySelectorAll('#dcoHost .mf-cor').forEach(function(b){ b.remove(); });
+      document.querySelectorAll('#dcoHost input, #dcoHost select, #dcoHost math-field').forEach(function(e){ e.value=''; e.classList.remove('ok','bad','sol'); e.disabled=false; });
+      el('dcoFeedback').textContent=''; el('dcoFeedback').className='mp-feedback'; };
+    const poser=function(v){ if(!neuve){ test.locked=false; renderDco(); neuve=true; } else vider();
+      IDS.forEach(function(id, k){ el(id).value=(v[k]==null?'':v[k]); }); };
+    const JUSTE=['DA','AE','ch', '2','BA','2','AC','en', '2','BA','AC','fa', '2','BC','ch', 'c','p'];
+    const avec=function(i, x){ const r=JUSTE.slice(); Object.keys(x).forEach(function(k){ r[IDS.indexOf(k)]=x[k]; }); return r; };
+    poser([]);
+    const texte=el('dcoInstr').textContent.replace(/\\s+/g,' ');
+    if(!/ABC est un triangle/.test(texte) || !/Montrer que les droites \\(DE\\) et \\(BC\\) sont parallèles/.test(texte)) vus.push('l’énoncé dit « '+texte.slice(0,140)+' »');
+    if(!el('dcoInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
+    if(el('dco-s-0').options.length!==6) vus.push('la liste des justifications a '+el('dco-s-0').options.length+' options');
+    if(!el('dco-k-1-0') || el('dco-k-1-0').tagName!=='MATH-FIELD') vus.push('le réel n’est pas une case MathLive');
+    poser(JUSTE); checkDco();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse : '+IDS.map(function(id){ return id+'='+peint(id); }).join(', '));
+    if(!der || der.cases!==D.cases) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de '+D.cases);
+    if(!el('dcoNext')) vus.push('pas de bouton « Démonstration suivante »');
+    /* une AUTRE écriture juste : en minuscules, la dernière ligne en −2CB, un réel lu « (2)/(1) » */
+    poser(avec(0, {'dco-v-0-0-0':'da', 'dco-k-1-0':'(2)/(1)', 'dco-k-3-0':'-2', 'dco-v-3-0-0':'CB'})); checkDco();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('une autre écriture juste est comptée fausse : '+IDS.map(function(id){ return id+'='+peint(id); }).join(', '));
+    /* les pièges, nommés */
+    const piege=function(v, id, re, quoi){ poser(v); checkDco();
+      if(peint(id)!=='rouge') vus.push(quoi+' : la case est peinte '+peint(id));
+      else if(!re.test(fb())) vus.push(quoi+' : le message dit « '+fb().slice(0,160)+' »'); };
+    piege(avec(0, {'dco-v-1-0-0':'AB'}), 'dco-v-1-0-0', /sens contraire/, 'DA = 2AB (le sens oublié)');
+    piege(avec(0, {'dco-v-0-0-0':'DB', 'dco-v-0-1-0':'BE'}), 'dco-v-0-0-0', /ne mène pas/, 'DE = DB + BE (juste, sans issue)');
+    piege(avec(0, {'dco-k-2-0':'3'}), 'dco-k-2-0', /n’est pas égal/, 'un réel faux en facteur');
+    piege(avec(0, {'dco-s-1':'ch'}), 'dco-s-1', /justification n’est pas/, 'la mauvaise justification');
+    piege(avec(0, {'dco-k-1-0':'x'}), 'dco-k-1-0', /n’est pas un réel/, 'un réel illisible');
+    piege(avec(0, {'dco-cc-0':'e'}), 'dco-cc-0', /COLINÉAIRES/, 'la conclusion « égaux »');
+    piege(avec(0, {'dco-cc-1':'s'}), 'dco-cc-1', /PARALLÈLES/, 'la conclusion « sécantes »');
+    /* le badge vert à côté du vecteur faux, hors de sa colonne flèche + case */
+    poser(avec(0, {'dco-v-1-0-0':'AB'})); checkDco();
+    const v=el('dco-v-1-0-0').parentNode, badge=v && v.nextElementSibling;
+    if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='BA') vus.push('la correction de la case fausse n’écrit pas BA à côté');
+    /* une case vide ne rougit pas : elle reçoit la correction */
+    poser(avec(0, {'dco-k-1-1':'', 'dco-s-2':''})); checkDco();
+    if(peint('dco-k-1-1')!=='correction' || el('dco-k-1-1').value!=='2') vus.push('le réel vide : '+peint('dco-k-1-1')+' « '+el('dco-k-1-1').value+' »');
+    if(peint('dco-s-2')!=='correction' || el('dco-s-2').value!=='fa') vus.push('la justification vide : '+peint('dco-s-2')+' « '+el('dco-s-2').value+' »');
+    if(!/manquait/.test(fb())) vus.push('le message ne nomme pas les cases manquantes');
+    poser([]); checkDco();
+    if(IDS.some(function(id){ return peint(id)==='rouge'; })) vus.push('la copie vide a du rouge');
+    if(el('dco-v-0-0-0').value!=='DA' || el('dco-cc-1').value!=='p') vus.push('la copie vide reçoit « '+el('dco-v-0-0-0').value+' » et « '+el('dco-cc-1').value+' »');
+    /* la reprise : la question survit au JSON */
+    const avant=JSON.stringify(test.questions[0]);
+    test.questions[0]=JSON.parse(avant); test.locked=false; renderDco();
+    if(JSON.stringify(test.questions[0])!==avant || document.querySelectorAll('#dcoHost input').length!==7 || document.querySelectorAll('#dcoHost math-field').length!==4) vus.push('la question ne se redessine pas après le JSON');
+    /* le soutien : peint au fil de la saisie, sans révéler ni verrouiller */
+    currentMode='soutien'; neuve=false; poser([]);
+    el('dco-v-0-0-0').value='DB'; el('dco-v-0-0-0').dispatchEvent(new Event('input'));
+    if(peint('dco-v-0-0-0')!=='rouge' || peint('dco-v-0-1-0')!=='rien') vus.push('le soutien peint '+peint('dco-v-0-0-0')+' la case remplie, '+peint('dco-v-0-1-0')+' la vide');
+    checkDco();
+    if(test.locked || el('dco-v-0-1-0').value!=='') vus.push('la vérification du soutien verrouille ou révèle');
+    el('dco-v-0-0-0').value='DA'; checkDco(true);
+    if(peint('dco-v-0-0-0')!=='juste') vus.push('le soutien ne bleuit pas DA');
+    currentMode='train';
+
+    /* ---- 3. le plan à regrouper : BD = 2AB, CE = 2AC, DE = 3BC ------------ */
+    test.questions[0]={t:2, k:[2,1], n:'ABCDE', v:1}; neuve=false;
+    IDS=dcoCases(test.questions[0]).map(function(c){ return c.id; });
+    poser(['DB','BC','CE','ch', '2','BA','BC','2','AC','en', 'BC','2','BA','2','AC','or', 'BC','2','BA','AC','fa', 'BC','2','BC','ch', '3','BC','re', 'c','p']);
+    const t2=el('dcoInstr').textContent.replace(/\\s+/g,' ');
+    if(!/Démontrer que les droites \\(DE\\) et \\(BC\\)/.test(t2) || !/BD = 2AB/.test(t2.replace(/→/g,''))) vus.push('l’énoncé du plan à regrouper dit « '+t2.slice(0,140)+' »');
+    checkDco();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct || der.cases!==30) vus.push('DE = … = BC + 2BC = 3BC est comptée fausse ('+(der?der.cases:'?')+' cases) : '+IDS.filter(function(id){ return peint(id)!=='juste'; }).join(', '));
+    piege(['DB','BC','CE','ch', '2','BA','BC','2','AC','en', 'BC','2','BA','2','AC','or', 'BC','2','BA','AC','fa', 'BC','2','BC','ch', '2','BC','re', 'c','p'], 'dco-k-5-0', /n’est pas égal/, 'BC + 2BC = 2BC');
+
+    /* le contexte du modèle */
+    test.questions[0]={t:0, k:[2,1], n:'ABCDE', v:0}; IDS=dcoCases(test.questions[0]).map(function(c){ return c.id; }); neuve=false; poser([]);
+    const ctx=ctxDco(test.questions[0]).contexte;
+    if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/DA \\+ AE/.test(ctx) || !/colinéaires/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni la rédaction attendue');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

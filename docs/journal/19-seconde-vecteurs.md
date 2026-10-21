@@ -4306,3 +4306,92 @@ l'exemple de chaque page a d'autres lettres, d'autres points et un autre réel
 (des milieux à la page des milieux) ; à l'écran, l'exemple est placé juste
 avant l'énoncé, a cinq lignes, quatre remarques, une figure, ses fractions
 empilées et aucune case.
+
+## {demontrer-colineaires} — démontrer un parallélisme, étape par étape (8.3.9, v581)
+
+**La demande** (Turquet, octobre 2026) : « en seconde créer un exercice dans
+vecteurs colinéaires comme le 8.2.13 mais avec en plus des multiplications de
+vecteurs. La conclusion peut être donc les vecteurs sont colinéaires et donc
+les droites sont parallèles. » Ajouté en dernier du sous-thème 8.3 : 8.3.9,
+rien ne se renumérote. Les détails ci-dessous ont été décidés sans
+aller-retour ; ils sont nommés pour pouvoir être repris.
+
+**Ce qui le distingue du 8.3.8** ({milieux-parallele-vecteurs}), qui démontre
+déjà IJ⃗ = kBC⃗ : la rédaction du 8.3.8 a ses étiquettes ÉCRITES au bout des
+lignes ; celle-ci, comme au 8.2.13, fait CHOISIR la justification de chaque
+ligne, et accepte toute rédaction juste qui suit le plan. Et elle a trois
+plans, dont deux que le 8.3.8 n'a pas.
+
+**Le moteur est celui du 8.2.13** (`dch`), recopié et non partagé : ses
+lignes y sont des listes de vecteurs, elles sont ici des TERMES — un vecteur
+seul, un réel et un vecteur (2BA⃗), un réel en facteur de deux vecteurs
+(2(BA⃗ + AC⃗)). Chaque étape du plan dit sa justification et la FORME de sa
+ligne (`'v'`, `'c'`, `'f'`), d'où les cases : la forme guide l'élève autant
+qu'elle borne l'énumération.
+
+**Trois plans** (`DCO_DEMOS`), sur le triangle ABC et les points D, E :
+* **0** — AD⃗ = kAB⃗, AE⃗ = kAC⃗, k > 0 : DE⃗ = DA⃗ + AE⃗ = kBA⃗ + kAC⃗ =
+  k(BA⃗ + AC⃗) = kBC⃗. La première page est l'exemple (k = 2, lettres ABCDE),
+  la deuxième celle des MILIEUX (k = ½, l'énoncé dit « milieu du segment »,
+  et DB⃗ = ½AB⃗ s'ajoute aux égalités) ;
+* **1** — les mêmes avec k < 0 (la troisième page) : DA⃗ = |k|AB⃗ et
+  AE⃗ = |k|CA⃗ ne s'enchaînent pas, il faut changer l'ordre avant de mettre
+  en facteur : DE⃗ = |k|CB⃗ ;
+* **2** — BD⃗ = kAB⃗, CE⃗ = kAC⃗ (la quatrième page) : DE⃗ = DB⃗ + BC⃗ + CE⃗
+  (Chasles par DEUX points) = kBA⃗ + BC⃗ + kAC⃗ = BC⃗ + kBA⃗ + kAC⃗ =
+  BC⃗ + k(BA⃗ + AC⃗) = BC⃗ + kBC⃗ = (1 + k)BC⃗ — « on additionne les réels
+  devant un même vecteur ». C'est la ligne qui demande le plus : 30 cases.
+Jamais k = −1 (DE⃗ = CB⃗ rendrait « de même longueur » vrai aussi), jamais
+k = 1 au plan 2 (1BA⃗ + 1AC⃗ n'a pas de réel à mettre en facteur).
+
+**Cinq justifications** (`DCO_JUST`) : relation de Chasles ; on utilise les
+égalités de l'énoncé ; on change l'ordre de la somme ; on met le réel en
+facteur ; on additionne les réels devant un même vecteur. Sans flèches dans
+la liste, pour la même raison qu'au 8.2.13 (U+20D7 n'a pas de dessin dans la
+police des `<option>`).
+
+**Toute écriture juste qui suit le plan est acceptée** (`dcoChaines`, mémo
+par plan et par réel, sur les lettres du plan) : Chasles passe par n'importe
+quel point, par deux points d'un coup, ou réunit deux vecteurs qui
+s'enchaînent, même entre parenthèses ; l'énoncé se lit dans les deux sens
+(AD⃗ = 2AB⃗ donne DA⃗ = 2BA⃗) ; la dernière ligne, seule, s'écrit aussi
+−kCB⃗. **Dans une somme, les réels sont positifs** — −2AB⃗ s'écrit 2BA⃗ — et
+la consigne le dit : un « + −2AB⃗ » se lirait mal, et c'est exactement le
+geste que le plan 1 fait travailler. Une case est juste s'il existe une
+rédaction complète qui la porte avec les cases justes avant elle ; une
+étape vraie qui ne mène nulle part (DE⃗ = DB⃗ + BE⃗ au plan 0) est fausse, et
+le message le dit.
+
+**Le réel est une case MathLive** (`pmMF('dco-co', …)`), comme aux 8.3.2 à
+8.3.4 : la touche / empile la fraction ; la lecture passe par `kvLit`, la
+correction d'une case vide par `kvLatex`, le badge d'une case fausse par
+`kvHTML`. Le vecteur est la case fléchée du 8.1.11 (`.veg-in`), son badge
+sort de la colonne flèche + case comme au 8.3.8. La conclusion reprend les
+deux listes du 8.3.8 (`KMI_CONCL1`, `KMI_CONCL2`) : colinéaires, puis
+parallèles.
+
+**Les pièges nommés** (`dcoPourquoi`, sur la première case fausse) : le sens
+oublié (DA⃗ = 2AB⃗ : « DA va dans le sens contraire de AD ») ; la ligne qui ne
+vaut plus la précédente (lue en coordonnées libres, jamais montrées,
+`dcoValeur`) ; l'étape juste sans issue ; l'égalité juste qui n'est pas
+l'étape demandée ; la mauvaise justification ; un réel ou un vecteur
+illisible ; la conclusion « égaux » ou « sécantes ».
+
+**On range le plan, le réel, les lettres et la tournure** (`t`, `k`, `n`,
+`v`, et `mil`), jamais les réponses. `distinctes()` sur (plan, réel,
+milieux) : une séance ne pose jamais deux fois la même démonstration.
+
+**Le banc** (`demontrerColineaires`, banc principal) a un juge qui ne lit
+PAS les plans : il place A, B, C au hasard, construit D et E d'après
+l'énoncé, et vérifie en nombres, sur 200 séances, que chaque ligne de chaque
+rédaction acceptée vaut DE⃗, que la dernière est un réel fois BC⃗, qu'aucune
+somme n'écrit de réel négatif, que k n'est jamais ±1 et que les trois plans
+sortent. Puis, par le bouton : l'énoncé, la case MathLive, la copie juste
+(17 cases), une autre écriture juste (minuscules, « (2)/(1) », −2CB⃗), sept
+pièges peints en rouge et nommés, le badge, la case et la liste vides en
+correction, la copie vide sans rouge, le JSON, le soutien qui peint sans
+révéler ni verrouiller ; le plan à regrouper juste à 30 cases, et
+« BC + 2BC = 2BC » nommé ; enfin le contexte du modèle.
+Éprouvé par deux sabotages, chacun attrapé : l'énoncé lu sans changer le
+sens d'un vecteur retourné (plus aucune rédaction acceptée), et le message
+du sens oublié réécrit (le piège n'est plus nommé).
