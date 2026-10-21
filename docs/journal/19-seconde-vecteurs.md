@@ -4184,6 +4184,17 @@ principal, figure fixe) : la flèche −5/6 u⃗ de l'élève porte quatre trait
 ni 2u⃗ ni ½u⃗ n'en portent, et la correction verte −5/6 u⃗ en porte quatre
 verts. Vu à l'œil dans Chromium (tracé en cours et après vérification).
 
+**Puis u⃗ lui-même s'est découpé en b morceaux (v582).** Turquet, le même
+jour : « je veux que tu découpes aussi le vecteur u en b morceaux à l'écran ».
+Le vecteur donné porte b − 1 petits traits à son encre (`svc-u-f`), posés par
+`tvxSVG` dès l'affichage : le morceau 1/b u se lit sur u⃗ avant d'être tracé,
+et se retrouve ensuite |a| fois sur la flèche a/b u⃗. b est le dénominateur
+commun des trois coefficients (`tvxCoupes`, le découpage partagé avec
+`tvxGrad`) : dans un vrai tirage, c'est celui de l'échelle ; la figure fixe
+du banc (2, ½, −5/6) découpe u⃗ en six. Rien sur u⃗ à l'échelle des entiers.
+Contrôle (banc principal) : cinq traits sur u⃗ dans la figure fixe. Vu à
+l'œil dans Chromium (u⃗ en trois, −5/3 u⃗ en cinq).
+
 ## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 
 **La demande** (Turquet, octobre 2026) : sur quinze idées proposées pour
