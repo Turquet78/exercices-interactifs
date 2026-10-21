@@ -14235,6 +14235,8 @@ function vecteursColineaires(w, P){
     if(el('tvxEtape').textContent.indexOf('Trace le vecteur 2')<0) vus.push('8.3.1 : la page ne dit pas de tracer 2u : '+el('tvxEtape').textContent);
     tracer([1,1],[13,1]); tracer([1,3],[4,3]); tracer([10,7],[5,7]);
     if(document.querySelectorAll('#tvxFl line.kv-barre').length!==2) vus.push('8.3.1 : les noms ½u et −5/6 u n\\'ont pas leur fraction empilée');
+    /* −5/6 u se découpe en cinq morceaux : quatre petits traits, sur elle seule (ni 2u, ni ½u) */
+    if(document.querySelectorAll('#tvxFl line.kv-grad').length!==4 || document.querySelectorAll('#tvxFl line.kv-grad.tvx-el-f').length!==4) vus.push('8.3.1 : la flèche −5/6 u n\\'est pas découpée en cinq morceaux : '+document.querySelectorAll('#tvxFl line.kv-grad').length+' traits');
     const q1=test.questions[0]; test.questions[0]=JSON.parse(JSON.stringify(q1)); renderTvx();
     let av=test.score; checkTvx(); clearTimeout(test.fbTimer);
     if(test.score-av!==3 || ['tvx-u','tvx-v','tvx-w'].map(function(i){ return classe(el(i)); }).join(',')!=='ok,ok,ok') vus.push('8.3.1 : la copie juste vaut '+(test.score-av));
@@ -14246,6 +14248,7 @@ function vecteursColineaires(w, P){
     if(test.score-av!==0 || ['tvx-u','tvx-v','tvx-w'].map(function(i){ return classe(el(i)); }).join(',')!=='bad,bad,sol') vus.push('8.3.1 : 2u à l\\'envers, ½u trop long, le dernier absent : '+['tvx-u','tvx-v','tvx-w'].map(function(i){ return classe(el(i)); }).join(','));
     if(fbK.indexOf('mauvais sens')<0 || fbK.indexOf('MÊME sens')<0 || fbK.indexOf('pas la bonne longueur')<0 || fbK.indexOf('2u fait donc 12 carreaux vers la droite')<0) vus.push('8.3.1 : le message ne nomme pas le sens ou la longueur : '+fbK.slice(0,240));
     if(document.querySelectorAll('#tvxCorr line.svc-s').length!==3 || !document.querySelector('#tvxCorr line.kv-barre')) vus.push('8.3.1 : la correction ne trace pas les trois flèches vertes, nommées');
+    if(document.querySelectorAll('#tvxCorr line.kv-grad.svc-s-f').length!==4) vus.push('8.3.1 : la correction −5/6 u n\\'est pas découpée en cinq morceaux verts');
     if(conseilCtxCourant().indexOf('−5/6 u')<0) vus.push('8.3.1 : le contexte du modèle ne nomme pas −5/6 u');
 
     /* ===== 8.3.2 et 8.3.3 : reconnaître k u, k v, k w ===== */

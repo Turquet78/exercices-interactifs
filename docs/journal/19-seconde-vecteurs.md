@@ -4167,6 +4167,23 @@ dans cet ordre, la fraction empilée de la consigne au 8.3.3, et la
 fraction lue et écrite (`kvLatex`, `kvLit`). Vu dans Chromium : la fraction
 tapée « −3/2 » s'empile, se juge, survit à la pause empilée.
 
+### Le 8.3.1 : la flèche a/b u⃗ se DÉCOUPE en |a| morceaux (v581)
+
+Demande de Turquet, octobre 2026 (écrite « 8.3.2 » — le seul exercice du
+sous-thème où l'on DESSINE est le 8.3.1) : « quand on doit dessiner une
+fraction d'un vecteur, par exemple a/b de u, découper le vecteur en question
+en a morceaux à l'écran à l'aide de petits traits ». Chaque morceau vaut
+1/b u⃗ — la flèche tracée en premier dans l'échelle — : −5/2 u⃗, ce sont cinq
+−½u⃗ bout à bout, et l'élève le voit. `tvxGrad` pose |a| − 1 petits traits en
+travers (14 px, classe `kv-grad`, la couleur de la flèche par son `-f`) sur
+la flèche de l'élève, sur la correction verte, et sur la flèche qui suit la
+souris pendant le tracé (`tvxVif`) — les traits se déplacent avec elle, et
+chaque morceau se compare à la flèche 1/b u⃗ déjà posée. Rien pour un entier
+ni pour ±1/b : un seul morceau. Le rappel ⑤ le dit. Contrôles (banc
+principal, figure fixe) : la flèche −5/6 u⃗ de l'élève porte quatre traits,
+ni 2u⃗ ni ½u⃗ n'en portent, et la correction verte −5/6 u⃗ en porte quatre
+verts. Vu à l'œil dans Chromium (tracé en cours et après vérification).
+
 ## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 
 **La demande** (Turquet, octobre 2026) : sur quinze idées proposées pour
