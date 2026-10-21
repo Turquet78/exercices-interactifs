@@ -3778,7 +3778,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=417;
+const APP_VERSION=418;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -25400,6 +25400,23 @@ function apfGrilleHTML(pre, ev, cas){
     +'<div class="apf-nd apf-pb" id="'+pre+'-pb" style="grid-column:7;grid-row:1/7">'+cas('B')+'</div>'
     +'</div></div>';
 }
+/* L'ACCOLADE QUI ADDITIONNE DEUX CHEMINS (demande de Turquet, octobre 2026 :
+   « les extrémités de cette accolade partent bien de la fin de ces deux
+   chemins »). Ses deux pointes sont à la hauteur des deux fins de chemin
+   additionnées — pas au bord haut de la première et bas de la dernière
+   cellule —, et un trait relie chaque fin de chemin (le bout de son écriture
+   « P(A ∩ B) = … ») à l'accolade : la pointe pour la première et la
+   dernière, le dos pour celles du milieu (trois chemins aux types 2 et 3 du
+   6.1.5). x : le bord gauche de l'accolade ; fins : {r, cy} de chaque fin de
+   chemin additionnée, de haut en bas ; yp : la hauteur du « + », où elle
+   pointe. Rend le dessin et la hauteur de sa pointe. */
+function apfAccolade(x, fins, yp){
+  const y1=fins[0].cy, y2=fins[fins.length-1].cy, w=Math.max(3, Math.min(10, (y2-y1)/4));
+  const ym=Math.min(Math.max(yp, y1+2*w), y2-2*w);
+  let h='<path class="apf-acc-p" d="M'+x+','+y1+' q'+w+',0 '+w+','+w+' L'+(x+w)+','+(ym-w)+' q0,'+w+' '+w+','+w+' q-'+w+',0 -'+w+','+w+' L'+(x+w)+','+(y2-w)+' q0,'+w+' -'+w+','+w+'"/>';
+  fins.forEach(function(f,i){ const bout=(i===0 || i===fins.length-1) ? x : x+w; if(bout-f.r>8) h+='<line class="apf-acc-l" x1="'+(f.r+4)+'" y1="'+f.cy+'" x2="'+bout+'" y2="'+f.cy+'"/>'; });
+  return {h:h, ym:ym};
+}
 /* Les traits se posent sur la grille RENDUE : les cases s'élargissent avec la
    saisie, la correction s'écrit à côté — un dessin à coordonnées fixes
    décrocherait. Un ResizeObserver les repose à chaque changement de taille. */
@@ -25420,12 +25437,12 @@ function apfTraits(pre){
   let h='<defs><marker id="'+fl+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>';
   h+=ln(oR,O.cy,aL,A.cy)+ln(oR,O.cy,naL,nA.cy);
   h+=ln(aR,A.cy,F[0].l-4,F[0].cy,1)+ln(aR,A.cy,F[1].l-4,F[1].cy,1)+ln(naR,nA.cy,F[2].l-4,F[2].cy,1)+ln(naR,nA.cy,F[3].l-4,F[3].cy,1);
-  /* l'accolade : de la première fin de chemin à la troisième, pointe vers le « + » */
-  const x=acc.l+4, y1=F[0].t+4, y2=F[2].b-4, ym=(y1+y2)/2, w=10;
-  h+='<path class="apf-acc-p" d="M'+x+','+y1+' q'+w+',0 '+w+','+w+' L'+(x+w)+','+(ym-w)+' q0,'+w+' '+w+','+w+' q-'+w+',0 -'+w+','+w+' L'+(x+w)+','+(y2-w)+' q0,'+w+' -'+w+','+w+'"/>';
-  const plus=$(pre+'-acc').firstElementChild.getBoundingClientRect();
+  /* l'accolade : de la fin du premier chemin à la fin du troisième, pointe vers le « + » */
+  const plus=$(pre+'-acc').firstElementChild.getBoundingClientRect(), pcy=(plus.top+plus.bottom)/2-R.top;
+  const fins=[1,3].map(function(i){ const e=$(pre+'-f'+i), b=(e.firstElementChild||e).getBoundingClientRect(); return {r:b.right-R.left, cy:(b.top+b.bottom)/2-R.top}; });
+  const a=apfAccolade(acc.l+4, fins, pcy);
   const pbl=$(pre+'-pb').firstElementChild.getBoundingClientRect();
-  h+=ln(plus.right-R.left+3, ym, pbl.left-R.left-3, ym, 1);
+  h+=a.h+ln(plus.right-R.left+3, a.ym, pbl.left-R.left-3, a.ym, 1);
   s.setAttribute('width', g.scrollWidth); s.setAttribute('height', g.scrollHeight);
   s.innerHTML=h;
 }
@@ -26102,8 +26119,9 @@ function apcSuiteHTML(q, i){
   const pq='<p class="apc-pourquoi" id="apc-h-f'+i+'"></p>';
   if(sub!=='x') return '<div class="apf-row">'+apcSlotHTML(i)+'<span class="apc-dev" id="apc-d'+i+'"></span><span class="apf-lab">=</span>'+champ(false, 'calcul = résultat')+'</div>'+pq;
   return '<p class="apc-etape">On pose '+apcSlotHTML(i)+' = <i>x</i>.</p>'+pq
-    +'<p class="apc-etape">Complète l’arbre de cette situation : <i>x</i> et 1 − <i>x</i> sur les premières branches, puis les probabilités conditionnelles de l’énoncé, et '+P('B')+', qui vaut maintenant '+apfNb(L[1].pb)+'.</p>'
-    +apxArbreHTML(q)
+    +'<p class="apf-astuce" id="apcXAttente">L’arbre en <i>x</i> s’affichera dès que le premier arbre sera en place (question 1).</p>'
+    +'<div id="apcXZone" hidden><p class="apc-etape">Complète l’arbre de cette situation : <i>x</i> et 1 − <i>x</i> sur les premières branches, puis les probabilités conditionnelles de l’énoncé, et '+P('B')+', qui vaut maintenant '+apfNb(L[1].pb)+'. Les probabilités conditionnelles que tu as déjà écrites sur le premier arbre y sont recopiées.</p>'
+    +apxArbreHTML(q)+'</div>'
     /* la cible est donnée (demande de Turquet, octobre 2026 : « l'aide doit
        être par exemple : démontrer que P(T) = 0,8x − 0,1 ») : l'élève écrit
        le calcul en x jusqu'à cette forme réduite, puis résout comme avant */
@@ -26115,6 +26133,7 @@ function apcSuiteHTML(q, i){
 }
 function apcBrancherCase(el){
   const q=test.questions[test.idx];
+  if(/^apc-t-/.test(el.id)) el.addEventListener('input', function(){ apxCopier(test.questions[test.idx]); });
   if(q && el.id==='apc-c'+(q.subs.indexOf('x')+1)) el.addEventListener('input', function(){ apcPreparer(test.questions[test.idx]); });
   if(isSoutien()) el.addEventListener('input', function(){ checkAPC(true); });
   /* Entrée dans un champ MathLive : la case suivante, puis le bouton Vérifier (navCases ne connaît que les <input>) */
@@ -26149,9 +26168,31 @@ function apcReveler(q, g){
     APC_ARBRE.forEach(function(k){ const el=$(apcCaseId(k)); if(el){ if(garde[k]) el.value=garde[k]; sa2Ajuster(el); apcBrancherCase(el); } });
     const fixe=zone.querySelector('.apf-arbre-defile'); if(fixe) fixe.classList.add('apc-fixe');   /* l'arbre reste en haut de l'écran */
     apfSuivreTraits('apc');
+    apxOuvrir(q);
   } else {
     apcSlotPeindre(q, +g.slice(1));
   }
+}
+/* LE SECOND ARBRE, celui en x (demande de Turquet, octobre 2026, comme au
+   6.1.5) : caché tant que le premier n'est pas à l'écran, il reprend les
+   probabilités conditionnelles que l'élève a écrites sur le premier — elles
+   ne changent pas ; x, 1 − x et la nouvelle valeur de P(B) restent à écrire.
+   Une case recopiée suit le premier arbre tant que l'élève ne l'a pas
+   réécrite (data-copie) ; rien ne se recopie d'un arbre écrit dans le
+   mauvais sens. */
+const APX_COPIE=['A.B','A.nB','nA.B','nA.nB'];
+function apxOuvrir(q){
+  const z=$('apcXZone'); if(!z) return;
+  if(z.hidden){ z.hidden=false; const a=$('apcXAttente'); if(a) a.hidden=true; apfSuivreTraits('apx'); }
+  apxCopier(q);
+}
+function apxCopier(q){
+  const z=$('apcXZone'); if(!q || !z || z.hidden || test.locked || q.ch.ev!==0) return;
+  APX_COPIE.forEach(function(k){
+    const src=$(apcCaseId(k)), dst=$(apxCaseId(k)); if(!src || !dst || dst.disabled) return;
+    if(dst.value!=='' && dst.getAttribute('data-copie')!==dst.value) return;
+    dst.value=src.value; dst.setAttribute('data-copie', src.value); sa2Ajuster(dst);
+  });
 }
 function apcChoisir(g, k){
   const q=test.questions[test.idx]; if(!q || test.locked) return;
@@ -26594,17 +26635,21 @@ function aptGenD(ty){
 /* L'ARBRE DE LA QUESTION : n1, les premières branches ; n2, les secondes ;
    p1, p2 en dix-millièmes ; inc, les branches inconnues de l'énoncé (elles
    restent « … » dans le premier arbre) ; fixe, une branche que l'énoncé
-   écrit lui-même (x, au 3). */
+   écrit lui-même (x, au 3) ; fin, l'événement dont l'énoncé DONNE la
+   probabilité totale (types 1, 3, 5, 7) : le premier arbre l'écrit au bout
+   de son accolade, même si la question qui suit ne s'en sert pas (demande de
+   Turquet, octobre 2026). Aux types 2, 4 et 6, P(E) est à calculer : pas
+   d'accolade au premier arbre. */
 function aptT(q){
   const d=q.d, D2=['E','F'], c=x=>10000-x;
   switch(q.ty){
-    case 1: return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.a,B:c(d.a)}, p2:{A:{E:d.p,F:c(d.p)},B:{E:d.q,F:c(d.q)}}, inc:['B-E','B-F']};
+    case 1: return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.a,B:c(d.a)}, p2:{A:{E:d.p,F:c(d.p)},B:{E:d.q,F:c(d.q)}}, inc:['B-E','B-F'], fin:'E'};
     case 2: { const pc=10000-d.a-d.b; return {n1:['A','B','C'], n2:{A:D2,B:D2,C:D2}, p1:{A:d.a,B:d.b,C:pc}, p2:{A:{E:d.pa,F:c(d.pa)},B:{E:d.pb,F:c(d.pb)},C:{E:d.pc,F:c(d.pc)}}, inc:[]}; }
-    case 3: { const n=10000-d.a-d.r; return {n1:['A','B','C'], n2:{A:D2,B:D2,C:D2}, p1:{A:d.a,B:d.r,C:n}, p2:{A:{E:d.pa,F:c(d.pa)},B:{E:d.pr,F:c(d.pr)},C:{E:d.x,F:c(d.x)}}, inc:[], fixe:{'C-E':'x'}}; }
+    case 3: { const n=10000-d.a-d.r; return {n1:['A','B','C'], n2:{A:D2,B:D2,C:D2}, p1:{A:d.a,B:d.r,C:n}, p2:{A:{E:d.pa,F:c(d.pa)},B:{E:d.pr,F:c(d.pr)},C:{E:d.x,F:c(d.x)}}, inc:[], fixe:{'C-E':'x'}, fin:'E'}; }
     case 4: return {n1:['A','B'], n2:{A:['E','F'],B:['E','F','G']}, p1:{A:d.m,B:c(d.m)}, p2:{A:{E:d.b1,F:c(d.b1)},B:{E:d.b2,F:d.r2,G:10000-d.b2-d.r2}}, inc:['B-F','B-G']};
-    case 5: { const x=(d.pj*10000-d.r*d.j)/(10000-d.r); return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.r,B:c(d.r)}, p2:{A:{E:d.j,F:c(d.j)},B:{E:x,F:c(x)}}, inc:['B-E','B-F']}; }
+    case 5: { const x=(d.pj*10000-d.r*d.j)/(10000-d.r); return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.r,B:c(d.r)}, p2:{A:{E:d.j,F:c(d.j)},B:{E:x,F:c(x)}}, inc:['B-E','B-F'], fin:'E'}; }
     case 6: return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.f,B:c(d.f)}, p2:{A:{E:d.pf,F:c(d.pf)},B:{E:d.pg,F:c(d.pg)}}, inc:[]};
-    default: { const x=(d.c*10000-d.v*d.pv)/(10000-d.v); return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.v,B:c(d.v)}, p2:{A:{E:d.pv,F:c(d.pv)},B:{E:x,F:c(x)}}, inc:['B-E','B-F']}; }
+    default: { const x=(d.c*10000-d.v*d.pv)/(10000-d.v); return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.v,B:c(d.v)}, p2:{A:{E:d.pv,F:c(d.pv)},B:{E:x,F:c(x)}}, inc:['B-E','B-F'], fin:'E'}; }
   }
 }
 /* ---- les lettres et les écritures ---- */
@@ -26694,7 +26739,7 @@ function aptPlan(q){
   if(q.ty===7){
     B.titre(Q('1. a)', 'Donner '+aptQp(q,'E')+'.'));
     B.ligne(['p','E'], {v:aptVp(q,'E'), lit:true, corr:aptN(aptVp(q,'E')), tex:aptN(aptVp(q,'E'))}, {dev0:'', pieges:[['c','A','E'],['i','A','E'],['c','E','A']]});
-    B.titre('<b>b)</b> Représenter la situation à l’aide d’un arbre pondéré, et compléter les quatre pointillés.');
+    B.titre('<b>b)</b> Représenter la situation à l’aide d’un arbre pondéré, et compléter les pointillés.');
   }
   B.arbre();
   if(q.ty===1){
@@ -26844,7 +26889,7 @@ function aptGrilleHTML(pre, T, ev, cas, fin){
     T.n2[p.k].forEach(function(e,j){
       const r0=p.s+2*j, ht=r0<=cN;
       h+='<div class="apf-b '+(ht?'apf-haut':'apf-bas')+(r0===cN?' apt-mil':'')+'" id="'+pre+'-b-'+i+'-'+j+'" style="grid-column:4;grid-row:'+(ht?r0:r0+1)+'">'+cas('2',p.k,e)+'</div>'
-        +'<div class="apf-f" id="'+pre+'-f-'+i+'-'+j+'" style="grid-column:5;grid-row:'+r0+'/'+(r0+2)+'">'+cas('i',p.k,e)+'</div>';
+        +'<div class="apf-f'+(fin && e===fin ? ' apt-som' : '')+'" id="'+pre+'-f-'+i+'-'+j+'" style="grid-column:5;grid-row:'+r0+'/'+(r0+2)+'">'+cas('i',p.k,e)+'</div>';
       if(fin && e===fin){ if(f0===null) f0=r0; f1=r0+2; }
     });
   });
@@ -26874,10 +26919,9 @@ function aptTraits(pre){
   aptEtiquettes(g, n1.concat(br));
   const acc=$(pre+'-acc'), pb=$(pre+'-pb');
   if(acc && pb){
-    const A=box(acc), x=A.l+4, y1=A.t+4, y2=A.b-4, ym=(y1+y2)/2, w=10;
-    h+='<path class="apf-acc-p" d="M'+x+','+y1+' q'+w+',0 '+w+','+w+' L'+(x+w)+','+(ym-w)+' q0,'+w+' '+w+','+w+' q-'+w+',0 -'+w+','+w+' L'+(x+w)+','+(y2-w)+' q0,'+w+' -'+w+','+w+'"/>';
     const plus=box(acc.firstElementChild), pl=box(pb.firstElementChild||pb);
-    h+=ln(plus.r+3, ym, pl.l-3, ym, 1);
+    const fins=[].map.call(g.querySelectorAll('.apt-som'), function(f){ return box(f.firstElementChild||f); });
+    if(fins.length>1){ const a=apfAccolade(box(acc).l+4, fins, plus.cy); h+=a.h+ln(plus.r+3, a.ym, pl.l-3, a.ym, 1); }
   }
   s.setAttribute('width', g.scrollWidth); s.setAttribute('height', g.scrollHeight);
   s.innerHTML=h;
@@ -26938,7 +26982,7 @@ function aptLab(q, kind, a, b){ return kind==='1'||kind==='f' ? aptP(q,a) : kind
 /* ce qu'attend une case : {v} un nombre, {a, b} l'expression a·x + b */
 function aptAttendu(q, pre, k){
   const T=aptT(q), X=aptXPart(q);
-  if(k==='fin') return {v:aptVp(q, X.e)};
+  if(k==='fin') return {v:aptVp(q, pre==='apt' ? T.fin : X.e)};
   const m=k.split('-');
   if(m.length===1) return {v:T.p1[k]/1e4};
   if(pre==='apy' && X && m[0]===X.u) return m[1]===X.e ? {a:1, b:0} : {a:-1, b:1};
@@ -26964,10 +27008,11 @@ function aptArbreHTML(q, sens){
   return aptGrilleHTML('apt', T, function(k){ return aptEv(q,k); }, function(kind,a,b){
     const lab=aptLab(q,kind,a,b), k=kind==='1'?a:a+'-'+b;
     if(kind==='i') return '<span class="apf-lab">'+lab+' = <span class="apf-pts">…</span></span>';
+    if(kind==='f') return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apt', 'fin', false)+'</span>';
     if(fixe[k]) return '<span class="apf-lab">'+lab+' = <i>'+fixe[k]+'</i></span>';
     if(inc.indexOf(k)>=0) return '<span class="apf-lab">'+lab+' = <span class="apf-pts">…</span></span>';
     const avecX=kind==='2' && Object.keys(fixe).some(function(f){ return f.split('-')[0]===a; });
-    return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apt', k, avecX)+'</span>'; });
+    return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apt', k, avecX)+'</span>'; }, T.fin);
 }
 function aptArbreXHTML(q){
   const T=aptT(q), X=aptXPart(q);
@@ -26987,6 +27032,7 @@ function aptArbreIds(q, sens){
     return ids;
   }
   T.n1.forEach(function(k){ ids.push('apt-t-'+k); T.n2[k].forEach(function(e){ const c=k+'-'+e; if((T.inc||[]).indexOf(c)<0 && !(T.fixe||{})[c]) ids.push('apt-t-'+c); }); });
+  if(T.fin) ids.push('apt-t-fin');
   return ids;
 }
 function aptArbreXIds(q){ const T=aptT(q), ids=[]; T.n1.forEach(function(k){ ids.push('apy-t-'+k); T.n2[k].forEach(function(e){ ids.push('apy-t-'+k+'-'+e); }); }); ids.push('apy-t-fin'); return ids; }
@@ -27180,13 +27226,43 @@ function aptReveler(q){
   const zone=$('aptArbreSuite'); if(!zone || (q.ch.ev===undefined && !test.locked)) return;   /* sans choix, l'arbre ne s'ouvre qu'à la clôture, pour recevoir sa correction */
   const sens=aptSens(q);
   if(zone.innerHTML && zone.getAttribute('data-sens')===sens) return;
-  /* changer de sens garde les nombres déjà écrits, case par case dans l'ordre de la grille ; un arbre fait dans le mauvais sens repart vide à la clôture */
-  const avant=zone.getAttribute('data-sens'), garde=(test.locked && avant==='1') ? [] : aptArbreIds(q, avant||'0').map(function(id){ const el=$(id); return el ? el.value : ''; });
+  /* changer de sens garde les nombres déjà écrits, case par case dans l'ordre de la grille ; un arbre fait dans le mauvais sens repart vide à la clôture.
+     La case du bout de l'accolade n'existe que dans le bon sens : sa valeur attend à part (data-fin) */
+  const avant=zone.getAttribute('data-sens'), sansFin=function(id){ return id!=='apt-t-fin'; };
+  const garde=(test.locked && avant==='1') ? [] : aptArbreIds(q, avant||'0').filter(sansFin).map(function(id){ const el=$(id); return el ? el.value : ''; });
+  const f0=$('apt-t-fin'); if(f0) zone.setAttribute('data-fin', f0.value);
   zone.setAttribute('data-sens', sens);
-  zone.innerHTML='<p class="apf-cons">La page a écrit les probabilités sur l’arbre. Complète-le avec les données de l’énoncé et les probabilités contraires que l’on peut en déduire.</p>'+aptArbreHTML(q, sens);
-  aptArbreIds(q, sens).forEach(function(id,i){ const el=$(id); if(el){ if(garde[i]) el.value=garde[i]; sa2Ajuster(el); aptBrancher(el); } });
+  const T=aptT(q), fin=T.fin && sens==='0' ? ', puis, au bout de l’accolade, '+aptP(q,T.fin)+', que donne l’énoncé'+(q.ty===3||q.ty===5 ? ' un peu plus loin' : '')+' — même si la question suivante ne s’en sert pas' : '';
+  zone.innerHTML='<p class="apf-cons">La page a écrit les probabilités sur l’arbre. Complète-le avec les données de l’énoncé et les probabilités contraires que l’on peut en déduire'+fin+'.</p>'+aptArbreHTML(q, sens);
+  aptArbreIds(q, sens).filter(sansFin).forEach(function(id,i){ const el=$(id); if(el){ if(garde[i]) el.value=garde[i]; sa2Ajuster(el); aptBrancher(el); } });
+  const f1=$('apt-t-fin'); if(f1){ if(!(test.locked && avant==='1')) f1.value=zone.getAttribute('data-fin')||''; sa2Ajuster(f1); aptBrancher(f1); }
   const fixe=zone.querySelector('.apf-arbre-defile'); if(fixe) fixe.classList.add('apc-fixe');   /* l'arbre reste en haut de l'écran */
   aptSuivreTraits('apt');
+  aptXOuvrir(q);
+}
+/* LE SECOND ARBRE, celui en x (demande de Turquet, octobre 2026) : il ne
+   s'affiche pas tant que le premier n'est pas à l'écran — l'élève ne
+   complète pas l'arbre en x avant d'avoir posé les données —, et il reprend
+   tout ce que l'élève a déjà écrit sur le premier : les mêmes branches, la
+   même probabilité au bout de l'accolade ; seules les branches qui partent
+   du nœud inconnu (x et 1 − x) restent à écrire. Une case recopiée suit le
+   premier arbre tant que l'élève ne l'a pas réécrite (data-copie) ; une
+   case qu'il a écrite lui-même n'est jamais écrasée. Rien ne se recopie
+   d'un arbre écrit dans le mauvais sens : ses cases ne disent pas la même
+   chose. */
+function aptXOuvrir(q){
+  const z=$('aptXZone'); if(!z) return;
+  if(z.hidden){ z.hidden=false; const a=$('aptXAttente'); if(a) a.hidden=true; aptSuivreTraits('apy'); }
+  aptCopier(q);
+}
+function aptCopier(q){
+  const X=aptXPart(q); if(!X || !X.arbre || test.locked || aptSens(q)!=='0' || !$('apyGrille') || $('aptXZone').hidden) return;
+  aptArbreXIds(q).forEach(function(id){
+    const k=id.slice(6), m=k.split('-'); if(m.length===2 && m[0]===X.u) return;
+    const src=$('apt-t-'+k), dst=$(id); if(!src || !dst || dst.disabled) return;
+    if(dst.value!=='' && dst.getAttribute('data-copie')!==dst.value) return;
+    dst.value=src.value; dst.setAttribute('data-copie', src.value); sa2Ajuster(dst);
+  });
 }
 function aptChoisir(g, k){
   const q=test.questions[test.idx]; if(!q || test.locked) return;
@@ -27198,6 +27274,7 @@ function aptChoisir(g, k){
 }
 function aptBrancher(el){
   const q=test.questions[test.idx], X=q && aptXPart(q);
+  if(/^apt-t-/.test(el.id)) el.addEventListener('input', function(){ aptCopier(test.questions[test.idx]); });
   if(X && el.id===X.c) el.addEventListener('input', function(){ aptPreparer(test.questions[test.idx]); });
   if(isSoutien()) el.addEventListener('input', function(){ checkAPT(true); });
   if(el.tagName==='MATH-FIELD') el.addEventListener('keydown', function(e){
@@ -27228,7 +27305,8 @@ function aptPartHTML(q, p){
   const l=aptXDemo(q, p), E=aptP(q, p.e), pb=apfNb(l.pb), cible=apfLin(l.a, l.b, true);
   let h='';
   if(p.pose) h+='<p class="apc-etape">On pose '+aptSlotHTML(p.s)+' = <i>x</i>.</p><p class="apc-pourquoi" id="apt-h-'+p.s+'"></p>';
-  if(p.arbre) h+='<p class="apc-etape">Complète l’arbre de cette situation : <i>x</i> et 1 − <i>x</i> sur les branches qui partent de '+aptEv(q,p.u)+', les autres probabilités, et '+E+', qui vaut '+pb+', au bout de l’accolade.</p>'+aptArbreXHTML(q);
+  if(p.arbre) h+='<p class="apf-astuce" id="aptXAttente">L’arbre en <i>x</i> s’affichera dès que le premier arbre sera en place (question 1).</p>'
+    +'<div id="aptXZone" hidden><p class="apc-etape">Complète l’arbre de cette situation : <i>x</i> et 1 − <i>x</i> sur les branches qui partent de '+aptEv(q,p.u)+', les autres probabilités, et '+E+', qui vaut '+pb+', au bout de l’accolade. Ce que tu as déjà écrit sur le premier arbre y est recopié.</p>'+aptArbreXHTML(q)+'</div>';
   h+='<p class="apc-etape">Démontre que '+E+' = '+cible+' :</p>'
     +'<div class="apf-row"><span class="apf-lab">'+E+' =</span>'+aptChamp(p.c, 'calcul en x = forme réduite')+'</div>'
     +'<p class="apc-etape">'+E+' = '+pb+' : résous l’équation — étape par étape, ou directement la valeur de <i>x</i> dans la ligne « <i>x</i> = » —, puis réponds par une phrase.</p>'
@@ -27381,7 +27459,7 @@ function nextAPT(){ if(test.idx<test.questions.length-1){ test.idx++; renderAPT(
 function aptNomCase(q, id){
   if(/^ap[ty]-t-/.test(id)){
     const k=id.slice(6), pre=id.slice(0,3), m=k.split('-');
-    const lab=k==='fin' ? 'P('+aptEvT(q, aptXPart(q).e)+')' : m.length===1 ? 'P('+aptEvT(q,k)+')' : 'P_'+aptEvT(q,m[0])+'('+aptEvT(q,m[1])+')';
+    const lab=k==='fin' ? 'P('+aptEvT(q, pre==='apt' ? aptT(q).fin : aptXPart(q).e)+')' : m.length===1 ? 'P('+aptEvT(q,k)+')' : 'P_'+aptEvT(q,m[0])+'('+aptEvT(q,m[1])+')';
     return (pre==='apy' ? 'arbre en x ' : 'arbre ')+lab;
   }
   if(/^apt-r/.test(id)) return {'apt-r1':'résolution : opération faite sur les deux membres', 'apt-r2':'résolution : second membre après l’opération', 'apt-r3n':'résolution : numérateur de la fraction qui donne x', 'apt-r3d':'résolution : dénominateur de la fraction qui donne x', 'apt-r3':'résolution : valeur de x', 'apt-r4':'phrase réponse : la probabilité trouvée'}[id];
