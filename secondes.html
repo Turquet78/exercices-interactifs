@@ -2925,6 +2925,8 @@
   .kv-vsel{position:relative;display:inline-block;vertical-align:middle;color:var(--blue-dark)}
   .kv-vsel::before{content:"";position:absolute;left:calc(50% - 7px);width:13px;top:8px;border-top:2px solid currentColor;pointer-events:none}
   .kv-vsel::after{content:"";position:absolute;left:calc(50% + 1px);top:5px;width:5px;height:5px;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(45deg);pointer-events:none}
+  #scr-kvi .kv-l{gap:8px 6px}
+  .kv-vsel:has(option[value=""]:checked)::before,.kv-vsel:has(option[value=""]:checked)::after{content:none}
   .kv-vsel:has(select.ok){color:var(--blue)} .kv-vsel:has(select.bad){color:var(--red)} .kv-vsel:has(select.sol){color:var(--green)}
   #scr-kvi .plc-sel.kv-sel{width:50px;font-family:KaTeX_Math,Georgia,"Times New Roman",serif;font-style:italic;font-size:1.3rem;padding:6px 0 0}
   #scr-kvi .mf-cor{font-family:"Fredoka"}
@@ -8429,7 +8431,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=576;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=577;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.

@@ -4012,6 +4012,19 @@ devant le mauvais vecteur vaut une case sur deux. Deux pages par séance,
 barème 24. Les vecteurs nommés et u⃗, v⃗, w⃗ sont dans deux dessins, comme sur
 la fiche ; les lignes se rangent en grille.
 
+**La ligne se lit « a⃗ = k × u⃗ »** (v576, demande de Turquet : « afficher
+les flèches dans les cases représentant un nom de vecteur, rendre les cases
+plus étroites et rajouter entre les cases le signe × ») : un « × » entre la
+case du coefficient (64 px) et la liste du vecteur (52 px). Une `<option>`
+ne prend pas de HTML, et la flèche combinante U+20D7 n'y est PAS dessinée
+dans la case fermée (essayée, invisible dans Chromium) : la flèche est un
+`::before` du cadre `.kv-vc` qui enveloppe la liste, effacé tant que « ? »
+est choisi (`:has(option[value=""]:checked)`), de la couleur du verdict
+(`:has(.ok/.bad/.sol)`). Le badge vert du bon vecteur posé par
+`corrChoix` sort du cadre (sa flèche resterait centrée sur la liste ET le
+badge) et s'écrit `tvxVecHTML`, flèche comprise. L'écart des lignes passe à
+6 px : une ligne fausse, avec ses deux badges, se repliait — déjà avant.
+
 **Le 8.3.4** (`kcoGen`) : trois directions, huit vecteurs (trois, trois et
 deux par direction, chacun sa direction multipliée par un entier de −4 à
 4), cinq paires dont deux à quatre colinéaires, le réel jamais 1. **Le piège
@@ -4072,12 +4085,16 @@ autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
 navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
 flèche, lui, ne se mesure qu'à l'œil.
 
-### Les 8.3.2 et 8.3.3 s'écrivent « a⃗ = [k] × [u⃗] » (v576)
+### Les 8.3.2 et 8.3.3 : la fraction s'EMPILE dans la case (v577)
 
-Demande de Turquet, octobre 2026, sur le 8.3.3 : « afficher les flèches dans
-les cases représentant un nom de vecteur, rendre les cases plus étroites,
-rajouter entre les cases le signe × ; une écriture fractionnaire et pas en
-ligne pour les fractions ». Le moteur `kvi` est commun : le 8.3.2 suit.
+Demande de Turquet, octobre 2026, sur le 8.3.3 : les flèches, les cases
+étroites et le « × » (déjà faits en v576 par une session parallèle, voir
+« La ligne se lit a⃗ = k × u⃗ » plus haut), et « une écriture fractionnaire
+et pas en ligne pour les fractions ». Les deux travaux se sont croisés ;
+la fusion garde celui-ci, qui reprend le cadre fléché (renommé `.kv-vsel`,
+la flèche tracée en deux traits comme `.tpv-vc`, toujours effacée sur
+« ? ») et remplace la case texte du coefficient. Le moteur `kvi` est
+commun : le 8.3.2 suit.
 
 * **Le coefficient est une case MathLive** (`pmMF('kv-mf', …)`) : la touche /
   EMPILE la fraction, et la case l'affiche empilée. Elle se lit à plat par
@@ -4091,9 +4108,8 @@ ligne pour les fractions ». Le moteur `kvi` est commun : le 8.3.2 suit.
   `<option>` n'a pas de HTML, et U+20D7 s'y affiche en blanc, voir plus haut).
   Elle prend la couleur du verdict (`:has(select.ok)`…). Le badge du vecteur
   sort de l'enveloppe, sans quoi la flèche se recentrerait sur les deux.
-* **« × » entre les deux cases** (`.kv-fois`), et les cases rétrécies : 50 px
-  pour la liste (84 avant), 46 px au moins pour le coefficient, qui grandit
-  avec ce qu'on y écrit.
+* **Les cases** : 50 px pour la liste, 46 px au moins pour le coefficient,
+  qui grandit avec ce qu'on y écrit.
 * **Le pourquoi s'écrit en HTML** : vecteurs fléchés (`tvxVecHTML`) et
   fractions empilées (`kvHTML`) ; la consigne du 8.3.3 empile son exemple.
 * **La reprise rend sa barre à une fraction** — dans `restoreBoxes`, pour
