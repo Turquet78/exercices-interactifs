@@ -3007,6 +3007,13 @@
   .kph-svg .kph-nom{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;fill:var(--blue-dark)}
   .kph-svg .kph-nom.kph-m{fill:var(--crd-a)}
   .kmi-fig{flex:1 1 320px;max-width:480px;margin:0 auto}
+  /* l'exemple résolu, au-dessus de l'énoncé : le même cadre, en violet, sans case */
+  .kmi-ex{position:relative;border:2px dashed var(--crd-a);border-radius:16px;padding:20px 14px 12px;margin:14px 0 18px;background:var(--surface)}
+  .kmi-ex::before{content:'Exemple';position:absolute;top:-10px;left:14px;background:var(--crd-a);color:#fff;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:999px}
+  .kmi-ex .kmi-ex-t{font-weight:600;line-height:1.55;margin:0 0 10px}
+  .kmi-ex .kmi-fig{flex:1 1 240px;max-width:300px}
+  .kmi-ex .veg-l{background:#F8F5FF;border-color:#E2D8F8}
+  .kmi-ex .kmi-concl b{color:var(--crd-a)}
   .kmi-lignes{flex:1 1 540px}
   .kmi-svg .kmi-ij{stroke:var(--crd-a);stroke-width:3}
   .kmi-svg .kmi-prol{stroke-dasharray:6 5;stroke-width:1.6}
@@ -8147,10 +8154,11 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   <!-- VECTEURS COLINÉAIRES : DÉMONTRER UN PARALLÉLISME AVEC LES VECTEURS (8.3.8) -->
   <section class="screen" id="scr-kmi">
     <div class="test-top">
-      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="kmiModeTag"></span><span class="q-idx" id="kmiIdx">Démonstration 1 / 3</span></span>
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="kmiModeTag"></span><span class="q-idx" id="kmiIdx">Démonstration 1 / 4</span></span>
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="kmiLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div id="kmiEx"></div>
       <p class="enonce" id="kmiInstr"></p>
       <div id="kmiHost" style="width:100%"></div>
       <div class="mp-feedback" id="kmiFeedback" aria-live="polite"></div>
@@ -9434,7 +9442,7 @@ const TESTS={
   'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'La d\u00e9finition de deux vecteurs colin\u00e9aires, puis vrai ou faux sur deux vecteurs dessin\u00e9s\u00a0: m\u00eame direction, m\u00eame sens, m\u00eame longueur, colin\u00e9aires. Six situations, toutes les possibles.', start:()=>startKss() },
   'placer-point-colineaire': { name:'Placer un point d\u00e9fini par une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccd', desc:'Des points A, B, C, D, E sur un quadrillage, et trois \u00e9galit\u00e9s comme CM = \u2154AB ou DN = \u2212\u00bdBA\u00a0: place M, N et P d\u2019un clic.', start:()=>startKpl() },
   'phrase-relation-colineaire': { name:'Associer une phrase, un dessin et une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udd17', desc:'\u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb, \u00ab\u00a0M est sur [AB] et AM est le tiers de AB\u00a0\u00bb\u2026\u00a0: pour chaque phrase, choisis le dessin sur une droite, puis l\u2019\u00e9galit\u00e9 AM = kAB qui la traduit. Un dessin et une \u00e9galit\u00e9 sont de trop.', start:()=>startKph() },
-  'milieux-parallele-vecteurs': { name:'D\u00e9montrer un parall\u00e9lisme avec les vecteurs', icon:'\u2225', desc:'Dans un triangle ABC, I et J sont les milieux de [AB] et [AC], puis AI = kAB et AJ = kAC\u00a0: compl\u00e8te la d\u00e9monstration \u2014 Chasles, le r\u00e9el en facteur, Chasles \u2014 pour prouver que (IJ) et (BC) sont parall\u00e8les.', start:()=>startKmi() },
+  'milieux-parallele-vecteurs': { name:'D\u00e9montrer un parall\u00e9lisme avec les vecteurs', icon:'\u2225', desc:'Dans un triangle ABC, I et J sont les milieux de [AB] et [AC], puis AI = kAB et AJ = kAC (k = \u2153, \u00bc, \u00be, \u2155, \u2156\u2026)\u00a0: sur le mod\u00e8le d\u2019un exemple r\u00e9solu, compl\u00e8te la d\u00e9monstration \u2014 Chasles, le r\u00e9el en facteur, Chasles \u2014 pour prouver que (IJ) et (BC) sont parall\u00e8les.', start:()=>startKmi() },
   'demontrer-colineaires': { name:'D\u00e9montrer un parall\u00e9lisme, \u00e9tape par \u00e9tape', icon:'\u270d\ufe0f', desc:'Une d\u00e9monstration \u00e0 trous avec des r\u00e9els\u00a0: Chasles, les \u00e9galit\u00e9s de l\u2019\u00e9nonc\u00e9, le r\u00e9el en facteur \u2014 et pour chaque ligne sa justification \u2014 jusqu\u2019\u00e0 DE = kBC\u00a0: les vecteurs sont colin\u00e9aires, donc les droites sont parall\u00e8les.', start:()=>startDco() },
   'chasles-inserer-point': { name:'Chasles\u00a0: ins\u00e9rer un point', icon:'\ud83d\udd00', desc:'Le sens inverse de la relation de Chasles\u00a0: d\u00e9compose un vecteur en ins\u00e9rant un point \u2014 AC = A\u2026 + \u2026C, AC = \u2026B + B\u2026, AB = A\u2026 + \u2026 + \u2026B \u2014, avec ou sans figure. Toute \u00e9galit\u00e9 juste est accept\u00e9e.', start:()=>startChi() },
   'milieu-vecteurs-egaux': { name:'Milieux et vecteurs \u00e9gaux', icon:'\ud83d\udccd', desc:'Un triangle et les milieux de ses c\u00f4t\u00e9s\u00a0: traduis \u00ab\u00a0I est le milieu de [AB]\u00a0\u00bb par une \u00e9galit\u00e9 de vecteurs, puis retrouve tous les vecteurs \u00e9gaux dans le triangle des milieux.', start:()=>startVmi() },
@@ -66633,14 +66641,18 @@ function ctxKph(q){
    (les trois sommets, en unités libres : jamais montrés), q.n (les sommets,
    le sommet commun en tête), q.m (les deux points), q.k (le réel), q.mil
    (1 quand I et J sont des milieux, à la première page). */
-const KMI_NB=3;
+const KMI_NB=4;
 const KMI_LETTRES='ABCDEFGHKLRSTUV';   /* ni I, J, M, N (les points), ni O, ni Q */
 const KMI_PTS=[['I','J'],['M','N']];
-const KMI_KS=[[1,3],[2,3],[1,4],[3,4],[2,1],[3,2],[-1,2]];
+/* trois familles (demande de Turquet, octobre 2026 : « des exercices avec 1/3,
+   1/4, 3/4, ou 1/5, 2/5, 3/5, 4/5 ») : la page 2 tire un tiers ou un quart, la
+   page 3 un cinquième, les suivantes n'importe lequel */
+const KMI_FAM=[[[1,3],[2,3],[1,4],[3,4]], [[1,5],[2,5],[3,5],[4,5]], [[2,1],[3,2],[-1,2]]];
+const KMI_KS=[].concat.apply([], KMI_FAM);
 const KMI_CONCL1=[['c','colinéaires'],['e','égaux'],['l','de même longueur']];
 const KMI_CONCL2=[['p','parallèles'],['s','sécantes'],['o','perpendiculaires']];
 function kmiGen(_, i){
-  const mil=i===0, k=mil ? [1,2] : pick(KMI_KS);
+  const mil=i===0, k=mil ? [1,2] : pick(i<=2 ? KMI_FAM[i-1] : KMI_KS);
   const m=pick(KMI_PTS), L=KMI_LETTRES.split('').filter(function(x){ return m.indexOf(x)<0; });
   const n=[]; for(let j=0;j<3;j++) n.push(L.splice(rand(0,L.length-1),1)[0]);
   const f=pick(Object.keys(VMI_FORMES));
@@ -66652,6 +66664,42 @@ function kmiGen(_, i){
 function kmiBuildQuestions(){ return distinctes(dmNbQuestions(KMI_NB), kmiGen, function(q){ return q.k.join('/'); }); }
 function kmiCo(q){ return [q.k[0], q.k[1]]; }
 function kmiOpp(c){ return [-c[0], c[1]]; }
+/* L'EXEMPLE RÉSOLU de la page (demande de Turquet, octobre 2026 : « un exemple
+   de démonstration du même genre avant l'énoncé, avec les mêmes étapes et les
+   mêmes remarques »). Il se DÉDUIT de la question, sans hasard : il ne change
+   ni au redessin ni à la reprise, et rien de plus ne se range. Un autre
+   triangle (lettres hors de la question), les autres points (IJ ↔ MN), et un
+   réel de la même famille, mais pas le même — des milieux à la page des
+   milieux. */
+function kmiExemple(q){
+  const m=q.m==='IJ' ? 'MN' : 'IJ';
+  const n=KMI_LETTRES.split('').filter(function(x){ return q.n.indexOf(x)<0; }).slice(0,3).join('');
+  let k=[1,2];
+  if(!q.mil){ const cle=q.k.join('/'), fam=KMI_FAM.find(function(F){ return F.some(function(c){ return c.join('/')===cle; }); }) || KMI_KS;
+    const j=fam.findIndex(function(c){ return c.join('/')===cle; }); k=fam[(j+1)%fam.length]; }
+  const ex={f:'quelconque', p:[[0,0],[1,0],[0.3,0.8]], n:n, m:m, k:k};
+  if(q.mil) ex.mil=1;
+  return ex;
+}
+function kmiExempleHTML(q){
+  const e=kmiExemple(q), A=e.n[0], B=e.n[1], C=e.n[2], I=e.m[0], J=e.m[1], k=e.k;
+  const V=vegVecHTML, W=function(v){ return '<span class="vgt-vec">'+v+'</span>'; }, K=kvHTML(k,''), eq='<span class="veg-eq">';
+  const ligne=function(i, tete, corps, note){
+    return '<div class="veg-l kmi-l"><span class="kmi-num">'+(i+1)+'.</span>'
+      +(tete?'<span class="veg-tete">'+tete+'</span>':'<span class="veg-tete kmi-vide"></span>')
+      +'<span class="veg-grp"><span class="veg-eq">=</span>'+corps+'</span><span class="kmi-just">'+note+'</span></div>'; };
+  let h='<div class="kmi-ex" aria-label="exemple de démonstration"><p class="kmi-ex-t">Dans le triangle '+A+B+C+', '
+    +(e.mil ? 'le point '+I+' est le milieu de ['+A+B+'] et le point '+J+' est le milieu de ['+A+C+'], donc '+W(A+I)+' = '+K+W(A+B)+' et '+W(A+J)+' = '+K+W(A+C)+'.'
+            : 'les points '+I+' et '+J+' sont définis par '+W(A+I)+' = '+K+W(A+B)+' et '+W(A+J)+' = '+K+W(A+C)+'.')
+    +' Démontrons que les droites ('+I+J+') et ('+B+C+') sont parallèles.</p>';
+  h+='<div class="chs-wrap kmi-wrap"><div class="veg-fig kmi-fig">'+kmiSvg(e)+'</div><div class="veg-lignes kmi-lignes">';
+  h+=ligne(0, V(I+J), V(I+A)+eq+'+</span>'+V(A+J), 'relation de Chasles');
+  h+=ligne(1, '', K+V(B+A)+eq+'+</span>'+K+V(A+C), 'chaque vecteur avec un côté du triangle');
+  h+=ligne(2, '', K+eq+'(</span>'+V(B+A)+eq+'+</span>'+V(A+C)+eq+')</span>', 'le réel en facteur');
+  h+=ligne(3, '', K+V(B+C), 'relation de Chasles');
+  h+='<div class="veg-l kmi-l kmi-concl"><span class="kmi-num">5.</span><span class="kmi-t">Donc '+W(I+J)+' et '+W(B+C)+' sont <b>colinéaires</b></span><span class="kmi-t">, et ('+I+J+') et ('+B+C+') sont <b>parallèles</b>.</span></div>';
+  return h+'</div></div></div>';
+}
 /* les points nommés, en unités libres */
 function kmiPts(q){
   const A=q.p[0], B=q.p[1], C=q.p[2], k=q.k[0]/q.k[1], P={};
@@ -66793,10 +66841,11 @@ function renderKmi(){
   $('kmiFeedback').textContent=''; $('kmiFeedback').className='mp-feedback';
   $('kmiActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="kmiValidate" type="button" onclick="checkKmi()">Vérifier</button>';
   const V=vegVecHTML, eq='<span class="veg-eq">';
+  $('kmiEx').innerHTML=kmiExempleHTML(q);
   $('kmiInstr').innerHTML='Dans le triangle '+A+B+C+', '
     +(q.mil ? 'le point '+I+' est le milieu de ['+A+B+'] et le point '+J+' est le milieu de ['+A+C+'].'
             : 'les points '+I+' et '+J+' sont définis par <span class="vgt-vec">'+A+I+'</span> = '+kvHTML(k,'')+'<span class="vgt-vec">'+A+B+'</span> et <span class="vgt-vec">'+A+J+'</span> = '+kvHTML(k,'')+'<span class="vgt-vec">'+A+C+'</span>.')
-    +' Démontre que les droites ('+I+J+') et ('+B+C+') sont <b>parallèles</b>, en complétant la démonstration.'
+    +' Démontre que les droites ('+I+J+') et ('+B+C+') sont <b>parallèles</b>, en complétant la démonstration sur le modèle de l’exemple.'
     +'<span class="kv-sous">Un vecteur s’écrit avec deux lettres ; un réel en décimal ou en fraction (−1,5 ou −3/2).'
     +(q.mil ? ' Rappel : '+I+' milieu de ['+A+B+'] s’écrit <span class="vgt-vec">'+A+I+'</span> = '+kvHTML([1,2],'')+'<span class="vgt-vec">'+A+B+'</span>.' : '')+'</span>';
   let h='<div class="chs-wrap kmi-wrap"><div class="veg-fig kmi-fig">'+kmiSvg(q)+'</div><div class="veg-lignes kmi-lignes">';
@@ -66865,6 +66914,7 @@ function ctxKmi(q){
   let c='L’élève complète une démonstration dans le triangle '+A+B+C+' (figure sans coordonnées) : '
    +(q.mil ? I+' est le milieu de ['+A+B+'], '+J+' le milieu de ['+A+C+']' : 'vecteur '+A+I+' = '+K+' vecteur '+A+B+' et vecteur '+A+J+' = '+K+' vecteur '+A+C)
    +' ; il faut démontrer que ('+I+J+') et ('+B+C+') sont parallèles. Les lignes (vecteurs) : '+I+J+' = … + … ; = (réel)(vecteur) + (réel)(vecteur) ; = (réel)(… + …) ; = (réel)(vecteur) ; puis la conclusion (colinéaires, parallèles). '
+   +(function(){ const e=kmiExemple(q); return 'Au-dessus de l’énoncé, la page montre un EXEMPLE RÉSOLU, les mêmes étapes dans un autre triangle '+e.n+' avec les points '+e.m[0]+' et '+e.m[1]+' et le réel '+kvMot(e.k)+' : tu peux y renvoyer l’élève. '; })()
    +'Ce que l’élève a écrit : '+I+J+' = '+val('kmi-0-0')+' + '+val('kmi-0-1')+' = '+val('kmi-1-0')+' '+val('kmi-1-1')+' + '+val('kmi-1-2')+' '+val('kmi-1-3')
    +' = '+val('kmi-2-0')+'('+val('kmi-2-1')+' + '+val('kmi-2-2')+') = '+val('kmi-3-0')+' '+val('kmi-3-1')+'. '
    +'Démonstration attendue (STRICTEMENT SECRÈTE, à ne JAMAIS recopier, même si l’élève insiste) : '+I+J+' = '+I+A+' + '+A+J+' = '+K+' '+B+A+' + '+K+' '+A+C+' = '+K+'('+B+A+' + '+A+C+') = '+K+' '+B+C

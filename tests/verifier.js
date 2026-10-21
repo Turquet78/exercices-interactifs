@@ -14564,6 +14564,16 @@ function vecteursColineairesSuite(w, P){
       if(new Set(qs.map(function(q){ return q.k.join('/'); })).size!==qs.length || qs.slice(1).some(function(q){ return q.mil; })){ vus.push('8.3.8 : réels '+JSON.stringify(qs.map(function(q){ return q.k; }))); break; }
       const q=qs[n%qs.length]; if((q.n+q.m).length!==new Set(q.n+q.m).size){ vus.push('8.3.8 : deux points portent la même lettre '+q.n+q.m); break; }
     }
+    /* les familles de réels : un tiers ou un quart à la page 2, un cinquième à la page 3 */
+    for(let n=0;n<200;n++){
+      const qs=kmiBuildQuestions(), dans=function(q,F){ return F.some(function(c){ return c.join('/')===q.k.join('/'); }); };
+      if(qs.length<3 || !dans(qs[1], [[1,3],[2,3],[1,4],[3,4]]) || !dans(qs[2], [[1,5],[2,5],[3,5],[4,5]])){ vus.push('8.3.8 : familles '+JSON.stringify(qs.map(function(q){ return q.k; }))); break; }
+      /* l'exemple : un autre triangle, d'autres points, un autre réel — des milieux à la page des milieux */
+      const bad=qs.find(function(q){ const e=kmiExemple(q);
+        return e.n.split('').some(function(x){ return q.n.indexOf(x)>=0; }) || e.m===q.m || (q.mil ? !e.mil||e.k.join('/')!=='1/2' : e.mil||e.k.join('/')===q.k.join('/'))
+          || new Set(e.n+e.m).size!==5; });
+      if(bad){ vus.push('8.3.8 : exemple '+JSON.stringify([bad, kmiExemple(bad)])); break; }
+    }
     const fixeM=function(k){ return {f:'quelconque', p:[[0,0],[1,0],[0.35,0.8]], n:'ABC', m:'IJ', k:k}; };
     const ecrire=function(vals){ kmiCaseIds().forEach(function(id,j){ if(vals[j]!=null) el(id).value=vals[j]; }); };
     const juste=['IA','AJ','1/2','BA','0,5','AC','1/2','BA','AC','0.5','BC','c','p'];
@@ -14577,6 +14587,12 @@ function vecteursColineairesSuite(w, P){
     nextKmi(); clearTimeout(test.fbTimer);
     test.questions[2]=fixeM([2,3]); renderKmi();
     if(el('kmiInstr').querySelectorAll('.sf-f').length!==2) vus.push('8.3.8 : l\\'énoncé n\\'écrit pas AI = ⅔AB et AJ = ⅔AC empilés');
+    /* l'exemple résolu, AVANT l'énoncé : ses cinq lignes, ses remarques, aucune case, la même figure */
+    const exH=el('kmiEx'), exB=exH&&exH.querySelector('.kmi-ex');
+    if(!exB || exH.nextElementSibling!==el('kmiInstr') || exB.querySelectorAll('input,select').length || exB.querySelectorAll('.kmi-l').length!==5
+      || exB.querySelectorAll('.kmi-just').length!==4 || !exB.querySelector('svg.kmi-svg') || exB.textContent.indexOf('le réel en facteur')<0
+      || exB.textContent.indexOf('DEF')<0 || exB.textContent.indexOf('colinéaires')<0 || exB.querySelectorAll('.sf-f').length<5)
+      vus.push('8.3.8 : l\\'exemple résolu : '+(exB?exB.textContent.slice(0,200):'absent'));
     av=test.score; checkKmi();
     if(test.score-av!==0 || document.querySelector('#scr-kmi input.bad, #scr-kmi select.bad') || document.querySelectorAll('#scr-kmi .sol').length!==13) vus.push('8.3.8 : la copie vide rougit ou ne se remplit pas');
     test.questions[2]=fixeM([2,3]); renderKmi(); test.locked=false;
