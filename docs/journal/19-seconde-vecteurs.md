@@ -4167,6 +4167,33 @@ dans cet ordre, la fraction empilée de la consigne au 8.3.3, et la
 fraction lue et écrite (`kvLatex`, `kvLit`). Vu dans Chromium : la fraction
 tapée « −3/2 » s'empile, se juge, survit à la pause empilée.
 
+### Les 8.3.2, 8.3.3 et 8.3.5 : les noms des flèches ne se chevauchent plus (v581)
+
+Demande de Turquet, octobre 2026, capture du 8.3.3 à l'appui : « il ne faut
+pas que les écritures se chevauchent comme dans l'image avec a et b ». Deux
+flèches verticales, a⃗ vers le haut et b⃗ vers le bas, posées à UNE colonne
+l'une de l'autre : chacune écrit son nom à 17 px de son milieu, côté
+perpendiculaire — a⃗ à droite de son trait, b⃗ à gauche du sien — et les deux
+noms tombaient au même endroit. `kvPoser` ne tenait que l'écart des BOÎTES
+des flèches, et son repli à un carreau (`kvPoser(…, 1)`) laissait passer ce
+cas : 42 figures sur 3 000 tirages avaient deux noms l'un sur l'autre.
+
+* **`kvPoser` prend un cinquième argument, `noms`** : chaque flèche n'est posée
+  que si son nom (`kvNomCentre`, la position de `svcNomPos` en carreaux) se
+  tient à l'écart des noms déjà posés (0,8 carreau en largeur, 0,9 en hauteur)
+  et à un demi-carreau des traits déjà posés — et si aucun nom déjà posé ne
+  touche son trait (`kvNomLibre`). Le 8.3.2/8.3.3 (`kvi`) et le 8.3.5 (`kss`)
+  le passent ; le 8.3.4 (`kco`) écrit des lettres aux extrémités, pas des
+  noms au milieu, et garde son placement.
+* Après : 0 figure sur 3 000, et le repli de `kviGen` n'est jamais atteint.
+
+Le banc principal (`vecteursColineaires`) relit, sur les deux cents tirages
+de chaque exercice, les noms EN PIXELS par `svcNomPos`, comme le dessin les
+pose : deux noms à moins de 24 × 27 px, ou un nom à moins de 15 px du trait
+d'une autre flèche, et il rougit en nommant les deux lettres. Sur l'ancien
+placement, 1,4 % de figures fautives par tirage : sur quatre cents tirages,
+le contrôle l'attrape presque à coup sûr.
+
 ## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 
 **La demande** (Turquet, octobre 2026) : sur quinze idées proposées pour
