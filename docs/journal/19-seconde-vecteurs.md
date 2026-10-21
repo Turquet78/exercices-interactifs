@@ -4196,6 +4196,30 @@ le contrôle l'attrape presque à coup sûr. Éprouvé par sabotage (le
 placement d'avant rétabli au 8.3.2/8.3.3) : rouge, « 8.3.2 : le nom a sur
 le trait de e ».
 
+### Le 8.3.3 : une page d'entiers, PUIS des pages de fractions (v592 — v591 prise par le 8.3.7)
+
+Demande de Turquet, octobre 2026 : « dans la 1re question mettre que des
+multiplications avec des facteurs entiers positifs ou négatifs, puis dans
+la deuxième question mettre des fractions comme coefficient multiplicateur
+positif ou négatif ». Avant, chaque page mêlait les deux (quatre non
+entiers au moins sur six).
+
+* `kviBuildQuestions` lit le rang de la page (`distinctes` passe `i` à la
+  fabrique) : la page 1 du 8.3.3 est tirée comme au 8.3.2 (`kviGen(false)`,
+  sans `q.fr`, la consigne ne parle pas de fraction) ; les suivantes par
+  `kviGen(true)`, qui n'admet plus aucun dénominateur 1. Les signes restent
+  mêlés sur chaque page (le tirage l'exigeait déjà). Le repli des fractions
+  a perdu son seul coefficient entier.
+* Un devoir à plus de deux questions : la première en entiers, toutes les
+  autres en fractions.
+* Le 8.3.2 ne change pas ; la description du menu du 8.3.3 le dit.
+
+Le banc principal relit chaque page de la séance (page 1 : que des entiers,
+sans `q.fr` ; les suivantes : que des fractions, `q.fr`), et ses deux cents
+tirages de `kviGen(true)` n'admettent plus un seul entier ; la copie juste
+du 8.3.3 se joue sur la page de fractions. Mesuré à part : 3 000 tirages,
+aucun entier sur une page de fractions, le repli jamais atteint.
+
 ### Le 8.3.1 : la flèche a/b u⃗ se DÉCOUPE en |a| morceaux (v582)
 
 Demande de Turquet, octobre 2026 (écrite « 8.3.2 » — le seul exercice du
@@ -4292,6 +4316,24 @@ point est juste, rouge s'il est faux, à côté de la flèche verte de la
 correction. Rien n'est tracé sur le point de départ lui-même (vecteur nul). Au
 doigt, sans survol, la flèche n'apparaît qu'au point posé.
 
+**Puis une égalité par question** (v593, demande de Turquet, octobre 2026 :
+« faire une égalité par question et non trois ; une question avec une
+multiplication par un entier positif, puis un entier négatif, puis une
+fraction positive, puis une fraction négative ; on changera de vecteur et de
+point de départ à chaque question »). La séance compte quatre questions
+(`KPL_NB`), une famille de k chacune, dans cet ordre (`KPL_FAM` ; `kplGen(l,
+f)`, f = i % 4) : 2 ou 3 ; −1, −2 ou −3 ; une fraction positive non entière ;
+une fraction négative non entière. Chaque question a son jeu de trois lettres
+(A B C, E F G, R S T, C D E), son vecteur et son point de départ, et un seul
+point M à placer : CM⃗ = kAB⃗ (kBA⃗ possible après la première). AB⃗ peut
+descendre à deux carreaux : avec k = 3, un vecteur de quatre carreaux
+sortait du quadrillage. Le moteur garde ses tableaux (`q.o`, `q.r`, `q.p`),
+de longueur 1, et lit tout sur `q.r.length` (`kplKs`) ; un brouillon à trois
+égalités se tire à neuf au chargement. Le banc éprouve la famille de chaque
+question sur deux cents tirages, la copie juste, le mauvais côté, le départ
+pris en A, la mauvaise distance, le point hors de la parallèle, le point
+vide et l'ancien brouillon.
+
 **8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
 trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
 du côté opposé à B…), cinq par page ; six cartes AM⃗ = kAB⃗ lettrées a à f,
@@ -4314,6 +4356,26 @@ s'est posé sur la ligne des lettres de son vecteur : `.kv-co` est en
 `vertical-align:middle` pour centrer une fraction sur son trait, et un
 entier seul descendait sous AB⃗ ; `kvHTML` lui ajoute `kv-ent`, aligné sur
 la ligne de base — ce qui vaut pour tous les 8.3.
+
+Puis **deux étapes** (demande de Turquet, octobre 2026, v591) : « demander
+d'abord de faire correspondre chaque égalité au bon dessin en enlevant les
+phrases ; quand toutes les égalités sont reliées au bon dessin, afficher
+alors les phrases ». L'étape 1 : six égalités, une liste « dessin » chacune
+(I à VI) — plus de dessin ni d'égalité de trop, la correspondance est
+complète. Sa vérification compte ses six points mais NE VERROUILLE PAS : elle
+range les choix dans la question (`q.e1`, `q.s1`), et la page se redessine à
+l'étape 2 — chaque dessin porte alors son cas (« cas b · AM⃗ = −½AB⃗ »),
+l'étape 1 reste à l'écran, corrigée et désactivée, et les cinq phrases
+viennent dessous, une liste « cas » chacune ; le cas de trop est l'égalité de
+trop. C'est la seconde vérification qui verrouille et pousse la réponse :
+onze cases, 33 points sur trois questions. En soutien, l'étape 1 se
+revérifie jusqu'à être juste ; en entraînement, la correction la complète en
+vert. Pourquoi pas deux questions par page : la coupe d'un devoir
+(`dmAppliquerNbQ`) garde les N premières ENTRÉES du tirage, elle aurait coupé
+une paire en deux. Et pourquoi `q.e1` dans la question : une pause entre les
+deux étapes reprend aux phrases, l'étape 1 telle que la vérification l'a
+laissée, et un nouveau « Vérifier » n'y rejuge rien — le banc principal le
+tient en rejouant la question depuis son JSON entre les deux étapes.
 
 **8.3.8, démontrer un parallélisme** (`kmi`). La démonstration du manuel,
 en treize cases : IJ⃗ = IA⃗ + AJ⃗ = kBA⃗ + kAC⃗ = k(BA⃗ + AC⃗) = kBC⃗,
