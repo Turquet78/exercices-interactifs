@@ -2886,6 +2886,7 @@
   .tvx-svg .tvx-el{stroke:var(--crd-a);stroke-width:2.6;stroke-linecap:round}
   .tvx-svg .tvx-el-t{fill:var(--crd-a)} .tvx-svg .tvx-el-f{stroke:var(--crd-a)}
   .tvx-svg .tvx-vif{pointer-events:none}
+  .tvx-svg .kv-grad{stroke-width:2.4;stroke-linecap:round}
   .tvx-svg .tvx-croix line{stroke:var(--crd-a);stroke-width:2.4;stroke-linecap:round}
   .tvx-svg .tvx-croix.tvx-ok line{stroke:var(--blue)}
   .tvx-svg .tvx-croix.tvx-bad line{stroke:var(--red)}
@@ -8522,7 +8523,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=580;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=581;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -12752,7 +12753,7 @@ const RAP_KVX=`<b>Construire le vecteur k<span class="vec"><i>u</i></span></b><b
 <b>② Son sens</b> : celui de <span class="vec"><i>u</i></span> si k est <b>positif</b>, le sens <b>contraire</b> si k est <b>négatif</b>.<br>
 <b>③ Sa longueur</b> : celle de <span class="vec"><i>u</i></span> multipliée par k sans son signe — 2<span class="vec"><i>u</i></span> est deux fois plus long, ½<span class="vec"><i>u</i></span> deux fois plus court.<br>
 <b>④ Sur un quadrillage</b>, on compte le chemin de <span class="vec"><i>u</i></span> (tant de carreaux vers la droite ou la gauche, puis vers le haut ou le bas) et on <b>multiplie chaque nombre par k</b>. Exemple : si <span class="vec"><i>u</i></span> fait 6 carreaux vers la droite et 3 vers le haut, ⅔<span class="vec"><i>u</i></span> fait 4 carreaux vers la droite et 2 vers le haut, et −⅓<span class="vec"><i>u</i></span> fait 2 carreaux vers la gauche et 1 vers le bas.<br>
-<b>⑤ Une fraction se construit par étapes</b> : pour ${kvHTML([-3,2],'u')}, on trace d'abord ½<span class="vec"><i>u</i></span> (la moitié du chemin), puis −½<span class="vec"><i>u</i></span> (le même chemin à l'envers), puis trois fois −½<span class="vec"><i>u</i></span> bout à bout.`;
+<b>⑤ Une fraction se construit par étapes</b> : pour ${kvHTML([-3,2],'u')}, on trace d'abord ½<span class="vec"><i>u</i></span> (la moitié du chemin), puis −½<span class="vec"><i>u</i></span> (le même chemin à l'envers), puis trois fois −½<span class="vec"><i>u</i></span> bout à bout — la flèche ${kvHTML([-3,2],'u')} se découpe à l'écran en trois morceaux, de petits traits en travers.`;
 
 /* 8.3.2 {identifier-multiple-vecteur} et 8.3.3 {identifier-multiple-non-entier} */
 const RAP_KVI=`<b>Reconnaître un vecteur k<span class="vec"><i>u</i></span></b><br>
@@ -64616,7 +64617,26 @@ function tvxNomHTML(q,k){ return q.ks?kvHTML(q.ks[k],'u'):(q.op?'\u2212':'')+tvx
    coefficient — il s'écrit à part, la fraction empilée (kvSvgNom). */
 function tvxTrace(q,k,a,b,cls,mk){
   if(!q.ks) return svcFleche(a, b, {cls:cls, marker:mk, nom:tvxNom(q,k), geo:TVX_GEO});
-  return svcFleche(a, b, {cls:cls, marker:mk, geo:TVX_GEO})+kvSvgNom(a, b, TVX_GEO, cls.split(' ')[0], q.ks[k], 'u');
+  const c0=cls.split(' ')[0];
+  return svcFleche(a, b, {cls:cls, marker:mk, geo:TVX_GEO})+tvxGrad(q,k,{x:tvxX(a[0]),y:tvxY(a[1])},{x:tvxX(b[0]),y:tvxY(b[1])},c0)+kvSvgNom(a, b, TVX_GEO, c0, q.ks[k], 'u');
+}
+/* LA FLÈCHE a/b u SE DÉCOUPE EN |a| MORCEAUX (demande de Turquet, octobre
+   2026 : « quand on doit dessiner une fraction d'un vecteur, par exemple a/b
+   de u, découper le vecteur en question en a morceaux à l'écran à l'aide de
+   petits traits »). Chaque morceau vaut 1/b u — la flèche tracée juste avant
+   dans l'échelle : −3/2 u, ce sont trois −½u bout à bout, et l'élève le voit.
+   De petits traits en travers, aux |a| − 1 coupures, de la couleur de la
+   flèche (-f) ; sur la flèche de l'élève, la correction, et la flèche qui
+   suit la souris. Rien pour un entier ni pour ±1/b : un seul morceau. */
+function tvxGrad(q,k,a,b,c0){
+  const c=q.ks&&q.ks[k], n=c?Math.abs(c[0]):1;
+  if(!c||c[1]===1||n<2) return '';
+  const dx=b.x-a.x, dy=b.y-a.y, l=Math.hypot(dx,dy); if(l<6) return '';
+  const px=-dy/l*7, py=dx/l*7;
+  let h='';
+  for(let j=1;j<n;j++){ const x=a.x+dx*j/n, y=a.y+dy*j/n;
+    h+='<line class="kv-grad '+c0+'-f" x1="'+(x-px).toFixed(1)+'" y1="'+(y-py).toFixed(1)+'" x2="'+(x+px).toFixed(1)+'" y2="'+(y+py).toFixed(1)+'"/>'; }
+  return h;
 }
 /* La flèche k telle que l'élève l'a tracée ; null tant qu'elle n'a pas son arrivée. */
 function tvxFl(q,k){
@@ -64766,7 +64786,8 @@ function tvxVif(q, m){
   if(!a){ g.innerHTML=''; return; }
   let h=croix?tvxCroix(croix,''):'';
   const l=Math.hypot(b.x-a.x, b.y-a.y);
-  if(l>6) h+=`<line class="tvx-el tvx-vif" x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" marker-end="url(#tvxArrM)"/>`;
+  if(l>6) h+=`<line class="tvx-el tvx-vif" x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" marker-end="url(#tvxArrM)"/>`
+    +tvxGrad(q, mob?mob.k:tvxCourante(q), a, b, 'tvx-el');
   g.innerHTML=h;
 }
 /* Le verdict d'une flèche retouchée s'efface : la vérification suivante la rejugera. */
