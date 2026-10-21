@@ -15413,7 +15413,7 @@ if(require.main === module) (async () => {
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [], surCourbe = [];
+      const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], coeffsDecales = [], etroits = [], surCourbe = [];
       const indicesPlats = []; let nIndicesFlex = 0;
       const textesPetits = [], gradSurEtiquette = [], defilantsSourds = []; let nTextesSvg = 0, nDefilants = 0;
       /* LES DÉFINITIONS S'ÉCRIVENT AVANT L'ÉNONCÉ, dans tout exercice du thème
@@ -15431,7 +15431,7 @@ if(require.main === module) (async () => {
       const avantSansMorts = Object.keys(avantSans).filter(id => idsPython.indexOf(id) < 0);
       const idsAvant = idsPython.filter(id => !avantSans[id]);
       const sansAvant = []; let nAvant = 0;
-      const sansClavierLim = []; let nLimCases = 0;
+      const sansClavierLim = []; let nLimCases = 0, nCoeffs = 0;
       /* CHAQUE DESSIN EST UN FICHIER DE dessins/, ET IL EST RÉELLEMENT CHARGÉ
          (décision de Turquet, octobre 2026 : les 43 images de la Seconde
          quittent la page, qui pesait 4,9 Mo dont 770 Ko de base64 — chaque
@@ -16078,6 +16078,46 @@ if(require.main === module) (async () => {
               if(rouges.length)
                 videsRouges.push((await s.page.evaluate(i => TEST_NUM[i], id))
                   + ' — ' + rouges.slice(0, 3).join(', '));
+              /* UN COEFFICIENT k u⃗ S'ÉCRIT SUR LA LIGNE DE SON TEXTE (.kv-co,
+                 Seconde, octobre 2026 : « v⃗ = 3u⃗ » du 8.3.5, le 3 et le u⃗
+                 descendus sous le v⃗ — la flèche du u⃗ comptait dans le
+                 centrage). Mesuré après la vérification, qui écrit les
+                 corrections : sans fraction, le réel, le signe et la lettre
+                 sont sur la ligne d'écriture du texte qui les précède (une
+                 sonde vide posée dans chacun : son bas EST la ligne) ; avec
+                 une fraction, la lettre se centre sur le trait. */
+              const co = await s.page.evaluate(() => {
+                const on = document.querySelector('section.screen.on'); if(!on) return null;
+                const dits = []; let n = 0;
+                const ligne = (hote, avant) => { const z = document.createElement('span');
+                  z.style.cssText = 'display:inline-block;width:0;height:0;padding:0;border:0;margin:0';
+                  if(avant) hote.parentNode.insertBefore(z, hote); else hote.insertBefore(z, hote.firstChild);
+                  const y = z.getBoundingClientRect().bottom; z.remove(); return y; };
+                const centre = e => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; };
+                on.querySelectorAll('.kv-co').forEach(k => {
+                  const r = k.getBoundingClientRect();
+                  if(!r.width || !r.height || getComputedStyle(k).visibility === 'hidden') return;
+                  const lettre = k.querySelector(':scope > .vec i'), barre = k.querySelector(':scope > .sf-f .bar');
+                  const dit = (k.parentElement.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 30);
+                  if(barre){
+                    if(!lettre) return;
+                    n++;
+                    const ec = centre(lettre) - centre(barre);
+                    if(Math.abs(ec) > 2) dits.push('« ' + dit + ' » : la lettre à ' + ec.toFixed(1) + ' px du trait');
+                    return;
+                  }
+                  const morceaux = [...k.querySelectorAll(':scope > .kv-n, :scope > .kv-sg')].concat(lettre ? [lettre] : []);
+                  if(!morceaux.length) return;
+                  n++;
+                  const pd = getComputedStyle(k.parentElement).display;
+                  const ref = /flex|grid/.test(pd) ? ligne(morceaux[0]) : ligne(k, true);
+                  morceaux.forEach(m => { const ec = ligne(m) - ref;
+                    if(Math.abs(ec) > 1) dits.push('« ' + dit + ' » : « ' + m.textContent + ' » à ' + ec.toFixed(1) + ' px de la ligne'); });
+                });
+                return { n, dits };
+              });
+              if(co){ nCoeffs += co.n;
+                if(co.dits.length) coeffsDecales.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + co.dits[0]); }
             }
           }
         }
@@ -16211,6 +16251,13 @@ if(require.main === module) (async () => {
       if(flechesSansCible.size)
         console.log('   · ' + flechesSansCible.size + ' exercice(s) sans autre case ni bouton où aller (flèche non mesurée) : '
           + [...flechesSansCible].join(', '));
+      if(await s.page.evaluate(() => typeof kvHTML === 'function'))
+        verifier('un coefficient k u⃗ s\'écrit sur la ligne de son texte, la lettre sur le trait de sa fraction',
+          nCoeffs > 0 && coeffsDecales.length === 0,
+          nCoeffs === 0 ? 'aucun coefficient (.kv-co) mesuré : le contrôle ne mesure rien'
+            : coeffsDecales.length + ' exercice(s) : ' + coeffsDecales.slice(0, 4).join(' | '));
+      else ignorer('un coefficient k u⃗ s\'écrit sur la ligne de son texte, la lettre sur le trait de sa fraction',
+        'ce niveau n\'écrit aucun coefficient de vecteur (kvHTML)');
       verifier('aucune case laissée vide ne rougit à la vérification',
         videsRouges.length === 0,
         videsRouges.length + ' exercice(s) : ' + videsRouges.slice(0, 6).join(' | '));
