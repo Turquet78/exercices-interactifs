@@ -10025,7 +10025,7 @@ function syntheseAugLibreRedigee(w, P){
       ['le quotient avec la mauvaise proposition', qQuot, 3, '936/900 = 104/100', true, false],
       ['le quotient sur une baisse',   qFinD, 1, '570/600 = 95/100',            true,  true ],
       ['un commentaire illisible n\\'annule pas une voie montrée', qFin, 1, '1,05 × 600 = 630\\ndonc ça marche', true, true ],
-      ['deux calculs sur une ligne, séparés par la barre d\\'espace', qFinD, 1, '0,05 × 600 = 30   600 − 30 = 570', true, true ],
+      ['deux calculs sur une ligne, séparés par la barre d\\'espace', qFinD, 1, '0,05 × 600 = 30   0,95 × 600 = 570', true, true ],
     ];
     cas.forEach(function(c){
       const q=JSON.parse(JSON.stringify(c[1])); q.choisi=c[2];
@@ -48047,8 +48047,8 @@ function problemesPourcentages(w, P){
       [K,'546/0.91=600élèves',true], [K,'520/1.04=500',false],
       [A,'37.10/0.7=53',true], [A,'37.1*0.7=25.97',false],
       /* deux calculs sur une ligne, séparés par la barre d'espace — la copie signalée (remise de 8 % sur 103 €) */
-      [M,'(94.76)/(103)=0.92 (94.76)/(0.92)=103 le pourcentage est de 8\\%\n1-0.92=0.08 0.08*100',true],
-      [M,'1-0.92=0.08 0.08*100\n8\\%',false], [H,'42*1.2 = 50.40',true], [A,'37.10/0.7 = 53',true]
+      [M,'(94.76)/(103)=0.92 (94.76)/(0.92)=103 le pourcentage est de 8\\\\%\\n1-0.92=0.08 0.08*100',true],
+      [M,'1-0.92=0.08 0.08*100\\n8\\\\%',false], [H,'42*1.2 = 50.40',true], [A,'37.10/0.7 = 53',true]
     ];
     cas.forEach(function(c,i){
       let r; try{ r=ppbJuge(c[0], c[1]); }catch(e){ vus.push('cas '+i+' : '+e.message); return; }

@@ -4549,7 +4549,9 @@ quand ce qui précède a déjà son « = » suivi d'un membre complet, et que ce
 qui suit commence un nouveau calcul — un nombre ou une parenthèse porteur
 d'une opération ou d'un « % » avant son propre « = ». Ne coupent pas : une
 copie espacée (« 936/900 = 104/100 », rien après le « = »), un séparateur de
-milliers (« = 1 500 », « = 1 000 × 2 »). Sur demande de Turquet (« corriger
+milliers (« = 1 500 », « = 1 000 × 2 »). Le prix de cette garde est nommé : « = 30   600 − 30 »
+se lit comme « 30 600 − 30 » — un groupe de trois chiffres derrière un
+nombre court est d'abord un millier ; la ligne reste illisible, comme avant. Sur demande de Turquet (« corriger
 ce problème s'il se pose ailleurs »), la coupe sert TOUS les juges de feuille
 rédigée qui lisent un calcul par ligne : `ppbTexte` (4.5.10, 4.5.11, et le
 4.5.9 qui lit par lui) et `salJuge` — en Seconde (4.2.10) comme en Première
