@@ -65231,9 +65231,14 @@ function kvGrille(G,w){
 }
 function kvPointe(id){ return '<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink)"/></marker>'; }
 /* Poser des chemins sur un quadrillage w × h : chacun à un carreau du bord,
-   à « ecart » carreaux des autres ; null quand l'un ne trouve pas de place. */
-function kvPoser(ws,w,h,ecart){
-  const boites=[], pos=[];
+   à « ecart » carreaux des autres ; null quand l'un ne trouve pas de place.
+   LES NOMS NE SE CHEVAUCHENT PAS (demande de Turquet, octobre 2026 : au
+   8.3.3, a⃗ et b⃗, deux flèches verticales à une colonne l'une de l'autre,
+   écrivaient leurs noms l'un sur l'autre) : avec « noms », le nom de chaque
+   flèche — posé par svcNomPos, à 17 px du milieu, côté perpendiculaire — se
+   tient loin des noms et des traits déjà posés (kvNomLibre). */
+function kvPoser(ws,w,h,ecart,noms){
+  const boites=[], pos=[], fl=[];
   for(const v of ws){
     let pose=null;
     for(let t=0;t<200&&!pose;t++){
@@ -65241,12 +65246,34 @@ function kvPoser(ws,w,h,ecart){
       if(f[0]<1||f[0]>w-1||f[1]<1||f[1]>h-1) continue;
       const b=[Math.min(o[0],f[0]),Math.min(o[1],f[1]),Math.max(o[0],f[0]),Math.max(o[1],f[1])];
       if(boites.some(function(c){ return b[0]-ecart<c[2]&&c[0]<b[2]+ecart&&b[1]-ecart<c[3]&&c[1]<b[3]+ecart; })) continue;
-      pose=o; boites.push(b);
+      if(noms&&!kvNomLibre(fl,[o,f])) continue;
+      pose=o; boites.push(b); fl.push([o,f]);
     }
     if(!pose) return null;
     pos.push(pose);
   }
   return pos;
+}
+/* Le centre du nom d'une flèche [o, f], en carreaux (l'axe des ordonnées
+   monte) : svcNomPos, à 17 px sur des carreaux de 30. */
+function kvNomCentre(a){
+  const dx=a[1][0]-a[0][0], dy=a[1][1]-a[0][1], l=Math.hypot(dx,dy)||1, e=17/30;
+  return [(a[0][0]+a[1][0])/2+dy/l*e, (a[0][1]+a[1][1])/2-dx/l*e];
+}
+function kvDistSeg(p,a){
+  const ax=a[0][0], ay=a[0][1], dx=a[1][0]-ax, dy=a[1][1]-ay, l2=dx*dx+dy*dy||1;
+  const t=Math.max(0,Math.min(1,((p[0]-ax)*dx+(p[1]-ay)*dy)/l2));
+  return Math.hypot(p[0]-ax-t*dx, p[1]-ay-t*dy);
+}
+/* Une flèche peut se poser si son nom ne touche ni un nom ni un trait déjà
+   posés, et si aucun nom déjà posé ne touche son trait. Un nom (une lettre
+   coiffée de sa flèche) tient environ 0,6 carreau de large, 0,7 de haut. */
+function kvNomLibre(fl,a){
+  const n=kvNomCentre(a);
+  return fl.every(function(b){
+    const m=kvNomCentre(b);
+    return !(Math.abs(n[0]-m[0])<0.8&&Math.abs(n[1]-m[1])<0.9)&&kvDistSeg(n,b)>=0.5&&kvDistSeg(m,a)>=0.5;
+  });
 }
 /* Les directions des figures : deux à deux non parallèles (une direction et
    son opposée sont la même). */
@@ -65318,7 +65345,7 @@ function kviGen(fr){
     if(!l.some(function(x){ return x[3]<0; })||!l.some(function(x){ return x[3]>0; })) continue;
     ensShuffle(l);
     const q={bs:bs, l:l};
-    const ws=l.map(function(x,i){ return kviVec(q,i); }), pos=kvPoser(ws, KVI_W, KVI_H, 2)||kvPoser(ws, KVI_W, KVI_H, 1);
+    const ws=l.map(function(x,i){ return kviVec(q,i); }), pos=kvPoser(ws, KVI_W, KVI_H, 2, 1)||kvPoser(ws, KVI_W, KVI_H, 1, 1);
     if(!pos) continue;
     pos.forEach(function(p,i){ l[i][0]=p[0]; l[i][1]=p[1]; });
     if(fr) q.fr=1;
@@ -65758,7 +65785,7 @@ function kssGen(){
     const ks=ensShuffle(cs).slice(0,KSS_NF);
     if(!kssVarie(ks)) continue;
     const ws=[u].concat(ks.map(function(c){ return [u[0]*c[0]/c[1], u[1]*c[0]/c[1]]; }));
-    const pos=kvPoser(ws, KSS_W, KSS_H, 2)||kvPoser(ws, KSS_W, KSS_H, 1);
+    const pos=kvPoser(ws, KSS_W, KSS_H, 2, 1)||kvPoser(ws, KSS_W, KSS_H, 1, 1);
     if(!pos) continue;
     /* sans dessin : le piège du réel négatif PLUS COURT est toujours là */
     const s=ensShuffle(KSS_POOL.slice()).slice(0,KSS_ND);
