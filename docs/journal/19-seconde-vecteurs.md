@@ -4280,6 +4280,18 @@ figure A(3 ; 3), B(9 ; 3), C(2 ; 6), D(10 ; 8), E(5 ; 1) et éprouve la copie
 juste, la mauvaise distance sur la parallèle, le départ pris en B, le mauvais
 côté et le point hors de la parallèle.
 
+**Puis le vecteur de l'élève s'est tracé** (v585, demande de Turquet,
+octobre 2026 : « que le vecteur soit tracé entre le point de départ et le
+point à placer quand l'élève déplace son point, et qu'il reste une fois le
+point placé »). Pendant que la souris survole le quadrillage, une flèche
+violette pâlie va du point de départ du point en cours au nœud survolé — le
+nœud où le clic posera le point, pas la position exacte du pointeur
+(`kplVif`, calque `#kplVif`). Une fois le point posé, sa flèche reste, violette
+(`kplFlecheEleve`, dans `#kplEl`) ; à la vérification elle devient bleue si le
+point est juste, rouge s'il est faux, à côté de la flèche verte de la
+correction. Rien n'est tracé sur le point de départ lui-même (vecteur nul). Au
+doigt, sans survol, la flèche n'apparaît qu'au point posé.
+
 **8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
 trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
 du côté opposé à B…), cinq par page ; six cartes AM⃗ = kAB⃗ lettrées a à f,

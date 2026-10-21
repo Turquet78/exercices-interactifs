@@ -14485,11 +14485,18 @@ function vecteursColineairesSuite(w, P){
     if(el('kpl-1').innerHTML.indexOf('DN')<0 || el('kpl-1').innerHTML.indexOf('BA')<0 || el('kpl-1').querySelectorAll('.sf-f').length!==1) vus.push('8.3.6 : le cadre de N n\\'écrit pas DN = ½BA empilé : '+el('kpl-1').textContent);
     if(['C','D','E'].some(function(L){ return [].some.call(document.querySelectorAll('#kplDonnes text'), function(t){ return t.textContent===L; })===false; })) vus.push('8.3.6 : les points de départ C, D, E ne sont pas dessinés');
     if([0,1,2].map(function(k){ return kplCible(test.questions[0],k).join(','); }).join(' ')!=='6,6 7,8 3,1') vus.push('8.3.6 : les cibles '+[0,1,2].map(function(k){ return kplCible(test.questions[0],k); }).join(' '));
+    /* le vecteur suit la souris, du point de départ du point en cours au nœud survolé */
+    kplVif(test.questions[0],0,[4,4]);
+    if(document.querySelectorAll('#kplVif line.kpl-fl.kpl-vif').length!==1) vus.push('8.3.6 : aucun vecteur ne suit la souris');
+    kplVif(test.questions[0],0,[2,6]);
+    if(document.querySelectorAll('#kplVif line').length) vus.push('8.3.6 : un vecteur nul est tracé sur le point de départ');
     kplClic(6,6); kplClic(7,8); kplClic(3,1);
     json(); renderKpl();
     if(document.querySelectorAll('#kplEl .tan-croix').length!==3) vus.push('8.3.6 : les points posés ne reviennent pas après le JSON');
+    if(document.querySelectorAll('#kplEl line.kpl-fl').length!==3) vus.push('8.3.6 : les vecteurs des points posés ne restent pas tracés');
     av=test.score; checkKpl();
     if(test.score-av!==3 || ['kpl-0','kpl-1','kpl-2'].map(function(i){ return classe(el(i)); }).join(',')!=='ok,ok,ok') vus.push('8.3.6 : la copie juste vaut '+(test.score-av));
+    if(document.querySelectorAll('#kplEl line.svc-e').length!==3 || el('kplVif').innerHTML) vus.push('8.3.6 : après la vérification, les vecteurs justes ne sont pas bleus');
     nextKpl(); clearTimeout(test.fbTimer);
     test.questions[1]=fixeP(); renderKpl();
     kplClic(-1,0);
@@ -14501,6 +14508,7 @@ function vecteursColineairesSuite(w, P){
     if(fbP.indexOf('pas à la bonne distance')<0 || fbP.indexOf('parallèle à (AB) passant par C')<0) vus.push('8.3.6 : le pourquoi de M : '+fbP.slice(0,300));
     if(fbP.indexOf('Ton point N est parti de B')<0) vus.push('8.3.6 : le pourquoi de N : '+fbP.slice(0,300));
     if(document.querySelectorAll('#kplCorr line.svc-s').length!==3) vus.push('8.3.6 : la correction ne trace pas les trois flèches vertes');
+    if(document.querySelectorAll('#kplEl line.svc-eb').length!==2) vus.push('8.3.6 : les vecteurs faux ne sont pas rouges');
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0) vus.push('8.3.6 : le contexte du modèle');
     nextKpl(); clearTimeout(test.fbTimer);
     test.questions[2]=fixeP(); renderKpl();
