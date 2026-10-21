@@ -152,6 +152,46 @@ TOUTES les fontes KaTeX y sont alors en échec — celle du texte comme
 celle-ci. Pour voir le rendu, il faut servir le fichier de la fonte à la page
 (`page.route`).
 
+**Puis les divisions se sont écrites en FRACTION, et P_B(A) s'est donnée à
+10⁻² près** (demande de Turquet, octobre 2026 : « dans le 6.1.2, les
+divisions seront sous forme fractionnaire et les résultats approchés au
+centième près et pas arrondis ; une valeur par excès ou par défaut ou plus
+proche que le centième est acceptée »). Ce que le 6.1.3 avait reçu en deux
+fois, le 6.1.2 le reçoit d'un coup.
+
+* Les lignes de calcul (`apf-c…`) et celles de la résolution (`apf-r…g/d`)
+  sont des `<math-field class="dexp-mf apc-mf …">` : la division s'écrit en
+  fraction empilée (touche « / », ou le bouton de la barre « Insérer : »),
+  « * » devient ×, le x s'écrit en italique arrondi. Le juge lit du texte :
+  `apfVal` et `checkAPF` passent par `apcLire`, celui du 6.1.3. Les cases de
+  l'ARBRE restent des `<input>` (le pavé des tablettes, le contrôle
+  `casesCalculTexte`). Le jeton « ÷ » est retiré (`apfJetonsHTML(…, true)`),
+  le clavier A porte x et ≈ (`kbVarsFor`), une ligne ajoutée par Entrée passe
+  par `mlDexp.upgrade`, et Entrée dans une ligne de calcul mène à la case
+  suivante puis au bouton Vérifier (`navCases` ne connaît que les `<input>`).
+* Chaque ligne porte `tex` à côté de `corr` (`apfFrTex` pour les
+  divisions) ; la résolution, `etapesTex`, dont la dernière étape est
+  « x = \frac{…}{…} = … ». `apcCorrCase` écrit ce LaTeX dans la case vide
+  ou à côté de la case fausse ; la « Correction : » sous les lignes se
+  dessine par `mlTex`. Le juge de la résolution (`apfJugeResolL`) accepte
+  désormais dans la case de droite une CHAÎNE d'écritures du même nombre
+  (« 0,02/0,2 = 0,1 ») et juge la dernière — sans quoi la correction de la
+  page, écrite ainsi, aurait été fausse sous son propre juge (vu à la
+  première exécution : une copie faite des corrections avait une case rouge
+  aux situations 4 et 5).
+* P_B(A) (situations 1 et 2), quand le quotient ne tombe pas sur les
+  centièmes, porte `libre` et sa consigne dit « (Donner une valeur approchée
+  à 10⁻² près.) » : toute valeur DÉCIMALE à 0,01 près de la valeur exacte
+  est juste, derrière « = » comme derrière « ≈ » — la troncature, l'arrondi
+  par excès, une valeur plus précise. La correction écrit l'arrondi au
+  centième (« ≈ 0,83 »), plus au millième. Un quotient qui tombe juste sur
+  les centièmes garde le juge exact : 0,59 ne vaut pas 0,6.
+
+Essayé dans Chromium à 1280 et 390 px, les cinq situations : une copie faite
+des corrections est parfaite ; pour P_B(A) = 0,8276…, « 0,82 », « ≈ 0,83 »
+et « ≈ 0,8276 » sont justes, « 0,81 » faux ; une copie vide reçoit ses
+fractions vertes ; aucune erreur de page. Terminale v420.
+
 ## {arbre-probabilites-bac} (6.1.3) : l'exercice de bac, la formule avant le calcul
 
 Demande de Turquet (octobre 2026), avec la « fiche 5 — probabilité bac »

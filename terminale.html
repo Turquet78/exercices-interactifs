@@ -794,7 +794,7 @@
   .sa2-in.apf-eqin{flex:1 1 9em;min-width:6em;max-width:18em;text-align:center}
   .apf-astuce{font-size:.9em;opacity:.8;margin:4px 0 0}
   .apc-mb{min-width:6.5em;text-align:right;white-space:nowrap}
-  /* 6.1.3 : les lignes de calcul sont des champs MathLive — une division
+  /* 6.1.2 et 6.1.3 : les lignes de calcul sont des champs MathLive — une division
      s'y écrit en fraction empilée, le x en italique arrondi. Elles gardent la
      taille de leur rangée (la règle de toute case). */
   math-field.dexp-mf.apc-mf{font-size:inherit;font-weight:700;min-height:2em;padding:2px 8px;vertical-align:middle;box-sizing:border-box}
@@ -25204,34 +25204,56 @@ function apfCaseId(k){ return 'apf-t-'+k.replace('.','-'); }
 /* ---- les lignes de calcul ---- */
 function apfFrac(n,d){ const g=(function f(a,b){ return b?f(b,a%b):a; })(n,d); return [n/g, d/g]; }
 function apfQuot(n4,d4){
-  /* n4/d4 en dix-millièmes : la valeur, et son écriture (exacte si décimale, sinon fraction ≈ arrondi) */
-  const v=n4/d4, f=apfFrac(n4,d4); let d=f[1]; while(d%2===0) d/=2; while(d%5===0) d/=5;
-  if(d===1) return {v:v, txt:apfNb(v)};
-  return {v:v, txt:f[0]+'/'+f[1]+' ≈ '+apfNb(Math.round(v*1000)/1000), arr:true};
+  /* n4/d4 en dix-millièmes : la valeur, et son écriture. Un quotient qui ne
+     tombe pas sur les centièmes se donne en valeur approchée à 10⁻² près
+     (demande de Turquet, octobre 2026) : arr, et la correction écrit
+     l'arrondi au centième derrière « ≈ ». */
+  const v=n4/d4, r=Math.round(v*100)/100;
+  if(Math.abs(r-v)<1e-12) return {v:v, txt:' = '+apfNb(r), tex:'='+apfNb(r)};
+  const a=r.toFixed(2).replace('.',',');
+  return {v:v, txt:' ≈ '+a, tex:'\\approx '+a, arr:true};
 }
+/* une division, en fraction empilée pour la case MathLive (demande de
+   Turquet, octobre 2026 : « les divisions seront sous forme fractionnaire ») */
+function apfFrTex(n,d){ return '\\frac{'+n+'}{'+d+'}'; }
 function apfLignes(q){
   const V=apfV(q), D=APF_D, P=k=>apfCaseLab(q,k), T=k=>apfCaseLab(q,k,true);
   const PBA=apfPc(q,'B','A'), PBAt=apfPcTxt(q,'B','A');
-  if(q.s===1){ const r=apfQuot(V.AB,V.B); return [
-    {t:'ch', lab:P('AB'), labT:T('AB'), v:D(V.AB), corr:apfNb(D(V.A))+' × '+apfNb(D(V['A.B']))+' = '+apfNb(D(V.AB))},
-    {t:'ch', lab:P('nAB'), labT:T('nAB'), v:D(V.nAB), corr:apfNb(D(V.nA))+' × '+apfNb(D(V['nA.B']))+' = '+apfNb(D(V.nAB))},
-    {t:'ch', lab:P('B'), labT:T('B'), v:D(V.B), corr:apfNb(D(V.AB))+' + '+apfNb(D(V.nAB))+' = '+apfNb(D(V.B))},
-    {t:'ch', lab:PBA, labT:PBAt, v:r.v, arr:r.arr, corr:apfNb(D(V.AB))+' ÷ '+apfNb(D(V.B))+' = '+r.txt}]; }
-  if(q.s===2){ const r=apfQuot(V.AB,V.B); return [
-    {t:'ch', lab:P('A.B'), labT:T('A.B'), v:D(V['A.B']), corr:apfNb(D(V.AB))+' ÷ '+apfNb(D(V.A))+' = '+apfNb(D(V['A.B']))},
-    {t:'ch', lab:P('nA.B'), labT:T('nA.B'), v:D(V['nA.B']), corr:apfNb(D(V.nAB))+' ÷ '+apfNb(D(V.nA))+' = '+apfNb(D(V['nA.B']))},
-    {t:'ch', lab:P('B'), labT:T('B'), v:D(V.B), corr:apfNb(D(V.AB))+' + '+apfNb(D(V.nAB))+' = '+apfNb(D(V.B))},
-    {t:'ch', lab:PBA, labT:PBAt, v:r.v, arr:r.arr, corr:apfNb(D(V.AB))+' ÷ '+apfNb(D(V.B))+' = '+r.txt}]; }
+  /* corr : la correction en clair ; tex : la même en LaTeX, pour la case
+     MathLive — toute division y est une FRACTION. libre : P_B(A), quand elle
+     ne tombe pas sur les centièmes, se donne à 10⁻² près, par défaut comme
+     par excès (le juge du 6.1.3). */
+  const N=v=>apfNb(D(v)), F=apfFrTex;
+  const mul=(a,b,r)=>({corr:N(a)+' × '+N(b)+' = '+N(r), tex:N(a)+'\\times '+N(b)+'='+N(r)});
+  const add=(a,b,r,m)=>({corr:N(a)+(m?' − ':' + ')+N(b)+' = '+N(r), tex:N(a)+(m?'-':'+')+N(b)+'='+N(r)});
+  const div=(a,b)=>({corr:N(a)+' ÷ '+N(b)+' = '+apfNb(a/b), tex:F(N(a),N(b))+'='+apfNb(a/b)});
+  const ch=(k,lab,labT,v,c)=>Object.assign({t:'ch', lab:lab||P(k), labT:labT||T(k), v:v}, c);
+  const pba=function(){ const r=apfQuot(V.AB,V.B);
+    return {t:'ch', lab:PBA, labT:PBAt, v:r.v, arr:r.arr, libre:!!r.arr,
+      corr:N(V.AB)+' ÷ '+N(V.B)+r.txt, tex:F(N(V.AB),N(V.B))+r.tex}; };
+  if(q.s===1) return [
+    ch('AB',0,0,D(V.AB), mul(V.A,V['A.B'],V.AB)),
+    ch('nAB',0,0,D(V.nAB), mul(V.nA,V['nA.B'],V.nAB)),
+    ch('B',0,0,D(V.B), add(V.AB,V.nAB,V.B)),
+    pba()];
+  if(q.s===2) return [
+    ch('A.B',0,0,D(V['A.B']), div(V.AB,V.A)),
+    ch('nA.B',0,0,D(V['nA.B']), div(V.nAB,V.nA)),
+    ch('B',0,0,D(V.B), add(V.AB,V.nAB,V.B)),
+    pba()];
   if(q.s===3) return [
-    {t:'ch', lab:P('A.B'), labT:T('A.B'), v:D(V['A.B']), corr:apfNb(D(V.AB))+' ÷ '+apfNb(D(V.A))+' = '+apfNb(D(V['A.B']))},
-    {t:'ch', lab:P('nAB'), labT:T('nAB'), v:D(V.nAB), corr:apfNb(D(V.B))+' − '+apfNb(D(V.AB))+' = '+apfNb(D(V.nAB))},
-    {t:'ch', lab:P('nA.B'), labT:T('nA.B'), v:D(V['nA.B']), corr:apfNb(D(V.nAB))+' ÷ '+apfNb(D(V.nA))+' = '+apfNb(D(V['nA.B']))}];
+    ch('A.B',0,0,D(V['A.B']), div(V.AB,V.A)),
+    ch('nAB',0,0,D(V.nAB), add(V.B,V.AB,V.nAB,true)),
+    ch('nA.B',0,0,D(V['nA.B']), div(V.nAB,V.nA))];
   /* 4 et 5 : P(B) = p x + q (1 − x) = (p − q) x + q */
-  const p=q.p/100, c=q.c/100, a=+(p-c).toFixed(6), x0=q.x/100, pb=D(V.B);
+  const p=q.p/100, c=q.c/100, a=+(p-c).toFixed(6), x0=q.x/100, pb=D(V.B), pbc=+(pb-c).toFixed(6);
   return [
-    {t:'demo', lab:P('B'), labT:T('B'), a:a, b:c, corr:apfNb(p)+'x + '+apfNb(c)+'(1 − x) = '+apfLin(a,c)},
+    {t:'demo', lab:P('B'), labT:T('B'), a:a, b:c, corr:apfNb(p)+'x + '+apfNb(c)+'(1 − x) = '+apfLin(a,c),
+     tex:apfNb(p)+'x+'+apfNb(c)+'(1-x)='+apfLin(a,c)},
     {t:'resol', lab:'Résolution', labT:'résolution de l’équation', a:a, b:c, pb:pb, sol:x0,
-     etapes:[[apfLin(a,c), apfNb(pb)], [apfLin(a,0), apfNb(+(pb-c).toFixed(6))], ['x', apfNb(x0)]]}];
+     etapes:[[apfLin(a,c), apfNb(pb)], [apfLin(a,0), apfNb(pbc)], ['x', apfNb(x0)]],
+     /* la dernière étape est une division : sa correction s'écrit en fraction */
+     etapesTex:[[apfLin(a,c), apfNb(pb)], [apfLin(a,0), apfNb(pbc)], ['x', F(apfNb(pbc), apfNb(a))+'='+apfNb(x0)]]}];
 }
 /* LA RÉSOLUTION D'UNE ÉQUATION, ligne par ligne (demande de Turquet, octobre
    2026) : chaque ligne est « [ … ] = [ … ] », deux lignes au départ, et
@@ -25283,8 +25305,8 @@ function apfMembres(raw, avecX){
 }
 function apfEstNombre(s){ return /^-?(\d+\.?\d*|\.\d+)$/.test(s) || /^-?\(?\d+\)?\/\(?\d+\)?$/.test(s); }   /* « 9/47 », ou « (9)/(47) » : une fraction MathLive aplatie */
 /* LE JUGE D'UNE LIGNE DE CALCUL. Rend {ok, pourquoi, note}.
-   Une ligne « libre » (l.libre, le 6.1.3 : une valeur approchée demandée à
-   10⁻² près — demande de Turquet, octobre 2026) accepte une valeur approchée
+   Une ligne « libre » (l.libre, le 6.1.3, et P_B(A) au 6.1.2 : une valeur
+   approchée demandée à 10⁻² près — demande de Turquet, octobre 2026) accepte une valeur approchée
    derrière « = » comme derrière « ≈ », dès qu'elle est à 0,01 près de la
    valeur exacte : l'arrondi (0,73) comme la troncature (0,72), ou plus
    précise (0,7265). */
@@ -25325,7 +25347,7 @@ function apfJugeEq(raw, l){
    et il y a au moins deux lignes — l'équation, puis sa solution. Rend, par
    case, {ok, rempli, pourquoi} ; et att : la correction à écrire dans une
    case laissée vide (l'équation en ligne 1, x = … sur la ligne qui manque). */
-function apfVal(id){ const el=$(id); return el ? String(el.value==null?'':el.value).trim() : ''; }
+function apfVal(id){ return apcLire($(id)).trim(); }   /* un champ MathLive se relit en texte (apcLire) */
 function apfJugeResol(q){
   const l=apfLignes(q).find(function(z){ return z.t==='resol'; }); if(!l) return null;
   return apfJugeResolL(l, apfNLig(q), 'apf-r');
@@ -25335,9 +25357,17 @@ function apfJugeResolL(l, n, pre){
   const V={}, raisons=[], att={};
   const lignes=[]; for(let k=1;k<=n;k++){ const g=apfVal(pre+k+'g'), d=apfVal(pre+k+'d'); if(g||d) lignes.push({k:k,g:g,d:d}); }
   lignes.forEach(function(L){
-    let ok=false;
+    let ok=false, chaine=true;
+    /* « x = 0,08/0,4 = 0,2 » : la division en fraction, puis sa valeur — la
+       case de droite peut enchaîner des écritures du même nombre, et c'est la
+       dernière qui compte (la correction de la page s'écrit ainsi) */
+    if(L.d && /=/.test(apfNorm(L.d,true))){
+      const m=apfNorm(L.d,true).split('='), v=m.map(function(t){ const f=apfParse(t,false); return f?f(0):NaN; });
+      chaine=v.every(function(z){ return isFinite(z) && Math.abs(z-v[0])<1e-9; });
+      L.d=m[m.length-1];
+    }
     if(!L.g||!L.d) raisons.push('une ligne s’écrit « … = … », une case de chaque côté');
-    else ok=apfJugeEq(L.g+'='+L.d, l).ok;
+    else ok=chaine && apfJugeEq(L.g+'='+L.d, l).ok;
     V[pre+L.k+'g']=L.g?ok:false; V[pre+L.k+'d']=L.d?ok:false;
     L.ok=ok;
   });
@@ -25349,9 +25379,10 @@ function apfJugeResolL(l, n, pre){
   else if(der && der.ok && !fin) raisons.push('la dernière ligne doit donner « x = … »');
   /* la correction des cases vides : l'équation en ligne 1 si elle est vide,
      et « x = … » sur la première ligne vide après la dernière remplie */
+  const attTex={}, T=l.etapesTex||l.etapes;
   if(!lignes.some(function(L){ return L.k===1; })){ att[pre+'1g']=l.etapes[0][0]; att[pre+'1d']=l.etapes[0][1]; }
-  if(!fin){ const k=der ? der.k+1 : 2; att[pre+k+'g']='x'; att[pre+k+'d']=l.etapes[2][1]; }
-  return {V:V, ok:fin && lignes.every(function(L){ return L.ok; }), raisons:raisons, att:att, l:l};
+  if(!fin){ const k=der ? der.k+1 : 2; att[pre+k+'g']='x'; att[pre+k+'d']=l.etapes[2][1]; attTex[pre+k+'d']=T[2][1]; }
+  return {V:V, ok:fin && lignes.every(function(L){ return L.ok; }), raisons:raisons, att:att, attTex:attTex, l:l};
 }
 function apfJugeCase(q, k, raw){
   const e=apfAttenduCase(q,k), f=apfParse(apfNorm(raw, e.v===undefined), e.v===undefined);
@@ -25362,6 +25393,12 @@ function apfJuger(q, id, raw){
   if(/^apf-t-/.test(id)){ const k=id.slice(6).replace('-','.'); return {ok:apfJugeCase(q,k,raw)}; }
   const l=apfLignes(q)[+id.slice(5)-1];
   return l.t==='demo' ? apfJugeDemo(raw,l) : l.t==='eq' ? apfJugeEq(raw,l) : apfJugeChaine(raw,l);
+}
+/* la correction d'une ligne de calcul, en LaTeX (les divisions en fraction) */
+function apfCorrTex(q, id){
+  if(/^apf-t-/.test(id)) return apfCorr(q, id);
+  if(/^apf-r/.test(id)) return apfCorr(q, id);
+  const l=apfLignes(q)[+id.slice(5)-1]; return l.tex || l.corr;
 }
 function apfResolTxt(l){ return l.etapes.map(function(e){ return e[0]+' = '+e[1]; }).join(' ; '); }
 function apfCorr(q, id){
@@ -25466,7 +25503,7 @@ function apfDonneesHTML(q){
 }
 function apfConsignes(q){
   const L=apfLignes(q), V=apfV(q);
-  const calc=(i,l)=>'Calcule '+l.lab+' en détaillant les étapes.';
+  const calc=(i,l)=>'Calcule '+l.lab+' en détaillant les étapes.'+(l.libre?' (Donner une valeur approchée à 10<sup>−2</sup>&nbsp;près.)':'');
   if(q.s<=3) return L.map(function(l,i){ return calc(i,l); });
   const pb=apfNb(APF_D(V.B)), cible=apfLin(L[0].a, L[0].b, true);
   if(q.s===4) return ['Démontre que '+apfP(q,'B')+' = '+cible+'.',
@@ -25482,23 +25519,37 @@ function apfCalculsHTML(q){
     if(l.t==='resol') return '<p class="apf-cons"><b>'+APF_LETTRE_Q.charAt(i+1)+')</b> '+C[i]+'</p>'
       +'<div class="apf-resol" id="apfResol">'+Array.from({length:apfNLig(q)},function(u,k){ return apfLigneHTML(k+1); }).join('')+'</div>'
       +'<p class="apf-astuce">Une étape par ligne. La touche Entrée ajoute une ligne.</p>';
+    /* LES LIGNES DE CALCUL SONT DES CHAMPS MATHLIVE (demande de Turquet,
+       octobre 2026 : « les divisions seront sous forme fractionnaire ») —
+       comme au 6.1.3 : une division s'y écrit en fraction EMPILÉE, « * »
+       devient ×, le x s'écrit en italique arrondi ; apcLire relit en texte */
     return '<p class="apf-cons"><b>'+APF_LETTRE_Q.charAt(i+1)+')</b> '+C[i]+'</p>'
       +'<div class="apf-row"><span class="apf-lab">'+l.lab+(l.t==='eq'?'':' =')+'</span>'
-      +'<input class="sa2-in apf-calc" id="apf-c'+(i+1)+'" type="text" autocomplete="off" spellcheck="false" inputmode="numeric"'
-      +' data-pave-plus="'+(xs?'x ':'')+'+ × ( ) = ≈" placeholder="'+(l.t==='eq'?'… = …':'calcul = résultat')+'"></div>';
+      +'<math-field class="dexp-mf apc-mf apf-calc" id="apf-c'+(i+1)+'" aria-label="'+(xs?'calcul en x = forme réduite':'calcul = résultat')+'"></math-field></div>';
   }).join('');
 }
 function apfLigneHTML(k){
-  const c=s=>'<input class="sa2-in apf-eqin" id="apf-r'+k+s+'" type="text" autocomplete="off" spellcheck="false" inputmode="numeric" data-pave-plus="x ( ) + ×">';
-  return '<div class="apf-row apf-eqrow">'+c('g')+'<span class="apf-lab">=</span>'+c('d')+'</div>';
+  const c=(s,lab)=>'<math-field class="dexp-mf apc-mf apf-eqin" id="apf-r'+k+s+'" aria-label="ligne '+k+', '+lab+'"></math-field>';
+  return '<div class="apf-row apf-eqrow">'+c('g','membre de gauche')+'<span class="apf-lab">=</span>'+c('d','membre de droite')+'</div>';
 }
 function apfBrancherCase(el){
   if(isSoutien()) el.addEventListener('input', function(){ checkAPF(true); });
+  /* Entrée dans une ligne de calcul : la case suivante, puis le bouton
+     Vérifier (navCases ne connaît que les <input>) ; la résolution a son
+     propre gestionnaire, plus bas, qui ajoute des lignes */
+  if(el.tagName==='MATH-FIELD' && /^apf-c/.test(el.id)) el.addEventListener('keydown', function(e){
+    if(e.key!=='Enter' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
+    e.preventDefault(); e.stopPropagation();
+    const liste=navCasesListe(), i=liste.indexOf(el);
+    if(i>=0 && i<liste.length-1){ try{ liste[i+1].focus(); }catch(err){} }
+    else { const b=boutonVerif(); if(b) b.click(); }
+  }, true);
 }
 function apfAjouterLigne(){
   const q=test.questions[test.idx], b=$('apfResol'); if(!b || test.locked) return null;
   q.nLig=apfNLig(q)+1;
   b.insertAdjacentHTML('beforeend', apfLigneHTML(q.nLig));
+  if(window.mlDexp) window.mlDexp.upgrade(b.lastElementChild);
   ['g','d'].forEach(function(s){ const el=$('apf-r'+q.nLig+s); if(el) apfBrancherCase(el); });
   return $('apf-r'+q.nLig+'g');
 }
@@ -25561,10 +25612,11 @@ function renderAPF(){
   $('apfPrompt').innerHTML=apfEv(q,'A')+' et '+apfEv(q,'B')+' sont deux événements relatifs à une expérience aléatoire, tels que : '
     +'<span class="apf-donnees">'+apfDonneesHTML(q)+'</span>'
     +'<span class="apf-mode">Dans les lignes de calcul, écris l’opération, les étapes s’il y en a, puis le résultat, séparés par « = » '
-    +'(« ≈ » pour un arrondi au millième). Pas de lettres'+(apfAvecX(q)?', sauf <i>x</i>':'')+'.</span>';
+    +'(« ≈ » pour une valeur approchée). Une division s’écrit en fraction (touche « / »). Pas de lettres'+(apfAvecX(q)?', sauf <i>x</i>':'')+'.</span>';
   $('apfA').innerHTML='<b>a)</b> Complète l’arbre avec les probabilités données et les probabilités contraires que l’on peut en déduire.';
   $('apfArbre').innerHTML=apfArbreHTML(q);
-  $('apfCalculs').innerHTML=apfCalculsHTML(q)+apfJetonsHTML(q);
+  $('apfCalculs').innerHTML=apfCalculsHTML(q)+apfJetonsHTML(q, undefined, true);
+  if(window.mlDexp) window.mlDexp.upgrade($('apfCalculs'));   /* clavier de la Terminale, « * » → ×, correctifs communs */
   apfIds(q).forEach(function(id){
     const el=$(id); if(!el) return;
     if(/^apf-t-/.test(id)) sa2Ajuster(el);
@@ -25583,7 +25635,7 @@ function checkAPF(live){
   if(R && !live) R.raisons.forEach(function(r){ raisons.push(r); });
   ids.forEach(function(id){
     const el=$(id); if(!el) return;
-    const raw=String(el.value==null?'':el.value);
+    const raw=apcLire(el);
     const rempli=raw.trim()!=='';
     const resol=/^apf-r/.test(id);
     const j=resol ? {ok:!!R.V[id]} : rempli ? apfJuger(q, id, raw) : {ok:false};
@@ -25623,17 +25675,19 @@ function checkAPF(live){
     fb.innerHTML=msgCorrCouleurs(false)+pourquoi
       +'<br>Sur un arbre : les branches d’un même nœud ont pour somme 1 ; on <b>multiplie</b> le long d’un chemin ; '
       +'<i>P</i>(<i>B</i>) est la <b>somme</b> des chemins qui mènent à <i>B</i> ; une branche inconnue se retrouve par une <b>division</b> '
-      +'(<i>P</i>(<i>A</i> ∩ <i>B</i>) ÷ <i>P</i>(<i>A</i>)) ; et <i>P</i><sub><i>B</i></sub>(<i>A</i>) = <i>P</i>(<i>A</i> ∩ <i>B</i>) ÷ <i>P</i>(<i>B</i>).';
+      +'('+apcFr('<i>P</i>(<i>A</i> ∩ <i>B</i>)','<i>P</i>(<i>A</i>)')+') ; et <i>P</i><sub><i>B</i></sub>(<i>A</i>) = '+apcFr('<i>P</i>(<i>A</i> ∩ <i>B</i>)','<i>P</i>(<i>B</i>)')+'.';
     fb.className='mp-feedback bad';
     ids.forEach(function(id){
       if(/^apf-r/.test(id)) return;
-      corrCase(id, apfCorr(q,id), verd[id]===true); const el=$(id); if(el && /^apf-t-/.test(id)) sa2Ajuster(el); });
+      apcCorrCase(id, apfCorrTex(q,id), apfCorr(q,id), verd[id]===true); const el=$(id); if(el && /^apf-t-/.test(id)) sa2Ajuster(el); });
     if(R && !R.ok){
       /* la résolution : les cases vides qui devaient porter l'équation ou
          « x = … » reçoivent la correction (au besoin sur une ligne ajoutée) ;
          la résolution entière s'écrit en vert sous les lignes */
-      Object.keys(R.att).forEach(function(id){ if(!$(id)){ test.locked=false; apfAjouterLigne(); test.locked=true; } const el=$(id); if(el && !el.value.trim()) corrCase(id, R.att[id], false); });
-      $('apfResol').insertAdjacentHTML('afterend','<p class="apf-resol-cor">Correction : '+R.l.etapes.map(function(e){ return esc(e[0]+' = '+e[1]); }).join('<br>')+'</p>');
+      Object.keys(R.att).forEach(function(id){ if(!$(id)){ test.locked=false; apfAjouterLigne(); test.locked=true; } const el=$(id); if(el && !apcLire(el).trim()) apcCorrCase(id, R.attTex[id]||R.att[id], R.att[id], false); });
+      /* la résolution entière, la division de la dernière étape en fraction */
+      $('apfResol').insertAdjacentHTML('afterend','<p class="apf-resol-cor">Correction : '+R.l.etapes.map(function(e,k){
+        const t=(R.l.etapesTex||R.l.etapes)[k]; return mlTex(mlTexN(t[0]+'='+t[1]), esc(e[0]+' = '+e[1])); }).join('<br>')+'</p>');
     }
   }
   test.answers.push(Object.assign({}, ptsExo()||{}, {
@@ -33748,8 +33802,8 @@ function kbVarsFor(id){
   if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-formule' || id === 'recurrence-limite' || id === 'recurrence-complete' || id === 'suite-auxiliaire-redaction' || id === 'suite-auxiliaire-limite' || id === 'suite-variation-difference') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
   /* 2.2.4 : la dérivée se démontre EN LITTÉRAL (u = ax + b) — les lettres a et b sur le clavier A */
   if(id === 'etude-algo-convexite') return [{latex:"f"},{latex:"x"},{latex:"a"},{latex:"b"}];
-  /* 6.1.3 : les lignes de calcul sont des champs MathLive — x (l'inconnue) et ≈ (la valeur approchée) sur le clavier A */
-  if(id === 'arbre-probabilites-bac' || id === 'arbre-probabilites-bac-types') return [{latex:"x"},{latex:"\\approx",tooltip:"environ égal"}];
+  /* 6.1.2 et 6.1.3 : les lignes de calcul sont des champs MathLive — x (l'inconnue) et ≈ (la valeur approchée) sur le clavier A */
+  if(id === 'arbre-probabilites-fiche' || id === 'arbre-probabilites-bac' || id === 'arbre-probabilites-bac-types') return [{latex:"x"},{latex:"\\approx",tooltip:"environ égal"}];
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;
