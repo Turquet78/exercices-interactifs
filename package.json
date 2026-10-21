@@ -24,7 +24,9 @@
     "test:pause:secondes": "node tests/pause.js secondes.html"
   },
   "devDependencies": {
+    "html2canvas": "1.4.1",
     "jsdom": "^24.0.0",
+    "jspdf": "2.5.1",
     "playwright": "^1.62.1"
   }
 }
