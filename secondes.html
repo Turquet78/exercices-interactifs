@@ -2917,18 +2917,18 @@
   .kv-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue)}
   .kv-in.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
   .kv-in.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
-  #scr-kvi .kv-in{width:64px}
+  /* 8.3.2 et 8.3.3 : « a⃗ = [k] × [u⃗] » (demande de Turquet, octobre 2026) — le
+     coefficient dans une case MathLive (la touche / EMPILE la fraction), un « × »
+     entre les deux cases, et la liste du vecteur coiffée de sa flèche, DANS la case */
+  #scr-kvi math-field.kv-mf{font-size:1.3rem;min-width:46px;min-height:46px;padding:2px 6px;color:var(--blue-dark);vertical-align:middle}
+  .kv-fois{font-family:"Fredoka";font-weight:600;color:var(--ink)}
+  .kv-vsel{position:relative;display:inline-block;vertical-align:middle;color:var(--blue-dark)}
+  .kv-vsel::before{content:"";position:absolute;left:calc(50% - 7px);width:13px;top:8px;border-top:2px solid currentColor;pointer-events:none}
+  .kv-vsel::after{content:"";position:absolute;left:calc(50% + 1px);top:5px;width:5px;height:5px;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(45deg);pointer-events:none}
   #scr-kvi .kv-l{gap:8px 6px}
-  /* la case du vecteur porte sa flèche dès qu'un vecteur est choisi (une
-     <option> ne prend pas de HTML, et la flèche combinante U+20D7 n'y est pas
-     dessinée) : de la couleur de la case, bleue, rouge ou verte au verdict */
-  #scr-kvi .kv-vc{position:relative;display:inline-flex;color:var(--blue-dark)}
-  #scr-kvi .kv-vc::before{content:'\2192';position:absolute;top:3px;left:0;right:0;text-align:center;font-size:.85rem;line-height:1;pointer-events:none;color:inherit}
-  #scr-kvi .kv-vc:has(option[value=""]:checked)::before{content:none}
-  #scr-kvi .kv-vc:has(.ok){color:var(--blue)}
-  #scr-kvi .kv-vc:has(.bad){color:var(--red)}
-  #scr-kvi .kv-vc:has(.sol){color:var(--green)}
-  #scr-kvi .plc-sel.kv-sel{width:52px;font-family:"Times New Roman",serif;font-style:italic;font-size:1.3rem;padding:0}
+  .kv-vsel:has(option[value=""]:checked)::before,.kv-vsel:has(option[value=""]:checked)::after{content:none}
+  .kv-vsel:has(select.ok){color:var(--blue)} .kv-vsel:has(select.bad){color:var(--red)} .kv-vsel:has(select.sol){color:var(--green)}
+  #scr-kvi .plc-sel.kv-sel{width:50px;font-family:KaTeX_Math,Georgia,"Times New Roman",serif;font-style:italic;font-size:1.3rem;padding:6px 0 0}
   #scr-kvi .mf-cor{font-family:"Fredoka"}
   .kco-l .kco-q{white-space:nowrap}
   .kco-l .kco-rep{display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-left:auto}
@@ -8522,7 +8522,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=579;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=580;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -65285,19 +65285,20 @@ function renderKvi(){
   $('kviModeTag').innerHTML=modeTagHTML();
   $('kviInstr').innerHTML='Chacun des vecteurs '+q.l.map(function(_,i){ return tvxVecHTML(KVI_L[i]); }).join(', ')
     +' est obtenu en multipliant '+tvxVecHTML('u')+', '+tvxVecHTML('v')+' ou '+tvxVecHTML('w')+' par un réel <i>k</i>. Identifie chacun d’entre eux.'
-    +(q.fr?'<span class="kv-sous">Le coefficient s’écrit en décimal (−1,5) ou en fraction (−3/2).</span>':'');
+    +(q.fr?'<span class="kv-sous">Le coefficient s’écrit en décimal (−1,5) ou en fraction ('+kvHTML([-3,2])+') : la touche / pose la barre de fraction.</span>':'');
   const opts='<option value="" selected disabled>?</option>'+KVI_N.map(function(L){ return '<option value="'+L+'">'+L+'</option>'; }).join('');
   let h='<div class="kv-figs kv-col"><div class="kv-fig"><div class="kv-fig-t">Les vecteurs '+tvxVecHTML('u')+', '+tvxVecHTML('v')+' et '+tvxVecHTML('w')+'</div>'+kviSvgDonnes(q)+'</div>'
     +'<div class="kv-fig kv-fig-l"><div class="kv-fig-t">Les vecteurs à identifier</div>'+kviSvgFigure(q)+'</div></div><div class="kv-lignes kv-grille">';
   q.l.forEach(function(_,i){
     h+='<div class="kv-l"><span class="kv-nom">'+tvxVecHTML(KVI_L[i])+'</span><span class="kv-eg">=</span>'
-      +'<input class="kv-in" id="kvi-k-'+i+'" type="text" inputmode="numeric" data-pave-plus="/" autocomplete="off" spellcheck="false" aria-label="le coefficient k du vecteur '+KVI_L[i]+'">'
-      +'<span class="kv-eg kv-fois">×</span><span class="kv-vc"><select class="plc-sel kv-sel" id="kvi-v-'+i+'" aria-label="le vecteur u, v ou w multiplié pour obtenir '+KVI_L[i]+'">'+opts+'</select></span></div>';
+      +pmMF('kv-mf','kvi-k-'+i,' aria-label="le coefficient k du vecteur '+KVI_L[i]+'"')
+      +'<span class="kv-fois">×</span>'
+      +'<span class="kv-vsel"><select class="plc-sel kv-sel" id="kvi-v-'+i+'" aria-label="le vecteur u, v ou w multiplié pour obtenir '+KVI_L[i]+'">'+opts+'</select></span></div>';
   });
   $('kviHost').innerHTML=h+'</div>';
+  pmUpgrade($('kviHost'));
   kviCases(q).forEach(function(id){ const el=$(id); if(!el) return;
     el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ clearTimeout(test.kviSave); test.kviSave=setTimeout(autoSave,1000); recoveryDirty=true; });
-    if(el.tagName!=='SELECT') el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkKvi(); } });
   });
   $('kviFeedback').textContent=''; $('kviFeedback').className='mp-feedback';
   $('kviActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="kviValidate" type="button" onclick="checkKvi()">Vérifier</button>';
@@ -65309,10 +65310,10 @@ function kviPourquoi(q,subs){
   for(let i=0;i<q.l.length;i++){
     const sk=subs[2*i], sv=subs[2*i+1];
     if((sk.ok||sk.vide)&&(sv.ok||sv.vide)) continue;
-    const v=kviVec(q,i), b=q.bs[q.l[i][2]], c=kviCo(q,i), L=KVI_L[i], B=KVI_N[q.l[i][2]];
+    const v=kviVec(q,i), b=q.bs[q.l[i][2]], c=kviCo(q,i), L=tvxVecHTML(KVI_L[i]), B=tvxVecHTML(KVI_N[q.l[i][2]]);
     return L+' fait '+vecMots(v[0],v[1])+' ; '+B+' fait '+vecMots(b[0],b[1])+' : '+L+' est parallèle à '+B
-      +(c[0]<0?', de sens contraire':', de même sens')+(Math.abs(c[0])===c[1]?', avec les mêmes nombres de carreaux':', et chaque nombre de carreaux est multiplié par '+kvMot(c,true))
-      +'. Donc '+L+' = '+kvTxt(c)+(Math.abs(c[0])===1&&c[1]===1?'':' ')+B+'.';
+      +(c[0]<0?', de sens contraire':', de même sens')+(Math.abs(c[0])===c[1]?', avec les mêmes nombres de carreaux':', et chaque nombre de carreaux est multiplié par '+kvHTML([Math.abs(c[0]),c[1]]))
+      +'. Donc '+L+' = '+kvHTML(c,KVI_N[q.l[i][2]])+'.';
   }
   return '';
 }
@@ -65322,29 +65323,38 @@ function checkKvi(){
   const subs=[];
   q.l.forEach(function(x,i){
     const ek=$('kvi-k-'+i), ev=$('kvi-v-'+i), c=kviCo(q,i);
-    subs.push({id:'kvi-k-'+i, el:ek, bon:kvSaisie(c), ok:!!ek&&kvEgal(ek.value,c), vide:!ek||String(ek.value).trim()===''});
+    subs.push({id:'kvi-k-'+i, el:ek, bon:kvLatex(c), co:c, ok:!!ek&&kvEgal(ek.value,c), vide:!ek||String(ek.value).trim()===''});
     subs.push({id:'kvi-v-'+i, el:ev, bon:KVI_N[x[2]], ok:!!ev&&ev.value===KVI_N[x[2]], vide:!ev||!ev.value});
   });
   const n=subs.filter(function(s){ return s.ok; }).length, tout=n===subs.length;
   const pourquoi=kviPourquoi(q,subs);
-  subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); });
-  /* le badge du bon vecteur porte sa flèche, et sort du cadre de la case
-     (.kv-vc), dont la flèche se centre sur la seule liste */
-  q.l.forEach(function(x,i){ const ev=$('kvi-v-'+i), b=ev&&ev.nextElementSibling;
-    if(b&&b.classList.contains('mf-cor')){ b.innerHTML=tvxVecHTML(KVI_N[x[2]]); ev.parentNode.after(b); } });
+  subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); kviBadge(s); });
   if(!tout&&isSoutien()){ soutienAgain('kviFeedback','kviActions','checkKvi','kviHost'); return; }
   test.locked=true;
   test.score+=n;
   if(tout){ $('kviFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('kviFeedback').className='mp-feedback good'; }
-  else { $('kviFeedback').textContent=msgAvecVides(subs, pourquoi); $('kviFeedback').className='mp-feedback bad'; }
+  else { $('kviFeedback').innerHTML=msgAvecVides(subs, pourquoi); $('kviFeedback').className='mp-feedback bad'; }
   test.answers.push({...(ptsExo()||{}), correct:tout,
     q:(q.fr?'Identifier k (décimaux, fractions) — ':'Identifier k — ')+KVI_N.map(function(L,k){ return L+' '+svcVecTxt(q.bs[k]); }).join(', '),
     answer:q.l.map(function(x,i){ return KVI_L[i]+' = '+kvTxt(kviCo(q,i))+KVI_N[x[2]]; }).join(' ; '),
     given:q.l.map(function(x,i){ const ek=$('kvi-k-'+i), ev=$('kvi-v-'+i);
-      return KVI_L[i]+' = '+((ek&&String(ek.value).trim())||'?')+' '+((ev&&ev.value)||'?'); }).join(' ; ')});
+      return KVI_L[i]+' = '+((ek&&kviPlat(ek.value))||'?')+' '+((ev&&ev.value)||'?'); }).join(' ; ')});
   const last=test.idx===test.questions.length-1;
   $('kviActions').innerHTML='<button class="btn btn-primary" id="kviNext" type="button" onclick="nextKvi()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('kviNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
+}
+/* La case MathLive se lit « (−3)/(2) » (toPlain), que kvLit comprend ; dans
+   ce qu'on enregistre et ce que lit le modèle, on l'écrit « −3/2 ». */
+function kviPlat(v){ return String(v==null?'':v).replace(/[()]/g,'').trim(); }
+/* Le badge vert d'une case fausse : corrChoix écrit le LIBELLÉ en texte — ici
+   le coefficient en fraction empilée (kvHTML), le vecteur coiffé de sa flèche,
+   posé APRÈS la case fléchée (la flèche de .kv-vsel ne coiffe que la liste). */
+function kviBadge(s){
+  const el=s.el, b=el&&el.nextElementSibling;
+  if(!b||!b.classList.contains('mf-cor')) return;
+  if(s.co){ b.innerHTML=s.co[1]===1?'<span class="kv-co">'+kvSaisie(s.co)+'</span>':kvHTML(s.co); return; }
+  b.innerHTML=tvxVecHTML(s.bon);
+  const w=el.closest('.kv-vsel'); if(w) w.after(b);
 }
 function nextKvi(){ if(test.idx<test.questions.length-1){ test.idx++; renderKvi(); autoSave(); } else finishTest(); }
 function startKvi(fr){
@@ -65364,7 +65374,7 @@ function startKvi(fr){
 function ctxKvi(q){
   const ch=function(v){ return vecMots(v[0],v[1]); };
   const rep=q.l.map(function(x,i){ const ek=$('kvi-k-'+i), ev=$('kvi-v-'+i);
-    return KVI_L[i]+' = '+((ek&&String(ek.value).trim())||'?')+' × '+((ev&&ev.value)||'?'); }).join(' ; ');
+    return KVI_L[i]+' = '+((ek&&kviPlat(ek.value))||'?')+' × '+((ev&&ev.value)||'?'); }).join(' ; ');
   const ctx='Exercice de GÉOMÉTRIE sur quadrillage (tu ne vois pas le dessin ; description exacte). '
    +'Trois vecteurs sont dessinés : '+KVI_N.map(function(L,k){ return L+' fait '+ch(q.bs[k]); }).join(' ; ')+'. '
    +'Puis '+q.l.length+' vecteurs nommés : '+q.l.map(function(_,i){ return KVI_L[i]+' fait '+ch(kviVec(q,i)); }).join(' ; ')+'. '

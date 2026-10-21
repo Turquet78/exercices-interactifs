@@ -4085,7 +4085,6 @@ autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
 navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
 flèche, lui, ne se mesure qu'à l'œil.
 
-<<<<<<< HEAD
 **Puis le 8.3.1 a monté une échelle (v579 — v576 à v578 prises par les 8.3.2, 8.3.5 à 8.3.8 et 8.3.4 pendant les bancs).** Turquet, octobre 2026 : « en
 seconde dans le 8.3.1, demander soit un multiple entier de u, et on doit
 tracer k u, −u et −k u ; soit une fraction a/b de u, et on demande de tracer
@@ -4103,7 +4102,7 @@ et le rappel gagne un ⑤ : la fraction se construit par étapes. Rien d'autre
 ne change — ni le juge, ni le geste, ni la clé (`tvxCleK`). Le banc principal
 tient la nouvelle forme sur deux cents séances (l'échelle, et la sorte qui
 suit le rang de la question).
-=======
+
 **Puis le réel du 8.3.4 s'est écrit EMPILÉ** (demande de Turquet, octobre
 2026, Seconde v578 : « dans le 8.3.4, il faut une écriture fractionnaire et
 pas en ligne pour les fractions »). La case du réel était un `<input>` : l'élève
@@ -4133,6 +4132,40 @@ coefficient sont toujours des `<input>`, n'a pas changé — la demande ne
 portait que sur le 8.3.4. Contrôles (banc principal) : la case du réel est un
 `math-field`, la lecture de « -(3)/(4) », de `\frac` et de « 1{,}5 »,
 `pmVersLatex`, et la correction écrite en `\frac`.
+
+### Les 8.3.2 et 8.3.3 : la fraction s'EMPILE dans la case (v580 — v577 à v579 prises par les 8.3.5 à 8.3.8, le 8.3.4 et le 8.3.1)
+
+Demande de Turquet, octobre 2026, sur le 8.3.3 : les flèches, les cases
+étroites et le « × » (déjà faits en v576 par une session parallèle, voir
+« La ligne se lit a⃗ = k × u⃗ » plus haut), et « une écriture fractionnaire
+et pas en ligne pour les fractions ». Les deux travaux se sont croisés ;
+la fusion garde celui-ci, qui reprend le cadre fléché (renommé `.kv-vsel`,
+la flèche tracée en deux traits comme `.tpv-vc`, toujours effacée sur
+« ? ») et remplace la case texte du coefficient. Le moteur `kvi` est
+commun : le 8.3.2 suit.
+
+* **Le coefficient est une case MathLive** (`pmMF('kv-mf', …)`) : la touche /
+  EMPILE la fraction, et la case l'affiche empilée. Le travail croisait celui
+  du 8.3.4 (v578, juste au-dessus) : à la fusion, ce moteur a pris les outils
+  que le 8.3.4 venait de poser — `kvLit` qui lit « (−3)/(2) », `kvLatex` pour
+  écrire la correction empilée, le setter de `pmAdapter` qui rend sa barre à
+  une fraction reprise après une pause — et ses doublons (`kviLatex`, une
+  retouche de `restoreBoxes`) sont partis. Le badge vert d'une case fausse,
+  que `corrChoix` écrit en texte, est récrit en HTML par `kviBadge` (`kvHTML`
+  pour le coefficient).
+* **La liste du vecteur porte sa flèche DANS la case** : `.kv-vsel` l'enveloppe
+  et trace la flèche par `::before`/`::after`, au-dessus de la lettre (un
+  `<option>` n'a pas de HTML, et U+20D7 s'y affiche en blanc, voir plus haut).
+  Elle prend la couleur du verdict (`:has(select.ok)`…). Le badge du vecteur
+  sort de l'enveloppe, sans quoi la flèche se recentrerait sur les deux.
+* **Les cases** : 50 px pour la liste, 46 px au moins pour le coefficient,
+  qui grandit avec ce qu'on y écrit.
+* **Le pourquoi s'écrit en HTML** : vecteurs fléchés (`tvxVecHTML`) et
+  fractions empilées (`kvHTML`) ; la consigne du 8.3.3 empile son exemple.
+Le banc principal exige les six lignes « case MathLive, ×, liste fléchée »
+dans cet ordre, la fraction empilée de la consigne au 8.3.3, et la
+fraction lue et écrite (`kvLatex`, `kvLit`). Vu dans Chromium : la fraction
+tapée « −3/2 » s'empile, se juge, survit à la pause empilée.
 
 ## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 
@@ -4203,4 +4236,3 @@ la copie vide (rien de rouge, tout en vert) ; les pièges nommés ; au 8.3.8,
 la rédaction du manuel ET une rédaction dans l'autre ordre avec les formes
 opposées, chacune à 13 sur 13. Éprouvé par deux sabotages (un juge de
 longueur faussé, une forme juste du 8.3.8 retirée), chacun attrapé.
->>>>>>> origin/main
