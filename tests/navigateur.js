@@ -2996,6 +2996,102 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 sexies ter. LE DM SUR PAPIER SE TÉLÉCHARGE EN PDF, SANS AIDE =====
+       Demande de Turquet (octobre 2026) : « quand un élève demande un DM en
+       version papier, donner un PDF avec uniquement l'énoncé et les questions,
+       sans aucune aide de plus ; l'élève doit pouvoir le télécharger pour
+       l'imprimer ; moi le professeur je reçois un message avec ce document ».
+       jsdom ne charge pas les bibliothèques, ne dessine rien et ne télécharge
+       rien : seul un vrai navigateur voit le PDF. Les deux bibliothèques sont
+       servies depuis node_modules, à la version exacte que la page demande —
+       la version est LUE dans l'adresse, jamais recopiée.
+       QUATRE BORDS : l'élève reçoit un vrai PDF (en-tête %PDF, au moins une
+       page, une taille de document et non d'erreur) ; le professeur reçoit la
+       ligne (le message) ; l'aide de l'écran n'est plus dans l'énoncé papier
+       mais le texte des questions y est ; et le professeur retélécharge le
+       PDF depuis sa liste des signalements. */
+    titre('6 sexies ter. LE DM SUR PAPIER SE TÉLÉCHARGE EN PDF, SANS AIDE');
+    if(!P.dmPdf){
+      ignorer('le DM sur papier se télécharge en PDF, et le professeur le reçoit',
+        'la demande ne porte que la Terminale : ce niveau n\'a pas la version papier des devoirs');
+    } else {
+      const DP = P.dmPdf;
+      const src = fs.readFileSync(path.join(RACINE, CIBLE), 'utf8');
+      const libs = [['html2canvas', 'html2canvas/dist/html2canvas.min.js'], ['jspdf', 'jspdf/dist/jspdf.umd.min.js']];
+      const servies = [];
+      s = await ouvrir(chromium, ml, {});
+      for(const [nom, fichier] of libs){
+        const m = src.match(new RegExp('https://cdnjs\\.cloudflare\\.com/ajax/libs/' + nom + '/([0-9.]+)/[^\'"]+'));
+        const local = require(path.join(RACINE, 'node_modules', nom, 'package.json')).version;
+        verifier('la page demande ' + nom + ' à la version installée pour le banc',
+          !!m && m[1] === local, m ? 'la page demande ' + m[1] + ', le banc a ' + local : 'aucune adresse de ' + nom + ' dans la page');
+        if(m) await s.page.route(m[0], r => { servies.push(nom); return r.fulfill({ contentType: 'text/javascript; charset=utf-8',
+          body: fs.readFileSync(path.join(RACINE, 'node_modules', fichier), 'utf8') }); });
+      }
+      await connecter(s.page);
+      await s.page.evaluate(ex => {
+        window.confirm = () => true;
+        mesDevoirs = [{ id:'dm-pdf', num:4, actif:true, titre:'Devoir du banc', exercices:[{ id:ex, modes:['train'] }] }];
+      }, DP.exercice);
+      await s.page.evaluate(ex => dmePapierOuvrir('dm-pdf', ex), DP.exercice);
+      await s.page.waitForTimeout(1500);
+      const enonce = await s.page.evaluate(() => {
+        const e = document.querySelector('.screen.on'); const c = document.getElementById('dmeCorps');
+        return { ecran: e ? e.id : '(aucun)', texte: c ? c.textContent : '' };
+      });
+      verifier('l\'énoncé papier porte les questions', enonce.ecran === 'scr-dmenonce' && enonce.texte.indexOf(DP.question) >= 0,
+        'écran ' + enonce.ecran + ', « ' + enonce.texte.slice(0, 100) + ' »');
+      verifier('et aucune aide : « ' + DP.aide + ' » n\'y est plus', enonce.texte.indexOf(DP.aide) < 0,
+        '« …' + enonce.texte.slice(Math.max(0, enonce.texte.indexOf(DP.aide) - 60), enonce.texte.indexOf(DP.aide) + 60) + '… »');
+      const lirePdf = async dl => {
+        if(!dl) return null;
+        const f = await dl.path(); const b = f ? fs.readFileSync(f) : Buffer.alloc(0);
+        const t = b.toString('latin1');
+        return { nom: dl.suggestedFilename(), octets: b.length, entete: t.slice(0, 5),
+                 pages: (t.match(/\/Type\s*\/Page[^s]/g) || []).length };
+      };
+      const [dlEleve] = await Promise.all([
+        s.page.waitForEvent('download', { timeout: 60000 }).catch(() => null),
+        s.page.click('#dmePapierBtn'),
+      ]);
+      const pe = await lirePdf(dlEleve);
+      const toastE = await s.page.evaluate(() => document.getElementById('toast').textContent);
+      verifier('l\'élève télécharge un vrai PDF de son énoncé',
+        !!pe && pe.entete === '%PDF-' && pe.pages >= 1 && pe.octets > 20000 && /\.pdf$/.test(pe.nom),
+        pe ? pe.nom + ' : ' + pe.octets + ' octets, en-tête « ' + pe.entete + ' », ' + pe.pages + ' page(s)'
+           : 'aucun téléchargement — la page dit « ' + toastE + ' »');
+      verifier('les bibliothèques du PDF ne se chargent qu\'au premier PDF, et sont bien chargées',
+        servies.indexOf('html2canvas') >= 0 && servies.indexOf('jspdf') >= 0, 'servies : ' + (servies.join(', ') || 'aucune'));
+      const ligne = await s.page.evaluate(() => {
+        const l = (window.__faux.journal || []).filter(j => j.op === 'insert' && j.table === TABLE_SIG);
+        return l.length ? l[l.length - 1].lignes[0] : null;
+      });
+      verifier('le professeur reçoit le message du DM sur papier',
+        !!ligne && ligne.contexte && ligne.contexte.dmPapier === true && /DM sur papier/.test(ligne.message || ''),
+        ligne ? 'message « ' + ligne.message + ' »' : 'aucune ligne envoyée');
+      /* LE PROFESSEUR : la ligne reçue, et le PDF retéléchargé depuis la liste */
+      if(ligne){
+        await s.page.evaluate(l => {
+          mesSignalements = [Object.assign({ id:'sig-pdf', eleve_id:'e', exercice:l.exercice, numero:'4.2.2', mode:null,
+            prenom:(currentEleve && currentEleve.prenom) || 'élève', lu:false, created_at:'2026-10-21T08:00:00Z',
+            version:1, navigateur:'x', capture:null }, { message:l.message, contexte:l.contexte })];
+          renderSignalements();
+        }, ligne);
+        const bouton = await s.page.evaluate(() => !!document.querySelector('#sigListe button[onclick*="pdfEnonceDM"]'));
+        verifier('la ligne du professeur propose le PDF de l\'énoncé', bouton, 'aucun bouton pdfEnonceDM dans la liste');
+        const [dlProf] = await Promise.all([
+          s.page.waitForEvent('download', { timeout: 60000 }).catch(() => null),
+          s.page.evaluate(() => pdfEnonceDM('sig-pdf')),
+        ]);
+        const pp = await lirePdf(dlProf);
+        verifier('le professeur télécharge le même énoncé en PDF',
+          !!pp && pp.entete === '%PDF-' && !!pe && pp.pages === pe.pages,
+          pp ? pp.pages + ' page(s) contre ' + (pe ? pe.pages : '?') + ' chez l\'élève' : 'aucun téléchargement côté professeur');
+        await s.page.evaluate(() => { REJEU = false; });
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quindecies. Le professeur POSE une note sur un devoir ===== */
     /* Turquet doit pouvoir corriger la note d'un exercice pour un élève. Le
        banc principal éprouve le CALCUL — la note posée remplace, elle est

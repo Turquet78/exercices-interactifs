@@ -6866,6 +6866,11 @@ function devoirPapierClique(w, apres){
     if(!document.querySelector('#dmeCorps .dme-blank')) vus.push('aucun pointillé : les cases ne sont pas remplacées');
     if((document.getElementById('dmeCorps').textContent||'').indexOf('Démontre que')<0)
       vus.push('l\\'énoncé ne porte pas le texte des questions');
+    /* SANS AUCUNE AIDE (octobre 2026) : le rappel de la formule de la
+       tangente, que l'écran de l'exercice écrit dans son énoncé, se tait sur
+       le papier — donc dans le PDF, qui en est la photo */
+    if((document.getElementById('dmeCorps').textContent||'').indexOf('Rappel')>=0)
+      vus.push('l\\'énoncé papier garde une aide (« Rappel ») — il ne doit porter que l\\'énoncé et les questions');
     /* une photo ne porte AUCUN id : les conteneurs clonés gardaient les leurs,
        et l'écran d'énoncé venant avant les écrans d'exercice, un vrai
        navigateur faisait écrire le rendu de l'exercice DANS le clone —
@@ -6979,6 +6984,7 @@ function devoirPapierClique(w, apres){
       else{
         if((item.textContent||'').indexOf('devoir sur papier')<0) vus.push('la ligne DM papier ne se distingue pas d\\'un signalement');
         if(!item.querySelector('button[onclick*="voirEnonceDM"]')) vus.push('pas de bouton « Voir l\\'énoncé complet »');
+        if(!item.querySelector('button[onclick*="pdfEnonceDM"]')) vus.push('pas de bouton « PDF de l\\'énoncé » : le professeur ne reçoit pas le document');
         if(item.querySelector('button[onclick*="rejouerSignalement"]')) vus.push('la ligne papier propose encore « Rejouer l\\'écran »');
       }
       REJEU=false;

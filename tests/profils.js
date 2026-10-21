@@ -2461,6 +2461,11 @@ module.exports = {
        coché bonus dans le devoir du banc, le second sert le bord OPPOSÉ. */
     bonusEcrit: { table: 'parametres', bonus: 'tangente-exp',
                   normal: 'equation-tangente', mot: 'Bonus' },
+    /* Le DM sur papier se TÉLÉCHARGE en PDF, sans aucune aide (demande de
+       Turquet, octobre 2026). « aide » est un texte que l'écran de l'exercice
+       montre et que le papier doit taire : le « Rappel » de la formule de la
+       tangente, écrit au milieu de l'énoncé du 4.2.2. */
+    dmPdf: { exercice: 'tangente-exp', aide: 'Rappel', question: 'Démontre que' },
     /* La Terminale a la touche « / » de plus : ses tangentes acceptent p/q. */
     /* Le témoin du GARDE DE LA SAISIE : en soutien, une case ne se colore pas
        tant que l'élève y écrit (décision de Turquet, août 2026). Il faut une

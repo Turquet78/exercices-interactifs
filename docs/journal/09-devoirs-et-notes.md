@@ -1426,3 +1426,58 @@ suivante, parce que la note y est trop BASSE et non gonflée : les réponses a)
 et b) du {tvi-lecture-graphique}, qui ne comptent jamais, et les feuilles de
 {derivee-exp-2} et {derivee-exp-quotient-2}, qui sont la réponse notée et
 valent donc déjà 0 ou 1.
+
+**Le DM sur papier se télécharge en PDF, sans aucune aide — et le professeur
+reçoit le même** (Terminale, demande de Turquet, octobre 2026 : « quand un élève
+demande un DM en version papier, donner un PDF avec uniquement l'énoncé et les
+questions, sans aucune aide de plus ; l'élève doit pouvoir le télécharger pour
+l'imprimer ; moi le professeur je reçois un message avec ce document »).
+Le bouton de l'écran papier est devenu « 📥 Télécharger mon énoncé en PDF » :
+la confirmation dit que le professeur en recevra le même exemplaire, la ligne
+part dans les signalements (le « message » du professeur, inchangé), PUIS le PDF
+se prépare et se télécharge ; « Télécharger à nouveau » le rend sans le refaire.
+Côté professeur, la ligne « 📄 devoir sur papier » gagne « 📥 PDF de l'énoncé »,
+et l'écran de l'énoncé un bouton de téléchargement.
+**Le fichier n'est pas stocké, il est REFAIT** : le seau des captures n'accepte
+que des images (migration 007), et l'ouvrir aux PDF demandait une migration à
+jouer à la main. Le PDF du professeur sort du tirage exact envoyé, par le même
+capteur (`dmEnonceHTML`) et le même rendu (`dmePdfFabriquer`) que chez l'élève.
+**Le PDF est la photo de l'écran papier** : un titre (devoir, exercice), le
+prénom, puis les questions. html2canvas rend chaque question en image, jsPDF les
+pose sur des pages A4 — une question ne se coupe que si elle dépasse une page,
+et alors sur une RANGÉE BLANCHE (`dmePdfCoupe`) : une coupe franche passait au
+milieu d'une ligne de texte. La première question commence sous l'en-tête,
+réduite jusqu'à 85 % s'il le faut, ou tranchée : sans quoi seize exercices à
+une seule longue question (le 4.3.4, les suites…) laissaient une page 1 qui ne
+portait que le titre.
+Les deux bibliothèques (cdnjs, versions exactes) ne se chargent qu'au premier
+PDF. **Piège** : html2canvas sérialise un SVG SEUL, sans la feuille de styles —
+une courbe stylée par sa classe sortait noire et pleine ; les styles calculés
+de chaque élément de dessin sont écrits dans son `style` avant le rendu.
+**« Sans aucune aide »** se tient dans le capteur, donc partout à la fois (écran
+papier, PDF, vue du professeur) : `DME_AIDES` retire indices (`[class*="hint"]`),
+exemples de rédaction, liste de ce qui est attendu, notes de clavier, jetons et
+modes d'emploi ; une aide écrite au milieu d'une phrase d'énoncé se marque
+`<span class="aide-ecran">` (le « Rappel » de la formule de la tangente au
+{tangente-exp}, « c'est l'IA qui lit ta rédaction »). Ce qui reste est la
+structure de l'exercice — les étapes guidées d'une démonstration à compléter
+SONT ses questions. Tenu par le banc principal (le « Rappel » absent, le bouton
+du professeur présent) et par le banc navigateur, section 6 sexies ter : le PDF
+réellement téléchargé (en-tête, pages) chez l'élève puis chez le professeur, les
+bibliothèques servies depuis `node_modules` à la version que la page demande.
+**Deux défauts de l'écran papier lui-même se sont vus en ouvrant les PDF**, et
+ils étaient là avant : les pointillés avaient une largeur fixe (90 px) quelle
+que soit la case remplacée, ce qui déplaçait tout ce qui l'entoure — ils
+prennent maintenant la taille mesurée de la case, et une ligne de calcul
+devient une vraie ligne d'écriture ; et l'ARBRE de probabilités n'avait pas de
+branches — elles se dessinent à l'image suivante (`apfSuivreTraits`), après la
+photo : `dmEnonceHTML` les pose avant de photographier (`apfTraits`). Les
+pointes de flèche restent absentes (une photo ne porte aucun id, et le
+`marker` en est un). **Le rendu se fait dans un cadre à part** (`dmePdfCadre`,
+1 280 px de large pour que les règles `@media` soient celles d'un ordinateur
+sur tous les appareils) : html2canvas recopie tout le document à chaque appel,
+et dans la page une question coûtait la page entière — de 4 s à près d'une
+minute à mesure que la séance avançait. Dans le cadre : 2 à 8 s pour tout le
+PDF. Éprouvé sur les 63 exercices du menu qui savent s'énoncer sur papier (le
+64e, {arbre-probabilites-bac-types}, le dit et rend le choix des modes, comme
+avant).
