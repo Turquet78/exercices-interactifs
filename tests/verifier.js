@@ -14547,8 +14547,8 @@ function vecteursColineairesSuite(w, P){
     /* la pause entre les deux étapes : la question repart du JSON, aux phrases, l'étape 1 telle quelle */
     json(); renderKph();
     if(document.querySelectorAll('#kphHost .kph-t').length!==5 || document.querySelectorAll('#kphHost .kph-eg select:disabled.ok').length!==6) vus.push('8.3.7 : après la pause, les phrases ne sont pas là ou l’étape 1 n’est plus corrigée');
-    av=test.score; checkKph();
-    if(test.score!==av) vus.push('8.3.7 : l’étape 1 se rejuge à la reprise');
+    /* « Vérifier » ne juge plus que les phrases : l'étape 1 n'est plus dans ce qu'il relit */
+    if(kphJuge(test.questions[test.idx]).map(function(x){ return x.id; }).join()!=='kph-0,kph-1,kph-2,kph-3,kph-4') vus.push('8.3.7 : après la pause, « Vérifier » relirait encore l’étape 1');
     ['2','0','4','3','1'].forEach(function(v,i){ el('kph-'+i).value=v; });
     av=test.score; checkKph();
     if(test.score-av!==5 || !test.locked || !test.answers[test.answers.length-1].correct) vus.push('8.3.7 : l’étape 2 juste vaut '+(test.score-av));
