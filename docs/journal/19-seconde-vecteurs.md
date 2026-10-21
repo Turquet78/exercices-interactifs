@@ -4085,7 +4085,7 @@ autres. Le geste du 8.3.1 à la vraie souris est celui du 8.1.7, que le banc
 navigateur joue déjà (« 6 quadragies octies ») ; le nom empilé sous une
 flèche, lui, ne se mesure qu'à l'œil.
 
-### Les 8.3.2 et 8.3.3 : la fraction s'EMPILE dans la case (v578 — v577 prise par les 8.3.5 à 8.3.8)
+### Les 8.3.2 et 8.3.3 : la fraction s'EMPILE dans la case (v579 — v577 et v578 prises par les 8.3.5 à 8.3.8 et le 8.3.4)
 
 Demande de Turquet, octobre 2026, sur le 8.3.3 : les flèches, les cases
 étroites et le « × » (déjà faits en v576 par une session parallèle, voir
@@ -4097,12 +4097,14 @@ la flèche tracée en deux traits comme `.tpv-vc`, toujours effacée sur
 commun : le 8.3.2 suit.
 
 * **Le coefficient est une case MathLive** (`pmMF('kv-mf', …)`) : la touche /
-  EMPILE la fraction, et la case l'affiche empilée. Elle se lit à plat par
-  `pmPlain` — `\frac{3}{2}` y devient « (3)/(2) » (`struct`), que `kvLit` ne
-  lisait pas : `kviPlat` ôte les parenthèses avant `kvEgal`. La correction
-  s'écrit en LaTeX (`kviLatex`, « −\frac{3}{2} »), empilée elle aussi ; le
-  badge vert d'une case fausse, que `corrChoix` écrit en texte, est récrit en
-  HTML par `kviBadge` (`kvHTML` pour le coefficient).
+  EMPILE la fraction, et la case l'affiche empilée. Le travail croisait celui
+  du 8.3.4 (v578, juste au-dessus) : à la fusion, ce moteur a pris les outils
+  que le 8.3.4 venait de poser — `kvLit` qui lit « (−3)/(2) », `kvLatex` pour
+  écrire la correction empilée, le setter de `pmAdapter` qui rend sa barre à
+  une fraction reprise après une pause — et ses doublons (`kviLatex`, une
+  retouche de `restoreBoxes`) sont partis. Le badge vert d'une case fausse,
+  que `corrChoix` écrit en texte, est récrit en HTML par `kviBadge` (`kvHTML`
+  pour le coefficient).
 * **La liste du vecteur porte sa flèche DANS la case** : `.kv-vsel` l'enveloppe
   et trace la flèche par `::before`/`::after`, au-dessus de la lettre (un
   `<option>` n'a pas de HTML, et U+20D7 s'y affiche en blanc, voir plus haut).
@@ -4112,15 +4114,40 @@ commun : le 8.3.2 suit.
   qui grandit avec ce qu'on y écrit.
 * **Le pourquoi s'écrit en HTML** : vecteurs fléchés (`tvxVecHTML`) et
   fractions empilées (`kvHTML`) ; la consigne du 8.3.3 empile son exemple.
-* **La reprise rend sa barre à une fraction** — dans `restoreBoxes`, pour
-  TOUTE case MathLive : la pause range la case à plat, « −(3)/(2) », et la
-  réécrire telle quelle la mettait en ligne, parenthèses comprises. Une
-  saisie entière de la forme `(a)/(b)` redevient `\frac{a}{b}`.
-
 Le banc principal exige les six lignes « case MathLive, ×, liste fléchée »
-dans cet ordre, la fraction empilée de la consigne au 8.3.3, et les deux
-sens de la fraction (`kviLatex`, `kviPlat`). Vu dans Chromium : la fraction
+dans cet ordre, la fraction empilée de la consigne au 8.3.3, et la
+fraction lue et écrite (`kvLatex`, `kvLit`). Vu dans Chromium : la fraction
 tapée « −3/2 » s'empile, se juge, survit à la pause empilée.
+
+**Puis le réel du 8.3.4 s'est écrit EMPILÉ** (demande de Turquet, octobre
+2026, Seconde v578 : « dans le 8.3.4, il faut une écriture fractionnaire et
+pas en ligne pour les fractions »). La case du réel était un `<input>` : l'élève
+tapait « −3/4 » en ligne, à côté d'une correction (`mf-cor`) qui, elle,
+empilait déjà. Elle est devenue une case MathLive (`pmMF('kco-in', …)`), où la
+touche / pose le trait — la consigne le dit, et montre la fraction empilée au
+lieu de « (−3/2) ». Trois endroits ont suivi, et en oublier un rendait la
+fraction en ligne ou la réponse fausse :
+
+* **la lecture** : `value` d'une case MathLive rend le texte de `toPlain`,
+  « -(3)/(4) » ; `kvLit` retire les parenthèses, et lit aussi un `\frac{3}{4}`
+  brut et le « {,} » décimal — le double du banc jsdom, qui ne convertit rien,
+  rend le LaTeX tel quel ;
+* **la correction** d'une ligne vide écrit `kvLatex(c)` (« -\frac{3}{4} »),
+  plus `kvSaisie` : du texte posé dans MathLive s'y affiche en ligne ;
+* **la reprise** d'une pause remet le texte rangé par `captureBoxes`
+  (« -(3)/(4) ») : le setter de `pmAdapter` passe désormais par
+  `pmVersLatex`, qui relève chaque « (a)/(b) » en `\frac{a}{b}`, du plus
+  profond au plus large, et laisse intact un texte qui porte déjà du LaTeX.
+  Ce setter sert toutes les cases `pm-mf` de la Seconde : une fraction tapée
+  dans n'importe laquelle revenait en ligne après une pause, et revient
+  empilée.
+
+L'Entrée ne valide plus directement : comme dans toute case `pm-mf`, elle passe
+à la case suivante, puis au bouton « Vérifier ». Le 8.3.3, dont les cases de
+coefficient sont toujours des `<input>`, n'a pas changé — la demande ne
+portait que sur le 8.3.4. Contrôles (banc principal) : la case du réel est un
+`math-field`, la lecture de « -(3)/(4) », de `\frac` et de « 1{,}5 »,
+`pmVersLatex`, et la correction écrite en `\frac`.
 
 ## La suite du sous-thème 8.3, sans coordonnées — {colineaires-sens-longueur}, {placer-point-colineaire}, {phrase-relation-colineaire}, {milieux-parallele-vecteurs} (8.3.5 à 8.3.8, v577 — v576 prise par le 8.3.2 pendant la rédaction)
 

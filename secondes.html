@@ -2941,6 +2941,7 @@
   .kco-l.bad{border-color:var(--red);background:#FDECEC}
   .kco-l.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft)}
   .kco-svg .kco-lt{font-size:18px}
+  #kcoHost math-field.kco-in{font-size:1.3rem;min-width:84px;max-width:150px}
   /* 8.3.5 à 8.3.8 — {colineaires-sens-longueur}, {placer-point-colineaire},
      {phrase-relation-colineaire}, {milieux-parallele-vecteurs} : les lignes des
      8.3.2 à 8.3.4 (.kv-l), les croix du 8.1.12 (.tan-svg), la rédaction et les
@@ -8521,7 +8522,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=578;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=579;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -8628,12 +8629,23 @@ function pmNavSuiv(el, dir){
     }
   }
 }
+/* Le texte que rend value (« -(3)/(4) », toPlain) revient dans la case par la
+   reprise d'une pause : sans retour au LaTeX, MathLive l'écrivait EN LIGNE.
+   Chaque « (a)/(b) » sans parenthèse intérieure redevient \frac{a}{b}, du plus
+   profond au plus large ; un texte qui porte déjà du LaTeX n'est pas touché. */
+function pmVersLatex(v){
+  let s=String(v==null?'':v);
+  if(s.indexOf('\\')>=0) return s;
+  let av;
+  do{ av=s; s=s.replace(/\(([^()]*)\)\/\(([^()]*)\)/g,'\\frac{$1}{$2}'); }while(s!==av);
+  return s;
+}
 function pmAdapter(el){
   if(!el || el.__pmAdapt) return; el.__pmAdapt=true;
   try{
     Object.defineProperty(el,'value',{ configurable:true,
       get(){ return pmPlain(el); },
-      set(v){ try{ el.setValue(String(v==null?'':v)); }catch(e){} } });
+      set(v){ try{ el.setValue(pmVersLatex(v)); }catch(e){} } });
     Object.defineProperty(el,'disabled',{ configurable:true,
       get(){ return !!el.readOnly; },
       set(v){ try{ el.readOnly=!!v; }catch(e){} } });
@@ -13378,12 +13390,7 @@ function restoreBoxes(boxes){
   const sansId=scr?[...scr.querySelectorAll('input:not([id])')]:[];
   Object.keys(boxes).forEach(id=>{
     if(id.charAt(0)==='#'){ const el=sansId[parseInt(id.slice(1),10)]; if(el) el.value=boxes[id]; return; }
-    const el=$(id); if(!el) return;
-    if(el.tagName==='INPUT'||el.tagName==='SELECT') el.value=boxes[id];
-    /* une case MathLive se range à plat (toPlain) : sa fraction empilée revient
-       « (3)/(2) », et la réécrire telle quelle la mettrait EN LIGNE, parenthèses
-       comprises, sous les yeux de l'élève — on lui rend sa barre */
-    else if(el.tagName==='MATH-FIELD') el.value=String(boxes[id]).replace(/^(-?)\(([^()]*)\)\/\(([^()]*)\)$/,'$1\\frac{$2}{$3}'); });
+    const el=$(id); if(el && (el.tagName==='INPUT'||el.tagName==='SELECT'||el.tagName==='MATH-FIELD')){ el.value=boxes[id]; } });
 }
 // reconstruit la fonction d'une question « signes & variations » (perdue par la sérialisation JSON)
 function svFnFrom(r,e,extrType){
@@ -65079,6 +65086,8 @@ function kvTxt(c){
 function kvMot(c,abs){ return (!abs&&c[0]<0?'−':'')+Math.abs(c[0])+(c[1]>1?'/'+c[1]:''); }
 /* Le coefficient seul, écrit comme l'élève peut l'écrire : « −2 », « 3/2 » */
 function kvSaisie(c){ return (c[0]<0?'−':'')+Math.abs(c[0])+(c[1]>1?'/'+c[1]:''); }
+/* Le même, pour une case MathLive : la fraction empilée */
+function kvLatex(c){ return (c[0]<0?'-':'')+(c[1]>1?'\\frac{'+Math.abs(c[0])+'}{'+c[1]+'}':Math.abs(c[0])); }
 function kvHTML(c,L){
   const n=Math.abs(c[0]), d=c[1];
   return '<span class="kv-co">'+(c[0]<0?'<span class="kv-sg">−</span>':'')
@@ -65086,7 +65095,9 @@ function kvHTML(c,L){
     +(L?tvxVecHTML(L):'')+'</span>';
 }
 function kvLit(s){
-  s=String(s==null?'':s).replace(/[\s ]/g,'').replace(/[−–]/g,'-').replace(/,/g,'.');
+  /* une case MathLive se lit « -(3)/(4) » (toPlain) ; un \frac resté brut, « {,} » décimal, se lisent aussi */
+  s=String(s==null?'':s).replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g,'$1/$2').replace(/\{,\}/g,',').replace(/[()]/g,'');
+  s=s.replace(/[\s ]/g,'').replace(/[−–]/g,'-').replace(/,/g,'.');
   const m=s.match(/^([+-]?)(\d+(?:\.\d+)?|\.\d+)(?:\/(\d+(?:\.\d+)?))?$/);
   if(!m) return NaN;
   const den=m[3]?parseFloat(m[3]):1;
@@ -65299,7 +65310,7 @@ function checkKvi(){
   const subs=[];
   q.l.forEach(function(x,i){
     const ek=$('kvi-k-'+i), ev=$('kvi-v-'+i), c=kviCo(q,i);
-    subs.push({id:'kvi-k-'+i, el:ek, bon:kviLatex(c), co:c, ok:!!ek&&kvEgal(kviPlat(ek.value),c), vide:!ek||String(ek.value).trim()===''});
+    subs.push({id:'kvi-k-'+i, el:ek, bon:kvLatex(c), co:c, ok:!!ek&&kvEgal(ek.value,c), vide:!ek||String(ek.value).trim()===''});
     subs.push({id:'kvi-v-'+i, el:ev, bon:KVI_N[x[2]], ok:!!ev&&ev.value===KVI_N[x[2]], vide:!ev||!ev.value});
   });
   const n=subs.filter(function(s){ return s.ok; }).length, tout=n===subs.length;
@@ -65319,10 +65330,9 @@ function checkKvi(){
   $('kviActions').innerHTML='<button class="btn btn-primary" id="kviNext" type="button" onclick="nextKvi()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('kviNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
 }
-/* La case MathLive rend une fraction empilée « (−3)/(2) » (toPlain) : kvLit
-   lit « −3/2 ». La correction s'y écrit en LaTeX, empilée elle aussi. */
+/* La case MathLive se lit « (−3)/(2) » (toPlain), que kvLit comprend ; dans
+   ce qu'on enregistre et ce que lit le modèle, on l'écrit « −3/2 ». */
 function kviPlat(v){ return String(v==null?'':v).replace(/[()]/g,'').trim(); }
-function kviLatex(c){ const n=Math.abs(c[0]), d=c[1]; return (c[0]<0?'-':'')+(d===1?String(n):'\\frac{'+n+'}{'+d+'}'); }
 /* Le badge vert d'une case fausse : corrChoix écrit le LIBELLÉ en texte — ici
    le coefficient en fraction empilée (kvHTML), le vecteur coiffé de sa flèche,
    posé APRÈS la case fléchée (la flèche de .kv-vsel ne coiffe que la liste). */
@@ -65377,6 +65387,13 @@ function ctxKvi(q){
    pour qu'une pause le rende (CLE_HORS l'écarte de la clé de distinctes).
    Le coefficient se recalcule (kcoCo) ; la case du réel est une case comme
    les autres, rendue par la reprise.
+
+   LA FRACTION S'ÉCRIT EMPILÉE (demande de Turquet, octobre 2026 : « il faut
+   une écriture fractionnaire et pas en ligne ») : la case du réel est une
+   case MathLive (pmMF), où la touche / pose le trait ; sa valeur se lit en
+   texte (« -(3)/(4) »), que kvLit comprend, et la correction y écrit du
+   LaTeX (kvLatex). La reprise rend la fraction empilée : le setter de
+   pmAdapter relève le « (a)/(b) » du texte rangé en \frac{a}{b}.
 
    UNE RÉPONSE PAR LIGNE (kcoCases) : la ligne entière est la pts-case —
    « Non » juste si les vecteurs ne sont pas colinéaires ; « Oui » juste
@@ -65482,14 +65499,14 @@ function renderKco(){
   $('kcoIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('kcoModeTag').innerHTML=modeTagHTML();
   $('kcoInstr').innerHTML='Dans chaque cas, indique si les vecteurs sont colinéaires et, s’ils le sont, justifie-le en écrivant le réel <i>k</i>.'
-    +'<span class="kv-sous">Le réel s’écrit en entier, en décimal (−1,5) ou en fraction (−3/2).</span>';
+    +'<span class="kv-sous">Le réel s’écrit en entier, en décimal (−1,5) ou en fraction ('+kvHTML([-3,2],'')+') : la touche / pose le trait de fraction.</span>';
   let h='<div class="kv-figs"><div class="kv-fig kv-fig-l">'+kcoSVG(q)+'</div></div><div class="kv-lignes">';
   q.p.forEach(function(p,k){
     h+='<div class="kv-l kco-l pts-case" id="kco-r-'+k+'"><span class="kco-q"><b class="kco-lt">'+'abcdefgh'[k]+'.</b> '+kcoVecHTML(p[0])+' et '+kcoVecHTML(p[1])+'&nbsp;?</span>'
       +'<span class="kco-rep"><button type="button" class="kco-b" id="kco-n-'+k+'" aria-pressed="false" onclick="kcoChoix('+k+',\'non\')">Non</button>'
       +'<span class="kco-oui"><button type="button" class="kco-b" id="kco-o-'+k+'" aria-pressed="false" onclick="kcoChoix('+k+',\'oui\')">Oui</button>'
       +'<span class="kco-car">car '+kcoVecHTML(p[0])+' =</span>'
-      +'<input class="kv-in kco-in" id="kco-k-'+k+'" type="text" inputmode="numeric" data-pave-plus="/" autocomplete="off" spellcheck="false" aria-label="le réel k tel que '+kcoNom(p[0])+' = k '+kcoNom(p[1])+'">'
+      +pmMF('kco-in','kco-k-'+k,' aria-label="le réel k tel que '+kcoNom(p[0])+' = k '+kcoNom(p[1])+'"')
       +kcoVecHTML(p[1])+'</span></span></div>';
   });
   $('kcoHost').innerHTML=h+'</div>';
@@ -65499,7 +65516,6 @@ function renderKco(){
     el.addEventListener('input', function(){
       if(String(el.value).trim()!==''&&q.choisi[k]!=='oui'){ q.choisi[k]='oui'; kcoBoutons(q,k); }
       recoveryDirty=true; clearTimeout(test.kcoSave); test.kcoSave=setTimeout(autoSave,1000); });
-    el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkKco(); } });
   });
   $('kcoFeedback').textContent=''; $('kcoFeedback').className='mp-feedback';
   $('kcoActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="kcoValidate" type="button" onclick="checkKco()">Vérifier</button>';
@@ -65535,7 +65551,7 @@ function kcoPeindre(q,subs,final){
     if(final){ el.classList.add('sol');
       const p=q.p[k], c=kcoCo(q,p[0],p[1]);
       q.choisi[k]=c?'oui':'non'; kcoBoutons(q,k);
-      const i=$('kco-k-'+k); if(i&&c) i.value=kvSaisie(c); }
+      const i=$('kco-k-'+k); if(i&&c) i.value=kvLatex(c); }
   });
 }
 function checkKco(){
