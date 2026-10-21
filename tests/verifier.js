@@ -14261,7 +14261,7 @@ function vecteursColineaires(w, P){
       if(test.kind!=='kvi' || test.maxScore!==d.bareme || test.questions.length!==d.nb) vus.push(et+'kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
       /* au 8.3.3, la première page n'a que des entiers, les suivantes que des fractions */
       test.questions.forEach(function(qq,k){ const f=fr&&k>0, cs=qq.l.map(function(_,i){ return kviCo(qq,i); });
-        if(!!qq.fr!==f || cs.some(function(c){ return f?c[1]===1:c[1]!==1; })) vus.push(et+'la page '+(k+1)+' doit n\'avoir que des '+(f?'fractions':'entiers')+' : '+JSON.stringify(cs)); });
+        if(!!qq.fr!==f || cs.some(function(c){ return f?c[1]===1:c[1]!==1; })) vus.push(et+'la page '+(k+1)+' doit n\\'avoir que des '+(f?'fractions':'entiers')+' : '+JSON.stringify(cs)); });
       for(let n=0;n<200;n++){
         const q=kviGen(fr), cs=q.l.map(function(_,i){ return kviCo(q,i); });
         if(q.l.length!==KVI_NL || q.bs.length!==3 || para(q.bs[0],q.bs[1])||para(q.bs[0],q.bs[2])||para(q.bs[1],q.bs[2])){ vus.push(et+'la figure : '+JSON.stringify(q)); break; }
