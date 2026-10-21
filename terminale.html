@@ -747,7 +747,10 @@
      560 px de haut (un téléphone couché), il ne colle pas : il couvrirait
      presque tout l'écran. Les cases qu'il cacherait se laissent atteindre :
      scroll-padding-top réserve sa hauteur (--apc-arbre-h, mesurée par
-     apfTraits) quand le focus fait défiler la page. */
+     apfTraits) quand le focus fait défiler la page. Le 6.1.5 ({arbre-probabilites-
+     bac-types}), lui, ne colle PAS : ses arbres défilent avec le texte
+     (demande de Turquet, octobre 2026 : « je ne veux plus qu'un arbre reste
+     complètement à l'écran quand on fait défiler l'exercice »). */
   #apcArbre,#apcArbreSuite,#aptArbreSuite{display:contents}
   @media (min-height:560px){
     .apf-arbre-defile.apc-fixe{position:sticky;top:0;z-index:5;background:var(--surface);padding:6px 0 4px;
@@ -757,12 +760,12 @@
        question et passe par-dessus le premier : celui-ci peut alors être
        masqué, en partie ou entièrement (demande de Turquet, octobre 2026) */
     .apf-arbre-defile.apx-fixe{z-index:6}
-    html:has(#scr-apc.on .apc-fixe),html:has(#scr-apt.on .apc-fixe){scroll-padding-top:calc(var(--apc-arbre-h,0px) + 12px)}
+    html:has(#scr-apc.on .apc-fixe){scroll-padding-top:calc(var(--apc-arbre-h,0px) + 12px)}
     /* « overflow-x:hidden » sur html ET body (la ceinture de la largeur) fait
        du body un conteneur de défilement qui ne défile jamais : l'arbre y
        collerait, et partirait avec la page. « clip » coupe pareil sans créer
        de conteneur ; un navigateur qui ne le connaît pas garde « hidden ». */
-    body:has(#scr-apc.on .apc-fixe),body:has(#scr-apt.on .apc-fixe){overflow-x:hidden;overflow-x:clip}
+    body:has(#scr-apc.on .apc-fixe){overflow-x:hidden;overflow-x:clip}
   }
   .apf-arbre{position:relative;display:grid;grid-template-columns:auto auto auto auto auto 54px auto;
              grid-template-rows:repeat(8,minmax(44px,auto));column-gap:16px;align-items:center;font-size:1.1rem;width:max-content;margin:0 auto}
@@ -3775,7 +3778,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=417;
+const APP_VERSION=418;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -26895,7 +26898,6 @@ function aptGrilleHTML(pre, T, ev, cas, fin){
 /* les traits : Ω vers chaque nœud, chaque nœud vers ses fins de chemin ; l'accolade, s'il y en a une */
 function aptTraits(pre){
   const g=$(pre+'Grille'), s=$(pre+'Traits'); if(!g||!s) return;
-  document.documentElement.style.setProperty('--apc-arbre-h', Math.max.apply(null, ['aptGrille','apyGrille'].map(function(id){ const e=$(id); return e && e.parentNode ? e.parentNode.offsetHeight : 0; }))+'px');   /* le plus haut des deux arbres */
   const G=g.getBoundingClientRect(), box=e=>{ const b=e.getBoundingClientRect(); return {l:b.left-G.left, r:b.right-G.left, t:b.top-G.top, b:b.bottom-G.top, cy:(b.top+b.bottom)/2-G.top}; };
   const O=$(pre+'-n-O'); if(!O) return;
   const o=box(O), fl=pre+'Fl';
@@ -26975,8 +26977,7 @@ function aptArbreXHTML(q){
     const lab=aptLab(q,kind,a,b);
     if(kind==='i') return '<span class="apf-lab">'+lab+' = <span class="apf-pts">…</span></span>';
     if(kind==='f') return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apy', 'fin', false)+'</span>';
-    return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apy', kind==='1'?a:a+'-'+b, kind==='2' && a===X.u)+'</span>'; }, X.e)
-    .replace('class="apf-arbre-defile"', 'class="apf-arbre-defile apc-fixe apx-fixe"');
+    return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apy', kind==='1'?a:a+'-'+b, kind==='2' && a===X.u)+'</span>'; }, X.e);
 }
 /* les identifiants des cases d'un arbre, dans l'ordre de la grille */
 function aptArbreIds(q, sens){
@@ -27191,8 +27192,7 @@ function aptReveler(q){
   zone.innerHTML='<p class="apf-cons">La page a écrit les probabilités sur l’arbre. Complète-le avec les données de l’énoncé et les probabilités contraires que l’on peut en déduire'+fin+'.</p>'+aptArbreHTML(q, sens);
   aptArbreIds(q, sens).filter(sansFin).forEach(function(id,i){ const el=$(id); if(el){ if(garde[i]) el.value=garde[i]; sa2Ajuster(el); aptBrancher(el); } });
   const f1=$('apt-t-fin'); if(f1){ if(!(test.locked && avant==='1')) f1.value=zone.getAttribute('data-fin')||''; sa2Ajuster(f1); aptBrancher(f1); }
-  const fixe=zone.querySelector('.apf-arbre-defile'); if(fixe) fixe.classList.add('apc-fixe');   /* l'arbre reste en haut de l'écran */
-  aptSuivreTraits('apt');
+  aptSuivreTraits('apt');   /* l'arbre défile avec la page, il ne colle pas en haut (demande de Turquet, octobre 2026) */
   aptXOuvrir(q);
 }
 /* LE SECOND ARBRE, celui en x (demande de Turquet, octobre 2026) : il ne
