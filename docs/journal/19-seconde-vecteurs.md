@@ -4247,7 +4247,7 @@ dont une de trop, prise de préférence comme l'OPPOSÉE d'un réel juste. Le
 pourquoi traduit la phrase et la carte choisie en « côté de A, puis
 longueur », côte à côte.
 
-Puis les **dessins** (demande de Turquet, octobre 2026, v582) : chaque
+Puis les **dessins** (demande de Turquet, octobre 2026, v583) : chaque
 égalité a le sien — A, B et M sur une droite horizontale, graduée au pas de
 AB/d (d, dénominateur du réel), M en violet et nommé dessous. L'élève
 associe chaque phrase à un dessin (I à VI), puis à une égalité : deux listes
