@@ -14265,14 +14265,16 @@ function vecteursColineaires(w, P){
       const d=D[m[0]], fr=m[1], et=d.numero+' : ';
       currentTestId=d.exercice; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
       if(test.kind!=='kvi' || test.maxScore!==d.bareme || test.questions.length!==d.nb) vus.push(et+'kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
-      if(!!test.questions[0].fr!==fr) vus.push(et+'q.fr vaut '+test.questions[0].fr);
+      /* au 8.3.3, la première page n'a que des entiers, les suivantes que des fractions */
+      test.questions.forEach(function(qq,k){ const f=fr&&k>0, cs=qq.l.map(function(_,i){ return kviCo(qq,i); });
+        if(!!qq.fr!==f || cs.some(function(c){ return f?c[1]===1:c[1]!==1; })) vus.push(et+'la page '+(k+1)+' doit n\\'avoir que des '+(f?'fractions':'entiers')+' : '+JSON.stringify(cs)); });
       for(let n=0;n<200;n++){
         const q=kviGen(fr), cs=q.l.map(function(_,i){ return kviCo(q,i); });
         if(q.l.length!==KVI_NL || q.bs.length!==3 || para(q.bs[0],q.bs[1])||para(q.bs[0],q.bs[2])||para(q.bs[1],q.bs[2])){ vus.push(et+'la figure : '+JSON.stringify(q)); break; }
         if([0,1,2].some(function(k){ return q.l.filter(function(x){ return x[2]===k; }).length!==2; })){ vus.push(et+'un vecteur donné ne sert pas deux fois'); break; }
         if(cs.some(function(c){ return c[0]===c[1] || gcd(c[0],c[1])!==1 || c[1]<1; })){ vus.push(et+'un coefficient vaut 1 ou n\\'est pas irréductible : '+JSON.stringify(cs)); break; }
         if(!fr && cs.some(function(c){ return c[1]!==1; })){ vus.push(et+'un coefficient n\\'est pas entier'); break; }
-        if(fr && cs.filter(function(c){ return c[1]>1; }).length<4){ vus.push(et+'moins de quatre coefficients non entiers'); break; }
+        if(fr && cs.some(function(c){ return c[1]===1; })){ vus.push(et+'un coefficient entier sur une page de fractions'); break; }
         if(q.l.some(function(x,i){ const v=kviVec(q,i); return !entier(v[0])||!entier(v[1])||x[0]<1||x[0]>KVI_W-1||x[1]<1||x[1]>KVI_H-1||x[0]+v[0]<1||x[0]+v[0]>KVI_W-1||x[1]+v[1]<1||x[1]+v[1]>KVI_H-1; })){ vus.push(et+'une flèche sort du quadrillage ou d\\'un nœud : '+JSON.stringify(q)); break; }
         if(fr!==!!q.fr){ vus.push(et+'q.fr mal rangé'); break; }
         /* les noms ne se chevauchent pas (8.3.3 : a et b, l'un sur l'autre) — relu
@@ -14287,6 +14289,8 @@ function vecteursColineaires(w, P){
           else if(dseg(a,fls[j])<15) heurt='le nom '+KVI_L[i]+' sur le trait de '+KVI_L[j]; }); });
         if(heurt){ vus.push(et+heurt+' : '+JSON.stringify(q)); break; }
       }
+      /* au 8.3.3, la copie juste se joue sur une page de fractions */
+      if(fr){ test.questions[0]=JSON.parse(JSON.stringify(test.questions[1])); renderKvi(); }
       const q=test.questions[0];
       /* la copie juste, écrite comme un élève : virgule, tiret, fraction */
       q.l.forEach(function(x,i){ const c=kviCo(q,i); el('kvi-k-'+i).value=(i%2?String(c[0]/c[1]).replace('.',','):kvSaisie(c).replace('−','-')); el('kvi-v-'+i).value=KVI_N[x[2]]; });
@@ -14526,7 +14530,7 @@ function vecteursColineairesSuite(w, P){
     test.questions[2]={a:[3,3], b:[9,3], l:0, r:[[0,0,2,3],[1,1,1,2],[0,1,1,3]], p:[[7,3],null,null]}; test.locked=false; renderKpl();
     if(!Array.isArray(test.questions[2].o) || document.querySelectorAll('#kplDonnes .tan-croix').length!==5) vus.push('8.3.6 : un ancien brouillon ne se retire pas');
 
-    /* ===== 8.3.7 : associer une phrase et une égalité ===== */
+    /* ===== 8.3.7 : relier égalité et dessin, puis phrase et cas ===== */
     lancer(D.phrase, 'kph');
     for(let n=0;n<200;n++){
       const qs=kphBuildQuestions(), q=qs[n%qs.length];
@@ -14539,28 +14543,43 @@ function vecteursColineairesSuite(w, P){
       if(hors){ vus.push('8.3.7 : un point sort du dessin de '+JSON.stringify(hors)+' '+JSON.stringify(q.c)); break; }
     }
     if(KPH_PHR.length!==new Set(KPH_PHR.map(function(p){ return p.k[0]/p.k[1]; })).size) vus.push('8.3.7 : deux phrases ont le même réel');
-    /* q.d : le dessin I est celui de la carte 5 (−2), II de la carte 4 (−1)… le dessin VI, de la carte 0 */
-    test.questions[0]={l:0, ph:[0,1,2,7,11], c:[[2,1],[-1,2],[1,2],[3,1],[-1,1],[-2,1]], d:[5,4,3,2,1,0]}; test.idx=0; json(); renderKph();
-    if(document.querySelectorAll('#kphHost .kph-carte').length!==6 || document.querySelectorAll('#kphHost select').length!==10 || document.querySelectorAll('#kphHost svg.kph-svg').length!==6) vus.push('8.3.7 : six cartes, six dessins et dix listes');
+    /* q.d : le dessin I est celui de l'égalité f (−2), II de e (−1)… VI de a : l'égalité j va au dessin 5 − j */
+    const FIX={l:0, ph:[0,1,2,7,11], c:[[2,1],[-1,2],[1,2],[3,1],[-1,1],[-2,1]], d:[5,4,3,2,1,0]};
+    test.questions[0]=JSON.parse(JSON.stringify(FIX)); test.idx=0; json(); renderKph();
+    /* étape 1 : six égalités, six dessins, six listes — et aucune phrase */
+    if(document.querySelectorAll('#kphHost .kph-eg').length!==6 || document.querySelectorAll('#kphHost select').length!==6 || document.querySelectorAll('#kphHost svg.kph-svg').length!==6 || document.querySelector('#kphHost .kph-t')) vus.push('8.3.7 : l’étape 1 n’a pas six égalités, six dessins, six listes et aucune phrase');
     /* le dessin de −2 : M à gauche de A, A au milieu de [MB] en abscisse */
     const xs=Array.from(document.querySelectorAll('#kphHost svg.kph-svg')[0].querySelectorAll('text')).map(function(t){ return +t.getAttribute('x'); });
     if(!(xs[2]<xs[0] && Math.abs((xs[0]-xs[2])-2*(xs[1]-xs[0]))<0.5)) vus.push('8.3.7 : le dessin de AM = −2AB '+xs.join(','));
-    ['2','0','4','3','1'].forEach(function(v,i){ el('kph-'+i).value=v; el('kph-d-'+i).value=String(5-(+v)); });
+    [0,1,2,3,4,5].forEach(function(j){ el('kph-e-'+j).value=String(5-j); });
+    av=test.score; const nr=test.answers.length; checkKph();
+    if(test.score-av!==6 || test.locked || test.answers.length!==nr) vus.push('8.3.7 : l’étape 1 juste vaut '+(test.score-av)+(test.locked?', et verrouille':'')+(test.answers.length!==nr?', et pousse une réponse':''));
+    /* la pause entre les deux étapes : la question repart du JSON, aux phrases, l'étape 1 telle quelle */
+    json(); renderKph();
+    if(document.querySelectorAll('#kphHost .kph-t').length!==5 || document.querySelectorAll('#kphHost .kph-eg select:disabled.ok').length!==6) vus.push('8.3.7 : après la pause, les phrases ne sont pas là ou l’étape 1 n’est plus corrigée');
+    /* « Vérifier » ne juge plus que les phrases : l'étape 1 n'est plus dans ce qu'il relit */
+    if(kphJuge(test.questions[test.idx]).map(function(x){ return x.id; }).join()!=='kph-0,kph-1,kph-2,kph-3,kph-4') vus.push('8.3.7 : après la pause, « Vérifier » relirait encore l’étape 1');
+    ['2','0','4','3','1'].forEach(function(v,i){ el('kph-'+i).value=v; });
     av=test.score; checkKph();
-    if(test.score-av!==10) vus.push('8.3.7 : la copie juste vaut '+(test.score-av));
+    if(test.score-av!==5 || !test.locked || !test.answers[test.answers.length-1].correct) vus.push('8.3.7 : l’étape 2 juste vaut '+(test.score-av));
     nextKph(); clearTimeout(test.fbTimer);
-    test.questions[1]={l:0, ph:[0,1,2,7,11], c:[[2,1],[-1,2],[1,2],[3,1],[-1,1],[-2,1]], d:[5,4,3,2,1,0]}; renderKph();
+    /* une copie vide à l'étape 1, puis ½ pris pour −½ */
+    test.questions[1]=JSON.parse(JSON.stringify(FIX)); renderKph();
+    av=test.score; checkKph();
+    if(test.score!==av || document.querySelectorAll('#scr-kph select.sol').length!==6 || document.querySelector('#scr-kph select.bad')) vus.push('8.3.7 : l’étape 1 vide');
     el('kph-0').value='1';
     av=test.score; checkKph();
-    if(test.score-av!==0 || classe(el('kph-0'))!=='bad' || document.querySelectorAll('#scr-kph select.sol').length!==9) vus.push('8.3.7 : ½ pris pour −½ ; les vides : '+classe(el('kph-0')));
+    if(test.score-av!==0 || classe(el('kph-0'))!=='bad' || document.querySelectorAll('#scr-kph select.sol').length!==10) vus.push('8.3.7 : ½ pris pour −½ ; les vides : '+classe(el('kph-0')));
     const fbH=el('kphFeedback').textContent;
     if(fbH.indexOf('de l’autre côté de A')<0 || fbH.indexOf('du même côté de A que B')<0) vus.push('8.3.7 : le pourquoi ne dit pas le côté : '+fbH.slice(0,220));
     nextKph(); clearTimeout(test.fbTimer);
-    test.questions[2]={l:0, ph:[0,1,2,7,11], c:[[2,1],[-1,2],[1,2],[3,1],[-1,1],[-2,1]], d:[5,4,3,2,1,0]}; renderKph();
-    el('kph-d-0').value='4'; el('kph-0').value='2';
+    /* un dessin faux : l'égalité c (½) au dessin V (celui de −½) */
+    test.questions[2]=JSON.parse(JSON.stringify(FIX)); renderKph();
+    [0,1,2,3,4,5].forEach(function(j){ el('kph-e-'+j).value=String(5-j); }); el('kph-e-2').value='4';
     av=test.score; checkKph();
-    if(test.score-av!==1 || classe(el('kph-d-0'))!=='bad' || classe(el('kph-0'))!=='ok') vus.push('8.3.7 : le dessin faux, l’égalité juste : '+classe(el('kph-d-0'))+','+classe(el('kph-0')));
+    if(test.score-av!==5 || classe(el('kph-e-2'))!=='bad' || classe(el('kph-e-0'))!=='ok') vus.push('8.3.7 : un dessin faux : '+(test.score-av)+' points, '+classe(el('kph-e-2'))+','+classe(el('kph-e-0')));
     if(el('kphFeedback').textContent.indexOf('Le dessin V montre autre chose')<0) vus.push('8.3.7 : le pourquoi du dessin : '+el('kphFeedback').textContent.slice(0,220));
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0 || conseilCtxCourant().indexOf('étape 2')<0) vus.push('8.3.7 : le contexte du modèle');
 
     /* ===== 8.3.8 : démontrer un parallélisme avec les vecteurs ===== */
     lancer(D.milieux, 'kmi');
