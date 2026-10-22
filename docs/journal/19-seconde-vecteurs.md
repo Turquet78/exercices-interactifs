@@ -3279,7 +3279,7 @@ de droite (orange), le nul exclu ; chaque flèche a sa pointe ; le
 parallélogramme a ses quatre côtés, et lui seul ; la légende écrit
 l'égalité.
 
-**Puis la rédaction LIBRE (v597).** Turquet : « l'élève doit pouvoir utiliser
+**Puis la rédaction LIBRE (v598).** Turquet : « l'élève doit pouvoir utiliser
 la méthode qu'il veut ». Les cases et les listes de justifications sont
 parties ; la démonstration s'écrit dans UN champ, celui du 8.2.7 (chaque
 vecteur dessiné sous sa flèche, `chlDessin`), mais en `<textarea>` : Entrée
@@ -4756,3 +4756,90 @@ plus de six pages reprend les situations, sur d'autres vecteurs
 (`distinctes()` l'assure). Le générateur `kssGen` et ses réels sont partis ;
 le rendu et le juge de ces pages restent (`renderKssKu`, `kssCases`) : un
 brouillon de pause d'avant peut en porter une, et le banc les tient encore.
+
+## {demontrer-egalite-reels} — démontrer une égalité avec des réels (8.3.10, v597 — v595 et v596 prises sur main par les 8.3.6, 8.3.7 et 8.3.9 pendant les bancs)
+
+**La demande** (Turquet, octobre 2026) : « créer un exercice comme le 8.2.13
+mais avec en plus, dans la formule à démontrer, des coefficients devant
+certains vecteurs. Il faudra aussi présenter un dessin avec les vecteurs de
+l'égalité à démontrer. » Rangé en dernier du sous-thème des vecteurs
+colinéaires : c'est là que le produit d'un vecteur par un réel s'enseigne, et
+le 8.3.9 y fait déjà le même geste. 8.3.10, rien ne se renumérote. Les détails
+ci-dessous ont été décidés sans aller-retour ; ils sont nommés pour pouvoir
+être repris.
+
+**La mise en page est celle du 8.2.13, les lignes celles du 8.3.9.** On part
+du membre de gauche ; chaque ligne a ses cases et sa justification à choisir ;
+la dernière ligne est le membre de droite, déjà écrit (on sait où l'on va),
+et n'a que sa justification. Les lignes sont des TERMES « réel × vecteur »
+(`dcoT`, `dcoG`, partagés avec le 8.3.9), et la forme de chaque ligne (`'v'`,
+`'c'`, `'f'`) donne ses cases. Les réels sont des entiers, dans une case
+MathLive comme au 8.3.9 (`pmMF('dco-co', …)`, même règle CSS).
+
+**Dix plans** (`DCR_DEMOS`), sur A, B, C (et D) :
+* **0** — l'exemple, toujours en première page, avec ses lettres :
+  3AB⃗ − 2CB⃗ = AB⃗ + 2AC⃗ — 3AB⃗ + 2BC⃗ = AB⃗ + 2AB⃗ + 2BC⃗ =
+  AB⃗ + 2(AB⃗ + BC⃗) = AB⃗ + 2AC⃗ (17 cases) ;
+* **1** — 2AB⃗ + BC⃗ = AB⃗ + AC⃗ ; **2** — 3AB⃗ + 3BC⃗ = 3AC⃗ ;
+  **3** — 2AB⃗ + 3BC⃗ = 2AC⃗ + BC⃗ ; **4** — 2AB⃗ + BC⃗ + CD⃗ = AB⃗ + AD⃗
+  (quatre points, deux rédactions) ; **5** — 3AB⃗ − AC⃗ = 2AB⃗ + CB⃗ (il faut
+  changer l'ordre avant Chasles) ;
+* **6** et **7**, sur un parallélogramme : 2AB⃗ + 2AD⃗ = 2AC⃗ ;
+  2AB⃗ + BC⃗ = AC⃗ + DC⃗ ;
+* **8** — 2(AB⃗ + BC⃗) = AB⃗ + AC⃗ + BC⃗ (on développe) ;
+  **9** — AB⃗ + BC⃗ + 2AC⃗ = 3AC⃗ (on additionne les réels).
+Les lettres se renomment (sans I, O ni Q), la tournure se tire ;
+`distinctes()` avec le plan pour clé : jamais deux fois la même
+démonstration dans une séance.
+
+**Huit justifications** (`DCR_JUST`) : relation de Chasles ; on change l'ordre
+de la somme ; soustraire un vecteur, c'est ajouter son opposé ; on écrit un
+réel comme une somme (3 = 2 + 1) ; on additionne les réels devant un même
+vecteur ; on met le réel en facteur ; on développe ; vecteurs égaux car ABCD
+est un parallélogramme — la dernière n'est proposée que sur un
+parallélogramme, et porte son nom. Sans flèches dans la liste, pour la raison
+du 8.2.13.
+
+**Toute écriture juste qui suit le plan est acceptée** (`dcrChaines`, mémo par
+plan, sur les lettres du plan, puis renommé) : chaque ligne se tire de la
+précédente par sa justification (`dcrSuites`) et a la forme demandée ; la
+dernière étape doit mener au membre de droite, à l'ordre près. Une case est
+juste s'il existe une rédaction complète qui la porte avec les cases justes
+avant elle ; une justification l'est dès qu'elle explique le passage
+(`dcrExplique`). **Dans une ligne, les réels sont positifs** : −2CB⃗ s'écrit
+2BC⃗ — c'est le geste de la première ligne de l'exemple, et l'énoncé le dit.
+
+**Les pièges nommés** (`dcrPourquoi`, sur la première case fausse) : le sens
+oublié en passant à l'opposé (− 2CB⃗ devenu + 2CB⃗) ; un réel négatif dans une
+ligne ; la ligne qui ne vaut plus le membre de gauche (lue en coordonnées
+libres, jamais montrées) ; l'étape juste sans issue (sur le parallélogramme,
+2AB⃗ → 2DC⃗ est vrai, mais 2(DC⃗ + AD⃗) ne se réunit pas) ; l'égalité juste qui
+n'est pas l'étape demandée ; la mauvaise justification ; un réel ou un vecteur
+illisible. Chaque règle est dite avec les lettres de la page (`dcrRegle`).
+
+**Le dessin** (`dcrSvg`), au-dessus de la rédaction : les points de l'énoncé
+et une flèche par vecteur de l'égalité, sans son réel — 3AB⃗ se lit sur la
+flèche AB⃗ (pour l'exemple : AB⃗, CB⃗, AC⃗) ; sur un parallélogramme, ses côtés
+en pointillés. La forme se tire parmi quelques gabarits (`DCR_FIG`, `q.f`),
+retournée ou non (`q.m`) ; les lettres se posent à l'opposé du centre de la
+figure.
+
+**On range le plan, les lettres, la tournure et la figure** (`t`, `n`, `v`,
+`f`, `m`), jamais les réponses.
+
+**Le banc** (`demontrerEgaliteReels`, banc principal) a un juge qui ne lit PAS
+les plans : il place les points au hasard (le quatrième sommet d'un
+parallélogramme par la règle du parallélogramme) et vérifie, en nombres, sur
+200 séances, que chaque égalité est vraie et porte un réel, que chaque ligne
+de chaque rédaction acceptée vaut le membre de gauche, qu'aucune ligne n'a de
+réel négatif, que les dix plans sortent et jamais deux fois. Puis, par le
+bouton, sur l'exemple : l'énoncé, la figure (trois points, les flèches AB⃗,
+AC⃗, CB⃗), la liste à sept justifications, la dernière ligne écrite, la copie
+juste (17 cases), une autre écriture (minuscules, « (3)/(1) »), sept pièges
+peints en rouge et nommés, le badge, la case et la liste vides en correction,
+la copie vide sans rouge, le JSON, le soutien qui peint sans révéler ni
+verrouiller ; sur le parallélogramme EFGH : l'énoncé, ses pointillés, la
+justification qui porte son nom, la copie juste (10 cases), 2HG⃗ + 2EH⃗ « ne
+mène pas » ; enfin le contexte du modèle. Le barème d'une séance dépend des
+plans tirés (5 à 17 cases) : l'exercice se déclare dans
+`reglagesDevoirs.baremeParCases`, comme le 8.2.13 et le 8.3.9.
