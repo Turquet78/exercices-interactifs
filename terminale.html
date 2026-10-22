@@ -710,7 +710,11 @@
   .lqn-def{display:block;text-align:center;font-size:1.25rem;margin:10px 0;line-height:2.4}
   .lqn-def .sa2-frac{line-height:1.3}
   .lqn-def .sa2-frac .bar,.sa2-row .sa2-frac .bar{min-width:1.4em}
-  .lqn-par{font-size:1.6em;font-weight:300;line-height:1}
+  /* ( fraction )ⁿ : parenthèses étirées sur la hauteur de la fraction, exposant en haut à droite */
+  .lqn-pw{display:inline-flex;align-items:flex-start;vertical-align:middle;margin:0 2px}
+  .lqn-pgrp{display:inline-flex;align-items:stretch;gap:2px}
+  .lqn-pgrp .sa-pstretch{width:9px;min-height:0}
+  .lqn-pw>sup{font-size:.8em;line-height:1;vertical-align:baseline;margin-left:1px;margin-top:-.15em}
   .lqn-car-row{padding-left:1.5em}
   /* {arbre-probabilites} (6.1.1) : l'arbre pondéré à côté des lignes de
      calcul sur un écran large, au-dessus sur un téléphone. Les lettres des
@@ -3799,7 +3803,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=423;
+const APP_VERSION=424;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -24955,7 +24959,7 @@ function lqnGen(fam){
   else if(fam==='inv'){ q.b=pick([1,2,4,5]); q.a=rand(1,9); q.q=base(); }
   else if(fam==='quot'){ q.b=pick([1,2,4,5]); do{ q.a=rand(1,9); }while(q.a===q.b); q.q=petit(); }
   else if(fam==='frac'){
-    const f=pick(LQN_FRACS), inv=Math.random()<0.5;
+    const f=pick(LQN_FRACS), inv=f[0]!==1 && Math.random()<0.5;   /* 1/2 renversée s'écrirait 2/1 */
     q.fn=inv?f[1]:f[0]; q.fd=inv?f[0]:f[1]; q.q=q.fn/q.fd;
     q.k=lqnSigne()*rand(2,9); q.c=lqnSigne()*rand(1,9);
   }
@@ -25046,6 +25050,10 @@ function lqnCorrTexte(id, q){
 const LQN_N='<i>n</i>';
 function lqnPuiss(b){ return tclNum(b)+'<sup>'+LQN_N+'</sup>'; }
 function lqnCoefH(k){ return (k<0?'−':'')+Math.abs(k)+' × '; }
+function lqnParenFrac(n, d){   /* ( n/d )ⁿ : les parenthèses étirables de saParen, à la hauteur de la fraction */
+  const P=function(c){ return saParen(c).outerHTML; };
+  return '<span class="lqn-pw"><span class="lqn-pgrp">'+P(false)+sa2Frac(String(n),String(d))+P(true)+'</span><sup>'+LQN_N+'</sup></span>';
+}
 function lqnExprHTML(q){
   switch(q.fam){
     case 'p':     return lqnPuiss(q.q);
@@ -25053,7 +25061,7 @@ function lqnExprHTML(q){
     case 'akp':   return tclNum(q.a)+(q.k<0?' − ':' + ')+Math.abs(q.k)+' × '+lqnPuiss(q.q);
     case 'inv':   return sa2Frac(String(q.a), q.b+' + '+lqnPuiss(q.q));
     case 'quot':  return sa2Frac(q.a+' + '+lqnPuiss(q.q), q.b+' + '+lqnPuiss(q.q));
-    case 'frac':  return lqnCoefH(q.k)+'<span class="lqn-par">(</span>'+sa2Frac(String(q.fn),String(q.fd))+'<span class="lqn-par">)</span><sup>'+LQN_N+'</sup>'+(q.c<0?' − ':' + ')+Math.abs(q.c);
+    case 'frac':  return lqnCoefH(q.k)+lqnParenFrac(q.fn, q.fd)+(q.c<0?' − ':' + ')+Math.abs(q.c);
     case 'prod':  return lqnPuiss(q.q)+' ('+q.a+' + '+lqnPuiss(q.r)+')';
     case 'prodq': return lqnPuiss(q.q)+' × '+sa2Frac(q.a+' + '+lqnPuiss(q.r), q.b+' + '+lqnPuiss(q.s));
   }
