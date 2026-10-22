@@ -3125,6 +3125,20 @@ second défaut : « 2/1 » — la fraction 1/2 RENVERSÉE. Le tirage ne renverse
 plus une fraction de numérateur 1. Exécuté dans Chromium : les deux
 parenthèses couvrent numérateur et dénominateur, l'exposant au coin.
 
+**Et le 5.1.3 a suivi, le lendemain (v426).** « Fais pareil pour les autres
+exercices de suites si c'est nécessaire. » Une sonde Chromium a ouvert les
+23 exercices du thème 5, cinq tirages chacun, et relevé chaque fraction
+empilée dont le caractère voisin est une parenthèse en texte : un seul
+écran, {suite-auxiliaire-2}, à la ligne « = 0,95 ( □Uₙ/□ □/□ ) », des
+parenthèses de 24 px autour de fractions de 84. Elles passent par
+`saParen()` dans un groupe `.sa2-pgrp`. La sonde ne voit que la PREMIÈRE
+question de chaque séance — elle avait manqué le 5.6.1, dont la fraction
+sort à la sixième : une recherche dans le code (« ( » en texte à côté d'un
+constructeur de fraction) l'a complétée, sans autre cas. {suite-auxiliaire}
+et {suite-auxiliaire-limite} avaient déjà les parenthèses étirables ; la
+somme de {suite-somme-majoree} n'a ses parenthèses que DANS un dénominateur,
+sur une ligne.
+
 ## Associer f, f′ et f″ — six courbes en désordre, trois triplets (4.3.5, v388)
 
 Demande de Turquet, octobre 2026 : « dans le sous-thème convexité, créer un
