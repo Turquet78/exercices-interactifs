@@ -14778,10 +14778,14 @@ function demontrerChasles(w, P){
     if(RAPPELS.dch!==RAP_DCH || !QIA_SUGG.dch) vus.push('le rappel ou les questions à l\\'IA manquent');
 
     /* ---- le juge indépendant : des coordonnées au hasard ---------------- */
+    /* des coordonnées PAIRES (un milieu tombe sur des entiers), tirées loin :
+       sur une petite grille, deux points tombaient parfois l'un sur l'autre,
+       et une égalité fausse devenait vraie */
     const coords=function(q){
-      const c={}, L=q.n.split('');
-      L.forEach(function(p){ c[p]=[Math.round(Math.random()*40-20), Math.round(Math.random()*40-20)]; });
+      const c={}, L=q.n.split(''), Dm=dchDemo(q);
+      L.forEach(function(p){ c[p]=[2*Math.round(Math.random()*2000-1000), 2*Math.round(Math.random()*2000-1000)]; });
       if(DCH_DEMOS[q.t].para) c[L[3]]=[c[L[0]][0]+c[L[2]][0]-c[L[1]][0], c[L[0]][1]+c[L[2]][1]-c[L[1]][1]];
+      Object.keys(Dm.mil).forEach(function(m){ const a=c[Dm.mil[m][0]], b=c[Dm.mil[m][1]]; c[m]=[(a[0]+b[0])/2, (a[1]+b[1])/2]; });
       return c;
     };
     const val=function(c, l){ let x=0, y=0;
@@ -14796,16 +14800,19 @@ function demontrerChasles(w, P){
       const qs=dchBuildQuestions();
       if(qs.length!==D.nb){ vus.push(qs.length+' démonstrations au lieu de '+D.nb); break; }
       if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
-      if(!qs.some(function(q){ return q.t===0 && q.n.slice(0,4)==='ABCD'; })) vus.push('l’exemple de la demande manque à la séance');
+      if(!qs.some(function(q){ return q.t===0 && q.n==='ABCDMN'; })) vus.push('l’exemple de la demande manque à la séance');
       const ins=qs.map(function(q){ return DCH_DEMOS[q.t].ins ? 1 : 0; });
       if(ins.join('')!==ins.slice().sort().join('')) vus.push('une démonstration où il faut insérer un point n’est pas en fin de séance : '+qs.map(function(q){ return q.t; }).join(' '));
       const ts=qs.map(function(q){ return q.t; });
       if(new Set(ts).size!==ts.length) vus.push('la même démonstration deux fois dans une séance : '+ts.join(' '));
       qs.forEach(function(q){ plans[q.t]=true;
-        if(new Set(q.n.split('')).size!==5 || /[IOQ]/.test(q.n)) vus.push('lettres « '+q.n+' »'); });
+        if(q.n.length!==6 || new Set(q.n.split('')).size!==6 || /[IOQ]/.test(q.n)) vus.push('lettres « '+q.n+' »'); });
     }
     if(vus.length) return vus.slice(0,4).join(' | ');
     DCH_DEMOS.forEach(function(T, t){ if(!plans[t]) vus.push('le plan '+t+' ne sort jamais en 200 séances'); });
+    /* des milieux, seuls ou dans un parallélogramme (Turquet, octobre 2026) */
+    if(!DCH_DEMOS.some(function(T){ return T.mil && !T.para; }) || !DCH_DEMOS.some(function(T){ return T.mil && T.para; })
+      || !DCH_DEMOS.some(function(T){ return T.mil && Object.keys(T.mil).length>1; })) vus.push('il manque des démonstrations avec un milieu, deux milieux, ou un parallélogramme et un milieu');
     /* les plans à insertion sont ceux dont la correction COUPE un vecteur de l'énoncé */
     DCH_DEMOS.forEach(function(T, t){
       const coupe=T.c.length && T.c[0].length>T.g.length && !T.g.some(function(v){ return v.charAt(0)==='-'; });
@@ -14815,7 +14822,7 @@ function demontrerChasles(w, P){
     /* ---- 2. chaque plan, en nombres : l'égalité, la correction, et des
        lignes au hasard — jamais une ligne fausse acceptée ---------------- */
     DCH_DEMOS.forEach(function(T, t){
-      const q={t:t, n:'EFGHK', v:0}, Dm=dchDemo(q), c=coords(q), g=val(c, Dm.g);
+      const q={t:t, n:'EFGHKL', v:0}, Dm=dchDemo(q), c=coords(q), g=val(c, Dm.g);
       if(val(c, Dm.d)!==g) vus.push('plan '+t+' : l’égalité à démontrer est FAUSSE');
       const J=dchJuge(q, dchCorrection(Dm));
       if(!J.ok) vus.push('plan '+t+' : la correction n’est pas juste ('+J.M.map(function(m){ return m.etat; }).join(',')+')');
@@ -14839,29 +14846,37 @@ function demontrerChasles(w, P){
     if(vus.length) return vus.slice(0,6).join(' | ');
 
     /* ---- 3. les étapes, sur l'exemple et sur un parallélogramme --------- */
-    const etats=function(t, txt){ return dchJuge({t:t, n:'ABCDM', v:0}, txt).M.map(function(m){ return m.etat; }).join(','); };
+    const etats=function(t, txt){ return dchJuge({t:t, n:'ABCDMN', v:0}, txt).M.map(function(m){ return m.etat; }).join(','); };
     const ATT=[
       [0, 'AD+DB+CB+BD\\nAD+CB+DB+BD\\nAD+CB+0\\nAD+CB', 'j,j,j,j', 'la rédaction du plan'],
-      [0, 'AD+DB+CB+BD\\nAD+CB', 'j,j', 'deux points insérés d’un coup, puis DB + BD réunis dans le désordre'],
-      [0, 'AD+CB', 'j1', 'AB + CD = AD + CB d’un trait (une étape manque)'],
-      [1, 'AD', 'j', 'Chasles sur trois vecteurs dans le désordre'],
+      [0, 'AD+DB+CB+BD\\nAD+CB', 'j,j1', 'DB + BD réunis sans être mis côte à côte (l’ordre est une étape)'],
+      [0, 'AD+CB', 'trop', 'AB + CD = AD + CB d’un trait (insérer, ordonner, réunir)'],
+      [1, 'AD', 'j1', 'Chasles sur trois vecteurs dans le désordre (l’ordre est une étape)'],
+      [1, 'AB+BC+CD\\nAD', 'j,j', 'l’ordre, puis Chasles sur trois vecteurs voisins'],
       [2, 'AC', 'j1', 'la soustraction et Chasles d’un trait'],
       [2, 'AB+BC\\nAC', 'j,j', 'la soustraction, puis Chasles'],
       [3, 'AC+CA\\nAA', 'j,j', 'AA pour le vecteur nul'],
-      [10, 'MB+BA+MD+DC\\nMB+MD+BA+AB\\nMB+MD', 'j,j,j', 'insertions, vecteur égal et ordre, puis AB + BA'],
-      [10, 'MB+BA+MD+DC\\nMB+MD', 'j,j1', 'le vecteur égal sauté'],
+      [10, 'MB+BA+MD+DC\\nMB+MD+BA+DC\\nMB+MD+BA+AB\\nMB+MD', 'j,j,j,j', 'insertions, ordre, vecteur égal, puis AB + BA'],
+      [10, 'MB+BA+MD+DC\\nMB+MD+BA+AB\\nMB+MD', 'j,j1,j', 'l’ordre et le vecteur égal d’un coup'],
       [10, 'MB+MD', 'trop', 'MA + MC = MB + MD d’un trait (deux étapes manquent)'],
       [9, 'DC+CB\\nDB', 'j,j', 'un vecteur égal du parallélogramme'],
+      [12, 'MA+AM\\n0', 'j,j', 'un milieu : MB = AM'],
+      [13, 'CM', 'j1', 'un milieu sauté'],
+      [14, 'CB+BM\\nCM', 'j1,j', 'le vecteur égal et l’ordre d’un coup'],
+      [15, 'MA+AD\\nMD', 'j,j', 'deux milieux'],
+      [17, 'MB+BC\\nMC', 'j,j', 'un parallélogramme et un milieu'],
+      [18, 'DM\\nMB', 'j,j', 'le centre du parallélogramme : DM = MB'],
+      [19, 'AM+MB\\nAB', 'j,j', 'un parallélogramme et deux milieux : DN = MB'],
       [0, 'AC+DB', 'faux', 'une ligne fausse'],
       [0, 'AB+CZ', 'illisible', 'un point hors de l’énoncé']];
     ATT.forEach(function(a){ const e=etats(a[0], a[1]); if(e!==a[2]) vus.push(a[3]+' : '+e+' au lieu de '+a[2]); });
-    if(dchJuge({t:0,n:'ABCDM',v:0}, 'AD+DB+CB+BD').ok) vus.push('une démonstration qui n’arrive pas au membre de droite est comptée juste');
+    if(dchJuge({t:0,n:'ABCDMN',v:0}, 'AD+DB+CB+BD').ok) vus.push('une démonstration qui n’arrive pas au membre de droite est comptée juste');
 
     /* ---- 4. par le BOUTON ------------------------------------------------- */
     TESTS[D.exercice].start();
     if(test.kind!=='dch' || test.qId!==D.exercice) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
     if(test.maxScore!==test.questions.length) vus.push('barème '+test.maxScore+' pour '+test.questions.length+' démonstrations');
-    test.questions[0]={t:0, n:'ABCDM', v:0}; test.idx=0;
+    test.questions[0]={t:0, n:'ABCDMN', v:0}; test.idx=0;
     const el=function(id){ return document.getElementById(id); };
     const fb=function(){ return el('dchFeedback').textContent; };
     const ecrire=function(txt){ test.locked=false; renderDchTest(); const z=el('dch-z'); z.value=txt; z.dispatchEvent(new Event('input')); return z; };
@@ -14869,13 +14884,17 @@ function demontrerChasles(w, P){
     const texte=el('dchInstr').textContent.replace(/\\s+/g,' ');
     if(!/A, B, C et D sont quatre points du plan/.test(texte) || !/Montrer que AB \\+ CD = AD \\+ CB/.test(texte) || !/une étape par ligne/.test(texte)) vus.push('l’énoncé dit « '+texte.slice(0,160)+' »');
     if(!el('dchInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
+    const enonce=function(tt){ return dchEnonceHTML({t:tt, n:'ABCDMN', v:0}).replace(/<[^>]*>/g,'').replace(/\\s+/g,' '); };
+    if(!/A, B et C sont trois points du plan ; M est le milieu de \\[AB\\] et D est le milieu de \\[AC\\]/.test(enonce(15))) vus.push('l’énoncé de deux milieux dit « '+enonce(15).slice(0,120)+' »');
+    if(!/ABCD est un parallélogramme ; M est son centre, le milieu de ses diagonales \\[AC\\] et \\[BD\\]/.test(enonce(18))) vus.push('l’énoncé du centre dit « '+enonce(18).slice(0,120)+' »');
+    if(!/ABCD est un parallélogramme ; M est le milieu de \\[AB\\] et N est le milieu de \\[DC\\]/.test(enonce(19))) vus.push('l’énoncé du parallélogramme et des milieux dit « '+enonce(19).slice(0,120)+' »');
     if(!el('dch-z') || el('dch-z').tagName!=='TEXTAREA') vus.push('le champ n’est pas un champ à plusieurs lignes');
     if(document.querySelector('#dchHost select')) vus.push('une liste de justifications reste à l’écran');
     /* la figure de chaque plan : points nommés, chaque vecteur de l'égalité
        dessiné — violet à gauche, orange à droite —, le nul nulle part */
     if(!document.querySelector('#dchHost .dch-fig svg.dch-svg')) vus.push('la figure de l’égalité manque sur la page');
     DCH_DEMOS.forEach(function(T, t){
-      const q={t:t, n:'EFGHK', v:0}, Dm=dchDemo(q), box=document.createElement('div');
+      const q={t:t, n:'EFGHKL', v:0}, Dm=dchDemo(q), box=document.createElement('div');
       box.innerHTML=dchFigHTML(q);
       const pos={};
       box.querySelectorAll('text.veg-pt').forEach(function(x){ pos[x.textContent]=1; });
@@ -14887,7 +14906,9 @@ function demontrerChasles(w, P){
       const att=function(l){ return l.filter(function(v){ return v!=='0'; }).map(function(v){ return v.replace('-',''); }).sort().join(' '); };
       if(lu('dch-vg')!==att(Dm.g) || lu('dch-vd')!==att(Dm.d)) vus.push('plan '+t+' : la figure dessine '+lu('dch-vg')+' | '+lu('dch-vd')+' au lieu de '+att(Dm.g)+' | '+att(Dm.d));
       if(box.querySelectorAll('line[marker-end]').length!==box.querySelectorAll('line.dch-vg, line.dch-vd').length) vus.push('plan '+t+' : une flèche sans pointe');
-      if(box.querySelectorAll('line.dch-cote').length!==(T.para ? 4 : 0)) vus.push('plan '+t+' : '+box.querySelectorAll('line.dch-cote').length+' côtés de parallélogramme');
+      const nbSeg=(T.para ? 4 : 0)+Object.keys(T.mil||{}).length+(T.centre ? 1 : 0);
+      if(box.querySelectorAll('line.dch-cote').length!==nbSeg) vus.push('plan '+t+' : '+box.querySelectorAll('line.dch-cote').length+' segments en pointillés au lieu de '+nbSeg);
+      if(box.querySelectorAll('line.dch-code').length!==2*(nbSeg-(T.para ? 4 : 0))) vus.push('plan '+t+' : le codage des milieux manque');
       const leg=box.querySelector('.dch-leg').textContent.replace(/\\s+/g,' ');
       if(leg.indexOf(dchTxt(Dm.g)+' = '+dchTxt(Dm.d))<0) vus.push('plan '+t+' : la légende dit « '+leg+' »');
     });
@@ -14902,15 +14923,16 @@ function demontrerChasles(w, P){
     if(!der || der.cases!==1 || der.justes!==1) vus.push('la note compte '+(der?der.justes+'/'+der.cases:'?')+' au lieu de 1/1');
     if(!el('dchNext')) vus.push('pas de bouton « Démonstration suivante »');
     /* une étape manque : FAUSSE (Turquet, octobre 2026), « il faut détailler », la ligne qui manque montrée */
-    z=ecrire('ad+cb'); checkDchAnswer(); der=test.answers[test.answers.length-1];
-    if(der.correct || !z.classList.contains('bad') || !/il manque une étape/.test(fb()) || !/il faut détailler/.test(fb()) || !/par exemple AB \\+ CD = .* = AD \\+ CB/.test(fb())) vus.push('AB + CD = AD + CB : '+(der.correct?'juste':'faux')+', « '+fb()+' »');
+    test.questions[0]={t:2, n:'ABCDMN', v:0};
+    z=ecrire('ac'); checkDchAnswer(); der=test.answers[test.answers.length-1];
+    if(der.correct || !z.classList.contains('bad') || !/il manque une étape/.test(fb()) || !/il faut détailler/.test(fb()) || !/par exemple AB − CB = AB \\+ BC = AC/.test(fb())) vus.push('AB − CB = AC : '+(der.correct?'juste':'faux')+', « '+fb()+' »');
     /* deux étapes manquent : fausse, « détaille » */
-    test.questions[0]={t:10, n:'ABCDM', v:0};
+    test.questions[0]={t:10, n:'ABCDMN', v:0};
     z=ecrire('mb+md'); checkDchAnswer(); der=test.answers[test.answers.length-1];
     if(der.correct || !/il manque plusieurs étapes/.test(fb()) || !/détailler davantage/.test(fb()) || !z.classList.contains('bad')) vus.push('MA + MC = MB + MD d’un trait : '+(der.correct?'juste':'faux')+', « '+fb()+' »');
     if(el('dch-cor').hidden || !/démonstration possible/.test(el('dch-cor').textContent)) vus.push('la copie fausse ne montre pas de démonstration possible');
     /* une ligne fausse, nommée */
-    test.questions[0]={t:0, n:'ABCDM', v:0};
+    test.questions[0]={t:0, n:'ABCDMN', v:0};
     ecrire('ac+db'); checkDchAnswer();
     if(!/n’est pas égal/.test(fb())) vus.push('la ligne fausse : « '+fb()+' »');
     ecrire('ad+db+cb+bd'); checkDchAnswer();
@@ -14920,7 +14942,7 @@ function demontrerChasles(w, P){
     if(z.classList.contains('bad') || !z.classList.contains('sol') || z.value!==dchCorrection(dchDemo(test.questions[0]))) vus.push('la copie vide : « '+z.className+' », « '+z.value+' »');
     if(test.questions[0].saisie) vus.push('la correction écrite dans le champ vide est rangée comme une saisie');
     /* la reprise : la saisie revient avec la question */
-    test.questions[0]={t:0, n:'ABCDM', v:0, saisie:'AD+DB+CB+BD\\nAD+CB'};
+    test.questions[0]={t:0, n:'ABCDMN', v:0, saisie:'AD+DB+CB+BD\\nAD+CB'};
     test.questions[0]=JSON.parse(JSON.stringify(test.questions[0])); test.locked=false; renderDchTest();
     if(el('dch-z').value!=='AD+DB+CB+BD\\nAD+CB') vus.push('la saisie ne revient pas après le JSON : « '+el('dch-z').value+' »');
     /* le soutien : peint au fil de la saisie, sans révéler ni verrouiller */
@@ -14929,14 +14951,14 @@ function demontrerChasles(w, P){
     if(!z.classList.contains('bad')) vus.push('le soutien ne rougit pas une ligne fausse');
     checkDchAnswer();
     if(test.locked || z.value!=='ac' || !el('dch-cor').hidden) vus.push('la vérification du soutien verrouille ou révèle');
-    z.value='ad+db+cb+bd\\nad+cb'; z.dispatchEvent(new Event('input'));
+    z.value='ad+db+cb+bd\\nad+cb+db+bd\\nad+cb'; z.dispatchEvent(new Event('input'));
     if(!z.classList.contains('ok')) vus.push('le soutien ne bleuit pas une démonstration détaillée');
-    z.value='ad+cb'; z.dispatchEvent(new Event('input'));
-    if(!z.classList.contains('bad')) vus.push('le soutien bleuit AB + CD = AD + CB d’un trait (une étape manque)');
+    z.value='ad+db+cb+bd\\nad+cb'; z.dispatchEvent(new Event('input'));
+    if(!z.classList.contains('bad')) vus.push('le soutien bleuit DB + BD réunis sans être mis côte à côte (une étape manque)');
     currentMode='train';
 
     /* le contexte du modèle */
-    test.questions[0]={t:0, n:'ABCDM', v:0}; test.locked=false; renderDchTest();
+    test.questions[0]={t:0, n:'ABCDMN', v:0}; test.locked=false; renderDchTest();
     const ctx=ctxDch(test.questions[0]).contexte;
     if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/AD \\+ DB \\+ CB \\+ BD/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni la rédaction attendue');
     return vus.join(' | ');

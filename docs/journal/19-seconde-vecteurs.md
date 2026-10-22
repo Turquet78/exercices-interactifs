@@ -3352,6 +3352,45 @@ bord (AB + CD = AD + CB d'un trait : faux, rouge, « il faut détailler », la
 ligne qui manque montrée ; le soutien le rougit) et l'a éprouvé par
 sabotage : un juge qui recompte juste l'étape manquante rougit.
 
+**Puis l'ORDRE est devenu une étape (v599).** Turquet : « placer les vecteurs
+dans le bon ordre pour appliquer la relation de Chasles est une étape à
+faire ». Une ligne se lit désormais comme une SUITE : changer l'ordre est une
+étape à lui seul ; Chasles ne réunit que des vecteurs VOISINS, écrits dans
+l'ordre où ils s'enchaînent (`dchChaine` ne cherche plus d'ordre,
+`dchReunit` découpe la ligne en paquets consécutifs) ; l'insertion, la
+soustraction et le vecteur égal s'appliquent SUR PLACE. `dchVoisins` essaie
+toutes les permutations (six vecteurs au plus). Conséquences nommées :
+AB + CD + BC = AD d'un trait manque maintenant une étape ; AB + CD = AD + CB
+d'un trait en manque deux. Les corrections des plans ont été relues sous la
+règle : deux en ont gagné une ligne (MA + CB = BM + CB = CB + BM = CM ; la
+mise en ordre de CM + MA + CM + MB). La dernière ligne, elle, se compare
+toujours au membre de droite À L'ORDRE PRÈS : finir sur CB + AD pour
+AD + CB n'est pas compté faux.
+
+**Et des MILIEUX, seuls ou dans un parallélogramme (v599).** Turquet :
+« mettre aussi des exemples avec un ou des milieux », puis « un
+parallélogramme et un ou des milieux ». Neuf plans de plus (`mil` :
+{M:'AB'} pour « M est le milieu de [AB] » ; `centre` pour le centre d'un
+parallélogramme, milieu de ses deux diagonales) : un milieu (MA + MB = 0,
+CA + MB = CM, MA + CB = CM), deux milieux d'un triangle (BM + AD = MD,
+AM + BD = MD), un parallélogramme et un milieu (AM + BC = MC), son centre
+(DA + AM = MB), un parallélogramme et deux milieux (AM + DN = AB), et une
+insertion (CA + CB = CM + CM, en fin de séance). Un sixième nom de point
+(N) : `q.n` a six lettres. `dchComb` lit un milieu comme (A + B)/2 — des
+demis, exacts en binaire —, et le vecteur égal devient générique
+(`dchEgaux` : les vecteurs de la figure qui ont la même combinaison), si
+bien que AM = MB, et DN = MB dans le parallélogramme, se reconnaissent sans
+liste. La figure pose chaque milieu sur son segment en pointillés, avec le
+codage des deux moitiés (`.dch-code`) ; le centre a ses deux diagonales.
+
+**Le banc** a dû changer ses coordonnées : avec des milieux, il les tire
+PAIRES ; et sur une grille de ±20, deux points tombaient parfois l'un sur
+l'autre — une égalité fausse devenait vraie en nombres, et le contrôle
+accusait la page à tort (« -EF + KH jugé faux alors qu'il vaut… », vu à la
+première exécution, la page avait raison). Il les tire désormais sur ±2000.
+Éprouvé par deux sabotages de plus : un juge qui ne regarde plus l'ordre,
+un `dchComb` qui ignore les milieux — chacun rougit.
+
 ## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.14, v536 — v528 à v535 et les numéros 8.2.11 à 8.2.13 pris pendant la rédaction, par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et « Chasles : insérer un point »)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
