@@ -172,6 +172,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Le plan gratuit de Supabase ne sauvegarde rien.**
 - **Supabase ne rend jamais plus de 1000 lignes par requête — et il coupe EN SILENCE.** Toute lecture d'une table de résultats passe par `lireToutes()`.
 - **Une table créée par une migration écrit ses `grant` — Supabase ne les donne plus d'office depuis le 30 octobre 2026.** Et un contrôle de `tests/base-controles.sql` la lit sous le rôle qui s'en sert.
+- **Une bibliothèque du CDN se charge à une version exacte** (`@2.117.3`, jamais `@2`) — servie immuable, gardée un an ; et retirer des graisses aux polices Google ne fait rien gagner.
 
 ### Conventions d'écran : énoncé, numéro, saisie, signalement
 

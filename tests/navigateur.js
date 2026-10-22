@@ -16692,6 +16692,71 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ---- 9 quinquies. L'onde d'une case juste, les confettis d'un sans-faute ----
+       Deux gestes de fête ajoutés en octobre 2026 (#embellir-js, en fin de
+       chaque page). Ils ne se voient qu'au navigateur — jsdom n'a ni
+       Element.animate ni matchMedia — et chacun a deux bords :
+       · l'onde part quand « ok » ARRIVE sur une case, jamais sur une case
+         créée déjà juste ni sur une case qui le reste (sans quoi chaque
+         redessin ferait clignoter tout l'écran), et elle ne pose aucune classe ;
+       · les confettis tombent sur une note égale au total, écrite à la
+         française (« 7,5 / 7,5 »), jamais sur « 9,5 / 10 » ; ils ne captent
+         aucun clic et ne font pas défiler la page de côté.
+       Et sous « moins d'animations », ni l'un ni l'autre. */
+    titre('9 quinquies. L\'ONDE D\'UNE CASE JUSTE, LES CONFETTIS D\'UN SANS-FAUTE');
+    s = await ouvrir(chromium, ml);
+    {
+      const mesurer = () => s.page.evaluate(async () => {
+        const att = ms => new Promise(f => setTimeout(f, ms));
+        /* les transitions CSS d'une case (sa bordure qui change) sont aussi des
+           animations : seule compte celle que pose le script */
+        const ondes = el => el.getAnimations().filter(a => !(a instanceof CSSTransition) && !(a instanceof CSSAnimation)).length;
+        const hote = document.createElement('div'); document.body.appendChild(hote);
+        hote.innerHTML = '<input id="_o1"><input id="_o2" class="ok">';
+        const i1 = document.getElementById('_o1'), i2 = document.getElementById('_o2');
+        await att(40);
+        const r = { creeeJuste: ondes(i2) };
+        i1.classList.add('ok'); await att(40);
+        r.devenueJuste = ondes(i1); r.classes = i1.className;
+        i2.classList.add('autre'); await att(40);
+        r.resteJuste = ondes(i2);
+        hote.remove();
+        const sc = document.getElementById('resultScore'), res = document.getElementById('scr-results');
+        if(!sc || !res) return Object.assign(r, { pb: '#resultScore ou #scr-results introuvable' });
+        const avant = sc.textContent;
+        const resultats = async t => {
+          document.querySelectorAll('.confettis').forEach(e => e.remove());
+          sc.textContent = t; res.classList.remove('on'); await att(30);
+          res.classList.add('on'); await att(400);
+          const h = document.querySelector('.confettis');
+          return h ? { n: h.children.length, pe: getComputedStyle(h).pointerEvents,
+            deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth } : null;
+        };
+        r.parfait = await resultats('10 / 10');
+        r.decimal = await resultats('7,5 / 7,5');
+        r.manque = await resultats('9,5 / 10');
+        res.classList.remove('on'); sc.textContent = avant;
+        document.querySelectorAll('.confettis').forEach(e => e.remove());
+        return r;
+      });
+      const r = await mesurer();
+      verifier('une case qui DEVIENT juste s\'éclaire d\'une onde, sans classe ajoutée',
+        r.devenueJuste === 1 && r.classes === 'ok', JSON.stringify({ ondes: r.devenueJuste, classes: r.classes }));
+      verifier('une case créée déjà juste, ou qui le reste, ne s\'éclaire pas',
+        r.creeeJuste === 0 && r.resteJuste === 0, JSON.stringify({ creee: r.creeeJuste, reste: r.resteJuste }));
+      verifier('un sans-faute fait tomber des confettis qui ne captent aucun clic ni ne débordent',
+        !r.pb && !!r.parfait && r.parfait.n > 0 && r.parfait.pe === 'none' && !r.parfait.deborde && !!r.decimal,
+        r.pb || JSON.stringify({ parfait: r.parfait, decimal: r.decimal }));
+      verifier('une note sous le total ne fait tomber aucun confetti', !r.pb && r.manque === null, r.pb || JSON.stringify(r.manque));
+      await s.page.emulateMedia({ reducedMotion: 'reduce' });
+      const c = await mesurer();
+      verifier('sous « moins d\'animations », ni onde ni confettis',
+        c.devenueJuste === 0 && c.parfait === null, JSON.stringify({ ondes: c.devenueJuste, confettis: c.parfait }));
+      verifier('l\'onde et les confettis ne lèvent aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ---- 10. Les retours à la ligne du modèle arrivent-ils à l'écran ? ----
        Le modèle a pour consigne d'aller à la ligne souvent — une étape par
        ligne, une ligne vide entre deux parties. Cette consigne a DEUX moitiés,

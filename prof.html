@@ -52,7 +52,13 @@
   const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";
   const COURRIEL_PROF     = "professeur@exercices-interactifs.invalid";
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- supabase-js à une VERSION EXACTE : le CDN la sert « immuable », gardée un an
+     par le navigateur, quand « @2 » est revalidé chaque semaine — et une nouvelle
+     version ne change plus la page sans qu'on l'ait choisie. La connexion au
+     projet s'ouvre pendant que la page se télécharge : la première requête
+     (la liste des prénoms) n'attend plus la poignée de main TLS. -->
+<link rel="preconnect" href="https://rcxenttecucvcebjlmcw.supabase.co" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
