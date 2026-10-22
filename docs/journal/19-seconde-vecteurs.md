@@ -4638,7 +4638,7 @@ plus de six pages reprend les situations, sur d'autres vecteurs
 le rendu et le juge de ces pages restent (`renderKssKu`, `kssCases`) : un
 brouillon de pause d'avant peut en porter une, et le banc les tient encore.
 
-## {demontrer-egalite-reels} — démontrer une égalité avec des réels (8.3.10, v595)
+## {demontrer-egalite-reels} — démontrer une égalité avec des réels (8.3.10, v596 — v595 prise sur main par les 8.3.6 et 8.3.7 pendant les bancs)
 
 **La demande** (Turquet, octobre 2026) : « créer un exercice comme le 8.2.13
 mais avec en plus, dans la formule à démontrer, des coefficients devant
