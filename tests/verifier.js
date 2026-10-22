@@ -310,6 +310,20 @@ function structure(){
     }
   }
 
+  /* UNE BIBLIOTHÈQUE DU CDN SE CHARGE À UNE VERSION EXACTE (octobre 2026).
+     supabase-js venait de « @2 » : le CDN ne la gardait qu'une semaine dans le
+     navigateur, et la version suivante entrait dans la page sans qu'on l'ait
+     choisie. « @2.117.3 » est servie immuable, gardée un an. Le bord opposé :
+     une page qui ne chargerait plus rien du CDN n'a rien à tenir, et le dit. */
+  {
+    const libs = [...s.matchAll(/(?:cdn\.jsdelivr\.net\/npm|esm\.run)\/((?:@[\w.-]+\/)?[\w.-]+)@([^/"'\s)]+)/g)];
+    const flottantes = [...new Set(libs.filter(m => !/^\d+\.\d+\.\d+$/.test(m[2])).map(m => m[1] + '@' + m[2] + ' (ligne ' + ligneDe(m.index) + ')'))];
+    if(libs.length)
+      verifier('chaque bibliothèque du CDN est chargée à une version exacte (' + libs.length + ' adresse(s))',
+        flottantes.length === 0, flottantes.slice(0, 4).join(', '));
+    else ignorer('chaque bibliothèque du CDN est chargée à une version exacte', 'cette page ne charge rien de cdn.jsdelivr.net ni d’esm.run');
+  }
+
   /* Supabase renvoie ses erreurs sans lever d'exception : tout appel doit les
      examiner. Deux façons de passer à côté, et le banc ne voyait que la
      première — l'insertion de la note de fin de test échappait au compte. */
