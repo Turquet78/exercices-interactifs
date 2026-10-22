@@ -4540,7 +4540,7 @@ révéler ni verrouiller ; le plan à regrouper juste à 30 cases, et
 sens d'un vecteur retourné (plus aucune rédaction acceptée), et le message
 du sens oublié réécrit (le piège n'est plus nommé).
 
-## Le 8.3.9 : un dessin qui suit les égalités de l'énoncé (v595)
+## Le 8.3.9 : un dessin qui suit les égalités de l'énoncé (v596 — v595 prise par le 8.3.7)
 
 **La demande** (Turquet, octobre 2026) : « en seconde dans le 8.3.9 je veux
 voir un dessin correspondant aux égalités vectorielles ».
