@@ -1892,6 +1892,21 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     animation:confetti var(--d) cubic-bezier(.2,.55,.45,1) var(--t) forwards}
   @keyframes confetti{to{transform:translate(var(--dx),110vh) rotate(var(--r))}}
 </style>
+<script id="embellir-garde">
+/* Un fondu entre deux pages peut être ABANDONNÉ par le navigateur : la page
+   d'arrivée ne s'y prête pas (prof.html avant octobre 2026), ou une seconde
+   navigation coupe la première. Il rejette alors ses promesses, et personne
+   ne les attendait : une « erreur » « Transition was skipped » qui ne casse
+   rien, mais que le banc navigateur relève — au hasard du minutage (verte en
+   local, rouge dans l'action, sur l'aller-retour vers la page d'aiguillage).
+   On les attrape ici, dans l'en-tête : « pagereveal » part avant le premier
+   rendu, avant la fin d'une page de plusieurs mégaoctets. */
+(function(){
+  function taire(e){ var t=e && e.viewTransition; if(!t) return;
+    ['ready','finished','updateCallbackDone'].forEach(function(k){ if(t[k] && t[k].catch) t[k].catch(function(){}); }); }
+  addEventListener('pageswap', taire); addEventListener('pagereveal', taire);
+})();
+</script>
 </head>
 
 <body>
@@ -3047,7 +3062,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=336;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=337;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.

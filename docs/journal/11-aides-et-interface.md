@@ -1127,3 +1127,18 @@ dessins SVG et images sur fond blanc). Un mode sombre à moitié — des cadres
 blancs sur un fond noir — serait pire que pas de mode sombre ; il demande un
 chantier à lui, page par page, avec un contrôle qui le tienne. Le portail,
 construit sur des jetons, l'a reçu.
+**Et un fondu ABANDONNÉ est une erreur — au hasard du minutage.** Première
+action, premier rouge : « la page d'aiguillage ne lève aucune erreur
+JavaScript → Transition was skipped », sur la Terminale seulement, vert en
+local. « Quitter » un niveau mène à `prof.html` : la page de départ
+s'inscrivait au fondu (`pageswap` portait une transition), la page d'arrivée
+non — le navigateur l'abandonne et REJETTE ses promesses, que personne
+n'attendait ; l'erreur ne remonte que si l'ancienne page vit encore à cet
+instant. Mesuré en relevant `e.viewTransition` sur `pageswap`/`pagereveal` :
+avant, « pageswap terminale true » puis « pagereveal prof false » ; après,
+« pagereveal prof true ». Deux remèdes, il les faut tous les deux : `prof.html`
+s'inscrit au fondu (le chemin ordinaire ne s'abandonne plus), et un script
+`#embellir-garde` EN TÊTE de chaque page attrape les promesses de toute
+transition (`pagereveal` part avant le premier rendu : en fin d'une page de
+plusieurs mégaoctets, il serait posé trop tard). Une seconde navigation qui
+coupe la première l'abandonne encore — attrapée, elle ne dit plus rien.
