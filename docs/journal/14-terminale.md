@@ -3113,7 +3113,7 @@ désormais la case « Majorée par … » de {suite-vocabulaire} (5.4.1), case d
 texte voisine d'un champ de limite, et le profil nomme ce qu'on tape, ce
 qu'on attend et le juge qui relit (`casesLimite.jetonTexte`).
 
-**Puis la parenthèse a pris la hauteur de sa fraction (5.6.1, v424).**
+**Puis la parenthèse a pris la hauteur de sa fraction (5.6.1, v425).**
 Signalé par Turquet sur une capture : dans « Uₙ = 4 × (2/1)ⁿ − 2 », les
 parenthèses étaient deux caractères « ( » agrandis à 1,6 em — moins hautes
 que la fraction empilée, et l'exposant ⁿ, un `<sup>` posé après un bloc
