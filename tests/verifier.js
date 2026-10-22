@@ -6864,7 +6864,10 @@ function devoirPapierClique(w, apres){
     if(nb!==3) vus.push(nb+' question(s) dans l\\'énoncé au lieu de 3');
     if(document.querySelector('#dmeCorps input,#dmeCorps select,#dmeCorps math-field,#dmeCorps button'))
       vus.push('l\\'énoncé garde des cases de saisie ou des boutons');
-    if(!document.querySelector('#dmeCorps .dme-blank')) vus.push('aucun pointillé : les cases ne sont pas remplacées');
+    /* RETOURNÉ (octobre 2026) : le papier ne porte que l'énoncé et les
+       questions — la chaîne guidée du 4.2.2 (« f(0) = ( … + 1) e… = … ») part
+       entière, et avec elle ses pointillés ; en rester un, c'est en rester une */
+    if(document.querySelector('#dmeCorps .dme-blank')) vus.push('il reste des pointillés : la chaîne guidée de l\\'écran est passée sur le papier');
     if((document.getElementById('dmeCorps').textContent||'').indexOf('Démontre que')<0)
       vus.push('l\\'énoncé ne porte pas le texte des questions');
     /* SANS AUCUNE AIDE (octobre 2026) : le rappel de la formule de la
@@ -14522,6 +14525,13 @@ function vecteursColineairesSuite(w, P){
     if(test.score-av!==0 || classe(el('kpl-0'))!=='bad' || fbP.indexOf('mauvais côté')<0) vus.push('8.3.6 : le mauvais côté : '+classe(el('kpl-0'))+' — '+fbP.slice(0,300));
     if(document.querySelectorAll('#kplCorr line.svc-s').length!==1 || document.querySelectorAll('#kplEl line.svc-eb').length!==1) vus.push('8.3.6 : la correction verte et le vecteur rouge');
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0) vus.push('8.3.6 : le contexte du modèle');
+    /* la flèche dessinée est le vecteur de l'égalité : AB, puis BA */
+    const flecheP=function(){ const l=document.querySelector('#kplDonnes line.svc-u'); return l ? [+l.getAttribute('x1'), +l.getAttribute('x2')] : null; };
+    const fA=flecheP();
+    if(!fA || !(fA[0]<fA[1])) vus.push('8.3.6 : CM = k AB ne dessine pas la flèche de A vers B '+JSON.stringify(fA));
+    test.questions[1]=fixeP([8,6],[1,-1,2]); test.locked=false; renderKpl();
+    const fB=flecheP();
+    if(!fB || !(fB[0]>fB[1]) || document.querySelector('#kplGraph svg').getAttribute('aria-label').indexOf('le vecteur BA')<0) vus.push('8.3.6 : CM = k BA ne dessine pas la flèche de B vers A '+JSON.stringify(fB));
     /* question 3 : parti de A au lieu de C */
     nextKpl(); clearTimeout(test.fbTimer);
     test.questions[2]=fixeP(); renderKpl();
@@ -14540,10 +14550,12 @@ function vecteursColineairesSuite(w, P){
     test.questions[3]={a:[3,3], b:[9,3], l:0, o:[[2,6],[10,8],[5,1]], r:[[0,2,3],[1,1,2],[0,-1,3]], p:[[6,6],null,null]}; test.locked=false; renderKpl();
     if(test.questions[3].r.length!==1 || document.querySelectorAll('#kplDonnes .tan-croix').length!==3 || document.querySelectorAll('#kplBody .tvg-cons').length!==1) vus.push('8.3.6 : un ancien brouillon ne se retire pas');
 
-    /* ===== 8.3.7 : relier égalité et dessin, puis phrase et cas ===== */
+    /* ===== 8.3.7 : question 1, égalité et dessin ; question 2, phrase et cas ===== */
     lancer(D.phrase, 'kph');
     for(let n=0;n<200;n++){
       const qs=kphBuildQuestions(), q=qs[n%qs.length];
+      /* des paires dans l'ordre : la question 1 (dessins) puis la question 2 (phrases), sur le même tirage */
+      if(qs.length!==2 || qs[0].et!==1 || qs[1].et!==2 || JSON.stringify(Object.assign({},qs[0],{et:0}))!==JSON.stringify(Object.assign({},qs[1],{et:0}))){ vus.push('8.3.7 : la paire '+JSON.stringify(qs)); break; }
       if(q.ph.length!==5 || q.c.length!==6 || new Set(q.ph).size!==5){ vus.push('8.3.7 : '+JSON.stringify(q)); break; }
       if(new Set(q.c.map(function(c){ return c[0]/c[1]; })).size!==6){ vus.push('8.3.7 : deux égalités identiques '+JSON.stringify(q.c)); break; }
       if(q.ph.some(function(_,i){ return kphBonne(q,i)<0; })){ vus.push('8.3.7 : une phrase sans égalité '+JSON.stringify(q)); break; }
@@ -14555,41 +14567,38 @@ function vecteursColineairesSuite(w, P){
     if(KPH_PHR.length!==new Set(KPH_PHR.map(function(p){ return p.k[0]/p.k[1]; })).size) vus.push('8.3.7 : deux phrases ont le même réel');
     /* q.d : le dessin I est celui de l'égalité f (−2), II de e (−1)… VI de a : l'égalité j va au dessin 5 − j */
     const FIX={l:0, ph:[0,1,2,7,11], c:[[2,1],[-1,2],[1,2],[3,1],[-1,1],[-2,1]], d:[5,4,3,2,1,0]};
-    test.questions[0]=JSON.parse(JSON.stringify(FIX)); test.idx=0; json(); renderKph();
-    /* étape 1 : six égalités, six dessins, six listes — et aucune phrase */
-    if(document.querySelectorAll('#kphHost .kph-eg').length!==6 || document.querySelectorAll('#kphHost select').length!==6 || document.querySelectorAll('#kphHost svg.kph-svg').length!==6 || document.querySelector('#kphHost .kph-t')) vus.push('8.3.7 : l’étape 1 n’a pas six égalités, six dessins, six listes et aucune phrase');
+    const fix=function(et){ return Object.assign({et:et}, JSON.parse(JSON.stringify(FIX))); };
+    /* la question 1 : six égalités, six dessins, six listes — et aucune phrase */
+    test.questions=[fix(1),fix(2),fix(1),fix(2)]; test.idx=0; json(); renderKph();
+    if(document.querySelectorAll('#kphHost .kph-eg').length!==6 || document.querySelectorAll('#kphHost select').length!==6 || document.querySelectorAll('#kphHost svg.kph-svg').length!==6 || document.querySelector('#kphHost .kph-t') || document.querySelector('#kphHost .kph-cas')) vus.push('8.3.7 : la question 1 n’a pas six égalités, six dessins, six listes, sans phrase ni cas');
     /* le dessin de −2 : M à gauche de A, A au milieu de [MB] en abscisse */
     const xs=Array.from(document.querySelectorAll('#kphHost svg.kph-svg')[0].querySelectorAll('text')).map(function(t){ return +t.getAttribute('x'); });
     if(!(xs[2]<xs[0] && Math.abs((xs[0]-xs[2])-2*(xs[1]-xs[0]))<0.5)) vus.push('8.3.7 : le dessin de AM = −2AB '+xs.join(','));
-    [0,1,2,3,4,5].forEach(function(j){ el('kph-e-'+j).value=String(5-j); });
-    av=test.score; const nr=test.answers.length; checkKph();
-    if(test.score-av!==6 || test.locked || test.answers.length!==nr) vus.push('8.3.7 : l’étape 1 juste vaut '+(test.score-av)+(test.locked?', et verrouille':'')+(test.answers.length!==nr?', et pousse une réponse':''));
-    /* la pause entre les deux étapes : la question repart du JSON, aux phrases, l'étape 1 telle quelle */
-    json(); renderKph();
-    if(document.querySelectorAll('#kphHost .kph-t').length!==5 || document.querySelectorAll('#kphHost .kph-eg select:disabled.ok').length!==6) vus.push('8.3.7 : après la pause, les phrases ne sont pas là ou l’étape 1 n’est plus corrigée');
-    /* « Vérifier » ne juge plus que les phrases : l'étape 1 n'est plus dans ce qu'il relit */
-    if(kphJuge(test.questions[test.idx]).map(function(x){ return x.id; }).join()!=='kph-0,kph-1,kph-2,kph-3,kph-4') vus.push('8.3.7 : après la pause, « Vérifier » relirait encore l’étape 1');
-    ['2','0','4','3','1'].forEach(function(v,i){ el('kph-'+i).value=v; });
-    av=test.score; checkKph();
-    if(test.score-av!==5 || !test.locked || !test.answers[test.answers.length-1].correct) vus.push('8.3.7 : l’étape 2 juste vaut '+(test.score-av));
-    nextKph(); clearTimeout(test.fbTimer);
-    /* une copie vide à l'étape 1, puis ½ pris pour −½ */
-    test.questions[1]=JSON.parse(JSON.stringify(FIX)); renderKph();
-    av=test.score; checkKph();
-    if(test.score!==av || document.querySelectorAll('#scr-kph select.sol').length!==6 || document.querySelector('#scr-kph select.bad')) vus.push('8.3.7 : l’étape 1 vide');
-    el('kph-0').value='1';
-    av=test.score; checkKph();
-    if(test.score-av!==0 || classe(el('kph-0'))!=='bad' || document.querySelectorAll('#scr-kph select.sol').length!==10) vus.push('8.3.7 : ½ pris pour −½ ; les vides : '+classe(el('kph-0')));
-    const fbH=el('kphFeedback').textContent;
-    if(fbH.indexOf('de l’autre côté de A')<0 || fbH.indexOf('du même côté de A que B')<0) vus.push('8.3.7 : le pourquoi ne dit pas le côté : '+fbH.slice(0,220));
-    nextKph(); clearTimeout(test.fbTimer);
-    /* un dessin faux : l'égalité c (½) au dessin V (celui de −½) */
-    test.questions[2]=JSON.parse(JSON.stringify(FIX)); renderKph();
     [0,1,2,3,4,5].forEach(function(j){ el('kph-e-'+j).value=String(5-j); }); el('kph-e-2').value='4';
     av=test.score; checkKph();
-    if(test.score-av!==5 || classe(el('kph-e-2'))!=='bad' || classe(el('kph-e-0'))!=='ok') vus.push('8.3.7 : un dessin faux : '+(test.score-av)+' points, '+classe(el('kph-e-2'))+','+classe(el('kph-e-0')));
+    if(test.score-av!==5 || !test.locked || classe(el('kph-e-2'))!=='bad' || classe(el('kph-e-0'))!=='ok') vus.push('8.3.7 : un dessin faux : '+(test.score-av)+' points, '+classe(el('kph-e-2'))+','+classe(el('kph-e-0')));
     if(el('kphFeedback').textContent.indexOf('Le dessin V montre autre chose')<0) vus.push('8.3.7 : le pourquoi du dessin : '+el('kphFeedback').textContent.slice(0,220));
-    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0 || conseilCtxCourant().indexOf('étape 2')<0) vus.push('8.3.7 : le contexte du modèle');
+    nextKph(); clearTimeout(test.fbTimer);
+    /* la question 2 : chaque égalité sous son dessin, les phrases dessous — plus de lignes a à f */
+    json(); renderKph();
+    if(document.querySelectorAll('#kphHost .kph-cas').length!==6 || document.querySelectorAll('#kphHost .kph-eg').length || document.querySelectorAll('#kphHost .kph-t').length!==5 || document.querySelectorAll('#kphHost select').length!==5) vus.push('8.3.7 : la question 2 n’a pas six cas sous les dessins, cinq phrases et cinq listes, sans les lignes a à f');
+    const cas3=document.querySelectorAll('#kphHost .kv-fig')[3].querySelector('.kph-cas').textContent;
+    if(cas3.indexOf('cas c')<0) vus.push('8.3.7 : le dessin IV ne porte pas le cas c : '+cas3);
+    ['2','0','4','3','1'].forEach(function(v,i){ el('kph-'+i).value=v; });
+    av=test.score; checkKph();
+    if(test.score-av!==5 || !test.locked || !test.answers[test.answers.length-1].correct) vus.push('8.3.7 : la question 2 juste vaut '+(test.score-av));
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0 || conseilCtxCourant().indexOf('question 2')<0) vus.push('8.3.7 : le contexte du modèle');
+    nextKph(); clearTimeout(test.fbTimer);
+    /* une copie vide à la question 1 : rien de rouge, tout en vert */
+    av=test.score; checkKph();
+    if(test.score!==av || document.querySelectorAll('#scr-kph select.sol').length!==6 || document.querySelector('#scr-kph select.bad')) vus.push('8.3.7 : la question 1 vide');
+    nextKph(); clearTimeout(test.fbTimer);
+    /* ½ pris pour −½ à la question 2 */
+    el('kph-0').value='1';
+    av=test.score; checkKph();
+    if(test.score-av!==0 || classe(el('kph-0'))!=='bad' || document.querySelectorAll('#scr-kph select.sol').length!==4) vus.push('8.3.7 : ½ pris pour −½ ; les vides : '+classe(el('kph-0')));
+    const fbH=el('kphFeedback').textContent;
+    if(fbH.indexOf('de l’autre côté de A')<0 || fbH.indexOf('du même côté de A que B')<0) vus.push('8.3.7 : le pourquoi ne dit pas le côté : '+fbH.slice(0,220));
 
     /* ===== 8.3.8 : démontrer un parallélisme avec les vecteurs ===== */
     lancer(D.milieux, 'kmi');

@@ -1035,7 +1035,7 @@ module.exports = {
     vecteursColineairesSuite: {
       sens:    { exercice: 'colineaires-sens-longueur', numero: '8.3.5', nb: 6, bareme: 22 },
       placer:  { exercice: 'placer-point-colineaire', numero: '8.3.6', nb: 4, bareme: 4 },
-      phrase:  { exercice: 'phrase-relation-colineaire', numero: '8.3.7', nb: 3, bareme: 33 },
+      phrase:  { exercice: 'phrase-relation-colineaire', numero: '8.3.7', nb: 2, bareme: 11 },
       milieux: { exercice: 'milieux-parallele-vecteurs', numero: '8.3.8', nb: 4, bareme: 52 },
     },
     /* {translation-pavage} (8.1.9, demande de Turquet, octobre 2026 : « fais
@@ -2473,7 +2473,11 @@ module.exports = {
        Turquet, octobre 2026). « aide » est un texte que l'écran de l'exercice
        montre et que le papier doit taire : le « Rappel » de la formule de la
        tangente, écrit au milieu de l'énoncé du 4.2.2. */
-    dmPdf: { exercice: 'tangente-exp', aide: 'Rappel', question: 'Démontre que' },
+    dmPdf: { exercice: 'tangente-exp', aide: 'Rappel', question: 'Démontre que',
+             /* et le GUIDAGE de la résolution (Turquet, octobre 2026, devant le
+                PDF du 5.6.1 : « il y a encore l'aide à la résolution, je ne veux
+                que les énoncés ») : la chaîne « lim Uₙ = … car … » et sa piste */
+             guide: { exercice: 'suite-limite-puissance', question: 'Détermine sa limite', absents: ['car', 'lim'] } },
     /* La Terminale a la touche « / » de plus : ses tangentes acceptent p/q. */
     /* Le témoin du GARDE DE LA SAISIE : en soutien, une case ne se colore pas
        tant que l'élève y écrit (décision de Turquet, août 2026). Il faut une
