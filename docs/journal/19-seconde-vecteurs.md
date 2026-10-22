@@ -4334,6 +4334,13 @@ question sur deux cents tirages, la copie juste, le mauvais côté, le départ
 pris en A, la mauvaise distance, le point hors de la parallèle, le point
 vide et l'ancien brouillon.
 
+**Puis la flèche dessinée a suivi l'égalité** (v595, demande de Turquet,
+octobre 2026 : « le vecteur tracé sur le dessin doit correspondre à celui de
+l'égalité de l'énoncé ; il aurait fallu tracer FE⃗ et non EF⃗ »). Quand
+l'égalité prend BA⃗, la flèche des données va de B vers A ; sinon de A vers
+B. Les lettres restent dans le prolongement du segment, de part et d'autre.
+Le banc relit le sens de la flèche pour AB⃗ puis pour BA⃗.
+
 **8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
 trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
 du côté opposé à B…), cinq par page ; six cartes AM⃗ = kAB⃗ lettrées a à f,
