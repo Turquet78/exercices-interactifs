@@ -3248,7 +3248,7 @@ si elle ne désigne plus un exercice qui s'allonge. Ce bord n'était sorti dans
 aucune des exécutions locales : il ne sort que sur certains tirages.
 
 
-**Puis la figure de l'égalité (v595).** Turquet : « dans le 8.2.13, faire un
+**Puis la figure de l'égalité (v596).** Turquet : « dans le 8.2.13, faire un
 dessin correspondant à l'égalité à démontrer en représentant tous les
 vecteurs de l'égalité ». La figure (`dchFigHTML`) se pose entre l'énoncé et
 la rédaction : les points de l'énoncé, et chaque vecteur de l'égalité en
