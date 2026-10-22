@@ -6877,7 +6877,10 @@ function devoirPapierClique(w, apres){
     if(nb!==3) vus.push(nb+' question(s) dans l\\'énoncé au lieu de 3');
     if(document.querySelector('#dmeCorps input,#dmeCorps select,#dmeCorps math-field,#dmeCorps button'))
       vus.push('l\\'énoncé garde des cases de saisie ou des boutons');
-    if(!document.querySelector('#dmeCorps .dme-blank')) vus.push('aucun pointillé : les cases ne sont pas remplacées');
+    /* RETOURNÉ (octobre 2026) : le papier ne porte que l'énoncé et les
+       questions — la chaîne guidée du 4.2.2 (« f(0) = ( … + 1) e… = … ») part
+       entière, et avec elle ses pointillés ; en rester un, c'est en rester une */
+    if(document.querySelector('#dmeCorps .dme-blank')) vus.push('il reste des pointillés : la chaîne guidée de l\\'écran est passée sur le papier');
     if((document.getElementById('dmeCorps').textContent||'').indexOf('Démontre que')<0)
       vus.push('l\\'énoncé ne porte pas le texte des questions');
     /* SANS AUCUNE AIDE (octobre 2026) : le rappel de la formule de la

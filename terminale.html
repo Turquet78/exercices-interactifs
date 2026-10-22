@@ -1752,15 +1752,24 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
 .tg-form{font-family:'Nunito',sans-serif;color:var(--ink);font-size:1rem;}
 .tg-line{display:flex;flex-wrap:wrap;align-items:center;--gap-flex:6px;gap:var(--gap-flex);margin:10px 0;font-weight:600;}
 /* ---- Devoir : l'énoncé complet, papier ou ordinateur ---- */
-.dme-q{border:1.5px solid var(--grid);border-radius:14px;padding:12px 16px;margin:12px 0;background:#fff}
-.dme-qnum{font-weight:800;color:var(--blue-dark);margin-bottom:6px}
+.dme-q{border:0;border-top:1.5px solid var(--grid);border-radius:0;padding:8px 2px 6px;margin:0;background:#fff}
+.dme-qnum{font-weight:800;color:var(--blue-dark);margin-bottom:2px}
 .dme-blank{display:inline-block;min-width:90px;height:1.15em;border-bottom:2px dotted var(--ink-soft);vertical-align:middle;margin:0 4px}
 .dme-ok{color:var(--green);font-weight:800;display:inline-flex;align-items:center}
 .dme-corps .lv-tblwrap{overflow-x:auto}
+.papier-seul{display:none}
+.dme-corps .papier-seul,.dme-pdf .papier-seul{display:revert}
+/* LE PAPIER EST SOBRE ET DENSE (Turquet, octobre 2026 : « est-il possible que
+   cela prenne moins de place, car c'est un PDF à imprimer ») : ni cadres de
+   carte, ni étiquette « Énoncé », ni marges d'écran ; un filet sépare les
+   questions. Les dessins gardent leur cadre : il borne le repère. */
+.dme-corps .card,.dme-pdf .card{border:0;box-shadow:none;background:none;padding:0;margin:0;max-width:none}
+.dme-corps .enonce,.dme-corps .tvi-prompt,.dme-pdf .enonce,.dme-pdf .tvi-prompt{border:0;background:none;padding:0;margin:2px 0 8px;border-radius:0}
+.dme-corps .enonce::before,.dme-corps .tvi-prompt::before,.dme-pdf .enonce::before,.dme-pdf .tvi-prompt::before{display:none}
 /* L'hôte du rendu PDF, dans son cadre hors de l'écran : la largeur d'une page
    A4 lue à l'écran ; il ne vit que le temps du rendu. */
-.dme-pdf{width:760px;background:#fff;padding:0 2px}
-.dme-pdf .dme-q{margin:0 0 2px;break-inside:avoid}
+.dme-pdf{width:880px;background:#fff;padding:0 2px}
+.dme-pdf .dme-q{margin:0;break-inside:avoid}
 .dme-pdf-tete{padding:4px 2px 10px;border-bottom:2px solid var(--ink);margin-bottom:8px}
 .dme-pdf-titre{font-weight:800;font-size:1.25rem;color:var(--ink)}
 .dme-pdf-qui{font-weight:700;color:var(--ink);margin-top:4px}
@@ -2513,7 +2522,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     <div class="card tvi-card">
       <p class="tvi-prompt" id="tvinsPrompt"></p>
       <div class="tvi-table" id="tvinsTable"></div>
-      <p class="tvi-instr">À l&rsquo;aide du tableau, donne le nombre de solutions de chaque équation&nbsp;:</p>
+      <p class="tvi-instr aide-ecran">À l&rsquo;aide du tableau, donne le nombre de solutions de chaque équation&nbsp;:</p>
       <div class="tvins-eqs" id="tvinsEqs"></div>
       <div class="mp-feedback" id="tvinsFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tvinsActions"></div>
@@ -2625,7 +2634,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     </div>
     <div class="card tvi-card">
       <p class="tvi-prompt" id="dexpEnonce"></p>
-      <p class="tvi-instr">Calcule la dérivée en complétant :</p>
+      <p class="tvi-instr">Calcule la dérivée<span class="aide-ecran"> en complétant :</span><span class="papier-seul">.</span></p>
       <div class="dexp-body" id="dexpBody"></div>
       <div class="expr-help" id="dexpHelp" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault()">
         <button type="button" class="sup-btn" onclick="dexpSup()">x<sup>y</sup>&nbsp;exposant</button>
@@ -2646,7 +2655,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="svPrompt"></p>
       <div class="sv-graph" id="svGraph"></div>
-      <p class="tvi-instr">À l&rsquo;aide du graphique, complète les pointillés et les cases :</p>
+      <p class="tvi-instr aide-ecran">À l&rsquo;aide du graphique, complète les pointillés et les cases :</p>
       <div class="sv-tables" id="svTables"></div>
       <div class="mp-feedback" id="svFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="svActions"></div>
@@ -2776,7 +2785,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     <div class="card tvi-card tg-card">
       <p class="tvi-prompt" id="tgPrompt"></p>
       <div class="tg-graph" id="tgGraph"></div>
-      <p class="tvi-instr">À l&rsquo;aide du graphique, complète&nbsp;:</p>
+      <p class="tvi-instr aide-ecran">À l&rsquo;aide du graphique, complète&nbsp;:</p>
       <div id="tgForm"></div>
       <div class="mp-feedback" id="tgFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tgActions"></div>
@@ -3084,7 +3093,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     <div class="card tvi-card s1-card">
       <p class="tvi-prompt s1-prompt su-en" id="suPrompt"></p>
       <div class="su-s" id="suQa"></div>
-      <p class="tvi-instr"><span class="su-lab">b)</span> La formule explicite en fonction de <i>n</i> est&nbsp;:</p>
+      <p class="tvi-instr aide-ecran"><span class="su-lab">b)</span> La formule explicite en fonction de <i>n</i> est&nbsp;:</p>
       <div id="suQb"></div>
       <div class="mp-feedback" id="suFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="suActions"></div>
@@ -5382,7 +5391,7 @@ async function dmEnonce(devoirId, testId){
   const devNom=dev&&dev.num!=null?GENRE_DEVOIRS[dev.genre||'dm'].badge+' n°'+dev.num:'Devoir';
   dmePdfPoser(devNom+' — '+testLabel(testId), (currentEleve&&currentEleve.prenom)||'');
   $('dmeTitre').innerHTML='📄 '+esc(testLabel(testId))+(dmBonusCourant()?' '+dmBonusBadge():'');
-  $('dmeIntro').textContent='Voici ton énoncé, en version papier : toutes les questions, avec des pointillés là où tu écriras. Télécharge-le en PDF pour l’imprimer : ton professeur en reçoit le même exemplaire, avec ton prénom — c’est CETTE version-là qu’il corrigera.';
+  $('dmeIntro').textContent='Voici ton énoncé, en version papier : l’énoncé et toutes les questions, à rédiger sur ta feuille. Télécharge-le en PDF pour l’imprimer : ton professeur en reçoit le même exemplaire, avec ton prénom — c’est CETTE version-là qu’il corrigera.';
   $('dmeCorps').innerHTML=corps;
   $('dmeActions').innerHTML=
     '<button class="btn btn-primary" id="dmePapierBtn" onclick="dmePapier()">📥 Télécharger mon énoncé en PDF</button>'
@@ -5400,9 +5409,113 @@ async function dmEnonce(devoirId, testId){
    de la vue du professeur, qui lisent tous ce capteur. Une aide écrite AU
    MILIEU d'une phrase d'énoncé se marque d'un <span class="aide-ecran"> : la
    page la montre, le papier la tait. */
-const DME_AIDES='.aide-ecran,[class*="hint"],.lr-exemple,.rr-attendu,.eav-note,.rfr-note,.apf-astuce,.apf-mode,.apf-jetons,.expr-help,.tvi-tools';
+const DME_AIDES='.sp-tbl,.tx-avec,.dexp-formula,.sa-lnote,.rfr-legende,.aide-ecran,[class*="hint"],.lr-exemple,.rr-attendu,.eav-note,.rfr-note,.apf-astuce,.apf-mode,.apf-jetons,.expr-help,.tvi-tools';
+/* LE PAPIER NE GARDE QUE L'ÉNONCÉ (Turquet, octobre 2026, devant le PDF du
+   5.6.1 : « il y a encore l'aide à la résolution de l'énoncé, je ne veux que
+   les énoncés »). Sur l'écran, l'exercice GUIDE : « lim Uₙ = … car … », la
+   chaîne d'égalités à compléter, le tableau dont il ne reste qu'à remplir les
+   cases. Sur le papier, l'élève rédige seul : toute LIGNE qui porte une case
+   disparaît — la ligne, c'est le plus proche ancêtre affiché en bloc (une
+   cellule de tableau remonte à son tableau). Restent le texte, les figures,
+   les tableaux de données et les propositions d'un QCM. Une case à cocher
+   n'emporte pas sa ligne : c'est une proposition, elle devient « ☐ ».
+   Garde : une « ligne » qui porte aussi l'énoncé, un dessin ou une consigne
+   (prompt) n'est pas une ligne mais l'exercice entier — seule la case part.
+   Les originaux sont marqués le temps du clonage, puis démarqués. */
+/* Un DESSIN est un svg d'une certaine taille : une parenthèse étirée ou une
+   flèche de tableau en est un aussi pour le navigateur, et prise pour une
+   figure elle gardait toute la ligne de la chaîne. */
+function dmeFigure(e){
+  if(e.querySelector('img,canvas')) return true;
+  return Array.prototype.some.call(e.querySelectorAll('svg'), function(g){ const r=g.getBoundingClientRect(); return r.width>80&&r.height>60; });
+}
+function dmeLigneDe(v, section){
+  if(v.type==='checkbox'||v.type==='radio') return v;
+  /* un TABLEAU à compléter (signe, variation) part entier : sur le papier,
+     l'élève le dresse lui-même — ses lignes et ses bornes déjà posées sont le
+     guidage. Un tableau de DONNÉES n'a pas de case, il reste. */
+  if(v.closest('.dme-garde')) return v;
+  const t=v.closest('table,.sv-tbl,.lv-tblwrap,.lv-vartbl2');
+  if(t&&section.contains(t)&&t!==section) return t;
+  /* la LIGNE est le bloc le plus proche qui n'est pas DANS un élément en
+     ligne : le numérateur d'une fraction est un bloc, mais la fraction est
+     posée dans la phrase (inline-flex) — s'arrêter au numérateur laissait
+     « = × − × » et les barres vides de la chaîne */
+  const blocPur=function(x){ return /^(block|flex|grid|table|list-item|flow-root)$/.test(getComputedStyle(x).display); };
+  const dansLigne=function(x){ for(let a=x.parentElement; a&&a!==section; a=a.parentElement){ if(/^inline-/.test(getComputedStyle(a).display)) return a; } return null; };
+  let e=v.parentElement;
+  while(e&&e!==section){
+    if(blocPur(e)){ const a=dansLigne(e); if(!a) break; e=a; }
+    e=e.parentElement;
+  }
+  if(!e||e===section||dmeFigure(e)||e.querySelector('.enonce,[class*="prompt"],input[type="checkbox"],input[type="radio"],.dme-garde')) return v;
+  return e;
+}
+/* LE RESTE DU GUIDAGE. Une chaîne à compléter ne se compose pas que de cases :
+   « On pose : », « = × + × », « Hérédité — on suppose que… », « Avec f(x) = …,
+   on a : » sont ses lignes FIXES, sans case, et survivaient à la première
+   passe. Une ligne de texte (un bloc sans bloc dedans), hors de l'énoncé, d'un
+   dessin, d'un tableau ou d'un programme, ne reste que si elle POSE quelque
+   chose : une question (un verbe à l'impératif ou à l'infinitif, après une
+   éventuelle lettre « a) », « 2. », « Partie B — »), une donnée (« Soit… »,
+   « On donne… »), ou une proposition à cocher. */
+const DME_QUESTION=/^\s*(?:(?:[a-j]\)|[a-j1-9]\.|\(\d+\)|Partie\s+[A-Z]\b|Exercice\s*\d+|Exemple\s*\d+)\s*\S|●?\s*(?:☐|D[ée]montr|Montr(?!ons)|Calcul|D[ée]termin|[ÉE]tudi|Justifi|Donn|D[ée]dui|En d[ée]dui|Conjectur|Exprim|R[ée]sou|Trac|R[ée]dig|Interpr[ée]t|Que |Quel|Associ|Dire|Repr[ée]sent|Cliqu|[ÉE]cri|Lis|Lire|Compl[ée]t|Choisi|Indiqu|V[ée]rifi|Pr[ée]cis|Dress|Trouv|Expliqu|Coch|Plac|Avec la calculatrice|[ÀA] l.aide|Pour chaque|Voici|Soit|On (?:donne|consid|sait|admet|note|prend|choisit|s.int[ée]resse|veut)|Les contre-exemples|Le programme|La suite \(.{1,6}\) semble|[ÉE]tude|Sachant|Parmi))/i;
+/* Une ligne qui ne porte presque aucune lettre (« = × + × », « ⟺ y = »,
+   « ; ; », « ou ») est un reste de chaîne, quelle que soit sa forme. */
+/* Ce que seul le PAPIER dit : la consigne qui remplace, sur la feuille, une
+   question que l'écran pose par ses cases. Caché à l'écran, montré dans
+   l'énoncé papier, son PDF et la vue du professeur. */
+function papierSeul(h){ return '<span class="papier-seul"><br>'+h+'</span>'; }
+let dmeIdsSvg=0;
+function dmeLettres(t){ return (t.match(/[A-Za-zÀ-ÿ]/g)||[]).length; }
+function dmeResteDe(section){
+  const vus=[];
+  section.querySelectorAll('div,p,li,h3,h4').forEach(function(e){
+    if(e.closest('.enonce,[class*="prompt"],table,pre,code,svg,[class*="ML__"],.dme-garde,.papier-seul,[data-dme-ligne]')) return;
+    if(dmeFigure(e)||e.querySelector('table,pre,code,.enonce,[class*="prompt"]')) return;
+    const d=getComputedStyle(e).display;
+    /* un conteneur qui mêle texte FIXE et cases : on ne peut le juger
+       qu'APRÈS le départ de ses lignes — il est jugé sur le clone */
+    if(e.querySelector('input,select,math-field,.dexp2-sheet')){
+      if(/^(block|flex|grid|list-item|flow-root)$/.test(d)) e.setAttribute('data-dme-boite','');
+      return;
+    }
+    const txt=(e.textContent||'').replace(/\s+/g,' ').trim();
+    if(!txt) return;
+    if(/^(block|flex|grid|list-item|flow-root)$/.test(d)&&dmeLettres(txt)<=2){ vus.push(e); return; }
+    if(!/^(block|flex|grid|list-item|flow-root)$/.test(d)) return;
+    /* garde : la ligne, ou une ligne qu'elle contient, pose une question */
+    if(DME_QUESTION.test(txt)) return;
+    if(Array.prototype.some.call(e.querySelectorAll('div,p,li,h3,h4'), function(f){
+      return DME_QUESTION.test((f.textContent||'').replace(/\s+/g,' ').trim()); })) return;
+    vus.push(e);
+  });
+  return vus;
+}
 function dmEnonceQ(section){
+  const marques=[];
+  section.querySelectorAll('input,select,math-field,.dexp2-sheet').forEach(function(v){
+    const l=dmeLigneDe(v, section); if(l===v||l.hasAttribute('data-dme-ligne')) return;
+    l.setAttribute('data-dme-ligne',''); marques.push(l); });
+  /* les blocs d'aide de l'écran (formule rappelée, pistes en italique) ne
+     comptent pas comme lignes : DME_AIDES les retire de toute façon */
+  dmeResteDe(section).forEach(function(l){ l.setAttribute('data-dme-ligne',''); marques.push(l); });
   const c=section.cloneNode(true);
+  marques.forEach(function(l){ l.removeAttribute('data-dme-ligne'); });
+  section.querySelectorAll('[data-dme-boite]').forEach(function(e){ e.removeAttribute('data-dme-boite'); });
+  c.querySelectorAll('[data-dme-ligne]').forEach(function(e){ e.remove(); });
+  /* les conteneurs mixtes, du plus profond au plus large : ce qu'il en reste
+     sans case ne garde sa place que s'il pose une question (même règle que
+     dmeResteDe) ; une case cochable y reste une proposition */
+  Array.prototype.slice.call(c.querySelectorAll('[data-dme-boite]')).reverse().forEach(function(e){
+    e.removeAttribute('data-dme-boite');
+    if(!e.parentNode||e.querySelector('table,pre,code,.enonce,[class*="prompt"],.papier-seul,.dme-garde,input[type="checkbox"],input[type="radio"]')) return;
+    const txt=(e.textContent||'').replace(/\s+/g,' ').trim();
+    if(dmeLettres(txt)>2&&(DME_QUESTION.test(txt)||Array.prototype.some.call(e.querySelectorAll('div,p,li,h3,h4'), function(f){
+      return DME_QUESTION.test((f.textContent||'').replace(/\s+/g,' ').trim()); }))) return;
+    e.remove();
+  });
+  c.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(function(e){ e.replaceWith(document.createTextNode('☐ ')); });
   c.querySelectorAll('.test-top,.exo-title,.mp-actions,.mp-feedback,.tvi-actions,.dexp-hint,.hint-souris,.pm-jetons,.s1-jetons,.sa-jetons,.rc-jetons,.svr-outils,button').forEach(function(e){ e.remove(); });
   c.querySelectorAll(DME_AIDES).forEach(function(e){ e.remove(); });
   /* Le pointillé prend la PLACE de la case qu'il remplace (mesurée sur l'écran
@@ -5425,7 +5538,30 @@ function dmEnonceQ(section){
      au moins une case » devant une copie pleine (signalé par Turquet, août
      2026). jsdom, lui, garde un cache d'id qui rend l'ORIGINAL : seul un
      vrai navigateur voyait le défaut. */
-  c.querySelectorAll('[id]').forEach(function(e){ e.removeAttribute('id'); });
+  /* SAUF DANS UN DESSIN : un clipPath, un marqueur de flèche, un dégradé ne
+     servent que par leur id (url(#…)). Retirés, la courbe des limites
+     graphiques sortait coupée de moitié du PDF et les branches d'un arbre
+     perdaient leurs pointes. Ils sont RENOMMÉS (suffixe unique), références
+     comprises : aucun code de l'exercice ne les cherche sous ce nom. */
+  c.querySelectorAll('svg').forEach(function(g){
+    const n='-dme'+(++dmeIdsSvg), noms={};
+    g.querySelectorAll('[id]').forEach(function(e){ noms[e.id]=e.id+n; e.id=e.id+n; });
+    if(!Object.keys(noms).length) return;
+    [g].concat(Array.prototype.slice.call(g.querySelectorAll('*'))).forEach(function(e){
+      Array.prototype.slice.call(e.attributes).forEach(function(at){
+        const v=at.value.replace(/url\(#([^)]+)\)/g, function(m,k){ return noms[k]?'url(#'+noms[k]+')':m; })
+          .replace(/^#(.+)$/, function(m,k){ return noms[k]&&/href$/.test(at.name)?'#'+noms[k]:m; });
+        if(v!==at.value) e.setAttribute(at.name, v);
+      });
+    });
+    g.removeAttribute('id');
+  });
+  c.querySelectorAll('[id]').forEach(function(e){ if(!e.closest('svg')) e.removeAttribute('id'); });
+  /* ce que le ménage a vidé (un cadre qui ne portait que des lignes à
+     compléter) part aussi : un cadre vide imprime une boîte blanche */
+  for(let tour=0; tour<4; tour++)
+    c.querySelectorAll('div,p,section,ul,ol,li').forEach(function(e){
+      if(!(e.textContent||'').trim() && !e.querySelector('svg,img,canvas,table,.dme-blank')) e.remove(); });
   return c.innerHTML;
 }
 function dmEnonceHTML(){
@@ -5440,7 +5576,7 @@ function dmEnonceHTML(){
        suite, montrait un arbre sans branches — des étiquettes flottantes. On
        les pose AVANT la photo, l'écran étant affiché. */
     scr.querySelectorAll('svg.apf-traits[id$="Traits"]').forEach(function(t){ apfTraits(t.id.slice(0,-6)); });
-    out+='<div class="dme-q">'+(n>1?'<div class="dme-qnum">Question '+(i+1)+' / '+n+'</div>':'')+dmEnonceQ(scr)+'</div>';
+    out+='<div class="dme-q">'+(n>1?'<div class="dme-qnum">Question '+(i+1)+'</div>':'')+dmEnonceQ(scr)+'</div>';
   }
   test.idx=0; afficherEcranDe(test.kind);
   return out;
@@ -5563,6 +5699,28 @@ function dmePdfStylerSVG(hote){
     });
   });
 }
+/* html2canvas dessine mal certains SVG (la courbe des limites graphiques
+   sortait coupée de moitié, la partie droite du repère absente) : chaque
+   dessin, ses styles déjà écrits dans ses attributs, devient une IMAGE de sa
+   taille affichée — une image, html2canvas la pose telle quelle. */
+async function dmePdfSvgEnImages(hote){
+  const vue=hote.ownerDocument.defaultView, attente=[];
+  Array.prototype.slice.call(hote.querySelectorAll('svg')).forEach(function(g){
+    if(g.parentElement&&g.parentElement.closest('svg')) return;
+    const r=g.getBoundingClientRect(); if(r.width<1||r.height<1) return;
+    const k=g.cloneNode(true);
+    k.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    k.setAttribute('width', r.width); k.setAttribute('height', r.height);
+    const cs=vue.getComputedStyle(g);
+    const im=hote.ownerDocument.createElement('img');
+    im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new vue.XMLSerializer().serializeToString(k));
+    im.style.cssText='width:'+r.width+'px;height:'+r.height+'px;display:'+(cs.display==='inline'?'inline-block':cs.display)
+      +';vertical-align:'+cs.verticalAlign+';position:'+cs.position+';left:'+cs.left+';top:'+cs.top+';margin:'+cs.margin;
+    attente.push(new Promise(function(ok){ im.onload=ok; im.onerror=ok; }));
+    g.replaceWith(im);
+  });
+  await Promise.all(attente);
+}
 function dmePdfNom(){
   const i=dmePdfInfo||{};
   const brut=('enonce '+(i.prenom||'')+' '+(i.titre||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'');
@@ -5623,6 +5781,7 @@ async function dmePdfFabriquer(){
     const cd=cadre.contentDocument, hote=cd.querySelector('.dme-pdf');
     if(cd.fonts&&cd.fonts.ready) await cd.fonts.ready;
     dmePdfStylerSVG(hote);
+    await dmePdfSvgEnImages(hote);
     const doc=new window.jspdf.jsPDF({unit:'mm', format:'a4'});
     const M=12, L=210-2*M, H=297-2*M, E=2;
     const mmPx=L/(hote.clientWidth*E);
@@ -5636,11 +5795,11 @@ async function dmePdfFabriquer(){
     for(const b of Array.prototype.slice.call(hote.children)){
       const cv=await window.html2canvas(b,{scale:E, backgroundColor:'#ffffff', logging:false, useCORS:true});
       const w=cv.width*mmPx, h=cv.height*mmPx, reste=M+H-y;
-      if(h<=reste){ poser(cv,y,1); y+=h+4; vide=false; seul=premier; premier=false; continue; }
+      if(h<=reste){ poser(cv,y,1); y+=h+1; vide=false; seul=premier; premier=false; continue; }
       if(seul&&h*R<=reste){ poser(cv,y,reste/h); y=M+H; vide=false; seul=false; continue; }
       if(!seul&&(h<=H||h*R<=H)){
         if(!vide){ doc.addPage(); y=M; }
-        const k=Math.min(1,H/h); poser(cv,y,k); y+=h*k+4; vide=false; continue;
+        const k=Math.min(1,H/h); poser(cv,y,k); y+=h*k+1; vide=false; continue;
       }
       /* bien plus haute qu'une page (ou trop haute pour tenir sous l'en-tête) :
          tranchée, page après page, en commençant là où l'on est */
@@ -5652,7 +5811,7 @@ async function dmePdfFabriquer(){
         const g=t.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,t.width,hh); g.drawImage(cv,0,-off);
         doc.addImage(t.toDataURL('image/jpeg',0.92),'JPEG',M,y,w,hh*mmPx);
         off+=hh;
-        if(off<cv.height){ doc.addPage(); y=M; } else y+=hh*mmPx+4;
+        if(off<cv.height){ doc.addPage(); y=M; } else y+=hh*mmPx+1;
       }
       vide=false; seul=false;
     }
@@ -9126,7 +9285,8 @@ function renderTVINS(){
   $('tvinsLiveScore').textContent=test.score;
   $('tvinsFeedback').textContent=''; $('tvinsFeedback').className='mp-feedback';
   $('tvinsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVINS()">Vérifier mes réponses</button>';
-  $('tvinsPrompt').innerHTML=`Soit <i>${c.fname}</i> définie sur ${esc(tvi3Intervalle(c))}, dont le tableau de variation est donné ci-dessous.`;
+  $('tvinsPrompt').innerHTML=`Soit <i>${c.fname}</i> définie sur ${esc(tvi3Intervalle(c))}, dont le tableau de variation est donné ci-dessous.`
+    +papierSeul('Donne le nombre de solutions de chacune des équations '+c.eqs.map(function(e){ return '<i>'+c.fname+'</i>('+c.v+') = '+e.k; }).join(' ; ')+'.');
   $('tvinsTable').innerHTML=tvi3SVG(c);
   $('tvinsEqs').innerHTML=c.eqs.map((e,i)=>
     `<div class="tvins-eq"><span class="eqn"><i>${c.fname}</i>(${c.v}) = ${e.k}</span><span class="lbl">nombre de solutions&nbsp;:</span><select class="tvi-sel" id="tvins-eq${i}"><option value="">—</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>`
@@ -9578,7 +9738,8 @@ function renderTVG(){
   $('tvgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVG()">Vérifier mes réponses</button>';
   $('tvgPrompt').innerHTML=`Soit <i>${c.fname}</i> une fonction dont la courbe est tracée ci-dessous. On s’intéresse à l’équation <i>${c.fname}</i>(<i>x</i>) = ${c.kL}.`;
   $('tvgGraph').innerHTML=tvgSVG(c);
-  $('tvgConsignes').innerHTML='<b>a)</b> Clique sur la courbe le ou les <b>points</b> (ronds) vérifiant <i>'+c.fname+'</i>(<i>x</i>) = '+c.kL+'.<br><b>b)</b> Clique sur les solutions de l’axe des abscisses de <i>'+c.fname+'</i>(<i>x</i>) = '+c.kL+' (carrés).<br><b>c)</b> Écris les solutions de l’équation <i>'+c.fname+'</i>(<i>x</i>) = '+c.kL+' en les séparant par un point-virgule s’il y en a plusieurs.';
+  $('tvgConsignes').innerHTML='<span class="aide-ecran"><b>a)</b> Clique sur la courbe le ou les <b>points</b> (ronds) vérifiant <i>'+c.fname+'</i>(<i>x</i>) = '+c.kL+'.<br><b>b)</b> Clique sur les solutions de l’axe des abscisses de <i>'+c.fname+'</i>(<i>x</i>) = '+c.kL+' (carrés).<br></span>'
+    +'<span class="papier-seul"><b>a)</b> Marque sur la courbe le ou les points vérifiant <i>'+c.fname+'</i>(<i>x</i>) = '+c.kL+'.<br><b>b)</b> Marque sur l’axe des abscisses les solutions de <i>'+c.fname+'</i>(<i>x</i>) = '+c.kL+'.<br></span><b>c)</b> Écris les solutions de l’équation <i>'+c.fname+'</i>(<i>x</i>) = '+c.kL+' en les séparant par un point-virgule s’il y en a plusieurs.';
   $('tvgSolZone').innerHTML='<span class="tvg-sollbl"><i>x</i>&nbsp;=</span><input class="tvg-solin" id="tvgSol" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="…"><button type="button" class="tvg-vide" onclick="tvgVide()" title="Aucune solution (∅) — raccourci clavier : tape vid">∅</button><span class="tvg-hint">raccourci clavier : <kbd>vid</kbd></span>';
   const si=$('tvgSol');
   si.oninput=function(){ const av=this.value; if(/vid/i.test(av)){ const p=this.selectionStart||0; const nv=av.replace(/vid/gi,'∅'); this.value=nv; const d2=av.length-nv.length; try{ this.setSelectionRange(Math.max(0,p-d2),Math.max(0,p-d2)); }catch(err){} } };
@@ -9790,7 +9951,8 @@ function renderDHV(){
   $('dhvLiveScore').textContent=test.score;
   $('dhvFeedback').textContent=''; $('dhvFeedback').className='mp-feedback';
   $('dhvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDHV()">Vérifier mes réponses</button>';
-  $('dhvPrompt').innerHTML='Dans le repère ci-dessous, deux droites <b>horizontales</b> — (AB) et <i>d</i><sub>1</sub> — et deux droites <b>verticales</b> — (CD) et <i>d</i><sub>2</sub> — sont tracées.';
+  $('dhvPrompt').innerHTML='Dans le repère ci-dessous, deux droites <b>horizontales</b> — (AB) et <i>d</i><sub>1</sub> — et deux droites <b>verticales</b> — (CD) et <i>d</i><sub>2</sub> — sont tracées.'
+    +papierSeul('<b>a)</b> Lis les coordonnées de A et de B, puis donne l’équation de la droite (AB).<br><b>b)</b> Lis les coordonnées de C et de D, puis donne l’équation de la droite (CD).<br><b>c)</b> Donne l’équation de la droite <i>d</i><sub>1</sub>.<br><b>d)</b> Donne l’équation de la droite <i>d</i><sub>2</sub>.');
   $('dhvGraph').innerHTML=dhvSVG(c);
   const inp=id=>'<input class="dhv-in" id="'+id+'" type="text" maxlength="4" autocomplete="off" autocapitalize="off" spellcheck="false">';
   const inpV=id=>'<input class="dhv-in dhv-var" id="'+id+'" type="text" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false">';
@@ -10187,7 +10349,7 @@ function renderLG(){
   $('lgLiveScore').textContent=test.score;
   $('lgFeedback').textContent=''; $('lgFeedback').className='mp-feedback';
   $('lgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG()">Vérifier mes réponses</button>';
-  $('lgPrompt').innerHTML='Voici la courbe d’une fonction <i>f</i>. Complète à l’aide du graphique.';
+  $('lgPrompt').innerHTML='Voici la courbe d’une fonction <i>f</i>.<span class="aide-ecran"> Complète à l’aide du graphique.</span>'+lgPapierHTML(c,false);
   $('lgGraph').innerHTML=lgSVG(c);
   const aide=(currentMode!=='eval');
   $('lgHint').innerHTML=(aide?'<span class="tvg-hint">▶ fait apparaître un point qui se déplace sur la courbe&nbsp;·&nbsp;</span>':'')+'<span class="tvg-hint">raccourci clavier : <kbd>inf</kbd> → ∞</span>';
@@ -10457,6 +10619,14 @@ function lg2DBarres(tv){
   return g;
 }
 /* --- Sous-questions de limites (partagées niveaux 2 et 3) : préfixe d'ids paramétré --- */
+/* La version papier des limites graphiques : les cases « Quand x → … :
+   f(x) → … il y a donc … » sont le guidage ; sur la feuille, une question par
+   borne, et le tableau à dresser pour le 2.3. */
+function lgPapierHTML(c,tableau){
+  const L=c.subs.map(function(s){ return '<b>'+s.lab+')</b> Détermine la limite de <i>f</i>(<i>x</i>) quand <i>x</i> → <b>'+s.cibleHTML+'</b>, puis précise l’asymptote éventuelle et son équation.'; });
+  if(tableau) L.push('<b>'+String.fromCharCode(97+c.subs.length)+')</b> Dresse le tableau de variation de <i>f</i> sur son domaine de définition.');
+  return papierSeul(L.join('<br>'));
+}
 function lgSubsHTML(c,pfx){
   return c.subs.map((s,i)=>
     '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(<i>x</i>) → '+limHTML(pfx+'-lim'+i,'lg-lim')+' <button type="button" class="lg-inf" id="'+pfx+'-inf'+i+'" onclick="lgSubsInsInf(\''+pfx+'\','+i+')" title="Insérer le symbole ∞">∞</button></span>'
@@ -10503,7 +10673,7 @@ function renderLG2(){
   $('lg2LiveScore').textContent=test.score;
   $('lg2Feedback').textContent=''; $('lg2Feedback').className='mp-feedback';
   $('lg2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG2()">Vérifier mes réponses</button>';
-  $('lg2Prompt').innerHTML='Voici la courbe d’une fonction <i>f</i> — les asymptotes ne sont <b>pas</b> tracées. Complète les limites, puis le <b>tableau de variation</b> de <i>f</i> sur son domaine de définition (flèches, et limites ou valeurs aux extrémités).'+lgDomaineHTML(c);
+  $('lg2Prompt').innerHTML='Voici la courbe d’une fonction <i>f</i> — les asymptotes ne sont <b>pas</b> tracées.<span class="aide-ecran"> Complète les limites, puis le <b>tableau de variation</b> de <i>f</i> sur son domaine de définition (flèches, et limites ou valeurs aux extrémités).</span>'+lgDomaineHTML(c)+lgPapierHTML(c,true);
   $('lg2Graph').innerHTML=lgSVG(c,{ pfx:'lg2', asyCachees:true });
   $('lg2Hint').innerHTML='<span class="tvg-hint">raccourci clavier : <kbd>inf</kbd> → ∞</span>';
   $('lg2Subs').innerHTML=lgSubsHTML(c,'lg2');
@@ -10764,7 +10934,7 @@ function renderLG3(){
   $('lg3LiveScore').textContent=test.score;
   $('lg3Feedback').textContent=''; $('lg3Feedback').className='mp-feedback';
   $('lg3Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG3()">Vérifier mes réponses</button>';
-  $('lg3Prompt').innerHTML='On donne le <b>tableau de variation</b> d’une fonction <i>f</i> sur son domaine de définition (aucune courbe). Déduis-en chaque limite, et l’asymptote éventuelle.'+lgDomaineHTML(c);
+  $('lg3Prompt').innerHTML='On donne le <b>tableau de variation</b> d’une fonction <i>f</i> sur son domaine de définition (aucune courbe). <span class="aide-ecran"> Déduis-en chaque limite, et l’asymptote éventuelle.</span>'+lgDomaineHTML(c)+lgPapierHTML(c,false);
   $('lg3TVzone').innerHTML=lg3TableHTML(c);
   $('lg3Hint').innerHTML='<span class="tvg-hint">raccourci clavier : <kbd>inf</kbd> → ∞</span>';
   $('lg3Subs').innerHTML=lgSubsHTML(c,'lg3');
@@ -12768,7 +12938,8 @@ function renderSV(){
   $('svLiveScore').textContent=test.score;
   $('svFeedback').textContent=''; $('svFeedback').className='mp-feedback';
   $('svActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSV()">V\u00e9rifier</button>';
-  $('svPrompt').innerHTML=`On donne la courbe repr\u00e9sentative d\u2019une fonction <i>${esc(c.fname)}</i> sur ]${SV_MINUS}\u221e\u00a0; +\u221e[.`;
+  $('svPrompt').innerHTML=`On donne la courbe repr\u00e9sentative d\u2019une fonction <i>${esc(c.fname)}</i> sur ]${SV_MINUS}\u221e\u00a0; +\u221e[.`
+    +papierSeul(`À l\u2019aide du graphique, dresse le tableau de signe de <i>${esc(c.fname)}</i>(<i>x</i>), puis le tableau de signe de <i>${esc(c.fname)}</i>\u2009\u2032(<i>x</i>) et le tableau de variation de <i>${esc(c.fname)}</i>.`);
   $('svGraph').innerHTML=svGraphSVG(c);
   $('svTables').innerHTML=svTablesHTML(c);
   setTimeout(svArrowChange,0);   /* points au centre au depart ; redessin apres une reprise (restoreBoxes) */
@@ -13371,10 +13542,10 @@ function renderAfp(){
   ['efTable','ecForm','asgForm','sdqHost','ecvForm'].forEach(function(id){ const h=$(id); if(h) h.innerHTML=''; });
   if(q.type==='a'){
     $('afpPrompt').innerHTML=ex+'On donne une courbe repr\u00e9sentant <b><i>f</i></b>. Compl\u00e8te logiquement le tableau : les abscisses o\u00f9 <i>f</i>\u2009\u2032 s\u2019annule, le signe de <i>f</i>\u2009\u2032, les variations de <i>f</i>.';
-    $('afpHost').innerHTML='<div class="af-graph">'+afGraphSVG(q.pts,false)+'</div><p class="af-instr">Compl\u00e9ter logiquement :</p><div class="sv-tables" id="afpTable">'+efTableHTML(afpTab(q))+'</div>';
+    $('afpHost').innerHTML='<div class="af-graph">'+afGraphSVG(q.pts,false)+'</div><p class="af-instr aide-ecran">Compl\u00e9ter logiquement :</p><div class="sv-tables" id="afpTable">'+efTableHTML(afpTab(q))+'</div>';
   } else if(q.type==='b'){
     $('afpPrompt').innerHTML=ex+'On donne cette fois une courbe repr\u00e9sentant <b><i>f</i>\u2009\u2032</b> \u2014 attention, c\u2019est la D\u00c9RIV\u00c9E qui est dessin\u00e9e. Compl\u00e8te logiquement le m\u00eame tableau.';
-    $('afpHost').innerHTML='<div class="af-graph">'+afGraphSVG(q.ptsp,true)+'</div><p class="af-instr">Compl\u00e9ter logiquement :</p><div class="sv-tables" id="afpTable">'+efTableHTML(afpTab(q))+'</div>';
+    $('afpHost').innerHTML='<div class="af-graph">'+afGraphSVG(q.ptsp,true)+'</div><p class="af-instr aide-ecran">Compl\u00e9ter logiquement :</p><div class="sv-tables" id="afpTable">'+efTableHTML(afpTab(q))+'</div>';
   } else {
     $('afpPrompt').innerHTML=ex+'Voici les DEUX courbes des questions pr\u00e9c\u00e9dentes, c\u00f4te \u00e0 c\u00f4te. Les courbes <i>f</i> et <i>f</i>\u2009\u2032 sont-elles compatibles ?';
     $('afpHost').innerHTML='<div class="af-deux"><div class="af-graph">'+afGraphSVG(q.pts,false)+'</div><div class="af-graph">'+afGraphSVG(q.ptsp,true)+'</div></div>'
@@ -13852,7 +14023,7 @@ function renderSdq(){
     return '<div class="sdq-prop" data-prop="'+i+'"><span class="sdq-lettre">'+SDQ_LETTRES[i]+')</span>'+sdqTexte(p)+'</div>';
   }).join('');
   $('sdqHost').innerHTML='<div class="af-graph">'+afGraphSVG(q.ptsp,true)+'</div>'
-    +'<p class="af-instr">Compléter logiquement :</p><div class="sv-tables" id="sdqTable">'+efTableHTML(sdqTab(q))+'</div>'
+    +'<p class="af-instr aide-ecran">Compléter logiquement :</p><div class="sv-tables" id="sdqTable">'+efTableHTML(sdqTab(q))+'</div>'
     +'<div class="sdq-qcm"><p class="sdq-titre">QCM — une seule bonne réponse</p><div class="sdq-props">'+props+'</div>'
     +'<p class="af-instr">La bonne réponse est <select class="tvi-sel" id="sdq-sel"><option value="">…</option>'
     +SDQ_LETTRES.map(function(l,i){ return '<option value="'+i+'">'+l+'</option>'; }).join('')+'</select></p></div>';
@@ -17839,7 +18010,8 @@ function renderTG(){
   $('tgLiveScore').textContent=test.score;
   $('tgFeedback').textContent=''; $('tgFeedback').className='mp-feedback';
   $('tgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTG()">Vérifier</button>';
-  $('tgPrompt').innerHTML=`On donne la courbe représentative d\u2019une fonction <i>${esc(c.fname)}</i> et l\u2019une de ses tangentes (en pointillés), tangente au point <b>A</b>.`;
+  $('tgPrompt').innerHTML=`On donne la courbe représentative d\u2019une fonction <i>${esc(c.fname)}</i> et l\u2019une de ses tangentes (en pointillés), tangente au point <b>A</b>.`
+    +papierSeul(`<b>a)</b> Lis sur le graphique <i>${esc(c.fname)}</i>(${esc(numFmt(c.a))}) et <i>${esc(c.fname)}</i>\u2009\u2032(${esc(numFmt(c.a))}).<br><b>b)</b> Détermine l’équation réduite de la tangente au point A.`);
   $('tgGraph').innerHTML=tgGraphSVG(c);
   $('tgForm').innerHTML=tgFormHTML(c);
   if(isSoutien()){
@@ -19931,7 +20103,7 @@ function renderS1(){
   $('s1LiveScore').textContent=test.score;
   $('s1Feedback').textContent=''; $('s1Feedback').className='mp-feedback';
   $('s1Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkS1()">Vérifier</button>';
-  $('s1Prompt').innerHTML=`Soit la fonction <i>f</i> définie sur ]\u2212\u221e\u00a0; +\u221e[ par&nbsp; <b><i>f</i>\u00a0(<i>x</i>) = ${c.exprHtml}</b>. R\u00e9sous d\u2019abord l\u2019\u00e9quation <i>f</i>\u00a0(<i>x</i>) = 0 :`;
+  $('s1Prompt').innerHTML=`Soit la fonction <i>f</i> définie sur ]\u2212\u221e\u00a0; +\u221e[ par&nbsp; <b><i>f</i>\u00a0(<i>x</i>) = ${c.exprHtml}</b>. R\u00e9sous d\u2019abord l\u2019\u00e9quation <i>f</i>\u00a0(<i>x</i>) = 0<span class="aide-ecran"> :</span><span class="papier-seul">, puis dresse le tableau de signe de <i>f</i>(<i>x</i>).</span>`;
   $('s1Res').innerHTML=s1ResHTML(c);
   $('s1Phrase').innerHTML=`Le signe du coefficient de <i>x</i> qui est <b>${numFmt(c.a)}</b> est placé <select class="tvi-sel s1-place-sel" id="s1-place"><option value="">\u2026</option><option value="debut">au début</option><option value="fin">à la fin</option><option value="debutfin">au début et à la fin</option></select> du tableau.`;
   $('s1Table').innerHTML=s1TableHTML(c);
@@ -20117,7 +20289,8 @@ function renderS2(){
   $('s2LiveScore').textContent=test.score;
   $('s2Feedback').textContent=''; $('s2Feedback').className='mp-feedback';
   $('s2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkS2()">Vérifier</button>';
-  $('s2Prompt').innerHTML=`Soit la fonction <i>f</i> définie sur ]\u2212\u221e\u00a0; +\u221e[ par&nbsp; <b><i>f</i>\u00a0(<i>x</i>) = ${c.exprHtml}</b>.`;
+  $('s2Prompt').innerHTML=`Soit la fonction <i>f</i> définie sur ]\u2212\u221e\u00a0; +\u221e[ par&nbsp; <b><i>f</i>\u00a0(<i>x</i>) = ${c.exprHtml}</b>.`
+    +papierSeul('Détermine le nombre de racines de <i>f</i>(<i>x</i>) = 0, puis dresse le tableau de signe de <i>f</i>(<i>x</i>).');
   $('s2Res').innerHTML=s2ResHTML(c);
   if(c.nroots===0){
     $('s2Phrase').innerHTML=`Le coefficient de <i>x</i><sup>2</sup> est ${s1Box('s2-acoef',1)}.`;
@@ -21380,7 +21553,8 @@ function renderSU(){
   $('suLiveScore').textContent=test.score;
   $('suFeedback').textContent=''; $('suFeedback').className='mp-feedback';
   $('suActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSU()">V\u00e9rifier</button>';
-  $('suPrompt').innerHTML='('+suU('<i>n</i>')+') est une suite d\u00e9finie par&nbsp; <b>'+suRecHTML(c)+'</b> &nbsp;avec&nbsp; <b>'+suU(c.p)+' = '+suHtml(c.up)+'</b>.';
+  $('suPrompt').innerHTML='('+suU('<i>n</i>')+') est une suite d\u00e9finie par&nbsp; <b>'+suRecHTML(c)+'</b> &nbsp;avec&nbsp; <b>'+suU(c.p)+' = '+suHtml(c.up)+'</b>.'
+    +papierSeul('<b>a)</b> Donne la nature de la suite ('+suU('<i>n</i>')+') et sa raison.<br><b>b)</b> Donne la formule explicite de '+suU('<i>n</i>')+' en fonction de <i>n</i>.');
   $('suQa').innerHTML=suQaHTML();
   $('suQb').innerHTML=suQbHTML();
   if(window.mlDexp) window.mlDexp.upgrade($('scr-su'));   /* clavier Terminale + correctifs, comme en 2.1 */
@@ -22267,7 +22441,7 @@ function renderENC(){
   $('encActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkENC()">V\u00e9rifier</button>';
   $('encPrompt').innerHTML='Soit &nbsp;<b>'+encTex(c.fTex,c.fPlain)+'</b>&nbsp; d\u00e9finie sur '+c.dom+'.<br>'
     +'Montrer que si &nbsp;<b>'+encTex('x \\in ['+c.m+'\\,;'+c.M+']','x \u2208 ['+c.m+' ; '+c.M+']')+'</b>&nbsp; alors &nbsp;<b>'
-    +encTex('f(x) \\in ['+c.m+'\\,;'+c.M+']','f(x) \u2208 ['+c.m+' ; '+c.M+']')+'</b>.&nbsp; Compl\u00e8te :';
+    +encTex('f(x) \\in ['+c.m+'\\,;'+c.M+']','f(x) \u2208 ['+c.m+' ; '+c.M+']')+'</b>.<span class="aide-ecran">&nbsp; Compl\u00e8te :</span>';
   $('encJetons').innerHTML=encJetonsHTML();
   $('encChaine').innerHTML=encChaineHTML(c);
   if(window.mlDexp) window.mlDexp.upgrade($('scr-enc'));
@@ -22526,8 +22700,8 @@ function renderREC(){
     +'&nbsp;&nbsp;;&nbsp;&nbsp; '+tEq(recSub(idx1)+' = ', recMF('rec-t1'))
     +'&nbsp;&nbsp;;&nbsp;&nbsp; '+tEq(recSub(idx2)+' = ', recMF('rec-t2'))+'</div>';
   $('recProg').innerHTML='<p class="tvi-instr">Le programme affiche les termes suivants (de '+recSub(q.n0+3)+' \u00e0 '+recSub(q.n0+10)+', tronqu\u00e9s au milli\u00e8me)&nbsp;:</p>'
-    +'<p class="rec-prog">'+q.prog.map((v,i)=>recSub(q.n0+3+i)+' \u2248 '+recTrunc3(v)).join('&nbsp;&nbsp;;&nbsp;&nbsp; ')+'</p>';
-  $('recB').innerHTML='<p class="tvi-instr"><span class="su-lab">b)</span> Compl\u00e8te les conjectures&nbsp;:</p>'
+    +'<p class="rec-prog dme-garde">'+q.prog.map((v,i)=>recSub(q.n0+3+i)+' \u2248 '+recTrunc3(v)).join('&nbsp;&nbsp;;&nbsp;&nbsp; ')+'</p>';
+  $('recB').innerHTML='<p class="tvi-instr"><span class="su-lab">b)</span> <span class="aide-ecran">Compl\u00e8te les conjectures&nbsp;:</span><span class="papier-seul">Conjecture le sens de variation de la suite, sa limite, un majorant et un minorant.</span></p>'
     +'<div class="rec-ligne">La suite semble '+recSel('rec-sens',q.sens)
     +' et sa limite semble \u00eatre '+recMF('rec-lim')+'.</div>'
     +'<div class="rec-ligne">Un majorant semble \u00eatre '+recMF('rec-maj')
@@ -23319,7 +23493,7 @@ function renderSA2(){
   $('sa2Prompt').innerHTML='Soit <b>('+U+'<sub>'+n+'</sub>)</b> la suite définie par&nbsp;: <b>'+U+'<sub>0</sub> = '+F(q.u0)
     +'</b> et, pour tout entier naturel '+n+', <b>'+U+'<sub>'+n+'+1</sub> = '+F(q.a)+' '+Un+S(q.b)+'</b>.';
   $('sa2Aux').innerHTML='Soit la suite <b>('+Vn+')</b> définie par&nbsp;: <b>'+Vn+' = '+Un+S(q.k)+'</b>.';
-  $('sa2TitreA').innerHTML='Montrer que la suite ('+Vn+') est <b>géométrique de raison '+F(q.a)+'</b>. Compléter&nbsp;:';
+  $('sa2TitreA').innerHTML='Montrer que la suite ('+Vn+') est <b>géométrique de raison '+F(q.a)+'</b>.<span class=\"aide-ecran\"> Compléter&nbsp;:</span>';
 
   /* a) la chaîne de la fiche — UNE étape par ligne, les « = » alignés
      (demande de Turquet, août 2026) : la première rangée empilait DEUX
@@ -24975,7 +25149,7 @@ function renderLQN(){
   $('lqnActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLQN()">Vérifier</button>';
   $('lqnPrompt').innerHTML='Soit la suite (<i>U</i><sub>'+LQN_N+'</sub>) définie pour tout entier naturel '+LQN_N+' par :'
     +'<span class="lqn-def"><i>U</i><sub>'+LQN_N+'</sub> = '+lqnExprHTML(q)+'</span>'
-    +'Détermine sa limite en justifiant — après « car », choisis comment est la base de la puissance.';
+    +'Détermine sa limite en justifiant<span class="aide-ecran"> — après « car », choisis comment est la base de la puissance</span>.';
   $('lqnLadder').innerHTML=lqnLadderHTML(q);
   if(window.mlDexp) window.mlDexp.upgrade($('lqnLadder'));   /* les cases de limite sont des champs MathLive : même clavier qu'au 3.5 */
   /* correction en direct du mode soutien (liveCheckCurrent() a un corps vide
@@ -28015,7 +28189,7 @@ function renderCqp(){
   const opts='<option value="">…</option>'+q.it.map(function(_,k){ return '<option value="'+(k+1)+'">'+(k+1)+'</option>'; }).join('');
   $('cqpHost').innerHTML='<div class="cqp-zone">'
     +'<ol class="cqp-phrases">'+q.it.map(function(item,k){ return '<li id="cqp-p'+(k+1)+'"><b class="cqp-num">('+(k+1)+')</b> '+cqpPhrase(q,item)+'</li>'; }).join('')+'</ol>'
-    +'<div class="cqp-formules">'+q.fo.map(function(k,j){ return '<div class="cqp-fm"><span class="cqp-par">(<select class="tvi-sel cqp-sel" id="cqp-f'+j+'" aria-label="numéro de la phrase de cette formule">'+opts+'</select>)</span> <span class="cqp-f">'+cqpFormule(q,q.it[k])+'</span></div>'; }).join('')+'</div>'
+    +'<div class="cqp-formules">'+q.fo.map(function(k,j){ return '<div class="cqp-fm dme-garde"><span class="cqp-par">(<select class="tvi-sel cqp-sel" id="cqp-f'+j+'" aria-label="numéro de la phrase de cette formule">'+opts+'</select>)</span> <span class="cqp-f">'+cqpFormule(q,q.it[k])+'</span></div>'; }).join('')+'</div>'
     +'</div>';
   cqpCases(q).forEach(function(x){ const el=$(x.id); if(!el) return;
     el.addEventListener('change',function(){ cqpMarquerPrises(); if(isSoutien()) checkCqp(true); }); });
@@ -28538,7 +28712,7 @@ function renderRFR(){
      '<div class="sa2-row rfr-row"><span class="rfr-puce">●</span>'+T('Avec '+U+'<sub>0</sub> = '+rfrFrHTML(q)+' et '+Un1+' = ')+recur+T('&nbsp;on a&nbsp;:')+trois('rfr-r')+'</div>'
     +'<div class="sa2-row rfr-row"><span class="rfr-puce">●</span>'+T('Avec '+Un+' = ')+expl+T('&nbsp;on a&nbsp;:')+trois('rfr-e')+'</div>';
   /* b) la démonstration */
-  $('rfrTitreB').innerHTML='Démontrer que&nbsp;: <b>'+Un+' = '+expl+'</b> pour tout '+n+', par récurrence. Compléter&nbsp;:';
+  $('rfrTitreB').innerHTML='Démontrer que&nbsp;: <b>'+Un+' = '+expl+'</b> pour tout '+n+', par récurrence.<span class=\"aide-ecran\"> Compléter&nbsp;:</span>';
   $('rfrLegende').innerHTML=['On vérifie la formule au départ.','On écrit la formule explicite de '+Un+'.','On écrit la formule explicite de '+Un1+'.',
     'On écrit TOUTES les étapes !','On place la formule de '+Un+' à l’intérieur de la formule de récurrence.','On doit retrouver la formule de '+Un1+'.']
     .map(function(s){ return '<li>'+s+'</li>'; }).join('');
@@ -29167,7 +29341,7 @@ function renderSVR(){
   const ffx =sa2Frac(numFmt(a.p), numFmt(a.s)+' − <i>x</i>');
   $('svrPrompt').innerHTML='Soit ('+Un+') la suite définie par <b>'+U+'<sub>0</sub> = '+numFmt(a.U0)+'</b> et <b>'+Un1+' = '+frec+'</b>.'
     +'<br>Donc '+Un1+' = <i>f</i> ('+Un+') &nbsp;avec&nbsp; <b><i>f</i> (<i>x</i>) = '+ffx+'</b>.';
-  $('svrTitreA').innerHTML='Trace graphiquement les <b>3 premiers termes</b> de la suite : clique successivement les <b>trois points</b> de la construction en escalier, sur la courbe ou sur la droite d’équation <i>y</i> = <i>x</i>.';
+  $('svrTitreA').innerHTML='Trace graphiquement les <b>3 premiers termes</b> de la suite<span class="aide-ecran"> : clique successivement les <b>trois points</b> de la construction en escalier, sur la courbe ou sur la droite d’équation <i>y</i> = <i>x</i></span>.';
   /* b) */
   $('svrPartB').innerHTML='<div class="sa2-row">'+T(U+'<sub>1</sub> =')
     +sa2Frac(numFmt(a.p), numFmt(a.s)+' − '+svrIn('svr-b1',false))+T('=')+svrIn('svr-b2',false)+'</div>';
@@ -29737,7 +29911,7 @@ function renderSSV(){
   $('ssvPartA').innerHTML='<div class="sa2-row">'+T(U+'<sub>1</sub> ≈')+ssvIn('ssv-a1',false)
     +T(';&nbsp; '+U+'<sub>2</sub> ≈')+ssvIn('ssv-a2',false)
     +T(';&nbsp; '+U+'<sub>3</sub> ≈')+ssvIn('ssv-a3',false)+'</div>';
-  $('ssvTitreB').innerHTML='Trace graphiquement les <b>3 premiers termes</b> de la suite : clique successivement les <b>trois points</b> de la construction en escalier, sur la courbe ou sur la droite d’équation <i>y</i> = <i>x</i>.';
+  $('ssvTitreB').innerHTML='Trace graphiquement les <b>3 premiers termes</b> de la suite<span class="aide-ecran"> : clique successivement les <b>trois points</b> de la construction en escalier, sur la courbe ou sur la droite d’équation <i>y</i> = <i>x</i></span>.';
   /* c) */
   $('ssvPartC').innerHTML='<div class="sa2-row">'+T('Le sens de variation de la suite semble être')+ssvSel('ssv-c1',SSV_OPT_SENS)+'</div>';
   /* d) — la présentation du 2.5 : le bloc facultatif, puis la feuille ligne par ligne */
@@ -30141,18 +30315,18 @@ function svqIn(id){
 function svqFormHTML(){
   const U='<i>U</i><sub><i>n</i></sub>';
   return '<p class="svq-titre">La suite ('+U+') semble :</p>'
-    +'<div class="svq-ligne svq-grp pts-case" id="svq-g-sens">'
+    +'<div class="svq-ligne svq-grp pts-case dme-garde" id="svq-g-sens">'
       +svqCoche('sens','cro','Croissante.')+svqCoche('sens','dec','Décroissante.')+svqCoche('sens','non','Non monotone.')+'</div>'
-    +'<div class="svq-ligne">'
+    +'<div class="svq-ligne dme-garde">'
       +'<span class="svq-item">'+svqCoche('maj',null,'Majorée par','svq-c-maj')+svqIn('svq-maj')+'</span>'
       +'<span class="svq-item">'+svqCoche('min',null,'Minorée par','svq-c-min')+svqIn('svq-min')+'</span>'
       +svqCoche('bor',null,'Bornée','svq-c-bor')+'</div>'
-    +'<div class="svq-ligne svq-grp pts-case" id="svq-g-lim">'
+    +'<div class="svq-ligne svq-grp pts-case dme-garde" id="svq-g-lim">'
       +'<span class="svq-item">'+svqCoche('lim','a','A comme limite')+limHTML('svq-lim')
         +'<button type="button" class="svq-inf" onclick="svqInf(\'+∞\')" title="Écrire +∞">+∞</button>'
         +'<button type="button" class="svq-inf" onclick="svqInf(\'−∞\')" title="Écrire −∞">−∞</button></span>'
       +svqCoche('lim','non','N’a pas de limite')+'</div>'
-    +'<div class="svq-ligne svq-grp pts-case" id="svq-g-nat">'
+    +'<div class="svq-ligne svq-grp pts-case dme-garde" id="svq-g-nat">'
       +svqCoche('nat','conv','Convergente')+svqCoche('nat','div','Divergente')+'</div>';
 }
 /* Les réponses de l'écran, dans l'ordre de la fiche. */
@@ -30604,7 +30778,7 @@ function renderSVD(){
   const P=numFmt(a.p), S=numFmt(a.s), m=numFmt(a.m), M=numFmt(a.M);
   const frec=sa2Frac(P, S+' − '+Un);
   $('svdPrompt').innerHTML='Soit ('+Un+') la suite définie par <b>'+U+'<sub>0</sub> = '+numFmt(a.U0)+'</b> et <b>'+Un1+' = '+frec+'</b>.';
-  $('svdTitreA').innerHTML='Trace graphiquement les <b>3 premiers termes</b> de la suite : clique successivement les <b>trois points</b> de la construction en escalier, sur la courbe ou sur la droite d’équation <i>y</i> = <i>x</i>.';
+  $('svdTitreA').innerHTML='Trace graphiquement les <b>3 premiers termes</b> de la suite<span class="aide-ecran"> : clique successivement les <b>trois points</b> de la construction en escalier, sur la courbe ou sur la droite d’équation <i>y</i> = <i>x</i></span>.';
   /* b) */
   const selSens=[['cro','croissante'],['dec','décroissante'],['const','constante']];
   $('svdPartB').innerHTML='<div class="sa2-row">'+T('La suite ('+Un+') semble être')+svrSel('svd-b1',a,selSens)+'</div>';

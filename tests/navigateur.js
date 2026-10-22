@@ -3043,6 +3043,25 @@ if(require.main === module) (async () => {
         'écran ' + enonce.ecran + ', « ' + enonce.texte.slice(0, 100) + ' »');
       verifier('et aucune aide : « ' + DP.aide + ' » n\'y est plus', enonce.texte.indexOf(DP.aide) < 0,
         '« …' + enonce.texte.slice(Math.max(0, enonce.texte.indexOf(DP.aide) - 60), enonce.texte.indexOf(DP.aide) + 60) + '… »');
+      /* LE GUIDAGE NE PASSE PAS SUR LE PAPIER : la chaîne à compléter part,
+         la question reste — mesuré sur le texte de l'énoncé papier rendu */
+      if(DP.guide){
+        const g = await s.page.evaluate(async ex => {
+          mesDevoirs = [{ id:'dm-pdf-g', num:5, actif:true, exercices:[{ id:ex, modes:['train'] }] }];
+          await dmePapierOuvrir('dm-pdf-g', ex);
+          const c = document.getElementById('dmeCorps');
+          const t = c ? c.textContent.replace(/\s+/g, ' ') : '';
+          dmeRetour();
+          return t;
+        }, DP.guide.exercice);
+        const restes = DP.guide.absents.filter(m => new RegExp('(^|[^\\p{L}])' + m + '([^\\p{L}]|$)', 'u').test(g));
+        verifier('l\'énoncé papier garde la question et perd le guidage (' + DP.guide.exercice + ')',
+          g.indexOf(DP.guide.question) >= 0 && restes.length === 0,
+          restes.length ? 'il reste « ' + restes.join(' », « ') + ' » : ' + g.slice(0, 160) : 'la question manque : ' + g.slice(0, 160));
+        await s.page.evaluate(ex => { mesDevoirs = [{ id:'dm-pdf', num:4, actif:true, titre:'Devoir du banc', exercices:[{ id:ex, modes:['train'] }] }]; }, DP.exercice);
+        await s.page.evaluate(ex => dmePapierOuvrir('dm-pdf', ex), DP.exercice);
+        await s.page.waitForTimeout(1200);
+      }
       const lirePdf = async dl => {
         if(!dl) return null;
         const f = await dl.path(); const b = f ? fs.readFileSync(f) : Buffer.alloc(0);
