@@ -4377,6 +4377,20 @@ deux étapes reprend aux phrases, l'étape 1 telle que la vérification l'a
 laissée, et un nouveau « Vérifier » n'y rejuge rien — le banc principal le
 tient en rejouant la question depuis son JSON entre les deux étapes.
 
+Puis **deux questions** (demande de Turquet, octobre 2026, v595) : « faire
+cet exercice en 2 questions […] en laissant les égalités placées sur les
+dessins avec les phrases juste en dessous ; on a donc supprimé de l'écran
+les lignes a à f pour la question 2 ». La séance est une PAIRE sur un même
+tirage : la question 1 (`q.et` 1) relie les égalités aux dessins ; la
+question 2 (`q.et` 2) écrit chaque égalité sous son dessin (« cas b ·
+AM⃗ = … ») et pose les cinq phrases dessous, sans les lignes a à f. Chacune
+se vérifie, se verrouille et pousse sa réponse seule : 6 + 5 = 11 points.
+`q.e1` et la vérification qui ne verrouillait pas disparaissent — la pause
+redevient celle de tous les exercices. La coupe d'un devoir ne gêne plus :
+chaque entrée se suffit à elle-même (la question 2 ne lit rien de la 1). Le
+tirage fait ⌈N/2⌉ paires distinctes et garde N entrées ; le réglage
+« Questions » compte donc les questions affichées.
+
 **8.3.8, démontrer un parallélisme** (`kmi`). La démonstration du manuel,
 en treize cases : IJ⃗ = IA⃗ + AJ⃗ = kBA⃗ + kAC⃗ = k(BA⃗ + AC⃗) = kBC⃗,
 puis « colinéaires » et « parallèles ». Première page : les milieux (k = ½) ;
