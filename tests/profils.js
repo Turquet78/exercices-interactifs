@@ -2465,7 +2465,11 @@ module.exports = {
        Turquet, octobre 2026). « aide » est un texte que l'écran de l'exercice
        montre et que le papier doit taire : le « Rappel » de la formule de la
        tangente, écrit au milieu de l'énoncé du 4.2.2. */
-    dmPdf: { exercice: 'tangente-exp', aide: 'Rappel', question: 'Démontre que' },
+    dmPdf: { exercice: 'tangente-exp', aide: 'Rappel', question: 'Démontre que',
+             /* et le GUIDAGE de la résolution (Turquet, octobre 2026, devant le
+                PDF du 5.6.1 : « il y a encore l'aide à la résolution, je ne veux
+                que les énoncés ») : la chaîne « lim Uₙ = … car … » et sa piste */
+             guide: { exercice: 'suite-limite-puissance', question: 'Détermine sa limite', absents: ['car', 'lim'] } },
     /* La Terminale a la touche « / » de plus : ses tangentes acceptent p/q. */
     /* Le témoin du GARDE DE LA SAISIE : en soutien, une case ne se colore pas
        tant que l'élève y écrit (décision de Turquet, août 2026). Il faut une
