@@ -3340,6 +3340,18 @@ sabotages : un `dchComb` qui dit tout égal (des lignes fausses acceptées),
 un `dchPas` qui compte toujours une étape (ni remarque ni « détaille »),
 une séance retournée (les insertions en tête) — chacun rougit.
 
+**Puis l'étape manquante a compté FAUSSE (v599).** Turquet, le soir même :
+« s'il manque une étape, compté faux finalement, en précisant qu'il faut
+détailler ». L'état `j1` reste (le juge sait toujours qu'il ne manque
+qu'UNE étape, et la retrouve) ; seul `j` compte juste. Le message dit « … est
+vrai, mais il manque une étape : il faut détailler, par exemple X = U = Y.
+Cette étape compte fausse. » ; quand il en manque plusieurs, « il manque
+plusieurs étapes : il faut détailler davantage ». La remarque des étapes
+justes (`dchRemarque`) est partie avec la règle. Le banc tient le nouveau
+bord (AB + CD = AD + CB d'un trait : faux, rouge, « il faut détailler », la
+ligne qui manque montrée ; le soutien le rougit) et l'a éprouvé par
+sabotage : un juge qui recompte juste l'étape manquante rougit.
+
 ## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.14, v536 — v528 à v535 et les numéros 8.2.11 à 8.2.13 pris pendant la rédaction, par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et « Chasles : insérer un point »)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées

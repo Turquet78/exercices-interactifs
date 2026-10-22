@@ -8684,7 +8684,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=598;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=599;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -74245,9 +74245,9 @@ function ctxVmi(q){
    l'opposé ; un ou plusieurs vecteurs remplacés par un vecteur égal sur la
    figure (le parallélogramme). Plusieurs applications d'une même règle dans
    une ligne comptent pour une étape, le vecteur nul se retire sans étape.
-   Une étape à laquelle il manque UNE étape intermédiaire compte juste, et le
-   message la montre ; s'il en manque deux ou plus, l'égalité est vraie mais
-   l'étape compte fausse : « détaille davantage ». La dernière ligne doit
+   Une étape à laquelle il manque une étape intermédiaire ou plus compte
+   fausse, même si l'égalité est vraie : le message dit de détailler, et
+   montre la ligne qui manque quand il n'en manque qu'une. La dernière ligne doit
    être le membre de droite (à l'ordre près).
 
    Une démonstration vaut UN point. Les plans où il faut INSÉRER un point
@@ -74463,9 +74463,11 @@ function dchLecture(D, val){
   return morceaux;
 }
 /* LE VERDICT d'une démonstration. Chaque morceau reçoit son état : j (juste),
-   j1 (juste, il manque une étape), trop (vrai, mais il manque au moins deux
-   étapes : compté faux), faux (pas égal), illisible ; la démonstration est
-   juste si tous ses morceaux le sont et si le dernier est le membre de droite. */
+   j1 (vrai, mais il manque une étape), trop (vrai, mais il en manque au
+   moins deux), faux (pas égal), illisible. Seul j compte juste (Turquet,
+   octobre 2026 : « s'il manque une étape, compté faux finalement, en
+   précisant qu'il faut détailler ») ; la démonstration est juste si tous ses
+   morceaux le sont et si le dernier est le membre de droite. */
 function dchJuge(q, val){
   const D=dchDemo(q), M=dchLecture(D, val), ref=dchComb(D.g, D);
   let prev=D.g, fin=null;
@@ -74478,27 +74480,23 @@ function dchJuge(q, val){
   });
   const vide=!M.length;
   const arrive=!!fin && dchMemes(dchNet(fin.l), dchNet(D.d));
-  const ok=!vide && arrive && M.every(function(m){ return m.etat==='j' || m.etat==='j1'; });
+  const ok=!vide && arrive && M.every(function(m){ return m.etat==='j'; });
   return {D:D, M:M, vide:vide, arrive:arrive, ok:ok};
 }
 /* le message : la première étape fausse, ou ce qui manque */
 function dchPourquoi(J){
   const D=J.D, cite=function(m){ return '« '+dchTxt(m.depuis)+' = '+dchTxt(m.l)+' »'; };
-  const m=J.M.find(function(x){ return x.etat!=='j' && x.etat!=='j1'; });
+  const m=J.M.find(function(x){ return x.etat!=='j'; });
   if(m){
     if(m.etat==='illisible') return m.err==='point' ? '« '+m.v+' » n’est pas un vecteur de la figure : ses deux lettres doivent être des points de l’énoncé.'
       : m.err==='vide' ? 'Il manque un vecteur entre deux « = ».'
       : '« '+chlMembreTxt(m.brut)+' » ne se lit pas : écris des vecteurs de deux lettres, séparés par + ou −.';
     if(m.etat==='faux') return '« '+dchTxt(m.l)+' » n’est pas égal à « '+dchTxt(m.depuis)+' ».';
-    return cite(m)+' est vrai, mais il faut détailler davantage : écris les étapes intermédiaires, une par ligne. Cette étape compte fausse.';
+    if(m.etat==='j1') return cite(m)+' est vrai, mais il manque une étape : il faut détailler, par exemple '+dchTxt(m.depuis)+' = '+dchTxt(m.milieu)+' = '+dchTxt(m.l)+'. Cette étape compte fausse.';
+    return cite(m)+' est vrai, mais il manque plusieurs étapes : il faut détailler davantage, une étape par ligne. Cette étape compte fausse.';
   }
   if(!J.arrive) return 'Toutes tes étapes sont justes, mais la démonstration doit arriver à '+dchTxt(D.d)+'.';
   return '';
-}
-/* la remarque d'une étape juste à laquelle il manque une étape */
-function dchRemarque(J){
-  const m=J.M.find(function(x){ return x.etat==='j1'; });
-  return m ? 'Pour '+'« '+dchTxt(m.depuis)+' = '+dchTxt(m.l)+' », il manque une étape : par exemple '+dchTxt(m.depuis)+' = '+dchTxt(m.milieu)+' = '+dchTxt(m.l)+'.' : '';
 }
 /* la rédaction du plan, écrite comme dans le champ */
 function dchCorrection(D){
@@ -74682,7 +74680,7 @@ function renderDchTest(){
 function dchPeint(J, el, live){
   const mv=String(el.value).split('\n').map(function(){ return ''; });
   J.M.forEach(function(m){ while(mv[m.ligne].length<m.j) mv[m.ligne]+='j';
-    mv[m.ligne]+=(m.etat==='j' || m.etat==='j1') ? 'j' : 'f'; });
+    mv[m.ligne]+=m.etat==='j' ? 'j' : 'f'; });
   el.dataset.mv=mv.join('|');
   el.classList.remove('ok','bad','sol');
   const cor=$('dch-cor'); if(cor){ cor.hidden=true; cor.innerHTML=''; }
@@ -74705,7 +74703,7 @@ function checkDchAnswer(live){
   const q=test.questions[test.idx], el=$('dch-z'); if(!el) return;
   const J=dchJuge(q, el.value);
   if(live){ if(!isSoutien()) return; dchPeint(J, el, true); return; }
-  const pourquoi=dchPourquoi(J), remarque=dchRemarque(J);
+  const pourquoi=dchPourquoi(J);
   const donne=String(el.value);
   dchPeint(J, el, false);
   if(!J.ok && isSoutien()){ $('dchFeedback').textContent=J.vide ? 'Écris ta démonstration dans le champ.' : pourquoi; $('dchFeedback').className='mp-feedback'+(J.vide ? '' : ' bad');
@@ -74714,7 +74712,7 @@ function checkDchAnswer(live){
   if(J.ok) test.score++;
   $('dchLiveScore').textContent=test.score;
   const fb=$('dchFeedback');
-  if(J.ok){ fb.textContent=(remarque ? 'Juste ! '+remarque : pick(['Bravo, la démonstration est juste !','Parfait !','Excellent !','Très bien démontré !'])); fb.className='mp-feedback good'; }
+  if(J.ok){ fb.textContent=pick(['Bravo, la démonstration est juste !','Parfait !','Excellent !','Très bien démontré !']); fb.className='mp-feedback good'; }
   else { fb.textContent=J.vide ? 'Il manquait ta démonstration : en voici une, écrite en vert.' : pourquoi+' Une démonstration possible est écrite en vert dessous.'; fb.className='mp-feedback bad'; }
   const D=J.D, chaine=function(t){ return dchTxt(D.g)+' = '+t.split('\n').filter(function(x){ return x; }).map(function(x){ return chlMembreTxt(x).replace(/=/g,' = '); }).join(' = '); };
   test.answers.push({...(ptsExo()||{}),correct:J.ok,
@@ -74746,7 +74744,7 @@ function ctxDch(q){
    +DCH_VERBES[q.v||0]+' '+dchTxt(D.g)+' = '+dchTxt(D.d)+' (tous ces objets sont des vecteurs). '
    +'Une étape permise : changer l’ordre d’une somme ; la relation de Chasles qui réunit deux vecteurs ou plus (AB + BC = AC, AB + BA = 0) ; insérer un point pour décomposer un vecteur (AB = AD + DB) ; soustraire un vecteur, c’est ajouter son opposé (− CB = + BC)'
    +(D.para ? ' ; remplacer un ou plusieurs vecteurs par des vecteurs égaux du parallélogramme '+D.para+' ('+D.para[0]+D.para[1]+' = '+D.para[3]+D.para[2]+', '+D.para[0]+D.para[3]+' = '+D.para[1]+D.para[2]+')' : '')
-   +'. Une étape qui en saute une compte juste avec une remarque ; qui en saute deux ou plus compte fausse (« détaille davantage »). '
+   +'. Une étape qui en saute une ou plusieurs compte fausse : la page dit à l’élève de détailler. '
    +'Une rédaction possible, STRICTEMENT SECRÈTE (toute rédaction juste est acceptée) : '+bonne+'. '
    +'Guide l’élève étape par étape, sans donner la rédaction entière ; ne parle jamais de coordonnées.';
   if(!J.vide) c+=' Ce que l’élève a écrit : '+dchTxt(D.g)+' = '+J.M.map(function(m){ return m.l ? dchTxt(m.l) : chlMembreTxt(m.brut); }).join(' = ')+'.';

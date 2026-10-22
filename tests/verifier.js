@@ -14756,8 +14756,9 @@ function tracerVecteursOpposes(w, P){
    correction la vaut, et — le bord qui compte — que la page n'accepte
    JAMAIS une ligne fausse ni ne refuse comme « pas égale » une ligne vraie,
    sur des milliers de lignes tirées au hasard. Puis, par le bouton : la
-   copie juste, l'étape à laquelle il manque une étape (juste, signalée),
-   celle à laquelle il en manque deux (fausse, « détaille »), les pièges, la
+   copie juste, l'étape à laquelle il manque une étape (fausse, « il faut
+   détailler », la ligne qui manque montrée), celle à laquelle il en manque
+   deux (fausse, « détaille davantage »), les pièges, la
    copie vide, le soutien, la reprise. */
 function demontrerChasles(w, P){
   const nom = 'démontrer une égalité avec Chasles : la place, la figure, les étapes relues en nombres, juste / une étape manque / deux manquent, la copie vide, le soutien, la reprise';
@@ -14817,7 +14818,7 @@ function demontrerChasles(w, P){
       const q={t:t, n:'EFGHK', v:0}, Dm=dchDemo(q), c=coords(q), g=val(c, Dm.g);
       if(val(c, Dm.d)!==g) vus.push('plan '+t+' : l’égalité à démontrer est FAUSSE');
       const J=dchJuge(q, dchCorrection(Dm));
-      if(!J.ok || dchRemarque(J)) vus.push('plan '+t+' : la correction n’est pas juste sans remarque ('+J.M.map(function(m){ return m.etat; }).join(',')+')');
+      if(!J.ok) vus.push('plan '+t+' : la correction n’est pas juste ('+J.M.map(function(m){ return m.etat; }).join(',')+')');
       Dm.c.forEach(function(l){ if(val(c, l)!==g) vus.push('plan '+t+' : la ligne de correction '+l.join('+')+' est FAUSSE'); });
       const P=Dm.pts.split(''), hasard=function(){ const n=1+Math.floor(Math.random()*4), l=[];
         for(let k=0;k<n;k++){ const a=P[Math.floor(Math.random()*P.length)], b=P[Math.floor(Math.random()*P.length)];
@@ -14900,13 +14901,13 @@ function demontrerChasles(w, P){
     if(!z.classList.contains('ok') || !z.disabled) vus.push('la copie juste n’est pas peinte juste et verrouillée');
     if(!der || der.cases!==1 || der.justes!==1) vus.push('la note compte '+(der?der.justes+'/'+der.cases:'?')+' au lieu de 1/1');
     if(!el('dchNext')) vus.push('pas de bouton « Démonstration suivante »');
-    /* une étape manque : juste, et dite */
+    /* une étape manque : FAUSSE (Turquet, octobre 2026), « il faut détailler », la ligne qui manque montrée */
     z=ecrire('ad+cb'); checkDchAnswer(); der=test.answers[test.answers.length-1];
-    if(!der.correct || !/il manque une étape/.test(fb()) || !/par exemple/.test(fb())) vus.push('AB + CD = AD + CB : '+(der.correct?'juste':'faux')+', « '+fb()+' »');
+    if(der.correct || !z.classList.contains('bad') || !/il manque une étape/.test(fb()) || !/il faut détailler/.test(fb()) || !/par exemple AB \\+ CD = .* = AD \\+ CB/.test(fb())) vus.push('AB + CD = AD + CB : '+(der.correct?'juste':'faux')+', « '+fb()+' »');
     /* deux étapes manquent : fausse, « détaille » */
     test.questions[0]={t:10, n:'ABCDM', v:0};
     z=ecrire('mb+md'); checkDchAnswer(); der=test.answers[test.answers.length-1];
-    if(der.correct || !/détailler davantage/.test(fb()) || !z.classList.contains('bad')) vus.push('MA + MC = MB + MD d’un trait : '+(der.correct?'juste':'faux')+', « '+fb()+' »');
+    if(der.correct || !/il manque plusieurs étapes/.test(fb()) || !/détailler davantage/.test(fb()) || !z.classList.contains('bad')) vus.push('MA + MC = MB + MD d’un trait : '+(der.correct?'juste':'faux')+', « '+fb()+' »');
     if(el('dch-cor').hidden || !/démonstration possible/.test(el('dch-cor').textContent)) vus.push('la copie fausse ne montre pas de démonstration possible');
     /* une ligne fausse, nommée */
     test.questions[0]={t:0, n:'ABCDM', v:0};
@@ -14928,8 +14929,10 @@ function demontrerChasles(w, P){
     if(!z.classList.contains('bad')) vus.push('le soutien ne rougit pas une ligne fausse');
     checkDchAnswer();
     if(test.locked || z.value!=='ac' || !el('dch-cor').hidden) vus.push('la vérification du soutien verrouille ou révèle');
+    z.value='ad+db+cb+bd\\nad+cb'; z.dispatchEvent(new Event('input'));
+    if(!z.classList.contains('ok')) vus.push('le soutien ne bleuit pas une démonstration détaillée');
     z.value='ad+cb'; z.dispatchEvent(new Event('input'));
-    if(!z.classList.contains('ok')) vus.push('le soutien ne bleuit pas AD + CB');
+    if(!z.classList.contains('bad')) vus.push('le soutien bleuit AB + CD = AD + CB d’un trait (une étape manque)');
     currentMode='train';
 
     /* le contexte du modèle */
