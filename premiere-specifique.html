@@ -3024,7 +3024,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=334;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=335;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -11773,11 +11773,35 @@ function salDixLigne(morceaux, rN, rEcart){
 }
 /* salJuge : { sait, correct, phrase }. Refuse sur un fait prouvable, accepte
    quand tout est vérifié, s'abstient sinon. */
+/* DEUX CALCULS SUR UNE LIGNE, séparés par la barre d'espace :
+   « 94,76/103 = 0,92   94,76/0,92 = 103 », « 1 − 0,92 = 0,08   0,08 × 100 ».
+   Les juges lisent un calcul par ligne et retirent les espaces : les deux
+   calculs se recollaient (« 0,920,08… », « 0,92(94,76)… »), la ligne devenait
+   illisible — refusée au 4.5.10 (« il faut le justifier »), livrée au modèle
+   ailleurs (signalement de Seconde, octobre 2026). L'espace COUPE donc la
+   ligne quand ce qui précède a déjà son « = » suivi d'un membre complet, et
+   que ce qui suit commence un nouveau calcul : un nombre ou une parenthèse,
+   porteur d'une opération ou d'un « % » avant son propre « = ». Une copie
+   espacée (« 936/900 = 104/100 ») ne coupe pas : rien ne suit son « = ». Un séparateur de milliers ne coupe jamais : ni
+   « = 1 500 » (rien ne suit), ni « = 1 000 × 2 » (trois chiffres derrière un
+   groupe de un à trois chiffres). */
+function couperCalculsEspaces(l){
+  const w=String(l).trim().split(/\s+/); if(w.length<2) return String(l);
+  const out=[w[0]];
+  for(let i=1;i<w.length;i++){
+    const cur=out[out.length-1];
+    const milliers=/^\d{3}(?![\d.,])/.test(w[i]) && /(^|[^\d.,])\d{1,3}$/.test(cur);
+    const suite=w.slice(i).join(' ').split('=')[0];      /* le calcul qui commencerait ici */
+    if(!milliers && /=.*[\d)%]$/.test(cur) && /^[\d(]/.test(w[i]) && /^[\d(].*[*×\/÷%+\-−]/.test(suite)) out.push(w[i]);
+    else out[out.length-1]=cur+' '+w[i];
+  }
+  return out.join('\n');
+}
 function salJuge(q, texte){
   const c=salCouple(q); if(!c) return { sait:false };
   const rN=salRatDe(c.N), rCoef={n:c.coef,d:100}, rPct={n:c.P,d:100};
   const rAug=salRatDe(c.aug), rFin=salRatDe(c.fin);
-  const lignes=String(texte).split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l!==''; });
+  const lignes=String(texte).split('\n').map(couperCalculsEspaces).join('\n').split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l!==''; });
   if(!lignes.length) return { sait:false };
   const rInvN={n:rN.d, d:rN.n};
   let coefOk=false, augProd=false, addOk=false, quotOk=false, tauxOk=false, iniOk=false, commentaire=false;
@@ -14236,7 +14260,7 @@ function eslJuge(q, texte){
   const a=essAns(q);
   const A={ rC1:{n:a.c1,d:100}, rC2:{n:a.c2,d:100}, rCG:{n:a.prodNum,d:a.prodDen}, rV1:{n:a.v1,d:1}, rV2:{n:a.v2,d:1},
             rAug2:{n:a.aug2,d:1}, rP2:{n:q.P2,d:100}, pct:a.pct, P2:q.P2 };
-  const lignes=String(texte).split('\n').map(l=>l.trim()).filter(l=>l!=='');
+  const lignes=String(texte).split('\n').map(couperCalculsEspaces).join('\n').split('\n').map(l=>l.trim()).filter(l=>l!=='');
   if(!lignes.length) return { sait:false };
   let coefProd=false, mult2=false, aug2Ok=false, opV2=false, surCent2=false, commentaire=false, conclusion=null;
   for(const ligne of lignes){
