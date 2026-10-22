@@ -14732,19 +14732,20 @@ function tracerVecteursOpposes(w, P){
 }
 
 /* {demontrer-chasles} (Seconde, 8.2.13 — l'idée n° 10 retenue par Turquet,
-   octobre 2026 : « Montrer que AB + CD = AD + CB », une rédaction à trous,
-   des cases ET une justification par étape, toute écriture juste acceptée).
-   Le juge INDÉPENDANT ne lit pas les plans de la page : il donne aux points
-   des coordonnées au hasard (le quatrième sommet d'un parallélogramme posé
-   par la règle du parallélogramme) et vérifie, en nombres, que chaque ligne
-   de chaque rédaction acceptée vaut le membre de gauche, et que l'égalité
-   à démontrer est vraie. Il relit aussi la FORME de chaque étape de la
-   rédaction du plan selon sa justification (l'ordre change sans rien
-   d'autre, l'opposé fait apparaître un 0, le nul le retire…). Puis, par le
-   bouton, sur l'exemple de la demande : la copie juste, une AUTRE rédaction
-   juste, les pièges nommés, la case vide, la copie vide, le soutien. */
+   octobre 2026 : « Montrer que AB + CD = AD + CB » ; puis, le même mois, la
+   rédaction LIBRE : un seul champ à plusieurs lignes, une étape par ligne,
+   sans justification à choisir). Le juge INDÉPENDANT ne lit pas les plans de
+   la page : il donne aux points des coordonnées au hasard (le quatrième
+   sommet d'un parallélogramme par la règle du parallélogramme) et vérifie,
+   en nombres, que l'égalité à démontrer est vraie, que chaque ligne de la
+   correction la vaut, et — le bord qui compte — que la page n'accepte
+   JAMAIS une ligne fausse ni ne refuse comme « pas égale » une ligne vraie,
+   sur des milliers de lignes tirées au hasard. Puis, par le bouton : la
+   copie juste, l'étape à laquelle il manque une étape (juste, signalée),
+   celle à laquelle il en manque deux (fausse, « détaille »), les pièges, la
+   copie vide, le soutien, la reprise. */
 function demontrerChasles(w, P){
-  const nom = 'démontrer une égalité avec Chasles : la place, les rédactions relues en nombres, la copie juste et une autre, les pièges nommés, le soutien';
+  const nom = 'démontrer une égalité avec Chasles : la place, la figure, les étapes relues en nombres, juste / une étape manque / deux manquent, la copie vide, le soutien, la reprise';
   if(!P.demontrerChasles){
     ignorer(nom, 'ce niveau n\'a pas l\'exercice de démonstration avec Chasles');
     return;
@@ -14754,7 +14755,7 @@ function demontrerChasles(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId=D.exercice;
 
-    /* ---- 0. la place : 8.2.13, après la démonstration d'un parallélogramme ; pas de tables */
+    /* ---- 0. la place : 8.2.13 ; pas de tables */
     if(TEST_NUM[D.exercice]!==D.numero) vus.push('numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
     if(TEST_NUM['somme-vecteurs-libre']!=='8.2.10' || TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['translation-pavage']!=='8.1.9') vus.push('un voisin du thème 8 a bougé');
     if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
@@ -14771,7 +14772,7 @@ function demontrerChasles(w, P){
       l.forEach(function(t){ if(t==='0') return; const s=t.charAt(0)==='-' ? -1 : 1, v=s<0 ? t.slice(1) : t;
         x+=s*(c[v[1]][0]-c[v[0]][0]); y+=s*(c[v[1]][1]-c[v[0]][1]); });
       return x+','+y; };
-    const trie=function(l){ return l.slice().sort().join(' '); };
+    const ecrit=function(l){ return l.map(function(t, i){ return t.charAt(0)==='-' ? t : (i?'+':'')+t; }).join(''); };
 
     /* ---- 1. le tirage : 200 séances --------------------------------------- */
     const plans={};
@@ -14779,76 +14780,83 @@ function demontrerChasles(w, P){
       const qs=dchBuildQuestions();
       if(qs.length!==D.nb){ vus.push(qs.length+' démonstrations au lieu de '+D.nb); break; }
       if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
-      if(qs[0].t!==0 || qs[0].n.slice(0,4)!=='ABCD') vus.push('la première page n’est pas l’exemple de la demande : '+JSON.stringify(qs[0]));
+      if(!qs.some(function(q){ return q.t===0 && q.n.slice(0,4)==='ABCD'; })) vus.push('l’exemple de la demande manque à la séance');
+      const ins=qs.map(function(q){ return DCH_DEMOS[q.t].ins ? 1 : 0; });
+      if(ins.join('')!==ins.slice().sort().join('')) vus.push('une démonstration où il faut insérer un point n’est pas en fin de séance : '+qs.map(function(q){ return q.t; }).join(' '));
       const ts=qs.map(function(q){ return q.t; });
       if(new Set(ts).size!==ts.length) vus.push('la même démonstration deux fois dans une séance : '+ts.join(' '));
-      qs.forEach(function(q){
-        plans[q.t]=true;
-        if(new Set(q.n.split('')).size!==5 || /[IOQ]/.test(q.n)) vus.push('lettres « '+q.n+' »');
-        const T=DCH_DEMOS[q.t], Dm=dchDemo(q), c=coords(q), g=val(c, Dm.g);
-        if(val(c, Dm.d)!==g) vus.push('l’égalité à démontrer est FAUSSE : '+Dm.g.join('+')+' = '+Dm.d.join('+'));
-        const chs=dchChaines(q);
-        if(!chs.length){ vus.push('aucune rédaction acceptée pour le plan '+q.t); return; }
-        if(JSON.stringify(chs[0])!==JSON.stringify(Dm.c)) vus.push('la correction n’est pas la rédaction du plan '+q.t);
-        chs.forEach(function(ch){ ch.forEach(function(l, k){
-          if(val(c, l)!==g) vus.push('plan '+q.t+', ligne '+(k+1)+' acceptée mais FAUSSE : '+l.join(' + '));
-          if(l.length!==T.e[k][1]) vus.push('plan '+q.t+', ligne '+(k+1)+' : '+l.length+' vecteurs pour '+T.e[k][1]+' cases');
-          l.forEach(function(t){ if(t!=='0' && (t.length!==2 || t[0]===t[1] || Dm.pts.indexOf(t[0])<0 || Dm.pts.indexOf(t[1])<0)) vus.push('vecteur « '+t+' » hors de l’énoncé'); });
-        }); });
-        /* la forme de chaque étape de la rédaction du plan */
-        const lignes=[Dm.g].concat(Dm.c).concat([Dm.d]);
-        T.e.forEach(function(e, k){
-          const a=lignes[k], b=lignes[k+1], K=e[0];
-          const bien = K==='or' ? (trie(a)===trie(b) && a.join()!==b.join())
-            : K==='sb' ? (a.some(function(t){ return t[0]==='-'; }) && !b.some(function(t){ return t[0]==='-'; }) && a.length===b.length)
-            : K==='op' ? (b.length===a.length-1 && b.indexOf('0')>=0)
-            : K==='nu' ? (a.indexOf('0')>=0 && b.indexOf('0')<0 && b.length===a.length-1)
-            : K==='pa' ? (a.length===b.length && a.some(function(t, i){ return t!==b[i]; }))
-            : (a.length!==b.length || a.join()!==b.join());
-          if(!bien) vus.push('plan '+q.t+', étape '+(k+1)+' (« '+K+' ») : '+a.join('+')+' → '+b.join('+'));
-        });
-      });
+      qs.forEach(function(q){ plans[q.t]=true;
+        if(new Set(q.n.split('')).size!==5 || /[IOQ]/.test(q.n)) vus.push('lettres « '+q.n+' »'); });
     }
     if(vus.length) return vus.slice(0,4).join(' | ');
     DCH_DEMOS.forEach(function(T, t){ if(!plans[t]) vus.push('le plan '+t+' ne sort jamais en 200 séances'); });
+    /* les plans à insertion sont ceux dont la correction COUPE un vecteur de l'énoncé */
+    DCH_DEMOS.forEach(function(T, t){
+      const coupe=T.c.length && T.c[0].length>T.g.length && !T.g.some(function(v){ return v.charAt(0)==='-'; });
+      if(!!T.ins!==coupe) vus.push('plan '+t+' : marqué '+(T.ins?'':'sans ')+'insertion, mais sa correction '+(coupe?'':'n’')+'insère'+(coupe?'':' rien'));
+    });
 
-    /* ---- 2. l'exemple de la demande, par le BOUTON -----------------------
-       A, B, C, D quelconques : AB + CD = AD + DB + CB + BD (Chasles)
-       = AD + CB + DB + BD (ordre) = AD + CB + 0 (opposés) = AD + CB (nul). */
+    /* ---- 2. chaque plan, en nombres : l'égalité, la correction, et des
+       lignes au hasard — jamais une ligne fausse acceptée ---------------- */
+    DCH_DEMOS.forEach(function(T, t){
+      const q={t:t, n:'EFGHK', v:0}, Dm=dchDemo(q), c=coords(q), g=val(c, Dm.g);
+      if(val(c, Dm.d)!==g) vus.push('plan '+t+' : l’égalité à démontrer est FAUSSE');
+      const J=dchJuge(q, dchCorrection(Dm));
+      if(!J.ok || dchRemarque(J)) vus.push('plan '+t+' : la correction n’est pas juste sans remarque ('+J.M.map(function(m){ return m.etat; }).join(',')+')');
+      Dm.c.forEach(function(l){ if(val(c, l)!==g) vus.push('plan '+t+' : la ligne de correction '+l.join('+')+' est FAUSSE'); });
+      const P=Dm.pts.split(''), hasard=function(){ const n=1+Math.floor(Math.random()*4), l=[];
+        for(let k=0;k<n;k++){ const a=P[Math.floor(Math.random()*P.length)], b=P[Math.floor(Math.random()*P.length)];
+          l.push(a===b ? '0' : (Math.random()<0.25?'-':'')+a+b); }
+        return l; };
+      let vrais=0;
+      for(let k=0;k<150;k++){
+        /* une ligne au hasard ; une fois sur trois, la correction du plan (vraie) */
+        const l=k%3 ? hasard() : Dm.c[k%Dm.c.length];
+        const Jl=dchJuge(q, ecrit(l)), m=Jl.M[0];
+        if(!m || m.etat==='illisible'){ vus.push('plan '+t+' : « '+ecrit(l)+' » illisible'); break; }
+        const egal=val(c, l)===g;
+        if(egal) vrais++;
+        if(egal!==(m.etat!=='faux')){ vus.push('plan '+t+' : « '+ecrit(l)+' » jugé '+m.etat+' alors qu’en nombres il '+(egal?'vaut':'ne vaut pas')+' le membre de gauche'); break; }
+      }
+      if(vus.length>6) return;
+    });
+    if(vus.length) return vus.slice(0,6).join(' | ');
+
+    /* ---- 3. les étapes, sur l'exemple et sur un parallélogramme --------- */
+    const etats=function(t, txt){ return dchJuge({t:t, n:'ABCDM', v:0}, txt).M.map(function(m){ return m.etat; }).join(','); };
+    const ATT=[
+      [0, 'AD+DB+CB+BD\\nAD+CB+DB+BD\\nAD+CB+0\\nAD+CB', 'j,j,j,j', 'la rédaction du plan'],
+      [0, 'AD+DB+CB+BD\\nAD+CB', 'j,j', 'deux points insérés d’un coup, puis DB + BD réunis dans le désordre'],
+      [0, 'AD+CB', 'j1', 'AB + CD = AD + CB d’un trait (une étape manque)'],
+      [1, 'AD', 'j', 'Chasles sur trois vecteurs dans le désordre'],
+      [2, 'AC', 'j1', 'la soustraction et Chasles d’un trait'],
+      [2, 'AB+BC\\nAC', 'j,j', 'la soustraction, puis Chasles'],
+      [3, 'AC+CA\\nAA', 'j,j', 'AA pour le vecteur nul'],
+      [10, 'MB+BA+MD+DC\\nMB+MD+BA+AB\\nMB+MD', 'j,j,j', 'insertions, vecteur égal et ordre, puis AB + BA'],
+      [10, 'MB+BA+MD+DC\\nMB+MD', 'j,j1', 'le vecteur égal sauté'],
+      [10, 'MB+MD', 'trop', 'MA + MC = MB + MD d’un trait (deux étapes manquent)'],
+      [9, 'DC+CB\\nDB', 'j,j', 'un vecteur égal du parallélogramme'],
+      [0, 'AC+DB', 'faux', 'une ligne fausse'],
+      [0, 'AB+CZ', 'illisible', 'un point hors de l’énoncé']];
+    ATT.forEach(function(a){ const e=etats(a[0], a[1]); if(e!==a[2]) vus.push(a[3]+' : '+e+' au lieu de '+a[2]); });
+    if(dchJuge({t:0,n:'ABCDM',v:0}, 'AD+DB+CB+BD').ok) vus.push('une démonstration qui n’arrive pas au membre de droite est comptée juste');
+
+    /* ---- 4. par le BOUTON ------------------------------------------------- */
     TESTS[D.exercice].start();
     if(test.kind!=='dch' || test.qId!==D.exercice) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
-    if(test.maxScore!==test.questions.reduce(function(a,q){ return a+dchCases(q).length; },0)) vus.push('barème '+test.maxScore);
+    if(test.maxScore!==test.questions.length) vus.push('barème '+test.maxScore+' pour '+test.questions.length+' démonstrations');
     test.questions[0]={t:0, n:'ABCDM', v:0}; test.idx=0;
     const el=function(id){ return document.getElementById(id); };
-    const IDS=dchCases(test.questions[0]).map(function(c){ return c.id; });
-    if(IDS.length!==D.cases) return IDS.length+' cases sur l’exemple au lieu de '+D.cases;
-    const peint=function(id){ const c=el(id)?el(id).className:'';
-      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
     const fb=function(){ return el('dchFeedback').textContent; };
-    /* une copie : 4 + 4 + 3 vecteurs, puis les quatre justifications. La
-       page n'est pas redessinée entre deux copies : on remet les cases à
-       blanc, comme une page neuve — moins de travail pour le banc, dont les
-       4 Go de l'action sont comptés (voir docs/journal/17, « Un banc jsdom
-       qui ne rend jamais la main garde chaque nœud retiré »). */
-    let neuve=false;
-    const vider=function(){ test.locked=false;
-      document.querySelectorAll('#dchHost .mf-cor').forEach(function(b){ b.remove(); });
-      document.querySelectorAll('#dchHost input, #dchHost select').forEach(function(e){ e.value=''; e.classList.remove('ok','bad','sol'); e.disabled=false; });
-      el('dchFeedback').textContent=''; el('dchFeedback').className='mp-feedback'; };
-    const poser=function(v, j){ if(!neuve){ test.locked=false; renderDchTest(); neuve=true; } else vider();
-      const vi=IDS.filter(function(id){ return /^dch-c-/.test(id); }), ji=IDS.filter(function(id){ return /^dch-s-/.test(id); });
-      vi.forEach(function(id, k){ el(id).value=(v[k]==null?'':v[k]); });
-      ji.forEach(function(id, k){ el(id).value=(j[k]==null?'':j[k]); }); };
-    const JUSTE=['AD','DB','CB','BD', 'AD','CB','DB','BD', 'AD','CB','0'], JJ=['ch','or','op','nu'];
-    poser([], []);
+    const ecrire=function(txt){ test.locked=false; renderDchTest(); const z=el('dch-z'); z.value=txt; z.dispatchEvent(new Event('input')); return z; };
+    renderDchTest();
     const texte=el('dchInstr').textContent.replace(/\\s+/g,' ');
-    if(!/A, B, C et D sont quatre points du plan/.test(texte) || !/Montrer que AB \\+ CD = AD \\+ CB/.test(texte)) vus.push('l’énoncé dit « '+texte.slice(0,120)+' »');
+    if(!/A, B, C et D sont quatre points du plan/.test(texte) || !/Montrer que AB \\+ CD = AD \\+ CB/.test(texte) || !/une étape par ligne/.test(texte)) vus.push('l’énoncé dit « '+texte.slice(0,160)+' »');
     if(!el('dchInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
-    if(el('dch-s-0').options.length!==6) vus.push('la liste des justifications a '+el('dch-s-0').options.length+' options (5 + l’invite attendues, sans parallélogramme)');
-    /* la figure de l'égalité (demande de Turquet, octobre 2026) : sur la page,
-       et pour CHAQUE plan, chaque point de l'énoncé nommé, chaque vecteur de
-       l'égalité dessiné — violet à gauche, orange à droite —, partant de son
-       origine et pointant vers son extrémité ; le vecteur nul, nulle part */
+    if(!el('dch-z') || el('dch-z').tagName!=='TEXTAREA') vus.push('le champ n’est pas un champ à plusieurs lignes');
+    if(document.querySelector('#dchHost select')) vus.push('une liste de justifications reste à l’écran');
+    /* la figure de chaque plan : points nommés, chaque vecteur de l'égalité
+       dessiné — violet à gauche, orange à droite —, le nul nulle part */
     if(!document.querySelector('#dchHost .dch-fig svg.dch-svg')) vus.push('la figure de l’égalité manque sur la page');
     DCH_DEMOS.forEach(function(T, t){
       const q={t:t, n:'EFGHK', v:0}, Dm=dchDemo(q), box=document.createElement('div');
@@ -14864,71 +14872,53 @@ function demontrerChasles(w, P){
       if(lu('dch-vg')!==att(Dm.g) || lu('dch-vd')!==att(Dm.d)) vus.push('plan '+t+' : la figure dessine '+lu('dch-vg')+' | '+lu('dch-vd')+' au lieu de '+att(Dm.g)+' | '+att(Dm.d));
       if(box.querySelectorAll('line[marker-end]').length!==box.querySelectorAll('line.dch-vg, line.dch-vd').length) vus.push('plan '+t+' : une flèche sans pointe');
       if(box.querySelectorAll('line.dch-cote').length!==(T.para ? 4 : 0)) vus.push('plan '+t+' : '+box.querySelectorAll('line.dch-cote').length+' côtés de parallélogramme');
-      const leg=box.querySelector('.dch-leg').textContent.replace(/\s+/g,' ');
+      const leg=box.querySelector('.dch-leg').textContent.replace(/\\s+/g,' ');
       if(leg.indexOf(dchTxt(Dm.g)+' = '+dchTxt(Dm.d))<0) vus.push('plan '+t+' : la légende dit « '+leg+' »');
     });
-    poser(JUSTE, JJ); checkDchAnswer();
+    /* la saisie : minuscules, espaces, « − » de tablette ; rangée dans la question */
+    let z=ecrire('ad + db + cb + bd\\n= ad + cb + db + bd');
+    if(test.questions[0].saisie!==z.value || /[ ]/.test(z.value)) vus.push('la saisie n’est pas rangée nette dans la question : « '+test.questions[0].saisie+' »');
+    if(el('dchHost').querySelectorAll('.dch-zl').length!==2) vus.push('le champ dessine '+el('dchHost').querySelectorAll('.dch-zl').length+' lignes au lieu de 2');
+    z.value=z.value+'\\nad+cb'; z.dispatchEvent(new Event('input')); checkDchAnswer();
     let der=test.answers[test.answers.length-1];
-    if(!der || !der.correct) vus.push('la copie juste est comptée fausse : '+IDS.map(peint).join(', '));
-    if(!der || der.cases!==D.cases) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de '+D.cases);
+    if(!der || !der.correct || test.score!==1) vus.push('la copie juste est comptée fausse : « '+fb()+' »');
+    if(!z.classList.contains('ok') || !z.disabled) vus.push('la copie juste n’est pas peinte juste et verrouillée');
+    if(!der || der.cases!==1 || der.justes!==1) vus.push('la note compte '+(der?der.justes+'/'+der.cases:'?')+' au lieu de 1/1');
     if(!el('dchNext')) vus.push('pas de bouton « Démonstration suivante »');
-    /* une AUTRE rédaction juste : AB = AC + CB, CD = CA + AD, en minuscules ; et Chasles pour AC + CA = 0 */
-    poser(['ac','cb','ca','ad', 'CB','AD','AC','CA', 'CB','AD','AA'], ['ch','or','ch','nu']); checkDchAnswer();
-    der=test.answers[test.answers.length-1];
-    if(!der || !der.correct) vus.push('une autre rédaction juste est comptée fausse : '+IDS.map(peint).join(', '));
-    /* les pièges, nommés */
-    const piege=function(v, j, id, re, quoi){ poser(v, j); checkDchAnswer();
-      if(peint(id)!=='rouge') vus.push(quoi+' : la case est peinte '+peint(id));
-      else if(!re.test(fb())) vus.push(quoi+' : le message dit « '+fb().slice(0,140)+' »'); };
-    piege(['AD','DB','CB','DB'].concat(JUSTE.slice(4)), JJ, 'dch-c-0-3', /n’est pas égal/, 'une ligne fausse');
-    /* AC et CB restent justes (AB = AC + CB ouvre une autre rédaction) : c'est le second CB qui rougit */
-    piege(['AC','CB','CB','BD'].concat(JUSTE.slice(4)), JJ, 'dch-c-0-2', /ne mène pas/, 'une étape juste qui ne mène nulle part');
-    piege(JUSTE, ['or','or','op','nu'], 'dch-s-0', /justification n’est pas/, 'la mauvaise justification');
-    piege(JUSTE, ['ch','or','op','or'], 'dch-s-3', /justification n’est pas/, 'la mauvaise justification de la dernière ligne');
-    piege(['ZZ'].concat(JUSTE.slice(1)), JJ, 'dch-c-0-0', /n’est pas un vecteur/, 'un vecteur illisible');
-    piege(JUSTE.slice(0,4).concat(['AD','DB','CB','DC']).concat(JUSTE.slice(8)), JJ, 'dch-c-1-3', /n’est pas égal|pas l’étape/, 'un vecteur changé pendant le changement d’ordre');
-    /* le badge vert à côté de la case fausse */
-    poser(['AD','DB','CB','DB'].concat(JUSTE.slice(4)), JJ); checkDchAnswer();
-    const badge=el('dch-c-0-3').nextElementSibling;
-    if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='BD') vus.push('la correction de la case fausse n’écrit pas BD à côté');
-    /* une case vide ne rougit pas : elle reçoit la correction */
-    poser(['AD','','CB','BD'].concat(JUSTE.slice(4)), ['ch','','op','nu']); checkDchAnswer();
-    if(peint('dch-c-0-1')!=='correction' || el('dch-c-0-1').value!=='DB') vus.push('la case vide : '+peint('dch-c-0-1')+' « '+el('dch-c-0-1').value+' »');
-    if(peint('dch-s-1')!=='correction' || el('dch-s-1').value!=='or') vus.push('la justification vide : '+peint('dch-s-1')+' « '+el('dch-s-1').value+' »');
-    if(!/manquait/.test(fb())) vus.push('le message ne nomme pas les cases manquantes');
-    poser([], []); checkDchAnswer();
-    if(IDS.some(function(id){ return peint(id)==='rouge'; })) vus.push('la copie vide a du rouge');
-    if(el('dch-c-2-2').value!=='0' || el('dch-s-0').value!=='ch') vus.push('la copie vide reçoit « '+el('dch-c-2-2').value+' » et « '+el('dch-s-0').value+' »');
-    /* la reprise : la question survit au JSON */
-    const avant=JSON.stringify(test.questions[0]);
-    test.questions[0]=JSON.parse(avant); test.locked=false; renderDchTest();
-    if(JSON.stringify(test.questions[0])!==avant || document.querySelectorAll('#dchHost input').length!==11) vus.push('la question ne se redessine pas après le JSON');
+    /* une étape manque : juste, et dite */
+    z=ecrire('ad+cb'); checkDchAnswer(); der=test.answers[test.answers.length-1];
+    if(!der.correct || !/il manque une étape/.test(fb()) || !/par exemple/.test(fb())) vus.push('AB + CD = AD + CB : '+(der.correct?'juste':'faux')+', « '+fb()+' »');
+    /* deux étapes manquent : fausse, « détaille » */
+    test.questions[0]={t:10, n:'ABCDM', v:0};
+    z=ecrire('mb+md'); checkDchAnswer(); der=test.answers[test.answers.length-1];
+    if(der.correct || !/détailler davantage/.test(fb()) || !z.classList.contains('bad')) vus.push('MA + MC = MB + MD d’un trait : '+(der.correct?'juste':'faux')+', « '+fb()+' »');
+    if(el('dch-cor').hidden || !/démonstration possible/.test(el('dch-cor').textContent)) vus.push('la copie fausse ne montre pas de démonstration possible');
+    /* une ligne fausse, nommée */
+    test.questions[0]={t:0, n:'ABCDM', v:0};
+    ecrire('ac+db'); checkDchAnswer();
+    if(!/n’est pas égal/.test(fb())) vus.push('la ligne fausse : « '+fb()+' »');
+    ecrire('ad+db+cb+bd'); checkDchAnswer();
+    if(!/doit arriver à AD \\+ CB/.test(fb())) vus.push('la démonstration inachevée : « '+fb()+' »');
+    /* la copie vide : pas de rouge, la correction en vert dans le champ */
+    z=ecrire(''); checkDchAnswer();
+    if(z.classList.contains('bad') || !z.classList.contains('sol') || z.value!==dchCorrection(dchDemo(test.questions[0]))) vus.push('la copie vide : « '+z.className+' », « '+z.value+' »');
+    if(test.questions[0].saisie) vus.push('la correction écrite dans le champ vide est rangée comme une saisie');
+    /* la reprise : la saisie revient avec la question */
+    test.questions[0]={t:0, n:'ABCDM', v:0, saisie:'AD+DB+CB+BD\\nAD+CB'};
+    test.questions[0]=JSON.parse(JSON.stringify(test.questions[0])); test.locked=false; renderDchTest();
+    if(el('dch-z').value!=='AD+DB+CB+BD\\nAD+CB') vus.push('la saisie ne revient pas après le JSON : « '+el('dch-z').value+' »');
     /* le soutien : peint au fil de la saisie, sans révéler ni verrouiller */
-    currentMode='soutien'; poser([], []);
-    el('dch-c-0-0').value='AB'; el('dch-c-0-0').dispatchEvent(new Event('input'));
-    if(peint('dch-c-0-0')!=='rouge' || peint('dch-c-0-1')!=='rien') vus.push('le soutien peint '+peint('dch-c-0-0')+' la case remplie, '+peint('dch-c-0-1')+' la vide');
+    currentMode='soutien';
+    z=ecrire('ac');
+    if(!z.classList.contains('bad')) vus.push('le soutien ne rougit pas une ligne fausse');
     checkDchAnswer();
-    if(test.locked || el('dch-c-0-1').value!=='') vus.push('la vérification du soutien verrouille ou révèle');
-    el('dch-c-0-0').value='AD'; checkDchAnswer(true);
-    if(peint('dch-c-0-0')!=='juste') vus.push('le soutien ne bleuit pas AD');
+    if(test.locked || z.value!=='ac' || !el('dch-cor').hidden) vus.push('la vérification du soutien verrouille ou révèle');
+    z.value='ad+cb'; z.dispatchEvent(new Event('input'));
+    if(!z.classList.contains('ok')) vus.push('le soutien ne bleuit pas AD + CB');
     currentMode='train';
 
-    /* ---- 3. un parallélogramme : AB + AD = AC, par AD = BC -------------- */
-    test.questions[0]={t:6, n:'EFGHM', v:1}; test.locked=false; renderDchTest();
-    const t2=el('dchInstr').textContent.replace(/\\s+/g,' ');
-    if(!/EFGH est un parallélogramme/.test(t2) || !/Démontrer que EF \\+ EH = EG/.test(t2)) vus.push('l’énoncé du parallélogramme dit « '+t2.slice(0,100)+' »');
-    if(el('dch-s-0').options.length!==7 || !/EFGH est un parallélogramme/.test(el('dch-s-0').textContent)) vus.push('la justification du parallélogramme manque à la liste');
-    el('dch-c-0-0').value='EF'; el('dch-c-0-1').value='FG'; el('dch-s-0').value='pa'; el('dch-s-1').value='ch';
-    checkDchAnswer();
-    der=test.answers[test.answers.length-1];
-    if(!der || !der.correct) vus.push('EF + EH = EF + FG = EG est comptée fausse');
-    vider();
-    el('dch-c-0-0').value='HG'; el('dch-c-0-1').value='EH'; el('dch-s-0').value='pa'; el('dch-s-1').value='ch';
-    checkDchAnswer();
-    if(peint('dch-c-0-0')!=='rouge' || !/ne mène pas/.test(fb())) vus.push('HG + EH (juste, sans issue) : '+peint('dch-c-0-0')+' « '+fb().slice(0,100)+' »');
-
     /* le contexte du modèle */
-    test.questions[0]={t:0, n:'ABCDM', v:0}; vider();
+    test.questions[0]={t:0, n:'ABCDM', v:0}; test.locked=false; renderDchTest();
     const ctx=ctxDch(test.questions[0]).contexte;
     if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/AD \\+ DB \\+ CB \\+ BD/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni la rédaction attendue');
     return vus.join(' | ');

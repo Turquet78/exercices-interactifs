@@ -3279,6 +3279,67 @@ de droite (orange), le nul exclu ; chaque flèche a sa pointe ; le
 parallélogramme a ses quatre côtés, et lui seul ; la légende écrit
 l'égalité.
 
+**Puis la rédaction LIBRE (v597).** Turquet : « l'élève doit pouvoir utiliser
+la méthode qu'il veut ». Les cases et les listes de justifications sont
+parties ; la démonstration s'écrit dans UN champ, celui du 8.2.7 (chaque
+vecteur dessiné sous sa flèche, `chlDessin`), mais en `<textarea>` : Entrée
+passe à la ligne et le champ grandit (`dchRendu` pose sa hauteur, ligne par
+ligne). Le membre de gauche est dessiné en tête de la première ligne, un
+« = » en tête des suivantes ; l'élève ne tape ni l'un ni l'autre (un « = »
+tapé en tête de ligne se retire, comme au 8.2.7). Plus de justification à
+choisir.
+
+**Chaque « = » est une étape, et une étape se mesure** (`dchPas`). Une ligne
+se lit comme un multi-ensemble de vecteurs signés : l'ordre ne compte pas, le
+vecteur nul (0, AA) se retire sans étape. UNE étape, c'est l'une des règles
+de la demande, appliquée une ou plusieurs fois : la relation de Chasles qui
+réunit deux vecteurs ou plus, dans n'importe quel ordre (`dchReunit` : des
+paquets de même signe mis bout à bout, `dchChaine`) — AB + BA donne 0 ; un
+point inséré pour décomposer un vecteur (la même fonction lue à l'envers,
+sans paquet nul) ; soustraire, c'est ajouter l'opposé (`dchSoustrait`) ; des
+vecteurs remplacés par des vecteurs égaux du parallélogramme (`dchEgale`, par
+la combinaison de points de `dchComb`) ; un changement d'ordre, toujours
+gratuit. Deux étapes : une ligne intermédiaire existe parmi celles qu'une
+étape tire de la précédente (`dchVoisins` — l'insertion s'y limite à un point
+dans un ou deux vecteurs). Au-delà : trois ou plus.
+
+**Les verdicts sont ceux de la demande.** Une étape à laquelle il manque UNE
+étape compte juste, et le message montre la ligne qui manque (« par exemple
+AB + CD = AC + CB + CD = AD + CB ») ; s'il en manque deux ou plus, l'égalité
+est vraie mais l'étape compte fausse : « il faut détailler davantage ». Une
+ligne qui ne vaut pas la précédente est fausse ; la démonstration doit
+arriver au membre de droite (à l'ordre près). Chaque morceau garde sa
+couleur dans le champ (`dataset.mv`, ligne par ligne) : une étape juste
+reste bleue dans une copie fausse. Une copie fausse montre dessous une
+démonstration possible, en vert ; une copie vide la reçoit dans le champ
+(`sol`), sans rouge.
+
+**Une démonstration vaut UN point** (`maxScore` = le nombre de questions) :
+les cases ne sont plus là pour compter. Sa déclaration
+`reglagesDevoirs.baremeParCases` est donc retirée du profil.
+
+**Les plans où il faut insérer un point viennent en fin de séance** (`ins`,
+plans 0 et 10 : AB + CD = AD + CB, MA + MC = MB + MD). Le tirage garde
+l'exemple de la demande, et `dchBuildQuestions` trie en gardant l'ordre du
+tirage. Le banc vérifie que `ins` désigne exactement les plans dont la
+correction coupe un vecteur de l'énoncé.
+
+**La saisie se range dans la question** (`q.saisie`), comme le programme
+des exercices Python : `captureBoxes` ne lit pas les `<textarea>`, et la
+pause aurait perdu la rédaction. La correction écrite par la page dans un
+champ vide n'y entre pas (elle ne passe pas par l'événement `input`).
+
+**Le banc** (`demontrerChasles`) garde son juge indépendant en nombres : sur
+chaque plan, 150 lignes tirées au hasard, et la page ne doit JAMAIS accepter
+une ligne qui ne vaut pas le membre de gauche, ni dire « pas égal » d'une
+ligne qui le vaut. Puis treize rédactions aux verdicts connus (juste, une
+étape manque, deux manquent, fausse, illisible), et par le bouton : la copie
+juste, la remarque, « détaille davantage », la correction en vert, la copie
+vide, le soutien, la saisie qui revient après le JSON. Éprouvé par trois
+sabotages : un `dchComb` qui dit tout égal (des lignes fausses acceptées),
+un `dchPas` qui compte toujours une étape (ni remarque ni « détaille »),
+une séance retournée (les insertions en tête) — chacun rougit.
+
 ## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.14, v536 — v528 à v535 et les numéros 8.2.11 à 8.2.13 pris pendant la rédaction, par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et « Chasles : insérer un point »)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
