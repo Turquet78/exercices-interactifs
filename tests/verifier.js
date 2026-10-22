@@ -14836,6 +14836,28 @@ function demontrerChasles(w, P){
     if(!/A, B, C et D sont quatre points du plan/.test(texte) || !/Montrer que AB \\+ CD = AD \\+ CB/.test(texte)) vus.push('l’énoncé dit « '+texte.slice(0,120)+' »');
     if(!el('dchInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
     if(el('dch-s-0').options.length!==6) vus.push('la liste des justifications a '+el('dch-s-0').options.length+' options (5 + l’invite attendues, sans parallélogramme)');
+    /* la figure de l'égalité (demande de Turquet, octobre 2026) : sur la page,
+       et pour CHAQUE plan, chaque point de l'énoncé nommé, chaque vecteur de
+       l'égalité dessiné — violet à gauche, orange à droite —, partant de son
+       origine et pointant vers son extrémité ; le vecteur nul, nulle part */
+    if(!document.querySelector('#dchHost .dch-fig svg.dch-svg')) vus.push('la figure de l’égalité manque sur la page');
+    DCH_DEMOS.forEach(function(T, t){
+      const q={t:t, n:'EFGHK', v:0}, Dm=dchDemo(q), box=document.createElement('div');
+      box.innerHTML=dchFigHTML(q);
+      const pos={};
+      box.querySelectorAll('text.veg-pt').forEach(function(x){ pos[x.textContent]=1; });
+      if(Object.keys(pos).sort().join('')!==Dm.pts.split('').sort().join('')) vus.push('plan '+t+' : la figure nomme '+Object.keys(pos).join('')+' au lieu de '+Dm.pts);
+      const pts=[].slice.call(box.querySelectorAll('circle.dch-pt')).map(function(c){ return [+c.getAttribute('cx'), +c.getAttribute('cy')]; });
+      const lettre=function(x, y){ let m=-1, d=1e9; pts.forEach(function(p, i){ const e=Math.hypot(p[0]-x, p[1]-y); if(e<d){ d=e; m=i; } }); return d<6 ? [].slice.call(box.querySelectorAll('text.veg-pt'))[m].textContent : '?'; };
+      const lu=function(cls){ return [].slice.call(box.querySelectorAll('line.'+cls)).map(function(l){
+        return lettre(+l.getAttribute('x1'), +l.getAttribute('y1'))+lettre(+l.getAttribute('x2'), +l.getAttribute('y2')); }).sort().join(' '); };
+      const att=function(l){ return l.filter(function(v){ return v!=='0'; }).map(function(v){ return v.replace('-',''); }).sort().join(' '); };
+      if(lu('dch-vg')!==att(Dm.g) || lu('dch-vd')!==att(Dm.d)) vus.push('plan '+t+' : la figure dessine '+lu('dch-vg')+' | '+lu('dch-vd')+' au lieu de '+att(Dm.g)+' | '+att(Dm.d));
+      if(box.querySelectorAll('line[marker-end]').length!==box.querySelectorAll('line.dch-vg, line.dch-vd').length) vus.push('plan '+t+' : une flèche sans pointe');
+      if(box.querySelectorAll('line.dch-cote').length!==(T.para ? 4 : 0)) vus.push('plan '+t+' : '+box.querySelectorAll('line.dch-cote').length+' côtés de parallélogramme');
+      const leg=box.querySelector('.dch-leg').textContent.replace(/\s+/g,' ');
+      if(leg.indexOf(dchTxt(Dm.g)+' = '+dchTxt(Dm.d))<0) vus.push('plan '+t+' : la légende dit « '+leg+' »');
+    });
     poser(JUSTE, JJ); checkDchAnswer();
     let der=test.answers[test.answers.length-1];
     if(!der || !der.correct) vus.push('la copie juste est comptée fausse : '+IDS.map(peint).join(', '));
