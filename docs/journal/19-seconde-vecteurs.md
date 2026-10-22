@@ -4547,6 +4547,30 @@ révéler ni verrouiller ; le plan à regrouper juste à 30 cases, et
 sens d'un vecteur retourné (plus aucune rédaction acceptée), et le message
 du sens oublié réécrit (le piège n'est plus nommé).
 
+## Le 8.3.9 : un dessin qui suit les égalités de l'énoncé (v596 — v595 prise par le 8.3.7)
+
+**La demande** (Turquet, octobre 2026) : « en seconde dans le 8.3.9 je veux
+voir un dessin correspondant aux égalités vectorielles ».
+
+**Le dessin du 8.3.8, posé au-dessus de la démonstration** (`dcoSvg`) : le
+triangle, les points D et E CONSTRUITS d'après les égalités de l'énoncé
+(`dcoPts`) — AD⃗ = kAB⃗ et AE⃗ = kAC⃗ aux plans 0 et 1, BD⃗ = kAB⃗ et
+CE⃗ = kAC⃗ au plan 2 —, le côté prolongé en pointillés jusqu'au point qui
+en sort (au-delà de B si k > 1, au-delà de A si k < 0, au-delà de B et de C
+au plan 2), et le segment [DE] en violet (`kmi-ij`). Le cadre est celui du
+8.3.8 (`kmiCadre`). Au-dessus et non à côté : les lignes du plan 2 portent
+jusqu'à trente cases, elles prennent la largeur.
+
+**La forme du triangle se tire des lettres** (quatre formes, `DCO_TRI`) :
+rien de plus à ranger dans la question, elle ne change ni au redessin ni à
+la reprise, et les brouillons d'avant se dessinent aussi.
+
+**Les noms se posent dans le plus grand angle libre** autour de leur point,
+loin de tous les traits qui en partent ou le traversent : au plan 2, B est
+au milieu d'un côté prolongé, et la règle du 8.3.8 (s'éloigner du centre de
+gravité) aurait posé son nom sur le pointillé. Regardé à l'écran sur les
+trois plans, k positif, négatif, fractionnaire, et les milieux.
+
 ## 8.3.5 : la définition, puis vrai ou faux sur deux vecteurs — six situations en tête de séance (v582)
 
 **La demande** (Turquet, octobre 2026) : « dans le 8.3.5, donner la
@@ -4638,7 +4662,7 @@ plus de six pages reprend les situations, sur d'autres vecteurs
 le rendu et le juge de ces pages restent (`renderKssKu`, `kssCases`) : un
 brouillon de pause d'avant peut en porter une, et le banc les tient encore.
 
-## {demontrer-egalite-reels} — démontrer une égalité avec des réels (8.3.10, v596 — v595 prise sur main par les 8.3.6 et 8.3.7 pendant les bancs)
+## {demontrer-egalite-reels} — démontrer une égalité avec des réels (8.3.10, v597 — v595 et v596 prises sur main par les 8.3.6, 8.3.7 et 8.3.9 pendant les bancs)
 
 **La demande** (Turquet, octobre 2026) : « créer un exercice comme le 8.2.13
 mais avec en plus, dans la formule à démontrer, des coefficients devant
