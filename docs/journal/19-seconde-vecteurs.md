@@ -4365,6 +4365,13 @@ question sur deux cents tirages, la copie juste, le mauvais côté, le départ
 pris en A, la mauvaise distance, le point hors de la parallèle, le point
 vide et l'ancien brouillon.
 
+**Puis la flèche dessinée a suivi l'égalité** (v595, demande de Turquet,
+octobre 2026 : « le vecteur tracé sur le dessin doit correspondre à celui de
+l'égalité de l'énoncé ; il aurait fallu tracer FE⃗ et non EF⃗ »). Quand
+l'égalité prend BA⃗, la flèche des données va de B vers A ; sinon de A vers
+B. Les lettres restent dans le prolongement du segment, de part et d'autre.
+Le banc relit le sens de la flèche pour AB⃗ puis pour BA⃗.
+
 **8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
 trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
 du côté opposé à B…), cinq par page ; six cartes AM⃗ = kAB⃗ lettrées a à f,
@@ -4407,6 +4414,20 @@ une paire en deux. Et pourquoi `q.e1` dans la question : une pause entre les
 deux étapes reprend aux phrases, l'étape 1 telle que la vérification l'a
 laissée, et un nouveau « Vérifier » n'y rejuge rien — le banc principal le
 tient en rejouant la question depuis son JSON entre les deux étapes.
+
+Puis **deux questions** (demande de Turquet, octobre 2026, v595) : « faire
+cet exercice en 2 questions […] en laissant les égalités placées sur les
+dessins avec les phrases juste en dessous ; on a donc supprimé de l'écran
+les lignes a à f pour la question 2 ». La séance est une PAIRE sur un même
+tirage : la question 1 (`q.et` 1) relie les égalités aux dessins ; la
+question 2 (`q.et` 2) écrit chaque égalité sous son dessin (« cas b ·
+AM⃗ = … ») et pose les cinq phrases dessous, sans les lignes a à f. Chacune
+se vérifie, se verrouille et pousse sa réponse seule : 6 + 5 = 11 points.
+`q.e1` et la vérification qui ne verrouillait pas disparaissent — la pause
+redevient celle de tous les exercices. La coupe d'un devoir ne gêne plus :
+chaque entrée se suffit à elle-même (la question 2 ne lit rien de la 1). Le
+tirage fait ⌈N/2⌉ paires distinctes et garde N entrées ; le réglage
+« Questions » compte donc les questions affichées.
 
 **8.3.8, démontrer un parallélisme** (`kmi`). La démonstration du manuel,
 en treize cases : IJ⃗ = IA⃗ + AJ⃗ = kBA⃗ + kAC⃗ = k(BA⃗ + AC⃗) = kBC⃗,
