@@ -1481,3 +1481,47 @@ minute à mesure que la séance avançait. Dans le cadre : 2 à 8 s pour tout le
 PDF. Éprouvé sur les 63 exercices du menu qui savent s'énoncer sur papier (le
 64e, {arbre-probabilites-bac-types}, le dit et rend le choix des modes, comme
 avant).
+
+**Puis le papier n'a plus gardé que l'ÉNONCÉ — et il tient deux fois moins de
+place** (Terminale v423, Turquet, octobre 2026, devant le PDF du 5.6.1 : « dans
+le pdf il y a encore l'aide à la résolution de l'énoncé, je ne veux que les
+énoncés ; est-il possible que cela prenne moins de place, car c'est un PDF à
+imprimer »). Retirer les aides NOMMÉES ne suffisait pas : en Terminale,
+l'exercice guide par sa FORME — « lim Uₙ = … car … », la chaîne d'égalités à
+compléter, le tableau dont il ne reste qu'à remplir les cases. Trois passes,
+dans `dmEnonceQ`, sur l'écran affiché (elles lisent `getComputedStyle`) :
+* **toute LIGNE qui porte une case part** — la ligne est le plus proche bloc
+  qui n'est pas DANS un élément en ligne (le numérateur d'une fraction est un
+  bloc ; s'y arrêter laissait « = × − × ») ; un tableau à compléter part entier ;
+  garde : une « ligne » qui contient l'énoncé, un vrai dessin (`dmeFigure` : un
+  svg de plus de 80 × 60 px — une parenthèse étirée n'en est pas un), une case à
+  cocher ou un `.dme-garde` n'est pas une ligne, seule la case part ;
+* **le texte FIXE du guidage part** (« On pose : », « Hérédité — on suppose… »,
+  « Avec f(x) = …, on a : ») : une ligne sans case ne reste que si elle POSE
+  quelque chose — une question (`DME_QUESTION` : une lettre « a) », « 2. »,
+  « (3) », ou un verbe de consigne), une donnée (« Soit… », « On donne… ») — ou
+  si elle porte un dessin, un tableau de données, un programme ; une ligne
+  presque sans lettres (« ⟺ y = », « ; ; ») part toujours ; un conteneur qui
+  mêlait texte fixe et cases est jugé APRÈS le départ de ses lignes ;
+* **ce que l'écran dit et que le papier tait se marque** : `aide-ecran` (« en
+  complétant », « Compléter : », « clique successivement… »), et ce que seul le
+  papier dit, `papier-seul` (caché à l'écran) : là où la question n'existait que
+  par ses cases, une consigne de copie la remplace — limites graphiques (une
+  question par borne, le tableau à dresser au 2.3), droites horizontales et
+  verticales, tangente lue sur le graphique, nombre de solutions, signe du 1er et
+  du 2nd degré, signes et variations, suite arithmétique/géométrique, conjectures
+  du 5.2.3, points à marquer au 3.5. `.dme-garde` protège ce qui doit rester :
+  les formules du 6.1.4, les termes affichés du 5.2.3, les propositions du 5.4.1.
+**La place** : ni cadre de carte ni étiquette « Énoncé » sur le papier, un filet
+entre les questions, « Question 3 » au lieu de « Question 3 / 8 », le rendu à
+880 px pour 186 mm (le texte imprimé à ~10 pt) : le 4.2.2 passe de 3 pages à 1,
+les huit questions du 5.6.1 tiennent sur une page et un tiers. **Un dessin perdait ses id** — la règle « une photo ne porte
+aucun id » vidait les `clipPath` et les marqueurs : les branches de l'arbre
+n'avaient plus de pointes. Les id INTERNES à un svg sont renommés (suffixe
+unique, `url(#…)` et `href` compris). Et html2canvas dessinait la courbe des
+limites graphiques coupée de moitié : chaque svg devient une IMAGE de sa taille
+affichée avant le rendu (`dmePdfSvgEnImages`). Restent, nommés : l'énoncé du
+4.3.1 et du 4.1.6 parle encore d'un « tableau ci-dessous » qu'il ne montre plus
+(la consigne se lit « dresse le tableau »), et l'heuristique ne connaît que les
+63 exercices relus — un exercice ajouté demain se relit sur son PDF (le banc
+navigateur, section 6 sexies ter, tient le 5.6.1 et le 4.2.2).
