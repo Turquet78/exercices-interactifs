@@ -8590,7 +8590,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=594;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=595;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -66220,7 +66220,12 @@ function kplGen(l,f){
 function kplBuildQuestions(){ return distinctes(dmNbQuestions(KPL_NB), function(_,i){ return kplGen(i%KPL_NOMS.length, i%KPL_FAM.length); }); }
 function kplSVG(q){
   const Wd=2*KPL_PX+KPL_W*KPL_C, Hd=2*KPL_PY+KPL_H*KPL_C, n=kplNoms(q);
-  let donnes=svcFleche(q.a, q.b, {cls:'svc-u', marker:'kplArr0', geo:KPL_GEO});
+  /* la flèche dessinée est le vecteur de l'égalité : AB⃗, ou BA⃗ quand l'égalité
+     le prend (demande de Turquet, octobre 2026 : « le vecteur tracé sur le dessin
+     doit correspondre à celui de l'égalité de l'énoncé ») ; avec plusieurs
+     égalités qui ne s'accordent pas, AB⃗ */
+  const ba=q.r.every(function(r){ return r[0]; });
+  let donnes=ba ? svcFleche(q.b, q.a, {cls:'svc-u', marker:'kplArr0', geo:KPL_GEO}) : svcFleche(q.a, q.b, {cls:'svc-u', marker:'kplArr0', geo:KPL_GEO});
   /* les deux lettres dans le prolongement de la flèche, jamais sur sa pointe */
   const ab=[q.b[0]-q.a[0], q.b[1]-q.a[1]], l=Math.hypot(ab[0],ab[1])||1;
   [q.a, q.b].forEach(function(p,k){ const s=k?1:-1, x=tanX(p[0])+s*ab[0]/l*20, y=tanY(p[1])-s*ab[1]/l*20+6;
@@ -66228,7 +66233,7 @@ function kplSVG(q){
   /* le point de départ */
   q.o.forEach(function(p,k){ donnes+=tanCroix(p,'tan-donne')+tanEtiquette(p, n[2+k], 'tan-donne-t'); });
   const pointe=function(id,coul){ return '<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+coul+'"/></marker>'; };
-  return '<svg viewBox="0 0 '+Wd+' '+Hd+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tan-svg kpl-svg" role="img" aria-label="Quadrillage : les points '+n[0]+' et '+n[1]+', le vecteur '+n[0]+n[1]+', le point de départ '+n.slice(2).join(', ')+', et le point '+KPL_PTS.slice(0,q.r.length).join(', ')+' à placer">'
+  return '<svg viewBox="0 0 '+Wd+' '+Hd+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tan-svg kpl-svg" role="img" aria-label="Quadrillage : les points '+n[0]+' et '+n[1]+', le vecteur '+(ba?n[1]+n[0]:n[0]+n[1])+', le point de départ '+n.slice(2).join(', ')+', et le point '+KPL_PTS.slice(0,q.r.length).join(', ')+' à placer">'
     +'<defs>'+pointe('kplArr0','var(--ink)')+pointe('kplArrS','var(--green)')+pointe('kplArrP','var(--crd-a)')+pointe('kplArrE','var(--blue)')+pointe('kplArrB','var(--red)')+'</defs>'
     +kvGrille(KPL_GEO,KPL_W)+'<g id="kplDonnes">'+donnes+'</g><g id="kplCorr"></g><g id="kplVif"></g><g id="kplEl"></g>'
     +'<g id="kplCurseur" class="tan-curseur" aria-hidden="true" style="display:none"></g></svg>';
