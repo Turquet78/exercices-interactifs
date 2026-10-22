@@ -1093,3 +1093,52 @@ qu'aucun —, et les paragraphes plus anciens du journal du thème Python
 fichier unique » racontent l'histoire avec la convention de leur époque : le motif d'un dessin (découpé, détouré, WebP de
 10 à 20 Ko, posé en tête de l'exercice) reste vrai, seul son rangement a
 changé.
+
+**L'onde d'une case juste, les confettis d'un sans-faute, le fondu depuis le
+portail — sans rien télécharger** (demande de Turquet, octobre 2026 :
+« embellir sans surcharger ni ralentir »). Un bloc `<style id="embellir">` en
+fin d'en-tête et un script `#embellir-js` en fin de fichier, identiques dans
+les trois pages.
+· **L'onde** : une case qui DEVIENT juste s'éclaire d'une ombre bleue qui
+s'efface (`Element.animate`, 0,65 s). Ni classe ni règle CSS ajoutée, donc
+rien que le « 9 bis » des couleurs, la capture du brouillon ou un contrôle
+qui compare `className` puisse relire ; une ombre ne déplace rien, donc
+aucune mesure de taille ou d'alignement ne change. Elle part sur l'ARRIVÉE de
+`ok` (un `MutationObserver` d'attribut, avec l'ancienne valeur) — jamais sur
+une case CRÉÉE juste, sans quoi chaque redessin ferait clignoter l'écran. Le
+garde de la case où l'élève écrit retire et repose `ok` : l'onde part donc à
+la sortie de la case, avec la couleur.
+· **Les confettis** : quand `#scr-results` s'ouvre et que `#resultScore` dit
+une note égale au total (« 10 / 10 », « 7,5 / 7,5 »). Lus sur ce que l'élève
+voit, parce que toutes les fins de séance y écrivent — un seul point
+d'accroche au lieu de chaque `finishTest`. `pointer-events:none`, retirés
+après 4 s.
+· **Le fondu** : `@view-transition{navigation:auto}`, posé aussi sur le
+portail ; le portail et les pages sont sur la même origine
+(`turquet78.github.io`). Les ÉCRANS d'une page, eux, avaient déjà leur
+apparition en fondu (`.screen{animation:rise}`).
+Sous « moins d'animations », rien de tout cela. Le banc navigateur le tient
+(« 9 quinquies ») : l'onde à l'arrivée et pas à la création ni au maintien,
+les confettis au sans-faute et pas à « 9,5 / 10 », sans clic capté ni
+défilement de côté, et rien sous `reducedMotion: 'reduce'`.
+**Le mode sombre n'est PAS venu dans les pages d'exercices** : la Seconde
+seule écrit plus de 1 300 couleurs en dur (feuille de styles, gabarits,
+dessins SVG et images sur fond blanc). Un mode sombre à moitié — des cadres
+blancs sur un fond noir — serait pire que pas de mode sombre ; il demande un
+chantier à lui, page par page, avec un contrôle qui le tienne. Le portail,
+construit sur des jetons, l'a reçu.
+**Et un fondu ABANDONNÉ est une erreur — au hasard du minutage.** Première
+action, premier rouge : « la page d'aiguillage ne lève aucune erreur
+JavaScript → Transition was skipped », sur la Terminale seulement, vert en
+local. « Quitter » un niveau mène à `prof.html` : la page de départ
+s'inscrivait au fondu (`pageswap` portait une transition), la page d'arrivée
+non — le navigateur l'abandonne et REJETTE ses promesses, que personne
+n'attendait ; l'erreur ne remonte que si l'ancienne page vit encore à cet
+instant. Mesuré en relevant `e.viewTransition` sur `pageswap`/`pagereveal` :
+avant, « pageswap terminale true » puis « pagereveal prof false » ; après,
+« pagereveal prof true ». Deux remèdes, il les faut tous les deux : `prof.html`
+s'inscrit au fondu (le chemin ordinaire ne s'abandonne plus), et un script
+`#embellir-garde` EN TÊTE de chaque page attrape les promesses de toute
+transition (`pagereveal` part avant le premier rendu : en fin d'une page de
+plusieurs mégaoctets, il serait posé trop tard). Une seconde navigation qui
+coupe la première l'abandonne encore — attrapée, elle ne dit plus rien.

@@ -52,7 +52,13 @@
   const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";
   const COURRIEL_PROF     = "professeur@exercices-interactifs.invalid";
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- supabase-js à une VERSION EXACTE : le CDN la sert « immuable », gardée un an
+     par le navigateur, quand « @2 » est revalidé chaque semaine — et une nouvelle
+     version ne change plus la page sans qu'on l'ait choisie. La connexion au
+     projet s'ouvre pendant que la page se télécharge : la première requête
+     (la liste des prénoms) n'attend plus la poignée de main TLS. -->
+<link rel="preconnect" href="https://rcxenttecucvcebjlmcw.supabase.co" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -96,7 +102,25 @@
   .erreur{color:var(--rouge);margin:12px 0 0;min-height:1.3em}
   .horsecran{position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0}
   [hidden]{display:none !important}
+  /* le fondu enchaîné avec les trois niveaux (voir #embellir dans leurs pages) */
+  @view-transition{navigation:auto}
+  @media (prefers-reduced-motion:reduce){@view-transition{navigation:none}}
 </style>
+<script id="embellir-garde">
+/* Un fondu entre deux pages peut être ABANDONNÉ par le navigateur : la page
+   d'arrivée ne s'y prête pas (prof.html avant octobre 2026), ou une seconde
+   navigation coupe la première. Il rejette alors ses promesses, et personne
+   ne les attendait : une « erreur » « Transition was skipped » qui ne casse
+   rien, mais que le banc navigateur relève — au hasard du minutage (verte en
+   local, rouge dans l'action, sur l'aller-retour vers la page d'aiguillage).
+   On les attrape ici, dans l'en-tête : « pagereveal » part avant le premier
+   rendu, avant la fin d'une page de plusieurs mégaoctets. */
+(function(){
+  function taire(e){ var t=e && e.viewTransition; if(!t) return;
+    ['ready','finished','updateCallbackDone'].forEach(function(k){ if(t[k] && t[k].catch) t[k].catch(function(){}); }); }
+  addEventListener('pageswap', taire); addEventListener('pagereveal', taire);
+})();
+</script>
 </head>
 <body>
   <div class="wrap">

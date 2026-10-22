@@ -1271,3 +1271,27 @@ d'en-tête vide. **Toute migration qui crée une table y écrit ses `grant`
 (`authenticated` selon l'usage, `service_role` ; `anon` seulement si un
 visiteur doit la lire), et un contrôle de `tests/base-controles.sql` la lit
 sous le rôle qui s'en sert.**
+
+**Une bibliothèque du CDN se charge à une VERSION EXACTE.** supabase-js venait
+de `@2` (octobre 2026) : jsDelivr ne garde une adresse à plage de versions
+qu'une semaine dans le navigateur (`max-age=604800`), et la version suivante
+entrait dans la page un matin sans qu'on l'ait choisie. `@2.117.3` est servie
+`immutable`, gardée un an. Les trois pages et `prof.html` ouvrent aussi la
+connexion au projet pendant leur propre téléchargement
+(`<link rel="preconnect" … crossorigin>`) : la première requête (la liste des
+prénoms) n'attend plus la poignée de main TLS. Le banc principal exige la
+version exacte sur toute adresse `cdn.jsdelivr.net/npm/…@…` et `esm.run/…@…`
+(« chaque bibliothèque du CDN est chargée à une version exacte ») ; remettre
+`@2` le fait rougir en nommant `@supabase/supabase-js@2`.
+**Le script n'est PAS passé en `defer` dans les trois pages**, et c'est
+voulu : leur démarrage (`if(configReady()){ initSupabase(); demarrer(); }`)
+est un script en ligne lu PENDANT l'analyse, qui le trouverait absent ; et le
+gain serait nul — la page pèse de 1,8 à 5,5 Mo, le scanner de préchargement
+va chercher supabase-js en parallèle, et il arrive bien avant la fin du
+document. Le PORTAIL (site-maths), lui, l'a passé en `defer` : il ne s'en sert
+qu'après l'affichage, et `dmClient()` l'y attend.
+**Retirer des graisses aux polices de Google ne fait rien gagner** : Nunito,
+Fredoka, Fraunces et Spline Sans y sont des polices VARIABLES, servies en UN
+fichier par alphabet quelle que soit la liste de graisses demandée (les quatre
+`@font-face` de Nunito pointent vers le même `.woff2`). Vérifié avant d'y
+toucher, et laissé tel quel.

@@ -27,7 +27,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- supabase-js à une VERSION EXACTE : le CDN la sert « immuable », gardée un an
+     par le navigateur, quand « @2 » est revalidé chaque semaine — et une nouvelle
+     version ne change plus la page sans qu'on l'ait choisie. La connexion au
+     projet s'ouvre pendant que la page se télécharge : la première requête
+     (la liste des prénoms) n'attend plus la poignée de main TLS. -->
+<link rel="preconnect" href="https://rcxenttecucvcebjlmcw.supabase.co" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3"></script>
 
 <style id="ml-static-css">/* 0.110.0 */@font-face{font-display:"swap";font-family:KaTeX_AMS;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_AMS-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Caligraphic;font-style:normal;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Caligraphic-Bold.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Caligraphic;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Caligraphic-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Fraktur;font-style:normal;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Fraktur-Bold.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Fraktur;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Fraktur-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Main;font-style:italic;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Main-BoldItalic.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Main;font-style:normal;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Main-Bold.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Main;font-style:italic;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Main-Italic.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Main;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Main-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Math;font-style:italic;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Math-BoldItalic.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Math;font-style:italic;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Math-Italic.woff2) format("woff2")}@font-face{font-display:"swap";font-family:"KaTeX_SansSerif";font-style:normal;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_SansSerif-Bold.woff2) format("woff2")}@font-face{font-display:"swap";font-family:"KaTeX_SansSerif";font-style:italic;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_SansSerif-Italic.woff2) format("woff2")}@font-face{font-display:"swap";font-family:"KaTeX_SansSerif";font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_SansSerif-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Script;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Script-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Size1;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Size1-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Size2;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Size2-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Size3;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Size3-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Size4;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Size4-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Typewriter;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Typewriter-Regular.woff2) format("woff2")}:root{--ML__static-fonts:true}.ML__container{min-height:auto!important;--_hue:var(--hue,212);--_placeholder-color:var(--placeholder-color,hsl(var(--_hue),40%,49%));--_placeholder-opacity:var(--placeholder-opacity,0.4);--_text-font-family:var(--text-font-family,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen","Ubuntu","Cantarell","Fira Sans","Droid Sans","Helvetica Neue",sans-serif)}.ML__sr-only{height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;clip:rect(0,0,0,0);border:0;clip-path:inset(50%);white-space:nowrap}.ML__base,.ML__is-inline{display:inline-block}.ML__base{border:0;box-sizing:content-box;cursor:text;font-family:inherit;font-style:inherit;font-weight:inherit;margin:0;outline:0;padding:0;position:relative;text-decoration:none;vertical-align:baseline;visibility:inherit;width:min-content}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:0.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--_text-font-family);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.ML__mathbfit,.lcGreek.ML__mathbf{font-family:KaTeX_Math}.ML__mathbfit{font-style:italic;font-weight:700}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{background:#edd1b0;color:#007cb2}.ML__center{text-align:center}.ML__left{text-align:left}.ML__right{text-align:right}.ML__label_padding{padding:0 0.5em}.ML__frac-line{min-height:1px;width:100%}.ML__frac-line:after{background:currentColor;box-sizing:content-box;content:"";display:block;forced-color-adjust:preserve-parent-color;margin-top:max(-1px,-0.04em);min-height:max(1px,0.04em);print-color-adjust:exact;transform:translate(0)}@media (forced-colors:active){.ML__frac-line{min-height:0px}}.ML__sqrt,.ML__sqrt-sign{display:inline-block}.ML__sqrt-sign{position:relative}.ML__sqrt-line{display:inline-block;height:max(1px,0.04em);width:100%}.ML__sqrt-line:before{background:currentColor;content:"";display:block;forced-color-adjust:preserve-parent-color;margin-top:min(-1px,-0.04em);min-height:max(1px,0.04em);print-color-adjust:exact;transform:translate(0)}@media (forced-colors:active){.ML__sqrt-line:after{background:#fff!important}}.ML__sqrt-line:after{border-bottom-width:1px;content:" ";display:block;margin-top:-0.1em}.ML__sqrt-index{margin-left:0.27777778em;margin-right:-0.55555556em}.ML__delim-size1{font-family:KaTeX_Size1}.ML__delim-size2{font-family:KaTeX_Size2}.ML__delim-size3{font-family:KaTeX_Size3}.ML__delim-size4{font-family:KaTeX_Size4}.ML__delim-mult .delim-size1>span{font-family:KaTeX_Size1}.ML__delim-mult .delim-size4>span{font-family:KaTeX_Size4}.ML__accent-body{font-family:KaTeX_Main}.ML__accent-combining-char{left:0.24em;position:relative}.ML__latex{direction:ltr;display:inline-block;font-family:inherit;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant-caps:normal;letter-spacing:normal;line-height:1.2;text-align:left;text-indent:0;text-rendering:auto;word-wrap:normal;forced-color-adjust:preserve-parent-color;text-shadow:none;-webkit-user-select:none;user-select:none;white-space:nowrap;width:min-content;word-spacing:normal}.ML__latex .style-wrap{position:relative}.ML__latex .ML__left-right,.ML__latex .ML__mfrac{display:inline-block}.ML__latex .ML__vlist-t{border-collapse:collapse;display:inline-table;table-layout:fixed}.ML__latex .ML__vlist-r{display:table-row}.ML__latex .ML__vlist{display:table-cell;position:relative;vertical-align:bottom}.ML__latex .ML__vlist>span{display:block;height:0;position:relative}.ML__latex .ML__vlist>span>span{display:inline-block}.ML__latex .ML__vlist>span>.ML__pstrut{overflow:hidden;width:0}.ML__latex .ML__vlist-t2{margin-right:-2px}.ML__latex .ML__vlist-s{display:table-cell;font-size:1px;min-width:2px;vertical-align:bottom;width:2px}.ML__latex .ML__msubsup{text-align:left}.ML__latex .ML__negativethinspace{display:inline-block;height:0.71em;margin-left:-0.16667em}.ML__latex .ML__thinspace{display:inline-block;height:0.71em;width:0.16667em}.ML__latex .ML__mediumspace{display:inline-block;height:0.71em;width:0.22222em}.ML__latex .ML__thickspace{display:inline-block;height:0.71em;width:0.27778em}.ML__latex .ML__enspace{display:inline-block;height:0.71em;width:0.5em}.ML__latex .ML__quad{display:inline-block;height:0.71em;width:1em}.ML__latex .ML__qquad{display:inline-block;height:0.71em;width:2em}.ML__latex .ML__llap,.ML__latex .ML__rlap{display:inline-block;position:relative;width:0}.ML__latex .ML__llap>.ML__inner,.ML__latex .ML__rlap>.ML__inner{position:absolute}.ML__latex .ML__llap>.ML__fix,.ML__latex .ML__rlap>.ML__fix{display:inline-block}.ML__latex .ML__llap>.ML__inner{right:0}.ML__latex .ML__rlap>.ML__inner{left:0}.ML__latex .ML__rule{border:0 solid;box-sizing:border-box;display:inline-block;position:relative}.ML__latex .overline .overline-line,.ML__latex .underline .underline-line{width:100%}.ML__latex .overline .overline-line:before,.ML__latex .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:max(1px,0.04em);content:"";display:block;print-color-adjust:exact}.ML__latex .overline .overline-line:after,.ML__latex .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:max(1px,0.04em);content:"";display:block;margin-top:-1px;print-color-adjust:exact}.ML__latex .ML__stretchy{display:block;left:0;overflow:hidden;position:absolute;width:100%}.ML__latex .ML__stretchy:after,.ML__latex .ML__stretchy:before{content:""}.ML__latex .ML__stretchy svg{display:block;fill:currentColor;fill-opacity:1;fill-rule:nonzero;height:inherit;position:absolute;stroke:currentColor;stroke-dasharray:none;stroke-dashoffset:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:1;width:100%}.ML__latex .slice-1-of-2{left:0}.ML__latex .slice-1-of-2,.ML__latex .slice-2-of-2{display:inline-flex;overflow:hidden;position:absolute;width:50.2%}.ML__latex .slice-2-of-2{right:0}.ML__latex .slice-1-of-3{left:0;width:25.1%}.ML__latex .slice-1-of-3,.ML__latex .slice-2-of-3{display:inline-flex;overflow:hidden;position:absolute}.ML__latex .slice-2-of-3{left:25%;width:50%}.ML__latex .slice-3-of-3{right:0;width:25.1%}.ML__latex .slice-1-of-1,.ML__latex .slice-3-of-3{display:inline-flex;overflow:hidden;position:absolute}.ML__latex .slice-1-of-1{left:0;width:100%}.ML__latex .ML__nulldelimiter,.ML__latex .ML__op-group{display:inline-block}.ML__latex .ML__op-symbol{position:relative}.ML__latex .ML__op-symbol.ML__small-op{font-family:KaTeX_Size1}.ML__latex .ML__op-symbol.ML__large-op{font-family:KaTeX_Size2}.ML__latex:has(.ML__align_environment),.ML__latex:has(.ML__center_environment),.ML__latex:has(.ML__eqnarray_environment),.ML__latex:has(.ML__gather_environment),.ML__latex:has(.ML__multiline_environment){width:100%}.ML__latex .ML__multiline_environment{display:inline-flex;width:100%}.ML__latex .ML__center_environment{display:inline-flex;justify-content:center;width:100%}.ML__latex .ML__align_environment,.ML__latex .ML__eqnarray_environment,.ML__latex .ML__gather_environment{display:inline-block}.ML__latex .ML__mtable .ML__vertical-separator{box-sizing:border-box;display:inline-block;min-width:1px}.ML__latex .ML__mtable .ML__arraycolsep{display:inline-block}.ML__latex .ML__mtable .col-align-m>.ML__vlist-t{text-align:center}.ML__latex .ML__mtable .col-align-c>.ML__vlist-t{text-align:center}.ML__latex .ML__mtable .col-align-l>.ML__vlist-t{text-align:left}.ML__latex .ML__mtable .col-align-r>.ML__vlist-t{text-align:right}[data-href]{cursor:pointer}.ML__error{background-color:rgba(204,0,65,.1);background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-position:0 100%;background-repeat:repeat-x;background-size:3px 3px;display:inline-block;padding-bottom:3px}.ML__error>.ML__error{background:transparent;padding:0}.ML__placeholder{color:var(--_placeholder-color);font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:var(--_placeholder-opacity);padding-left:0.4ex;padding-right:0.4ex}.ML__notation{box-sizing:border-box;line-height:0;position:absolute}.ML__tooltip-container{position:relative;transform:scale(0)}.ML__tooltip-container .ML__tooltip-content{background:var(--_tooltip-background-color);border:var(--_tooltip-border);border-radius:var(--_tooltip-border-radius);display:inline-table;max-width:400px;padding:12px;position:fixed;visibility:hidden;width:max-content;z-index:2;--_selection-color:var(--_tooltip-color);box-shadow:var(--_tooltip-box-shadow);color:var(--_tooltip-color);opacity:0;transition:opacity 0.15s cubic-bezier(0.4,0,1,1)}.ML__tooltip-container .ML__tooltip-content .ML__text{white-space:normal}.ML__tooltip-container .ML__tooltip-content .ML__base{display:contents}.ML__tooltip-container:hover .ML__tooltip-content{font-size:0.75em;opacity:1;transform:scale(1) translateY(3em);visibility:visible}.ML__bg{background-color:transparent!important}.ML__bg:before{background-color:var(--bg-color);bottom:0;box-sizing:border-box;content:"";left:0;position:absolute;right:0;top:0;z-index:-1}</style>
 <style>
@@ -631,7 +637,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-dco,#scr-kss,#scr-kpl,#scr-kph,#scr-kmi,#scr-kvi,#scr-kco,#scr-csp,#scr-chl,#scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-vgt,#scr-cit,#scr-cvl,#scr-mrl,#scr-srl,#scr-rpd,#scr-dvl,#scr-dvo,#scr-dvd,#scr-dvn,#scr-dvr,#scr-vfl,#scr-dvm,#scr-dvs,#scr-vec,#scr-vep,#scr-svc,#scr-cvp,#scr-tvx,#scr-cps,#scr-tcp,#scr-svr,#scr-vtr,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pch,#scr-pcl,#scr-pfr,#scr-pii,#scr-pia,#scr-pis,#scr-pmy,#scr-ptr,#scr-pfo,#scr-pgc,#scr-prc,#scr-pcf,#scr-pkg,#scr-pcz,#scr-pte,#scr-pfl,#scr-pqc,#scr-ppr,#scr-pod,#scr-prd,#scr-pmo,#scr-pfx,#scr-phm,#scr-pvo,#scr-pdu,#scr-pfe,#scr-ptds,#scr-pfn,#scr-pfk,#scr-pof,#scr-pxy,#scr-pmt,#scr-ptm,#scr-pgt,#scr-pbl,#scr-pmn,#scr-pfv,#scr-pfd,#scr-pfc,#scr-pfq,#scr-pfi,#scr-plo,#scr-pce,#scr-psm,#scr-pci,#scr-prl,#scr-ptt,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-pph,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl,#scr-tdc,#scr-veg,#scr-chs,#scr-cha,#scr-tpv,#scr-dch,#scr-dpa,#scr-chi,#scr-vfh,#scr-vcr,#scr-vej,#scr-vmi,#scr-ctv,#scr-tan,#scr-lsd,#scr-stv,#scr-pwy,#scr-pws,#scr-pwe,#scr-pwx,#scr-pwa,#scr-pwp,#scr-pwd,#scr-pwr,#scr-pwv,#scr-pwm,#scr-pwc,#scr-pwo,#scr-pwn,#scr-pwg,#scr-pwf,#scr-pwt,#scr-spg{padding-bottom:84px}
+  #scr-dcr,#scr-dco,#scr-kss,#scr-kpl,#scr-kph,#scr-kmi,#scr-kvi,#scr-kco,#scr-csp,#scr-chl,#scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-vgt,#scr-cit,#scr-cvl,#scr-mrl,#scr-srl,#scr-rpd,#scr-dvl,#scr-dvo,#scr-dvd,#scr-dvn,#scr-dvr,#scr-vfl,#scr-dvm,#scr-dvs,#scr-vec,#scr-vep,#scr-svc,#scr-cvp,#scr-tvx,#scr-cps,#scr-tcp,#scr-svr,#scr-vtr,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pch,#scr-pcl,#scr-pfr,#scr-pii,#scr-pia,#scr-pis,#scr-pmy,#scr-ptr,#scr-pfo,#scr-pgc,#scr-prc,#scr-pcf,#scr-pkg,#scr-pcz,#scr-pte,#scr-pfl,#scr-pqc,#scr-ppr,#scr-pod,#scr-prd,#scr-pmo,#scr-pfx,#scr-phm,#scr-pvo,#scr-pdu,#scr-pfe,#scr-ptds,#scr-pfn,#scr-pfk,#scr-pof,#scr-pxy,#scr-pmt,#scr-ptm,#scr-pgt,#scr-pbl,#scr-pmn,#scr-pfv,#scr-pfd,#scr-pfc,#scr-pfq,#scr-pfi,#scr-plo,#scr-pce,#scr-psm,#scr-pci,#scr-prl,#scr-ptt,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-pph,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl,#scr-tdc,#scr-veg,#scr-chs,#scr-cha,#scr-tpv,#scr-dch,#scr-dpa,#scr-chi,#scr-vfh,#scr-vcr,#scr-vej,#scr-vmi,#scr-ctv,#scr-tan,#scr-lsd,#scr-stv,#scr-pwy,#scr-pws,#scr-pwe,#scr-pwx,#scr-pwa,#scr-pwp,#scr-pwd,#scr-pwr,#scr-pwv,#scr-pwm,#scr-pwc,#scr-pwo,#scr-pwn,#scr-pwg,#scr-pwf,#scr-pwt,#scr-spg{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -3043,10 +3049,22 @@
   /* 8.3.9 {demontrer-colineaires} : les lignes du 8.2.13 (.dch-l), la case
      MathLive du réel à la taille des lettres des vecteurs, posée à la
      hauteur de la case du vecteur (sous sa flèche), et la conclusion du 8.3.8 */
-  #dcoHost math-field.dco-co{font-size:1.45rem;min-width:46px;min-height:46px;max-width:130px;padding:2px 6px;margin-top:10px;color:var(--blue-dark);vertical-align:middle}
+  #dcoHost math-field.dco-co,#dcrHost math-field.dco-co{font-size:1.45rem;min-width:46px;min-height:46px;max-width:130px;padding:2px 6px;margin-top:10px;color:var(--blue-dark);vertical-align:middle}
   .dco-concl{margin-top:4px}
   .dco-fig{max-width:420px}
-  @media(max-width:520px){ #dcoHost math-field.dco-co{min-width:40px;min-height:42px} }
+  @media(max-width:520px){ #dcoHost math-field.dco-co,#dcrHost math-field.dco-co{min-width:40px;min-height:42px} }
+  /* 8.3.10 {demontrer-egalite-reels} : les lignes du 8.3.9, la figure des
+     vecteurs de l'égalité au-dessus de la rédaction. Un réel écrit (le
+     membre de gauche, le membre de droite) est un signe .veg-eq collé à son
+     vecteur. */
+  .dcr-t{display:inline-flex;align-items:center;gap:3px}
+  .dcr-fig{display:flex;justify-content:center;margin:0 0 12px}
+  .dcr-svg{display:block;width:100%;max-width:420px;height:auto}
+  .dcr-svg .dcr-para{fill:none;stroke:var(--ink-soft);stroke-width:1.4;stroke-dasharray:6 5;opacity:.75}
+  .dcr-svg .dcr-f line{stroke:var(--blue-dark);stroke-width:2.6;stroke-linecap:round}
+  .dcr-svg .dcr-f polygon{fill:var(--blue-dark)}
+  .dcr-svg .dcr-pt{fill:var(--ink)}
+  .dcr-svg .dcr-nom{font-family:"Fredoka",sans-serif;font-weight:600;font-size:19px;fill:var(--ink)}
   @media(max-width:520px){ .kss-l .itv-sel.kss-sel{min-width:150px} .kph-l .kph-rep{margin-left:0} .veg-in.kmi-co{width:64px} }
   @media(max-width:520px){ .kv-l{padding:8px 10px;gap:6px 8px;font-size:1.15rem} .kco-l .kco-rep{margin-left:0} }
   .tvx-svg #tvxVif,.tvx-svg #tvxFl,.tvx-svg #tvxCorr,.tvx-svg #tvxDonnes{pointer-events:none}
@@ -4611,6 +4629,38 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   body.halloween .pyn-fig,body.halloween .pyi-fig,body.halloween .pii-fig,body.halloween .pia-fig,body.halloween .pis-fig,body.halloween .pmy-fig,body.halloween .prc-fig,body.halloween .pkg-fig,body.halloween .pz-fig{flex-wrap:wrap;align-items:center;gap:6px 18px}
   @media print{ .hw-serpent{display:none} }
 </style>
+<style id="embellir">
+  /* ---------- Embellissements sans poids (octobre 2026) ----------
+     Rien ici ne se télécharge : quelques règles, intégrées au navigateur.
+     1. Du portail (site-maths) aux exercices, les deux pages se fondent l'une
+        dans l'autre au lieu de se remplacer d'un coup. Même origine
+        (turquet78.github.io), donc les deux pages s'y prêtent ; un navigateur
+        qui ne le connaît pas change de page comme avant.
+     2. Un sans-faute fait tomber quelques confettis sur l'écran des résultats
+        (posés par #embellir-js, en fin de fichier). Ils ne captent aucun clic.
+     Les élèves qui ont demandé « moins d'animations » n'ont ni l'un ni l'autre. */
+  @view-transition{navigation:auto}
+  @media (prefers-reduced-motion:reduce){@view-transition{navigation:none}}
+  .confettis{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:2147483000}
+  .confettis span{position:absolute;top:-18px;left:var(--x);width:8px;height:13px;border-radius:2px;background:var(--c);
+    animation:confetti var(--d) cubic-bezier(.2,.55,.45,1) var(--t) forwards}
+  @keyframes confetti{to{transform:translate(var(--dx),110vh) rotate(var(--r))}}
+</style>
+<script id="embellir-garde">
+/* Un fondu entre deux pages peut être ABANDONNÉ par le navigateur : la page
+   d'arrivée ne s'y prête pas (prof.html avant octobre 2026), ou une seconde
+   navigation coupe la première. Il rejette alors ses promesses, et personne
+   ne les attendait : une « erreur » « Transition was skipped » qui ne casse
+   rien, mais que le banc navigateur relève — au hasard du minutage (verte en
+   local, rouge dans l'action, sur l'aller-retour vers la page d'aiguillage).
+   On les attrape ici, dans l'en-tête : « pagereveal » part avant le premier
+   rendu, avant la fin d'une page de plusieurs mégaoctets. */
+(function(){
+  function taire(e){ var t=e && e.viewTransition; if(!t) return;
+    ['ready','finished','updateCallbackDone'].forEach(function(k){ if(t[k] && t[k].catch) t[k].catch(function(){}); }); }
+  addEventListener('pageswap', taire); addEventListener('pagereveal', taire);
+})();
+</script>
 </head>
 
 <body>
@@ -8166,6 +8216,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- VECTEURS COLINÉAIRES : DÉMONTRER UNE ÉGALITÉ AVEC DES RÉELS (8.3.10) -->
+  <section class="screen" id="scr-dcr">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="dcrModeTag"></span><span class="q-idx" id="dcrIdx">Démonstration 1 / 4</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="dcrLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="enonce" id="dcrInstr"></p>
+      <div id="dcrHost" style="width:100%"></div>
+      <div class="mp-feedback" id="dcrFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center">
+        <span id="dcrActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkDcr()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- VECTEURS COLINÉAIRES : DÉMONTRER UN PARALLÉLISME AVEC LES VECTEURS (8.3.8) -->
   <section class="screen" id="scr-kmi">
     <div class="test-top">
@@ -8604,7 +8670,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=596;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=597;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9459,6 +9525,7 @@ const TESTS={
   'phrase-relation-colineaire': { name:'Associer une \u00e9galit\u00e9 de vecteurs, un dessin et une phrase', icon:'\ud83d\udd17', desc:'\u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb, \u00ab\u00a0M est sur [AB] et AM est le tiers de AB\u00a0\u00bb\u2026\u00a0: question 1, relie chaque \u00e9galit\u00e9 AM = kAB \u00e0 son dessin sur une droite\u00a0; question 2, chaque phrase au cas (l\u2019\u00e9galit\u00e9 et son dessin) qui la traduit. Un cas est de trop.', start:()=>startKph() },
   'milieux-parallele-vecteurs': { name:'D\u00e9montrer un parall\u00e9lisme avec les vecteurs', icon:'\u2225', desc:'Dans un triangle ABC, I et J sont les milieux de [AB] et [AC], puis AI = kAB et AJ = kAC (k = \u2153, \u00bc, \u00be, \u2155, \u2156\u2026)\u00a0: sur le mod\u00e8le d\u2019un exemple r\u00e9solu, compl\u00e8te la d\u00e9monstration \u2014 Chasles, le r\u00e9el en facteur, Chasles \u2014 pour prouver que (IJ) et (BC) sont parall\u00e8les.', start:()=>startKmi() },
   'demontrer-colineaires': { name:'D\u00e9montrer un parall\u00e9lisme, \u00e9tape par \u00e9tape', icon:'\u270d\ufe0f', desc:'Une d\u00e9monstration \u00e0 trous avec des r\u00e9els\u00a0: Chasles, les \u00e9galit\u00e9s de l\u2019\u00e9nonc\u00e9, le r\u00e9el en facteur \u2014 et pour chaque ligne sa justification \u2014 jusqu\u2019\u00e0 DE = kBC\u00a0: les vecteurs sont colin\u00e9aires, donc les droites sont parall\u00e8les.', start:()=>startDco() },
+  'demontrer-egalite-reels': { name:'D\u00e9montrer une \u00e9galit\u00e9 avec des r\u00e9els', icon:'\u270d\ufe0f', desc:'Une d\u00e9monstration \u00e0 trous, figure \u00e0 l\u2019appui\u00a0: 3AB \u2212 2CB = AB + 2AC\u2026 \u00c9cris les r\u00e9els et les vecteurs de chaque ligne, puis choisis sa justification \u2014 opposé, réel en facteur, Chasles\u2026', start:()=>startDcr() },
   'chasles-inserer-point': { name:'Chasles\u00a0: ins\u00e9rer un point', icon:'\ud83d\udd00', desc:'Le sens inverse de la relation de Chasles\u00a0: d\u00e9compose un vecteur en ins\u00e9rant un point \u2014 AC = A\u2026 + \u2026C, AC = \u2026B + B\u2026, AB = A\u2026 + \u2026 + \u2026B \u2014, avec ou sans figure. Toute \u00e9galit\u00e9 juste est accept\u00e9e.', start:()=>startChi() },
   'milieu-vecteurs-egaux': { name:'Milieux et vecteurs \u00e9gaux', icon:'\ud83d\udccd', desc:'Un triangle et les milieux de ses c\u00f4t\u00e9s\u00a0: traduis \u00ab\u00a0I est le milieu de [AB]\u00a0\u00bb par une \u00e9galit\u00e9 de vecteurs, puis retrouve tous les vecteurs \u00e9gaux dans le triangle des milieux.', start:()=>startVmi() },
   'translation-pavage': { name:'L\u2019image d\u2019un triangle dans un pavage', icon:'\ud83d\udd3a', desc:'Un pavage de triangles num\u00e9rot\u00e9s\u00a0: trouve l\u2019image d\u2019un triangle par une translation, ou le vecteur de la translation qui envoie un triangle sur un autre.', start:()=>startTpv() },
@@ -9714,7 +9781,7 @@ const THEMES=[
       { num:2, nom:'Somme de vecteurs',  ids:['somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','somme-vecteurs-repere','chasles-alignes','chasles-sans-figure','point-somme-vecteurs','point-somme-difference','somme-vecteurs-libre','chasles-inserer-point','demontrer-parallelogramme','demontrer-chasles','lire-somme-dessin','somme-trois-vecteurs','translations-successives','regle-parallelogramme'] },
       /* « Fiche 1 : vecteurs colinéaires » (demande de Turquet, octobre 2026) :
          l'exercice 1, l'exemple 1, l'exercice 2, l'exercice 3 */
-      { num:3, nom:'Vecteurs colinéaires', ids:['construire-multiple-vecteur','identifier-multiple-vecteur','identifier-multiple-non-entier','vecteurs-colineaires-figure','colineaires-sens-longueur','placer-point-colineaire','phrase-relation-colineaire','milieux-parallele-vecteurs','demontrer-colineaires'] }
+      { num:3, nom:'Vecteurs colinéaires', ids:['construire-multiple-vecteur','identifier-multiple-vecteur','identifier-multiple-non-entier','vecteurs-colineaires-figure','colineaires-sens-longueur','placer-point-colineaire','phrase-relation-colineaire','milieux-parallele-vecteurs','demontrer-colineaires','demontrer-egalite-reels'] }
   ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
@@ -9911,6 +9978,7 @@ function liveCheckCurrent(){
   else if(k==='lsd') checkLsdAnswer(true);
   else if(k==='dch') checkDchAnswer(true);
   else if(k==='dco') checkDco(true);
+  else if(k==='dcr') checkDcr(true);
   else if(k==='dpa') checkDpaAnswer(true);
   else if(k==='chi') checkChiAnswer(true);
   else if(k==='vfh') checkVfhAnswer(true);
@@ -10820,6 +10888,7 @@ function conseilPaire(){
   else if(test.kind==='kph' && q) b=ctxKph(q);
   else if(test.kind==='kmi' && q) b=ctxKmi(q);
   else if(test.kind==='dco' && q) b=ctxDco(q);
+  else if(test.kind==='dcr' && q) b=ctxDcr(q);
   else if(test.kind==='rvf' && q) b=ctxRvf(q);
   else if(test.kind==='asx' && q) b=ctxAsx(q);
   else if(test.kind==='vgt' && q) b=ctxVgt(q);
@@ -11296,6 +11365,7 @@ const QIA_SUGG={
   kpl:["Comment placer M tel que CM = \u2154AB\u00a0?","Que change le signe moins\u00a0?","De quel point faut-il partir\u00a0?","Pourquoi (CM) est-elle parall\u00e8le \u00e0 (AB)\u00a0?"],
   kph:["Comment traduire \u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb avec des vecteurs\u00a0?","Comment savoir si k est positif ou n\u00e9gatif\u00a0?","Que veut dire AM = \u2212AB\u00a0?","Comment trouver la valeur de k\u00a0?"],
   kmi:["Pourquoi passer par le point A\u00a0?","Comment \u00e9crire IA avec AB\u00a0?","Comment mettre un r\u00e9el en facteur dans une somme de vecteurs\u00a0?","Pourquoi des vecteurs colin\u00e9aires donnent-ils des droites parall\u00e8les\u00a0?"],
+  dcr:["Comment transformer \u2212 2CB en une somme\u00a0?","Pourquoi \u00e9crire 3AB = AB + 2AB\u00a0?","Quand peut-on mettre un r\u00e9el en facteur\u00a0?","Comment savoir que deux vecteurs s\u2019encha\u00eenent pour Chasles\u00a0?"],
   dco:["Par quel point faut-il passer avec Chasles\u00a0?","Comment \u00e9crire DA avec l\u2019\u00e9galit\u00e9 AD = 2AB\u00a0?","Quand peut-on mettre un r\u00e9el en facteur\u00a0?","Pourquoi des vecteurs colin\u00e9aires donnent-ils des droites parall\u00e8les\u00a0?"],
   kco:["Qu\u2019est-ce que deux vecteurs colin\u00e9aires\u00a0?","Comment savoir si deux vecteurs sont colin\u00e9aires sur un quadrillage\u00a0?","Comment trouver le r\u00e9el k\u00a0?","Deux vecteurs de sens contraires peuvent-ils \u00eatre colin\u00e9aires\u00a0?","Pourquoi des fl\u00e8ches presque parall\u00e8les ne suffisent-elles pas\u00a0?"],
   tvx:["Comment savoir si deux vecteurs sont \u00e9gaux\u00a0?","Comment compter le chemin du vecteur u sur le quadrillage\u00a0?","Est-ce que je peux commencer ma fl\u00e8che n\u2019importe o\u00f9\u00a0?","Pourquoi ma fl\u00e8che \u00e0 l\u2019envers est-elle fausse\u00a0?","Comment d\u00e9placer le d\u00e9part de ma fl\u00e8che\u00a0?"],
@@ -12790,6 +12860,16 @@ const RAP_CHI=`<b>Insérer un point : la relation de Chasles à l'envers</b><br>
 <b>④ Deux points</b> : <span class="vgt-vec">AB</span> = <span class="vgt-vec">AM</span> + <span class="vgt-vec">MN</span> + <span class="vgt-vec">NB</span> — chaque vecteur part là où s'arrête le précédent.<br>
 <b>⑤ Sur une figure</b>, un vecteur peut aussi se remplacer par un vecteur ÉGAL : dans un parallélogramme ABCD de centre E, <span class="vgt-vec">AB</span> = <span class="vgt-vec">AE</span> + <span class="vgt-vec">EB</span>, mais aussi <span class="vgt-vec">DE</span> + <span class="vgt-vec">EC</span>, puisque <span class="vgt-vec">DC</span> = <span class="vgt-vec">AB</span>.`;
 
+/* 8.3.10 {demontrer-egalite-reels} */
+const RAP_DCR=`<b>Démontrer une égalité de vecteurs avec des réels</b><br>
+On part du membre de gauche et on le transforme, ligne après ligne, jusqu'au membre de droite. Chaque ligne a sa <b>justification</b> :<br>
+<b>① Soustraire un vecteur, c'est ajouter son opposé</b> : 3<span class="vgt-vec">AB</span> − 2<span class="vgt-vec">CB</span> = 3<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> — le réel reste, le vecteur change de sens. Dans une ligne, on écrit les réels positifs.<br>
+<b>② On écrit un réel comme une somme</b> : 3<span class="vgt-vec">AB</span> = <span class="vgt-vec">AB</span> + 2<span class="vgt-vec">AB</span>, devant le même vecteur ; et à l'inverse, <b>on additionne les réels devant un même vecteur</b> : <span class="vgt-vec">AC</span> + 2<span class="vgt-vec">AC</span> = 3<span class="vgt-vec">AC</span>.<br>
+<b>③ On met le réel en facteur</b> : 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> = 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) ; et à l'inverse, <b>on développe</b> : 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) = 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span>.<br>
+<b>④ Relation de Chasles</b> : <span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span> = <span class="vgt-vec">AC</span>, même entre parenthèses : 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) = 2<span class="vgt-vec">AC</span>.<br>
+<b>⑤ On change l'ordre de la somme</b> pour que les vecteurs s'enchaînent : 2<span class="vgt-vec">AB</span> + <span class="vgt-vec">CA</span> + <span class="vgt-vec">AB</span>, puis <span class="vgt-vec">CA</span> + <span class="vgt-vec">AB</span> = <span class="vgt-vec">CB</span>.<br>
+<b>⑥ Dans un parallélogramme ABCD</b> : <span class="vgt-vec">AB</span> = <span class="vgt-vec">DC</span> et <span class="vgt-vec">AD</span> = <span class="vgt-vec">BC</span> — on remplace un vecteur par un vecteur égal.`;
+
 /* 8.3.9 {demontrer-colineaires} */
 const RAP_DCO=`<b>Démontrer que deux droites sont parallèles avec les vecteurs</b><br>
 On part d'un vecteur, <span class="vgt-vec">DE</span>, et on le transforme ligne après ligne jusqu'à un réel fois <span class="vgt-vec">BC</span>. Chaque ligne a sa <b>justification</b> :<br>
@@ -12946,7 +13026,7 @@ const RAP_SPG=`<b>La règle du parallélogramme</b><br>
 <b>③ La somme est la diagonale issue de A</b> : <span class="vec"><i>u</i></span> + <span class="vec"><i>v</i></span> = <span class="vgt-vec">AD</span>. C'est la même chose que mettre les vecteurs bout à bout : <span class="vgt-vec">AB</span> + <span class="vgt-vec">BD</span> = <span class="vgt-vec">AD</span> (Chasles).<br>
 <b>④ Attention à l'autre diagonale</b> : <span class="vgt-vec">BC</span> = <span class="vec"><i>v</i></span> − <span class="vec"><i>u</i></span>. Elle relie les extrémités des deux vecteurs, pas leur origine commune.`;
 
-const RAPPELS={ dco:RAP_DCO, kss:RAP_KSS, kpl:RAP_KPL, kph:RAP_KPH, kmi:RAP_KMI, kvi:RAP_KVI, kco:RAP_KCO, spg:RAP_SPG, stv:RAP_STV, dch:RAP_DCH, lsd:RAP_LSD, tan:RAP_TAN, vmi:RAP_VMI, chi:RAP_CHI, vfh:RAP_VFH, vcr:RAP_VCR, vej:RAP_VEJ, tpv:RAP_TPV, dpa:RAP_DPA, veg:RAP_VEG, vep:RAP_VEP, svc:RAP_SVC, cps:RAP_CPS, tcp:RAP_TCP, tvx:RAP_TVX, svr:RAP_SVR, cvp:RAP_CVP, chs:RAP_CHS, ctv:RAP_CTV, csp:RAP_CSP, chl:RAP_CHL, cha:RAP_CHA, pgc:RAP_PGC, pwy:RAP_PWY, pws:RAP_PWS, pwe:RAP_PWE, pwx:RAP_PWX, pwa:RAP_PWA, pwp:RAP_PWP, pwd:RAP_PWD, pwr:RAP_PWR, pwv:RAP_PWV, pwm:RAP_PWM, pwc:RAP_PWC, pwo:RAP_PWO, pwn:RAP_PWN, pwg:RAP_PWG, pwf:RAP_PWF, pwt:RAP_PWT, pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
+const RAPPELS={ dcr:RAP_DCR, dco:RAP_DCO, kss:RAP_KSS, kpl:RAP_KPL, kph:RAP_KPH, kmi:RAP_KMI, kvi:RAP_KVI, kco:RAP_KCO, spg:RAP_SPG, stv:RAP_STV, dch:RAP_DCH, lsd:RAP_LSD, tan:RAP_TAN, vmi:RAP_VMI, chi:RAP_CHI, vfh:RAP_VFH, vcr:RAP_VCR, vej:RAP_VEJ, tpv:RAP_TPV, dpa:RAP_DPA, veg:RAP_VEG, vep:RAP_VEP, svc:RAP_SVC, cps:RAP_CPS, tcp:RAP_TCP, tvx:RAP_TVX, svr:RAP_SVR, cvp:RAP_CVP, chs:RAP_CHS, ctv:RAP_CTV, csp:RAP_CSP, chl:RAP_CHL, cha:RAP_CHA, pgc:RAP_PGC, pwy:RAP_PWY, pws:RAP_PWS, pwe:RAP_PWE, pwx:RAP_PWX, pwa:RAP_PWA, pwp:RAP_PWP, pwd:RAP_PWD, pwr:RAP_PWR, pwv:RAP_PWV, pwm:RAP_PWM, pwc:RAP_PWC, pwo:RAP_PWO, pwn:RAP_PWN, pwg:RAP_PWG, pwf:RAP_PWF, pwt:RAP_PWT, pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
   pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, trl:RAP_TRL, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, vgt:RAP_VGT, cit:RAP_CIT, cvl:RAP_CVL, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, dvl:RAP_DVL, dvo:RAP_DVO, dvd:RAP_DVD, dvn:RAP_DVN, dvr:RAP_DVR, vfl:RAP_VFL, dvm:RAP_DVM, dvs:RAP_DVS, vec:RAP_VEC, vtr:RAP_VTR, tdp:RAP_TDP, tdl:RAP_TDL, tdc:RAP_TDC, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pfr:RAP_PFR, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, pfo:RAP_PFO, prc:RAP_PRC, pcf:RAP_PCF, pkg:RAP_PKG, pcz:RAP_PCZ, pte:RAP_PTE, pfl:RAP_PFL, pqc:RAP_PQC, ppr:RAP_PPR, pod:RAP_POD, prd:RAP_PRD, pmo:RAP_PMO, pfx:RAP_PFX, pfn:RAP_PFN, pfk:RAP_PFK, pof:RAP_POF, pxy:RAP_PXY, pmt:RAP_PMT, ptm:RAP_PTM, pgt:RAP_PGT, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pfe:RAP_PFE, pbl:RAP_PBL, pmn:RAP_PMN, pfv:RAP_PFV, ptds:RAP_PTDS, pfd:RAP_PFD, pfc:RAP_PFC, pfq:RAP_PFQ, pfi:RAP_PFI, plo:RAP_PLO, pci:RAP_PCI, pce:RAP_PCE, psm:RAP_PSM, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
 const RAPPELS_ID={ 'construire-multiple-vecteur':RAP_KVX, 'tracer-vecteurs-opposes':RAP_TVO, 'python-input-float':RAP_PIF, 'python-for-moyenne-notes':RAP_PFM, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'pourcentages-problemes-sans-aide':RAP_PPS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
@@ -13226,7 +13306,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    que 3² = 9 et 4² = 16.
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
-const TABLES_SANS=['demontrer-colineaires','vecteurs-criteres','vecteurs-egaux-justifier','construire-multiple-vecteur','identifier-multiple-vecteur','identifier-multiple-non-entier','vecteurs-colineaires-figure','colineaires-sens-longueur','placer-point-colineaire','phrase-relation-colineaire','milieux-parallele-vecteurs','regle-parallelogramme','translations-successives','somme-trois-vecteurs','demontrer-chasles','lire-somme-dessin','translation-antecedent','milieu-vecteurs-egaux','demontrer-parallelogramme','chasles-inserer-point','vrai-faux-vecteurs','translation-pavage','somme-vecteurs-libre','tracer-vecteurs-egaux','tracer-vecteurs-opposes','point-somme-difference','point-somme-vecteurs','chasles-sans-figure','somme-vecteurs-repere','somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','chasles-alignes','translation-quadrillage','egalite-vectorielle-point','vecteurs-egaux','vecteurs-egaux-tableau','python-for-images-entiers','python-if-plus-grand-trois','python-pile-face','python-if-location','python-if-cinema','python-if-plus-grand','python-if-else','python-for-couples','python-samoussa','python-tables-multiplication','python-for-table','python-for-images','python-for-multiples','python-for-moyenne-notes','python-trois-des','python-for-depart-fin','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-if-frais-port','python-input-prix','python-input-concat','python-input-erreur-type','python-input-int-float','python-input-conversion','python-input-predire','python-input-ordre','python-input-arrondi','python-input-monnaie','python-input-image','python-texte-nombre','python-egal-affectation','python-division-entiere','python-arrondir','python-choisir-programme','python-ordre-lignes','python-variable-inconnue','python-debogage','python-formule','python-traduire-algo','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
+const TABLES_SANS=['demontrer-egalite-reels','demontrer-colineaires','vecteurs-criteres','vecteurs-egaux-justifier','construire-multiple-vecteur','identifier-multiple-vecteur','identifier-multiple-non-entier','vecteurs-colineaires-figure','colineaires-sens-longueur','placer-point-colineaire','phrase-relation-colineaire','milieux-parallele-vecteurs','regle-parallelogramme','translations-successives','somme-trois-vecteurs','demontrer-chasles','lire-somme-dessin','translation-antecedent','milieu-vecteurs-egaux','demontrer-parallelogramme','chasles-inserer-point','vrai-faux-vecteurs','translation-pavage','somme-vecteurs-libre','tracer-vecteurs-egaux','tracer-vecteurs-opposes','point-somme-difference','point-somme-vecteurs','chasles-sans-figure','somme-vecteurs-repere','somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','chasles-alignes','translation-quadrillage','egalite-vectorielle-point','vecteurs-egaux','vecteurs-egaux-tableau','python-for-images-entiers','python-if-plus-grand-trois','python-pile-face','python-if-location','python-if-cinema','python-if-plus-grand','python-if-else','python-for-couples','python-samoussa','python-tables-multiplication','python-for-table','python-for-images','python-for-multiples','python-for-moyenne-notes','python-trois-des','python-for-depart-fin','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-if-frais-port','python-input-prix','python-input-concat','python-input-erreur-type','python-input-int-float','python-input-conversion','python-input-predire','python-input-ordre','python-input-arrondi','python-input-monnaie','python-input-image','python-texte-nombre','python-egal-affectation','python-division-entiere','python-arrondir','python-choisir-programme','python-ordre-lignes','python-variable-inconnue','python-debogage','python-formule','python-traduire-algo','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
                    'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','translation-grille','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi','tableau-proportions-trois-colonnes','tableau-proportions-trois-colonnes-directes','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','parallelogramme-point','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
@@ -13738,7 +13818,7 @@ function retourModes(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={dco:['dco',renderDco], kss:['kss',renderKss], kpl:['kpl',renderKpl], kph:['kph',renderKph], kmi:['kmi',renderKmi], kvi:['kvi',renderKvi], kco:['kco',renderKco], spg:['spg',renderSpg], stv:['stv',renderStv], dch:['dch',renderDchTest], lsd:['lsd',renderLsdTest], tan:['tan',renderTan], vmi:['vmi',renderVmiTest], chi:['chi',renderChiTest], vfh:['vfh',renderVfhTest], vcr:['vcr',renderVcrTest], vej:['vej',renderVejTest], tpv:['tpv',renderTpvTest], dpa:['dpa',renderDpaTest], veg:['veg',renderVegTest], cps:['cps',renderCps], tcp:['tcp',renderTcp], tvx:['tvx',renderTvx], chs:['chs',renderChsTest], ctv:['ctv',renderCtvTest], csp:['csp',renderCspTest], chl:['chl',renderChlTest], cha:['cha',renderChaTest], lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], trl:['trl',renderTrl], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], spr:['spr',renderSpr], ppb:['ppb',renderPpb], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], vgt:['vgt',renderVgtTest], cit:['cit',renderCitTest], cvl:['cvl',renderCvlTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], dvl:['dvl',renderDvlTest], dvo:['dvo',renderDvlTest], dvd:['dvd',renderDvdTest], dvm:['dvm',renderDvmTest], dvs:['dvs',renderDvmTest], dvn:['dvn',renderDvdTest], dvr:['dvr',renderDvrTest], vfl:['vfl',renderVflTest], vec:['vec',renderVec], vep:['vep',renderVep], svc:['svc',renderSvc], cvp:['cvp',renderCvp], svr:['svr',renderSvr], vtr:['vtr',renderVtrTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], tdc:['tdc',renderTdcTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pch:['pch',renderPCH], pcl:['pcl',renderPCL], pfr:['pfr',renderPFR], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], ptr:['ptr',renderPTR], pfo:['pfo',renderPFO], pgc:['pgc',renderPGC], prc:['prc',renderPRC], pcf:['pcf',renderPCF], pkg:['pkg',renderPKG], pcz:['pcz',renderPCZ], pte:['pte',renderPTE], pfl:['pfl',renderPFL], pqc:['pqc',renderPQC], ppr:['ppr',renderPPR], pod:['pod',renderPOD], prd:['prd',renderPRD], pmo:['pmo',renderPMO], pfx:['pfx',renderPFX], pfn:['pfn',renderPFN], pfk:['pfk',renderPFK], pof:['pof',renderPOF], pxy:['pxy',renderPXY], pmt:['pmt',renderPMT], ptm:['ptm',renderPTM], pgt:['pgt',renderPGT], phm:['phm',renderPHM], pvo:['pvo',renderPVO], pdu:['pdu',renderPDU], pfe:['pfe',renderPFE], pbl:['pbl',renderPBL], pmn:['pmn',renderPMN], pfv:['pfv',renderPFV], ptds:['ptds',renderPTDS], pfd:['pfd',renderPFD], pfc:['pfc',renderPFC], pfq:['pfq',renderPFQ], pfi:['pfi',renderPFI], plo:['plo',renderPLO], pci:['pci',renderPCI], pce:['pce',renderPCE], psm:['psm',renderPSM], prl:['prl',renderPRL], ptt:['ptt',renderPTT], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH], pwy:['pwy',renderPWY], pws:['pws',renderPWS], pwe:['pwe',renderPWE], pwx:['pwx',renderPWX], pwa:['pwa',renderPWA], pwp:['pwp',renderPWP], pwd:['pwd',renderPWD], pwr:['pwr',renderPWR], pwv:['pwv',renderPWV], pwm:['pwm',renderPWM], pwc:['pwc',renderPWC], pwo:['pwo',renderPWO], pwn:['pwn',renderPWN], pwg:['pwg',renderPWG], pwf:['pwf',renderPWF], pwt:['pwt',renderPWT]};
+  const DISPATCH={dcr:['dcr',renderDcr], dco:['dco',renderDco], kss:['kss',renderKss], kpl:['kpl',renderKpl], kph:['kph',renderKph], kmi:['kmi',renderKmi], kvi:['kvi',renderKvi], kco:['kco',renderKco], spg:['spg',renderSpg], stv:['stv',renderStv], dch:['dch',renderDchTest], lsd:['lsd',renderLsdTest], tan:['tan',renderTan], vmi:['vmi',renderVmiTest], chi:['chi',renderChiTest], vfh:['vfh',renderVfhTest], vcr:['vcr',renderVcrTest], vej:['vej',renderVejTest], tpv:['tpv',renderTpvTest], dpa:['dpa',renderDpaTest], veg:['veg',renderVegTest], cps:['cps',renderCps], tcp:['tcp',renderTcp], tvx:['tvx',renderTvx], chs:['chs',renderChsTest], ctv:['ctv',renderCtvTest], csp:['csp',renderCspTest], chl:['chl',renderChlTest], cha:['cha',renderChaTest], lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], trl:['trl',renderTrl], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], spr:['spr',renderSpr], ppb:['ppb',renderPpb], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], vgt:['vgt',renderVgtTest], cit:['cit',renderCitTest], cvl:['cvl',renderCvlTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], dvl:['dvl',renderDvlTest], dvo:['dvo',renderDvlTest], dvd:['dvd',renderDvdTest], dvm:['dvm',renderDvmTest], dvs:['dvs',renderDvmTest], dvn:['dvn',renderDvdTest], dvr:['dvr',renderDvrTest], vfl:['vfl',renderVflTest], vec:['vec',renderVec], vep:['vep',renderVep], svc:['svc',renderSvc], cvp:['cvp',renderCvp], svr:['svr',renderSvr], vtr:['vtr',renderVtrTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], tdc:['tdc',renderTdcTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pch:['pch',renderPCH], pcl:['pcl',renderPCL], pfr:['pfr',renderPFR], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], ptr:['ptr',renderPTR], pfo:['pfo',renderPFO], pgc:['pgc',renderPGC], prc:['prc',renderPRC], pcf:['pcf',renderPCF], pkg:['pkg',renderPKG], pcz:['pcz',renderPCZ], pte:['pte',renderPTE], pfl:['pfl',renderPFL], pqc:['pqc',renderPQC], ppr:['ppr',renderPPR], pod:['pod',renderPOD], prd:['prd',renderPRD], pmo:['pmo',renderPMO], pfx:['pfx',renderPFX], pfn:['pfn',renderPFN], pfk:['pfk',renderPFK], pof:['pof',renderPOF], pxy:['pxy',renderPXY], pmt:['pmt',renderPMT], ptm:['ptm',renderPTM], pgt:['pgt',renderPGT], phm:['phm',renderPHM], pvo:['pvo',renderPVO], pdu:['pdu',renderPDU], pfe:['pfe',renderPFE], pbl:['pbl',renderPBL], pmn:['pmn',renderPMN], pfv:['pfv',renderPFV], ptds:['ptds',renderPTDS], pfd:['pfd',renderPFD], pfc:['pfc',renderPFC], pfq:['pfq',renderPFQ], pfi:['pfi',renderPFI], plo:['plo',renderPLO], pci:['pci',renderPCI], pce:['pce',renderPCE], psm:['psm',renderPSM], prl:['prl',renderPRL], ptt:['ptt',renderPTT], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH], pwy:['pwy',renderPWY], pws:['pws',renderPWS], pwe:['pwe',renderPWE], pwx:['pwx',renderPWX], pwa:['pwa',renderPWA], pwp:['pwp',renderPWP], pwd:['pwd',renderPWD], pwr:['pwr',renderPWR], pwv:['pwv',renderPWV], pwm:['pwm',renderPWM], pwc:['pwc',renderPWC], pwo:['pwo',renderPWO], pwn:['pwn',renderPWN], pwg:['pwg',renderPWG], pwf:['pwf',renderPWF], pwt:['pwt',renderPWT]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -13873,7 +13953,7 @@ function show(name){
   if(name!=='spr'){ try{ sprRestituer(); }catch(e){} }
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['dco','kss','kpl','kph','kmi','kvi','kco','spg','tcp','stv','dch','lsd','tan','vmi','chi','vfh','vcr','vej','tpv','dpa','cha','csp','chl','lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','trl','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','spr','ppb','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','vgt','cit','cvl','rgp','mrl','red','srl','rpd','dvl','dvo','dvd','dvn','dvr','vfl','dvm','dvs','vec','vep','svc','cvp','cps','tvx','svr','vtr','veg','chs','ctv','tdp','tdl','tdc','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pcl','pfr','pii','pia','pis','pmy','ptr','pfo','pgc','prc','pcf','pkg','pcz','pte','pfl','pqc','ppr','pod','prd','pmo','pfx','pfn','pfk','pof','pxy','pmt','ptm','pgt','phm','pvo','pdu','pfe','pbl','pmn','pfv','ptds','pfd','pfc','pfq','pfi','pci','pce','psm','plo','prl','ptt','pap','pvm','ppc','ppd','ppm','pev','pel','pph','pwy','pws','pwe','pwx','pwa','pwp','pwd','pwr','pwv','pwm','pwc','pwo','pwn','pwg','pwf','pwt'];
+  const testScreens=['dcr','dco','kss','kpl','kph','kmi','kvi','kco','spg','tcp','stv','dch','lsd','tan','vmi','chi','vfh','vcr','vej','tpv','dpa','cha','csp','chl','lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','trl','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','spr','ppb','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','vgt','cit','cvl','rgp','mrl','red','srl','rpd','dvl','dvo','dvd','dvn','dvr','vfl','dvm','dvs','vec','vep','svc','cvp','cps','tvx','svr','vtr','veg','chs','ctv','tdp','tdl','tdc','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pcl','pfr','pii','pia','pis','pmy','ptr','pfo','pgc','prc','pcf','pkg','pcz','pte','pfl','pqc','ppr','pod','prd','pmo','pfx','pfn','pfk','pof','pxy','pmt','ptm','pgt','phm','pvo','pdu','pfe','pbl','pmn','pfv','ptds','pfd','pfc','pfq','pfi','pci','pce','psm','plo','prl','ptt','pap','pvm','ppc','ppd','ppm','pev','pel','pph','pwy','pws','pwe','pwx','pwa','pwp','pwd','pwr','pwv','pwm','pwc','pwo','pwn','pwg','pwf','pwt'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -67525,6 +67605,527 @@ function ctxDco(q){
   return {nombre:'', contexte:c};
 }
 
+/* ===== 8.3.10 : DÉMONTRER UNE ÉGALITÉ AVEC DES RÉELS ========================
+   (identifiant « demontrer-egalite-reels », kind « dcr »). Demande de
+   Turquet, octobre 2026 : « créer un exercice comme le 8.2.13 mais avec en
+   plus, dans la formule à démontrer, des coefficients devant certains
+   vecteurs ; il faudra aussi présenter un dessin avec les vecteurs de
+   l'égalité à démontrer ». La mise en page du 8.2.13 ({demontrer-chasles}) :
+   on part du membre de gauche, chaque ligne a ses cases et sa justification
+   à choisir, la DERNIÈRE ligne est le membre de droite, déjà écrit — on sait
+   où l'on va. Les lignes sont celles du 8.3.9 ({demontrer-colineaires}) :
+   des TERMES « réel × vecteur » (dcoT, dcoG), dont la FORME ('v' un vecteur
+   seul, 'c' un réel et un vecteur, 'f' un réel en facteur de deux vecteurs)
+   donne les cases.
+
+   UNE DÉMONSTRATION EST UN PLAN (DCR_DEMOS), sur les lettres A, B, C (et D) :
+   g le membre de gauche, d le membre de droite, e les étapes — une
+   justification et, sauf la dernière, la forme de la ligne —, c la
+   rédaction du plan (la correction quand l'élève n'en a pas d'autre), para
+   quand ABCD est un parallélogramme. Dix plans ; le premier est l'exemple,
+   toujours en première page, avec ses lettres :
+     0 — 3AB⃗ − 2CB⃗ = AB⃗ + 2AC⃗ : 3AB⃗ + 2BC⃗ = AB⃗ + 2AB⃗ + 2BC⃗
+         = AB⃗ + 2(AB⃗ + BC⃗) = AB⃗ + 2AC⃗ ;
+     1 — 2AB⃗ + BC⃗ = AB⃗ + AC⃗ ;          2 — 3AB⃗ + 3BC⃗ = 3AC⃗ ;
+     3 — 2AB⃗ + 3BC⃗ = 2AC⃗ + BC⃗ ;        4 — 2AB⃗ + BC⃗ + CD⃗ = AB⃗ + AD⃗ ;
+     5 — 3AB⃗ − AC⃗ = 2AB⃗ + CB⃗ (il faut changer l'ordre) ;
+     6 — ABCD parallélogramme : 2AB⃗ + 2AD⃗ = 2AC⃗ ;
+     7 — ABCD parallélogramme : 2AB⃗ + BC⃗ = AC⃗ + DC⃗ ;
+     8 — 2(AB⃗ + BC⃗) = AB⃗ + AC⃗ + BC⃗ (on développe) ;
+     9 — AB⃗ + BC⃗ + 2AC⃗ = 3AC⃗ (on additionne les réels).
+
+   TOUTE ÉCRITURE JUSTE QUI SUIT LE PLAN EST ACCEPTÉE, comme aux 8.2.13 et
+   8.3.9 : dcrChaines() énumère les rédactions dont chaque ligne se tire de
+   la précédente par sa justification et a la forme demandée, et dont la
+   dernière étape mène au membre de droite (à l'ordre près). Une case est
+   juste s'il existe une rédaction complète qui la porte avec les cases
+   justes avant elle ; une étape vraie qui ne mène nulle part est fausse, et
+   le message le dit. Une justification est juste dès qu'elle explique le
+   passage de la ligne d'avant (corrigée) à la sienne. Les réels sont des
+   entiers, dans une case MathLive comme au 8.3.9 ; dans une ligne ils sont
+   POSITIFS : −2CB⃗ s'écrit 2BC⃗, et c'est la justification « soustraire un
+   vecteur, c'est ajouter son opposé ».
+
+   LE DESSIN (dcrSvg) : les points de l'énoncé et une flèche par vecteur de
+   l'égalité, sans son réel — 3AB⃗ se lit sur la flèche AB⃗ ; sur un
+   parallélogramme, ses côtés en pointillés. La forme se tire parmi quelques
+   gabarits (q.f), retournée ou non (q.m).
+
+   ON RANGE LE PLAN, LES LETTRES, LA TOURNURE ET LA FIGURE (t, n, v, f, m),
+   JAMAIS LES RÉPONSES : tout se recalcule. */
+const DCR_NB=4;   /* démonstrations par séance (réglage « Questions » d'un devoir) */
+const DCR_LETTRES='ABCDEFGHJKLMNPRSTU';   /* ni I, ni O, ni Q */
+const DCR_VERBES=['Montrer que','Démontrer que','Prouver que'];
+/* les justifications, dans l'ordre de la liste ; « pa » n'est proposée que
+   sur un parallélogramme, et porte son nom */
+const DCR_ORDRE=['ch','or','op','se','re','fa','dv','pa'];
+const DCR_JUST={
+  ch:'relation de Chasles',
+  or:'on change l’ordre de la somme',
+  op:'soustraire un vecteur, c’est ajouter son opposé',
+  se:'on écrit un réel comme une somme (3 = 2 + 1)',
+  re:'on additionne les réels devant un même vecteur',
+  fa:'on met le réel en facteur',
+  dv:'on développe : le réel multiplie chaque vecteur',
+  pa:'vecteurs égaux car ABCD est un parallélogramme'
+};
+function dcrT(n, v){ return dcoT([n,1], v); }
+function dcrG(n, a, b){ return dcoG([n,1], a, b); }
+const DCR_DEMOS=[
+  {g:[dcrT(3,'AB'),dcrT(-2,'CB')], d:[dcrT(1,'AB'),dcrT(2,'AC')],
+   e:[['op',['c','c']],['se',['v','c','c']],['fa',['v','f']],['ch']],
+   c:[[dcrT(3,'AB'),dcrT(2,'BC')],[dcrT(1,'AB'),dcrT(2,'AB'),dcrT(2,'BC')],[dcrT(1,'AB'),dcrG(2,'AB','BC')]]},
+  {g:[dcrT(2,'AB'),dcrT(1,'BC')], d:[dcrT(1,'AB'),dcrT(1,'AC')],
+   e:[['se',['v','v','v']],['ch']],
+   c:[[dcrT(1,'AB'),dcrT(1,'AB'),dcrT(1,'BC')]]},
+  {g:[dcrT(3,'AB'),dcrT(3,'BC')], d:[dcrT(3,'AC')],
+   e:[['fa',['f']],['ch']],
+   c:[[dcrG(3,'AB','BC')]]},
+  {g:[dcrT(2,'AB'),dcrT(3,'BC')], d:[dcrT(2,'AC'),dcrT(1,'BC')],
+   e:[['se',['c','c','v']],['fa',['f','v']],['ch']],
+   c:[[dcrT(2,'AB'),dcrT(2,'BC'),dcrT(1,'BC')],[dcrG(2,'AB','BC'),dcrT(1,'BC')]]},
+  {g:[dcrT(2,'AB'),dcrT(1,'BC'),dcrT(1,'CD')], d:[dcrT(1,'AB'),dcrT(1,'AD')],
+   e:[['se',['v','v','v','v']],['ch',['v','v','v']],['ch']],
+   c:[[dcrT(1,'AB'),dcrT(1,'AB'),dcrT(1,'BC'),dcrT(1,'CD')],[dcrT(1,'AB'),dcrT(1,'AC'),dcrT(1,'CD')]]},
+  {g:[dcrT(3,'AB'),dcrT(-1,'AC')], d:[dcrT(2,'AB'),dcrT(1,'CB')],
+   e:[['op',['c','v']],['se',['c','v','v']],['or',['c','v','v']],['ch']],
+   c:[[dcrT(3,'AB'),dcrT(1,'CA')],[dcrT(2,'AB'),dcrT(1,'AB'),dcrT(1,'CA')],[dcrT(2,'AB'),dcrT(1,'CA'),dcrT(1,'AB')]]},
+  {para:1, g:[dcrT(2,'AB'),dcrT(2,'AD')], d:[dcrT(2,'AC')],
+   e:[['pa',['c','c']],['fa',['f']],['ch']],
+   c:[[dcrT(2,'AB'),dcrT(2,'BC')],[dcrG(2,'AB','BC')]]},
+  {para:1, g:[dcrT(2,'AB'),dcrT(1,'BC')], d:[dcrT(1,'AC'),dcrT(1,'DC')],
+   e:[['se',['v','v','v']],['ch',['v','v']],['pa']],
+   c:[[dcrT(1,'AB'),dcrT(1,'AB'),dcrT(1,'BC')],[dcrT(1,'AB'),dcrT(1,'AC')]]},
+  {g:[dcrG(2,'AB','BC')], d:[dcrT(1,'AB'),dcrT(1,'AC'),dcrT(1,'BC')],
+   e:[['dv',['c','c']],['se',['v','v','v','v']],['ch']],
+   c:[[dcrT(2,'AB'),dcrT(2,'BC')],[dcrT(1,'AB'),dcrT(1,'AB'),dcrT(1,'BC'),dcrT(1,'BC')]]},
+  {g:[dcrT(1,'AB'),dcrT(1,'BC'),dcrT(2,'AC')], d:[dcrT(3,'AC')],
+   e:[['ch',['v','c']],['re']],
+   c:[[dcrT(1,'AC'),dcrT(2,'AC')]]}
+];
+/* les lettres d'un plan : celles qu'il écrit (un parallélogramme a les quatre) */
+function dcrPtsPlan(t){
+  const T=DCR_DEMOS[t];
+  if(T.para) return 'ABCD';
+  const s=JSON.stringify([T.g, T.d, T.c]);
+  return 'ABCD'.split('').filter(function(L){ return s.indexOf(L)>=0; }).join('');
+}
+function dcrR(q, s){ return s.split('').map(function(c){ return q.n['ABCD'.indexOf(c)]; }).join(''); }
+function dcrRT(q, t){ return t.g ? dcoG(t.c, dcrR(q, t.g[0]), dcrR(q, t.g[1])) : dcoT(t.c, dcrR(q, t.v)); }
+/* la démonstration, lettres posées */
+function dcrDemo(q){
+  const T=DCR_DEMOS[q.t], RL=function(l){ return l.map(function(t){ return dcrRT(q, t); }); };
+  return {t:q.t, para:T.para ? q.n : '', pts:q.n, g:RL(T.g), d:RL(T.d), e:T.e, c:T.c.map(RL)};
+}
+/* deux lignes égales à l'ordre près */
+function dcrMemes(a, b){ return a.length===b.length && a.map(dcoCle).sort().join(' ')===b.map(dcoCle).sort().join(' '); }
+/* les vecteurs égaux à X dans le parallélogramme : AB⃗ = DC⃗, AD⃗ = BC⃗, et leurs opposés */
+function dcrEgaux(D, X){
+  if(!D.para) return [];
+  const p=D.para, r=[];
+  [[p[0]+p[1], p[3]+p[2]], [p[0]+p[3], p[1]+p[2]]].forEach(function(c){
+    [c, [dcoOpp(c[0]), dcoOpp(c[1])]].forEach(function(e){ if(X===e[0]) r.push(e[1]); else if(X===e[1]) r.push(e[0]); });
+  });
+  return r;
+}
+/* toutes les lignes qu'UNE étape de justification K tire de la ligne l */
+function dcrSuites(D, l, K){
+  const out=[], vus={}, l0=dcoKey(l);
+  const push=function(r){ if(!r.length) return; const k=dcoKey(r); if(k!==l0 && !vus[k]){ vus[k]=1; out.push(r); } };
+  const parcours=function(f){
+    const rec=function(i, acc, ops){
+      if(i>=l.length){ if(ops) push(acc); return; }
+      rec(i+1, acc.concat([l[i]]), ops);
+      f(i).forEach(function(o){ rec(i+o.pas, acc.concat(o.par), ops+1); });
+    };
+    rec(0, [], 0);
+  };
+  const P=D.pts.split('');
+  if(K==='or'){
+    const perm=function(reste, acc){ if(!reste.length){ push(acc); return; }
+      reste.forEach(function(t, i){ perm(reste.slice(0,i).concat(reste.slice(i+1)), acc.concat([t])); }); };
+    perm(l, []);
+  }
+  else if(K==='ch') parcours(function(i){
+    const t=l[i], u=l[i+1], o=[];
+    if(t.g){ if(t.g[0][1]===t.g[1][0] && t.g[0][0]!==t.g[1][1]) o.push({pas:1, par:[dcoT(t.c, t.g[0][0]+t.g[1][1])]}); return o; }
+    if(!dcoEstUn(t.c)) return o;
+    const X=t.v[0], Y=t.v[1];
+    P.forEach(function(Z){ if(Z!==X && Z!==Y) o.push({pas:1, par:[dcoT(DCO_UN, X+Z), dcoT(DCO_UN, Z+Y)]}); });
+    if(u && !u.g && dcoEstUn(u.c) && u.v[0]===Y && u.v[1]!==X) o.push({pas:2, par:[dcoT(DCO_UN, X+u.v[1])]});
+    return o;
+  });
+  else if(K==='op') parcours(function(i){ const t=l[i];
+    return !t.g && t.c[0]<0 ? [{pas:1, par:[dcoT(dcoNeg(t.c), dcoOpp(t.v))]}] : []; });
+  else if(K==='se') parcours(function(i){ const t=l[i], r=[];
+    if(!t.g && t.c[1]===1 && t.c[0]>=2) for(let a=1;a<t.c[0];a++) r.push({pas:1, par:[dcoT([a,1], t.v), dcoT([t.c[0]-a,1], t.v)]});
+    return r; });
+  else if(K==='re') parcours(function(i){ const t=l[i], u=l[i+1];
+    return u && !t.g && !u.g && t.v===u.v && t.c[0]>0 && u.c[0]>0 ? [{pas:2, par:[dcoT(dcoAdd(t.c, u.c), t.v)]}] : []; });
+  else if(K==='fa') parcours(function(i){ const t=l[i], u=l[i+1];
+    return u && !t.g && !u.g && !dcoEstUn(t.c) && t.c[0]>0 && dcoMemeC(t.c, u.c) ? [{pas:2, par:[dcoG(t.c, t.v, u.v)]}] : []; });
+  else if(K==='dv') parcours(function(i){ const t=l[i];
+    return t.g ? [{pas:1, par:[dcoT(t.c, t.g[0]), dcoT(t.c, t.g[1])]}] : []; });
+  else if(K==='pa') parcours(function(i){ const t=l[i];
+    if(!t.g) return dcrEgaux(D, t.v).map(function(w){ return {pas:1, par:[dcoT(t.c, w)]}; });
+    const a=[t.g[0]].concat(dcrEgaux(D, t.g[0])), b=[t.g[1]].concat(dcrEgaux(D, t.g[1])), r=[];
+    a.forEach(function(x, i0){ b.forEach(function(y, i1){ if(i0 || i1) r.push({pas:1, par:[dcoG(t.c, x, y)]}); }); });
+    return r; });
+  return out;
+}
+/* la ligne a-t-elle la forme demandée par le plan ? les réels y sont positifs */
+function dcrForme(l, lay){
+  return l.length===lay.length && l.every(function(t, i){
+    return t.c[0]>0 && (lay[i]==='f' ? !!t.g : (!t.g && (lay[i]==='c' || dcoEstUn(t.c)))); });
+}
+/* la dernière étape mène-t-elle de l au membre de droite (à l'ordre près) ? */
+function dcrFinit(D, l, K){ return dcrSuites(D, l, K).some(function(r){ return dcrMemes(r, D.d); }); }
+/* toutes les rédactions qui suivent le plan, celle du plan d'abord ; une
+   fois par plan, sur ses propres lettres, puis renommées (la leçon du mémo
+   du 8.2.13 : un cache se borne par ce qui est fini) */
+const DCR_MEMO={};
+function dcrChaines(q){
+  if(!DCR_MEMO[q.t]){
+    const D=dcrDemo({t:q.t, n:dcrPtsPlan(q.t)}), E=D.e, last=E.length-1, res=[];
+    const rec=function(k, l, acc){
+      if(k===last){ if(dcrFinit(D, l, E[k][0])) res.push(acc.slice()); return; }
+      dcrSuites(D, l, E[k][0]).forEach(function(r){
+        if(!dcrForme(r, E[k][1])) return;
+        acc.push(r); rec(k+1, r, acc); acc.pop();
+      });
+    };
+    rec(0, D.g, []);
+    const ck=JSON.stringify(D.c.map(dcoKey));
+    res.sort(function(a, b){ return (JSON.stringify(b.map(dcoKey))===ck)-(JSON.stringify(a.map(dcoKey))===ck); });
+    DCR_MEMO[q.t]=res;
+  }
+  return DCR_MEMO[q.t].map(function(ch){ return ch.map(function(l){ return l.map(function(t){ return dcrRT(q, t); }); }); });
+}
+/* les points, en coordonnées libres (jamais montrées) : ce que VAUT une ligne */
+function dcrPoints(D){
+  const P={}, L=D.pts.split('');
+  P[L[0]]=[0,0]; P[L[1]]=[5,1]; P[L[2]]=[1.5,4];
+  if(L[3]) P[L[3]]=D.para ? [P[L[0]][0]+P[L[2]][0]-P[L[1]][0], P[L[0]][1]+P[L[2]][1]-P[L[1]][1]] : [6.2,4.9];
+  return P;
+}
+function dcrValeur(D, l){
+  const P=dcrPoints(D); let x=0, y=0;
+  const aj=function(c, v){ const k=c[0]/c[1]; x+=k*(P[v[1]][0]-P[v[0]][0]); y+=k*(P[v[1]][1]-P[v[0]][1]); };
+  l.forEach(function(t){ if(t.g) t.g.forEach(function(v){ aj(t.c, v); }); else aj(t.c, t.v); });
+  return [x, y];
+}
+function dcrEgales(D, a, b){ const u=dcrValeur(D, a), v=dcrValeur(D, b); return Math.abs(u[0]-v[0])<1e-9 && Math.abs(u[1]-v[1])<1e-9; }
+/* les justifications qui expliquent le passage de prev à cur (à l'ordre
+   près pour la dernière ligne, qui est le membre de droite) */
+function dcrExplique(D, prev, cur, fin){
+  const k=dcoKey(cur);
+  return DCR_ORDRE.filter(function(K){ return (K!=='pa' || D.para)
+    && dcrSuites(D, prev, K).some(function(r){ return fin ? dcrMemes(r, cur) : dcoKey(r)===k; }); });
+}
+/* les gabarits de la figure : trois points, quatre points, un parallélogramme */
+const DCR_FIG={
+  3:[[[0,0],[6,1],[3.4,4.6]], [[0,3.6],[5.4,0],[7,4.4]], [[0.6,0],[7,1.8],[1.8,4.8]]],
+  4:[[[0,0],[5.6,0.4],[7,4.2],[1.4,4.8]], [[0,1.4],[4.6,0],[7.6,3.6],[2.6,5]]],
+  p:[[[0,0],[5.6,0],[7.6,4],[2,4]], [[0,1],[5,0],[6.4,4],[1.4,5]]]
+};
+function dcrGabarits(q){ return DCR_FIG[DCR_DEMOS[q.t].para ? 'p' : q.n.length]; }
+function dcrGenQuestion(_, i){
+  /* la première page est l'exemple, avec ses lettres */
+  const t=i===0 ? 0 : Math.floor(Math.random()*DCR_DEMOS.length), nb=dcrPtsPlan(t).length;
+  let n=dcrPtsPlan(t);
+  if(i>0){ const pool=DCR_LETTRES.split(''), r=[];
+    while(r.length<nb) r.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+    n=r.join(''); }
+  const q={t:t, n:n, v:i===0 ? 0 : Math.floor(Math.random()*DCR_VERBES.length), f:0, m:0};
+  q.f=Math.floor(Math.random()*dcrGabarits(q).length); q.m=Math.random()<0.5 ? 1 : 0;
+  return q;
+}
+/* deux pages sont la même si leur plan l'est */
+function dcrBuildQuestions(){
+  return distinctes(dmNbQuestions(DCR_NB), dcrGenQuestion, function(q){ return q.t; });
+}
+/* les cases d'une démonstration, dans l'ordre de lecture : pour chaque ligne
+   écrite par l'élève, le réel puis le(s) vecteur(s) de chaque terme ; puis
+   la justification de chaque ligne, la dernière comprise */
+function dcrCases(q){
+  const cs=[], E=DCR_DEMOS[q.t].e, last=E.length-1;
+  E.forEach(function(e, k){
+    if(k<last) e[1].forEach(function(sp, i){
+      if(sp!=='v') cs.push({id:'dcr-k-'+k+'-'+i, k:k, i:i, t:'k'});
+      cs.push({id:'dcr-v-'+k+'-'+i+'-0', k:k, i:i, j:0, t:'v'});
+      if(sp==='f') cs.push({id:'dcr-v-'+k+'-'+i+'-1', k:k, i:i, j:1, t:'v'});
+    });
+    cs.push({id:'dcr-s-'+k, k:k, t:'j'});
+  });
+  return cs;
+}
+/* une ligne écrite en texte : 3AB − 2CB, 2(AB + BC) */
+function dcrTxt(l){
+  return l.map(function(t, i){ const n=t.c[0]<0, a=n ? dcoT(dcoNeg(t.c), t.v) : t;
+    if(t.g) a.g=t.g;
+    return (i ? (n ? ' − ' : ' + ') : (n ? '−' : ''))+dcoTerme(a); }).join('');
+}
+/* Le verdict de la page. Rend les cases dans l'ordre de lecture, la
+   rédaction retenue (C), les lignes de l'élève et la démonstration. */
+function dcrJuge(q){
+  const D=dcrDemo(q), E=D.e, last=E.length-1;
+  let ch=dcrChaines(q);
+  const cs=dcrCases(q), vs=[];
+  cs.forEach(function(c){
+    if(c.t!=='k' && c.t!=='v') return;
+    const el=$(c.id), brut=el ? String(el.value==null?'':el.value).trim() : '';
+    const lu=c.t==='k' ? dcoKvLit(brut) : dcoLit(D, brut);
+    const s={id:c.id, el:el, brut:brut, vide:brut==='', lu:lu, ok:false, k:c.k, i:c.i, j:c.j, t:c.t};
+    if(lu){
+      const f=ch.filter(function(x){ const t=x[c.k][c.i];
+        return c.t==='k' ? dcoMemeC(t.c, lu) : (t.g ? t.g[c.j] : t.v)===lu; });
+      if(f.length){ s.ok=true; ch=f; }
+    }
+    vs.push(s);
+  });
+  const C=ch[0];
+  vs.forEach(function(s){ const t=C[s.k][s.i]; s.bon=s.t==='k' ? kvLatex(t.c) : (t.g ? t.g[s.j] : t.v); s.co=s.t==='k' ? t.c : null; });
+  /* la ligne de l'élève, quand toutes ses cases se lisent */
+  const lignes=E.map(function(e, k){
+    if(k===last) return D.d;
+    const l=[];
+    for(let i=0;i<e[1].length;i++){
+      const sp=e[1][i], f=function(t, j){ const s=vs.find(function(x){ return x.k===k && x.i===i && x.t===t && (j==null || x.j===j); }); return s && s.lu; };
+      const c=sp==='v' ? DCO_UN : f('k');
+      if(!c) return null;
+      if(sp==='f'){ const a=f('v',0), b=f('v',1); if(!a || !b) return null; l.push(dcoG(c, a, b)); }
+      else { const v=f('v',0); if(!v) return null; l.push(dcoT(c, v)); }
+    }
+    return l;
+  });
+  const subs=[];
+  E.forEach(function(e, k){
+    vs.filter(function(s){ return s.k===k; }).forEach(function(s){ subs.push(s); });
+    const el=$('dcr-s-'+k), val=el ? el.value : '', prev=k ? C[k-1] : D.g;
+    const ex=dcrExplique(D, prev, k<last ? C[k] : D.d, k===last);
+    subs.push({id:'dcr-s-'+k, el:el, brut:val, vide:val==='', lu:val, ok:val!=='' && ex.indexOf(val)>=0, bon:e[0], k:k, t:'j', ex:ex});
+  });
+  return {D:D, C:C, subs:subs, lignes:lignes};
+}
+function dcrLabel(D, K){ return K==='pa' && D.para ? DCR_JUST.pa.replace('ABCD', D.para) : DCR_JUST[K]; }
+/* ce que fait chaque justification, pour le message — avec les lettres de la page */
+function dcrRegle(D, K){
+  const L=D.pts, a=L[0], b=L[1], c=L[2];
+  switch(K){
+    case 'ch': return 'la relation de Chasles réunit deux vecteurs qui s’enchaînent ('+a+b+' + '+b+c+' = '+a+c+'), même entre parenthèses, ou fait passer par un point';
+    case 'or': return 'on garde les MÊMES termes et on change seulement leur ordre, pour que les vecteurs s’enchaînent';
+    case 'op': return 'soustraire un vecteur, c’est ajouter son OPPOSÉ : − 2'+c+b+' = + 2'+b+c+' — le réel reste, le vecteur change de sens';
+    case 'se': return 'on écrit le réel comme une somme, devant le MÊME vecteur : 3'+a+b+' = '+a+b+' + 2'+a+b+' (un vecteur seul, c’est 1 fois ce vecteur)';
+    case 're': return 'deux termes avec le MÊME vecteur : on additionne leurs réels, '+a+c+' + 2'+a+c+' = 3'+a+c;
+    case 'fa': return 'deux termes qui ont le MÊME réel : on le met en facteur, 2'+a+b+' + 2'+b+c+' = 2('+a+b+' + '+b+c+')';
+    case 'dv': return 'le réel multiplie CHAQUE vecteur de la parenthèse : 2('+a+b+' + '+b+c+') = 2'+a+b+' + 2'+b+c;
+    default: { const p=D.para||'ABCD'; return 'dans le parallélogramme '+p+', '+p[0]+p[1]+' = '+p[3]+p[2]+' et '+p[0]+p[3]+' = '+p[1]+p[2]+' : on remplace un vecteur par un vecteur ÉGAL'; }
+  }
+}
+/* Le pourquoi, dit sur la PREMIÈRE case fausse. */
+function dcrPourquoi(q, J){
+  const f=J.subs.find(function(s){ return !s.ok && !s.vide; });
+  if(!f) return '';
+  const D=J.D, C=J.C, E=D.e, last=E.length-1, k=f.k, K=E[k][0], prev=k ? C[k-1] : D.g, bonne=k<last ? C[k] : D.d;
+  const L='Ligne '+(k+1)+' : ';
+  if(f.t==='j')
+    return L+'la justification n’est pas « '+dcrLabel(D, f.lu)+' ». On passe de '+dcrTxt(prev)+' à '+dcrTxt(bonne)+' : '+dcrRegle(D, K)+'.';
+  if(!f.lu) return f.t==='k'
+    ? L+'« '+kviPlat(f.brut)+' » n’est pas un réel : écris un nombre entier, comme 2 ou 3.'
+    : L+'« '+f.brut+' » n’est pas un vecteur de l’énoncé : écris deux lettres parmi '+D.pts.split('').join(', ')+'.';
+  if(f.t==='k' && f.lu[0]<0)
+    return L+'dans une ligne, les réels s’écrivent POSITIFS : on écrit 2'+D.pts[1]+D.pts[2]+' plutôt que −2'+D.pts[2]+D.pts[1]+' — un vecteur à l’envers, c’est l’opposé.';
+  const l=J.lignes[k];
+  /* le sens oublié : − 2CB devient 2CB au lieu de 2BC */
+  if(K==='op' && l && f.i!=null){ const t=l[f.i], b=bonne[f.i], p=prev[f.i];
+    if(t && b && p && !t.g && !b.g && p.c[0]<0 && t.v===p.v && dcoMemeC(t.c, b.c))
+      return L+'soustraire un vecteur, c’est ajouter son OPPOSÉ : − '+dcoTerme(dcoT(dcoNeg(p.c), p.v))+' = + '+dcoTerme(b)+', pas + '+dcoTerme(t)+'. Le réel reste, le vecteur change de sens.'; }
+  if(l && !dcrEgales(D, l, D.g))
+    return L+dcrTxt(l)+' n’est pas égal à '+dcrTxt(prev)+' : '+dcrRegle(D, K)+'.';
+  if(l && dcrSuites(D, prev, K).some(function(r){ return dcoKey(r)===dcoKey(l); }) && dcrForme(l, E[k][1]))
+    return L+dcrTxt(l)+' est une étape juste, mais elle ne mène pas à '+dcrTxt(D.d)+' avec les étapes qui suivent. Il fallait par exemple '+dcrTxt(bonne)+'.';
+  if(l) return L+dcrTxt(l)+' est bien égal, mais ce n’est pas l’étape demandée : '+dcrRegle(D, K)+'.';
+  return L+'il fallait par exemple '+dcrTxt(bonne)+' : '+dcrRegle(D, K)+'.';
+}
+/* une somme dans l'énoncé : 3AB⃗ − 2CB⃗, 2(AB⃗ + BC⃗) */
+function dcrEnonceSomme(l){
+  return l.map(function(t, i){ const n=t.c[0]<0, c=Math.abs(t.c[0]), k=c===1 ? '' : c;
+    const v=function(x){ return '<span class="vgt-vec">'+esc(x)+'</span>'; };
+    return (i ? (n ? ' − ' : ' + ') : (n ? '−' : ''))+k+(t.g ? '('+v(t.g[0])+' + '+v(t.g[1])+')' : v(t.v)); }).join('');
+}
+function dcrEnonceHTML(q){
+  const D=dcrDemo(q), L=D.pts.split('');
+  let h=D.para ? D.para+' est un parallélogramme. '
+    : L.slice(0,-1).join(', ')+' et '+L[L.length-1]+' sont '+(L.length===3 ? 'trois' : 'quatre')+' points du plan. ';
+  h+='<b>'+DCR_VERBES[q.v||0]+' '+dcrEnonceSomme(D.g)+' = '+dcrEnonceSomme(D.d)+'.</b><br>'
+    +'La figure montre les vecteurs de l’égalité. Complète la démonstration : dans chaque case, un <b>réel</b> ou un <b>vecteur</b> (deux lettres), et pour chaque ligne la <b>justification</b> qui fait passer de la ligne d’avant à celle-ci.'
+    +'<span class="kv-sous">Dans une ligne, les réels sont positifs : −2<span class="vgt-vec">'+L[2]+L[1]+'</span> s’écrit 2<span class="vgt-vec">'+L[1]+L[2]+'</span>.</span>';
+  return h;
+}
+/* une somme écrite dans une ligne de la rédaction (le membre de gauche en
+   tête, le membre de droite sur la dernière) : les vecteurs, les signes et
+   les réels du 8.3 (.veg-v, .veg-eq) */
+function dcrSommeHTML(l, premier){
+  const eq=function(s){ return '<span class="veg-eq">'+s+'</span>'; };
+  let h='';
+  l.forEach(function(t, i){
+    const n=t.c[0]<0, c=Math.abs(t.c[0]);
+    const corps='<span class="dcr-t">'+(c===1 ? '' : '<span class="veg-eq dcr-k">'+c+'</span>')
+      +(t.g ? eq('(')+vegVecHTML(t.g[0])+eq('+')+vegVecHTML(t.g[1])+eq(')') : vegVecHTML(t.v))+'</span>';
+    if(i===0 && premier!=null) h+=chsGrp(premier+(n ? ' −' : ''), corps);
+    else if(i===0) h+=(n ? chsGrp('−', corps) : '<span class="veg-tete">'+corps+'</span>');
+    else h+=chsGrp(n ? '−' : '+', corps);
+  });
+  return h;
+}
+function dcrSelHTML(D, k){
+  let h='<select class="dch-sel" id="dcr-s-'+k+'" aria-label="'+esc('la justification de la ligne '+(k+1))+'"><option value="">— justification —</option>';
+  DCR_ORDRE.forEach(function(K){ if(K!=='pa' || D.para) h+='<option value="'+K+'">'+esc(dcrLabel(D, K))+'</option>'; });
+  return h+'</select>';
+}
+function dcrVecCase(id, aria){
+  return '<span class="veg-v"><span class="veg-fl" aria-hidden="true"></span>'
+    +'<input class="veg-in dcr-in" id="'+id+'" type="text" maxlength="2" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="'+esc(aria)+'"></span>';
+}
+function dcrCoCase(id, aria){ return pmMF('dco-co', id, ' aria-label="'+esc(aria)+'"'); }
+/* Le dessin : les points et une flèche par vecteur de l'égalité. */
+const DCR_S=52, DCR_M=34;
+function dcrVecteurs(D){
+  const r=[];
+  D.g.concat(D.d).forEach(function(t){ (t.g || [t.v]).forEach(function(v){ if(r.indexOf(v)<0) r.push(v); }); });
+  return r;
+}
+function dcrSvg(q){
+  const D=dcrDemo(q), L=D.pts.split(''), G=dcrGabarits(q), g=G[(q.f>=0 && q.f<G.length) ? q.f : 0];
+  const xmax=Math.max.apply(null, g.map(function(p){ return p[0]; })), ymax=Math.max.apply(null, g.map(function(p){ return p[1]; }));
+  const P={}, f=function(v){ return v.toFixed(1); };
+  L.forEach(function(Lt, i){ const x=q.m ? xmax-g[i][0] : g[i][0]; P[Lt]=[DCR_M+x*DCR_S, DCR_M+(ymax-g[i][1])*DCR_S]; });
+  const W=2*DCR_M+xmax*DCR_S, H=2*DCR_M+ymax*DCR_S, V=dcrVecteurs(D);
+  let h='<svg class="dcr-svg" viewBox="0 0 '+f(W)+' '+f(H)+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'
+    +esc('La figure : les points '+L.join(', ')+(D.para ? ' (le parallélogramme '+D.para+')' : '')+' et les vecteurs '+V.join(', '))+'">';
+  if(D.para) h+='<polygon class="dcr-para" points="'+L.map(function(Lt){ return f(P[Lt][0])+','+f(P[Lt][1]); }).join(' ')+'"/>';
+  V.forEach(function(v){
+    const A=P[v[0]], B=P[v[1]], dx=B[0]-A[0], dy=B[1]-A[1], l=Math.hypot(dx,dy)||1, ux=dx/l, uy=dy/l;
+    /* la pointe s'arrête avant le point d'arrivée, pour qu'on le voie */
+    const ex=B[0]-ux*5, ey=B[1]-uy*5, bx=ex-ux*13, by=ey-uy*13, e=5.5;
+    h+='<g class="dcr-f" data-v="'+v+'"><line x1="'+f(A[0]+ux*4)+'" y1="'+f(A[1]+uy*4)+'" x2="'+f(bx)+'" y2="'+f(by)+'"/>'
+      +'<polygon points="'+f(ex)+','+f(ey)+' '+f(bx-uy*e)+','+f(by+ux*e)+' '+f(bx+uy*e)+','+f(by-ux*e)+'"/></g>';
+  });
+  /* les lettres : à l'opposé du centre de la figure */
+  const cx=L.reduce(function(s, Lt){ return s+P[Lt][0]; }, 0)/L.length, cy=L.reduce(function(s, Lt){ return s+P[Lt][1]; }, 0)/L.length;
+  L.forEach(function(Lt){
+    const p=P[Lt], dx=p[0]-cx, dy=p[1]-cy, l=Math.hypot(dx,dy)||1;
+    h+='<circle class="dcr-pt" cx="'+f(p[0])+'" cy="'+f(p[1])+'" r="3.6"/>'
+      +'<text class="dcr-nom" x="'+f(p[0]+dx/l*18)+'" y="'+f(p[1]+dy/l*18)+'" text-anchor="middle" dominant-baseline="central">'+Lt+'</text>';
+  });
+  return h+'</svg>';
+}
+function renderDcr(){
+  const q=test.questions[test.idx], D=dcrDemo(q), E=D.e, last=E.length-1; test.locked=false;
+  $('dcrIdx').textContent='Démonstration '+(test.idx+1)+' / '+test.questions.length;
+  $('dcrModeTag').innerHTML=modeTagHTML();
+  $('dcrLiveScore').textContent=test.score;
+  $('dcrInstr').innerHTML=dcrEnonceHTML(q);
+  $('dcrFeedback').textContent=''; $('dcrFeedback').className='mp-feedback';
+  $('dcrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="dcrValidate" type="button" onclick="checkDcr()">Vérifier</button>';
+  /* le membre de gauche ouvre la première ligne ; les suivantes en portent
+     une copie invisible, pour que leurs « = » tombent sous le premier */
+  const tete=dcrSommeHTML(D.g);
+  let h='<div class="dcr-fig">'+dcrSvg(q)+'</div><div class="veg-lignes dch-lignes dcr-lignes">';
+  E.forEach(function(e, k){
+    h+='<div class="veg-l dch-l dcr-l" id="dcr-l-'+k+'"><span class="dch-g'+(k ? ' dch-fant' : '')+'"'+(k ? ' aria-hidden="true"' : '')+'>'+tete+'</span><span class="dch-calc">';
+    if(k<last) e[1].forEach(function(sp, i){
+      const Lg='la ligne '+(k+1)+', terme '+(i+1), v0=dcrVecCase('dcr-v-'+k+'-'+i+'-0', 'le vecteur de '+Lg), eq='<span class="veg-eq">';
+      let c;
+      if(sp==='v') c=v0;
+      else if(sp==='c') c=dcrCoCase('dcr-k-'+k+'-'+i, 'le réel de '+Lg)+v0;
+      else c=dcrCoCase('dcr-k-'+k+'-'+i, 'le réel mis en facteur, '+Lg)+eq+'(</span>'+dcrVecCase('dcr-v-'+k+'-'+i+'-0', 'le premier vecteur entre parenthèses, '+Lg)
+        +eq+'+</span>'+dcrVecCase('dcr-v-'+k+'-'+i+'-1', 'le second vecteur entre parenthèses, '+Lg)+eq+')</span>';
+      h+=chsGrp(i ? '+' : '=', c);
+    });
+    else h+=dcrSommeHTML(D.d, '=');
+    h+='</span><span class="dch-car"><span class="dch-lbl">car</span>'+dcrSelHTML(D, k)+'</span></div>';
+  });
+  h+='</div>';
+  $('dcrHost').innerHTML=h;
+  pmUpgrade($('dcrHost'));
+  const cs=dcrCases(q);
+  cs.forEach(function(c, i){ const el=$(c.id); if(!el) return;
+    el.addEventListener(el.tagName==='SELECT' ? 'change' : 'input', function(){ recoveryDirty=true; if(isSoutien()) checkDcr(true);
+      clearTimeout(test.dcrSave); test.dcrSave=setTimeout(autoSave,1000); });
+    /* Entrée passe à la case suivante ; sur la dernière, elle vérifie (une
+       case MathLive le fait d'elle-même) */
+    if(el.tagName==='INPUT' || el.tagName==='SELECT') el.addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ ev.preventDefault();
+      const suiv=cs[i+1] && $(cs[i+1].id); if(suiv && !suiv.disabled) suiv.focus(); else checkDcr(); } });
+  });
+}
+function checkDcr(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx], J=dcrJuge(q), subs=J.subs, D=J.D;
+  if(live){   /* soutien : on ne peint que les cases déjà remplies */
+    if(!isSoutien()) return;
+    subs.forEach(function(s){ if(!s.el || s.el.disabled) return;
+      s.el.classList.remove('ok','bad'); if(!s.vide) s.el.classList.add(s.ok?'ok':'bad'); });
+    return;
+  }
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
+  const pourquoi=dcrPourquoi(q, J);
+  subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); dcoBadge(s); });
+  if(!allOk && isSoutien()){ soutienAgain('dcrFeedback','dcrActions','checkDcr','dcrHost'); return; }
+  test.locked=true;
+  test.score+=nCorrect; $('dcrLiveScore').textContent=test.score;
+  if(allOk){ $('dcrFeedback').textContent=pick(['Bravo, la démonstration est juste !','Parfait !','Excellent !','Très bien démontré !']); $('dcrFeedback').className='mp-feedback good'; }
+  else { $('dcrFeedback').textContent=msgAvecVides(subs, pourquoi); $('dcrFeedback').className='mp-feedback bad'; }
+  const last=D.e.length-1;
+  const redac=function(f){
+    let t=dcrTxt(D.g);
+    D.e.forEach(function(e, k){
+      const ss=subs.filter(function(s){ return s.k===k; }), js=ss.find(function(s){ return s.t==='j'; });
+      const terme=k===last ? dcrTxt(D.d) : e[1].map(function(sp, i){ const x=function(t, j){ const s=ss.find(function(y){ return y.i===i && y.t===t && (j==null || y.j===j); }); return s ? f(s) : '?'; };
+        return sp==='v' ? x('v',0) : (sp==='c' ? x('k')+' '+x('v',0) : x('k')+'('+x('v',0)+' + '+x('v',1)+')'); }).join(' + ');
+      t+=' = '+terme+' ('+(f(js) && DCR_JUST[f(js)] ? dcrLabel(D, f(js)) : '?')+')';
+    });
+    return t; };
+  test.answers.push({...(ptsExo()||{}),correct:allOk,
+    q:DCR_VERBES[q.v||0]+' '+dcrTxt(D.g)+' = '+dcrTxt(D.d)+(D.para ? ' ('+D.para+' parallélogramme)' : ''),
+    answer:redac(function(s){ return s.t==='k' ? kvSaisie(s.co) : s.bon; }),
+    given:redac(function(s){ return s.t==='k' ? (kviPlat(s.brut)||'?') : (s.brut||'?'); })});
+  const lastQ=test.idx===test.questions.length-1;
+  $('dcrActions').innerHTML='<button class="btn btn-primary" id="dcrNext" type="button" onclick="nextDcr()">'+(lastQ?'Voir mes résultats':'Démonstration suivante')+'</button>';
+  const nb=$('dcrNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
+}
+function nextDcr(){ if(test.idx<test.questions.length-1){ test.idx++; renderDcr(); autoSave(); } else finishTest(); }
+function startDcr(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=dcrBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'dcr', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(a,q){ return a+dcrCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  test.qId='demontrer-egalite-reels';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('dcr'); renderDcr();
+}
+function ctxDcr(q){
+  const J=dcrJuge(q), D=J.D, C=J.C, E=D.e, last=E.length-1;
+  const faux=J.subs.filter(function(s){ return !s.ok && !s.vide; }).length;
+  const forme={v:'un vecteur', c:'un réel et un vecteur', f:'un réel en facteur de (vecteur + vecteur)'};
+  const plan=E.map(function(e, k){ return 'ligne '+(k+1)+' : '+(k<last ? e[1].map(function(sp){ return forme[sp]; }).join(' + ') : 'le membre de droite, déjà écrit')+', et une justification'; }).join(' ; ');
+  const bonne=E.map(function(e, k){ return '= '+(k<last ? dcrTxt(C[k]) : dcrTxt(D.d))+' ('+dcrLabel(D, e[0])+')'; }).join(' ');
+  let c='L’élève rédige la démonstration d’une égalité de vecteurs avec des réels, sans coordonnées ; une figure montre les points et les vecteurs de l’égalité. Énoncé : '
+   +(D.para ? D.para+' est un parallélogramme' : D.pts.split('').join(', ')+' sont des points du plan')+'. '
+   +DCR_VERBES[q.v||0]+' '+dcrTxt(D.g)+' = '+dcrTxt(D.d)+' (vecteurs). '
+   +'La rédaction est à trous, à partir de '+dcrTxt(D.g)+' : '+plan+'. Chaque justification se choisit dans une liste : '
+   +DCR_ORDRE.filter(function(K){ return K!=='pa' || D.para; }).map(function(K){ return '« '+dcrLabel(D, K)+' »'; }).join(', ')+'. '
+   +'Rédaction attendue, STRICTEMENT SECRÈTE (d’autres rédactions justes sont acceptées) : '+dcrTxt(D.g)+' '+bonne+'. '
+   +'Méthode enseignée : soustraire un vecteur, c’est ajouter son opposé (−2CB = 2BC) ; dans une ligne, les réels s’écrivent positifs ; un réel s’écrit comme une somme (3AB = AB + 2AB) ; on met un réel commun en facteur, ou on développe ; on réunit par Chasles deux vecteurs qui s’enchaînent, même entre parenthèses ; AC + 2AC = 3AC. Guide l’élève étape par étape, sans donner la rédaction entière ; ne parle jamais de coordonnées.';
+  if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
+  c+=' CONTRAINTE ANTI-RECOPIE : ne donne aucune case ; fais justifier chaque passage.';
+  return {nombre:'', contexte:c};
+}
+
 /* ===== EXERCICE : L'ANTÉCÉDENT D'UN POINT PAR UNE TRANSLATION ===============
    (identifiant « translation-antecedent », kind « tan », thème 8.1.12 — Vecteurs)
    Retenu par Turquet en octobre 2026, parmi les idées proposées (idée n° 2) :
@@ -80772,7 +81373,7 @@ function ctxVgt(q){
   return {nombre:'', contexte:c};
 }
 (function(){
-  const noms=['renderDco','renderVcrTest','renderVejTest','renderKvi','renderKco','renderKss','renderKpl','renderKph','renderKmi','renderSpg','renderTcp','renderDvrTest','renderLsdTest','renderDpaTest','renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderTrl','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSpr','renderPpb','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderVgtTest','renderCitTest','renderCvlTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderDvlTest','renderDvdTest','renderVflTest','renderDvmTest','renderVec','renderVep','renderSvc','renderStv','renderCvp','renderCps','renderTvx','renderTan','renderSvr','renderVtrTest','renderVegTest','renderChsTest','renderCtvTest','renderChlTest','renderCspTest','renderChaTest','renderTpvTest','renderDchTest','renderChiTest','renderVfhTest','renderVmiTest','renderTdpTest','renderTdcTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPFR','renderPII','renderPIA','renderPIS','renderPMY','renderPTR','renderPFO','renderPGC','renderPRC','renderPCF','renderPKG','renderPCZ','renderPTE','renderPFL','renderPQC','renderPPR','renderPOD','renderPRD','renderPMO','renderPFX','renderPFN','renderPFK','renderPOF','renderPXY','renderPMT','renderPTM','renderPGT','renderPHM','renderPVO','renderPDU','renderPFE','renderPBL','renderPMN','renderPFV','renderPTDS','renderPFD','renderPFC','renderPFQ','renderPFI','renderPCI','renderPCE','renderPSM','renderPLO','renderPRL','renderPTT','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH','renderPWY','renderPWS','renderPWE','renderPWX','renderPWA','renderPWP','renderPWD','renderPWR','renderPWV','renderPWM','renderPWC','renderPWO','renderPWN','renderPWG','renderPWF','renderPWT','pyxRenderCours','popRenderCours'];
+  const noms=['renderDcr','renderDco','renderVcrTest','renderVejTest','renderKvi','renderKco','renderKss','renderKpl','renderKph','renderKmi','renderSpg','renderTcp','renderDvrTest','renderLsdTest','renderDpaTest','renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderTrl','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSpr','renderPpb','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderVgtTest','renderCitTest','renderCvlTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderDvlTest','renderDvdTest','renderVflTest','renderDvmTest','renderVec','renderVep','renderSvc','renderStv','renderCvp','renderCps','renderTvx','renderTan','renderSvr','renderVtrTest','renderVegTest','renderChsTest','renderCtvTest','renderChlTest','renderCspTest','renderChaTest','renderTpvTest','renderDchTest','renderChiTest','renderVfhTest','renderVmiTest','renderTdpTest','renderTdcTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPFR','renderPII','renderPIA','renderPIS','renderPMY','renderPTR','renderPFO','renderPGC','renderPRC','renderPCF','renderPKG','renderPCZ','renderPTE','renderPFL','renderPQC','renderPPR','renderPOD','renderPRD','renderPMO','renderPFX','renderPFN','renderPFK','renderPOF','renderPXY','renderPMT','renderPTM','renderPGT','renderPHM','renderPVO','renderPDU','renderPFE','renderPBL','renderPMN','renderPFV','renderPTDS','renderPFD','renderPFC','renderPFQ','renderPFI','renderPCI','renderPCE','renderPSM','renderPLO','renderPRL','renderPTT','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH','renderPWY','renderPWS','renderPWE','renderPWX','renderPWA','renderPWP','renderPWD','renderPWR','renderPWV','renderPWM','renderPWC','renderPWO','renderPWN','renderPWG','renderPWF','renderPWT','pyxRenderCours','popRenderCours'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
@@ -81717,6 +82318,56 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
     });
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',poser); else poser();
+})();
+</script>
+<script id="embellir-js">
+/* ---------- Deux gestes de fête, sans rien télécharger (octobre 2026) ----------
+   UNE CASE QUI DEVIENT JUSTE s'éclaire d'une onde bleue, une fois. L'onde est
+   une animation du navigateur (Element.animate) sur l'ombre de la case : ni
+   classe ni règle CSS ajoutée, donc rien que le contrôle des couleurs (« 9 bis »)
+   ou une capture du brouillon puisse relire, et rien qui bouge ou change de
+   taille. Elle part quand « ok » ARRIVE sur une case qui ne l'avait pas — une
+   case redessinée déjà juste ne clignote pas à chaque redessin. Le garde de la
+   case où l'élève écrit (elle ne se colore pas tant qu'il y tape) retire et
+   repose « ok » : l'onde part donc quand il QUITTE la case, avec la couleur.
+   UN SANS-FAUTE fait tomber des confettis quand l'écran des résultats s'ouvre
+   sur une note égale au total (« 10 / 10 », « 5 / 5 »). Lus sur #resultScore,
+   ce que l'élève voit : toutes les fins de séance y écrivent.
+   Rien de tout cela pour qui a demandé « moins d'animations ». */
+(function(){
+  function calme(){ try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return true; } }
+  function onde(el){
+    if(calme() || typeof el.animate!=='function') return;
+    try{ el.animate([{boxShadow:'0 0 0 0 rgba(43,80,200,.5)'},{boxShadow:'0 0 0 10px rgba(43,80,200,0)'}],
+                    {duration:650, easing:'ease-out'}); }catch(e){}
+  }
+  function sansFaute(){
+    var sc=document.getElementById('resultScore'); if(!sc) return false;
+    var m=sc.textContent.replace(/\s/g,'').replace(/,/g,'.').match(/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+    return !!m && +m[2]>0 && +m[1]>=+m[2];
+  }
+  function confettis(){
+    if(calme() || !sansFaute() || document.querySelector('.confettis')) return;
+    var couleurs=['#2B50C8','#F2A93B','#157A52','#BF2C3E','#7C3AED','#0EA5E9'];
+    var hote=document.createElement('div'); hote.className='confettis'; hote.setAttribute('aria-hidden','true');
+    for(var i=0;i<42;i++){
+      var c=document.createElement('span');
+      c.style.cssText='--x:'+(Math.random()*100).toFixed(1)+'vw;--c:'+couleurs[i%couleurs.length]
+        +';--d:'+(1.8+Math.random()*1.4).toFixed(2)+'s;--t:'+(Math.random()*.5).toFixed(2)+'s'
+        +';--dx:'+Math.round(Math.random()*160-80)+'px;--r:'+Math.round(Math.random()*900-450)+'deg';
+      hote.appendChild(c);
+    }
+    document.body.appendChild(hote);
+    setTimeout(function(){ hote.remove(); }, 4000);
+  }
+  var a=function(v,k){ return (' '+(v||'')+' ').indexOf(' '+k+' ')>=0; };
+  new MutationObserver(function(rs){
+    for(var i=0;i<rs.length;i++){
+      var r=rs[i], el=r.target; if(!el.classList) continue;
+      if(el.classList.contains('ok') && !a(r.oldValue,'ok') && el.matches('input,select,textarea,math-field')) onde(el);
+      else if(el.id==='scr-results' && el.classList.contains('on') && !a(r.oldValue,'on')) setTimeout(confettis, 120);
+    }
+  }).observe(document.body, {subtree:true, attributes:true, attributeFilter:['class'], attributeOldValue:true});
 })();
 </script>
 </body>
