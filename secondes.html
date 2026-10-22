@@ -2224,6 +2224,20 @@
   .dch-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
   .dch-sel:disabled{opacity:1;cursor:default}
   @media(max-width:520px){ .dch-fant{display:none} .dch-car{margin-left:0;flex:1 1 100%;min-width:0} .dch-sel{flex:1 1 0;min-width:0;width:100%;font-size:.95rem} }
+  /* La figure de l'égalité à démontrer (demande de Turquet, octobre 2026) :
+     les points de l'énoncé, et CHAQUE vecteur de l'égalité dessiné — ceux
+     du membre de gauche en violet, ceux du membre de droite en orange (les
+     encres du 8.1.13, jamais celles du verdict) ; la légende redit l'égalité
+     dans les mêmes couleurs. Le parallélogramme, s'il y en a un, en gris. */
+  .dch-fig{flex-direction:column;align-items:center;gap:6px;max-width:460px;margin:0 auto 14px}
+  .dch-svg{max-width:420px}
+  .veg-svg .dch-cote{stroke:var(--ink-soft);stroke-width:1.4;stroke-dasharray:5 4}
+  .veg-svg .dch-vg{stroke:var(--crd-a);stroke-width:3}
+  .veg-svg .dch-vd{stroke:var(--crd-b);stroke-width:3}
+  .veg-svg .dch-pt{fill:var(--ink)}
+  .dch-leg{font-family:"Fredoka";font-weight:500;font-size:1.08rem;color:var(--ink-soft);text-align:center;line-height:1.9}
+  .dch-leg-g{color:var(--crd-a);font-weight:600} .dch-leg-d{color:var(--crd-b);font-weight:600}
+  .dch-leg .vgt-vec{color:inherit;font-size:1.15rem} .dch-leg-n{font-size:.92rem}
   /* 8.1.9 {translation-pavage} : le pavage au-dessus des phrases (il est
      large et bas). Chaque triangle est une cible : un clic écrit son numéro.
      La ligne montrée a son liseré violet (--crd-a), son triangle de départ un
@@ -3037,6 +3051,7 @@
      hauteur de la case du vecteur (sous sa flèche), et la conclusion du 8.3.8 */
   #dcoHost math-field.dco-co{font-size:1.45rem;min-width:46px;min-height:46px;max-width:130px;padding:2px 6px;margin-top:10px;color:var(--blue-dark);vertical-align:middle}
   .dco-concl{margin-top:4px}
+  .dco-fig{max-width:420px}
   @media(max-width:520px){ #dcoHost math-field.dco-co{min-width:40px;min-height:42px} }
   @media(max-width:520px){ .kss-l .itv-sel.kss-sel{min-width:150px} .kph-l .kph-rep{margin-left:0} .veg-in.kmi-co{width:64px} }
   @media(max-width:520px){ .kv-l{padding:8px 10px;gap:6px 8px;font-size:1.15rem} .kco-l .kco-rep{margin-left:0} }
@@ -67378,6 +67393,57 @@ function dcoVecCase(id, aria){
     +'<input class="veg-in dco-in" id="'+id+'" type="text" maxlength="2" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="'+esc(aria)+'"></span>';
 }
 function dcoCoCase(id, aria){ return pmMF('dco-co', id, ' aria-label="'+esc(aria)+'"'); }
+/* ---- le dessin (demande de Turquet, octobre 2026 : « je veux voir un dessin
+   correspondant aux égalités vectorielles ») : le triangle, les points D et E
+   construits d'après les égalités de l'énoncé — leur réel k compris : D au
+   double de B, au-delà de A si k < 0 — les côtés prolongés en pointillés
+   jusqu'à eux, et le segment [DE] en violet, celui dont on démontre le
+   parallélisme. La forme du triangle se tire des lettres de la question :
+   elle ne change ni au redessin ni à la reprise, sans rien ranger de plus. */
+const DCO_TRI=[[[0,0],[6,0],[2,4]], [[0,0],[5,-1],[1.5,3.6]], [[0,0],[6,1],[3,4.2]], [[0,0],[5.5,0.5],[0.8,3.8]]];
+function dcoPts(q){
+  const D=dcoDemo(q), T=DCO_TRI[(q.n.charCodeAt(0)+q.n.charCodeAt(1)+q.n.charCodeAt(2)) % DCO_TRI.length];
+  const P={}, k=q.k[0]/q.k[1], A=T[0], B=T[1], C=T[2], lin=function(o, u, v){ return [o[0]+k*(v[0]-u[0]), o[1]+k*(v[1]-u[1])]; };
+  P[D.A]=A; P[D.B]=B; P[D.C]=C;
+  /* plans 0 et 1 : AD⃗ = kAB⃗, AE⃗ = kAC⃗ ; plan 2 : BD⃗ = kAB⃗, CE⃗ = kAC⃗ */
+  P[D.D]=q.t===2 ? lin(B, A, B) : lin(A, A, B);
+  P[D.E]=q.t===2 ? lin(C, A, C) : lin(A, A, C);
+  return P;
+}
+function dcoSvg(q){
+  const D=dcoDemo(q), P=dcoPts(q), K=kmiCadre(q, P), f=function(v){ return v.toFixed(1); };
+  const S={}; Object.keys(P).forEach(function(L){ S[L]=K.P(P[L]); });
+  const segs=[];
+  const ligne=function(a, b, cls){ segs.push([a, b]);
+    return '<line'+(cls?' class="'+cls+'"':'')+' x1="'+f(S[a][0])+'" y1="'+f(S[a][1])+'" x2="'+f(S[b][0])+'" y2="'+f(S[b][1])+'"/>'; };
+  let h='<svg class="veg-svg kmi-svg dco-svg" viewBox="0 0 '+K.W+' '+K.H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'
+    +esc('le triangle '+D.A+D.B+D.C+', le point '+D.D+' sur la droite ('+D.A+D.B+'), le point '+D.E+' sur la droite ('+D.A+D.C+'), et le segment ['+D.D+D.E+']')+'">';
+  h+=ligne(D.A, D.B)+ligne(D.B, D.C)+ligne(D.C, D.A);
+  /* un point hors de son côté : le côté se prolonge en pointillés jusqu'à lui,
+     depuis l'extrémité la plus proche (t : A en 0, l'autre sommet en 1) */
+  [[D.D, D.B], [D.E, D.C]].forEach(function(x){ const a=P[D.A], b=P[x[1]], p=P[x[0]];
+    const t=((p[0]-a[0])*(b[0]-a[0])+(p[1]-a[1])*(b[1]-a[1]))/((b[0]-a[0])*(b[0]-a[0])+(b[1]-a[1])*(b[1]-a[1]));
+    if(t>1+1e-9) h+=ligne(x[1], x[0], 'kmi-prol'); else if(t<-1e-9) h+=ligne(D.A, x[0], 'kmi-prol'); });
+  h+=ligne(D.D, D.E, 'kmi-ij');
+  /* chaque nom se pose dans le plus grand angle libre autour de son point,
+     loin des traits qui en partent ou qui le traversent */
+  const pose=function(L){ const p=S[L], dirs=[];
+    segs.forEach(function(sg){ const a=S[sg[0]], b=S[sg[1]], l=Math.hypot(b[0]-a[0], b[1]-a[1]);
+      if(Math.abs((b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]))/l>0.5) return;
+      const t=((p[0]-a[0])*(b[0]-a[0])+(p[1]-a[1])*(b[1]-a[1]))/(l*l);
+      if(t<-1e-6 || t>1+1e-6) return;
+      if(t>1e-6) dirs.push(Math.atan2(a[1]-p[1], a[0]-p[0]));
+      if(t<1-1e-6) dirs.push(Math.atan2(b[1]-p[1], b[0]-p[0])); });
+    dirs.sort(function(x, y){ return x-y; });
+    let ang=-Math.PI/2;
+    if(dirs.length){ let gap=-1;
+      dirs.forEach(function(d, i){ const e=i+1<dirs.length ? dirs[i+1] : dirs[0]+2*Math.PI, g=e-d;
+        if(g>gap+1e-9){ gap=g; ang=d+g/2; } }); }
+    h+='<circle cx="'+f(p[0])+'" cy="'+f(p[1])+'" r="3.2"/>'
+      +'<text class="veg-pt" x="'+f(p[0]+Math.cos(ang)*18)+'" y="'+f(p[1]+Math.sin(ang)*18)+'" text-anchor="middle" dominant-baseline="central">'+L+'</text>'; };
+  [D.A, D.B, D.C, D.D, D.E].forEach(pose);
+  return h+'</svg>';
+}
 function renderDco(){
   const q=test.questions[test.idx], D=dcoDemo(q), E=D.e; test.locked=false;
   $('dcoIdx').textContent='Démonstration '+(test.idx+1)+' / '+test.questions.length;
@@ -67389,7 +67455,7 @@ function renderDco(){
   /* le membre de gauche ouvre la première ligne ; les suivantes en portent
      une copie invisible, pour que leurs « = » tombent sous le premier */
   const tete='<span class="veg-tete">'+vegVecHTML(D.g[0].v)+'</span>', eq='<span class="veg-eq">';
-  let h='<div class="veg-lignes dch-lignes dco-lignes">';
+  let h='<div class="veg-fig kmi-fig dco-fig">'+dcoSvg(q)+'</div><div class="veg-lignes dch-lignes dco-lignes">';
   E.forEach(function(e, k){
     h+='<div class="veg-l dch-l dco-l" id="dco-l-'+k+'"><span class="dch-g'+(k ? ' dch-fant' : '')+'"'+(k ? ' aria-hidden="true"' : '')+'>'+tete+'</span><span class="dch-calc">';
     e[1].forEach(function(sp, i){
@@ -73891,6 +73957,52 @@ function dchCaseHTML(k, j, aria){
   return '<span class="veg-v"><span class="veg-fl" aria-hidden="true"></span>'
     +'<input class="veg-in dch-in" id="dch-c-'+k+'-'+j+'" type="text" maxlength="2" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="'+esc(aria)+'"></span>';
 }
+/* ---- la figure de l'égalité (demande de Turquet, octobre 2026) -----------
+   Les points de l'énoncé à des places FIXES, choisies pour qu'aucun vecteur
+   de l'égalité ne passe par un autre point ni n'en longe un autre : quatre
+   points quelconques (un quadrilatère sans côtés parallèles), ou le
+   parallélogramme ABCD et le point M au-dessus. Chaque vecteur de l'égalité
+   est une flèche : violet à gauche du « = », orange à droite ; un « − AC »
+   se dessine AC (le signe est dans l'égalité, pas dans la flèche) ; le
+   vecteur nul ne se dessine pas. Rien n'est rangé : tout se lit dans q. */
+const DCH_POS={A:[0,0], B:[2.2,2.7], C:[5.8,1.9], D:[4.3,-0.7]};
+const DCH_POS_PARA={A:[0,0], B:[4,0], C:[5.6,2.6], D:[1.6,2.6], M:[4.4,4.8]};
+function dchFigHTML(q){
+  const T=DCH_DEMOS[q.t], D=dchDemo(q), pos=T.para ? DCH_POS_PARA : DCH_POS, pts={};
+  'ABCDM'.split('').forEach(function(c, i){ if(D.pts.indexOf(q.n[i])>=0) pts[q.n[i]]=pos[c]; });
+  const L=Object.keys(pts), W=420, HMAX=250, M=30;
+  const xs=L.map(function(c){ return pts[c][0]; }), ys=L.map(function(c){ return pts[c][1]; });
+  const minx=Math.min.apply(null,xs), maxx=Math.max.apply(null,xs), miny=Math.min.apply(null,ys), maxy=Math.max.apply(null,ys);
+  const s=Math.min((W-2*M)/(maxx-minx), (HMAX-2*M)/(maxy-miny));
+  const Wr=Math.round((maxx-minx)*s+2*M), H=Math.round((maxy-miny)*s+2*M);
+  const P=function(c){ return [M+(pts[c][0]-minx)*s, M+(maxy-pts[c][1])*s]; };
+  const f=function(x){ return x.toFixed(1); };
+  const pointe=function(id, coul){ return '<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+coul+'"/></marker>'; };
+  const nom=function(l){ return l.map(function(t){ return t==='0' ? 'le vecteur nul' : (t[0]==='-' ? 'moins ' : '')+t.replace('-',''); }).join(', '); };
+  /* la boîte ne grandit pas au-delà de sa taille : une figure étroite (avec M) garde ses lettres à 19 px */
+  let h='<svg class="veg-svg dch-svg" style="max-width:'+Wr+'px" viewBox="0 0 '+Wr+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'
+    +esc('Figure : les points '+L.join(', ')+' ; en violet '+nom(D.g)+' ; en orange '+nom(D.d))+'">'
+    +'<defs>'+pointe('dchArrG','var(--crd-a)')+pointe('dchArrD','var(--crd-b)')+'</defs>';
+  if(D.para) for(let i=0;i<4;i++){ const a=P(D.para[i]), b=P(D.para[(i+1)%4]);
+    h+='<line class="dch-cote" x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0])+'" y2="'+f(b[1])+'"/>'; }
+  const fleche=function(t, cls, mk){
+    if(t==='0') return;
+    const v=t[0]==='-' ? t.slice(1) : t, a=P(v[0]), b=P(v[1]);
+    const dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1;
+    /* la pointe s'arrête juste avant le point : on voit le point, et la pointe */
+    h+='<line class="'+cls+'" x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0]-4*dx/l)+'" y2="'+f(b[1]-4*dy/l)+'" marker-end="url(#'+mk+')"/>';
+  };
+  D.g.forEach(function(t){ fleche(t, 'dch-vg', 'dchArrG'); });
+  D.d.forEach(function(t){ fleche(t, 'dch-vd', 'dchArrD'); });
+  /* les lettres : du côté opposé au centre des points */
+  const cx=L.reduce(function(a, c){ return a+P(c)[0]; }, 0)/L.length, cy=L.reduce(function(a, c){ return a+P(c)[1]; }, 0)/L.length;
+  L.forEach(function(c){ const p=P(c), ux=p[0]-cx, uy=p[1]-cy, d=Math.hypot(ux,uy)||1;
+    h+='<circle class="dch-pt" cx="'+f(p[0])+'" cy="'+f(p[1])+'" r="3"/>'
+      +'<text class="veg-pt" x="'+f(p[0]+ux/d*18)+'" y="'+f(p[1]+uy/d*18)+'" text-anchor="middle" dominant-baseline="central">'+c+'</text>'; });
+  h+='</svg>';
+  return '<div class="veg-fig dch-fig">'+h+'<div class="dch-leg"><span class="dch-leg-g">'+dchEnonceVec(D.g)+'</span> = <span class="dch-leg-d">'+dchEnonceVec(D.d)+'</span>'
+    +(D.d.length===1 && D.d[0]==='0' ? ' <span class="dch-leg-n">(le vecteur nul ne se dessine pas)</span>' : '')+'</div></div>';
+}
 function renderDchTest(){
   const q=test.questions[test.idx], D=dchDemo(q), E=D.e, last=E.length-1; test.locked=false;
   $('dchIdx').textContent='Démonstration '+(test.idx+1)+' / '+test.questions.length;
@@ -73902,7 +74014,7 @@ function renderDchTest(){
   /* le membre de gauche ouvre la première ligne ; les suivantes en portent
      une copie invisible, pour que leurs « = » tombent sous le premier */
   const tete=dchSommeHTML(D.g);
-  let h='<div class="veg-lignes dch-lignes">';
+  let h=dchFigHTML(q)+'<div class="veg-lignes dch-lignes">';
   E.forEach(function(e, k){
     h+='<div class="veg-l dch-l" id="dch-l-'+k+'"><span class="dch-g'+(k ? ' dch-fant' : '')+'"'+(k ? ' aria-hidden="true"' : '')+'>'+tete+'</span><span class="dch-calc">';
     if(k<last) for(let j=0;j<e[1];j++) h+=chsGrp(j ? '+' : '=', dchCaseHTML(k, j, 'un vecteur de la ligne '+(k+1)));

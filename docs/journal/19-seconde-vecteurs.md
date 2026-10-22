@@ -3248,6 +3248,37 @@ si elle ne désigne plus un exercice qui s'allonge. Ce bord n'était sorti dans
 aucune des exécutions locales : il ne sort que sur certains tirages.
 
 
+**Puis la figure de l'égalité (v596).** Turquet : « dans le 8.2.13, faire un
+dessin correspondant à l'égalité à démontrer en représentant tous les
+vecteurs de l'égalité ». La figure (`dchFigHTML`) se pose entre l'énoncé et
+la rédaction : les points de l'énoncé, et chaque vecteur de l'égalité en
+flèche — **violet à gauche du « = », orange à droite** (`--crd-a`,
+`--crd-b`, les encres du 8.1.13 : jamais le bleu, le vert ni le rouge du
+verdict, qui diraient « juste », « correction », « faux »). Une légende redit
+l'égalité dans les mêmes couleurs. Un « − AC » se dessine AC : le signe est
+dans l'égalité, pas dans la flèche ; le vecteur nul ne se dessine pas, et la
+légende le dit. Le parallélogramme, quand il y en a un, a ses côtés en
+pointillés gris.
+
+**Les places sont FIXES** (`DCH_POS`, `DCH_POS_PARA`), rien n'est rangé :
+tout se lit dans `q.t` et `q.n`, la reprise d'une pause redessine la même
+figure. Quatre points quelconques forment un quadrilatère sans côtés
+parallèles, pour que la figure ne suggère pas un parallélogramme que
+l'énoncé ne donne pas. Le point M est au-dessus du parallélogramme ; à sa
+première place (3,4 ; 4,7), MA⃗ frôlait D et se lisait comme MD⃗ prolongé —
+vu sur la photo des douze plans, pas par un banc : il est passé à (4,4 ;
+4,8). Une figure étroite (avec M) garde ses lettres à 19 px (`max-width` à
+la largeur de sa boîte) : sans quoi elle s'agrandissait à la largeur des
+autres, lettres comprises.
+
+**Le banc** (`demontrerChasles`) relit la figure de CHACUN des douze plans,
+sur d'autres lettres que celles du plan : les points nommés sont ceux de
+l'énoncé ; chaque flèche, lue par les points où elle commence et finit,
+redonne exactement les vecteurs du membre de gauche (violets) et du membre
+de droite (orange), le nul exclu ; chaque flèche a sa pointe ; le
+parallélogramme a ses quatre côtés, et lui seul ; la légende écrit
+l'égalité.
+
 ## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.14, v536 — v528 à v535 et les numéros 8.2.11 à 8.2.13 pris pendant la rédaction, par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et « Chasles : insérer un point »)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
@@ -4340,6 +4371,9 @@ l'égalité de l'énoncé ; il aurait fallu tracer FE⃗ et non EF⃗ »). Quand
 l'égalité prend BA⃗, la flèche des données va de B vers A ; sinon de A vers
 B. Les lettres restent dans le prolongement du segment, de part et d'autre.
 Le banc relit le sens de la flèche pour AB⃗ puis pour BA⃗.
+Deux pull requests ont été fusionnées à vingt-cinq minutes d'écart sous le même
+numéro 595 (le 8.3.7, puis cette flèche) : le numéro affiché ne distinguait
+plus les deux pages. La v596 ne change rien d'autre que ce numéro.
 
 **8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
 trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
@@ -4546,6 +4580,30 @@ révéler ni verrouiller ; le plan à regrouper juste à 30 cases, et
 Éprouvé par deux sabotages, chacun attrapé : l'énoncé lu sans changer le
 sens d'un vecteur retourné (plus aucune rédaction acceptée), et le message
 du sens oublié réécrit (le piège n'est plus nommé).
+
+## Le 8.3.9 : un dessin qui suit les égalités de l'énoncé (v596 — v595 prise par le 8.3.7)
+
+**La demande** (Turquet, octobre 2026) : « en seconde dans le 8.3.9 je veux
+voir un dessin correspondant aux égalités vectorielles ».
+
+**Le dessin du 8.3.8, posé au-dessus de la démonstration** (`dcoSvg`) : le
+triangle, les points D et E CONSTRUITS d'après les égalités de l'énoncé
+(`dcoPts`) — AD⃗ = kAB⃗ et AE⃗ = kAC⃗ aux plans 0 et 1, BD⃗ = kAB⃗ et
+CE⃗ = kAC⃗ au plan 2 —, le côté prolongé en pointillés jusqu'au point qui
+en sort (au-delà de B si k > 1, au-delà de A si k < 0, au-delà de B et de C
+au plan 2), et le segment [DE] en violet (`kmi-ij`). Le cadre est celui du
+8.3.8 (`kmiCadre`). Au-dessus et non à côté : les lignes du plan 2 portent
+jusqu'à trente cases, elles prennent la largeur.
+
+**La forme du triangle se tire des lettres** (quatre formes, `DCO_TRI`) :
+rien de plus à ranger dans la question, elle ne change ni au redessin ni à
+la reprise, et les brouillons d'avant se dessinent aussi.
+
+**Les noms se posent dans le plus grand angle libre** autour de leur point,
+loin de tous les traits qui en partent ou le traversent : au plan 2, B est
+au milieu d'un côté prolongé, et la règle du 8.3.8 (s'éloigner du centre de
+gravité) aurait posé son nom sur le pointillé. Regardé à l'écran sur les
+trois plans, k positif, négatif, fractionnaire, et les milieux.
 
 ## 8.3.5 : la définition, puis vrai ou faux sur deux vecteurs — six situations en tête de séance (v582)
 
