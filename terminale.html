@@ -677,6 +677,7 @@
      commune), et la largeur suit la saisie : « 10 000 » ne doit pas se couper. */
   .sa2-ladder{display:flex;flex-direction:column;gap:10px;margin:6px 0 2px}
   .sa2-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:1.25rem}
+  .sa2-pgrp{display:inline-flex;align-items:center;gap:6px}
   .sa2-eq{min-width:74px;text-align:right;font-weight:600}
   .sa2-t{white-space:nowrap}
   /* La largeur est posée en JavaScript (sa2Ajuster) : un input ne sait pas se
@@ -3841,7 +3842,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=425;
+const APP_VERSION=426;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -23514,11 +23515,12 @@ function renderSA2(){
       +'<span class="sa2-t">'+S(q.k)+'</span></div>'
     +'<div class="sa2-row"><span class="sa2-eq">=</span>'+sa2In('sa2-a2')
       +'<span class="sa2-t"> '+Un+' '+'</span>'+sa2In('sa2-bk')+'</div>'
-    +'<div class="sa2-row"><span class="sa2-eq">=</span><span class="sa2-t">'+F(q.a)+' (</span>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span><span class="sa2-t">'+F(q.a)+'</span>'
+      +'<span class="sa2-pgrp">'+saParen(false).outerHTML   /* parenthèses étirées sur la hauteur des fractions */
       +sa2Frac(sa2In('sa2-a3')+' '+Un, sa2In('sa2-d1'))
       +'<span class="sa2-t">&nbsp;</span>'
       +sa2Frac(sa2In('sa2-n2'), sa2In('sa2-d2'))
-      +'<span class="sa2-t">)</span></div>'
+      +saParen(true).outerHTML+'</span></div>'
     +'<div class="sa2-row"><span class="sa2-eq">=</span><span class="sa2-t">'+F(q.a)+' ( '+Un+' '+'</span>'
       +sa2In('sa2-k1')+'<span class="sa2-t">)</span></div>'
     +'<div class="sa2-row"><span class="sa2-eq">=</span>'+sa2In('sa2-a4')
