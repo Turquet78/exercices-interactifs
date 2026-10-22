@@ -3248,6 +3248,37 @@ si elle ne désigne plus un exercice qui s'allonge. Ce bord n'était sorti dans
 aucune des exécutions locales : il ne sort que sur certains tirages.
 
 
+**Puis la figure de l'égalité (v596).** Turquet : « dans le 8.2.13, faire un
+dessin correspondant à l'égalité à démontrer en représentant tous les
+vecteurs de l'égalité ». La figure (`dchFigHTML`) se pose entre l'énoncé et
+la rédaction : les points de l'énoncé, et chaque vecteur de l'égalité en
+flèche — **violet à gauche du « = », orange à droite** (`--crd-a`,
+`--crd-b`, les encres du 8.1.13 : jamais le bleu, le vert ni le rouge du
+verdict, qui diraient « juste », « correction », « faux »). Une légende redit
+l'égalité dans les mêmes couleurs. Un « − AC » se dessine AC : le signe est
+dans l'égalité, pas dans la flèche ; le vecteur nul ne se dessine pas, et la
+légende le dit. Le parallélogramme, quand il y en a un, a ses côtés en
+pointillés gris.
+
+**Les places sont FIXES** (`DCH_POS`, `DCH_POS_PARA`), rien n'est rangé :
+tout se lit dans `q.t` et `q.n`, la reprise d'une pause redessine la même
+figure. Quatre points quelconques forment un quadrilatère sans côtés
+parallèles, pour que la figure ne suggère pas un parallélogramme que
+l'énoncé ne donne pas. Le point M est au-dessus du parallélogramme ; à sa
+première place (3,4 ; 4,7), MA⃗ frôlait D et se lisait comme MD⃗ prolongé —
+vu sur la photo des douze plans, pas par un banc : il est passé à (4,4 ;
+4,8). Une figure étroite (avec M) garde ses lettres à 19 px (`max-width` à
+la largeur de sa boîte) : sans quoi elle s'agrandissait à la largeur des
+autres, lettres comprises.
+
+**Le banc** (`demontrerChasles`) relit la figure de CHACUN des douze plans,
+sur d'autres lettres que celles du plan : les points nommés sont ceux de
+l'énoncé ; chaque flèche, lue par les points où elle commence et finit,
+redonne exactement les vecteurs du membre de gauche (violets) et du membre
+de droite (orange), le nul exclu ; chaque flèche a sa pointe ; le
+parallélogramme a ses quatre côtés, et lui seul ; la légende écrit
+l'égalité.
+
 ## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.14, v536 — v528 à v535 et les numéros 8.2.11 à 8.2.13 pris pendant la rédaction, par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et « Chasles : insérer un point »)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
