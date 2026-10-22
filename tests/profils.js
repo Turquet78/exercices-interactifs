@@ -1076,11 +1076,10 @@ module.exports = {
        d'un clic. Quatre questions de trois points. */
     translationAntecedent: { exercice: 'translation-antecedent', numero: '8.1.12', nb: 4, bareme: 12 },
     /* {demontrer-chasles} (8.2.13, l'idée n° 10 retenue par Turquet, octobre
-       2026) : une démonstration à trous, des vecteurs et une justification
-       par ligne. « nb » est la seconde source du compte (la page a DCH_NB) ;
-       « cases » celles de l'exemple de la demande (11 vecteurs, 4
-       justifications) — le barème d'une séance dépend des plans tirés. */
-    demontrerChasles: { exercice: 'demontrer-chasles', numero: '8.2.13', nb: 4, cases: 15 },
+       2026) : une rédaction LIBRE, une étape par ligne, dans un seul champ
+       (octobre 2026). « nb » est la seconde source du compte (la page a
+       DCH_NB) ; une démonstration vaut un point. */
+    demontrerChasles: { exercice: 'demontrer-chasles', numero: '8.2.13', nb: 4 },
     /* {demontrer-colineaires} (8.3.9, demande de Turquet, octobre 2026 :
        « comme le 8.2.13 avec des multiplications de vecteurs ») : « nb » est
        la seconde source du compte (la page a DCO_NB) ; « cases » celles de
@@ -1378,11 +1377,10 @@ module.exports = {
        fiche — il lit dmNbQuestions() et DOIT s'allonger. */
     reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage', 'simplifier-barres'], nbQMax: 20,
       /* le barème est la SOMME des cases tirées, et chaque démonstration a
-         les siennes (4 à 20) : six courtes peuvent peser autant que quatre
-         longues. Le contrôle de l'exercice (demontrerChasles) tient le
-         barème case par case. */
-      baremeParCases: { 'demontrer-chasles': 'une démonstration a 4 à 20 cases selon son plan',
-        'demontrer-colineaires': 'une démonstration a 19 à 30 cases selon son plan',
+         les siennes : six courtes peuvent peser autant que quatre longues.
+         {demontrer-chasles} (8.2.13) en est sorti en octobre 2026 : sa
+         rédaction est devenue libre, une démonstration vaut un point. */
+      baremeParCases: { 'demontrer-colineaires': 'une démonstration a 19 à 30 cases selon son plan',
         'demontrer-egalite-reels': 'une démonstration a 5 à 17 cases selon son plan' } },
     tableResultats: 'resultats_2nde',
     /* tests/pause.js — une question corrigée ne se rejuge pas à la reprise
