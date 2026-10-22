@@ -14521,6 +14521,13 @@ function vecteursColineairesSuite(w, P){
     if(test.score-av!==0 || classe(el('kpl-0'))!=='bad' || fbP.indexOf('mauvais côté')<0) vus.push('8.3.6 : le mauvais côté : '+classe(el('kpl-0'))+' — '+fbP.slice(0,300));
     if(document.querySelectorAll('#kplCorr line.svc-s').length!==1 || document.querySelectorAll('#kplEl line.svc-eb').length!==1) vus.push('8.3.6 : la correction verte et le vecteur rouge');
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0) vus.push('8.3.6 : le contexte du modèle');
+    /* la flèche dessinée est le vecteur de l'égalité : AB, puis BA */
+    const flecheP=function(){ const l=document.querySelector('#kplDonnes line.svc-u'); return l ? [+l.getAttribute('x1'), +l.getAttribute('x2')] : null; };
+    const fA=flecheP();
+    if(!fA || !(fA[0]<fA[1])) vus.push('8.3.6 : CM = k AB ne dessine pas la flèche de A vers B '+JSON.stringify(fA));
+    test.questions[1]=fixeP([8,6],[1,-1,2]); test.locked=false; renderKpl();
+    const fB=flecheP();
+    if(!fB || !(fB[0]>fB[1]) || document.querySelector('#kplGraph svg').getAttribute('aria-label').indexOf('le vecteur BA')<0) vus.push('8.3.6 : CM = k BA ne dessine pas la flèche de B vers A '+JSON.stringify(fB));
     /* question 3 : parti de A au lieu de C */
     nextKpl(); clearTimeout(test.fbTimer);
     test.questions[2]=fixeP(); renderKpl();
