@@ -3113,6 +3113,18 @@ désormais la case « Majorée par … » de {suite-vocabulaire} (5.4.1), case d
 texte voisine d'un champ de limite, et le profil nomme ce qu'on tape, ce
 qu'on attend et le juge qui relit (`casesLimite.jetonTexte`).
 
+**Puis la parenthèse a pris la hauteur de sa fraction (5.6.1, v425).**
+Signalé par Turquet sur une capture : dans « Uₙ = 4 × (2/1)ⁿ − 2 », les
+parenthèses étaient deux caractères « ( » agrandis à 1,6 em — moins hautes
+que la fraction empilée, et l'exposant ⁿ, un `<sup>` posé après un bloc
+centré, tombait à mi-hauteur au lieu du coin haut droit. La famille `frac`
+passe par `lqnParenFrac()` : les parenthèses étirables de `saParen()` (déjà
+celles de {suite-auxiliaire}), qui suivent la hauteur de la fraction, et
+l'exposant dans le même conteneur, aligné en haut. La capture montrait un
+second défaut : « 2/1 » — la fraction 1/2 RENVERSÉE. Le tirage ne renverse
+plus une fraction de numérateur 1. Exécuté dans Chromium : les deux
+parenthèses couvrent numérateur et dénominateur, l'exposant au coin.
+
 ## Associer f, f′ et f″ — six courbes en désordre, trois triplets (4.3.5, v388)
 
 Demande de Turquet, octobre 2026 : « dans le sous-thème convexité, créer un
