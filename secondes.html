@@ -2232,6 +2232,7 @@
   .dch-fig{flex-direction:column;align-items:center;gap:6px;max-width:460px;margin:0 auto 14px}
   .dch-svg{max-width:420px}
   .veg-svg .dch-cote{stroke:var(--ink-soft);stroke-width:1.4;stroke-dasharray:5 4}
+  .veg-svg .dch-code{stroke:var(--ink);stroke-width:1.8}
   .veg-svg .dch-vg{stroke:var(--crd-a);stroke-width:3}
   .veg-svg .dch-vd{stroke:var(--crd-b);stroke-width:3}
   .veg-svg .dch-pt{fill:var(--ink)}
@@ -8684,7 +8685,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=598;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=599;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9516,7 +9517,7 @@ const TESTS={
   'parallelogramme-point': { name:'Le quatri\u00e8me point d\u2019un parall\u00e9logramme', icon:'\ud83d\udccd', desc:'Trois points A, B et C sur un quadrillage, et l\u2019\u00e9nonc\u00e9 \u00ab ABDC est un parall\u00e9logramme \u00bb \u2014 ou ABCD. Construis D d\u2019un clic sur le quadrillage, puis compl\u00e8te la phrase \u00ab le chemin qui va de \u2026 \u00e0 \u2026 est le m\u00eame que celui qui va de C \u00e0 D \u00bb, puis \u00e9cris cette \u00e9galit\u00e9 avec des vecteurs.', start:()=>startVec() },
   'egalite-vectorielle-point': { name:'Placer un point pour une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccf', desc:'Trois des points A, B, C et D sur un quadrillage, et une \u00e9galit\u00e9 de vecteurs \u00e0 r\u00e9aliser. Clique sur le quadrillage le point qui manque, puis nomme le parall\u00e9logramme obtenu \u2014 dans le bon ordre des lettres.', start:()=>startVep() },
   'somme-vecteurs': { name:'Somme de deux vecteurs\u00a0: un d\u00e9but va sur une fin', icon:'\u2795', desc:'Deux fl\u00e8ches u et v sur un quadrillage\u00a0: \u00e9tape 1, fais-les glisser bout \u00e0 bout \u2014 \u00ab\u00a0un d\u00e9but va sur une fin\u00a0\u00bb\u00a0; \u00e9tape 2, trace le vecteur u + v.', start:()=>startSvc() },
-  'demontrer-chasles': { name:'D\u00e9montrer une \u00e9galit\u00e9 avec Chasles', icon:'\u270d\ufe0f', desc:'R\u00e9dige la d\u00e9monstration avec la m\u00e9thode de ton choix, une \u00e9tape par ligne \u2014 relation de Chasles, ordre de la somme, soustraction, vecteurs \u00e9gaux du parall\u00e9logramme\u2026', start:()=>startDch() },
+  'demontrer-chasles': { name:'D\u00e9montrer une \u00e9galit\u00e9 avec Chasles', icon:'\u270d\ufe0f', desc:'R\u00e9dige la d\u00e9monstration avec la m\u00e9thode de ton choix, une \u00e9tape par ligne \u2014 relation de Chasles, ordre de la somme, soustraction, vecteurs \u00e9gaux d\u2019un parall\u00e9logramme ou d\u2019un milieu\u2026', start:()=>startDch() },
   'somme-vecteurs-libre': { name:'Somme de deux vecteurs, sans \u00e9tapes', icon:'\u2795', desc:'Deux fl\u00e8ches u et v sur un quadrillage, sans les mots \u00ab\u00a0d\u00e9but\u00a0\u00bb et \u00ab\u00a0fin\u00a0\u00bb ni les \u00e9tapes\u00a0: fais-les glisser o\u00f9 tu veux, puis trace le vecteur u + v.', start:()=>startSvc(1) },
   'lire-somme-dessin': { name:'Lire une somme de vecteurs sur un dessin', icon:'\ud83d\udd0d', desc:'Une cha\u00eene de fl\u00e8ches entre des points nomm\u00e9s, et trois vecteurs u, v, w trac\u00e9s \u00e0 part\u00a0: trouve le vecteur bleu de la figure \u00e9gal \u00e0 u + v, puis \u00e9cris w comme la somme de deux vecteurs bleus.', start:()=>startLsd() },
   'somme-trois-vecteurs': { name:'Trois vecteurs bout \u00e0 bout', icon:'\u2795', desc:'Trois fl\u00e8ches u, v, w et un point sur un quadrillage\u00a0: fais-les glisser bout \u00e0 bout \u00e0 partir du point, puis trace le vecteur u + v + w \u2014 ou dis que c\u2019est le vecteur nul.', start:()=>startStv() },
@@ -12901,7 +12902,8 @@ On part d'un membre de l'égalité et on le transforme, ligne après ligne, jusq
 <b>② On change l'ordre de la somme</b> : <span class="vgt-vec">u</span> + <span class="vgt-vec">v</span> = <span class="vgt-vec">v</span> + <span class="vgt-vec">u</span> — pour mettre côte à côte deux vecteurs qui s'enchaînent ou qui s'annulent.<br>
 <b>③ Vecteurs opposés</b> : <span class="vgt-vec">AB</span> + <span class="vgt-vec">BA</span> = <span class="vgt-vec">0</span>, et le vecteur nul ne change rien : <span class="vgt-vec">u</span> + <span class="vgt-vec">0</span> = <span class="vgt-vec">u</span>.<br>
 <b>④ Soustraire un vecteur, c'est ajouter son opposé</b> : <span class="vgt-vec">AB</span> − <span class="vgt-vec">CB</span> = <span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>.<br>
-<b>⑤ Dans un parallélogramme ABCD</b> : <span class="vgt-vec">AB</span> = <span class="vgt-vec">DC</span> et <span class="vgt-vec">AD</span> = <span class="vgt-vec">BC</span> — on remplace un vecteur par un vecteur égal.`;
+<b>⑤ Dans un parallélogramme ABCD</b> : <span class="vgt-vec">AB</span> = <span class="vgt-vec">DC</span> et <span class="vgt-vec">AD</span> = <span class="vgt-vec">BC</span> — on remplace un vecteur par un vecteur égal.<br>
+<b>⑥ Si M est le milieu de [AB]</b> : <span class="vgt-vec">AM</span> = <span class="vgt-vec">MB</span> (et <span class="vgt-vec">MA</span> = <span class="vgt-vec">BM</span>) — là aussi, on remplace un vecteur par un vecteur égal.`;
 
 /* 8.1.9 {translation-pavage} */
 const RAP_TPV=`<b>L'image d'une figure par une translation</b><br>
@@ -74239,15 +74241,17 @@ function ctxVmi(q){
 
    CHAQUE « = » EST UNE ÉTAPE, jugée par dchPas() : l'égalité doit être vraie
    (dchComb), et la ligne doit se tirer de la précédente par UNE étape — un
-   changement d'ordre quelconque ; la relation de Chasles qui réunit deux
-   vecteurs ou plus, dans n'importe quel ordre (AB + BA donne 0) ; un point
-   inséré pour décomposer un vecteur en deux ; soustraire, c'est ajouter
-   l'opposé ; un ou plusieurs vecteurs remplacés par un vecteur égal sur la
-   figure (le parallélogramme). Plusieurs applications d'une même règle dans
-   une ligne comptent pour une étape, le vecteur nul se retire sans étape.
-   Une étape à laquelle il manque UNE étape intermédiaire compte juste, et le
-   message la montre ; s'il en manque deux ou plus, l'égalité est vraie mais
-   l'étape compte fausse : « détaille davantage ». La dernière ligne doit
+   changement d'ordre (une étape à lui seul : Turquet, octobre 2026) ; la
+   relation de Chasles qui réunit deux vecteurs ou plus VOISINS, écrits dans
+   l'ordre où ils s'enchaînent (AB + BA donne 0) ; un point inséré pour
+   décomposer un vecteur en deux ; soustraire, c'est ajouter l'opposé ; un ou
+   plusieurs vecteurs remplacés par un vecteur égal sur la figure (le
+   parallélogramme, un milieu). Hors changement d'ordre, chaque règle
+   s'applique SUR PLACE ; plusieurs applications d'une même règle dans une
+   ligne comptent pour une étape, le vecteur nul se retire sans étape.
+   Une étape à laquelle il manque une étape intermédiaire ou plus compte
+   fausse, même si l'égalité est vraie : le message dit de détailler, et
+   montre la ligne qui manque quand il n'en manque qu'une. La dernière ligne doit
    être le membre de droite (à l'ordre près).
 
    Une démonstration vaut UN point. Les plans où il faut INSÉRER un point
@@ -74262,7 +74266,12 @@ const DCH_VERBES=['Montrer que','Démontrer que','Prouver que'];
 /* les plans — lettres A, B, C, D (le parallélogramme ABCD, s'il y en a un)
    et M ; « -AC » est une soustraction, « 0 » le vecteur nul ; c : une
    rédaction juste, étape par étape, qui sert de correction ; ins : il faut
-   insérer un point dans un vecteur (ces plans viennent en fin de séance) */
+   insérer un point dans un vecteur (ces plans viennent en fin de séance) ;
+   mil : les MILIEUX (Turquet, octobre 2026 : « mettre aussi des exemples
+   avec un ou des milieux », puis « un parallélogramme et un ou des
+   milieux ») — {M:'AB'} : M est le milieu de [AB] ; centre : M est le
+   centre du parallélogramme, milieu de ses deux diagonales. Lettres A, B,
+   C, D, M, N, renommées par q.n (six lettres). */
 const DCH_DEMOS=[
   {ins:1, g:['AB','CD'], d:['AD','CB'], c:[['AD','DB','CB','BD'],['AD','CB','DB','BD'],['AD','CB','0']]},
   {g:['AB','CD','BC'], d:['AD'], c:[['AB','BC','CD'],['AC','CD']]},
@@ -74275,12 +74284,21 @@ const DCH_DEMOS=[
   {para:1, g:['AB','CD'], d:['0'], c:[['AB','BA']]},
   {para:1, g:['AB','CB'], d:['DB'], c:[['DC','CB']]},
   {ins:1, para:1, g:['MA','MC'], d:['MB','MD'], c:[['MB','BA','MD','DC'],['MB','MD','BA','DC'],['MB','MD','BA','AB'],['MB','MD','0']]},
-  {para:1, g:['MA','DC'], d:['MB'], c:[['MA','AB']]}
+  {para:1, g:['MA','DC'], d:['MB'], c:[['MA','AB']]},
+  {mil:{M:'AB'}, g:['MA','MB'], d:['0'], c:[['MA','AM']]},
+  {mil:{M:'AB'}, g:['CA','MB'], d:['CM'], c:[['CA','AM']]},
+  {mil:{M:'AB'}, g:['MA','CB'], d:['CM'], c:[['BM','CB'],['CB','BM']]},
+  {mil:{M:'AB', D:'AC'}, g:['BM','AD'], d:['MD'], c:[['MA','AD']]},
+  {mil:{M:'AB', D:'BC'}, g:['AM','BD'], d:['MD'], c:[['MB','BD']]},
+  {para:1, mil:{M:'AB'}, g:['AM','BC'], d:['MC'], c:[['MB','BC']]},
+  {para:1, centre:1, mil:{M:'AC'}, g:['DA','AM'], d:['MB'], c:[['DM']]},
+  {para:1, mil:{M:'AB', N:'DC'}, g:['AM','DN'], d:['AB'], c:[['AM','MB']]},
+  {ins:1, mil:{M:'AB'}, g:['CA','CB'], d:['CM','CM'], c:[['CM','MA','CM','MB'],['CM','CM','MA','MB'],['CM','CM','MA','AM'],['CM','CM','0']]}
 ];
 function dchR(q, t){
   if(t==='0') return t;
   const neg=t[0]==='-', s=neg ? t.slice(1) : t;
-  return (neg?'-':'')+s.split('').map(function(c){ return q.n['ABCDM'.indexOf(c)]; }).join('');
+  return (neg?'-':'')+s.split('').map(function(c){ return q.n['ABCDMN'.indexOf(c)]; }).join('');
 }
 /* la démonstration, lettres posées */
 function dchDemo(q){
@@ -74288,132 +74306,122 @@ function dchDemo(q){
   const vus={};
   [T.g, T.d].concat(T.c).forEach(function(l){ l.forEach(function(t){ t.replace(/[A-Z]/g, function(c){ vus[c]=1; return c; }); }); });
   if(T.para) 'ABCD'.split('').forEach(function(c){ vus[c]=1; });
-  const pts='ABCDM'.split('').filter(function(c){ return vus[c]; }).map(function(c){ return q.n['ABCDM'.indexOf(c)]; }).join('');
-  return {g:R(T.g), d:R(T.d), c:T.c.map(R), para:T.para ? q.n.slice(0,4) : '', pts:pts, M:vus.M ? q.n[4] : ''};
+  const mil={};
+  if(T.mil) Object.keys(T.mil).forEach(function(c){ vus[c]=1; T.mil[c].split('').forEach(function(e){ vus[e]=1; });
+    mil[dchR(q, c)]=dchR(q, T.mil[c]); });
+  const pts='ABCDMN'.split('').filter(function(c){ return vus[c]; }).map(function(c){ return q.n['ABCDMN'.indexOf(c)]; }).join('');
+  return {g:R(T.g), d:R(T.d), c:T.c.map(R), para:T.para ? q.n.slice(0,4) : '', mil:mil, centre:T.centre ? q.n[4] : '', pts:pts, M:vus.M && !T.mil ? q.n[4] : ''};
 }
 function dchOpp(v){ return v==='0' ? '0' : v[1]+v[0]; }
 /* la somme lue comme une combinaison de points : AB vaut B − A. Dans le
    parallélogramme P0P1P2P3, le quatrième sommet vaut P0 + P2 − P1 : il se
-   remplace, et deux sommes égales par le parallélogramme s'écrivent pareil. */
+   remplace, et deux sommes égales par le parallélogramme s'écrivent pareil.
+   Le milieu I de [AB] vaut (A + B)/2 : des demis, exacts en binaire. */
 function dchComb(l, D){
-  const c={}, P=D && D.para;
-  const aj=function(p, s){ if(P && p===P[3]){ aj(P[0], s); aj(P[2], s); aj(P[1], -s); return; } c[p]=(c[p]||0)+s; };
+  const c={}, P=D && D.para, I=(D && D.mil) || {};
+  const aj=function(p, s){ if(P && p===P[3]){ aj(P[0], s); aj(P[2], s); aj(P[1], -s); return; }
+    if(I[p]){ aj(I[p][0], s/2); aj(I[p][1], s/2); return; } c[p]=(c[p]||0)+s; };
   l.forEach(function(t){ if(t==='0') return; const s=t[0]==='-' ? -1 : 1, v=s<0 ? t.slice(1) : t;
     aj(v[1], s); aj(v[0], -s); });
   return Object.keys(c).filter(function(k){ return c[k]; }).sort().map(function(k){ return k+c[k]; }).join(' ');
 }
-/* les vecteurs égaux du parallélogramme P0P1P2P3 : P0P1 = P3P2, P0P3 = P1P2, et leurs opposés */
+/* les vecteurs de la figure ÉGAUX à v — par le parallélogramme (AB = DC) ou
+   par un milieu (M milieu de [AB] : AM = MB) : ceux qui ont sa combinaison */
 function dchEgaux(D, v){
-  const P=D.para; if(!P) return [];
-  const paires=[[P[0]+P[1], P[3]+P[2]], [P[0]+P[3], P[1]+P[2]]], r=[];
-  paires.forEach(function(p){ [p, [dchOpp(p[0]), dchOpp(p[1])]].forEach(function(e){
-    if(e[0]===v) r.push(e[1]); if(e[1]===v) r.push(e[0]); }); });
+  if(!D.para && !Object.keys(D.mil||{}).length) return [];
+  const k=dchComb([v], D), P=D.pts.split(''), r=[];
+  P.forEach(function(a){ P.forEach(function(b){ if(a!==b && a+b!==v && dchComb([a+b], D)===k) r.push(a+b); }); });
   return r;
 }
 function dchTxt(l){ return l.map(function(t, i){ return t[0]==='-' ? (i?' − ':'− ')+t.slice(1) : (i?' + ':'')+t; }).join(''); }
 
 /* ---- le juge d'une étape ----------------------------------------------
-   Une ligne se lit comme un multi-ensemble de vecteurs signés (« AB »,
-   « -CB ») : l'ordre ne compte pas — en changer est permis dans toute étape —
-   et le vecteur nul (0, ou AA) se retire. */
+   Une ligne se lit comme une SUITE de vecteurs signés (« AB », « -CB ») ; le
+   vecteur nul (0, ou AA) se retire sans étape. L'ORDRE COMPTE (Turquet,
+   octobre 2026 : « placer les vecteurs dans le bon ordre pour appliquer la
+   relation de Chasles est une étape à faire ») : changer l'ordre est une
+   étape à lui seul, et chaque autre règle s'applique SUR PLACE. */
 function dchNet(l){ return l.filter(function(t){ return t!=='0'; }); }
 function dchMemes(a, b){ return a.slice().sort().join(' ')===b.slice().sort().join(' '); }
-/* des vecteurs bout à bout, dans un ordre à trouver : le vecteur qu'ils font
-   (« AA » s'ils reviennent au départ), ou null */
+/* des vecteurs qui se suivent, bout à bout DANS CET ORDRE : le vecteur
+   qu'ils font (« AA » s'ils reviennent au départ), ou null */
 function dchChaine(vs){
-  if(vs.length===1) return vs[0];
-  const n=vs.length, pris=vs.map(function(){ return false; });
-  const suit=function(cur, k){
-    if(k===n) return cur;
-    for(let j=0;j<n;j++) if(!pris[j] && vs[j][0]===cur[1]){ pris[j]=true; const r=suit(cur[0]+vs[j][1], k+1); pris[j]=false; if(r) return r; }
-    return null; };
-  for(let s=0;s<n;s++){ pris[s]=true; const r=suit(vs[s], 1); pris[s]=false; if(r) return r; }
-  return null;
+  let cur=vs[0];
+  for(let k=1;k<vs.length;k++){ if(vs[k][0]!==cur[1]) return null; cur=cur[0]+vs[k][1]; }
+  return cur;
 }
-/* T se tire de S en RÉUNISSANT des vecteurs par Chasles (des paquets de même
-   signe, chacun bout à bout dans un ordre quelconque) ; nul : un paquet
-   peut revenir au départ et donner 0. Lu à l'envers (S ← T, sans 0), c'est
-   un point INSÉRÉ dans un ou plusieurs vecteurs. */
+/* T se tire de S en RÉUNISSANT par Chasles des vecteurs VOISINS, de même
+   signe, qui s'enchaînent dans l'ordre écrit ; nul : un paquet qui revient
+   au départ donne 0 (et se retire). Lu à l'envers (S ← T, sans 0), c'est un
+   point INSÉRÉ dans un ou plusieurs vecteurs, sur place. */
 function dchReunit(S, T, nul){
-  const reste={}; T.forEach(function(t){ reste[t]=(reste[t]||0)+1; });
-  const n=S.length, pris=S.map(function(){ return false; });
-  const rec=function(){
-    const i=pris.indexOf(false);
-    if(i<0) return Object.keys(reste).every(function(k){ return !reste[k]; });
-    const neg=S[i][0]==='-', cand=[];
-    pris[i]=true;
-    for(let j=i+1;j<n;j++) if(!pris[j] && (S[j][0]==='-')===neg) cand.push(j);
-    for(let m=0;m<(1<<cand.length);m++){
-      const bloc=[i]; cand.forEach(function(j, b){ if(m>>b&1) bloc.push(j); });
-      const r=dchChaine(bloc.map(function(k){ return neg ? S[k].slice(1) : S[k]; }));
-      if(!r) continue;
-      const res=r[0]===r[1] ? null : (neg?'-':'')+r;
-      if(res===null ? !nul : !reste[res]) continue;
-      if(res!==null) reste[res]--;
-      bloc.forEach(function(k){ pris[k]=true; });
-      const ok=rec();
-      bloc.forEach(function(k){ if(k!==i) pris[k]=false; });
-      if(res!==null) reste[res]++;
-      if(ok){ pris[i]=false; return true; }
+  const memo={};
+  const rec=function(i, j){
+    const k0=i+','+j; if(k0 in memo) return memo[k0];
+    let ok=false;
+    if(i===S.length) ok=j===T.length;
+    else {
+      const neg=S[i][0]==='-', bloc=[];
+      for(let k=i;k<S.length && !ok;k++){
+        if((S[k][0]==='-')!==neg) break;
+        bloc.push(neg ? S[k].slice(1) : S[k]);
+        const r=dchChaine(bloc); if(!r) break;
+        if(r[0]===r[1]){ if(nul && bloc.length>1) ok=rec(k+1, j); }
+        else if(j<T.length && T[j]===(neg?'-':'')+r) ok=rec(k+1, j+1);
+      }
     }
-    pris[i]=false;
-    return false;
+    return memo[k0]=ok;
   };
-  return rec();
+  return rec(0, 0);
 }
-/* soustraire, c'est ajouter l'opposé : des « − XY » de S deviennent « + YX » */
+/* soustraire, c'est ajouter l'opposé : sur place, des « − XY » deviennent « + YX » */
 function dchSoustrait(S, T){
-  const r={}; T.forEach(function(t){ r[t]=(r[t]||0)+1; });
-  const neg=[];
-  for(const s of S){ if(s[0]==='-'){ neg.push(s); continue; } if(!r[s]) return false; r[s]--; }
-  for(const s of neg){ if(r[s]) r[s]--; else { const o=dchOpp(s.slice(1)); if(!r[o]) return false; r[o]--; } }
-  return Object.keys(r).every(function(k){ return !r[k]; });
+  return S.length===T.length && S.some(function(s, i){ return s!==T[i]; })
+    && S.every(function(s, i){ return s===T[i] || (s[0]==='-' && T[i]===dchOpp(s.slice(1))); });
 }
-/* des vecteurs remplacés par des vecteurs ÉGAUX sur la figure (le parallélogramme) */
+/* sur place, des vecteurs remplacés par des vecteurs ÉGAUX sur la figure (le parallélogramme, un milieu) */
 function dchEgale(D, S, T){
-  if(!D.para) return false;
+  if(!D.para && !Object.keys(D.mil||{}).length) return false;
   const cle=function(t){ const n=t[0]==='-'; return (n?'-':'+')+dchComb([n ? t.slice(1) : t], D); };
-  return S.map(cle).sort().join('|')===T.map(cle).sort().join('|');
+  return S.length===T.length && S.every(function(s, i){ return cle(s)===cle(T[i]); });
 }
-/* UNE étape mène-t-elle de S à T (lignes déjà nettes) ? */
+/* UNE étape mène-t-elle de S à T (lignes déjà nettes) ? Rien changé, ou
+   seulement l'ordre, ou une seule règle appliquée sur place. */
 function dchUneEtape(D, S, T){
   return dchMemes(S, T) || dchSoustrait(S, T) || dchEgale(D, S, T) || dchReunit(S, T, true) || dchReunit(T, S, false);
 }
 /* les lignes qu'une étape tire de S — pour chercher l'étape qui manque.
    L'insertion se limite à un point dans un ou deux vecteurs. */
 function dchVoisins(D, S){
-  const out=[], vus={}, aj=function(l){ const k=l.slice().sort().join(' '); if(!vus[k]){ vus[k]=1; out.push(l); } };
+  const out=[], vus={}, aj=function(l){ const k=l.join(' '); if(!vus[k]){ vus[k]=1; out.push(l); } };
   const n=S.length;
+  /* l'ordre : toutes les permutations */
+  const perm=function(acc, reste){ if(!reste.length){ aj(acc); return; }
+    reste.forEach(function(t, i){ perm(acc.concat([t]), reste.slice(0, i).concat(reste.slice(i+1))); }); };
+  if(n<=6) perm([], S);
   /* soustraction */
   const negs=[]; S.forEach(function(t, i){ if(t[0]==='-') negs.push(i); });
   for(let m=1;m<(1<<negs.length);m++) aj(S.map(function(t, i){ const b=negs.indexOf(i); return b>=0 && (m>>b&1) ? dchOpp(t.slice(1)) : t; }));
   /* vecteurs égaux */
-  if(D.para){
+  if(D.para || Object.keys(D.mil||{}).length){
     const ch=S.map(function(t){ const neg=t[0]==='-', v=neg ? t.slice(1) : t;
       return [t].concat(dchEgaux(D, v).map(function(e){ return (neg?'-':'')+e; })); });
     const rec=function(i, acc){ if(i===n){ aj(acc); return; } ch[i].forEach(function(t){ rec(i+1, acc.concat([t])); }); };
     rec(0, []);
   }
-  /* Chasles : toutes les façons de réunir */
-  const pris=S.map(function(){ return false; });
-  const run=function(acc){
-    const i=pris.indexOf(false);
-    if(i<0){ aj(acc); return; }
-    const neg=S[i][0]==='-', cand=[];
-    pris[i]=true;
-    for(let j=i+1;j<n;j++) if(!pris[j] && (S[j][0]==='-')===neg) cand.push(j);
-    for(let m=0;m<(1<<cand.length);m++){
-      const bloc=[i]; cand.forEach(function(j, b){ if(m>>b&1) bloc.push(j); });
-      const r=dchChaine(bloc.map(function(k){ return neg ? S[k].slice(1) : S[k]; }));
-      if(!r) continue;
-      bloc.forEach(function(k){ pris[k]=true; });
-      run(r[0]===r[1] ? acc : acc.concat([(neg?'-':'')+r]));
-      bloc.forEach(function(k){ if(k!==i) pris[k]=false; });
+  /* Chasles : toutes les façons de réunir des voisins */
+  const run=function(i, acc){
+    if(i===n){ aj(acc); return; }
+    const neg=S[i][0]==='-', bloc=[];
+    for(let k=i;k<n;k++){
+      if((S[k][0]==='-')!==neg) break;
+      bloc.push(neg ? S[k].slice(1) : S[k]);
+      const r=dchChaine(bloc); if(!r) break;
+      run(k+1, r[0]===r[1] ? acc : acc.concat([(neg?'-':'')+r]));
     }
-    pris[i]=false;
   };
-  run([]);
-  /* un point inséré dans un ou deux vecteurs */
+  run(0, []);
+  /* un point inséré dans un ou deux vecteurs, sur place */
   const P=D.pts.split('');
   const coupe=function(t){ const neg=t[0]==='-', v=neg ? t.slice(1) : t, s=neg?'-':'';
     return P.filter(function(p){ return p!==v[0] && p!==v[1]; }).map(function(p){ return [s+v[0]+p, s+p+v[1]]; }); };
@@ -74463,9 +74471,11 @@ function dchLecture(D, val){
   return morceaux;
 }
 /* LE VERDICT d'une démonstration. Chaque morceau reçoit son état : j (juste),
-   j1 (juste, il manque une étape), trop (vrai, mais il manque au moins deux
-   étapes : compté faux), faux (pas égal), illisible ; la démonstration est
-   juste si tous ses morceaux le sont et si le dernier est le membre de droite. */
+   j1 (vrai, mais il manque une étape), trop (vrai, mais il en manque au
+   moins deux), faux (pas égal), illisible. Seul j compte juste (Turquet,
+   octobre 2026 : « s'il manque une étape, compté faux finalement, en
+   précisant qu'il faut détailler ») ; la démonstration est juste si tous ses
+   morceaux le sont et si le dernier est le membre de droite. */
 function dchJuge(q, val){
   const D=dchDemo(q), M=dchLecture(D, val), ref=dchComb(D.g, D);
   let prev=D.g, fin=null;
@@ -74478,27 +74488,23 @@ function dchJuge(q, val){
   });
   const vide=!M.length;
   const arrive=!!fin && dchMemes(dchNet(fin.l), dchNet(D.d));
-  const ok=!vide && arrive && M.every(function(m){ return m.etat==='j' || m.etat==='j1'; });
+  const ok=!vide && arrive && M.every(function(m){ return m.etat==='j'; });
   return {D:D, M:M, vide:vide, arrive:arrive, ok:ok};
 }
 /* le message : la première étape fausse, ou ce qui manque */
 function dchPourquoi(J){
   const D=J.D, cite=function(m){ return '« '+dchTxt(m.depuis)+' = '+dchTxt(m.l)+' »'; };
-  const m=J.M.find(function(x){ return x.etat!=='j' && x.etat!=='j1'; });
+  const m=J.M.find(function(x){ return x.etat!=='j'; });
   if(m){
     if(m.etat==='illisible') return m.err==='point' ? '« '+m.v+' » n’est pas un vecteur de la figure : ses deux lettres doivent être des points de l’énoncé.'
       : m.err==='vide' ? 'Il manque un vecteur entre deux « = ».'
       : '« '+chlMembreTxt(m.brut)+' » ne se lit pas : écris des vecteurs de deux lettres, séparés par + ou −.';
     if(m.etat==='faux') return '« '+dchTxt(m.l)+' » n’est pas égal à « '+dchTxt(m.depuis)+' ».';
-    return cite(m)+' est vrai, mais il faut détailler davantage : écris les étapes intermédiaires, une par ligne. Cette étape compte fausse.';
+    if(m.etat==='j1') return cite(m)+' est vrai, mais il manque une étape : il faut détailler, par exemple '+dchTxt(m.depuis)+' = '+dchTxt(m.milieu)+' = '+dchTxt(m.l)+'. Cette étape compte fausse.';
+    return cite(m)+' est vrai, mais il manque plusieurs étapes : il faut détailler davantage, une étape par ligne. Cette étape compte fausse.';
   }
   if(!J.arrive) return 'Toutes tes étapes sont justes, mais la démonstration doit arriver à '+dchTxt(D.d)+'.';
   return '';
-}
-/* la remarque d'une étape juste à laquelle il manque une étape */
-function dchRemarque(J){
-  const m=J.M.find(function(x){ return x.etat==='j1'; });
-  return m ? 'Pour '+'« '+dchTxt(m.depuis)+' = '+dchTxt(m.l)+' », il manque une étape : par exemple '+dchTxt(m.depuis)+' = '+dchTxt(m.milieu)+' = '+dchTxt(m.l)+'.' : '';
 }
 /* la rédaction du plan, écrite comme dans le champ */
 function dchCorrection(D){
@@ -74519,8 +74525,8 @@ function dchBuildQuestions(){
    le premier, il passe en fin de séance avec les autres insertions */
 function dchGenQuestion(_, i){
   const pool=DCH_LETTRES.split(''), n=[];
-  if(i===0) return {t:0, n:'ABCDM', v:0};
-  while(n.length<5) n.push(pool.splice(Math.floor(Math.random()*pool.length), 1)[0]);
+  if(i===0) return {t:0, n:'ABCDMN', v:0};
+  while(n.length<6) n.push(pool.splice(Math.floor(Math.random()*pool.length), 1)[0]);
   return {t:1+Math.floor(Math.random()*(DCH_DEMOS.length-1)), n:n.join(''), v:Math.floor(Math.random()*DCH_VERBES.length)};
 }
 function dchVecHTML(t){ return vegVecHTML(t); }
@@ -74533,11 +74539,17 @@ function dchEnonceHTML(q){
   const D=dchDemo(q), lettres=D.pts.split('');
   const liste=function(a){ return a.length>1 ? a.slice(0,-1).join(', ')+' et '+a[a.length-1] : a[0]; };
   let h;
-  if(D.para) h=D.para+' est un parallélogramme'+(D.M ? ' et '+D.M+' est un point du plan' : '')+'. ';
-  else h=liste(lettres)+' sont '+['','','deux','trois','quatre','cinq'][lettres.length]+' points du plan. ';
+  const mil=Object.keys(D.mil), lesMil=function(){ return mil.map(function(c){ return c+' est le milieu de ['+D.mil[c]+']'; }).join(' et '); };
+  if(D.centre) h=D.para+' est un parallélogramme ; '+D.centre+' est son centre, le milieu de ses diagonales ['+D.para[0]+D.para[2]+'] et ['+D.para[1]+D.para[3]+']. ';
+  else if(D.para) h=D.para+' est un parallélogramme'+(D.M ? ' et '+D.M+' est un point du plan' : '')+(mil.length ? ' ; '+lesMil() : '')+'. ';
+  else {
+    const libres=lettres.filter(function(c){ return mil.indexOf(c)<0; });
+    h=liste(libres)+' sont '+['','','deux','trois','quatre','cinq'][libres.length]+' points du plan'
+      +(mil.length ? ' ; '+mil.map(function(c, i){ return c+' est le milieu de ['+D.mil[c]+']'; }).join(' et ') : '')+'. ';
+  }
   h+='<b>'+DCH_VERBES[q.v||0]+' '+dchEnonceVec(D.g)+' = '+dchEnonceVec(D.d)+'.</b><br>'
     +'Écris ta démonstration dans le champ, avec la méthode que tu veux : <b>une étape par ligne</b>. Appuie sur <b>Entrée</b> pour passer à la ligne suivante, qui commence par «&nbsp;=&nbsp;». '
-    +'Les deux lettres d’un vecteur se placent sous la flèche ; tape <b>+</b> ou <b>−</b> pour en ouvrir une autre (<b>0</b> pour le vecteur nul). La dernière ligne est '+dchEnonceVec(D.d)+'.';
+    +'Changer l’ordre des vecteurs compte comme une étape. Les deux lettres d’un vecteur se placent sous la flèche ; tape <b>+</b> ou <b>−</b> pour en ouvrir une autre (<b>0</b> pour le vecteur nul). La dernière ligne est '+dchEnonceVec(D.d)+'.';
   return h;
 }
 /* ---- la figure de l'égalité (demande de Turquet, octobre 2026) -----------
@@ -74552,7 +74564,9 @@ const DCH_POS={A:[0,0], B:[2.2,2.7], C:[5.8,1.9], D:[4.3,-0.7]};
 const DCH_POS_PARA={A:[0,0], B:[4,0], C:[5.6,2.6], D:[1.6,2.6], M:[4.4,4.8]};
 function dchFigHTML(q){
   const T=DCH_DEMOS[q.t], D=dchDemo(q), pos=T.para ? DCH_POS_PARA : DCH_POS, pts={};
-  'ABCDM'.split('').forEach(function(c, i){ if(D.pts.indexOf(q.n[i])>=0) pts[q.n[i]]=pos[c]; });
+  'ABCDMN'.split('').forEach(function(c, i){ if(D.pts.indexOf(q.n[i])>=0 && !D.mil[q.n[i]]) pts[q.n[i]]=pos[c]; });
+  /* un milieu se pose au milieu de son segment */
+  Object.keys(D.mil).forEach(function(c){ const a=pts[D.mil[c][0]], b=pts[D.mil[c][1]]; pts[c]=[(a[0]+b[0])/2, (a[1]+b[1])/2]; });
   const L=Object.keys(pts), W=420, HMAX=250, M=30;
   const xs=L.map(function(c){ return pts[c][0]; }), ys=L.map(function(c){ return pts[c][1]; });
   const minx=Math.min.apply(null,xs), maxx=Math.max.apply(null,xs), miny=Math.min.apply(null,ys), maxy=Math.max.apply(null,ys);
@@ -74568,6 +74582,16 @@ function dchFigHTML(q){
     +'<defs>'+pointe('dchArrG','var(--crd-a)')+pointe('dchArrD','var(--crd-b)')+'</defs>';
   if(D.para) for(let i=0;i<4;i++){ const a=P(D.para[i]), b=P(D.para[(i+1)%4]);
     h+='<line class="dch-cote" x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0])+'" y2="'+f(b[1])+'"/>'; }
+  /* le segment d'un milieu, en pointillés, et le codage de ses deux moitiés
+     égales ; le centre d'un parallélogramme : ses deux diagonales */
+  const segs=Object.keys(D.mil).map(function(c){ return D.mil[c]; });
+  if(D.centre) segs.push(D.para[1]+D.para[3]);
+  segs.forEach(function(e){
+    const a=P(e[0]), b=P(e[1]), dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1, nx=-dy/l*6, ny=dx/l*6;
+    h+='<line class="dch-cote" x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0])+'" y2="'+f(b[1])+'"/>';
+    [0.25, 0.75].forEach(function(r){ const x=a[0]+dx*r, y=a[1]+dy*r;
+      h+='<line class="dch-code" x1="'+f(x-nx)+'" y1="'+f(y-ny)+'" x2="'+f(x+nx)+'" y2="'+f(y+ny)+'"/>'; });
+  });
   const fleche=function(t, cls, mk){
     if(t==='0') return;
     const v=t[0]==='-' ? t.slice(1) : t, a=P(v[0]), b=P(v[1]);
@@ -74579,7 +74603,14 @@ function dchFigHTML(q){
   D.d.forEach(function(t){ fleche(t, 'dch-vd', 'dchArrD'); });
   /* les lettres : du côté opposé au centre des points */
   const cx=L.reduce(function(a, c){ return a+P(c)[0]; }, 0)/L.length, cy=L.reduce(function(a, c){ return a+P(c)[1]; }, 0)/L.length;
-  L.forEach(function(c){ const p=P(c), ux=p[0]-cx, uy=p[1]-cy, d=Math.hypot(ux,uy)||1;
+  L.forEach(function(c){ const p=P(c);
+    let ux=p[0]-cx, uy=p[1]-cy;
+    /* un milieu se nomme de part et d'autre de son segment, du côté opposé au centre */
+    /* le centre : entre ses deux demi-diagonales, du côté de [AB] */
+    if(c===D.centre){ const a=P(D.para[0]), b=P(D.para[1]); ux=(a[0]+b[0])/2-p[0]; uy=(a[1]+b[1])/2-p[1]; }
+    else if(D.mil[c]){ const a=P(D.mil[c][0]), b=P(D.mil[c][1]); let nx=-(b[1]-a[1]), ny=b[0]-a[0];
+      if(nx*ux+ny*uy<0){ nx=-nx; ny=-ny; } ux=nx; uy=ny; }
+    const d=Math.hypot(ux,uy)||1;
     h+='<circle class="dch-pt" cx="'+f(p[0])+'" cy="'+f(p[1])+'" r="3"/>'
       +'<text class="veg-pt" x="'+f(p[0]+ux/d*18)+'" y="'+f(p[1]+uy/d*18)+'" text-anchor="middle" dominant-baseline="central">'+c+'</text>'; });
   h+='</svg>';
@@ -74682,7 +74713,7 @@ function renderDchTest(){
 function dchPeint(J, el, live){
   const mv=String(el.value).split('\n').map(function(){ return ''; });
   J.M.forEach(function(m){ while(mv[m.ligne].length<m.j) mv[m.ligne]+='j';
-    mv[m.ligne]+=(m.etat==='j' || m.etat==='j1') ? 'j' : 'f'; });
+    mv[m.ligne]+=m.etat==='j' ? 'j' : 'f'; });
   el.dataset.mv=mv.join('|');
   el.classList.remove('ok','bad','sol');
   const cor=$('dch-cor'); if(cor){ cor.hidden=true; cor.innerHTML=''; }
@@ -74705,7 +74736,7 @@ function checkDchAnswer(live){
   const q=test.questions[test.idx], el=$('dch-z'); if(!el) return;
   const J=dchJuge(q, el.value);
   if(live){ if(!isSoutien()) return; dchPeint(J, el, true); return; }
-  const pourquoi=dchPourquoi(J), remarque=dchRemarque(J);
+  const pourquoi=dchPourquoi(J);
   const donne=String(el.value);
   dchPeint(J, el, false);
   if(!J.ok && isSoutien()){ $('dchFeedback').textContent=J.vide ? 'Écris ta démonstration dans le champ.' : pourquoi; $('dchFeedback').className='mp-feedback'+(J.vide ? '' : ' bad');
@@ -74714,7 +74745,7 @@ function checkDchAnswer(live){
   if(J.ok) test.score++;
   $('dchLiveScore').textContent=test.score;
   const fb=$('dchFeedback');
-  if(J.ok){ fb.textContent=(remarque ? 'Juste ! '+remarque : pick(['Bravo, la démonstration est juste !','Parfait !','Excellent !','Très bien démontré !'])); fb.className='mp-feedback good'; }
+  if(J.ok){ fb.textContent=pick(['Bravo, la démonstration est juste !','Parfait !','Excellent !','Très bien démontré !']); fb.className='mp-feedback good'; }
   else { fb.textContent=J.vide ? 'Il manquait ta démonstration : en voici une, écrite en vert.' : pourquoi+' Une démonstration possible est écrite en vert dessous.'; fb.className='mp-feedback bad'; }
   const D=J.D, chaine=function(t){ return dchTxt(D.g)+' = '+t.split('\n').filter(function(x){ return x; }).map(function(x){ return chlMembreTxt(x).replace(/=/g,' = '); }).join(' = '); };
   test.answers.push({...(ptsExo()||{}),correct:J.ok,
@@ -74742,11 +74773,12 @@ function ctxDch(q){
   const el=$('dch-z'), J=dchJuge(q, el && !el.classList.contains('sol') ? el.value : (q.saisie||'')), D=J.D;
   const bonne=dchTxt(D.g)+' = '+D.c.concat([D.d]).map(dchTxt).join(' = ');
   let c='L’élève rédige sa première démonstration avec des vecteurs, librement, une étape par ligne. Énoncé : '
-   +(D.para ? D.para+' est un parallélogramme'+(D.M ? ', '+D.M+' un point du plan' : '') : 'les points '+D.pts.split('').join(', ')+' sont quelconques')+'. '
+   +(D.para ? D.para+' est un parallélogramme'+(D.M ? ', '+D.M+' un point du plan' : '') : 'les points '+D.pts.split('').filter(function(c){ return !D.mil[c]; }).join(', ')+' sont quelconques'+Object.keys(D.mil).map(function(c){ return ', '+c+' est le milieu de ['+D.mil[c]+']'; }).join(''))+'. '
    +DCH_VERBES[q.v||0]+' '+dchTxt(D.g)+' = '+dchTxt(D.d)+' (tous ces objets sont des vecteurs). '
-   +'Une étape permise : changer l’ordre d’une somme ; la relation de Chasles qui réunit deux vecteurs ou plus (AB + BC = AC, AB + BA = 0) ; insérer un point pour décomposer un vecteur (AB = AD + DB) ; soustraire un vecteur, c’est ajouter son opposé (− CB = + BC)'
+   +'Une étape permise : changer l’ordre d’une somme (c’est une étape à elle seule) ; la relation de Chasles qui réunit deux vecteurs ou plus, voisins et écrits dans l’ordre où ils s’enchaînent (AB + BC = AC, AB + BA = 0) ; insérer un point pour décomposer un vecteur (AB = AD + DB) ; soustraire un vecteur, c’est ajouter son opposé (− CB = + BC)'
    +(D.para ? ' ; remplacer un ou plusieurs vecteurs par des vecteurs égaux du parallélogramme '+D.para+' ('+D.para[0]+D.para[1]+' = '+D.para[3]+D.para[2]+', '+D.para[0]+D.para[3]+' = '+D.para[1]+D.para[2]+')' : '')
-   +'. Une étape qui en saute une compte juste avec une remarque ; qui en saute deux ou plus compte fausse (« détaille davantage »). '
+   +Object.keys(D.mil).map(function(c){ const e=D.mil[c]; return ' ; '+c+' est le milieu de ['+e+'] : remplacer '+e[0]+c+' par '+c+e[1]+' (ou '+c+e[0]+' par '+e[1]+c+'), et inversement'; }).join('')
+   +'. Une étape qui en saute une ou plusieurs compte fausse : la page dit à l’élève de détailler. '
    +'Une rédaction possible, STRICTEMENT SECRÈTE (toute rédaction juste est acceptée) : '+bonne+'. '
    +'Guide l’élève étape par étape, sans donner la rédaction entière ; ne parle jamais de coordonnées.';
   if(!J.vide) c+=' Ce que l’élève a écrit : '+dchTxt(D.g)+' = '+J.M.map(function(m){ return m.l ? dchTxt(m.l) : chlMembreTxt(m.brut); }).join(' = ')+'.';
