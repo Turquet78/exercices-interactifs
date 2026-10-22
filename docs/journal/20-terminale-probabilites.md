@@ -842,3 +842,39 @@ son cadre, comme l'annonçait déjà `.apf-arbre-defile`. Essayé dans Chromium
 à 1280 et 390 px, les sept types, l'arbre dans les deux sens et l'arbre en
 x : une case penchée se tape, → passe à la suivante, la vérification peint
 dessus. Terminale v418.
+
+**Puis le type 4 a reporté ses réponses SUR L'ARBRE, et son arbre est
+resté en haut de l'écran** (demande de Turquet, octobre 2026 : « pour la
+question 2, donner dans l'énoncé une égalité de la forme P(… ∩ …) = … ;
+demander de l'interpréter avec une phrase, en proposant des phrases de sens
+différents, comme une probabilité conditionnelle ; à la question b), faire
+placer la valeur du 2) a) dans une case rajoutée sur l'arbre ; la
+probabilité conditionnelle trouvée par la division, dans la case rajoutée de
+l'arbre du haut ; celle trouvée par soustraction, dans la nouvelle case de
+l'arbre du haut ; au type 4, l'arbre reste affiché en entier et ne défile
+plus quand il est en haut de l'écran »). Le même jour, l'arbre des six autres
+types avait cessé de coller : le type 4 est l'exception, parce que son arbre
+REÇOIT des cases pendant la question 2.
+
+* L'énoncé écrit « On sait que P(K̄ ∩ R) = 0,08. » ; l'interprétation se
+  choisit entre QUATRE phrases : l'intersection (juste), les deux
+  conditionnelles (« Parmi les vélos électriques, … sont réformés », « Parmi
+  les vélos réformés, … sont électriques » — le groupe nominal vient du
+  thème, `parmi`) et P(R) seule.
+* `aptT` du type 4 porte `ajout` : les deux branches inconnues de B (B-F,
+  B-G), qui étaient « … », et la fin du chemin B → F deviennent des cases
+  (`apt-t-B-F`, `apt-t-B-G`, `apt-t-int`), encadrées en violet
+  (`.apt-ajout`, posée AVANT les règles de verdict : `ok`, `bad` et `sol`
+  la recouvrent). Elles ne sont pas dans `aptArbreIds` (l'arbre de la
+  question 1) mais dans le plan, pièce `place`, à leur rang dans la
+  question 2 b) : la valeur de l'intersection, puis la division, puis sa
+  case, puis la soustraction, puis sa case. Un arbre retourné les efface ;
+  leurs valeurs attendent à part (`data-ajout`) son retour au bon sens.
+* L'arbre colle (`apc-fixe`, la règle du 6.1.3, rouverte pour `#scr-apt`),
+  et `aptTraits` mesure sa hauteur (`--apc-arbre-h`) pour que le focus
+  n'amène jamais une case dessous. Sous 560 px de haut, il ne colle pas.
+
+Essayé dans Chromium à 1280 × 900 : une copie faite des corrections est
+parfaite (17 cases sur 17, les trois cases ajoutées bleues), une copie vide
+reçoit ses trois corrections en vert, l'arbre (550 px) reste entier en haut
+de l'écran jusqu'au bas de l'exercice, aucune erreur de page. Terminale v422.
