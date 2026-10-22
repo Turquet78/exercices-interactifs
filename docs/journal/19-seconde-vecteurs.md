@@ -4340,6 +4340,9 @@ l'égalité de l'énoncé ; il aurait fallu tracer FE⃗ et non EF⃗ »). Quand
 l'égalité prend BA⃗, la flèche des données va de B vers A ; sinon de A vers
 B. Les lettres restent dans le prolongement du segment, de part et d'autre.
 Le banc relit le sens de la flèche pour AB⃗ puis pour BA⃗.
+Deux pull requests ont été fusionnées à vingt-cinq minutes d'écart sous le même
+numéro 595 (le 8.3.7, puis cette flèche) : le numéro affiché ne distinguait
+plus les deux pages. La v596 ne change rien d'autre que ce numéro.
 
 **8.3.7, associer une phrase et une égalité** (`kph`). Treize phrases sur
 trois points alignés, chacune son réel (milieu, tiers, quart, au-delà de B,
