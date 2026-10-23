@@ -4983,3 +4983,54 @@ contexte du modèle. Éprouvé par deux sabotages : un Chasles qui réunit
 2AB + 2BC sans mise en facteur (cinq rougeurs), un `dcrComb` qui oublie les
 réels (les corrections et les lignes au hasard rougissent). La déclaration
 `reglagesDevoirs.baremeParCases` du 8.3.10 est retirée du profil.
+
+## {demontrer-chasles-inserer} — démontrer une égalité en insérant un point (8.2.18, v603) ; le 8.2.13 sans insertion
+
+**La demande** (Turquet, octobre 2026) : « faire deux exercices avec le
+8.2.13, en séparant les calculs qui font intervenir l'insertion d'une lettre
+dans un vecteur pour transformer un vecteur en somme de vecteurs comme
+EF = EI + IF ; dans ce nouvel exercice avec des insertions, donner l'idée
+avant l'énoncé que l'on pourra utiliser l'insertion d'un point pour écrire
+CD = CA + AD par exemple ».
+
+**Un moteur, deux identités.** Le nouvel exercice est le moteur `dch` du
+8.2.13, son écran, son juge, sa figure, son rappel (`RAPPELS.dch`, qui
+enseigne déjà l'insertion) ; seuls le tirage et l'identité changent
+(`startDch(ins)`, `test.qId`). Il a ses questions à l'IA (`QIA_SUGG_ID`) ;
+le contexte du modèle dit l'insertion à faire et l'idée donnée.
+`dchBuildQuestions(ins)` ne tire que les plans de son exercice
+(`dchPlans`) : le 8.2.13 n'en a plus aucun où il faut insérer un point, le
+8.2.18 n'a qu'eux, et s'ouvre toujours sur l'exemple de la première demande
+(AB + CD = AD + CB, lettres comprises) — qui a quitté le 8.2.13 avec les
+insertions. Le tri « insertions en fin de séance » est parti : il n'avait
+plus rien à trier. Ajouté en dernier du sous-thème « Somme de vecteurs » :
+8.2.18, rien ne se renumérote.
+
+**Six plans de plus** (indices 21 à 26, en fin de `DCH_DEMOS` : les indices
+des plans rangés dans les brouillons ne bougent pas) — sans quoi trois plans
+n'auraient pas fait une séance de quatre : AB − CD = AC + DB ; AB + BC =
+AD + DC (Chasles, puis insérer) ; AB − AC = DB − DC ; AB = CB − CA ; et sur
+un parallélogramme ABCD avec un point M, AB + AD = AM + MC et DA + DC =
+DM + MB. L'insertion n'y est pas toujours la première étape : c'est ce qui
+en fait une méthode, pas un réflexe.
+
+**L'idée, avant l'énoncé** (`dchIdeeHTML`, `#dchIdee`, cadre `.dch-idee` en
+tirets étiqueté « Idée », vide — donc caché — sur le 8.2.13) : « on pourra
+insérer un point dans un vecteur : c'est la relation de Chasles lue à
+l'envers. Par exemple, quels que soient les points C, D et A, CD = CA + AD :
+on passe par A pour aller de C à D. » L'exemple est celui de la demande,
+écrit comme valant pour TOUS points : les lettres de l'énoncé se renomment,
+et un « CD » sans cette précision se lirait comme un vecteur de la figure.
+L'idée suit la question (`DCH_DEMOS[q.t].ins`), pas l'exercice : une reprise
+de pause la remet d'elle-même.
+
+**Le banc** (`demontrerChasles`) tire 200 séances de CHACUN des deux
+exercices : aucun plan à insertion au 8.2.13, que des plans à insertion au
+8.2.18, l'exemple en première page. Le contrôle « `ins` désigne les plans qui
+insèrent » ne lisait que la PREMIÈRE étape et un membre de gauche sans
+« − » ; il lit désormais toute la correction : un plan insère si une étape
+ALLONGE la ligne (la réécriture et le vecteur nul ne le font jamais, Chasles
+la raccourcit). Cinq rédactions des nouveaux plans aux verdicts connus (dont
+AB = CB − CA d'un trait : une étape manque). Par le bouton : l'idée avant
+l'énoncé, avec CD = CA + AD, absente d'un plan sans insertion ; le 8.2.18
+démarre sous son identité, sur l'exemple.
