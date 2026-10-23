@@ -14828,6 +14828,13 @@ function demontrerChasles(w, P){
         const v=l.filter(function(x){ return x!=='0'; }).map(function(x){ return x.charAt(0)==='-' ? x.charAt(2)+x.charAt(1) : x; });
         v.forEach(function(a, i){ v.forEach(function(b, j){ if(i!==j && a.charAt(1)===b.charAt(0)) vus.push('plan '+t+' du 8.2.18 : somme évidente par Chasles dans « '+dchTxt(l)+' »'); }); });
       }); });
+    /* le quadrilatère du 8.2.18 ne ressemble pas à un parallélogramme : ses
+       côtés opposés font au moins 20° entre eux — sur un presque
+       parallélogramme, des vecteurs PARAISSAIENT égaux (Turquet, octobre 2026) */
+    (function(){ const Q=DCH_POS_POLY, v=function(a, b){ return [Q[b][0]-Q[a][0], Q[b][1]-Q[a][1]]; };
+      [[v('A','B'), v('D','C')], [v('A','D'), v('B','C')]].forEach(function(c){
+        const a=Math.abs(Math.atan2(c[0][0]*c[1][1]-c[0][1]*c[1][0], c[0][0]*c[1][0]+c[0][1]*c[1][1]))*180/Math.PI;
+        if(a<20) vus.push('le quadrilatère du 8.2.18 a deux côtés opposés presque parallèles ('+a.toFixed(0)+'°)'); }); })();
     if(dchPlans(true).filter(function(t){ return DCH_DEMOS[t].mil && DCH_DEMOS[t].poly; }).length<3) vus.push('le 8.2.18 a trop peu de milieux dans un triangle ou un quadrilatère');
     if(DCH_DEMOS.filter(function(T){ return T.ins; }).length<D.nb+2) vus.push('trop peu de plans à insertion pour une séance variée');
     /* des milieux, seuls ou dans un parallélogramme (Turquet, octobre 2026) */

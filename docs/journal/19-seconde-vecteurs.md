@@ -5126,3 +5126,17 @@ vecteurs par Chasles y est le sujet.
 Le banc relit chaque plan tiré au 8.2.18, membre par membre, chaque « − XY »
 écrit « + YX », et rougit sur deux vecteurs dont l'un finit où l'autre
 commence, dans n'importe quel ordre ; trois rédactions des nouveaux plans.
+
+**Et un quadrilatère qui ne ressemble PAS à un parallélogramme (v607).**
+Turquet, photo de GC + AD = BS + BS (B, S milieux de [GA] et [DC]) à
+l'appui : « ici on peut simplement utiliser des vecteurs égaux sans
+décomposer en insérant un point », puis « les vecteurs ne sont pas égaux ici,
+il faudrait que cela soit plus visible à l'écran ». Le juge, lui, avait
+raison : AD = BS est refusé (faux), BS + BS d'un trait aussi (il manque des
+étapes). C'est la FIGURE qui mentait : les quatre points de `DCH_POS` forment
+presque un parallélogramme (côtés opposés à 9° et 3°), et GC, AD, BS y
+paraissaient égaux. Les quadrilatères du 8.2.18 ont leur place à eux
+(`DCH_POS_POLY`, côtés opposés à 28° et 31°) ; les triangles gardent
+`DCH_POS`, qui est bien ouvert (`DCH_POS_POLY` en faisait des triangles
+effilés, vu à la photo). Le 8.2.13 garde ses figures. Le banc exige au moins
+20° entre deux côtés opposés du quadrilatère du 8.2.18.
