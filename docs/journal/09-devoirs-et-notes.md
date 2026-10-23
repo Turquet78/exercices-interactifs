@@ -1525,3 +1525,29 @@ affichée avant le rendu (`dmePdfSvgEnImages`). Restent, nommés : l'énoncé du
 (la consigne se lit « dresse le tableau »), et l'heuristique ne connaît que les
 63 exercices relus — un exercice ajouté demain se relit sur son PDF (le banc
 navigateur, section 6 sexies ter, tient le 5.6.1 et le 4.2.2).
+
+**Fusionner les deux comptes d'un même élève — la meilleure note par exercice
+ET par mode.** Demande de Turquet (octobre 2026) : « en seconde regrouper les
+deux comptes Clément en un seul compte au nom de "DELMONT Clément", en ne
+prenant que les meilleures notes de chaque exercice si ils concernent une fiche
+ou un DM ». `supabase/fusionner-eleves-2nde.sql` se colle dans l'éditeur SQL.
+La règle est celle de la page, pas une autre : `dmMeilleur`/`dmBest` gardent le
+plus haut pourcentage par exercice d'un devoir DANS UN MODE, et
+`noteDevoirExo` compare ensuite le soutien (plafonné) à l'entraînement. Ne
+garder qu'une ligne par exercice, tous modes confondus, aurait changé la note
+— un soutien à 90 % écrasant un entraînement à 80 % ; le fichier garde donc la
+meilleure de CHAQUE mode, et le carnet affiche après la fusion exactement ce
+que la page aurait calculé sur les deux comptes réunis. Les notes posées à la
+main vivent dans les réglages, sous « élève|exercice » : elles se réécrivent
+au compte gardé, la plus haute l'emportant. Les pauses ne sont pas des notes :
+une par exercice, mode et devoir, la plus récente. Tout ce qui est écarté est
+COPIÉ d'abord dans `archives.fusion_eleves`, un schéma que PostgREST ne publie
+pas — une table neuve dans `public` aurait été lisible par `anon` (les `grant`
+d'office tiennent jusqu'au 30 octobre). Le compte gardé : celui qui a travaillé
+le plus récemment, dont l'élève a le code en tête. Le compte de connexion de
+l'autre est supprimé APRÈS la ligne de l'élève — `user_id` est en
+`on delete cascade` : dans l'autre ordre, la suppression emportait la ligne,
+et ses notes avec. Un motif qui désigne autre chose que deux comptes s'arrête
+en rouge, en les nommant, sans rien bouger (« Clémentine » contient
+« clement »). Le banc de la base (section 7) l'éprouve : sabotage du
+partitionnement par mode et de la réécriture des clés, trois rouges.
