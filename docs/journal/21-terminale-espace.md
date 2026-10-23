@@ -316,3 +316,21 @@ JSON ; le juge du quotient sur onze écritures (`0,7`, `0,67`, `2/3`, `4/6`,
 `0,6`, `−2,04`, `2/−3`…). Les deux écrans ouverts dans Chromium à 1 280 px et
 à 390 px : sur téléphone, réduire l'écart des colonnes du système collé
 faisait chevaucher le « = » et les cercles — la règle a été retirée.
+
+**Puis les deux sens de la division, et plus d'étapes a), b), c) (Turquet,
+octobre 2026, v435).** « Dans le 7.1.4, ne pas afficher les étapes a, b et
+c ; dans les divisions, accepter v/u ou u/v avec des valeurs approchées ou
+des fractions simplifiées dans le résultat. » Les trois intitulés ont
+disparu : la propriété, les deux vecteurs, les quotients et la conclusion se
+suivent sans titre (`margin-top` sur les rangées pour garder l'air). Chaque
+quotient se divise dans le sens que l'élève choisit, fraction par fraction :
+`epaVerdicts` lit le sens sur la copie — la fraction entière d'abord (`n/d`
+ou `(−n)/(−d)`), puis le numérateur seul, le dénominateur seul, puis la
+valeur ; à défaut, `v/u`, le sens de la fiche. La valeur se juge dans le
+sens choisi (exacte, fraction irréductible, ou approchée au dixième si le
+quotient n'est pas décimal), et la correction s'écrit dans ce sens : un
+élève parti sur `u/v` ne reçoit pas une correction en `v/u`. Une valeur
+`v/u` sous une fraction `u/v` est refusée. **Éprouvé** sur 3 000 séances :
+le sens `u/v` complet accepté, sa valeur approchée acceptée, la valeur de
+l'autre sens refusée, la correction d'une case vide en `v/u`, celle d'une
+copie commencée en `u/v` dans ce sens.

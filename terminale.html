@@ -2057,7 +2057,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 #scr-edp .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 /* ---- 7.1.4 l'espace (fiche « vecteur 5 ») : deux droites parallèles ? ---- */
 #epaPrompt .edp-nw{margin-right:10px}
-#epaForm .tg-line{gap:8px 10px}
+#epaForm .tg-line{gap:8px 10px;margin-top:14px}
 #epaForm .tg-sub{margin:16px 0 4px}
 #epaForm .epa-fd{color:#64748b;font-style:italic;font-size:.85em}
 #epaForm .epa-fd .elg-fn{border-bottom-width:1.5px;border-color:#94a3b8}
@@ -4068,7 +4068,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=434;
+const APP_VERSION=435;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -29860,22 +29860,34 @@ function epaQuoOk(raw, nd){
 }
 function epaAff(x){ if(x.aff!=null) return x.aff; return x.type==='sel'?x.good:numFmt(x.good); }
 function epaVerdicts(q, lire){
-  const cases=epaCases(q), out={}, fr={};
+  const cases=epaCases(q), out={};
+  const val=id=>{ const raw=lire(id); return String(raw==null?'':raw).trim(); };
   cases.forEach(function(x){
-    const raw=lire(x.id), t=String(raw==null?'':raw).trim();
-    let ok=false, v=null;
+    if(/^epa-k\d[ndq]$/.test(x.id)) return;   /* les quotients : plus bas */
+    const t=val(x.id); let ok=false;
     if(t!==''){
       if(x.type==='sel') ok=(t===x.good);
-      else if(x.type==='quo') ok=epaQuoOk(t, x.nd);
-      else { v=tgParseFrac(t); ok=(v!=null && Math.abs(v-x.good)<1e-9); }
+      else { const v=tgParseFrac(t); ok=(v!=null && Math.abs(v-x.good)<1e-9); }
     }
-    out[x.id]={ok:ok, rempli:t!=='', attendu:epaAff(x), v:v};
-    if(x.fr) (fr[x.fr]=fr[x.fr]||[]).push(x);
+    out[x.id]={ok:ok, rempli:t!=='', attendu:epaAff(x)};
   });
-  /* une fraction se juge à deux cases : n/d, ou bien (−n)/(−d) */
-  Object.keys(fr).forEach(function(k){
-    const n=fr[k][0], d=fr[k][1], vn=out[n.id].v, vd=out[d.id].v;
-    if(vn!=null && vd!=null && Math.abs(vn+n.good)<1e-9 && Math.abs(vd+d.good)<1e-9){ out[n.id].ok=true; out[d.id].ok=true; }
+  /* Chaque quotient se divise dans le sens que l'élève choisit (Turquet,
+     octobre 2026) : v/u ou u/v. Le sens se lit sur la copie — la fraction
+     d'abord (n/d ou (−n)/(−d)), puis le numérateur seul, le dénominateur
+     seul, la valeur ; à défaut, v/u, celui de la fiche. La valeur se juge
+     dans le sens choisi, et la correction s'écrit dans ce sens. */
+  [0,1,2].forEach(function(k){
+    const idn='epa-k'+k+'n', idd='epa-k'+k+'d', idq='epa-k'+k+'q';
+    const tn=val(idn), td=val(idd), tq=val(idq), vn=tn===''?null:tgParseFrac(tn), vd=td===''?null:tgParseFrac(td);
+    const eg=(a,b)=>a!=null && Math.abs(a-b)<1e-9;
+    const sens=[[q.v[k],q.u[k]],[q.u[k],q.v[k]]];
+    let s=sens.find(o=>(eg(vn,o[0])&&eg(vd,o[1]))||(eg(vn,-o[0])&&eg(vd,-o[1])))
+      || sens.find(o=>eg(vn,o[0])) || sens.find(o=>eg(vd,o[1]))
+      || (tq!==''?sens.find(o=>epaQuoOk(tq,o)):null) || sens[0];
+    const signe=(eg(vn,-s[0])&&eg(vd,-s[1])&&!eg(vn,s[0]))?-1:1;
+    out[idn]={ok:eg(vn,signe*s[0]), rempli:tn!=='', attendu:numFmt(s[0])};
+    out[idd]={ok:eg(vd,signe*s[1]), rempli:td!=='', attendu:numFmt(s[1])};
+    out[idq]={ok:tq!=='' && epaQuoOk(tq,s), rempli:tq!=='', attendu:edpQ(s[0],s[1])};
   });
   return out;
 }
@@ -29899,14 +29911,11 @@ function epaFormHTML(q){
   let h='';
   h+=L(T('<b>Propriété :</b> deux droites sont <b>parallèles</b> si leurs vecteurs <b>directeurs</b> sont')
     +sel('epa-prop',[['orth','orthogonaux'],['col','colinéaires'],['lg','de même longueur']])+T('.'), 'epa-prop');
-  h+='<div class="tg-sub">a) Lire un vecteur directeur de chaque droite.</div>';
   h+=L(NW(T('Un vecteur directeur de <i>d</i> est')+T(elgVec('u'))+col([0,1,2].map(k=>'epa-u'+k)))
      +NW(T('et un vecteur directeur de <i>d</i>′ est')+T(elgVec('v'))+col([0,1,2].map(k=>'epa-v'+k))));
-  h+='<div class="tg-sub">b) Diviser chaque coordonnée de '+elgVec('v')+' par celle de '+elgVec('u')+'.</div>';
   h+=L(NW('<span class="elg-par epa-fd">'+fr('fin','début')+'</span>')
      +[0,1,2].map(k=>NW(fr(I('epa-k'+k+'n'),I('epa-k'+k+'d'))+T('=')+I('epa-k'+k+'q'))).join(T(';')), 'epa-quo');
-  h+='<p class="dexp-hint">Un quotient s’écrit en <b>fraction simplifiée</b> (par exemple 2/3) ou en <b>valeur approchée au dixième</b> (par exemple 0,7).</p>';
-  h+='<div class="tg-sub">c) Conclure.</div>';
+  h+='<p class="dexp-hint">On divise dans le sens qu’on veut : les coordonnées de '+elgVec('v')+' par celles de '+elgVec('u')+', ou l’inverse. Un quotient s’écrit en <b>fraction simplifiée</b> (par exemple 2/3) ou en <b>valeur approchée au dixième</b> (par exemple 0,7).</p>';
   h+=L(T('Conclusion : les droites')+sel('epa-cc',[['sont','sont'],['nsp','ne sont pas']])+T('parallèles.'));
   return h;
 }
@@ -29937,7 +29946,7 @@ function renderEPA(){
 function epaRetiens(q){
   const quo=[0,1,2].map(k=>edpQ(q.v[k],q.u[k]));
   return 'La clé : deux droites sont parallèles si leurs vecteurs directeurs sont <b>colinéaires</b>. Un vecteur directeur se lit sur les coefficients de <i>t</i> (ici '+elgVec('u')+'('+q.u.map(numFmt).join(' ; ')+') et '+elgVec('v')+'('+q.v.map(numFmt).join(' ; ')+')). '
-    +'On divise chaque coordonnée de '+elgVec('v')+' par celle de '+elgVec('u')+' : '+quo.join(' ; ')+' — '
+    +'On divise chaque coordonnée de '+elgVec('v')+' par celle de '+elgVec('u')+' (ou l’inverse, '+elgVec('u')+' par '+elgVec('v')+') : '+quo.join(' ; ')+' — '
     +(q.par?'les trois quotients sont égaux : '+elgVec('v')+' = '+quo[0]+' '+elgVec('u')+', les vecteurs sont colinéaires, <b>les droites sont parallèles</b>.'
            :'les quotients ne sont pas tous égaux : les vecteurs ne sont pas colinéaires, <b>les droites ne sont pas parallèles</b>.');
 }
@@ -29998,7 +30007,7 @@ function epaConseilCtx(){
   const q=test.questions[test.idx], cases=epaCases(q);
   const etat=cases.map(function(x){ const el=$(x.id); const v=el?String(el.value||'').trim():''; return x.nom+' = '+(v===''?'(vide)':'« '+v+' »'); }).join(' ; ');
   return 'Exercice de Terminale (géométrie dans l’espace, droites parallèles) : '+epaPlain(q)+'. Les droites d et d′ sont-elles parallèles ? '
-    +'La rédaction suit la fiche : la propriété (deux droites sont parallèles si leurs vecteurs directeurs sont colinéaires) ; a) un vecteur directeur u de d et v de d′, lus sur les coefficients de t et t′ ; b) les trois quotients « fin / début » : chaque coordonnée de v divisée par celle de u, écrits en fraction puis en valeur (fraction simplifiée ou valeur approchée au dixième acceptées) ; c) la conclusion : parallèles si les trois quotients sont égaux, sinon non. '
+    +'La rédaction suit la fiche : la propriété (deux droites sont parallèles si leurs vecteurs directeurs sont colinéaires) ; un vecteur directeur u de d et v de d′, lus sur les coefficients de t et t′ ; les trois quotients « fin / début » : chaque coordonnée de v divisée par celle de u, OU chaque coordonnée de u divisée par celle de v (les deux sens sont acceptés), écrits en fraction puis en valeur (fraction simplifiée ou valeur approchée au dixième acceptées) ; la conclusion : parallèles si les trois quotients sont égaux, sinon non. '
     +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
     +cases.map(function(x){ return x.nom+' = '+epaAff(x); }).join(' ; ')+' (conclusion : '+epaRepPlain(q)+'). '
     +'Les menus valent : col = « colinéaires », sont = « sont parallèles », nsp = « ne sont pas parallèles ». '
