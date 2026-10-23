@@ -2260,7 +2260,7 @@
   .dch-leg{font-family:"Fredoka";font-weight:500;font-size:1.08rem;color:var(--ink-soft);text-align:center;line-height:1.9}
   .dch-leg-g{color:var(--crd-a);font-weight:600} .dch-leg-d{color:var(--crd-b);font-weight:600}
   .dch-leg .vgt-vec{color:inherit;font-size:1.15rem} .dch-leg-n{font-size:.92rem}
-  #dchFeedback .vgt-vec{color:inherit}
+  #dchFeedback .vgt-vec, #dcoFeedback .vgt-vec{color:inherit}
   /* La rédaction libre (Turquet, octobre 2026) : le champ du 8.2.7 (.chl-in,
      .chl-rendu), en <textarea> — Entrée passe à la ligne, le champ grandit
      avec ses lignes (dchRendu pose sa hauteur). Chaque ligne dessinée a la
@@ -67384,6 +67384,11 @@ function dcoKvLit(brut){ const v=kvLit(brut); if(!isFinite(v) || v===0) return n
 /* une ligne écrite en texte : 2BA + AC, 2(BA + AC) */
 function dcoTerme(t){ const c=kvTxt(t.c); return t.g ? c+'('+t.g[0]+' + '+t.g[1]+')' : c+t.v; }
 function dcoTxt(l){ return l.map(dcoTerme).join(' + '); }
+/* un vecteur dans un message : nu (texte, contexte de l'aide IA), ou fléché
+   (HTML, le message affiché) ; et un terme écrit avec l'un ou l'autre */
+function dcoVecNu(v){ return v; }
+function dcoVecH(v){ return '<span class="vgt-vec">'+esc(v)+'</span>'; }
+function dcoTermeV(t, V){ const c=kvTxt(t.c); return t.g ? c+'('+V(t.g[0])+' + '+V(t.g[1])+')' : c+V(t.v); }
 /* Le verdict de la page. Rend les cases dans l'ordre de lecture, la
    rédaction retenue (C), les lignes de l'élève et la démonstration. */
 function dcoJuge(q){
@@ -67429,51 +67434,57 @@ function dcoJuge(q){
 }
 function dcoLabel(K){ return DCO_JUST[K]; }
 /* ce que fait chaque justification, pour le message */
-function dcoRegle(K){
+function dcoRegle(K, V){
+  V=V||dcoVecNu;
+  const W=function(t){ return t.replace(/(^|[\s(=+])(\d*)([A-Z]{2})(?=[\s)=+,]|$)/g, function(_, a, k, v){ return a+k+V(v); }); };
   switch(K){
-    case 'ch': return 'la relation de Chasles fait passer par un point (DE = DA + AE), ou réunit deux vecteurs qui s’enchaînent (BA + AC = BC), même entre parenthèses';
-    case 'en': return 'on remplace chaque vecteur par ce que dit l’énoncé ; un vecteur à l’envers change de sens : si AD = 2AB, alors DA = 2BA';
-    case 'or': return 'on garde les MÊMES termes et on change seulement leur ordre, pour que les vecteurs s’enchaînent';
-    case 'fa': return 'deux termes qui ont le MÊME réel : on le met en facteur, 2BA + 2AC = 2(BA + AC)';
-    default: return 'deux termes avec le MÊME vecteur : on additionne leurs réels, BC + 2BC = 3BC (BC, c’est 1BC)';
+    case 'ch': return W('la relation de Chasles fait passer par un point (DE = DA + AE), ou réunit deux vecteurs qui s’enchaînent (BA + AC = BC), même entre parenthèses');
+    case 'en': return W('on remplace chaque vecteur par ce que dit l’énoncé ; un vecteur à l’envers change de sens : si AD = 2AB, alors DA = 2BA');
+    case 'or': return W('on garde les MÊMES termes et on change seulement leur ordre, pour que les vecteurs s’enchaînent');
+    case 'fa': return W('deux termes qui ont le MÊME réel : on le met en facteur, 2BA + 2AC = 2(BA + AC)');
+    default: return W('deux termes avec le MÊME vecteur : on additionne leurs réels, BC + 2BC = 3BC (BC, c’est 1BC)');
   }
 }
 /* ce qu'une étape « énoncé » a fait, avec ses lettres : « DA = 2BA » */
-function dcoExemple(K, prev, bonne, i){
+function dcoExemple(K, prev, bonne, i, V){
+  V=V||dcoVecNu;
   if(K!=='en' || !prev || !bonne || prev.length!==bonne.length) return '';
   const r=[];
-  prev.forEach(function(t, j){ if(i!=null && j!==i) return; if(!t.g && dcoKey([t])!==dcoKey([bonne[j]])) r.push(t.v+' = '+dcoTerme(bonne[j])); });
+  prev.forEach(function(t, j){ if(i!=null && j!==i) return; if(!t.g && dcoKey([t])!==dcoKey([bonne[j]])) r.push(V(t.v)+' = '+dcoTermeV(bonne[j], V)); });
   return r.join(' et ');
 }
-/* Le pourquoi, dit sur la PREMIÈRE case fausse. */
-function dcoPourquoi(q, J){
+/* Le pourquoi, dit sur la PREMIÈRE case fausse. html : les vecteurs prennent
+   leur flèche et la saisie de l'élève s'échappe (le message affiché) */
+function dcoPourquoi(q, J, html){
+  const V=html ? dcoVecH : dcoVecNu, X=html ? esc : function(t){ return t; };
+  const T=function(l){ return l.map(function(t){ return dcoTermeV(t, V); }).join(' + '); };
   const f=J.subs.find(function(s){ return !s.ok && !s.vide; });
   if(!f) return '';
-  const D=J.D, C=J.C, E=D.e, last=E.length-1, fin=C[last][0], kfin=kvTxt(fin.c)+fin.v;
+  const D=J.D, C=J.C, E=D.e, last=E.length-1, fin=C[last][0], kfin=dcoTermeV(fin, V);
   if(f.t==='c'){
     const DE=D.D+D.E, BC=D.cible;
     return f.j===0
-      ? 'Conclusion : '+DE+' = '+kfin+' — il existe un réel k tel que '+DE+' = k'+fin.v+' : les vecteurs '+DE+' et '+BC+' sont COLINÉAIRES. Ils ne sont ni égaux ni de même longueur, puisque ce réel n’est ni 1 ni −1.'
+      ? 'Conclusion : '+V(DE)+' = '+kfin+' — il existe un réel k tel que '+V(DE)+' = k'+V(fin.v)+' : les vecteurs '+V(DE)+' et '+V(BC)+' sont COLINÉAIRES. Ils ne sont ni égaux ni de même longueur, puisque ce réel n’est ni 1 ni −1.'
       : 'Conclusion : deux droites dirigées par des vecteurs colinéaires sont PARALLÈLES : ('+DE+') et ('+BC+') sont parallèles.';
   }
   const k=f.k, K=E[k][0], prev=k ? C[k-1] : D.g, bonne=C[k];
-  const L='Ligne '+(k+1)+' : ', ex=dcoExemple(K, prev, bonne, f.t==='j' ? null : f.i), avec=ex ? ' — ici, '+ex : '';
+  const L='Ligne '+(k+1)+' : ', ex=dcoExemple(K, prev, bonne, f.t==='j' ? null : f.i, V), avec=ex ? ' — ici, '+ex : '';
   if(f.t==='j')
-    return L+'la justification n’est pas « '+dcoLabel(f.lu)+' ». On passe de '+dcoTxt(prev)+' à '+dcoTxt(bonne)+' : '+dcoRegle(K)+avec+'.';
+    return L+'la justification n’est pas « '+dcoLabel(f.lu)+' ». On passe de '+T(prev)+' à '+T(bonne)+' : '+dcoRegle(K, V)+avec+'.';
   if(!f.lu) return f.t==='k'
-    ? L+'« '+kviPlat(f.brut)+' » n’est pas un réel : écris un entier, un décimal ou une fraction (la touche / pose la barre).'
-    : L+'« '+f.brut+' » n’est pas un vecteur de l’énoncé : écris deux lettres parmi '+D.pts.split('').join(', ')+'.';
+    ? L+'« '+X(kviPlat(f.brut))+' » n’est pas un réel : écris un entier, un décimal ou une fraction (la touche / pose la barre).'
+    : L+'« '+X(f.brut)+' » n’est pas un vecteur de l’énoncé : écris deux lettres parmi '+D.pts.split('').join(', ')+'.';
   const l=J.lignes[k];
   /* le sens oublié : DA = 2AB au lieu de 2BA */
   if(K==='en' && l && f.i!=null){ const t=l[f.i], b=bonne[f.i], p=prev[f.i];
     if(t && b && !t.g && !b.g && t.v===dcoOpp(b.v) && dcoMemeC(t.c, b.c))
-      return L+p.v+' va dans le sens contraire de '+dcoOpp(p.v)+' : '+p.v+' = '+dcoTerme(b)+', pas '+dcoTerme(t)+'. Un vecteur à l’envers change de sens.'; }
+      return L+V(p.v)+' va dans le sens contraire de '+V(dcoOpp(p.v))+' : '+V(p.v)+' = '+dcoTermeV(b, V)+', pas '+dcoTermeV(t, V)+'. Un vecteur à l’envers change de sens.'; }
   if(l && !dcoEgales(D, l, D.g))
-    return L+dcoTxt(l)+' n’est pas égal à '+dcoTxt(prev)+' : '+dcoRegle(K)+avec+'.';
+    return L+T(l)+' n’est pas égal à '+T(prev)+' : '+dcoRegle(K, V)+avec+'.';
   if(l && dcoSuites(D, prev, K).some(function(r){ return dcoKey(r)===dcoKey(l); }) && dcoForme(l, E[k][1]))
-    return L+dcoTxt(l)+' est une étape juste, mais elle ne mène pas à un multiple de '+D.cible+' avec les étapes qui suivent. Il fallait par exemple '+dcoTxt(bonne)+'.';
-  if(l) return L+dcoTxt(l)+' est bien égal, mais ce n’est pas l’étape demandée : '+dcoRegle(K)+avec+'.';
-  return L+'il fallait par exemple '+dcoTxt(bonne)+' : '+dcoRegle(K)+avec+'.';
+    return L+T(l)+' est une étape juste, mais elle ne mène pas à un multiple de '+V(D.cible)+' avec les étapes qui suivent. Il fallait par exemple '+T(bonne)+'.';
+  if(l) return L+T(l)+' est bien égal, mais ce n’est pas l’étape demandée : '+dcoRegle(K, V)+avec+'.';
+  return L+'il fallait par exemple '+T(bonne)+' : '+dcoRegle(K, V)+avec+'.';
 }
 /* une égalité de l'énoncé, en HTML : AD⃗ = 2AB⃗ (le réel empilé s'il est une fraction) */
 function dcoDefHTML(d){ return '<span style="white-space:nowrap"><span class="vgt-vec">'+esc(d[0])+'</span> = '+kvHTML(d[1],'')+'<span class="vgt-vec">'+esc(d[2])+'</span></span>'; }
@@ -67610,13 +67621,13 @@ function checkDco(live){
   }
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
-  const pourquoi=dcoPourquoi(q, J);
+  const pourquoi=dcoPourquoi(q, J, true);
   subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); dcoBadge(s); });
   if(!allOk && isSoutien()){ soutienAgain('dcoFeedback','dcoActions','checkDco','dcoHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('dcoLiveScore').textContent=test.score;
   if(allOk){ $('dcoFeedback').textContent=pick(['Bravo, la démonstration est juste !','Parfait !','Excellent !','Très bien démontré !']); $('dcoFeedback').className='mp-feedback good'; }
-  else { $('dcoFeedback').textContent=msgAvecVides(subs, pourquoi); $('dcoFeedback').className='mp-feedback bad'; }
+  else { $('dcoFeedback').innerHTML=msgAvecVides(subs, pourquoi); $('dcoFeedback').className='mp-feedback bad'; }
   const DE=D.D+D.E, concl=function(j, f){ const s=subs.find(function(x){ return x.t==='c' && x.j===j; }), v=f(s);
     return ((j ? KMI_CONCL2 : KMI_CONCL1).find(function(x){ return x[0]===v; })||['','?'])[1]; };
   const redac=function(f){
