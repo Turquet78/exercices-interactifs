@@ -226,6 +226,27 @@
   .dm-switch input{width:18px;height:18px}
   textarea.dm-area{width:100%;font-family:"Nunito";font-weight:600;font-size:1rem;line-height:1.5;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:13px 15px;resize:vertical}
   .dm-exo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:9px}
+  /* L'ARBRE DES EXERCICES de l'éditeur des devoirs et des fiches : thème, puis
+     sous-thème, puis exercices — chaque étage replié jusqu'au clic. */
+  .dm-arbre{border:1.5px solid var(--line);border-radius:12px;margin-bottom:9px;background:var(--paper)}
+  .dm-arbre>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:11px 14px;font-family:"Fredoka";font-weight:600}
+  .dm-arbre>summary::-webkit-details-marker{display:none}
+  .dm-arbre>summary::before{content:"▸";color:var(--blue);transition:transform .15s}
+  .dm-arbre[open]>summary::before{transform:rotate(90deg)}
+  .dm-arbre-corps{padding:0 12px 3px}
+  .dm-arbre .dm-arbre>summary{font-size:.95rem;padding:9px 12px}
+  .dm-arbre-n{margin-left:auto;font-size:.78rem;font-weight:600;color:#fff;background:var(--blue);border-radius:999px;padding:2px 10px;white-space:nowrap}
+  /* L'éditeur des devoirs et des fiches prend TOUTE LA LARGEUR de l'écran
+     (demande de Turquet, octobre 2026), et les exercices d'un étage ouvert,
+     comme le ruban d'ordre, s'y rangent sur autant de colonnes qu'il en
+     tient. Les étages (thèmes, sous-thèmes) gardent la pleine ligne : un
+     sous-thème ouvert dans une colonne étroite replierait ses réglages. */
+  body:has(#scr-teacher.on #pane-devoir.on) .wrap{max-width:none}
+  @media(min-width:900px){
+    #pane-devoir .dm-arbre-exos,#pane-devoir #dmOrdre{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:9px;align-items:start}
+    #pane-devoir .dm-arbre-exos{padding-bottom:12px}
+    #pane-devoir .dm-arbre-exos>.dm-exo,#pane-devoir #dmOrdre>.dm-exo{margin-bottom:0}
+  }
   .dm-exo-name{font-family:"Fredoka";font-weight:600;flex:1;min-width:150px}
   .dm-mode{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.92rem;color:var(--ink-soft);cursor:pointer}
   .dm-mode input{width:16px;height:16px}
@@ -23801,6 +23822,31 @@ async function addDevoir(){
   renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
   toast(G.badge+' n°'+d.num+' ajouté'+(dmGenre==='fiche'?'e':''),'ok');
 }
+/* L'ARBRE DES EXERCICES (demande de Turquet, octobre 2026 : « quand je
+   construis une fiche ou un devoir, n'afficher que les thèmes, puis les
+   sous-thèmes quand on clique sur le thème, puis les exercices quand on
+   clique sur un sous-thème »). Des <details> REPLIÉS, jamais des lignes
+   retirées : les cases d'un étage fermé restent dans le formulaire, et la
+   relecture de l'éditeur les trouve toutes. Chaque coche redessine
+   l'éditeur : les étages ouverts se retiennent (dmArbreOuverts), sans quoi
+   l'arbre se refermerait sous la main à chaque clic. Le compte « n choisis »
+   dit, étage fermé, ce qu'il contient déjà. */
+const dmArbreOuverts=new Set();
+function dmArbreBascule(el){ const k=el.dataset.arbre; if(el.open) dmArbreOuverts.add(k); else dmArbreOuverts.delete(k); }
+function dmArbre(rangee, choisi){
+  const bloc=(cle, titre, ids, corps)=>{
+    const n=ids.filter(choisi).length;
+    return `<details class="dm-arbre" data-arbre="${cle}"${dmArbreOuverts.has(cle)?' open':''} ontoggle="dmArbreBascule(this)"><summary><span>${titre}</span>${n?`<span class="dm-arbre-n">${n} choisi${n>1?'s':''}</span>`:''}</summary><div class="dm-arbre-corps">${corps}</div></details>`;
+  };
+  return THEMES.map(th=>{
+    const ids=th.ids.filter(id=>TESTS[id]); if(!ids.length) return '';
+    const corps=th.sous
+      ? th.sous.map(st=>{ const s=st.ids.filter(id=>TESTS[id]);
+          return s.length?bloc(th.num+'.'+st.num, th.num+'.'+st.num+' · '+esc(st.nom), s, '<div class="dm-arbre-exos">'+s.map(rangee).join('')+'</div>'):''; }).join('')
+      : '<div class="dm-arbre-exos">'+ids.map(rangee).join('')+'</div>';
+    return bloc(String(th.num), 'Thème '+th.num+' · '+esc(th.nom), ids, corps);
+  }).join('');
+}
 function renderDevoirEditor(){
   const dev=selectedDevoir(); if(!dev){ $('dmEditor').style.display='none'; return; }
   $('dmEditor').style.display='';
@@ -23813,7 +23859,7 @@ function renderDevoirEditor(){
   $('dmTitre').value=dev.titre||''; $('dmCours').value=dev.cours||'';
   const byId={}, byNbQ={}, bySmax={}, byBonus={};
   (dev.exercices||[]).forEach(e=>{ byId[e.id]=e.modes||[]; byNbQ[e.id]=e.nbQ; bySmax[e.id]=e.smax; byBonus[e.id]=dmEstBonus(e); });
-  $('dmExos').innerHTML=TEST_ORDER.length?TEST_ORDER.map(id=>{
+  $('dmExos').innerHTML=TEST_ORDER.length?dmArbre(id=>{
     const modes=byId[id]||[]; const s=modes.includes('soutien'), t=modes.includes('train');
     const nbQ=parseInt(byNbQ[id],10)||'', smax=dmPlafondSoutien(bySmax[id]);
     /* Deux réglages par exercice du devoir (demande de Turquet, août 2026) :
@@ -23829,7 +23875,7 @@ function renderDevoirEditor(){
       <label class="dm-mode">Soutien <select data-smax="${id}">${[5,6,7,8,9,10].map(n=>`<option value="${n}"${smax===n?' selected':''}>${n}/10</option>`).join('')}</select></label>
       <label class="dm-mode" title="Un exercice bonus vaut 1 point : il remonte la note sans la faire dépasser le maximum."><input type="checkbox" data-bonus="${id}" ${byBonus[id]?'checked':''}> Bonus (+1 pt)</label>
     </div>`;
-  }).join('') : '<div class="empty">Ajoute d\u2019abord des exercices à l\u2019application pour pouvoir les mettre dans un devoir.</div>';
+  }, id=>(byId[id]||[]).length>0) : '<div class="empty">Ajoute d\u2019abord des exercices à l\u2019application pour pouvoir les mettre dans un devoir.</div>';
   /* L'ORDRE DES EXERCICES SE RÈGLE DANS LES DEUX FAMILLES (demande de Turquet,
      septembre 2026 : « en seconde je souhaite pouvoir choisir l'ordre des
      exercices pour les devoirs maison comme en terminale »). L'ordre rangé est
