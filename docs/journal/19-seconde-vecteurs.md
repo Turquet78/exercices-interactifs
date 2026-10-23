@@ -4913,3 +4913,73 @@ justification qui porte son nom, la copie juste (10 cases), 2HG⃗ + 2EH⃗ « n
 mène pas » ; enfin le contexte du modèle. Le barème d'une séance dépend des
 plans tirés (5 à 17 cases) : l'exercice se déclare dans
 `reglagesDevoirs.baremeParCases`, comme le 8.2.13 et le 8.3.9.
+
+**Puis la rédaction LIBRE du 8.2.13 (v602 — v601 prise sur main par le 8.3.9 pendant les bancs).** Turquet : « en seconde pour
+le 8.3.10, appliquer la méthode de rédaction du 8.2.13, les mêmes consignes
+pour valider la rédaction avec les étapes ; factoriser par un nombre ou
+développer par un nombre est une étape aussi ici ; et pour afficher les
+commentaires, faire aussi comme le 8.2.13 ». Les cases, les cases MathLive
+et les listes de justifications sont parties, avec `DCR_JUST`, `dcrChaines`,
+`dcrSuites` et le barème par cases. La démonstration s'écrit dans le champ
+du 8.2.13, partagé et non recopié : `dchRendu`, `dchBranche`, `dchSaisie` et
+`dchPeint` prennent en paramètre ce qui diffère (la vérification du soutien,
+le cadre et la rédaction de la correction), et `dchPrefHTML` dessine le
+membre de gauche en tête — des vecteurs au 8.2.13, des réels et des
+parenthèses au 8.3.10 (`data-reels`, `dcrPrefHTML`). Le dessin du champ
+(`chlDessin`, commun aux 8.2.7, 8.2.13 et 8.3.10) pose désormais une
+parenthèse ouvrante devant la flèche et une fermante après : « 2(AB + BC) »
+s'écrivait « (AB » et « BC) » sous la flèche.
+
+**Une ligne est une somme de termes** (`dcrLitMorceau`) : un réel entier
+devant un vecteur (`{c, v}`), un réel en facteur d'une parenthèse de
+vecteurs signés (`{c, g}`), ou le vecteur nul (`{z}` : 0, AA, un réel nul).
+Une parenthèse d'un seul vecteur n'en est pas une ; − 2(AB + BC) et
+2(− AB − BC) s'écrivent pareil (`dcrCle`). Ce que vaut une ligne se lit comme
+au 8.2.13, en combinaison de points, avec des réels (`dcrComb`).
+
+**UNE étape, c'est une règle appliquée une ou plusieurs fois, sur place**
+(`dcrUneEtape`) : la réécriture du 8.2.13 (autant de termes, mêmes valeurs,
+l'ordre, l'opposé et le vecteur égal à la fois) ; Chasles sur des voisins
+dans l'ordre, de réel ± 1 ou dans une parenthèse (2(AB + BC) = 2AC), et à
+l'envers un point inséré ; **mettre un réel en facteur ou développer**
+(`dcrFacteurs`, des voisins de même réel au signe près) ; écrire un réel
+comme une somme ou additionner les réels devant un même vecteur
+(`dcrSommes`). La conséquence voulue : 2AB + 2BC = 2AC, Chasles sans la mise
+en facteur, compte faux, « il faut détailler, par exemple 2AB + 2BC =
+2(AB + BC) = 2AC ». Les verdicts et les messages sont ceux du 8.2.13 :
+j / j1 / trop / faux / illisible, seule j compte juste, la ligne qui manque
+choisie la plus simple à lire, la copie fausse montre dessous une
+démonstration possible en vert, la copie vide la reçoit dans le champ. Deux
+remarques de plus quand une ligne n'est pas égale : le sens oublié
+(« Attention au sens : − 2CB = + 2BC ») si l'opposé d'un terme rendait la
+ligne juste, et « le réel devant la parenthèse multiplie CHAQUE vecteur »
+quand une parenthèse a disparu. Les réels négatifs ne sont plus refusés dans
+une ligne : toute écriture juste l'est. Une démonstration vaut UN point.
+
+**Douze plans** : les dix d'avant, écrits désormais comme dans le champ
+(`'3AB-2CB'`, `'AB+2(AB+BC)'`), leurs corrections relues sous la règle d'une
+étape par ligne, et deux de plus — 2AB + 2BC + CA = AC (la mise en facteur,
+puis AC + CA = 0) et 3(AB + BC) − AC = 2AC (Chasles dans la parenthèse, puis
+les réels additionnés).
+
+**En soutien**, la vérification remplace l'explication par « Presque !
+Corrige les cases en rouge, puis revérifie » (`soutienAgain`) : c'est ce que
+fait le 8.2.13, reproduit tel quel comme demandé ; l'élève lit les étapes
+fausses en rouge dans le champ.
+
+**Le banc** (`demontrerEgaliteReels`) a un juge indépendant qui lit les
+lignes avec son propre lecteur (réels et parenthèses) et des coordonnées
+tirées sur ± 2000 : chaque égalité vraie, chaque correction juste, et sur
+chaque plan 150 lignes au hasard — réels, signes, parenthèses — dont aucune
+fausse n'est acceptée ni aucune vraie dite « pas égale ». Puis dix-huit
+rédactions aux verdicts connus (la mise en facteur sautée, développer et
+écrire des sommes d'un trait, Chasles hors de l'ordre…), et par le bouton :
+l'énoncé, la figure, plus aucune case ni liste, la tête du champ « 3AB − 2CB
+= », les parenthèses hors des flèches, la copie juste (1/1), « il faut
+détailler » avec la ligne qui manque, « plusieurs étapes », le sens oublié,
+la démonstration inachevée, le point hors de l'énoncé, la copie vide, la
+saisie qui revient après le JSON, le soutien, le parallélogramme, le
+contexte du modèle. Éprouvé par deux sabotages : un Chasles qui réunit
+2AB + 2BC sans mise en facteur (cinq rougeurs), un `dcrComb` qui oublie les
+réels (les corrections et les lignes au hasard rougissent). La déclaration
+`reglagesDevoirs.baremeParCases` du 8.3.10 est retirée du profil.

@@ -3065,15 +3065,14 @@
   /* 8.3.9 {demontrer-colineaires} : les lignes du 8.2.13 (.dch-l), la case
      MathLive du réel à la taille des lettres des vecteurs, posée à la
      hauteur de la case du vecteur (sous sa flèche), et la conclusion du 8.3.8 */
-  #dcoHost math-field.dco-co,#dcrHost math-field.dco-co{font-size:1.45rem;min-width:46px;min-height:46px;max-width:130px;padding:2px 6px;margin-top:10px;color:var(--blue-dark);vertical-align:middle}
+  #dcoHost math-field.dco-co{font-size:1.45rem;min-width:46px;min-height:46px;max-width:130px;padding:2px 6px;margin-top:10px;color:var(--blue-dark);vertical-align:middle}
   .dco-concl{margin-top:4px}
   .dco-fig{max-width:420px}
-  @media(max-width:520px){ #dcoHost math-field.dco-co,#dcrHost math-field.dco-co{min-width:40px;min-height:42px} }
+  @media(max-width:520px){ #dcoHost math-field.dco-co{min-width:40px;min-height:42px} }
   /* 8.3.10 {demontrer-egalite-reels} : les lignes du 8.3.9, la figure des
      vecteurs de l'égalité au-dessus de la rédaction. Un réel écrit (le
      membre de gauche, le membre de droite) est un signe .veg-eq collé à son
      vecteur. */
-  .dcr-t{display:inline-flex;align-items:center;gap:3px}
   .dcr-fig{display:flex;justify-content:center;margin:0 0 12px}
   .dcr-svg{display:block;width:100%;max-width:420px;height:auto}
   .dcr-svg .dcr-para{fill:none;stroke:var(--ink-soft);stroke-width:1.4;stroke-dasharray:6 5;opacity:.75}
@@ -8236,7 +8235,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   <section class="screen" id="scr-dcr">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="dcrModeTag"></span><span class="q-idx" id="dcrIdx">Démonstration 1 / 4</span></span>
-      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="dcrLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">D&eacute;monstrations justes</span>&nbsp;<b id="dcrLiveScore">0</b></span>
     </div>
     <div class="card">
       <p class="enonce" id="dcrInstr"></p>
@@ -8686,7 +8685,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=601;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=602;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9541,7 +9540,7 @@ const TESTS={
   'phrase-relation-colineaire': { name:'Associer une \u00e9galit\u00e9 de vecteurs, un dessin et une phrase', icon:'\ud83d\udd17', desc:'\u00ab\u00a0B est le milieu de [AM]\u00a0\u00bb, \u00ab\u00a0M est sur [AB] et AM est le tiers de AB\u00a0\u00bb\u2026\u00a0: question 1, relie chaque \u00e9galit\u00e9 AM = kAB \u00e0 son dessin sur une droite\u00a0; question 2, chaque phrase au cas (l\u2019\u00e9galit\u00e9 et son dessin) qui la traduit. Un cas est de trop.', start:()=>startKph() },
   'milieux-parallele-vecteurs': { name:'D\u00e9montrer un parall\u00e9lisme avec les vecteurs', icon:'\u2225', desc:'Dans un triangle ABC, I et J sont les milieux de [AB] et [AC], puis AI = kAB et AJ = kAC (k = \u2153, \u00bc, \u00be, \u2155, \u2156\u2026)\u00a0: sur le mod\u00e8le d\u2019un exemple r\u00e9solu, compl\u00e8te la d\u00e9monstration \u2014 Chasles, le r\u00e9el en facteur, Chasles \u2014 pour prouver que (IJ) et (BC) sont parall\u00e8les.', start:()=>startKmi() },
   'demontrer-colineaires': { name:'D\u00e9montrer un parall\u00e9lisme, \u00e9tape par \u00e9tape', icon:'\u270d\ufe0f', desc:'Une d\u00e9monstration \u00e0 trous avec des r\u00e9els\u00a0: Chasles, les \u00e9galit\u00e9s de l\u2019\u00e9nonc\u00e9, le r\u00e9el en facteur \u2014 et pour chaque ligne sa justification \u2014 jusqu\u2019\u00e0 DE = kBC\u00a0: les vecteurs sont colin\u00e9aires, donc les droites sont parall\u00e8les.', start:()=>startDco() },
-  'demontrer-egalite-reels': { name:'D\u00e9montrer une \u00e9galit\u00e9 avec des r\u00e9els', icon:'\u270d\ufe0f', desc:'Une d\u00e9monstration \u00e0 trous, figure \u00e0 l\u2019appui\u00a0: 3AB \u2212 2CB = AB + 2AC\u2026 \u00c9cris les r\u00e9els et les vecteurs de chaque ligne, puis choisis sa justification \u2014 opposé, réel en facteur, Chasles\u2026', start:()=>startDcr() },
+  'demontrer-egalite-reels': { name:'D\u00e9montrer une \u00e9galit\u00e9 avec des r\u00e9els', icon:'\u270d\ufe0f', desc:'R\u00e9dige la d\u00e9monstration, une \u00e9tape par ligne, figure \u00e0 l\u2019appui\u00a0: 3AB \u2212 2CB = AB + 2AC\u2026 Oppos\u00e9, r\u00e9el en facteur, d\u00e9velopper, Chasles\u2026', start:()=>startDcr() },
   'chasles-inserer-point': { name:'Chasles\u00a0: ins\u00e9rer un point', icon:'\ud83d\udd00', desc:'Le sens inverse de la relation de Chasles\u00a0: d\u00e9compose un vecteur en ins\u00e9rant un point \u2014 AC = A\u2026 + \u2026C, AC = \u2026B + B\u2026, AB = A\u2026 + \u2026 + \u2026B \u2014, avec ou sans figure. Toute \u00e9galit\u00e9 juste est accept\u00e9e.', start:()=>startChi() },
   'milieu-vecteurs-egaux': { name:'Milieux et vecteurs \u00e9gaux', icon:'\ud83d\udccd', desc:'Un triangle et les milieux de ses c\u00f4t\u00e9s\u00a0: traduis \u00ab\u00a0I est le milieu de [AB]\u00a0\u00bb par une \u00e9galit\u00e9 de vecteurs, puis retrouve tous les vecteurs \u00e9gaux dans le triangle des milieux.', start:()=>startVmi() },
   'translation-pavage': { name:'L\u2019image d\u2019un triangle dans un pavage', icon:'\ud83d\udd3a', desc:'Un pavage de triangles num\u00e9rot\u00e9s\u00a0: trouve l\u2019image d\u2019un triangle par une translation, ou le vecteur de la translation qui envoie un triangle sur un autre.', start:()=>startTpv() },
@@ -12878,13 +12877,13 @@ const RAP_CHI=`<b>Insérer un point : la relation de Chasles à l'envers</b><br>
 
 /* 8.3.10 {demontrer-egalite-reels} */
 const RAP_DCR=`<b>Démontrer une égalité de vecteurs avec des réels</b><br>
-On part du membre de gauche et on le transforme, ligne après ligne, jusqu'au membre de droite. Chaque ligne a sa <b>justification</b> :<br>
-<b>① Soustraire un vecteur, c'est ajouter son opposé</b> : 3<span class="vgt-vec">AB</span> − 2<span class="vgt-vec">CB</span> = 3<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> — le réel reste, le vecteur change de sens. Dans une ligne, on écrit les réels positifs.<br>
-<b>② On écrit un réel comme une somme</b> : 3<span class="vgt-vec">AB</span> = <span class="vgt-vec">AB</span> + 2<span class="vgt-vec">AB</span>, devant le même vecteur ; et à l'inverse, <b>on additionne les réels devant un même vecteur</b> : <span class="vgt-vec">AC</span> + 2<span class="vgt-vec">AC</span> = 3<span class="vgt-vec">AC</span>.<br>
-<b>③ On met le réel en facteur</b> : 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> = 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) ; et à l'inverse, <b>on développe</b> : 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) = 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span>.<br>
-<b>④ Relation de Chasles</b> : <span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span> = <span class="vgt-vec">AC</span>, même entre parenthèses : 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) = 2<span class="vgt-vec">AC</span>.<br>
-<b>⑤ On change l'ordre de la somme</b> pour que les vecteurs s'enchaînent : 2<span class="vgt-vec">AB</span> + <span class="vgt-vec">CA</span> + <span class="vgt-vec">AB</span>, puis <span class="vgt-vec">CA</span> + <span class="vgt-vec">AB</span> = <span class="vgt-vec">CB</span>.<br>
-<b>⑥ Dans un parallélogramme ABCD</b> : <span class="vgt-vec">AB</span> = <span class="vgt-vec">DC</span> et <span class="vgt-vec">AD</span> = <span class="vgt-vec">BC</span> — on remplace un vecteur par un vecteur égal.`;
+On part du membre de gauche et on le transforme, ligne après ligne, jusqu'au membre de droite. Chaque ligne est <b>une étape</b>, avec la règle de ton choix :<br>
+<b>① Réécrire la somme</b> : changer l'ordre des termes, remplacer un vecteur par un vecteur égal, et <b>soustraire un vecteur, c'est ajouter son opposé</b> : 3<span class="vgt-vec">AB</span> − 2<span class="vgt-vec">CB</span> = 3<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> — le réel reste, le vecteur change de sens. Tout cela à la fois ne fait qu'une étape.<br>
+<b>② Écrire un réel comme une somme</b> : 3<span class="vgt-vec">AB</span> = <span class="vgt-vec">AB</span> + 2<span class="vgt-vec">AB</span>, devant le même vecteur ; et à l'inverse, <b>additionner les réels devant un même vecteur</b> : <span class="vgt-vec">AC</span> + 2<span class="vgt-vec">AC</span> = 3<span class="vgt-vec">AC</span>.<br>
+<b>③ Mettre un réel en facteur</b> : 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> = 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) ; et à l'inverse, <b>développer</b> : 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) = 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span>. C'est une étape à part entière.<br>
+<b>④ Relation de Chasles</b>, sur des vecteurs côte à côte dans l'ordre où ils s'enchaînent : <span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span> = <span class="vgt-vec">AC</span>, même entre parenthèses : 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) = 2<span class="vgt-vec">AC</span>. Mais 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> = 2<span class="vgt-vec">AC</span> saute une étape : on met d'abord 2 en facteur.<br>
+<b>⑤ Dans un parallélogramme ABCD</b> : <span class="vgt-vec">AB</span> = <span class="vgt-vec">DC</span> et <span class="vgt-vec">AD</span> = <span class="vgt-vec">BC</span> — on remplace un vecteur par un vecteur égal.<br>
+Une ligne qui saute une étape compte fausse : il faut détailler.`;
 
 /* 8.3.9 {demontrer-colineaires} */
 const RAP_DCO=`<b>Démontrer que deux droites sont parallèles avec les vecteurs</b><br>
@@ -67638,218 +67637,414 @@ function ctxDco(q){
    Turquet, octobre 2026 : « créer un exercice comme le 8.2.13 mais avec en
    plus, dans la formule à démontrer, des coefficients devant certains
    vecteurs ; il faudra aussi présenter un dessin avec les vecteurs de
-   l'égalité à démontrer ». La mise en page du 8.2.13 ({demontrer-chasles}) :
-   on part du membre de gauche, chaque ligne a ses cases et sa justification
-   à choisir, la DERNIÈRE ligne est le membre de droite, déjà écrit — on sait
-   où l'on va. Les lignes sont celles du 8.3.9 ({demontrer-colineaires}) :
-   des TERMES « réel × vecteur » (dcoT, dcoG), dont la FORME ('v' un vecteur
-   seul, 'c' un réel et un vecteur, 'f' un réel en facteur de deux vecteurs)
-   donne les cases.
+   l'égalité à démontrer ».
 
-   UNE DÉMONSTRATION EST UN PLAN (DCR_DEMOS), sur les lettres A, B, C (et D) :
-   g le membre de gauche, d le membre de droite, e les étapes — une
-   justification et, sauf la dernière, la forme de la ligne —, c la
-   rédaction du plan (la correction quand l'élève n'en a pas d'autre), para
-   quand ABCD est un parallélogramme. Dix plans ; le premier est l'exemple,
-   toujours en première page, avec ses lettres :
-     0 — 3AB⃗ − 2CB⃗ = AB⃗ + 2AC⃗ : 3AB⃗ + 2BC⃗ = AB⃗ + 2AB⃗ + 2BC⃗
-         = AB⃗ + 2(AB⃗ + BC⃗) = AB⃗ + 2AC⃗ ;
-     1 — 2AB⃗ + BC⃗ = AB⃗ + AC⃗ ;          2 — 3AB⃗ + 3BC⃗ = 3AC⃗ ;
-     3 — 2AB⃗ + 3BC⃗ = 2AC⃗ + BC⃗ ;        4 — 2AB⃗ + BC⃗ + CD⃗ = AB⃗ + AD⃗ ;
-     5 — 3AB⃗ − AC⃗ = 2AB⃗ + CB⃗ (il faut changer l'ordre) ;
-     6 — ABCD parallélogramme : 2AB⃗ + 2AD⃗ = 2AC⃗ ;
-     7 — ABCD parallélogramme : 2AB⃗ + BC⃗ = AC⃗ + DC⃗ ;
-     8 — 2(AB⃗ + BC⃗) = AB⃗ + AC⃗ + BC⃗ (on développe) ;
-     9 — AB⃗ + BC⃗ + 2AC⃗ = 3AC⃗ (on additionne les réels).
+   LA RÉDACTION LIBRE DU 8.2.13 (Turquet, octobre 2026 : « appliquer la
+   méthode de rédaction du 8.2.13, les mêmes consignes pour valider la
+   rédaction avec les étapes ; factoriser par un nombre ou développer par un
+   nombre est une étape aussi ici ; et pour afficher les commentaires, faire
+   aussi comme le 8.2.13 »). Plus de cases ni de justifications à choisir :
+   un seul champ à plusieurs lignes, celui du 8.2.13 (dchRendu, dchBranche,
+   dchPeint), le membre de gauche dessiné en tête, un « = » en tête de chaque
+   ligne suivante. Une ligne est une somme de TERMES : un réel entier devant
+   un vecteur (3AB, − 2CB, AB), ou un réel en facteur d'une parenthèse de
+   vecteurs (2(AB + BC)).
 
-   TOUTE ÉCRITURE JUSTE QUI SUIT LE PLAN EST ACCEPTÉE, comme aux 8.2.13 et
-   8.3.9 : dcrChaines() énumère les rédactions dont chaque ligne se tire de
-   la précédente par sa justification et a la forme demandée, et dont la
-   dernière étape mène au membre de droite (à l'ordre près). Une case est
-   juste s'il existe une rédaction complète qui la porte avec les cases
-   justes avant elle ; une étape vraie qui ne mène nulle part est fausse, et
-   le message le dit. Une justification est juste dès qu'elle explique le
-   passage de la ligne d'avant (corrigée) à la sienne. Les réels sont des
-   entiers, dans une case MathLive comme au 8.3.9 ; dans une ligne ils sont
-   POSITIFS : −2CB⃗ s'écrit 2BC⃗, et c'est la justification « soustraire un
-   vecteur, c'est ajouter son opposé ».
+   CHAQUE « = » EST UNE ÉTAPE (dcrPas), et UNE étape, c'est l'une de ces
+   règles, appliquée une ou plusieurs fois dans la ligne, sur place :
+     · la RÉÉCRITURE du 8.2.13 : autant de termes, chacun de même valeur,
+       dans n'importe quel ordre — l'ordre changé, − 2CB écrit + 2BC, un
+       vecteur égal du parallélogramme, tout cela à la fois ;
+     · la relation de Chasles, sur des vecteurs VOISINS écrits dans l'ordre
+       où ils s'enchaînent : de réel 1 (AB + BC = AC, AB + BA = 0), ou dans
+       une parenthèse (2(AB + BC) = 2AC) ; lue à l'envers, un point inséré ;
+     · METTRE UN RÉEL EN FACTEUR (2AB + 2BC = 2(AB + BC)), ou DÉVELOPPER ;
+     · écrire un réel comme une somme (3AB = AB + 2AB), ou additionner les
+       réels devant un même vecteur (AC + 2AC = 3AC), sur des voisins.
+   2AB + 2BC = 2AC saute donc une étape : la mise en facteur. Comme au
+   8.2.13, une étape à laquelle il en manque une ou plus compte FAUSSE, et le
+   message dit de détailler — en montrant la ligne qui manque quand il n'en
+   manque qu'une ; la dernière ligne doit être le membre de droite (à
+   l'ordre près). Une démonstration vaut UN point.
 
    LE DESSIN (dcrSvg) : les points de l'énoncé et une flèche par vecteur de
    l'égalité, sans son réel — 3AB⃗ se lit sur la flèche AB⃗ ; sur un
    parallélogramme, ses côtés en pointillés. La forme se tire parmi quelques
    gabarits (q.f), retournée ou non (q.m).
 
-   ON RANGE LE PLAN, LES LETTRES, LA TOURNURE ET LA FIGURE (t, n, v, f, m),
-   JAMAIS LES RÉPONSES : tout se recalcule. */
+   ON RANGE LE PLAN, LES LETTRES, LA TOURNURE, LA FIGURE ET LA SAISIE (t, n,
+   v, f, m, saisie — captureBoxes ne lit pas les <textarea>), JAMAIS LES
+   RÉPONSES. Le verdict reste à la page. */
 const DCR_NB=4;   /* démonstrations par séance (réglage « Questions » d'un devoir) */
-const DCR_LETTRES='ABCDEFGHJKLMNPRSTU';   /* ni I, ni O, ni Q */
+const DCR_LETTRES='ABCDEFGHJKLMNPRSTU';   /* ni I, ni O (le vecteur nul), ni Q */
 const DCR_VERBES=['Montrer que','Démontrer que','Prouver que'];
-/* les justifications, dans l'ordre de la liste ; « pa » n'est proposée que
-   sur un parallélogramme, et porte son nom */
-const DCR_ORDRE=['ch','or','op','se','re','fa','dv','pa'];
-const DCR_JUST={
-  ch:'relation de Chasles',
-  or:'on change l’ordre de la somme',
-  op:'soustraire un vecteur, c’est ajouter son opposé',
-  se:'on écrit un réel comme une somme (3 = 2 + 1)',
-  re:'on additionne les réels devant un même vecteur',
-  fa:'on met le réel en facteur',
-  dv:'on développe : le réel multiplie chaque vecteur',
-  pa:'vecteurs égaux car ABCD est un parallélogramme'
-};
-function dcrT(n, v){ return dcoT([n,1], v); }
-function dcrG(n, a, b){ return dcoG([n,1], a, b); }
+/* les plans, écrits comme dans le champ, sur A, B, C (et D ; ABCD est le
+   parallélogramme quand para) : g le membre de gauche, d celui de droite,
+   c une rédaction juste, une étape par ligne, qui sert de correction. Le
+   premier est l'exemple de la demande, toujours en première page, avec ses
+   lettres. */
 const DCR_DEMOS=[
-  {g:[dcrT(3,'AB'),dcrT(-2,'CB')], d:[dcrT(1,'AB'),dcrT(2,'AC')],
-   e:[['op',['c','c']],['se',['v','c','c']],['fa',['v','f']],['ch']],
-   c:[[dcrT(3,'AB'),dcrT(2,'BC')],[dcrT(1,'AB'),dcrT(2,'AB'),dcrT(2,'BC')],[dcrT(1,'AB'),dcrG(2,'AB','BC')]]},
-  {g:[dcrT(2,'AB'),dcrT(1,'BC')], d:[dcrT(1,'AB'),dcrT(1,'AC')],
-   e:[['se',['v','v','v']],['ch']],
-   c:[[dcrT(1,'AB'),dcrT(1,'AB'),dcrT(1,'BC')]]},
-  {g:[dcrT(3,'AB'),dcrT(3,'BC')], d:[dcrT(3,'AC')],
-   e:[['fa',['f']],['ch']],
-   c:[[dcrG(3,'AB','BC')]]},
-  {g:[dcrT(2,'AB'),dcrT(3,'BC')], d:[dcrT(2,'AC'),dcrT(1,'BC')],
-   e:[['se',['c','c','v']],['fa',['f','v']],['ch']],
-   c:[[dcrT(2,'AB'),dcrT(2,'BC'),dcrT(1,'BC')],[dcrG(2,'AB','BC'),dcrT(1,'BC')]]},
-  {g:[dcrT(2,'AB'),dcrT(1,'BC'),dcrT(1,'CD')], d:[dcrT(1,'AB'),dcrT(1,'AD')],
-   e:[['se',['v','v','v','v']],['ch',['v','v','v']],['ch']],
-   c:[[dcrT(1,'AB'),dcrT(1,'AB'),dcrT(1,'BC'),dcrT(1,'CD')],[dcrT(1,'AB'),dcrT(1,'AC'),dcrT(1,'CD')]]},
-  {g:[dcrT(3,'AB'),dcrT(-1,'AC')], d:[dcrT(2,'AB'),dcrT(1,'CB')],
-   e:[['op',['c','v']],['se',['c','v','v']],['or',['c','v','v']],['ch']],
-   c:[[dcrT(3,'AB'),dcrT(1,'CA')],[dcrT(2,'AB'),dcrT(1,'AB'),dcrT(1,'CA')],[dcrT(2,'AB'),dcrT(1,'CA'),dcrT(1,'AB')]]},
-  {para:1, g:[dcrT(2,'AB'),dcrT(2,'AD')], d:[dcrT(2,'AC')],
-   e:[['pa',['c','c']],['fa',['f']],['ch']],
-   c:[[dcrT(2,'AB'),dcrT(2,'BC')],[dcrG(2,'AB','BC')]]},
-  {para:1, g:[dcrT(2,'AB'),dcrT(1,'BC')], d:[dcrT(1,'AC'),dcrT(1,'DC')],
-   e:[['se',['v','v','v']],['ch',['v','v']],['pa']],
-   c:[[dcrT(1,'AB'),dcrT(1,'AB'),dcrT(1,'BC')],[dcrT(1,'AB'),dcrT(1,'AC')]]},
-  {g:[dcrG(2,'AB','BC')], d:[dcrT(1,'AB'),dcrT(1,'AC'),dcrT(1,'BC')],
-   e:[['dv',['c','c']],['se',['v','v','v','v']],['ch']],
-   c:[[dcrT(2,'AB'),dcrT(2,'BC')],[dcrT(1,'AB'),dcrT(1,'AB'),dcrT(1,'BC'),dcrT(1,'BC')]]},
-  {g:[dcrT(1,'AB'),dcrT(1,'BC'),dcrT(2,'AC')], d:[dcrT(3,'AC')],
-   e:[['ch',['v','c']],['re']],
-   c:[[dcrT(1,'AC'),dcrT(2,'AC')]]}
+  {g:'3AB-2CB', d:'AB+2AC', c:['3AB+2BC','AB+2AB+2BC','AB+2(AB+BC)']},
+  {g:'2AB+BC', d:'AB+AC', c:['AB+AB+BC']},
+  {g:'3AB+3BC', d:'3AC', c:['3(AB+BC)']},
+  {g:'2AB+3BC', d:'2AC+BC', c:['2AB+2BC+BC','2(AB+BC)+BC']},
+  {g:'2AB+BC+CD', d:'AB+AD', c:['AB+AB+BC+CD','AB+AC+CD']},
+  {g:'3AB-AC', d:'2AB+CB', c:['3AB+CA','2AB+AB+CA','2AB+CA+AB']},
+  {para:1, g:'2AB+2AD', d:'2AC', c:['2AB+2BC','2(AB+BC)']},
+  {para:1, g:'2AB+BC', d:'AC+DC', c:['AB+AB+BC','AB+AC']},
+  {g:'2(AB+BC)', d:'AB+AC+BC', c:['2AB+2BC','AB+AB+BC+BC']},
+  {g:'AB+BC+2AC', d:'3AC', c:['AC+2AC']},
+  {g:'2AB+2BC+CA', d:'AC', c:['2(AB+BC)+CA','2AC+CA','AC+AC+CA']},
+  {g:'3(AB+BC)-AC', d:'2AC', c:['3AC-AC']}
 ];
 /* les lettres d'un plan : celles qu'il écrit (un parallélogramme a les quatre) */
 function dcrPtsPlan(t){
   const T=DCR_DEMOS[t];
   if(T.para) return 'ABCD';
-  const s=JSON.stringify([T.g, T.d, T.c]);
+  const s=T.g+T.d+T.c.join('');
   return 'ABCD'.split('').filter(function(L){ return s.indexOf(L)>=0; }).join('');
 }
-function dcrR(q, s){ return s.split('').map(function(c){ return q.n['ABCD'.indexOf(c)]; }).join(''); }
-function dcrRT(q, t){ return t.g ? dcoG(t.c, dcrR(q, t.g[0]), dcrR(q, t.g[1])) : dcoT(t.c, dcrR(q, t.v)); }
-/* la démonstration, lettres posées */
-function dcrDemo(q){
-  const T=DCR_DEMOS[q.t], RL=function(l){ return l.map(function(t){ return dcrRT(q, t); }); };
-  return {t:q.t, para:T.para ? q.n : '', pts:q.n, g:RL(T.g), d:RL(T.d), e:T.e, c:T.c.map(RL)};
-}
-/* deux lignes égales à l'ordre près */
-function dcrMemes(a, b){ return a.length===b.length && a.map(dcoCle).sort().join(' ')===b.map(dcoCle).sort().join(' '); }
-/* les vecteurs égaux à X dans le parallélogramme : AB⃗ = DC⃗, AD⃗ = BC⃗, et leurs opposés */
-function dcrEgaux(D, X){
-  if(!D.para) return [];
-  const p=D.para, r=[];
-  [[p[0]+p[1], p[3]+p[2]], [p[0]+p[3], p[1]+p[2]]].forEach(function(c){
-    [c, [dcoOpp(c[0]), dcoOpp(c[1])]].forEach(function(e){ if(X===e[0]) r.push(e[1]); else if(X===e[1]) r.push(e[0]); });
-  });
-  return r;
-}
-/* toutes les lignes qu'UNE étape de justification K tire de la ligne l */
-function dcrSuites(D, l, K){
-  const out=[], vus={}, l0=dcoKey(l);
-  const push=function(r){ if(!r.length) return; const k=dcoKey(r); if(k!==l0 && !vus[k]){ vus[k]=1; out.push(r); } };
-  const parcours=function(f){
-    const rec=function(i, acc, ops){
-      if(i>=l.length){ if(ops) push(acc); return; }
-      rec(i+1, acc.concat([l[i]]), ops);
-      f(i).forEach(function(o){ rec(i+o.pas, acc.concat(o.par), ops+1); });
-    };
-    rec(0, [], 0);
+function dcrR(q, s){ return String(s).replace(/[ABCD]/g, function(c){ return q.n['ABCD'.indexOf(c)]; }); }
+
+/* ---- la lecture ----------------------------------------------------------
+   Un terme : {c, v} (le réel entier c devant le vecteur v), {c, g} (c en
+   facteur de la parenthèse g, des vecteurs signés « AB », « -BC »), ou {z}
+   (le vecteur nul : 0, AA, un réel nul). Un morceau rend {l} ou {err}. */
+function dcrLitMorceau(D, m){
+  let i=0;
+  const l=[];
+  const vec=function(){
+    const x=/^[A-Z]{2}/.exec(m.slice(i));
+    if(x){ i+=2; const v=x[0];
+      if(D.pts.indexOf(v[0])<0 || D.pts.indexOf(v[1])<0) return {err:'point', v:v};
+      return v[0]===v[1] ? {z:1} : {v:v}; }
+    if(m[i]==='0' || m[i]==='O'){ i++; return {z:1}; }
+    return {err:'forme'};
   };
-  const P=D.pts.split('');
-  if(K==='or'){
-    const perm=function(reste, acc){ if(!reste.length){ push(acc); return; }
-      reste.forEach(function(t, i){ perm(reste.slice(0,i).concat(reste.slice(i+1)), acc.concat([t])); }); };
-    perm(l, []);
+  while(i<m.length){
+    let s=1;
+    if(m[i]==='+' || m[i]==='-'){ s=m[i]==='-' ? -1 : 1; i++; }
+    else if(i>0) return {err:'forme'};
+    /* « 0 » seul : le vecteur nul, pas un réel */
+    if(m[i]==='0' && (i+1>=m.length || /[+\-)]/.test(m[i+1]))){ i++; l.push({z:1}); continue; }
+    const k=/^\d+/.exec(m.slice(i));
+    let c=s;
+    if(k){ c=s*parseInt(k[0], 10); i+=k[0].length; }
+    if(m[i]==='('){
+      i++;
+      const g=[];
+      let n=0;
+      while(m[i]!==')'){
+        if(i>=m.length) return {err:'forme'};
+        let si=1;
+        if(m[i]==='+' || m[i]==='-'){ si=m[i]==='-' ? -1 : 1; i++; }
+        else if(n) return {err:'forme'};
+        const r=vec(); if(r.err) return r;
+        n++;
+        if(!r.z) g.push((si<0?'-':'')+r.v);
+      }
+      i++;
+      if(!n) return {err:'forme'};
+      if(!c || !g.length) l.push({z:1}); else dcrGroupe(c, g).forEach(function(t){ l.push(t); });
+    } else {
+      const r=vec(); if(r.err) return r;
+      l.push(r.z || !c ? {z:1} : {c:c, v:r.v});
+    }
   }
-  else if(K==='ch') parcours(function(i){
-    const t=l[i], u=l[i+1], o=[];
-    if(t.g){ if(t.g[0][1]===t.g[1][0] && t.g[0][0]!==t.g[1][1]) o.push({pas:1, par:[dcoT(t.c, t.g[0][0]+t.g[1][1])]}); return o; }
-    if(!dcoEstUn(t.c)) return o;
-    const X=t.v[0], Y=t.v[1];
-    P.forEach(function(Z){ if(Z!==X && Z!==Y) o.push({pas:1, par:[dcoT(DCO_UN, X+Z), dcoT(DCO_UN, Z+Y)]}); });
-    if(u && !u.g && dcoEstUn(u.c) && u.v[0]===Y && u.v[1]!==X) o.push({pas:2, par:[dcoT(DCO_UN, X+u.v[1])]});
-    return o;
+  return l.length ? {l:l} : {err:'forme'};
+}
+/* c en facteur des vecteurs g : une parenthèse d'un seul vecteur n'en est pas une */
+function dcrGroupe(c, g){
+  if(!g.length) return [];
+  if(g.length===1) return [g[0][0]==='-' ? {c:-c, v:g[0].slice(1)} : {c:c, v:g[0]}];
+  return [{c:c, g:g}];
+}
+/* le champ lu : ses lignes, et ses morceaux entre les « = » */
+function dcrLecture(D, val){
+  const lignes=String(val==null?'':val).split('\n'), morceaux=[];
+  lignes.forEach(function(li, k){
+    const net=String(li).toUpperCase().replace(/[−–]/g,'-').replace(/[\s→⃗×*·.]/g,'').replace(/^[=+]+/,'').replace(/[+\-=(]+$/,'');
+    if(!net) return;
+    net.split('=').forEach(function(m, j){ morceaux.push(Object.assign({ligne:k, j:j, brut:m}, m ? dcrLitMorceau(D, m) : {err:'vide'})); });
   });
-  else if(K==='op') parcours(function(i){ const t=l[i];
-    return !t.g && t.c[0]<0 ? [{pas:1, par:[dcoT(dcoNeg(t.c), dcoOpp(t.v))]}] : []; });
-  else if(K==='se') parcours(function(i){ const t=l[i], r=[];
-    if(!t.g && t.c[1]===1 && t.c[0]>=2) for(let a=1;a<t.c[0];a++) r.push({pas:1, par:[dcoT([a,1], t.v), dcoT([t.c[0]-a,1], t.v)]});
-    return r; });
-  else if(K==='re') parcours(function(i){ const t=l[i], u=l[i+1];
-    return u && !t.g && !u.g && t.v===u.v && t.c[0]>0 && u.c[0]>0 ? [{pas:2, par:[dcoT(dcoAdd(t.c, u.c), t.v)]}] : []; });
-  else if(K==='fa') parcours(function(i){ const t=l[i], u=l[i+1];
-    return u && !t.g && !u.g && !dcoEstUn(t.c) && t.c[0]>0 && dcoMemeC(t.c, u.c) ? [{pas:2, par:[dcoG(t.c, t.v, u.v)]}] : []; });
-  else if(K==='dv') parcours(function(i){ const t=l[i];
-    return t.g ? [{pas:1, par:[dcoT(t.c, t.g[0]), dcoT(t.c, t.g[1])]}] : []; });
-  else if(K==='pa') parcours(function(i){ const t=l[i];
-    if(!t.g) return dcrEgaux(D, t.v).map(function(w){ return {pas:1, par:[dcoT(t.c, w)]}; });
-    const a=[t.g[0]].concat(dcrEgaux(D, t.g[0])), b=[t.g[1]].concat(dcrEgaux(D, t.g[1])), r=[];
-    a.forEach(function(x, i0){ b.forEach(function(y, i1){ if(i0 || i1) r.push({pas:1, par:[dcoG(t.c, x, y)]}); }); });
-    return r; });
+  return morceaux;
+}
+/* la démonstration, lettres posées : les textes du plan (gs, ds, cs, écrits
+   comme dans le champ) et leurs termes (g, d, c) */
+function dcrDemo(q){
+  const T=DCR_DEMOS[q.t], D={t:q.t, para:T.para ? q.n : '', pts:q.n};
+  D.gs=dcrR(q, T.g); D.ds=dcrR(q, T.d); D.cs=T.c.map(function(s){ return dcrR(q, s); });
+  const lit=function(s){ return dcrLitMorceau(D, s).l; };
+  D.g=lit(D.gs); D.d=lit(D.ds); D.c=D.cs.map(lit);
+  return D;
+}
+
+/* ---- ce que vaut une ligne ---------------------------------------------
+   La somme lue comme une combinaison de points (dchComb, avec des réels) :
+   AB vaut B − A ; dans le parallélogramme P0P1P2P3, le quatrième sommet vaut
+   P0 + P2 − P1, et deux sommes égales par le parallélogramme s'écrivent
+   pareil. */
+function dcrComb(l, D){
+  const c={}, P=D && D.para;
+  const aj=function(p, s){ if(P && p===P[3]){ aj(P[0], s); aj(P[2], s); aj(P[1], -s); return; } c[p]=(c[p]||0)+s; };
+  const vec=function(v, k){ const s=v[0]==='-' ? -k : k, w=v[0]==='-' ? v.slice(1) : v; aj(w[1], s); aj(w[0], -s); };
+  l.forEach(function(t){ if(t.z) return; if(t.g) t.g.forEach(function(v){ vec(v, t.c); }); else vec(t.v, t.c); });
+  return Object.keys(c).filter(function(k){ return c[k]; }).sort().map(function(k){ return k+c[k]; }).join(' ');
+}
+function dcrInv(v){ return v[0]==='-' ? v.slice(1) : '-'+v; }
+/* l'écriture d'un terme : − 2(AB + BC) et 2(− AB − BC) s'écrivent pareil */
+function dcrCle(t){
+  if(t.z) return '0';
+  if(!t.g) return t.c+t.v;
+  return Math.abs(t.c)+'('+(t.c<0 ? t.g.map(dcrInv) : t.g).join(',')+')';
+}
+function dcrKey(l){ return l.map(dcrCle).join(' '); }
+function dcrNet(l){ return l.filter(function(t){ return !t.z; }); }
+function dcrMemes(a, b){ return a.length===b.length && a.map(dcrCle).sort().join(' ')===b.map(dcrCle).sort().join(' '); }
+
+/* ---- le juge d'une étape ------------------------------------------------- */
+/* LA RÉÉCRITURE du 8.2.13 : T a autant de termes que S, et les mêmes
+   VALEURS, dans n'importe quel ordre — une parenthèse ne vaut qu'une
+   parenthèse du même nombre de vecteurs, de mêmes valeurs. */
+function dcrVal(D, t){
+  return t.g ? 'g'+t.g.length+':'+t.g.map(function(v){ return dcrComb([{c:t.c, v:v}], D); }).sort().join('|') : dcrComb([t], D);
+}
+function dcrReecrit(D, S, T){
+  return S.length===T.length && S.map(function(t){ return dcrVal(D, t); }).sort().join('/')===T.map(function(t){ return dcrVal(D, t); }).sort().join('/');
+}
+/* toutes les lignes que tire de S une règle appliquée SUR PLACE, zéro, une
+   ou plusieurs fois : f(S, i) rend les remplacements qui commencent au
+   terme i — {pas : les termes couverts, par : les termes écrits} */
+function dcrSurPlace(S, f){
+  const out=[];
+  const rec=function(i, acc){
+    if(i>=S.length){ out.push(acc); return; }
+    rec(i+1, acc.concat([S[i]]));
+    f(S, i).forEach(function(o){ rec(i+o.pas, acc.concat(o.par)); });
+  };
+  rec(0, []);
   return out;
 }
-/* la ligne a-t-elle la forme demandée par le plan ? les réels y sont positifs */
-function dcrForme(l, lay){
-  return l.length===lay.length && l.every(function(t, i){
-    return t.c[0]>0 && (lay[i]==='f' ? !!t.g : (!t.g && (lay[i]==='c' || dcoEstUn(t.c)))); });
+/* Chasles dans une suite de vecteurs signés : des voisins de même signe qui
+   s'enchaînent dans l'ordre écrit ; nul : un paquet qui revient au départ
+   donne 0, et se retire */
+function dcrReunitTous(vs, nul){
+  const out=[];
+  const rec=function(i, acc){
+    if(i>=vs.length){ out.push(acc); return; }
+    const neg=vs[i][0]==='-', bloc=[];
+    for(let k=i;k<vs.length;k++){
+      if((vs[k][0]==='-')!==neg) break;
+      bloc.push(neg ? vs[k].slice(1) : vs[k]);
+      const r=dchChaine(bloc); if(!r) break;
+      if(r[0]===r[1]){ if(nul && bloc.length>1) rec(k+1, acc); }
+      else rec(k+1, acc.concat([(neg?'-':'')+r]));
+    }
+  };
+  rec(0, []);
+  return out;
 }
-/* la dernière étape mène-t-elle de l au membre de droite (à l'ordre près) ? */
-function dcrFinit(D, l, K){ return dcrSuites(D, l, K).some(function(r){ return dcrMemes(r, D.d); }); }
-/* toutes les rédactions qui suivent le plan, celle du plan d'abord ; une
-   fois par plan, sur ses propres lettres, puis renommées (la leçon du mémo
-   du 8.2.13 : un cache se borne par ce qui est fini) */
-const DCR_MEMO={};
-function dcrChaines(q){
-  if(!DCR_MEMO[q.t]){
-    const D=dcrDemo({t:q.t, n:dcrPtsPlan(q.t)}), E=D.e, last=E.length-1, res=[];
-    const rec=function(k, l, acc){
-      if(k===last){ if(dcrFinit(D, l, E[k][0])) res.push(acc.slice()); return; }
-      dcrSuites(D, l, E[k][0]).forEach(function(r){
-        if(!dcrForme(r, E[k][1])) return;
-        acc.push(r); rec(k+1, r, acc); acc.pop();
-      });
-    };
-    rec(0, D.g, []);
-    const ck=JSON.stringify(D.c.map(dcoKey));
-    res.sort(function(a, b){ return (JSON.stringify(b.map(dcoKey))===ck)-(JSON.stringify(a.map(dcoKey))===ck); });
-    DCR_MEMO[q.t]=res;
+/* LA RELATION DE CHASLES : des termes voisins de réel 1 (ou tous de réel
+   − 1), ou des vecteurs voisins dans une parenthèse — jamais 2AB + 2BC, qui
+   demande d'abord la mise en facteur. Lue à l'envers (S ← T, sans 0), c'est
+   un point inséré. */
+function dcrChasles(S, nul){
+  const out=[];
+  const rec=function(i, acc){
+    if(i>=S.length){ out.push(acc); return; }
+    const t=S[i];
+    if(t.g){ dcrReunitTous(t.g, nul).forEach(function(g){ rec(i+1, acc.concat(dcrGroupe(t.c, g))); }); return; }
+    if(Math.abs(t.c)!==1){ rec(i+1, acc.concat([t])); return; }
+    const bloc=[];
+    for(let k=i;k<S.length;k++){
+      const u=S[k]; if(u.g || u.c!==t.c) break;
+      bloc.push(u.v);
+      const r=dchChaine(bloc); if(!r) break;
+      if(r[0]===r[1]){ if(nul && bloc.length>1) rec(k+1, acc); }
+      else rec(k+1, acc.concat([{c:t.c, v:r}]));
+    }
+  };
+  rec(0, []);
+  return out;
+}
+/* METTRE UN RÉEL EN FACTEUR (Turquet : « factoriser par un nombre ou
+   développer par un nombre est une étape aussi ») : des termes voisins de
+   même réel, au signe près ; lue à l'envers, c'est développer */
+function dcrFacteurs(S){
+  return dcrSurPlace(S, function(S, i){
+    const t=S[i], o=[];
+    if(t.g || t.z) return o;
+    const g=[t.v];
+    for(let k=i+1;k<S.length;k++){
+      const u=S[k]; if(u.g || u.z || Math.abs(u.c)!==Math.abs(t.c)) break;
+      g.push((u.c*t.c<0 ? '-' : '')+u.v);
+      o.push({pas:k-i+1, par:[{c:t.c, g:g.slice()}]});
+    }
+    return o;
+  });
+}
+/* ADDITIONNER LES RÉELS devant un même vecteur, sur des voisins ; lue à
+   l'envers, c'est écrire un réel comme une somme */
+function dcrSommes(S){
+  return dcrSurPlace(S, function(S, i){
+    const t=S[i], o=[];
+    if(t.g || t.z) return o;
+    let c=t.c;
+    for(let k=i+1;k<S.length;k++){
+      const u=S[k]; if(u.g || u.z || u.v!==t.v) break;
+      c+=u.c;
+      o.push({pas:k-i+1, par:c ? [{c:c, v:t.v}] : []});
+    }
+    return o;
+  });
+}
+function dcrDans(L, l){ const k=dcrKey(l); return L.some(function(x){ return dcrKey(x)===k; }); }
+/* UNE étape mène-t-elle de S à T (lignes déjà nettes) ? */
+function dcrUneEtape(D, S, T){
+  return dcrReecrit(D, S, T)
+    || dcrDans(dcrChasles(S, true), T) || dcrDans(dcrChasles(T, false), S)
+    || dcrDans(dcrFacteurs(S), T) || dcrDans(dcrFacteurs(T), S)
+    || dcrDans(dcrSommes(S), T) || dcrDans(dcrSommes(T), S);
+}
+/* les écritures d'un terme qui ont sa valeur : c XY, − c YX, et les vecteurs
+   égaux du parallélogramme ; une parenthèse reste telle quelle */
+function dcrFormes(D, t){
+  if(t.g) return [t];
+  const v=dcrVal(D, t), P=D.pts.split(''), a=Math.abs(t.c), r=[];
+  P.forEach(function(x){ P.forEach(function(y){ if(x===y) return;
+    [a, -a].forEach(function(c){ const u={c:c, v:x+y}; if(dcrVal(D, u)===v) r.push(u); }); }); });
+  return r.length ? r : [t];
+}
+/* les lignes qu'une étape tire de S — pour chercher l'étape qui manque.
+   Les réécritures : toutes les permutations, chaque terme sous chacune de
+   ses formes tant que le compte reste raisonnable, sinon sous deux ;
+   l'insertion se limite à un point dans un ou deux vecteurs. */
+function dcrVoisins(D, S){
+  const out=[], vus={}, aj=function(l){ const k=dcrKey(l); if(!vus[k]){ vus[k]=1; out.push(l); } };
+  const n=S.length;
+  if(n<=6){
+    let F=S.map(function(t){ return dcrFormes(D, t); });
+    let fact=1; for(let k=2;k<=n;k++) fact*=k;
+    if(fact*F.reduce(function(a, f){ return a*f.length; }, 1)>6000)
+      F=S.map(function(t){ return t.g ? [t] : [t, {c:-t.c, v:dchOpp(t.v)}]; });
+    const perm=function(acc, reste){ if(!reste.length){ aj(acc); return; }
+      reste.forEach(function(i, k){ F[i].forEach(function(f){ perm(acc.concat([f]), reste.slice(0, k).concat(reste.slice(k+1))); }); }); };
+    perm([], S.map(function(_, i){ return i; }));
   }
-  return DCR_MEMO[q.t].map(function(ch){ return ch.map(function(l){ return l.map(function(t){ return dcrRT(q, t); }); }); });
+  dcrChasles(S, true).forEach(aj);
+  dcrFacteurs(S).forEach(aj);
+  dcrSommes(S).forEach(aj);
+  /* développer une ou plusieurs parenthèses */
+  dcrSurPlace(S, function(S, i){ const t=S[i];
+    return t.g ? [{pas:1, par:t.g.map(function(v){ return v[0]==='-' ? {c:-t.c, v:v.slice(1)} : {c:t.c, v:v}; })}] : []; }).forEach(aj);
+  /* écrire un ou plusieurs réels comme une somme */
+  dcrSurPlace(S, function(S, i){ const t=S[i], o=[];
+    if(t.g || Math.abs(t.c)<2) return o;
+    const s=t.c<0 ? -1 : 1, a=Math.abs(t.c);
+    for(let b=1;b<a;b++) o.push({pas:1, par:[{c:s*b, v:t.v}, {c:s*(a-b), v:t.v}]});
+    return o; }).forEach(aj);
+  /* un point inséré dans un ou deux vecteurs, sur place : un terme de réel
+     ± 1 se coupe en deux termes, un autre devient une parenthèse, un vecteur
+     d'une parenthèse s'y coupe en deux */
+  const P=D.pts.split('');
+  const coupes=function(v){ const neg=v[0]==='-', w=neg ? v.slice(1) : v, s=neg?'-':'';
+    return P.filter(function(p){ return p!==w[0] && p!==w[1]; }).map(function(p){ return [s+w[0]+p, s+p+w[1]]; }); };
+  const variantes=function(t){
+    if(t.g) return [].concat.apply([], t.g.map(function(v, j){ return coupes(v).map(function(c){ return [{c:t.c, g:t.g.slice(0, j).concat(c).concat(t.g.slice(j+1))}]; }); }));
+    return coupes(t.v).map(function(c){ return Math.abs(t.c)===1 ? [{c:t.c, v:c[0]}, {c:t.c, v:c[1]}] : [{c:t.c, g:c}]; });
+  };
+  const rec=function(i, acc, nb){
+    if(i>=n){ if(nb) aj(acc); return; }
+    rec(i+1, acc.concat([S[i]]), nb);
+    if(nb<2) variantes(S[i]).forEach(function(par){ rec(i+1, acc.concat(par), nb+1); });
+  };
+  rec(0, [], 0);
+  return out;
 }
-/* les points, en coordonnées libres (jamais montrées) : ce que VAUT une ligne */
-function dcrPoints(D){
-  const P={}, L=D.pts.split('');
-  P[L[0]]=[0,0]; P[L[1]]=[5,1]; P[L[2]]=[1.5,4];
-  if(L[3]) P[L[3]]=D.para ? [P[L[0]][0]+P[L[2]][0]-P[L[1]][0], P[L[0]][1]+P[L[2]][1]-P[L[1]][1]] : [6.2,4.9];
-  return P;
+/* le nombre d'étapes de S à T (1, 2 ou 3 pour « trois ou plus »), et la
+   ligne qui manque quand il en manque une — la plus simple à lire : le moins
+   de « − », puis le moins de termes changés de place */
+function dcrPas(D, S, T){
+  const a=dcrNet(S), b=dcrNet(T);
+  if(dcrUneEtape(D, a, b)) return {n:1};
+  const ecart=function(U){ return (dcrTxt(U).split('−').length-1)*100
+    +(U.length===a.length ? U.filter(function(t, i){ return dcrCle(t)!==dcrCle(a[i]); }).length : 50); };
+  const u=dcrVoisins(D, a).filter(function(U){ return dcrUneEtape(D, U, b); })
+    .sort(function(x, y){ return ecart(x)-ecart(y); })[0];
+  return u ? {n:2, milieu:u.length ? u : [{z:1}]} : {n:3};
 }
-function dcrValeur(D, l){
-  const P=dcrPoints(D); let x=0, y=0;
-  const aj=function(c, v){ const k=c[0]/c[1]; x+=k*(P[v[1]][0]-P[v[0]][0]); y+=k*(P[v[1]][1]-P[v[0]][1]); };
-  l.forEach(function(t){ if(t.g) t.g.forEach(function(v){ aj(t.c, v); }); else aj(t.c, t.v); });
-  return [x, y];
+
+/* ---- le verdict ------------------------------------------------------------
+   Chaque morceau reçoit son état, comme au 8.2.13 : j (juste), j1 (vrai,
+   mais il manque une étape), trop (il en manque au moins deux), faux (pas
+   égal), illisible. Seul j compte juste ; la démonstration est juste si tous
+   ses morceaux le sont et si le dernier est le membre de droite. */
+function dcrJuge(q, val){
+  const D=dcrDemo(q), M=dcrLecture(D, val), ref=dcrComb(D.g, D);
+  let prev=D.g, fin=null;
+  M.forEach(function(m){
+    if(m.err){ m.etat='illisible'; return; }
+    if(dcrComb(m.l, D)!==ref){ m.etat='faux'; m.depuis=prev; return; }
+    const p=dcrPas(D, prev, m.l);
+    m.etat=p.n===1 ? 'j' : p.n===2 ? 'j1' : 'trop'; m.depuis=prev; m.milieu=p.milieu;
+    prev=m.l; fin=m;
+  });
+  const vide=!M.length;
+  const arrive=!!fin && dcrMemes(dcrNet(fin.l), dcrNet(D.d));
+  const ok=!vide && arrive && M.every(function(m){ return m.etat==='j'; });
+  return {D:D, M:M, vide:vide, arrive:arrive, ok:ok};
 }
-function dcrEgales(D, a, b){ const u=dcrValeur(D, a), v=dcrValeur(D, b); return Math.abs(u[0]-v[0])<1e-9 && Math.abs(u[1]-v[1])<1e-9; }
-/* les justifications qui expliquent le passage de prev à cur (à l'ordre
-   près pour la dernière ligne, qui est le membre de droite) */
-function dcrExplique(D, prev, cur, fin){
-  const k=dcoKey(cur);
-  return DCR_ORDRE.filter(function(K){ return (K!=='pa' || D.para)
-    && dcrSuites(D, prev, K).some(function(r){ return fin ? dcrMemes(r, cur) : dcoKey(r)===k; }); });
+/* une ligne écrite : en texte (3AB − 2CB, 2(AB + BC)), ou en HTML, chaque
+   vecteur sous sa flèche */
+function dcrEcrit(l, vec){
+  if(!l.length) return vec('0');
+  return l.map(function(t, i){
+    if(t.z) return (i ? ' + ' : '')+vec('0');
+    const n=t.c<0, a=Math.abs(t.c), k=a===1 ? '' : String(a);
+    const corps=t.g ? k+'('+t.g.map(function(v, j){ const m=v[0]==='-'; return (j ? (m?' − ':' + ') : (m?'− ':''))+vec(m ? v.slice(1) : v); }).join('')+')' : k+vec(t.v);
+    return (i ? (n ? ' − ' : ' + ') : (n ? '− ' : ''))+corps;
+  }).join('');
 }
+function dcrTxt(l){ return dcrEcrit(l, function(v){ return v; }); }
+function dcrHTML(l){ return dcrEcrit(l, function(v){ return '<span class="vgt-vec">'+esc(v)+'</span>'; }); }
+/* le message : la première étape fausse, ou ce qui manque. html : les
+   vecteurs prennent leur flèche (le retour affiché à l'élève) ; sans, du
+   texte brut (le contexte envoyé à l'aide IA) */
+function dcrPourquoi(J, html){
+  const D=J.D, V=html ? dcrHTML : dcrTxt, X=html ? esc : function(t){ return t; };
+  const cite=function(m){ return '« '+V(m.depuis)+' = '+V(m.l)+' »'; };
+  const m=J.M.find(function(x){ return x.etat!=='j'; });
+  if(m){
+    if(m.etat==='illisible') return m.err==='point' ? '« '+X(m.v)+' » n’est pas un vecteur de la figure : ses deux lettres doivent être des points de l’énoncé.'
+      : m.err==='vide' ? 'Il manque une somme entre deux « = ».'
+      : '« '+X(chlMembreTxt(m.brut))+' » ne se lit pas : écris des termes comme 3AB ou 2(AB + BC) — un réel entier devant un vecteur de deux lettres —, séparés par + ou −.';
+    if(m.etat==='faux'){
+      let h='« '+V(m.l)+' » n’est pas égal à « '+V(m.depuis)+' ».';
+      /* le sens oublié : un terme dont l'opposé rendrait la ligne juste */
+      const ref=dcrComb(D.g, D);
+      const t=m.l.find(function(t, i){ if(t.z || t.g) return false;
+        const l=m.l.slice(); l[i]={c:-t.c, v:t.v}; return dcrComb(l, D)===ref; });
+      if(t){ const a=Math.abs(t.c);
+        h+=' Attention au sens : − '+V([{c:a, v:t.v}])+' = + '+V([{c:a, v:dchOpp(t.v)}])+'. Soustraire un vecteur, c’est ajouter son OPPOSÉ : le réel reste, le vecteur change de sens.'; }
+      else if(m.depuis.some(function(t){ return t.g; }) && m.l.filter(function(t){ return t.g; }).length<m.depuis.filter(function(t){ return t.g; }).length)
+        h+=' Pour développer, le réel devant la parenthèse multiplie CHAQUE vecteur.';
+      return h;
+    }
+    if(m.etat==='j1') return cite(m)+' est vrai, mais il manque une étape : il faut détailler, par exemple '+V(m.depuis)+' = '+V(m.milieu)+' = '+V(m.l)+'. Cette étape compte fausse.';
+    return cite(m)+' est vrai, mais il manque plusieurs étapes : il faut détailler davantage, une étape par ligne. Cette étape compte fausse.';
+  }
+  if(!J.arrive) return 'Toutes tes étapes sont justes, mais la démonstration doit arriver à '+V(D.d)+'.';
+  return '';
+}
+/* la rédaction du plan, écrite comme dans le champ */
+function dcrCorrection(D){ return D.cs.concat([D.ds]).join('\n'); }
+/* le membre de gauche, dessiné en tête du champ comme la saisie (réels et
+   parenthèses compris), sans les repères du curseur */
+function dcrPrefHTML(s){
+  return '<span class="chl-pref">'+chlDessin(String(s||''), -1, -1, '').replace(/ data-k="\d+"/g, '')+'<span class="chl-pop">=</span></span>';
+}
+
+/* ---- l'écran ------------------------------------------------------------ */
 /* les gabarits de la figure : trois points, quatre points, un parallélogramme */
 const DCR_FIG={
   3:[[[0,0],[6,1],[3.4,4.6]], [[0,3.6],[5.4,0],[7,4.4]], [[0.6,0],[7,1.8],[1.8,4.8]]],
@@ -67870,157 +68065,26 @@ function dcrGenQuestion(_, i){
 }
 /* deux pages sont la même si leur plan l'est */
 function dcrBuildQuestions(){
-  return distinctes(dmNbQuestions(DCR_NB), dcrGenQuestion, function(q){ return q.t; });
-}
-/* les cases d'une démonstration, dans l'ordre de lecture : pour chaque ligne
-   écrite par l'élève, le réel puis le(s) vecteur(s) de chaque terme ; puis
-   la justification de chaque ligne, la dernière comprise */
-function dcrCases(q){
-  const cs=[], E=DCR_DEMOS[q.t].e, last=E.length-1;
-  E.forEach(function(e, k){
-    if(k<last) e[1].forEach(function(sp, i){
-      if(sp!=='v') cs.push({id:'dcr-k-'+k+'-'+i, k:k, i:i, t:'k'});
-      cs.push({id:'dcr-v-'+k+'-'+i+'-0', k:k, i:i, j:0, t:'v'});
-      if(sp==='f') cs.push({id:'dcr-v-'+k+'-'+i+'-1', k:k, i:i, j:1, t:'v'});
-    });
-    cs.push({id:'dcr-s-'+k, k:k, t:'j'});
-  });
-  return cs;
-}
-/* une ligne écrite en texte : 3AB − 2CB, 2(AB + BC) */
-function dcrTxt(l){
-  return l.map(function(t, i){ const n=t.c[0]<0, a=n ? dcoT(dcoNeg(t.c), t.v) : t;
-    if(t.g) a.g=t.g;
-    return (i ? (n ? ' − ' : ' + ') : (n ? '−' : ''))+dcoTerme(a); }).join('');
-}
-/* Le verdict de la page. Rend les cases dans l'ordre de lecture, la
-   rédaction retenue (C), les lignes de l'élève et la démonstration. */
-function dcrJuge(q){
-  const D=dcrDemo(q), E=D.e, last=E.length-1;
-  let ch=dcrChaines(q);
-  const cs=dcrCases(q), vs=[];
-  cs.forEach(function(c){
-    if(c.t!=='k' && c.t!=='v') return;
-    const el=$(c.id), brut=el ? String(el.value==null?'':el.value).trim() : '';
-    const lu=c.t==='k' ? dcoKvLit(brut) : dcoLit(D, brut);
-    const s={id:c.id, el:el, brut:brut, vide:brut==='', lu:lu, ok:false, k:c.k, i:c.i, j:c.j, t:c.t};
-    if(lu){
-      const f=ch.filter(function(x){ const t=x[c.k][c.i];
-        return c.t==='k' ? dcoMemeC(t.c, lu) : (t.g ? t.g[c.j] : t.v)===lu; });
-      if(f.length){ s.ok=true; ch=f; }
-    }
-    vs.push(s);
-  });
-  const C=ch[0];
-  vs.forEach(function(s){ const t=C[s.k][s.i]; s.bon=s.t==='k' ? kvLatex(t.c) : (t.g ? t.g[s.j] : t.v); s.co=s.t==='k' ? t.c : null; });
-  /* la ligne de l'élève, quand toutes ses cases se lisent */
-  const lignes=E.map(function(e, k){
-    if(k===last) return D.d;
-    const l=[];
-    for(let i=0;i<e[1].length;i++){
-      const sp=e[1][i], f=function(t, j){ const s=vs.find(function(x){ return x.k===k && x.i===i && x.t===t && (j==null || x.j===j); }); return s && s.lu; };
-      const c=sp==='v' ? DCO_UN : f('k');
-      if(!c) return null;
-      if(sp==='f'){ const a=f('v',0), b=f('v',1); if(!a || !b) return null; l.push(dcoG(c, a, b)); }
-      else { const v=f('v',0); if(!v) return null; l.push(dcoT(c, v)); }
-    }
-    return l;
-  });
-  const subs=[];
-  E.forEach(function(e, k){
-    vs.filter(function(s){ return s.k===k; }).forEach(function(s){ subs.push(s); });
-    const el=$('dcr-s-'+k), val=el ? el.value : '', prev=k ? C[k-1] : D.g;
-    const ex=dcrExplique(D, prev, k<last ? C[k] : D.d, k===last);
-    subs.push({id:'dcr-s-'+k, el:el, brut:val, vide:val==='', lu:val, ok:val!=='' && ex.indexOf(val)>=0, bon:e[0], k:k, t:'j', ex:ex});
-  });
-  return {D:D, C:C, subs:subs, lignes:lignes};
-}
-function dcrLabel(D, K){ return K==='pa' && D.para ? DCR_JUST.pa.replace('ABCD', D.para) : DCR_JUST[K]; }
-/* ce que fait chaque justification, pour le message — avec les lettres de la page */
-function dcrRegle(D, K){
-  const L=D.pts, a=L[0], b=L[1], c=L[2];
-  switch(K){
-    case 'ch': return 'la relation de Chasles réunit deux vecteurs qui s’enchaînent ('+a+b+' + '+b+c+' = '+a+c+'), même entre parenthèses, ou fait passer par un point';
-    case 'or': return 'on garde les MÊMES termes et on change seulement leur ordre, pour que les vecteurs s’enchaînent';
-    case 'op': return 'soustraire un vecteur, c’est ajouter son OPPOSÉ : − 2'+c+b+' = + 2'+b+c+' — le réel reste, le vecteur change de sens';
-    case 'se': return 'on écrit le réel comme une somme, devant le MÊME vecteur : 3'+a+b+' = '+a+b+' + 2'+a+b+' (un vecteur seul, c’est 1 fois ce vecteur)';
-    case 're': return 'deux termes avec le MÊME vecteur : on additionne leurs réels, '+a+c+' + 2'+a+c+' = 3'+a+c;
-    case 'fa': return 'deux termes qui ont le MÊME réel : on le met en facteur, 2'+a+b+' + 2'+b+c+' = 2('+a+b+' + '+b+c+')';
-    case 'dv': return 'le réel multiplie CHAQUE vecteur de la parenthèse : 2('+a+b+' + '+b+c+') = 2'+a+b+' + 2'+b+c;
-    default: { const p=D.para||'ABCD'; return 'dans le parallélogramme '+p+', '+p[0]+p[1]+' = '+p[3]+p[2]+' et '+p[0]+p[3]+' = '+p[1]+p[2]+' : on remplace un vecteur par un vecteur ÉGAL'; }
-  }
-}
-/* Le pourquoi, dit sur la PREMIÈRE case fausse. */
-function dcrPourquoi(q, J){
-  const f=J.subs.find(function(s){ return !s.ok && !s.vide; });
-  if(!f) return '';
-  const D=J.D, C=J.C, E=D.e, last=E.length-1, k=f.k, K=E[k][0], prev=k ? C[k-1] : D.g, bonne=k<last ? C[k] : D.d;
-  const L='Ligne '+(k+1)+' : ';
-  if(f.t==='j')
-    return L+'la justification n’est pas « '+dcrLabel(D, f.lu)+' ». On passe de '+dcrTxt(prev)+' à '+dcrTxt(bonne)+' : '+dcrRegle(D, K)+'.';
-  if(!f.lu) return f.t==='k'
-    ? L+'« '+kviPlat(f.brut)+' » n’est pas un réel : écris un nombre entier, comme 2 ou 3.'
-    : L+'« '+f.brut+' » n’est pas un vecteur de l’énoncé : écris deux lettres parmi '+D.pts.split('').join(', ')+'.';
-  if(f.t==='k' && f.lu[0]<0)
-    return L+'dans une ligne, les réels s’écrivent POSITIFS : on écrit 2'+D.pts[1]+D.pts[2]+' plutôt que −2'+D.pts[2]+D.pts[1]+' — un vecteur à l’envers, c’est l’opposé.';
-  const l=J.lignes[k];
-  /* le sens oublié : − 2CB devient 2CB au lieu de 2BC */
-  if(K==='op' && l && f.i!=null){ const t=l[f.i], b=bonne[f.i], p=prev[f.i];
-    if(t && b && p && !t.g && !b.g && p.c[0]<0 && t.v===p.v && dcoMemeC(t.c, b.c))
-      return L+'soustraire un vecteur, c’est ajouter son OPPOSÉ : − '+dcoTerme(dcoT(dcoNeg(p.c), p.v))+' = + '+dcoTerme(b)+', pas + '+dcoTerme(t)+'. Le réel reste, le vecteur change de sens.'; }
-  if(l && !dcrEgales(D, l, D.g))
-    return L+dcrTxt(l)+' n’est pas égal à '+dcrTxt(prev)+' : '+dcrRegle(D, K)+'.';
-  if(l && dcrSuites(D, prev, K).some(function(r){ return dcoKey(r)===dcoKey(l); }) && dcrForme(l, E[k][1]))
-    return L+dcrTxt(l)+' est une étape juste, mais elle ne mène pas à '+dcrTxt(D.d)+' avec les étapes qui suivent. Il fallait par exemple '+dcrTxt(bonne)+'.';
-  if(l) return L+dcrTxt(l)+' est bien égal, mais ce n’est pas l’étape demandée : '+dcrRegle(D, K)+'.';
-  return L+'il fallait par exemple '+dcrTxt(bonne)+' : '+dcrRegle(D, K)+'.';
-}
-/* une somme dans l'énoncé : 3AB⃗ − 2CB⃗, 2(AB⃗ + BC⃗) */
-function dcrEnonceSomme(l){
-  return l.map(function(t, i){ const n=t.c[0]<0, c=Math.abs(t.c[0]), k=c===1 ? '' : c;
-    const v=function(x){ return '<span class="vgt-vec">'+esc(x)+'</span>'; };
-    return (i ? (n ? ' − ' : ' + ') : (n ? '−' : ''))+k+(t.g ? '('+v(t.g[0])+' + '+v(t.g[1])+')' : v(t.v)); }).join('');
+  const N=dmNbQuestions(DCR_NB);
+  return distinctes(N, dcrGenQuestion, N<=DCR_DEMOS.length ? function(q){ return q.t; } : undefined);
 }
 function dcrEnonceHTML(q){
-  const D=dcrDemo(q), L=D.pts.split('');
+  const D=dcrDemo(q), L=D.pts.split(''), w=function(v){ return '<span class="vgt-vec">'+v+'</span>'; };
   let h=D.para ? D.para+' est un parallélogramme. '
     : L.slice(0,-1).join(', ')+' et '+L[L.length-1]+' sont '+(L.length===3 ? 'trois' : 'quatre')+' points du plan. ';
-  h+='<b>'+DCR_VERBES[q.v||0]+' '+dcrEnonceSomme(D.g)+' = '+dcrEnonceSomme(D.d)+'.</b><br>'
-    +'La figure montre les vecteurs de l’égalité. Complète la démonstration : dans chaque case, un <b>réel</b> ou un <b>vecteur</b> (deux lettres), et pour chaque ligne la <b>justification</b> qui fait passer de la ligne d’avant à celle-ci.'
-    +'<span class="kv-sous">Dans une ligne, les réels sont positifs : −2<span class="vgt-vec">'+L[2]+L[1]+'</span> s’écrit 2<span class="vgt-vec">'+L[1]+L[2]+'</span>.</span>';
+  h+='<b>'+DCR_VERBES[q.v||0]+' '+dcrHTML(D.g)+' = '+dcrHTML(D.d)+'.</b><br>'
+    +'Écris ta démonstration dans le champ, avec la méthode que tu veux : <b>une étape par ligne</b>. Appuie sur <b>Entrée</b> pour passer à la ligne suivante, qui commence par «&nbsp;=&nbsp;». '
+    +'Changer l’ordre des termes, écrire un opposé ou un vecteur égal de la figure compte comme une étape, même faits ensemble ; la relation de Chasles, sur des vecteurs côte à côte dans le bon ordre, en est une autre ; '
+    +'<b>mettre un réel en facteur</b> ou <b>développer</b> aussi, comme écrire un réel comme une somme ou additionner les réels devant un même vecteur. '
+    +'Tape le réel devant le vecteur (2'+w(L[0]+L[1])+'), et des parenthèses pour un réel en facteur : 2('+w(L[0]+L[1])+' + '+w(L[1]+L[2])+'). La dernière ligne est '+dcrHTML(D.d)+'.';
   return h;
 }
-/* une somme écrite dans une ligne de la rédaction (le membre de gauche en
-   tête, le membre de droite sur la dernière) : les vecteurs, les signes et
-   les réels du 8.3 (.veg-v, .veg-eq) */
-function dcrSommeHTML(l, premier){
-  const eq=function(s){ return '<span class="veg-eq">'+s+'</span>'; };
-  let h='';
-  l.forEach(function(t, i){
-    const n=t.c[0]<0, c=Math.abs(t.c[0]);
-    const corps='<span class="dcr-t">'+(c===1 ? '' : '<span class="veg-eq dcr-k">'+c+'</span>')
-      +(t.g ? eq('(')+vegVecHTML(t.g[0])+eq('+')+vegVecHTML(t.g[1])+eq(')') : vegVecHTML(t.v))+'</span>';
-    if(i===0 && premier!=null) h+=chsGrp(premier+(n ? ' −' : ''), corps);
-    else if(i===0) h+=(n ? chsGrp('−', corps) : '<span class="veg-tete">'+corps+'</span>');
-    else h+=chsGrp(n ? '−' : '+', corps);
-  });
-  return h;
-}
-function dcrSelHTML(D, k){
-  let h='<select class="dch-sel" id="dcr-s-'+k+'" aria-label="'+esc('la justification de la ligne '+(k+1))+'"><option value="">— justification —</option>';
-  DCR_ORDRE.forEach(function(K){ if(K!=='pa' || D.para) h+='<option value="'+K+'">'+esc(dcrLabel(D, K))+'</option>'; });
-  return h+'</select>';
-}
-function dcrVecCase(id, aria){
-  return '<span class="veg-v"><span class="veg-fl" aria-hidden="true"></span>'
-    +'<input class="veg-in dcr-in" id="'+id+'" type="text" maxlength="2" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="'+esc(aria)+'"></span>';
-}
-function dcrCoCase(id, aria){ return pmMF('dco-co', id, ' aria-label="'+esc(aria)+'"'); }
 /* Le dessin : les points et une flèche par vecteur de l'égalité. */
 const DCR_S=52, DCR_M=34;
 function dcrVecteurs(D){
   const r=[];
-  D.g.concat(D.d).forEach(function(t){ (t.g || [t.v]).forEach(function(v){ if(r.indexOf(v)<0) r.push(v); }); });
+  D.g.concat(D.d).forEach(function(t){ if(t.z) return;
+    (t.g || [t.v]).forEach(function(v){ v=v.replace('-',''); if(r.indexOf(v)<0) r.push(v); }); });
   return r;
 }
 function dcrSvg(q){
@@ -68049,79 +68113,48 @@ function dcrSvg(q){
   return h+'</svg>';
 }
 function renderDcr(){
-  const q=test.questions[test.idx], D=dcrDemo(q), E=D.e, last=E.length-1; test.locked=false;
+  const q=test.questions[test.idx], D=dcrDemo(q); test.locked=false;
   $('dcrIdx').textContent='Démonstration '+(test.idx+1)+' / '+test.questions.length;
   $('dcrModeTag').innerHTML=modeTagHTML();
   $('dcrLiveScore').textContent=test.score;
   $('dcrInstr').innerHTML=dcrEnonceHTML(q);
   $('dcrFeedback').textContent=''; $('dcrFeedback').className='mp-feedback';
   $('dcrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="dcrValidate" type="button" onclick="checkDcr()">Vérifier</button>';
-  /* le membre de gauche ouvre la première ligne ; les suivantes en portent
-     une copie invisible, pour que leurs « = » tombent sous le premier */
-  const tete=dcrSommeHTML(D.g);
-  let h='<div class="dcr-fig">'+dcrSvg(q)+'</div><div class="veg-lignes dch-lignes dcr-lignes">';
-  E.forEach(function(e, k){
-    h+='<div class="veg-l dch-l dcr-l" id="dcr-l-'+k+'"><span class="dch-g'+(k ? ' dch-fant' : '')+'"'+(k ? ' aria-hidden="true"' : '')+'>'+tete+'</span><span class="dch-calc">';
-    if(k<last) e[1].forEach(function(sp, i){
-      const Lg='la ligne '+(k+1)+', terme '+(i+1), v0=dcrVecCase('dcr-v-'+k+'-'+i+'-0', 'le vecteur de '+Lg), eq='<span class="veg-eq">';
-      let c;
-      if(sp==='v') c=v0;
-      else if(sp==='c') c=dcrCoCase('dcr-k-'+k+'-'+i, 'le réel de '+Lg)+v0;
-      else c=dcrCoCase('dcr-k-'+k+'-'+i, 'le réel mis en facteur, '+Lg)+eq+'(</span>'+dcrVecCase('dcr-v-'+k+'-'+i+'-0', 'le premier vecteur entre parenthèses, '+Lg)
-        +eq+'+</span>'+dcrVecCase('dcr-v-'+k+'-'+i+'-1', 'le second vecteur entre parenthèses, '+Lg)+eq+')</span>';
-      h+=chsGrp(i ? '+' : '=', c);
-    });
-    else h+=dcrSommeHTML(D.d, '=');
-    h+='</span><span class="dch-car"><span class="dch-lbl">car</span>'+dcrSelHTML(D, k)+'</span></div>';
-  });
-  h+='</div>';
-  $('dcrHost').innerHTML=h;
-  pmUpgrade($('dcrHost'));
-  const cs=dcrCases(q);
-  cs.forEach(function(c, i){ const el=$(c.id); if(!el) return;
-    el.addEventListener(el.tagName==='SELECT' ? 'change' : 'input', function(){ recoveryDirty=true; if(isSoutien()) checkDcr(true);
-      clearTimeout(test.dcrSave); test.dcrSave=setTimeout(autoSave,1000); });
-    /* Entrée passe à la case suivante ; sur la dernière, elle vérifie (une
-       case MathLive le fait d'elle-même) */
-    if(el.tagName==='INPUT' || el.tagName==='SELECT') el.addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ ev.preventDefault();
-      const suiv=cs[i+1] && $(cs[i+1].id); if(suiv && !suiv.disabled) suiv.focus(); else checkDcr(); } });
-  });
+  /* le champ du 8.2.13 : le membre de gauche dessiné en tête (data-reels :
+     réels et parenthèses compris), une étape par ligne */
+  $('dcrHost').innerHTML='<div class="dcr-fig">'+dcrSvg(q)+'</div>'
+    +'<div class="veg-lignes dch-lignes"><div class="veg-l dch-zone-l"><span class="chl-boite dch-boite">'
+    +'<textarea class="veg-in chl-in dch-zone pts-case" id="dcr-z" rows="1" wrap="off" maxlength="400" autocomplete="off" autocapitalize="characters" spellcheck="false" data-reels="1" data-pref="'+esc(D.gs)+'" aria-label="'+esc('ta démonstration : '+dcrTxt(D.g)+' = …, une étape par ligne')+'"></textarea>'
+    +'<span class="chl-rendu dch-rendu" aria-hidden="true"></span></span></div>'
+    +'<div class="dch-cor" id="dcr-cor" hidden></div></div>';
+  const el=$('dcr-z');
+  el.value=q.saisie||'';
+  dchBranche(el, checkDcr); dchRendu(el);
 }
 function checkDcr(live){
   if(test.locked) return;
-  const q=test.questions[test.idx], J=dcrJuge(q), subs=J.subs, D=J.D;
-  if(live){   /* soutien : on ne peint que les cases déjà remplies */
-    if(!isSoutien()) return;
-    subs.forEach(function(s){ if(!s.el || s.el.disabled) return;
-      s.el.classList.remove('ok','bad'); if(!s.vide) s.el.classList.add(s.ok?'ok':'bad'); });
-    return;
-  }
-  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
-  /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
-  const pourquoi=dcrPourquoi(q, J);
-  subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); dcoBadge(s); });
-  if(!allOk && isSoutien()){ soutienAgain('dcrFeedback','dcrActions','checkDcr','dcrHost'); return; }
-  test.locked=true;
-  test.score+=nCorrect; $('dcrLiveScore').textContent=test.score;
-  if(allOk){ $('dcrFeedback').textContent=pick(['Bravo, la démonstration est juste !','Parfait !','Excellent !','Très bien démontré !']); $('dcrFeedback').className='mp-feedback good'; }
-  else { $('dcrFeedback').textContent=msgAvecVides(subs, pourquoi); $('dcrFeedback').className='mp-feedback bad'; }
-  const last=D.e.length-1;
-  const redac=function(f){
-    let t=dcrTxt(D.g);
-    D.e.forEach(function(e, k){
-      const ss=subs.filter(function(s){ return s.k===k; }), js=ss.find(function(s){ return s.t==='j'; });
-      const terme=k===last ? dcrTxt(D.d) : e[1].map(function(sp, i){ const x=function(t, j){ const s=ss.find(function(y){ return y.i===i && y.t===t && (j==null || y.j===j); }); return s ? f(s) : '?'; };
-        return sp==='v' ? x('v',0) : (sp==='c' ? x('k')+' '+x('v',0) : x('k')+'('+x('v',0)+' + '+x('v',1)+')'); }).join(' + ');
-      t+=' = '+terme+' ('+(f(js) && DCR_JUST[f(js)] ? dcrLabel(D, f(js)) : '?')+')';
-    });
-    return t; };
-  test.answers.push({...(ptsExo()||{}),correct:allOk,
+  const q=test.questions[test.idx], el=$('dcr-z'); if(!el) return;
+  const J=dcrJuge(q, el.value), O={cor:'dcr-cor', correction:dcrCorrection};
+  if(live){ if(!isSoutien()) return; dchPeint(J, el, true, O); return; }
+  const pourquoi=dcrPourquoi(J, true);
+  const donne=String(el.value);
+  dchPeint(J, el, false, O);
+  if(!J.ok && isSoutien()){ $('dcrFeedback').innerHTML=J.vide ? 'Écris ta démonstration dans le champ.' : pourquoi; $('dcrFeedback').className='mp-feedback'+(J.vide ? '' : ' bad');
+    soutienAgain('dcrFeedback','dcrActions','checkDcr','dcrHost'); return; }
+  test.locked=true; el.disabled=true; dchRendu(el);
+  if(J.ok) test.score++;
+  $('dcrLiveScore').textContent=test.score;
+  const fb=$('dcrFeedback');
+  if(J.ok){ fb.textContent=pick(['Bravo, la démonstration est juste !','Parfait !','Excellent !','Très bien démontré !']); fb.className='mp-feedback good'; }
+  else { fb.innerHTML=J.vide ? 'Il manquait ta démonstration : en voici une, écrite en vert.' : pourquoi+' Une démonstration possible est écrite en vert dessous.'; fb.className='mp-feedback bad'; }
+  const D=J.D, chaine=function(t){ return dcrTxt(D.g)+' = '+t.split('\n').filter(function(x){ return x; }).map(function(x){ return chlMembreTxt(x).replace(/=/g,' = '); }).join(' = '); };
+  test.answers.push({...(ptsExo()||{}),correct:J.ok,
     q:DCR_VERBES[q.v||0]+' '+dcrTxt(D.g)+' = '+dcrTxt(D.d)+(D.para ? ' ('+D.para+' parallélogramme)' : ''),
-    answer:redac(function(s){ return s.t==='k' ? kvSaisie(s.co) : s.bon; }),
-    given:redac(function(s){ return s.t==='k' ? (kviPlat(s.brut)||'?') : (s.brut||'?'); })});
+    answer:chaine(dcrCorrection(D)),
+    given:J.vide ? '' : chaine(dchNorme(donne).toUpperCase())});
   const lastQ=test.idx===test.questions.length-1;
   $('dcrActions').innerHTML='<button class="btn btn-primary" id="dcrNext" type="button" onclick="nextDcr()">'+(lastQ?'Voir mes résultats':'Démonstration suivante')+'</button>';
-  const nb=$('dcrNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
+  const nb=$('dcrNext'); if(nb) nb.focus();
 }
 function nextDcr(){ if(test.idx<test.questions.length-1){ test.idx++; renderDcr(); autoSave(); } else finishTest(); }
 function startDcr(){
@@ -68130,27 +68163,27 @@ function startDcr(){
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'dcr', questions:qs, idx:0, score:0,
-    maxScore:qs.reduce(function(a,q){ return a+dcrCases(q).length; },0), answers:[], startTime:Date.now(),
+    maxScore:qs.length, answers:[], startTime:Date.now(),
     qTimer:null, fbTimer:null, locked:false});
   test.qId='demontrer-egalite-reels';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('dcr'); renderDcr();
 }
 function ctxDcr(q){
-  const J=dcrJuge(q), D=J.D, C=J.C, E=D.e, last=E.length-1;
-  const faux=J.subs.filter(function(s){ return !s.ok && !s.vide; }).length;
-  const forme={v:'un vecteur', c:'un réel et un vecteur', f:'un réel en facteur de (vecteur + vecteur)'};
-  const plan=E.map(function(e, k){ return 'ligne '+(k+1)+' : '+(k<last ? e[1].map(function(sp){ return forme[sp]; }).join(' + ') : 'le membre de droite, déjà écrit')+', et une justification'; }).join(' ; ');
-  const bonne=E.map(function(e, k){ return '= '+(k<last ? dcrTxt(C[k]) : dcrTxt(D.d))+' ('+dcrLabel(D, e[0])+')'; }).join(' ');
-  let c='L’élève rédige la démonstration d’une égalité de vecteurs avec des réels, sans coordonnées ; une figure montre les points et les vecteurs de l’égalité. Énoncé : '
+  const el=$('dcr-z'), J=dcrJuge(q, el && !el.classList.contains('sol') ? el.value : (q.saisie||'')), D=J.D;
+  const bonne=dcrTxt(D.g)+' = '+D.c.concat([D.d]).map(dcrTxt).join(' = ');
+  let c='L’élève rédige librement, une étape par ligne, la démonstration d’une égalité de vecteurs avec des réels, sans coordonnées ; une figure montre les points et les vecteurs de l’égalité. Énoncé : '
    +(D.para ? D.para+' est un parallélogramme' : D.pts.split('').join(', ')+' sont des points du plan')+'. '
-   +DCR_VERBES[q.v||0]+' '+dcrTxt(D.g)+' = '+dcrTxt(D.d)+' (vecteurs). '
-   +'La rédaction est à trous, à partir de '+dcrTxt(D.g)+' : '+plan+'. Chaque justification se choisit dans une liste : '
-   +DCR_ORDRE.filter(function(K){ return K!=='pa' || D.para; }).map(function(K){ return '« '+dcrLabel(D, K)+' »'; }).join(', ')+'. '
-   +'Rédaction attendue, STRICTEMENT SECRÈTE (d’autres rédactions justes sont acceptées) : '+dcrTxt(D.g)+' '+bonne+'. '
-   +'Méthode enseignée : soustraire un vecteur, c’est ajouter son opposé (−2CB = 2BC) ; dans une ligne, les réels s’écrivent positifs ; un réel s’écrit comme une somme (3AB = AB + 2AB) ; on met un réel commun en facteur, ou on développe ; on réunit par Chasles deux vecteurs qui s’enchaînent, même entre parenthèses ; AC + 2AC = 3AC. Guide l’élève étape par étape, sans donner la rédaction entière ; ne parle jamais de coordonnées.';
-  if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
-  c+=' CONTRAINTE ANTI-RECOPIE : ne donne aucune case ; fais justifier chaque passage.';
+   +DCR_VERBES[q.v||0]+' '+dcrTxt(D.g)+' = '+dcrTxt(D.d)+' (tous ces objets sont des vecteurs). '
+   +'Une étape permise : une réécriture — changer l’ordre des termes, écrire + 2BC pour − 2CB, remplacer des vecteurs par des vecteurs égaux de la figure, un, deux ou les trois à la fois ; '
+   +'la relation de Chasles sur des vecteurs voisins écrits dans l’ordre où ils s’enchaînent, de réel 1 (AB + BC = AC) ou dans une parenthèse (2(AB + BC) = 2AC), ou un point inséré ; '
+   +'mettre un réel en facteur (2AB + 2BC = 2(AB + BC)) ou développer ; écrire un réel comme une somme (3AB = AB + 2AB) ou additionner les réels devant un même vecteur (AC + 2AC = 3AC)'
+   +(D.para ? ' ; dans le parallélogramme '+D.para+', '+D.para[0]+D.para[1]+' = '+D.para[3]+D.para[2]+' et '+D.para[0]+D.para[3]+' = '+D.para[1]+D.para[2] : '')
+   +'. 2AB + 2BC = 2AC saute une étape (la mise en facteur). Une étape qui en saute une ou plusieurs compte fausse : la page dit à l’élève de détailler. '
+   +'Une rédaction possible, STRICTEMENT SECRÈTE (toute rédaction juste est acceptée) : '+bonne+'. '
+   +'Guide l’élève étape par étape, sans donner la rédaction entière ; ne parle jamais de coordonnées.';
+  if(!J.vide) c+=' Ce que l’élève a écrit : '+dcrTxt(D.g)+' = '+J.M.map(function(m){ return m.l ? dcrTxt(m.l) : chlMembreTxt(m.brut); }).join(' = ')+'.';
+  const p=dcrPourquoi(J); if(!J.vide && p) c+=' Ce que la page lui a répondu : '+p;
   return {nombre:'', contexte:c};
 }
 
@@ -74642,6 +74675,9 @@ function dchFigHTML(q){
    précédée du membre de gauche, les suivantes d'un « = » posé par la page.
    Le champ grandit avec ses lignes, et s'élargit avec la plus longue. */
 const DCH_HL=50;   /* la hauteur d'une ligne dessinée, en px */
+/* le membre de gauche en tête du champ : des vecteurs (chlPrefHTML), ou,
+   au 8.3.10 (data-reels), des réels et des parenthèses (dcrPrefHTML) */
+function dchPrefHTML(el){ return el.dataset.reels ? dcrPrefHTML(el.dataset.pref) : chlPrefHTML(el.dataset.pref); }
 function dchRendu(el){
   const r=el && el.parentNode && el.parentNode.querySelector('.chl-rendu'); if(!r) return;
   const v=String(el.value), foc=document.activeElement===el && !el.disabled;
@@ -74655,7 +74691,7 @@ function dchRendu(el){
     if(c0===c1){ if(c0>=a && c0<=b) l0=l1=c0-a; }
     else if(c0<b && c1>a){ l0=Math.max(c0-a, 0); l1=Math.min(c1-a, li.length); if(l0===l1) l0=l1=-1; }
     h+='<div class="dch-zl" data-off="'+a+'"><span class="chl-dessin">'
-      +(k ? '<span class="chl-pop dch-zeq">=</span>' : chlPrefHTML(el.dataset.pref))
+      +(k ? '<span class="chl-pop dch-zeq">=</span>' : dchPrefHTML(el))
       +chlDessin(li, l0, l1, mv[k]||'')+'</span></div>';
     off=b+1;
   });
@@ -74684,19 +74720,21 @@ function dchClic(el, x, y){
   try{ el.setSelectionRange(best, best); }catch(_){}
   dchRendu(el);
 }
-function dchSaisie(el){
+/* verif : la vérification du soutien — celle du 8.2.13, ou celle du 8.3.10
+   qui partage ce champ */
+function dchSaisie(el, verif){
   const v=String(el.value), nv=dchNorme(v);
   if(nv!==v){ let p=v.length; try{ if(el.selectionStart!=null) p=el.selectionStart; }catch(_){}
     const np=dchNorme(v.slice(0, p)).length;
     el.value=nv; try{ el.setSelectionRange(np, np); }catch(_){} }
   const q=test.questions[test.idx]; if(q) q.saisie=el.value;
   dchRendu(el);
-  if(isSoutien()) checkDchAnswer(true);
+  if(isSoutien()) (verif||checkDchAnswer)(true);
   clearTimeout(test.dchSave); test.dchSave=setTimeout(autoSave,1000);
 }
-function dchBranche(el){
+function dchBranche(el, verif){
   const redessine=function(){ dchRendu(el); };
-  el.addEventListener('input', function(){ dchSaisie(el); });
+  el.addEventListener('input', function(){ dchSaisie(el, verif); });
   el.addEventListener('keydown', function(e){
     /* Entrée passe à la ligne (le champ grandit) ; douze lignes au plus */
     if(e.key==='Enter' && String(el.value).split('\n').length>=12){ e.preventDefault(); return; }
@@ -74728,23 +74766,25 @@ function renderDchTest(){
 }
 /* la peinture : le champ entier (ok, bad, ou la correction en vert dans un
    champ vide), et chaque morceau sa couleur (dataset.mv, ligne par ligne) —
-   une étape juste reste bleue dans une démonstration fausse */
-function dchPeint(J, el, live){
+   une étape juste reste bleue dans une démonstration fausse. o : le cadre
+   de la correction et sa rédaction, quand le 8.3.10 s'en sert */
+function dchPeint(J, el, live, o){
+  o=o||{cor:'dch-cor', correction:dchCorrection};
   const mv=String(el.value).split('\n').map(function(){ return ''; });
   J.M.forEach(function(m){ while(mv[m.ligne].length<m.j) mv[m.ligne]+='j';
     mv[m.ligne]+=m.etat==='j' ? 'j' : 'f'; });
   el.dataset.mv=mv.join('|');
   el.classList.remove('ok','bad','sol');
-  const cor=$('dch-cor'); if(cor){ cor.hidden=true; cor.innerHTML=''; }
+  const cor=$(o.cor); if(cor){ cor.hidden=true; cor.innerHTML=''; }
   if(live){ if(!J.vide) el.classList.add(J.ok ? 'ok' : 'bad'); dchRendu(el); return; }
   if(J.ok) el.classList.add('ok');
-  else if(J.vide){ if(!isSoutien()){ el.value=dchCorrection(J.D); el.dataset.mv=''; el.classList.add('sol'); } }
+  else if(J.vide){ if(!isSoutien()){ el.value=o.correction(J.D); el.dataset.mv=''; el.classList.add('sol'); } }
   else {
     el.classList.add('bad');
     if(!isSoutien() && cor){
       cor.innerHTML='<span class="dch-corlbl">Une démonstration possible&nbsp;:</span>'
-        +dchCorrection(J.D).split('\n').map(function(li, k){ return '<div class="dch-zl"><span class="chl-dessin">'
-          +(k ? '<span class="chl-pop dch-zeq">=</span>' : chlPrefHTML(el.dataset.pref))+chlDessin(li, -1, -1, '')+'</span></div>'; }).join('');
+        +o.correction(J.D).split('\n').map(function(li, k){ return '<div class="dch-zl"><span class="chl-dessin">'
+          +(k ? '<span class="chl-pop dch-zeq">=</span>' : dchPrefHTML(el))+chlDessin(li, -1, -1, '')+'</span></div>'; }).join('');
       cor.hidden=false;
     }
   }
@@ -75602,9 +75642,15 @@ function chlDessin(v, c0, c1, mv){
          elle, il se lirait comme le nombre zéro */
       h+=fleche(a, j, j);
     } else {
-      const n=(/^[\d\s×*·.,]*/.exec(t)||[''])[0].length;
+      /* un réel et une parenthèse ouvrante devant la flèche, une parenthèse
+         fermante après (le 8.3.10 : 2(AB + BC)) ; « 2( » suivi d'un « − »
+         n'ouvre pas de flèche vide */
+      const n=(/^[\d\s×*·.,(]*/.exec(t)||[''])[0].length, f=Math.max(n, t.length-(/\)*$/.exec(t)[0].length));
       for(let k=a;k<a+n;k++) h+=car(k, false);
-      h+=fleche(a+n, j, j);
+      if(!(n===t.length && /\($/.test(t) && j<v.length && /[-−–]/.test(v[j]))) h+=fleche(a+n, a+f, a+f);
+      /* le curseur posé juste avant « ) » est déjà au bout de la flèche */
+      for(let k=a+f;k<j;k++) h+=k===a+f ? car(k, false).replace(curs(k), '') : car(k, false);
+      if(f<t.length) h+=curs(j);
     }
     if(j<v.length){
       const o=/[-−–]/.test(v[j]) ? '−' : v[j];
