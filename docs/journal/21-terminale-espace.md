@@ -121,3 +121,10 @@ couvre 0–2 px, comme la bordure).
 acceptée, chaque copie aux paires inversées acceptée, chaque colonne de
 vecteur inversée refusée, `q.r` toujours d'accord avec l'égalité des carrés,
 chaque question sérialisable en JSON.
+
+**Puis les trois carrés du e) ont pris chacun leur cadre** (Turquet, octobre
+2026 : « les calculs de AB², AC² et BC² doivent être mieux séparés »). Posés
+sur une rangée à 30 px les uns des autres, ils se lisaient comme une seule
+chaîne d'égalités. Chaque `.elg-carre` est maintenant encadré (bordure
+`--grid`, coins arrondis), à 22 px du suivant ; sur téléphone, ils s'empilent,
+un cadre par ligne.
