@@ -460,3 +460,28 @@ v437).** Quatre demandes :
 justes acceptées, paire opposée de `[f1] t′ = [f0]` acceptée, copie vide sans
 case remplie ; l'écran ouvert dans Chromium, saisies fausses recopiées dans
 les miroirs puis remplacées par les valeurs justes à la correction.
+
+**Puis le 7.1.5 a été repris en entier, sur la seconde version de la fiche
+« vecteurs 6 » (Turquet, octobre 2026, v437 : « voilà le bon pdf, il faut
+tout reprendre »).** La résolution suit maintenant ses lignes une à une :
+`t = b + v t′ [−a] = v t′ [b − a]` (le membre de droite est recopié par la
+page, l'élève écrit le nombre qui change de côté puis le nombre réduit) ;
+`Devient : a + u(v t′ c0)` ; `⟺ a [e1] t′ [e0] = b + v t′` (le « a » reste,
+écrit) ; `⟺ e1 t′ [g1] t′ = b [g0]` (le terme en t′ passe à gauche, les
+nombres à droite) ; `⟺ [h1] t′ = [h0]` ; `⟺ t′ = h0/h1 = [t′]` ;
+`Avec : t = v t′ c0 = v × (t′) c0 = [t]`. La vérification a trois lignes —
+les miroirs de t et t′, puis `a [m1] = b [m2]`, puis `[ ] = [ ]` — et deux
+menus : « l'équation ③ est [vérifiée] », « les droites sont bien
+[sécantes] ». Le point d'intersection se calcule avec t dans `d` OU avec t′
+dans `d′`, au choix de l'élève : un menu hors note (`.hors-note`) qui
+réécrit les trois lignes `x = a + u t = a + u × (t) = [ ]` — les trois cases
+valent les mêmes coordonnées dans les deux cas. 19 cases. Les règles de la
+version précédente tiennent : miroirs de l'écriture de l'élève, « + » devant
+une case positive qui suit un terme, t et t′ entre −3 et 3.
+
+**Éprouvé** : 3 000 séances — chaque ligne vérifiée par le calcul (le
+développement vaut le membre de droite pour t′, `h1 t′ = h0`, la
+vérification égale, I sur `d′`), la copie juste acceptée, la paire opposée
+`(−h1, −h0)` acceptée seule à seule refusée, les menus faux refusés, une
+copie vide sans case remplie ; l'écran ouvert dans Chromium, saisies
+fausses recopiées dans les miroirs puis remplacées par les justes.
