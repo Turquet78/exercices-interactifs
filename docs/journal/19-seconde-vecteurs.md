@@ -4984,7 +4984,7 @@ contexte du modèle. Éprouvé par deux sabotages : un Chasles qui réunit
 réels (les corrections et les lignes au hasard rougissent). La déclaration
 `reglagesDevoirs.baremeParCases` du 8.3.10 est retirée du profil.
 
-## {demontrer-chasles-inserer} — démontrer une égalité en insérant un point (8.2.18, v603) ; le 8.2.13 sans insertion
+## {demontrer-chasles-inserer} — démontrer une égalité en insérant un point (8.2.18, v604 — v603 prise sur main par les devoirs en arbre) ; le 8.2.13 sans insertion
 
 **La demande** (Turquet, octobre 2026) : « faire deux exercices avec le
 8.2.13, en séparant les calculs qui font intervenir l'insertion d'une lettre
