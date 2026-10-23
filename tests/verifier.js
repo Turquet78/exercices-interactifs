@@ -15144,11 +15144,13 @@ function demontrerColineaires(w, P){
    que l'égalité est vraie, que la correction est juste, et que la page
    n'accepte JAMAIS une ligne fausse ni ne refuse comme « pas égale » une
    ligne vraie, sur des lignes tirées au hasard (réels, parenthèses). Puis :
-   les étapes aux verdicts connus — la mise en facteur sautée compte fausse —,
+   les étapes aux verdicts connus — l'ordre, l'opposé et le vecteur égal
+   gratuits, Chasles devant un même réel, deux règles sur les mêmes vecteurs
+   comptées fausses —,
    et par le bouton : la figure, la copie juste, « il faut détailler », les
    pièges nommés, la copie vide, la reprise, le soutien, le parallélogramme. */
 function demontrerEgaliteReels(w, P){
-  const nom = 'démontrer une égalité avec des réels : la place, la figure, les étapes relues en nombres, juste / une étape manque (la mise en facteur) / deux manquent, les pièges nommés, la copie vide, le soutien, la reprise';
+  const nom = 'démontrer une égalité avec des réels : la place, la figure, les étapes relues en nombres, juste / une étape manque (deux règles sur les mêmes vecteurs) / deux manquent, les pièges nommés, la copie vide, le soutien, la reprise';
   if(!P.demontrerEgaliteReels){
     ignorer(nom, 'ce niveau n\'a pas l\'exercice de démonstration d\'une égalité avec des réels');
     return;
@@ -15228,30 +15230,39 @@ function demontrerEgaliteReels(w, P){
     });
     if(vus.length) return vus.slice(0,6).join(' | ');
 
-    /* ---- 3. les étapes : chacune UNE règle, la mise en facteur comprise --- */
-    const etats=function(t, txt, n){ return dcrJuge({t:t, n:n||'ABC', v:0}, txt).M.map(function(m){ return m.etat; }).join(','); };
+    /* ---- 3. les étapes (Turquet, octobre 2026) : l'ordre, l'opposé et le
+       vecteur égal sont gratuits ; plusieurs règles sur des vecteurs
+       DIFFÉRENTS font une étape ; Chasles n'attend pas la mise en facteur ;
+       deux règles sur les MÊMES vecteurs en font deux ------------------- */
+    const etats=function(t, txt, n){ return dcrJuge({t:t, n:n||dcrPtsPlan(t), v:0}, txt).M.map(function(m){ return m.etat; }).join(','); };
     const ATT=[
-      [0, '3AB+2BC\\nAB+2AB+2BC\\nAB+2(AB+BC)\\nAB+2AC', 'j,j,j,j', 'la rédaction du plan'],
-      [0, 'AB+2AB-2CB\\nAB+2(AB-CB)\\nAB+2(AB+BC)\\nAB+2AC', 'j,j,j,j', 'une autre rédaction : le réel en facteur d’une différence, l’opposé dans la parenthèse'],
-      [0, '3AB+2BC\\nAB+2AB+2BC\\nAB+2AC', 'j,j,j1', 'Chasles sur 2AB + 2BC sans la mise en facteur'],
-      [2, '3AC', 'j1', '3AB + 3BC = 3AC d’un trait (la mise en facteur sautée)'],
+      [0, 'AB+2AB-2CB\\nAB+2AC', 'j,j', 'la rédaction du plan'],
+      [0, '3AB+2BC\\nAB+2AB+2BC\\nAB+2(AB+BC)\\nAB+2AC', 'j,j,j,j', 'une rédaction plus détaillée'],
+      [0, '3AB+2BC\\nAB+2AB+2BC\\nAB+2AC', 'j,j,j', 'l’opposé gratuit, puis 2AB + 2BC = 2AC sans mise en facteur'],
+      [0, 'AB+2AB+2BC\\nAB+2AC', 'j,j', 'l’opposé avec l’écriture de 3 comme une somme : une étape'],
+      [0, '2AB-2CB+AB\\n2AC+AB', 'j,j', 'l’ordre gratuit, Chasles sur 2AB − 2CB'],
+      [0, 'AB+2AC', 'j1', 'la somme et Chasles sur les mêmes vecteurs d’un trait'],
+      [2, '3AC', 'j', '3AB + 3BC = 3AC : Chasles devant un même réel'],
       [2, '3(AB+BC)\\n3AC', 'j,j', 'la mise en facteur, puis Chasles dans la parenthèse'],
-      [8, '2AB+2BC\\nAB+AB+BC+BC\\nAB+AC+BC', 'j,j,j', 'développer, puis deux réels écrits comme des sommes, puis Chasles'],
-      [8, 'AB+AB+BC+BC\\nAB+AC+BC', 'j1,j', 'développer et écrire des sommes d’un trait'],
+      [3, '2AB+2BC+BC\\n2AC+BC', 'j,j', 'la somme, puis Chasles'],
+      [3, '2AC+BC', 'j1', 'la somme et Chasles sur les mêmes vecteurs'],
+      [5, '2AB+CB', 'j1', 'la somme et Chasles sur les mêmes vecteurs'],
+      [5, '2AB+AB+CA\\nCB+2AB', 'j,j', 'l’opposé, l’ordre et la somme, puis Chasles'],
+      [8, '2AB+2BC\\nAB+AB+BC+BC\\nAB+AC+BC', 'j,j,j', 'développer, deux sommes sur des vecteurs différents, Chasles'],
+      [8, 'AB+AC+BC', 'trop', 'plusieurs étapes manquent'],
       [9, 'AC+2AC\\n3AC', 'j,j', 'Chasles, puis les réels additionnés'],
-      [9, '3AC', 'j1', 'Chasles et l’addition des réels d’un trait'],
-      [0, 'AB+2AC', 'trop', 'l’exemple d’un trait (plusieurs étapes manquent)'],
-      [5, '3AB+CA\\n2AB+AB+CA\\n2AB+CA+AB\\n2AB+CB', 'j,j,j,j', 'l’opposé, la somme, l’ordre, Chasles'],
-      [5, '3AB+CA\\n2AB+AB+CA\\n2AB+CB', 'j,j,j1', 'Chasles sur des vecteurs qui ne sont pas dans l’ordre'],
-      [10, '2(AB+BC)+CA\\n2AC+CA\\nAC+AC+CA\\nAC+0', 'j,j,j,j', 'AC + CA = 0 par Chasles, le vecteur nul écrit'],
+      [9, '3AC', 'j1', 'Chasles et l’addition sur les mêmes vecteurs'],
+      [4, 'AB+AB+BC+CD\\nAB+AD', 'j,j', 'Chasles sur trois vecteurs'],
+      [10, '2AC+CA\\nAC+AC+CA\\nAC+0', 'j,j,j', 'AC + CA = 0, le vecteur nul écrit'],
       [11, '3AC-AC\\n2AC', 'j,j', 'Chasles dans la parenthèse, puis 3AC − AC = 2AC'],
       [0, '3AB+2CB', 'faux', 'le sens oublié'],
       [8, '2AB+BC', 'faux', 'un développement qui oublie un vecteur'],
       [0, '3AB+2BZ', 'illisible', 'un point hors de l’énoncé'],
       [0, '3AB+2(BC', 'illisible', 'une parenthèse non fermée']];
     ATT.forEach(function(a){ const e=etats(a[0], a[1]); if(e!==a[2]) vus.push(a[3]+' : '+e+' au lieu de '+a[2]); });
-    if(etats(6, '2AB+2BC\\n2(AB+BC)\\n2AC', 'ABCD')!=='j,j,j') vus.push('2AB + 2AD = 2AB + 2BC (vecteur égal du parallélogramme) : '+etats(6, '2AB+2BC\\n2(AB+BC)\\n2AC', 'ABCD'));
-    if(etats(7, 'AB+AB+BC\\nAB+AC\\nAC+DC', 'ABCD')!=='j,j,j') vus.push('AB + AC = AC + DC (l’ordre et le vecteur égal d’un coup) : '+etats(7, 'AB+AB+BC\\nAB+AC\\nAC+DC', 'ABCD'));
+    if(etats(6, '2AC', 'ABCD')!=='j') vus.push('2AB + 2AD = 2AC (le vecteur égal gratuit, puis Chasles) : '+etats(6, '2AC', 'ABCD'));
+    if(etats(7, 'AB+AB+BC\\nDC+AC', 'ABCD')!=='j,j') vus.push('AB + AB + BC = DC + AC (Chasles, le vecteur égal et l’ordre) : '+etats(7, 'AB+AB+BC\\nDC+AC', 'ABCD'));
+    if(!dcrJuge({t:0,n:'ABC',v:0}, 'AB+2AB-2CB\\n2AC+AB').ok) vus.push('l’arrivée n’est pas acceptée dans un autre ordre');
     if(dcrJuge({t:0,n:'ABC',v:0}, '3AB+2BC\\nAB+2AB+2BC').ok) vus.push('une démonstration qui n’arrive pas au membre de droite est comptée juste');
 
     /* ---- 4. par le BOUTON ------------------------------------------------- */
@@ -15286,13 +15297,15 @@ function demontrerEgaliteReels(w, P){
     if(!z.classList.contains('ok') || !z.disabled) vus.push('la copie juste n’est pas peinte juste et verrouillée');
     if(!der || der.cases!==1 || der.justes!==1) vus.push('la note compte '+(der?der.justes+'/'+der.cases:'?')+' au lieu de 1/1');
     if(!el('dcrNext')) vus.push('pas de bouton « Démonstration suivante »');
-    /* la mise en facteur sautée : FAUSSE, « il faut détailler », la ligne qui manque montrée */
-    z=ecrire('3ab+2bc\\nab+2ab+2bc\\nab+2ac'); checkDcr(); der=test.answers[test.answers.length-1];
-    if(der.correct || !z.classList.contains('bad') || !/il manque une étape/.test(fb()) || !/il faut détailler/.test(fb()) || !/par exemple AB \\+ 2AB \\+ 2BC = AB \\+ 2\\(AB \\+ BC\\) = AB \\+ 2AC/.test(fb())) vus.push('la mise en facteur sautée : '+(der.correct?'juste':'faux')+', « '+fb()+' »');
+    /* deux règles sur les mêmes vecteurs : FAUSSE, « il faut détailler », la ligne qui manque montrée */
+    z=ecrire('ab+2ac'); checkDcr(); der=test.answers[test.answers.length-1];
+    if(der.correct || !z.classList.contains('bad') || !/il manque une étape/.test(fb()) || !/il faut détailler/.test(fb()) || !/par exemple 3AB − 2CB = AB \\+ 2AB − 2CB = AB \\+ 2AC/.test(fb())) vus.push('deux règles sur les mêmes vecteurs : '+(der.correct?'juste':'faux')+', « '+fb()+' »');
     if(el('dcr-cor').hidden || !/démonstration possible/.test(el('dcr-cor').textContent)) vus.push('la copie fausse ne montre pas de démonstration possible');
     /* plusieurs étapes manquent */
-    ecrire('ab+2ac'); checkDcr();
-    if(!/il manque plusieurs étapes/.test(fb()) || !/détailler davantage/.test(fb())) vus.push('l’exemple d’un trait : « '+fb()+' »');
+    test.questions[0]={t:8, n:'ABC', v:0, f:0, m:0};
+    ecrire('ab+ac+bc'); checkDcr();
+    if(!/il manque plusieurs étapes/.test(fb()) || !/détailler davantage/.test(fb())) vus.push('2(AB + BC) = AB + AC + BC d’un trait : « '+fb()+' »');
+    test.questions[0]={t:0, n:'ABC', v:0, f:0, m:0};
     /* les pièges nommés */
     ecrire('3ab+2cb'); checkDcr();
     if(!/n’est pas égal/.test(fb()) || !/OPPOSÉ/.test(fb()) || !/− 2CB = \\+ 2BC/.test(fb())) vus.push('le sens oublié : « '+fb()+' »');
@@ -15316,12 +15329,16 @@ function demontrerEgaliteReels(w, P){
     z.value='3ab+3bc\\n3(ab+bc)\\n3ac'; test.questions[0]={t:2, n:'ABC', v:0, f:0, m:0}; z.dispatchEvent(new Event('input'));
     if(!z.classList.contains('ok')) vus.push('le soutien ne bleuit pas une démonstration détaillée');
     z.value='3ac'; z.dispatchEvent(new Event('input'));
-    if(!z.classList.contains('bad')) vus.push('le soutien bleuit 3AB + 3BC = 3AC (la mise en facteur sautée)');
+    if(!z.classList.contains('ok')) vus.push('le soutien ne bleuit pas 3AB + 3BC = 3AC (Chasles devant un même réel)');
+    test.questions[0]={t:0, n:'ABC', v:0, f:0, m:0};
+    z.value='ab+2ac'; z.dispatchEvent(new Event('input'));
+    if(!z.classList.contains('bad')) vus.push('le soutien bleuit 3AB − 2CB = AB + 2AC (deux règles sur les mêmes vecteurs)');
     currentMode='train';
 
     /* ---- 5. le parallélogramme : 2EF + 2EH = 2EG -------------------------- */
     test.questions[0]={t:6, n:'EFGH', v:1, f:0, m:1};
     z=ecrire('2ef+2fg\\n2(ef+fg)\\n2eg');
+    if(!dcrJuge(test.questions[0], '2eg').ok) vus.push('2EF + 2EH = 2EG d’un trait (le vecteur égal gratuit, Chasles devant 2) est compté faux');
     const t2=el('dcrInstr').textContent.replace(/\\s+/g,' ');
     if(!/EFGH est un parallélogramme/.test(t2) || !/Démontrer que 2EF \\+ 2EH = 2EG/.test(t2)) vus.push('l’énoncé du parallélogramme dit « '+t2.slice(0,140)+' »');
     if(!document.querySelector('#dcrHost .dcr-para')) vus.push('la figure ne dessine pas le parallélogramme');
@@ -15331,7 +15348,7 @@ function demontrerEgaliteReels(w, P){
     /* le contexte du modèle */
     test.questions[0]={t:0, n:'ABC', v:0, f:0, m:0}; test.locked=false; renderDcr();
     const ctx=ctxDcr(test.questions[0]).contexte;
-    if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/3AB \\+ 2BC/.test(ctx) || !/facteur/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni la rédaction attendue');
+    if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/AB \\+ 2AB − 2CB/.test(ctx) || !/ne compte PAS/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni la rédaction attendue');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

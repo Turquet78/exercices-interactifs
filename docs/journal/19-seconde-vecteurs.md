@@ -4983,3 +4983,50 @@ contexte du modèle. Éprouvé par deux sabotages : un Chasles qui réunit
 2AB + 2BC sans mise en facteur (cinq rougeurs), un `dcrComb` qui oublie les
 réels (les corrections et les lignes au hasard rougissent). La déclaration
 `reglagesDevoirs.baremeParCases` du 8.3.10 est retirée du profil.
+
+**Puis la règle des étapes s'est assouplie (v604 — v603 prise sur main par les devoirs en arbre pendant les bancs).** Turquet, le même jour,
+devant la première version : « changer en le vecteur opposé ou changer en un
+vecteur égal n'est pas compté comme une étape ; on peut faire plusieurs
+étapes en même temps si elles ne concernent pas les mêmes vecteurs ; on
+n'est pas obligé de factoriser pour appliquer la relation de Chasles, donc
+2AB + 2BC = 2AC est accepté comme une seule étape ; changer l'ordre et
+changer un vecteur en son opposé ou en vecteur égal est accepté ». La
+version v602 suivait le 8.2.13 à la lettre : l'ordre était une étape, Chasles
+ne réunissait que des voisins écrits dans l'ordre et de réel 1, et
+2AB + 2BC = 2AC demandait la mise en facteur.
+
+**Le juge lit désormais une ligne comme un ENSEMBLE de termes**, dont chacun
+ne compte que par sa valeur (`dcrVal`) : l'ordre, l'opposé et le vecteur
+égal du parallélogramme sont gratuits, et peuvent accompagner n'importe
+quelle étape. UNE étape (`dcrUneEtape`) partage les termes des deux lignes
+en paquets disjoints — une recherche sur les masques des deux lignes,
+mémoïsée — et chaque paquet passe par une seule règle : rien (le terme se
+réécrit, `dcrSeul`) ; Chasles sur des termes de même réel au signe près
+(2AB − 2CB = 2AC), ou dans une parenthèse, et à l'envers un point inséré ;
+la mise en facteur ou le développement ; les réels additionnés devant un
+même vecteur, au sens près (`dcrDir`), ou un réel écrit comme une somme
+(`dcrPaquet` ; le sens inverse se lit en échangeant les deux côtés). Deux
+règles sur les MÊMES vecteurs en font deux : 3AB − 2CB = AB + 2AC compte
+faux, « il faut détailler, par exemple 3AB − 2CB = AB + 2AB − 2CB =
+AB + 2AC ». La ligne qui manque (`dcrVoisins` : une seule règle sur un seul
+paquet, ce qui touche d'autres vecteurs pouvant toujours l'accompagner) se
+choisit sans vecteur nouveau d'abord : pour 2AB + 3BC = 2AC + BC, la
+première trouvée insérait un point (« 2AC + 2CB + 3BC ») ; c'est
+« 2AB + BC + 2BC » qui est montrée. L'arrivée se lit aussi à l'ordre, à
+l'opposé et au vecteur égal près.
+
+**Les corrections des plans ont raccourci** : 3AB + 3BC = 3AC et, sur le
+parallélogramme, 2AB + 2AD = 2AC se font désormais d'un trait ; l'exemple
+de la demande en deux lignes (AB + 2AB − 2CB, puis AB + 2AC). L'énoncé, le
+rappel et le contexte du modèle disent la règle : ce qui ne compte pas
+comme une étape, puis les règles, puis « plusieurs dans la même ligne ne
+comptent que pour une étape si elles portent sur des vecteurs différents ».
+
+**Le banc** garde son juge indépendant en nombres ; ses rédactions aux
+verdicts connus ont suivi la règle (2AB + 2BC = 2AC juste, l'ordre et
+l'opposé gratuits, deux sommes sur des vecteurs différents en une ligne,
+3AB − 2CB = AB + 2AC « il manque une étape », 2(AB + BC) = AB + AC + BC
+« plusieurs »), et l'arrivée dans un autre ordre est acceptée. Éprouvé par
+deux sabotages : Chasles rendu au seul réel 1, une seule règle permise par
+ligne — chacun rougit. Le 8.2.13 garde ses règles : la demande portait sur
+le 8.3.10.
