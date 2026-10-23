@@ -1088,11 +1088,10 @@ module.exports = {
     demontrerColineaires: { exercice: 'demontrer-colineaires', numero: '8.3.9', nb: 4, cases: 17 },
     /* {demontrer-egalite-reels} (8.3.10, demande de Turquet, octobre 2026 :
        « comme le 8.2.13 avec des coefficients devant certains vecteurs, et un
-       dessin des vecteurs de l'égalité ») : « nb » est la seconde source du
-       compte (la page a DCR_NB) ; « cases » celles de l'exemple 3AB − 2CB =
-       AB + 2AC (8 vecteurs, 5 réels, 4 justifications) — le barème d'une
-       séance dépend des plans tirés. */
-    demontrerEgaliteReels: { exercice: 'demontrer-egalite-reels', numero: '8.3.10', nb: 4, cases: 17 },
+       dessin des vecteurs de l'égalité ») : la rédaction LIBRE du 8.2.13
+       (octobre 2026), une étape par ligne. « nb » est la seconde source du
+       compte (la page a DCR_NB) ; une démonstration vaut un point. */
+    demontrerEgaliteReels: { exercice: 'demontrer-egalite-reels', numero: '8.3.10', nb: 4 },
     /* {lire-somme-dessin} (8.2.14, idée n° 8 retenue par Turquet, octobre
        2026) : une chaîne de flèches entre des points nommés, u⃗, v⃗, w⃗ tracés
        à part ; « u⃗ + v⃗ = … » et « w⃗ = … + … » — trois cases par figure.
@@ -1379,9 +1378,9 @@ module.exports = {
       /* le barème est la SOMME des cases tirées, et chaque démonstration a
          les siennes : six courtes peuvent peser autant que quatre longues.
          {demontrer-chasles} (8.2.13) en est sorti en octobre 2026 : sa
-         rédaction est devenue libre, une démonstration vaut un point. */
-      baremeParCases: { 'demontrer-colineaires': 'une démonstration a 19 à 30 cases selon son plan',
-        'demontrer-egalite-reels': 'une démonstration a 5 à 17 cases selon son plan' } },
+         rédaction est devenue libre, une démonstration vaut un point ;
+         {demontrer-egalite-reels} (8.3.10) l'a suivi le même mois. */
+      baremeParCases: { 'demontrer-colineaires': 'une démonstration a 19 à 30 cases selon son plan' } },
     tableResultats: 'resultats_2nde',
     /* tests/pause.js — une question corrigée ne se rejuge pas à la reprise
        (« pauseReprise » : la clé « pause », plus bas, sert déjà les bancs
