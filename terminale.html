@@ -1234,7 +1234,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-ecb,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -2045,6 +2045,49 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   #edpForm .edp-lsys{overflow-x:auto}
 }
 #scr-edp .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+/* ---- 7.1.4 l'espace (fiche « vecteurs 4 ») : le cube, ses points sur les
+   arêtes ou leurs prolongements, et les points à placer au clic ---- */
+#ecbForm .tg-line{gap:8px 18px}
+#ecbForm .tg-sub{margin:16px 0 4px}
+#ecbForm .tg-in{width:56px}
+.ecb-fig{max-width:600px;margin:4px auto 6px;cursor:crosshair;touch-action:manipulation}
+.ecb-svg{display:block;width:100%;height:auto;color:var(--ink);user-select:none;-webkit-user-select:none}
+.ecb-fond{fill:transparent}
+.ecb-ar{stroke:var(--ink);stroke-width:1.8;stroke-linecap:round}
+.ecb-cache{stroke-dasharray:6 5}
+.ecb-base{stroke-width:2.6}
+.ecb-bx{stroke:#dc2626;fill:#dc2626}
+.ecb-by{stroke:#15803d;fill:#15803d}
+.ecb-bz{stroke:#2563eb;fill:#2563eb}
+.ecb-fl{stroke:none}
+.ecb-prol{stroke:#475569;stroke-width:1.5;stroke-dasharray:2 4;stroke-linecap:round}
+.ecb-grad{stroke:var(--ink);stroke-width:1.6}
+.ecb-pt{fill:var(--ink)}
+.ecb-ls{font-size:17px;font-weight:800;fill:var(--ink)}
+.ecb-lp{font-size:16px;font-weight:800;fill:#7c3aed}
+.ecb-pl circle{fill:#f59e0b;stroke:#fff;stroke-width:1.5}
+.ecb-pl text{font-size:16px;font-weight:800;fill:var(--ink)}
+.ecb-pl.ok circle{fill:var(--blue)}
+.ecb-pl.bad circle{fill:var(--red)}
+.ecb-pl.sol circle,.ecb-pl.ecb-cor circle{fill:var(--surface);stroke:var(--green);stroke-width:3.2}
+.ecb-pl.sol text,.ecb-pl.ecb-cor text{fill:var(--green)}
+.ecb-prol-pl{stroke:#f59e0b;stroke-width:2}
+.ecb-prol-pl.sol,.ecb-prol-pl.ecb-cor{stroke:var(--green)}
+.ecb-prol-pl.ok{stroke:var(--blue)}
+.ecb-prol-pl.bad{stroke:var(--red)}
+.ecb-pl.ecb-fant{opacity:.45;pointer-events:none}
+.ecb-prol-pl.ecb-fant{opacity:.45}
+.ecb-nw{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.ecb-bp{min-width:42px;padding:6px 12px;border:2px solid var(--grid);border-radius:10px;background:var(--paper);color:var(--ink);font:800 1rem KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic;cursor:pointer}
+.ecb-bp.pose{border-color:#f59e0b}
+.ecb-bp.actif{background:#f59e0b;border-color:#f59e0b;color:#fff}
+.ecb-aide{font-size:.85rem;color:#64748b;margin:4px 0 0}
+@media (max-width:560px){
+  #ecbForm .tg-in{width:46px;padding:4px 1px}
+  #ecbForm .tg-line{gap:8px 10px}
+  #ecbForm .elg-par{padding:3px 5px;gap:3px}
+}
+#scr-ecb .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 /* ---- Test : signe du 1er degré ---- */
 .s1-card{max-width:var(--card-max);margin:0 auto;}
 .s1-card i{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
@@ -3151,6 +3194,20 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     </div>
   </section>
 
+  <!-- 7.1.4 L'ESPACE — le cube : coordonnées, vecteurs, points à placer (fiche « vecteurs 4 ») -->
+  <section class="screen" id="scr-ecb">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="ecbModeTag"></span><span class="q-idx" id="ecbQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="ecbLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="enonce" id="ecbPrompt"></p>
+      <div id="ecbForm"></div>
+      <div class="mp-feedback" id="ecbFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="ecbActions"></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-elg">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="elgModeTag"></span><span class="q-idx" id="elgQIdx">Question 1 / 3</span></span>
@@ -4011,7 +4068,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=432;
+const APP_VERSION=433;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4249,6 +4306,7 @@ const TESTS={
   'suite-algo-approx': { name:'Suites — algorithme : approcher la limite', icon:'🎯', desc:'Une suite Uₙ₊₁ = a Uₙ + b qui converge : a) trouve sa limite ℓ, b) complète l’algorithme Python qui s’arrête au premier rang où |Uₙ − ℓ| < 10⁻ᵖ, c) lis ce rang dans le tableau de valeurs, et dis pourquoi la boucle s’arrête toujours.', start:()=>startSAP() },
   'espace-milieu-longueurs': { name:'Espace \u2014 milieu, longueurs, triangle rectangle', icon:'\ud83e\uddca', desc:'Trois points de l\u2019espace, la fiche \u00ab vecteur 2 \u00bb\u00a0: les coordonn\u00e9es du milieu de [AB], celles des vecteurs AB, AC et BC, les longueurs AB, AC, BC par la racine carr\u00e9e, puis les carr\u00e9s des c\u00f4t\u00e9s\u00a0: le triangle ABC est-il rectangle\u00a0? le th\u00e9or\u00e8me de Pythagore. Trois triangles.', start:()=>startELG() },
   'espace-droite-parametrique': { name:'Espace \u2014 \u00e9quation param\u00e9trique d\u2019une droite', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteurs 3 \u00bb\u00a0: l\u2019\u00e9quation param\u00e9trique d\u2019une droite d\u00e9finie par un point et un vecteur directeur, ou par deux points\u00a0; puis un point appartient-il \u00e0 la droite\u00a0? La r\u00e9daction compl\u00e8te, syst\u00e8me apr\u00e8s syst\u00e8me, jusqu\u2019aux trois valeurs de t. Trois questions.', start:()=>startEDP() },
+  'espace-cube': { name:'Espace \u2014 le cube\u00a0: coordonn\u00e9es, vecteurs, points \u00e0 placer', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteurs 4 \u00bb\u00a0: un cube ABCDEFGH et le rep\u00e8re (A\u00a0; AB, AD, AE). Lis les coordonn\u00e9es des sommets et de points pos\u00e9s sur les ar\u00eates ou leurs prolongements, calcule celles de trois vecteurs, puis place trois points sur la figure. Deux cubes.', start:()=>startECB() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
   'arbre-probabilites-fiche': { name:'Probabilités \u2014 arbre : les cinq situations de la fiche', icon:'\ud83c\udf32', desc:'Seulement des probabilités, et l\u2019arbre de la fiche : complète-le avec les données et leurs contraires, puis écris chaque calcul en détaillant les étapes \u2014 intersections, P(B), probabilités conditionnelles, et P(B) en fonction de x.', start:()=>startAPF() },
@@ -4348,11 +4406,13 @@ const THEMES=[
      l'ouvre en 7.1.1, et la fiche « vecteur 2 » — milieu, longueurs, triangle
      rectangle, {espace-milieu-longueurs} — la suit en 7.1.2, et la fiche
      « vecteurs 3 » — l'équation paramétrique d'une droite,
-     {espace-droite-parametrique} — en 7.1.3. Les deux sont nées
+     {espace-droite-parametrique} — en 7.1.3, et la fiche « vecteurs 4 » —
+     le cube, ses coordonnées, ses vecteurs, les points à placer,
+     {espace-cube} — en 7.1.4. Les deux premières sont nées
      le même soir dans deux sessions ; les notes portent l'IDENTIFIANT, pas le
      numéro : rien de ce qui est enregistré ne bouge. */
   { num:7, nom:'Géométrie dans l’espace', sous:[
-      { num:1, nom:'Vecteurs et droites de l’espace', ids:['espace-coordonnees','espace-milieu-longueurs','espace-droite-parametrique'] }
+      { num:1, nom:'Vecteurs et droites de l’espace', ids:['espace-coordonnees','espace-milieu-longueurs','espace-droite-parametrique','espace-cube'] }
     ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
@@ -4585,7 +4645,7 @@ document.addEventListener('move-out', function(ev){
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-ecb'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -5042,6 +5102,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='cvp' && test.questions && test.questions[test.idx]){ c=cvpConseilCtx(); }
   else if(test && test.kind==='elg' && test.questions && test.questions[test.idx]){ c=elgConseilCtx(); }
   else if(test && test.kind==='edp' && test.questions && test.questions[test.idx]){ c=edpConseilCtx(); }
+  else if(test && test.kind==='ecb' && test.questions && test.questions[test.idx]){ c=ecbConseilCtx(); }
   else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
   else if(test && test.kind==='svr' && test.questions && test.questions[test.idx]){ c=svrConseilCtx(); }
   else if(test && test.kind==='ssv' && test.questions && test.questions[test.idx]){ c=ssvConseilCtx(); }
@@ -6432,7 +6493,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], ecb:['ecb',renderECB], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -6561,7 +6622,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['cvp','elg','edp','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
+  const testScreens=['cvp','elg','edp','ecb','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
   document.body.classList.toggle('ecran-exo', testScreens.includes(name));   /* le portrait y donne au cadre toute la largeur */
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -20968,6 +21029,13 @@ const RAP_EDP=`<b>Équation paramétrique d’une droite de l’espace</b><br>
 • <b>Un point est-il sur la droite ?</b> On remplace <i>x</i>, <i>y</i>, <i>z</i> par ses coordonnées et on résout chaque équation en <i>t</i> : on passe <i>x<sub>A</sub></i> de l’autre côté (son signe change), puis on divise par le coefficient de <i>t</i>. Les trois valeurs de <i>t</i> sont égales : le point est sur la droite ; sinon, il n’y est pas.<br>
 • <b>Exemple</b> : <i>A</i>(2 ; −3 ; 1), <span class="elg-vec">u</span>(−2 ; 1 ; 3), <i>B</i>(−18 ; 7 ; 31) : 2 − 2<i>t</i> = −18 ⟺ −2<i>t</i> = −18 − 2 = −20 ⟺ <i>t</i> = \\(\\frac{-20}{-2}\\) = 10 ; de même <i>t</i> = \\(\\frac{10}{1}\\) = 10 et <i>t</i> = \\(\\frac{30}{3}\\) = 10 : <i>B</i> ∈ <i>d</i>.<br>
 • <b>Aligné</b> : « <i>C</i> est aligné avec <i>A</i> et <i>B</i> » veut dire « <i>C</i> est sur la droite (<i>AB</i>) ».`;
+const RAP_ECB=`<b>Coordonnées dans un cube</b><br>
+• <b>Le repère</b> (<i>A</i> ; <span class="elg-vec">AB</span> ; <span class="elg-vec">AD</span> ; <span class="elg-vec">AE</span>) : <i>A</i>(0 ; 0 ; 0), <i>B</i>(1 ; 0 ; 0), <i>D</i>(0 ; 1 ; 0), <i>E</i>(0 ; 0 ; 1). Les coordonnées d’un point <i>M</i> sont les nombres <i>x</i>, <i>y</i>, <i>z</i> tels que <span class="elg-vec">AM</span> = <i>x</i> <span class="elg-vec">AB</span> + <i>y</i> <span class="elg-vec">AD</span> + <i>z</i> <span class="elg-vec">AE</span>.<br>
+• <b>Les sommets</b> : <i>C</i>(1 ; 1 ; 0) car <span class="elg-vec">AC</span> = <span class="elg-vec">AB</span> + <span class="elg-vec">AD</span> ; <i>F</i>(1 ; 0 ; 1), <i>H</i>(0 ; 1 ; 1), <i>G</i>(1 ; 1 ; 1).<br>
+• <b>Un point sur une arête</b> : deux coordonnées valent 0 ou 1, celles des extrémités de l’arête ; la troisième est entre 0 et 1. Le milieu de [<i>DH</i>] : (0 ; 1 ; 0,5).<br>
+• <b>Sur le prolongement d’une arête</b> : la troisième coordonnée dépasse 1, ou devient négative. Un demi-côté sous <i>C</i>, sur la droite (<i>CG</i>) : (1 ; 1 ; −0,5).<br>
+• <b>Un vecteur</b> : « arrivée − départ », <span class="elg-vec">XY</span>(<i>x<sub>Y</sub></i> − <i>x<sub>X</sub></i> ; <i>y<sub>Y</sub></i> − <i>y<sub>X</sub></i> ; <i>z<sub>Y</sub></i> − <i>z<sub>X</sub></i>).<br>
+• <b>Placer un point</b> : les deux coordonnées égales à 0 ou 1 désignent l’arête ; la troisième dit où, sur l’arête ou sur son prolongement — qu’on trace alors jusqu’au point.`;
 const RAP_CVP=`<b>Trouver un paramètre grâce à la dérivée seconde</b><br>
 • <b>Convexité et signe de <i>f</i> ″</b> : <i>f</i> est convexe sur un intervalle si et seulement si <i>f</i> ″(<i>x</i>) ≥ 0 sur cet intervalle ; concave si <i>f</i> ″(<i>x</i>) ≤ 0.<br>
 • <b>Point d’inflexion</b> : la courbe admet un point d’inflexion d’abscisse <i>x</i><sub>0</sub> quand <i>f</i> ″ s’annule en <i>x</i><sub>0</sub> <b>en changeant de signe</b>. Pour trouver un paramètre <i>k</i>, on écrit <i>f</i> ″(<i>x</i><sub>0</sub>) = 0 et on résout en <i>k</i> ; puis on vérifie le changement de signe.<br>
@@ -20997,7 +21065,7 @@ const RAP_SAP=`<b>Approcher une limite avec un algorithme</b><br>
 • <b>La boucle <code>while</code></b> tourne TANT QUE sa condition est vraie : ici, tant qu’on est encore trop loin, <code>while abs(u - l) &gt;= 0.001:</code>. Elle s’arrête au premier rang où l’écart passe sous 10<sup>−3</sup>.<br>
 • <b>10<sup>−3</sup> en Python</b> : <code>0.001</code>, ou <code>10**-3</code>, ou <code>1e-3</code> — un point, jamais une virgule.<br>
 • <b>Pourquoi la boucle s’arrête</b> : la suite CONVERGE vers ℓ, donc l’écart |U<sub><i>n</i></sub> − ℓ| finit par devenir aussi petit qu’on veut. Pour une suite qui ne convergerait pas, le programme pourrait tourner sans fin.`;
-const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
+const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, ecb:RAP_ECB, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -29631,6 +29699,445 @@ function edpConseilCtx(){
     +'Saisies actuelles de l’élève : '+etat+'. '
     +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. Méthode, sans donner la réponse : le point de départ donne les nombres seuls, le vecteur directeur les coefficients de t ; on remplace x, y, z par les coordonnées du point, on isole le terme en t en changeant de membre la coordonnée du point de départ (son signe change), on divise par le coefficient de t, puis on compare les trois valeurs de t.';
 }
+/* ================= 7.1.4 L'ESPACE — LE CUBE : COORDONNÉES, VECTEURS, POINTS À PLACER (kind 'ecb') =================
+   Demande de Turquet (octobre 2026), avec la fiche « vecteurs 4 » : « créer un
+   exercice dans vecteurs et droites de l'espace, comme le pdf joint ». Un cube
+   ABCDEFGH, le repère (A ; AB⃗ ; AD⃗ ; AE⃗), et les trois questions de la fiche :
+     a) les coordonnées des huit sommets et de quatre points I, J, K, L ;
+     b) les coordonnées de trois vecteurs, présentées comme au 7.1.2 et au
+        7.1.3 : XY⃗ (… − …) en colonne, donc XY⃗ (…) ;
+     c) trois points M, N, O à PLACER sur la figure, au clic.
+   Les règles de la demande :
+     • une coordonnée qui n'est pas 0 ou 1 vaut ±0,25 ; ±0,5 ; ±0,75 ; −1 ;
+       ±1,25 ; ±1,5 — chaque point est sur une ARÊTE ou sur son PROLONGEMENT,
+       et un point sur un prolongement se dessine avec l'arête prolongée
+       jusqu'à lui ;
+     • la base est toujours (A ; B, D, E), E au-dessus de A ; A est en bas à
+       gauche, sur la face AVANT ou ARRIÈRE du cube — et l'arête horizontale
+       de A mène à B ou à D : quatre dessins (q.cfg).
+   Le sommet caché est celui du bas, à gauche, à l'arrière ; ses trois arêtes
+   sont en pointillés. Aucun point ne se pose sur le prolongement d'une arête
+   cachée AU-DELÀ du sommet caché : il y serait derrière le cube. Les arêtes
+   qui portent I, J, K, L sont graduées en quarts : c'est ce qui se lit.
+   Les points placés au c) vivent dans la question (q.place, du JSON) : la
+   pause les garde. Le clic se cale sur le quart d'arête le plus proche
+   (ecbPoser, sans clic, sert au banc). Un point placé compte comme une case
+   (.pts-case) ; non placé à la correction, il est montré en vert. */
+const ECB_NBQ=2;
+const ECB_S=120, ECB_PROF=[0.5,-0.36];   /* la fuite : vers l'arrière, en haut à droite */
+const ECB_SOM=['A','B','D','E','C','F','H','G'];
+const ECB_COORD={A:[0,0,0],B:[1,0,0],C:[1,1,0],D:[0,1,0],E:[0,0,1],F:[1,0,1],G:[1,1,1],H:[0,1,1]};
+const ECB_PTS=['I','J','K','L'], ECB_PLC=['M','N','O'];
+const ECB_T_ARETE=[0.25,0.5,0.75], ECB_T_PROL=[-1.5,-1.25,-1,-0.75,-0.5,-0.25,1.25,1.5];
+const ECB_T_TOUS=ECB_T_PROL.concat(ECB_T_ARETE);
+/* les trois vecteurs de base à l'écran : AB⃗, AD⃗, AE⃗ */
+function ecbBase(cfg){
+  const s=ECB_S, R=[s,0], U=[0,-s];
+  const d=cfg.face==='arr'?[-ECB_PROF[0]*s,-ECB_PROF[1]*s]:[ECB_PROF[0]*s,ECB_PROF[1]*s];
+  return cfg.ab==='p'?[d,R,U]:[R,d,U];
+}
+function ecbProj(cfg,P){ const b=ecbBase(cfg); return [b[0][0]*P[0]+b[1][0]*P[1]+b[2][0]*P[2], b[0][1]*P[0]+b[1][1]*P[1]+b[2][1]*P[2]]; }
+/* le sommet caché : en bas, à gauche, à l'arrière */
+function ecbCache(cfg){ if(cfg.face==='arr') return [0,0,0]; return cfg.ab==='p'?[1,0,0]:[0,1,0]; }
+/* les douze droites des arêtes : l'axe k varie, les deux autres valent a et b */
+function ecbAutres(k){ return [0,1,2].filter(i=>i!==k); }
+function ecbLignes(){ const L=[]; for(let k=0;k<3;k++) for(let a=0;a<2;a++) for(let b=0;b<2;b++) L.push({k:k,a:a,b:b}); return L; }
+function ecbSur(l,t){ const P=[0,0,0], o=ecbAutres(l.k); P[l.k]=t; P[o[0]]=l.a; P[o[1]]=l.b; return P; }
+function ecbParCache(cfg,l){ const H=ecbCache(cfg), o=ecbAutres(l.k); return H[o[0]]===l.a && H[o[1]]===l.b; }
+/* jamais au-delà du sommet caché, sur une arête cachée : derrière le cube */
+function ecbPermis(cfg,l,t){
+  if(ecbDansCube(cfg,ecbSur(l,t))) return false;
+  if(!ecbParCache(cfg,l)) return true;
+  return ecbCache(cfg)[l.k]===0 ? t>=0 : t<=1;
+}
+/* l'enveloppe du cube dessiné : un point de prolongement qui retomberait
+   DEDANS se lirait comme un point du cube — il est écarté, au tirage comme
+   au clic */
+function ecbEnveloppe(cfg){
+  const pts=ECB_SOM.map(L=>ecbProj(cfg,ECB_COORD[L])).sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);
+  const lo=[], hi=[];
+  pts.forEach(p=>{ while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0) lo.pop(); lo.push(p); });
+  pts.slice().reverse().forEach(p=>{ while(hi.length>=2&&cr(hi[hi.length-2],hi[hi.length-1],p)<=0) hi.pop(); hi.push(p); });
+  return lo.slice(0,-1).concat(hi.slice(0,-1));
+}
+function ecbDansCube(cfg,P){
+  const t=P.find((v,k)=>[0,1].indexOf(v)<0); if(t===undefined||(t>0&&t<1)) return false;   /* sur une arête : il en fait partie */
+  const p=ecbProj(cfg,P), h=ecbEnveloppe(cfg);
+  for(let i=0;i<h.length;i++){ const a=h[i], b=h[(i+1)%h.length];
+    if((b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0])<0) return false; }
+  return true;
+}
+function ecbLigneDe(P){
+  /* la droite d'arête qui porte P (deux coordonnées dans {0 ; 1}), ou null */
+  for(let k=0;k<3;k++){ const o=ecbAutres(k);
+    if([0,1].indexOf(P[o[0]])>=0 && [0,1].indexOf(P[o[1]])>=0 && [0,1].indexOf(P[k])<0) return {k:k,a:P[o[0]],b:P[o[1]]}; }
+  return null;
+}
+function ecbMemeLigne(l,m){ return l.k===m.k && l.a===m.a && l.b===m.b; }
+function ecbD2(p,q){ return Math.hypot(p[0]-q[0],p[1]-q[1]); }
+function ecbDistSeg(p,a,b){
+  const vx=b[0]-a[0], vy=b[1]-a[1], L2=vx*vx+vy*vy;
+  const u=L2?Math.max(0,Math.min(1,((p[0]-a[0])*vx+(p[1]-a[1])*vy)/L2)):0;
+  return Math.hypot(p[0]-a[0]-u*vx, p[1]-a[1]-u*vy);
+}
+/* un point se lit sans ambiguïté : loin des sommets, des autres points, et
+   des arêtes qui ne le portent pas */
+function ecbLisible(cfg, P, l, deja){
+  const p=ecbProj(cfg,P);
+  for(const L of ECB_SOM){ if(ecbD2(p,ecbProj(cfg,ECB_COORD[L]))<26) return false; }
+  for(const Q of deja){ if(ecbD2(p,ecbProj(cfg,Q))<34) return false; }
+  for(const m of ecbLignes()){
+    if(ecbMemeLigne(l,m)) continue;
+    if(ecbDistSeg(p,ecbProj(cfg,ecbSur(m,0)),ecbProj(cfg,ecbSur(m,1)))<10) return false;
+  }
+  return true;
+}
+function ecbTirerPoints(cfg, n, deja, interdites){
+  for(let essai=0; essai<400; essai++){
+    const nProl=rand(1,2), lignes=ecbLignes().filter(l=>!interdites.some(m=>ecbMemeLigne(l,m)));
+    const out=[], vus=deja.slice(), prises=[];
+    for(let i=0;i<n;i++){
+      const prol=i<nProl;
+      let ok=false;
+      for(let e=0;e<60 && !ok;e++){
+        const l=pick(lignes); if(prises.some(m=>ecbMemeLigne(l,m))) continue;
+        const t=pick(prol?ECB_T_PROL:ECB_T_ARETE);
+        if(!ecbPermis(cfg,l,t)) continue;
+        const P=ecbSur(l,t);
+        if(!ecbLisible(cfg,P,l,vus)) continue;
+        out.push(P); vus.push(P); prises.push(l); ok=true;
+      }
+      if(!ok) break;
+    }
+    if(out.length===n){
+      for(let i=out.length-1;i>0;i--){ const j=rand(0,i), x=out[i]; out[i]=out[j]; out[j]=x; }
+      return {pts:out, lignes:prises};
+    }
+  }
+  return null;
+}
+function ecbGen(){
+  for(let essai=0; essai<200; essai++){
+    const cfg={face:pick(['arr','av']), ab:pick(['p','h'])};
+    const a=ecbTirerPoints(cfg,4,[],[]); if(!a) continue;
+    const c=ecbTirerPoints(cfg,3,a.pts,[]); if(!c) continue;
+    const pts=a.pts.map((P,i)=>({L:ECB_PTS[i],P:P}));
+    /* les vecteurs, comme la fiche : sommet → sommet (pas une arête), point →
+       sommet, sommet → point */
+    const diff=(X,Y)=>[0,1,2].filter(k=>ECB_COORD[X][k]!==ECB_COORD[Y][k]).length;
+    let X,Y; do{ X=pick(ECB_SOM); Y=pick(ECB_SOM); }while(X===Y || diff(X,Y)<2);
+    const p1=pick(ECB_PTS), S1=pick(ECB_SOM);
+    let p2, S2; do{ p2=pick(ECB_PTS); S2=pick(ECB_SOM); }while((S2===S1&&p2===p1) || S2===X&&p2===Y);
+    return {cfg:cfg, pts:pts, vecs:[[X,Y],[p1,S1],[S2,p2]], plc:c.pts.map((P,i)=>({L:ECB_PLC[i],P:P})), place:{}};
+  }
+  return null;
+}
+function ecbGenSession(){ return distinctes(ECB_NBQ, function(){ return ecbGen(); }); }
+function ecbCo(q,L){ if(ECB_COORD[L]) return ECB_COORD[L]; const p=q.pts.find(x=>x.L===L); return p?p.P:null; }
+function ecbVecCo(q,v){ const X=ecbCo(q,v[0]), Y=ecbCo(q,v[1]); return [0,1,2].map(k=>Y[k]-X[k]); }
+/* Toutes les cases et leur bonne réponse — UNE liste, lue par le rendu, le
+   juge, la correction et le contexte de l'aide. Les points du c) sont des
+   cases de type 'plc'. */
+const ECB_CO=['x','y','z'];
+function ecbCases(q){
+  const out=[], N=(id,good,nom)=>out.push({id:id,type:'num',good:good,nom:nom});
+  ECB_SOM.concat(ECB_PTS).forEach(function(L){ const P=ecbCo(q,L);
+    ECB_CO.forEach(function(co,k){ N('ecb-a-'+L+k,P[k],co+' de '+L); }); });
+  q.vecs.forEach(function(v,j){ const X=ecbCo(q,v[0]), Y=ecbCo(q,v[1]), n=v[0]+v[1], c=ecbVecCo(q,v);
+    ECB_CO.forEach(function(co,k){
+      N('ecb-v'+j+'-'+k+'y',Y[k],co+v[1]+' (premier terme de la différence pour '+n+')');
+      N('ecb-v'+j+'-'+k+'x',X[k],co+v[0]+' (terme soustrait pour '+n+')');
+    });
+    ECB_CO.forEach(function(co,k){ N('ecb-v'+j+'-c'+k,c[k],'coordonnée '+co+' du vecteur '+n); });
+  });
+  q.plc.forEach(function(p){ out.push({id:'ecb-p-'+p.L,type:'plc',good:p.P,nom:'position du point '+p.L+' sur la figure'}); });
+  return out;
+}
+function ecbPlaceJuste(q,good,P){
+  if(!Array.isArray(P)) return false;
+  if([0,1,2].every(k=>Math.abs(P[k]-good[k])<1e-9)) return true;
+  return ecbD2(ecbProj(q.cfg,P),ecbProj(q.cfg,good))<3;   /* même endroit du dessin */
+}
+function ecbPtTxt(L,P){ return L+'('+P.map(numFmt).join(' ; ')+')'; }
+function ecbAff(x){ return x.type==='plc'?'('+x.good.map(numFmt).join(' ; ')+')':numFmt(x.good); }
+function ecbVerdicts(q, lire){
+  const out={};
+  ecbCases(q).forEach(function(x){
+    if(x.type==='plc'){
+      const P=(q.place||{})[x.id.slice(6)];
+      out[x.id]={ok:ecbPlaceJuste(q,x.good,P), rempli:Array.isArray(P), attendu:ecbAff(x)};
+      return;
+    }
+    const raw=String(lire(x.id)==null?'':lire(x.id)).trim(), v=raw===''?null:tgParseFrac(raw);
+    out[x.id]={ok:v!=null && Math.abs(v-x.good)<1e-9, rempli:raw!=='', attendu:ecbAff(x)};
+  });
+  return out;
+}
+/* ---- la figure ---- */
+let ecbActif='M', ecbEtat={}, ecbSurvol=null;
+function ecbCadre(q){
+  const cfg=q.cfg; let mx=Infinity, Mx=-Infinity, my=Infinity, My=-Infinity;
+  const vu=P=>{ const p=ecbProj(cfg,P); mx=Math.min(mx,p[0]); Mx=Math.max(Mx,p[0]); my=Math.min(my,p[1]); My=Math.max(My,p[1]); };
+  ecbLignes().forEach(l=>{ [-1.5,0,1,1.5].forEach(t=>{ if(ecbPermis(cfg,l,t)) vu(ecbSur(l,t)); }); });
+  const pad=26;
+  return {ox:pad-mx, oy:pad-my, W:Mx-mx+2*pad, H:My-my+2*pad};
+}
+function ecbCandidats(q){
+  const out=[];
+  ecbLignes().forEach(l=>{ ECB_T_TOUS.forEach(t=>{ if(ecbPermis(q.cfg,l,t)) out.push(ecbSur(l,t)); }); });
+  return out;
+}
+function ecbSVG(q){
+  const cfg=q.cfg, c=ecbCadre(q), f=v=>v.toFixed(1);
+  const X=P=>{ const p=ecbProj(cfg,P); return [p[0]+c.ox,p[1]+c.oy]; };
+  const seg=(a,b,cl)=>'<line x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0])+'" y2="'+f(b[1])+'" class="'+cl+'"/>';
+  const ctr=X([0.5,0.5,0.5]);
+  const dehors=(p,d)=>{ const vx=p[0]-ctr[0], vy=p[1]-ctr[1], n=Math.hypot(vx,vy)||1; return [p[0]+d*vx/n, p[1]+d*vy/n]; };
+  let g='<rect class="ecb-fond" x="0" y="0" width="'+f(c.W)+'" height="'+f(c.H)+'"/>';
+  /* le prolongement d'une arête jusqu'à un point qui la dépasse */
+  const prol=(P,cl)=>{ const l=ecbLigneDe(P); if(!l) return ''; const t=P[l.k];
+    if(t>=0&&t<=1) return ''; return seg(X(ecbSur(l,t<0?0:1)),X(P),cl); };
+  /* les arêtes ; cachées en pointillés */
+  ecbLignes().forEach(l=>{ g+=seg(X(ecbSur(l,0)),X(ecbSur(l,1)),ecbParCache(cfg,l)?'ecb-ar ecb-cache':'ecb-ar'); });
+  /* le repère : AB⃗, AD⃗, AE⃗ en couleur, flèche au bout */
+  const H=ecbCache(cfg), A=X([0,0,0]);
+  [['B','ecb-bx'],['D','ecb-by'],['E','ecb-bz']].forEach(function(b){
+    const P=ECB_COORD[b[0]], Bp=X(P), cache=H.every(v=>v===0) || [0,1,2].every(k=>H[k]===P[k]);   /* l'arête touche le sommet caché */
+    const ang=Math.atan2(Bp[1]-A[1],Bp[0]-A[0]), L=12, W=5;
+    const p1=[Bp[0]-L*Math.cos(ang)+W*Math.sin(ang), Bp[1]-L*Math.sin(ang)-W*Math.cos(ang)];
+    const p2=[Bp[0]-L*Math.cos(ang)-W*Math.sin(ang), Bp[1]-L*Math.sin(ang)+W*Math.cos(ang)];
+    g+=seg(A,[Bp[0]-8*Math.cos(ang),Bp[1]-8*Math.sin(ang)],'ecb-base '+b[1]+(cache?' ecb-cache':''))
+      +'<polygon points="'+f(Bp[0])+','+f(Bp[1])+' '+f(p1[0])+','+f(p1[1])+' '+f(p2[0])+','+f(p2[1])+'" class="ecb-fl '+b[1]+'"/>';
+  });
+  /* I, J, K, L : l'arête graduée en quarts, prolongée s'il le faut */
+  q.pts.forEach(function(p){
+    const l=ecbLigneDe(p.P), t=p.P[l.k], P0=X(ecbSur(l,0)), P1=X(ecbSur(l,1));
+    g+=prol(p.P,'ecb-prol');
+    const vx=P1[0]-P0[0], vy=P1[1]-P0[1], n=Math.hypot(vx,vy), nx=-vy/n*5, ny=vx/n*5;
+    for(let u=Math.min(0,t); u<=Math.max(1,t)+1e-9; u+=0.25){
+      if(Math.abs(u)<1e-9||Math.abs(u-1)<1e-9) continue;
+      const m=X(ecbSur(l,u));
+      g+=seg([m[0]-nx,m[1]-ny],[m[0]+nx,m[1]+ny],'ecb-grad');
+    }
+    const m=X(p.P);
+    g+='<circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="3.6" class="ecb-pt"/>';
+  });
+  /* les étiquettes : chacune à la place la plus dégagée autour de son point —
+     loin des traits, des points et des étiquettes déjà posées */
+  const traits=ecbLignes().map(l=>[X(ecbSur(l,0)),X(ecbSur(l,1))]);
+  q.pts.forEach(function(p){ const l=ecbLigneDe(p.P), t=p.P[l.k]; if(t<0||t>1) traits.push([X(ecbSur(l,t<0?0:1)),X(p.P)]); });
+  const marques=ECB_SOM.map(L=>X(ECB_COORD[L])).concat(q.pts.map(p=>X(p.P))), poses=[];
+  const etiq=function(m,txt,cl){
+    let best=null, bs=-Infinity;
+    for(let i=0;i<16;i++){
+      const a=i*Math.PI/8, c=[m[0]+17*Math.cos(a), m[1]+17*Math.sin(a)];
+      let sc=Math.min(...traits.map(s=>ecbDistSeg(c,s[0],s[1])));
+      marques.forEach(o=>{ if(o!==m) sc=Math.min(sc,ecbD2(c,o)-3); });
+      poses.forEach(o=>{ sc=Math.min(sc,ecbD2(c,o)-8); });
+      sc=Math.min(sc,12)+0.02*ecbD2(c,ctr);   /* dégagé d'abord, puis vers l'extérieur */
+      if(sc>bs){ bs=sc; best=c; }
+    }
+    poses.push(best);
+    return '<text x="'+f(best[0])+'" y="'+f(best[1]+6)+'" text-anchor="middle" class="'+cl+'">'+txt+'</text>';
+  };
+  q.pts.forEach(function(p){ g+=etiq(X(p.P),p.L,'ecb-lp'); });
+  ECB_SOM.forEach(function(L){ g+=etiq(X(ECB_COORD[L]),L,'ecb-ls'); });
+  /* c) les points placés par l'élève, et la correction */
+  const marque=(P,L,cl,pts)=>{ const m=X(P);
+    return prol(P,'ecb-prol ecb-prol-pl'+(cl?' '+cl:'').replace(/\bpts-case\b/,''))
+      +'<g class="ecb-pl'+(pts?' pts-case':'')+(cl?' '+cl:'')+'" data-p="'+L+'"><circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="5.5"/>'
+      +'<text x="'+f(m[0]+9)+'" y="'+f(m[1]-8)+'" class="ecb-lpl">'+L+'</text></g>'; };
+  q.plc.forEach(function(p){
+    const P=(q.place||{})[p.L], v=ecbEtat[p.L];
+    if(Array.isArray(P)) g+=marque(P,p.L,v||'',!!v);
+    if(v==='bad' && test.locked) g+=marque(p.P,p.L,'ecb-cor',false);   /* la correction d'à côté ne compte pas */
+    if(!Array.isArray(P) && v==='sol') g+=marque(p.P,p.L,'sol',true);
+  });
+  if(ecbSurvol && !test.locked) g+=marque(ecbSurvol,ecbActif,'ecb-fant',false);
+  return '<svg class="ecb-svg" id="ecbSvg" viewBox="0 0 '+f(c.W)+' '+f(c.H)+'" role="img" aria-label="Le cube ABCDEFGH et son repère">'+g+'</svg>';
+}
+function ecbDessiner(){
+  const q=test.questions[test.idx], h=$('ecbFig'); if(!q||!h) return;
+  h.innerHTML=ecbSVG(q);
+  q.plc.forEach(function(p){ const b=$('ecb-b-'+p.L); if(!b) return;
+    b.classList.toggle('actif', p.L===ecbActif && !test.locked);
+    b.classList.toggle('pose', Array.isArray((q.place||{})[p.L])); });
+}
+/* la pose, sans le clic : jsdom n'a pas de mise en page, le banc passe par là */
+function ecbPoser(L,P){
+  const q=test.questions[test.idx]; if(!q||test.locked||test.kind!=='ecb') return false;
+  if(!q.plc.some(p=>p.L===L) || !Array.isArray(P)) return false;
+  if(!q.place) q.place={};
+  q.place[L]=P.slice();
+  if(ecbEtat[L]==='bad'||ecbEtat[L]==='ok') delete ecbEtat[L];
+  const suivant=q.plc.find(p=>!Array.isArray(q.place[p.L]));
+  if(suivant) ecbActif=suivant.L;
+  if(isSoutien()) checkECB(true);
+  ecbDessiner();
+  return true;
+}
+function ecbChoisir(L){ if(test.locked) return; ecbActif=L; ecbDessiner(); }
+function ecbPointSvg(evt){
+  const svg=$('ecbSvg'); if(!svg||!svg.getScreenCTM) return null;
+  const m=svg.getScreenCTM(); if(!m) return null;
+  const pt=svg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY;
+  const r=pt.matrixTransform(m.inverse()); return [r.x,r.y];
+}
+/* le quart d'arête le plus proche du pointeur, s'il est assez près */
+function ecbCaler(evt){
+  const q=test.questions[test.idx], p=ecbPointSvg(evt); if(!q||!p) return null;
+  const c=ecbCadre(q); let best=null, bd=30;
+  ecbCandidats(q).forEach(function(P){ const m=ecbProj(q.cfg,P), d=Math.hypot(m[0]+c.ox-p[0], m[1]+c.oy-p[1]); if(d<bd){ bd=d; best=P; } });
+  return best;
+}
+function ecbBrancher(){
+  const h=$('ecbFig'); if(!h) return;
+  h.onclick=function(evt){ if(test.locked||test.kind!=='ecb') return; const P=ecbCaler(evt); if(P){ ecbSurvol=null; ecbPoser(ecbActif,P); } };
+  h.onpointermove=function(evt){ if(test.locked||test.kind!=='ecb'||evt.pointerType==='touch') return; const P=ecbCaler(evt);
+    if(String(P)!==String(ecbSurvol)){ ecbSurvol=P; ecbDessiner(); } };
+  h.onpointerleave=function(){ if(ecbSurvol){ ecbSurvol=null; ecbDessiner(); } };
+}
+function ecbFormHTML(q){
+  /* une rangée .tg-line est un conteneur FLEX : le texte entre deux cases se
+     pose d'un seul tenant dans un <span> (T) */
+  const T=h=>'<span>'+h+'</span>', I=id=>txInp(id);
+  const L=(h,cls)=>'<div class="tg-line'+(cls?' '+cls:'')+'">'+h+'</div>';
+  const NW=h=>'<span class="ecb-nw">'+h+'</span>';   /* la lettre ne se sépare pas de sa parenthèse */
+  const P=x=>'<span class="elg-par">'+x+'</span>';
+  const col=rows=>P('<span class="elg-col">'+rows.map(r=>'<span class="elg-row">'+r+'</span>').join('')+'</span>');
+  let h='<div class="ecb-fig" id="ecbFig"></div>';
+  h+='<div class="tg-sub">a) Donne les coordonnées des points dans ce repère :</div>';
+  const ordre=ECB_SOM.concat(ECB_PTS);
+  for(let r=0;r<3;r++) h+=L(ordre.slice(4*r,4*r+4).map(Lt=>NW(T('<i>'+Lt+'</i>&nbsp;(')+I('ecb-a-'+Lt+'0')+T(';')+I('ecb-a-'+Lt+'1')+T(';')+I('ecb-a-'+Lt+'2')+T(')'))).join(''), 'ecb-l ecb-pts');
+  h+='<div class="tg-sub">b) Calcule les coordonnées des vecteurs '+q.vecs.map(v=>elgVec(v[0]+v[1])).join(' ; ')+' :</div>';
+  q.vecs.forEach(function(v,j){ const n=elgVec(v[0]+v[1]);
+    h+=L(NW(T(n)+col([0,1,2].map(k=>I('ecb-v'+j+'-'+k+'y')+T('−')+I('ecb-v'+j+'-'+k+'x'))))
+      +NW(T('donc :&nbsp;')+T(n)+col([0,1,2].map(k=>I('ecb-v'+j+'-c'+k)))), 'ecb-l');
+  });
+  h+='<div class="tg-sub">c) Place sur la figure les points : '+q.plc.map(p=>'<span class="ecb-nw"><i>'+p.L+'</i>&nbsp;('+p.P.map(numFmt).join(' ; ')+')</span>').join(' ; ')+'</div>';
+  h+=L(T('Point à placer :')+q.plc.map(p=>'<button type="button" class="ecb-bp" id="ecb-b-'+p.L+'" onclick="ecbChoisir(\''+p.L+'\')">'+p.L+'</button>').join(''), 'ecb-l');
+  h+='<p class="ecb-aide">Choisis un point, puis clique sur la figure à l’endroit où il se trouve — sur une arête, ou sur son prolongement : l’arête se prolonge jusqu’au point. Un nouveau clic le déplace.</p>';
+  return h;
+}
+function ecbPromptHTML(q){
+  return '<i>ABCDEFGH</i> est un cube. (<i>A</i> ; '+elgVec('AB')+' ; '+elgVec('AD')+' ; '+elgVec('AE')+') est un repère de l’espace. '
+    +'Les points <i>I</i>, <i>J</i>, <i>K</i> et <i>L</i> sont sur des arêtes du cube ou sur leurs prolongements ; les graduations partagent ces arêtes en quatre.';
+}
+function ecbPlain(q){
+  const face=q.cfg.face==='arr'?'A en bas à gauche sur la face arrière':'A en bas à gauche sur la face avant';
+  return 'cube ABCDEFGH, repère (A ; AB, AD, AE), '+face+' ; points sur les arêtes ou leurs prolongements : '
+    +q.pts.map(p=>ecbPtTxt(p.L,p.P)).join(', ')+' ; vecteurs à calculer : '+q.vecs.map(v=>v[0]+v[1]).join(', ')
+    +' ; points à placer : '+q.plc.map(p=>ecbPtTxt(p.L,p.P)).join(', ');
+}
+/* ---- cycle de vie ---- */
+async function startECB(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='espace-cube'; test.kind='ecb';
+  test.questions=ecbGenSession();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.maxScore=test.questions.length;
+  show('ecb'); renderECB();
+}
+function renderECB(){
+  const q=test.questions[test.idx]; test.locked=false;
+  if(!q.place) q.place={};
+  ecbEtat={}; ecbSurvol=null;
+  const libre=q.plc.find(p=>!Array.isArray(q.place[p.L])); ecbActif=libre?libre.L:q.plc[0].L;
+  $('ecbQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('ecbModeTag').innerHTML=modeTagHTML();
+  $('ecbLiveScore').textContent=test.score;
+  $('ecbFeedback').textContent=''; $('ecbFeedback').className='mp-feedback';
+  $('ecbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkECB()">Vérifier</button>';
+  $('ecbPrompt').innerHTML=ecbPromptHTML(q);
+  $('ecbForm').innerHTML=ecbFormHTML(q);
+  ecbBrancher(); ecbDessiner();
+  if(isSoutien()){
+    ecbCases(q).forEach(function(x){ const el=$(x.id); if(el) el.addEventListener('input', function(){ checkECB(true); }); });
+  }
+}
+function ecbRetiens(q){
+  return 'La clé : dans le repère (<i>A</i> ; '+elgVec('AB')+' ; '+elgVec('AD')+' ; '+elgVec('AE')+'), on part de <i>A</i> et on compte combien de fois on avance de '+elgVec('AB')+' (l’abscisse <i>x</i>), de '+elgVec('AD')+' (l’ordonnée <i>y</i>), puis de '+elgVec('AE')+' (la cote <i>z</i>). '
+    +'Un point sur une arête parallèle à (<i>AB</i>) a la même ordonnée et la même cote que les extrémités de l’arête ; seule son abscisse varie — de même pour les autres arêtes. Au-delà d’un sommet, sur le prolongement, la coordonnée dépasse 1 ou devient négative. '
+    +'Un vecteur '+elgVec('XY')+' : « arrivée − départ », <i>x<sub>Y</sub></i> − <i>x<sub>X</sub></i>. '
+    +'Ici : '+q.pts.map(p=>'<i>'+p.L+'</i>('+p.P.map(numFmt).join(' ; ')+')').join(', ')+' ; '
+    +q.vecs.map(v=>elgVec(v[0]+v[1])+'('+ecbVecCo(q,v).map(numFmt).join(' ; ')+')').join(', ')+'.';
+}
+function checkECB(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], cases=ecbCases(q);
+  const verd=ecbVerdicts(q, function(id){ const el=$(id); return el?el.value:''; });
+  let allOk=true, anyFilled=false, vides=0;
+  cases.forEach(function(x){
+    const v=verd[x.id];
+    if(v.rempli) anyFilled=true; else vides++;
+    if(!v.ok) allOk=false;
+    if(x.type==='plc'){ const L=x.id.slice(6); if(v.rempli) ecbEtat[L]=v.ok?'ok':'bad'; else delete ecbEtat[L]; return; }
+    const el=$(x.id); if(!el) return;
+    el.classList.remove('ok','bad','sol');
+    /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR — en direct comme à la vérification */
+    if(v.rempli) el.classList.add(v.ok?'ok':'bad');
+    if(live) return;
+    el.disabled=!!(v.ok||!isSoutien());
+  });
+  if(live){ ecbDessiner(); return; }
+  const fb=$('ecbFeedback');
+  if(!anyFilled){
+    fb.textContent='Complète au moins une case avant de vérifier.';
+    fb.className='mp-feedback';
+    ecbEtat={};
+    cases.forEach(function(x){ const el=$(x.id); if(el){ el.classList.remove('ok','bad','sol'); el.disabled=false; } });
+    ecbDessiner();
+    return;
+  }
+  if(!allOk && isSoutien()){
+    fb.innerHTML=vides>0?'Il te manque '+vides+' case(s) ou point(s) — complète-les, puis corrige ce qui est en rouge et revérifie.':'Presque ! Corrige ce qui est en rouge, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('ecbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkECB()">Revérifier</button>';
+    ecbDessiner();
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('ecbLiveScore').textContent=test.score;
+    fb.textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, tout est juste !']);
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML=msgCorrCouleurs(vides>0)+'<br>'+ecbRetiens(q);
+    fb.className='mp-feedback bad';
+    cases.forEach(function(x){
+      if(x.type==='plc'){ const L=x.id.slice(6); ecbEtat[L]=verd[x.id].rempli?(verd[x.id].ok?'ok':'bad'):'sol'; return; }
+      corrCase(x.id, verd[x.id].attendu, verd[x.id].ok===true);
+    });
+  }
+  ecbDessiner();
+  test.answers.push(Object.assign({}, ptsExo()||{}, {
+    q:'Espace — le cube, coordonnées et vecteurs : '+ecbPlain(q), answer:ecbRepPlain(q),
+    given:allOk?'✓':'incomplet', correct:allOk, type:'ecb'}));
+  const last=test.idx===test.questions.length-1;
+  $('ecbActions').innerHTML='<button class="btn btn-primary" onclick="nextECB()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function ecbRepPlain(q){
+  return ECB_SOM.concat(ECB_PTS).map(L=>ecbPtTxt(L,ecbCo(q,L))).join(' ; ')+' ; '
+    +q.vecs.map(v=>'vecteur '+v[0]+v[1]+'('+ecbVecCo(q,v).map(numFmt).join(' ; ')+')').join(' ; ');
+}
+function nextECB(){ if(test.idx<test.questions.length-1){ test.idx++; renderECB(); } else finishTest(); }
+/* Le contexte envoyé au modèle : l'énoncé, l'état des cases, et la clause de
+   secret — les réponses attendues sont STRICTEMENT SECRÈTES. */
+function ecbConseilCtx(){
+  const q=test.questions[test.idx], cases=ecbCases(q);
+  const etat=cases.map(function(x){
+    if(x.type==='plc'){ const P=(q.place||{})[x.id.slice(6)]; return x.nom+' = '+(Array.isArray(P)?'placé en ('+P.map(numFmt).join(' ; ')+')':'(pas encore placé)'); }
+    const el=$(x.id); const v=el?String(el.value||'').trim():''; return x.nom+' = '+(v===''?'(vide)':'« '+v+' »'); }).join(' ; ');
+  return 'Exercice de Terminale (géométrie dans l’espace, coordonnées dans un cube) : '+ecbPlain(q)+'. '
+    +'Questions : a) coordonnées des sommets A, B, D, E, C, F, H, G et des points I, J, K, L lus sur la figure (graduations en quarts d’arête) ; b) coordonnées de trois vecteurs, rédigées « XY (xY − xX ; yY − yX ; zY − zX) donc XY (…) » en colonnes ; c) placer M, N, O sur la figure, sur une arête ou sur son prolongement. '
+    +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
+    +cases.map(function(x){ return x.nom+' = '+ecbAff(x); }).join(' ; ')+'. '
+    +'Saisies actuelles de l’élève : '+etat+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. Méthode, sans donner la réponse : depuis A, l’abscisse compte les pas de AB, l’ordonnée ceux de AD, la cote ceux de AE ; sur une arête, deux coordonnées valent 0 ou 1 et la troisième se lit sur les graduations (0,25 ; 0,5 ; 0,75) ; sur un prolongement, elle dépasse 1 ou devient négative ; un vecteur XY a pour coordonnées celles de Y moins celles de X ; pour placer un point, repérer les deux coordonnées égales à 0 ou 1 : elles désignent l’arête, la troisième dit où sur cette arête ou son prolongement.';
+}
 /* ================= 6.10 RÉCURRENCE — LA FORMULE EXPLICITE EN FRACTION =================
    Demande de Turquet (septembre 2026), repris de la fiche « récurrence et
    fractions » : une suite Uₙ₊₁ = (3Uₙ − 1)/(Uₙ + 1) avec U₀ = 3, et la formule
@@ -34084,6 +34591,7 @@ const QIA_SUGG={
   svr:["Faire un rappel de cours pour cet exercice.","Comment construit-on le tracé en escalier ?","À quoi sert la droite d’équation y = x ?","Comment dérive-t-on une fonction de la forme 1/(a − x) ?","Pourquoi f croissante conserve-t-elle les inégalités ?","Que veut dire « décroissante et minorée » ?"],
   ssv:["Faire un rappel de cours pour cet exercice.","Comment construit-on le tracé en escalier ?","Comment dérive-t-on un quotient ?","Pourquoi f croissante conserve-t-elle les inégalités ?","Comment mettre U\u2099 sur le même dénominateur ?","Comment lire le signe d\u2019un trinôme du second degré ?","Pourquoi le passage à la limite donne-t-il deux solutions ?","Comment choisir entre les deux valeurs possibles de \u2113 ?"],
   tcl:["Faire un rappel de cours pour cet exercice.","Comment lire le sens de variation dans l’encadrement ?","Pourquoi faut-il « croissante ET majorée » pour conclure ?","Pourquoi Uₙ₊₁ a-t-elle la même limite que Uₙ ?","Comment résoudre l’équation obtenue par passage à la limite ?"],
+  ecb:["Faire un rappel de cours pour cet exercice.","Comment lire les coordonnées d’un sommet du cube ?","Comment trouver les coordonnées d’un point sur une arête ?","Que se passe-t-il pour un point sur le prolongement d’une arête ?","Comment calculer les coordonnées d’un vecteur ?","Comment placer un point dont on connaît les coordonnées ?"],
   edp:["Faire un rappel de cours pour cet exercice.","Comment écrire l’équation paramétrique d’une droite ?","Où mettre le point de départ et le vecteur directeur ?","Comment trouver un vecteur directeur de la droite (AB) ?","Comment savoir si un point appartient à une droite ?","Que veut dire « aligné avec A et B » ?"],
   elg:["Faire un rappel de cours pour cet exercice.","Comment calcule-t-on les coordonnées du milieu d’un segment ?","Comment trouver les coordonnées d’un vecteur à partir de deux points ?","Comment calcule-t-on une longueur dans l’espace ?","Comment savoir si un triangle est rectangle ?","Comment conclure avec le théorème de Pythagore ?"],
   cvp:["Faire un rappel de cours pour cet exercice.","Comment trouver k quand on connaît l’abscisse du point d’inflexion ?","Pourquoi faut-il vérifier que f″ change de signe ?","Comment dérive-t-on un produit avec une exponentielle ?","Pourquoi le discriminant de f″ doit-il être négatif ou nul ?"],
