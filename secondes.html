@@ -2232,6 +2232,13 @@
      dessous. Vecteurs, signes et cases : ceux du 8.3 (.veg-v, .veg-eq,
      .veg-in). */
   .dch-lignes{max-width:1100px}
+  /* 8.2.18 {demontrer-chasles-inserer} : l'idée, AVANT l'énoncé (Turquet,
+     octobre 2026) — un cadre en tirets, étiqueté « Idée », vide ailleurs */
+  .dch-idee{position:relative;text-align:left;font-weight:600;font-size:1.04rem;line-height:1.55;color:var(--ink);
+    background:var(--surface);border:2px dashed var(--ink-soft);border-radius:16px;padding:20px 16px 15px;margin:14px 0 18px}
+  .dch-idee::before{content:'Idée';position:absolute;top:-10px;left:14px;background:var(--ink-soft);color:#fff;
+    font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:999px}
+  .dch-idee:empty{display:none}
   .dch-l{gap:8px 10px}
   .dch-g,.dch-calc{display:inline-flex;align-items:center;flex-wrap:nowrap;gap:8px}
   .dch-calc{flex-wrap:wrap}
@@ -8051,6 +8058,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">D&eacute;monstrations justes</span>&nbsp;<b id="dchLiveScore">0</b></span>
     </div>
     <div class="card">
+      <p class="dch-idee" id="dchIdee"></p>
       <p class="enonce" id="dchInstr"></p>
       <div id="dchHost" style="width:100%"></div>
       <div class="mp-feedback" id="dchFeedback" aria-live="polite"></div>
@@ -8706,7 +8714,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=604;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=605;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9538,7 +9546,8 @@ const TESTS={
   'parallelogramme-point': { name:'Le quatri\u00e8me point d\u2019un parall\u00e9logramme', icon:'\ud83d\udccd', desc:'Trois points A, B et C sur un quadrillage, et l\u2019\u00e9nonc\u00e9 \u00ab ABDC est un parall\u00e9logramme \u00bb \u2014 ou ABCD. Construis D d\u2019un clic sur le quadrillage, puis compl\u00e8te la phrase \u00ab le chemin qui va de \u2026 \u00e0 \u2026 est le m\u00eame que celui qui va de C \u00e0 D \u00bb, puis \u00e9cris cette \u00e9galit\u00e9 avec des vecteurs.', start:()=>startVec() },
   'egalite-vectorielle-point': { name:'Placer un point pour une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccf', desc:'Trois des points A, B, C et D sur un quadrillage, et une \u00e9galit\u00e9 de vecteurs \u00e0 r\u00e9aliser. Clique sur le quadrillage le point qui manque, puis nomme le parall\u00e9logramme obtenu \u2014 dans le bon ordre des lettres.', start:()=>startVep() },
   'somme-vecteurs': { name:'Somme de deux vecteurs\u00a0: un d\u00e9but va sur une fin', icon:'\u2795', desc:'Deux fl\u00e8ches u et v sur un quadrillage\u00a0: \u00e9tape 1, fais-les glisser bout \u00e0 bout \u2014 \u00ab\u00a0un d\u00e9but va sur une fin\u00a0\u00bb\u00a0; \u00e9tape 2, trace le vecteur u + v.', start:()=>startSvc() },
-  'demontrer-chasles': { name:'D\u00e9montrer une \u00e9galit\u00e9 avec Chasles', icon:'\u270d\ufe0f', desc:'R\u00e9dige la d\u00e9monstration avec la m\u00e9thode de ton choix, une \u00e9tape par ligne \u2014 relation de Chasles, ordre de la somme, soustraction, vecteurs \u00e9gaux d\u2019un parall\u00e9logramme ou d\u2019un milieu\u2026', start:()=>startDch() },
+  'demontrer-chasles': { name:'D\u00e9montrer une \u00e9galit\u00e9 avec Chasles', icon:'\u270d\ufe0f', desc:'R\u00e9dige la d\u00e9monstration avec la m\u00e9thode de ton choix, une \u00e9tape par ligne \u2014 relation de Chasles, ordre de la somme, soustraction, vecteurs \u00e9gaux d\u2019un parall\u00e9logramme ou d\u2019un milieu\u2026', start:()=>startDch(false) },
+  'demontrer-chasles-inserer': { name:'D\u00e9montrer une \u00e9galit\u00e9 en ins\u00e9rant un point', icon:'\ud83d\udccd', desc:'R\u00e9dige la d\u00e9monstration, une \u00e9tape par ligne\u00a0: il faudra ins\u00e9rer un point dans un vecteur, comme CD = CA + AD, puis appliquer la relation de Chasles.', start:()=>startDch(true) },
   'somme-vecteurs-libre': { name:'Somme de deux vecteurs, sans \u00e9tapes', icon:'\u2795', desc:'Deux fl\u00e8ches u et v sur un quadrillage, sans les mots \u00ab\u00a0d\u00e9but\u00a0\u00bb et \u00ab\u00a0fin\u00a0\u00bb ni les \u00e9tapes\u00a0: fais-les glisser o\u00f9 tu veux, puis trace le vecteur u + v.', start:()=>startSvc(1) },
   'lire-somme-dessin': { name:'Lire une somme de vecteurs sur un dessin', icon:'\ud83d\udd0d', desc:'Une cha\u00eene de fl\u00e8ches entre des points nomm\u00e9s, et trois vecteurs u, v, w trac\u00e9s \u00e0 part\u00a0: trouve le vecteur bleu de la figure \u00e9gal \u00e0 u + v, puis \u00e9cris w comme la somme de deux vecteurs bleus.', start:()=>startLsd() },
   'somme-trois-vecteurs': { name:'Trois vecteurs bout \u00e0 bout', icon:'\u2795', desc:'Trois fl\u00e8ches u, v, w et un point sur un quadrillage\u00a0: fais-les glisser bout \u00e0 bout \u00e0 partir du point, puis trace le vecteur u + v + w \u2014 ou dis que c\u2019est le vecteur nul.', start:()=>startStv() },
@@ -9814,7 +9823,7 @@ const THEMES=[
      (« le 8.5 » = 8.1.5, « le 8.7 » = 8.2.1). */
   { num:8, nom:'Vecteurs', sous:[
       { num:1, nom:'Vecteurs égaux',     ids:['translation-grille','vecteurs-egaux-tableau','vecteurs-egaux','translation-quadrillage','parallelogramme-point','egalite-vectorielle-point','tracer-vecteurs-egaux','tracer-vecteurs-opposes','translation-pavage','vrai-faux-vecteurs','milieu-vecteurs-egaux','translation-antecedent','vecteurs-criteres','vecteurs-egaux-justifier'] },
-      { num:2, nom:'Somme de vecteurs',  ids:['somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','somme-vecteurs-repere','chasles-alignes','chasles-sans-figure','point-somme-vecteurs','point-somme-difference','somme-vecteurs-libre','chasles-inserer-point','demontrer-parallelogramme','demontrer-chasles','lire-somme-dessin','somme-trois-vecteurs','translations-successives','regle-parallelogramme'] },
+      { num:2, nom:'Somme de vecteurs',  ids:['somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','somme-vecteurs-repere','chasles-alignes','chasles-sans-figure','point-somme-vecteurs','point-somme-difference','somme-vecteurs-libre','chasles-inserer-point','demontrer-parallelogramme','demontrer-chasles','lire-somme-dessin','somme-trois-vecteurs','translations-successives','regle-parallelogramme','demontrer-chasles-inserer'] },
       /* « Fiche 1 : vecteurs colinéaires » (demande de Turquet, octobre 2026) :
          l'exercice 1, l'exemple 1, l'exercice 2, l'exercice 3 */
       { num:3, nom:'Vecteurs colinéaires', ids:['construire-multiple-vecteur','identifier-multiple-vecteur','identifier-multiple-non-entier','vecteurs-colineaires-figure','colineaires-sens-longueur','placer-point-colineaire','phrase-relation-colineaire','milieux-parallele-vecteurs','demontrer-colineaires','demontrer-egalite-reels'] }
@@ -11433,6 +11442,7 @@ const QIA_SUGG={
    la Terminale applique déjà pour ses deux exercices en « cm ». */
 /* Les questions propres à un exercice, indexées par IDENTIFIANT. */
 const QIA_SUGG_ID={
+  'demontrer-chasles-inserer':["Comment savoir quel point ins\u00e9rer\u00a0?","Pourquoi CD = CA + AD est-il vrai\u00a0?","Dans quel vecteur faut-il ins\u00e9rer un point\u00a0?","Que faire apr\u00e8s avoir ins\u00e9r\u00e9 un point\u00a0?"],
   'construire-multiple-vecteur':["Que veut dire le vecteur 2u\u00a0?","Que change le signe moins devant k\u00a0?","Comment tracer \u00bd u sur le quadrillage\u00a0?","Comment compter le chemin du vecteur u\u00a0?","Est-ce que je peux commencer ma fl\u00e8che n\u2019importe o\u00f9\u00a0?"],
   'tracer-vecteurs-opposes':["Qu\u2019est-ce que le vecteur oppos\u00e9 \u2212u\u00a0?","Comment compter le chemin du vecteur u sur le quadrillage\u00a0?","Comment faire le chemin \u00e0 l\u2019envers\u00a0?","Est-ce que je peux commencer ma fl\u00e8che n\u2019importe o\u00f9\u00a0?","Comment d\u00e9placer le d\u00e9part de ma fl\u00e8che\u00a0?"],
   'python-input-float':["À quoi sert float(…) autour de input ?","Quelle différence entre int et float ?","Pourquoi Python refuse-t-il 1,65 ?","Pourquoi Python affiche-t-il 2.0 quand je tape 2 ?"],
@@ -13342,7 +13352,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    que 3² = 9 et 4² = 16.
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
-const TABLES_SANS=['demontrer-egalite-reels','demontrer-colineaires','vecteurs-criteres','vecteurs-egaux-justifier','construire-multiple-vecteur','identifier-multiple-vecteur','identifier-multiple-non-entier','vecteurs-colineaires-figure','colineaires-sens-longueur','placer-point-colineaire','phrase-relation-colineaire','milieux-parallele-vecteurs','regle-parallelogramme','translations-successives','somme-trois-vecteurs','demontrer-chasles','lire-somme-dessin','translation-antecedent','milieu-vecteurs-egaux','demontrer-parallelogramme','chasles-inserer-point','vrai-faux-vecteurs','translation-pavage','somme-vecteurs-libre','tracer-vecteurs-egaux','tracer-vecteurs-opposes','point-somme-difference','point-somme-vecteurs','chasles-sans-figure','somme-vecteurs-repere','somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','chasles-alignes','translation-quadrillage','egalite-vectorielle-point','vecteurs-egaux','vecteurs-egaux-tableau','python-for-images-entiers','python-if-plus-grand-trois','python-pile-face','python-if-location','python-if-cinema','python-if-plus-grand','python-if-else','python-for-couples','python-samoussa','python-tables-multiplication','python-for-table','python-for-images','python-for-multiples','python-for-moyenne-notes','python-trois-des','python-for-depart-fin','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-if-frais-port','python-input-prix','python-input-concat','python-input-erreur-type','python-input-int-float','python-input-conversion','python-input-predire','python-input-ordre','python-input-arrondi','python-input-monnaie','python-input-image','python-texte-nombre','python-egal-affectation','python-division-entiere','python-arrondir','python-choisir-programme','python-ordre-lignes','python-variable-inconnue','python-debogage','python-formule','python-traduire-algo','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
+const TABLES_SANS=['demontrer-chasles-inserer','demontrer-egalite-reels','demontrer-colineaires','vecteurs-criteres','vecteurs-egaux-justifier','construire-multiple-vecteur','identifier-multiple-vecteur','identifier-multiple-non-entier','vecteurs-colineaires-figure','colineaires-sens-longueur','placer-point-colineaire','phrase-relation-colineaire','milieux-parallele-vecteurs','regle-parallelogramme','translations-successives','somme-trois-vecteurs','demontrer-chasles','lire-somme-dessin','translation-antecedent','milieu-vecteurs-egaux','demontrer-parallelogramme','chasles-inserer-point','vrai-faux-vecteurs','translation-pavage','somme-vecteurs-libre','tracer-vecteurs-egaux','tracer-vecteurs-opposes','point-somme-difference','point-somme-vecteurs','chasles-sans-figure','somme-vecteurs-repere','somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','chasles-alignes','translation-quadrillage','egalite-vectorielle-point','vecteurs-egaux','vecteurs-egaux-tableau','python-for-images-entiers','python-if-plus-grand-trois','python-pile-face','python-if-location','python-if-cinema','python-if-plus-grand','python-if-else','python-for-couples','python-samoussa','python-tables-multiplication','python-for-table','python-for-images','python-for-multiples','python-for-moyenne-notes','python-trois-des','python-for-depart-fin','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-if-frais-port','python-input-prix','python-input-concat','python-input-erreur-type','python-input-int-float','python-input-conversion','python-input-predire','python-input-ordre','python-input-arrondi','python-input-monnaie','python-input-image','python-texte-nombre','python-egal-affectation','python-division-entiere','python-arrondir','python-choisir-programme','python-ordre-lignes','python-variable-inconnue','python-debogage','python-formule','python-traduire-algo','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
                    'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','translation-grille','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi','tableau-proportions-trois-colonnes','tableau-proportions-trois-colonnes-directes','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','parallelogramme-point','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
@@ -74320,7 +74330,9 @@ function ctxVmi(q){
    être le membre de droite (à l'ordre près).
 
    Une démonstration vaut UN point. Les plans où il faut INSÉRER un point
-   (ins) viennent en fin de séance.
+   (ins) forment un exercice à part (8.2.18, {demontrer-chasles-inserer},
+   Turquet, octobre 2026), même moteur, même écran : son idée est donnée
+   avant l'énoncé ; le 8.2.13 ne tire plus que les autres.
 
    ON RANGE LE PLAN, LES LETTRES, LA TOURNURE ET LA SAISIE (t, n, v, saisie —
    la saisie comme le programme des exercices Python : captureBoxes ne lit
@@ -74331,7 +74343,8 @@ const DCH_VERBES=['Montrer que','Démontrer que','Prouver que'];
 /* les plans — lettres A, B, C, D (le parallélogramme ABCD, s'il y en a un)
    et M ; « -AC » est une soustraction, « 0 » le vecteur nul ; c : une
    rédaction juste, étape par étape, qui sert de correction ; ins : il faut
-   insérer un point dans un vecteur (ces plans viennent en fin de séance) ;
+   insérer un point dans un vecteur (ces plans sont ceux du 8.2.18, et eux
+   seuls) ;
    mil : les MILIEUX (Turquet, octobre 2026 : « mettre aussi des exemples
    avec un ou des milieux », puis « un parallélogramme et un ou des
    milieux ») — {M:'AB'} : M est le milieu de [AB] ; centre : M est le
@@ -74358,7 +74371,15 @@ const DCH_DEMOS=[
   {para:1, mil:{M:'AB'}, g:['AM','BC'], d:['MC'], c:[['MB','BC']]},
   {para:1, centre:1, mil:{M:'AC'}, g:['DA','AM'], d:['MB'], c:[['DM']]},
   {para:1, mil:{M:'AB', N:'DC'}, g:['AM','DN'], d:['AB'], c:[['AM','MB']]},
-  {ins:1, mil:{M:'AB'}, g:['CA','CB'], d:['CM','CM'], c:[['CM','MA','CM','MB'],['CM','CM','MA','MB'],['CM','CM','MA','AM'],['CM','CM','0']]}
+  {ins:1, mil:{M:'AB'}, g:['CA','CB'], d:['CM','CM'], c:[['CM','MA','CM','MB'],['CM','CM','MA','MB'],['CM','CM','MA','AM'],['CM','CM','0']]},
+  /* les insertions de l'exercice à part (8.2.18, Turquet, octobre 2026 :
+     « séparer les calculs qui font intervenir l'insertion d'une lettre ») */
+  {ins:1, g:['AB','-CD'], d:['AC','DB'], c:[['AC','CB','-CD'],['AC','DC','CB']]},
+  {ins:1, g:['AB','BC'], d:['AD','DC'], c:[['AC']]},
+  {ins:1, g:['AB','-AC'], d:['DB','-DC'], c:[['CA','AB'],['CB'],['CD','DB']]},
+  {ins:1, g:['AB'], d:['CB','-CA'], c:[['AC','CB']]},
+  {ins:1, para:1, g:['AB','AD'], d:['AM','MC'], c:[['AB','BC'],['AC']]},
+  {ins:1, para:1, g:['DA','DC'], d:['DM','MB'], c:[['DA','AB'],['DB']]}
 ];
 function dchR(q, t){
   if(t==='0') return t;
@@ -74583,22 +74604,31 @@ function dchCorrection(D){
 }
 
 /* ---- l'écran ------------------------------------------------------------ */
-function dchBuildQuestions(){
-  const N=dmNbQuestions(DCH_NB);
-  const qs=distinctes(N, dchGenQuestion, N<=DCH_DEMOS.length ? function(q){ return String(q.t); } : undefined);
-  /* les démonstrations où il faut insérer un point viennent en dernier
-     (Turquet, octobre 2026) — le tri garde l'ordre du tirage */
-  return qs.map(function(q, i){ return {q:q, i:i}; })
-    .sort(function(a, b){ return (DCH_DEMOS[a.q.t].ins ? 1 : 0)-(DCH_DEMOS[b.q.t].ins ? 1 : 0) || a.i-b.i; })
-    .map(function(x){ return x.q; });
+/* DEUX EXERCICES, UN MOTEUR (Turquet, octobre 2026 : « séparer les calculs
+   qui font intervenir l'insertion d'une lettre ») : le 8.2.13 ne tire que
+   les plans sans insertion, le 8.2.18 que les plans où il faut insérer un
+   point (ins) — l'idée en est donnée avant l'énoncé (dchIdeeHTML). */
+function dchPlans(ins){ return DCH_DEMOS.map(function(T, t){ return t; }).filter(function(t){ return !!DCH_DEMOS[t].ins===!!ins; }); }
+function dchBuildQuestions(ins){
+  const N=dmNbQuestions(DCH_NB), P=dchPlans(ins);
+  return distinctes(N, function(_, i){ return dchGenQuestion(i, P, ins); }, N<=P.length ? function(q){ return String(q.t); } : undefined);
 }
-/* la séance a toujours l'exemple de la demande (AB + CD = AD + CB) : tiré
-   le premier, il passe en fin de séance avec les autres insertions */
-function dchGenQuestion(_, i){
+/* la séance des insertions commence toujours par l'exemple de la demande
+   (AB + CD = AD + CB), avec ses lettres */
+function dchGenQuestion(i, P, ins){
   const pool=DCH_LETTRES.split(''), n=[];
-  if(i===0) return {t:0, n:'ABCDMN', v:0};
+  if(ins && i===0) return {t:0, n:'ABCDMN', v:0};
   while(n.length<6) n.push(pool.splice(Math.floor(Math.random()*pool.length), 1)[0]);
-  return {t:1+Math.floor(Math.random()*(DCH_DEMOS.length-1)), n:n.join(''), v:Math.floor(Math.random()*DCH_VERBES.length)};
+  const autres=ins ? P.filter(function(t){ return t!==0; }) : P;
+  return {t:autres[Math.floor(Math.random()*autres.length)], n:n.join(''), v:Math.floor(Math.random()*DCH_VERBES.length)};
+}
+/* l'idée, avant l'énoncé des insertions (Turquet : « donner l'idée avant
+   l'énoncé que l'on pourra utiliser l'insertion d'un point pour écrire
+   CD = CA + AD par exemple ») */
+function dchIdeeHTML(q){
+  if(!DCH_DEMOS[q.t].ins) return '';
+  return 'Pour cette démonstration, on pourra <b>insérer un point</b> dans un vecteur : c’est la relation de Chasles lue à l’envers. '
+    +'Par exemple, quels que soient les points C, D et A, '+dchEnonceVec(['CD'])+' = '+dchEnonceVec(['CA','AD'])+' : on passe par A pour aller de C à D.';
 }
 function dchVecHTML(t){ return vegVecHTML(t); }
 /* un vecteur dans l'énoncé, flèche dessinée au-dessus */
@@ -74770,6 +74800,7 @@ function renderDchTest(){
   $('dchIdx').textContent='Démonstration '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagDch').innerHTML=modeTagHTML();
   $('dchLiveScore').textContent=test.score;
+  $('dchIdee').innerHTML=dchIdeeHTML(q);
   $('dchInstr').innerHTML=dchEnonceHTML(q);
   $('dchFeedback').textContent=''; $('dchFeedback').className='mp-feedback';
   $('dchActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkDchAnswer()">Vérifier</button>';
@@ -74835,15 +74866,15 @@ function checkDchAnswer(live){
   const nb=$('dchNext'); if(nb) nb.focus();
 }
 function nextDchQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderDchTest(); autoSave(); } else finishTest(); }
-function startDch(){
+function startDch(ins){
   if(!currentEleve){ accueil(); return; }
-  const qs=dchBuildQuestions();
+  const qs=dchBuildQuestions(ins);
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'dch', questions:qs, idx:0, score:0,
     maxScore:qs.length, answers:[], startTime:Date.now(),
     qTimer:null, fbTimer:null, locked:false});
-  test.qId='demontrer-chasles';
+  test.qId=ins ? 'demontrer-chasles-inserer' : 'demontrer-chasles';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('dch'); renderDchTest();
 }
@@ -74857,6 +74888,7 @@ function ctxDch(q){
    +(D.para ? ' ; remplacer un ou plusieurs vecteurs par des vecteurs égaux du parallélogramme '+D.para+' ('+D.para[0]+D.para[1]+' = '+D.para[3]+D.para[2]+', '+D.para[0]+D.para[3]+' = '+D.para[1]+D.para[2]+')' : '')
    +Object.keys(D.mil).map(function(c){ const e=D.mil[c]; return ' ; '+c+' est le milieu de ['+e+'] : remplacer '+e[0]+c+' par '+c+e[1]+' (ou '+c+e[0]+' par '+e[1]+c+'), et inversement'; }).join('')
    +'. Une étape qui en saute une ou plusieurs compte fausse : la page dit à l’élève de détailler. '
+   +(DCH_DEMOS[q.t].ins ? 'Ici, il faut INSÉRER un point dans un vecteur : l’idée en a été donnée à l’élève avant l’énoncé (par exemple CD = CA + AD, en passant par A). ' : '')
    +'Une rédaction possible, STRICTEMENT SECRÈTE (toute rédaction juste est acceptée) : '+bonne+'. '
    +'Guide l’élève étape par étape, sans donner la rédaction entière ; ne parle jamais de coordonnées.';
   if(!J.vide) c+=' Ce que l’élève a écrit : '+dchTxt(D.g)+' = '+J.M.map(function(m){ return m.l ? dchTxt(m.l) : chlMembreTxt(m.brut); }).join(' = ')+'.';

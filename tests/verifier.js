@@ -14774,7 +14774,9 @@ function demontrerChasles(w, P){
     /* ---- 0. la place : 8.2.13 ; pas de tables */
     if(TEST_NUM[D.exercice]!==D.numero) vus.push('numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
     if(TEST_NUM['somme-vecteurs-libre']!=='8.2.10' || TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['translation-pavage']!=='8.1.9') vus.push('un voisin du thème 8 a bougé');
-    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(TABLES_SANS.indexOf(D.exercice)<0 || TABLES_SANS.indexOf(D.inserer)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(TEST_NUM[D.inserer]!==D.numeroInserer) vus.push('les insertions : numéro '+TEST_NUM[D.inserer]+' au lieu de '+D.numeroInserer);
+    if(!QIA_SUGG_ID[D.inserer]) vus.push('les questions à l\\'IA des insertions manquent');
     if(RAPPELS.dch!==RAP_DCH || !QIA_SUGG.dch) vus.push('le rappel ou les questions à l\\'IA manquent');
 
     /* ---- le juge indépendant : des coordonnées au hasard ---------------- */
@@ -14794,28 +14796,33 @@ function demontrerChasles(w, P){
       return x+','+y; };
     const ecrit=function(l){ return l.map(function(t, i){ return t.charAt(0)==='-' ? t : (i?'+':'')+t; }).join(''); };
 
-    /* ---- 1. le tirage : 200 séances --------------------------------------- */
+    /* ---- 1. le tirage : 200 séances de chacun des deux exercices — le
+       8.2.13 sans aucune insertion, le 8.2.18 avec elles seules, l'exemple
+       de la demande en première page ---------------------------------------- */
     const plans={};
-    for(let s=0;s<200 && vus.length<4;s++){
-      const qs=dchBuildQuestions();
+    for(let s=0;s<400 && vus.length<4;s++){
+      const avecIns=s%2===1, qs=dchBuildQuestions(avecIns);
       if(qs.length!==D.nb){ vus.push(qs.length+' démonstrations au lieu de '+D.nb); break; }
       if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
-      if(!qs.some(function(q){ return q.t===0 && q.n==='ABCDMN'; })) vus.push('l’exemple de la demande manque à la séance');
-      const ins=qs.map(function(q){ return DCH_DEMOS[q.t].ins ? 1 : 0; });
-      if(ins.join('')!==ins.slice().sort().join('')) vus.push('une démonstration où il faut insérer un point n’est pas en fin de séance : '+qs.map(function(q){ return q.t; }).join(' '));
+      if(avecIns && !(qs[0].t===0 && qs[0].n==='ABCDMN')) vus.push('l’exemple de la demande n’ouvre pas la séance des insertions');
+      if(qs.some(function(q){ return !!DCH_DEMOS[q.t].ins!==avecIns; })) vus.push((avecIns ? 'les insertions tirent un plan sans insertion' : 'le 8.2.13 tire un plan où il faut insérer un point')+' : '+qs.map(function(q){ return q.t; }).join(' '));
       const ts=qs.map(function(q){ return q.t; });
       if(new Set(ts).size!==ts.length) vus.push('la même démonstration deux fois dans une séance : '+ts.join(' '));
       qs.forEach(function(q){ plans[q.t]=true;
         if(q.n.length!==6 || new Set(q.n.split('')).size!==6 || /[IOQ]/.test(q.n)) vus.push('lettres « '+q.n+' »'); });
     }
     if(vus.length) return vus.slice(0,4).join(' | ');
-    DCH_DEMOS.forEach(function(T, t){ if(!plans[t]) vus.push('le plan '+t+' ne sort jamais en 200 séances'); });
+    DCH_DEMOS.forEach(function(T, t){ if(!plans[t]) vus.push('le plan '+t+' ne sort jamais en 200 séances de son exercice'); });
+    if(DCH_DEMOS.filter(function(T){ return T.ins; }).length<D.nb+2) vus.push('trop peu de plans à insertion pour une séance variée');
     /* des milieux, seuls ou dans un parallélogramme (Turquet, octobre 2026) */
     if(!DCH_DEMOS.some(function(T){ return T.mil && !T.para; }) || !DCH_DEMOS.some(function(T){ return T.mil && T.para; })
       || !DCH_DEMOS.some(function(T){ return T.mil && Object.keys(T.mil).length>1; })) vus.push('il manque des démonstrations avec un milieu, deux milieux, ou un parallélogramme et un milieu');
-    /* les plans à insertion sont ceux dont la correction COUPE un vecteur de l'énoncé */
+    /* les plans à insertion sont ceux dont la correction COUPE un vecteur :
+       une étape qui ALLONGE la ligne (ni la réécriture, ni Chasles, ni le
+       vecteur nul retiré n'en ajoutent) */
     DCH_DEMOS.forEach(function(T, t){
-      const coupe=T.c.length && T.c[0].length>T.g.length && !T.g.some(function(v){ return v.charAt(0)==='-'; });
+      const L=[T.g].concat(T.c, [T.d]).map(function(l){ return l.filter(function(v){ return v!=='0'; }).length; });
+      const coupe=L.some(function(n, k){ return k && n>L[k-1]; });
       if(!!T.ins!==coupe) vus.push('plan '+t+' : marqué '+(T.ins?'':'sans ')+'insertion, mais sa correction '+(coupe?'':'n’')+'insère'+(coupe?'':' rien'));
     });
 
@@ -14870,6 +14877,11 @@ function demontrerChasles(w, P){
       [17, 'MB+BC\\nMC', 'j,j', 'un parallélogramme et un milieu'],
       [18, 'DM\\nMB', 'j,j', 'le centre du parallélogramme : DM = MB'],
       [19, 'AM+MB\\nAB', 'j,j', 'un parallélogramme et deux milieux : DN = MB'],
+      [21, 'AC+CB-CD\\nAC+DC+CB\\nAC+DB', 'j,j,j', 'insérer C, l’opposé et l’ordre, puis Chasles'],
+      [22, 'AC\\nAD+DC', 'j,j', 'Chasles, puis insérer D'],
+      [24, 'AC+CB\\nCB-CA', 'j,j', 'insérer C, puis l’ordre et l’opposé'],
+      [24, 'CB-CA', 'j1', 'AB = CB − CA d’un trait (l’insertion sautée)'],
+      [26, 'DA+AB\\nDB\\nDM+MB', 'j,j,j', 'un vecteur égal, Chasles, puis insérer M'],
       [0, 'AC+DB', 'faux', 'une ligne fausse'],
       [0, 'AB+CZ', 'illisible', 'un point hors de l’énoncé']];
     ATT.forEach(function(a){ const e=etats(a[0], a[1]); if(e!==a[2]) vus.push(a[3]+' : '+e+' au lieu de '+a[2]); });
@@ -14887,6 +14899,13 @@ function demontrerChasles(w, P){
     const texte=el('dchInstr').textContent.replace(/\\s+/g,' ');
     if(!/A, B, C et D sont quatre points du plan/.test(texte) || !/Montrer que AB \\+ CD = AD \\+ CB/.test(texte) || !/une étape par ligne/.test(texte)) vus.push('l’énoncé dit « '+texte.slice(0,160)+' »');
     if(!el('dchInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
+    /* l'idée de l'insertion, AVANT l'énoncé — et seulement là où il faut insérer */
+    const idee=function(){ return el('dchIdee').textContent.replace(/\\s+/g,' '); };
+    if(!/insérer un point/.test(idee()) || !/CD = CA \\+ AD/.test(idee())) vus.push('l’idée de l’insertion dit « '+idee()+' »');
+    if(!(el('dchIdee').compareDocumentPosition(el('dchInstr')) & Node.DOCUMENT_POSITION_FOLLOWING)) vus.push('l’idée ne vient pas avant l’énoncé');
+    test.questions[0]={t:1, n:'ABCDMN', v:0}; renderDchTest();
+    if(idee()) vus.push('le 8.2.13, sans insertion, montre l’idée « '+idee()+' »');
+    test.questions[0]={t:0, n:'ABCDMN', v:0}; renderDchTest();
     const enonce=function(tt){ return dchEnonceHTML({t:tt, n:'ABCDMN', v:0}).replace(/<[^>]*>/g,'').replace(/\\s+/g,' '); };
     if(!/A, B et C sont trois points du plan ; M est le milieu de \\[AB\\] et D est le milieu de \\[AC\\]/.test(enonce(15))) vus.push('l’énoncé de deux milieux dit « '+enonce(15).slice(0,120)+' »');
     if(!/ABCD est un parallélogramme ; M est son centre, le milieu de ses diagonales \\[AC\\] et \\[BD\\]/.test(enonce(18))) vus.push('l’énoncé du centre dit « '+enonce(18).slice(0,120)+' »');
@@ -14963,7 +14982,15 @@ function demontrerChasles(w, P){
     /* le contexte du modèle */
     test.questions[0]={t:0, n:'ABCDMN', v:0}; test.locked=false; renderDchTest();
     const ctx=ctxDch(test.questions[0]).contexte;
-    if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/AD \\+ DB \\+ CB \\+ BD/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni la rédaction attendue');
+    if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/AD \\+ DB \\+ CB \\+ BD/.test(ctx) || !/INSÉRER un point/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni la rédaction attendue, ni l’insertion');
+
+    /* ---- 5. l'exercice des insertions, par son bouton : même moteur, son
+       identité, l'exemple de la demande en tête, l'idée avant l'énoncé ---- */
+    currentTestId=D.inserer; TESTS[D.inserer].start();
+    if(test.kind!=='dch' || test.qId!==D.inserer) vus.push('les insertions : kind « '+test.kind+' », qId « '+test.qId+' »');
+    if(!test.questions.every(function(q){ return DCH_DEMOS[q.t].ins; }) || test.questions[0].t!==0) vus.push('les insertions tirent '+test.questions.map(function(q){ return q.t; }).join(' '));
+    if(!/insérer un point/.test(idee()) || !/Montrer que AB \\+ CD = AD \\+ CB/.test(el('dchInstr').textContent.replace(/\\s+/g,' '))) vus.push('les insertions, première page : idée « '+idee()+' »');
+    currentTestId=D.exercice;
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
