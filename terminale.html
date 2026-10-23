@@ -2091,7 +2091,9 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 #ecbForm .tg-line{gap:8px 18px}
 #ecbForm .tg-sub{margin:16px 0 4px}
 #ecbForm .tg-in{width:56px}
-.ecb-fig{max-width:600px;margin:4px auto 6px;cursor:crosshair;touch-action:manipulation}
+.ecb-fig{max-width:600px;margin:4px auto 6px}
+.ecb-fig-a{max-width:400px;margin:0 auto 2px}
+.ecb-fig-c{cursor:crosshair;touch-action:manipulation;margin-top:8px}
 .ecb-svg{display:block;width:100%;height:auto;color:var(--ink);user-select:none;-webkit-user-select:none}
 .ecb-fond{fill:transparent}
 .ecb-ar{stroke:var(--ink);stroke-width:1.8;stroke-linecap:round}
@@ -4166,7 +4168,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=437;
+const APP_VERSION=438;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4406,7 +4408,7 @@ const TESTS={
   'espace-droite-parametrique': { name:'Espace \u2014 \u00e9quation param\u00e9trique d\u2019une droite', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteurs 3 \u00bb\u00a0: l\u2019\u00e9quation param\u00e9trique d\u2019une droite d\u00e9finie par un point et un vecteur directeur, ou par deux points\u00a0; puis un point appartient-il \u00e0 la droite\u00a0? La r\u00e9daction compl\u00e8te, syst\u00e8me apr\u00e8s syst\u00e8me, jusqu\u2019aux trois valeurs de t. Trois questions.', start:()=>startEDP() },
   'espace-droites-paralleles': { name:'Espace \u2014 deux droites parall\u00e8les\u00a0?', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 5 \u00bb\u00a0: deux droites donn\u00e9es par leurs \u00e9quations param\u00e9triques sont-elles parall\u00e8les\u00a0? La propri\u00e9t\u00e9, un vecteur directeur de chaque droite, les trois quotients \u00ab\u00a0fin / d\u00e9but\u00a0\u00bb (fraction simplifi\u00e9e ou valeur approch\u00e9e), puis la conclusion. Trois questions.', start:()=>startEPA() },
   'espace-droites-secantes': { name:'Espace \u2014 deux droites s\u00e9cantes, le point d\u2019intersection', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteurs 6 \u00bb\u00a0: deux droites donn\u00e9es par leurs \u00e9quations param\u00e9triques sont-elles s\u00e9cantes, et en quel point\u00a0? On colle les deux \u00e9quations, on isole t, on le remplace, on trouve t\u2032 puis t, on v\u00e9rifie dans la derni\u00e8re \u00e9quation, puis on calcule le point d\u2019intersection. Chaque case est un nombre. Trois questions.', start:()=>startEDS() },
-  'espace-cube': { name:'Espace \u2014 le cube\u00a0: coordonn\u00e9es, vecteurs, points \u00e0 placer', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteurs 4 \u00bb\u00a0: un cube ABCDEFGH et le rep\u00e8re (A\u00a0; AB, AD, AE). Lis les coordonn\u00e9es des sommets et de points pos\u00e9s sur les ar\u00eates ou leurs prolongements, calcule celles de trois vecteurs, puis place trois points sur la figure. Deux cubes.', start:()=>startECB() },
+  'espace-cube': { name:'Espace \u2014 le cube\u00a0: coordonn\u00e9es, vecteurs, points \u00e0 placer', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteurs 4 \u00bb\u00a0: un cube ABCDEFGH et le rep\u00e8re (A\u00a0; AB, AD, AE). Lis les coordonn\u00e9es de deux sommets et de deux points pos\u00e9s sur les ar\u00eates ou leurs prolongements, calcule celles de deux vecteurs, puis place trois points sur une seconde figure. Deux cubes.', start:()=>startECB() },
   'espace-positions-droites': { name:'Espace \u2014 droites parall\u00e8les, s\u00e9cantes ou non coplanaires', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 7 \u00bb\u00a0: un pav\u00e9 droit ABCDEFGH et deux droites trac\u00e9es sur la figure \u2014 ar\u00eates, diagonales d\u2019une face ou du pav\u00e9. Sont-elles parall\u00e8les, s\u00e9cantes ou non coplanaires\u00a0? Six questions.', start:()=>startEPO() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
@@ -30382,10 +30384,16 @@ function edsConseilCtx(){
    Demande de Turquet (octobre 2026), avec la fiche « vecteurs 4 » : « créer un
    exercice dans vecteurs et droites de l'espace, comme le pdf joint ». Un cube
    ABCDEFGH, le repère (A ; AB⃗ ; AD⃗ ; AE⃗), et les trois questions de la fiche :
-     a) les coordonnées des huit sommets et de quatre points I, J, K, L ;
-     b) les coordonnées de trois vecteurs, présentées comme au 7.1.2 et au
-        7.1.3 : XY⃗ (… − …) en colonne, donc XY⃗ (…) ;
-     c) trois points M, N, O à PLACER sur la figure, au clic.
+     a) les coordonnées des points qui servent au b) — deux sommets, et
+        deux points I et J posés sur des arêtes ;
+     b) les coordonnées de DEUX vecteurs (point → sommet, sommet → point),
+        présentées comme au 7.1.2 et au 7.1.3 : XY⃗ (… − …) en colonne,
+        donc XY⃗ (…) ;
+     c) trois points M, N, O à PLACER, au clic, sur une SECONDE figure du
+        même cube — la première, sans rien à placer, se resserre sur le
+        cube (Turquet, octobre 2026 : « ne demander que deux vecteurs, et
+        au a) que les points de ces deux vecteurs ; refaire une figure pour
+        le c) »).
    Les règles de la demande :
      • une coordonnée qui n'est pas 0 ou 1 vaut ±0,25 ; ±0,5 ; ±0,75 ; −1 ;
        ±1,25 ; ±1,5 — chaque point est sur une ARÊTE ou sur son PROLONGEMENT,
@@ -30397,7 +30405,7 @@ function edsConseilCtx(){
    Le sommet caché est celui du bas, à gauche, à l'arrière ; ses trois arêtes
    sont en pointillés. Aucun point ne se pose sur le prolongement d'une arête
    cachée AU-DELÀ du sommet caché : il y serait derrière le cube. Les arêtes
-   qui portent I, J, K, L sont graduées en quarts : c'est ce qui se lit.
+   qui portent I et J sont graduées en quarts : c'est ce qui se lit.
    Les points placés au c) vivent dans la question (q.place, du JSON) : la
    pause les garde. Le clic se cale sur le quart d'arête le plus proche
    (ecbPoser, sans clic, sert au banc). Un point placé compte comme une case
@@ -30406,7 +30414,7 @@ const ECB_NBQ=2;
 const ECB_S=120, ECB_PROF=[0.5,-0.36];   /* la fuite : vers l'arrière, en haut à droite */
 const ECB_SOM=['A','B','D','E','C','F','H','G'];
 const ECB_COORD={A:[0,0,0],B:[1,0,0],C:[1,1,0],D:[0,1,0],E:[0,0,1],F:[1,0,1],G:[1,1,1],H:[0,1,1]};
-const ECB_PTS=['I','J','K','L'], ECB_PLC=['M','N','O'];
+const ECB_PTS=['I','J'], ECB_PLC=['M','N','O'];
 const ECB_T_ARETE=[0.25,0.5,0.75], ECB_T_PROL=[-1.5,-1.25,-1,-0.75,-0.5,-0.25,1.25,1.5];
 const ECB_T_TOUS=ECB_T_PROL.concat(ECB_T_ARETE);
 /* les trois vecteurs de base à l'écran : AB⃗, AD⃗, AE⃗ */
@@ -30499,21 +30507,22 @@ function ecbTirerPoints(cfg, n, deja, interdites){
 function ecbGen(){
   for(let essai=0; essai<200; essai++){
     const cfg={face:pick(['arr','av']), ab:pick(['p','h'])};
-    const a=ecbTirerPoints(cfg,4,[],[]); if(!a) continue;
-    const c=ecbTirerPoints(cfg,3,a.pts,[]); if(!c) continue;
+    const a=ecbTirerPoints(cfg,2,[],[]); if(!a) continue;
+    const c=ecbTirerPoints(cfg,3,[],[]); if(!c) continue;   /* la seconde figure : rien n'y gêne */
     const pts=a.pts.map((P,i)=>({L:ECB_PTS[i],P:P}));
-    /* les vecteurs, comme la fiche : sommet → sommet (pas une arête), point →
-       sommet, sommet → point */
-    const diff=(X,Y)=>[0,1,2].filter(k=>ECB_COORD[X][k]!==ECB_COORD[Y][k]).length;
-    let X,Y; do{ X=pick(ECB_SOM); Y=pick(ECB_SOM); }while(X===Y || diff(X,Y)<2);
-    const p1=pick(ECB_PTS), S1=pick(ECB_SOM);
-    let p2, S2; do{ p2=pick(ECB_PTS); S2=pick(ECB_SOM); }while((S2===S1&&p2===p1) || S2===X&&p2===Y);
-    return {cfg:cfg, pts:pts, vecs:[[X,Y],[p1,S1],[S2,p2]], plc:c.pts.map((P,i)=>({L:ECB_PLC[i],P:P})), place:{}};
+    /* deux vecteurs, comme JD⃗ et EJ⃗ de la fiche : point → sommet, sommet →
+       point — deux points et deux sommets différents */
+    const p1=pick(ECB_PTS), p2=p1==='I'?'J':'I', S1=pick(ECB_SOM);
+    let S2; do{ S2=pick(ECB_SOM); }while(S2===S1);
+    return {cfg:cfg, pts:pts, vecs:[[p1,S1],[S2,p2]], plc:c.pts.map((P,i)=>({L:ECB_PLC[i],P:P})), place:{}};
   }
   return null;
 }
 function ecbGenSession(){ return distinctes(ECB_NBQ, function(){ return ecbGen(); }); }
 function ecbCo(q,L){ if(ECB_COORD[L]) return ECB_COORD[L]; const p=q.pts.find(x=>x.L===L); return p?p.P:null; }
+/* les points du a) : ceux des vecteurs du b), dans l'ordre où ils viennent */
+function ecbPtsA(q){ const out=[]; q.vecs.forEach(v=>v.forEach(L=>{ if(out.indexOf(L)<0) out.push(L); })); return out; }
+function ecbPtsVus(q){ const a=ecbPtsA(q); return q.pts.filter(p=>a.indexOf(p.L)>=0); }
 function ecbVecCo(q,v){ const X=ecbCo(q,v[0]), Y=ecbCo(q,v[1]); return [0,1,2].map(k=>Y[k]-X[k]); }
 /* Toutes les cases et leur bonne réponse — UNE liste, lue par le rendu, le
    juge, la correction et le contexte de l'aide. Les points du c) sont des
@@ -30521,7 +30530,7 @@ function ecbVecCo(q,v){ const X=ecbCo(q,v[0]), Y=ecbCo(q,v[1]); return [0,1,2].m
 const ECB_CO=['x','y','z'];
 function ecbCases(q){
   const out=[], N=(id,good,nom)=>out.push({id:id,type:'num',good:good,nom:nom});
-  ECB_SOM.concat(ECB_PTS).forEach(function(L){ const P=ecbCo(q,L);
+  ecbPtsA(q).forEach(function(L){ const P=ecbCo(q,L);
     ECB_CO.forEach(function(co,k){ N('ecb-a-'+L+k,P[k],co+' de '+L); }); });
   q.vecs.forEach(function(v,j){ const X=ecbCo(q,v[0]), Y=ecbCo(q,v[1]), n=v[0]+v[1], c=ecbVecCo(q,v);
     ECB_CO.forEach(function(co,k){
@@ -30555,11 +30564,14 @@ function ecbVerdicts(q, lire){
 }
 /* ---- la figure ---- */
 let ecbActif='M', ecbEtat={}, ecbSurvol=null;
-function ecbCadre(q){
+/* le cadre d'une figure : celle du c) couvre toutes les places permises (le
+   cadre ne trahit rien) ; celle du a) se resserre sur le cube et ses points */
+function ecbCadre(q,mode){
   const cfg=q.cfg; let mx=Infinity, Mx=-Infinity, my=Infinity, My=-Infinity;
   const vu=P=>{ const p=ecbProj(cfg,P); mx=Math.min(mx,p[0]); Mx=Math.max(Mx,p[0]); my=Math.min(my,p[1]); My=Math.max(My,p[1]); };
-  ecbLignes().forEach(l=>{ [-1.5,0,1,1.5].forEach(t=>{ if(ecbPermis(cfg,l,t)) vu(ecbSur(l,t)); }); });
-  const pad=26;
+  if(mode==='a'){ ECB_SOM.forEach(L=>vu(ECB_COORD[L])); ecbPtsVus(q).forEach(p=>vu(p.P)); }
+  else ecbLignes().forEach(l=>{ [-1.5,0,1,1.5].forEach(t=>{ if(ecbPermis(cfg,l,t)) vu(ecbSur(l,t)); }); });
+  const pad=mode==='a'?28:26;
   return {ox:pad-mx, oy:pad-my, W:Mx-mx+2*pad, H:My-my+2*pad};
 }
 function ecbCandidats(q){
@@ -30567,8 +30579,8 @@ function ecbCandidats(q){
   ecbLignes().forEach(l=>{ ECB_T_TOUS.forEach(t=>{ if(ecbPermis(q.cfg,l,t)) out.push(ecbSur(l,t)); }); });
   return out;
 }
-function ecbSVG(q){
-  const cfg=q.cfg, c=ecbCadre(q), f=v=>v.toFixed(1);
+function ecbSVG(q,mode){
+  const cfg=q.cfg, c=ecbCadre(q,mode), f=v=>v.toFixed(1), pts=mode==='a'?ecbPtsVus(q):[];
   const X=P=>{ const p=ecbProj(cfg,P); return [p[0]+c.ox,p[1]+c.oy]; };
   const seg=(a,b,cl)=>'<line x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0])+'" y2="'+f(b[1])+'" class="'+cl+'"/>';
   const ctr=X([0.5,0.5,0.5]);
@@ -30589,8 +30601,8 @@ function ecbSVG(q){
     g+=seg(A,[Bp[0]-8*Math.cos(ang),Bp[1]-8*Math.sin(ang)],'ecb-base '+b[1]+(cache?' ecb-cache':''))
       +'<polygon points="'+f(Bp[0])+','+f(Bp[1])+' '+f(p1[0])+','+f(p1[1])+' '+f(p2[0])+','+f(p2[1])+'" class="ecb-fl '+b[1]+'"/>';
   });
-  /* I, J, K, L : l'arête graduée en quarts, prolongée s'il le faut */
-  q.pts.forEach(function(p){
+  /* I et J : l'arête graduée en quarts, prolongée s'il le faut */
+  pts.forEach(function(p){
     const l=ecbLigneDe(p.P), t=p.P[l.k], P0=X(ecbSur(l,0)), P1=X(ecbSur(l,1));
     g+=prol(p.P,'ecb-prol');
     const vx=P1[0]-P0[0], vy=P1[1]-P0[1], n=Math.hypot(vx,vy), nx=-vy/n*5, ny=vx/n*5;
@@ -30605,8 +30617,8 @@ function ecbSVG(q){
   /* les étiquettes : chacune à la place la plus dégagée autour de son point —
      loin des traits, des points et des étiquettes déjà posées */
   const traits=ecbLignes().map(l=>[X(ecbSur(l,0)),X(ecbSur(l,1))]);
-  q.pts.forEach(function(p){ const l=ecbLigneDe(p.P), t=p.P[l.k]; if(t<0||t>1) traits.push([X(ecbSur(l,t<0?0:1)),X(p.P)]); });
-  const marques=ECB_SOM.map(L=>X(ECB_COORD[L])).concat(q.pts.map(p=>X(p.P))), poses=[];
+  pts.forEach(function(p){ const l=ecbLigneDe(p.P), t=p.P[l.k]; if(t<0||t>1) traits.push([X(ecbSur(l,t<0?0:1)),X(p.P)]); });
+  const marques=ECB_SOM.map(L=>X(ECB_COORD[L])).concat(pts.map(p=>X(p.P))), poses=[];
   const etiq=function(m,txt,cl){
     let best=null, bs=-Infinity;
     for(let i=0;i<16;i++){
@@ -30620,8 +30632,9 @@ function ecbSVG(q){
     poses.push(best);
     return '<text x="'+f(best[0])+'" y="'+f(best[1]+6)+'" text-anchor="middle" class="'+cl+'">'+txt+'</text>';
   };
-  q.pts.forEach(function(p){ g+=etiq(X(p.P),p.L,'ecb-lp'); });
+  pts.forEach(function(p){ g+=etiq(X(p.P),p.L,'ecb-lp'); });
   ECB_SOM.forEach(function(L){ g+=etiq(X(ECB_COORD[L]),L,'ecb-ls'); });
+  if(mode==='a') return '<svg class="ecb-svg" id="ecbSvgA" viewBox="0 0 '+f(c.W)+' '+f(c.H)+'" role="img" aria-label="Le cube ABCDEFGH, son repère et les points '+pts.map(p=>p.L).join(' et ')+'">'+g+'</svg>';
   /* c) les points placés par l'élève, et la correction */
   const marque=(P,L,cl,pts)=>{ const m=X(P);
     return prol(P,'ecb-prol ecb-prol-pl'+(cl?' '+cl:'').replace(/\bpts-case\b/,''))
@@ -30634,11 +30647,12 @@ function ecbSVG(q){
     if(!Array.isArray(P) && v==='sol') g+=marque(p.P,p.L,'sol',true);
   });
   if(ecbSurvol && !test.locked) g+=marque(ecbSurvol,ecbActif,'ecb-fant',false);
-  return '<svg class="ecb-svg" id="ecbSvg" viewBox="0 0 '+f(c.W)+' '+f(c.H)+'" role="img" aria-label="Le cube ABCDEFGH et son repère">'+g+'</svg>';
+  return '<svg class="ecb-svg" id="ecbSvg" viewBox="0 0 '+f(c.W)+' '+f(c.H)+'" role="img" aria-label="Le cube ABCDEFGH, où placer les points M, N et O">'+g+'</svg>';
 }
 function ecbDessiner(){
-  const q=test.questions[test.idx], h=$('ecbFig'); if(!q||!h) return;
-  h.innerHTML=ecbSVG(q);
+  const q=test.questions[test.idx], h=$('ecbFig2'); if(!q||!h) return;
+  const ha=$('ecbFig'); if(ha && !ha.firstChild) ha.innerHTML=ecbSVG(q,'a');   /* la figure du a) ne change pas */
+  h.innerHTML=ecbSVG(q,'c');
   q.plc.forEach(function(p){ const b=$('ecb-b-'+p.L); if(!b) return;
     b.classList.toggle('actif', p.L===ecbActif && !test.locked);
     b.classList.toggle('pose', Array.isArray((q.place||{})[p.L])); });
@@ -30666,12 +30680,12 @@ function ecbPointSvg(evt){
 /* le quart d'arête le plus proche du pointeur, s'il est assez près */
 function ecbCaler(evt){
   const q=test.questions[test.idx], p=ecbPointSvg(evt); if(!q||!p) return null;
-  const c=ecbCadre(q); let best=null, bd=30;
+  const c=ecbCadre(q,'c'); let best=null, bd=30;
   ecbCandidats(q).forEach(function(P){ const m=ecbProj(q.cfg,P), d=Math.hypot(m[0]+c.ox-p[0], m[1]+c.oy-p[1]); if(d<bd){ bd=d; best=P; } });
   return best;
 }
 function ecbBrancher(){
-  const h=$('ecbFig'); if(!h) return;
+  const h=$('ecbFig2'); if(!h) return;
   h.onclick=function(evt){ if(test.locked||test.kind!=='ecb') return; const P=ecbCaler(evt); if(P){ ecbSurvol=null; ecbPoser(ecbActif,P); } };
   h.onpointermove=function(evt){ if(test.locked||test.kind!=='ecb'||evt.pointerType==='touch') return; const P=ecbCaler(evt);
     if(String(P)!==String(ecbSurvol)){ ecbSurvol=P; ecbDessiner(); } };
@@ -30685,28 +30699,29 @@ function ecbFormHTML(q){
   const NW=h=>'<span class="ecb-nw">'+h+'</span>';   /* la lettre ne se sépare pas de sa parenthèse */
   const P=x=>'<span class="elg-par">'+x+'</span>';
   const col=rows=>P('<span class="elg-col">'+rows.map(r=>'<span class="elg-row">'+r+'</span>').join('')+'</span>');
-  let h='<div class="ecb-fig" id="ecbFig"></div>';
+  let h='<div class="ecb-fig ecb-fig-a" id="ecbFig"></div>';
   h+='<div class="tg-sub">a) Donne les coordonnées des points dans ce repère :</div>';
-  const ordre=ECB_SOM.concat(ECB_PTS);
-  for(let r=0;r<3;r++) h+=L(ordre.slice(4*r,4*r+4).map(Lt=>NW(T('<i>'+Lt+'</i>&nbsp;(')+I('ecb-a-'+Lt+'0')+T(';')+I('ecb-a-'+Lt+'1')+T(';')+I('ecb-a-'+Lt+'2')+T(')'))).join(''), 'ecb-l ecb-pts');
+  const ordre=ecbPtsA(q);
+  for(let r=0;r<ordre.length;r+=4) h+=L(ordre.slice(r,r+4).map(Lt=>NW(T('<i>'+Lt+'</i>&nbsp;(')+I('ecb-a-'+Lt+'0')+T(';')+I('ecb-a-'+Lt+'1')+T(';')+I('ecb-a-'+Lt+'2')+T(')'))).join(''), 'ecb-l ecb-pts');
   h+='<div class="tg-sub">b) Calcule les coordonnées des vecteurs '+q.vecs.map(v=>elgVec(v[0]+v[1])).join(' ; ')+' :</div>';
   q.vecs.forEach(function(v,j){ const n=elgVec(v[0]+v[1]);
     h+=L(NW(T(n)+col([0,1,2].map(k=>I('ecb-v'+j+'-'+k+'y')+T('−')+I('ecb-v'+j+'-'+k+'x'))))
       +NW(T('donc :&nbsp;')+T(n)+col([0,1,2].map(k=>I('ecb-v'+j+'-c'+k)))), 'ecb-l');
   });
   h+='<div class="tg-sub">c) Place sur la figure les points : '+q.plc.map(p=>'<span class="ecb-nw"><i>'+p.L+'</i>&nbsp;('+p.P.map(numFmt).join(' ; ')+')</span>').join(' ; ')+'</div>';
+  h+='<div class="ecb-fig ecb-fig-c" id="ecbFig2"></div>';
   h+=L(T('Point à placer :')+q.plc.map(p=>'<button type="button" class="ecb-bp" id="ecb-b-'+p.L+'" onclick="ecbChoisir(\''+p.L+'\')">'+p.L+'</button>').join(''), 'ecb-l');
   h+='<p class="ecb-aide">Choisis un point, puis clique sur la figure à l’endroit où il se trouve — sur une arête, ou sur son prolongement : l’arête se prolonge jusqu’au point. Un nouveau clic le déplace.</p>';
   return h;
 }
 function ecbPromptHTML(q){
   return '<i>ABCDEFGH</i> est un cube. (<i>A</i> ; '+elgVec('AB')+' ; '+elgVec('AD')+' ; '+elgVec('AE')+') est un repère de l’espace. '
-    +'Les points <i>I</i>, <i>J</i>, <i>K</i> et <i>L</i> sont sur des arêtes du cube ou sur leurs prolongements ; les graduations partagent ces arêtes en quatre.';
+    +'Les points '+ecbPtsVus(q).map(p=>'<i>'+p.L+'</i>').join(' et ')+' sont sur des arêtes du cube ou sur leurs prolongements ; les graduations partagent ces arêtes en quatre.';
 }
 function ecbPlain(q){
   const face=q.cfg.face==='arr'?'A en bas à gauche sur la face arrière':'A en bas à gauche sur la face avant';
   return 'cube ABCDEFGH, repère (A ; AB, AD, AE), '+face+' ; points sur les arêtes ou leurs prolongements : '
-    +q.pts.map(p=>ecbPtTxt(p.L,p.P)).join(', ')+' ; vecteurs à calculer : '+q.vecs.map(v=>v[0]+v[1]).join(', ')
+    +ecbPtsVus(q).map(p=>ecbPtTxt(p.L,p.P)).join(', ')+' ; vecteurs à calculer : '+q.vecs.map(v=>v[0]+v[1]).join(', ')
     +' ; points à placer : '+q.plc.map(p=>ecbPtTxt(p.L,p.P)).join(', ');
 }
 /* ---- cycle de vie ---- */
@@ -30731,7 +30746,7 @@ function renderECB(){
   $('ecbFeedback').textContent=''; $('ecbFeedback').className='mp-feedback';
   $('ecbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkECB()">Vérifier</button>';
   $('ecbPrompt').innerHTML=ecbPromptHTML(q);
-  $('ecbForm').innerHTML=ecbFormHTML(q);
+  $('ecbForm').innerHTML=ecbFormHTML(q);   /* le formulaire neuf vide les deux figures */
   ecbBrancher(); ecbDessiner();
   if(isSoutien()){
     ecbCases(q).forEach(function(x){ const el=$(x.id); if(el) el.addEventListener('input', function(){ checkECB(true); }); });
@@ -30741,7 +30756,7 @@ function ecbRetiens(q){
   return 'La clé : dans le repère (<i>A</i> ; '+elgVec('AB')+' ; '+elgVec('AD')+' ; '+elgVec('AE')+'), on part de <i>A</i> et on compte combien de fois on avance de '+elgVec('AB')+' (l’abscisse <i>x</i>), de '+elgVec('AD')+' (l’ordonnée <i>y</i>), puis de '+elgVec('AE')+' (la cote <i>z</i>). '
     +'Un point sur une arête parallèle à (<i>AB</i>) a la même ordonnée et la même cote que les extrémités de l’arête ; seule son abscisse varie — de même pour les autres arêtes. Au-delà d’un sommet, sur le prolongement, la coordonnée dépasse 1 ou devient négative. '
     +'Un vecteur '+elgVec('XY')+' : « arrivée − départ », <i>x<sub>Y</sub></i> − <i>x<sub>X</sub></i>. '
-    +'Ici : '+q.pts.map(p=>'<i>'+p.L+'</i>('+p.P.map(numFmt).join(' ; ')+')').join(', ')+' ; '
+    +'Ici : '+ecbPtsVus(q).map(p=>'<i>'+p.L+'</i>('+p.P.map(numFmt).join(' ; ')+')').join(', ')+' ; '
     +q.vecs.map(v=>elgVec(v[0]+v[1])+'('+ecbVecCo(q,v).map(numFmt).join(' ; ')+')').join(', ')+'.';
 }
 function checkECB(live){
@@ -30799,7 +30814,7 @@ function checkECB(live){
   $('ecbActions').innerHTML='<button class="btn btn-primary" onclick="nextECB()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
 }
 function ecbRepPlain(q){
-  return ECB_SOM.concat(ECB_PTS).map(L=>ecbPtTxt(L,ecbCo(q,L))).join(' ; ')+' ; '
+  return ecbPtsA(q).map(L=>ecbPtTxt(L,ecbCo(q,L))).join(' ; ')+' ; '
     +q.vecs.map(v=>'vecteur '+v[0]+v[1]+'('+ecbVecCo(q,v).map(numFmt).join(' ; ')+')').join(' ; ');
 }
 function nextECB(){ if(test.idx<test.questions.length-1){ test.idx++; renderECB(); } else finishTest(); }
@@ -30811,7 +30826,7 @@ function ecbConseilCtx(){
     if(x.type==='plc'){ const P=(q.place||{})[x.id.slice(6)]; return x.nom+' = '+(Array.isArray(P)?'placé en ('+P.map(numFmt).join(' ; ')+')':'(pas encore placé)'); }
     const el=$(x.id); const v=el?String(el.value||'').trim():''; return x.nom+' = '+(v===''?'(vide)':'« '+v+' »'); }).join(' ; ');
   return 'Exercice de Terminale (géométrie dans l’espace, coordonnées dans un cube) : '+ecbPlain(q)+'. '
-    +'Questions : a) coordonnées des sommets A, B, D, E, C, F, H, G et des points I, J, K, L lus sur la figure (graduations en quarts d’arête) ; b) coordonnées de trois vecteurs, rédigées « XY (xY − xX ; yY − yX ; zY − zX) donc XY (…) » en colonnes ; c) placer M, N, O sur la figure, sur une arête ou sur son prolongement. '
+    +'Questions : a) coordonnées des points '+ecbPtsA(q).join(', ')+' lues sur la figure (graduations en quarts d’arête) ; b) coordonnées de deux vecteurs, rédigées « XY (xY − xX ; yY − yX ; zY − zX) donc XY (…) » en colonnes ; c) placer M, N, O sur une seconde figure du cube, sur une arête ou sur son prolongement. '
     +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
     +cases.map(function(x){ return x.nom+' = '+ecbAff(x); }).join(' ; ')+'. '
     +'Saisies actuelles de l’élève : '+etat+'. '

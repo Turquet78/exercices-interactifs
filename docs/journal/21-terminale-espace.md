@@ -249,6 +249,34 @@ acceptées, la fraction masquée exactement quand 1 est écrit, un vecteur
 contraire au choix du menu refusé, la correction en vert partie du point B
 et de BA⃗ choisis par la copie.
 
+**Puis les flèches dans le choix, et des t entiers (Turquet, octobre 2026,
+v436).**
+
+* **« Je veux voir les flèches au-dessus des lettres quand on choisit AB ou
+  BA. »** Une `<option>` ne sait pas dessiner une flèche au-dessus de deux
+  lettres (la flèche combinante sort en carré). Le choix se fait donc par
+  deux pastilles, `AB⃗` et `BA⃗` dessinées comme partout (`elgVec`) ; le
+  menu `edp-vn` reste, CACHÉ, et porte l'état — c'est lui que lisent le
+  juge, la pause (`captureBoxes`) et la note (`ptsEcran`). `edpPastilles()`
+  recopie sur la pastille choisie la couleur du menu et son verrou. Piège vu
+  à la capture : après la vérification, le menu caché RÉAPPARAISSAIT en tête
+  de ligne — les règles `.tvi-sel.ok` / `:disabled` l'emportaient sur
+  l'opacité ; le masquage passe par `#edpForm select.edp-vn-cache` et
+  `!important`.
+* **« Pour les points, des valeurs entières entre −3 et 3 pour les trois
+  t. »** Quel que soit le choix de l'élève : depuis B, t devient t − 1, et
+  BA⃗ en change le signe. Par deux points, t se tire donc entre −2 et 3
+  (ni 0 ni 1 pour un point sur la droite, qui serait A ou B) ; avec un
+  point et un vecteur, entre −3 et 3, sans 0. Un point HORS de la droite a
+  trois t entiers tirés dans les mêmes bornes, pas tous égaux — il n'y a
+  plus de t en fraction. Le repli sans tirage reprend les nombres de la
+  fiche avec des t dans les bornes.
+
+**Éprouvé** : 5 000 séances, 45 072 couples (point, choix) — chaque t entier
+entre −3 et 3, trois t égaux exactement quand le point est sur la droite,
+les deux points de la forme 1 jamais du même côté ; les huit copies justes
+de nouveau acceptées.
+
 ## 7.1.4 — deux droites parallèles ? (`espace-droites-paralleles`, kind `epa`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteur 5 » : « créer un
@@ -389,33 +417,30 @@ dessins tirés à parts égales ; et dans Chromium, de vrais clics : un point
 posé juste compté juste, un point posé ailleurs compté faux, un point oublié
 montré en vert, « 21 cases justes sur 66 » pour 21 saisies justes.
 
-**Puis les flèches dans le choix, et des t entiers (Turquet, octobre 2026,
-v436).**
+**Puis deux vecteurs, et une seconde figure pour le c)** (Turquet, octobre
+2026, v437 : « dans la question b ne demande que deux vecteurs, et dans la
+question a que les points de ces deux vecteurs ; refaire une figure pour la
+question c où on placera les trois points ; sur la première figure il n'y a
+plus de point à tracer, et on gagne de la place entre l'énoncé et la
+question a »). Le b) garde les deux vecteurs de la fiche qui passent par un
+point : point → sommet, sommet → point (JD⃗, EJ⃗) — l'un part de I, l'autre
+arrive en J, ou l'inverse, deux sommets différents. Le a) ne demande que
+leurs quatre extrémités (`ecbPtsA`), dans l'ordre des vecteurs : 33 cases par
+cube (12 + 18 + 3) au lieu de 66. Il n'y a plus que I et J sur la figure.
 
-* **« Je veux voir les flèches au-dessus des lettres quand on choisit AB ou
-  BA. »** Une `<option>` ne sait pas dessiner une flèche au-dessus de deux
-  lettres (la flèche combinante sort en carré). Le choix se fait donc par
-  deux pastilles, `AB⃗` et `BA⃗` dessinées comme partout (`elgVec`) ; le
-  menu `edp-vn` reste, CACHÉ, et porte l'état — c'est lui que lisent le
-  juge, la pause (`captureBoxes`) et la note (`ptsEcran`). `edpPastilles()`
-  recopie sur la pastille choisie la couleur du menu et son verrou. Piège vu
-  à la capture : après la vérification, le menu caché RÉAPPARAISSAIT en tête
-  de ligne — les règles `.tvi-sel.ok` / `:disabled` l'emportaient sur
-  l'opacité ; le masquage passe par `#edpForm select.edp-vn-cache` et
-  `!important`.
-* **« Pour les points, des valeurs entières entre −3 et 3 pour les trois
-  t. »** Quel que soit le choix de l'élève : depuis B, t devient t − 1, et
-  BA⃗ en change le signe. Par deux points, t se tire donc entre −2 et 3
-  (ni 0 ni 1 pour un point sur la droite, qui serait A ou B) ; avec un
-  point et un vecteur, entre −3 et 3, sans 0. Un point HORS de la droite a
-  trois t entiers tirés dans les mêmes bornes, pas tous égaux — il n'y a
-  plus de t en fraction. Le repli sans tirage reprend les nombres de la
-  fiche avec des t dans les bornes.
+**Deux figures, deux cadres** (`ecbCadre(q, mode)`). La première (`'a'`) se
+resserre sur le cube, I et J : elle n'a plus à réserver la place des points
+du c), et descend à 400 px sous l'énoncé. La seconde (`'c'`, `#ecbFig2`), le
+même cube sans I ni J, garde le cadre de TOUTES les places permises — un cadre
+taillé sur M, N, O dirait où ils sont — et reçoit seule les clics. Les tirages
+sont indépendants : M, N, O ne s'écartent plus de I et J, qui ne sont pas sur
+leur dessin. Un brouillon d'avant (quatre points, trois vecteurs) se reprend
+tel quel : tout se lit dans `q.vecs`.
 
-**Éprouvé** : 5 000 séances, 45 072 couples (point, choix) — chaque t entier
-entre −3 et 3, trois t égaux exactement quand le point est sur la droite,
-les deux points de la forme 1 jamais du même côté ; les huit copies justes
-de nouveau acceptées.
+**Éprouvé** : 3 000 séances — quatre points au a), deux vecteurs au b), 33
+cases, copie juste acceptée, colonne inversée refusée ; dans Chromium, de
+vrais clics sur la seconde figure : M juste compté juste, N posé ailleurs
+compté faux, O oublié montré en vert.
 
 ## 7.1.7 — parallèles, sécantes ou non coplanaires (`espace-positions-droites`, kind `epo`)
 
