@@ -2239,6 +2239,7 @@
   .dch-leg{font-family:"Fredoka";font-weight:500;font-size:1.08rem;color:var(--ink-soft);text-align:center;line-height:1.9}
   .dch-leg-g{color:var(--crd-a);font-weight:600} .dch-leg-d{color:var(--crd-b);font-weight:600}
   .dch-leg .vgt-vec{color:inherit;font-size:1.15rem} .dch-leg-n{font-size:.92rem}
+  #dchFeedback .vgt-vec{color:inherit}
   /* La rédaction libre (Turquet, octobre 2026) : le champ du 8.2.7 (.chl-in,
      .chl-rendu), en <textarea> — Entrée passe à la ligne, le champ grandit
      avec ses lignes (dchRendu pose sa hauteur). Chaque ligne dessinée a la
@@ -8685,7 +8686,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=599;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=600;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -74491,19 +74492,22 @@ function dchJuge(q, val){
   const ok=!vide && arrive && M.every(function(m){ return m.etat==='j'; });
   return {D:D, M:M, vide:vide, arrive:arrive, ok:ok};
 }
-/* le message : la première étape fausse, ou ce qui manque */
-function dchPourquoi(J){
-  const D=J.D, cite=function(m){ return '« '+dchTxt(m.depuis)+' = '+dchTxt(m.l)+' »'; };
+/* le message : la première étape fausse, ou ce qui manque. html : les
+   vecteurs prennent leur flèche (le retour affiché à l'élève) ; sans, du
+   texte brut (le contexte envoyé à l'aide IA) */
+function dchPourquoi(J, html){
+  const D=J.D, V=html ? dchEnonceVec : dchTxt, X=html ? esc : function(t){ return t; };
+  const cite=function(m){ return '« '+V(m.depuis)+' = '+V(m.l)+' »'; };
   const m=J.M.find(function(x){ return x.etat!=='j'; });
   if(m){
-    if(m.etat==='illisible') return m.err==='point' ? '« '+m.v+' » n’est pas un vecteur de la figure : ses deux lettres doivent être des points de l’énoncé.'
+    if(m.etat==='illisible') return m.err==='point' ? '« '+X(m.v)+' » n’est pas un vecteur de la figure : ses deux lettres doivent être des points de l’énoncé.'
       : m.err==='vide' ? 'Il manque un vecteur entre deux « = ».'
-      : '« '+chlMembreTxt(m.brut)+' » ne se lit pas : écris des vecteurs de deux lettres, séparés par + ou −.';
-    if(m.etat==='faux') return '« '+dchTxt(m.l)+' » n’est pas égal à « '+dchTxt(m.depuis)+' ».';
-    if(m.etat==='j1') return cite(m)+' est vrai, mais il manque une étape : il faut détailler, par exemple '+dchTxt(m.depuis)+' = '+dchTxt(m.milieu)+' = '+dchTxt(m.l)+'. Cette étape compte fausse.';
+      : '« '+X(chlMembreTxt(m.brut))+' » ne se lit pas : écris des vecteurs de deux lettres, séparés par + ou −.';
+    if(m.etat==='faux') return '« '+V(m.l)+' » n’est pas égal à « '+V(m.depuis)+' ».';
+    if(m.etat==='j1') return cite(m)+' est vrai, mais il manque une étape : il faut détailler, par exemple '+V(m.depuis)+' = '+V(m.milieu)+' = '+V(m.l)+'. Cette étape compte fausse.';
     return cite(m)+' est vrai, mais il manque plusieurs étapes : il faut détailler davantage, une étape par ligne. Cette étape compte fausse.';
   }
-  if(!J.arrive) return 'Toutes tes étapes sont justes, mais la démonstration doit arriver à '+dchTxt(D.d)+'.';
+  if(!J.arrive) return 'Toutes tes étapes sont justes, mais la démonstration doit arriver à '+V(D.d)+'.';
   return '';
 }
 /* la rédaction du plan, écrite comme dans le champ */
@@ -74736,17 +74740,17 @@ function checkDchAnswer(live){
   const q=test.questions[test.idx], el=$('dch-z'); if(!el) return;
   const J=dchJuge(q, el.value);
   if(live){ if(!isSoutien()) return; dchPeint(J, el, true); return; }
-  const pourquoi=dchPourquoi(J);
+  const pourquoi=dchPourquoi(J, true);
   const donne=String(el.value);
   dchPeint(J, el, false);
-  if(!J.ok && isSoutien()){ $('dchFeedback').textContent=J.vide ? 'Écris ta démonstration dans le champ.' : pourquoi; $('dchFeedback').className='mp-feedback'+(J.vide ? '' : ' bad');
+  if(!J.ok && isSoutien()){ $('dchFeedback').innerHTML=J.vide ? 'Écris ta démonstration dans le champ.' : pourquoi; $('dchFeedback').className='mp-feedback'+(J.vide ? '' : ' bad');
     soutienAgain('dchFeedback','dchActions','checkDchAnswer','dchHost'); return; }
   test.locked=true; el.disabled=true; dchRendu(el);
   if(J.ok) test.score++;
   $('dchLiveScore').textContent=test.score;
   const fb=$('dchFeedback');
   if(J.ok){ fb.textContent=pick(['Bravo, la démonstration est juste !','Parfait !','Excellent !','Très bien démontré !']); fb.className='mp-feedback good'; }
-  else { fb.textContent=J.vide ? 'Il manquait ta démonstration : en voici une, écrite en vert.' : pourquoi+' Une démonstration possible est écrite en vert dessous.'; fb.className='mp-feedback bad'; }
+  else { fb.innerHTML=J.vide ? 'Il manquait ta démonstration : en voici une, écrite en vert.' : pourquoi+' Une démonstration possible est écrite en vert dessous.'; fb.className='mp-feedback bad'; }
   const D=J.D, chaine=function(t){ return dchTxt(D.g)+' = '+t.split('\n').filter(function(x){ return x; }).map(function(x){ return chlMembreTxt(x).replace(/=/g,' = '); }).join(' = '); };
   test.answers.push({...(ptsExo()||{}),correct:J.ok,
     q:DCH_VERBES[q.v||0]+' '+dchTxt(D.g)+' = '+dchTxt(D.d)+(D.para ? ' ('+D.para+' parallélogramme)' : ''),
