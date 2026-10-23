@@ -442,6 +442,75 @@ cases, copie juste acceptée, colonne inversée refusée ; dans Chromium, de
 vrais clics sur la seconde figure : M juste compté juste, N posé ailleurs
 compté faux, O oublié montré en vert.
 
+**Puis les deux sens de la division, et plus d'étapes a), b), c) (Turquet,
+octobre 2026, v438).** « Dans le 7.1.4, ne pas afficher les étapes a, b et
+c ; dans les divisions, accepter v/u ou u/v avec des valeurs approchées ou
+des fractions simplifiées dans le résultat. » Les trois intitulés ont
+disparu : la propriété, les deux vecteurs, les quotients et la conclusion se
+suivent sans titre (`margin-top` sur les rangées pour garder l'air). Chaque
+quotient se divise dans le sens que l'élève choisit, fraction par fraction :
+`epaVerdicts` lit le sens sur la copie — la fraction entière d'abord (`n/d`
+ou `(−n)/(−d)`), puis le numérateur seul, le dénominateur seul, puis la
+valeur ; à défaut, `v/u`, le sens de la fiche. La valeur se juge dans le
+sens choisi (exacte, fraction irréductible, ou approchée au dixième si le
+quotient n'est pas décimal), et la correction s'écrit dans ce sens : un
+élève parti sur `u/v` ne reçoit pas une correction en `v/u`. Une valeur
+`v/u` sous une fraction `u/v` est refusée. **Éprouvé** sur 3 000 séances :
+le sens `u/v` complet accepté, sa valeur approchée acceptée, la valeur de
+l'autre sens refusée, la correction d'une case vide en `v/u`, celle d'une
+copie commencée en `u/v` dans ce sens.
+
+**Puis le 7.1.5 a suivi la fiche au plus près (Turquet, octobre 2026,
+v438).** Quatre demandes :
+
+* **Une écriture déjà complétée se redonne, elle ne se redemande pas.** La
+  parenthèse de « Devient : a + u(… + … t′) », le calcul « t = c0 + c1 × (t′) »,
+  le « t = … et t′ = … » de la vérification et de la conclusion, le « × (t) »
+  du point : ce sont des MIROIRS (`.eds-mir`, `edsMiroirs`) de ce que l'élève
+  a écrit, à chaque frappe — l'écriture de l'élève, même fausse, jamais la
+  bonne réponse. Une case vide se lit « … ». Après la correction, ce sont les
+  valeurs justes qui se recopient. Les cases `r0`, `r1`, `h0`, `h1`, `h2`,
+  `w1`, `w2` ont disparu : 13 cases au lieu de 20. Un brouillon d'avant qui
+  les portait ne trouve plus leur case à la reprise, sans erreur.
+* **Un membre resté identique en résolvant ne se redemande pas** : « = b + v t′ »
+  est écrit sur la ligne développée (il l'était déjà).
+* **Un « + » devant une case positive qui suit un terme** : `t = [c0] + [c1] t′`
+  et `[e0] + [e1] t′` quand `c1` ou `e1` est positif ; négatif, rien n'est
+  écrit et l'élève tape le signe. La demande montre donc le SIGNE de ces deux
+  cases — c'est voulu, et la consigne le dit sous l'exercice.
+* **t et t′ entiers entre −3 et 3** (t non nul ; t′ peut valoir 0, comme sur
+  la fiche).
+
+**Éprouvé** : 3 000 séances — 13 cases, bornes de t et t′ tenues, copies
+justes acceptées, paire opposée de `[f1] t′ = [f0]` acceptée, copie vide sans
+case remplie ; l'écran ouvert dans Chromium, saisies fausses recopiées dans
+les miroirs puis remplacées par les valeurs justes à la correction.
+
+**Puis le 7.1.5 a été repris en entier, sur la seconde version de la fiche
+« vecteurs 6 » (Turquet, octobre 2026, v438 : « voilà le bon pdf, il faut
+tout reprendre »).** La résolution suit maintenant ses lignes une à une :
+`t = b + v t′ [−a] = v t′ [b − a]` (le membre de droite est recopié par la
+page, l'élève écrit le nombre qui change de côté puis le nombre réduit) ;
+`Devient : a + u(v t′ c0)` ; `⟺ a [e1] t′ [e0] = b + v t′` (le « a » reste,
+écrit) ; `⟺ e1 t′ [g1] t′ = b [g0]` (le terme en t′ passe à gauche, les
+nombres à droite) ; `⟺ [h1] t′ = [h0]` ; `⟺ t′ = h0/h1 = [t′]` ;
+`Avec : t = v t′ c0 = v × (t′) c0 = [t]`. La vérification a trois lignes —
+les miroirs de t et t′, puis `a [m1] = b [m2]`, puis `[ ] = [ ]` — et deux
+menus : « l'équation ③ est [vérifiée] », « les droites sont bien
+[sécantes] ». Le point d'intersection se calcule avec t dans `d` OU avec t′
+dans `d′`, au choix de l'élève : un menu hors note (`.hors-note`) qui
+réécrit les trois lignes `x = a + u t = a + u × (t) = [ ]` — les trois cases
+valent les mêmes coordonnées dans les deux cas. 19 cases. Les règles de la
+version précédente tiennent : miroirs de l'écriture de l'élève, « + » devant
+une case positive qui suit un terme, t et t′ entre −3 et 3.
+
+**Éprouvé** : 3 000 séances — chaque ligne vérifiée par le calcul (le
+développement vaut le membre de droite pour t′, `h1 t′ = h0`, la
+vérification égale, I sur `d′`), la copie juste acceptée, la paire opposée
+`(−h1, −h0)` acceptée seule à seule refusée, les menus faux refusés, une
+copie vide sans case remplie ; l'écran ouvert dans Chromium, saisies
+fausses recopiées dans les miroirs puis remplacées par les justes.
+
 ## 7.1.7 — parallèles, sécantes ou non coplanaires (`espace-positions-droites`, kind `epo`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteur 7 » : « créer un
