@@ -4914,7 +4914,7 @@ mène pas » ; enfin le contexte du modèle. Le barème d'une séance dépend de
 plans tirés (5 à 17 cases) : l'exercice se déclare dans
 `reglagesDevoirs.baremeParCases`, comme le 8.2.13 et le 8.3.9.
 
-**Puis la rédaction LIBRE du 8.2.13 (v601).** Turquet : « en seconde pour
+**Puis la rédaction LIBRE du 8.2.13 (v602 — v601 prise sur main par le 8.3.9 pendant les bancs).** Turquet : « en seconde pour
 le 8.3.10, appliquer la méthode de rédaction du 8.2.13, les mêmes consignes
 pour valider la rédaction avec les étapes ; factoriser par un nombre ou
 développer par un nombre est une étape aussi ici ; et pour afficher les
