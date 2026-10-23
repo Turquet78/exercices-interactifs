@@ -121,3 +121,61 @@ couvre 0–2 px, comme la bordure).
 acceptée, chaque copie aux paires inversées acceptée, chaque colonne de
 vecteur inversée refusée, `q.r` toujours d'accord avec l'égalité des carrés,
 chaque question sérialisable en JSON.
+
+## 7.1.3 — équation paramétrique d'une droite (`espace-droite-parametrique`, kind `edp`)
+
+Demande de Turquet (octobre 2026), avec la fiche « vecteurs 3 » : « créer un
+exercice dans le sous-thème vecteur et droite comme le pdf. On présentera avec
+toutes les étapes du pdf. »
+
+**Deux formes de question, les deux exercices de la fiche.** La séance en tire
+trois : une forme 1, une forme 2, la troisième au hasard, par `distinctes()`.
+
+* Forme 1 — `A` et `u⃗` définissent `d` : a) le système `M ∈ d ⟺ {x = … … t}`,
+  les deux colonnes cerclées de pointillés, « Point de départ » et « vecteur
+  directeur » écrits dessous ; b) et c) deux points `B` et `C` — l'un est sur
+  `d`, l'autre non, l'ordre est tiré.
+* Forme 2 — `A` et `B` : a) `AB⃗ (… − …)  donc : AB⃗ (…)` ; b) le système de
+  (AB), le point de départ `A` et le vecteur `AB⃗` IMPOSÉS dans la consigne
+  (sans quoi `B` et `BA⃗`, justes aussi, changeraient toute la rédaction) ;
+  c) « `C` est-il aligné avec `A` et `B` ? Ou encore : est-il sur [menu] ? »
+  (la droite (AB), contre le segment [AB] et le plan (OAB)), puis la rédaction
+  de la forme 1.
+
+**La rédaction de l'appartenance, système après système, comme la fiche :**
+`P ∈ d ⟺ P ∈ {x = xA + a t} ⟺ {xA + a t = xP} ⟺ {a t = xP  −xA} ⟺ {a t = …}
+⟺ {t = …/… = …}  donc : [P ∈ d | P ∉ d]`. 22 cases par point. La seconde
+case de « = … … » porte `−xA` AVEC son signe (« −2 », « +3 ») : c'est le terme
+qui a changé de membre.
+
+**Les membres de gauche sont des MIROIRS.** Écrire « 2 − 2t » en clair au b)
+donnait la réponse du a) à lire. Les membres de gauche (`.edp-mir`) recopient
+donc le système que l'élève a écrit au a), à chaque frappe (`edpMiroirs`,
+branché sur `input` du formulaire, et rejoué après la remise des saisies d'une
+reprise — `restoreBoxes` ne déclenche aucun `input`). Une case vide se lit
+« … ». Après la correction, c'est le système JUSTE qui se recopie : les étapes
+corrigées en vert partent de lui, jamais d'une saisie rouge. Ce ne sont pas
+des cases : aucune note ne les compte.
+
+**Le juge** (`edpCases`, une liste pour le rendu, le juge, la correction et
+l'aide). Un coefficient de `t` se lit par `tgParseCoef` (« − » seul vaut −1) ;
+la fraction `t = n/d` accepte aussi `(−n)/(−d)` ; la valeur de `t` en entier,
+en fraction ou en décimal exact (la correction l'écrit en décimal quand il est
+exact, en fraction irréductible sinon). Aucune coordonnée de `A` ni de `u⃗`
+n'est nulle — « 0 t » rendrait la division absurde, et `−xA` vaudrait « +0 ».
+
+**Le tirage.** Un point sur la droite : `A + t·u⃗`, `t` entier non nul. Un
+point hors de la droite : une coordonnée prend un autre `t` entier, ou se
+décale de 1 ou 2 (une valeur de `t` en fraction) — jamais trois valeurs égales.
+Coordonnées bornées à 40 en valeur absolue.
+
+**Le dessin.** Un système est une grille de trois lignes (`.edp-sys`,
+`inline-grid`) : les colonnes s'alignent d'une ligne à l'autre comme sur la
+fiche, et l'accolade est un SVG étiré sur les trois lignes (trait non mis à
+l'échelle). Les deux cercles du a) sont des éléments de la grille posés sur
+les trois lignes de leur colonne, derrière les cases.
+
+**Éprouvé** : 3 000 séances tirées dans Chromium — chaque copie juste
+acceptée, `(−n)/(−d)` accepté, la conclusion inversée et `xA` au lieu de `−xA`
+refusés, une copie vide sans aucune case « remplie », chaque question
+sérialisable en JSON, deux points de la forme 1 jamais du même côté.
