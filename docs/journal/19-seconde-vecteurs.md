@@ -3391,6 +3391,25 @@ première exécution, la page avait raison). Il les tire désormais sur ±2000.
 Éprouvé par deux sabotages de plus : un juge qui ne regarde plus l'ordre,
 un `dchComb` qui ignore les milieux — chacun rougit.
 
+**Puis la RÉÉCRITURE en une seule étape (v600).** Turquet : « accepter que
+l'on change l'ordre, que l'on change en opposé un ou plusieurs vecteurs, et
+que l'on change en vecteurs égaux un ou plusieurs vecteurs, comme une seule
+étape ». Les trois règles n'en font plus qu'une (`dchReecrit`) : la ligne a
+autant de vecteurs que la précédente, et les mêmes VALEURS (`dchVal`, la
+combinaison de points d'un vecteur signé), dans n'importe quel ordre —
+− XY écrit + YX, un vecteur égal de la figure, l'ordre changé, un, deux ou
+les trois à la fois. Restent des étapes à part : Chasles, sur des voisins
+écrits dans l'ordre (les mettre côte à côte en est une), et l'insertion d'un
+point. `dchSoustrait`, `dchEgale` et `dchEgaux` sont partis avec leur règle.
+`dchVoisins` cherche les réécritures par toutes les permutations, chaque
+vecteur sous chacune de ses formes (`dchFormes`) tant que le compte reste
+sous 6 000, sinon sous sa forme positive. La ligne qui manque, montrée dans
+le message, est désormais choisie la plus simple à lire (le moins de « − »,
+puis le moins de vecteurs déplacés) : la première trouvée s'écrivait
+« AD − BD − DB + CB », juste mais illisible — vu dans le message, pas par un
+banc. Éprouvé par sabotage : une réécriture qui n'accepte plus l'ordre ET
+une forme à la fois rougit sur quatre rédactions.
+
 ## {lire-somme-dessin} — lire une somme de vecteurs sur un dessin (8.2.14, v536 — v528 à v535 et les numéros 8.2.11 à 8.2.13 pris pendant la rédaction, par le 8.2.9, le 8.1.10, le 8.2.5, le 8.2.8 et « Chasles : insérer un point »)
 
 **La demande** (Turquet, octobre 2026). Parmi les idées d'exercices proposées
