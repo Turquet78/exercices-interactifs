@@ -4984,7 +4984,7 @@ contexte du modèle. Éprouvé par deux sabotages : un Chasles qui réunit
 réels (les corrections et les lignes au hasard rougissent). La déclaration
 `reglagesDevoirs.baremeParCases` du 8.3.10 est retirée du profil.
 
-**Puis la règle des étapes s'est assouplie (v603).** Turquet, le même jour,
+**Puis la règle des étapes s'est assouplie (v604 — v603 prise sur main par les devoirs en arbre pendant les bancs).** Turquet, le même jour,
 devant la première version : « changer en le vecteur opposé ou changer en un
 vecteur égal n'est pas compté comme une étape ; on peut faire plusieurs
 étapes en même temps si elles ne concernent pas les mêmes vecteurs ; on
