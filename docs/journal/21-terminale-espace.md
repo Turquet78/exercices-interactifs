@@ -317,8 +317,80 @@ JSON ; le juge du quotient sur onze écritures (`0,7`, `0,67`, `2/3`, `4/6`,
 à 390 px : sur téléphone, réduire l'écart des colonnes du système collé
 faisait chevaucher le « = » et les cercles — la règle a été retirée.
 
+## 7.1.6 — le cube : coordonnées, vecteurs, points à placer (`espace-cube`, kind `ecb`)
+
+Demande de Turquet (octobre 2026), avec la fiche « vecteurs 4 » : « créer un
+exercice dans vecteurs et droites de l'espace, comme le pdf joint. On pourra
+avoir comme solution pour les coordonnées 0,25 ; 0,5 ; 0,75 ; 1 ; 1,25 ; 1,5
+en positif ou négatif. Un point doit être sur une arête ou un prolongement
+d'arête — dans ce cas il faut prolonger l'arête pour placer ou représenter ce
+point. La base du repère sera toujours d'origine A puis avec B, D, E, mais le
+point A peut être en bas à gauche et sur la face avant ou arrière du cube.
+Pour les coordonnées de trois vecteurs, on présentera les calculs comme dans
+le 7.3.2. » — il n'y a pas de 7.3.2 en Terminale : lu comme la présentation
+commune du 7.1.2 et du 7.1.3, `XY⃗ (… − …)` en colonne, `donc : XY⃗ (…)`.
+
+**Puis deux autres sessions, le même jour.** Né en 7.1.4, le cube est passé
+en 7.1.6 à la fusion : les fiches « vecteur 5 » et « vecteurs 6 » (droites
+parallèles, droites sécantes) avaient pris le 7.1.4 et le 7.1.5. Les notes
+portent l'identifiant (`espace-cube`) : rien ne bouge.
+
+**La fiche, de haut en bas.** La figure, puis a) les coordonnées de A, B, D,
+E / C, F, H, G / I, J, K, L, quatre par ligne comme sur la fiche ; b) trois
+vecteurs — sommet → sommet (jamais une arête), point → sommet, sommet →
+point, comme ED⃗, JD⃗, EJ⃗ ; c) trois points M, N, O à placer. 66 cases par
+cube (36 + 27 + 3), deux cubes par séance (`ECB_NBQ`, par `distinctes()`).
+
+**Quatre dessins** (`q.cfg`) : A en bas à gauche sur la face arrière (la
+fiche) ou avant, et l'arête horizontale de A mène à B ou à D ; E toujours
+au-dessus de A. La perspective est cavalière, fuite en haut à droite
+(`ECB_PROF`) : le sommet caché est toujours celui du bas, à gauche, à
+l'arrière — A, B ou D selon le dessin —, ses trois arêtes en pointillés, et
+la flèche de base qui en part aussi. AB⃗, AD⃗, AE⃗ sont en rouge, vert, bleu.
+
+**Les points.** Deux coordonnées valent 0 ou 1 (elles désignent l'arête), la
+troisième est dans {±0,25 ; ±0,5 ; ±0,75 ; −1 ; ±1,25 ; ±1,5} — 0 et 1 en
+feraient un sommet. I, J, K, L : un ou deux sur un prolongement, les autres
+sur l'arête ; quatre arêtes différentes, graduées en quarts jusqu'au point,
+prolongées en pointillés fins. Trois écarts au tirage, chacun vu sur une
+figure : un point loin des sommets (26 px), des autres points (34 px) et des
+arêtes qui ne le portent pas (10 px) ; jamais au-delà du sommet caché sur une
+arête cachée (le point serait derrière le cube) ; et jamais un prolongement
+qui retombe DANS le dessin du cube (`ecbDansCube`, l'enveloppe des huit
+sommets) — vu à la première ouverture : M(1 ; −1,5 ; 1), prolongé vers
+l'avant depuis F, se posait au milieu de la face avant et se lisait comme un
+point du cube.
+
+**Les étiquettes** se posent à la place la plus dégagée parmi seize autour de
+leur point (loin des traits, des points, des étiquettes déjà posées), puis
+vers l'extérieur : à la première ouverture, L couvrait F et K couvrait I.
+
+**Le placement (c).** Un bouton par point, le point actif en orange ; un clic
+sur la figure pose le point au quart d'arête permis le plus proche (30 unités
+au plus), prolongement dessiné jusqu'à lui, et passe au point suivant ; un
+nouveau clic le déplace. À la souris, un fantôme montre où le clic posera.
+Les positions vivent dans la question (`q.place`, du JSON) : la pause les
+garde. `ecbPoser(L, P)` pose sans clic (jsdom n'a pas de mise en page). Un
+point placé est une case (`.pts-case`) : juste en bleu, faux en rouge avec
+la bonne position en vert à côté (sans `.pts-case` — elle ne compte pas deux
+fois), non placé à la correction : montré en vert, `.pts-case.sol`. Le juge
+accepte aussi une autre position qui tombe au même endroit du dessin (3 px).
+
+**Le juge** (`ecbCases`, une liste pour le rendu, le juge, la correction et
+l'aide) lit un entier, un décimal (virgule ou point) ou une fraction
+(`tgParseFrac`). La colonne d'un vecteur a son ordre : `xY` au-dessus, `xX`
+soustrait.
+
+**Éprouvé** : 3 000 séances tirées — chaque copie juste acceptée, en décimal
+comme en fraction (« −1/4 »), chaque colonne de vecteur inversée refusée, une
+copie vide sans aucune case « remplie », chaque question sérialisable en JSON,
+chaque point sur une droite d'arête avec une coordonnée permise, les quatre
+dessins tirés à parts égales ; et dans Chromium, de vrais clics : un point
+posé juste compté juste, un point posé ailleurs compté faux, un point oublié
+montré en vert, « 21 cases justes sur 66 » pour 21 saisies justes.
+
 **Puis les deux sens de la division, et plus d'étapes a), b), c) (Turquet,
-octobre 2026, v435).** « Dans le 7.1.4, ne pas afficher les étapes a, b et
+octobre 2026, v436).** « Dans le 7.1.4, ne pas afficher les étapes a, b et
 c ; dans les divisions, accepter v/u ou u/v avec des valeurs approchées ou
 des fractions simplifiées dans le résultat. » Les trois intitulés ont
 disparu : la propriété, les deux vecteurs, les quotients et la conclusion se
@@ -336,7 +408,7 @@ l'autre sens refusée, la correction d'une case vide en `v/u`, celle d'une
 copie commencée en `u/v` dans ce sens.
 
 **Puis le 7.1.5 a suivi la fiche au plus près (Turquet, octobre 2026,
-v435).** Quatre demandes :
+v436).** Quatre demandes :
 
 * **Une écriture déjà complétée se redonne, elle ne se redemande pas.** La
   parenthèse de « Devient : a + u(… + … t′) », le calcul « t = c0 + c1 × (t′) »,

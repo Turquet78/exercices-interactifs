@@ -5081,3 +5081,29 @@ la raccourcit). Cinq rédactions des nouveaux plans aux verdicts connus (dont
 AB = CB − CA d'un trait : une étape manque). Par le bouton : l'idée avant
 l'énoncé, avec CD = CA + AD, absente d'un plan sans insertion ; le 8.2.18
 démarre sous son identité, sur l'exemple.
+
+**Puis des milieux, et UNIQUEMENT un triangle ou un quadrilatère (v606).**
+Turquet, la fiche « milieu » jointe (I milieu de [AB], J milieu de [AC],
+« Démontrer que AJ + IB = AB + IJ » et « AI + CJ = AJ + CI ») : « dans le
+8.2.18 on peut avoir des milieux et faire des exercices uniquement dans un
+triangle ou un quadrilatère ». Chaque plan du 8.2.18 nomme désormais sa
+figure (`poly` : 'ABC' ou 'ABCD') : l'énoncé dit « ABC est un triangle » ou
+« ABCD est un quadrilatère » au lieu de « … sont trois (quatre) points du
+plan », et la figure en trace les côtés en trait plein (`.dch-poly`, gris,
+sous les flèches) — les quatre points de `DCH_POS` forment un quadrilatère
+convexe dans l'ordre ABCD, rien n'a bougé. Quatre plans de plus (27 à 30) :
+les deux de la fiche (lettres tirées comme ailleurs, I et J restent hors de
+`DCH_LETTRES`), AD + BC = MN + MN (M et N milieux de deux côtés opposés d'un
+quadrilatère : deux insertions, une réécriture, deux Chasles) et AB + CD =
+MB + MD (M milieu de la diagonale [AC]). Ce qui sortait de la figure en est
+rentré : dans les plans 25 et 26, le point M quelconque est devenu le CENTRE
+du parallélogramme (l'égalité reste vraie, la correction n'a pas changé) ;
+MA + MC = MB + MD (plan 10), dont tout l'intérêt était un M hors du
+parallélogramme, ne se tire plus (`retire`, gardé dans `DCH_DEMOS` pour les
+brouillons qui le nomment encore). Le 8.2.13, lui, ne change pas.
+
+Le banc exige qu'aucun plan tiré au 8.2.18 ne soit hors d'un triangle ou d'un
+quadrilatère (ou d'un parallélogramme sans point extérieur), qu'au moins
+trois aient des milieux dans un triangle ou un quadrilatère, qu'un plan
+retiré ne sorte jamais, compte les côtés tracés de chaque figure, relit
+l'énoncé de la fiche, et juge cinq rédactions des nouveaux plans.
