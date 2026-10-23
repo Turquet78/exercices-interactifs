@@ -187,6 +187,34 @@ acceptée, `(−n)/(−d)` accepté, la conclusion inversée et `xA` au lieu de 
 refusés, une copie vide sans aucune case « remplie », chaque question
 sérialisable en JSON, deux points de la forme 1 jamais du même côté.
 
+**Puis le « + », la pilule et le coefficient 1 (Turquet, octobre 2026, v432).**
+Quatre demandes sur le 7.1.3 :
+
+* **Un « + » entre la colonne du point et celle du vecteur**, au système du
+  a) : `x = 2 + (−2) t` — le coefficient s'écrit avec son signe dans la case
+  du vecteur, ce que `tgParseCoef` lisait déjà.
+* **Les colonnes cerclées comme au 7.1.1** (`.epc-cad`) : une pilule serrée
+  autour des seules cases. Elle était un OVALE, pour deux raisons : la
+  colonne du vecteur contenait aussi le « t », et les étiquettes « Point de
+  départ » et « vecteur directeur », en `nowrap`, élargissaient leur colonne
+  — avec `border-radius:999px`, une colonne aussi large que haute dessine un
+  rond. Le « t » a sa propre colonne (`.tt`, collé à la pilule), et les
+  étiquettes sont de largeur nulle (`width:0`, contenu centré qui déborde),
+  sur deux lignes pour ne pas se chevaucher.
+* **Un coefficient 1 ne s'écrit pas, et ne se divise pas.** Les miroirs
+  écrivent « t », jamais « 1t » ; la dernière ligne de la rédaction n'a plus
+  de fraction pour cette coordonnée — `t = …` tout court, la case sous les
+  fractions des autres lignes, et `edpCases` ne crée plus les deux cases
+  `h…n`/`h…d`. La structure se lit sur `q.u` (au tirage), les miroirs sur la
+  saisie. **−1 garde son écriture et sa division** (« 1 − 1t », `t = n/(−1)`),
+  demandé tel quel. Pour que les t restent l'un sous l'autre quand le « 1 »
+  manque, les deux premiers systèmes écrivent le miroir en COLONNES —
+  départ, signe, terme en t calé à droite (clés `d`, `g`, `a` ; `c` reste le
+  terme signé des systèmes suivants).
+* **Le nom du vecteur à mi-hauteur de sa colonne**, dans l'énoncé de la
+  forme 1 (`.edp-vnom`, flex centré) : u⃗ était posé sur la ligne de base, en
+  haut de la colonne.
+
 ## 7.1.4 — le cube : coordonnées, vecteurs, points à placer (`espace-cube`, kind `ecb`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteurs 4 » : « créer un
