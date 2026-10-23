@@ -2034,8 +2034,17 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .edp-c{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;min-height:34px;position:relative;z-index:1}
 .edp-sys-a{column-gap:18px}
 .edp-c.e{justify-self:end}.edp-c.s{justify-self:start}.edp-c.m{justify-self:center}
-.edp-cad{border:2px dotted #94a3b8;border-radius:999px;margin:-5px -5px;pointer-events:none;align-self:stretch;justify-self:stretch}
-.edp-lab{font-size:.78rem;color:#64748b;justify-self:center;text-align:center;white-space:nowrap;padding-top:6px}
+.edp-sys-a .edp-c.p{padding:0 2px}
+.edp-sys-a .edp-c.tt{margin-left:-5px}   /* le t contre sa case, hors de la pilule */
+/* le nom du vecteur à mi-hauteur de sa colonne, et le tout au milieu de la
+   ligne de l'énoncé (Turquet, octobre 2026) */
+.edp-vnom{display:inline-flex;align-items:center;gap:4px;vertical-align:middle}
+/* Les deux colonnes cerclées comme au 7.1.1 ({espace-coordonnees}) : une
+   pilule serrée autour des SEULES cases — le « t » reste dehors, et les
+   étiquettes, de largeur nulle, ne poussent plus la colonne (elles
+   l'élargissaient, et la pilule devenait un ovale, Turquet, octobre 2026). */
+.edp-cad{border:2px dotted #94a3b8;border-radius:999px;margin:-7px -6px;pointer-events:none;align-self:stretch;justify-self:stretch}
+.edp-lab{font-size:.78rem;color:#64748b;justify-self:center;width:0;display:flex;justify-content:center;text-align:center;white-space:nowrap;line-height:1.15;padding-top:9px}
 .edp-mir{white-space:nowrap}
 .edp-nw{display:inline-flex;align-items:center;gap:6px}
 .edp-eqv{padding:0 2px}
@@ -29481,8 +29490,10 @@ function edpCases(q){
       X('edp-'+j+'-f'+k+'a','num',r.P,co+L+' dans le 3e système ('+L+')');
       X('edp-'+j+'-f'+k+'b','num',r.mA,'−'+co+'A (avec son signe) dans le 3e système ('+L+')',edpSigne(r.mA));
       X('edp-'+j+'-g'+k,'num',r.d,'valeur de '+co+L+' − '+co+'A dans le 4e système ('+L+')');
-      X('edp-'+j+'-h'+k+'n','num',r.d,'numérateur de t pour '+co+' ('+L+')',null,'h'+j+k);
-      X('edp-'+j+'-h'+k+'d','num',r.a,'dénominateur de t pour '+co+' ('+L+')',null,'h'+j+k);
+      if(r.a!==1){   /* coefficient 1 : pas de division, t = … tout court */
+        X('edp-'+j+'-h'+k+'n','num',r.d,'numérateur de t pour '+co+' ('+L+')',null,'h'+j+k);
+        X('edp-'+j+'-h'+k+'d','num',r.a,'dénominateur de t pour '+co+' ('+L+')',null,'h'+j+k);
+      }
       X('edp-'+j+'-h'+k+'q','num',r.t,'valeur de t pour '+co+' ('+L+')',edpQ(r.d,r.a));
     });
     X('edp-'+j+'-cc','sel',e.sur?'in':'out','menu : conclusion pour '+L);
@@ -29549,9 +29560,11 @@ function edpFormHTML(q){
   }
   /* le système de la droite : les deux colonnes cerclées, et leurs étiquettes */
   h+=sub('Donner l’équation paramétrique de '+dr+(q.f===2?', avec le point de départ <i>A</i> et le vecteur directeur '+vAB:'')+'.');
-  const cad='<span class="edp-cad" style="grid-row:1/4;grid-column:3"></span><span class="edp-cad" style="grid-row:1/4;grid-column:4"></span>'
-    +'<span class="edp-lab" style="grid-row:4;grid-column:3">Point de départ</span><span class="edp-lab" style="grid-row:4;grid-column:4">vecteur directeur</span>';
-  h+=L(T('<i>M</i> ∈ '+dr+' ⟺')+edpSys([0,1,2].map(k=>[T('<i>'+EDP_CO[k]+'</i> ='),I('edp-s'+k+'p'),I('edp-s'+k+'u')+T('<i>t</i>')]), ['e','m','s'], cad, 'edp-sys-a'), 'edp-lsys');
+  /* le « + » entre les deux colonnes (Turquet, octobre 2026) : x = 2 + (−2)t,
+     le coefficient s'écrit avec son signe dans la case du vecteur */
+  const cad='<span class="edp-cad" style="grid-row:1/4;grid-column:3"></span><span class="edp-cad" style="grid-row:1/4;grid-column:5"></span>'
+    +'<span class="edp-lab" style="grid-row:4;grid-column:3">Point<br>de départ</span><span class="edp-lab" style="grid-row:4;grid-column:5">vecteur<br>directeur</span>';
+  h+=L(T('<i>M</i> ∈ '+dr+' ⟺')+edpSys([0,1,2].map(k=>[T('<i>'+EDP_CO[k]+'</i> ='),I('edp-s'+k+'p'),T('+'),I('edp-s'+k+'u'),T('<i>t</i>')]), ['e','m','m p','m','s tt'], cad, 'edp-sys-a'), 'edp-lsys');
   q.pts.forEach(function(p,j){
     const Lp='<i>'+p.L+'</i>', id=s=>'edp-'+j+'-'+s;
     if(q.f===1) h+=sub('Le point '+edpPtHTML(p.L,p.P)+' appartient-il à la droite <i>d</i> ?');
@@ -29559,12 +29572,19 @@ function edpFormHTML(q){
       h+=sub('Le point '+edpPtHTML(p.L,p.P)+' est-il aligné avec les points <i>A</i> et <i>B</i> ?');
       h+=L(T('Ou encore : le point '+Lp+' est-il sur')+'<select class="tvi-sel edp-sel" id="edp-sur"><option value="">…</option><option value="segment">le segment [AB]</option><option value="droite">la droite (AB)</option><option value="plan">le plan (OAB)</option></select>'+T('?'));
     }
-    const R=k=>edpMir('r'+k), C=k=>edpMir('c'+k);
-    const s0=edpSys([0,1,2].map(k=>[T('<i>'+EDP_CO[k]+'</i> ='),R(k)]), ['e','s']);
-    const s1=edpSys([0,1,2].map(k=>[R(k),T('='),I(id('e'+k))]), ['e','m','s']);
+    /* Les membres recopiés du a) s'écrivent en colonnes — départ, signe, terme
+       en t, calé à droite — pour que les t restent l'un sous l'autre quand un
+       « 1 » devant t ne s'écrit pas (Turquet, octobre 2026). Un coefficient 1
+       ne se divise pas : la dernière ligne n'a pas de fraction, t = … tout
+       court, sa case sous les fractions des autres lignes. −1, lui, garde
+       son écriture et sa division. */
+    const D=k=>edpMir('d'+k), S=k=>edpMir('g'+k), A=k=>edpMir('a'+k), C=k=>edpMir('c'+k);
+    const s0=edpSys([0,1,2].map(k=>[T('<i>'+EDP_CO[k]+'</i> ='),D(k),S(k),A(k)]), ['e','e','m','e']);
+    const s1=edpSys([0,1,2].map(k=>[D(k),S(k),A(k),T('='),I(id('e'+k))]), ['e','m','e','m','s']);
     const s2=edpSys([0,1,2].map(k=>[C(k),T('='),I(id('f'+k+'a'))+I(id('f'+k+'b'))]), ['e','m','s']);
     const s3=edpSys([0,1,2].map(k=>[C(k),T('='),I(id('g'+k))]), ['e','m','s']);
-    const s4=edpSys([0,1,2].map(k=>[T('<i>t</i>'),T('='),fr(I(id('h'+k+'n')),I(id('h'+k+'d'))),T('='),I(id('h'+k+'q'))]), ['e','m','m','m','s']);
+    const s4=edpSys([0,1,2].map(k=>q.u[k]===1 ? [T('<i>t</i>'),T('='),I(id('h'+k+'q'))]
+      : [T('<i>t</i>'),T('='),fr(I(id('h'+k+'n')),I(id('h'+k+'d'))),T('='),I(id('h'+k+'q'))]), ['e','m','m','m','s']);
     const eqv='<span class="edp-eqv">⟺</span>';
     h+=L(NW(T(Lp+' ∈ '+dr+' ⟺ '+Lp+' ∈')+s0)+NW(eqv+s1)+NW(eqv+s2)+NW(eqv+s3), 'edp-lsys');
     h+=L(NW(eqv+s4)+NW(T('donc :')+'<select class="tvi-sel edp-sel" id="'+id('cc')+'"><option value="">…</option>'
@@ -29582,19 +29602,21 @@ function edpMiroirs(corrige){
   const q=corrige===true?test.questions[test.idx]:null;
   const val=id=>{ if(q){ const k=+id.charAt(5); return String(id.slice(-1)==='p'?q.A[k]:q.u[k]); } const el=$(id); return el?String(el.value||'').trim():''; };
   const tt='<i>t</i>';
+  /* d : le départ ; g : le signe ; a : le terme en t sans son signe ; c : le
+     terme en t signé. Un coefficient 1 s'écrit t, jamais 1t ; −1 garde son 1. */
   f.querySelectorAll('.edp-mir').forEach(function(m){
     const cle=m.getAttribute('data-m'), k=+cle.slice(1);
     const sp=val('edp-s'+k+'p'), su=val('edp-s'+k+'u');
     const p=tgParseFrac(sp), c=tgParseCoef(su);
-    const coef=su===''?'…':(c==null?esc(su):numFmt(c));
-    if(cle[0]==='c'){ m.innerHTML=coef+tt; return; }
-    const dep=sp===''?'…':(p==null?esc(sp):numFmt(p));
-    const reste=su===''?' + …'+tt:(c==null?' '+esc(su)+tt:(c<0?' − ':' + ')+numFmt(Math.abs(c))+tt);
-    m.innerHTML=dep+reste;
+    const ct=v=>(v===1?'':numFmt(v))+tt;
+    if(cle[0]==='d'){ m.innerHTML=sp===''?'…':(p==null?esc(sp):numFmt(p)); return; }
+    if(cle[0]==='g'){ m.innerHTML=(su!==''&&c!=null&&c<0)?'−':'+'; return; }
+    if(cle[0]==='c'){ m.innerHTML=su===''?'…'+tt:(c==null?esc(su)+tt:ct(c)); return; }
+    m.innerHTML=su===''?'…'+tt:(c==null?esc(su)+tt:(c===-1?'1'+tt:ct(Math.abs(c))));
   });
 }
 function edpPromptHTML(q){
-  if(q.f===1) return 'On prend '+edpPtHTML('A',q.A)+' et '+elgVec('u')+'<span class="elg-par" style="margin-left:4px"><span class="elg-col">'+q.u.map(v=>'<span class="elg-row"><span>'+numFmt(v)+'</span></span>').join('')+'</span></span> qui définissent une droite <i>d</i>.';
+  if(q.f===1) return 'On prend '+edpPtHTML('A',q.A)+' et <span class="edp-vnom">'+elgVec('u')+'<span class="elg-par"><span class="elg-col">'+q.u.map(v=>'<span class="elg-row"><span>'+numFmt(v)+'</span></span>').join('')+'</span></span></span> qui définissent une droite <i>d</i>.';
   return 'On prend '+edpPtHTML('A',q.A)+' et '+edpPtHTML('B',q.B)+'.';
 }
 /* ---- cycle de vie ---- */
@@ -29695,7 +29717,7 @@ function edpConseilCtx(){
     +cases.map(function(x){ return x.nom+' = '+edpAff(x); }).join(' ; ')+' (conclusion : '+edpRepPlain(q)+'). '
     +'Les menus valent : in = « le point appartient à la droite », out = « il n’y appartient pas », droite = « la droite (AB) ». '
     +'Saisies actuelles de l’élève : '+etat+'. '
-    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. Méthode, sans donner la réponse : le point de départ donne les nombres seuls, le vecteur directeur les coefficients de t ; on remplace x, y, z par les coordonnées du point, on isole le terme en t en changeant de membre la coordonnée du point de départ (son signe change), on divise par le coefficient de t, puis on compare les trois valeurs de t.';
+    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. Méthode, sans donner la réponse : le point de départ donne les nombres seuls, le vecteur directeur les coefficients de t ; on remplace x, y, z par les coordonnées du point, on isole le terme en t en changeant de membre la coordonnée du point de départ (son signe change), on divise par le coefficient de t (quand il vaut 1, il n’y a pas de division : t vaut directement le nombre trouvé), puis on compare les trois valeurs de t.';
 }
 /* ================= 7.1.4 L'ESPACE — DEUX DROITES PARALLÈLES ? (kind 'epa') =================
    Demande de Turquet (octobre 2026), avec la fiche « vecteur 5 » : « créer un
