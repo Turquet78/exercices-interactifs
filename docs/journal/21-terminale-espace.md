@@ -186,3 +186,71 @@ les trois lignes de leur colonne, derrière les cases.
 acceptée, `(−n)/(−d)` accepté, la conclusion inversée et `xA` au lieu de `−xA`
 refusés, une copie vide sans aucune case « remplie », chaque question
 sérialisable en JSON, deux points de la forme 1 jamais du même côté.
+
+## 7.1.4 — deux droites parallèles ? (`espace-droites-paralleles`, kind `epa`)
+
+Demande de Turquet (octobre 2026), avec la fiche « vecteur 5 » : « créer un
+exercice dans vecteur et droite de l'espace, comme le pdf joint. On acceptera
+comme réponse pour les divisions une valeur approchée ou une fraction
+simplifiée. »
+
+**La rédaction de la fiche.** `d` et `d′` sont données par leurs équations
+paramétriques (`t` et `t′`, le coefficient 1 écrit « 1t » comme sur la
+fiche). Chaque question : la propriété (« leurs vecteurs directeurs sont
+[colinéaires | orthogonaux | de même longueur] ») ; a) `u⃗` et `v⃗` en colonne ;
+b) les trois quotients sous l'étiquette grise `(fin / début)` — coordonnée de
+`v⃗` sur celle de `u⃗`, deux cases de fraction puis une case de valeur ; c) « les
+droites [sont | ne sont pas] parallèles ». 17 cases par question.
+
+**Le juge du quotient** (`epaQuoOk`) : la valeur exacte (entier, décimal
+exact), une fraction IRRÉDUCTIBLE (« simplifiée » : `4/6` est refusé), ou,
+quand le quotient n'est pas décimal, une valeur approchée au dixième près
+(`|v − q| ≤ 0,05` : `0,7` et `0,67` valent `2/3`, `0,6` non). Un quotient
+décimal exact ne s'approche pas (`0,6` refusé pour `1/2`). La fraction `n/d`
+accepte aussi `(−n)/(−d)`.
+
+**Le tirage.** Trois questions par `distinctes()`, au moins une parallèle et
+une non. Parallèle : `v⃗ = k u⃗`, `k` parmi ±1, ±2, ±3, ±1/2, ±3/2, ±2/3. Non
+parallèle : sept fois sur dix `k u⃗` dont UNE coordonnée change — deux
+quotients égaux, le troisième non, le piège de la fiche — sinon `v⃗` au
+hasard, jamais colinéaire. Aucune coordonnée nulle (ni de vecteur, ni de
+point de départ).
+
+## 7.1.5 — deux droites sécantes, le point d'intersection (`espace-droites-secantes`, kind `eds`)
+
+Demande de Turquet (octobre 2026), avec la fiche « vecteurs 6 » : « l'élève
+doit résoudre toutes les étapes avec des cases à remplir qui ne seront que
+des nombres. »
+
+**La rédaction de la fiche, tout en nombres.** « On veut » : le système
+collé `{a + u t = b + v t′}` ①②③, les deux colonnes cerclées `d` et `d′`.
+Puis, dans l'équation `s` où `t` est seul (coefficient 1 par construction) :
+`t = [c0] [c1] t′` ; dans l'équation `r` : `a + u([c0] [c1] t′) = …` ⟺
+`[e0] [e1] t′ = b + v t′` ⟺ `[f1] t′ = [f0]`, donc `t′ = […]`, puis
+`t = [c0] [c1] × ([t′]) = [t]` ; « ATTENTION ! » dans l'équation `w` :
+`a + u × ([t]) = b + v × ([t′])` ⟺ `[ ] = [ ]` ; la conclusion est écrite
+(« les droites sont bien sécantes ») ; le point : `x = a₁ + u₁t = [ ]`… et
+`I(…)` RECOPIE ces trois cases (`edsMiroirs`, pas une case, aucune note ne
+le compte ; après la correction, le point juste). 20 cases par question.
+
+**Le juge** : chaque case est un nombre (`tgParseFrac`) ; un coefficient
+porte son signe dans sa case, sans « + » écrit devant (comme au 7.1.3). La
+ligne `[f1] t′ = [f0]` accepte aussi l'écriture opposée (`−f1`, `−f0` : les
+`t′` regroupés de l'autre côté) — les deux cases ensemble, jamais une seule.
+
+**Le tirage.** `s`, `r`, `w` tirés (l'ordre ②, ①, ③ de la fiche est un cas
+parmi six) ; `u_s = 1` ; `u⃗`, `v⃗` non colinéaires ; `t` entier non nul, `t′`
+entier (0 permis, comme sur la fiche) ; le point `I = A + t u⃗`, puis
+`B = I − t′ v⃗`. Écartés : une coordonnée de `B` nulle, `b_s − a_s = 0`
+(« t = 0 + … »), et `u_r v_s − v_r = 0` (l'équation `r` ne donnerait pas
+`t′`). Les deux droites sont donc toujours sécantes.
+
+**Éprouvé** (les deux) : 3 000 séances tirées — chaque copie juste acceptée,
+`(−n)/(−d)` et la paire opposée acceptés, une seule case de la paire
+renversée refusée (sauf `f0 = 0`, où elle est juste), la conclusion inversée
+refusée, une copie vide sans aucune case « remplie », `t = c0 + c1 t′`,
+`f1 t′ = f0` et `I` sur `d′` toujours vrais, chaque question sérialisable en
+JSON ; le juge du quotient sur onze écritures (`0,7`, `0,67`, `2/3`, `4/6`,
+`0,6`, `−2,04`, `2/−3`…). Les deux écrans ouverts dans Chromium à 1 280 px et
+à 390 px : sur téléphone, réduire l'écart des colonnes du système collé
+faisait chevaucher le « = » et les cercles — la règle a été retirée.
