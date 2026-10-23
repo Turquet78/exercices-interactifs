@@ -8685,7 +8685,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=599;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=600;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -74240,14 +74240,15 @@ function ctxVmi(q){
    commence par un « = » posé par la page. Plus de justification à choisir.
 
    CHAQUE « = » EST UNE ÉTAPE, jugée par dchPas() : l'égalité doit être vraie
-   (dchComb), et la ligne doit se tirer de la précédente par UNE étape — un
-   changement d'ordre (une étape à lui seul : Turquet, octobre 2026) ; la
-   relation de Chasles qui réunit deux vecteurs ou plus VOISINS, écrits dans
-   l'ordre où ils s'enchaînent (AB + BA donne 0) ; un point inséré pour
-   décomposer un vecteur en deux ; soustraire, c'est ajouter l'opposé ; un ou
-   plusieurs vecteurs remplacés par un vecteur égal sur la figure (le
-   parallélogramme, un milieu). Hors changement d'ordre, chaque règle
-   s'applique SUR PLACE ; plusieurs applications d'une même règle dans une
+   (dchComb), et la ligne doit se tirer de la précédente par UNE étape — une
+   RÉÉCRITURE : changer l'ordre, écrire + YX pour − XY (soustraire, c'est
+   ajouter l'opposé), remplacer un ou plusieurs vecteurs par des vecteurs
+   égaux de la figure (le parallélogramme, un milieu), un, deux ou les trois
+   à la fois (Turquet, octobre 2026) ; ou la relation de Chasles qui réunit
+   deux vecteurs ou plus VOISINS, écrits dans l'ordre où ils s'enchaînent
+   (AB + BA donne 0 ; les mettre côte à côte est une étape) ; ou un point
+   inséré pour décomposer un vecteur en deux. Chasles et l'insertion
+   s'appliquent SUR PLACE ; plusieurs applications d'une même règle dans une
    ligne comptent pour une étape, le vecteur nul se retire sans étape.
    Une étape à laquelle il manque une étape intermédiaire ou plus compte
    fausse, même si l'égalité est vraie : le message dit de détailler, et
@@ -74325,14 +74326,6 @@ function dchComb(l, D){
     aj(v[1], s); aj(v[0], -s); });
   return Object.keys(c).filter(function(k){ return c[k]; }).sort().map(function(k){ return k+c[k]; }).join(' ');
 }
-/* les vecteurs de la figure ÉGAUX à v — par le parallélogramme (AB = DC) ou
-   par un milieu (M milieu de [AB] : AM = MB) : ceux qui ont sa combinaison */
-function dchEgaux(D, v){
-  if(!D.para && !Object.keys(D.mil||{}).length) return [];
-  const k=dchComb([v], D), P=D.pts.split(''), r=[];
-  P.forEach(function(a){ P.forEach(function(b){ if(a!==b && a+b!==v && dchComb([a+b], D)===k) r.push(a+b); }); });
-  return r;
-}
 function dchTxt(l){ return l.map(function(t, i){ return t[0]==='-' ? (i?' − ':'− ')+t.slice(1) : (i?' + ':'')+t; }).join(''); }
 
 /* ---- le juge d'une étape ----------------------------------------------
@@ -74374,40 +74367,46 @@ function dchReunit(S, T, nul){
   };
   return rec(0, 0);
 }
-/* soustraire, c'est ajouter l'opposé : sur place, des « − XY » deviennent « + YX » */
-function dchSoustrait(S, T){
-  return S.length===T.length && S.some(function(s, i){ return s!==T[i]; })
-    && S.every(function(s, i){ return s===T[i] || (s[0]==='-' && T[i]===dchOpp(s.slice(1))); });
+/* LA RÉÉCRITURE (Turquet, octobre 2026 : « accepter que l'on change l'ordre,
+   que l'on change en opposé un ou plusieurs vecteurs et que l'on change en
+   vecteurs égaux un ou plusieurs vecteurs comme une seule étape ») : T a
+   autant de vecteurs que S, et les mêmes VALEURS, dans n'importe quel ordre
+   — − XY écrit + YX (soustraire, c'est ajouter l'opposé), un vecteur
+   remplacé par un vecteur égal de la figure (le parallélogramme, un
+   milieu), l'ordre changé : tout cela à la fois, une seule étape. La valeur
+   d'un vecteur signé est sa combinaison de points (dchComb). */
+function dchVal(D, t){ return dchComb([t], D); }
+function dchReecrit(D, S, T){
+  return S.length===T.length && S.map(function(t){ return dchVal(D, t); }).sort().join('|')===T.map(function(t){ return dchVal(D, t); }).sort().join('|');
 }
-/* sur place, des vecteurs remplacés par des vecteurs ÉGAUX sur la figure (le parallélogramme, un milieu) */
-function dchEgale(D, S, T){
-  if(!D.para && !Object.keys(D.mil||{}).length) return false;
-  const cle=function(t){ const n=t[0]==='-'; return (n?'-':'+')+dchComb([n ? t.slice(1) : t], D); };
-  return S.length===T.length && S.every(function(s, i){ return cle(s)===cle(T[i]); });
-}
-/* UNE étape mène-t-elle de S à T (lignes déjà nettes) ? Rien changé, ou
-   seulement l'ordre, ou une seule règle appliquée sur place. */
+/* UNE étape mène-t-elle de S à T (lignes déjà nettes) ? Une réécriture, ou
+   Chasles sur des voisins, ou un point inséré sur place. */
 function dchUneEtape(D, S, T){
-  return dchMemes(S, T) || dchSoustrait(S, T) || dchEgale(D, S, T) || dchReunit(S, T, true) || dchReunit(T, S, false);
+  return dchReecrit(D, S, T) || dchReunit(S, T, true) || dchReunit(T, S, false);
+}
+/* les écritures d'un vecteur signé qui ont sa valeur : + XY, − YX, et les
+   vecteurs égaux de la figure, avec ou sans signe */
+function dchFormes(D, t){
+  const v=dchVal(D, t), P=D.pts.split(''), r=[];
+  P.forEach(function(a){ P.forEach(function(b){ if(a===b) return;
+    if(dchVal(D, a+b)===v) r.push(a+b); if(dchVal(D, '-'+a+b)===v) r.push('-'+a+b); }); });
+  return r.length ? r : [t];
 }
 /* les lignes qu'une étape tire de S — pour chercher l'étape qui manque.
-   L'insertion se limite à un point dans un ou deux vecteurs. */
+   Les réécritures : toutes les permutations, chaque vecteur sous chacune de
+   ses formes tant que le compte reste raisonnable, sinon sous sa forme
+   positive ; l'insertion se limite à un point dans un ou deux vecteurs. */
 function dchVoisins(D, S){
   const out=[], vus={}, aj=function(l){ const k=l.join(' '); if(!vus[k]){ vus[k]=1; out.push(l); } };
   const n=S.length;
-  /* l'ordre : toutes les permutations */
-  const perm=function(acc, reste){ if(!reste.length){ aj(acc); return; }
-    reste.forEach(function(t, i){ perm(acc.concat([t]), reste.slice(0, i).concat(reste.slice(i+1))); }); };
-  if(n<=6) perm([], S);
-  /* soustraction */
-  const negs=[]; S.forEach(function(t, i){ if(t[0]==='-') negs.push(i); });
-  for(let m=1;m<(1<<negs.length);m++) aj(S.map(function(t, i){ const b=negs.indexOf(i); return b>=0 && (m>>b&1) ? dchOpp(t.slice(1)) : t; }));
-  /* vecteurs égaux */
-  if(D.para || Object.keys(D.mil||{}).length){
-    const ch=S.map(function(t){ const neg=t[0]==='-', v=neg ? t.slice(1) : t;
-      return [t].concat(dchEgaux(D, v).map(function(e){ return (neg?'-':'')+e; })); });
-    const rec=function(i, acc){ if(i===n){ aj(acc); return; } ch[i].forEach(function(t){ rec(i+1, acc.concat([t])); }); };
-    rec(0, []);
+  if(n<=6){
+    let F=S.map(function(t){ return dchFormes(D, t); });
+    let fact=1; for(let k=2;k<=n;k++) fact*=k;
+    if(fact*F.reduce(function(a, f){ return a*f.length; }, 1)>6000)
+      F=S.map(function(t){ return t[0]==='-' ? [t, dchOpp(t.slice(1))] : [t]; });
+    const perm=function(acc, reste){ if(!reste.length){ aj(acc); return; }
+      reste.forEach(function(i, k){ F[i].forEach(function(f){ perm(acc.concat([f]), reste.slice(0, k).concat(reste.slice(k+1))); }); }); };
+    perm([], S.map(function(_, i){ return i; }));
   }
   /* Chasles : toutes les façons de réunir des voisins */
   const run=function(i, acc){
@@ -74439,7 +74438,12 @@ function dchVoisins(D, S){
 function dchPas(D, S, T){
   const a=dchNet(S), b=dchNet(T);
   if(dchUneEtape(D, a, b)) return {n:1};
-  const u=dchVoisins(D, a).find(function(U){ return dchUneEtape(D, U, b); });
+  /* la ligne qui manque, la plus simple à lire : le moins de « − », puis
+     le moins de vecteurs changés de place */
+  const ecart=function(U){ return (U.join(' ').split('-').length-1)*100
+    +(U.length===a.length ? U.filter(function(t, i){ return t!==a[i]; }).length : 50); };
+  const u=dchVoisins(D, a).filter(function(U){ return dchUneEtape(D, U, b); })
+    .sort(function(x, y){ return ecart(x)-ecart(y); })[0];
   return u ? {n:2, milieu:u.length ? u : ['0']} : {n:3};
 }
 
@@ -74549,7 +74553,7 @@ function dchEnonceHTML(q){
   }
   h+='<b>'+DCH_VERBES[q.v||0]+' '+dchEnonceVec(D.g)+' = '+dchEnonceVec(D.d)+'.</b><br>'
     +'Écris ta démonstration dans le champ, avec la méthode que tu veux : <b>une étape par ligne</b>. Appuie sur <b>Entrée</b> pour passer à la ligne suivante, qui commence par «&nbsp;=&nbsp;». '
-    +'Changer l’ordre des vecteurs compte comme une étape. Les deux lettres d’un vecteur se placent sous la flèche ; tape <b>+</b> ou <b>−</b> pour en ouvrir une autre (<b>0</b> pour le vecteur nul). La dernière ligne est '+dchEnonceVec(D.d)+'.';
+    +'Changer l’ordre des vecteurs, écrire un opposé ou un vecteur égal de la figure compte comme une étape, même faits ensemble ; la relation de Chasles, sur des vecteurs côte à côte dans le bon ordre, en est une autre. Les deux lettres d’un vecteur se placent sous la flèche ; tape <b>+</b> ou <b>−</b> pour en ouvrir une autre (<b>0</b> pour le vecteur nul). La dernière ligne est '+dchEnonceVec(D.d)+'.';
   return h;
 }
 /* ---- la figure de l'égalité (demande de Turquet, octobre 2026) -----------
@@ -74775,7 +74779,7 @@ function ctxDch(q){
   let c='L’élève rédige sa première démonstration avec des vecteurs, librement, une étape par ligne. Énoncé : '
    +(D.para ? D.para+' est un parallélogramme'+(D.M ? ', '+D.M+' un point du plan' : '') : 'les points '+D.pts.split('').filter(function(c){ return !D.mil[c]; }).join(', ')+' sont quelconques'+Object.keys(D.mil).map(function(c){ return ', '+c+' est le milieu de ['+D.mil[c]+']'; }).join(''))+'. '
    +DCH_VERBES[q.v||0]+' '+dchTxt(D.g)+' = '+dchTxt(D.d)+' (tous ces objets sont des vecteurs). '
-   +'Une étape permise : changer l’ordre d’une somme (c’est une étape à elle seule) ; la relation de Chasles qui réunit deux vecteurs ou plus, voisins et écrits dans l’ordre où ils s’enchaînent (AB + BC = AC, AB + BA = 0) ; insérer un point pour décomposer un vecteur (AB = AD + DB) ; soustraire un vecteur, c’est ajouter son opposé (− CB = + BC)'
+   +'Une étape permise : une réécriture — changer l’ordre d’une somme, écrire + BC pour − CB, remplacer des vecteurs par des vecteurs égaux de la figure, un, deux ou les trois à la fois ; la relation de Chasles qui réunit deux vecteurs ou plus, voisins et écrits dans l’ordre où ils s’enchaînent (AB + BC = AC, AB + BA = 0) ; insérer un point pour décomposer un vecteur (AB = AD + DB)'
    +(D.para ? ' ; remplacer un ou plusieurs vecteurs par des vecteurs égaux du parallélogramme '+D.para+' ('+D.para[0]+D.para[1]+' = '+D.para[3]+D.para[2]+', '+D.para[0]+D.para[3]+' = '+D.para[1]+D.para[2]+')' : '')
    +Object.keys(D.mil).map(function(c){ const e=D.mil[c]; return ' ; '+c+' est le milieu de ['+e+'] : remplacer '+e[0]+c+' par '+c+e[1]+' (ou '+c+e[0]+' par '+e[1]+c+'), et inversement'; }).join('')
    +'. Une étape qui en saute une ou plusieurs compte fausse : la page dit à l’élève de détailler. '
