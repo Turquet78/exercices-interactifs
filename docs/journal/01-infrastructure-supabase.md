@@ -323,6 +323,13 @@ maintenant les deux refus qui vont avec — un élève ne renomme ni un camarade
 lui-même. Sans eux, un prénom volé sur l'écran de connexion suffirait à se faire
 passer pour un autre, et rien ne rougirait. Éprouvé en ouvrant la politique
 d'UPDATE à tous : le banc de la base le nomme.
+**Puis toute la classe de Seconde a pris « NOM Prénom », d'après la liste
+(octobre 2026).** `supabase/renommer-eleves-2nde.sql`, à coller dans l'éditeur
+SQL : un compte reconnu SANS DOUTE — prénom seul, prénom et initiale du nom, ou
+nom et prénom, sans accent ni majuscule — prend le nom de la liste tel qu'écrit.
+« Manon » seul, quand la liste a deux Manon, ne désigne personne et reste tel
+quel ; deux comptes pour un même élève aussi. Le tableau affiché dit le sort de
+chaque ligne. Banc de la base, section 8.
 **Le contrôle de doublon laisse passer l'élève LUI-MÊME.** Deux prénoms
 identiques ne se distinguent plus sur l'écran de connexion et l'un prendrait la
 place de l'autre : le prénom d'un autre est donc refusé, à la casse près, comme
