@@ -1024,9 +1024,28 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   .dm-switch .sw-lbl{color:var(--ink-soft)}
   .dm-switch input:checked~.sw-lbl{color:var(--green)}
   .dm-pick-h{font-family:"Fredoka";font-weight:600;font-size:1rem;margin:2px 0 10px}
-  .dm-grp{margin:0 0 16px}
-  .dm-grp-h{font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid var(--line)}
   .dm-exo{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:10px 13px;margin-bottom:8px;transition:border-color .14s,background .14s}
+  /* L'ARBRE DES EXERCICES de l'éditeur des devoirs et des fiches : thème, puis
+     sous-thème, puis exercices — chaque étage replié jusqu'au clic. */
+  .dm-arbre{border:1.5px solid var(--line);border-radius:12px;margin-bottom:9px;background:var(--paper)}
+  .dm-arbre>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:11px 14px;font-family:"Fredoka";font-weight:600}
+  .dm-arbre>summary::-webkit-details-marker{display:none}
+  .dm-arbre>summary::before{content:"▸";color:var(--blue);transition:transform .15s}
+  .dm-arbre[open]>summary::before{transform:rotate(90deg)}
+  .dm-arbre-corps{padding:0 12px 3px}
+  .dm-arbre .dm-arbre>summary{font-size:.95rem;padding:9px 12px}
+  .dm-arbre-n{margin-left:auto;font-size:.78rem;font-weight:600;color:#fff;background:var(--blue);border-radius:999px;padding:2px 10px;white-space:nowrap}
+  /* L'éditeur des devoirs et des fiches prend TOUTE LA LARGEUR de l'écran
+     (demande de Turquet, octobre 2026), et les exercices d'un étage ouvert,
+     comme le ruban d'ordre, s'y rangent sur autant de colonnes qu'il en
+     tient. Les étages (thèmes, sous-thèmes) gardent la pleine ligne : un
+     sous-thème ouvert dans une colonne étroite replierait ses réglages. */
+  body:has(#scr-teacher.on #pane-devoirs.on) .wrap{max-width:none}
+  @media(min-width:900px){
+    #pane-devoirs .dm-arbre-exos,#pane-devoirs #dmOrdre{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:9px;align-items:start}
+    #pane-devoirs .dm-arbre-exos{padding-bottom:12px}
+    #pane-devoirs .dm-arbre-exos>.dm-exo,#pane-devoirs #dmOrdre>.dm-exo{margin-bottom:0}
+  }
   .dm-exo.pick{border-color:#9bdcc1;background:#F4FBF8}
   .dm-exo-num{font-family:"Fredoka";font-weight:600;font-size:.72rem;color:#fff;background:var(--blue);padding:3px 9px;border-radius:999px;white-space:nowrap;flex:none}
   .dm-exo-name{font-weight:700;font-size:.95rem;flex:1;min-width:120px}
@@ -3062,7 +3081,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=337;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=339;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -20898,6 +20917,31 @@ async function newDM(){
     dmSelId=nd.id; toast(dmGenre==='fiche'?'Nouvelle fiche créée':'Nouveau devoir créé','ok'); renderDevoirsAdmin();
   }catch(e){ toast('Création impossible','err'); }
 }
+/* L'ARBRE DES EXERCICES (demande de Turquet, octobre 2026 : « quand je
+   construis une fiche ou un devoir, n'afficher que les thèmes, puis les
+   sous-thèmes quand on clique sur le thème, puis les exercices quand on
+   clique sur un sous-thème »). Des <details> REPLIÉS, jamais des lignes
+   retirées : les cases d'un étage fermé restent dans le formulaire, et la
+   relecture de l'éditeur les trouve toutes. Chaque coche redessine
+   l'éditeur : les étages ouverts se retiennent (dmArbreOuverts), sans quoi
+   l'arbre se refermerait sous la main à chaque clic. Le compte « n choisis »
+   dit, étage fermé, ce qu'il contient déjà. */
+const dmArbreOuverts=new Set();
+function dmArbreBascule(el){ const k=el.dataset.arbre; if(el.open) dmArbreOuverts.add(k); else dmArbreOuverts.delete(k); }
+function dmArbre(rangee, choisi){
+  const bloc=(cle, titre, ids, corps)=>{
+    const n=ids.filter(choisi).length;
+    return `<details class="dm-arbre" data-arbre="${cle}"${dmArbreOuverts.has(cle)?' open':''} ontoggle="dmArbreBascule(this)"><summary><span>${titre}</span>${n?`<span class="dm-arbre-n">${n} choisi${n>1?'s':''}</span>`:''}</summary><div class="dm-arbre-corps">${corps}</div></details>`;
+  };
+  return THEMES.map(th=>{
+    const ids=th.ids.filter(id=>TESTS[id]); if(!ids.length) return '';
+    const corps=th.sous
+      ? th.sous.map(st=>{ const s=st.ids.filter(id=>TESTS[id]);
+          return s.length?bloc(th.num+'.'+st.num, th.num+'.'+st.num+' · '+esc(st.nom), s, '<div class="dm-arbre-exos">'+s.map(rangee).join('')+'</div>'):''; }).join('')
+      : '<div class="dm-arbre-exos">'+ids.map(rangee).join('')+'</div>';
+    return bloc(String(th.num), 'Thème '+th.num+' · '+esc(th.nom), ids, corps);
+  }).join('');
+}
 function renderDmEditor(){
   const box=$('dmEditor');
   if(!dmSelId){ box.innerHTML='<div class="dm-empty">'+(dmGenre==='fiche'
@@ -20907,8 +20951,7 @@ function renderDmEditor(){
   const chosen={}, nbs={}, nbQs={}, smaxs={}, bonuses={};
   (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; nbs[ex.id]=parseInt(ex.nb,10)||TM_NB;
     nbQs[ex.id]=parseInt(ex.nbQ,10)||null; smaxs[ex.id]=dmPlafondSoutien(ex.smax); bonuses[ex.id]=dmEstBonus(ex); });
-  const groups=THEMES.map(th=>{
-    const rows=th.ids.filter(id=>TESTS[id]).map(id=>{
+  const groups=dmArbre(id=>{
       const modes=chosen[id]||[], picked=modes.length>0;
       const mk=(m,lbl)=>{ const on=modes.includes(m), interdit=(m==='soutien'&&sansSoutien(id));
         if(interdit) return `<label class="dm-mode off" title="Exercice de rapidité : le mode soutien n\u2019y existe pas."><input type="checkbox" disabled><span>${esc(lbl)}</span></label>`;
@@ -20954,10 +20997,7 @@ function renderDmEditor(){
         <span class="dm-modes">${mk('soutien','Soutien')}${mk('train','Entraînement')}</span>
         ${nbChoix}${soutChoix}${bonusChoix}
       </div>`;
-    }).join('');
-    if(!rows) return '';
-    return `<div class="dm-grp"><div class="dm-grp-h">Thème ${th.num} · ${esc(th.nom)}</div>${rows}</div>`;
-  }).join('');
+  }, id=>(chosen[id]||[]).length>0);
   /* LE RUBAN D'ORDRE DES FICHES (demande de Turquet, août 2026) : une fiche se
      fait dans l'ordre, donc l'ordre se VOIT et se RÈGLE ici. L'ordre rangé est
      celui du tableau d.exercices — celui-là même que la page de l'élève lit —
