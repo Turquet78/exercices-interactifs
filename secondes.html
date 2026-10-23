@@ -8685,7 +8685,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=602;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=603;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -12877,13 +12877,12 @@ const RAP_CHI=`<b>Insérer un point : la relation de Chasles à l'envers</b><br>
 
 /* 8.3.10 {demontrer-egalite-reels} */
 const RAP_DCR=`<b>Démontrer une égalité de vecteurs avec des réels</b><br>
-On part du membre de gauche et on le transforme, ligne après ligne, jusqu'au membre de droite. Chaque ligne est <b>une étape</b>, avec la règle de ton choix :<br>
-<b>① Réécrire la somme</b> : changer l'ordre des termes, remplacer un vecteur par un vecteur égal, et <b>soustraire un vecteur, c'est ajouter son opposé</b> : 3<span class="vgt-vec">AB</span> − 2<span class="vgt-vec">CB</span> = 3<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> — le réel reste, le vecteur change de sens. Tout cela à la fois ne fait qu'une étape.<br>
-<b>② Écrire un réel comme une somme</b> : 3<span class="vgt-vec">AB</span> = <span class="vgt-vec">AB</span> + 2<span class="vgt-vec">AB</span>, devant le même vecteur ; et à l'inverse, <b>additionner les réels devant un même vecteur</b> : <span class="vgt-vec">AC</span> + 2<span class="vgt-vec">AC</span> = 3<span class="vgt-vec">AC</span>.<br>
-<b>③ Mettre un réel en facteur</b> : 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> = 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) ; et à l'inverse, <b>développer</b> : 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) = 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span>. C'est une étape à part entière.<br>
-<b>④ Relation de Chasles</b>, sur des vecteurs côte à côte dans l'ordre où ils s'enchaînent : <span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span> = <span class="vgt-vec">AC</span>, même entre parenthèses : 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) = 2<span class="vgt-vec">AC</span>. Mais 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> = 2<span class="vgt-vec">AC</span> saute une étape : on met d'abord 2 en facteur.<br>
-<b>⑤ Dans un parallélogramme ABCD</b> : <span class="vgt-vec">AB</span> = <span class="vgt-vec">DC</span> et <span class="vgt-vec">AD</span> = <span class="vgt-vec">BC</span> — on remplace un vecteur par un vecteur égal.<br>
-Une ligne qui saute une étape compte fausse : il faut détailler.`;
+On part du membre de gauche et on le transforme, ligne après ligne, jusqu'au membre de droite. Chaque ligne est <b>une étape</b>.<br>
+<b>Ce qui ne compte pas comme une étape</b> : changer l'ordre des termes, et remplacer un vecteur par son opposé ou par un vecteur égal — <b>soustraire un vecteur, c'est ajouter son opposé</b> : 3<span class="vgt-vec">AB</span> − 2<span class="vgt-vec">CB</span> = 3<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> (le réel reste, le vecteur change de sens) ; dans un parallélogramme ABCD, <span class="vgt-vec">AB</span> = <span class="vgt-vec">DC</span> et <span class="vgt-vec">AD</span> = <span class="vgt-vec">BC</span>.<br>
+<b>① Relation de Chasles</b> : <span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span> = <span class="vgt-vec">AC</span>, et devant un même réel : 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> = 2<span class="vgt-vec">AC</span>, ou 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) = 2<span class="vgt-vec">AC</span>. À l'envers, on passe par un point : <span class="vgt-vec">AB</span> = <span class="vgt-vec">AD</span> + <span class="vgt-vec">DB</span>.<br>
+<b>② Mettre un réel en facteur</b> : 2<span class="vgt-vec">AB</span> + 2<span class="vgt-vec">BC</span> = 2(<span class="vgt-vec">AB</span> + <span class="vgt-vec">BC</span>) ; à l'inverse, <b>développer</b>.<br>
+<b>③ Écrire un réel comme une somme</b> : 3<span class="vgt-vec">AB</span> = <span class="vgt-vec">AB</span> + 2<span class="vgt-vec">AB</span> ; à l'inverse, <b>additionner les réels devant un même vecteur</b> : <span class="vgt-vec">AC</span> + 2<span class="vgt-vec">AC</span> = 3<span class="vgt-vec">AC</span>.<br>
+Plusieurs règles dans une même ligne ne font qu'<b>une</b> étape si elles portent sur des vecteurs différents. Mais deux règles sur les mêmes vecteurs, c'est deux étapes : 3<span class="vgt-vec">AB</span> − 2<span class="vgt-vec">CB</span> = <span class="vgt-vec">AB</span> + 2<span class="vgt-vec">AB</span> − 2<span class="vgt-vec">CB</span> = <span class="vgt-vec">AB</span> + 2<span class="vgt-vec">AC</span>.`;
 
 /* 8.3.9 {demontrer-colineaires} */
 const RAP_DCO=`<b>Démontrer que deux droites sont parallèles avec les vecteurs</b><br>
@@ -67650,22 +67649,21 @@ function ctxDco(q){
    un vecteur (3AB, − 2CB, AB), ou un réel en facteur d'une parenthèse de
    vecteurs (2(AB + BC)).
 
-   CHAQUE « = » EST UNE ÉTAPE (dcrPas), et UNE étape, c'est l'une de ces
-   règles, appliquée une ou plusieurs fois dans la ligne, sur place :
-     · la RÉÉCRITURE du 8.2.13 : autant de termes, chacun de même valeur,
-       dans n'importe quel ordre — l'ordre changé, − 2CB écrit + 2BC, un
-       vecteur égal du parallélogramme, tout cela à la fois ;
-     · la relation de Chasles, sur des vecteurs VOISINS écrits dans l'ordre
-       où ils s'enchaînent : de réel 1 (AB + BC = AC, AB + BA = 0), ou dans
-       une parenthèse (2(AB + BC) = 2AC) ; lue à l'envers, un point inséré ;
-     · METTRE UN RÉEL EN FACTEUR (2AB + 2BC = 2(AB + BC)), ou DÉVELOPPER ;
-     · écrire un réel comme une somme (3AB = AB + 2AB), ou additionner les
-       réels devant un même vecteur (AC + 2AC = 3AC), sur des voisins.
-   2AB + 2BC = 2AC saute donc une étape : la mise en facteur. Comme au
-   8.2.13, une étape à laquelle il en manque une ou plus compte FAUSSE, et le
-   message dit de détailler — en montrant la ligne qui manque quand il n'en
-   manque qu'une ; la dernière ligne doit être le membre de droite (à
-   l'ordre près). Une démonstration vaut UN point.
+   CHAQUE « = » EST UNE ÉTAPE (dcrPas). Puis, le même mois (v603), la règle
+   de Turquet : changer l'ordre, écrire l'opposé ou un vecteur égal n'est
+   PAS une étape ; plusieurs règles dans une même ligne n'en font qu'une si
+   elles portent sur des vecteurs différents ; Chasles n'attend pas la mise
+   en facteur (2AB + 2BC = 2AC). Le juge (dcrUneEtape) partage les termes en
+   paquets disjoints, chacun passé par une règle : Chasles sur des termes de
+   même réel, ou dans une parenthèse, et à l'envers un point inséré ; mettre
+   un réel en facteur ou développer ; additionner les réels devant un même
+   vecteur ou écrire un réel comme une somme. Les MÊMES vecteurs passés par
+   deux règles sautent une étape : 3AB − 2CB = AB + 2AC compte faux, « il
+   faut détailler, par exemple 3AB − 2CB = AB + 2AB − 2CB = AB + 2AC ».
+   Comme au 8.2.13, une étape à laquelle il en manque une ou plus compte
+   FAUSSE, et le message montre la ligne qui manque quand il n'en manque
+   qu'une ; la dernière ligne doit être le membre de droite (à l'ordre, à
+   l'opposé et au vecteur égal près). Une démonstration vaut UN point.
 
    LE DESSIN (dcrSvg) : les points de l'énoncé et une flèche par vecteur de
    l'égalité, sans son réel — 3AB⃗ se lit sur la flèche AB⃗ ; sur un
@@ -67684,17 +67682,17 @@ const DCR_VERBES=['Montrer que','Démontrer que','Prouver que'];
    premier est l'exemple de la demande, toujours en première page, avec ses
    lettres. */
 const DCR_DEMOS=[
-  {g:'3AB-2CB', d:'AB+2AC', c:['3AB+2BC','AB+2AB+2BC','AB+2(AB+BC)']},
+  {g:'3AB-2CB', d:'AB+2AC', c:['AB+2AB-2CB']},
   {g:'2AB+BC', d:'AB+AC', c:['AB+AB+BC']},
-  {g:'3AB+3BC', d:'3AC', c:['3(AB+BC)']},
-  {g:'2AB+3BC', d:'2AC+BC', c:['2AB+2BC+BC','2(AB+BC)+BC']},
-  {g:'2AB+BC+CD', d:'AB+AD', c:['AB+AB+BC+CD','AB+AC+CD']},
-  {g:'3AB-AC', d:'2AB+CB', c:['3AB+CA','2AB+AB+CA','2AB+CA+AB']},
-  {para:1, g:'2AB+2AD', d:'2AC', c:['2AB+2BC','2(AB+BC)']},
-  {para:1, g:'2AB+BC', d:'AC+DC', c:['AB+AB+BC','AB+AC']},
+  {g:'3AB+3BC', d:'3AC', c:[]},
+  {g:'2AB+3BC', d:'2AC+BC', c:['2AB+2BC+BC']},
+  {g:'2AB+BC+CD', d:'AB+AD', c:['AB+AB+BC+CD']},
+  {g:'3AB-AC', d:'2AB+CB', c:['2AB+AB-AC']},
+  {para:1, g:'2AB+2AD', d:'2AC', c:[]},
+  {para:1, g:'2AB+BC', d:'AC+DC', c:['AB+AB+BC']},
   {g:'2(AB+BC)', d:'AB+AC+BC', c:['2AB+2BC','AB+AB+BC+BC']},
   {g:'AB+BC+2AC', d:'3AC', c:['AC+2AC']},
-  {g:'2AB+2BC+CA', d:'AC', c:['2(AB+BC)+CA','2AC+CA','AC+AC+CA']},
+  {g:'2AB+2BC+CA', d:'AC', c:['2AC+CA','AC+AC+CA']},
   {g:'3(AB+BC)-AC', d:'2AC', c:['3AC-AC']}
 ];
 /* les lettres d'un plan : celles qu'il écrit (un parallélogramme a les quatre) */
@@ -67800,175 +67798,148 @@ function dcrCle(t){
 }
 function dcrKey(l){ return l.map(dcrCle).join(' '); }
 function dcrNet(l){ return l.filter(function(t){ return !t.z; }); }
-function dcrMemes(a, b){ return a.length===b.length && a.map(dcrCle).sort().join(' ')===b.map(dcrCle).sort().join(' '); }
 
-/* ---- le juge d'une étape ------------------------------------------------- */
-/* LA RÉÉCRITURE du 8.2.13 : T a autant de termes que S, et les mêmes
-   VALEURS, dans n'importe quel ordre — une parenthèse ne vaut qu'une
-   parenthèse du même nombre de vecteurs, de mêmes valeurs. */
+/* ---- le juge d'une étape -------------------------------------------------
+   Turquet, octobre 2026, après la première version : « changer en le vecteur
+   opposé ou changer en un vecteur égal n'est pas compté comme une étape ;
+   on peut faire plusieurs étapes en même temps si elles ne concernent pas les
+   mêmes vecteurs ; on n'est pas obligé de factoriser pour appliquer la
+   relation de Chasles, donc 2AB + 2BC = 2AC est accepté comme une seule
+   étape ; changer l'ordre et changer un vecteur en son opposé ou en vecteur
+   égal est accepté ». Une ligne se lit donc comme un ENSEMBLE de termes, dont
+   chacun ne compte que par sa VALEUR (l'ordre, l'opposé, le vecteur égal du
+   parallélogramme sont gratuits) ; UNE étape partage les termes en paquets
+   disjoints, et chaque paquet passe d'une ligne à l'autre par UNE règle :
+     · rien (le terme se réécrit, sans plus) ;
+     · Chasles : des termes de MÊME réel (au signe près) qui se réunissent en
+       un seul — 2AB + 2BC = 2AC, 2AB − 2CB = 2AC —, ou dans une parenthèse ;
+       à l'envers, un point inséré ;
+     · mettre un réel en facteur, ou développer ;
+     · additionner les réels devant un même vecteur, ou écrire un réel comme
+       une somme.
+   Une ligne qui fait passer les MÊMES vecteurs par deux règles saute une
+   étape : 3AB − 2CB = AB + 2AC (3AB = AB + 2AB, puis 2AB + 2BC = 2AC). */
+/* ce que vaut un terme, à l'ordre, à l'opposé et au vecteur égal près */
 function dcrVal(D, t){
   return t.g ? 'g'+t.g.length+':'+t.g.map(function(v){ return dcrComb([{c:t.c, v:v}], D); }).sort().join('|') : dcrComb([t], D);
 }
+/* deux lignes égales terme à terme, dans n'importe quel ordre */
 function dcrReecrit(D, S, T){
   return S.length===T.length && S.map(function(t){ return dcrVal(D, t); }).sort().join('/')===T.map(function(t){ return dcrVal(D, t); }).sort().join('/');
 }
-/* toutes les lignes que tire de S une règle appliquée SUR PLACE, zéro, une
-   ou plusieurs fois : f(S, i) rend les remplacements qui commencent au
-   terme i — {pas : les termes couverts, par : les termes écrits} */
-function dcrSurPlace(S, f){
-  const out=[];
-  const rec=function(i, acc){
-    if(i>=S.length){ out.push(acc); return; }
-    rec(i+1, acc.concat([S[i]]));
-    f(S, i).forEach(function(o){ rec(i+o.pas, acc.concat(o.par)); });
-  };
-  rec(0, []);
-  return out;
+/* la direction d'un vecteur, au signe près : AB, BA, DC… ont la même */
+function dcrDir(D, v){ const a=dcrComb([{c:1, v:v}], D), b=dcrComb([{c:-1, v:v}], D); return a<b ? a : b; }
+/* un paquet de plusieurs termes et ce qu'il devient (vide, ou un seul terme)
+   par UNE règle — lu à l'envers, la même règle (insérer, développer, écrire
+   une somme) */
+function dcrPaquet(D, A, B){
+  if(A.some(function(t){ return t.g; }) || B.length>1) return false;
+  const v=dcrComb(A, D), b=B[0];
+  if(b ? dcrComb(B, D)!==v : v!=='') return false;
+  const k=Math.abs(A[0].c);
+  /* Chasles, sur des termes de même réel */
+  if(A.every(function(t){ return Math.abs(t.c)===k; }) && (!b || (!b.g && Math.abs(b.c)===k))) return true;
+  /* la mise en facteur */
+  if(b && b.g && Math.abs(b.c)===k && A.every(function(t){ return Math.abs(t.c)===k; })
+    && dcrVal(D, b).slice(dcrVal(D, b).indexOf(':')+1)===A.map(function(t){ return dcrComb([t], D); }).sort().join('|') && b.g.length===A.length) return true;
+  /* les réels additionnés devant un même vecteur */
+  const d=dcrDir(D, A[0].v);
+  if(A.every(function(t){ return dcrDir(D, t.v)===d; }) && (!b || (!b.g && dcrDir(D, b.v)===d))) return true;
+  return false;
 }
-/* Chasles dans une suite de vecteurs signés : des voisins de même signe qui
-   s'enchaînent dans l'ordre écrit ; nul : un paquet qui revient au départ
-   donne 0, et se retire */
-function dcrReunitTous(vs, nul){
-  const out=[];
-  const rec=function(i, acc){
-    if(i>=vs.length){ out.push(acc); return; }
-    const neg=vs[i][0]==='-', bloc=[];
-    for(let k=i;k<vs.length;k++){
-      if((vs[k][0]==='-')!==neg) break;
-      bloc.push(neg ? vs[k].slice(1) : vs[k]);
-      const r=dchChaine(bloc); if(!r) break;
-      if(r[0]===r[1]){ if(nul && bloc.length>1) rec(k+1, acc); }
-      else rec(k+1, acc.concat([(neg?'-':'')+r]));
-    }
-  };
-  rec(0, []);
-  return out;
+/* un terme seul et ce qu'il devient, seul : réécrit, ou Chasles (ou un
+   point inséré) dans une parenthèse, au même réel */
+function dcrSeul(D, a, b){
+  if(!a.g && !b.g) return dcrVal(D, a)===dcrVal(D, b);
+  return Math.abs(a.c)===Math.abs(b.c) && dcrComb([a], D)===dcrComb([b], D);
 }
-/* LA RELATION DE CHASLES : des termes voisins de réel 1 (ou tous de réel
-   − 1), ou des vecteurs voisins dans une parenthèse — jamais 2AB + 2BC, qui
-   demande d'abord la mise en facteur. Lue à l'envers (S ← T, sans 0), c'est
-   un point inséré. */
-function dcrChasles(S, nul){
-  const out=[];
-  const rec=function(i, acc){
-    if(i>=S.length){ out.push(acc); return; }
-    const t=S[i];
-    if(t.g){ dcrReunitTous(t.g, nul).forEach(function(g){ rec(i+1, acc.concat(dcrGroupe(t.c, g))); }); return; }
-    if(Math.abs(t.c)!==1){ rec(i+1, acc.concat([t])); return; }
-    const bloc=[];
-    for(let k=i;k<S.length;k++){
-      const u=S[k]; if(u.g || u.c!==t.c) break;
-      bloc.push(u.v);
-      const r=dchChaine(bloc); if(!r) break;
-      if(r[0]===r[1]){ if(nul && bloc.length>1) rec(k+1, acc); }
-      else rec(k+1, acc.concat([{c:t.c, v:r}]));
-    }
-  };
-  rec(0, []);
-  return out;
-}
-/* METTRE UN RÉEL EN FACTEUR (Turquet : « factoriser par un nombre ou
-   développer par un nombre est une étape aussi ») : des termes voisins de
-   même réel, au signe près ; lue à l'envers, c'est développer */
-function dcrFacteurs(S){
-  return dcrSurPlace(S, function(S, i){
-    const t=S[i], o=[];
-    if(t.g || t.z) return o;
-    const g=[t.v];
-    for(let k=i+1;k<S.length;k++){
-      const u=S[k]; if(u.g || u.z || Math.abs(u.c)!==Math.abs(t.c)) break;
-      g.push((u.c*t.c<0 ? '-' : '')+u.v);
-      o.push({pas:k-i+1, par:[{c:t.c, g:g.slice()}]});
-    }
-    return o;
-  });
-}
-/* ADDITIONNER LES RÉELS devant un même vecteur, sur des voisins ; lue à
-   l'envers, c'est écrire un réel comme une somme */
-function dcrSommes(S){
-  return dcrSurPlace(S, function(S, i){
-    const t=S[i], o=[];
-    if(t.g || t.z) return o;
-    let c=t.c;
-    for(let k=i+1;k<S.length;k++){
-      const u=S[k]; if(u.g || u.z || u.v!==t.v) break;
-      c+=u.c;
-      o.push({pas:k-i+1, par:c ? [{c:c, v:t.v}] : []});
-    }
-    return o;
-  });
-}
-function dcrDans(L, l){ const k=dcrKey(l); return L.some(function(x){ return dcrKey(x)===k; }); }
-/* UNE étape mène-t-elle de S à T (lignes déjà nettes) ? */
+/* UNE étape mène-t-elle de S à T (lignes déjà nettes) ? Un partage des termes
+   en paquets disjoints, chacun passé par une règle. */
 function dcrUneEtape(D, S, T){
-  return dcrReecrit(D, S, T)
-    || dcrDans(dcrChasles(S, true), T) || dcrDans(dcrChasles(T, false), S)
-    || dcrDans(dcrFacteurs(S), T) || dcrDans(dcrFacteurs(T), S)
-    || dcrDans(dcrSommes(S), T) || dcrDans(dcrSommes(T), S);
+  const n=S.length, m=T.length, memo={};
+  const pris=function(L, M){ return L.filter(function(_, i){ return M>>i & 1; }); };
+  const rec=function(ms, mt){
+    const k0=ms+','+mt; if(k0 in memo) return memo[k0];
+    let ok=false;
+    if(ms===(1<<n)-1) ok=mt===(1<<m)-1;
+    else {
+      let i=0; while(ms>>i & 1) i++;
+      const libS=[], libT=[];
+      for(let j=i+1;j<n;j++) if(!(ms>>j & 1)) libS.push(j);
+      for(let j=0;j<m;j++) if(!(mt>>j & 1)) libT.push(j);
+      /* le terme i seul : vers un terme, ou vers plusieurs (lus à l'envers) */
+      for(let s=1;s<(1<<libT.length) && !ok;s++){
+        let MT=0; libT.forEach(function(j, b){ if(s>>b & 1) MT|=1<<j; });
+        const B=pris(T, MT);
+        if(B.length===1 ? dcrSeul(D, S[i], B[0]) : dcrPaquet(D, B, [S[i]])) ok=rec(ms|1<<i, mt|MT);
+      }
+      /* le terme i avec d'autres : vers rien, ou vers un seul terme */
+      for(let s=1;s<(1<<libS.length) && !ok;s++){
+        let MS=1<<i; libS.forEach(function(j, b){ if(s>>b & 1) MS|=1<<j; });
+        const A=pris(S, MS);
+        if(dcrPaquet(D, A, [])) ok=rec(ms|MS, mt);
+        for(let x=0;x<libT.length && !ok;x++) if(dcrPaquet(D, A, [T[libT[x]]])) ok=rec(ms|MS, mt|1<<libT[x]);
+      }
+    }
+    return memo[k0]=ok;
+  };
+  return rec(0, 0);
 }
-/* les écritures d'un terme qui ont sa valeur : c XY, − c YX, et les vecteurs
-   égaux du parallélogramme ; une parenthèse reste telle quelle */
-function dcrFormes(D, t){
-  if(t.g) return [t];
-  const v=dcrVal(D, t), P=D.pts.split(''), a=Math.abs(t.c), r=[];
-  P.forEach(function(x){ P.forEach(function(y){ if(x===y) return;
-    [a, -a].forEach(function(c){ const u={c:c, v:x+y}; if(dcrVal(D, u)===v) r.push(u); }); }); });
-  return r.length ? r : [t];
-}
-/* les lignes qu'une étape tire de S — pour chercher l'étape qui manque.
-   Les réécritures : toutes les permutations, chaque terme sous chacune de
-   ses formes tant que le compte reste raisonnable, sinon sous deux ;
-   l'insertion se limite à un point dans un ou deux vecteurs. */
+/* les lignes qu'UNE règle tire de S, sur un seul paquet — pour chercher
+   l'étape qui manque (ce qui touche d'autres vecteurs peut toujours
+   l'accompagner, d'un côté ou de l'autre) */
 function dcrVoisins(D, S){
   const out=[], vus={}, aj=function(l){ const k=dcrKey(l); if(!vus[k]){ vus[k]=1; out.push(l); } };
-  const n=S.length;
-  if(n<=6){
-    let F=S.map(function(t){ return dcrFormes(D, t); });
-    let fact=1; for(let k=2;k<=n;k++) fact*=k;
-    if(fact*F.reduce(function(a, f){ return a*f.length; }, 1)>6000)
-      F=S.map(function(t){ return t.g ? [t] : [t, {c:-t.c, v:dchOpp(t.v)}]; });
-    const perm=function(acc, reste){ if(!reste.length){ aj(acc); return; }
-      reste.forEach(function(i, k){ F[i].forEach(function(f){ perm(acc.concat([f]), reste.slice(0, k).concat(reste.slice(k+1))); }); }); };
-    perm([], S.map(function(_, i){ return i; }));
-  }
-  dcrChasles(S, true).forEach(aj);
-  dcrFacteurs(S).forEach(aj);
-  dcrSommes(S).forEach(aj);
-  /* développer une ou plusieurs parenthèses */
-  dcrSurPlace(S, function(S, i){ const t=S[i];
-    return t.g ? [{pas:1, par:t.g.map(function(v){ return v[0]==='-' ? {c:-t.c, v:v.slice(1)} : {c:t.c, v:v}; })}] : []; }).forEach(aj);
-  /* écrire un ou plusieurs réels comme une somme */
-  dcrSurPlace(S, function(S, i){ const t=S[i], o=[];
-    if(t.g || Math.abs(t.c)<2) return o;
+  const n=S.length, P=D.pts.split('');
+  const remplace=function(I, par){ const l=[]; S.forEach(function(t, i){ if(i===I[0]) par.forEach(function(x){ l.push(x); }); else if(I.indexOf(i)<0) l.push(t); }); aj(l); };
+  /* un vecteur de la figure qui vaut la combinaison v, à k près (k > 0) */
+  const unVecteur=function(v, k){ for(let a=0;a<P.length;a++) for(let b=0;b<P.length;b++){ if(a===b) continue;
+    const t={c:k, v:P[a]+P[b]}; if(dcrComb([t], D)===v) return t; } return null; };
+  S.forEach(function(t, i){
+    if(t.g){
+      /* développer ; Chasles dans la parenthèse */
+      remplace([i], t.g.map(function(v){ return v[0]==='-' ? {c:-t.c, v:v.slice(1)} : {c:t.c, v:v}; }));
+      const u=unVecteur(dcrComb([t], D), Math.abs(t.c)); if(u) remplace([i], [u]);
+      return;
+    }
     const s=t.c<0 ? -1 : 1, a=Math.abs(t.c);
-    for(let b=1;b<a;b++) o.push({pas:1, par:[{c:s*b, v:t.v}, {c:s*(a-b), v:t.v}]});
-    return o; }).forEach(aj);
-  /* un point inséré dans un ou deux vecteurs, sur place : un terme de réel
-     ± 1 se coupe en deux termes, un autre devient une parenthèse, un vecteur
-     d'une parenthèse s'y coupe en deux */
-  const P=D.pts.split('');
-  const coupes=function(v){ const neg=v[0]==='-', w=neg ? v.slice(1) : v, s=neg?'-':'';
-    return P.filter(function(p){ return p!==w[0] && p!==w[1]; }).map(function(p){ return [s+w[0]+p, s+p+w[1]]; }); };
-  const variantes=function(t){
-    if(t.g) return [].concat.apply([], t.g.map(function(v, j){ return coupes(v).map(function(c){ return [{c:t.c, g:t.g.slice(0, j).concat(c).concat(t.g.slice(j+1))}]; }); }));
-    return coupes(t.v).map(function(c){ return Math.abs(t.c)===1 ? [{c:t.c, v:c[0]}, {c:t.c, v:c[1]}] : [{c:t.c, g:c}]; });
-  };
-  const rec=function(i, acc, nb){
-    if(i>=n){ if(nb) aj(acc); return; }
-    rec(i+1, acc.concat([S[i]]), nb);
-    if(nb<2) variantes(S[i]).forEach(function(par){ rec(i+1, acc.concat(par), nb+1); });
-  };
-  rec(0, [], 0);
+    /* écrire le réel comme une somme */
+    for(let b=1;b<a;b++) remplace([i], [{c:s*b, v:t.v}, {c:s*(a-b), v:t.v}]);
+    /* insérer un point */
+    P.forEach(function(z){ if(z===t.v[0] || z===t.v[1]) return;
+      remplace([i], [{c:t.c, v:t.v[0]+z}, {c:t.c, v:z+t.v[1]}]);
+      remplace([i], [{c:t.c, g:[t.v[0]+z, z+t.v[1]]}]); });
+  });
+  /* les paquets de plusieurs termes : Chasles, la mise en facteur, la somme des réels */
+  for(let s=1;s<(1<<n);s++){
+    const I=[]; for(let i=0;i<n;i++) if(s>>i & 1) I.push(i);
+    if(I.length<2 || I.some(function(i){ return S[i].g; })) continue;
+    const A=I.map(function(i){ return S[i]; }), v=dcrComb(A, D), k=Math.abs(A[0].c);
+    if(A.every(function(t){ return Math.abs(t.c)===k; })){
+      if(v==='') remplace(I, []);
+      else { const u=unVecteur(v, k); if(u) remplace(I, [u]); }
+      remplace(I, [{c:A[0].c, g:A.map(function(t){ return (t.c*A[0].c<0 ? '-' : '')+t.v; })}]);
+    }
+    const d=dcrDir(D, A[0].v);
+    if(A.every(function(t){ return dcrDir(D, t.v)===d; })){
+      if(v==='') remplace(I, []);
+      else for(let c=1;c<=60;c++){ const t={c:c, v:A[0].v}, w={c:-c, v:A[0].v};
+        if(dcrComb([t], D)===v){ remplace(I, [t]); break; } if(dcrComb([w], D)===v){ remplace(I, [w]); break; } }
+    }
+  }
   return out;
 }
 /* le nombre d'étapes de S à T (1, 2 ou 3 pour « trois ou plus »), et la
    ligne qui manque quand il en manque une — la plus simple à lire : le moins
-   de « − », puis le moins de termes changés de place */
+   de vecteurs qui ne sont écrits ni avant ni après (2AB + 2BC + BC plutôt
+   que 2AC + 2CB + 3BC), puis le moins de « − », puis le moins de termes */
 function dcrPas(D, S, T){
   const a=dcrNet(S), b=dcrNet(T);
   if(dcrUneEtape(D, a, b)) return {n:1};
-  const ecart=function(U){ return (dcrTxt(U).split('−').length-1)*100
-    +(U.length===a.length ? U.filter(function(t, i){ return dcrCle(t)!==dcrCle(a[i]); }).length : 50); };
+  const ecrits={}, vs=function(t){ return t.g ? t.g.map(function(v){ return v.replace('-',''); }) : [t.v]; };
+  a.concat(b).forEach(function(t){ vs(t).forEach(function(v){ ecrits[v]=1; }); });
+  const ecart=function(U){ let neuf=0; U.forEach(function(t){ vs(t).forEach(function(v){ if(!ecrits[v]) neuf++; }); });
+    return neuf*1000+(dcrTxt(U).split('−').length-1)*100+U.length; };
   const u=dcrVoisins(D, a).filter(function(U){ return dcrUneEtape(D, U, b); })
     .sort(function(x, y){ return ecart(x)-ecart(y); })[0];
   return u ? {n:2, milieu:u.length ? u : [{z:1}]} : {n:3};
@@ -67990,7 +67961,8 @@ function dcrJuge(q, val){
     prev=m.l; fin=m;
   });
   const vide=!M.length;
-  const arrive=!!fin && dcrMemes(dcrNet(fin.l), dcrNet(D.d));
+  /* l'arrivée : le membre de droite, à l'ordre, à l'opposé et au vecteur égal près */
+  const arrive=!!fin && dcrReecrit(D, dcrNet(fin.l), dcrNet(D.d));
   const ok=!vide && arrive && M.every(function(m){ return m.etat==='j'; });
   return {D:D, M:M, vide:vide, arrive:arrive, ok:ok};
 }
@@ -68074,8 +68046,9 @@ function dcrEnonceHTML(q){
     : L.slice(0,-1).join(', ')+' et '+L[L.length-1]+' sont '+(L.length===3 ? 'trois' : 'quatre')+' points du plan. ';
   h+='<b>'+DCR_VERBES[q.v||0]+' '+dcrHTML(D.g)+' = '+dcrHTML(D.d)+'.</b><br>'
     +'Écris ta démonstration dans le champ, avec la méthode que tu veux : <b>une étape par ligne</b>. Appuie sur <b>Entrée</b> pour passer à la ligne suivante, qui commence par «&nbsp;=&nbsp;». '
-    +'Changer l’ordre des termes, écrire un opposé ou un vecteur égal de la figure compte comme une étape, même faits ensemble ; la relation de Chasles, sur des vecteurs côte à côte dans le bon ordre, en est une autre ; '
-    +'<b>mettre un réel en facteur</b> ou <b>développer</b> aussi, comme écrire un réel comme une somme ou additionner les réels devant un même vecteur. '
+    +'Changer l’ordre des termes, écrire l’opposé d’un vecteur ou un vecteur égal de la figure <b>ne compte pas</b> comme une étape. '
+    +'Une étape : la relation de Chasles, même devant un réel (2'+w(L[0]+L[1])+' + 2'+w(L[1]+L[2])+' = 2'+w(L[0]+L[2])+'), mettre un réel en facteur ou développer, écrire un réel comme une somme ou additionner les réels devant un même vecteur ; '
+    +'plusieurs dans la même ligne ne comptent que pour <b>une</b> étape si elles portent sur des vecteurs différents. '
     +'Tape le réel devant le vecteur (2'+w(L[0]+L[1])+'), et des parenthèses pour un réel en facteur : 2('+w(L[0]+L[1])+' + '+w(L[1]+L[2])+'). La dernière ligne est '+dcrHTML(D.d)+'.';
   return h;
 }
@@ -68175,11 +68148,11 @@ function ctxDcr(q){
   let c='L’élève rédige librement, une étape par ligne, la démonstration d’une égalité de vecteurs avec des réels, sans coordonnées ; une figure montre les points et les vecteurs de l’égalité. Énoncé : '
    +(D.para ? D.para+' est un parallélogramme' : D.pts.split('').join(', ')+' sont des points du plan')+'. '
    +DCR_VERBES[q.v||0]+' '+dcrTxt(D.g)+' = '+dcrTxt(D.d)+' (tous ces objets sont des vecteurs). '
-   +'Une étape permise : une réécriture — changer l’ordre des termes, écrire + 2BC pour − 2CB, remplacer des vecteurs par des vecteurs égaux de la figure, un, deux ou les trois à la fois ; '
-   +'la relation de Chasles sur des vecteurs voisins écrits dans l’ordre où ils s’enchaînent, de réel 1 (AB + BC = AC) ou dans une parenthèse (2(AB + BC) = 2AC), ou un point inséré ; '
-   +'mettre un réel en facteur (2AB + 2BC = 2(AB + BC)) ou développer ; écrire un réel comme une somme (3AB = AB + 2AB) ou additionner les réels devant un même vecteur (AC + 2AC = 3AC)'
+   +'Changer l’ordre des termes, écrire + 2BC pour − 2CB ou remplacer un vecteur par un vecteur égal de la figure ne compte PAS comme une étape. Une étape : '
+   +'la relation de Chasles sur des termes de même réel (AB + BC = AC, 2AB + 2BC = 2AC, 2(AB + BC) = 2AC), ou un point inséré ; '
+   +'mettre un réel en facteur (2AB + 2BC = 2(AB + BC)) ou développer ; écrire un réel comme une somme (3AB = AB + 2AB) ou additionner les réels devant un même vecteur (AC + 2AC = 3AC) ; plusieurs de ces règles dans une même ligne comptent pour une seule étape si elles portent sur des vecteurs différents'
    +(D.para ? ' ; dans le parallélogramme '+D.para+', '+D.para[0]+D.para[1]+' = '+D.para[3]+D.para[2]+' et '+D.para[0]+D.para[3]+' = '+D.para[1]+D.para[2] : '')
-   +'. 2AB + 2BC = 2AC saute une étape (la mise en facteur). Une étape qui en saute une ou plusieurs compte fausse : la page dit à l’élève de détailler. '
+   +'. Appliquer deux règles aux MÊMES vecteurs dans une ligne (3AB − 2CB = AB + 2AC) saute une étape et compte faux : la page dit à l’élève de détailler. '
    +'Une rédaction possible, STRICTEMENT SECRÈTE (toute rédaction juste est acceptée) : '+bonne+'. '
    +'Guide l’élève étape par étape, sans donner la rédaction entière ; ne parle jamais de coordonnées.';
   if(!J.vide) c+=' Ce que l’élève a écrit : '+dcrTxt(D.g)+' = '+J.M.map(function(m){ return m.l ? dcrTxt(m.l) : chlMembreTxt(m.brut); }).join(' = ')+'.';
