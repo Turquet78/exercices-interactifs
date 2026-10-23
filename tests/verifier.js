@@ -14812,7 +14812,14 @@ function demontrerChasles(w, P){
         if(q.n.length!==6 || new Set(q.n.split('')).size!==6 || /[IOQ]/.test(q.n)) vus.push('lettres « '+q.n+' »'); });
     }
     if(vus.length) return vus.slice(0,4).join(' | ');
-    DCH_DEMOS.forEach(function(T, t){ if(!plans[t]) vus.push('le plan '+t+' ne sort jamais en 200 séances de son exercice'); });
+    DCH_DEMOS.forEach(function(T, t){ if(!plans[t] && !T.retire) vus.push('le plan '+t+' ne sort jamais en 200 séances de son exercice');
+      if(plans[t] && T.retire) vus.push('le plan '+t+', retiré, sort encore'); });
+    /* le 8.2.18 se pose UNIQUEMENT dans un triangle ou un quadrilatère
+       (Turquet, octobre 2026), des milieux compris */
+    dchPlans(true).forEach(function(t){ const T=DCH_DEMOS[t];
+      if(!T.para && !(T.poly && /^(ABC|ABCD)$/.test(T.poly))) vus.push('plan '+t+' du 8.2.18 : ni triangle ni quadrilatère');
+      if(T.para && !T.mil && /M/.test(T.g.concat(T.d).join(''))) vus.push('plan '+t+' du 8.2.18 : un point M hors de la figure'); });
+    if(dchPlans(true).filter(function(t){ return DCH_DEMOS[t].mil && DCH_DEMOS[t].poly; }).length<3) vus.push('le 8.2.18 a trop peu de milieux dans un triangle ou un quadrilatère');
     if(DCH_DEMOS.filter(function(T){ return T.ins; }).length<D.nb+2) vus.push('trop peu de plans à insertion pour une séance variée');
     /* des milieux, seuls ou dans un parallélogramme (Turquet, octobre 2026) */
     if(!DCH_DEMOS.some(function(T){ return T.mil && !T.para; }) || !DCH_DEMOS.some(function(T){ return T.mil && T.para; })
@@ -14882,6 +14889,11 @@ function demontrerChasles(w, P){
       [24, 'AC+CB\\nCB-CA', 'j,j', 'insérer C, puis l’ordre et l’opposé'],
       [24, 'CB-CA', 'j1', 'AB = CB − CA d’un trait (l’insertion sautée)'],
       [26, 'DA+AB\\nDB\\nDM+MB', 'j,j,j', 'un vecteur égal, Chasles, puis insérer M'],
+      [27, 'AM+MN+MB\\nAM+MB+MN\\nAB+MN', 'j,j,j', 'la fiche « milieu » : AJ + IB = AB + IJ'],
+      [27, 'AN+AM\\nAM+MN+MB', 'j,j1', 'le milieu, puis insertion et ordre d’un trait'],
+      [28, 'AN+NM+CN\\nAN+CN+NM\\nAN+CM', 'j,j,j', 'la fiche « milieu » : AI + CJ = AJ + CI'],
+      [29, 'AM+MD+BM+MC\\nAM+MN+ND+BM+MN+NC\\nMB+BM+MN+MN+CN+NC\\nMN+MN', 'j,j,j,j', 'deux milieux d’un quadrilatère : AD + BC = 2MN'],
+      [30, 'AM+MB+CM+MD\\nAM+MA+MB+MD\\nMB+MD', 'j,j,j', 'le milieu d’une diagonale'],
       [0, 'AC+DB', 'faux', 'une ligne fausse'],
       [0, 'AB+CZ', 'illisible', 'un point hors de l’énoncé']];
     ATT.forEach(function(a){ const e=etats(a[0], a[1]); if(e!==a[2]) vus.push(a[3]+' : '+e+' au lieu de '+a[2]); });
@@ -14897,7 +14909,7 @@ function demontrerChasles(w, P){
     const ecrire=function(txt){ test.locked=false; renderDchTest(); const z=el('dch-z'); z.value=txt; z.dispatchEvent(new Event('input')); return z; };
     renderDchTest();
     const texte=el('dchInstr').textContent.replace(/\\s+/g,' ');
-    if(!/A, B, C et D sont quatre points du plan/.test(texte) || !/Montrer que AB \\+ CD = AD \\+ CB/.test(texte) || !/une étape par ligne/.test(texte)) vus.push('l’énoncé dit « '+texte.slice(0,160)+' »');
+    if(!/ABCD est un quadrilatère/.test(texte) || !/Montrer que AB \\+ CD = AD \\+ CB/.test(texte) || !/une étape par ligne/.test(texte)) vus.push('l’énoncé dit « '+texte.slice(0,160)+' »');
     if(!el('dchInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
     /* l'idée de l'insertion, AVANT l'énoncé — et seulement là où il faut insérer */
     const idee=function(){ return el('dchIdee').textContent.replace(/\\s+/g,' '); };
@@ -14909,6 +14921,7 @@ function demontrerChasles(w, P){
     const enonce=function(tt){ return dchEnonceHTML({t:tt, n:'ABCDMN', v:0}).replace(/<[^>]*>/g,'').replace(/\\s+/g,' '); };
     if(!/A, B et C sont trois points du plan ; M est le milieu de \\[AB\\] et D est le milieu de \\[AC\\]/.test(enonce(15))) vus.push('l’énoncé de deux milieux dit « '+enonce(15).slice(0,120)+' »');
     if(!/ABCD est un parallélogramme ; M est son centre, le milieu de ses diagonales \\[AC\\] et \\[BD\\]/.test(enonce(18))) vus.push('l’énoncé du centre dit « '+enonce(18).slice(0,120)+' »');
+    if(!/ABC est un triangle ; M est le milieu de \\[AB\\] et N est le milieu de \\[AC\\]/.test(enonce(27))) vus.push('l’énoncé de la fiche « milieu » dit « '+enonce(27).slice(0,120)+' »');
     if(!/ABCD est un parallélogramme ; M est le milieu de \\[AB\\] et N est le milieu de \\[DC\\]/.test(enonce(19))) vus.push('l’énoncé du parallélogramme et des milieux dit « '+enonce(19).slice(0,120)+' »');
     if(!el('dch-z') || el('dch-z').tagName!=='TEXTAREA') vus.push('le champ n’est pas un champ à plusieurs lignes');
     if(document.querySelector('#dchHost select')) vus.push('une liste de justifications reste à l’écran');
@@ -14931,6 +14944,7 @@ function demontrerChasles(w, P){
       const nbSeg=(T.para ? 4 : 0)+Object.keys(T.mil||{}).length+(T.centre ? 1 : 0);
       if(box.querySelectorAll('line.dch-cote').length!==nbSeg) vus.push('plan '+t+' : '+box.querySelectorAll('line.dch-cote').length+' segments en pointillés au lieu de '+nbSeg);
       if(box.querySelectorAll('line.dch-code').length!==2*(nbSeg-(T.para ? 4 : 0))) vus.push('plan '+t+' : le codage des milieux manque');
+      if(box.querySelectorAll('line.dch-poly').length!==(T.poly ? T.poly.length : 0)) vus.push('plan '+t+' : '+box.querySelectorAll('line.dch-poly').length+' côtés tracés au lieu de '+(T.poly ? T.poly.length : 0));
       const leg=box.querySelector('.dch-leg').textContent.replace(/\\s+/g,' ');
       if(leg.indexOf(dchTxt(Dm.g)+' = '+dchTxt(Dm.d))<0) vus.push('plan '+t+' : la légende dit « '+leg+' »');
     });
