@@ -510,3 +510,56 @@ vérification égale, I sur `d′`), la copie juste acceptée, la paire opposée
 `(−h1, −h0)` acceptée seule à seule refusée, les menus faux refusés, une
 copie vide sans case remplie ; l'écran ouvert dans Chromium, saisies
 fausses recopiées dans les miroirs puis remplacées par les justes.
+
+## 7.1.7 — parallèles, sécantes ou non coplanaires (`espace-positions-droites`, kind `epo`)
+
+Demande de Turquet (octobre 2026), avec la fiche « vecteur 7 » : « créer un
+exercice dans vecteur et droite de l'espace comme le pdf joint. Pour chaque
+question on tracera les deux droites. On pourra prendre des droites qui ne
+sont pas des arêtes si on peut faire la différence sur le dessin entre
+sécantes et non coplanaires de façon simple ou visible. »
+
+**La fiche.** Un pavé droit ABCDEFGH (A en bas à gauche sur la face avant,
+D caché derrière A), six phrases « (AB) et (CD) sont … » à compléter par
+« parallèles », « sécantes » ou « non coplanaires ». Ici : une question par
+écran, la figure avec SES deux droites (la première écrite en orange, la
+seconde en violet, les noms de l'énoncé de la même couleur), et une liste des
+trois mots. Six questions par `distinctes()`, deux de chaque sorte, dans le
+désordre.
+
+**Les droites** passent par deux sommets : 12 arêtes, 12 diagonales de face,
+4 diagonales du pavé. Deux d'entre elles, sécantes, se coupent toujours en un
+sommet, au centre d'une face ou au centre du pavé — jamais hors du dessin.
+Les sécantes se tirent une fois sur deux en un sommet ; quatre fois sur dix,
+la paire est faite de deux arêtes.
+
+**Ce qui rend la différence visible : les pointillés, appliqués aux droites
+comme aux arêtes.** Chaque morceau d'une droite caché par le pavé (dedans, ou
+derrière une face) est en pointillés : `epoCache` regarde si le rayon vers
+l'œil — le noyau de la projection cavalière — traverse l'intérieur du pavé.
+Deux non coplanaires dont les tracés semblent se croiser ne sont gardées que
+si, au croisement, l'une est pleine et l'autre en pointillés — (AC) et (BF)
+de la fiche : la diagonale de la base passe derrière l'arête. Un croisement
+plein × plein ou pointillés × pointillés se lirait comme un point commun : la
+paire est écartée au tirage. Écartées aussi : deux non coplanaires qui
+sembleraient parallèles (moins de 10°), deux sécantes trop rasantes (moins de
+15°), deux parallèles à moins de 16 px l'une de l'autre sur le dessin. Le
+tracé d'une droite ne frôle aucun sommet qui n'est pas sur elle (12 px) :
+avec les premières proportions essayées, (AF) prolongée passait sur G et
+(AG) sur F — les proportions du pavé (`EPO_X`, `EPO_Y`, `EPO_Z`) ont été
+choisies, mesure à l'appui, pour que les 28 droites passent toutes. Restent
+24 paires parallèles, 163 sécantes, 148 non coplanaires.
+
+**La correction** dit pourquoi : le plan commun et la même direction
+(« AB⃗ = HG⃗ ») pour deux parallèles ; le plan commun et le point commun
+(« au centre de la face BCGF », marqué en vert sur la figure) pour deux
+sécantes ; pour deux non coplanaires, un plan qui contient l'une et que
+l'autre ne coupe qu'en un sommet hors de la première (« (BF) ne coupe le plan
+(ABCD), qui contient (AC), qu'en B ») — trouvé parmi les vingt plans de trois
+sommets (`EPO_PLANS` : six faces, six plans diagonaux, huit triangles).
+
+**Éprouvé** : 3 000 séances tirées — six questions distinctes, deux de chaque
+sorte, la position relue sur les noms écrits (l'ordre des lettres et des
+droites est un habit, `q.ordre`), un plan commun pour chaque paire coplanaire,
+un témoin pour chaque non coplanaire, aucune figure ni explication avec
+`NaN` ou `undefined`, chaque question sérialisable en JSON.
