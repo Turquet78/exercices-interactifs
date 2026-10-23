@@ -1979,8 +1979,12 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .elg-fd{padding-top:3px}
 .elg-col{display:inline-flex;flex-direction:column;align-items:center;gap:4px}
 .elg-row{display:inline-flex;align-items:center;justify-content:center;gap:5px}
-.elg-rac{display:inline-flex;align-items:stretch}
-.elg-rs{font-size:1.45em;line-height:1;align-self:center;margin-right:-1px}
+.elg-rac{position:relative;display:inline-flex;align-items:stretch;padding-left:.8em}
+/* Le « √ » est DESSINÉ, pas écrit : un glyphe ne rejoint jamais la barre
+   (deux morceaux, demande de Turquet, octobre 2026). Le trait du SVG finit
+   en haut à droite exactement où commence la barre du radicande, à la même
+   hauteur et la même épaisseur (2px, non mis à l'échelle). */
+.elg-rs{position:absolute;left:0;top:1px;width:.8em;height:calc(100% - 1px);overflow:visible;color:var(--ink)}
 .elg-rad{display:inline-flex;align-items:center;gap:4px;border-top:2px solid var(--ink);padding:3px 3px 0 4px}
 .elg-sp{display:inline-block;width:22px}
 .elg-carres{gap:8px 30px}
@@ -3950,7 +3954,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=428;
+const APP_VERSION=429;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4186,7 +4190,7 @@ const TESTS={
   'suite-croissante-non-majoree': { name:'Suites — croissante et non majorée : la limite +∞', icon:'📈', desc:'Le théorème voisin du théorème de convergence monotone : a) montre que la suite est croissante, b) démontre par récurrence que Uₙ ≥ n, c) déduis-en la limite par le théorème de comparaison, d) conclus qu’elle n’est pas majorée et qu’elle diverge.', start:()=>startTNM() },
   'suite-somme-majoree': { name:'Suites — une somme majorée : la limite existe', icon:'∑', desc:'Sₙ = 1 + 1/2² + … + 1/n² : a) les premiers termes, b) la suite croît, c) la récurrence Sₙ ≤ 2 − 1/n, d) le théorème de convergence monotone la fait converger, e) mais il ne dit pas combien vaut la limite — seulement qu’elle est au plus 2. Puis la même chose avec les cubes.', start:()=>startSSM() },
   'suite-algo-approx': { name:'Suites — algorithme : approcher la limite', icon:'🎯', desc:'Une suite Uₙ₊₁ = a Uₙ + b qui converge : a) trouve sa limite ℓ, b) complète l’algorithme Python qui s’arrête au premier rang où |Uₙ − ℓ| < 10⁻ᵖ, c) lis ce rang dans le tableau de valeurs, et dis pourquoi la boucle s’arrête toujours.', start:()=>startSAP() },
-  'espace-milieu-longueurs': { name:'Espace \u2014 milieu, longueurs, triangle rectangle', icon:'\ud83e\uddca', desc:'Trois points de l\u2019espace, la fiche \u00ab vecteur 2 \u00bb\u00a0: les coordonn\u00e9es du milieu de [AB], celles des vecteurs AB, AC et BC, les longueurs AB, AC, BC par la racine carr\u00e9e, puis les carr\u00e9s des c\u00f4t\u00e9s\u00a0: le triangle ABC est-il rectangle\u00a0? Pythagore ou sa r\u00e9ciproque. Trois triangles.', start:()=>startELG() },
+  'espace-milieu-longueurs': { name:'Espace \u2014 milieu, longueurs, triangle rectangle', icon:'\ud83e\uddca', desc:'Trois points de l\u2019espace, la fiche \u00ab vecteur 2 \u00bb\u00a0: les coordonn\u00e9es du milieu de [AB], celles des vecteurs AB, AC et BC, les longueurs AB, AC, BC par la racine carr\u00e9e, puis les carr\u00e9s des c\u00f4t\u00e9s\u00a0: le triangle ABC est-il rectangle\u00a0? le th\u00e9or\u00e8me de Pythagore. Trois triangles.', start:()=>startELG() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
   'arbre-probabilites-fiche': { name:'Probabilités \u2014 arbre : les cinq situations de la fiche', icon:'\ud83c\udf32', desc:'Seulement des probabilités, et l\u2019arbre de la fiche : complète-le avec les données et leurs contraires, puis écris chaque calcul en détaillant les étapes \u2014 intersections, P(B), probabilités conditionnelles, et P(B) en fonction de x.', start:()=>startAPF() },
@@ -20895,7 +20899,7 @@ const RAP_ELG=`<b>Repérage dans l’espace : milieu, vecteur, longueur</b><br>
 • <b>Coordonnées d’un vecteur</b> : « arrivée − départ » — le vecteur <i>AB</i> a pour coordonnées (<i>x<sub>B</sub></i> − <i>x<sub>A</sub></i> ; <i>y<sub>B</sub></i> − <i>y<sub>A</sub></i> ; <i>z<sub>B</sub></i> − <i>z<sub>A</sub></i>), écrites en colonne.<br>
 • <b>Longueur</b> (repère orthonormé) : <i>AB</i> = √( (<i>x<sub>B</sub></i> − <i>x<sub>A</sub></i>)<sup>2</sup> + (<i>y<sub>B</sub></i> − <i>y<sub>A</sub></i>)<sup>2</sup> + (<i>z<sub>B</sub></i> − <i>z<sub>A</sub></i>)<sup>2</sup> ). Attention : (−3)<sup>2</sup> = 9.<br>
 • <b>Exemple</b> : <i>A</i>(3 ; −2 ; 0), <i>B</i>(−1 ; 2 ; 3) : <i>AB</i>(−4 ; 4 ; 3) et <i>AB</i> = √(16 + 16 + 9) = √41.<br>
-• <b>Triangle rectangle ?</b> On compare le carré du PLUS GRAND côté à la somme des carrés des deux autres. S’il y a égalité, d’après la <b>réciproque</b> du théorème de Pythagore, le triangle est rectangle — au sommet opposé au plus grand côté. Sinon, d’après le théorème de Pythagore (sa contraposée), il n’est pas rectangle.<br>
+• <b>Triangle rectangle ?</b> On compare le carré du PLUS GRAND côté à la somme des carrés des deux autres. S’il y a égalité, d’après le <b>théorème de Pythagore</b>, le triangle est rectangle — au sommet opposé au plus grand côté. Sinon, d’après le théorème de Pythagore, il n’est pas rectangle. (Au lycée, la réciproque et la contraposée font partie du théorème.)<br>
 • <b>(√<i>a</i>)<sup>2</sup> = <i>a</i></b> : inutile de calculer la racine pour trouver <i>AB</i><sup>2</sup>.`;
 const RAP_CVP=`<b>Trouver un paramètre grâce à la dérivée seconde</b><br>
 • <b>Convexité et signe de <i>f</i> ″</b> : <i>f</i> est convexe sur un intervalle si et seulement si <i>f</i> ″(<i>x</i>) ≥ 0 sur cet intervalle ; concave si <i>f</i> ″(<i>x</i>) ≤ 0.<br>
@@ -28981,9 +28985,9 @@ function cvpConseilCtx(){
    l'ordre qu'on veut ; une coordonnée de milieu s'écrit en fraction ou en
    décimal. La colonne d'un vecteur, elle, a un ORDRE : xB − xA. Au e), les
    deux petits côtés se nomment dans l'ordre qu'on veut, le plus grand à
-   droite. Un triangle qui n'est pas rectangle se conclut par le théorème de
-   Pythagore (sa contraposée, les deux sont acceptés), un triangle rectangle
-   par sa réciproque. Les trois passent par distinctes(). */
+   droite. Rectangle ou non, le triangle se conclut « d'après le théorème de
+   Pythagore » : au lycée, réciproque et contraposée en font partie. Les
+   trois passent par distinctes(). */
 const ELG_L=['A','B','C'], ELG_CO=['x','y','z'];
 const ELG_VECS=[['A','B'],['A','C'],['B','C']];
 function elgPgcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a; }
@@ -29067,7 +29071,7 @@ function elgCases(q){
   S('elg-n2',petits[1].nom,'second côté du membre de gauche','n');
   S('elg-n3',g.nom,'plus grand côté, à droite');
   S('elg-sg',q.r?'eq':'ne','menu : = ou ≠');
-  S('elg-th',q.r?'rec':'pyth','menu : le théorème',null,q.r?[]:['contra']);
+  S('elg-th','pyth','menu : le théorème');
   S('elg-cc',q.r||'non','menu : la conclusion');
   return out;
 }
@@ -29110,7 +29114,10 @@ function elgPtHTML(q,L){ const p=elgPt(q,L); return '<i>'+L+'</i>('+p.map(elgNb)
 function elgPlain(q){ return ELG_L.map(L=>L+'('+elgPt(q,L).map(elgNb).join(' ; ')+')').join(', '); }
 function elgVec(n){ return '<span class="elg-vec">'+n+'</span>'; }
 const ELG_SG=[['eq','='],['ne','≠']];
-const ELG_TH=[['pyth','le théorème de Pythagore'],['rec','la réciproque du théorème de Pythagore'],['contra','la contraposée du théorème de Pythagore'],['thal','le théorème de Thalès']];
+/* Au lycée, la réciproque et la contraposée sont DANS le théorème de
+   Pythagore : on écrit « d'après le théorème de Pythagore » dans les deux cas
+   (demande de Turquet, octobre 2026). Le menu garde deux intrus. */
+const ELG_TH=[['pyth','le théorème de Pythagore'],['thal','le théorème de Thalès'],['chasles','la relation de Chasles']];
 const ELG_CC=[['A','est rectangle en A'],['B','est rectangle en B'],['C','est rectangle en C'],['non','n’est pas rectangle']];
 const ELG_NOMS=[['AB','AB'],['AC','AC'],['BC','BC']];
 function elgSel(id, opts){
@@ -29126,7 +29133,7 @@ function elgFormHTML(q){
   const P=h=>'<span class="elg-par">'+h+'</span>';
   const fr=(n,d)=>'<span class="elg-fr"><span class="elg-fn">'+n+'</span><span class="elg-fd">'+d+'</span></span>';
   const col=rows=>P('<span class="elg-col">'+rows.map(r=>'<span class="elg-row">'+r+'</span>').join('')+'</span>');
-  const rac=h=>'<span class="elg-rac"><span class="elg-rs">√</span><span class="elg-rad">'+h+'</span></span>';
+  const rac=h=>'<span class="elg-rac"><svg class="elg-rs" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0.5 64 L3 57 L5.6 99 L10 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg><span class="elg-rad">'+h+'</span></span>';
   const sq='<sup>2</sup>';
   let h='';
   h+='<div class="tg-sub">a) Les coordonnées du milieu <i>I</i> de [<i>AB</i>] :</div>';
@@ -29185,8 +29192,8 @@ function elgRetiens(q){
   const s=p[0].n2+p[1].n2;
   return 'La clé : le milieu a pour coordonnées les MOYENNES des coordonnées, et un vecteur <i>XY</i> se calcule « arrivée − départ » : <i>x<sub>Y</sub></i> − <i>x<sub>X</sub></i>. '
     +'Puis on compare le carré du plus grand côté, <i>'+g.nom+'</i><sup>2</sup> = '+g.n2+', à la somme des deux autres : '+p[0].n2+' + '+p[1].n2+' = '+s+'. '
-    +(q.r?'L’égalité est vraie : d’après la <b>réciproque</b> du théorème de Pythagore, le triangle est <b>rectangle en '+q.r+'</b> (le sommet opposé au plus grand côté).'
-         :'L’égalité est fausse ('+s+' ≠ '+g.n2+') : d’après le théorème de Pythagore (sa contraposée), le triangle <b>n’est pas rectangle</b>.');
+    +(q.r?'L’égalité est vraie : d’après le <b>théorème de Pythagore</b>, le triangle est <b>rectangle en '+q.r+'</b> (le sommet opposé au plus grand côté).'
+         :'L’égalité est fausse ('+s+' ≠ '+g.n2+') : d’après le <b>théorème de Pythagore</b>, le triangle <b>n’est pas rectangle</b>.');
 }
 function checkELG(live){
   if(test.locked && !live) return;
@@ -29241,12 +29248,12 @@ function elgConseilCtx(){
   const q=test.questions[test.idx], cases=elgCases(q);
   const etat=cases.map(function(x){ const el=$(x.id); const v=el?String(el.value||'').trim():''; return x.nom+' = '+(v===''?'(vide)':'« '+v+' »'); }).join(' ; ');
   return 'Exercice de Terminale (géométrie dans l’espace) : dans un repère de l’espace, '+elgPlain(q)+'. '
-    +'Questions : a) coordonnées du milieu I de [AB], écrites ((xA + xB)/2 ; (yA + yB)/2 ; (zA + zB)/2) puis calculées ; b) c) d) coordonnées des vecteurs AB, AC, BC (« arrivée − départ », colonne x, y, z) puis longueurs AB, AC, BC par √(x² + y² + z²) ; e) AB², AC², BC², comparaison du carré du plus grand côté à la somme des deux autres, puis conclusion par le théorème de Pythagore ou sa réciproque. '
+    +'Questions : a) coordonnées du milieu I de [AB], écrites ((xA + xB)/2 ; (yA + yB)/2 ; (zA + zB)/2) puis calculées ; b) c) d) coordonnées des vecteurs AB, AC, BC (« arrivée − départ », colonne x, y, z) puis longueurs AB, AC, BC par √(x² + y² + z²) ; e) AB², AC², BC², comparaison du carré du plus grand côté à la somme des deux autres, puis conclusion « d’après le théorème de Pythagore » (au lycée, la réciproque et la contraposée font partie du théorème : on ne les nomme pas). '
     +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
     +cases.map(function(x){ return x.nom+' = '+(x.type==='sel'?x.good:numFmt(x.good)); }).join(' ; ')+' (conclusion : '+elgRep(q)+'). '
-    +'Les menus valent : eq = « = », ne = « ≠ », rec = « la réciproque du théorème de Pythagore », pyth = « le théorème de Pythagore » (contra, sa contraposée, est aussi accepté), non = « n’est pas rectangle ». '
+    +'Les menus valent : eq = « = », ne = « ≠ », pyth = « le théorème de Pythagore » (thal = Thalès et chasles = Chasles sont des intrus), non = « n’est pas rectangle ». '
     +'Saisies actuelles de l’élève : '+etat+'. '
-    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. Méthode, sans donner la réponse : le milieu a pour coordonnées les moyennes des coordonnées de A et B ; un vecteur XY a pour coordonnées celles de Y moins celles de X ; la longueur XY = √((xY − xX)² + (yY − yX)² + (zY − zX)²) ; attention au carré d’un nombre négatif, (−3)² = 9. Pour conclure, on compare le carré du PLUS GRAND côté à la somme des carrés des deux autres : égalité ⟹ rectangle (réciproque de Pythagore), sinon pas rectangle. Aide-le sur la PREMIÈRE case fausse ou vide.';
+    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. Méthode, sans donner la réponse : le milieu a pour coordonnées les moyennes des coordonnées de A et B ; un vecteur XY a pour coordonnées celles de Y moins celles de X ; la longueur XY = √((xY − xX)² + (yY − yX)² + (zY − zX)²) ; attention au carré d’un nombre négatif, (−3)² = 9. Pour conclure, on compare le carré du PLUS GRAND côté à la somme des carrés des deux autres : égalité ⟹ rectangle, sinon pas rectangle — dans les deux cas d’après le théorème de Pythagore. Aide-le sur la PREMIÈRE case fausse ou vide.';
 }
 /* ================= 6.10 RÉCURRENCE — LA FORMULE EXPLICITE EN FRACTION =================
    Demande de Turquet (septembre 2026), repris de la fiche « récurrence et
@@ -33676,7 +33683,7 @@ const QIA_SUGG={
   svr:["Faire un rappel de cours pour cet exercice.","Comment construit-on le tracé en escalier ?","À quoi sert la droite d’équation y = x ?","Comment dérive-t-on une fonction de la forme 1/(a − x) ?","Pourquoi f croissante conserve-t-elle les inégalités ?","Que veut dire « décroissante et minorée » ?"],
   ssv:["Faire un rappel de cours pour cet exercice.","Comment construit-on le tracé en escalier ?","Comment dérive-t-on un quotient ?","Pourquoi f croissante conserve-t-elle les inégalités ?","Comment mettre U\u2099 sur le même dénominateur ?","Comment lire le signe d\u2019un trinôme du second degré ?","Pourquoi le passage à la limite donne-t-il deux solutions ?","Comment choisir entre les deux valeurs possibles de \u2113 ?"],
   tcl:["Faire un rappel de cours pour cet exercice.","Comment lire le sens de variation dans l’encadrement ?","Pourquoi faut-il « croissante ET majorée » pour conclure ?","Pourquoi Uₙ₊₁ a-t-elle la même limite que Uₙ ?","Comment résoudre l’équation obtenue par passage à la limite ?"],
-  elg:["Faire un rappel de cours pour cet exercice.","Comment calcule-t-on les coordonnées du milieu d’un segment ?","Comment trouver les coordonnées d’un vecteur à partir de deux points ?","Comment calcule-t-on une longueur dans l’espace ?","Comment savoir si un triangle est rectangle ?","Quand utilise-t-on la réciproque du théorème de Pythagore ?"],
+  elg:["Faire un rappel de cours pour cet exercice.","Comment calcule-t-on les coordonnées du milieu d’un segment ?","Comment trouver les coordonnées d’un vecteur à partir de deux points ?","Comment calcule-t-on une longueur dans l’espace ?","Comment savoir si un triangle est rectangle ?","Comment conclure avec le théorème de Pythagore ?"],
   cvp:["Faire un rappel de cours pour cet exercice.","Comment trouver k quand on connaît l’abscisse du point d’inflexion ?","Pourquoi faut-il vérifier que f″ change de signe ?","Comment dérive-t-on un produit avec une exponentielle ?","Pourquoi le discriminant de f″ doit-il être négatif ou nul ?"],
   tvf:["Faire un rappel de cours pour cet exercice.","Que faut-il exactement pour appliquer le théorème de convergence monotone ?","Comment trouver un contre-exemple ?","Une suite bornée est-elle forcément convergente ?","Pourquoi une inégalité stricte devient-elle large à la limite ?"],
   tnm:["Faire un rappel de cours pour cet exercice.","Comment montrer qu’une suite est croissante ?","Comment rédiger l’hérédité de la récurrence ?","Que dit le théorème de comparaison ?","Pourquoi une suite croissante qui tend vers +∞ n’est-elle pas majorée ?"],
