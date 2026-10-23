@@ -1491,8 +1491,9 @@ psql('postgres', ['-c', 'drop database if exists fusion']);
    -------------------------------------------------------------------------
    Demande de Turquet (octobre 2026). supabase/renommer-eleves-2nde.sql écrit
    dans la base vivante : ce banc exige qu'il renomme ce que la liste reconnaît
-   sans doute possible, qu'il laisse intact un compte ambigu (« Manon » seul :
-   deux Manon dans la liste), un compte absent de la liste et un nom déjà pris,
+   sans doute possible ou que Turquet a désigné (« Manon » seul, ambigu entre
+   deux Manon, est CHECCHI Manon), qu'il laisse intacts un compte ambigu et un
+   compte absent de la liste,
    que les notes suivent l'élève, et qu'il soit sans effet rejoué. */
 console.log('\n8. RENOMMER LES ÉLÈVES DE SECONDE D\'APRÈS LA LISTE');
 const RENOM = path.join(RACINE, 'supabase/renommer-eleves-2nde.sql');
@@ -1503,15 +1504,14 @@ const LINA = 'dddddddd-4444-4444-8444-44444444444d';
 psql('renom', ['-c', "insert into public.eleves_2nde (id,prenom,cle) values "
   + "('" + LINA + "','lina','r1'),"          /* prénom seul, en minuscules */
   + "(gen_random_uuid(),'Jahinna','r2'),"    /* sans son accent */
-  + "(gen_random_uuid(),'Manon','r3'),"      /* deux Manon dans la liste : ambigu, intact */
+  + "(gen_random_uuid(),'Manon','r3'),"      /* désignée à la main : CHECCHI Manon */
   + "(gen_random_uuid(),'Manon G.','r4'),"   /* l'initiale du nom tranche, et l'emporte sur r3 */
   + "(gen_random_uuid(),'Roan Lewis','r5'),"  /* tiret perdu */
   + "(gen_random_uuid(),'DELMONT Clément','r6')," /* déjà au bon nom */
-  + "(gen_random_uuid(),'Ines','r7'),"
-  + "(gen_random_uuid(),'valgresy ines','r8')," /* deux comptes pour Ines : ambigu */
   + "(gen_random_uuid(),'Basil','r9'),"
   + "(gen_random_uuid(),'mathiot BASIL','r10')," /* idem */
-  + "(gen_random_uuid(),'Zoé','r11')"        /* absente de la liste */]);
+  + "(gen_random_uuid(),'Zoé','r11'),"       /* absente de la liste */
+  + "(gen_random_uuid(),'Iness','r14')"      /* désignée à la main : VALGRESY Ines */]);
 psql('renom', ['-c', "insert into public.resultats_2nde (eleve_id,score,total,percent,duration_sec,details) values ('"
   + LINA + "',8,10,80,30,'{\"test\":\"ex1\"}'::jsonb)"]);
 const noms = () => String(psql('renom', ['-tAc',
@@ -1520,14 +1520,16 @@ const sortieRen = psql('renom', ['-f', RENOM]);
 if(process.env.VOIR_RAPPORT) console.log(sortieRen);
 const apresRen = noms();
 bilan('les comptes reconnus sans doute prennent « NOM Prénom » de la liste, les autres sont intacts',
-  apresRen === 'r1=MARMASSE Lina,r2=DIJOUX Jahînna,r3=Manon,r4=GESTIN Manon,r5=DAVERY Roan-Lewis,'
-  + 'r6=DELMONT Clément,r7=Ines,r8=valgresy ines,r9=Basil,r10=mathiot BASIL,r11=Zoé', apresRen);
+  apresRen === 'r1=MARMASSE Lina,r2=DIJOUX Jahînna,r3=CHECCHI Manon,r4=GESTIN Manon,r5=DAVERY Roan-Lewis,'
+  + 'r6=DELMONT Clément,r9=Basil,r10=mathiot BASIL,r11=Zoé,r14=VALGRESY Ines', apresRen);
 const noteLina = String(psql('renom', ['-tAc',
   "select e.prenom from public.resultats_2nde r join public.eleves_2nde e on e.id = r.eleve_id"])).trim();
 bilan('les notes suivent l\'élève renommé', noteLina === 'MARMASSE Lina', noteLina);
 bilan('l\'éditeur SQL dit ce qui a été fait, ligne par ligne',
   /MARMASSE Lina\s*\|\s*lina\s*\|\s*renommé/.test(sortieRen)
-  && /CHECCHI Manon\s*\|\s*Manon\s*\|\s*ambigu/.test(sortieRen)
+  && /CHECCHI Manon\s*\|\s*Manon\s*\|\s*renommé/.test(sortieRen)
+  && /VALGRESY Ines\s*\|\s*Iness\s*\|\s*renommé/.test(sortieRen)
+  && /MATHIOT Basil\s*\|\s*Basil\s*\|\s*ambigu/.test(sortieRen)
   && /GESTIN Manon\s*\|\s*Manon G\.\s*\|\s*renommé/.test(sortieRen)
   && /AHMED Inaya\s*\|\s*—\s*\|\s*aucun compte/.test(sortieRen)
   && /Zoé\s*\|\s*compte absent de la liste/.test(sortieRen), sortieRen);

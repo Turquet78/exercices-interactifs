@@ -36,6 +36,12 @@
 --      refuse ce doublon, ce fichier aussi ;
 --    · les comptes qui ne répondent à aucune ligne : intacts.
 --
+--  LES COMPTES DÉSIGNÉS À LA MAIN (table _designes) : après un premier passage,
+--  Turquet a dit lui-même qui était qui — « Manon » seul est CHECCHI Manon,
+--  « Iness » est VALGRESY Ines. Ces comptes-là ne passent plus par le
+--  rapprochement automatique. Les deux comptes de Salomé se fusionnent AVANT,
+--  avec fusionner-eleves-2nde.sql (motif « salome », « QUERE Salomé »).
+--
 --  RIEN D'AUTRE NE CHANGE : le code et la connexion de l'élève dépendent de
 --  `cle`, jamais du prénom ; ses notes le désignent par `eleve_id` et suivent
 --  le nouveau nom d'elles-mêmes (voir « Renommer un élève » dans
@@ -92,9 +98,23 @@ insert into _liste (nom, prenom) values      -- ← la liste de la classe
   ('TIRANO', 'Cécile'),
   ('VALGRESY', 'Ines');
 
-/* Chaque rapprochement possible entre une ligne de la liste et un compte. */
+/* Les noms de compte que Turquet a désignés lui-même, après un premier
+   passage : ils l'emportent sur le rapprochement automatique. « Manon » seul,
+   ambigu entre deux élèves, est CHECCHI Manon ; « Iness » est Ines. */
+drop table if exists _designes;
+create temporary table _designes (compte text not null, nom text not null, prenom text not null);
+insert into _designes (compte, nom, prenom) values      -- ← désignés à la main
+  ('Manon', 'CHECCHI', 'Manon'),
+  ('Iness', 'VALGRESY', 'Ines');
+
+/* Chaque rapprochement possible entre une ligne de la liste et un compte :
+   celui que Turquet a désigné, sinon celui que le nom reconnaît. */
 drop table if exists _paires;
 create temporary table _paires as
+select d.nom, d.prenom, d.nom || ' ' || d.prenom as cible, e.id, e.prenom as actuel
+  from _designes d
+  join public.eleves_2nde e on pg_temp.norm(e.prenom) = pg_temp.norm(d.compte)
+union all
 select l.nom, l.prenom, l.nom || ' ' || l.prenom as cible, e.id, e.prenom as actuel
   from _liste l
   join public.eleves_2nde e
@@ -102,7 +122,8 @@ select l.nom, l.prenom, l.nom || ' ' || l.prenom as cible, e.id, e.prenom as act
          pg_temp.norm(l.prenom),
          pg_temp.norm(l.prenom || ' ' || left(l.nom, 1)),
          pg_temp.norm(l.nom || ' ' || l.prenom),
-         pg_temp.norm(l.prenom || ' ' || l.nom));
+         pg_temp.norm(l.prenom || ' ' || l.nom))
+ where not exists (select 1 from _designes d where pg_temp.norm(d.compte) = pg_temp.norm(e.prenom));
 
 /* Combien de lignes de la liste chaque compte reconnaît : « Manon » seul en
    reconnaît deux, et ne désigne donc personne. */
