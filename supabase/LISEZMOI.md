@@ -1112,6 +1112,29 @@ compte connecté à changer son propre mot de passe, et rien d'autre.
 
 ---
 
+## 6 bis. Fusionner les deux comptes d'un même élève (Seconde)
+
+Un élève qui s'est créé un second compte a ses notes coupées en deux.
+`fusionner-eleves-2nde.sql` les réunit — réglé, à la livraison, sur les deux
+comptes « Clément », sous le nom « DELMONT Clément ». Pour une autre fusion, on
+change les deux réglages en tête du bloc (`motif`, `nom_final`) et le nom dans
+le dernier `select`.
+
+1. Coller le fichier entier dans l'éditeur SQL, l'exécuter.
+2. **En rouge** « FUSION ANNULÉE, RIEN N'A BOUGÉ » : le motif désigne zéro, un
+   ou plus de deux comptes, et le message les nomme. Préciser le motif, relancer.
+3. **Sinon**, le tableau affiché est la liste des notes de devoir et de fiche
+   du compte fusionné : une ligne par exercice et par mode, la meilleure.
+
+Le compte gardé est celui qui a travaillé le plus récemment : **son code reste
+le bon**, l'autre ne marche plus. En cas de doute, « Nouveau code » dans le
+tableau du professeur. Tout ce qui est écarté (notes de devoir moins bonnes,
+pause en double, ligne du compte retiré) est copié dans
+`archives.fusion_eleves`, que l'API ne publie pas — la requête pour le relire
+est en tête du fichier. Le relancer après coup ne fait rien.
+
+---
+
 ## Si quelque chose se passe mal
 
 `migrations/001_annulation.sql` rouvre l'accès immédiatement.

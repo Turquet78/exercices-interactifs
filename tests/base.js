@@ -1372,6 +1372,120 @@ bilan('le retour arrière rend exactement l\'état d\'avant', String(psql('notes
   === avantTout);
 psql('postgres', ['-c', 'drop database if exists notes']);
 
+/* ---------------------------------------------------------------------------
+   7. Fusionner deux comptes d'un même élève (Seconde)
+   -------------------------------------------------------------------------
+   Demande de Turquet (octobre 2026) : réunir les deux comptes de Clément sous
+   « DELMONT Clément », en ne gardant que la meilleure note de chaque exercice
+   de devoir ou de fiche. supabase/fusionner-eleves-2nde.sql écrit dans la base
+   vivante et SUPPRIME des lignes : ce banc exige qu'il garde exactement ce que
+   la page compterait (la meilleure par exercice ET par mode), qu'il archive
+   tout ce qu'il écarte, qu'il ne touche à aucun autre élève, qu'il refuse un
+   motif ambigu sans rien bouger, et qu'il soit sans effet rejoué. */
+console.log('\n7. FUSIONNER DEUX COMPTES D\'UN MÊME ÉLÈVE');
+const FUSION = path.join(RACINE, 'supabase/fusionner-eleves-2nde.sql');
+monter('fusion');
+psql('fusion', ['-f', MIG]);
+psql('fusion', ['-f', MIG2]);
+psql('fusion', ['-f', MIG3]);
+
+const UK = 'aaaaaaaa-0000-4000-8000-00000000000a', UP = 'bbbbbbbb-0000-4000-8000-00000000000b';
+const K = 'aaaaaaaa-1111-4111-8111-11111111111a';   /* « Clément », a travaillé hier : il reste */
+const P = 'bbbbbbbb-2222-4222-8222-22222222222b';   /* « CLEMENT D », plus ancien : il s'en va */
+const A = 'cccccccc-3333-4333-8333-33333333333c';   /* Alice, témoin */
+psql('fusion', ['-c', "insert into auth.users (id,email) values ('" + UK + "','k@x.invalid'),('" + UP + "','p@x.invalid')"]);
+psql('fusion', ['-c', "insert into public.eleves_2nde (id,prenom,cle,user_id) values "
+  + "('" + K + "','Clément','ck','" + UK + "'),('" + P + "','CLEMENT D','cp','" + UP + "'),('" + A + "','Alice','ca',null)"]);
+const NOTES_AV = {};
+NOTES_AV[P + '|ex1'] = 7; NOTES_AV[K + '|ex1'] = 5; NOTES_AV[P + '|ex2'] = 4; NOTES_AV[A + '|ex1'] = 3;
+psql('fusion', ['-c', "insert into public.parametres_2nde (id,valeurs) values (1, '"
+  + JSON.stringify({ locks:['ex9'],
+      devoirs:[{id:'dm_1', num:1, titre:'Fonctions', exercices:[{id:'ex1'}], notes:NOTES_AV}],
+      fiches:[{id:'fc_2', num:2, titre:'Calcul', exercices:[{id:'ex2'}]}] }).replace(/'/g, "''") + "'::jsonb)"]);
+
+/* [rang, élève, percent, jours avant aujourd'hui, details] — le commentaire dit le sort attendu */
+const FUS = [
+  [1,  K, 60, 9, {test:'ex1', mode:'train',   dm:'dm_1'}],                 /* écartée : 80 sur l'autre compte */
+  [2,  P, 80, 8, {test:'ex1', mode:'train',   dm:'dm_1'}],                 /* gardée */
+  [3,  P, 90, 7, {test:'ex1', mode:'soutien', dm:'dm_1'}],                 /* gardée : l'autre mode */
+  [4,  K, 40, 6, {test:'ex1', mode:'soutien', dm:'dm_1'}],                 /* écartée */
+  [5,  K, 70, 2, {test:'ex2', mode:'train',   dm:'fc_2'}],                 /* gardée : égalité, la plus récente */
+  [6,  P, 70, 5, {test:'ex2', mode:'train',   dm:'fc_2'}],                 /* écartée */
+  [7,  P, 30, 4, {test:'ex1', mode:'train'}],                              /* hors devoir : déplacée */
+  [8,  K, 50, 3, {test:'ex1', mode:'train'}],                              /* hors devoir : reste */
+  [9,  P, 10, 4, {test:'ex3', mode:'train',   dm:'dm_1', state:'paused'}], /* pause unique : déplacée */
+  [10, K, 20, 1, {test:'ex1', mode:'train',   dm:'dm_1', state:'paused'}], /* pause la plus récente : reste */
+  [11, P, 90, 5, {test:'ex1', mode:'train',   dm:'dm_1', state:'paused'}], /* pause en double : écartée */
+  [12, A, 20, 1, {test:'ex1', mode:'train',   dm:'dm_1'}],                 /* Alice : intacte */
+  [13, A, 10, 2, {test:'ex1', mode:'train',   dm:'dm_1'}],                 /* Alice, moins bonne : intacte aussi */
+];
+const idFus = rang => '00000000-0000-4000-8000-0000000001' + String(rang).padStart(2, '0');
+FUS.forEach(function(f){
+  psql('fusion', ['-c', "insert into public.resultats_2nde (id,eleve_id,score,total,percent,duration_sec,details,created_at) values ('"
+    + idFus(f[0]) + "','" + f[1] + "'," + f[2] + ",100," + f[2] + ",30,'" + JSON.stringify(f[4]) + "'::jsonb, now() - interval '"
+    + f[3] + " days')"]);
+});
+psql('fusion', ['-c', "insert into public.signalements_2nde (eleve_id, exercice, message) values ('" + P + "','ex1','une remarque')"]);
+
+const etatFusion = () => String(psql('fusion', ['-tAc',
+  "select (select string_agg(prenom || '=' || id, ',' order by prenom) from public.eleves_2nde) || ' # '"
+  + " || (select string_agg(right(id::text,3) || ':' || right(eleve_id::text,1), ',' order by id) from public.resultats_2nde)"
+  + " || ' # ' || (select valeurs::text from public.parametres_2nde where id = 1)"])).trim();
+
+/* Le bord du REFUS d'abord : un troisième nom qui contient le motif rend la
+   cible ambiguë — le fichier doit s'arrêter en rouge, en nommant les comptes,
+   sans avoir rien bougé. */
+psql('fusion', ['-c', "insert into public.eleves_2nde (prenom,cle) values ('Clémentine','cc')"]);
+const avantRefus = etatFusion();
+const refus = psql('fusion', ['-f', FUSION], true);
+bilan('trois comptes répondent au motif : la fusion s\'arrête en rouge et les nomme',
+  refus.erreur && /FUSION ANNULÉE, RIEN N'A BOUGÉ/.test(refus.erreur) && /Clémentine/.test(refus.erreur)
+  && /CLEMENT D/.test(refus.erreur), refus.erreur || 'aucune erreur');
+bilan('et rien n\'a bougé', etatFusion() === avantRefus, etatFusion());
+psql('fusion', ['-c', "delete from public.eleves_2nde where prenom = 'Clémentine'"]);
+
+const sortieFus = psql('fusion', ['-f', FUSION]);
+if(process.env.VOIR_RAPPORT) console.log(sortieFus);
+
+const clements = String(psql('fusion', ['-tAc',
+  "select string_agg(prenom || '=' || id, ',') from public.eleves_2nde where prenom ilike '%cl%ment%'"])).trim();
+bilan('un seul compte reste, nommé « DELMONT Clément » — celui qui a travaillé le plus récemment',
+  clements === 'DELMONT Clément=' + K, clements);
+const restes = String(psql('fusion', ['-tAc',
+  "select string_agg(right(id::text,2), ',' order by id) from public.resultats_2nde where eleve_id = '" + K + "'"])).trim();
+bilan('il garde la meilleure note par exercice ET par mode, tout le hors-devoir, une pause par exercice',
+  restes === '02,03,05,07,08,09,10', restes);
+const archives = String(psql('fusion', ['-tAc',
+  "select string_agg(x, ',' order by x) from (select case when table_source = 'eleves_2nde'"
+  + " then ligne->>'prenom' else right(ligne->>'id',2) end as x from archives.fusion_eleves) t"])).trim();
+bilan('tout ce qui est écarté est archivé, ligne entière — notes, pause en double, compte retiré',
+  archives === '01,04,06,11,CLEMENT D', archives);
+const alice = String(psql('fusion', ['-tAc',
+  "select string_agg(right(id::text,2), ',' order by id) from public.resultats_2nde where eleve_id = '" + A + "'"])).trim();
+bilan('un autre élève n\'est pas touché, même ses notes moins bonnes', alice === '12,13', alice);
+const notesAp = JSON.parse(String(psql('fusion', ['-tAc',
+  "select valeurs->'devoirs'->0->'notes' from public.parametres_2nde where id = 1"])).trim());
+const notesAttendues = {}; notesAttendues[K + '|ex1'] = 7; notesAttendues[K + '|ex2'] = 4; notesAttendues[A + '|ex1'] = 3;
+bilan('les notes posées à la main passent au compte gardé, la plus haute l\'emporte',
+  JSON.stringify(notesAp, Object.keys(notesAp).sort()) === JSON.stringify(notesAttendues, Object.keys(notesAttendues).sort()),
+  JSON.stringify(notesAp));
+const reglages = String(psql('fusion', ['-tAc',
+  "select (valeurs->'locks')::text || ' ' || (valeurs->'fiches')::text from public.parametres_2nde where id = 1"])).trim();
+bilan('le reste des réglages n\'a pas bougé',
+  reglages === '["ex9"] [{"id": "fc_2", "num": 2, "titre": "Calcul", "exercices": [{"id": "ex2"}]}]', reglages);
+const sig = String(psql('fusion', ['-tAc', "select eleve_id from public.signalements_2nde"])).trim();
+bilan('le signalement suit l\'élève sur le compte gardé', sig === K, sig);
+const comptes = String(psql('fusion', ['-tAc', "select string_agg(id::text, ',' order by id) from auth.users"])).trim();
+bilan('le compte de connexion du compte retiré est supprimé, l\'autre reste', comptes === UK, comptes);
+bilan('l\'éditeur SQL affiche les notes de devoir du compte fusionné',
+  /DELMONT Clément/.test(sortieFus) && /devoir n°1 « Fonctions »/.test(sortieFus) && /fiche n°2 « Calcul »/.test(sortieFus), sortieFus);
+
+const apresFus = etatFusion();
+const rejeuFus = psql('fusion', ['-f', FUSION]);
+bilan('le rejouer ne change plus rien, et le dit',
+  etatFusion() === apresFus && /déjà nommé « DELMONT Clément »/.test(rejeuFus), rejeuFus);
+psql('postgres', ['-c', 'drop database if exists fusion']);
+
 /* ------------------------------------------------------------------------- */
 console.log('\n──────────────────────────────────────────────────────────');
 if(echecs){
