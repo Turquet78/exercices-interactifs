@@ -2260,6 +2260,7 @@
   .dch-fig{flex-direction:column;align-items:center;gap:6px;max-width:460px;margin:0 auto 14px}
   .dch-svg{max-width:420px}
   .veg-svg .dch-cote{stroke:var(--ink-soft);stroke-width:1.4;stroke-dasharray:5 4}
+  .veg-svg .dch-poly{stroke:var(--ink-soft);stroke-width:1.4}
   .veg-svg .dch-code{stroke:var(--ink);stroke-width:1.8}
   .veg-svg .dch-vg{stroke:var(--crd-a);stroke-width:3}
   .veg-svg .dch-vd{stroke:var(--crd-b);stroke-width:3}
@@ -8714,7 +8715,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=605;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=606;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -74351,7 +74352,7 @@ const DCH_VERBES=['Montrer que','Démontrer que','Prouver que'];
    centre du parallélogramme, milieu de ses deux diagonales. Lettres A, B,
    C, D, M, N, renommées par q.n (six lettres). */
 const DCH_DEMOS=[
-  {ins:1, g:['AB','CD'], d:['AD','CB'], c:[['AD','DB','CB','BD'],['AD','CB','DB','BD'],['AD','CB','0']]},
+  {ins:1, poly:'ABCD', g:['AB','CD'], d:['AD','CB'], c:[['AD','DB','CB','BD'],['AD','CB','DB','BD'],['AD','CB','0']]},
   {g:['AB','CD','BC'], d:['AD'], c:[['AB','BC','CD'],['AC','CD']]},
   {g:['AB','-CB'], d:['AC'], c:[['AB','BC']]},
   {g:['AB','BC','CA'], d:['0'], c:[['AC','CA']]},
@@ -74361,7 +74362,7 @@ const DCH_DEMOS=[
   {para:1, g:['BA','BC'], d:['BD'], c:[['BA','AD']]},
   {para:1, g:['AB','CD'], d:['0'], c:[['AB','BA']]},
   {para:1, g:['AB','CB'], d:['DB'], c:[['DC','CB']]},
-  {ins:1, para:1, g:['MA','MC'], d:['MB','MD'], c:[['MB','BA','MD','DC'],['MB','MD','BA','DC'],['MB','MD','BA','AB'],['MB','MD','0']]},
+  {ins:1, retire:1, para:1, g:['MA','MC'], d:['MB','MD'], c:[['MB','BA','MD','DC'],['MB','MD','BA','DC'],['MB','MD','BA','AB'],['MB','MD','0']]},
   {para:1, g:['MA','DC'], d:['MB'], c:[['MA','AB']]},
   {mil:{M:'AB'}, g:['MA','MB'], d:['0'], c:[['MA','AM']]},
   {mil:{M:'AB'}, g:['CA','MB'], d:['CM'], c:[['CA','AM']]},
@@ -74371,15 +74372,25 @@ const DCH_DEMOS=[
   {para:1, mil:{M:'AB'}, g:['AM','BC'], d:['MC'], c:[['MB','BC']]},
   {para:1, centre:1, mil:{M:'AC'}, g:['DA','AM'], d:['MB'], c:[['DM']]},
   {para:1, mil:{M:'AB', N:'DC'}, g:['AM','DN'], d:['AB'], c:[['AM','MB']]},
-  {ins:1, mil:{M:'AB'}, g:['CA','CB'], d:['CM','CM'], c:[['CM','MA','CM','MB'],['CM','CM','MA','MB'],['CM','CM','MA','AM'],['CM','CM','0']]},
+  {ins:1, poly:'ABC', mil:{M:'AB'}, g:['CA','CB'], d:['CM','CM'], c:[['CM','MA','CM','MB'],['CM','CM','MA','MB'],['CM','CM','MA','AM'],['CM','CM','0']]},
   /* les insertions de l'exercice à part (8.2.18, Turquet, octobre 2026 :
      « séparer les calculs qui font intervenir l'insertion d'une lettre ») */
-  {ins:1, g:['AB','-CD'], d:['AC','DB'], c:[['AC','CB','-CD'],['AC','DC','CB']]},
-  {ins:1, g:['AB','BC'], d:['AD','DC'], c:[['AC']]},
-  {ins:1, g:['AB','-AC'], d:['DB','-DC'], c:[['CA','AB'],['CB'],['CD','DB']]},
-  {ins:1, g:['AB'], d:['CB','-CA'], c:[['AC','CB']]},
-  {ins:1, para:1, g:['AB','AD'], d:['AM','MC'], c:[['AB','BC'],['AC']]},
-  {ins:1, para:1, g:['DA','DC'], d:['DM','MB'], c:[['DA','AB'],['DB']]}
+  {ins:1, poly:'ABCD', g:['AB','-CD'], d:['AC','DB'], c:[['AC','CB','-CD'],['AC','DC','CB']]},
+  {ins:1, poly:'ABCD', g:['AB','BC'], d:['AD','DC'], c:[['AC']]},
+  {ins:1, poly:'ABCD', g:['AB','-AC'], d:['DB','-DC'], c:[['CA','AB'],['CB'],['CD','DB']]},
+  {ins:1, poly:'ABC', g:['AB'], d:['CB','-CA'], c:[['AC','CB']]},
+  /* M, d'abord un point quelconque du plan, est devenu le CENTRE du
+     parallélogramme (Turquet, octobre 2026 : « uniquement dans un triangle
+     ou un quadrilatère ») */
+  {ins:1, para:1, centre:1, mil:{M:'AC'}, g:['AB','AD'], d:['AM','MC'], c:[['AB','BC'],['AC']]},
+  {ins:1, para:1, centre:1, mil:{M:'AC'}, g:['DA','DC'], d:['DM','MB'], c:[['DA','AB'],['DB']]},
+  /* des milieux, dans un triangle ou un quadrilatère (Turquet, octobre 2026,
+     la fiche « milieu » : I milieu de [AB], J milieu de [AC], « Démontrer que
+     AJ + IB = AB + IJ » et « AI + CJ = AJ + CI ») */
+  {ins:1, poly:'ABC', mil:{M:'AB', N:'AC'}, g:['AN','MB'], d:['AB','MN'], c:[['AM','MN','MB'],['AM','MB','MN']]},
+  {ins:1, poly:'ABC', mil:{M:'AB', N:'AC'}, g:['AM','CN'], d:['AN','CM'], c:[['AN','NM','CN'],['AN','CN','NM']]},
+  {ins:1, poly:'ABCD', mil:{M:'AB', N:'CD'}, g:['AD','BC'], d:['MN','MN'], c:[['AM','MD','BM','MC'],['AM','MN','ND','BM','MN','NC'],['MB','BM','MN','MN','CN','NC']]},
+  {ins:1, poly:'ABCD', mil:{M:'AC'}, g:['AB','CD'], d:['MB','MD'], c:[['AM','MB','CM','MD'],['AM','MA','MB','MD']]}
 ];
 function dchR(q, t){
   if(t==='0') return t;
@@ -74396,7 +74407,7 @@ function dchDemo(q){
   if(T.mil) Object.keys(T.mil).forEach(function(c){ vus[c]=1; T.mil[c].split('').forEach(function(e){ vus[e]=1; });
     mil[dchR(q, c)]=dchR(q, T.mil[c]); });
   const pts='ABCDMN'.split('').filter(function(c){ return vus[c]; }).map(function(c){ return q.n['ABCDMN'.indexOf(c)]; }).join('');
-  return {g:R(T.g), d:R(T.d), c:T.c.map(R), para:T.para ? q.n.slice(0,4) : '', mil:mil, centre:T.centre ? q.n[4] : '', pts:pts, M:vus.M && !T.mil ? q.n[4] : ''};
+  return {g:R(T.g), d:R(T.d), c:T.c.map(R), para:T.para ? q.n.slice(0,4) : '', poly:T.poly ? dchR(q, T.poly) : '', mil:mil, centre:T.centre ? q.n[4] : '', pts:pts, M:vus.M && !T.mil ? q.n[4] : ''};
 }
 function dchOpp(v){ return v==='0' ? '0' : v[1]+v[0]; }
 /* la somme lue comme une combinaison de points : AB vaut B − A. Dans le
@@ -74608,7 +74619,9 @@ function dchCorrection(D){
    qui font intervenir l'insertion d'une lettre ») : le 8.2.13 ne tire que
    les plans sans insertion, le 8.2.18 que les plans où il faut insérer un
    point (ins) — l'idée en est donnée avant l'énoncé (dchIdeeHTML). */
-function dchPlans(ins){ return DCH_DEMOS.map(function(T, t){ return t; }).filter(function(t){ return !!DCH_DEMOS[t].ins===!!ins; }); }
+/* retire : un plan qui ne se tire plus (gardé pour les brouillons qui le
+   nomment encore) — MA + MC = MB + MD, son point M hors de la figure */
+function dchPlans(ins){ return DCH_DEMOS.map(function(T, t){ return t; }).filter(function(t){ return !!DCH_DEMOS[t].ins===!!ins && !DCH_DEMOS[t].retire; }); }
 function dchBuildQuestions(ins){
   const N=dmNbQuestions(DCH_NB), P=dchPlans(ins);
   return distinctes(N, function(_, i){ return dchGenQuestion(i, P, ins); }, N<=P.length ? function(q){ return String(q.t); } : undefined);
@@ -74642,6 +74655,7 @@ function dchEnonceHTML(q){
   let h;
   const mil=Object.keys(D.mil), lesMil=function(){ return mil.map(function(c){ return c+' est le milieu de ['+D.mil[c]+']'; }).join(' et '); };
   if(D.centre) h=D.para+' est un parallélogramme ; '+D.centre+' est son centre, le milieu de ses diagonales ['+D.para[0]+D.para[2]+'] et ['+D.para[1]+D.para[3]+']. ';
+  else if(D.poly) h=D.poly+' est un '+(D.poly.length===3 ? 'triangle' : 'quadrilatère')+(mil.length ? ' ; '+lesMil() : '')+'. ';
   else if(D.para) h=D.para+' est un parallélogramme'+(D.M ? ' et '+D.M+' est un point du plan' : '')+(mil.length ? ' ; '+lesMil() : '')+'. ';
   else {
     const libres=lettres.filter(function(c){ return mil.indexOf(c)<0; });
@@ -74681,6 +74695,9 @@ function dchFigHTML(q){
   let h='<svg class="veg-svg dch-svg" style="max-width:'+Wr+'px" viewBox="0 0 '+Wr+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'
     +esc('Figure : les points '+L.join(', ')+' ; en violet '+nom(D.g)+' ; en orange '+nom(D.d))+'">'
     +'<defs>'+pointe('dchArrG','var(--crd-a)')+pointe('dchArrD','var(--crd-b)')+'</defs>';
+  /* le triangle ou le quadrilatère de l'énoncé : ses côtés en trait plein */
+  if(D.poly) for(let i=0;i<D.poly.length;i++){ const a=P(D.poly[i]), b=P(D.poly[(i+1)%D.poly.length]);
+    h+='<line class="dch-poly" x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0])+'" y2="'+f(b[1])+'"/>'; }
   if(D.para) for(let i=0;i<4;i++){ const a=P(D.para[i]), b=P(D.para[(i+1)%4]);
     h+='<line class="dch-cote" x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0])+'" y2="'+f(b[1])+'"/>'; }
   /* le segment d'un milieu, en pointillés, et le codage de ses deux moitiés
@@ -74882,7 +74899,8 @@ function ctxDch(q){
   const el=$('dch-z'), J=dchJuge(q, el && !el.classList.contains('sol') ? el.value : (q.saisie||'')), D=J.D;
   const bonne=dchTxt(D.g)+' = '+D.c.concat([D.d]).map(dchTxt).join(' = ');
   let c='L’élève rédige sa première démonstration avec des vecteurs, librement, une étape par ligne. Énoncé : '
-   +(D.para ? D.para+' est un parallélogramme'+(D.M ? ', '+D.M+' un point du plan' : '') : 'les points '+D.pts.split('').filter(function(c){ return !D.mil[c]; }).join(', ')+' sont quelconques'+Object.keys(D.mil).map(function(c){ return ', '+c+' est le milieu de ['+D.mil[c]+']'; }).join(''))+'. '
+   +(D.poly ? D.poly+' est un '+(D.poly.length===3 ? 'triangle' : 'quadrilatère')+Object.keys(D.mil).map(function(c){ return ', '+c+' est le milieu de ['+D.mil[c]+']'; }).join('')
+     : D.para ? D.para+' est un parallélogramme'+(D.M ? ', '+D.M+' un point du plan' : '')+(D.centre ? ', '+D.centre+' son centre' : '') : 'les points '+D.pts.split('').filter(function(c){ return !D.mil[c]; }).join(', ')+' sont quelconques'+Object.keys(D.mil).map(function(c){ return ', '+c+' est le milieu de ['+D.mil[c]+']'; }).join(''))+'. '
    +DCH_VERBES[q.v||0]+' '+dchTxt(D.g)+' = '+dchTxt(D.d)+' (tous ces objets sont des vecteurs). '
    +'Une étape permise : une réécriture — changer l’ordre d’une somme, écrire + BC pour − CB, remplacer des vecteurs par des vecteurs égaux de la figure, un, deux ou les trois à la fois ; la relation de Chasles qui réunit deux vecteurs ou plus, voisins et écrits dans l’ordre où ils s’enchaînent (AB + BC = AC, AB + BA = 0) ; insérer un point pour décomposer un vecteur (AB = AD + DB)'
    +(D.para ? ' ; remplacer un ou plusieurs vecteurs par des vecteurs égaux du parallélogramme '+D.para+' ('+D.para[0]+D.para[1]+' = '+D.para[3]+D.para[2]+', '+D.para[0]+D.para[3]+' = '+D.para[1]+D.para[2]+')' : '')
