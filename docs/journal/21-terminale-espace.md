@@ -98,6 +98,25 @@ se conclut par **la réciproque** du théorème de Pythagore ; un triangle qui n
 l'est pas, par **le théorème de Pythagore** — ou **sa contraposée**, acceptée
 aussi. Thalès est l'intrus du menu.
 
+**Puis la réciproque et la contraposée sont sorties du menu** (Turquet,
+octobre 2026 : « au lycée, la réciproque et la contraposée du théorème de
+Pythagore sont incluses dans le théorème de Pythagore, donc on ne dit que
+d'après le théorème de Pythagore »). Rectangle ou non, la seule bonne réponse
+est `pyth` ; le menu offre deux intrus, Thalès et la relation de Chasles. Le
+menu ne départage donc plus les deux cas : c'est le « = / ≠ » et la conclusion
+qui le font. Le rappel, la correction et le contexte de l'IA disent la même
+chose. Un brouillon d'avant qui avait `rec` ou `contra` retombe sur « … » à la
+reprise : l'option n'existe plus.
+
+**Le même jour, la racine en deux morceaux.** Le « √ » était un GLYPHE à
+1,45 em posé devant un radicande à barre (`border-top`) : selon la police et
+la hauteur de la rangée, le crochet ne rejoignait pas la barre — deux
+morceaux, vus sur la capture de Turquet. Il est maintenant DESSINÉ : un SVG
+étiré sur toute la hauteur du radicande (`preserveAspectRatio="none"`), trait
+de 2 px non mis à l'échelle (`vector-effect`), dont l'extrémité haute tombe
+au pixel près sur le début de la barre (SVG décalé d'1 px : le trait centré
+couvre 0–2 px, comme la bordure).
+
 **Éprouvé** : 3 000 séances tirées dans Chromium — chaque copie juste
 acceptée, chaque copie aux paires inversées acceptée, chaque colonne de
 vecteur inversée refusée, `q.r` toujours d'accord avec l'égalité des carrés,
