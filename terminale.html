@@ -246,6 +246,17 @@
   .dm-arbre-corps{padding:0 12px 3px}
   .dm-arbre .dm-arbre>summary{font-size:.95rem;padding:9px 12px}
   .dm-arbre-n{margin-left:auto;font-size:.78rem;font-weight:600;color:#fff;background:var(--blue);border-radius:999px;padding:2px 10px;white-space:nowrap}
+  /* L'éditeur des devoirs et des fiches prend TOUTE LA LARGEUR de l'écran
+     (demande de Turquet, octobre 2026), et les exercices d'un étage ouvert,
+     comme le ruban d'ordre, s'y rangent sur autant de colonnes qu'il en
+     tient. Les étages (thèmes, sous-thèmes) gardent la pleine ligne : un
+     sous-thème ouvert dans une colonne étroite replierait ses réglages. */
+  body:has(#scr-teacher.on #pane-devoir.on) .wrap{max-width:none}
+  @media(min-width:900px){
+    #pane-devoir .dm-arbre-exos,#pane-devoir #dmOrdre{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:9px;align-items:start}
+    #pane-devoir .dm-arbre-exos{padding-bottom:12px}
+    #pane-devoir .dm-arbre-exos>.dm-exo,#pane-devoir #dmOrdre>.dm-exo{margin-bottom:0}
+  }
   .dm-exo-name{font-family:"Fredoka";font-weight:600;flex:1;min-width:150px}
   .dm-mode{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.92rem;color:var(--ink-soft);cursor:pointer}
   .dm-mode input{width:16px;height:16px}
@@ -3964,7 +3975,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=430;
+const APP_VERSION=431;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -32289,8 +32300,8 @@ function dmArbre(rangee, choisi){
     const ids=th.ids.filter(id=>TESTS[id]); if(!ids.length) return '';
     const corps=th.sous
       ? th.sous.map(st=>{ const s=st.ids.filter(id=>TESTS[id]);
-          return s.length?bloc(th.num+'.'+st.num, th.num+'.'+st.num+' · '+esc(st.nom), s, s.map(rangee).join('')):''; }).join('')
-      : ids.map(rangee).join('');
+          return s.length?bloc(th.num+'.'+st.num, th.num+'.'+st.num+' · '+esc(st.nom), s, '<div class="dm-arbre-exos">'+s.map(rangee).join('')+'</div>'):''; }).join('')
+      : '<div class="dm-arbre-exos">'+ids.map(rangee).join('')+'</div>';
     return bloc(String(th.num), 'Thème '+th.num+' · '+esc(th.nom), ids, corps);
   }).join('');
 }

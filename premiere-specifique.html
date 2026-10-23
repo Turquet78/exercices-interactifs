@@ -1035,6 +1035,17 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   .dm-arbre-corps{padding:0 12px 3px}
   .dm-arbre .dm-arbre>summary{font-size:.95rem;padding:9px 12px}
   .dm-arbre-n{margin-left:auto;font-size:.78rem;font-weight:600;color:#fff;background:var(--blue);border-radius:999px;padding:2px 10px;white-space:nowrap}
+  /* L'éditeur des devoirs et des fiches prend TOUTE LA LARGEUR de l'écran
+     (demande de Turquet, octobre 2026), et les exercices d'un étage ouvert,
+     comme le ruban d'ordre, s'y rangent sur autant de colonnes qu'il en
+     tient. Les étages (thèmes, sous-thèmes) gardent la pleine ligne : un
+     sous-thème ouvert dans une colonne étroite replierait ses réglages. */
+  body:has(#scr-teacher.on #pane-devoirs.on) .wrap{max-width:none}
+  @media(min-width:900px){
+    #pane-devoirs .dm-arbre-exos,#pane-devoirs #dmOrdre{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:9px;align-items:start}
+    #pane-devoirs .dm-arbre-exos{padding-bottom:12px}
+    #pane-devoirs .dm-arbre-exos>.dm-exo,#pane-devoirs #dmOrdre>.dm-exo{margin-bottom:0}
+  }
   .dm-exo.pick{border-color:#9bdcc1;background:#F4FBF8}
   .dm-exo-num{font-family:"Fredoka";font-weight:600;font-size:.72rem;color:#fff;background:var(--blue);padding:3px 9px;border-radius:999px;white-space:nowrap;flex:none}
   .dm-exo-name{font-weight:700;font-size:.95rem;flex:1;min-width:120px}
@@ -3070,7 +3081,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=338;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=339;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -20926,8 +20937,8 @@ function dmArbre(rangee, choisi){
     const ids=th.ids.filter(id=>TESTS[id]); if(!ids.length) return '';
     const corps=th.sous
       ? th.sous.map(st=>{ const s=st.ids.filter(id=>TESTS[id]);
-          return s.length?bloc(th.num+'.'+st.num, th.num+'.'+st.num+' · '+esc(st.nom), s, s.map(rangee).join('')):''; }).join('')
-      : ids.map(rangee).join('');
+          return s.length?bloc(th.num+'.'+st.num, th.num+'.'+st.num+' · '+esc(st.nom), s, '<div class="dm-arbre-exos">'+s.map(rangee).join('')+'</div>'):''; }).join('')
+      : '<div class="dm-arbre-exos">'+ids.map(rangee).join('')+'</div>';
     return bloc(String(th.num), 'Thème '+th.num+' · '+esc(th.nom), ids, corps);
   }).join('');
 }
