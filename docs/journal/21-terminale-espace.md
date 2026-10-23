@@ -215,6 +215,40 @@ Quatre demandes sur le 7.1.3 :
   forme 1 (`.edp-vnom`, flex centré) : u⃗ était posé sur la ligne de base, en
   haut de la colonne.
 
+**Puis le CHOIX est revenu à l'élève (Turquet, octobre 2026, v433).** « Quand
+la droite passe par deux points, l'élève doit choisir d'abord son vecteur
+directeur, AB ou BA, et il ne faut pas l'aider dans son choix ; quand il
+donne l'équation paramétrique, il peut donner A ou B comme point de départ. »
+
+* **Le a) commence par un menu** (`edp-vn`, « … », AB, BA — sans valeur par
+  défaut), et le nom choisi se recopie devant les deux colonnes
+  (`.edp-vnm`). Les options sont écrites « AB », « BA » : la flèche
+  combinante U+20D7 sort en carré dans la police des menus.
+* **Le b) ne dit plus « avec le point de départ A et le vecteur AB⃗ »** :
+  « Donner une équation paramétrique de (AB) ». A ou B, u⃗ ou −u⃗.
+* **Le choix se LIT dans la copie** (`edpChoix`) : le menu, ou à défaut la
+  colonne « arrivée » ; le point que la colonne du point recopie le plus ;
+  u⃗ ou −u⃗ selon la colonne du vecteur. `edpCases(q, ch)` et `edpEtude(q, p,
+  ch)` en partent : le système attendu, toute la rédaction de
+  l'appartenance (« − xB » quand le départ est B) et la correction en vert
+  suivent le choix de l'élève, jamais un choix de la page. Le contexte
+  envoyé au modèle lui interdit de recommander l'un ou l'autre.
+* **Le coefficient 1 se lit dans ce que l'élève a ÉCRIT** (`ch.un`), plus
+  dans `q.u` : un 1 de AB⃗ devient −1 avec BA⃗. Et la page ne doit pas
+  souffler — la première version retirait la fraction avant toute saisie,
+  et la forme de la ligne disait « ici le coefficient est 1 ». Toutes les
+  cases sont désormais posées ; `edpForme()` masque la fraction d'une ligne
+  où l'élève a écrit 1, et une case masquée ne garde aucune couleur
+  (`ptsEcran` ne compte que les cases peintes). Les poser toutes, c'est
+  aussi ce qui permet à une reprise de remettre les saisies.
+* En soutien, la correction en direct écoute le formulaire et non chaque
+  case : une case qui apparaît après coup est entendue.
+
+**Éprouvé** dans Chromium : les huit copies justes (AB⃗/BA⃗ × A/B × u⃗/−u⃗)
+acceptées, la fraction masquée exactement quand 1 est écrit, un vecteur
+contraire au choix du menu refusé, la correction en vert partie du point B
+et de BA⃗ choisis par la copie.
+
 ## 7.1.4 — deux droites parallèles ? (`espace-droites-paralleles`, kind `epa`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteur 5 » : « créer un
