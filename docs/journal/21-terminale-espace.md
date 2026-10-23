@@ -388,3 +388,28 @@ chaque point sur une droite d'arête avec une coordonnée permise, les quatre
 dessins tirés à parts égales ; et dans Chromium, de vrais clics : un point
 posé juste compté juste, un point posé ailleurs compté faux, un point oublié
 montré en vert, « 21 cases justes sur 66 » pour 21 saisies justes.
+
+**Puis deux vecteurs, et une seconde figure pour le c)** (Turquet, octobre
+2026, v436 : « dans la question b ne demande que deux vecteurs, et dans la
+question a que les points de ces deux vecteurs ; refaire une figure pour la
+question c où on placera les trois points ; sur la première figure il n'y a
+plus de point à tracer, et on gagne de la place entre l'énoncé et la
+question a »). Le b) garde les deux vecteurs de la fiche qui passent par un
+point : point → sommet, sommet → point (JD⃗, EJ⃗) — l'un part de I, l'autre
+arrive en J, ou l'inverse, deux sommets différents. Le a) ne demande que
+leurs quatre extrémités (`ecbPtsA`), dans l'ordre des vecteurs : 33 cases par
+cube (12 + 18 + 3) au lieu de 66. Il n'y a plus que I et J sur la figure.
+
+**Deux figures, deux cadres** (`ecbCadre(q, mode)`). La première (`'a'`) se
+resserre sur le cube, I et J : elle n'a plus à réserver la place des points
+du c), et descend à 400 px sous l'énoncé. La seconde (`'c'`, `#ecbFig2`), le
+même cube sans I ni J, garde le cadre de TOUTES les places permises — un cadre
+taillé sur M, N, O dirait où ils sont — et reçoit seule les clics. Les tirages
+sont indépendants : M, N, O ne s'écartent plus de I et J, qui ne sont pas sur
+leur dessin. Un brouillon d'avant (quatre points, trois vecteurs) se reprend
+tel quel : tout se lit dans `q.vecs`.
+
+**Éprouvé** : 3 000 séances — quatre points au a), deux vecteurs au b), 33
+cases, copie juste acceptée, colonne inversée refusée ; dans Chromium, de
+vrais clics sur la seconde figure : M juste compté juste, N posé ailleurs
+compté faux, O oublié montré en vert.
