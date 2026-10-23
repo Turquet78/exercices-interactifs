@@ -8715,7 +8715,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=606;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=607;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -74376,21 +74376,27 @@ const DCH_DEMOS=[
   /* les insertions de l'exercice à part (8.2.18, Turquet, octobre 2026 :
      « séparer les calculs qui font intervenir l'insertion d'une lettre ») */
   {ins:1, poly:'ABCD', g:['AB','-CD'], d:['AC','DB'], c:[['AC','CB','-CD'],['AC','DC','CB']]},
-  {ins:1, poly:'ABCD', g:['AB','BC'], d:['AD','DC'], c:[['AC']]},
-  {ins:1, poly:'ABCD', g:['AB','-AC'], d:['DB','-DC'], c:[['CA','AB'],['CB'],['CD','DB']]},
-  {ins:1, poly:'ABC', g:['AB'], d:['CB','-CA'], c:[['AC','CB']]},
+  {ins:1, retire:1, poly:'ABCD', g:['AB','BC'], d:['AD','DC'], c:[['AC']]},
+  {ins:1, retire:1, poly:'ABCD', g:['AB','-AC'], d:['DB','-DC'], c:[['CA','AB'],['CB'],['CD','DB']]},
+  {ins:1, retire:1, poly:'ABC', g:['AB'], d:['CB','-CA'], c:[['AC','CB']]},
   /* M, d'abord un point quelconque du plan, est devenu le CENTRE du
      parallélogramme (Turquet, octobre 2026 : « uniquement dans un triangle
      ou un quadrilatère ») */
-  {ins:1, para:1, centre:1, mil:{M:'AC'}, g:['AB','AD'], d:['AM','MC'], c:[['AB','BC'],['AC']]},
-  {ins:1, para:1, centre:1, mil:{M:'AC'}, g:['DA','DC'], d:['DM','MB'], c:[['DA','AB'],['DB']]},
+  {ins:1, retire:1, para:1, centre:1, mil:{M:'AC'}, g:['AB','AD'], d:['AM','MC'], c:[['AB','BC'],['AC']]},
+  {ins:1, retire:1, para:1, centre:1, mil:{M:'AC'}, g:['DA','DC'], d:['DM','MB'], c:[['DA','AB'],['DB']]},
   /* des milieux, dans un triangle ou un quadrilatère (Turquet, octobre 2026,
      la fiche « milieu » : I milieu de [AB], J milieu de [AC], « Démontrer que
      AJ + IB = AB + IJ » et « AI + CJ = AJ + CI ») */
   {ins:1, poly:'ABC', mil:{M:'AB', N:'AC'}, g:['AN','MB'], d:['AB','MN'], c:[['AM','MN','MB'],['AM','MB','MN']]},
   {ins:1, poly:'ABC', mil:{M:'AB', N:'AC'}, g:['AM','CN'], d:['AN','CM'], c:[['AN','NM','CN'],['AN','CN','NM']]},
   {ins:1, poly:'ABCD', mil:{M:'AB', N:'CD'}, g:['AD','BC'], d:['MN','MN'], c:[['AM','MD','BM','MC'],['AM','MN','ND','BM','MN','NC'],['MB','BM','MN','MN','CN','NC']]},
-  {ins:1, poly:'ABCD', mil:{M:'AC'}, g:['AB','CD'], d:['MB','MD'], c:[['AM','MB','CM','MD'],['AM','MA','MB','MD']]}
+  {ins:1, poly:'ABCD', mil:{M:'AC'}, g:['AB','CD'], d:['MB','MD'], c:[['AM','MB','CM','MD'],['AM','MA','MB','MD']]},
+  /* aucune somme ÉVIDENTE par Chasles dans l'égalité de départ, ni dans
+     l'ordre, ni dans le désordre, ni par une soustraction (Turquet, octobre
+     2026) : les plans 22 à 26 en avaient une, ils ne se tirent plus ; ces
+     deux-ci les remplacent */
+  {ins:1, poly:'ABCD', g:['AB','-DC'], d:['AD','CB'], c:[['AB','CD'],['AD','DB','CD'],['AD','CD','DB']]},
+  {ins:1, poly:'ABCD', mil:{M:'AB', N:'CD'}, g:['AC','BD'], d:['MN','MN'], c:[['AM','MC','BM','MD'],['AM','MN','NC','BM','MN','ND'],['MB','BM','MN','MN','CN','NC']]}
 ];
 function dchR(q, t){
   if(t==='0') return t;
@@ -74620,7 +74626,8 @@ function dchCorrection(D){
    les plans sans insertion, le 8.2.18 que les plans où il faut insérer un
    point (ins) — l'idée en est donnée avant l'énoncé (dchIdeeHTML). */
 /* retire : un plan qui ne se tire plus (gardé pour les brouillons qui le
-   nomment encore) — MA + MC = MB + MD, son point M hors de la figure */
+   nomment encore) — MA + MC = MB + MD, son point M hors de la figure ;
+   les plans 22 à 26, une somme évidente par Chasles dans l'énoncé */
 function dchPlans(ins){ return DCH_DEMOS.map(function(T, t){ return t; }).filter(function(t){ return !!DCH_DEMOS[t].ins===!!ins && !DCH_DEMOS[t].retire; }); }
 function dchBuildQuestions(ins){
   const N=dmNbQuestions(DCH_NB), P=dchPlans(ins);

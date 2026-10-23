@@ -14819,6 +14819,15 @@ function demontrerChasles(w, P){
     dchPlans(true).forEach(function(t){ const T=DCH_DEMOS[t];
       if(!T.para && !(T.poly && /^(ABC|ABCD)$/.test(T.poly))) vus.push('plan '+t+' du 8.2.18 : ni triangle ni quadrilatère');
       if(T.para && !T.mil && /M/.test(T.g.concat(T.d).join(''))) vus.push('plan '+t+' du 8.2.18 : un point M hors de la figure'); });
+    /* aucune somme ÉVIDENTE par Chasles dans l'égalité de départ du 8.2.18
+       (Turquet, octobre 2026) : dans aucun membre, deux vecteurs qui
+       s'enchaînent — ni dans l'ordre (AB + BC), ni dans le désordre
+       (BC + AB), ni par une soustraction (AB − CB, lu AB + BC) */
+    dchPlans(true).forEach(function(t){ const T=DCH_DEMOS[t];
+      [T.g, T.d].forEach(function(l){
+        const v=l.filter(function(x){ return x!=='0'; }).map(function(x){ return x.charAt(0)==='-' ? x.charAt(2)+x.charAt(1) : x; });
+        v.forEach(function(a, i){ v.forEach(function(b, j){ if(i!==j && a.charAt(1)===b.charAt(0)) vus.push('plan '+t+' du 8.2.18 : somme évidente par Chasles dans « '+dchTxt(l)+' »'); }); });
+      }); });
     if(dchPlans(true).filter(function(t){ return DCH_DEMOS[t].mil && DCH_DEMOS[t].poly; }).length<3) vus.push('le 8.2.18 a trop peu de milieux dans un triangle ou un quadrilatère');
     if(DCH_DEMOS.filter(function(T){ return T.ins; }).length<D.nb+2) vus.push('trop peu de plans à insertion pour une séance variée');
     /* des milieux, seuls ou dans un parallélogramme (Turquet, octobre 2026) */
@@ -14894,6 +14903,9 @@ function demontrerChasles(w, P){
       [28, 'AN+NM+CN\\nAN+CN+NM\\nAN+CM', 'j,j,j', 'la fiche « milieu » : AI + CJ = AJ + CI'],
       [29, 'AM+MD+BM+MC\\nAM+MN+ND+BM+MN+NC\\nMB+BM+MN+MN+CN+NC\\nMN+MN', 'j,j,j,j', 'deux milieux d’un quadrilatère : AD + BC = 2MN'],
       [30, 'AM+MB+CM+MD\\nAM+MA+MB+MD\\nMB+MD', 'j,j,j', 'le milieu d’une diagonale'],
+      [31, 'AB+CD\\nAD+DB+CD\\nAD+CD+DB\\nAD+CB', 'j,j,j,j', 'la soustraction, l’insertion, l’ordre, Chasles'],
+      [31, 'AD+DB+CD', 'j1', 'la soustraction et l’insertion d’un trait'],
+      [32, 'AM+MC+BM+MD\\nAM+MN+NC+BM+MN+ND\\nMB+BM+MN+MN+CN+NC\\nMN+MN', 'j,j,j,j', 'deux milieux de côtés opposés : AC + BD = 2MN'],
       [0, 'AC+DB', 'faux', 'une ligne fausse'],
       [0, 'AB+CZ', 'illisible', 'un point hors de l’énoncé']];
     ATT.forEach(function(a){ const e=etats(a[0], a[1]); if(e!==a[2]) vus.push(a[3]+' : '+e+' au lieu de '+a[2]); });

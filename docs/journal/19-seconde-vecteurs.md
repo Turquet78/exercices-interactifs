@@ -5107,3 +5107,22 @@ quadrilatère (ou d'un parallélogramme sans point extérieur), qu'au moins
 trois aient des milieux dans un triangle ou un quadrilatère, qu'un plan
 retiré ne sorte jamais, compte les côtés tracés de chaque figure, relit
 l'énoncé de la fiche, et juge cinq rédactions des nouveaux plans.
+
+**Puis aucune somme ÉVIDENTE dans l'égalité de départ (v607).** Turquet : « je
+ne veux pas de somme évidente avec Chasles dans l'égalité de départ ni de
+relation de Chasles avec des vecteurs pas dans le bon ordre et/ou avec une
+soustraction ». Au 8.2.18, aucun membre de l'égalité à démontrer ne contient
+plus deux vecteurs qui s'enchaînent : ni AB + BC, ni BC + AB, ni AB − CB (lu
+AB + BC). Cinq plans en avaient une (22 : AB + BC = AD + DC ; 23 : AB − AC =
+DB − DC ; 24 : AB = CB − CA ; 25 et 26 : AM + MC et DM + MB au membre de
+droite) : ils ne se tirent plus (`retire`). Deux les remplacent : AB − DC =
+AD + CB (la soustraction ne s'enchaîne pas : AB + CD) et AC + BD = MN + MN
+(M, N milieux de [AB] et [CD]). Un premier essai, AB + CD = MN + MN avec M, N
+milieux des DIAGONALES, a été écarté à la photo : sur le quadrilatère fixe de
+`DCH_POS`, ces deux milieux tombent presque l'un sur l'autre, les lettres se
+chevauchaient et MN n'était qu'un trait. Le 8.2.13 ne change pas : réunir des
+vecteurs par Chasles y est le sujet.
+
+Le banc relit chaque plan tiré au 8.2.18, membre par membre, chaque « − XY »
+écrit « + YX », et rougit sur deux vecteurs dont l'un finit où l'autre
+commence, dans n'importe quel ordre ; trois rédactions des nouveaux plans.
