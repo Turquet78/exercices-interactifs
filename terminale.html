@@ -2070,6 +2070,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 #edsPrompt .edp-nw{margin-right:10px}
 #edsForm .tg-line{gap:8px 10px}
 #edsForm .tg-sub{margin:16px 0 4px}
+.eds-mir{white-space:nowrap}
 .eds-num{display:inline-block;margin-left:8px;font-size:1.05em}
 @media (max-width:560px){
   #edsForm .tg-in{width:34px;padding:4px 1px}
@@ -30021,12 +30022,22 @@ function epaConseilCtx(){
    des nombres ». La rédaction est celle de la fiche :
      On veut {a + u t = b + v t′} ①②③ (« sécantes : on colle les deux
        équations ») ;
-     l'équation s où t est tout seul (coefficient 1) : t = [c0] [c1] t′ ;
-     l'équation r : a + u([c0] [c1] t′) = b + v t′ ⟺ [e0] [e1] t′ = b + v t′
-       ⟺ [f1] t′ = [f0]  donc t′ = […], puis t = [c0] [c1] × ([t′]) = [t] ;
-     ATTENTION : on vérifie dans l'équation w : a + u × ([t]) = b + v × ([t′]),
-       soit [ ] = [ ] ;
-     le point : x = a₁ + u₁ t = [ ] … et I(…) recopie ces trois cases.
+     l'équation s où t est tout seul (coefficient 1) : t = [c0] + [c1] t′ ;
+     l'équation r : a + u(c0 + c1 t′) = b + v t′ ⟺ [e0] + [e1] t′ = b + v t′
+       ⟺ [f1] t′ = [f0]  donc t′ = […], puis t = c0 + c1 × (t′) = [t] ;
+     ATTENTION : on vérifie dans l'équation w : a + u × (t) = b + v × (t′),
+       soit [ ] = [ ] ; conclusion : t = … et t′ = … sont solutions ;
+     le point : x = a₁ + u₁ × (t) = [ ] … et I(…) recopie ces trois cases.
+   Puis, à la demande de Turquet (octobre 2026, v435) :
+   · une écriture DÉJÀ complétée se réutilise telle que l'élève l'a écrite
+     (« c0 + c1 t′ » dans la parenthèse, t et t′ dans les calculs) : des
+     MIROIRS (.eds-mir), jamais des cases à remplir une seconde fois ;
+   · un membre resté identique en résolvant (« = b + v t′ ») ne se redemande
+     pas : il est écrit ;
+   · une case qui suit un terme reçoit un « + » écrit devant elle quand sa
+     valeur est positive (« t = [3] + [2] t′ ») ; négative, l'élève écrit
+     son signe (« t = [3] [−2] t′ ») ;
+   · t et t′ sont des entiers entre −3 et 3.
    Toutes les cases sont des NOMBRES (la demande) : un coefficient porte son
    signe dans sa case (« −2 », « 3 » ou « +3 »), comme au 7.1.3. La ligne
    [f1] t′ = [f0] accepte aussi l'écriture opposée (−f1 et −f0 : l'élève a
@@ -30041,7 +30052,7 @@ function edsGen(){
     const u=[edpNz(-4,4),edpNz(-4,4),edpNz(-4,4)]; u[s]=1;   /* t tout seul dans l'équation s */
     const v=[edpNz(-4,4),edpNz(-4,4),edpNz(-4,4)];
     if(epaColin(u,v)) continue;
-    const A=[edpNz(-6,6),edpNz(-6,6),edpNz(-6,6)], t=edpNz(-4,4), tp=rand(-4,4);
+    const A=[edpNz(-6,6),edpNz(-6,6),edpNz(-6,6)], t=edpNz(-3,3), tp=rand(-3,3);
     const I=A.map((a,k)=>a+u[k]*t), B=I.map((x,k)=>x-v[k]*tp);
     if(B.some(b=>b===0||Math.abs(b)>15) || I.some(x=>Math.abs(x)>20)) continue;
     if(B[s]-A[s]===0 || u[r]*v[s]-v[r]===0) continue;
@@ -30061,22 +30072,15 @@ function edsVal(q){
 /* Toutes les cases — UNE liste, lue par le rendu, le juge, la correction et le contexte de l'aide. */
 function edsCases(q){
   const V=edsVal(q), out=[], X=(id,good,nom,paire)=>out.push({id:id,good:good,nom:nom,paire:paire||''});
-  const ns=EDS_N[q.s], nr=EDS_N[q.r], nw=EDS_N[q.w];
+  const ns=EDS_N[q.s], nw=EDS_N[q.w];
   X('eds-c0',V.c0,'nombre seul dans t = … (équation '+ns+')');
   X('eds-c1',V.c1,'coefficient de t′ dans t = … (équation '+ns+')');
-  X('eds-r0',V.c0,'nombre seul recopié dans la parenthèse (équation '+nr+')');
-  X('eds-r1',V.c1,'coefficient de t′ recopié dans la parenthèse (équation '+nr+')');
   X('eds-e0',V.e0,'nombre seul du membre de gauche développé et réduit');
   X('eds-e1',V.e1,'coefficient de t′ du membre de gauche développé');
   X('eds-f1',V.f1,'coefficient de t′ après regroupement','f');
   X('eds-f0',V.f0,'nombre du membre de droite après regroupement','f');
   X('eds-tp',V.tp,'valeur de t′');
-  X('eds-h0',V.c0,'nombre seul dans le calcul de t');
-  X('eds-h1',V.c1,'coefficient de t′ dans le calcul de t');
-  X('eds-h2',V.tp,'valeur de t′ remplacée dans le calcul de t');
   X('eds-ht',V.t,'valeur de t');
-  X('eds-w1',V.t,'valeur de t remplacée dans l’équation '+nw);
-  X('eds-w2',V.tp,'valeur de t′ remplacée dans l’équation '+nw);
   X('eds-wl',V.vw,'valeur du membre de gauche de l’équation '+nw);
   X('eds-wr',V.vw,'valeur du membre de droite de l’équation '+nw);
   EDP_CO.forEach(function(co,k){ X('eds-i'+k,V.I[k],'coordonnée '+co+' du point d’intersection I'); });
@@ -30108,40 +30112,55 @@ function edsFormHTML(q){
   const I=id=>txInp(id), T=h=>'<span>'+h+'</span>';
   const L=(h,cls)=>'<div class="tg-line'+(cls?' '+cls:'')+'">'+h+'</div>';
   const NW=h=>'<span class="edp-nw">'+h+'</span>';
+  const M=cle=>'<span class="eds-mir" data-m="'+cle+'">…</span>';
   const tt='<i>t</i>', tp='<i>t</i>′', N=k=>'<span class="eds-num">'+EDS_N[k]+'</span>';
-  const s=q.s, r=q.r, w=q.w;
+  const s=q.s, r=q.r, w=q.w, V=edsVal(q);
   const fac=c=>(c<0?' − ':' + ')+numFmt(Math.abs(c));
+  const P=v=>v>0?T('+'):'';   /* le « + » devant une case positive qui suit un terme */
   let h='';
   h+='<div class="tg-sub"><b>Méthode :</b> sécantes signifie qu’un point est sur <i>d</i> et sur <i>d</i>′ : on « colle » les deux équations.</div>';
   const cad='<span class="edp-cad" style="grid-row:1/4;grid-column:2"></span><span class="edp-cad" style="grid-row:1/4;grid-column:4"></span>'
     +'<span class="edp-lab" style="grid-row:4;grid-column:2"><b><i>d</i></b></span><span class="edp-lab" style="grid-row:4;grid-column:4"><b><i>d</i>′</b></span>';
   h+=L(T('On veut :')+edpSys([0,1,2].map(k=>[T(edsMb(q.A[k],q.u[k],'')),T('='),T(edsMb(q.B[k],q.v[k],'′')),N(k)]), ['e','m','s','s'], cad, 'edp-sys-a'), 'eds-lsys');
-  h+='<div class="tg-sub">On prend une équation avec '+tt+' tout seul : ici l’équation '+N(s)+' : '+edsEq(q,s)+'.</div>';
-  h+=L(T('On écrit :')+NW(T(tt+' =')+I('eds-c0')+I('eds-c1')+T(tp)));
+  h+='<div class="tg-sub">On prend une équation avec '+tt+' tout seul : ici l’équation '+N(s)+' : '+edsEq(q,s)+' ('+tt+' est tout seul).</div>';
+  h+=L(T('On écrit :')+NW(T(tt+' =')+I('eds-c0')+P(V.c1)+I('eds-c1')+T(tp)));
   h+='<div class="tg-sub">On remplace '+tt+' par son résultat dans une autre équation, ici l’équation '+N(r)+' : '+edsEq(q,r)+'.</div>';
-  h+=L(T('Devient :')+NW(T(numFmt(q.A[r])+fac(q.u[r])+'(')+I('eds-r0')+I('eds-r1')+T(tp+')'))+NW(T('= '+edsMb(q.B[r],q.v[r],'′'))));
-  h+=L(T('⟺')+NW(I('eds-e0')+I('eds-e1')+T(tp))+NW(T('= '+edsMb(q.B[r],q.v[r],'′'))));
+  h+=L(T('Devient :')+NW(T(numFmt(q.A[r])+fac(q.u[r])+'('+M('sub')+')'))+NW(T('= '+edsMb(q.B[r],q.v[r],'′'))));
+  h+=L(T('⟺')+NW(I('eds-e0')+P(V.e1)+I('eds-e1')+T(tp))+NW(T('= '+edsMb(q.B[r],q.v[r],'′'))));
   h+=L(T('⟺')+NW(I('eds-f1')+T(tp+' =')+I('eds-f0')));
   h+=L(T('donc :')+NW(T(tp+' =')+I('eds-tp')));
-  h+=L(T('Avec :')+NW(T(tt+' =')+I('eds-h0')+I('eds-h1')+T('× (')+I('eds-h2')+T(') =')+I('eds-ht')));
-  h+='<div class="tg-sub"><b>ATTENTION !</b> On doit vérifier '+tt+' et '+tp+' dans la dernière équation, ici l’équation '+N(w)+' : '+edsEq(q,w)+'.</div>';
-  h+=L(NW(T(numFmt(q.A[w])+fac(q.u[w])+' × (')+I('eds-w1')+T(')'))+NW(T('= '+numFmt(q.B[w])+fac(q.v[w])+' × (')+I('eds-w2')+T(')')));
+  h+=L(T('Avec :')+NW(T(tt+' = '+M('calc')+' =')+I('eds-ht')));
+  h+='<div class="tg-sub"><b>ATTENTION !</b> On doit vérifier '+tt+' = '+M('t')+' et '+tp+' = '+M('tp')+' dans la dernière équation, ici l’équation '+N(w)+' : '+edsEq(q,w)+'.</div>';
+  h+=L(NW(T(numFmt(q.A[w])+fac(q.u[w])+' × ('+M('t')+')'))+NW(T('= '+numFmt(q.B[w])+fac(q.v[w])+' × ('+M('tp')+')')));
   h+=L(T('⟺')+NW(I('eds-wl')+T('=')+I('eds-wr')));
-  h+=L(T('<b>Conclusion :</b> les valeurs de '+tt+' et '+tp+' vérifient aussi l’équation '+N(w)+' : les droites sont bien <b>sécantes</b>.'));
+  h+=L(T('<b>Conclusion :</b> '+tt+' = '+M('t')+' et '+tp+' = '+M('tp')+' sont solutions de l’équation '+N(w)+' : les droites sont bien <b>sécantes</b>.'));
   h+='<div class="tg-sub">Le point d’intersection : on remplace '+tt+' par sa valeur dans l’équation de <i>d</i>.</div>';
-  h+=L(T('Avec la valeur de '+tt+' :')+'<span class="edp-nw"><i>d</i>&nbsp;:'+edpSys([0,1,2].map(k=>[T('<i>'+EDP_CO[k]+'</i> = '+edsMb(q.A[k],q.u[k],'')+' ='),I('eds-i'+k)]), ['e','s'])+'</span>', 'eds-lsys');
-  h+=L(T('Donc le point d’intersection est <i>I</i>(<span class="eds-mir" data-k="0">…</span> ; <span class="eds-mir" data-k="1">…</span> ; <span class="eds-mir" data-k="2">…</span>)'));
-  h+='<p class="dexp-hint">Chaque case est un <b>nombre</b> ; un coefficient s’écrit avec son signe (par exemple −2, ou 3).</p>';
+  h+=L(T('Avec '+tt+' = '+M('t')+' :')+'<span class="edp-nw"><i>d</i>&nbsp;:'+edpSys([0,1,2].map(k=>[T('<i>'+EDP_CO[k]+'</i> = '+numFmt(q.A[k])+fac(q.u[k])+' × ('+M('t')+') ='),I('eds-i'+k)]), ['e','s'])+'</span>', 'eds-lsys');
+  h+=L(T('Donc le point d’intersection est <i>I</i>('+M('i0')+' ; '+M('i1')+' ; '+M('i2')+')'));
+  h+='<p class="dexp-hint">Chaque case est un <b>nombre</b>. Un « + » écrit devant une case veut dire que son nombre est positif ; sinon, écris le signe − dans la case (par exemple −2).</p>';
   return h;
 }
-/* le point I recopie les trois cases des coordonnées — ce n'est pas une case, aucune note ne le compte */
+/* Les miroirs : ce que l'élève a DÉJÀ écrit, recopié là où la fiche le
+   réutilise — jamais une case à remplir une seconde fois, et aucune note ne
+   les compte. Une case vide se lit « … ». Après la correction (corrige), ce
+   sont les valeurs JUSTES qui se recopient. */
 function edsMiroirs(corrige){
-  const q=corrige===true?test.questions[test.idx]:null, V=q?edsVal(q):null;
+  const q=test.questions[test.idx]; if(!q) return;
+  const V=corrige===true?edsVal(q):null;
+  const brut=id=>{ const el=$(id); return el?String(el.value||'').trim():''; };
+  const nb=id=>{ if(V){ const m={'eds-c0':V.c0,'eds-c1':V.c1,'eds-tp':V.tp,'eds-ht':V.t,'eds-i0':V.I[0],'eds-i1':V.I[1],'eds-i2':V.I[2]}; return numFmt(m[id]); }
+    const b=brut(id), n=tgParseFrac(b); return b===''?'…':(n==null?esc(b):numFmt(n)); };
+  const coef=()=>{ const b=V?String(V.c1):brut('eds-c1'), n=tgParseFrac(b);
+    if(b==='') return (edsVal(q).c1>0?' + ':' ')+'…';
+    return n==null?' '+esc(b):(n<0?' − ':' + ')+numFmt(Math.abs(n)); };
+  const tp='<i>t</i>′';
   document.querySelectorAll('#edsForm .eds-mir').forEach(function(m){
-    const k=+m.getAttribute('data-k');
-    if(V){ m.textContent=numFmt(V.I[k]); return; }
-    const el=$('eds-i'+k), v=el?String(el.value||'').trim():'';
-    const n=tgParseCoef(v); m.textContent=v===''?'…':(n==null?v:numFmt(n));
+    const cle=m.getAttribute('data-m');
+    if(cle==='sub') m.innerHTML=nb('eds-c0')+coef()+tp;
+    else if(cle==='calc') m.innerHTML=nb('eds-c0')+coef()+' × ('+nb('eds-tp')+')';
+    else if(cle==='t') m.innerHTML=nb('eds-ht');
+    else if(cle==='tp') m.innerHTML=nb('eds-tp');
+    else m.innerHTML=nb('eds-'+cle);
   });
 }
 /* ---- cycle de vie ---- */
@@ -30232,7 +30251,7 @@ function edsConseilCtx(){
   const q=test.questions[test.idx], cases=edsCases(q);
   const etat=cases.map(function(x){ const el=$(x.id); const v=el?String(el.value||'').trim():''; return x.nom+' = '+(v===''?'(vide)':'« '+v+' »'); }).join(' ; ');
   return 'Exercice de Terminale (géométrie dans l’espace, droites sécantes) : '+edsPlain(q)+'. Les droites sont-elles sécantes, et en quel point ? '
-    +'La rédaction suit la fiche : on égale les deux équations ligne à ligne (équations ①, ② et ③) ; dans l’équation '+EDS_N[q.s]+' t est tout seul, on écrit t = … + … t′ ; on le remplace dans l’équation '+EDS_N[q.r]+', on développe, on regroupe les t′, on trouve t′ puis t ; on vérifie t et t′ dans l’équation '+EDS_N[q.w]+' (les deux membres égaux) ; puis on calcule le point d’intersection avec l’équation de d. Chaque case est un nombre, un coefficient porte son signe. '
+    +'La rédaction suit la fiche : on égale les deux équations ligne à ligne (équations ①, ② et ③) ; dans l’équation '+EDS_N[q.s]+' t est tout seul, on écrit t = … + … t′ ; on le remplace dans l’équation '+EDS_N[q.r]+', on développe, on regroupe les t′, on trouve t′ puis t ; on vérifie t et t′ dans l’équation '+EDS_N[q.w]+' (les deux membres égaux) ; puis on calcule le point d’intersection avec l’équation de d. Chaque case est un nombre ; un « + » est écrit devant une case positive qui suit un terme ; les écritures déjà complétées (t = …, t et t′) sont recopiées automatiquement depuis les saisies de l’élève. '
     +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
     +cases.map(function(x){ return x.nom+' = '+numFmt(x.good); }).join(' ; ')+' ('+edsRepPlain(q)+'). '
     +'Saisies actuelles de l’élève : '+etat+'. '

@@ -334,3 +334,29 @@ quotient n'est pas décimal), et la correction s'écrit dans ce sens : un
 le sens `u/v` complet accepté, sa valeur approchée acceptée, la valeur de
 l'autre sens refusée, la correction d'une case vide en `v/u`, celle d'une
 copie commencée en `u/v` dans ce sens.
+
+**Puis le 7.1.5 a suivi la fiche au plus près (Turquet, octobre 2026,
+v435).** Quatre demandes :
+
+* **Une écriture déjà complétée se redonne, elle ne se redemande pas.** La
+  parenthèse de « Devient : a + u(… + … t′) », le calcul « t = c0 + c1 × (t′) »,
+  le « t = … et t′ = … » de la vérification et de la conclusion, le « × (t) »
+  du point : ce sont des MIROIRS (`.eds-mir`, `edsMiroirs`) de ce que l'élève
+  a écrit, à chaque frappe — l'écriture de l'élève, même fausse, jamais la
+  bonne réponse. Une case vide se lit « … ». Après la correction, ce sont les
+  valeurs justes qui se recopient. Les cases `r0`, `r1`, `h0`, `h1`, `h2`,
+  `w1`, `w2` ont disparu : 13 cases au lieu de 20. Un brouillon d'avant qui
+  les portait ne trouve plus leur case à la reprise, sans erreur.
+* **Un membre resté identique en résolvant ne se redemande pas** : « = b + v t′ »
+  est écrit sur la ligne développée (il l'était déjà).
+* **Un « + » devant une case positive qui suit un terme** : `t = [c0] + [c1] t′`
+  et `[e0] + [e1] t′` quand `c1` ou `e1` est positif ; négatif, rien n'est
+  écrit et l'élève tape le signe. La demande montre donc le SIGNE de ces deux
+  cases — c'est voulu, et la consigne le dit sous l'exercice.
+* **t et t′ entiers entre −3 et 3** (t non nul ; t′ peut valoir 0, comme sur
+  la fiche).
+
+**Éprouvé** : 3 000 séances — 13 cases, bornes de t et t′ tenues, copies
+justes acceptées, paire opposée de `[f1] t′ = [f0]` acceptée, copie vide sans
+case remplie ; l'écran ouvert dans Chromium, saisies fausses recopiées dans
+les miroirs puis remplacées par les valeurs justes à la correction.
