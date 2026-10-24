@@ -644,3 +644,75 @@ cases (`eds-qn`, `eds-qd`) au lieu des miroirs ; elle accepte aussi
 cases. Le « + » d'une case qui suit un terme s'écrit désormais pour une
 valeur positive OU NULLE (`P(v)` : `v >= 0`) — et le miroir d'une case vide
 de même. 31 cases.
+
+## 7.1.8 — le cube : droites parallèles, sécantes, triangle rectangle (`espace-cube-droites`, kind `ecd`)
+
+Demande de Turquet (octobre 2026), avec la fiche « vecteur 8 » : « créer un
+exercice dans vecteur et droite de l'espace comme le pdf joint ; rédiger en
+respectant les consignes de présentation des exercices précédents qui
+traitent des mêmes questions ».
+
+**La fiche entière, en quatre parties.** Trois pages et près de deux cents
+cases : une séance, quatre écrans (« Partie 1 / 4 », `ECD_NBQ`), la même
+configuration sur les quatre (`q.n`, `q.cfg`), un point par partie parfaite.
+Chaque question reprend la présentation de l'exercice qui la traite déjà :
+
+1. a) les coordonnées des sommets utiles et de I (la fiche oubliait C,
+   pourtant nécessaire à EC⃗ : il est demandé) ; b) le milieu O en fractions,
+   les deux termes d'un numérateur dans l'ordre qu'on veut (7.1.2) ;
+   c) AG⃗, EC⃗, OI⃗ en colonnes `… − …`, `donc : …` (7.1.6).
+2. d) les équations de (EC), (AG), (OI) en t, l, k, les deux colonnes
+   cerclées « un point de la droite » / « un vecteur de la droite » (7.1.3) —
+   le point est l'un ou l'autre des deux points qui nomment la droite, le
+   vecteur l'un ou l'autre sens, lus sur la colonne ; e) (OI) et (AG)
+   parallèles ? les quotients « fin / début » du 7.1.4, dans le sens qu'on
+   veut, sur les vecteurs u⃗ et v⃗ que l'élève a écrits (u⃗ ou −u⃗ chacun) ;
+   la propriété encadrée ; f) coplanaires ?
+3. g) (OI) et (EC) parallèles ? ; « pour la suite on considère… » : les
+   équations IMPOSÉES de la fiche, point et vecteur cerclés ; h) le système
+   collé ①②③, « deux équations identiques : on en supprime une », le système
+   de deux équations, puis la résolution en grille du 7.1.5 :
+   `t = [c0] + [c1]k`, `Devient : a + u(…)` (miroir), le développement, la
+   réduction, `[h1]k = [h0]` (paire opposée acceptée), `k = [ ]/[ ] = [ ]`
+   (« ≈ » devant une valeur approchée), `t = … × ([k]) = [t]`, et « inutile
+   de la vérifier » pour l'équation supprimée ; i) la conclusion générale
+   (parallèles ? sécantes ? coplanaires ?) ; j) le point S avec t dans (EC).
+4. k) placer S au clic (7.1.6 : chemin depuis A en pointillés, le clic se
+   cale sur les quarts des quatre segments tracés) ; l) OB⃗, BI⃗ ; m) les
+   longueurs, « on peut supprimer les signes − » : la case accepte la valeur
+   sans signe, ou le nombre négatif ENTRE PARENTHÈSES — jamais « −0,5 » nu
+   (−0,5² = −0,25) ; n) les carrés dans leurs cadres, `…² + …² = …²` (les deux
+   petits côtés dans l'ordre qu'on veut), « d'après le théorème de Pythagore,
+   le triangle est rectangle en le point O ».
+
+**Le tirage : la fiche transportée par une symétrie du cube.** Le repère
+reste (A ; AB⃗ ; AD⃗ ; AE⃗) ; ce sont les RÔLES des sommets qui changent (le
+« E » de la fiche peut être F, son « C » D…). Sur les 48 symétries, 18
+gardent la rédaction : deux équations du système collé IDENTIQUES (pas
+seulement équivalentes — « 1 − 1t = 0,5 − 0,5k » et « t = 0,5 + 0,5k » ne se
+« suppriment » pas à vue), et un t de coefficient 1 dans une des deux
+équations qui restent (`ECD_VAR`, calculé au chargement). Toutes les
+valeurs sont des multiples de 0,25.
+
+**Le dessin.** L'un des quatre dessins du 7.1.6, celui de la fiche d'abord,
+mais il doit se LIRE : vu au premier essai, S(0,25 ; 0,75 ; 0,75) tombait pile
+sur le dessin de l'arête [EF], et sur un dessin à AB⃗ fuyant (OI), (EC) et
+(AG) se confondaient en un trait. `ecdLisible` écarte : S à moins de 12 px
+d'une arête, de [AG] ou de [DB], à moins de 36 px d'un sommet (son étiquette
+couvrait celle de G), ou à moins de 12 px d'une autre place de clic ; (OI) et
+(EC) sous moins de 20°, (AG) et (EC) aussi ; (OI) et (AG), parallèles, à
+moins de 16 px. Restent 8 couples (configuration, dessin), tous sur le dessin
+de la fiche.
+
+**Éprouvé** : 3 000 séances — chaque copie juste acceptée dans les quatre
+parties, le point C et le vecteur CE⃗ acceptés au d), les quotients dans
+l'autre sens acceptés, la paire `(−h1, −h0)` acceptée et une seule de ses
+cases renversée refusée, « −0,5 » nu refusé et « (−0,5) » accepté au m), les
+petits côtés inversés acceptés au n), une copie vide sans case remplie, S sur
+les deux droites, `h1 k = h0` et l'égalité de Pythagore toujours vraies,
+chaque question sérialisable en JSON ; les quatre écrans ouverts dans
+Chromium à 1 280 px et 390 px, une copie juste comptée parfaite partout.
+Deux défauts vus sur les captures et corrigés : les étiquettes des équations
+imposées se chevauchaient (`.ecd-imp`, colonnes écartées), et l'accolade
+d'un système de DEUX lignes, haute de trois, écartait ses lignes
+(`.ecd-sys2`).
