@@ -829,6 +829,23 @@ quatre dessins tirés à parts à peu près égales, chaque copie juste accepté
 dans les quatre parties, la partie 3 menée jusqu'à « parfait » avec C et I
 comme départs, aucune erreur de page.
 
+**Puis les parties cachées des droites en pointillés fins (Turquet, octobre
+2026, v448 : « mettre en pointillés, plus fins que ceux des arêtes, sur les
+dessins, les morceaux de droite qui sont à l'intérieur du cube ou
+derrière »).** Le principe du 7.1.7 (`epoCache`), transporté aux quatre
+dessins du cube : un point est caché si, en allant vers l'œil, on traverse
+l'intérieur du cube. La direction de l'œil est le noyau de la projection
+(`ecdVue` : `ecbProj(V) = 0`), orientée du sommet caché vers le cube — elle
+suit donc la fuite propre au 7.1.9 (`ECD_PROF`). Chaque segment tracé ([DB],
+[EC], [AG], [OI]) se découpe en morceaux vus et cachés (`ecdMorceaux`, 160
+pas), les cachés en `.ecd-drc` : pointillés 3 3, trait de 1,4 — ceux des
+arêtes sont en 6 5, trait de 1,8. **Vérifié** sur les quatre dessins : seul
+le sommet caché l'est, avec les trois faces qui l'entourent et le centre du
+cube. Conséquence attendue : quand A est devant, les quatre segments sont
+entièrement en pointillés ([DB] est sur la face du dessous, les trois autres
+traversent le cube) ; quand A est derrière, ce qui court sur une face vue
+reste plein.
+
 ## 7.1.10 — reconnaître une équation paramétrique de droite (`espace-reconnaitre-parametrique`, kind `erp`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteur 10 » : « créer un
