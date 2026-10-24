@@ -4177,7 +4177,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=442;
+const APP_VERSION=443;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -30837,9 +30837,9 @@ function ecbFormHTML(q){
       +NW(T('donc :&nbsp;')+T(n)+col([0,1,2].map(k=>I('ecb-v'+j+'-c'+k)))), 'ecb-l');
   });
   h+='<div class="tg-sub">c) Place sur la figure les points : '+q.plc.map(p=>'<span class="ecb-nw"><i>'+p.L+'</i>&nbsp;('+p.P.map(numFmt).join(' ; ')+')</span>').join(' ; ')+'</div>';
-  h+='<div class="ecb-fig ecb-fig-c" id="ecbFig2"></div>';
   h+=L(T('Point à placer :')+q.plc.map(p=>'<button type="button" class="ecb-bp" id="ecb-b-'+p.L+'" onclick="ecbChoisir(\''+p.L+'\')">'+p.L+'</button>').join(''), 'ecb-l');
   h+='<p class="ecb-aide">Choisis un point, puis clique sur la figure à l’endroit où il se trouve — sur une arête, ou sur son prolongement : l’arête se prolonge jusqu’au point, et des pointillés montrent le chemin depuis <i>A</i> (le long de (<i>AB</i>), puis parallèlement à (<i>AD</i>), puis verticalement). Un nouveau clic le déplace.</p>';
+  h+='<div class="ecb-fig ecb-fig-c" id="ecbFig2"></div>';   /* les boutons M, N, O avant la figure, sous l\'énoncé du c) (Turquet, octobre 2026) */
   return h;
 }
 function ecbPromptHTML(q){

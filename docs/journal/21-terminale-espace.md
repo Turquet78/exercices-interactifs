@@ -525,6 +525,12 @@ de (AB), y pas parallèlement à (AD), z pas verticalement (`chemin` dans
 montre AVANT le clic, la correction verte aussi. La seconde figure prend toute
 la largeur de la carte (860 px au plus, contre 600).
 
+**Puis les boutons sous l'énoncé du c)** (Turquet, octobre 2026, v443 :
+« placer les boutons M, N et O juste après l'énoncé de la question c »).
+Les boutons et la ligne d'aide passent AVANT la seconde figure : l'élève
+choisit son point, puis clique sur le dessin, sans redescendre sous la
+figure.
+
 ## 7.1.7 — parallèles, sécantes ou non coplanaires (`espace-positions-droites`, kind `epo`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteur 7 » : « créer un
