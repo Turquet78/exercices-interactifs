@@ -4172,7 +4172,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=440;
+const APP_VERSION=441;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -30204,7 +30204,7 @@ function epaConseilCtx(){
        ⟺ a [e1] t′ [e0] = b + v t′                  (le « a » reste, écrit)
        ⟺ e1 t′ [k0] = b + v t′                      (a + e0 réduit, v440)
        ⟺ e1 t′ [g1] t′ = b [g0]                     (miroir de e1)
-       ⟺ [h1] t′ = [h0]  ⟺  t′ = h0/h1 = [t′]       (fraction : miroirs)
+       ⟺ [h1] t′ = [h0]  ⟺  t′ = [h0]/[h1] = [t′]   (cases, v441)
      Avec : t = v t′ c0 = v × ([t′]) c0 = [t]       (l'élève récrit t′, v440)
      ATTENTION ! on vérifie dans w : a + u × ([t]) = b + v × ([t′])  (cases, v440)
        ⟺ a [m1] = b [m2] ⟺ [ ] = [ ] ; l'équation w est [vérifiée] ; les
@@ -30262,6 +30262,8 @@ function edsCases(q){
   X('eds-g0',V.g0,'nombre passé à droite');
   X('eds-h1',V.h1,'coefficient de t′ après réduction','num','h');
   X('eds-h0',V.h0,'nombre après réduction','num','h');
+  X('eds-qn',V.h0,'numérateur de la fraction t′ = …/…','num','q');
+  X('eds-qd',V.h1,'dénominateur de la fraction t′ = …/…','num','q');
   X('eds-tp',V.tp,'valeur de t′');
   X('eds-tv',V.tp,'valeur de t′ remplacée dans le calcul de t');
   X('eds-ht',V.t,'valeur de t');
@@ -30290,7 +30292,8 @@ function edsVerdicts(q, lire){
     out[x.id]={ok:v!=null && Math.abs(v-x.good)<1e-9, rempli:t!=='', attendu:numFmt(x.good), v:v};
     if(x.paire) (paires[x.paire]=paires[x.paire]||[]).push(x);
   });
-  /* [h1] t′ = [h0] s'écrit aussi de l'autre côté : (−h1) t′ = (−h0) */
+  /* [h1] t′ = [h0] s'écrit aussi de l'autre côté : (−h1) t′ = (−h0) ;
+     la fraction t′ = [h0]/[h1] accepte de même (−h0)/(−h1) */
   Object.keys(paires).forEach(function(k){
     const ps=paires[k];
     if(ps.every(x=>out[x.id].v!=null && Math.abs(out[x.id].v+x.good)<1e-9)) ps.forEach(x=>{ out[x.id].ok=true; });
@@ -30313,7 +30316,7 @@ function edsFormHTML(q){
   const tt='<i>t</i>', tp='<i>t</i>′', N=k=>'<span class="eds-num">'+EDS_N[k]+'</span>';
   const s=q.s, r=q.r, w=q.w, V=edsVal(q);
   const fac=c=>(c<0?' − ':' + ')+numFmt(Math.abs(c));
-  const P=v=>v>0?T('+'):'';   /* le « + » devant une case positive qui suit un terme */
+  const P=v=>v>=0?T('+'):'';   /* le « + » devant une case positive ou nulle qui suit un terme (0 compris, Turquet, octobre 2026) */
   const ct=(c,p)=>numFmt(c)+'<i>t</i>'+p;   /* « 2t′ », « −8t′ » */
   const EQV=T('⟺');
   /* Une résolution s'écrit en GRILLE (Turquet, octobre 2026) : les « ⟺ »
@@ -30345,7 +30348,7 @@ function edsFormHTML(q){
         [EQV, M('e1')+P(V.k0)+I('eds-k0'), '=', dr],
         [EQV, M('e1')+P(V.g1)+I('eds-g1')+T(tp), '=', T(numFmt(q.B[r]))+P(V.g0)+I('eds-g0')],
         [EQV, I('eds-h1')+T(tp), '=', I('eds-h0')],
-        [EQV, T(tp), '=', '<span class="elg-fr"><span class="elg-fn">'+M('h0')+'</span><span class="elg-fd">'+M('h1')+'</span></span>'+'<span id="eds-eg">=</span>'+I('eds-tp')]]);
+        [EQV, T(tp), '=', '<span class="elg-fr"><span class="elg-fn">'+I('eds-qn')+'</span><span class="elg-fd">'+I('eds-qd')+'</span></span>'+'<span id="eds-eg">=</span>'+I('eds-tp')]]);
   h+=L(T('Avec :')+NW(T(tt+' = '+ct(V.c1,'′')+M('c0s')+' = '+numFmt(V.c1)+' × (')+I('eds-tv')+T(')'+M('c0s')+' =')+I('eds-ht')));
   /* la vérification */
   h+='<div class="tg-sub"><b>ATTENTION !</b> On doit vérifier '+tt+' = '+M('t')+' et '+tp+' = '+M('tp')+' dans la dernière équation, ici l’équation '+N(w)+'.</div>';
@@ -30371,7 +30374,7 @@ function edsFormHTML(q){
    d'intersection réécrit aussi les trois lignes du point. */
 function edsMiroirs(corrige){
   const q=test.questions[test.idx]; if(!q) return;
-  const eg=$('eds-eg'); if(eg) eg.textContent=signeQuotient('eds-h0','eds-h1','eds-tp');
+  const eg=$('eds-eg'); if(eg) eg.textContent=signeQuotient('eds-qn','eds-qd','eds-tp');
   caseAjuster($('eds-tp'));
   const V=edsVal(q), juste=corrige===true;
   const VAL={'eds-c0':V.c0,'eds-e1':V.e1,'eds-h0':V.h0,'eds-h1':V.h1,'eds-tp':V.tp,'eds-ht':V.t,'eds-i0':V.I[0],'eds-i1':V.I[1],'eds-i2':V.I[2]};
@@ -30379,7 +30382,7 @@ function edsMiroirs(corrige){
   const nb=id=>{ const b=brut(id), n=tgParseFrac(b); return b===''?'…':(n==null?esc(b):numFmt(n)); };
   /* un nombre écrit APRÈS un terme : avec son signe, « + » compris */
   const sg=id=>{ const b=brut(id), n=tgParseFrac(b);
-    if(b==='') return (VAL[id]>0?' + ':' ')+'…';
+    if(b==='') return (VAL[id]>=0?' + ':' ')+'…';
     return n==null?' '+esc(b):(n<0?' − ':' + ')+numFmt(Math.abs(n)); };
   const tp='<i>t</i>′', ch=($('eds-ch')||{}).value==='tp';
   document.querySelectorAll('#edsForm .eds-mir').forEach(function(m){

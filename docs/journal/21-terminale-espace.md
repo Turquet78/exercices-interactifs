@@ -620,3 +620,13 @@ selon le menu du choix : t avec `d`, t′ avec `d′` (`edsVerdicts` relit
 Et : « laisser l'élève remplir les cases donnant les coordonnées du point
 d'intersection » — `I([ ] ; [ ] ; [ ])` porte trois cases (`eds-j0…2`)
 au lieu du miroir des lignes du point. 29 cases.
+
+**Puis la fraction de t′ en cases, et le « + » devant zéro (Turquet,
+octobre 2026, v441).** « Quand on calcule t′ = 0/6, laisser l'élève
+compléter la division ; quand le résultat est 0 dans une case, mettre un
+plus devant cette case. » La ligne `t′ = [h0]/[h1] = [t′]` porte deux
+cases (`eds-qn`, `eds-qd`) au lieu des miroirs ; elle accepte aussi
+`(−h0)/(−h1)`, comme la ligne au-dessus, et le « ≈ » se lit sur ces deux
+cases. Le « + » d'une case qui suit un terme s'écrit désormais pour une
+valeur positive OU NULLE (`P(v)` : `v >= 0`) — et le miroir d'une case vide
+de même. 31 cases.
