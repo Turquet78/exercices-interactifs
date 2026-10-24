@@ -896,3 +896,50 @@ méthodes faites à l'écran (juste : « Très bien », 45 et 37 cases bleues ;
 fausse : la case rouge, les vides corrigées en vert, les miroirs remis au
 point corrigé). À 390 px, l'énoncé cassait : la phrase était prise dans le
 bloc insécable du système — seul « d : {…} » est insécable désormais.
+
+## 7.1.11 — trois points alignés, ou un plan ? (`espace-points-alignes`, kind `eal`)
+
+Demande de Turquet (octobre 2026), avec la fiche « vecteur 9 » (« Fiche
+synthèse sur l'espace ») : « en terminale, créer un exercice dans vecteur et
+droite de l'espace comme le pdf joint ; rédiger en respectant les consignes de
+présentation des exercices précédents qui traitent des mêmes questions ».
+
+**La fiche.** Chaque question porte l'encadré de la propriété, en deux menus
+dans le fil de la phrase : trois points définissent un plan s'ils sont
+[non alignés], c'est-à-dire si AB⃗ et AC⃗ sont [non colinéaires]. Puis l'un
+des deux exercices de la fiche :
+
+* **« Démontrer que A, B et C sont alignés »** (exercice 1) : AB⃗ et BC⃗,
+  comme sur la fiche ; « donc AB⃗ et BC⃗ [sont colinéaires] », « donc les
+  points A, B et C sont [alignés] ».
+* **« Démontrer que A, B et C définissent un plan »** (exercice 2) : « On
+  veut montrer que les points A, B et C [ne sont pas alignés] » ; AB⃗ et AC⃗ ;
+  « donc AB⃗ et AC⃗ [ne sont pas colinéaires] », « donc : (ABC) définit
+  [un plan] » (l'intrus : « une droite »).
+
+**Les présentations reprises, pas recopiées.** Chaque vecteur se calcule
+comme au 7.1.2 — la colonne des différences « … − … » (arrivée − départ,
+l'ORDRE compte : la colonne inversée est refusée), puis la colonne des
+coordonnées. Les trois quotients « fin / début » sont ceux du 7.1.4 :
+`epaCases`, `epaVerdicts` et `epaSignes` sous le préfixe `eal` (u⃗ = AB⃗,
+v⃗ = le second vecteur) — les deux sens de division, fraction simplifiée ou
+valeur approchée au dixième, « ≈ » devant une valeur approchée. Les cases
+`-prop` et `-cc` du 7.1.4 sont écartées : l'encadré et les conclusions de la
+fiche ont leurs propres menus.
+
+**Le tirage.** Trois questions par `distinctes()` : un exercice de chaque
+sorte, le troisième au hasard, dans le désordre. Alignés : BC⃗ = k AB⃗, k
+parmi ±2, ±3, ±1/2, ±3/2, ±2/3 — jamais −1, qui ferait C = A. Plan : sept fois
+sur dix AC⃗ = k AB⃗ dont UNE coordonnée change (deux quotients égaux, le
+troisième non : le piège du 7.1.4), sinon AC⃗ au hasard, jamais colinéaire.
+**Aucune coordonnée de vecteur n'est nulle** — la fiche, elle, en avait
+(AB⃗(1 ; −1 ; 0)) : 0/0 ou 1/0 n'ont pas de sens dans la méthode des
+quotients. Coordonnées des points entre −9 et 9.
+
+**Éprouvé** dans Chromium, à 1 280 px et à 390 px : 3 000 questions tirées —
+chaque copie juste acceptée, chaque copie aux quotients inversés acceptée,
+chaque colonne de différence inversée refusée, la colinéarité toujours
+d'accord avec la sorte, aucune coordonnée nulle, chaque question sérialisable ;
+puis une séance d'évaluation menée à sa fin (copie juste, copie à cases vides,
+copie au menu faux), corrections vertes, ni `NaN` ni `undefined`, aucune
+erreur de page.
