@@ -782,3 +782,18 @@ Deux défauts vus sur les captures et corrigés : les étiquettes des équations
 imposées se chevauchaient (`.ecd-imp`, colonnes écartées), et l'accolade
 d'un système de DEUX lignes, haute de trois, écartait ses lignes
 (`.ecd-sys2`).
+
+**Puis les trois équations du d) sur une ligne (Turquet, octobre 2026, v445 :
+« dans la question d), présenter les équations paramétriques en lignes »).**
+Empilés, les trois systèmes de (EC), (AG) et (OI) prenaient trois hauteurs
+d'écran. Ils sont maintenant côte à côte dans une seule rangée (`.ecd-d3`),
+colonnes resserrées (`.ecd-sysd`) ; la rangée ne se replie jamais — sur un
+écran étroit, elle défile dans son cadre. Ni les cases ni le juge ne
+changent. Ouvert dans Chromium à 1 280 px (les trois tiennent) et à 390 px.
+
+**Et la figure de la partie 4 à la taille des autres (même jour, v445 :
+« dans la partie 4, faire le dessin en plus petit comme c'était le cas pour
+les autres parties »).** La figure où l'on place S prenait 640 px ; elle
+garde les 430 px des trois autres parties (`.ecd-fig`). Le clic se cale
+toujours sur la place permise la plus proche (30 unités du dessin), ce qui
+reste large à cette taille.
