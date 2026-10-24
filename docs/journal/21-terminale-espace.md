@@ -653,6 +653,9 @@ de même. 31 cases.
 
 ## 7.1.8 — deux droites sont-elles coplanaires ? (`espace-coplanaires`, kind `ecp`)
 
+(v444 : la pull request avait pris v443 en même temps que celle des boutons
+M, N, O du 7.1.6, fusionnée juste avant — le numéro a été avancé après coup.)
+
 Demande de Turquet (octobre 2026), avec la fiche « vecteurs 8 » : « créer un
 exercice dans vecteur et droite de l'espace comme le pdf joint. Pour la
 question a), faire exactement comme le 7.1.4 ; pour le b), faire exactement
