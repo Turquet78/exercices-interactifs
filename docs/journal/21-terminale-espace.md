@@ -608,3 +608,7 @@ seul du membre de gauche réduit ; `e1 t′` est le miroir) s'insère sous le
 développement — la ligne suivante fait passer k0, et `g0 = −k0` n'a pas
 changé. Dans « Avec : t = … × ( ) … », la valeur de t′ n'est plus un miroir
 mais une case (`eds-tv`). 21 cases.
+Le même jour : « quand on vérifie la 3ᵉ équation, laisser l'élève placer
+les valeurs de t et t′ dans l'équation » — la ligne
+`a + u × ([t]) = b + v × ([t′])` porte deux cases (`eds-wt`, `eds-wtp`) au
+lieu des miroirs. 23 cases.

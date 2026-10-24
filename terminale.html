@@ -30206,7 +30206,7 @@ function epaConseilCtx(){
        ⟺ e1 t′ [g1] t′ = b [g0]                     (miroir de e1)
        ⟺ [h1] t′ = [h0]  ⟺  t′ = h0/h1 = [t′]       (fraction : miroirs)
      Avec : t = v t′ c0 = v × ([t′]) c0 = [t]       (l'élève récrit t′, v440)
-     ATTENTION ! on vérifie dans w : a + u × (t) = b + v × (t′)
+     ATTENTION ! on vérifie dans w : a + u × ([t]) = b + v × ([t′])  (cases, v440)
        ⟺ a [m1] = b [m2] ⟺ [ ] = [ ] ; l'équation w est [vérifiée] ; les
        droites sont bien [sécantes] (deux menus) ;
      le point : t avec d OU t′ avec d′, au choix de l'élève (menu hors note),
@@ -30263,6 +30263,8 @@ function edsCases(q){
   X('eds-tp',V.tp,'valeur de t′');
   X('eds-tv',V.tp,'valeur de t′ remplacée dans le calcul de t');
   X('eds-ht',V.t,'valeur de t');
+  X('eds-wt',V.t,'valeur de t placée dans l’équation '+nw);
+  X('eds-wtp',V.tp,'valeur de t′ placée dans l’équation '+nw);
   X('eds-m1',V.m1,'produit du membre de gauche dans la vérification (équation '+nw+')');
   X('eds-m2',V.m2,'produit du membre de droite dans la vérification (équation '+nw+')');
   X('eds-wl',V.vw,'valeur du membre de gauche (équation '+nw+')');
@@ -30341,7 +30343,7 @@ function edsFormHTML(q){
   /* la vérification */
   h+='<div class="tg-sub"><b>ATTENTION !</b> On doit vérifier '+tt+' = '+M('t')+' et '+tp+' = '+M('tp')+' dans la dernière équation, ici l’équation '+N(w)+'.</div>';
   h+=G([[N(w)+T(':'), T(edsMb(q.A[w],q.u[w],'')), '=', T(edsMb(q.B[w],q.v[w],'′'))],
-        [EQV, T(numFmt(q.A[w])+fac(q.u[w])+' × ('+M('t')+')'), '=', T(numFmt(q.B[w])+fac(q.v[w])+' × ('+M('tp')+')')],
+        [EQV, T(numFmt(q.A[w])+fac(q.u[w])+' × (')+I('eds-wt')+T(')'), '=', T(numFmt(q.B[w])+fac(q.v[w])+' × (')+I('eds-wtp')+T(')')],
         [EQV, T(numFmt(q.A[w]))+P(V.m1)+I('eds-m1'), '=', T(numFmt(q.B[w]))+P(V.m2)+I('eds-m2')],
         [EQV, I('eds-wl'), '=', I('eds-wr')]]);
   h+=L(T('L’équation '+N(w)+' est')+sel('eds-ver',[['','…'],['oui','vérifiée'],['non','fausse']]));
