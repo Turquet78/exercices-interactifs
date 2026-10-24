@@ -612,3 +612,8 @@ Le même jour : « quand on vérifie la 3ᵉ équation, laisser l'élève placer
 les valeurs de t et t′ dans l'équation » — la ligne
 `a + u × ([t]) = b + v × ([t′])` porte deux cases (`eds-wt`, `eds-wtp`) au
 lieu des miroirs. 23 cases.
+Puis : « quand on détermine le point d'intersection, laisser l'élève
+remplir les cases avec la valeur de t ou de t′ » — chaque ligne du point
+s'écrit `x = a + u t = a + u × ([ ]) = [ ]`. La case (`eds-p0…2`) se juge
+selon le menu du choix : t avec `d`, t′ avec `d′` (`edsVerdicts` relit
+`eds-ch`) ; la correction s'écrit dans le même sens. 26 cases.

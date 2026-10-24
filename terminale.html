@@ -30210,7 +30210,8 @@ function epaConseilCtx(){
        ⟺ a [m1] = b [m2] ⟺ [ ] = [ ] ; l'équation w est [vérifiée] ; les
        droites sont bien [sécantes] (deux menus) ;
      le point : t avec d OU t′ avec d′, au choix de l'élève (menu hors note),
-       x = a + u t = a + u × (t) = [ ] … ; I(…) recopie les trois cases.
+       x = a + u t = a + u × ([t]) = [ ] … — la valeur placée est une case
+       (v440), jugée selon le choix ; I(…) recopie les trois coordonnées.
    Les règles de Turquet tiennent toujours : une écriture déjà complétée se
    REDONNE (miroir .eds-mir, l'écriture de l'élève, « … » si vide) ; ce qui
    reste identique d'un même côté ne se redemande pas ; un « + » est écrit
@@ -30271,12 +30272,16 @@ function edsCases(q){
   X('eds-wr',V.vw,'valeur du membre de droite (équation '+nw+')');
   X('eds-ver','oui','menu : l’équation '+nw+' est vérifiée ou non','sel');
   X('eds-sec','sec','menu : les droites sont bien…','sel');
+  /* la valeur placée dans la ligne du point : t avec d, ou t′ avec d′ — le
+     choix de l'élève (menu eds-ch) ; edsVerdicts la relit */
+  EDP_CO.forEach(function(co,k){ X('eds-p'+k,V.t,'valeur de t (ou de t′ si l’élève a choisi d′) placée dans la ligne de '+co); });
   EDP_CO.forEach(function(co,k){ X('eds-i'+k,V.I[k],'coordonnée '+co+' du point d’intersection I'); });
   return out;
 }
 function edsVerdicts(q, lire){
-  const cases=edsCases(q), out={}, paires={};
+  const cases=edsCases(q), out={}, paires={}, avecTp=String(lire('eds-ch')||'')==='tp';
   cases.forEach(function(x){
+    if(/^eds-p\d$/.test(x.id)) x=Object.assign({},x,{good:avecTp?q.tp:q.t});
     const t=String(lire(x.id)==null?'':lire(x.id)).trim();
     if(x.type==='sel'){ out[x.id]={ok:t===x.good, rempli:t!=='', attendu:x.good}; return; }
     const v=t===''?null:tgParseFrac(t);
@@ -30352,7 +30357,7 @@ function edsFormHTML(q){
   h+='<div class="tg-sub"><b>Pour déterminer le point d’intersection</b>, je peux utiliser '+tt+' = '+M('t')+' avec <i>d</i>, ou '+tp+' = '+M('tp')+' avec <i>d</i>′.</div>';
   h+=L(T('Je choisis :')+sel('eds-ch',[['t','t avec d'],['tp','t′ avec d′']],'hors-note'));
   h+=L(T('Avec <span class="eds-mir" data-m="chx">…</span> :')+'<span class="edp-nw"><span class="eds-mir" data-m="chd"><i>d</i></span>&nbsp;:'
-    +edpSys([0,1,2].map(k=>[T('<span class="eds-mir" data-m="pt'+k+'">…</span> ='),I('eds-i'+k)]), ['e','s'])+'</span>', 'eds-lsys');
+    +edpSys([0,1,2].map(k=>[T('<span class="eds-mir" data-m="pt'+k+'">…</span> × (')+I('eds-p'+k)+T(') ='),I('eds-i'+k)]), ['e','s'])+'</span>', 'eds-lsys');
   h+=L(T('Donc le point d’intersection est <i>I</i>('+M('i0')+' ; '+M('i1')+' ; '+M('i2')+')'));
   h+='<p class="dexp-hint">Chaque case est un <b>nombre</b>. Un « + » écrit devant une case veut dire que son nombre est positif ; sinon, écris le signe − dans la case (par exemple −2).</p>';
   return h;
@@ -30387,7 +30392,7 @@ function edsMiroirs(corrige){
     else if(cle==='chx') m.innerHTML=ch?tp+' = '+nb('eds-tp'):'<i>t</i> = '+nb('eds-ht');
     else if(cle==='chd') m.innerHTML=ch?'<i>d</i>′':'<i>d</i>';
     else if(/^pt\d$/.test(cle)){ const k=+cle[2], a=ch?q.B[k]:q.A[k], c=ch?q.v[k]:q.u[k], p=ch?'′':'';
-      m.innerHTML='<i>'+EDP_CO[k]+'</i>'+p+' = '+edsMb(a,c,p)+' = '+numFmt(a)+(c<0?' − ':' + ')+numFmt(Math.abs(c))+' × ('+(ch?nb('eds-tp'):nb('eds-ht'))+')'; }
+      m.innerHTML='<i>'+EDP_CO[k]+'</i>'+p+' = '+edsMb(a,c,p)+' = '+numFmt(a)+(c<0?' − ':' + ')+numFmt(Math.abs(c)); }
     else m.innerHTML=nb('eds-'+cle);
   });
 }
