@@ -2181,6 +2181,8 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 /* la figure du k), où l'on clique, a la taille de celles des autres parties (Turquet, octobre 2026) */
 .ecd-fig.ecd-fig-c{cursor:crosshair;touch-action:manipulation}
 .ecd-dr{stroke:#0ea5e9;stroke-width:1.7;stroke-linecap:round}
+/* une partie cachée (dans le cube ou derrière) : pointillés plus fins que ceux des arêtes (6 5) */
+.ecd-dr.ecd-drc{stroke-width:1.4;stroke-dasharray:3 3;stroke-linecap:butt}
 .ecd-mir{white-space:nowrap}
 .ecd-gris{color:#64748b;font-size:.9em}
 .ecd-prop{border:1.5px solid var(--ink);border-radius:8px;padding:8px 14px;margin:14px 0 6px;max-width:640px}
@@ -4279,7 +4281,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=448;
+const APP_VERSION=449;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -32227,6 +32229,37 @@ function ecdPlaceJuste(q,P){
   if([0,1,2].every(k=>Math.abs(P[k]-S[k])<1e-9)) return true;
   return ecbD2(ecbProj(ecdCfg(q),P),ecbProj(ecdCfg(q),S))<3;   /* même endroit du dessin */
 }
+/* Les parties CACHÉES des droites tracées (Turquet, octobre 2026 : « mettre
+   en pointillés, plus fins que ceux des arêtes, les morceaux de droite qui
+   sont à l'intérieur du cube ou derrière »), comme au 7.1.7 : un point est
+   caché si, en allant vers l'œil, on traverse l'intérieur du cube. La
+   direction de l'œil est le noyau de la projection (ecbProj(V) = 0), orientée
+   du sommet caché vers le cube. Un point d'une face tournée vers l'œil, ou
+   d'une arête vue, ne l'est pas : le rayon sort tout de suite. */
+function ecdVue(cfg){
+  const b=ecbBase(cfg), r1=[b[0][0],b[1][0],b[2][0]], r2=[b[0][1],b[1][1],b[2][1]];
+  let V=[r1[1]*r2[2]-r1[2]*r2[1], r1[2]*r2[0]-r1[0]*r2[2], r1[0]*r2[1]-r1[1]*r2[0]];
+  const H=ecbCache(cfg);
+  if([0,1,2].reduce((a,k)=>a+V[k]*(0.5-H[k]),0)<0) V=V.map(c=>-c);
+  return V;
+}
+function ecdCache(cfg,M){
+  const V=ecdVue(cfg); let lo=1e-7, hi=Infinity;
+  for(let i=0;i<3;i++){
+    if(Math.abs(V[i])<1e-12){ if(M[i]<=1e-9||M[i]>=1-1e-9) return false; continue; }
+    let a=(1e-9-M[i])/V[i], b=(1-1e-9-M[i])/V[i]; if(a>b){ const x=a; a=b; b=x; }
+    lo=Math.max(lo,a); hi=Math.min(hi,b);
+  }
+  return hi-lo>1e-6;
+}
+/* un segment [P ; Q] découpé en morceaux vus et cachés : [début, fin, caché] */
+function ecdMorceaux(cfg,P,Q){
+  const N=160, at=t=>[0,1,2].map(k=>P[k]+t*(Q[k]-P[k])), out=[];
+  let t0=0, c0=ecdCache(cfg,at(0.5/N));
+  for(let i=1;i<N;i++){ const c=ecdCache(cfg,at((i+0.5)/N)); if(c!==c0){ out.push([at(t0),at(i/N),c0]); t0=i/N; c0=c; } }
+  out.push([at(t0),Q,c0]);
+  return out;
+}
 function ecdSVG(q){
   const c=ecdCadre(q), f=v=>v.toFixed(1), X=ecdX(q,c), cfg=ecdCfg(q);
   const seg=(a,b,cl)=>'<line x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0])+'" y2="'+f(b[1])+'" class="'+cl+'"/>';
@@ -32234,7 +32267,9 @@ function ecdSVG(q){
   let g='<rect class="ecb-fond" x="0" y="0" width="'+f(c.W)+'" height="'+f(c.H)+'"/>';
   ecbLignes().forEach(l=>{ g+=seg(X(ecbSur(l,0)),X(ecbSur(l,1)),ecbParCache(cfg,l)?'ecb-ar ecb-cache':'ecb-ar'); });
   /* les segments de la fiche, fins, en bleu ciel */
-  ecdSegs(q).forEach(s=>{ g+=seg(X(s[0]),X(s[1]),'ecd-dr'); });
+  /* chaque segment en morceaux : vus en trait plein, cachés (dans le cube
+     ou derrière une face) en pointillés plus fins que ceux des arêtes */
+  ecdSegs(q).forEach(s=>{ ecdMorceaux(cfg,s[0],s[1]).forEach(m=>{ g+=seg(X(m[0]),X(m[1]),m[2]?'ecd-dr ecd-drc':'ecd-dr'); }); });
   /* le repère : AB⃗, AD⃗, AE⃗ en couleur, comme au 7.1.6 */
   const H=ecbCache(cfg), A=X([0,0,0]);
   [['B','ecb-bx'],['D','ecb-by'],['E','ecb-bz']].forEach(function(b){
