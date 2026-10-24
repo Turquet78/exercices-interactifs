@@ -2097,7 +2097,12 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 #ecbForm .tg-in{width:56px}
 .ecb-fig{max-width:600px;margin:4px auto 6px}
 .ecb-fig-a{max-width:400px;margin:0 auto 2px}
-.ecb-fig-c{cursor:crosshair;touch-action:manipulation;margin-top:8px}
+.ecb-fig-c{max-width:860px;cursor:crosshair;touch-action:manipulation;margin-top:8px}
+.ecb-chemin{stroke:#f59e0b;stroke-width:1.6;stroke-dasharray:3 4;stroke-linecap:round;opacity:.85}
+.ecb-chemin.ok{stroke:var(--blue)}
+.ecb-chemin.bad{stroke:var(--red)}
+.ecb-chemin.sol,.ecb-chemin.ecb-cor{stroke:var(--green)}
+.ecb-chemin.ecb-fant{opacity:.4}
 .ecb-svg{display:block;width:100%;height:auto;color:var(--ink);user-select:none;-webkit-user-select:none}
 .ecb-fond{fill:transparent}
 .ecb-ar{stroke:var(--ink);stroke-width:1.8;stroke-linecap:round}
@@ -30751,8 +30756,16 @@ function ecbSVG(q,mode){
   ECB_SOM.forEach(function(L){ g+=etiq(X(ECB_COORD[L]),L,'ecb-ls'); });
   if(mode==='a') return '<svg class="ecb-svg" id="ecbSvgA" viewBox="0 0 '+f(c.W)+' '+f(c.H)+'" role="img" aria-label="Le cube ABCDEFGH, son repère et les points '+pts.map(p=>p.L).join(' et ')+'">'+g+'</svg>';
   /* c) les points placés par l'élève, et la correction */
+  /* le chemin depuis A, en pointillés (Turquet, octobre 2026) : x pas le
+     long de (AB), puis y pas parallèlement à (AD), puis z pas verticalement
+     — l'élève lit comment on arrive au point qu'il a placé */
+  const chemin=(P,cl)=>{
+    const etapes=[[0,0,0],[P[0],0,0],[P[0],P[1],0],P.slice()];
+    let h='';
+    for(let i=0;i<3;i++){ if(Math.abs(P[i])<1e-9) continue; h+=seg(X(etapes[i]),X(etapes[i+1]),'ecb-chemin'+(cl?' '+cl:'')); }
+    return h; };
   const marque=(P,L,cl,pts)=>{ const m=X(P);
-    return prol(P,'ecb-prol ecb-prol-pl'+(cl?' '+cl:'').replace(/\bpts-case\b/,''))
+    return chemin(P,cl)+prol(P,'ecb-prol ecb-prol-pl'+(cl?' '+cl:'').replace(/\bpts-case\b/,''))
       +'<g class="ecb-pl'+(pts?' pts-case':'')+(cl?' '+cl:'')+'" data-p="'+L+'"><circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="5.5"/>'
       +'<text x="'+f(m[0]+9)+'" y="'+f(m[1]-8)+'" class="ecb-lpl">'+L+'</text></g>'; };
   q.plc.forEach(function(p){
@@ -30826,7 +30839,7 @@ function ecbFormHTML(q){
   h+='<div class="tg-sub">c) Place sur la figure les points : '+q.plc.map(p=>'<span class="ecb-nw"><i>'+p.L+'</i>&nbsp;('+p.P.map(numFmt).join(' ; ')+')</span>').join(' ; ')+'</div>';
   h+='<div class="ecb-fig ecb-fig-c" id="ecbFig2"></div>';
   h+=L(T('Point à placer :')+q.plc.map(p=>'<button type="button" class="ecb-bp" id="ecb-b-'+p.L+'" onclick="ecbChoisir(\''+p.L+'\')">'+p.L+'</button>').join(''), 'ecb-l');
-  h+='<p class="ecb-aide">Choisis un point, puis clique sur la figure à l’endroit où il se trouve — sur une arête, ou sur son prolongement : l’arête se prolonge jusqu’au point. Un nouveau clic le déplace.</p>';
+  h+='<p class="ecb-aide">Choisis un point, puis clique sur la figure à l’endroit où il se trouve — sur une arête, ou sur son prolongement : l’arête se prolonge jusqu’au point, et des pointillés montrent le chemin depuis <i>A</i> (le long de (<i>AB</i>), puis parallèlement à (<i>AD</i>), puis verticalement). Un nouveau clic le déplace.</p>';
   return h;
 }
 function ecbPromptHTML(q){

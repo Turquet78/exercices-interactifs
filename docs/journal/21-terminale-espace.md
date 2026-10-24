@@ -511,6 +511,20 @@ vérification égale, I sur `d′`), la copie juste acceptée, la paire opposée
 copie vide sans case remplie ; l'écran ouvert dans Chromium, saisies
 fausses recopiées dans les miroirs puis remplacées par les justes.
 
+**Puis le chemin depuis A, en pointillés, et une seconde figure plus grande**
+(Turquet, octobre 2026, v441 : « quand on place un point pour la question c,
+agrandir le dessin, et pour le point M(0 ; −0,5 ; 1), l'élève doit pouvoir
+passer par le point (0 ; −0,5 ; 0)… avec des pointillés »). Trois gestes
+étaient possibles — construire le point en trois clics (x, puis y, puis z),
+en deux (le pied, puis la verticale), ou garder le clic sur l'arête et
+montrer le chemin : Turquet a choisi le troisième. Le clic pose toujours le
+point sur l'arête ou son prolongement ; la figure trace en plus, en
+pointillés de la couleur du point, le chemin de A jusqu'à lui — x pas le long
+de (AB), y pas parallèlement à (AD), z pas verticalement (`chemin` dans
+`ecbSVG`, une étape nulle ne se trace pas). Le fantôme qui suit la souris le
+montre AVANT le clic, la correction verte aussi. La seconde figure prend toute
+la largeur de la carte (860 px au plus, contre 600).
+
 ## 7.1.7 — parallèles, sécantes ou non coplanaires (`espace-positions-droites`, kind `epo`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteur 7 » : « créer un
