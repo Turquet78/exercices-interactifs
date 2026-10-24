@@ -2081,6 +2081,9 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 #edsForm .tg-line{gap:8px 10px}
 #edsForm .tg-sub{margin:16px 0 4px}
 .eds-mir{white-space:nowrap}
+.eds-gr{display:inline-grid;grid-template-columns:repeat(6,auto);align-items:center;gap:8px 8px;margin:8px 0 4px}
+.eds-gc{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.eds-gc.c0{justify-self:end}.eds-gc.c1{justify-self:end}.eds-gc.c2{justify-self:center}.eds-gc.c3{justify-self:start}.eds-gc.c4{justify-self:center}.eds-gc.c5{justify-self:start}
 .eds-num{display:inline-block;margin-left:8px;font-size:1.05em}
 @media (max-width:560px){
   #edsForm .tg-in{width:34px;padding:4px 1px}
@@ -4174,7 +4177,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=440;
+const APP_VERSION=441;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -30058,6 +30061,27 @@ function epaPlain(q){ return 'd : { '+epaSysPlain(q.A,q.u,'')+' } et d′ : { '+
 function epaPromptHTML(q){
   return '<span class="edp-nw">Soient <i>d</i>&nbsp;:'+epaSysHTML(q.A,q.u,'')+'</span> <span class="edp-nw">et <i>d</i>′&nbsp;:'+epaSysHTML(q.B,q.v,'′')+'</span> <span><i>d</i> et <i>d</i>′ sont-elles parallèles&nbsp;?</span>';
 }
+/* Une case de RÉSULTAT s'élargit avec ce qu'on y écrit (Turquet, octobre
+   2026 : « la case doit s'agrandir si l'écriture dépasse ») — « −1,67 » ou
+   « 13/7 » ne se coupent plus. Trois caractères tiennent dans la case. */
+function caseAjuster(el){ if(!el) return; const n=String(el.value||'').length; el.style.width=n>3?'calc('+n+'ch + 18px)':''; }
+/* « = » ou « ≈ » devant une valeur de quotient : « ≈ » quand l'élève écrit
+   un DÉCIMAL qui n'est pas exactement le quotient de SA fraction — n et d
+   sont lus dans ses cases, jamais dans la réponse attendue. Une fraction
+   écrite, ou une case incomplète, garde « = ». */
+function signeQuotient(idn, idd, idq){
+  const b=id=>{ const el=$(id); return el?String(el.value||'').trim():''; };
+  const n=tgParseFrac(b(idn)), d=tgParseFrac(b(idd)), sq=b(idq).replace(/\s+/g,''), v=tgParseFrac(sq);
+  if(n==null||d==null||d===0||v==null||sq.indexOf('/')>=0) return '=';
+  return Math.abs(v-n/d)>1e-9?'≈':'=';
+}
+function epaSignes(){
+  document.querySelectorAll('#epaForm .epa-eg').forEach(function(sp){
+    const k=sp.getAttribute('data-k');
+    sp.textContent=signeQuotient('epa-k'+k+'n','epa-k'+k+'d','epa-k'+k+'q');
+    caseAjuster($('epa-k'+k+'q'));
+  });
+}
 function epaFormHTML(q){
   const I=id=>txInp(id), T=h=>'<span>'+h+'</span>';
   const L=(h,cls)=>'<div class="tg-line'+(cls?' '+cls:'')+'">'+h+'</div>';
@@ -30071,7 +30095,7 @@ function epaFormHTML(q){
   h+=L(NW(T('Un vecteur directeur de <i>d</i> est')+T(elgVec('u'))+col([0,1,2].map(k=>'epa-u'+k)))
      +NW(T('et un vecteur directeur de <i>d</i>′ est')+T(elgVec('v'))+col([0,1,2].map(k=>'epa-v'+k))));
   h+=L(NW('<span class="elg-par epa-fd">'+fr('fin','début')+'</span>')
-     +[0,1,2].map(k=>NW(fr(I('epa-k'+k+'n'),I('epa-k'+k+'d'))+T('=')+I('epa-k'+k+'q'))).join(T(';')), 'epa-quo');
+     +[0,1,2].map(k=>NW(fr(I('epa-k'+k+'n'),I('epa-k'+k+'d'))+'<span class="epa-eg" data-k="'+k+'">=</span>'+I('epa-k'+k+'q'))).join(T(';')), 'epa-quo');
   h+='<p class="dexp-hint">On divise dans le sens qu’on veut : les coordonnées de '+elgVec('v')+' par celles de '+elgVec('u')+', ou l’inverse. Un quotient s’écrit en <b>fraction simplifiée</b> (par exemple 2/3) ou en <b>valeur approchée au dixième</b> (par exemple 0,7).</p>';
   h+=L(T('Conclusion : les droites')+sel('epa-cc',[['sont','sont'],['nsp','ne sont pas']])+T('parallèles.'));
   return h;
@@ -30096,6 +30120,8 @@ function renderEPA(){
   $('epaActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEPA()">Vérifier</button>';
   $('epaPrompt').innerHTML=epaPromptHTML(q);
   $('epaForm').innerHTML=epaFormHTML(q);
+  $('epaForm').oninput=function(){ epaSignes(); };
+  setTimeout(epaSignes,0);   /* une reprise remet les saisies APRÈS le rendu (restoreBoxes) */
   if(isSoutien()){
     epaCases(q).forEach(function(x){ const el=$(x.id); if(el) el.addEventListener(x.type==='sel'?'change':'input', function(){ checkEPA(true); }); });
   }
@@ -30146,6 +30172,7 @@ function checkEPA(live){
     fb.innerHTML=msgCorrCouleurs(vides>0)+'<br>'+epaRetiens(q);
     fb.className='mp-feedback bad';
     cases.forEach(function(x){ corrCase(x.id, verd[x.id].attendu, verd[x.id].ok===true); });
+    epaSignes();   /* une correction écrite dans une case vide l'élargit aussi */
   }
   test.answers.push(Object.assign({}, ptsExo()||{}, {
     q:'Espace — deux droites parallèles ? '+epaPlain(q), answer:epaRepPlain(q),
@@ -30180,14 +30207,17 @@ function epaConseilCtx(){
      t = b + v t′ [a1] = v t′ [c0]                 (a1 = −a, c0 = b − a)
      Devient : a + u(v t′ c0) = b + v t′           (miroir de c0)
        ⟺ a [e1] t′ [e0] = b + v t′                  (le « a » reste, écrit)
+       ⟺ e1 t′ [k0] = b + v t′                      (a + e0 réduit, v440)
        ⟺ e1 t′ [g1] t′ = b [g0]                     (miroir de e1)
        ⟺ [h1] t′ = [h0]  ⟺  t′ = h0/h1 = [t′]       (fraction : miroirs)
-     Avec : t = v t′ c0 = v × (t′) c0 = [t]
-     ATTENTION ! on vérifie dans w : a + u × (t) = b + v × (t′)
+     Avec : t = v t′ c0 = v × ([t′]) c0 = [t]       (l'élève récrit t′, v440)
+     ATTENTION ! on vérifie dans w : a + u × ([t]) = b + v × ([t′])  (cases, v440)
        ⟺ a [m1] = b [m2] ⟺ [ ] = [ ] ; l'équation w est [vérifiée] ; les
        droites sont bien [sécantes] (deux menus) ;
      le point : t avec d OU t′ avec d′, au choix de l'élève (menu hors note),
-       x = a + u t = a + u × (t) = [ ] … ; I(…) recopie les trois cases.
+       x = a + u t = a + u × ([t]) = [ ] … — la valeur placée est une case
+       (v440), jugée selon le choix ; I([ ] ; [ ] ; [ ]) : l'élève écrit
+       lui-même les trois coordonnées (v440).
    Les règles de Turquet tiennent toujours : une écriture déjà complétée se
    REDONNE (miroir .eds-mir, l'écriture de l'élève, « … » si vide) ; ce qui
    reste identique d'un même côté ne se redemande pas ; un « + » est écrit
@@ -30217,11 +30247,12 @@ function edsVal(q){
   const s=q.s, r=q.r, w=q.w;
   const a1=-q.A[s], c0=q.B[s]-q.A[s], c1=q.v[s];                 /* t = b + v t′ [a1] = v t′ [c0] */
   const e1=q.u[r]*c1, e0=q.u[r]*c0;                               /* a [e1] t′ [e0] = b + v t′ */
-  const g1=-q.v[r], g0=-q.A[r]-e0;                                /* e1 t′ [g1] t′ = b [g0] */
+  const k0=q.A[r]+e0;                                              /* e1 t′ [k0] = b + v t′ */
+  const g1=-q.v[r], g0=-k0;                                       /* e1 t′ [g1] t′ = b [g0] */
   const h1=e1+g1, h0=q.B[r]+g0;                                   /* [h1] t′ = [h0] */
   const m1=q.u[w]*q.t, m2=q.v[w]*q.tp, vw=q.A[w]+m1;              /* a [m1] = b [m2] ⟺ [vw] = [vw] */
   const I=q.A.map((a,k)=>a+q.u[k]*q.t);
-  return {a1:a1, c0:c0, c1:c1, e1:e1, e0:e0, g1:g1, g0:g0, h1:h1, h0:h0, tp:q.tp, t:q.t, m1:m1, m2:m2, vw:vw, I:I};
+  return {a1:a1, c0:c0, c1:c1, e1:e1, e0:e0, k0:k0, g1:g1, g0:g0, h1:h1, h0:h0, tp:q.tp, t:q.t, m1:m1, m2:m2, vw:vw, I:I};
 }
 /* Toutes les cases — UNE liste, lue par le rendu, le juge, la correction et le contexte de l'aide. */
 function edsCases(q){
@@ -30231,24 +30262,33 @@ function edsCases(q){
   X('eds-c0',V.c0,'nombre seul après réduction dans t = … (équation '+ns+')');
   X('eds-e1',V.e1,'coefficient de t′ après développement (équation '+nr+')');
   X('eds-e0',V.e0,'nombre après développement (équation '+nr+')');
+  X('eds-k0',V.k0,'nombre seul après réduction du membre de gauche (équation '+nr+')');
   X('eds-g1',V.g1,'terme en t′ passé à gauche (coefficient)');
   X('eds-g0',V.g0,'nombre passé à droite');
   X('eds-h1',V.h1,'coefficient de t′ après réduction','num','h');
   X('eds-h0',V.h0,'nombre après réduction','num','h');
   X('eds-tp',V.tp,'valeur de t′');
+  X('eds-tv',V.tp,'valeur de t′ remplacée dans le calcul de t');
   X('eds-ht',V.t,'valeur de t');
+  X('eds-wt',V.t,'valeur de t placée dans l’équation '+nw);
+  X('eds-wtp',V.tp,'valeur de t′ placée dans l’équation '+nw);
   X('eds-m1',V.m1,'produit du membre de gauche dans la vérification (équation '+nw+')');
   X('eds-m2',V.m2,'produit du membre de droite dans la vérification (équation '+nw+')');
   X('eds-wl',V.vw,'valeur du membre de gauche (équation '+nw+')');
   X('eds-wr',V.vw,'valeur du membre de droite (équation '+nw+')');
   X('eds-ver','oui','menu : l’équation '+nw+' est vérifiée ou non','sel');
   X('eds-sec','sec','menu : les droites sont bien…','sel');
-  EDP_CO.forEach(function(co,k){ X('eds-i'+k,V.I[k],'coordonnée '+co+' du point d’intersection I'); });
+  /* la valeur placée dans la ligne du point : t avec d, ou t′ avec d′ — le
+     choix de l'élève (menu eds-ch) ; edsVerdicts la relit */
+  EDP_CO.forEach(function(co,k){ X('eds-p'+k,V.t,'valeur de t (ou de t′ si l’élève a choisi d′) placée dans la ligne de '+co); });
+  EDP_CO.forEach(function(co,k){ X('eds-i'+k,V.I[k],'valeur de '+co+' calculée dans la ligne du point'); });
+  EDP_CO.forEach(function(co,k){ X('eds-j'+k,V.I[k],'coordonnée '+co+' du point d’intersection I'); });
   return out;
 }
 function edsVerdicts(q, lire){
-  const cases=edsCases(q), out={}, paires={};
+  const cases=edsCases(q), out={}, paires={}, avecTp=String(lire('eds-ch')||'')==='tp';
   cases.forEach(function(x){
+    if(/^eds-p\d$/.test(x.id)) x=Object.assign({},x,{good:avecTp?q.tp:q.t});
     const t=String(lire(x.id)==null?'':lire(x.id)).trim();
     if(x.type==='sel'){ out[x.id]={ok:t===x.good, rempli:t!=='', attendu:x.good}; return; }
     const v=t===''?null:tgParseFrac(t);
@@ -30281,6 +30321,16 @@ function edsFormHTML(q){
   const P=v=>v>0?T('+'):'';   /* le « + » devant une case positive qui suit un terme */
   const ct=(c,p)=>numFmt(c)+'<i>t</i>'+p;   /* « 2t′ », « −8t′ » */
   const EQV=T('⟺');
+  /* Une résolution s'écrit en GRILLE (Turquet, octobre 2026) : les « ⟺ »
+     l'un sous l'autre, les membres de gauche calés à droite, les « = »
+     l'un sous l'autre, les membres de droite calés à gauche — et la ligne
+     de l'équation choisie en tête, pour que son « = » tombe sous les autres.
+     Six colonnes : étiquette, gauche, =, droite, puis un second « = » et sa
+     suite (la ligne « t = … = … »). */
+  const G=rows=>'<div class="eds-lsys"><div class="eds-gr">'+rows.map(function(r){
+      const c=r.slice(); while(c.length<6) c.push('');
+      return c.map((x,j)=>'<span class="eds-gc c'+j+'">'+(x==='='?'<span class="eds-eq">=</span>':x)+'</span>').join('');
+    }).join('')+'</div></div>';
   const sel=(id,opts,cls)=>'<select class="tvi-sel'+(cls?' '+cls:'')+'" id="'+id+'">'+opts.map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('')+'</select>';
   let h='';
   h+='<div class="tg-sub"><b>Méthode :</b> sécantes signifie <i>d</i> = <i>d</i>′ : on doit « coller » les deux équations !</div>';
@@ -30288,30 +30338,34 @@ function edsFormHTML(q){
     +'<span class="edp-lab" style="grid-row:4;grid-column:2"><b><i>d</i></b></span><span class="edp-lab" style="grid-row:4;grid-column:4"><b><i>d</i>′</b></span>';
   h+=L(T('On veut :')+edpSys([0,1,2].map(k=>[T(edsMb(q.A[k],q.u[k],'')),T('='),T(edsMb(q.B[k],q.v[k],'′')),N(k)]), ['e','m','s','s'], cad, 'edp-sys-a'), 'eds-lsys');
   /* t tout seul */
-  h+='<div class="tg-sub">On prend une équation avec '+tt+' ou '+tp+' tout seul : ici l’équation '+N(s)+' : '+edsEq(q,s)+' ('+tt+' est tout seul).</div>';
-  h+=L(T('On écrit :')+NW(T(tt+' = '+edsMb(q.B[s],q.v[s],'′'))+P(V.a1)+I('eds-a1'))+NW(T('= '+ct(V.c1,'′'))+P(V.c0)+I('eds-c0')));
+  h+='<div class="tg-sub">On prend une équation avec '+tt+' ou '+tp+' tout seul : ici l’équation '+N(s)+' ('+tt+' est tout seul).</div>';
+  h+=G([[N(s)+T(':'), T(edsMb(q.A[s],q.u[s],'')), '=', T(edsMb(q.B[s],q.v[s],'′'))],
+        [T('On écrit :'), T(tt), '=', T(edsMb(q.B[s],q.v[s],'′'))+P(V.a1)+I('eds-a1'), '=', T(ct(V.c1,'′'))+P(V.c0)+I('eds-c0')]]);
   /* on remplace t dans l'équation r */
-  h+='<div class="tg-sub">On remplace '+tt+' par son résultat dans une autre équation, ici l’équation '+N(r)+' : '+edsEq(q,r)+'.</div>';
-  h+=L(T('Devient :')+NW(T(numFmt(q.A[r])+fac(q.u[r])+'('+M('sub')+')'))+NW(T('= '+edsMb(q.B[r],q.v[r],'′'))));
-  h+=L(EQV+NW(T(numFmt(q.A[r]))+P(V.e1)+I('eds-e1')+T(tp)+P(V.e0)+I('eds-e0'))+NW(T('= '+edsMb(q.B[r],q.v[r],'′'))));
-  h+=L(EQV+NW(M('e1')+P(V.g1)+I('eds-g1')+T(tp))+NW(T('= '+numFmt(q.B[r]))+P(V.g0)+I('eds-g0')));
-  h+=L(EQV+NW(I('eds-h1')+T(tp+' =')+I('eds-h0')));
-  h+=L(EQV+NW(T(tp+' =')+'<span class="elg-fr"><span class="elg-fn">'+M('h0')+'</span><span class="elg-fd">'+M('h1')+'</span></span>'+T('=')+I('eds-tp')));
-  h+=L(T('Avec :')+NW(T(tt+' = '+ct(V.c1,'′')+M('c0s')+' = '+numFmt(V.c1)+' × ('+M('tp')+')'+M('c0s')+' =')+I('eds-ht')));
+  h+='<div class="tg-sub">On remplace '+tt+' par son résultat dans une autre équation, ici l’équation '+N(r)+'.</div>';
+  const dr=T(edsMb(q.B[r],q.v[r],'′'));
+  h+=G([[N(r)+T(':'), T(edsMb(q.A[r],q.u[r],'')), '=', dr],
+        [T('Devient :'), T(numFmt(q.A[r])+fac(q.u[r])+'('+M('sub')+')'), '=', dr],
+        [EQV, T(numFmt(q.A[r]))+P(V.e1)+I('eds-e1')+T(tp)+P(V.e0)+I('eds-e0'), '=', dr],
+        [EQV, M('e1')+P(V.k0)+I('eds-k0'), '=', dr],
+        [EQV, M('e1')+P(V.g1)+I('eds-g1')+T(tp), '=', T(numFmt(q.B[r]))+P(V.g0)+I('eds-g0')],
+        [EQV, I('eds-h1')+T(tp), '=', I('eds-h0')],
+        [EQV, T(tp), '=', '<span class="elg-fr"><span class="elg-fn">'+M('h0')+'</span><span class="elg-fd">'+M('h1')+'</span></span>'+'<span id="eds-eg">=</span>'+I('eds-tp')]]);
+  h+=L(T('Avec :')+NW(T(tt+' = '+ct(V.c1,'′')+M('c0s')+' = '+numFmt(V.c1)+' × (')+I('eds-tv')+T(')'+M('c0s')+' =')+I('eds-ht')));
   /* la vérification */
   h+='<div class="tg-sub"><b>ATTENTION !</b> On doit vérifier '+tt+' = '+M('t')+' et '+tp+' = '+M('tp')+' dans la dernière équation, ici l’équation '+N(w)+'.</div>';
-  h+=L(T(edsEq(q,w)));
-  h+=L(EQV+NW(T(numFmt(q.A[w])+fac(q.u[w])+' × ('+M('t')+')'))+NW(T('= '+numFmt(q.B[w])+fac(q.v[w])+' × ('+M('tp')+')')));
-  h+=L(EQV+NW(T(numFmt(q.A[w]))+P(V.m1)+I('eds-m1'))+NW(T('= '+numFmt(q.B[w]))+P(V.m2)+I('eds-m2')));
-  h+=L(EQV+NW(I('eds-wl')+T('=')+I('eds-wr')));
+  h+=G([[N(w)+T(':'), T(edsMb(q.A[w],q.u[w],'')), '=', T(edsMb(q.B[w],q.v[w],'′'))],
+        [EQV, T(numFmt(q.A[w])+fac(q.u[w])+' × (')+I('eds-wt')+T(')'), '=', T(numFmt(q.B[w])+fac(q.v[w])+' × (')+I('eds-wtp')+T(')')],
+        [EQV, T(numFmt(q.A[w]))+P(V.m1)+I('eds-m1'), '=', T(numFmt(q.B[w]))+P(V.m2)+I('eds-m2')],
+        [EQV, I('eds-wl'), '=', I('eds-wr')]]);
   h+=L(T('L’équation '+N(w)+' est')+sel('eds-ver',[['','…'],['oui','vérifiée'],['non','fausse']]));
   h+=L(T('Les droites sont bien')+sel('eds-sec',[['','…'],['sec','sécantes'],['par','parallèles'],['conf','confondues']])+T('.'));
   /* le point d'intersection */
   h+='<div class="tg-sub"><b>Pour déterminer le point d’intersection</b>, je peux utiliser '+tt+' = '+M('t')+' avec <i>d</i>, ou '+tp+' = '+M('tp')+' avec <i>d</i>′.</div>';
   h+=L(T('Je choisis :')+sel('eds-ch',[['t','t avec d'],['tp','t′ avec d′']],'hors-note'));
   h+=L(T('Avec <span class="eds-mir" data-m="chx">…</span> :')+'<span class="edp-nw"><span class="eds-mir" data-m="chd"><i>d</i></span>&nbsp;:'
-    +edpSys([0,1,2].map(k=>[T('<span class="eds-mir" data-m="pt'+k+'">…</span> ='),I('eds-i'+k)]), ['e','s'])+'</span>', 'eds-lsys');
-  h+=L(T('Donc le point d’intersection est <i>I</i>('+M('i0')+' ; '+M('i1')+' ; '+M('i2')+')'));
+    +edpSys([0,1,2].map(k=>[T('<span class="eds-mir" data-m="pt'+k+'">…</span> × (')+I('eds-p'+k)+T(') ='),I('eds-i'+k)]), ['e','s'])+'</span>', 'eds-lsys');
+  h+=L(T('Donc le point d’intersection est <i>I</i>(')+I('eds-j0')+T(';')+I('eds-j1')+T(';')+I('eds-j2')+T(')'));
   h+='<p class="dexp-hint">Chaque case est un <b>nombre</b>. Un « + » écrit devant une case veut dire que son nombre est positif ; sinon, écris le signe − dans la case (par exemple −2).</p>';
   return h;
 }
@@ -30322,6 +30376,8 @@ function edsFormHTML(q){
    d'intersection réécrit aussi les trois lignes du point. */
 function edsMiroirs(corrige){
   const q=test.questions[test.idx]; if(!q) return;
+  const eg=$('eds-eg'); if(eg) eg.textContent=signeQuotient('eds-h0','eds-h1','eds-tp');
+  caseAjuster($('eds-tp'));
   const V=edsVal(q), juste=corrige===true;
   const VAL={'eds-c0':V.c0,'eds-e1':V.e1,'eds-h0':V.h0,'eds-h1':V.h1,'eds-tp':V.tp,'eds-ht':V.t,'eds-i0':V.I[0],'eds-i1':V.I[1],'eds-i2':V.I[2]};
   const brut=id=>{ if(juste) return String(VAL[id]); const el=$(id); return el?String(el.value||'').trim():''; };
@@ -30343,7 +30399,7 @@ function edsMiroirs(corrige){
     else if(cle==='chx') m.innerHTML=ch?tp+' = '+nb('eds-tp'):'<i>t</i> = '+nb('eds-ht');
     else if(cle==='chd') m.innerHTML=ch?'<i>d</i>′':'<i>d</i>';
     else if(/^pt\d$/.test(cle)){ const k=+cle[2], a=ch?q.B[k]:q.A[k], c=ch?q.v[k]:q.u[k], p=ch?'′':'';
-      m.innerHTML='<i>'+EDP_CO[k]+'</i>'+p+' = '+edsMb(a,c,p)+' = '+numFmt(a)+(c<0?' − ':' + ')+numFmt(Math.abs(c))+' × ('+(ch?nb('eds-tp'):nb('eds-ht'))+')'; }
+      m.innerHTML='<i>'+EDP_CO[k]+'</i>'+p+' = '+edsMb(a,c,p)+' = '+numFmt(a)+(c<0?' − ':' + ')+numFmt(Math.abs(c)); }
     else m.innerHTML=nb('eds-'+cle);
   });
 }
@@ -30367,7 +30423,7 @@ function renderEDS(){
   $('edsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEDS()">Vérifier</button>';
   $('edsPrompt').innerHTML=edsPromptHTML(q);
   $('edsForm').innerHTML=edsFormHTML(q);
-  $('edsForm').oninput=function(){ edsMiroirs(); };
+  $('edsForm').oninput=function(){ edsMiroirs(); };   /* edsMiroirs pose aussi « = » ou « ≈ » devant t′ */
   edsMiroirs();
   setTimeout(function(){ edsMiroirs(); },0);   /* une reprise remet les saisies APRÈS le rendu (restoreBoxes) */
   if(isSoutien()){
@@ -30377,7 +30433,7 @@ function renderEDS(){
 function edsRetiens(q){
   const V=edsVal(q), tt='<i>t</i>', tp='<i>t</i>′', sg=v=>(v<0?' − ':' + ')+numFmt(Math.abs(v));
   return 'La clé : un point commun vérifie les trois équations à la fois. Dans l’équation '+EDS_N[q.s]+', '+tt+' est tout seul : '+tt+' = '+edsMb(q.B[q.s],q.v[q.s],'′')+sg(V.a1)+' = '+numFmt(V.c1)+tp+sg(V.c0)+'. '
-    +'On le remplace dans l’équation '+EDS_N[q.r]+' : '+numFmt(q.A[q.r])+sg(V.e1)+tp+sg(V.e0)+' = '+edsMb(q.B[q.r],q.v[q.r],'′')+', donc '+numFmt(V.e1)+tp+sg(V.g1)+tp+' = '+numFmt(q.B[q.r])+sg(V.g0)+', '+numFmt(V.h1)+tp+' = '+numFmt(V.h0)+' et '+tp+' = '+numFmt(V.tp)+', puis '+tt+' = '+numFmt(V.t)+'. '
+    +'On le remplace dans l’équation '+EDS_N[q.r]+' : '+numFmt(q.A[q.r])+sg(V.e1)+tp+sg(V.e0)+' = '+edsMb(q.B[q.r],q.v[q.r],'′')+', soit '+numFmt(V.e1)+tp+sg(V.k0)+' = '+edsMb(q.B[q.r],q.v[q.r],'′')+', donc '+numFmt(V.e1)+tp+sg(V.g1)+tp+' = '+numFmt(q.B[q.r])+sg(V.g0)+', '+numFmt(V.h1)+tp+' = '+numFmt(V.h0)+' et '+tp+' = '+numFmt(V.tp)+', puis '+tt+' = '+numFmt(V.t)+'. '
     +'On vérifie dans l’équation '+EDS_N[q.w]+' : les deux membres valent '+numFmt(V.vw)+', elle est vérifiée : les droites sont sécantes. Le point d’intersection est <b><i>I</i>('+V.I.map(numFmt).join(' ; ')+')</b>.';
 }
 function checkEDS(live){
