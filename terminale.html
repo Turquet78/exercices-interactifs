@@ -1234,7 +1234,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-eal,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -2205,7 +2205,21 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   #ecdForm .ecd-lsys,#ecdForm .ecd-quo{overflow-x:auto}
 }
 #scr-ecd .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
-/* ---- 7.1.10 l'espace (fiche « vecteur 9 ») : trois points alignés, ou un plan ? ---- */
+/* 7.1.10 — reconnaître une équation paramétrique de droite */
+#erpPrompt .edp-nw{margin-left:4px}
+#erpForm .tg-line{gap:8px 10px;margin-top:14px}
+#erpForm .tg-sub{margin:16px 0 4px}
+#erpForm .epa-fd{color:#64748b;font-style:italic;font-size:.85em}
+#erpForm .epa-fd .elg-fn{border-bottom-width:1.5px;border-color:#94a3b8}
+.erp-prop{border:1.5px solid var(--ink);border-radius:6px;padding:8px 12px;margin:16px 0 4px;max-width:640px}
+.erp-mir{display:inline-block;min-width:1em;text-align:center}
+@media (max-width:560px){
+  #erpForm .tg-in{width:34px;padding:4px 1px}
+  #erpForm .edp-sys{column-gap:3px}
+  #erpForm .epa-quo,#erpForm .erp-lsys{overflow-x:auto}
+}
+#scr-erp .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+/* ---- 7.1.11 l'espace (fiche « vecteur 9 ») : trois points alignés, ou un plan ? ---- */
 #ealPrompt b{font-weight:700}
 #ealForm .tg-line{gap:8px 10px;margin-top:14px}
 #ealForm .epa-fd{color:#64748b;font-style:italic;font-size:.85em}
@@ -3392,8 +3406,21 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
       <div class="mp-actions" id="ecdActions"></div>
     </div>
   </section>
+  <!-- 7.1.10 L'ESPACE — reconnaître une équation paramétrique de droite (fiche « vecteur 10 ») -->
+  <section class="screen" id="scr-erp">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="erpModeTag"></span><span class="q-idx" id="erpQIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="erpLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="enonce" id="erpPrompt"></p>
+      <div id="erpForm"></div>
+      <div class="mp-feedback" id="erpFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="erpActions"></div>
+    </div>
+  </section>
 
-  <!-- 7.1.10 L'ESPACE — trois points alignés, ou un plan ? (fiche « vecteur 9 ») -->
+  <!-- 7.1.11 L'ESPACE — trois points alignés, ou un plan ? (fiche « vecteur 9 ») -->
   <section class="screen" id="scr-eal">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="ealModeTag"></span><span class="q-idx" id="ealQIdx">Question 1 / 3</span></span>
@@ -4281,7 +4308,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=449;
+const APP_VERSION=450;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4525,6 +4552,7 @@ const TESTS={
   'espace-positions-droites': { name:'Espace \u2014 droites parall\u00e8les, s\u00e9cantes ou non coplanaires', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 7 \u00bb\u00a0: un pav\u00e9 droit ABCDEFGH et deux droites trac\u00e9es sur la figure \u2014 ar\u00eates, diagonales d\u2019une face ou du pav\u00e9. Sont-elles parall\u00e8les, s\u00e9cantes ou non coplanaires\u00a0? Six questions.', start:()=>startEPO() },
   'espace-coplanaires': { name:'Espace \u2014 deux droites sont-elles coplanaires\u00a0?', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteurs 8 \u00bb\u00a0: deux droites donn\u00e9es par leurs \u00e9quations param\u00e9triques. a) Sont-elles parall\u00e8les\u00a0? (les quotients \u00ab\u00a0fin / d\u00e9but\u00a0\u00bb) ; b) sinon, sont-elles s\u00e9cantes\u00a0? (on colle les \u00e9quations, on trouve t et t\u2032, on v\u00e9rifie) ; c) sont-elles coplanaires\u00a0? Trois questions.', start:()=>startECP() },
   'espace-cube-droites': { name:'Espace \u2014 le cube\u00a0: droites parall\u00e8les, s\u00e9cantes, triangle rectangle', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 8 \u00bb, en quatre parties\u00a0: dans un cube, des coordonn\u00e9es, un milieu et des vecteurs\u00a0; les \u00e9quations param\u00e9triques de trois droites, parall\u00e8les ou s\u00e9cantes, coplanaires\u00a0; leur point d\u2019intersection, \u00e0 calculer puis \u00e0 placer\u00a0; un triangle rectangle.', start:()=>startECD() },
+  'espace-reconnaitre-parametrique': { name:'Espace \u2014 reconna\u00eetre une \u00e9quation param\u00e9trique de droite', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 10 \u00bb\u00a0: d\u00e9montrer qu\u2019une \u00e9quation param\u00e9trique donn\u00e9e est celle de la droite (AB), par les deux m\u00e9thodes de la fiche\u00a0: les vecteurs directeurs colin\u00e9aires puis un point commun, ou bien la droite passe par A et par B. La r\u00e9daction compl\u00e8te, jusqu\u2019aux trois valeurs de t. Trois questions.', start:()=>startERP() },
   'espace-points-alignes': { name:'Espace \u2014 trois points align\u00e9s, ou un plan\u00a0?', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 9 \u00bb\u00a0: d\u00e9montrer que trois points sont align\u00e9s, ou qu\u2019ils d\u00e9finissent un plan. La propri\u00e9t\u00e9, les vecteurs calcul\u00e9s \u00ab\u00a0arriv\u00e9e \u2212 d\u00e9part\u00a0\u00bb, les trois quotients \u00ab\u00a0fin / d\u00e9but\u00a0\u00bb (fraction simplifi\u00e9e ou valeur approch\u00e9e), puis les conclusions. Trois questions.', start:()=>startEAL() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
@@ -4635,13 +4663,15 @@ const THEMES=[
      {espace-positions-droites} — en 7.1.7, et la fiche « vecteurs 8 » —
      deux droites coplanaires ?, {espace-coplanaires} — en 7.1.8, et la fiche
      « vecteur 8 » — le cube, ses droites parallèles ou sécantes, le triangle
-     rectangle, {espace-cube-droites} — en 7.1.9, et la fiche « vecteur 9 »
+     rectangle, {espace-cube-droites} — en 7.1.9, et la fiche « vecteur 10 »
+     — reconnaître une équation paramétrique de droite,
+     {espace-reconnaitre-parametrique} — en 7.1.10, et la fiche « vecteur 9 »
      — trois points alignés, ou un plan ?, {espace-points-alignes} — en
-     7.1.10. Les deux premières sont nées
+     7.1.11. Les deux premières sont nées
      le même soir dans deux sessions ; les notes portent l'IDENTIFIANT, pas le
      numéro : rien de ce qui est enregistré ne bouge. */
   { num:7, nom:'Géométrie dans l’espace', sous:[
-      { num:1, nom:'Vecteurs et droites de l’espace', ids:['espace-coordonnees','espace-milieu-longueurs','espace-droite-parametrique','espace-droites-paralleles','espace-droites-secantes','espace-cube','espace-positions-droites','espace-coplanaires','espace-cube-droites','espace-points-alignes'] }
+      { num:1, nom:'Vecteurs et droites de l’espace', ids:['espace-coordonnees','espace-milieu-longueurs','espace-droite-parametrique','espace-droites-paralleles','espace-droites-secantes','espace-cube','espace-positions-droites','espace-coplanaires','espace-cube-droites','espace-reconnaitre-parametrique','espace-points-alignes'] }
     ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
@@ -4874,7 +4904,7 @@ document.addEventListener('move-out', function(ev){
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-eal'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-erp','scr-eal'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -5337,6 +5367,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='epo' && test.questions && test.questions[test.idx]){ c=epoConseilCtx(); }
   else if(test && test.kind==='ecp' && test.questions && test.questions[test.idx]){ c=ecpConseilCtx(); }
   else if(test && test.kind==='ecd' && test.questions && test.questions[test.idx]){ c=ecdConseilCtx(); }
+  else if(test && test.kind==='erp' && test.questions && test.questions[test.idx]){ c=erpConseilCtx(); }
   else if(test && test.kind==='eal' && test.questions && test.questions[test.idx]){ c=ealConseilCtx(); }
   else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
   else if(test && test.kind==='svr' && test.questions && test.questions[test.idx]){ c=svrConseilCtx(); }
@@ -6728,7 +6759,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], eal:['eal',renderEAL], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -6857,7 +6888,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','eal','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
+  const testScreens=['cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
   document.body.classList.toggle('ecran-exo', testScreens.includes(name));   /* le portrait y donne au cadre toute la largeur */
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -21290,6 +21321,12 @@ const RAP_ECD=`<b>Le cube : droites parallèles, sécantes, triangle rectangle</
 • <b>Sécantes</b> : on « colle » les deux équations ; deux équations identiques n’en font qu’une, on en supprime une. Dans l’équation où <i>t</i> est tout seul, on l’isole, on le remplace dans l’autre, on trouve <i>k</i>, puis <i>t</i>, puis le point.<br>
 • <b>Coplanaires</b> : deux droites parallèles ou sécantes sont coplanaires ; ni parallèles ni sécantes, elles sont non coplanaires.<br>
 • <b>Longueur</b> : <i>OB</i> = √(<i>x</i>² + <i>y</i>² + <i>z</i>²) avec les coordonnées de <span class="elg-vec">OB</span>. <b>Pythagore</b> : si le carré du plus grand côté est la somme des carrés des deux autres, le triangle est rectangle, au sommet opposé au plus grand côté.`;
+const RAP_ERP=`<b>Reconnaître une équation paramétrique de droite</b><br>
+• <b>Le but</b> : démontrer qu’une droite <i>d</i>, donnée par une équation paramétrique, est la droite (<i>AB</i>). Deux méthodes.<br>
+• <b>1<sup>re</sup> méthode</b> : on calcule <span class="elg-vec">AB</span> (« arrivée − départ ») et on lit un vecteur directeur <span class="elg-vec">u</span> de <i>d</i> sur les coefficients de <i>t</i>. Les trois quotients « fin / début » sont égaux : les vecteurs sont colinéaires, (<i>AB</i>) est <b>parallèle</b> à <i>d</i>. Puis la <b>propriété</b> : deux droites parallèles ayant un <b>point commun</b> sont confondues — on vérifie que <i>A</i> (ou <i>B</i>, au choix) est sur <i>d</i>.<br>
+• <b>2<sup>e</sup> méthode</b> : deux points distincts définissent une droite. On vérifie que <i>d</i> passe par <i>A</i> <b>et</b> par <i>B</i>.<br>
+• <b>Un point est-il sur <i>d</i> ?</b> On remplace <i>x</i>, <i>y</i>, <i>z</i> par ses coordonnées ; on passe le nombre seul de l’autre côté (son signe change) ; on divise par le coefficient de <i>t</i> — s’il vaut 1, il n’y a rien à diviser. Trois valeurs de <i>t</i> égales : le point est sur <i>d</i>.<br>
+• <b>Exemple</b> : <i>A</i>(2 ; 2 ; −5), <i>d</i> : <i>x</i> = −2 + 4<i>t</i>, <i>y</i> = 1 + 1<i>t</i>, <i>z</i> = −3 − 2<i>t</i>. −2 + 4<i>t</i> = 2 ⟺ 4<i>t</i> = 2 + 2 ⟺ <i>t</i> = \\(\\frac{4}{4}\\) = 1 ; 1 + 1<i>t</i> = 2 ⟺ <i>t</i> = 1 ; −3 − 2<i>t</i> = −5 ⟺ −2<i>t</i> = −5 + 3 ⟺ <i>t</i> = \\(\\frac{-2}{-2}\\) = 1 : <i>A</i> ∈ <i>d</i>.`;
 const RAP_EAL=`<b>Trois points alignés, ou un plan ?</b><br>
 • <b>Remarque</b> : trois points <b>alignés</b> se prolongent sur une <b>droite</b> ; trois points <b>non alignés</b> se prolongent sur un <b>plan</b>, noté (<i>ABC</i>).<br>
 • <b>Propriété</b> : trois points <i>A</i>, <i>B</i> et <i>C</i> définissent un plan de l’espace si <i>A</i>, <i>B</i> et <i>C</i> sont <b>non alignés</b>, c’est-à-dire si <span class="elg-vec">AB</span> et <span class="elg-vec">AC</span> sont <b>non colinéaires</b>.<br>
@@ -21338,7 +21375,7 @@ const RAP_SAP=`<b>Approcher une limite avec un algorithme</b><br>
 • <b>La boucle <code>while</code></b> tourne TANT QUE sa condition est vraie : ici, tant qu’on est encore trop loin, <code>while abs(u - l) &gt;= 0.001:</code>. Elle s’arrête au premier rang où l’écart passe sous 10<sup>−3</sup>.<br>
 • <b>10<sup>−3</sup> en Python</b> : <code>0.001</code>, ou <code>10**-3</code>, ou <code>1e-3</code> — un point, jamais une virgule.<br>
 • <b>Pourquoi la boucle s’arrête</b> : la suite CONVERGE vers ℓ, donc l’écart |U<sub><i>n</i></sub> − ℓ| finit par devenir aussi petit qu’on veut. Pour une suite qui ne convergerait pas, le programme pourrait tourner sans fin.`;
-const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, eal:RAP_EAL, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
+const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -32482,7 +32519,321 @@ function ecdConseilCtx(){
     +'Saisies actuelles de l’élève : '+etat+'. '
     +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. Méthode, sans donner la réponse : coordonnées comptées depuis A le long de AB, AD, AE ; milieu = moyennes ; vecteur = arrivée − départ ; deux droites parallèles ont des vecteurs directeurs colinéaires (trois quotients égaux) ; deux droites parallèles ou sécantes sont coplanaires ; pour des droites sécantes, on isole t, on remplace, on résout ; longueur = racine de la somme des carrés ; Pythagore : le carré du plus grand côté égale la somme des carrés des deux autres.';
 }
-/* ================= 7.1.10 L'ESPACE — TROIS POINTS ALIGNÉS, OU UN PLAN ? (kind 'eal') =================
+/* ================= 7.1.10 L'ESPACE — RECONNAÎTRE UNE ÉQUATION PARAMÉTRIQUE DE DROITE (kind 'erp') =================
+   Demande de Turquet (octobre 2026), avec la fiche « vecteur 10 » : « créer
+   un exercice dans vecteur et droite de l'espace comme le pdf joint, rédigé
+   en respectant les consignes de présentation des exercices précédents qui
+   traitent des mêmes questions ». A, B et une droite d donnée par son
+   équation paramétrique : démontrer que d est la droite (AB). Les deux
+   méthodes de la fiche, une par question :
+     1ʳᵉ méthode — AB⃗ (… − …) donc AB⃗ (…) ; u⃗ de d, v⃗ de (AB) ; les trois
+       quotients (fin / début), comme au 7.1.4 ; (AB) est [parallèle] à d ;
+       la propriété encadrée ; « il faut vérifier qu'elles ont [un point
+       commun] » ; on prend le point [A | B] — au choix de l'élève ; la
+       rédaction de l'appartenance ; « donc le point … [est] un point
+       commun » ; les droites sont [confondues].
+     2ᵉ méthode — « on vérifie que d passe par [ ] et [ ] » ; les deux
+       appartenances, dans l'ordre que l'élève a écrit ; d est (AB).
+   L'appartenance se rédige en trois systèmes, ceux de la fiche, avec les
+   cases du 7.1.3 : {−2 + 4t = [xP]} ⟺ {4t = [xP] [+2]} ⟺ {t = [n]/[d] = [t]}
+   — la seconde case porte −x du point de départ AVEC son signe ; un
+   coefficient 1 ne se divise pas (t = … tout court), −1 garde sa division.
+   Le « 1t » de d s'écrit comme sur la fiche (et comme au 7.1.4).
+   Le tirage : d part d'un point D, de vecteur u⃗ ; A = D + tA u⃗ et
+   B = D + tB u⃗, tA entier, tB entier ou demi-entier (le B(0 ; 1,5 ; −4) de
+   la fiche) — d est donc TOUJOURS la droite (AB), c'est une démonstration. */
+const ERP_TB=[-3,-2,-1,1,2,3,-1.5,-0.5,0.5,1.5,2.5];
+function erpGen(m){
+  for(let essai=0; essai<2000; essai++){
+    const u=[edpNz(-4,4),edpNz(-4,4),edpNz(-4,4)], D=[edpNz(-6,6),edpNz(-6,6),edpNz(-6,6)];
+    let tA=edpNz(-3,3), tB=pick(ERP_TB);
+    if(tB===tA) continue;
+    if(Math.random()<0.5){ const x=tA; tA=tB; tB=x; }   /* le point en demi-entier est A ou B */
+    const A=edpSur(D,u,tA), B=edpSur(D,u,tB);
+    if(!A.concat(B).every(c=>Math.abs(c)<=15)) continue;
+    return {m:m, A:A, B:B, D:D, u:u};
+  }
+  return {m:m, A:[2,2,-5], B:[0,1.5,-4], D:[-2,1,-3], u:[4,1,-2]};   /* la fiche elle-même */
+}
+function erpGenSession(){
+  const ms=[1,2,pick([1,2])];
+  return distinctes(ms.length, function(u,i){ return erpGen(ms[i]); });
+}
+function erpAB(q){ return q.B.map((b,k)=>b-q.A[k]); }
+function erpP(q,L){ return L==='B'?q.B:q.A; }
+/* LE POINT ÉTUDIÉ APPARTIENT À L'ÉLÈVE : à la 1ʳᵉ méthode, A ou B (le
+   menu, à défaut celui que ses cases recopient le plus) ; à la 2ᵉ, les
+   deux points dans l'ordre qu'il a écrit — un menu vide ou faux prend le
+   point qui reste. Tout ce qui suit se juge à partir de CE choix. */
+function erpChoix(q, lire){
+  lire=lire||function(id){ const el=$(id); return el?el.value:''; };
+  const s=id=>String(lire(id)==null?'':lire(id)).trim();
+  const devine=j=>{ let nA=0, nB=0; [0,1,2].forEach(function(k){ ['e'+k,'f'+k+'a'].forEach(function(c){
+    const v=tgParseFrac(s('erp-'+j+'-'+c)); if(v==null) return;
+    if(Math.abs(v-q.A[k])<1e-9) nA++; else if(Math.abs(v-q.B[k])<1e-9) nB++; }); });
+    return nB>nA?'B':'A'; };
+  if(q.m===1){ const v=s('erp-pt'); return {pts:[v==='A'||v==='B'?v:devine(0)]}; }
+  const v0=s('erp-pp0'), v1=s('erp-pp1');
+  const p0=(v0==='A'||v0==='B')?v0:(v1==='A'||v1==='B'?(v1==='A'?'B':'A'):devine(0));
+  const p1=((v1==='A'||v1==='B')&&v1!==p0)?v1:(p0==='A'?'B':'A');
+  return {pts:[p0,p1]};
+}
+/* l'étude d'un point P sur d : pour chaque coordonnée, −xD, la différence et t */
+function erpEtude(q,P){
+  return [0,1,2].map(k=>({P:P[k], mD:-q.D[k], d:P[k]-q.D[k], a:q.u[k], t:(P[k]-q.D[k])/q.u[k]}));
+}
+/* Toutes les cases — UNE liste, lue par le rendu, le juge, la correction et
+   le contexte de l'aide. type : num (tgParseFrac), sel, quo (les quotients,
+   jugés à part comme au 7.1.4 : dans le sens que l'élève choisit). */
+function erpCases(q, ch){
+  ch=ch||erpChoix(q);
+  const out=[], X=(id,type,good,nom,aff,fr)=>out.push({id:id,type:type,good:good,nom:nom,aff:aff,fr:fr||''});
+  if(q.m===1){
+    const AB=erpAB(q);
+    EDP_CO.forEach(function(co,k){
+      X('erp-ab'+k+'b','num',q.B[k],co+'B (arrivée) dans la différence du vecteur AB');
+      X('erp-ab'+k+'a','num',q.A[k],co+'A (départ) soustrait dans le vecteur AB');
+      X('erp-ab'+k,'num',AB[k],'coordonnée '+co+' du vecteur AB');
+    });
+    EDP_CO.forEach(function(co,k){ X('erp-u'+k,'num',q.u[k],'coordonnée '+co+' du vecteur directeur u de d'); });
+    EDP_CO.forEach(function(co,k){ X('erp-v'+k,'num',AB[k],'coordonnée '+co+' du vecteur directeur v de (AB)'); });
+    EDP_CO.forEach(function(co,k){
+      X('erp-k'+k+'n','quo',AB[k],'numérateur (« fin », coordonnée '+co+' de v) du quotient '+(k+1));
+      X('erp-k'+k+'d','quo',q.u[k],'dénominateur (« début », coordonnée '+co+' de u) du quotient '+(k+1));
+      X('erp-k'+k+'q','quo',AB[k]/q.u[k],'valeur du quotient '+(k+1),ecdQ([AB[k],q.u[k]]));
+    });
+    X('erp-par','sel','par','menu : la droite (AB) est … à la droite d');
+    X('erp-com','sel','com','menu : il faut maintenant vérifier qu’elles ont…');
+    X('erp-pt','sel',ch.pts[0],'menu : le point pris (A ou B, les deux conviennent)');
+  } else {
+    X('erp-pp0','sel',ch.pts[0],'menu : d passe par… (premier point)');
+    X('erp-pp1','sel',ch.pts[1],'menu : … et (second point)');
+  }
+  ch.pts.forEach(function(L,j){
+    erpEtude(q,erpP(q,L)).forEach(function(r,k){
+      const co=EDP_CO[k], id=s=>'erp-'+j+'-'+s;
+      X(id('e'+k),'num',r.P,co+L+' dans le 1er système ('+L+')');
+      X(id('f'+k+'a'),'num',r.P,co+L+' dans le 2e système ('+L+')');
+      X(id('f'+k+'b'),'num',r.mD,'−'+co+' du point de départ de d (avec son signe) dans le 2e système ('+L+')',edpSigne(r.mD));
+      if(r.a!==1){   /* coefficient 1 : pas de division, t = … tout court */
+        X(id('h'+k+'n'),'num',r.d,'numérateur de t pour '+co+' ('+L+')',null,'h'+j+k);
+        X(id('h'+k+'d'),'num',r.a,'dénominateur de t pour '+co+' ('+L+')',null,'h'+j+k);
+      }
+      X(id('h'+k+'q'),'num',r.t,'valeur de t pour '+co+' ('+L+')',ecdQ([r.d,r.a]));
+    });
+    X('erp-'+j+'-cc','sel','est','menu : conclusion pour '+L+' (est / n’est pas '+(q.m===1?'un point commun':'sur d')+')');
+  });
+  X('erp-fin','sel','conf','menu : les droites (AB) et d sont…');
+  return out;
+}
+function erpAff(x){ return x.aff!=null?x.aff:(x.type==='sel'?x.good:numFmt(x.good)); }
+function erpVerdicts(q, lire){
+  const cases=erpCases(q, erpChoix(q, lire)), out={}, fr={};
+  const val=id=>{ const raw=lire(id); return String(raw==null?'':raw).trim(); };
+  const eg=(a,b)=>a!=null && Math.abs(a-b)<1e-9;
+  cases.forEach(function(x){
+    if(x.type==='quo') return;   /* les quotients : plus bas */
+    const t=val(x.id), v=t===''?null:(x.type==='sel'?t:tgParseFrac(t));
+    out[x.id]={ok:x.type==='sel'?v===x.good:eg(v,x.good), rempli:t!=='', attendu:erpAff(x), v:v};
+    if(x.fr) (fr[x.fr]=fr[x.fr]||[]).push(x);
+  });
+  /* une fraction de t se juge à deux cases : n/d, ou bien (−n)/(−d) */
+  Object.keys(fr).forEach(function(k){
+    const n=fr[k][0], d=fr[k][1];
+    if(eg(out[n.id].v,-n.good) && eg(out[d.id].v,-d.good)){ out[n.id].ok=true; out[d.id].ok=true; }
+  });
+  /* les quotients, dans le sens que l'élève choisit (v/u ou u/v), comme au 7.1.4 */
+  if(q.m===1){
+    const v=erpAB(q), u=q.u;
+    [0,1,2].forEach(function(k){
+      const idn='erp-k'+k+'n', idd='erp-k'+k+'d', idq='erp-k'+k+'q';
+      const tn=val(idn), td=val(idd), tq=val(idq), vn=tn===''?null:tgParseFrac(tn), vd=td===''?null:tgParseFrac(td);
+      const sens=[[v[k],u[k]],[u[k],v[k]]];
+      const s=sens.find(o=>(eg(vn,o[0])&&eg(vd,o[1]))||(eg(vn,-o[0])&&eg(vd,-o[1])))
+        || sens.find(o=>eg(vn,o[0])) || sens.find(o=>eg(vd,o[1]))
+        || (tq!==''?sens.find(o=>epaQuoOk(tq,ecdND(o))):null) || sens[0];
+      const signe=(eg(vn,-s[0])&&eg(vd,-s[1])&&!eg(vn,s[0]))?-1:1;
+      out[idn]={ok:eg(vn,signe*s[0]), rempli:tn!=='', attendu:numFmt(s[0])};
+      out[idd]={ok:eg(vd,signe*s[1]), rempli:td!=='', attendu:numFmt(s[1])};
+      out[idq]={ok:tq!=='' && epaQuoOk(tq,ecdND(s)), rempli:tq!=='', attendu:ecdQ(s)};
+    });
+  }
+  return out;
+}
+/* ---- les écritures ---- */
+function erpPlain(q){
+  return 'A('+q.A.map(numFmt).join(' ; ')+') et B('+q.B.map(numFmt).join(' ; ')+') ; d : { '+epaSysPlain(q.D,q.u,'')+' }';
+}
+function erpPromptHTML(q){
+  return 'On considère les points '+edpPtHTML('A',q.A)+' et '+edpPtHTML('B',q.B)+'. '
+    +'Démontrer qu’une équation paramétrique de la droite (<i>AB</i>) est&nbsp;: <span class="edp-nw"><i>d</i>&nbsp;:'+epaSysHTML(q.D,q.u,'')+'</span>';
+}
+function erpFormHTML(q){
+  const I=id=>txInp(id), T=h=>'<span>'+h+'</span>';
+  const L=(h,cls)=>'<div class="tg-line'+(cls?' '+cls:'')+'">'+h+'</div>';
+  const NW=h=>'<span class="edp-nw">'+h+'</span>';
+  const col=rows=>'<span class="elg-par"><span class="elg-col">'+rows.map(r=>'<span class="elg-row">'+r+'</span>').join('')+'</span></span>';
+  const fr=(n,d)=>'<span class="elg-fr"><span class="elg-fn">'+n+'</span><span class="elg-fd">'+d+'</span></span>';
+  const sel=(id,opts)=>'<select class="tvi-sel erp-sel" id="'+id+'"><option value="">…</option>'+opts.map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('')+'</select>';
+  const eqv='<span class="edp-eqv">⟺</span>';
+  /* l'appartenance d'un point : les trois systèmes de la fiche, alignés en
+     colonnes ; le membre de gauche est celui de d, écrit en clair (il est
+     dans l'énoncé) */
+  const etude=function(j){
+    const id=s=>'erp-'+j+'-'+s;
+    const dep=k=>T(numFmt(q.D[k])), ter=k=>T(epaTerme(q.u[k],'')), at=k=>T(numFmt(q.u[k])+'<i>t</i>');
+    const s1=edpSys([0,1,2].map(k=>[dep(k),ter(k),T('='),I(id('e'+k))]), ['e','s','m','s']);
+    const s2=edpSys([0,1,2].map(k=>[at(k),T('='),I(id('f'+k+'a'))+I(id('f'+k+'b'))]), ['e','m','s']);
+    const s3=edpSys([0,1,2].map(k=>q.u[k]===1
+      ? [T('<i>t</i>'),T('='),I(id('h'+k+'q'))]
+      : [T('<i>t</i>'),T('='),'<span class="edp-dv">'+fr(I(id('h'+k+'n')),I(id('h'+k+'d')))+'</span>','<span class="edp-dv">=</span>',I(id('h'+k+'q'))]), ['e','m','m','m','s']);
+    return L(NW(T('<i>d</i>&nbsp;:')+s1)+NW(eqv+s2)+NW(eqv+s3), 'erp-lsys');
+  };
+  const mir=j=>'<span class="erp-mir" data-m="'+j+'">…</span>';
+  const fin=L(T('Conclusion : les droites (<i>AB</i>) et <i>d</i> sont')+sel('erp-fin',[['sec','sécantes'],['dist','parallèles et distinctes'],['conf','confondues']])+T(': <i>d</i> est bien une équation paramétrique de (<i>AB</i>).'));
+  let h='';
+  if(q.m===1){
+    const vAB=elgVec('AB');
+    h+='<div class="tg-sub"><b>1<sup>re</sup> méthode :</b> avec le vecteur '+vAB+'</div>';
+    h+=L(NW(T(vAB)+col([0,1,2].map(k=>I('erp-ab'+k+'b')+T('−')+I('erp-ab'+k+'a'))))+NW(T('donc :&nbsp;')+T(vAB)+col([0,1,2].map(k=>I('erp-ab'+k)))));
+    h+=L(NW(T('Un vecteur directeur de <i>d</i> est')+T(elgVec('u'))+col([0,1,2].map(k=>I('erp-u'+k))))
+       +NW(T('et un vecteur directeur de (<i>AB</i>) est')+T(elgVec('v'))+col([0,1,2].map(k=>I('erp-v'+k)))));
+    h+=L(NW('<span class="elg-par epa-fd">'+fr('fin','début')+'</span>')
+       +[0,1,2].map(k=>NW(fr(I('erp-k'+k+'n'),I('erp-k'+k+'d'))+'<span class="epa-eg" data-k="'+k+'">=</span>'+I('erp-k'+k+'q'))).join(T(';')), 'epa-quo erp-quo');
+    h+='<p class="dexp-hint">On divise dans le sens qu’on veut : les coordonnées de '+elgVec('v')+' par celles de '+elgVec('u')+', ou l’inverse. Un quotient s’écrit en <b>fraction simplifiée</b> ou en <b>valeur approchée au dixième</b>.</p>';
+    h+=L(T('Conclusion : la droite (<i>AB</i>) est')+sel('erp-par',[['sec','sécante'],['par','parallèle'],['orth','orthogonale']])+T('à la droite <i>d</i>.'));
+    h+='<div class="erp-prop"><b>Propriété :</b> deux droites parallèles ayant un point commun sont confondues.</div>';
+    h+=L(T('Il faut maintenant vérifier qu’elles ont')+sel('erp-com',[['vd','le même vecteur directeur'],['com','un point commun'],['lg','la même longueur']])+T('.'));
+    h+=L(T('On prend le point')+sel('erp-pt',[['A','A'],['B','B']])+T('.'));
+    h+=etude(0);
+    h+=L(T('Donc le point '+mir(0))+sel('erp-0-cc',[['est','est'],['nest','n’est pas']])+T('un point commun à (<i>AB</i>) et <i>d</i>.'));
+  } else {
+    h+='<div class="tg-sub"><b>2<sup>e</sup> méthode :</b> on vérifie que la droite <i>d</i> passe par '+sel('erp-pp0',[['A','A'],['B','B'],['O','O']])+' et '+sel('erp-pp1',[['A','A'],['B','B'],['O','O']])+'.</div>';
+    [0,1].forEach(function(j){
+      h+=L(T('On prend le point '+mir(j)+'.'));
+      h+=etude(j);
+      h+=L(T('Donc le point '+mir(j))+sel('erp-'+j+'-cc',[['est','est'],['nest','n’est pas']])+T('sur la droite <i>d</i>.'));
+    });
+  }
+  h+=fin;
+  return h;
+}
+/* Les miroirs : « On prend le point … » et « Donc le point … » recopient le
+   point choisi par l'élève — jamais une case, aucune note ne les compte.
+   Après la correction, le choix corrigé. */
+function erpMiroirs(){
+  const f=$('erpForm'), q=test.questions&&test.questions[test.idx]; if(!f||!q) return;
+  const ids=q.m===1?['erp-pt']:['erp-pp0','erp-pp1'];
+  f.querySelectorAll('.erp-mir').forEach(function(m){
+    const el=$(ids[+m.getAttribute('data-m')]), v=el?el.value:'';
+    m.innerHTML=v?'<i>'+esc(v)+'</i>':'…';
+  });
+  epaSignes('erp');
+}
+/* ---- cycle de vie ---- */
+async function startERP(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='espace-reconnaitre-parametrique'; test.kind='erp';
+  test.questions=erpGenSession();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.maxScore=test.questions.length;
+  show('erp'); renderERP();
+}
+function renderERP(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('erpQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('erpModeTag').innerHTML=modeTagHTML();
+  $('erpLiveScore').textContent=test.score;
+  $('erpFeedback').textContent=''; $('erpFeedback').className='mp-feedback';
+  $('erpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkERP()">Vérifier</button>';
+  $('erpPrompt').innerHTML=erpPromptHTML(q);
+  $('erpForm').innerHTML=erpFormHTML(q);
+  $('erpForm').oninput=function(){ erpMiroirs(); if(isSoutien()) checkERP(true); };
+  $('erpForm').onchange=function(){ erpMiroirs(); if(isSoutien()) checkERP(true); };
+  erpMiroirs();
+  setTimeout(erpMiroirs,0);     /* une reprise remet les saisies APRÈS le rendu (restoreBoxes) */
+  setTimeout(erpMiroirs,120);   /* … et le rejeu d'un signalement, à 60 ms */
+}
+function erpRetiens(q){
+  const AB=erpAB(q), ch=erpChoix(q);
+  const quo=[0,1,2].map(k=>ecdQ([AB[k],q.u[k]]));
+  const pt=L=>{ const e=erpEtude(q,erpP(q,L)); return 'pour <i>'+L+'</i>, <i>t</i> = '+e.map(r=>ecdQ([r.d,r.a])).join(', ')+' : une seule valeur, <i>'+L+'</i> ∈ <i>d</i>'; };
+  if(q.m===1) return 'La clé : '+elgVec('AB')+'('+AB.map(numFmt).join(' ; ')+') et '+elgVec('u')+'('+q.u.map(numFmt).join(' ; ')+') ont trois quotients égaux ('+quo.join(' ; ')+') : ils sont colinéaires, (<i>AB</i>) est <b>parallèle</b> à <i>d</i>. '
+    +'Deux droites parallèles ayant un <b>point commun</b> sont confondues : '+pt(ch.pts[0])+'. Les droites sont <b>confondues</b>.';
+  return 'La clé : deux points distincts définissent une droite. Si <i>d</i> passe par <i>A</i> et par <i>B</i>, c’est la droite (<i>AB</i>) : '+pt(ch.pts[0])+' ; '+pt(ch.pts[1])+'. Les droites sont <b>confondues</b>.';
+}
+function checkERP(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], cases=erpCases(q);
+  const verd=erpVerdicts(q, function(id){ const el=$(id); return el?el.value:''; });
+  let allOk=true, anyFilled=false, vides=0;
+  cases.forEach(function(x){
+    const el=$(x.id); if(!el) return;
+    const v=verd[x.id];
+    if(v.rempli) anyFilled=true; else vides++;
+    el.classList.remove('ok','bad','sol');
+    /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR — en direct comme à la vérification */
+    if(v.rempli) el.classList.add(v.ok?'ok':'bad');
+    if(!v.ok) allOk=false;
+    if(live) return;
+    el.disabled=!!(v.ok||!isSoutien());
+  });
+  if(live) return;
+  const fb=$('erpFeedback');
+  if(!anyFilled){
+    fb.textContent='Complète au moins une case avant de vérifier.';
+    fb.className='mp-feedback';
+    cases.forEach(function(x){ const el=$(x.id); if(el){ el.classList.remove('ok','bad','sol'); el.disabled=false; } });
+    return;
+  }
+  if(!allOk && isSoutien()){
+    fb.innerHTML=vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('erpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkERP()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('erpLiveScore').textContent=test.score;
+    fb.textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, tout est juste !']);
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML=msgCorrCouleurs(vides>0)+'<br>'+erpRetiens(q);
+    fb.className='mp-feedback bad';
+    cases.forEach(function(x){ corrCase(x.id, verd[x.id].attendu, verd[x.id].ok===true); });
+    erpMiroirs();   /* le point corrigé se recopie, la correction écrite élargit sa case */
+  }
+  test.answers.push(Object.assign({}, ptsExo()||{}, {
+    q:'Espace — reconnaître une équation paramétrique ('+(q.m===1?'1re':'2e')+' méthode) : '+erpPlain(q), answer:erpRepPlain(q),
+    given:allOk?'✓':'incomplet', correct:allOk, type:'erp'}));
+  const last=test.idx===test.questions.length-1;
+  $('erpActions').innerHTML='<button class="btn btn-primary" onclick="nextERP()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function erpRepPlain(q){
+  const ch=erpChoix(q), AB=erpAB(q);
+  const pt=L=>L+' : t = '+erpEtude(q,erpP(q,L)).map(r=>ecdQ([r.d,r.a])).join(', ')+', '+L+' ∈ d';
+  return (q.m===1?'AB('+AB.map(numFmt).join(' ; ')+') colinéaire à u('+q.u.map(numFmt).join(' ; ')+'), (AB) parallèle à d ; '+pt(ch.pts[0])
+                 :pt(ch.pts[0])+' ; '+pt(ch.pts[1]))+' ; (AB) et d sont confondues';
+}
+function nextERP(){ if(test.idx<test.questions.length-1){ test.idx++; renderERP(); } else finishTest(); }
+/* Le contexte envoyé au modèle : l'énoncé, l'état des cases, et la clause de
+   secret — les réponses attendues sont STRICTEMENT SECRÈTES. */
+function erpConseilCtx(){
+  const q=test.questions[test.idx], cases=erpCases(q);
+  const etat=cases.map(function(x){ const el=$(x.id); const v=el?String(el.value||'').trim():''; return x.nom+' = '+(v===''?'(vide)':'« '+v+' »'); }).join(' ; ');
+  return 'Exercice de Terminale (géométrie dans l’espace, reconnaître une équation paramétrique de droite) : '+erpPlain(q)+'. Démontrer que d est une équation paramétrique de la droite (AB). '
+    +(q.m===1?'1re méthode, celle de la fiche : AB = « arrivée − départ » en colonne ; un vecteur directeur u de d (coefficients de t) et v = AB de (AB) ; les trois quotients « fin / début » (v sur u, ou u sur v : les deux sens sont acceptés ; fraction simplifiée ou valeur approchée au dixième) ; ils sont égaux, donc (AB) est parallèle à d ; propriété : deux droites parallèles ayant un point commun sont confondues ; il faut donc vérifier qu’elles ont un point commun : l’élève CHOISIT le point A ou le point B (les deux conviennent — ne lui recommande jamais l’un ou l’autre) et vérifie qu’il est sur d ; conclusion : les droites sont confondues. '
+             :'2e méthode, celle de la fiche : on vérifie que d passe par A et par B (deux points distincts définissent une droite), dans l’ordre que l’élève choisit ; pour chacun, la rédaction de l’appartenance ; conclusion : les droites sont confondues. ')
+    +'L’appartenance se rédige en trois systèmes : {x0 + a t = xP …} ⟺ {a t = xP puis −x0 écrit avec son signe …} ⟺ {t = (xP − x0)/a = … pour chaque ligne} ; quand le coefficient de t vaut 1, il n’y a pas de division. Les trois valeurs de t égales : le point est sur d. '
+    +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
+    +cases.map(function(x){ return x.nom+' = '+erpAff(x); }).join(' ; ')+' ('+erpRepPlain(q)+'). '
+    +'Les menus valent : par = « parallèle », com = « un point commun », est = « est », conf = « confondues », A / B = le point choisi. '
+    +'Saisies actuelles de l’élève : '+etat+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. Méthode, sans donner la réponse : le vecteur directeur de d se lit sur les coefficients de t, les nombres seuls donnent son point de départ ; on remplace x, y, z par les coordonnées du point, on change de membre le nombre seul (son signe change), on divise par le coefficient de t, puis on compare les trois valeurs de t.';
+}
+/* ================= 7.1.11 L'ESPACE — TROIS POINTS ALIGNÉS, OU UN PLAN ? (kind 'eal') =================
    Demande de Turquet (octobre 2026), avec la fiche « vecteur 9 » (« Fiche
    synthèse sur l'espace ») : « créer un exercice dans vecteur et droite de
    l'espace comme le pdf joint, rédigé en respectant les consignes de
@@ -37162,8 +37513,9 @@ const QIA_SUGG={
   epa:["Faire un rappel de cours pour cet exercice.","Comment savoir si deux droites de l’espace sont parallèles ?","Comment lire un vecteur directeur dans une équation paramétrique ?","Que veut dire « vecteurs colinéaires » ?","Pourquoi diviser les coordonnées une par une ?","Que conclure si deux quotients sont égaux mais pas le troisième ?"],
   epo:["Faire un rappel de cours pour cet exercice.","Que veut dire « deux droites coplanaires » ?","Comment savoir si deux droites de l’espace sont sécantes ?","Deux droites qui ne se coupent pas sont-elles forcément parallèles ?","Comment trouver un plan qui contient les deux droites ?","Pourquoi une partie de la droite est-elle en pointillés ?"],
   ecp:["Faire un rappel de cours pour cet exercice.","Que veut dire « deux droites coplanaires » ?","Pourquoi passer directement au c) quand les droites sont parallèles ?","Comment savoir si deux droites sont sécantes ?","Pourquoi vérifier dans la dernière équation ?","Deux droites qui ne sont pas parallèles sont-elles forcément sécantes ?"],
-  ecd:["Faire un rappel de cours pour cet exercice.","Comment écrire l’équation paramétrique d’une droite ?","Comment savoir si deux droites sont parallèles ?","Pourquoi supprimer une des deux équations identiques ?","Comment trouver k puis t ?","Deux droites sécantes sont-elles coplanaires ?","Comment montrer qu’un triangle est rectangle ?"],
+  erp:["Faire un rappel de cours pour cet exercice.","Pourquoi deux droites parallèles avec un point commun sont-elles confondues ?","Comment lire un vecteur directeur dans une équation paramétrique ?","Comment savoir si un point est sur la droite d ?","Pourquoi deux points suffisent-ils dans la 2e méthode ?","Faut-il prendre le point A ou le point B ?"],
   eal:["Faire un rappel de cours pour cet exercice.","Quand trois points définissent-ils un plan ?","Comment calculer les coordonnées d’un vecteur ?","Que veut dire « vecteurs colinéaires » ?","Pourquoi diviser les coordonnées une par une ?","Que conclure si deux quotients sont égaux mais pas le troisième ?"],
+  ecd:["Faire un rappel de cours pour cet exercice.","Comment écrire l’équation paramétrique d’une droite ?","Comment savoir si deux droites sont parallèles ?","Pourquoi supprimer une des deux équations identiques ?","Comment trouver k puis t ?","Deux droites sécantes sont-elles coplanaires ?","Comment montrer qu’un triangle est rectangle ?"],
   ecb:["Faire un rappel de cours pour cet exercice.","Comment lire les coordonnées d’un sommet du cube ?","Comment trouver les coordonnées d’un point sur une arête ?","Que se passe-t-il pour un point sur le prolongement d’une arête ?","Comment calculer les coordonnées d’un vecteur ?","Comment placer un point dont on connaît les coordonnées ?"],
   edp:["Faire un rappel de cours pour cet exercice.","Comment écrire l’équation paramétrique d’une droite ?","Où mettre le point de départ et le vecteur directeur ?","Comment trouver un vecteur directeur de la droite (AB) ?","Comment savoir si un point appartient à une droite ?","Que veut dire « aligné avec A et B » ?"],
   elg:["Faire un rappel de cours pour cet exercice.","Comment calcule-t-on les coordonnées du milieu d’un segment ?","Comment trouver les coordonnées d’un vecteur à partir de deux points ?","Comment calcule-t-on une longueur dans l’espace ?","Comment savoir si un triangle est rectangle ?","Comment conclure avec le théorème de Pythagore ?"],
