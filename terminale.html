@@ -30699,7 +30699,8 @@ const ECB_T_TOUS=ECB_T_PROL.concat(ECB_T_ARETE);
 /* les trois vecteurs de base à l'écran : AB⃗, AD⃗, AE⃗ */
 function ecbBase(cfg){
   const s=ECB_S, R=[s,0], U=[0,-s];
-  const d=cfg.face==='arr'?[-ECB_PROF[0]*s,-ECB_PROF[1]*s]:[ECB_PROF[0]*s,ECB_PROF[1]*s];
+  const pf=cfg.prof||ECB_PROF;   /* un exercice peut régler sa propre fuite (7.1.9 : ECD_PROF) */
+  const d=cfg.face==='arr'?[-pf[0]*s,-pf[1]*s]:[pf[0]*s,pf[1]*s];
   return cfg.ab==='p'?[d,R,U]:[R,d,U];
 }
 function ecbProj(cfg,P){ const b=ecbBase(cfg); return [b[0][0]*P[0]+b[1][0]*P[1]+b[2][0]*P[2], b[0][1]*P[0]+b[1][1]*P[1]+b[2][1]*P[2]]; }
@@ -31713,6 +31714,19 @@ function ecpConseilCtx(){
    d'une séance portent la même configuration (q.n : rôle → lettre, q.dep,
    q.cfg). */
 const ECD_NBQ=4;
+/* La fuite du 7.1.9 n'est pas celle du 7.1.6 (Turquet, octobre 2026 : « varier
+   légèrement la perspective du cube pour éviter que le point I au milieu de
+   [AD] se retrouve aussi sur le trait représentant [CG] »). Avec une fuite
+   horizontale de 0,5 arête, la face arrière est décalée d'une DEMI-arête : le
+   milieu d'une arête horizontale de derrière tombait pile sur l'arête
+   verticale de devant. À 0,62 × 0,28 (fuite un peu plus longue et plus
+   basse), O et I restent à 12 px au moins de toute arête qui ne les porte
+   pas — et ecdLisible le vérifie désormais, figure par figure. Mesuré sur une
+   grille de fuites : celle-ci est au milieu d'un plateau qui garde 112
+   figures lisibles (contre 64 auparavant, dont celle de la capture) ; à
+   0,38 × 0,30, il n'en restait que 32. Toutes les figures du 7.1.9 passent par
+   ecdCfg : un brouillon d'avant, sans prof, prend la nouvelle fuite. */
+const ECD_PROF=[0.62,-0.28];
 const ECD_CFG={face:'av', ab:'h'};   /* le dessin de la fiche : A en bas à gauche, devant ; D caché */
 const ECD_ROLES=['A','B','C','D','E','G'];
 const ECD_VAR=(function(){
@@ -31788,6 +31802,10 @@ function ecdLisible(q){
   if(ang(pr('O'),pr('I'),pr('E'),pr('C'))<20 || ang(pr('A'),pr('G'),pr('E'),pr('C'))<20) return false;
   const dl=(p,a,b)=>Math.abs((b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]))/Math.hypot(b[0]-a[0],b[1]-a[1]);
   if(dl(pr('O'),pr('A'),pr('G'))<16) return false;
+  /* O et I ne se posent sur le dessin d'aucune arête qui ne les porte pas */
+  const surArete=(P,l)=>ecbAutres(l.k).every((i,j)=>Math.abs(P[i]-(j?l.b:l.a))<1e-9);
+  if(['O','I'].some(R=>{ const P=ecdP(q,R), p=pr(R);
+    return ecbLignes().some(l=>!surArete(P,l) && ecbDistSeg(p,ecbProj(cfg,ecbSur(l,0)),ecbProj(cfg,ecbSur(l,1)))<12); })) return false;
   if(ecbDistSeg(s,pr('A'),pr('G'))<12 || ecbDistSeg(s,pr('D'),pr('B'))<12) return false;
   if(ECB_SOM.some(L=>ecbD2(s,ecbProj(cfg,ECB_COORD[L]))<24)) return false;   /* assez loin d'un sommet pour que les deux étiquettes se lisent ; celle de S se pose où c'est dégagé (ecdSVG) */
   if(ecbLignes().some(l=>ecbDistSeg(s,ecbProj(cfg,ecbSur(l,0)),ecbProj(cfg,ecbSur(l,1)))<12)) return false;
@@ -32186,7 +32204,7 @@ function ecdMiroirs(corrige){
 }
 /* ---- la figure ---- */
 let ecdEtat=null, ecdSurvol=null;
-function ecdCfg(q){ return q.cfg||ECD_CFG; }
+function ecdCfg(q){ return Object.assign({}, q.cfg||ECD_CFG, {prof:ECD_PROF}); }
 function ecdX(q,c){ return P=>{ const p=ecbProj(ecdCfg(q),P); return [p[0]+c.ox,p[1]+c.oy]; }; }
 function ecdCadre(q){
   let mx=Infinity, Mx=-Infinity, my=Infinity, My=-Infinity;
