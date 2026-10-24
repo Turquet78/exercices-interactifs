@@ -2188,7 +2188,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 /* le système de deux équations : l'accolade sur ses deux lignes seulement */
 .ecd-sys2 .edp-acc{grid-row:1/3;height:72px;align-self:center}
 /* les équations imposées : les étiquettes « Le point E / de la droite » ne se chevauchent pas */
-.ecd-imp{column-gap:44px}
+.ecd-imp{column-gap:56px}
 /* d) les trois équations sur une ligne : colonnes resserrées, la ligne défile au besoin */
 #ecdForm .ecd-d3{flex-wrap:nowrap;gap:8px 26px;overflow-x:auto;padding-bottom:4px}
 #ecdForm .ecd-sysd{column-gap:10px}
@@ -4251,7 +4251,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=445;
+const APP_VERSION=446;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -31664,11 +31664,15 @@ function ecpConseilCtx(){
          d'après le théorème de Pythagore, comme au 7.1.2.
    Le tirage : la configuration de la fiche, transportée par une symétrie du
    cube (les lettres des sommets changent de rôle, le repère reste
-   (A ; AB⃗ ; AD⃗ ; AE⃗)). Sur les 48 symétries, 18 gardent la rédaction de la
-   fiche : deux équations du système collé IDENTIQUES (et non seulement
-   équivalentes), et un t tout seul, de coefficient 1, dans une des deux
-   équations qui restent (ECD_VAR). Les quatre parties d'une séance portent
-   la même configuration (q.n : rôle → lettre). */
+   (A ; AB⃗ ; AD⃗ ; AE⃗)). La rédaction de la fiche exige deux équations du
+   système collé IDENTIQUES (et non seulement équivalentes), et un t tout
+   seul, de coefficient 1, dans une des deux équations qui restent. Les
+   équations imposées au h) partent de E (vecteur EC⃗) ou de C (vecteur CE⃗),
+   et de O (vecteur OI⃗) ou de I (vecteur IO⃗) — q.dep : avec ce choix, 24
+   des 48 symétries gardent la rédaction, en 72 configurations (ECD_VAR ;
+   18 symétries avec E et O seuls, la première version). Les quatre parties
+   d'une séance portent la même configuration (q.n : rôle → lettre, q.dep,
+   q.cfg). */
 const ECD_NBQ=4;
 const ECD_CFG={face:'av', ab:'h'};   /* le dessin de la fiche : A en bas à gauche, devant ; D caché */
 const ECD_ROLES=['A','B','C','D','E','G'];
@@ -31679,8 +31683,8 @@ const ECD_VAR=(function(){
     const n={};
     L8.forEach(function(L){ const Q=[0,1,2].map(i=>{ const v=CO[L][p[i]]; return (f>>i)&1?1-v:v; });
       n[L]=L8.find(M=>CO[M].every((c,k)=>c===Q[k])); });
-    const q={n:{}}; ECD_ROLES.forEach(R=>{ q.n[R]=n[R]; });
-    if(ecdSysDe(q)) out.push(q.n);
+    const nn={}; ECD_ROLES.forEach(R=>{ nn[R]=n[R]; });
+    [['E','O'],['C','O'],['E','I'],['C','I']].forEach(function(dep){ if(ecdSysDe({n:nn, dep:dep})) out.push({n:nn, dep:dep}); });
   } });
   return out;
 })();
@@ -31696,14 +31700,18 @@ function ecdP(q,R){
   return ECB_COORD[q.n[R]];
 }
 function ecdNm(q,R){ return q.n[R]||R; }
+/* le départ des équations imposées : E ou C pour (EC), O ou I pour (OI) — un
+   brouillon d'avant q.dep part de E et de O, comme la première version */
+function ecdDep(q){ return q.dep||['E','O']; }
+function ecdAutre(R){ return {E:'C',C:'E',O:'I',I:'O'}[R]; }
 function ecdV(q,X,Y){ return ecdVecDe(ecdP(q,X),ecdP(q,Y)); }
 /* le système collé de (EC) et (OI) : E + t EC⃗ = O + k OI⃗, ligne à ligne —
    [a, u, b, w] pour a + u t = b + w k. Les deux équations identiques
    (pair), celle qu'on supprime (la première, comme ① sur la fiche), puis
    s (t tout seul, coefficient 1) et r (celle où on le remplace). */
 function ecdSysDe(q){
-  const E=ECB_COORD[q.n.E], C=ECB_COORD[q.n.C], O=ecdMil(ECB_COORD[q.n.D],ECB_COORD[q.n.B]), I=ecdMil(ECB_COORD[q.n.G],ECB_COORD[q.n.C]);
-  const u=ecdVecDe(E,C), w=ecdVecDe(O,I), eqs=[0,1,2].map(i=>[E[i],u[i],O[i],w[i]]);
+  const d=ecdDep(q), E=ecdP(q,d[0]), O=ecdP(q,d[1]);
+  const u=ecdV(q,d[0],ecdAutre(d[0])), w=ecdV(q,d[1],ecdAutre(d[1])), eqs=[0,1,2].map(i=>[E[i],u[i],O[i],w[i]]);
   let pair=null;
   for(let i=0;i<3 && !pair;i++) for(let j=i+1;j<3 && !pair;j++) if(eqs[i].every((c,k)=>c===eqs[j][k])) pair=[i,j];
   if(!pair) return null;
@@ -31722,7 +31730,7 @@ function ecdVal(q){
   const e0=ecdR(ur*c0), e1=ecdR(ur*c1), k0=ecdR(a+e0);        /* a + e0 + e1 k ; k0 + e1 k */
   const g1=-wr, g0=-k0, h1=ecdR(e1+g1), h0=ecdR(b+g0);        /* e1 k + g1 k = b + g0 ; h1 k = h0 */
   const k=ecdR(h0/h1), t=ecdR(c0+c1*k);
-  const E=ecdP(q,'E'), u=ecdV(q,'E','C');
+  const d=ecdDep(q), E=ecdP(q,d[0]), u=ecdV(q,d[0],ecdAutre(d[0]));
   return {c0:c0, c1:c1, a:a, ur:ur, b:b, wr:wr, e0:e0, e1:e1, k0:k0, g1:g1, g0:g0, h1:h1, h0:h0, k:k, t:t, S:[0,1,2].map(i=>ecdR(E[i]+t*u[i]))};
 }
 /* Le dessin du cube : l'un des quatre du 7.1.6 (A devant ou derrière, AB⃗
@@ -31742,20 +31750,24 @@ function ecdLisible(q){
   const dl=(p,a,b)=>Math.abs((b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]))/Math.hypot(b[0]-a[0],b[1]-a[1]);
   if(dl(pr('O'),pr('A'),pr('G'))<16) return false;
   if(ecbDistSeg(s,pr('A'),pr('G'))<12 || ecbDistSeg(s,pr('D'),pr('B'))<12) return false;
-  if(ECB_SOM.some(L=>ecbD2(s,ecbProj(cfg,ECB_COORD[L]))<36)) return false;   /* l'étiquette de S ne couvre pas celle d'un sommet */
+  if(ECB_SOM.some(L=>ecbD2(s,ecbProj(cfg,ECB_COORD[L]))<24)) return false;   /* assez loin d'un sommet pour que les deux étiquettes se lisent ; celle de S se pose où c'est dégagé (ecdSVG) */
   if(ecbLignes().some(l=>ecbDistSeg(s,ecbProj(cfg,ecbSur(l,0)),ecbProj(cfg,ecbSur(l,1)))<12)) return false;
   return ecdCandidats(q).every(P=>P.every((c,k)=>Math.abs(c-S[k])<1e-9) || ecbD2(s,ecbProj(cfg,P))>=12);
 }
 const ECD_CFGS=[{face:'av',ab:'h'},{face:'arr',ab:'h'},{face:'av',ab:'p'},{face:'arr',ab:'p'}];
+/* Toutes les figures lisibles — configuration et dessin — tirées à parts
+   égales (Turquet, octobre 2026 : « faire plus de figures possibles pour cet
+   exercice en utilisant d'autres diagonales du cube ») ; la première version
+   gardait le dessin de la fiche dès qu'il se lisait : 8 figures en tout. */
+let ECD_FIGS=null;
+function ecdFigures(){
+  if(!ECD_FIGS){ ECD_FIGS=[];
+    ECD_VAR.forEach(v=>ECD_CFGS.forEach(c=>{ if(ecdLisible({p:4,n:v.n,dep:v.dep,cfg:c})) ECD_FIGS.push({n:v.n,dep:v.dep,cfg:c}); })); }
+  return ECD_FIGS;
+}
 function ecdGenSession(){
-  let n=null, cfg=null;
-  for(let e=0; e<60 && !cfg; e++){
-    n=pick(ECD_VAR);
-    const ok=ECD_CFGS.filter(c=>ecdLisible({p:4,n:n,cfg:c}));
-    if(ok.length) cfg=(ok[0].face==='av'&&ok[0].ab==='h')?ok[0]:pick(ok);
-  }
-  if(!cfg){ n=ECD_VAR[0]; cfg=ECD_CFG; }   /* la fiche elle-même */
-  return distinctes(ECD_NBQ, function(u,i){ return {p:i+1, n:Object.assign({},n), cfg:Object.assign({},cfg)}; });
+  const fs=ecdFigures(), f=fs.length?pick(fs):{n:ECD_VAR[0].n, dep:ECD_VAR[0].dep, cfg:ECD_CFG};   /* repli : la fiche elle-même */
+  return distinctes(ECD_NBQ, function(u,i){ return {p:i+1, n:Object.assign({},f.n), dep:f.dep.slice(), cfg:Object.assign({},f.cfg)}; });
 }
 /* les trois droites de la fiche : (EC) en t, (AG) en l, (OI) en k */
 const ECD_DR=[['E','C','t'],['A','G','l'],['O','I','k']];
@@ -32023,7 +32035,8 @@ function ecdFormHTML(q){
     h+=L(T('(<i>OI</i>) et '+ecdDr(q,'A','G')+' sont')+sel('ecd-f-cop',[['cop','coplanaires'],['ncop','non coplanaires']])+T('.'), 'ecd-l');
   }
   if(q.p===3){
-    const y=ecdSys(q), E=ecdP(q,'E'), u=ecdV(q,'E','C'), O=ecdP(q,'O'), w=ecdV(q,'O','I');
+    const y=ecdSys(q), dp=ecdDep(q), d0=dp[0], d1=dp[1], E=ecdP(q,d0), u=ecdV(q,d0,ecdAutre(d0)), O=ecdP(q,d1), w=ecdV(q,d1,ecdAutre(d1));
+    const Nd=R=>R==='O'||R==='I'?R:N(R);
     const NUM=k=>'<span class="eds-num">'+EDS_N[k]+'</span>';
     const kk='<i>k</i>', tt='<i>t</i>';
     h+=sub('g','(<i>OI</i>) et '+ecdDr(q,'E','C')+' sont-elles parallèles ?');
@@ -32035,8 +32048,8 @@ function ecdFormHTML(q){
         +'<span class="edp-lab" style="grid-row:4;grid-column:3">'+lp+'</span><span class="edp-lab" style="grid-row:4;grid-column:5">'+lv+'</span>';
       return edpSys([0,1,2].map(k=>[T('<i>'+ECD_CO[k]+'</i> ='),T(numFmt(A[k])),T(c[k]<0?'−':'+'),T(numFmt(Math.abs(c[k]))),T('<i>'+p+'</i>')]), ['e','m','m p','m','s tt'], cad, 'edp-sys-a ecd-imp');
     };
-    h+=L(NW(T(ecdDr(q,'E','C')+'&nbsp;:')+sysImp(E,u,'t','Le point '+N('E')+'<br>de la droite','Le vecteur '+elgVec(N('E')+N('C'))+'<br>de la droite'))
-      +NW(T('(<i>OI</i>)&nbsp;:')+sysImp(O,w,'k','Le point O<br>de la droite','Le vecteur '+elgVec('OI')+'<br>de la droite')), 'ecd-l ecd-lsys');
+    h+=L(NW(T(ecdDr(q,'E','C')+'&nbsp;:')+sysImp(E,u,'t','Le point '+Nd(d0)+'<br>de la droite','Le vecteur '+elgVec(Nd(d0)+Nd(ecdAutre(d0)))+'<br>de la droite'))
+      +NW(T('(<i>OI</i>)&nbsp;:')+sysImp(O,w,'k','Le point '+d1+'<br>de la droite','Le vecteur '+elgVec(d1+ecdAutre(d1))+'<br>de la droite')), 'ecd-l ecd-lsys');
     h+=sub('h','(<i>OI</i>) et '+ecdDr(q,'E','C')+' sont-elles sécantes ?');
     const cad='<span class="edp-cad" style="grid-row:1/4;grid-column:2"></span><span class="edp-cad" style="grid-row:1/4;grid-column:4"></span>'
       +'<span class="edp-lab" style="grid-row:4;grid-column:2"><b>'+ecdDr(q,'E','C')+'</b></span><span class="edp-lab" style="grid-row:4;grid-column:4"><b>(<i>OI</i>)</b></span>';
@@ -32198,9 +32211,18 @@ function ecdSVG(q){
   /* k) le point S placé par l'élève, avec le chemin depuis A en pointillés */
   const chemin=(P,cl)=>{ const et=[[0,0,0],[P[0],0,0],[P[0],P[1],0],P.slice()]; let h='';
     for(let i=0;i<3;i++){ if(Math.abs(P[i])<1e-9) continue; h+=seg(X(et[i]),X(et[i+1]),'ecb-chemin'+(cl?' '+cl:'')); } return h; };
-  const marque=(P,cl,pts)=>{ const m=X(P);
+  /* l'étiquette de S à la place la plus dégagée autour du point — loin des
+     traits et des étiquettes des sommets (posée en haut à droite, elle
+     couvrait parfois celle de G) */
+  const lblS=m=>{ let best=[m[0]+12,m[1]-10], bs=-Infinity;
+    for(let i=0;i<8;i++){ const a=-Math.PI/4+i*Math.PI/4, p=[m[0]+15*Math.cos(a), m[1]+15*Math.sin(a)];
+      let sc=Math.min(...traits.map(t=>ecbDistSeg(p,t[0],t[1])));
+      poses.forEach(o=>{ sc=Math.min(sc,ecbD2(p,o)-10); });
+      if(sc>bs+0.5){ bs=sc; best=p; } }
+    return best; };
+  const marque=(P,cl,pts)=>{ const m=X(P), t=lblS(m);
     return chemin(P,cl.replace(/\bpts-case\b/,''))+'<g class="ecb-pl'+(pts?' pts-case':'')+(cl?' '+cl:'')+'" data-p="S"><circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="5.5"/>'
-      +'<text x="'+f(m[0]+9)+'" y="'+f(m[1]-8)+'" class="ecb-lpl">S</text></g>'; };
+      +'<text x="'+f(t[0])+'" y="'+f(t[1]+6)+'" text-anchor="middle" class="ecb-lpl">S</text></g>'; };
   const P=(q.place||{}).S, S=ecdVal(q).S;
   if(Array.isArray(P)) g+=marque(P,ecdEtat||'',!!ecdEtat);
   if(ecdEtat==='bad' && test.locked) g+=marque(S,'ecb-cor',false);   /* la correction d'à côté ne compte pas */
@@ -32238,7 +32260,8 @@ function ecdBrancher(){
   h.onpointerleave=function(){ if(ecdSurvol){ ecdSurvol=null; ecdDessiner(); } };
 }
 function ecdPlain(q){
-  return 'cube ABCDEFGH, repère (A ; AB, AD, AE), I milieu de ['+ecdNm(q,'G')+ecdNm(q,'C')+'], O milieu de ['+ecdNm(q,'D')+ecdNm(q,'B')+'] ; droites ('+ecdNm(q,'E')+ecdNm(q,'C')+') en t, ('+ecdNm(q,'A')+ecdNm(q,'G')+') en l, (OI) en k';
+  const d=ecdDep(q);
+  return (q.p===3?'équations imposées : ('+ecdNm(q,'E')+ecdNm(q,'C')+') depuis '+ecdNm(q,d[0])+', (OI) depuis '+d[1]+' ; ':'')+'cube ABCDEFGH, repère (A ; AB, AD, AE), I milieu de ['+ecdNm(q,'G')+ecdNm(q,'C')+'], O milieu de ['+ecdNm(q,'D')+ecdNm(q,'B')+'] ; droites ('+ecdNm(q,'E')+ecdNm(q,'C')+') en t, ('+ecdNm(q,'A')+ecdNm(q,'G')+') en l, (OI) en k';
 }
 const ECD_TITRES=['','les coordonnées, le milieu O, les vecteurs','les équations paramétriques, parallèles ? coplanaires ?','parallèles ? sécantes ? le point S','placer S, le triangle rectangle'];
 /* ---- cycle de vie ---- */
