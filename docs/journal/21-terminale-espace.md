@@ -617,3 +617,6 @@ remplir les cases avec la valeur de t ou de t′ » — chaque ligne du point
 s'écrit `x = a + u t = a + u × ([ ]) = [ ]`. La case (`eds-p0…2`) se juge
 selon le menu du choix : t avec `d`, t′ avec `d′` (`edsVerdicts` relit
 `eds-ch`) ; la correction s'écrit dans le même sens. 26 cases.
+Et : « laisser l'élève remplir les cases donnant les coordonnées du point
+d'intersection » — `I([ ] ; [ ] ; [ ])` porte trois cases (`eds-j0…2`)
+au lieu du miroir des lignes du point. 29 cases.
