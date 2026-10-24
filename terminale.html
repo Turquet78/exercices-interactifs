@@ -4169,7 +4169,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=439;
+const APP_VERSION=440;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -30053,6 +30053,27 @@ function epaPlain(q){ return 'd : { '+epaSysPlain(q.A,q.u,'')+' } et d′ : { '+
 function epaPromptHTML(q){
   return '<span class="edp-nw">Soient <i>d</i>&nbsp;:'+epaSysHTML(q.A,q.u,'')+'</span> <span class="edp-nw">et <i>d</i>′&nbsp;:'+epaSysHTML(q.B,q.v,'′')+'</span> <span><i>d</i> et <i>d</i>′ sont-elles parallèles&nbsp;?</span>';
 }
+/* Une case de RÉSULTAT s'élargit avec ce qu'on y écrit (Turquet, octobre
+   2026 : « la case doit s'agrandir si l'écriture dépasse ») — « −1,67 » ou
+   « 13/7 » ne se coupent plus. Trois caractères tiennent dans la case. */
+function caseAjuster(el){ if(!el) return; const n=String(el.value||'').length; el.style.width=n>3?'calc('+n+'ch + 18px)':''; }
+/* « = » ou « ≈ » devant une valeur de quotient : « ≈ » quand l'élève écrit
+   un DÉCIMAL qui n'est pas exactement le quotient de SA fraction — n et d
+   sont lus dans ses cases, jamais dans la réponse attendue. Une fraction
+   écrite, ou une case incomplète, garde « = ». */
+function signeQuotient(idn, idd, idq){
+  const b=id=>{ const el=$(id); return el?String(el.value||'').trim():''; };
+  const n=tgParseFrac(b(idn)), d=tgParseFrac(b(idd)), sq=b(idq).replace(/\s+/g,''), v=tgParseFrac(sq);
+  if(n==null||d==null||d===0||v==null||sq.indexOf('/')>=0) return '=';
+  return Math.abs(v-n/d)>1e-9?'≈':'=';
+}
+function epaSignes(){
+  document.querySelectorAll('#epaForm .epa-eg').forEach(function(sp){
+    const k=sp.getAttribute('data-k');
+    sp.textContent=signeQuotient('epa-k'+k+'n','epa-k'+k+'d','epa-k'+k+'q');
+    caseAjuster($('epa-k'+k+'q'));
+  });
+}
 function epaFormHTML(q){
   const I=id=>txInp(id), T=h=>'<span>'+h+'</span>';
   const L=(h,cls)=>'<div class="tg-line'+(cls?' '+cls:'')+'">'+h+'</div>';
@@ -30066,7 +30087,7 @@ function epaFormHTML(q){
   h+=L(NW(T('Un vecteur directeur de <i>d</i> est')+T(elgVec('u'))+col([0,1,2].map(k=>'epa-u'+k)))
      +NW(T('et un vecteur directeur de <i>d</i>′ est')+T(elgVec('v'))+col([0,1,2].map(k=>'epa-v'+k))));
   h+=L(NW('<span class="elg-par epa-fd">'+fr('fin','début')+'</span>')
-     +[0,1,2].map(k=>NW(fr(I('epa-k'+k+'n'),I('epa-k'+k+'d'))+T('=')+I('epa-k'+k+'q'))).join(T(';')), 'epa-quo');
+     +[0,1,2].map(k=>NW(fr(I('epa-k'+k+'n'),I('epa-k'+k+'d'))+'<span class="epa-eg" data-k="'+k+'">=</span>'+I('epa-k'+k+'q'))).join(T(';')), 'epa-quo');
   h+='<p class="dexp-hint">On divise dans le sens qu’on veut : les coordonnées de '+elgVec('v')+' par celles de '+elgVec('u')+', ou l’inverse. Un quotient s’écrit en <b>fraction simplifiée</b> (par exemple 2/3) ou en <b>valeur approchée au dixième</b> (par exemple 0,7).</p>';
   h+=L(T('Conclusion : les droites')+sel('epa-cc',[['sont','sont'],['nsp','ne sont pas']])+T('parallèles.'));
   return h;
@@ -30091,6 +30112,8 @@ function renderEPA(){
   $('epaActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEPA()">Vérifier</button>';
   $('epaPrompt').innerHTML=epaPromptHTML(q);
   $('epaForm').innerHTML=epaFormHTML(q);
+  $('epaForm').oninput=function(){ epaSignes(); };
+  setTimeout(epaSignes,0);   /* une reprise remet les saisies APRÈS le rendu (restoreBoxes) */
   if(isSoutien()){
     epaCases(q).forEach(function(x){ const el=$(x.id); if(el) el.addEventListener(x.type==='sel'?'change':'input', function(){ checkEPA(true); }); });
   }
@@ -30141,6 +30164,7 @@ function checkEPA(live){
     fb.innerHTML=msgCorrCouleurs(vides>0)+'<br>'+epaRetiens(q);
     fb.className='mp-feedback bad';
     cases.forEach(function(x){ corrCase(x.id, verd[x.id].attendu, verd[x.id].ok===true); });
+    epaSignes();   /* une correction écrite dans une case vide l'élargit aussi */
   }
   test.answers.push(Object.assign({}, ptsExo()||{}, {
     q:'Espace — deux droites parallèles ? '+epaPlain(q), answer:epaRepPlain(q),
@@ -30291,7 +30315,7 @@ function edsFormHTML(q){
   h+=L(EQV+NW(T(numFmt(q.A[r]))+P(V.e1)+I('eds-e1')+T(tp)+P(V.e0)+I('eds-e0'))+NW(T('= '+edsMb(q.B[r],q.v[r],'′'))));
   h+=L(EQV+NW(M('e1')+P(V.g1)+I('eds-g1')+T(tp))+NW(T('= '+numFmt(q.B[r]))+P(V.g0)+I('eds-g0')));
   h+=L(EQV+NW(I('eds-h1')+T(tp+' =')+I('eds-h0')));
-  h+=L(EQV+NW(T(tp+' =')+'<span class="elg-fr"><span class="elg-fn">'+M('h0')+'</span><span class="elg-fd">'+M('h1')+'</span></span>'+T('=')+I('eds-tp')));
+  h+=L(EQV+NW(T(tp+' =')+'<span class="elg-fr"><span class="elg-fn">'+M('h0')+'</span><span class="elg-fd">'+M('h1')+'</span></span>'+'<span id="eds-eg">=</span>'+I('eds-tp')));
   h+=L(T('Avec :')+NW(T(tt+' = '+ct(V.c1,'′')+M('c0s')+' = '+numFmt(V.c1)+' × ('+M('tp')+')'+M('c0s')+' =')+I('eds-ht')));
   /* la vérification */
   h+='<div class="tg-sub"><b>ATTENTION !</b> On doit vérifier '+tt+' = '+M('t')+' et '+tp+' = '+M('tp')+' dans la dernière équation, ici l’équation '+N(w)+'.</div>';
@@ -30317,6 +30341,8 @@ function edsFormHTML(q){
    d'intersection réécrit aussi les trois lignes du point. */
 function edsMiroirs(corrige){
   const q=test.questions[test.idx]; if(!q) return;
+  const eg=$('eds-eg'); if(eg) eg.textContent=signeQuotient('eds-h0','eds-h1','eds-tp');
+  caseAjuster($('eds-tp'));
   const V=edsVal(q), juste=corrige===true;
   const VAL={'eds-c0':V.c0,'eds-e1':V.e1,'eds-h0':V.h0,'eds-h1':V.h1,'eds-tp':V.tp,'eds-ht':V.t,'eds-i0':V.I[0],'eds-i1':V.I[1],'eds-i2':V.I[2]};
   const brut=id=>{ if(juste) return String(VAL[id]); const el=$(id); return el?String(el.value||'').trim():''; };
@@ -30362,7 +30388,7 @@ function renderEDS(){
   $('edsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEDS()">Vérifier</button>';
   $('edsPrompt').innerHTML=edsPromptHTML(q);
   $('edsForm').innerHTML=edsFormHTML(q);
-  $('edsForm').oninput=function(){ edsMiroirs(); };
+  $('edsForm').oninput=function(){ edsMiroirs(); };   /* edsMiroirs pose aussi « = » ou « ≈ » devant t′ */
   edsMiroirs();
   setTimeout(function(){ edsMiroirs(); },0);   /* une reprise remet les saisies APRÈS le rendu (restoreBoxes) */
   if(isSoutien()){

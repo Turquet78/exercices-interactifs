@@ -563,3 +563,24 @@ sorte, la position relue sur les noms écrits (l'ordre des lettres et des
 droites est un habit, `q.ordre`), un plan commun pour chaque paire coplanaire,
 un témoin pour chaque non coplanaire, aucune figure ni explication avec
 `NaN` ou `undefined`, chaque question sérialisable en JSON.
+
+**Puis la case du résultat s'élargit, et « ≈ » devant une valeur approchée
+(Turquet, octobre 2026, v440).** « Dans le 7.1.4, dans le résultat des
+divisions, la case doit s'agrandir si l'écriture dépasse ; mettre le
+symbole « à peu près égal » si l'élève donne une valeur approchée » — et la
+même chose au 7.1.5, sur la division `t′ = …/… = [ ]`. Deux aides
+communes (`caseAjuster`, `signeQuotient`) :
+
+* la case d'un résultat prend `calc(n ch + 18px)` au-delà de trois
+  caractères, à chaque frappe, à la reprise d'une pause, et quand la
+  correction écrit dans une case vide ;
+* le signe devant la case se lit sur la copie : « ≈ » quand l'élève écrit un
+  DÉCIMAL qui n'est pas exactement le quotient de SA fraction (n et d lus
+  dans ses cases, jamais dans la réponse attendue) ; « = » pour une
+  fraction, une valeur exacte, ou une ligne incomplète. Au 7.1.5, la
+  fraction est le miroir `h0/h1` : ce sont les cases `h0` et `h1` qui
+  comptent.
+
+**Éprouvé** dans Chromium : `2/3 ≈ 0,67`, `2/1 = 2`, `5/−2 = −5/2` ; la
+case de « 0,666666 » passe de 46 à 86 px sans couper le texte ; au 7.1.5,
+`7/3 ≈ 2,33` puis `= 7/3`.
