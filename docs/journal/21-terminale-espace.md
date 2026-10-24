@@ -563,3 +563,60 @@ sorte, la position relue sur les noms écrits (l'ordre des lettres et des
 droites est un habit, `q.ordre`), un plan commun pour chaque paire coplanaire,
 un témoin pour chaque non coplanaire, aucune figure ni explication avec
 `NaN` ou `undefined`, chaque question sérialisable en JSON.
+
+**Puis la case du résultat s'élargit, et « ≈ » devant une valeur approchée
+(Turquet, octobre 2026, v440).** « Dans le 7.1.4, dans le résultat des
+divisions, la case doit s'agrandir si l'écriture dépasse ; mettre le
+symbole « à peu près égal » si l'élève donne une valeur approchée » — et la
+même chose au 7.1.5, sur la division `t′ = …/… = [ ]`. Deux aides
+communes (`caseAjuster`, `signeQuotient`) :
+
+* la case d'un résultat prend `calc(n ch + 18px)` au-delà de trois
+  caractères, à chaque frappe, à la reprise d'une pause, et quand la
+  correction écrit dans une case vide ;
+* le signe devant la case se lit sur la copie : « ≈ » quand l'élève écrit un
+  DÉCIMAL qui n'est pas exactement le quotient de SA fraction (n et d lus
+  dans ses cases, jamais dans la réponse attendue) ; « = » pour une
+  fraction, une valeur exacte, ou une ligne incomplète. Au 7.1.5, la
+  fraction est le miroir `h0/h1` : ce sont les cases `h0` et `h1` qui
+  comptent.
+
+**Éprouvé** dans Chromium : `2/3 ≈ 0,67`, `2/1 = 2`, `5/−2 = −5/2` ; la
+case de « 0,666666 » passe de 46 à 86 px sans couper le texte ; au 7.1.5,
+`7/3 ≈ 2,33` puis `= 7/3`.
+
+**Puis les « = » et les « ⟺ » alignés (Turquet, octobre 2026, v440).**
+« Quand on exprime t en fonction de t′ à partir d'une des trois équations,
+le signe = doit être aligné verticalement avec le = de l'équation choisie ;
+quand on résout l'équation obtenue par substitution, les équivalences
+alignées verticalement et les = aussi ; même chose pour la vérification. »
+Les trois blocs du 7.1.5 s'écrivent en GRILLE (`.eds-gr`, six colonnes :
+étiquette ou « ⟺ » calée à droite, membre de gauche calé à droite, « = »,
+membre de droite calé à gauche, puis un second « = » et sa suite pour
+`t = … = …`). L'équation choisie ouvre chaque bloc sur sa propre ligne
+(« ③ : a + u t = b + v t′ »), pour que son « = » tombe au-dessus des autres
+— elle n'est plus écrite dans la phrase d'introduction. Sur téléphone, un
+bloc trop large défile dans son cadre (`.eds-lsys`) plutôt que de se
+replier, ce qui casserait l'alignement.
+
+**Puis deux étapes de plus (Turquet, octobre 2026, v440).** Sur une capture
+de l'écran : « quand on a 2 + 12t′ + 21 = 7 + 4t′, rajouter une étape en
+dessous avec 12t′ + …. = 7 + 4t′ ; quand on calcule t avec la valeur de t′,
+laisser l'élève remplir la case de la valeur de t′ : t = −4t′ − 7 = −4 × ….
+− 7 = ….. ». La ligne `⟺ e1 t′ [k0] = b + v t′` (k0 = a + e0, le nombre
+seul du membre de gauche réduit ; `e1 t′` est le miroir) s'insère sous le
+développement — la ligne suivante fait passer k0, et `g0 = −k0` n'a pas
+changé. Dans « Avec : t = … × ( ) … », la valeur de t′ n'est plus un miroir
+mais une case (`eds-tv`). 21 cases.
+Le même jour : « quand on vérifie la 3ᵉ équation, laisser l'élève placer
+les valeurs de t et t′ dans l'équation » — la ligne
+`a + u × ([t]) = b + v × ([t′])` porte deux cases (`eds-wt`, `eds-wtp`) au
+lieu des miroirs. 23 cases.
+Puis : « quand on détermine le point d'intersection, laisser l'élève
+remplir les cases avec la valeur de t ou de t′ » — chaque ligne du point
+s'écrit `x = a + u t = a + u × ([ ]) = [ ]`. La case (`eds-p0…2`) se juge
+selon le menu du choix : t avec `d`, t′ avec `d′` (`edsVerdicts` relit
+`eds-ch`) ; la correction s'écrit dans le même sens. 26 cases.
+Et : « laisser l'élève remplir les cases donnant les coordonnées du point
+d'intersection » — `I([ ] ; [ ] ; [ ])` porte trois cases (`eds-j0…2`)
+au lieu du miroir des lignes du point. 29 cases.
