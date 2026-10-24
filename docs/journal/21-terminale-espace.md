@@ -845,3 +845,54 @@ cube. Conséquence attendue : quand A est devant, les quatre segments sont
 entièrement en pointillés ([DB] est sur la face du dessous, les trois autres
 traversent le cube) ; quand A est derrière, ce qui court sur une face vue
 reste plein.
+
+## 7.1.10 — reconnaître une équation paramétrique de droite (`espace-reconnaitre-parametrique`, kind `erp`)
+
+Demande de Turquet (octobre 2026), avec la fiche « vecteur 10 » : « créer un
+exercice dans vecteur et droite de l'espace comme le pdf joint ; rédiger en
+respectant les consignes de présentation des exercices précédents qui
+traitent des mêmes questions. »
+
+**L'énoncé de la fiche** : `A`, `B`, et `d` donnée par son équation
+paramétrique (le « 1t » écrit comme sur la fiche, comme au 7.1.4) —
+« Démontrer qu'une équation paramétrique de la droite (AB) est d ». Les deux
+méthodes de la fiche, UNE par question ; la séance en tire trois par
+`distinctes()` : une 1ʳᵉ méthode, une 2ᵉ, la troisième au hasard.
+
+* **1ʳᵉ méthode** — `AB⃗ (… − …) donc AB⃗ (…)` (le vecteur AB⃗ est imposé par
+  la fiche : « avec le vecteur AB⃗ ») ; `u⃗` de `d`, `v⃗` de (AB) ; les trois
+  quotients `(fin / début)` du 7.1.4, dans le sens que l'élève choisit,
+  fraction simplifiée ou valeur approchée ; « (AB) est [parallèle] à d » ; la
+  propriété encadrée (« deux droites parallèles ayant un point commun sont
+  confondues ») ; « il faut vérifier qu'elles ont [un point commun] » ; « on
+  prend le point [A | B] » — AU CHOIX de l'élève, comme le choix du 7.1.3 ;
+  l'appartenance ; « donc le point … [est] un point commun » ; « les droites
+  sont [confondues] ».
+* **2ᵉ méthode** — « on vérifie que d passe par [ ] et [ ] » (A, B, O) ;
+  les deux appartenances dans l'ordre écrit ; la même conclusion.
+
+**L'appartenance : les trois systèmes de la fiche, les cases du 7.1.3** —
+`{−2 + 4t = [xP]} ⟺ {4t = [xP] [+2]} ⟺ {t = [n]/[d] = [t]}`. La seconde case
+porte −x du point de départ de `d` avec son signe ; la fraction accepte
+`(−n)/(−d)` ; un coefficient 1 n'a pas de division (`t = …` tout court), −1
+garde la sienne. Le membre de gauche est celui de `d`, écrit en clair : il
+est dans l'énoncé, il ne souffle rien. « On prend le point … » et « Donc le
+point … » à la 2ᵉ méthode, « Donc le point … » à la 1ʳᵉ, sont des MIROIRS du
+menu (`.erp-mir`, pas des cases). Le choix se lit dans la copie
+(`erpChoix`) : le menu, à défaut le point que ses cases recopient le plus ; à
+la 2ᵉ méthode, un second menu vide ou égal au premier prend le point qui
+reste. Toute la correction suit ce choix.
+
+**Le tirage.** `d` part de `D` (aucune coordonnée nulle), de vecteur `u⃗`
+(aucune coordonnée nulle) ; `A = D + tA u⃗`, `B = D + tB u⃗`, `tA` entier de
+−3 à 3, `tB` entier ou demi-entier (le `B(0 ; 1,5 ; −4)` de la fiche), l'un
+ou l'autre au hasard, jamais 0 ni égaux ; coordonnées bornées à 15. `d` est
+donc toujours (AB) : c'est une démonstration. Repli : la fiche elle-même.
+
+**Éprouvé** dans Chromium : 1 200 questions tirées, chaque copie juste
+acceptée pour les deux choix de point (2 400 copies), chaque question
+sérialisable en JSON, une copie vide sans aucune case « remplie » ; les deux
+méthodes faites à l'écran (juste : « Très bien », 45 et 37 cases bleues ;
+fausse : la case rouge, les vides corrigées en vert, les miroirs remis au
+point corrigé). À 390 px, l'énoncé cassait : la phrase était prise dans le
+bloc insécable du système — seul « d : {…} » est insécable désormais.
