@@ -636,7 +636,7 @@ d'intersection » — `I([ ] ; [ ] ; [ ])` porte trois cases (`eds-j0…2`)
 au lieu du miroir des lignes du point. 29 cases.
 
 **Puis la fraction de t′ en cases, et le « + » devant zéro (Turquet,
-octobre 2026, v441).** « Quand on calcule t′ = 0/6, laisser l'élève
+octobre 2026, v442).** « Quand on calcule t′ = 0/6, laisser l'élève
 compléter la division ; quand le résultat est 0 dans une case, mettre un
 plus devant cette case. » La ligne `t′ = [h0]/[h1] = [t′]` porte deux
 cases (`eds-qn`, `eds-qd`) au lieu des miroirs ; elle accepte aussi
