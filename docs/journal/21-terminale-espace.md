@@ -650,3 +650,54 @@ cases (`eds-qn`, `eds-qd`) au lieu des miroirs ; elle accepte aussi
 cases. Le « + » d'une case qui suit un terme s'écrit désormais pour une
 valeur positive OU NULLE (`P(v)` : `v >= 0`) — et le miroir d'une case vide
 de même. 31 cases.
+
+## 7.1.8 — deux droites sont-elles coplanaires ? (`espace-coplanaires`, kind `ecp`)
+
+Demande de Turquet (octobre 2026), avec la fiche « vecteurs 8 » : « créer un
+exercice dans vecteur et droite de l'espace comme le pdf joint. Pour la
+question a), faire exactement comme le 7.1.4 ; pour le b), faire exactement
+comme le 7.1.5, sauf que l'on ne calculera pas le point d'intersection si
+c'est sécant. Les inconnues t et t′ doivent vérifier les mêmes contraintes
+que l'exercice 7.1.5. Si la question a) est vraie, passer directement à la
+question c). »
+
+**La fiche.** En tête, trois menus « coplanaires / non coplanaires »
+(parallèles, sécantes, ni l'un ni l'autre) ; a) le 7.1.4 tel quel ; b) le
+7.1.5 jusqu'à la vérification dans la dernière équation, puis la conclusion
+de la fiche : « t = … et t′ = … [sont | ne sont pas] solutions des trois
+équations : les droites [sont | ne sont pas] sécantes » ; c) les droites
+sont [coplanaires | non coplanaires]. Entre les deux membres de la
+vérification, le signe se lit sur la copie : « ≠ » quand les deux nombres
+écrits diffèrent.
+
+**Le même code, pas une copie.** `epaCases`, `epaVerdicts`, `epaFormHTML`,
+`epaSignes`, `edsCases`, `edsVerdicts`, `edsFormHTML` et `edsMiroirs` prennent
+un PRÉFIXE d'identifiants (`ecpa`, `ecpb` ; par défaut `epa` et `eds`, rien
+ne change aux 7.1.4 et 7.1.5) : deux écrans ne peuvent pas porter les mêmes
+`id`, l'écran du 7.1.4 déjà rendu garderait ses cases. Le 7.1.5 prend en plus
+une fin (`'point'` ou `'concl'`) : la sienne, ou celle du 7.1.8. `edsVal`
+rend `vwr`, le membre de droite de la vérification, égal à `vw` au 7.1.5.
+
+**Deux vérifications, et la suite s'ouvre selon la VÉRITÉ.** « Vérifier le
+a) » juge l'en-tête et le a), les fige (correction en vert), puis ouvre la
+suite : droites parallèles, « on passe directement au c) » ; sinon le b)
+puis le c). Ouvrir le b) sur le seul menu de l'élève aurait trahi la réponse
+— l'absence de b) à faire dit « parallèles ». L'étape vit dans `test.ecpEt`,
+le verdict du a) dans `test.ecpAok` : une pause entre les deux les garde, et
+la reprise repeint le a) (`ecpFigerA`). Une question n'est parfaite que si
+les deux vérifications le sont ; la note compte toutes les cases peintes
+(20 au a), 24 au b), 1 au c) — 21 pour deux parallèles).
+
+**Le tirage.** Une question de chaque sorte, dans le désordre (`distinctes`).
+Sécantes et non coplanaires suivent le 7.1.5 : t seul dans l'équation s, t
+entier non nul et t′ entier entre −3 et 3, mêmes exclusions ; pour deux non
+coplanaires, le nombre seul de d′ dans l'équation w est décalé de 1 à 4 : t
+et t′, tirés de s et r, ne la vérifient plus. Quatre fois sur dix, v⃗ est
+k u⃗ dont UNE coordonnée change (le piège du 7.1.4). Parallèles : le tirage
+du 7.1.4, jamais confondues.
+
+**Éprouvé** dans Chromium, à 1 280 px et à 390 px : une copie juste de
+chaque sorte (44/44, 44/44, 21/21, le « ≠ » posé pour les non coplanaires),
+puis une copie fausse en évaluation — le menu du a) inversé : la suite
+s'ouvre selon la vérité (le b) sauté pour deux parallèles malgré « ne sont
+pas »), corrections vertes, aucune erreur de page, ni `NaN` ni `undefined`.
