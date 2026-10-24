@@ -584,3 +584,17 @@ communes (`caseAjuster`, `signeQuotient`) :
 **Éprouvé** dans Chromium : `2/3 ≈ 0,67`, `2/1 = 2`, `5/−2 = −5/2` ; la
 case de « 0,666666 » passe de 46 à 86 px sans couper le texte ; au 7.1.5,
 `7/3 ≈ 2,33` puis `= 7/3`.
+
+**Puis les « = » et les « ⟺ » alignés (Turquet, octobre 2026, v440).**
+« Quand on exprime t en fonction de t′ à partir d'une des trois équations,
+le signe = doit être aligné verticalement avec le = de l'équation choisie ;
+quand on résout l'équation obtenue par substitution, les équivalences
+alignées verticalement et les = aussi ; même chose pour la vérification. »
+Les trois blocs du 7.1.5 s'écrivent en GRILLE (`.eds-gr`, six colonnes :
+étiquette ou « ⟺ » calée à droite, membre de gauche calé à droite, « = »,
+membre de droite calé à gauche, puis un second « = » et sa suite pour
+`t = … = …`). L'équation choisie ouvre chaque bloc sur sa propre ligne
+(« ③ : a + u t = b + v t′ »), pour que son « = » tombe au-dessus des autres
+— elle n'est plus écrite dans la phrase d'introduction. Sur téléphone, un
+bloc trop large défile dans son cadre (`.eds-lsys`) plutôt que de se
+replier, ce qui casserait l'alignement.

@@ -2081,6 +2081,9 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 #edsForm .tg-line{gap:8px 10px}
 #edsForm .tg-sub{margin:16px 0 4px}
 .eds-mir{white-space:nowrap}
+.eds-gr{display:inline-grid;grid-template-columns:repeat(6,auto);align-items:center;gap:8px 8px;margin:8px 0 4px}
+.eds-gc{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.eds-gc.c0{justify-self:end}.eds-gc.c1{justify-self:end}.eds-gc.c2{justify-self:center}.eds-gc.c3{justify-self:start}.eds-gc.c4{justify-self:center}.eds-gc.c5{justify-self:start}
 .eds-num{display:inline-block;margin-left:8px;font-size:1.05em}
 @media (max-width:560px){
   #edsForm .tg-in{width:34px;padding:4px 1px}
@@ -30300,6 +30303,16 @@ function edsFormHTML(q){
   const P=v=>v>0?T('+'):'';   /* le « + » devant une case positive qui suit un terme */
   const ct=(c,p)=>numFmt(c)+'<i>t</i>'+p;   /* « 2t′ », « −8t′ » */
   const EQV=T('⟺');
+  /* Une résolution s'écrit en GRILLE (Turquet, octobre 2026) : les « ⟺ »
+     l'un sous l'autre, les membres de gauche calés à droite, les « = »
+     l'un sous l'autre, les membres de droite calés à gauche — et la ligne
+     de l'équation choisie en tête, pour que son « = » tombe sous les autres.
+     Six colonnes : étiquette, gauche, =, droite, puis un second « = » et sa
+     suite (la ligne « t = … = … »). */
+  const G=rows=>'<div class="eds-lsys"><div class="eds-gr">'+rows.map(function(r){
+      const c=r.slice(); while(c.length<6) c.push('');
+      return c.map((x,j)=>'<span class="eds-gc c'+j+'">'+(x==='='?'<span class="eds-eq">=</span>':x)+'</span>').join('');
+    }).join('')+'</div></div>';
   const sel=(id,opts,cls)=>'<select class="tvi-sel'+(cls?' '+cls:'')+'" id="'+id+'">'+opts.map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('')+'</select>';
   let h='';
   h+='<div class="tg-sub"><b>Méthode :</b> sécantes signifie <i>d</i> = <i>d</i>′ : on doit « coller » les deux équations !</div>';
@@ -30307,22 +30320,25 @@ function edsFormHTML(q){
     +'<span class="edp-lab" style="grid-row:4;grid-column:2"><b><i>d</i></b></span><span class="edp-lab" style="grid-row:4;grid-column:4"><b><i>d</i>′</b></span>';
   h+=L(T('On veut :')+edpSys([0,1,2].map(k=>[T(edsMb(q.A[k],q.u[k],'')),T('='),T(edsMb(q.B[k],q.v[k],'′')),N(k)]), ['e','m','s','s'], cad, 'edp-sys-a'), 'eds-lsys');
   /* t tout seul */
-  h+='<div class="tg-sub">On prend une équation avec '+tt+' ou '+tp+' tout seul : ici l’équation '+N(s)+' : '+edsEq(q,s)+' ('+tt+' est tout seul).</div>';
-  h+=L(T('On écrit :')+NW(T(tt+' = '+edsMb(q.B[s],q.v[s],'′'))+P(V.a1)+I('eds-a1'))+NW(T('= '+ct(V.c1,'′'))+P(V.c0)+I('eds-c0')));
+  h+='<div class="tg-sub">On prend une équation avec '+tt+' ou '+tp+' tout seul : ici l’équation '+N(s)+' ('+tt+' est tout seul).</div>';
+  h+=G([[N(s)+T(':'), T(edsMb(q.A[s],q.u[s],'')), '=', T(edsMb(q.B[s],q.v[s],'′'))],
+        [T('On écrit :'), T(tt), '=', T(edsMb(q.B[s],q.v[s],'′'))+P(V.a1)+I('eds-a1'), '=', T(ct(V.c1,'′'))+P(V.c0)+I('eds-c0')]]);
   /* on remplace t dans l'équation r */
-  h+='<div class="tg-sub">On remplace '+tt+' par son résultat dans une autre équation, ici l’équation '+N(r)+' : '+edsEq(q,r)+'.</div>';
-  h+=L(T('Devient :')+NW(T(numFmt(q.A[r])+fac(q.u[r])+'('+M('sub')+')'))+NW(T('= '+edsMb(q.B[r],q.v[r],'′'))));
-  h+=L(EQV+NW(T(numFmt(q.A[r]))+P(V.e1)+I('eds-e1')+T(tp)+P(V.e0)+I('eds-e0'))+NW(T('= '+edsMb(q.B[r],q.v[r],'′'))));
-  h+=L(EQV+NW(M('e1')+P(V.g1)+I('eds-g1')+T(tp))+NW(T('= '+numFmt(q.B[r]))+P(V.g0)+I('eds-g0')));
-  h+=L(EQV+NW(I('eds-h1')+T(tp+' =')+I('eds-h0')));
-  h+=L(EQV+NW(T(tp+' =')+'<span class="elg-fr"><span class="elg-fn">'+M('h0')+'</span><span class="elg-fd">'+M('h1')+'</span></span>'+'<span id="eds-eg">=</span>'+I('eds-tp')));
+  h+='<div class="tg-sub">On remplace '+tt+' par son résultat dans une autre équation, ici l’équation '+N(r)+'.</div>';
+  const dr=T(edsMb(q.B[r],q.v[r],'′'));
+  h+=G([[N(r)+T(':'), T(edsMb(q.A[r],q.u[r],'')), '=', dr],
+        [T('Devient :'), T(numFmt(q.A[r])+fac(q.u[r])+'('+M('sub')+')'), '=', dr],
+        [EQV, T(numFmt(q.A[r]))+P(V.e1)+I('eds-e1')+T(tp)+P(V.e0)+I('eds-e0'), '=', dr],
+        [EQV, M('e1')+P(V.g1)+I('eds-g1')+T(tp), '=', T(numFmt(q.B[r]))+P(V.g0)+I('eds-g0')],
+        [EQV, I('eds-h1')+T(tp), '=', I('eds-h0')],
+        [EQV, T(tp), '=', '<span class="elg-fr"><span class="elg-fn">'+M('h0')+'</span><span class="elg-fd">'+M('h1')+'</span></span>'+'<span id="eds-eg">=</span>'+I('eds-tp')]]);
   h+=L(T('Avec :')+NW(T(tt+' = '+ct(V.c1,'′')+M('c0s')+' = '+numFmt(V.c1)+' × ('+M('tp')+')'+M('c0s')+' =')+I('eds-ht')));
   /* la vérification */
   h+='<div class="tg-sub"><b>ATTENTION !</b> On doit vérifier '+tt+' = '+M('t')+' et '+tp+' = '+M('tp')+' dans la dernière équation, ici l’équation '+N(w)+'.</div>';
-  h+=L(T(edsEq(q,w)));
-  h+=L(EQV+NW(T(numFmt(q.A[w])+fac(q.u[w])+' × ('+M('t')+')'))+NW(T('= '+numFmt(q.B[w])+fac(q.v[w])+' × ('+M('tp')+')')));
-  h+=L(EQV+NW(T(numFmt(q.A[w]))+P(V.m1)+I('eds-m1'))+NW(T('= '+numFmt(q.B[w]))+P(V.m2)+I('eds-m2')));
-  h+=L(EQV+NW(I('eds-wl')+T('=')+I('eds-wr')));
+  h+=G([[N(w)+T(':'), T(edsMb(q.A[w],q.u[w],'')), '=', T(edsMb(q.B[w],q.v[w],'′'))],
+        [EQV, T(numFmt(q.A[w])+fac(q.u[w])+' × ('+M('t')+')'), '=', T(numFmt(q.B[w])+fac(q.v[w])+' × ('+M('tp')+')')],
+        [EQV, T(numFmt(q.A[w]))+P(V.m1)+I('eds-m1'), '=', T(numFmt(q.B[w]))+P(V.m2)+I('eds-m2')],
+        [EQV, I('eds-wl'), '=', I('eds-wr')]]);
   h+=L(T('L’équation '+N(w)+' est')+sel('eds-ver',[['','…'],['oui','vérifiée'],['non','fausse']]));
   h+=L(T('Les droites sont bien')+sel('eds-sec',[['','…'],['sec','sécantes'],['par','parallèles'],['conf','confondues']])+T('.'));
   /* le point d'intersection */
