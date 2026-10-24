@@ -598,3 +598,13 @@ membre de droite calé à gauche, puis un second « = » et sa suite pour
 — elle n'est plus écrite dans la phrase d'introduction. Sur téléphone, un
 bloc trop large défile dans son cadre (`.eds-lsys`) plutôt que de se
 replier, ce qui casserait l'alignement.
+
+**Puis deux étapes de plus (Turquet, octobre 2026, v440).** Sur une capture
+de l'écran : « quand on a 2 + 12t′ + 21 = 7 + 4t′, rajouter une étape en
+dessous avec 12t′ + …. = 7 + 4t′ ; quand on calcule t avec la valeur de t′,
+laisser l'élève remplir la case de la valeur de t′ : t = −4t′ − 7 = −4 × ….
+− 7 = ….. ». La ligne `⟺ e1 t′ [k0] = b + v t′` (k0 = a + e0, le nombre
+seul du membre de gauche réduit ; `e1 t′` est le miroir) s'insère sous le
+développement — la ligne suivante fait passer k0, et `g0 = −k0` n'a pas
+changé. Dans « Avec : t = … × ( ) … », la valeur de t′ n'est plus un miroir
+mais une case (`eds-tv`). 21 cases.

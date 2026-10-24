@@ -30202,9 +30202,10 @@ function epaConseilCtx(){
      t = b + v t′ [a1] = v t′ [c0]                 (a1 = −a, c0 = b − a)
      Devient : a + u(v t′ c0) = b + v t′           (miroir de c0)
        ⟺ a [e1] t′ [e0] = b + v t′                  (le « a » reste, écrit)
+       ⟺ e1 t′ [k0] = b + v t′                      (a + e0 réduit, v440)
        ⟺ e1 t′ [g1] t′ = b [g0]                     (miroir de e1)
        ⟺ [h1] t′ = [h0]  ⟺  t′ = h0/h1 = [t′]       (fraction : miroirs)
-     Avec : t = v t′ c0 = v × (t′) c0 = [t]
+     Avec : t = v t′ c0 = v × ([t′]) c0 = [t]       (l'élève récrit t′, v440)
      ATTENTION ! on vérifie dans w : a + u × (t) = b + v × (t′)
        ⟺ a [m1] = b [m2] ⟺ [ ] = [ ] ; l'équation w est [vérifiée] ; les
        droites sont bien [sécantes] (deux menus) ;
@@ -30239,11 +30240,12 @@ function edsVal(q){
   const s=q.s, r=q.r, w=q.w;
   const a1=-q.A[s], c0=q.B[s]-q.A[s], c1=q.v[s];                 /* t = b + v t′ [a1] = v t′ [c0] */
   const e1=q.u[r]*c1, e0=q.u[r]*c0;                               /* a [e1] t′ [e0] = b + v t′ */
-  const g1=-q.v[r], g0=-q.A[r]-e0;                                /* e1 t′ [g1] t′ = b [g0] */
+  const k0=q.A[r]+e0;                                              /* e1 t′ [k0] = b + v t′ */
+  const g1=-q.v[r], g0=-k0;                                       /* e1 t′ [g1] t′ = b [g0] */
   const h1=e1+g1, h0=q.B[r]+g0;                                   /* [h1] t′ = [h0] */
   const m1=q.u[w]*q.t, m2=q.v[w]*q.tp, vw=q.A[w]+m1;              /* a [m1] = b [m2] ⟺ [vw] = [vw] */
   const I=q.A.map((a,k)=>a+q.u[k]*q.t);
-  return {a1:a1, c0:c0, c1:c1, e1:e1, e0:e0, g1:g1, g0:g0, h1:h1, h0:h0, tp:q.tp, t:q.t, m1:m1, m2:m2, vw:vw, I:I};
+  return {a1:a1, c0:c0, c1:c1, e1:e1, e0:e0, k0:k0, g1:g1, g0:g0, h1:h1, h0:h0, tp:q.tp, t:q.t, m1:m1, m2:m2, vw:vw, I:I};
 }
 /* Toutes les cases — UNE liste, lue par le rendu, le juge, la correction et le contexte de l'aide. */
 function edsCases(q){
@@ -30253,11 +30255,13 @@ function edsCases(q){
   X('eds-c0',V.c0,'nombre seul après réduction dans t = … (équation '+ns+')');
   X('eds-e1',V.e1,'coefficient de t′ après développement (équation '+nr+')');
   X('eds-e0',V.e0,'nombre après développement (équation '+nr+')');
+  X('eds-k0',V.k0,'nombre seul après réduction du membre de gauche (équation '+nr+')');
   X('eds-g1',V.g1,'terme en t′ passé à gauche (coefficient)');
   X('eds-g0',V.g0,'nombre passé à droite');
   X('eds-h1',V.h1,'coefficient de t′ après réduction','num','h');
   X('eds-h0',V.h0,'nombre après réduction','num','h');
   X('eds-tp',V.tp,'valeur de t′');
+  X('eds-tv',V.tp,'valeur de t′ remplacée dans le calcul de t');
   X('eds-ht',V.t,'valeur de t');
   X('eds-m1',V.m1,'produit du membre de gauche dans la vérification (équation '+nw+')');
   X('eds-m2',V.m2,'produit du membre de droite dans la vérification (équation '+nw+')');
@@ -30329,10 +30333,11 @@ function edsFormHTML(q){
   h+=G([[N(r)+T(':'), T(edsMb(q.A[r],q.u[r],'')), '=', dr],
         [T('Devient :'), T(numFmt(q.A[r])+fac(q.u[r])+'('+M('sub')+')'), '=', dr],
         [EQV, T(numFmt(q.A[r]))+P(V.e1)+I('eds-e1')+T(tp)+P(V.e0)+I('eds-e0'), '=', dr],
+        [EQV, M('e1')+P(V.k0)+I('eds-k0'), '=', dr],
         [EQV, M('e1')+P(V.g1)+I('eds-g1')+T(tp), '=', T(numFmt(q.B[r]))+P(V.g0)+I('eds-g0')],
         [EQV, I('eds-h1')+T(tp), '=', I('eds-h0')],
         [EQV, T(tp), '=', '<span class="elg-fr"><span class="elg-fn">'+M('h0')+'</span><span class="elg-fd">'+M('h1')+'</span></span>'+'<span id="eds-eg">=</span>'+I('eds-tp')]]);
-  h+=L(T('Avec :')+NW(T(tt+' = '+ct(V.c1,'′')+M('c0s')+' = '+numFmt(V.c1)+' × ('+M('tp')+')'+M('c0s')+' =')+I('eds-ht')));
+  h+=L(T('Avec :')+NW(T(tt+' = '+ct(V.c1,'′')+M('c0s')+' = '+numFmt(V.c1)+' × (')+I('eds-tv')+T(')'+M('c0s')+' =')+I('eds-ht')));
   /* la vérification */
   h+='<div class="tg-sub"><b>ATTENTION !</b> On doit vérifier '+tt+' = '+M('t')+' et '+tp+' = '+M('tp')+' dans la dernière équation, ici l’équation '+N(w)+'.</div>';
   h+=G([[N(w)+T(':'), T(edsMb(q.A[w],q.u[w],'')), '=', T(edsMb(q.B[w],q.v[w],'′'))],
@@ -30414,7 +30419,7 @@ function renderEDS(){
 function edsRetiens(q){
   const V=edsVal(q), tt='<i>t</i>', tp='<i>t</i>′', sg=v=>(v<0?' − ':' + ')+numFmt(Math.abs(v));
   return 'La clé : un point commun vérifie les trois équations à la fois. Dans l’équation '+EDS_N[q.s]+', '+tt+' est tout seul : '+tt+' = '+edsMb(q.B[q.s],q.v[q.s],'′')+sg(V.a1)+' = '+numFmt(V.c1)+tp+sg(V.c0)+'. '
-    +'On le remplace dans l’équation '+EDS_N[q.r]+' : '+numFmt(q.A[q.r])+sg(V.e1)+tp+sg(V.e0)+' = '+edsMb(q.B[q.r],q.v[q.r],'′')+', donc '+numFmt(V.e1)+tp+sg(V.g1)+tp+' = '+numFmt(q.B[q.r])+sg(V.g0)+', '+numFmt(V.h1)+tp+' = '+numFmt(V.h0)+' et '+tp+' = '+numFmt(V.tp)+', puis '+tt+' = '+numFmt(V.t)+'. '
+    +'On le remplace dans l’équation '+EDS_N[q.r]+' : '+numFmt(q.A[q.r])+sg(V.e1)+tp+sg(V.e0)+' = '+edsMb(q.B[q.r],q.v[q.r],'′')+', soit '+numFmt(V.e1)+tp+sg(V.k0)+' = '+edsMb(q.B[q.r],q.v[q.r],'′')+', donc '+numFmt(V.e1)+tp+sg(V.g1)+tp+' = '+numFmt(q.B[q.r])+sg(V.g0)+', '+numFmt(V.h1)+tp+' = '+numFmt(V.h0)+' et '+tp+' = '+numFmt(V.tp)+', puis '+tt+' = '+numFmt(V.t)+'. '
     +'On vérifie dans l’équation '+EDS_N[q.w]+' : les deux membres valent '+numFmt(V.vw)+', elle est vérifiée : les droites sont sécantes. Le point d’intersection est <b><i>I</i>('+V.I.map(numFmt).join(' ; ')+')</b>.';
 }
 function checkEDS(live){
