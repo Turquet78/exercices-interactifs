@@ -797,3 +797,34 @@ les autres parties »).** La figure où l'on place S prenait 640 px ; elle
 garde les 430 px des trois autres parties (`.ecd-fig`). Le clic se cale
 toujours sur la place permise la plus proche (30 unités du dessin), ce qui
 reste large à cette taille.
+
+**Puis plus de figures, par d'autres diagonales (Turquet, octobre 2026,
+v446 : « faire plus de figures possibles pour cet exercice en utilisant
+d'autres diagonales du cube »).** La première version n'offrait que 8
+figures, toutes sur le dessin de la fiche. Deux verrous ont sauté :
+
+* **Les équations imposées au h) partent de E ou de C, de O ou de I**
+  (`q.dep`, `ecdDep`) : « le point C de la droite, le vecteur CE⃗ » vaut
+  « le point E, le vecteur EC⃗ ». Ce choix rend la rédaction de la fiche
+  (deux équations IDENTIQUES, un t de coefficient 1) à 24 symétries du cube
+  sur 48 au lieu de 18, en 72 configurations : d'autres diagonales du cube
+  prennent les rôles de (EC) et (AG). Les 24 autres symétries ne donnent que
+  des équations ÉQUIVALENTES (« 1 − t = 0,5 − 0,5k » et « t = 0,5 + 0,5k ») :
+  elles restent écartées, la fiche « supprime » une équation identique.
+  Un brouillon d'avant `q.dep` part de E et de O.
+* **Les quatre dessins du 7.1.6 servent, tirés à parts égales** parmi
+  toutes les figures lisibles (`ecdFigures`) — la première version gardait
+  le dessin de la fiche dès qu'il se lisait. Ce qui écartait les dessins à
+  A derrière le cube, c'était l'ÉTIQUETTE de S, posée en haut à droite et qui
+  couvrait celle d'un sommet : elle se pose désormais à la place la plus
+  dégagée parmi huit autour du point (loin des traits et des étiquettes),
+  et l'écart minimal de S à un sommet revient à 24 unités (36 avant ; 32
+  essayé, il ne laissait que les dessins à A devant).
+
+Résultat : 64 figures, 24 dessins différents, chacun relu à la taille de
+l'écran (430 px). Les colonnes des équations imposées s'écartent un peu plus
+(`.ecd-imp`, 56 px) : « Le point C » et « Le vecteur CE⃗ » se touchaient.
+**Éprouvé** : 3 000 séances — les quatre départs (EO, CO, EI, CI) et les
+quatre dessins tirés à parts à peu près égales, chaque copie juste acceptée
+dans les quatre parties, la partie 3 menée jusqu'à « parfait » avec C et I
+comme départs, aucune erreur de page.
