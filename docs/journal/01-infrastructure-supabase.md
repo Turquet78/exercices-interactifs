@@ -1302,3 +1302,31 @@ Fredoka, Fraunces et Spline Sans y sont des polices VARIABLES, servies en UN
 fichier par alphabet quelle que soit la liste de graisses demandée (les quatre
 `@font-face` de Nunito pointent vers le même `.woff2`). Vérifié avant d'y
 toucher, et laissé tel quel.
+
+**La page publiée n'est plus la source telle quelle : ses commentaires de code
+en sont retirés à la publication (décision de Turquet, octobre 2026, audit
+T8).** La Seconde pesait 5,7 Mo, dont 1,2 Mo de commentaires JavaScript — le
+journal du code, utile à qui le lit, inutile à l'élève qui le télécharge et
+le fait analyser par son téléphone : mesuré dans Chromium avec un processeur
+ralenti quatre fois, l'écran de connexion mettait 1,6 s à venir, dont 1,2 s
+d'analyse du script. GitHub Pages ne sert plus `main` tel quel : l'action
+« Publication » (`.github/workflows/publier.yml`) construit le site par
+`outils/publier.js` — les trois pages passent par terser SANS compression ni
+renommage (le code publié est le code écrit, blancs et commentaires en moins :
+mêmes identifiants, mêmes noms de fonctions, `inline_script` garde `</script`
+échappé), les commentaires CSS et HTML tombent, et tout le reste du dépôt est
+copié à l'identique. La source, elle, ne bouge pas. La règle 1 tient : `main`
+publie dans la minute, par cette action au lieu du dépôt brut ; si elle
+échoue, le site reste à sa version précédente. Deux gardes : `--verifier`
+recharge chaque page construite dans jsdom et exige la même `APP_VERSION` et le
+même nombre d'exercices que la source (joué aussi sur chaque pull request, travail
+« publication » des Contrôles) ; et le bord structurel — DOCTYPE en tête,
+`<meta charset>` dans les 1 024 premiers octets. La source Pages doit être
+« GitHub Actions » : l'action la règle elle-même par l'API (`build_type:
+workflow`) et le dit si elle n'y arrive pas. Deux autres pistes de T8 : les
+préchargements de MathLive (`modulepreload`) et de supabase-js (`preload`)
+sont posés dans l'en-tête des trois pages ; le cache de version dans `sw.js`
+n'est PAS fait — GitHub Pages envoie déjà `ETag` et `max-age=600`, le
+navigateur ne retélécharge une page inchangée qu'après dix minutes, et par une
+requête conditionnelle ; le prix d'un cache applicatif (une version en retard
+d'une ouverture) ne vaut pas ce gain.

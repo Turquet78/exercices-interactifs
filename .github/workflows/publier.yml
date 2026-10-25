@@ -1,0 +1,61 @@
+# =====================================================================
+#  PUBLICATION du site sur GitHub Pages (décision de Turquet, octobre 2026,
+#  audit T8). GitHub Pages ne sert plus main tel quel : à chaque dépôt sur
+#  main, cette action construit le site par outils/publier.js — les trois
+#  pages sans leurs commentaires de code, le reste copié à l'identique — et
+#  le publie. La source ne change pas ; seule la page que télécharge l'élève
+#  maigrit. La règle 1 de CLAUDE.md tient : main publie dans la minute.
+#  Si cette action échoue, le site reste à sa version précédente.
+# =====================================================================
+name: Publication
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  construire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: La source Pages est cette action, pas la branche
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          type=$(gh api "repos/${{ github.repository }}/pages" --jq .build_type 2>/dev/null || echo absent)
+          echo "source Pages actuelle : $type"
+          if [ "$type" != "workflow" ]; then
+            gh api -X PUT "repos/${{ github.repository }}/pages" -f build_type=workflow \
+              || { echo "::error::Impossible de régler la source GitHub Pages sur « GitHub Actions » : à faire une fois dans Settings → Pages → Build and deployment → Source."; exit 1; }
+            echo "source Pages réglée sur l'action"
+          fi
+      - name: Construire le site (pages sans commentaires), et le vérifier dans jsdom
+        run: node outils/publier.js _site --verifier
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  publier:
+    needs: construire
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - id: deploiement
+        uses: actions/deploy-pages@v4
