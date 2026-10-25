@@ -53089,12 +53089,12 @@ function simplifierFractions(w, P){
       const tp=function(id,v){ const el=document.getElementById(id); el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
       let v=vus2();
       if(v.length!==2) vus.push('③ et ④ ne sont pas deux groupes à montrer ('+v.length+')');
-      else if(v.some(Boolean)) vus.push('la division s\'affiche avant que l\'élève ait écrit la somme');
+      else if(v.some(Boolean)) vus.push('la division s\\'affiche avant que l\\'élève ait écrit la somme');
       tp('sf-num1',27); tp('sf-num2',5);
-      if(vus2().some(Boolean)) vus.push('la division s\'affiche alors que le dénominateur de la somme n\'est pas écrit');
+      if(vus2().some(Boolean)) vus.push('la division s\\'affiche alors que le dénominateur de la somme n\\'est pas écrit');
       tp('sf-den',6);
-      if(!vus2().length || !vus2().every(Boolean)) vus.push('l\'étape ② écrite, la division reste cachée');
-      if(!q.svu) vus.push('la division montrée n\'est pas rangée dans la question (q.svu)');
+      if(!vus2().length || !vus2().every(Boolean)) vus.push('l\\'étape ② écrite, la division reste cachée');
+      if(!q.svu) vus.push('la division montrée n\\'est pas rangée dans la question (q.svu)');
       renderSFTest();
       if(!vus2().every(Boolean)) vus.push('après un redessin (reprise), la division montrée est de nouveau cachée');
       delete q.svu; renderSFTest(); checkSFAnswer();
