@@ -897,6 +897,29 @@ fausse : la case rouge, les vides corrigées en vert, les miroirs remis au
 point corrigé). À 390 px, l'énoncé cassait : la phrase était prise dans le
 bloc insécable du système — seul « d : {…} » est insécable désormais.
 
+**Puis l'élève a CHOISI sa méthode** (demande de Turquet, octobre 2026 :
+« laisser l'élève choisir sa méthode après avoir décrit les méthodes »). La
+séance ne tire plus la méthode : chaque question s'ouvre sur un encadré qui
+DÉCRIT les deux (« les vecteurs directeurs » : AB⃗ colinéaire à u⃗, donc
+parallèles, puis un point commun ; « les deux points » : d passe par A et par
+B), puis « Je choisis la [1re | 2e méthode] » (`erp-meth`). La rédaction de la
+méthode choisie apparaît dessous (`erpMethHTML`) ; changer d'avis avant de
+vérifier reprend une copie blanche. Le choix est rangé dans la question
+(`q.m`, `null` au tirage) : la pause, la reprise et le rejeu d'un
+signalement le retrouvent, et un brouillon plus ancien, où `q.m` était tiré,
+s'ouvre sur la méthode déjà choisie. Le menu n'est PAS une case : rien ne le
+juge, aucune note ne le compte (`erpCases` est vide tant qu'il est vide), et
+« Vérifier » sans méthode répond « Choisis d'abord ta méthode » sans
+verrouiller. Après la vérification, le menu est figé. L'aide par IA sait si
+l'élève a choisi ; sinon elle présente les deux sans en imposer aucune.
+
+**Éprouvé** dans Chromium, à 1 280 et 390 px (aucun défilement horizontal) :
+« Vérifier » sans méthode ; 1ʳᵉ méthode remplie puis passage à la 2ᵉ (copie
+blanche, 0 saisie restante) ; 2ᵉ méthode juste (41 cases bleues, menu figé,
+« (2e méthode) » dans l'enregistrement) ; 1ʳᵉ méthode à une case fausse (42
+bleues, 1 rouge) ; pause au milieu d'une 2ᵉ méthode puis reprise : méthode,
+rédaction et saisie revenues. Bancs des notes et de la pause verts.
+
 ## 7.1.11 — trois points alignés, ou un plan ? (`espace-points-alignes`, kind `eal`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteur 9 » (« Fiche
