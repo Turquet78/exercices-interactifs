@@ -27318,7 +27318,10 @@ function repondreSignalementCtrl(w, apres){
          remplacer sb par son double — le cas suivant lisait alors une base
          qui n'était plus la sienne. Le vrai clic se mesure dans Chromium
          (banc navigateur, « 6 septies quinquies »). */
-      bilan.boutonAppelle=!!boutonLu && /reponseProfLue\(\s*'s1'\s*\)/.test(boutonLu.getAttribute('onclick')||'');
+      /* une comparaison de chaîne, pas une expression régulière : ce code vit
+         dans un gabarit, qui mange les « \\( » et les « \\s » */
+      bilan.boutonAppelle=!!boutonLu && String(boutonLu.getAttribute('onclick')||'').replace(/ /g,'')==="reponseProfLue('s1')";
+      bilan.boutonOnclick=boutonLu ? String(boutonLu.getAttribute('onclick')) : '';
       if(bilan.boutonAppelle) await reponseProfLue('s1');
       bilan.luPartie=!(window.__faux.tables[TS]||[]).some(function(l){ return l.id==='s1'; });
       bilan.luCamarade=(window.__faux.tables[TS]||[]).some(function(l){ return l.id==='s2'; });
@@ -27402,7 +27405,7 @@ function repondreSignalementCtrl(w, apres){
       souci || 'réponse d’un autre élève visible : ' + b.camarade + ' — filtre eleve_id : ' + b.filtre);
     verifier('« J’ai lu » efface la réponse, sa copie d’écran, et replie le panneau',
       r.ok && b.boutonLu === true && b.boutonAppelle === true && b.luPartie === true && b.luImage === true && b.luReplie === true && b.luCamarade === true,
-      souci || 'bouton : ' + b.boutonLu + ' (appelle reponseProfLue(\'s1\') : ' + b.boutonAppelle + '), ligne effacée : ' + b.luPartie + ', image effacée : ' + b.luImage +
+      souci || 'bouton : ' + b.boutonLu + ' (appelle reponseProfLue(\'s1\') : ' + b.boutonAppelle + ' — onclick « ' + b.boutonOnclick + ' »), ligne effacée : ' + b.luPartie + ', image effacée : ' + b.luImage +
                ', panneau replié : ' + b.luReplie + ', ligne du camarade intacte : ' + b.luCamarade);
     verifier('« J’ai lu » refusé EN SILENCE par la base laisse la réponse, et le dit',
       r.ok && /err:/.test(String(b.luRefus||'')) && b.luRefusReste === true,
