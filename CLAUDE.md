@@ -18,8 +18,12 @@ Les trois partagent un seul projet Supabase et la même fonction Edge
 ## Règles absolues
 
 **1. `main` publie immédiatement — et Claude met en ligne dès que c'est
-possible.** GitHub Pages sert `main` : toute fusion met le site sous les yeux
-des élèves dans la minute. Le travail se fait toujours sur une branche, puis
+possible.** GitHub Pages publie `main` : toute fusion met le site sous les yeux
+des élèves dans la minute — par l'action « Publication »
+(`.github/workflows/publier.yml`, `outils/publier.js`), qui sert les trois
+pages SANS leurs commentaires de code et le reste du dépôt tel quel ; la source
+ne change pas (décision de Turquet, octobre 2026, audit T8). Le travail se
+fait toujours sur une branche, puis
 passe par une pull request que Claude prépare et teste (action « Contrôles »
 verte, modification réellement exécutée — règle 3). Dès que tout est vert,
 Claude **fusionne lui-même, sans attendre de feu vert**, puis vérifie la

@@ -54,6 +54,23 @@ jobs:
         # octobre 2026 : « monte la mémoire à 6 Go »).
         run: node --max-old-space-size=6144 tests/verifier.js ${{ matrix.niveau }}
 
+  # La page PUBLIÉE n'est plus la source telle quelle (décision de Turquet,
+  # octobre 2026, audit T8) : l'action « Publication » retire des trois pages
+  # leurs commentaires de code avant de les servir. Ce travail joue la même
+  # construction sur chaque pull request et recharge chaque page construite
+  # dans jsdom : même APP_VERSION, même nombre d'exercices que la source.
+  publication:
+    runs-on: ubuntu-latest
+    name: publication (pages construites)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Construire les pages publiées et les recharger dans jsdom
+        run: node outils/publier.js _site --verifier
+
   # Les deux autres travaux remplacent Supabase par un double en mémoire — exprès,
   # pour qu'aucun contrôle n'approche les comptes réels. Ils sont donc aveugles
   # aux règles d'accès de la base, et c'est précisément là qu'étaient les fuites.
