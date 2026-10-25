@@ -1551,3 +1551,25 @@ et ses notes avec. Un motif qui désigne autre chose que deux comptes s'arrête
 en rouge, en les nommant, sans rien bouger (« Clémentine » contient
 « clement »). Le banc de la base (section 7) l'éprouve : sabotage du
 partitionnement par mode et de la réécriture des clés, trois rouges.
+
+**Le bilan de la classe et le détail par élève se rangent en COLONNES quand
+l'écran le permet** (demande de Turquet, octobre 2026 : « utiliser plusieurs
+colonnes si c'est possible en fonction des écrans pour réduire la hauteur de
+la page »). Devoirs maison et fiches de travail, les trois niveaux.
+Le tableau du bilan passe par `dmEnColonnes(box, entete, lignes, largeurMin,
+parCol)` — même texte dans les trois fichiers, rangé dans le moteur des
+moyennes que le banc compare au caractère près. Les lignes se coupent en
+paquets CONSÉCUTIFS (l'ordre alphabétique se lit de haut en bas, colonne après
+colonne), chaque paquet est un `<table class="tbl">` avec son en-tête, dans une
+grille `.dm-cols` qui repasse les paquets l'un sous l'autre si l'écran
+rétrécit. Le nombre de paquets se décide sur la largeur de la boîte AU RENDU,
+avec au moins `parCol` lignes par colonne. Largeurs minimales : 300 px pour le
+bilan de la Seconde et de la Première, 470 px pour celui de la Terminale (la
+ligne porte le champ « Poser la note »), 560 px pour le détail d'un élève de la
+Première (un tableau d'exercices). Les cartes du détail par élève de la Seconde
+et de la Terminale vont dans `.dm-cartes`, en colonnes CSS de 440 px.
+Une boîte sans largeur — cachée, ou le banc jsdom — garde UN tableau : les
+contrôles qui lisent `#dmResults table` lisent toujours le premier paquet,
+en-têtes compris. Mesuré dans Chromium sur 28 élèves : en Seconde, 4 colonnes
+à 1400 px, 2 à 820 px, 1 à 390 px, sans débordement horizontal ; la hauteur du
+bilan et du détail passe de ~9 000 px (téléphone) à ~2 900 px à 1400 px.

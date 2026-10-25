@@ -3192,7 +3192,7 @@ function branchements(w){
      professeur — et renderDmMoyennes(), qui nomme les tables du niveau. Les
      nommer est ce qui empêche la liste de se vider en silence. */
   const MOTEUR_MOYENNES = ['dmMeilleur','dmMoyennes','dmMoyFamille','dmMoyennesHTML',
-                           'csvTelecharger','dmMoyennesCSV'];
+                           'csvTelecharger','dmMoyennesCSV','dmEnColonnes'];
   if(src.indexOf('function dmMoyennes(') >= 0){
     const absentes = MOTEUR_MOYENNES.filter(n => corpsDe(src, n) === null);
     verifier('le moteur des moyennes de la classe est au complet',

@@ -416,6 +416,9 @@
   .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
   .tab:hover:not(.on){border-color:#cdd3e0;color:var(--ink)}
   .tpane{display:none}.tpane.on{display:block}
+  .dm-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--dm-colmin,300px)),1fr));gap:10px 16px;align-items:start}
+  .dm-cartes{columns:440px;column-gap:12px}
+  .dm-cartes>.dm-rescard{break-inside:avoid;display:inline-block;width:100%;box-sizing:border-box}
   .tbl{width:100%;border-collapse:collapse;background:#fff;border:1.5px solid var(--line);border-radius:14px;overflow:hidden}
   .tbl th,.tbl td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);font-size:.95rem}
   .tbl th{font-family:"Fredoka";font-weight:500;color:var(--ink-soft);background:#fbfaf6;font-size:.8rem;text-transform:uppercase;letter-spacing:.3px}
@@ -24335,6 +24338,27 @@ function dmNoteDevoir(dev, eleveId, rows){
    la même chose (même CLÉ), et repart sur « Chargement… » quand il va dire
    autre chose — un autre devoir, une autre famille. Une lecture ratée efface
    la clé. */
+/* LE BILAN SE RANGE EN COLONNES quand l'écran le permet (demande de Turquet,
+   octobre 2026) : une classe de trente élèves, un par ligne, faisait défiler
+   plusieurs écrans pour lire une colonne de notes. Les lignes se coupent en
+   paquets CONSÉCUTIFS — l'ordre alphabétique se lit de haut en bas, colonne
+   après colonne —, chaque paquet porte son en-tête, et la grille repasse les
+   paquets l'un sous l'autre si l'écran rétrécit ensuite. Le nombre de paquets
+   se décide sur la largeur de la boîte AU RENDU, jamais moins de `parCol`
+   lignes par colonne : trois colonnes de deux lignes se liraient moins bien
+   qu'une. Une boîte sans largeur (cachée, ou le banc jsdom) garde UN tableau. */
+function dmEnColonnes(box, entete, lignes, largeurMin, parCol){
+  const larg=(box&&box.clientWidth)||0;
+  const parLarg=Math.floor((larg-36+16)/(largeurMin+16));
+  const k=Math.max(1, Math.min(parLarg, Math.ceil(lignes.length/(parCol||6))));
+  const n=Math.max(1, Math.ceil(lignes.length/k));
+  let html='';
+  for(let i=0;i<k;i++){
+    const pq=lignes.slice(i*n,(i+1)*n); if(!pq.length && i) break;
+    html+=`<table class="tbl">${entete}<tbody>${pq.join('')}</tbody></table>`;
+  }
+  return `<div class="dm-cols" style="--dm-colmin:${largeurMin}px">${html}</div>`;
+}
 function dmAttente(box, cle){
   if(!box) return;
   if(box.dataset.dmCle !== cle || !box.innerHTML.trim())
@@ -24395,13 +24419,13 @@ async function renderDevoirResultats(){
       const nb=x.fait?`<span class="dm-note">${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}</span>`:`<span class="dm-note none">— / ${surAff}</span>`;
       const prog=x.nbFait===exos.length?`<b>${x.nbFait} / ${exos.length}</b>`:`<span class="muted">${x.nbFait} / ${exos.length}</span>`;
       return `<tr><td class="name">${esc(x.e.prenom)}</td><td>${nb}</td><td>${prog}</td></tr>`;
-    }).join('');
+    });
     const bilan=`<div class="panel">
       <div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Bilan de la classe</h3>
         <span class="badge ${moy===null?'':pctClass(Math.round(moy/totMax*100))}">${moy===null?'Moyenne : —':('Moyenne : '+fmtNote(dmNoteAff(dmGenre,moy,totMax).note)+' / '+surAff)}</span></div>
       <p class="note" style="margin:0 0 10px">Note du devoir par élève (chaque exercice sur 10, soutien plafonné à 5${exos.some(ex=>dmEstBonus(ex))?' ; un exercice bonus ajoute jusqu\u2019à 1 point sans dépasser le maximum':''})${GENRE_DEVOIRS[dmGenre].sur20?' ; la note de la fiche est ramenée sur 20':''}. « Exercices faits » = nombre d'exercices commencés sur ${exos.length} ; un exercice commencé mais non terminé compte, « en cours », pour ce que l\u2019élève a déjà validé.</p>
       <p class="note" style="margin:0 0 10px">Tu peux <b>modifier la note d’un exercice</b> pour un élève : écris-la sur 10 dans le champ à droite de l’exercice, dans le détail par élève ci-dessous. Elle remplace la note obtenue (qui reste affichée à côté), et vider le champ la rend.</p>
-      <table class="tbl"><thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead><tbody>${bilanRows}</tbody></table>
+      ${dmEnColonnes(box,'<thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead>',bilanRows,300,6)}
     </div>`;
     // 2) Détail par élève
     const cards=synth.map(x=>{
@@ -24429,6 +24453,7 @@ async function renderDevoirResultats(){
       const totLbl=x.fait?`Note : ${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}`:`Note : — / ${surAff}`;
       return `<div class="dm-rescard"><div class="dm-resname">${esc(x.e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
     }).join('');
+    /* les cartes se rangent en colonnes, elles aussi — la grille de la page */
     /* ET LE CHAMP QUI A LE FOCUS LE GARDE. Le bilan est reconstruit à chaque
        note posée : sans cela, le professeur qui passe d'une note à la suivante
        par Tab voit le clavier retomber sur la page à chaque fois. Le champ se
@@ -24438,7 +24463,7 @@ async function renderDevoirResultats(){
     const actif=document.activeElement;
     const focusCle=(actif && box.contains(actif) && actif.getAttribute)
       ? actif.getAttribute('data-cle') : null;
-    box.innerHTML=bilan+'<div class="set-h">Détail par élève</div>'+cards;
+    box.innerHTML=bilan+'<div class="set-h">Détail par élève</div><div class="dm-cartes">'+cards+'</div>';
     if(focusCle){
       const champs=box.querySelectorAll('.dm-noteinput');
       for(let i=0;i<champs.length;i++){
