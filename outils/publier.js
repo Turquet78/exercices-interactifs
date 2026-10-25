@@ -46,7 +46,7 @@ async function transformer(html, nom){
   });
   for(const b of blocs){
     const module = /type\s*=\s*["']module["']/.test(b.attrs);
-    const r = await minify(b.code, { compress: false, mangle: false, module, format: { comments: false, inline_script: true } });
+    const r = await minify(b.code, { compress: false, mangle: false, module, format: { comments: false, inline_script: true, quote_style: 3 } });   /* quote_style 3 : les guillemets d'origine — les bancs relisent des constantes dans la page publiée (DOMAINE_COMPTES…) */
     if(!r.code) throw new Error(nom + ' : terser n’a rien rendu pour un bloc <script' + b.attrs + '>');
     b.sortie = r.code; nScripts++;
   }
