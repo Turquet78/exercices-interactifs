@@ -173,14 +173,17 @@ window.supabase = {
           return { data: touchees, error: null };
         }
         if(op === 'delete'){
+          /* .delete().select('id') rend les lignes PARTIES, comme PostgREST :
+             c'est ainsi qu'une page compte un refus muet. Sans select, rien. */
           if(F.refusMuet){                             /* RLS : rien n'est effacé, rien n'est dit */
             F.journal.push({ op: 'delete', table: nom, n: 0, refusMuet: true });
-            return { data: null, error: null };
+            return { data: etat.colonnes ? [] : null, error: null };
           }
+          const parties = lignes.filter(correspond);
           const gardees = lignes.filter(l => !correspond(l));
           F.journal.push({ op: 'delete', table: nom, n: lignes.length - gardees.length });
           F.tables[nom] = gardees;
-          return { data: null, error: null };
+          return { data: etat.colonnes ? parties.map(l => { const p = {}; etat.colonnes.forEach(c => { p[c] = l[c]; }); return p; }) : null, error: null };
         }
         /* La RLS de la 009 vue par un visiteur (listeFermee) : zéro ligne,
            et aucune erreur — c'est ce silence que la page doit savoir lire. */

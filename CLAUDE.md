@@ -184,6 +184,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Une copie d'écran jointe est FACULTATIVE, et tout le reste en découle.**
 - **Un signalement d'élève est du texte libre tapé par un mineur, et le rejeu se fait sous le compte du professeur.**
 - **Le professeur RÉPOND à un signalement, et c'est la lecture qu'il a fallu renverser.**
+- **Puis l'élève EFFACE la réponse lue — « J'ai lu », et la conséquence assumée de la 008 tombe.** Migration 011 : DELETE de sa ligne répondue, et sur le stockage `remove()` exige aussi la LECTURE.
 - **Le professeur revient aux signalements, à la hauteur où il les avait quittés.**
 - **La case où l'élève ÉCRIT ne se colore pas.**
 - **La case rouge propose de COMPRENDRE l'erreur — et l'explication ne part que sur un clic.**
@@ -518,7 +519,7 @@ mémoire — exprès : aucun contrôle ne doit approcher les comptes réels. Ils
 donc **aveugles aux règles d'accès de la base**, et c'est là qu'étaient les
 fuites. `npm run test:base` comble ce trou sans jamais toucher au projet : il
 lève un PostgreSQL jetable, y recrée l'état d'avant, y joue les vraies
-migrations (001 à 004, 008, 009 et 010 — les 005 à 007 sont du `storage`, propre
+migrations (001 à 004, 008, 009, 010 et 011 — les 005 à 007 sont du `storage`, propre
 à Supabase, que ce banc ne sait pas lever), puis joue chaque rôle — visiteur,
 deux élèves, professeur — et vérifie ce que chacun obtient. Il éprouve aussi
 les scripts qui ÉCRIVENT dans la base vivante — la restauration d'une

@@ -148,7 +148,10 @@ begin
 
   select count(*) into n_pol from pg_policies
    where schemaname = 'storage' and tablename = 'objects'
-     and policyname like 'p_signalements_%';
+     -- ses trois politiques, NOMMÉES : la 011 en pose deux autres sur le même
+     -- bucket, et un « like » les compterait — la 007 rejouée après elle
+     -- refuserait de se déclarer faite.
+     and policyname in ('p_signalements_depot', 'p_signalements_lecture', 'p_signalements_suppression');
 
   select not public into prive from storage.buckets where id = 'signalements';
 

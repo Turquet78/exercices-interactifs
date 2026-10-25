@@ -139,7 +139,7 @@ celui qu'on n'a pas à surveiller, et deux contrôles du banc de la base
 l'exigent (la réponse, et le message). Conséquence assumée : la réponse reste
 sur l'accueil de l'élève tant que le professeur ne supprime pas le signalement,
 et il n'y a pas de « nouveau » à afficher — un état de lecture aurait demandé
-ce droit-là.
+ce droit-là. (Elle est tombée en octobre 2026 : voir « J'ai lu » plus bas.)
 **La migration se joue AVANT la mise en ligne**, comme la 003 et la 007 — mais
 le coût d'un retard change de côté, et c'est le seul endroit du projet où c'est
 le cas : côté ÉLÈVE le panneau se TAIT sur une erreur de lecture (la colonne
@@ -170,6 +170,46 @@ en parlant d'autre chose ; il repasse par `chargerSignalements()`, la vraie
 porte. Treize sabotages en tout, chacun rougissant en nommant son défaut, plus
 deux mutations au banc de la base (la lecture redevenue réservée au professeur,
 et l'élève reçu au droit d'écrire).
+
+**Puis l'élève EFFACE la réponse lue — « J'ai lu », et la conséquence assumée
+de la 008 tombe.** Demande de Turquet (octobre 2026) : « quand il y a une
+réponse du professeur pour l'élève, supprimer le message quand l'élève valide
+la lecture ». Chaque réponse de l'accueil porte un bouton « ✓ J'ai lu »
+(`reponseProfLue()`, les trois niveaux) : le signalement entier part, message,
+réponse et copie d'écran — il quitte aussi la liste du professeur, qui l'a
+traité en répondant.
+**Une SUPPRESSION, pas une marque « lu »**, et c'est ce qui garde le
+raisonnement de la 008 debout : une politique d'UPDATE laisserait l'élève
+réécrire la réponse ; une politique de DELETE ne réécrit rien. La migration 011
+l'ouvre sur SA ligne, et **seulement une fois répondue** — sans cette condition,
+il effacerait ce qu'il vient d'envoyer avant que le professeur l'ait lu. Elle
+s'AJOUTE à celle du professeur (deux permissives, un OU), elle ne la remplace
+pas. Le banc de la base a vu son contrôle « elle ne peut pas effacer un
+signalement » RETOURNÉ, pas retiré : elle efface sa ligne répondue, pas sa
+ligne sans réponse, pas celle de Bob — relues sous le superutilisateur, car un
+« not found » sous la RLS dit que la ligne n'a pas été vue, pas qu'elle est
+restée — et deux mutations le font rougir (la condition oubliée, la politique
+retirée).
+**La capture d'abord, et `remove()` exige de VOIR.** La politique du stockage
+vérifie que l'image est désignée par une ligne à lui, répondue : la ligne
+partie, plus rien ne le prouverait — d'où l'ordre. Et une politique de
+suppression SEULE ne supprime rien : `remove()` efface par un `where name in
+(…) returning`, qu'une ligne cachée par la politique SELECT ne rencontre
+jamais — sans erreur. Le banc de la base ne lève pas `storage` ; c'est un essai
+sur une base jetable, un `storage.objects` imité, qui l'a montré (aucune
+capture effacée), et la 011 pose donc la même condition en lecture. L'élève
+relit SA capture d'un signalement répondu, et aucune autre. Une image qui ne
+part pas n'empêche pas la ligne de partir : l'élève n'a rien à faire d'un refus
+du stockage.
+**Le refus muet se compte**, comme pour la réponse du professeur : sans la 011,
+PostgREST rend « 0 ligne » — la page redemande les lignes parties
+(`.delete().select('id')`, que le double rend désormais comme PostgREST), et à
+zéro la réponse reste à l'écran avec « ne peut pas encore être effacée » : sans
+quoi elle disparaîtrait, puis reviendrait à la connexion suivante.
+**Un piège payé en passant** : le contrôle final de la 007 comptait
+`policyname like 'p_signalements_%'` = 3 ; la 011 en pose deux autres sur le
+même bucket, et la 007 rejouée après elle aurait refusé de se déclarer faite.
+Elle nomme maintenant ses trois politiques.
 
 **Le professeur revient aux signalements, à la hauteur où il les avait
 quittés.** Demande de Turquet (octobre 2026), sur les trois niveaux : « quand

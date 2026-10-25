@@ -377,16 +377,45 @@ begin
     end;
     perform pg_temp.exige('elle ne réécrit pas son propre message', ok);
 
-    -- Ni effacer celui qu'elle vient de déposer, une fois qu'il est parti.
+    -- LA SUPPRESSION A ÉTÉ OUVERTE PAR LA MIGRATION 011, et sur un seul bord :
+    -- « J'ai lu » efface SA ligne une fois que le professeur y a répondu
+    -- (demande de Turquet, octobre 2026). Celle qu'elle vient de déposer, sans
+    -- réponse encore, reste au professeur — sans quoi elle l'effacerait avant
+    -- qu'il l'ait lue.
     begin
-      delete from public.signalements_2nde;
+      delete from public.signalements_2nde where reponse is null;
       ok := not found;
     exception when insufficient_privilege then ok := true;
     end;
-    perform pg_temp.exige('elle ne peut pas effacer un signalement', ok);
+    perform pg_temp.exige('elle n''efface pas un signalement resté sans réponse', ok);
+
+    -- Ni celui de Bob, répondu ou non.
+    begin
+      delete from public.signalements_2nde
+       where eleve_id in (select id from public.eleves_2nde where cle = 'cle-bob');
+      ok := not found;
+    exception when insufficient_privilege then ok := true;
+    end;
+    perform pg_temp.exige('elle n''efface pas le signalement de Bob', ok);
+
+    -- Mais la réponse qu'elle a lue, oui : c'est le bouton « J'ai lu ».
+    delete from public.signalements_2nde where reponse like 'REPONSE POUR ALICE%';
+    perform pg_temp.exige('elle efface la réponse qu''elle a lue (« J''ai lu »)', found);
   end if;
 
   reset role;
+
+  -- Relu sous le superutilisateur, qui voit tout : un « not found » sous la RLS
+  -- ne prouve pas que la ligne est restée, il prouve qu'elle n'a pas été vue.
+  if to_regclass('public.signalements_2nde') is not null then
+    select count(*) into n from public.signalements_2nde
+     where eleve_id in (select id from public.eleves_2nde where cle = 'cle-bob');
+    perform pg_temp.exige('le signalement de Bob est toujours là (' || n || ')', n = 1);
+    select count(*) into n from public.signalements_2nde
+     where reponse is null
+       and eleve_id in (select id from public.eleves_2nde where cle = 'cle-alice');
+    perform pg_temp.exige('celui qu''elle vient de déposer aussi (' || n || ')', n = 1);
+  end if;
 end $$;
 
 -- ==========================================================================
@@ -430,7 +459,8 @@ begin
 
   if to_regclass('public.signalements_2nde') is not null then
     select count(*) into n from public.signalements_2nde;
-    perform pg_temp.exige('il voit les signalements de TOUTE la classe (' || n || ')', n = 3);
+    -- 2 et non 3 : Alice a effacé la réponse qu'elle avait lue (migration 011).
+    perform pg_temp.exige('il voit les signalements de TOUTE la classe (' || n || ')', n = 2);
 
     update public.signalements_2nde set reponse = 'ma réponse', repondu_at = now(), lu = true
      where reponse is null;
