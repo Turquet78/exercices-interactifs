@@ -694,6 +694,32 @@ bilan('010 demande à PostgREST de recharger son cache de schéma',
 }
 
 /* ---------------------------------------------------------------------------
+   1 octies. La migration 011 — « J'ai lu » efface la réponse
+   -------------------------------------------------------------------------
+   Demande de Turquet (octobre 2026) : l'élève qui a lu la réponse du
+   professeur l'efface. La 011 lui ouvre le DELETE de sa propre ligne, et
+   seulement une fois RÉPONDUE ; le banc des rôles, plus bas, en exerce les
+   bords (sa ligne sans réponse, celle de Bob, la sienne répondue). Ici : les
+   TROIS tables, la politique qui nomme le compte ET la réponse, celle du
+   professeur laissée en place, le stockage annoncé sauté — ce PostgreSQL n'en
+   a pas —, et le rejeu. */
+const MIG11 = path.join(RACINE, 'supabase/migrations/011_eleve_efface_la_reponse_lue.sql');
+const s11 = psql('banc', ['-f', MIG11]);
+bilan('011 ouvre « J’ai lu » sur les trois tables de signalements',
+  (s11.match(/efface sa ligne une fois répondue/g) || []).length === 3,
+  (s11.match(/efface sa ligne une fois répondue/g) || []).length + ' table(s) sur 3');
+bilan('elle annonce l’étape du stockage sautée, au lieu de la taire',
+  /stockage absent \(PostgreSQL ordinaire\) : étape 2 sautée/.test(s11), 'aucune mention de l’étape 2');
+const del11 = psql('banc', ['-tAc',
+  `select string_agg(policyname, ',' order by policyname) from pg_policies
+    where schemaname='public' and tablename like 'signalements%' and cmd='DELETE'`]).trim();
+bilan('elle AJOUTE la politique de l’élève, celle du professeur reste (' + del11 + ')',
+  del11 === 'p_signalements_1ere_eleve_lu,p_signalements_1ere_prof_suppr,p_signalements_2nde_eleve_lu,p_signalements_2nde_prof_suppr,p_signalements_eleve_lu,p_signalements_prof_suppr',
+  del11);
+const r11 = psql('banc', ['-f', MIG11], true);
+bilan('rejouer 011 ne fait plus rien', !r11.erreur, r11.erreur);
+
+/* ---------------------------------------------------------------------------
    2. Ce que chaque rôle peut réellement faire
    ------------------------------------------------------------------------- */
 console.log('\n2. CE QUE CHAQUE RÔLE OBTIENT DE LA BASE');
@@ -765,6 +791,18 @@ const MUTATIONS = [
        for update to authenticated
        using (exists (select 1 from public.eleves_2nde e where e.id = eleve_id and e.user_id = auth.uid()))
        with check (exists (select 1 from public.eleves_2nde e where e.id = eleve_id and e.user_id = auth.uid()))`]],
+  /* « J'ai lu » sans sa condition : la politique qui oublie « reponse is not
+     null » laisse l'élève effacer ce qu'il vient d'envoyer, avant que le
+     professeur l'ait lu — le signalement disparaît sans que personne le sache. */
+  ['l’élève efface un signalement encore sans réponse',
+   ['drop policy p_signalements_2nde_eleve_lu on public.signalements_2nde',
+    `create policy p_signalements_2nde_eleve_lu on public.signalements_2nde
+       for delete to authenticated
+       using (exists (select 1 from public.eleves_2nde e where e.id = eleve_id and e.user_id = auth.uid()))`]],
+  /* Et l'autre bord : la politique absente (la 011 pas jouée, ou retirée dans
+     la console). Le bouton « J'ai lu » ne ferait plus rien. */
+  ['« J’ai lu » ne peut plus rien effacer',
+   ['drop policy p_signalements_2nde_eleve_lu on public.signalements_2nde']],
   /* Le retour en arrière le plus tentant, maintenant que la liste est
      rouverte : la REFERMER aux visiteurs — rejouer la 009 « pour voir », ou
      reposer la politique pour authenticated seul depuis la console. Les
@@ -785,7 +823,7 @@ const MUTATIONS = [
    octobre 2026, avant que la 009 n'entre dans la boucle ci-dessous, huit
    mutations restaient « détectées » pour une fonction absente : un banc vert
    sur huit détections qui ne mesuraient rien. La boucle joue donc l'état
-   FINAL — 001 à 004, 008, puis 009 et 010 —, celui sur lequel
+   FINAL — 001 à 004, 008, 011, puis 009 et 010 —, celui sur lequel
    base-controles.sql écrit ses attentes ; sans la 010, la liste fermée par
    la 009 ferait rougir chaque mutation au premier contrôle du visiteur, pour
    une cause qui n'est pas la sienne. Et chaque mutation nomme la ligne ÉCHEC
@@ -800,6 +838,8 @@ const CAUSES = {
   /* la lecture rendue au seul professeur cache d'abord ses PROPRES signalements à l'élève : c'est ce contrôle-là qui rougit le premier */
   'la réponse du professeur redevient invisible à son destinataire': /ÉCHEC : elle relit SES signalements, et eux seuls \(0\)/,
   'l’élève reçoit le droit de réécrire sa ligne de signalement': /ÉCHEC : elle ne peut écrire aucune réponse, pas même sur sa ligne/,
+  'l’élève efface un signalement encore sans réponse': /ÉCHEC : elle n'efface pas un signalement resté sans réponse/,
+  '« J’ai lu » ne peut plus rien effacer': /ÉCHEC : elle efface la réponse qu'elle a lue/,
   'la liste se referme aux visiteurs': /ÉCHEC : il voit la liste des prénoms \(0\)/,
   'la clé ne se lit plus sans connexion (droit de colonne retiré)': /ÉCHEC : il lit aussi la clé de chacun, dont la pastille dérive l'adresse de connexion \(refusée\)/,
 };
@@ -811,6 +851,7 @@ MUTATIONS.forEach(([nom, sqls], i) => {
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/003_signalements.sql')]);
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/004_pause_de_l_eleve.sql')]);
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/008_reponse_au_signalement.sql')]);
+  psql(bd, ['-f', MIG11]);
   /* La 009 PUIS la 010, PARTOUT où le banc des rôles est joué : c'est le
      chemin le plus long qu'ait pu suivre le projet, et la preuve que la 010
      défait la 009 pour tout ce que le banc des rôles mesure. Sans la 010, la

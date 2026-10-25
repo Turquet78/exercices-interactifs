@@ -3792,6 +3792,16 @@ if(require.main === module) (async () => {
             res['lu_' + cle] = t ? t.textContent : '';
             res['panneau_' + cle] = haut(document.getElementById('repProf'));
           }
+          /* 2 bis. « J'AI LU » (octobre 2026) : le bouton se voit, se CLIQUE,
+             et le panneau disparaît de l'accueil — mesuré au rectangle, comme
+             le reste — pendant que la ligne quitte la base. */
+          semer(AVEC);
+          await chargerReponsesProf(); await attendre(60);
+          const lu = Array.from(document.querySelectorAll('#repProf button')).find(b => /J.ai lu/.test(b.textContent));
+          res.luBouton = lu ? Math.round(lu.getBoundingClientRect().height) : 0;
+          if(lu){ lu.click(); await attendre(200); }
+          res.luApres = haut(document.getElementById('repProf'));
+          res.luLignes = (window.__faux.tables[TABLE_SIG] || []).length;
           /* 3. la MÊME règle sur la carte du professeur : le bloc CSS est
              commun, mais deux familles de classes y vivent — en mesurer une
              seule laisserait l'autre libre de perdre ses lignes. */
@@ -3817,6 +3827,9 @@ if(require.main === module) (async () => {
         verifier('l\'élève lit la réponse de son professeur sur son accueil',
           m.panneau_avec > 0 && String(m.lu_avec || '').indexOf('rappel de cours') >= 0,
           'panneau : ' + m.panneau_avec + ' px — lu : « ' + String(m.lu_avec || '').slice(0, 60) + ' »');
+        verifier('« J’ai lu » se voit, se clique, et la réponse quitte l’accueil et la base',
+          m.luBouton > 0 && m.luApres === 0 && m.luLignes === 0,
+          'bouton : ' + m.luBouton + ' px, panneau après le clic : ' + m.luApres + ' px, lignes restantes : ' + m.luLignes);
         /* Deux hauteurs nulles ne veulent pas dire « les retours sont perdus » :
            elles veulent dire que RIEN n'a été mesuré. */
         const juge = (intitule, a, b) => {

@@ -556,8 +556,8 @@ message — ou votre réponse. Le droit qu'on ne donne pas est celui qu'on n'a p
 à surveiller.
 
 Conséquence à connaître : la réponse reste sur l'accueil de l'élève tant que
-vous ne supprimez pas le signalement. C'est le bouton « Supprimer » de la carte
-qui la retire.
+vous ne supprimez pas le signalement — ou, depuis la migration 011 (section
+3 undecies), tant que l'élève n'a pas appuyé sur « J'ai lu ».
 
 ### Ce que le banc voit
 
@@ -926,6 +926,52 @@ Ce qu'il ne voit pas : **dans quel état est votre projet**. La 010 a été
 jouée le 14 octobre 2026 (« Success. No rows returned ») ; l'« état trouvé »
 qu'elle annonçait part en `NOTICE` et ne s'est pas affiché : on ne saura pas si
 la 009 l'avait précédée — et, la 010 jouée, cela n'a plus d'importance.
+
+## 3 undecies. « J'ai lu » : l'élève efface la réponse (1 min)
+
+Collez **`migrations/011_eleve_efface_la_reponse_lue.sql`** dans l'éditeur SQL
+et exécutez-le. **Collez le fichier ENTIER.** Elle suppose la 007 et la 008.
+
+Demande de Turquet (octobre 2026) : *« quand il y a une réponse du professeur
+pour l'élève, supprimer le message quand l'élève valide la lecture »*. Chaque
+réponse porte sur l'accueil de l'élève un bouton **« ✓ J'ai lu »** : il efface
+le signalement entier — son message, votre réponse, et la copie d'écran jointe.
+Il disparaît aussi de votre liste de signalements.
+
+**À jouer AVANT la mise en ligne de la page qui porte le bouton.** Sans elle,
+la base refuse en silence ; la page le voit (elle compte les lignes effacées)
+et dit à l'élève « Cette réponse ne peut pas encore être effacée » — rien ne
+casse, mais rien ne s'efface.
+
+### Ce qu'elle pose
+
+- sur les trois tables de signalements, une politique de **suppression** pour
+  l'élève : **sa propre ligne, et seulement si vous y avez répondu**. Un
+  signalement encore sans réponse reste à vous. Elle s'**ajoute** à celle du
+  professeur, qui ne change pas ;
+- sur le bucket « signalements », la même condition en **suppression ET en
+  lecture** : `remove()` de Supabase ne supprime que ce que la politique de
+  lecture laisse voir — sans la seconde, la capture restait, sans erreur
+  (vérifié sur une base d'essai). L'élève peut donc relire SA capture d'un
+  signalement répondu, et aucune autre ; la page ne la lui affiche pas.
+
+Toujours **aucun UPDATE** pour l'élève : une suppression ne réécrit rien.
+
+### Ce que le banc voit
+
+`npm run test:base` joue l'étape des tables et exerce ses bords : l'élève
+efface sa ligne répondue, pas celle qu'elle vient d'envoyer, pas celle de Bob ;
+deux mutations (la condition sur la réponse oubliée, la politique retirée)
+doivent le faire rougir. **L'étape du stockage ne s'y joue pas** — ce
+PostgreSQL n'a pas de schéma `storage` ; elle s'annonce « sautée » — et se
+contrôle à la fin du fichier sur le projet. À relire après coup :
+
+```sql
+select tablename, policyname, cmd from pg_policies
+ where policyname like 'p_signalements%' order by 1, 2;
+```
+
+---
 
 ## 4. Vous déclarer professeur (1 min)
 

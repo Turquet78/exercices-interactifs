@@ -27299,6 +27299,49 @@ function repondreSignalementCtrl(w, apres){
       bilan.echappeEleve=panneau.innerHTML.indexOf('&lt;b&gt;')>=0
                       && panneau.querySelectorAll('script,b').length===0;
 
+      /* 6 bis. « J'AI LU » — le signalement part, avec sa copie d'écran, et le
+         panneau se replie quand il n'y a plus rien à lire. Demande de Turquet
+         (octobre 2026). Le bouton se cherche dans le panneau et se CLIQUE :
+         une fonction parfaite qu'aucun bouton n'appelle ne s'efface jamais. */
+      semer();
+      window.__faux.tables[TS][0].reponse='Bien vu, je corrige ce soir.';
+      window.__faux.tables[TS][0].repondu_at='2026-08-03T11:00:00Z';
+      window.__faux.tables[TS][0].capture='e1/capture-s1.jpg';
+      window.__faux.fichiers[SIG_BUCKET]={'e1/capture-s1.jpg':{taille:1,type:'image/jpeg'}};
+      currentEleve={id:'e1',prenom:'Theo'};
+      await chargerReponsesProf();
+      const boutonLu=Array.from(document.querySelectorAll('#repProf button')).filter(function(x){ return /J.ai lu/.test(x.textContent); })[0];
+      bilan.boutonLu=!!boutonLu;
+      /* Le bouton doit APPELER l'effacement de CETTE ligne ; on attend alors
+         la promesse elle-même. Jamais de setTimeout ici : un minuteur rend la
+         main, et le minuteur d'un contrôle antérieur en profitait pour
+         remplacer sb par son double — le cas suivant lisait alors une base
+         qui n'était plus la sienne. Le vrai clic se mesure dans Chromium
+         (banc navigateur, « 6 septies quinquies »). */
+      /* une comparaison de chaîne, pas une expression régulière : ce code vit
+         dans un gabarit, qui mange les « \\( » et les « \\s » */
+      bilan.boutonAppelle=!!boutonLu && String(boutonLu.getAttribute('onclick')||'').replace(/ /g,'')==="reponseProfLue('s1')";
+      bilan.boutonOnclick=boutonLu ? String(boutonLu.getAttribute('onclick')) : '';
+      if(bilan.boutonAppelle) await reponseProfLue('s1');
+      bilan.luPartie=!(window.__faux.tables[TS]||[]).some(function(l){ return l.id==='s1'; });
+      bilan.luCamarade=(window.__faux.tables[TS]||[]).some(function(l){ return l.id==='s2'; });
+      bilan.luImage=!(window.__faux.fichiers[SIG_BUCKET]||{})['e1/capture-s1.jpg'];
+      bilan.luReplie=document.getElementById('repProf').hidden===true;
+      /* et le refus muet (migration 011 non jouée) : la réponse RESTE, et
+         l'élève lit pourquoi — sans quoi elle reviendrait à la connexion
+         suivante sans explication */
+      semer();
+      window.__faux.tables[TS][0].reponse='Bien vu, je corrige ce soir.';
+      window.__faux.tables[TS][0].repondu_at='2026-08-03T11:00:00Z';
+      currentEleve={id:'e1',prenom:'Theo'};
+      await chargerReponsesProf();
+      bilan.luRefusAvant=mesReponses.length+' réponse(s) affichée(s)';
+      window.__faux.refusMuet=true;
+      try{ await reponseProfLue('s1'); } finally { window.__faux.refusMuet=false; }
+      bilan.luRefus=dits.join(' | ');
+      bilan.luRefusReste=document.getElementById('repProf').hidden===false
+                      && document.getElementById('repProf').textContent.indexOf('je corrige ce soir')>=0;
+
       /* 7. sans réponse, PAS de panneau : l'accueil reste ce qu'il était */
       semer();
       currentEleve={id:'e1',prenom:'Theo'};
@@ -27360,6 +27403,13 @@ function repondreSignalementCtrl(w, apres){
     verifier('la réponse faite à un camarade n’apparaît pas chez lui',
       r.ok && b.camarade === false && b.filtre === true,
       souci || 'réponse d’un autre élève visible : ' + b.camarade + ' — filtre eleve_id : ' + b.filtre);
+    verifier('« J’ai lu » efface la réponse, sa copie d’écran, et replie le panneau',
+      r.ok && b.boutonLu === true && b.boutonAppelle === true && b.luPartie === true && b.luImage === true && b.luReplie === true && b.luCamarade === true,
+      souci || 'bouton : ' + b.boutonLu + ' (appelle reponseProfLue(\'s1\') : ' + b.boutonAppelle + ' — onclick « ' + b.boutonOnclick + ' »), ligne effacée : ' + b.luPartie + ', image effacée : ' + b.luImage +
+               ', panneau replié : ' + b.luReplie + ', ligne du camarade intacte : ' + b.luCamarade);
+    verifier('« J’ai lu » refusé EN SILENCE par la base laisse la réponse, et le dit',
+      r.ok && /err:/.test(String(b.luRefus||'')) && b.luRefusReste === true,
+      souci || 'l’élève a lu « ' + b.luRefus + ' » — panneau encore là : ' + b.luRefusReste + ' — avant : ' + b.luRefusAvant);
     verifier('sans réponse, l’accueil reste exactement ce qu’il était',
       r.ok && b.muetteVide === true,
       souci || 'le panneau des réponses s’affiche alors qu’il n’y en a aucune');
