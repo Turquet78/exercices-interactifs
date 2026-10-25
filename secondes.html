@@ -8721,7 +8721,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=611;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=612;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -57762,15 +57762,20 @@ function renderSFTest(){
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkSFAnswer(); } }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
-/* Montre ③ et ④ dès que les trois cases de l'étape ② sont écrites, et pour
-   de bon : q.svu est rangé dans la question, la reprise d'une pause les
-   remontre. La vérification les montre toujours (force) — la correction en
-   vert doit pouvoir s'y écrire. */
+/* Montre ③ et ④ quand la fraction écrite à l'étape ② SE SIMPLIFIE, et
+   les recache quand elle ne se simplifie pas : un résultat faux et
+   irréductible ne se voit pas proposer de division (demande de Turquet,
+   octobre 2026). Tant que l'étape ② n'est pas entièrement lisible, rien ne
+   bouge — effacer pour réécrire ne fait pas clignoter la chaîne. q.svu est
+   rangé dans la question, la reprise d'une pause le relit. La vérification
+   les montre toujours (force) — la correction en vert doit pouvoir s'y
+   écrire. */
 function sfMontrerApres(q, force){
   if(!q) return;
   if(force) q.svu=true;
-  if(!q.svu && ['sf-num1','sf-num2','sf-den'].every(function(id){ const el=$(id); return el && String(el.value||'').trim()!==''; })) q.svu=true;
-  if(q.svu) document.querySelectorAll('#sfHost .sf-apres').forEach(function(e){ e.style.display=''; });
+  else { const a=sfLu('sf-num1'), b=sfLu('sf-num2'), d=sfLu('sf-den');
+    if(!isNaN(a) && !isNaN(b) && !isNaN(d) && d!==0) q.svu=gcd(q.op==='+'?a+b:a-b, d)>1; }
+  document.querySelectorAll('#sfHost .sf-apres').forEach(function(e){ e.style.display=q.svu?'':'none'; });
 }
 /* Ce que l'élève a écrit, en entier — vide ou illisible rend NaN. */
 function sfLu(id){ const el=$(id); if(!el) return NaN; const t=String(el.value||'').trim();

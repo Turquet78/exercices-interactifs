@@ -8785,6 +8785,13 @@ function fractionsEtapes(w, P){
       if($$('mlt-e0-dn')) vus.push('produit : la division s’affiche alors que seul le numérateur de 6/15 est écrit');
       tape('mlt-fd',15);
       if(!$$('mlt-e0-dn')) vus.push('produit : 6/15 écrit, et la division n’apparaît pas');
+      /* un résultat faux et irréductible ne se voit pas proposer de division */
+      tape('mlt-fd',14);
+      if(!$$('mlt-e0-dn')) vus.push('produit : 6/14 se simplifie, et la division disparaît');
+      tape('mlt-fd',7);
+      if($$('mlt-e0-dn')) vus.push('produit : 6/7 (faux, irréductible) écrit, et la division reste proposée');
+      tape('mlt-fd',15);
+      if(!$$('mlt-e0-dn')) vus.push('produit : 6/15 récrit après 6/7, et la division ne revient pas');
       if($$('mlt-e1-dn')) vus.push('produit : 6/15 n’a besoin que d’une étape au départ');
       if(($$('mlt-e0-an')||{}).textContent!=='6') vus.push('produit : le nombre divisé ne recopie pas 6');
       tape('mlt-e0-dn',3); tape('mlt-e0-n',2); tape('mlt-e0-d',5);
@@ -53145,6 +53152,12 @@ function simplifierFractions(w, P){
       tp('sf-den',6);
       if(!vus2().length || !vus2().every(Boolean)) vus.push('l\\'étape ② écrite, la division reste cachée');
       if(!q.svu) vus.push('la division montrée n\\'est pas rangée dans la question (q.svu)');
+      /* une somme fausse et irréductible (27 + 4 = 31, sur 6) ne se voit pas
+         proposer de division ; corrigée, la division revient */
+      tp('sf-num2',4);
+      if(vus2().some(Boolean)) vus.push('31/6 (faux, irréductible) écrit, et la division reste proposée');
+      tp('sf-num2',5);
+      if(!vus2().every(Boolean)) vus.push('32/6 récrit après 31/6, et la division ne revient pas');
       renderSFTest();
       if(!vus2().every(Boolean)) vus.push('après un redessin (reprise), la division montrée est de nouveau cachée');
       delete q.svu; renderSFTest(); checkSFAnswer();
@@ -53594,6 +53607,12 @@ function revisionFractions(w, P){
     base();
     if(!$$('rvf-s0-dn') || $$('rvf-s1-dn')) vus.push('6/12 écrit : il faut exactement une étape de simplification');
     if(($$('rvf-s0-an')||{}).textContent!=='6' || ($$('rvf-s0-ad')||{}).textContent!=='12') vus.push('les nombres divisés ne recopient pas 6/12');
+    /* UN RÉSULTAT FAUX ET IRRÉDUCTIBLE NE SE VOIT PAS PROPOSER DE DIVISION
+       (octobre 2026) : 5/12 écrit, la chaîne disparaît ; 6/12 récrit, elle revient */
+    tape('rvf-num',5);
+    if($$('rvf-s0-dn')) vus.push('5/12 (faux, irréductible) écrit, et la division reste proposée');
+    tape('rvf-num',6);
+    if(!$$('rvf-s0-dn')) vus.push('6/12 récrit après 5/12, et la division ne revient pas');
     tape('rvf-s0-dn',2);
     if(($$('rvf-s0-dd')||{}).value!=='2') vus.push('le diviseur écrit en haut ne se recopie pas en bas');
     if(!$$('rvf-s1-dn')) vus.push('6/12 ÷ 2 = 3/6 se simplifie encore, et aucune nouvelle étape ne s’ouvre');

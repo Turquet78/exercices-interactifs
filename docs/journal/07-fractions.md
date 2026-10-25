@@ -1994,3 +1994,29 @@ fraction l'est — et la correction écrite dans un diviseur vérifié vide
 cachés, montrés, rangés, redessinés, et montrés par la vérification. Au banc
 navigateur (« 6 terdecies bis »), le produit tapé au clavier exige la même
 chose, et la grille du 4.6 se mesure la chaîne montrée.
+
+**Puis la chaîne ne suit qu'une fraction QUI SE SIMPLIFIE — un résultat faux
+et irréductible ne se voit pas proposer de division (octobre 2026, Première
+v344, Seconde v612).** Demande de Turquet, copie d'écran du 4.1 à l'appui :
+5/2 − 1/2, l'élève écrit 3/2 (faux), et la page posait « 3 ÷ … / 2 ÷ … » —
+parce que la BONNE réponse, 4/2, se simplifie. La chaîne disait « ta fraction
+se simplifie » à une fraction qui ne se simplifie pas.
+
+* La règle d'ouverture change de « les deux cases sont écrites » à « la
+  fraction écrite se simplifie » (`fracEcriteSimplifiable`, Première :
+  `seVue` pour les 4.2 à 4.6, `rvfMajSimp` pour le 4.1 ; `sfMontrerApres`
+  dans le moteur sf partagé, sur (num1 ± num2)/den de l'étape ②).
+* Elle n'est plus collante dans un sens seulement : une fraction complète et
+  irréductible REFERME la chaîne (`q.svu=false`, rangé pour la reprise), une
+  fraction qui se simplifie la rouvre. Une fraction pas encore lisible — une
+  case vide, effacée pour être réécrite — ne change rien : la chaîne ne
+  clignote pas sous les doigts. Refermée en Première, les diviseurs écrits
+  sont perdus (l'élève a changé sa fraction, ils sont à refaire) ; en Seconde,
+  ③ et ④ ne sont que cachés.
+* La vérification la montre toujours (`force`) : la correction en vert y
+  écrit la simplification de la bonne réponse.
+
+Contrôles (banc principal) : 4.1 — 5/12 écrit referme la chaîne de 6/12,
+6/12 récrit la rouvre ; produit (4.4) — 6/14 la garde, 6/7 la referme, 6/15
+la rouvre ; {simplifier-fractions} (Seconde) — 27 + 4 sur 6 la cache, 27 + 5
+la remontre.
