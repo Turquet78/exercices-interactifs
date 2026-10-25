@@ -1997,7 +1997,7 @@ chose, et la grille du 4.6 se mesure la chaîne montrée.
 
 **Puis la chaîne ne suit qu'une fraction QUI SE SIMPLIFIE — un résultat faux
 et irréductible ne se voit pas proposer de division (octobre 2026, Première
-v343, Seconde v611).** Demande de Turquet, copie d'écran du 4.1 à l'appui :
+v344, Seconde v612).** Demande de Turquet, copie d'écran du 4.1 à l'appui :
 5/2 − 1/2, l'élève écrit 3/2 (faux), et la page posait « 3 ÷ … / 2 ÷ … » —
 parce que la BONNE réponse, 4/2, se simplifie. La chaîne disait « ta fraction
 se simplifie » à une fraction qui ne se simplifie pas.
