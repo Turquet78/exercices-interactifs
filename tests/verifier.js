@@ -27312,7 +27312,14 @@ function repondreSignalementCtrl(w, apres){
       await chargerReponsesProf();
       const boutonLu=Array.from(document.querySelectorAll('#repProf button')).filter(function(x){ return /J.ai lu/.test(x.textContent); })[0];
       bilan.boutonLu=!!boutonLu;
-      if(boutonLu){ boutonLu.click(); await new Promise(function(ok){ setTimeout(ok,30); }); }
+      /* Le bouton doit APPELER l'effacement de CETTE ligne ; on attend alors
+         la promesse elle-même. Jamais de setTimeout ici : un minuteur rend la
+         main, et le minuteur d'un contrôle antérieur en profitait pour
+         remplacer sb par son double — le cas suivant lisait alors une base
+         qui n'était plus la sienne. Le vrai clic se mesure dans Chromium
+         (banc navigateur, « 6 septies quinquies »). */
+      bilan.boutonAppelle=!!boutonLu && /reponseProfLue\(\s*'s1'\s*\)/.test(boutonLu.getAttribute('onclick')||'');
+      if(bilan.boutonAppelle) await reponseProfLue('s1');
       bilan.luPartie=!(window.__faux.tables[TS]||[]).some(function(l){ return l.id==='s1'; });
       bilan.luCamarade=(window.__faux.tables[TS]||[]).some(function(l){ return l.id==='s2'; });
       bilan.luImage=!(window.__faux.fichiers[SIG_BUCKET]||{})['e1/capture-s1.jpg'];
@@ -27325,6 +27332,7 @@ function repondreSignalementCtrl(w, apres){
       window.__faux.tables[TS][0].repondu_at='2026-08-03T11:00:00Z';
       currentEleve={id:'e1',prenom:'Theo'};
       await chargerReponsesProf();
+      bilan.luRefusAvant=mesReponses.length+' réponse(s) affichée(s)';
       window.__faux.refusMuet=true;
       try{ await reponseProfLue('s1'); } finally { window.__faux.refusMuet=false; }
       bilan.luRefus=dits.join(' | ');
@@ -27393,12 +27401,12 @@ function repondreSignalementCtrl(w, apres){
       r.ok && b.camarade === false && b.filtre === true,
       souci || 'réponse d’un autre élève visible : ' + b.camarade + ' — filtre eleve_id : ' + b.filtre);
     verifier('« J’ai lu » efface la réponse, sa copie d’écran, et replie le panneau',
-      r.ok && b.boutonLu === true && b.luPartie === true && b.luImage === true && b.luReplie === true && b.luCamarade === true,
-      souci || 'bouton : ' + b.boutonLu + ', ligne effacée : ' + b.luPartie + ', image effacée : ' + b.luImage +
+      r.ok && b.boutonLu === true && b.boutonAppelle === true && b.luPartie === true && b.luImage === true && b.luReplie === true && b.luCamarade === true,
+      souci || 'bouton : ' + b.boutonLu + ' (appelle reponseProfLue(\'s1\') : ' + b.boutonAppelle + '), ligne effacée : ' + b.luPartie + ', image effacée : ' + b.luImage +
                ', panneau replié : ' + b.luReplie + ', ligne du camarade intacte : ' + b.luCamarade);
     verifier('« J’ai lu » refusé EN SILENCE par la base laisse la réponse, et le dit',
       r.ok && /err:/.test(String(b.luRefus||'')) && b.luRefusReste === true,
-      souci || 'l’élève a lu « ' + b.luRefus + ' » — panneau encore là : ' + b.luRefusReste);
+      souci || 'l’élève a lu « ' + b.luRefus + ' » — panneau encore là : ' + b.luRefusReste + ' — avant : ' + b.luRefusAvant);
     verifier('sans réponse, l’accueil reste exactement ce qu’il était',
       r.ok && b.muetteVide === true,
       souci || 'le panneau des réponses s’affiche alors qu’il n’y en a aucune');

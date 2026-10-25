@@ -4546,7 +4546,8 @@ async function reponseProfLue(id){
 }
 async function reponseProfLueSuite(r,id){
   if(r.capture){
-    try{ await sb.storage.from(SIG_BUCKET).remove([r.capture]); }catch(e){}
+    try{ const {error}=await sb.storage.from(SIG_BUCKET).remove([r.capture]);
+      if(error) console.warn('Copie d\u2019\u00e9cran non effac\u00e9e : '+(error.message||error)); }catch(e){}
   }
   try{
     const {data:parties,error}=await sb.from(TABLE_SIG).delete().eq('id',id).select('id');
