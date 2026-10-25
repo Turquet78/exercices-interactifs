@@ -8718,7 +8718,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=608;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=609;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -57675,6 +57675,12 @@ function renderSFTest(){
        +'<span class="sf-l">'+mf('sf-sd','f-den','dénominateur obtenu')
        +'<span class="f-times">÷</span>'+mf('sf-q2','f-den','diviseur du dénominateur')+'</span>'
      +'</span>';
+  /* LA DIVISION N'APPARAÎT QU'À LA FIN DU CALCUL (demande de Turquet, octobre
+     2026) : ③ et ④ restent cachés tant que l'étape ② n'est pas écrite — posés
+     d'emblée, ils disaient « il faudra simplifier » avant que le calcul soit
+     fait. Cachés, pas absents : leurs cases existent, et la flèche → les saute
+     (pmNavListe ne garde que les cases visibles). sfMontrerApres les montre. */
+  const apres=h=>h.split('<span class="f-grp"').join('<span style="display:none" class="f-grp sf-apres"');
   const versFraction = (q.d1===1 || q.d2===1);
   $('sfHost').innerHTML=
     '<div class="pt-step"><div class="pt-lab">① mettre au même dénominateur&nbsp;· ② écrire la '
@@ -57691,9 +57697,12 @@ function renderSFTest(){
        +mf('sf-num2','f-num','second numérateur')+'</span>'
        +'<span class="f-fbar"></span>'
        +mf('sf-den','f-den','dénominateur commun')+'</span>')
-       +(test.simp ? fEq(quotient()) : '')
-       +fEq(frac('sf-fn','sf-fd'))
+       +(test.simp ? apres(fEq(quotient())+fEq(frac('sf-fn','sf-fd'))) : fEq(frac('sf-fn','sf-fd')))
      +'</div></div>';
+  if(test.simp){ sfMontrerApres(q);
+    const h=$('sfHost');
+    if(!h.__sfa){ h.__sfa=true; h.addEventListener('input', function(){
+      if(test.kind==='sf' && test.simp && !test.locked) sfMontrerApres(test.questions[test.idx]); }, true); } }
   /* La décoration du croisement — couleurs et flèches — ne s'applique qu'à
      l'exercice qui la demande (la Seconde au 5.2, la Première au 4.2 depuis
      octobre 2026). La ligne est la même dans les deux fichiers : le moteur
@@ -57705,6 +57714,16 @@ function renderSFTest(){
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkSFAnswer(); } }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* Montre ③ et ④ dès que les trois cases de l'étape ② sont écrites, et pour
+   de bon : q.svu est rangé dans la question, la reprise d'une pause les
+   remontre. La vérification les montre toujours (force) — la correction en
+   vert doit pouvoir s'y écrire. */
+function sfMontrerApres(q, force){
+  if(!q) return;
+  if(force) q.svu=true;
+  if(!q.svu && ['sf-num1','sf-num2','sf-den'].every(function(id){ const el=$(id); return el && String(el.value||'').trim()!==''; })) q.svu=true;
+  if(q.svu) document.querySelectorAll('#sfHost .sf-apres').forEach(function(e){ e.style.display=''; });
 }
 /* Ce que l'élève a écrit, en entier — vide ou illisible rend NaN. */
 function sfLu(id){ const el=$(id); if(!el) return NaN; const t=String(el.value||'').trim();
@@ -57909,8 +57928,9 @@ function checkSFAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
   if(live){ sfLive(); return; }
+  if(test.simp) sfMontrerApres(q, true);
   /* la chaîne de simplification suit ce qui est écrit AVANT d'être jugée */
-  if(test.etapes && typeof seMaj==='function') seMaj('sf', q);
+  if(test.etapes && typeof seMaj==='function') seMaj('sf', q, true);
   const r=sfJuge(q);
   /* Une case VIDE ne reçoit aucune couleur — elle n'est pas une erreur de
      calcul. En entraînement la correction l'écrit en vert juste après ; en

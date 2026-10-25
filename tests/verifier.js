@@ -3385,7 +3385,7 @@ function branchements(w){
 
   const MOTEUR_SF = ['sfPgcd','sfPpcm','sfGen','sfBuildQuestions','sfTermeHTML','sfCases',
                      'renderSFTest','sfLu','sfJuge','sfLive','checkSFAnswer','sfPourquoi',
-                     'nextSFQuestion','sfFracInner'];
+                     'nextSFQuestion','sfFracInner','sfMontrerApres'];
   if(src.indexOf('function sfJuge') >= 0){
     let jumeau;
     const autre = CIBLE.indexOf('secondes') >= 0 ? 'premiere-specifique.html' : 'secondes.html';
@@ -8418,6 +8418,13 @@ function sommeProduitFractions(w, P){
        ['spf-x-n1',q.a*q.Q1],['spf-x-n2',q.P1*q.b],['spf-x-d',q.b*q.Q1]].forEach(function(p){ tape(p[0],p[1]); });
     };
     pose(Q1);
+    /* LA DIVISION ATTEND LA FRACTION OBTENUE (octobre 2026) : rien avant que
+       les deux cases de 10/8 soient écrites — la géométrie se mesure ensuite
+       sur la grille entière, la chaîne montrée (q.svu) */
+    if($$('spf-e0-dn')) vus.push('la division s’affiche avant que l’élève ait écrit 10/8');
+    tape('spf-x-rn',10);
+    if($$('spf-e0-dn')) vus.push('la division s’affiche alors que seul le numérateur de 10/8 est écrit');
+    pose(Object.assign({svu:true},Q1));
     /* la ligne de l'énoncé n'ouvre pas sur « = » ; les cinq étapes et la
        simplification, si — la position à l'écran se mesure dans le navigateur */
     (function(){ const row=document.querySelector('#spfHost .pt-row'); if(!row){ vus.push('pas de rangée'); return; }
@@ -8431,7 +8438,7 @@ function sommeProduitFractions(w, P){
       const op=items.filter(function(e){ return e.classList.contains('spf-op'); });
       if(op.length!==4 || op.some(function(e){ return e.textContent.trim()!=='+'; })) vus.push('les signes de la grille : '+op.map(function(e){ return e.textContent.trim(); }).join(' '));
     })();
-    if(!$$('spf-e0-dn')) vus.push('10/8 se simplifie, et aucune étape n’est posée d’emblée');
+    if(!$$('spf-e0-dn')) vus.push('10/8 se simplifie, et la chaîne montrée n’a aucune étape');
     if($$('spf-e1-dn')) vus.push('10/8 n’a besoin que d’une étape au départ');
     const lab=document.querySelector('#spfHost .pt-lab');
     if(!lab || !/simplifier/.test(lab.textContent)) vus.push('aucun libellé n’annonce la simplification');
@@ -8479,8 +8486,12 @@ function sommeProduitFractions(w, P){
     if(!/−/.test(($$('spfPrompt')||{}).textContent||'')) vus.push('l’énoncé d’une soustraction n’écrit pas « − »');
     if(!/différence/.test((document.querySelector('#spfHost .pt-lab')||{}).textContent||'')) vus.push('le libellé d’une soustraction parle encore de somme');
     (function(){ const op=document.querySelectorAll('#spfHost .pt-row .spf-op'); if(op.length!==4 || [].some.call(op, function(e){ return e.textContent.trim()!=='−'; })) vus.push('les signes de la grille d’une soustraction : '+[].map.call(op, function(e){ return e.textContent.trim(); }).join(' ')); })();
-    if(!$$('spf-e0-dn')) vus.push('6/8 se simplifie, et aucune étape n’est posée d’emblée');
-    debut(Q4); tape('spf-x-rn',6); tape('spf-x-rd',8); tape('spf-e0-dn',2); tape('spf-e0-n',3); tape('spf-e0-d',4);
+    if($$('spf-e0-dn')) vus.push('la division s’affiche avant que l’élève ait écrit 6/8');
+    debut(Q4); tape('spf-x-rn',6);
+    if($$('spf-e0-dn')) vus.push('la division s’affiche alors que seul le numérateur de 6/8 est écrit');
+    tape('spf-x-rd',8);
+    if(!$$('spf-e0-dn')) vus.push('6/8 écrit, et la division n’apparaît pas');
+    tape('spf-e0-dn',2); tape('spf-e0-n',3); tape('spf-e0-d',4);
     checkSpfAnswer();
     if(!der() || !der().correct) vus.push('3/2 − 1/2 × 3/2 = … = 6/8 = 3/4 est compté faux');
     else if(!/−/.test(der().q)) vus.push('la question enregistrée n’écrit pas la soustraction : '+der().q);
@@ -8505,7 +8516,7 @@ function sommeProduitFractions(w, P){
     /* la capture : 1/2 + 1/2 × 5/2 = 1/2 + 5/4, passé par 4 */
     const Q5={a:1,b:2,c:1,d:2,e:5,f:2,op:'+',P1:5,Q1:4,N:14,D:8,Nr:7,Dr:4};
     pose(Q5);
-    if(!$$('spf-e0-dn')) vus.push('14/8 (le croisement) se simplifie, et aucune étape n’est posée d’emblée');
+    if($$('spf-e0-dn')) vus.push('la division s’affiche avant que l’élève ait écrit 14/8 (le croisement)');
     route(Q5,4,7,4);
     if($$('spf-e0-dn')) vus.push('passé par 4, 7/4 est irréductible, et la chaîne reste posée');
     checkSpfAnswer();
@@ -8769,9 +8780,12 @@ function fractionsEtapes(w, P){
       currentTestId='multiplier-fractions'; TESTS['multiplier-fractions'].start();
       const pose=function(q){ test.questions=[q]; test.idx=0; test.locked=false; renderMltTest(); };
       pose({n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15});
-      if(!$$('mlt-e0-dn')) vus.push('produit : 6/15 se simplifie, et aucune étape n’est posée d’emblée');
+      if($$('mlt-e0-dn')) vus.push('produit : la division s’affiche avant que l’élève ait écrit 6/15');
+      tape('mlt-h1',2); tape('mlt-h2',3); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',6);
+      if($$('mlt-e0-dn')) vus.push('produit : la division s’affiche alors que seul le numérateur de 6/15 est écrit');
+      tape('mlt-fd',15);
+      if(!$$('mlt-e0-dn')) vus.push('produit : 6/15 écrit, et la division n’apparaît pas');
       if($$('mlt-e1-dn')) vus.push('produit : 6/15 n’a besoin que d’une étape au départ');
-      tape('mlt-h1',2); tape('mlt-h2',3); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',6); tape('mlt-fd',15);
       if(($$('mlt-e0-an')||{}).textContent!=='6') vus.push('produit : le nombre divisé ne recopie pas 6');
       tape('mlt-e0-dn',3); tape('mlt-e0-n',2); tape('mlt-e0-d',5);
       checkMltAnswer();
@@ -8787,13 +8801,17 @@ function fractionsEtapes(w, P){
       checkMltAnswer();
       if(der() && der().correct) vus.push('produit : le diviseur 2 de 6/15 est compté juste');
       if(!/simplifie/.test(($$('mltFeedback')||{}).textContent||'')) vus.push('produit : le message ne nomme pas la simplification : « '+(($$('mltFeedback')||{}).textContent||'')+' »');
+      /* vérifiée sans rien écrire, la chaîne se montre : la correction s'y écrit */
+      pose({n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15});
+      checkMltAnswer();
+      if(peint('mlt-e0-dn')!=='correction') vus.push('produit : vérifié vide, la division ne reçoit pas la correction ('+peint('mlt-e0-dn')+')');
       pose({n1:2,d1:3,n2:1,d2:5,a1:2,a2:1,b1:3,b2:5,P:2,Q:15});
       if($$('mlt-e0-dn')) vus.push('produit : 2/15 est irréductible, et une simplification est demandée');
       /* SIMPLIFIER AVANT DE MULTIPLIER (octobre 2026) : sur 5/2 × 3/5, barrer
          les 5 donne (1 × 3)/(2 × 1) = 3/2 — juste, et la chaîne disparaît. */
       const Q53={n1:5,d1:2,n2:3,d2:5,a1:5,a2:3,b1:2,b2:5,P:15,Q:10};
       pose(Object.assign({},Q53));
-      if(!$$('mlt-e0-dn')) vus.push('produit : 15/10 se simplifie, et aucune étape n’est posée d’emblée');
+      if($$('mlt-e0-dn')) vus.push('produit : sur 5/2 × 3/5, la division s’affiche avant tout résultat écrit');
       tape('mlt-h1',1); tape('mlt-h2',3); tape('mlt-b1',2); tape('mlt-b2',1); tape('mlt-fn',3); tape('mlt-fd',2);
       if($$('mlt-e0-dn')) vus.push('produit : les 5 enlevés avant de multiplier, la chaîne de simplification reste posée');
       checkMltAnswer();
@@ -53063,6 +53081,26 @@ function simplifierFractions(w, P){
     test.questions[test.idx]={n1:9,d1:2,n2:5,d2:6,op:'+',D:6,k1:3,k2:1,N1:27,N2:5,N:32,Nr:16,Dr:3};
     renderSFTest();
     const q=test.questions[test.idx];
+    /* LA DIVISION N'APPARAÎT QU'À LA FIN DU CALCUL (octobre 2026) : ③ et ④
+       cachés tant que l'étape ② n'est pas écrite, puis montrés ; vérifiée
+       vide, la question les montre aussi — la correction s'y écrit. */
+    (function(){
+      const vus2=function(){ return [].map.call(document.querySelectorAll('#sfHost .sf-apres'), function(e){ return e.style.display!=='none'; }); };
+      const tp=function(id,v){ const el=document.getElementById(id); el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
+      let v=vus2();
+      if(v.length!==2) vus.push('③ et ④ ne sont pas deux groupes à montrer ('+v.length+')');
+      else if(v.some(Boolean)) vus.push('la division s\'affiche avant que l\'élève ait écrit la somme');
+      tp('sf-num1',27); tp('sf-num2',5);
+      if(vus2().some(Boolean)) vus.push('la division s\'affiche alors que le dénominateur de la somme n\'est pas écrit');
+      tp('sf-den',6);
+      if(!vus2().length || !vus2().every(Boolean)) vus.push('l\'étape ② écrite, la division reste cachée');
+      if(!q.svu) vus.push('la division montrée n\'est pas rangée dans la question (q.svu)');
+      renderSFTest();
+      if(!vus2().every(Boolean)) vus.push('après un redessin (reprise), la division montrée est de nouveau cachée');
+      delete q.svu; renderSFTest(); checkSFAnswer();
+      if(!vus2().every(Boolean)) vus.push('vérifiée vide, la question laisse la division cachée');
+      delete q.svu; test.locked=false; test.answers.pop(); renderSFTest();
+    })();
     const tout=function(r){ return r.ok1&&r.ok2&&r.ok3&&r.okS&&r.okQ&&r.ok4; };
     const juger=function(vals){ poser(vals); return sfJuge(q); };
     const PPCM={'sf-a1':3,'sf-b1':3,'sf-a2':1,'sf-b2':1,'sf-num1':27,'sf-num2':5,'sf-den':6,
@@ -53499,9 +53537,12 @@ function revisionFractions(w, P){
     test.questions=[neuve()]; test.idx=0; renderRvfTest();
     const lab=document.querySelector('#rvfHost .pt-lab');
     if(!lab || !/simplifier/.test(lab.textContent)) vus.push("6/12 : aucun libellé n'annonce la simplification");
-    if(!$$('rvf-s0-dn') || $$('rvf-s1-dn')) vus.push('6/12 : il faut exactement une étape de simplification au départ');
-    if($$('rvf-s0-an') && $$('rvf-s0-an').textContent!=='…') vus.push('le nombre divisé est écrit avant que l’élève ait écrit le résultat : '+$$('rvf-s0-an').textContent);
+    /* LA DIVISION ATTEND LE RÉSULTAT ÉCRIT (octobre 2026) */
+    if($$('rvf-s0-dn')) vus.push('6/12 : la division s’affiche avant que l’élève ait écrit le résultat');
+    $$('rvf-regle').value='non'; tape('rvf-num',6);
+    if($$('rvf-s0-dn')) vus.push('6/12 : la division s’affiche alors que seul le numérateur est écrit');
     base();
+    if(!$$('rvf-s0-dn') || $$('rvf-s1-dn')) vus.push('6/12 écrit : il faut exactement une étape de simplification');
     if(($$('rvf-s0-an')||{}).textContent!=='6' || ($$('rvf-s0-ad')||{}).textContent!=='12') vus.push('les nombres divisés ne recopient pas 6/12');
     tape('rvf-s0-dn',2);
     if(($$('rvf-s0-dd')||{}).value!=='2') vus.push('le diviseur écrit en haut ne se recopie pas en bas');
@@ -53545,6 +53586,10 @@ function revisionFractions(w, P){
     renderRvfTest();
     if(!$$('rvf-s1-dn')) vus.push('après un redessin (reprise), la seconde étape a disparu');
     if(JSON.stringify(test.questions[0].sdiv)!=='["2"]') vus.push('diviseurs rangés : '+JSON.stringify(test.questions[0].sdiv));
+
+    /* ⑤ bis vérifiée sans rien écrire, la chaîne se montre et reçoit la correction */
+    test.questions=[neuve()]; renderRvfTest(); checkRvfAnswer();
+    if(peint('rvf-s0-dn')!=='correction') vus.push('vérifié vide, le diviseur ne reçoit pas la correction ('+peint('rvf-s0-dn')+')');
 
     /* ⑥ un résultat irréductible n'a aucune étape de simplification */
     test.questions=[{type:'mult-frac', d1:3, d2:5, n1:2, n2:1}]; renderRvfTest();
