@@ -15207,6 +15207,12 @@ function renderSFTest(){
        +'<span class="sf-l">'+mf('sf-sd','f-den','dénominateur obtenu')
        +'<span class="f-times">÷</span>'+mf('sf-q2','f-den','diviseur du dénominateur')+'</span>'
      +'</span>';
+  /* LA DIVISION N'APPARAÎT QU'À LA FIN DU CALCUL (demande de Turquet, octobre
+     2026) : ③ et ④ restent cachés tant que l'étape ② n'est pas écrite — posés
+     d'emblée, ils disaient « il faudra simplifier » avant que le calcul soit
+     fait. Cachés, pas absents : leurs cases existent, et la flèche → les saute
+     (pmNavListe ne garde que les cases visibles). sfMontrerApres les montre. */
+  const apres=h=>h.split('<span class="f-grp"').join('<span style="display:none" class="f-grp sf-apres"');
   const versFraction = (q.d1===1 || q.d2===1);
   $('sfHost').innerHTML=
     '<div class="pt-step"><div class="pt-lab">① mettre au même dénominateur&nbsp;· ② écrire la '
@@ -15223,9 +15229,12 @@ function renderSFTest(){
        +mf('sf-num2','f-num','second numérateur')+'</span>'
        +'<span class="f-fbar"></span>'
        +mf('sf-den','f-den','dénominateur commun')+'</span>')
-       +(test.simp ? fEq(quotient()) : '')
-       +fEq(frac('sf-fn','sf-fd'))
+       +(test.simp ? apres(fEq(quotient())+fEq(frac('sf-fn','sf-fd'))) : fEq(frac('sf-fn','sf-fd')))
      +'</div></div>';
+  if(test.simp){ sfMontrerApres(q);
+    const h=$('sfHost');
+    if(!h.__sfa){ h.__sfa=true; h.addEventListener('input', function(){
+      if(test.kind==='sf' && test.simp && !test.locked) sfMontrerApres(test.questions[test.idx]); }, true); } }
   /* La décoration du croisement — couleurs et flèches — ne s'applique qu'à
      l'exercice qui la demande (la Seconde au 5.2, la Première au 4.2 depuis
      octobre 2026). La ligne est la même dans les deux fichiers : le moteur
@@ -15237,6 +15246,16 @@ function renderSFTest(){
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkSFAnswer(); } }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* Montre ③ et ④ dès que les trois cases de l'étape ② sont écrites, et pour
+   de bon : q.svu est rangé dans la question, la reprise d'une pause les
+   remontre. La vérification les montre toujours (force) — la correction en
+   vert doit pouvoir s'y écrire. */
+function sfMontrerApres(q, force){
+  if(!q) return;
+  if(force) q.svu=true;
+  if(!q.svu && ['sf-num1','sf-num2','sf-den'].every(function(id){ const el=$(id); return el && String(el.value||'').trim()!==''; })) q.svu=true;
+  if(q.svu) document.querySelectorAll('#sfHost .sf-apres').forEach(function(e){ e.style.display=''; });
 }
 /* Ce que l'élève a écrit, en entier — vide ou illisible rend NaN. */
 function sfLu(id){ const el=$(id); if(!el) return NaN; const t=String(el.value||'').trim();
@@ -15441,8 +15460,9 @@ function checkSFAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
   if(live){ sfLive(); return; }
+  if(test.simp) sfMontrerApres(q, true);
   /* la chaîne de simplification suit ce qui est écrit AVANT d'être jugée */
-  if(test.etapes && typeof seMaj==='function') seMaj('sf', q);
+  if(test.etapes && typeof seMaj==='function') seMaj('sf', q, true);
   const r=sfJuge(q);
   /* Une case VIDE ne reçoit aucune couleur — elle n'est pas une erreur de
      calcul. En entraînement la correction l'écrit en vert juste après ; en
@@ -16405,7 +16425,7 @@ function seDessine(kind, q){
     garde[e.id]={v:String(e.value==null?'':e.value), cls:e.className, dis:!!e.disabled}; });
   const act=document.activeElement, actId=act && act.id;
   row.querySelectorAll('.se-etape').forEach(function(e){ e.remove(); });
-  const n=sePas(seBrut(q), q.sdiv).length;
+  const n=q.svu ? sePas(seBrut(q), q.sdiv).length : 0;
   let html=''; for(let i=0;i<n;i++) html+=seEtapeHTML(kind, i);
   if(html) row.insertAdjacentHTML('beforeend', html);
   if(typeof pmUpgrade==='function') pmUpgrade(row);
@@ -16414,12 +16434,27 @@ function seDessine(kind, q){
   const e=actId && $(actId); if(e && e!==document.activeElement){ try{ e.focus(); }catch(x){} }
   seMiroirs(kind);
 }
+/* LA CHAÎNE N'APPARAÎT QU'UNE FOIS LE PREMIER RÉSULTAT ÉCRIT (demande de
+   Turquet, octobre 2026) : les divisions qui simplifient viennent à la fin du
+   calcul, quand l'élève a écrit la fraction obtenue (les deux cases de
+   c.src) — posées d'emblée, elles annonçaient qu'il y aurait à simplifier
+   avant même que le calcul soit fait. Une fois montrée, elle reste (q.svu,
+   rangé dans la question : la reprise d'une pause la redessine avant que
+   restoreBoxes() y remette les saisies). La VÉRIFICATION la montre toujours
+   (force) : la correction doit pouvoir y écrire chaque étape. */
+function seVue(kind, q, force){
+  if(force) q.svu=true;
+  if(q.svu) return true;
+  const ecrit=SE_CFG[kind].src.every(function(id){ const e=$(id); return e && String(e.value==null?'':e.value).trim()!==''; });
+  if(ecrit) q.svu=true;
+  return ecrit;
+}
 /* Relit la fraction brute et les diviseurs ; redessine si la chaîne change. */
-function seMaj(kind, q){
+function seMaj(kind, q, force){
   const c=SE_CFG[kind]; if(!c || !q) return;
   const F=c.brut(q), cle=F ? F.n+'/'+F.d : '';
   q.sdiv=seLitDiv(kind);
-  const n=sePas(F, q.sdiv).length;
+  const n=seVue(kind, q, force) ? sePas(F, q.sdiv).length : 0;
   const dessinees=seIds(kind).filter(function(id){ return /-dn$/.test(id); }).length;
   if((q.sbrut||'')===cle && dessinees===n) return;
   q.sbrut=cle;
@@ -16432,9 +16467,8 @@ function seMonte(kind, q){
   const c=SE_CFG[kind], h=$(c.host); if(!h) return;
   const lab=h.querySelector('.pt-lab');
   if(lab && !lab.querySelector('.se-lab')) lab.insertAdjacentHTML('beforeend','<span class="se-lab">&nbsp;· puis simplifier, tant que la fraction se simplifie</span>');
-  /* À la première pose, la fraction brute se lit sur la question : un produit
-     qui se simplifie montre sa chaîne d'emblée, comme au 4.1 ; une somme, sur
-     des cases encore vides, ne la montre pas (sa route n'est pas choisie). */
+  /* À la première pose, la fraction brute se lit sur la question ; la chaîne,
+     elle, attend que la fraction obtenue soit écrite (seVue). */
   if(q.sbrut===undefined){ const F=c.brut(q); q.sbrut=F ? F.n+'/'+F.d : ''; }
   seDessine(kind, q);
   if(!h.__se){ h.__se=true; h.addEventListener('input', function(ev){ seSaisie(kind, ev.target); }, true); }
@@ -16681,7 +16715,7 @@ function checkMltAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
   /* la chaîne de simplification suit ce qui est écrit AVANT d'être jugée */
-  if(!live && test.etapes) seMaj('mlt', q);
+  if(!live && test.etapes) seMaj('mlt', q, true);
   const r=mltJuge(q);
   /* Une case VIDE ne reçoit aucune couleur — elle n'est pas une erreur de
      calcul. Et CE QUI EST PEINT ENSEMBLE EST CE QUI SE JUGE ENSEMBLE : ici
@@ -17093,7 +17127,7 @@ function checkSpfAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
   /* la chaîne de simplification suit ce qui est écrit AVANT d'être jugée */
-  if(!live && test.etapes) seMaj('spf', q);
+  if(!live && test.etapes) seMaj('spf', q, true);
   const r=spfJuge(q);
   const mode=live?'live':'check';
   const col=(ids,ok)=>{
@@ -17501,9 +17535,15 @@ function rvfMiroirs(){
   });
 }
 /* Relit les diviseurs à l'écran ; si le nombre d'étapes change, redessine
-   la rangée en gardant tout ce qui est écrit et la case où l'on écrit. */
-function rvfMajSimp(q){
+   la rangée en gardant tout ce qui est écrit et la case où l'on écrit.
+   LA SIMPLIFICATION N'APPARAÎT QU'UNE FOIS LE RÉSULTAT BRUT ÉCRIT (rvf-num
+   et rvf-den, demande de Turquet, octobre 2026) — comme seVue pour les 4.2
+   à 4.6 : q.svu la garde ouverte, la vérification la montre toujours. */
+function rvfMajSimp(q, force){
   if(!rvfReductible(q)) return;
+  if(force) q.svu=true;
+  if(!q.svu){ const n=$('rvf-num'), d=$('rvf-den');
+    if(n && d && String(n.value).trim()!=='' && String(d.value).trim()!=='') q.svu=true; else return; }
   const sd=[]; for(let i=0;;i++){ const e=$('rvf-s'+i+'-dn'); if(!e) break; sd.push(String(e.value).trim()); }
   q.sdiv=sd;
   if(rvfSimpPas(q).length===sd.length) return;
@@ -17519,7 +17559,7 @@ function rvfEtapes(q){
   const t=function(n,d){ return sfTermeHTML(n,d); };
   const op=function(s){ return '<span class="f-times">'+s+'</span>'; };
   const finale=fEq(rvfFracHTML('rvf-num','rvf-den'))
-    +(rvfReductible(q)?rvfSimpPas(q).map(function(p,i){ return rvfSimpHTML(i); }).join(''):'');
+    +(rvfReductible(q) && q.svu?rvfSimpPas(q).map(function(p,i){ return rvfSimpHTML(i); }).join(''):'');
   switch(q.type){
     case 'mult-entier':
       return t(q.n,q.d)+op('×')+t(q.k,1)
@@ -17594,7 +17634,7 @@ function rvfCases(q){
   return [{id:'rvf-regle', kind:'sel', bon:RVF_REGLES[q.type].opts[0][0]}]
     .concat(rvfExtra(q).map(function(c){ return {id:c.id, kind:'nb', bon:c.bon}; }))
     .concat([{id:'rvf-num', kind:'nb', bon:r.num}, {id:'rvf-den', kind:'nb', bon:r.den}])
-    .concat(rvfReductible(q)?[].concat.apply([], rvfSimpPas(q).map(function(p,i){ const s='rvf-s'+i+'-';
+    .concat(rvfReductible(q) && q.svu?[].concat.apply([], rvfSimpPas(q).map(function(p,i){ const s='rvf-s'+i+'-';
       return [{id:s+'dn', kind:'div', bon:p.g}, {id:s+'dd', kind:'div', bon:p.g, miroir:true},
               {id:s+'n', kind:'nb', bon:p.suiv.n}, {id:s+'d', kind:'nb', bon:p.suiv.d}]; })):[]);
 }
@@ -17661,7 +17701,8 @@ function rvfMonte(q){
      chaque appui — une étape a pu s'ouvrir entre-temps. */
   rvfCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
     el.addEventListener(c.kind==='sel'?'change':'input', function(){
-      if(c.kind==='div'){ const jum=$(c.id.replace(/d[nd]$/, c.miroir?'dn':'dd')); if(jum) jum.value=el.value; rvfMajSimp(q); }
+      if(c.kind==='div'){ const jum=$(c.id.replace(/d[nd]$/, c.miroir?'dn':'dd')); if(jum) jum.value=el.value; }
+      rvfMajSimp(q);
       rvfMiroirs();
       if(isSoutien()) checkRvfAnswer(true);
       clearTimeout(test.rvfSave); test.rvfSave=setTimeout(autoSave,1000); });
@@ -17695,7 +17736,7 @@ function rvfPourquoiCalcul(q){
 function checkRvfAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
-  if(!live) rvfMajSimp(q);
+  if(!live) rvfMajSimp(q, true);
   const cases=rvfCases(q);
   if(live){   /* soutien : on ne juge que les cases déjà remplies */
     if(!isSoutien()) return;

@@ -261,7 +261,7 @@ module.exports = {
          2026 : leurs cases s'étiraient sur 330 px). */
       maillons: { 'revision-fractions': [
         { nom: 'produit à compléter', rendu: 'renderRvfTest', q: { type: 'diff-add', n1: 3, d1: 4, n2: 3, d2: 5 }, cases: ['rvf-a1', 'rvf-b1'] },
-        { nom: 'simplification', rendu: 'renderRvfTest', q: { type: 'mult-frac', n1: 2, d1: 3, n2: 3, d2: 4 }, cases: ['rvf-s0-dn', 'rvf-s0-dd'] } ] } },
+        { nom: 'simplification', rendu: 'renderRvfTest', q: { type: 'mult-frac', n1: 2, d1: 3, n2: 3, d2: 4, svu: true }, cases: ['rvf-s0-dn', 'rvf-s0-dd'] } ] } },
     /* {multiplier-fractions} et {diviser-fractions} (4.4, 4.5) : le moteur de
        la Seconde, nombres de 1 à 5, produit qui se SIMPLIFIE par étapes, sans
        la version rédigée. */

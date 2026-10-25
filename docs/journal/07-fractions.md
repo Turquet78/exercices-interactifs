@@ -1952,3 +1952,45 @@ tactile forcé comme en 11 bis : 44 px mesurés, bornes pressées, barre touché
 768 px). Huit sabotages, chacun rouge sur son bord : borne retirée (« selL =
 −1 », « 16/15 »), boutons jamais, boutons toujours, seuil à 480, boutons de
 30 px, grisage retiré, pas sans redessin, « 6 » remis.
+
+**Puis les divisions qui simplifient sont venues À LA FIN du calcul — en
+Première et en Seconde (octobre 2026, Première v342, Seconde v610).** Demande
+de Turquet : « pour les calculs fractionnaires quand il y a des étapes avec des
+divisions à la fin pour simplifier le résultat, n'afficher ces divisions avec
+les cases qu'à la fin du calcul, quand l'élève a écrit un premier résultat ».
+Posées d'emblée, elles disaient « il faudra simplifier » avant que le calcul
+soit fait — l'élève lisait la réponse à la question « faut-il simplifier ? »
+sur l'écran au lieu de la tirer de sa fraction.
+
+* **Première, 4.2 à 4.6** (`seVue`, module `se…`) : la chaîne ne se dessine
+  qu'une fois les DEUX cases de la fraction obtenue écrites (`SE_CFG[kind].src`).
+  Le produit et le quotient, dont la fraction brute ne dépend que de
+  l'énoncé, la posaient d'emblée : ils attendent désormais comme la somme.
+* **Première, 4.1** (`rvfMajSimp`) : de même, sur `rvf-num` et `rvf-den` —
+  `rvfMajSimp` est désormais appelé à chaque saisie, plus seulement sur un
+  diviseur.
+* **Seconde, {simplifier-fractions}** (moteur sf, partagé au caractère près —
+  `sfMontrerApres` entre dans `MOTEUR_SF`) : ③ (la division) et ④ (la
+  fraction simplifiée) sont dessinés mais CACHÉS (`display:none` en ligne sur
+  leurs `.f-grp`, classe `sf-apres` : une règle de classe `display:flex`
+  l'emporterait sur l'attribut `hidden`) tant que les trois cases de l'étape ②
+  ne sont pas écrites. Cachées, leurs cases existent : `sfCases()`, le juge et
+  la note n'ont pas bougé, et la flèche → les saute (`pmNavListe` ne garde que
+  les cases visibles).
+* **Une fois montrée, la chaîne reste** : `q.svu`, rangé dans la question
+  (du JSON), la redessine à la reprise d'une pause AVANT que `restoreBoxes()`
+  y remette les saisies — sans quoi les cases des divisions n'existeraient
+  pas au moment d'être remplies. Effacer le résultat ne la recache pas : une
+  chaîne qui clignote sous les doigts se lit plus mal qu'une chaîne qui reste.
+* **La vérification la montre toujours** (`seMaj(kind, q, true)`,
+  `rvfMajSimp(q, true)`, `sfMontrerApres(q, true)`) : une copie vérifiée sans
+  résultat doit recevoir, en vert, la correction de chaque étape.
+
+Contrôles : les trois contrôles jsdom qui exigeaient la chaîne « posée
+d'emblée » exigent désormais le contraire, à deux bords — rien avant le
+résultat, rien quand seul le numérateur est écrit, la chaîne dès que la
+fraction l'est — et la correction écrite dans un diviseur vérifié vide
+(4.1, 4.4) ; le contrôle de {simplifier-fractions} (Seconde) mesure ③ et ④
+cachés, montrés, rangés, redessinés, et montrés par la vérification. Au banc
+navigateur (« 6 terdecies bis »), le produit tapé au clavier exige la même
+chose, et la grille du 4.6 se mesure la chaîne montrée.

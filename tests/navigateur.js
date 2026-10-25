@@ -7671,9 +7671,11 @@ if(require.main === module) (async () => {
        champs MathLive, et c'est la seule chose que jsdom ne peut pas montrer —
        ses cases sont des éléments inconnus, et le banc y simule l'évènement.
        Ici on TAPE, au clavier, dans les vraies cases : 1/2 + 1/4 par le
-       dénominateur 8 (6/8, puis ÷ 2 = 3/4), et 2/3 × 3/5 = 6/15 (÷ 3 = 2/5),
-       dont la chaîne est posée d'emblée. Puis le bouton : la copie vaut le
-       point, et rien ne rougit. */
+       dénominateur 8 (6/8, puis ÷ 2 = 3/4), et 2/3 × 3/5 = 6/15 (÷ 3 = 2/5).
+       La chaîne n'apparaît qu'une fois la fraction obtenue ÉCRITE (demande de
+       Turquet, octobre 2026 : les divisions viennent à la fin du calcul) —
+       jamais d'emblée, même quand l'énoncé la rend certaine. Puis le bouton :
+       la copie vaut le point, et rien ne rougit. */
     titre('6 terdecies bis. LA SIMPLIFICATION PAR ÉTAPES S\'OUVRE EN ÉCRIVANT');
     if(!P.fractionsEtapes){
       ignorer('la simplification par étapes s\'ouvre en écrivant, et la copie juste vaut le point',
@@ -7801,8 +7803,10 @@ if(require.main === module) (async () => {
         await s.page.waitForTimeout(1200);
         await s.page.evaluate(() => { test.questions[test.idx] = {n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15}; delete test.questions[test.idx].sbrut; renderMltTest(); });
         await s.page.waitForTimeout(700);
-        if(!(await lit('mlt-')).e0) dits.push('produit : 6/15 se simplifie, et aucune étape n’est posée d’emblée');
-        for(const [id, v] of [['mlt-h1',2],['mlt-h2',3],['mlt-b1',3],['mlt-b2',5],['mlt-fn',6],['mlt-fd',15],['mlt-e0-dd',3],['mlt-e0-n',2],['mlt-e0-d',5]]) await tape(id, v);
+        if((await lit('mlt-')).e0) dits.push('produit : la division s’affiche avant que l’élève ait écrit 6/15');
+        for(const [id, v] of [['mlt-h1',2],['mlt-h2',3],['mlt-b1',3],['mlt-b2',5],['mlt-fn',6]]) await tape(id, v);
+        if((await lit('mlt-')).e0) dits.push('produit : la division s’affiche alors que seul le numérateur du résultat est écrit');
+        for(const [id, v] of [['mlt-fd',15],['mlt-e0-dd',3],['mlt-e0-n',2],['mlt-e0-d',5]]) await tape(id, v);
         const l = await lit('mlt-');
         if(l.an !== '6' || l.ad !== '15') dits.push('produit : les nombres divisés ne recopient pas 6/15 (' + l.an + '/' + l.ad + ')');
         const haut = await s.page.evaluate(() => { const e = document.getElementById('mlt-e0-dn'); return e ? String(e.value) : null; });
@@ -7841,7 +7845,7 @@ if(require.main === module) (async () => {
         await s.page.evaluate(() => { test.idx = 0; test.locked = false;
           test.questions[0] = {n1:5,d1:2,n2:3,d2:5,a1:5,a2:3,b1:2,b2:5,P:15,Q:10}; renderMltTest(); });
         await s.page.waitForTimeout(700);
-        if(!(await lit('mlt-')).e0) dits.push('produit : 15/10 se simplifie, et aucune étape n’est posée d’emblée');
+        if((await lit('mlt-')).e0) dits.push('produit : sur 5/2 × 3/5, la division s’affiche avant que l’élève ait écrit un résultat');
         for(const [id, v] of [['mlt-h1',1],['mlt-h2',3],['mlt-b1',2],['mlt-b2',1],['mlt-fn',3],['mlt-fd',2]]) await tape(id, v);
         if((await lit('mlt-')).e0) dits.push('produit : les 5 enlevés avant de multiplier, la chaîne de simplification reste posée');
         await s.page.evaluate(() => checkMltAnswer());
@@ -7883,6 +7887,12 @@ if(require.main === module) (async () => {
           test.questions[0] = {a:1,b:2,c:1,d:2,e:3,f:2,op:'+',P1:3,Q1:4,N:10,D:8,Nr:5,Dr:4};
           test.questions[1] = {a:3,b:2,c:1,d:2,e:3,f:2,op:'−',P1:3,Q1:4,N:6,D:8,Nr:3,Dr:4,redac:true};
           test.idx = 0; renderSpfTest(); });
+        await s.page.waitForTimeout(700);
+        /* la simplification attend la fraction obtenue ; la géométrie, elle, se
+           mesure sur la grille entière — la chaîne montrée (q.svu) */
+        if(await s.page.evaluate(() => !!document.getElementById('spf-e0-dn')))
+          dits.push('4.6 : la division s’affiche avant que l’élève ait écrit 10/8');
+        await s.page.evaluate(() => { test.questions[0].svu = true; renderSpfTest(); });
         await s.page.waitForTimeout(700);
         const g = await s.page.evaluate(() => {
           const row = document.querySelector('#spfHost .pt-row'); if(!row) return { manque: 'pas de rangée' };
