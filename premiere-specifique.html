@@ -3087,7 +3087,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=342;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=343;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -15247,15 +15247,20 @@ function renderSFTest(){
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkSFAnswer(); } }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
-/* Montre ③ et ④ dès que les trois cases de l'étape ② sont écrites, et pour
-   de bon : q.svu est rangé dans la question, la reprise d'une pause les
-   remontre. La vérification les montre toujours (force) — la correction en
-   vert doit pouvoir s'y écrire. */
+/* Montre ③ et ④ quand la fraction écrite à l'étape ② SE SIMPLIFIE, et
+   les recache quand elle ne se simplifie pas : un résultat faux et
+   irréductible ne se voit pas proposer de division (demande de Turquet,
+   octobre 2026). Tant que l'étape ② n'est pas entièrement lisible, rien ne
+   bouge — effacer pour réécrire ne fait pas clignoter la chaîne. q.svu est
+   rangé dans la question, la reprise d'une pause le relit. La vérification
+   les montre toujours (force) — la correction en vert doit pouvoir s'y
+   écrire. */
 function sfMontrerApres(q, force){
   if(!q) return;
   if(force) q.svu=true;
-  if(!q.svu && ['sf-num1','sf-num2','sf-den'].every(function(id){ const el=$(id); return el && String(el.value||'').trim()!==''; })) q.svu=true;
-  if(q.svu) document.querySelectorAll('#sfHost .sf-apres').forEach(function(e){ e.style.display=''; });
+  else { const a=sfLu('sf-num1'), b=sfLu('sf-num2'), d=sfLu('sf-den');
+    if(!isNaN(a) && !isNaN(b) && !isNaN(d) && d!==0) q.svu=gcd(q.op==='+'?a+b:a-b, d)>1; }
+  document.querySelectorAll('#sfHost .sf-apres').forEach(function(e){ e.style.display=q.svu?'':'none'; });
 }
 /* Ce que l'élève a écrit, en entier — vide ou illisible rend NaN. */
 function sfLu(id){ const el=$(id); if(!el) return NaN; const t=String(el.value||'').trim();
@@ -16442,12 +16447,24 @@ function seDessine(kind, q){
    rangé dans la question : la reprise d'une pause la redessine avant que
    restoreBoxes() y remette les saisies). La VÉRIFICATION la montre toujours
    (force) : la correction doit pouvoir y écrire chaque étape. */
+/* PUIS LA CHAÎNE NE SUIT QU'UNE FRACTION QUI SE SIMPLIFIE (demande de
+   Turquet, octobre 2026) : un résultat faux et irréductible ne se voit pas
+   proposer de division — elle disparaît, et revient si l'élève corrige. Une
+   fraction pas encore lisible (case vide, en cours d'écriture) ne change
+   rien : q.svu garde l'état précédent. */
 function seVue(kind, q, force){
-  if(force) q.svu=true;
-  if(q.svu) return true;
-  const ecrit=SE_CFG[kind].src.every(function(id){ const e=$(id); return e && String(e.value==null?'':e.value).trim()!==''; });
-  if(ecrit) q.svu=true;
-  return ecrit;
+  if(force){ q.svu=true; return true; }
+  const c=SE_CFG[kind].src, r=fracEcriteSimplifiable(c[0], c[1]);
+  if(r!==null) q.svu=r;
+  return !!q.svu;
+}
+/* La fraction écrite dans deux cases se simplifie-t-elle ? null tant que
+   l'une n'est pas un entier lisible (ou que le dénominateur est nul). */
+function fracEcriteSimplifiable(idN, idD){
+  const n=$(idN), d=$(idD); if(!n || !d) return null;
+  const a=rvfLit(n.value), b=rvfLit(d.value);
+  if(a===null || b===null || b===0) return null;
+  return gcd(a,b)>1;
 }
 /* Relit la fraction brute et les diviseurs ; redessine si la chaîne change. */
 function seMaj(kind, q, force){
@@ -17541,12 +17558,14 @@ function rvfMiroirs(){
    à 4.6 : q.svu la garde ouverte, la vérification la montre toujours. */
 function rvfMajSimp(q, force){
   if(!rvfReductible(q)) return;
+  /* et seulement si la fraction ÉCRITE se simplifie : un résultat faux et
+     irréductible (3/2 pour 4/2) ne se voit pas proposer de division — voir
+     seVue. Une fraction pas encore lisible garde l'état précédent. */
   if(force) q.svu=true;
-  if(!q.svu){ const n=$('rvf-num'), d=$('rvf-den');
-    if(n && d && String(n.value).trim()!=='' && String(d.value).trim()!=='') q.svu=true; else return; }
+  else { const r=fracEcriteSimplifiable('rvf-num','rvf-den'); if(r!==null) q.svu=r; }
   const sd=[]; for(let i=0;;i++){ const e=$('rvf-s'+i+'-dn'); if(!e) break; sd.push(String(e.value).trim()); }
-  q.sdiv=sd;
-  if(rvfSimpPas(q).length===sd.length) return;
+  q.sdiv=q.svu ? sd : [];
+  if((q.svu ? rvfSimpPas(q).length : 0)===sd.length) return;
   const vals={}; document.querySelectorAll('#rvfHost input[id], #rvfHost select[id]').forEach(function(e){ vals[e.id]=e.value; });
   const act=document.activeElement, actId=act && act.id, pos=act && act.selectionStart;
   rvfMonte(q);
