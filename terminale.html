@@ -2213,6 +2213,8 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 #erpForm .epa-fd .elg-fn{border-bottom-width:1.5px;border-color:#94a3b8}
 .erp-prop{border:1.5px solid var(--ink);border-radius:6px;padding:8px 12px;margin:16px 0 4px;max-width:640px}
 .erp-mir{display:inline-block;min-width:1em;text-align:center}
+.erp-meths p{margin:6px 0 0}
+#erp-meth{max-width:100%}
 @media (max-width:560px){
   #erpForm .tg-in{width:34px;padding:4px 1px}
   #erpForm .edp-sys{column-gap:3px}
@@ -4308,7 +4310,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=450;
+const APP_VERSION=451;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4552,7 +4554,7 @@ const TESTS={
   'espace-positions-droites': { name:'Espace \u2014 droites parall\u00e8les, s\u00e9cantes ou non coplanaires', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 7 \u00bb\u00a0: un pav\u00e9 droit ABCDEFGH et deux droites trac\u00e9es sur la figure \u2014 ar\u00eates, diagonales d\u2019une face ou du pav\u00e9. Sont-elles parall\u00e8les, s\u00e9cantes ou non coplanaires\u00a0? Six questions.', start:()=>startEPO() },
   'espace-coplanaires': { name:'Espace \u2014 deux droites sont-elles coplanaires\u00a0?', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteurs 8 \u00bb\u00a0: deux droites donn\u00e9es par leurs \u00e9quations param\u00e9triques. a) Sont-elles parall\u00e8les\u00a0? (les quotients \u00ab\u00a0fin / d\u00e9but\u00a0\u00bb) ; b) sinon, sont-elles s\u00e9cantes\u00a0? (on colle les \u00e9quations, on trouve t et t\u2032, on v\u00e9rifie) ; c) sont-elles coplanaires\u00a0? Trois questions.', start:()=>startECP() },
   'espace-cube-droites': { name:'Espace \u2014 le cube\u00a0: droites parall\u00e8les, s\u00e9cantes, triangle rectangle', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 8 \u00bb, en quatre parties\u00a0: dans un cube, des coordonn\u00e9es, un milieu et des vecteurs\u00a0; les \u00e9quations param\u00e9triques de trois droites, parall\u00e8les ou s\u00e9cantes, coplanaires\u00a0; leur point d\u2019intersection, \u00e0 calculer puis \u00e0 placer\u00a0; un triangle rectangle.', start:()=>startECD() },
-  'espace-reconnaitre-parametrique': { name:'Espace \u2014 reconna\u00eetre une \u00e9quation param\u00e9trique de droite', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 10 \u00bb\u00a0: d\u00e9montrer qu\u2019une \u00e9quation param\u00e9trique donn\u00e9e est celle de la droite (AB), par les deux m\u00e9thodes de la fiche\u00a0: les vecteurs directeurs colin\u00e9aires puis un point commun, ou bien la droite passe par A et par B. La r\u00e9daction compl\u00e8te, jusqu\u2019aux trois valeurs de t. Trois questions.', start:()=>startERP() },
+  'espace-reconnaitre-parametrique': { name:'Espace \u2014 reconna\u00eetre une \u00e9quation param\u00e9trique de droite', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 10 \u00bb\u00a0: d\u00e9montrer qu\u2019une \u00e9quation param\u00e9trique donn\u00e9e est celle de la droite (AB), par l\u2019une des deux m\u00e9thodes de la fiche, d\u00e9crites puis choisies par l\u2019\u00e9l\u00e8ve\u00a0: les vecteurs directeurs colin\u00e9aires puis un point commun, ou bien la droite passe par A et par B. La r\u00e9daction compl\u00e8te, jusqu\u2019aux trois valeurs de t. Trois questions.', start:()=>startERP() },
   'espace-points-alignes': { name:'Espace \u2014 trois points align\u00e9s, ou un plan\u00a0?', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 9 \u00bb\u00a0: d\u00e9montrer que trois points sont align\u00e9s, ou qu\u2019ils d\u00e9finissent un plan. La propri\u00e9t\u00e9, les vecteurs calcul\u00e9s \u00ab\u00a0arriv\u00e9e \u2212 d\u00e9part\u00a0\u00bb, les trois quotients \u00ab\u00a0fin / d\u00e9but\u00a0\u00bb (fraction simplifi\u00e9e ou valeur approch\u00e9e), puis les conclusions. Trois questions.', start:()=>startEAL() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
@@ -21322,7 +21324,7 @@ const RAP_ECD=`<b>Le cube : droites parallèles, sécantes, triangle rectangle</
 • <b>Coplanaires</b> : deux droites parallèles ou sécantes sont coplanaires ; ni parallèles ni sécantes, elles sont non coplanaires.<br>
 • <b>Longueur</b> : <i>OB</i> = √(<i>x</i>² + <i>y</i>² + <i>z</i>²) avec les coordonnées de <span class="elg-vec">OB</span>. <b>Pythagore</b> : si le carré du plus grand côté est la somme des carrés des deux autres, le triangle est rectangle, au sommet opposé au plus grand côté.`;
 const RAP_ERP=`<b>Reconnaître une équation paramétrique de droite</b><br>
-• <b>Le but</b> : démontrer qu’une droite <i>d</i>, donnée par une équation paramétrique, est la droite (<i>AB</i>). Deux méthodes.<br>
+• <b>Le but</b> : démontrer qu’une droite <i>d</i>, donnée par une équation paramétrique, est la droite (<i>AB</i>). Deux méthodes, au choix : chacune suffit.<br>
 • <b>1<sup>re</sup> méthode</b> : on calcule <span class="elg-vec">AB</span> (« arrivée − départ ») et on lit un vecteur directeur <span class="elg-vec">u</span> de <i>d</i> sur les coefficients de <i>t</i>. Les trois quotients « fin / début » sont égaux : les vecteurs sont colinéaires, (<i>AB</i>) est <b>parallèle</b> à <i>d</i>. Puis la <b>propriété</b> : deux droites parallèles ayant un <b>point commun</b> sont confondues — on vérifie que <i>A</i> (ou <i>B</i>, au choix) est sur <i>d</i>.<br>
 • <b>2<sup>e</sup> méthode</b> : deux points distincts définissent une droite. On vérifie que <i>d</i> passe par <i>A</i> <b>et</b> par <i>B</i>.<br>
 • <b>Un point est-il sur <i>d</i> ?</b> On remplace <i>x</i>, <i>y</i>, <i>z</i> par ses coordonnées ; on passe le nombre seul de l’autre côté (son signe change) ; on divise par le coefficient de <i>t</i> — s’il vaut 1, il n’y a rien à diviser. Trois valeurs de <i>t</i> égales : le point est sur <i>d</i>.<br>
@@ -32525,7 +32527,10 @@ function ecdConseilCtx(){
    en respectant les consignes de présentation des exercices précédents qui
    traitent des mêmes questions ». A, B et une droite d donnée par son
    équation paramétrique : démontrer que d est la droite (AB). Les deux
-   méthodes de la fiche, une par question :
+   méthodes de la fiche sont DÉCRITES en tête de chaque question, et l'élève
+   CHOISIT la sienne (demande de Turquet, octobre 2026 : « laisser l'élève
+   choisir sa méthode après avoir décrit les méthodes ») — le menu
+   erp-meth, rangé dans la question (q.m, null au tirage) pour la reprise :
      1ʳᵉ méthode — AB⃗ (… − …) donc AB⃗ (…) ; u⃗ de d, v⃗ de (AB) ; les trois
        quotients (fin / début), comme au 7.1.4 ; (AB) est [parallèle] à d ;
        la propriété encadrée ; « il faut vérifier qu'elles ont [un point
@@ -32556,8 +32561,7 @@ function erpGen(m){
   return {m:m, A:[2,2,-5], B:[0,1.5,-4], D:[-2,1,-3], u:[4,1,-2]};   /* la fiche elle-même */
 }
 function erpGenSession(){
-  const ms=[1,2,pick([1,2])];
-  return distinctes(ms.length, function(u,i){ return erpGen(ms[i]); });
+  return distinctes(3, function(){ return erpGen(null); });   /* la méthode : l'élève la choisit (q.m) */
 }
 function erpAB(q){ return q.B.map((b,k)=>b-q.A[k]); }
 function erpP(q,L){ return L==='B'?q.B:q.A; }
@@ -32586,6 +32590,7 @@ function erpEtude(q,P){
    le contexte de l'aide. type : num (tgParseFrac), sel, quo (les quotients,
    jugés à part comme au 7.1.4 : dans le sens que l'élève choisit). */
 function erpCases(q, ch){
+  if(!q.m) return [];   /* aucune méthode choisie : aucune case encore */
   ch=ch||erpChoix(q);
   const out=[], X=(id,type,good,nom,aff,fr)=>out.push({id:id,type:type,good:good,nom:nom,aff:aff,fr:fr||''});
   if(q.m===1){
@@ -32668,7 +32673,20 @@ function erpPromptHTML(q){
   return 'On considère les points '+edpPtHTML('A',q.A)+' et '+edpPtHTML('B',q.B)+'. '
     +'Démontrer qu’une équation paramétrique de la droite (<i>AB</i>) est&nbsp;: <span class="edp-nw"><i>d</i>&nbsp;:'+epaSysHTML(q.D,q.u,'')+'</span>';
 }
+/* Les deux méthodes, DÉCRITES avant le choix ; le menu erp-meth n'est pas
+   une case (rien ne le juge, aucune note ne le compte). */
 function erpFormHTML(q){
+  const vAB=elgVec('AB');
+  return '<div class="erp-prop erp-meths"><b>Deux méthodes</b> pour démontrer que <i>d</i> est la droite (<i>AB</i>)&nbsp;:'
+    +'<p><b>1<sup>re</sup> méthode — les vecteurs directeurs.</b> On calcule '+vAB+' et on montre qu’il est colinéaire à un vecteur directeur '+elgVec('u')+' de <i>d</i> (les trois quotients sont égaux)&nbsp;: (<i>AB</i>) est parallèle à <i>d</i>. '
+    +'Puis on vérifie qu’elles ont un point commun (<i>A</i> ou <i>B</i>)&nbsp;: deux droites parallèles ayant un point commun sont confondues.</p>'
+    +'<p><b>2<sup>e</sup> méthode — les deux points.</b> On vérifie que <i>d</i> passe par <i>A</i> et par <i>B</i>&nbsp;: deux points distincts définissent une seule droite, donc <i>d</i> est la droite (<i>AB</i>).</p></div>'
+    +'<div class="tg-line"><span>Je choisis la</span><select class="tvi-sel erp-sel" id="erp-meth"><option value="">…</option>'
+    +'<option value="1"'+(q.m===1?' selected':'')+'>1re méthode (les vecteurs directeurs)</option>'
+    +'<option value="2"'+(q.m===2?' selected':'')+'>2e méthode (les deux points)</option></select></div>'
+    +'<div id="erpMeth">'+(q.m?erpMethHTML(q):'')+'</div>';
+}
+function erpMethHTML(q){
   const I=id=>txInp(id), T=h=>'<span>'+h+'</span>';
   const L=(h,cls)=>'<div class="tg-line'+(cls?' '+cls:'')+'">'+h+'</div>';
   const NW=h=>'<span class="edp-nw">'+h+'</span>';
@@ -32723,6 +32741,7 @@ function erpFormHTML(q){
    Après la correction, le choix corrigé. */
 function erpMiroirs(){
   const f=$('erpForm'), q=test.questions&&test.questions[test.idx]; if(!f||!q) return;
+  if(!q.m) return;
   const ids=q.m===1?['erp-pt']:['erp-pp0','erp-pp1'];
   f.querySelectorAll('.erp-mir').forEach(function(m){
     const el=$(ids[+m.getAttribute('data-m')]), v=el?el.value:'';
@@ -32751,10 +32770,20 @@ function renderERP(){
   $('erpPrompt').innerHTML=erpPromptHTML(q);
   $('erpForm').innerHTML=erpFormHTML(q);
   $('erpForm').oninput=function(){ erpMiroirs(); if(isSoutien()) checkERP(true); };
-  $('erpForm').onchange=function(){ erpMiroirs(); if(isSoutien()) checkERP(true); };
+  $('erpForm').onchange=function(e){ if(e && e.target && e.target.id==='erp-meth') erpMethode(); erpMiroirs(); if(isSoutien()) checkERP(true); };
   erpMiroirs();
   setTimeout(erpMiroirs,0);     /* une reprise remet les saisies APRÈS le rendu (restoreBoxes) */
   setTimeout(erpMiroirs,120);   /* … et le rejeu d'un signalement, à 60 ms */
+}
+/* le choix de la méthode : rangé dans la question (la pause et le rejeu la
+   retrouvent), la rédaction de cette méthode s'affiche — une autre méthode
+   reprend une copie blanche. */
+function erpMethode(){
+  const q=test.questions[test.idx], el=$('erp-meth'); if(!q || !el || test.locked) return;
+  const m=el.value==='1'?1:(el.value==='2'?2:null);
+  if(m===q.m) return;
+  q.m=m; $('erpMeth').innerHTML=m?erpMethHTML(q):'';
+  const fb=$('erpFeedback'); fb.textContent=''; fb.className='mp-feedback';
 }
 function erpRetiens(q){
   const AB=erpAB(q), ch=erpChoix(q);
@@ -32767,6 +32796,7 @@ function erpRetiens(q){
 function checkERP(live){
   if(test.locked && !live) return;
   const q=test.questions[test.idx], cases=erpCases(q);
+  if(!q.m){ if(!live){ const f=$('erpFeedback'); f.textContent='Choisis d’abord ta méthode, dans le menu « Je choisis la … ».'; f.className='mp-feedback'; } return; }
   const verd=erpVerdicts(q, function(id){ const el=$(id); return el?el.value:''; });
   let allOk=true, anyFilled=false, vides=0;
   cases.forEach(function(x){
@@ -32795,6 +32825,7 @@ function checkERP(live){
     return;
   }
   test.locked=true;
+  $('erp-meth').disabled=true;
   if(allOk){
     test.score++; $('erpLiveScore').textContent=test.score;
     fb.textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, tout est juste !']);
@@ -32812,6 +32843,7 @@ function checkERP(live){
   $('erpActions').innerHTML='<button class="btn btn-primary" onclick="nextERP()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
 }
 function erpRepPlain(q){
+  if(!q.m) return 'méthode non choisie';
   const ch=erpChoix(q), AB=erpAB(q);
   const pt=L=>L+' : t = '+erpEtude(q,erpP(q,L)).map(r=>ecdQ([r.d,r.a])).join(', ')+', '+L+' ∈ d';
   return (q.m===1?'AB('+AB.map(numFmt).join(' ; ')+') colinéaire à u('+q.u.map(numFmt).join(' ; ')+'), (AB) parallèle à d ; '+pt(ch.pts[0])
@@ -32824,8 +32856,9 @@ function erpConseilCtx(){
   const q=test.questions[test.idx], cases=erpCases(q);
   const etat=cases.map(function(x){ const el=$(x.id); const v=el?String(el.value||'').trim():''; return x.nom+' = '+(v===''?'(vide)':'« '+v+' »'); }).join(' ; ');
   return 'Exercice de Terminale (géométrie dans l’espace, reconnaître une équation paramétrique de droite) : '+erpPlain(q)+'. Démontrer que d est une équation paramétrique de la droite (AB). '
-    +(q.m===1?'1re méthode, celle de la fiche : AB = « arrivée − départ » en colonne ; un vecteur directeur u de d (coefficients de t) et v = AB de (AB) ; les trois quotients « fin / début » (v sur u, ou u sur v : les deux sens sont acceptés ; fraction simplifiée ou valeur approchée au dixième) ; ils sont égaux, donc (AB) est parallèle à d ; propriété : deux droites parallèles ayant un point commun sont confondues ; il faut donc vérifier qu’elles ont un point commun : l’élève CHOISIT le point A ou le point B (les deux conviennent — ne lui recommande jamais l’un ou l’autre) et vérifie qu’il est sur d ; conclusion : les droites sont confondues. '
-             :'2e méthode, celle de la fiche : on vérifie que d passe par A et par B (deux points distincts définissent une droite), dans l’ordre que l’élève choisit ; pour chacun, la rédaction de l’appartenance ; conclusion : les droites sont confondues. ')
+    +(!q.m?'L’élève n’a pas encore choisi sa méthode : les deux de la fiche sont décrites à l’écran (1re : AB colinéaire à un vecteur directeur de d, donc parallèles, puis un point commun ; 2e : d passe par A et par B). Il choisit librement — aide-le à comprendre les deux, ne lui en impose aucune. '
+      :q.m===1?'1re méthode, choisie par l’élève, celle de la fiche : AB = « arrivée − départ » en colonne ; un vecteur directeur u de d (coefficients de t) et v = AB de (AB) ; les trois quotients « fin / début » (v sur u, ou u sur v : les deux sens sont acceptés ; fraction simplifiée ou valeur approchée au dixième) ; ils sont égaux, donc (AB) est parallèle à d ; propriété : deux droites parallèles ayant un point commun sont confondues ; il faut donc vérifier qu’elles ont un point commun : l’élève CHOISIT le point A ou le point B (les deux conviennent — ne lui recommande jamais l’un ou l’autre) et vérifie qu’il est sur d ; conclusion : les droites sont confondues. '
+             :'2e méthode, choisie par l’élève, celle de la fiche : on vérifie que d passe par A et par B (deux points distincts définissent une droite), dans l’ordre que l’élève choisit ; pour chacun, la rédaction de l’appartenance ; conclusion : les droites sont confondues. ')
     +'L’appartenance se rédige en trois systèmes : {x0 + a t = xP …} ⟺ {a t = xP puis −x0 écrit avec son signe …} ⟺ {t = (xP − x0)/a = … pour chaque ligne} ; quand le coefficient de t vaut 1, il n’y a pas de division. Les trois valeurs de t égales : le point est sur d. '
     +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
     +cases.map(function(x){ return x.nom+' = '+erpAff(x); }).join(' ; ')+' ('+erpRepPlain(q)+'). '
@@ -37513,7 +37546,7 @@ const QIA_SUGG={
   epa:["Faire un rappel de cours pour cet exercice.","Comment savoir si deux droites de l’espace sont parallèles ?","Comment lire un vecteur directeur dans une équation paramétrique ?","Que veut dire « vecteurs colinéaires » ?","Pourquoi diviser les coordonnées une par une ?","Que conclure si deux quotients sont égaux mais pas le troisième ?"],
   epo:["Faire un rappel de cours pour cet exercice.","Que veut dire « deux droites coplanaires » ?","Comment savoir si deux droites de l’espace sont sécantes ?","Deux droites qui ne se coupent pas sont-elles forcément parallèles ?","Comment trouver un plan qui contient les deux droites ?","Pourquoi une partie de la droite est-elle en pointillés ?"],
   ecp:["Faire un rappel de cours pour cet exercice.","Que veut dire « deux droites coplanaires » ?","Pourquoi passer directement au c) quand les droites sont parallèles ?","Comment savoir si deux droites sont sécantes ?","Pourquoi vérifier dans la dernière équation ?","Deux droites qui ne sont pas parallèles sont-elles forcément sécantes ?"],
-  erp:["Faire un rappel de cours pour cet exercice.","Pourquoi deux droites parallèles avec un point commun sont-elles confondues ?","Comment lire un vecteur directeur dans une équation paramétrique ?","Comment savoir si un point est sur la droite d ?","Pourquoi deux points suffisent-ils dans la 2e méthode ?","Faut-il prendre le point A ou le point B ?"],
+  erp:["Faire un rappel de cours pour cet exercice.","Pourquoi deux droites parallèles avec un point commun sont-elles confondues ?","Comment lire un vecteur directeur dans une équation paramétrique ?","Comment savoir si un point est sur la droite d ?","Pourquoi deux points suffisent-ils dans la 2e méthode ?","Faut-il prendre le point A ou le point B ?","Quelle différence entre les deux méthodes ?"],
   eal:["Faire un rappel de cours pour cet exercice.","Quand trois points définissent-ils un plan ?","Comment calculer les coordonnées d’un vecteur ?","Que veut dire « vecteurs colinéaires » ?","Pourquoi diviser les coordonnées une par une ?","Que conclure si deux quotients sont égaux mais pas le troisième ?"],
   ecd:["Faire un rappel de cours pour cet exercice.","Comment écrire l’équation paramétrique d’une droite ?","Comment savoir si deux droites sont parallèles ?","Pourquoi supprimer une des deux équations identiques ?","Comment trouver k puis t ?","Deux droites sécantes sont-elles coplanaires ?","Comment montrer qu’un triangle est rectangle ?"],
   ecb:["Faire un rappel de cours pour cet exercice.","Comment lire les coordonnées d’un sommet du cube ?","Comment trouver les coordonnées d’un point sur une arête ?","Que se passe-t-il pour un point sur le prolongement d’une arête ?","Comment calculer les coordonnées d’un vecteur ?","Comment placer un point dont on connaît les coordonnées ?"],
