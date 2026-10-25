@@ -1954,7 +1954,7 @@ tactile forcé comme en 11 bis : 44 px mesurés, bornes pressées, barre touché
 30 px, grisage retiré, pas sans redessin, « 6 » remis.
 
 **Puis les divisions qui simplifient sont venues À LA FIN du calcul — en
-Première et en Seconde (octobre 2026, Première v342, Seconde v610).** Demande
+Première et en Seconde (octobre 2026, Première v343, Seconde v611 — publiée d'abord sous v342 / v610, numéros que #868 portait aussi).** Demande
 de Turquet : « pour les calculs fractionnaires quand il y a des étapes avec des
 divisions à la fin pour simplifier le résultat, n'afficher ces divisions avec
 les cases qu'à la fin du calcul, quand l'élève a écrit un premier résultat ».
