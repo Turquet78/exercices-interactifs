@@ -1573,3 +1573,41 @@ contrôles qui lisent `#dmResults table` lisent toujours le premier paquet,
 en-têtes compris. Mesuré dans Chromium sur 28 élèves : en Seconde, 4 colonnes
 à 1400 px, 2 à 820 px, 1 à 390 px, sans débordement horizontal ; la hauteur du
 bilan et du détail passe de ~9 000 px (téléphone) à ~2 900 px à 1400 px.
+
+**La note d'un exercice s'affiche SUR 10, et rien d'autre (décision de
+Turquet, octobre 2026 : « quand on finit un exercice, je veux que la note
+soit uniquement affichée sur 10, et pas de pourcentage — tout le temps,
+devoirs maison et fiches de travail compris »).** L'écran de fin écrivait
+deux nombres dans son cercle : la note sur le nombre de questions
+(« 4,5 / 5 ») et un pourcentage (« 90 % ») — sauf la Terminale, qui
+écrivait la note sur 10 à la place du pourcentage en entraînement et en
+soutien, et le soutien partout, qui y mettait la note plafonnée. Il n'y a
+plus qu'UN nombre, dans `#resultScore` ; `#resultPct` n'existe plus.
+* **Un seul entonnoir, `afficherNoteFin(percent)`**, aux trois niveaux, à la
+  place de `noteSoutienFin` : `showResults()` et la fin du parcours de
+  fractions (seule fin qui écrivait son écran elle-même) passent par lui.
+  La note vaut `percent / 10` — exactement ce que `noteDevoirExo()` relira
+  de la ligne ; en soutien, `percent × plafond / 100`, la note plafonnée,
+  avec la phrase « compte pour N points sur 10 au plus » dessous.
+* **Les lignes relues disent la même chose** (`noteSur10Ligne(r)`) :
+  l'historique de « Mon espace » montrait « 4,5 / 5 » et un badge « 90 % » ;
+  il montre un badge « 9 / 10 », plafonné pour une séance de soutien — le
+  plafond de son devoir (`dmReglageExo(dm, id)`, qui prend maintenant un
+  devoir et un exercice, ceux de la séance courante par défaut), 5 hors
+  devoir. En Terminale, la page des devoirs de l'élève écrivait
+  « Entr. 80% » / « Soutien 60% » sous chaque exercice : « Entr. 8 / 10 »,
+  « Soutien 3 / 10 ». En Seconde et en Première, ces pages écrivaient déjà
+  « Note : x / 10 ».
+* **Les confettis d'un sans-faute** lisaient « note = total » sur
+  `#resultScore` : un sans-faute de soutien affiche « 5 / 10 » et n'y avait
+  plus droit. `afficherNoteFin` pose `data-parfait`, que `sansFaute()` lit
+  d'abord.
+* **Ce qui ne change pas, et c'est voulu** : les écrans du PROFESSEUR
+  (détail par élève, bilan des devoirs, export) gardent leurs pourcentages ;
+  la demande porte sur ce que l'élève lit. La colonne `percent` reste en
+  base, inchangée : toutes les notes sur 10 en découlent.
+* **Le banc des notes** (`tests/notes.js`) exige désormais un cercle qui ne
+  contient QUE « x / 10 », sans « % », égal à percent / 10 (ou à la note
+  plafonnée en soutien) ; l'accord entre le pourcentage et `details.note`
+  reste vérifié sur la ligne. Éprouvé par sabotage : un « (64 %) » ajouté
+  derrière la note en Terminale rougit les 75 exercices.
