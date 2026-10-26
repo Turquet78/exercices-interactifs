@@ -2064,7 +2064,7 @@ récrit la referme ; produit (4.4) — 4/14 écrit pour 2/15 ouvre la chaîne,
 le point.
 
 **Puis le 4.1 de la Première et le 5.15 de la Seconde ont accepté le facteur
-enlevé avant de multiplier (octobre 2026, Première v348, Seconde v617).**
+enlevé avant de multiplier (octobre 2026, Première v349, Seconde v617).**
 Demande de Turquet, copie d'écran à l'appui : « en seconde et première sur
 les calculs fractionnaires, compter juste un élève qui calcule un produit en
 supprimant les facteurs identiques au numérateur et au dénominateur ». Sur
