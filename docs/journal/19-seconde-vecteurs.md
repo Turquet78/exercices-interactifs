@@ -546,7 +546,7 @@ soit un parallélogramme) n'est pas portée — Turquet a précisé que la fiche
 translation de vecteur … est le point … » de la fiche est dite dans la
 correction et le rappel, pas demandée dans une case.
 
-### Puis le 8.1.4 s'est présenté comme le 8.1.12 (v615)
+### Puis le 8.1.4 s'est présenté comme le 8.1.12 (v615, puis v616)
 
 Demande de Turquet, octobre 2026 : « en seconde présenter le 8.1.4 comme le
 8.1.12 ». L'écran de {translation-quadrillage} reprend celui de
@@ -578,6 +578,11 @@ règles, plus une : tout point à un carreau du bord au moins, pour que sa
 lettre ait la place de s'écrire. Le soutien colore toujours à la pose (le
 8.1.4 n'est pas dans `soutienEnDirect.sans`) : c'est un comportement, pas
 une présentation, et la demande ne le touchait pas.
+
+**Deux PR, un seul numéro.** La PR 878 (le 8.1.14) a pris la v615 le même
+après-midi et a été fusionnée quelques minutes avant celle-ci : le contrôle
+des versions compare une branche à `main`, pas deux branches entre elles.
+Le numéro est passé à **v616** aussitôt après, sans autre changement.
 
 Les deux bancs ont suivi : le banc principal joue `trlClic`, `trlChoisir`
 et `trlEffacer` et relit les cadres et la consigne ; le banc navigateur
