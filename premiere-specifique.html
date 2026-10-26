@@ -2048,10 +2048,6 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
            n'existe QUE s'il y en a : sinon l'accueil reste ce qu'il était. -->
       <div class="rep-bloc" id="repProf" hidden></div>
       <div class="choices" style="margin-top:16px">
-        <button class="choice eleve" onclick="openThemes()">
-          <span class="ic">📚</span><span class="ttl">Choisir un exercice par thème</span>
-          <span class="ds">Tous les thèmes et les exercices, avec ton bilan de travail.</span>
-        </button>
         <button class="choice prof" onclick="openDevoirsEleve()">
           <span class="ic">📌</span><span class="ttl">Voir les devoirs à la maison</span>
           <span class="ds">Le dernier devoir, les exercices à faire et tes résultats.</span>
@@ -2059,6 +2055,10 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
         <button class="choice fiche" onclick="openDevoirsEleve('fiche')">
           <span class="ic">📝</span><span class="ttl">Fiches de travail en classe</span>
           <span class="ds">Les fiches d&rsquo;exercices &agrave; faire en classe, et tes r&eacute;sultats.</span>
+        </button>
+        <button class="choice eleve" onclick="openThemes()">
+          <span class="ic">📚</span><span class="ttl">Choisir un exercice par thème</span>
+          <span class="ds">Tous les thèmes et les exercices, avec ton bilan de travail.</span>
         </button>
         <button class="choice rattrapage" onclick="openRattrapage()">
           <span class="ic">🎯</span><span class="ttl">Reprendre les exercices à améliorer</span>
@@ -3102,7 +3102,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=346;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=347;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -21578,6 +21578,8 @@ function dmMoyennes(devoirs, eleves, rows){
    « typeof » plutôt qu'une liste par niveau, pour que ce texte reste le même
    dans les trois fichiers. */
 function dmMoyFamille(){
+  if(typeof dmGenre!=='undefined' && dmGenre==='snt')
+    return { pluriel:'fiches SNT', singulier:'fiche', accord:'e', fichier:'fiches-snt' };
   return (typeof dmGenre!=='undefined' && dmGenre==='fiche')
     ? { pluriel:'fiches', singulier:'fiche', accord:'e', fichier:'fiches' }
     : { pluriel:'devoirs', singulier:'devoir', accord:'', fichier:'devoirs' };
