@@ -1079,7 +1079,7 @@ et à une autre place (7.16) ; la réduction fausse à une autre place (7.11,
 7.14) ; et, en face, le 7.15 garde ses accolades : un résultat sous la
 mauvaise accolade reste rouge.
 
-## Le x arrondi dans tout le thème 7 (v613)
+## Le x arrondi dans tout le thème 7 (v613, renuméroté v614)
 
 **La demande** (Turquet, octobre 2026) : « en seconde, dans les écritures
 littérales, je souhaite que les inconnues x soient de forme arrondie, comme
