@@ -8734,7 +8734,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=613;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=614;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -73257,7 +73257,8 @@ function ctxVfh(q){
      · pas la même direction, ligne ouverte (l'élève a dit « Vrai ») : la
        ligne ne compte pas, et sa note dit qu'on ne compare pas le sens de
        deux vecteurs qui ne sont pas parallèles.
-   La justification du 8.1.14 suit la même règle, ouverte par « Faux ».
+   La justification du 8.1.14 suit la même règle, ouverte par « Faux » ; et
+   « pas le même sens » n'y est proposé que si les vecteurs sont parallèles.
    Le barème suit la situation : 3 cases (direction différente) ou 4 au
    8.1.13, 1 case (égaux) ou 2 au 8.1.14.
 
@@ -73549,6 +73550,10 @@ function vejJuge(q){
     subs.push({k:1, el:b.el, brut:b.brut, vide:b.brut==='', ok:r.indexOf(b.brut)>=0, bon:r.indexOf(b.brut)>=0 ? b.brut : r[0], cache:!ouvert, raisons:r}); }
   return subs;
 }
+/* « pas le même sens » n'est proposé qu'entre deux vecteurs PARALLÈLES : quand
+   la justification est « pas la même direction », il ne figure pas dans la
+   liste (demande de Turquet, octobre 2026) */
+function vejOptions(q){ return vcrCrit(q).D ? VCR_OPT_J : VCR_OPT_J.filter(function(o){ return o[0]!=='S'; }); }
 const VEJ_AFF=function(){ return 'Les vecteurs '+vcrV('u')+' et '+vcrV('v')+' sont <b>égaux</b>.'; };
 const VEJ_JUST=function(){ return '<b>Justification</b> : pourquoi ne sont-ils pas égaux ?'; };
 function vejNote(q, k){
@@ -73582,7 +73587,7 @@ function renderVejTest(){
     +'Si elle est fausse, choisis la <b>justification</b>. Rappel : la <b>direction</b> d’un vecteur, c’est intuitivement la droite qui le porte — deux vecteurs ont la même direction quand ils sont <b>parallèles</b>.';
   let h='<div class="chs-wrap vcr-wrap"><div class="vcr-fig">'+vcrSvg(q)+'</div><div class="vcr-lignes">';
   h+=vcrLigneHTML('vej', 0, VEJ_AFF(), TVF_OPT_VF, vcrTxt(VEJ_AFF())+' Vrai ou faux ?', 'vf vcr-sel');
-  h+=vcrLigneHTML('vej', 1, VEJ_JUST(), VCR_OPT_J, 'Justification : pourquoi les vecteurs ne sont-ils pas égaux ?', 'vej-just');
+  h+=vcrLigneHTML('vej', 1, VEJ_JUST(), vejOptions(q), 'Justification : pourquoi les vecteurs ne sont-ils pas égaux ?', 'vej-just');
   h+='</div></div>';
   $('vejHost').innerHTML=h;
   [0,1].forEach(function(k){ const el=$('vej-'+k); if(!el) return;
@@ -73636,7 +73641,7 @@ function startVej(){
 function ctxVej(q){
   const c=vcrCrit(q), r=vcrManques(c), subs=vejJuge(q);
   const faux=subs.filter(function(s){ return !s.ok && !s.vide && !s.cache; }).length;
-  let t='L’élève doit dire si l’affirmation « les vecteurs u et v sont égaux » est vraie ou fausse, puis, si elle est fausse, choisir la justification parmi : pas la même longueur, pas la même direction (pas parallèles), pas le même sens. '+ctxVcrCommun(q)+' '
+  let t='L’élève doit dire si l’affirmation « les vecteurs u et v sont égaux » est vraie ou fausse, puis, si elle est fausse, choisir la justification parmi : pas la même longueur, pas la même direction (pas parallèles)'+(c.D ? ', pas le même sens' : ' — « pas le même sens » ne lui est pas proposé, les vecteurs n’étant pas parallèles')+'. '+ctxVcrCommun(q)+' '
    +'Réponse attendue, STRICTEMENT SECRÈTE : '+(c.E ? 'vrai, les vecteurs sont égaux.' : 'faux ; justification(s) acceptée(s) : '+r.map(function(m){ return VCR_MANQUE[m]; }).join(' ou ')+'.')
    +' « Pas le même sens » n’est jamais une justification quand les vecteurs ne sont pas parallèles.';
   if(faux) t+=' Il s’est trompé sur '+faux+' case(s).';

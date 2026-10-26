@@ -3857,6 +3857,17 @@ JAMAIS une justification de deux vecteurs qui ne sont pas parallèles : le
 sens ne se compare qu'entre deux vecteurs de même direction, et le message
 le dit. Barème : 1 case pour deux vecteurs égaux, 2 sinon (11 pour six).
 
+**Puis « pas le même sens » a quitté la liste des vecteurs non parallèles**
+(Turquet, octobre 2026, v614 : « ne pas proposer “pas le même sens” quand la
+justification est “pas la même direction” »). La liste se construit par
+question (`vejOptions`) : trois choix entre deux vecteurs parallèles, deux
+sinon. Le prix est nommé : un élève qui ne voit que deux choix sait que les
+vecteurs ne sont pas parallèles — la ligne « Vrai ou faux » a déjà été
+répondue quand la liste s'ouvre, et « pas la même direction » y est toujours
+juste. Le message « on ne compare pas leur sens » reste dans `vejPourquoi`,
+pour une saisie ancienne remise par une reprise. Le banc vérifie les deux
+listes, et « pas le même sens » compté juste sur deux vecteurs opposés.
+
 **Un piège de dessin, vu en ouvrant la page.** Les deux écrans gardent
 chacun leur dessin, et les pointes de flèche étaient des `<marker>` de même
 identifiant : au 8.1.14, `url(#vcrArru)` trouvait d'abord le marqueur du

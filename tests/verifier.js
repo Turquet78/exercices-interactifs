@@ -13163,17 +13163,20 @@ function vecteursCriteres(w, P){
     poserJ(Q3, []);
     if(!/parallèles/.test(el('vejInstr').textContent)) vus.push('l’énoncé du 8.1.14 ne dit pas que la direction, c’est parallèle');
     if(!cache('vej-l-1')) vus.push('la justification est ouverte avant toute réponse');
-    if(el('vej-1').options.length!==4 || !/pas parallèles/.test(el('vej-1').textContent)) vus.push('la liste des justifications : « '+el('vej-1').textContent+' »');
+    if(el('vej-1').options.length!==3 || !/pas parallèles/.test(el('vej-1').textContent) || /même sens/.test(el('vej-1').textContent)) vus.push('la liste des justifications de deux vecteurs non parallèles : « '+el('vej-1').textContent+' »');
     choisir('vej-0', 'F');
     if(cache('vej-l-1')) vus.push('« Faux » n’ouvre pas la justification');
     ['D','L'].forEach(function(j){ poserJ(Q3, ['F', j]); checkVejAnswer();
       const d=test.answers[test.answers.length-1];
       if(!d.correct || d.cases!==2) vus.push('Q3, la justification '+j+' est comptée fausse'); });
-    poserJ(Q3, ['F','S']); checkVejAnswer();
-    if(peint('vej-1')!=='rouge' || !/ne compare pas leur sens/.test(fb('vej'))) vus.push('Q3, « pas le même sens » : '+peint('vej-1')+', « '+fb('vej').slice(0,160)+' »');
+    poserJ(Q3, ['F']); checkVejAnswer();
     if(!/Les deux justifications sont justes/.test(el('vej-pq-1').textContent)) vus.push('Q3, la note ne nomme pas les deux justifications : « '+el('vej-pq-1').textContent+' »');
     poserJ(Q3, ['V']); checkVejAnswer();
     if(peint('vej-0')!=='rouge' || cache('vej-l-1') || peint('vej-1')!=='correction') vus.push('Q3, « égaux » dit vrai : la justification ne s’ouvre pas en vert');
+    poserJ({s:'oppose', u:[1,2,2,1], v:[9,4,-2,-1]}, ['F']);
+    if(el('vej-1').options.length!==4 || !/même sens/.test(el('vej-1').textContent)) vus.push('la liste des justifications de deux vecteurs parallèles : « '+el('vej-1').textContent+' »');
+    choisir('vej-1', 'S'); checkVejAnswer();
+    if(!test.answers[test.answers.length-1].correct) vus.push('deux vecteurs opposés, « pas le même sens » est compté faux');
     poserJ(Q4, ['F','L']); checkVejAnswer();
     der=test.answers[test.answers.length-1];
     if(peint('vej-0')!=='rouge' || peint('vej-1')!=='rien' || !el('vej-1').disabled || der.cases!==1) vus.push('Q4, égaux dits faux : la justification '+peint('vej-1')+', '+der.cases+' case(s)');
@@ -13181,7 +13184,7 @@ function vecteursCriteres(w, P){
     der=test.answers[test.answers.length-1];
     if(!der.correct || der.cases!==1) vus.push('la copie juste de Q4');
     const ctx2=ctxVej(Q3).contexte;
-    if(!/SECR/.test(ctx2) || !/pas la même longueur/.test(ctx2) || !/jamais une justification/.test(ctx2)) vus.push('le contexte du 8.1.14');
+    if(!/SECR/.test(ctx2) || !/pas la même longueur/.test(ctx2) || !/jamais une justification/.test(ctx2) || !/pas proposé/.test(ctx2)) vus.push('le contexte du 8.1.14');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
