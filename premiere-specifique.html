@@ -1521,6 +1521,21 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 .pb-arbre-q{fill:var(--red);font-size:19px}
 @media(max-width:560px){ .pbq-props{grid-template-columns:1fr} .pb-tab3 th,.pb-tab3 td{padding:3px 3px} .pb-tab3 td{min-width:44px} }
 @media(max-width:560px){ #pbHost .pb-ind .pb-sel,#pbHost .pb-ind .pb-aff,#pbHost .pbf-q .pb-ind .pb-sel,#pbHost .pbf-q .pb-ind .pb-aff{width:42px} }
+/* LES LISTES DE LETTRES SUR ÉCRAN TACTILE (3.1, 3.3, 3.4). La liste du
+   système y pose ses dix choix l'un sous l'autre, une rangée haute chacun :
+   sur une tablette couchée ou un téléphone, elle déborde de l'écran
+   (signalé par Turquet, octobre 2026). Le toucher passe donc À TRAVERS la
+   liste jusqu'à sa case, qui ouvre un menu en grille (pbMenuOuvrir) : deux
+   ou trois rangées, posé sous la case ou au-dessus, jamais hors de l'écran.
+   Le clavier garde la liste du système. */
+@media (pointer:coarse){ #pbHost .pb-sel.pb-lettres{pointer-events:none} }
+.pb-menu{position:fixed;z-index:9000;display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px;
+  width:min(380px,calc(100vw - 16px));padding:8px;background:var(--surface,#fff);border:2px solid #BBD0F7;border-radius:14px;
+  box-shadow:0 8px 24px rgba(20,40,90,.22);box-sizing:border-box}
+.pb-menu button{height:40px;padding:0 4px;border:2px solid #BBD0F7;border-radius:10px;background:#F3F7FF;cursor:pointer;
+  font-family:"Fredoka";font-weight:600;font-size:1.15rem;color:var(--blue-dark);white-space:nowrap}
+.pb-menu button.pb-menu-pris{border-color:var(--blue);background:#EAF0FF}
+.pb-menu button .pb-rien{font-size:.75em}
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
 #fpHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));line-height:1.15;}
@@ -18187,6 +18202,55 @@ function pbAffMaj(){
     if(b && b.classList && b.classList.contains('mf-cor')){ const att=pbAttendus(pbQDe(el.id))[pbBase(el.id)]; if(att) b.innerHTML=pbHTML(att); }
   });
 }
+/* LE MENU EN GRILLE d'une liste de lettres, sur écran tactile (voir la règle
+   CSS .pb-menu). Ses boutons portent l'écriture de la page (pbHTML) ; choisir
+   écrit la valeur dans la liste et déclenche « change », comme la liste du
+   système : choisirPB, la correction en direct et la sauvegarde n'y voient
+   aucune différence. */
+function pbMenuFermer(){ const m=document.getElementById('pbMenu'); if(m) m.remove(); }
+function pbMenuOuvrir(sel){
+  pbMenuFermer();
+  const m=document.createElement('div');
+  m.id='pbMenu'; m.className='pb-menu'; m.setAttribute('role','listbox');
+  m.innerHTML=Array.prototype.map.call(sel.options, function(o){
+    return '<button type="button" role="option" data-v="'+esc(o.value)+'"'+(o.value===sel.value?' class="pb-menu-pris"':'')+'>'
+      +(o.value ? pbHTML(o.value) : '…')+'</button>';
+  }).join('');
+  m.addEventListener('click', function(e){
+    const b=e.target.closest && e.target.closest('button[data-v]');
+    if(!b) return;
+    sel.value=b.getAttribute('data-v');
+    pbMenuFermer();
+    sel.dispatchEvent(new Event('input',{bubbles:true}));
+    sel.dispatchEvent(new Event('change',{bubbles:true}));
+  });
+  document.body.appendChild(m);
+  /* sous la case si elle y tient, sinon au-dessus ; toujours dans l'écran */
+  const r=sel.getBoundingClientRect(), h=m.offsetHeight, w=m.offsetWidth;
+  const vh=window.innerHeight, vw=document.documentElement.clientWidth||window.innerWidth;
+  let top=r.bottom+6;
+  if(top+h>vh-8) top = r.top-6-h>=8 ? r.top-6-h : Math.max(8, vh-8-h);
+  m.style.top=top+'px';
+  m.style.left=Math.max(8, Math.min(r.left+r.width/2-w/2, vw-8-w))+'px';
+}
+document.addEventListener('mousedown', function(e){
+  const t=e.target;
+  if(t && t.matches && t.matches('#pbHost select.pb-lettres') && tabletteActive()) e.preventDefault();
+}, true);
+document.addEventListener('click', function(e){
+  const m=document.getElementById('pbMenu');
+  if(m && m.contains(e.target)) return;
+  pbMenuFermer();
+  if(!tabletteActive()) return;
+  const ca=e.target.closest && e.target.closest('#pbHost .pb-case');
+  const sel=ca && ca.querySelector('select.pb-lettres');
+  if(!sel || sel.disabled || test.locked) return;
+  e.preventDefault();
+  pbMenuOuvrir(sel);
+}, true);
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') pbMenuFermer(); });
+window.addEventListener('resize', pbMenuFermer);
+window.addEventListener('scroll', pbMenuFermer, true);
 /* {tableau-probabilites} (3.2, v300) : LE DÉBUT DE LIGNE S'ÉCRIT TOUT SEUL.
    Demande de Turquet (octobre 2026) : « quand l'élève a interprété la
    question avec des lettres ou “tout”, afficher la formule du début de ligne,
