@@ -2382,6 +2382,9 @@ module.exports = {
     /* la seconde famille de devoirs : voir la Première */
     fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
               ordre: true, sur20: true, compacte: true },
+    /* La TROISIÈME famille, propre à la Seconde (demande de Turquet, octobre
+       2026) : les fiches SNT, sous valeurs.snt — gérées comme les fiches. */
+    snt: { titre: 'SNT \u2014 Sciences Num\u00E9riques et Technologie', badge: 'Fiche SNT', note: 'Note de la fiche' },
 
   /* L'ORDRE DES EXERCICES D'UN DEVOIR SE RÈGLE dans l'éditeur de ce niveau
      (ruban ▲▼) : la relecture du formulaire PRÉSERVE l'ordre rangé au lieu de
