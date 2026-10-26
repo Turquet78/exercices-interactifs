@@ -662,3 +662,28 @@ spectateur a moins de 25 ans » et P l'évènement « Le spectateur a acheté du
 pop-corn ». » — les mots du contexte de la séance (`ind`, `A`, `B`), comme le
 3.1. Le dé et « ne peut pas être une probabilité » n'ont pas de lettres et
 n'en reçoivent pas.
+
+**Les listes de lettres s'ouvrent en GRILLE sur écran tactile (v345).**
+Demande de Turquet, octobre 2026 : au 3.1, « quand un menu déroulant
+apparaît pour choisir A ; B ; A ∩ B…, faire en sorte qu'il prenne moins de
+hauteur sur une tablette ou un téléphone pour qu'il apparaisse en entier ».
+La liste du système ne se règle pas : elle pose ses dix choix (« … », A, Ā,
+B, B̄, les quatre intersections, « tout ») l'un sous l'autre, une rangée
+haute chacun, et déborde d'un téléphone couché. Sur écran tactile
+(`pointer:coarse`), le toucher passe donc À TRAVERS la liste
+(`pointer-events:none`) jusqu'à sa case `.pb-case`, qui ouvre `#pbMenu`
+(`pbMenuOuvrir`) : une grille de boutons de 40 px, deux rangées de cinq,
+posée sous la case ou au-dessus, toujours dans l'écran ; un toucher ailleurs,
+un défilement, Échap ou un redimensionnement la ferment. Choisir écrit la
+valeur dans la liste et déclenche `input` puis `change` : `choisirPB`, la
+vitrine, la correction en direct et la sauvegarde n'y voient aucune
+différence. Les boutons portent l'écriture de la page (`pbHTML`), si bien
+que la barre de Ā y tombe enfin sur la lettre — la liste déroulée du système
+la décalait (voir v286). Le clavier et la souris gardent la liste du
+système ; `window.__tabletteForce` ouvre la grille sans écran tactile (un
+`mousedown` empêché retient alors la liste du système). Vaut pour les trois
+écrans du moteur (3.1, 3.3, 3.4) — les listes de PHRASES (`pb-mots`,
+`pb-long`) n'ont que quatre choix et gardent la liste du système.
+Vérifié dans Chromium tactile (390 × 700, 740 × 360, 1024 × 700) : la grille
+mesure 106 px de haut, entière à l'écran ; le choix touché s'écrit dans la
+case et dans `q.rep`, la grille se referme.
