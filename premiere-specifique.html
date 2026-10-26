@@ -1521,6 +1521,21 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 .pb-arbre-q{fill:var(--red);font-size:19px}
 @media(max-width:560px){ .pbq-props{grid-template-columns:1fr} .pb-tab3 th,.pb-tab3 td{padding:3px 3px} .pb-tab3 td{min-width:44px} }
 @media(max-width:560px){ #pbHost .pb-ind .pb-sel,#pbHost .pb-ind .pb-aff,#pbHost .pbf-q .pb-ind .pb-sel,#pbHost .pbf-q .pb-ind .pb-aff{width:42px} }
+/* LES LISTES DE LETTRES SUR ÉCRAN TACTILE (3.1, 3.3, 3.4). La liste du
+   système y pose ses dix choix l'un sous l'autre, une rangée haute chacun :
+   sur une tablette couchée ou un téléphone, elle déborde de l'écran
+   (signalé par Turquet, octobre 2026). Le toucher passe donc À TRAVERS la
+   liste jusqu'à sa case, qui ouvre un menu en grille (pbMenuOuvrir) : deux
+   ou trois rangées, posé sous la case ou au-dessus, jamais hors de l'écran.
+   Le clavier garde la liste du système. */
+@media (pointer:coarse){ #pbHost .pb-sel.pb-lettres{pointer-events:none} }
+.pb-menu{position:fixed;z-index:9000;display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px;
+  width:min(380px,calc(100vw - 16px));padding:8px;background:var(--surface,#fff);border:2px solid #BBD0F7;border-radius:14px;
+  box-shadow:0 8px 24px rgba(20,40,90,.22);box-sizing:border-box}
+.pb-menu button{height:40px;padding:0 4px;border:2px solid #BBD0F7;border-radius:10px;background:#F3F7FF;cursor:pointer;
+  font-family:"Fredoka";font-weight:600;font-size:1.15rem;color:var(--blue-dark);white-space:nowrap}
+.pb-menu button.pb-menu-pris{border-color:var(--blue);background:#EAF0FF}
+.pb-menu button .pb-rien{font-size:.75em}
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
 #fpHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));line-height:1.15;}
@@ -2204,7 +2219,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
       </div>
       <div class="score-circle">
         <svg viewBox="0 0 170 130" aria-hidden="true"><ellipse class="ring" cx="85" cy="65" rx="74" ry="52" transform="rotate(-4 85 65)"/></svg>
-        <div class="val"><span class="big" id="resultScore">0 / 10</span><span class="pct" id="resultPct">0 %</span></div>
+        <div class="val"><span class="big" id="resultScore">0 / 10</span></div>
       </div>
       <p class="note" id="resultPlafond" hidden style="text-align:center;margin:0 0 6px"></p>
       <ul class="review" id="review"></ul>
@@ -3087,7 +3102,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=345;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=347;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -5013,8 +5028,7 @@ function renderBilan(results){
   $('spaceHist').innerHTML=recent.length?recent.map(r=>{
     const m=modeOf(r), cls=m==='train'?'train':(m==='soutien'?'soutien':'eval'), lbl=m==='train'?'entraînement':(m==='soutien'?'soutien':'éval');
     return `<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))} <span class="mode-tag ${cls}" style="font-size:.7rem;padding:1px 7px">${lbl}</span></span>
-      <span class="sc">${fmtNote(noteDe(r))} / ${r.total}</span>
-      <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
+      <span class="badge ${pctClass(r.percent)}">${fmtNote(noteSur10Ligne(r))} / 10</span></li>`; }).join('')
     :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
 }
 /* On revient là d'où l'on vient : la page de la partie si l'exercice en fait
@@ -5360,22 +5374,43 @@ function dmPlafondSoutien(smax){ const p=parseInt(smax,10); return (p>=6&&p<=10)
    au bout d'une séance de soutien promettait une note que le carnet ne
    donnera jamais (4/10). Même définition que noteDevoirExo() — le plafond
    de dmReglageExo(), 5 hors devoir —, relue par tests/notes.js. */
+/* LA NOTE D'UN EXERCICE S'AFFICHE SUR 10, ET RIEN D'AUTRE (décision de
+   Turquet, octobre 2026 : « quand on finit un exercice, je veux que la note
+   soit uniquement affichée sur 10, et pas de pourcentage — tout le temps,
+   devoirs maison et fiches de travail compris »). L'écran de fin écrivait
+   deux nombres : « 4,5 / 5 » et « 90 % » — ou, en soutien, la note
+   plafonnée. Il n'en écrit plus qu'UN, sur 10 : percent / 10, exactement ce
+   que noteDevoirExo() relira de la ligne ; en soutien, la note plafonnée,
+   celle qui comptera. UN SEUL entonnoir pour toutes les fins de séance, et
+   pour chaque ligne relue (noteSur10) : l'historique de l'élève dit la même
+   chose que l'écran de fin. data-parfait garde les confettis d'un sans-faute
+   de soutien, dont la note plafonnée n'atteint pas 10. */
 function plafondSoutien(){ const ex=dmReglageExo(); return dmPlafondSoutien(ex&&ex.smax); }
-function noteSoutienFin(percent){
-  const el=$('resultPlafond'), soutien=(currentMode==='soutien');
-  if(el){ el.hidden=!soutien; el.textContent=soutien?`En soutien, cet exercice compte pour ${plafondSoutien()} points sur 10 au plus.`:''; }
-  if(!soutien) return false;
-  $('resultPct').textContent=`${fmtNote(percent/100*plafondSoutien())} / 10`;
-  $('resultPct').title='Note de soutien, plafonnée';
-  return true;
+function noteSur10(percent, soutien, plafond){
+  const p=Math.max(0, Math.min(100, Number(percent)||0));
+  return soutien ? p/100*plafond : p/10;
+}
+function noteSur10Ligne(r){
+  const soutien=(modeOf(r)==='soutien'), d=r&&r.details;
+  const ex=(soutien && d && d.dm) ? dmReglageExo(d.dm, testIdOf(r)) : null;
+  return noteSur10(r&&r.percent, soutien, dmPlafondSoutien(ex&&ex.smax));
+}
+function afficherNoteFin(percent){
+  const el=$('resultPlafond'), soutien=(currentMode==='soutien'), plafond=soutien?plafondSoutien():10;
+  if(el){ el.hidden=!soutien; el.textContent=soutien?`En soutien, cet exercice compte pour ${plafond} points sur 10 au plus.`:''; }
+  const sc=$('resultScore');
+  sc.textContent=`${fmtNote(noteSur10(percent, soutien, plafond))} / 10`;
+  sc.title=soutien?'Note de soutien, plafonnée':'';
+  sc.dataset.parfait=(percent>=100)?'1':'';
 }
 /* L'entrée de l'exercice courant dans le devoir courant — la même définition
    que celle que l'éditeur écrit, jamais un état parallèle (la leçon de
    currentPasse, déjà payée par tmNbDevoir). */
-function dmReglageExo(){
-  if(!currentDM) return null;
-  const dev=(mesDevoirs||[]).find(d=>d.id===currentDM);
-  return (dev&&(dev.exercices||[]).find(e=>e.id===currentTestId))||null;
+function dmReglageExo(dm, id){
+  dm=dm||currentDM; id=id||currentTestId;
+  if(!dm) return null;
+  const dev=(mesDevoirs||[]).find(d=>d.id===dm);
+  return (dev&&(dev.exercices||[]).find(e=>e.id===id))||null;
 }
 /* LE RÉGLAGE « QUESTIONS » D'UN DEVOIR ALLONGE AUSSI LA SÉANCE — jusqu'à 20
    (demande de Turquet, septembre 2026 : « en Première, quand je crée une fiche
@@ -6538,9 +6573,7 @@ function showResults(r){
   const msg=r.percent>=90?'Excellent !':r.percent>=70?'Bravo !':r.percent>=50?'Bien joué !':'Continue, tu progresses !';
   $('resultMsg').textContent=msg;
   $('resultSub').textContent=`${esc(currentEleve.prenom)} • ${modeName(currentMode)} • ${fmtDur(r.durationSec)}`;
-  const note=(typeof r.note==='number')?r.note:r.score;   /* le crédit partiel compté (noteFin) */
-  $('resultScore').textContent=`${fmtNote(note)} / ${r.total}`;$('resultPct').textContent=`${r.percent} %`; $('resultPct').title='';
-  noteSoutienFin(r.percent);
+  afficherNoteFin(r.percent);   /* sur 10, rien d'autre — en soutien, la note plafonnée */
   const ul=$('review');ul.innerHTML='';
   test.answers.forEach(a=>{
     const li=document.createElement('li');li.className=a.correct?'ok':'ko';
@@ -7550,8 +7583,7 @@ async function finishParcours(){
   const allPassed=test.results.length===test.levels.length && test.results.every(r=>r.passed);
   $('resultMsg').textContent= allPassed?'Parcours réussi ! 🎉':(reached>0?`Tu as validé le niveau ${reached}`:'Continue à t\u2019entraîner !');
   $('resultSub').textContent=`${esc(currentEleve.prenom)} • ${modeName(currentMode)} • ${fmtDur(durationSec)}`;
-  $('resultScore').textContent=`${fmtNote(note)} / ${total}`; $('resultPct').textContent=`${pct} %`; $('resultPct').title='';
-  noteSoutienFin(pct);
+  afficherNoteFin(pct);
   const ul=$('review'); ul.innerHTML='';
   test.results.forEach((r,i)=>{
     const li=document.createElement('li'); li.className=r.passed?'ok':'ko';
@@ -18204,6 +18236,55 @@ function pbAffMaj(){
     if(b && b.classList && b.classList.contains('mf-cor')){ const att=pbAttendus(pbQDe(el.id))[pbBase(el.id)]; if(att) b.innerHTML=pbHTML(att); }
   });
 }
+/* LE MENU EN GRILLE d'une liste de lettres, sur écran tactile (voir la règle
+   CSS .pb-menu). Ses boutons portent l'écriture de la page (pbHTML) ; choisir
+   écrit la valeur dans la liste et déclenche « change », comme la liste du
+   système : choisirPB, la correction en direct et la sauvegarde n'y voient
+   aucune différence. */
+function pbMenuFermer(){ const m=document.getElementById('pbMenu'); if(m) m.remove(); }
+function pbMenuOuvrir(sel){
+  pbMenuFermer();
+  const m=document.createElement('div');
+  m.id='pbMenu'; m.className='pb-menu'; m.setAttribute('role','listbox');
+  m.innerHTML=Array.prototype.map.call(sel.options, function(o){
+    return '<button type="button" role="option" data-v="'+esc(o.value)+'"'+(o.value===sel.value?' class="pb-menu-pris"':'')+'>'
+      +(o.value ? pbHTML(o.value) : '…')+'</button>';
+  }).join('');
+  m.addEventListener('click', function(e){
+    const b=e.target.closest && e.target.closest('button[data-v]');
+    if(!b) return;
+    sel.value=b.getAttribute('data-v');
+    pbMenuFermer();
+    sel.dispatchEvent(new Event('input',{bubbles:true}));
+    sel.dispatchEvent(new Event('change',{bubbles:true}));
+  });
+  document.body.appendChild(m);
+  /* sous la case si elle y tient, sinon au-dessus ; toujours dans l'écran */
+  const r=sel.getBoundingClientRect(), h=m.offsetHeight, w=m.offsetWidth;
+  const vh=window.innerHeight, vw=document.documentElement.clientWidth||window.innerWidth;
+  let top=r.bottom+6;
+  if(top+h>vh-8) top = r.top-6-h>=8 ? r.top-6-h : Math.max(8, vh-8-h);
+  m.style.top=top+'px';
+  m.style.left=Math.max(8, Math.min(r.left+r.width/2-w/2, vw-8-w))+'px';
+}
+document.addEventListener('mousedown', function(e){
+  const t=e.target;
+  if(t && t.matches && t.matches('#pbHost select.pb-lettres') && tabletteActive()) e.preventDefault();
+}, true);
+document.addEventListener('click', function(e){
+  const m=document.getElementById('pbMenu');
+  if(m && m.contains(e.target)) return;
+  pbMenuFermer();
+  if(!tabletteActive()) return;
+  const ca=e.target.closest && e.target.closest('#pbHost .pb-case');
+  const sel=ca && ca.querySelector('select.pb-lettres');
+  if(!sel || sel.disabled || test.locked) return;
+  e.preventDefault();
+  pbMenuOuvrir(sel);
+}, true);
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') pbMenuFermer(); });
+window.addEventListener('resize', pbMenuFermer);
+window.addEventListener('scroll', pbMenuFermer, true);
 /* {tableau-probabilites} (3.2, v300) : LE DÉBUT DE LIGNE S'ÉCRIT TOUT SEUL.
    Demande de Turquet (octobre 2026) : « quand l'élève a interprété la
    question avec des lettres ou “tout”, afficher la formule du début de ligne,
@@ -25800,6 +25881,7 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
   }
   function sansFaute(){
     var sc=document.getElementById('resultScore'); if(!sc) return false;
+    if(sc.dataset.parfait) return true;     /* un sans-faute de soutien : la note plafonnée n'atteint pas 10 */
     var m=sc.textContent.replace(/\s/g,'').replace(/,/g,'.').match(/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
     return !!m && +m[2]>0 && +m[1]>=+m[2];
   }

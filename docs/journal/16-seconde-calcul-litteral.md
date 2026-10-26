@@ -1078,3 +1078,32 @@ case vide après un terme pris hors de sa place reçoit le terme restant
 et à une autre place (7.16) ; la réduction fausse à une autre place (7.11,
 7.14) ; et, en face, le 7.15 garde ses accolades : un résultat sous la
 mauvaise accolade reste rouge.
+
+## Le x arrondi dans tout le thème 7 (v613)
+
+**La demande** (Turquet, octobre 2026) : « en seconde, dans les écritures
+littérales, je souhaite que les inconnues x soient de forme arrondie, comme
+dans le 7.8, dans tous les exercices — ce n'est pas le cas par exemple dans le
+7.16 ». La règle globale `i{font-family:KaTeX_Math…}` écrivait déjà le x de
+l'énoncé dans la fonte de MathLive ; mais les familles du thème la
+surchargeaient d'un `"Times New Roman"` : `.red-expr i`, `#scr-rpd .rel-expr
+i`, `.dvl-schema i` (7.9, 7.10, 7.11, 7.15, 7.16, 7.17), `.dvr-chaine i`,
+`.asx-expr i`. Le x de Times est penché, pas arrondi — et le contrôle « l'inconnue
+x s'écrit toujours en italique » l'acceptait (« une police à empattements »).
+
+**Ce qui change.** Ces cinq règles prennent la pile KaTeX_Math. Les CASES —
+`.red-in`, `.dvl-in`, les listes `.rpd-deg` et `.asx-lit` et leurs badges de
+correction — prennent la police « ApfX » de la Terminale (`unicode-range`
+U+0078, le x de KaTeX_Math-Italic) en tête de pile, puis Fredoka DROIT : le x
+tapé est celui de l'énoncé, les chiffres et les signes ceux de l'expression.
+Avant, toute la case était en Times italique, chiffres compris.
+
+**Le contrôle** : `tests/profils.js` déclare `xItalique.arrondi` pour la
+Seconde. Le contrôle du texte exige alors KaTeX_Math (ou ApfX) EN TÊTE de pile,
+et celui des cases de calcul n'accepte plus un simple italique : la tête de
+pile doit être KaTeX_Math ou une police dont la source est KaTeX_Math-Italic.
+Relevé avant/après sur les 17 exercices du thème (police de tête de chaque x
+visible) : 7.5, 7.8 à 7.12 et 7.14 à 7.17 portaient du Times ; après, plus
+un seul. La Première et la Terminale ne déclarent pas l'option : leur contrôle
+reste celui d'avant. Le thème 8 (vecteurs : `.vtr-*`, `.tcp-sel`) garde son
+Times, qui y écrit des noms de points et de vecteurs, pas l'inconnue.
