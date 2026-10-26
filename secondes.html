@@ -93,6 +93,17 @@
      autour d'une lettre est une variable. Les règles plus précises de la
      feuille (Georgia, etc.) gardent la main sur leur bloc. */
   i,.mth{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic}
+  /* LE x TAPÉ DANS UNE CASE, ET CELUI DES EXPRESSIONS DU CALCUL LITTÉRAL, EN
+     ITALIQUE ARRONDI (demande de Turquet, octobre 2026 : « que les inconnues x
+     soient de forme arrondie comme dans le 7.8, dans tous les exercices »).
+     Le thème 7 écrivait son x en Times New Roman — penché, mais pas arrondi.
+     Une case de saisie ne met pas UNE lettre dans une balise <i> : c'est la
+     POLICE qui le fait. « ApfX » ne couvre que le caractère x (unicode-range
+     U+0078) et le prend dans KaTeX_Math-Italic, comme en Terminale ; posée en
+     tête de pile, elle ne sert que le x — chiffres et signes restent dans la
+     police de l'expression, et le curseur suit le vrai texte. */
+  @font-face{font-display:swap;font-family:"ApfX";font-style:normal;font-weight:100 900;unicode-range:U+0078;
+             src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Math-Italic.woff2) format("woff2")}
   .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
   /* L'écran d'un exercice prend toute la largeur, comme en Première : une
      colonne de 780 px replie les enchaînements d'égalités que l'élève doit
@@ -1924,14 +1935,16 @@
   .red-lignes{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px 22px;width:100%;max-width:900px;margin:0 auto}
   .red-l{display:flex;align-items:center;gap:10px;border:1.5px solid #D6E2F8;border-radius:14px;padding:8px 14px;background:#FBFCFF}
   .red-expr{font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);white-space:nowrap;font-variant-numeric:tabular-nums}
-  .red-expr i{font-family:"Times New Roman",serif;font-size:1.12em}
+  .red-expr i{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-size:1.12em}
   /* Le x tapé par l'élève est le même x que celui de l'expression affichée
      devant la case (demande de Turquet, septembre 2026) : « Fredoka » n'a pas
      de véritable italique (seuls les graisses 400 à 700 sont chargées), et un
      italique simulé par le navigateur rendrait un x penché mais pas le même —
-     .red-expr i bascule déjà en Times New Roman pour cette raison ; la case
-     suit la même police, exactement comme l'énoncé qui la précède. */
-  .red-in{width:150px;min-width:0;height:48px;text-align:center;font-family:"Times New Roman",serif;font-style:italic;font-weight:600;font-size:1.45rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none}
+     .red-expr i prend l'écriture mathématique (KaTeX_Math) ; la case prend
+     son x dans la même fonte par « ApfX », chiffres et signes en Fredoka
+     droit, exactement comme l'énoncé qui la précède (octobre 2026 : le Times
+     New Roman d'avant était penché, pas arrondi). */
+  .red-in{width:150px;min-width:0;height:48px;text-align:center;font-family:"ApfX","Fredoka",system-ui,sans-serif;font-style:normal;font-weight:600;font-size:1.45rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none}
   .red-in:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
   .red-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue)}
   .red-in.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
@@ -1968,7 +1981,7 @@
      la saisie, donc plus elles ; elles peuvent rester petites — assez pour
      que l'égalité entière tienne sur une seule ligne, comme le fait déjà le
      signe de {soustraire-relatifs} (.srl-chaine .plc-sel). */
-  #scr-rpd .rel-expr i{font-family:"Times New Roman",serif;font-size:1.12em}
+  #scr-rpd .rel-expr i{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-size:1.12em}
   #scr-rpd .rel-bloc{padding:8px 12px}
   /* ---- Le même tableau, écrit avec des lettres (4.6.2) ---- réutilise les .tdp-* ;
      la fraction de gauche porte les libellés recopiés, celle de droite les deux
@@ -2033,13 +2046,13 @@
   @media(max-width:520px){ .tdp-tab th,.tdp-tab td{padding:6px 6px;min-width:0} .tdp-in{width:68px;height:44px} .tdp-etude .plc-sel.tdp-sel{min-width:0;width:100%} .tdp-num,.tdp-den{flex-wrap:wrap;justify-content:center} .tdp-lib{text-align:center} .tdl-fr .tdl-lib-frac .tdp-lib{white-space:normal} }
   #scr-rpd .rpd-sg{width:44px;font-size:1.05rem;padding:0}
   #scr-rpd .rpd-coef{width:54px;font-size:1.05rem;padding:0}
-  #scr-rpd .rpd-deg{width:58px;font-size:1.05rem;padding:0;font-family:"Times New Roman",serif;font-style:italic}
+  #scr-rpd .rpd-deg{width:58px;font-size:1.05rem;padding:0;font-family:"ApfX","Fredoka",system-ui,sans-serif;font-style:normal}
   /* Le badge vert de correction (mf-cor, posé par corrChoix — commun à tous
      les exercices à listes) montre le libellé en texte brut : sur la case
      « x ou x² », il porte .rpd-x pour rester assorti, sans hériter la largeur
      de .rpd-deg (demande de Turquet, septembre 2026, comme pour {associer-
      expressions} en 7.6). */
-  #scr-rpd .mf-cor.rpd-x{font-family:"Times New Roman",serif;font-style:italic}
+  #scr-rpd .mf-cor.rpd-x{font-family:"ApfX","Fredoka",system-ui,sans-serif;font-style:normal}
   /* ---- Développer avec la distributivité (7.9, thème Calcul littéral) ----
      La fiche « Développer » : le facteur entouré en ROUGE (pointillés), le
      premier terme en BLEU NUIT (pointillés), le second en VERT (trait plein),
@@ -2056,7 +2069,7 @@
   .dvl-page{display:flex;justify-content:center;width:100%}
   .dvl-schema{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;max-width:100%;overflow-x:auto;
     padding:46px 14px 10px;font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);font-variant-numeric:tabular-nums}
-  .dvl-schema i{font-family:"Times New Roman",serif;font-size:1.12em}
+  .dvl-schema i{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-size:1.12em}
   .dvl-svg{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
   .dvl-fl{fill:none;stroke:#1E2A4A;stroke-width:1.6}
   .dvl-pt{fill:#1E2A4A;stroke:none}
@@ -2073,7 +2086,7 @@
   .dvl-bul.dvl-k{border-color:#D9262B}
   .dvl-bul.dvl-a{border-color:#1F3864}
   .dvl-bul.dvl-b{border-color:#1A9A4A;border-style:solid}
-  .dvl-in{font:inherit;font-family:"Times New Roman",serif;font-style:italic;font-weight:600;color:var(--blue-dark);text-align:center;outline:none;padding:0}
+  .dvl-in{font:inherit;font-family:"ApfX","Fredoka",system-ui,sans-serif;font-style:normal;font-weight:600;color:var(--blue-dark);text-align:center;outline:none;padding:0}
   .dvl-in.dvl-f{width:2.4em;height:1.5em;border:none;border-radius:50%;background:#F3F7FF}
   .dvl-in.dvl-t{width:4.2em;height:1.75em;border:2px solid #BBD0F7;border-radius:12px;background:#F3F7FF}
   .dvl-in:focus{background:#EAF2FF;box-shadow:0 0 0 3px rgba(43,80,200,.18)}
@@ -2122,7 +2135,7 @@
      fin de ligne */
   .dvr-chaine{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;row-gap:14px;max-width:100%;overflow-x:auto;
     padding:12px 8px;font-family:"Fredoka";font-weight:600;font-size:1.3rem;color:var(--blue-dark);font-variant-numeric:tabular-nums}
-  .dvr-chaine i{font-family:"Times New Roman",serif;font-size:1.12em}
+  .dvr-chaine i{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-size:1.12em}
   .dvr-depart{white-space:nowrap}
   .dvr-termes{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
   .dvr-chaine .dvl-in.dvl-t{width:3.4em}
@@ -2540,20 +2553,20 @@
   .asx-expr .fr .fn,.asx-expr .fr .fd{font-size:1.45rem;font-weight:600;color:var(--blue-dark)}
   .asx-expr .fr .fb{background:var(--blue-dark)}
   /* Fredoka n'a pas d'italique réelle (comme pour .red-expr i) : la lettre
-     bascule en Times New Roman pour un vrai tracé italique. */
-  .asx-expr i{font-family:"Times New Roman",serif}
+     prend l'écriture mathématique arrondie, KaTeX_Math. */
+  .asx-expr i{font-family:KaTeX_Math,Georgia,'Times New Roman',serif}
   .asx-l .plc-sel.asx-sel{width:auto;min-width:110px;font-size:1.3rem;padding:0 10px}
   /* Une case <select> ne sait pas italiciser une lettre seule (ni <i>, ni le
      style posé sur une <option> ne survivent à la fermeture de la liste) :
-     seul le style posé sur le <select> LUI-MÊME s'affiche fermé. La page de
-     lettre italicise donc TOUT le contenu de la case, signes compris — le
-     même compromis que .red-in, avec la même police que .asx-expr i, pour que
-     la lettre choisie ressemble à celle de l'énoncé. */
-  .asx-l .plc-sel.asx-sel.asx-lit{font-style:italic;font-family:"Times New Roman",serif}
+     seul le style posé sur le <select> LUI-MÊME s'affiche fermé. C'est donc
+     la POLICE qui italicise : « ApfX » ne sert que le x, pris dans
+     KaTeX_Math comme .asx-expr i — le même choix que .red-in, pour que la
+     lettre choisie ressemble à celle de l'énoncé. */
+  .asx-l .plc-sel.asx-sel.asx-lit{font-family:"ApfX","Fredoka",system-ui,sans-serif;font-style:normal}
   /* Le badge vert de correction (posé par corrChoix, commun à tous les
      exercices à listes) montre le libellé de l'option en texte brut : sur une
      page de lettre, il porte aussi .asx-lit pour rester assorti à la case. */
-  .asx-l .mf-cor.asx-lit{font-style:italic;font-family:"Times New Roman",serif}
+  .asx-l .mf-cor.asx-lit{font-family:"ApfX","Fredoka",system-ui,sans-serif;font-style:normal}
   /* ---- Vecteurs égaux (8.2) : le tableau de la fiche, une ligne par page ---- */
   .vgt-tab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1.15fr);gap:12px;width:100%;max-width:1100px;margin:0 auto;align-items:start}
   /* empilé (téléphone), le tableau commence par la colonne DONNÉE : c'est d'elle qu'on part */
@@ -8721,7 +8734,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=612;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=613;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.

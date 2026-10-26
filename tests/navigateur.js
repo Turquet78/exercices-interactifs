@@ -15689,7 +15689,7 @@ if(require.main === module) (async () => {
             await s.page.waitForTimeout(700);
           }
           await releverDessins(id, mode, 'après les écrans de départ');
-          const vu = await s.page.evaluate(() => {
+          const vu = await s.page.evaluate(xKatex => {
             const on = document.querySelector('section.screen.on');
             if(!on) return {ia: false, ecran: '(aucun)'};
             const visible = e => {
@@ -15744,7 +15744,14 @@ if(require.main === module) (async () => {
                    pas (Turquet, septembre 2026 : « l'écriture arrondie du x »),
                    la fonte doit être celle des maths — KaTeX_Math, ou à défaut
                    une police à empattements. */
-                const arrondi = /KaTeX_Math|Georgia|Times|Cambria|serif/i.test(cs.fontFamily) && !/Nunito|Fredoka/i.test(cs.fontFamily.split(',')[0]);
+                /* Un niveau qui déclare « xItalique.arrondi » (la Seconde,
+                   octobre 2026 : « que les inconnues x soient de forme arrondie
+                   comme dans le 7.8, dans tous les exercices ») exige la fonte
+                   de MathLive EN TÊTE de pile : le Times New Roman penché du
+                   thème 7 passait ce contrôle, et son x n'est pas arrondi. */
+                const tete = cs.fontFamily.split(',')[0].replace(/["']/g, '').trim();
+                const arrondi = xKatex ? /^(KaTeX_Math|ApfX)$/.test(tete)
+                  : /KaTeX_Math|Georgia|Times|Cambria|serif/i.test(cs.fontFamily) && !/Nunito|Fredoka/i.test(cs.fontFamily.split(',')[0]);
                 if((cs.fontStyle === 'italic' || cs.fontStyle === 'oblique') && arrondi) continue;
                 xDroits.push(t.trim().slice(0, 50));
                 xCtx.push(t.trim().slice(0, 60) + '   ⟦' + p.outerHTML.replace(/\s+/g, ' ').slice(0, 170) + '⟧');
@@ -15957,7 +15964,7 @@ if(require.main === module) (async () => {
                     debuts: [...new Set(debuts)], etiquettes: etiquettes,
                     indices: [...new Set(indices)], nIndices: nIndices,
                     limCases: limCases, limKb: limKb};
-          });
+          }, !!(P.xItalique && P.xItalique.arrondi));
           /* LES TEXTES DES GRAPHIQUES S'ÉCRIVENT À 12 PX AU MOINS, ET UNE
              GRADUATION NE RECOUVRE PAS LE NOM D'UNE COURBE (audit d'octobre
              2026, A5) — les graduations étaient à 9-11 px, le support même de
@@ -16126,7 +16133,7 @@ if(require.main === module) (async () => {
              · là où × est offert, « 2*3x4 » TAPÉ AU CLAVIER s'écrit 2×3x4 (x
                offert : l'inconnue) ou 2×3×4 (pas de x : un signe de produit). */
           if(mode === 'train'){
-            const cc = await s.page.evaluate(() => {
+            const cc = await s.page.evaluate(xKatex => {
               const on = document.querySelector('section.screen.on'); if(!on) return null;
               const vis = e => { const q = e.getBoundingClientRect();
                 return q.width > 0 && q.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
@@ -16149,7 +16156,9 @@ if(require.main === module) (async () => {
                 const T = touches(c), nom = c.id || c.className || '(sans id)';
                 if(T.some(t => /^x/.test(t))){
                   const cs = getComputedStyle(c), tete = sans(cs.fontFamily.split(',')[0]);
-                  const ok = /italic|oblique/.test(cs.fontStyle) || faces.some(f =>
+                  /* « xItalique.arrondi » : le penché d'une autre fonte ne
+                     suffit plus, le x vient de KaTeX_Math-Italic */
+                  const ok = (!xKatex && /italic|oblique/.test(cs.fontStyle)) || tete === 'KaTeX_Math' || faces.some(f =>
                     sans(f.style.getPropertyValue('font-family')) === tete
                     && /KaTeX_Math-Italic/.test(f.style.getPropertyValue('src')));
                   if(!ok) dits.push(nom + ' : le x s’y écrit droit (police « ' + tete + ' »)');
@@ -16165,7 +16174,7 @@ if(require.main === module) (async () => {
               document.querySelectorAll('[data-banc-fois]').forEach(e => e.removeAttribute('data-banc-fois'));
               if(f){ f.setAttribute('data-banc-fois', '1'); f.value = ''; f.focus(); }
               return { n: cases.length, dits, fois: f ? { id: f.id || '(sans id)', avecX: touches(f).indexOf('x') >= 0 } : null };
-            });
+            }, !!(P.xItalique && P.xItalique.arrondi));
             if(cc && cc.n){
               const num = await s.page.evaluate(i => TEST_NUM[i], id);
               nCasesCalcul += cc.n;
