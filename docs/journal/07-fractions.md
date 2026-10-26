@@ -2020,3 +2020,43 @@ Contrôles (banc principal) : 4.1 — 5/12 écrit referme la chaîne de 6/12,
 6/12 récrit la rouvre ; produit (4.4) — 6/14 la garde, 6/7 la referme, 6/15
 la rouvre ; {simplifier-fractions} (Seconde) — 27 + 4 sur 6 la cache, 27 + 5
 la remontre.
+
+**Puis l'inverse : un résultat FAUX qui se simplifie se voit proposer la
+division — même quand la bonne réponse ne se simplifie pas (octobre 2026,
+Première v347, Seconde v614).** Demande de Turquet, copie d'écran du 4.1 à
+l'appui : 2/3 × 5 = 10/3, l'élève écrit 9/3, et rien ne lui proposait de
+simplifier — la chaîne du 4.1 ne s'ouvrait que si la BONNE réponse se
+simplifie (`rvfReductible`), et celle des 4.2 à 4.6 ne s'ouvrait que sur la
+fraction brute du moteur, null quand elle est irréductible.
+
+* La chaîne simplifie désormais la fraction ÉCRITE quand elle se simplifie,
+  juste ou fausse : `rvfBase(q)` au 4.1 (rangée dans `q.sbrut`, pour la
+  reprise), `seEcrite(kind)` dans `seJuge` et `seMaj` pour les 4.2 à 4.6. À
+  défaut — fraction irréductible ou illisible —, la bonne réponse, comme
+  avant : c'est elle que la vérification montre simplifiée.
+* Elle SE JUGE sur ce qu'elle simplifie : 9/3 ÷ 3 = 3/1 a son diviseur et
+  son résultat justes (bleus) ; le 9 reste rouge, la question n'est pas
+  parfaite. La correction verte de la chaîne suit la même fraction — les
+  cases fausses gardent la saisie de l'élève, que les nombres divisés
+  recopient.
+* `se.F` reste la fraction brute JUSTE (null quand elle ne se simplifie
+  pas) ; `se.B` est celle que la chaîne simplifie. Les messages qui disent
+  « que tu simplifieras ensuite » et la correction de la fraction obtenue
+  lisent `se.F` : on n'annonce pas une simplification à un 2/15.
+* Conséquence nommée : une fraction JUSTE mais non simplifiée, acceptée
+  parce qu'égale à un résultat irréductible (34/24 pour 17/12, 20/6 pour
+  10/3), se voit elle aussi proposer la chaîne — et la question n'est
+  parfaite qu'une fois la fraction simplifiée, comme le dit l'énoncé
+  (« recommence tant qu'elle se simplifie encore »).
+* La Seconde ne change de comportement nulle part : son 4.1 ne fait pas
+  simplifier (« jamais réduite plus qu'il ne faut »), et
+  {simplifier-fractions} suivait déjà la fraction écrite (`sfMontrerApres`).
+  Seuls `checkSFAnswer` et `sfPourquoi` y suivent la Première, le moteur sf
+  devant rester identique dans les deux niveaux.
+
+Contrôles (banc principal) : 4.1 — 9/3 écrit pour 10/3 ouvre la chaîne,
+rangée (`sbrut`) et redessinée, ÷ 3 = 3/1 peint juste, 9 peint faux, 10/3
+récrit la referme ; produit (4.4) — 4/14 écrit pour 2/15 ouvre la chaîne,
+÷ 2 = 2/7 juste, aucun message n'annonce de simplification ;
+{somme-produit-fractions} — 34/24 propose la chaîne, simplifié par 2 il vaut
+le point.

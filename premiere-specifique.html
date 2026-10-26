@@ -15551,13 +15551,14 @@ function checkSFAnswer(live){
       corTrainDec('sf-q1', suivie ? r.g : q.D/q.Dr);
       corTrainDec('sf-q2', suivie ? r.g : q.D/q.Dr);
       corTrainFrac('sf-fn','sf-fd',q.Nr,q.Dr);
-    } else if(r.se){
+    } else {
       /* la correction suit la route de l'élève : le calcul brut, puis chaque
-         étape de sa chaîne (un diviseur vide ou faux reçoit le PGCD) */
-      corTrainFrac('sf-fn','sf-fd',r.se.F.n,r.se.F.d);
-      r.se.cases.forEach(function(c){ corTrainDec(c.id,c.bon); });
-      seMiroirs('sf');
-    } else corTrainFrac('sf-fn','sf-fd',q.N,q.D);
+         étape de sa chaîne (un diviseur vide ou faux reçoit le PGCD) — une
+         chaîne qui simplifie une fraction FAUSSE se corrige sur elle */
+      if(r.se && r.se.F) corTrainFrac('sf-fn','sf-fd',r.se.F.n,r.se.F.d);
+      else corTrainFrac('sf-fn','sf-fd',q.N,q.D);
+      if(r.se){ r.se.cases.forEach(function(c){ corTrainDec(c.id,c.bon); }); seMiroirs('sf'); }
+    }
   }
   const donne=sfCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
   test.answers.push({...(ptsExo()||{}),correct:allOk,
@@ -15591,10 +15592,8 @@ function sfPourquoi(q,r){
     if(!r.okQ) return 'Divise en haut ET en bas par le même nombre, le plus grand qui va dans les deux : ici '+g+'.';
     return 'Il reste à faire les deux divisions : '+Ns+' ÷ '+g+' et '+Dc+' ÷ '+g+', donc '+q.Nr+'/'+q.Dr+'.';
   }
-  if(r.se){
-    if(!r.ok4) return 'Il reste à effectuer le calcul du haut : '+r.se.F.n+'/'+r.se.F.d+', que tu simplifieras ensuite.';
-    return seMessage(r.se);
-  }
+  if(r.se && r.se.F && !r.ok4) return 'Il reste à effectuer le calcul du haut : '+r.se.F.n+'/'+r.se.F.d+', que tu simplifieras ensuite.';
+  if(r.se && r.ok4) return seMessage(r.se);
   return 'Il reste à effectuer le calcul du haut : le résultat est '+q.N+'/'+q.D+'.';
 }
 function nextSFQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSFTest(); autoSave(); } else finishTest(); }
@@ -16429,11 +16428,18 @@ function seLitDiv(kind){
   for(let i=0;;i++){ const e=$(p+i+'-dn'); if(!e) break; sd.push(String(e.value==null?'':e.value).trim()); }
   return sd;
 }
-/* Le verdict de chaque case de la chaîne, sur la fraction brute F. null
-   quand F ne se simplifie pas : il n'y a pas de chaîne. */
+/* Le verdict de chaque case de la chaîne. La chaîne simplifie la fraction
+   que l'élève a ÉCRITE quand elle se simplifie (B, seEcrite) — même fausse,
+   même quand la bonne réponse ne se simplifie pas (demande de Turquet,
+   octobre 2026 : 9/3 écrit pour 10/3 se voit proposer la division) ; à
+   défaut, la fraction brute F du moteur. null quand ni l'une ni l'autre ne
+   se simplifie : il n'y a pas de chaîne. se.F reste la fraction brute JUSTE
+   (null si elle ne se simplifie pas) : c'est elle que la correction écrit. */
 function seJuge(kind, F){
-  if(!F || gcd(F.n,F.d)<=1) return null;
-  const s=SE_CFG[kind].pfx, pas=sePas(F, seLitDiv(kind)), cases=[];
+  if(F && gcd(F.n,F.d)<=1) F=null;
+  const B=seEcrite(kind) || F;
+  if(!B) return null;
+  const s=SE_CFG[kind].pfx, pas=sePas(B, seLitDiv(kind)), cases=[];
   const lu=function(id){ const e=$(id); return e ? rvfLit(e.value) : null; };
   pas.forEach(function(p,i){ const b=s+i+'-';
     ['dn','dd'].forEach(function(k){ const v=lu(b+k);
@@ -16441,7 +16447,7 @@ function seJuge(kind, F){
     cases.push({id:b+'n', kind:'nb', bon:p.suiv.n, ok:lu(b+'n')===p.suiv.n});
     cases.push({id:b+'d', kind:'nb', bon:p.suiv.d, ok:lu(b+'d')===p.suiv.d});
   });
-  return {F:F, pas:pas, cases:cases, ok:cases.every(function(c){ return c.ok; })};
+  return {F:F, B:B, pas:pas, cases:cases, ok:cases.every(function(c){ return c.ok; })};
 }
 /* Les nombres divisés recopient la fraction d'avant (« … » tant qu'elle est vide). */
 function seMiroirs(kind){
@@ -16493,15 +16499,27 @@ function seVue(kind, q, force){
 /* La fraction écrite dans deux cases se simplifie-t-elle ? null tant que
    l'une n'est pas un entier lisible (ou que le dénominateur est nul). */
 function fracEcriteSimplifiable(idN, idD){
+  const F=fracEcrite(idN, idD);
+  return F ? gcd(F.n,F.d)>1 : null;
+}
+/* La fraction écrite dans deux cases, {n,d} — null tant que l'une n'est pas
+   un entier lisible (ou que le dénominateur est nul). */
+function fracEcrite(idN, idD){
   const n=$(idN), d=$(idD); if(!n || !d) return null;
   const a=rvfLit(n.value), b=rvfLit(d.value);
   if(a===null || b===null || b===0) return null;
-  return gcd(a,b)>1;
+  return {n:a, d:b};
+}
+/* La fraction obtenue que l'élève a écrite, si elle se simplifie — juste ou
+   fausse : c'est elle que la chaîne simplifie (seJuge, seMaj). */
+function seEcrite(kind){
+  const c=SE_CFG[kind].src, F=fracEcrite(c[0], c[1]);
+  return F && gcd(F.n,F.d)>1 ? F : null;
 }
 /* Relit la fraction brute et les diviseurs ; redessine si la chaîne change. */
 function seMaj(kind, q, force){
   const c=SE_CFG[kind]; if(!c || !q) return;
-  const F=c.brut(q), cle=F ? F.n+'/'+F.d : '';
+  const F=seEcrite(kind) || c.brut(q), cle=F ? F.n+'/'+F.d : '';
   q.sdiv=seLitDiv(kind);
   const n=seVue(kind, q, force) ? sePas(F, q.sdiv).length : 0;
   const dessinees=seIds(kind).filter(function(id){ return /-dn$/.test(id); }).length;
@@ -16534,7 +16552,7 @@ function seSaisie(kind, el){
 /* Le message, dit avec les nombres : la fraction brute, son plus grand
    diviseur commun, et la règle pour recommencer. */
 function seMessage(se){
-  const F=se.F, g=gcd(F.n,F.d);
+  const F=se.B, g=gcd(F.n,F.d);
   return 'La fraction '+F.n+'/'+F.d+' se simplifie : on divise le numérateur ET le dénominateur par le même nombre. '
     +F.n+'/'+F.d+' = ('+F.n+' ÷ '+g+')/('+F.d+' ÷ '+g+') = '+(F.n/g)+'/'+(F.d/g)
     +' — en divisant par un nombre plus petit, on recommence tant que la fraction se simplifie encore.';
@@ -16756,9 +16774,9 @@ function mltPourquoi(q,r){
   if(r.fin && r.se && !r.se.ok) return seMessage(r.se);
   /* les facteurs simplifiés avant de multiplier : le calcul qui reste est le sien */
   if(r.facteurs) return 'Il reste à calculer : '+r.h[0]+' × '+r.h[1]+' = '+r.F.n+' et '+r.h[2]+' × '+r.h[3]+' = '+r.F.d+', donc '+r.F.n+'/'+r.F.d
-    +(r.se ? ', que tu simplifieras ensuite.' : '.');
+    +(r.se && r.se.F ? ', que tu simplifieras ensuite.' : '.');
   return 'Il reste à calculer : '+q.a1+' × '+q.a2+' = '+q.P+' et '+q.b1+' × '+q.b2+' = '+q.Q+', donc '+q.P+'/'+q.Q
-    +(r.se ? ', que tu simplifieras ensuite.' : '.');
+    +(r.se && r.se.F ? ', que tu simplifieras ensuite.' : '.');
 }
 function checkMltAnswer(live){
   if(test.locked) return;
@@ -17168,7 +17186,7 @@ function spfPourquoi(q,r){
   if(!r.cx.ok1) return 'Pour mettre au même dénominateur, la première fraction se multiplie en haut ET en bas par le même nombre, qui doit mener à un dénominateur commun aux deux fractions : sur '+r.cx.Dc+', c’est × '+r.cx.m1+'.';
   if(!r.cx.ok2) return 'Pour mettre au même dénominateur, le produit se multiplie en haut ET en bas par le même nombre, qui doit mener à un dénominateur commun aux deux fractions : sur '+r.cx.Dc+', c’est × '+r.cx.m2+'.';
   if(!(r.cx.okN1&&r.cx.okN2&&r.cx.okD)) return 'Sur le dénominateur '+r.cx.Dc+', les numérateurs deviennent '+r.cx.N1+' et '+r.cx.N2+'.';
-  if(!(r.cx.okRn&&r.cx.okRd)) return 'Il reste à '+(moins?'soustraire':'additionner')+' : '+r.cx.N1+(moins?' − ':' + ')+r.cx.N2+' = '+r.cx.R+', sur '+r.cx.Dc+(r.se?', que tu simplifieras ensuite.':'.');
+  if(!(r.cx.okRn&&r.cx.okRd)) return 'Il reste à '+(moins?'soustraire':'additionner')+' : '+r.cx.N1+(moins?' − ':' + ')+r.cx.N2+' = '+r.cx.R+', sur '+r.cx.Dc+(r.se&&r.se.F?', que tu simplifieras ensuite.':'.');
   if(r.se && !r.se.ok) return seMessage(r.se);
   return 'Relis chaque case.';
 }
@@ -17492,8 +17510,9 @@ function rvfLabel(q){
     default: e=['le résultat'];
   }
   /* Un résultat qui se simplifie gagne son étape — et alors même les types à
-     une seule case reçoivent un libellé : la rangée a deux temps. */
-  if(rvfReductible(q)) e=e.concat(['simplifier : diviser en haut ET en bas par le même nombre']);
+     une seule case reçoivent un libellé : la rangée a deux temps. Une chaîne
+     ouverte sur une fraction écrite FAUSSE qui se simplifie le gagne aussi. */
+  if(rvfReductible(q) || (q.svu && rvfSimpPas(q).length)) e=e.concat(['simplifier : diviser en haut ET en bas par le même nombre']);
   else if(e.length<2) return '';
   return e.map(function(t,i){ return '①②③④⑤⑥⑦'.charAt(i)+' '+t; }).join('&nbsp;· ');
 }
@@ -17555,8 +17574,17 @@ function rvfInverseCaseHTML(){
    autres : il attend le calcul direct, sans simplification — c'est la
    simplification qui suit qui la fait. */
 function rvfReductible(q){ const r=rvfReponse(q); return gcd(r.num,r.den)>1; }
+/* LA FRACTION QUE LA CHAÎNE SIMPLIFIE : celle que l'élève a écrite quand elle
+   se simplifie, JUSTE OU FAUSSE (q.sbrut, rangé pour la reprise — demande de
+   Turquet, octobre 2026 : 9/3 écrit pour 2/3 × 5 = 10/3 doit se voir
+   proposer la division, comme 6/12 juste) ; à défaut, la bonne réponse —
+   c'est elle que la vérification montre simplifiée. */
+function rvfBase(q){
+  const m=/^(-?\d+)\/(-?\d+)$/.exec(String((q && q.sbrut) || ''));
+  return m ? {num:+m[1], den:+m[2]} : rvfReponse(q);
+}
 function rvfSimpPas(q){
-  const r=rvfReponse(q), sd=q.sdiv||[], pas=[];
+  const r=rvfBase(q), sd=q.sdiv||[], pas=[];
   let F={n:r.num, d:r.den};
   while(pas.length<12){
     const g=gcd(F.n,F.d); if(g<=1) break;
@@ -17589,12 +17617,18 @@ function rvfMiroirs(){
    et rvf-den, demande de Turquet, octobre 2026) — comme seVue pour les 4.2
    à 4.6 : q.svu la garde ouverte, la vérification la montre toujours. */
 function rvfMajSimp(q, force){
-  if(!rvfReductible(q)) return;
   /* et seulement si la fraction ÉCRITE se simplifie : un résultat faux et
      irréductible (3/2 pour 4/2) ne se voit pas proposer de division — voir
-     seVue. Une fraction pas encore lisible garde l'état précédent. */
+     seVue. Une fraction pas encore lisible garde l'état précédent.
+     PUIS, À L'INVERSE (octobre 2026) : une fraction écrite qui se simplifie
+     se voit proposer la division même FAUSSE, et même quand la bonne réponse
+     ne se simplifie pas (9/3 pour 10/3) — la chaîne simplifie alors CE QUI
+     EST ÉCRIT (rvfBase), et se juge dessus. */
+  const W=fracEcrite('rvf-num','rvf-den');
+  if(W) q.sbrut=gcd(W.n,W.d)>1 ? W.n+'/'+W.d : '';
+  else if(force) q.sbrut='';
   if(force) q.svu=true;
-  else { const r=fracEcriteSimplifiable('rvf-num','rvf-den'); if(r!==null) q.svu=r; }
+  else if(W) q.svu=gcd(W.n,W.d)>1;
   const sd=[]; for(let i=0;;i++){ const e=$('rvf-s'+i+'-dn'); if(!e) break; sd.push(String(e.value).trim()); }
   q.sdiv=q.svu ? sd : [];
   if((q.svu ? rvfSimpPas(q).length : 0)===sd.length) return;
@@ -17610,7 +17644,7 @@ function rvfEtapes(q){
   const t=function(n,d){ return sfTermeHTML(n,d); };
   const op=function(s){ return '<span class="f-times">'+s+'</span>'; };
   const finale=fEq(rvfFracHTML('rvf-num','rvf-den'))
-    +(rvfReductible(q) && q.svu?rvfSimpPas(q).map(function(p,i){ return rvfSimpHTML(i); }).join(''):'');
+    +(q.svu?rvfSimpPas(q).map(function(p,i){ return rvfSimpHTML(i); }).join(''):'');
   switch(q.type){
     case 'mult-entier':
       return t(q.n,q.d)+op('×')+t(q.k,1)
@@ -17685,7 +17719,7 @@ function rvfCases(q){
   return [{id:'rvf-regle', kind:'sel', bon:RVF_REGLES[q.type].opts[0][0]}]
     .concat(rvfExtra(q).map(function(c){ return {id:c.id, kind:'nb', bon:c.bon}; }))
     .concat([{id:'rvf-num', kind:'nb', bon:r.num}, {id:'rvf-den', kind:'nb', bon:r.den}])
-    .concat(rvfReductible(q) && q.svu?[].concat.apply([], rvfSimpPas(q).map(function(p,i){ const s='rvf-s'+i+'-';
+    .concat(q.svu?[].concat.apply([], rvfSimpPas(q).map(function(p,i){ const s='rvf-s'+i+'-';
       return [{id:s+'dn', kind:'div', bon:p.g}, {id:s+'dd', kind:'div', bon:p.g, miroir:true},
               {id:s+'n', kind:'nb', bon:p.suiv.n}, {id:s+'d', kind:'nb', bon:p.suiv.d}]; })):[]);
 }
@@ -17817,7 +17851,7 @@ function checkRvfAnswer(live){
   test.answers.push({...(ptsExo()||{}),correct:allOk,
     q:rvfTexte(q)+' = ?',
     answer:rvfTexte(q)+' = '+r.num+'/'+r.den+(rvfReductible(q)?' = '+(r.num/gcd(r.num,r.den))+'/'+(r.den/gcd(r.num,r.den)):''),
-    given:(function(){ const pas=rvfReductible(q)?rvfSimpPas(q):[], s='rvf-s'+(pas.length-1)+'-';
+    given:(function(){ const pas=q.svu?rvfSimpPas(q):[], s='rvf-s'+(pas.length-1)+'-';
       const n=$(pas.length?s+'n':'rvf-num'), d=$(pas.length?s+'d':'rvf-den');
       const nv=(n&&String(n.value).trim()!=='')?n.value:'?', dv=(d&&String(d.value).trim()!=='')?d.value:'?';
       return rvfTexte(q)+' = '+nv+'/'+dv; })()});
