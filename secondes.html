@@ -78143,7 +78143,8 @@ function pfProduitJuge(pref, withInverse, invAttendu1, invAttendu2, a1,a2,b1,b2,
   let okH1=true, okH2=true, okB1=true, okB2=true, haut=true, bas=true;
   if(!direct){
     const h1=pfLu(pref+'-h1'), h2=pfLu(pref+'-h2'), bb1=pfLu(pref+'-b1'), bb2=pfLu(pref+'-b2');
-    const hh=pfPaire(h1,h2,a1,a2), bb=pfPaire(bb1,bb2,b1,b2);
+    const enleve=pfFacteursEnleves(h1,h2,bb1,bb2,a1,a2,b1,b2,P,Q);
+    const hh=enleve?[true,true]:pfPaire(h1,h2,a1,a2), bb=enleve?[true,true]:pfPaire(bb1,bb2,b1,b2);
     okH1=hh[0]; okH2=hh[1]; okB1=bb[0]; okB2=bb[1]; haut=hh[0]&&hh[1]; bas=bb[0]&&bb[1];
   }
   let okI1=true, okI2=true;
@@ -78156,6 +78157,19 @@ function pfProduitJuge(pref, withInverse, invAttendu1, invAttendu2, a1,a2,b1,b2,
   const fracJ=pfFracJuge(fn,fd,P,Q);
   return {okH1:okH1,okH2:okH2,okB1:okB1,okB2:okB2,okI1:okI1,okI2:okI2,okFn:fracJ[0],okFd:fracJ[1],
     haut:haut, bas:bas, inverse:(!withInverse || (okI1&&okI2)), fin:fracJ[0]&&fracJ[1]};
+}
+/* SIMPLIFIER AVANT DE MULTIPLIER (demande de Turquet, octobre 2026 : « compter
+   juste un élève qui calcule un produit en supprimant les facteurs identiques
+   au numérateur et au dénominateur ») — la règle du 4.4/4.5 de la Première
+   (mltSimplifieAvant). Sur 13/6 × 12/11, l'élève qui enlève le 6 écrit
+   (13 × 2)/(1 × 11) : chaque case du haut DIVISE l'un des deux facteurs du
+   haut, chaque case du bas l'un de ceux du bas, et le tout VAUT le produit —
+   les quatre cases sont justes ensemble. L'écriture classique en est le cas
+   particulier ; la fraction finale accepte déjà toute fraction égale. */
+function pfFacteursEnleves(h1,h2,bb1,bb2,a1,a2,b1,b2,P,Q){
+  if([h1,h2].some(function(v){ return isNaN(v) || v===0; }) || !(bb1>0 && bb2>0)) return false;
+  const divise=function(x,y,a,b){ return (a%x===0 && b%y===0) || (a%y===0 && b%x===0); };
+  return divise(h1,h2,a1,a2) && divise(bb1,bb2,b1,b2) && h1*h2*Q===P*bb1*bb2;
 }
 function pfProduitPeindre(pref, withInverse, r, mode){
   const col=(ids,ok)=>{

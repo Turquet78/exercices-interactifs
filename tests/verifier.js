@@ -4530,6 +4530,7 @@ function exercices(suite){
     simplifierFractions(w, P);
     sommeFractionsLibre(w, P);
     revisionFractions(w, P);
+    quotientDoubleFacteursEnleves(w);
     placerSurLaDroite(w, P);
     ordreCroissant(w, P);
     nombresRelatifs(w, P);
@@ -53761,7 +53762,8 @@ function revisionFractions(w, P){
     const cor=$$('rvf-s0-dn') && $$('rvf-s0-dn').nextElementSibling;
     if(!cor || cor.textContent!=='6') vus.push('la correction du diviseur ne montre pas 6');
 
-    /* ④ simplifier dès le résultat brut ne suffit plus : la ligne le demande */
+    /* ④ le résultat écrit d'emblée simplifié, vérifié : aucune case vide ne
+       rougit (pour un produit, c'est même juste — voir ⑧) */
     test.questions=[neuve()]; renderRvfTest(); $$('rvf-regle').value='non';
     tape('rvf-num',1); tape('rvf-den',2);
     checkRvfAnswer();
@@ -53810,7 +53812,79 @@ function revisionFractions(w, P){
     }
     test.questions=[entier()]; renderRvfTest(); tape('rvf-num',9); tape('rvf-den',3); tape('rvf-num',10);
     if($$('rvf-s0-dn')) vus.push('10/3 (juste, irréductible) récrit après 9/3, et la division reste proposée');
+
+    /* ⑧ SIMPLIFIER AVANT DE MULTIPLIER (octobre 2026, copie d'écran de
+       Turquet) : 4/3 × 3/5, l'élève barre les 3 et écrit 4/5. Juste, sans
+       chaîne ; 8/10 (égal, mais d'aucun facteur enlevé) reste faux ; un
+       facteur enlevé sur deux (2/4 pour 2/3 × 3/4) ouvre la chaîne sur ce
+       qui est écrit ; la division aussi ; une SOMME écrite d'emblée
+       simplifiée reste fausse — la règle ne vaut que pour les produits. */
+    const produit=function(){ return {type:'mult-frac', n1:4, d1:3, n2:3, d2:5}; };
+    const regle=function(t){ $$('rvf-regle').value=RVF_REGLES[t].opts[0][0]; };
+    test.questions=[produit()]; renderRvfTest(); regle('mult-frac');
+    tape('rvf-num',4); tape('rvf-den',5);
+    if($$('rvf-s0-dn')) vus.push('4/5 écrit pour 4/3 × 3/5 : une division est proposée');
+    checkRvfAnswer(); der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('4/3 × 3/5 = 4/5 (les 3 enlevés) est compté faux');
+    if(peint('rvf-num')!=='juste' || peint('rvf-den')!=='juste') vus.push('4/5 est peint '+peint('rvf-num')+'/'+peint('rvf-den'));
+    if($$('rvf-s0-dn')) vus.push('4/5 vérifié : la chaîne de 12/15 s’affiche derrière');
+    test.questions=[produit()]; renderRvfTest(); regle('mult-frac');
+    tape('rvf-num',8); tape('rvf-den',10);
+    tape('rvf-s0-dn',2); tape('rvf-s0-n',4); tape('rvf-s0-d',5);
+    checkRvfAnswer(); der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('8/10 pour 12/15 (aucun facteur enlevé) est compté juste');
+    test.questions=[neuve()]; renderRvfTest(); regle('mult-frac');
+    tape('rvf-num',2); tape('rvf-den',4);
+    if(!$$('rvf-s0-dn')) vus.push('2/4 écrit pour 2/3 × 3/4 : aucune division proposée');
+    tape('rvf-s0-dn',2); tape('rvf-s0-n',1); tape('rvf-s0-d',2);
+    checkRvfAnswer(); der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('2/3 × 3/4 = 2/4 = 1/2 (le 3 enlevé) est compté faux');
+    test.questions=[{type:'div-1', n1:2, d1:3, n2:4, d2:5}]; renderRvfTest(); regle('div-1');
+    tape('rvf-inv-n',5); tape('rvf-inv-d',4); tape('rvf-num',5); tape('rvf-den',6);
+    checkRvfAnswer(); der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('2/3 ÷ 4/5 = 2/3 × 5/4 = 5/6 (le 2 enlevé) est compté faux');
+    test.questions=[{type:'meme-add', n1:1, n2:3, d:6}]; renderRvfTest(); regle('meme-add');
+    tape('rvf-num',2); tape('rvf-den',3);
+    checkRvfAnswer(); der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('1/6 + 3/6 = 2/3 sans la somme brute est compté juste');
     return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* SIMPLIFIER AVANT DE MULTIPLIER, au 5.15 de la Seconde (octobre 2026,
+   demande de Turquet) : dans les cases du produit, l'élève qui enlève un même
+   facteur en haut et en bas est juste — chaque case divise l'un des facteurs
+   de son étage, et le tout vaut le produit (pfFacteursEnleves). */
+function quotientDoubleFacteursEnleves(w){
+  const present = evaluer(w, "typeof qdbJuge==='function' && typeof renderQdbTest==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('quotient de deux parenthèses : un facteur enlevé avant de multiplier est juste',
+      'ce niveau n\'a pas l\'exercice du quotient de deux parenthèses');
+    return;
+  }
+  verifierEval(w, 'quotient de deux parenthèses : un facteur enlevé avant de multiplier est juste', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    startQdb();
+    /* (5/2 − 1/3) ÷ (2/3 + 1/4) = 13/6 × 12/11 = 156/66 */
+    const q={a:5,b:2,c:1,d:3,e:2,f:3,g:1,h:4,AN1:15,AN2:2,AD:6,ARn:13,BN1:8,BN2:3,BD:12,BRn:11,P:156,Q:66};
+    const juger=function(o){
+      test.questions=[q]; test.idx=0; test.locked=false; renderQdbTest();
+      Object.keys(o).forEach(function(k){ const el=document.getElementById('qdb-'+k); if(el) el.value=String(o[k]); });
+      return qdbJuge(q).pr;
+    };
+    const tout=function(r){ return r.okH1&&r.okH2&&r.okB1&&r.okB2&&r.haut&&r.bas&&r.inverse&&r.fin; };
+    let r=juger({i1:12,i2:11,h1:13,h2:12,b1:6,b2:11,fn:156,fd:66});
+    if(!tout(r)) vus.push('la copie classique (13 × 12)/(6 × 11) est comptée fausse');
+    r=juger({i1:12,i2:11,h1:13,h2:2,b1:1,b2:11,fn:26,fd:11});
+    if(!tout(r)) vus.push('le 6 enlevé, (13 × 2)/(1 × 11) = 26/11, est compté faux : '+JSON.stringify(r));
+    r=juger({i1:12,i2:11,h1:2,h2:13,b1:11,b2:1,fn:26,fd:11});
+    if(!tout(r)) vus.push('le 6 enlevé, facteurs dans l’autre ordre, est compté faux');
+    r=juger({i1:12,i2:11,h1:13,h2:2,b1:6,b2:11,fn:26,fd:66});
+    if(r.haut) vus.push('le 6 enlevé en haut seulement est compté juste');
+    r=juger({i1:12,i2:11,h1:13,h2:2,b1:-1,b2:11,fn:26,fd:11});
+    if(r.bas) vus.push('un dénominateur négatif est compté juste');
+    return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
 
