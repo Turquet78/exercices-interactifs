@@ -590,6 +590,58 @@ et `trlEffacer` et relit les cadres et la consigne ; le banc navigateur
 maille, reprend un point, puis compte les flèches bleues, rouges et vertes à
 l'écran.
 
+### Puis le vecteur s'est tracé d'abord, comme au 8.1.8 (v617)
+
+Demande de Turquet, octobre 2026 : « en seconde dans le 8.1.4 demander de
+tracer d'abord le vecteur avant de placer les images. On tracera le vecteur
+comme dans la 8.1.8 ». Chaque point se déplace désormais en deux temps :
+
+- **six cadres**, en deux colonnes (`.trl-cadres`) : ① « Le vecteur u⃗
+  tracé à partir de A. » (`trl-vec-0`), ② « Le point A′, image de A,
+  placé. » (`trl-pt-0`), puis ③④ pour B, ⑤⑥ pour C — tous des
+  `pts-case`, chacun une réponse : la question vaut **6** (`maxScore`
+  = 6 × questions, le poids homogène de `dmAppliquerNbQ`) ;
+- l'étape `s` se lit sans table : paire, la flèche `s/2` ; impaire, le
+  point `(s−1)/2`. L'étape en cours est la première qui manque, ou celle
+  dont l'élève a cliqué le cadre — mais **le point d'une flèche pas encore
+  tracée renvoie à sa flèche** : le vecteur se trace d'abord ;
+- **le tracé est celui du 8.1.8** (`tvxClic`, repris dans `trlClic`) : un
+  clic pose le départ (une croix violette), une flèche violette suit la
+  souris (`trlVif`, `.tvx-vif`), un second clic fixe l'arrivée ; recliquer
+  la croix d'une flèche commencée la retire ; un clic sur le départ ou
+  l'arrivée d'une flèche tracée la reprend (`test.trlMob`, jamais rangé) ;
+  Échap rend une extrémité reprise à sa place ou retire un départ
+  (`trlAnnuler`). Pendant un tracé, c'est un point qui suit la souris ;
+  pendant la pose d'une image, la croix et sa lettre, comme avant ;
+- **un clic au bout de la flèche pose l'image** : à l'étape d'un point,
+  le clic pose toujours le point (sauf sur un point déjà posé, qu'il
+  reprend) — c'est précisément le nœud attendu. Quand tout est fait, un
+  clic reprend d'abord un point posé, puis un bout de flèche ; pour
+  reprendre le bout d'une flèche que cache son image, on clique son cadre.
+
+**Le juge** (`trlCheck`) : la flèche k est juste si elle **part du point à
+déplacer** et fait le chemin du vecteur (`tanEgal(t.d, src)` et
+`tanEgal(t.w, vec)`) — une flèche bien faite partie d'ailleurs est fausse,
+et la correction le dit (« la flèche PART du point à déplacer ») ; l'image
+se juge seule, comme avant. On range ce que l'élève a tracé, `q.d` et
+`q.f` (départ et arrivée, `[x, y]` ou `null`), jamais la réponse ; un
+brouillon d'avant la v617 n'en a pas : ses flèches sont à tracer, ses
+points restent. La correction finale dessine en vert la flèche de la source
+à l'image pour chaque point dont la flèche OU l'image est fausse ou
+manque, et la croix verte de l'image seulement quand c'est l'image qui
+manque ; les flèches de l'élève prennent leur verdict (bleu, rouge) — les
+flèches « de la source au point posé » que la correction dessinait avant
+ont disparu, l'élève a tracé les siennes. Le soutien colore toujours à la
+pose, flèches comprises. Le rappel de cours dit la méthode : la flèche à
+partir de A, son bout est A′.
+
+Les deux bancs ont suivi : le banc principal joue le tracé (départ,
+arrivée, point au bout, renvoi du point à sa flèche, reprise d'un bout,
+Échap, « Effacer mes tracés »), juge une flèche partie d'ailleurs, et
+compte 6 ; le banc navigateur (« 6 quadragies bis ») trace à la souris, à
+un cinquième de maille, voit la flèche suivre la souris, reprend un point
+et un départ, puis compte les flèches bleues, rouges et vertes à l'écran.
+
 ## {parallelogramme-point} — le quatrième point d'un parallélogramme (8.5, v477)
 
 **Deux changements sous un seul numéro.** La PR 630 (brouillon étiqueté,
