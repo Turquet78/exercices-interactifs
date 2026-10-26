@@ -8471,9 +8471,15 @@ function sommeProduitFractions(w, P){
     const Q3={a:2,b:3,c:1,d:2,e:3,f:2,op:'+',P1:3,Q1:4,N:17,D:12,Nr:17,Dr:12};
     pose(Q3);
     if($$('spf-e0-dn')) vus.push('17/12 est irréductible, et une simplification est demandée');
+    /* une fraction égale (34/24) est juste, mais elle se simplifie : la
+       chaîne la propose, et la fraction simplifiée vaut le point (octobre
+       2026 — toute fraction écrite qui se simplifie se voit proposer la
+       division) */
     debut(Q3); tape('spf-x-rn',34); tape('spf-x-rd',24);
+    if(!$$('spf-e0-dn')) vus.push('34/24 écrit (égal à 17/12, se simplifie), et aucune division n’est proposée');
+    tape('spf-e0-dn',2); tape('spf-e0-n',17); tape('spf-e0-d',12);
     checkSpfAnswer();
-    if(!der() || !der().correct) vus.push('2/3 + 1/2 × 3/2 : une fraction égale (34/24) à 17/12 irréductible est comptée fausse');
+    if(!der() || !der().correct) vus.push('2/3 + 1/2 × 3/2 : une fraction égale (34/24) à 17/12, simplifiée par 2, est comptée fausse');
     /* la reprise */
     pose(Q2); debut(Q2); tape('spf-x-rn',26); tape('spf-x-rd',24); tape('spf-e0-dn',2);
     const qr=test.questions[0];
@@ -8814,6 +8820,20 @@ function fractionsEtapes(w, P){
       if(peint('mlt-e0-dn')!=='correction') vus.push('produit : vérifié vide, la division ne reçoit pas la correction ('+peint('mlt-e0-dn')+')');
       pose({n1:2,d1:3,n2:1,d2:5,a1:2,a2:1,b1:3,b2:5,P:2,Q:15});
       if($$('mlt-e0-dn')) vus.push('produit : 2/15 est irréductible, et une simplification est demandée');
+      /* un résultat FAUX qui se simplifie se voit proposer la division, même
+         quand la bonne réponse (2/15) ne se simplifie pas — la chaîne simplifie
+         ce qui est écrit, et s'y juge (octobre 2026) */
+      tape('mlt-h1',2); tape('mlt-h2',1); tape('mlt-b1',3); tape('mlt-b2',5); tape('mlt-fn',4); tape('mlt-fd',14);
+      if(!$$('mlt-e0-dn')) vus.push('produit : 4/14 (faux, se simplifie) écrit pour 2/15, et aucune division n’est proposée');
+      else {
+        if(($$('mlt-e0-an')||{}).textContent!=='4') vus.push('produit : le nombre divisé ne recopie pas 4');
+        tape('mlt-e0-dn',2); tape('mlt-e0-n',2); tape('mlt-e0-d',7);
+        checkMltAnswer();
+        if(der() && der().correct) vus.push('produit : 4/14 = 2/7 pour 2/15 est compté juste');
+        if(peint('mlt-e0-dn')!=='juste') vus.push('produit : le diviseur 2 de 4/14 est peint '+peint('mlt-e0-dn'));
+        if(peint('mlt-fn')!=='faux') vus.push('produit : 4 pour 2 est peint '+peint('mlt-fn'));
+        if(/simplifieras/.test(($$('mltFeedback')||{}).textContent||'')) vus.push('produit : 2/15 ne se simplifie pas, et le message annonce une simplification');
+      }
       /* SIMPLIFIER AVANT DE MULTIPLIER (octobre 2026) : sur 5/2 × 3/5, barrer
          les 5 donne (1 × 3)/(2 × 1) = 3/2 — juste, et la chaîne disparaît. */
       const Q53={n1:5,d1:2,n2:3,d2:5,a1:5,a2:3,b1:2,b2:5,P:15,Q:10};
@@ -53663,6 +53683,36 @@ function revisionFractions(w, P){
     /* ⑥ un résultat irréductible n'a aucune étape de simplification */
     test.questions=[{type:'mult-frac', d1:3, d2:5, n1:2, n2:1}]; renderRvfTest();
     if($$('rvf-s0-dn')) vus.push('2/15 est irréductible, et une simplification est demandée');
+
+    /* ⑦ UN RÉSULTAT FAUX QUI SE SIMPLIFIE SE VOIT PROPOSER LA DIVISION, même
+       quand la bonne réponse ne se simplifie pas (octobre 2026, copie d'écran
+       de Turquet) : 2/3 × 5 = 10/3, l'élève écrit 9/3. La chaîne simplifie
+       ce qu'il a écrit, et s'y juge ; 10/3 récrit la referme. */
+    const entier=function(){ return {type:'mult-entier', n:2, d:3, k:5}; };
+    test.questions=[entier()]; renderRvfTest();
+    $$('rvf-regle').value=RVF_REGLES['mult-entier'].opts[0][0]; tape('rvf-kden',1);
+    tape('rvf-num',9); tape('rvf-den',3);
+    if(!$$('rvf-s0-dn')) vus.push('9/3 (faux, se simplifie) écrit pour 10/3, et aucune division n’est proposée');
+    else {
+      if(($$('rvf-s0-an')||{}).textContent!=='9' || ($$('rvf-s0-ad')||{}).textContent!=='3') vus.push('les nombres divisés ne recopient pas 9/3');
+      if($$('rvf-s1-dn')) vus.push('9/3 n’a besoin que d’une étape');
+      const lab7=document.querySelector('#rvfHost .pt-lab');
+      if(!lab7 || !/simplifier/.test(lab7.textContent)) vus.push('9/3 : la chaîne ouverte, le libellé n’annonce pas la simplification');
+      if(test.questions[0].sbrut!=='9/3') vus.push('la fraction simplifiée n’est pas rangée pour la reprise (sbrut='+test.questions[0].sbrut+')');
+      renderRvfTest();
+      if(!$$('rvf-s0-dn')) vus.push('après un redessin (reprise), la division de 9/3 a disparu');
+      test.questions=[entier()]; renderRvfTest();
+      $$('rvf-regle').value=RVF_REGLES['mult-entier'].opts[0][0]; tape('rvf-kden',1);
+      tape('rvf-num',9); tape('rvf-den',3);
+      tape('rvf-s0-dn',3); tape('rvf-s0-n',3); tape('rvf-s0-d',1);
+      checkRvfAnswer(); der=test.answers[test.answers.length-1];
+      if(der && der.correct) vus.push('9/3 = 3/1 pour 10/3 est compté juste');
+      if(peint('rvf-num')!=='faux') vus.push('9 pour 10 est peint '+peint('rvf-num'));
+      if(peint('rvf-s0-dn')!=='juste') vus.push('le diviseur 3 de 9/3 est peint '+peint('rvf-s0-dn')+' : la division se juge sur la fraction écrite');
+      if(peint('rvf-s0-n')!=='juste') vus.push('9 ÷ 3 = 3 est peint '+peint('rvf-s0-n'));
+    }
+    test.questions=[entier()]; renderRvfTest(); tape('rvf-num',9); tape('rvf-den',3); tape('rvf-num',10);
+    if($$('rvf-s0-dn')) vus.push('10/3 (juste, irréductible) récrit après 9/3, et la division reste proposée');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }

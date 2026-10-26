@@ -8721,7 +8721,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=612;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=613;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -58034,13 +58034,14 @@ function checkSFAnswer(live){
       corTrainDec('sf-q1', suivie ? r.g : q.D/q.Dr);
       corTrainDec('sf-q2', suivie ? r.g : q.D/q.Dr);
       corTrainFrac('sf-fn','sf-fd',q.Nr,q.Dr);
-    } else if(r.se){
+    } else {
       /* la correction suit la route de l'élève : le calcul brut, puis chaque
-         étape de sa chaîne (un diviseur vide ou faux reçoit le PGCD) */
-      corTrainFrac('sf-fn','sf-fd',r.se.F.n,r.se.F.d);
-      r.se.cases.forEach(function(c){ corTrainDec(c.id,c.bon); });
-      seMiroirs('sf');
-    } else corTrainFrac('sf-fn','sf-fd',q.N,q.D);
+         étape de sa chaîne (un diviseur vide ou faux reçoit le PGCD) — une
+         chaîne qui simplifie une fraction FAUSSE se corrige sur elle */
+      if(r.se && r.se.F) corTrainFrac('sf-fn','sf-fd',r.se.F.n,r.se.F.d);
+      else corTrainFrac('sf-fn','sf-fd',q.N,q.D);
+      if(r.se){ r.se.cases.forEach(function(c){ corTrainDec(c.id,c.bon); }); seMiroirs('sf'); }
+    }
   }
   const donne=sfCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
   test.answers.push({...(ptsExo()||{}),correct:allOk,
@@ -58074,10 +58075,8 @@ function sfPourquoi(q,r){
     if(!r.okQ) return 'Divise en haut ET en bas par le même nombre, le plus grand qui va dans les deux : ici '+g+'.';
     return 'Il reste à faire les deux divisions : '+Ns+' ÷ '+g+' et '+Dc+' ÷ '+g+', donc '+q.Nr+'/'+q.Dr+'.';
   }
-  if(r.se){
-    if(!r.ok4) return 'Il reste à effectuer le calcul du haut : '+r.se.F.n+'/'+r.se.F.d+', que tu simplifieras ensuite.';
-    return seMessage(r.se);
-  }
+  if(r.se && r.se.F && !r.ok4) return 'Il reste à effectuer le calcul du haut : '+r.se.F.n+'/'+r.se.F.d+', que tu simplifieras ensuite.';
+  if(r.se && r.ok4) return seMessage(r.se);
   return 'Il reste à effectuer le calcul du haut : le résultat est '+q.N+'/'+q.D+'.';
 }
 function nextSFQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSFTest(); autoSave(); } else finishTest(); }
