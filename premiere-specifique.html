@@ -21497,6 +21497,8 @@ function dmMoyennes(devoirs, eleves, rows){
    « typeof » plutôt qu'une liste par niveau, pour que ce texte reste le même
    dans les trois fichiers. */
 function dmMoyFamille(){
+  if(typeof dmGenre!=='undefined' && dmGenre==='snt')
+    return { pluriel:'fiches SNT', singulier:'fiche', accord:'e', fichier:'fiches-snt' };
   return (typeof dmGenre!=='undefined' && dmGenre==='fiche')
     ? { pluriel:'fiches', singulier:'fiche', accord:'e', fichier:'fiches' }
     : { pluriel:'devoirs', singulier:'devoir', accord:'', fichier:'devoirs' };

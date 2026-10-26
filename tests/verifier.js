@@ -28848,10 +28848,10 @@ function fichesDeTravail(w, apres){
        règle. */
     const ordreAttendu=['openDevoirsEleve()',"openDevoirsEleve('fiche')"${P.snt?`,"openDevoirsEleve('snt')"`:''},'openThemes()'];
     const ordreLu=[].slice.call(document.querySelectorAll('#scr-space .choice'))
-      .map(function(b){ return (b.getAttribute('onclick')||'').replace(/\s+/g,'').replace(/"/g,"'"); })
+      .map(function(b){ return (b.getAttribute('onclick')||'').replace(/\\s+/g,'').replace(/"/g,"'"); })
       .filter(function(o){ return ordreAttendu.indexOf(o)>=0; });
     if(ordreLu.join(' ')!==ordreAttendu.join(' '))
-      vus.push('les cartes de l\'accueil ne sont pas dans l\'ordre devoirs → fiches${P.snt?' → SNT':''} → thèmes : '+ordreLu.join(' → '));
+      vus.push('les cartes de l\\'accueil ne sont pas dans l\\'ordre devoirs → fiches${P.snt?' → SNT':''} → thèmes : '+ordreLu.join(' → '));
 
     /* 0. LA CARTE DE L'ACCUEIL mène à la famille, et la nomme : une famille
        sans porte serait une aide écrite où rien ne mène (la leçon du bouton
@@ -28932,24 +28932,24 @@ function fichesDeTravail(w, apres){
     if(${P.snt?'true':'false'}){
       const S=${JSON.stringify(P.snt||{})};
       const carteS=[].slice.call(document.querySelectorAll('#scr-space .choice')).find(function(b){
-        return /openDevoirsEleve\(\s*['"]snt['"]\s*\)/.test(b.getAttribute('onclick')||''); });
-      if(!carteS) vus.push('aucune carte de l\'accueil n\'appelle openDevoirsEleve(\'snt\')');
-      else if(!/SNT/.test(carteS.textContent)) vus.push('la carte SNT de l\'accueil ne dit pas « SNT »');
+        return /openDevoirsEleve\\(\\s*['"]snt['"]\\s*\\)/.test(b.getAttribute('onclick')||''); });
+      if(!carteS) vus.push('aucune carte de l\\'accueil n\\'appelle openDevoirsEleve(\\'snt\\')');
+      else if(!/SNT/.test(carteS.textContent)) vus.push('la carte SNT de l\\'accueil ne dit pas « SNT »');
       await openDevoirsEleve('snt');
       corps=document.getElementById('devoirsBody').textContent;
       titre=document.getElementById('devoirsTitle').textContent;
       if(titre.indexOf(S.titre)<0) vus.push('la page SNT se titre « '+titre+' » au lieu de « '+S.titre+' »');
-      if(corps.indexOf('Fiche SNT témoin')<0) vus.push('la fiche SNT n\'arrive pas jusqu\'à l\'élève');
+      if(corps.indexOf('Fiche SNT témoin')<0) vus.push('la fiche SNT n\\'arrive pas jusqu\\'à l\\'élève');
       if(corps.indexOf(S.badge+' n°4')<0) vus.push('la carte ne dit pas « '+S.badge+' n°4 » : '+corps.slice(0,80));
-      if(corps.indexOf('Fiche témoin')>=0 || corps.indexOf('Devoir témoin')>=0) vus.push('une fiche de travail ou un devoir s\'affiche dans la page SNT');
+      if(corps.indexOf('Fiche témoin')>=0 || corps.indexOf('Devoir témoin')>=0) vus.push('une fiche de travail ou un devoir s\\'affiche dans la page SNT');
       await openDevoirsEleve('fiche');
-      if(document.getElementById('devoirsBody').textContent.indexOf('Fiche SNT témoin')>=0) vus.push('une fiche SNT s\'affiche dans la page des fiches de travail');
+      if(document.getElementById('devoirsBody').textContent.indexOf('Fiche SNT témoin')>=0) vus.push('une fiche SNT s\\'affiche dans la page des fiches de travail');
       await ouvrirDevoirDetail('snt_temoin');
       titre=document.getElementById('devoirsTitle').textContent;
       corps=document.getElementById('devoirsBody').textContent;
-      if(titre.indexOf(S.titre)<0) vus.push('le détail d\'une fiche SNT se titre « '+titre+' »');
-      if(corps.indexOf(S.note)<0) vus.push('le détail d\'une fiche SNT ne dit pas « '+S.note+' »');
-      if(typeof newDevoirId==='function' && newDevoirId('snt').indexOf('snt_')!==0) vus.push('une fiche SNT reçoit l\'identifiant « '+newDevoirId('snt')+' »');
+      if(titre.indexOf(S.titre)<0) vus.push('le détail d\\'une fiche SNT se titre « '+titre+' »');
+      if(corps.indexOf(S.note)<0) vus.push('le détail d\\'une fiche SNT ne dit pas « '+S.note+' »');
+      if(typeof newDevoirId==='function' && newDevoirId('snt').indexOf('snt_')!==0) vus.push('une fiche SNT reçoit l\\'identifiant « '+newDevoirId('snt')+' »');
     }
 
     /* 4. l'enregistrement d'une famille NE TOUCHE PAS l'autre */
@@ -28977,7 +28977,7 @@ function fichesDeTravail(w, apres){
         dmList=[{id:'snt_temoin',num:4,actif:true,titre:'Fiche SNT corrigée',cours:'',exercices:[{id:exId,modes:['train']}]}];
         await persistDevoirs();
         v=lireValeurs();
-        if(!v.snt || v.snt[0].titre!=='Fiche SNT corrigée') vus.push('la fiche SNT enregistrée n\'est pas sous valeurs.snt');
+        if(!v.snt || v.snt[0].titre!=='Fiche SNT corrigée') vus.push('la fiche SNT enregistrée n\\'est pas sous valeurs.snt');
         if(v.fiches[0].titre!=='Fiche corrigée' || v.devoirs[0].titre!=='Devoir corrigé')
           vus.push('enregistrer une fiche SNT a touché valeurs.fiches ou valeurs.devoirs');
         dmGenre='dm';

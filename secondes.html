@@ -24287,7 +24287,8 @@ function dmMoyennes(devoirs, eleves, rows){
    dans les trois niveaux (fiches de travail en classe en Seconde et en
    Première, travaux facultatifs en Terminale — ce sont des fiches aussi) :
    « typeof » plutôt qu'une liste par niveau, pour que ce texte reste le même
-   dans les trois fichiers. */
+   dans les trois fichiers. La troisième famille, « snt », n'existe qu'en
+   Seconde : sa ligne est inerte ailleurs, et le texte reste le même. */
 function dmMoyFamille(){
   if(typeof dmGenre!=='undefined' && dmGenre==='snt')
     return { pluriel:'fiches SNT', singulier:'fiche', accord:'e', fichier:'fiches-snt' };
