@@ -2023,7 +2023,9 @@ la remontre.
 
 **Puis l'inverse : un résultat FAUX qui se simplifie se voit proposer la
 division — même quand la bonne réponse ne se simplifie pas (octobre 2026,
-Première v347, Seconde v614).** Demande de Turquet, copie d'écran du 4.1 à
+Première v348 — la v347 avait été prise deux fois, par #876 et #877,
+fusionnées à quelques minutes d'écart ; la Seconde, prise deux fois aussi, est
+passée en v616 par #882).** Demande de Turquet, copie d'écran du 4.1 à
 l'appui : 2/3 × 5 = 10/3, l'élève écrit 9/3, et rien ne lui proposait de
 simplifier — la chaîne du 4.1 ne s'ouvrait que si la BONNE réponse se
 simplifie (`rvfReductible`), et celle des 4.2 à 4.6 ne s'ouvrait que sur la
