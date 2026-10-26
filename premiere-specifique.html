@@ -3102,7 +3102,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=347;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=348;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -17574,6 +17574,24 @@ function rvfInverseCaseHTML(){
    autres : il attend le calcul direct, sans simplification — c'est la
    simplification qui suit qui la fait. */
 function rvfReductible(q){ const r=rvfReponse(q); return gcd(r.num,r.den)>1; }
+/* SIMPLIFIER AVANT DE MULTIPLIER (demande de Turquet, octobre 2026 : « compter
+   juste un élève qui calcule un produit en supprimant les facteurs identiques
+   au numérateur et au dénominateur ») — sur 4/3 × 3/5, l'élève qui barre les
+   3 écrit 4/5 d'emblée, et voyait ses deux cases rougir derrière 12/15. Pour
+   un produit (ou une division, devenue produit), la fraction obtenue est
+   juste quand elle est le produit brut divisé en haut ET en bas par un même
+   entier k > 1 : c'est exactement ce que laisse un facteur enlevé. Une
+   fraction égale qui n'en vient pas (8/10 pour 12/15) reste fausse. La
+   chaîne de simplification part alors de ce qui est écrit (rvfMajSimp), et
+   disparaît quand c'est déjà irréductible. */
+const RVF_PRODUITS={'mult-frac':1, 'mult-entier':1, 'div-1':1, 'div-2':1};
+function rvfFacteursEnleves(q){
+  if(!q || !RVF_PRODUITS[q.type]) return false;
+  const W=fracEcrite('rvf-num','rvf-den'), r=rvfReponse(q);
+  if(!W || W.n<1 || W.d<1 || r.den%W.d!==0) return false;
+  const k=r.den/W.d;
+  return k>1 && W.n*k===r.num;
+}
 /* LA FRACTION QUE LA CHAÎNE SIMPLIFIE : celle que l'élève a écrite quand elle
    se simplifie, JUSTE OU FAUSSE (q.sbrut, rangé pour la reprise — demande de
    Turquet, octobre 2026 : 9/3 écrit pour 2/3 × 5 = 10/3 doit se voir
@@ -17627,7 +17645,10 @@ function rvfMajSimp(q, force){
   const W=fracEcrite('rvf-num','rvf-den');
   if(W) q.sbrut=gcd(W.n,W.d)>1 ? W.n+'/'+W.d : '';
   else if(force) q.sbrut='';
-  if(force) q.svu=true;
+  /* un produit simplifié AVANT d'être calculé, et déjà irréductible
+     (rvfFacteursEnleves) : il n'y a plus rien à simplifier, la vérification
+     ne montre pas de chaîne */
+  if(force) q.svu=!(W && gcd(W.n,W.d)===1 && rvfFacteursEnleves(q));
   else if(W) q.svu=gcd(W.n,W.d)>1;
   const sd=[]; for(let i=0;;i++){ const e=$('rvf-s'+i+'-dn'); if(!e) break; sd.push(String(e.value).trim()); }
   q.sdiv=q.svu ? sd : [];
@@ -17745,6 +17766,7 @@ function rvfJuste(c, el, q){
        deux cases. Les étapes intermédiaires, elles, gardent la forme brute
        de la règle : c'est elle que l'exercice fait écrire. */
     if(q && (c.id==='rvf-num'||c.id==='rvf-den') && !rvfReductible(q)) return rvfResultatEgal(q);
+    if(q && (c.id==='rvf-num'||c.id==='rvf-den')) return rvfFacteursEnleves(q);
     return false;
   }
   return el.value===c.bon;
@@ -17802,7 +17824,7 @@ function rvfMonte(q){
    récitée seule. */
 function rvfPourquoi(q){
   const r=rvfReponse(q), g=gcd(r.num,r.den);
-  return rvfPourquoiCalcul(q)+(g>1?' Puis on simplifie : on divise le numérateur ET le dénominateur par le même nombre. '
+  return rvfPourquoiCalcul(q)+(g>1 && RVF_PRODUITS[q.type]?' On peut aussi enlever AVANT de multiplier un même facteur en haut et en bas.':'')+(g>1?' Puis on simplifie : on divise le numérateur ET le dénominateur par le même nombre. '
     +r.num+'/'+r.den+' = ('+r.num+' ÷ '+g+')/('+r.den+' ÷ '+g+') = '+(r.num/g)+'/'+(r.den/g)
     +' — en divisant par un nombre plus petit, on recommence tant que la fraction se simplifie encore.':'');
 }
@@ -24214,7 +24236,7 @@ Piège classique : confondre \\(P_G(L)\\) et \\(P_L(G)\\) — le dénominateur e
    la simplification par étapes que la Première demande (octobre 2026). */
 const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>① Même dénominateur :</b> on garde ce dénominateur, et on additionne ou on soustrait seulement les numérateurs. \\(\\frac{2}{5}+\\frac{1}{5}=\\frac{3}{5}\\)<br>
-<b>② Multiplier deux fractions :</b> numérateur fois numérateur, dénominateur fois dénominateur — et on NE met JAMAIS au même dénominateur, même si l'un des deux facteurs est un nombre entier. \\(\\frac{2}{3}\\times\\frac{4}{5}=\\frac{8}{15}\\) ; \\(\\frac{2}{3}\\times 4=\\frac{8}{3}\\) (le dénominateur ne change pas).<br>
+<b>② Multiplier deux fractions :</b> numérateur fois numérateur, dénominateur fois dénominateur — et on NE met JAMAIS au même dénominateur, même si l'un des deux facteurs est un nombre entier. \\(\\frac{2}{3}\\times\\frac{4}{5}=\\frac{8}{15}\\) ; \\(\\frac{2}{3}\\times 4=\\frac{8}{3}\\) (le dénominateur ne change pas). On peut aussi enlever d'abord un même facteur en haut et en bas : \\(\\frac{4}{3}\\times\\frac{3}{5}=\\frac{4}{5}\\) (le 3 s'enlève).<br>
 <b>③ Dénominateurs différents :</b> il faut d'abord les mettre au même dénominateur — le produit des deux — en multipliant chaque fraction en haut ET en bas. Un entier s'écrit d'abord comme une fraction de dénominateur 1 : \\(5=\\frac{5}{1}\\)<br>
 <b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}=\\frac{5}{6}\\) (on simplifie à la fin, ici par 2).<br>
 <b>⑤ Simplifier le résultat :</b> on divise le numérateur ET le dénominateur par le même nombre ; si la fraction obtenue se simplifie encore, on recommence. \\(\\frac{6}{12}=\\frac{6\\div 2}{12\\div 2}=\\frac{3}{6}=\\frac{3\\div 3}{6\\div 3}=\\frac{1}{2}\\)`;

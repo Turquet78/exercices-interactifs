@@ -2060,3 +2060,40 @@ récrit la referme ; produit (4.4) — 4/14 écrit pour 2/15 ouvre la chaîne,
 ÷ 2 = 2/7 juste, aucun message n'annonce de simplification ;
 {somme-produit-fractions} — 34/24 propose la chaîne, simplifié par 2 il vaut
 le point.
+
+**Puis le 4.1 de la Première et le 5.15 de la Seconde ont accepté le facteur
+enlevé avant de multiplier (octobre 2026, Première v348, Seconde v617).**
+Demande de Turquet, copie d'écran à l'appui : « en seconde et première sur
+les calculs fractionnaires, compter juste un élève qui calcule un produit en
+supprimant les facteurs identiques au numérateur et au dénominateur ». Sur
+4/3 × 3/5 au 4.1, l'élève qui barrait les 3 écrivait 4/5 : ses deux cases
+rougissaient, la chaîne de 12/15 se remplissait de vert derrière lui, et le
+message disait « il te manquait 5 cases ».
+
+* **Au 4.1 (`rvfFacteursEnleves`)** : pour un produit — `mult-frac`,
+  `mult-entier`, `div-1`, `div-2` (`RVF_PRODUITS`) —, la fraction obtenue
+  est juste quand elle est le produit brut divisé en haut ET en bas par un
+  même entier k > 1. C'est exactement ce que laisse un facteur enlevé ; une
+  fraction égale qui n'en vient pas (8/10 pour 12/15) reste fausse. Déjà
+  irréductible, la vérification ne montre plus de chaîne (`rvfMajSimp`,
+  `force`) ; encore réductible (2/4 pour 2/3 × 3/4), la chaîne part de ce
+  qui est écrit — `q.sbrut`, le mécanisme du 9/3. Les sommes ne changent
+  pas : on n'y enlève rien avant de calculer. Le rappel et le message le
+  disent (« le 3 s'enlève »).
+* **Au 5.15 de la Seconde (`pfFacteursEnleves`)** : la règle du 4.4/4.5 de
+  la Première (`mltSimplifieAvant`) portée dans `pfProduitJuge` — quatre
+  cases qui DIVISENT chacune l'un des facteurs de leur étage, et dont le tout
+  VAUT le produit, sont justes ensemble ; dénominateurs strictement positifs.
+  Sur 13/6 × 12/11, (13 × 2)/(1 × 11) est juste.
+* **Rien à faire ailleurs, et c'est vérifié** : les 5.6, 5.8, la
+  somme-produit (Seconde et Première) tirent un produit IRRÉDUCTIBLE —
+  aucun facteur à enlever ; le 5.11 de la Seconde accepte déjà toute
+  fraction égale ; le 5.13/5.14 passent directement au résultat (`direct`),
+  que `pfFracJuge` juge sur sa valeur ; les rédigées comparent des valeurs ;
+  les 4.4/4.5 de la Première le faisaient déjà.
+
+Contrôles : « réviser les quatre règles des fractions : le résultat se
+simplifie par étapes » gagne son ⑧ (4/5 juste sans chaîne, 8/10 faux, 2/4
+puis 1/2 juste, la division au 2 enlevé juste, une somme écrite d'emblée
+simplifiée toujours fausse) ; « quotient de deux parenthèses : un facteur
+enlevé avant de multiplier est juste » est neuf (Seconde).
