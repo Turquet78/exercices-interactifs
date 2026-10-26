@@ -28840,8 +28840,21 @@ function fichesDeTravail(w, apres){
     const exId=Object.keys(TESTS)[0];
     window.__faux.semer('${TABLE}',[{id:1,valeurs:{
       devoirs:[{id:'dm_temoin',num:3,actif:true,titre:'Devoir témoin',cours:'',exercices:[{id:exId,modes:['train']}]}],
-      fiches:[{id:'fc_temoin',num:2,actif:true,titre:'Fiche témoin',cours:'',exercices:[{id:exId,modes:['train']}]}]
+      fiches:[{id:'fc_temoin',num:2,actif:true,titre:'Fiche témoin',cours:'',exercices:[{id:exId,modes:['train']}]}]${P.snt?`,
+      snt:[{id:'snt_temoin',num:4,actif:true,titre:'Fiche SNT témoin',cours:'',exercices:[{id:exId,modes:['train']}]}]`:''}
     }}]);
+
+    /* 0 ter. L'ORDRE DES CARTES DE L'ACCUEIL (demande de Turquet, octobre
+       2026, les trois niveaux) : « Devoirs à la maison », puis la seconde
+       famille, puis « SNT » là où elle existe, puis « Choisir un exercice par
+       thème ». Les cartes qui suivent (« Reprendre… ») n'entrent pas dans la
+       règle. */
+    const ordreAttendu=['openDevoirsEleve()',"openDevoirsEleve('fiche')"${P.snt?`,"openDevoirsEleve('snt')"`:''},'openThemes()'];
+    const ordreLu=[].slice.call(document.querySelectorAll('#scr-space .choice'))
+      .map(function(b){ return (b.getAttribute('onclick')||'').replace(/\\s+/g,'').replace(/"/g,"'"); })
+      .filter(function(o){ return ordreAttendu.indexOf(o)>=0; });
+    if(ordreLu.join(' ')!==ordreAttendu.join(' '))
+      vus.push('les cartes de l\\'accueil ne sont pas dans l\\'ordre devoirs → fiches${P.snt?' → SNT':''} → thèmes : '+ordreLu.join(' → '));
 
     /* 0. LA CARTE DE L'ACCUEIL mène à la famille, et la nomme : une famille
        sans porte serait une aide écrite où rien ne mène (la leçon du bouton
@@ -28855,7 +28868,8 @@ function fichesDeTravail(w, apres){
     else {
       dmGenre='dm'; renderDmGenres();
       const onglets=[].slice.call(document.querySelectorAll('#dmGenres .dm-tab')).map(function(b){ return b.textContent.trim(); });
-      if(onglets.length!==2) vus.push('le sélecteur de famille montre '+onglets.length+' onglet(s) au lieu de 2');
+      const nOnglets=${P.snt?3:2};
+      if(onglets.length!==nOnglets) vus.push('le sélecteur de famille montre '+onglets.length+' onglet(s) au lieu de '+nOnglets);
       if(onglets.indexOf('${F.titre}')<0) vus.push('le sélecteur du professeur ne nomme pas « ${F.titre} » : '+onglets.join(' / '));
     }
 
@@ -28914,6 +28928,33 @@ function fichesDeTravail(w, apres){
       if(typeof dmeViderCorps==='function'){ dmeCtx=null; dmeViderCorps(); }
     }
 
+    /* 3 bis. LES FICHES SNT (Seconde, demande de Turquet, octobre 2026) : la
+       carte de l'accueil, la page qui ne montre qu'elles, le titre retrouvé
+       par le seul identifiant — et elles ne débordent ni chez les fiches ni
+       chez les devoirs. */
+    if(${P.snt?'true':'false'}){
+      const S=${JSON.stringify(P.snt||{})};
+      const carteS=[].slice.call(document.querySelectorAll('#scr-space .choice')).find(function(b){
+        return /openDevoirsEleve\\(\\s*['"]snt['"]\\s*\\)/.test(b.getAttribute('onclick')||''); });
+      if(!carteS) vus.push('aucune carte de l\\'accueil n\\'appelle openDevoirsEleve(\\'snt\\')');
+      else if(!/SNT/.test(carteS.textContent)) vus.push('la carte SNT de l\\'accueil ne dit pas « SNT »');
+      await openDevoirsEleve('snt');
+      corps=document.getElementById('devoirsBody').textContent;
+      titre=document.getElementById('devoirsTitle').textContent;
+      if(titre.indexOf(S.titre)<0) vus.push('la page SNT se titre « '+titre+' » au lieu de « '+S.titre+' »');
+      if(corps.indexOf('Fiche SNT témoin')<0) vus.push('la fiche SNT n\\'arrive pas jusqu\\'à l\\'élève');
+      if(corps.indexOf(S.badge+' n°4')<0) vus.push('la carte ne dit pas « '+S.badge+' n°4 » : '+corps.slice(0,80));
+      if(corps.indexOf('Fiche témoin')>=0 || corps.indexOf('Devoir témoin')>=0) vus.push('une fiche de travail ou un devoir s\\'affiche dans la page SNT');
+      await openDevoirsEleve('fiche');
+      if(document.getElementById('devoirsBody').textContent.indexOf('Fiche SNT témoin')>=0) vus.push('une fiche SNT s\\'affiche dans la page des fiches de travail');
+      await ouvrirDevoirDetail('snt_temoin');
+      titre=document.getElementById('devoirsTitle').textContent;
+      corps=document.getElementById('devoirsBody').textContent;
+      if(titre.indexOf(S.titre)<0) vus.push('le détail d\\'une fiche SNT se titre « '+titre+' »');
+      if(corps.indexOf(S.note)<0) vus.push('le détail d\\'une fiche SNT ne dit pas « '+S.note+' »');
+      if(typeof newDevoirId==='function' && newDevoirId('snt').indexOf('snt_')!==0) vus.push('une fiche SNT reçoit l\\'identifiant « '+newDevoirId('snt')+' »');
+    }
+
     /* 4. l'enregistrement d'une famille NE TOUCHE PAS l'autre */
     const lireValeurs=function(){ return (window.__faux.tables['${TABLE}']||[{}])[0].valeurs||{}; };
     if(typeof persistDevoirs==='function' && typeof dmGenre!=='undefined'){
@@ -28932,6 +28973,18 @@ function fichesDeTravail(w, apres){
       if(!v.devoirs || v.devoirs[0].titre!=='Devoir corrigé') vus.push('le devoir enregistré n\\'est pas sous valeurs.devoirs');
       if(!v.fiches || v.fiches[0].titre!=='Fiche corrigée')
         vus.push('enregistrer un devoir a touché valeurs.fiches : '+JSON.stringify(v.fiches));
+      if(${P.snt?'true':'false'}){
+        if(!v.snt || v.snt.length!==1 || v.snt[0].titre!=='Fiche SNT témoin')
+          vus.push('enregistrer un devoir ou une fiche a touché valeurs.snt : '+JSON.stringify(v.snt));
+        dmGenre='snt';
+        dmList=[{id:'snt_temoin',num:4,actif:true,titre:'Fiche SNT corrigée',cours:'',exercices:[{id:exId,modes:['train']}]}];
+        await persistDevoirs();
+        v=lireValeurs();
+        if(!v.snt || v.snt[0].titre!=='Fiche SNT corrigée') vus.push('la fiche SNT enregistrée n\\'est pas sous valeurs.snt');
+        if(v.fiches[0].titre!=='Fiche corrigée' || v.devoirs[0].titre!=='Devoir corrigé')
+          vus.push('enregistrer une fiche SNT a touché valeurs.fiches ou valeurs.devoirs');
+        dmGenre='dm';
+      }
     } else if(typeof newDM==='function' && typeof dmGenre!=='undefined'){
       /* Première : la création écrit sous la clé de SA famille */
       dmGenre='fiche';

@@ -2638,10 +2638,6 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
            n'existe QUE s'il y en a : sinon l'accueil reste ce qu'il était. -->
       <div class="rep-bloc" id="repProf" hidden></div>
       <div class="choices" style="margin-top:16px">
-        <button class="choice eleve" onclick="openThemes()">
-          <span class="ic">📚</span><span class="ttl">Choisir un exercice par thème</span>
-          <span class="ds">Tous les thèmes et les exercices, avec ton bilan de travail.</span>
-        </button>
         <button class="choice prof" onclick="openDevoirsEleve()">
           <span class="ic">📌</span><span class="ttl">Voir les devoirs à la maison</span>
           <span class="ds">Le dernier devoir, les exercices à faire et tes résultats.</span>
@@ -2652,6 +2648,10 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
         <button class="choice fiche" onclick="openDevoirsEleve('fiche')">
           <span class="ic">📝</span><span class="ttl">Travaux facultatifs</span>
           <span class="ds">Les fiches de travail que ton professeur te propose en plus, et tes résultats.</span>
+        </button>
+        <button class="choice eleve" onclick="openThemes()">
+          <span class="ic">📚</span><span class="ttl">Choisir un exercice par thème</span>
+          <span class="ds">Tous les thèmes et les exercices, avec ton bilan de travail.</span>
         </button>
         <button class="choice rattrapage" onclick="openRattrapage()">
           <span class="ic">🎯</span><span class="ttl">Reprendre les exercices à améliorer</span>
@@ -4320,7 +4320,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=456;
+const APP_VERSION=457;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -36540,6 +36540,8 @@ function dmMoyennes(devoirs, eleves, rows){
    « typeof » plutôt qu'une liste par niveau, pour que ce texte reste le même
    dans les trois fichiers. */
 function dmMoyFamille(){
+  if(typeof dmGenre!=='undefined' && dmGenre==='snt')
+    return { pluriel:'fiches SNT', singulier:'fiche', accord:'e', fichier:'fiches-snt' };
   return (typeof dmGenre!=='undefined' && dmGenre==='fiche')
     ? { pluriel:'fiches', singulier:'fiche', accord:'e', fichier:'fiches' }
     : { pluriel:'devoirs', singulier:'devoir', accord:'', fichier:'devoirs' };

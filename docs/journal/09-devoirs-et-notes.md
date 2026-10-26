@@ -1611,3 +1611,25 @@ plus qu'UN nombre, dans `#resultScore` ; `#resultPct` n'existe plus.
   plafonnée en soutien) ; l'accord entre le pourcentage et `details.note`
   reste vérifié sur la ligne. Éprouvé par sabotage : un « (64 %) » ajouté
   derrière la note en Terminale rougit les 75 exercices.
+
+**Les fiches SNT sont la TROISIÈME famille de la Seconde — et l'accueil range
+ses cartes dans l'ordre du travail.** Demande de Turquet, octobre 2026 : une
+case « SNT » (Sciences Numériques et Technologie) qui montre à l'élève les
+fiches construites par le professeur, « comme pour une fiche de travail mais
+pour la partie SNT ». C'est une entrée de plus dans `GENRE_DEVOIRS` (`snt`) et
+rien d'autre : mêmes règles que les fiches de travail (ordre imposé, note sur
+20), sa propre clé `valeurs.snt` — ni le portail (`valeurs.devoirs`) ni la
+page des fiches de travail ne la voient —, ses identifiants préfixés `snt_`.
+Les tests `=== 'fiche'` qui choisissaient entre DEUX familles sont devenus
+`genreValide()` / `genreDevoir()` et des champs de la table (`fem`, `tous`,
+`recent`, `prefixe`, `onglet`) : avec une troisième famille, chaque
+« sinon c'est un devoir » aurait rangé une fiche SNT chez les devoirs. Le
+professeur la construit dans le même éditeur, onglet « SNT ».
+Et l'ordre des cartes de l'accueil, sur les TROIS niveaux : « Devoirs à la
+maison », puis la seconde famille (fiches de travail, travaux facultatifs en
+Terminale), puis « SNT » en Seconde, puis « Choisir un exercice par thème » ;
+« Reprendre les exercices à améliorer » reste en dernier. Le contrôle des
+fiches (`fichesDeTravail`, banc principal) tient l'ordre (bord « 0 ter ») et
+la famille SNT (« 3 bis » : la carte, la page qui ne montre qu'elle, le titre
+retrouvé par l'identifiant, l'enregistrement qui ne touche ni `fiches` ni
+`devoirs`) ; le profil de la Seconde la déclare (`snt`).
