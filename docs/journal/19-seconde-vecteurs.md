@@ -546,6 +546,45 @@ soit un parallélogramme) n'est pas portée — Turquet a précisé que la fiche
 translation de vecteur … est le point … » de la fiche est dite dans la
 correction et le rappel, pas demandée dans une case.
 
+### Puis le 8.1.4 s'est présenté comme le 8.1.12 (v615)
+
+Demande de Turquet, octobre 2026 : « en seconde présenter le 8.1.4 comme le
+8.1.12 ». L'écran de {translation-quadrillage} reprend celui de
+{translation-antecedent}, pièce par pièce :
+
+- le quadrillage de 16 × 10 carreaux, dessiné par les fonctions du 8.1.12
+  (`tanX`, `tanY`, `tanCroix`, `tanEtiquette`, `svcFleche` avec `TAN_GEO`) :
+  la flèche u⃗ et les points donnés en noir, les points de l'élève en violet
+  avant le jugement ;
+- l'énoncé en `.enonce`, le mode d'emploi en `.tan-sous` ;
+- trois cadres ①②③ « Le point A′, image de A, placé. » (`trl-pt-0` à 2,
+  toujours des `pts-case`), puis la consigne de l'étape (`#trlEtape`) ;
+- la croix et la lettre du point en cours qui suivent la souris
+  (`#trlCurseur`) ; le clic pose le point EN COURS au nœud le plus proche
+  (`trlClic(i, j)`), un clic sur un point posé le reprend, un clic sur un
+  cadre le choisit (`trlChoisir`), « Effacer mes points » retire tout ;
+- « Vérifier », puis « Question suivante » (`#trlNext`) ; le message dans
+  `#trlFeedback` ;
+- à la correction, chaque croix jugée a sa flèche depuis sa source (bleue
+  ou rouge), et chaque image fausse ou manquante sa croix et sa flèche
+  vertes.
+
+**Le nom choisi après la pose (v484) disparaît** : au 8.1.12, le point se
+nomme par son cadre, et c'est la présentation demandée. Le juge n'a pas
+bougé (`q.rep[i]` reste l'image nommée `i`, en `{x, y}`) ; un brouillon
+d'avant qui portait un point sans nom (`q.pend`) le perd à la reprise, les
+points nommés restent. Le tirage passe au nouveau quadrillage et garde ses
+règles, plus une : tout point à un carreau du bord au moins, pour que sa
+lettre ait la place de s'écrire. Le soutien colore toujours à la pose (le
+8.1.4 n'est pas dans `soutienEnDirect.sans`) : c'est un comportement, pas
+une présentation, et la demande ne le touchait pas.
+
+Les deux bancs ont suivi : le banc principal joue `trlClic`, `trlChoisir`
+et `trlEffacer` et relit les cadres et la consigne ; le banc navigateur
+(« 6 quadragies bis ») suit la croix à la souris, clique à un cinquième de
+maille, reprend un point, puis compte les flèches bleues, rouges et vertes à
+l'écran.
+
 ## {parallelogramme-point} — le quatrième point d'un parallélogramme (8.5, v477)
 
 **Deux changements sous un seul numéro.** La PR 630 (brouillon étiqueté,
@@ -3856,6 +3895,17 @@ justes, et la note les nomme toutes les deux. « Pas le même sens » n'est
 JAMAIS une justification de deux vecteurs qui ne sont pas parallèles : le
 sens ne se compare qu'entre deux vecteurs de même direction, et le message
 le dit. Barème : 1 case pour deux vecteurs égaux, 2 sinon (11 pour six).
+
+**Puis « pas le même sens » a quitté la liste des vecteurs non parallèles**
+(Turquet, octobre 2026, v615 : « ne pas proposer “pas le même sens” quand la
+justification est “pas la même direction” »). La liste se construit par
+question (`vejOptions`) : trois choix entre deux vecteurs parallèles, deux
+sinon. Le prix est nommé : un élève qui ne voit que deux choix sait que les
+vecteurs ne sont pas parallèles — la ligne « Vrai ou faux » a déjà été
+répondue quand la liste s'ouvre, et « pas la même direction » y est toujours
+juste. Le message « on ne compare pas leur sens » reste dans `vejPourquoi`,
+pour une saisie ancienne remise par une reprise. Le banc vérifie les deux
+listes, et « pas le même sens » compté juste sur deux vecteurs opposés.
 
 **Un piège de dessin, vu en ouvrant la page.** Les deux écrans gardent
 chacun leur dessin, et les pointes de flèche étaient des `<marker>` de même

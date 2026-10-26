@@ -13183,17 +13183,20 @@ function vecteursCriteres(w, P){
     poserJ(Q3, []);
     if(!/parallèles/.test(el('vejInstr').textContent)) vus.push('l’énoncé du 8.1.14 ne dit pas que la direction, c’est parallèle');
     if(!cache('vej-l-1')) vus.push('la justification est ouverte avant toute réponse');
-    if(el('vej-1').options.length!==4 || !/pas parallèles/.test(el('vej-1').textContent)) vus.push('la liste des justifications : « '+el('vej-1').textContent+' »');
+    if(el('vej-1').options.length!==3 || !/pas parallèles/.test(el('vej-1').textContent) || /même sens/.test(el('vej-1').textContent)) vus.push('la liste des justifications de deux vecteurs non parallèles : « '+el('vej-1').textContent+' »');
     choisir('vej-0', 'F');
     if(cache('vej-l-1')) vus.push('« Faux » n’ouvre pas la justification');
     ['D','L'].forEach(function(j){ poserJ(Q3, ['F', j]); checkVejAnswer();
       const d=test.answers[test.answers.length-1];
       if(!d.correct || d.cases!==2) vus.push('Q3, la justification '+j+' est comptée fausse'); });
-    poserJ(Q3, ['F','S']); checkVejAnswer();
-    if(peint('vej-1')!=='rouge' || !/ne compare pas leur sens/.test(fb('vej'))) vus.push('Q3, « pas le même sens » : '+peint('vej-1')+', « '+fb('vej').slice(0,160)+' »');
+    poserJ(Q3, ['F']); checkVejAnswer();
     if(!/Les deux justifications sont justes/.test(el('vej-pq-1').textContent)) vus.push('Q3, la note ne nomme pas les deux justifications : « '+el('vej-pq-1').textContent+' »');
     poserJ(Q3, ['V']); checkVejAnswer();
     if(peint('vej-0')!=='rouge' || cache('vej-l-1') || peint('vej-1')!=='correction') vus.push('Q3, « égaux » dit vrai : la justification ne s’ouvre pas en vert');
+    poserJ({s:'oppose', u:[1,2,2,1], v:[9,4,-2,-1]}, ['F']);
+    if(el('vej-1').options.length!==4 || !/même sens/.test(el('vej-1').textContent)) vus.push('la liste des justifications de deux vecteurs parallèles : « '+el('vej-1').textContent+' »');
+    choisir('vej-1', 'S'); checkVejAnswer();
+    if(!test.answers[test.answers.length-1].correct) vus.push('deux vecteurs opposés, « pas le même sens » est compté faux');
     poserJ(Q4, ['F','L']); checkVejAnswer();
     der=test.answers[test.answers.length-1];
     if(peint('vej-0')!=='rouge' || peint('vej-1')!=='rien' || !el('vej-1').disabled || der.cases!==1) vus.push('Q4, égaux dits faux : la justification '+peint('vej-1')+', '+der.cases+' case(s)');
@@ -13201,7 +13204,7 @@ function vecteursCriteres(w, P){
     der=test.answers[test.answers.length-1];
     if(!der.correct || der.cases!==1) vus.push('la copie juste de Q4');
     const ctx2=ctxVej(Q3).contexte;
-    if(!/SECR/.test(ctx2) || !/pas la même longueur/.test(ctx2) || !/jamais une justification/.test(ctx2)) vus.push('le contexte du 8.1.14');
+    if(!/SECR/.test(ctx2) || !/pas la même longueur/.test(ctx2) || !/jamais une justification/.test(ctx2) || !/pas proposé/.test(ctx2)) vus.push('le contexte du 8.1.14');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -16590,6 +16593,10 @@ function pointSommeDifference(w, P){
        vide au tirage ;
      · l'énoncé DIT la demande (« Déplace les points … en suivant le chemin
        … ») et le mode d'emploi du geste se lit APRÈS, en plus petit ;
+     · PRÉSENTÉ COMME LE 8.1.12 (demande de Turquet, octobre 2026, v615) :
+       trois cadres ①②③, le clic (trlClic) pose le point EN COURS — le
+       premier qui manque, ou celui dont on a cliqué le cadre —, un clic sur
+       un point posé le reprend, « Effacer mes points » retire tout ;
      · vérifier SANS point ne peint rien et ne verrouille rien ;
      · chaque image se juge SEULE : la copie juste vaut 3, une image fausse
        coûte son point, une image manquante aussi ;
@@ -16636,7 +16643,7 @@ function translationQuadrillage(w, P){
         if(Math.abs(q.vec[0])+Math.abs(q.vec[1])<2) vus.push('un chemin de moins de deux carreaux : '+q.vec.join(','));
         if(q.src.length!==D.images) vus.push(q.src.length+' points à déplacer au lieu de '+D.images);
         const pts=[q.o,[q.o[0]+q.vec[0],q.o[1]+q.vec[1]]].concat(q.src, q.src.map(function(p){ return [p[0]+q.vec[0],p[1]+q.vec[1]]; }));
-        pts.forEach(function(p){ if(p[0]<0||p[0]>TRL_W||p[1]<0||p[1]>TRL_H) vus.push('un point sort du quadrillage : ('+p.join(';')+')'); });
+        pts.forEach(function(p){ if(p[0]<1||p[0]>TRL_W-1||p[1]<1||p[1]>TRL_H-1) vus.push('un point sort du quadrillage ou touche son bord : ('+p.join(';')+')'); });
         /* les bouts de la flèche u⃗ ne sont pas des points : seuls les six
            points nommés (et A, B pour la forme ab) doivent s'éviter */
         const nommes=(q.forme==='ab')?pts:pts.slice(2);
@@ -16678,21 +16685,25 @@ function translationQuadrillage(w, P){
     if(instr.textContent.indexOf('Déplace les points A, B et C en suivant le chemin')!==0)
       vus.push('l\\'énoncé ne commence pas par « Déplace les points A, B et C en suivant le chemin » : '+instr.textContent.slice(0,70));
     if(!instr.querySelector('.vec')) vus.push('le nom du vecteur n\\'est pas coiffé de sa flèche (.vec)');
-    const sous=instr.querySelector('.trl-sous');
-    if(!sous) vus.push('le mode d\\'emploi du geste n\\'est plus dans son bloc .trl-sous');
+    if(!instr.classList.contains('enonce')) vus.push('l\\'énoncé n\\'est pas un .enonce, comme au 8.1.12');
+    const sous=instr.querySelector('.tan-sous');
+    if(!sous) vus.push('le mode d\\'emploi du geste n\\'est plus dans son bloc .tan-sous');
     else{
-      if(sous.textContent.indexOf('nomme le point posé')<0) vus.push('le mode d\\'emploi ne dit pas qu\\'on nomme le point posé');
+      if(sous.textContent.indexOf('une croix s’y pose')<0) vus.push('le mode d\\'emploi ne dit pas que le clic pose une croix');
       const css=Array.from(document.querySelectorAll('style')).map(function(s){ return s.textContent; }).join('');
-      const mS=css.match(/\\.trl-sous\\{[^}]*font-size:([0-9.]+)rem/);
-      const mE=css.match(/\\.lv-instr\\{[^}]*font-size:([0-9.]+)rem/);
-      if(!mS) vus.push('aucune règle CSS ne réduit le mode d\\'emploi (.trl-sous sans font-size)');
-      else if(!mE) vus.push('la taille de l\\'énoncé (.lv-instr) est devenue illisible au contrôle');
-      else if(parseFloat(mS[1])>=parseFloat(mE[1])) vus.push('le mode d\\'emploi ne s\\'écrit pas plus petit que l\\'énoncé');
+      const mS=css.match(/\\.tan-sous\\{[^}]*font-size:([0-9.]+)rem/);
+      if(!mS) vus.push('aucune règle CSS ne réduit le mode d\\'emploi (.tan-sous sans font-size)');
+      else if(parseFloat(mS[1])>=1) vus.push('le mode d\\'emploi ne s\\'écrit pas plus petit que l\\'énoncé');
     }
-    /* trois boutons de nom, inactifs tant qu'aucun point n'attend le sien ;
+    /* les trois cadres du 8.1.12 : le premier est en cours, la consigne le nomme ;
        rien de posé, rien de révélé */
-    if(!el('trlNom0')||!el('trlNom1')||!el('trlNom2')) vus.push('les trois boutons de nom « A′ / B′ / C′ » manquent');
-    else if(!el('trlNom0').disabled) vus.push('un bouton de nom est actif alors qu\\'aucun point n\\'est posé');
+    if(!el('trl-pt-0')||!el('trl-pt-1')||!el('trl-pt-2')) vus.push('les trois cadres ①②③ manquent');
+    else{
+      if(el('trl-pt-0').textContent.indexOf('① Le point A′, image de A, placé.')<0) vus.push('le cadre ① ne dit pas « Le point A′, image de A, placé. » : '+el('trl-pt-0').textContent);
+      if(!el('trl-pt-0').classList.contains('tan-cours')) vus.push('le cadre ① n\\'est pas en cours au départ');
+    }
+    if(!el('trlEtape') || el('trlEtape').textContent.indexOf('Clique le nœud où arrive le point A')<0) vus.push('la consigne de l\\'étape ne guide pas vers A : '+(el('trlEtape')?el('trlEtape').textContent:'(absente)'));
+    if(!el('trlEffacer')) vus.push('le bouton « Effacer mes points » manque');
     if(document.querySelector('#trlGraph .trl-pt')) vus.push('un point est dessiné avant que l\\'élève le pose');
     if(document.querySelector('#trlGraph .trl-sol')) vus.push('l\\'image attendue est déjà montrée avant la vérification');
     if(!document.querySelector('#trlGraph .trl-vec')) vus.push('la flèche u n\\'est pas dessinée (forme u)');
@@ -16703,34 +16714,34 @@ function translationQuadrillage(w, P){
     submitTrl();
     if(test.locked) vus.push('vérifier sans point verrouille la question');
     if(classe('trl-pt-0')!=='rien'||classe('trl-pt-1')!=='rien'||classe('trl-pt-2')!=='rien') vus.push('vérifier sans point pose une couleur');
-    if(el('trlCorr').textContent.indexOf('nomme-le A′')<0) vus.push('vérifier sans point ne redit pas le geste : '+el('trlCorr').textContent.slice(0,80));
+    if(el('trlFeedback').textContent.indexOf('c’est le point A′')<0) vus.push('vérifier sans point ne redit pas le geste : '+el('trlFeedback').textContent.slice(0,80));
 
-    /* 3 bis. le point posé SANS NOM : il ne compte pour aucune image, la
-       vérification le refuse sans rien peindre ni verrouiller et demande le
-       nom ; nommé, il devient l'image choisie ; un nom déjà pris se déplace */
-    q.pend={x:4,y:2}; trlMaj();
-    if(el('trlNom0').disabled) vus.push('le bouton de nom reste inactif alors qu\\'un point attend son nom');
-    if(el('trlNommerTxt').textContent.indexOf('Comment s’appelle ce point')<0) vus.push('la page ne demande pas le nom du point posé : '+el('trlNommerTxt').textContent);
-    submitTrl();
-    if(test.locked) vus.push('vérifier avec un point sans nom verrouille la question');
-    if(classe('trl-pt-0')!=='rien') vus.push('vérifier avec un point sans nom pose une couleur');
-    if(el('trlCorr').textContent.indexOf('Nomme d’abord')<0) vus.push('vérifier avec un point sans nom ne demande pas son nom : '+el('trlCorr').textContent.slice(0,80));
-    trlNommer(1);
-    if(q.pend || JSON.stringify(q.rep)!=='[null,{"x":4,"y":2},null]') vus.push('nommer B′ ne range pas le point en B′ : '+JSON.stringify(q.rep));
-    if(!el('trlNom1').disabled) vus.push('le bouton de nom reste actif une fois le point nommé');
-    q.pend={x:8,y:4}; trlNommer(1);
-    if(JSON.stringify(q.rep)!=='[null,{"x":8,"y":4},null]') vus.push('un nom déjà pris ne se déplace pas sur le nouveau point : '+JSON.stringify(q.rep));
-    q.rep=[null,null,null];
+    /* 3 bis. le geste du 8.1.12 : le clic pose le point EN COURS, un clic
+       sur un point posé le reprend, le cadre choisit le point, « Effacer »
+       retire tout */
+    trlClic(4,2);
+    if(JSON.stringify(q.rep)!=='[{"x":4,"y":2},null,null]') vus.push('le premier clic ne pose pas A′ : '+JSON.stringify(q.rep));
+    if(!el('trl-pt-0').classList.contains('tan-fait')||!el('trl-pt-1').classList.contains('tan-cours')) vus.push('après A′, le cadre ① n\\'est pas « fait » ou le ② pas en cours');
+    trlClic(9,9);
+    if(JSON.stringify(q.rep)!=='[{"x":4,"y":2},{"x":9,"y":9},null]') vus.push('le deuxième clic ne pose pas B′ : '+JSON.stringify(q.rep));
+    trlClic(9,9);
+    if(JSON.stringify(q.rep)!=='[{"x":4,"y":2},null,null]' || !el('trl-pt-1').classList.contains('tan-cours')) vus.push('cliquer un point posé ne le reprend pas : '+JSON.stringify(q.rep));
+    trlChoisir(2); trlClic(11,1);
+    if(JSON.stringify(q.rep)!=='[{"x":4,"y":2},null,{"x":11,"y":1}]') vus.push('le cadre ③ choisi ne fait pas poser C′ : '+JSON.stringify(q.rep));
+    trlEffacer();
+    if(JSON.stringify(q.rep)!=='[null,null,null]') vus.push('« Effacer mes points » ne retire pas tout : '+JSON.stringify(q.rep));
+    if(test.locked) vus.push('le geste verrouille la question');
 
     /* 4. copie juste : 3 points, rien ne se révèle, les pastilles sont ok */
     q.rep=[{x:4,y:2},{x:8,y:4},{x:11,y:1}]; trlMaj();
-    if(el('trl-pt-0').textContent.indexOf('A′ posé')<0) vus.push('la pastille ne dit pas « A′ posé » : '+el('trl-pt-0').textContent);
+    if(el('trlEtape').textContent.indexOf('Les trois points sont posés')<0) vus.push('la consigne ne dit pas que les trois points sont posés : '+el('trlEtape').textContent);
     let avant=test.score; submitTrl(); clearTimeout(test.fbTimer);
     if(test.score-avant!==3) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 3');
     if(!test.locked) vus.push('la copie juste ne verrouille pas la question');
     if(classe('trl-pt-0')!=='ok'||classe('trl-pt-1')!=='ok'||classe('trl-pt-2')!=='ok') vus.push('une pastille juste n\\'est pas marquée ok');
     if(document.querySelector('#trlGraph .trl-sol')) vus.push('l\\'image attendue se montre alors que tout est juste');
-    if(document.querySelectorAll('#trlGraph .trl-pt.ok').length!==3) vus.push('les trois points justes ne sont pas peints ok sur le dessin');
+    if(document.querySelectorAll('#trlGraph .trl-pt.tan-x-ok').length!==3) vus.push('les trois points justes ne sont pas peints en bleu sur le dessin');
+    if(!el('trlNext')) vus.push('la copie jugée ne propose pas « Question suivante »');
     const a0=test.answers[test.answers.length-1];
     if(!a0||a0.type!=='trl'||!a0.correct||a0.cases!==3) vus.push('la réponse enregistrée ne compte pas 3 cases justes (type trl)');
 
@@ -16750,8 +16761,9 @@ function translationQuadrillage(w, P){
     if(classe('trl-pt-1')!=='bad') vus.push('la pastille de l\\'image fausse n\\'est pas bad');
     if(classe('trl-pt-2')!=='sol') vus.push('la pastille de l\\'image manquante n\\'est pas sol (elle est « '+classe('trl-pt-2')+' »)');
     if(document.querySelectorAll('#trlGraph .trl-sol').length!==2) vus.push(document.querySelectorAll('#trlGraph .trl-sol').length+' image(s) attendue(s) montrée(s) au lieu de 2');
-    if(document.querySelectorAll('#trlGraph .trl-pt.bad').length!==1) vus.push('le point faux ne rougit pas sur le dessin');
-    if(el('trlCorr').textContent.indexOf('2 carreaux vers la gauche et 3 carreaux vers le haut')<0) vus.push('la correction ne dit pas le chemin en carreaux : '+el('trlCorr').textContent.slice(0,90));
+    if(document.querySelectorAll('#trlGraph .trl-pt.tan-x-bad').length!==1) vus.push('le point faux ne rougit pas sur le dessin');
+    if(document.querySelectorAll('#trlGraph .svc-s').length!==2) vus.push('les flèches vertes de la source à l\\'image attendue manquent');
+    if(el('trlFeedback').textContent.indexOf('2 carreaux vers la gauche et 3 carreaux vers le haut')<0) vus.push('la correction ne dit pas le chemin en carreaux : '+el('trlFeedback').textContent.slice(0,90));
     const a1=test.answers[test.answers.length-1];
     if(!a1||a1.correct||a1.cases!==3||a1.justes!==1) vus.push('la réponse enregistrée ne compte pas 1 case juste sur 3');
 
