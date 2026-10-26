@@ -3360,7 +3360,16 @@
   #scr-trl .tvg-cons.tan-cours{border-color:var(--blue);background:#EAF0FF;color:var(--ink);box-shadow:inset 4px 0 0 var(--blue)}
   #scr-trl .vec{font-size:1.1em}
   #trlGraph .sv-svg{max-width:640px}
-  .tan-svg #trlCorrFig,.tan-svg #trlEl,.tan-svg #trlDonnes{pointer-events:none}
+  .tan-svg #trlCorrFig,.tan-svg #trlEl,.tan-svg #trlDonnes,.tan-svg #trlFl,.tan-svg #trlVif{pointer-events:none}
+  /* le vecteur se trace d'abord (v617) : les six cadres en deux colonnes — la
+     flèche à gauche, son image à droite —, et la flèche de l'élève comme au
+     8.1.8 : violette avant le jugement, une prise ronde à chaque bout */
+  #scr-trl .trl-cadres{display:grid;grid-template-columns:1fr 1fr;column-gap:10px}
+  @media (max-width:560px){#scr-trl .trl-cadres{grid-template-columns:1fr}}
+  .trl-fig .tvx-el{stroke:var(--crd-a);stroke-width:2.6;stroke-linecap:round}
+  .trl-fig .tvx-vif{pointer-events:none}
+  .trl-fig .tvx-prise{fill:transparent;stroke:transparent;stroke-width:2;cursor:pointer}
+  .trl-fig .tvx-prise:hover{fill:rgba(124,58,237,.14);stroke:var(--crd-a)}
   .lv-instr .trl-sous{display:block;font-size:.85rem;font-weight:400;margin-top:6px}
   /* le nom d'un vecteur : la lettre coiffée d'une flèche */
   .vec{position:relative;display:inline-block;padding-top:.45em;line-height:1}
@@ -8747,7 +8756,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=616;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=617;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9593,7 +9602,7 @@ const TESTS={
   'developper-distributivite-nu': { name:'D\u00e9velopper avec la distributivit\u00e9, sans les fl\u00e8ches', icon:'\u2733\ufe0f', desc:'k \u00d7 (a + b) = k \u00d7 a + k \u00d7 b, cette fois sans fl\u00e8ches, sans bulles et sans accolades\u00a0: les produits, leurs r\u00e9sultats, puis la forme r\u00e9duite \u2014 dans l\u2019ordre qu\u2019on veut. Six expressions, la derni\u00e8re \u00e0 r\u00e9duire.', start:()=>startDvl('dvo') },
   'developper-reduire': { name:'D\u00e9velopper puis r\u00e9duire une somme de produits', icon:'\ud83e\uddee', desc:'(x + 2)(x \u2212 3) \u2212 2x(x + 1) = \u2026 = \u2026\u00a0: dans la m\u00eame rang\u00e9e d\u2019\u00e9galit\u00e9s, les six termes du d\u00e9veloppement, puis la forme r\u00e9duite. Quatre expressions.', start:()=>startDvr() },
   'valeur-expression': { name:'Calculer une expression pour une valeur', icon:'\u{1F522}', desc:'Remplacer x par un nombre n\u00e9gatif, entre parenth\u00e8ses\u00a0: le carr\u00e9 d\u2019abord, puis les produits, puis la somme \u2014 et le pi\u00e8ge (\u22122)\u00b2 contre \u22122\u00b2.', start:()=>startCvl() },
-  'translation-quadrillage': { name:'Translation\u00a0: d\u00e9placer un point sur le quadrillage', icon:'\u27a1\ufe0f', desc:'Sur un quadrillage, une fl\u00e8che u (ou deux points A et B) donne un chemin\u00a0: d\u00e9place chaque point en suivant ce chemin et place son image A\u2032, B\u2032, C\u2032 \u2014 \u00ab\u00a0l\u2019image de A par la translation de vecteur u est le point A\u2032\u00a0\u00bb. Chaque point se pose au clic sur le quadrillage, puis l\u2019\u00e9l\u00e8ve le nomme.', start:()=>startTrl() },
+  'translation-quadrillage': { name:'Translation\u00a0: d\u00e9placer un point sur le quadrillage', icon:'\u27a1\ufe0f', desc:'Sur un quadrillage, une fl\u00e8che u (ou deux points A et B) donne un chemin\u00a0: d\u00e9place chaque point en suivant ce chemin et place son image A\u2032, B\u2032, C\u2032 \u2014 \u00ab\u00a0l\u2019image de A par la translation de vecteur u est le point A\u2032\u00a0\u00bb. Pour chaque point, trace d\u2019abord le vecteur \u00e0 partir de ce point \u2014 un clic pour le d\u00e9part, un clic pour l\u2019arriv\u00e9e \u2014, puis place son image d\u2019un clic sur le quadrillage.', start:()=>startTrl() },
   'translation-grille': { name:'Image d\u2019un point par une translation', icon:'\u27a1\ufe0f', desc:'Huit vecteurs dessin\u00e9s et une grille de points de A \u00e0 X. Six lignes \u00e0 compl\u00e9ter\u00a0: le point image par la translation du vecteur indiqu\u00e9, ou le vecteur de la translation qui m\u00e8ne d\u2019un point \u00e0 son image.', start:()=>startVtr() },
   'parallelogramme-point': { name:'Le quatri\u00e8me point d\u2019un parall\u00e9logramme', icon:'\ud83d\udccd', desc:'Trois points A, B et C sur un quadrillage, et l\u2019\u00e9nonc\u00e9 \u00ab ABDC est un parall\u00e9logramme \u00bb \u2014 ou ABCD. Construis D d\u2019un clic sur le quadrillage, puis compl\u00e8te la phrase \u00ab le chemin qui va de \u2026 \u00e0 \u2026 est le m\u00eame que celui qui va de C \u00e0 D \u00bb, puis \u00e9cris cette \u00e9galit\u00e9 avec des vecteurs.', start:()=>startVec() },
   'egalite-vectorielle-point': { name:'Placer un point pour une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccf', desc:'Trois des points A, B, C et D sur un quadrillage, et une \u00e9galit\u00e9 de vecteurs \u00e0 r\u00e9aliser. Clique sur le quadrillage le point qui manque, puis nomme le parall\u00e9logramme obtenu \u2014 dans le bon ordre des lettres.', start:()=>startVep() },
@@ -12300,6 +12309,7 @@ const RAP_TRL=`<b>Translation : déplacer un point en suivant un chemin</b><br>
 Une flèche <span class="vec"><i>u</i></span> dessinée sur le quadrillage est un <b>chemin</b> : tant de carreaux vers la droite (ou la gauche), tant de carreaux vers le haut (ou le bas).<br>
 <b>Déplacer le point A en suivant le chemin <span class="vec"><i>u</i></span></b> : on part de A et on refait exactement le même chemin. Le point d'arrivée s'appelle A′ (on lit « A prime »).<br>
 On écrit : <b>l'image de A par la translation de vecteur <span class="vec"><i>u</i></span> est le point A′</b>.<br>
+La méthode : on trace <b>d'abord</b> le vecteur <span class="vec"><i>u</i></span> à partir de A — une flèche qui part de A et fait le même chemin ; <b>le bout de la flèche est A′</b>.<br>
 Quand on donne deux points A et B, le chemin <span class="vec"><i>AB</i></span> est celui qui va <b>de A vers B</b> : on compte les carreaux de A à B, puis on refait ce chemin à partir de chaque point.<br>
 Exemple : si <span class="vec"><i>u</i></span> va de 3 carreaux vers la droite et de 2 carreaux vers le bas, l'image de A est le point situé 3 carreaux à droite et 2 carreaux plus bas que A.`;
 /* Rappel des solutions sur le graphique : celui du 4.5 de la Terminale, porté
@@ -16662,19 +16672,43 @@ function trlFabrique(forme){
       if(!cand) ok=false; else src.push(cand);
     }
     if(!ok) continue;
-    return {forme:forme, vec:vec, o:o, src:src, rep:[null,null,null]};
+    return {forme:forme, vec:vec, o:o, src:src, rep:[null,null,null], d:[null,null,null], f:[null,null,null]};
   }
   /* vivier épuisé (jamais vu) : une question sûre, DANS LA FORME DEMANDÉE
      (l'alternance tient même ici), plutôt qu'une page figée */
   return forme==='ab'
-    ? {forme:'ab', vec:[-2,3], o:[9,1], src:[[3,1],[6,2],[11,4]], rep:[null,null,null]}
-    : {forme:'u', vec:[3,-2], o:[1,7], src:[[1,4],[5,6],[8,3]], rep:[null,null,null]};
+    ? {forme:'ab', vec:[-2,3], o:[9,1], src:[[3,1],[6,2],[11,4]], rep:[null,null,null], d:[null,null,null], f:[null,null,null]}
+    : {forme:'u', vec:[3,-2], o:[1,7], src:[[1,4],[5,6],[8,3]], rep:[null,null,null], d:[null,null,null], f:[null,null,null]};
 }
+/* LE VECTEUR SE TRACE D'ABORD, L'IMAGE SE PLACE ENSUITE (demande de Turquet,
+   octobre 2026 : « dans le 8.1.4 demander de tracer d'abord le vecteur avant
+   de placer les images ; on tracera le vecteur comme dans la 8.1.8 »). Six
+   étapes par question, dans l'ordre : ① le vecteur tracé à partir de A,
+   ② le point A′ placé, ③ le vecteur à partir de B, ④ B′, ⑤ et ⑥ pour C.
+   L'étape s se lit sans table : paire, la flèche s/2 ; impaire, le point
+   (s−1)/2. Le TRACÉ est celui du 8.1.8 {tracer-vecteurs-opposes} : un clic
+   pose le départ (une croix), une flèche violette suit la souris, un second
+   clic fixe l'arrivée ; un clic sur le départ ou l'arrivée d'une flèche
+   tracée la reprend, Échap la rend à sa place. La flèche est juste quand
+   elle PART DU POINT À DÉPLACER et fait le chemin du vecteur ; son arrivée
+   est donc l'image, que l'élève pose ensuite d'un clic. Le point ne se pose
+   qu'une fois sa flèche tracée : choisir son cadre avant renvoie à la
+   flèche. On range ce que l'élève a tracé — q.d et q.f, départ et arrivée
+   de chaque flèche ([x, y] ou null) —, jamais la bonne réponse ;
+   l'extrémité reprise (test.trlMob) ne survit pas à une pause. */
+function trlFl(q,k){
+  const d=q.d&&q.d[k], f=q.f&&q.f[k];
+  return d&&f ? {d:d, f:f, w:[f[0]-d[0], f[1]-d[1]]} : null;
+}
+function trlFaite(q,s){ return s%2===0 ? !!trlFl(q,s/2) : !!q.rep[(s-1)/2]; }
 /* Le dessin, celui du 8.1.12 : le quadrillage, la flèche u⃗ (ou A et B) et
-   les trois points donnés en noir ; puis la correction, les points de
-   l'élève, et la croix qui suit la souris en DERNIER. verdict.oks colore les
-   points posés ; verdict.sol (la correction finale) montre en vert les
-   images attendues, et les flèches de la source à chaque point posé. */
+   les trois points donnés en noir ; puis la correction, les flèches et les
+   points de l'élève, la flèche qui suit la souris, les prises des
+   extrémités, et la croix qui suit la souris en DERNIER. verdict.oks colore
+   les points posés, verdict.oksV les flèches ; verdict.sol (la correction
+   finale) montre en vert, pour chaque point dont la flèche ou l'image est
+   fausse ou manque, la flèche de la source à l'image — et l'image elle-même
+   quand c'est elle qui manque. */
 function trlSVG(q, verdict){
   const Wd=2*TAN_PX+TRL_W*TAN_C, Hd=2*TAN_PY+TRL_H*TAN_C, X=tanX, Y=tanY, noms=trlNoms(q);
   let g='';
@@ -16691,21 +16725,32 @@ function trlSVG(q, verdict){
   if(final) q.src.forEach((p,i)=>{
     if(!verdict.sol[i]) return;
     const im=trlImage(q,i);
-    corr+=svcFleche(p, im, {cls:'svc-s', marker:'trlArrS', geo:TAN_GEO})+tanCroix(im,'tan-x-sol trl-sol')+tanEtiquette(im, noms[i]+'′', 'tan-sol-t');
+    corr+=svcFleche(p, im, {cls:'svc-s', marker:'trlArrS', geo:TAN_GEO});
+    if(!(verdict.oks && verdict.oks[i])) corr+=tanCroix(im,'tan-x-sol trl-sol')+tanEtiquette(im, noms[i]+'′', 'tan-sol-t');
+  });
+  let fl='', pr='';
+  const mob=test.trlMob;
+  [0,1,2].forEach(k=>{
+    if(!final && mob && mob.k===k) return;   /* l'extrémité reprise suit la souris (trlVif) */
+    const d=q.d&&q.d[k], t=trlFl(q,k); if(!d) return;
+    const m=(verdict && verdict.oksV && t) ? (verdict.oksV[k]?'ok':'bad') : '';
+    fl+=tanCroix(d, 'trl-dep'+(m==='ok'?' tan-x-ok':(m==='bad'?' tan-x-bad':'')));
+    if(!t) return;
+    fl+=svcFleche(t.d, t.f, {cls:m==='ok'?'svc-e trl-tr':(m==='bad'?'svc-eb trl-tr':'tvx-el trl-tr'), marker:m==='ok'?'trlArrE':(m==='bad'?'trlArrB':'trlArrM'), geo:TAN_GEO});
+    if(!test.locked && !final)
+      [t.d, t.f].forEach((n,b)=>{ pr+='<circle class="tvx-prise" data-k="'+k+'" data-b="'+(b?'f':'d')+'" cx="'+X(n[0])+'" cy="'+Y(n[1])+'" r="11"/>'; });
   });
   let el='';
   (q.rep||[]).forEach((r,i)=>{
     const p=trlPt(r); if(!p) return;
     const m=(verdict && verdict.oks) ? (verdict.oks[i]?'tan-x-ok':'tan-x-bad') : '';
-    if(final && !tanEgal(p,q.src[i]))
-      el+=svcFleche(q.src[i], p, {cls:m==='tan-x-ok'?'svc-e':'svc-eb', marker:m==='tan-x-ok'?'trlArrE':'trlArrB', geo:TAN_GEO});
     el+=tanCroix(p,'trl-pt'+(m?' '+m:''))+tanEtiquette(p, noms[i]+'′', 'tan-el-t'+(m?' '+m:''));
   });
   const pointe=(id,coul)=>'<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+coul+'"/></marker>';
   return '<svg viewBox="0 0 '+Wd+' '+Hd+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tan-svg trl-fig" role="img" aria-label="Quadrillage : '
-    +(q.forme==='u'?'le vecteur u':'les points A et B')+', les points '+noms.join(', ')+', et leurs images '+noms.map(n=>n+'′').join(', ')+' à placer">'
-    +'<defs>'+pointe('trlArr0','var(--ink)')+pointe('trlArrE','var(--blue)')+pointe('trlArrB','var(--red)')+pointe('trlArrS','var(--green)')+'</defs>'
-    +g+'<g id="trlDonnes">'+donnes+'</g><g id="trlCorrFig">'+corr+'</g><g id="trlEl">'+el+'</g>'
+    +(q.forme==='u'?'le vecteur u':'les points A et B')+', les points '+noms.join(', ')+', le vecteur '+trlVecTexte(q)+' à tracer à partir de chacun, et leurs images '+noms.map(n=>n+'′').join(', ')+' à placer">'
+    +'<defs>'+pointe('trlArr0','var(--ink)')+pointe('trlArrM','var(--crd-a)')+pointe('trlArrE','var(--blue)')+pointe('trlArrB','var(--red)')+pointe('trlArrS','var(--green)')+'</defs>'
+    +g+'<g id="trlDonnes">'+donnes+'</g><g id="trlCorrFig">'+corr+'</g><g id="trlFl">'+fl+'</g><g id="trlEl">'+el+'</g><g id="trlVif"></g><g id="trlPrises">'+pr+'</g>'
     +'<g id="trlCurseur" class="tan-curseur" aria-hidden="true" style="display:none"></g></svg>';
 }
 function startTrl(){
@@ -16714,55 +16759,119 @@ function startTrl(){
   const qs=distinctes(dmNbQuestions(TRL_NB), (_,i)=>trlFabrique(trlForme(i)));
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
-  Object.assign(test,{kind:'trl', questions:qs, idx:0, score:0, maxScore:qs.length*3, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  Object.assign(test,{kind:'trl', questions:qs, idx:0, score:0, maxScore:qs.length*6, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('trl'); renderTrl();
 }
-/* le point en cours : celui que l'élève a choisi, sinon le premier qui manque ; -1 quand tout est posé */
+/* l'étape en cours : celle que l'élève a choisie, sinon la première qui
+   manque ; -1 quand tout est tracé et posé */
 function trlCourant(q){
-  if(test.trlSel>=0 && test.trlSel<3) return test.trlSel;
-  for(let k=0;k<3;k++) if(!q.rep[k]) return k;
+  if(test.trlSel>=0 && test.trlSel<6) return test.trlSel;
+  for(let s=0;s<6;s++) if(!trlFaite(q,s)) return s;
   return -1;
 }
-/* Un clic au nœud (i ; j) : sur un point posé, il le reprend ; sinon il pose le point en cours. */
+/* ce qu'un clic au nœud n reprend quand rien n'est en cours : un point posé
+   d'abord, sinon une extrémité de flèche */
+function trlPrise(q,n){
+  const j=q.rep.findIndex(r=>r&&r.x===n[0]&&r.y===n[1]);
+  if(j>=0) return {img:j};
+  for(let k=2;k>=0;k--){
+    const t=trlFl(q,k); if(!t) continue;
+    if(tanEgal(n,t.d)) return {k:k, bout:'d'};
+    if(tanEgal(n,t.f)) return {k:k, bout:'f'};
+  }
+  return null;
+}
+function trlPrendre(q,p){
+  if(p.img>=0){ q.rep[p.img]=null; test.trlSel=2*p.img+1; }
+  else { test.trlMob={k:p.k, bout:p.bout}; test.trlSel=-1; }
+}
+/* Un clic au nœud (i ; j). Une extrémité reprise s'y pose ; sinon, selon
+   l'étape en cours : une flèche commencée y prend son arrivée (recliquer sa
+   croix la retire), une flèche sans départ y prend son départ — à moins que
+   le clic ne tombe sur un point posé ou une extrémité de flèche, qu'il
+   reprend ; un point à poser s'y pose (un clic sur un point posé le
+   reprend). Jamais de vecteur nul. */
 function trlClic(i,j){
   if(test.kind!=='trl'||test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>TRL_W||j<0||j>TRL_H) return;
-  const deja=q.rep.findIndex(r=>r&&r.x===i&&r.y===j);
-  if(deja>=0){ q.rep[deja]=null; test.trlSel=deja; }
-  else {
-    const k=trlCourant(q); if(k<0) return;
-    q.rep[k]={x:i, y:j}; test.trlSel=-1;
+  const n=[i,j], mob=test.trlMob;
+  if(mob){
+    const t=trlFl(q,mob.k);
+    if(t && tanEgal(n, mob.bout==='d'?t.f:t.d)) return;
+    q[mob.bout][mob.k]=n; test.trlMob=null; test.trlSel=-1;
+  } else {
+    const s=trlCourant(q);
+    if(s<0){ const p=trlPrise(q,n); if(!p) return; trlPrendre(q,p); }
+    else if(s%2===0){
+      const k=s/2;
+      if(q.d[k] && !q.f[k]){ if(tanEgal(q.d[k],n)) q.d[k]=null; else { q.f[k]=n; test.trlSel=-1; } }
+      else if(q.d[k] && q.f[k]){
+        /* une flèche tracée dont on a choisi le cadre : un clic sur un bout
+           le reprend, ailleurs il recommence la flèche */
+        if(tanEgal(n,q.d[k])) test.trlMob={k:k, bout:'d'};
+        else if(tanEgal(n,q.f[k])) test.trlMob={k:k, bout:'f'};
+        else { q.d[k]=n; q.f[k]=null; }
+        test.trlSel=-1;
+        if(!test.trlMob) test.trlSel=s;
+      }
+      else { const p=trlPrise(q,n); if(p) trlPrendre(q,p); else q.d[k]=n; }
+    } else {
+      const k=(s-1)/2, deja=q.rep.findIndex(r=>r&&r.x===i&&r.y===j);
+      if(deja>=0){ q.rep[deja]=null; test.trlSel=2*deja+1; }
+      else { q.rep[k]={x:i, y:j}; test.trlSel=-1; }
+    }
   }
   trlRedessiner();
 }
-/* choisir le point à poser (ou à déplacer) en cliquant son cadre */
-function trlChoisir(k){
-  if(test.kind!=='trl'||test.locked||!(k>=0&&k<3)) return;
-  test.trlSel=k; trlMaj();
+/* choisir l'étape en cliquant son cadre — le point d'une flèche pas encore
+   tracée renvoie à sa flèche : le vecteur se trace d'abord */
+function trlChoisir(s){
+  if(test.kind!=='trl'||test.locked||!(s>=0&&s<6)) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  if(s%2===1 && !trlFl(q,(s-1)/2)) s--;
+  test.trlSel=s; test.trlMob=null; trlRedessiner(true);
+}
+/* Échap : l'extrémité reprise revient à sa place, la flèche commencée perd sa croix. */
+function trlAnnuler(){
+  if(test.kind!=='trl'||test.locked) return false;
+  const q=test.questions[test.idx]; if(!q) return false;
+  if(test.trlMob) test.trlMob=null;
+  else { const s=trlCourant(q); if(s<0||s%2||!q.d[s/2]||q.f[s/2]) return false; q.d[s/2]=null; }
+  trlRedessiner();
+  return true;
 }
 function trlEffacer(){
   if(test.kind!=='trl'||test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
-  q.rep=[null,null,null]; test.trlSel=-1;
-  [0,1,2].forEach(k=>{ const c=$('trl-pt-'+k); if(c) c.classList.remove('ok','bad','sol'); });
+  q.rep=[null,null,null]; q.d=[null,null,null]; q.f=[null,null,null]; test.trlSel=-1; test.trlMob=null;
+  [0,1,2].forEach(k=>{ ['trl-vec-','trl-pt-'].forEach(p=>{ const c=$(p+k); if(c) c.classList.remove('ok','bad','sol'); }); });
   trlRedessiner();
 }
 let _trlSaveTimer=null;
-function trlRedessiner(){
+/* seul : true quand rien n'a bougé dans la copie (un cadre choisi) */
+function trlRedessiner(seul){
   const q=test.questions[test.idx]; if(!q) return;
-  [0,1,2].forEach(k=>{ if(!q.rep[k]){ const c=$('trl-pt-'+k); if(c) c.classList.remove('ok','bad'); } });
+  [0,1,2].forEach(k=>{
+    if(!trlFl(q,k)){ const c=$('trl-vec-'+k); if(c) c.classList.remove('ok','bad'); }
+    if(!q.rep[k]){ const c=$('trl-pt-'+k); if(c) c.classList.remove('ok','bad'); }
+  });
   $('trlGraph').innerHTML=trlSVG(q,null);
-  trlMaj(); trlLive();
+  trlMaj(); trlLive(); trlVif(q, test.trlSouris||null);
+  if(seul) return;
   recoveryDirty=true; clearTimeout(_trlSaveTimer); _trlSaveTimer=setTimeout(autoSave,1200);
 }
 function renderTrl(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
-  const q=test.questions[test.idx]; test.locked=false; test.trlSel=-1;
+  const q=test.questions[test.idx]; test.locked=false; test.trlSel=-1; test.trlMob=null;
   const pt=r=>(r&&r.x>=0&&r.x<=TRL_W&&r.y>=0&&r.y<=TRL_H)?{x:r.x, y:r.y}:null;
+  const nd=p=>(Array.isArray(p)&&p[0]>=0&&p[0]<=TRL_W&&p[1]>=0&&p[1]<=TRL_H)?[p[0],p[1]]:null;
   if(!Array.isArray(q.rep)||q.rep.length!==3) q.rep=[null,null,null];
   q.rep=q.rep.map(pt);
+  /* les flèches : absentes des brouillons d'avant la v617, elles sont à tracer */
+  ['d','f'].forEach(c=>{ q[c]=(Array.isArray(q[c])&&q[c].length===3) ? q[c].map(nd) : [null,null,null]; });
+  [0,1,2].forEach(k=>{ if(!q.d[k]) q.f[k]=null; });
   /* le point « sans nom » des brouillons d'avant la v615 : son cadre le nomme désormais */
   delete q.pend;
   const noms=trlNoms(q), V=trlVecHTML(q), primes=noms.map(n=>n+'′');
@@ -16773,10 +16882,12 @@ function renderTrl(){
      est sûr ici. */
   const chemin=(q.forme==='ab') ? 'le chemin '+V+' (celui qui va de A à B)' : 'le chemin '+V;
   $('trlInstr').innerHTML='Déplace les points '+noms[0]+', '+noms[1]+' et '+noms[2]+' en suivant '+chemin
-    +' : place les points '+primes[0]+', '+primes[1]+' et '+primes[2]+', images de '+noms[0]+', '+noms[1]+' et '+noms[2]+' par la translation de vecteur '+V+'.'
-    +'<span class="tan-sous">Clique le nœud du quadrillage où arrive le point : une croix s’y pose. Pour déplacer un point, clique dessus, puis clique sa nouvelle place.</span>';
-  $('trlBody').innerHTML=noms.map((n,k)=>'<div class="tvg-cons pts-case" id="trl-pt-'+k+'" onclick="trlChoisir('+k+')">'
-      +['①','②','③'][k]+' Le point '+primes[k]+', image de '+n+', placé.</div>').join('')
+    +' : pour chaque point, trace d’abord le vecteur '+V+' à partir de ce point, puis place son image — les points '+primes[0]+', '+primes[1]+' et '+primes[2]+', images de '+noms[0]+', '+noms[1]+' et '+noms[2]+' par la translation de vecteur '+V+'.'
+    +'<span class="tan-sous">Pour tracer un vecteur, clique son point de départ, puis son point d’arrivée ; un clic sur le départ ou l’arrivée d’une flèche tracée la reprend. Pour placer un point, clique le nœud du quadrillage : une croix s’y pose ; pour le déplacer, clique dessus, puis sa nouvelle place.</span>';
+  const R=['①','②','③','④','⑤','⑥'];
+  $('trlBody').innerHTML='<div class="trl-cadres">'+noms.map((n,k)=>
+      '<div class="tvg-cons pts-case" id="trl-vec-'+k+'" onclick="trlChoisir('+(2*k)+')">'+R[2*k]+' Le vecteur '+V+' tracé à partir de '+n+'.</div>'
+     +'<div class="tvg-cons pts-case" id="trl-pt-'+k+'" onclick="trlChoisir('+(2*k+1)+')">'+R[2*k+1]+' Le point '+primes[k]+', image de '+n+', placé.</div>').join('')+'</div>'
     +'<div class="cvp-etape tan-etape" id="trlEtape" aria-live="polite"></div>';
   $('trlGraph').innerHTML=trlSVG(q,null);
   trlMaj(); trlLive();
@@ -16785,13 +16896,34 @@ function renderTrl(){
   trlBoutons('Vérifier');
 }
 function trlBoutons(lib){
-  $('trlActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-ghost" id="trlEffacer" type="button" onclick="trlEffacer()">Effacer mes points</button>'
+  $('trlActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-ghost" id="trlEffacer" type="button" onclick="trlEffacer()">Effacer mes tracés</button>'
     +'<button class="btn btn-primary" id="trlValidate" type="button" onclick="submitTrl()">'+lib+'</button>';
 }
+/* La flèche qui suit la souris (m : la pointe, dans le repère du dessin) :
+   du départ posé jusqu'à la souris pendant un tracé ; pour une extrémité
+   reprise, de la souris à l'arrivée fixe, ou du départ fixe à la souris.
+   Sans souris (au doigt), la flèche reprise reste à sa place. */
+function trlVif(q, m){
+  const g=$('trlVif'); if(!g) return;
+  const mob=test.trlMob, P=n=>({x:tanX(n[0]), y:tanY(n[1])});
+  let a=null, b=null, croix=null;
+  if(!test.locked && mob){
+    const t=trlFl(q,mob.k);
+    if(t){ if(mob.bout==='d'){ a=m||P(t.d); b=P(t.f); } else { a=P(t.d); b=m||P(t.f); croix=t.d; } }
+  } else if(!test.locked){
+    const s=trlCourant(q);
+    if(s>=0 && s%2===0 && q.d[s/2] && !q.f[s/2] && m){ a=P(q.d[s/2]); b=m; }
+  }
+  if(!a){ g.innerHTML=''; return; }
+  let h=croix?tanCroix(croix,'trl-dep'):'';
+  if(Math.hypot(b.x-a.x, b.y-a.y)>6) h+='<line class="tvx-el tvx-vif" x1="'+a.x.toFixed(1)+'" y1="'+a.y.toFixed(1)+'" x2="'+b.x.toFixed(1)+'" y2="'+b.y.toFixed(1)+'" marker-end="url(#trlArrM)"/>';
+  g.innerHTML=h;
+}
 /* Les gestes de la souris, écouteurs DÉLÉGUÉS à l'hôte (le SVG est réécrit à
-   chaque pose) : le mouvement promène la croix du point en cours, le clic va
+   chaque pose) : le mouvement promène le point (pendant un tracé) ou la
+   croix et la lettre du point à poser, et la flèche élastique ; le clic va
    au nœud le plus proche — la géométrie relue dans le SVG RENDU. Au doigt,
-   pas de survol : la croix ne se montre pas, chaque toucher est un clic. */
+   pas de survol : rien ne suit, chaque toucher est un clic. */
 function trlBrancher(){
   const host=$('trlGraph');
   if(!host||host.__trlPret) return;
@@ -16810,12 +16942,15 @@ function trlBrancher(){
     const q=test.questions[test.idx]; if(!q) return;
     const c=host.querySelector('#trlCurseur'); if(!c) return;
     const v=ev&&ev.pointerType!=='touch'&&!test.locked ? vue(ev) : null;
-    const k=trlCourant(q);
-    if(v&&k>=0){
-      const L=trlNoms(q)[k]+'′';
-      if(c.getAttribute('data-l')!==L){ c.innerHTML=tanCurseurHTML(L); c.setAttribute('data-l',L); }
+    test.trlSouris=v?{x:v.x, y:v.y}:null;
+    const s=trlCourant(q);
+    if(v&&(s>=0||test.trlMob)){
+      /* un point à poser : sa croix et sa lettre ; un vecteur à tracer : un point */
+      const L=(!test.trlMob && s%2===1) ? trlNoms(q)[(s-1)/2]+'′' : '•';
+      if(c.getAttribute('data-l')!==L){ c.innerHTML=L==='•'?'<g class="cvp-curseur"><circle r="5"/></g>':tanCurseurHTML(L); c.setAttribute('data-l',L); }
       c.setAttribute('transform','translate('+v.x.toFixed(1)+' '+v.y.toFixed(1)+')'); c.style.display='';
     } else c.style.display='none';
+    trlVif(q, test.trlSouris);
   };
   host.addEventListener('pointermove', suivre);
   host.addEventListener('pointerleave', function(){ suivre(null); });
@@ -16826,53 +16961,68 @@ function trlBrancher(){
     trlClic(v.i, v.j);
     suivre(ev);
   });
+  window.addEventListener('keydown', function(ev){
+    if(ev.key!=='Escape'||test.kind!=='trl'||!host.closest('.screen.on')) return;
+    if(trlAnnuler()) ev.preventDefault();
+  });
 }
-/* Les cadres et la consigne de l'étape : le cadre du point en cours est
-   bleu, celui d'un point posé vert « fait » — tant qu'aucun verdict ne les
-   a peints ; la consigne guide le geste, jamais un verdict. */
+/* Les cadres et la consigne de l'étape : le cadre de l'étape en cours est
+   bleu, celui d'une étape faite vert « fait » — tant qu'aucun verdict ne
+   l'a peint ; la consigne guide le geste, jamais un verdict. */
 function trlMaj(){
   const q=test.questions[test.idx]; if(!q) return;
-  const noms=trlNoms(q), k=test.locked?-1:trlCourant(q);
-  [0,1,2].forEach(j=>{
-    const c=$('trl-pt-'+j); if(!c) return;
+  const noms=trlNoms(q), V=trlVecHTML(q), mob=test.locked?null:test.trlMob;
+  const s=test.locked?-1:(mob?2*mob.k:trlCourant(q));
+  [0,1,2].forEach(k=>[['trl-vec-',2*k],['trl-pt-',2*k+1]].forEach(([p,e])=>{
+    const c=$(p+k); if(!c) return;
     const verdict=c.classList.contains('ok')||c.classList.contains('bad')||c.classList.contains('sol');
-    c.classList.toggle('tan-fait', !!q.rep[j]&&!verdict&&j!==k);
-    c.classList.toggle('tan-cours', j===k&&!verdict);
-  });
+    c.classList.toggle('tan-fait', trlFaite(q,e)&&!verdict&&e!==s);
+    c.classList.toggle('tan-cours', e===s&&!verdict);
+  }));
   const el=$('trlEtape'); if(!el) return;
   if(test.locked){ el.innerHTML=''; return; }
-  const chemin=(q.forme==='ab') ? 'le chemin de A à B' : 'le chemin '+trlVecHTML(q);
-  if(k>=0) el.innerHTML='Clique le nœud où arrive le point <b>'+noms[k]+'</b> en suivant '+chemin+' : c’est le point '+noms[k]+'′.'
+  if(mob){ el.innerHTML='Clique le nœud où tu reposes '+(mob.bout==='d'?'le <b>point de départ</b>':'le <b>point d’arrivée</b>')
+    +' de ta flèche tracée à partir de '+noms[mob.k]+'. <span class="tan-sous">(Échap : la remettre où elle était.)</span>'; return; }
+  if(s<0){ el.innerHTML='Les trois vecteurs sont tracés et les trois points posés. Pour corriger, clique un point ou une extrémité de flèche (ou son cadre) ; puis clique « Vérifier ».'; return; }
+  const k=s%2===0?s/2:(s-1)/2;
+  if(s%2===0){
+    if(q.d[k] && !q.f[k]) el.innerHTML='Clique le <b>point d’arrivée</b> de ton vecteur '+V+' tracé à partir de <b>'+noms[k]+'</b>.';
+    else el.innerHTML='Trace le vecteur '+V+' à partir du point <b>'+noms[k]+'</b> : clique son <b>point de départ</b>, '+noms[k]+', puis son <b>point d’arrivée</b>.';
+  } else el.innerHTML='Clique le nœud où arrive le point <b>'+noms[k]+'</b> en suivant ta flèche '+V+' : c’est le point '+noms[k]+'′.'
     +(q.rep[k]?'':' <span class="tan-sous">(Pour déplacer un point déjà posé, clique dessus.)</span>');
-  else el.innerHTML='Les trois points sont posés. Pour en déplacer un, clique dessus (ou son cadre) ; puis clique « Vérifier ».';
 }
-/* CHAQUE IMAGE SE JUGE SEULE : l'image attendue se recalcule depuis la source
-   et le vecteur — jamais rangée dans la question. */
+/* CHAQUE RÉPONSE SE JUGE SEULE — trois flèches, trois images. La flèche k
+   est juste si elle part du point à déplacer et fait le chemin du vecteur ;
+   l'image, si elle est au bout de ce chemin. Les deux se recalculent depuis
+   la source et le vecteur — jamais rangés dans la question. */
 function trlCheck(q){
-  const subs=q.src.map((p,i)=>{
-    const im=trlImage(q,i), r=q.rep[i];
-    return {i:i, id:'trl-pt-'+i, val:im, pose:!!r, ok: !!r && r.x===im[0] && r.y===im[1]};
+  const subs=[];
+  q.src.forEach((p,i)=>{
+    const im=trlImage(q,i), t=trlFl(q,i), r=q.rep[i];
+    subs.push({i:i, fl:true, id:'trl-vec-'+i, pose:!!t, ok:!!t && tanEgal(t.d,p) && tanEgal(t.w,q.vec), dep:!!t && tanEgal(t.d,p)});
+    subs.push({i:i, fl:false, id:'trl-pt-'+i, val:im, pose:!!r, ok:!!r && r.x===im[0] && r.y===im[1]});
   });
   const nCorrect=subs.filter(s=>s.ok).length, poses=subs.filter(s=>s.pose).length;
-  return {subs:subs, nCorrect:nCorrect, nTotal:3, poses:poses, allOk:nCorrect===3, oks:subs.map(s=>s.ok)};
+  const pts=subs.filter(s=>!s.fl), fls=subs.filter(s=>s.fl);
+  return {subs:subs, nCorrect:nCorrect, nTotal:6, poses:poses, allOk:nCorrect===6, oks:pts.map(s=>s.ok), oksV:fls.map(s=>s.ok), pts:pts, fls:fls};
 }
-/* Soutien : le cadre et la croix se colorent à la pose — un point non posé
-   ne reçoit RIEN. */
+/* Soutien : le cadre, la flèche et la croix se colorent à la pose — une
+   réponse absente ne reçoit RIEN. */
 function trlLive(){
   if(test.kind!=='trl' || !isSoutien() || test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
   const res=trlCheck(q);
   res.subs.forEach(s=>{ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad','sol'); if(s.pose) el.classList.add(s.ok?'ok':'bad'); });
-  $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks});
+  $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks, oksV:res.oksV});
   trlMaj();
 }
 function submitTrl(){
   if(test.locked) return;
   const q=test.questions[test.idx], res=trlCheck(q), noms=trlNoms(q), V=trlVecHTML(q);
   const primes=noms.map(n=>n+'′'), fb=$('trlFeedback');
-  /* aucun point : rien ne se peint, rien ne se verrouille — on redit le geste */
+  /* rien de tracé ni de posé : rien ne se peint, rien ne se verrouille — on redit le geste */
   if(!res.poses){
-    fb.textContent='Place d’abord un point : clique le nœud du quadrillage où '+noms[0]+' arrive en suivant le chemin '+trlVecTexte(q)+' — c’est le point '+primes[0]+'.';
+    fb.textContent='Commence par tracer le vecteur '+trlVecTexte(q)+' à partir de '+noms[0]+' : clique '+noms[0]+', puis le point d’arrivée. Ensuite, place '+primes[0]+' au bout de ta flèche — c’est le point '+primes[0]+'.';
     fb.className='mp-feedback bad';
     return;
   }
@@ -16884,34 +17034,47 @@ function submitTrl(){
       else if(final && !isSoutien()) el.classList.add('sol');
     });
   };
+  const flFausses=res.fls.filter(s=>s.pose&&!s.ok);
   if(isSoutien() && !res.allOk){
     peindre(false);
-    test.trlSel=-1;
-    $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks});
+    test.trlSel=-1; test.trlMob=null;
+    $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks, oksV:res.oksV});
     trlMaj();
-    let m=res.subs.some(s=>s.pose&&!s.ok) ? 'Ce n’est pas encore ça : un point rouge n’a pas la bonne place. Clique dessus pour le reprendre, puis pose-le au bon nœud. ' : '';
-    if(res.subs.some(s=>!s.pose)) m+='Il reste un point à placer. ';
+    let m='';
+    if(flFausses.length) m+=flFausses.some(s=>!s.dep)
+      ? 'Une flèche rouge ne part pas du point à déplacer : chaque vecteur se trace à partir de son point. '
+      : 'Une flèche rouge ne fait pas le chemin '+trlVecTexte(q)+'. ';
+    if(res.pts.some(s=>s.pose&&!s.ok)) m+='Un point rouge n’a pas la bonne place. ';
+    if(m) m='Ce n’est pas encore ça : '+m.charAt(0).toLowerCase()+m.slice(1)+'Clique une flèche ou un point rouge pour le reprendre. ';
+    if(res.subs.some(s=>!s.pose)) m+='Il reste un vecteur à tracer ou un point à placer. ';
     m+='Depuis chaque point, refais exactement le chemin '+trlVecTexte(q)+', puis revérifie.';
     fb.textContent=m; fb.className='mp-feedback bad';
     trlBoutons('Revérifier');
     return;
   }
-  test.locked=true; clearTimeout(test.qTimer); test.trlSel=-1;
+  test.locked=true; clearTimeout(test.qTimer); test.trlSel=-1; test.trlMob=null;
   peindre(true);
-  /* l'image attendue ne se montre que là où elle manque — en soutien on
-     n'arrive ici que tout juste, rien ne se révèle par construction */
-  $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks, sol:res.subs.map(s=>!s.ok)});
+  /* la correction ne se montre que là où une flèche ou une image manque ou
+     est fausse — en soutien on n'arrive ici que tout juste, rien ne se
+     révèle par construction */
+  $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks, oksV:res.oksV, sol:[0,1,2].map(i=>!(res.oks[i]&&res.oksV[i]))});
   trlMaj();
   test.score += res.nCorrect;
   if(!res.allOk){
-    const faux=res.subs.filter(s=>!s.ok);
-    fb.innerHTML='Pour placer '+faux.map(s=>primes[s.i]).join(', ')+', on part de '+faux.map(s=>noms[s.i]).join(', ')
-      +' et on suit le même chemin que '+V+' : '+trlChemin(q)+'. Les flèches vertes montrent les images attendues. '
+    let m='';
+    if(res.fls.some(s=>!s.ok)){
+      const fx=res.fls.filter(s=>!s.ok).map(s=>noms[s.i]);
+      m+='Le vecteur '+V+' se trace à partir de '+fx.join(', ')+(flFausses.some(s=>!s.dep)?' — la flèche PART du point à déplacer —':'')+' en suivant le chemin '+trlChemin(q)+'. ';
+    }
+    const faux=res.pts.filter(s=>!s.ok);
+    if(faux.length) m+='Pour placer '+faux.map(s=>primes[s.i]).join(', ')+', on part de '+faux.map(s=>noms[s.i]).join(', ')
+      +' et on suit le même chemin que '+V+' : '+trlChemin(q)+' ; l’image est au bout de la flèche. ';
+    fb.innerHTML=m+'Les flèches vertes montrent les bons tracés. '
       +'On écrit : '+primes[0]+' est l’image de '+noms[0]+' par la translation de vecteur '+V+'.';
     fb.className='mp-feedback bad';
   }
-  else { fb.innerHTML='Parfait — '+primes.join(', ')+' sont bien les images de '+noms.join(', ')+' par la translation de vecteur '+V+' !'; fb.className='mp-feedback good'; }
-  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Images de '+noms.join(', ')+' par la translation de vecteur '+trlVecTexte(q)+' — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'trl'});
+  else { fb.innerHTML='Parfait — les trois vecteurs sont bien tracés, et '+primes.join(', ')+' sont bien les images de '+noms.join(', ')+' par la translation de vecteur '+V+' !'; fb.className='mp-feedback good'; }
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Vecteur '+trlVecTexte(q)+' tracé à partir de '+noms.join(', ')+' puis images par la translation — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'trl'});
   const last=test.idx===test.questions.length-1;
   $('trlActions').innerHTML='<button class="btn btn-primary" id="trlNext" type="button" onclick="nextTrlQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('trlNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
@@ -16919,7 +17082,7 @@ function submitTrl(){
 function nextTrlQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTrl(); autoSave(); } else finishTest(); }
 /* le contexte envoyé au modèle : le quadrillage, le chemin en carreaux, les
    points (colonne ; ligne, comptées depuis le coin bas gauche), ce que l'élève
-   a posé — et les images attendues, STRICTEMENT SECRÈTES */
+   a tracé et posé — et les images attendues, STRICTEMENT SECRÈTES */
 function ctxTrl(q){
   const noms=trlNoms(q), res=trlCheck(q), V=trlVecTexte(q);
   const pos=p=>'(colonne '+p[0]+' ; ligne '+p[1]+')';
@@ -16928,11 +17091,15 @@ function ctxTrl(q){
     ? ' Deux points A '+pos(q.o)+' et B '+pos([q.o[0]+q.vec[0],q.o[1]+q.vec[1]])+' définissent le chemin AB (de A vers B), sans flèche dessinée.'
     : ' Une flèche nommée u est dessinée, de '+pos(q.o)+' à '+pos([q.o[0]+q.vec[0],q.o[1]+q.vec[1]])+'.';
   c+=' Ce chemin vaut : '+trlChemin(q)+'. Points à déplacer : '+noms.map((n,i)=>n+' '+pos(q.src[i])).join(', ')+'.'+ctxEnonce('trlInstr')
-    +' L’élève pose chaque image d’un clic sur un nœud du quadrillage, dans l’ordre de ses cadres ('+noms.map(n=>n+'′').join(', ')+') : il doit placer les images de '+noms.join(', ')+' par la translation de vecteur '+V+'.';
-  const ecrit=res.subs.map(s=>noms[s.i]+'′ : '+(s.pose?'posé '+pos([q.rep[s.i].x,q.rep[s.i].y])+(s.ok?' (juste)':' (FAUX)'):'pas encore posé'));
+    +' Pour chaque point, l’élève trace d’abord le vecteur '+V+' à partir de ce point (un clic pour le départ, un clic pour l’arrivée), puis pose son image d’un clic sur un nœud du quadrillage, dans l’ordre de ses cadres : il doit placer les images de '+noms.join(', ')+' par la translation de vecteur '+V+'.';
+  const ecrit=[0,1,2].map(i=>{
+    const t=trlFl(q,i), sv=res.fls[i], sp=res.pts[i];
+    return 'flèche depuis '+noms[i]+' : '+(t?'tracée de '+pos(t.d)+' à '+pos(t.f)+(sv.ok?' (juste)':' (FAUSSE)'):(q.d&&q.d[i]?'commencée en '+pos(q.d[i])+', sans arrivée':'pas encore tracée'))
+      +', '+noms[i]+'′ : '+(sp.pose?'posé '+pos([q.rep[i].x,q.rep[i].y])+(sp.ok?' (juste)':' (FAUX)'):'pas encore posé');
+  });
   c+=' Ce que l’élève a fait : '+ecrit.join(' ; ')+'.'
-    +CTX_SECRET+res.subs.map(s=>noms[s.i]+'′ = '+pos(s.val)).join(' ; ')+'.'
-    +ctxFin('on part du point et on refait exactement le chemin de la flèche (ou le chemin de A vers B) : autant de carreaux vers la droite ou la gauche, puis autant vers le haut ou le bas ; le nœud d’arrivée est l’image, qu’on nomme avec un prime (A′).');
+    +CTX_SECRET+res.pts.map(s=>noms[s.i]+'′ = '+pos(s.val)).join(' ; ')+'.'
+    +ctxFin('on part du point et on trace la flèche qui refait exactement le chemin du vecteur (ou le chemin de A vers B) : autant de carreaux vers la droite ou la gauche, puis autant vers le haut ou le bas ; le bout de la flèche est l’image, qu’on nomme avec un prime (A′).');
   return {nombre:'', contexte:c};
 }
 
