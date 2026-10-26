@@ -663,7 +663,7 @@ pop-corn ». » — les mots du contexte de la séance (`ind`, `A`, `B`), comme 
 3.1. Le dé et « ne peut pas être une probabilité » n'ont pas de lettres et
 n'en reçoivent pas.
 
-**Les listes de lettres s'ouvrent en GRILLE sur écran tactile (v345).**
+**Les listes de lettres s'ouvrent en GRILLE sur écran tactile (v346).**
 Demande de Turquet, octobre 2026 : au 3.1, « quand un menu déroulant
 apparaît pour choisir A ; B ; A ∩ B…, faire en sorte qu'il prenne moins de
 hauteur sur une tablette ou un téléphone pour qu'il apparaisse en entier ».
