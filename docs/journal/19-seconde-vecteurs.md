@@ -3858,7 +3858,7 @@ sens ne se compare qu'entre deux vecteurs de même direction, et le message
 le dit. Barème : 1 case pour deux vecteurs égaux, 2 sinon (11 pour six).
 
 **Puis « pas le même sens » a quitté la liste des vecteurs non parallèles**
-(Turquet, octobre 2026, v614 : « ne pas proposer “pas le même sens” quand la
+(Turquet, octobre 2026, v615 : « ne pas proposer “pas le même sens” quand la
 justification est “pas la même direction” »). La liste se construit par
 question (`vejOptions`) : trois choix entre deux vecteurs parallèles, deux
 sinon. Le prix est nommé : un élève qui ne voit que deux choix sait que les
