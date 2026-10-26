@@ -546,7 +546,7 @@ soit un parallélogramme) n'est pas portée — Turquet a précisé que la fiche
 translation de vecteur … est le point … » de la fiche est dite dans la
 correction et le rappel, pas demandée dans une case.
 
-### Puis le 8.1.4 s'est présenté comme le 8.1.12 (v614)
+### Puis le 8.1.4 s'est présenté comme le 8.1.12 (v615)
 
 Demande de Turquet, octobre 2026 : « en seconde présenter le 8.1.4 comme le
 8.1.12 ». L'écran de {translation-quadrillage} reprend celui de

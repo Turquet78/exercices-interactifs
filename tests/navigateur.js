@@ -9041,7 +9041,7 @@ if(require.main === module) (async () => {
 
     /* ===== 6 quadragies bis. TRANSLATION SUR QUADRILLAGE : LES IMAGES SE CLIQUENT ===== */
     /* {translation-quadrillage} (8.1.4, la fiche 2 sur les vecteurs — demande
-       de Turquet, octobre 2026), PRÉSENTÉ COMME LE 8.1.12 (même demande, v614) :
+       de Turquet, octobre 2026), PRÉSENTÉ COMME LE 8.1.12 (même demande, v615) :
        les cadres ①②③, la croix et la lettre du point en cours qui suivent la
        souris, un clic qui pose le point EN COURS au nœud le plus proche, un
        clic sur un point posé qui le reprend. jsdom n'a ni souris ni mise en

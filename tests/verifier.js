@@ -16570,7 +16570,7 @@ function pointSommeDifference(w, P){
        vide au tirage ;
      · l'énoncé DIT la demande (« Déplace les points … en suivant le chemin
        … ») et le mode d'emploi du geste se lit APRÈS, en plus petit ;
-     · PRÉSENTÉ COMME LE 8.1.12 (demande de Turquet, octobre 2026, v614) :
+     · PRÉSENTÉ COMME LE 8.1.12 (demande de Turquet, octobre 2026, v615) :
        trois cadres ①②③, le clic (trlClic) pose le point EN COURS — le
        premier qui manque, ou celui dont on a cliqué le cadre —, un clic sur
        un point posé le reprend, « Effacer mes points » retire tout ;
