@@ -3351,6 +3351,15 @@
      d'un graphique s'écrivent à 12 px au moins. touch-action:manipulation,
      pas :none — ici on ne glisse rien, on pose au clic. */
   #scr-trl{padding-bottom:84px}
+  /* présenté comme le 8.1.12 (#scr-tan) : les cadres ①②③ et la croix qui suit la souris */
+  #scr-trl .tvg-cons{cursor:pointer}
+  #scr-trl .tvg-cons.sol{border-color:var(--green);background:var(--green-soft)}
+  #scr-trl .tvg-cons.tan-fait{border-color:var(--green);color:var(--green);background:var(--green-soft)}
+  #scr-trl .tvg-cons.tan-fait::after{content:" ✓";font-weight:800}
+  #scr-trl .tvg-cons.tan-cours{border-color:var(--blue);background:#EAF0FF;color:var(--ink);box-shadow:inset 4px 0 0 var(--blue)}
+  #scr-trl .vec{font-size:1.1em}
+  #trlGraph .sv-svg{max-width:640px}
+  .tan-svg #trlCorrFig,.tan-svg #trlEl,.tan-svg #trlDonnes{pointer-events:none}
   .lv-instr .trl-sous{display:block;font-size:.85rem;font-weight:400;margin-top:6px}
   /* le nom d'un vecteur : la lettre coiffée d'une flèche */
   .vec{position:relative;display:inline-block;padding-top:.45em;line-height:1}
@@ -5125,12 +5134,11 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   <section class="screen" id="scr-trl">
     <div class="card lv-card">
       <div class="q-head"><span id="trlIdx" class="q-idx">Question 1 / 4</span><span id="trlModeTag"></span></div>
-      <p class="lv-instr" id="trlInstr"></p>
-      <div class="lv-graph" id="trlGraph"></div>
-      <div class="adr-modes" id="trlModes"></div>
+      <p class="enonce" id="trlInstr"></p>
       <div id="trlBody"></div>
-      <div class="lv-feedback"><span id="trlMark" class="mark"></span> <span id="trlCorr" class="correction"></span></div>
-      <div class="row" style="justify-content:center;margin-top:16px"><button id="trlRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="trlConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="trlQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="trlValidate" onclick="submitTrl()">Valider</button></div>
+      <div class="lv-graph" id="trlGraph"></div>
+      <div class="mp-feedback" id="trlFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="trlActions"></div>
     </div>
   </section>
 
@@ -8734,7 +8742,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=613;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=614;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -16539,40 +16547,48 @@ function nextPimQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; te
      · 'ab' — le chemin est celui qui va de A à B (le vecteur AB⃗), deux points
               SANS flèche : c'est à l'élève de lire le chemin ; les points à
               déplacer sont C, D et E.
-   Le GESTE est celui de {placer-image} : le point se POSE au clic sur un nœud
-   du quadrillage, l'écouteur est DÉLÉGUÉ à l'hôte (le SVG est réécrit à
-   chaque pose), et le clic s'accroche au nœud le plus proche en relisant la
-   géométrie dans le SVG RENDU (data-m, data-c, data-w, data-h) — aucune
-   coordonnée recopiée. Le point posé n'a PAS DE NOM : l'élève le nomme
-   ensuite (« Comment s'appelle ce point ? A′, B′ ou C′ », demande de
-   Turquet, octobre 2026 : « laisser l'élève placer un point et lui demander
-   ensuite de le nommer ») — c'est lui qui dit quel point il a déplacé, la
-   page ne le devine pas. Un seul point sans nom à la fois (q.pend) :
-   cliquer ailleurs le déplace, recliquer dessus le retire ; recliquer un
-   point déjà nommé lui rend son nom à choisir ; donner un nom déjà pris
-   déplace ce nom sur le nouveau point.
+   LA PRÉSENTATION EST CELLE DU 8.1.12 {translation-antecedent} (demande de
+   Turquet, octobre 2026 : « présenter le 8.1.4 comme le 8.1.12 ») : le même
+   quadrillage de 16 × 10 carreaux (tanX, tanY, TAN_GEO le dessinent), la
+   flèche u⃗ et les points donnés en NOIR, trois cadres ①②③ « Le point A′,
+   image de A, placé. » sous l'énoncé, la consigne de l'étape en cours, la
+   croix et la lettre du point en cours qui SUIVENT LA SOURIS, et « Effacer
+   mes points ». Un seul écouteur de clic, à l'hôte, va au nœud le plus
+   proche (trlClic(i, j), ce que joue le banc principal) : le clic pose le
+   point EN COURS — celui dont le cadre est bleu : le premier qui manque, ou
+   celui que l'élève a choisi en cliquant son cadre ; un clic sur un point
+   posé le reprend, et le clic suivant le repose. Le point se nomme donc par
+   son cadre, comme au 8.1.12 : le nom choisi APRÈS la pose (v484) a pris fin
+   avec cette présentation.
+   LES COULEURS, celles du 8.1.12 : les points de l'élève en VIOLET tant
+   qu'ils ne sont pas jugés ; jugés, la croix juste est bleue, la fausse
+   rouge — avec, à la correction, la flèche qui va de sa source à elle ; pour
+   chaque image fausse ou manquante, la bonne en VERT et la flèche verte de la
+   source à l'image. Les classes de croix (tan-x-ok, tan-x-bad, tan-x-sol) ne
+   sont pas des classes de verdict : « 9 bis » ne les lit pas.
    LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : l'image de
    chaque point se recalcule (trlImage) depuis les données MÊMES qui dessinent
    le quadrillage — la source et le vecteur —, par la fonction qui corrige.
    La question reste du JSON : forme, vecteur (vec — pas « v », que la clé de
    distinctes() écarte comme une tournure), origine de la flèche ou point A
-   (o), les trois sources (src) et les trois réponses (rep). Le tirage est
-   garanti LISIBLE : tous les points — sources, images, A et B ou les deux
-   bouts de la flèche — sont dans le quadrillage, deux à deux non voisins
-   (une étiquette ne recouvre jamais sa voisine), et aucun point ne tombe sur
-   la flèche u⃗.
+   (o), les trois sources (src) et les trois réponses (rep, {x, y} ou null).
+   Le tirage est garanti LISIBLE : tous les points — sources, images, A et B
+   ou les deux bouts de la flèche — sont à un carreau du bord au moins, deux à
+   deux non voisins (une étiquette ne recouvre jamais sa voisine), et aucun
+   point ne tombe sur la flèche u⃗.
    CHAQUE IMAGE SE JUGE SEULE — une image fausse coûte son point, pas ceux
-   des deux autres. Un point NON POSÉ n'est pas une erreur : sa pastille ne
-   rougit jamais ; en entraînement elle devient « sol » (verte) et le dessin
-   montre l'image attendue en vert (anneau, étiquette, et le chemin en
-   pointillés depuis la source) ; en soutien rien ne se révèle, l'élève
-   corrige lui-même. Vérifier sans AUCUN point ne peint rien et ne verrouille
-   rien : le message redit le geste. */
-const TRL_NB=4, TRL_W=12, TRL_H=8;
+   des deux autres. Un point NON POSÉ n'est pas une erreur : son cadre ne
+   rougit jamais ; en entraînement il devient « sol » (vert) et le dessin
+   montre l'image attendue en vert ; en soutien le cadre et la croix se
+   colorent à la pose, rien ne se révèle, l'élève corrige lui-même. Vérifier
+   sans AUCUN point ne peint rien et ne verrouille rien : le message redit le
+   geste. */
+const TRL_NB=4, TRL_W=16, TRL_H=10;   /* le quadrillage du 8.1.12 (TAN_W × TAN_H) */
 function trlNoms(q){ return q.forme==='ab' ? ['C','D','E'] : ['A','B','C']; }
 function trlVecHTML(q){ return '<span class="vec"><i>'+(q.forme==='ab'?'AB':'u')+'</i></span>'; }
 function trlVecTexte(q){ return q.forme==='ab' ? 'AB' : 'u'; }
 function trlImage(q,i){ return [q.src[i][0]+q.vec[0], q.src[i][1]+q.vec[1]]; }
+function trlPt(r){ return r ? [r.x, r.y] : null; }
 /* le chemin dit en carreaux : « 3 carreaux vers la droite et 2 carreaux vers le bas » */
 function trlChemin(q){
   const dx=q.vec[0], dy=q.vec[1], m=[];
@@ -16594,14 +16610,15 @@ function trlForme(i){ return i%2===0 ? 'u' : 'ab'; }
 function trlFabrique(forme){
   forme = forme==='ab' ? 'ab' : 'u';
   const W=TRL_W, H=TRL_H;
-  const dans=p=>p[0]>=0&&p[0]<=W&&p[1]>=0&&p[1]<=H;
+  /* à un carreau du bord : la lettre d'un point a la place de s'écrire */
+  const dans=p=>p[0]>=1&&p[0]<=W-1&&p[1]>=1&&p[1]<=H-1;
   const voisins=(p,r)=>Math.abs(p[0]-r[0])<=1&&Math.abs(p[1]-r[1])<=1;
   for(let att=0; att<500; att++){
     const dx=rand(-5,5), dy=rand(-4,4);
     if(Math.abs(dx)+Math.abs(dy)<2) continue;
     const vec=[dx,dy];
     /* les nœuds d'où le chemin reste dans le quadrillage */
-    const dep=[]; for(let x=0;x<=W;x++) for(let y=0;y<=H;y++){ if(dans([x+dx,y+dy])) dep.push([x,y]); }
+    const dep=[]; for(let x=0;x<=W;x++) for(let y=0;y<=H;y++){ if(dans([x,y]) && dans([x+dx,y+dy])) dep.push([x,y]); }
     if(dep.length<6) continue;
     const o=pick(dep);
     /* les nœuds que la flèche u⃗ traverse (ses deux bouts compris) */
@@ -16629,61 +16646,43 @@ function trlFabrique(forme){
     ? {forme:'ab', vec:[-2,3], o:[9,1], src:[[3,1],[6,2],[11,4]], rep:[null,null,null]}
     : {forme:'u', vec:[3,-2], o:[1,7], src:[[1,4],[5,6],[8,3]], rep:[null,null,null]};
 }
+/* Le dessin, celui du 8.1.12 : le quadrillage, la flèche u⃗ (ou A et B) et
+   les trois points donnés en noir ; puis la correction, les points de
+   l'élève, et la croix qui suit la souris en DERNIER. verdict.oks colore les
+   points posés ; verdict.sol (la correction finale) montre en vert les
+   images attendues, et les flèches de la source à chaque point posé. */
 function trlSVG(q, verdict){
-  const M=24, C=30, W=TRL_W, H=TRL_H;
-  const sx=x=>M+x*C, sy=y=>M+(H-y)*C;
-  const noms=trlNoms(q);
-  let s='<svg viewBox="0 0 '+(2*M+W*C)+' '+(2*M+H*C)+'" xmlns="http://www.w3.org/2000/svg" class="trl-svg" data-m="'+M+'" data-c="'+C+'" data-w="'+W+'" data-h="'+H+'" role="img" aria-label="Quadrillage de la translation">';
-  s+='<defs><marker id="trlArw" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" class="trl-arw"/></marker>'
-    +'<marker id="trlArwSol" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" class="trl-arw-sol"/></marker></defs>';
-  for(let x=0;x<=W;x++) s+='<line x1="'+sx(x)+'" y1="'+sy(H)+'" x2="'+sx(x)+'" y2="'+sy(0)+'" class="trl-grid"/>';
-  for(let y=0;y<=H;y++) s+='<line x1="'+sx(0)+'" y1="'+sy(y)+'" x2="'+sx(W)+'" y2="'+sy(y)+'" class="trl-grid"/>';
-  const croix=(p,nom,cls)=>'<path d="M'+(sx(p[0])-5)+' '+(sy(p[1])-5)+' L'+(sx(p[0])+5)+' '+(sy(p[1])+5)+' M'+(sx(p[0])-5)+' '+(sy(p[1])+5)+' L'+(sx(p[0])+5)+' '+(sy(p[1])-5)+'" class="trl-x'+(cls||'')+'"/>'
-    +'<text x="'+(sx(p[0])+7)+'" y="'+(sy(p[1])-7)+'" class="trl-nom'+(cls||'')+'">'+nom+'</text>';
-  if(q.forme==='u'){
-    const a=q.o, b=[q.o[0]+q.vec[0], q.o[1]+q.vec[1]];
-    s+='<line x1="'+sx(a[0])+'" y1="'+sy(a[1])+'" x2="'+sx(b[0])+'" y2="'+sy(b[1])+'" class="trl-vec" marker-end="url(#trlArw)"/>';
-    /* le nom u⃗, posé à côté du milieu de la flèche, du côté perpendiculaire */
-    const ddx=sx(b[0])-sx(a[0]), ddy=sy(b[1])-sy(a[1]), L=Math.hypot(ddx,ddy)||1;
-    const px=-ddy/L, py=ddx/L, lx=(sx(a[0])+sx(b[0]))/2+px*15, ly=(sy(a[1])+sy(b[1]))/2+py*15;
-    s+='<text x="'+lx.toFixed(1)+'" y="'+(ly+5).toFixed(1)+'" class="trl-u" text-anchor="middle">u</text>'
-      +'<path d="M'+(lx-5).toFixed(1)+' '+(ly-9).toFixed(1)+' L'+(lx+5).toFixed(1)+' '+(ly-9).toFixed(1)+'" class="trl-u-arw" marker-end="url(#trlArw)"/>';
-  } else {
-    s+=croix(q.o,'A')+croix([q.o[0]+q.vec[0], q.o[1]+q.vec[1]],'B');
-  }
-  q.src.forEach((p,i)=>{ s+=croix(p,noms[i]); });
-  /* la correction (entraînement, point faux ou manquant) : l'image attendue en
-     vert — anneau, étiquette, et le chemin depuis la source en pointillés */
-  if(verdict && verdict.sol) q.src.forEach((p,i)=>{
+  const Wd=2*TAN_PX+TRL_W*TAN_C, Hd=2*TAN_PY+TRL_H*TAN_C, X=tanX, Y=tanY, noms=trlNoms(q);
+  let g='';
+  for(let i=0;i<=TRL_W;i++) g+='<line x1="'+X(i)+'" y1="'+Y(0)+'" x2="'+X(i)+'" y2="'+Y(TRL_H)+'" class="vec-grid"/>';
+  for(let j=0;j<=TRL_H;j++) g+='<line x1="'+X(0)+'" y1="'+Y(j)+'" x2="'+X(TRL_W)+'" y2="'+Y(j)+'" class="vec-grid"/>';
+  g+='<rect x="'+X(0)+'" y="'+Y(TRL_H)+'" width="'+(TRL_W*TAN_C)+'" height="'+(TRL_H*TAN_C)+'" class="vec-cadre"/>';
+  const fin=[q.o[0]+q.vec[0], q.o[1]+q.vec[1]];
+  let donnes = q.forme==='u'
+    ? svcFleche(q.o, fin, {cls:'svc-u trl-vec', marker:'trlArr0', nom:'u', depart:true, geo:TAN_GEO})
+    : tanCroix(q.o,'tan-donne')+tanEtiquette(q.o,'A','tan-donne-t')+tanCroix(fin,'tan-donne')+tanEtiquette(fin,'B','tan-donne-t');
+  q.src.forEach((p,i)=>{ donnes+=tanCroix(p,'tan-donne')+tanEtiquette(p,noms[i],'tan-donne-t'); });
+  const final=!!(verdict && verdict.sol);
+  let corr='';
+  if(final) q.src.forEach((p,i)=>{
     if(!verdict.sol[i]) return;
     const im=trlImage(q,i);
-    s+='<line x1="'+sx(p[0])+'" y1="'+sy(p[1])+'" x2="'+sx(im[0])+'" y2="'+sy(im[1])+'" class="trl-sol-chemin" marker-end="url(#trlArwSol)"/>'
-      +'<circle cx="'+sx(im[0])+'" cy="'+sy(im[1])+'" r="7" class="trl-sol"/>'
-      +'<text x="'+(sx(im[0])+8)+'" y="'+(sy(im[1])-8)+'" class="trl-sol-nom">'+noms[i]+'′</text>';
+    corr+=svcFleche(p, im, {cls:'svc-s', marker:'trlArrS', geo:TAN_GEO})+tanCroix(im,'tan-x-sol trl-sol')+tanEtiquette(im, noms[i]+'′', 'tan-sol-t');
   });
-  /* les points de l'élève : bleus, rouges au verdict quand ils sont faux */
+  let el='';
   (q.rep||[]).forEach((r,i)=>{
-    if(!r) return;
-    const cls=verdict&&verdict.oks ? (verdict.oks[i]?' ok':' bad') : '';
-    s+='<circle cx="'+sx(r.x)+'" cy="'+sy(r.y)+'" r="4.5" class="trl-pt'+cls+'"/>'
-      +'<text x="'+(sx(r.x)+7)+'" y="'+(sy(r.y)-7)+'" class="trl-lbl'+cls+'">'+noms[i]+'′</text>';
+    const p=trlPt(r); if(!p) return;
+    const m=(verdict && verdict.oks) ? (verdict.oks[i]?'tan-x-ok':'tan-x-bad') : '';
+    if(final && !tanEgal(p,q.src[i]))
+      el+=svcFleche(q.src[i], p, {cls:m==='tan-x-ok'?'svc-e':'svc-eb', marker:m==='tan-x-ok'?'trlArrE':'trlArrB', geo:TAN_GEO});
+    el+=tanCroix(p,'trl-pt'+(m?' '+m:''))+tanEtiquette(p, noms[i]+'′', 'tan-el-t'+(m?' '+m:''));
   });
-  /* le point posé qui attend son nom : neutre, entouré, un « ? » pour nom */
-  if(q.pend && !(verdict && verdict.sol)) s+='<circle cx="'+sx(q.pend.x)+'" cy="'+sy(q.pend.y)+'" r="9" class="trl-pend-anneau"/>'
-    +'<circle cx="'+sx(q.pend.x)+'" cy="'+sy(q.pend.y)+'" r="4.5" class="trl-pt trl-pend"/>'
-    +'<text x="'+(sx(q.pend.x)+10)+'" y="'+(sy(q.pend.y)-10)+'" class="trl-lbl trl-pend">?</text>';
-  return s+'</svg>';
-}
-/* Le clic s'accroche au nœud le plus proche — la géométrie est relue dans le
-   SVG rendu (ses data-*), jamais recopiée (la leçon de pimNoeud). */
-function trlNoeud(svg, ev){
-  const r=svg.getBoundingClientRect(); if(!r.width||!r.height) return null;
-  const vb=svg.viewBox.baseVal;
-  const mx=(ev.clientX-r.left)*vb.width/r.width, my=(ev.clientY-r.top)*vb.height/r.height;
-  const M=+svg.dataset.m, C=+svg.dataset.c, W=+svg.dataset.w, H=+svg.dataset.h;
-  if(!(C>0)) return null;
-  const x=Math.max(0,Math.min(W,Math.round((mx-M)/C))), y=Math.max(0,Math.min(H,Math.round(H-(my-M)/C)));
-  return {x:x, y:y};
+  const pointe=(id,coul)=>'<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+coul+'"/></marker>';
+  return '<svg viewBox="0 0 '+Wd+' '+Hd+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tan-svg trl-fig" role="img" aria-label="Quadrillage : '
+    +(q.forme==='u'?'le vecteur u':'les points A et B')+', les points '+noms.join(', ')+', et leurs images '+noms.map(n=>n+'′').join(', ')+' à placer">'
+    +'<defs>'+pointe('trlArr0','var(--ink)')+pointe('trlArrE','var(--blue)')+pointe('trlArrB','var(--red)')+pointe('trlArrS','var(--green)')+'</defs>'
+    +g+'<g id="trlDonnes">'+donnes+'</g><g id="trlCorrFig">'+corr+'</g><g id="trlEl">'+el+'</g>'
+    +'<g id="trlCurseur" class="tan-curseur" aria-hidden="true" style="display:none"></g></svg>';
 }
 function startTrl(){
   /* par l'index : la forme alterne (u, AB, u, AB…), et distinctes() peut
@@ -16695,81 +16694,133 @@ function startTrl(){
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('trl'); renderTrl();
 }
-/* NOMMER le point posé : il prend le nom choisi ; si ce nom était déjà
-   porté par un autre point, c'est ce nom qui se déplace */
-function trlNommer(i){
+/* le point en cours : celui que l'élève a choisi, sinon le premier qui manque ; -1 quand tout est posé */
+function trlCourant(q){
+  if(test.trlSel>=0 && test.trlSel<3) return test.trlSel;
+  for(let k=0;k<3;k++) if(!q.rep[k]) return k;
+  return -1;
+}
+/* Un clic au nœud (i ; j) : sur un point posé, il le reprend ; sinon il pose le point en cours. */
+function trlClic(i,j){
   if(test.kind!=='trl'||test.locked) return;
-  const q=test.questions[test.idx]; if(!q||!q.pend||!(i>=0&&i<3)) return;
-  q.rep[i]={x:q.pend.x, y:q.pend.y}; delete q.pend;
+  const q=test.questions[test.idx]; if(!q) return;
+  if(i<0||i>TRL_W||j<0||j>TRL_H) return;
+  const deja=q.rep.findIndex(r=>r&&r.x===i&&r.y===j);
+  if(deja>=0){ q.rep[deja]=null; test.trlSel=deja; }
+  else {
+    const k=trlCourant(q); if(k<0) return;
+    q.rep[k]={x:i, y:j}; test.trlSel=-1;
+  }
   trlRedessiner();
 }
+/* choisir le point à poser (ou à déplacer) en cliquant son cadre */
+function trlChoisir(k){
+  if(test.kind!=='trl'||test.locked||!(k>=0&&k<3)) return;
+  test.trlSel=k; trlMaj();
+}
+function trlEffacer(){
+  if(test.kind!=='trl'||test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  q.rep=[null,null,null]; test.trlSel=-1;
+  [0,1,2].forEach(k=>{ const c=$('trl-pt-'+k); if(c) c.classList.remove('ok','bad','sol'); });
+  trlRedessiner();
+}
+let _trlSaveTimer=null;
 function trlRedessiner(){
   const q=test.questions[test.idx]; if(!q) return;
+  [0,1,2].forEach(k=>{ if(!q.rep[k]){ const c=$('trl-pt-'+k); if(c) c.classList.remove('ok','bad'); } });
   $('trlGraph').innerHTML=trlSVG(q,null);
   trlMaj(); trlLive();
   recoveryDirty=true; clearTimeout(_trlSaveTimer); _trlSaveTimer=setTimeout(autoSave,1200);
 }
 function renderTrl(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
-  const q=test.questions[test.idx]; test.locked=false;
+  const q=test.questions[test.idx]; test.locked=false; test.trlSel=-1;
+  const pt=r=>(r&&r.x>=0&&r.x<=TRL_W&&r.y>=0&&r.y<=TRL_H)?{x:r.x, y:r.y}:null;
   if(!Array.isArray(q.rep)||q.rep.length!==3) q.rep=[null,null,null];
-  if(q.pend && !(q.pend.x>=0 && q.pend.y>=0)) delete q.pend;
+  q.rep=q.rep.map(pt);
+  /* le point « sans nom » des brouillons d'avant la v614 : son cadre le nomme désormais */
+  delete q.pend;
   const noms=trlNoms(q), V=trlVecHTML(q), primes=noms.map(n=>n+'′');
   $('trlIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('trlModeTag').innerHTML=modeTagHTML();
-  { const cb=$('trlConseilBtn'); if(cb) cb.hidden=!isSoutien();
-    const rb=$('trlRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
-    const qb=$('trlQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
   /* la demande d'abord, en énoncé ; le mode d'emploi du geste après, en plus
-     petit (le motif de {placer-image}). Les noms sont des lettres fixes, pas
-     du texte libre — innerHTML est sûr ici. */
+     petit. Les noms sont des lettres fixes, pas du texte libre — innerHTML
+     est sûr ici. */
   const chemin=(q.forme==='ab') ? 'le chemin '+V+' (celui qui va de A à B)' : 'le chemin '+V;
   $('trlInstr').innerHTML='Déplace les points '+noms[0]+', '+noms[1]+' et '+noms[2]+' en suivant '+chemin
     +' : place les points '+primes[0]+', '+primes[1]+' et '+primes[2]+', images de '+noms[0]+', '+noms[1]+' et '+noms[2]+' par la translation de vecteur '+V+'.'
-    +'<span class="trl-sous">Clique sur le nœud du quadrillage où arrive un point, puis nomme le point posé ('+primes.join(', ')+'). Avant de le nommer, il se déplace en cliquant ailleurs et se retire en recliquant dessus ; recliquer un point déjà nommé permet de le renommer.</span>';
+    +'<span class="tan-sous">Clique le nœud du quadrillage où arrive le point : une croix s’y pose. Pour déplacer un point, clique dessus, puis clique sa nouvelle place.</span>';
+  $('trlBody').innerHTML=noms.map((n,k)=>'<div class="tvg-cons pts-case" id="trl-pt-'+k+'" onclick="trlChoisir('+k+')">'
+      +['①','②','③'][k]+' Le point '+primes[k]+', image de '+n+', placé.</div>').join('')
+    +'<div class="cvp-etape tan-etape" id="trlEtape" aria-live="polite"></div>';
   $('trlGraph').innerHTML=trlSVG(q,null);
-  $('trlModes').innerHTML='<div class="trl-nommer"><span class="trl-nommer-txt" id="trlNommerTxt"></span>'
-    +noms.map((n,i)=>'<button id="trlNom'+i+'" class="btn btn-ghost" type="button" onclick="trlNommer('+i+')">'+n+'′</button>').join('')+'</div>';
-  $('trlBody').innerHTML='<div class="img-line">'+noms.map((n,i)=>'<span class="pts-case pim-case trl-case" id="trl-pt-'+i+'"></span>').join(' ')+'</div>';
-  trlMaj();
-  $('trlMark').className='mark'; $('trlMark').textContent=''; $('trlCorr').innerHTML='';
-  const b=$('trlValidate'); b.disabled=false; b.textContent='Valider'; b.onclick=submitTrl;
+  trlMaj(); trlLive();
   trlBrancher();
+  $('trlFeedback').textContent=''; $('trlFeedback').className='mp-feedback';
+  trlBoutons('Vérifier');
 }
-/* Un seul écouteur, DÉLÉGUÉ à l'hôte : le SVG est réécrit à chaque pose. */
-let _trlSaveTimer=null;
+function trlBoutons(lib){
+  $('trlActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-ghost" id="trlEffacer" type="button" onclick="trlEffacer()">Effacer mes points</button>'
+    +'<button class="btn btn-primary" id="trlValidate" type="button" onclick="submitTrl()">'+lib+'</button>';
+}
+/* Les gestes de la souris, écouteurs DÉLÉGUÉS à l'hôte (le SVG est réécrit à
+   chaque pose) : le mouvement promène la croix du point en cours, le clic va
+   au nœud le plus proche — la géométrie relue dans le SVG RENDU. Au doigt,
+   pas de survol : la croix ne se montre pas, chaque toucher est un clic. */
 function trlBrancher(){
   const host=$('trlGraph');
-  if(host.__trlPret) return;
+  if(!host||host.__trlPret) return;
   host.__trlPret=true;
-  host.addEventListener('pointerdown', function(ev){
-    if(test.kind!=='trl'||test.locked) return;
-    const svg=ev.target.closest('.trl-svg'); if(!svg) return;
+  const vue=function(ev){
+    const svg=host.querySelector('.trl-fig'); if(!svg) return null;
+    const r=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal, kx=r.width/vb.width, ky=r.height/vb.height;
+    if(!kx||!ky) return null;
+    const x=(ev.clientX-r.left)/kx, y=(ev.clientY-r.top)/ky;
+    const fx=(x-TAN_PX)/TAN_C, fy=TRL_H-(y-TAN_PY)/TAN_C;
+    if(fx<-0.5||fx>TRL_W+0.5||fy<-0.5||fy>TRL_H+0.5) return null;
+    return {x:x, y:y, i:Math.max(0,Math.min(TRL_W,Math.round(fx))), j:Math.max(0,Math.min(TRL_H,Math.round(fy)))};
+  };
+  const suivre=function(ev){
+    if(test.kind!=='trl') return;
     const q=test.questions[test.idx]; if(!q) return;
-    const n=trlNoeud(svg,ev); if(!n) return;
-    ev.preventDefault();
-    const deja=q.rep.findIndex(r=>r&&r.x===n.x&&r.y===n.y);
-    if(q.pend && q.pend.x===n.x && q.pend.y===n.y) delete q.pend;   /* recliquer le point sans nom le retire */
-    else if(deja>=0){ q.rep[deja]=null; q.pend={x:n.x, y:n.y}; }      /* recliquer un point nommé : son nom est à choisir de nouveau */
-    else q.pend={x:n.x, y:n.y};                                         /* poser (ou déplacer) le point sans nom */
-    trlRedessiner();
+    const c=host.querySelector('#trlCurseur'); if(!c) return;
+    const v=ev&&ev.pointerType!=='touch'&&!test.locked ? vue(ev) : null;
+    const k=trlCourant(q);
+    if(v&&k>=0){
+      const L=trlNoms(q)[k]+'′';
+      if(c.getAttribute('data-l')!==L){ c.innerHTML=tanCurseurHTML(L); c.setAttribute('data-l',L); }
+      c.setAttribute('transform','translate('+v.x.toFixed(1)+' '+v.y.toFixed(1)+')'); c.style.display='';
+    } else c.style.display='none';
+  };
+  host.addEventListener('pointermove', suivre);
+  host.addEventListener('pointerleave', function(){ suivre(null); });
+  host.addEventListener('click', function(ev){
+    if(test.kind!=='trl'||test.locked) return;
+    const t=ev.target; if(!t.closest||!t.closest('.trl-fig')) return;
+    const v=vue(ev); if(!v) return;
+    trlClic(v.i, v.j);
+    suivre(ev);
   });
 }
-/* la question du nom et les pastilles : les boutons de nom ne servent que
-   quand un point attend le sien ; chaque pastille dit si son point est posé
-   — le texte seulement, les couleurs sont l'affaire de trlLive() et de
-   submitTrl() */
+/* Les cadres et la consigne de l'étape : le cadre du point en cours est
+   bleu, celui d'un point posé vert « fait » — tant qu'aucun verdict ne les
+   a peints ; la consigne guide le geste, jamais un verdict. */
 function trlMaj(){
   const q=test.questions[test.idx]; if(!q) return;
-  const noms=trlNoms(q), fige=!!test.locked, attend=!!q.pend && !fige;
-  const t=$('trlNommerTxt');
-  if(t) t.textContent = fige ? '' : (attend ? 'Comment s’appelle ce point ?' : 'Clique sur un nœud pour poser un point.');
-  noms.forEach((n,i)=>{
-    const b=$('trlNom'+i); if(b){ b.disabled=!attend; b.hidden=fige; }
-    const c=$('trl-pt-'+i); if(!c) return;
-    const r=q.rep[i];
-    c.textContent = r ? '● '+n+'′ posé' : '○ '+n+'′ à poser';
+  const noms=trlNoms(q), k=test.locked?-1:trlCourant(q);
+  [0,1,2].forEach(j=>{
+    const c=$('trl-pt-'+j); if(!c) return;
+    const verdict=c.classList.contains('ok')||c.classList.contains('bad')||c.classList.contains('sol');
+    c.classList.toggle('tan-fait', !!q.rep[j]&&!verdict&&j!==k);
+    c.classList.toggle('tan-cours', j===k&&!verdict);
   });
+  const el=$('trlEtape'); if(!el) return;
+  if(test.locked){ el.innerHTML=''; return; }
+  const chemin=(q.forme==='ab') ? 'le chemin de A à B' : 'le chemin '+trlVecHTML(q);
+  if(k>=0) el.innerHTML='Clique le nœud où arrive le point <b>'+noms[k]+'</b> en suivant '+chemin+' : c’est le point '+noms[k]+'′.'
+    +(q.rep[k]?'':' <span class="tan-sous">(Pour déplacer un point déjà posé, clique dessus.)</span>');
+  else el.innerHTML='Les trois points sont posés. Pour en déplacer un, clique dessus (ou son cadre) ; puis clique « Vérifier ».';
 }
 /* CHAQUE IMAGE SE JUGE SEULE : l'image attendue se recalcule depuis la source
    et le vecteur — jamais rangée dans la question. */
@@ -16781,7 +16832,7 @@ function trlCheck(q){
   const nCorrect=subs.filter(s=>s.ok).length, poses=subs.filter(s=>s.pose).length;
   return {subs:subs, nCorrect:nCorrect, nTotal:3, poses:poses, allOk:nCorrect===3, oks:subs.map(s=>s.ok)};
 }
-/* Soutien : la pastille et le point se colorent à la pose — un point non posé
+/* Soutien : le cadre et la croix se colorent à la pose — un point non posé
    ne reçoit RIEN. */
 function trlLive(){
   if(test.kind!=='trl' || !isSoutien() || test.locked) return;
@@ -16789,57 +16840,57 @@ function trlLive(){
   const res=trlCheck(q);
   res.subs.forEach(s=>{ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad','sol'); if(s.pose) el.classList.add(s.ok?'ok':'bad'); });
   $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks});
+  trlMaj();
 }
 function submitTrl(){
   if(test.locked) return;
   const q=test.questions[test.idx], res=trlCheck(q), noms=trlNoms(q), V=trlVecHTML(q);
-  const primes=noms.map(n=>n+'′');
-  /* un point posé sans nom : on ne devine pas lequel c'est — rien ne se
-     peint, rien ne se verrouille, on demande le nom */
-  if(q.pend){
-    const mk=$('trlMark'); mk.textContent='✗'; mk.className='mark bad show';
-    $('trlCorr').textContent='Nomme d’abord le point que tu viens de poser : '+primes.join(', ')+' ? (ou reclique dessus pour le retirer)';
-    return;
-  }
+  const primes=noms.map(n=>n+'′'), fb=$('trlFeedback');
   /* aucun point : rien ne se peint, rien ne se verrouille — on redit le geste */
   if(!res.poses){
-    const mk=$('trlMark'); mk.textContent='✗'; mk.className='mark bad show';
-    $('trlCorr').textContent='Place d’abord un point : clique sur le nœud du quadrillage où '+noms[0]+' arrive en suivant le chemin '+trlVecTexte(q)+', puis nomme-le '+primes[0]+'.';
+    fb.textContent='Place d’abord un point : clique le nœud du quadrillage où '+noms[0]+' arrive en suivant le chemin '+trlVecTexte(q)+' — c’est le point '+primes[0]+'.';
+    fb.className='mp-feedback bad';
     return;
   }
   const peindre=function(final){
     res.subs.forEach(s=>{ const el=$(s.id); if(!el) return;
-      el.classList.remove('ok','bad','sol');
+      el.classList.remove('ok','bad','sol','tan-fait','tan-cours');
       if(s.ok) el.classList.add('ok');
       else if(s.pose) el.classList.add('bad');
-      else if(final && !isSoutien()){ el.classList.add('sol'); el.textContent='● '+noms[s.i]+'′ non posé — en vert sur le dessin'; }
+      else if(final && !isSoutien()) el.classList.add('sol');
     });
   };
   if(isSoutien() && !res.allOk){
     peindre(false);
+    test.trlSel=-1;
     $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks});
-    const mk=$('trlMark'); mk.textContent='✗'; mk.className='mark bad show';
-    $('trlCorr').textContent='Pas tout à fait — déplace ce qui est en rouge (reclique sur le point pour le retirer, puis pose-le au bon nœud), pose ce qui manque, puis revérifie.';
+    trlMaj();
+    let m=res.subs.some(s=>s.pose&&!s.ok) ? 'Ce n’est pas encore ça : un point rouge n’a pas la bonne place. Clique dessus pour le reprendre, puis pose-le au bon nœud. ' : '';
+    if(res.subs.some(s=>!s.pose)) m+='Il reste un point à placer. ';
+    m+='Depuis chaque point, refais exactement le chemin '+trlVecTexte(q)+', puis revérifie.';
+    fb.textContent=m; fb.className='mp-feedback bad';
+    trlBoutons('Revérifier');
     return;
   }
-  test.locked=true; clearTimeout(test.qTimer);
+  test.locked=true; clearTimeout(test.qTimer); test.trlSel=-1;
   peindre(true);
   /* l'image attendue ne se montre que là où elle manque — en soutien on
      n'arrive ici que tout juste, rien ne se révèle par construction */
   $('trlGraph').innerHTML=trlSVG(q,{oks:res.oks, sol:res.subs.map(s=>!s.ok)});
   trlMaj();
-  const mk=$('trlMark'); mk.textContent=res.allOk?'✓':'✗'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
   test.score += res.nCorrect;
-  $('trlValidate').disabled=true;
   if(!res.allOk){
-    const faux=res.subs.filter(s=>!s.ok).map(s=>primes[s.i]);
-    $('trlCorr').innerHTML='Pour placer '+faux.join(', ')+', on part de '+res.subs.filter(s=>!s.ok).map(s=>noms[s.i]).join(', ')
-      +' et on suit le même chemin que '+V+' : '+trlChemin(q)+'. Les points verts montrent les images attendues. '
+    const faux=res.subs.filter(s=>!s.ok);
+    fb.innerHTML='Pour placer '+faux.map(s=>primes[s.i]).join(', ')+', on part de '+faux.map(s=>noms[s.i]).join(', ')
+      +' et on suit le même chemin que '+V+' : '+trlChemin(q)+'. Les flèches vertes montrent les images attendues. '
       +'On écrit : '+primes[0]+' est l’image de '+noms[0]+' par la translation de vecteur '+V+'.';
+    fb.className='mp-feedback bad';
   }
-  else $('trlCorr').innerHTML='<span class="lv-ok">Parfait — '+primes.join(', ')+' sont bien les images de '+noms.join(', ')+' par la translation de vecteur '+V+' !</span>';
+  else { fb.innerHTML='Parfait — '+primes.join(', ')+' sont bien les images de '+noms.join(', ')+' par la translation de vecteur '+V+' !'; fb.className='mp-feedback good'; }
   test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Images de '+noms.join(', ')+' par la translation de vecteur '+trlVecTexte(q)+' — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'trl'});
-  lvBoutonSuivant('trlValidate', nextTrlQuestion);
+  const last=test.idx===test.questions.length-1;
+  $('trlActions').innerHTML='<button class="btn btn-primary" id="trlNext" type="button" onclick="nextTrlQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('trlNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
 }
 function nextTrlQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTrl(); autoSave(); } else finishTest(); }
 /* le contexte envoyé au modèle : le quadrillage, le chemin en carreaux, les
@@ -16853,9 +16904,8 @@ function ctxTrl(q){
     ? ' Deux points A '+pos(q.o)+' et B '+pos([q.o[0]+q.vec[0],q.o[1]+q.vec[1]])+' définissent le chemin AB (de A vers B), sans flèche dessinée.'
     : ' Une flèche nommée u est dessinée, de '+pos(q.o)+' à '+pos([q.o[0]+q.vec[0],q.o[1]+q.vec[1]])+'.';
   c+=' Ce chemin vaut : '+trlChemin(q)+'. Points à déplacer : '+noms.map((n,i)=>n+' '+pos(q.src[i])).join(', ')+'.'+ctxEnonce('trlInstr')
-    +' L’élève pose un point au clic sur un nœud du quadrillage, puis le nomme ('+noms.map(n=>n+'′').join(', ')+') : il doit placer les images de '+noms.join(', ')+' par la translation de vecteur '+V+'.';
+    +' L’élève pose chaque image d’un clic sur un nœud du quadrillage, dans l’ordre de ses cadres ('+noms.map(n=>n+'′').join(', ')+') : il doit placer les images de '+noms.join(', ')+' par la translation de vecteur '+V+'.';
   const ecrit=res.subs.map(s=>noms[s.i]+'′ : '+(s.pose?'posé '+pos([q.rep[s.i].x,q.rep[s.i].y])+(s.ok?' (juste)':' (FAUX)'):'pas encore posé'));
-  if(q.pend) ecrit.push('un point posé '+pos([q.pend.x,q.pend.y])+' attend encore son nom');
   c+=' Ce que l’élève a fait : '+ecrit.join(' ; ')+'.'
     +CTX_SECRET+res.subs.map(s=>noms[s.i]+'′ = '+pos(s.val)).join(' ; ')+'.'
     +ctxFin('on part du point et on refait exactement le chemin de la flèche (ou le chemin de A vers B) : autant de carreaux vers la droite ou la gauche, puis autant vers le haut ou le bas ; le nœud d’arrivée est l’image, qu’on nomme avec un prime (A′).');
