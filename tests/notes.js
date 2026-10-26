@@ -32,13 +32,14 @@
 
    CE QUI EST COMPARÉ, pour chaque exercice : exactement UNE note finale en
    base (ni brouillon ni note de pause) ; son étiquette (exercice, mode,
-   devoir) ; un pourcentage entier entre 0 et 100 ; le score affiché
-   (#resultScore) égal à la note de la ligne — details.note quand la page en
-   pose une (crédit partiel), le score sinon — et à son total ; la note
-   affichée (#resultPct), en pourcentage (« 65 % ») ou sur 10 (« 6,4 / 10 »),
-   égale à ce que tout autre écran relira de la ligne : percent, ou
-   percent / 10 ; et en soutien, la note que le devoir en tirera —
-   percent × plafond / 100, sur 10 (noteDevoirExo, plafondSoutien).
+   devoir) ; un pourcentage entier entre 0 et 100, d'accord avec la note
+   de la ligne — details.note quand la page en pose une (crédit partiel),
+   le score sinon ; et la note affichée (#resultScore), SUR 10 ET RIEN
+   D'AUTRE (décision de Turquet, octobre 2026 : plus de pourcentage, plus de
+   « 4,5 / 5 », devoirs et fiches compris), égale à ce que tout autre écran
+   relira de la ligne : percent / 10 ; en soutien, la note que le devoir en
+   tirera — percent × plafond / 100 (noteDevoirExo, plafondSoutien). Aucun
+   « % » ne reste dans le cercle de la note.
 
    LE CRÉDIT PARTIEL COMPTE (décision de Turquet, octobre 2026 : la note
    finale compte ce que chaque question montre sur 1). La séance synthétique
@@ -249,7 +250,9 @@ const LIRE = ({ k, table }) => {
     .flatMap(e => e.lignes || [])
     .filter(l => l && l.details && !l.details.state && !l.details.partiel);
   const t = id => ((document.getElementById(id) || {}).textContent || '').replace(/\s+/g, ' ').trim();
-  return { lignes: JSON.parse(JSON.stringify(lignes)), score: t('resultScore'), pct: t('resultPct'), banc: window.__notesBanc || null };
+  const cercle = document.querySelector('#scr-results .score-circle');
+  return { lignes: JSON.parse(JSON.stringify(lignes)), score: t('resultScore'),
+           cercle: cercle ? cercle.textContent.replace(/\s+/g, ' ').trim() : '', banc: window.__notesBanc || null };
 };
 
 const nombre = s => parseFloat(String(s).replace(',', '.').replace('−', '-'));
@@ -263,32 +266,26 @@ function juger(id, modeFin, lu, plafond){
   if(!(Number.isInteger(l.total) && l.total > 0)) return 'total ' + l.total;
   if(!(Number.isInteger(l.percent) && l.percent >= 0 && l.percent <= 100)) return 'pourcentage ' + l.percent + ' en base';
   if(!(l.score >= 0 && l.score <= l.total)) return 'score ' + l.score + ' sur ' + l.total + ' en base';
-  /* le score affiché : la note de la ligne (crédit partiel) ou son score */
+  /* la note de la ligne : details.note (crédit partiel) ou son score */
   const note = (typeof d.note === 'number') ? d.note : l.score;
-  const m = /^([−\-\d.,]+) \/ (\d+)$/.exec(lu.score);
-  if(!m) return 'score affiché illisible : « ' + lu.score + ' »';
-  if(parseInt(m[2], 10) !== l.total) return 'total affiché ' + m[2] + ', ' + l.total + ' en base';
-  if(Math.abs(nombre(m[1]) - note) > 0.05 + 1e-9) return 'score affiché « ' + lu.score + ' », note ' + note + ' en base';
   /* le pourcentage de la ligne et la note qu'elle porte disent la même chose */
   const ecart = Math.abs(l.percent - note / l.total * 100);
   if(ecart > (Number.isInteger(note) ? 0.5 : 1) + 1e-9) return 'pourcentage ' + l.percent + ' en base pour une note de ' + note + ' / ' + l.total;
-  /* la note affichée : en pourcentage, ou sur 10 — et en soutien, la note
-     que noteDevoirExo() en tirera : percent × plafond / 100, sur 10 */
-  const sur10 = /^([−\-\d.,]+) \/ 10$/.exec(lu.pct), enPct = /^(\d+) %$/.exec(lu.pct);
+  /* la note affichée : sur 10, et rien d'autre — en soutien, la note que
+     noteDevoirExo() en tirera : percent × plafond / 100 */
+  if(/%/.test(lu.cercle)) return 'un pourcentage reste affiché : « ' + lu.cercle + ' »';
+  const sur10 = /^([−\-\d.,]+) \/ 10$/.exec(lu.score);
+  if(!sur10 || lu.cercle !== lu.score) return 'la note affichée n\'est pas une note sur 10 seule : « ' + lu.cercle + ' »';
   if(modeFin === 'soutien'){
     const attendu = l.percent / 100 * plafond;
-    if(!sur10) return 'en soutien, l\'écran affiche « ' + lu.pct + ' » au lieu de la note plafonnée ('
-      + String(Math.round(attendu * 10) / 10).replace('.', ',') + ' / 10, plafond ' + plafond + ')';
     if(Math.abs(nombre(sur10[1]) - attendu) > 0.05 + 1e-6)
-      return 'en soutien, l\'écran affiche « ' + lu.pct + ' », la note de soutien vaudra '
+      return 'en soutien, l\'écran affiche « ' + lu.score + ' », la note de soutien vaudra '
         + String(Math.round(attendu * 100) / 100).replace('.', ',') + ' / 10 (percent ' + l.percent + ', plafond ' + plafond + ')';
-  } else if(sur10){
+  } else {
     const attendu = Math.round(l.percent) / 10;
     if(Math.abs(nombre(sur10[1]) - attendu) > 1e-9)
-      return 'l\'écran affiche « ' + lu.pct + ' », la base relira ' + String(attendu).replace('.', ',') + ' / 10 (percent ' + l.percent + ')';
-  } else if(enPct){
-    if(parseInt(enPct[1], 10) !== l.percent) return 'l\'écran affiche « ' + lu.pct + ' », ' + l.percent + ' % en base';
-  } else return 'note affichée illisible : « ' + lu.pct + ' »';
+      return 'l\'écran affiche « ' + lu.score + ' », la base relira ' + String(attendu).replace('.', ',') + ' / 10 (percent ' + l.percent + ')';
+  }
   return '';
 }
 
