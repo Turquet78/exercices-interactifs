@@ -2151,8 +2151,10 @@
      La case du point image est une saisie d'UNE lettre, à la taille des
      lettres qui l'entourent (.vtr-in et .vtr-pt ont le même corps) ; le
      vecteur se choisit dans une liste (v₁ à v₈), comme les cases de choix du
-     7.8. La flèche du vecteur se pose au-dessus de la lettre (.vtr-fl::before),
-     et la lettre d'un vecteur s'écrit en italique à empattements, comme
+     7.8. La flèche du vecteur se pose au-dessus des lettres et les couvre
+     toutes (.vtr-fl::before, le trait ; ::after, la pointe — comme .vec :
+     « MM′ » du rappel n'était coiffé qu'au milieu par le seul « → »), et la
+     lettre d'un vecteur s'écrit en italique à empattements, comme
      l'inconnue. Les textes des figures font 17 px (12 px pour l'indice d'un
      vecteur) : le contrôle des graphiques exige 12 px au moins, 10 pour un
      indice. */
@@ -2180,8 +2182,9 @@
   .vtr-vec{font-family:"Times New Roman",serif;font-style:italic;font-weight:600;color:var(--blue-dark);white-space:nowrap}
   .vtr-l .vtr-vec{font-size:1.45rem}
   .vtr-vec sub{font-style:normal;font-size:.62em;font-family:"Fredoka";font-weight:600}
-  .vtr-fl{position:relative;display:inline-block;padding-top:.2em}
-  .vtr-fl::before{content:"\2192";position:absolute;left:58%;top:-.42em;transform:translateX(-50%);font-size:.72em;font-style:normal;line-height:1}
+  .vtr-fl{position:relative;display:inline-block;padding:.2em .1em 0 .06em;white-space:nowrap}
+  .vtr-fl::before{content:"";position:absolute;left:.06em;right:.18em;top:.1em;border-top:.085em solid currentColor}
+  .vtr-fl::after{content:"";position:absolute;right:.16em;top:-.02em;width:.26em;height:.26em;border-top:.085em solid currentColor;border-right:.085em solid currentColor;transform:rotate(45deg)}
   .vtr-in{width:64px;min-width:0;height:48px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none;text-transform:uppercase}
   .vtr-in:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
   .vtr-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue)}
@@ -3368,9 +3371,17 @@
   .trl-fig .tvx-prise{fill:transparent;stroke:transparent;stroke-width:2;cursor:pointer}
   .trl-fig .tvx-prise:hover{fill:rgba(124,58,237,.14);stroke:var(--crd-a)}
   .lv-instr .trl-sous{display:block;font-size:.85rem;font-weight:400;margin-top:6px}
-  /* le nom d'un vecteur : la lettre coiffée d'une flèche */
-  .vec{position:relative;display:inline-block;padding-top:.45em;line-height:1}
-  .vec::before{content:'\2192';position:absolute;top:-.15em;left:0;right:0;text-align:center;font-size:.72em;font-style:normal;line-height:1}
+  /* le nom d'un vecteur : les lettres coiffées d'une flèche qui les COUVRE
+     TOUTES — un trait tiré d'un bord à l'autre et une pointe à droite, comme
+     .vgt-vec (8.2) et .elg-vec (Terminale). Le seul caractère « → », centré,
+     est fait pour une lettre : sur « AB » (8.1.4, forme ab) il ne coiffait
+     que le milieu (signalé par Turquet, capture, octobre 2026). Le padding
+     du haut reste .45em : .kv-co s'y accorde (margin-top:-.45em sous une
+     fraction). Tenu partout par le banc navigateur (section 9, « la flèche
+     d'un nom de vecteur couvre toutes ses lettres »). */
+  .vec{position:relative;display:inline-block;padding:.45em .12em 0 .06em;line-height:1;white-space:nowrap}
+  .vec::before{content:"";position:absolute;left:.06em;right:.2em;top:.21em;border-top:.085em solid currentColor}
+  .vec::after{content:"";position:absolute;right:.18em;top:.09em;width:.26em;height:.26em;border-top:.085em solid currentColor;border-right:.085em solid currentColor;transform:rotate(45deg)}
   .trl-svg{display:block;width:100%;max-width:560px;height:auto;margin:0 auto;touch-action:manipulation;cursor:pointer}
   .trl-grid{stroke:var(--ink-soft);stroke-width:.8;opacity:.55}
   .trl-x{stroke:var(--ink);stroke-width:1.8;fill:none}
@@ -8753,7 +8764,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=618;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=619;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.

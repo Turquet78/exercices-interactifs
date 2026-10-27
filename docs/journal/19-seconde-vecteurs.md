@@ -492,6 +492,38 @@ vecteur est une lettre coiffée d'une flèche : la classe `.vec`, dont le
 `::before` porte la flèche, dans l'énoncé, le rappel et les corrections ; sur
 le dessin, un « u » en fonte mathématique sous un petit trait fléché.
 
+**La flèche d'un nom de vecteur couvre toutes ses lettres.** « En Seconde,
+dans le 8.1.4, pour l'écriture du vecteur AB, la flèche ne couvre pas
+l'écriture AB. Vérifier que ce problème n'apparaît pas sur un autre exercice
+avec des vecteurs. » (Turquet, capture, octobre 2026.) La classe `.vec`
+posait au-dessus des lettres le seul caractère « → » (`::before`, centré, à
+0,72 em) : fait pour une lettre, il ne coiffait que le milieu de « AB » — le
+nom que la forme ab de {translation-quadrillage} écrit depuis la v618, seule
+écriture à deux lettres passée par `.vec` (les 8.1.8, 8.1.12 et le 8.3 n'y
+écrivent que u⃗, v⃗, w⃗ et les lettres a à h, une par nom) ; et `.vtr-fl`
+({translation-grille}) faisait de même sur le « MM′ » de son rappel. Les deux
+autres écritures de la page tirent un trait d'un bord à l'autre et posent une
+pointe : `.vgt-vec` (8.2, 294 emplois) et, en Terminale, `.elg-vec`. `.vec`
+et `.vtr-fl` font désormais pareil — un `border-top` de .085 em sur
+`::before`, un coin tourné de 45° sur `::after`, à la couleur courante (le
+violet de `.kss-u` suit) —, le padding du haut de `.vec` inchangé (.45 em,
+sur lequel `.kv-co` s'accorde sous une fraction) et une marge de .12 em à
+droite pour la pointe. Mesuré sur un échantillon rendu dans Chromium : la
+flèche de « AB » passait de 11,4 px à 22 px sur 22,2 px de lettres.
+
+**Contrôlé partout** (`tests/navigateur.js`, section 9, au premier écran de
+chaque exercice, dans les deux modes) : sur chaque nom de vecteur visible —
+les classes sont NOMMÉES, `.vec`, `.vtr-fl`, `.vgt-vec`, `.elg-vec` ; une
+classe ajoutée demain s'y déclare, et un niveau dont la feuille de styles n'en
+porte aucune le dit —, la flèche dessinée par `::before` et `::after` (un
+caractère mesuré à sa fonte dans une sonde posée dans la page, ou un trait et
+une pointe à la largeur de leur boîte) fait au moins 80 % de la largeur des
+lettres. Et parce que la forme ab ne sort pas à chaque tirage, chaque classe
+rencontrée sur l'écran est aussi éprouvée sur une sonde « AB » clonée de son
+premier nom visible, puis retirée. Éprouvé par sabotage sur la page d'avant :
+la sonde rougit, « .vec « AB » : flèche de 11,4 px sur 22,2 px de lettres »,
+et `.vtr-fl` avec elle (12,0 px) ; la page corrigée passe, huit noms mesurés.
+
 **Chaque image se juge SEULE, et une image manquante ne rougit jamais.** La
 copie juste vaut 3 ; une image fausse coûte son point et pas celui des deux
 autres ; une image NON POSÉE n'est pas une erreur : sa pastille (`pts-case`,
