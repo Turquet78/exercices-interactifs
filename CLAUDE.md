@@ -237,6 +237,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Et la Seconde a suivi — le ruban vaut pour les DEUX familles, le verrou pour une seule.**
 - **Les TRAVAUX FACULTATIFS sont la seconde famille de devoirs de la Terminale — gérés comme les devoirs, rangés à part.**
 - **Un élève connecté dans un autre onglet CHASSE la session du professeur, et la base répond 42501.**
+- **Puis la page a REDEMANDÉ le mot de passe, sans quitter l'écran — les trois niveaux.** Toute écriture du professeur passe par `enProfesseur()` ; un refus de session ouvre la boîte, l'écriture repart ; `CONFIG_ERREUR` interdit de réécrire après une lecture ratée.
 - **L'écran du bilan ne bouge plus quand le professeur pose une note.**
 - **Et la note du DEVOIR ENTIER est une note, elle aussi.**
 - **Un brouillon étiqueté d'un devoir vaut une NOTE PROVISOIRE — et le bilan le dit « en cours ».** Un exercice fermé à la sonnerie sans « Voir mes résultats » ne laissait que son brouillon, compté nulle part.

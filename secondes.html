@@ -4926,6 +4926,34 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   </section>
 
   <!-- DEVOIRS À LA MAISON (élève) -->
+  <!-- LE MOT DE PASSE REDEMANDÉ SANS QUITTER L'ÉCRAN : quand la base refuse une
+       écriture du professeur pour une raison de session (un élève connecté
+       entre-temps, un jeton expiré), cette boîte s'ouvre par-dessus le tableau
+       de bord — les cases cochées restent — et l'écriture repart une fois le
+       mot de passe redonné (enProfesseur). Même frontière « form » que la
+       connexion du professeur : Chrome y trouve l'identifiant, et ne va pas le
+       chercher dans une case d'exercice. -->
+  <div id="reconnexionModal" class="notes-modal" hidden>
+    <div class="card notes-card" role="dialog" aria-modal="true" aria-labelledby="reconnexionTitre">
+      <div class="notes-head"><h3 id="reconnexionTitre">Redonne ton mot de passe</h3></div>
+      <p class="lead">La session ouverte dans ce navigateur n’est plus celle du professeur : un élève s’est connecté entre-temps (dans cet onglet ou un autre), ou elle a expiré. Rien de ce que tu as coché n’est perdu : redonne ton mot de passe, et l’enregistrement repart.</p>
+      <form onsubmit="return false">
+        <input id="reconnexionUser" class="hors-ecran" type="text" name="username"
+               autocomplete="username" tabindex="-1" aria-hidden="true" readonly>
+        <div class="field">
+          <label class="lab" for="reconnexionPass">Mot de passe</label>
+          <input class="text-input" id="reconnexionPass" type="password" name="password" autocomplete="current-password">
+        </div>
+        <p class="muted" id="reconnexionErreur" role="alert" hidden></p>
+        <p class="muted" id="reconnexionDetail" style="font-size:.8rem"></p>
+        <div class="row">
+          <button type="button" class="btn btn-primary" id="reconnexionOk" onclick="reconnexionValider()">Enregistrer</button>
+          <button type="button" class="btn-link" onclick="reconnexionAnnuler()">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div id="notesModal" class="notes-modal" hidden onclick="if(event.target===this)fermerNotes()">
     <div class="card notes-card">
       <div class="notes-head">
@@ -14145,6 +14173,88 @@ function ouvrirEntreeProf(){
   setTimeout(()=>{ const c=$('teacherPass'); if(c) c.focus(); },100);
   reprendreSessionProf();
 }
+/* ---------- Écrire en professeur : la session se redemande, l'écran reste ----------
+   « Enregistrement impossible », au bout d'un moment, sur une fiche ou un
+   devoir qu'on enregistre régulièrement (signalé par Turquet, octobre 2026).
+   La cause n'est jamais la fiche : c'est la SESSION du navigateur qui n'est
+   plus celle du professeur — remplacée par un élève connecté dans un autre
+   onglet (une seule session Supabase par navigateur et par projet), ou
+   expirée sans avoir pu se renouveler (ordinateur en veille, réseau coupé).
+   La base répond 42501 (politique d'accès) ou PGRST301 (jeton expiré), et la
+   page disait seulement « impossible » : le professeur devait quitter le
+   tableau de bord, se reconnecter, et refaire ses cases.
+   Désormais TOUTE écriture du professeur passe par enProfesseur() : on écrit
+   d'abord — la session est presque toujours bonne, et une vérification
+   préalable coûterait un aller-retour à chaque enregistrement ; si la base
+   refuse POUR UNE RAISON DE SESSION, une boîte redemande le mot de passe SANS
+   quitter l'écran (les cases cochées restent), puis l'écriture repart une
+   fois, sous la session retrouvée. Toute autre erreur remonte telle quelle :
+   une panne réseau n'est pas un mot de passe à redonner. Annuler rend une
+   erreur ANNULE, que dmRaison() sait dire : rien n'a été écrit.
+   Le banc jsdom éprouve les trois chemins (bon mot de passe, mauvais,
+   annulation) sur le double de la base (window.__faux.rls), et le banc
+   navigateur ouvre la boîte dans un vrai Chromium. */
+function erreurDeSession(e){
+  if(!e) return false;
+  const code=String(e.code||''), msg=String(e.message||'');
+  return code==='42501' || /^PGRST30\d$/.test(code) || e.status===401
+      || /row-level security|permission denied|jwt|session missing/i.test(msg);
+}
+let reconnexionAttente=null;   /* la promesse de la boîte ouverte : une seule à la fois */
+function redemanderMotDePasseProf(e){
+  if(reconnexionAttente) return reconnexionAttente;
+  const boite=$('reconnexionModal'); if(!boite) return Promise.resolve(false);
+  reconnexionAttente=new Promise(resolve=>{
+    boite.__resolve=resolve;
+    const err=$('reconnexionErreur'); if(err){ err.hidden=true; err.textContent=''; }
+    const detail=$('reconnexionDetail');
+    if(detail) detail.textContent=e?('Détail : '+(e.message||String(e))+(e.code?' ['+e.code+']':'')):'';
+    const c=$('reconnexionPass'); if(c) c.value='';
+    boite.hidden=false;
+    setTimeout(()=>{ try{ if(c) c.focus(); }catch(x){} },50);
+  }).finally(()=>{ reconnexionAttente=null; boite.hidden=true; const c=$('reconnexionPass'); if(c) c.value=''; });
+  return reconnexionAttente;
+}
+async function reconnexionValider(){
+  const boite=$('reconnexionModal'); if(!boite||boite.hidden||!boite.__resolve) return;
+  const mdp=val('reconnexionPass');
+  const err=$('reconnexionErreur');
+  const dire=t=>{ if(err){ err.textContent=t; err.hidden=false; } };
+  if(!mdp){ dire('Écris ton mot de passe.'); return; }
+  const btn=$('reconnexionOk'); if(btn) btn.disabled=true;
+  try{
+    /* Le mot de passe n'est pas dans la page : Supabase le vérifie, comme à
+       la connexion du professeur. */
+    const {error}=await sb.auth.signInWithPassword({email:COURRIEL_PROF,password:mdp});
+    if(error){
+      dire(error.status===429?'Trop d’essais : attends un instant, puis réessaie.':'Mot de passe incorrect.');
+      const c=$('reconnexionPass'); if(c){ c.value=''; try{ c.focus(); }catch(x){} }
+      return;
+    }
+    /* Se connecter ne suffit pas — encore faut-il être inscrit comme professeur. */
+    const {data:prof,error:errProf}=await sb.from('professeurs').select('user_id').maybeSingle();
+    if(errProf||!prof){
+      const {error:errSortie}=await sb.auth.signOut();
+      dire('Ce compte n’est pas celui du professeur'+(errSortie?' — recharge la page':'')+'.');
+      return;
+    }
+    const r=boite.__resolve; boite.__resolve=null; r(true);
+  }catch(x){ dire('Connexion impossible : réessaie.'); }
+  finally{ if(btn) btn.disabled=false; }
+}
+function reconnexionAnnuler(){
+  const boite=$('reconnexionModal'); if(!boite||!boite.__resolve) return;
+  const r=boite.__resolve; boite.__resolve=null; r(false);
+}
+async function enProfesseur(ecrire){
+  try{ return await ecrire(); }
+  catch(e){
+    if(!erreurDeSession(e)) throw e;
+    if(!(await redemanderMotDePasseProf(e)))
+      throw Object.assign(new Error('le mot de passe n’a pas été redonné : rien n’a été écrit'),{code:'ANNULE'});
+    return await ecrire();   /* une seconde fois, sous la session retrouvée ; un second refus remonte tel quel */
+  }
+}
 async function sessionProfOuverte(){
   if(!sb||!sb.auth) return false;
   let session=null;
@@ -15667,12 +15777,20 @@ function lineChart(values){
 }
 
 /* ---------- Réglages : chargement ---------- */
+/* La dernière lecture de la configuration a-t-elle ÉCHOUÉ ? Réécrire après
+   une lecture ratée effacerait tout le reste — l'autre famille, les cours,
+   les réglages — sous des valeurs par défaut : chaque écriture du professeur
+   relit d'abord, et renonce si la relecture a échoué (le garde de la
+   Première, repris ici en octobre 2026). maybeSingle() et non single() :
+   une table encore vide n'est pas une erreur, c'est l'absence de ligne. */
+let CONFIG_ERREUR=null;
 async function loadConfig(){
   try{
-    const {data,error}=await sb.from('parametres_2nde').select('valeurs').eq('id',1).single();
+    const {data,error}=await sb.from('parametres_2nde').select('valeurs').eq('id',1).maybeSingle();
+    CONFIG_ERREUR=error||null;
     if(error||!data) return normalizeCfg({...DEFAULT_CFG});
     return normalizeCfg(Object.assign({},DEFAULT_CFG,data.valeurs));
-  }catch(e){ return normalizeCfg({...DEFAULT_CFG}); }
+  }catch(e){ CONFIG_ERREUR=e||new Error('lecture impossible'); return normalizeCfg({...DEFAULT_CFG}); }
 }
 
 /* ================= Exercice Seconde : Lecture graphique — variations (kind 'lv') ================= */
@@ -24062,13 +24180,47 @@ async function loadSettingsIntoForm(){
 }
 async function saveSettings(){
   try{
-    const cur=await loadConfig();
-    const valeurs=Object.assign({},cur,{
-      secondsPerQuestion:parseInt(val('setTime'),10)||0
+    await enProfesseur(async()=>{
+      const cur=await loadConfig();
+      if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
+      const valeurs=Object.assign({},cur,{
+        secondsPerQuestion:parseInt(val('setTime'),10)||0
+      });
+      const {error}=await sb.from('parametres_2nde').upsert({id:1,valeurs}); if(error)throw error;
     });
-    const {error}=await sb.from('parametres_2nde').upsert({id:1,valeurs}); if(error)throw error;
     const m=$('savedMsg');m.classList.add('show');setTimeout(()=>m.classList.remove('show'),1800);
-  }catch(e){ toast('Enregistrement impossible','err'); }
+  }catch(e){ toast('Enregistrement impossible : '+dmRaison(e),'err'); }
+}
+
+/* La raison d'un échec d'écriture, telle que Supabase la donne : le code
+   PostgREST (42501 = refus de la politique d'accès, PGRST301 = session
+   expirée…) et le message, sans quoi le professeur ne peut rien nous dire.
+   Le texte de la Terminale (septembre 2026), repris ici en octobre 2026 avec
+   la boîte du mot de passe : « Enregistrement impossible » nu couvrait la
+   session, le réseau et la base d'un même mot. */
+function dmRaison(e){
+  if(!e) return 'raison inconnue';
+  /* Le professeur a refermé la boîte du mot de passe (enProfesseur) : rien
+     n'a été écrit, et c'est tout ce qu'il y a à dire. */
+  if(e.code==='ANNULE') return (e.message||'le mot de passe n’a pas été redonné : rien n’a été écrit');
+  const m=(e.message||String(e)), c=e.code?(' ['+e.code+']'):'';
+  const brut=(m.length>160?m.slice(0,160)+'…':m)+c;
+  /* LE REFUS DE LA BASE A UNE CAUSE ORDINAIRE, et elle se nomme : la session
+     Supabase vit dans le stockage du navigateur, UNE par projet — un élève
+     qui se connecte dans un autre onglet (ou dans celui-ci, pour « voir en
+     tant qu'élève ») remplace celle du professeur, et le tableau de bord
+     resté ouvert écrit désormais sous le compte de l'élève : est_prof() dit
+     non, PostgREST répond 42501. Depuis octobre 2026, enProfesseur() redemande
+     le mot de passe avant que ce message ne s'affiche : s'il s'affiche quand
+     même, c'est que l'écriture a été refusée UNE SECONDE FOIS, sous la session
+     retrouvée. Le message ne NOMME pas le fichier de la page d'aiguillage : un
+     contrôle interdit son nom entre guillemets hors de quitToHome(), et il a
+     raison — une adresse écrite ici serait une adresse qu'on suit. */
+  if(e.code==='42501' || /row-level security/i.test(m))
+    return 'la base refuse d\u2019écrire, parce que la session ouverte dans ce navigateur n\u2019est plus celle du professeur '
+      +'(un élève s\u2019est connecté entre-temps, dans cet onglet ou un autre ?). Reconnecte-toi par la page du professeur (ton favori), puis réessaie. '
+      +'Détail : '+brut;
+  return brut;
 }
 
 /* ---------- Devoirs à la maison (prof) ---------- */
@@ -24113,9 +24265,13 @@ async function addDevoir(){
   const maxNum=dmList.reduce((m,d)=>Math.max(m,d.num||0),0);
   const d=ensureDevoir({id:newDevoirId(dmGenre), num:maxNum+1, actif:true, titre:G.defTitre, cours:'', exercices:[]}, dmList.length);
   dmList.push(d); dmSelId=d.id;
-  try{ await persistDevoirs(); }catch(e){}
+  /* L'échec s'écrit AVEC sa raison, comme en Terminale : un refus muet
+     laissait le professeur garnir une fiche que la base avait refusée. */
+  let echec=null;
+  try{ await persistDevoirs(); }catch(e){ echec=e; }
   renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
-  toast(G.badge+' n°'+d.num+' ajouté'+(GENRE_DEVOIRS[dmGenre].fem?'e':''),'ok');
+  if(echec) toast(G.badge+' n°'+d.num+' créé'+(GENRE_DEVOIRS[dmGenre].fem?'e':'')+' à l\u2019écran mais PAS enregistré'+(GENRE_DEVOIRS[dmGenre].fem?'e':'')+' : '+dmRaison(echec),'err');
+  else toast(G.badge+' n°'+d.num+' ajouté'+(GENRE_DEVOIRS[dmGenre].fem?'e':''),'ok');
 }
 /* L'ARBRE DES EXERCICES (demande de Turquet, octobre 2026 : « quand je
    construis une fiche ou un devoir, n'afficher que les thèmes, puis les
@@ -24239,22 +24395,37 @@ function dmOrdreBouge(id,delta){
    2026, donc plus aucune garde de genre ici. */
 function dmExoCoche(){ readEditorIntoDevoir(); renderDevoirEditor(); }
 async function persistDevoirs(){
-  const cur=await loadConfig();
-  /* N'ÉCRIT QUE SA FAMILLE. La configuration vient d'être relue : l'autre
-     famille, les cours et les réglages repartent tels quels. Écrire les fiches
-     sous « devoirs » les publierait sur le portail, qui lit cette clé-là. */
-  const maj={}; maj[dmCleGenre()]=dmList;
-  const {error}=await sb.from('parametres_2nde').upsert({id:1,valeurs:Object.assign({},cur,maj)});
-  if(error)throw error;
+  /* Sous enProfesseur : un refus de session redemande le mot de passe et
+     l'écriture repart — c'est l'entonnoir de TOUTES les écritures des devoirs,
+     des fiches, des notes et des archives. */
+  await enProfesseur(async()=>{
+    const cur=await loadConfig();
+    if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
+    /* N'ÉCRIT QUE SA FAMILLE. La configuration vient d'être relue : l'autre
+       famille, les cours et les réglages repartent tels quels. Écrire les fiches
+       sous « devoirs » les publierait sur le portail, qui lit cette clé-là. */
+    const maj={}; maj[dmCleGenre()]=dmList;
+    const {error}=await sb.from('parametres_2nde').upsert({id:1,valeurs:Object.assign({},cur,maj)});
+    if(error)throw error;
+  });
 }
 async function saveDevoir(){
   readEditorIntoDevoir();
   try{
     await persistDevoirs();
     const m=$('dmSaved'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'),1800);
-    toast((GENRE_DEVOIRS[dmGenre].fem?'Fiche enregistrée':'Devoir enregistré')+' ✓','ok');
+    /* L'écran DIT si les élèves verront ce qu'on vient d'enregistrer : une
+       fiche naît MASQUÉE, et « enregistrée ✓ » seul laissait croire qu'elle
+       était donnée — le professeur allait la chercher chez l'élève, en vain
+       (signalé par Turquet, septembre 2026, en Terminale ; repris ici). */
+    const dev=selectedDevoir(), fem=!!GENRE_DEVOIRS[dmGenre].fem;
+    const visible=!!(dev&&dev.actif);
+    toast((fem?'Fiche enregistrée':'Devoir enregistré')+' ✓'
+      +(visible?' — '+(fem?'affichée':'affiché')+' aux élèves'
+               :' — '+(fem?'MASQUÉE':'MASQUÉ')+' : coche « Afficher aux élèves » pour '+(fem?'la':'le')+' donner'),
+      visible?'ok':'');
     renderDevoirSelector(); renderDevoirResultats();
-  }catch(e){ toast('Enregistrement impossible','err'); }
+  }catch(e){ toast('Enregistrement impossible : '+dmRaison(e),'err'); }
 }
 async function deleteDevoir(){
   const dev=selectedDevoir(); if(!dev) return;
@@ -24263,14 +24434,14 @@ async function deleteDevoir(){
   if(!confirm(dmTexteSuppression(dev,dec))) return;
   if(dec.archiver){
     try{ await dmMarquerArchive(dev.id,true); toast('Archivé — ses notes restent au carnet','ok'); }
-    catch(e){ toast('Archivage impossible','err'); }
+    catch(e){ toast('Archivage impossible : '+dmRaison(e),'err'); }
     return;
   }
   dmList=dmList.filter(d=>d.id!==dev.id);
   if(!dmList.length) dmList=[ensureDevoir({ id:newDevoirId(dmGenre), num:1, actif:(dmGenre==='dm'),
     titre:G.defTitre, cours:'', exercices:[] },0)];
   dmSelId=dmList[0].id;
-  try{ await persistDevoirs(); toast('Devoir supprimé','ok'); }catch(e){ toast('Suppression impossible','err'); }
+  try{ await persistDevoirs(); toast('Devoir supprimé','ok'); }catch(e){ toast('Suppression impossible : '+dmRaison(e),'err'); }
   renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
 }
 /* ══ ARCHIVER PLUTÔT QUE DÉTRUIRE ══════════════════════════════════════════
@@ -24374,7 +24545,7 @@ async function dmRestaurer(id){
   if(!confirm('Restaurer le n°'+d.num+' ?\n\nIl revient dans ta liste, MASQUÉ : à toi de'
     +' cocher « Afficher aux élèves » si tu veux le redonner.')) return;
   try{ await dmMarquerArchive(id,false); toast('Restauré — il est masqué','ok'); }
-  catch(e){ toast('Restauration impossible','err'); }
+  catch(e){ toast('Restauration impossible : '+dmRaison(e),'err'); }
 }
 
 /* ---- CE QUI DIVERGE D'UN NIVEAU À L'AUTRE, et rien d'autre --------------
@@ -24780,7 +24951,7 @@ async function poserNoteDevoir(eleveId, exoId, brut){
     if(borne!==v) annonce+=' (ramenée dans 0–10)';
   }
   try{ await persistDevoirs(); toast(annonce+' ✓','ok'); }
-  catch(e){ toast('Enregistrement impossible — la note n’est pas gardée','err'); }
+  catch(e){ toast('Enregistrement impossible — la note n’est pas gardée : '+dmRaison(e),'err'); }
   /* ATTENDU, et pas seulement lancé : qui attend poserNoteDevoir doit lire
      l'écran d'APRÈS. */
   await renderDevoirResultats();
@@ -81453,8 +81624,9 @@ $('loginPin').addEventListener('input',()=>{
 /* L'identifiant est celui du compte Supabase du professeur. Il est posé depuis
    la constante, jamais recopié : deux écritures qui divergent, c'est le défaut
    qu'on a déjà payé avec DOMAINE_COMPTES. */
-(function(){ const u=$('teacherUser'); if(u) u.value=COURRIEL_PROF; })();
+(function(){ ['teacherUser','reconnexionUser'].forEach(id=>{ const u=$(id); if(u) u.value=COURRIEL_PROF; }); })();
 $('teacherPass').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();teacherLogin();}});
+$('reconnexionPass').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();reconnexionValider();}});
 $('newPin2').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();creerCompte();}});
 
 /* La liste des touches vit HORS du moteur partagé, comme SF_NB : les trois

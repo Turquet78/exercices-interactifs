@@ -72,6 +72,17 @@ window.__faux = {
      courriel » resté actif sur le projet, qu'aucun banc ne voit. Un 400 n'est
      pas forcément un code faux, et la page ne doit pas le dire. */
   nonConfirme: false,
+  /* Poser window.__faux.rls = true fait jouer au double la politique d'accès
+     des tables de réglages (parametres, parametres_1ere, parametres_2nde) :
+     une ÉCRITURE n'y passe que sous une session dont le compte figure dans
+     « professeurs » ; sinon 42501, « new row violates row-level security
+     policy » — ce que PostgREST répond quand un élève connecté dans un autre
+     onglet a remplacé la session du professeur, ou quand la session est
+     tombée (octobre 2026). La lecture reste ouverte à tous, comme en
+     production. Éteint par défaut : les bancs écrivent les réglages sans
+     session depuis toujours, et c'est le contrôle de la reconnexion du
+     professeur qui l'allume. */
+  rls: false,
   suivant: 1,
   /* Les comptes tiennent le rôle de auth.users : c'est là que vivent les codes
      depuis qu'ils ont quitté la table des élèves. Le double les compare
@@ -146,6 +157,15 @@ window.supabase = {
         if(F.panne && op !== 'select'){
           F.journal.push({ op, table: nom, echec: true });
           return { data: null, error: { message: 'panne simulée' } };
+        }
+        /* la RLS des réglages : écrire exige la session du professeur */
+        if(F.rls && op !== 'select' && /^parametres/.test(nom)){
+          const prof = !!F.session && F.lignes('professeurs').some(l => l.user_id === F.session.user.id);
+          if(!prof){
+            F.journal.push({ op, table: nom, echec: true, rls: true });
+            return { data: null, error: { code: '42501',
+              message: 'new row violates row-level security policy for table "' + nom + '"' } };
+          }
         }
         const lignes = F.lignes(nom);
         if(op === 'upsert'){                           /* remplace la ligne de même id, ne l'empile pas */

@@ -1386,7 +1386,120 @@ function demarrage(suite){
       return sans.join(', ');
     })()`, v => v === '', 'exercice(s) sans start()');
     branchements(w);
-    connexionExecutee(w, suite);
+    connexionExecutee(w, () => reconnexionProfesseur(w, suite));
+  });
+}
+
+/* ---------- 2 ter. Le mot de passe redemandé SANS quitter l'écran ----------
+   « Quand je crée une fiche ou un devoir et que j'enregistre régulièrement,
+   au bout d'un moment il dit enregistrement impossible » (Turquet, octobre
+   2026). La session du navigateur n'était plus celle du professeur — un élève
+   connecté dans un autre onglet, ou un jeton expiré — et la page ne savait
+   que dire « impossible » : il fallait quitter le tableau de bord, se
+   reconnecter, et refaire ses cases. Désormais toute écriture du professeur
+   passe par enProfesseur() : la base refuse pour une raison de session → la
+   boîte #reconnexionModal s'ouvre par-dessus l'écran → le mot de passe
+   redonné fait repartir l'écriture. Cinq bords, sur le double de la base
+   (window.__faux.rls joue la politique d'accès des réglages) :
+     · un refus 42501 ouvre la boîte et n'écrit rien ;
+     · un mauvais mot de passe la laisse ouverte et le dit ;
+     · le bon mot de passe referme la boîte, remet la session du professeur,
+       et l'écriture repart — la valeur est en base ;
+     · « Annuler » n'écrit rien et rend une erreur ANNULE, que dmRaison() dit ;
+     · une panne ordinaire remonte telle quelle, sans ouvrir la boîte — une
+       coupure réseau n'est pas un mot de passe à redonner.
+   Et le bord STATIQUE : chaque fonction qui écrit pour le professeur passe par
+   enProfesseur() (ou par persistDevoirs(), qui y passe) — une fonction
+   d'écriture ajoutée demain sous l'un de ces noms est couverte. Le banc
+   navigateur ouvre la même boîte dans un vrai Chromium (section 1 bis).
+   Séquentiel, dans la chaîne asynchrone : il ré-injecte le double. */
+function reconnexionProfesseur(w, suite){
+  const NOM = 'un refus de session redemande le mot de passe sans quitter l’écran, et l’écriture repart';
+  const present = evaluer(w, "typeof enProfesseur==='function' && typeof reconnexionValider==='function' && typeof dmRaison==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(NOM, false, 'enProfesseur(), reconnexionValider() ou dmRaison() manque');
+    return suite();
+  }
+  /* le bord statique : les entonnoirs d'écriture du professeur */
+  const ENTONNOIRS = ['persistDevoirs','saveSettings','saveDM','newDM','deleteDM','dmRestaurer','poserNoteDevoir','poserNoteDevoirEleve'];
+  verifierEval(w, 'chaque écriture du professeur passe par enProfesseur()', `(function(){
+    const sans=[];
+    ${JSON.stringify(ENTONNOIRS)}.forEach(function(n){
+      if(typeof window[n]!=='function') return;
+      const t=String(window[n]);
+      const ok = n==='persistDevoirs' ? /enProfesseur\(/.test(t) : /enProfesseur\(|persistDevoirs\(/.test(t);
+      if(!ok) sans.push(n);
+    });
+    return sans.join(', ');
+  })()`, v => v === '', 'fonction(s) qui écrivent sans redemander le mot de passe');
+  const TABLE = (P.coursPdf && P.coursPdf.table) || 'parametres';
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const F=window.__faux, vus=[], TABLE='${TABLE}';
+    F.semer(TABLE,[{id:1,valeurs:{secondsPerQuestion:7}}]);
+    F.semerCompte(COURRIEL_PROF,'mdp-de-controle','prof-controle');
+    F.semer('professeurs',[{user_id:'prof-controle'}]);
+    const boite=document.getElementById('reconnexionModal');
+    if(!boite) return 'aucune boîte #reconnexionModal dans la page';
+    const tick=function(){ return new Promise(function(r){ setTimeout(r,0); }); };
+    const ecrire=async function(){ const {error}=await sb.from(TABLE).upsert({id:1,valeurs:{secondsPerQuestion:9}}); if(error) throw error; return 'écrit'; };
+    const ecrits=function(depuis){ return F.journal.slice(depuis).filter(function(o){ return o.op==='upsert'&&!o.echec; }).length; };
+    F.rls=true;
+    try{
+      /* 1. la session est celle d'un élève : la boîte s'ouvre, rien n'est écrit */
+      F.poserSession({user:{id:'eleve-intrus',email:'eleve@controle.invalid',app_metadata:{}}});
+      let n0=F.journal.length;
+      const p1=enProfesseur(ecrire); await tick(); await tick();
+      if(boite.hidden) vus.push('un refus 42501 n\'ouvre pas la boîte du mot de passe');
+      if(ecrits(n0)) vus.push('quelque chose a été écrit avant le mot de passe');
+      /* 2. un mauvais mot de passe : la boîte reste, et le dit */
+      document.getElementById('reconnexionPass').value='mauvais';
+      await reconnexionValider(); await tick();
+      if(boite.hidden) vus.push('un mauvais mot de passe referme la boîte');
+      const err=document.getElementById('reconnexionErreur');
+      if(!err || err.hidden || !err.textContent.trim()) vus.push('un mauvais mot de passe ne se dit pas');
+      if(ecrits(n0)) vus.push('un mauvais mot de passe a laissé écrire');
+      /* 3. le bon : la session revient, l'écriture repart, la boîte se referme */
+      document.getElementById('reconnexionPass').value='mdp-de-controle';
+      await reconnexionValider();
+      const r1=await p1; await tick();
+      if(r1!=='écrit') vus.push('l\'écriture n\'est pas repartie après le mot de passe : '+r1);
+      if(!boite.hidden) vus.push('la boîte reste ouverte après le mot de passe');
+      if(!F.session || F.session.user.id!=='prof-controle') vus.push('la session n\'est pas celle du professeur après la reconnexion');
+      const v=((F.tables[TABLE]||[{}])[0]||{}).valeurs||{};
+      if(v.secondsPerQuestion!==9) vus.push('la valeur n\'est pas arrivée en base : '+JSON.stringify(v));
+      if(ecrits(n0)!==1) vus.push(ecrits(n0)+' écriture(s) réussie(s) au lieu d\'une');
+      /* 4. Annuler : rien n'écrit, une erreur ANNULE que dmRaison() sait dire */
+      F.poserSession(null); n0=F.journal.length;
+      let e2=null; const p2=enProfesseur(ecrire).catch(function(e){ e2=e; });
+      await tick(); await tick();
+      if(boite.hidden) vus.push('sans session, la boîte ne s\'ouvre pas');
+      reconnexionAnnuler(); await p2; await tick();
+      if(!e2 || e2.code!=='ANNULE') vus.push('annuler ne rend pas une erreur ANNULE : '+(e2&&(e2.code||e2.message)));
+      if(e2 && !/rien n/.test(dmRaison(e2))) vus.push('dmRaison ne dit pas que rien n\'a été écrit : '+dmRaison(e2));
+      if(ecrits(n0)) vus.push('annuler a quand même écrit');
+      if(!boite.hidden) vus.push('la boîte reste ouverte après « Annuler »');
+      /* 5. une panne ordinaire ne demande aucun mot de passe */
+      F.poserSession({user:{id:'prof-controle',email:COURRIEL_PROF,app_metadata:{}}});
+      F.panne=true;
+      let e3=null; await enProfesseur(ecrire).catch(function(e){ e3=e; }); await tick();
+      F.panne=false;
+      if(!e3 || !/panne/.test(e3.message||'')) vus.push('une panne ne remonte pas telle quelle : '+(e3&&(e3.code||e3.message)));
+      if(!boite.hidden){ vus.push('une panne a ouvert la boîte du mot de passe'); reconnexionAnnuler(); }
+      /* et le chemin réel : saveSettings sous une session d'élève ouvre la même boîte */
+      if(typeof saveSettings==='function'){
+        F.poserSession({user:{id:'eleve-intrus',email:'eleve@controle.invalid',app_metadata:{}}});
+        const p4=saveSettings(); await tick(); await tick();
+        if(boite.hidden) vus.push('saveSettings() sous une session d\'élève n\'ouvre pas la boîte');
+        reconnexionAnnuler(); await p4; await tick();
+      }
+    } finally { F.rls=false; F.panne=false; F.poserSession(null); if(boite.__resolve){ reconnexionAnnuler(); } boite.hidden=true; }
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(NOM, false, 'erreur JavaScript : ' + r.erreur);
+    else verifier(NOM, r.valeur === '', r.valeur);
+    suite();
   });
 }
 
@@ -1557,14 +1670,17 @@ function branchements(w){
       if(dmRaison(null)==='' ) vus.push('une erreur vide rend une chaîne vide');
       return vus.join(' | ');
     })()`, v => v === '');
-    /* le bord « l'écran dit si c'est affiché » se lit dans le TEXTE de saveDevoir :
-       la fonction écrit en base, et le double n'a pas le formulaire sous la main */
-    const corps = String(evaluer(w, 'String(saveDevoir)').valeur || '');
+    /* le bord « l'écran dit si c'est affiché » se lit dans le TEXTE de saveDevoir
+       (saveDM en Première) : la fonction écrit en base, et le double n'a pas
+       le formulaire sous la main */
+    const corps = String(evaluer(w, "typeof saveDevoir==='function' ? String(saveDevoir) : String(saveDM)").valeur || '');
     verifier('« Enregistrer » dit si le devoir ou la fiche est affiché aux élèves ou masqué',
       /Afficher aux élèves/.test(corps) && /MASQU/.test(corps) && /\.actif/.test(corps),
-      'saveDevoir() ne relit pas « actif » pour le dire dans son message');
+      'saveDevoir() ou saveDM() ne relit pas « actif » pour le dire dans son message');
   } else {
-    ignorer('un refus de la base nomme la session remplacée, une autre erreur reste brute', 'ce niveau n\'a pas dmRaison()');
+    /* Les trois niveaux ont dmRaison() depuis octobre 2026 : ne plus l'avoir
+       n'est pas un manque à déclarer, c'est une régression. */
+    verifier('un refus de la base nomme la session remplacée, une autre erreur reste brute', false, 'ce niveau n\'a plus dmRaison()');
   }
   /* LE VERDICT, LE SCORE ET LE « BRAVO » SONT ANNONCÉS (audit d'octobre 2026,
      A6) : chacun vit dans une région aria-live, sans quoi un lecteur d'écran

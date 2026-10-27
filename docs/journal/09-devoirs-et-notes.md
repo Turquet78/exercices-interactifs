@@ -1042,6 +1042,50 @@ d'abord, le remède ensuite. Deux sabotages, chacun rougissant en nommant son
 défaut ; un troisième essai a rougi sur le CONTRÔLE voisin, celui des
 adresses vers la page d'aiguillage, et il avait raison.
 
+**Puis la page a REDEMANDÉ le mot de passe, sans quitter l'écran — les trois
+niveaux.** Signalé par Turquet (octobre 2026) : « quand je crée une fiche ou
+un devoir et que j'enregistre régulièrement mes choix, au bout d'un moment il
+dit enregistrement impossible ». La cause est celle du paragraphe précédent,
+et elle se présente de deux façons qui se ressemblent : la session remplacée
+par un élève connecté dans le même navigateur, ou le jeton d'une heure qui
+n'a pas pu se renouveler (ordinateur en veille, réseau coupé) — dans les deux
+cas tout marche un moment, puis chaque « Enregistrer » échoue. Et le remède
+de septembre n'était que la moitié d'un remède : la Terminale DISAIT la cause
+(`dmRaison`), la Seconde et la Première n'avaient jamais reçu ce texte et
+disaient encore « Enregistrement impossible » nu ; et dire la cause laissait
+au professeur le travail de quitter le tableau de bord, de se reconnecter,
+et de REFAIRE ses cases. **Désormais toute écriture du professeur passe par
+`enProfesseur()`** : on écrit d'abord — la session est presque toujours
+bonne, et une vérification préalable coûterait un aller-retour à chaque
+enregistrement — ; si la base refuse POUR UNE RAISON DE SESSION (42501, un
+PGRST30x, un 401, « JWT expired »), une boîte (`#reconnexionModal`) redemande
+le mot de passe par-dessus l'écran, les cases cochées restent, et l'écriture
+repart une fois, sous la session retrouvée. Toute autre erreur remonte telle
+quelle : une panne réseau n'est pas un mot de passe à redonner. « Annuler »
+rend une erreur `ANNULE`, que `dmRaison()` — enfin dans les trois fichiers —
+sait dire : rien n'a été écrit. La boîte a la même frontière `form` que la
+connexion du professeur, identifiant offert dedans, pour que Chrome n'aille
+pas chercher le sien dans une case d'exercice. **Et le garde de la Première
+a gagné les deux autres niveaux** : `loadConfig()` pose `CONFIG_ERREUR`
+quand la relecture a échoué, et aucune écriture ne repart sur des valeurs
+par défaut — réécrire après une lecture ratée aurait effacé l'autre famille,
+les cours et les réglages. `maybeSingle()` plutôt que `single()` : une table
+encore vide n'est pas une erreur. La Première, elle, écrit par six portes
+(`saveDM`, `newDM`, `deleteDM`, `dmRestaurer`, `poserNoteDevoir`,
+`saveSettings`) qui passent chacune sous `enProfesseur` ; la Seconde et la
+Terminale n'en ont que deux (`persistDevoirs`, `saveSettings`), et un
+contrôle exige que chaque fonction d'écriture connue y passe. Le double de
+la base a appris la politique d'accès des réglages (`window.__faux.rls`) :
+écrire y exige la session d'un compte de `professeurs`, sinon 42501 — éteint
+par défaut, les bancs écrivent les réglages sans session depuis toujours. Le
+banc jsdom tient cinq bords (le refus ouvre la boîte sans rien écrire, un
+mauvais mot de passe la laisse ouverte et le dit, le bon fait repartir
+l'écriture et referme, « Annuler » n'écrit rien, une panne ordinaire
+n'ouvre rien), plus le chemin réel de `saveSettings()` ; et le banc
+navigateur ouvre la boîte dans un vrai Chromium, par-dessus le tableau de
+bord, le curseur dedans, et tape le mot de passe comme le professeur le
+tapera.
+
 **L'écran du bilan ne bouge plus quand le professeur pose une note.** Demande
 de Turquet (septembre 2026) : « quand je modifie une note je souhaite que la
 page réapparaisse exactement au même endroit ». Poser une note redessine le
