@@ -1427,11 +1427,14 @@ function reconnexionProfesseur(w, suite){
     ${JSON.stringify(ENTONNOIRS)}.forEach(function(n){
       if(typeof window[n]!=='function') return;
       const t=String(window[n]);
-      const ok = n==='persistDevoirs' ? /enProfesseur\\(/.test(t) : /enProfesseur\\(|persistDevoirs\\(/.test(t);
+      /* dmRestaurer écrit par dmMarquerArchive : en Seconde et en Terminale,
+         celle-ci passe par persistDevoirs ; en Première, l'appel est enveloppé */
+      const via=/dmMarquerArchive\\(/.test(t) && typeof dmMarquerArchive==='function' && /enProfesseur\\(|persistDevoirs\\(/.test(String(dmMarquerArchive));
+      const ok = n==='persistDevoirs' ? /enProfesseur\\(/.test(t) : (/enProfesseur\\(|persistDevoirs\\(/.test(t) || via);
       if(!ok) sans.push(n);
     });
-    return sans.join(', ');
-  })()`, v => v === '', 'fonction(s) qui écrivent sans redemander le mot de passe');
+    return sans.length ? 'écrivent sans redemander le mot de passe : '+sans.join(', ') : '';
+  })()`, v => v === '');
   const TABLE = (P.coursPdf && P.coursPdf.table) || 'parametres';
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
