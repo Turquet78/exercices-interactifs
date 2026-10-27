@@ -9072,13 +9072,17 @@ if(require.main === module) (async () => {
         const vec = instr && instr.querySelector('.vec');
         return { ok: !!instr && !!sous, fsInstr: instr ? parseFloat(getComputedStyle(instr).fontSize) : 0,
                  fsSous: sous ? parseFloat(getComputedStyle(sous).fontSize) : 0,
-                 taille: [r.width, r.height], fleche: vec ? getComputedStyle(vec, '::before').content : '',
+                 /* la flèche de .vec est un trait (border-top de ::before) et une pointe
+                    (::after) qui couvrent toutes les lettres — plus le caractère « → »
+                    (v619) ; la couverture elle-même se mesure en section 9 */
+                 fleche: vec ? (parseFloat(getComputedStyle(vec, '::before').borderTopWidth) > 0
+                   && getComputedStyle(vec, '::after').content !== 'none') : false,
                  cadres: [0, 1, 2].map(k => !!document.getElementById('trl-pt-' + k)) };
       });
       if(!mes.ok) dits.push('l\'énoncé ou son bloc .tan-sous manque à l\'écran');
       else if(!(mes.fsSous < mes.fsInstr)) dits.push('le mode d\'emploi ne se rend pas plus petit que la demande (' + mes.fsSous + 'px contre ' + mes.fsInstr + 'px)');
       if(!(mes.taille[0] > 450 && mes.taille[1] > 280)) dits.push('le quadrillage ne se dessine pas (ou trop petit) : ' + mes.taille.join(' × '));
-      if(!/→|\\2192|→/.test(mes.fleche)) dits.push('le nom du vecteur n\'est pas coiffé d\'une flèche (::before de .vec : ' + mes.fleche + ')');
+      if(!mes.fleche) dits.push('le nom du vecteur n\'est pas coiffé d\'une flèche (trait ::before et pointe ::after de .vec)');
       if(mes.cadres.some(c => !c)) dits.push('les trois cadres ①②③ manquent sous l\'énoncé');
       const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
         const svg = document.querySelector('#trlGraph .trl-fig');
