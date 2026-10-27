@@ -16711,7 +16711,7 @@ function translationQuadrillage(w, P){
     if(!el('trlEtape') || el('trlEtape').textContent.indexOf('Clique le nœud où arrive le point A')<0) vus.push('la consigne de l\\'étape ne guide pas vers A : '+(el('trlEtape')?el('trlEtape').textContent:'(absente)'));
     if(!el('trlEffacer')) vus.push('le bouton « Effacer mes points » manque');
     if(el('trl-vec')) vus.push('la forme u (la flèche est dessinée) demande de tracer le vecteur');
-    if(test.maxScore!==3*2+4) vus.push('le barème d\\'une séance u, ab, u, ab ne vaut pas 3 + 4 + 3 + 4 : '+test.maxScore);
+    if(test.maxScore!==3+4+3+4) vus.push('le barème d\\'une séance u, ab, u, ab ne vaut pas 3 + 4 + 3 + 4 : '+test.maxScore);
     if(document.querySelector('#trlGraph .trl-pt')) vus.push('un point est dessiné avant que l\\'élève le pose');
     if(document.querySelector('#trlGraph .trl-sol')) vus.push('l\\'image attendue est déjà montrée avant la vérification');
     if(!document.querySelector('#trlGraph .trl-vec')) vus.push('la flèche u n\\'est pas dessinée (forme u)');
