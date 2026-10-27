@@ -9072,6 +9072,7 @@ if(require.main === module) (async () => {
         const vec = instr && instr.querySelector('.vec');
         return { ok: !!instr && !!sous, fsInstr: instr ? parseFloat(getComputedStyle(instr).fontSize) : 0,
                  fsSous: sous ? parseFloat(getComputedStyle(sous).fontSize) : 0,
+                 taille: [r.width, r.height],
                  /* la flèche de .vec est un trait (border-top de ::before) et une pointe
                     (::after) qui couvrent toutes les lettres — plus le caractère « → »
                     (v619) ; la couverture elle-même se mesure en section 9 */
