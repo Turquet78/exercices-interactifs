@@ -15608,6 +15608,24 @@ if(require.main === module) (async () => {
       const flechesBloquees = [], flecheMilieuSort = [], flecheMilieu = {}, flechesSansCible = new Set(); let nFleches = 0;
       const casesCalculDits = []; let nCasesCalcul = 0, nCasesFois = 0;
       const avecTables = new Set(), sansTables = new Set();
+      /* LA FLÈCHE D'UN NOM DE VECTEUR COUVRE TOUTES SES LETTRES (signalé par
+         Turquet, capture, octobre 2026 : au 8.1.4, forme ab, le « AB » de
+         l'énoncé n'était coiffé qu'au milieu — .vec posait le seul caractère
+         « → », fait pour une lettre ; .vtr-fl faisait de même sur « MM′ »).
+         Les classes qui écrivent un nom de vecteur sont NOMMÉES ici — une
+         classe ajoutée demain s'y déclare ; un niveau dont la feuille de
+         styles n'en porte aucune le dit (ignorer). Mesuré plus bas, sur
+         chaque premier écran, dans les deux modes. */
+      const nomsVecSel = '.vec, .vtr-fl, .vgt-vec, .elg-vec';
+      const flechesCourtes = []; let nNomsVec = 0; const flechesVues = new Set();
+      const nomsVecDansFeuille = await s.page.evaluate(sel => {
+        const motifs = sel.split(',').map(c => new RegExp('(^|[^\\w-])' + c.trim().replace('.', '\\.') + '(?![\\w-])'));
+        for(const feuille of document.styleSheets){
+          let regles; try { regles = feuille.cssRules; } catch(e){ continue; }
+          for(const r of regles) if(r.selectorText && motifs.some(m => m.test(r.selectorText))) return true;
+        }
+        return false;
+      }, nomsVecSel);
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
           /* La rangée GÉNÉRIQUE survit aux redessins d'un écran PARTAGÉ : le
@@ -15630,6 +15648,60 @@ if(require.main === module) (async () => {
           if(!pris){ sansMode.push(id + '/' + mode); continue; }
           await s.page.waitForTimeout(650);
           await releverDessins(id, mode, 'premier écran');
+          /* La flèche est ce que dessinent ::before et ::after : un caractère
+             (mesuré à sa fonte, dans une sonde posée dans la page) ou un trait
+             (border-top) et une pointe, à la largeur de leur boîte ; elle doit
+             faire au moins 80 % de la largeur des lettres (la boîte du nom,
+             moins ses marges intérieures). Et pour ne pas dépendre du tirage —
+             la forme ab du 8.1.4 ne sort pas à chaque fois —, chaque classe
+             rencontrée sur l'écran est AUSSI éprouvée sur une sonde « AB »
+             clonée de son premier nom visible, puis retirée. */
+          const fl = nomsVecDansFeuille ? await s.page.evaluate(sel => {
+            const on = document.querySelector('section.screen.on'); if(!on) return null;
+            const dits = []; let n = 0; const classes = new Set();
+            const largeurFleche = el => {
+              let w = 0;
+              for(const ps of ['::before', '::after']){
+                const cs = getComputedStyle(el, ps);
+                const c = cs.content; if(!c || c === 'none' || c === 'normal') continue;
+                const g = c.replace(/^["']|["']$/g, '');
+                if(g){
+                  const z = document.createElement('span');
+                  z.style.cssText = 'position:absolute;visibility:hidden;white-space:pre';
+                  z.style.fontFamily = cs.fontFamily; z.style.fontSize = cs.fontSize; z.style.fontStyle = cs.fontStyle; z.style.fontWeight = cs.fontWeight;
+                  z.textContent = g; document.body.appendChild(z);
+                  w += z.getBoundingClientRect().width; z.remove();
+                }
+                else if(parseFloat(cs.borderTopWidth) > 0) w += parseFloat(cs.width) || 0;
+              }
+              return w;
+            };
+            const mesurer = (el, sonde) => {
+              const cs = getComputedStyle(el);
+              const L = el.getBoundingClientRect().width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+              if(!(L > 0)) return;
+              const F = largeurFleche(el); n++;
+              if(F < .8 * L) dits.push((sonde ? 'sonde ' : '') + '.' + el.className.split(' ')[0] + ' « ' + el.textContent.trim()
+                + ' » : flèche de ' + F.toFixed(1) + ' px sur ' + L.toFixed(1) + ' px de lettres');
+            };
+            for(const el of on.querySelectorAll(sel)){
+              const r = el.getBoundingClientRect();
+              if(!r.width || !r.height || getComputedStyle(el).visibility === 'hidden') continue;
+              mesurer(el, false);
+              const cls = el.className.split(' ')[0];
+              if(classes.has(cls)) continue;
+              classes.add(cls);
+              const c = el.cloneNode(true), i = c.querySelector('i');
+              (i || c).textContent = 'AB';
+              el.parentNode.insertBefore(c, el.nextSibling);
+              mesurer(c, true);
+              c.remove();
+            }
+            return { n, dits };
+          }, nomsVecSel) : null;
+          if(fl){ nNomsVec += fl.n;
+            if(fl.dits.length && !flechesVues.has(id + '|' + mode)){ flechesVues.add(id + '|' + mode);
+              flechesCourtes.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' ' + id + ' (' + mode + ') — ' + fl.dits[0]); } }
           if(idsAvant.indexOf(id) >= 0){
             const av = await s.page.evaluate(() => {
               const on = document.querySelector('section.screen.on');
@@ -16400,6 +16472,13 @@ if(require.main === module) (async () => {
             : coeffsDecales.length + ' exercice(s) : ' + coeffsDecales.slice(0, 4).join(' | '));
       else ignorer('un coefficient k u⃗ s\'écrit sur la ligne de son texte, la lettre sur le trait de sa fraction',
         'ce niveau n\'écrit aucun coefficient de vecteur (kvHTML)');
+      if(nomsVecDansFeuille)
+        verifier('la flèche d\'un nom de vecteur couvre toutes ses lettres',
+          nNomsVec > 0 && flechesCourtes.length === 0,
+          nNomsVec === 0 ? 'aucun nom de vecteur (' + nomsVecSel + ') mesuré : le contrôle ne mesure rien'
+            : flechesCourtes.length + ' écran(s) : ' + flechesCourtes.slice(0, 4).join(' | '));
+      else ignorer('la flèche d\'un nom de vecteur couvre toutes ses lettres',
+        'la feuille de styles de ce niveau n\'écrit aucun nom de vecteur (' + nomsVecSel + ')');
       verifier('aucune case laissée vide ne rougit à la vérification',
         videsRouges.length === 0,
         videsRouges.length + ' exercice(s) : ' + videsRouges.slice(0, 6).join(' | '));
