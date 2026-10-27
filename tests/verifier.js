@@ -1427,7 +1427,7 @@ function reconnexionProfesseur(w, suite){
     ${JSON.stringify(ENTONNOIRS)}.forEach(function(n){
       if(typeof window[n]!=='function') return;
       const t=String(window[n]);
-      const ok = n==='persistDevoirs' ? /enProfesseur\(/.test(t) : /enProfesseur\(|persistDevoirs\(/.test(t);
+      const ok = n==='persistDevoirs' ? /enProfesseur\\(/.test(t) : /enProfesseur\\(|persistDevoirs\\(/.test(t);
       if(!ok) sans.push(n);
     });
     return sans.join(', ');
@@ -1451,7 +1451,7 @@ function reconnexionProfesseur(w, suite){
       F.poserSession({user:{id:'eleve-intrus',email:'eleve@controle.invalid',app_metadata:{}}});
       let n0=F.journal.length;
       const p1=enProfesseur(ecrire); await tick(); await tick();
-      if(boite.hidden) vus.push('un refus 42501 n\'ouvre pas la boîte du mot de passe');
+      if(boite.hidden) vus.push('un refus 42501 n\\'ouvre pas la boîte du mot de passe');
       if(ecrits(n0)) vus.push('quelque chose a été écrit avant le mot de passe');
       /* 2. un mauvais mot de passe : la boîte reste, et le dit */
       document.getElementById('reconnexionPass').value='mauvais';
@@ -1464,20 +1464,20 @@ function reconnexionProfesseur(w, suite){
       document.getElementById('reconnexionPass').value='mdp-de-controle';
       await reconnexionValider();
       const r1=await p1; await tick();
-      if(r1!=='écrit') vus.push('l\'écriture n\'est pas repartie après le mot de passe : '+r1);
+      if(r1!=='écrit') vus.push('l\\'écriture n\\'est pas repartie après le mot de passe : '+r1);
       if(!boite.hidden) vus.push('la boîte reste ouverte après le mot de passe');
-      if(!F.session || F.session.user.id!=='prof-controle') vus.push('la session n\'est pas celle du professeur après la reconnexion');
+      if(!F.session || F.session.user.id!=='prof-controle') vus.push('la session n\\'est pas celle du professeur après la reconnexion');
       const v=((F.tables[TABLE]||[{}])[0]||{}).valeurs||{};
-      if(v.secondsPerQuestion!==9) vus.push('la valeur n\'est pas arrivée en base : '+JSON.stringify(v));
-      if(ecrits(n0)!==1) vus.push(ecrits(n0)+' écriture(s) réussie(s) au lieu d\'une');
+      if(v.secondsPerQuestion!==9) vus.push('la valeur n\\'est pas arrivée en base : '+JSON.stringify(v));
+      if(ecrits(n0)!==1) vus.push(ecrits(n0)+' écriture(s) réussie(s) au lieu d\\'une');
       /* 4. Annuler : rien n'écrit, une erreur ANNULE que dmRaison() sait dire */
       F.poserSession(null); n0=F.journal.length;
       let e2=null; const p2=enProfesseur(ecrire).catch(function(e){ e2=e; });
       await tick(); await tick();
-      if(boite.hidden) vus.push('sans session, la boîte ne s\'ouvre pas');
+      if(boite.hidden) vus.push('sans session, la boîte ne s\\'ouvre pas');
       reconnexionAnnuler(); await p2; await tick();
       if(!e2 || e2.code!=='ANNULE') vus.push('annuler ne rend pas une erreur ANNULE : '+(e2&&(e2.code||e2.message)));
-      if(e2 && !/rien n/.test(dmRaison(e2))) vus.push('dmRaison ne dit pas que rien n\'a été écrit : '+dmRaison(e2));
+      if(e2 && !/rien n/.test(dmRaison(e2))) vus.push('dmRaison ne dit pas que rien n\\'a été écrit : '+dmRaison(e2));
       if(ecrits(n0)) vus.push('annuler a quand même écrit');
       if(!boite.hidden) vus.push('la boîte reste ouverte après « Annuler »');
       /* 5. une panne ordinaire ne demande aucun mot de passe */
@@ -1491,7 +1491,7 @@ function reconnexionProfesseur(w, suite){
       if(typeof saveSettings==='function'){
         F.poserSession({user:{id:'eleve-intrus',email:'eleve@controle.invalid',app_metadata:{}}});
         const p4=saveSettings(); await tick(); await tick();
-        if(boite.hidden) vus.push('saveSettings() sous une session d\'élève n\'ouvre pas la boîte');
+        if(boite.hidden) vus.push('saveSettings() sous une session d\\'élève n\\'ouvre pas la boîte');
         reconnexionAnnuler(); await p4; await tick();
       }
     } finally { F.rls=false; F.panne=false; F.poserSession(null); if(boite.__resolve){ reconnexionAnnuler(); } boite.hidden=true; }
