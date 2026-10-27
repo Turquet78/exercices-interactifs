@@ -642,6 +642,44 @@ compte 6 ; le banc navigateur (« 6 quadragies bis ») trace à la souris, à
 un cinquième de maille, voit la flèche suivre la souris, reprend un point
 et un départ, puis compte les flèches bleues, rouges et vertes à l'écran.
 
+### Puis le vecteur ne s'est plus tracé qu'une fois, et pour AB⃗ seulement (v618)
+
+Demande de Turquet, le lendemain : « dans le 8.1.4 revenir à la version
+d'avant. Ensuite il ne faut tracer le vecteur sur le dessin uniquement quand
+la question concerne un vecteur défini par deux points au départ. Il ne faut
+tracer ce vecteur qu'une seule fois sur le dessin, après l'élève place des
+images comme d'habitude. » La v617 est retirée (une flèche par point, six
+cadres, une question à 6) ; on repart de la v616, et seule la forme `ab`
+change :
+
+- **la forme `u` est celle de la v616**, sans rien de plus : la flèche u⃗
+  est déjà dessinée, il n'y a rien à tracer ;
+- **la forme `ab` gagne un cadre en tête**, « ⓪ Le vecteur AB⃗ tracé sur
+  le dessin, de A à B. » (`trl-vec`), et l'énoncé commence par « Trace
+  d'abord le vecteur AB⃗ sur le dessin, de A à B. » L'étape du vecteur est
+  `TRL_VEC` (3, après les points 0, 1, 2) : elle est en cours tant que la
+  flèche n'est pas tracée, et choisir le cadre d'un point avant renvoie au
+  vecteur. Le geste est celui du 8.1.8 (départ, flèche élastique, arrivée ;
+  un bout se reprend, `test.trlMob` = 'd' ou 'f', jamais rangé ; Échap) ;
+  puis les images se posent comme avant. Tout posé, un clic reprend d'abord
+  un point posé, sinon un bout de la flèche ;
+- **la flèche est juste si elle va de A à B** — exactement : c'est le
+  vecteur AB⃗ qu'on demande de tracer, pas un représentant. La correction
+  dessine en vert la flèche de A à B quand celle de l'élève est fausse ou
+  manque. On range `q.d`, `q.f` (forme `ab` seulement) ; un brouillon
+  d'avant la v618 n'en a pas, ou porte les tableaux de la v617, que
+  `renderTrl` ne lit pas : le vecteur est alors à tracer ;
+- **le barème n'est plus homogène** : 4 pour une question `ab`, 3 pour une
+  question `u`. `test.maxScore` les additionne, et `trlCases(q)` donne le
+  poids de chaque question à `dmPoidsQuestion` — sans quoi un devoir coupé
+  à un nombre impair de questions ne se couperait plus (« on ne coupe pas »
+  quand le poids n'est ni exact ni homogène).
+
+Les bancs : le principal vérifie que la forme `u` n'a pas de cadre ⓪, le
+barème 3 + 4 + 3 + 4, puis joue le tracé en forme `ab` (renvoi du point au
+vecteur, départ, Échap, arrivée, reprise d'un bout) et compte 2 sur 4 ; le
+navigateur trace AB⃗ à la souris, voit la flèche suivre, et compte 5.
+
 ## {parallelogramme-point} — le quatrième point d'un parallélogramme (8.5, v477)
 
 **Deux changements sous un seul numéro.** La PR 630 (brouillon étiqueté,
