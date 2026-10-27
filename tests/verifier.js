@@ -16595,16 +16595,16 @@ function pointSommeDifference(w, P){
      · l'énoncé DIT la demande (« Déplace les points … en suivant le chemin
        … ») et le mode d'emploi du geste se lit APRÈS, en plus petit ;
      · PRÉSENTÉ COMME LE 8.1.12 (demande de Turquet, octobre 2026, v615) :
-       des cadres, le clic (trlClic) fait l'étape EN COURS — la première
-       qui manque, ou celle dont on a cliqué le cadre —, un clic sur un
-       point posé le reprend, « Effacer mes tracés » retire tout ;
-     · LE VECTEUR SE TRACE D'ABORD (v617) : six cadres, la flèche à partir
-       de chaque point (tracée comme au 8.1.8 : départ, arrivée, un bout se
-       reprend, Échap retire un départ), puis son image ; la flèche est juste
-       si elle part du point et fait le chemin ;
+       trois cadres ①②③, le clic (trlClic) pose le point EN COURS — le
+       premier qui manque, ou celui dont on a cliqué le cadre —, un clic sur
+       un point posé le reprend, « Effacer mes points » retire tout ;
+     · LE VECTEUR AB SE TRACE UNE FOIS, D'ABORD — dans la forme ab
+       seulement (v618) : un cadre ⓪ de plus, le geste du 8.1.8 (départ,
+       arrivée, un bout se reprend, Échap retire un départ), juste de A à
+       B ; la question ab vaut 4, la question u 3 ;
      · vérifier SANS point ne peint rien et ne verrouille rien ;
-     · chaque flèche et chaque image se jugent SEULES : la copie juste vaut
-       6, une réponse fausse ou manquante coûte son point ;
+     · chaque image se juge SEULE : la copie juste vaut 3, une image fausse
+       coûte son point, une image manquante aussi ;
      · une image MANQUANTE ne rougit jamais : en entraînement sa pastille
        devient « sol » et le dessin montre l'image attendue en vert, en
        soutien rien ne se révèle et rien ne se verrouille ;
@@ -16638,9 +16638,9 @@ function translationQuadrillage(w, P){
       startTrl(); clearTimeout(test.fbTimer);
       if(test.questions.length!==D.nb){ vus.push(test.questions.length+' questions au lieu de '+D.nb); break; }
       test.questions.forEach(function(q,qi){
-        const cles=Object.keys(q).filter(function(k){ return ['forme','vec','o','src','rep','d','f'].indexOf(k)<0; });
-        if(cles.length) vus.push('la question range autre chose que forme, vec, o, src, rep, d et f : '+cles.join(','));
-        if(!Array.isArray(q.d)||!Array.isArray(q.f)||q.d.concat(q.f).some(function(r){ return r!==null; })) vus.push('le tirage trace une flèche à la place de l\\'élève');
+        const cles=Object.keys(q).filter(function(k){ return ['forme','vec','o','src','rep'].concat(q.forme==='ab'?['d','f']:[]).indexOf(k)<0; });
+        if(cles.length) vus.push('la question '+q.forme+' range autre chose que forme, vec, o, src et rep'+(q.forme==='ab'?', d et f':'')+' : '+cles.join(','));
+        if(q.forme==='ab' && (q.d!==null||q.f!==null)) vus.push('le tirage trace le vecteur AB à la place de l\\'élève');
         if(q.pend) vus.push('le tirage pose un point sans nom à la place de l\\'élève');
         if(q.forme!=='u' && q.forme!=='ab') vus.push('forme inconnue : '+q.forme);
         else if(q.forme!==(qi%2===0?'u':'ab')) vus.push('les formes n\\'alternent pas : la question '+(qi+1)+' est en forme '+q.forme+' (attendu '+(qi%2===0?'u':'ab')+' — u, ab, u, ab…)');
@@ -16675,10 +16675,9 @@ function translationQuadrillage(w, P){
 
     /* montage : une question CHOISIE (forme u, chemin 3 à droite et 2 vers le bas) */
     startTrl(); clearTimeout(test.fbTimer);
-    const vide=function(){ return [null,null,null]; };
-    test.questions[0]={forme:'u', vec:[3,-2], o:[1,7], src:[[1,4],[5,6],[8,3]], rep:vide(), d:vide(), f:vide()};
-    test.questions[1]={forme:'ab', vec:[-2,3], o:[9,1], src:[[3,1],[6,2],[11,4]], rep:vide(), d:vide(), f:vide()};
-    test.questions[2]={forme:'u', vec:[4,1], o:[0,0], src:[[1,3],[2,6],[6,5]], rep:vide(), d:vide(), f:vide()};
+    test.questions[0]={forme:'u', vec:[3,-2], o:[1,7], src:[[1,4],[5,6],[8,3]], rep:[null,null,null]};
+    test.questions[1]={forme:'ab', vec:[-2,3], o:[9,1], src:[[3,1],[6,2],[11,4]], rep:[null,null,null], d:null, f:null};
+    test.questions[2]={forme:'u', vec:[4,1], o:[0,0], src:[[1,3],[2,6],[6,5]], rep:[null,null,null]};
     test.idx=0; test.locked=false; renderTrl();
     const q=test.questions[0];
     const el=function(id){ return document.getElementById(id); };
@@ -16702,18 +16701,17 @@ function translationQuadrillage(w, P){
       if(!mS) vus.push('aucune règle CSS ne réduit le mode d\\'emploi (.tan-sous sans font-size)');
       else if(parseFloat(mS[1])>=1) vus.push('le mode d\\'emploi ne s\\'écrit pas plus petit que l\\'énoncé');
     }
-    /* les six cadres : le vecteur tracé à partir de A D'ABORD (v617), puis
-       A′ ; le premier est en cours, la consigne le nomme ; rien de posé, rien
-       de révélé */
-    if(instr.textContent.indexOf('trace d’abord le vecteur')<0) vus.push('l\\'énoncé ne demande pas de tracer d\\'abord le vecteur');
-    if([0,1,2].some(function(k){ return !el('trl-vec-'+k)||!el('trl-pt-'+k); })) vus.push('les six cadres ①…⑥ manquent');
+    /* les trois cadres du 8.1.12 : le premier est en cours, la consigne le nomme ;
+       rien de posé, rien de révélé */
+    if(!el('trl-pt-0')||!el('trl-pt-1')||!el('trl-pt-2')) vus.push('les trois cadres ①②③ manquent');
     else{
-      if(el('trl-vec-0').textContent.indexOf('① Le vecteur u tracé à partir de A.')<0) vus.push('le cadre ① ne dit pas « Le vecteur u tracé à partir de A. » : '+el('trl-vec-0').textContent);
-      if(el('trl-pt-0').textContent.indexOf('② Le point A′, image de A, placé.')<0) vus.push('le cadre ② ne dit pas « Le point A′, image de A, placé. » : '+el('trl-pt-0').textContent);
-      if(!el('trl-vec-0').classList.contains('tan-cours')) vus.push('le cadre ① (le vecteur) n\\'est pas en cours au départ');
+      if(el('trl-pt-0').textContent.indexOf('① Le point A′, image de A, placé.')<0) vus.push('le cadre ① ne dit pas « Le point A′, image de A, placé. » : '+el('trl-pt-0').textContent);
+      if(!el('trl-pt-0').classList.contains('tan-cours')) vus.push('le cadre ① n\\'est pas en cours au départ');
     }
-    if(!el('trlEtape') || el('trlEtape').textContent.indexOf('Trace le vecteur u à partir du point A')<0) vus.push('la consigne de l\\'étape ne demande pas d\\'abord le vecteur à partir de A : '+(el('trlEtape')?el('trlEtape').textContent:'(absente)'));
+    if(!el('trlEtape') || el('trlEtape').textContent.indexOf('Clique le nœud où arrive le point A')<0) vus.push('la consigne de l\\'étape ne guide pas vers A : '+(el('trlEtape')?el('trlEtape').textContent:'(absente)'));
     if(!el('trlEffacer')) vus.push('le bouton « Effacer mes points » manque');
+    if(el('trl-vec')) vus.push('la forme u (la flèche est dessinée) demande de tracer le vecteur');
+    if(test.maxScore!==3*2+4) vus.push('le barème d\\'une séance u, ab, u, ab ne vaut pas 3 + 4 + 3 + 4 : '+test.maxScore);
     if(document.querySelector('#trlGraph .trl-pt')) vus.push('un point est dessiné avant que l\\'élève le pose');
     if(document.querySelector('#trlGraph .trl-sol')) vus.push('l\\'image attendue est déjà montrée avant la vérification');
     if(!document.querySelector('#trlGraph .trl-vec')) vus.push('la flèche u n\\'est pas dessinée (forme u)');
@@ -16726,49 +16724,34 @@ function translationQuadrillage(w, P){
     if(classe('trl-pt-0')!=='rien'||classe('trl-pt-1')!=='rien'||classe('trl-pt-2')!=='rien') vus.push('vérifier sans point pose une couleur');
     if(el('trlFeedback').textContent.indexOf('c’est le point A′')<0) vus.push('vérifier sans point ne redit pas le geste : '+el('trlFeedback').textContent.slice(0,80));
 
-    /* 3 bis. le geste : la flèche se trace comme au 8.1.8 (un clic pour le
-       départ, un pour l'arrivée), puis le clic pose le point ; un point se
-       pose sur le bout de sa flèche ; un clic sur un point posé le reprend ;
-       le point d'une flèche pas tracée renvoie à la flèche ; un bout de
-       flèche se reprend ; Échap retire un départ ; « Effacer » retire tout */
-    trlClic(1,4);
-    if(JSON.stringify(q.d)!=='[[1,4],null,null]'||JSON.stringify(q.rep)!=='[null,null,null]') vus.push('le premier clic ne pose pas le départ de la flèche : d='+JSON.stringify(q.d)+' rep='+JSON.stringify(q.rep));
+    /* 3 bis. le geste du 8.1.12 : le clic pose le point EN COURS, un clic
+       sur un point posé le reprend, le cadre choisit le point, « Effacer »
+       retire tout */
     trlClic(4,2);
-    if(JSON.stringify(q.f)!=='[[4,2],null,null]') vus.push('le deuxième clic ne fixe pas l\\'arrivée de la flèche : '+JSON.stringify(q.f));
-    if(!el('trl-vec-0').classList.contains('tan-fait')||!el('trl-pt-0').classList.contains('tan-cours')) vus.push('après la flèche, le cadre ① n\\'est pas « fait » ou le ② pas en cours');
-    if(el('trlEtape').textContent.indexOf('Clique le nœud où arrive le point A')<0) vus.push('la consigne ne passe pas au point A′ : '+el('trlEtape').textContent);
-    trlClic(4,2);
-    if(JSON.stringify(q.rep)!=='[{"x":4,"y":2},null,null]') vus.push('un clic au bout de la flèche ne pose pas A′ : '+JSON.stringify(q.rep));
-    if(!el('trl-vec-1').classList.contains('tan-cours')) vus.push('après A′, le cadre ③ (le vecteur à partir de B) n\\'est pas en cours');
-    trlChoisir(3);
-    if(!el('trl-vec-1').classList.contains('tan-cours')||el('trl-pt-1').classList.contains('tan-cours')) vus.push('choisir B′ avant sa flèche ne renvoie pas à la flèche');
-    trlClic(5,6); trlClic(9,9); trlClic(9,9);
-    if(JSON.stringify(q.rep)!=='[{"x":4,"y":2},{"x":9,"y":9},null]') vus.push('B′ ne se pose pas : '+JSON.stringify(q.rep));
+    if(JSON.stringify(q.rep)!=='[{"x":4,"y":2},null,null]') vus.push('le premier clic ne pose pas A′ : '+JSON.stringify(q.rep));
+    if(!el('trl-pt-0').classList.contains('tan-fait')||!el('trl-pt-1').classList.contains('tan-cours')) vus.push('après A′, le cadre ① n\\'est pas « fait » ou le ② pas en cours');
+    trlClic(9,9);
+    if(JSON.stringify(q.rep)!=='[{"x":4,"y":2},{"x":9,"y":9},null]') vus.push('le deuxième clic ne pose pas B′ : '+JSON.stringify(q.rep));
     trlClic(9,9);
     if(JSON.stringify(q.rep)!=='[{"x":4,"y":2},null,null]' || !el('trl-pt-1').classList.contains('tan-cours')) vus.push('cliquer un point posé ne le reprend pas : '+JSON.stringify(q.rep));
-    trlChoisir(2); trlClic(9,9); trlClic(8,4);
-    if(JSON.stringify(q.f)!=='[[4,2],[8,4],null]'||JSON.stringify(q.d)!=='[[1,4],[5,6],null]') vus.push('reprendre l\\'arrivée d\\'une flèche ne la déplace pas : d='+JSON.stringify(q.d)+' f='+JSON.stringify(q.f));
-    trlChoisir(4); trlClic(8,3);
-    if(JSON.stringify(q.d)!=='[[1,4],[5,6],[8,3]]') vus.push('le cadre ⑤ choisi ne fait pas commencer la flèche à partir de C');
-    if(!trlAnnuler() || q.d[2]!==null) vus.push('Échap ne retire pas le départ d\\'une flèche commencée');
+    trlChoisir(2); trlClic(11,1);
+    if(JSON.stringify(q.rep)!=='[{"x":4,"y":2},null,{"x":11,"y":1}]') vus.push('le cadre ③ choisi ne fait pas poser C′ : '+JSON.stringify(q.rep));
     trlEffacer();
-    if(JSON.stringify(q.rep)+JSON.stringify(q.d)+JSON.stringify(q.f)!=='[null,null,null][null,null,null][null,null,null]') vus.push('« Effacer mes tracés » ne retire pas tout');
+    if(JSON.stringify(q.rep)!=='[null,null,null]') vus.push('« Effacer mes points » ne retire pas tout : '+JSON.stringify(q.rep));
     if(test.locked) vus.push('le geste verrouille la question');
 
-    /* 4. copie juste : 3 flèches et 3 points, rien ne se révèle, les six cadres sont ok */
-    q.d=[[1,4],[5,6],[8,3]]; q.f=[[4,2],[8,4],[11,1]];
+    /* 4. copie juste : 3 points, rien ne se révèle, les pastilles sont ok */
     q.rep=[{x:4,y:2},{x:8,y:4},{x:11,y:1}]; trlMaj();
-    if(el('trlEtape').textContent.indexOf('Les trois vecteurs sont tracés et les trois points posés')<0) vus.push('la consigne ne dit pas que tout est tracé et posé : '+el('trlEtape').textContent);
+    if(el('trlEtape').textContent.indexOf('Les trois points sont posés')<0) vus.push('la consigne ne dit pas que les trois points sont posés : '+el('trlEtape').textContent);
     let avant=test.score; submitTrl(); clearTimeout(test.fbTimer);
-    if(test.score-avant!==6) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 6');
+    if(test.score-avant!==3) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 3');
     if(!test.locked) vus.push('la copie juste ne verrouille pas la question');
-    if([0,1,2].some(function(k){ return classe('trl-pt-'+k)!=='ok'||classe('trl-vec-'+k)!=='ok'; })) vus.push('un cadre juste n\\'est pas marqué ok');
-    if(document.querySelectorAll('#trlGraph .svc-e.trl-tr').length!==3) vus.push('les trois flèches justes de l\\'élève ne sont pas peintes en bleu');
+    if(classe('trl-pt-0')!=='ok'||classe('trl-pt-1')!=='ok'||classe('trl-pt-2')!=='ok') vus.push('une pastille juste n\\'est pas marquée ok');
     if(document.querySelector('#trlGraph .trl-sol')) vus.push('l\\'image attendue se montre alors que tout est juste');
     if(document.querySelectorAll('#trlGraph .trl-pt.tan-x-ok').length!==3) vus.push('les trois points justes ne sont pas peints en bleu sur le dessin');
     if(!el('trlNext')) vus.push('la copie jugée ne propose pas « Question suivante »');
     const a0=test.answers[test.answers.length-1];
-    if(!a0||a0.type!=='trl'||!a0.correct||a0.cases!==6) vus.push('la réponse enregistrée ne compte pas 6 cases justes (type trl)');
+    if(!a0||a0.type!=='trl'||!a0.correct||a0.cases!==3) vus.push('la réponse enregistrée ne compte pas 3 cases justes (type trl)');
 
     /* 5. entraînement, forme ab : une image fausse, une manquante, une juste —
        1 point, la fausse rougit, la manquante devient sol, les deux attendues
@@ -16779,22 +16762,42 @@ function translationQuadrillage(w, P){
     if(document.querySelector('#trlGraph .trl-vec')) vus.push('la forme ab dessine une flèche : le chemin de A à B serait donné');
     const txt1=Array.from(document.querySelectorAll('#trlGraph text')).map(function(t){ return t.textContent; });
     ['A','B','C','D','E'].forEach(function(n){ if(txt1.indexOf(n)<0) vus.push('forme ab : l\\'étiquette « '+n+' » manque'); });
-    /* la flèche de C juste ; celle de D bien faite mais partie d'ailleurs ; rien pour E */
-    q1.d=[[3,1],[6,3],null]; q1.f=[[1,4],[4,6],null];
+    /* le vecteur AB se trace d'abord, UNE fois (v618) : le cadre ⓪ est en
+       cours, choisir un point renvoie au vecteur, deux clics le tracent de
+       A à B, un bout se reprend, Échap retire un départ */
+    if(!el('trl-vec') || el('trl-vec').textContent.indexOf('⓪ Le vecteur AB tracé sur le dessin, de A à B.')<0) vus.push('forme ab : le cadre ⓪ du vecteur manque ou se dit autrement : '+(el('trl-vec')?el('trl-vec').textContent:'(absent)'));
+    else if(!el('trl-vec').classList.contains('tan-cours')) vus.push('forme ab : le vecteur n\\'est pas l\\'étape en cours au départ');
+    if(el('trlInstr').textContent.indexOf('Trace d’abord le vecteur AB sur le dessin, de A à B.')!==0) vus.push('forme ab : l\\'énoncé ne commence pas par tracer le vecteur AB : '+el('trlInstr').textContent.slice(0,70));
+    if(el('trlEtape').textContent.indexOf('Trace d’abord le vecteur AB')<0) vus.push('forme ab : la consigne ne demande pas le vecteur d\\'abord : '+el('trlEtape').textContent);
+    trlChoisir(1);
+    if(!el('trl-vec').classList.contains('tan-cours')) vus.push('forme ab : choisir un point avant le vecteur ne renvoie pas au vecteur');
+    trlClic(9,1);
+    if(JSON.stringify(q1.d)!=='[9,1]'||q1.f!==null||JSON.stringify(q1.rep)!=='[null,null,null]') vus.push('le premier clic ne pose pas le départ du vecteur : d='+JSON.stringify(q1.d)+' rep='+JSON.stringify(q1.rep));
+    if(!trlAnnuler() || q1.d!==null) vus.push('Échap ne retire pas le départ du vecteur');
+    trlClic(9,1); trlClic(8,4);
+    if(JSON.stringify(q1.f)!=='[8,4]') vus.push('le deuxième clic ne fixe pas l\\'arrivée : '+JSON.stringify(q1.f));
+    if(!el('trl-vec').classList.contains('tan-fait')||!el('trl-pt-0').classList.contains('tan-cours')) vus.push('après le vecteur, le cadre ⓪ n\\'est pas fait ou le ① pas en cours');
+    trlClic(1,4);
+    if(JSON.stringify(q1.rep)!=='[{"x":1,"y":4},null,null]') vus.push('après le vecteur, le clic ne pose pas C′ : '+JSON.stringify(q1.rep));
+    trlClic(5,5); trlClic(12,2);
+    trlClic(8,4);
+    if(test.trlMob!=='f') vus.push('tout posé, un clic sur l\\'arrivée du vecteur ne la reprend pas');
+    trlClic(7,4);
+    if(JSON.stringify(q1.f)!=='[7,4]'||test.trlMob) vus.push('le bout repris ne se repose pas : '+JSON.stringify(q1.f));
+    if(document.querySelectorAll('#trlGraph .trl-tr').length!==1) vus.push('le vecteur AB tracé ne se dessine pas une fois ('+document.querySelectorAll('#trlGraph .trl-tr').length+')');
     q1.rep=[{x:1,y:4},{x:5,y:5},null]; trlMaj();
     avant=test.score; submitTrl(); clearTimeout(test.fbTimer);
-    if(test.score-avant!==2) vus.push('une flèche et une image justes, le reste faux ou manquant valent '+(test.score-avant)+' au lieu de 2');
-    if(classe('trl-pt-0')!=='ok'||classe('trl-vec-0')!=='ok') vus.push('les cadres de la flèche et de l\\'image justes ne sont pas ok');
+    if(test.score-avant!==2) vus.push('le vecteur juste, une image juste, une fausse, une manquante valent '+(test.score-avant)+' au lieu de 2');
+    if(classe('trl-vec')!=='ok') vus.push('le cadre du vecteur tracé de A à B n\\'est pas ok');
+    if(classe('trl-pt-0')!=='ok') vus.push('la pastille de l\\'image juste n\\'est pas ok');
     if(classe('trl-pt-1')!=='bad') vus.push('la pastille de l\\'image fausse n\\'est pas bad');
-    if(classe('trl-vec-1')!=='bad') vus.push('la flèche partie d\\'un autre point que D n\\'est pas bad');
-    if(classe('trl-pt-2')!=='sol'||classe('trl-vec-2')!=='sol') vus.push('les cadres manquants ne sont pas sol (« '+classe('trl-vec-2')+' », « '+classe('trl-pt-2')+' »)');
-    if(el('trlFeedback').textContent.indexOf('PART du point')<0) vus.push('la correction ne dit pas que la flèche part du point à déplacer');
+    if(classe('trl-pt-2')!=='sol') vus.push('la pastille de l\\'image manquante n\\'est pas sol (elle est « '+classe('trl-pt-2')+' »)');
     if(document.querySelectorAll('#trlGraph .trl-sol').length!==2) vus.push(document.querySelectorAll('#trlGraph .trl-sol').length+' image(s) attendue(s) montrée(s) au lieu de 2');
     if(document.querySelectorAll('#trlGraph .trl-pt.tan-x-bad').length!==1) vus.push('le point faux ne rougit pas sur le dessin');
     if(document.querySelectorAll('#trlGraph .svc-s').length!==2) vus.push('les flèches vertes de la source à l\\'image attendue manquent');
     if(el('trlFeedback').textContent.indexOf('2 carreaux vers la gauche et 3 carreaux vers le haut')<0) vus.push('la correction ne dit pas le chemin en carreaux : '+el('trlFeedback').textContent.slice(0,90));
     const a1=test.answers[test.answers.length-1];
-    if(!a1||a1.correct||a1.cases!==6||a1.justes!==2) vus.push('la réponse enregistrée ne compte pas 2 cases justes sur 6');
+    if(!a1||a1.correct||a1.cases!==4||a1.justes!==2) vus.push('la réponse enregistrée ne compte pas 2 cases justes sur 4');
 
     /* 6. soutien : la pastille se colore à la pose, rien ne se révèle, rien
        ne se verrouille tant que ce n'est pas juste ; le contexte du modèle */
@@ -16802,9 +16805,7 @@ function translationQuadrillage(w, P){
     const q2=test.questions[2];
     q2.rep=[{x:5,y:5},null,null]; trlLive();
     if(classe('trl-pt-0')!=='bad') vus.push('soutien : le point faux posé ne rougit pas en direct');
-    if(classe('trl-pt-1')!=='rien'||classe('trl-vec-0')!=='rien') vus.push('soutien : une pastille vide reçoit une couleur en direct');
-    q2.d=[[1,3],null,null]; q2.f=[[4,3],null,null]; trlLive();
-    if(classe('trl-vec-0')!=='bad') vus.push('soutien : la flèche fausse ne rougit pas en direct');
+    if(classe('trl-pt-1')!=='rien') vus.push('soutien : une pastille vide reçoit une couleur en direct');
     submitTrl();
     if(test.locked) vus.push('soutien : vérifier une copie fausse verrouille la question');
     if(document.querySelector('#trlGraph .trl-sol')) vus.push('soutien : l\\'image attendue se révèle');
@@ -16814,11 +16815,9 @@ function translationQuadrillage(w, P){
     if(ctx.indexOf('STRICTEMENT SECR')<0) vus.push('le contexte du modèle ne déclare pas les images secrètes');
     if(ctx.indexOf('A′ = (colonne 5 ; ligne 4)')<0) vus.push('le contexte du modèle ne porte pas l\\'image attendue de A');
     if(ctx.indexOf('(FAUX)')<0 || ctx.indexOf('pas encore posé')<0) vus.push('le contexte du modèle ne dit pas ce que l\\'élève a posé');
-    if(ctx.indexOf('flèche depuis A : tracée')<0) vus.push('le contexte du modèle ne dit pas la flèche tracée');
-    q2.d=[[1,3],[2,6],[6,5]]; q2.f=[[5,4],[6,7],[10,6]];
     q2.rep=[{x:5,y:4},{x:6,y:7},{x:10,y:6}]; trlLive();
     avant=test.score; submitTrl(); clearTimeout(test.fbTimer);
-    if(!test.locked || test.score-avant!==6) vus.push('soutien : la copie corrigée ne vaut pas 6 (ou ne verrouille pas)');
+    if(!test.locked || test.score-avant!==3) vus.push('soutien : la copie corrigée ne vaut pas 3 (ou ne verrouille pas)');
     currentMode='train';
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '');

@@ -9047,12 +9047,9 @@ if(require.main === module) (async () => {
        clic sur un point posé qui le reprend. jsdom n'a ni souris ni mise en
        page : la croix qui suit, l'aimant du clic et les flèches de la
        correction à l'écran ne se voient qu'ici. Le banc principal joue
-       trlClic(i, j). Depuis la v617, le vecteur se trace D'ABORD, comme au
-       8.1.8 : on clique un départ décalé d'un cinquième de maille, la flèche
-       suit la souris, on fixe l'arrivée, on pose l'image au bout ; on
-       reprend un point et un départ de flèche, on vérifie 6/6 ; puis une
-       flèche et une image FAUSSES et une MANQUANTE pour voir la correction
-       en vert. */
+       trlClic(i, j). On clique un nœud décalé d'un cinquième de maille, on
+       reprend un point, on vérifie 3/3 ; puis une image FAUSSE et une
+       MANQUANTE pour voir les images attendues en vert. */
     titre('6 quadragies bis. TRANSLATION SUR QUADRILLAGE : LES IMAGES SE CLIQUENT');
     if(!P.translationQuadrillage){
       ignorer('les images se posent au clic sur le quadrillage, la croix suit la souris, un point se reprend',
@@ -9066,7 +9063,7 @@ if(require.main === module) (async () => {
       await s.page.waitForTimeout(900);
       const dits = [];
       /* u⃗ = (3 ; −2) ; A (1 ; 4), B (5 ; 6), C (8 ; 3) : A′ (4 ; 2), B′ (8 ; 4), C′ (11 ; 1) */
-      await s.page.evaluate(() => { test.questions[test.idx] = { forme: 'u', vec: [3, -2], o: [1, 7], src: [[1, 4], [5, 6], [8, 3]], rep: [null, null, null], d: [null, null, null], f: [null, null, null] };
+      await s.page.evaluate(() => { test.questions[test.idx] = { forme: 'u', vec: [3, -2], o: [1, 7], src: [[1, 4], [5, 6], [8, 3]], rep: [null, null, null] };
         renderTrl(); document.querySelector('#trlGraph .trl-fig').scrollIntoView({ block: 'center' }); });
       await s.page.waitForTimeout(150);
       const mes = await s.page.evaluate(() => {
@@ -9076,107 +9073,95 @@ if(require.main === module) (async () => {
         return { ok: !!instr && !!sous, fsInstr: instr ? parseFloat(getComputedStyle(instr).fontSize) : 0,
                  fsSous: sous ? parseFloat(getComputedStyle(sous).fontSize) : 0,
                  taille: [r.width, r.height], fleche: vec ? getComputedStyle(vec, '::before').content : '',
-                 cadres: [0, 1, 2].map(k => !!document.getElementById('trl-pt-' + k) && !!document.getElementById('trl-vec-' + k)) };
+                 cadres: [0, 1, 2].map(k => !!document.getElementById('trl-pt-' + k)) };
       });
       if(!mes.ok) dits.push('l\'énoncé ou son bloc .tan-sous manque à l\'écran');
       else if(!(mes.fsSous < mes.fsInstr)) dits.push('le mode d\'emploi ne se rend pas plus petit que la demande (' + mes.fsSous + 'px contre ' + mes.fsInstr + 'px)');
       if(!(mes.taille[0] > 450 && mes.taille[1] > 280)) dits.push('le quadrillage ne se dessine pas (ou trop petit) : ' + mes.taille.join(' × '));
       if(!/→|\\2192|→/.test(mes.fleche)) dits.push('le nom du vecteur n\'est pas coiffé d\'une flèche (::before de .vec : ' + mes.fleche + ')');
-      if(mes.cadres.some(c => !c)) dits.push('les six cadres ①…⑥ manquent sous l\'énoncé');
+      if(mes.cadres.some(c => !c)) dits.push('les trois cadres ①②③ manquent sous l\'énoncé');
       const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
         const svg = document.querySelector('#trlGraph .trl-fig');
         const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
         return { px: r.left + (TAN_PX + x * TAN_C) * r.width / vb.width, py: r.top + (TAN_PY + (TRL_H - y) * TAN_C) * r.height / vb.height };
       }, [x, y]);
       const clic = async (x, y) => { const p = await pos(x, y); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
-      const bouge = async (x, y) => { const p = await pos(x, y); await s.page.mouse.move(p.px, p.py); await s.page.waitForTimeout(120); };
       const etat = async () => await s.page.evaluate(() => {
-        const c = document.getElementById('trlCurseur'), q = test.questions[test.idx];
-        const vif = document.querySelector('#trlVif .tvx-vif');
-        return { rep: JSON.stringify(q.rep), d: JSON.stringify(q.d), f: JSON.stringify(q.f), mob: !!test.trlMob,
+        const c = document.getElementById('trlCurseur');
+        return { rep: JSON.stringify(test.questions[test.idx].rep),
                  pts: document.querySelectorAll('#trlGraph .trl-pt').length,
-                 fl: [...document.querySelectorAll('#trlGraph .trl-tr')].filter(l => l.getBoundingClientRect().width + l.getBoundingClientRect().height > 4).length,
-                 vif: !!vif && vif.getBoundingClientRect().width + vif.getBoundingClientRect().height > 4,
-                 curseur: c && c.style.display !== 'none' ? (c.getAttribute('data-l') || '') : null,
-                 cours: [0, 1, 2].reduce((a, k) => a.concat(['trl-vec-', 'trl-pt-'].map(p => document.getElementById(p + k).classList.contains('tan-cours'))), []).indexOf(true) };
+                 curseur: c && c.style.display !== 'none' ? (c.querySelector('text') || {}).textContent : null,
+                 cours: [0, 1, 2].findIndex(k => document.getElementById('trl-pt-' + k).classList.contains('tan-cours')) };
       });
-      /* le vecteur se trace D'ABORD : au départ, l'étape en cours est la
-         flèche à partir de A, et c'est un point (pas une croix nommée) qui suit la souris */
-      await bouge(6.4, 6.2);
+      /* la croix et la lettre du point en cours suivent la souris */
+      const p0 = await pos(6.4, 6.2);
+      await s.page.mouse.move(p0.px, p0.py);
+      await s.page.waitForTimeout(120);
       let e = await etat();
-      if(e.curseur !== '•') dits.push('au départ, ce n\'est pas le point du tracé qui suit la souris (« ' + e.curseur + ' »)');
-      if(e.cours !== 0) dits.push('le cadre ① (le vecteur à partir de A) n\'est pas l\'étape en cours au départ (' + e.cours + ')');
-      /* le geste du 8.1.8 : un clic à un cinquième de maille pose le départ,
-         la flèche suit la souris, un second clic fixe l'arrivée */
-      await clic(1.2, 3.85);
-      await bouge(3.6, 2.4);
-      e = await etat();
-      if(e.d !== JSON.stringify([[1, 4], null, null])) dits.push('le clic décalé ne pose pas le départ au nœud le plus proche : ' + e.d);
-      if(!e.vif) dits.push('la flèche ne suit pas la souris pendant le tracé');
-      await clic(4, 2);
-      await bouge(6.4, 6.2);
-      e = await etat();
-      if(e.f !== JSON.stringify([[4, 2], null, null]) || e.fl !== 1) dits.push('le second clic ne trace pas la flèche : f=' + e.f + ', ' + e.fl + ' flèche(s)');
-      if(e.curseur !== 'A′' || e.cours !== 1) dits.push('après la flèche, le point en cours ne passe pas à A′ (« ' + e.curseur + ' », étape ' + (e.cours + 1) + ')');
-      /* A′ au bout de la flèche, puis les deux autres points */
+      if(e.curseur !== 'A′') dits.push('la croix du point en cours ne suit pas la souris avec sa lettre A′ (« ' + e.curseur + ' »)');
+      if(e.cours !== 0) dits.push('le cadre ① n\'est pas le point en cours au départ');
+      /* un clic à un cinquième de maille pose A′ au nœud ; la lettre passe à B′ */
       await clic(4.2, 1.85);
       e = await etat();
-      if(e.rep !== JSON.stringify([{ x: 4, y: 2 }, null, null])) dits.push('le clic au bout de la flèche ne pose pas A′ : ' + e.rep);
-      if(e.cours !== 2) dits.push('après A′, l\'étape en cours n\'est pas le vecteur à partir de B (' + (e.cours + 1) + ')');
-      await clic(5, 6); await clic(8, 4); await clic(8, 4);
-      await clic(8, 3); await clic(11, 1); await clic(11, 1);
+      if(e.rep !== JSON.stringify([{ x: 4, y: 2 }, null, null])) dits.push('le clic décalé ne pose pas A′ au nœud le plus proche : ' + e.rep);
+      if(e.curseur !== 'B′' || e.cours !== 1) dits.push('après A′, le point en cours ne passe pas à B′ (« ' + e.curseur + ' », cadre ' + (e.cours + 1) + ')');
+      await clic(8, 4); await clic(11, 1);
       e = await etat();
-      if(e.pts !== 3 || e.fl !== 3) dits.push('les trois flèches et les trois points ne se dessinent pas (' + e.fl + ' flèches, ' + e.pts + ' points)');
-      if(e.curseur !== null) dits.push('quelque chose suit encore la souris une fois tout tracé et posé');
+      if(e.pts !== 3) dits.push('les trois points posés ne se dessinent pas (' + e.pts + ')');
+      if(e.curseur !== null) dits.push('la croix suit encore la souris une fois les trois points posés');
       /* un clic sur C′ le reprend ; le clic suivant le repose */
       await clic(11, 1);
       e = await etat();
-      if(e.rep !== JSON.stringify([{ x: 4, y: 2 }, { x: 8, y: 4 }, null]) || e.cours !== 5) dits.push('cliquer C′ ne le reprend pas : ' + e.rep);
+      if(e.rep !== JSON.stringify([{ x: 4, y: 2 }, { x: 8, y: 4 }, null]) || e.cours !== 2) dits.push('cliquer C′ ne le reprend pas : ' + e.rep);
       await clic(11, 1);
-      /* un clic sur le départ d'une flèche le reprend, comme au 8.1.8 */
-      await clic(8, 3);
-      e = await etat();
-      if(!e.mob) dits.push('cliquer le départ d\'une flèche tracée ne le reprend pas');
-      await clic(8, 3);
       await s.page.click('#trlValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, sol: document.querySelectorAll('#trlGraph .trl-sol').length,
         ok: document.querySelectorAll('#trlGraph .trl-pt.tan-x-ok').length, locked: test.locked,
         fleches: [...document.querySelectorAll('#trlGraph .svc-e')].filter(l => l.getBoundingClientRect().width > 4).length,
         bouton: (document.getElementById('trlNext') || {}).textContent || '' }));
-      if(fin.score !== 6) dits.push('la copie juste cliquée vaut ' + fin.score + ' au lieu de 6');
+      if(fin.score !== 3) dits.push('la copie juste cliquée vaut ' + fin.score + ' au lieu de 3');
       if(fin.sol) dits.push('une image attendue se montre sur une copie toute juste');
       if(fin.ok !== 3) dits.push('les trois points justes ne sont pas peints en bleu (' + fin.ok + ')');
-      if(fin.fleches !== 3) dits.push('les trois flèches justes de l\'élève ne se voient pas en bleu (' + fin.fleches + ')');
+      if(fin.fleches !== 3) dits.push('les trois flèches bleues de la source à l\'image ne se voient pas (' + fin.fleches + ')');
       if(!/suivante|résultats/i.test(fin.bouton)) dits.push('le bouton ne devient pas « Question suivante » : ' + fin.bouton);
-      /* question suivante : la flèche et l'image de C justes ; la flèche de D
-         partie d'ailleurs et D′ FAUX ; rien pour E — les deux attendues se
-         montrent en vert, d'étendue non nulle, le point faux rougit */
+      /* question suivante : une image FAUSSE, une MANQUANTE — les deux
+         attendues se montrent en vert, d'étendue non nulle, le point faux rougit */
       await s.page.click('#trlNext');
       await s.page.waitForTimeout(400);
       const q1 = await s.page.evaluate(() => { const q = test.questions[test.idx];
         document.querySelector('#trlGraph .trl-fig').scrollIntoView({ block: 'center' });
-        return { im: q.src.map(p => [p[0] + q.vec[0], p[1] + q.vec[1]]), src: q.src, o: q.o }; });
-      await clic(q1.src[0][0], q1.src[0][1]); await clic(q1.im[0][0], q1.im[0][1]); await clic(q1.im[0][0], q1.im[0][1]);
-      /* la flèche de D va de D à A (le point qui donne le chemin), et D′ se pose sur A : sûrement faux et libre */
-      await clic(q1.src[1][0], q1.src[1][1]); await clic(q1.o[0], q1.o[1]); await clic(q1.o[0], q1.o[1]);
+        return { im: q.src.map(p => [p[0] + q.vec[0], p[1] + q.vec[1]]), o: q.o, vec: q.vec }; });
+      /* forme ab (v618) : le vecteur AB se trace d'abord, une fois, comme au
+         8.1.8 — un clic sur A, la flèche suit la souris, un clic sur B */
+      const vec0 = await s.page.evaluate(() => ({ cours: document.getElementById('trl-vec') && document.getElementById('trl-vec').classList.contains('tan-cours') }));
+      if(!vec0.cours) dits.push('forme ab : le cadre du vecteur AB n\'est pas l\'étape en cours');
+      await clic(q1.o[0], q1.o[1]);
+      { const p = await pos(q1.o[0] + 0.6, q1.o[1] + 0.4); await s.page.mouse.move(p.px, p.py); await s.page.waitForTimeout(120); }
+      const vif = await s.page.evaluate(() => { const l = document.querySelector('#trlVif .tvx-vif'); const r = l && l.getBoundingClientRect(); return !!r && r.width + r.height > 4; });
+      if(!vif) dits.push('forme ab : la flèche du vecteur ne suit pas la souris pendant le tracé');
+      await clic(q1.o[0] + q1.vec[0], q1.o[1] + q1.vec[1]);
+      const vec1 = await s.page.evaluate(() => ({ d: JSON.stringify(test.questions[test.idx].d), f: JSON.stringify(test.questions[test.idx].f),
+        fl: [...document.querySelectorAll('#trlGraph .trl-tr')].filter(l => l.getBoundingClientRect().width + l.getBoundingClientRect().height > 4).length }));
+      if(vec1.d !== JSON.stringify(q1.o) || vec1.f !== JSON.stringify([q1.o[0] + q1.vec[0], q1.o[1] + q1.vec[1]]) || vec1.fl !== 1) dits.push('forme ab : le vecteur AB ne se trace pas de A à B (' + vec1.d + ' → ' + vec1.f + ', ' + vec1.fl + ' flèche)');
+      await clic(q1.im[0][0], q1.im[0][1]);
+      /* B′ posé sur A (le point qui donne le chemin) : un nœud sûrement faux et libre */
+      await clic(q1.o[0], q1.o[1]);
       await s.page.click('#trlValidate');
       await s.page.waitForTimeout(300);
       const faux = await s.page.evaluate(() => {
         const sols = [...document.querySelectorAll('#trlGraph .trl-sol')];
         return { sol: sols.length, large: sols.every(c => c.getBoundingClientRect().width > 4),
                  bad: document.querySelectorAll('#trlGraph .trl-pt.tan-x-bad').length,
-                 flBad: [...document.querySelectorAll('#trlGraph .svc-eb')].filter(l => l.getBoundingClientRect().width + l.getBoundingClientRect().height > 4).length,
                  chemins: [...document.querySelectorAll('#trlGraph .svc-s')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 4; }).length,
-                 p2: document.getElementById('trl-pt-2').className, v2: document.getElementById('trl-vec-2').className, score: test.score };
+                 p2: document.getElementById('trl-pt-2').className, score: test.score };
       });
       if(faux.sol !== 2) dits.push('les deux images attendues ne se montrent pas (' + faux.sol + ' croix verte(s))');
       else if(!faux.large) dits.push('une image attendue est dessinée mais d\'étendue nulle');
       if(faux.chemins !== 2) dits.push('les flèches vertes de la source à l\'image attendue ne se dessinent pas (' + faux.chemins + ')');
       if(faux.bad !== 1) dits.push('le point faux de l\'élève ne rougit pas sur le dessin (' + faux.bad + ')');
-      if(faux.flBad !== 1) dits.push('la flèche fausse de l\'élève ne rougit pas sur le dessin (' + faux.flBad + ')');
-      if(!/\bsol\b/.test(faux.p2) || !/\bsol\b/.test(faux.v2)) dits.push('les cadres manquants ne sont pas sol : ' + faux.v2 + ' / ' + faux.p2);
-      if(faux.score !== 8) dits.push('les réponses fausses et manquantes ne coûtent pas exactement leur point (score ' + faux.score + ' au lieu de 8)');
+      if(!/\bsol\b/.test(faux.p2)) dits.push('le cadre de l\'image manquante n\'est pas sol : ' + faux.p2);
+      if(faux.score !== 5) dits.push('le vecteur AB juste compte, l\'image fausse et la manquante coûtent exactement leur point (score ' + faux.score + ' au lieu de 5)');
       verifier('les images se posent au clic sur le quadrillage, la croix suit la souris, un point se reprend', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la translation ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
