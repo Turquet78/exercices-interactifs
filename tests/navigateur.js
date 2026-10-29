@@ -555,6 +555,54 @@ if(require.main === module) (async () => {
         arrivee.fichier === CIBLE && arrivee.ecran === 'scr-teacher',
         'atterrissage : ' + arrivee.fichier + ' / ' + arrivee.ecran);
 
+      /* LA BOÎTE DU MOT DE PASSE, dans un vrai Chromium (octobre 2026) : la
+         session du professeur remplacée par celle d'un élève, une écriture de
+         réglage refusée par la base (window.__faux.rls joue la politique
+         d'accès), la boîte VISIBLE par-dessus le tableau de bord, le curseur
+         dedans, le mot de passe tapé comme le professeur le tapera — et
+         l'écriture qui repart, la session du professeur revenue. Le banc
+         jsdom tient les cinq bords du mécanisme ; celui-ci voit ce qui
+         s'affiche. */
+      if(arrivee.ecran === 'scr-teacher'){
+        const TABLE = (P.coursPdf && P.coursPdf.table) || 'parametres';
+        await q.page.evaluate((TABLE) => {
+          const F = window.__faux; F.rls = true;
+          F.semer(TABLE, [{ id: 1, valeurs: { secondsPerQuestion: 7 } }]);
+          F.poserSession({ user: { id: 'eleve-intrus', email: 'eleve@controle.invalid', app_metadata: {} } });
+          window.__reconnexion = enProfesseur(async () => {
+            const { error } = await sb.from(TABLE).upsert({ id: 1, valeurs: { secondsPerQuestion: 9 } });
+            if(error) throw error; return 'écrit';
+          }).then(v => ({ ok: true, v }), e => ({ ok: false, e: e && (e.code || e.message) }));
+        }, TABLE);
+        await q.page.waitForTimeout(400);
+        const boite = await q.page.evaluate(() => {
+          const b = document.getElementById('reconnexionModal'), c = document.getElementById('reconnexionPass');
+          if(!b || b.hidden || !c) return { visible: false, boite: !!b, cachee: b ? b.hidden : null };
+          const r = c.getBoundingClientRect();
+          return { visible: r.width > 0 && r.height > 0, focus: document.activeElement ? document.activeElement.id : '',
+                   ecran: ((document.querySelector('.screen.on') || {}).id) || '(aucun)' };
+        });
+        verifier('un refus de session ouvre la boîte du mot de passe par-dessus le tableau de bord',
+          boite.visible === true && boite.ecran === 'scr-teacher', JSON.stringify(boite));
+        verifier('le curseur est dans le champ du mot de passe redemandé',
+          boite.focus === 'reconnexionPass', 'élément actif : « ' + (boite.focus || '(aucun)') + ' »');
+        if(boite.visible){
+          await q.page.fill('#reconnexionPass', MDP_PROF);
+          await q.page.click('#reconnexionOk');
+          await q.page.waitForTimeout(600);
+        }
+        const apres = await q.page.evaluate(async (TABLE) => {
+          const r = await Promise.race([window.__reconnexion, new Promise(ok => setTimeout(() => ok({ ok: false, e: 'rien en 3 s' }), 3000))]);
+          const F = window.__faux; F.rls = false;
+          return { r, cachee: document.getElementById('reconnexionModal').hidden,
+                   valeur: (((F.tables[TABLE] || [{}])[0] || {}).valeurs || {}).secondsPerQuestion,
+                   session: F.session && F.session.user && F.session.user.id };
+        }, TABLE);
+        verifier('le mot de passe redonné fait repartir l\'écriture, et la boîte se referme',
+          apres.r.ok === true && apres.r.v === 'écrit' && apres.cachee === true && apres.valeur === 9
+            && apres.session === 'compte-prof-controle', JSON.stringify(apres));
+      }
+
       /* et « Quitter » ramène à la page des trois niveaux, toujours ouverte */
       if(arrivee.ecran === 'scr-teacher'){
         await q.page.click('#scr-teacher .topbar button');
