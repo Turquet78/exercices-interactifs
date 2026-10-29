@@ -7188,8 +7188,15 @@ function reconnexionAnnuler(){
    serveur s'oublie aussitôt (il a changé) ; une cadence dépassée (429) ne dit
    rien sur lui, et il reste. */
 const CLE_MDP_ONGLET='exercices-interactifs.prof.mdp';
-function mdpOngletLire(){ try{ return window.sessionStorage.getItem(CLE_MDP_ONGLET)||''; }catch(e){ return ''; } }
-function mdpOngletGarder(m){ try{ if(m) window.sessionStorage.setItem(CLE_MDP_ONGLET,m); else window.sessionStorage.removeItem(CLE_MDP_ONGLET); }catch(e){} }
+/* Là où sessionStorage est REFUSÉ (navigation privée de certains navigateurs,
+   origine opaque — le banc jsdom en est une), le mot de passe reste au moins
+   en mémoire de la page : c'est l'onglet aussi, en plus court. */
+let mdpOngletMemoire='';
+function mdpOngletLire(){ try{ return window.sessionStorage.getItem(CLE_MDP_ONGLET)||''; }catch(e){ return mdpOngletMemoire; } }
+function mdpOngletGarder(m){
+  mdpOngletMemoire=m||'';
+  try{ if(m) window.sessionStorage.setItem(CLE_MDP_ONGLET,m); else window.sessionStorage.removeItem(CLE_MDP_ONGLET); }catch(e){}
+}
 async function reconnexionSilencieuse(){
   const m=mdpOngletLire(); if(!m) return false;
   try{

@@ -286,6 +286,19 @@ moins qu'avant. Une attente de condition n'attend que ce qu'elle nomme — ce
 que le script fait ensuite, différé, reste à couvrir par le répit, et c'est
 écrit à côté de lui.
 
+**Un banc qui s'arrête AVANT son verdict sortait VERT (octobre 2026).** Les
+contrôles asynchrones de `tests/verifier.js` s'enchaînent par rappels ; qu'un
+seul attende une promesse qui ne se résout jamais — ici la boîte du mot de
+passe du professeur, ouverte dans un jsdom dont l'origine opaque refuse
+`sessionStorage`, et que personne ne vient remplir —, et la chaîne s'arrête
+là : Node se vide, sort avec le code 0, le verdict final n'est jamais imprimé,
+et `tests/tous.js` lisait ce 0 comme « passe ». Trois niveaux « verts » après
+150 lignes au lieu de 1 000, et seul le compte des lignes l'a montré. **Le code
+de sortie n'est 0 que si le verdict a été rendu** : un écouteur `exit` pose
+`exitCode = 1` et le dit quand `verdictRendu` est resté faux. Le défaut de la
+page, lui, était vrai aussi : là où `sessionStorage` est refusé, le mot de passe
+reste désormais en mémoire de la page (`mdpOngletMemoire`).
+
 **Un banc jsdom qui ne rend jamais la main garde chaque nœud retiré (octobre
 2026).** L'action a refusé la pull request du 8.1.11 (l'antécédent par une
 translation) sur `controles (secondes.html)`. Le banc s'est arrêté avec

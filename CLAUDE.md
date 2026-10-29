@@ -345,6 +345,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Un contrôle qui ne s'applique pas se déclare, il ne se retire pas.**
 - **Une fonction déclarée deux fois au niveau global écrase la première en silence.**
 - **Le banc jsdom tourne avec un tas de 6 Go dans l'action** (`--max-old-space-size=6144`), en marge : le remède au débordement est la délivrance des relevés des `MutationObserver` après chaque contrôle.
+- **Un banc qui s'arrête AVANT son verdict sortait VERT.** Le code de sortie de `tests/verifier.js` n'est 0 que si le verdict a été rendu (`verdictRendu`) ; une chaîne asynchrone qui ne rend jamais la main est un échec, et le dit.
 - **Un banc jsdom qui ne rend jamais la main garde chaque nœud retiré.** Les relevés des `MutationObserver` se délivrent après chaque contrôle (`__viderObservateurs()`, `tests/harnais.js`) ; sans quoi la Seconde épuise les 4 Go de l'action.
 - **Un contrôle qui TAPE au clavier attend que la case ait le focus, puis relit ce qu'elle a reçu.** Sous charge, MathLive prend le focus en retard et les touches partent dans la case précédente : un contrôle qui tape à l'aveugle rougit au hasard.
 

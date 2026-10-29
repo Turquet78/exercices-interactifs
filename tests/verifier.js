@@ -42,6 +42,20 @@ if(!P){
 
 let echecs = 0, controles = 0, ignores = 0;
 
+/* UN BANC QUI S'ARRÊTE AVANT SON VERDICT N'EST PAS VERT (octobre 2026). Les
+   contrôles asynchrones s'enchaînent par rappels ; qu'un seul attende une
+   promesse qui ne se résout jamais — une boîte qui attend un mot de passe que
+   personne ne tape —, et la chaîne s'arrête là : Node se vide et sort avec le
+   code 0, le verdict final n'est jamais imprimé, et tests/tous.js lisait ce 0
+   comme « passe ». C'est arrivé : trois niveaux « verts » après 150 lignes au
+   lieu de 1 000. Le code de sortie n'est 0 que si le verdict a été rendu. */
+let verdictRendu = false;
+process.on('exit', () => {
+  if(verdictRendu) return;
+  console.log('\n✗ le banc s’est arrêté AVANT son verdict : un contrôle n’a jamais rendu la main. NE PAS mettre en ligne.');
+  process.exitCode = 1;
+});
+
 function verifier(intitule, condition, detail){
   controles++;
   if(condition){ console.log('   ✓ ' + intitule); }
@@ -57089,5 +57103,6 @@ demarrage(() => aide(() => exercices(() => {
   console.log(echecs === 0
     ? '✓ ' + controles + ' contrôles passés' + suffixe + '. Le fichier peut être mis en ligne.'
     : '✗ ' + echecs + ' échec(s) sur ' + controles + ' contrôles' + suffixe + '. NE PAS mettre en ligne.');
+  verdictRendu = true;
   process.exit(echecs ? 1 : 0);
 })));
