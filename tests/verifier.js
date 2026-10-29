@@ -1415,11 +1415,29 @@ function demarrage(suite){
    Séquentiel, dans la chaîne asynchrone : il ré-injecte le double. */
 function reconnexionProfesseur(w, suite){
   const NOM = 'un refus de session redemande le mot de passe sans quitter l’écran, et l’écriture repart';
-  const present = evaluer(w, "typeof enProfesseur==='function' && typeof reconnexionValider==='function' && typeof dmRaison==='function'");
+  const present = evaluer(w, "typeof enProfesseur==='function' && typeof reconnexionValider==='function' && typeof dmRaison==='function' && typeof reconnexionSilencieuse==='function' && typeof mdpOngletGarder==='function'");
   if(!present.ok || !present.valeur){
-    verifier(NOM, false, 'enProfesseur(), reconnexionValider() ou dmRaison() manque');
+    verifier(NOM, false, 'enProfesseur(), reconnexionValider(), dmRaison(), reconnexionSilencieuse() ou mdpOngletGarder() manque');
     return suite();
   }
+  /* LE MOT DE PASSE GARDÉ DANS L'ONGLET (demande de Turquet, octobre 2026) :
+     ce qui l'y met — la page d'aiguillage à l'entrée, la connexion d'un
+     niveau, la boîte — et ce qui l'en retire — « Se déconnecter ». Les deux
+     bords se lisent dans le TEXTE : la page d'aiguillage ne se charge pas ici,
+     et teacherLogin() demande un vrai mot de passe. Le chemin dynamique (une
+     session refusée se rouvre en silence, un mot de passe refusé s'oublie) est
+     dans le contrôle asynchrone ci-dessous. */
+  const aiguillageTexte = (() => { try{ return fs.readFileSync(path.join(__dirname, '..', 'prof.html'), 'utf8'); }catch(e){ return ''; } })();
+  const fnTexte = nom => String(evaluer(w, "typeof " + nom + "==='function' ? String(" + nom + ") : ''").valeur || '');
+  const sortieAiguillage = (aiguillageTexte.match(/async function seDeconnecter\(\)\{[\s\S]*?\n  \}/) || [''])[0];
+  const entreeAiguillage = (aiguillageTexte.match(/async function entrer\(\)\{[\s\S]*?\n  \}/) || [''])[0];
+  verifier('le mot de passe du professeur se garde dans l’onglet à chaque porte, et s’oublie à « Se déconnecter »',
+    /mdpOngletGarder\(mdp\)/.test(fnTexte('teacherLogin')) && /mdpOngletGarder\(mdp\)/.test(fnTexte('reconnexionValider'))
+      && /mdpOngletGarder\(mdp\)/.test(entreeAiguillage) && /mdpOngletGarder\(''\)/.test(sortieAiguillage)
+      && /sessionStorage/.test(aiguillageTexte) && /sessionStorage/.test(fnTexte('mdpOngletGarder')) && !/localStorage/.test(fnTexte('mdpOngletGarder')),
+    'teacherLogin : ' + /mdpOngletGarder\(mdp\)/.test(fnTexte('teacherLogin')) + ', boîte : ' + /mdpOngletGarder\(mdp\)/.test(fnTexte('reconnexionValider'))
+      + ', prof.html entrer : ' + /mdpOngletGarder\(mdp\)/.test(entreeAiguillage) + ', prof.html seDeconnecter : ' + /mdpOngletGarder\(''\)/.test(sortieAiguillage)
+      + ', sessionStorage et jamais localStorage : ' + (/sessionStorage/.test(fnTexte('mdpOngletGarder')) && !/localStorage/.test(fnTexte('mdpOngletGarder'))));
   /* le bord statique : les entonnoirs d'écriture du professeur */
   const ENTONNOIRS = ['persistDevoirs','saveSettings','saveDM','newDM','deleteDM','dmRestaurer','poserNoteDevoir','poserNoteDevoirEleve'];
   verifierEval(w, 'chaque écriture du professeur passe par enProfesseur()', `(function(){
@@ -1449,10 +1467,38 @@ function reconnexionProfesseur(w, suite){
     const ecrire=async function(){ const {error}=await sb.from(TABLE).upsert({id:1,valeurs:{secondsPerQuestion:9}}); if(error) throw error; return 'écrit'; };
     const ecrits=function(depuis){ return F.journal.slice(depuis).filter(function(o){ return o.op==='upsert'&&!o.echec; }).length; };
     F.rls=true;
+    const connexions=function(depuis){ return F.journal.slice(depuis).filter(function(o){ return o.op==='signIn'; }); };
     try{
-      /* 1. la session est celle d'un élève : la boîte s'ouvre, rien n'est écrit */
+      /* 0. LE MOT DE PASSE GARDÉ DANS L'ONGLET : la session est celle d'un
+         élève, l'écriture est refusée — et repart EN SILENCE, sans boîte, par
+         une seule connexion, sous la session du professeur retrouvée. */
+      mdpOngletGarder('mdp-de-controle');
       F.poserSession({user:{id:'eleve-intrus',email:'eleve@controle.invalid',app_metadata:{}}});
       let n0=F.journal.length;
+      let ouverte=false; const obs=new MutationObserver(function(){ if(!boite.hidden) ouverte=true; });
+      obs.observe(boite,{attributes:true,attributeFilter:['hidden']});
+      const r0=await enProfesseur(ecrire); await tick();
+      obs.disconnect();
+      if(r0!=='écrit') vus.push('avec le mot de passe gardé, l\\'écriture ne repart pas : '+r0);
+      if(ouverte||!boite.hidden) vus.push('avec le mot de passe gardé, la boîte s\\'est quand même ouverte');
+      if(connexions(n0).length!==1 || !connexions(n0)[0].ok) vus.push('la reconnexion silencieuse n\\'a pas fait exactement une connexion réussie ('+connexions(n0).length+')');
+      if(!F.session || F.session.user.id!=='prof-controle') vus.push('après la reconnexion silencieuse, la session n\\'est pas celle du professeur');
+      if(ecrits(n0)!==1) vus.push(ecrits(n0)+' écriture(s) réussie(s) au lieu d\\'une (silence)');
+      /* 0 bis. un mot de passe gardé mais REFUSÉ s'oublie, et la boîte s'ouvre */
+      mdpOngletGarder('perime');
+      F.poserSession({user:{id:'eleve-intrus',email:'eleve@controle.invalid',app_metadata:{}}});
+      n0=F.journal.length;
+      const p0=enProfesseur(ecrire); await tick(); await tick();
+      if(boite.hidden) vus.push('un mot de passe gardé mais refusé n\\'ouvre pas la boîte');
+      if(mdpOngletLire()!=='') vus.push('un mot de passe refusé reste gardé dans l\\'onglet : « '+mdpOngletLire()+' »');
+      if(ecrits(n0)) vus.push('un mot de passe refusé a laissé écrire');
+      document.getElementById('reconnexionPass').value='mdp-de-controle';
+      await reconnexionValider(); await p0; await tick();
+      if(mdpOngletLire()!=='mdp-de-controle') vus.push('la boîte ne garde pas dans l\\'onglet le mot de passe accepté');
+      mdpOngletGarder('');   /* la suite éprouve la boîte SANS mot de passe gardé */
+      /* 1. la session est celle d'un élève : la boîte s'ouvre, rien n'est écrit */
+      F.poserSession({user:{id:'eleve-intrus',email:'eleve@controle.invalid',app_metadata:{}}});
+      n0=F.journal.length;
       const p1=enProfesseur(ecrire); await tick(); await tick();
       if(boite.hidden) vus.push('un refus 42501 n\\'ouvre pas la boîte du mot de passe');
       if(ecrits(n0)) vus.push('quelque chose a été écrit avant le mot de passe');
@@ -1497,7 +1543,7 @@ function reconnexionProfesseur(w, suite){
         if(boite.hidden) vus.push('saveSettings() sous une session d\\'élève n\\'ouvre pas la boîte');
         reconnexionAnnuler(); await p4; await tick();
       }
-    } finally { F.rls=false; F.panne=false; F.poserSession(null); if(boite.__resolve){ reconnexionAnnuler(); } boite.hidden=true; }
+    } finally { F.rls=false; F.panne=false; F.poserSession(null); mdpOngletGarder(''); if(boite.__resolve){ reconnexionAnnuler(); } boite.hidden=true; }
     return vus.join(' | ');
   })()`, function(r){
     if(!r.ok) verifier(NOM, false, 'erreur JavaScript : ' + r.erreur);

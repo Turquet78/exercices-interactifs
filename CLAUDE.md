@@ -238,6 +238,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Les TRAVAUX FACULTATIFS sont la seconde famille de devoirs de la Terminale — gérés comme les devoirs, rangés à part.**
 - **Un élève connecté dans un autre onglet CHASSE la session du professeur, et la base répond 42501.**
 - **Puis la page a REDEMANDÉ le mot de passe, sans quitter l'écran — les trois niveaux.** Toute écriture du professeur passe par `enProfesseur()` ; un refus de session ouvre la boîte, l'écriture repart ; `CONFIG_ERREUR` interdit de réécrire après une lecture ratée.
+- **Puis le mot de passe a été GARDÉ DANS L'ONGLET, et la boîte n'est plus que le dernier recours.** `sessionStorage` (`CLE_MDP_ONGLET`), jamais `localStorage` ni la page ; posé à chaque porte, retiré par « Se déconnecter » ; `reconnexionSilencieuse()` avant la boîte.
 - **L'écran du bilan ne bouge plus quand le professeur pose une note.**
 - **Et la note du DEVOIR ENTIER est une note, elle aussi.**
 - **Un brouillon étiqueté d'un devoir vaut une NOTE PROVISOIRE — et le bilan le dit « en cours ».** Un exercice fermé à la sonnerie sans « Voir mes résultats » ne laissait que son brouillon, compté nulle part.

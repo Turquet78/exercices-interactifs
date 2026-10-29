@@ -6098,6 +6098,7 @@ async function reconnexionValider(){
       dire('Ce compte n’est pas celui du professeur'+(errSortie?' — recharge la page':'')+'.');
       return;
     }
+    mdpOngletGarder(mdp);   /* la prochaine fois, la boîte ne s'ouvrira pas */
     const r=boite.__resolve; boite.__resolve=null; r(true);
   }catch(x){ dire('Connexion impossible : réessaie.'); }
   finally{ if(btn) btn.disabled=false; }
@@ -6106,10 +6107,37 @@ function reconnexionAnnuler(){
   const boite=$('reconnexionModal'); if(!boite||!boite.__resolve) return;
   const r=boite.__resolve; boite.__resolve=null; r(false);
 }
+/* LE MOT DE PASSE EST GARDÉ DANS L'ONGLET (demande de Turquet, octobre 2026 :
+   « mémorise le mot de passe dans l'onglet »). sessionStorage, jamais
+   localStorage ni la page : il vit le temps de l'onglet, meurt avec lui, et
+   « Se déconnecter » sur la page d'aiguillage l'efface. Il arrive de cette
+   page-là (le professeur le tape une fois, le clic sur un niveau reste dans le
+   même onglet), de l'écran de connexion d'un niveau, ou de la boîte. Ce que
+   cela ouvre : rien de neuf — le navigateur garde déjà, dans localStorage, un
+   jeton qui vaut le mot de passe tant qu'on n'est pas déconnecté ; ce que cela
+   évite : la boîte, dans presque tous les cas. Un mot de passe REFUSÉ par le
+   serveur s'oublie aussitôt (il a changé) ; une cadence dépassée (429) ne dit
+   rien sur lui, et il reste. */
+const CLE_MDP_ONGLET='exercices-interactifs.prof.mdp';
+function mdpOngletLire(){ try{ return window.sessionStorage.getItem(CLE_MDP_ONGLET)||''; }catch(e){ return ''; } }
+function mdpOngletGarder(m){ try{ if(m) window.sessionStorage.setItem(CLE_MDP_ONGLET,m); else window.sessionStorage.removeItem(CLE_MDP_ONGLET); }catch(e){} }
+async function reconnexionSilencieuse(){
+  const m=mdpOngletLire(); if(!m) return false;
+  try{
+    const {error}=await sb.auth.signInWithPassword({email:COURRIEL_PROF,password:m});
+    if(error){ if(error.status!==429) mdpOngletGarder(''); return false; }
+    const {data:prof,error:errProf}=await sb.from('professeurs').select('user_id').maybeSingle();
+    if(errProf||!prof){ const {error:errSortie}=await sb.auth.signOut(); if(errSortie) console.warn('déconnexion impossible', errSortie); mdpOngletGarder(''); return false; }
+    return true;
+  }catch(e){ return false; }
+}
 async function enProfesseur(ecrire){
   try{ return await ecrire(); }
   catch(e){
     if(!erreurDeSession(e)) throw e;
+    /* D'abord en silence, avec le mot de passe gardé dans l'onglet : la boîte
+       ne s'ouvre que s'il manque ou s'il est refusé. */
+    if(await reconnexionSilencieuse()) return await ecrire();
     if(!(await redemanderMotDePasseProf(e)))
       throw Object.assign(new Error('le mot de passe n’a pas été redonné : rien n’a été écrit'),{code:'ANNULE'});
     return await ecrire();   /* une seconde fois, sous la session retrouvée ; un second refus remonte tel quel */
@@ -21016,6 +21044,7 @@ async function teacherLogin(){
                     : 'Ce compte n’est pas celui du professeur','err');
     $('teacherPass').value=''; return;
   }
+  mdpOngletGarder(mdp);   /* gardé dans l'onglet : la prochaine session perdue se rouvre sans boîte */
   $('teacherPass').value=''; show('teacher'); loadSettingsIntoForm(); teacherTab('results');
 }
 

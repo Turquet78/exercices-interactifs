@@ -205,6 +205,18 @@
     }catch(e){ return false; }
   }
 
+  /* LE MOT DE PASSE EST GARDÉ DANS L'ONGLET (demande de Turquet, octobre
+     2026) : sessionStorage, le temps de l'onglet — le clic sur un niveau reste
+     dans cet onglet, et la page du niveau s'en sert pour rouvrir en silence une
+     session que la base a refusée (un élève connecté entre-temps, un jeton
+     expiré), sans boîte. Jamais localStorage, jamais la page : « Se
+     déconnecter » l'efface, fermer l'onglet aussi. La clé est la même que dans
+     les trois pages (CLE_MDP_ONGLET). */
+  const CLE_MDP_ONGLET = 'exercices-interactifs.prof.mdp';
+  function mdpOngletGarder(m){
+    try{ if(m) window.sessionStorage.setItem(CLE_MDP_ONGLET, m); else window.sessionStorage.removeItem(CLE_MDP_ONGLET); }catch(e){}
+  }
+
   function montrerNiveaux(oui){
     $('carte-entree').hidden = !!oui;
     $('carte-niveaux').hidden = !oui;
@@ -232,11 +244,13 @@
         return;
       }
       $('profPass').value = '';
+      mdpOngletGarder(mdp);   /* les niveaux s'en serviront, dans cet onglet */
       montrerNiveaux(true);
     } finally { bouton.disabled = false; }
   }
 
   async function seDeconnecter(){
+    mdpOngletGarder('');   /* se déconnecter, c'est aussi oublier le mot de passe */
     if(sb){ try{ await sb.auth.signOut(); }catch(e){} }
     montrerNiveaux(false);
     dire('');
