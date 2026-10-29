@@ -976,4 +976,4 @@ toutes ses corrections en vert (35 cases en suite auxiliaire), « a_n » tapé
 au clavier se lit aₙ, « 1-an » dans l'arbre est juste, la forme réduite de
 l'hérédité est reconnue. Sur un téléphone, les arbres défilent dans leur
 cadre (comme au 6.1.5) et les lignes de la récurrence aussi (comme au
-5.6.3). Terminale v460.
+5.6.3). Terminale v460, puis v461 : la v460 avait été prise par #891 pendant que cette branche attendait ses contrôles.
