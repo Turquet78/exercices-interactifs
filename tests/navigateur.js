@@ -1689,6 +1689,80 @@ if(require.main === module) (async () => {
       JSON.stringify(commandes));
     await s.nav.close(); s = null;
 
+    /* ===== 5 bis. les cadres au marqueur ===== */
+    /* Le cadre de chaque écran et les cartes des menus sont tracés au marqueur
+       bleu, comme sur le portail (décision de Turquet, octobre 2026), par le
+       script #cadres-marqueur : quatre coups, chacun une PETITE image de fond.
+       Ce que l'on tient ici, sur un écran de tablette :
+       * le trait est là, sur chaque écran visité et sur chaque carte de menu ;
+       * chaque coup est filtré À SA MESURE — le portail a perdu ses cadres sur
+         tablette avec un seul filtre de 4000 × 4000 px, et les maquettes ont
+         perdu la moitié des leurs avec des filtres qui portaient le même nom ;
+       * le trait reste dans la marge intérieure, sans toucher le contenu, et la
+         carte n'est pas repositionnée (le piège du décor d'Halloween) ;
+       * pendant le décor d'Halloween, rien n'est tracé : le décor garde ses
+         cadres. Ce bord ne se mesure qu'en saison — hors saison, il le dit. */
+    titre('5 bis. LES CADRES AU MARQUEUR');
+    s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+    const decorAllume = await s.page.evaluate(() => document.body.classList.contains('halloween'));
+    if(decorAllume){
+      const pendant = await s.page.evaluate(() => document.querySelectorAll('.marque').length);
+      verifier('pendant le décor d\'Halloween, aucun cadre n\'est tracé au marqueur', pendant === 0, pendant + ' carte(s) tracée(s)');
+      await s.page.click('.hw-bascule');
+      await s.page.waitForTimeout(400);
+    } else {
+      console.log('    (aucun décor d\'Halloween allumé sur cette page aujourd\'hui — hors saison, ou niveau sans décor : son bord n\'est pas mesuré)');
+    }
+    const lireCadres = () => s.page.evaluate(async () => {
+      const ecran = document.querySelector('section.screen.on');
+      const carte = ecran && ecran.querySelector(':scope > .card');
+      const cartes = [carte].concat([...(ecran ? ecran.querySelectorAll('.choices > .choice') : [])]
+        .filter(c => c.offsetWidth > 0)).filter(Boolean);
+      const defauts = [];
+      for(const el of cartes){
+        const nom = el === carte ? 'le cadre de ' + ecran.id : 'la carte « ' + el.innerText.trim().split('\n').slice(-2, -1).join('').slice(0, 30) + ' »';
+        const cs = getComputedStyle(el);
+        const urls = (cs.backgroundImage.match(/url\("data:image\/svg\+xml,[^"]+"\)/g) || []);
+        if(!el.classList.contains('marque') || urls.length !== 4){ defauts.push(nom + ' : ' + urls.length + ' coup(s) de marqueur'); continue; }
+        if(el === carte && cs.position !== 'static') defauts.push(nom + ' : repositionné (' + cs.position + ')');
+        const pos = cs.backgroundPosition.split(','), tai = cs.backgroundSize.split(',');
+        const pad = { t: parseFloat(cs.paddingTop), l: parseFloat(cs.paddingLeft), r: parseFloat(cs.paddingRight), b: parseFloat(cs.paddingBottom) };
+        const W = el.offsetWidth, H = el.offsetHeight;
+        for(let i = 0; i < 4; i++){
+          const svg = decodeURIComponent(urls[i].slice(urls[i].indexOf(',') + 1, -2));
+          const w = +(svg.match(/<svg[^>]* width='([\d.]+)'/) || [])[1], h = +(svg.match(/<svg[^>]* height='([\d.]+)'/) || [])[1];
+          const fw = +(svg.match(/<filter[^>]* width='([\d.]+)'/) || [])[1], fh = +(svg.match(/<filter[^>]* height='([\d.]+)'/) || [])[1];
+          if(!(Math.min(w, h) <= 40 && w <= W + 1 && h <= H + 1 && fw === w && fh === h))
+            defauts.push(nom + ', coup ' + (i + 1) + ' : image ' + w + '×' + h + ', filtre ' + fw + '×' + fh + ' pour une carte de ' + W + '×' + H);
+          /* le coup tient dans la marge intérieure de son côté */
+          const [px, py] = pos[i].trim().split(' ').map(parseFloat), [tw, th] = tai[i].trim().split(' ').map(parseFloat);
+          const dedans = i === 0 ? py + th <= pad.t : i === 2 ? py >= H - pad.b : i === 1 ? px >= W - pad.r : px + tw <= pad.l;
+          if(!dedans) defauts.push(nom + ', coup ' + (i + 1) + ' : il déborde de la marge intérieure');
+          const img = new Image(); img.src = urls[i].slice(5, -2);
+          try { await img.decode(); } catch(e){ defauts.push(nom + ', coup ' + (i + 1) + ' : l\'image ne se décode pas'); }
+        }
+      }
+      return { ecran: ecran ? ecran.id : '(aucun)', n: cartes.length, ardoise: !!ecran && !ecran.querySelector('.card'), defauts };
+    });
+    const vus = [];
+    const mesurerCadres = async () => { await s.page.waitForTimeout(500); vus.push(await lireCadres()); };
+    await mesurerCadres();                                          /* la connexion */
+    await connecter(s.page); await mesurerCadres();                 /* l'accueil de l'élève */
+    await s.page.evaluate(() => openThemes()); await mesurerCadres();
+    await s.page.evaluate(id => openTest(id), N.exercice); await mesurerCadres();
+    await s.page.click('#modeChoices [onclick*="train"]'); await s.page.waitForTimeout(400); await mesurerCadres();
+    /* un écran SANS AUCUN cadre (l'ardoise du calcul rapide, scr-test : c'est
+       l'exercice témoin de la Terminale) n'a rien à tracer — il le dit */
+    vus.filter(v => v.ardoise).forEach(v => console.log('    (' + v.ecran + ' est une ardoise, sans cadre : rien à tracer)'));
+    verifier('le banc a des cadres à mesurer', vus.length === 5 && vus.every(v => v.n >= 1 || v.ardoise)
+      && vus.filter(v => !v.ardoise).length >= 4 && vus.reduce((a, v) => a + v.n, 0) >= 8,
+      vus.map(v => v.ecran + ' : ' + v.n).join(', '));
+    const defautsCadres = vus.flatMap(v => v.defauts);
+    verifier('chaque cadre et chaque carte de menu est tracé au marqueur, en petites images filtrées à leur mesure, sans toucher le contenu',
+      defautsCadres.length === 0, defautsCadres.slice(0, 4).join(' | '));
+    verifier('aucune erreur JavaScript en traçant les cadres', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+    await s.nav.close(); s = null;
+
     /* ===== 6. l'encadré « Énoncé », tel qu'il s'affiche ===== */
     /* Le contrôle structurel lit le fichier ; celui-ci lit l'écran. La
        différence n'est pas théorique : deux énoncés sont posés par JavaScript,

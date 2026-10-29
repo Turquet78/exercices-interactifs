@@ -275,6 +275,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Fenêtres d'aide détachées**
 - **Une fenêtre d'aide FERMÉE doit se rouvrir — et « est-elle fermée ? » n'a pas de réponse au moment où on la pose.**
 - **Les dessins vivent en FICHIERS, jamais en base64 dans la page.**
+- **Les cadres sont tracés au marqueur bleu, comme sur le portail — en petites images de fond (`#cadres-marqueur`), jamais par un SVG posé dans la carte.**
 
 ### Séances : pause, abandon, branchements oubliés
 
