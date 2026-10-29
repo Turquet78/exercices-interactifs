@@ -903,3 +903,77 @@ les sept types : les cartes, puis l'énoncé et les questions numérotées du
 sujet seuls, aucune erreur de page. Contrôle : « le devoir sur papier »
 (`tests/verifier.js`, 9 bis — un faux exercice à choix, et la déclaration du
 6.1.5). Terminale v459.
+## {proba-suite} (6.2.1) : probabilités et suites — l'arbre qui se répète, la suite qu'il définit
+
+Demande de Turquet (octobre 2026), avec le sujet « Baccalauréat Amérique du
+Nord, 19 mai 2022, exercice 1 » (des vélos entre deux points de location) :
+« en terminale créer un exercice dans les probabilités comme le pdf, avec
+plusieurs énoncés possibles et différents de celui du pdf ; on rédigera
+chaque question comme dans les exercices de terminale qui traitent le même
+genre de questions — les arbres sont en proba, la récurrence est dans les
+suites, la suite auxiliaire est dans les suites ». Une deuxième partie du
+thème 6, « Probabilités et suites ».
+
+**Les questions sont celles du sujet, dans son ordre**, et chacune emprunte
+la présentation de l'exercice qui la traite déjà :
+
+1. l'arbre des deux premiers rangs — la grille du 6.1.5 (`aptGrilleHTML`,
+   `aptTraits`, préfixe `apq`), les étiquettes le long des branches, les
+   événements du second rang au bout des chemins comme sur le sujet ;
+2. a) a au deuxième rang, b) une probabilité qui « remonte » l'arbre,
+   arrondie au millième — la case étroite devant le « = » du 6.1.3
+   (`apsSlotHTML` : P(E₂), l'intersection, les deux conditionnelles), la
+   formule de l'écriture choisie, puis le calcul jugé par `aptJugeChaine`
+   (10⁻³ près, l'arrondi comme la troncature) ;
+3. a) l'arbre aux rangs n et n + 1 (préfixe `apr`) : P(Eₙ) = aₙ écrit,
+   P(Fₙ) = 1 − aₙ à écrire (la touche « aₙ » sur le pavé des tablettes), les
+   conditionnelles RECOPIÉES du premier arbre tant que l'élève ne les a pas
+   réécrites (`data-copie`, comme `apxCopier`), aₙ₊₁ au bout de l'accolade ;
+   b) aₙ₊₁ = q·aₙ + r démontrée comme « P(B) = a·x + b » au 6.1.3 :
+   `apfJugeDemo`, aₙ lu comme l'inconnue (`apsNormA` : « a_n », « a_(n) »,
+   « aₙ », « an ») ;
+4. la formule explicite, par l'une des deux méthodes, qui ALTERNENT d'un
+   exercice à l'autre (`q.meth`) :
+   * **par récurrence**, le squelette du 5.6.3 case pour case (« on le
+     démontre par … », initialisation calculée — l'exposant au premier rang,
+     « 1 − 1 » comme « 0 » —, hypothèse et but aux exposants levés, la chaîne
+     q × ( … ) + r, développer, réduire ; conclusion) ; les juges du 5.3.1
+     (`rfValEq`) ; la dernière ligne exige la forme réduite (`apsRedOk`) ;
+   * **par une suite auxiliaire** vₙ = aₙ − ℓ, la chaîne du 5.6.2 :
+     vₙ₊₁ = aₙ₊₁ − ℓ = [remplacer] = [réduire] = q × ( [aₙ − ℓ] ) = q·vₙ,
+     « géométrique » choisi, la raison, le premier terme ; puis vₙ et aₙ en
+     fonction de n — toute écriture égale passe ;
+5. la limite, la ligne du 5.6.3 (… donc lim aₙ = … car lim qⁿ = … avec
+   −1 < q < 1), puis l'interprétation sur des cartes (le 6.1.5) : la bonne
+   phrase contre l'égalité EXACTE à partir d'un rang, la conditionnelle
+   (« si … un jour, … le jour suivant »), et l'autre état ;
+6. le seuil : les deux termes de la calculatrice qui l'encadrent (indices et
+   valeurs à 10⁻⁴ près), le rang, et son interprétation.
+
+**Cinq situations, aucune reprise du sujet** (`APS_CTX`) : le trajet de Lina
+(vélo ou bus), le temps qu'il fait en station (beau ou neige), les parties
+d'échecs de Tom, la formule d'abonnement (Solo ou Famille), les emprunts
+d'Emma à la médiathèque — celle-ci commence au rang 0 (« la semaine 0 »),
+les autres au rang 1 comme le sujet : l'exposant de la formule est n − 1 ou
+n, et l'initialisation suit. Chaque situation écrit ses phrases à quatre
+temps (indicatif, subjonctif, passé composé, subjonctif passé), pour que la
+question 2 b) se lise juste : « Lina est allée au lycée à vélo le deuxième
+jour. Calculer la probabilité qu'elle ait pris le bus le premier jour. » La
+donnée du second état est tantôt « il y reste » (1 − r), tantôt « il passe
+dans le premier » (r) : l'arbre se complète alors par le contraire.
+
+**Le tirage part de l'arrivée** : q (0,2 à 0,7) et ℓ, avec r = ℓ(1 − q) à
+deux décimales, P(rester en E) = q + r entre 0,5 et 0,95, r entre 0,05 et
+0,5 ; a au premier rang à au moins 0,1 de ℓ ; le seuil ℓ ∓ 0,01, 0,005,
+0,002 ou 0,001 (selon le sens de variation), atteint entre le 3ᵉ et le 30ᵉ
+rang, et à au moins 2·10⁻⁴ des deux termes qui l'encadrent — une valeur
+approchée à 10⁻⁴ ne retourne jamais la comparaison. Une séance compte
+`dmNbQuestions(1)` exercices, sur des situations différentes.
+
+**Essayé dans Chromium** à 1280 et 390 px : une copie faite des corrections
+de la page est parfaite (39 cases sur 39 en récurrence), une copie vide reçoit
+toutes ses corrections en vert (35 cases en suite auxiliaire), « a_n » tapé
+au clavier se lit aₙ, « 1-an » dans l'arbre est juste, la forme réduite de
+l'hérédité est reconnue. Sur un téléphone, les arbres défilent dans leur
+cadre (comme au 6.1.5) et les lignes de la récurrence aussi (comme au
+5.6.3). Terminale v460.
