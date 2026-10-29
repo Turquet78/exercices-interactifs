@@ -879,6 +879,30 @@ parfaite (17 cases sur 17, les trois cases ajoutées bleues), une copie vide
 reçoit ses trois corrections en vert, l'arbre (550 px) reste entier en haut
 de l'écran jusqu'au bas de l'exercice, aucune erreur de page. Terminale v422.
 
+**Puis le 6.1.5 s'est fait SUR PAPIER** (signalé par Turquet, octobre 2026 :
+« pour les devoirs maison, le 6.1.5 ne se fait pas sur papier. Pourquoi ? il
+suffit de reprendre uniquement les énoncés des questions »). La cause était
+le choix d'abord, décrit plus haut : `startAPT` ne tire rien, la photo papier
+voyait `test.questions` inchangé et répondait « ne sait pas s'énoncer ». Un
+exercice qui s'ouvre sur un choix le DÉCLARE désormais dans `TESTS`
+(`papierChoix` : le HTML des cartes, chaque carte appelant `dmeChoisir(k)` ;
+`papierTirer(k)` : le tirage du choix) ; `dmEnonce` montre alors les cartes
+sur l'écran papier, et `dmeChoisir` tire puis photographie (`dmEnonceMontrer`,
+la suite de l'ancien `dmEnonce`). Un exercice à choix ajouté demain n'a que
+ces deux clés à poser.
+
+Et le papier ne garde que le SUJET : l'écran guide par des consignes sans
+case (« Quel événement places-tu sur les premières branches ? », « Calcule
+d'abord… », « Place cette probabilité… », « Démontre que P(E) = a·x + b : »,
+« Interprétation : », « Alors, a-t-il raison ? »), que la règle générale du
+papier gardait parce qu'elles commencent par un verbe de question. Elles
+portent `aide-ecran` (`B.aide` dans `aptPlan`, les paragraphes de
+`aptPartHTML`) : la page les montre, le papier les tait. Reste « On sait de
+plus que … », qui est une DONNÉE du type 3 (`B.texte`). Essayé dans Chromium,
+les sept types : les cartes, puis l'énoncé et les questions numérotées du
+sujet seuls, aucune erreur de page. Contrôle : « le devoir sur papier »
+(`tests/verifier.js`, 9 bis — un faux exercice à choix, et la déclaration du
+6.1.5). Terminale v459.
 ## {proba-suite} (6.2.1) : probabilités et suites — l'arbre qui se répète, la suite qu'il définit
 
 Demande de Turquet (octobre 2026), avec le sujet « Baccalauréat Amérique du
@@ -952,4 +976,4 @@ toutes ses corrections en vert (35 cases en suite auxiliaire), « a_n » tapé
 au clavier se lit aₙ, « 1-an » dans l'arbre est juste, la forme réduite de
 l'hérédité est reconnue. Sur un téléphone, les arbres défilent dans leur
 cadre (comme au 6.1.5) et les lignes de la récurrence aussi (comme au
-5.6.3). Terminale v459.
+5.6.3). Terminale v460.
