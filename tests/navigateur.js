@@ -1711,7 +1711,7 @@ if(require.main === module) (async () => {
       await s.page.click('.hw-bascule');
       await s.page.waitForTimeout(400);
     } else {
-      console.log('    (le décor d\'Halloween n\'est pas de saison : son bord n\'est pas mesuré aujourd\'hui)');
+      console.log('    (aucun décor d\'Halloween allumé sur cette page aujourd\'hui — hors saison, ou niveau sans décor : son bord n\'est pas mesuré)');
     }
     const lireCadres = () => s.page.evaluate(async () => {
       const ecran = document.querySelector('section.screen.on');
