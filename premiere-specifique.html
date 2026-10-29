@@ -28,7 +28,7 @@
 <title>Tests de calcul — comptes de la classe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Kalam:wght@700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <!-- Feuille de style statique de MathLive (v0.110.0) INTEGREE au fichier.
      Elle etait chargee depuis le CDN ; quand cette seule requete echoue (reseau filtre,
      hors ligne, cache negatif), convertLatexToMarkup() produit toujours son balisage mais
@@ -1947,6 +1947,53 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
   addEventListener('pageswap', taire); addEventListener('pagereveal', taire);
 })();
 </script>
+<style id="cadres-marqueur-css">
+  /* ===== LES CADRES AU MARQUEUR, COMME SUR LE PORTAIL =====
+     Décision de Turquet (octobre 2026, proposition « B », en bleu sur les
+     trois niveaux) : les pages des exercices prennent le style de l'accueil
+     du site. Le cadre de chaque écran et les cartes des menus sont tracés au
+     MARQUEUR bleu ; les titres s'écrivent au feutre (Kalam) ; les énoncés,
+     les nombres et les cases gardent leur écriture — le calcul reste en clair.
+     Le trait est une IMAGE DE FOND posée par le script #cadres-marqueur, qui
+     ajoute la classe .marque : la carte ne change ni de taille ni de
+     positionnement (aucun position:relative, le piège du décor d'Halloween),
+     et une carte que le script n'a pas encore vue garde son ancien cadre.
+     Pendant le décor d'Halloween, rien n'est tracé : le décor garde ses
+     cadres. */
+  :root{--marqueur:#2B50C8}
+  .screen > .card{--marqueur-fond:rgba(255,255,255,.72)}
+  .choices > .choice{--marqueur-fond:rgba(243,233,214,.45)}
+  .choices > .choice.resume{--marqueur-fond:rgba(220,245,238,.75)}
+  .marque{border-color:transparent!important;border-radius:0!important;box-shadow:none!important;
+          background-color:transparent!important;background-repeat:no-repeat!important}
+  .mast h1,h2.title,.hello,.choice .ttl{font-family:"Kalam","Fredoka",cursive;font-weight:700}
+  body:not(.halloween) .hello{color:var(--marqueur)}
+  body:not(.halloween) .mast .logo{display:none}
+  :is(.enonce,.mp-instr,.lv-instr,.tvi-prompt){border-radius:4px}
+  :is(.enonce,.mp-instr,.lv-instr,.tvi-prompt)::before{font-family:"Kalam","Fredoka",cursive;font-weight:700;border-radius:3px}
+  /* LA PAGE DES PRÉNOMS : DES ÉTIQUETTES DE CAHIER (même décision, proposition
+     « 1 ») — chaque prénom est une étiquette beige écrite à la main, posée un
+     peu de travers ; celle qu'on choisit est entourée au marqueur. Le choix
+     entre « Se connecter » et « Créer mon compte » est surligné, et le code
+     s'écrit sur une ligne. L'écran de connexion seulement. */
+  #scr-login .seg{background:transparent;padding:0;gap:18px}
+  #scr-login .seg button{font-family:"Kalam","Fredoka",cursive;font-weight:700;font-size:1.15rem;padding:4px 2px;border-radius:0;box-shadow:none;background:none}
+  #scr-login .seg button.on{color:var(--marqueur);box-shadow:none;
+    background:linear-gradient(transparent 62%,rgba(43,80,200,.28) 62%,rgba(43,80,200,.28) 92%,transparent 92%)}
+  body:not(.halloween) #scr-login h2.title{color:var(--marqueur)}
+  #scr-login .lab{font-family:"Kalam","Fredoka",cursive;font-weight:700;font-size:1.15rem}
+  #nameChips{gap:14px}
+  #nameChips .chip{font-family:"Kalam","Fredoka",cursive;font-weight:700;font-size:1.12rem;border:none;border-radius:2px;
+    background:rgba(243,233,214,.8);padding:8px 18px;box-shadow:0 1px 0 rgba(30,42,74,.18);transform:rotate(var(--penche,0deg))}
+  #nameChips .chip:nth-child(3n){--penche:-1.2deg}
+  #nameChips .chip:nth-child(3n+1){--penche:.9deg}
+  #nameChips .chip:nth-child(4n+2){--penche:-.5deg}
+  #nameChips .chip:hover{color:var(--marqueur)}
+  #nameChips .chip.sel{background:rgba(243,233,214,.8);color:var(--marqueur);outline:3px solid rgba(43,80,200,.55);outline-offset:3px;
+    border-radius:40% 55% 45% 60%/60% 45% 55% 40%}
+  #loginPin{border-width:0 0 3px;border-radius:0;background:transparent}
+  #loginPin:not(.pin-attente,.pin-valide,.pin-refus){border-color:rgba(43,80,200,.55)}   /* les couleurs du verdict du code restent */
+</style>
 </head>
 
 <body>
@@ -3130,7 +3177,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=350;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=351;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -26093,6 +26140,134 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
       else if(el.id==='scr-results' && el.classList.contains('on') && !a(r.oldValue,'on')) setTimeout(confettis, 120);
     }
   }).observe(document.body, {subtree:true, attributes:true, attributeFilter:['class'], attributeOldValue:true});
+})();
+</script>
+<script id="cadres-marqueur">
+/* ---------- Les cadres au marqueur (octobre 2026) ----------
+   Le cadre de chaque écran (.screen > .card) et les cartes des menus
+   (.choices > .choice) sont tracés en quatre coups de marqueur bleu, comme
+   sur le portail : traits qui ondulent à peine, encre striée, coins qui se
+   croisent de façons variées. Le tirage est semé par la taille de la carte
+   et par son rang, qu'elle garde : un même cadre ne change pas d'un
+   affichage à l'autre.
+   CHAQUE COUP EST UNE PETITE IMAGE DE FOND, filtrée à SA mesure (une bande
+   de la largeur ou de la hauteur de la carte, épaisse d'une vingtaine de
+   pixels). Le portail a appris qu'un filtre trop grand ne s'affiche pas du
+   tout sur tablette (Safari, écran à 2 ou 3 pixels par point) ; et une image
+   de fond ne demande aucun positionnement à la carte, ne recouvre rien et ne
+   se redessine pas à chaque frappe. Le trait est posé EN RETRAIT du bord,
+   dans la marge intérieure de la carte, pour que ses dépassements aux coins
+   restent dans l'image : le contenu n'est jamais touché.
+   Le tracé suit les changements de taille (ResizeObserver) ; sans lui (le
+   banc jsdom), le script ne pose rien. Le décor d'Halloween l'éteint. */
+(function(){
+  if(typeof ResizeObserver!=='function' || !document.body) return;
+  var EP=10, ENCRE=.55, DEPASSE=12;
+  function semer(g){ return function(){ g|=0; g=g+0x6D2B79F5|0; var t=Math.imul(g^g>>>15,1|g);
+    t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+  /* Quatre façons de croiser un coin (jamais arrondi, comme au portail) ;
+     un cadre en mêle au moins trois : le rang k prend le rangement
+     n° (125 k) mod 168, 125 étant premier avec 168. */
+  var COINS=['croise','touche','ouvert','te'], RANGEMENTS=[];
+  for(var n=0;n<256;n++){
+    var r=[0,1,2,3].map(function(i){ return COINS[(n>>(2*i))&3]; });
+    if(new Set(r).size>=3) RANGEMENTS.push(r);
+  }
+  var rangs=new WeakMap(), prochain=0;
+  function rangDe(el){ if(!rangs.has(el)) rangs.set(el, prochain++); return rangs.get(el); }
+  function decor(){ return document.body.classList.contains('halloween'); }
+  function effacer(el){
+    if(!el.classList.contains('marque')) return;
+    el.classList.remove('marque'); delete el.dataset.marque;
+    el.style.backgroundImage=''; el.style.backgroundPosition=''; el.style.backgroundSize='';
+  }
+  /* une bande : un coup de marqueur dans sa propre petite image */
+  function bande(L,H,d,horiz,coul,e){
+    var svg="<svg xmlns='http://www.w3.org/2000/svg' width='"+L+"' height='"+H+"'>"
+      +"<filter id='e' filterUnits='userSpaceOnUse' x='0' y='0' width='"+L+"' height='"+H+"'>"
+      +"<feTurbulence type='fractalNoise' baseFrequency='"+(horiz?'0.02 0.9':'0.9 0.02')+"' numOctaves='2' seed='"+(horiz?5:7)+"' result='n'/>"
+      +"<feColorMatrix in='n' type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.9 1.15' result='a'/>"
+      +"<feComposite in='SourceGraphic' in2='a' operator='in'/></filter>"
+      +"<path d='"+d+"' fill='none' stroke='"+coul+"' stroke-opacity='"+ENCRE+"' stroke-width='"+e+"' filter='url(#e)'/></svg>";
+    return 'url("data:image/svg+xml,'+encodeURIComponent(svg)+'")';
+  }
+  function tracer(el){
+    if(decor()){ effacer(el); return; }
+    var w=el.offsetWidth, h=el.offsetHeight;
+    if(!w || !h) return;
+    var cs=getComputedStyle(el);
+    var pad=Math.min(parseFloat(cs.paddingLeft)||0, parseFloat(cs.paddingRight)||0, parseFloat(cs.paddingTop)||0, parseFloat(cs.paddingBottom)||0);
+    if(pad<10){ effacer(el); return; }                 /* pas de marge pour le trait : l'ancien cadre reste */
+    var e=Math.min(EP, pad*.35), c=Math.max(e/2+1, pad-e/2-8), D=Math.min(DEPASSE, (c-1)/1.2);   /* 8 px d'air entre le trait et le contenu */
+    var rang=rangDe(el), cle=w+'x'+h+'#'+rang+'/'+c;
+    if(el.dataset.marque===cle && el.classList.contains('marque')) return;
+    var coul=(cs.getPropertyValue('--marqueur')||'').trim() || '#2B50C8';
+    var fond=(cs.getPropertyValue('--marqueur-fond')||'').trim() || 'transparent';
+    var R=semer(w*7919 + h*104729 + rang*15485863);
+    var j=function(){ return (R()-.5)*2.4; };
+    var C=[[c,c],[w-c,c],[w-c,h-c],[c,h-c]];
+    var coins=RANGEMENTS[(rang*125)%RANGEMENTS.length].map(function(t){
+      var a=D*(.6+.6*R()), b=D*(.6+.6*R()), court=4+5*R();
+      if(t==='croise') return {arr:a, dep:b};
+      if(t==='touche') return {arr:e/2, dep:.5-e/2};
+      if(t==='ouvert') return R()<.5 ? {arr:-court, dep:.5-e/2} : {arr:e/2, dep:-court-e/2};
+      return R()<.5 ? {arr:a, dep:.5-e/2} : {arr:e/2, dep:b};          /* en T */
+    });
+    var images=[], positions=[], tailles=[], M=e/2+4;
+    for(var i=0;i<4;i++){
+      var A=C[i], B=C[(i+1)%4], horiz=(i%2===0);
+      var dx=Math.sign(B[0]-A[0]), dy=Math.sign(B[1]-A[1]);
+      var s=coins[i].dep, f=coins[(i+1)%4].arr;
+      var sx=A[0]-dx*s+(horiz?0:j()), sy=A[1]-dy*s+(horiz?j():0);
+      var ex=B[0]+dx*f+(horiz?0:j()), ey=B[1]+dy*f+(horiz?j():0);
+      var cx=(sx+ex)/2+(horiz?0:j()*1.5), cy=(sy+ey)/2+(horiz?j()*1.5:0);
+      if(horiz){
+        var y0=Math.floor(A[1]-M), H=Math.ceil(2*M);
+        images.push(bande(w,H,'M'+sx.toFixed(1)+' '+(sy-y0).toFixed(1)+' Q'+cx.toFixed(1)+' '+(cy-y0).toFixed(1)+' '+ex.toFixed(1)+' '+(ey-y0).toFixed(1),true,coul,e));
+        positions.push('0 '+y0+'px'); tailles.push(w+'px '+H+'px');
+      }else{
+        var x0=Math.floor(A[0]-M), L=Math.ceil(2*M);
+        images.push(bande(L,h,'M'+(sx-x0).toFixed(1)+' '+sy.toFixed(1)+' Q'+(cx-x0).toFixed(1)+' '+cy.toFixed(1)+' '+(ex-x0).toFixed(1)+' '+ey.toFixed(1),false,coul,e));
+        positions.push(x0+'px 0'); tailles.push(L+'px '+h+'px');
+      }
+    }
+    images.push('linear-gradient('+fond+','+fond+')');            /* le fond, à l'intérieur du trait */
+    positions.push(c+'px '+c+'px'); tailles.push(Math.max(0,w-2*c)+'px '+Math.max(0,h-2*c)+'px');
+    el.style.backgroundImage=images.join(',');
+    el.style.backgroundPosition=positions.join(',');
+    el.style.backgroundSize=tailles.join(',');
+    el.classList.add('marque'); el.dataset.marque=cle;
+  }
+  var vus=new WeakSet();
+  /* les listes se remplissent après coup : chaque conteneur .choices est
+     écouté (ses enfants directs seulement — presque rien à délivrer) */
+  var listes=new MutationObserver(function(rec){
+    rec.forEach(function(m){ m.addedNodes.forEach(function(nd){ if(nd.nodeType===1 && nd.matches('.choice')) suivre(nd); }); });
+  });
+  var taille=new ResizeObserver(function(entrees){
+    entrees.forEach(function(en){
+      var el=en.target; tracer(el);
+      if(el.classList.contains('card')) parcourir(el);
+    });
+  });
+  function suivre(el){ if(vus.has(el)) return; vus.add(el); taille.observe(el); }
+  function parcourir(carte){
+    carte.querySelectorAll('.choices').forEach(function(l){ if(!vus.has(l)){ vus.add(l); listes.observe(l,{childList:true}); } });
+    carte.querySelectorAll('.choices > .choice').forEach(suivre);
+  }
+  function tout(){
+    document.querySelectorAll('.screen > .card').forEach(function(c){ suivre(c); parcourir(c); });
+    document.querySelectorAll('.screen > .card, .choices > .choice').forEach(function(el){ if(el.offsetWidth) tracer(el); });
+  }
+  tout();
+  /* le décor d'Halloween s'allume ou s'éteint par le bouton 🎃 : on retrace
+     (show() change aussi les classes du corps : seul le décor compte) */
+  var avecDecor=decor();
+  new MutationObserver(function(){
+    if(decor()===avecDecor) return; avecDecor=decor();
+    document.querySelectorAll('.screen > .card, .choices > .choice').forEach(function(el){ delete el.dataset.marque; tracer(el); });
+  }).observe(document.body, {attributes:true, attributeFilter:['class']});
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(tout);
 })();
 </script>
 </body>

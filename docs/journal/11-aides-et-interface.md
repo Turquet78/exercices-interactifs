@@ -1142,3 +1142,59 @@ s'inscrit au fondu (le chemin ordinaire ne s'abandonne plus), et un script
 transition (`pagereveal` part avant le premier rendu : en fin d'une page de
 plusieurs mégaoctets, il serait posé trop tard). Une seconde navigation qui
 coupe la première l'abandonne encore — attrapée, elle ne dit plus rien.
+
+**Les cadres sont tracés au MARQUEUR BLEU, comme sur le portail — en petites
+images de fond, jamais par-dessus la carte (décision de Turquet, octobre 2026 :
+proposition « B », « bleu sur tous les niveaux » ; Seconde v620, Première
+v351, Terminale v459).** Trois maquettes avaient été montrées, posées sur la
+vraie page de Seconde : A (tout au feutre, texte compris), B (cadres et titres
+au feutre, le calcul en clair), C (le seul grand cadre). B a été retenue, en
+bleu pour les trois niveaux plutôt qu'à la couleur de chaque niveau du
+portail. Ce qui change : le cadre de chaque écran (`.screen > .card`) et les
+cartes des menus (`.choices > .choice`) perdent leur bordure arrondie et leur
+ombre, et reçoivent quatre coups de marqueur bleu (`--marqueur`, le `--blue`
+de la page) ; les titres (`.mast h1`, `h2.title`, `.hello`, `.choice .ttl`) et
+l'étiquette « Énoncé » s'écrivent en Kalam, la police du portail ; le logo de
+l'en-tête disparaît. Les énoncés, les nombres et les cases gardent leur
+écriture : aucune taille de case ne bouge, aucune encre de verdict non plus.
+Le même jour, la page des PRÉNOMS a pris la proposition « 1 », les étiquettes
+de cahier : chaque prénom est une étiquette beige écrite au feutre, posée un
+peu de travers ; celle qu'on choisit est entourée au marqueur ; « Se
+connecter » est surligné, le code s'écrit sur une ligne — et ses couleurs de
+verdict (attente, valide, refus) restent, la règle neutre ne les couvre pas
+(`#loginPin:not(.pin-attente,.pin-valide,.pin-refus)`).
+**Pourquoi des images de fond, et pas le SVG posé dans la carte du portail.**
+Le portail glisse un `<svg>` en `position:absolute` dans chaque cadre, ce qui
+exige `position:relative` sur la carte — exactement ce que le décor
+d'Halloween a refusé plus haut : tout ce qui s'accroche en absolu dans un
+exercice se serait rattaché à la carte. Le script `#cadres-marqueur` (fin de
+chaque page, identique sur les trois) peint donc chaque coup comme une IMAGE
+DE FOND de la carte, une bande de la longueur du côté et d'une vingtaine de
+pixels d'épaisseur, plus un dégradé uni pour le fond à l'intérieur du trait.
+La carte ne bouge pas d'un pixel, rien n'est recouvert, et une image de fond
+ne se refiltre pas à chaque frappe. Le trait est posé EN RETRAIT, dans la
+marge intérieure, avec 8 px d'air avant le contenu : ses dépassements aux
+coins restent dans l'image. Une carte sans assez de marge (moins de 10 px)
+garde son ancien cadre. Le tracé suit les tailles (`ResizeObserver`) et les
+listes qui se remplissent après coup (un `MutationObserver` par conteneur
+`.choices`, enfants directs seulement) ; sans `ResizeObserver` (le banc jsdom)
+le script ne pose rien. Pendant le décor d'Halloween, rien n'est tracé : le
+décor garde ses cadres, et le bouton 🎃 retrace.
+**Deux leçons du portail et des maquettes, tenues par la section « 5 bis » du
+banc navigateur.** Sur tablette, le portail n'affichait AUCUN cadre : un seul
+filtre de 4000 × 4000 px, partagé par tous, dépassait ce que Safari accepte de
+filtrer à 2 ou 3 pixels par point, et un tracé dont le filtre échoue ne
+s'affiche pas du tout (corrigé sur le portail en taillant un filtre par
+cadre). Puis les maquettes ont perdu la moitié de leurs cadres en Chromium :
+les filtres de deux écrans portaient le même identifiant, et l'URL résolvait
+vers celui d'un écran caché, plus étroit — le trait s'arrêtait net à 780 px.
+Ici chaque coup est sa propre image, son filtre est celui de l'image et a sa
+taille. Le contrôle, sur un écran de tablette tactile, visite la connexion,
+l'accueil, les thèmes, les modes et l'exercice témoin, et exige pour chaque
+cadre et chaque carte de menu : quatre coups, chacun une image d'au plus
+40 px d'épaisseur et pas plus grande que la carte, son filtre à la taille de
+l'image ; chaque coup dans la marge intérieure de son côté ; la carte restée
+`position:static` ; chaque image décodée. En saison, il exige aussi qu'aucun
+cadre ne soit tracé sous le décor d'Halloween ; hors saison, il le dit.
+Seul l'écran de calcul rapide (`scr-test`, l'ardoise noire) n'a pas de cadre
+et n'en reçoit pas.
