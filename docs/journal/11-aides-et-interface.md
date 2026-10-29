@@ -1146,7 +1146,7 @@ coupe la première l'abandonne encore — attrapée, elle ne dit plus rien.
 **Les cadres sont tracés au MARQUEUR BLEU, comme sur le portail — en petites
 images de fond, jamais par-dessus la carte (décision de Turquet, octobre 2026 :
 proposition « B », « bleu sur tous les niveaux » ; Seconde v620, Première
-v351, Terminale v459).** Trois maquettes avaient été montrées, posées sur la
+v351, Terminale v460 — v459 à l’écriture, prise par #889).** Trois maquettes avaient été montrées, posées sur la
 vraie page de Seconde : A (tout au feutre, texte compris), B (cadres et titres
 au feutre, le calcul en clair), C (le seul grand cadre). B a été retenue, en
 bleu pour les trois niveaux plutôt qu'à la couleur de chaque niveau du
