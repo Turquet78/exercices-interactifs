@@ -1533,6 +1533,8 @@ function reconnexionProfesseur(w, suite){
       const v=((F.tables[TABLE]||[{}])[0]||{}).valeurs||{};
       if(v.secondsPerQuestion!==9) vus.push('la valeur n\\'est pas arrivée en base : '+JSON.stringify(v));
       if(ecrits(n0)!==1) vus.push(ecrits(n0)+' écriture(s) réussie(s) au lieu d\\'une');
+      if(mdpOngletLire()!=='mdp-de-controle') vus.push('la boîte ne garde pas dans l\\'onglet le mot de passe accepté (étape 3)');
+      mdpOngletGarder('');   /* la boîte vient de le garder : la suite éprouve la boîte, pas le silence */
       /* 4. Annuler : rien n'écrit, une erreur ANNULE que dmRaison() sait dire */
       F.poserSession(null); n0=F.journal.length;
       let e2=null; const p2=enProfesseur(ecrire).catch(function(e){ e2=e; });
