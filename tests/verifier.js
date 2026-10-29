@@ -7196,6 +7196,35 @@ function devoirPapierClique(w, apres){
     if(!on9||on9.id!=='scr-mode')
       vus.push('le repli laisse l\\'élève ailleurs qu\\'au choix des modes ('+(on9?on9.id:'aucun')+')');
 
+    /* ---- 9 bis. un exercice qui s'ouvre sur un CHOIX le montre sur le papier ----
+       Le 6.1.5 (« Type 1 … Type 7 ») ne tire qu'au clic : il répondait « ne
+       sait pas s'énoncer » (signalé par Turquet, octobre 2026). Il déclare
+       papierChoix / papierTirer : le papier montre les cartes, puis l'énoncé
+       du choix fait. */
+    if(TESTS['arbre-probabilites-bac-types']&&!(TESTS['arbre-probabilites-bac-types'].papierChoix&&TESTS['arbre-probabilites-bac-types'].papierTirer))
+      vus.push('le 6.1.5 ne déclare plus son choix pour le papier — il ne sait plus s\\'énoncer');
+    let tire=null;
+    TESTS['__essai-choix']={ name:'Essai choix', icon:'?', desc:'', start:function(){ show('s2lvl'); },
+      papierChoix:function(){ return '<button type="button" class="essai-choix" onclick="dmeChoisir(2)">Type 2</button>'; },
+      papierTirer:function(k){ tire=k; test.kind='s1'; test.idx=0; test.questions=[genS1L1(0)]; } };
+    mesDevoirs[0].exercices.push({id:'__essai-choix',modes:['train']});
+    dits.length=0; ecouterToasts();
+    await dmePapierOuvrir('dev-2','__essai-choix');
+    const on9b=document.querySelector('.screen.on');
+    if(!on9b||on9b.id!=='scr-dmenonce'||!document.querySelector('#dmeCorps .essai-choix'))
+      vus.push('un exercice à choix ne montre pas ses cartes sur le papier ('+(on9b?on9b.id:'aucun')+')');
+    else {
+      await dmeChoisir(2);
+      const on9c=document.querySelector('.screen.on');
+      if(tire!==2) vus.push('le choix fait sur le papier ne tire pas le bon exercice ('+tire+')');
+      if(!on9c||on9c.id!=='scr-dmenonce'||!document.querySelector('#dmeCorps .dme-q')||!(document.getElementById('dmeCorps').textContent||'').trim()||!document.getElementById('dmePapierBtn'))
+        vus.push('après le choix, le papier ne montre pas l\\'énoncé à télécharger');
+      if(document.querySelector('#dmeCorps .essai-choix')) vus.push('les cartes du choix restent dans l\\'énoncé papier');
+    }
+    toast=vraiToast;
+    if(dits.some(function(t){ return /^err:/.test(t); })) vus.push('un exercice à choix est déclaré « ne sait pas s\\'énoncer » : '+dits.join(' ¦ '));
+    delete TESTS['__essai-choix']; dmeCtx=null; dmeViderCorps();
+
     } finally { window.confirm=vraiConfirm; toast=vraiToast; }
     return vus.slice(0,4).join(' | ');
   })()`, function(r){
