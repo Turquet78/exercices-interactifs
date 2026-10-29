@@ -1086,6 +1086,34 @@ navigateur ouvre la boîte dans un vrai Chromium, par-dessus le tableau de
 bord, le curseur dedans, et tape le mot de passe comme le professeur le
 tapera.
 
+**Puis le mot de passe a été GARDÉ DANS L'ONGLET, et la boîte n'est plus que le
+dernier recours.** Demande de Turquet (octobre 2026), à la question « peut-on
+mémoriser le mot de passe professeur pour l'envoyer directement quand il le
+faut » : « oui, mémorise le mot de passe dans l'onglet ». Il vit dans
+`sessionStorage` (`CLE_MDP_ONGLET`, la même clé dans `prof.html` et les trois
+pages), posé à chaque porte où le professeur le tape — l'entrée de la page
+d'aiguillage (le clic sur un niveau reste dans le même onglet, le mot de passe
+suit), l'écran de connexion d'un niveau, la boîte elle-même — et retiré par
+« Se déconnecter » sur la page d'aiguillage, ou par la fermeture de l'onglet.
+`enProfesseur()` essaie d'abord `reconnexionSilencieuse()` : une connexion
+avec le mot de passe gardé, l'appartenance à `professeurs` vérifiée, puis
+l'écriture repart — sans boîte. Un mot de passe REFUSÉ par le serveur s'oublie
+aussitôt (il a changé), et la boîte s'ouvre ; une cadence dépassée (429) ne
+dit rien sur lui, il reste. Ce que cela ouvre, dit honnêtement : le mot de
+passe est lisible dans les outils de développement de cet onglet tant qu'il
+est ouvert. Ce que cela n'ouvre PAS : le navigateur gardait déjà, dans
+`localStorage`, un jeton qui vaut le mot de passe tant qu'on n'est pas
+déconnecté — la porte existait, on n'en a pas percé une seconde. Jamais
+`localStorage` pour le mot de passe lui-même (il survivrait à l'onglet), jamais
+la page (le dépôt est public, un contrôle l'interdit). Le banc jsdom tient le
+texte (chaque porte garde, « Se déconnecter » oublie, `sessionStorage` et
+jamais `localStorage`) et le chemin (avec le mot de passe gardé, une session
+d'élève se rouvre par UNE connexion, sans boîte, l'écriture passe ; un mot de
+passe gardé mais refusé s'oublie et la boîte s'ouvre ; la boîte garde le mot
+de passe accepté) ; le banc navigateur vérifie que le mot de passe tapé sur
+`prof.html` est bien arrivé dans l'onglet du niveau, et que la session
+remplacée s'y rouvre en silence, avant d'éprouver la boîte l'onglet vidé.
+
 **L'écran du bilan ne bouge plus quand le professeur pose une note.** Demande
 de Turquet (septembre 2026) : « quand je modifie une note je souhaite que la
 page réapparaisse exactement au même endroit ». Poser une note redessine le

@@ -565,6 +565,37 @@ if(require.main === module) (async () => {
          s'affiche. */
       if(arrivee.ecran === 'scr-teacher'){
         const TABLE = (P.coursPdf && P.coursPdf.table) || 'parametres';
+        /* D'ABORD LE SILENCE (demande de Turquet, octobre 2026) : le mot de
+           passe tapé sur prof.html a suivi dans l'onglet ; une session
+           remplacée se rouvre sans boîte, et l'écriture passe. */
+        const silence = await q.page.evaluate(async (TABLE) => {
+          const F = window.__faux; F.rls = true;
+          F.semer(TABLE, [{ id: 1, valeurs: { secondsPerQuestion: 7 } }]);
+          const garde = (typeof mdpOngletLire === 'function') ? mdpOngletLire() : '(mdpOngletLire absent)';
+          F.poserSession({ user: { id: 'eleve-intrus', email: 'eleve@controle.invalid', app_metadata: {} } });
+          let ouverte = false;
+          const b = document.getElementById('reconnexionModal');
+          const obs = new MutationObserver(() => { if(b && !b.hidden) ouverte = true; });
+          if(b) obs.observe(b, { attributes: true, attributeFilter: ['hidden'] });
+          const r = await Promise.race([
+            enProfesseur(async () => {
+              const { error } = await sb.from(TABLE).upsert({ id: 1, valeurs: { secondsPerQuestion: 8 } });
+              if(error) throw error; return 'écrit';
+            }).then(v => ({ ok: true, v }), e => ({ ok: false, e: e && (e.code || e.message) })),
+            new Promise(ok => setTimeout(() => ok({ ok: false, e: 'rien en 3 s' }), 3000))]);
+          obs.disconnect();
+          if(b && !b.hidden && typeof reconnexionAnnuler === 'function') reconnexionAnnuler();
+          const valeur = (((F.tables[TABLE] || [{}])[0] || {}).valeurs || {}).secondsPerQuestion;
+          /* puis l'onglet oublie le mot de passe : la suite éprouve la boîte */
+          if(typeof mdpOngletGarder === 'function') mdpOngletGarder('');
+          return { garde: garde !== '' && garde !== '(mdpOngletLire absent)', r, ouverte, valeur,
+                   session: F.session && F.session.user && F.session.user.id };
+        }, TABLE);
+        verifier('le mot de passe tapé sur la page d\'aiguillage a suivi dans l\'onglet',
+          silence.garde === true, 'sessionStorage vide ou fonction absente à l\'arrivée sur le niveau');
+        verifier('avec le mot de passe gardé, une session remplacée se rouvre en silence et l\'écriture passe sans boîte',
+          silence.r.ok === true && silence.r.v === 'écrit' && silence.ouverte === false && silence.valeur === 8
+            && silence.session === 'compte-prof-controle', JSON.stringify(silence));
         await q.page.evaluate((TABLE) => {
           const F = window.__faux; F.rls = true;
           F.semer(TABLE, [{ id: 1, valeurs: { secondsPerQuestion: 7 } }]);
