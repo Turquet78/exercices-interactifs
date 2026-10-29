@@ -1742,7 +1742,7 @@ if(require.main === module) (async () => {
           try { await img.decode(); } catch(e){ defauts.push(nom + ', coup ' + (i + 1) + ' : l\'image ne se décode pas'); }
         }
       }
-      return { ecran: ecran ? ecran.id : '(aucun)', n: cartes.length, defauts };
+      return { ecran: ecran ? ecran.id : '(aucun)', n: cartes.length, ardoise: !!ecran && !ecran.querySelector('.card'), defauts };
     });
     const vus = [];
     const mesurerCadres = async () => { await s.page.waitForTimeout(500); vus.push(await lireCadres()); };
@@ -1751,7 +1751,11 @@ if(require.main === module) (async () => {
     await s.page.evaluate(() => openThemes()); await mesurerCadres();
     await s.page.evaluate(id => openTest(id), N.exercice); await mesurerCadres();
     await s.page.click('#modeChoices [onclick*="train"]'); await s.page.waitForTimeout(400); await mesurerCadres();
-    verifier('le banc a des cadres à mesurer', vus.length === 5 && vus.every(v => v.n >= 1) && vus.reduce((a, v) => a + v.n, 0) >= 8,
+    /* un écran SANS AUCUN cadre (l'ardoise du calcul rapide, scr-test : c'est
+       l'exercice témoin de la Terminale) n'a rien à tracer — il le dit */
+    vus.filter(v => v.ardoise).forEach(v => console.log('    (' + v.ecran + ' est une ardoise, sans cadre : rien à tracer)'));
+    verifier('le banc a des cadres à mesurer', vus.length === 5 && vus.every(v => v.n >= 1 || v.ardoise)
+      && vus.filter(v => !v.ardoise).length >= 4 && vus.reduce((a, v) => a + v.n, 0) >= 8,
       vus.map(v => v.ecran + ' : ' + v.n).join(', '));
     const defautsCadres = vus.flatMap(v => v.defauts);
     verifier('chaque cadre et chaque carte de menu est tracé au marqueur, en petites images filtrées à leur mesure, sans toucher le contenu',
