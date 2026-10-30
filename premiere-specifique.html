@@ -25,6 +25,11 @@
 <!-- ========================================================================= -->
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- La page n'a qu'un thème, clair : « only light » interdit au mode sombre
+     automatique de Chrome de la repeindre à l'aveugle (titres bleu clair sur
+     fond clair, code de connexion invisible — constat de Turquet, octobre 2026).
+     Dark Reader, lui, l'ignore. -->
+<meta name="color-scheme" content="only light">
 <title>Tests de calcul — comptes de la classe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -209,6 +214,9 @@
      elle ne peut pas savoir qu'il est juste. Les classes ne s'appellent ni
      ok ni bad : ce ne sont pas des verdicts d'exercice. */
   .pin-input{transition:border-color .2s,box-shadow .2s}
+  /* Les points du code (« •••••• ») ont leur couleur : laissés au gris pâle du
+     navigateur, ils disparaissaient dès qu'un mode sombre repeignait la page. */
+  #loginPin::placeholder,#newPin::placeholder,#newPin2::placeholder{color:var(--ink-soft);opacity:1}
   .pin-input.pin-attente{border-color:var(--blue);animation:pinPulse 1s ease-in-out infinite}
   .pin-input.pin-valide{border-color:var(--green);border-width:2.5px;box-shadow:0 0 0 4px var(--green-soft)}
   .pin-input.pin-refus{border-color:var(--red);box-shadow:0 0 0 4px var(--red-soft);animation:pinSecousse .4s}
@@ -3177,7 +3185,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=352;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=353;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
