@@ -16483,8 +16483,8 @@ if(require.main === module) (async () => {
       verifier('une case MathLive grandit pour montrer tout ce qui y est écrit',
         nCasesLongues > 0 && nCasesGrandies > 0 && casesCoupees.length === 0,
         nCasesLongues === 0 ? 'aucune case mesurée : le contrôle ne mesure rien'
-          : nCasesGrandies === 0 ? nCasesLongues + ' case(s) remplie(s), aucune n\'a eu à grandir : le contrôle ne mesure rien'
-          : casesCoupees.length + ' écran(s) — ' + casesCoupees.slice(0, 3).join(' | '));
+          : casesCoupees.length ? casesCoupees.length + ' écran(s) — ' + casesCoupees.slice(0, 3).join(' | ')
+          : nCasesLongues + ' case(s) remplie(s), aucune n\'a eu à grandir : le contrôle ne mesure rien');
       verifier('les cases de saisie ont la taille des nombres qui les entourent',
         petites.length === 0, petites.slice(0, 3).join(' | '));
       verifier('les textes des graphiques s\'écrivent à 12 px au moins (un indice d\'étiquette à 10)',
