@@ -977,3 +977,15 @@ au clavier se lit aₙ, « 1-an » dans l'arbre est juste, la forme réduite de
 l'hérédité est reconnue. Sur un téléphone, les arbres défilent dans leur
 cadre (comme au 6.1.5) et les lignes de la récurrence aussi (comme au
 5.6.3). Terminale v460, puis v461 : la v460 avait été prise par #891 pendant que cette branche attendait ses contrôles.
+
+**Puis la question 6 a reçu son tableau de valeurs** (demande de Turquet,
+octobre 2026 : « ajoute un tableau de valeurs pour la question 6 »). C'est
+celui du 5.5.1 (`sag-tabla`, qui défile, `tabindex` pour le clavier) :
+`apsTablaHTML`, valeurs à 10⁻⁴, la précision demandée — le seuil est à au
+moins 2·10⁻⁴ des deux termes qui l'encadrent, l'arrondi ne retourne donc
+jamais la comparaison. Deux choses n'y sont PAS, exprès : la formule de aₙ
+(c'est la réponse de la question 4 par la suite auxiliaire — l'astuce qui
+l'écrivait « aₙ = … » la donnait, et elle a été retirée), et le terme du
+deuxième rang (la réponse du 2 a) : le tableau commence au rang n₀ + 2.
+Sur le papier il se tait (`aide-ecran`) : l'élève a sa calculatrice, et un
+tableau qui défile s'imprimerait coupé. Terminale v463.

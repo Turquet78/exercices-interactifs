@@ -29402,12 +29402,28 @@ function apsCorpsHTML(q){
       +apsSel('aps-l4', [['dedans','−1 &lt; '+Q+' &lt; 1'],['sup',Q+' &gt; 1'],['pos',Q+' &gt; 0']])+'</div>'
     +'<p class="apc-etape aide-ecran">Interprétation :</p>'+apsCartesHTML(q,'lim')
     +'<p class="apf-cons"><b>6.</b> Déterminer le plus petit entier naturel <i>n</i> tel que '+APS_AN+' '+cmp2+' '+S+' et interpréter le résultat obtenu dans le contexte de l’exercice.</p>'
-    +'<p class="apf-astuce">À la calculatrice, le tableau de valeurs de '+APS_AN+' = '+apsFormH(q, e0)+' : écris les deux termes qui encadrent le seuil, en valeurs approchées à 10<sup>−4</sup> près.</p>'
+    +'<p class="apf-astuce aide-ecran">Le tableau de valeurs de la suite ('+APS_AN+'), comme à la calculatrice — fais-le défiler : écris les deux termes qui encadrent le seuil, en valeurs approchées à 10<sup>−4</sup> près.</p>'
+    +'<div class="sag-tabla-wrap eav-tabla-wrap aide-ecran" tabindex="0" aria-label="tableau de valeurs de la suite">'+apsTablaHTML(q)+'</div>'
     +'<div class="rf-ligne">'+apsIdx('aps-k1')+' ≈ '+rfMf('aps-w1')+' '+cmp1+' '+S+'  et  '+apsIdx('aps-k2')+' ≈ '+rfMf('aps-w2')+' '+cmp2+' '+S+'</div>'
     +'<div class="rf-ligne">Donc le plus petit entier cherché est <i>n</i> = '+rfMf('aps-N')+'.</div>'
     +'<p class="apc-etape aide-ecran">Interprétation :</p>'+apsCartesHTML(q,'seu');
 }
 function apsMaj(t){ return t.charAt(0).toUpperCase()+t.slice(1); }
+/* LE TABLEAU DE VALEURS DE LA QUESTION 6 (demande de Turquet, octobre 2026 :
+   « ajoute un tableau de valeurs pour la question 6 ») : celui de la
+   calculatrice, qui défile comme au 5.5.1 (sag-tabla). Il ne dit pas la
+   formule de aₙ — c'est la réponse de la question 4 par la suite auxiliaire —
+   et commence au rang n₀ + 2 : le terme du deuxième rang est la réponse du
+   2 a). Les valeurs sont arrondies à 10⁻⁴, la précision demandée ; le seuil
+   est à au moins 2·10⁻⁴ des termes qui l'encadrent (apsSeuil), l'arrondi ne
+   retourne donc jamais la comparaison. Le tableau va au moins huit rangs
+   au-delà du seuil, et au moins jusqu'au rang n₀ + 20. Sur le papier, il
+   se tait (aide-ecran) : l'élève a sa calculatrice. */
+function apsTablaHTML(q){
+  let rows='';
+  for(let n=q.n0+2;n<=Math.max(q.N+8, q.n0+20);n++) rows+='<tr><td>'+n+'</td><td>'+apsA(q,n).toFixed(4).replace('.',',')+'</td></tr>';
+  return '<table class="sag-tabla"><thead><tr><th><i>n</i></th><th>'+APS_AN+'</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
 /* ---- le cycle de vie ---- */
 async function startAPS(){
   if(!currentEleve){ accueil(); return; }
