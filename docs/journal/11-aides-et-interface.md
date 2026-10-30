@@ -310,9 +310,15 @@ de pause, une correction écrite, une touche du pavé ne passent pas par
 `input`, et MathLive ne l'émet pas sur un `value =` (mesuré).
 Le contrôle vit dans la visite de la section 9 du banc navigateur : sur chaque
 exercice, les quatre premières cases vides de l'écran reçoivent
-« 123+456+789 » ; chaque case doit alors montrer tout son contenu, ou occuper
-déjà toute sa ligne (là où il n'y a plus de place où grandir, ce n'est plus
-l'affaire de la case). Son second bord : le filet doit avoir eu à agir quelque
+« 123+456+789 » ; chaque case doit alors montrer tout son contenu, ou sa
+ligne ne plus avoir de place où grandir. « Plus de place » se mesure en
+remontant les ancêtres : à chaque étage, les enfants qui chevauchent la case en
+hauteur laissent-ils de la largeur libre ? Si oui, la case pouvait grandir.
+Sinon on monte d'un étage, jusqu'à un conteneur arrivé à son propre plafond —
+la flèche du schéma des évolutions (`.pctb-arrow{max-width:260px}`, Seconde
+4.5.4 à 4.5.6, Première 2.5.5) est un choix de dessin, pas une retenue de la
+case. Le premier jet ne regardait que le parent direct, et accusait ces six
+écrans là où la case avait déjà pris toute la flèche. Son second bord : le filet doit avoir eu à agir quelque
 part — sans quoi la réponse longue ne dépasse aucun plafond, et le contrôle ne
 mesure rien.
 

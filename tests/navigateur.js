@@ -16196,8 +16196,8 @@ if(require.main === module) (async () => {
              déborde. On le MESURE ici, sur chaque exercice : on écrit une
              réponse longue dans les premières cases vides de l'écran, on
              attend le rendu, et le contenu de chaque case doit tenir dans sa
-             case — ou la case doit déjà occuper toute sa ligne, là où il n'y a
-             plus de place où grandir. Puis on rend la case vide. */
+             case — ou sa ligne ne doit plus avoir de place où grandir. Puis
+             on rend la case vide. */
           if(mode === 'train'){
             const lg = await s.page.evaluate(async () => {
               const on = document.querySelector('section.screen.on'); if(!on) return null;
@@ -16206,11 +16206,28 @@ if(require.main === module) (async () => {
               const mfs = [...on.querySelectorAll('math-field')]
                 .filter(m => visible(m) && !m.readOnly && !(m.value || '').trim() && m.shadowRoot).slice(0, 4);
               if(!mfs.length) return null;
-              const cadre = m => { let p = m.parentElement;
-                while(p && /^(inline|contents)$/.test(getComputedStyle(p).display)) p = p.parentElement;
-                if(!p) return Infinity;
-                const cs = getComputedStyle(p);
-                return p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight); };
+              /* La case avait-elle de la PLACE où grandir ? On remonte ses
+                 ancêtres : à chaque étage, la ligne de la case (les enfants
+                 qui la chevauchent en hauteur) laisse-t-elle de la largeur
+                 libre ? Oui : la case pouvait grandir, et ne l'a pas fait.
+                 Non : on monte d'un étage — jusqu'à un conteneur arrivé à son
+                 propre plafond (la flèche du schéma des évolutions, 260 px),
+                 qui est un choix de dessin, pas une retenue de la case. */
+              const aDeLaPlace = m => { let e = m;
+                for(let i = 0; i < 10 && e && e !== on; i++){
+                  const p = e.parentElement; if(!p) return false;
+                  const cs = getComputedStyle(p);
+                  if(/^(inline|contents)$/.test(cs.display)){ e = p; continue; }
+                  const pr = p.getBoundingClientRect(), er = e.getBoundingClientRect();
+                  const libre = p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+                  let g = er.left, d = er.right;
+                  for(const c of p.children){ const r = c.getBoundingClientRect();
+                    if(r.width && Math.min(r.bottom, er.bottom) - Math.max(r.top, er.top) > 0){ g = Math.min(g, r.left); d = Math.max(d, r.right); } }
+                  if(libre - (d - g) > 2) return true;
+                  if(/px$/.test(cs.maxWidth) && pr.width >= parseFloat(cs.maxWidth) - 1) return false;
+                  e = p;
+                }
+                return false; };
               const raf = () => new Promise(r => requestAnimationFrame(() => r()));
               mfs.forEach(m => { m.value = '123+456+789'; });
               await raf(); await raf(); await raf();
@@ -16218,7 +16235,7 @@ if(require.main === module) (async () => {
               for(const m of mfs){
                 const c = m.shadowRoot.querySelector('.ML__content');
                 if(m.dataset.grandit) out.grandies++;
-                if(c && c.scrollWidth > c.clientWidth + 1 && m.getBoundingClientRect().width < cadre(m) - 2)
+                if(c && c.scrollWidth > c.clientWidth + 1 && aDeLaPlace(m))
                   out.coupees.push((m.id || '(sans id)') + ' : ' + c.clientWidth + ' px montrés sur ' + c.scrollWidth);
               }
               mfs.forEach(m => { m.value = ''; });
