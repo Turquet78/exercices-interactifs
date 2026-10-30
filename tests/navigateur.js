@@ -18988,6 +18988,83 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ---- 11 duodecies. Sur ordinateur, le clavier à l'écran écrit dans une case en texte ----
+       LE CLAVIER À L'ÉCRAN ÉCRIT DANS UNE CASE DE CALCUL EN TEXTE — et y
+       reste ouvert (demande de Turquet, octobre 2026, au 6.2.1 : « si je mets
+       le clavier virtuel sur mon pc, le curseur dans la case disparaît, et
+       quand je clique sur la case mon clavier disparaît » ; puis « quand je
+       tape a_n au clavier de mon pc, il ne l'affiche pas avec un indice »).
+       Sur ORDINATEUR, fenêtre flottante : un champ MathLive a le focus, le
+       clavier est ouvert ; on clique une case en texte (data-pave-plus, la
+       case de calcul) — le clavier reste ; une touche du clavier y écrit, le
+       focus y reste ; « a_n » tapé au clavier physique s'écrit « aₙ » ; la
+       croix ferme toujours. La case et le champ sont posés par le banc dans
+       l'écran ouvert : le mécanisme est commun aux trois niveaux (moteur du
+       pavé), aucune déclaration. Éprouvé à l'envers sur la version d'avant :
+       le clavier se repliait au clic, « a_n » restait « a_n ». */
+    titre('11 duodecies. SUR ORDINATEUR, LE CLAVIER À L\'ÉCRAN ÉCRIT DANS UNE CASE EN TEXTE');
+    {
+      s = await ouvrir(chromium, ml, {});
+      const ecranK = await connecter(s.page);
+      await s.page.waitForFunction(() => window.mathVirtualKeyboard && window.__mlKbSetup, null, { timeout: 20000 }).catch(() => {});
+      const pret = await s.page.evaluate(() => {
+        const sc = document.querySelector('section.screen.on'); if(!sc || !window.__kbFloating) return false;
+        const d = document.createElement('div'); d.id = 'bancKbTexte';
+        d.innerHTML = '<math-field id="bancKbMf" style="min-width:6em;display:inline-block"></math-field> '
+          + '<input id="bancKbIn" type="text" autocomplete="off" data-pave-plus="( ) + ×" style="width:10em">';
+        sc.insertBefore(d, sc.firstChild);
+        return true;
+      });
+      if(ecranK !== 'scr-space' || !pret){
+        verifier('sur ordinateur, le clavier à l\'écran écrit dans une case en texte', false,
+          'écran ' + ecranK + ', fenêtre flottante ' + pret);
+      } else {
+        await s.page.click('#bancKbMf');
+        await s.page.evaluate(() => mathVirtualKeyboard.show());
+        await s.page.waitForTimeout(500);
+        await s.page.click('#bancKbIn');
+        await s.page.waitForTimeout(700);   /* MathLive replie son clavier 300 ms après la sortie d'un champ */
+        const apres = await s.page.evaluate(() => ({ vu: mathVirtualKeyboard.visible, focus: document.activeElement && document.activeElement.id }));
+        verifier('cliquer une case en texte ne replie pas le clavier à l\'écran',
+          apres.vu && apres.focus === 'bancKbIn', 'clavier ' + (apres.vu ? 'ouvert' : 'replié') + ', focus sur ' + apres.focus);
+        await s.page.keyboard.type('1-');
+        /* une touche d'insertion du clavier, quelle que soit sa couche : 7 */
+        const t7 = await s.page.evaluate(() => {
+          for(const L of document.querySelectorAll('#kbwin .MLK__layer')) for(const k of L.querySelectorAll('[id]')){
+            const d = mathVirtualKeyboard.getKeycap && mathVirtualKeyboard.getKeycap(k.id);
+            if(d && (d.latex === '7' || d.key === '7' || d.insert === '7' || d.label === '7')){
+              if(!L.classList.contains('is-visible')) mathVirtualKeyboard.currentLayer = L.id;
+              const r = k.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; } }
+          return null; });
+        if(t7){ await s.page.mouse.click(t7.x, t7.y); await s.page.waitForTimeout(300); }
+        const ecrit = await s.page.evaluate(() => ({ v: document.getElementById('bancKbIn').value, focus: document.activeElement && document.activeElement.id }));
+        verifier('une touche du clavier à l\'écran s\'écrit dans la case en texte, qui garde le focus',
+          !!t7 && ecrit.v === '1-7' && ecrit.focus === 'bancKbIn',
+          t7 ? 'case « ' + ecrit.v + ' », focus sur ' + ecrit.focus : 'aucune touche 7 trouvée sur le clavier');
+        /* une touche LaTeX (a_{n}) passe par le même chemin que celle du 6.2.1 */
+        const tex = await s.page.evaluate(() => { const e = document.getElementById('bancKbIn'); e.value = ''; e.focus();
+          mathVirtualKeyboard.executeCommand(['insert', 'a_{n}\\times\\approx', { focus: true, mode: 'math', format: 'latex' }]);
+          return { v: e.value, focus: document.activeElement && document.activeElement.id }; });
+        verifier('une touche en LaTeX s\'écrit en texte dans la case (a_{n} → aₙ, \\times → ×)',
+          tex.v === 'aₙ×≈' && tex.focus === 'bancKbIn', 'case « ' + tex.v + ' », focus sur ' + tex.focus);
+        await s.page.fill('#bancKbIn', '');
+        await s.page.click('#bancKbIn');
+        await s.page.keyboard.type('1-a_n');
+        const ind = await s.page.evaluate(() => document.getElementById('bancKbIn').value);
+        await s.page.keyboard.press('End'); await s.page.keyboard.type('+a_(n+1)');
+        const ind2 = await s.page.evaluate(() => document.getElementById('bancKbIn').value);
+        verifier('« a_n » tapé au clavier s\'écrit « aₙ » dans une case de calcul (et « a_(n+1) », « aₙ₊₁ »)',
+          ind === '1-aₙ' && ind2 === '1-aₙ+aₙ₊₁', '« ' + ind + ' » puis « ' + ind2 + ' »');
+        await s.page.click('#kbwin .kbwin-close').catch(() => {});
+        await s.page.waitForTimeout(500);
+        verifier('la croix ferme toujours le clavier à l\'écran, même depuis une case en texte',
+          !(await s.page.evaluate(() => mathVirtualKeyboard.visible)));
+        verifier('le clavier dans une case en texte ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {
