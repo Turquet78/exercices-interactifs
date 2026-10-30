@@ -4417,7 +4417,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=465;
+const APP_VERSION=466;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -40467,6 +40467,50 @@ window.mlDexp = {
   showShortcuts(){ if(!helpWin) return false; helpWin.classList.toggle("open"); return true; }
 };
 customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
+</script>
+<script id="cases-math-grandissent">
+/* UNE CASE MATHLIVE GRANDIT POUR MONTRER TOUT CE QUI Y EST ÉCRIT — filet de
+   sécurité. Demande de Turquet, octobre 2026, sur une capture du 6.2.1 de la
+   Terminale : l'exposant « n − 1 + 1 » s'y coupait en « ı − 1 + 1 », parce que
+   la case d'exposant plafonnait à 64 px (max-width). Les plafonds de largeur
+   sont posés case par case, dans les trois niveaux, pour tenir une mise en
+   page À VIDE ; aucun ne sait ce que l'élève écrira. Ce filet lève donc le
+   plafond d'une case dès que son contenu déborde : elle grandit jusqu'à la
+   largeur de sa ligne (max-width:100%), puis se resserre d'elle-même quand on
+   efface — une case MathLive épouse son contenu —, sans jamais descendre
+   sous sa largeur d'origine. Il agit à la frappe (input),
+   et quand la page écrit elle-même dans la case (value, setValue, insert,
+   executeCommand : la reprise d'une pause, la correction, le pavé). Le banc
+   navigateur le vérifie sur tous les exercices (« une case MathLive grandit
+   pour montrer tout ce qui y est écrit »). */
+(function(){
+  function deborde(mf){
+    const c=mf.shadowRoot && mf.shadowRoot.querySelector('.ML__content');
+    return !!c && c.scrollWidth>c.clientWidth+1;
+  }
+  /* trois retenues peuvent tenir une case : un plafond (max-width), une
+     largeur fixe (width:120px) et une base flex (flex:0 1 7em) — les trois se
+     relâchent ensemble, et la largeur d'origine devient le minimum : la case
+     effacée retrouve sa taille, jamais moins */
+  function agrandir(mf){
+    if(!mf || !mf.isConnected || mf.dataset.grandit || !deborde(mf)) return;
+    mf.dataset.grandit='1';
+    mf.style.minWidth=Math.ceil(mf.getBoundingClientRect().width)+'px';
+    mf.style.width='auto'; mf.style.flexBasis='auto'; mf.style.maxWidth='100%';
+  }
+  function bientot(mf){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ agrandir(mf); }); }); }
+  document.addEventListener('input', function(e){ const t=e.target; if(t && t.tagName==='MATH-FIELD') bientot(t); }, true);
+  customElements.whenDefined('math-field').then(function(){
+    const P=customElements.get('math-field').prototype;
+    const d=Object.getOwnPropertyDescriptor(P,'value');
+    if(d && d.set) Object.defineProperty(P,'value',{configurable:true, enumerable:d.enumerable, get:d.get,
+      set:function(v){ d.set.call(this,v); bientot(this); }});
+    ['setValue','insert','executeCommand'].forEach(function(nom){
+      const f=P[nom]; if(typeof f!=='function') return;
+      P[nom]=function(){ const r=f.apply(this,arguments); bientot(this); return r; };
+    });
+  });
+})();
 </script>
 <script id="italiquer-x">
 /* L'INCONNUE « x » S'ÉCRIT TOUJOURS EN ITALIQUE ARRONDI — filet de sécurité.
