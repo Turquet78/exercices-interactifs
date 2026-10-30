@@ -977,3 +977,20 @@ au clavier se lit aₙ, « 1-an » dans l'arbre est juste, la forme réduite de
 l'hérédité est reconnue. Sur un téléphone, les arbres défilent dans leur
 cadre (comme au 6.1.5) et les lignes de la récurrence aussi (comme au
 5.6.3). Terminale v460, puis v461 : la v460 avait été prise par #891 pendant que cette branche attendait ses contrôles.
+
+### Les cases de l'arbre du 6.2.1 sont ajustées dès l'affichage (v463)
+
+Signalé par Turquet sur une capture (octobre 2026) : les cases des probabilités
+des branches du premier arbre étaient bien trop larges à l'ouverture, et
+reprenaient la bonne largeur à la première frappe. `renderAPS` dessinait ses
+cases `apf-in` sans appeler `sa2Ajuster` — seule la reprise d'une pause le
+faisait — si bien qu'une case vide gardait la largeur d'un input nu (une
+vingtaine de caractères). Le 6.1.5, dont l'arbre vient, ajustait les siennes.
+Correctif : `renderAPS` ajuste toutes ses cases `.apf-in` avant de tracer.
+
+Un bug trouvé devient un contrôle, et une règle valable partout va partout :
+« une case qui s'ajuste à sa saisie est ajustée dès l'affichage » (banc
+navigateur, section 9) relève, sur chaque exercice et dans les deux modes,
+toute case vide visible dont l'`oninput` appelle `sa2Ajuster` et qui n'a
+aucune largeur posée. Éprouvé par sabotage : sur l'ancien rendu, il rougit sur
+le 6.2.1 seul, onze cases, entraînement et soutien.

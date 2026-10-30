@@ -15701,7 +15701,7 @@ if(require.main === module) (async () => {
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
       const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], coeffsDecales = [], etroits = [], surCourbe = [];
       const indicesPlats = []; let nIndicesFlex = 0;
-      const textesPetits = [], gradSurEtiquette = [], defilantsSourds = []; let nTextesSvg = 0, nDefilants = 0;
+      const textesPetits = [], gradSurEtiquette = [], defilantsSourds = []; const casesNues = []; let nTextesSvg = 0, nDefilants = 0, nAjustables = 0;
       /* LES DÉFINITIONS S'ÉCRIVENT AVANT L'ÉNONCÉ, dans tout exercice du thème
          Python (demande de Turquet, octobre 2026). Mesuré sur le PREMIER écran
          de l'exercice, avant qu'on ne franchisse quoi que ce soit : le cours
@@ -16150,10 +16150,23 @@ if(require.main === module) (async () => {
                 break;
               }
             });
-            return { petits: [...new Set(petits)], chev: [...new Set(chev)], n, sourds: [...new Set(sourds)], nd };
+            /* UNE CASE QUI S'AJUSTE À SA SAISIE EST AJUSTÉE DÈS L'AFFICHAGE
+               (signalé par Turquet, octobre 2026 : les cases de l'arbre du
+               6.2.1 de Terminale, larges comme un input nu jusqu'à la
+               première frappe — le rendu oubliait sa2Ajuster). Une case vide
+               sans largeur posée garde celle du navigateur, une vingtaine de
+               caractères. Sur tous les exercices, sans rien déclarer. */
+            const nonAjustees = []; let na = 0;
+            on.querySelectorAll('input[oninput*="sa2Ajuster"]').forEach(e => {
+              if(!vis(e) || e.value !== '') return;
+              na++;
+              if(!e.style.width) nonAjustees.push('#' + (e.id || '(sans id)'));
+            });
+            return { petits: [...new Set(petits)], chev: [...new Set(chev)], n, sourds: [...new Set(sourds)], nd, nonAjustees, na };
           });
           if(lis){
-            nTextesSvg += lis.n; nDefilants += lis.nd;
+            nTextesSvg += lis.n; nDefilants += lis.nd; nAjustables += lis.na;
+            if(lis.nonAjustees.length) casesNues.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + lis.nonAjustees.length + ' case(s) : ' + lis.nonAjustees.slice(0, 3).join(', '));
             if(lis.petits.length) textesPetits.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + lis.petits.slice(0, 2).join(', '));
             if(lis.chev.length) gradSurEtiquette.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + lis.chev[0]);
             if(lis.sourds.length) defilantsSourds.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + lis.sourds.join(', '));
@@ -16423,6 +16436,10 @@ if(require.main === module) (async () => {
         nTextesSvg > 0 && textesPetits.length === 0,
         nTextesSvg === 0 ? 'aucun texte de graphique mesuré : le contrôle ne mesure rien'
           : textesPetits.length + ' écran(s) — ' + textesPetits.slice(0, 3).join(' | '));
+      verifier('une case qui s\'ajuste à sa saisie est ajustée dès l\'affichage',
+        nAjustables > 0 && casesNues.length === 0,
+        nAjustables === 0 ? 'aucune case ajustable mesurée : le contrôle ne mesure rien'
+          : casesNues.length + ' écran(s) — ' + casesNues.slice(0, 3).join(' | '));
       verifier('aucune graduation ne recouvre le nom d\'une courbe',
         gradSurEtiquette.length === 0, gradSurEtiquette.slice(0, 3).join(' | '));
       /* un niveau sans tableau défilant le DÉCLARE (tests/profils.js,
