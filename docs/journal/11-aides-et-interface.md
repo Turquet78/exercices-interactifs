@@ -278,6 +278,50 @@ donne le numéro de l'exercice et les deux tailles — « 4.1 — sf-a1 : 16.8px
 32px ». Le mode math, lui, était déjà acquis partout : la Seconde et la Première
 posent les mêmes `math-field`, seule la TAILLE divergeait.
 
+**Une case MathLive grandit pour montrer tout ce qui y est écrit.** Demande de
+Turquet (octobre 2026), sur une capture du 6.2.1 de la Terminale : dans
+l'hérédité, l'exposant « n − 1 + 1 » se lisait « ı − 1 + 1 », la lettre coupée
+par le bord de la case. La case d'exposant (`math-field.rf-mf.rf-exp`) portait
+`max-width:64px` — un plafond posé pour tenir la mise en page À VIDE, et qui ne
+savait rien de ce que l'élève écrirait. Il y en a des dizaines comme lui dans
+les trois niveaux (`rc-mf-idx`, `sp-mf`, `pm-mf`, les cases des pourcentages…),
+chacun posé dans son coin : corriger celui du 6.2.1 laissait tous les autres.
+**Le remède est un FILET, pas une retouche** — `#cases-math-grandissent`, le
+même texte dans les trois fichiers, juste avant `#italiquer-x` : dès que le
+contenu d'une case déborde (`.ML__content`, `scrollWidth > clientWidth`), la
+case reçoit `max-width:100%` en style posé — elle grandit jusqu'à la largeur de
+sa ligne, et se resserre d'elle-même quand on efface, puisqu'une case MathLive
+épouse son contenu.
+**Le plafond n'était pas la seule retenue, et c'est le contrôle qui l'a dit** :
+au premier passage, le filet ne relâchait que `max-width`, et 19 écrans restaient
+coupés — les cases décimales de la Seconde et de la Première ont une largeur
+FIXE (`.f-dec{width:120px}`, `130px` dans les pourcentages : « 92 px montrés sur
+173 »), et la case d'opération de la résolution du 6.1.5 est un élément flex
+(`flex:0 1 7em`), que sa base retient quelle que soit sa largeur permise. Le
+filet relâche donc les TROIS ensemble (`width:auto`, `flex-basis:auto`,
+`max-width:100%`), et pose la largeur d'origine en `min-width` : la case
+effacée retrouve sa taille, jamais moins. Il marque la case (`data-grandit`),
+et ne la relâche qu'une fois. Le plafond ne tombe QUE sur une case qui déborde : le lever
+partout par une règle `!important` aurait étiré à vide toutes les cases en
+`flex:1` jusqu'au bout de leur rangée. Il agit à la frappe (`input`, en
+capture) ET quand la page écrit elle-même : `value`, `setValue`, `insert`,
+`executeCommand` sont enveloppés sur le prototype de `math-field` — une reprise
+de pause, une correction écrite, une touche du pavé ne passent pas par
+`input`, et MathLive ne l'émet pas sur un `value =` (mesuré).
+Le contrôle vit dans la visite de la section 9 du banc navigateur : sur chaque
+exercice, les quatre premières cases vides de l'écran reçoivent
+« 123+456+789 » ; chaque case doit alors montrer tout son contenu, ou sa
+ligne ne plus avoir de place où grandir. « Plus de place » se mesure en
+remontant les ancêtres : à chaque étage, les enfants qui chevauchent la case en
+hauteur laissent-ils de la largeur libre ? Si oui, la case pouvait grandir.
+Sinon on monte d'un étage, jusqu'à un conteneur arrivé à son propre plafond —
+la flèche du schéma des évolutions (`.pctb-arrow{max-width:260px}`, Seconde
+4.5.4 à 4.5.6, Première 2.5.5) est un choix de dessin, pas une retenue de la
+case. Le premier jet ne regardait que le parent direct, et accusait ces six
+écrans là où la case avait déjà pris toute la flèche. Son second bord : le filet doit avoir eu à agir quelque
+part — sans quoi la réponse longue ne dépasse aucun plafond, et le contrôle ne
+mesure rien.
+
 **Une fraction se lit empilée, ou elle ne se lit pas.** Le modèle et les rappels
 de cours écrivent leurs mathématiques en LaTeX entre `\(` et `\)` — les fractions
 sont EMPILÉES, comme dans le cahier, et non couchées derrière une barre oblique.

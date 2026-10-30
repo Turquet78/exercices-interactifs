@@ -80,6 +80,7 @@ couvert sans rien avoir à déclarer.
 | L'écran d'un exercice prend **toute la largeur**, et ses rangées ne se replient pas | une chaîne d'égalités se lit comme trois calculs séparés | « aucune rangée ne se replie » |
 | La flèche **→ en fin de saisie passe à la case suivante**, puis au bouton de vérification ; au milieu du texte, elle avance d'un caractère — deux portes sur le document (`keydown`, `move-out`), aucune déclaration | l'élève au clavier doit reprendre la souris à chaque case | « la flèche → en fin de case passe à la case suivante ou au bouton de vérification », « au milieu du texte saisi, → reste dans la case » |
 | Le **clavier mathématique** est atteignable sur tout écran à champ mathématique | sur tablette, l'élève ne peut plus rien écrire | « le clavier mathématique est atteignable sur tout écran à champ mathématique » |
+| Une **case MathLive grandit pour montrer tout ce qui y est écrit** — un `max-width` posé pour la mise en page à vide ne coupe jamais une réponse : le filet `#cases-math-grandissent` (fin de fichier, les trois niveaux) lève le plafond d'une case qui déborde, jusqu'à la largeur de sa ligne | l'exposant « n − 1 + 1 » se lit « ı − 1 + 1 » (6.2.1 de la Terminale) | « une case MathLive grandit pour montrer tout ce qui y est écrit » |
 | Le **calcul écrit en tête de rangée** a la taille de sa rangée | l'énoncé de la chaîne se lit comme une note de bas de page devant les cases | « le calcul en tête de rangée s'écrit à la taille de sa rangée » |
 | La vérification peint le **juste en BLEU**, le faux en rouge, la **correction en VERT** | l'élève ne distingue plus sa réponse juste de la correction écrite par la page | « les règles .ok sont bleues, .sol et .mf-cor vertes, .bad rouges » |
 | L'inconnue **« x » s'écrit en italique ARRONDI** — l'écriture de MathLive (`KaTeX_Math`), pas le simple penché de Nunito : `<i>x</i>` (règle globale `i{…}`), jamais un `x` droit ; dans un `<option>`, le caractère `𝑥` ; dans un SVG, un `<tspan>` de fonte mathématique. **Un filet de sécurité (`italiquerX`, script `#italiquer-x` en fin de fichier) enveloppe à l'affichage tout « x » isolé resté en texte brut** : écrire `<i>x</i>` reste la règle, le filet rattrape le reste | le « x » passe pour une lettre de texte ou pour le signe ×, sur tous les niveaux | « l'inconnue « x » s'écrit toujours en italique » — plus aucune dispense (septembre 2026) : le contrôle vérifie ce que le filet a produit ; le code en chasse fixe (Python) est hors champ |
@@ -258,6 +259,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Le modèle parle simplement, sans qu'on le lui demande.**
 - **Un indice posé NU dans un conteneur flex remonte sur la ligne de sa lettre.**
 - **Une case où l'élève écrit a la taille des nombres qui l'entourent.**
+- **Une case MathLive grandit pour montrer tout ce qui y est écrit.**
 - **Une fraction se lit empilée, ou elle ne se lit pas.**
 - **Il n'y a plus aucun bouton « Explique-moi plus simplement ».**
 - **Un bouton d'une fenêtre DÉTACHÉE ne trouve pas sa fonction tout seul.**
