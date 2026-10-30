@@ -29214,8 +29214,23 @@ function apsJuger(q, id, raw){
   if(x.t==='fn') return {ok:rfValEq(raw, apsFn(q, x.f))};
   if(x.t==='red'){ const ok=apsRedOk(raw, q); return ok || !rfValEq(raw, apsFn(q,1)) ? {ok:ok} : {ok:false, pourquoi:'la dernière ligne de l’hérédité doit être la formule au rang n + 1, réduite'}; }
   const v=rcNum(raw);
-  if(x.t==='apx') return {ok:numOkTol(v, x.good, 1e-4)};
+  if(x.t==='apx') return {ok:numOkTol(v, x.good, 1e-4) || apsApxSuffit(q, id, raw, v, x.good)};
   return {ok:v!==null && Math.abs(v-x.good)<1e-9};
+}
+/* UNE VALEUR MOINS PRÉCISE QUI RÉPOND À LA QUESTION (demande de Turquet,
+   octobre 2026 : « a₄ ≈ 0,287 < 0,29 et a₅ ≈ 0,294 ≥ 0,29 doivent être
+   validés »). Écrite avec d décimales, la valeur est un arrondi ou une
+   troncature du terme (écart < 10⁻ᵈ), et cette précision SUFFIT à conclure :
+   tout nombre à moins de 10⁻ᵈ d'elle est du bon côté du seuil. « 0,6 ≥ 0,599 »
+   ne suffit pas — 0,55 s'arrondit aussi à 0,6. */
+function apsApxSuffit(q, id, raw, v, g){
+  if(v===null || (id!=='aps-w1' && id!=='aps-w2')) return false;
+  const m=String(raw==null?'':raw).replace(/\s+|\\[,;! ]|[{}]/g,'').replace(/,/g,'.').match(/^\d+\.(\d+)$/);
+  if(!m) return false;
+  const u=Math.pow(10, -m[1].length), e=1e-12;
+  if(Math.abs(v-g)>=u-e) return false;
+  const monte=q.cc<0, avant=id==='aps-w1';   /* aps-w1 : pas encore au seuil ; aps-w2 : au seuil */
+  return (monte===avant) ? v+u<=q.s+e : v-u>=q.s-e;
 }
 /* ce qu'une case lit : le texte d'un <input>, la valeur d'un <select>, un champ MathLive aplati */
 function apsLire(q, id){
@@ -29566,7 +29581,7 @@ function apsConseilCtx(){
     +'pour 3 b), le calcul en a_n jusqu’à la forme réduite donnée par l’énoncé (elle n’est pas secrète) ; '
     +(q.meth==='aux' ? 'pour 4, la chaîne v_(n+1) = a_(n+1) − ℓ = … = q × (a_n − ℓ) = q v_n, la raison, le premier terme, puis v_n et a_n en fonction de n ; '
       : 'pour 4, la récurrence dans le squelette de la fiche : initialisation calculée, hypothèse, but, la chaîne qui place la formule de a_n dans q × ( … ) + r, puis la forme réduite ; ')
-    +'pour 5, la limite avec sa justification (−1 < q < 1) et une phrase d’interprétation ; pour 6, les deux valeurs de la calculatrice qui encadrent le seuil (à 10^-4 près), le rang, et une phrase d’interprétation. '
+    +'pour 5, la limite avec sa justification (−1 < q < 1) et une phrase d’interprétation ; pour 6, les deux valeurs de la calculatrice qui encadrent le seuil (à 10^-4 près ; une valeur moins précise est acceptée si sa précision suffit à conclure sur le seuil), le rang, et une phrase d’interprétation. '
     +'État des choix : '+choix+'. '
     +'Réponses attendues, à ne JAMAIS révéler : '+apsReponseTxt(q)+'. '
     +'Saisies actuelles de l’élève : '+ids.filter(function(id){ return $(id); }).map(function(id){ return id+'='+(String(apsLire(q,id)).trim()||'(vide)'); }).join(', ')+'. '
