@@ -978,7 +978,36 @@ l'hérédité est reconnue. Sur un téléphone, les arbres défilent dans leur
 cadre (comme au 6.1.5) et les lignes de la récurrence aussi (comme au
 5.6.3). Terminale v460, puis v461 : la v460 avait été prise par #891 pendant que cette branche attendait ses contrôles.
 
-### Les cases de l'arbre du 6.2.1 sont ajustées dès l'affichage (v463)
+**Puis la question 6 a reçu son tableau de valeurs** (demande de Turquet,
+octobre 2026 : « ajoute un tableau de valeurs pour la question 6 »). C'est
+celui du 5.5.1 (`sag-tabla`, qui défile, `tabindex` pour le clavier) :
+`apsTablaHTML`, valeurs à 10⁻⁴, la précision demandée — le seuil est à au
+moins 2·10⁻⁴ des deux termes qui l'encadrent, l'arrondi ne retourne donc
+jamais la comparaison. Deux choses n'y sont PAS, exprès : la formule de aₙ
+(c'est la réponse de la question 4 par la suite auxiliaire — l'astuce qui
+l'écrivait « aₙ = … » la donnait, et elle a été retirée), et le terme du
+deuxième rang (la réponse du 2 a) : le tableau commence au rang n₀ + 2.
+Sur le papier il se tait (`aide-ecran`) : l'élève a sa calculatrice, et un
+tableau qui défile s'imprimerait coupé. Terminale v463.
+
+**Puis une valeur MOINS PRÉCISE que le tableau a été acceptée, quand elle
+répond à la question** (demande de Turquet, octobre 2026, copie d'écran à
+l'appui : « a₄ ≈ 0,287 < 0,29 et a₅ ≈ 0,294 ≥ 0,29 — mes réponses doivent
+être validées »). Le juge des cases `aps-w1`/`aps-w2` ne tolérait que 10⁻⁴ ;
+`apsApxSuffit` accepte en plus une valeur écrite avec d décimales si elle
+est un arrondi OU une troncature du terme (écart < 10⁻ᵈ) ET si cette
+précision suffit à conclure : tout nombre à moins de 10⁻ᵈ d'elle est du bon
+côté du seuil (`v + 10⁻ᵈ ≤ s` avant le seuil d'une suite croissante,
+`v − 10⁻ᵈ ≥ s` au seuil ; l'inverse pour une décroissante). Les bords
+refusés, nommés : « a₅ ≈ 0,29 ≥ 0,29 » (0,285 s'arrondit aussi à 0,29 — la
+précision ne prouve rien), « 0,3 », et un nombre trop loin du terme
+(« 0,293 » pour 0,2949). Le contexte envoyé au modèle le dit aussi, pour que
+l'aide ne réclame pas 10⁻⁴ à une copie juste. Contrôle :
+« le 6.2.1 : au seuil, une valeur moins précise que le tableau passe si elle
+permet de conclure » (banc principal), sur la copie de Turquet
+(aₙ = 0,3 − 0,2 × 0,4ⁿ⁻¹) et sur une suite décroissante. Terminale v464.
+
+### Les cases de l'arbre du 6.2.1 sont ajustées dès l'affichage (v466)
 
 Signalé par Turquet sur une capture (octobre 2026) : les cases des probabilités
 des branches du premier arbre étaient bien trop larges à l'ouverture, et
