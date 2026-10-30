@@ -256,6 +256,30 @@ liste doit avoir été DÉFILÉE avant (une hauteur 0 rendue à 0 ne prouve rien
 le rejeu doit avoir réellement ouvert un écran d'exercice (un rejeu refusé
 laisse la page sur la liste, et le retour y paraîtrait parfait).
 
+**Les nouveaux signalements s'annoncent à l'ENTRÉE, niveau par niveau.**
+Demande de Turquet (octobre 2026) : « quand je rentre sur mon compte prof, me
+signaler s'il y a des nouveaux signalements d'élèves et dans quels niveaux ».
+C'est `prof.html` qui le fait — la porte unique des trois tableaux de bord, la
+seule qui voie les trois tables. Dès que les niveaux s'affichent (mot de passe
+accepté, ou session reprise au retour d'un niveau), `compterSignalements()`
+compte les lignes **non lues** (`lu = false`, ce que la pastille de l'onglet
+compte déjà dans chaque niveau, et que « Marquer lu » et « Répondre » posent)
+de `signalements_2nde`, `signalements_1ere` et `signalements` : une phrase
+au-dessus des cartes (« 📣 3 nouveaux signalements d'élèves : Seconde (2),
+Terminale (1). »), et une pastille rouge sur la carte de chaque niveau concerné.
+**On COMPTE, on ne lit pas** : `select('id', {count:'exact', head:true})` —
+Supabase coupe en silence à 1000 lignes, un compte est juste. Le double
+(`tests/faux-supabase.js`) a appris à le rendre, comme PostgREST : le nombre
+avant toute plage, et aucune ligne avec `head`.
+**Un niveau dont la lecture échoue le DIT** (« Signalements non chargés
+(connexion) : … ») : un « aucun » posé sur une erreur serait un mensonge
+rassurant. Rien ne change dans la base : seule la session du professeur lit
+ces tables, et c'est elle qui vient d'être reconnue.
+Le banc navigateur le tient sur chaque niveau, dans la visite de `prof.html` :
+deux non lus et un LU semés dans la table du niveau — l'annonce doit dire
+« (2) », pas « (3) » —, la pastille sur SA carte seulement ; puis l'autre bord,
+tout lu : « Aucun nouveau signalement d'élève. », sans pastille.
+
 **La case où l'élève ÉCRIT ne se colore pas.** Décision de Turquet (août
 2026) : en SOUTIEN, une case ne devient ni rouge ni bleue tant qu'il y écrit.
 Elle attend qu'il la QUITTE — case suivante, clic ailleurs — ou qu'il vérifie.

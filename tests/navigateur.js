@@ -530,12 +530,55 @@ if(require.main === module) (async () => {
     verifier('un mauvais mot de passe est refusé, et la page le dit',
       profApresFaux === false && profDit.trim() !== '', 'message affiché : « ' + profDit.trim() + ' »');
 
+    /* LES NOUVEAUX SIGNALEMENTS, annoncés à l'entrée (octobre 2026) : deux
+       non lus et un lu dans la table de CE niveau, semés avant le mot de
+       passe. L'annonce doit nommer ce niveau avec 2 — pas 3 : un lu n'est pas
+       nouveau —, et la pastille ne se poser que sur SA carte. */
+    const NOM_NIVEAU = { 'secondes.html': 'Seconde', 'premiere-specifique.html': 'Première',
+                         'terminale.html': 'Terminale' }[CIBLE];
+    const tableSig = P.signalement && P.signalement.table;
+    if(tableSig){
+      await q.page.evaluate(t => window.__faux.semer(t, [
+        { id: 's1', eleve_id: 'eleve-controle', message: 'a', lu: false },
+        { id: 's2', eleve_id: 'eleve-controle', message: 'b', lu: false },
+        { id: 's3', eleve_id: 'eleve-controle', message: 'c', lu: true },
+      ]), tableSig);
+    }
+
     await q.page.fill('#profPass', MDP_PROF);
     await q.page.click('#profEntrer');
     await q.page.waitForTimeout(900);
     const profApresBon = await profVisible();
     verifier('le bon mot de passe ouvre les trois niveaux', profApresBon === true,
       'le lien du niveau reste caché après un mot de passe accepté');
+
+    if(!tableSig){
+      ignorer('l\'entrée du professeur annonce les nouveaux signalements, et leur niveau',
+        'ce niveau n\'a pas déclaré sa table de signalements');
+    } else {
+      const lireSig = () => q.page.evaluate(sel => {
+        const z = document.getElementById('sigNouveaux');
+        const visible = el => !!el && el.getBoundingClientRect().height > 0;
+        const ici = document.querySelector(sel);
+        const carte = ici && ici.querySelector('.sig');
+        return { texte: z ? z.textContent.trim() : null, zone: visible(z),
+                 pastille: visible(carte) ? carte.textContent.trim() : '',
+                 autres: [...document.querySelectorAll('.niveau .sig')].filter(e => visible(e) && !ici.contains(e)).length };
+      }, lien);
+      const sg = await lireSig();
+      verifier('l\'entrée du professeur annonce les nouveaux signalements, et leur niveau',
+        sg.zone && sg.texte.includes(NOM_NIVEAU + ' (2)') && /^📣 2 nouveaux signalements/.test(sg.texte),
+        'annonce : « ' + sg.texte + ' »');
+      verifier('la carte du niveau porte sa pastille de signalements, et elle seule',
+        /\b2 nouveaux signalements/.test(sg.pastille) && sg.autres === 0,
+        'pastille : « ' + sg.pastille + ' », pastilles ailleurs : ' + sg.autres);
+      /* l'autre bord : tout lu, l'annonce le dit et la pastille s'en va */
+      await q.page.evaluate(t => { window.__faux.lignes(t).forEach(l => { l.lu = true; }); return compterSignalements(); }, tableSig);
+      const sg2 = await lireSig();
+      verifier('tout lu : l\'entrée dit « aucun nouveau signalement », sans pastille',
+        sg2.texte === 'Aucun nouveau signalement d’élève.' && sg2.pastille === '',
+        'annonce : « ' + sg2.texte + ' », pastille : « ' + sg2.pastille + ' »');
+    }
 
     if(profApresBon !== true){
       verifier('la page d\'aiguillage mène au tableau de bord de ce niveau', false,
@@ -19006,6 +19049,83 @@ if(require.main === module) (async () => {
         'ordinateur ' + bureau.px + ' px, téléphone ' + telephone.px + ' px');
       verifier('la règle de la tablette ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ---- 11 duodecies. Sur ordinateur, le clavier à l'écran écrit dans une case en texte ----
+       LE CLAVIER À L'ÉCRAN ÉCRIT DANS UNE CASE DE CALCUL EN TEXTE — et y
+       reste ouvert (demande de Turquet, octobre 2026, au 6.2.1 : « si je mets
+       le clavier virtuel sur mon pc, le curseur dans la case disparaît, et
+       quand je clique sur la case mon clavier disparaît » ; puis « quand je
+       tape a_n au clavier de mon pc, il ne l'affiche pas avec un indice »).
+       Sur ORDINATEUR, fenêtre flottante : un champ MathLive a le focus, le
+       clavier est ouvert ; on clique une case en texte (data-pave-plus, la
+       case de calcul) — le clavier reste ; une touche du clavier y écrit, le
+       focus y reste ; « a_n » tapé au clavier physique s'écrit « aₙ » ; la
+       croix ferme toujours. La case et le champ sont posés par le banc dans
+       l'écran ouvert : le mécanisme est commun aux trois niveaux (moteur du
+       pavé), aucune déclaration. Éprouvé à l'envers sur la version d'avant :
+       le clavier se repliait au clic, « a_n » restait « a_n ». */
+    titre('11 duodecies. SUR ORDINATEUR, LE CLAVIER À L\'ÉCRAN ÉCRIT DANS UNE CASE EN TEXTE');
+    {
+      s = await ouvrir(chromium, ml, {});
+      const ecranK = await connecter(s.page);
+      await s.page.waitForFunction(() => window.mathVirtualKeyboard && window.__mlKbSetup, null, { timeout: 20000 }).catch(() => {});
+      const pret = await s.page.evaluate(() => {
+        const sc = document.querySelector('section.screen.on'); if(!sc || !window.__kbFloating) return false;
+        const d = document.createElement('div'); d.id = 'bancKbTexte';
+        d.innerHTML = '<math-field id="bancKbMf" style="min-width:6em;display:inline-block"></math-field> '
+          + '<input id="bancKbIn" type="text" autocomplete="off" data-pave-plus="( ) + ×" style="width:10em">';
+        sc.insertBefore(d, sc.firstChild);
+        return true;
+      });
+      if(ecranK !== 'scr-space' || !pret){
+        verifier('sur ordinateur, le clavier à l\'écran écrit dans une case en texte', false,
+          'écran ' + ecranK + ', fenêtre flottante ' + pret);
+      } else {
+        await s.page.click('#bancKbMf');
+        await s.page.evaluate(() => mathVirtualKeyboard.show());
+        await s.page.waitForTimeout(500);
+        await s.page.click('#bancKbIn');
+        await s.page.waitForTimeout(700);   /* MathLive replie son clavier 300 ms après la sortie d'un champ */
+        const apres = await s.page.evaluate(() => ({ vu: mathVirtualKeyboard.visible, focus: document.activeElement && document.activeElement.id }));
+        verifier('cliquer une case en texte ne replie pas le clavier à l\'écran',
+          apres.vu && apres.focus === 'bancKbIn', 'clavier ' + (apres.vu ? 'ouvert' : 'replié') + ', focus sur ' + apres.focus);
+        await s.page.keyboard.type('1-');
+        /* une touche d'insertion du clavier, quelle que soit sa couche : 7 */
+        const t7 = await s.page.evaluate(() => {
+          for(const L of document.querySelectorAll('#kbwin .MLK__layer')) for(const k of L.querySelectorAll('[id]')){
+            const d = mathVirtualKeyboard.getKeycap && mathVirtualKeyboard.getKeycap(k.id);
+            if(d && (d.latex === '7' || d.key === '7' || d.insert === '7' || d.label === '7')){
+              if(!L.classList.contains('is-visible')) mathVirtualKeyboard.currentLayer = L.id;
+              const r = k.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; } }
+          return null; });
+        if(t7){ await s.page.mouse.click(t7.x, t7.y); await s.page.waitForTimeout(300); }
+        const ecrit = await s.page.evaluate(() => ({ v: document.getElementById('bancKbIn').value, focus: document.activeElement && document.activeElement.id }));
+        verifier('une touche du clavier à l\'écran s\'écrit dans la case en texte, qui garde le focus',
+          !!t7 && ecrit.v === '1-7' && ecrit.focus === 'bancKbIn',
+          t7 ? 'case « ' + ecrit.v + ' », focus sur ' + ecrit.focus : 'aucune touche 7 trouvée sur le clavier');
+        /* une touche LaTeX (a_{n}) passe par le même chemin que celle du 6.2.1 */
+        const tex = await s.page.evaluate(() => { const e = document.getElementById('bancKbIn'); e.value = ''; e.focus();
+          mathVirtualKeyboard.executeCommand(['insert', 'a_{n}\\times\\approx', { focus: true, mode: 'math', format: 'latex' }]);
+          return { v: e.value, focus: document.activeElement && document.activeElement.id }; });
+        verifier('une touche en LaTeX s\'écrit en texte dans la case (a_{n} → aₙ, \\times → ×)',
+          tex.v === 'aₙ×≈' && tex.focus === 'bancKbIn', 'case « ' + tex.v + ' », focus sur ' + tex.focus);
+        await s.page.fill('#bancKbIn', '');
+        await s.page.click('#bancKbIn');
+        await s.page.keyboard.type('1-a_n');
+        const ind = await s.page.evaluate(() => document.getElementById('bancKbIn').value);
+        await s.page.keyboard.press('End'); await s.page.keyboard.type('+a_(n+1)');
+        const ind2 = await s.page.evaluate(() => document.getElementById('bancKbIn').value);
+        verifier('« a_n » tapé au clavier s\'écrit « aₙ » dans une case de calcul (et « a_(n+1) », « aₙ₊₁ »)',
+          ind === '1-aₙ' && ind2 === '1-aₙ+aₙ₊₁', '« ' + ind + ' » puis « ' + ind2 + ' »');
+        await s.page.click('#kbwin .kbwin-close').catch(() => {});
+        await s.page.waitForTimeout(500);
+        verifier('la croix ferme toujours le clavier à l\'écran, même depuis une case en texte',
+          !(await s.page.evaluate(() => mathVirtualKeyboard.visible)));
+        verifier('le clavier dans une case en texte ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
       await s.nav.close(); s = null;
     }
 

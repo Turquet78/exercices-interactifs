@@ -143,7 +143,9 @@ window.supabase = {
 
     function requete(nom, op, charge, colonnes){
       const etat = { filtres: [], unique: false, tolereVide: false, tri: [], plage: null,
-                     colonnes: colonnesDe(colonnes) };
+                     colonnes: colonnesDe(colonnes && colonnes.colonnes),
+                     compte: !!(colonnes && colonnes.options && colonnes.options.count),
+                     tete: !!(colonnes && colonnes.options && colonnes.options.head) };
 
       function correspond(ligne){
         return etat.filtres.every(([type, col, val]) => {
@@ -217,6 +219,15 @@ window.supabase = {
            fait aussi, sans quoi un select('id,prenom') et un select('*')
            seraient indiscernables au banc — et la fuite des codes n'aurait
            laissé aucune trace observable. */
+        /* select('id', {count:'exact', head:true}) : PostgREST rend le NOMBRE
+           de lignes qui passent les filtres — avant toute plage et tout plafond
+           — et, avec head, aucune ligne. C'est ainsi qu'on compte sans buter
+           sur les 1000 lignes. */
+        if(etat.compte){
+          const n = fermee ? 0 : lignes.filter(correspond).length;
+          F.journal.push({ op: 'select', table: nom, n: etat.tete ? 0 : n, compte: n });
+          if(etat.tete) return { data: null, count: n, error: null };
+        }
         let trouvees = (fermee ? [] : lignes.filter(correspond)).map(l => {
           if(!etat.colonnes) return Object.assign({}, l);
           const projetee = {};
@@ -242,7 +253,9 @@ window.supabase = {
         F.journal.push({ op: 'select', table: nom, n: trouvees.length,
                          colonnes: etat.colonnes ? etat.colonnes.join(',') : '*',
                          fermee: fermee || undefined });
-        return { data: etat.unique ? (trouvees[0] || null) : trouvees, error: null };
+        const rendu = { data: etat.unique ? (trouvees[0] || null) : trouvees, error: null };
+        if(etat.compte) rendu.count = fermee ? 0 : lignes.filter(correspond).length;
+        return rendu;
       }
 
       const b = {
@@ -267,7 +280,7 @@ window.supabase = {
           /* La liste des colonnes arrive sur CE select-là, pas sur celui du
              constructeur de requête : from(x).select('id,prenom'). La première
              version de ce double la jetait, et rendait la ligne entière. */
-          select(colonnes){ return requete(nom, 'select', undefined, colonnes); },
+          select(colonnes, options){ return requete(nom, 'select', undefined, { colonnes, options }); },
           insert(charge){ return requete(nom, 'insert', charge); },
           update(charge){ return requete(nom, 'update', charge); },
           delete(){ return requete(nom, 'delete'); },
