@@ -530,12 +530,55 @@ if(require.main === module) (async () => {
     verifier('un mauvais mot de passe est refusé, et la page le dit',
       profApresFaux === false && profDit.trim() !== '', 'message affiché : « ' + profDit.trim() + ' »');
 
+    /* LES NOUVEAUX SIGNALEMENTS, annoncés à l'entrée (octobre 2026) : deux
+       non lus et un lu dans la table de CE niveau, semés avant le mot de
+       passe. L'annonce doit nommer ce niveau avec 2 — pas 3 : un lu n'est pas
+       nouveau —, et la pastille ne se poser que sur SA carte. */
+    const NOM_NIVEAU = { 'secondes.html': 'Seconde', 'premiere-specifique.html': 'Première',
+                         'terminale.html': 'Terminale' }[CIBLE];
+    const tableSig = P.signalement && P.signalement.table;
+    if(tableSig){
+      await q.page.evaluate(t => window.__faux.semer(t, [
+        { id: 's1', eleve_id: 'eleve-controle', message: 'a', lu: false },
+        { id: 's2', eleve_id: 'eleve-controle', message: 'b', lu: false },
+        { id: 's3', eleve_id: 'eleve-controle', message: 'c', lu: true },
+      ]), tableSig);
+    }
+
     await q.page.fill('#profPass', MDP_PROF);
     await q.page.click('#profEntrer');
     await q.page.waitForTimeout(900);
     const profApresBon = await profVisible();
     verifier('le bon mot de passe ouvre les trois niveaux', profApresBon === true,
       'le lien du niveau reste caché après un mot de passe accepté');
+
+    if(!tableSig){
+      ignorer('l\'entrée du professeur annonce les nouveaux signalements, et leur niveau',
+        'ce niveau n\'a pas déclaré sa table de signalements');
+    } else {
+      const lireSig = () => q.page.evaluate(sel => {
+        const z = document.getElementById('sigNouveaux');
+        const visible = el => !!el && el.getBoundingClientRect().height > 0;
+        const ici = document.querySelector(sel);
+        const carte = ici && ici.querySelector('.sig');
+        return { texte: z ? z.textContent.trim() : null, zone: visible(z),
+                 pastille: visible(carte) ? carte.textContent.trim() : '',
+                 autres: [...document.querySelectorAll('.niveau .sig')].filter(e => visible(e) && !ici.contains(e)).length };
+      }, lien);
+      const sg = await lireSig();
+      verifier('l\'entrée du professeur annonce les nouveaux signalements, et leur niveau',
+        sg.zone && sg.texte.includes(NOM_NIVEAU + ' (2)') && /^📣 2 nouveaux signalements/.test(sg.texte),
+        'annonce : « ' + sg.texte + ' »');
+      verifier('la carte du niveau porte sa pastille de signalements, et elle seule',
+        /\b2 nouveaux signalements/.test(sg.pastille) && sg.autres === 0,
+        'pastille : « ' + sg.pastille + ' », pastilles ailleurs : ' + sg.autres);
+      /* l'autre bord : tout lu, l'annonce le dit et la pastille s'en va */
+      await q.page.evaluate(t => { window.__faux.lignes(t).forEach(l => { l.lu = true; }); return compterSignalements(); }, tableSig);
+      const sg2 = await lireSig();
+      verifier('tout lu : l\'entrée dit « aucun nouveau signalement », sans pastille',
+        sg2.texte === 'Aucun nouveau signalement d’élève.' && sg2.pastille === '',
+        'annonce : « ' + sg2.texte + ' », pastille : « ' + sg2.pastille + ' »');
+    }
 
     if(profApresBon !== true){
       verifier('la page d\'aiguillage mène au tableau de bord de ce niveau', false,
