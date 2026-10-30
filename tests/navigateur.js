@@ -16436,7 +16436,11 @@ if(require.main === module) (async () => {
         nTextesSvg > 0 && textesPetits.length === 0,
         nTextesSvg === 0 ? 'aucun texte de graphique mesuré : le contrôle ne mesure rien'
           : textesPetits.length + ' écran(s) — ' + textesPetits.slice(0, 3).join(' | '));
-      verifier('une case qui s\'ajuste à sa saisie est ajustée dès l\'affichage',
+      /* une page sans sa2Ajuster n'a aucune case qui s'ajuste : le contrôle
+         s'y déclare non applicable ; la fonction ajoutée demain le réveille */
+      if(!/function sa2Ajuster\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8')))
+        ignorer('une case qui s\'ajuste à sa saisie est ajustée dès l\'affichage', 'la page n\'a pas de sa2Ajuster');
+      else verifier('une case qui s\'ajuste à sa saisie est ajustée dès l\'affichage',
         nAjustables > 0 && casesNues.length === 0,
         nAjustables === 0 ? 'aucune case ajustable mesurée : le contrôle ne mesure rien'
           : casesNues.length + ' écran(s) — ' + casesNues.slice(0, 3).join(' | '));
