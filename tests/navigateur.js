@@ -15718,6 +15718,7 @@ if(require.main === module) (async () => {
       const idsAvant = idsPython.filter(id => !avantSans[id]);
       const sansAvant = []; let nAvant = 0;
       const sansClavierLim = []; let nLimCases = 0, nCoeffs = 0;
+      const casesCoupees = []; let nCasesLongues = 0, nCasesGrandies = 0;
       /* CHAQUE DESSIN EST UN FICHIER DE dessins/, ET IL EST RÉELLEMENT CHARGÉ
          (décision de Turquet, octobre 2026 : les 43 images de la Seconde
          quittent la page, qui pesait 4,9 Mo dont 770 Ko de base64 — chaque
@@ -16187,6 +16188,48 @@ if(require.main === module) (async () => {
           nIndicesFlex += (vu.nIndices || 0);
           if(vu.indices && vu.indices.length)
             indicesPlats.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.indices[0]);
+          /* UNE CASE MATHLIVE GRANDIT POUR MONTRER TOUT CE QUI Y EST ÉCRIT
+             (demande de Turquet, octobre 2026, sur une capture du 6.2.1 de la
+             Terminale : l'exposant « n − 1 + 1 » s'y lisait « ı − 1 + 1 », la
+             case plafonnée à 64 px). Les plafonds sont posés case par case ;
+             le filet #cases-math-grandissent les lève quand le contenu
+             déborde. On le MESURE ici, sur chaque exercice : on écrit une
+             réponse longue dans les premières cases vides de l'écran, on
+             attend le rendu, et le contenu de chaque case doit tenir dans sa
+             case — ou la case doit déjà occuper toute sa ligne, là où il n'y a
+             plus de place où grandir. Puis on rend la case vide. */
+          if(mode === 'train'){
+            const lg = await s.page.evaluate(async () => {
+              const on = document.querySelector('section.screen.on'); if(!on) return null;
+              const visible = e => { const r = e.getBoundingClientRect();
+                return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
+              const mfs = [...on.querySelectorAll('math-field')]
+                .filter(m => visible(m) && !m.readOnly && !(m.value || '').trim() && m.shadowRoot).slice(0, 4);
+              if(!mfs.length) return null;
+              const cadre = m => { let p = m.parentElement;
+                while(p && /^(inline|contents)$/.test(getComputedStyle(p).display)) p = p.parentElement;
+                if(!p) return Infinity;
+                const cs = getComputedStyle(p);
+                return p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight); };
+              const raf = () => new Promise(r => requestAnimationFrame(() => r()));
+              mfs.forEach(m => { m.value = '123+456+789'; });
+              await raf(); await raf(); await raf();
+              const out = { n: mfs.length, grandies: 0, coupees: [] };
+              for(const m of mfs){
+                const c = m.shadowRoot.querySelector('.ML__content');
+                if(m.dataset.grandit) out.grandies++;
+                if(c && c.scrollWidth > c.clientWidth + 1 && m.getBoundingClientRect().width < cadre(m) - 2)
+                  out.coupees.push((m.id || '(sans id)') + ' : ' + c.clientWidth + ' px montrés sur ' + c.scrollWidth);
+              }
+              mfs.forEach(m => { m.value = ''; });
+              await raf();
+              return out;
+            });
+            if(lg){
+              nCasesLongues += lg.n; nCasesGrandies += lg.grandies;
+              if(lg.coupees.length) casesCoupees.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + lg.coupees[0]);
+            }
+          }
           /* LA FLÈCHE → EN FIN DE CASE PASSE À LA SUIVANTE — sur TOUS les
              exercices (demande de Turquet, octobre 2026). Au milieu du texte
              saisi, → avance d'un caractère ; en fin de texte, elle quitte la
@@ -16417,6 +16460,14 @@ if(require.main === module) (async () => {
           }
         }
       }
+      /* les deux bords : aucune case ne coupe son contenu, ET le filet a eu
+         à agir quelque part — sans quoi la réponse longue ne dépasse aucun
+         plafond, et le contrôle ne mesure rien */
+      verifier('une case MathLive grandit pour montrer tout ce qui y est écrit',
+        nCasesLongues > 0 && nCasesGrandies > 0 && casesCoupees.length === 0,
+        nCasesLongues === 0 ? 'aucune case mesurée : le contrôle ne mesure rien'
+          : nCasesGrandies === 0 ? nCasesLongues + ' case(s) remplie(s), aucune n\'a eu à grandir : le contrôle ne mesure rien'
+          : casesCoupees.length + ' écran(s) — ' + casesCoupees.slice(0, 3).join(' | '));
       verifier('les cases de saisie ont la taille des nombres qui les entourent',
         petites.length === 0, petites.slice(0, 3).join(' | '));
       verifier('les textes des graphiques s\'écrivent à 12 px au moins (un indice d\'étiquette à 10)',
