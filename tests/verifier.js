@@ -3463,7 +3463,7 @@ function branchements(w){
      toutes ses cases pm-mf n'attendent qu'un nombre — la Seconde a suivi). La
      FORME du pavé (une rangée en bas, dans les deux orientations) est affaire
      de feuille de styles et se mesure au banc navigateur. */
-  const MOTEUR_PAVE = ['paveActif','paveHTML','paveSup','caseCalculEcrire','paveInserer','paveCale','paveEstCible','paveMontrer','paveBrancher','paveObserver'];
+  const MOTEUR_PAVE = ['paveActif','paveHTML','paveSup','caseCalculEcrire','caseIndices','caseTexteServie','clavierTexte','clavierVersCase','paveInserer','paveCale','paveEstCible','paveMontrer','paveBrancher','paveObserver'];
   if(src.indexOf('function paveBrancher') >= 0){
     let refPave;
     try{ refPave = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }
@@ -4780,6 +4780,7 @@ function exercices(suite){
     alphaSigne(w, P);
     etudeConvexite(w, P);
     etudeAlgoConvexite(w, P);
+    apsSeuilMoinsPrecis(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
     suiteAuxiliaireLimite(w, P);
@@ -20368,6 +20369,36 @@ function alphaSigne(w, P){
    où f est concave, donc SOUS sa tangente) : c'est la fonction qui tranche,
    et le contrôle l'exige — le k du TVI est entre la limite et l'extremum de
    la branche, et f − Δ a le signe annoncé sur tout l'intervalle. */
+/* LE SEUIL DU 6.2.1 SE LIT AUSSI MOINS PRÉCIS (demande de Turquet, octobre
+   2026 : « a₄ ≈ 0,287 < 0,29 et a₅ ≈ 0,294 ≥ 0,29 doivent être validés »).
+   Une valeur moins précise que le tableau passe si c'est un arrondi ou une
+   troncature du terme ET si sa précision suffit à conclure sur le seuil ;
+   « 0,29 ≥ 0,29 » (0,285 s'arrondit aussi à 0,29) et une valeur du mauvais
+   côté rougissent. Éprouvé dans les deux sens de variation. */
+function apsSeuilMoinsPrecis(w, P){
+  const nom='le 6.2.1 : au seuil, une valeur moins précise que le tableau passe si elle permet de conclure';
+  const present = evaluer(w, "typeof apsJuger==='function' && typeof apsA==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice de bac « probabilités et suites »');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    /* la copie de Turquet : aₙ = 0,3 − 0,2 × 0,4ⁿ⁻¹ (croissante), seuil 0,29 — a₄ = 0,2872, a₅ ≈ 0,2949 */
+    const m={c:0, n0:1, q:0.4, l:0.3, cc:-0.2, s:0.29, N:5};
+    const t=function(q,id,raw){ return apsJuger(q,id,raw).ok; };
+    [['aps-w1','0,287',true],['aps-w2','0,294',true],['aps-w1','0.287',true],['aps-w1','0,2872',true],['aps-w2','0,2949',true],
+     ['aps-w1','0,28',true],['aps-w2','0,29',false],['aps-w2','0,3',false],['aps-w1','0,289',false],['aps-w1','0,29',false],['aps-w2','0,295',true],['aps-w2','0,293',false]]
+      .forEach(function(c){ if(t(m,c[0],c[1])!==c[2]) vus.push('croissante, a'+(c[0]==='aps-w1'?4:5)+' ≈ '+c[1]+' '+(c[2]?'rougit':'passe')); });
+    if(Math.abs(apsA(m,4)-0.2872)>1e-9) vus.push('le montage ne donne pas a4 = 0,2872 : '+apsA(m,4));
+    /* décroissante : aₙ = 0,6 + 0,2 × 0,5ⁿ, seuil 0,601 — a₇ ≈ 0,6016 > 0,601, a₈ ≈ 0,6008 ≤ 0,601 */
+    const d={c:0, n0:0, q:0.5, l:0.6, cc:0.2, s:0.601, N:8};
+    [['aps-w1','0,602',true],['aps-w1','0,603',false],['aps-w1','0,6016',true],['aps-w2','0,600',true],['aps-w2','0,6',false],['aps-w2','0,6008',true]]
+      .forEach(function(c){ if(t(d,c[0],c[1])!==c[2]) vus.push('décroissante, '+c[0]+' ≈ '+c[1]+' '+(c[2]?'rougit':'passe')); });
+    return vus.join(' ; ');
+  })()`, v => v === '');
+}
+
 /* ---------- Le 2.2.4 : étude, algorithme et convexité (la fiche « Prépa DS 2 ») ----------
    Demande de Turquet (octobre 2026). Le contrôle REFAIT l'arithmétique par ses
    propres moyens sur toutes les fonctions que le tirage sait produire —

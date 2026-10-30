@@ -1711,3 +1711,42 @@ une tablette couchée la rangée reste, et les boutons « − » « + » (journa
 tiennent le doigt. Contrôle : « sur une tablette debout (768 px), la barre
 prend la carte : 600 px au moins, l'étiquette au-dessus » (banc navigateur,
 6 sexdecies) ; éprouvé en remettant 480 : 408 px, étiquette à côté, rouge.
+
+**Sur ORDINATEUR, le clavier à l'écran écrit aussi dans une case de calcul en
+TEXTE — et un « a_n » tapé s'écrit « aₙ ».** Capture de Turquet (octobre
+2026, 6.2.1, la case P(Dₙ) = 1 − aₙ de l'arbre aux rangs n et n + 1) :
+« si je mets le clavier virtuel sur mon pc, le curseur dans la case que je
+complète disparaît, et quand je clique sur la case mon clavier disparaît » ;
+puis « quand je tape a_n au clavier de mon pc, il ne l'affiche pas avec un
+indice dans la case ». Les cases de l'arbre sont des `<input>` (cases de
+calcul en texte, `data-pave-plus`) dans un écran plein de champs MathLive.
+Deux mécanismes de MathLive 0.110, lus dans sa source :
+une touche du clavier part au DERNIER champ MathLive connecté (« insert »
+avec `focus: true`) — il reprend le focus, le curseur quitte la case ; et un
+champ MathLive qui perd le focus replie le clavier 300 ms plus tard s'il n'y a
+plus de champ MathLive focalisé — cliquer la case le fermait.
+Le remède est dans le MOTEUR DU PAVÉ, commun aux trois niveaux et comparé au
+caractère près (`MOTEUR_PAVE`, banc principal) : `clavierVersCase(vk)`,
+appelé une fois par `setupKeyboard`, enveloppe `executeCommand` (une case en
+texte d'un exercice a le focus → la touche s'y ÉCRIT par `paveInserer` :
+le LaTeX traduit par `clavierTexte` — a_{n} → aₙ, \times → ×, \approx → ≈ —,
+⌫, ← →, ⏎ comme Entrée ; les commandes du clavier lui-même passent) et `hide`
+(la fenêtre FLOTTANTE ne se replie plus parce que le focus est passé à une
+case en texte ; `toggleKB` lève `__kbFermer`, la croix et ⌨️ ferment donc
+toujours). Le clavier ANCRÉ des tablettes n'est pas touché : là, la case en
+texte a le pavé. Et `caseCalculEcrire` passe par `caseIndices` : dans une
+case de calcul, « _n », « _(n+1) », « _{n} », « _0 » deviennent ₙ, ₙ₊₁, ₀
+(un indice fait seulement de chiffres, de n, de + et de −) ; le texte avant
+le curseur et celui d'après s'écrivent chacun de leur côté, le curseur reste
+après ce que l'élève vient de taper. Le juge du 6.2.1 (`apsNormA`) lisait
+déjà « aₙ » comme « a_n ».
+Où d'autre ? Toute case en texte d'un écran où l'élève ouvre le clavier à
+l'écran, sur les trois niveaux (Seconde : cases du calcul littéral, des
+écritures scientifiques ; Première : cases numériques) — le remède les couvre
+toutes sans déclaration. L'indice tapé au clavier ne concernait que le 6.2.1 :
+c'est la seule case en texte qui attend un aₙ.
+Contrôle : « 11 duodecies » du banc navigateur, trois niveaux, sur ordinateur —
+le clavier reste ouvert au clic de la case, une touche y écrit et le focus
+reste, une touche en LaTeX s'écrit en texte, « a_n » devient « aₙ », la croix
+ferme. Éprouvé sur la version d'avant, au 6.2.1 même : clavier replié au clic,
+« 1-a_n » resté tel quel.

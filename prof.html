@@ -89,6 +89,12 @@
   .niveau.n2:hover{border-color:var(--green)}
   .niveau.n3:hover{border-color:var(--gold)}
   .note{color:var(--ink-soft);font-size:.85rem;margin-top:18px;line-height:1.5}
+  /* les signalements non lus, annoncés à l'entrée (octobre 2026) */
+  .signalements{margin:0 0 16px;padding:12px 16px;border-radius:14px;line-height:1.45;
+                background:#F3F5FB;border:1.5px solid var(--line);color:var(--ink-soft)}
+  .signalements.nouveaux{background:#FFF4E0;border-color:var(--gold);color:var(--ink)}
+  .niveau .sig{align-self:flex-start;border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:800;
+               background:var(--rouge);color:#fff}
   .champ{display:block;margin:0 0 6px;font-size:.9rem;color:var(--ink-soft)}
   .text-input{width:100%;max-width:340px;padding:12px 14px;border:2px solid var(--line);border-radius:14px;
               font:inherit;color:inherit;background:#fff}
@@ -153,20 +159,27 @@
     <div class="card" id="carte-niveaux" hidden>
       <h1 class="title">Tableau de bord</h1>
       <p class="lead">Choisis le niveau à ouvrir.</p>
+      <!-- Les signalements NON LUS des trois niveaux, comptés à l'entrée : le
+           professeur sait d'un coup d'œil où un élève l'attend, sans ouvrir
+           les trois tableaux de bord. -->
+      <p class="signalements" id="sigNouveaux" role="status" hidden></p>
       <div class="niveaux">
         <a class="niveau n1" href="secondes.html#prof">
           <span class="ic">📐</span>
           <span class="ttl">Seconde</span>
+          <span class="sig" data-sig="n1" hidden></span>
           <span class="ds">Suivi, comptes, devoirs, cours en PDF.</span>
         </a>
         <a class="niveau n2" href="premiere-specifique.html#prof">
           <span class="ic">📊</span>
           <span class="ttl">Première</span>
+          <span class="sig" data-sig="n2" hidden></span>
           <span class="ds">Suivi, comptes, devoirs, cours en PDF.</span>
         </a>
         <a class="niveau n3" href="terminale.html#prof">
           <span class="ic">📈</span>
           <span class="ttl">Terminale</span>
+          <span class="sig" data-sig="n3" hidden></span>
           <span class="ds">Suivi, comptes, devoirs, cours en PDF.</span>
         </a>
       </div>
@@ -220,9 +233,55 @@
   function montrerNiveaux(oui){
     $('carte-entree').hidden = !!oui;
     $('carte-niveaux').hidden = !oui;
+    if(oui) compterSignalements();
     if(!oui) setTimeout(() => { const c = $('profPass'); if(c) c.focus(); }, 60);
   }
   function dire(texte){ $('profErreur').textContent = texte || ''; }
+
+  /* LES NOUVEAUX SIGNALEMENTS (demande de Turquet, octobre 2026) : « quand je
+     rentre sur mon compte prof, me signaler s'il y a des nouveaux signalements
+     d'élèves et dans quels niveaux ». « Nouveau », c'est NON LU — la colonne
+     « lu » que la pastille de l'onglet Signalements compte déjà dans chaque
+     niveau, et que « Marquer lu » ou « Répondre » posent.
+     On COMPTE (count + head) plutôt que de lire les lignes : Supabase ne rend
+     jamais plus de 1000 lignes et coupe en silence ; un compte, lui, est juste.
+     Seul le professeur lit ces tables (RLS) : la session vient d'être
+     reconnue comme la sienne. Un niveau dont la lecture échoue le DIT — un
+     « aucun » affiché sur une erreur serait un mensonge rassurant. */
+  const SIGNALEMENTS = [
+    { cle: 'n1', nom: 'Seconde',   table: 'signalements_2nde' },
+    { cle: 'n2', nom: 'Première',  table: 'signalements_1ere' },
+    { cle: 'n3', nom: 'Terminale', table: 'signalements' },
+  ];
+  async function compterSignalements(){
+    const zone = $('sigNouveaux');
+    zone.hidden = false; zone.className = 'signalements'; zone.textContent = 'Signalements des élèves : lecture…';
+    const comptes = await Promise.all(SIGNALEMENTS.map(async n => {
+      try{
+        const {count, error} = await sb.from(n.table).select('id', {count: 'exact', head: true}).eq('lu', false);
+        return error || typeof count !== 'number' ? null : count;
+      }catch(e){ return null; }
+    }));
+    const avec = [], rates = [];
+    SIGNALEMENTS.forEach((n, i) => {
+      const k = comptes[i];
+      const pastille = document.querySelector('.sig[data-sig="' + n.cle + '"]');
+      if(pastille){
+        pastille.hidden = !k;
+        pastille.textContent = k ? '📣 ' + k + ' nouveau' + (k > 1 ? 'x' : '') + ' signalement' + (k > 1 ? 's' : '') : '';
+      }
+      if(k === null) rates.push(n.nom);
+      else if(k > 0) avec.push(n.nom + ' (' + k + ')');
+    });
+    const total = comptes.reduce((s, k) => s + (k || 0), 0);
+    let texte = total
+      ? '📣 ' + total + ' nouveau' + (total > 1 ? 'x' : '') + ' signalement' + (total > 1 ? 's' : '')
+        + ' d’élève' + (total > 1 ? 's' : '') + ' : ' + avec.join(', ') + '.'
+      : (rates.length < SIGNALEMENTS.length ? 'Aucun nouveau signalement d’élève.' : '');
+    if(rates.length) texte += (texte ? ' ' : '') + 'Signalements non chargés (connexion) : ' + rates.join(', ') + '.';
+    zone.className = 'signalements' + (total ? ' nouveaux' : '');
+    zone.textContent = texte;
+  }
 
   async function entrer(){
     const mdp = String($('profPass').value || '');
