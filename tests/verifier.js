@@ -3463,7 +3463,7 @@ function branchements(w){
      toutes ses cases pm-mf n'attendent qu'un nombre — la Seconde a suivi). La
      FORME du pavé (une rangée en bas, dans les deux orientations) est affaire
      de feuille de styles et se mesure au banc navigateur. */
-  const MOTEUR_PAVE = ['paveActif','paveHTML','paveSup','caseCalculEcrire','paveInserer','paveCale','paveEstCible','paveMontrer','paveBrancher','paveObserver'];
+  const MOTEUR_PAVE = ['paveActif','paveHTML','paveSup','caseCalculEcrire','caseIndices','caseTexteServie','clavierTexte','clavierVersCase','paveInserer','paveCale','paveEstCible','paveMontrer','paveBrancher','paveObserver'];
   if(src.indexOf('function paveBrancher') >= 0){
     let refPave;
     try{ refPave = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }

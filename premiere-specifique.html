@@ -3177,7 +3177,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=352;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=353;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -23134,13 +23134,92 @@ function caseCalculEcrire(el){
   const l=(el.getAttribute('data-pave-plus')||'').split(' ');
   if(l.indexOf('×')<0) return;
   const avecX=l.indexOf('x')>=0, v=String(el.value||'');
-  const w=avecX ? v.replace(/\*/g,'×').replace(/X/g,'x') : v.replace(/[*xX]/g,'×');
+  const ecrire=function(s){ return caseIndices(avecX ? s.replace(/\*/g,'×').replace(/X/g,'x') : s.replace(/[*xX]/g,'×')); };
+  /* le texte avant le curseur et celui d'après s'écrivent chacun de leur
+     côté : « a_n » devient « aₙ », deux caractères de moins, et le curseur
+     reste juste après ce que l'élève vient de taper */
+  const d=el.selectionStart==null ? v.length : el.selectionStart;
+  const avant=ecrire(v.slice(0,d)), w=avant+ecrire(v.slice(d));
   if(w===v) return;
-  const d=el.selectionStart, f=el.selectionEnd;
   el.value=w;
-  try{ if(d!=null) el.setSelectionRange(d, f); }catch(e){}
+  try{ el.setSelectionRange(avant.length, avant.length); }catch(e){}
 }
 document.addEventListener('input', function(e){ if(!e.isComposing) caseCalculEcrire(e.target); }, true);
+/* L'INDICE TAPÉ AU CLAVIER S'ÉCRIT EN INDICE (demande de Turquet, octobre
+   2026, au 6.2.1 : « quand je tape a_n au clavier de mon pc, il ne l'affiche
+   pas avec un indice dans la case »). Dans une case de calcul en texte,
+   « _n », « _(n+1) », « _{n} » ou « _0 » deviennent ₙ, ₙ₊₁, ₀ — l'écriture
+   que la touche aₙ du pavé et du clavier à l'écran pose déjà, et que les
+   juges lisent. Un indice qui n'est fait que de chiffres, de n, de + et de −
+   seulement : tout autre « _ » reste tel quel. */
+const CASE_INDICES={'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉','n':'ₙ','+':'₊','-':'₋','−':'₋'};
+function caseIndices(s){
+  return String(s).replace(/_\s*(?:\{([^{}]*)\}|\(([^()]*)\)|([0-9n]))/g, function(m,a,b,c){
+    const t=String(a!=null ? a : (b!=null ? b : c)).replace(/\s+/g,'');
+    if(!t || !/^[0-9n+\-−]+$/.test(t)) return m;
+    return t.split('').map(function(ch){ return CASE_INDICES[ch]; }).join('');
+  });
+}
+/* LE CLAVIER À L'ÉCRAN ÉCRIT AUSSI DANS UNE CASE EN TEXTE (demande de
+   Turquet, octobre 2026, au 6.2.1 : « si je mets le clavier virtuel sur mon
+   pc, le curseur dans la case que je complète disparaît, et quand je clique
+   sur la case mon clavier disparaît »). Le clavier de MathLive ne connaît que
+   ses champs mathématiques : une touche enfoncée part au DERNIER champ
+   MathLive, qui reprend le focus (le curseur quitte la case), et un champ
+   MathLive qui perd le focus replie le clavier 300 ms plus tard (cliquer la
+   case le fermait). Deux enveloppes sur l'instance, posées une fois :
+   · executeCommand — quand une case en texte d'un exercice a le focus, la
+     touche s'y ÉCRIT (paveInserer, donc « input », donc caseCalculEcrire) :
+     le LaTeX de la touche traduit en texte (a_{n} → aₙ, \times → ×,
+     \approx → ≈), ⌫, ← et →, ⏎ comme la touche Entrée ; les commandes du
+     clavier lui-même (couches, maj) passent ;
+   · hide — la fenêtre FLOTTANTE de l'ordinateur ne se replie plus parce que
+     le focus est passé d'un champ MathLive à une case en texte ; la croix et
+     le bouton ⌨️ la ferment toujours (toggleKB lève __kbFermer).
+   Le clavier ANCRÉ des tablettes garde son comportement : là, la case en
+   texte a le pavé. */
+function caseTexteServie(el){
+  return !!(el && el.tagName==='INPUT' && (el.type==='text' || el.type==='') && !el.readOnly && !el.disabled
+    && el.closest && el.closest('section.screen'));
+}
+function clavierTexte(lx){
+  const T={times:'×',cdot:'×',div:'÷',approx:'≈',infty:'∞',le:'≤',leq:'≤',ge:'≥',geq:'≥',neq:'≠',pm:'±',pi:'π','in':'∈',
+    to:'→',rightarrow:'→',longrightarrow:'→',sqrt:'√',frac:'/',left:'',right:'',mathrm:'',operatorname:'',text:'',lbrack:'[',rbrack:']'};
+  let s=String(lx==null ? '' : lx).replace(/#[0-9@?]/g,'').replace(/\\[ ,;:!]/g,function(m){ return m==='\\ ' ? ' ' : ''; });
+  s=s.replace(/\\([a-zA-Z]+)/g,function(m,n){ return Object.prototype.hasOwnProperty.call(T,n) ? T[n] : n; });
+  s=caseIndices(s).replace(/\^\{\}/g,'^').replace(/\^\{([^{}]+)\}/g,'^($1)');
+  return s.replace(/[{}]/g,'');
+}
+function clavierVersCase(vk){
+  if(!vk || vk.__versCase || typeof vk.executeCommand!=='function') return;
+  vk.__versCase=true;
+  const executer=vk.executeCommand.bind(vk), cacher=vk.hide.bind(vk);
+  const lire=function(c){
+    if(Array.isArray(c)) return c;
+    if(typeof c!=='string') return null;
+    const m=c.trim().match(/^([a-zA-Z0-9-]+)\((.*)\)$/);
+    return m ? [m[1]].concat(m[2].split(',').map(function(a){ return a.trim().replace(/^["']|["']$/g,''); })) : [c.trim()];
+  };
+  vk.executeCommand=function(c){
+    const el=document.activeElement;
+    let k=lire(c);
+    if(k && k[0]==='performWithFeedback') k=lire(k.length===2 ? k[1] : k.slice(1));
+    if(!caseTexteServie(el) || !k || /Keyboard|Layer|shift/i.test(String(k[0]))) return executer(c);
+    const s=k[0];
+    if(s==='insert' || s==='typedText'){ const t=s==='insert' ? clavierTexte(k[1]) : String(k[1]==null ? '' : k[1]); if(t) paveInserer(el, t); }
+    else if(s==='deleteBackward') paveInserer(el, '⌫');
+    else if(s==='moveToPreviousChar' || s==='moveToNextChar'){
+      const p=(el.selectionStart==null ? el.value.length : el.selectionStart)+(s==='moveToPreviousChar' ? -1 : 1);
+      const q=Math.max(0, Math.min(el.value.length, p)); try{ el.setSelectionRange(q,q); }catch(er){}
+    }
+    else if(s==='commit') el.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
+    return true;
+  };
+  vk.hide=function(){
+    if(window.__kbFloating && !window.__kbFermer && caseTexteServie(document.activeElement)) return;
+    return cacher.apply(null, arguments);
+  };
+}
 function paveInserer(el,t){
   if(el.tagName==='MATH-FIELD'){
     try{ el.executeCommand(t==='⌫' ? 'deleteBackward' : ['insert', t]); }catch(e){}
@@ -25739,7 +25818,8 @@ function toggleKB(){
   const vk = window.mathVirtualKeyboard;
   if(!vk) return;
   if(vk.visible){
-    vk.hide();
+    window.__kbFermer = true;   /* la fermeture voulue passe la garde de clavierVersCase */
+    try{ vk.hide(); } finally { window.__kbFermer = false; }
     const ae = document.activeElement;
     if(ae && ae.tagName === "MATH-FIELD") ae.blur();
   } else { vk.show(); }
@@ -25832,6 +25912,7 @@ function setupKeyboard(){
   if(window.__mlKbSetup) return; window.__mlKbSetup = true;
   const vk = window.mathVirtualKeyboard;
   if(!vk) return;
+  try{ clavierVersCase(vk); }catch(e){}   /* le clavier écrit aussi dans une case de calcul en texte */
   try{ vk.addEventListener("virtual-keyboard-toggle", ()=>{ requestAnimationFrame(pinKbToViewport); setTimeout(pinKbToViewport, 120); }); }catch(e){}
   try{ vk.addEventListener("geometrychange", ()=>requestAnimationFrame(pinKbToViewport)); }catch(e){}
   if(window.visualViewport){
