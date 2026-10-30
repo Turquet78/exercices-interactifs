@@ -1005,4 +1005,4 @@ précision ne prouve rien), « 0,3 », et un nombre trop loin du terme
 l'aide ne réclame pas 10⁻⁴ à une copie juste. Contrôle :
 « le 6.2.1 : au seuil, une valeur moins précise que le tableau passe si elle
 permet de conclure » (banc principal), sur la copie de Turquet
-(aₙ = 0,3 − 0,2 × 0,4ⁿ⁻¹) et sur une suite décroissante. Terminale v464.
+(aₙ = 0,3 − 0,2 × 0,4ⁿ⁻¹) et sur une suite décroissante. Terminale v464, puis v465 : #894 avait pris la v464 pendant les contrôles.
