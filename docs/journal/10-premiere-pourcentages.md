@@ -4847,3 +4847,36 @@ Contrôle : six cas ajoutés au juge de `syntheseEvolutionsLibre`
 « dimminution » acceptés ; « baise » (lu « baisse ») reste un sens faux ;
 « bausse » reste une conclusion absente — plus `salOrthNote`, `evsMotOk` et
 `salDixConclusion`.
+
+### Puis la conclusion que la page ne lit pas se demande au MODÈLE (Première v356, octobre 2026)
+
+Question de Turquet devant « baisses 17 », « bais e 17 % », « haugmantation »,
+« hauss 17 », « haus;se 17% » : trois passaient, deux non — puis « est-ce que
+l'on ne peut pas demander à l'IA si elle comprend ce que veut dire l'élève, on
+accepte ? ». Oui, à une condition : le modèle ne juge que les MOTS.
+
+* La page lit seule le pluriel (« baisses de 49 % ») et une ponctuation
+  glissée dans le mot (« haus;se 14% », retirée entre deux lettres par
+  `salMotsEvolution`).
+* `eslJuge` garde les lignes en mots qui portent un nombre et que la
+  grammaire ne lit pas (`enMots` : les commentaires, et les « nombres » dont
+  la grammaire a retiré les mots — « hauss 14 » se lisait 14). Quand le
+  calcul est prouvé et qu'aucune conclusion n'est lue, une telle ligne qui ne
+  porte QU'UN nombre, le BON pourcentage, part au modèle : `{ sait:false,
+  conclIA }`. `eslAttenduIA` lui dit alors que le calcul et le nombre sont
+  vérifiés, et lui laisse UNE SEULE QUESTION : cette ligne veut-elle dire
+  « hausse de 14 % » ? — indulgence sur l'orthographe et le % oublié, refus
+  sur l'autre sens ou un sens indécidable (« bausse »).
+* Au MAUVAIS pourcentage (« hauss 15 »), la page refuse seule — un nombre ne
+  se confie pas au modèle (« Un verdict arithmétique ne se confie pas à un
+  modèle ») — sans donner la réponse.
+* Le modèle en panne : « Vérification indisponible », comme toute copie qu'il
+  doit lire ; rien n'est verrouillé.
+
+Contrôles : banc principal (pluriel, ponctuation, « hauss 14 » et « baisses
+49 » confiés au modèle, « hauss 15 » refusé sans la réponse, la consigne
+envoyée) ; banc navigateur (« hauss 14 » TAPÉ dans le vrai MathLive, la
+réponse du modèle tenue : la consigne part, la copie est acceptée). Le
+premier passage du banc a rougi sur « hauss 14 » — lu comme un nombre —,
+sabotage involontaire qui a montré que le contrôle voit le défaut.
+Ce qu'aucun banc ne voit : ce que le VRAI modèle répond à « bausse ».
