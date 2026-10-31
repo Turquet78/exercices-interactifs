@@ -19179,6 +19179,29 @@ if(require.main === module) (async () => {
           return { v: e.value, focus: document.activeElement && document.activeElement.id }; });
         verifier('une touche en LaTeX s\'écrit en texte dans la case (a_{n} → aₙ, \\times → ×)',
           tex.v === 'aₙ×≈' && tex.focus === 'bancKbIn', 'case « ' + tex.v + ' », focus sur ' + tex.focus);
+        /* la touche « indice » du clavier (moveToSubscript) : a, indice, n —
+           la capture de Turquet (octobre 2026) montrait « 1-annnn », la
+           commande était avalée sans rien écrire */
+        await s.page.fill('#bancKbIn', '');
+        await s.page.click('#bancKbIn');
+        await s.page.keyboard.type('a');
+        const tIdx = await s.page.evaluate(() => {
+          for(const L of document.querySelectorAll('#kbwin .MLK__layer')) for(const k of L.querySelectorAll('[id]')){
+            const d = mathVirtualKeyboard.getKeycap && mathVirtualKeyboard.getKeycap(k.id);
+            if(d && /moveToSubscript/.test(JSON.stringify(d.command || ''))){
+              if(!L.classList.contains('is-visible')) mathVirtualKeyboard.currentLayer = L.id;
+              return k.id; } }
+          return null; });
+        if(tIdx){
+          await s.page.waitForTimeout(200);
+          const r = await s.page.evaluate(id => { const b = document.getElementById(id).getBoundingClientRect(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; }, tIdx);
+          await s.page.mouse.click(r.x, r.y); await s.page.waitForTimeout(300);
+          await s.page.keyboard.type('n');
+        }
+        const vIdx = await s.page.evaluate(() => ({ v: document.getElementById('bancKbIn').value, focus: document.activeElement && document.activeElement.id }));
+        verifier('la touche « indice » du clavier à l\'écran écrit un indice dans la case en texte (a, indice, n → aₙ)',
+          !!tIdx && vIdx.v === 'aₙ' && vIdx.focus === 'bancKbIn',
+          tIdx ? 'case « ' + vIdx.v + ' », focus sur ' + vIdx.focus : 'aucune touche « indice » (moveToSubscript) sur le clavier');
         await s.page.fill('#bancKbIn', '');
         await s.page.click('#bancKbIn');
         await s.page.keyboard.type('1-a_n');
@@ -19187,6 +19210,23 @@ if(require.main === module) (async () => {
         const ind2 = await s.page.evaluate(() => document.getElementById('bancKbIn').value);
         verifier('« a_n » tapé au clavier s\'écrit « aₙ » dans une case de calcul (et « a_(n+1) », « aₙ₊₁ »)',
           ind === '1-aₙ' && ind2 === '1-aₙ+aₙ₊₁', '« ' + ind + ' » puis « ' + ind2 + ' »');
+        /* le 6.2.1 (Terminale) : le bouton aₙ sous l'arbre des rangs n et
+           n + 1 écrit aₙ dans la case P(Fₙ), sans lui voler le focus */
+        if(await s.page.evaluate(() => typeof startAPS === 'function')){
+          await s.page.evaluate(() => startAPS());
+          await s.page.waitForSelector('#aps-jeton-an', { timeout: 8000 }).catch(() => {});
+          await s.page.click('#apr-t-F').catch(() => {});
+          await s.page.keyboard.type('1-');
+          await s.page.click('#aps-jeton-an').catch(() => {});
+          await s.page.waitForTimeout(300);
+          const vb = await s.page.evaluate(() => { const e = document.getElementById('apr-t-F'); return { v: e ? e.value : null, focus: document.activeElement && document.activeElement.id }; });
+          verifier('au 6.2.1, le bouton aₙ sous l\'arbre écrit aₙ dans la case, qui garde le focus',
+            vb.v === '1-aₙ' && vb.focus === 'apr-t-F', 'case « ' + vb.v + ' », focus sur ' + vb.focus);
+        }
+        /* la croix se mesure sur un clavier OUVERT, focus dans une case en texte */
+        await s.page.click(await s.page.evaluate(() => document.getElementById('apr-t-F') ? '#apr-t-F' : '#bancKbIn'));
+        await s.page.evaluate(() => { if(!mathVirtualKeyboard.visible) mathVirtualKeyboard.show(); });
+        await s.page.waitForTimeout(400);
         await s.page.click('#kbwin .kbwin-close').catch(() => {});
         await s.page.waitForTimeout(500);
         verifier('la croix ferme toujours le clavier à l\'écran, même depuis une case en texte',

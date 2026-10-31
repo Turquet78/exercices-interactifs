@@ -8836,7 +8836,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=623;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=624;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -81887,6 +81887,10 @@ function clavierVersCase(vk){
     const s=k[0];
     if(s==='insert' || s==='typedText'){ const t=s==='insert' ? clavierTexte(k[1]) : String(k[1]==null ? '' : k[1]); if(t) paveInserer(el, t); }
     else if(s==='deleteBackward') paveInserer(el, '⌫');
+    /* la touche « indice » (moveToSubscript) écrit « _ », que caseIndices
+       change en indice à la frappe suivante (« _n » → ₙ) ; l'exposant, « ^ » */
+    else if(s==='moveToSubscript') paveInserer(el, '_');
+    else if(s==='moveToSuperscript') paveInserer(el, '^');
     else if(s==='moveToPreviousChar' || s==='moveToNextChar'){
       const p=(el.selectionStart==null ? el.value.length : el.selectionStart)+(s==='moveToPreviousChar' ? -1 : 1);
       const q=Math.max(0, Math.min(el.value.length, p)); try{ el.setSelectionRange(q,q); }catch(er){}
