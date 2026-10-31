@@ -4941,3 +4941,31 @@ baisses échangées, refuse une hausse et une baisse échangées ; le 2.5.5 de
 même sur ses flèches ; le 2.3.14 refuse l'autre ordre ; le 2.5.8 accepte les
 trois méthodes la baisse d'abord, et refuse la seconde évolution refaite sur
 100 dans l'autre ordre.
+
+### Puis la Seconde : « fais pareil pour la seconde » (Seconde v626, octobre 2026)
+
+La même règle, portée telle quelle : `evolInversee`, `evolCaseVaut` et
+`evolOrientee` sont recopiées dans `secondes.html` (les pages sont
+monolithiques), et branchées sur les mêmes juges qu'en Première.
+
+**Ordre libre** : {hausses-successives} et {baisses-successives} (les deux
+lignes de coefficients de l'étape ①), {hausses-successives-cent} (toute la
+chaîne), et {evolutions-successives}, le schéma à trois boîtes, quand les deux
+flèches ont le même sens — y compris quand il sert d'« Aide schéma » au 4.5.9.
+
+**Ordre de l'énoncé gardé, et pourquoi** :
+* {evolutions-successives}, une hausse et une baisse : chaque flèche imprime
+  son signe ;
+* {evolutions-successives-coef} : le coefficient de chaque évolution est
+  IMPRIMÉ sous sa flèche ;
+* {evolutions-successives-phrases} : « Première évolution : une hausse de
+  20 % » est imprimé ;
+* la rédaction ({synthese-pourcentages-redigee}, {pourcentages-problemes}) ne
+  juge que le coefficient global et le pourcentage (`sprCible`), qui ne
+  dépendent pas de l'ordre : elle l'acceptait déjà, rien à changer.
+
+**Contrôle** : le même, `ordreEvolutionsLibre`, joue désormais sur les deux
+niveaux — ses sections propres à la Première (la synthèse, la méthode des
+10 %, la rédaction libre) se déclarent par la présence de leur juge, et ses
+messages nomment les exercices par leur identifiant, plus par un numéro de la
+Première qui aurait menti en Seconde.
