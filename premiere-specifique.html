@@ -3185,7 +3185,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=357;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=358;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -13455,6 +13455,54 @@ const HS_PAIRES=(function(){
   }
   return l;
 })();
+/* ---------- L'ORDRE DES DEUX ÉVOLUTIONS EST LIBRE ----------
+   Demande de Turquet (octobre 2026), sur une capture du 2.2.8 : « accepter que
+   l'on inverse les évolutions, le faire pour tous les exercices où c'est
+   possible ». L'élève avait fait +10 % d'abord, puis +70 % : 100 → 110 → 187,
+   juste de bout en bout — et tout son chemin rougissait, parce que chaque case
+   était jugée contre 100 → 170 → 187. Deux évolutions successives COMMUTENT
+   (k1 × k2 = k2 × k1) : refuser l'autre ordre apprendrait l'inverse du cours.
+   LE JUGE NE CHANGE PAS, C'EST LA QUESTION QU'IL LIT QUI S'ORIENTE : on lui
+   passe soit la question, soit sa jumelle aux deux évolutions ÉCHANGÉES
+   (evolInversee) — celle des deux qui rend JUSTES le plus de cases que
+   l'élève a écrites (evolOrientee, la règle des paires d'{antecedent-nombre} :
+   chaque case se juge sur ce qu'elle PROMET). À égalité — rien d'écrit, ou
+   rien qui départage —, l'ordre de l'énoncé : la correction en vert suit
+   alors l'énoncé, et sinon le chemin que l'élève a choisi.
+   LA JUMELLE N'EST JAMAIS RANGÉE : elle vit le temps d'une vérification. La
+   question gardée (pause, rejeu, note) reste celle de l'énoncé.
+   « LÀ OÙ C'EST POSSIBLE » : une hausse et une baisse ne s'échangent pas sur
+   un écran qui IMPRIME le signe de chaque ligne (« 1 + », « 1 − », la
+   soustraction de la méthode 2) — l'élève ne peut pas y écrire l'autre ordre.
+   evolOrientee ne l'essaie donc que si les deux évolutions ont le même sens ;
+   la rédaction libre ({synthese-evolutions-successives-libre}), où l'élève
+   écrit lui-même ses signes, accepte les deux ordres dans tous les cas.
+   attendus(qq) liste les cases qui DÉPENDENT de l'ordre, avec la valeur que
+   chacune vaut pour la question qq : {id, n, d, pre} pour une case (pre : ce
+   que la tête écrit devant, « 1, » ou « 0, »), {num, den, n, d} pour une
+   fraction (dénominateur vide vaut 1). */
+function evolInversee(q){
+  const r=Object.assign({},q,{P1:q.P2,P2:q.P1});
+  [['s1','s2'],['c1','c2'],['fA','fB'],['n1','n2']].forEach(([x,y])=>{ if(x in q){ r[x]=q[y]; r[y]=q[x]; } });
+  return r;
+}
+function evolCaseVaut(c){
+  const lire=id=>{ const e=$(id); return e?String(e.value==null?'':e.value).trim():''; };
+  if(c.num){
+    const tn=lire(c.num); if(tn==='') return false;
+    const a=parseDecToFrac(tn), b=parseDecToFrac(lire(c.den)||'1');
+    return !!a && !!b && b.n!==0 && a.n*b.d*c.d===c.n*a.d*b.n;
+  }
+  const t=lire(c.id); if(t==='') return false;
+  const fr=parseDecToFrac((c.pre||'')+t);
+  return !!fr && fr.n*(c.d||1)===c.n*fr.d;
+}
+function evolOrientee(q, attendus){
+  if(q.P1===q.P2 && q.s1===q.s2) return q;                 /* 10 % puis 10 % : rien à échanger */
+  if('s1' in q && q.s1!==q.s2) return q;                   /* le signe de chaque ligne est imprimé */
+  const r=evolInversee(q), n=qq=>attendus(qq).filter(evolCaseVaut).length;
+  return n(r)>n(q)?r:q;
+}
 /* Les questions d'une séance portent des paires DISTINCTES : le vivier est
    fini, et deux fois le même calcul dans la même séance se verrait. */
 function genHausses(dejaVues){
@@ -13548,7 +13596,11 @@ function updateHSStep4(){
 }
 function checkHSAnswer(live){
   if(test.locked)return;
-  const q=test.questions[test.idx];
+  /* l'ordre des deux hausses est libre : les deux lignes de l'étape ① se
+     lisent dans l'ordre de l'énoncé ou dans l'autre (evolOrientee) */
+  const q=evolOrientee(test.questions[test.idx], qq=>[
+    {num:'hs1n',den:'hs1d',n:qq.P1,d:100},{id:'hs1p',pre:'0,',n:qq.P1,d:100},{id:'hs1dec',pre:'1,',n:qq.c1,d:100},
+    {num:'hs2n',den:'hs2d',n:qq.P2,d:100},{id:'hs2p',pre:'0,',n:qq.P2,d:100},{id:'hs2dec',pre:'1,',n:qq.c2,d:100}]);
   const soutien=isSoutien();
   const v=id=>{const e=$(id);return e?e.value.trim():'';};
   const decOk=(id,pre,n,d)=>{ const t=v(id); if(t==='') return false;
@@ -13662,7 +13714,8 @@ function checkHSAnswer(live){
     corTrainFrac('hsPn','hsPd',q.prodNum,q.prodDen); corTrainDec('hsDec',q.coefStr); corTrainDec('hsP',q.hausseStr);
   }
   const given=v('hsP')===''?null:(v('hsP').replace('.', ',')+' %');
-  test.answers.push({...(ptsExo()||{}),q:`une hausse de ${q.P1} % suivie d'une hausse de ${q.P2} %`,
+  const q0=test.questions[test.idx];
+  test.answers.push({...(ptsExo()||{}),q:`une hausse de ${q0.P1} % suivie d'une hausse de ${q0.P2} %`,
     answer:`${q.hausseStr} %`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('hsActions').innerHTML=`<button class="btn btn-primary" id="hsNext" onclick="nextHSQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
@@ -13851,7 +13904,14 @@ function hscPaire(ids,attendus){
 }
 function checkHSCAnswer(live){
   if(test.locked)return;
-  const q=test.questions[test.idx], a=hscAns(q);
+  /* l'ordre des deux hausses est libre : 100 → 110 → 187 vaut 100 → 170 → 187
+     (evolOrientee) — toute la chaîne se juge sur le chemin que l'élève a pris */
+  const q=evolOrientee(test.questions[test.idx], qq=>{ const b=hscAns(qq); return [
+    {num:'hsc1n',den:'hsc1d',n:qq.P1,d:100},{num:'hsc1pn',den:'hsc1pd',n:b.prod1,d:100},{id:'hsc1a',n:b.aug1},
+    {id:'hsc1sa',n:b.aug1},{id:'hsc1sb',n:b.aug1},{id:'hsc1sr',n:b.v1},
+    {num:'hsc2n',den:'hsc2d',n:qq.P2,d:100},{id:'hsc2m',n:b.v1},{num:'hsc2pn',den:'hsc2pd',n:b.prod2,d:100},{id:'hsc2a',n:b.aug2},
+    {id:'hsc2sa',n:b.v1},{id:'hsc2sb',n:b.v1},{id:'hsc2sa',n:b.aug2},{id:'hsc2sb',n:b.aug2}]; });
+  const a=hscAns(q);
   const soutien=isSoutien();
   const v=id=>{const e=$(id);return e?String(e.value==null?'':e.value).trim():'';};
   const iv=id=>parseInt(v(id),10);
@@ -13910,7 +13970,8 @@ function checkHSCAnswer(live){
     corTrainDec('hscFin',a.v2); corTrainDec('hscPour',a.h); corTrainDec('hscPct',a.h);
   }
   const given=v('hscPct')===''?null:(v('hscPct').replace('.', ',')+' %');
-  test.answers.push({...(ptsExo()||{}),q:`une hausse de ${q.P1} % suivie d'une hausse de ${q.P2} %, en partant de 100`,
+  const q0=test.questions[test.idx];
+  test.answers.push({...(ptsExo()||{}),q:`une hausse de ${q0.P1} % suivie d'une hausse de ${q0.P2} %, en partant de 100`,
     answer:`${a.h} %`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('hscActions').innerHTML=`<button class="btn btn-primary" id="hscNext" onclick="nextHSCQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
@@ -14257,14 +14318,31 @@ function essOrdre(ids,attendus){
 }
 function checkEssAnswer(live){
   if(test.locked)return;
-  const q=test.questions[test.idx], a=essAns(q);
+  const q0=test.questions[test.idx];
   const soutien=isSoutien();
   const v=id=>{const e=$(id);return e?String(e.value==null?'':e.value).trim():'';};
-  if(!q.meth){
+  if(!q0.meth){
     if(live) return;
     $('essFeedback').textContent='Choisis d’abord ta méthode : multiplier les coefficients, partir de 100, ou passer par 10 %.';
     $('essFeedback').className='mp-feedback bad'; return;
   }
+  /* l'ordre des deux évolutions est libre quand elles ont le même sens — deux
+     hausses, deux baisses : l'écran imprime le signe de chaque ligne, une
+     hausse et une baisse n'y échangent pas leur place (evolOrientee). La
+     méthode 3 garde l'ordre de l'énoncé : chacune de ses phrases IMPRIME son
+     taux (« donc : 20 % de 100 est ▢ »), l'autre ordre y serait faux */
+  const q=evolOrientee(q0, qq=>{ const b=essAns(qq), tt=s=>s>0?'1,':'0,';
+    if(q0.meth==='coef') return [
+      {num:'ess1n',den:'ess1d',n:qq.P1,d:100},{id:'ess1p',pre:'0,',n:qq.P1,d:100},{id:'ess1dec',pre:tt(qq.s1),n:b.c1,d:100},
+      {num:'ess2n',den:'ess2d',n:qq.P2,d:100},{id:'ess2p',pre:'0,',n:qq.P2,d:100},{id:'ess2dec',pre:tt(qq.s2),n:b.c2,d:100}];
+    if(q0.meth==='cent') return [
+      {num:'essc1n',den:'essc1d',n:qq.P1,d:100},{num:'essc1pn',den:'essc1pd',n:b.prod1,d:100},{id:'essc1a',n:b.aug1},
+      {id:'essc1sa',n:b.aug1},{id:'essc1sb',n:b.aug1},{id:'essc1sr',n:b.v1},
+      {num:'essc2n',den:'essc2d',n:qq.P2,d:100},{id:'essc2m',n:b.v1},{num:'essc2pn',den:'essc2pd',n:b.prod2,d:100},{id:'essc2a',n:b.aug2},
+      {id:'essc2sa',n:b.v1},{id:'essc2sb',n:b.v1},{id:'essc2sa',n:b.aug2},{id:'essc2sb',n:b.aug2}];
+    return [];
+  });
+  const a=essAns(q);
   const decOk=(id,pre,n,d)=>{ const t=v(id); if(t==='') return false;
     const fr=parseDecToFrac((pre||'')+t); return !!fr && fr.n*d===n*fr.d; };
   const iv=id=>parseInt(v(id),10);
@@ -14360,7 +14438,7 @@ function checkEssAnswer(live){
       corTrainFrac('essPn','essPd',a.prodNum,a.prodDen); corTrainDec('essDec',a.coefStr); corTrainDec('essP',a.pct);
     }
     given=(q.choisi==null)?null:((q.choisi>0?'+':'−')+(v('essP')||'?')+' %');
-    quoi=`une ${q.s1>0?'hausse':'baisse'} de ${q.P1} % suivie d'une ${q.s2>0?'hausse':'baisse'} de ${q.P2} %, par les coefficients`;
+    quoi=`une ${q0.s1>0?'hausse':'baisse'} de ${q0.P1} % suivie d'une ${q0.s2>0?'hausse':'baisse'} de ${q0.P2} %, par les coefficients`;
   } else if(q.meth==='cent'){
     const s1=q.s1>0?hscPaire(['essc1sa','essc1sb'],[100,a.aug1]):essOrdre(['essc1sa','essc1sb'],[100,a.aug1]);
     const s2=q.s2>0?hscPaire(['essc2sa','essc2sb'],[a.v1,a.aug2]):essOrdre(['essc2sa','essc2sb'],[a.v1,a.aug2]);
@@ -14413,7 +14491,7 @@ function checkEssAnswer(live){
       corTrainDec('esscFin',a.v2); corTrainDec('esscPour',a.pct); corTrainDec('esscPct',a.pct);
     }
     given=(q.choisi==null)?null:((q.choisi>0?'+':'−')+(v('esscPct')||'?')+' %');
-    quoi=`une ${q.s1>0?'hausse':'baisse'} de ${q.P1} % suivie d'une ${q.s2>0?'hausse':'baisse'} de ${q.P2} %, en partant de 100`;
+    quoi=`une ${q0.s1>0?'hausse':'baisse'} de ${q0.P1} % suivie d'une ${q0.s2>0?'hausse':'baisse'} de ${q0.P2} %, en partant de 100`;
   } else {
     /* la méthode 3 : chaque case contre sa valeur (un rationnel, jamais un
        flottant) ; l'addition à ordre libre, la soustraction dans l'ordre —
@@ -14457,7 +14535,7 @@ function checkEssAnswer(live){
       corTrainDec('essdFin',a.v2); corTrainDec('essdPct',a.pct);
     }
     given=(q.choisi==null)?null:((q.choisi>0?'+':'−')+(v('essdPct')||'?')+' %');
-    quoi=`une ${q.s1>0?'hausse':'baisse'} de ${q.P1} % suivie d'une ${q.s2>0?'hausse':'baisse'} de ${q.P2} %, en passant par 10 %`;
+    quoi=`une ${q0.s1>0?'hausse':'baisse'} de ${q0.P1} % suivie d'une ${q0.s2>0?'hausse':'baisse'} de ${q0.P2} %, en passant par 10 %`;
   }
   dbpRetourRetirer();   /* {devoir-blanc-pourcentages} : la réponse est donnée, plus de retour */
   test.answers.push({...(ptsExo()||{}),q:quoi, answer, given, correct:allOk});
@@ -14655,8 +14733,23 @@ function eslPartage(t, X, Y){
 }
 /* L'écriture décimale COMPACTE d'un coefficient sur 100, celle que l'élève tape : 120 → « 1,2 », 95 → « 0,95 », 102 → « 1,02 ». */
 function eslCoefStr(c){ return String(c/100).replace('.',','); }
-/* eslJuge : { sait, correct, phrase }. */
-function eslJuge(q, texte){
+/* eslJuge : { sait, correct, phrase }.
+   L'ORDRE DES DEUX ÉVOLUTIONS EST LIBRE (evolOrientee, octobre 2026), et ici
+   dans TOUS les sens : l'élève écrit lui-même ses signes, si bien que
+   « 100 × 0,95 = 95 ; 95 × 1,2 = 114 » est aussi juste que l'ordre de
+   l'énoncé. La copie se lit d'abord dans l'ordre de l'énoncé ; si elle n'y
+   est pas acceptée, on la relit sur la jumelle aux évolutions échangées
+   (evolInversee), et on garde ce second verdict s'il l'ACCEPTE. Un refus se
+   formule toujours dans l'ordre de l'énoncé. unOrdre : ne lire qu'un ordre. */
+function eslJuge(q, texte, unOrdre){
+  if(!unOrdre && !(q.P1===q.P2 && q.s1===q.s2)){
+    const J=eslJuge(q, texte, true);
+    if(J.correct) return J;
+    if(!J.sait && J.conclIA) return J;
+    const R=eslJuge(evolInversee(q), texte, true);
+    /* le calcul inversé prouvé, la conclusion laissée au modèle (conclIA) : gardé aussi */
+    return (R.sait && R.correct) || (!R.sait && R.conclIA) ? R : J;
+  }
   const a=essAns(q);
   const A={ rC1:{n:a.c1,d:100}, rC2:{n:a.c2,d:100}, rCG:{n:a.prodNum,d:a.prodDen}, rV1:{n:a.v1,d:1}, rV2:{n:a.v2,d:1},
             rAug2:{n:a.aug2,d:1}, rP2:{n:q.P2,d:100}, pct:a.pct, P2:q.P2 };
@@ -14744,6 +14837,7 @@ function eslAttenduIA(q, juge){
    +'\n   · méthode 1, les coefficients : la multiplication '+c1+' × '+c2+' = '+a.coefStr+' (dans un ordre ou l’autre, en décimaux ou en fractions) ;'
    +'\n   · méthode 2, partir de 100 avec les coefficients : '+a.v1+' × '+c2+' = '+a.v2+' — la valeur '+a.v1+' peut être écrite directement, sans calcul ;'
    +'\n   · méthode 3, partir de 100 avec les pourcentages : « '+q.P2+' % de '+a.v1+' est '+a.aug2+' » (ou la multiplication '+pDecStr(q.P2)+' × '+a.v1+' = '+a.aug2+'), puis '+a.v1+' '+sg(q.s2)+' '+a.aug2+' = '+a.v2+' — la valeur '+a.v1+' peut être écrite directement.'
+   +'\n   L’ordre est libre : commencer par la seconde évolution est aussi juste.'
    +'\n   Les lignes en plus (10 % de 100 est 10, 100 × '+c1+' = '+a.v1+', '+a.v2+' − 100…) sont bienvenues si elles sont vraies. Recopier la conclusion sans aucun calcul est REFUSÉ. La seconde évolution calculée sur 100 au lieu de '+a.v1+' est REFUSÉE : les évolutions ne s’additionnent pas ('+sg(q.s1)+q.P1+' % '+sg(q.s2)+' '+q.P2+' % n’est PAS '+sg(q.s1*q.P1+q.s2*q.P2>0?1:-1)+Math.abs(q.s1*q.P1+q.s2*q.P2)+' %).'
    +'\n2. LA CONCLUSION est écrite et juste : « '+mot(a.sens)+' de '+a.pct+' % » (« '+(a.sens>0?'augmentation':'diminution')+' de '+a.pct+' % », ou « '+sg(a.sens)+a.pct+' % » conviennent aussi). Le sens et le pourcentage doivent être justes tous les deux.'
    +'\n3. AUCUNE ÉGALITÉ FAUSSE. Chaque ligne est un calcul indépendant ; à l’intérieur d’une ligne, découpe aux « = » (« est » vaut « = ») : chaque morceau doit être mathématiquement vrai. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE.'
@@ -19805,7 +19899,10 @@ function updateBSStep4(){
 }
 function checkBSAnswer(live){
   if(test.locked)return;
-  const q=test.questions[test.idx];
+  /* l'ordre des deux baisses est libre, comme au 2.2.7 (evolOrientee) */
+  const q=evolOrientee(test.questions[test.idx], qq=>[
+    {num:'bs1n',den:'bs1d',n:qq.P1,d:100},{id:'bs1p',pre:'0,',n:qq.P1,d:100},{id:'bs1dec',pre:'0,',n:qq.c1,d:100},
+    {num:'bs2n',den:'bs2d',n:qq.P2,d:100},{id:'bs2p',pre:'0,',n:qq.P2,d:100},{id:'bs2dec',pre:'0,',n:qq.c2,d:100}]);
   const soutien=isSoutien();
   /* v() est déclarée AVANT le bloc « live » : la coloration en direct s'en sert
      aussi, et une déclaration plus bas la laissait dans sa zone morte — le mode
@@ -19893,7 +19990,8 @@ function checkBSAnswer(live){
     corTrainFrac('bsPn','bsPd',q.prodNum,q.prodDen); corTrainDec('bsDec',q.coefStr); corTrainDec('bsP',q.baisseStr);
   }
   const given=v('bsP')===''?null:(v('bsP').replace('.', ',')+' %');
-  test.answers.push({...(ptsExo()||{}),q:`une baisse de ${q.P1} % suivie d'une baisse de ${q.P2} %`,
+  const q0=test.questions[test.idx];
+  test.answers.push({...(ptsExo()||{}),q:`une baisse de ${q0.P1} % suivie d'une baisse de ${q0.P2} %`,
     answer:`${q.baisseStr} %`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('bsActions').innerHTML=`<button class="btn btn-primary" id="bsNext" onclick="nextBSQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
@@ -20001,6 +20099,9 @@ function renderBsdTest(){
 }
 function checkBsdAnswer(live){
   if(test.locked)return;
+  /* l'ordre des deux baisses reste celui de l'énoncé : chaque phrase IMPRIME
+     son taux (« donc : 20 % de 100 est ▢ »), et l'autre ordre y écrirait une
+     phrase fausse — la limite d'evolOrientee, nommée */
   const q=test.questions[test.idx], a=bsdAns(q);
   const soutien=isSoutien();
   const v=id=>{const e=$(id);return e?String(e.value==null?'':e.value).trim():'';};
@@ -20203,7 +20304,10 @@ function renderEvsTest(){
 }
 function checkEvsAnswer(live){
   if(test.locked)return;
-  const q=test.questions[test.idx];
+  /* l'ordre des deux flèches est libre quand elles ont le même sens — chaque
+     flèche IMPRIME son signe, « × (1 + » ou « × (1 − » (evolOrientee) */
+  const q=evolOrientee(test.questions[test.idx], qq=>[
+    {id:'evsP1',n:qq.P1,d:100},{id:'evsC1',n:qq.c1,d:100},{id:'evsP2',n:qq.P2,d:100},{id:'evsC2',n:qq.c2,d:100}]);
   const v=id=>String($(id).value==null?'':$(id).value).trim();
   const gAbs=Math.abs(q.G), gc=q.c1*q.c2;                 /* le coefficient global, en dix-millièmes */
   const [g1c,g2c]=facteursCommutesDec('evsG1','evsG2',q.c1,q.c2,100);   /* a × b = b × a */
@@ -20250,7 +20354,7 @@ function checkEvsAnswer(live){
       }
     }
   }
-  const enonce=evsEnonce(q).replace(/<[^>]+>/g,'');
+  const enonce=evsEnonce(test.questions[test.idx]).replace(/<[^>]+>/g,'');
   const sLu=evsSigneDe(v('evsG'))||'±';
   const given=`${v('evsP1')||'—'} / ${v('evsC1')||'—'} ; ${v('evsP2')||'—'} / ${v('evsC2')||'—'} ; ${sLu}${v('evsGP')||'—'} ; ${v('evsG1')||'—'} × ${v('evsG2')||'—'} = ${v('evsG')||'—'} ; ${evsMotNorm(v('evsMot'))||'—'} de ${v('evsT')||'—'} %`;
   test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${d1} / ${k1} ; ${d2} / ${k2} ; ${bonS}${dg} ; ${k1} × ${k2} = ${kg} ; ${mot} de ${gAbs} %`, given, correct:allOk});
@@ -23298,6 +23402,10 @@ function clavierVersCase(vk){
     const s=k[0];
     if(s==='insert' || s==='typedText'){ const t=s==='insert' ? clavierTexte(k[1]) : String(k[1]==null ? '' : k[1]); if(t) paveInserer(el, t); }
     else if(s==='deleteBackward') paveInserer(el, '⌫');
+    /* la touche « indice » (moveToSubscript) écrit « _ », que caseIndices
+       change en indice à la frappe suivante (« _n » → ₙ) ; l'exposant, « ^ » */
+    else if(s==='moveToSubscript') paveInserer(el, '_');
+    else if(s==='moveToSuperscript') paveInserer(el, '^');
     else if(s==='moveToPreviousChar' || s==='moveToNextChar'){
       const p=(el.selectionStart==null ? el.value.length : el.selectionStart)+(s==='moveToPreviousChar' ? -1 : 1);
       const q=Math.max(0, Math.min(el.value.length, p)); try{ el.setSelectionRange(q,q); }catch(er){}
