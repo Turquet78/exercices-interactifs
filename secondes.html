@@ -8836,7 +8836,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=626;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=627;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -29471,7 +29471,10 @@ function renderEvsTest(){
 }
 function checkEvsAnswer(live){
   if(test.locked)return;
-  const q=test.questions[test.idx];
+  /* l'ordre des deux flèches est libre quand elles ont le même sens — chaque
+     flèche IMPRIME son signe, « × (1 + » ou « × (1 − » (evolOrientee) */
+  const q=evolOrientee(test.questions[test.idx], qq=>[
+    {id:'evsP1',n:qq.P1,d:100},{id:'evsC1',n:qq.c1,d:100},{id:'evsP2',n:qq.P2,d:100},{id:'evsC2',n:qq.c2,d:100}]);
   const v=id=>$(id).value.trim();
   const gAbs=Math.abs(q.G), gc=q.c1*q.c2;                 /* le coefficient global, en dix-millièmes */
   const [g1c,g2c]=facteursCommutesDec('evsG1','evsG2',q.c1,q.c2,100);   /* a × b = b × a */
@@ -29516,7 +29519,7 @@ function checkEvsAnswer(live){
       }
     }
   }
-  const enonce=evsEnonce(q).replace(/<[^>]+>/g,'');
+  const enonce=evsEnonce(test.questions[test.idx]).replace(/<[^>]+>/g,'');
   const sLu=evsSigneDe(v('evsG'))||'±';
   const given=`${v('evsP1')||'—'} / ${v('evsC1')||'—'} ; ${v('evsP2')||'—'} / ${v('evsC2')||'—'} ; ${sLu}${v('evsGP')||'—'} ; ${v('evsG1')||'—'} × ${v('evsG2')||'—'} = ${v('evsG')||'—'} ; ${sLu}${v('evsT')||'—'} %`;
   test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${d1} / ${k1} ; ${d2} / ${k2} ; ${bonS}${dg} ; ${k1} × ${k2} = ${kg} ; ${bonS}${gAbs} %`, given, correct:allOk});
@@ -33158,6 +33161,58 @@ const HS_PAIRES=(function(){
   }
   return l;
 })();
+/* ---------- L'ORDRE DES DEUX ÉVOLUTIONS EST LIBRE ----------
+   Demande de Turquet (octobre 2026), d'abord en Première sur une capture du
+   2.2.8 — « accepter que l'on inverse les évolutions, le faire pour tous les
+   exercices où c'est possible » —, puis « fais pareil pour la seconde ». L'élève avait fait +10 % d'abord, puis +70 % : 100 → 110 → 187,
+   juste de bout en bout — et tout son chemin rougissait, parce que chaque case
+   était jugée contre 100 → 170 → 187. Deux évolutions successives COMMUTENT
+   (k1 × k2 = k2 × k1) : refuser l'autre ordre apprendrait l'inverse du cours.
+   LE JUGE NE CHANGE PAS, C'EST LA QUESTION QU'IL LIT QUI S'ORIENTE : on lui
+   passe soit la question, soit sa jumelle aux deux évolutions ÉCHANGÉES
+   (evolInversee) — celle des deux qui rend JUSTES le plus de cases que
+   l'élève a écrites (evolOrientee, la règle des paires d'{antecedent-nombre} :
+   chaque case se juge sur ce qu'elle PROMET). À égalité — rien d'écrit, ou
+   rien qui départage —, l'ordre de l'énoncé : la correction en vert suit
+   alors l'énoncé, et sinon le chemin que l'élève a choisi.
+   LA JUMELLE N'EST JAMAIS RANGÉE : elle vit le temps d'une vérification. La
+   question gardée (pause, rejeu, note) reste celle de l'énoncé.
+   « LÀ OÙ C'EST POSSIBLE » : une hausse et une baisse ne s'échangent pas sur
+   un écran qui IMPRIME le signe de chaque ligne (« × (1 + » / « × (1 − » sur
+   les flèches de {evolutions-successives}) — l'élève ne peut pas y écrire
+   l'autre ordre. evolOrientee ne l'essaie donc que si les deux évolutions ont
+   le même sens. {evolutions-successives-coef} et
+   {evolutions-successives-phrases} gardent l'ordre de l'énoncé : le
+   coefficient, ou la phrase, de chaque évolution y est IMPRIMÉ à sa place. La
+   rédaction ({synthese-pourcentages-redigee}, {pourcentages-problemes}) ne
+   juge que le coefficient global et le pourcentage, qui ne dépendent pas de
+   l'ordre : elle l'acceptait déjà.
+   attendus(qq) liste les cases qui DÉPENDENT de l'ordre, avec la valeur que
+   chacune vaut pour la question qq : {id, n, d, pre} pour une case (pre : ce
+   que la tête écrit devant, « 1, » ou « 0, »), {num, den, n, d} pour une
+   fraction (dénominateur vide vaut 1). */
+function evolInversee(q){
+  const r=Object.assign({},q,{P1:q.P2,P2:q.P1});
+  [['s1','s2'],['c1','c2'],['fA','fB'],['n1','n2']].forEach(([x,y])=>{ if(x in q){ r[x]=q[y]; r[y]=q[x]; } });
+  return r;
+}
+function evolCaseVaut(c){
+  const lire=id=>{ const e=$(id); return e?String(e.value==null?'':e.value).trim():''; };
+  if(c.num){
+    const tn=lire(c.num); if(tn==='') return false;
+    const a=parseDecToFrac(tn), b=parseDecToFrac(lire(c.den)||'1');
+    return !!a && !!b && b.n!==0 && a.n*b.d*c.d===c.n*a.d*b.n;
+  }
+  const t=lire(c.id); if(t==='') return false;
+  const fr=parseDecToFrac((c.pre||'')+t);
+  return !!fr && fr.n*(c.d||1)===c.n*fr.d;
+}
+function evolOrientee(q, attendus){
+  if(q.P1===q.P2 && q.s1===q.s2) return q;                 /* 10 % puis 10 % : rien à échanger */
+  if('s1' in q && q.s1!==q.s2) return q;                   /* le signe de chaque ligne est imprimé */
+  const r=evolInversee(q), n=qq=>attendus(qq).filter(evolCaseVaut).length;
+  return n(r)>n(q)?r:q;
+}
 /* Les questions d'une séance portent des paires DISTINCTES : le vivier est
    fini, et deux fois le même calcul dans la même séance se verrait. */
 function genHausses(dejaVues){
@@ -33251,7 +33306,11 @@ function updateHSStep4(){
 }
 function checkHSAnswer(live){
   if(test.locked)return;
-  const q=test.questions[test.idx];
+  /* l'ordre des deux hausses est libre : les deux lignes de l'étape ① se
+     lisent dans l'ordre de l'énoncé ou dans l'autre (evolOrientee) */
+  const q=evolOrientee(test.questions[test.idx], qq=>[
+    {num:'hs1n',den:'hs1d',n:qq.P1,d:100},{id:'hs1p',pre:'0,',n:qq.P1,d:100},{id:'hs1dec',pre:'1,',n:qq.c1,d:100},
+    {num:'hs2n',den:'hs2d',n:qq.P2,d:100},{id:'hs2p',pre:'0,',n:qq.P2,d:100},{id:'hs2dec',pre:'1,',n:qq.c2,d:100}]);
   const soutien=isSoutien();
   const v=id=>{const e=$(id);return e?e.value.trim():'';};
   const decOk=(id,pre,n,d)=>{ const t=v(id); if(t==='') return false;
@@ -33365,7 +33424,8 @@ function checkHSAnswer(live){
     corTrainFrac('hsPn','hsPd',q.prodNum,q.prodDen); corTrainDec('hsDec',q.coefStr); corTrainDec('hsP',q.hausseStr);
   }
   const given=v('hsP')===''?null:(v('hsP').replace('.', ',')+' %');
-  test.answers.push({...(ptsExo()||{}),q:`une hausse de ${q.P1} % suivie d'une hausse de ${q.P2} %`,
+  const q0=test.questions[test.idx];
+  test.answers.push({...(ptsExo()||{}),q:`une hausse de ${q0.P1} % suivie d'une hausse de ${q0.P2} %`,
     answer:`${q.hausseStr} %`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('hsActions').innerHTML=`<button class="btn btn-primary" id="hsNext" onclick="nextHSQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
@@ -33554,7 +33614,14 @@ function hscPaire(ids,attendus){
 }
 function checkHSCAnswer(live){
   if(test.locked)return;
-  const q=test.questions[test.idx], a=hscAns(q);
+  /* l'ordre des deux hausses est libre : 100 → 110 → 187 vaut 100 → 170 → 187
+     (evolOrientee) — toute la chaîne se juge sur le chemin que l'élève a pris */
+  const q=evolOrientee(test.questions[test.idx], qq=>{ const b=hscAns(qq); return [
+    {num:'hsc1n',den:'hsc1d',n:qq.P1,d:100},{num:'hsc1pn',den:'hsc1pd',n:b.prod1,d:100},{id:'hsc1a',n:b.aug1},
+    {id:'hsc1sa',n:b.aug1},{id:'hsc1sb',n:b.aug1},{id:'hsc1sr',n:b.v1},
+    {num:'hsc2n',den:'hsc2d',n:qq.P2,d:100},{id:'hsc2m',n:b.v1},{num:'hsc2pn',den:'hsc2pd',n:b.prod2,d:100},{id:'hsc2a',n:b.aug2},
+    {id:'hsc2sa',n:b.v1},{id:'hsc2sb',n:b.v1},{id:'hsc2sa',n:b.aug2},{id:'hsc2sb',n:b.aug2}]; });
+  const a=hscAns(q);
   const soutien=isSoutien();
   const v=id=>{const e=$(id);return e?String(e.value==null?'':e.value).trim():'';};
   const iv=id=>entierDec(v(id));   /* « 70,7 » ne vaut pas 70 */
@@ -33613,7 +33680,8 @@ function checkHSCAnswer(live){
     corTrainDec('hscFin',a.v2); corTrainDec('hscPour',a.h); corTrainDec('hscPct',a.h);
   }
   const given=v('hscPct')===''?null:(v('hscPct').replace('.', ',')+' %');
-  test.answers.push({...(ptsExo()||{}),q:`une hausse de ${q.P1} % suivie d'une hausse de ${q.P2} %, en partant de 100`,
+  const q0=test.questions[test.idx];
+  test.answers.push({...(ptsExo()||{}),q:`une hausse de ${q0.P1} % suivie d'une hausse de ${q0.P2} %, en partant de 100`,
     answer:`${a.h} %`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('hscActions').innerHTML=`<button class="btn btn-primary" id="hscNext" onclick="nextHSCQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
@@ -33817,7 +33885,10 @@ function updateBSStep4(){
 }
 function checkBSAnswer(live){
   if(test.locked)return;
-  const q=test.questions[test.idx];
+  /* l'ordre des deux baisses est libre, comme pour deux hausses (evolOrientee) */
+  const q=evolOrientee(test.questions[test.idx], qq=>[
+    {num:'bs1n',den:'bs1d',n:qq.P1,d:100},{id:'bs1p',pre:'0,',n:qq.P1,d:100},{id:'bs1dec',pre:'0,',n:qq.c1,d:100},
+    {num:'bs2n',den:'bs2d',n:qq.P2,d:100},{id:'bs2p',pre:'0,',n:qq.P2,d:100},{id:'bs2dec',pre:'0,',n:qq.c2,d:100}]);
   const soutien=isSoutien();
   /* v() est déclarée AVANT le bloc « live » : la coloration en direct s'en sert
      aussi, et une déclaration plus bas la laissait dans sa zone morte — le mode
@@ -33905,7 +33976,8 @@ function checkBSAnswer(live){
     corTrainFrac('bsPn','bsPd',q.prodNum,q.prodDen); corTrainDec('bsDec',q.coefStr); corTrainDec('bsP',q.baisseStr);
   }
   const given=v('bsP')===''?null:(v('bsP').replace('.', ',')+' %');
-  test.answers.push({...(ptsExo()||{}),q:`une baisse de ${q.P1} % suivie d'une baisse de ${q.P2} %`,
+  const q0=test.questions[test.idx];
+  test.answers.push({...(ptsExo()||{}),q:`une baisse de ${q0.P1} % suivie d'une baisse de ${q0.P2} %`,
     answer:`${q.baisseStr} %`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('bsActions').innerHTML=`<button class="btn btn-primary" id="bsNext" onclick="nextBSQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
