@@ -3357,7 +3357,7 @@ resté libre (`dexpSolTermes`, `dexpSolPaire`). Tenu par `casesVidesDerivees41`
 (la copie révélée rejugée juste), le lot J étendu et le contrôle universel du
 navigateur, éprouvés par sabotage ; 4.4.1, 4.1.9 et 5.2.2 restent dispensés.
 
-## Les mots de structure se lisent malgré une faute d'orthographe (Terminale v469, octobre 2026)
+## Les mots de structure se lisent malgré une faute d'orthographe (Terminale v470, octobre 2026)
 
 « Fais pareil pour la Seconde et la Terminale » (Turquet, octobre 2026), après
 la Première (v355-356 : « augementation de 17 % » au 2.5.8, puis la
