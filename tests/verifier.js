@@ -38826,7 +38826,7 @@ function pythonInputComplements(w, P){
   })()`, v => v === '');
 
   /* ---- 7. prédire ce que le programme affiche ---- */
-  verifierEval(w, 'le 6.3.14 : la copie juste vaut une case par print ; la virgule française, les guillemets recopiés et le .0 oublié sont nommés ; une ligne vide ne rougit pas et reçoit la bonne en vert ; « Exécuter » n’apparaît qu’après la vérification', `(function(){
+  verifierEval(w, 'le 6.3.14 : la copie juste vaut une case par print ; la virgule française, les guillemets recopiés sont nommés, le .0 oublié d’un float n’est pas compté faux ; une ligne vide ne rougit pas et reçoit la bonne en vert ; « Exécuter » n’apparaît qu’après la vérification', `(function(){
     const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-predire";
     TESTS["python-input-predire"].start();
@@ -38840,8 +38840,8 @@ function pythonInputComplements(w, P){
     nextPPR(); q=test.questions[1]; att=pprAttendu(q);
     checkPPR();
     if(document.querySelector("#pprHost input.bad")||document.querySelectorAll("#pprHost input.sol").length!==att.length) vus.push("la copie vide rougit ou ne reçoit pas la correction");
-    const d=[pprDiag("Prix : 2.5","Prix : 2,5"), pprDiag("Bonjour Léa", String.fromCharCode(34)+"Bonjour Léa"+String.fromCharCode(34)), pprDiag("4.0","4"), pprDiag("34","7")];
-    if(!/POINT/.test(d[0].dit||"")||!/guillemets/.test(d[1].dit||"")||!/4[.]0/.test(d[2].dit||"")||d[3].ok) vus.push("les diagnostics : "+JSON.stringify(d));
+    const d=[pprDiag("Prix : 2.5","Prix : 2,5"), pprDiag("Bonjour Léa", String.fromCharCode(34)+"Bonjour Léa"+String.fromCharCode(34)), pprDiag("4.0","4"), pprDiag("34","7"), pprDiag("Aire : 15.0","Aire : 15"), pprDiag("15","15.0"), pprDiag("10.05","10.5")];
+    if(!/POINT/.test(d[0].dit||"")||!/guillemets/.test(d[1].dit||"")||!d[2].ok||d[3].ok||!d[4].ok||d[5].ok||d[6].ok) vus.push("les diagnostics : "+JSON.stringify(d));
     PPR_PROGS.forEach(function(P,i){ const n=pprCases({p:i}), a=pprAttendu({p:i,rep:P.rep()}); if(a.length!==n) vus.push("programme "+i+" : "+a.length+" lignes pour "+n+" cases"); });
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
@@ -39004,7 +39004,7 @@ function pythonVariablesComplements(w, P){
   })()`, v => v === '');
 
   /* ---- 3. les juges du moteur à cases ---- */
-  verifierEval(w, 'le moteur à cases : chaque réponse attendue passe, une case vide n’est pas jugée, et chaque piège est nommé — l’ancienne valeur recopiée, la valeur de départ au lieu de la valeur actuelle, le .0 d’un float, la division / qui donne un float, // qui donne un int, les priorités, -x ** 2, la valeur affichée prise pour la valeur de départ, le programme choisi qui ne convient pas', `(function(){
+  verifierEval(w, 'le moteur à cases : chaque réponse attendue passe, une case vide n’est pas jugée, et chaque piège est nommé — l’ancienne valeur recopiée, la valeur de départ au lieu de la valeur actuelle, le .0 d’un float n’est pas compté faux, la division / qui donne un float, // qui donne un int, les priorités, -x ** 2, la valeur affichée prise pour la valeur de départ, le programme choisi qui ne convient pas', `(function(){
     const vus=[];
     Object.keys(PW).forEach(function(k){ const C=PW[k]; if(C.moteur!=="cases") return;
       const qs=k==="pwe"?[{s:0,l:PWE_AFF.map(function(_, i){ return i; }),r:[]}]:C.sits.map(function(_, i){ const q={s:i,r:[]}; if(C.fab) C.fab(q); return q; });
@@ -39020,7 +39020,9 @@ function pythonVariablesComplements(w, P){
     const D=function(k, q, j, v, re){ const it=pwiItems(k, q)[j], d=pwiJuge(it, v); if(d.ok||d.vide||!re.test(d.dit||"")) vus.push(k+" "+JSON.stringify(q)+" case "+j+" « "+v+" » → "+JSON.stringify(d)); };
     D("pwx", {s:0,r:[]}, 0, "5", /CHANGE/);
     D("pwx", {s:0,r:[]}, 1, "10", /ACTUELLE/);
-    D("pwy", {s:1,r:[]}, 0, "3", /3[.]0/);
+    /* « 3 » pour le float « 3.0 » n'est pas compté faux (octobre 2026) — le 6.2.13 et tout le moteur à cases */
+    if(pwiJuge(pwiItems("pwy", {s:1,r:[]})[0], "3").ok!==true) vus.push("pwy : « 3 » pour 3.0 est compté faux");
+    if(pwiJuge(pwiItems("pwp", {s:1,r:[]})[2], "15").ok!==true) vus.push("pwp : « 15 » pour 15.0 est compté faux");
     D("pwy", {s:1,r:[]}, 1, "int", /TOUJOURS un float/);
     D("pwy", {s:0,r:[]}, 2, "3.5", /ENTIER/);
     D("pwp", {s:0,r:[]}, 0, "15", /priorités/);

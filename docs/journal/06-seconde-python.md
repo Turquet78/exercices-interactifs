@@ -6726,3 +6726,28 @@ trouver vaut un nombre de 0 à 20 ») tire 300 séances de chaque exercice tiré
 relit chaque situation écrite, exécute chaque programme ligne par ligne et relit
 chaque valeur rangée ; un exercice ajouté au sous-thème sans être rangé le fait
 rougir, et une mesure à zéro case aussi. Éprouvé par trois sabotages : une valeur tirée forcée à 55, une ligne du 6.2.11 qui monte à 36, un identifiant neuf dans le sous-thème — chacun nommé.
+
+**« 15 » pour « 15.0 » n'est plus compté faux — dans tous les exercices Python
+où l'élève écrit ce qu'un print affiche** (demande de Turquet, octobre 2026,
+copie d'écran du 6.2.13 {python-priorites} : `print(n + n / 2)`, l'élève écrit
+15, la case rougissait avec « un float s'affiche toujours avec au moins un
+chiffre après le point »). La valeur est juste ; seul manque le `.0` que Python
+ajoute. Le changement est à UN endroit, `pprDiag`, le juge commun du 6.3.14
+{python-input-predire} et de tout le moteur à cases (`pwiJuge` l'appelle avant
+les pièges propres à chaque exercice) : si la sortie attendue porte un `X.0`
+et que la copie est la même avec `X`, la case est juste (bleue, comptée).
+Seul le `.0` oublié est toléré : « 15,0 » reste nommé (la virgule), « 15.0 »
+pour un int reste faux, et « 10.5 » ne passe pas pour « 10.05 » (l'expression
+exige un chiffre avant le point et une frontière après le 0). Le type, lui,
+reste demandé là où l'exercice le demande (6.2.x {python-type-resultat} : la
+liste int / float / str juge toujours « float »). Trois pièges de `PWP_SITS`
+(« 15 », « 8 », « 2 » sans leur `.0`) et le message de `pwy` sur la division
+qui tombe juste ne pouvaient plus être atteints : retirés. Les exercices où
+l'élève ÉCRIT un programme ne changent pas — leur « .0 » trahit un `float(…)`
+mis à la place d'un `int(…)`, ce qui est une vraie erreur de programme ; le
+tableau de valeurs (`ptvJuste`) comparait déjà par la valeur. Contrôles (banc
+principal) : `pprDiag("4.0","4")`, `pprDiag("Aire : 15.0","Aire : 15")` justes,
+`pprDiag("15","15.0")` et `pprDiag("10.05","10.5")` faux ; `pwiJuge` rend juste
+« 3 » pour 3.0 ({python-type-resultat}) et « 15 » pour 15.0 ({python-priorites},
+la situation de la copie d'écran). Exécuté dans Chromium : le 6.2.13 mené sur
+trois questions en tapant chaque float sans son `.0`, 9 cases sur 9 bleues.

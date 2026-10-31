@@ -8836,7 +8836,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=623;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=624;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -39831,9 +39831,9 @@ const PWA_SITS=[
 const PWP_GAUCHE='Python suit les priorités du calcul, comme en mathématiques : d’abord les parenthèses, puis les puissances **, puis * et /, et seulement ensuite + et −.';
 const PWP_SITS=[
   {l:['a = 2','b = 3','print(a + b * 3)','print((a + b) * 3)','print(a * b ** 2)'], p:[[['15',PWP_GAUCHE]],[],[['36','La puissance ** passe AVANT la multiplication : b ** 2 vaut 9, puis a * 9.']]]},
-  {l:['n = 10','print(n - 4 - 2)','print(n - (4 - 2))','print(n + n / 2)'], p:[[['8','Deux soustractions de suite se font de GAUCHE à droite : (10 − 4) − 2.']],[],[['10.0',PWP_GAUCHE],['15','La division / donne toujours un float : 10 / 2 vaut 5.0, donc le résultat s’écrit avec un point.']]]},
+  {l:['n = 10','print(n - 4 - 2)','print(n - (4 - 2))','print(n + n / 2)'], p:[[['8','Deux soustractions de suite se font de GAUCHE à droite : (10 − 4) − 2.']],[],[['10.0',PWP_GAUCHE]]]},
   {l:['x = 3','print(-x ** 2 + 10)','print((-x) ** 2)','print(2 * x ** 2)'], p:[[['19','La puissance passe AVANT le signe moins : -x ** 2 vaut −(3²) = −9, puis + 10. Pour élever −3 au carré, il faut des parenthèses.']],[],[['36','La puissance passe AVANT la multiplication : x ** 2 vaut 9, puis 2 * 9.']]]},
-  {l:['a = 12','b = 3','print(a / b * 2)','print(a / (b * 2))','print(a - b * 2)'], p:[[['2.0','* et / se font de GAUCHE à droite : (12 / 3) * 2.'],['8','La division / donne toujours un float : le résultat s’écrit avec un point.']],[['2','La division / donne toujours un float : le résultat s’écrit avec un point.']],[['18',PWP_GAUCHE]]]},
+  {l:['a = 12','b = 3','print(a / b * 2)','print(a / (b * 2))','print(a - b * 2)'], p:[[['2.0','* et / se font de GAUCHE à droite : (12 / 3) * 2.']],[],[['18',PWP_GAUCHE]]]},
   {l:['p = 7','q = 3','print(p + q / 2)','print((p + q) / 2)','print(3 * (p - 2) + q)'], p:[[['5.0',PWP_GAUCHE]],[],[['22','La parenthèse se calcule d’abord : p − 2 vaut 5, puis 3 * 5, puis + q.']]]},
   {l:['n = 2','print(n ** 3 + 1)','print(n ** (3 + 1))','print(5 + n * 3 - 1)'], p:[[['16','La puissance passe AVANT l’addition : n ** 3 vaut 8, puis + 1.']],[['9','La parenthèse se calcule d’abord : 3 + 1 vaut 4, puis n ** 4.']],[['20',PWP_GAUCHE]]]},
   {l:['a = 2','b = 3','print(a * b ** 2 - 6)','print((a * b) ** 2 - 20)','print(a + b * a + b)'], p:[[['30','La puissance passe AVANT la multiplication : b ** 2 vaut 9, puis a * 9, puis − 6.']],[],[['13',PWP_GAUCHE]]]}
@@ -40004,7 +40004,6 @@ const PW={
       S.e.forEach(function(e){
         const att=pwyValeur(S, e), ty=pwyType(S, e);
         r.push({lab:'<code class="pwi-code">print('+esc(e)+')</code> affiche', type:'texte', att:att, dit:function(n){
-          if(/\//.test(e) && !/\/\//.test(e) && n===att.replace(/\.0$/,'')) return 'La division / donne TOUJOURS un float, même quand elle tombe juste : 6 / 2 vaut 3.0.';
           if(/\/\//.test(e) && n.indexOf('.')>=0) return '// donne le quotient ENTIER de la division : avec deux int, c’est un int, sans virgule.';
           return '';
         }});
@@ -44701,7 +44700,11 @@ function pprDiag(att, v){
   if(n===att) return {ok:true};
   if(n.replace(/^["'«“]\s*|\s*["'»”]$/g,'')===att) return {ok:false, dit:'Les guillemets ne s’affichent pas : print écrit le texte SANS ses guillemets.'};
   if(n.replace(/(\d),(\d)/g,'$1.$2')===att) return {ok:false, dit:'Python écrit les nombres décimaux avec un POINT, pas une virgule.'};
-  if(/\.0\b/.test(att) && n===att.replace(/\.0\b/g,'')) return {ok:false, dit:'Un nombre décimal (float) s’affiche toujours avec au moins un chiffre après le point : '+att.match(PZ_NOMBRE).filter(function(x){ return /\.0$/.test(x); })[0]+', pas '+att.match(PZ_NOMBRE).filter(function(x){ return /\.0$/.test(x); })[0].replace(/\.0$/,'')+'.'};
+  /* « 15 » pour un float « 15.0 » n'est PAS une erreur (demande de Turquet,
+     octobre 2026) : la valeur est juste, seul manque le « .0 » que Python
+     écrit — ne pas le compter faux, dans TOUS les exercices Python qui
+     passent par ce juge (6.3.14 et le moteur à cases du 6.1/6.2). */
+  if(/\d\.0\b/.test(att) && n===att.replace(/(\d)\.0\b/g,'$1')) return {ok:true};
   return {ok:false, dit:''};
 }
 function startPPR(){ const qs=pprBuildQuestions(); if(!pzDemarrer('ppr', qs, pprCases)) return; show('ppr'); renderPPR(); }
