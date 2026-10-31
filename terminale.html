@@ -4418,7 +4418,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=469;
+const APP_VERSION=470;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -29173,13 +29173,22 @@ function apsArbre2HTML(q){
 }
 /* LE BOUTON aₙ SOUS L'ARBRE DES RANGS n ET n + 1 (demande de Turquet,
    octobre 2026 : « mettre un bouton a_n en dessous de l'arbre concerné »,
-   puis « pour rentrer a_n dans les cases en cliquant dessus »). Un clic écrit
-   « aₙ » au curseur de la DERNIÈRE case de cet arbre que l'élève a touchée —
-   P(Fₙ) = 1 − aₙ si aucune ne l'a été ; il ne vole pas le focus (mousedown
-   empêché) et passe par paveInserer, donc par « input » : la case grandit
-   (sa2Ajuster) et n'est plus une copie du premier arbre. */
+   puis « pour rentrer a_n dans les cases en cliquant dessus », puis « il
+   faudrait que le bouton a_n fonctionne aussi pour la question suivante, la
+   3.b »). Un clic écrit aₙ au curseur de la DERNIÈRE case que l'élève a
+   touchée : une case de cet arbre, ou un champ MathLive de l'exercice (la
+   3 b et les suivantes) — P(Fₙ) = 1 − aₙ si aucune ne l'a été. Il ne vole pas
+   le focus (mousedown empêché). Une case de l'arbre passe par paveInserer,
+   donc par « input » : elle grandit (sa2Ajuster) et n'est plus une copie du
+   premier arbre ; un champ MathLive reçoit a_{n}, le curseur APRÈS l'indice
+   — l'élève continue d'écrire sur la ligne, pas dans l'indice. Avant, seul
+   l'arbre était suivi : un clic depuis la 3 b écrivait dans la dernière case
+   de l'arbre (« aₙaₙaₙ », capture de Turquet). */
 let apsDerniere=null;
-document.addEventListener('focusin', function(e){ const t=e.target; if(t && t.id && /^apr-t-/.test(t.id)) apsDerniere=t; });
+document.addEventListener('focusin', function(e){
+  const t=e.target; if(!t || !t.id) return;
+  if(/^apr-t-/.test(t.id) || (t.tagName==='MATH-FIELD' && t.closest && t.closest('#scr-aps'))) apsDerniere=t;
+});
 function apsJetonsHTML(){
   return '<div class="apf-jetons aps-jetons" aria-label="symboles"><button type="button" class="apf-jeton" id="aps-jeton-an" title="écrire aₙ dans la case"'
     +' onmousedown="event.preventDefault()" onclick="apsJetonAn()"><i>a</i><sub><i>n</i></sub></button></div>';
@@ -29187,8 +29196,12 @@ function apsJetonsHTML(){
 function apsJetonAn(){
   let el=apsDerniere;
   if(!el || !document.body.contains(el)) el=$('apr-t-F');
-  if(!el || el.disabled || el.readOnly || (typeof test!=='undefined' && test.locked)) return;
+  if(!el || el.disabled || el.readOnly || el.hasAttribute('read-only') || (typeof test!=='undefined' && test.locked)) return;
   el.focus();
+  if(el.tagName==='MATH-FIELD'){
+    try{ el.executeCommand(['insert', 'a_{n}', { focus:true, mode:'math', format:'latex', selectionMode:'after' }]); }catch(e){}
+    return;
+  }
   paveInserer(el, 'aₙ');
 }
 /* LE SECOND ARBRE REPREND LE PREMIER (comme au 6.1.3 et au 6.1.5) : les
