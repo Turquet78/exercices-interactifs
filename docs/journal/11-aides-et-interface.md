@@ -1242,3 +1242,32 @@ l'image ; chaque coup dans la marge intérieure de son côté ; la carte restée
 cadre ne soit tracé sous le décor d'Halloween ; hors saison, il le dit.
 Seul l'écran de calcul rapide (`scr-test`, l'ardoise noire) n'a pas de cadre
 et n'en reçoit pas.
+
+**Le trait de fraction couvre le produit qui le précède — comme la NumWorks.**
+Demande de Turquet, octobre 2026 : « 3x4/2 qui s'affiche (3x4)/2 ». MathLive
+coupait la fraction au dernier signe opératoire, et « × » en est un : `3*4/2`
+donnait `3\times\frac{4}{2}`, `(1+2)/3` gardait ses parenthèses au numérateur.
+L'éditeur de la NumWorks traite le produit comme un bloc. Le script
+`#fraction-numworks` (fin de fichier, identique sur les trois niveaux)
+reproduit les deux règles : la touche « / » emporte tout ce qui précède le
+curseur, dans son groupe, jusqu'au premier `+` ou `−`, `=`, `<`, ponctuation
+ou parenthèse ouvrante — les produits (×, ·, implicite), puissances, racines,
+fractions, et la virgule DÉCIMALE (`2,5`, une virgule entre deux chiffres ne
+borne pas) ; et une parenthèse seule devant « / » perd ses parenthèses. Une
+seule porte : l'événement `beforeinput` que MathLive émet, annulable, avec
+`data = "\frac{#@}{#?}"` AVANT d'insérer la fraction — le clavier physique,
+la touche du clavier à l'écran et celle du pavé y passent tous les trois. Le
+script annule, sélectionne le numérateur, insère `\frac{…}{#?}` : le curseur
+tombe dans le dénominateur, et Ctrl+Z défait exactement comme avant (mesuré
+pas à pas, avec et sans le script). Une sélection déjà faite, un curseur en
+tête de groupe (rien à monter) : MathLive garde la main. Ce qui ne change pas,
+parce que la NumWorks fait déjà pareil : dans un exposant, « / » reste dans
+l'exposant (`x^2/3` → x^(2/3)) — on sort par →, puis `/` monte x² entier.
+Le prix nommé : le script lit le modèle INTERNE de MathLive
+(`_mathfield.model`, `at`, `leftSibling`, `offsetOf`) ; s'il change à une
+montée de version, le script se tait et MathLive reprend sa coupe d'origine —
+la section « 11 terdecies » du banc navigateur le dirait (six saisies au vrai
+clavier, et la commande de la touche à l'écran). Les boutons « Fraction »
+des feuilles (`\frac{#0}{#?}`) ne sont pas touchés : ils posent une fraction
+vide, comme la touche fraction de la NumWorks sans rien devant. Les juges ne
+voient rien : `\frac{3\times4}{2}` et `3\times\frac{4}{2}` ont la même valeur.
