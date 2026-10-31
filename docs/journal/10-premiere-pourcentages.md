@@ -4975,7 +4975,35 @@ du haut seule puis case du bas seule. Sabotage : l'ancien fichier remis, il
 rougit (« 40 seul en haut de 40/100 est bad », « 100 seul en bas … bad »,
 « un 30/100 vert posé à côté »).
 
-**Puis les fractions de COEFFICIENT et de PRODUIT ont suivi — le numérateur juste seul ne rougit plus, « vide vaut 1 » reste la règle de la note (Première v360, Seconde v627, octobre 2026).**
+### Puis la Seconde : « fais pareil pour la seconde » (Seconde v627, octobre 2026)
+
+La même règle, portée telle quelle : `evolInversee`, `evolCaseVaut` et
+`evolOrientee` sont recopiées dans `secondes.html` (les pages sont
+monolithiques), et branchées sur les mêmes juges qu'en Première.
+
+**Ordre libre** : {hausses-successives} et {baisses-successives} (les deux
+lignes de coefficients de l'étape ①), {hausses-successives-cent} (toute la
+chaîne), et {evolutions-successives}, le schéma à trois boîtes, quand les deux
+flèches ont le même sens — y compris quand il sert d'« Aide schéma » au 4.5.9.
+
+**Ordre de l'énoncé gardé, et pourquoi** :
+* {evolutions-successives}, une hausse et une baisse : chaque flèche imprime
+  son signe ;
+* {evolutions-successives-coef} : le coefficient de chaque évolution est
+  IMPRIMÉ sous sa flèche ;
+* {evolutions-successives-phrases} : « Première évolution : une hausse de
+  20 % » est imprimé ;
+* la rédaction ({synthese-pourcentages-redigee}, {pourcentages-problemes}) ne
+  juge que le coefficient global et le pourcentage (`sprCible`), qui ne
+  dépendent pas de l'ordre : elle l'acceptait déjà, rien à changer.
+
+**Contrôle** : le même, `ordreEvolutionsLibre`, joue désormais sur les deux
+niveaux — ses sections propres à la Première (la synthèse, la méthode des
+10 %, la rédaction libre) se déclarent par la présence de leur juge, et ses
+messages nomment les exercices par leur identifiant, plus par un numéro de la
+Première qui aurait menti en Seconde.
+
+**Puis les fractions de COEFFICIENT et de PRODUIT ont suivi — le numérateur juste seul ne rougit plus, « vide vaut 1 » reste la règle de la note (Première v360, Seconde v628, octobre 2026).**
 Le balayage du paragraphe précédent avait laissé de côté, par décision,
 les fractions peintes par `marqueFracSaufVide` : 1.7, 1.8, 2.2.7, 2.2.8,
 2.3.7, 2.5.4 en Première, 1.7, 1.8, 4.2.7, 4.2.8, 4.3.7 en Seconde. Elles y

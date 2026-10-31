@@ -47959,7 +47959,7 @@ function ordreEvolutionsLibre(w){
   const present = evaluer(w, "typeof evolOrientee==='function' && typeof checkHSCAnswer==='function'");
   if(!present.ok || !present.valeur){
     ignorer('deux évolutions successives : l’autre ordre est accepté partout où l’écran le permet',
-      'ce niveau n’a pas les évolutions successives de la Première');
+      'ce niveau n’a pas les évolutions successives de la Seconde et de la Première');
     return;
   }
   verifierEval(w, 'deux évolutions successives : l’autre ordre est accepté partout où l’écran le permet', `(function(){
@@ -47978,32 +47978,32 @@ function ordreEvolutionsLibre(w){
     const juste=function(nom,hote){ if(test.score!==1) vus.push(nom+' : la copie juste écrite dans l’autre ordre ne vaut pas le point');
       const r=rouges(hote); if(r.length) vus.push(nom+' : la copie juste écrite dans l’autre ordre rougit : '+r.join(',')); };
 
-    /* ---- 1. le 2.2.8, la capture de Turquet ELLE-MÊME : +70 % puis +10 %,
+    /* ---- 1. le hausses-successives-cent, la capture de Turquet ELLE-MÊME : +70 % puis +10 %,
        fait +10 % d'abord ---- */
     const hsc=function(P1,P2){ const a=hscAns({P1:P1,P2:P2}); return {hsc1n:P1,hsc1d:100,hsc1m:100,hsc1pn:a.prod1,hsc1pd:100,hsc1a:a.aug1,hsc1sa:100,hsc1sb:a.aug1,hsc1sr:a.v1,
       hsc2n:P2,hsc2d:100,hsc2m:a.v1,hsc2pn:a.prod2,hsc2pd:100,hsc2a:a.aug2,hsc2sa:a.v1,hsc2sb:a.aug2,hsc2sr:a.v2,hscFin:a.v2,hscPour:a.h,hscPct:a.h}; };
     const qC=hscQuestion(70,10);
     monter('hsc','hausses-successives-cent','hsctest',renderHSCTest,qC); poser(hsc(10,70)); checkHSCAnswer();
-    juste('2.2.8 (+10 % d’abord, puis +70 %)','hscHost');
+    juste('hausses-successives-cent (+10 % d’abord, puis +70 %)','hscHost');
     /* une case fausse dans la chaîne inversée : la correction suit le chemin de l'élève (77, et non 17) */
     monter('hsc','hausses-successives-cent','hsctest',renderHSCTest,qC); const f=hsc(10,70); delete f.hsc2a; poser(f); checkHSCAnswer();
-    if(document.getElementById('hsc2a').value!=='77') vus.push('2.2.8 : la correction d’une chaîne inversée n’en suit pas le chemin — la seconde hausse vaut « '+document.getElementById('hsc2a').value+' » au lieu de 77');
-    if(/\\bbad\\b/.test(cl('hsc1a')) || /\\bbad\\b/.test(cl('hsc2m'))) vus.push('2.2.8 : une chaîne inversée à une case vide fait rougir ses cases justes');
+    if(document.getElementById('hsc2a').value!=='77') vus.push('hausses-successives-cent : la correction d’une chaîne inversée n’en suit pas le chemin — la seconde hausse vaut « '+document.getElementById('hsc2a').value+' » au lieu de 77');
+    if(/\\bbad\\b/.test(cl('hsc1a')) || /\\bbad\\b/.test(cl('hsc2m'))) vus.push('hausses-successives-cent : une chaîne inversée à une case vide fait rougir ses cases justes');
     /* le bord : la première hausse prise dans l'AUTRE ordre, la seconde dans l'ordre de l'énoncé */
     monter('hsc','hausses-successives-cent','hsctest',renderHSCTest,qC); const m=hsc(10,70), d=hsc(70,10);
     ['hsc2n','hsc2pn','hsc2pd','hsc2a'].forEach(function(id){ m[id]=d[id]; }); poser(m); checkHSCAnswer();
-    if(test.score===1) vus.push('2.2.8 : une chaîne qui prend deux fois la MÊME hausse vaut le point');
+    if(test.score===1) vus.push('hausses-successives-cent : une chaîne qui prend deux fois la MÊME hausse vaut le point');
     /* et la question gardée reste celle de l'énoncé */
     if(test.questions[0].P1!==70 || test.answers[0].q.indexOf('70 %')>test.answers[0].q.indexOf('10 %'))
-      vus.push('2.2.8 : la question rangée a changé d’ordre — la jumelle inversée ne vit que le temps d’une vérification');
+      vus.push('hausses-successives-cent : la question rangée a changé d’ordre — la jumelle inversée ne vit que le temps d’une vérification');
     if(vus.length) return vus.slice(0,4).join(' | ');
 
-    /* ---- 2. le 2.2.7 et le 2.3.7 : les deux lignes de coefficients échangées ---- */
-    [{nom:'2.2.7', kind:'hs', qId:'hausses-successives', ecran:'hstest', rendu:renderHSTest, check:checkHSAnswer, x:'hs',
+    /* ---- 2. le hausses-successives et le baisses-successives : les deux lignes de coefficients échangées ---- */
+    [{nom:'hausses-successives', kind:'hs', qId:'hausses-successives', ecran:'hstest', rendu:renderHSTest, check:checkHSAnswer, x:'hs',
       gen:function(){ for(let t=0;t<50;t++){ const q=genHausses([]); if(q.P1!==q.P2) return q; } },
       ligne:function(q,k,P){ const o={}; o['hs'+k+'n']=P; o['hs'+k+'d']=100; o['hs'+k+'p']=deux(P); o['hs'+k+'dec']=deux(P); return o; },
       reste:function(q){ return {hsAn:q.fA.num,hsAd:q.fA.den,hsBn:q.fB.num,hsBd:q.fB.den,hsPn:q.prodNum,hsPd:q.prodDen,hsDec:q.coefStr,hsP:q.hausseStr}; }},
-     {nom:'2.3.7', kind:'bs', qId:'baisses-successives', ecran:'bstest', rendu:renderBSTest, check:checkBSAnswer, x:'bs',
+     {nom:'baisses-successives', kind:'bs', qId:'baisses-successives', ecran:'bstest', rendu:renderBSTest, check:checkBSAnswer, x:'bs',
       gen:function(){ for(let t=0;t<50;t++){ const q=genBaisses([]); if(q.P1!==q.P2) return q; } },
       ligne:function(q,k,P){ const o={}; o['bs'+k+'n']=P; o['bs'+k+'d']=100; o['bs'+k+'p']=P; o['bs'+k+'dec']=100-P; return o; },
       reste:function(q){ return {bsAn:q.fA.num,bsAd:q.fA.den,bsBn:q.fB.num,bsBd:q.fB.den,bsPn:q.prodNum,bsPd:q.prodDen,bsDec:q.coefStr,bsP:q.baisseStr}; }}
@@ -48018,7 +48018,7 @@ function ordreEvolutionsLibre(w){
     });
     if(vus.length) return vus.slice(0,4).join(' | ');
 
-    /* ---- 3. le 2.5.4 : deux hausses ou deux baisses s'échangent, par les
+    /* ---- 3. le synthese-evolutions-successives : deux hausses ou deux baisses s'échangent, par les
        coefficients et en partant de 100 ; une hausse et une baisse, non — le
        signe de chaque ligne est imprimé ---- */
     const essCopie=function(q,meth,s1,P1,s2,P2){ const a=essAns({s1:s1,P1:P1,s2:s2,P2:P2});
@@ -48026,32 +48026,32 @@ function ordreEvolutionsLibre(w){
         essAn:a.fA.num,essAd:a.fA.den,essBn:a.fB.num,essBd:a.fB.den,essPn:a.prodNum,essPd:a.prodDen,essDec:a.coefStr,essP:a.pct};
       return {essc1n:P1,essc1d:100,essc1m:100,essc1pn:a.prod1,essc1pd:100,essc1a:a.aug1,essc1sa:100,essc1sb:a.aug1,essc1sr:a.v1,
         essc2n:P2,essc2d:100,essc2m:a.v1,essc2pn:a.prod2,essc2pd:100,essc2a:a.aug2,essc2sa:a.v1,essc2sb:a.aug2,essc2sr:a.v2,esscFin:a.v2,esscPour:a.pct,esscPct:a.pct}; };
-    ['coef','cent'].forEach(function(meth){
+    if(typeof checkEssAnswer==='function') ['coef','cent'].forEach(function(meth){
       [[1,20,1,50],[-1,20,-1,50]].forEach(function(t){
         const q=essQuestion(t[0],t[1],t[2],t[3]); q.meth=meth; q.choisi=essAns(q).sens;
         monter('ess','synthese-evolutions-successives','esstest',renderEssTest,q);
         poser(essCopie(q,meth,t[2],t[3],t[0],t[1])); checkEssAnswer();
-        juste('2.5.4, '+meth+' ('+(t[0]>0?'deux hausses':'deux baisses')+', l’autre ordre)','essHost');
+        juste('synthese-evolutions-successives, '+meth+' ('+(t[0]>0?'deux hausses':'deux baisses')+', l’autre ordre)','essHost');
       });
       const q=essQuestion(1,20,-1,50); q.meth=meth; q.choisi=essAns(q).sens;
       monter('ess','synthese-evolutions-successives','esstest',renderEssTest,q);
       poser(essCopie(q,meth,-1,50,1,20)); checkEssAnswer();
-      if(test.score===1) vus.push('2.5.4, '+meth+' : une hausse et une baisse échangées valent le point, alors que l’écran imprime le signe de chaque ligne');
+      if(test.score===1) vus.push('synthese-evolutions-successives, '+meth+' : une hausse et une baisse échangées valent le point, alors que l’écran imprime le signe de chaque ligne');
     });
     if(vus.length) return vus.slice(0,4).join(' | ');
 
-    /* ---- 4. le 2.5.5, le schéma : deux flèches de même sens s'échangent ---- */
+    /* ---- 4. le evolutions-successives, le schéma : deux flèches de même sens s'échangent ---- */
     if(typeof checkEvsAnswer==='function'){
       const evs=function(q,P1,c1,P2,c2){ const gc=q.c1*q.c2; return {evsP1:P1/100,evsC1:c1/100,evsP2:P2/100,evsC2:c2/100,evsG1:c1/100,evsG2:c2/100,evsG:gc/10000,evsGP:Math.abs(q.G)/100,evsMot:q.G>0?'augmentation':'diminution',evsT:Math.abs(q.G)}; };
       const dec=function(o){ Object.keys(o).forEach(function(k){ if(typeof o[k]==='number') o[k]=String(o[k]).replace('.',','); }); return o; };
       const q={s1:1,s2:1,P1:20,P2:30,c1:120,c2:130,G:56,ci:0}; q.v=0;
       monter('evs','evolutions-successives','evs',renderEvsTest,q);
       poser(dec(evs(q,30,130,20,120))); checkEvsAnswer();
-      juste('2.5.5 (deux hausses, l’autre ordre)','evsHost');
+      juste('evolutions-successives (deux hausses, l’autre ordre)','evsHost');
       const r={s1:1,s2:-1,P1:20,P2:30,c1:120,c2:70,G:-16,ci:0}; r.v=0;
       monter('evs','evolutions-successives','evs',renderEvsTest,r);
       poser(dec(evs(r,30,70,20,120))); checkEvsAnswer();
-      if(test.score===1) vus.push('2.5.5 : une hausse et une baisse échangées valent le point, alors que chaque flèche imprime son signe');
+      if(test.score===1) vus.push('evolutions-successives : une hausse et une baisse échangées valent le point, alors que chaque flèche imprime son signe');
     }
 
     /* ---- 5. la méthode des 10 % garde l'ordre de l'énoncé : chaque phrase
@@ -48061,25 +48061,25 @@ function ordreEvolutionsLibre(w){
         bsdPbm:a.v1,bsdPb:a.b2,bsd2sa:a.v1,bsd2sb:a.b2,bsd2sr:a.v2,bsdFin:a.v2,bsdPour:a.h,bsdPct:a.h}; };
       const q=bsdQuestion(20,40);
       monter('bsd','baisses-successives-dix','bsd',renderBsdTest,q); poser(bsd(20,40)); checkBsdAnswer();
-      if(test.score!==1) vus.push('2.3.14 : la copie juste dans l’ordre de l’énoncé ne vaut plus le point');
+      if(test.score!==1) vus.push('baisses-successives-dix : la copie juste dans l’ordre de l’énoncé ne vaut plus le point');
       monter('bsd','baisses-successives-dix','bsd',renderBsdTest,q); poser(bsd(40,20)); checkBsdAnswer();
-      if(test.score===1) vus.push('2.3.14 : l’autre ordre vaut le point, alors que chaque phrase imprime son taux — « donc : 20 % de 100 est 40 » serait faux');
+      if(test.score===1) vus.push('baisses-successives-dix : l’autre ordre vaut le point, alors que chaque phrase imprime son taux — « donc : 20 % de 100 est 40 » serait faux');
     }
 
-    /* ---- 6. la rédaction libre (2.5.8) : l'autre ordre dans TOUS les sens ---- */
+    /* ---- 6. la rédaction libre (synthese-evolutions-successives-libre) : l'autre ordre dans TOUS les sens ---- */
     if(typeof eslJuge==='function'){
       const qA=essQuestion(1,20,-1,5);
       [['par les coefficients, dans l’autre ordre', '0,95 × 1,2 = 1,14\\nhausse de 14 %'],
        ['en partant de 100, la baisse d’abord', '95\\n95 × 1,2 = 114\\nhausse de 14 %'],
        ['par les pourcentages, la baisse d’abord', '95\\n20 % de 95 est 19\\n95 + 19 = 114\\nhausse de 14 %']].forEach(function(c){
         const j=eslJuge(qA,c[1]);
-        if(!j.sait || !j.correct) vus.push('2.5.8, '+c[0]+' : refusé — « '+(j.phrase||'le juge ne sait pas')+' »');
+        if(!j.sait || !j.correct) vus.push('synthese-evolutions-successives-libre, '+c[0]+' : refusé — « '+(j.phrase||'le juge ne sait pas')+' »');
       });
       /* le calcul inversé prouvé, la conclusion mal écrite : laissée au modèle (conclIA, #905), jamais refusée */
       const jM=eslJuge(qA,'95\\n95 × 1,2 = 114\\nhauss 14');
-      if(jM.sait || !jM.conclIA) vus.push('2.5.8 : un calcul juste dans l’autre ordre, conclu « hauss 14 », n’est pas confié au modèle — '+(jM.phrase||JSON.stringify(jM)));
+      if(jM.sait || !jM.conclIA) vus.push('synthese-evolutions-successives-libre : un calcul juste dans l’autre ordre, conclu « hauss 14 », n’est pas confié au modèle — '+(jM.phrase||JSON.stringify(jM)));
       const jF=eslJuge(qA,'95\\n20 % de 100 est 20\\n95 + 20 = 115\\nhausse de 15 %');
-      if(jF.correct) vus.push('2.5.8 : la seconde évolution refaite sur 100, dans l’autre ordre, est acceptée');
+      if(jF.correct) vus.push('synthese-evolutions-successives-libre : la seconde évolution refaite sur 100, dans l’autre ordre, est acceptée');
     }
     currentMode='train';
     return vus.slice(0,4).join(' | ');
