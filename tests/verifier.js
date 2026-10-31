@@ -6418,6 +6418,22 @@ function recurrenceRedigee(w, apres){
       vus.push('la copie de production sans l\\'intervalle devrait échouer sur croiss seul : ['+manquants(PROD).join(', ')+']');
     if(rrJuge(c0,PLEINE).verdict!=='accepte')
       vus.push('la copie complète n\\'est pas acceptée par la page (verdict '+rrJuge(c0,PLEINE).verdict+')');
+    /* UNE FAUTE D'ORTHOGRAPHE SUR UN MOT DE STRUCTURE NE REFUSE PAS (la règle
+       de la Première, étendue, octobre 2026) : « Initalisation », « Hérédiité »,
+       « on supose », « croisante » se lisent — la copie reste acceptée, et la
+       remarque nomme les mots ; un mot trop déformé (« Initsation ») n'est ni
+       ✓ ni ✗ : la page s'abstient et le modèle reçoit le mot à relire ; un mot
+       ABSENT reste un refus. */
+    const FAUTES=PLEINE.replace('Initialisation','Initalisation').replace('Hérédité','Hérédiité').replace('on suppose','on supose').replace('croissante','croisante');
+    const jFa=rrJuge(c0,FAUTES);
+    if(jFa.verdict!=='accepte') vus.push('la copie complète aux mots mal orthographiés n\\'est pas acceptée (verdict '+jFa.verdict+', manque : '+manquants(FAUTES).join(', ')+')');
+    if(motsOrthNote(jFa.orth).indexOf('« initialisation »')<0 || motsOrthNote(jFa.orth).indexOf('« croissante »')<0) vus.push('la remarque d\\'orthographe ne nomme pas les mots rétablis : « '+motsOrthNote(jFa.orth)+' »');
+    if(motsOrthNote(rrJuge(c0,PLEINE).orth)!=='') vus.push('une copie bien écrite reçoit une remarque d\\'orthographe');
+    const jDo=rrJuge(c0,PLEINE.replace('Initialisation','Initsation'));
+    const cDo=jDo.crit.filter(function(x){ return x.cle==='init'; })[0];
+    if(jDo.verdict!=='abstention' || !cDo || cDo.doute!=='initsation') vus.push('« Initsation » : la page devrait s\\'abstenir et confier le mot au modèle (verdict '+jDo.verdict+', doute « '+(cDo&&cDo.doute)+' »)');
+    else if(rrAttenduIA(c0,jDo).indexOf('MOTS À RELIRE')<0 || rrBilanHTML(jDo).indexOf('?\u00a0')<0) vus.push('« Initsation » : le mot à relire ne part pas au modèle, ou le bilan ne le marque pas « ? »');
+    if(rrJuge(c0,PLEINE.replace('Initialisation : ','')).verdict!=='refus') vus.push('le mot « initialisation » ABSENT ne fait plus refuser');
     if(rrJuge(c0,SANSIMG).verdict!=='abstention')
       vus.push('sans les images f(m) et f(M), la page devrait s\\'abstenir (verdict '+rrJuge(c0,SANSIMG).verdict+')');
     const jF=rrJuge(c0,FAUSSE);
@@ -6869,6 +6885,11 @@ function suiteAuxRedigee(w, apres){
     const rate=function(jx){ return jx.crit.filter(x=>!x.ok).map(x=>x.cle).join(','); };
     let j=sarJuge(C0,PLEINE);
     if(j.verdict!=='accepte') vus.push('la copie de la fiche ne passe pas au juge ('+j.verdict+', rate : '+rate(j)+') : c\\'est le juge qui a tort');
+    /* « géomtrique » se lit (octobre 2026) ; « arithmétique » reste faux ; « géométrie » écrit à moitié… */
+    { const jG=sarJuge(C0,{...PLEINE, c:PC.replace('geometrique','géomtrique')});
+      if(jG.verdict!=='accepte') vus.push('« géomtrique » ne se lit pas comme « géométrique » ('+jG.verdict+', rate : '+rate(jG)+')');
+      if(motsOrthNote(jG.orth).indexOf('géométrique')<0) vus.push('« géomtrique » : la remarque d\\'orthographe ne nomme pas « géométrique »');
+      if(sarJuge(C0,{...PLEINE, c:PC.replace('geometrique','arithmetique')}).verdict!=='refus') vus.push('« arithmétique » au lieu de « géométrique » n\\'est plus refusé'); }
     if(j.fausses.length) vus.push('la copie de la fiche porte une « comparaison fausse » : '+j.fausses[0]);
     const cas=[
       ['a-def', {...PLEINE, a:'= 0,95 U_(n) + 200 − 4000\\n= 0,95 U_(n) − 3800\\n= 0,95 V_(n)'}],
