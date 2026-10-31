@@ -1750,3 +1750,28 @@ le clavier reste ouvert au clic de la case, une touche y écrit et le focus
 reste, une touche en LaTeX s'écrit en texte, « a_n » devient « aₙ », la croix
 ferme. Éprouvé sur la version d'avant, au 6.2.1 même : clavier replié au clic,
 « 1-a_n » resté tel quel.
+
+**Puis la touche « indice » du clavier, avalée dans la case en texte — et le
+bouton aₙ sous l'arbre du 6.2.1.** Capture de Turquet (octobre 2026, le
+lendemain) : la case P(Nₙ) rouge, « 1-annnn » — « la touche indice du clavier
+virtuel ne fonctionne pas dans la case rouge » ; « de plus j'avais demandé un
+bouton à l'écran avec a_n qui s'affiche sous l'arbre ». La touche indice
+(`KB_IDX`) n'insère rien : elle envoie la commande MathLive
+`moveToSubscript`, et `clavierVersCase` avalait toute commande qu'il ne
+connaissait pas (pour qu'aucun champ MathLive ne reprenne le focus). L'élève
+tapait a, indice, n — l'indice ne venait pas, et chaque nouvel essai ajoutait
+un n. Le banc ne le voyait pas : il avait cliqué la touche aₙ et le chiffre 7,
+jamais la touche indice. On a relevé toutes les commandes que portent les
+claviers des trois niveaux (`grep 'command:'`) : commit, deleteBackward,
+moveToNext/PreviousChar, moveToSubscript, moveToSuperscript, et les
+changements de couche. Les deux qui manquaient s'écrivent désormais :
+`moveToSubscript` pose « _ », que `caseIndices` change en indice à la frappe
+suivante (« _n » → ₙ) ; `moveToSuperscript` pose « ^ ».
+Le bouton : `apsJetonsHTML()`, sous l'arbre des rangs n et n + 1, une rangée
+de jetons du 6.1 (`apf-jetons`, centrée) à un seul jeton, aₙ. Un clic écrit
+« aₙ » au curseur de la dernière case de cet arbre que l'élève a touchée
+(`apsDerniere`, P(Fₙ) par défaut), sans voler le focus, par `paveInserer`.
+Contrôles (11 duodecies) : « la touche « indice » du clavier à l'écran écrit
+un indice dans la case en texte » — la VRAIE touche, trouvée par sa commande
+et cliquée, sur les trois niveaux — et « au 6.2.1, le bouton aₙ sous l'arbre
+écrit aₙ dans la case ». La croix se mesure désormais sur un clavier rouvert.
