@@ -3185,7 +3185,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=359;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=360;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3998,9 +3998,15 @@ function marqueFracSaufVide(idn,idd,tn,td,soutien){
   const vn=lireV(idn), vd=lireV(idd);
   const n=parseInt(vn,10), d=(vd===''?1:parseInt(vd,10));
   const ok=vn!==''&&!isNaN(n)&&!isNaN(d)&&d!==0&&n*td===tn*d;
-  /* l'ancre ne joue que si l'AUTRE case est écrite : un numérateur seul
-     garde la convention du facteur entier — vide vaut 1, « 4 » seul dit 4 */
-  marqueSaufVide(idn, ok||(vd!==''&&n===tn), soutien);
+  /* « vide vaut 1 » reste la règle de la NOTE (ok) : « 17 » seul est juste
+     quand la réponse est 17. Mais le numérateur CANONIQUE écrit seul ne
+     rougit plus devant un dénominateur vide (décision de Turquet, octobre
+     2026) : « 6000 » en haut de 6000/100 rougissait, et l'entraînement
+     posait « 6000/100 » en vert à côté — l'écran disait « faux » et
+     « voici la réponse » du même nombre. Il reste bleu, le dénominateur
+     vide reçoit sa correction, la question reste fausse tant que la paire
+     n'est pas écrite. */
+  marqueSaufVide(idn, ok||entierStrict(vn)===tn, soutien);
   marqueSaufVide(idd, ok||(vd!==''&&d===td), soutien);
   return ok;
 }
