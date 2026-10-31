@@ -2057,6 +2057,39 @@ function branchements(w){
      banc navigateur (section 9) font tourner `startAtd` sans le nommer et
      couvrent le reste : pas d'erreur au tirage, pas de doublon sur 40
      séances, les règles universelles de l'écran. */
+  /* ---- {proba-suite} (6.2.1, Terminale) : DEUX exercices par séance, l'un
+     par récurrence, l'autre par la suite auxiliaire (Turquet, octobre 2026 :
+     six essais, six suites auxiliaires — la séance ne comptait qu'un
+     exercice, sa méthode tirée à pile ou face). Vingt séances : chacune a ses
+     deux exercices, sur deux situations différentes, et les deux méthodes.
+     Puis, là où le navigateur garde une mémoire, le PREMIER exercice alterne
+     d'une séance à l'autre, la récurrence d'abord ; jsdom n'en a pas (origine
+     opaque) : ce bord-là se déclare, et le banc navigateur l'a éprouvé. */
+  if(typeof w.apsGenSession === 'function'){
+    verifierEval(w, 'au {proba-suite}, chaque séance pose deux exercices, l\'un par récurrence, l\'autre par la suite auxiliaire', `(function(){
+      currentDM=null;
+      for(let k=0;k<20;k++){
+        const qs=apsGenSession(), m=qs.map(function(q){ return q.meth; }).sort().join(',');
+        if(qs.length!==2) return qs.length+' exercice(s) dans la séance';
+        if(m!=='aux,rec') return 'méthodes de la séance : '+m;
+        if(qs[0].c===qs[1].c) return 'deux fois la même situation : '+qs[0].c;
+      }
+      return '';
+    })()`, v => v === '', undefined);
+    const stockage = evaluer(w, `(function(){ try{ localStorage.setItem('x','1'); localStorage.removeItem('x'); return true; }catch(e){ return false; } })()`);
+    if(stockage.ok && stockage.valeur)
+      verifierEval(w, 'au {proba-suite}, la méthode du premier exercice alterne d\'une séance à l\'autre, la récurrence d\'abord', `(function(){
+        currentDM=null; localStorage.removeItem(APS_METH_CLE);
+        const vues=[]; for(let k=0;k<4;k++) vues.push(apsGenSession()[0].meth);
+        return vues.join(',')==='rec,aux,rec,aux' ? '' : 'séances successives : '+vues.join(', ');
+      })()`, v => v === '', undefined);
+    else
+      ignorer('au {proba-suite}, la méthode du premier exercice alterne d\'une séance à l\'autre, la récurrence d\'abord',
+        'jsdom n\'a pas de localStorage ici (origine opaque)');
+  } else {
+    ignorer('au {proba-suite}, chaque séance pose deux exercices, l\'un par récurrence, l\'autre par la suite auxiliaire',
+      'ce niveau n\'a pas l\'exercice {proba-suite}');
+  }
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
@@ -11005,7 +11038,20 @@ function syntheseEvolutionsLibre(w, P){
       ['deux taux égaux : m3',        qC, '20 % de 100 est 20\\n120\\n20 % de 120 est 24\\n120 + 24 = 144\\nhausse de 44 %', true, true ],
       ['deux taux égaux : la seconde sur 100 est fausse à l\\'arrivée', qC, '20 % de 100 est 20\\n120 + 20 = 140\\nhausse de 40 %', true, false],
       ['10 % de 105 est 10,5',        qD, '105\\n10 % de 105 est 10,5\\n20 % de 105 est 21\\n105 + 21 = 126\\nhausse de 26 %', true, true ],
+      /* une faute d'orthographe sur le mot de la conclusion ne la rend pas
+         fausse (« augementation de 17 % » au 2.5.8, signalé octobre 2026) */
+      ['« augementation » : la faute ne compte pas', qA, '1,2 × 0,95 = 1,14\\naugementation de 14 %',         true, true ],
+      ['« augementation » tel que MathLive l\\'écrit', qA, '1,2×0,95=1,14\\naugementationde14\\\\%',        true, true ],
+      ['« hause » : la faute ne compte pas', qA, '120 × 0,95 = 114\\nhause de 14 %',                         true, true ],
+      ['« dimminution » : la faute ne compte pas', qB, '0,5 × 1,02 = 0,51\\ndimminution de 49 %',           true, true ],
+      ['« baise » au lieu de « hausse » reste faux', qA, '1,2 × 0,95 = 1,14\\nbaise de 14 %',                true, false],
+      ['« bausse » ne dit pas son sens', qA, '1,2 × 0,95 = 1,14\\nbausse de 14 %',                         true, false],
     ];
+    /* la copie juste mal orthographiée reçoit la remarque, la copie bien écrite rien */
+    if(salOrthNote('1,2 × 0,95 = 1,14\\naugementation de 14 %').indexOf('« augmentation »')<0) vus.push('salOrthNote ne nomme pas « augmentation » devant « augementation »');
+    if(salOrthNote('1,2 × 0,95 = 1,14\\naugmentation de 14 %')!=='') vus.push('salOrthNote parle d\\'orthographe devant une copie bien écrite');
+    if(!evsMotOk('augementation','+') || evsMotOk('augementation','-') || evsMotOk('bausse','+')) vus.push('evsMotOk (2.5.5) ne lit pas « augementation » comme « augmentation », ou lit « bausse »');
+    if(!salDixConclusion('dimminution de 30 %') || salDixConclusion('dimminution de 30 %').sens!==-1) vus.push('salDixConclusion ne lit pas « dimminution de 30 % »');
     cas.forEach(function(c){
       const j=eslJuge(c[1], c[2]);
       if(j.sait!==c[3]) vus.push('juge « '+c[0]+' » : sait='+j.sait+' au lieu de '+c[3]+(j.phrase?' — « '+j.phrase+' »':''));
@@ -38780,7 +38826,7 @@ function pythonInputComplements(w, P){
   })()`, v => v === '');
 
   /* ---- 7. prédire ce que le programme affiche ---- */
-  verifierEval(w, 'le 6.3.14 : la copie juste vaut une case par print ; la virgule française, les guillemets recopiés et le .0 oublié sont nommés ; une ligne vide ne rougit pas et reçoit la bonne en vert ; « Exécuter » n’apparaît qu’après la vérification', `(function(){
+  verifierEval(w, 'le 6.3.14 : la copie juste vaut une case par print ; la virgule française, les guillemets recopiés sont nommés, le .0 oublié d’un float n’est pas compté faux ; une ligne vide ne rougit pas et reçoit la bonne en vert ; « Exécuter » n’apparaît qu’après la vérification', `(function(){
     const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-predire";
     TESTS["python-input-predire"].start();
@@ -38794,8 +38840,8 @@ function pythonInputComplements(w, P){
     nextPPR(); q=test.questions[1]; att=pprAttendu(q);
     checkPPR();
     if(document.querySelector("#pprHost input.bad")||document.querySelectorAll("#pprHost input.sol").length!==att.length) vus.push("la copie vide rougit ou ne reçoit pas la correction");
-    const d=[pprDiag("Prix : 2.5","Prix : 2,5"), pprDiag("Bonjour Léa", String.fromCharCode(34)+"Bonjour Léa"+String.fromCharCode(34)), pprDiag("4.0","4"), pprDiag("34","7")];
-    if(!/POINT/.test(d[0].dit||"")||!/guillemets/.test(d[1].dit||"")||!/4[.]0/.test(d[2].dit||"")||d[3].ok) vus.push("les diagnostics : "+JSON.stringify(d));
+    const d=[pprDiag("Prix : 2.5","Prix : 2,5"), pprDiag("Bonjour Léa", String.fromCharCode(34)+"Bonjour Léa"+String.fromCharCode(34)), pprDiag("4.0","4"), pprDiag("34","7"), pprDiag("Aire : 15.0","Aire : 15"), pprDiag("15","15.0"), pprDiag("10.05","10.5")];
+    if(!/POINT/.test(d[0].dit||"")||!/guillemets/.test(d[1].dit||"")||!d[2].ok||d[3].ok||!d[4].ok||d[5].ok||d[6].ok) vus.push("les diagnostics : "+JSON.stringify(d));
     PPR_PROGS.forEach(function(P,i){ const n=pprCases({p:i}), a=pprAttendu({p:i,rep:P.rep()}); if(a.length!==n) vus.push("programme "+i+" : "+a.length+" lignes pour "+n+" cases"); });
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
@@ -38958,7 +39004,7 @@ function pythonVariablesComplements(w, P){
   })()`, v => v === '');
 
   /* ---- 3. les juges du moteur à cases ---- */
-  verifierEval(w, 'le moteur à cases : chaque réponse attendue passe, une case vide n’est pas jugée, et chaque piège est nommé — l’ancienne valeur recopiée, la valeur de départ au lieu de la valeur actuelle, le .0 d’un float, la division / qui donne un float, // qui donne un int, les priorités, -x ** 2, la valeur affichée prise pour la valeur de départ, le programme choisi qui ne convient pas', `(function(){
+  verifierEval(w, 'le moteur à cases : chaque réponse attendue passe, une case vide n’est pas jugée, et chaque piège est nommé — l’ancienne valeur recopiée, la valeur de départ au lieu de la valeur actuelle, le .0 d’un float n’est pas compté faux, la division / qui donne un float, // qui donne un int, les priorités, -x ** 2, la valeur affichée prise pour la valeur de départ, le programme choisi qui ne convient pas', `(function(){
     const vus=[];
     Object.keys(PW).forEach(function(k){ const C=PW[k]; if(C.moteur!=="cases") return;
       const qs=k==="pwe"?[{s:0,l:PWE_AFF.map(function(_, i){ return i; }),r:[]}]:C.sits.map(function(_, i){ const q={s:i,r:[]}; if(C.fab) C.fab(q); return q; });
@@ -38974,7 +39020,9 @@ function pythonVariablesComplements(w, P){
     const D=function(k, q, j, v, re){ const it=pwiItems(k, q)[j], d=pwiJuge(it, v); if(d.ok||d.vide||!re.test(d.dit||"")) vus.push(k+" "+JSON.stringify(q)+" case "+j+" « "+v+" » → "+JSON.stringify(d)); };
     D("pwx", {s:0,r:[]}, 0, "5", /CHANGE/);
     D("pwx", {s:0,r:[]}, 1, "10", /ACTUELLE/);
-    D("pwy", {s:1,r:[]}, 0, "3", /3[.]0/);
+    /* « 3 » pour le float « 3.0 » n'est pas compté faux (octobre 2026) — le 6.2.13 et tout le moteur à cases */
+    if(pwiJuge(pwiItems("pwy", {s:1,r:[]})[0], "3").ok!==true) vus.push("pwy : « 3 » pour 3.0 est compté faux");
+    if(pwiJuge(pwiItems("pwp", {s:1,r:[]})[2], "15").ok!==true) vus.push("pwp : « 15 » pour 15.0 est compté faux");
     D("pwy", {s:1,r:[]}, 1, "int", /TOUJOURS un float/);
     D("pwy", {s:0,r:[]}, 2, "3.5", /ENTIER/);
     D("pwp", {s:0,r:[]}, 0, "15", /priorités/);

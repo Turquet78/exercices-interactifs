@@ -7490,6 +7490,26 @@ if(require.main === module) (async () => {
           if(v5.score !== 1) dits5.push('la note ne compte pas la question : score ' + v5.score);
           [1, 2].forEach(i => { if(!/\bok\b/.test(v5.lignes[i] || '')) dits5.push('la ligne ' + (i + 1) + ' (juste) ne se peint pas en bleu : classes « ' + v5.lignes[i] + ' »'); });
           [0, 3].forEach(i => { if(/\bok\b|\bbad\b/.test(v5.lignes[i] || '')) dits5.push('la ligne ' + (i + 1) + ' (une valeur seule, ou la conclusion) reçoit une couleur : « ' + v5.lignes[i] + ' »'); });
+          /* la MÊME copie, la conclusion mal orthographiée (« augementation »,
+             signalé sur le 2.5.8, octobre 2026) : tapée dans le vrai MathLive,
+             elle est acceptée, et la remarque d'orthographe s'affiche */
+          await s.page.evaluate(() => { test.questions[test.idx] = essQuestion(1, 20, -1, 5); test.locked = false; test.eslBusy = false; test.score = 0; renderEsl(); });
+          await s.page.waitForTimeout(800);
+          await s.page.evaluate(() => { const m = eslFeuille.lignes[0].mf; m.focus(); try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+          await s.page.waitForTimeout(150);
+          const COPIE5b = ['1,2 * 0,95 = 1,14', 'augementation de 14 %'];
+          for(let i = 0; i < COPIE5b.length; i++){
+            await s.page.keyboard.type(COPIE5b[i], { delay: 30 });
+            if(i < COPIE5b.length - 1){ await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(300); }
+          }
+          await s.page.waitForTimeout(400);
+          const lu5b = await s.page.evaluate(() => { const t = eslFeuille.lire(), j = eslJuge(test.questions[test.idx], t); return { lignes: String(t).split('\n'), sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '' }; });
+          if(!lu5b.sait || !lu5b.correct) dits5.push('« augementation de 14 % » tapé n\'est pas lu comme la conclusion : « ' + lu5b.phrase.slice(0, 120) + ' » (' + lu5b.lignes.join(' ⏎ ') + ')');
+          await s.page.click('#eslActions .btn-primary');
+          await s.page.waitForTimeout(1200);
+          const v5b = await s.page.evaluate(() => { const fb = document.getElementById('eslFeedback'); return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score }; });
+          if(v5b.classe.indexOf('good') < 0 || v5b.score !== 1) dits5.push('« augementation de 14 % » : la copie n\'est pas acceptée à la vérification (score ' + v5b.score + ') : « ' + v5b.texte.slice(0, 120) + ' »');
+          else if(v5b.texte.indexOf('« augmentation »') < 0) dits5.push('« augementation de 14 % » : la remarque d\'orthographe ne s\'affiche pas : « ' + v5b.texte.slice(0, 160) + ' »');
         }
         verifier('sur le ' + X5.num + ', la méthode 3 tapée en mots (« 5 % de 120 est 6 ») est lue par le juge, la note compte, la feuille se peint',
           dits5.length === 0, dits5.slice(0, 3).join(' | '));

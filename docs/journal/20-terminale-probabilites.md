@@ -1023,3 +1023,35 @@ navigateur, section 9) relève, sur chaque exercice et dans les deux modes,
 toute case vide visible dont l'`oninput` appelle `sa2Ajuster` et qui n'a
 aucune largeur posée. Éprouvé par sabotage : sur l'ancien rendu, il rougit sur
 le 6.2.1 seul, onze cases, entraînement et soutien.
+
+### Deux exercices par séance, un par méthode — et sept situations de plus (v468)
+
+Turquet (octobre 2026) : « pourquoi je ne vois plus la récurrence en 6.2.1 ? »,
+puis « j'ai testé l'exercice 6 fois et il a mis la suite auxiliaire à chaque
+fois ». La séance ne comptait qu'UN exercice (`dmNbQuestions(1)`), et la
+méthode de la question 4 se tirait à pile ou face (`m0=rand(0,1)`) : le tirage
+était juste — mesuré dans Chromium, 105 suites auxiliaires pour 95 récurrences
+sur 200 séances —, mais rien ne garantissait que la récurrence sorte, et six
+essais ne l'ont pas vue. **Une méthode qu'on doit pouvoir travailler ne se
+confie pas au hasard d'un seul tirage.** Demande suivante : « faire en sorte
+qu'il y ait deux exercices à faire avec les deux méthodes ».
+La séance en compte donc DEUX (`dmNbQuestions(2)`), sur deux situations
+différentes, l'un par récurrence, l'autre par la suite auxiliaire. La méthode
+du PREMIER alterne d'une séance à l'autre, retenue par le navigateur
+(`localStorage`, clé `APS_METH_CLE`) — la récurrence d'abord ; sans stockage
+(navigation privée), le premier se tire à pile ou face, et la séance garde ses
+deux méthodes. Un devoir réglé à N questions alterne toujours d'un exercice au
+suivant.
+**Et sept situations de plus** (« varie un peu plus les énoncés, en lien avec
+l'écologie, le sport ou les jeux vidéo ») : la cigogne au nid, les courses au
+marché des producteurs locaux, le covoiturage (écologie) ; le match de
+handball, la sortie longue du semi-marathon (sport) ; le podium au karting en
+ligne, le mode coopératif d'un jeu de stratégie, numéroté à partir de la
+saison 0 (jeux vidéo). Douze en tout. Chacune a été tirée trente fois dans
+Chromium, énoncé, questions et cartes d'interprétation rendus : aucun `{v}`,
+aucun `undefined`, aucune élision manquée (« que il »).
+Le banc principal (`tests/verifier.js`) tient la séance : vingt séances, deux
+exercices chacune, deux situations, les deux méthodes. L'alternance d'une
+séance à l'autre se déclare « non applicable » dans jsdom, qui n'a pas de
+`localStorage` à cette origine ; elle a été éprouvée dans Chromium : rec, aux,
+rec, aux…
