@@ -4974,3 +4974,22 @@ vide » (banc principal), les trois exercices, soutien et entraînement, case
 du haut seule puis case du bas seule. Sabotage : l'ancien fichier remis, il
 rougit (« 40 seul en haut de 40/100 est bad », « 100 seul en bas … bad »,
 « un 30/100 vert posé à côté »).
+
+**Puis les fractions de COEFFICIENT et de PRODUIT ont suivi — le numérateur juste seul ne rougit plus, « vide vaut 1 » reste la règle de la note (Première v359, Seconde v626, octobre 2026).**
+Le balayage du paragraphe précédent avait laissé de côté, par décision,
+les fractions peintes par `marqueFracSaufVide` : 1.7, 1.8, 2.2.7, 2.2.8,
+2.3.7, 2.5.4 en Première, 1.7, 1.8, 4.2.7, 4.2.8, 4.3.7 en Seconde. Elles y
+montraient pourtant l'écran de la capture : « 6000 » seul en haut de
+6000/100, rouge, et « 6000/100 » en vert à côté. Turquet, à qui le choix
+a été mis sous les yeux : « oui fais le ». Ce qui change est le PEINTRE,
+pas le juge : `ok` lit toujours le dénominateur vide comme 1 (« 17 » seul
+est juste quand la réponse est 17, « 6000 » seul vaut 6000 et la question
+reste fausse) ; mais le numérateur CANONIQUE écrit seul reste bleu, le
+dénominateur vide reçoit sa correction, et rien ne se pose à côté. Un
+numérateur qui n'est ni le canonique ni la valeur entière rougit toujours.
+En Première l'ancre lit `entierStrict` (« 6000,5 » ne vaut pas 6000).
+Deux contrôles tenaient l'ancienne règle et l'ont dite en rougissant à la
+première exécution, comme il le fallait : le 1.7 (« 4 sans dénominateur
+… bad ») et le bord 5 bis des évolutions successives (« 2000 seul … au lieu
+de rouge »). Ils tiennent la nouvelle, et un bord de plus : la copie juste
+où ne manque QUE le dénominateur du produit ne vaut pas le point.

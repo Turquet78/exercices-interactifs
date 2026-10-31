@@ -47706,13 +47706,18 @@ function fractionsDecimalesVides(w, P){
     if(cl('md1n')!=='ok'||cl('md1d')!=='ok') vus.push('4/100 en direct : '+cl('md1n')+'/'+cl('md1d')+' au lieu de ok/ok');
     pose('md1n','3'); checkMDAnswer(true);
     if(cl('md1n')!=='bad') vus.push('3/100 en direct : le numérateur est « '+cl('md1n')+' » au lieu de bad');
-    /* 5. à la VÉRIFICATION, une case vide ne reçoit aucune couleur — le
-       numérateur faux en entier, lui, rougit à bon droit */
+    /* 5. à la VÉRIFICATION, une case vide ne reçoit aucune couleur — et le
+       numérateur CANONIQUE seul (le 4 de 4/100) ne rougit plus : la question
+       reste fausse, mais l'écran ne dit plus « faux » d'un nombre juste
+       (décision de Turquet, octobre 2026) ; un numérateur qui n'est ni le
+       canonique ni la valeur entière rougit toujours */
     pose('md1n','4'); pose('md1d',''); pose('md2n',''); pose('md2d','');
     checkMDAnswer();
-    if(cl('md1n')!=='bad') vus.push('vérification : 4 sans dénominateur (réponse entière fausse) est « '+cl('md1n')+' » au lieu de bad');
+    if(cl('md1n')!=='ok') vus.push('vérification : 4 sans dénominateur (le numérateur de 4/100) est « '+cl('md1n')+' » au lieu de ok');
     if(cl('md1d')!=='rien') vus.push('vérification : le dénominateur VIDE est « '+cl('md1d')+' » — une case vide ne rougit jamais');
     if(cl('md2n')!=='rien') vus.push('vérification : le numérateur VIDE est « '+cl('md2n')+' » — une case vide ne rougit jamais');
+    test.locked=false; pose('md1n','5'); pose('md1d',''); checkMDAnswer();
+    if(cl('md1n')!=='bad') vus.push('vérification : 5 sans dénominateur (ni le numérateur de 4/100, ni la valeur entière) est « '+cl('md1n')+' » au lieu de bad');
     /* 6. les quatre exercices à facteur entier partagent la même marque —
        depuis la capture du 616, la paire passe par marqueFracSaufVide */
     const src=document.documentElement.outerHTML;
@@ -48271,14 +48276,24 @@ function numerateurSeulPourcentage(w, P){
       if(e.prodN){ q=monter(e,'soutien'); const pv=e.prod(q); pose(e.prodN,pv); e.check();
         if(teinte(e.prodN)!=='ok') vus.push(e.nom+' : « '+pv+' » seul à la fraction PRODUIT est '+teinte(e.prodN)+' — elle garde « vide vaut 1 »');
         if(teinte(e.prodD)!=='rien') vus.push(e.nom+' : le dénominateur vide de la fraction produit est '+teinte(e.prodD)); }
-      /* 5 bis. et c'est le PEINTRE qui se mesure, pas le seul verdict : le
-         numérateur CANONIQUE écrit seul (2000, dénominateur vide) ROUGIT — « vide
-         vaut 1 » le lit 2000, pas 20 — là où l'ancre (marqueFracPaire,
-         marqueFracAncre) le bleuirait ; en Première, « 20 » seul est bleu sous
-         les deux peintres, fracOk lisant déjà le vide comme 1 */
+      /* 5 bis. le numérateur CANONIQUE écrit seul (2000, dénominateur vide) ne
+         ROUGIT plus (décision de Turquet, octobre 2026 : l'écran disait « faux »
+         et posait « 2000/100 » en vert à côté) — il est bleu, le dénominateur
+         vide ne reçoit rien en soutien et sa correction en entraînement ; un
+         numérateur qui n'est NI le canonique NI la valeur entière rougit */
       if(e.prodN){ q=monter(e,'soutien'); const pc=e.prodCanon(q); pose(e.prodN,pc); e.check();
-        if(teinte(e.prodN)!=='bad') vus.push(e.nom+' : « '+pc+' » seul (le numérateur canonique) à la fraction PRODUIT est '+teinte(e.prodN)+' au lieu de rouge — « vide vaut 1 » lit '+pc+', pas '+(pc/100));
-        if(teinte(e.prodD)!=='rien') vus.push(e.nom+' : le dénominateur vide sous le numérateur canonique du produit est '+teinte(e.prodD)); }
+        if(teinte(e.prodN)!=='ok') vus.push(e.nom+' : « '+pc+' » seul (le numérateur canonique) à la fraction PRODUIT est '+teinte(e.prodN)+' au lieu de ok');
+        if(teinte(e.prodD)!=='rien') vus.push(e.nom+' : le dénominateur vide sous le numérateur canonique du produit est '+teinte(e.prodD));
+        q=monter(e,'soutien'); pose(e.prodN,e.prodCanon(q)+7); e.check();
+        if(teinte(e.prodN)!=='bad') vus.push(e.nom+' : un numérateur faux seul à la fraction PRODUIT est '+teinte(e.prodN)+' au lieu de rouge');
+        /* 5 ter. LA NOTE NE CHANGE PAS : la copie juste où ne manque que ce
+           dénominateur ne vaut pas le point — le numérateur bleu, la correction
+           verte dessous, aucun « n/d » posé à côté */
+        q=monter(e,'train'); const cp=e.copie(q); cp[e.prodD]=''; poser(cp); e.check();
+        if(test.score!==0) vus.push(e.nom+' : la copie sans le dénominateur du produit vaut le point — « vide vaut 1 » lit '+e.prodCanon(q)+', pas '+(e.prodCanon(q)/100));
+        if(teinte(e.prodN)!=='ok') vus.push(e.nom+' (entraînement) : le numérateur canonique seul du produit est '+teinte(e.prodN)+' au lieu de ok');
+        if(teinte(e.prodD)!=='sol') vus.push(e.nom+' (entraînement) : le dénominateur vide du produit est '+teinte(e.prodD)+' au lieu de recevoir la correction');
+        if(corACote(e.prodN)) vus.push(e.nom+' (entraînement) : un « n/100 » vert est posé à côté du numérateur juste du produit'); }
     });
     currentMode='train';
     return vus.join(' | ');
