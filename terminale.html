@@ -40704,6 +40704,61 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
   });
 })();
 </script>
+<script id="fraction-numworks">
+/* LE TRAIT DE FRACTION COUVRE LE PRODUIT QUI LE PRÉCÈDE — comme l'éditeur de
+   la calculatrice NumWorks (demande de Turquet, octobre 2026 : « 3x4/2 qui
+   s'affiche (3x4)/2 »). MathLive coupait au dernier signe : « 3*4/2 » donnait
+   3 × 4/2, seul le 4 montait au numérateur. Ici, la touche « / » emporte tout
+   ce qui la précède jusqu'au premier + ou −, =, <, ponctuation, ou parenthèse
+   ouvrante : les produits (×, ·, implicite), les puissances, les racines, les
+   fractions, la virgule décimale (2,5). Et une parenthèse seule devant « / »
+   perd ses parenthèses, comme sur la NumWorks : « (1+2)/3 » donne 1+2 sur 3.
+   Une seule porte, sur le document : l'événement « beforeinput » que MathLive
+   émet AVANT d'insérer \frac{#@}{#?} — le clavier physique, le clavier à
+   l'écran et le pavé y passent tous les trois ; rien à déclarer par case.
+   Une sélection déjà faite, ou rien devant le curseur, et MathLive garde la
+   main, comme avant. Le modèle de MathLive (_mathfield.model) est interne :
+   s'il manque, tout se tait et MathLive reprend son comportement d'origine —
+   le banc navigateur (« 11 terdecies ») le dirait. */
+(function(){
+  var PRODUIT={'\\times':1,'\\cdot':1,'×':1,'·':1,'*':1};
+  function chiffre(a){ return !!a && typeof a.value==='string' && /^[0-9]$/.test(a.value); }
+  function borne(a){
+    if(a.mode==='text') return true;
+    if(a.type==='mbin') return !PRODUIT[a.value] && !PRODUIT[a.command];
+    if(a.type==='mrel') return true;
+    if(a.type==='mpunct') return !(a.value===',' && chiffre(a.leftSibling) && chiffre(a.rightSibling));
+    return false;
+  }
+  function numerateur(el){
+    var model=el._mathfield && el._mathfield.model;
+    if(!model || typeof model.at!=='function' || !model.selectionIsCollapsed) return null;
+    var pos=model.position, a=model.at(pos), atomes=[], prof=0;
+    while(a && a.type!=='first'){
+      if(a.type==='mclose') prof++;
+      else if(a.type==='mopen'){ if(prof===0) break; prof--; }
+      else if(prof===0 && borne(a)) break;
+      atomes.unshift(a); a=a.leftSibling;
+    }
+    if(!atomes.length || prof!==0 || !a) return null;
+    var debut=model.offsetOf(a), p=atomes[0], b=p.body, latex;
+    if(atomes.length===1 && p.type==='leftright' && p.leftDelim==='(' && p.rightDelim===')' && b && b.length>1)
+      latex=el.getValue(model.offsetOf(b[0]), model.offsetOf(b[b.length-1]), 'latex');
+    else latex=el.getValue(debut, pos, 'latex');
+    return latex ? { debut:debut, fin:pos, latex:latex } : null;
+  }
+  window.fracNumerateur=numerateur;
+  document.addEventListener('beforeinput', function(e){
+    var el=e.target, d=e.data;
+    if(!el || el.tagName!=='MATH-FIELD' || e.inputType!=='insertText' || typeof d!=='string' || d.indexOf('\\frac{#@}')!==0) return;
+    var n=null; try{ n=numerateur(el); }catch(err){}
+    if(!n) return;
+    e.preventDefault();
+    el.selection={ ranges:[[n.debut,n.fin]], direction:'forward' };
+    el.executeCommand(['insert', '\\frac{'+n.latex+'}'+d.slice(9), { selectionMode:'placeholder' }]);
+  }, true);
+})();
+</script>
 <script id="italiquer-x">
 /* L'INCONNUE « x » S'ÉCRIT TOUJOURS EN ITALIQUE ARRONDI — filet de sécurité.
    Décision de Turquet, septembre 2026 : « à retenir pour tous les prochains

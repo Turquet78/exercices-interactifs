@@ -19320,6 +19320,65 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+
+    /* ---- 11 terdecies. Le trait de fraction couvre le produit qui le précède (NumWorks) ----
+       Demande de Turquet, octobre 2026 : « 3x4/2 » doit s'afficher (3×4)/2,
+       comme dans l'éditeur de la NumWorks — MathLive n'y montait que le 4.
+       Le script #fraction-numworks (fin de fichier, les trois niveaux)
+       intercepte l'insertion de \frac{#@}{#?} : la touche « / » emporte tout
+       ce qui précède jusqu'au premier + ou −, =, ponctuation ou parenthèse
+       ouvrante, et une parenthèse seule perd ses parenthèses. Le champ est posé
+       par le banc dans l'écran ouvert, tapé au vrai clavier ; la touche du
+       clavier à l'écran est jouée par sa commande. Éprouvé à l'envers en
+       retirant le script : « 3×\frac{4}{2} », « \frac{\left(1+2\right)}{3} ». */
+    titre('11 terdecies. LE TRAIT DE FRACTION COUVRE LE PRODUIT QUI LE PRÉCÈDE (COMME LA NUMWORKS)');
+    {
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      const pret = await s.page.evaluate(() => {
+        const sc = document.querySelector('section.screen.on'); if(!sc) return false;
+        const d = document.createElement('div'); d.id = 'bancFrac';
+        d.innerHTML = '<math-field id="bancFracMf" style="min-width:8em;display:inline-block"></math-field>';
+        sc.insertBefore(d, sc.firstChild);
+        return true;
+      });
+      if(!pret){
+        verifier('la touche « / » met tout le produit au numérateur', false, 'aucun écran ouvert');
+      } else {
+        await s.page.click('#bancFracMf');
+        await s.page.waitForTimeout(500);   /* les raccourcis (* → ×) se posent en trois temps */
+        /* le raccourci « * » vaut \times ou \cdot selon la case : le banc juge le trait, pas le signe */
+        const lire = () => s.page.evaluate(() => document.getElementById('bancFracMf').value
+          .replace(/\{,\}/g, ',').replace(/\\placeholder\{\}/g, '').replace(/\\cdot/g, '\\times').replace(/\s+/g, ''));
+        const cas = [
+          ['3*4/2',   '\\frac{3\\times4}{2}'],
+          ['2+3*4/5', '2+\\frac{3\\times4}{5}'],
+          ['2-3*4/5', '2-\\frac{3\\times4}{5}'],
+          ['(1+2)/3', '\\frac{1+2}{3}'],
+          ['2,5*3/4', '\\frac{2,5\\times3}{4}'],
+          ['5=2x/3',  '5=\\frac{2x}{3}']
+        ];
+        for(const [tape, attendu] of cas){
+          await s.page.evaluate(() => { const m = document.getElementById('bancFracMf'); m.value = ''; m.focus(); });
+          await s.page.waitForFunction(() => { const a = document.activeElement; return a && a.id === 'bancFracMf'; }, null, { timeout: 3000 }).catch(() => {});
+          await s.page.keyboard.type(tape, { delay: 25 });
+          const vu = await lire();
+          verifier('« ' + tape + ' » tapé s\'écrit ' + attendu + ' (le trait couvre ce qui le précède, comme la NumWorks)',
+            vu === attendu, 'la case contient « ' + vu + ' »');
+        }
+        /* la touche « / » du clavier à l'écran et du pavé : la même commande */
+        const cmd = await s.page.evaluate(() => { const m = document.getElementById('bancFracMf');
+          m.value = '3\\times4'; m.position = m.lastOffset;
+          m.executeCommand(['insert', '\\frac{#@}{#?}']); m.executeCommand(['insert', '2']);
+          return m.value.replace(/\s+/g, ''); });
+        verifier('la touche « / » du clavier à l\'écran met aussi tout le produit au numérateur',
+          cmd === '\\frac{3\\times4}{2}', 'la case contient « ' + cmd + ' »');
+        verifier('le trait de fraction façon NumWorks ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {
