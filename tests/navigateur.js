@@ -7510,6 +7510,31 @@ if(require.main === module) (async () => {
           const v5b = await s.page.evaluate(() => { const fb = document.getElementById('eslFeedback'); return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score }; });
           if(v5b.classe.indexOf('good') < 0 || v5b.score !== 1) dits5.push('« augementation de 14 % » : la copie n\'est pas acceptée à la vérification (score ' + v5b.score + ') : « ' + v5b.texte.slice(0, 120) + ' »');
           else if(v5b.texte.indexOf('« augmentation »') < 0) dits5.push('« augementation de 14 % » : la remarque d\'orthographe ne s\'affiche pas : « ' + v5b.texte.slice(0, 160) + ' »');
+          /* « hauss 14 », sans % : la page ne lit pas la conclusion, mais le
+             calcul et le nombre sont justes — le MODÈLE lit les mots. On
+             tient sa réponse (le double répond « juste ») et on relit ce qui
+             lui est envoyé : la ligne, et la seule question qui lui reste. */
+          await s.page.evaluate(() => {
+            window.__envoiIA = null; window.__invokeAvant = sb.functions.invoke;
+            sb.functions.invoke = function(nom, opts){ window.__envoiIA = opts && opts.body; return Promise.resolve({ data:{ correct:true, feedback:'Bravo ! N’oublie pas le symbole %.' }, error:null }); };
+            test.questions[test.idx] = essQuestion(1, 20, -1, 5); test.locked = false; test.eslBusy = false; test.score = 0; renderEsl();
+          });
+          await s.page.waitForTimeout(800);
+          await s.page.evaluate(() => { const m = eslFeuille.lignes[0].mf; m.focus(); try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+          await s.page.waitForTimeout(150);
+          const COPIE5c = ['1,2 * 0,95 = 1,14', 'hauss 14'];
+          for(let i = 0; i < COPIE5c.length; i++){
+            await s.page.keyboard.type(COPIE5c[i], { delay: 30 });
+            if(i < COPIE5c.length - 1){ await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(300); }
+          }
+          await s.page.waitForTimeout(400);
+          await s.page.click('#eslActions .btn-primary');
+          await s.page.waitForTimeout(1200);
+          const v5c = await s.page.evaluate(() => { const fb = document.getElementById('eslFeedback'), e = window.__envoiIA || {};
+            sb.functions.invoke = window.__invokeAvant;
+            return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score, attendu: String(e.attendu || ''), lignes: String(eslFeuille.lire()).split('\n') }; });
+          if(v5c.attendu.indexOf('UNE SEULE QUESTION') < 0) dits5.push('« hauss 14 » : la conclusion n\'est pas confiée au modèle (' + v5c.lignes.join(' ⏎ ') + ')');
+          else if(v5c.classe.indexOf('good') < 0 || v5c.score !== 1) dits5.push('« hauss 14 » : le modèle a compris, mais la copie n\'est pas acceptée (score ' + v5c.score + ') : « ' + v5c.texte.slice(0, 120) + ' »');
         }
         verifier('sur le ' + X5.num + ', la méthode 3 tapée en mots (« 5 % de 120 est 6 ») est lue par le juge, la note compte, la feuille se peint',
           dits5.length === 0, dits5.slice(0, 3).join(' | '));
