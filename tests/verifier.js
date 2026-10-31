@@ -11046,8 +11046,27 @@ function syntheseEvolutionsLibre(w, P){
       ['« hause » : la faute ne compte pas', qA, '120 × 0,95 = 114\\nhause de 14 %',                         true, true ],
       ['« dimminution » : la faute ne compte pas', qB, '0,5 × 1,02 = 0,51\\ndimminution de 49 %',           true, true ],
       ['« baise » au lieu de « hausse » reste faux', qA, '1,2 × 0,95 = 1,14\\nbaise de 14 %',                true, false],
-      ['« bausse » ne dit pas son sens', qA, '1,2 × 0,95 = 1,14\\nbausse de 14 %',                         true, false],
+      /* « bausse » ne dit pas son sens : la page ne le lit pas, le modèle a la consigne de le refuser */
+      ['« bausse » ne dit pas son sens : la page ne le lit pas', qA, '1,2 × 0,95 = 1,14\\nbausse de 14 %',    false, null ],
+      /* le pluriel, une ponctuation dans le mot : lus par la page */
+      ['« baisses » : le pluriel ne compte pas', qB, '0,5 × 1,02 = 0,51\\nbaisses de 49 %',                  true, true ],
+      ['« haus;se » : la ponctuation dans le mot', qA, '1,2 × 0,95 = 1,14\\nhaus;se 14%',                     true, true ],
+      /* une conclusion que la page ne lit pas, au BON pourcentage : le modèle
+         dit ce que veulent dire les mots (Turquet, octobre 2026) */
+      ['« hauss 14 » sans % : le modèle lit les mots', qA, '1,2 × 0,95 = 1,14\\nhauss 14',                      false, null ],
+      ['« baisses 49 » sans % : le modèle lit les mots', qB, '0,5 × 1,02 = 0,51\\nbaisses 49',                 false, null ],
+      /* au MAUVAIS pourcentage, la page refuse seule : un nombre ne se confie pas au modèle */
+      ['« hauss 15 » : le pourcentage faux reste refusé', qA, '1,2 × 0,95 = 1,14\\nhauss 15',                 true, false],
     ];
+    /* le modèle reçoit la ligne, et une seule question */
+    { const jI=eslJuge(qA,'1,2 × 0,95 = 1,14\\nhauss 14');
+      if(jI.conclIA!=='hauss 14') vus.push('la conclusion confiée au modèle n\\'est pas la ligne « hauss 14 » : « '+jI.conclIA+' »');
+      const at=eslAttenduIA(qA,jI);
+      if(at.indexOf('UNE SEULE QUESTION')<0 || at.indexOf('« hauss 14 »')<0 || at.indexOf('JUSTE')<0) vus.push('la consigne du modèle ne lui confie pas la seule lecture de la conclusion « hauss 14 »');
+      if(eslAttenduIA(qA,eslJuge(qA,'1,2 × 0,95 = 1,14\\nhausse de 14 %')).indexOf('UNE SEULE QUESTION')>=0) vus.push('la consigne de lecture de la conclusion part aussi sur une copie que la page lit');
+      const pR=eslJuge(qA,'1,2 × 0,95 = 1,14\\nhauss 15').phrase||'';
+      if(/\\b14\\b|1,14|114|hausse de/.test(pR.replace(/«[^»]*»/g,''))) vus.push('le refus du pourcentage faux donne la réponse : « '+pR+' »'); }
+    if(!evsMotOk('baisses','-') || !evsMotOk('haus;se','+')) vus.push('evsMotOk (2.5.5) ne lit pas « baisses » ou « haus;se »');
     /* la copie juste mal orthographiée reçoit la remarque, la copie bien écrite rien */
     if(salOrthNote('1,2 × 0,95 = 1,14\\naugementation de 14 %').indexOf('« augmentation »')<0) vus.push('salOrthNote ne nomme pas « augmentation » devant « augementation »');
     if(salOrthNote('1,2 × 0,95 = 1,14\\naugmentation de 14 %')!=='') vus.push('salOrthNote parle d\\'orthographe devant une copie bien écrite');
@@ -48029,6 +48048,9 @@ function ordreEvolutionsLibre(w){
         const j=eslJuge(qA,c[1]);
         if(!j.sait || !j.correct) vus.push('2.5.8, '+c[0]+' : refusé — « '+(j.phrase||'le juge ne sait pas')+' »');
       });
+      /* le calcul inversé prouvé, la conclusion mal écrite : laissée au modèle (conclIA, #905), jamais refusée */
+      const jM=eslJuge(qA,'95\\n95 × 1,2 = 114\\nhauss 14');
+      if(jM.sait || !jM.conclIA) vus.push('2.5.8 : un calcul juste dans l’autre ordre, conclu « hauss 14 », n’est pas confié au modèle — '+(jM.phrase||JSON.stringify(jM)));
       const jF=eslJuge(qA,'95\\n20 % de 100 est 20\\n95 + 20 = 115\\nhausse de 15 %');
       if(jF.correct) vus.push('2.5.8 : la seconde évolution refaite sur 100, dans l’autre ordre, est acceptée');
     }
