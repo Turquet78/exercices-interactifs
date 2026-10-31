@@ -885,6 +885,7 @@
   .apf-row{display:flex;align-items:center;gap:8px;font-size:1.15rem;flex-wrap:wrap}
   .sa2-in.apf-calc{flex:1 1 16em;min-width:10em;max-width:40em;text-align:left}
   .apf-jetons{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 2px}
+  .aps-jetons{justify-content:center;margin:4px 0 10px}   /* le bouton aₙ du 6.2.1, centré sous l'arbre */
   .apf-jeton{min-width:40px;height:36px;border:1.5px solid var(--line);border-radius:8px;background:#fff;font-size:1.1rem;cursor:pointer;color:var(--ink)}
   .apf-jeton:hover{border-color:var(--blue)}
   sub i.apb-nb{margin-left:.12em}
@@ -29245,6 +29246,26 @@ function apsArbre2HTML(q){
     const lab=kind==='1' ? apsP(q,a,'n') : apsPc(q,a,'n',b,'n+1');
     return '<span class="apf-lab">'+lab+' = '+apsCaseIn('apr', kind==='1'?a:a+'-'+b, kind==='1'?'aₙ ( ) + ×':null)+'</span>'; }, 'E');
 }
+/* LE BOUTON aₙ SOUS L'ARBRE DES RANGS n ET n + 1 (demande de Turquet,
+   octobre 2026 : « mettre un bouton a_n en dessous de l'arbre concerné »,
+   puis « pour rentrer a_n dans les cases en cliquant dessus »). Un clic écrit
+   « aₙ » au curseur de la DERNIÈRE case de cet arbre que l'élève a touchée —
+   P(Fₙ) = 1 − aₙ si aucune ne l'a été ; il ne vole pas le focus (mousedown
+   empêché) et passe par paveInserer, donc par « input » : la case grandit
+   (sa2Ajuster) et n'est plus une copie du premier arbre. */
+let apsDerniere=null;
+document.addEventListener('focusin', function(e){ const t=e.target; if(t && t.id && /^apr-t-/.test(t.id)) apsDerniere=t; });
+function apsJetonsHTML(){
+  return '<div class="apf-jetons aps-jetons" aria-label="symboles"><button type="button" class="apf-jeton" id="aps-jeton-an" title="écrire aₙ dans la case"'
+    +' onmousedown="event.preventDefault()" onclick="apsJetonAn()"><i>a</i><sub><i>n</i></sub></button></div>';
+}
+function apsJetonAn(){
+  let el=apsDerniere;
+  if(!el || !document.body.contains(el)) el=$('apr-t-F');
+  if(!el || el.disabled || el.readOnly || (typeof test!=='undefined' && test.locked)) return;
+  el.focus();
+  paveInserer(el, 'aₙ');
+}
 /* LE SECOND ARBRE REPREND LE PREMIER (comme au 6.1.3 et au 6.1.5) : les
    probabilités conditionnelles ne changent pas d'un rang à l'autre. Une case
    recopiée suit le premier arbre tant que l'élève ne l'a pas réécrite
@@ -29560,6 +29581,7 @@ function apsCorpsHTML(q){
     +'<div class="apf-row">'+apsSlotHTML('s2b')+'<span class="apc-dev" id="aps-d-s2b"></span><span class="apf-lab">=</span>'+apsMf('aps-c2b','apf-calc','calcul ≈ résultat')+'</div><p class="apc-pourquoi" id="aps-h-s2b"></p>'
     +'<p class="apf-cons"><b>3. a)</b> Compléter l’arbre pondéré qui modélise la situation pour '+apsRang(C,'n')+' et '+apsRang(C,'n+1')+'.<span class="aide-ecran"> Les probabilités conditionnelles que tu as écrites sur le premier arbre y sont recopiées.</span></p>'
     +apsArbre2HTML(q)
+    +apsJetonsHTML()
     +'<p class="apf-cons"><b>b)</b> Justifier que, pour tout entier naturel <i>n</i>'+nn+', '+APS_AN1+' = '+apsRecH(q)+'.</p>'
     +'<div class="apf-row"><span class="apf-lab">'+APS_AN1+' = '+apsP(q,'E','n+1')+' =</span>'+apsMf('aps-c3b','apf-calc','calcul en a indice n = forme réduite')+'</div>'
     +(q.meth==='aux' ? apsAuxHTML(q) : apsRecHTML(q))
@@ -39670,6 +39692,10 @@ function clavierVersCase(vk){
     const s=k[0];
     if(s==='insert' || s==='typedText'){ const t=s==='insert' ? clavierTexte(k[1]) : String(k[1]==null ? '' : k[1]); if(t) paveInserer(el, t); }
     else if(s==='deleteBackward') paveInserer(el, '⌫');
+    /* la touche « indice » (moveToSubscript) écrit « _ », que caseIndices
+       change en indice à la frappe suivante (« _n » → ₙ) ; l'exposant, « ^ » */
+    else if(s==='moveToSubscript') paveInserer(el, '_');
+    else if(s==='moveToSuperscript') paveInserer(el, '^');
     else if(s==='moveToPreviousChar' || s==='moveToNextChar'){
       const p=(el.selectionStart==null ? el.value.length : el.selectionStart)+(s==='moveToPreviousChar' ? -1 : 1);
       const q=Math.max(0, Math.min(el.value.length, p)); try{ el.setSelectionRange(q,q); }catch(er){}
