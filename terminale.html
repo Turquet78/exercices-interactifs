@@ -17665,9 +17665,10 @@ function motsOrthNote(orth){
 }
 /* Un critère de MOT que la page n'a pas lu, mais dont un mot proche est écrit :
    ni ✓ ni ✗ — « ? », sans couleur de verdict : le modèle relit ce mot. */
-function motsLigneCrit(x){
-  if(!x.ok && x.doute) return '<li><span>? '+x.l+' — tu as écrit « '+esc(x.doute)+' » : l’IA relit ce mot</span></li>';
-  return '<li><span class="'+(x.ok?'fb-ok':'fb-ko')+'">'+(x.ok?'✓':'✗')+' '+x.l+'</span></li>';
+function motsLigneCrit(x, sep){
+  sep=(sep==null)?'\u00a0':sep;   /* chaque bilan garde son espace après la marque (le 6.8 : une espace simple) */
+  if(!x.ok && x.doute) return '<li><span>?'+sep+x.l+' — tu as écrit « '+esc(x.doute)+' » : l’IA relit ce mot</span></li>';
+  return '<li><span class="'+(x.ok?'fb-ok':'fb-ko')+'">'+(x.ok?'✓':'✗')+sep+x.l+'</span></li>';
 }
 /* La consigne du modèle sur ces mots : ce qu'il doit relire, et rien d'autre. */
 function motsDoutesIA(j){
@@ -17985,7 +17986,7 @@ function rrBilanHTML(j){
       +(j.fausses.length>1?' (une autre comparaison au moins est fausse aussi)':'')+'</span></li>'
     : '';
   return '<div class="rr-bilan"><b>Ta rédaction, point par point :</b><ul class="rr-crit">'
-    + j.crit.map(motsLigneCrit).join('')
+    + j.crit.map(x=>motsLigneCrit(x)).join('')
     + faux
     + '</ul></div>';
 }
@@ -18553,7 +18554,7 @@ function sarBilanHTML(j){
       +(j.fausses.length>1?' (une autre comparaison au moins est fausse aussi)':'')+'</span></li>'
     : '';
   return '<div class="rr-bilan"><b>Tes quatre réponses, point par point :</b><ul class="rr-crit">'
-    + j.crit.map(motsLigneCrit).join('')
+    + j.crit.map(x=>motsLigneCrit(x,' ')).join('')
     + faux
     + '</ul></div>';
 }
