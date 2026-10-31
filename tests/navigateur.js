@@ -19305,6 +19305,19 @@ if(require.main === module) (async () => {
           verifier('au 6.2.1, le bouton aₙ écrit aussi dans le champ de la 3 b, le curseur après l\'indice, sans toucher à l\'arbre',
             /^a_\(n\)\*\(1-/.test(v3.lu || '') && v3.arbre === '1-aₙ' && v3.focus === 'aps-c3b',
             '3 b « ' + v3.lu + ' », arbre « ' + v3.arbre + ' », focus sur ' + v3.focus);
+          /* « a_n » tapé au clavier : l'indice se referme tout seul au 6.2.1
+             (« aₙₓ » de la capture) — « a_(n+1) » garde son indice */
+          const tape = async (t) => {
+            await s.page.evaluate(() => { const m = document.getElementById('aps-c3b'); if(m) m.value = ''; });
+            await s.page.click('#aps-c3b').catch(() => {});
+            await s.page.waitForFunction(() => document.activeElement && document.activeElement.id === 'aps-c3b', null, { timeout: 3000 }).catch(() => {});
+            await s.page.keyboard.type(t, { delay: 60 });
+            await s.page.waitForTimeout(200);
+            return s.page.evaluate(() => mlDexp.toPlain(document.getElementById('aps-c3b').value));
+          };
+          const l1 = await tape('a_n*(1-a_n)'), l2 = await tape('a_(n+1)');
+          verifier('au 6.2.1, « a_n » tapé dans un champ mathématique sort tout seul de l\'indice (et « a_(n+1) » garde le sien)',
+            l1 === 'a_(n)*(1-a_(n))' && l2 === 'a_((n+1))', '« ' + l1 + ' » puis « ' + l2 + ' »');
         }
         /* la croix se mesure sur un clavier OUVERT, focus dans une case en texte */
         await s.page.click(await s.page.evaluate(() => document.getElementById('apr-t-F') ? '#apr-t-F' : '#bancKbIn'));
