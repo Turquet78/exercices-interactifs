@@ -4847,3 +4847,36 @@ Contrôle : six cas ajoutés au juge de `syntheseEvolutionsLibre`
 « dimminution » acceptés ; « baise » (lu « baisse ») reste un sens faux ;
 « bausse » reste une conclusion absente — plus `salOrthNote`, `evsMotOk` et
 `salDixConclusion`.
+
+**Une case juste d'un P/100 ne rougit pas parce que sa jumelle est VIDE — le 2.1.3, le 2.4.1 et le 2.5.3 rattrapés (Première v356, octobre 2026).**
+Capture de Turquet sur le 2.2.13 : « 1 + 90/100 = 1,90 = 190/100 », le 190
+rouge, le dénominateur vide rempli en vert par l'entraînement, et
+« 190/100 » posé à côté — une réponse juste comptée fausse. Le même parcours,
+rejoué dans un vrai Chromium sur la page d'aujourd'hui (90 %, 700, dénominateur
+vide), peint le 190 en bleu : c'est le juge d'AVANT le 7 octobre
+(`mark('y2n',ok2);mark('y2d',ok2)`, un verdict pour deux cases), réparé par
+l'audit M13 (`marqueFracAncre`). La capture était plus ancienne que la page.
+« Vérifier que ce bug n'existe pas ailleurs » s'est fait par un BALAYAGE de
+tous les exercices des trois niveaux dans Chromium : vérifier la copie vide
+pour récolter les corrections, puis réécrire seulement la case canonique
+d'une fraction (numérateur seul, dénominateur seul, dénominateur faux) et
+relever toute case juste qui rougit. Le balayage a d'abord été éprouvé en
+remettant l'ancien juge du 2.2.13 (il a vu le 190). Trois portes de la
+Première restaient ouvertes, que la Seconde avait déjà fermées
+(`marqueFracPaire`) : le 2.1.3 {pourcentage} — et le 2.5.8 qui reprend son
+juge —, dont l'ancre ne jouait que si l'AUTRE case était écrite (le « 100 »
+du bas rougissait même devant un numérateur vide), puis le 2.4.1
+{lire-coefficient} et le 2.5.3 {reconnaitre-coefficient}, dont le P/100
+passait encore par `marqueFracSaufVide` (« vide vaut 1 »). Les trois passent
+par `marqueFracAncre`. La NOTE ne change pas : la paire reste exigée.
+Restent volontairement sous « vide vaut 1 » les fractions de COEFFICIENT et de
+PRODUIT (1.7, 1.8, 2.2.7, 2.2.8, 2.3.7, 2.5.4 — et le 1.7, 1.8, 4.2.7, 4.2.8,
+4.3.7 de la Seconde) : là « 6000 » seul en haut de 6000/100 rougit, parce
+qu'un entier seul y est une réponse (décision d'octobre 2026, contrôle
+« le P écrit seul au numérateur d'un P/100 est bleu »). Le balayage les
+signale ; c'est la convention, pas une panne.
+Contrôle : « une case juste d'un P/100 ne rougit pas parce que sa jumelle est
+vide » (banc principal), les trois exercices, soutien et entraînement, case
+du haut seule puis case du bas seule. Sabotage : l'ancien fichier remis, il
+rougit (« 40 seul en haut de 40/100 est bad », « 100 seul en bas … bad »,
+« un 30/100 vert posé à côté »).
