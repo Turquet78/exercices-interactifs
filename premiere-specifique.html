@@ -23402,6 +23402,10 @@ function clavierVersCase(vk){
     const s=k[0];
     if(s==='insert' || s==='typedText'){ const t=s==='insert' ? clavierTexte(k[1]) : String(k[1]==null ? '' : k[1]); if(t) paveInserer(el, t); }
     else if(s==='deleteBackward') paveInserer(el, '⌫');
+    /* la touche « indice » (moveToSubscript) écrit « _ », que caseIndices
+       change en indice à la frappe suivante (« _n » → ₙ) ; l'exposant, « ^ » */
+    else if(s==='moveToSubscript') paveInserer(el, '_');
+    else if(s==='moveToSuperscript') paveInserer(el, '^');
     else if(s==='moveToPreviousChar' || s==='moveToNextChar'){
       const p=(el.selectionStart==null ? el.value.length : el.selectionStart)+(s==='moveToPreviousChar' ? -1 : 1);
       const q=Math.max(0, Math.min(el.value.length, p)); try{ el.setSelectionRange(q,q); }catch(er){}
