@@ -4975,7 +4975,7 @@ du haut seule puis case du bas seule. Sabotage : l'ancien fichier remis, il
 rougit (« 40 seul en haut de 40/100 est bad », « 100 seul en bas … bad »,
 « un 30/100 vert posé à côté »).
 
-**Puis les fractions de COEFFICIENT et de PRODUIT ont suivi — le numérateur juste seul ne rougit plus, « vide vaut 1 » reste la règle de la note (Première v359, Seconde v626, octobre 2026).**
+**Puis les fractions de COEFFICIENT et de PRODUIT ont suivi — le numérateur juste seul ne rougit plus, « vide vaut 1 » reste la règle de la note (Première v360, Seconde v627, octobre 2026).**
 Le balayage du paragraphe précédent avait laissé de côté, par décision,
 les fractions peintes par `marqueFracSaufVide` : 1.7, 1.8, 2.2.7, 2.2.8,
 2.3.7, 2.5.4 en Première, 1.7, 1.8, 4.2.7, 4.2.8, 4.3.7 en Seconde. Elles y
