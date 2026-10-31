@@ -19291,6 +19291,20 @@ if(require.main === module) (async () => {
           const vb = await s.page.evaluate(() => { const e = document.getElementById('apr-t-F'); return { v: e ? e.value : null, focus: document.activeElement && document.activeElement.id }; });
           verifier('au 6.2.1, le bouton aₙ sous l\'arbre écrit aₙ dans la case, qui garde le focus',
             vb.v === '1-aₙ' && vb.focus === 'apr-t-F', 'case « ' + vb.v + ' », focus sur ' + vb.focus);
+          /* puis le champ MathLive de la 3 b : le bouton suit la DERNIÈRE case
+             touchée (la capture « aₙaₙaₙ » : il écrivait dans l'arbre), et le
+             curseur sort de l'indice — « × (1 − » se tape à la suite */
+          await s.page.click('#aps-c3b').catch(() => {});
+          await s.page.waitForTimeout(400);
+          await s.page.click('#aps-jeton-an').catch(() => {});
+          await s.page.waitForTimeout(300);
+          await s.page.keyboard.type('*(1-');
+          await s.page.waitForTimeout(200);
+          const v3 = await s.page.evaluate(() => { const m = document.getElementById('aps-c3b'); const t = document.getElementById('apr-t-F');
+            return { lu: m ? mlDexp.toPlain(m.value) : null, arbre: t ? t.value : null, focus: document.activeElement && document.activeElement.id }; });
+          verifier('au 6.2.1, le bouton aₙ écrit aussi dans le champ de la 3 b, le curseur après l\'indice, sans toucher à l\'arbre',
+            /^a_\(n\)\*\(1-/.test(v3.lu || '') && v3.arbre === '1-aₙ' && v3.focus === 'aps-c3b',
+            '3 b « ' + v3.lu + ' », arbre « ' + v3.arbre + ' », focus sur ' + v3.focus);
         }
         /* la croix se mesure sur un clavier OUVERT, focus dans une case en texte */
         await s.page.click(await s.page.evaluate(() => document.getElementById('apr-t-F') ? '#apr-t-F' : '#bancKbIn'));
