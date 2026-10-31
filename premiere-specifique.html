@@ -3185,7 +3185,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=355;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=356;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -12094,7 +12094,8 @@ function salLev(a,b){
   return p[b.length];
 }
 function salMotsEvolution(t){
-  t=String(t==null?'':t);
+  /* une ponctuation glissée DANS un mot (« haus;se », « bais.se ») n'en est pas une */
+  t=String(t==null?'':t).replace(/([a-z])[;.,:!?'’`"*_\-]+(?=[a-z])/g,'$1');
   const orth=[], tol=w=>w.length>=9?2:1, gardes=SAL_MOTS_EVO.concat(['evolution']);
   for(let tour=0;tour<6;tour++){
     const pris=new Array(t.length).fill(false);
@@ -12139,7 +12140,7 @@ function salDixPct(m){
 }
 function salDixEcart(m){ return /^(?:l['’])?(?:ecart|difference)$/.test(salDixNorm(m)); }
 function salDixConclusion(ligne){
-  const r=salMotsEvolution(salDixNorm(ligne)).t.match(/(diminution|baisse|augmentation|hausse)(?:de)?(\d+(?:[.,]\d+)?)%/);
+  const r=salMotsEvolution(salDixNorm(ligne)).t.match(/(diminution|baisse|augmentation|hausse)s?(?:de)?(\d+(?:[.,]\d+)?)%/);
   return r ? { sens:((r[1]==='diminution'||r[1]==='baisse')?-1:1), k:salRat(r[2]) } : null;
 }
 /* Lit une ligne « k % = … » ou « écart = … ». Rend null quand la ligne n'en est
@@ -14561,7 +14562,7 @@ function renderEsl(){
 function eslConclusion(ligne){
   const brut=String(ligne), t=salDixNorm(brut).replace(/\u2212|\u2013|\u2014/g,'-').replace(/\u2192|->/g,'=');
   const avant=brut.split('=')[0];
-  let r=salMotsEvolution(t).t.match(/(hausse|augmentation|baisse|diminution|reduction)(?:globale)?(?:de)?(\d+(?:[.,]\d+)?)(?:%|pour100)[.!)]*$/);
+  let r=salMotsEvolution(t).t.match(/(hausse|augmentation|baisse|diminution|reduction)s?(?:globale)?(?:de)?(\d+(?:[.,]\d+)?)(?:%|pour100)[.!)]*$/);
   if(r && (brut.indexOf('=')<0 || !/\d/.test(avant)))
     return { sens:(r[1]==='baisse'||r[1]==='diminution'||r[1]==='reduction')?-1:1, k:salRat(r[2]) };
   const t2=t.replace(/evolution|globale|global|taux|conclusion|bilan|resultat|final|finale|soit|donc|c'est|cest|une|un|de|au/g,'');
@@ -14662,17 +14663,19 @@ function eslJuge(q, texte){
   const lignes=String(texte).split('\n').map(couperCalculsEspaces).join('\n').split('\n').map(l=>l.trim()).filter(l=>l!=='');
   if(!lignes.length) return { sait:false };
   let coefProd=false, mult2=false, aug2Ok=false, opV2=false, surCent2=false, commentaire=false, conclusion=null;
+  const enMots=[];   /* les lignes en mots, avec un nombre, que la grammaire ne lit pas : une conclusion mal écrite, peut-être */
   for(const ligne of lignes){
     const L=eslLireLigne(A, ligne);
     if(L.type==='vide') continue;
     if(L.type==='concl'){ conclusion=L; continue; }
-    if(L.type==='commentaire'){ if(!L.neutre) commentaire=true; continue; }
+    if(L.type==='commentaire'){ if(!L.neutre){ commentaire=true; enMots.push(ligne); } continue; }
     if(L.type==='inconnu') return { sait:false };
     if(L.faux){
       if(L.sansBase) return { sait:true, correct:false, phrase:L.fausse+' : '+q.P2+' % de quoi ? La seconde évolution porte sur la valeur obtenue après la première — écris-la : « '+q.P2+' % de … est … ».' };
       if(L.type==='ecart') return { sait:true, correct:false, phrase:L.fausse+' : ce n’est pas l’écart entre 100 et la valeur finale. Reprends cette ligne.' };
       return { sait:true, correct:false, phrase:'Il y a une égalité fausse dans ton calcul : '+L.fausse+'. Reprends cette ligne.' };
     }
+    if(L.type==='nombre' && /[a-zA-Z\u00C0-\u017F]{3}/.test(ligne)) enMots.push(ligne);   /* « hauss 14 » : les mots devant le nombre sont retirés par la grammaire */
     if(L.type==='nombre' || L.type==='ecart') continue;
     if(L.type==='pct'){
       if(L.surV1 && salEgal(L.k,{n:q.P2,d:1})) aug2Ok=true;
@@ -14693,7 +14696,21 @@ function eslJuge(q, texte){
   const conclOk=!!conclusion && conclusion.sens===a.sens && !!conclusion.k && salEgal(conclusion.k,{n:a.pct,d:1});
   if(calcOk && conclOk) return { sait:true, correct:true, phrase:'Bravo ! Ta rédaction montre le calcul, et ta conclusion est juste.' };
   if(calcOk){
-    if(!conclusion) return { sait:true, correct:false, phrase:'Ton calcul est là, mais il manque la conclusion : une hausse ou une baisse, et de quel pourcentage — écris-la en mots (« hausse de … % » ou « baisse de … % »).' };
+    if(!conclusion){
+      /* UNE CONCLUSION QUE LA PAGE NE LIT PAS SE DEMANDE AU MODÈLE (Turquet,
+         octobre 2026 : « si l'IA comprend ce que veut dire l'élève, on
+         accepte »). Le calcul est prouvé ici, et le POURCENTAGE aussi : la
+         ligne ne porte qu'un nombre, et c'est le bon. Le modèle ne juge que
+         ce que les mots veulent dire — « hauss 17 », « baisses 17 % » —, le
+         sens surtout ; un verdict arithmétique ne lui est jamais confié. */
+      const nb=l=>String(l).replace(/\\%/g,'%').match(/\d+(?:[.,]\d+)?/g)||[];
+      const lettres=l=>/[a-zA-Z\u00C0-\u017F]{3}/.test(String(l).replace(/\\[a-zA-Z]+/g,''));
+      const cand=enMots.filter(l=>lettres(l) && nb(l).length===1 && salEgal(salRat(nb(l)[0])||{n:-1,d:1},{n:a.pct,d:1}));
+      if(cand.length) return { sait:false, conclIA:cand[cand.length-1] };
+      if(enMots.some(l=>lettres(l) && nb(l).length===1))
+        return { sait:true, correct:false, phrase:'Ton calcul est là, mais je ne lis pas une conclusion qui s’accorde avec lui : écris-la en mots, « hausse de … % » ou « baisse de … % », avec le pourcentage que donne ton calcul.' };
+      return { sait:true, correct:false, phrase:'Ton calcul est là, mais il manque la conclusion : une hausse ou une baisse, et de quel pourcentage — écris-la en mots (« hausse de … % » ou « baisse de … % »).' };
+    }
     return { sait:true, correct:false, phrase:'Ton calcul est juste, mais ta conclusion ne s’accorde pas avec lui : '+(coefProd&&!mult2&&!opV2
       ? 'compare le coefficient global à 1 (plus grand, c’est une hausse ; plus petit, une baisse) et lis le pourcentage sur l’écart à 1.'
       : 'compare la valeur finale à 100 (au-dessus, c’est une hausse ; au-dessous, une baisse) et lis le pourcentage sur l’écart à 100.') };
@@ -14731,6 +14748,9 @@ function eslAttenduIA(q, juge){
    +'\n2. LA CONCLUSION est écrite et juste : « '+mot(a.sens)+' de '+a.pct+' % » (« '+(a.sens>0?'augmentation':'diminution')+' de '+a.pct+' % », ou « '+sg(a.sens)+a.pct+' % » conviennent aussi). Le sens et le pourcentage doivent être justes tous les deux.'
    +'\n3. AUCUNE ÉGALITÉ FAUSSE. Chaque ligne est un calcul indépendant ; à l’intérieur d’une ligne, découpe aux « = » (« est » vaut « = ») : chaque morceau doit être mathématiquement vrai. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE.'
    +(juge&&juge.sait?'\n\nVERDICT DE LA PAGE, DÉJÀ CALCULÉ ET PRIORITAIRE : correct='+(juge.correct?'true':'false')+' — '+juge.phrase+' Rédige le feedback EN ACCORD avec ce verdict, sans le contester.':'')
+   +(juge&&!juge.sait&&juge.conclIA?'\n\nLA PAGE A DÉJÀ VÉRIFIÉ LE CALCUL : il est JUSTE, conditions 1 et 3 remplies, ne les rediscute pas. Elle a aussi vérifié que la ligne « '+juge.conclIA+' » porte le bon pourcentage ('+a.pct+'). UNE SEULE QUESTION TE RESTE : cette ligne veut-elle dire, sans ambiguïté, « '+mot(a.sens)+' de '+a.pct+' % » ?'
+     +' Lis-la avec indulgence, comme un professeur lit une copie : une faute d’orthographe (« hauss », « augementation », « bais e »), un pluriel, une ponctuation égarée, un symbole % oublié ne la rendent PAS fausse. « correct » vaut true si l’intention est claire et que le SENS est le bon ('+mot(a.sens)+', pas '+mot(-a.sens)+') ; false si le mot dit l’autre sens, ou si on ne peut pas savoir lequel (« bausse »).'
+     +' Si tu acceptes avec une faute ou un % oublié, félicite puis signale-le en une phrase douce (« on écrit « '+mot(a.sens)+' » », « n’oublie pas le symbole % »). Si tu refuses, dis seulement que la conclusion ne se lit pas clairement et demande « hausse de … % » ou « baisse de … % », sans donner le sens.':'')
    +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
    +' Si tout est juste : félicite, et nomme la méthode utilisée.'
    +' Si le calcul manque : rappelle les trois méthodes possibles, sans écrire le calcul à sa place.'
@@ -20117,7 +20137,7 @@ function evsMotDe(s){ return s==='+'?'augmentation':'diminution'; }
    « \text{'} » pour une apostrophe, et une commande ne doit pas laisser ses
    lettres. « Hausse » vaut « augmentation », « baisse » vaut « diminution ». */
 function evsMotNorm(t){ return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\\[a-z]+|[^a-z]/g,''); }
-function evsMotOk(t,bonS){ const m=salMotsEvolution(evsMotNorm(t)).t;   /* « augementation » se lit « augmentation » (salMotsEvolution) */ return bonS==='+' ? (m==='augmentation'||m==='hausse') : (m==='diminution'||m==='baisse'); }
+function evsMotOk(t,bonS){ const m=salMotsEvolution(evsMotNorm(t)).t.replace(/(hausse|baisse|augmentation|diminution)s$/,'$1');   /* « baisses » : le pluriel ne change pas le sens */   /* « augementation » se lit « augmentation » (salMotsEvolution) */ return bonS==='+' ? (m==='augmentation'||m==='hausse') : (m==='diminution'||m==='baisse'); }
 function evsSigneMAJ(){
   const g=$('evsG'), pm=$('evsPM'); if(!g||!pm) return;
   const s=evsSigneDe(String(g.value||'').trim());
