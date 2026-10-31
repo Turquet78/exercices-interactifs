@@ -4417,7 +4417,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=467;
+const APP_VERSION=468;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -28946,8 +28946,9 @@ function aptConseilCtx(){
         −1 < q < 1), puis son interprétation, choisie sur des cartes ;
      6. le seuil : les deux valeurs de la calculatrice qui l'encadrent, le
         rang, et son interprétation.
-   Cinq mises en situation (APS_CTX), aucune reprise du sujet ; un exercice
-   commence au rang 0, les autres au rang 1 comme le sujet. Le tirage part
+   Douze mises en situation (APS_CTX), aucune reprise du sujet — dont, depuis
+   octobre 2026, l'écologie, le sport et les jeux vidéo ; deux commencent au
+   rang 0, les autres au rang 1 comme le sujet. Le tirage part
    de l'ARRIVÉE (la leçon du 5.1.4) : q et ℓ sont choisis pour que
    r = ℓ(1 − q) ait deux décimales, a au premier rang à au moins 0,1 de ℓ, et
    le seuil (ℓ ∓ 0,01 … 0,001) à au moins 2·10⁻⁴ des deux valeurs qui
@@ -28995,7 +28996,66 @@ const APS_CTX=[
    dE:'Si Emma emprunte un roman une semaine, la probabilité qu’elle emprunte encore un roman la semaine suivante est égale à {v} ;',
    dFr:'si Emma emprunte une bande dessinée une semaine, la probabilité qu’elle emprunte encore une bande dessinée la semaine suivante est égale à {v}.',
    dFc:'si Emma emprunte une bande dessinée une semaine, la probabilité qu’elle emprunte un roman la semaine suivante est égale à {v}.',
-   dep:'La semaine 0, la probabilité qu’Emma emprunte un roman est égale à {v}.'}
+   dep:'La semaine 0, la probabilité qu’Emma emprunte un roman est égale à {v}.'},
+  /* Sept situations de plus (Turquet, octobre 2026 : « varie un peu plus les
+     énoncés, en lien avec l'écologie, le sport ou les jeux vidéo ») : trois
+     pour l'écologie, deux pour le sport, deux pour les jeux vidéo. */
+  {L:['P','A'], u:'jour', fem:false, n0:1, deux:'les deux premiers jours', un:'un jour donné', suiv:'le lendemain',
+   intro:'Au printemps, un naturaliste observe chaque jour un nid de cigognes installé sur un clocher : chaque jour, la cigogne est soit présente au nid, soit absente.',
+   E:{i:'la cigogne est présente au nid', s:'la cigogne soit présente au nid', pc:'la cigogne a été présente au nid', ps:'la cigogne ait été présente au nid'},
+   F:{i:'la cigogne est absente du nid', s:'la cigogne soit absente du nid', pc:'la cigogne a été absente du nid', ps:'la cigogne ait été absente du nid'},
+   dE:'Si la cigogne est présente au nid un jour, la probabilité qu’elle y soit encore le lendemain est égale à {v} ;',
+   dFr:'si la cigogne est absente du nid un jour, la probabilité qu’elle soit encore absente le lendemain est égale à {v}.',
+   dFc:'si la cigogne est absente du nid un jour, la probabilité qu’elle soit présente au nid le lendemain est égale à {v}.',
+   dep:'Le premier jour de l’observation, la probabilité que la cigogne soit présente au nid est égale à {v}.'},
+  {L:['M','S'], u:'semaine', fem:true, n0:1, deux:'les deux premières semaines', un:'une semaine donnée', suiv:'la semaine suivante',
+   intro:'Pour réduire son empreinte carbone, Inès fait chaque semaine ses courses soit au marché des producteurs locaux, soit au supermarché.',
+   E:{i:'Inès fait ses courses au marché', s:'Inès fasse ses courses au marché', pc:'Inès a fait ses courses au marché', ps:'Inès ait fait ses courses au marché'},
+   F:{i:'Inès fait ses courses au supermarché', s:'Inès fasse ses courses au supermarché', pc:'Inès a fait ses courses au supermarché', ps:'Inès ait fait ses courses au supermarché'},
+   dE:'Si Inès fait ses courses au marché une semaine, la probabilité qu’elle y retourne la semaine suivante est égale à {v} ;',
+   dFr:'si Inès fait ses courses au supermarché une semaine, la probabilité qu’elle y retourne la semaine suivante est égale à {v}.',
+   dFc:'si Inès fait ses courses au supermarché une semaine, la probabilité qu’elle les fasse au marché la semaine suivante est égale à {v}.',
+   dep:'La première semaine, la probabilité qu’Inès fasse ses courses au marché est égale à {v}.'},
+  {L:['C','V'], u:'jour', fem:false, n0:1, deux:'les deux premiers jours', un:'un jour donné', suiv:'le jour suivant',
+   intro:'Chaque jour de travail, Karim se rend à son entreprise soit en covoiturage, soit seul dans sa voiture.',
+   E:{i:'Karim fait le trajet en covoiturage', s:'Karim fasse le trajet en covoiturage', pc:'Karim a fait le trajet en covoiturage', ps:'Karim ait fait le trajet en covoiturage'},
+   F:{i:'Karim fait le trajet seul', s:'Karim fasse le trajet seul', pc:'Karim a fait le trajet seul', ps:'Karim ait fait le trajet seul'},
+   dE:'Si Karim fait le trajet en covoiturage un jour, la probabilité qu’il le fasse encore en covoiturage le jour suivant est égale à {v} ;',
+   dFr:'si Karim fait le trajet seul un jour, la probabilité qu’il le fasse encore seul le jour suivant est égale à {v}.',
+   dFc:'si Karim fait le trajet seul un jour, la probabilité qu’il le fasse en covoiturage le jour suivant est égale à {v}.',
+   dep:'Le premier jour, la probabilité que Karim fasse le trajet en covoiturage est égale à {v}.'},
+  {L:['G','P'], u:'match', fem:false, n0:1, deux:'les deux premiers matchs', un:'un match donné', suiv:'le match suivant',
+   intro:'L’équipe de handball du lycée joue un match chaque semaine du championnat ; il n’y a jamais de match nul : elle gagne ou elle perd.',
+   E:{i:'l’équipe gagne', s:'l’équipe gagne', pc:'l’équipe a gagné', ps:'l’équipe ait gagné'},
+   F:{i:'l’équipe perd', s:'l’équipe perde', pc:'l’équipe a perdu', ps:'l’équipe ait perdu'},
+   dE:'Si l’équipe gagne un match, la probabilité qu’elle gagne le match suivant est égale à {v} ;',
+   dFr:'si l’équipe perd un match, la probabilité qu’elle perde encore le match suivant est égale à {v}.',
+   dFc:'si l’équipe perd un match, la probabilité qu’elle gagne le match suivant est égale à {v}.',
+   dep:'La probabilité que l’équipe gagne le premier match est égale à {v}.'},
+  {L:['L','C'], u:'jour', fem:false, n0:1, deux:'les deux premiers jours', un:'un jour donné', suiv:'le lendemain',
+   intro:'Pour préparer un semi-marathon, Malik court chaque jour : il fait soit une sortie longue, soit une sortie courte.',
+   E:{i:'Malik fait une sortie longue', s:'Malik fasse une sortie longue', pc:'Malik a fait une sortie longue', ps:'Malik ait fait une sortie longue'},
+   F:{i:'Malik fait une sortie courte', s:'Malik fasse une sortie courte', pc:'Malik a fait une sortie courte', ps:'Malik ait fait une sortie courte'},
+   dE:'Si Malik fait une sortie longue un jour, la probabilité qu’il fasse encore une sortie longue le lendemain est égale à {v} ;',
+   dFr:'si Malik fait une sortie courte un jour, la probabilité qu’il fasse encore une sortie courte le lendemain est égale à {v}.',
+   dFc:'si Malik fait une sortie courte un jour, la probabilité qu’il fasse une sortie longue le lendemain est égale à {v}.',
+   dep:'Le premier jour, la probabilité que Malik fasse une sortie longue est égale à {v}.'},
+  {L:['P','H'], u:'course', fem:true, n0:1, deux:'les deux premières courses', un:'une course donnée', suiv:'la course suivante',
+   intro:'Chaque soir, Nolan dispute une course en ligne dans un jeu vidéo de karting ; à chaque course, il termine soit sur le podium, soit hors du podium.',
+   E:{i:'Nolan termine sur le podium', s:'Nolan termine sur le podium', pc:'Nolan a terminé sur le podium', ps:'Nolan ait terminé sur le podium'},
+   F:{i:'Nolan termine hors du podium', s:'Nolan termine hors du podium', pc:'Nolan a terminé hors du podium', ps:'Nolan ait terminé hors du podium'},
+   dE:'Si Nolan termine une course sur le podium, la probabilité qu’il termine encore sur le podium la course suivante est égale à {v} ;',
+   dFr:'si Nolan termine une course hors du podium, la probabilité qu’il termine encore hors du podium la course suivante est égale à {v}.',
+   dFc:'si Nolan termine une course hors du podium, la probabilité qu’il termine sur le podium la course suivante est égale à {v}.',
+   dep:'La probabilité que Nolan termine sur le podium la première course est égale à {v}.'},
+  {L:['C','S'], u:'saison', fem:true, n0:0, deux:'les saisons 0 et 1', un:'une saison donnée', suiv:'la saison suivante',
+   intro:'Dans un jeu vidéo de stratégie en ligne, Sarah joue chaque saison soit en mode coopératif, soit en mode solo. Les saisons sont numérotées à partir de 0, celle de son inscription.',
+   E:{i:'Sarah joue en mode coopératif', s:'Sarah joue en mode coopératif', pc:'Sarah a joué en mode coopératif', ps:'Sarah ait joué en mode coopératif'},
+   F:{i:'Sarah joue en mode solo', s:'Sarah joue en mode solo', pc:'Sarah a joué en mode solo', ps:'Sarah ait joué en mode solo'},
+   dE:'Si Sarah joue en mode coopératif une saison, la probabilité qu’elle joue encore en mode coopératif la saison suivante est égale à {v} ;',
+   dFr:'si Sarah joue en mode solo une saison, la probabilité qu’elle joue encore en mode solo la saison suivante est égale à {v}.',
+   dFc:'si Sarah joue en mode solo une saison, la probabilité qu’elle joue en mode coopératif la saison suivante est égale à {v}.',
+   dep:'La saison 0, la probabilité que Sarah joue en mode coopératif est égale à {v}.'}
 ];
 const APS_Q=[0.2,0.3,0.4,0.5,0.6,0.7];
 const APS_L=[0.2,0.25,0.3,0.4,0.5,0.6,0.7,0.75,0.8];
@@ -29032,11 +29092,28 @@ function apsGen(c){
   return {c:c, n0:C.n0, q:0.5, l:0.6, r:0.3, p:0.8, a0:0.4, cc:-0.2, s:0.599, N:C.n0+8, dF:'reste', t:'F', g:'E', ch:{},
     perm:{s2a:[0,1,2,3], s2b:[0,1,2,3], lim:[0,1,2,3], seu:[0,1,2]}};
 }
-/* Une séance : dmNbQuestions(1) exercices, sur des situations différentes ;
-   la méthode de la question 4 alterne (récurrence, suite auxiliaire). */
+/* Une séance : dmNbQuestions(2) exercices, sur des situations différentes ;
+   la méthode de la question 4 alterne d'un exercice à l'autre.
+   DEUX EXERCICES PAR SÉANCE, UN PAR MÉTHODE (Turquet, octobre 2026 : « j'ai
+   testé l'exercice 6 fois et il a mis la suite auxiliaire à chaque fois »,
+   puis « faire en sorte qu'il y ait deux exercices à faire avec les deux
+   méthodes »). La séance ne comptait qu'un exercice, et sa méthode se tirait
+   à pile ou face : rien ne garantissait que la récurrence sorte. Elle en
+   compte deux, l'un par récurrence, l'autre par la suite auxiliaire ; et la
+   méthode du PREMIER alterne d'une séance à l'autre, retenue par le
+   navigateur (APS_METH_CLE) — la récurrence d'abord. Sans stockage
+   (navigation privée), le premier se tire à pile ou face. */
+const APS_METH_CLE='aps-methode-suivante';
+function apsMeth0(){
+  try{
+    const k=localStorage.getItem(APS_METH_CLE)==='1' ? 1 : 0;
+    localStorage.setItem(APS_METH_CLE, String(1-k));
+    return k;
+  }catch(e){ return rand(0,1); }
+}
 function apsGenSession(){
-  const ordre=apcMelange(APS_CTX.map(function(u,i){ return i; })), m0=rand(0,1);
-  return distinctes(Math.min(dmNbQuestions(1), APS_CTX.length), function(u,i){
+  const ordre=apcMelange(APS_CTX.map(function(u,i){ return i; })), m0=apsMeth0();
+  return distinctes(Math.min(dmNbQuestions(2), APS_CTX.length), function(u,i){
     const Q=apsGen(ordre[i%ordre.length]); Q.meth=(i+m0)%2===0 ? 'rec' : 'aux'; return Q; });
 }
 /* ---- les nombres de l'arbre : les deux premiers rangs ---- */

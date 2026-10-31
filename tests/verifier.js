@@ -2057,6 +2057,39 @@ function branchements(w){
      banc navigateur (section 9) font tourner `startAtd` sans le nommer et
      couvrent le reste : pas d'erreur au tirage, pas de doublon sur 40
      séances, les règles universelles de l'écran. */
+  /* ---- {proba-suite} (6.2.1, Terminale) : DEUX exercices par séance, l'un
+     par récurrence, l'autre par la suite auxiliaire (Turquet, octobre 2026 :
+     six essais, six suites auxiliaires — la séance ne comptait qu'un
+     exercice, sa méthode tirée à pile ou face). Vingt séances : chacune a ses
+     deux exercices, sur deux situations différentes, et les deux méthodes.
+     Puis, là où le navigateur garde une mémoire, le PREMIER exercice alterne
+     d'une séance à l'autre, la récurrence d'abord ; jsdom n'en a pas (origine
+     opaque) : ce bord-là se déclare, et le banc navigateur l'a éprouvé. */
+  if(typeof w.apsGenSession === 'function'){
+    verifierEval(w, 'au {proba-suite}, chaque séance pose deux exercices, l\'un par récurrence, l\'autre par la suite auxiliaire', `(function(){
+      currentDM=null;
+      for(let k=0;k<20;k++){
+        const qs=apsGenSession(), m=qs.map(function(q){ return q.meth; }).sort().join(',');
+        if(qs.length!==2) return qs.length+' exercice(s) dans la séance';
+        if(m!=='aux,rec') return 'méthodes de la séance : '+m;
+        if(qs[0].c===qs[1].c) return 'deux fois la même situation : '+qs[0].c;
+      }
+      return '';
+    })()`, v => v === '', undefined);
+    const stockage = evaluer(w, `(function(){ try{ localStorage.setItem('x','1'); localStorage.removeItem('x'); return true; }catch(e){ return false; } })()`);
+    if(stockage.ok && stockage.valeur)
+      verifierEval(w, 'au {proba-suite}, la méthode du premier exercice alterne d\'une séance à l\'autre, la récurrence d\'abord', `(function(){
+        currentDM=null; localStorage.removeItem(APS_METH_CLE);
+        const vues=[]; for(let k=0;k<4;k++) vues.push(apsGenSession()[0].meth);
+        return vues.join(',')==='rec,aux,rec,aux' ? '' : 'séances successives : '+vues.join(', ');
+      })()`, v => v === '', undefined);
+    else
+      ignorer('au {proba-suite}, la méthode du premier exercice alterne d\'une séance à l\'autre, la récurrence d\'abord',
+        'jsdom n\'a pas de localStorage ici (origine opaque)');
+  } else {
+    ignorer('au {proba-suite}, chaque séance pose deux exercices, l\'un par récurrence, l\'autre par la suite auxiliaire',
+      'ce niveau n\'a pas l\'exercice {proba-suite}');
+  }
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
