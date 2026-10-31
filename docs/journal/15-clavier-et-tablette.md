@@ -1775,3 +1775,29 @@ Contrôles (11 duodecies) : « la touche « indice » du clavier à l'écran éc
 un indice dans la case en texte » — la VRAIE touche, trouvée par sa commande
 et cliquée, sur les trois niveaux — et « au 6.2.1, le bouton aₙ sous l'arbre
 écrit aₙ dans la case ». La croix se mesure désormais sur un clavier rouvert.
+
+**Puis le bouton aₙ a suivi la 3 b.** Capture de Turquet (octobre 2026) : le
+bouton écrivait dans la dernière case de l'ARBRE même quand l'élève venait
+de cliquer le champ MathLive de la 3 b — « aₙaₙaₙ » dans P(Gₙ₊₁) —, et
+« il faudrait que le bouton a_n fonctionne aussi pour la question suivante,
+la 3.b ». `apsDerniere` suit désormais aussi tout champ MathLive de l'écran
+du 6.2.1 ; un champ MathLive reçoit `a_{n}` par `executeCommand('insert')`,
+`selectionMode:'after'` : le curseur sort de l'indice, « × (1 − » se tape à la
+suite (relu par le juge : `a_(n)*(1-a_(n))`). Contrôle : « au 6.2.1, le bouton
+aₙ écrit aussi dans le champ de la 3 b, le curseur après l'indice, sans
+toucher à l'arbre » (11 duodecies).
+
+**Puis l'indice « n » s'est refermé tout seul — au 6.2.1 seulement.** Même
+capture : « aₙₓ » dans la 3 b — dans un champ MathLive, « a_n » laisse le
+curseur DANS l'indice, et la lettre suivante y tombe. Décision de Turquet
+(octobre 2026) : « sortir de l'indice tout seul après a_n », « uniquement
+pour cet exercice ». Un écouteur `input` en capture, filtré sur `#scr-aps` :
+la frappe « n » qui laisse un indice de profondeur 1 ne contenant que « n »
+(`getValue(P−2, P) === 'n'`) déclenche `moveAfterParent`. Mesuré avant
+d'écrire la règle : « a_(n » est à la profondeur 2, « a_2n » rend « 2n » —
+ni l'un ni l'autre ne se referme ; « aₙ₊₁ » s'écrit donc a_(n+1). Aucune case
+du 6.2.1 n'attend aₙ₊₁ tapé avec l'indice : les cases d'indice (`apsIdx`) et
+d'exposant se remplissent au sommet, sans « _ ». Les autres exercices gardent
+MathLive tel quel (vérifié : « a_n+1 » y reste a_{n+1}). Contrôle (11
+duodecies) : « au 6.2.1, « a_n » tapé dans un champ mathématique sort tout
+seul de l'indice (et « a_(n+1) » garde le sien) ».

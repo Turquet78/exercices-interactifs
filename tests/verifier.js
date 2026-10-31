@@ -4944,6 +4944,7 @@ function exercices(suite){
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     numerateurSeulPourcentage(w, P);
+    tauxSurCentJumelleVide(w, P);
     ordreEvolutionsLibre(w);
     coefficientGlobalCourt(w, P);
     coefficientGlobalCourtBaisses(w, P);
@@ -6419,6 +6420,22 @@ function recurrenceRedigee(w, apres){
       vus.push('la copie de production sans l\\'intervalle devrait échouer sur croiss seul : ['+manquants(PROD).join(', ')+']');
     if(rrJuge(c0,PLEINE).verdict!=='accepte')
       vus.push('la copie complète n\\'est pas acceptée par la page (verdict '+rrJuge(c0,PLEINE).verdict+')');
+    /* UNE FAUTE D'ORTHOGRAPHE SUR UN MOT DE STRUCTURE NE REFUSE PAS (la règle
+       de la Première, étendue, octobre 2026) : « Initalisation », « Hérédiité »,
+       « on supose », « croisante » se lisent — la copie reste acceptée, et la
+       remarque nomme les mots ; un mot trop déformé (« Initsation ») n'est ni
+       ✓ ni ✗ : la page s'abstient et le modèle reçoit le mot à relire ; un mot
+       ABSENT reste un refus. */
+    const FAUTES=PLEINE.replace('Initialisation','Initalisation').replace('Hérédité','Hérédiité').replace('on suppose','on supose').replace('croissante','croisante');
+    const jFa=rrJuge(c0,FAUTES);
+    if(jFa.verdict!=='accepte') vus.push('la copie complète aux mots mal orthographiés n\\'est pas acceptée (verdict '+jFa.verdict+', manque : '+manquants(FAUTES).join(', ')+')');
+    if(motsOrthNote(jFa.orth).indexOf('« initialisation »')<0 || motsOrthNote(jFa.orth).indexOf('« croissante »')<0) vus.push('la remarque d\\'orthographe ne nomme pas les mots rétablis : « '+motsOrthNote(jFa.orth)+' »');
+    if(motsOrthNote(rrJuge(c0,PLEINE).orth)!=='') vus.push('une copie bien écrite reçoit une remarque d\\'orthographe');
+    const jDo=rrJuge(c0,PLEINE.replace('Initialisation','Initsation'));
+    const cDo=jDo.crit.filter(function(x){ return x.cle==='init'; })[0];
+    if(jDo.verdict!=='abstention' || !cDo || cDo.doute!=='initsation') vus.push('« Initsation » : la page devrait s\\'abstenir et confier le mot au modèle (verdict '+jDo.verdict+', doute « '+(cDo&&cDo.doute)+' »)');
+    else if(rrAttenduIA(c0,jDo).indexOf('MOTS À RELIRE')<0 || rrBilanHTML(jDo).indexOf('?\u00a0')<0) vus.push('« Initsation » : le mot à relire ne part pas au modèle, ou le bilan ne le marque pas « ? »');
+    if(rrJuge(c0,PLEINE.replace('Initialisation : ','')).verdict!=='refus') vus.push('le mot « initialisation » ABSENT ne fait plus refuser');
     if(rrJuge(c0,SANSIMG).verdict!=='abstention')
       vus.push('sans les images f(m) et f(M), la page devrait s\\'abstenir (verdict '+rrJuge(c0,SANSIMG).verdict+')');
     const jF=rrJuge(c0,FAUSSE);
@@ -6870,6 +6887,11 @@ function suiteAuxRedigee(w, apres){
     const rate=function(jx){ return jx.crit.filter(x=>!x.ok).map(x=>x.cle).join(','); };
     let j=sarJuge(C0,PLEINE);
     if(j.verdict!=='accepte') vus.push('la copie de la fiche ne passe pas au juge ('+j.verdict+', rate : '+rate(j)+') : c\\'est le juge qui a tort');
+    /* « géomtrique » se lit (octobre 2026) ; « arithmétique » reste faux ; « géométrie » écrit à moitié… */
+    { const jG=sarJuge(C0,{...PLEINE, c:PC.replace('geometrique','géomtrique')});
+      if(jG.verdict!=='accepte') vus.push('« géomtrique » ne se lit pas comme « géométrique » ('+jG.verdict+', rate : '+rate(jG)+')');
+      if(motsOrthNote(jG.orth).indexOf('géométrique')<0) vus.push('« géomtrique » : la remarque d\\'orthographe ne nomme pas « géométrique »');
+      if(sarJuge(C0,{...PLEINE, c:PC.replace('geometrique','arithmetique')}).verdict!=='refus') vus.push('« arithmétique » au lieu de « géométrique » n\\'est plus refusé'); }
     if(j.fausses.length) vus.push('la copie de la fiche porte une « comparaison fausse » : '+j.fausses[0]);
     const cas=[
       ['a-def', {...PLEINE, a:'= 0,95 U_(n) + 200 − 4000\\n= 0,95 U_(n) − 3800\\n= 0,95 V_(n)'}],
@@ -48087,6 +48109,82 @@ function ordreEvolutionsLibre(w){
    rouge sous « vide vaut 1 », bleu sous l'ancre. Sabotage sur les deux
    niveaux : hsc1pn passé à marqueFracPaire (Seconde) ou à marqueFracAncre
    avec ok1p (Première), le contrôle rougit. */
+/* ---- UNE CASE JUSTE D'UN P/100 NE ROUGIT PAS PARCE QUE SA JUMELLE EST VIDE ----
+   Capture de Turquet (octobre 2026, le 2.2.13 de la Première) : « 190 » écrit
+   en haut de 190/100, dénominateur oublié, était ROUGE, et l'entraînement
+   posait « 190/100 » en vert à côté — une réponse juste comptée fausse sous
+   les yeux de l'élève. Le 2.2.13 était déjà réparé (marqueFracAncre, audit
+   M13) ; le balayage de TOUS les exercices des trois niveaux, dans un vrai
+   Chromium (numérateur juste et dénominateur vide, puis l'inverse, puis un
+   dénominateur faux), a trouvé le même défaut à trois autres portes de la
+   Première, que la Seconde avait déjà fermées : le 2.1.3 {pourcentage} (et le
+   2.5.8 qui reprend son juge), dont l'ancre ne jouait que si l'AUTRE case
+   était écrite — le dénominateur « 100 » rougissait même devant un numérateur
+   vide —, puis le 2.4.1 {lire-coefficient} et le 2.5.3
+   {reconnaitre-coefficient}, dont le P/100 passait encore par « vide vaut 1 »,
+   la convention des facteurs entiers. Les fractions de COEFFICIENT et de
+   PRODUIT des évolutions successives et des multiplications de décimaux
+   gardent cette convention (décision d'octobre 2026, contrôle ci-dessous).
+   Chaque exercice : la case canonique seule, l'autre vide, à la vérification
+   — en soutien elle est bleue et la vide sans couleur ; en entraînement elle
+   est bleue, la vide reçoit la correction, et aucun « n/d » vert ne se pose
+   à côté. */
+function tauxSurCentJumelleVide(w, P){
+  const present = evaluer(w, "typeof checkPAnswer==='function' && typeof genPercent==='function' && typeof checkLCAnswer==='function' && typeof genLireCoef==='function' && typeof checkCKAnswer==='function' && typeof genCK==='function' && typeof marqueFracAncre==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('une case juste d\'un P/100 ne rougit pas parce que sa jumelle est vide',
+      'ce niveau n\'a pas le 2.1.3, le 2.4.1 et le 2.5.3 de la Première (la Seconde les tient par marqueFracPaire)');
+    return;
+  }
+  verifierEval(w, 'une case juste d\'un P/100 ne rougit pas parce que sa jumelle est vide', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentDM=null;
+    const teinte=function(id){ const el=document.getElementById(id); if(!el) return 'absente';
+      return el.classList.contains('ok')?'ok':el.classList.contains('bad')?'bad':el.classList.contains('sol')?'sol':'rien'; };
+    const corACote=function(id){ const el=document.getElementById(id), wrap=el&&el.closest('.f-frac-input'), s=wrap&&wrap.nextElementSibling;
+      return !!(s&&s.classList&&s.classList.contains('mf-cor')); };
+    const exos=[
+      {nom:'2.1.3 pourcentage', kind:'pct', gen:genPercent, ecran:'ptest', rendu:renderPTest, check:checkPAnswer,
+       paires:function(q){ return [['p1n','p1d',q.P,100],['p2n','p2d',q.prod,100]]; }},
+      {nom:'2.4.1 lire-coefficient', kind:'lc', qId:'lire-coefficient', gen:function(){ const q=genLireCoef([]); q.choisi=q.sens; return q; },
+       ecran:'lctest', rendu:renderLCTest, check:checkLCAnswer, paires:function(q){ return [['lc1n','lc1d',q.P,100]]; }},
+      {nom:'2.5.3 reconnaitre-coefficient', kind:'ck', qId:'reconnaitre-coefficient', gen:function(){ const q=genCK('aug'); q.choisi=ckBon(q); return q; },
+       ecran:'cktest', rendu:renderCKTest, check:checkCKAnswer, paires:function(q){ return [['ck1n','ck1d',q.P,100]]; }}
+    ];
+    let mesures=0;
+    exos.forEach(function(E){
+      ['soutien','train'].forEach(function(mode){
+        ['haut','bas'].forEach(function(seul){
+          currentMode=mode;
+          const q=E.gen();
+          Object.keys(test).forEach(function(k){ delete test[k]; });
+          Object.assign(test,{kind:E.kind, qId:E.qId, questions:[q], idx:0, score:0, answers:[], startTime:Date.now(), locked:false, maxScore:1});
+          show(E.ecran); E.rendu();
+          const P2=E.paires(q);
+          P2.forEach(function(p){
+            const n=document.getElementById(p[0]), d=document.getElementById(p[1]);
+            if(!n||!d){ vus.push(E.nom+' : la case '+(!n?p[0]:p[1])+' est absente'); return; }
+            n.value=(seul==='haut')?String(p[2]):''; d.value=(seul==='bas')?String(p[3]):'';
+          });
+          E.check();
+          P2.forEach(function(p){
+            const juste=(seul==='haut')?p[0]:p[1], vide=(seul==='haut')?p[1]:p[0];
+            const ecrit=(seul==='haut')?p[2]:p[3];
+            mesures++;
+            if(teinte(juste)!=='ok') vus.push(E.nom+' ('+mode+') : « '+ecrit+' » seul en '+seul+' de '+p[2]+'/'+p[3]+' est « '+teinte(juste)+' » au lieu de ok');
+            const tv=teinte(vide);
+            if(mode==='soutien' && tv!=='rien') vus.push(E.nom+' (soutien) : la case vide '+vide+' est « '+tv+' »');
+            if(mode==='train' && tv!=='sol') vus.push(E.nom+' (entraînement) : la case vide '+vide+' est « '+tv+' » au lieu de recevoir la correction');
+            if(mode==='train' && corACote(p[0])) vus.push(E.nom+' (entraînement) : un « '+p[2]+'/'+p[3]+' » vert est posé à côté d\\'une fraction dont la case écrite est juste');
+          });
+        });
+      });
+    });
+    currentMode='train';
+    if(!mesures) vus.push('aucune paire mesurée : le contrôle n\\'a rien vu');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 function numerateurSeulPourcentage(w, P){
   const present = evaluer(w, "typeof checkHSAnswer==='function' && typeof checkHSCAnswer==='function' && typeof checkBSAnswer==='function' && typeof genHausses==='function'");
   if(!present.ok || !present.valeur){

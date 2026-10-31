@@ -4418,7 +4418,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=469;
+const APP_VERSION=472;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -11891,7 +11891,7 @@ function jHasVal(n, label){
 }
 /* Analyse la justification \u00e9crite et renvoie le détail des éléments présents. */
 function evalJustif(c, raw){
-  const n=jNorm(raw);
+  const n=motsRacines(jNorm(raw), ['continu','strict','croissan','decroissan','monoton','unique','intermediair']).t;   /* « continnue », « intermédiares » se lisent */
   const hasStrict=/strict/.test(n);
   const hasCroiss=/\bcroissant/.test(n);          // ne matche pas "decroissant" (fronti\u00e8re de mot)
   const hasDecroiss=/\bdecroissant/.test(n);
@@ -17613,6 +17613,71 @@ function rrTexte(){ return rrClair(rrFeuille?rrFeuille.lire():''); }
 function rrNorm(s){
   return rrClair(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 }
+/* LES MOTS DE STRUCTURE SE LISENT MALGRÉ UNE FAUTE D'ORTHOGRAPHE — la règle
+   posée en Première (v355-356, « augementation de 17 % » au 2.5.8), étendue
+   ici sur la demande de Turquet (octobre 2026 : « fais pareil pour la
+   terminale »). Un MOT du texte normalisé (sans accents, en minuscules) dont
+   le DÉBUT est à une lettre d'une racine (deux pour les racines de 9 lettres
+   et plus ; une inversion de deux lettres compte pour une) est réécrit avec
+   la racine : « initalisation », « éréditée », « croisante », « géomtrique »
+   se lisent comme les mots justes. Deux racines à égale distance (croissan /
+   decroissan, geometri / arithmeti) : rien n'est réécrit — le sens n'est pas
+   écrit. Un mot plus loin, mais encore proche (une lettre de plus, deux pour les
+   longues racines), n'est
+   pas réécrit : il est rangé dans `doutes`, et c'est le MODÈLE qui dira si
+   l'élève a voulu l'écrire. Rend { t, orth, doutes } — orth : les racines
+   rétablies (la remarque d'orthographe d'une copie juste). */
+function motsOsa(a,b){
+  const d=[]; for(let i=0;i<=a.length;i++){ d[i]=[i]; } for(let j=0;j<=b.length;j++) d[0][j]=j;
+  for(let i=1;i<=a.length;i++) for(let j=1;j<=b.length;j++){
+    d[i][j]=Math.min(d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+    if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1]) d[i][j]=Math.min(d[i][j], d[i-2][j-2]+1);
+  }
+  return d[a.length][b.length];
+}
+function motsRacines(t, racines){
+  const orth=[], doutes={};
+  const tol=r=>r.length>=9?2:1;
+  const out=String(t==null?'':t).replace(/[a-z]+/g, function(w){
+    if(w.length<4 || racines.some(r=>w.indexOf(r)>=0)) return w;        /* déjà juste : jamais retouché */
+    let best=null, ex=false;
+    racines.forEach(function(r){
+      let dr=null;
+      for(let L=Math.max(3,r.length-tol(r)-2); L<=r.length+tol(r)+2 && L<=w.length; L++){
+        const d=motsOsa(w.slice(0,L), r);
+        if(!dr || d<dr.d) dr={ r:r, d:d, L:L };
+      }
+      if(!dr) return;
+      if(!best || dr.d<best.d){ best=dr; ex=false; }
+      else if(dr.d===best.d) ex=true;
+    });
+    if(!best || ex) return w;
+    if(best.d<=tol(best.r)){ if(orth.indexOf(best.r)<0) orth.push(best.r); return best.r+w.slice(best.L); }
+    if(best.d<=tol(best.r)+(best.r.length>=9?2:1) && best.L>=5 && !doutes[best.r]) doutes[best.r]=w;
+    return w;
+  });
+  return { t:out, orth:orth, doutes:doutes };
+}
+const MOTS_ECRITS={ initialis:'initialisation', heredit:'hérédité', suppos:'on suppose', croissan:'croissante', decroissan:'décroissante',
+  geometri:'géométrique', arithmeti:'arithmétique', continu:'continue', strict:'strictement', monoton:'monotone', unique:'unique', intermediair:'intermédiaires' };
+function motsOrthNote(orth){
+  const m=(orth||[]).filter(r=>MOTS_ECRITS[r]).map(r=>'« '+MOTS_ECRITS[r]+' »');
+  return m.length ? ' (Attention à l’orthographe : on écrit '+m.join(' et ')+'.)' : '';
+}
+/* Un critère de MOT que la page n'a pas lu, mais dont un mot proche est écrit :
+   ni ✓ ni ✗ — « ? », sans couleur de verdict : le modèle relit ce mot. */
+function motsLigneCrit(x, sep){
+  sep=(sep==null)?'\u00a0':sep;   /* chaque bilan garde son espace après la marque (le 6.8 : une espace simple) */
+  if(!x.ok && x.doute) return '<li><span>?'+sep+x.l+' — tu as écrit « '+esc(x.doute)+' » : l’IA relit ce mot</span></li>';
+  return '<li><span class="'+(x.ok?'fb-ok':'fb-ko')+'">'+(x.ok?'✓':'✗')+sep+x.l+'</span></li>';
+}
+/* La consigne du modèle sur ces mots : ce qu'il doit relire, et rien d'autre. */
+function motsDoutesIA(j){
+  const d=(j.crit||[]).filter(x=>!x.ok && x.doute);
+  if(!d.length) return '';
+  return 'MOTS À RELIRE — la page n’a pas reconnu '+d.map(x=>'« '+MOTS_ECRITS[x.racine]+' » (l’élève a écrit « '+x.doute+' »)').join(', ')
+   +'. L’ORTHOGRAPHE N’EST PAS JUGÉE : si l’élève a clairement voulu écrire ce mot, compte la partie comme présente, et signale la faute en une phrase douce ; si le mot écrit veut dire autre chose, la partie manque. ';
+}
 /* Texte réduit aux lettres et aux chiffres, AVEC la table des positions
    d'origine : les marqueurs se cherchent sur le texte réduit (« on suppose »,
    « on  suppose » et « on,suppose » se valent), et on retrouve où ils tombent
@@ -17788,7 +17853,8 @@ function rrNonLues(t){
    part au modèle. Chaque critère porte son libellé (ce que l'élève lit) et une
    version COURTE (ce que le modèle reçoit, pour ne pas répéter la liste). */
 function rrJuge(c, txt){
-  const t=rrNorm(txt), ix=rrReduit(t);
+  const mr=motsRacines(rrNorm(txt), ['initialis','heredit','suppos','croissan','decroissan']);
+  const t=mr.t, ix=rrReduit(t);
   const ou=re=>{ const k=ix.red.search(re); return k<0?-1:ix.pos[k]; };
   const pInit=ou(RR_MOTS.init), pHer=ou(RR_MOTS.hered), pSup=ou(RR_MOTS.suppos), pMon=ou(RR_MOTS.montre);
   /* La partie « initialisation » va du mot (ou du début) jusqu'au premier
@@ -17905,9 +17971,13 @@ function rrJuge(c, txt){
   const fausses=rrFausses(t);
   const images=rrEncadre(c,t);
   const nonLues=rrNonLues(t);
+  /* un mot de structure non lu mais PROCHE (mr.doutes) : le modèle le relit */
+  const motDe={ init:'initialis', hered:'heredit', suppos:'suppos', croiss:'croissan' };
+  crit.forEach(function(x){ const r=motDe[x.cle]; if(r && !x.ok && mr.doutes[r] && !(x.cle==='hered' && herLa) && !(x.cle==='croiss' && crLa)){ x.racine=r; x.doute=mr.doutes[r]; } });
   const toutOk=crit.every(x=>x.ok);
-  const verdict=(!toutOk||fausses.length)?'refus':((images&&!nonLues.length)?'accepte':'abstention');
-  return {crit:crit, toutOk:toutOk, fausses:fausses, images:images, nonLues:nonLues, verdict:verdict};
+  const seulsDoutes=!toutOk && crit.every(x=>x.ok||x.doute);
+  const verdict=fausses.length?'refus':(toutOk?((images&&!nonLues.length)?'accepte':'abstention'):(seulsDoutes?'abstention':'refus'));
+  return {crit:crit, toutOk:toutOk, fausses:fausses, images:images, nonLues:nonLues, verdict:verdict, orth:mr.orth};
 }
 /* Le bilan de la page : vert ce qui va, rouge ce qui manque — et le ✓ ou le ✗
    devant, parce que la couleur ne porte jamais seule. */
@@ -17917,7 +17987,7 @@ function rrBilanHTML(j){
       +(j.fausses.length>1?' (une autre comparaison au moins est fausse aussi)':'')+'</span></li>'
     : '';
   return '<div class="rr-bilan"><b>Ta rédaction, point par point :</b><ul class="rr-crit">'
-    + j.crit.map(x=>'<li><span class="'+(x.ok?'fb-ok':'fb-ko')+'">'+(x.ok?'✓':'✗')+' '+x.l+'</span></li>').join('')
+    + j.crit.map(x=>motsLigneCrit(x)).join('')
     + faux
     + '</ul></div>';
 }
@@ -17949,7 +18019,7 @@ function rrAttenduIA(c,j){
   const prime=(j.verdict==='accepte')
    ? 'VERDICT DE LA PAGE, PRIORITAIRE : elle a VÉRIFIÉ la structure complète, les nombres de l’initialisation, les images f('+numFmt(c.m)+') = '+numFmt(c.fm)+' et f('+numFmt(c.M)+') = '+numFmt(c.fM)+' écrites, et aucune comparaison numérique fausse — la copie est CORRECTE. Réponds correct:true, obligatoirement. Ton feedback dit en 2 ou 3 phrases ce qui est bien fait ; il ne signale AUCUNE erreur et ne demande RIEN de plus. '
    : '';
-  return prime+'DÉMONSTRATION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+rrModele(c).replace(/\n/g,' ')+' '
+  return prime+motsDoutesIA(j)+'DÉMONSTRATION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+rrModele(c).replace(/\n/g,' ')+' '
    +'RÈGLE DE DÉCISION, à appliquer à la lettre : correct:true UNIQUEMENT si les TROIS moments de la récurrence sont présents ET justes — '
    +'(1) INITIALISATION vérifiée au rang '+numFmt(c.n0)+' avec la valeur de U à ce rang et son encadrement, puis conclue ; '
    +'(2) HYPOTHÈSE de récurrence énoncée pour un entier n quelconque, et le BUT annoncé avec la propriété au rang n+1 : « on montre que '+numFmt(c.m)+' ≤ U(n+1) ≤ '+numFmt(c.M)+' » ; '
@@ -18161,6 +18231,7 @@ async function checkRR(){
   let prose = j.fausses.length ? '' : (res&&res.feedback)||'';
   if(j.verdict==='accepte' && !(res && res.correct===true))
     prose='Ta rédaction porte les trois moments de la récurrence, l’initialisation vérifiée et les bonnes images par f : c’est une démonstration complète.';
+  if(correct) prose+=motsOrthNote(j.orth);
   const fbHTML=conseilHTML(prose);
   const bilan=rrBilanHTML(j)+(fbHTML?'<div class="rr-ia">'+fbHTML+'</div>':'');
   if(!correct && isSoutien()){
@@ -18436,7 +18507,8 @@ function sarJuge(c, parts){
   const aRec=une('a', l=>sarPorteA(l,c.a)&&sarPorte(l,c.b));
   const aFin=une('a', l=>sarPorteA(l,c.a)&&SAR_VN.test(l));
   const bOk =une('b', l=>SAR_V0.test(l)&&sarPorte(l,c.v0));
-  const cMot=/geometri/.test(P.c);
+  const mc=motsRacines(P.c, ['geometri','arithmeti']);   /* « géomtrique » se lit, « géomértique » aussi */
+  const cMot=/geometri/.test(mc.t);
   const cExp=une('c', l=>sarPorte(l,c.v0)&&sarPuissA(l,c.a));
   const dFor=une('d', l=>SAR_UN.test(l)&&SAR_VN.test(l)&&sarPorte(l,c.k));
   const dRes=une('d', l=>SAR_UN.test(l)&&sarPuissA(l,c.a)&&sarPorte(l,c.k));
@@ -18471,9 +18543,11 @@ function sarJuge(c, parts){
   let fausses=rrFausses(tout), illisibles=0;
   ['a','b','c','d'].forEach(function(x){ const r=sarFaussesExpr(c,P[x]); fausses=fausses.concat(r.fausses); illisibles+=r.illisibles; });
   const inter=sarPorte(tout, c.k-c.b);
+  crit.forEach(function(x){ if(x.cle==='c-mot' && !x.ok && mc.doutes.geometri){ x.racine='geometri'; x.doute=mc.doutes.geometri; } });
   const toutOk=crit.every(x=>x.ok);
-  const verdict=(!toutOk||fausses.length)?'refus':((inter&&!illisibles)?'accepte':'abstention');
-  return {crit:crit, toutOk:toutOk, fausses:fausses, illisibles:illisibles, inter:inter, verdict:verdict};
+  const seulsDoutes=!toutOk && crit.every(x=>x.ok||x.doute);
+  const verdict=fausses.length?'refus':(toutOk?((inter&&!illisibles)?'accepte':'abstention'):(seulsDoutes?'abstention':'refus'));
+  return {crit:crit, toutOk:toutOk, fausses:fausses, illisibles:illisibles, inter:inter, verdict:verdict, orth:mc.orth};
 }
 function sarBilanHTML(j){
   const faux=(j.fausses&&j.fausses.length)
@@ -18481,7 +18555,7 @@ function sarBilanHTML(j){
       +(j.fausses.length>1?' (une autre comparaison au moins est fausse aussi)':'')+'</span></li>'
     : '';
   return '<div class="rr-bilan"><b>Tes quatre réponses, point par point :</b><ul class="rr-crit">'
-    + j.crit.map(x=>'<li><span class="'+(x.ok?'fb-ok':'fb-ko')+'">'+(x.ok?'✓':'✗')+' '+x.l+'</span></li>').join('')
+    + j.crit.map(x=>motsLigneCrit(x,' ')).join('')
     + faux
     + '</ul></div>';
 }
@@ -18507,7 +18581,7 @@ function sarAttenduIA(c,j){
   const prime=(j.verdict==='accepte')
    ? 'VERDICT DE LA PAGE, PRIORITAIRE : elle a VÉRIFIÉ les quatre parties — la chaîne du a) avec son nombre intermédiaire '+numFmt(c.k-c.b)+' écrit, V(0) = '+V0+', la nature nommée avec l’expression de V(n), U(n) reconstruit — et elle a ÉVALUÉ chaque égalité écrite dans la copie, nombres, chaîne en U(n) et puissances comprises : toutes sont vraies. La copie est CORRECTE : réponds correct:true, obligatoirement. Ton feedback dit en 2 ou 3 phrases ce qui est bien fait ; il ne signale AUCUNE erreur et ne demande RIEN de plus. '
    : '';
-  return prime+'RÉDACTION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+sarModele(c).replace(/\n/g,' ')+' '
+  return prime+motsDoutesIA(j)+'RÉDACTION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+sarModele(c).replace(/\n/g,' ')+' '
    +'RÈGLE DE DÉCISION, à appliquer à la lettre : correct:true UNIQUEMENT si les QUATRE parties sont présentes ET justes — '
    +'(a) la chaîne part de V(n+1) = U(n+1) − '+K+', remplace U(n+1) par '+A+'·U(n) + '+B+', et aboutit à '+A+' × V(n) ; la factorisation directe '+A+'·(U(n) − '+K+'), sans étape intermédiaire, est parfaitement juste — ne réclame jamais ce détail ; '
    +'(b) V(0) = '+V0+' ; '
@@ -18676,6 +18750,7 @@ async function checkSAR(){
   let prose = j.fausses.length ? '' : (res&&res.feedback)||'';
   if(j.verdict==='accepte' && !(res && res.correct===true))
     prose='Tes quatre réponses portent tout ce qui est attendu : la chaîne qui mène à '+numFmt(c.a)+' × Vₙ, le calcul de V₀, la nature de la suite avec son expression, et le retour à Uₙ.';
+  if(correct) prose+=motsOrthNote(j.orth);
   const fbHTML=conseilHTML(prose);
   const bilan=sarBilanHTML(j)+(fbHTML?'<div class="rr-ia">'+fbHTML+'</div>':'');
   if(!correct && isSoutien()){
@@ -29173,13 +29248,22 @@ function apsArbre2HTML(q){
 }
 /* LE BOUTON aₙ SOUS L'ARBRE DES RANGS n ET n + 1 (demande de Turquet,
    octobre 2026 : « mettre un bouton a_n en dessous de l'arbre concerné »,
-   puis « pour rentrer a_n dans les cases en cliquant dessus »). Un clic écrit
-   « aₙ » au curseur de la DERNIÈRE case de cet arbre que l'élève a touchée —
-   P(Fₙ) = 1 − aₙ si aucune ne l'a été ; il ne vole pas le focus (mousedown
-   empêché) et passe par paveInserer, donc par « input » : la case grandit
-   (sa2Ajuster) et n'est plus une copie du premier arbre. */
+   puis « pour rentrer a_n dans les cases en cliquant dessus », puis « il
+   faudrait que le bouton a_n fonctionne aussi pour la question suivante, la
+   3.b »). Un clic écrit aₙ au curseur de la DERNIÈRE case que l'élève a
+   touchée : une case de cet arbre, ou un champ MathLive de l'exercice (la
+   3 b et les suivantes) — P(Fₙ) = 1 − aₙ si aucune ne l'a été. Il ne vole pas
+   le focus (mousedown empêché). Une case de l'arbre passe par paveInserer,
+   donc par « input » : elle grandit (sa2Ajuster) et n'est plus une copie du
+   premier arbre ; un champ MathLive reçoit a_{n}, le curseur APRÈS l'indice
+   — l'élève continue d'écrire sur la ligne, pas dans l'indice. Avant, seul
+   l'arbre était suivi : un clic depuis la 3 b écrivait dans la dernière case
+   de l'arbre (« aₙaₙaₙ », capture de Turquet). */
 let apsDerniere=null;
-document.addEventListener('focusin', function(e){ const t=e.target; if(t && t.id && /^apr-t-/.test(t.id)) apsDerniere=t; });
+document.addEventListener('focusin', function(e){
+  const t=e.target; if(!t || !t.id) return;
+  if(/^apr-t-/.test(t.id) || (t.tagName==='MATH-FIELD' && t.closest && t.closest('#scr-aps'))) apsDerniere=t;
+});
 function apsJetonsHTML(){
   return '<div class="apf-jetons aps-jetons" aria-label="symboles"><button type="button" class="apf-jeton" id="aps-jeton-an" title="écrire aₙ dans la case"'
     +' onmousedown="event.preventDefault()" onclick="apsJetonAn()"><i>a</i><sub><i>n</i></sub></button></div>';
@@ -29187,10 +29271,31 @@ function apsJetonsHTML(){
 function apsJetonAn(){
   let el=apsDerniere;
   if(!el || !document.body.contains(el)) el=$('apr-t-F');
-  if(!el || el.disabled || el.readOnly || (typeof test!=='undefined' && test.locked)) return;
+  if(!el || el.disabled || el.readOnly || el.hasAttribute('read-only') || (typeof test!=='undefined' && test.locked)) return;
   el.focus();
+  if(el.tagName==='MATH-FIELD'){
+    try{ el.executeCommand(['insert', 'a_{n}', { focus:true, mode:'math', format:'latex', selectionMode:'after' }]); }catch(e){}
+    return;
+  }
   paveInserer(el, 'aₙ');
 }
+/* AU 6.2.1, L'INDICE « n » SE REFERME TOUT SEUL (demande de Turquet,
+   octobre 2026 : « sortir de l'indice tout seul après a_n », « uniquement pour
+   cet exercice »). Dans un champ MathLive, « a_n » laisse le curseur DANS
+   l'indice : la suite tapée s'y écrivait (« aₙₓ », capture de la 3 b). Ici,
+   dès que l'indice ne contient que « n » — profondeur 1, et rien d'autre que n
+   dans la branche —, le curseur en sort (moveAfterParent). « a_(n+1) » (indice
+   entre parenthèses, profondeur 2) et « a_2n » ne sont pas touchés ; « aₙ₊₁ »
+   s'écrit donc a_(n+1). Les autres exercices gardent le comportement de
+   MathLive. */
+document.addEventListener('input', function(e){
+  const mf=e.target;
+  if(!mf || mf.tagName!=='MATH-FIELD' || e.data!=='n' || !mf.closest || !mf.closest('#scr-aps')) return;
+  try{
+    const P=mf.position, i=mf.getElementInfo(P);
+    if(i && i.depth===1 && mf.getValue(P-2, P, 'latex')==='n') mf.executeCommand('moveAfterParent');
+  }catch(err){}
+}, true);
 /* LE SECOND ARBRE REPREND LE PREMIER (comme au 6.1.3 et au 6.1.5) : les
    probabilités conditionnelles ne changent pas d'un rang à l'autre. Une case
    recopiée suit le premier arbre tant que l'élève ne l'a pas réécrite
@@ -40614,6 +40719,61 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
       P[nom]=function(){ const r=f.apply(this,arguments); bientot(this); return r; };
     });
   });
+})();
+</script>
+<script id="fraction-numworks">
+/* LE TRAIT DE FRACTION COUVRE LE PRODUIT QUI LE PRÉCÈDE — comme l'éditeur de
+   la calculatrice NumWorks (demande de Turquet, octobre 2026 : « 3x4/2 qui
+   s'affiche (3x4)/2 »). MathLive coupait au dernier signe : « 3*4/2 » donnait
+   3 × 4/2, seul le 4 montait au numérateur. Ici, la touche « / » emporte tout
+   ce qui la précède jusqu'au premier + ou −, =, <, ponctuation, ou parenthèse
+   ouvrante : les produits (×, ·, implicite), les puissances, les racines, les
+   fractions, la virgule décimale (2,5). Et une parenthèse seule devant « / »
+   perd ses parenthèses, comme sur la NumWorks : « (1+2)/3 » donne 1+2 sur 3.
+   Une seule porte, sur le document : l'événement « beforeinput » que MathLive
+   émet AVANT d'insérer \frac{#@}{#?} — le clavier physique, le clavier à
+   l'écran et le pavé y passent tous les trois ; rien à déclarer par case.
+   Une sélection déjà faite, ou rien devant le curseur, et MathLive garde la
+   main, comme avant. Le modèle de MathLive (_mathfield.model) est interne :
+   s'il manque, tout se tait et MathLive reprend son comportement d'origine —
+   le banc navigateur (« 11 terdecies ») le dirait. */
+(function(){
+  var PRODUIT={'\\times':1,'\\cdot':1,'×':1,'·':1,'*':1};
+  function chiffre(a){ return !!a && typeof a.value==='string' && /^[0-9]$/.test(a.value); }
+  function borne(a){
+    if(a.mode==='text') return true;
+    if(a.type==='mbin') return !PRODUIT[a.value] && !PRODUIT[a.command];
+    if(a.type==='mrel') return true;
+    if(a.type==='mpunct') return !(a.value===',' && chiffre(a.leftSibling) && chiffre(a.rightSibling));
+    return false;
+  }
+  function numerateur(el){
+    var model=el._mathfield && el._mathfield.model;
+    if(!model || typeof model.at!=='function' || !model.selectionIsCollapsed) return null;
+    var pos=model.position, a=model.at(pos), atomes=[], prof=0;
+    while(a && a.type!=='first'){
+      if(a.type==='mclose') prof++;
+      else if(a.type==='mopen'){ if(prof===0) break; prof--; }
+      else if(prof===0 && borne(a)) break;
+      atomes.unshift(a); a=a.leftSibling;
+    }
+    if(!atomes.length || prof!==0 || !a) return null;
+    var debut=model.offsetOf(a), p=atomes[0], b=p.body, latex;
+    if(atomes.length===1 && p.type==='leftright' && p.leftDelim==='(' && p.rightDelim===')' && b && b.length>1)
+      latex=el.getValue(model.offsetOf(b[0]), model.offsetOf(b[b.length-1]), 'latex');
+    else latex=el.getValue(debut, pos, 'latex');
+    return latex ? { debut:debut, fin:pos, latex:latex } : null;
+  }
+  window.fracNumerateur=numerateur;
+  document.addEventListener('beforeinput', function(e){
+    var el=e.target, d=e.data;
+    if(!el || el.tagName!=='MATH-FIELD' || e.inputType!=='insertText' || typeof d!=='string' || d.indexOf('\\frac{#@}')!==0) return;
+    var n=null; try{ n=numerateur(el); }catch(err){}
+    if(!n) return;
+    e.preventDefault();
+    el.selection={ ranges:[[n.debut,n.fin]], direction:'forward' };
+    el.executeCommand(['insert', '\\frac{'+n.latex+'}'+d.slice(9), { selectionMode:'placeholder' }]);
+  }, true);
 })();
 </script>
 <script id="italiquer-x">

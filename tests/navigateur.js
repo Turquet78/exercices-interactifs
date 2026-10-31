@@ -6222,6 +6222,25 @@ if(require.main === module) (async () => {
         /U_\(n\+1\)/.test(style.derniere) && /≤/.test(style.derniere) && style.montre,
         'lu : ' + JSON.stringify(style.derniere.slice(0, 120))
           + ', montre ' + (style.montre ? 'accepté' : 'REFUSÉ'));
+      /* LES MOTS DE STRUCTURE MAL ORTHOGRAPHIÉS (octobre 2026) : la copie TAPÉE
+         plus haut, ses mots retouchés dans les vrais champs MathLive — la page
+         relit « Initalisation », « Hérédiité », « croisante » et accepte ;
+         « Initsation », trop loin, part au modèle (« ? » dans le bilan). Les
+         lignes sont restaurées ensuite. */
+      const fautes = await s.page.evaluate(() => {
+        const avant = rrFeuille.lignes.map(L => L.mf.getValue());
+        const poser = f => rrFeuille.lignes.forEach((L, i) => L.mf.setValue(f(avant[i])));
+        poser(v => v.replace('Initialisation', 'Initalisation').replace(/H(é|\\'e|e)r(é|\\'e|e)dit(é|\\'e|e)/, 'Hérédiité').replace('croissante', 'croisante'));
+        const t1 = rrTexte(), j1 = rrJuge(test.questions[test.idx], t1);
+        poser(v => v.replace('Initialisation', 'Initsation'));
+        const t2 = rrTexte(), j2 = rrJuge(test.questions[test.idx], t2);
+        poser(v => v);
+        return { t1: t1.slice(0, 90), v1: j1.verdict, note: motsOrthNote(j1.orth), v2: j2.verdict, bilan2: rrBilanHTML(j2).indexOf('?\u00a0') >= 0,
+                 rate1: j1.crit.filter(x => !x.ok).map(x => x.cle).join(',') };
+      });
+      verifier('les mots de structure mal orthographiés, dans les vrais champs, se lisent — et un mot trop déformé part au modèle',
+        fautes.v1 === 'accepte' && /initialisation/.test(fautes.note) && fautes.v2 === 'abstention' && fautes.bilan2,
+        'mal orthographiée : ' + fautes.v1 + ' (manque ' + fautes.rate1 + ', lu ' + JSON.stringify(fautes.t1) + '), remarque « ' + fautes.note + ' » ; « Initsation » : ' + fautes.v2 + (fautes.bilan2 ? '' : ', sans « ? » au bilan'));
       /* LES TOUCHES ≤ ≥ < > DU CLAVIER À L'ÉCRAN (demande de Turquet, septembre
          2026), PLUS « = » (seconde demande du même mois — elle manquait aux
          trois claviers, et sur tablette le clavier du système est coupé) : une
@@ -19272,6 +19291,33 @@ if(require.main === module) (async () => {
           const vb = await s.page.evaluate(() => { const e = document.getElementById('apr-t-F'); return { v: e ? e.value : null, focus: document.activeElement && document.activeElement.id }; });
           verifier('au 6.2.1, le bouton aₙ sous l\'arbre écrit aₙ dans la case, qui garde le focus',
             vb.v === '1-aₙ' && vb.focus === 'apr-t-F', 'case « ' + vb.v + ' », focus sur ' + vb.focus);
+          /* puis le champ MathLive de la 3 b : le bouton suit la DERNIÈRE case
+             touchée (la capture « aₙaₙaₙ » : il écrivait dans l'arbre), et le
+             curseur sort de l'indice — « × (1 − » se tape à la suite */
+          await s.page.click('#aps-c3b').catch(() => {});
+          await s.page.waitForTimeout(400);
+          await s.page.click('#aps-jeton-an').catch(() => {});
+          await s.page.waitForTimeout(300);
+          await s.page.keyboard.type('*(1-');
+          await s.page.waitForTimeout(200);
+          const v3 = await s.page.evaluate(() => { const m = document.getElementById('aps-c3b'); const t = document.getElementById('apr-t-F');
+            return { lu: m ? mlDexp.toPlain(m.value) : null, arbre: t ? t.value : null, focus: document.activeElement && document.activeElement.id }; });
+          verifier('au 6.2.1, le bouton aₙ écrit aussi dans le champ de la 3 b, le curseur après l\'indice, sans toucher à l\'arbre',
+            /^a_\(n\)\*\(1-/.test(v3.lu || '') && v3.arbre === '1-aₙ' && v3.focus === 'aps-c3b',
+            '3 b « ' + v3.lu + ' », arbre « ' + v3.arbre + ' », focus sur ' + v3.focus);
+          /* « a_n » tapé au clavier : l'indice se referme tout seul au 6.2.1
+             (« aₙₓ » de la capture) — « a_(n+1) » garde son indice */
+          const tape = async (t) => {
+            await s.page.evaluate(() => { const m = document.getElementById('aps-c3b'); if(m) m.value = ''; });
+            await s.page.click('#aps-c3b').catch(() => {});
+            await s.page.waitForFunction(() => document.activeElement && document.activeElement.id === 'aps-c3b', null, { timeout: 3000 }).catch(() => {});
+            await s.page.keyboard.type(t, { delay: 60 });
+            await s.page.waitForTimeout(200);
+            return s.page.evaluate(() => mlDexp.toPlain(document.getElementById('aps-c3b').value));
+          };
+          const l1 = await tape('a_n*(1-a_n)'), l2 = await tape('a_(n+1)');
+          verifier('au 6.2.1, « a_n » tapé dans un champ mathématique sort tout seul de l\'indice (et « a_(n+1) » garde le sien)',
+            l1 === 'a_(n)*(1-a_(n))' && l2 === 'a_((n+1))', '« ' + l1 + ' » puis « ' + l2 + ' »');
         }
         /* la croix se mesure sur un clavier OUVERT, focus dans une case en texte */
         await s.page.click(await s.page.evaluate(() => document.getElementById('apr-t-F') ? '#apr-t-F' : '#bancKbIn'));
@@ -19282,6 +19328,65 @@ if(require.main === module) (async () => {
         verifier('la croix ferme toujours le clavier à l\'écran, même depuis une case en texte',
           !(await s.page.evaluate(() => mathVirtualKeyboard.visible)));
         verifier('le clavier dans une case en texte ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
+
+    /* ---- 11 terdecies. Le trait de fraction couvre le produit qui le précède (NumWorks) ----
+       Demande de Turquet, octobre 2026 : « 3x4/2 » doit s'afficher (3×4)/2,
+       comme dans l'éditeur de la NumWorks — MathLive n'y montait que le 4.
+       Le script #fraction-numworks (fin de fichier, les trois niveaux)
+       intercepte l'insertion de \frac{#@}{#?} : la touche « / » emporte tout
+       ce qui précède jusqu'au premier + ou −, =, ponctuation ou parenthèse
+       ouvrante, et une parenthèse seule perd ses parenthèses. Le champ est posé
+       par le banc dans l'écran ouvert, tapé au vrai clavier ; la touche du
+       clavier à l'écran est jouée par sa commande. Éprouvé à l'envers en
+       retirant le script : « 3×\frac{4}{2} », « \frac{\left(1+2\right)}{3} ». */
+    titre('11 terdecies. LE TRAIT DE FRACTION COUVRE LE PRODUIT QUI LE PRÉCÈDE (COMME LA NUMWORKS)');
+    {
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      const pret = await s.page.evaluate(() => {
+        const sc = document.querySelector('section.screen.on'); if(!sc) return false;
+        const d = document.createElement('div'); d.id = 'bancFrac';
+        d.innerHTML = '<math-field id="bancFracMf" style="min-width:8em;display:inline-block"></math-field>';
+        sc.insertBefore(d, sc.firstChild);
+        return true;
+      });
+      if(!pret){
+        verifier('la touche « / » met tout le produit au numérateur', false, 'aucun écran ouvert');
+      } else {
+        await s.page.click('#bancFracMf');
+        await s.page.waitForTimeout(500);   /* les raccourcis (* → ×) se posent en trois temps */
+        /* le raccourci « * » vaut \times ou \cdot selon la case : le banc juge le trait, pas le signe */
+        const lire = () => s.page.evaluate(() => document.getElementById('bancFracMf').value
+          .replace(/\{,\}/g, ',').replace(/\\placeholder\{\}/g, '').replace(/\\cdot/g, '\\times').replace(/\s+/g, ''));
+        const cas = [
+          ['3*4/2',   '\\frac{3\\times4}{2}'],
+          ['2+3*4/5', '2+\\frac{3\\times4}{5}'],
+          ['2-3*4/5', '2-\\frac{3\\times4}{5}'],
+          ['(1+2)/3', '\\frac{1+2}{3}'],
+          ['2,5*3/4', '\\frac{2,5\\times3}{4}'],
+          ['5=2x/3',  '5=\\frac{2x}{3}']
+        ];
+        for(const [tape, attendu] of cas){
+          await s.page.evaluate(() => { const m = document.getElementById('bancFracMf'); m.value = ''; m.focus(); });
+          await s.page.waitForFunction(() => { const a = document.activeElement; return a && a.id === 'bancFracMf'; }, null, { timeout: 3000 }).catch(() => {});
+          await s.page.keyboard.type(tape, { delay: 25 });
+          const vu = await lire();
+          verifier('« ' + tape + ' » tapé s\'écrit ' + attendu + ' (le trait couvre ce qui le précède, comme la NumWorks)',
+            vu === attendu, 'la case contient « ' + vu + ' »');
+        }
+        /* la touche « / » du clavier à l'écran et du pavé : la même commande */
+        const cmd = await s.page.evaluate(() => { const m = document.getElementById('bancFracMf');
+          m.value = '3\\times4'; m.position = m.lastOffset;
+          m.executeCommand(['insert', '\\frac{#@}{#?}']); m.executeCommand(['insert', '2']);
+          return m.value.replace(/\s+/g, ''); });
+        verifier('la touche « / » du clavier à l\'écran met aussi tout le produit au numérateur',
+          cmd === '\\frac{3\\times4}{2}', 'la case contient « ' + cmd + ' »');
+        verifier('le trait de fraction façon NumWorks ne lève aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
       await s.nav.close(); s = null;
