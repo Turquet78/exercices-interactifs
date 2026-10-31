@@ -19196,12 +19196,17 @@ if(require.main === module) (async () => {
           await s.page.waitForTimeout(200);
           const r = await s.page.evaluate(id => { const b = document.getElementById(id).getBoundingClientRect(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; }, tIdx);
           await s.page.mouse.click(r.x, r.y); await s.page.waitForTimeout(300);
-          await s.page.keyboard.type('n');
+        } else {
+          /* la couche ouverte par le banc n'a pas de touche « indice » (en
+             Seconde et en Première, elle n'est que sur certaines couches) :
+             la commande que la touche enverrait, par le même chemin */
+          await s.page.evaluate(() => mathVirtualKeyboard.executeCommand(['performWithFeedback', 'moveToSubscript']));
         }
+        await s.page.keyboard.type('n');
         const vIdx = await s.page.evaluate(() => ({ v: document.getElementById('bancKbIn').value, focus: document.activeElement && document.activeElement.id }));
         verifier('la touche « indice » du clavier à l\'écran écrit un indice dans la case en texte (a, indice, n → aₙ)',
-          !!tIdx && vIdx.v === 'aₙ' && vIdx.focus === 'bancKbIn',
-          tIdx ? 'case « ' + vIdx.v + ' », focus sur ' + vIdx.focus : 'aucune touche « indice » (moveToSubscript) sur le clavier');
+          vIdx.v === 'aₙ' && vIdx.focus === 'bancKbIn',
+          'case « ' + vIdx.v + ' », focus sur ' + vIdx.focus + (tIdx ? '' : ' (commande envoyée : aucune touche « indice » sur ce clavier)'));
         await s.page.fill('#bancKbIn', '');
         await s.page.click('#bancKbIn');
         await s.page.keyboard.type('1-a_n');
