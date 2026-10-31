@@ -4847,3 +4847,64 @@ Contrôle : six cas ajoutés au juge de `syntheseEvolutionsLibre`
 « dimminution » acceptés ; « baise » (lu « baisse ») reste un sens faux ;
 « bausse » reste une conclusion absente — plus `salOrthNote`, `evsMotOk` et
 `salDixConclusion`.
+
+## L'ordre des deux évolutions est libre — partout où l'écran le permet (Première v356, octobre 2026)
+
+**D'où il vient.** Une capture du 2.2.8 ({hausses-successives-cent}) : « le
+prix gagne 70 %, puis encore 10 % ». L'élève avait fait +10 % d'abord, puis
++70 % — 10/100 × 100 = 10, 100 + 10 = 110, 70/100 × 110 = 77, 110 + 77 = 187,
+une hausse de 87 % : juste de bout en bout. Toute sa chaîne rougissait, parce
+que chaque case était jugée contre 100 → 170 → 187. Demande de Turquet :
+« en première accepter que l'on inverse les évolutions comme sur cette image,
+le faire pour tous les exercices où c'est possible ». Deux évolutions
+successives commutent (k1 × k2 = k2 × k1) : refuser l'autre ordre apprendrait
+l'inverse du cours. Le commentaire du 2.2.7 disait d'ailleurs « l'ordre P1/P2
+de l'énoncé, qui LUI est fixé » : c'est cette phrase qui tombe.
+
+**Le juge ne change pas : c'est la question qu'il lit qui s'oriente.**
+`evolOrientee(q, attendus)` rend soit la question, soit sa jumelle aux deux
+évolutions ÉCHANGÉES (`evolInversee` : P1/P2, et s, c, fA/fB, n quand la
+question les porte) — celle des deux qui rend justes le plus de cases que
+l'élève a écrites, la règle des paires d'{antecedent-nombre}. À égalité (rien
+d'écrit, rien qui départage), l'ordre de l'énoncé. Tout le reste du juge —
+verdict, couleurs, correction en vert, message — lit la question orientée, si
+bien qu'une case vide d'une chaîne inversée se complète avec la valeur de SON
+chemin (77, et non 17). `attendus(qq)` ne liste que les cases qui dépendent de
+l'ordre ; ce n'est qu'un choix d'orientation, le verdict reste celui du juge.
+**La jumelle n'est jamais rangée** : elle vit le temps d'une vérification ;
+la question gardée (pause, rejeu, note, `test.answers`) reste celle de
+l'énoncé.
+
+**Où l'ordre devient libre** : le 2.2.7 et le 2.3.7 (les deux lignes de
+coefficients de l'étape ① ; le produit l'était déjà), le 2.2.8 (toute la
+chaîne), le 2.5.4 par les coefficients et en partant de 100 — donc aussi le
+devoir blanc, qui en emprunte l'écran —, le 2.5.5 (les deux flèches du
+schéma), et la rédaction libre du 2.5.8 (et la synthèse générale qui lit son
+juge) : `eslJuge` relit une copie refusée sur la jumelle inversée et garde ce
+second verdict s'il ACCEPTE ; un refus se formule toujours dans l'ordre de
+l'énoncé. Le texte envoyé au modèle le dit aussi.
+
+**Où il ne l'est pas, et pourquoi — nommé, pas oublié.** « Là où c'est
+possible » a deux bords :
+* une hausse et une baisse ne s'échangent pas sur un écran qui IMPRIME le
+  signe de chaque ligne (« 1 + » / « 1 − » au 2.5.4, la soustraction de la
+  méthode 2, « × (1 + » / « × (1 − » sur les flèches du 2.5.5) : l'élève ne
+  peut pas y écrire l'autre ordre. `evolOrientee` n'essaie l'échange que si
+  les deux évolutions ont le même sens. La rédaction libre, où l'élève écrit
+  ses signes, l'accepte dans tous les cas ;
+* la méthode des 10 % (2.3.14 {baisses-successives-dix}, méthode 3 du 2.5.4)
+  garde l'ordre de l'énoncé : chacune de ses phrases imprime son taux
+  (« donc : 20 % de 100 est ▢ »), et l'autre ordre y écrirait une phrase
+  fausse. Les libellés du 2.2.8 (« ① On calcule d'abord 70 % de 100 »), eux,
+  sont des titres : la capture de Turquet montre précisément ce cas accepté.
+
+**Contrôle** : `ordreEvolutionsLibre` (`tests/verifier.js`). La capture
+elle-même (+70 % puis +10 %, faite +10 % d'abord) vaut le point sans une case
+rouge ; une case vide de la chaîne inversée se corrige à 77 ; une chaîne qui
+change d'ordre en route reste refusée ; la question rangée garde son ordre ;
+le 2.2.7 et le 2.3.7 lignes échangées valent le point, deux fois le même taux
+non ; le 2.5.4 (coefficients, en partant de 100) accepte deux hausses et deux
+baisses échangées, refuse une hausse et une baisse échangées ; le 2.5.5 de
+même sur ses flèches ; le 2.3.14 refuse l'autre ordre ; le 2.5.8 accepte les
+trois méthodes la baisse d'abord, et refuse la seconde évolution refaite sur
+100 dans l'autre ordre.
