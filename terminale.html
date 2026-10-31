@@ -11891,7 +11891,7 @@ function jHasVal(n, label){
 }
 /* Analyse la justification \u00e9crite et renvoie le détail des éléments présents. */
 function evalJustif(c, raw){
-  const n=jNorm(raw);
+  const n=motsRacines(jNorm(raw), ['continu','strict','croissan','decroissan','monoton','unique','intermediair']).t;   /* « continnue », « intermédiares » se lisent */
   const hasStrict=/strict/.test(n);
   const hasCroiss=/\bcroissant/.test(n);          // ne matche pas "decroissant" (fronti\u00e8re de mot)
   const hasDecroiss=/\bdecroissant/.test(n);
@@ -17613,6 +17613,71 @@ function rrTexte(){ return rrClair(rrFeuille?rrFeuille.lire():''); }
 function rrNorm(s){
   return rrClair(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 }
+/* LES MOTS DE STRUCTURE SE LISENT MALGRÉ UNE FAUTE D'ORTHOGRAPHE — la règle
+   posée en Première (v355-356, « augementation de 17 % » au 2.5.8), étendue
+   ici sur la demande de Turquet (octobre 2026 : « fais pareil pour la
+   terminale »). Un MOT du texte normalisé (sans accents, en minuscules) dont
+   le DÉBUT est à une lettre d'une racine (deux pour les racines de 9 lettres
+   et plus ; une inversion de deux lettres compte pour une) est réécrit avec
+   la racine : « initalisation », « éréditée », « croisante », « géomtrique »
+   se lisent comme les mots justes. Deux racines à égale distance (croissan /
+   decroissan, geometri / arithmeti) : rien n'est réécrit — le sens n'est pas
+   écrit. Un mot plus loin, mais encore proche (une lettre de plus, deux pour les
+   longues racines), n'est
+   pas réécrit : il est rangé dans `doutes`, et c'est le MODÈLE qui dira si
+   l'élève a voulu l'écrire. Rend { t, orth, doutes } — orth : les racines
+   rétablies (la remarque d'orthographe d'une copie juste). */
+function motsOsa(a,b){
+  const d=[]; for(let i=0;i<=a.length;i++){ d[i]=[i]; } for(let j=0;j<=b.length;j++) d[0][j]=j;
+  for(let i=1;i<=a.length;i++) for(let j=1;j<=b.length;j++){
+    d[i][j]=Math.min(d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+    if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1]) d[i][j]=Math.min(d[i][j], d[i-2][j-2]+1);
+  }
+  return d[a.length][b.length];
+}
+function motsRacines(t, racines){
+  const orth=[], doutes={};
+  const tol=r=>r.length>=9?2:1;
+  const out=String(t==null?'':t).replace(/[a-z]+/g, function(w){
+    if(w.length<4 || racines.some(r=>w.indexOf(r)>=0)) return w;        /* déjà juste : jamais retouché */
+    let best=null, ex=false;
+    racines.forEach(function(r){
+      let dr=null;
+      for(let L=Math.max(3,r.length-tol(r)-2); L<=r.length+tol(r)+2 && L<=w.length; L++){
+        const d=motsOsa(w.slice(0,L), r);
+        if(!dr || d<dr.d) dr={ r:r, d:d, L:L };
+      }
+      if(!dr) return;
+      if(!best || dr.d<best.d){ best=dr; ex=false; }
+      else if(dr.d===best.d) ex=true;
+    });
+    if(!best || ex) return w;
+    if(best.d<=tol(best.r)){ if(orth.indexOf(best.r)<0) orth.push(best.r); return best.r+w.slice(best.L); }
+    if(best.d<=tol(best.r)+(best.r.length>=9?2:1) && best.L>=5 && !doutes[best.r]) doutes[best.r]=w;
+    return w;
+  });
+  return { t:out, orth:orth, doutes:doutes };
+}
+const MOTS_ECRITS={ initialis:'initialisation', heredit:'hérédité', suppos:'on suppose', croissan:'croissante', decroissan:'décroissante',
+  geometri:'géométrique', arithmeti:'arithmétique', continu:'continue', strict:'strictement', monoton:'monotone', unique:'unique', intermediair:'intermédiaires' };
+function motsOrthNote(orth){
+  const m=(orth||[]).filter(r=>MOTS_ECRITS[r]).map(r=>'« '+MOTS_ECRITS[r]+' »');
+  return m.length ? ' (Attention à l’orthographe : on écrit '+m.join(' et ')+'.)' : '';
+}
+/* Un critère de MOT que la page n'a pas lu, mais dont un mot proche est écrit :
+   ni ✓ ni ✗ — « ? », sans couleur de verdict : le modèle relit ce mot. */
+function motsLigneCrit(x, sep){
+  sep=(sep==null)?'\u00a0':sep;   /* chaque bilan garde son espace après la marque (le 6.8 : une espace simple) */
+  if(!x.ok && x.doute) return '<li><span>?'+sep+x.l+' — tu as écrit « '+esc(x.doute)+' » : l’IA relit ce mot</span></li>';
+  return '<li><span class="'+(x.ok?'fb-ok':'fb-ko')+'">'+(x.ok?'✓':'✗')+sep+x.l+'</span></li>';
+}
+/* La consigne du modèle sur ces mots : ce qu'il doit relire, et rien d'autre. */
+function motsDoutesIA(j){
+  const d=(j.crit||[]).filter(x=>!x.ok && x.doute);
+  if(!d.length) return '';
+  return 'MOTS À RELIRE — la page n’a pas reconnu '+d.map(x=>'« '+MOTS_ECRITS[x.racine]+' » (l’élève a écrit « '+x.doute+' »)').join(', ')
+   +'. L’ORTHOGRAPHE N’EST PAS JUGÉE : si l’élève a clairement voulu écrire ce mot, compte la partie comme présente, et signale la faute en une phrase douce ; si le mot écrit veut dire autre chose, la partie manque. ';
+}
 /* Texte réduit aux lettres et aux chiffres, AVEC la table des positions
    d'origine : les marqueurs se cherchent sur le texte réduit (« on suppose »,
    « on  suppose » et « on,suppose » se valent), et on retrouve où ils tombent
@@ -17788,7 +17853,8 @@ function rrNonLues(t){
    part au modèle. Chaque critère porte son libellé (ce que l'élève lit) et une
    version COURTE (ce que le modèle reçoit, pour ne pas répéter la liste). */
 function rrJuge(c, txt){
-  const t=rrNorm(txt), ix=rrReduit(t);
+  const mr=motsRacines(rrNorm(txt), ['initialis','heredit','suppos','croissan','decroissan']);
+  const t=mr.t, ix=rrReduit(t);
   const ou=re=>{ const k=ix.red.search(re); return k<0?-1:ix.pos[k]; };
   const pInit=ou(RR_MOTS.init), pHer=ou(RR_MOTS.hered), pSup=ou(RR_MOTS.suppos), pMon=ou(RR_MOTS.montre);
   /* La partie « initialisation » va du mot (ou du début) jusqu'au premier
@@ -17905,9 +17971,13 @@ function rrJuge(c, txt){
   const fausses=rrFausses(t);
   const images=rrEncadre(c,t);
   const nonLues=rrNonLues(t);
+  /* un mot de structure non lu mais PROCHE (mr.doutes) : le modèle le relit */
+  const motDe={ init:'initialis', hered:'heredit', suppos:'suppos', croiss:'croissan' };
+  crit.forEach(function(x){ const r=motDe[x.cle]; if(r && !x.ok && mr.doutes[r] && !(x.cle==='hered' && herLa) && !(x.cle==='croiss' && crLa)){ x.racine=r; x.doute=mr.doutes[r]; } });
   const toutOk=crit.every(x=>x.ok);
-  const verdict=(!toutOk||fausses.length)?'refus':((images&&!nonLues.length)?'accepte':'abstention');
-  return {crit:crit, toutOk:toutOk, fausses:fausses, images:images, nonLues:nonLues, verdict:verdict};
+  const seulsDoutes=!toutOk && crit.every(x=>x.ok||x.doute);
+  const verdict=fausses.length?'refus':(toutOk?((images&&!nonLues.length)?'accepte':'abstention'):(seulsDoutes?'abstention':'refus'));
+  return {crit:crit, toutOk:toutOk, fausses:fausses, images:images, nonLues:nonLues, verdict:verdict, orth:mr.orth};
 }
 /* Le bilan de la page : vert ce qui va, rouge ce qui manque — et le ✓ ou le ✗
    devant, parce que la couleur ne porte jamais seule. */
@@ -17917,7 +17987,7 @@ function rrBilanHTML(j){
       +(j.fausses.length>1?' (une autre comparaison au moins est fausse aussi)':'')+'</span></li>'
     : '';
   return '<div class="rr-bilan"><b>Ta rédaction, point par point :</b><ul class="rr-crit">'
-    + j.crit.map(x=>'<li><span class="'+(x.ok?'fb-ok':'fb-ko')+'">'+(x.ok?'✓':'✗')+' '+x.l+'</span></li>').join('')
+    + j.crit.map(x=>motsLigneCrit(x)).join('')
     + faux
     + '</ul></div>';
 }
@@ -17949,7 +18019,7 @@ function rrAttenduIA(c,j){
   const prime=(j.verdict==='accepte')
    ? 'VERDICT DE LA PAGE, PRIORITAIRE : elle a VÉRIFIÉ la structure complète, les nombres de l’initialisation, les images f('+numFmt(c.m)+') = '+numFmt(c.fm)+' et f('+numFmt(c.M)+') = '+numFmt(c.fM)+' écrites, et aucune comparaison numérique fausse — la copie est CORRECTE. Réponds correct:true, obligatoirement. Ton feedback dit en 2 ou 3 phrases ce qui est bien fait ; il ne signale AUCUNE erreur et ne demande RIEN de plus. '
    : '';
-  return prime+'DÉMONSTRATION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+rrModele(c).replace(/\n/g,' ')+' '
+  return prime+motsDoutesIA(j)+'DÉMONSTRATION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+rrModele(c).replace(/\n/g,' ')+' '
    +'RÈGLE DE DÉCISION, à appliquer à la lettre : correct:true UNIQUEMENT si les TROIS moments de la récurrence sont présents ET justes — '
    +'(1) INITIALISATION vérifiée au rang '+numFmt(c.n0)+' avec la valeur de U à ce rang et son encadrement, puis conclue ; '
    +'(2) HYPOTHÈSE de récurrence énoncée pour un entier n quelconque, et le BUT annoncé avec la propriété au rang n+1 : « on montre que '+numFmt(c.m)+' ≤ U(n+1) ≤ '+numFmt(c.M)+' » ; '
@@ -18161,6 +18231,7 @@ async function checkRR(){
   let prose = j.fausses.length ? '' : (res&&res.feedback)||'';
   if(j.verdict==='accepte' && !(res && res.correct===true))
     prose='Ta rédaction porte les trois moments de la récurrence, l’initialisation vérifiée et les bonnes images par f : c’est une démonstration complète.';
+  if(correct) prose+=motsOrthNote(j.orth);
   const fbHTML=conseilHTML(prose);
   const bilan=rrBilanHTML(j)+(fbHTML?'<div class="rr-ia">'+fbHTML+'</div>':'');
   if(!correct && isSoutien()){
@@ -18436,7 +18507,8 @@ function sarJuge(c, parts){
   const aRec=une('a', l=>sarPorteA(l,c.a)&&sarPorte(l,c.b));
   const aFin=une('a', l=>sarPorteA(l,c.a)&&SAR_VN.test(l));
   const bOk =une('b', l=>SAR_V0.test(l)&&sarPorte(l,c.v0));
-  const cMot=/geometri/.test(P.c);
+  const mc=motsRacines(P.c, ['geometri','arithmeti']);   /* « géomtrique » se lit, « géomértique » aussi */
+  const cMot=/geometri/.test(mc.t);
   const cExp=une('c', l=>sarPorte(l,c.v0)&&sarPuissA(l,c.a));
   const dFor=une('d', l=>SAR_UN.test(l)&&SAR_VN.test(l)&&sarPorte(l,c.k));
   const dRes=une('d', l=>SAR_UN.test(l)&&sarPuissA(l,c.a)&&sarPorte(l,c.k));
@@ -18471,9 +18543,11 @@ function sarJuge(c, parts){
   let fausses=rrFausses(tout), illisibles=0;
   ['a','b','c','d'].forEach(function(x){ const r=sarFaussesExpr(c,P[x]); fausses=fausses.concat(r.fausses); illisibles+=r.illisibles; });
   const inter=sarPorte(tout, c.k-c.b);
+  crit.forEach(function(x){ if(x.cle==='c-mot' && !x.ok && mc.doutes.geometri){ x.racine='geometri'; x.doute=mc.doutes.geometri; } });
   const toutOk=crit.every(x=>x.ok);
-  const verdict=(!toutOk||fausses.length)?'refus':((inter&&!illisibles)?'accepte':'abstention');
-  return {crit:crit, toutOk:toutOk, fausses:fausses, illisibles:illisibles, inter:inter, verdict:verdict};
+  const seulsDoutes=!toutOk && crit.every(x=>x.ok||x.doute);
+  const verdict=fausses.length?'refus':(toutOk?((inter&&!illisibles)?'accepte':'abstention'):(seulsDoutes?'abstention':'refus'));
+  return {crit:crit, toutOk:toutOk, fausses:fausses, illisibles:illisibles, inter:inter, verdict:verdict, orth:mc.orth};
 }
 function sarBilanHTML(j){
   const faux=(j.fausses&&j.fausses.length)
@@ -18481,7 +18555,7 @@ function sarBilanHTML(j){
       +(j.fausses.length>1?' (une autre comparaison au moins est fausse aussi)':'')+'</span></li>'
     : '';
   return '<div class="rr-bilan"><b>Tes quatre réponses, point par point :</b><ul class="rr-crit">'
-    + j.crit.map(x=>'<li><span class="'+(x.ok?'fb-ok':'fb-ko')+'">'+(x.ok?'✓':'✗')+' '+x.l+'</span></li>').join('')
+    + j.crit.map(x=>motsLigneCrit(x,' ')).join('')
     + faux
     + '</ul></div>';
 }
@@ -18507,7 +18581,7 @@ function sarAttenduIA(c,j){
   const prime=(j.verdict==='accepte')
    ? 'VERDICT DE LA PAGE, PRIORITAIRE : elle a VÉRIFIÉ les quatre parties — la chaîne du a) avec son nombre intermédiaire '+numFmt(c.k-c.b)+' écrit, V(0) = '+V0+', la nature nommée avec l’expression de V(n), U(n) reconstruit — et elle a ÉVALUÉ chaque égalité écrite dans la copie, nombres, chaîne en U(n) et puissances comprises : toutes sont vraies. La copie est CORRECTE : réponds correct:true, obligatoirement. Ton feedback dit en 2 ou 3 phrases ce qui est bien fait ; il ne signale AUCUNE erreur et ne demande RIEN de plus. '
    : '';
-  return prime+'RÉDACTION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+sarModele(c).replace(/\n/g,' ')+' '
+  return prime+motsDoutesIA(j)+'RÉDACTION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+sarModele(c).replace(/\n/g,' ')+' '
    +'RÈGLE DE DÉCISION, à appliquer à la lettre : correct:true UNIQUEMENT si les QUATRE parties sont présentes ET justes — '
    +'(a) la chaîne part de V(n+1) = U(n+1) − '+K+', remplace U(n+1) par '+A+'·U(n) + '+B+', et aboutit à '+A+' × V(n) ; la factorisation directe '+A+'·(U(n) − '+K+'), sans étape intermédiaire, est parfaitement juste — ne réclame jamais ce détail ; '
    +'(b) V(0) = '+V0+' ; '
@@ -18676,6 +18750,7 @@ async function checkSAR(){
   let prose = j.fausses.length ? '' : (res&&res.feedback)||'';
   if(j.verdict==='accepte' && !(res && res.correct===true))
     prose='Tes quatre réponses portent tout ce qui est attendu : la chaîne qui mène à '+numFmt(c.a)+' × Vₙ, le calcul de V₀, la nature de la suite avec son expression, et le retour à Uₙ.';
+  if(correct) prose+=motsOrthNote(j.orth);
   const fbHTML=conseilHTML(prose);
   const bilan=sarBilanHTML(j)+(fbHTML?'<div class="rr-ia">'+fbHTML+'</div>':'');
   if(!correct && isSoutien()){
