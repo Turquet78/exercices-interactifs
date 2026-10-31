@@ -11005,7 +11005,20 @@ function syntheseEvolutionsLibre(w, P){
       ['deux taux égaux : m3',        qC, '20 % de 100 est 20\\n120\\n20 % de 120 est 24\\n120 + 24 = 144\\nhausse de 44 %', true, true ],
       ['deux taux égaux : la seconde sur 100 est fausse à l\\'arrivée', qC, '20 % de 100 est 20\\n120 + 20 = 140\\nhausse de 40 %', true, false],
       ['10 % de 105 est 10,5',        qD, '105\\n10 % de 105 est 10,5\\n20 % de 105 est 21\\n105 + 21 = 126\\nhausse de 26 %', true, true ],
+      /* une faute d'orthographe sur le mot de la conclusion ne la rend pas
+         fausse (« augementation de 17 % » au 2.5.8, signalé octobre 2026) */
+      ['« augementation » : la faute ne compte pas', qA, '1,2 × 0,95 = 1,14\\naugementation de 14 %',         true, true ],
+      ['« augementation » tel que MathLive l\\'écrit', qA, '1,2×0,95=1,14\\naugementationde14\\\\%',        true, true ],
+      ['« hause » : la faute ne compte pas', qA, '120 × 0,95 = 114\\nhause de 14 %',                         true, true ],
+      ['« dimminution » : la faute ne compte pas', qB, '0,5 × 1,02 = 0,51\\ndimminution de 49 %',           true, true ],
+      ['« baise » au lieu de « hausse » reste faux', qA, '1,2 × 0,95 = 1,14\\nbaise de 14 %',                true, false],
+      ['« bausse » ne dit pas son sens', qA, '1,2 × 0,95 = 1,14\\nbausse de 14 %',                         true, false],
     ];
+    /* la copie juste mal orthographiée reçoit la remarque, la copie bien écrite rien */
+    if(salOrthNote('1,2 × 0,95 = 1,14\\naugementation de 14 %').indexOf('« augmentation »')<0) vus.push('salOrthNote ne nomme pas « augmentation » devant « augementation »');
+    if(salOrthNote('1,2 × 0,95 = 1,14\\naugmentation de 14 %')!=='') vus.push('salOrthNote parle d\\'orthographe devant une copie bien écrite');
+    if(!evsMotOk('augementation','+') || evsMotOk('augementation','-') || evsMotOk('bausse','+')) vus.push('evsMotOk (2.5.5) ne lit pas « augementation » comme « augmentation », ou lit « bausse »');
+    if(!salDixConclusion('dimminution de 30 %') || salDixConclusion('dimminution de 30 %').sens!==-1) vus.push('salDixConclusion ne lit pas « dimminution de 30 % »');
     cas.forEach(function(c){
       const j=eslJuge(c[1], c[2]);
       if(j.sait!==c[3]) vus.push('juge « '+c[0]+' » : sait='+j.sait+' au lieu de '+c[3]+(j.phrase?' — « '+j.phrase+' »':''));

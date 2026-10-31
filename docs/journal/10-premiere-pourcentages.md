@@ -4813,3 +4813,37 @@ comme 1, et le bord n'y tenait que le VERDICT, pas le peintre (relecture,
 octobre 2026). Le bord mesure donc le peintre lui-même : le numérateur
 CANONIQUE écrit seul (2000, dénominateur vide) doit ROUGIR — « vide vaut 1 »
 lit 2000, pas 20 — là où l'ancre le bleuirait ; éprouvé sur les deux niveaux.
+
+## Le mot de la conclusion se lit malgré une faute d'orthographe (Première v355, octobre 2026)
+
+Signalé par Turquet sur le 2.5.8 ({devoir-blanc-pourcentages}) : une copie
+juste — « 130/100 × 90/100 = 117/100 = 1,17 » — finie par « augementation de
+17 % » recevait « Ton calcul est là, mais il manque la conclusion ». Ce
+n'était pas le modèle : c'était le JUGE local, qui prime (`eslJuge`), et qui ne
+lisait la conclusion qu'à la lettre — `eslConclusion` cherchait exactement
+`hausse|augmentation|baisse|diminution|reduction`. Le mot mal écrit tombait en
+commentaire, la conclusion manquait.
+
+`salMotsEvolution` (à côté de `salDixNorm`) relit le texte normalisé : un
+morceau à 1 lettre d'UN SEUL des cinq mots (2 lettres pour les mots de 9
+lettres et plus) est lu comme lui. Les mots justes, et « évolution », sont
+verrouillés avant la recherche — sans quoi « augmentationde » se relisait
+« augmentatione » (le « d » mangé par un voisin à une lettre). Un mot à égale
+distance de DEUX mots n'est pas lu, et un morceau qui chevauche le meilleur
+candidat compte : « bausse » (« ausse » → hausse, « bausse » → baisse) ne dit
+pas son sens. Branché sur les trois lecteurs de conclusion en mots de la
+Première : `eslConclusion` (2.5.6, 2.5.7, 2.5.8), `salDixConclusion` (les
+feuilles des 10 %), `evsMotOk` (la case du mot, 2.5.5). La Seconde n'a que des
+listes déroulantes pour ce mot ; la Terminale, aucun.
+
+Une copie JUSTE mal orthographiée reçoit une remarque (`salOrthNote`, dans
+`checkSal` et `checkEsl`) : « (Attention à l'orthographe : on écrit
+« augmentation ».) » — la conclusion compte, l'élève apprend le mot. Les
+consignes du modèle (`eslEnonceIA`, `salEnonceIA`) disent aussi qu'une faute
+sur ce mot ne rend pas la conclusion fausse.
+
+Contrôle : six cas ajoutés au juge de `syntheseEvolutionsLibre`
+(`tests/verifier.js`) — « augementation » avec et sans espaces, « hause »,
+« dimminution » acceptés ; « baise » (lu « baisse ») reste un sens faux ;
+« bausse » reste une conclusion absente — plus `salOrthNote`, `evsMotOk` et
+`salDixConclusion`.

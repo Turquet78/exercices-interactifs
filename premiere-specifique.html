@@ -3185,7 +3185,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=354;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=355;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -12074,13 +12074,72 @@ function salExpr(txt){
    · « diminution de k % » (baisse, augmentation, hausse), sur une ligne sans
      « = », est la CONCLUSION : elle porte le sens et le pourcentage. */
 function salDixNorm(t){ return String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\u2208/g,'in').replace(/[\\\s]+/g,''); }
+/* LES MOTS DE LA CONCLUSION SE LISENT MALGRÉ UNE FAUTE D'ORTHOGRAPHE. Un élève
+   a écrit « augementation de 17 % » au 2.5.8 : le calcul était juste, la
+   conclusion aussi, et le juge répondait « il manque la conclusion » — le mot
+   n'était lu qu'à la lettre (signalé par Turquet, octobre 2026). Un mot
+   proche d'UN SEUL des cinq mots d'évolution (1 lettre d'écart, 2 pour les
+   mots de 9 lettres et plus) est lu comme lui ; « bausse », à une lettre de
+   « hausse » ET de « baisse », ne dit pas son sens : il n'est pas lu. Les mots
+   justes et « évolution » sont gardés tels quels — jamais rognés par une
+   lecture voisine. Le texte reçu est déjà normalisé (salDixNorm : minuscules,
+   sans accents ni espaces). Rend { t, orth } : le texte relu, et les mots
+   rétablis (pour la remarque d'orthographe d'une copie juste). */
+const SAL_MOTS_EVO=['augmentation','diminution','reduction','hausse','baisse'];
+function salLev(a,b){
+  let p=[]; for(let j=0;j<=b.length;j++) p[j]=j;
+  for(let i=1;i<=a.length;i++){ const c=[i];
+    for(let j=1;j<=b.length;j++) c[j]=Math.min(p[j]+1, c[j-1]+1, p[j-1]+(a[i-1]===b[j-1]?0:1));
+    p=c; }
+  return p[b.length];
+}
+function salMotsEvolution(t){
+  t=String(t==null?'':t);
+  const orth=[], tol=w=>w.length>=9?2:1, gardes=SAL_MOTS_EVO.concat(['evolution']);
+  for(let tour=0;tour<6;tour++){
+    const pris=new Array(t.length).fill(false);
+    gardes.forEach(w=>{ let i=t.indexOf(w); while(i>=0){ for(let k=i;k<i+w.length;k++) pris[k]=true; i=t.indexOf(w,i+1); } });
+    const cands=[];
+    const re=/[a-z]+/g; let m;
+    while((m=re.exec(t))){
+      const run=m[0], pos=m.index;
+      for(let i=0;i<run.length;i++) for(let L=4;L<=14 && i+L<=run.length;L++){
+        let libre=true; for(let k=pos+i;k<pos+i+L;k++) if(pris[k]){ libre=false; break; }
+        if(!libre) break;
+        const s=run.substr(i,L);
+        let d0=99, mot=null, unique=true;
+        SAL_MOTS_EVO.forEach(w=>{ if(Math.abs(w.length-L)>tol(w)) return; const d=salLev(s,w); if(d>tol(w)) return;
+          if(d<d0){ d0=d; mot=w; unique=true; } else if(d===d0 && w!==mot) unique=false; });
+        if(mot && d0>0) cands.push({ d:d0, L, at:pos+i, mot, unique });
+      }
+    }
+    let best=null;
+    cands.forEach(c=>{ if(!best || c.d<best.d || (c.d===best.d && c.L>best.L)) best=c; });
+    if(!best) break;
+    /* ambigu : le mot lui-même, ou un morceau qui le chevauche, est aussi
+       proche d'un AUTRE mot d'évolution (« bausse » : « ausse » → hausse,
+       « bausse » → baisse) — le sens n'est pas écrit, rien n'est relu */
+    if(!best.unique || cands.some(c=>c.mot!==best.mot && c.d<=best.d && c.at<best.at+best.L && best.at<c.at+c.L)) break;
+    t=t.slice(0,best.at)+best.mot+t.slice(best.at+best.L);
+    if(orth.indexOf(best.mot)<0) orth.push(best.mot);
+  }
+  return { t, orth };
+}
+/* La remarque d'orthographe d'une copie JUSTE : le mot mal écrit a été lu,
+   la conclusion compte — l'élève apprend seulement comment il s'écrit. */
+function salOrthNote(texte){
+  const mots=[];
+  String(texte==null?'':texte).split('\n').forEach(l=>{ if(!/\d/.test(l)) return;
+    salMotsEvolution(salDixNorm(l)).orth.forEach(w=>{ if(mots.indexOf(w)<0) mots.push(w); }); });
+  return mots.length ? ' (Attention à l’orthographe : on écrit '+mots.map(w=>'« '+w.replace('reduction','réduction')+' »').join(' et ')+'.)' : '';
+}
 function salDixPct(m){
   const r=salDixNorm(m).match(/^(\d+(?:[.,]\d+)?)%(?:d[eu](\d+(?:[.,]\d+)?)[a-z€]*)?$/);
   return r ? { k:salRat(r[1]), M:(r[2]?salRat(r[2]):null) } : null;
 }
 function salDixEcart(m){ return /^(?:l['’])?(?:ecart|difference)$/.test(salDixNorm(m)); }
 function salDixConclusion(ligne){
-  const r=salDixNorm(ligne).match(/(diminution|baisse|augmentation|hausse)(?:de)?(\d+(?:[.,]\d+)?)%/);
+  const r=salMotsEvolution(salDixNorm(ligne)).t.match(/(diminution|baisse|augmentation|hausse)(?:de)?(\d+(?:[.,]\d+)?)%/);
   return r ? { sens:((r[1]==='diminution'||r[1]==='baisse')?-1:1), k:salRat(r[2]) } : null;
 }
 /* Lit une ligne « k % = … » ou « écart = … ». Rend null quand la ligne n'en est
@@ -12349,7 +12408,7 @@ function salEnonceIA(q){
    +' L’élève doit retrouver '+synQuoi(q)+' parmi quatre propositions : '+props+'.'
    +' Il a choisi '+QLET[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+', et JUSTIFIE ce choix en écrivant sa vérification LUI-MÊME dans une feuille, ligne par ligne.'
    +'\nCHAQUE LIGNE EST UN CALCUL INDÉPENDANT (il peut aussi enchaîner des « = » dans une même ligne). Ne refuse JAMAIS une copie pour sa mise en page.'
-   +(q.dix?'\nLa méthode des 10 % est acceptée, et ses lignes s’écrivent en pourcents et en mots : « 10 % = 60 », « 30 % = 180 », « écart = 180 », « '+(sens<0?'diminution':'augmentation')+' de 30 % ». L’éditeur écrit « \\% » et peut retirer les espaces : lis « 10\\%=60 » comme « 10 % = 60 » et « '+(sens<0?'diminutionde30%':'augmentationde30%')+' » comme « '+(sens<0?'diminution':'augmentation')+' de 30 % ».':'');
+   +(q.dix?'\nLa méthode des 10 % est acceptée, et ses lignes s’écrivent en pourcents et en mots : « 10 % = 60 », « 30 % = 180 », « écart = 180 », « '+(sens<0?'diminution':'augmentation')+' de 30 % ». L’éditeur écrit « \\% » et peut retirer les espaces : lis « 10\\%=60 » comme « 10 % = 60 » et « '+(sens<0?'diminutionde30%':'augmentationde30%')+' » comme « '+(sens<0?'diminution':'augmentation')+' de 30 % ». Une faute d’orthographe sur ce mot (« augementation », « dimminution ») ne rend pas la conclusion fausse.':'');
 }
 function salAttenduIA(q, juge){
   const c=salCouple(q), okChoix=(q.choisi===q.bon), part=(c.sens===0);
@@ -12456,6 +12515,7 @@ async function checkSal(){
     }
     correct=res.correct===true; feedback=res.feedback||'';
   }
+  if(correct) feedback+=salOrthNote(rep);
   fb.innerHTML=conseilHTML(feedback); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   salPeindreLignes();                       /* la copie se voit : lignes justes en bleu, fausses en rouge */
   const okChoix=(q.choisi===q.bon);
@@ -14501,7 +14561,7 @@ function renderEsl(){
 function eslConclusion(ligne){
   const brut=String(ligne), t=salDixNorm(brut).replace(/\u2212|\u2013|\u2014/g,'-').replace(/\u2192|->/g,'=');
   const avant=brut.split('=')[0];
-  let r=t.match(/(hausse|augmentation|baisse|diminution|reduction)(?:globale)?(?:de)?(\d+(?:[.,]\d+)?)(?:%|pour100)[.!)]*$/);
+  let r=salMotsEvolution(t).t.match(/(hausse|augmentation|baisse|diminution|reduction)(?:globale)?(?:de)?(\d+(?:[.,]\d+)?)(?:%|pour100)[.!)]*$/);
   if(r && (brut.indexOf('=')<0 || !/\d/.test(avant)))
     return { sens:(r[1]==='baisse'||r[1]==='diminution'||r[1]==='reduction')?-1:1, k:salRat(r[2]) };
   const t2=t.replace(/evolution|globale|global|taux|conclusion|bilan|resultat|final|finale|soit|donc|c'est|cest|une|un|de|au/g,'');
@@ -14654,7 +14714,8 @@ function eslEnonceIA(q){
   return 'Exercice de mathématiques de Première (France), sur DEUX ÉVOLUTIONS SUCCESSIVES en pourcentage. '+strip(variante(ESS_ENONCES,q))
    +' L’élève rédige TOUT le calcul lui-même dans une feuille, ligne par ligne, par la méthode de son choix, puis écrit sa conclusion (une hausse ou une baisse, et de quel pourcentage).'
    +'\nCHAQUE LIGNE EST UN CALCUL INDÉPENDANT (il peut aussi enchaîner des « = » dans une même ligne). Ne refuse JAMAIS une copie pour sa mise en page.'
-   +'\nLes lignes s’écrivent aussi en pourcents et en mots : « 10 % de 100 est 10 », « 5 % de 120 est 6 », « hausse de 14 % ». L’éditeur écrit « \\% » et peut retirer les espaces : lis « 5\\%de120est6 » comme « 5 % de 120 est 6 » et « haussede14\\% » comme « hausse de 14 % ».';
+   +'\nLes lignes s’écrivent aussi en pourcents et en mots : « 10 % de 100 est 10 », « 5 % de 120 est 6 », « hausse de 14 % ». L’éditeur écrit « \\% » et peut retirer les espaces : lis « 5\\%de120est6 » comme « 5 % de 120 est 6 » et « haussede14\\% » comme « hausse de 14 % ».'
+   +'\nUNE FAUTE D’ORTHOGRAPHE NE REND PAS LA CONCLUSION FAUSSE : « augementation de 17 % », « hause de 5 % » se lisent « augmentation de 17 % », « hausse de 5 % ». Juge le sens et le pourcentage, pas l’orthographe.';
 }
 function eslAttenduIA(q, juge){
   const a=essAns(q), mot=s=>s>0?'hausse':'baisse', sg=s=>s>0?'+':'−';
@@ -14738,6 +14799,7 @@ async function checkEsl(){
     }
     correct=res.correct===true; feedback=res.feedback||'';
   }
+  if(correct) feedback+=salOrthNote(rep);
   fb.innerHTML=conseilHTML(feedback); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   eslPeindreLignes();
   if(isSoutien() && !correct){
@@ -20055,7 +20117,7 @@ function evsMotDe(s){ return s==='+'?'augmentation':'diminution'; }
    « \text{'} » pour une apostrophe, et une commande ne doit pas laisser ses
    lettres. « Hausse » vaut « augmentation », « baisse » vaut « diminution ». */
 function evsMotNorm(t){ return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\\[a-z]+|[^a-z]/g,''); }
-function evsMotOk(t,bonS){ const m=evsMotNorm(t); return bonS==='+' ? (m==='augmentation'||m==='hausse') : (m==='diminution'||m==='baisse'); }
+function evsMotOk(t,bonS){ const m=salMotsEvolution(evsMotNorm(t)).t;   /* « augementation » se lit « augmentation » (salMotsEvolution) */ return bonS==='+' ? (m==='augmentation'||m==='hausse') : (m==='diminution'||m==='baisse'); }
 function evsSigneMAJ(){
   const g=$('evsG'), pm=$('evsPM'); if(!g||!pm) return;
   const s=evsSigneDe(String(g.value||'').trim());
