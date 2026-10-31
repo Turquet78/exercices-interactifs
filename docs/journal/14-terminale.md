@@ -3356,3 +3356,46 @@ par POSITION contredisait la case bleue voisine — le juge rend `sol`, le terme
 resté libre (`dexpSolTermes`, `dexpSolPaire`). Tenu par `casesVidesDerivees41`
 (la copie révélée rejugée juste), le lot J étendu et le contrôle universel du
 navigateur, éprouvés par sabotage ; 4.4.1, 4.1.9 et 5.2.2 restent dispensés.
+
+## Les mots de structure se lisent malgré une faute d'orthographe (Terminale v470, octobre 2026)
+
+« Fais pareil pour la Seconde et la Terminale » (Turquet, octobre 2026), après
+la Première (v355-356 : « augementation de 17 % » au 2.5.8, puis la
+conclusion que la page ne lit pas confiée au modèle — chronique dans
+`10-premiere-pourcentages.md`).
+
+Le défaut existait ici, pire : trois juges cherchent des MOTS à la lettre, et
+deux d'entre eux REFUSENT seuls, avant tout modèle.
+
+* {recurrence-redaction} (6.7, `rrJuge`) : « initialis », « heredit »,
+  « sup+os », « croissan ». Un « Initalisation » ou un « croisante » donnait
+  un ✗ et un refus de la page sur une démonstration juste.
+* {suite-auxiliaire-redaction} (`sarJuge`) : « geometri » — « géomtrique »
+  refusait la partie c).
+* {tvi-redaction} (`evalJustif`) : le modèle juge l'essentiel ; la page n'y
+  mesure que des critères facultatifs (le théorème cité, l'intervalle), lus
+  désormais avec la même tolérance.
+
+`motsRacines` (à côté de `rrReduit`) relit chaque MOT du texte normalisé : un
+mot dont le début est à une lettre d'une racine (deux pour les racines de 9
+lettres et plus ; une inversion compte pour une — distance OSA) est réécrit
+avec elle. Deux racines à égale distance ne réécrivent rien : « dcroissante »
+peut être « croissante » ou « décroissante », « géométrique » et
+« arithmétique » sont tenues ensemble. Un mot plus loin mais encore proche
+(une lettre de plus, deux pour les longues racines) est rangé dans `doutes` :
+le critère n'est ni ✓ ni ✗ — « ? », sans classe de verdict (le contrôle des
+encres « 9 bis » ne lit que les classes) —, la page s'abstient si ce sont les
+SEULS manques, et `motsDoutesIA` dit au modèle quel mot relire et que
+l'orthographe n'est pas jugée. Un mot ABSENT reste un refus de la page.
+Une copie juste reçoit la remarque d'orthographe (`motsOrthNote`).
+
+La Seconde n'a rien à changer : ses mots de conclusion se CHOISISSENT (listes
+déroulantes des pourcentages, justifications à choisir des vecteurs), et ses
+exercices Python lisent déjà le texte avec tolérance (`pyTexteProche`, oui/non
+de `pfvJugeC`).
+
+Contrôles : banc principal (la copie complète aux quatre mots mal écrits
+acceptée avec sa remarque, « Initsation » confié au modèle, le mot absent
+refusé, « géomtrique » lu, « arithmétique » refusé) — éprouvé par sabotage
+(la relecture retirée : les deux contrôles rougissent) ; banc navigateur (les
+mots retouchés dans les vrais champs MathLive de la copie tapée).

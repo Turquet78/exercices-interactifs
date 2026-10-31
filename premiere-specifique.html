@@ -8072,12 +8072,17 @@ function checkPAnswer(live){
   // étape 3 : décimale égale au résultat
   const fr=parseDecToFrac(v('p3'));
   const ok3 = !!fr && fr.n===q.result*fr.d;
-  // une case juste ne rougit pas parce que sa JUMELLE est fausse : quand la
-  // fraction est fausse, la case qui porte la valeur canonique reste juste
-  // (la règle de la capture du 1.7) — et une case vide ne reçoit rien
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');if(v(id)!=='')el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
-  mark('p1n',ok1||(v('p1d')!==''&&f1n===q.P)); mark('p1d',ok1||(v('p1n')!==''&&f1d===100));
-  mark('p2n',ok2||(v('p2d')!==''&&f2n===q.prod)); mark('p2d',ok2||(v('p2n')!==''&&f2d===100)); mark('p3',ok3);
+  // une case juste ne rougit pas parce que sa JUMELLE est fausse OU VIDE :
+  // quand la fraction est fausse, la case qui porte la valeur canonique reste
+  // juste (la règle de la capture du 1.7) — et une case vide ne reçoit rien.
+  // L'ancre ne dépend plus de l'autre case : « 70 » écrit en haut de 70/100,
+  // dénominateur oublié, rougissait, et l'entraînement posait « 70/100 » en
+  // vert à côté (capture de Turquet sur le 2.2.13, octobre 2026 — même
+  // défaut, retrouvé ici par le balayage de tous les exercices). Ces fractions
+  // n'ont pas la convention du facteur entier : ok1 et ok2 exigent la paire.
+  const soutien=isSoutien();
+  marqueFracAncre('p1n','p1d',ok1,q.P,100,soutien); marqueFracAncre('p2n','p2d',ok2,q.prod,100,soutien);
+  marqueSaufVide('p3',ok3,soutien);
   const allOk=ok1&&ok2&&ok3;
   if(!allOk && isSoutien()){ soutienAgain('pFeedback','pActions','checkPAnswer','pHost'); return; }
   test.locked=true;
@@ -20515,7 +20520,10 @@ function checkLCAnswer(live){
   /* une case laissée vide ne rougit jamais, en soutien comme en évaluation,
      et les deux cases de P/100 ont chacune leur verdict — la convention du
      facteur entier (dénominateur vide = 1) est celle de ok1 (audit, octobre 2026) */
-  marqueSaufVide('lcP',okP,soutien); marqueFracSaufVide('lc1n','lc1d',q.P,100,soutien);
+  /* P/100 : le juge des taux (marqueFracAncre, décision d'octobre 2026 sur
+     les évolutions successives) — le P écrit seul en haut reste bleu, que le
+     dénominateur soit faux ou VIDE ; « vide vaut 1 » n'est pas pour un taux */
+  marqueSaufVide('lcP',okP,soutien); marqueFracAncre('lc1n','lc1d',ok1,q.P,100,soutien);
   marqueSaufVide('lc1p',ok1p,soutien); marqueSaufVide('lc1dec',ok1d,soutien);
   [...document.querySelectorAll('#lcChoix .pt-choix-btn')].forEach((b,i)=>{
     b.classList.remove('ok','bad');
@@ -20678,7 +20686,7 @@ function checkCKAnswer(live){
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');
     if(v(id)===''){ el.disabled=!soutien; return; }
     el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;};
-  marqueFracSaufVide('ck1n','ck1d',q.P,100,soutien);   /* chaque case de P/100 a son verdict : la paire, puis l'ancre canonique */
+  marqueFracAncre('ck1n','ck1d',ok1,q.P,100,soutien);   /* chaque case de P/100 a son verdict : la paire, puis l'ancre canonique — même dénominateur VIDE (le juge des taux, pas « vide vaut 1 ») */
   mark('ck1p',ok1p); if(q.fam!=='pre') mark('ckC',okC);
   const bon=ckBon(q);
   q.opts.forEach((_,i)=>{ const b=$('ckc'+i); if(!b) return;
