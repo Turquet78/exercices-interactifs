@@ -5317,6 +5317,9 @@ reste grisé tant que le départ n'est pas posé, et jamais de vecteur nul : un
 départ posé sur l'arrivée, ou l'inverse, ne fait rien. Deux points ne se
 posent pas sur le même nœud (le toucher ne fait rien) — le moteur, lui, les
 séparait en reprenant le point touché.
+Sur un téléphone (moins de 600 px), « le point » et « le vecteur » se
+taisent (`.pd-long`) : la barre du 8.1.7 prenait six lignes, elle en prend
+trois, et chaque groupe « départ / arrivée » reste sur sa ligne.
 
 Un ADAPTATEUR par moteur (`POSE_DOIGT[kind]`) dit ce qui se pose (`items`) et
 comment (`poser`), en réutilisant les fonctions du moteur — dessin, consigne,
