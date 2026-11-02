@@ -687,3 +687,25 @@ système ; `window.__tabletteForce` ouvre la grille sans écran tactile (un
 Vérifié dans Chromium tactile (390 × 700, 740 × 360, 1024 × 700) : la grille
 mesure 106 px de haut, entière à l'écran ; le choix touché s'écrit dans la
 case et dans `q.rep`, la grille se referme.
+
+**Toute fraction égale au résultat est juste, dans tout le thème (v361).**
+Demande de Turquet, novembre 2026 : « en première dans le thème probabilités
+accepter tous les résultats qui sont des fractions égales au résultat ». Ce
+que le 3.8 faisait seul depuis la v327 (`indJuger`) vaut désormais pour
+chaque paire numérateur / dénominateur du moteur `pb` : `pbFracJuger(att,
+verd, suf)`, appelé par `checkPBAnswer` après le crochet `juger` de `PBX`, et
+par `checkPBFiche` question par question (suffixe `-i` des cases de la fiche
+du 3.3). Les paires sont NOMMÉES (`PB_FRAC_PAIRES` : `pb-n1/pb-n2`, et les
+cinq du 3.8) plutôt que devinées sur le motif « …1 / …2 » : `pb-c1` et
+`pb-c2` sont deux cases du TABLEAU, et 2 et 4 tapés pour 4 et 8 ne sont pas
+une fraction égale. Simplifiée (3/11 pour 12/44) ou amplifiée (36/132) : les
+deux cases sont justes ; sinon chaque case se juge seule, comme avant. Les
+attendus, donc la correction verte, restent les fractions des effectifs ; le
+contexte envoyé au modèle ne dit plus « sans la simplifier » mais « une
+fraction égale, simplifiée ou non, est acceptée ».
+Contrôle : « thème 3 (Première) : une fraction égale à l’attendue est juste,
+dans chaque exercice à fraction » (banc principal, `tests/verifier.js`) — des
+cases du DOM tapées, simplifiée, amplifiée, fausse, dénominateur nul, fiche
+suffixée, produit du 3.8, cases de tableau. Vérifié dans Chromium : 36/69
+pour 12/23 au 3.2, 36/132 pour 12/44 au 3.6 comptés « Parfait » ; la fiche du
+3.3 aux fractions doublées, 7/7.
