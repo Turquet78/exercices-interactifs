@@ -2261,6 +2261,13 @@
   .chs-ca .veg-v,.chs-ca .veg-fl,.chs-l.chs-actif .chs-na .veg-v,.chs-l.chs-actif .chs-na .veg-fl{color:var(--crd-a)}
   .chs-cb .veg-v,.chs-cb .veg-fl,.chs-l.chs-actif .chs-nb .veg-v,.chs-l.chs-actif .chs-nb .veg-fl{color:var(--crd-b)}
   .chs-l{cursor:pointer}
+  /* Le second vecteur (.chs-nb) et le premier recopié après « = » (.chs-na
+     hors tête) sont enveloppés pour leur encre : en <span> ordinaire, le
+     vecteur s'y posait sur la ligne de base de la police et descendait de
+     4 px sous le premier (Turquet, novembre 2026 : « les vecteurs doivent être
+     alignés horizontalement »). Centrés comme .veg-tete, ils sont au même
+     niveau que lui et que les cases. */
+  .chs-na,.chs-nb{display:inline-flex;align-items:center}
   .chs-l.chs-actif{border-color:var(--crd-a);background:#F8F5FE}
   /* 8.1.15 {vecteur-egal-figure} : la figure du 8.2.2, le vecteur donné en
      orange, celui de l'élève en violet, la correction en vert pointillé */
@@ -8909,7 +8916,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=632;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=633;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
