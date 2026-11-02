@@ -17785,6 +17785,49 @@ if(require.main === module) (async () => {
                 : ('pavé fini à ' + q8.bas + 'px, commandes dès ' + (q8.cmd ? q8.cmd.haut : '?') + 'px, ' + q8.rangees + ' rangée(s)'));
           }
         }
+        /* ---- SUR UN TÉLÉPHONE, LE PAVÉ EST ANCRÉ AU BAS DE L'ÉCRAN — ET IL SE REFERME ----
+           Demande de Turquet (novembre 2026), sur le 6.1.5 de la Terminale vu
+           d'un téléphone : « le clavier virtuel est trop haut en mode portrait
+           et en mode paysage ; le mettre le plus bas possible, comme la case
+           2.a » — un champ MathLive, dont le clavier colle au bord. Le pavé de
+           la Terminale vivait à 96 px du bord : au MILIEU d'un téléphone couché
+           (mesuré : 184 → 294 px sur 390). Et sur un téléphone DEBOUT, le pavé
+           REFERMÉ restait affiché — la règle du portrait étroit
+           (body.pave-actif #paveNum, display:grid) était plus spécifique que
+           « #paveNum[hidden]{display:none} » : deux claviers superposés dès
+           que l'élève passait à un champ MathLive, et le pavé sur l'exercice
+           une fois la case quittée. Universel — les trois niveaux, les deux
+           orientations —, mesuré au RECTANGLE sur la case du profil : ancré
+           (bas, gauche et droite au bord), puis, la case quittée, vraiment
+           disparu (display:none, rectangle nul) — « hidden » posé ne suffit
+           pas, c'est précisément ce qui trompait. */
+        if(!m.absent){
+          for(const [nom, w, h] of [['debout', 390, 844], ['couché', 844, 390]]){
+            await s.page.setViewportSize({ width: w, height: h });
+            await s.page.waitForTimeout(300);
+            await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
+            await s.page.waitForTimeout(150);
+            await s.page.focus(P.pave.champ);
+            await s.page.waitForTimeout(400);
+            const q = await s.page.evaluate(mesurerPave, P.pave.champ);
+            verifier('sur un téléphone ' + nom + ', le pavé est ancré au bas de l\'écran, d\'un bord à l\'autre, sans recouvrir la case ni les commandes',
+              q.visible && Math.abs(q.fenetre.h - q.bas) <= 1 && q.gauche <= 1 && q.droite >= q.fenetre.w - 1 && !q.surCase && !q.surCommandes,
+              !q.visible ? 'le pavé reste caché'
+                : Math.abs(q.fenetre.h - q.bas) > 1 ? ('le pavé finit à ' + q.bas + 'px sur ' + q.fenetre.h + ' : ' + (q.fenetre.h - q.bas) + 'px au-dessus du bord')
+                : (q.gauche > 1 || q.droite < q.fenetre.w - 1) ? ('le pavé va de ' + q.gauche + ' à ' + q.droite + 'px sur ' + q.fenetre.w)
+                : q.surCase ? 'il recouvre la case qu\'on remplit' : 'il recouvre les commandes du bas');
+            await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
+            await s.page.waitForTimeout(300);
+            const f = await s.page.evaluate(() => {
+              const p = document.getElementById('paveNum'), r = p.getBoundingClientRect();
+              return { hidden: p.hidden, display: getComputedStyle(p).display, h: Math.round(r.height), w: Math.round(r.width) };
+            });
+            verifier('sur un téléphone ' + nom + ', le pavé refermé disparaît vraiment de l\'écran',
+              f.hidden && f.display === 'none' && f.h === 0,
+              !f.hidden ? 'le pavé n\'est pas refermé (hidden absent) une fois la case quittée'
+                : ('hidden posé, mais display=' + f.display + ', ' + f.w + ' × ' + f.h + 'px : une règle plus spécifique le garde à l\'écran'));
+          }
+        }
       }
       await s.nav.close(); s = null;
 
