@@ -2239,6 +2239,15 @@
   .chs-wrap{display:flex;flex-wrap:wrap;gap:14px 18px;align-items:flex-start;width:100%}
   .chs-fig{flex:1 1 300px;max-width:480px;margin:0 auto}
   .chs-lignes{flex:2 1 460px;max-width:none;margin:0}
+  /* 8.2.3 : un seul calcul à l'écran, ses trois vecteurs en couleur dans
+     l'énoncé et sur le dessin (Turquet, novembre 2026). Ni bleu, ni rouge,
+     ni vert : ce sont les encres des verdicts. */
+  #scr-ctv{--ctv-c0:#E8710A;--ctv-c1:#8E24AA;--ctv-c2:#D81B8C}
+  .veg-svg line.ctv-v{stroke-width:3.4;stroke-linecap:round}
+  .veg-svg line.ctv-v.ctv-c0{stroke:var(--ctv-c0)} .veg-svg line.ctv-v.ctv-c1{stroke:var(--ctv-c1)} .veg-svg line.ctv-v.ctv-c2{stroke:var(--ctv-c2)}
+  .veg-svg path.ctv-c0{fill:var(--ctv-c0)} .veg-svg path.ctv-c1{fill:var(--ctv-c1)} .veg-svg path.ctv-c2{fill:var(--ctv-c2)}
+  .veg-v.ctv-t.ctv-c0,.veg-fl.ctv-c0{color:var(--ctv-c0)} .veg-v.ctv-t.ctv-c1,.veg-fl.ctv-c1{color:var(--ctv-c1)} .veg-v.ctv-t.ctv-c2,.veg-fl.ctv-c2{color:var(--ctv-c2)}
+  .veg-v.ctv-t .veg-fl{color:inherit}
   /* 8.12 {chasles-alignes} : la droite au-dessus des lignes (elle est longue
      et basse), le petit trait de codage des segments égaux en bleu nuit. */
   .cha-fig{flex:1 1 100%;max-width:520px;margin:0 auto}
@@ -8225,7 +8234,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   <!-- VECTEURS : LA RELATION DE CHASLES AVEC TROIS VECTEURS (8.9) -->
   <section class="screen" id="scr-ctv">
     <div class="test-top">
-      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagCtv"></span><span class="q-idx" id="ctvIdx">Figure 1 / 2</span></span>
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagCtv"></span><span class="q-idx" id="ctvIdx">Calcul 1 / 6</span></span>
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="ctvLiveScore">0</b></span>
     </div>
     <div class="card">
@@ -8836,7 +8845,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=628;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=629;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9693,7 +9702,7 @@ const TESTS={
   'lire-somme-dessin': { name:'Lire une somme de vecteurs sur un dessin', icon:'\ud83d\udd0d', desc:'Une cha\u00eene de fl\u00e8ches entre des points nomm\u00e9s, et trois vecteurs u, v, w trac\u00e9s \u00e0 part\u00a0: trouve le vecteur bleu de la figure \u00e9gal \u00e0 u + v, puis \u00e9cris w comme la somme de deux vecteurs bleus.', start:()=>startLsd() },
   'somme-trois-vecteurs': { name:'Trois vecteurs bout \u00e0 bout', icon:'\u2795', desc:'Trois fl\u00e8ches u, v, w et un point sur un quadrillage\u00a0: fais-les glisser bout \u00e0 bout \u00e0 partir du point, puis trace le vecteur u + v + w \u2014 ou dis que c\u2019est le vecteur nul.', start:()=>startStv() },
   'relation-chasles': { name:'La relation de Chasles', icon:'\ud83d\udd17', desc:'Un rectangle, un carr\u00e9, un parall\u00e9logramme ou un losange et ses diagonales, et des sommes de vecteurs \u00e0 compl\u00e9ter\u00a0: encha\u00eene-les avec la relation de Chasles, en changeant l\u2019ordre ou en rempla\u00e7ant un vecteur par un vecteur \u00e9gal.', start:()=>startChs() },
-  'chasles-trois-vecteurs': { name:'Chasles avec trois vecteurs', icon:'\u26d3\ufe0f', desc:'Un parall\u00e9logramme de centre O et des sommes de deux ou trois vecteurs\u00a0: change l\u2019ordre, remplace un vecteur par un vecteur \u00e9gal, ajoute l\u2019oppos\u00e9, encha\u00eene \u2014 et reconnais le vecteur nul.', start:()=>startCtv() },
+  'chasles-trois-vecteurs': { name:'Chasles avec trois vecteurs', icon:'\u26d3\ufe0f', desc:'Un parall\u00e9logramme de centre O et une somme de trois vecteurs \u00e0 la fois, chacun de sa couleur sur le dessin\u00a0: change l\u2019ordre, remplace un vecteur par un vecteur \u00e9gal, ajoute l\u2019oppos\u00e9, encha\u00eene \u2014 et reconnais le vecteur nul.', start:()=>startCtv() },
   'chasles-simplifier': { name:'\u00c9crire plus simplement une somme de vecteurs', icon:'\u26d3\ufe0f', desc:'La figure de la fiche\u00a0: un rectangle, ses milieux et ses diagonales. Neuf sommes et diff\u00e9rences de vecteurs \u00e0 \u00e9crire plus simplement\u00a0: ajoute l\u2019oppos\u00e9, change l\u2019ordre ou prends un vecteur \u00e9gal, puis conclus par la relation de Chasles.', start:()=>startCsp() },
   'chasles-sans-figure': { name:'La relation de Chasles sans figure', icon:'\u2795', desc:'Sans figure\u00a0: des sommes et des diff\u00e9rences de vecteurs \u00e0 \u00e9crire avec un seul vecteur, si c\u2019est possible \u2014 changer l\u2019ordre, ajouter l\u2019oppos\u00e9, reconna\u00eetre le vecteur nul.', start:()=>startChl() },
   'chasles-alignes': { name:'Chasles sur une droite', icon:'\ud83d\udccf', desc:'Quatre points align\u00e9s r\u00e9guli\u00e8rement espac\u00e9s, et des sommes de deux ou trois vecteurs \u00e0 r\u00e9\u00e9crire puis \u00e0 conclure par la relation de Chasles \u2014 jusqu\u2019au vecteur nul.', start:()=>startCha() },
@@ -71012,7 +71021,7 @@ function chsCases(q){
    Le même tracé que le 8.3 (.veg-svg) : lettres à 19 px dans une boîte de
    460. Les sommets sont nommés du côté opposé au centre ; le centre, dans le
    plus large des quatre secteurs que font les demi-diagonales. */
-function chsSvg(q){
+function chsSvg(q, calque){
   const pts=chsPoints(q), n=q.n, W=460, HMAX=300, M=30;
   const xs=n.split('').map(function(c){ return pts[c][0]; }), ys=n.split('').map(function(c){ return pts[c][1]; });
   const minx=Math.min.apply(null,xs), maxx=Math.max.apply(null,xs), miny=Math.min.apply(null,ys), maxy=Math.max.apply(null,ys);
@@ -71037,6 +71046,9 @@ function chsSvg(q){
   for(let i=0;i<4;i++){ const a=ang[i], b=i<3?ang[i+1]:ang[0]+2*Math.PI; if(b-a>best){ best=b-a; a0=(a+b)/2; } }
   h+='<circle cx="'+C[0].toFixed(1)+'" cy="'+C[1].toFixed(1)+'" r="2.6"/>'
     +'<text class="veg-pt" x="'+(C[0]+Math.cos(a0)*20).toFixed(1)+'" y="'+(C[1]+Math.sin(a0)*20).toFixed(1)+'" text-anchor="middle" dominant-baseline="central">'+n[4]+'</text>';
+  /* un calque posé par-dessus (le 8.2.3 y trace ses trois vecteurs en
+     couleur) : il reçoit la même mise à l'échelle que la figure */
+  if(typeof calque==='function') h+=calque(P);
   return h+'</svg>';
 }
 
@@ -71225,14 +71237,20 @@ function ctxChs(q){
    ON RANGE LA FORME, LE RETOURNEMENT, LES LETTRES ET LES LIGNES, JAMAIS LES
    RÉPONSES : ctvLigne() recalcule les chaînes depuis les points. Le centre
    s'appelle toujours O, comme la fiche ; les sommets se tirent. */
-const CTV_NB=2;   /* figures par séance (réglage « Questions » d'un devoir) */
-/* le plan de la fiche : deux lignes à retourner, une déjà enchaînée, une où
-   l'on remplace le second vecteur, puis trois lignes à trois vecteurs — une
-   somme à rendre enchaînable, une somme nulle, une double soustraction */
-const CTV_PLAN=['ci','ci','r','u','t','t0','ts'];
-const CTV_FICHE={fig:'para', fx:1, fy:1, n:'EFGHO', lignes:[
-  {t:'c',u:'OF',v:'EO'},{t:'c',u:'OG',v:'EO'},{t:'r',u:'HO',v:'OG'},{t:'u',u:'HE',v:'HG'},
-  {t:'t',w:['HE','OG','HO'],s:[1,1,1]},{t:'t',w:['EG','FE','GF'],s:[1,1,1]},{t:'t',w:['EG','FG','OF'],s:[1,-1,-1]}]};
+/* UN SEUL CALCUL, DE TROIS VECTEURS, PAR ÉCRAN (demande de Turquet,
+   novembre 2026 : « faire uniquement des calculs avec 3 vecteurs et afficher
+   qu'un seul calcul à l'écran à chaque fois en affichant les vecteurs
+   concernés avec trois couleurs différentes »). Une question est une figure
+   et UNE ligne à trois vecteurs ; les trois premières sont les trois lignes
+   à trois vecteurs de la fiche, puis le plan tourne sur d'autres figures.
+   Les lignes à deux vecteurs de la fiche sont parties : le 8.2.2 les fait.
+   Un brouillon d'avant (sept lignes par figure) se rejoue tel quel : le
+   rendu et le juge savent toujours lire une ligne à deux vecteurs. */
+const CTV_NB=6;   /* calculs par séance (réglage « Questions » d'un devoir) */
+/* le plan : une somme à rendre enchaînable, une somme nulle, une double
+   soustraction — dans l'ordre de la fiche */
+const CTV_PLAN=['t','t0','ts'];
+const CTV_FICHE_L=[{t:'t',w:['HE','OG','HO'],s:[1,1,1]},{t:'t',w:['EG','FE','GF'],s:[1,1,1]},{t:'t',w:['EG','FG','OF'],s:[1,-1,-1]}];
 /* le vecteur nul : « 0 », « O » seul, ou deux fois la même lettre de la figure */
 function ctvLit(s, pts){
   const t=String(s==null?'':s).toUpperCase().replace(/[^A-Z0]/g,'');
@@ -71276,47 +71294,30 @@ function ctvPosable3(q, l, p, pts){
   return true;
 }
 function ctvGenQuestion(_, k){
-  if(k===0) return JSON.parse(JSON.stringify(CTV_FICHE));
+  if(k<CTV_FICHE_L.length) return {fig:'para', fx:1, fy:1, n:'EFGHO', lignes:[JSON.parse(JSON.stringify(CTV_FICHE_L[k]))]};
+  const p=CTV_PLAN[k%CTV_PLAN.length];
   const pool=CHS_LETTRES.split(''), n=[];
   for(let i=0;i<4;i++) n.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
   n.push('O');
   const q={fig:pick(CHS_FIG_IDS), fx:Math.random()<0.5?1:-1, fy:Math.random()<0.5?1:-1, n:n.join(''), lignes:[]};
-  const pts=chsPoints(q), vs=chsVecs(pts), noms=Object.keys(pts), pris={};
-  const cle=function(ws){ return ws.slice().sort().join(); };
+  const pts=chsPoints(q), vs=chsVecs(pts), noms=Object.keys(pts);
   /* un vecteur égal au hasard (lui-même compris) */
   const egal=function(v){ const d=chsD(pts,v); return pick(vs.filter(function(w){ return chsMeme(chsD(pts,w), d); })); };
-  CTV_PLAN.forEach(function(p){
-    let l=null;
-    if(p[0]!=='t'){
-      const t=p[0]==='c'?'c':p, cand=[];
-      vs.forEach(function(u){ vs.forEach(function(v){
-        if(u===v || pris[cle([u,v])]) return;
-        if(p==='ci' && v[1]!==u[0]) return;
-        if(t==='u' && (u[1]===v[0] || v[1]===u[0])) return;
-        const x={t:t,u:u,v:v}; if(chsPosable(q, x, pts)) cand.push(x); }); });
-      l=pick(cand);
-      pris[cle([l.u,l.v])]=true;
-    } else {
-      /* une chaîne de quatre points (le dernier = le premier pour t0), ses
-         vecteurs remplacés par des vecteurs égaux, l'ordre mélangé (t, t0) ;
-         pour ts, les deux derniers s'écrivent par leur opposé, soustraits */
-      for(let essai=0; essai<400 && !l; essai++){
-        const P=[pick(noms)];
-        while(P.length<(p==='t0'?3:4)){ const c=pick(noms); if(c!==P[P.length-1] && P.indexOf(c)<0) P.push(c); }
-        if(p==='t0') P.push(P[0]);
-        let ch=[P[0]+P[1], P[1]+P[2], P[2]+P[3]].map(egal), s=[1,1,1];
-        if(p==='ts'){ s=[1,-1,-1]; ch=[ch[0], chsOppose(ch[1]), chsOppose(ch[2])].map(function(v,k){ return k?egal(v):v; }); }
-        else ch=vtqMelange(ch);
-        if(new Set(ch).size<3 || pris[cle(ch)]) continue;
-        const x={t:'t', w:ch, s:s};
-        if(ctvPosable3(q, x, p, pts)) l=x;
-      }
-      if(!l) return;
-      pris[cle(l.w)]=true;
-    }
-    q.lignes.push(l);
-  });
-  return q.lignes.length===CTV_PLAN.length ? q : ctvGenQuestion(_, k);
+  /* une chaîne de quatre points (le dernier = le premier pour t0), ses
+     vecteurs remplacés par des vecteurs égaux, l'ordre mélangé (t, t0) ;
+     pour ts, les deux derniers s'écrivent par leur opposé, soustraits */
+  for(let essai=0; essai<400; essai++){
+    const P=[pick(noms)];
+    while(P.length<(p==='t0'?3:4)){ const c=pick(noms); if(c!==P[P.length-1] && P.indexOf(c)<0) P.push(c); }
+    if(p==='t0') P.push(P[0]);
+    let ch=[P[0]+P[1], P[1]+P[2], P[2]+P[3]].map(egal), s=[1,1,1];
+    if(p==='ts'){ s=[1,-1,-1]; ch=[ch[0], chsOppose(ch[1]), chsOppose(ch[2])].map(function(v,k){ return k?egal(v):v; }); }
+    else ch=vtqMelange(ch);
+    if(new Set(ch).size<3) continue;
+    const x={t:'t', w:ch, s:s};
+    if(ctvPosable3(q, x, p, pts)){ q.lignes.push(x); return q; }
+  }
+  return ctvGenQuestion(_, k);
 }
 function ctvBuildQuestions(){
   return distinctes(dmNbQuestions(CTV_NB), ctvGenQuestion,
@@ -71388,19 +71389,83 @@ function ctvPourquoi(q, subs){
       : 'Relation de Chasles : '+nommer(R)+' — quand chaque vecteur part là où s’arrête le précédent, on part du premier point et on arrive au dernier.';
   }
 }
+/* ---- LES TROIS VECTEURS EN COULEUR, SUR LE DESSIN ------------------------
+   Chaque terme de la somme a sa couleur (--ctv-c0, c1, c2 : orange, violet,
+   magenta — aucune n'est une encre de verdict), dans l'énoncé comme sur le
+   dessin. Quand l'élève écrit dans une case un vecteur ÉGAL à un terme (à
+   l'opposé d'un terme soustrait : c'est lui qu'on ajoute), mais avec
+   d'autres lettres, le dessin REMPLACE ce terme par le vecteur écrit, dans
+   la même couleur (demande de Turquet, novembre 2026) — et la flèche de la
+   case prend la couleur du terme. Les cases s'apparient dans l'ordre : un
+   terme déjà remplacé ne l'est pas deux fois. */
+/* l'appariement des trois cases du milieu aux trois termes : vec[k] est le
+   vecteur à tracer pour le terme k, caseDe[j] le terme de la case j */
+function ctvApparier(l, pts, lus){
+  const vec=l.w.slice(), pris=[false,false,false], caseDe=[-1,-1,-1];
+  lus.forEach(function(v, j){
+    if(!v || v==='0') return;
+    const d=chsD(pts, v);
+    let k=l.ds.findIndex(function(t, i){ return !pris[i] && chsMeme(t, d) && l.w[i]===v; });
+    if(k<0) k=l.ds.findIndex(function(t, i){ return !pris[i] && chsMeme(t, d); });
+    if(k<0) return;
+    pris[k]=true; vec[k]=v; caseDe[j]=k;
+  });
+  return {vec:vec, caseDe:caseDe};
+}
+/* le calque des flèches : deux flèches posées sur le même trait s'écartent */
+function ctvCalque(vec, pts){
+  return function(P){
+    let h='<defs>'+[0,1,2].map(function(k){ return '<marker id="ctvPointe'+k+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path class="ctv-c'+k+'" d="M0 0L10 5L0 10z"/></marker>'; }).join('')+'</defs><g class="ctv-vecs">';
+    const faits=[];
+    vec.forEach(function(v, k){
+      if(!v || v.length!==2 || !pts[v[0]] || !pts[v[1]]) return;
+      const A=P(v[0]), B=P(v[1]), dx=B[0]-A[0], dy=B[1]-A[1], L=Math.sqrt(dx*dx+dy*dy)||1, ux=dx/L, uy=dy/L;
+      /* combien de flèches déjà tracées sur la même droite, et qui se chevauchent */
+      let dec=0;
+      faits.forEach(function(f){
+        const cr=Math.abs(ux*f.uy-uy*f.ux), cr2=Math.abs((f.A[0]-A[0])*uy-(f.A[1]-A[1])*ux);
+        if(cr>1e-3 || cr2>1) return;
+        const t=function(Q){ return (Q[0]-A[0])*ux+(Q[1]-A[1])*uy; };
+        const a=Math.min(t(f.A),t(f.B)), b=Math.max(t(f.A),t(f.B));
+        if(b>1 && a<L-1) dec++;
+      });
+      faits.push({A:A, B:B, ux:ux, uy:uy});
+      const ox=-uy*dec*7, oy=ux*dec*7, r=6;
+      h+='<line class="ctv-v ctv-c'+k+'" data-terme="'+k+'" data-vec="'+v+'" x1="'+(A[0]+ux*r+ox).toFixed(1)+'" y1="'+(A[1]+uy*r+oy).toFixed(1)+'" x2="'+(B[0]-ux*r+ox).toFixed(1)+'" y2="'+(B[1]-uy*r+oy).toFixed(1)+'" marker-end="url(#ctvPointe'+k+')"/>';
+    });
+    return h+'</g>';
+  };
+}
+/* le dessin d'une question : un calcul à trois vecteurs a ses flèches ; un
+   brouillon d'avant (plusieurs lignes) garde la figure nue */
+function ctvLigneSeule(q){ return q.lignes.length===1 && q.lignes[0].t==='t' ? ctvLignes(q)[0] : null; }
+function ctvDessin(fixes){
+  if(test.kind!=='ctv') return;
+  const q=test.questions && test.questions[test.idx], fig=$('ctvFig'); if(!q || !fig) return;
+  const l=ctvLigneSeule(q); if(!l) return;
+  const pts=chsPoints(q);
+  const lus=fixes || [0,1,2].map(function(j){ const el=$('ctv-'+l.i+'-'+j); return el ? vegLit(String(el.value).trim(), pts) : null; });
+  const ap=ctvApparier(l, pts, lus);
+  fig.innerHTML=chsSvg(q, ctvCalque(ap.vec, pts));
+  [0,1,2].forEach(function(j){ const el=$('ctv-'+l.i+'-'+j), fl=el && el.parentNode && el.parentNode.querySelector('.veg-fl'); if(!fl) return;
+    fl.classList.remove('ctv-c0','ctv-c1','ctv-c2'); if(ap.caseDe[j]>=0) fl.classList.add('ctv-c'+ap.caseDe[j]); });
+}
 function renderCtvTest(){
   const q=test.questions[test.idx]; test.locked=false;
-  $('ctvIdx').textContent='Figure '+(test.idx+1)+' / '+test.questions.length;
+  $('ctvIdx').textContent=(q.lignes.length===1?'Calcul ':'Figure ')+(test.idx+1)+' / '+test.questions.length;
   $('modeTagCtv').innerHTML=modeTagHTML();
   $('ctvLiveScore').textContent=test.score;
   $('ctvFeedback').textContent=''; $('ctvFeedback').className='mp-feedback';
   $('ctvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkCtvAnswer()">Vérifier</button>';
   const caseH=function(i,j,aria){ return chsCaseHTML(i,j,aria,'ctv'); };
-  let h='<div class="chs-wrap"><div class="veg-fig chs-fig">'+chsSvg(q)+'</div><div class="veg-lignes chs-lignes">';
+  const seule=!!ctvLigneSeule(q);
+  /* un terme de l'énoncé, dans sa couleur quand le calcul est seul à l'écran */
+  const terme=function(v, k){ return seule ? vegVecHTML(v).replace('class="veg-v"','class="veg-v ctv-t ctv-c'+k+'"') : vegVecHTML(v); };
+  let h='<div class="chs-wrap'+(seule?' ctv-seul':'')+'"><div class="veg-fig chs-fig" id="ctvFig">'+chsSvg(q)+'</div><div class="veg-lignes chs-lignes">';
   ctvLignes(q).forEach(function(l){
     if(l.t==='t'){
-      h+='<div class="veg-l" id="ctv-l-'+l.i+'"><span class="veg-tete">'+vegVecHTML(l.w[0])+'</span>'
-        +chsGrp(l.s[1]<0?'−':'+', vegVecHTML(l.w[1]))+chsGrp(l.s[2]<0?'−':'+', vegVecHTML(l.w[2]))
+      h+='<div class="veg-l" id="ctv-l-'+l.i+'"><span class="veg-tete">'+terme(l.w[0],0)+'</span>'
+        +chsGrp(l.s[1]<0?'−':'+', terme(l.w[1],1))+chsGrp(l.s[2]<0?'−':'+', terme(l.w[2],2))
         +chsGrp('=', caseH(l.i,0,'le premier vecteur de la chaîne'))+chsGrp('+', caseH(l.i,1,'le deuxième vecteur'))
         +chsGrp('+', caseH(l.i,2,'le troisième vecteur'))+chsGrp('=', caseH(l.i,3,'le résultat de '+ctvEcrit(l)))+'</div>';
       return;
@@ -71416,11 +71481,15 @@ function renderCtvTest(){
   $('ctvHost').innerHTML=h;
   const cs=ctvCases(q);
   cs.forEach(function(c, k){ const el=$(c.id); if(!el) return;
-    el.addEventListener('input', function(){ if(isSoutien()) checkCtvAnswer(true);
+    el.addEventListener('input', function(){ ctvDessin(); if(isSoutien()) checkCtvAnswer(true);
       clearTimeout(test.ctvSave); test.ctvSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault();
       const suiv=cs[k+1] && $(cs[k+1].id); if(suiv && !suiv.disabled) suiv.focus(); else checkCtvAnswer(); } });
   });
+  ctvDessin();
+  /* une reprise remet les saisies APRÈS le rendu (restoreBoxes) : le dessin
+     les relit au tour suivant */
+  setTimeout(function(){ if(!test.locked) ctvDessin(); }, 0);
 }
 function checkCtvAnswer(live){
   if(test.locked) return;
@@ -71437,6 +71506,9 @@ function checkCtvAnswer(live){
   subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); });
   if(!allOk && isSoutien()){ soutienAgain('ctvFeedback','ctvActions','checkCtvAnswer','ctvHost'); return; }
   test.locked=true;
+  /* le dessin montre la chaîne retenue : les vecteurs justes de l'élève,
+     la correction à la place des autres */
+  if(ctvLigneSeule(q)) ctvDessin(subs.slice(0,3).map(function(s){ return s.ok ? s.lu : s.bon; }));
   test.score+=nCorrect; $('ctvLiveScore').textContent=test.score;
   if(allOk){ $('ctvFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('ctvFeedback').className='mp-feedback good'; }
   else { $('ctvFeedback').textContent=msgAvecVides(subs, pourquoi); $('ctvFeedback').className='mp-feedback bad'; }
@@ -71448,7 +71520,7 @@ function checkCtvAnswer(live){
     answer:lignes.map(function(l){ return ecrit(l, function(s){ return s.bon; }); }).join(' ; '),
     given:lignes.map(function(l){ return ecrit(l, function(s){ return s.brut||'?'; }); }).join(' ; ')});
   const last=test.idx===test.questions.length-1;
-  $('ctvActions').innerHTML='<button class="btn btn-primary" id="ctvNext" onclick="nextCtvQuestion()">'+(last?'Voir mes résultats':'Figure suivante')+'</button>';
+  $('ctvActions').innerHTML='<button class="btn btn-primary" id="ctvNext" onclick="nextCtvQuestion()">'+(last?'Voir mes résultats':(q.lignes.length===1?'Calcul suivant':'Figure suivante'))+'</button>';
   const nb=$('ctvNext'); if(nb) nb.focus();
 }
 function nextCtvQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderCtvTest(); autoSave(); } else finishTest(); }
@@ -71471,7 +71543,8 @@ function ctxCtv(q){
     return ctvEcrit(l)+' = '+(l.t==='t' ? b[0]+' + '+b[1]+' + '+b[2]+' = '+b[3]
       : (l.t==='r' ? b[0] : (l.t==='c' ? b[0]+' + '+b[1]+' = '+b[2] : l.u+' + '+b[0]+' = '+b[1]))); };
   let c='L’élève applique la relation de Chasles sur une figure : '+CHS_FIGURES[q.fig].nom+' '+n.slice(0,4)+' (sommets dans l’ordre du tour) de centre '+n[4]+' : ses diagonales ['+n[0]+n[2]+'] et ['+n[1]+n[3]+'] se coupent en '+n[4]+', leur milieu. '
-   +'Chaque ligne donne une somme (ou une différence) de deux ou trois vecteurs ; l’élève complète les cases, deux lettres par case (0 pour le vecteur nul). Les lignes : '
+   +(lignes.length===1 ? 'L’écran ne montre qu’UN calcul de trois vecteurs, chacun dans sa couleur sur le dessin (orange, violet, magenta, dans l’ordre de la somme) ; quand l’élève écrit un vecteur égal à un terme avec d’autres lettres, le dessin remplace ce terme par le vecteur écrit. L’élève complète les cases, deux lettres par case (0 pour le vecteur nul). Le calcul : '
+     : 'Chaque ligne donne une somme (ou une différence) de deux ou trois vecteurs ; l’élève complète les cases, deux lettres par case (0 pour le vecteur nul). Les lignes : ')
    +lignes.map(function(l){ return l.t==='t' ? ctvEcrit(l)+' = … + … + … = …' : (l.t==='r' ? ctvEcrit(l)+' = …' : (l.t==='c' ? ctvEcrit(l)+' = … + … = …' : ctvEcrit(l)+' = '+l.u+' + … = …')); }).join(' ; ')+'. '
    +'Réponses attendues, STRICTEMENT SECRÈTES (d’autres écritures égales sont acceptées) : '+lignes.map(bon).join(' ; ')+'. '
    +'Méthode enseignée : relation de Chasles, AB + BC = AC (le second vecteur part là où s’arrête le premier), et AB + BC + CD = AD ; une chaîne qui revient à son point de départ donne le vecteur nul (AB + BA = 0). Si les vecteurs ne s’enchaînent pas, on change l’ordre de la somme, ou on remplace un vecteur par un vecteur ÉGAL (côtés opposés du parallélogramme : '+n[0]+n[1]+' = '+n[3]+n[2]+', '+n[0]+n[3]+' = '+n[1]+n[2]+' ; diagonales coupées en leur milieu : '+n[0]+n[4]+' = '+n[4]+n[2]+', '+n[1]+n[4]+' = '+n[4]+n[3]+'). Soustraire un vecteur, c’est ajouter son opposé : − FG = + GF. Ne jamais parler de coordonnées à l’élève.';
