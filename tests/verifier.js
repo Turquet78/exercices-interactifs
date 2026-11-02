@@ -4797,6 +4797,7 @@ function exercices(suite){
     vecteursCriteres(w, P);
     milieuVecteursEgaux(w, P);
     translationAntecedent(w, P);
+    vecteurEgalFigure(w, P);
     lireSommeDessin(w, P);
     sommeVecteursLibre(w, P);
     demontrerChasles(w, P);
@@ -14083,6 +14084,150 @@ function translationPavage(w, P){
     /* le contexte du modèle */
     const ctx=ctxTpv(test.questions[0]).contexte;
     if(!/SECR/.test(ctx) || !/glisse/i.test(ctx) || !/RM/.test(ctx) || !/triangle 29/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la méthode, ni les réponses');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {vecteur-egal-figure} (Seconde, 8.1.15 — Turquet, novembre 2026 : « comme
+   le 8.2.2, trouver un vecteur égal ; tracer le vecteur donné, et celui de
+   l'élève d'une autre couleur »). Le juge NE LIT PAS les données de la page :
+   il relit le DESSIN — les cinq points nommés et la flèche orange —, et
+   cherche lui-même, point par point, les vecteurs de même déplacement. */
+function vecteurEgalFigure(w, P){
+  const nom = 'trouver un vecteur égal sur la figure : la place, le tirage relu sur le dessin, la flèche orange du vecteur donné, la flèche violette de l\'élève, la correction verte, les pièges nommés';
+  if(!P.vecteurEgalFigure){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du vecteur égal sur la figure');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.vecteurEgalFigure)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+
+    /* ---- 0. la place : à la fin des vecteurs égaux ; pas de tables */
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['vecteurs-egaux-justifier']!=='8.1.14' || TEST_NUM['somme-vecteurs']!=='8.2.1' || TEST_NUM['relation-chasles']!=='8.2.2') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS.vef!==RAP_VEF || !QIA_SUGG.vef) vus.push('le rappel ou les questions à l\\'IA manquent');
+
+    /* ---- le juge indépendant : il relit le DESSIN ---------------------- */
+    const att=function(t, a){ const m=new RegExp('\\\\s'+a+'="([^"]*)"').exec(t); return m ? +m[1] : NaN; };
+    const lire=function(src){
+      const pts={};
+      (src.match(/<text class="veg-pt"[^>]*>[A-Z]<\\/text>/g)||[]).forEach(function(t){
+        const L=t.replace(/^<text[^>]*>|<\\/text>$/g,''), x=att(t,'x'), y=att(t,'y');
+        /* chaque lettre va au point (cercle) le plus proche */
+        let b=null, bd=1e9;
+        (src.match(/<circle[^>]*>/g)||[]).forEach(function(c){ const d=Math.hypot(att(c,'cx')-x, att(c,'cy')-y); if(d<bd){ bd=d; b=[att(c,'cx'), att(c,'cy')]; } });
+        pts[L]=b; });
+      const fl=(src.match(/<line class="vef-donne"[^>]*>/g)||[]);
+      let u=null;
+      if(fl.length===1){
+        const a=[att(fl[0],'x1'), att(fl[0],'y1')], b=[att(fl[0],'x2'), att(fl[0],'y2')];
+        const proche=function(p){ let r=null, rd=1e9; Object.keys(pts).forEach(function(L){ const d=Math.hypot(pts[L][0]-p[0], pts[L][1]-p[1]); if(d<rd){ rd=d; r=L; } }); return rd<10 ? r : null; };
+        const A=proche(a), B=proche(b); u=A&&B ? A+B : null;
+      }
+      return {pts:pts, u:u, n:fl.length};
+    };
+    const egaux=function(J){
+      const L=Object.keys(J.pts), d=function(v){ return [J.pts[v[1]][0]-J.pts[v[0]][0], J.pts[v[1]][1]-J.pts[v[0]][1]]; }, du=d(J.u), r=[];
+      L.forEach(function(a){ L.forEach(function(b){ if(a===b || a+b===J.u) return;
+        const e=d(a+b); if(Math.abs(e[0]-du[0])<0.5 && Math.abs(e[1]-du[1])<0.5) r.push(a+b); }); });
+      return r;
+    };
+
+    /* ---- 1. le tirage : 200 séances, chaque question relue sur son dessin */
+    const formes={}, sortes={demi:0, cote:0}, tournures={};
+    for(let s=0;s<200 && vus.length<4;s++){
+      const qs=vefBuildQuestions();
+      if(qs.length!==D.nb){ vus.push(qs.length+' questions au lieu de '+D.nb); break; }
+      if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      qs.forEach(function(q, i){
+        if(Object.keys(q).sort().join()!=='fig,fx,fy,n,u,v') vus.push('clés rangées : '+Object.keys(q).sort().join());
+        formes[q.fig]=true; tournures[q.v]=true;
+        const J=lire(vefSvg(q)), quoi='séance '+s+', question '+(i+1);
+        if(Object.keys(J.pts).length!==5) { vus.push(quoi+' : '+Object.keys(J.pts).length+' points nommés au lieu de 5'); return; }
+        if(J.n!==1 || J.u!==q.u) { vus.push(quoi+' : la flèche orange va '+J.u+' au lieu de '+q.u); return; }
+        const e=egaux(J);
+        if(!e.length) vus.push(quoi+' : aucun autre vecteur de la figure n’est égal à '+q.u);
+        if(e.slice().sort().join()!==vefEgaux(q).slice().sort().join()) vus.push(quoi+' : la page dit '+vefEgaux(q)+', le dessin '+e);
+        sortes[q.u.indexOf(q.n[4])>=0 ? 'demi' : 'cote']++;
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    if(Object.keys(formes).length!==4) vus.push('formes sorties : '+Object.keys(formes).join(' '));
+    if(Object.keys(tournures).length!==VEF_VARIANTES.length) vus.push('tournures sorties : '+Object.keys(tournures).join(' '));
+    if(sortes.demi<300 || sortes.cote<300) vus.push('demi-diagonales '+sortes.demi+', côtés '+sortes.cote+' sur 1200');
+
+    /* ---- 2. une figure fixe, par le BOUTON : le rectangle ABCD de centre E,
+       le vecteur donné AE — la réponse est EC */
+    TESTS[D.exercice].start();
+    if(test.kind!=='vef' || test.qId!==D.exercice) vus.push('kind « '+test.kind+' », qId « '+test.qId+' »');
+    if(test.maxScore!==D.nb) vus.push('barème '+test.maxScore+' au lieu de '+D.nb);
+    const el=function(id){ return document.getElementById(id); };
+    const peint=function(){ const c=el('vef-0').className;
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const fb=function(){ return el('vefFeedback').textContent; };
+    const nb=function(sel){ return document.querySelectorAll('#vefHost '+sel).length; };
+    const fleche=function(sel){ const l=document.querySelector('#vefHost '+sel); if(!l) return null;
+      const J=lire(el('vefHost').querySelector('svg').outerHTML), p=function(x,y){ let r=null, rd=1e9;
+        Object.keys(J.pts).forEach(function(L){ const d=Math.hypot(J.pts[L][0]-x, J.pts[L][1]-y); if(d<rd){ rd=d; r=L; } }); return r; };
+      return p(+l.getAttribute('x1'), +l.getAttribute('y1'))+p(+l.getAttribute('x2'), +l.getAttribute('y2')); };
+    const poser=function(rep){ test.locked=false; test.questions[0]={fig:'rect', fx:1, fy:1, n:'ABCDE', u:'AE', v:0}; test.idx=0; renderVefTest();
+      if(rep!=null){ el('vef-0').value=rep; el('vef-0').dispatchEvent(new Event('input')); } };
+    poser();
+    if(!el('vefInstr').classList.contains('enonce')) vus.push('l’énoncé n’est pas dans un élément .enonce');
+    if(!/ABCD est un rectangle/.test(el('vefInstr').textContent) || !/autre/.test(el('vefInstr').textContent)) vus.push('l’énoncé dit « '+el('vefInstr').textContent.slice(0,120)+' »');
+    if(fleche('.vef-donne')!=='AE') vus.push('la flèche orange va '+fleche('.vef-donne'));
+    if(nb('.vef-eleve') || nb('.vef-cor')) vus.push('une flèche de l’élève ou de correction est tracée avant toute saisie');
+    /* la saisie trace le vecteur de l'élève en violet, à chaque frappe */
+    poser('e');
+    if(nb('.vef-eleve')) vus.push('une lettre seule trace une flèche');
+    poser('ec');
+    if(fleche('.vef-eleve')!=='EC') vus.push('« ec » tapé trace '+fleche('.vef-eleve')+' au lieu de EC');
+    if(!/EC/.test(el('vefLegE').textContent)) vus.push('la légende ne nomme pas le vecteur de l’élève');
+    /* la reprise : la valeur remise sans événement, vefMaj la retrace */
+    poser(); el('vef-0').value='DB'; vefMaj();
+    if(fleche('.vef-eleve')!=='DB') vus.push('la saisie remise d’une pause n’est pas retracée');
+    /* la copie juste */
+    poser('EC'); checkVefAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct || peint()!=='ok' || test.score!==1) vus.push('la copie juste : '+peint()+', score '+test.score);
+    if(!der || der.cases!==1) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 1');
+    if(fleche('.vef-eleve')!=='EC' || nb('.vef-cor')) vus.push('la copie juste : flèche violette '+fleche('.vef-eleve')+', '+nb('.vef-cor')+' flèche verte');
+    if(!el('vefNext') || !test.locked) vus.push('pas de bouton « Question suivante », ou la question n’est pas verrouillée');
+    /* les pièges, nommés */
+    const piege=function(rep, re, quoi){ poser(rep); checkVefAnswer();
+      if(peint()!=='bad') vus.push(quoi+' : '+peint());
+      if(!re.test(fb())) vus.push(quoi+' n’est pas nommé : « '+fb().slice(0,140)+' »');
+      if(fleche('.vef-cor')!=='EC') vus.push(quoi+' : la correction verte va '+fleche('.vef-cor'));
+      if(!/EC/.test(el('vefLegCt').textContent) || el('vefLegC').hidden) vus.push(quoi+' : la légende de la correction'); };
+    piege('AE', /lui-même/, 'le vecteur donné recopié');
+    piege('CE', /OPPOSÉ/, 'le vecteur opposé');
+    piege('EA', /OPPOSÉ/, 'le vecteur retourné');
+    if(fleche('.vef-eleve')!=='EA') vus.push('le vecteur retourné n’est pas tracé : '+fleche('.vef-eleve'));
+    piege('AC', /pas la même longueur/, 'la diagonale entière');
+    piege('AB', /pas la même direction/, 'un côté');
+    piege('AZ', /n’est pas un vecteur de la figure/, 'une lettre hors figure');
+    if(test.score!==1) vus.push('score '+test.score+' après les pièges au lieu de 1');
+    /* la copie vide : rien de rouge, la correction verte dans la case et sur la figure */
+    poser(); checkVefAnswer();
+    if(peint()!=='sol' || fleche('.vef-cor')!=='EC' || nb('.vef-eleve')) vus.push('la copie vide : '+peint()+', correction '+fleche('.vef-cor')+', '+nb('.vef-eleve')+' flèche violette');
+    if(!/manquait 1 case/.test(fb())) vus.push('le message de la copie vide : « '+fb().slice(0,80)+' »');
+    /* un autre sommet : AB → DC ; sur un parallélogramme retourné, le juge suit */
+    test.locked=false; test.questions[0]={fig:'para', fx:-1, fy:1, n:'KLMNP', u:'LK', v:2}; renderVefTest();
+    el('vef-0').value='MN'; checkVefAnswer();
+    if(peint()!=='ok') vus.push('LK = MN sur le parallélogramme retourné : '+peint());
+    /* le soutien : juge la case, ne révèle rien, ne verrouille pas */
+    currentMode='soutien';
+    poser('CE'); checkVefAnswer();
+    if(test.locked || peint()!=='bad' || nb('.vef-cor') || !/OPPOSÉ/.test(fb())) vus.push('le soutien : '+peint()+(test.locked?', verrouillé':'')+', '+nb('.vef-cor')+' flèche verte, « '+fb().slice(0,80)+' »');
+    el('vef-0').disabled=false; el('vef-0').value='EC'; el('vef-0').dispatchEvent(new Event('input')); checkVefAnswer();
+    if(!test.locked || peint()!=='ok') vus.push('le soutien n’accepte pas la copie corrigée : '+peint());
+    currentMode='train';
+    /* le contexte du modèle */
+    test.questions[0]={fig:'rect', fx:1, fy:1, n:'ABCDE', u:'AE', v:0};
+    const ctx=ctxVef(test.questions[0]).contexte;
+    if(!/SECR/.test(ctx) || !/EC/.test(ctx) || !/OPPOS/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret, ni la réponse, ni la méthode');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
