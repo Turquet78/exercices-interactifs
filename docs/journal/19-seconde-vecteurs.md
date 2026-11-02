@@ -1365,7 +1365,7 @@ rien), EA + AD, l'ordre BC + CE, et aucune case colorée ; son compte des
 traits de la figure lit désormais `svg > line`, les flèches du calque n'étant
 pas des côtés. Vu dans un vrai Chromium sur la fiche (trois captures).
 
-**Puis les vecteurs d'une rangée se sont ALIGNÉS (v632).** Turquet,
+**Puis les vecteurs d'une rangée se sont ALIGNÉS (v633 — la v632 prise par le 8.2.3).** Turquet,
 novembre 2026, captures à l'appui : « il faut que les vecteurs dans les
 questions soient alignés horizontalement ». Dans « CE + BC = », BC tombait
 4 px sous CE. Mesuré dans Chromium : le premier vecteur est dans
