@@ -26613,7 +26613,35 @@ function relationChasles(w, P){
     if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la fiche manque à l’écran';
     const lettres=[...document.querySelectorAll('#chsHost svg text')].map(function(t){ return t.textContent.trim(); }).sort().join('');
     if(lettres!=='ABCDE') vus.push('les lettres du dessin sont « '+lettres+' »');
-    if(document.querySelectorAll('#chsHost svg line').length!==6) vus.push('le dessin n’a pas quatre côtés et deux diagonales');
+    if(document.querySelectorAll('#chsHost svg > line').length!==6) vus.push('le dessin n’a pas quatre côtés et deux diagonales');
+    /* LE CALCUL EN COURS SUR LA FIGURE (Turquet, novembre 2026) : la ligne
+       où l’élève travaille dessine ses deux vecteurs, le premier violet, le
+       second orange ; un vecteur ÉGAL tapé dans une case du milieu prend la
+       place du sien, un vecteur qui n’est égal à rien ne remplace rien. */
+    const dessin=function(){ const a=document.querySelector('#chsHost .chs-fl .chs-fa'), b=document.querySelector('#chsHost .chs-fl .chs-fb');
+      return (a?a.getAttribute('data-v'):'?')+' '+(b?b.getAttribute('data-v'):'?'); };
+    const calc=function(){ return document.getElementById('chsCalc').textContent.replace(/[\\s\\u00a0]+/g,''); };
+    const taper=function(id, v){ const el=document.getElementById(id); el.dispatchEvent(new Event('focus'));
+      el.value=v; el.dispatchEvent(new Event('input', {bubbles:true})); };
+    if(dessin()!=='AE EB') vus.push('au départ, la figure montre « '+dessin()+' » au lieu de AE (violet) et EB (orange)');
+    if(!/:AE\\+EB$/.test(calc())) vus.push('le calcul sous la figure se lit « '+calc()+' »');
+    if(!document.getElementById('chs-l-0').classList.contains('chs-actif')) vus.push('la ligne montrée n’est pas marquée');
+    taper('chs-5-0', 'AE');
+    if(dessin()!=='AB AD') vus.push('AB + AD = AB + AE (pas égal) : la figure montre « '+dessin()+' »');
+    if(!document.getElementById('chs-l-5').classList.contains('chs-actif') || document.getElementById('chs-l-0').classList.contains('chs-actif')) vus.push('la ligne montrée ne suit pas la case');
+    taper('chs-5-0', 'bc');
+    if(dessin()!=='AB BC') vus.push('AB + AD = AB + BC : la figure montre « '+dessin()+' » au lieu de AB BC');
+    if(!/:AB\\+BC$/.test(calc())) vus.push('AB + BC : le calcul se lit « '+calc()+' »');
+    taper('chs-7-0', 'CA');
+    if(dessin()!=='BA CA') vus.push('BA − CA = BA + CA : la figure montre « '+dessin()+' »');
+    if(!/:BA−CA$/.test(calc())) vus.push('BA − CA : le calcul se lit « '+calc()+' »');
+    taper('chs-7-0', 'AC');
+    if(dessin()!=='BA AC' || !/:BA\\+AC$/.test(calc())) vus.push('BA − CA = BA + AC : « '+dessin()+' », « '+calc()+' »');
+    taper('chs-2-0', 'EA'); taper('chs-2-1', 'AD');
+    if(dessin()!=='EA AD') vus.push('CE + BC = EA + AD : la figure montre « '+dessin()+' »');
+    taper('chs-2-0', 'BC'); taper('chs-2-1', 'CE');
+    if(dessin()!=='CE BC' || !/:BC\\+CE$/.test(calc())) vus.push('CE + BC = BC + CE : « '+dessin()+' », « '+calc()+' » (l’ordre écrit par l’élève)');
+    if(document.querySelector('#chsHost .veg-in.chs-ca, #chsHost .veg-in.chs-cb')) vus.push('une case où l’élève écrit se colore');
     /* la copie juste */
     poser(val(JUSTE)); checkChsAnswer();
     let der=test.answers[test.answers.length-1];
