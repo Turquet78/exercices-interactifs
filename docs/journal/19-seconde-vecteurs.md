@@ -5336,3 +5336,52 @@ rougit déjà le faux par lui-même. Éprouvé dans un vrai Chromium, moteur par
 moteur, en soutien et en entraînement : une pose fausse rougit (dessin et
 cadre), la même reprise juste ne laisse plus rien de rouge ; en
 entraînement, rien ne rougit (hors flèches du 8.2.8, comme avant).
+
+## {vecteur-egal-figure} — trouver un vecteur égal sur la figure, tracé en couleur (8.1.15, v630 — v629 prise sur main par le soutien du thème 8)
+
+**La demande** (Turquet, novembre 2026) : « en seconde faire un exercice comme
+le 8.2.2 où on demande de trouver un vecteur égal. On doit tracer le vecteur
+qui est donné et quand l'élève donne son vecteur on doit l'afficher d'une
+autre couleur. »
+
+**La figure EST celle du 8.2.2** {relation-chasles} : `chsPoints`, `chsSvg`,
+`CHS_FIGURES` — rectangle, carré, parallélogramme ou losange, retournement
+tiré, cinq lettres, les diagonales qui se coupent en leur milieu. Rien n'est
+redessiné : `vefSvg` ajoute aux traits du 8.2.2 trois calques, la flèche du
+vecteur DONNÉ, la correction, la flèche de l'élève. Les positions se RELISENT
+sur les cinq cercles que `chsSvg` a posés (`vefPos`), si bien qu'une mise à
+l'échelle du 8.2.2 changée demain garde les flèches sur leurs points.
+
+**Trois encres, une légende.** Le vecteur donné est ORANGE (`--crd-b`) ; celui
+de l'élève est VIOLET (`--crd-a`), tracé à chaque frappe dès que la case lit
+deux lettres de la figure (`vefMaj`, appelée aussi par `resumeTest` : la
+reprise remet la saisie sans événement) ; une réponse fausse ou vide montre à
+la vérification un vecteur égal en VERT pointillé — la couleur de toutes les
+corrections. Aucune de ces flèches ne porte `ok`, `bad` ni `sol` : le contrôle
+« 9 bis » des encres de verdict ne les lit pas, et la case garde, elle, le
+bleu, le rouge et le vert de la règle commune. Deux flèches sur le même
+segment (l'élève qui écrit EA pour AE, ou CD quand la correction est DC) se
+décalent de 6 px l'une de l'autre : la première capture montrait la
+correction DC entièrement cachée sous le CD violet.
+
+**Le juge** : la case se juge par le déplacement, pas par une lettre attendue
+(`vefEgaux` recalcule les vecteurs égaux depuis les points). Le vecteur donné
+recopié n'est pas une réponse — l'énoncé demande un AUTRE vecteur. Les
+messages nomment la faute : le vecteur lui-même, l'OPPOSÉ (même direction,
+même longueur, autre sens — le piège attendu), la diagonale entière (même
+direction et même sens, pas la même longueur), la direction, deux lettres hors
+figure. Six questions (`VEF_NB`, `dmNbQuestions`), tirées par `distinctes()` ;
+le vecteur donné est une demi-diagonale une fois sur deux, un côté sinon ;
+trois tournures d'énoncé (`q.v`). On range la forme, le retournement, les
+lettres, le vecteur et la tournure, jamais la réponse.
+
+**Le banc** (`tests/verifier.js`, « trouver un vecteur égal sur la figure ») :
+la place 8.1.15 et ses voisins, 200 séances dont chaque question est relue sur
+son DESSIN — les lettres rattachées aux cercles, la flèche orange rattachée à
+ses deux points, les vecteurs égaux cherchés par le juge lui-même ; puis, par
+le bouton, le rectangle ABCD de centre E et AE : la flèche violette qui suit la
+saisie (et rien pour une lettre seule), la saisie remise d'une pause retracée,
+la copie juste (EC, une case, verrouillée), les pièges AE, CE, EA, AC, AB, AZ
+nommés avec la flèche verte EC, la copie vide (verte, rien de rouge), un
+parallélogramme retourné, le soutien qui juge sans rien révéler, le contexte
+du modèle.
