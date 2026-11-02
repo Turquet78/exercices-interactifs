@@ -4815,6 +4815,7 @@ function exercices(suite){
     etudeConvexite(w, P);
     etudeAlgoConvexite(w, P);
     apsSeuilMoinsPrecis(w, P);
+    pbFractionsEgales(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
     suiteAuxiliaireLimite(w, P);
@@ -20628,6 +20629,48 @@ function apsSeuilMoinsPrecis(w, P){
     const d={c:0, n0:0, q:0.5, l:0.6, cc:0.2, s:0.601, N:8};
     [['aps-w1','0,602',true],['aps-w1','0,603',false],['aps-w1','0,6016',true],['aps-w2','0,600',true],['aps-w2','0,6',false],['aps-w2','0,6008',true]]
       .forEach(function(c){ if(t(d,c[0],c[1])!==c[2]) vus.push('décroissante, '+c[0]+' ≈ '+c[1]+' '+(c[2]?'rougit':'passe')); });
+    return vus.join(' ; ');
+  })()`, v => v === '');
+}
+
+/* LE THÈME 3 DE LA PREMIÈRE ACCEPTE TOUTE FRACTION ÉGALE (demande de
+   Turquet, novembre 2026 : « accepter tous les résultats qui sont des
+   fractions égales au résultat »). pbFracJuger rend justes les deux cases
+   d'une paire numérateur / dénominateur dès que la fraction tapée est égale
+   à l'attendue — la fraction des effectifs des 3.1 à 3.7, suffixée du numéro
+   de question sur la fiche du 3.3, et les paires du 3.8. Le contrôle tape
+   dans de vraies cases du DOM et lit le verdict : simplifiée, amplifiée,
+   égale avec un zéro, fausse, dénominateur nul, et une case de TABLEAU
+   (pb-c1 / pb-c2) qui ne doit jamais se lire comme une fraction. */
+function pbFractionsEgales(w, P){
+  const nom='thème 3 (Première) : une fraction égale à l’attendue est juste, dans chaque exercice à fraction';
+  const present = evaluer(w, "typeof pbFracJuger==='function' && typeof checkPBAnswer==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas le moteur des probabilités de Première');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], hote=document.createElement('div'); document.body.appendChild(hote);
+    const poser=function(v){ hote.innerHTML=''; Object.keys(v).forEach(function(id){
+      const e=document.createElement('span'); e.id=id; e.getValue=function(){ return v[id]; }; hote.appendChild(e); }); };
+    const juger=function(att, v, suf){ poser(v); const verd={};
+      Object.keys(att).forEach(function(id){ verd[id]=(pbLu(id)===att[id]); });
+      pbFracJuger(att, verd, suf); return verd; };
+    const att={'pb-n1':'6','pb-n2':'24'};
+    [['3','12',true,true],['1','4',true,true],['12','48',true,true],['6','24',true,true],
+     ['2','12',false,false],['6','25',true,false],['1','5',false,false],['0','4',false,false],['3','0',false,false]]
+      .forEach(function(c){ const r=juger(att,{'pb-n1':c[0],'pb-n2':c[1]},'');
+        if(r['pb-n1']!==c[2] || r['pb-n2']!==c[3]) vus.push(c[0]+'/'+c[1]+' pour 6/24 : '+r['pb-n1']+', '+r['pb-n2']); });
+    /* la fiche du 3.3 : les cases portent le numéro de leur question */
+    const r3=juger({'pb-n1-3':'10','pb-n2-3':'25'},{'pb-n1-3':'2','pb-n2-3':'5'},'-3');
+    if(!r3['pb-n1-3'] || !r3['pb-n2-3']) vus.push('fiche du 3.3 : 2/5 pour 10/25 rougit');
+    /* le 3.8 : le produit P(X) × P(Y) simplifié */
+    const r8=juger({'pb-p1':'24','pb-p2':'100'},{'pb-p1':'6','pb-p2':'25'},'');
+    if(!r8['pb-p1'] || !r8['pb-p2']) vus.push('3.8 : 6/25 pour 24/100 rougit');
+    /* une case de tableau n'est pas une fraction */
+    const rt=juger({'pb-c1':'4','pb-c2':'8'},{'pb-c1':'2','pb-c2':'4'},'');
+    if(rt['pb-c1'] || rt['pb-c2']) vus.push('deux cases de tableau 2 et 4 (pour 4 et 8) lues comme une fraction égale');
+    hote.remove();
     return vus.join(' ; ');
   })()`, v => v === '');
 }

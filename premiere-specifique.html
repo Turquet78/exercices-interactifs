@@ -18862,6 +18862,26 @@ function pbPourquoi(q){
   return trad+'On se place PARMI '+pbHTML(x)+' seulement : on y compte ceux qui sont aussi '+pbHTML(y)+', c’est-à-dire '
     +pbHTML(s6)+'. Cela fait '+pbEff(q,s6)+' sur '+pbEff(q,x)+' — le dénominateur est '+pbHTML(x)+', pas tout.';
 }
+/* TOUTE FRACTION ÉGALE À L'ATTENDUE EST JUSTE — dans tout le thème 3
+   (demande de Turquet, novembre 2026 : « accepter tous les résultats qui
+   sont des fractions égales au résultat »). Ce que le 3.8 faisait seul
+   depuis la v327 (indJuger) vaut désormais pour chaque paire numérateur /
+   dénominateur du moteur : la fraction des effectifs des 3.1 à 3.7
+   (pb-n1 / pb-n2, suffixées du numéro de question sur la fiche du 3.3) et
+   les cinq paires du 3.8. 3/12 tapé pour 6/24 : les deux cases sont justes.
+   Sinon chaque case se juge seule, comme avant : un numérateur juste sous un
+   dénominateur faux reste bleu. Les attendus — et la correction verte —
+   restent les fractions des effectifs. */
+const PB_FRAC_PAIRES=[['pb-n1','pb-n2'],['pb-i1','pb-i2'],['pb-x1','pb-x2'],['pb-y1','pb-y2'],['pb-p1','pb-p2'],['pb-m1','pb-m2']];
+function pbFracJuger(att, verd, suf){
+  PB_FRAC_PAIRES.forEach(([a0,b0])=>{
+    const a=a0+suf, b=b0+suf;
+    if(!(a in att) || !(b in att)) return;
+    const n=pbLu(a), d=pbLu(b), na=+att[a], da=+att[b];
+    if(!/^\d+$/.test(n) || !/^[1-9]\d*$/.test(d) || !(da>0) || isNaN(na)) return;
+    if(+n * da === +d * na){ verd[a]=true; verd[b]=true; }
+  });
+}
 function checkPBAnswer(live){
   if(test.locked) return;
   /* Rien à colorer pendant que l'élève choisit : voir l'en-tête du bloc. */
@@ -18873,6 +18893,7 @@ function checkPBAnswer(live){
   /* une sorte de question peut juger autrement que « le texte attendu » :
      le 3.8 accepte une fraction égale (indJuger) */
   if(PBX[q.t] && PBX[q.t].juger) PBX[q.t].juger(q, att, verd);
+  pbFracJuger(att, verd, '');
   ids.forEach(id=>{ if(!verd[id]) allOk=false; });
   if(soutien){
     /* En soutien l'élève corrige lui-même : une case juste se verrouille en
@@ -19039,7 +19060,10 @@ function checkPBFiche(){
   qs.forEach((q,i)=>{ const a=pbfAttendus(q,i); parQ.push(Object.keys(a)); Object.assign(att,a); });
   const ids=Object.keys(att), verd={};
   let allOk=true;
-  ids.forEach(id=>{ verd[id]=(pbLu(id)===att[id]); if(!verd[id]) allOk=false; });
+  ids.forEach(id=>{ verd[id]=(pbLu(id)===att[id]); });
+  /* une fraction égale est juste, question par question (pbFracJuger) */
+  qs.forEach((q,i)=>pbFracJuger(att, verd, '-'+i));
+  ids.forEach(id=>{ if(!verd[id]) allOk=false; });
   document.querySelectorAll('#pbHost .pbf-m, #pbHost .pbf-pourquoi').forEach(e=>e.remove());
   if(soutien){
     /* comme au 3.1 : la case juste se verrouille en bleu, la fausse rougit,
@@ -19119,12 +19143,12 @@ function pbfCtxTexte(){
     +(test.qId==='probabilites-ecriture'
       ? 'Les questions ne sont PAS des phrases : la page écrit le nom de chaque probabilité — '
         +qs.map((q,k)=>(k+1)+') '+(pbItem(q)[1]==='T' ? 'P('+pbTxt(pbItem(q)[0])+')' : 'P_'+pbTxt(pbItem(q)[1])+'('+pbTxt(pbItem(q)[0])+')')).join(' ; ')+'. '
-        +'Pour chaque ligne, l’élève complète = fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau, sans la simplifier. '
+        +'Pour chaque ligne, l’élève complète = fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau (une fraction égale, simplifiée ou non, est acceptée). '
         +'P sans indice : on divise par tout ; P_X(Y) : on se restreint à X, numérateur X∩Y (écrit '+pbTxt('A')+' d’abord), dénominateur X. '
       : 'Les questions, chacune posée EN MOTS : '
       +qs.map((q,i)=>(i+1)+') '+(q.t==='phr' ? 'compléter les évènements contraires '+pbTxt('nA')+' et '+pbTxt('nB') : '« '+lpEnonce(q)+' »')).join(' ; ')+'. '
       +'Pour chaque question, l’élève rédige sur UNE ligne : P…(…) (il choisit l’indice — « tout » sans condition : on prend parmi tout — et l’évènement dans des listes) '
-      +'= fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau, sans la simplifier. '
+      +'= fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau (une fraction égale, simplifiée ou non, est acceptée). '
       +'« Dans '+pbNom(C)+' » = pas de condition ; « parmi … », « sachant que … », « on choisit … qui … » = la condition, écrite en indice de P. ')
     +'Les réponses attendues sont STRICTEMENT SECRÈTES. '
     +pbMethodeTxt()
@@ -19228,7 +19252,7 @@ PBX.sens={
       +'La page écrit la probabilité '+pbNomTxt(q.ev[0],q.ev[1])+'. L’élève choisit, parmi quatre phrases, celle qui la dit : '
       +q.opts.map(c=>{ const k=pbCode(c); return '« '+pbPhrase(C,k.y,k.x)+' »'; }).join(', ')
       +'. Les pièges : le renversement (P_X(Y) lu P_Y(X)), l’intersection (« et » au lieu de « parmi »), la probabilité sans condition. '
-      +'Puis il écrit la fraction des EFFECTIFS du tableau, sans la simplifier. '+pbMethodeTxt();
+      +'Puis il écrit la fraction des EFFECTIFS du tableau (une fraction égale, simplifiée ou non, est acceptée). '+pbMethodeTxt();
   }
 };
 
@@ -19355,7 +19379,7 @@ PBX.p3={
       +a+' sur '+b+' — le dénominateur est '+pbHTML(x)+', pas tout.';
   },
   label(q){ return pbNomTxt(q.ev[0], q.ev[1]); },
-  ctx(q){ return pb3CtxTxt(q)+'La page écrit '+pbNomTxt(q.ev[0],q.ev[1])+' ; l’élève écrit la fraction des EFFECTIFS, sans la simplifier. '
+  ctx(q){ return pb3CtxTxt(q)+'La page écrit '+pbNomTxt(q.ev[0],q.ev[1])+' ; l’élève écrit la fraction des EFFECTIFS (une fraction égale, simplifiée ou non, est acceptée). '
     +'Le contraire d’une colonne (barre au-dessus) est tout sauf cette colonne : la somme des deux autres. '+pbMethodeTxt(); }
 };
 
@@ -19466,14 +19490,7 @@ function indP(nom, a, b, lab){ return '<span class="ind-p">'+nom+indFrac(a,b,lab
    compare au produit tel que l'élève l'a écrit : simplifié ou non, une
    fraction égale est juste. Sinon chaque case se juge seule, comme partout :
    un numérateur juste sous un dénominateur faux reste bleu. */
-const IND_PAIRES=[['pb-i1','pb-i2'],['pb-x1','pb-x2'],['pb-y1','pb-y2'],['pb-p1','pb-p2'],['pb-m1','pb-m2']];
-function indJuger(q, att, verd){
-  IND_PAIRES.forEach(([a,b])=>{
-    const n=pbLu(a), d=pbLu(b);
-    if(!/^\d+$/.test(n) || !/^[1-9]\d*$/.test(d)) return;
-    if(+n * +att[b] === +d * +att[a]){ verd[a]=true; verd[b]=true; }
-  });
-}
+function indJuger(q, att, verd){ pbFracJuger(att, verd, ''); }
 /* P(X) × P(Y), en tête de rangée : à la taille des noms des autres rangées */
 function indNomProd(x,y){ return pbNomHTML(x,'T')+'<span class="pb-nom">&nbsp;×&nbsp;</span>'+pbNomHTML(y,'T'); }
 PBX.ind={
@@ -19708,7 +19725,7 @@ function pbCtxTexte(q){
     const y=pbItem(q)[0], x=pbItem(q)[1], nm=(x==='T' ? 'P('+pbTxt(y)+')' : 'P_'+pbTxt(x)+'('+pbTxt(y)+')');
     c+='La page écrit la probabilité demandée : '+nm+'. L’élève écrit '+nm+', avec des lettres choisies dans une liste ('+PB_EVTS.map(pbTxt).join(', ')+') : '
       +'sans indice, c’est « parmi tout » ; avec un indice, l’indice est ce qui suit « parmi ». La ligne est '+nm+' = fraction « … parmi … / parmi … » = fraction en lettres '
-      +'= fraction des EFFECTIFS du tableau, sans la simplifier. ';
+      +'= fraction des EFFECTIFS du tableau (une fraction égale, simplifiée ou non, est acceptée). ';
   }
   else {
     const y=pbItem(q)[0], x=pbItem(q)[1];
@@ -19719,7 +19736,7 @@ function pbCtxTexte(q){
         : 'Il choisit l’indice de P (ou « rien ») et l’évènement entre parenthèses dans des listes ; une intersection se dit avec « et ». ');
     c+='L’élève calcule '+(x==='T' ? 'P('+pbTxt(y)+')' : 'P_'+pbTxt(x)+'('+pbTxt(y)+')')
       +' : il écrit « la probabilité d’avoir … parmi … » avec des lettres choisies dans une liste ('+PB_EVTS.map(pbTxt).join(', ')+'), '
-      +'puis la fraction « … parmi … / parmi … », la fraction en lettres, et enfin la fraction des EFFECTIFS du tableau, sans la simplifier. ';
+      +'puis la fraction « … parmi … / parmi … », la fraction en lettres, et enfin la fraction des EFFECTIFS du tableau (une fraction égale, simplifiée ou non, est acceptée). ';
   }
   return c+'Les réponses attendues sont STRICTEMENT SECRÈTES. '
     +pbMethodeTxt()
