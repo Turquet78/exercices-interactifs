@@ -3185,7 +3185,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=362;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=363;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -22065,7 +22065,7 @@ function dmMoyennes(devoirs, eleves, rows){
   const lignes=(eleves||[]).slice()
     .sort(function(a,b){ return String(a.prenom||'').localeCompare(String(b.prenom||''),'fr',{sensitivity:'base'}); })
     .map(function(e){
-      let total=0, nbFaits=0;
+      let total=0, nbFaits=0, nbComptes=0;
       const cases=colonnes.map(function(d){
         const n=dmNoteDevoir(d, e.id, rows);
         /* Un devoir sans maximum ne peut pas être ramené sur 20 ; il est déjà
@@ -22073,22 +22073,30 @@ function dmMoyennes(devoirs, eleves, rows){
            par zéro si la liste change un jour de source. */
         const sur20 = n.totMax>0 ? n.somme/n.totMax*20 : 0;
         if(n.fait) nbFaits++;
-        total += sur20;                    /* NON FAIT = 0 : sa somme vaut 0 */
-        return { sur20:sur20, fait:n.fait, somme:n.somme, totMax:n.totMax,
+        /* « abs » NE COMPTE PAS (demande de Turquet, novembre 2026) : dans
+           une famille « abs », une note nulle sort de la moyenne au lieu d'y
+           compter 0. Ailleurs, NON FAIT = 0 : sa somme vaut 0. */
+        const abs=dmAbs(n.fait, sur20);
+        if(!abs){ total += sur20; nbComptes++; }
+        return { sur20:sur20, fait:n.fait, abs:abs, somme:n.somme, totMax:n.totMax,
                  nbFait:n.nbFait, nbExos:n.nbExos };
       });
       return { eleve:e, cases:cases, nbFaits:nbFaits,
                /* le dénominateur est le NOMBRE DE DEVOIRS, jamais le nombre de
-                  devoirs faits : c'est là que vit la décision du zéro */
-               moyenne: colonnes.length ? total/colonnes.length : null };
+                  devoirs faits : c'est là que vit la décision du zéro — moins
+                  les « abs », qui ne comptent pas. Que des « abs » : pas de
+                  moyenne. */
+               moyenne: nbComptes ? total/nbComptes : null };
     });
 
   const moyClasse=colonnes.map(function(d,i){
-    if(!lignes.length) return null;
-    return lignes.reduce(function(a,l){ return a+l.cases[i].sur20; },0)/lignes.length;
+    const comptees=lignes.filter(function(l){ return !l.cases[i].abs; });
+    if(!comptees.length) return null;
+    return comptees.reduce(function(a,l){ return a+l.cases[i].sur20; },0)/comptees.length;
   });
-  const moyGenerale = lignes.length
-    ? lignes.reduce(function(a,l){ return a+(l.moyenne||0); },0)/lignes.length : null;
+  const avecMoy=lignes.filter(function(l){ return l.moyenne!=null; });
+  const moyGenerale = avecMoy.length
+    ? avecMoy.reduce(function(a,l){ return a+l.moyenne; },0)/avecMoy.length : null;
   return { colonnes:colonnes, lignes:lignes, moyClasse:moyClasse, moyGenerale:moyGenerale };
 }
 
@@ -22134,7 +22142,7 @@ function dmMoyennesHTML(b){
   const corps=b.lignes.map(function(l){
     const tds=l.cases.map(function(c){
       if(dmAbs(c.fait, c.sur20))
-        return '<td><span class="dm-zero dm-abs" title="Note nulle — compte 0 dans la moyenne">abs</span></td>';
+        return '<td><span class="dm-zero dm-abs" title="Note nulle — ne compte pas dans la moyenne">abs</span></td>';
       return c.fait
         ? '<td><span class="badge '+pctClass(Math.round(c.sur20/20*100))+'">'+fmtNote(c.sur20)+'</span></td>'
         : '<td><span class="dm-zero" title="Pas encore fait — compte 0 dans la moyenne">0</span></td>';
@@ -22150,7 +22158,9 @@ function dmMoyennesHTML(b){
     +'<div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Moyennes de la classe</h3>'
     +'<button class="btn btn-ghost btn-sm" onclick="dmMoyennesCSV()">⤓ Télécharger en CSV</button></div>'
     +'<p class="note" style="margin:0 0 10px">Chaque note est ramenée <b>sur 20</b>, et un'+F.accord+' '+F.singulier
-    +' pas encore fait'+F.accord+' compte <b>0</b> — la colonne « faits » dit combien ont été rendus. '
+    +(dmAbs(false,0)
+      ? ' pas encore fait'+F.accord+', ou noté'+F.accord+' 0, s’écrit <b>abs</b> et ne compte pas dans la moyenne — la colonne « faits » dit combien ont été rendus. '
+      : ' pas encore fait'+F.accord+' compte <b>0</b> — la colonne « faits » dit combien ont été rendus. ')
     +'Un'+F.accord+' '+F.singulier+' entre dans le tableau dès qu’il est affiché aux élèves, '
     +'ou dès qu’un élève y a une note.</p>'
     +'<div class="dm-moywrap"><table class="tbl"><thead><tr><th>Élève</th>'+th
@@ -22308,7 +22318,7 @@ async function renderDmResults(){
        l'élève ; le pourcentage du badge, lui, est invariant par la conversion
        et reste calculé sur les points bruts */
     const surAff=dmNoteAff(dmGenre,0,totMax).sur;
-    let sommeClasse=0, nbActifs=0;
+    let sommeClasse=0, nbActifs=0, nbComptes=0;
     /* La note d'un élève sur ce devoir passe par dmNoteDevoir — l'ENTONNOIR
        que lit aussi le tableau des moyennes juste au-dessus. Deux calculs
        auraient donné deux notes, et le professeur aurait lu l'une ici et
@@ -22316,11 +22326,12 @@ async function renderDmResults(){
     const bilanRows=(eleves||[]).map(e=>{
       const n=dmNoteDevoir(d, e.id, rows||[]);
       const faits=n.nbFait, started=n.fait, somme=n.somme;
-      if(started){ sommeClasse+=somme; nbActifs++; }
+      if(started) nbActifs++;
+      if(started && !dmAbs(started,somme)){ sommeClasse+=somme; nbComptes++; }   /* les « abs » ne comptent pas dans la moyenne */
       const badge=dmAbs(started,somme)?`<span class="badge dm-abs">abs</span>`:started?`<span class="badge ${pctClass(Math.round(somme/totMax*100))}">${fmtNote(dmNoteAff(dmGenre,somme,totMax).note)} / ${surAff}</span>`:`<span class="badge">— / ${surAff}</span>`;
       return `<tr class="clickable" onclick="dmStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${badge}</td><td>${faits} / ${liste.length}</td></tr>`;
     });
-    const moy=nbActifs?fmtNote(dmNoteAff(dmGenre,sommeClasse/nbActifs,totMax).note):'—';
+    const moy=nbComptes?fmtNote(dmNoteAff(dmGenre,sommeClasse/nbComptes,totMax).note):'—';
     /* LE CHAMP QUI A LE FOCUS LE GARDE, repéré par sa CLÉ — le texte de la
        Seconde : le détail est reconstruit à chaque note posée. */
     const actif=document.activeElement;
@@ -22331,7 +22342,7 @@ async function renderDmResults(){
         <h3>Bilan de la classe — devoir n°${esc(String(d.num))}</h3>
         <div class="stats" style="margin-bottom:12px">
           <div class="stat"><div class="k">Ont commencé</div><div class="v">${nbActifs} / ${(eleves||[]).length}</div></div>
-          <div class="stat green"><div class="k">Moyenne de la classe</div><div class="v">${moy}${nbActifs?' / '+surAff:''}</div></div>
+          <div class="stat green"><div class="k">Moyenne de la classe</div><div class="v">${moy}${nbComptes?' / '+surAff:''}</div></div>
         </div>
         ${dmEnColonnes(box,'<thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead>',bilanRows,300,6)}
         <p class="muted" style="font-size:.85rem;margin:10px 0 0">Clique sur un élève pour le détail par exercice. La note ne prend en compte que les essais faits <b>depuis ce devoir</b>.${GENRE_DEVOIRS[dmGenre].sur20?' La note de la fiche est ramenée sur 20.':''}</p>

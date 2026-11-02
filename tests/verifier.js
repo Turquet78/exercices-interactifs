@@ -28766,20 +28766,25 @@ function moyennesDevoirs(w, apres){
      liste recopiée aurait fini par désigner une variable morte, et le contrôle
      aurait mesuré un tableau vide en passant au vert. */
   /* « abs » À LA PLACE DU ZÉRO — fiches de travail et fiches SNT, en Seconde
-     et en Première (demande de Turquet, novembre 2026). Une ligne à trois
-     cases : faite et notée, faite pour 0, pas faite. Le tableau et le fichier
-     doivent écrire « abs » pour les deux dernières dans une fiche, et 0 dans
-     un devoir ; la Terminale n'a aucune famille « abs ». La moyenne, elle,
-     ne bouge pas : le 0 compte toujours. */
+     et en Première (demandes de Turquet, novembre 2026) : la note nulle
+     s'écrit « abs », et « abs » NE COMPTE PAS dans la moyenne. Deux élèves,
+     trois colonnes : Émile a 12, 0 (fait), rien ; Zoé a 20 partout. Le VRAI
+     calcul (dmMoyennes) tourne, seul dmNoteDevoir est remplacé le temps de
+     la mesure. Dans un devoir : 12|0|0, moyenne 4, moyennes de classe
+     16|10|10, générale 12. Dans une fiche : 12|abs|abs, moyenne 12, moyennes
+     de classe 16|20|20, générale 16 — au tableau comme au fichier. La
+     Terminale n'a aucune famille « abs ». */
   const abs = evaluer(w, `(function(){
-    const garde=dmGenre, vraiDernier=dmMoyDernier, vraiBlob=window.Blob,
+    const garde=dmGenre, vraiDernier=dmMoyDernier, vraiBlob=window.Blob, vraiNote=dmNoteDevoir,
           vraiCreate=window.URL.createObjectURL, vraiRevoke=window.URL.revokeObjectURL;
     const out={};
     try{
-      const b={ colonnes:[{id:'x1',num:1,titre:'Un'},{id:'x2',num:2,titre:'Deux'},{id:'x3',num:3,titre:'Trois'}],
-        lignes:[{eleve:{id:'e',prenom:'Émile'}, nbFaits:2, moyenne:4,
-          cases:[{sur20:12,fait:true},{sur20:0,fait:true},{sur20:0,fait:false}]}],
-        moyClasse:[12,0,0], moyGenerale:4 };
+      const notes={ e:{x1:[6,true], x2:[0,true], x3:[0,false]}, z:{x1:[10,true], x2:[10,true], x3:[10,true]} };
+      dmNoteDevoir=function(d, eid){ const n=notes[eid][d.id];
+        return { somme:n[0], totMax:10, nbFait:n[1]?1:0, nbExos:1, fait:n[1], exd:[] }; };
+      const ex=[{id:'?',modes:['train']}];
+      const devs=[{id:'x1',num:1,titre:'Un',actif:true,exercices:ex},{id:'x2',num:2,titre:'Deux',actif:true,exercices:ex},{id:'x3',num:3,titre:'Trois',actif:true,exercices:ex}];
+      const eleves=[{id:'e',prenom:'Émile'},{id:'z',prenom:'Zoé'}];
       let capture=null;
       window.Blob=function(p,o){ capture=p.join(''); return new vraiBlob(p,o); };
       window.URL.createObjectURL=function(){ return 'blob:controle'; };
@@ -28787,14 +28792,18 @@ function moyennesDevoirs(w, apres){
       ['dm','fiche','snt'].forEach(function(g){
         if(!Object.prototype.hasOwnProperty.call(GENRE_DEVOIRS,g)) return;
         dmGenre=g;
+        const b=dmMoyennes(devs, eleves, []);
         const div=document.createElement('div'); div.innerHTML=dmMoyennesHTML(b);
-        const tds=[].slice.call(div.querySelectorAll('tbody tr')[0].querySelectorAll('td')).map(function(t){return t.textContent.trim();});
+        const trs=div.querySelectorAll('tbody tr');
+        const cel=function(tr){ return [].slice.call(tr.querySelectorAll('td')).map(function(t){return t.textContent.trim();}); };
+        const tds=cel(trs[0]), pied=cel(trs[trs.length-1]);
         dmMoyDernier=b; capture=null; dmMoyennesCSV();
-        const csv=String(capture||'').replace(/^\\uFEFF/,'').split('\\r\\n')[1]||'';
-        out[g]=tds.slice(1,4).join('|')+' ; csv '+csv.split(';').slice(1,4).join('|').replace(/"/g,'')+' ; moy '+tds[4];
+        const csv=(String(capture||'').replace(/^\\uFEFF/,'').split('\\r\\n')[1]||'').split(';').map(function(v){return v.replace(/"/g,'');});
+        out[g]=tds.slice(1,4).join('|')+' ; csv '+csv.slice(1,4).join('|')+' ; moy '+tds[4]+'/'+csv[4]
+          +' ; classe '+pied.slice(1,4).join('|')+' ; générale '+pied[4];
       });
     } finally {
-      dmGenre=garde; dmMoyDernier=vraiDernier; window.Blob=vraiBlob;
+      dmGenre=garde; dmMoyDernier=vraiDernier; window.Blob=vraiBlob; dmNoteDevoir=vraiNote;
       window.URL.createObjectURL=vraiCreate; window.URL.revokeObjectURL=vraiRevoke;
     }
     return out;
@@ -28802,11 +28811,11 @@ function moyennesDevoirs(w, apres){
   {
     const o = abs.ok ? (abs.valeur || {}) : {};
     const souci = abs.ok ? '' : 'erreur JavaScript : ' + abs.erreur;
-    const zero = '12|0|0 ; csv 12|0|0 ; moy 4';
-    const absent = '12|abs|abs ; csv 12|abs|abs ; moy 4';
+    const zero = '12|0|0 ; csv 12|0|0 ; moy 4/4 ; classe 16|10|10 ; générale 12';
+    const absent = '12|abs|abs ; csv 12|abs|abs ; moy 12/12 ; classe 16|20|20 ; générale 16';
     const attendu = { dm: zero, fiche: CIBLE === 'terminale.html' ? zero : absent, snt: absent };
     const ecarts = Object.keys(o).filter(g => o[g] !== attendu[g]).map(g => g + ' → ' + o[g] + ' (attendu ' + attendu[g] + ')');
-    verifier('une note nulle s’écrit « abs » dans les fiches (Seconde, Première), 0 dans un devoir — et la moyenne compte toujours 0',
+    verifier('une note nulle s’écrit « abs » dans les fiches (Seconde, Première), 0 dans un devoir — et « abs » ne compte pas dans les moyennes',
       abs.ok && Object.keys(o).length >= 2 && !ecarts.length,
       souci || (Object.keys(o).length < 2 ? 'aucune famille mesurée : le contrôle ne mesure rien' : ecarts.join(' ; ')));
   }

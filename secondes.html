@@ -8886,7 +8886,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=632;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=633;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -24912,7 +24912,7 @@ function dmMoyennes(devoirs, eleves, rows){
   const lignes=(eleves||[]).slice()
     .sort(function(a,b){ return String(a.prenom||'').localeCompare(String(b.prenom||''),'fr',{sensitivity:'base'}); })
     .map(function(e){
-      let total=0, nbFaits=0;
+      let total=0, nbFaits=0, nbComptes=0;
       const cases=colonnes.map(function(d){
         const n=dmNoteDevoir(d, e.id, rows);
         /* Un devoir sans maximum ne peut pas être ramené sur 20 ; il est déjà
@@ -24920,22 +24920,30 @@ function dmMoyennes(devoirs, eleves, rows){
            par zéro si la liste change un jour de source. */
         const sur20 = n.totMax>0 ? n.somme/n.totMax*20 : 0;
         if(n.fait) nbFaits++;
-        total += sur20;                    /* NON FAIT = 0 : sa somme vaut 0 */
-        return { sur20:sur20, fait:n.fait, somme:n.somme, totMax:n.totMax,
+        /* « abs » NE COMPTE PAS (demande de Turquet, novembre 2026) : dans
+           une famille « abs », une note nulle sort de la moyenne au lieu d'y
+           compter 0. Ailleurs, NON FAIT = 0 : sa somme vaut 0. */
+        const abs=dmAbs(n.fait, sur20);
+        if(!abs){ total += sur20; nbComptes++; }
+        return { sur20:sur20, fait:n.fait, abs:abs, somme:n.somme, totMax:n.totMax,
                  nbFait:n.nbFait, nbExos:n.nbExos };
       });
       return { eleve:e, cases:cases, nbFaits:nbFaits,
                /* le dénominateur est le NOMBRE DE DEVOIRS, jamais le nombre de
-                  devoirs faits : c'est là que vit la décision du zéro */
-               moyenne: colonnes.length ? total/colonnes.length : null };
+                  devoirs faits : c'est là que vit la décision du zéro — moins
+                  les « abs », qui ne comptent pas. Que des « abs » : pas de
+                  moyenne. */
+               moyenne: nbComptes ? total/nbComptes : null };
     });
 
   const moyClasse=colonnes.map(function(d,i){
-    if(!lignes.length) return null;
-    return lignes.reduce(function(a,l){ return a+l.cases[i].sur20; },0)/lignes.length;
+    const comptees=lignes.filter(function(l){ return !l.cases[i].abs; });
+    if(!comptees.length) return null;
+    return comptees.reduce(function(a,l){ return a+l.cases[i].sur20; },0)/comptees.length;
   });
-  const moyGenerale = lignes.length
-    ? lignes.reduce(function(a,l){ return a+(l.moyenne||0); },0)/lignes.length : null;
+  const avecMoy=lignes.filter(function(l){ return l.moyenne!=null; });
+  const moyGenerale = avecMoy.length
+    ? avecMoy.reduce(function(a,l){ return a+l.moyenne; },0)/avecMoy.length : null;
   return { colonnes:colonnes, lignes:lignes, moyClasse:moyClasse, moyGenerale:moyGenerale };
 }
 
@@ -24982,7 +24990,7 @@ function dmMoyennesHTML(b){
   const corps=b.lignes.map(function(l){
     const tds=l.cases.map(function(c){
       if(dmAbs(c.fait, c.sur20))
-        return '<td><span class="dm-zero dm-abs" title="Note nulle — compte 0 dans la moyenne">abs</span></td>';
+        return '<td><span class="dm-zero dm-abs" title="Note nulle — ne compte pas dans la moyenne">abs</span></td>';
       return c.fait
         ? '<td><span class="badge '+pctClass(Math.round(c.sur20/20*100))+'">'+fmtNote(c.sur20)+'</span></td>'
         : '<td><span class="dm-zero" title="Pas encore fait — compte 0 dans la moyenne">0</span></td>';
@@ -24998,7 +25006,9 @@ function dmMoyennesHTML(b){
     +'<div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Moyennes de la classe</h3>'
     +'<button class="btn btn-ghost btn-sm" onclick="dmMoyennesCSV()">⤓ Télécharger en CSV</button></div>'
     +'<p class="note" style="margin:0 0 10px">Chaque note est ramenée <b>sur 20</b>, et un'+F.accord+' '+F.singulier
-    +' pas encore fait'+F.accord+' compte <b>0</b> — la colonne « faits » dit combien ont été rendus. '
+    +(dmAbs(false,0)
+      ? ' pas encore fait'+F.accord+', ou noté'+F.accord+' 0, s’écrit <b>abs</b> et ne compte pas dans la moyenne — la colonne « faits » dit combien ont été rendus. '
+      : ' pas encore fait'+F.accord+' compte <b>0</b> — la colonne « faits » dit combien ont été rendus. ')
     +'Un'+F.accord+' '+F.singulier+' entre dans le tableau dès qu’il est affiché aux élèves, '
     +'ou dès qu’un élève y a une note.</p>'
     +'<div class="dm-moywrap"><table class="tbl"><thead><tr><th>Élève</th>'+th
@@ -25151,7 +25161,7 @@ async function renderDevoirResultats(){
       return { e:e, somme:n.somme, nbFait:n.nbFait, exd:n.exd, fait:n.fait };
     });
     const totMax=dmTotal(exos.map(ex=>({note:0,fait:false,bonus:dmEstBonus(ex)}))).totMax;
-    const actifs=synth.filter(x=>x.fait);
+    const actifs=synth.filter(x=>x.fait && !dmAbs(x.fait,x.somme));   /* les « abs » ne comptent pas */
     const moy=actifs.length? actifs.reduce((a,x)=>a+x.somme,0)/actifs.length : null;
     /* la note d'une fiche s'AFFICHE sur 20 — même entonnoir que l'écran de
        l'élève ; le pourcentage du badge, lui, est invariant par la conversion
