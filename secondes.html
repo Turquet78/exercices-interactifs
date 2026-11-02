@@ -8866,7 +8866,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=629;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=630;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10204,6 +10204,127 @@ function liveCheckCurrent(){
   else if(k==='vej') checkVejAnswer(true);
   else if(k==='vmi') checkVmiAnswer(true);
   else if(k==='pnv') checkPNV(true);
+  /* les gestes de pose du thème 8 : seul le faux rougit, voir rougeALaPose() */
+  else if(k==='vec'||k==='vep'||k==='tvx'||k==='tan'||k==='kpl'||k==='svc'||k==='stv'||k==='cps'||k==='cvp'||k==='tcp'||k==='spg') rougeALaPose();
+}
+/* ---------- Le soutien rougit un point ou un vecteur FAUX dès qu'il est posé ----------
+   Demande de Turquet (novembre 2026) : « en mode soutien, quand on place un
+   point ou un vecteur, le mettre en rouge quand il est mal placé ou mal
+   tracé, avant la vérification ». C'était déjà la règle du 8.2.5
+   ({somme-vecteurs-repere}, svrCoulPt et svrCoulVec, dans tous les modes) et
+   des flèches du 8.2.8 ({point-somme-vecteurs}) ; ailleurs, le thème 8 ne
+   jugeait qu'à « Vérifier » (soutienEnDirect.sans). La règle vaut désormais
+   pour CHAQUE geste de pose du thème 8, en soutien seulement — hors soutien,
+   rien ne se dit avant la vérification.
+   Seul le FAUX se peint : un point juste n'est pas peint en bleu ni figé
+   (c'est le travail de « Vérifier »), un point vide ne rougit jamais. Le rouge
+   va au dessin (la croix, la flèche, le nœud) ET au cadre de la consigne,
+   comme le fait la vérification du soutien ; il tombe dès que le point est
+   repris au bon endroit ou retiré. Ce qui n'est pas un geste de pose — une
+   liste de lettres, le choix d'une composition — n'est pas touché.
+   Un seul point d'entrée, appelé à la fin de chaque geste (pose, glisser,
+   retournement, effacement) : rougeALaPose(). */
+function rougeALaPoseCadre(id, faux, mq, cle){
+  const el=$(id);
+  if(mq && mq[cle]==='ok') return;                  /* figé juste par la vérification */
+  if(el && el.classList.contains('ok')) return;
+  if(faux){
+    if(mq) mq[cle]='bad';
+    if(el){ el.classList.add('bad'); [...el.classList].forEach(function(c){ if(/-(fait|cours)$/.test(c)) el.classList.remove(c); }); }
+  } else {
+    if(mq && mq[cle]==='bad') mq[cle]='';
+    if(el) el.classList.remove('bad');
+  }
+}
+function rougeALaPoseFaux(s){ return !!s && !s.ok && !s.vide; }
+const ROUGE_A_LA_POSE={
+  /* 8.1.5 — {parallelogramme-point} : le nœud de D, à la question a) seulement */
+  vec:function(q){
+    if((q.etape||0)>0) return;
+    const f=rougeALaPoseFaux(vecJuge(q)[0]);
+    rougeALaPoseCadre('vec-pt', f);
+    document.querySelectorAll('#vecGraph .vec-t.badc').forEach(function(el){ el.classList.remove('badc'); });
+    if(f&&q.selD){ const el=$('vecn-'+q.selD[0]+'-'+q.selD[1]); if(el) el.classList.add('badc'); }
+  },
+  /* 8.1.6 — {egalite-vectorielle-point} : le nœud du point cherché */
+  vep:function(q){
+    if(test.vepFige) return;
+    const f=rougeALaPoseFaux(vepJuge(q)[0]);
+    rougeALaPoseCadre('vep-pt', f);
+    document.querySelectorAll('#vepGraph .vec-t.badc').forEach(function(el){ el.classList.remove('badc'); });
+    if(f&&q.selM){ const el=$('vepn-'+q.selM[0]+'-'+q.selM[1]); if(el) el.classList.add('badc'); }
+  },
+  /* 8.1.7, 8.1.8, 8.3.1 — les trois flèches tracées */
+  tvx:function(q){
+    const mq=test.tvxMarque||(test.tvxMarque=[]);
+    tvxJuge(q).forEach(function(s,k){ rougeALaPoseCadre(s.id, rougeALaPoseFaux(s), mq, k); });
+    tvxDessiner(q); tvxConsigne(q);
+  },
+  /* 8.1.12 — {translation-antecedent} : les trois points posés */
+  tan:function(q){
+    const mq=test.tanMarque||(test.tanMarque=[]);
+    tanJuge(q).forEach(function(s,k){ rougeALaPoseCadre(s.id, rougeALaPoseFaux(s), mq, k); });
+    tanDessiner(q); tanConsigne(q);
+  },
+  /* 8.3.6 — {placer-point-colineaire} : les points posés */
+  kpl:function(q){
+    const mq=test.kplMarque||(test.kplMarque=[]);
+    kplJuge(q).forEach(function(s){ rougeALaPoseCadre(s.id, rougeALaPoseFaux(s), mq, +s.id.split('-')[1]); });
+    kplDessiner(q); kplConsigne(q);
+  },
+  /* 8.2.1 et 8.2.10 — {somme-vecteurs} : les flèches glissées (sauf au
+     8.2.10, où le chaînage ne compte pas) et u + v tracé */
+  svc:function(q){
+    const subs=svcJuge(q), notees=svcNotees(q,subs);
+    if(!test.svcFigeCh && notees.indexOf(subs[0])>=0) rougeALaPoseCadre('svc-ch', rougeALaPoseFaux(subs[0]));
+    if(!test.svcFigeSm){ const f=rougeALaPoseFaux(subs[1]); rougeALaPoseCadre('svc-sm', f); svcTracer(q, f?'bad':''); }
+  },
+  /* 8.2.15 — {somme-trois-vecteurs} : les flèches glissées, la somme tracée
+     (ou le vecteur nul choisi) */
+  stv:function(q){
+    const subs=stvJuge(q);
+    if(!test.stvFigeCh) rougeALaPoseCadre('stv-ch', rougeALaPoseFaux(subs[0]));
+    if(!test.stvFigeSm){ const f=rougeALaPoseFaux(subs[1]); rougeALaPoseCadre('stv-sm', f); stvTracer(q, f?'bad':''); }
+  },
+  /* 8.2.8 — {point-somme-vecteurs} : les deux flèches, leur chaînage, le point */
+  cps:function(q){
+    const mq=test.cpsMarque||(test.cpsMarque={});
+    const cles=['t1','t2','ch','pt'], fige={t1:test.cpsFigeT1, t2:test.cpsFigeT2, ch:test.cpsFigeCh, pt:test.cpsFigePt};
+    cpsJuge(q).forEach(function(s,n){ if(!fige[cles[n]]) rougeALaPoseCadre(s.id, rougeALaPoseFaux(s), mq, cles[n]); });
+    cpsDessiner(q); cpsConsigne(q);
+  },
+  /* 8.2.9 — {point-somme-difference} : les flèches bout à bout, le point */
+  cvp:function(q){
+    const subs=cvpJuge(q);
+    if(!test.cvpFigeCh) rougeALaPoseCadre('cvp-ch', rougeALaPoseFaux(subs[0]));
+    if(!test.cvpFigePt){
+      const f=rougeALaPoseFaux(subs[1]);
+      rougeALaPoseCadre('cvp-pt', f);
+      document.querySelectorAll('#cvpGraph .vec-t.badc').forEach(function(el){ el.classList.remove('badc'); });
+      if(f&&q.sel){ const el=$('cvpn-'+q.sel[0]+'-'+q.sel[1]); if(el) el.classList.add('badc'); }
+      cvpCroix();
+    }
+  },
+  /* 8.2.16 — {translations-successives} : A′, A″ et la flèche AA″ (la
+     liste de la composition n'est pas un geste de pose) */
+  tcp:function(q){
+    const mq=test.tcpMarque||(test.tcpMarque={}), F=test.tcpFige||{}, subs=tcpJuge(q);
+    [[0,'p1'],[1,'p2'],[3,'tr']].forEach(function(p){ if(!F[p[1]]) rougeALaPoseCadre(subs[p[0]].id, rougeALaPoseFaux(subs[p[0]]), mq, p[1]); });
+    tcpDessiner(q); tcpConsigne(q);
+  },
+  /* 8.2.17 — {regle-parallelogramme} : le point D, puis la somme tracée */
+  spg:function(q){
+    const mq=test.spgMarque||(test.spgMarque={}), subs=spgJuge(q);
+    if(!test.spgFigePt) rougeALaPoseCadre('spg-pt', rougeALaPoseFaux(subs[0]), mq, 'pt');
+    if(!test.spgFigeSm) rougeALaPoseCadre('spg-sm', rougeALaPoseFaux(subs[1]), mq, 'sm');
+    spgDessiner(q);
+  }
+};
+function rougeALaPose(){
+  if(!isSoutien()||test.locked) return;
+  const R=ROUGE_A_LA_POSE[test.kind]; if(!R) return;
+  const q=test.questions&&test.questions[test.idx]; if(!q) return;
+  R(q);
 }
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
@@ -62892,6 +63013,7 @@ function vecPose(i,j){
   q.selD=meme?null:[i,j];
   if(!meme){ el.classList.add('sel'); el.classList.remove('badc'); el.setAttribute('aria-pressed','true'); }
   const pt=$('vec-pt'); if(pt) pt.classList.remove('ok','bad');
+  rougeALaPose();
   recoveryDirty=true;
 }
 /* LE JUGE — cinq réponses, chacune jugée seule, LUES DANS LA QUESTION : le
@@ -63232,6 +63354,7 @@ function vepPose(i,j){
   q.selM=meme?null:[i,j];
   if(!meme){ el.classList.add('sel'); el.classList.remove('badc'); el.setAttribute('aria-pressed','true'); }
   const pt=$('vep-pt'); if(pt) pt.classList.remove('ok','bad');
+  rougeALaPose();
   vepCroix(); vepCurseur(vepDernier);
   recoveryDirty=true;
 }
@@ -63668,6 +63791,7 @@ function svcPose(i,j){
   else { q.sd=[i,j]; q.sf=null; }
   const pt=$('svc-sm'); if(pt) pt.classList.remove('ok','bad');
   svcTracer(q,'');
+  rougeALaPose();
   recoveryDirty=true;
 }
 /* Déplacer une flèche d'un vecteur de nœuds, sans qu'elle sorte du
@@ -63682,6 +63806,7 @@ function svcDeplacer(w, p){
   if(w==='u') q.up=np; else q.vp=np;
   const pt=$('svc-ch'); if(pt) pt.classList.remove('ok','bad');
   svcDessinerFleches(q);
+  rougeALaPose();
   recoveryDirty=true;
   return true;
 }
@@ -64258,6 +64383,7 @@ function stvPose(i,j){
   q.dn=0;
   const el=$('stv-sm'); if(el) el.classList.remove('ok','bad');
   stvTracer(q,'');
+  rougeALaPose();
   recoveryDirty=true;
 }
 /* « C'est le vecteur nul » : la déclaration remplace la flèche tracée ; un
@@ -64270,6 +64396,7 @@ function stvNul(){
   if(q.dn){ q.sd=null; q.sf=null; }
   const el=$('stv-sm'); if(el) el.classList.remove('ok','bad');
   stvTracer(q,'');
+  rougeALaPose();
   recoveryDirty=true;
 }
 /* Déplacer une flèche, retenue au bord du quadrillage. Rend vrai si elle a
@@ -64285,6 +64412,7 @@ function stvDeplacer(k, p){
   const el=$('stv-ch'); if(el) el.classList.remove('ok','bad');
   stvDessinerFleches(q);
   stvFaits(q);
+  rougeALaPose();
   recoveryDirty=true;
   return true;
 }
@@ -64757,6 +64885,7 @@ function cpsPose(i,j){
     mq.pt=''; const c=$('cps-pt'); if(c) c.classList.remove('ok','bad');
   }
   cpsDessiner(q); cpsConsigne(q);
+  rougeALaPose();
   recoveryDirty=true;
 }
 /* Effacer les flèches pour les retracer — sauf celles que le soutien a
@@ -64785,6 +64914,7 @@ function cpsDeplacer(k, p){
   const mq=test.cpsMarque||(test.cpsMarque={}); mq.ch='';
   const c=$('cps-ch'); if(c) c.classList.remove('ok','bad');
   cpsDessiner(q); cpsConsigne(q);
+  rougeALaPose();
   recoveryDirty=true;
   return true;
 }
@@ -65275,6 +65405,7 @@ function tcpPose(i,j){
     tcpEfface(q,['tr']);
   }
   tcpDessiner(q); tcpConsigne(q);
+  rougeALaPose();
   recoveryDirty=true;
 }
 /* Le choix de la liste. */
@@ -65824,6 +65955,7 @@ function tvxClic(i,j){
     else return;
   }
   tvxDessiner(q); tvxConsigne(q);
+  rougeALaPose();
   recoveryDirty=true;
 }
 /* Échap : l'extrémité reprise revient à sa place, la flèche commencée perd sa croix. */
@@ -67158,6 +67290,7 @@ function kplClic(i,j){
     q.p[k]=p; test.kplSel=-1; kplEffaceMarque(k);
   }
   kplDessiner(q); kplConsigne(q);
+  rougeALaPose();
   recoveryDirty=true; clearTimeout(test.kplSave); test.kplSave=setTimeout(autoSave,1200);
 }
 function kplChoisir(k){
@@ -69094,6 +69227,7 @@ function tanClic(i,j){
     q.p[k]=n; test.tanSel=-1; tanEffaceMarque(k);
   }
   tanDessiner(q); tanConsigne(q);
+  rougeALaPose();
   recoveryDirty=true; clearTimeout(test.tanSave); test.tanSave=setTimeout(autoSave,1200);
 }
 /* choisir le point à poser (ou à déplacer) en cliquant son cadre */
@@ -69600,6 +69734,7 @@ function cvpPose(i,j){
   /* le point posé, plus de point au bout de la souris (demande de Turquet, octobre 2026) */
   const cu=$('cvpCurseur'); if(cu&&q.sel) cu.style.display='none';
   cvpMarquer(q);
+  rougeALaPose();
   recoveryDirty=true;
 }
 /* Déplacer une flèche, retenue au bord du quadrillage ; vrai si elle a bougé. */
@@ -69613,6 +69748,7 @@ function cvpDeplacer(w, p){
   if(w==='u') q.up=np; else q.vp=np;
   const ch=$('cvp-ch'); if(ch) ch.classList.remove('ok','bad');
   cvpDessinerFleches(q);
+  rougeALaPose();
   recoveryDirty=true;
   return true;
 }
@@ -69625,6 +69761,7 @@ function cvpRetourner(w){
   else { q.vp=svcPlus(cvpV(q),cvpVc(q)); q.vr=!q.vr; }
   const ch=$('cvp-ch'); if(ch) ch.classList.remove('ok','bad');
   cvpDessinerFleches(q);
+  rougeALaPose();
   recoveryDirty=true;
 }
 /* Le glisser du 8.7, sur les identifiants de cet écran : écouteurs délégués
@@ -70124,6 +70261,7 @@ function spgClic(i,j){
     if(test.spgMarque) test.spgMarque.sm='';
   }
   spgDessiner(q);
+  rougeALaPose();
   recoveryDirty=true;
 }
 /* Échap : le début posé d'une flèche commencée se retire. */

@@ -1208,28 +1208,23 @@ module.exports = {
        fini, et le juger à chaque changement de lettre serait absurde. */
     /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
        avec leurs exercices — voir le profil de la Première. */
-    /* « vec » — {parallelogramme-point}, 8.5 — pose D d'un clic sur un
-       quadrillage, comme « tvg » pose ses cibles : peindre le nœud au moment
-       où on le pose dirait s'il est juste avant même de vérifier. Le soutien
-       y colore à la vérification, sans jamais montrer où est D. « vep » —
-       {egalite-vectorielle-point}, 8.6 — pose son point de la même façon, et
-       « svc » — {somme-vecteurs}, 8.7 — aussi : les flèches glissées et u⃗ + v⃗
-       tracé sont le dessin de ce que l'élève a posé, jamais un verdict. « svr »
-       — {somme-vecteurs-repere}, 8.11 — de même : points, vecteurs tracés et
-       copies glissées se dessinent, et ne se jugent qu'à la vérification ; et
-       « cps » — {point-somme-vecteurs}, 8.14 — trace, glisse et pose de même ;
-       « tvx » — {tracer-vecteurs-egaux}, 8.1.7 — trace ses flèches de même ;
-       « tan » — {translation-antecedent}, 8.1.12 — pose ses points de même ;
-       « stv » — {somme-trois-vecteurs}, 8.2.15 — fait glisser ses flèches
-       comme « svc ». « kvi » — {identifier-multiple-vecteur} et
+    /* LES GESTES DE POSE DU THÈME 8 ONT QUITTÉ CETTE LISTE (novembre 2026,
+       demande de Turquet : « en mode soutien, quand on place un point ou un
+       vecteur, le mettre en rouge quand il est mal placé ou mal tracé, avant
+       la vérification »). « vec », « vep », « tvx », « tan », « kpl »,
+       « svc », « stv », « cps », « cvp », « tcp » et « spg » passent par
+       liveCheckCurrent() → rougeALaPose() : seul le FAUX rougit, un point
+       juste n'est ni bleui ni figé avant « Vérifier ». « svr » —
+       {somme-vecteurs-repere} — reste ici : il rougit déjà le faux par son
+       propre dessin (svrCoulPt, svrCoulVec), dans tous les modes.
+       « kvi » — {identifier-multiple-vecteur} et
        {identifier-multiple-non-entier}, 8.3.2 et 8.3.3 — choisit le vecteur
        dans une liste de trois : le colorer au choix, ce serait le faire
        deviner en trois essais ; « kco » — {vecteurs-colineaires-figure},
        8.3.4 — répond « Oui » ou « Non » : en deux. Les deux ne jugent qu'à
-       la vérification. Les 8.3.5 à 8.3.8 — « kss », « kpl », « kph », « kmi »
-       — non plus : des listes à deux ou trois choix, des points à cliquer, une
-       rédaction dont les cases se jugent ensemble. */
-    soutienEnDirect: { sans: ['kss', 'kpl', 'kph', 'kmi', 'kvi', 'kco', 'psl', 'sal', 'ac', 'pwy', 'pws', 'pwe', 'pwx', 'pwa', 'pwp', 'pwd', 'pwr', 'pwv', 'pwm', 'pwc', 'pwo', 'pwn', 'pwg', 'pwf', 'pwt', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'vec', 'vep', 'svc', 'stv', 'svr', 'cvp', 'spg', 'cps', 'tcp', 'tvx', 'tan', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pcz', 'pte', 'pfl', 'pqc', 'ppr', 'pod', 'prd', 'pmo', 'pfx', 'pof', 'pfn', 'pfk', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+       la vérification. « kss », « kph », « kmi » non plus : des listes à
+       deux ou trois choix, une rédaction dont les cases se jugent ensemble. */
+    soutienEnDirect: { sans: ['kss', 'kph', 'kmi', 'kvi', 'kco', 'psl', 'sal', 'ac', 'pwy', 'pws', 'pwe', 'pwx', 'pwa', 'pwp', 'pwd', 'pwr', 'pwv', 'pwm', 'pwc', 'pwo', 'pwn', 'pwg', 'pwf', 'pwt', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'svr', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pcz', 'pte', 'pfl', 'pqc', 'ppr', 'pod', 'prd', 'pmo', 'pfx', 'pof', 'pfn', 'pfk', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
