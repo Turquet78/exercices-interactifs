@@ -3363,6 +3363,26 @@
   /* présenté comme le 8.1.12 (#scr-tan) : les cadres ①②③ et la croix qui suit la souris */
   #scr-trl .tvg-cons{cursor:pointer}
   #scr-trl .tvg-cons.sol{border-color:var(--green);background:var(--green-soft)}
+  /* La barre « Je place : » des exercices de vecteurs, au doigt seulement
+     (script #pose-doigt) : un bouton à cocher par point, deux par vecteur. */
+  .pose-doigt{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:10px 0 8px;padding:8px 10px;border:2px dashed var(--blue);border-radius:12px;background:#F5F8FF}
+  .pose-doigt .pd-tit{font-weight:800;color:var(--ink)}
+  .pose-doigt .pd-gr{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px}
+  .pose-doigt .pd-gl{font-weight:700;color:var(--ink)}
+  .pose-doigt .pd-it{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:4px 12px;border:2px solid #B9C6E4;border-radius:10px;background:#fff;color:var(--ink);font:inherit;cursor:pointer;touch-action:manipulation}
+  .pose-doigt .pd-coche{flex:none;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border:2px solid #8C9AC0;border-radius:5px;background:#fff}
+  .pose-doigt .pd-it.pd-on{border-color:var(--blue);background:#EAF0FF;box-shadow:inset 4px 0 0 var(--blue)}
+  .pose-doigt .pd-it.pd-on .pd-coche{background:var(--blue);border-color:var(--blue)}
+  .pose-doigt .pd-it.pd-on .pd-coche::after{content:"✓";color:#fff;font-weight:900;font-size:14px;line-height:1}
+  .pose-doigt .pd-it.pd-fait:not(.pd-on)::after{content:"✓";color:var(--green);font-weight:800}
+  .pose-doigt .pd-it:disabled{opacity:.45;cursor:default}
+  .pose-doigt .pd-aide{flex-basis:100%;font-size:.85em;color:var(--ink-soft)}
+  .pose-doigt .pd-gr{flex-wrap:nowrap}
+  @media (max-width:600px){
+    .pose-doigt{gap:6px;padding:6px 8px}
+    .pose-doigt .pd-long{display:none}
+    .pose-doigt .pd-it{min-height:42px;padding:3px 9px;gap:5px}
+  }
   #scr-trl .tvg-cons.tan-fait{border-color:var(--green);color:var(--green);background:var(--green-soft)}
   #scr-trl .tvg-cons.tan-fait::after{content:" ✓";font-weight:800}
   #scr-trl .tvg-cons.tan-cours{border-color:var(--blue);background:#EAF0FF;color:var(--ink);box-shadow:inset 4px 0 0 var(--blue)}
@@ -8836,7 +8856,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=628;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=629;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -16987,6 +17007,7 @@ function trlCourant(q){
    clic sur un point posé le reprend, sinon il pose le point en cours. Tout
    fait : un clic reprend un point posé, sinon un bout de la flèche. */
 function trlClic(i,j){
+  if(poseDoigt('trl',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.kind!=='trl'||test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>TRL_W||j<0||j>TRL_H) return;
@@ -17022,6 +17043,7 @@ function trlChoisir(k){
   if(trlTrace(q) && !trlFl(q)) k=TRL_VEC;
   else if(k===TRL_VEC && !trlTrace(q)) return;
   test.trlSel=k; test.trlMob=null; trlRedessiner(true);
+  if(typeof poseDoigtSuivre==='function') poseDoigtSuivre('trl', k===TRL_VEC?(q.d&&!q.f?'f':'d'):String(k));
 }
 /* Échap : le bout repris revient à sa place, la flèche commencée perd sa croix. */
 function trlAnnuler(){
@@ -62843,6 +62865,7 @@ function vecFigure(P, ordre, fleches, marker){
    le nœud posé le retire. L'état vit dans la question (pause et reprise). Le
    quadrillage est figé dès que la question a) est passée. */
 function vecPose(i,j){
+  if(poseDoigt('vec',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='vec') return;
   const q=test.questions[test.idx]; if(!q||(q.etape||0)>0) return;
   const el=$('vecn-'+i+'-'+j); if(!el||el.classList.contains('off')) return;
@@ -63183,6 +63206,7 @@ function vepBrancheCurseur(){
 /* Poser le point : un seul nœud à la fois — cliquer un autre nœud le déplace,
    cliquer le nœud posé le retire. L'état vit dans la question (pause et reprise). */
 function vepPose(i,j){
+  if(poseDoigt('vep',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='vep'||test.vepFige) return;
   const q=test.questions[test.idx]; if(!q) return;
   const el=$('vepn-'+i+'-'+j); if(!el||el.classList.contains('off')) return;
@@ -63620,6 +63644,7 @@ function svcCoteDehors(d, f, fleches){
    de plus recommence une flèche ; recliquer le début seul le retire. L'état
    vit dans la question (pause et reprise). */
 function svcPose(i,j){
+  if(poseDoigt('svc',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='svc'||test.svcFigeSm) return;
   const q=test.questions[test.idx]; if(!svcPeutTracer(q)) return;
   if(i<0||i>SVC_W||j<0||j>SVC_H) return;
@@ -64208,6 +64233,7 @@ function stvFaits(q){
    ne se pose tant que les flèches ne sont pas bout à bout depuis le point
    — un début déjà posé se retire toujours. */
 function stvPose(i,j){
+  if(poseDoigt('stv',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='stv'||test.stvFigeSm) return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>STV_W||j<0||j>STV_H) return;
@@ -64699,6 +64725,7 @@ function cpsCroix(){
    le point (le même nœud le retire, un autre le déplace). L'état vit dans la
    question (pause et reprise). */
 function cpsPose(i,j){
+  if(poseDoigt('cps',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='cps') return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>CPS_W||j<0||j>CPS_H) return;
@@ -65218,6 +65245,7 @@ function tcpEfface(q, cles){
 }
 /* Un clic sur un nœud. L'état vit dans la question (pause et reprise). */
 function tcpPose(i,j){
+  if(poseDoigt('tcp',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='tcp') return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>TCP_W||j<0||j>TCP_H) return;
@@ -65761,6 +65789,7 @@ function tvxEffaceMarque(k){
    départ de la flèche suivante. Jamais de vecteur nul. L'état vit dans la
    question (pause et reprise). */
 function tvxClic(i,j){
+  if(poseDoigt('tvx',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='tvx') return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>TVX_W||j<0||j>TVX_H) return;
@@ -67107,6 +67136,7 @@ function kplDessiner(q){
   el.innerHTML=h;
 }
 function kplClic(i,j){
+  if(poseDoigt('kpl',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='kpl') return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>KPL_W||j<0||j>KPL_H) return;
@@ -67122,6 +67152,7 @@ function kplClic(i,j){
 function kplChoisir(k){
   if(test.locked||test.kind!=='kpl'||!(k>=0&&k<test.questions[test.idx].r.length)) return;
   test.kplSel=k; kplConsigne(test.questions[test.idx]);
+  if(typeof poseDoigtSuivre==='function') poseDoigtSuivre('kpl', String(k));
 }
 function kplEffaceMarque(k){
   const mq=test.kplMarque||(test.kplMarque=[]); mq[k]='';
@@ -69043,6 +69074,7 @@ function tanDessiner(q){
 }
 /* Un clic au nœud (i ; j) : sur un point posé, il le reprend ; sinon il pose le point en cours. */
 function tanClic(i,j){
+  if(poseDoigt('tan',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='tan') return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>TAN_W||j<0||j>TAN_H) return;
@@ -69059,6 +69091,7 @@ function tanClic(i,j){
 function tanChoisir(k){
   if(test.locked||test.kind!=='tan'||!(k>=0&&k<3)) return;
   test.tanSel=k; tanConsigne(q_tan());
+  if(typeof poseDoigtSuivre==='function') poseDoigtSuivre('tan', String(k));
 }
 function q_tan(){ return test.questions[test.idx]; }
 function tanEffaceMarque(k){
@@ -69546,6 +69579,7 @@ function cvpVecteurEleve(q){
 /* Poser A′ : un seul nœud — cliquer un autre nœud le déplace, recliquer le
    même le retire. L'état vit dans la question (pause et reprise). */
 function cvpPose(i,j){
+  if(poseDoigt('cvp',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='cvp'||test.cvpFigePt) return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>SVC_W||j<0||j>SVC_H) return;
@@ -70065,6 +70099,7 @@ function spgRevenir(oui){
    plus recommence une flèche, recliquer le début seul le retire. Jamais de
    vecteur nul. L'état vit dans la question (pause et reprise). */
 function spgClic(i,j){
+  if(poseDoigt('spg',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='spg') return;
   const q=test.questions[test.idx]; if(!q) return;
   if(i<0||i>SVC_W||j<0||j>SVC_H) return;
@@ -72234,11 +72269,13 @@ function svrOutil(o){
   test.svrOutil=o;
   svrMajOutils(test.questions[test.idx]);
   svrVif(test.questions[test.idx], test.svrSouris||null);
+  if(o!=='ch'&&typeof poseDoigtSuivre==='function'){ const t=(o==='t0'||o==='t1')&&test.questions[test.idx].t[+o[1]]; poseDoigtSuivre('svr', t===false?o:o+(t&&t.d&&!t.f?'f':'d')); }
 }
 /* Un clic sur un nœud, avec le geste choisi : poser (ou retirer, au reclic)
    un point ; tracer un vecteur (son début, puis sa fin ; un clic de plus
    recommence ; recliquer le début seul le retire). */
 function svrPose(i,j){
+  if(poseDoigt('svr',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='svr') return;
   const q=test.questions[test.idx]; if(!q||!svrDans([i,j])) return;
   const o=test.svrOutil, id=svrIdOutil(o);
@@ -83254,6 +83291,326 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
     el.executeCommand(['insert', '\\frac{'+n.latex+'}'+d.slice(9), { selectionMode:'placeholder' }]);
   }, true);
 })();
+</script>
+<script id="pose-doigt">
+/* SUR TABLETTE ET TÉLÉPHONE, L'ÉLÈVE COCHE CE QU'IL POSE (demande de
+   Turquet, novembre 2026 : « pour tous les exercices sur les vecteurs, sur
+   une tablette ou un téléphone, quand il faut placer un point ou tracer un
+   vecteur, il faut que l'élève puisse cocher le nom du point qu'il veut
+   tracer et cocher un autre point quand c'est fini. Le premier point peut
+   être déjà coché. Même chose quand on trace des vecteurs, avec un point de
+   départ à cocher quand on veut le placer et un point d'arrivée à cocher
+   quand on veut le placer. »).
+   Au doigt, il n'y a pas de survol : la croix qui suit la souris, la flèche
+   élastique, le « clique dessus pour le reprendre » n'existent pas, et un
+   toucher de trop déplaçait ou retirait un point sans que l'élève sache
+   lequel. Une barre de boutons à cocher se pose donc AU-DESSUS de la figure :
+   un bouton par point à placer, deux par vecteur à tracer (« départ »,
+   « arrivée »). Le premier qui reste à faire est coché d'office ; un toucher
+   du quadrillage pose — ou déplace — ce qui est coché, et rien d'autre ;
+   l'élève coche autre chose quand il a fini. Rien ne passe tout seul au
+   suivant : c'est l'élève qui coche.
+   UN ADAPTATEUR PAR MOTEUR (POSE_DOIGT, indexé par test.kind) dit ce qui se
+   pose (items) et comment le poser (poser) ; la fonction de pose du moteur
+   s'ouvre par poseDoigt(kind, i, j), qui prend la main au doigt seulement —
+   à la souris, rien ne change. Un exercice de vecteurs (thème 8) qui fait
+   poser quelque chose et n'a pas d'adaptateur est vu par le banc navigateur
+   (« au doigt, chaque exercice de vecteurs qui fait poser un point ou
+   tracer un vecteur a sa barre à cocher »). */
+const POSE_DOIGT={};
+let _poseDoigtInterne=false, _poseDoigtPlan=0;
+function poseDoigtAd(){
+  const a=POSE_DOIGT[test.kind];
+  return a && typeof tabletteActive==='function' && tabletteActive() ? a : null;
+}
+function pdEgal(p,r){ return !!(p&&r&&p[0]===r[0]&&p[1]===r[1]); }
+/* l'item coché : celui que l'élève a choisi pour CETTE question, sinon le
+   premier qui reste à faire, sinon le premier ouvert */
+function poseDoigtCourant(a,q){
+  const it=a.items(q)||[], s=test.poseDoigt;
+  let cur=s&&s.idx===test.idx ? it.find(function(x){ return x.cle===s.cle&&!x.off; }) : null;
+  if(!cur){
+    cur=it.find(function(x){ return !x.off&&!x.fait; })||it.find(function(x){ return !x.off; })||null;
+    test.poseDoigt={idx:test.idx, cle:cur?cur.cle:null};
+  }
+  return cur;
+}
+/* Appelée en tête de la fonction de pose du moteur : vrai quand le doigt a
+   posé (ou n'avait rien de coché à poser) — le moteur s'arrête là. */
+function poseDoigt(kind, i, j){
+  if(_poseDoigtInterne||test.kind!==kind||test.locked) return false;
+  const a=poseDoigtAd(); if(!a) return false;
+  const q=test.questions&&test.questions[test.idx]; if(!q) return false;
+  if(!(a.items(q)||[]).length) return false;
+  const it=poseDoigtCourant(a,q); if(!it) return true;
+  _poseDoigtInterne=true;
+  try{ a.poser(q, it.cle, [i,j]); } finally { _poseDoigtInterne=false; }
+  recoveryDirty=true;
+  clearTimeout(test.poseDoigtSave); test.poseDoigtSave=setTimeout(function(){ if(typeof autoSave==='function') autoSave(); },1200);
+  poseDoigtMaj();
+  return true;
+}
+/* cocher un item (le bouton de la barre, ou le cadre de l'étape du moteur) */
+function poseDoigtCocher(cle){
+  const a=poseDoigtAd(); if(!a||test.locked) return;
+  const q=test.questions&&test.questions[test.idx]; if(!q) return;
+  const it=(a.items(q)||[]).find(function(x){ return x.cle===cle; }); if(!it||it.off) return;
+  test.poseDoigt={idx:test.idx, cle:cle};
+  if(a.choisir){ _poseDoigtInterne=true; try{ a.choisir(q, cle); } finally { _poseDoigtInterne=false; } }
+  poseDoigtMaj();
+}
+/* le moteur a changé d'étape de lui-même (un cadre cliqué) : la barre suit */
+function poseDoigtSuivre(kind, cle){
+  if(_poseDoigtInterne||test.kind!==kind||!poseDoigtAd()) return;
+  test.poseDoigt={idx:test.idx, cle:cle};
+  poseDoigtMaj();
+}
+function poseDoigtPlanifier(){
+  if(_poseDoigtPlan) return;
+  _poseDoigtPlan=(window.requestAnimationFrame||setTimeout)(function(){ _poseDoigtPlan=0; poseDoigtMaj(); });
+}
+/* La barre : posée juste avant la figure, réécrite seulement quand elle change. */
+function poseDoigtMaj(){
+  const a=poseDoigtAd();
+  document.querySelectorAll('.pose-doigt').forEach(function(b){ if(!a||b.getAttribute('data-kind')!==test.kind) b.remove(); });
+  if(!a) return;
+  const host=$(a.hote); if(!host||!host.parentNode) return;
+  if(!host.__pdObs && typeof MutationObserver==='function'){
+    host.__pdObs=new MutationObserver(poseDoigtPlanifier);
+    host.__pdObs.observe(host,{childList:true, subtree:true, attributes:true, attributeFilter:['class']});
+  }
+  let bar=host.previousElementSibling;
+  if(!bar||!bar.classList.contains('pose-doigt')) bar=null;
+  const q=test.questions&&test.questions[test.idx];
+  const it=(q&&!test.locked)?(a.items(q)||[]):[];
+  if(!it.length){ if(bar) bar.remove(); return; }
+  const cur=poseDoigtCourant(a,q);
+  let h='<span class="pd-tit">Je place&nbsp;:</span>', g=null;
+  it.forEach(function(x){
+    if((x.groupe||null)!==g){ if(g) h+='</span>'; g=x.groupe||null; if(g) h+='<span class="pd-gr"><span class="pd-gl">'+g+'&nbsp;:</span>'; }
+    const on=!!cur&&cur.cle===x.cle;
+    h+='<button type="button" class="pd-it'+(on?' pd-on':'')+(x.fait?' pd-fait':'')+'" role="radio" aria-checked="'+on+'"'
+      +' data-cle="'+x.cle+'"'+(x.off?' disabled':'')+'><span class="pd-coche" aria-hidden="true"></span>'+x.html+'</button>';
+  });
+  if(g) h+='</span>';
+  h+='<span class="pd-aide">Coche ce que tu places, puis touche le quadrillage. Quand c’est fini, coche le suivant.</span>';
+  if(!bar){
+    bar=document.createElement('div');
+    bar.className='pose-doigt'; bar.setAttribute('role','radiogroup'); bar.setAttribute('aria-label','Ce que je place sur la figure');
+    host.parentNode.insertBefore(bar, host);
+  }
+  bar.setAttribute('data-kind', test.kind);
+  if(bar.__h!==h){ bar.innerHTML=h; bar.__h=h; }
+}
+document.addEventListener('click', function(ev){
+  const b=ev.target.closest&&ev.target.closest('.pose-doigt .pd-it');
+  if(b){ ev.preventDefault(); poseDoigtCocher(b.getAttribute('data-cle')); return; }
+  if(POSE_DOIGT[test.kind]) setTimeout(poseDoigtMaj,0);
+}, false);
+
+/* ---- les adaptateurs ---- */
+/* Un vecteur rangé en deux champs (début, fin) et posé par la fonction du
+   moteur, qui pose le début, puis la fin, et recommence au clic suivant : on
+   la rejoue sur un état préparé, pour garder ses effets (dessin, marques
+   effacées, étape suivante). Jamais de vecteur nul. */
+function pdDebutFin(q, cle, n, pose, D, F){
+  D=D||'sd'; F=F||'sf';
+  if(cle==='d'){
+    if(pdEgal(n,q[F])) return;
+    const f=q[F]; q[D]=null; q[F]=null; pose(n[0],n[1]);
+    if(f&&q[D]) pose(f[0],f[1]);
+  } else {
+    if(!q[D]||pdEgal(n,q[D])) return;
+    q[F]=null; pose(n[0],n[1]);
+  }
+}
+function pdVecItems(q, groupe, D, F, off, prefixe){
+  D=D||'sd'; F=F||'sf'; prefixe=prefixe||'';
+  return [{cle:prefixe+'d', groupe:groupe, html:'départ', fait:!!q[D], off:!!off},
+          {cle:prefixe+'f', groupe:groupe, html:'arrivée', fait:!!(q[D]&&q[F]), off:!!off||!q[D]}];
+}
+/* « le point », « le vecteur » : tus sur un téléphone, où la barre doit tenir en peu de lignes */
+function pdPoint(L){ return '<span class="pd-long">le point </span><b>'+L+'</b>'; }
+function pdVec(h){ return '<span class="pd-long">le vecteur </span>'+h; }
+
+/* 8.1.4 {translation-quadrillage} : le vecteur AB⃗ (forme AB), puis A′, B′, C′ */
+POSE_DOIGT.trl={ hote:'trlGraph',
+  items:function(q){
+    const r=[], noms=trlNoms(q), libre=!trlTrace(q)||!!trlFl(q);
+    if(trlTrace(q)) r.push.apply(r, pdVecItems(q, pdVec(trlVecHTML(q)), 'd', 'f'));
+    noms.forEach(function(n,k){ r.push({cle:String(k), html:pdPoint(n+'′'), fait:!!q.rep[k], off:!libre}); });
+    return r;
+  },
+  poser:function(q,cle,n){
+    test.trlMob=null;
+    if(cle==='d'){ if(pdEgal(n,q.f)) return; q.d=n; test.trlSel=TRL_VEC; }
+    else if(cle==='f'){ if(!q.d||pdEgal(n,q.d)) return; q.f=n; test.trlSel=TRL_VEC; }
+    else {
+      const k=+cle;
+      if(q.rep.some(function(r,m){ return m!==k&&r&&r.x===n[0]&&r.y===n[1]; })) return;
+      q.rep[k]={x:n[0], y:n[1]}; test.trlSel=k;
+    }
+    trlRedessiner();
+  },
+  choisir:function(q,cle){ test.trlMob=null; test.trlSel=(cle==='d'||cle==='f')?TRL_VEC:+cle; trlRedessiner(true); }
+};
+/* 8.1.5 {parallelogramme-point} : le quatrième point, à la question de la construction */
+POSE_DOIGT.vec={ hote:'vecGraph',
+  items:function(q){ return (q.etape||0)>0 ? [] : [{cle:'D', html:pdPoint(vecL(q,'D')), fait:!!q.selD}]; },
+  poser:function(q,cle,n){ if(!pdEgal(n,q.selD)) vecPose(n[0],n[1]); }
+};
+/* 8.1.6 {egalite-vectorielle-point} */
+POSE_DOIGT.vep={ hote:'vepGraph',
+  items:function(q){ return test.vepFige ? [] : [{cle:'M', html:pdPoint(q.m), fait:!!q.selM}]; },
+  poser:function(q,cle,n){ if(!pdEgal(n,q.selM)) vepPose(n[0],n[1]); }
+};
+/* 8.1.7, 8.1.8, 8.3.1 {tracer-vecteurs-egaux}, {tracer-vecteurs-opposes},
+   {construire-multiple-vecteur} : trois flèches, dans l'ordre */
+POSE_DOIGT.tvx={ hote:'tvxGraph',
+  items:function(q){
+    const r=[], fige=test.tvxFige||[];
+    for(let k=0;k<TVX_NB;k++){
+      const ouvert=!fige[k]&&(k===0||!!tvxF(q,k-1));
+      r.push.apply(r, pdVecItems(q, pdVec((q.op||q.ks?'':'égal à ')+tvxNomHTML(q,k)), 'd'+(k+1), 'f'+(k+1), !ouvert, k+''));
+    }
+    return r;
+  },
+  poser:function(q,cle,n){
+    const k=+cle.charAt(0), b=cle.charAt(1), D='d'+(k+1), F='f'+(k+1);
+    test.tvxMob=null;
+    if(b==='d'){ if(pdEgal(n,q[F])) return; q[D]=n; }
+    else { if(!q[D]||pdEgal(n,q[D])) return; q[F]=n; }
+    tvxEffaceMarque(k); tvxDessiner(q); tvxConsigne(q);
+  }
+};
+/* 8.1.13 {translation-antecedent} : trois points */
+POSE_DOIGT.tan={ hote:'tanGraph',
+  items:function(q){ return tanNoms(q).map(function(L,k){ return {cle:String(k), html:pdPoint(L), fait:!!q.p[k]}; }); },
+  poser:function(q,cle,n){
+    const k=+cle;
+    if(q.p.some(function(r,m){ return m!==k&&pdEgal(r,n); })) return;
+    q.p[k]=n; test.tanSel=k; tanEffaceMarque(k); tanDessiner(q); tanConsigne(q);
+  },
+  choisir:function(q,cle){ test.tanSel=+cle; tanConsigne(q); }
+};
+/* 8.3.6 {placer-point-colineaire} : un à trois points */
+POSE_DOIGT.kpl={ hote:'kplGraph',
+  items:function(q){ return kplKs(q).map(function(k){ return {cle:String(k), html:pdPoint(KPL_PTS[k]), fait:!!q.p[k]}; }); },
+  poser:function(q,cle,n){
+    const k=+cle;
+    if(q.p.some(function(r,m){ return m!==k&&pdEgal(r,n); })) return;
+    q.p[k]=n; test.kplSel=k; kplEffaceMarque(k); kplDessiner(q); kplConsigne(q);
+  },
+  choisir:function(q,cle){ test.kplSel=+cle; kplConsigne(q); }
+};
+/* 8.2.1 et 8.2.10 {somme-vecteurs}, {somme-vecteurs-libre} : la flèche u⃗ + v⃗ */
+POSE_DOIGT.svc={ hote:'svcGraph',
+  items:function(q){ return (!svcPeutTracer(q)||test.svcFigeSm) ? [] : pdVecItems(q, pdVec(svcVecHTML('u')+' + '+svcVecHTML('v'))); },
+  poser:function(q,cle,n){ pdDebutFin(q, cle, n, svcPose); }
+};
+/* 8.2.15 {somme-trois-vecteurs} : la somme, une fois les flèches bout à bout */
+POSE_DOIGT.stv={ hote:'stvGraph',
+  items:function(q){ return (!stvEtape1(q)||test.stvFigeSm) ? []
+    : pdVecItems(q, pdVec(svcVecHTML('u')+' + '+svcVecHTML('v')+' + '+svcVecHTML('w'))); },
+  poser:function(q,cle,n){ pdDebutFin(q, cle, n, stvPose); }
+};
+/* 8.2.8 {point-somme-vecteurs} : deux flèches (chacune juste avant la
+   suivante, la règle du moteur), puis le point */
+POSE_DOIGT.cps={ hote:'cpsGraph',
+  items:function(q){
+    const j0=cpsJuste(q,0), j1=cpsJuste(q,1), r=[];
+    [0,1].forEach(function(k){
+      const ouvert=k?(j0&&!j1):!j0, it=pdVecItems(q, pdVec(cpsVecHTML(cpsNom(q,k))), k?'d2':'d1', k?'f2':'f1', !ouvert, k+'');
+      if(k?j1:j0){ it[0].fait=it[1].fait=true; }
+      r.push.apply(r, it);
+    });
+    r.push({cle:'pt', html:pdPoint(cpsLettre(q)+'′'), fait:!!q.pt, off:!(j0&&j1)||!!test.cpsFigePt});
+    return r;
+  },
+  poser:function(q,cle,n){
+    const mq=test.cpsMarque||(test.cpsMarque={});
+    const efface=function(ids){ ids.forEach(function(id){ const c=$(id); if(c) c.classList.remove('ok','bad'); }); };
+    if(cle==='pt'){ q.pt=n; mq.pt=''; efface(['cps-pt']); }
+    else {
+      const k=+cle.charAt(0), D=k?'d2':'d1', F=k?'f2':'f1';
+      if(cle.charAt(1)==='d'){ if(pdEgal(n,q[F])) return; q[D]=n; }
+      else { if(!q[D]||pdEgal(n,q[D])) return; q[F]=n; }
+      q[k?'p2':'p1']=null; mq['t'+(k+1)]=''; mq.ch=''; efface(['cps-t'+(k+1),'cps-ch']);
+    }
+    cpsDessiner(q); cpsConsigne(q);
+  }
+};
+/* 8.2.16 {translations-successives} : A′, A″, puis la flèche AA″ */
+POSE_DOIGT.tcp={ hote:'tcpGraph',
+  items:function(q){
+    const F=test.tcpFige||{};
+    return [{cle:'p1', html:pdPoint('A′'), fait:!!q.p1, off:!!F.p1},
+            {cle:'p2', html:pdPoint('A″'), fait:!!q.p2, off:!q.p1||!!F.p2}]
+      .concat(pdVecItems(q, pdVec('<span class="vgt-vec">AA″</span>'), 'd', 'f', !(q.p1&&q.p2)||!!F.tr));
+  },
+  poser:function(q,cle,n){
+    if(cle==='p1'){ q.p1=n; tcpEfface(q,['p1','p2','tr']); }
+    else if(cle==='p2'){ if(pdEgal(n,q.p1)) return; q.p2=n; tcpEfface(q,['p2','tr']); }
+    else {
+      if(cle==='d'){ if(pdEgal(n,q.f)) return; q.d=n; }
+      else { if(!q.d||pdEgal(n,q.d)) return; q.f=n; }
+      tcpEfface(q,['tr']);
+    }
+    tcpDessiner(q); tcpConsigne(q);
+  }
+};
+/* 8.2.9 {point-somme-difference} : le point, une fois les flèches bout à bout */
+POSE_DOIGT.cvp={ hote:'cvpGraph',
+  items:function(q){ return (test.cvpFigePt||!(cvpEtape1(q)||test.cvpFigeCh)) ? [] : [{cle:'pt', html:pdPoint(cvpNomPt(q)), fait:!!q.sel}]; },
+  poser:function(q,cle,n){ if(!pdEgal(n,q.sel)) cvpPose(n[0],n[1]); }
+};
+/* 8.2.17 {regle-parallelogramme} : le point D, puis la diagonale u⃗ + v⃗ */
+POSE_DOIGT.spg={ hote:'spgGraph',
+  items:function(q){
+    return [{cle:'D', html:pdPoint('D'), fait:!!q.sel, off:!!test.spgFigePt}]
+      .concat(pdVecItems(q, pdVec(svcVecHTML('u')+' + '+svcVecHTML('v')), 'sd', 'sf', !q.sel||!!test.spgFigeSm));
+  },
+  poser:function(q,cle,n){
+    if(cle==='D'){
+      q.sel=n; test.spgRetour=false;
+      const pt=$('spg-pt'); if(pt) pt.classList.remove('ok','bad');
+      if(test.spgMarque) test.spgMarque.pt='';
+      spgDessiner(q);
+    } else { test.spgRetour=false; pdDebutFin(q, cle, n, spgClic); }
+  }
+};
+/* 8.2.5 {somme-vecteurs-repere} : les points A à D, les deux vecteurs, M —
+   ses propres boutons d'outil suivent la barre, et la barre les suit */
+POSE_DOIGT.svr={ hote:'svrGraph',
+  items:function(q){
+    const fige=test.svrFige||{}, r=[];
+    const off=function(o){ return !!fige[svrIdOutil(o)]||!svrOuvert(q,o); };
+    SVR_NOMS.forEach(function(L,k){ r.push({cle:L, html:pdPoint(L), fait:!!q.pl[k], off:off(L)}); });
+    [0,1].forEach(function(k){
+      const o='t'+k, t=q.t[k]||{};
+      r.push.apply(r, pdVecItems({d:t.d, f:t.f}, pdVec('<span class="vgt-vec">'+svrNomVec(svrPaire(q,k))+'</span>'), 'd', 'f', off(o), o));
+    });
+    r.push({cle:'M', html:pdPoint('M'), fait:!!q.m, off:off('M')});
+    return r;
+  },
+  poser:function(q,cle,n){
+    if(!svrDans(n)) return;
+    if(!test.svrEtat) test.svrEtat={};
+    const o=(cle.charAt(0)==='t')?cle.slice(0,2):cle, id=svrIdOutil(o);
+    if(o==='t0'||o==='t1'){
+      const k=+o[1], t=q.t[k]||{d:null, f:null};
+      if(cle.charAt(2)==='d'){ if(pdEgal(n,t.f)) return; q.t[k]={d:n, f:t.f||null}; }
+      else { if(!t.d||pdEgal(n,t.d)) return; q.t[k]={d:t.d, f:n}; }
+      q.cp[k]=null;
+      delete test.svrEtat['svr-ch']; const c=$('svr-ch'); if(c) c.classList.remove('ok','bad');
+    } else if(o==='M') q.m=n;
+    else q.pl[SVR_NOMS.indexOf(o)]=n;
+    delete test.svrEtat[id]; const el=$(id); if(el) el.classList.remove('ok','bad');
+    test.svrOutil=o;
+    svrDessiner(q); svrMajOutils(q);
+  },
+  choisir:function(q,cle){ test.svrOutil=(cle.charAt(0)==='t')?cle.slice(0,2):cle; svrMajOutils(q); }
+};
 </script>
 <script id="italiquer-x">
 /* L'INCONNUE « x » S'ÉCRIT TOUJOURS EN ITALIQUE ARRONDI — filet de sécurité.

@@ -19435,6 +19435,99 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ---- 11 quaterdecies. Au doigt, l'élève COCHE le point qu'il pose ----
+       Demande de Turquet, novembre 2026 : sur tablette ou téléphone, dans les
+       exercices de vecteurs, l'élève coche le point qu'il place (le premier
+       déjà coché), et coche le suivant quand il a fini ; un vecteur a deux
+       cases, « départ » et « arrivée ». Le script #pose-doigt pose la barre
+       au-dessus de la figure ; chaque moteur a son adaptateur (POSE_DOIGT),
+       et sa fonction de pose s'ouvre par poseDoigt(kind, i, j).
+       Le contrôle va PARTOUT dans le thème : il ouvre chaque exercice en
+       tactile, et tout moteur qui a une fonction de pose au nœud
+       (« function xxxPose(i,j) » ou « xxxClic(i,j) ») doit avoir son
+       adaptateur et passer par poseDoigt — un exercice ajouté demain y entre
+       sans rien déclarer. Là où la barre est montrée d'emblée, de VRAIS
+       touchers sur la figure : le premier item est coché, un toucher pose
+       CE qui est coché, un second toucher ailleurs le DÉPLACE sans rien
+       toucher d'autre, et un autre item coché se pose à son tour sans
+       défaire le premier. À la souris, aucune barre. */
+    titre('11 quaterdecies. AU DOIGT, L\'ÉLÈVE COCHE LE POINT QU\'IL POSE (VECTEURS)');
+    if(!P.poseDoigt){
+      ignorer('au doigt, chaque exercice de vecteurs qui fait poser un point ou tracer un vecteur a sa barre à cocher',
+        'ce niveau n\'a pas de barre « Je place » (demande faite pour la Seconde)');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1100 }, hasTouch: true });
+      await connecter(s.page);
+      await s.page.evaluate(() => { window.__tabletteForce = true; });
+      const ids = await s.page.evaluate(n => { const t = THEMES.find(x => x.num === n); if(!t) return [];
+        return [].concat(...(t.sous || [t]).map(x => x.ids || [])); }, P.poseDoigt.theme);
+      const dits = [], sansBranche = [], essayes = [];
+      const etat = () => s.page.evaluate(() => {
+        const b = [...document.querySelectorAll('.screen.on .pose-doigt .pd-it')];
+        return { q: JSON.stringify(test.questions[test.idx]),
+                 it: b.map(x => ({ cle: x.dataset.cle, on: x.getAttribute('aria-checked') === 'true', fait: x.classList.contains('pd-fait'), off: x.disabled })) }; });
+      const POS = [[0.3, 0.35], [0.62, 0.6], [0.45, 0.72], [0.72, 0.3], [0.55, 0.5], [0.2, 0.6]];
+      /* un toucher qui change l'état, en essayant quelques places (un nœud
+         peut être occupé ou hors d'atteinte) ; rend la place utilisée ou -1 */
+      const toucher = async (sauf) => {
+        for(let p = 0; p < POS.length; p++){
+          if(sauf.indexOf(p) >= 0) continue;
+          const av = await etat();
+          const r = await s.page.evaluate(() => { const g = document.querySelector('.screen.on .lv-graph svg'); if(!g) return null;
+            g.scrollIntoView({ block: 'center' }); const b = g.getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; });
+          if(!r) return -1;
+          await s.page.touchscreen.tap(r.x + r.w * POS[p][0], r.y + r.h * POS[p][1]);
+          await s.page.waitForTimeout(200);
+          if((await etat()).q !== av.q) return p;
+        }
+        return -1;
+      };
+      for(const id of ids){
+        await s.page.evaluate(id => openTest(id), id);
+        await s.page.waitForTimeout(250);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(700);
+        const m = await s.page.evaluate(() => {
+          const k = test.kind, f = ['Pose', 'Clic'].map(x => window[k + x]).filter(x => typeof x === 'function' && /^function \w+\(i,j\)/.test(String(x)));
+          return { kind: k, poses: f.length, branche: f.every(x => String(x).indexOf("poseDoigt('" + k + "'") >= 0), ad: !!POSE_DOIGT[k] };
+        });
+        if(!m.poses) continue;
+        if(!m.ad || !m.branche){ sansBranche.push(id + ' (' + m.kind + (m.ad ? ', sa fonction de pose ne passe pas par poseDoigt' : ', sans adaptateur POSE_DOIGT') + ')'); continue; }
+        const e0 = await etat();
+        if(!e0.it.length) continue;                       /* rien à poser d'emblée (une étape à franchir d'abord) */
+        essayes.push(id);
+        const ouverts = e0.it.filter(x => !x.off);
+        if(!ouverts.length || !ouverts[0].on || e0.it.filter(x => x.on).length !== 1){ dits.push(id + ' : le premier item ouvert n\'est pas le seul coché'); continue; }
+        const p1 = await toucher([]);
+        const e1 = await etat();
+        if(p1 < 0){ dits.push(id + ' : aucun toucher de la figure ne pose ce qui est coché'); continue; }
+        if(!(e1.it.find(x => x.cle === ouverts[0].cle) || {}).fait) dits.push(id + ' : le toucher n\'a pas posé l\'item coché « ' + ouverts[0].cle + ' »');
+        const p2 = await toucher([p1]);
+        const e2 = await etat();
+        if(p2 < 0) dits.push(id + ' : un second toucher ne déplace pas l\'item coché');
+        else if(e2.it.some((x, n) => x.cle !== ouverts[0].cle && x.fait !== e1.it[n].fait)) dits.push(id + ' : déplacer « ' + ouverts[0].cle + ' » a changé un autre item');
+        const autre = e2.it.find(x => !x.off && !x.on);
+        if(autre){
+          await s.page.locator('.screen.on .pose-doigt .pd-it[data-cle="' + autre.cle + '"]').tap();
+          await s.page.waitForTimeout(150);
+          const e3 = await etat();
+          if(!(e3.it.find(x => x.cle === autre.cle) || {}).on) dits.push(id + ' : cocher « ' + autre.cle + ' » ne le coche pas');
+          const p3 = await toucher([p2 < 0 ? p1 : p2]);
+          const e4 = await etat();
+          if(p3 < 0 || !(e4.it.find(x => x.cle === autre.cle) || {}).fait) dits.push(id + ' : « ' + autre.cle + ' » coché ne se pose pas au toucher');
+          if(!(e4.it.find(x => x.cle === ouverts[0].cle) || {}).fait) dits.push(id + ' : poser « ' + autre.cle + ' » a défait « ' + ouverts[0].cle + ' »');
+        }
+      }
+      verifier('au doigt, chaque exercice de vecteurs qui fait poser un point ou tracer un vecteur a sa barre à cocher',
+        sansBranche.length === 0 && ids.length > 0, ids.length ? sansBranche.slice(0, 3).join(' | ') : 'aucun exercice lu dans le thème ' + P.poseDoigt.theme);
+      verifier('au doigt, le premier item est coché, un toucher pose (puis déplace) ce qui est coché et rien d\'autre ('
+        + essayes.length + ' exercices touchés)', dits.length === 0 && essayes.length >= 10, dits.slice(0, 3).join(' | ') || (essayes.length + ' exercice(s) seulement montrent la barre d\'emblée'));
+      const souris = await s.page.evaluate(() => { delete window.__tabletteForce; poseDoigtMaj(); return document.querySelectorAll('.pose-doigt').length; });
+      verifier('à la souris, aucune barre « Je place »', souris === 0, souris + ' barre(s) restée(s)');
+      verifier('la barre « Je place » ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {

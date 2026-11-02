@@ -917,6 +917,12 @@ module.exports = {
        portable avec des parts assez larges pour être cliquées. Rien de tout
        cela ne se voit hors d'un vrai navigateur. */
     barresSimplifier: { exercice: 'simplifier-barres' },
+    /* Au doigt, l'élève COCHE ce qu'il pose (demande de Turquet, novembre
+       2026) : chaque exercice du thème des vecteurs qui fait poser un point
+       ou tracer un vecteur a sa barre « Je place » (script #pose-doigt). Le
+       banc navigateur ouvre CHAQUE exercice du thème en tactile — un
+       exercice ajouté demain y entre sans rien déclarer ici. */
+    poseDoigt: { theme: 8 },
     construireFonction: { exercice: 'construire-fonction' },
     /* {solutions-graphique} (porté du 4.5 de la Terminale) : les cibles se
        CLIQUENT sur le dessin — ronds sur la courbe, carrés sur l'axe — et

@@ -5285,3 +5285,81 @@ paraissaient égaux. Les quadrilatères du 8.2.18 ont leur place à eux
 `DCH_POS`, qui est bien ouvert (`DCH_POS_POLY` en faisait des triangles
 effilés, vu à la photo). Le 8.2.13 garde ses figures. Le banc exige au moins
 20° entre deux côtés opposés du quadrilatère du 8.2.18.
+
+## Au doigt, l'élève COCHE ce qu'il pose — la barre « Je place » de tout le thème (v629)
+
+**La demande** (Turquet, novembre 2026) : « en seconde, pour tous les
+exercices sur les vecteurs, sur une tablette ou un téléphone, quand il faut
+placer un point ou tracer un vecteur, il faut que l'élève puisse cocher le nom
+du point qu'il veut tracer et cocher un autre point quand c'est fini. Le
+premier point peut être déjà coché. Même chose quand on trace des vecteurs,
+avec un point de départ à cocher quand on veut le placer et un point
+d'arrivée à cocher quand on veut le placer. »
+
+**Pourquoi.** Chaque moteur du thème décide SEUL, à chaque clic, de ce que le
+clic veut dire : le point en cours, sinon le premier qui manque ; un clic sur
+un point posé le reprend ; une flèche finie recommence au clic suivant ; un
+bout de flèche cliqué se reprend. À la souris, la croix et la flèche
+élastique qui suivent le pointeur disent d'avance ce qui va se poser. Au
+doigt, rien ne suit — aucun survol —, et un toucher de trop retirait,
+reprenait ou recommençait quelque chose sans que l'élève sache quoi.
+
+**Ce qui est fait.** Le script `#pose-doigt` (fin de fichier) pose, AU DOIGT
+seulement (`tabletteActive()`), une barre « Je place : » juste au-dessus de la
+figure : un bouton à cocher par point à placer, deux par vecteur à tracer
+(« départ », « arrivée », sous le nom du vecteur). Le premier item qui reste à
+faire est coché d'office ; un toucher du quadrillage pose — ou DÉPLACE — ce
+qui est coché, et rien d'autre ; rien ne passe tout seul au suivant : l'élève
+coche autre chose quand il a fini. Un item fait porte un ✓ vert ; un item
+qu'une étape ferme encore (la flèche u⃗ + v⃗ avant les flèches bout à bout,
+le point A′ avant les deux flèches justes du 8.2.8) est grisé. « Arrivée »
+reste grisé tant que le départ n'est pas posé, et jamais de vecteur nul : un
+départ posé sur l'arrivée, ou l'inverse, ne fait rien. Deux points ne se
+posent pas sur le même nœud (le toucher ne fait rien) — le moteur, lui, les
+séparait en reprenant le point touché.
+
+Un ADAPTATEUR par moteur (`POSE_DOIGT[kind]`) dit ce qui se pose (`items`) et
+comment (`poser`), en réutilisant les fonctions du moteur — dessin, consigne,
+marques de verdict effacées, `recoveryDirty` ; la fonction de pose du moteur
+(`trlClic`, `vecPose`, `vepPose`, `tvxClic`, `tanClic`, `kplClic`, `svcPose`,
+`stvPose`, `cpsPose`, `tcpPose`, `cvpPose`, `spgClic`, `svrPose`) s'ouvre par
+`if(poseDoigt('kind',i,j)) return;` : au doigt la barre décide, à la souris
+rien ne change. Les moteurs qui « rejouent » une flèche (svc, stv, spg)
+passent par `pdDebutFin`, qui rappelle la fonction du moteur sur un état
+préparé pour garder ses effets. Les cadres d'étape qui choisissaient déjà le
+point (`trlChoisir`, `tanChoisir`, `kplChoisir`) et les boutons d'outil du
+8.2.5 (`svrOutil`) font suivre la barre (`poseDoigtSuivre`), et la barre fait
+suivre leur sélection (`choisir`) : deux sélecteurs qui divergeraient
+feraient poser au doigt autre chose que ce que le cadre bleu annonce. La
+barre se rafraîchit par un `MutationObserver` sur la figure (le moteur la
+redessine à chaque geste) et après chaque clic. Ce sont des `<button
+role="radio">`, jamais des `<input>` : la pause relit toutes les cases
+`input[id]` de l'écran (`captureBoxes`), et les contrôles universels des
+cases de saisie les auraient comptées.
+
+Les exercices concernés : 8.1.4 (le vecteur AB⃗ puis A′, B′, C′), 8.1.5,
+8.1.6, 8.1.7, 8.1.8, 8.3.1 (trois flèches, dans l'ordre), 8.1.13, 8.3.6,
+8.2.1 et 8.2.10 (u⃗ + v⃗), 8.2.15 (la somme), 8.2.8 (deux flèches puis A′),
+8.2.16 (A′, A″, puis AA″), 8.2.9 (le point), 8.2.17 (D puis u⃗ + v⃗),
+8.2.5 (A à D, les deux vecteurs, M). Hors champ, et c'est voulu : le
+GLISSER des flèches (8.2.1, 8.2.5, 8.2.8, 8.2.9, 8.2.15 : une prise se
+saisit au doigt comme avant), et les exercices où l'on touche un point DÉJÀ
+dessiné pour écrire sa lettre (8.1.12, 8.2.14) ou un triangle (8.1.9) — rien
+ne s'y place.
+
+**Le contrôle** (banc navigateur, « 11 quaterdecies ») va PARTOUT dans le
+thème 8 (`poseDoigt: { theme: 8 }`, `tests/profils.js`) : il ouvre chaque
+exercice en tactile ; tout moteur qui a une fonction de pose au nœud
+(`function xxxPose(i,j)` ou `xxxClic(i,j)`) doit avoir son adaptateur et
+passer par `poseDoigt` ; là où la barre se montre d'emblée (13 exercices),
+de VRAIS touchers sur la figure : le premier item ouvert est le seul coché,
+un toucher pose l'item coché, un second ailleurs le déplace sans changer un
+autre item, un autre item coché se pose à son tour sans défaire le premier.
+À la souris, aucune barre. Éprouvé par sabotage : le crochet retiré de
+`tanClic` (« translation-antecedent (tan, sa fonction de pose ne passe pas
+par poseDoigt) ») ; une pose du 8.1.4 qui cochait d'elle-même le point
+suivant (« déplacer « 0 » a changé un autre item »).
+
+**Ce qu'aucun banc ne voit** : le geste sur une vraie tablette (les touchers
+du banc sont ceux de Chromium émulé), et la place que prend la barre sur un
+téléphone debout, au-dessus d'une figure qu'il faut alors faire défiler.
