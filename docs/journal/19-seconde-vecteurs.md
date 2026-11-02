@@ -5286,7 +5286,106 @@ paraissaient égaux. Les quadrilatères du 8.2.18 ont leur place à eux
 effilés, vu à la photo). Le 8.2.13 garde ses figures. Le banc exige au moins
 20° entre deux côtés opposés du quadrilatère du 8.2.18.
 
-## Au doigt, l'élève COCHE ce qu'il pose — la barre « Je place » de tout le thème (v629)
+## Le soutien rougit un point ou un vecteur FAUX dès qu'il est posé — tout le thème 8 (v629)
+
+La demande (Turquet, novembre 2026) : « en mode soutien, quand on place un
+point ou un vecteur, le mettre en rouge quand il est mal placé ou mal tracé,
+avant la vérification » — en Seconde, pour les vecteurs. C'était déjà la
+règle du 8.2.5 ({somme-vecteurs-repere}, `svrCoulPt` et `svrCoulVec`, v525
+et v529, dans TOUS les modes) et celle des flèches du 8.2.8
+({point-somme-vecteurs}, `cpsDessiner`) ; partout ailleurs, la doctrine des
+points posés au clic (« peindre le nœud au moment de la pose dirait s'il est
+juste avant toute vérification », `soutienEnDirect.sans`) faisait attendre
+« Vérifier ». Elle tombe, en soutien seulement.
+
+**Un seul point d'entrée, `rougeALaPose()`** (à côté de `liveCheckCurrent`,
+qui l'appelle aussi), et une table `ROUGE_A_LA_POSE` par moteur : « vec »,
+« vep », « tvx » (8.1.7, 8.1.8, 8.3.1), « tan », « kpl », « svc » (8.2.1 et
+8.2.10), « stv », « cps », « cvp », « tcp », « spg ». Il est appelé à la fin
+de chaque geste : pose d'un point, fin d'une flèche, glisser (souris et
+clavier), retournement (8.2.9), vecteur nul (8.2.15). Chaque moteur juge par
+SON juge (`vecJuge`, `tvxJuge`…), jamais par un calcul refait.
+
+**Seul le FAUX se peint.** Un point juste n'est ni bleui ni figé — c'est le
+travail de « Vérifier », qui reste inchangé ; un point vide ne rougit jamais.
+Le rouge va au dessin (nœud `badc`, croix `tan-x-bad`, flèche `svc-eb`, côtés
+`spg-cote-b` — par les marques de chaque moteur, `test.tvxMarque`,
+`test.tanMarque`…) ET au cadre de la consigne (`bad`), comme le fait déjà la
+vérification du soutien ; il tombe dès que le point est repris au bon endroit
+ou retiré. Ce qui est figé juste (`ok`, `xxxFige`) n'est pas touché. Ce qui
+n'est pas un geste de pose — la liste des lettres du 8.1.5, le choix de la
+composition du 8.2.16 — n'est pas jugé. Les flèches GLISSÉES (chaînage du
+8.2.1, du 8.2.9, du 8.2.15, du 8.2.8) se jugent à chaque pas du glisser : le
+cadre « bout à bout » est rouge tant que les flèches ne se touchent pas, et
+tombe au moment où elles se touchent.
+
+**Hors soutien, rien ne change** : entraînement, évaluation et devoirs ne
+disent toujours rien avant « Vérifier » (sauf le 8.2.5 et les flèches du
+8.2.8, qui le faisaient déjà, dans tous les modes). Au 8.2.17, poser D fait
+passer au tracé de la somme : le D rouge reste rouge pendant le tracé, et
+« ↩ Déplacer le point D » le reprend.
+
+**Ce que la règle ne fait pas** : à la reprise d'une pause, les marques
+vivent dans `test`, pas dans la question — un point faux reprend sa couleur
+au premier geste, pas à l'ouverture (comme les marques de la vérification du
+soutien, avant elle).
+
+Les onze kinds ont quitté `soutienEnDirect.sans` (`tests/profils.js`) : ils
+passent désormais par `liveCheckCurrent()`. « svr » y reste — son dessin
+rougit déjà le faux par lui-même. Éprouvé dans un vrai Chromium, moteur par
+moteur, en soutien et en entraînement : une pose fausse rougit (dessin et
+cadre), la même reprise juste ne laisse plus rien de rouge ; en
+entraînement, rien ne rougit (hors flèches du 8.2.8, comme avant).
+
+## {vecteur-egal-figure} — trouver un vecteur égal sur la figure, tracé en couleur (8.1.15, v630 — v629 prise sur main par le soutien du thème 8)
+
+**La demande** (Turquet, novembre 2026) : « en seconde faire un exercice comme
+le 8.2.2 où on demande de trouver un vecteur égal. On doit tracer le vecteur
+qui est donné et quand l'élève donne son vecteur on doit l'afficher d'une
+autre couleur. »
+
+**La figure EST celle du 8.2.2** {relation-chasles} : `chsPoints`, `chsSvg`,
+`CHS_FIGURES` — rectangle, carré, parallélogramme ou losange, retournement
+tiré, cinq lettres, les diagonales qui se coupent en leur milieu. Rien n'est
+redessiné : `vefSvg` ajoute aux traits du 8.2.2 trois calques, la flèche du
+vecteur DONNÉ, la correction, la flèche de l'élève. Les positions se RELISENT
+sur les cinq cercles que `chsSvg` a posés (`vefPos`), si bien qu'une mise à
+l'échelle du 8.2.2 changée demain garde les flèches sur leurs points.
+
+**Trois encres, une légende.** Le vecteur donné est ORANGE (`--crd-b`) ; celui
+de l'élève est VIOLET (`--crd-a`), tracé à chaque frappe dès que la case lit
+deux lettres de la figure (`vefMaj`, appelée aussi par `resumeTest` : la
+reprise remet la saisie sans événement) ; une réponse fausse ou vide montre à
+la vérification un vecteur égal en VERT pointillé — la couleur de toutes les
+corrections. Aucune de ces flèches ne porte `ok`, `bad` ni `sol` : le contrôle
+« 9 bis » des encres de verdict ne les lit pas, et la case garde, elle, le
+bleu, le rouge et le vert de la règle commune. Deux flèches sur le même
+segment (l'élève qui écrit EA pour AE, ou CD quand la correction est DC) se
+décalent de 6 px l'une de l'autre : la première capture montrait la
+correction DC entièrement cachée sous le CD violet.
+
+**Le juge** : la case se juge par le déplacement, pas par une lettre attendue
+(`vefEgaux` recalcule les vecteurs égaux depuis les points). Le vecteur donné
+recopié n'est pas une réponse — l'énoncé demande un AUTRE vecteur. Les
+messages nomment la faute : le vecteur lui-même, l'OPPOSÉ (même direction,
+même longueur, autre sens — le piège attendu), la diagonale entière (même
+direction et même sens, pas la même longueur), la direction, deux lettres hors
+figure. Six questions (`VEF_NB`, `dmNbQuestions`), tirées par `distinctes()` ;
+le vecteur donné est une demi-diagonale une fois sur deux, un côté sinon ;
+trois tournures d'énoncé (`q.v`). On range la forme, le retournement, les
+lettres, le vecteur et la tournure, jamais la réponse.
+
+**Le banc** (`tests/verifier.js`, « trouver un vecteur égal sur la figure ») :
+la place 8.1.15 et ses voisins, 200 séances dont chaque question est relue sur
+son DESSIN — les lettres rattachées aux cercles, la flèche orange rattachée à
+ses deux points, les vecteurs égaux cherchés par le juge lui-même ; puis, par
+le bouton, le rectangle ABCD de centre E et AE : la flèche violette qui suit la
+saisie (et rien pour une lettre seule), la saisie remise d'une pause retracée,
+la copie juste (EC, une case, verrouillée), les pièges AE, CE, EA, AC, AB, AZ
+nommés avec la flèche verte EC, la copie vide (verte, rien de rouge), un
+parallélogramme retourné, le soutien qui juge sans rien révéler, le contexte
+du modèle.
+## Au doigt, l'élève COCHE ce qu'il pose — la barre « Je place » de tout le thème (v631 — v629 et v630 prises sur main par le soutien du thème 8 et le 8.1.15)
 
 **La demande** (Turquet, novembre 2026) : « en seconde, pour tous les
 exercices sur les vecteurs, sur une tablette ou un téléphone, quand il faut
