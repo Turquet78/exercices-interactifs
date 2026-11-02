@@ -1332,6 +1332,39 @@ quelle, `chsLigne` sait toujours la lire. Le banc suit : fiche, plan, 17
 cases ; le contrôle « une case juste ne rougit pas pour sa voisine » passe de
 DC + CE à CE + BC (BC bleu, AB rouge, badge CE).
 
+**Puis le calcul en cours s'est DESSINÉ sur la figure, en deux couleurs, et un vecteur égal y prend la place du sien (v631 — la v629 et la v630 sont prises par #916 et #917).**
+La demande (Turquet, novembre 2026, « dans le 8.2.1 », puis précisée « c'est
+le 8.2.2 ») : « faire un calcul à l'écran à chaque fois en affichant les vecteurs
+concernés avec deux couleurs différentes ; quand un élève rentre un vecteur
+avec des lettres différentes mais qui est égal à un vecteur précédent, sur le
+dessin remplacer le vecteur par le nouveau vecteur ». La ligne où l'élève
+travaille — la case qui a le focus, ou la ligne cliquée, la ligne 1 au
+départ — dessine ses deux vecteurs (`chsMontrer`, la flèche de `tpvFleche`
+dans un calque `.chs-fl` posé par `chsSvg` sous les points) : le premier en
+violet (`--crd-a`), le second en orange (`--crd-b`), les deux encres du 8.2.13
+qui ne sont pas des encres de verdict. La ligne prend le liseré violet du
+8.1.9, ses deux noms donnés prennent les deux encres, et le calcul s'écrit
+sous la figure (« Sur la figure : AB + BC », `#chsCalc`). Les cases, elles,
+ne se colorent pas. **Le remplacement se juge par les vecteurs**
+(`chsCalcul`) : en `u`, le vecteur tapé égal au second prend sa place
+(AB + AD = AB + BC montre BC) ; en `s`, le vecteur égal à l'OPPOSÉ du second
+la prend, et le signe devient « + » (BA − CA = BA + AC montre AC) ; en `c`,
+chaque case du milieu remplace le vecteur qu'elle égale, dans sa couleur, et
+le calcul se lit dans l'ordre de l'élève (CE + BC = BC + CE écrit
+« BC + CE », orange puis violet). Un vecteur qui n'est égal à rien ne
+remplace rien. Rien n'est rangé : le dessin se relit des cases à chaque
+saisie, et la reprise après une pause le redessine (`resumeTest`).
+**Le prix, nommé** : hors soutien, voir un vecteur remplacé dit à l'élève
+qu'il a écrit un vecteur égal avant « Vérifier » — c'est ce qui a été
+demandé ; ni le départ de Chasles ni le résultat ne sont jugés par le dessin.
+Le 8.2.3, le 8.2.11 et les autres qui empruntent `chsSvg` reçoivent un
+calque vide et ne changent pas. Le juge (`tests/verifier.js`, « relation de
+Chasles ») tient le dessin de départ (AE violet, EB orange), la ligne qui
+suit la case, AB + AE qui ne remplace rien, BC, AC (et CA qui ne remplace
+rien), EA + AD, l'ordre BC + CE, et aucune case colorée ; son compte des
+traits de la figure lit désormais `svg > line`, les flèches du calque n'étant
+pas des côtés. Vu dans un vrai Chromium sur la fiche (trois captures).
+
 ## {chasles-trois-vecteurs} — la relation de Chasles jusqu'à trois vecteurs (8.9, v491)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fait un exercice comme
