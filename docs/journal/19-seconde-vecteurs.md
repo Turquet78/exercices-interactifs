@@ -1365,6 +1365,27 @@ rien), EA + AD, l'ordre BC + CE, et aucune case colorée ; son compte des
 traits de la figure lit désormais `svg > line`, les flèches du calque n'étant
 pas des côtés. Vu dans un vrai Chromium sur la fiche (trois captures).
 
+**Puis les vecteurs d'une rangée se sont ALIGNÉS (v632).** Turquet,
+novembre 2026, captures à l'appui : « il faut que les vecteurs dans les
+questions soient alignés horizontalement ». Dans « CE + BC = », BC tombait
+4 px sous CE. Mesuré dans Chromium : le premier vecteur est dans
+`.veg-tete` (`inline-flex`, centré) ; le second dans `<span class="chs-nb">`,
+et le premier recopié après « = » dans `<span class="chs-na">` — deux
+`<span>` ordinaires posés là pour l'ENCRE du calcul en cours (v631). Le
+vecteur (`.veg-v`, `inline-flex` dont le premier enfant est la flèche, sans
+ligne de base) s'y posait sur la ligne de base de la police, et la boîte de
+ligne le poussait vers le bas. Remède : `.chs-na,.chs-nb{display:inline-flex;
+align-items:center}` — tous les noms et toutes les cases d'une rangée au même
+centre (433/433/433 au lieu de 433/437).
+
+Le contrôle est UNIVERSEL, greffé sur la visite de la section 9 du banc
+navigateur : « les vecteurs d'une rangée sont alignés horizontalement » —
+dans toute `.veg-l` de tout exercice, les noms (`.veg-v > .veg-let`) et les
+cases (`.veg-v > .veg-in`) ont le même centre à 1,5 px près (un écart de plus
+de 20 px est une autre ligne). Un niveau sans rangée de vecteurs le déclare
+non applicable.
+
+
 ## {chasles-trois-vecteurs} — la relation de Chasles jusqu'à trois vecteurs (8.9, v491)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fait un exercice comme
