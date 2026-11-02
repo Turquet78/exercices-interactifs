@@ -2239,6 +2239,20 @@
   .chs-wrap{display:flex;flex-wrap:wrap;gap:14px 18px;align-items:flex-start;width:100%}
   .chs-fig{flex:1 1 300px;max-width:480px;margin:0 auto}
   .chs-lignes{flex:2 1 460px;max-width:none;margin:0}
+  /* 8.2.2 : le calcul en cours sur la figure — le premier vecteur en violet,
+     le second en orange (les encres de --crd-a et --crd-b, qui ne sont pas
+     des encres de verdict) ; la ligne montrée a son liseré violet, ses deux
+     noms donnés prennent les mêmes encres. Les cases ne se colorent pas. */
+  .chs-col{flex:1 1 300px;max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+  .chs-col .chs-fig{flex:none;width:100%;max-width:none;margin:0}
+  .veg-svg .chs-fa line{stroke:var(--crd-a);stroke-width:3.5} .veg-svg .chs-fa polygon{fill:var(--crd-a)}
+  .veg-svg .chs-fb line{stroke:var(--crd-b);stroke-width:3.5} .veg-svg .chs-fb polygon{fill:var(--crd-b)}
+  .chs-calc{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 10px;min-height:3rem}
+  .chs-calc-lbl{font-family:"Fredoka";font-weight:500;font-size:1.05rem;color:var(--ink-soft)}
+  .chs-ca .veg-v,.chs-ca .veg-fl,.chs-l.chs-actif .chs-na .veg-v,.chs-l.chs-actif .chs-na .veg-fl{color:var(--crd-a)}
+  .chs-cb .veg-v,.chs-cb .veg-fl,.chs-l.chs-actif .chs-nb .veg-v,.chs-l.chs-actif .chs-nb .veg-fl{color:var(--crd-b)}
+  .chs-l{cursor:pointer}
+  .chs-l.chs-actif{border-color:var(--crd-a);background:#F8F5FE}
   /* 8.1.15 {vecteur-egal-figure} : la figure du 8.2.2, le vecteur donné en
      orange, celui de l'élève en violet, la correction en vert pointillé */
   .vef-svg line.vef-donne{stroke:var(--crd-b);stroke-width:4}
@@ -14215,8 +14229,9 @@ async function resumeTest(mode){
   else if(!afficherEcranDe(test.kind)){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   if(suite){ test.locked=true; toast('Question déjà corrigée : on passe à la suivante.','ok'); window[suite](); return; }   /* ni les cases ni le verdict ne reviennent : la question est faite */
   restoreBoxes(draft);   // et on recolore les cases déjà complètes
-  try{ vcrMaj(); vejMaj(); }catch(e){}
-  try{ vefMaj(); }catch(e){}   // retrace en violet le vecteur que la saisie remise désigne (8.1.15)   // rouvre la ligne du sens (8.1.13) ou de la justification (8.1.14) qu'ouvrait la saisie remise
+  try{ vcrMaj(); vejMaj(); }catch(e){}   // rouvre la ligne du sens (8.1.13) ou de la justification (8.1.14) qu'ouvrait la saisie remise
+  try{ vefMaj(); }catch(e){}   // retrace en violet le vecteur que la saisie remise désigne (8.1.15)
+  try{ if(test.kind==='chs') chsMontrer(test.chsVu||0); }catch(e){}   // le calcul en cours du 8.2.2 se relit des cases remises
   try{ updateAStep3(); updateDStep3(); updateVStep3(); }catch(e){}   // réaffiche l'étape facultative si l'étape précédente est déjà écrite
 }
 
@@ -71226,7 +71241,7 @@ function chsCases(q){
    Le même tracé que le 8.3 (.veg-svg) : lettres à 19 px dans une boîte de
    460. Les sommets sont nommés du côté opposé au centre ; le centre, dans le
    plus large des quatre secteurs que font les demi-diagonales. */
-function chsSvg(q){
+function chsCadre(q){
   const pts=chsPoints(q), n=q.n, W=460, HMAX=300, M=30;
   const xs=n.split('').map(function(c){ return pts[c][0]; }), ys=n.split('').map(function(c){ return pts[c][1]; });
   const minx=Math.min.apply(null,xs), maxx=Math.max.apply(null,xs), miny=Math.min.apply(null,ys), maxy=Math.max.apply(null,ys);
@@ -71234,6 +71249,10 @@ function chsSvg(q){
   const Wr=Math.round((maxx-minx)*s+2*M), H=Math.round((maxy-miny)*s+2*M);
   const X=function(x){ return M+(x-minx)*s; }, Y=function(y){ return M+(maxy-y)*s; };
   const P=function(c){ return [X(pts[c][0]), Y(pts[c][1])]; };
+  return {pts:pts, Wr:Wr, H:H, P:P};
+}
+function chsSvg(q){
+  const K=chsCadre(q), n=q.n, Wr=K.Wr, H=K.H, P=K.P;
   const fig=CHS_FIGURES[q.fig];
   let h='<svg class="veg-svg chs-svg" viewBox="0 0 '+Wr+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'
     +esc(fig.nom+' '+n.slice(0,4)+', ses diagonales se coupent en '+n[4])+'">';
@@ -71241,6 +71260,9 @@ function chsSvg(q){
     h+='<line x1="'+A[0].toFixed(1)+'" y1="'+A[1].toFixed(1)+'" x2="'+B[0].toFixed(1)+'" y2="'+B[1].toFixed(1)+'"/>'; };
   for(let i=0;i<4;i++) trait(n[i], n[(i+1)%4]);
   trait(n[0],n[2]); trait(n[1],n[3]);
+  /* le calque du calcul en cours (8.2.2, chsMontrer) : sous les points et
+     les lettres, au-dessus des traits ; vide ailleurs */
+  h+='<g class="chs-fl"></g>';
   const C=P(n[4]);
   for(let i=0;i<4;i++){ const p=P(n[i]), ux=p[0]-C[0], uy=p[1]-C[1], d=Math.sqrt(ux*ux+uy*uy)||1;
     h+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.6"/>'
@@ -71320,6 +71342,54 @@ function chsPourquoi(q, subs){
     default: return 'Relation de Chasles : '+R[0]+' + '+R[1]+' = '+R[0][0]+R[1][1]+' — quand le second vecteur part là où s’arrête le premier, on part du premier point et on arrive au dernier.';
   }
 }
+/* LE CALCUL EN COURS, SUR LA FIGURE (Turquet, novembre 2026 : « faire un
+   calcul à l'écran à chaque fois en affichant les vecteurs concernés avec
+   deux couleurs différentes ; quand un élève rentre un vecteur avec des
+   lettres différentes mais qui est égal à un vecteur précédent, sur le
+   dessin remplacer le vecteur par le nouveau vecteur »). La ligne où l'élève
+   travaille (la case qui a le focus, ou la ligne cliquée) dessine ses deux
+   vecteurs : le premier en violet (--crd-a), le second en orange (--crd-b),
+   les mêmes encres sur leurs noms dans la ligne et dans le calcul écrit sous
+   la figure. Un vecteur tapé dans une case du milieu qui est ÉGAL à l'un
+   d'eux prend sa place sur le dessin, dans sa couleur : AB + AD = AB + BC
+   montre BC au lieu de AD ; BA − CA = BA + AC montre AC au lieu de CA (le
+   second terme devient l'opposé ajouté) ; CE + BC = EA + AD montre EA et AD.
+   Un vecteur qui n'est égal à aucun ne remplace rien. Ni verdict ni
+   rangement : le dessin se relit des cases, à chaque saisie.
+   Le prix, nommé : hors soutien, voir un vecteur remplacé dit que l'élève a
+   écrit un vecteur égal avant « Vérifier » — c'est ce qui a été demandé ; ni
+   le départ (Chasles) ni le résultat ne sont jugés par le dessin.
+   Rend {a, b, op} : les deux vecteurs dessinés et le signe du calcul. */
+function chsCalcul(q, l, pts){
+  pts=pts||chsPoints(q);
+  const lit=function(j){ const el=$('chs-'+l.i+'-'+j); return el ? vegLit(el.value, pts) : null; };
+  const eg=function(v, d){ return !!v && chsMeme(chsD(pts,v), d); };
+  const r={a:l.u, b:l.v, op:l.t==='s'?'−':'+', ordre:['a','b']};
+  if(l.t==='c'){
+    const pris={}, ordre=[];
+    [0,1].forEach(function(j){ const x=lit(j); if(!x) return;
+      if(!pris.a && eg(x, l.dU)){ r.a=x; pris.a=1; ordre.push('a'); }
+      else if(!pris.b && eg(x, l.dV)){ r.b=x; pris.b=1; ordre.push('b'); } });
+    ['a','b'].forEach(function(k){ if(ordre.indexOf(k)<0) ordre.push(k); });
+    r.ordre=ordre;
+  } else if(l.t==='u' || l.t==='s'){
+    const x=lit(0);
+    if(x && eg(x, l.cible)){ r.b=x; r.op='+'; }
+  }
+  return r;
+}
+function chsMontrer(i){
+  const host=$('chsHost'); if(!host || !test.questions || test.kind!=='chs') return;
+  const q=test.questions[test.idx]; if(!q || !q.lignes[i]) return;
+  test.chsVu=i;
+  const K=chsCadre(q), l=chsLigne(q, q.lignes[i], i, K.pts), r=chsCalcul(q, l, K.pts);
+  host.querySelectorAll('.chs-l').forEach(function(e){ e.classList.toggle('chs-actif', +e.getAttribute('data-i')===i); });
+  const fl=function(v, cls){ return tpvFleche(K.P(v[0]), K.P(v[1]), cls).replace('<g class="'+cls+'"', '<g class="'+cls+'" data-v="'+v+'"'); };
+  const g=host.querySelector('.chs-fl'); if(g) g.innerHTML=fl(r.a, 'chs-fa')+fl(r.b, 'chs-fb');
+  const nom={a:'<span class="chs-ca">'+vegVecHTML(r.a)+'</span>', b:'<span class="chs-cb">'+vegVecHTML(r.b)+'</span>'};
+  const c=$('chsCalc');
+  if(c) c.innerHTML='<span class="chs-calc-lbl">Sur la figure&nbsp;:</span> '+nom[r.ordre[0]]+'<span class="veg-eq">'+(r.ordre[0]==='a'?r.op:'+')+'</span>'+nom[r.ordre[1]];
+}
 function chsCaseHTML(i, j, aria, pre){
   return '<span class="veg-v"><span class="veg-fl" aria-hidden="true"></span>'
     +'<input class="veg-in" id="'+(pre||'chs')+'-'+i+'-'+j+'" type="text" maxlength="2" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="'+esc(aria)+'"></span>';
@@ -71332,20 +71402,24 @@ function renderChsTest(){
   $('chsLiveScore').textContent=test.score;
   $('chsFeedback').textContent=''; $('chsFeedback').className='mp-feedback';
   $('chsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkChsAnswer()">Vérifier</button>';
-  let h='<div class="chs-wrap"><div class="veg-fig chs-fig">'+chsSvg(q)+'</div><div class="veg-lignes chs-lignes">';
+  let h='<div class="chs-wrap"><div class="chs-col"><div class="veg-fig chs-fig">'+chsSvg(q)+'</div><div class="chs-calc" id="chsCalc" aria-live="polite"></div></div><div class="veg-lignes chs-lignes">';
   chsLignes(q).forEach(function(l){
     const op=l.t==='s'?'−':'+';
-    h+='<div class="veg-l" id="chs-l-'+l.i+'"><span class="veg-tete">'+vegVecHTML(l.u)+'</span>'+chsGrp(op, vegVecHTML(l.v));
+    h+='<div class="veg-l chs-l" id="chs-l-'+l.i+'" data-i="'+l.i+'"><span class="veg-tete chs-na">'+vegVecHTML(l.u)+'</span>'+chsGrp(op, '<span class="chs-nb">'+vegVecHTML(l.v)+'</span>');
     if(l.t==='r') h+=chsGrp('=', chsCaseHTML(l.i,0,'le résultat de '+l.u+' '+op+' '+l.v));
     else if(l.t==='c') h+=chsGrp('=', chsCaseHTML(l.i,0,'le premier vecteur'))+chsGrp('+', chsCaseHTML(l.i,1,'le second vecteur'))+chsGrp('=', chsCaseHTML(l.i,2,'le résultat'));
-    else h+=chsGrp('=', vegVecHTML(l.u))+chsGrp('+', chsCaseHTML(l.i,0,l.t==='s'?'un vecteur égal à l’opposé de '+l.v:'un vecteur égal à '+l.v))+chsGrp('=', chsCaseHTML(l.i,1,'le résultat'));
+    else h+=chsGrp('=', '<span class="chs-na">'+vegVecHTML(l.u)+'</span>')+chsGrp('+', chsCaseHTML(l.i,0,l.t==='s'?'un vecteur égal à l’opposé de '+l.v:'un vecteur égal à '+l.v))+chsGrp('=', chsCaseHTML(l.i,1,'le résultat'));
     h+='</div>';
   });
   h+='</div></div>';
   $('chsHost').innerHTML=h;
   const cs=chsCases(q);
+  $('chsHost').querySelectorAll('.chs-l').forEach(function(e){
+    e.addEventListener('click', function(){ chsMontrer(+e.getAttribute('data-i')); }); });
+  chsMontrer(0);
   cs.forEach(function(c, k){ const el=$(c.id); if(!el) return;
-    el.addEventListener('input', function(){ if(isSoutien()) checkChsAnswer(true);
+    el.addEventListener('focus', function(){ chsMontrer(c.l.i); });
+    el.addEventListener('input', function(){ chsMontrer(c.l.i); if(isSoutien()) checkChsAnswer(true);
       clearTimeout(test.chsSave); test.chsSave=setTimeout(autoSave,1000); });
     /* Entrée passe à la case suivante ; sur la dernière, elle vérifie */
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault();
