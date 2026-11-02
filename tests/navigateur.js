@@ -15808,7 +15808,7 @@ if(require.main === module) (async () => {
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
       const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], coeffsDecales = [], etroits = [], surCourbe = [];
       const indicesPlats = []; let nIndicesFlex = 0;
-      const textesPetits = [], gradSurEtiquette = [], defilantsSourds = []; const casesNues = []; let nTextesSvg = 0, nDefilants = 0, nAjustables = 0;
+      const textesPetits = [], gradSurEtiquette = [], defilantsSourds = []; const casesNues = [], vecsDecales = []; let nRangeesVec = 0, nTextesSvg = 0, nDefilants = 0, nAjustables = 0;
       /* LES DÉFINITIONS S'ÉCRIVENT AVANT L'ÉNONCÉ, dans tout exercice du thème
          Python (demande de Turquet, octobre 2026). Mesuré sur le PREMIER écran
          de l'exercice, avant qu'on ne franchisse quoi que ce soit : le cours
@@ -16279,6 +16279,34 @@ if(require.main === module) (async () => {
             if(lis.chev.length) gradSurEtiquette.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + lis.chev[0]);
             if(lis.sourds.length) defilantsSourds.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + lis.sourds.join(', '));
           }
+          /* LES VECTEURS D'UNE RANGÉE SONT ALIGNÉS (Turquet, novembre 2026,
+             au 8.2.2 : « les vecteurs doivent être alignés horizontalement »).
+             Le second vecteur, enveloppé dans un <span> ordinaire pour son
+             encre, se posait sur la ligne de base de la police et tombait
+             4 px sous le premier. Dans toute rangée de vecteurs (.veg-l), le
+             nom de chaque vecteur et chaque case ont le même centre, à 1,5 px
+             près ; un écart de plus de 20 px est une autre ligne, pas un
+             décalage. Sur tous les exercices, sans rien déclarer. */
+          const vecs = await s.page.evaluate(() => {
+            const on = document.querySelector('section.screen.on'); if(!on) return null;
+            let n = 0; const decales = [];
+            on.querySelectorAll('.veg-l').forEach(l => {
+              const r0 = l.getBoundingClientRect(); if(!r0.width || !r0.height) return;
+              const pts = [...l.querySelectorAll('.veg-v > .veg-let, .veg-v > .veg-in')].map(e => {
+                const r = e.getBoundingClientRect(); return r.width && r.height ? { t: (e.textContent || e.value || '□').trim() || '□', c: r.top + r.height / 2 } : null; }).filter(Boolean);
+              if(pts.length < 2) return;
+              n++;
+              for(let i = 0; i < pts.length; i++) for(let j = i + 1; j < pts.length; j++){
+                const d = Math.abs(pts[i].c - pts[j].c);
+                if(d > 1.5 && d < 20){ decales.push(pts[i].t + ' / ' + pts[j].t + ' : ' + d.toFixed(1) + ' px'); i = pts.length; break; }
+              }
+            });
+            return { n, decales };
+          });
+          if(vecs){
+            nRangeesVec += vecs.n;
+            if(vecs.decales.length) vecsDecales.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vecs.decales[0]);
+          }
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
@@ -16633,6 +16661,11 @@ if(require.main === module) (async () => {
           nDefilants === 0 ? 'aucune enveloppe défilante mesurée : le contrôle ne mesure rien'
             : defilantsSourds.length + ' écran(s) — ' + defilantsSourds.slice(0, 3).join(' | '));
       }
+      /* un niveau sans rangée de vecteurs (Première, Terminale) se déclare
+         non applicable ; la rangée ajoutée demain le réveille */
+      if(nRangeesVec === 0) ignorer('les vecteurs d\'une rangée sont alignés horizontalement', 'aucune rangée de vecteurs (.veg-l) à ce niveau');
+      else verifier('les vecteurs d\'une rangée sont alignés horizontalement',
+        vecsDecales.length === 0, vecsDecales.length + ' écran(s) — ' + vecsDecales.slice(0, 3).join(' | '));
       verifier('un signe posé à côté d\'une fraction tombe sur son trait',
         dechires.length === 0, dechires.slice(0, 3).join(' | '));
       verifier('le calcul en tête de rangée s\'écrit à la taille de sa rangée',
