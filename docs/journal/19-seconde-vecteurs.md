@@ -5566,3 +5566,36 @@ suivant (« déplacer « 0 » a changé un autre item »).
 **Ce qu'aucun banc ne voit** : le geste sur une vraie tablette (les touchers
 du banc sont ceux de Chromium émulé), et la place que prend la barre sur un
 téléphone debout, au-dessus d'une figure qu'il faut alors faire défiler.
+
+### Puis un point PÂLE est apparu à côté du point posé au doigt (v633 — v632 prise sur main par le 8.2.3)
+
+Turquet, le jour même : « le point s'affiche sur le quadrillage avec un second
+point plus clair à côté ». Deux encres de SURVOL en étaient capables, et aucune
+n'avait de sens sur un écran tactile.
+
+* **Le survol CSS.** `.vec-svg .vec-t:hover .dot` peint un point bleu pâle
+  (`#EAF0FF`) sous le pointeur, pour dire à la souris « ici, tu poserais ».
+  Sur une tablette, le « survol » n'est pas un pointeur qui passe : c'est le
+  dernier élément TOUCHÉ, et il y reste collé jusqu'au toucher suivant. La
+  règle, et les prises `.tvx-prise`, `.svc-prise` qui font la même chose en
+  violet, ne s'appliquent plus que sous `@media (hover:hover) and
+  (pointer:fine)` — la souris, exactement ce que `tabletteActive()` exclut.
+* **Les aperçus en JavaScript** (le curseur de `vepCurseur`, l'élastique et
+  le point fantôme des moteurs trl, svc, stv, cps, tcp, tvx, kpl, tan, cvp,
+  spg, svr) écartaient `pointerType === 'touch'`, et seulement lui : un
+  STYLET (Apple Pencil, S Pen) qui survole l'écran sans le toucher les
+  dessinait au nœud le plus proche, donc à côté du point qu'il venait de
+  poser. Ils sont désormais réservés à `pointerType === 'mouse'`.
+
+Le banc d'émulation ne garde pas le survol après un toucher : le défaut ne s'y
+reproduisait pas. Le contrôle (« 11 quaterdecies », « au doigt, le survol ne
+peint aucun point pâle sur la figure ») mesure donc la CAUSE : dans un
+navigateur qui se dit tactile (`pointer: coarse`, exigé, sinon il le dit), le
+pointeur passe sur six nœuds et prises libres de chaque exercice du thème, et
+leur encre ne doit pas bouger. Joué sur la page d'avant : rouge sur
+parallelogramme-point (`rgba(0,0,0,0)` → `rgb(234,240,255)`), le seul moteur
+qui n'éteignait pas déjà ce survol par une règle plus précise ; vert après.
+
+**Ce qu'aucun banc ne voit** : le stylet — Playwright ne sait pas faire
+survoler un `pointerType: 'pen'` — et le survol collé d'un vrai Safari ou
+Chrome tactile.
