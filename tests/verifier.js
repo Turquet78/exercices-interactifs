@@ -26951,122 +26951,147 @@ function chaslesTroisVecteurs(w, P){
       return f;
     };
     const ecr=function(l){ return l.t==='t' ? l.w.join('')+l.s.join('') : l.t+l.u+l.v; };
-    const FICHE_L=[{t:'c',u:'OF',v:'EO'},{t:'c',u:'OG',v:'EO'},{t:'r',u:'HO',v:'OG'},{t:'u',u:'HE',v:'HG'},
-      {t:'t',w:['HE','OG','HO'],s:[1,1,1]},{t:'t',w:['EG','FE','GF'],s:[1,1,1]},{t:'t',w:['EG','FG','OF'],s:[1,-1,-1]}];
-    const PLAN=['c','c','r','u','t','t','t'];
+    /* UN calcul de trois vecteurs par écran (Turquet, novembre 2026) : les
+       trois premiers sont les lignes à trois vecteurs de la fiche */
+    const FICHE_L=[{t:'t',w:['HE','OG','HO'],s:[1,1,1]},{t:'t',w:['EG','FE','GF'],s:[1,1,1]},{t:'t',w:['EG','FG','OF'],s:[1,-1,-1]}];
+    const PLAN=['t','t0','ts'];
 
     /* ---- 1. le tirage : 300 séances, chaque correction relue ----------- */
-    const formes={};
+    const formes={}, vusP={};
     for(let i=0;i<300 && !vus.length;i++){
       const qs=ctvBuildQuestions();
-      if(qs.length!==CTV_NB){ vus.push(qs.length+' figures au lieu de '+CTV_NB); break; }
-      const f=qs[0];
-      if(f.fig!=='para' || f.n!=='EFGHO' || f.lignes.map(ecr).join()!==FICHE_L.map(ecr).join()) vus.push('la première figure n’est pas la fiche');
+      if(qs.length!==CTV_NB){ vus.push(qs.length+' calculs au lieu de '+CTV_NB); break; }
+      if(CTV_NB<6) vus.push('moins de six calculs par séance');
       if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) vus.push('une question ne survit pas au JSON');
+      const cles={};
       qs.forEach(function(q, k){
-        formes[q.fig]=true;
+        if(k>2) formes[q.fig]=true;
         if(!CHS_FIGURES[q.fig]) { vus.push('forme inconnue '+q.fig); return; }
+        if(q.lignes.length!==1) { vus.push('le calcul '+(k+1)+' pose '+q.lignes.length+' lignes à l’écran'); return; }
+        const l=q.lignes[0];
+        if(l.t!=='t' || l.w.length!==3) { vus.push('le calcul '+(k+1)+' n’a pas trois vecteurs'); return; }
+        if(k<3 && (q.fig!=='para' || q.n!=='EFGHO' || ecr(l)!==ecr(FICHE_L[k]))) vus.push('le calcul '+(k+1)+' n’est pas la ligne de la fiche');
         if(!/^[A-Z]{4}O$/.test(q.n) || new Set(q.n.split('')).size!==5 || /[IWXYZ]/.test(q.n)) vus.push('lettres « '+q.n+' »');
-        if(q.lignes.map(function(l){ return l.t; }).join()!==PLAN.join()) vus.push(q.n+' : le plan des lignes est '+q.lignes.map(function(l){ return l.t; }).join(''));
-        const pts=pointsDe(q), cles={};
-        const ls=ctvLignes(q);
-        ls.forEach(function(L, j){
-          const l=q.lignes[j], vs=l.t==='t'?l.w:[l.u,l.v], cle=vs.slice().sort().join();
-          if(cles[cle]) vus.push(q.n+' : deux lignes '+cle); cles[cle]=true;
-          if(vs.some(function(v){ return !dep(pts,v); })) { vus.push(q.n+' : ligne illisible '+vs.join(' ')); return; }
-          const T=termes(pts,l), S=T.reduce(function(a,d){ return [a[0]+d[0], a[1]+d[1]]; },[0,0]);
-          const nul=eg(S,[0,0]);
-          if(nul !== (j===5)) vus.push(q.n+' : la ligne '+(j+1)+(nul?' est nulle':' n’est pas nulle'));
-          if(j===6 && l.s.join()!=='1,-1,-1') vus.push(q.n+' : la dernière ligne n’a pas deux soustractions');
-          if(j<6 && l.t==='t' && l.s.join()!=='1,1,1') vus.push(q.n+' : la ligne '+(j+1)+' soustrait');
-          if(l.t==='r' && l.u[1]!==l.v[0]) vus.push(q.n+' : '+l.u+' + '+l.v+' ne s’enchaînent pas');
-          if(l.t==='c' && l.v[1]!==l.u[0]) vus.push(q.n+' : la ligne '+(j+1)+' ne se retourne pas');
-          if(l.t==='u' && (l.u[1]===l.v[0] || l.v[1]===l.u[0])) vus.push(q.n+' : '+l.u+' + '+l.v+' n’a pas besoin d’un vecteur égal');
-          const bons=ctvJugeLigne(q, L, chsPoints(q)).map(function(s){ return s.bon; });
-          if(bons.length!==({r:1,c:3,u:2,t:4})[l.t]) vus.push(q.n+' : '+bons.length+' cases pour une ligne '+l.t);
-          const faux=juge(pts, l, bons);
-          if(faux.length) vus.push(q.fig+' '+q.n+' : la correction de '+ctvEcrit(l)+' écrit « '+bons.join(' ')+' », faux pour le juge');
-        });
+        const pts=pointsDe(q), cle=q.n+q.fig+q.fx+q.fy+l.w.join('')+l.s.join('');
+        if(cles[cle]) vus.push('le même calcul deux fois : '+cle); cles[cle]=true;
+        if(l.w.some(function(v){ return !dep(pts,v); })) { vus.push(q.n+' : ligne illisible '+l.w.join(' ')); return; }
+        if(new Set(l.w).size!==3) vus.push(q.n+' : deux fois le même vecteur '+l.w.join(' '));
+        const T=termes(pts,l), S=T.reduce(function(a,d){ return [a[0]+d[0], a[1]+d[1]]; },[0,0]);
+        const nul=eg(S,[0,0]), p=PLAN[k%3];
+        vusP[p]=true;
+        if(nul !== (p==='t0')) vus.push(q.n+' : le calcul '+(k+1)+(nul?' est nul':' n’est pas nul'));
+        if(l.s.join()!==(p==='ts'?'1,-1,-1':'1,1,1')) vus.push(q.n+' : les signes du calcul '+(k+1)+' sont '+l.s.join());
+        const L=ctvLignes(q)[0];
+        const bons=ctvJugeLigne(q, L, chsPoints(q)).map(function(s){ return s.bon; });
+        if(bons.length!==4) vus.push(q.n+' : '+bons.length+' cases');
+        const faux=juge(pts, l, bons);
+        if(faux.length) vus.push(q.fig+' '+q.n+' : la correction de '+ctvEcrit(l)+' écrit « '+bons.join(' ')+' », faux pour le juge');
       });
     }
     if(vus.length) return vus.slice(0,4).join(' | ');
     const absentes=CHS_FIG_IDS.filter(function(id){ return !formes[id]; });
     if(absentes.length) vus.push('en 300 séances, jamais tirée : '+absentes.join(', '));
 
-    /* ---- 2. la fiche, par le BOUTON ------------------------------------ */
+    /* ---- 2. la fiche, par le BOUTON, un calcul à la fois --------------- */
     startCtv();
-    test.idx=0;
-    const JUSTE={0:['EO','OF','EF'],1:['EO','OG','EG'],2:['HG'],3:['EF','HF'],4:['HE','EO','OF','HF'],5:['FE','EG','GF','0'],6:['EG','GF','FO','EO']};
+    const JUSTE=[['HE','EO','OF','HF'],['FE','EG','GF','0'],['EG','GF','FO','EO']];
     const ptsF=pointsDe(test.questions[0]);
-    FICHE_L.forEach(function(x, i){ if(juge(ptsF, x, JUSTE[i]).length) vus.push('le juge refuse la copie juste de la ligne '+(i+1)); });
-    const IDS=[]; Object.keys(JUSTE).forEach(function(i){ JUSTE[i].forEach(function(v,j){ IDS.push('ctv-'+i+'-'+j); }); });
-    const val=function(c){ const o={}; Object.keys(c).forEach(function(i){ c[i].forEach(function(v,j){ o['ctv-'+i+'-'+j]=v; }); }); return o; };
-    const poser=function(o){ test.locked=false; renderCtvTest();
-      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(o[id]==null?'':o[id]); }); };
+    FICHE_L.forEach(function(x, i){ if(juge(ptsF, x, JUSTE[i]).length) vus.push('le juge refuse la copie juste du calcul '+(i+1)); });
     const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
       return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'correction':'rien')); };
     const fb=function(){ return document.getElementById('ctvFeedback').textContent; };
-    poser({});
-    if(IDS.length!==21) vus.push(IDS.length+' cases au lieu de 21');
-    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la fiche manque à l’écran';
+    const id=function(j){ return 'ctv-0-'+j; };
+    const poser=function(k, c){ test.idx=k; test.locked=false; renderCtvTest();
+      for(let j=0;j<4;j++){ const el=document.getElementById(id(j)); if(el) el.value=(c&&c[j]!=null)?c[j]:''; } ctvDessin(); };
+    const traits=function(){ return [...document.querySelectorAll('#ctvHost svg line.ctv-v')].map(function(t){ return t.getAttribute('data-terme')+':'+t.getAttribute('data-vec'); }).sort().join(' '); };
+    poser(0);
+    if(document.querySelectorAll('#ctvHost .veg-l').length!==1) vus.push(document.querySelectorAll('#ctvHost .veg-l').length+' calculs à l’écran au lieu d’un');
+    if(document.querySelectorAll('#ctvHost input').length!==4) vus.push(document.querySelectorAll('#ctvHost input').length+' cases au lieu de 4');
     const lettres=[...document.querySelectorAll('#ctvHost svg text')].map(function(t){ return t.textContent.trim(); }).sort().join('');
     if(lettres!=='EFGHO') vus.push('les lettres du dessin sont « '+lettres+' »');
-    if(document.querySelectorAll('#ctvHost svg line').length!==6) vus.push('le dessin n’a pas quatre côtés et deux diagonales');
-    /* la copie juste */
-    poser(val(JUSTE)); checkCtvAnswer();
-    let der=test.answers[test.answers.length-1];
-    if(!der || !der.correct) vus.push('la copie juste est comptée fausse : '+IDS.filter(function(id){ return peint(id)!=='juste'; }).join(', '));
-    if(!der || der.cases!==21) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 21');
+    if(document.querySelectorAll('#ctvHost svg line:not(.ctv-v)').length!==6) vus.push('le dessin n’a pas quatre côtés et deux diagonales');
+    /* les trois vecteurs, chacun de sa couleur, dans l'énoncé et sur le dessin */
+    if(traits()!=='0:HE 1:OG 2:HO') vus.push('le dessin trace « '+traits()+' » au lieu de HE, OG, HO');
+    const coul=function(sel){ return [...document.querySelectorAll(sel)].map(function(e){ return getComputedStyle(e).color || ''; }); };
+    const ct=coul('#ctvHost .veg-l .ctv-t');
+    if(ct.length!==3 || new Set(ct).size!==3) vus.push('les trois termes de l’énoncé n’ont pas trois couleurs : '+ct.join(' / '));
+    const cl=[...document.querySelectorAll('#ctvHost svg line.ctv-v')].map(function(e){ return getComputedStyle(e).stroke || e.getAttribute('class'); });
+    if(new Set(cl).size!==3) vus.push('les trois flèches du dessin n’ont pas trois couleurs : '+cl.join(' / '));
+    /* l'élève écrit EO, égal à OG : le dessin remplace OG par EO, même couleur */
+    poser(0, ['HE','EO']);
+    if(traits()!=='0:HE 1:EO 2:HO') vus.push('après EO écrit, le dessin trace « '+traits()+' »');
+    const fl1=document.getElementById(id(1)).parentNode.querySelector('.veg-fl');
+    if(!fl1 || !fl1.classList.contains('ctv-c1')) vus.push('la flèche de la case EO ne prend pas la couleur de OG');
+    poser(0, ['HE','EO','OF']);
+    if(traits()!=='0:HE 1:EO 2:OF') vus.push('après OF écrit, le dessin trace « '+traits()+' »');
+    /* un vecteur égal à AUCUN terme ne remplace rien */
+    poser(0, ['HE','GF']);
+    if(traits()!=='0:HE 1:OG 2:HO') vus.push('GF, égal à aucun terme, change le dessin : « '+traits()+' »');
+    /* la soustraction : GF (l'opposé de FG, qu'on ajoute) remplace FG */
+    poser(2, ['EG','GF','FO']);
+    if(traits()!=='0:EG 1:GF 2:FO') vus.push('EG − FG − OF : le dessin trace « '+traits()+' » après EG + GF + FO');
+    /* le dessin suit la frappe, par l'événement « input » */
+    poser(0); const e1=document.getElementById(id(1)); e1.value='EO'; e1.dispatchEvent(new Event('input',{bubbles:true}));
+    if(traits()!=='0:HE 1:EO 2:HO') vus.push('la frappe ne met pas le dessin à jour : « '+traits()+' »');
+    /* la copie juste, calcul par calcul */
+    const nAv=test.answers.length;
+    JUSTE.forEach(function(c, k){ poser(k, c); checkCtvAnswer();
+      const der=test.answers[test.answers.length-1];
+      if(!der || !der.correct) vus.push('la copie juste du calcul '+(k+1)+' est comptée fausse : '+[0,1,2,3].filter(function(j){ return peint(id(j))!=='juste'; }).join(','));
+      if(!der || der.cases!==4) vus.push('le calcul '+(k+1)+' compte '+(der?der.cases:'?')+' cases au lieu de 4'); });
+    if(test.answers.length!==nAv+3) vus.push('les trois copies justes n’ont pas été enregistrées');
     /* d’AUTRES écritures justes : HO + OG + GF = HF ; le nul écrit FF ou o ; EG + GF + FO = OG */
-    poser(val(Object.assign({}, JUSTE, {4:['HO','OG','GF','hf'],5:['GF','FE','EG','FF'],6:['EG','GF','FO','OG']}))); checkCtvAnswer();
-    der=test.answers[test.answers.length-1];
-    if(!der || !der.correct) vus.push('une autre écriture juste est comptée fausse : '+IDS.filter(function(id){ return peint(id)!=='juste'; }).join(', '));
-    poser(val(Object.assign({}, JUSTE, {5:['FE','EG','GF','o']}))); checkCtvAnswer();
-    if(peint('ctv-5-3')!=='juste') vus.push('le vecteur nul écrit « o » est peint '+peint('ctv-5-3'));
+    [[0,['HO','OG','GF','hf']],[1,['GF','FE','EG','FF']],[1,['FE','EG','GF','o']],[2,['EG','GF','FO','OG']]].forEach(function(x){
+      poser(x[0], x[1]); checkCtvAnswer(); const der=test.answers[test.answers.length-1];
+      if(!der || !der.correct) vus.push('« '+x[1].join(' ')+' » est compté faux'); });
     /* LE PIÈGE de la soustraction : EG − FG − OF = EG + FG + … */
-    poser(val(Object.assign({}, JUSTE, {6:['EG','FG','OF','EO']}))); checkCtvAnswer();
-    if(peint('ctv-6-0')!=='juste' || peint('ctv-6-1')!=='rouge') vus.push('EG − FG = EG + FG : '+peint('ctv-6-0')+' puis '+peint('ctv-6-1'));
-    if(peint('ctv-6-3')!=='juste') vus.push('le résultat juste EO rougit à côté du piège');
+    poser(2, ['EG','FG','OF','EO']); checkCtvAnswer();
+    if(peint(id(0))!=='juste' || peint(id(1))!=='rouge') vus.push('EG − FG = EG + FG : '+peint(id(0))+' puis '+peint(id(1)));
+    if(peint(id(3))!=='juste') vus.push('le résultat juste EO rougit à côté du piège');
     if(!/oppos/i.test(fb())) vus.push('le message ne dit pas d’ajouter l’opposé : « '+fb().slice(0,90)+' »');
+    /* après la vérification, le dessin montre la chaîne retenue */
+    if(traits()!=='0:EG 1:GF 2:FO') vus.push('après la correction, le dessin trace « '+traits()+' »');
     /* la somme nulle écrite comme un vecteur */
-    poser(val(Object.assign({}, JUSTE, {5:['FE','EG','GF','EG']}))); checkCtvAnswer();
-    if(peint('ctv-5-3')!=='rouge') vus.push('EG + FE + GF = EG est peint '+peint('ctv-5-3'));
+    poser(1, ['FE','EG','GF','EG']); checkCtvAnswer();
+    if(peint(id(3))!=='rouge') vus.push('EG + FE + GF = EG est peint '+peint(id(3)));
     if(!/nul/i.test(fb())) vus.push('le message ne parle pas du vecteur nul : « '+fb().slice(0,90)+' »');
     /* un vecteur égal recopié qui ne part pas du bon point : HE + OG + … */
-    poser(val(Object.assign({}, JUSTE, {4:['HE','OG','OF','HF']}))); checkCtvAnswer();
-    if(peint('ctv-4-0')!=='juste' || peint('ctv-4-1')!=='rouge' || peint('ctv-4-2')!=='juste') vus.push('HE + OG + OF : '+[0,1,2].map(function(j){ return peint('ctv-4-'+j); }).join(' '));
+    poser(0, ['HE','OG','OF','HF']); checkCtvAnswer();
+    if(peint(id(0))!=='juste' || peint(id(1))!=='rouge' || peint(id(2))!=='juste') vus.push('HE + OG + OF : '+[0,1,2].map(function(j){ return peint(id(j)); }).join(' '));
     if(!/part/.test(fb()) || !/E/.test(fb())) vus.push('le message ne dit pas que le vecteur doit partir de E');
-    const badge=document.getElementById('ctv-4-1').nextElementSibling;
+    const badge=document.getElementById(id(1)).nextElementSibling;
     if(!badge || !/mf-cor/.test(badge.className) || badge.textContent.trim()!=='EO') vus.push('la correction de OG n’écrit pas EO à côté');
     /* le sens du résultat */
-    poser(val(Object.assign({}, JUSTE, {4:['HE','EO','OF','FH']}))); checkCtvAnswer();
-    if(peint('ctv-4-3')!=='rouge' || !/sens/.test(fb())) vus.push('HE + EO + OF = FH : '+peint('ctv-4-3')+' « '+fb().slice(0,60)+' »');
-    /* les lignes à deux vecteurs sont celles du 8.8 : l’ordre */
-    poser(val(Object.assign({}, JUSTE, {0:['OF','EO','EF']}))); checkCtvAnswer();
-    if(peint('ctv-0-0')!=='rouge' || peint('ctv-0-2')!=='juste' || !/ordre/.test(fb())) vus.push('OF + EO = OF + EO = EF : '+peint('ctv-0-0')+', résultat '+peint('ctv-0-2'));
+    poser(0, ['HE','EO','OF','FH']); checkCtvAnswer();
+    if(peint(id(3))!=='rouge' || !/sens/.test(fb())) vus.push('HE + EO + OF = FH : '+peint(id(3))+' « '+fb().slice(0,60)+' »');
     /* une case vide ne rougit pas, et reçoit la correction */
-    poser(val(Object.assign({}, JUSTE, {4:['HE','','OF','HF']}))); checkCtvAnswer();
-    if(peint('ctv-4-1')!=='correction' || document.getElementById('ctv-4-1').value!=='EO') vus.push('la case vide de HE + OG + HO : '+peint('ctv-4-1')+' « '+document.getElementById('ctv-4-1').value+' »');
+    poser(0, ['HE','','OF','HF']); checkCtvAnswer();
+    if(peint(id(1))!=='correction' || document.getElementById(id(1)).value!=='EO') vus.push('la case vide de HE + OG + HO : '+peint(id(1))+' « '+document.getElementById(id(1)).value+' »');
     if(!/manquait/.test(fb())) vus.push('le message ne nomme pas la case manquante');
-    /* une copie entièrement vide : rien de rouge, tout en correction juste pour le juge */
-    poser({}); checkCtvAnswer();
-    const rouges=IDS.filter(function(id){ return peint(id)==='rouge'; });
-    if(rouges.length) vus.push('copie vide : '+rouges.length+' case(s) rouge(s)');
-    FICHE_L.forEach(function(x, i){ const c=JUSTE[i].map(function(v,j){ return document.getElementById('ctv-'+i+'-'+j).value; });
-      if(juge(ptsF, x, c).length) vus.push('la correction de la ligne '+(i+1)+' écrit « '+c.join(' ')+' »'); });
+    /* une copie entièrement vide : rien de rouge, une correction juste pour le juge */
+    FICHE_L.forEach(function(x, k){ poser(k); checkCtvAnswer();
+      if([0,1,2,3].some(function(j){ return peint(id(j))==='rouge'; })) vus.push('copie vide du calcul '+(k+1)+' : une case rouge');
+      const c=[0,1,2,3].map(function(j){ return document.getElementById(id(j)).value; });
+      if(juge(ptsF, x, c).length) vus.push('la correction du calcul '+(k+1)+' écrit « '+c.join(' ')+' »'); });
     /* le soutien : peint au fil de la saisie, sans verrouiller */
-    currentMode='soutien'; poser({});
-    const e0=document.getElementById('ctv-4-0'); e0.value='HE'; checkCtvAnswer(true);
-    if(peint('ctv-4-0')!=='juste' || peint('ctv-4-1')!=='rien') vus.push('le soutien peint '+peint('ctv-4-0')+' la case remplie, '+peint('ctv-4-1')+' la case vide');
+    currentMode='soutien'; poser(0);
+    const e0=document.getElementById(id(0)); e0.value='HE'; checkCtvAnswer(true);
+    if(peint(id(0))!=='juste' || peint(id(1))!=='rien') vus.push('le soutien peint '+peint(id(0))+' la case remplie, '+peint(id(1))+' la case vide');
     e0.value='GF'; checkCtvAnswer(true);
-    if(peint('ctv-4-0')!=='rouge') vus.push('le soutien ne rougit pas GF');
+    if(peint(id(0))!=='rouge') vus.push('le soutien ne rougit pas GF');
     if(test.locked) vus.push('la correction en direct verrouille la page');
     currentMode='train';
+    /* un brouillon d'AVANT (sept lignes sur une figure) se rejoue encore */
+    test.questions=[{fig:'para', fx:1, fy:1, n:'EFGHO', lignes:[{t:'c',u:'OF',v:'EO'},{t:'r',u:'HO',v:'OG'},{t:'t',w:['HE','OG','HO'],s:[1,1,1]}]}];
+    test.idx=0; test.locked=false;
+    try{ renderCtvTest(); if(document.querySelectorAll('#ctvHost .veg-l').length!==3) vus.push('un ancien brouillon ne montre pas ses trois lignes'); }
+    catch(e){ vus.push('un ancien brouillon ne se rejoue pas : '+e.message); }
     /* le barème et l’identité */
     startCtv();
     const total=test.questions.reduce(function(a,q){ return a+ctvCases(q).length; },0);
-    if(test.maxScore!==total || total!==21*CTV_NB) vus.push('barème de '+test.maxScore+' au lieu de '+total);
+    if(test.maxScore!==total || total!==4*CTV_NB) vus.push('barème de '+test.maxScore+' au lieu de '+total);
     if(test.qId!=='chasles-trois-vecteurs') vus.push('qId « '+test.qId+' »');
+    if(!/^Calcul 1 \\/ /.test(document.getElementById('ctvIdx').textContent)) vus.push('l’en-tête dit « '+document.getElementById('ctvIdx').textContent+' »');
     const ctx=ctxCtv(test.questions[0]).contexte;
     if(!/SECR/.test(ctx) || !/Chasles/.test(ctx) || !/nul/.test(ctx)) vus.push('le contexte du modèle ne porte ni la clause de secret ni la méthode');
     return vus.join(' | ');
