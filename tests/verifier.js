@@ -28782,7 +28782,7 @@ function moyennesDevoirs(w, apres){
       const notes={ e:{x1:[6,true], x2:[0,true], x3:[0,false]}, z:{x1:[10,true], x2:[10,true], x3:[10,true]} };
       dmNoteDevoir=function(d, eid){ const n=notes[eid][d.id];
         return { somme:n[0], totMax:10, nbFait:n[1]?1:0, nbExos:1, fait:n[1], exd:[] }; };
-      const ex=[{id:'?',modes:['train']}];
+      const ex=[{id:Object.keys(TESTS)[0],modes:['train']}];   /* un VRAI identifiant : la Première filtre la liste sur TESTS */
       const devs=[{id:'x1',num:1,titre:'Un',actif:true,exercices:ex},{id:'x2',num:2,titre:'Deux',actif:true,exercices:ex},{id:'x3',num:3,titre:'Trois',actif:true,exercices:ex}];
       const eleves=[{id:'e',prenom:'Émile'},{id:'z',prenom:'Zoé'}];
       let capture=null;
