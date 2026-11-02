@@ -1705,3 +1705,28 @@ fiches (`fichesDeTravail`, banc principal) tient l'ordre (bord « 0 ter ») et
 la famille SNT (« 3 bis » : la carte, la page qui ne montre qu'elle, le titre
 retrouvé par l'identifiant, l'enregistrement qui ne touche ni `fiches` ni
 `devoirs`) ; le profil de la Seconde la déclare (`snt`).
+
+**« abs » à la place du zéro — fiches de travail et fiches SNT, en Seconde
+et en Première.** Demande de Turquet, novembre 2026 : « en seconde et
+première mettre abs si la note vaut zéro pour les fiches de travail et les
+fiches de SNT ». C'est un drapeau de plus dans `GENRE_DEVOIRS` (`abs:true`
+sur `fiche` et `snt`), lu par `dmAbs(fait, note)` — une fonction du moteur
+des moyennes, donc le MÊME TEXTE dans les trois fichiers (ajoutée à
+`MOTEUR_MOYENNES`) ; la Terminale, dont les « fiches » sont les travaux
+facultatifs, ne porte pas le drapeau et sa ligne y est inerte. Une note
+nulle — fiche pas faite, ou faite pour 0 — s'écrit « abs » dans le tableau
+des moyennes, dans son fichier CSV et dans le bilan de la fiche (et, en
+Seconde, sur la carte de l'élève). Le jour même, seconde demande : « la
+moyenne ne doit pas compter les abs ». Un « abs » SORT donc de la moyenne :
+celle de l'élève (dénominateur = colonnes moins ses « abs » ; que des « abs »,
+pas de moyenne, « — »), celle de la classe par fiche, la moyenne générale
+(les élèves sans moyenne en sortent), et la moyenne du bilan de la fiche — la
+case « Ont commencé » de la Première, elle, compte toujours l'élève qui a
+fait sa fiche pour 0. Dans un devoir à la maison, et en Terminale, la
+décision du zéro n'a pas bougé : non fait = 0, compté. Un devoir à la
+maison garde son 0. Contrôle (banc principal, `moyennesDevoirs`) : une ligne
+à trois cases — 12, 0 fait, rien — doit se lire « 12|abs|abs » dans une
+fiche, « 12|0|0 » dans un devoir, au tableau comme au fichier, moyenne
+12 dans une fiche et 4 dans un devoir,
+moyennes de classe 16|20|20 contre 16|10|10, le VRAI `dmMoyennes` tournant
+avec un `dmNoteDevoir` remplacé le temps de la mesure.
