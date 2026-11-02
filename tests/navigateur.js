@@ -19461,7 +19461,8 @@ if(require.main === module) (async () => {
       await s.page.evaluate(() => { window.__tabletteForce = true; });
       const ids = await s.page.evaluate(n => { const t = THEMES.find(x => x.num === n); if(!t) return [];
         return [].concat(...(t.sous || [t]).map(x => x.ids || [])); }, P.poseDoigt.theme);
-      const dits = [], sansBranche = [], essayes = [];
+      const dits = [], sansBranche = [], essayes = [], survolPeint = [];
+      const grossier = await s.page.evaluate(() => matchMedia('(pointer: coarse)').matches);
       const etat = () => s.page.evaluate(() => {
         const b = [...document.querySelectorAll('.screen.on .pose-doigt .pd-it')];
         return { q: JSON.stringify(test.questions[test.idx]),
@@ -19493,6 +19494,26 @@ if(require.main === module) (async () => {
         });
         if(!m.poses) continue;
         if(!m.ad || !m.branche){ sansBranche.push(id + ' (' + m.kind + (m.ad ? ', sa fonction de pose ne passe pas par poseDoigt' : ', sans adaptateur POSE_DOIGT') + ')'); continue; }
+        /* le survol ne peint rien au doigt : sur un vrai écran tactile, le
+           « survol » reste collé au dernier nœud touché, et un point pâle
+           s'affichait à côté de celui de l'élève (parallelogramme-point, novembre 2026). Le
+           pointeur passe sur quelques nœuds et prises libres : leur encre ne
+           doit pas bouger. */
+        const survol = await s.page.evaluate(() => [...document.querySelectorAll('.screen.on svg .vec-t:not(.sel):not(.okc):not(.badc):not(.missc), .screen.on svg .tvx-prise, .screen.on svg .svc-prise')]
+          .slice(0, 6).map((e, n) => { e.dataset.survolEssai = n; return n; }));
+        for(const n of survol){
+          const encre = () => s.page.evaluate(n => { const e = document.querySelector('[data-survol-essai="' + n + '"]'); if(!e) return null;
+            const d = e.querySelector('.dot') || e, c = getComputedStyle(d); return c.fill + ' / ' + c.stroke; }, n);
+          await s.page.mouse.move(1, 1);
+          const av = await encre();
+          const b = await s.page.evaluate(n => { const e = document.querySelector('[data-survol-essai="' + n + '"]'); if(!e) return null;
+            e.scrollIntoView({ block: 'center' }); const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }, n);
+          if(!b || av === null) continue;
+          await s.page.mouse.move(b.x, b.y); await s.page.waitForTimeout(30);
+          const ap = await encre();
+          if(ap !== null && ap !== av){ survolPeint.push(id + ' (' + av + ' → ' + ap + ')'); break; }
+        }
+        await s.page.mouse.move(1, 1);
         const e0 = await etat();
         if(!e0.it.length) continue;                       /* rien à poser d'emblée (une étape à franchir d'abord) */
         essayes.push(id);
@@ -19522,6 +19543,8 @@ if(require.main === module) (async () => {
         sansBranche.length === 0 && ids.length > 0, ids.length ? sansBranche.slice(0, 3).join(' | ') : 'aucun exercice lu dans le thème ' + P.poseDoigt.theme);
       verifier('au doigt, le premier item est coché, un toucher pose (puis déplace) ce qui est coché et rien d\'autre ('
         + essayes.length + ' exercices touchés)', dits.length === 0 && essayes.length >= 10, dits.slice(0, 3).join(' | ') || (essayes.length + ' exercice(s) seulement montrent la barre d\'emblée'));
+      verifier('au doigt, le survol ne peint aucun point pâle sur la figure (le « survol » d\'un écran tactile reste collé au dernier nœud touché)',
+        grossier && survolPeint.length === 0, grossier ? survolPeint.slice(0, 3).join(' | ') : 'le navigateur du banc ne se dit pas tactile (pointer: coarse) : rien de mesuré');
       const souris = await s.page.evaluate(() => { delete window.__tabletteForce; poseDoigtMaj(); return document.querySelectorAll('.pose-doigt').length; });
       verifier('à la souris, aucune barre « Je place »', souris === 0, souris + ' barre(s) restée(s)');
       verifier('la barre « Je place » ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));

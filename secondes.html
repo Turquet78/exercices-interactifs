@@ -2843,7 +2843,10 @@
   .vec-svg .vec-t{cursor:pointer}
   .vec-svg .vec-t .hit{fill:transparent}
   .vec-svg .vec-t .dot{fill:transparent;stroke:transparent;stroke-width:1.6}
-  .vec-svg .vec-t:hover .dot{fill:#EAF0FF;stroke:var(--blue)}
+  /* le point pâle du survol : à la souris seulement — sur un écran tactile, le
+     « survol » reste collé au dernier nœud touché, et l'élève y voyait un second
+     point, plus clair, à côté du sien (novembre 2026) */
+  @media (hover:hover) and (pointer:fine){.vec-svg .vec-t:hover .dot{fill:#EAF0FF;stroke:var(--blue)}}
   .vec-svg .vec-t .vec-dlbl{display:none}
   .vec-svg .vec-t.sel .dot,.vec-svg .vec-t.okc .dot{fill:var(--blue);stroke:var(--blue-dark)}
   .vec-svg .vec-t.badc .dot{fill:var(--red);stroke:#bf2c3e}
@@ -2915,7 +2918,7 @@
   /* les flèches u⃗ et v⃗ se font glisser : une prise large et transparente
      posée sur chacune, qui ne fait pas défiler la page sous le doigt */
   .svc-svg .svc-prise{stroke:transparent;stroke-width:22;stroke-linecap:round;pointer-events:stroke;cursor:grab;touch-action:none}
-  .svc-svg .svc-prise:hover{stroke:rgba(59,111,212,.10)}
+  @media (hover:hover) and (pointer:fine){.svc-svg .svc-prise:hover{stroke:rgba(59,111,212,.10)}}
   .svc-svg .svc-prise:focus{outline:none}
   .svc-svg .svc-prise:focus-visible{stroke:rgba(59,111,212,.22)}
   .svc-svg.glisse,.svc-svg.glisse .svc-prise{cursor:grabbing}
@@ -3022,7 +3025,7 @@
   .tvx-svg .tvx-croix.tvx-bad line{stroke:var(--red)}
   .tvx-svg .tvx-croix.tvx-sol line{stroke:var(--green)}
   .tvx-svg .tvx-prise{fill:transparent;stroke:transparent;stroke-width:2;cursor:pointer}
-  .tvx-svg .tvx-prise:hover{fill:rgba(124,58,237,.14);stroke:var(--crd-a)}
+  @media (hover:hover) and (pointer:fine){.tvx-svg .tvx-prise:hover{fill:rgba(124,58,237,.14);stroke:var(--crd-a)}}
   /* 8.3 Vecteurs colinéaires — {identifier-multiple-vecteur}, {identifier-multiple-non-entier},
      {vecteurs-colineaires-figure} : les figures du 8.7 (.svc-svg), des lignes à la recette
      du 8.1.1 (.vtr-l) ; un coefficient s'écrit en ligne, le signe centré sur le trait de
@@ -3431,7 +3434,7 @@
   .trl-fig .tvx-el{stroke:var(--crd-a);stroke-width:2.6;stroke-linecap:round}
   .trl-fig .tvx-vif{pointer-events:none}
   .trl-fig .tvx-prise{fill:transparent;stroke:transparent;stroke-width:2;cursor:pointer}
-  .trl-fig .tvx-prise:hover{fill:rgba(124,58,237,.14);stroke:var(--crd-a)}
+  @media (hover:hover) and (pointer:fine){.trl-fig .tvx-prise:hover{fill:rgba(124,58,237,.14);stroke:var(--crd-a)}}
   .lv-instr .trl-sous{display:block;font-size:.85rem;font-weight:400;margin-top:6px}
   /* le nom d'un vecteur : la lettre coiffée d'une flèche */
   .vec{position:relative;display:inline-block;padding-top:.45em;line-height:1}
@@ -8909,7 +8912,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=632;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=633;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -17333,7 +17336,7 @@ function trlBrancher(){
     if(test.kind!=='trl') return;
     const q=test.questions[test.idx]; if(!q) return;
     const c=host.querySelector('#trlCurseur'); if(!c) return;
-    const v=ev&&ev.pointerType!=='touch'&&!test.locked ? vue(ev) : null;
+    const v=ev&&ev.pointerType==='mouse'&&!test.locked ? vue(ev) : null;
     test.trlSouris=v?{x:v.x, y:v.y}:null;
     const k=trlCourant(q);
     if(v&&(k>=0||test.trlMob)){
@@ -63376,7 +63379,7 @@ function vepCurseur(ev){
   g.classList.toggle('vep-pose', pose);
   const c=$('vepCurseur'); if(!c) return;
   const svg=g.querySelector('.vec-svg'), m=svg&&svg.getScreenCTM&&svg.getScreenCTM();
-  if(pose||!ev||ev.pointerType==='touch'||!m){ c.style.display='none'; return; }
+  if(pose||!ev||ev.pointerType!=='mouse'||!m){ c.style.display='none'; return; }
   const pt=svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
   const p=pt.matrixTransform(m.inverse());
   const fx=(p.x-VEC_PAD)/VEC_CELL, fy=VEC_N-(p.y-VEC_PAD)/VEC_CELL;
@@ -63928,7 +63931,7 @@ function svcBrancher(){
   const curseur=function(ev){
     const c=host.querySelector('#svcCurseur'), vif=host.querySelector('#svcVif'); if(!c) return;
     const q=test.kind==='svc'&&test.questions[test.idx];
-    const v=ev&&!gl&&svcPeutTracer(q)&&!(q.sd&&q.sf)&&!test.locked&&!test.svcFigeSm&&ev.pointerType!=='touch'&&vue(ev);
+    const v=ev&&!gl&&svcPeutTracer(q)&&!(q.sd&&q.sf)&&!test.locked&&!test.svcFigeSm&&ev.pointerType==='mouse'&&vue(ev);
     let h='';
     if(v&&q.sd){
       const x1=SVC_PX+q.sd[0]*SVC_C, y1=SVC_PY+(SVC_H-q.sd[1])*SVC_C;
@@ -63946,7 +63949,7 @@ function svcBrancher(){
     const t=ev.target;
     if(t.closest&&t.closest('.svc-svg')&&!t.closest('.vec-t, .vec-zone, .svc-prise')&&!apresPrise){ const v=vue(ev); if(v) svcPose(v.i,v.j); }
     /* le point suivant (la fin) ou plus rien : le curseur suit l'état */
-    curseur(dernier&&dernier.pointerType!=='touch'?ev:null);
+    curseur(dernier&&dernier.pointerType==='mouse'?ev:null);
   });
   /* au clavier : la prise a le focus, les flèches du clavier la déplacent */
   host.addEventListener('keydown', function(ev){
@@ -64520,7 +64523,7 @@ function stvBrancher(){
   const curseur=function(ev){
     const c=host.querySelector('#stvCurseur'), vif=host.querySelector('#stvVif'); if(!c) return;
     const q=test.kind==='stv'&&test.questions[test.idx];
-    const v=ev&&!gl&&q&&!(q.sd&&q.sf)&&!test.locked&&!test.stvFigeSm&&ev.pointerType!=='touch'&&stvEtape1(q)&&vue(ev);
+    const v=ev&&!gl&&q&&!(q.sd&&q.sf)&&!test.locked&&!test.stvFigeSm&&ev.pointerType==='mouse'&&stvEtape1(q)&&vue(ev);
     let h='';
     if(v&&q.sd){
       const x1=stvX(q.sd[0]), y1=stvY(q.sd[1]);
@@ -64536,7 +64539,7 @@ function stvBrancher(){
   host.addEventListener('click', function(ev){
     const t=ev.target;
     if(t.closest&&t.closest('.stv-svg')&&!t.closest('.vec-t, .vec-zone, .svc-prise')&&!apresPrise){ const v=vue(ev); if(v) stvPose(v.i,v.j); }
-    curseur(dernier&&dernier.pointerType!=='touch'?ev:null);
+    curseur(dernier&&dernier.pointerType==='mouse'?ev:null);
   });
   host.addEventListener('keydown', function(ev){
     const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
@@ -65070,7 +65073,7 @@ function cpsBrancher(){
     const c=host.querySelector('#cpsCurseur'); if(!c) return;
     const q=test.kind==='cps'&&test.questions[test.idx];
     const e=q&&cpsEtapes(q), trace=!!e&&!e[1];
-    const v=ev&&!gl&&q&&!test.locked&&ev.pointerType!=='touch'&&(trace||(e[2]&&!q.pt&&!test.cpsFigePt))&&vue(ev);
+    const v=ev&&!gl&&q&&!test.locked&&ev.pointerType==='mouse'&&(trace||(e[2]&&!q.pt&&!test.cpsFigePt))&&vue(ev);
     const vif=host.querySelector('#cpsVif');
     let h='';
     if(v&&trace){
@@ -65095,7 +65098,7 @@ function cpsBrancher(){
       const v=vue(ev); if(v) cpsPose(v.i,v.j); }
     /* après le clic d'un nœud aussi : la flèche qui suit la souris part du
        début qu'il vient de poser, ou s'efface sur la fin qu'il vient de fixer */
-    curseur(ev&&ev.pointerType!=='touch'?ev:null);
+    curseur(ev&&ev.pointerType==='mouse'?ev:null);
   });
   host.addEventListener('keydown', function(ev){
     const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
@@ -65522,7 +65525,7 @@ function tcpBrancher(){
   const curseur=function(ev){
     const c=host.querySelector('#tcpCurseur'), vif=host.querySelector('#tcpVif'); if(!c) return;
     const q=test.kind==='tcp'&&test.questions[test.idx];
-    const v=ev&&q&&!test.locked&&ev.pointerType!=='touch'&&vue(ev);
+    const v=ev&&q&&!test.locked&&ev.pointerType==='mouse'&&vue(ev);
     const ph=q?tcpPhase(q):0;
     let h='';
     if(v&&ph===4&&q.d&&!q.f&&!(test.tcpFige||{}).tr){
@@ -65540,7 +65543,7 @@ function tcpBrancher(){
   host.addEventListener('click', function(ev){
     const t=ev.target, q=test.kind==='tcp'&&test.questions[test.idx];
     if(q&&!test.locked&&t.closest&&t.closest('.tcp-svg')){ const v=vue(ev); if(v){ tcpPose(v.i,v.j); clearTimeout(_tcpSaveTimer); _tcpSaveTimer=setTimeout(autoSave,1200); } }
-    curseur(ev&&ev.pointerType!=='touch'?ev:null);
+    curseur(ev&&ev.pointerType==='mouse'?ev:null);
   });
 }
 /* LE JUGE — quatre réponses, lues dans la question, chacune SEULE. */
@@ -66077,7 +66080,7 @@ function tvxBrancher(){
     if(test.kind!=='tvx') return;
     const q=test.questions[test.idx]; if(!q) return;
     const c=host.querySelector('#tvxCurseur');
-    const v=ev&&ev.pointerType!=='touch'&&!test.locked ? vue(ev) : null;
+    const v=ev&&ev.pointerType==='mouse'&&!test.locked ? vue(ev) : null;
     test.tvxSouris=v?{x:v.x, y:v.y}:null;
     const montre=!!v&&(!!test.tvxMob||tvxCourante(q)>=0);
     if(c){ if(montre){ c.setAttribute('transform','translate('+v.x.toFixed(1)+' '+v.y.toFixed(1)+')'); c.style.display=''; } else c.style.display='none'; }
@@ -67397,7 +67400,7 @@ function kplBrancher(){
     if(test.kind!=='kpl') return;
     const q=test.questions[test.idx]; if(!q) return;
     const c=host.querySelector('#kplCurseur');
-    const v=ev&&ev.pointerType!=='touch'&&!test.locked ? vue(ev) : null;
+    const v=ev&&ev.pointerType==='mouse'&&!test.locked ? vue(ev) : null;
     const k=kplCourant(q);
     if(!c) return;
     if(v&&k>=0){
@@ -69340,7 +69343,7 @@ function tanBrancher(){
     if(test.kind!=='tan') return;
     const q=q_tan(); if(!q) return;
     const c=host.querySelector('#tanCurseur');
-    const v=ev&&ev.pointerType!=='touch'&&!test.locked ? vue(ev) : null;
+    const v=ev&&ev.pointerType==='mouse'&&!test.locked ? vue(ev) : null;
     const k=tanCourant(q);
     if(!c) return;
     if(v&&k>=0){
@@ -69879,7 +69882,7 @@ function cvpBrancher(){
   const curseur=function(ev){
     const c=host.querySelector('#cvpCurseur'); if(!c) return;
     const q=test.kind==='cvp'&&test.questions[test.idx];
-    const v=ev&&!gl&&q&&!test.locked&&!test.cvpFigePt&&!q.sel&&ev.pointerType!=='touch'&&cvpEtape1(q)&&vue(ev);
+    const v=ev&&!gl&&q&&!test.locked&&!test.cvpFigePt&&!q.sel&&ev.pointerType==='mouse'&&cvpEtape1(q)&&vue(ev);
     if(!v){ c.style.display='none'; return; }
     c.setAttribute('transform','translate('+v.x+' '+v.y+')');
     c.style.display='';
@@ -70351,7 +70354,7 @@ function spgBrancher(){
     if(test.kind!=='spg') return;
     const q=test.questions[test.idx]; if(!q) return;
     const c=host.querySelector('#spgCurseur');
-    const v=ev&&ev.pointerType!=='touch'&&!test.locked ? vue(ev) : null;
+    const v=ev&&ev.pointerType==='mouse'&&!test.locked ? vue(ev) : null;
     test.spgSouris=v?{x:v.x, y:v.y}:null;
     const et=spgEtape(q);
     /* la croix suit la souris tant qu'un clic posera quelque chose : D à
@@ -72896,7 +72899,7 @@ function svrBrancher(){
     if(test.kind!=='svr') return;
     const svg=host.querySelector('.svr-svg');
     test.svrSouris=null;
-    if(svg&&!gl&&ev.pointerType!=='touch'){ const m=pas(svg); test.svrSouris={x:(ev.clientX-m.r.left)/m.k, y:(ev.clientY-m.r.top)/m.k}; }
+    if(svg&&!gl&&ev.pointerType==='mouse'){ const m=pas(svg); test.svrSouris={x:(ev.clientX-m.r.left)/m.k, y:(ev.clientY-m.r.top)/m.k}; }
     svrVif(test.questions[test.idx], test.svrSouris);
   });
   host.addEventListener('pointerleave', function(){
