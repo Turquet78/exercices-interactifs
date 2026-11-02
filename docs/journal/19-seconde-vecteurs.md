@@ -1388,7 +1388,7 @@ HE + OG + OF (seul OG rouge, badge EO, « part de E »), FH (« sens »),
 OF + EO recopié (« ordre », du 8.8), la case vide (correction EO), la copie
 vide, le soutien, le barème, `qId`, le contexte du modèle.
 
-### Puis UN calcul de trois vecteurs par écran, en trois couleurs (8.2.3, v631)
+### Puis UN calcul de trois vecteurs par écran, en trois couleurs (8.2.3, v632)
 
 **La demande** (Turquet, novembre 2026) : « en seconde dans le 8.2.3, faire
 uniquement des calculs avec 3 vecteurs et afficher qu'un seul calcul à
