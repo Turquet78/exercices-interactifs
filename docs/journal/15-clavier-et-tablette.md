@@ -1801,3 +1801,64 @@ d'exposant se remplissent au sommet, sans « _ ». Les autres exercices gardent
 MathLive tel quel (vérifié : « a_n+1 » y reste a_{n+1}). Contrôle (11
 duodecies) : « au 6.2.1, « a_n » tapé dans un champ mathématique sort tout
 seul de l'indice (et « a_(n+1) » garde le sien) ».
+
+**Puis le pavé de la Terminale est DESCENDU AU BAS DE L'ÉCRAN — et, sur un
+téléphone debout, il a enfin appris à se refermer.** Demande de Turquet
+(novembre 2026), sur le 6.1.5 vu de son téléphone : « le clavier virtuel est
+trop haut en mode portrait et en mode paysage pour la plupart des cases ; sur
+la tablette tout va bien, et sur un ordinateur aussi ; le mettre le plus bas
+possible, comme la case de saisie de la question 2.a en mode paysage de
+l'exercice de type 1, après la case où l'on choisit la formule — cette case
+fonctionne bien en mode paysage mais pas en mode portrait ». Deux défauts, et
+une seule capture ne les aurait pas distingués ; la mesure dans un Chromium à
+la taille d'un téléphone (390 × 844 et 844 × 390, tactile) les a séparés.
+**« La plupart des cases »** sont les cases de l'arbre, des `<input>` servis
+par le PAVÉ ; la 2.a est un champ MathLive (`aptResIn`, `PAVE_MF` vide en
+Terminale) servi par le CLAVIER ANCRÉ, qui colle au bord : c'est lui que
+Turquet donne en modèle. Or le pavé de la Terminale vivait à `bottom:96px`
+— au-dessus des commandes du bas, qui gardaient leur place sous lui, là où
+la Seconde et la Première (octobre 2026, « la forme du clavier ») l'ancrent
+à `bottom:0` sur toute la largeur. Mesuré : en portrait, le rectangle de
+quatre rangées et sa rangée « x ( ) + × » finissaient à 748 px sur 844 et
+commençaient à 480 ; en paysage, ses deux rangées flottaient de 184 à 294 px
+sur 390 — au MILIEU de l'écran, une bande de page visible dessous. Sur une
+tablette, 96 px sur 1180 ne se voyaient pas. Le pavé prend donc le bas,
+d'un bord à l'autre, dans les deux orientations et sur tout écran tactile
+(la tablette aussi : un seul comportement, celui des deux autres niveaux et
+du clavier mathématique), coins arrondis en haut seulement, ombre vers le
+haut, `env(safe-area-inset-bottom)` dans son rembourrage ; et les commandes
+du bas MONTENT EN HAUT tant qu'il est ouvert —
+`body:has(#paveNum:not([hidden])) #testCtrls`, la règle même de la Seconde et
+de la Première, écrite APRÈS `body.clavier-ouvert #testCtrls` comme l'exige
+le contrôle jsdom de l'ordre. L'arbre collé du type 4 (`.apc-fixe`), dont les
+cases sont justement servies par le pavé, descend sous les commandes
+(`top:56px`) dans ce cas aussi. La règle du paysage garde `left` ET `right`
+(à 0) : le contrôle jsdom « la boîte du pavé s'étire d'un bord à l'autre »
+les lit. Rien n'a bougé dans le moteur : `paveCale` mesure toujours la
+réserve du bas sur le pavé rendu, et la forme restait affaire de feuille de
+styles — c'est ce qui rend le déplacement sûr.
+**Et « pas en mode portrait » était un AUTRE défaut, de spécificité.** La
+règle du portrait étroit, `body.pave-actif #paveNum{… display:grid …}`
+(identifiant + classe + élément), l'emporte sur `#paveNum[hidden]{display:none}`
+(identifiant + attribut) : sur un téléphone debout, le pavé REFERMÉ restait
+affiché. Quand l'élève passait à la 2.a, le clavier MathLive se déployait au
+bord et le pavé restait posé AU-DESSUS de lui — deux claviers superposés, 416
+px d'écran pris — ; et une fois la case de l'arbre quittée, le pavé restait
+sur l'exercice. En paysage, la règle ne pose pas `display`, le repli marchait
+: d'où « fonctionne bien en mode paysage mais pas en mode portrait ». La
+Seconde et la Première n'ont pas ce trou (leurs règles @media ne portent pas
+de classe sur body). `#paveNum[hidden]{display:none !important}` : une règle
+@media ajoutée demain ne peut plus le rouvrir, et la mesure dans Chromium le
+dit (display `none`, rectangle nul, après le repli). Le banc du pavé ne
+l'avait jamais vu : il mesure le pavé OUVERT, à 820 px (une tablette, hors de
+la règle à 789) ou sur la case du code à 390 px — jamais le pavé refermé à la
+largeur d'un téléphone.
+**Un contrôle UNIVERSEL, au banc navigateur** (section du pavé, après les
+mesures du niveau) : sur la case du profil (`pave.champ`), à 390 × 844 puis
+844 × 390, le pavé ouvert est ancré — son bas, sa gauche et sa droite au bord
+de l'écran, à 1 px près —, ne recouvre ni la case ni les commandes ; puis, la
+case quittée, il a vraiment disparu : `hidden` posé ET `display:none` ET un
+rectangle nul — « hidden » seul est précisément ce qui trompait. Les trois
+niveaux y passent, les deux orientations. Ce qu'aucun banc ne voit : le rendu
+sur le téléphone réel de Turquet (police, barre d'adresse, bande des gestes),
+qui se regarde en ligne.

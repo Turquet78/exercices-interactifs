@@ -854,7 +854,7 @@
   @media (min-height:560px){
     .apf-arbre-defile.apc-fixe{position:sticky;top:0;z-index:5;background:var(--surface);padding:6px 0 4px;
       border-bottom:1.5px solid var(--line);box-shadow:0 6px 10px -8px rgba(15,23,42,.25)}
-    body.clavier-ouvert .apf-arbre-defile.apc-fixe{top:56px}   /* les commandes montent en haut quand le clavier est ancré */
+    body.clavier-ouvert .apf-arbre-defile.apc-fixe,body:has(#paveNum:not([hidden])) .apf-arbre-defile.apc-fixe{top:56px}   /* les commandes montent en haut quand le clavier est ancré — ou le pavé ouvert (ses cases sont dans l'arbre) */
     /* le second arbre, celui de la question « on pose x », colle dans SA
        question et passe par-dessus le premier : celui-ci peut alors être
        masqué, en partie ou entièrement (demande de Turquet, octobre 2026) */
@@ -1890,10 +1890,37 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
 .tx-se{width:30px;padding:2px 2px;font-size:.85rem;position:relative;top:-8px;}
 .tx-e{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;font-weight:700;}
 /* ---- Pavé numérique compact des écrans tactiles ---- */
-#paveNum{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:9500;display:flex;gap:6px;
-  background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px;
-  box-shadow:0 6px 24px rgba(0,0,0,.18);max-width:calc(100vw - 12px);overflow-x:auto}
-#paveNum[hidden]{display:none}
+/* LE PAVÉ EST ANCRÉ AU BAS DE L'ÉCRAN, comme le clavier mathématique (demande
+   de Turquet, novembre 2026, sur le 6.1.5 vu d'un téléphone : « le clavier
+   virtuel est trop haut en mode portrait et en mode paysage ; le mettre le
+   plus bas possible, comme la case 2.a », qui est un champ MathLive dont le
+   clavier colle au bord). Il vivait à 96 px du bord — au-dessus des commandes
+   du bas, qui restaient à leur place sous lui — : mesuré sur 390 × 844, le
+   rectangle de quatre rangées et sa rangée de touches supplémentaires
+   finissaient à 748 px et commençaient à 480 ; sur 844 × 390, ses deux
+   rangées flottaient de 184 à 294 px, au MILIEU de l'écran, et une bande de
+   page restait visible dessous. Sur une tablette les 96 px se voyaient
+   peu ; c'est le téléphone qui les a montrés. Il prend désormais le bas sur
+   toute la largeur, dans les deux orientations et sur tout écran tactile —
+   la Seconde et la Première l'y posent déjà —, et les commandes du bas
+   montent en haut tant qu'il est ouvert, comme devant le clavier ancré
+   (règle « body:has(#paveNum:not([hidden])) #testCtrls », plus bas). La
+   réserve du bas (paveCale) se mesure toujours sur le pavé rendu. */
+#paveNum{position:fixed;left:0;right:0;bottom:0;z-index:9500;display:flex;gap:6px;justify-content:center;box-sizing:border-box;
+  background:var(--surface);border:1.5px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -6px 24px rgba(0,0,0,.18);overflow-x:auto}
+/* « !important », et c'est mesuré : la règle du PORTRAIT ÉTROIT ci-dessous
+   (body.pave-actif #paveNum, display:grid) est PLUS SPÉCIFIQUE que celle-ci,
+   si bien que, sur un téléphone debout, le pavé refermé (hidden) restait
+   AFFICHÉ — au-dessus du clavier mathématique quand l'élève passait à un
+   champ MathLive (la 2.a du 6.1.5), et sur l'exercice une fois la case
+   quittée. En paysage, la règle ne pose pas display et le repli marchait :
+   c'est exactement « cette case fonctionne bien en mode paysage mais pas en
+   mode portrait » (Turquet, novembre 2026). Une règle @media ajoutée demain
+   ne peut plus rouvrir ce trou. Le banc navigateur mesure le pavé refermé
+   sur un téléphone, debout et couché, aux trois niveaux. */
+#paveNum[hidden]{display:none !important}
 .pave-t{min-width:44px;height:44px;flex:none;border:1.5px solid var(--grid);border-radius:10px;background:var(--paper);
   color:var(--ink);font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:800;cursor:pointer}
 .pave-t:active{background:var(--blue);color:#fff;border-color:var(--blue)}
@@ -1911,12 +1938,13 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
    Turquet, septembre 2026 : « pour tous les exercices où le clavier est
    représenté sur une ligne, en mode paysage, faire en sorte que le clavier
    soit le plus large possible en fonction de la définition de l'écran »).
-   La Terminale ne range pas ses commandes du bas avec le pavé — elles vivent
-   sous lui, il prend donc toute la largeur — et ses touches GRANDISSENT pour
-   l'occuper (flex), plafonnées à 80 px pour rester des touches et non des
-   barres ; au-delà, la rangée se centre. */
+   La Terminale ne range pas ses commandes du bas avec le pavé — elles
+   montent en haut tant qu'il est ouvert (novembre 2026 ; elles vivaient sous
+   lui jusque-là), il prend donc toute la largeur — et ses touches GRANDISSENT
+   pour l'occuper (flex), plafonnées à 80 px pour rester des touches et non
+   des barres ; au-delà, la rangée se centre. */
 @media (orientation:landscape){
-  body.pave-actif #paveNum{left:8px;right:8px;transform:none;width:auto;max-width:none;
+  body.pave-actif #paveNum{left:0;right:0;transform:none;width:auto;max-width:none;
     overflow:visible;gap:4px;justify-content:center}
   body.pave-actif #paveNum .pave-t{flex:1 1 0;max-width:80px}
 }
@@ -1944,8 +1972,8 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
    d'une case (#paveSup, display:contents) se rangent en rangées de plus,
    sous le rectangle. */
 @media (orientation:portrait) and (max-width:789px){
-  body.pave-actif #paveNum{left:6px;right:6px;transform:none;width:auto;max-width:none;
-    overflow:visible;display:grid;justify-content:center;gap:6px;padding:6px;
+  body.pave-actif #paveNum{left:0;right:0;transform:none;width:auto;max-width:none;
+    overflow:visible;display:grid;justify-content:center;gap:6px;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
     grid-template-columns:repeat(5,minmax(40px,88px));
     grid-template-areas:"s7 s8 s9 eff eff" "s4 s5 s6 moins div" "s1 s2 s3 ent ent" "s0 s0 virg ent ent"}
   body.pave-actif #paveNum .pave-t{min-width:0;width:auto;height:46px}
@@ -1986,6 +2014,10 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
    « pave-actif », qui posent le même « bottom » : à spécificité égale, c'est
    l'ORDRE qui tranche. */
 body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
+/* Et le PAVÉ ouvert prend le bas de la même façon (novembre 2026 : il est
+   ancré au bas de l'écran, sur toute la largeur — voir #paveNum) : les
+   commandes montent, comme en Seconde et en Première. */
+body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 /* Les libellés courts et longs des commandes du bas (portés de la Seconde et
    de la Première) : le long par défaut, le court sur un téléphone. */
 .tc-court{display:none}
@@ -4418,7 +4450,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=472;
+const APP_VERSION=473;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.

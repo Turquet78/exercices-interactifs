@@ -335,6 +335,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **LE CLAVIER ANCRÉ PREND LE BAS, LES COMMANDES MONTENT EN HAUT.**
 - **Là où l'élève rédige en MOTS, le clavier C porte les lettres.** (En Première et en Seconde, où le clavier n'a qu'une couche, c'est le clavier B.)
 - **Sur ordinateur, le clavier à l'écran écrit aussi dans une case de calcul en TEXTE, et « a_n » s'y écrit « aₙ ».** `clavierVersCase` (moteur du pavé) : le clavier flottant ne se replie plus au clic d'une case en texte, ses touches s'y écrivent.
+- **Le pavé des écrans tactiles est ANCRÉ AU BAS de l'écran, aux trois niveaux — et `#paveNum[hidden]` porte `!important`.** En Terminale il flottait à 96 px du bord (au milieu d'un téléphone couché) ; et sur un téléphone debout, une règle `body.pave-actif #paveNum{display:grid}` plus spécifique que `[hidden]{display:none}` le gardait affiché sous le clavier MathLive. Contrôle universel : banc navigateur, « sur un téléphone debout / couché, le pavé est ancré au bas de l'écran… » et « …le pavé refermé disparaît vraiment de l'écran ».
 
 ### Vérification, bancs de test et numérotation des sections
 
