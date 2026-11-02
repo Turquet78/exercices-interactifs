@@ -1332,7 +1332,7 @@ quelle, `chsLigne` sait toujours la lire. Le banc suit : fiche, plan, 17
 cases ; le contrôle « une case juste ne rougit pas pour sa voisine » passe de
 DC + CE à CE + BC (BC bleu, AB rouge, badge CE).
 
-**Puis le calcul en cours s'est DESSINÉ sur la figure, en deux couleurs, et un vecteur égal y prend la place du sien (v629).**
+**Puis le calcul en cours s'est DESSINÉ sur la figure, en deux couleurs, et un vecteur égal y prend la place du sien (v630 — la v629 est prise par #916).**
 La demande (Turquet, novembre 2026, « dans le 8.2.1 », puis précisée « c'est
 le 8.2.2 ») : « faire un calcul à l'écran à chaque fois en affichant les vecteurs
 concernés avec deux couleurs différentes ; quand un élève rentre un vecteur

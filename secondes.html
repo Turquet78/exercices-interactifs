@@ -8850,7 +8850,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=629;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=630;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -14169,8 +14169,8 @@ async function resumeTest(mode){
   else if(!afficherEcranDe(test.kind)){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   if(suite){ test.locked=true; toast('Question déjà corrigée : on passe à la suivante.','ok'); window[suite](); return; }   /* ni les cases ni le verdict ne reviennent : la question est faite */
   restoreBoxes(draft);   // et on recolore les cases déjà complètes
-  try{ vcrMaj(); vejMaj(); }catch(e){}
-  try{ if(test.kind==='chs') chsMontrer(test.chsVu||0); }catch(e){}   // le calcul en cours du 8.2.2 se relit des cases remises   // rouvre la ligne du sens (8.1.13) ou de la justification (8.1.14) qu'ouvrait la saisie remise
+  try{ vcrMaj(); vejMaj(); }catch(e){}   // rouvre la ligne du sens (8.1.13) ou de la justification (8.1.14) qu'ouvrait la saisie remise
+  try{ if(test.kind==='chs') chsMontrer(test.chsVu||0); }catch(e){}   // le calcul en cours du 8.2.2 se relit des cases remises
   try{ updateAStep3(); updateDStep3(); updateVStep3(); }catch(e){}   // réaffiche l'étape facultative si l'étape précédente est déjà écrite
 }
 
