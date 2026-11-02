@@ -1332,6 +1332,39 @@ quelle, `chsLigne` sait toujours la lire. Le banc suit : fiche, plan, 17
 cases ; le contrôle « une case juste ne rougit pas pour sa voisine » passe de
 DC + CE à CE + BC (BC bleu, AB rouge, badge CE).
 
+**Puis le calcul en cours s'est DESSINÉ sur la figure, en deux couleurs, et un vecteur égal y prend la place du sien (v631 — la v629 et la v630 sont prises par #916 et #917).**
+La demande (Turquet, novembre 2026, « dans le 8.2.1 », puis précisée « c'est
+le 8.2.2 ») : « faire un calcul à l'écran à chaque fois en affichant les vecteurs
+concernés avec deux couleurs différentes ; quand un élève rentre un vecteur
+avec des lettres différentes mais qui est égal à un vecteur précédent, sur le
+dessin remplacer le vecteur par le nouveau vecteur ». La ligne où l'élève
+travaille — la case qui a le focus, ou la ligne cliquée, la ligne 1 au
+départ — dessine ses deux vecteurs (`chsMontrer`, la flèche de `tpvFleche`
+dans un calque `.chs-fl` posé par `chsSvg` sous les points) : le premier en
+violet (`--crd-a`), le second en orange (`--crd-b`), les deux encres du 8.2.13
+qui ne sont pas des encres de verdict. La ligne prend le liseré violet du
+8.1.9, ses deux noms donnés prennent les deux encres, et le calcul s'écrit
+sous la figure (« Sur la figure : AB + BC », `#chsCalc`). Les cases, elles,
+ne se colorent pas. **Le remplacement se juge par les vecteurs**
+(`chsCalcul`) : en `u`, le vecteur tapé égal au second prend sa place
+(AB + AD = AB + BC montre BC) ; en `s`, le vecteur égal à l'OPPOSÉ du second
+la prend, et le signe devient « + » (BA − CA = BA + AC montre AC) ; en `c`,
+chaque case du milieu remplace le vecteur qu'elle égale, dans sa couleur, et
+le calcul se lit dans l'ordre de l'élève (CE + BC = BC + CE écrit
+« BC + CE », orange puis violet). Un vecteur qui n'est égal à rien ne
+remplace rien. Rien n'est rangé : le dessin se relit des cases à chaque
+saisie, et la reprise après une pause le redessine (`resumeTest`).
+**Le prix, nommé** : hors soutien, voir un vecteur remplacé dit à l'élève
+qu'il a écrit un vecteur égal avant « Vérifier » — c'est ce qui a été
+demandé ; ni le départ de Chasles ni le résultat ne sont jugés par le dessin.
+Le 8.2.3, le 8.2.11 et les autres qui empruntent `chsSvg` reçoivent un
+calque vide et ne changent pas. Le juge (`tests/verifier.js`, « relation de
+Chasles ») tient le dessin de départ (AE violet, EB orange), la ligne qui
+suit la case, AB + AE qui ne remplace rien, BC, AC (et CA qui ne remplace
+rien), EA + AD, l'ordre BC + CE, et aucune case colorée ; son compte des
+traits de la figure lit désormais `svg > line`, les flèches du calque n'étant
+pas des côtés. Vu dans un vrai Chromium sur la fiche (trois captures).
+
 ## {chasles-trois-vecteurs} — la relation de Chasles jusqu'à trois vecteurs (8.9, v491)
 
 **La demande** (Turquet, octobre 2026) : « en seconde fait un exercice comme
@@ -1387,6 +1420,53 @@ restent bleus, « opposé »), EG écrit pour la somme nulle (« nul »),
 HE + OG + OF (seul OG rouge, badge EO, « part de E »), FH (« sens »),
 OF + EO recopié (« ordre », du 8.8), la case vide (correction EO), la copie
 vide, le soutien, le barème, `qId`, le contexte du modèle.
+
+### Puis UN calcul de trois vecteurs par écran, en trois couleurs (8.2.3, v632)
+
+**La demande** (Turquet, novembre 2026) : « en seconde dans le 8.2.3, faire
+uniquement des calculs avec 3 vecteurs et afficher qu'un seul calcul à
+l'écran à chaque fois en affichant les vecteurs concernés avec trois couleurs
+différentes. Quand un élève rentre un vecteur avec des lettres différentes
+mais qui est égal à un vecteur précédent, sur le dessin remplacer le vecteur
+par le nouveau vecteur. »
+
+**Une question = une figure et UNE ligne à trois vecteurs.** Les lignes à
+deux vecteurs sont parties (le 8.2.2 les fait) ; `CTV_PLAN` tourne sur
+`t, t0, ts`, les trois premiers calculs sont les trois lignes à trois
+vecteurs de la fiche sur EFGHO (`CTV_FICHE_L`), puis d'autres figures.
+`CTV_NB` passe de 2 figures (21 cases) à 6 calculs (4 cases) : la séance
+compte 24 cases au lieu de 42, l'en-tête dit « Calcul k / 6 », le bouton
+« Calcul suivant ». Le juge (`ctvJuge3`) ne change pas d'un octet.
+
+**Les trois couleurs** : `--ctv-c0/c1/c2` (orange, violet, magenta) sur
+`#scr-ctv` — ni bleu, ni rouge, ni vert, les encres des verdicts. Chaque
+terme de l'énoncé a sa couleur (`.ctv-t.ctv-cK`), et sa flèche sur le dessin
+(`line.ctv-v`, calque posé par `chsSvg(q, calque)`, la même mise à l'échelle
+que la figure). Deux flèches posées sur la même droite et qui se
+chevauchent s'écartent de 7 px.
+
+**Le remplacement** (`ctvApparier`) : à chaque frappe (`input`), chaque case
+du milieu dont le vecteur est ÉGAL à un terme — à l'opposé d'un terme
+soustrait, puisque c'est lui qu'on ajoute — prend la place de ce terme sur le
+dessin, dans sa couleur, et la flèche de la case prend la couleur. Les cases
+s'apparient dans l'ordre, un terme ne se remplace qu'une fois ; à
+déplacement égal, le terme écrit avec les MÊMES lettres passe d'abord. Un
+vecteur égal à aucun terme ne remplace rien (FG écrit pour − FG laisse FG).
+Après la vérification, le dessin montre la chaîne retenue : les vecteurs
+justes de l'élève, la correction à la place des autres. Une reprise remet
+les saisies après le rendu : le dessin les relit au tour suivant
+(`setTimeout(ctvDessin, 0)`).
+
+**Un brouillon d'avant** (sept lignes sur une figure) se rejoue tel quel : le
+rendu et le juge lisent encore les lignes à deux vecteurs, sans couleurs.
+
+**Le banc** (`tests/verifier.js`, « Chasles avec trois vecteurs ») : un seul
+calcul et quatre cases à l'écran, trois traits colorés HE, OG, HO et trois
+encres différentes ; EO écrit remplace OG (et la flèche de la case prend sa
+couleur), puis OF remplace HO ; GF, égal à aucun terme de HE + OG + HO, ne
+change rien ; GF remplace FG dans EG − FG − OF ; la frappe met le dessin à
+jour par `input` ; après la correction, le dessin montre EG, GF, FO ; un
+ancien brouillon se rejoue ; puis les pièges d'avant, calcul par calcul.
 
 ## {chasles-simplifier} — écrire plus simplement une somme de vecteurs (8.10, v492)
 
