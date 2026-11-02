@@ -8836,7 +8836,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=628;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=629;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9428,7 +9428,7 @@ const GENRE_DEVOIRS={
      impos\u00E9, la diff\u00E9rence vit ICI et nulle part ailleurs. */
   fiche:{ cle:'fiches',  titre:'Fiches de travail en classe', badge:'Fiche',  vide:'Aucune fiche de travail pour l\u2019instant.',
           defTitre:'Fiche de travail en classe', ouvrir:'Ouvrir la fiche \u2192', note:'Note de la fiche', ajouter:'\uFF0B Nouvelle fiche', familleProf:'Mes fiches de travail en classe',
-          ordre:true, sur20:true },
+          ordre:true, sur20:true, abs:true },
   /* LES FICHES SNT (demande de Turquet, octobre 2026) : une troisième famille,
      « comme pour une fiche de travail mais pour la partie SNT ». Mêmes règles
      que les fiches — ordre imposé, note sur 20 — et sa PROPRE clé de
@@ -9436,7 +9436,7 @@ const GENRE_DEVOIRS={
      travail ne la voient. */
   snt:  { cle:'snt',     titre:'SNT — Sciences Numériques et Technologie', badge:'Fiche SNT', vide:'Aucune fiche SNT pour l’instant.',
           defTitre:'Fiche SNT', ouvrir:'Ouvrir la fiche →', note:'Note de la fiche', ajouter:'＋ Nouvelle fiche SNT', familleProf:'Mes fiches SNT',
-          onglet:'SNT', ordre:true, sur20:true }
+          onglet:'SNT', ordre:true, sur20:true, abs:true }
 };
 /* Les mots qui changent avec le GENRE grammatical de la famille, et le préfixe
    de l'identifiant : « dm_ » pour un devoir, « fc_ » pour une fiche de travail,
@@ -24761,6 +24761,19 @@ function dmMoyennes(devoirs, eleves, rows){
    « typeof » plutôt qu'une liste par niveau, pour que ce texte reste le même
    dans les trois fichiers. La troisième famille, « snt », n'existe qu'en
    Seconde : sa ligne est inerte ailleurs, et le texte reste le même. */
+/* « abs » À LA PLACE DU ZÉRO (demande de Turquet, novembre 2026) : dans les
+   familles qui portent « abs:true » — les fiches de travail en classe et les
+   fiches SNT, en Seconde et en Première —, une note nulle (fiche pas faite,
+   ou faite pour 0) s'écrit « abs » dans le tableau des moyennes, le fichier
+   CSV et le bilan de la fiche. C'est un MOT, pas un calcul : la moyenne de
+   l'élève compte toujours ce 0. La différence vit dans GENRE_DEVOIRS ; ce
+   texte reste le même dans les trois fichiers (la Terminale n'a aucune
+   famille « abs », et sa ligne y est inerte). */
+function dmAbs(fait, note){
+  const g=(typeof GENRE_DEVOIRS!=='undefined' && typeof dmGenre!=='undefined') ? GENRE_DEVOIRS[dmGenre] : null;
+  return !!(g && g.abs) && (!fait || !(note>0));
+}
+
 function dmMoyFamille(){
   if(typeof dmGenre!=='undefined' && dmGenre==='snt')
     return { pluriel:'fiches SNT', singulier:'fiche', accord:'e', fichier:'fiches-snt' };
@@ -24784,6 +24797,8 @@ function dmMoyennesHTML(b){
       : '<th title="'+esc(d.titre||'')+'">n°'+esc(String(d.num))+'</th>'; }).join('');
   const corps=b.lignes.map(function(l){
     const tds=l.cases.map(function(c){
+      if(dmAbs(c.fait, c.sur20))
+        return '<td><span class="dm-zero dm-abs" title="Note nulle — compte 0 dans la moyenne">abs</span></td>';
       return c.fait
         ? '<td><span class="badge '+pctClass(Math.round(c.sur20/20*100))+'">'+fmtNote(c.sur20)+'</span></td>'
         : '<td><span class="dm-zero" title="Pas encore fait — compte 0 dans la moyenne">0</span></td>';
@@ -24836,7 +24851,7 @@ function dmMoyennesCSV(){
     .concat(['Moyenne / 20', F.pluriel.charAt(0).toUpperCase()+F.pluriel.slice(1)+' faits']) ];
   b.lignes.forEach(function(l){
     lignes.push([l.eleve.prenom]
-      .concat(l.cases.map(function(c){ return fmtNote(c.sur20); }))
+      .concat(l.cases.map(function(c){ return dmAbs(c.fait, c.sur20) ? 'abs' : fmtNote(c.sur20); }))
       .concat([l.moyenne==null?'':fmtNote(l.moyenne), l.nbFaits+' / '+b.colonnes.length]));
   });
   lignes.push(['Moyenne de la classe']
@@ -24960,7 +24975,7 @@ async function renderDevoirResultats(){
     const surAff=dmNoteAff(dmGenre,0,totMax).sur;
     // 1) Bilan de la classe (tableau récapitulatif par élève)
     const bilanRows=synth.map(x=>{
-      const nb=x.fait?`<span class="dm-note">${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}</span>`:`<span class="dm-note none">— / ${surAff}</span>`;
+      const nb=dmAbs(x.fait,x.somme)?`<span class="dm-note none dm-abs">abs</span>`:x.fait?`<span class="dm-note">${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}</span>`:`<span class="dm-note none">— / ${surAff}</span>`;
       const prog=x.nbFait===exos.length?`<b>${x.nbFait} / ${exos.length}</b>`:`<span class="muted">${x.nbFait} / ${exos.length}</span>`;
       return `<tr><td class="name">${esc(x.e.prenom)}</td><td>${nb}</td><td>${prog}</td></tr>`;
     });
@@ -24994,7 +25009,7 @@ async function renderDevoirResultats(){
           + `<span class="dm-sur">/10</span></span>`;
         return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${obtenu}${nb}${champ}</span></div>`;
       }).join('');
-      const totLbl=x.fait?`Note : ${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}`:`Note : — / ${surAff}`;
+      const totLbl=dmAbs(x.fait,x.somme)?'Note : abs':x.fait?`Note : ${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}`:`Note : — / ${surAff}`;
       return `<div class="dm-rescard"><div class="dm-resname">${esc(x.e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
     }).join('');
     /* les cartes se rangent en colonnes, elles aussi — la grille de la page */

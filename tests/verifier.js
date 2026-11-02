@@ -3405,7 +3405,7 @@ function branchements(w){
      exercices par exercicesDevoir(), la Terminale ajoute la note POSÉE par le
      professeur — et renderDmMoyennes(), qui nomme les tables du niveau. Les
      nommer est ce qui empêche la liste de se vider en silence. */
-  const MOTEUR_MOYENNES = ['dmMeilleur','dmMoyennes','dmMoyFamille','dmMoyennesHTML',
+  const MOTEUR_MOYENNES = ['dmMeilleur','dmMoyennes','dmAbs','dmMoyFamille','dmMoyennesHTML',
                            'csvTelecharger','dmMoyennesCSV','dmEnColonnes'];
   if(src.indexOf('function dmMoyennes(') >= 0){
     const absentes = MOTEUR_MOYENNES.filter(n => corpsDe(src, n) === null);
@@ -28577,6 +28577,51 @@ function moyennesDevoirs(w, apres){
      dmAdminList) : on la LIT dans la page plutôt que de la recopier ici — une
      liste recopiée aurait fini par désigner une variable morte, et le contrôle
      aurait mesuré un tableau vide en passant au vert. */
+  /* « abs » À LA PLACE DU ZÉRO — fiches de travail et fiches SNT, en Seconde
+     et en Première (demande de Turquet, novembre 2026). Une ligne à trois
+     cases : faite et notée, faite pour 0, pas faite. Le tableau et le fichier
+     doivent écrire « abs » pour les deux dernières dans une fiche, et 0 dans
+     un devoir ; la Terminale n'a aucune famille « abs ». La moyenne, elle,
+     ne bouge pas : le 0 compte toujours. */
+  const abs = evaluer(w, `(function(){
+    const garde=dmGenre, vraiDernier=dmMoyDernier, vraiBlob=window.Blob,
+          vraiCreate=window.URL.createObjectURL, vraiRevoke=window.URL.revokeObjectURL;
+    const out={};
+    try{
+      const b={ colonnes:[{id:'x1',num:1,titre:'Un'},{id:'x2',num:2,titre:'Deux'},{id:'x3',num:3,titre:'Trois'}],
+        lignes:[{eleve:{id:'e',prenom:'Émile'}, nbFaits:2, moyenne:4,
+          cases:[{sur20:12,fait:true},{sur20:0,fait:true},{sur20:0,fait:false}]}],
+        moyClasse:[12,0,0], moyGenerale:4 };
+      let capture=null;
+      window.Blob=function(p,o){ capture=p.join(''); return new vraiBlob(p,o); };
+      window.URL.createObjectURL=function(){ return 'blob:controle'; };
+      window.URL.revokeObjectURL=function(){};
+      ['dm','fiche','snt'].forEach(function(g){
+        if(!Object.prototype.hasOwnProperty.call(GENRE_DEVOIRS,g)) return;
+        dmGenre=g;
+        const div=document.createElement('div'); div.innerHTML=dmMoyennesHTML(b);
+        const tds=[].slice.call(div.querySelectorAll('tbody tr')[0].querySelectorAll('td')).map(function(t){return t.textContent.trim();});
+        dmMoyDernier=b; capture=null; dmMoyennesCSV();
+        const csv=String(capture||'').replace(/^\\uFEFF/,'').split('\\r\\n')[1]||'';
+        out[g]=tds.slice(1,4).join('|')+' ; csv '+csv.split(';').slice(1,4).join('|').replace(/"/g,'')+' ; moy '+tds[4];
+      });
+    } finally {
+      dmGenre=garde; dmMoyDernier=vraiDernier; window.Blob=vraiBlob;
+      window.URL.createObjectURL=vraiCreate; window.URL.revokeObjectURL=vraiRevoke;
+    }
+    return out;
+  })()`);
+  {
+    const o = abs.ok ? (abs.valeur || {}) : {};
+    const souci = abs.ok ? '' : 'erreur JavaScript : ' + abs.erreur;
+    const zero = '12|0|0 ; csv 12|0|0 ; moy 4';
+    const absent = '12|abs|abs ; csv 12|abs|abs ; moy 4';
+    const attendu = { dm: zero, fiche: CIBLE === 'terminale.html' ? zero : absent, snt: absent };
+    const ecarts = Object.keys(o).filter(g => o[g] !== attendu[g]).map(g => g + ' → ' + o[g] + ' (attendu ' + attendu[g] + ')');
+    verifier('une note nulle s’écrit « abs » dans les fiches (Seconde, Première), 0 dans un devoir — et la moyenne compte toujours 0',
+      abs.ok && Object.keys(o).length >= 2 && !ecarts.length,
+      souci || (Object.keys(o).length < 2 ? 'aucune famille mesurée : le contrôle ne mesure rien' : ecarts.join(' ; ')));
+  }
   const src = lire(CIBLE);
   const LISTE = (src.match(/dmMoyDernier\s*=\s*dmMoyennes\(\s*([A-Za-z_$][\w$]*)\s*,/) || [])[1];
   if(!LISTE){

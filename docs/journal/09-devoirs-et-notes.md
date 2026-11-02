@@ -1705,3 +1705,20 @@ fiches (`fichesDeTravail`, banc principal) tient l'ordre (bord « 0 ter ») et
 la famille SNT (« 3 bis » : la carte, la page qui ne montre qu'elle, le titre
 retrouvé par l'identifiant, l'enregistrement qui ne touche ni `fiches` ni
 `devoirs`) ; le profil de la Seconde la déclare (`snt`).
+
+**« abs » à la place du zéro — fiches de travail et fiches SNT, en Seconde
+et en Première.** Demande de Turquet, novembre 2026 : « en seconde et
+première mettre abs si la note vaut zéro pour les fiches de travail et les
+fiches de SNT ». C'est un drapeau de plus dans `GENRE_DEVOIRS` (`abs:true`
+sur `fiche` et `snt`), lu par `dmAbs(fait, note)` — une fonction du moteur
+des moyennes, donc le MÊME TEXTE dans les trois fichiers (ajoutée à
+`MOTEUR_MOYENNES`) ; la Terminale, dont les « fiches » sont les travaux
+facultatifs, ne porte pas le drapeau et sa ligne y est inerte. Une note
+nulle — fiche pas faite, ou faite pour 0 — s'écrit « abs » dans le tableau
+des moyennes, dans son fichier CSV et dans le bilan de la fiche (et, en
+Seconde, sur la carte de l'élève). C'est un MOT, pas un calcul : la moyenne
+compte toujours ce 0, la décision du zéro n'a pas bougé. Un devoir à la
+maison garde son 0. Contrôle (banc principal, `moyennesDevoirs`) : une ligne
+à trois cases — 12, 0 fait, rien — doit se lire « 12|abs|abs » dans une
+fiche, « 12|0|0 » dans un devoir, au tableau comme au fichier, moyenne 4
+dans les deux cas.

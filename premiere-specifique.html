@@ -3185,7 +3185,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=360;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=361;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3865,7 +3865,7 @@ const GENRE_DEVOIRS={
      impos\u00E9, la diff\u00E9rence vit ICI et nulle part ailleurs. */
   fiche:{ cle:'fiches',  titre:'Fiches de travail en classe', badge:'Fiche',  vide:'Aucune fiche de travail pour l\u2019instant.',
           defTitre:'Fiche de travail en classe', ouvrir:'Ouvrir la fiche \u2192', note:'Note de la fiche', ajouter:'\uFF0B Nouvelle fiche', familleProf:'Mes fiches de travail en classe',
-          ordre:true, sur20:true }
+          ordre:true, sur20:true, abs:true }
 };
 /* LA NOTE AFFICH\u00C9E d'un devoir ou d'une fiche : les points bruts pour un
    devoir (\u00AB 12 / 30 \u00BB), la note RAMEN\u00C9E proportionnellement sur 20 pour une
@@ -22080,6 +22080,19 @@ function dmMoyennes(devoirs, eleves, rows){
    Première, travaux facultatifs en Terminale — ce sont des fiches aussi) :
    « typeof » plutôt qu'une liste par niveau, pour que ce texte reste le même
    dans les trois fichiers. */
+/* « abs » À LA PLACE DU ZÉRO (demande de Turquet, novembre 2026) : dans les
+   familles qui portent « abs:true » — les fiches de travail en classe et les
+   fiches SNT, en Seconde et en Première —, une note nulle (fiche pas faite,
+   ou faite pour 0) s'écrit « abs » dans le tableau des moyennes, le fichier
+   CSV et le bilan de la fiche. C'est un MOT, pas un calcul : la moyenne de
+   l'élève compte toujours ce 0. La différence vit dans GENRE_DEVOIRS ; ce
+   texte reste le même dans les trois fichiers (la Terminale n'a aucune
+   famille « abs », et sa ligne y est inerte). */
+function dmAbs(fait, note){
+  const g=(typeof GENRE_DEVOIRS!=='undefined' && typeof dmGenre!=='undefined') ? GENRE_DEVOIRS[dmGenre] : null;
+  return !!(g && g.abs) && (!fait || !(note>0));
+}
+
 function dmMoyFamille(){
   if(typeof dmGenre!=='undefined' && dmGenre==='snt')
     return { pluriel:'fiches SNT', singulier:'fiche', accord:'e', fichier:'fiches-snt' };
@@ -22103,6 +22116,8 @@ function dmMoyennesHTML(b){
       : '<th title="'+esc(d.titre||'')+'">n°'+esc(String(d.num))+'</th>'; }).join('');
   const corps=b.lignes.map(function(l){
     const tds=l.cases.map(function(c){
+      if(dmAbs(c.fait, c.sur20))
+        return '<td><span class="dm-zero dm-abs" title="Note nulle — compte 0 dans la moyenne">abs</span></td>';
       return c.fait
         ? '<td><span class="badge '+pctClass(Math.round(c.sur20/20*100))+'">'+fmtNote(c.sur20)+'</span></td>'
         : '<td><span class="dm-zero" title="Pas encore fait — compte 0 dans la moyenne">0</span></td>';
@@ -22155,7 +22170,7 @@ function dmMoyennesCSV(){
     .concat(['Moyenne / 20', F.pluriel.charAt(0).toUpperCase()+F.pluriel.slice(1)+' faits']) ];
   b.lignes.forEach(function(l){
     lignes.push([l.eleve.prenom]
-      .concat(l.cases.map(function(c){ return fmtNote(c.sur20); }))
+      .concat(l.cases.map(function(c){ return dmAbs(c.fait, c.sur20) ? 'abs' : fmtNote(c.sur20); }))
       .concat([l.moyenne==null?'':fmtNote(l.moyenne), l.nbFaits+' / '+b.colonnes.length]));
   });
   lignes.push(['Moyenne de la classe']
@@ -22285,7 +22300,7 @@ async function renderDmResults(){
       const n=dmNoteDevoir(d, e.id, rows||[]);
       const faits=n.nbFait, started=n.fait, somme=n.somme;
       if(started){ sommeClasse+=somme; nbActifs++; }
-      const badge=started?`<span class="badge ${pctClass(Math.round(somme/totMax*100))}">${fmtNote(dmNoteAff(dmGenre,somme,totMax).note)} / ${surAff}</span>`:`<span class="badge">— / ${surAff}</span>`;
+      const badge=dmAbs(started,somme)?`<span class="badge dm-abs">abs</span>`:started?`<span class="badge ${pctClass(Math.round(somme/totMax*100))}">${fmtNote(dmNoteAff(dmGenre,somme,totMax).note)} / ${surAff}</span>`:`<span class="badge">— / ${surAff}</span>`;
       return `<tr class="clickable" onclick="dmStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${badge}</td><td>${faits} / ${liste.length}</td></tr>`;
     });
     const moy=nbActifs?fmtNote(dmNoteAff(dmGenre,sommeClasse/nbActifs,totMax).note):'—';
