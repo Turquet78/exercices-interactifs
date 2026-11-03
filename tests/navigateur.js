@@ -3834,8 +3834,24 @@ if(require.main === module) (async () => {
           rognees: [].slice.call(tbl.querySelectorAll('td, th'))
             .filter(c => c.scrollWidth > c.clientWidth + 1)
             .map(c => c.textContent.trim() || '(vide)').slice(0, 4),
+          /* les six premiers devoirs d'Émile (10 / 20 au n°1) et de Zoé (rien) */
+          ligne: [].slice.call(tbl.querySelectorAll('tbody tr')).reduce((o, tr) => {
+            const td = [].slice.call(tr.querySelectorAll('td')).map(t => t.textContent.trim());
+            o[td[0]] = td.slice(1, 7).join('|'); return o; }, {}),
         };
       });
+      /* « nn » — NON NOTÉ — aux devoirs n°1, 2, 3 et 5 de la Seconde (demande
+         de Turquet, novembre 2026) : sous 10 / 20, pas fait compris. 10 tout
+         juste reste une note. Ailleurs, un devoir pas fait s'écrit 0. */
+      {
+        const L = vu.ligne || {};
+        const zoe = CIBLE === 'secondes.html' ? 'nn|nn|nn|0|nn|0' : '0|0|0|0|0|0';
+        const emile = CIBLE === 'secondes.html' ? '10|nn|nn|0|nn|0' : '10|0|0|0|0|0';
+        verifier('« nn » sous 10 / 20 aux devoirs n°1, 2, 3, 5 de la Seconde, 0 ailleurs — au tableau du professeur',
+          vu.rendu === true && L['Zoé'] === zoe && L['Émile'] === emile,
+          !vu.rendu ? 'aucun tableau rendu'
+                    : 'Zoé : ' + L['Zoé'] + ' (attendu ' + zoe + ') — Émile : ' + L['Émile'] + ' (attendu ' + emile + ')');
+      }
       verifier('le carnet range les devoirs par numéro et les élèves par ordre alphabétique',
         vu.rendu === true && /^Élève\|n°1\|n°2\|/.test(String(vu.colonnes || ''))
           && vu.eleves === 'alice,Émile,Zoé,Moyenne de la classe',

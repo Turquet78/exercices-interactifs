@@ -8927,7 +8927,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=636;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=637;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9507,7 +9507,12 @@ function newDevoirId(genre){ return genreDevoir(genre).prefixe+Date.now().toStri
    et nulle part ailleurs — deux moteurs auraient fini par diverger. */
 const GENRE_DEVOIRS={
   dm:   { cle:'devoirs', titre:'Devoirs à la maison',         badge:'Devoir', vide:'Aucun devoir à la maison pour l\u2019instant.',
-          defTitre:'Devoir à la maison',        ouvrir:'Ouvrir le devoir \u2192', note:'Note du devoir',   ajouter:'\uFF0B Nouveau devoir',  familleProf:'Mes devoirs à la maison' },
+          defTitre:'Devoir à la maison',        ouvrir:'Ouvrir le devoir \u2192', note:'Note du devoir',   ajouter:'\uFF0B Nouveau devoir',  familleProf:'Mes devoirs à la maison',
+          /* « nn » (non noté) : aux devoirs n°1, 2, 3 et 5, une note sous
+             10 / 20 — 0 compris, devoir pas fait compris — s'écrit « nn » et
+             ne compte pas dans la moyenne (demande de Turquet, novembre
+             2026). Lu par dmAbs(). */
+          nn:{ nums:[1,2,3,5], seuil:10 } },
   /* « ordre:true » : les exercices de cette famille se font DANS L'ORDRE écrit
      par le professeur — un exercice est verrouillé tant que le précédent n'est
      pas fait (demande de Turquet, août 2026, pour les fiches de travail en
@@ -24965,7 +24970,7 @@ function dmMoyennes(devoirs, eleves, rows){
         /* « abs » NE COMPTE PAS (demande de Turquet, novembre 2026) : dans
            une famille « abs », une note nulle sort de la moyenne au lieu d'y
            compter 0. Ailleurs, NON FAIT = 0 : sa somme vaut 0. */
-        const abs=dmAbs(n.fait, sur20);
+        const abs=dmAbs(n.fait, sur20, d);
         if(!abs){ total += sur20; nbComptes++; }
         return { sur20:sur20, fait:n.fait, abs:abs, somme:n.somme, totMax:n.totMax,
                  nbFait:n.nbFait, nbExos:n.nbExos };
@@ -25003,9 +25008,26 @@ function dmMoyennes(devoirs, eleves, rows){
    l'élève compte toujours ce 0. La différence vit dans GENRE_DEVOIRS ; ce
    texte reste le même dans les trois fichiers (la Terminale n'a aucune
    famille « abs », et sa ligne y est inerte). */
-function dmAbs(fait, note){
+/* « nn » — NON NOTÉ (demande de Turquet, novembre 2026) : une famille qui
+   porte « nn:{nums:[…], seuil:10} » écrit « nn » à la place d'une note SUR 20
+   inférieure au seuil (0 compris, devoir pas fait compris) pour les devoirs
+   de ces numéros-là, et cette note SORT de la moyenne, comme « abs ». Il faut
+   alors le devoir (son numéro) et la note SUR 20 — jamais les points bruts.
+   dmAbs rend le MOT à écrire, ou '' : « abs », « nn », ou rien. */
+function dmAbs(fait, note, dev){
   const g=(typeof GENRE_DEVOIRS!=='undefined' && typeof dmGenre!=='undefined') ? GENRE_DEVOIRS[dmGenre] : null;
-  return !!(g && g.abs) && (!fait || !(note>0));
+  if(!g) return '';
+  if(g.abs && (!fait || !(note>0))) return 'abs';
+  if(g.nn && dev && g.nn.nums.indexOf(Number(dev.num))>=0 && (!fait || !(note>=g.nn.seuil))) return 'nn';
+  return '';
+}
+/* La phrase qui dit au professeur quels devoirs s'écrivent « nn ». */
+function dmNnPhrase(){
+  const g=(typeof GENRE_DEVOIRS!=='undefined' && typeof dmGenre!=='undefined') ? GENRE_DEVOIRS[dmGenre] : null;
+  if(!g || !g.nn) return '';
+  const n=g.nn.nums.slice();
+  const liste=n.length>1 ? n.slice(0,-1).join(', ')+' et '+n[n.length-1] : String(n[0]);
+  return 'Pour les devoirs n°'+liste+', une note sous '+g.nn.seuil+' / 20 (0 compris, ou devoir pas fait) s’écrit <b>nn</b> (non noté) et ne compte pas dans la moyenne. ';
 }
 
 function dmMoyFamille(){
@@ -25031,7 +25053,9 @@ function dmMoyennesHTML(b){
       : '<th title="'+esc(d.titre||'')+'">n°'+esc(String(d.num))+'</th>'; }).join('');
   const corps=b.lignes.map(function(l){
     const tds=l.cases.map(function(c){
-      if(dmAbs(c.fait, c.sur20))
+      if(c.abs==='nn')
+        return '<td><span class="dm-zero dm-abs" title="Non noté — ne compte pas dans la moyenne">nn</span></td>';
+      if(c.abs)
         return '<td><span class="dm-zero dm-abs" title="Note nulle — ne compte pas dans la moyenne">abs</span></td>';
       return c.fait
         ? '<td><span class="badge '+pctClass(Math.round(c.sur20/20*100))+'">'+fmtNote(c.sur20)+'</span></td>'
@@ -25051,6 +25075,7 @@ function dmMoyennesHTML(b){
     +(dmAbs(false,0)
       ? ' pas encore fait'+F.accord+', ou noté'+F.accord+' 0, s’écrit <b>abs</b> et ne compte pas dans la moyenne — la colonne « faits » dit combien ont été rendus. '
       : ' pas encore fait'+F.accord+' compte <b>0</b> — la colonne « faits » dit combien ont été rendus. ')
+    +dmNnPhrase()
     +'Un'+F.accord+' '+F.singulier+' entre dans le tableau dès qu’il est affiché aux élèves, '
     +'ou dès qu’un élève y a une note.</p>'
     +'<div class="dm-moywrap"><table class="tbl"><thead><tr><th>Élève</th>'+th
@@ -25087,7 +25112,7 @@ function dmMoyennesCSV(){
     .concat(['Moyenne / 20', F.pluriel.charAt(0).toUpperCase()+F.pluriel.slice(1)+' faits']) ];
   b.lignes.forEach(function(l){
     lignes.push([l.eleve.prenom]
-      .concat(l.cases.map(function(c){ return dmAbs(c.fait, c.sur20) ? 'abs' : fmtNote(c.sur20); }))
+      .concat(l.cases.map(function(c){ return c.abs || fmtNote(c.sur20); }))
       .concat([l.moyenne==null?'':fmtNote(l.moyenne), l.nbFaits+' / '+b.colonnes.length]));
   });
   lignes.push(['Moyenne de la classe']
@@ -25203,7 +25228,9 @@ async function renderDevoirResultats(){
       return { e:e, somme:n.somme, nbFait:n.nbFait, exd:n.exd, fait:n.fait };
     });
     const totMax=dmTotal(exos.map(ex=>({note:0,fait:false,bonus:dmEstBonus(ex)}))).totMax;
-    const actifs=synth.filter(x=>x.fait && !dmAbs(x.fait,x.somme));   /* les « abs » ne comptent pas */
+    /* le mot d'une note (« abs », « nn ») se juge SUR 20 : « nn » a un seuil */
+    const motDe=x=>dmAbs(x.fait, totMax>0?x.somme/totMax*20:0, dev);
+    const actifs=synth.filter(x=>x.fait && !motDe(x));   /* les « abs » et les « nn » ne comptent pas */
     const moy=actifs.length? actifs.reduce((a,x)=>a+x.somme,0)/actifs.length : null;
     /* la note d'une fiche s'AFFICHE sur 20 — même entonnoir que l'écran de
        l'élève ; le pourcentage du badge, lui, est invariant par la conversion
@@ -25211,7 +25238,7 @@ async function renderDevoirResultats(){
     const surAff=dmNoteAff(dmGenre,0,totMax).sur;
     // 1) Bilan de la classe (tableau récapitulatif par élève)
     const bilanRows=synth.map(x=>{
-      const nb=dmAbs(x.fait,x.somme)?`<span class="dm-note none dm-abs">abs</span>`:x.fait?`<span class="dm-note">${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}</span>`:`<span class="dm-note none">— / ${surAff}</span>`;
+      const nb=motDe(x)?`<span class="dm-note none dm-abs">${motDe(x)}</span>`:x.fait?`<span class="dm-note">${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}</span>`:`<span class="dm-note none">— / ${surAff}</span>`;
       const prog=x.nbFait===exos.length?`<b>${x.nbFait} / ${exos.length}</b>`:`<span class="muted">${x.nbFait} / ${exos.length}</span>`;
       return `<tr><td class="name">${esc(x.e.prenom)}</td><td>${nb}</td><td>${prog}</td></tr>`;
     });
@@ -25245,7 +25272,7 @@ async function renderDevoirResultats(){
           + `<span class="dm-sur">/10</span></span>`;
         return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${obtenu}${nb}${champ}</span></div>`;
       }).join('');
-      const totLbl=dmAbs(x.fait,x.somme)?'Note : abs':x.fait?`Note : ${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}`:`Note : — / ${surAff}`;
+      const totLbl=motDe(x)?'Note : '+motDe(x):x.fait?`Note : ${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}`:`Note : — / ${surAff}`;
       return `<div class="dm-rescard"><div class="dm-resname">${esc(x.e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
     }).join('');
     /* les cartes se rangent en colonnes, elles aussi — la grille de la page */
