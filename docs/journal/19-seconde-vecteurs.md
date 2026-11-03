@@ -4080,6 +4080,59 @@ navigateur), et un glisser qui part HORS de la figure, dans l'énoncé, pour
 finir dedans — la sélection y est légitime, et ne colore plus les
 étiquettes depuis la règle.
 
+**Le point de départ était SOUS la prise de u⃗ (v636 — la v635 prise le même jour par le bleu des étiquettes, ci-dessus).** Le constat
+(Turquet, en classe, novembre 2026) : « quand les élèves ont placé les trois
+vecteurs correctement et que l'on clique sur le point de départ du vecteur
+somme, très souvent on sélectionne un vecteur au lieu de placer le point ».
+La cause est dans la géométrie du geste, pas dans le juge : la chaîne faite,
+le départ de la première flèche est posé sur le point, et sa prise — un
+trait transparent de 22 unités de large, qui court tout le long de la
+flèche — recouvre le nœud. Le clic y tombe donc TOUJOURS. L'appui sans
+mouvement posait bien le point (le banc navigateur le cliquait « à travers
+la prise de u⃗ ») ; mais dès qu'un clic glissait d'un tiers de carreau —
+une main qui bouge en cliquant, un pavé tactile, un élève qui part déjà
+vers l'arrivée —, c'était un glisser : u⃗ partait d'un carreau, la chaîne
+se défaisait, l'étape 1 rebleuissait, et rien n'était posé. Les élèves
+disaient « on sélectionne un vecteur ».
+
+Trois choses ont changé, dans le moteur `stv` seul :
+- **La chaîne faite, plus aucune prise** (`stvDessinerFleches` relit
+  `stvEtape1`, comme elle relisait déjà `stvFigeCh` en soutien) : le
+  quadrillage sert alors à tracer la somme, le curseur ne prend plus la main
+  qui saisit, le survol ne bleuit plus la flèche. Défaite — ce qu'on ne peut
+  plus faire à la souris, mais que le banc fait par `stvDeplacer` —, les
+  prises reviennent. L'étape 1 marquée faite est la chaîne JUSTE : il n'y a
+  plus rien à déplacer, et refaire la chaîne dans un autre ordre donnerait la
+  même chose.
+- **La somme se trace aussi d'un seul trait** (`stvGlisseDebut`,
+  `stvGlisseFin`) : à l'étape 2, à la souris ou au stylet, un appui sur le
+  quadrillage qui glisse d'un demi-carreau pose le début au nœud de l'appui,
+  le relâchement pose la fin au nœud le plus proche — le geste de l'élève
+  qui « dessine » la flèche, qui jusque-là posait le début À L'ARRIVÉE (le
+  clic naît au relâchement) puis traçait la somme à l'envers. Sans mouvement,
+  le clic pose comme avant ; relâcher sur le début laisse le début seul ; au
+  doigt, la barre « Je place » garde la main. Pour que le clic qui suit le
+  relâchement ne pose pas une seconde fois, les nœuds et les zones du
+  quadrillage n'ont plus d'`onclick` en ligne : le seul écouteur de clic
+  est celui de l'hôte, qui connaît `apresPrise`.
+- **Le glisser s'arrête quand la chaîne se fait sous la main** : la troisième
+  flèche posée à sa place, un dépassement du même geste ne l'emporte plus (ses
+  prises ont disparu, le pointeur ne tient plus rien).
+
+**Les bancs.** Le banc principal : la chaîne faite, aucune prise et aucun
+`onclick` en ligne ; l'appui glissé pose le début et remplace le tracé en
+cours, relâcher sur le début ne pose rien, le relâchement pose la fin, une
+somme complète ne se prolonge pas ; la chaîne défaite, les prises
+reviennent ; pendant l'étape 1, l'appui glissé ne pose rien. Le banc
+navigateur (« 6 quadragies decies ») fait les gestes à la souris : un appui
+sur A qui glisse d'un tiers de carreau pose le début et u⃗ ne bouge pas ;
+la somme glissée d'un trait de A à la fin de w⃗ se trace ; un appui glissé
+depuis le milieu de u⃗ ne le déplace pas et va de nœud à nœud ; w⃗ glissé
+jusqu'à sa place puis deux carreaux plus loin sans lâcher y reste ; pendant
+l'étape 1, un appui glissé ne pose rien. Ce qu'aucun banc ne voit : le
+stylet (même chemin que la souris, jamais joué), et la main réelle d'un
+élève sur un pavé tactile — ce qui a motivé le changement.
+
 ## {vecteurs-criteres} et {vecteurs-egaux-justifier} — comparer deux vecteurs, puis égaux ou pas et pourquoi (8.1.13 et 8.1.14, v575 — v572 à v574 prises pendant les bancs par le 8.2.16, le 8.2.17 et le sous-thème 8.3)
 
 **La demande** (Turquet, octobre 2026) : « créer un exercice dans égalité
