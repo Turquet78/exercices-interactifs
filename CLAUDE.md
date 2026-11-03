@@ -195,6 +195,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Puis l'élève EFFACE la réponse lue — « J'ai lu », et la conséquence assumée de la 008 tombe.** Migration 011 : DELETE de sa ligne répondue, et sur le stockage `remove()` exige aussi la LECTURE.
 - **Le professeur revient aux signalements, à la hauteur où il les avait quittés.**
 - **La case où l'élève ÉCRIT ne se colore pas.**
+- **Puis la case ROUGE que l'élève modifie a PERDU SON ROUGE à la première frappe.** Levée sur « input », rien de retenu, le garde réarmé (`gardeLeverRouge`) ; une case déjà juste se re-juge toujours sous les doigts.
 - **La case rouge propose de COMPRENDRE l'erreur — et l'explication ne part que sur un clic.**
 - **Puis la bulle est venue À CÔTÉ de la case, une flèche pointée sur elle.**
 - **Puis la bulle GLISSE, et se RESSERRE plutôt que de retourner au coin.**

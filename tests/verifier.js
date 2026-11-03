@@ -28100,8 +28100,11 @@ function repondreSignalementCtrl(w, apres){
    Six bords, chacun silencieux :
    — pendant la frappe, aucune couleur ;
    — en sortant, la couleur arrive — sans elle le soutien ne corrigerait plus rien ;
-   — une case DÉJÀ jugée se re-juge à la frappe, sinon l'élève qui corrige son
-     rouge devrait cliquer ailleurs pour savoir s'il a réussi ;
+   — une case déjà JUSTE se re-juge à la frappe ; une case déjà ROUGE perd son
+     rouge à la PREMIÈRE frappe (décision de Turquet, novembre 2026) — la couleur
+     calculée est retenue et revient à la sortie —, même quand personne ne la
+     rejuge (rien n'est alors reposé), et même si le garde avait rendu la main
+     parce que le verdict était arrivé sous un curseur qui attendait ;
    — la couleur différée SE PÉRIME : vider la case l'emporte, sinon on reposerait
      en sortant un verdict qui ne correspond plus à ce qui est écrit ;
    — la VÉRIFICATION passe outre : elle ne naît pas d'une frappe ;
@@ -28190,9 +28193,41 @@ function gardeSaisie(w, apres){
       await sortir();
       bilan.sortie=classes();
 
-      /* 3. une case DÉJÀ jugée se re-juge sous les doigts */
+      /* 3. une case ROUGE que l'élève modifie perd son rouge à la première
+         frappe (Turquet, novembre 2026) : rien ne se colore, la couleur
+         CALCULÉE est retenue, et elle revient à la sortie */
       boite.focus(); verdict='ok'; await frapper('12');
+      bilan.rougeLeve=classes(); bilan.rougeLeveRetenue=boite.dataset.couleurDifferee||'';
+      await sortir();
+      bilan.rougeLeveSortie=classes();
+
+      /* 3 bis. une case déjà JUSTE se re-juge sous les doigts, comme avant :
+         le garde ne la surveille pas */
+      boite.focus(); verdict='bad'; await frapper('13');
       bilan.rejuge=classes();
+      await sortir();
+
+      /* 3 ter. le rouge se lève même si PERSONNE ne rejuge la case — une
+         correction qui n'écoute que « Vérifier » — : rien n'est retenu, et la
+         case reste sans couleur à la sortie. Un rouge reposé sans juge serait
+         celui d'une réponse qui n'existe plus. */
+      hote.removeEventListener('input', corriger);
+      boite.focus(); await frapper('14');
+      bilan.sansJuge=classes()+'/'+(boite.dataset.couleurDifferee||'-');
+      await sortir();
+      bilan.sansJugeSortie=classes();
+      hote.addEventListener('input', corriger);
+
+      /* 3 quater. le verdict est arrivé sous un curseur qui ATTENDAIT — le
+         garde a rendu la main (bord 5 bis) — puis l'élève se met à corriger :
+         le rouge se lève tout de même, et le garde se réarme pour retenir ce
+         que la correction dit ensuite */
+      neuve(); boite.value='1'; verdict='bad'; corriger(); await attendre();
+      bilan.rearmeAvant=classes();
+      await frapper('15');
+      bilan.rearme=classes()+'/'+(boite.dataset.couleurDifferee||'-');
+      await sortir();
+      bilan.rearmeSortie=classes();
 
       /* 4. la couleur différée se périme : on vide la case */
       neuve(); verdict='bad'; await frapper('1');
@@ -28254,9 +28289,20 @@ function gardeSaisie(w, apres){
     verifier('en quittant la case, la couleur arrive',
       r.ok && b.sortie === 'bad',
       souci || 'classes après la sortie : « ' + b.sortie + ' » — attendu « bad »');
-    verifier('une case déjà jugée se re-juge sous les doigts, sans attendre la sortie',
-      r.ok && b.rejuge === 'ok',
-      souci || 'classes pendant la frappe : « ' + b.rejuge + ' » — attendu « ok »');
+    verifier('une case ROUGE que l’élève modifie perd son rouge à la première frappe — la couleur calculée est retenue, et revient à la sortie',
+      r.ok && b.rougeLeve === '' && b.rougeLeveRetenue === 'ok' && b.rougeLeveSortie === 'ok',
+      souci || 'classes pendant la frappe : « ' + b.rougeLeve + ' », retenue : « ' + b.rougeLeveRetenue
+             + ' », à la sortie : « ' + b.rougeLeveSortie + ' » — attendu « », « ok », « ok »');
+    verifier('une case déjà JUSTE se re-juge sous les doigts, sans attendre la sortie',
+      r.ok && b.rejuge === 'bad',
+      souci || 'classes pendant la frappe : « ' + b.rejuge + ' » — attendu « bad »');
+    verifier('le rouge se lève même quand personne ne rejuge la case — et rien n’est reposé à la sortie',
+      r.ok && b.sansJuge === '/-' && b.sansJugeSortie === '',
+      souci || 'pendant la frappe (classes/retenue) : « ' + b.sansJuge + ' », à la sortie : « ' + b.sansJugeSortie + ' » — attendu « /- » et « »');
+    verifier('le rouge arrivé sous un curseur qui attendait se lève dès que l’élève corrige, et le garde se réarme',
+      r.ok && b.rearmeAvant === 'bad' && b.rearme === '/bad' && b.rearmeSortie === 'bad',
+      souci || 'avant la frappe : « ' + b.rearmeAvant + ' », pendant (classes/retenue) : « ' + b.rearme
+             + ' », à la sortie : « ' + b.rearmeSortie + ' » — attendu « bad », « /bad », « bad »');
     verifier('la couleur différée se périme quand la case est vidée',
       r.ok && b.perime === 'bad/-' && b.videSortie === '',
       souci || 'retenue avant/après le vidage : ' + b.perime + ' — classes en sortant : « ' + b.videSortie + ' »');

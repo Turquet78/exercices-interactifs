@@ -8919,7 +8919,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=634;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=635;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -82273,9 +82273,21 @@ document.addEventListener('scroll', function(){ bexpPlacer(); }, true);
    ne peut pas diverger de celui de la frappe.
 
    TROIS BORDS, et n'en tenir qu'un ne tient rien :
-   — une case DÉJÀ jugée quand on y entre se re-juge à chaque frappe : on ne la
-     surveille pas. Sans ce bord, l'élève qui corrige sa case rouge devrait
-     cliquer ailleurs pour savoir s'il a réussi ;
+   — une case déjà JUSTE quand on y entre se re-juge à chaque frappe : on ne la
+     surveille pas. Une case déjà ROUGE, elle, PERD SON ROUGE À LA PREMIÈRE
+     FRAPPE (décision de Turquet, novembre 2026) : l'élève qui la modifie écrit
+     une réponse neuve, et le rouge de l'ancienne n'a plus rien à dire. Elle est
+     alors surveillée comme une case vierge — rien ne se colore tant qu'il
+     écrit, la couleur CALCULÉE revient quand il la quitte ou vérifie — et si
+     rien ne l'a rejugée (une correction qui n'écoute que « Vérifier »), elle
+     reste sans couleur : un rouge reposé sans juge serait celui d'une réponse
+     qui n'existe plus. Avant, elle se re-jugeait sous les doigts et restait
+     rouge tant que la réponse n'était pas juste — « 1 » restait rouge le temps
+     qu'on tape « 12 », exactement ce que ce garde interdit aux cases vierges.
+     Le rouge se lève sur « input », jamais sur la touche seule (qui peut ne
+     rien changer à la case), et il se lève MÊME SI le garde avait rendu la
+     main — le verdict arrivé sous un curseur qui attendait — : la levée le
+     réarme (gardeLeverRouge) ;
    — la couleur retenue SE PÉRIME : quand la correction efface sans repeindre —
      l'élève a vidé sa case — la retenue s'en va, sinon on reposerait en sortant
      un verdict qui ne correspond plus à ce qui est écrit. Le compteur distingue
@@ -82356,10 +82368,26 @@ function gardeRendreLaMain(el){
 document.addEventListener('focusin', function(e){
   const el=e.target;
   if(!isSoutien() || test.locked || !caseQuiSeColore(el)
-     || el.classList.contains('sol') || verdictDe(el)){ gardeArret(); return; }
+     || el.classList.contains('sol') || verdictDe(el)==='ok'){ gardeArret(); return; }
   gardeSurveiller(el);
 }, true);
 document.addEventListener('focusout', function(e){ gardeRendreLaMain(e.target); }, true);
+/* UNE CASE ROUGE QUE L'ÉLÈVE MODIFIE PERD SON ROUGE (Turquet, novembre 2026).
+   Sur « input » seulement : la touche seule peut ne rien changer à la case, et
+   un rouge levé pour rien laisserait une réponse fausse sans couleur. Le garde
+   est réarmé s'il avait rendu la main (le verdict arrivé sous un curseur qui
+   attendait), et rien n'est retenu : le rouge levé parlait d'une réponse qui
+   n'existe plus — c'est la correction, si elle rejuge, qui dira la suite. Le
+   garde reçoit l'« input » AVANT la correction (capture sur le document), et
+   un moteur qui ne re-juge en direct qu'une case déjà marquée n'y trouve donc
+   plus de marque : il attend la sortie, comme pour une case vierge. */
+function gardeLeverRouge(el){
+  if(!isSoutien() || test.locked || !caseQuiSeColore(el) || el!==document.activeElement
+     || el.classList.contains('sol') || !el.classList.contains('bad')) return;
+  if(gardeCase!==el) gardeSurveiller(el);
+  el.classList.remove('bad');
+}
+document.addEventListener('input', function(e){ gardeLeverRouge(e.target); }, true);
 /* ENTRÉE VALIDE SANS QUITTER LA CASE — le calcul mental et les opérations
    posées le font depuis toujours. Un clic sur « Vérifier » donne le focus au
    bouton, donc le garde rend la main de lui-même ; la touche Entrée, elle, ne
