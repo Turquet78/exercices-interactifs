@@ -74,6 +74,7 @@ couvert sans rien avoir à déclarer.
 | Une case où l'élève écrit a la **taille des nombres qui l'entourent** | la réponse de l'élève passe pour une note en bas de page | « les cases de saisie ont la taille des nombres qui les entourent » |
 | Un **signe posé à côté d'une fraction tombe sur son trait** | le « + » monte au-dessus du trait, la ligne se lit de travers | « un signe posé à côté d'une fraction tombe sur son trait » |
 | **Une case vide ne rougit jamais** à la vérification | l'élève croit avoir faux là où il n'a rien écrit | « aucune case laissée vide ne rougit à la vérification » |
+| **Aucune figure SVG d'un exercice ne se sélectionne comme du texte** — `section.screen svg{user-select:none}`, les trois niveaux, rien à déclarer | un glisser qui manque la prise d'une flèche peint les étiquettes u, v, w, M en pavés bleus (la sélection de texte SVG de Chrome ; 8.2.15, novembre 2026) | « aucune figure SVG d'un exercice ne se sélectionne comme du texte » (section 9) ; le geste lui-même sur le 8.2.15 (« 6 quadragies decies ») |
 | Une case juste se marque **`ok`**, jamais `good` | la note affichée ne la compte pas | « chaque exercice à cases compte ses cases justes » |
 | Chaque exercice a son **bouton d'aide IA** | l'aide est écrite, rien n'y mène | « le bouton d'aide IA est présent sur chaque exercice » |
 | Aucune référence **`{identifiant}`** ne reste affichée | l'élève lit des accolades | « aucune référence {identifiant} ne reste affichée à l'élève » |

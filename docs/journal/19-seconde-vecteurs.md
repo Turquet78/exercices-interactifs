@@ -4035,6 +4035,51 @@ vert de la correction, ni le violet de AA′. Les règles sont bornées à
 la flèche passe en bleu ou en rouge comme avant ; la règle ne nomme aucune
 classe de verdict, « 9 bis » n'a pas à la lire.
 
+### Puis les étiquettes ont cessé de bleuir sous un glisser manqué (v635)
+
+Le signalement (Turquet, 3 novembre 2026, capture du 8.2.15) : « sur
+certains ordis du lycée les élèves voient du bleu, je ne comprends pas ».
+Sur la capture, u, v, w et M sont chacun dans un pavé bleu à lettres
+blanches, les flèches sont intactes. Ce n'est ni une classe de verdict ni
+une encre de la page : c'est la **sélection de texte** du navigateur. Les
+étiquettes sont des `<text>` SVG, et Chrome peint un texte SVG sélectionné
+en pavé bleu à lettres blanches — rien à voir avec le surlignage d'un
+paragraphe.
+
+**La cause est le geste, pas la machine.** Le glisser d'une flèche n'empêche
+la sélection (`ev.preventDefault()` sur `pointerdown`) que quand l'appui
+tombe sur la **prise** (`.svc-prise`, 22 unités de large). Un élève qui
+appuie **à côté** de la flèche — sur le quadrillage, sur un nœud — et tire
+la souris déclenche la sélection ordinaire de la page, qui avale toutes les
+étiquettes de la figure sur son passage ; un double-clic sur une lettre
+sélectionne la lettre. Les « certains ordis » sont ceux dont la souris est
+moins précise, ou les élèves qui manquent la prise de quelques pixels ; rien
+dans la page ne dépend du poste. Reproduit dans le Chromium du banc sur la
+page d'avant : un glisser d'un coin de la figure à l'autre sélectionne
+« u v w », un double-clic sur l'étiquette sélectionne « M ».
+
+**Le remède est une règle, pour TOUTES les figures** : `section.screen
+svg{user-select:none}` dans les trois pages — aucune figure d'exercice ne
+contient quoi que ce soit à copier, et un défaut qui tient à la nature
+des `<text>` SVG se reproduirait sur chaque quadrillage du thème. Les
+trois niveaux l'ont reçue (Seconde v635, Première v364, Terminale v476).
+
+**Deux contrôles la tiennent.** Le geste lui-même, sur le 8.2.15 (banc
+navigateur, « 6 quadragies decies ») : un glisser d'un coin de la figure à
+l'autre, parti des marges du dessin, puis un double-clic sur une étiquette,
+et `getSelection()` doit rester vide — rouge sur la page d'avant (« u v w »,
+puis « M »), vert après. Et la règle en usage, partout (section 9, « aucune
+figure SVG d'un exercice ne se sélectionne comme du texte ») : chaque svg
+visible de chaque exercice ouvert, dans les deux modes, doit lire
+`user-select: none` calculé — une figure ajoutée demain est couverte sans
+rien déclarer, et un niveau qui n'aurait montré aucune figure dit qu'il n'a
+rien mesuré plutôt que de passer au vert.
+
+**Ce qu'aucun banc ne voit** : la couleur même du pavé (elle est au
+navigateur), et un glisser qui part HORS de la figure, dans l'énoncé, pour
+finir dedans — la sélection y est légitime, et ne colore plus les
+étiquettes depuis la règle.
+
 ## {vecteurs-criteres} et {vecteurs-egaux-justifier} — comparer deux vecteurs, puis égaux ou pas et pourquoi (8.1.13 et 8.1.14, v575 — v572 à v574 prises pendant les bancs par le 8.2.16, le 8.2.17 et le sous-thème 8.3)
 
 **La demande** (Turquet, octobre 2026) : « créer un exercice dans égalité
