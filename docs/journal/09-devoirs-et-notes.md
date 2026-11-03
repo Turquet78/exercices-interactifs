@@ -1730,3 +1730,26 @@ fiche, « 12|0|0 » dans un devoir, au tableau comme au fichier, moyenne
 12 dans une fiche et 4 dans un devoir,
 moyennes de classe 16|20|20 contre 16|10|10, le VRAI `dmMoyennes` tournant
 avec un `dmNoteDevoir` remplacé le temps de la mesure.
+
+**« nn » — non noté — aux devoirs à la maison n°1, 2, 3 et 5 de la
+Seconde.** Demande de Turquet, novembre 2026 : « dans les devoirs à la maison
+des secondes pour les devoirs à la maison n°1 ; 2 ; 3 ; 5 mettre nn si l'élève
+a eu 0 ou moins de 10 / 20 ». Même chemin que « abs » : un réglage dans
+`GENRE_DEVOIRS` — `nn:{nums:[1,2,3,5], seuil:10}` sur la famille `dm` de la
+Seconde, et nulle part ailleurs —, lu par `dmAbs(fait, note, dev)`, qui rend
+désormais le MOT à écrire (« abs », « nn » ou '') et prend le devoir pour en
+lire le numéro. Le seuil se juge SUR 20 (le tableau passe `sur20`, le bilan
+du devoir convertit ses points bruts) : 9,99 → « nn », 10 tout juste reste une
+note ; pas fait → « nn ». Un « nn » sort de la moyenne, comme un « abs » —
+c'est ce que « non noté » veut dire : moyenne de l'élève, de la classe par
+devoir, générale, et moyenne du bilan du devoir. Il s'écrit au tableau des
+moyennes, au fichier CSV et dans le bilan du devoir (ligne et carte de
+l'élève) ; une phrase sous le titre du tableau dit quels devoirs sont
+concernés (`dmNnPhrase`, ajoutée à `MOTEUR_MOYENNES`). Les numéros sont ceux
+du devoir (`num`) : un devoir renuméroté change de règle avec lui. L'écran de
+l'élève n'est pas touché. Contrôles : banc principal (`moyennesDevoirs` :
+« 12|nn|nn » dans un devoir de la Seconde, et le seuil mesuré sur `dmAbs`
+lui-même) ; banc navigateur (« 6 septies ter » : la ligne de Zoé, rien fait,
+se lit nn|nn|nn|0|nn|0 dans le vrai tableau ; celle d'Émile, 10 / 20 au n°1,
+10|nn|nn|0|nn|0). Le contrôle de la décision du zéro, qui sème des devoirs
+n°1, 2, 4, met le réglage de côté le temps de sa mesure.

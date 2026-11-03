@@ -3405,7 +3405,7 @@ function branchements(w){
      exercices par exercicesDevoir(), la Terminale ajoute la note POSÉE par le
      professeur — et renderDmMoyennes(), qui nomme les tables du niveau. Les
      nommer est ce qui empêche la liste de se vider en silence. */
-  const MOTEUR_MOYENNES = ['dmMeilleur','dmMoyennes','dmAbs','dmMoyFamille','dmMoyennesHTML',
+  const MOTEUR_MOYENNES = ['dmMeilleur','dmMoyennes','dmAbs','dmNnPhrase','dmMoyFamille','dmMoyennesHTML',
                            'csvTelecharger','dmMoyennesCSV','dmEnColonnes'];
   if(src.indexOf('function dmMoyennes(') >= 0){
     const absentes = MOTEUR_MOYENNES.filter(n => corpsDe(src, n) === null);
@@ -28886,7 +28886,12 @@ function moyennesDevoirs(w, apres){
      la mesure. Dans un devoir : 12|0|0, moyenne 4, moyennes de classe
      16|10|10, générale 12. Dans une fiche : 12|abs|abs, moyenne 12, moyennes
      de classe 16|20|20, générale 16 — au tableau comme au fichier. La
-     Terminale n'a aucune famille « abs ». */
+     Terminale n'a aucune famille « abs ».
+     « nn » — NON NOTÉ — aux devoirs à la maison n°1, 2, 3 et 5 de la Seconde
+     (demande de Turquet, novembre 2026) : une note sous 10 / 20, 0 compris,
+     pas fait compris, s'écrit « nn » et sort de la moyenne. Les trois
+     colonnes portent les n°1, 2, 3 : dans un devoir de la Seconde, on lit
+     donc 12|nn|nn. Le seuil se mesure à part, sur dmAbs lui-même. */
   const abs = evaluer(w, `(function(){
     const garde=dmGenre, vraiDernier=dmMoyDernier, vraiBlob=window.Blob, vraiNote=dmNoteDevoir,
           vraiCreate=window.URL.createObjectURL, vraiRevoke=window.URL.revokeObjectURL;
@@ -28915,6 +28920,11 @@ function moyennesDevoirs(w, apres){
         out[g]=tds.slice(1,4).join('|')+' ; csv '+csv.slice(1,4).join('|')+' ; moy '+tds[4]+'/'+csv[4]
           +' ; classe '+pied.slice(1,4).join('|')+' ; générale '+pied[4];
       });
+      if(GENRE_DEVOIRS.dm && GENRE_DEVOIRS.dm.nn){
+        dmGenre='dm';
+        out.seuil=[[true,9.99,1],[true,10,2],[true,0,3],[false,0,5],[true,15,5],[true,0,4],[true,9,6],[true,9,undefined]]
+          .map(function(t){ return dmAbs(t[0],t[1],t[2]===undefined?undefined:{num:t[2]})||'-'; }).join('');
+      }
     } finally {
       dmGenre=garde; dmMoyDernier=vraiDernier; window.Blob=vraiBlob; dmNoteDevoir=vraiNote;
       window.URL.createObjectURL=vraiCreate; window.URL.revokeObjectURL=vraiRevoke;
@@ -28926,9 +28936,14 @@ function moyennesDevoirs(w, apres){
     const souci = abs.ok ? '' : 'erreur JavaScript : ' + abs.erreur;
     const zero = '12|0|0 ; csv 12|0|0 ; moy 4/4 ; classe 16|10|10 ; générale 12';
     const absent = '12|abs|abs ; csv 12|abs|abs ; moy 12/12 ; classe 16|20|20 ; générale 16';
-    const attendu = { dm: zero, fiche: CIBLE === 'terminale.html' ? zero : absent, snt: absent };
+    const nn = '12|nn|nn ; csv 12|nn|nn ; moy 12/12 ; classe 16|20|20 ; générale 16';
+    /* seuil : 9,99 → nn ; 10 → note ; 0 → nn ; pas fait → nn ; 15 → note ;
+       n°4, n°6, sans devoir → note */
+    const attendu = { dm: CIBLE === 'secondes.html' ? nn : zero, fiche: CIBLE === 'terminale.html' ? zero : absent, snt: absent };
+    if(CIBLE === 'secondes.html') attendu.seuil = 'nn-nnnn----';
     const ecarts = Object.keys(o).filter(g => o[g] !== attendu[g]).map(g => g + ' → ' + o[g] + ' (attendu ' + attendu[g] + ')');
-    verifier('une note nulle s’écrit « abs » dans les fiches (Seconde, Première), 0 dans un devoir — et « abs » ne compte pas dans les moyennes',
+    if(attendu.seuil && !('seuil' in o)) ecarts.push('seuil non mesuré : GENRE_DEVOIRS.dm.nn manque');
+    verifier('une note nulle s’écrit « abs » dans les fiches (Seconde, Première), 0 dans un devoir — « nn » sous 10 / 20 aux devoirs n°1, 2, 3, 5 de la Seconde — et ni « abs » ni « nn » ne comptent dans les moyennes',
       abs.ok && Object.keys(o).length >= 2 && !ecarts.length,
       souci || (Object.keys(o).length < 2 ? 'aucune famille mesurée : le contrôle ne mesure rien' : ecarts.join(' ; ')));
   }
@@ -28953,6 +28968,9 @@ function moyennesDevoirs(w, apres){
     const bilan={};
     const vraiToast=toast; toast=function(){};
     const vraiBlob=window.Blob, vraiCreate=window.URL.createObjectURL, vraiRevoke=window.URL.revokeObjectURL;
+    /* « nn » (Seconde) est mesuré plus haut : ici, les numéros 1, 2, 4 servent
+       à la décision du zéro, et on le met de côté le temps de la mesure. */
+    const nnGarde={}; Object.keys(GENRE_DEVOIRS).forEach(function(g){ if(GENRE_DEVOIRS[g].nn){ nnGarde[g]=GENRE_DEVOIRS[g].nn; delete GENRE_DEVOIRS[g].nn; } });
     try{
       /* Des identifiants d'exercice RÉELS : la Première filtre la liste d'un
          devoir sur TESTS, et des identifiants inventés en sortiraient tous —
@@ -29034,6 +29052,7 @@ function moyennesDevoirs(w, apres){
     } finally {
       toast=vraiToast; window.Blob=vraiBlob;
       window.URL.createObjectURL=vraiCreate; window.URL.revokeObjectURL=vraiRevoke;
+      Object.keys(nnGarde).forEach(function(g){ GENRE_DEVOIRS[g].nn=nnGarde[g]; });
     }
     return bilan;
   })()`, function(r){
@@ -30306,7 +30325,9 @@ function brouillonProvisoire(w, apres){
       const dev=(mesDevoirs||[]).find(function(d){ return d.id==='dm_br'; });
       const n=dmNoteDevoir(dev,'e-controle',lignes);
       if(Math.round(n.somme*10)!==60||n.nbFait!==1) vus.push('dmNoteDevoir : attendu 6 / 20 et 1 exercice fait, rendu '+fmtNote(n.somme)+' / '+n.totMax+' · '+n.nbFait+' fait(s)');
-      ${LISTE}=[{id:'dm_br',num:1,actif:true,titre:'Devoir brouillon',cours:'',exercices:deux(),notes:{},notesDevoir:{}}];
+      /* n°4 et non n°1 : en Seconde, un devoir n°1 sous 10 / 20 s'écrit « nn »
+         (non noté) — ce contrôle mesure la note provisoire, pas « nn » */
+      ${LISTE}=[{id:'dm_br',num:4,actif:true,titre:'Devoir brouillon',cours:'',exercices:deux(),notes:{},notesDevoir:{}}];
       dmSelId='dm_br'; if(typeof dmGenre!=='undefined') dmGenre='dm';
       sb=sbDouble;
       if(typeof renderDevoirResultats==='function') await renderDevoirResultats(); else await renderDmResults();
