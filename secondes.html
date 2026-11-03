@@ -8919,7 +8919,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=634;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=635;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -64364,8 +64364,8 @@ function stvSVG(q){
   g+=`<rect x="${X(0)}" y="${Y(STV_H)}" width="${STV_W*STV_C}" height="${STV_H*STV_C}" class="vec-cadre"/>`;
   let zones='', cibles='';
   for(let i=0;i<=STV_W;i++) for(let j=0;j<=STV_H;j++){
-    zones+=`<path class="vec-zone" d="M${X(i)} ${Y(j)}h0.01" onclick="stvPose(${i},${j})"/>`;
-    cibles+=`<g class="vec-t" id="stvn-${i}-${j}" onclick="stvPose(${i},${j})" tabindex="0" role="button" aria-label="nœud ${i} vers la droite, ${j} vers le haut" aria-pressed="false">`
+    zones+=`<path class="vec-zone" d="M${X(i)} ${Y(j)}h0.01"/>`;
+    cibles+=`<g class="vec-t" id="stvn-${i}-${j}" tabindex="0" role="button" aria-label="nœud ${i} vers la droite, ${j} vers le haut" aria-pressed="false">`
       +`<circle class="hit" cx="${X(i)}" cy="${Y(j)}" r="10"/><circle class="dot" cx="${X(i)}" cy="${Y(j)}" r="5"/></g>`;
   }
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
@@ -64393,7 +64393,12 @@ function stvDessinerFleches(q){
   fl.innerHTML=stvLettre(q)+h;
   const prise=function(k){ const a=stvP(q,k), f=svcPlus(a,stvC(q,k));
     return `<line class="svc-prise" data-k="${k}" x1="${stvX(a[0])}" y1="${stvY(a[1])}" x2="${stvX(f[0])}" y2="${stvY(f[1])}" tabindex="0" role="button" aria-label="déplacer le vecteur ${STV_N[k]} (flèches du clavier)"/>`; };
-  pr.innerHTML=(test.stvFigeCh||test.locked)?'':prise(0)+prise(1)+prise(2);
+  /* La chaîne faite, plus aucune prise : le quadrillage sert à tracer la
+     somme, dont le début est SOUS le départ de la première flèche — avec la
+     prise, le moindre glissement du clic emportait u au lieu de poser le
+     point (constat de Turquet en classe, novembre 2026, v635). Défaite,
+     elles reviennent. */
+  pr.innerHTML=(test.locked||stvEtape1(q))?'':prise(0)+prise(1)+prise(2);
 }
 /* Le nom « u+v+w » s'écrit du côté de son trait le plus loin des autres
    flèches (la règle du 8.2.1, v504) — et de la lettre du point, sur laquelle
@@ -64466,10 +64471,36 @@ function stvPose(i,j){
   if(q.sd&&!q.sf){ if(svcEgal(q.sd,[i,j])) q.sd=null; else q.sf=[i,j]; }
   else { q.sd=[i,j]; q.sf=null; }
   q.dn=0;
+  stvMaj(q);
+}
+/* Après tout changement de la somme : la case perd son verdict, le dessin
+   et les cadres se refont, le brouillon est à ranger. */
+function stvMaj(q){
   const el=$('stv-sm'); if(el) el.classList.remove('ok','bad');
   stvTracer(q,'');
   rougeALaPose();
   recoveryDirty=true;
+}
+/* La somme tracée d'un seul trait, à la souris ou au stylet : l'appui pose
+   le début au nœud le plus proche, le relâchement pose la fin — le geste
+   de l'élève qui « dessine » la flèche (v635). Le début remplace tout
+   tracé en cours ; une fin confondue avec le début ne pose rien, le début
+   reste et attend un clic. Même porte que stvPose : rien avant l'étape 1. */
+function stvGlisseDebut(i,j){
+  if(test.locked||test.kind!=='stv'||test.stvFigeSm) return false;
+  const q=test.questions[test.idx]; if(!q||!stvEtape1(q)) return false;
+  if(i<0||i>STV_W||j<0||j>STV_H) return false;
+  q.sd=[i,j]; q.sf=null; q.dn=0;
+  stvMaj(q);
+  return true;
+}
+function stvGlisseFin(i,j){
+  if(test.locked||test.kind!=='stv'||test.stvFigeSm) return false;
+  const q=test.questions[test.idx]; if(!q||!q.sd||q.sf||!stvEtape1(q)) return false;
+  if(i<0||i>STV_W||j<0||j>STV_H||svcEgal(q.sd,[i,j])) return false;
+  q.sf=[i,j]; q.dn=0;
+  stvMaj(q);
+  return true;
 }
 /* « C'est le vecteur nul » : la déclaration remplace la flèche tracée ; un
    second appui la retire. */
@@ -64504,20 +64535,34 @@ function stvDeplacer(k, p){
 /* Le glisser et le tracé, sur des écouteurs délégués à l'hôte — le motif de
    svcBrancher (8.2.1) : mouvement et relâchement à la fenêtre, un appui qui
    ne bouge pas d'un tiers de carreau est un clic sur le nœud le plus proche,
-   le point et la flèche qui suivent la souris tant que la somme se trace. */
+   le point et la flèche qui suivent la souris tant que la somme se trace ;
+   à l'étape 2, un appui glissé d'un demi-carreau trace la somme d'un trait. */
 let _stvSaveTimer=null;
 function stvBrancher(){
   const host=$('stvGraph');
   if(!host||host.__stvPret) return;
   host.__stvPret=true;
-  let gl=null, apresPrise=false, dernier=null;
+  let gl=null, tr=null, apresPrise=false, dernier=null;
   const pas=function(svg){ const r=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal; return {r:r, k:r.width/vb.width}; };
   host.addEventListener('pointerdown', function(ev){
     apresPrise=false;
-    const pr=ev.target.closest&&ev.target.closest('.svc-prise'); if(!pr) return;
     if(test.kind!=='stv'||test.locked) return;
     const q=test.questions[test.idx]; if(!q) return;
     const svg=host.querySelector('.stv-svg'); if(!svg) return;
+    const pr=ev.target.closest&&ev.target.closest('.svc-prise');
+    if(!pr){
+      /* l'étape 2, à la souris ou au stylet : un appui sur le quadrillage
+         peut devenir le tracé de la somme d'un seul trait (stvGlisseDebut au
+         premier demi-carreau parcouru, stvGlisseFin au relâchement) ; sans
+         mouvement, c'est le clic qui pose, comme avant. Au doigt, la barre
+         « Je place » garde la main (#pose-doigt). */
+      if(ev.pointerType==='touch'||test.stvFigeSm||!stvEtape1(q)) return;
+      if(!ev.target.closest||!ev.target.closest('.stv-svg')) return;
+      const v=vue(ev); if(!v) return;
+      tr={i:v.i, j:v.j, x:ev.clientX, y:ev.clientY, bouge:false, svg:svg};
+      ev.preventDefault();
+      return;
+    }
     const k=+pr.getAttribute('data-k');
     gl={k:k, x:ev.clientX, y:ev.clientY, p0:stvP(q,k).slice(), bouge:false, svg:svg};
     svg.classList.add('glisse');
@@ -64527,14 +64572,36 @@ function stvBrancher(){
     if(ev.target.closest&&ev.target.closest('.svc-prise')) ev.preventDefault();
   }, {passive:false});
   window.addEventListener('pointermove', function(ev){
-    if(!gl||test.kind!=='stv') return;
+    if(test.kind!=='stv') return;
+    if(tr){
+      if(tr.bouge) return;
+      const m=pas(tr.svg), cel=STV_C*m.k;
+      if(Math.hypot(ev.clientX-tr.x, ev.clientY-tr.y)<0.5*cel) return;
+      tr.bouge=true;
+      stvGlisseDebut(tr.i, tr.j);
+      return;
+    }
+    if(!gl) return;
     const m=pas(gl.svg), cel=STV_C*m.k;
     const dx=(ev.clientX-gl.x)/cel, dy=-(ev.clientY-gl.y)/cel;
     if(!gl.bouge && Math.hypot(dx,dy)<0.3) return;
     gl.bouge=true;
     stvDeplacer(gl.k, [gl.p0[0]+Math.round(dx), gl.p0[1]+Math.round(dy)]);
+    /* la chaîne faite sous la main, la flèche reste où elle est : le glisser
+       s'arrête là (les prises ont disparu, un dépassement ne la déferait
+       plus — v635) */
+    const q=test.questions[test.idx];
+    if(q&&stvEtape1(q)){ const g=gl; gl=null; g.svg.classList.remove('glisse'); apresPrise=true; clearTimeout(_stvSaveTimer); _stvSaveTimer=setTimeout(autoSave,1200); }
   });
   const fin=function(ev){
+    if(tr){
+      const t=tr; tr=null;
+      if(!t.bouge) return;                 /* un simple clic : le clic pose, comme avant */
+      apresPrise=true;
+      if(ev.type==='pointerup'){ const v=vue(ev); if(v) stvGlisseFin(v.i,v.j); }
+      clearTimeout(_stvSaveTimer); _stvSaveTimer=setTimeout(autoSave,1200);
+      return;
+    }
     if(!gl) return;
     const g=gl; gl=null; g.svg.classList.remove('glisse'); apresPrise=true;
     if(g.bouge){ clearTimeout(_stvSaveTimer); _stvSaveTimer=setTimeout(autoSave,1200); return; }
@@ -64570,7 +64637,9 @@ function stvBrancher(){
   host.addEventListener('pointerleave', function(){ dernier=null; curseur(null); });
   host.addEventListener('click', function(ev){
     const t=ev.target;
-    if(t.closest&&t.closest('.stv-svg')&&!t.closest('.vec-t, .vec-zone, .svc-prise')&&!apresPrise){ const v=vue(ev); if(v) stvPose(v.i,v.j); }
+    /* nœuds et zones compris : ils n'ont plus d'onclick en ligne (v635), le
+       clic qui suit un tracé glissé est ainsi retenu partout (apresPrise) */
+    if(t.closest&&t.closest('.stv-svg')&&!t.closest('.svc-prise')&&!apresPrise){ const v=vue(ev); if(v) stvPose(v.i,v.j); }
     curseur(dernier&&dernier.pointerType==='mouse'?ev:null);
   });
   host.addEventListener('keydown', function(ev){
