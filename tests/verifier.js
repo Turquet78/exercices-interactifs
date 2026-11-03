@@ -28926,7 +28926,7 @@ function moyennesDevoirs(w, apres){
     /* seuil : 9,99 → nn ; 10 → note ; 0 → nn ; pas fait → nn ; 15 → note ;
        n°4, n°6, sans devoir → note */
     const attendu = { dm: CIBLE === 'secondes.html' ? nn : zero, fiche: CIBLE === 'terminale.html' ? zero : absent, snt: absent };
-    if(CIBLE === 'secondes.html') attendu.seuil = 'nn-nnnn-----';
+    if(CIBLE === 'secondes.html') attendu.seuil = 'nn-nnnn----';
     const ecarts = Object.keys(o).filter(g => o[g] !== attendu[g]).map(g => g + ' → ' + o[g] + ' (attendu ' + attendu[g] + ')');
     if(attendu.seuil && !('seuil' in o)) ecarts.push('seuil non mesuré : GENRE_DEVOIRS.dm.nn manque');
     verifier('une note nulle s’écrit « abs » dans les fiches (Seconde, Première), 0 dans un devoir — « nn » sous 10 / 20 aux devoirs n°1, 2, 3, 5 de la Seconde — et ni « abs » ni « nn » ne comptent dans les moyennes',
@@ -30311,7 +30311,9 @@ function brouillonProvisoire(w, apres){
       const dev=(mesDevoirs||[]).find(function(d){ return d.id==='dm_br'; });
       const n=dmNoteDevoir(dev,'e-controle',lignes);
       if(Math.round(n.somme*10)!==60||n.nbFait!==1) vus.push('dmNoteDevoir : attendu 6 / 20 et 1 exercice fait, rendu '+fmtNote(n.somme)+' / '+n.totMax+' · '+n.nbFait+' fait(s)');
-      ${LISTE}=[{id:'dm_br',num:1,actif:true,titre:'Devoir brouillon',cours:'',exercices:deux(),notes:{},notesDevoir:{}}];
+      /* n°4 et non n°1 : en Seconde, un devoir n°1 sous 10 / 20 s'écrit « nn »
+         (non noté) — ce contrôle mesure la note provisoire, pas « nn » */
+      ${LISTE}=[{id:'dm_br',num:4,actif:true,titre:'Devoir brouillon',cours:'',exercices:deux(),notes:{},notesDevoir:{}}];
       dmSelId='dm_br'; if(typeof dmGenre!=='undefined') dmGenre='dm';
       sb=sbDouble;
       if(typeof renderDevoirResultats==='function') await renderDevoirResultats(); else await renderDmResults();
