@@ -273,6 +273,14 @@
   .result-head p{margin:0;color:var(--ink-soft);font-weight:600}
   .score-circle{position:relative;width:170px;height:130px;margin:8px auto 4px}
   .score-circle svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+/* AUCUNE FIGURE D'EXERCICE NE SE SÉLECTIONNE COMME DU TEXTE (signalé par
+   Turquet, novembre 2026, sur le 8.2.15) : un glisser qui part du quadrillage
+   à CÔTÉ d'une flèche — pas sur sa prise — sélectionnait les étiquettes u, v,
+   w, M du SVG, et Chrome peint une sélection de texte SVG en pavés bleus à
+   lettres blanches ; un double-clic sur une lettre faisait de même. Rien à
+   copier dans une figure : la règle vaut pour TOUT svg d'un écran d'exercice,
+   et le banc navigateur (section 9) l'exige sur chaque exercice ouvert. */
+section.screen svg{-webkit-user-select:none;user-select:none}
   .score-circle .ring{fill:none;stroke:var(--red);stroke-width:5;stroke-linecap:round;stroke-dasharray:430;stroke-dashoffset:430;animation:draw 1s ease .25s forwards}
   @keyframes draw{to{stroke-dashoffset:0}}
   .score-circle .val{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center}
@@ -3185,7 +3193,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=363;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=364;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
