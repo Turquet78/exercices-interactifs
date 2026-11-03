@@ -4140,7 +4140,10 @@ if(require.main === module) (async () => {
        doit rien porter pendant la frappe, MAIS la couleur doit avoir été
        CALCULÉE (retenue) — sans cette exigence, le contrôle resterait vert sur
        une case que personne ne juge, en parlant d'autre chose. Puis la touche
-       Tab, qui est le geste « je passe à la suivante », doit la faire paraître. */
+       Tab, qui est le geste « je passe à la suivante », doit la faire paraître.
+       Et une case ROUGE que l'élève modifie perd son rouge à la première frappe
+       (décision de Turquet, novembre 2026) — la couleur revient quand il la
+       quitte. */
     titre('6 septies sexies. LA CASE OÙ L\'ÉLÈVE ÉCRIT NE SE COLORE PAS');
     if(!P.gardeSaisie){
       ignorer('en soutien, la case où l\'élève écrit ne se colore pas',
@@ -4166,7 +4169,7 @@ if(require.main === module) (async () => {
           retenue: (el.dataset && el.dataset.couleurDifferee) || '',
           focus: document.activeElement === el,
         }));
-        let pendant = null, apres = null, rejuge = null, souci = '';
+        let pendant = null, apres = null, rougeAvant = null, rejuge = null, revenu = null, souci = '';
         try{
           await boite.waitFor({ timeout: 8000 });
           await boite.click();
@@ -4179,14 +4182,26 @@ if(require.main === module) (async () => {
           await s.page.keyboard.press('Tab');
           await s.page.waitForTimeout(200);
           apres = await etat();
-          /* et une case DÉJÀ jugée se re-juge sous les doigts : sans ce bord,
-             l'élève qui corrige son rouge devrait cliquer ailleurs pour savoir
-             s'il a réussi. */
+          /* et une case ROUGE que l'élève modifie perd son rouge à la première
+             frappe (Turquet, novembre 2026). Un rouge GARANTI d'abord : deux
+             chiffres différents ne peuvent pas être justes tous les deux dans
+             la même case — si « 9 » était juste, « 4 » ne l'est pas. */
+          if(apres.classes !== 'bad'){
+            await boite.click();
+            await s.page.keyboard.press('Control+a');
+            await s.page.keyboard.type('4', { delay: 40 });
+            await s.page.keyboard.press('Tab');
+            await s.page.waitForTimeout(200);
+          }
+          rougeAvant = await etat();
           await boite.click();
           await s.page.keyboard.press('Control+a');
           await s.page.keyboard.type('1', { delay: 40 });
           await s.page.waitForTimeout(120);
           rejuge = await etat();
+          await s.page.keyboard.press('Tab');
+          await s.page.waitForTimeout(200);
+          revenu = await etat();
         }catch(e){ souci = e.message; }
 
         verifier('la case témoin du garde est bien celle qu\'on croit tenir',
@@ -4199,9 +4214,16 @@ if(require.main === module) (async () => {
         verifier('en passant à la case suivante, la couleur arrive',
           !!apres && apres.classes !== '',
           souci || 'classes après Tab : « ' + (apres && apres.classes) + ' »');
-        verifier('une case déjà jugée se re-juge sous les doigts',
-          !!rejuge && rejuge.classes !== '' && rejuge.focus === true,
-          souci || 'classes en frappant dans une case déjà jugée : « ' + (rejuge && rejuge.classes) + ' »');
+        verifier('la case témoin est bien rouge avant qu\'on la corrige',
+          !!rougeAvant && rougeAvant.classes === 'bad',
+          souci || 'classes avant la correction : « ' + (rougeAvant && rougeAvant.classes) + ' » — rien à mesurer sans rouge');
+        verifier('une case rouge que l\'élève modifie perd son rouge à la première frappe — et la couleur est calculée',
+          !!rejuge && rejuge.classes === '' && rejuge.retenue !== '' && rejuge.focus === true,
+          souci || 'classes en frappant dans une case rouge : « ' + (rejuge && rejuge.classes) + ' », couleur retenue : « '
+                 + (rejuge && rejuge.retenue) + ' », focus : ' + (rejuge && rejuge.focus));
+        verifier('en quittant la case corrigée, la couleur revient',
+          !!revenu && revenu.classes !== '',
+          souci || 'classes après Tab : « ' + (revenu && revenu.classes) + ' »');
 
         /* ----- la bulle « Comprendre mon erreur » (demande de Turquet,
            septembre 2026) : la même case témoin, quittée FAUSSE, doit faire

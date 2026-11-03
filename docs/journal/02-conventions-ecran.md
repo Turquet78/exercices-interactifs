@@ -332,6 +332,39 @@ laissait tourner les minuteurs des contrôles précédents, l'un d'eux volait le
 focus de la case d'essai, le garde croyait qu'on la quittait — et la mesure
 accusait la page. On avance d'une MICRO-tâche.
 
+**Puis la case ROUGE que l'élève modifie a PERDU SON ROUGE à la première
+frappe.** Décision de Turquet (novembre 2026) : « pour tous les exercices en
+mode soutien, quand une case est rouge et que l'élève la modifie, enlever le
+rouge de la case. » Jusque-là, le premier bord du garde disait le contraire :
+une case déjà jugée n'était pas surveillée, elle se re-jugeait à chaque frappe,
+et restait rouge tant que la réponse n'était pas juste — « 1 » restait rouge le
+temps qu'on tape « 12 », exactement ce que le garde interdit aux cases vierges.
+Le bord est renversé pour le rouge seul : une case déjà JUSTE se re-juge
+toujours sous les doigts (elle est d'ailleurs presque toujours désactivée en
+soutien). Trois choix, chacun motivé. Le rouge se lève sur « input », jamais sur
+la touche seule : une touche peut ne rien changer à la case (une lettre dans une
+case de chiffres), et un rouge levé pour rien laisserait une réponse fausse sans
+couleur. Rien n'est retenu à la levée : le rouge parlait d'une réponse qui
+n'existe plus, et si personne ne rejuge la case — une correction qui n'écoute
+que « Vérifier » — elle reste sans couleur jusqu'à la vérification, plutôt que
+de reposer en sortant le rouge d'une autre réponse ; si la correction rejuge,
+c'est elle que le garde retient et repose à la sortie, comme pour une case
+vierge. Et la levée RÉARME le garde : quand le verdict est arrivé sous un
+curseur qui attendait (le bord « sans frappe »), le garde avait rendu la main,
+et sans réarmement la case corrigée ensuite serait restée rouge. L'entrée dans
+une case rouge l'arme aussi désormais, pour qu'une correction branchée sur
+« keydown » — qui peint avant « input » — soit retenue plutôt que montrée. La
+bulle « Comprendre mon erreur » s'éteint au même geste (`bexpCorrige`, sur
+« input »), et le moteur de fiche de la Terminale, qui ne re-jugeait en direct
+qu'une case déjà marquée, reçoit l'« input » APRÈS le garde (capture sur le
+document) : il ne trouve plus de marque, et attend la sortie. Les deux bancs
+ont suivi : le principal mesure la levée (rien pendant la frappe, « ok »
+retenu, « ok » à la sortie), la case juste qui se re-juge toujours, la levée
+sans juge (rien reposé) et le réarmement ; le navigateur obtient d'abord un
+rouge GARANTI (« 9 » puis « 4 »), frappe dedans, lit l'absence de couleur et la
+couleur retenue, puis Tab la fait revenir. Le garde reste le même texte dans
+les trois fichiers (`gardeLeverRouge`).
+
 **La case rouge propose de COMPRENDRE l'erreur — et l'explication ne part que
 sur un clic.** Demande de Turquet (septembre 2026) : en soutien, quand une case
 devient rouge, expliquer l'erreur à l'aide de l'IA, dans une bulle, sans donner
