@@ -4072,6 +4072,14 @@
 .sv-card{max-width:560px;margin:0 auto;}
 .sv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
 .sv-svg{display:block;width:100%;max-width:440px;height:auto;margin:0 auto;}
+/* AUCUNE FIGURE D'EXERCICE NE SE SÉLECTIONNE COMME DU TEXTE (signalé par
+   Turquet, novembre 2026, sur le 8.2.15) : un glisser qui part du quadrillage
+   à CÔTÉ d'une flèche — pas sur sa prise — sélectionnait les étiquettes u, v,
+   w, M du SVG, et Chrome peint une sélection de texte SVG en pavés bleus à
+   lettres blanches ; un double-clic sur une lettre faisait de même. Rien à
+   copier dans une figure : la règle vaut pour TOUT svg d'un écran d'exercice,
+   et le banc navigateur (section 9) l'exige sur chaque exercice ouvert. */
+section.screen svg{-webkit-user-select:none;user-select:none}
 .sv-ax{font-family:'Nunito',sans-serif;font-size:12px;fill:var(--ink-soft);}
 .sv-cf{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:16px;fill:var(--green);}
 .sv-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
@@ -8919,7 +8927,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=634;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=635;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.

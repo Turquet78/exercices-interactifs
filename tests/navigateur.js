@@ -10574,6 +10574,28 @@ if(require.main === module) (async () => {
       if(e1.survol && !/rgba\(0, 0, 0, 0\)|transparent/.test(e1.survol)) dits.push('pendant l\'étape 1, le nœud survolé montre un point : ' + e1.survol);
       await clic(7, 5);
       if((await etat()).sd) dits.push('pendant l\'étape 1, un clic sur le quadrillage pose un point');
+      /* UN GLISSER PARTI DU QUADRILLAGE, À CÔTÉ D'UNE PRISE, NE SÉLECTIONNE
+         AUCUNE ÉTIQUETTE (signalé par Turquet, novembre 2026 : « sur certains
+         ordis du lycée les élèves voient du bleu » — u, v, w et M en pavés
+         bleus, la sélection de texte SVG de Chrome ; un double-clic sur une
+         lettre faisait de même). Joué sur la page d'avant : « u\nv\nw »
+         sélectionné, puis « M » ; vide après. */
+      {
+        /* d'un coin de la figure à l'autre, en travers de tout : les marges du
+           dessin, le quadrillage et les étiquettes */
+        const r = await s.page.evaluate(() => { window.getSelection().removeAllRanges();
+          const b = document.querySelector('#stvGraph .stv-svg').getBoundingClientRect(); return { l: b.left, t: b.top, r: b.right, b: b.bottom }; });
+        await s.page.mouse.move(r.l + 20, r.t + 20); await s.page.mouse.down();
+        await s.page.mouse.move(r.r - 20, r.b - 20, { steps: 15 }); await s.page.mouse.up(); await s.page.waitForTimeout(120);
+        const sel1 = await s.page.evaluate(() => window.getSelection().toString().replace(/\s+/g, ' ').trim());
+        if(sel1) dits.push('un glisser parti du quadrillage, hors prise, sélectionne du texte : « ' + sel1 + ' »');
+        const t = await s.page.evaluate(() => { const r = document.querySelector('#stvGraph text').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+        await s.page.mouse.dblclick(t.x, t.y); await s.page.waitForTimeout(120);
+        const sel2 = await s.page.evaluate(() => window.getSelection().toString().trim());
+        if(sel2) dits.push('un double-clic sur une étiquette la sélectionne : « ' + sel2 + ' »');
+        await s.page.evaluate(() => { window.getSelection().removeAllRanges(); const q = test.questions[test.idx]; q.sd = null; q.sf = null; renderStv(); });
+        await s.page.waitForTimeout(120);
+      }
       await glisser(0, [2, 2]); await glisser(1, [5, 3]); await glisser(2, [6, 6]);
       const ch = await s.page.evaluate(() => { const q = test.questions[test.idx], c = stvChaine(q); return { u: q.up, v: q.vp, w: q.wp, ok: !!c }; });
       if(!ch.ok) dits.push('u, v, w glissés à la souris ne sont pas bout à bout depuis A : ' + JSON.stringify(ch));
@@ -15869,6 +15891,7 @@ if(require.main === module) (async () => {
       const flechesBloquees = [], flecheMilieuSort = [], flecheMilieu = {}, flechesSansCible = new Set(); let nFleches = 0;
       const casesCalculDits = []; let nCasesCalcul = 0, nCasesFois = 0;
       const avecTables = new Set(), sansTables = new Set();
+      const svgSelectionnables = []; let nSvgVus = 0;
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
           /* La rangée GÉNÉRIQUE survit aux redessins d'un écran PARTAGÉ : le
@@ -16213,6 +16236,14 @@ if(require.main === module) (async () => {
                                w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
                     accolades: [...new Set(connus)], gabarits: gabarits, xDroits: [...new Set(xDroits)], xCtx: xCtx, cases: cases, signes: [...new Set(signes)],
                     debuts: [...new Set(debuts)], etiquettes: etiquettes,
+                    /* AUCUNE FIGURE NE SE SÉLECTIONNE COMME DU TEXTE (signalé
+                       par Turquet, novembre 2026 : sur le 8.2.15, un glisser
+                       parti du quadrillage à côté d'une flèche sélectionnait
+                       les étiquettes u, v, w, M, et Chrome les peignait en
+                       pavés bleus). On relit la RÈGLE EN USAGE sur chaque svg
+                       de l'écran — y compris celui qu'on dessinera demain. */
+                    svgSel: [...on.querySelectorAll('svg')].filter(visible).filter(g => getComputedStyle(g).userSelect !== 'none').length,
+                    nSvg: [...on.querySelectorAll('svg')].filter(visible).length,
                     indices: [...new Set(indices)], nIndices: nIndices,
                     limCases: limCases, limKb: limKb};
           }, !!(P.xItalique && P.xItalique.arrondi));
@@ -16329,6 +16360,8 @@ if(require.main === module) (async () => {
             sansClavier.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + vu.ecran + ')');
           if(vu.etiquettes && vu.etiquettes.length)
             surCourbe.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.etiquettes[0]);
+          nSvgVus += (vu.nSvg || 0);
+          if(vu.svgSel) svgSelectionnables.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.svgSel + ' figure(s)');
           nLimCases += (vu.limCases || 0);
           if(vu.limKb && !(vu.limKb.infini && vu.limKb.vers))
             sansClavierLim.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — '
@@ -16841,6 +16874,17 @@ if(require.main === module) (async () => {
       /* Le même défaut par l'autre porte : du CODE affiché à l'élève. */
       verifier('aucun gabarit « ${…} » non interprété ne reste affiché à l\'élève',
         gabarits.length === 0, gabarits.join(' | '));
+      /* AUCUNE FIGURE D'EXERCICE NE SE SÉLECTIONNE COMME DU TEXTE (signalé par
+         Turquet, novembre 2026, capture du 8.2.15 : u, v, w et M en pavés
+         bleus à lettres blanches — la sélection de texte SVG de Chrome, née
+         d'un glisser parti du quadrillage à CÔTÉ de la prise). La règle
+         `section.screen svg{user-select:none}` vaut pour toute figure ; on
+         l'exige sur chaque svg visible de chaque exercice ouvert. Le geste
+         lui-même se joue sur le 8.2.15 (« 6 quadragies decies »). Un niveau
+         qui n'aurait montré aucune figure n'a rien mesuré, et le dit. */
+      verifier('aucune figure SVG d\'un exercice ne se sélectionne comme du texte (user-select : none)',
+        nSvgVus > 0 && svgSelectionnables.length === 0,
+        svgSelectionnables.length ? svgSelectionnables.slice(0, 4).join(' | ') : (nSvgVus ? nSvgVus + ' figure(s) relues' : 'aucune figure visible : rien mesuré'));
       /* Les exercices ANTÉRIEURS à la règle sont déclarés dans
          « xItalique.dispenses » (tests/profils.js), NOMMÉS : la dette est
          écrite, elle ne s'agrandit pas — tout exercice non déclaré doit

@@ -1723,6 +1723,14 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
 }
 .sv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
 .sv-svg{display:block;width:100%;max-width:440px;height:auto;margin:0 auto;}
+/* AUCUNE FIGURE D'EXERCICE NE SE SÉLECTIONNE COMME DU TEXTE (signalé par
+   Turquet, novembre 2026, sur le 8.2.15) : un glisser qui part du quadrillage
+   à CÔTÉ d'une flèche — pas sur sa prise — sélectionnait les étiquettes u, v,
+   w, M du SVG, et Chrome peint une sélection de texte SVG en pavés bleus à
+   lettres blanches ; un double-clic sur une lettre faisait de même. Rien à
+   copier dans une figure : la règle vaut pour TOUT svg d'un écran d'exercice,
+   et le banc navigateur (section 9) l'exige sur chaque exercice ouvert. */
+section.screen svg{-webkit-user-select:none;user-select:none}
 .sv-ax{font-family:'Nunito',sans-serif;font-size:12px;fill:var(--ink-soft);}
 .sv-cf{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic;font-weight:800;font-size:16px;fill:var(--green);}
 .sv-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
@@ -4450,7 +4458,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=475;
+const APP_VERSION=476;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
