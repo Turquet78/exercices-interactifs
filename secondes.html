@@ -867,7 +867,11 @@
   .pyd-puces code,.pyd-pouce code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px}
   .pyd-note{margin:0 0 12px;text-align:left;font-size:.96rem;color:var(--ink-soft)}
   .pyd-pouces{display:flex;flex-direction:column;gap:6px;margin:0 0 12px;text-align:left}
-  .pyd-pouce{border:1px solid var(--line);border-left:5px solid #7cc18a;border-radius:10px;background:#eef9ef;padding:7px 14px;font-size:.96rem}
+  /* PLUS VOYANT (demande de Turquet, novembre 2026, partie SNT) : un vert plus
+     franc pour le fond et le liseré, et le quadrillage de la zone de travail
+     des exercices Python plus pâle derrière — l'encadré vert s'y détache. */
+  .pyd-pouce{border:1px solid #9ed8ad;border-left:6px solid #2fa35a;border-radius:10px;background:#d9f3e0;padding:7px 14px;font-size:.96rem}
+  .mp-stage:has(.py-cell){background-image:linear-gradient(#e6edf7 1px,transparent 1px),linear-gradient(90deg,#e6edf7 1px,transparent 1px)}
   .pyd-pouce>summary{cursor:pointer;font-family:"Fredoka";font-weight:600;color:var(--ink);list-style:none}
   .pyd-pouce>summary::-webkit-details-marker{display:none}
   .pyd-pouce>summary::before{content:"🔥\00a0"}
@@ -8927,7 +8931,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=636;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=637;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
