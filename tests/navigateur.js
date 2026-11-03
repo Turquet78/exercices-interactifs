@@ -10596,6 +10596,14 @@ if(require.main === module) (async () => {
       if(e1.survol && !/rgba\(0, 0, 0, 0\)|transparent/.test(e1.survol)) dits.push('pendant l\'étape 1, le nœud survolé montre un point : ' + e1.survol);
       await clic(7, 5);
       if((await etat()).sd) dits.push('pendant l\'étape 1, un clic sur le quadrillage pose un point');
+      const tirer = async (de, a, puis) => {
+        const p = await pos(de[0], de[1]), q = await pos(a[0], a[1]);
+        await s.page.mouse.move(p.px, p.py); await s.page.mouse.down(); await s.page.mouse.move(q.px, q.py, { steps: 10 });
+        if(puis){ const r = await pos(puis[0], puis[1]); await s.page.mouse.move(r.px, r.py, { steps: 6 }); }
+        await s.page.mouse.up(); await s.page.waitForTimeout(120);
+      };
+      await tirer([7, 5], [9, 5]);
+      if((await etat()).sd) dits.push('pendant l\'étape 1, un appui glissé sur le quadrillage pose un début');
       /* UN GLISSER PARTI DU QUADRILLAGE, À CÔTÉ D'UNE PRISE, NE SÉLECTIONNE
          AUCUNE ÉTIQUETTE (signalé par Turquet, novembre 2026 : « sur certains
          ordis du lycée les élèves voient du bleu » — u, v, w et M en pavés
@@ -10618,14 +10626,35 @@ if(require.main === module) (async () => {
         await s.page.evaluate(() => { window.getSelection().removeAllRanges(); const q = test.questions[test.idx]; q.sd = null; q.sf = null; renderStv(); });
         await s.page.waitForTimeout(120);
       }
-      await glisser(0, [2, 2]); await glisser(1, [5, 3]); await glisser(2, [6, 6]);
+      /* w glissé jusqu'à sa place puis deux carreaux plus loin sans lâcher :
+         la chaîne faite, le glisser s'arrête, w reste (v636) */
+      await glisser(0, [2, 2]); await glisser(1, [5, 3]); await tirer([11, 7], [7, 5], [5, 5]);
       const ch = await s.page.evaluate(() => { const q = test.questions[test.idx], c = stvChaine(q); return { u: q.up, v: q.vp, w: q.wp, ok: !!c }; });
-      if(!ch.ok) dits.push('u, v, w glissés à la souris ne sont pas bout à bout depuis A : ' + JSON.stringify(ch));
+      if(!ch.ok) dits.push('u, v, w glissés à la souris ne sont pas bout à bout depuis A (w glissé au-delà de sa place) : ' + JSON.stringify(ch));
       await s.page.mouse.move(p7.px, p7.py, { steps: 3 }); await s.page.waitForTimeout(80);
       const e2 = await etat();
       if(e2.ch !== 'vert' || e2.sm !== 'bleu') dits.push('les flèches bout à bout, l\'étape 1 ne passe pas au vert ou l\'étape 2 en bleu : ' + e2.ch + ' / ' + e2.sm);
       if(!e2.curseur) dits.push('l\'étape 2 en cours, aucun point ne suit la souris');
-      /* le début de la somme est SOUS la prise de u : l'appui sans glisser pose au nœud */
+      /* le début de la somme est SOUS le départ de u. La chaîne faite, u n'a
+         plus de prise : un appui sur A qui glisse d'un tiers de carreau pose
+         le point au lieu d'emporter u (constat de Turquet en classe,
+         novembre 2026, v636) */
+      await tirer([2.15, 2], [2.45, 2]);
+      const glisse1 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { sd: JSON.stringify(q.sd), sf: q.sf, up: JSON.stringify(q.up), prises: document.querySelectorAll('#stvPrises .svc-prise').length }; });
+      if(glisse1.sd !== '[2,2]' || glisse1.sf || glisse1.up !== '[2,2]' || glisse1.prises) dits.push('un clic sur A qui glisse d\'un tiers de carreau ne pose pas le début, ou emporte u : ' + JSON.stringify(glisse1));
+      await clic(2, 2);
+      if((await etat()).sd) dits.push('recliquer le début seul ne le retire pas');
+      /* la somme d'un seul trait : appui sur A, glisser jusqu'à la fin de w, relâcher */
+      await tirer([2.15, 2], [8, 4]);
+      const trait = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { sd: JSON.stringify(q.sd), sf: JSON.stringify(q.sf), ch: !!stvChaine(q),
+        trace: [...document.querySelectorAll('#stvTrace line.svc-e')].filter(l => { const r = l.getBoundingClientRect(); return r.width + r.height > 8; }).length }; });
+      if(trait.sd !== '[2,2]' || trait.sf !== '[8,4]' || !trait.ch || trait.trace !== 1) dits.push('la somme glissée d\'un trait de A à la fin de w ne se trace pas : ' + JSON.stringify(trait));
+      /* un appui sur le milieu de u, glissé de deux carreaux : u ne bouge pas, c'est un tracé */
+      await tirer([3.5, 2.5], [5.5, 2.5]);
+      const surU = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { up: JSON.stringify(q.up), ch: !!stvChaine(q), sd: JSON.stringify(q.sd), sf: JSON.stringify(q.sf) }; });
+      if(surU.up !== '[2,2]' || !surU.ch) dits.push('à l\'étape 2, glisser sur u le déplace encore : ' + JSON.stringify(surU));
+      if(surU.sd !== '[4,3]' || surU.sf !== '[6,3]') dits.push('le trait glissé depuis le milieu de u ne va pas de nœud à nœud : ' + JSON.stringify(surU));
+      /* la somme complète, un clic sur A recommence : le début se pose au nœud */
       await clic(2, 2, 0.15);
       const sd = await s.page.evaluate(() => JSON.stringify(test.questions[test.idx].sd));
       if(sd !== '[2,2]') dits.push('le clic sur A, à travers la prise de u, ne pose pas le début de la somme : ' + sd);
