@@ -16119,14 +16119,14 @@ function sommeTroisVecteurs(w, P){
     if(cadres()!=='F/C' || svgE() || el('stvNul').disabled) vus.push('les flèches bout à bout, l\\'étape 1 ne passe pas au vert ou l\\'étape 2 en bleu : '+cadres());
     /* la chaîne faite, plus aucune prise : le début de la somme est sous le
        départ de u, et la prise emportait u au moindre glissement du clic
-       (constat de Turquet en classe, novembre 2026, v635) */
+       (constat de Turquet en classe, novembre 2026, v636) */
     if(document.querySelectorAll('#stvPrises .svc-prise').length) vus.push('les flèches bout à bout, leurs prises restent : le clic sur le point glisserait u');
     if(document.querySelector('#stvGraph .vec-t[onclick], #stvGraph .vec-zone[onclick]')) vus.push('un nœud garde un onclick en ligne : le clic qui suit un tracé glissé poserait deux fois');
     stvPose(2,2);
     if(cadres()!=='F/C') vus.push('le début seul posé, l\\'étape 2 passe déjà : '+cadres());
     stvPose(4,4);
     if(cadres()!=='F/F') vus.push('la somme tracée, l\\'étape 2 ne passe pas au vert : '+cadres());
-    /* la somme d'un seul trait (v635) : l'appui pose le début et remplace le
+    /* la somme d'un seul trait (v636) : l'appui pose le début et remplace le
        tracé en cours, le relâchement pose la fin ; une fin sur le début ne
        pose rien */
     if(!stvGlisseDebut(2,2) || !eg(test.questions[0].sd,[2,2]) || test.questions[0].sf || cadres()!=='F/C') vus.push('l\\'appui glissé ne pose pas le début de la somme : '+JSON.stringify([test.questions[0].sd,test.questions[0].sf]));
