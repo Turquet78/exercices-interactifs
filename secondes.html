@@ -1337,6 +1337,11 @@
   .py-entree{font:inherit;color:var(--ink);background:#fff;border:2px solid #BBD0F7;border-radius:6px;padding:0 6px;margin:0 0 0 2px;width:14ch;max-width:60%;outline:none;vertical-align:baseline}
   .py-entree:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16)}
   .py-entree-ok{font:inherit;margin-left:6px;padding:0 8px;border:1.5px solid #6c8ebf;border-radius:6px;background:#fff;color:var(--ink);cursor:pointer;vertical-align:baseline}
+  /* la vérification retenue tant que la console attend Entrée (#console-attend-entree) */
+  section.screen:has(input[aria-label="ta réponse à la question du programme"]) :is(button[onclick^="check"],button[id$="Validate"]){opacity:.45;cursor:not-allowed;filter:grayscale(.4)}
+  #attendEntreeMsg{margin:8px 0 0;padding:8px 12px;border-radius:8px;background:#FFF4D6;border:1.5px solid #E8B64A;color:#5a3b00;font-weight:700}
+  #attendEntreeMsg.montre{animation:attendEntreeSecoue .35s}
+  @keyframes attendEntreeSecoue{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
   .pyn-phrase{justify-content:flex-start}
   /* la ligne de la définition se REPLIE sur un téléphone au lieu de sortir
      de l'écran (mesuré à 390 px : 56 px de trop, en nowrap) */
@@ -8954,7 +8959,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=639;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=640;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -84824,6 +84829,59 @@ POSE_DOIGT.svr={ hote:'svrGraph',
     document.querySelectorAll('.screen > .card, .choices > .choice').forEach(function(el){ delete el.dataset.marque; tracer(el); });
   }).observe(document.body, {attributes:true, attributeFilter:['class']});
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(tout);
+})();
+</script>
+<script id="console-attend-entree">
+/* UNE CONSOLE PYTHON QUI ATTEND UNE RÉPONSE RETIENT LA VÉRIFICATION (demande
+   de Turquet, novembre 2026). Quand un input() du programme est en cours, la
+   console montre sa question et une case : tant que l'élève n'a pas validé sa
+   réponse par Entrée, le programme n'a pas fini — « Vérifier » jugerait une
+   exécution inachevée. Alors, dans l'écran qui porte une telle case :
+   · tout bouton « Vérifier » / « Revérifier » est retenu : son clic ne part
+     pas (ici), et il est grisé (CSS :has(), près de .py-entree) — sans
+     observateur de mutations : un observateur posé sur tout le document
+     décalait les minuteries du banc jsdom, et un contrôle des devoirs, plus
+     loin, en rougissait ;
+   · un clic ailleurs que dans la case, son bouton ⏎ ou un clavier à l'écran
+     montre, sous la case, « Tu dois appuyer sur Entrée ⏎ pour valider ta
+     réponse », et rend le focus à la case.
+   Une seule porte, sur le document, rien à déclarer : la case se reconnaît à
+   son étiquette, la même dans toutes les consoles de la Seconde (py-entree,
+   pyi-rep, pii-in). */
+(function(){
+  const CASE='input[aria-label="ta réponse à la question du programme"]';
+  const MSG='Tu dois appuyer sur Entrée ⏎ pour valider ta réponse.';
+  function visible(el){ return !!(el && el.isConnected && el.getClientRects().length); }
+  function ecranDe(el){ return el.closest('section.screen')||document.body; }
+  function caseEnAttente(dans){
+    const l=(dans||document).querySelectorAll(CASE);
+    for(let i=0;i<l.length;i++) if(visible(l[i])) return l[i];
+    return null;
+  }
+  function estVerifier(b){ return /^\s*(re)?vérifier\b/i.test(b.textContent||''); }
+  function dire(inp){
+    let b=document.getElementById('attendEntreeMsg');
+    if(!b){ b=document.createElement('div'); b.id='attendEntreeMsg'; b.setAttribute('role','alert'); }
+    b.textContent=MSG;
+    const c=inp.closest('pre, .py-console')||inp.parentNode;
+    if(b.previousElementSibling!==c || !b.isConnected) c.insertAdjacentElement('afterend', b);
+    b.classList.remove('montre'); void b.offsetWidth; b.classList.add('montre');
+    clearTimeout(b._t); b._t=setTimeout(function(){ if(b.isConnected) b.remove(); }, 4000);
+    try{ inp.focus(); }catch(e){}
+  }
+  document.addEventListener('click', function(e){
+    const t=e.target; if(!t || !t.closest) return;
+    const inp=caseEnAttente(ecranDe(t)); if(!inp) return;
+    if(t===inp) return;
+    const bouton=t.closest('button');
+    /* le bouton ⏎ de la case (son voisin), les claviers à l'écran : ils servent la case */
+    if(bouton && bouton.previousElementSibling===inp) return;
+    if(t.closest('#paveNum, math-keyboard, .ML__keyboard, .pave, #attendEntreeMsg')) return;
+    /* relancer le programme est permis : ▶ Exécuter repose la question */
+    if(bouton && /^\s*▶/.test(bouton.textContent||'')) return;
+    if(bouton && estVerifier(bouton)){ e.preventDefault(); e.stopImmediatePropagation(); }
+    dire(inp);
+  }, true);
 })();
 </script>
 </body>
