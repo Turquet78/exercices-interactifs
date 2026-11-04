@@ -1790,3 +1790,21 @@ devoir archivé noté présent, un archivé vide absent, `dmGenre` rendu.
 Exécuté dans Chromium (double de Supabase, quatre devoirs, trois fiches, à
 1280 et 390 px de large) : moyennes 10,3 et 13,5 lues à l'écran, aucune
 erreur, aucun défilement horizontal, le clic ouvre le devoir.
+
+**« 0 » pour un devoir à la maison n°4 ou n°6 PAS FAIT (Seconde, v640,
+demande de Turquet, novembre 2026 : « en seconde mettre 0 si le devoir maison
+n°4 ou n°6 n'a pas été fait »).** Le carnet des moyennes comptait déjà 0 pour
+un devoir pas fait hors « nn ». Mais le bilan du devoir chez le professeur
+écrivait « — / 20 » et sortait l'élève de la moyenne du devoir, et le bilan
+de l'accueil de l'élève écrivait « Pas fait ». Le réglage vit dans
+`GENRE_DEVOIRS.dm.zero = {nums:[4,6]}`, et il est lu par `dmZeroPasFait()`. Aux n°4 et 6, un élève qui n'a
+rien fait lit et fait lire « 0 / 20 » (le bilan du devoir, sa carte dans le
+détail par élève, le bilan de l'accueil avec la marque « pas fait »), et ce 0
+entre dans la moyenne du devoir. Les autres numéros ne changent pas. La liste
+des devoirs de l'élève garde « À faire » : c'est l'invitation à le faire, et
+le bilan de l'accueil dit juste en dessous ce qu'il compte.
+Contrôle : banc principal, dans celui du bilan de l'accueil (`dmZeroPasFait`
+vrai aux n°4 et 6, faux au 5, au 1 et pour une fiche ; le n°4 pas fait
+s'écrit « 0 / 10 »). Exécuté dans Chromium (double de Supabase, deux élèves) :
+au n°4, Anna 14 / 20 et Bob 0 / 20, moyenne du devoir 7 / 20 ; au n°7, Bob
+« — / 10 » et moyenne 5 / 10, inchangés.

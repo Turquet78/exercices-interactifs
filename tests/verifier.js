@@ -28980,6 +28980,9 @@ function moyennesDevoirs(w, apres){
       out.genreRendu=(dmGenre==='snt');
       const div=document.createElement('div'); div.innerHTML=bilanAccueilHTML(bilanAccueilDonnees(devs,'e',[]));
       out.texte=div.textContent;
+      /* « zero » : aux devoirs n°4 et 6 de la Seconde, le PAS FAIT s'écrit 0 */
+      out.zero=[[4,'dm'],[6,'dm'],[5,'dm'],[1,'dm'],[4,'fiche']].map(function(t){
+        return dmZeroPasFait({num:t[0]},t[1])?'0':'-'; }).join('');
     } finally { dmGenre=garde; dmNoteDevoir=vraiNote; }
     return out;
   })()`);
@@ -28997,9 +29000,12 @@ function moyennesDevoirs(w, apres){
         if(!eg(f.bilan, f.prof) || !eg(f.bilan, attendu[g][0])) ecarts.push(g + ' : bilan ' + f.bilan + ', carnet ' + f.prof + ', attendu ' + attendu[g][0]);
         if(f.nums !== attendu[g][1]) ecarts.push(g + ' : lignes ' + f.nums + ' (attendu ' + attendu[g][1] + ')'); });
       if(!o.genreRendu) ecarts.push('dmGenre n’est pas rendu après le bilan');
+      /* le n°4 (x3), pas fait, s'écrit « 0 / 10 » dans le bilan de l'élève */
+      if(o.zero !== '00---') ecarts.push('devoirs « zero » : ' + o.zero + ' (attendu 00---)');
+      if(!/n°4[^n]*0 \/ 10/.test(o.texte || '')) ecarts.push('le n°4 pas fait ne s’écrit pas 0 : ' + o.texte);
       if(/[{}]/.test(o.texte || '') || !/Moyenne/.test(o.texte || '')) ecarts.push('texte affiché : ' + o.texte);
     }
-    verifier('le bilan de l’accueil de l’élève donne la moyenne du carnet du professeur (« abs », « nn » et archives compris)',
+    verifier('le bilan de l’accueil de l’élève donne la moyenne du carnet du professeur (« abs », « nn » et archives compris) — et un devoir n°4 ou 6 pas fait s’y écrit 0',
       !ecarts.length, ecarts.join(' ; '));
   }
   const src = lire(CIBLE);
