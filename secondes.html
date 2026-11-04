@@ -1319,7 +1319,7 @@
   .py-entree:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16)}
   .py-entree-ok{font:inherit;margin-left:6px;padding:0 8px;border:1.5px solid #6c8ebf;border-radius:6px;background:#fff;color:var(--ink);cursor:pointer;vertical-align:baseline}
   /* la vérification retenue tant que la console attend Entrée (#console-attend-entree) */
-  button.verif-attend-entree{opacity:.45;cursor:not-allowed;filter:grayscale(.4)}
+  section.screen:has(input[aria-label="ta réponse à la question du programme"]) :is(button[onclick^="check"],button[id$="Validate"]){opacity:.45;cursor:not-allowed;filter:grayscale(.4)}
   #attendEntreeMsg{margin:8px 0 0;padding:8px 12px;border-radius:8px;background:#FFF4D6;border:1.5px solid #E8B64A;color:#5a3b00;font-weight:700}
   #attendEntreeMsg.montre{animation:attendEntreeSecoue .35s}
   @keyframes attendEntreeSecoue{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
@@ -84719,8 +84719,11 @@ POSE_DOIGT.svr={ hote:'svrGraph',
    console montre sa question et une case : tant que l'élève n'a pas validé sa
    réponse par Entrée, le programme n'a pas fini — « Vérifier » jugerait une
    exécution inachevée. Alors, dans l'écran qui porte une telle case :
-   · tout bouton « Vérifier » / « Revérifier » est retenu (grisé, et son clic
-     ne part pas) ;
+   · tout bouton « Vérifier » / « Revérifier » est retenu : son clic ne part
+     pas (ici), et il est grisé (CSS :has(), près de .py-entree) — sans
+     observateur de mutations : un observateur posé sur tout le document
+     décalait les minuteries du banc jsdom, et un contrôle des devoirs, plus
+     loin, en rougissait ;
    · un clic ailleurs que dans la case, son bouton ⏎ ou un clavier à l'écran
      montre, sous la case, « Tu dois appuyer sur Entrée ⏎ pour valider ta
      réponse », et rend le focus à la case.
@@ -84738,22 +84741,6 @@ POSE_DOIGT.svr={ hote:'svrGraph',
     return null;
   }
   function estVerifier(b){ return /^\s*(re)?vérifier\b/i.test(b.textContent||''); }
-  function marquer(){
-    document.querySelectorAll('button.verif-attend-entree').forEach(function(b){
-      if(!caseEnAttente(ecranDe(b))) b.classList.remove('verif-attend-entree');
-    });
-    document.querySelectorAll(CASE).forEach(function(inp){
-      if(!visible(inp)) return;
-      ecranDe(inp).querySelectorAll('button').forEach(function(b){
-        if(estVerifier(b)) b.classList.add('verif-attend-entree');
-      });
-    });
-  }
-  let prevu=false;
-  new MutationObserver(function(){
-    if(prevu) return; prevu=true;
-    requestAnimationFrame(function(){ prevu=false; marquer(); });
-  }).observe(document.documentElement,{childList:true, subtree:true});
   function dire(inp){
     let b=document.getElementById('attendEntreeMsg');
     if(!b){ b=document.createElement('div'); b.id='attendEntreeMsg'; b.setAttribute('role','alert'); }

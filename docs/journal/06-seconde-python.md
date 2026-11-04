@@ -6757,8 +6757,9 @@ Demande de Turquet, capture du 6.3.3 à l'appui : au c), l'élève avait relanc�
 le programme, la console reposait sa question (« comment tu t'appelles ? »)
 avec sa case vide — et « Vérifier » restait cliquable sur une exécution
 inachevée. Désormais, tant qu'une case de console attend sa réponse, le
-bouton « Vérifier » / « Revérifier » de l'écran est grisé
-(`verif-attend-entree`) et son clic ne part pas ; un clic n'importe où
+bouton « Vérifier » / « Revérifier » de l'écran est grisé (CSS
+`section.screen:has(<la case>)`, boutons `onclick^="check"` ou `id$="Validate"`)
+et son clic ne part pas ; un clic n'importe où
 ailleurs dans l'écran (hors la case, son bouton ⏎, « ▶ Exécuter » et les
 claviers à l'écran) écrit sous la console « Tu dois appuyer sur Entrée ⏎ pour
 valider ta réponse. » et rend le curseur à la case. Une seule porte, sur le
@@ -6772,3 +6773,11 @@ muet, et c'est voulu. Contrôle : banc navigateur, « 6 tricies unvicies »
 (« la console qui ATTEND une réponse retient « Vérifier »… », « un clic
 AILLEURS sur l'écran… », « la réponse partie sur Entrée, « Vérifier » est
 rendu »).
+La première version grisait le bouton par un `MutationObserver` posé sur tout
+le document, qui marquait une classe à chaque image : inerte sous jsdom (aucune
+case n'y a de boîte), il a pourtant fait rougir, au banc principal de la
+Seconde, « un brouillon étiqueté d'un devoir compte comme une note provisoire »
+— rouge dans l'action ET en local, vert sur `main` le même jour, vert aussi
+quand on jouait ce contrôle SEUL. Un observateur de plus sur tout le document
+décale les minuteries d'un banc qui enchaîne mille contrôles : le grisé est
+passé en CSS `:has()`, sans observateur, et le contrôle est revenu au vert.

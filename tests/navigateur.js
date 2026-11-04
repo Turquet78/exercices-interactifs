@@ -15609,7 +15609,7 @@ if(require.main === module) (async () => {
       await s.page.click('#piiRunC');
       await s.page.waitForTimeout(250);
       const att0 = await s.page.evaluate(() => ({ attend: !!document.getElementById('piiConsCIn'),
-        grise: document.getElementById('piiValidate').classList.contains('verif-attend-entree') }));
+        grise: +getComputedStyle(document.getElementById('piiValidate')).opacity < 0.6 }));
       await s.page.click('#piiValidate');
       await s.page.waitForTimeout(250);
       const att1 = await s.page.evaluate(() => { const m = document.getElementById('attendEntreeMsg');
@@ -15626,7 +15626,7 @@ if(require.main === module) (async () => {
       await s.page.keyboard.type('16');
       await s.page.keyboard.press('Enter');
       await s.page.waitForTimeout(300);
-      const att3 = await s.page.evaluate(() => ({ grise: document.getElementById('piiValidate').classList.contains('verif-attend-entree'),
+      const att3 = await s.page.evaluate(() => ({ grise: +getComputedStyle(document.getElementById('piiValidate')).opacity < 0.6,
         val: document.getElementById('piiValidate').disabled }));
       verifier('la réponse partie sur Entrée, « Vérifier » est rendu', !att3.grise && !att3.val, JSON.stringify(att3));
       await s.page.click('#piiValidate');
