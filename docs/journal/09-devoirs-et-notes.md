@@ -1753,3 +1753,40 @@ lui-même) ; banc navigateur (« 6 septies ter » : la ligne de Zoé, rien fait,
 se lit nn|nn|nn|0|nn|0 dans le vrai tableau ; celle d'Émile, 10 / 20 au n°1,
 10|nn|nn|0|nn|0). Le contrôle de la décision du zéro, qui sème des devoirs
 n°1, 2, 4, met le réglage de côté le temps de sa mesure.
+
+**Le bilan de l'élève, sur sa première page — toutes ses notes de devoirs et
+de fiches (Seconde, v639, demande de Turquet, novembre 2026 : « en seconde
+faire un bilan sur la première page de l'élève avec toutes les notes de DM et
+toutes les notes de fiches de travail »).** Sous les boutons de l'accueil, un
+encadré « Mon bilan » : une colonne par famille (devoirs à la maison, fiches de
+travail en classe ; les fiches SNT n'y sont pas, la demande ne les nommait
+pas), chaque devoir avec sa note — telle que la liste des devoirs l'écrit
+(`dmNoteAff` : points bruts pour un devoir, suivis de leur valeur sur 20 ; sur
+20 pour une fiche) —, « Pas fait » / « Pas faite », les marques « abs » et
+« nn », et la **moyenne de la famille sur 20**. Un clic sur une ligne ouvre le
+devoir. L'encadré reste caché tant qu'il n'y a rien à montrer, et aussi quand
+la configuration ou les résultats n'ont pas pu être lus : sans les résultats,
+chaque note dirait 0, et rien vaut mieux qu'un faux bilan.
+
+**Aucun calcul neuf** : la note d'un devoir sort de `dmNoteDevoir()` —
+l'entonnoir du carnet du professeur (meilleur essai, brouillon provisoire,
+note posée, bonus) — et la moyenne suit `dmMoyennes()` : chaque note sur 20, un
+devoir pas fait compte 0, « abs » et « nn » sortent. `dmAbs()` lit la famille
+dans `dmGenre` (l'onglet du professeur) et son texte est comparé entre les
+trois fichiers : `dmAbsDe()` le lui PRÊTE le temps d'un appel, puis le rend,
+plutôt que d'en écrire une seconde copie.
+
+**Le seul écart possible, nommé** : le carnet garde un devoir retiré (ou
+archivé) dès qu'un élève QUELCONQUE y a une note ; l'élève ne lit que ses
+propres lignes. Son bilan montre donc les devoirs qu'il voit et ceux où lui a
+une note — un devoir retiré où il n'a rien, mais d'autres si, lui compte 0
+dans le carnet et n'apparaît pas dans son bilan.
+
+Contrôle : banc principal (« le bilan de l'accueil de l'élève donne la moyenne
+du carnet du professeur ») — mêmes notes passées au bilan et à `dmMoyennes()`,
+les deux moyennes doivent être égales et valoir celle calculée à la main (28/3
+pour les devoirs avec un « nn », 14 pour les fiches avec deux « abs »), un
+devoir archivé noté présent, un archivé vide absent, `dmGenre` rendu.
+Exécuté dans Chromium (double de Supabase, quatre devoirs, trois fiches, à
+1280 et 390 px de large) : moyennes 10,3 et 13,5 lues à l'écran, aucune
+erreur, aucun défilement horizontal, le clic ouvre le devoir.
