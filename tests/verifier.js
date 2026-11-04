@@ -28947,6 +28947,61 @@ function moyennesDevoirs(w, apres){
       abs.ok && Object.keys(o).length >= 2 && !ecarts.length,
       souci || (Object.keys(o).length < 2 ? 'aucune famille mesurée : le contrôle ne mesure rien' : ecarts.join(' ; ')));
   }
+  /* LE BILAN DE L'ACCUEIL DE L'ÉLÈVE (Seconde, demande de Turquet, novembre
+     2026) : toutes ses notes de devoirs et de fiches, et la moyenne de chaque
+     famille. Il ne calcule RIEN de neuf — et c'est ce qu'on mesure : sur les
+     mêmes notes, sa moyenne doit être celle que le carnet du professeur
+     (dmMoyennes) donne au même élève, « abs » et « nn » compris ; un devoir
+     archivé où l'élève n'a rien n'y paraît pas, un devoir archivé noté oui ;
+     et dmGenre, l'onglet du professeur, prêté le temps de dmAbs, est rendu. */
+  const bilan = evaluer(w, `(function(){
+    if(typeof bilanAccueilDonnees!=='function') return null;
+    const garde=dmGenre, vraiNote=dmNoteDevoir, out={};
+    try{
+      const notes={ x1:[6,true], x2:[0,true], x3:[0,false], x4:[8,true], x5:[0,false] };
+      dmNoteDevoir=function(d){ const n=notes[d.id];
+        return { somme:n[0], totMax:10, nbFait:n[1]?1:0, nbExos:1, fait:n[1], exd:[] }; };
+      const ex=[{id:Object.keys(TESTS)[0],modes:['train']}];
+      const devs=[{id:'x1',num:1,actif:true},{id:'x2',num:2,actif:true},{id:'x3',num:4,actif:true},
+                  {id:'x4',num:7,actif:false,archive:true},{id:'x5',num:8,actif:false,archive:true}]
+        .map(function(d){ return Object.assign({titre:'T',exercices:ex},d); });
+      /* le carnet garde un devoir retiré où quelqu'un a une note : x4 y entre
+         donc, et x5 (personne) non — le prof le voit « actif » faute de lignes */
+      const carnet=devs.slice(0,4).map(function(d){ return Object.assign({},d,{actif:true}); });
+      dmGenre='snt';
+      ['dm','fiche'].forEach(function(g){
+        const tag=devs.map(function(d){ return Object.assign({genre:g},d); });
+        const F=bilanAccueilDonnees(tag,'e',[]).filter(function(f){ return f.genre===g; })[0];
+        const avant=dmGenre; dmGenre=g;
+        const prof=dmMoyennes(carnet,[{id:'e',prenom:'E'}],[]).lignes[0].moyenne;
+        dmGenre=avant;
+        out[g]={ bilan:F.moyenne, prof:prof, nums:F.lignes.map(function(l){ return l.dev.num+(l.abs||''); }).join(',') };
+      });
+      out.genreRendu=(dmGenre==='snt');
+      const div=document.createElement('div'); div.innerHTML=bilanAccueilHTML(bilanAccueilDonnees(devs,'e',[]));
+      out.texte=div.textContent;
+    } finally { dmGenre=garde; dmNoteDevoir=vraiNote; }
+    return out;
+  })()`);
+  if(bilan.ok && bilan.valeur === null){
+    ignorer('le bilan de l’accueil de l’élève donne la moyenne du carnet du professeur', 'ce niveau n’a pas de bilan à l’accueil');
+  } else {
+    const o = bilan.ok ? bilan.valeur : {};
+    const eg = (a, b) => a != null && b != null && Math.abs(a - b) < 1e-9;
+    const ecarts = [];
+    if(!bilan.ok) ecarts.push('erreur JavaScript : ' + bilan.erreur);
+    else {
+      /* devoirs : 12 | nn | 0 | 16 → 28/3 ; fiches : 12 | abs | abs | 16 → 14 */
+      const attendu = { dm: [28/3, '1,2nn,4,7'], fiche: [14, '1,2abs,4abs,7'] };
+      ['dm','fiche'].forEach(g => { const f = o[g] || {};
+        if(!eg(f.bilan, f.prof) || !eg(f.bilan, attendu[g][0])) ecarts.push(g + ' : bilan ' + f.bilan + ', carnet ' + f.prof + ', attendu ' + attendu[g][0]);
+        if(f.nums !== attendu[g][1]) ecarts.push(g + ' : lignes ' + f.nums + ' (attendu ' + attendu[g][1] + ')'); });
+      if(!o.genreRendu) ecarts.push('dmGenre n’est pas rendu après le bilan');
+      if(/[{}]/.test(o.texte || '') || !/Moyenne/.test(o.texte || '')) ecarts.push('texte affiché : ' + o.texte);
+    }
+    verifier('le bilan de l’accueil de l’élève donne la moyenne du carnet du professeur (« abs », « nn » et archives compris)',
+      !ecarts.length, ecarts.join(' ; '));
+  }
   const src = lire(CIBLE);
   const LISTE = (src.match(/dmMoyDernier\s*=\s*dmMoyennes\(\s*([A-Za-z_$][\w$]*)\s*,/) || [])[1];
   if(!LISTE){
