@@ -1791,7 +1791,7 @@ Exécuté dans Chromium (double de Supabase, quatre devoirs, trois fiches, à
 1280 et 390 px de large) : moyennes 10,3 et 13,5 lues à l'écran, aucune
 erreur, aucun défilement horizontal, le clic ouvre le devoir.
 
-**« 0 » pour un devoir à la maison n°4 ou n°6 PAS FAIT (Seconde, v640,
+**« 0 » pour un devoir à la maison n°4 ou n°6 PAS FAIT (Seconde, v641,
 demande de Turquet, novembre 2026 : « en seconde mettre 0 si le devoir maison
 n°4 ou n°6 n'a pas été fait »).** Le carnet des moyennes comptait déjà 0 pour
 un devoir pas fait hors « nn ». Mais le bilan du devoir chez le professeur
