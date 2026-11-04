@@ -662,6 +662,25 @@
   .sig-repzone{margin-top:8px}
   .rep-bloc{margin-top:16px;border:1.5px solid var(--blue);border-radius:12px;padding:12px 14px;background:#f4f8ff;text-align:left}
   .rep-bloc h3{margin:0 0 10px;font-size:1rem;color:var(--blue)}
+  /* Le bilan de l'accueil : toutes les notes des devoirs à la maison et des
+     fiches de travail, une famille par colonne quand la largeur le permet. */
+  .bilan-acc{margin-top:18px;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface);text-align:left}
+  .bilan-acc h3{margin:0 0 10px;font-size:1.05rem;color:var(--ink)}
+  .ba-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .ba-fam h4{margin:0 0 4px;font-size:.95rem;color:var(--blue)}
+  .ba-moy{font-family:"Fredoka";font-weight:600;font-size:1rem;color:var(--ink);margin:0 0 8px}
+  .ba-list{list-style:none;margin:0;padding:0}
+  .ba-ligne{display:flex;justify-content:space-between;align-items:baseline;gap:10px;width:100%;box-sizing:border-box;padding:6px 8px;border:0;border-top:1px solid var(--line);background:none;font:inherit;color:var(--ink);text-align:left}
+  button.ba-ligne{cursor:pointer;border-radius:6px}
+  button.ba-ligne:hover{background:#f4f8ff}
+  .ba-nom{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ba-titre{color:var(--ink-soft);font-size:.86rem}
+  .ba-note{flex:none;font-family:"Fredoka";font-weight:600;white-space:nowrap}
+  .ba-note small{color:var(--ink-soft);font-weight:500}
+  .ba-afaire{color:var(--ink-soft);font-weight:500}
+  .ba-tag{font-size:.75rem;font-weight:700;color:var(--ink-soft);border:1px solid var(--line);border-radius:999px;padding:1px 7px;margin-left:6px}
+  .ba-vide{color:var(--ink-soft);font-size:.9rem}
+  .ba-leg{margin:10px 0 0;font-size:.8rem;color:var(--ink-soft)}
   .rep-item{border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
   .rep-item:first-of-type{border-top:0;padding-top:0;margin-top:0}
   .rep-exo{font-size:.78rem;font-weight:700;color:#fff;background:var(--blue);padding:3px 10px;border-radius:999px}
@@ -4996,6 +5015,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
           <span class="ds">Tes 5 tests avec la moins bonne note, à retravailler pour progresser.</span>
         </button>
       </div>
+      <!-- Le bilan : toutes les notes des devoirs à la maison et des fiches de
+           travail en classe. Posé par chargerBilanAccueil() ; caché tant qu'il
+           n'y a rien à montrer. -->
+      <div class="bilan-acc" id="bilanAccueil" hidden></div>
     </div>
   </section>
 
@@ -8931,7 +8954,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=638;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=639;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -14977,6 +15000,101 @@ function ouvrirEspaceSuite(){
   /* Les réponses du professeur, s'il y en a. Lancée sans attendre : l'accueil
      ne doit pas patienter sur une lecture, et le panneau se pose ensuite. */
   chargerReponsesProf();
+  chargerBilanAccueil();
+}
+/* ======================= LE BILAN DE L'ACCUEIL =======================
+   Demande de Turquet, novembre 2026 : « en seconde, faire un bilan sur la
+   première page de l'élève avec toutes les notes de DM et toutes les notes
+   de fiches de travail ». Chaque devoir et chaque fiche, sa note, et la
+   moyenne de la famille SUR 20.
+   AUCUN CALCUL NEUF : la note d'un devoir sort de dmNoteDevoir() — l'entonnoir
+   du carnet du professeur (meilleur essai, brouillon provisoire, note posée,
+   bonus) —, son affichage de dmNoteAff() — celui de la liste des devoirs —, et
+   la moyenne suit la règle de dmMoyennes() : chaque note ramenée sur 20, un
+   devoir pas fait compte 0, sauf ce que dmAbs() écrit « abs » ou « nn », qui
+   sort de la moyenne. Deux calculs auraient fini par donner deux moyennes à
+   l'élève et au professeur.
+   QUELS DEVOIRS : ceux que l'élève voit (actifs, non archivés), et ceux où il
+   a une note — un devoir retiré garde ainsi les notes qu'il a produites. Le
+   carnet du professeur, lui, garde aussi un devoir retiré où un AUTRE élève a
+   une note ; l'élève ne lit que ses propres lignes et ne peut pas le savoir :
+   c'est le seul écart possible, et il est nommé. */
+const BILAN_ACC_GENRES=['dm','fiche'];
+let bilanAccJeton=0;
+/* dmAbs() lit la famille dans dmGenre (l'onglet du professeur) et son texte
+   est le même dans les trois fichiers — un banc le compare. On le prête ici,
+   le temps d'un appel, plutôt que d'en écrire une seconde copie. */
+function dmAbsDe(genre, fait, sur20, dev){
+  const avant=dmGenre; dmGenre=genre;
+  try{ return dmAbs(fait, sur20, dev); } finally{ dmGenre=avant; }
+}
+function bilanAccueilDonnees(devoirs, eleveId, rows){
+  return BILAN_ACC_GENRES.map(function(g){
+    let total=0, nb=0;
+    const lignes=(devoirs||[])
+      .filter(function(d){ return d && (d.genre||'dm')===g && dmNbExos(d)>0; })
+      .map(function(d){ return { dev:d, n:dmNoteDevoir(d, eleveId, rows) }; })
+      .filter(function(x){ return (x.dev.actif && !dmEstArchive(x.dev)) || x.n.fait; })
+      .sort(function(a,b){ return (a.dev.num||0)-(b.dev.num||0); })
+      .map(function(x){
+        const sur20 = x.n.totMax>0 ? x.n.somme/x.n.totMax*20 : 0;
+        const abs=dmAbsDe(g, x.n.fait, sur20, x.dev);
+        if(!abs){ total+=sur20; nb++; }
+        return { dev:x.dev, fait:x.n.fait, sur20:sur20, abs:abs,
+                 ouvert:!!(x.dev.actif && !dmEstArchive(x.dev)),
+                 aff:dmNoteAff(g, x.n.somme, x.n.totMax) };
+      });
+    return { genre:g, lignes:lignes, moyenne: nb ? total/nb : null };
+  });
+}
+function bilanAccueilHTML(D){
+  const titres={ dm:'Devoirs à la maison', fiche:'Fiches de travail en classe' };
+  let marques=false, zeros=false;
+  const cols=D.map(function(F){
+    const G=GENRE_DEVOIRS[F.genre];
+    const moy='<p class="ba-moy">Moyenne : '+(F.moyenne==null?'—':fmtNote(F.moyenne)+' / 20')+'</p>';
+    const corps=F.lignes.length ? '<ul class="ba-list">'+F.lignes.map(function(L){
+      let note;
+      if(!L.fait) note='<span class="ba-afaire">'+(G.fem?'Pas faite':'Pas fait')+'</span>';
+      else{
+        note=fmtNote(L.aff.note)+' / '+L.aff.sur;
+        if(L.aff.sur!==20) note+=' <small>('+fmtNote(L.sur20)+' / 20)</small>';
+      }
+      if(L.abs){ marques=true; note+='<span class="ba-tag">'+L.abs+'</span>'; }
+      else if(!L.fait) zeros=true;
+      const nom='<span class="ba-nom">'+G.badge+' n°'+esc(String(L.dev.num))
+               +(L.dev.titre?' <span class="ba-titre">· '+esc(L.dev.titre)+'</span>':'')+'</span>';
+      const inner=nom+'<span class="ba-note">'+note+'</span>';
+      return '<li>'+(L.ouvert
+        ? '<button type="button" class="ba-ligne" onclick="ouvrirDevoirDetail(\''+escJS(L.dev.id)+'\')">'+inner+'</button>'
+        : '<div class="ba-ligne">'+inner+'</div>')+'</li>';
+    }).join('')+'</ul>' : '<p class="ba-vide">'+G.vide+'</p>';
+    return '<div class="ba-fam"><h4>'+titres[F.genre]+'</h4>'+moy+corps+'</div>';
+  }).join('');
+  return '<h3>📊 Mon bilan</h3><div class="ba-cols">'+cols+'</div>'
+    +'<p class="ba-leg">Chaque note est ramenée sur 20 pour la moyenne.'
+    +(zeros?' Ce qui n’est pas fait compte 0.':'')
+    +(marques?' « abs » et « nn » (non noté) ne comptent pas dans la moyenne.':'')+'</p>';
+}
+async function chargerBilanAccueil(){
+  const hote=$('bilanAccueil'); if(!hote) return;
+  hote.hidden=true; hote.innerHTML='';
+  if(!currentEleve||!currentEleve.id) return;
+  const jeton=++bilanAccJeton, eleveId=currentEleve.id;
+  let devoirs, rows;
+  try{
+    devoirs=famillesDevoirs(await loadConfig());
+    if(CONFIG_ERREUR) return;                      /* une configuration par défaut n'est pas la vraie liste */
+    const {data,error}=await lireToutes(()=>sb.from('resultats_2nde').select('*').eq('eleve_id',eleveId));
+    if(error) return;                              /* sans les résultats, chaque note dirait 0 : rien plutôt qu'un faux bilan */
+    rows=data||[];
+  }catch(e){ return; }
+  /* l'élève a pu changer d'écran, ou un autre se connecter, pendant la lecture */
+  if(jeton!==bilanAccJeton||!currentEleve||currentEleve.id!==eleveId) return;
+  const D=bilanAccueilDonnees(devoirs, eleveId, rows);
+  if(!D.some(function(F){ return F.lignes.length; })) return;
+  hote.innerHTML=bilanAccueilHTML(D);
+  hote.hidden=false;
 }
 /* ======================= SIGNALER UN PROBLÈME =======================
    Trois pannes sont passées en production sans qu'un seul contrôle ne rougisse,
