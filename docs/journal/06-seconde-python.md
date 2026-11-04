@@ -6752,7 +6752,7 @@ principal) : `pprDiag("4.0","4")`, `pprDiag("Aire : 15.0","Aire : 15")` justes,
 la situation de la copie d'écran). Exécuté dans Chromium : le 6.2.13 mené sur
 trois questions en tapant chaque float sans son `.0`, 9 cases sur 9 bleues.
 
-**Une console qui ATTEND une réponse retient « Vérifier » (Seconde v639, novembre 2026).**
+**Une console qui ATTEND une réponse retient « Vérifier » (Seconde v640, novembre 2026).**
 Demande de Turquet, capture du 6.3.3 à l'appui : au c), l'élève avait relancé
 le programme, la console reposait sa question (« comment tu t'appelles ? »)
 avec sa case vide — et « Vérifier » restait cliquable sur une exécution
