@@ -6751,3 +6751,24 @@ principal) : `pprDiag("4.0","4")`, `pprDiag("Aire : 15.0","Aire : 15")` justes,
 « 3 » pour 3.0 ({python-type-resultat}) et « 15 » pour 15.0 ({python-priorites},
 la situation de la copie d'écran). Exécuté dans Chromium : le 6.2.13 mené sur
 trois questions en tapant chaque float sans son `.0`, 9 cases sur 9 bleues.
+
+**Une console qui ATTEND une réponse retient « Vérifier » (Seconde v639, novembre 2026).**
+Demande de Turquet, capture du 6.3.3 à l'appui : au c), l'élève avait relancé
+le programme, la console reposait sa question (« comment tu t'appelles ? »)
+avec sa case vide — et « Vérifier » restait cliquable sur une exécution
+inachevée. Désormais, tant qu'une case de console attend sa réponse, le
+bouton « Vérifier » / « Revérifier » de l'écran est grisé
+(`verif-attend-entree`) et son clic ne part pas ; un clic n'importe où
+ailleurs dans l'écran (hors la case, son bouton ⏎, « ▶ Exécuter » et les
+claviers à l'écran) écrit sous la console « Tu dois appuyer sur Entrée ⏎ pour
+valider ta réponse. » et rend le curseur à la case. Une seule porte, sur le
+document (`#console-attend-entree`, fin de fichier) : la case se reconnaît à
+son étiquette `aria-label="ta réponse à la question du programme"`, commune
+aux trois familles de consoles (`py-entree` de `pzLancer`/`pynLancer`,
+`pyi-rep` des dialogues `xxxPas`, `pii-in` du 6.3.3) — une console ajoutée
+demain avec la même étiquette est couverte sans rien déclarer. Un « Vérifier »
+déjà `disabled` par l'exercice ne reçoit aucun clic du navigateur : il reste
+muet, et c'est voulu. Contrôle : banc navigateur, « 6 tricies unvicies »
+(« la console qui ATTEND une réponse retient « Vérifier »… », « un clic
+AILLEURS sur l'écran… », « la réponse partie sur Entrée, « Vérifier » est
+rendu »).
