@@ -2487,7 +2487,13 @@ module.exports = {
              /* et le GUIDAGE de la résolution (Turquet, octobre 2026, devant le
                 PDF du 5.6.1 : « il y a encore l'aide à la résolution, je ne veux
                 que les énoncés ») : la chaîne « lim Uₙ = … car … » et sa piste */
-             guide: { exercice: 'suite-limite-puissance', question: 'Détermine sa limite', absents: ['car', 'lim'] } },
+             guide: [{ exercice: 'suite-limite-puissance', question: 'Détermine sa limite', absents: ['car', 'lim'] },
+                     /* et le 7.1.1 (Turquet, novembre 2026, DM n°10) : ses groupes
+                        écrits inline-flex dans une rangée flex sont blockifiés,
+                        et le papier gardait les restes de la chaîne (« = »,
+                        « ; », la colonne « B − A ») — pas « et » : la question
+                        elle-même dit « les points A et B » */
+                     { exercice: 'espace-coordonnees', question: 'La longueur', absents: ['=', ';', '−'] }] },
     /* La Terminale a la touche « / » de plus : ses tangentes acceptent p/q. */
     /* Le témoin du GARDE DE LA SAISIE : en soutien, une case ne se colore pas
        tant que l'élève y écrit (décision de Turquet, août 2026). Il faut une
