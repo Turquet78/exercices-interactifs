@@ -3239,21 +3239,56 @@ if(require.main === module) (async () => {
         'écran ' + enonce.ecran + ', « ' + enonce.texte.slice(0, 100) + ' »');
       verifier('et aucune aide : « ' + DP.aide + ' » n\'y est plus', enonce.texte.indexOf(DP.aide) < 0,
         '« …' + enonce.texte.slice(Math.max(0, enonce.texte.indexOf(DP.aide) - 60), enonce.texte.indexOf(DP.aide) + 60) + '… »');
+      /* LE CADRE AU MARQUEUR DE L'ÉCRAN NE PASSE PAS SUR LE PAPIER. C'est une
+         image de fond posée EN LIGNE sur la carte (#cadres-marqueur) : le
+         clone la gardait, et le papier montrait des traits bleus en travers
+         de l'énoncé, mesurés pour une autre taille (signalé par Turquet,
+         novembre 2026, sur le DM n°10). */
+      /* Le défaut ne se montre que si l'écran de l'exercice a DÉJÀ été vu
+         (sa carte porte alors son trait) : le banc l'affiche d'abord, attend
+         le trait, puis reprend la photo — et le dit s'il n'y a pas de trait
+         à garder, plutôt que de passer au vert sans rien mesurer (premier
+         essai : le sabotage restait vert). */
+      const marques = await s.page.evaluate(async ex => {
+        try{ await TESTS[ex].start(); }catch(e){}
+        clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+        await new Promise(r => setTimeout(r, 900));
+        const avant = !!document.querySelector('.screen.on > .card.marque');
+        mesDevoirs = [{ id:'dm-pdf-m', num:6, actif:true, exercices:[{ id:ex, modes:['train'] }] }];
+        await dmePapierOuvrir('dm-pdf-m', ex);
+        const c = document.getElementById('dmeCorps');
+        const l = c ? [...c.querySelectorAll('*')].filter(e => e.classList.contains('marque') || /url\(/.test(e.style.backgroundImage || ''))
+          .map(e => e.tagName.toLowerCase() + '.' + [...e.classList].join('.')) : ['(pas de #dmeCorps)'];
+        dmeRetour();
+        return { avant, l };
+      }, DP.exercice);
+      verifier('l\'énoncé papier ne porte pas le cadre au marqueur de l\'écran',
+        marques.avant && marques.l.length === 0,
+        !marques.avant ? 'la carte de l\'exercice n\'avait pas son trait avant la photo : rien à mesurer'
+                       : marques.l.length + ' élément(s) le gardent : ' + marques.l.slice(0, 4).join(', '));
       /* LE GUIDAGE NE PASSE PAS SUR LE PAPIER : la chaîne à compléter part,
-         la question reste — mesuré sur le texte de l'énoncé papier rendu */
-      if(DP.guide){
+         la question reste — mesuré sur le texte de l'énoncé papier rendu, ses
+         dessins ôtés (leurs graduations ne sont pas du guidage). Plusieurs
+         témoins : la « ligne » d'une case se cherchait par l'affichage
+         CALCULÉ, et l'enfant d'une rangée flex y est blockifié — le 7.1.1
+         gardait « et », « ‾2 ; ‾2 », « B − A », « AB = = » (novembre 2026). */
+      for(const G of [].concat(DP.guide || [])){
         const g = await s.page.evaluate(async ex => {
           mesDevoirs = [{ id:'dm-pdf-g', num:5, actif:true, exercices:[{ id:ex, modes:['train'] }] }];
           await dmePapierOuvrir('dm-pdf-g', ex);
           const c = document.getElementById('dmeCorps');
-          const t = c ? c.textContent.replace(/\s+/g, ' ') : '';
+          const k = c ? c.cloneNode(true) : null;
+          if(k) k.querySelectorAll('svg').forEach(e => e.remove());
+          const t = k ? k.textContent.replace(/\s+/g, ' ') : '';
           dmeRetour();
           return t;
-        }, DP.guide.exercice);
-        const restes = DP.guide.absents.filter(m => new RegExp('(^|[^\\p{L}])' + m + '([^\\p{L}]|$)', 'u').test(g));
-        verifier('l\'énoncé papier garde la question et perd le guidage (' + DP.guide.exercice + ')',
-          g.indexOf(DP.guide.question) >= 0 && restes.length === 0,
+        }, G.exercice);
+        const restes = G.absents.filter(m => new RegExp('(^|[^\\p{L}])' + m + '([^\\p{L}]|$)', 'u').test(g));
+        verifier('l\'énoncé papier garde la question et perd le guidage (' + G.exercice + ')',
+          g.indexOf(G.question) >= 0 && restes.length === 0,
           restes.length ? 'il reste « ' + restes.join(' », « ') + ' » : ' + g.slice(0, 160) : 'la question manque : ' + g.slice(0, 160));
+      }
+      {                                      /* le cadre et le guidage ont quitté l'énoncé : on y revient */
         await s.page.evaluate(ex => { mesDevoirs = [{ id:'dm-pdf', num:4, actif:true, titre:'Devoir du banc', exercices:[{ id:ex, modes:['train'] }] }]; }, DP.exercice);
         await s.page.evaluate(ex => dmePapierOuvrir('dm-pdf', ex), DP.exercice);
         await s.page.waitForTimeout(1200);

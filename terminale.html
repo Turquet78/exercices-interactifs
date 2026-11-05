@@ -4458,7 +4458,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=478;
+const APP_VERSION=479;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -6111,7 +6111,7 @@ function dmEnonceMontrer(devoirId, testId){
    de la vue du professeur, qui lisent tous ce capteur. Une aide écrite AU
    MILIEU d'une phrase d'énoncé se marque d'un <span class="aide-ecran"> : la
    page la montre, le papier la tait. */
-const DME_AIDES='.sp-tbl,.tx-avec,.dexp-formula,.sa-lnote,.rfr-legende,.aide-ecran,[class*="hint"],.lr-exemple,.rr-attendu,.eav-note,.rfr-note,.apf-astuce,.apf-mode,.apf-jetons,.expr-help,.tvi-tools';
+const DME_AIDES='.ecb-aide,.sp-tbl,.tx-avec,.dexp-formula,.sa-lnote,.rfr-legende,.aide-ecran,[class*="hint"],.lr-exemple,.rr-attendu,.eav-note,.rfr-note,.apf-astuce,.apf-mode,.apf-jetons,.expr-help,.tvi-tools';
 /* LE PAPIER NE GARDE QUE L'ÉNONCÉ (Turquet, octobre 2026, devant le PDF du
    5.6.1 : « il y a encore l'aide à la résolution de l'énoncé, je ne veux que
    les énoncés »). Sur l'écran, l'exercice GUIDE : « lim Uₙ = … car … », la
@@ -6131,6 +6131,24 @@ function dmeFigure(e){
   if(e.querySelector('img,canvas')) return true;
   return Array.prototype.some.call(e.querySelectorAll('svg'), function(g){ const r=g.getBoundingClientRect(); return r.width>80&&r.height>60; });
 }
+/* L'AFFICHAGE ÉCRIT, PAS CELUI QUE LE NAVIGATEUR CALCULE. L'enfant d'une
+   rangée flex ou grid est « blockifié » : un groupe écrit inline-flex dans la
+   phrase (« I ( … ; … ; … ) » du 7.1.1) s'y lit flex, et passait pour une
+   LIGNE — le papier retirait les cases avec leur groupe et gardait les restes
+   de la chaîne : « et », les barres « ‾2 », la colonne « B − A », les racines
+   vides (signalé par Turquet, novembre 2026, sur le DM n°10). La valeur écrite
+   se relit en rendant un instant son parent bloc — un calcul de style, sans
+   mise en page ; le parent retrouve aussitôt son style d'avant. */
+function dmeDisplayEcrit(x){
+  const d=getComputedStyle(x).display, p=x.parentElement;
+  if(!p||!/^(block|flex|grid|table|list-item|flow-root)$/.test(d)||!/(flex|grid)$/.test(getComputedStyle(p).display)) return d;
+  const avait=p.hasAttribute('style'), ancien=p.style.getPropertyValue('display'), prio=p.style.getPropertyPriority('display');
+  p.style.setProperty('display','block','important');
+  const r=getComputedStyle(x).display;
+  if(ancien) p.style.setProperty('display',ancien,prio); else p.style.removeProperty('display');
+  if(!avait) p.removeAttribute('style');
+  return r;
+}
 function dmeLigneDe(v, section){
   if(v.type==='checkbox'||v.type==='radio') return v;
   /* un TABLEAU à compléter (signe, variation) part entier : sur le papier,
@@ -6143,8 +6161,8 @@ function dmeLigneDe(v, section){
      ligne : le numérateur d'une fraction est un bloc, mais la fraction est
      posée dans la phrase (inline-flex) — s'arrêter au numérateur laissait
      « = × − × » et les barres vides de la chaîne */
-  const blocPur=function(x){ return /^(block|flex|grid|table|list-item|flow-root)$/.test(getComputedStyle(x).display); };
-  const dansLigne=function(x){ for(let a=x.parentElement; a&&a!==section; a=a.parentElement){ if(/^inline-/.test(getComputedStyle(a).display)) return a; } return null; };
+  const blocPur=function(x){ return /^(block|flex|grid|table|list-item|flow-root)$/.test(dmeDisplayEcrit(x)); };
+  const dansLigne=function(x){ for(let a=x.parentElement; a&&a!==section; a=a.parentElement){ if(/^inline-/.test(dmeDisplayEcrit(a))) return a; } return null; };
   let e=v.parentElement;
   while(e&&e!==section){
     if(blocPur(e)){ const a=dansLigne(e); if(!a) break; e=a; }
@@ -6161,7 +6179,7 @@ function dmeLigneDe(v, section){
    chose : une question (un verbe à l'impératif ou à l'infinitif, après une
    éventuelle lettre « a) », « 2. », « Partie B — »), une donnée (« Soit… »,
    « On donne… »), ou une proposition à cocher. */
-const DME_QUESTION=/^\s*(?:(?:[a-j]\)|[a-j1-9]\.|\(\d+\)|Partie\s+[A-Z]\b|Exercice\s*\d+|Exemple\s*\d+)\s*\S|●?\s*(?:☐|D[ée]montr|Montr(?!ons)|Calcul|D[ée]termin|[ÉE]tudi|Justifi|Donn|D[ée]dui|En d[ée]dui|Conjectur|Exprim|R[ée]sou|Trac|R[ée]dig|Interpr[ée]t|Que |Quel|Associ|Dire|Repr[ée]sent|Cliqu|[ÉE]cri|Lis|Lire|Compl[ée]t|Choisi|Indiqu|V[ée]rifi|Pr[ée]cis|Dress|Trouv|Expliqu|Coch|Plac|Avec la calculatrice|[ÀA] l.aide|Pour chaque|Voici|Soit|On (?:donne|consid|sait|admet|note|prend|choisit|s.int[ée]resse|veut)|Les contre-exemples|Le programme|La suite \(.{1,6}\) semble|[ÉE]tude|Sachant|Parmi))/i;
+const DME_QUESTION=/^\s*(?:(?:[a-z]\)|[a-j1-9]\.|\(\d+\)|Partie\s+[A-Z]\b|Exercice\s*\d+|Exemple\s*\d+)\s*\S|●?\s*(?:☐|D[ée]montr|Montr(?!ons)|Calcul|D[ée]termin|[ÉE]tudi|Justifi|Donn|D[ée]dui|En d[ée]dui|Conjectur|Exprim|R[ée]sou|Trac|R[ée]dig|Interpr[ée]t|Que |Quel|Associ|Dire|Repr[ée]sent|Cliqu|[ÉE]cri|Lis|Lire|Compl[ée]t|Choisi|Indiqu|V[ée]rifi|Pr[ée]cis|Dress|Trouv|Expliqu|Coch|Plac|Avec la calculatrice|[ÀA] l.aide|Pour chaque|Voici|Soit|On (?:donne|consid|sait|admet|note|prend|choisit|s.int[ée]resse|veut)|Les contre-exemples|Le programme|La suite \(.{1,6}\) semble|[ÉE]tude|Sachant|Parmi))/i;
 /* Une ligne qui ne porte presque aucune lettre (« = × + × », « ⟺ y = »,
    « ; ; », « ou ») est un reste de chaîne, quelle que soit sa forme. */
 /* Ce que seul le PAPIER dit : la consigne qui remplace, sur la feuille, une
@@ -6216,6 +6234,15 @@ function dmEnonceQ(section){
     if(dmeLettres(txt)>2&&(DME_QUESTION.test(txt)||Array.prototype.some.call(e.querySelectorAll('div,p,li,h3,h4'), function(f){
       return DME_QUESTION.test((f.textContent||'').replace(/\s+/g,' ').trim()); }))) return;
     e.remove();
+  });
+  /* LE CADRE AU MARQUEUR est une image de fond posée EN LIGNE sur la carte
+     de l'écran (#cadres-marqueur), à la mesure de l'écran : le clone la
+     gardait, et le papier montrait des traits bleus en travers de l'énoncé,
+     tracés pour une autre taille (signalé par Turquet, novembre 2026). Le
+     papier n'a pas de cadre de carte : la marque part avec son dessin. */
+  c.querySelectorAll('.marque').forEach(function(e){
+    e.classList.remove('marque'); e.removeAttribute('data-marque');
+    e.style.backgroundImage=''; e.style.backgroundPosition=''; e.style.backgroundSize='';
   });
   c.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(function(e){ e.replaceWith(document.createTextNode('☐ ')); });
   c.querySelectorAll('.test-top,.exo-title,.mp-actions,.mp-feedback,.tvi-actions,.dexp-hint,.hint-souris,.pm-jetons,.s1-jetons,.sa-jetons,.rc-jetons,.svr-outils,button').forEach(function(e){ e.remove(); });
@@ -6312,7 +6339,7 @@ async function dmePapier(){
        laisserait l'élève rendre une feuille dont le professeur n'a pas
        l'énoncé — le refus muet, encore. */
     const {error}=await sb.from(TABLE_SIG).insert(payload);
-    if(error){ toast('Énoncé non envoyé : '+(error.message||'erreur')+' — réessaie.','err'); if(bp) bp.disabled=false; return; }
+    if(error){ toast('Énoncé non envoyé : '+(await raisonRefusEleve(error)),'err'); if(bp) bp.disabled=false; return; }
     c.envoye=true;
     $('dmeIntro').textContent='Ton professeur a reçu cet énoncé, avec ton prénom. Imprime le PDF et réponds sur la feuille : c’est cette version-là qu’il corrigera.';
     $('dmeActions').innerHTML='<span class="dme-ok">✓ Énoncé envoyé au professeur</span>'
@@ -6323,6 +6350,29 @@ async function dmePapier(){
        l'élève lit la confirmation, et son échec se dit par lui-même */
     dmePdf();
   }catch(e){ toast('Énoncé non envoyé (connexion) — réessaie.','err'); if(bp) bp.disabled=false; }
+}
+/* UN REFUS DE LA BASE DEVANT UN ÉLÈVE SE NOMME. « new row violates
+   row-level security policy for table "signalements" », lu tel quel, ne dit
+   rien à personne (vu par Turquet, novembre 2026, sur le DM n°10). La règle
+   d'accès n'accepte la ligne que si le compte CONNECTÉ est celui de l'élève
+   (eleves.user_id = auth.uid()) ; elle la refuse dans trois cas connus, que la
+   page distingue en relisant la session : plus de session du tout ; une
+   session qui est celle d'un AUTRE compte — une seule session Supabase par
+   navigateur : le professeur (ou un autre élève) qui se connecte dans un
+   autre onglet remplace celle de l'élève ; ou bien la bonne session, mais une
+   fiche d'élève qui n'est plus reliée à son compte (après une restauration :
+   supabase/relier-comptes.sql). Toute autre erreur reste brute. */
+async function raisonRefusEleve(error){
+  const brut=(error&&error.message)||'erreur';
+  if(!erreurDeSession(error)) return brut+' — réessaie.';
+  let qui=null;
+  /* une relecture qui échoue ne dit rien de la session : on ne conclut pas */
+  try{ const {data,error:errQui}=await sb.auth.getUser(); if(errQui) return brut+' — réessaie.'; qui=data&&data.user; }catch(e){ return brut+' — réessaie.'; }
+  const moi=currentEleve&&currentEleve.cle?courrielDe(currentEleve.cle).toLowerCase():'';
+  if(!qui) return 'ta session s’est fermée (ordinateur en veille, connexion coupée ?). Reconnecte-toi avec ton code, puis recommence.';
+  if(moi&&String(qui.email||'').toLowerCase()!==moi)
+    return 'ce navigateur est maintenant connecté à un AUTRE compte que le tien (quelqu’un — le professeur ? — s’est connecté dans un autre onglet). Reconnecte-toi avec ton code, puis recommence.';
+  return 'ton compte n’est plus relié à ta fiche d’élève. Préviens ton professeur. (Détail : '+brut+')';
 }
 /* L'énoncé d'un DM sur papier, côté professeur : la photo envoyée par
    l'élève, rendue par le MÊME capteur que l'écran de l'élève (dmEnonceHTML) —
@@ -30263,7 +30313,9 @@ function epcDessinSVG(q){
     g+='<circle cx="'+f(P[0])+'" cy="'+f(P[1])+'" r="4.5" class="epc-pt"/>'
       +'<text x="'+f(P[0]+7)+'" y="'+f(P[1]-8)+'" class="epc-lp">'+n+'</text>';
   });
-  return '<svg class="epc-svg" viewBox="0 0 560 430" role="img" aria-label="Repère de l’espace et les points A et B">'+g+'</svg>';
+  /* le cadre monte de 14 : le point le plus haut du tirage, (1 ; 4 ; 4), tombe
+     à y = 15, et son nom, posé 8 au-dessus, sortait coupé du dessin */
+  return '<svg class="epc-svg" viewBox="0 -14 560 444" role="img" aria-label="Repère de l’espace et les points A et B">'+g+'</svg>';
 }
 /* ---- l'écran ---- */
 function epcVec(nom){ return '<span class="epc-v">'+nom+'</span>'; }
@@ -33359,11 +33411,15 @@ function ecdFormHTML(q){
     h+=sub('b','Calculer les coordonnées de <i>O</i>, milieu de ['+Ni('D')+Ni('B')+'] :');
     const mil=[0,1,2].map(k=>fr(I('ecd-m'+k+'a')+T('+')+I('ecd-m'+k+'b'),T('2')));
     h+=L(NW(T('<i>O</i>')+P(mil[0]+T(';')+mil[1]+T(';')+mil[2]))+NW(T('donc :&nbsp;<i>O</i>')+P(I('ecd-o0')+T(';')+I('ecd-o1')+T(';')+I('ecd-o2'))), 'ecd-l');
-    h+=sub('c','Calculer les coordonnées des vecteurs suivants :');
+    /* LE PAPIER NOMME CE QU'IL DEMANDE : sur l'écran, les vecteurs (les
+       droites, les longueurs) se lisent en tête des lignes à cases ; ces
+       lignes ne vont pas sur le papier (dmeLigneDe), et « les vecteurs
+       suivants » n'y suivaient plus rien. */
+    h+=sub('c','Calculer les coordonnées des vecteurs suivants :'+papierSeul([['A','G'],['E','C'],['O','I']].map(v=>vec(v[0],v[1])).join(' ; ')));
     [['A','G'],['E','C'],['O','I']].forEach(function(v,j){ h+=vecCol(v[0],v[1],'ecd-v'+j); });
   }
   if(q.p===2){
-    h+=sub('d','Donner les équations paramétriques des droites suivantes :');
+    h+=sub('d','Donner les équations paramétriques des droites suivantes :'+papierSeul(ECD_DR.map(d=>ecdDr(q,d[0],d[1])).join(' ; ')));
     /* les trois systèmes CÔTE À CÔTE, sur une ligne (Turquet, octobre 2026 :
        « présenter les équations paramétriques en lignes ») — empilés, ils
        prenaient trois hauteurs d'écran ; sur un écran étroit, la ligne défile
@@ -33443,9 +33499,9 @@ function ecdFormHTML(q){
   if(q.p===4){
     h+=sub('k','Placer le point '+ecdPtHTML(q,'S')+' sur la figure.');
     h+='<p class="ecb-aide">Clique sur la figure à l’endroit où se trouve <i>S</i> : des pointillés montrent le chemin depuis <i>A</i> (le long de (<i>AB</i>), puis parallèlement à (<i>AD</i>), puis verticalement). Un nouveau clic le déplace.</p>';
-    h+=sub('l','Calculer les coordonnées des vecteurs suivants :');
+    h+=sub('l','Calculer les coordonnées des vecteurs suivants :'+papierSeul([['O','B'],['B','I']].map(v=>vec(v[0],v[1])).join(' ; ')));
     [['O','B'],['B','I']].forEach(function(v,j){ h+=vecCol(v[0],v[1],'ecd-w'+j); });
-    h+=sub('m','Calculer les longueurs suivantes. <span class="ecd-gris">On peut supprimer les signes −.</span>');
+    h+=sub('m','Calculer les longueurs suivantes. <span class="ecd-gris">On peut supprimer les signes −.</span>'+papierSeul(ecdCotes(q).map(c=>'<i>'+c.nom+'</i>').join(' ; ')));
     const rac=x=>'<span class="elg-rac"><svg class="elg-rs" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0.5 64 L3 57 L5.6 99 L10 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg><span class="elg-rad">'+x+'</span></span>';
     const sq='<sup>2</sup>';
     ecdCotes(q).forEach(function(c,j){

@@ -966,3 +966,12 @@ d'accord avec la sorte, aucune coordonnée nulle, chaque question sérialisable 
 puis une séance d'évaluation menée à sa fin (copie juste, copie à cases vides,
 copie au menu faux), corrections vertes, ni `NaN` ni `undefined`, aucune
 erreur de page.
+
+**Le nom du point le plus haut sortait du dessin du 7.1.1** (vu sur la
+capture du DM n°10, novembre 2026). Le tirage va jusqu'à (1 ; 4 ; 4), qui
+tombe à y = 15 dans un `viewBox` commençant à 0 ; le nom, posé 8 au-dessus,
+était coupé à mi-hauteur. Le cadre monte de 14 (`viewBox="0 -14 560 444"`),
+la géométrie ne bouge pas. Le même jour, le papier de cet exercice a cessé de
+garder les restes de sa chaîne — la cause était dans le capteur du papier,
+pas dans l'exercice : voir `09-devoirs-et-notes.md`, « Puis le papier du DM
+n°10 ».

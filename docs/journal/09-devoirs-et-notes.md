@@ -1598,6 +1598,42 @@ affichée avant le rendu (`dmePdfSvgEnImages`). Restent, nommés : l'énoncé du
 63 exercices relus — un exercice ajouté demain se relit sur son PDF (le banc
 navigateur, section 6 sexies ter, tient le 5.6.1 et le 4.2.2).
 
+**Puis le papier du DM n°10 a gardé les restes de la chaîne, et un cadre bleu
+en travers de l'énoncé** (signalé par Turquet, novembre 2026, sur le 7.1.1 —
+les coordonnées lues dans l'espace). Deux défauts, aucun propre à l'exercice.
+*Les restes* : `dmeLigneDe` cherche la LIGNE d'une case par l'affichage
+CALCULÉ, et l'enfant d'une rangée flex est « blockifié » par le navigateur —
+le groupe `.epc-grp`, écrit `inline-flex` dans la phrase, s'y lit `flex` et
+passait pour une ligne à lui seul : le papier retirait chaque case avec son
+groupe et gardait « et », les barres « ‾2 ; ‾2 ; ‾2 », la colonne « B − A »,
+« AB = = ». La ligne se cherche maintenant par l'affichage ÉCRIT
+(`dmeDisplayEcrit` : le parent rendu bloc le temps d'un calcul de style, puis
+rendu tel quel). Le premier essai — « tout enfant d'une rangée flex est en
+ligne » — était trop large : il prenait aussi une COLONNE de mise en page (la
+figure à gauche, les questions à droite du 6.2) et le papier du `svd` y
+regagnait une ligne à cases ; la comparaison avant/après des 78 exercices de
+la Terminale l'a montré, et seuls deux exercices changent avec le critère
+retenu, tous deux vers la règle : le 7.1.1, et le cube en quatre parties
+(`ecd`), qui perdait de plus ses sous-questions k) à n) — `DME_QUESTION` ne
+reconnaissait que les lettres a) à j). Il les reconnaît toutes ; et le cube
+NOMME sur le papier les vecteurs, droites et longueurs que l'écran ne
+nommait qu'en tête des lignes à cases (`papierSeul`), son mode d'emploi du
+clic (`.ecb-aide`) rejoint `DME_AIDES`. *Le cadre* : le trait au marqueur
+(`#cadres-marqueur`, octobre 2026) est une image de fond posée EN LIGNE sur la
+carte de l'écran, mesurée pour l'écran ; le clone la gardait, et le style en
+ligne l'emportait sur `.dme-corps .card{background:none}`. Le capteur retire
+`.marque` et son dessin. Deux contrôles au banc navigateur (6 sexies ter) :
+aucun élément de l'énoncé papier ne porte le cadre, et le 7.1.1 est un second
+témoin du guidage (ni « = », ni « ; », ni « − » hors des dessins).
+Et l'envoi refusé — « new row violates row-level security policy for table
+"signalements" » — se NOMME : la règle n'accepte la ligne que si le compte
+connecté est celui de l'élève, et `raisonRefusEleve()` relit la session pour
+dire laquelle des trois causes connues est en jeu (plus de session ; la
+session d'un AUTRE compte — le professeur connecté dans un autre onglet du
+même navigateur, une seule session par navigateur ; ou la bonne session et
+une fiche dé-reliée, `supabase/relier-comptes.sql`). Ce qui reste à la main :
+savoir, sur le poste de Turquet, laquelle des trois était la bonne.
+
 **Fusionner les deux comptes d'un même élève — la meilleure note par exercice
 ET par mode.** Demande de Turquet (octobre 2026) : « en seconde regrouper les
 deux comptes Clément en un seul compte au nom de "DELMONT Clément", en ne
