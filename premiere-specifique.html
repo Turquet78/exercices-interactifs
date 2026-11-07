@@ -1586,6 +1586,9 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #vapHost .f-num,#vapHost .f-den{width:auto;min-width:76px;max-width:320px;align-self:stretch;}
 #vapHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 #vapHost .pt-row{margin:10px 0;gap:8px}
+/* les nombres de la ligne à la taille de ses cases (la règle des cases) */
+#vapHost .f-whole{font-size:calc(1.7rem * var(--tab-nb,1));}
+@media(max-width:900px){ #vapHost .f-whole{font-size:calc(1.4rem * var(--tab-nb,1));} }
 #fpHost .f-num,#fpHost .f-den{width:auto;min-width:84px;max-width:220px;}
 #fpHost .f-dec{width:auto;min-width:96px;max-width:220px;}
 #fpHost .f-fbar{width:auto;align-self:stretch;height:4px;}
@@ -25227,10 +25230,10 @@ Diviser par 10, 100 ou 1000, c’est décaler la virgule de 1, 2 ou 3 rangs <b>v
 Inversement, \\(0{,}058=\\frac{58}{1000}\\), car il y a trois chiffres après la virgule.<br>
 À retenir : les zéros finaux d’un numérateur « tombent » contre les zéros du dénominateur — \\(\\frac{300}{100}=3\\).`;
 const RAP_VAP=`<b>Valeur approchée et ordre de grandeur</b><br>
-<b>① Approcher par un entier</b> : \\(8{,}001\\) est très proche de \\(8\\) — les millièmes sont négligeables. De même \\(40+0{,}01\approx 40\\) et \\(10^{-2}+10=0{,}01+10\approx 10\\) : une puissance de 10 à exposant <b>négatif</b> est un tout petit nombre.<br>
-<b>② Multiplier par 10, 100, 1000</b> : \\(100\times 1000=100\,000\\) (on ajoute les zéros). Avec un décimal, on passe par la fraction décimale : \\(0{,}1\times 1000=\frac{1}{10}\times 1000=\frac{1000}{10}=100\\) ; \\(0{,}01\times 10=\frac{1}{100}\times 10=\frac{10}{100}=0{,}1\\).<br>
-<b>③ Un ordre de grandeur</b> : on remplace chaque facteur par la puissance de 10 la plus proche, puis on calcule : \\(11\times 99\approx 10\times 100=1000\\) ; \\(0{,}01\times 999\approx 0{,}01\times 1000=10\\).<br>
-Piège classique : \\(0{,}1\times 1000\\) ne fait pas \\(0{,}1000\\) — multiplier par 1000 décale la virgule de trois rangs vers la droite.`;
+<b>① Approcher par un entier</b> : \\(8{,}001\\) est très proche de \\(8\\) — les millièmes sont négligeables. De même \\(40+0{,}01\\approx 40\\) et \\(10^{-2}+10=0{,}01+10\\approx 10\\) : une puissance de 10 à exposant <b>négatif</b> est un tout petit nombre.<br>
+<b>② Multiplier par 10, 100, 1000</b> : \\(100\\times 1000=100\\,000\\) (on ajoute les zéros). Avec un décimal, on passe par la fraction décimale : \\(0{,}1\\times 1000=\\frac{1}{10}\\times 1000=\\frac{1000}{10}=100\\) ; \\(0{,}01\\times 10=\\frac{1}{100}\\times 10=\\frac{10}{100}=0{,}1\\).<br>
+<b>③ Un ordre de grandeur</b> : on remplace chaque facteur par la puissance de 10 la plus proche, puis on calcule : \\(11\\times 99\\approx 10\\times 100=1000\\) ; \\(0{,}01\\times 999\\approx 0{,}01\\times 1000=10\\).<br>
+Piège classique : \\(0{,}1\\times 1000\\) ne fait pas \\(0{,}1000\\) — multiplier par 1000 décale la virgule de trois rangs vers la droite.`;
 const RAP_SDEC=`<b>L’écriture décimale d’une somme</b><br>
 Chaque fraction décimale a son <b>rang</b> : \\(\\frac{5}{10}=0{,}5\\) (dixièmes), \\(\\frac{9}{100}=0{,}09\\) (centièmes), \\(\\frac{3}{1000}=0{,}003\\) (millièmes).<br>
 Diviser par 10, 100 ou 1000, c’est décaler la virgule de 1, 2 ou 3 rangs <b>vers la gauche</b> : \\(\\frac{327}{1000}=0{,}327\\) et \\(\\frac{32}{1000}=0{,}032\\).<br>
