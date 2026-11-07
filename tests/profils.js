@@ -53,7 +53,7 @@ const RAPPELS_PREMIERE = `(function(){
     'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd','synthese-evolutions-successives':'ess',
     'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf','tableau-probabilites':'pb','lire-probabilites':'pb','probabilites-fiche':'pb','probabilites-ecriture':'pb','revision-fractions':'rvf',
     'croiser-denominateurs':'sf','somme-fractions-2':'sf','multiplier-fractions':'mlt','diviser-fractions':'mlt',
-    'somme-produit-fractions':'spf','ecriture-decimale-somme':'eds' };
+    'somme-produit-fractions':'spf','ecriture-decimale-somme':'eds','ecriture-decimale-fractions':'sdec' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     /* un exercice peut avoir SON rappel, indépendant du kind : deux exercices
@@ -286,7 +286,8 @@ module.exports = {
        SUJET est une fraction réductible, raison comprise. */
     fractionsIrreductibles: { sans: {
       'fractions-decimales': 'une fraction décimale (30/100) est le sujet même : la rendre irréductible la ferait sortir des puissances de 10',
-      'fraction-pourcentage': 'aucune opération entre fractions : on colorie une fraction pour lire un pourcentage'
+      'fraction-pourcentage': 'aucune opération entre fractions : on colorie une fraction pour lire un pourcentage',
+      'ecriture-decimale-fractions': 'une somme de fractions DÉCIMALES (4/100, 32/1000) : les réduire les ferait sortir des puissances de 10, comme au 1.6'
     } },
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
