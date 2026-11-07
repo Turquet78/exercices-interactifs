@@ -7940,12 +7940,14 @@ function renderSdTest(){
     $('sdPrompt').innerHTML=variante(SD_ENONCES,q);
     $('sdHost').innerHTML=`<div class="pt-row">${somme}${fEq(dec)}</div>`;
   } else {
-    const A='<span class="f-whole"><i>A</i></span><span class="f-eq">=</span>';
+    /* le « = » qui annonce une case passe par fEq() (la règle du « = » qui ne
+       se sépare jamais de sa case) ; celui de « A = 4 + … » n'annonce rien */
+    const A='<span class="f-whole"><i>A</i></span>';
     $('sdPrompt').innerHTML=(q.fd ? 'Écris <i>A</i> sous forme <b>décimale</b>, puis sous la forme d’une <b>fraction décimale</b>.' : 'Donne l’écriture <b>décimale</b> de <i>A</i>.');
     $('sdHost').innerHTML=
-      `<div class="pt-step"><div class="pt-lab">① L’écriture décimale</div><div class="pt-row">${A}${somme}${fEq(dec)}</div></div>`
+      `<div class="pt-step"><div class="pt-lab">① L’écriture décimale</div><div class="pt-row">${A}<span class="f-times">=</span>${somme}${fEq(dec)}</div></div>`
       +(q.fd ? `<div class="pt-step"><div class="pt-lab">② La fraction décimale</div><div class="pt-row">${A}`
-        +'<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="sdN" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="sdD" aria-label="dénominateur"></math-field></span></div></div>' : '');
+        +fEq('<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="sdN" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="sdD" aria-label="dénominateur"></math-field></span>')+'</div></div>' : '');
   }
   const order=['sdDec','sdN','sdD'].map(id=>$(id)).filter(Boolean);
   order.forEach((el,i)=>el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i+1<order.length) order[i+1].focus(); else checkSdAnswer(); } }));
