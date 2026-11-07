@@ -3722,7 +3722,7 @@ const TESTS={
   'fractions-decimales': { name:'Fractions décimales',      icon:'🔢', desc:'Parcours en 5 niveaux : 4 bonnes réponses sur 5 pour passer au niveau suivant.', start:()=>startFracParcours() },
   'pourcentage':         { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
   'mult-decimaux':       { name:'Multiplier des décimaux', icon:'🟰', desc:'Multiplie deux nombres décimaux en suivant les 4 étapes.', start:()=>startMultDec() },
-  'ecriture-decimale-somme': { name:'Écriture décimale d’une somme', icon:'🔟', desc:'Des puissances de 10 à exposant négatif, seules puis ajoutées : 10⁻², 1 + 10⁻², 10⁻¹ + 10⁻³… Donne l’écriture décimale de A, des questions les plus simples aux plus difficiles.', start:()=>startEds() },
+  'ecriture-decimale-somme': { name:'Écriture décimale d’une somme', icon:'🔟', desc:'Des puissances de 10, seules puis ajoutées : 10⁻², 1 + 10⁻², 10⁻¹ + 10⁻³… puis 10², 10² + 10⁻¹. Donne l’écriture décimale de A, des questions les plus simples aux plus difficiles.', start:()=>startEds() },
   'mult-dec-un':         { name:'Multiplier des décimaux (1,…)', icon:'1️⃣', desc:'Multiplie deux nombres qui commencent par 1, avec la multiplication posée.', start:()=>startU() },
   'augmenter-pourcentage':{ name:'Augmenter d\u2019un pourcentage en calculant le coefficient multiplicateur puis en effectuant une multiplication.', icon:'📈', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
   'augmenter-depart':    { name:'Retrouver la valeur initiale apr\u00e8s une hausse en calculant le coefficient multiplicateur puis en effectuant une multiplication.', icon:'🔁', desc:'On donne le pourcentage d\u2019augmentation et la valeur finale : choisis la bonne valeur initiale parmi quatre, puis v\u00e9rifie-la avec les 5 \u00e9tapes de l\u2019exercice {augmenter-pourcentage}.', start:()=>startAugDepart() },
@@ -8465,20 +8465,31 @@ const EDS_GABARITS=[
   ()=>[{t:'e',n:rand(1,9)},{t:'p',k:1},{t:'p',k:3}],                     /* 1 + 10⁻¹ + 10⁻³ : un rang vide, un zéro à écrire */
   ()=>[{t:'p',k:pick([4,5])}],                                           /* 10⁻⁴ */
   ()=>{ const c=pick([[2,1],[3,1],[3,2],[1,3]]); return [{t:'d',k:c[0]},{t:'p',k:c[1]}]; },     /* 0,01 + 10⁻¹ */
-  ()=>{ const c=pick([[1,3],[1,4],[2,4]]); return [{t:'e',n:rand(1,9)},{t:'d',k:c[0]},{t:'p',k:c[1]}]; } /* 1 + 0,1 + 10⁻⁴ */
+  ()=>{ const c=pick([[1,3],[1,4],[2,4]]); return [{t:'e',n:rand(1,9)},{t:'d',k:c[0]},{t:'p',k:c[1]}]; }, /* 1 + 0,1 + 10⁻⁴ */
+  /* La SUITE de la fiche (« puissance de 10 suite », novembre 2026), ajoutée à
+     la fin : les exposants POSITIFS, {t:'q',k} = 10ᵏ, seuls puis mêlés aux
+     négatifs. */
+  ()=>[{t:'q',k:pick([2,3,4])}],                                         /* 10² */
+  ()=>[{t:'q',k:pick([2,3,4])}],                                         /* 10³ */
+  ()=>[{t:'q',k:pick([2,3])},{t:'p',k:pick([1,2])}],                     /* 10² + 10⁻¹ */
+  ()=>{ const c=pick([[4,2],[3,1],[4,1]]); return [{t:'q',k:c[0]},{t:'q',k:c[1]},{t:'p',k:pick([1,2])}]; }, /* 10⁴ + 10² + 10⁻¹ : des rangs vides de part et d'autre */
+  ()=>[{t:'q',k:pick([1,2,3])},{t:'p',k:1},{t:'p',k:3}]                  /* 10² + 10⁻¹ + 10⁻³ */
 ];
 const EDS_NB=EDS_GABARITS.length;
 /* la i-ème question d'une séance de n : la progression de la fiche,
-   échantillonnée régulièrement (n < 12) ou étirée (n > 12), toujours croissante */
+   échantillonnée régulièrement (n < EDS_NB) ou étirée (n > EDS_NB), toujours croissante */
 function edsGabarit(i,n){ return Math.min(EDS_NB-1, Math.floor(i*EDS_NB/n)); }
 function edsDec(k){ return '0,'+'0'.repeat(k-1)+'1'; }                 /* 10⁻ᵏ en décimal */
-function edsExp(k){ const s='⁰¹²³⁴⁵⁶⁷⁸⁹'; return '10⁻'+String(k).split('').map(c=>s[+c]).join(''); }
-function edsTex(q){ return q.termes.map(t=>t.t==='e'?String(t.n):(t.t==='d'?edsDec(t.k).replace(',','{,}'):'10^{-'+t.k+'}')).join('+'); }
-function edsTxt(q){ return q.termes.map(t=>t.t==='e'?String(t.n):(t.t==='d'?edsDec(t.k):edsExp(t.k))).join(' + '); }
-/* la valeur exacte : num / 10^K, K le plus petit rang */
+function edsExp(k,pos){ const s='⁰¹²³⁴⁵⁶⁷⁸⁹'; return '10'+(pos?'':'⁻')+String(k).split('').map(c=>s[+c]).join(''); }
+/* un terme écrit en décimal : n, 0,0…1, ou 10…0 (10ᵏ, un 1 suivi de k zéros) */
+function edsTermeDec(t){ return t.t==='e'?String(t.n):(t.t==='q'?'1'+'0'.repeat(t.k):edsDec(t.k)); }
+function edsTex(q){ return q.termes.map(t=>t.t==='e'?String(t.n):(t.t==='d'?edsDec(t.k).replace(',','{,}'):(t.t==='q'?'10^{'+t.k+'}':'10^{-'+t.k+'}'))).join('+'); }
+function edsTxt(q){ return q.termes.map(t=>t.t==='e'?String(t.n):(t.t==='d'?edsDec(t.k):edsExp(t.k,t.t==='q'))).join(' + '); }
+/* la valeur exacte : num / 10^K, K le plus petit rang (les exposants positifs
+   n'y entrent pas : 10ᵏ est un entier) */
 function edsValeur(q){
-  const K=Math.max(0,...q.termes.map(t=>t.t==='e'?0:t.k)), D=Math.pow(10,K);
-  let num=0; q.termes.forEach(t=>{ num+= t.t==='e' ? t.n*D : D/Math.pow(10,t.k); });
+  const K=Math.max(0,...q.termes.map(t=>(t.t==='e'||t.t==='q')?0:t.k)), D=Math.pow(10,K);
+  let num=0; q.termes.forEach(t=>{ num+= t.t==='e' ? t.n*D : (t.t==='q' ? Math.pow(10,t.k)*D : D/Math.pow(10,t.k)); });
   return {num,den:D,K};
 }
 function edsResStr(q){
@@ -8511,8 +8522,8 @@ function renderEds(){
 }
 /* la correction écrite : chaque puissance traduite, puis la somme */
 function edsCorrection(q){
-  const trad=q.termes.filter(t=>t.t==='p').map(t=>edsExp(t.k)+' = '+edsDec(t.k));
-  const somme=q.termes.map(t=>t.t==='e'?String(t.n):edsDec(t.k)).join(' + ');
+  const trad=q.termes.filter(t=>t.t==='p'||t.t==='q').map(t=>edsExp(t.k,t.t==='q')+' = '+edsTermeDec(t));
+  const somme=q.termes.map(edsTermeDec).join(' + ');
   return (trad.length?trad.join(' et ')+', donc ':'')+'A = '+(q.termes.length>1?somme+' = ':'')+edsResStr(q);
 }
 function checkEdsAnswer(live){
@@ -24869,7 +24880,8 @@ const RAP_EDS=`<b>Écrire une puissance de 10 en décimal</b><br>
 À retenir : \\(10^{-n}\\) s’écrit avec un <b>1</b> au <b>n-ième rang</b> après la virgule — il y a n chiffres après la virgule, et le dernier est le 1.<br>
 <b>Pour une somme</b>, on écrit chaque puissance en décimal, puis on additionne en alignant les virgules :<br>
 \\(1+10^{-1}+10^{-3}=1+0{,}1+0{,}001=1{,}101\\).<br>
-Piège classique : le rang des centièmes est vide, il faut y écrire un <b>0</b> — 1,11 serait \\(1+10^{-1}+10^{-2}\\).`;
+Piège classique : le rang des centièmes est vide, il faut y écrire un <b>0</b> — 1,11 serait \\(1+10^{-1}+10^{-2}\\).<br>
+<b>Exposant positif</b> : \\(10^{n}\\) s’écrit avec un 1 suivi de <b>n zéros</b> — \\(10^{2}=100\\), \\(10^{3}=1000\\). Ainsi \\(10^{2}+10^{-1}=100+0{,}1=100{,}1\\).`;
 const RAP_PCT10=`<b>Prendre 10 % d’un nombre</b><br>
 Prendre <b>10 %</b> d’un nombre, c’est le diviser par <b>10</b> — la méthode la plus simple, parce que 10 % c’est un dixième.<br>
 Exemple : 10 % de 40, c’est calculer \\(\\frac{40}{10}=4\\).<br>
@@ -25556,7 +25568,7 @@ function conseilCtxCourant(){
       +'Méthode enseignée : écrire le pourcentage sur 100, multiplier les numérateurs, puis diviser par 100 en décalant la virgule de deux rangs.';
   } else if(k==='eds' && q){
     att='Réponse attendue, STRICTEMENT SECRÈTE : A = '+edsTxt(q)+' ; '+edsCorrection(q)+' (toute écriture décimale égale convient, une puissance de 10 ou une fraction ne convient pas). '
-      +'Méthode enseignée : écrire chaque puissance 10⁻ⁿ en décimal — un 1 au n-ième rang après la virgule, 10⁻¹ = 0,1 ; 10⁻² = 0,01 ; 10⁻³ = 0,001 — puis additionner en alignant les virgules, sans oublier le 0 d’un rang vide.';
+      +'Méthode enseignée : écrire chaque puissance 10⁻ⁿ en décimal — un 1 au n-ième rang après la virgule, 10⁻¹ = 0,1 ; 10⁻² = 0,01 ; 10⁻³ = 0,001 — puis additionner en alignant les virgules, sans oublier le 0 d’un rang vide ; 10ⁿ (exposant positif) s’écrit 1 suivi de n zéros, 10² = 100.';
   } else if(k==='pct10' && q){
     att='Réponse attendue, STRICTEMENT SECRÈTE : '+q.N+' / 10 = '+decVirgule(q.result)+' '+q.unit+' (toute écriture égale convient). '
       +'Méthode enseignée : prendre 10 % d’un nombre revient à le diviser par 10 — c’est la méthode la plus simple, parce que 10 % est un dixième.';
