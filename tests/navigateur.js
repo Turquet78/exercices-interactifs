@@ -19795,7 +19795,15 @@ if(require.main === module) (async () => {
         + essayes.length + ' exercices touchés)', dits.length === 0 && essayes.length >= 10, dits.slice(0, 3).join(' | ') || (essayes.length + ' exercice(s) seulement montrent la barre d\'emblée'));
       verifier('au doigt, le survol ne peint aucun point pâle sur la figure (le « survol » d\'un écran tactile reste collé au dernier nœud touché)',
         grossier && survolPeint.length === 0, grossier ? survolPeint.slice(0, 3).join(' | ') : 'le navigateur du banc ne se dit pas tactile (pointer: coarse) : rien de mesuré');
-      const souris = await s.page.evaluate(() => { delete window.__tabletteForce; poseDoigtMaj(); return document.querySelectorAll('.pose-doigt').length; });
+      /* « à la souris » : le contexte du banc est TACTILE (pointer: coarse,
+         voir le contrôle du survol) — retirer __tabletteForce n'en fait pas
+         une souris. Le contrôle ne passait que parce que le dernier exercice
+         ouvert du thème n'avait rien à poser ; le 8.4.4, qui a sa barre, l'a
+         montré (novembre 2026). On fait donc dire « souris » au média. */
+      const souris = await s.page.evaluate(() => { delete window.__tabletteForce;
+        const mm = window.matchMedia;
+        window.matchMedia = q => /pointer:\s*coarse/.test(q) ? { matches: false, media: q, addListener(){}, removeListener(){}, addEventListener(){}, removeEventListener(){} } : mm.call(window, q);
+        try { poseDoigtMaj(); return document.querySelectorAll('.pose-doigt').length; } finally { window.matchMedia = mm; } });
       verifier('à la souris, aucune barre « Je place »', souris === 0, souris + ' barre(s) restée(s)');
       verifier('la barre « Je place » ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
