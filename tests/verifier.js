@@ -4807,6 +4807,7 @@ function exercices(suite){
     translationsSuccessives(w, P);
     regleParallelogramme(w, P);
     vecteursColineaires(w, P);
+    coordonneesVecteurs(w, P);
     vecteursColineairesSuite(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
@@ -14884,6 +14885,133 @@ function vecteursColineaires(w, P){
     if(el('kco-r-0').querySelector('.mf-cor')===null || el('kco-r-3').querySelector('.mf-cor').textContent!=='Non') vus.push('8.3.4 : la bonne réponse ne s\\'écrit pas à côté d\\'une ligne fausse');
     if(el('kco-k-2').value.indexOf('frac')<0 || !kvEgal(el('kco-k-2').value,[-3,4]) || !el('kco-o-2').classList.contains('kco-on')) vus.push('8.3.4 : la ligne vide n\\'est pas remplie par la correction');
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0 || conseilCtxCourant().indexOf('oui, k = 2')<0) vus.push('8.3.4 : le contexte du modèle');
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* Le sous-thème 8.4 « Coordonnées de vecteurs » (Seconde, demande de Turquet,
+   novembre 2026, la fiche « vecteur coord 1 ») : {coordonnees-vecteur-lire}
+   (8.4.1, « vco », l'exemple 1 : écrire les coordonnées de huit vecteurs
+   décomposés) et {coordonnees-vecteur-associer} (8.4.2, « vca », l'exercice
+   2 : écrire le numéro de chaque flèche à partir du tableau). La place, le
+   tirage sur deux cents séances, le juge (« −3 », « -3 », « +3 »), la copie
+   juste, la copie vide, l'erreur de signe nommée, la reprise après le JSON. */
+function coordonneesVecteurs(w, P){
+  const nom = 'coordonnées de vecteurs : lire les coordonnées, retrouver le vecteur — la place, le tirage, le juge, la reprise';
+  if(!P.coordonneesVecteurs){
+    ignorer(nom, 'ce niveau n\'a pas le sous-thème des coordonnées de vecteurs');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.coordonneesVecteurs)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(e){ const c=e?' '+e.className+' ':'';
+      return c.indexOf(' ok ')>=0?'ok':(c.indexOf(' bad ')>=0?'bad':(c.indexOf(' sol ')>=0?'sol':'rien')); };
+    ['lire','associer'].forEach(function(k){
+      const d=D[k]; if(TEST_NUM[d.exercice]!==d.numero) vus.push(d.exercice+' porte le numéro '+TEST_NUM[d.exercice]+' au lieu de '+d.numero);
+      if(TABLES_SANS.indexOf(d.exercice)<0) vus.push(d.exercice+' : le bouton des tables est proposé, on ne multiplie rien'); });
+    if(TEST_NUM['demontrer-egalite-reels']!=='8.3.10' || TEST_NUM['vecteur-egal-figure']!=='8.1.15') vus.push('un voisin du thème 8 a bougé');
+    if(RAPPELS.vco!==RAP_VCO || RAPPELS.vca!==RAP_VCA || !QIA_SUGG.vco || !QIA_SUGG.vca) vus.push('vco ou vca n\\'a pas son rappel ou ses questions à l\\'IA');
+    [['-3',-3],['−3',-3],['+2',2],[' 4 ',4],['0',0],['1,5',null],['a',null],['',null],['--1',null]].forEach(function(c){
+      if(vcoLit(c[0])!==c[1]) vus.push('vcoLit(« '+c[0]+' ») rend '+vcoLit(c[0])+' au lieu de '+c[1]); });
+    /* le tirage : huit vecteurs, quatre en biais (un par paire de signes), quatre droits ;
+       chacun dans sa case de la figure, sans en sortir ; au 8.4.2, les mêmes nombres de
+       carreaux, signes seuls différents (le piège de la fiche) ; la première page écrit
+       les déplacements, les suivantes non */
+    [false,true].forEach(function(meme){
+      const et=meme?'8.4.2 : ':'8.4.1 : ';
+      for(let n=0;n<200;n++){
+        const qs=vcoBuildQuestions(meme);
+        if(new Set(qs.map(vcoCle)).size!==qs.length){ vus.push(et+'deux questions identiques'); break; }
+        if(qs.some(function(q,i){ return q.et!==(i===0?1:0); })){ vus.push(et+'les déplacements écrits ne suivent pas la page'); break; }
+        const q=qs[n%qs.length];
+        if(Object.keys(q).sort().join(',')!=='et,v' || q.v.length!==8){ vus.push(et+'range : '+JSON.stringify(q)); break; }
+        const biais=q.v.filter(function(l){ return l[2]&&l[3]; }), droits=q.v.filter(function(l){ return !l[2]!==!l[3]; });
+        const sg=biais.map(function(l){ return Math.sign(l[2])+','+Math.sign(l[3]); }).sort().join(' ');
+        const dr=droits.map(function(l){ return Math.sign(l[2])+','+Math.sign(l[3]); }).sort().join(' ');
+        if(biais.length!==4 || droits.length!==4 || sg!=='-1,-1 -1,1 1,-1 1,1' || dr!=='-1,0 0,-1 0,1 1,0'){ vus.push(et+'les huit vecteurs : '+JSON.stringify(q.v)); break; }
+        if(q.v.some(function(l){ return Math.abs(l[2])>4||Math.abs(l[3])>4; })){ vus.push(et+'une flèche trop longue'); break; }
+        if(new Set(q.v.map(vcoPlace)).size!==8){ vus.push(et+'deux flèches dans la même case'); break; }
+        /* dans sa case : les colonnes 2 à 6 (la flèche au milieu), les rangées 1 à 5 */
+        if(q.v.some(function(l){ const s=vcoPlace(l), cx=(s%4)*VCO_SW, cy=s<4?VCO_SH:0, xs=[l[0],l[0]+l[2]], ys=[l[1],l[1]+l[3]];
+            return Math.min.apply(null,xs)<cx+2||Math.max.apply(null,xs)>cx+6||Math.min.apply(null,ys)<cy+1||Math.max.apply(null,ys)>cy+5; })){ vus.push(et+'une flèche sort de sa case : '+JSON.stringify(q.v)); break; }
+        if(meme){
+          const ab=biais.map(function(l){ return Math.abs(l[2])+','+Math.abs(l[3]); }), dd=droits.map(function(l){ return Math.abs(l[2]+l[3]); });
+          if(new Set(ab).size!==1 || new Set(dd).size!==1 || Math.abs(biais[0][2])===Math.abs(biais[0][3])){ vus.push(et+'les nombres de carreaux ne sont pas partagés : '+JSON.stringify(q.v)); break; }
+        }
+      }
+    });
+    /* les deux mises en page tiennent leurs flèches dans le dessin ; le nom (et la case
+       du numéro au 8.4.2) se pose AU MILIEU de sa flèche — tout près de son milieu, sans
+       toucher son trait, hors du triangle de la décomposition, dans le dessin, et loin
+       des traits des autres flèches (demande de Turquet, novembre 2026) */
+    const dseg=function(p,a,b,hw,hh){ let m=1e9; for(let t=0;t<=1.0001;t+=0.02){ const x=a[0]+t*(b[0]-a[0]), y=a[1]+t*(b[1]-a[1]);
+        m=Math.min(m, Math.max(Math.abs(x-p[0])-hw, Math.abs(y-p[1])-hh)); } return m; };
+    for(let n=0;n<100 && vus.length<3;n++){ const qp=vcoGen(n%2===1,true);
+      [4,2].forEach(function(nc){ const Dm=vcoDims(nc);
+        [[VCO_NOM,'le nom'],[VCA_CASE,'la case du numéro']].forEach(function(t){ const hw=t[0][0], hh=t[0][1];
+          const gs=qp.v.map(function(l){ return vcoGeo(l,nc,hw,hh); });
+          gs.forEach(function(g,i){ const l=qp.v[i];
+            if([g.A,g.B,g.C].some(function(p){ return p[0]<VCO_PX||p[0]>Dm.W-VCO_PX||p[1]<VCO_PY||p[1]>Dm.H-VCO_PY; })) vus.push('la figure en '+nc+' colonnes sort du dessin : '+JSON.stringify(l));
+            if(Math.hypot(g.N[0]-g.M[0],g.N[1]-g.M[1])>hw+hh+6) vus.push(t[1]+' est loin du milieu de sa flèche : '+JSON.stringify(l));
+            if(g.N[0]-hw<0||g.N[0]+hw>Dm.W||g.N[1]-hh<0||g.N[1]+hh>Dm.H) vus.push(t[1]+' sort du dessin : '+JSON.stringify(l));
+            /* aucun trait, ni le sien (vecteur, grise, noire) ni celui d'une autre flèche, ne passe sous l'étiquette */
+            gs.forEach(function(h){ [[h.A,h.B],[h.A,h.C],[h.C,h.B]].forEach(function(sg){
+              if((sg[0][0]!==sg[1][0]||sg[0][1]!==sg[1][1]) && dseg(g.N,sg[0],sg[1],hw,hh)<2) vus.push(t[1]+' de '+JSON.stringify(l)+' touche un trait ('+nc+' colonnes)'); }); });
+          }); }); }); }
+    const fixe=function(){ return {v:[[4,7,-1,3],[11,7,1,3],[19,10,1,-3],[27,10,-1,-3],[3,3,3,0],[13,1,0,3],[23,3,-3,0],[29,4,0,-3]], et:1}; };
+
+    /* ===== 8.4.1 : lire les coordonnées ===== */
+    const d1=D.lire;
+    currentTestId=d1.exercice; TESTS[d1.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='vco' || test.maxScore!==d1.bareme || test.questions.length!==d1.nb) vus.push('8.4.1 : kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
+    test.questions[0]=fixe(); renderVco();
+    if(document.querySelectorAll('#vcoHost .vco-in').length!==16 || document.querySelectorAll('#vcoHost .vco-svg .vco-nom').length!==8) vus.push('8.4.1 : la page n\\'a pas ses seize cases et ses huit noms');
+    if(document.querySelectorAll('#vcoHost .vco-svg .vco-et').length!==12) vus.push('8.4.1 : la première page n\\'écrit pas ses douze déplacements : '+document.querySelectorAll('#vcoHost .vco-et').length);
+    /* la copie juste, écrite comme un élève : « -1 », « +3 », « −3 » */
+    const q1=test.questions[0];
+    q1.v.forEach(function(l,i){ el('vco-x-'+i).value=(l[2]<0?'-':(i%2?'+':''))+Math.abs(l[2]); el('vco-y-'+i).value=(l[3]<0?'−':'')+Math.abs(l[3]); });
+    let av=test.score; checkVco();
+    if(test.score-av!==16 || document.querySelectorAll('#scr-vco .vco-in.ok').length!==16) vus.push('8.4.1 : la copie juste vaut '+(test.score-av));
+    /* la reprise : la question revient du JSON */
+    test.questions[0]=JSON.parse(JSON.stringify(fixe())); renderVco();
+    if(document.querySelectorAll('#vcoHost .vco-in').length!==16 || document.querySelector('#vcoHost .vco-in.ok')) vus.push('8.4.1 : le rendu après JSON');
+    /* l'erreur de signe : u1 écrit (1 ; 3) au lieu de (−1 ; 3), u5 laissé vide */
+    q1.v.forEach(function(l,i){ if(i===4) return; el('vco-x-'+i).value=String(i===0?1:l[2]); el('vco-y-'+i).value=String(l[3]); });
+    av=test.score; checkVco();
+    if(test.score-av!==13 || classe(el('vco-x-0'))!=='bad' || classe(el('vco-y-0'))!=='ok' || classe(el('vco-x-4'))!=='sol' || classe(el('vco-y-4'))!=='sol') vus.push('8.4.1 : erreur de signe et vecteur vide : '+(test.score-av)+' '+[classe(el('vco-x-0')),classe(el('vco-y-0')),classe(el('vco-x-4')),classe(el('vco-y-4'))].join(','));
+    const fb1=el('vcoFeedback').textContent;
+    if(fb1.indexOf('Il te manquait 2 cases')<0 || fb1.indexOf('1 carreau vers la gauche (−1)')<0) vus.push('8.4.1 : le message : '+fb1.slice(0,200));
+    if(document.querySelector('#scr-vco .vco-in.bad + .mf-cor')===null) vus.push('8.4.1 : la bonne coordonnée ne s\\'écrit pas à côté de la case fausse');
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0 || conseilCtxCourant().indexOf('u1 fait 1 carreau vers la gauche puis 3 carreaux vers le haut')<0) vus.push('8.4.1 : le contexte du modèle');
+    nextVco();
+    if(document.querySelectorAll('#vcoHost .vco-et').length!==0) vus.push('8.4.1 : la deuxième page écrit encore les déplacements');
+    checkVco();
+    if(document.querySelector('#scr-vco .vco-in.bad') || document.querySelectorAll('#scr-vco .vco-in.sol').length!==16) vus.push('8.4.1 : la copie vide rougit ou ne remplit pas ses seize cases');
+
+    /* ===== 8.4.2 : retrouver le vecteur ===== */
+    const d2=D.associer;
+    currentTestId=d2.exercice; TESTS[d2.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='vca' || test.maxScore!==d2.bareme || test.questions.length!==d2.nb) vus.push('8.4.2 : kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
+    test.questions[0]=fixe(); renderVca();
+    if(document.querySelectorAll('#vcaHost .vca-pos .vca-in').length!==8 || document.querySelectorAll('#vcaHost .vco-svg .vco-nom').length!==0 || document.querySelectorAll('#vcaHost .vco-tab .vco-col').length!==8) vus.push('8.4.2 : la page n\\'a pas ses huit cases sur le dessin, son tableau, ou montre les noms');
+    /* les cases dans l'ordre de lecture (la flèche → passe à la voisine) */
+    if(vcaCases(test.questions[0]).join(',')!=='vca-0,vca-1,vca-2,vca-3,vca-4,vca-5,vca-6,vca-7') vus.push('8.4.2 : l\\'ordre des cases '+vcaCases(test.questions[0]).join(','));
+    const q2=JSON.parse(JSON.stringify(fixe()));
+    q2.v.forEach(function(_,i){ el('vca-'+i).value=String(i+1); });
+    av=test.score; checkVca();
+    if(test.score-av!==8 || document.querySelectorAll('#scr-vca .vca-in.ok').length!==8) vus.push('8.4.2 : la copie juste vaut '+(test.score-av));
+    test.questions[0]=q2; renderVca();
+    /* le piège : u1 (−1 ; 3) et u2 (1 ; 3) échangés, u8 vide */
+    q2.v.forEach(function(_,i){ el('vca-'+i).value=i===7?'':String(i===0?2:(i===1?1:i+1)); });
+    av=test.score; checkVca();
+    const lc=['vca-0','vca-1','vca-2','vca-7'].map(function(i){ return classe(el(i)); }).join(',');
+    if(test.score-av!==5 || lc!=='bad,bad,ok,sol') vus.push('8.4.2 : u1 et u2 échangés, u8 vide : '+(test.score-av)+' '+lc);
+    const fb2=el('vcaFeedback').textContent;
+    if(fb2.indexOf('mêmes nombres de carreaux, mais pas les mêmes signes')<0 || fb2.indexOf('Il te manquait 1 case')<0) vus.push('8.4.2 : le message ne nomme pas le signe : '+fb2.slice(0,220));
+    if(el('vca-7').value!=='8') vus.push('8.4.2 : la case vide n\\'est pas remplie par la correction');
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0 || conseilCtxCourant().indexOf('u1 (−1 ; 3)')<0) vus.push('8.4.2 : le contexte du modèle');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -56379,6 +56507,38 @@ function premiere(w){
   const [pct10Pb2, pct10Dec] = pct10Pb.split('|').map(Number);
   verifier('{pourcentage-dix} : un résultat décimal ne tombe jamais sur un thème humain ou dénombrable (20000 tirages)', pct10Pb2 === 0, pct10Pb2 + ' anomalies');
   verifier('{pourcentage-dix} : les deux branches (résultat entier, résultat décimal) sortent bien toutes les deux', pct10Dec > 4000 && pct10Dec < 16000, pct10Dec + ' tirages décimaux sur 20000');
+
+  /* {ecriture-decimale-somme} (1.10) : la séance suit l'ORDRE DE DIFFICULTÉ de
+     la fiche de Turquet (« puissance de 10 », novembre 2026) — douze formes,
+     dans l'ordre : 10⁻ᵏ trois fois, n + 10⁻ᵏ trois fois, 10⁻ᵃ + 10⁻ᵇ,
+     n + 10⁻ᵃ + 10⁻ᵇ (rangs voisins), n + 10⁻¹ + 10⁻³ (un rang vide),
+     10⁻⁴ ou 10⁻⁵, 0,0…1 + 10⁻ᵇ, n + 0,…1 + 10⁻ᵇ. Un devoir qui règle un
+     autre nombre de questions garde une progression croissante. Et la valeur
+     attendue est exacte : 1 + 10⁻¹ + 10⁻³ = 1,101, pas 1,11. */
+  const edsR = w.eval(`(function(){
+    const forme=q=>q.termes.map(t=>t.t).join('');
+    const FICHE=['p','p','p','ep','ep','ep','pp','epp','epp','p','dp','edp'];
+    let horsForme=0, horsOrdre=0, faux=0;
+    for(let s=0;s<300;s++){
+      const qs=distinctes(12,function(_,i){ return genEds(i,12); });
+      qs.forEach((q,i)=>{ if(forme(q)!==FICHE[i]) horsForme++;
+        if(i===8 && !(q.termes[1].k===1&&q.termes[2].k===3)) horsForme++;
+        if(i===9 && q.termes[0].k<4) horsForme++;
+        if(i<3 && q.termes[0].k>3) horsForme++; });
+    }
+    for(let n=1;n<=DM_NBQ_MAX;n++){ let prec=-1;
+      for(let i=0;i<n;i++){ const g=edsGabarit(i,n); if(g<prec||g<0||g>=EDS_NB) horsOrdre++; prec=g; }
+      if(n>=EDS_NB && edsGabarit(n-1,n)!==EDS_NB-1) horsOrdre++; }
+    const cas=[[[{t:'e',n:1},{t:'p',k:1},{t:'p',k:3}],'1,101'],[[{t:'p',k:2}],'0,01'],[[{t:'d',k:2},{t:'p',k:1}],'0,11'],
+               [[{t:'e',n:1},{t:'d',k:1},{t:'p',k:4}],'1,1001'],[[{t:'p',k:4}],'0,0001'],[[{t:'e',n:7},{t:'p',k:3}],'7,001']];
+    cas.forEach(c=>{ const q={termes:c[0]}, v=edsValeur(q), fr=parseDecToFrac(c[1]);
+      if(edsResStr(q)!==c[1] || !fr || fr.n*v.den!==v.num*fr.d) faux++; });
+    return horsForme+'|'+horsOrdre+'|'+faux+'|'+EDS_NB;
+  })()`);
+  const [edsForme, edsOrdre, edsFaux, edsNb] = edsR.split('|').map(Number);
+  verifier('{ecriture-decimale-somme} : la séance suit les douze formes de la fiche, dans son ordre (300 séances)', edsNb === 12 && edsForme === 0, edsForme + ' questions hors de leur forme, ' + edsNb + ' gabarits');
+  verifier('{ecriture-decimale-somme} : une séance d’une autre longueur (1 à DM_NBQ_MAX) garde une difficulté croissante', edsOrdre === 0, edsOrdre + ' écarts');
+  verifier('{ecriture-decimale-somme} : l’écriture décimale attendue est exacte (1 + 10⁻¹ + 10⁻³ = 1,101)', edsFaux === 0, edsFaux + ' valeurs fausses');
 
 
   /* ---- Les constats mineurs de l'audit (octobre 2026), lot Première ----- */

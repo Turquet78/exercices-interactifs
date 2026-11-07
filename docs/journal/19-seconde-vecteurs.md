@@ -5697,3 +5697,93 @@ qui n'éteignait pas déjà ce survol par une règle plus précise ; vert après
 **Ce qu'aucun banc ne voit** : le stylet — Playwright ne sait pas faire
 survoler un `pointerType: 'pen'` — et le survol collé d'un vrai Safari ou
 Chrome tactile.
+
+## Le sous-thème 8.4 « Coordonnées de vecteurs » — {coordonnees-vecteur-lire}, {coordonnees-vecteur-associer} (8.4.1, 8.4.2, v642)
+
+**La demande** (Turquet, novembre 2026) : « en seconde créer un sous-thème
+dans les vecteurs pour les coordonnées et créer un exercice comme l'exemple 1
+du pdf puis un 2e exercice comme l'exercice 2 du pdf ». Le PDF est la fiche
+« vecteur coord 1 » : l'EXEMPLE 1 montre huit vecteurs u⃗₁ … u⃗₈ sur un
+quadrillage, chacun décomposé en une flèche grise horizontale (−1, +1, +3…)
+puis une flèche noire verticale (+3, −3), un repère des signes (+ vers le haut
+et la droite, − vers le bas et la gauche) et un tableau de huit coordonnées
+en colonne à remplir ; l'EXERCICE 2 donne le tableau rempli et les flèches
+sans numéro : « écrire le numéro correspondant sur le dessin ». Un quatrième
+sous-thème du thème 8 : rien ne se renumérote.
+
+**Deux moteurs, une figure.** `vco` (8.4.1) et `vca` (8.4.2) partagent le
+tirage (`vcoGen`), la figure (`vcoSvg`), le repère des signes (`vcoRoseSvg`)
+et la lecture d'une saisie (`vcoLit` : « −3 », « -3 », « +3 », « 3 » ; « 1,5 »
+n'est pas un entier). On range la figure, jamais la réponse : `q.v`, une ligne
+`[x, y, a, b]` par vecteur, dans l'ordre des numéros (la ligne i est u⃗ᵢ₊₁) ;
+`q.et` dit si la page écrit les déplacements.
+
+**Le tirage** : quatre vecteurs en biais, un par paire de signes, et quatre
+droits (droite, gauche, haut, bas) — la composition de la fiche. Au 8.4.1 les
+nombres de carreaux varient (1 à 3 en horizontal, 1 à 4 en vertical, 2 à 4
+pour un droit) ; au 8.4.2, comme sur la fiche, les quatre biais partagent les
+MÊMES nombres de carreaux, et les quatre droits aussi : seuls les signes les
+distinguent, c'est le piège. Chaque flèche a sa case de la figure (quatre
+colonnes de 8 carreaux, deux rangées de 6), tirée ; dans la case, la flèche
+occupe les colonnes 3 à 7, et son nom — ou la case du numéro au 8.4.2 — se
+pose à gauche, toujours au même endroit : un nom posé « à côté du trait »
+tombait sur la flèche voisine dès qu'elle était courte (vu sur la première
+capture). **La première page écrit les déplacements** à côté des flèches, comme
+la fiche ; la seconde ne les écrit plus : on compte les carreaux.
+
+**Sur un écran étroit, la figure passe à deux colonnes de quatre cases**
+(`vcoNc`, sous 640 px) : à quatre colonnes elle tenait sur 360 px avec des
+carreaux de 9 px. La question ne change pas : la case de chaque flèche
+(`vcoPlace`) se redistribue au dessin, la flèche garde sa place dans sa case.
+
+**Les cases du 8.4.2 sont posées SUR le dessin**, en HTML au-dessus du SVG,
+placées en pourcentage, et leur taille suit l'échelle du dessin : la scène est
+un conteneur (`container-type:inline-size`), la case prend `2200cqw / W`
+(W, la largeur du dessin en unités, passée par `--vca-w`). Le badge vert de la
+correction se pose à droite de la case, hors du flux. Les cases se suivent dans
+l'ordre de lecture du dessin (`vcaOrdre`, par case de la figure) : la flèche →
+passe à la voisine, jamais au numéro suivant.
+
+**Les pointes des flèches** sont à taille fixe (`markerUnits="userSpaceOnUse"`,
+`vcoPointe`) : à la première capture, une pointe ordinaire grossissait avec le
+trait de 3 px et recouvrait une flèche d'un carreau.
+
+**Le juge** : chaque case seule. Au 8.4.1, deux cases par vecteur (le
+déplacement horizontal en haut, le vertical en bas) ; le pourquoi, sur le
+premier vecteur faux, dit ses deux déplacements en carreaux et leur signe. Au
+8.4.2, une case par flèche ; le pourquoi dit le chemin de la flèche, ses
+coordonnées, celles du vecteur dont l'élève a écrit le numéro — et, si ce sont
+les mêmes nombres de carreaux, « mais pas les mêmes signes ». Rien ne se juge
+avant « Vérifier » (`soutienEnDirect.sans`) : huit numéros pour huit cases se
+trouveraient par élimination. Seize cases par page au 8.4.1 (barème 32), huit
+au 8.4.2 (barème 16), deux pages (`VCO_NB`, `dmNbQuestions`).
+
+**Le banc principal** (`coordonneesVecteurs`, « coordonnées de vecteurs ») :
+les deux places et les voisins immobiles, pas de bouton des tables, les
+rappels et les questions à l'IA, `vcoLit` sur neuf écritures ; deux cents
+séances par exercice (les huit vecteurs, leurs signes, une flèche par case
+sans en sortir, les nombres partagés au 8.4.2, les déplacements écrits à la
+première page seulement) ; les deux mises en page (quatre et deux colonnes)
+tiennent leurs flèches dans le dessin, le nom à gauche ; une figure fixe —
+celle de la fiche — : la copie juste écrite « -1 », « +3 », « −3 », le rendu
+après JSON, l'erreur de signe (bad, ok), le vecteur vide (sol, sol), le
+message, le badge, le contexte ; au 8.4.2 la copie juste, u⃗₁ et u⃗₂ échangés
+(bad, bad, « pas les mêmes signes ») et la case vide remplie. Les contrôles
+universels du banc navigateur (section 9) les visitent comme les autres.
+
+**Puis les noms sont venus au milieu de leur vecteur** (v643, demande de
+Turquet, novembre 2026 : « rapproche les noms de vecteurs des vecteurs
+concernés dans les 2 exercices en les plaçant au milieu de chaque vecteur »).
+Le nom posé à gauche de la case (v642) se lisait loin de sa flèche. La flèche
+se centre maintenant dans sa case (colonnes 2 à 6), et le nom — ou la case du
+numéro au 8.4.2 — se pose à côté du MILIEU du trait (`vcoGeo`), sur la
+normale, du côté opposé au coin de la décomposition : hors du triangle, là où
+ni le déplacement gris ni le noir ne sont écrits. Il s'en tient juste assez
+loin pour que l'étiquette ne touche pas le trait — la distance se calcule
+sur la normale à partir de ses demi-dimensions (`VCO_NOM` pour le nom,
+`VCA_CASE` pour la case, plus large). Une flèche horizontale a son nom
+au-dessus, une verticale à gauche. Le banc principal relit, sur cent tirages
+et dans les deux mises en page, que chaque étiquette est près du milieu de sa
+flèche, reste dans le dessin, et qu'aucun trait — le sien ou celui d'une
+autre flèche — ne passe dessous ; trois cents tirages joués dans Chromium
+avant la poussée n'en ont trouvé aucun.
