@@ -56546,6 +56546,39 @@ function premiere(w){
   verifier('{ecriture-decimale-somme} : une séance d’une autre longueur (1 à DM_NBQ_MAX) garde une difficulté croissante', edsOrdre === 0, edsOrdre + ' écarts');
   verifier('{ecriture-decimale-somme} : l’écriture décimale attendue est exacte (1 + 10⁻¹ + 10⁻³ = 1,101)', edsFaux === 0, edsFaux + ' valeurs fausses');
 
+  /* {valeur-approchee} (1.12) : la séance suit les SEIZE lignes de la fiche
+     « valeur approchée » de Turquet (novembre 2026), dans leur ordre — huit
+     approximations entières, quatre calculs, quatre ordres de grandeur —, une
+     séance d'une autre longueur garde la progression, et les attendus sont
+     exacts : 10⁻² + 10 ≈ 10, 0,01 × 10 = 1/100 × 10 = 0,1, 101 × 999 ≈ 100 000. */
+  const vapR = w.eval(`(function(){
+    const forme=q=>q.p+(q.pw?'w':'')+(q.plus?'+':'')+(q.a?'a':'')+(q.m?'m':'')+(q.x?'x':'')+(q.k&&q.p===3?'k'+q.k:'');
+    const FICHE=['1','1','1','1','1+','1+','1w','1w','2a','2m','2m','2m','3x','3x','3k2','3k1'];
+    let horsForme=0, horsOrdre=0, faux=0, doublons=0;
+    for(let s=0;s<300;s++){
+      const qs=distinctes(16,function(_,i){ return genVap(i,16); });
+      qs.forEach((q,i)=>{ if(forme(q)!==FICHE[i]) horsForme++;
+        if(i===1 && q.e%100) horsForme++;  if(i===4 && q.e%10) horsForme++;  if(i===5 && q.e%1000) horsForme++;
+        if(i===6 && !(q.pw[0]<0&&q.pw[1]>0)) horsForme++;  if(i===7 && !(q.pw[0]>0&&q.pw[1]<0)) horsForme++;
+        if(i===9 && q.k!==1) horsForme++;  if(i===10 && !(q.k>=2&&q.m>q.k)) horsForme++;  if(i===11 && !(q.m<q.k)) horsForme++; });
+      /* les lignes 1 et 3 (8,001), 2 et 4 (200,1) : jamais le même nombre */
+      if(JSON.stringify(qs[0])===JSON.stringify(qs[2]) || JSON.stringify(qs[1])===JSON.stringify(qs[3])) doublons++;
+    }
+    for(let n=1;n<=DM_NBQ_MAX;n++){ let prec=-1;
+      for(let i=0;i<n;i++){ const g=vapGabarit(i,n); if(g<prec||g<0||g>=VAP_NB) horsOrdre++; prec=g; } }
+    const cas=[[{p:1,e:8,k:3},'8'],[{p:1,e:200,k:1},'200'],[{p:1,e:3000,k:3,plus:true},'3000'],[{p:1,pw:[-2,1]},'10'],[{p:1,pw:[2,-2]},'100'],
+               [{p:2,a:2,b:3},'100000'],[{p:2,k:1,m:3},'100'],[{p:2,k:2,m:3},'10'],[{p:2,k:2,m:1},'0,1'],
+               [{p:3,x:11,y:99},'1000'],[{p:3,x:101,y:999},'100000'],[{p:3,k:2,y:999},'10'],[{p:3,k:1,y:101},'10']];
+    cas.forEach(c=>{ const A=vapAttendus(c[0]); if(!vapVaut(c[1],A.r) || vapStr(A.r,false)!==c[1]) faux++; });
+    const f=vapAttendus({p:3,x:11,y:99}); if(f.fx!==10*VAP_D||f.fy!==100*VAP_D) faux++;
+    const g=vapAttendus({p:2,k:2,m:1}); if(g.fn!==1||g.fd!==100) faux++;
+    return (horsForme+doublons)+'|'+horsOrdre+'|'+faux+'|'+VAP_NB;
+  })()`);
+  const [vapForme, vapOrdre, vapFaux, vapNb] = vapR.split('|').map(Number);
+  verifier('{valeur-approchee} : la séance suit les seize lignes de la fiche, dans son ordre (300 séances)', vapNb === 16 && vapForme === 0, vapForme + ' questions hors de leur forme, ' + vapNb + ' gabarits');
+  verifier('{valeur-approchee} : une séance d’une autre longueur (1 à DM_NBQ_MAX) garde l’ordre de la fiche', vapOrdre === 0, vapOrdre + ' écarts');
+  verifier('{valeur-approchee} : les attendus sont exacts (10⁻² + 10 ≈ 10, 0,01 × 10 = 0,1, 101 × 999 ≈ 100 000)', vapFaux === 0, vapFaux + ' valeurs fausses');
+
 
   /* ---- Les constats mineurs de l'audit (octobre 2026), lot Première ----- */
 
