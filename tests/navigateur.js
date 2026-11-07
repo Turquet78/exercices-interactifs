@@ -892,6 +892,10 @@ if(require.main === module) (async () => {
         await s.page.waitForTimeout(150);
         choix = await ecranConnexion();
         choix.codeVide = (await valeurCode()) === '';
+        /* avec le lien, et seulement avec lui, le code devient un mot de passe
+           que le navigateur peut retenir : identifiant = le prénom */
+        choix.champ = await s.page.evaluate(() => { const c = document.getElementById('loginPin'), u = document.getElementById('loginUserLien');
+          return { type: c.type, ac: c.getAttribute('autocomplete'), user: u ? u.value : null, userAc: u ? u.getAttribute('autocomplete') : null, userVu: !!u && u.getClientRects().length > 0 }; });
         if(choix.code){
           await saisirCode(s.page, CODE_CONTROLE);
           await s.page.waitForTimeout(500);
@@ -903,7 +907,11 @@ if(require.main === module) (async () => {
         await s.page.waitForTimeout(300);
         inconnu = await ecranConnexion();
       } finally {
-        await s.page.evaluate(u => history.replaceState(null, '', u), adresse);
+        /* la page de l'élève reprend sa case texte pour la suite du banc */
+        await s.page.evaluate(u => { history.replaceState(null, '', u);
+          const c = document.getElementById('loginPin'), x = document.getElementById('loginUserLien');
+          c.type = 'text'; c.setAttribute('autocomplete', 'off'); c.removeAttribute('name'); if(x) x.remove();
+          document.getElementById('modeCo').setAttribute('autocomplete', 'off'); }, adresse);
         await sortir();
       }
       verifier('« ?eleve=Prénom » dans l\'adresse choisit la pastille de ce prénom, et le code connecte',
@@ -915,6 +923,10 @@ if(require.main === module) (async () => {
           : choix.focus !== 'loginPin' ? 'le focus est sur « ' + choix.focus + ' », pas sur le code'
           : apres !== 'scr-space' ? 'écran atteint : ' + apres
           : 'entré sous la clé « ' + cle + ' »');
+      verifier('avec « ?eleve=Prénom », le code est un mot de passe que le navigateur peut retenir, sous le prénom',
+        !!choix.champ && choix.champ.type === 'password' && choix.champ.ac === 'current-password'
+          && choix.champ.user === PRENOM_CONTROLE && choix.champ.userAc === 'username' && choix.champ.userVu,
+        JSON.stringify(choix.champ));
       verifier('« ?eleve= » avec un prénom absent de la liste ne choisit rien',
         !!inconnu && inconnu.choisie === '' && !inconnu.code && inconnu.pastilles.length > 0,
         JSON.stringify(inconnu));
