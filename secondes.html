@@ -9027,7 +9027,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=643;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=644;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -14796,6 +14796,7 @@ async function renderLoginNames(){
       if(!sonde||sonde.code!=='PGRST202'){
         /* état B : la fonction existe, la liste est fermée — l'élève tape son prénom */
         box.innerHTML=''; $('chipsRow').hidden=true; $('prenomRow').hidden=false; $('pinRow').hidden=false;
+        if(prenomDuLien()){ $('loginPrenom').value=new URLSearchParams(location.search).get('eleve').trim(); setTimeout(()=>$('loginPin').focus(),60); }
         return;
       }
       /* états A et C : la fonction n'existe pas, la classe est vraiment vide */
@@ -14819,8 +14820,16 @@ async function renderLoginNames(){
       };
       box.appendChild(b);
     });
+    /* « ?eleve=Benoit » dans l'adresse (un favori du professeur, demande de
+       Turquet, novembre 2026) : la pastille de ce prénom se choisit seule, il
+       ne reste que le code à taper. Le lien ne porte AUCUN secret — le code
+       n'est jamais retenu ni prérempli (voir #loginPin) ; un prénom absent de
+       la liste ne choisit rien. Même normalisation que la connexion. */
+    const voulu=prenomDuLien();
+    if(voulu){ const i=data.findIndex(e=>normaliserPrenom(e.prenom)===voulu); if(i>=0) box.children[i].click(); }
   }catch(e){ box.innerHTML='<span class="muted">Connexion impossible. Vérifie ta configuration.</span>'; }
 }
+function prenomDuLien(){ try{ return normaliserPrenom(new URLSearchParams(location.search).get('eleve')||''); }catch(e){ return ''; } }
 /* LA MÊME NORMALISATION QUE public.normaliser_prenom EN SQL (migration 009,
    que la 010 retire) : minuscules, accents retirés, espaces réduits à un.
    « Léa », « lea » et « LÉA  » désignent le même compte — pour le prénom tapé

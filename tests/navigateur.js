@@ -876,6 +876,50 @@ if(require.main === module) (async () => {
           : 'entré sous la clé « ' + cle + ' » au lieu de « cle-controle »');
     }
 
+    /* « ?eleve=Prénom » DANS L'ADRESSE (favori du professeur, novembre 2026) :
+       la pastille de ce prénom se choisit seule, écrite sans accents ni
+       majuscules, le focus va au code, et le code juste connecte. Second
+       bord : un prénom absent de la liste ne choisit rien, et le code reste
+       caché. Le code, lui, n'est jamais prérempli. L'adresse est rendue telle
+       qu'elle était dans un finally. */
+    if(P.prenomDuLien){
+      let choix, apres, cle, inconnu;
+      const adresse = await s.page.evaluate(() => location.href);
+      try{
+        await s.page.evaluate(p => history.replaceState(null, '', location.pathname + '?eleve=' + encodeURIComponent(p)), enMajuscules);
+        await sortir();
+        await s.page.waitForSelector('#nameChips .chip.sel', { timeout: 3000 }).catch(() => {});
+        await s.page.waitForTimeout(150);
+        choix = await ecranConnexion();
+        choix.codeVide = (await valeurCode()) === '';
+        if(choix.code){
+          await saisirCode(s.page, CODE_CONTROLE);
+          await s.page.waitForTimeout(500);
+          apres = await ecranVisible(s.page);
+          cle = await s.page.evaluate(() => currentEleve && currentEleve.cle);
+        }
+        await s.page.evaluate(() => history.replaceState(null, '', location.pathname + '?eleve=Personne-Inconnue'));
+        await sortir();
+        await s.page.waitForTimeout(300);
+        inconnu = await ecranConnexion();
+      } finally {
+        await s.page.evaluate(u => history.replaceState(null, '', u), adresse);
+        await sortir();
+      }
+      verifier('« ?eleve=Prénom » dans l\'adresse choisit la pastille de ce prénom, et le code connecte',
+        choix.choisie === PRENOM_CONTROLE && choix.code && choix.codeVide && choix.focus === 'loginPin'
+          && apres === 'scr-space' && cle === 'cle-controle',
+        choix.choisie !== PRENOM_CONTROLE ? 'pastille choisie : « ' + choix.choisie + ' » pour ?eleve=' + enMajuscules
+          : !choix.code ? 'la case du code reste cachée'
+          : !choix.codeVide ? 'le code est prérempli'
+          : choix.focus !== 'loginPin' ? 'le focus est sur « ' + choix.focus + ' », pas sur le code'
+          : apres !== 'scr-space' ? 'écran atteint : ' + apres
+          : 'entré sous la clé « ' + cle + ' »');
+      verifier('« ?eleve= » avec un prénom absent de la liste ne choisit rien',
+        !!inconnu && inconnu.choisie === '' && !inconnu.code && inconnu.pastilles.length > 0,
+        JSON.stringify(inconnu));
+    } else console.log('  (« ?eleve=Prénom » : non demandé à ce niveau — prenomDuLien: false)');
+
     /* DEUX HOMONYMES SUR LES PASTILLES : deux « Contrôle », deux pastilles
        pareilles, et l'élève clique celle de son voisin. C'est le code qui
        départage, comme dans le repli : la page essaie la clé de la pastille
