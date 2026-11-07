@@ -5933,3 +5933,32 @@ L'en-tête a maintenant la police de la colonne (seul son texte est à
 et 380 px : 0 px pour « Fin », « Début » et les trois « − ». Le banc
 navigateur le tient (« 6 quadragies quinquies bis ») : sur l'ancienne page il
 rougit.
+
+### Puis le soutien a rougi le faux à la sortie de la case — 8.4.1 à 8.4.4 (Seconde v651)
+
+Turquet, sur une copie d'écran du 8.4.4 en soutien : « pourquoi les cases
+fausses ne rougissent-elles pas ? », puis « fais-le, mais fin et début
+rougissent aussi », puis « fais pareil pour 8.4.1 à 8.4.3 ».
+
+**La cause n'était pas une panne mais une dispense trop large.** Les quatre
+kinds (« vco », « vca », « vcs », « vcd ») étaient dans
+`soutienEnDirect.sans` : rien ne se jugeait avant « Vérifier ». Les raisons
+écrites (huit numéros pour huit cases au 8.4.2, deux noms dans les listes du
+8.4.4 : l'élimination) valaient pour une partie des cases, et la dispense
+couvrait l'exercice entier. Le garde de novembre (`gardeLeverRouge`)
+aggravait l'effet : la case rouge modifiée perdait son rouge, et rien ne la
+rejugeait avant « Revérifier » — l'élève corrigeait à l'aveugle.
+
+**Désormais, les quatre passent par `liveCheckCurrent()`** et sont sortis de
+la dispense (le contrôle universel « le soutien corrige en direct » les
+tient) : `checkVco(true)`, `checkVcs(true)`, `checkVca(true)` posent les
+couleurs de `corrChoix` et s'arrêtent là ; `liveVcd()` peint les deux listes
+et les huit cases du calcul (la remplie juste en bleu, la fausse en rouge, la
+vide neutre ; rien de figé, rien de révélé). Le garde commun retient la
+couleur tant que l'élève écrit et la pose à la sortie. Les listes Fin et
+Début rougissent AU CHOIX, sur décision explicite de Turquet, en connaissant
+le prix : avec deux noms, la bonne se trouve par élimination — de même pour
+les numéros du 8.4.2. Une liste n'est pas un `INPUT` : le relais commun du
+document ne la voit pas, son `change` appelle `liveCheckCurrent()` lui-même.
+Hors soutien, rien ne change. Vu dans un vrai Chromium, en soutien et en
+entraînement, sur les quatre exercices.
