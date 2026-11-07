@@ -3130,10 +3130,17 @@
   .vcd-nom .vgt-vec{font-size:1em}
   .vcd-diff{display:inline-flex;flex-direction:column;align-items:stretch;gap:4px}
   .vcd-tete,.vcd-par.vco-par{display:grid;grid-template-columns:4.2em 1.1em 4.2em;align-items:center;justify-items:center;flex-direction:initial}
-  .vcd-tete{font-size:.72em;padding:0 10px;column-gap:0}
+  /* l'en-tête a la police de la colonne : ses 4,2 em sont ceux des cases, et
+     « Fin » / « Début » tombent sur la colonne qu'ils nomment (à 0,72 em, la
+     grille rétrécissait avec la police et se décalait vers le milieu —
+     capture de Turquet, novembre 2026) ; seul son texte est plus petit. Le
+     retrait = le trait de la parenthèse (2 px) + son rembourrage (10 px). */
+  .vcd-tete{padding:0 12px;column-gap:4px}
+  .vcd-tete>*{font-size:.72em}
   .vcd-fd{display:inline-flex;flex-direction:column;align-items:center;gap:2px;font-family:'Nunito',sans-serif;font-weight:700;white-space:nowrap}
   .vcd-tete .vcd-sel{width:2.8em;height:1.9em;font-size:1em;padding:0}
-  .vcd-par.vco-par{row-gap:8px;padding:6px 10px}
+  .vcd-tete .vcd-c{font-size:1em}
+  .vcd-par.vco-par{row-gap:8px;column-gap:4px;padding:6px 10px}   /* le même écart que l'en-tête */
   .vcd-res.vco-par{gap:8px;padding:6px 10px;justify-content:center}
   .vcd-in.vco-in{width:2.9em;height:1.75em;font-size:1em;padding:0}
   .vcd-in.vcd-rond{border-style:dotted;border-radius:999px}
@@ -9085,7 +9092,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=648;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=649;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.

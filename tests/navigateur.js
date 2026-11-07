@@ -10050,6 +10050,43 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies quinquies bis. FIN ET DÉBUT AU-DESSUS DE LEUR COLONNE ===== */
+    /* {coordonnees-vecteur-calculer} (8.4.4) : « Fin » et « Début », avec leur
+       liste de noms, se posent au-dessus de la colonne qu'ils nomment — la
+       capture de Turquet (novembre 2026) les montrait resserrés vers le
+       milieu : l'en-tête, écrit plus petit, mesurait ses colonnes dans SA
+       police. jsdom n'a pas de mise en page : l'alignement ne se mesure
+       qu'ici, à trois largeurs d'écran. */
+    titre('6 quadragies quinquies bis. FIN − DÉBUT : CHAQUE NOM AU-DESSUS DE SA COLONNE');
+    if(!P.coordonneesVecteurs || !P.coordonneesVecteurs.calculer){
+      ignorer('« Fin » et « Début » sont centrés sur la colonne qu\'ils nomment, à trois largeurs',
+        'ce niveau n\'a pas l\'exercice fin − début');
+    } else {
+      const dits = [];
+      for(const w of [1366, 820, 380]){
+        s = await ouvrir(chromium, ml, { viewport: { width: w, height: 1000 } });
+        await connecter(s.page);
+        await s.page.evaluate(id => openTest(id), P.coordonneesVecteurs.calculer.exercice);
+        await s.page.waitForTimeout(300);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(700);
+        const m = await s.page.evaluate(() => {
+          const cx = id => { const e = document.getElementById(id); if(!e) return null; const r = e.getBoundingClientRect(); return r.width ? (r.left + r.right) / 2 : null; };
+          const ms = [...document.querySelectorAll('#vcdCalc .vcd-tete > .vcd-m, #vcdCalc .vcd-par > .vcd-m')].map(e => { const r = e.getBoundingClientRect(); return (r.left + r.right) / 2; });
+          return { fin: cx('vcd-fin'), xf: cx('vcd-xf'), yf: cx('vcd-yf'), deb: cx('vcd-deb'), xd: cx('vcd-xd'), yd: cx('vcd-yd'), ms };
+        });
+        if([m.fin, m.xf, m.yf, m.deb, m.xd, m.yd].some(v => v === null)) dits.push(w + ' px : une liste ou une case manque');
+        else {
+          if(Math.abs(m.fin - m.xf) > 2 || Math.abs(m.fin - m.yf) > 2) dits.push(w + ' px : « Fin » à ' + (m.fin - m.xf).toFixed(1) + ' px de sa colonne');
+          if(Math.abs(m.deb - m.xd) > 2 || Math.abs(m.deb - m.yd) > 2) dits.push(w + ' px : « Début » à ' + (m.deb - m.xd).toFixed(1) + ' px de sa colonne');
+          if(m.ms.length !== 3 || Math.max(...m.ms) - Math.min(...m.ms) > 2) dits.push(w + ' px : les trois « − » ne sont pas l\'un sous l\'autre');
+        }
+        if(s.erreurs.length) dits.push(w + ' px : ' + s.erreurs[0]);
+        await s.nav.close(); s = null;
+      }
+      verifier('« Fin » et « Début » sont centrés sur la colonne qu\'ils nomment, à trois largeurs', !dits.length, dits.slice(0, 3).join(' | '));
+    }
+
     /* ===== 6 quadragies sexies. POINT PAR UNE SOMME DE VECTEURS : TRACER, GLISSER, PLACER ===== */
     /* {point-somme-vecteurs} (8.14, demande de Turquet, octobre 2026,
        l'exercice 2 de la « Fiche 8 sur somme de vecteur ») : les deux
