@@ -9085,7 +9085,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=648;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=649;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10440,6 +10440,10 @@ function liveCheckCurrent(){
   else if(k==='dch') checkDchAnswer(true);
   else if(k==='dco') checkDco(true);
   else if(k==='dcr') checkDcr(true);
+  else if(k==='vco') checkVco(true);
+  else if(k==='vcs') checkVcs(true);
+  else if(k==='vca') checkVca(true);
+  else if(k==='vcd') liveVcd();
   else if(k==='dpa') checkDpaAnswer(true);
   else if(k==='chi') checkChiAnswer(true);
   else if(k==='vfh') checkVfhAnswer(true);
@@ -67263,7 +67267,7 @@ function vcoPourquoi(q,subs){
   return '';
 }
 function vcoColHTML(a,b){ return '<span class="vco-col"><span>'+String(a).replace('-','−')+'</span><span>'+String(b).replace('-','−')+'</span></span>'; }
-function checkVco(){
+function checkVco(live){
   if(test.locked) return;
   const q=test.questions[test.idx], subs=[];
   q.v.forEach(function(l,i){
@@ -67275,6 +67279,7 @@ function checkVco(){
   const n=subs.filter(function(s){ return s.ok; }).length, tout=n===subs.length;
   const pourquoi=vcoPourquoi(q,subs);
   subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); });
+  if(live) return;   /* soutien, au fil de la saisie : les couleurs seules */
   if(!tout&&isSoutien()){ soutienAgain('vcoFeedback','vcoActions','checkVco','vcoHost'); return; }
   test.locked=true; test.score+=n;
   if(tout){ $('vcoFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('vcoFeedback').className='mp-feedback good'; }
@@ -67347,7 +67352,7 @@ function renderVcs(){
 }
 function vcsSaisie(i){ const ex=$('vcs-x-'+i), ey=$('vcs-y-'+i);
   return vcoNomTxt(i+1)+' ('+((ex&&ex.value.trim())||'?')+' ; '+((ey&&ey.value.trim())||'?')+')'; }
-function checkVcs(){
+function checkVcs(live){
   if(test.locked) return;
   const q=test.questions[test.idx], subs=[];
   q.v.forEach(function(l,i){
@@ -67359,6 +67364,7 @@ function checkVcs(){
   const n=subs.filter(function(s){ return s.ok; }).length, tout=n===subs.length;
   const pourquoi=vcoPourquoi(q,subs);
   subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); });
+  if(live) return;   /* soutien, au fil de la saisie : les couleurs seules */
   if(!tout&&isSoutien()){ soutienAgain('vcsFeedback','vcsActions','checkVcs','vcsHost'); return; }
   test.locked=true; test.score+=n;
   if(tout){ $('vcsFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('vcsFeedback').className='mp-feedback good'; }
@@ -67433,7 +67439,7 @@ function vcaPourquoi(q,subs){
     +(w?', alors que '+vcoNomHTML(lu)+' a pour coordonnées '+vcoColHTML(w[2],w[3])+(Math.abs(w[2])===Math.abs(l[2])&&Math.abs(w[3])===Math.abs(l[3])?' — les mêmes nombres de carreaux, mais pas les mêmes signes':''):'')
     +'. C’est '+vcoNomHTML(i+1)+'.';
 }
-function checkVca(){
+function checkVca(live){
   if(test.locked) return;
   const q=test.questions[test.idx], subs=[];
   vcaOrdre(q).forEach(function(i){
@@ -67443,6 +67449,7 @@ function checkVca(){
   const n=subs.filter(function(s){ return s.ok; }).length, tout=n===subs.length;
   const pourquoi=vcaPourquoi(q,subs);
   subs.forEach(function(s){ corrChoix(s.el, s.bon, s.ok); });
+  if(live) return;   /* soutien, au fil de la saisie : les couleurs seules */
   if(!tout&&isSoutien()){ soutienAgain('vcaFeedback','vcaActions','checkVca','vcaHost'); return; }
   test.locked=true; test.score+=n;
   if(tout){ $('vcaFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('vcaFeedback').className='mp-feedback good'; }
@@ -67807,6 +67814,19 @@ function vcdMarqueSoutien(q,subs){
   if(vcdFige(vcdIdOutil(test.vcdOutil))) test.vcdOutil=vcdSuivant(q,test.vcdOutil);
   vcdDessiner(q); vcdMajOutils(q);
 }
+/* Soutien, au fil de la saisie (liveCheckCurrent) : les deux listes et les
+   huit cases du calcul — la remplie juste en bleu, la remplie fausse en rouge,
+   la vide neutre ; rien ne se révèle, rien ne se fige. Le garde commun retient
+   la couleur d'une case tant que l'élève y écrit, et la pose à la sortie. Les
+   gestes du repère, eux, rougissent déjà à la pose (vcdCoul). Demande de
+   Turquet (novembre 2026) : « fin et début rougissent aussi ». */
+function liveVcd(){
+  const q=test.questions[test.idx]; if(!q) return;
+  vcdJuge(q).forEach(function(s){
+    if(!s.el) return;
+    if(s.vide) s.el.classList.remove('ok','bad','sol'); else corrChoix(s.el, s.bon, s.ok);
+  });
+}
 /* Correction finale : chaque réponse en bleu, rouge, ou verte si elle était
    vide ; ce qui manquait ou était faux se dessine en VERT. */
 function vcdFinal(q,subs){
@@ -67842,7 +67862,9 @@ function renderVcd(){
     +b_('p0',pts[0])+b_('p1',pts[1])+b_('t','Tracer '+N)+'</div></div>';
   $('vcdGraph').innerHTML=vcdSVG(q);
   $('vcdCalc').innerHTML=vcdCalcHTML(q);
-  VCD_IDS.slice(3).forEach(function(id){ const el=$(id); if(el) el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ clearTimeout(test.vcdSave); test.vcdSave=setTimeout(autoSave,1000); recoveryDirty=true; }); });
+  VCD_IDS.slice(3).forEach(function(id){ const el=$(id); if(el) el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ clearTimeout(test.vcdSave); test.vcdSave=setTimeout(autoSave,1000); recoveryDirty=true;
+    /* une liste n'est pas une case INPUT : le relais commun du document ne la voit pas */
+    if(el.tagName==='SELECT') liveCheckCurrent(); }); });
   vcdDessiner(q); vcdMajOutils(q);
   vcdBrancher();
   $('vcdFeedback').textContent=''; $('vcdFeedback').className='mp-feedback';
