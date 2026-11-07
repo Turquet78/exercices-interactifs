@@ -5788,7 +5788,7 @@ flèche, reste dans le dessin, et qu'aucun trait — le sien ou celui d'une
 autre flèche — ne passe dessous ; trois cents tirages joués dans Chromium
 avant la poussée n'en ont trouvé aucun.
 
-**Puis u⃗₁ … u⃗₈ se sont rangés dans l'ordre sur le dessin du 8.4.1** (v644,
+**Puis u⃗₁ … u⃗₈ se sont rangés dans l'ordre sur le dessin du 8.4.1** (v645 — la v644 prise par la PR 938 pendant les bancs,
 demande de Turquet, novembre 2026 : « mettre les vecteurs dans l'ordre de 1 à
 8 sur le dessin »). La case de la figure n'est plus tirée au 8.4.1 : u⃗₁ en haut
 à gauche, u⃗₄ en haut à droite, u⃗₅ à u⃗₈ sur la rangée du bas — en deux
