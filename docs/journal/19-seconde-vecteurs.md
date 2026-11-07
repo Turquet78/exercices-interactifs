@@ -5907,3 +5907,14 @@ l'envers, fin et début échangés, ordonnées échangées, un signe oublié —
 le faux rouge, rien de vert). Éprouvé par trois sabotages (le tracé toujours
 ouvert, le faux jamais rouge, le rappel retiré) : chacun rougit le contrôle.
 Vu dans un vrai Chromium, à 1 100 et à 380 px de large.
+
+**Et le banc navigateur s'est pris en défaut** (« 11 quaterdecies ») : son
+dernier contrôle, « à la souris, aucune barre « Je place » », retirait
+`__tabletteForce` et relisait la barre — mais le contexte du banc est
+TACTILE (`pointer: coarse`, le contrôle du survol l'exige), donc
+`tabletteActive()` restait vrai. Il ne passait que parce que le dernier
+exercice ouvert du thème (le 8.4.3) n'avait rien à poser ; le 8.4.4, qui a sa
+barre, est devenu le dernier, et la barre restait. Le contrôle fait
+désormais dire « souris » au média (`matchMedia` remplacé le temps de la
+mesure). Éprouvé des deux côtés sur le 8.4.4 : 0 barre ; avec un
+`poseDoigtAd` saboté qui ignore le média, 1 barre.
