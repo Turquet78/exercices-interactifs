@@ -5787,3 +5787,13 @@ et dans les deux mises en page, que chaque étiquette est près du milieu de sa
 flèche, reste dans le dessin, et qu'aucun trait — le sien ou celui d'une
 autre flèche — ne passe dessous ; trois cents tirages joués dans Chromium
 avant la poussée n'en ont trouvé aucun.
+
+**Puis u⃗₁ … u⃗₈ se sont rangés dans l'ordre sur le dessin du 8.4.1** (v644,
+demande de Turquet, novembre 2026 : « mettre les vecteurs dans l'ordre de 1 à
+8 sur le dessin »). La case de la figure n'est plus tirée au 8.4.1 : u⃗₁ en haut
+à gauche, u⃗₄ en haut à droite, u⃗₅ à u⃗₈ sur la rangée du bas — en deux
+colonnes sur téléphone, le même ordre de lecture. Les vecteurs eux-mêmes
+restent tirés et mélangés (u⃗₁ n'est pas toujours un biais vers le haut). Au
+8.4.2 les flèches restent MÉLANGÉES : rangées de 1 à 8, l'élève les
+numéroterait dans l'ordre sans lire une coordonnée. Le banc principal le tient
+sur deux cents séances (dans l'ordre au 8.4.1).

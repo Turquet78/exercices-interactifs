@@ -14933,6 +14933,8 @@ function coordonneesVecteurs(w, P){
         if(biais.length!==4 || droits.length!==4 || sg!=='-1,-1 -1,1 1,-1 1,1' || dr!=='-1,0 0,-1 0,1 1,0'){ vus.push(et+'les huit vecteurs : '+JSON.stringify(q.v)); break; }
         if(q.v.some(function(l){ return Math.abs(l[2])>4||Math.abs(l[3])>4; })){ vus.push(et+'une flèche trop longue'); break; }
         if(new Set(q.v.map(vcoPlace)).size!==8){ vus.push(et+'deux flèches dans la même case'); break; }
+        /* au 8.4.1, u1 … u8 dans l'ordre de lecture du dessin ; au 8.4.2, mélangées */
+        if(!meme && q.v.some(function(l,i){ return vcoPlace(l)!==i; })){ vus.push(et+'les vecteurs ne sont pas dans l\'ordre de 1 à 8 sur le dessin : '+JSON.stringify(q.v.map(vcoPlace))); break; }
         /* dans sa case : les colonnes 2 à 6 (la flèche au milieu), les rangées 1 à 5 */
         if(q.v.some(function(l){ const s=vcoPlace(l), cx=(s%4)*VCO_SW, cy=s<4?VCO_SH:0, xs=[l[0],l[0]+l[2]], ys=[l[1],l[1]+l[3]];
             return Math.min.apply(null,xs)<cx+2||Math.max.apply(null,xs)>cx+6||Math.min.apply(null,ys)<cy+1||Math.max.apply(null,ys)>cy+5; })){ vus.push(et+'une flèche sort de sa case : '+JSON.stringify(q.v)); break; }
