@@ -14933,6 +14933,8 @@ function coordonneesVecteurs(w, P){
         if(biais.length!==4 || droits.length!==4 || sg!=='-1,-1 -1,1 1,-1 1,1' || dr!=='-1,0 0,-1 0,1 1,0'){ vus.push(et+'les huit vecteurs : '+JSON.stringify(q.v)); break; }
         if(q.v.some(function(l){ return Math.abs(l[2])>4||Math.abs(l[3])>4; })){ vus.push(et+'une flèche trop longue'); break; }
         if(new Set(q.v.map(vcoPlace)).size!==8){ vus.push(et+'deux flèches dans la même case'); break; }
+        /* au 8.4.1, u1 … u8 dans l'ordre de lecture du dessin ; au 8.4.2, mélangées */
+        if(!meme && q.v.some(function(l,i){ return vcoPlace(l)!==i; })){ vus.push(et+'les vecteurs ne sont pas dans l\\'ordre de 1 à 8 sur le dessin : '+JSON.stringify(q.v.map(vcoPlace))); break; }
         /* dans sa case : les colonnes 2 à 6 (la flèche au milieu), les rangées 1 à 5 */
         if(q.v.some(function(l){ const s=vcoPlace(l), cx=(s%4)*VCO_SW, cy=s<4?VCO_SH:0, xs=[l[0],l[0]+l[2]], ys=[l[1],l[1]+l[3]];
             return Math.min.apply(null,xs)<cx+2||Math.max.apply(null,xs)>cx+6||Math.min.apply(null,ys)<cy+1||Math.max.apply(null,ys)>cy+5; })){ vus.push(et+'une flèche sort de sa case : '+JSON.stringify(q.v)); break; }
@@ -56517,26 +56519,30 @@ function premiere(w){
      attendue est exacte : 1 + 10⁻¹ + 10⁻³ = 1,101, pas 1,11. */
   const edsR = w.eval(`(function(){
     const forme=q=>q.termes.map(t=>t.t).join('');
-    const FICHE=['p','p','p','ep','ep','ep','pp','epp','epp','p','dp','edp'];
+    const FICHE=['p','p','p','ep','ep','ep','pp','epp','epp','p','dp','edp','q','q','qp','qqp','qpp'];
     let horsForme=0, horsOrdre=0, faux=0;
     for(let s=0;s<300;s++){
-      const qs=distinctes(12,function(_,i){ return genEds(i,12); });
+      const qs=distinctes(EDS_NB,function(_,i){ return genEds(i,EDS_NB); });
       qs.forEach((q,i)=>{ if(forme(q)!==FICHE[i]) horsForme++;
         if(i===8 && !(q.termes[1].k===1&&q.termes[2].k===3)) horsForme++;
         if(i===9 && q.termes[0].k<4) horsForme++;
-        if(i<3 && q.termes[0].k>3) horsForme++; });
+        if(i<3 && q.termes[0].k>3) horsForme++;
+        if(i===15 && q.termes[0].k-q.termes[1].k<2) horsForme++;
+        if(i===16 && !(q.termes[1].k===1&&q.termes[2].k===3)) horsForme++; });
     }
     for(let n=1;n<=DM_NBQ_MAX;n++){ let prec=-1;
       for(let i=0;i<n;i++){ const g=edsGabarit(i,n); if(g<prec||g<0||g>=EDS_NB) horsOrdre++; prec=g; }
       if(n>=EDS_NB && edsGabarit(n-1,n)!==EDS_NB-1) horsOrdre++; }
     const cas=[[[{t:'e',n:1},{t:'p',k:1},{t:'p',k:3}],'1,101'],[[{t:'p',k:2}],'0,01'],[[{t:'d',k:2},{t:'p',k:1}],'0,11'],
-               [[{t:'e',n:1},{t:'d',k:1},{t:'p',k:4}],'1,1001'],[[{t:'p',k:4}],'0,0001'],[[{t:'e',n:7},{t:'p',k:3}],'7,001']];
+               [[{t:'e',n:1},{t:'d',k:1},{t:'p',k:4}],'1,1001'],[[{t:'p',k:4}],'0,0001'],[[{t:'e',n:7},{t:'p',k:3}],'7,001'],
+               [[{t:'q',k:2}],'100'],[[{t:'q',k:2},{t:'p',k:1}],'100,1'],[[{t:'q',k:4},{t:'q',k:2},{t:'p',k:1}],'10100,1'],
+               [[{t:'q',k:2},{t:'p',k:1},{t:'p',k:3}],'100,101']];
     cas.forEach(c=>{ const q={termes:c[0]}, v=edsValeur(q), fr=parseDecToFrac(c[1]);
       if(edsResStr(q)!==c[1] || !fr || fr.n*v.den!==v.num*fr.d) faux++; });
     return horsForme+'|'+horsOrdre+'|'+faux+'|'+EDS_NB;
   })()`);
   const [edsForme, edsOrdre, edsFaux, edsNb] = edsR.split('|').map(Number);
-  verifier('{ecriture-decimale-somme} : la séance suit les douze formes de la fiche, dans son ordre (300 séances)', edsNb === 12 && edsForme === 0, edsForme + ' questions hors de leur forme, ' + edsNb + ' gabarits');
+  verifier('{ecriture-decimale-somme} : la séance suit les dix-sept formes des deux fiches, dans leur ordre (300 séances)', edsNb === 17 && edsForme === 0, edsForme + ' questions hors de leur forme, ' + edsNb + ' gabarits');
   verifier('{ecriture-decimale-somme} : une séance d’une autre longueur (1 à DM_NBQ_MAX) garde une difficulté croissante', edsOrdre === 0, edsOrdre + ' écarts');
   verifier('{ecriture-decimale-somme} : l’écriture décimale attendue est exacte (1 + 10⁻¹ + 10⁻³ = 1,101)', edsFaux === 0, edsFaux + ' valeurs fausses');
 

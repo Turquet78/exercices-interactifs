@@ -9027,7 +9027,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=644;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=645;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -67057,7 +67057,11 @@ function vcoGen(meme, et){
   const vs=[[1,1],[1,-1],[-1,1],[-1,-1]].map(function(s){ return meme?[s[0]*p,s[1]*q]:[s[0]*r(1,3),s[1]*r(1,4)]; })
     .concat([[1,0],[-1,0],[0,1],[0,-1]].map(function(s){ const m=meme?k:r(2,4); return [s[0]*m,s[1]*m]; }));
   ensShuffle(vs);
-  const places=ensShuffle([0,1,2,3,4,5,6,7]);
+  /* AU 8.4.1, u⃗₁ … u⃗₈ DANS L'ORDRE SUR LE DESSIN (demande de Turquet, novembre
+     2026 : « mettre les vecteurs dans l'ordre de 1 à 8 ») — rangée du haut de
+     gauche à droite, puis celle du bas. Au 8.4.2 les flèches restent mélangées :
+     rangées dans l'ordre, elles se numéroteraient sans être lues. */
+  const places=meme?ensShuffle([0,1,2,3,4,5,6,7]):[0,1,2,3,4,5,6,7];
   const v=vs.map(function(w,i){
     const s=places[i], cx=(s%VCO_NC)*VCO_SW, cy=(s<VCO_NC?1:0)*VCO_SH, a=w[0], b=w[1];
     /* la flèche au milieu de sa case (colonnes 2 à 6), son nom posé à côté de son milieu */
