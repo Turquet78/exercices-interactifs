@@ -7586,7 +7586,12 @@ function questionsDistinctes(w, apres){
   }
   evalPromis(w, `(async function(){
     const SEANCES=40, HORS=['v','ci','intro','unit','g','ordre','opts','bon','rep','choisi','selL','selR','fname'];
-    const cle=function(q){ return JSON.stringify(q,function(k,v){ return HORS.indexOf(k)>=0?undefined:v; }); };
+    /* « v » est d'ordinaire l'indice de la variante d'énoncé — mais le
+       sous-thème 8.4 de la Seconde (vco, vca, vcs) y range ses huit vecteurs :
+       un « v » TABLEAU est la question elle-même, il compte. Sans quoi le 8.4.3,
+       dont les deux pages valent { et:0 }, se lisait deux fois la même
+       question (novembre 2026), et le 8.4.1 ne passait que par son « et ». */
+    const cle=function(q){ return JSON.stringify(q,function(k,v){ return (HORS.indexOf(k)>=0 && !(k==='v' && Array.isArray(v)))?undefined:v; }); };
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     const doubles=[]; let mesures=0;
     for(const id of Object.keys(TEST_NUM)){
@@ -14908,11 +14913,11 @@ function coordonneesVecteurs(w, P){
     const el=function(id){ return document.getElementById(id); };
     const classe=function(e){ const c=e?' '+e.className+' ':'';
       return c.indexOf(' ok ')>=0?'ok':(c.indexOf(' bad ')>=0?'bad':(c.indexOf(' sol ')>=0?'sol':'rien')); };
-    ['lire','associer'].forEach(function(k){
+    ['lire','associer','compter'].forEach(function(k){
       const d=D[k]; if(TEST_NUM[d.exercice]!==d.numero) vus.push(d.exercice+' porte le numéro '+TEST_NUM[d.exercice]+' au lieu de '+d.numero);
       if(TABLES_SANS.indexOf(d.exercice)<0) vus.push(d.exercice+' : le bouton des tables est proposé, on ne multiplie rien'); });
     if(TEST_NUM['demontrer-egalite-reels']!=='8.3.10' || TEST_NUM['vecteur-egal-figure']!=='8.1.15') vus.push('un voisin du thème 8 a bougé');
-    if(RAPPELS.vco!==RAP_VCO || RAPPELS.vca!==RAP_VCA || !QIA_SUGG.vco || !QIA_SUGG.vca) vus.push('vco ou vca n\\'a pas son rappel ou ses questions à l\\'IA');
+    if(RAPPELS.vco!==RAP_VCO || RAPPELS.vca!==RAP_VCA || RAPPELS.vcs!==RAP_VCS || !QIA_SUGG.vco || !QIA_SUGG.vca || !QIA_SUGG.vcs) vus.push('vco, vca ou vcs n\\'a pas son rappel ou ses questions à l\\'IA');
     [['-3',-3],['−3',-3],['+2',2],[' 4 ',4],['0',0],['1,5',null],['a',null],['',null],['--1',null]].forEach(function(c){
       if(vcoLit(c[0])!==c[1]) vus.push('vcoLit(« '+c[0]+' ») rend '+vcoLit(c[0])+' au lieu de '+c[1]); });
     /* le tirage : huit vecteurs, quatre en biais (un par paire de signes), quatre droits ;
@@ -15014,6 +15019,33 @@ function coordonneesVecteurs(w, P){
     if(fb2.indexOf('mêmes nombres de carreaux, mais pas les mêmes signes')<0 || fb2.indexOf('Il te manquait 1 case')<0) vus.push('8.4.2 : le message ne nomme pas le signe : '+fb2.slice(0,220));
     if(el('vca-7').value!=='8') vus.push('8.4.2 : la case vide n\\'est pas remplie par la correction');
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0 || conseilCtxCourant().indexOf('u1 (−1 ; 3)')<0) vus.push('8.4.2 : le contexte du modèle');
+
+    /* ===== 8.4.3 : lire les coordonnées sans la décomposition ===== */
+    for(let n=0;n<200;n++){ const qs=vcsBuildQuestions();
+      if(new Set(qs.map(vcoCle)).size!==qs.length){ vus.push('8.4.3 : deux questions identiques'); break; }
+      if(qs.some(function(q){ return q.et!==0 || q.v.some(function(l,i){ return vcoPlace(l)!==i; }); })){ vus.push('8.4.3 : une page écrit les déplacements, ou u1 … u8 ne sont pas dans l\\'ordre'); break; } }
+    const d3=D.compter;
+    currentTestId=d3.exercice; TESTS[d3.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='vcs' || test.maxScore!==d3.bareme || test.questions.length!==d3.nb) vus.push('8.4.3 : kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
+    test.questions[0]=fixe(); renderVcs();
+    /* la figure : huit flèches seules, ni grise, ni noire, ni déplacement écrit — même si la question en demande ; la croix des signes reste */
+    if(document.querySelectorAll('#vcsHost .vco-in').length!==16 || document.querySelectorAll('#vcsHost .vco-svg .vco-nom').length!==8 || document.querySelectorAll('#vcsHost .vco-svg .vco-s').length!==8) vus.push('8.4.3 : la page n\\'a pas ses seize cases, ses huit noms et ses huit flèches');
+    if(document.querySelector('#vcsHost .vco-svg .vco-h, #vcsHost .vco-svg .vco-b, #vcsHost .vco-svg .vco-u, #vcsHost .vco-svg .vco-et')) vus.push('8.4.3 : la figure montre encore la décomposition');
+    if(!document.querySelector('#vcsHost .vco-rose')) vus.push('8.4.3 : la croix des signes a disparu');
+    const q3=test.questions[0];
+    q3.v.forEach(function(l,i){ el('vcs-x-'+i).value=(l[2]<0?'−':'')+Math.abs(l[2]); el('vcs-y-'+i).value=(l[3]<0?'-':'+')+Math.abs(l[3]); });
+    av=test.score; checkVcs();
+    if(test.score-av!==16 || document.querySelectorAll('#scr-vcs .vco-in.ok').length!==16) vus.push('8.4.3 : la copie juste vaut '+(test.score-av));
+    test.questions[0]=JSON.parse(JSON.stringify(fixe())); renderVcs();
+    if(document.querySelectorAll('#vcsHost .vco-in').length!==16 || document.querySelector('#vcsHost .vco-in.ok')) vus.push('8.4.3 : le rendu après JSON');
+    q3.v.forEach(function(l,i){ if(i===4) return; el('vcs-x-'+i).value=String(i===0?1:l[2]); el('vcs-y-'+i).value=String(l[3]); });
+    av=test.score; checkVcs();
+    if(test.score-av!==13 || classe(el('vcs-x-0'))!=='bad' || classe(el('vcs-y-0'))!=='ok' || classe(el('vcs-x-4'))!=='sol' || classe(el('vcs-y-4'))!=='sol') vus.push('8.4.3 : erreur de signe et vecteur vide : '+(test.score-av));
+    const fb3=el('vcsFeedback').textContent;
+    if(fb3.indexOf('Il te manquait 2 cases')<0 || fb3.indexOf('1 carreau vers la gauche (−1)')<0) vus.push('8.4.3 : le message : '+fb3.slice(0,200));
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTES')<0 || conseilCtxCourant().indexOf('SANS décomposition')<0 || conseilCtxCourant().indexOf('u1 fait 1 carreau vers la gauche puis 3 carreaux vers le haut')<0) vus.push('8.4.3 : le contexte du modèle');
+    nextVcs(); checkVcs();
+    if(document.querySelector('#scr-vcs .vco-in.bad') || document.querySelectorAll('#scr-vcs .vco-in.sol').length!==16) vus.push('8.4.3 : la copie vide rougit ou ne remplit pas ses seize cases');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
