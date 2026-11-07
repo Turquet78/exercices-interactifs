@@ -159,3 +159,31 @@ d'exposants vaut au moins 2), et la dernière question garde 10⁻¹ + 10⁻³, 
 rang vide des centièmes. Le contrôle des formes lit désormais dix-sept formes,
 et les valeurs exactes s'étendent aux exposants positifs (100,1 ; 10100,1 ;
 100,101).
+**Valeur approchée et ordre de grandeur — {valeur-approchee} (1.12, Première,
+novembre 2026).** Demande de Turquet, sur sa fiche « valeur approchée » :
+« créer un exercice en première comme le pdf en respectant l'ordre des
+questions du pdf ». Ajouté EN DERNIER au thème 1 : il ne renumérote rien.
+* *Le tirage* : les SEIZE lignes de la fiche, dans leur ordre, chacune
+  devenue un gabarit (`VAP_GABARITS`) qui garde sa forme et tire ses nombres.
+  Partie 1, « par quel nombre entier peut-on approcher… ? » : 8,001 ; 200,1 ;
+  8,001 ; 200,1 (la fiche pose ces deux lignes DEUX fois : on les garde, avec
+  d'autres nombres) ; 40 + 0,01 ; 3000 + 0,001 ; 10⁻² + 10 ; 10² + 10⁻².
+  Partie 2, « calculer » : 100 × 1000 = …, puis 0,1 × 1000 = …/… × 1000 = … ;
+  0,01 × 1000 ; 0,01 × 10 (la fraction décimale, puis le résultat — la
+  dernière ligne donne un décimal, 0,1). Partie 3, « donner un ordre de
+  grandeur » : 11 × 99 ≈ … × … ≈ … ; 101 × 999 ; 0,01 × 999 ; 0,1 × 101.
+  Un devoir qui règle un autre nombre de questions prend les gabarits à
+  intervalles réguliers (`vapGabarit`). Le gabarit n'est PAS rangé dans la
+  question : les lignes 1 et 3 ont la même forme, et `distinctes()` doit
+  comparer les nombres seuls — rangé, il aurait laissé passer deux « 8,001 ».
+* *Le juge* tient toutes les valeurs en millièmes entiers (`VAP_D`), sans
+  flottant. La fraction décimale accepte toute fraction égale de dénominateur
+  10, 100, 1000… (`marqueFracDec`, comme au 1.11) ; les deux facteurs
+  arrondis s'acceptent dans les deux ordres (`facteursCommutesDec`) ; un
+  facteur arrondi est la puissance de 10 la plus proche (99 → 100), et 0,01
+  ou 0,1 se recopient tels quels. Le « ≈ » qui annonce une case est groupé
+  avec elle comme le « = » de `fEq()` (`vapApprox`).
+* *Tenu par* trois contrôles du banc principal : les seize formes dans
+  l'ordre de la fiche, jamais deux fois le même nombre aux lignes répétées
+  (300 séances) ; l'ordre gardé pour toute longueur de 1 à `DM_NBQ_MAX` ;
+  des attendus exacts (10⁻² + 10 ≈ 10, 0,01 × 10 = 0,1, 101 × 999 ≈ 100 000).

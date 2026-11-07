@@ -5798,7 +5798,25 @@ restent tirés et mélangés (u⃗₁ n'est pas toujours un biais vers le haut).
 numéroterait dans l'ordre sans lire une coordonnée. Le banc principal le tient
 sur deux cents séances (dans l'ordre au 8.4.1).
 
-**Puis la case du numéro est devenue l'INDICE de u⃗ au 8.4.2** (v646, demande
+**Puis le 8.4.3, le 8.4.1 sans la décomposition** — {coordonnees-vecteur-compter},
+« vcs », v646 (demande de Turquet, novembre 2026 : « créer un exercice comme le
+8.4.1 mais sans les flèches grise et noire qui décomposent les vecteurs sur
+l'écran. On laissera la croix donnant les signes en fonction des directions »).
+Le tirage (`vcoGen(false, false)` : u⃗₁ … u⃗₈ dans l'ordre sur le dessin), le
+tableau, le juge (`vcoLit`, `vcoPourquoi`) et le repère des signes sont ceux
+du 8.4.1 ; seule la figure change : `vcoSvg` prend un mode « seul » qui ne
+trace que la flèche du vecteur, en trait épais (`.vco-s`), sans la grise, sans
+la noire, sans les déplacements écrits — même si une question en demandait
+(`q.et` est toujours 0 au 8.4.3, et le mode « seul » l'ignore de toute façon).
+L'élève compte lui-même les carreaux du point de départ à la pointe. Seize
+cases par page, deux pages, barème 32 ; rien ne se juge avant « Vérifier »,
+comme au 8.4.1 (le signe se devinerait en deux essais). Le banc principal
+(`coordonneesVecteurs`) le tient : deux cents séances (aucun déplacement
+écrit, l'ordre de 1 à 8), la figure (huit flèches seules, aucune trace de
+décomposition, la croix des signes présente), la copie juste écrite « −1 »,
+« -3 », « +3 », le rendu après JSON, l'erreur de signe et le vecteur vide, le
+message, le contexte du modèle (« SANS décomposition »), la page vide.
+**Puis la case du numéro est devenue l'INDICE de u⃗ au 8.4.2** (v647 — la v646 prise par la PR 943 pendant les bancs, demande
 de Turquet, novembre 2026 : « mettre les cases des numéros des vecteurs en
 indice »). La case se posait sur la ligne de la lettre, à sa taille : on lisait
 « u⃗ [ ] » et non u⃗₁. Elle est maintenant dans un `span.vca-ind` — police à
