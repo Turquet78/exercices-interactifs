@@ -2099,3 +2099,36 @@ simplifie par étapes » gagne son ⑧ (4/5 juste sans chaîne, 8/10 faux, 2/4
 puis 1/2 juste, la division au 2 enlevé juste, une somme écrite d'emblée
 simplifiée toujours fausse) ; « quotient de deux parenthèses : un facteur
 enlevé avant de multiplier est juste » est neuf (Seconde).
+
+---
+
+## {ecriture-decimale-somme} (Première, 1.10) — l'écriture décimale d'une somme
+
+**La fiche « somme, écriture décimale », dans l'ordre de la fiche** (demande de
+Turquet, novembre 2026 : « on respectera l'ordre de difficultés des questions
+comme sur le pdf »). Sept niveaux, jamais mélangés : ① une fraction décimale à
+un chiffre (4/100) ; ② un numérateur à plusieurs chiffres (32/1000, le zéro
+du dixième à ne pas perdre) ; ③ un entier plus une fraction à un chiffre ;
+④ un entier plus une fraction à plusieurs chiffres (105 + 516/1000) ; ⑤ un
+entier plus des dixièmes, des centièmes (et des millièmes) dans l'ordre ;
+⑥ les mêmes dans le désordre, un dénominateur parfois répété (315 + 9/100 +
+5/10 + 9/100 = 315,68, deux centièmes qui s'additionnent) ; ⑦ A = 3 + 0,2 +
+4/100, décimaux et fractions mêlés — le premier demande aussi la fraction
+décimale (324/100, toute fraction égale de dénominateur puissance de 10
+convient), les suivants piègent le rang vide (10 + 0,1 + 1/1000 = 10,101).
+
+**Le niveau se lit sur la PLACE de la question** (`sdNiveau(i, n)`), pas sur
+un tirage : deux questions par niveau sur les 14 par défaut, et le réglage
+« Questions » d'un devoir (`dmNbQuestions`) étire ou resserre la séance sans
+jamais en changer l'ordre. Le premier niveau 7 de la séance est celui qui
+demande la fraction décimale — même sur une séance de 3 questions.
+
+**La valeur se tient en millièmes entiers** (`q.V`) : aucun flottant, ni au
+tirage, ni au juge (`parseDecToFrac`, comparaison croisée exacte). Le
+désordre du niveau 6 est vérifié : un mélange qui retombe dans l'ordre
+croissant des dénominateurs est retiré.
+
+**Rangé en fin de thème 1, il ne renumérote rien.** Son identifiant ne
+contient pas « fraction » et il ne vit pas dans le thème Fractions : le
+contrôle des fractions de départ irréductibles ne le lit donc pas, et c'est
+juste — 4/100 est le sujet même, comme au {fractions-decimales}.
