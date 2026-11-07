@@ -8293,8 +8293,7 @@ async function startEds(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='eds';
-  const n=dmNbQuestions(EDS_NB);
-  test.questions=distinctes(n,function(_,i){ return genEds(i,n); });
+  test.questions=distinctes(dmNbQuestions(EDS_NB),function(_,i){ return genEds(i,dmNbQuestions(EDS_NB)); });
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   test.maxScore=test.questions.length;
   show('edstest'); renderEds();
