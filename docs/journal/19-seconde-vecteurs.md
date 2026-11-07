@@ -5934,7 +5934,7 @@ et 380 px : 0 px pour « Fin », « Début » et les trois « − ». Le banc
 navigateur le tient (« 6 quadragies quinquies bis ») : sur l'ancienne page il
 rougit.
 
-### Puis le soutien a rougi le faux à la sortie de la case — 8.4.1 à 8.4.4 (Seconde v650)
+### Puis le soutien a rougi le faux à la sortie de la case — 8.4.1 à 8.4.4 (Seconde v651)
 
 Turquet, sur une copie d'écran du 8.4.4 en soutien : « pourquoi les cases
 fausses ne rougissent-elles pas ? », puis « fais-le, mais fin et début
