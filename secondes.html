@@ -9092,7 +9092,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=649;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=650;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -14911,8 +14911,27 @@ async function renderLoginNames(){
        n'est jamais retenu ni prérempli (voir #loginPin) ; un prénom absent de
        la liste ne choisit rien. Même normalisation que la connexion. */
     const voulu=prenomDuLien();
-    if(voulu){ const i=data.findIndex(e=>normaliserPrenom(e.prenom)===voulu); if(i>=0) box.children[i].click(); }
+    if(voulu){ const i=data.findIndex(e=>normaliserPrenom(e.prenom)===voulu); if(i>=0){ box.children[i].click(); codeRetenuParLeLien(data[i].prenom); } }
   }catch(e){ box.innerHTML='<span class="muted">Connexion impossible. Vérifie ta configuration.</span>'; }
+}
+/* AVEC LE LIEN SEULEMENT, la case du code devient un vrai champ mot de passe
+   (demande de Turquet, novembre 2026 : que Firefox retienne et remplisse le
+   code de son compte « Benoit »). Le navigateur trouve alors un identifiant
+   (le prénom, champ hors écran mais rendu) et un « current-password » : il
+   propose d'enregistrer, puis remplit — et le remplissage déclenche la
+   connexion au dernier chiffre, comme une frappe. Sans « ?eleve= », rien ne
+   change : la case reste un champ texte masqué, qu'aucun navigateur de la
+   salle ne retient (voir #loginPin). Posé APRÈS le choix de la pastille :
+   la case est visible, et son vidage par le clic est déjà passé. */
+function codeRetenuParLeLien(prenom){
+  try{
+    const f=$('modeCo'), c=$('loginPin'); if(!f||!c) return;
+    let u=$('loginUserLien');
+    if(!u){ u=document.createElement('input'); u.id='loginUserLien'; u.className='hors-ecran'; u.type='text';
+      u.name='username'; u.autocomplete='username'; u.tabIndex=-1; u.setAttribute('aria-hidden','true'); f.insertBefore(u,f.firstChild); }
+    u.value=prenom; f.setAttribute('autocomplete','on');
+    c.name='password'; c.autocomplete='current-password'; c.type='password';
+  }catch(e){}
 }
 function prenomDuLien(){ try{ return normaliserPrenom(new URLSearchParams(location.search).get('eleve')||''); }catch(e){ return ''; } }
 /* LA MÊME NORMALISATION QUE public.normaliser_prenom EN SQL (migration 009,
