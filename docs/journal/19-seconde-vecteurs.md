@@ -5816,3 +5816,13 @@ comme au 8.4.1 (le signe se devinerait en deux essais). Le banc principal
 décomposition, la croix des signes présente), la copie juste écrite « −1 »,
 « -3 », « +3 », le rendu après JSON, l'erreur de signe et le vecteur vide, le
 message, le contexte du modèle (« SANS décomposition »), la page vide.
+**Puis la case du numéro est devenue l'INDICE de u⃗ au 8.4.2** (v647 — la v646 prise par la PR 943 pendant les bancs, demande
+de Turquet, novembre 2026 : « mettre les cases des numéros des vecteurs en
+indice »). La case se posait sur la ligne de la lettre, à sa taille : on lisait
+« u⃗ [ ] » et non u⃗₁. Elle est maintenant dans un `span.vca-ind` — police à
+80 % de la lettre, abaissée de 0,42 em, collée au u (`gap:0`) — pas dans un
+`<sub>` : un indice enfant direct d'un conteneur flex (`.vca-pos`) tomberait
+sous le contrôle universel des indices posés sur la ligne de leur lettre. Le
+plancher de 20 px (`min-width`, `min-height`) garde la case visable au doigt
+sur un téléphone, où la police de la scène descend à 13 px. `VCA_CASE` n'a pas
+bougé : l'étiquette a rapetissé, la distance au trait reste prudente.
