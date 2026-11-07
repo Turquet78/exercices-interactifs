@@ -9027,7 +9027,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=642;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=643;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -67029,6 +67029,8 @@ const VCO_C=30, VCO_PX=20, VCO_PY=20, VCO_NB=2;
 /* Sur un écran étroit, la figure passe à deux colonnes de quatre cases : la
    question range la figure en quatre colonnes, la case de chaque flèche
    (vcoPlace) se redistribue au dessin, la flèche garde sa place dans sa case. */
+/* les demi-dimensions d'un nom u⃗ᵢ dans le dessin, et d'une case du numéro (8.4.2) */
+const VCO_NOM=[15,15], VCA_CASE=[30,19];
 function vcoNc(){ try{ return window.innerWidth<640?2:VCO_NC; }catch(e){ return VCO_NC; } }
 function vcoDims(nc){ const w=VCO_SW*nc, h=VCO_SH*(8/nc); return {w:w, h:h, W:2*VCO_PX+w*VCO_C, H:2*VCO_PY+h*VCO_C}; }
 function vcoPlace(l){ return (l[1]>=VCO_SH?0:VCO_NC)+Math.floor(l[0]/VCO_SW); }
@@ -67049,8 +67051,8 @@ function vcoGen(meme, et){
   const places=ensShuffle([0,1,2,3,4,5,6,7]);
   const v=vs.map(function(w,i){
     const s=places[i], cx=(s%VCO_NC)*VCO_SW, cy=(s<VCO_NC?1:0)*VCO_SH, a=w[0], b=w[1];
-    /* la flèche dans les colonnes 3 à 7 de sa case, le nom (ou la case du numéro) à sa gauche */
-    const x0=cx+3+Math.floor((4-Math.abs(a))/2)+(a<0?-a:0);
+    /* la flèche au milieu de sa case (colonnes 2 à 6), son nom posé à côté de son milieu */
+    const x0=cx+2+Math.floor((4-Math.abs(a))/2)+(a<0?-a:0);
     const y0=cy+1+Math.floor((4-Math.abs(b))/2)+(b<0?-b:0);
     return [x0,y0,a,b];
   });
@@ -67059,13 +67061,28 @@ function vcoGen(meme, et){
 function vcoCle(q){ return JSON.stringify(q.v.map(function(l){ return l.slice(2); }).concat([q.et])); }
 function vcoBuildQuestions(meme){ return distinctes(dmNbQuestions(VCO_NB), function(_,i){ return vcoGen(meme, i===0); }, vcoCle); }
 /* En pixels : le départ, le coin (après le déplacement horizontal), l'arrivée, et la place du nom. */
-function vcoGeo(l,nc){
-  nc=nc||VCO_NC;
+/* LE NOM SE POSE AU MILIEU DU VECTEUR (demande de Turquet, novembre 2026 :
+   « rapproche les noms des vecteurs concernés en les plaçant au milieu de
+   chaque vecteur ») : à côté du milieu du trait, du côté opposé au coin de la
+   décomposition (hors du triangle, là où ne sont écrits ni le +3 gris ni le
+   −1 noir), juste assez loin pour que l'étiquette — demi-largeur hw,
+   demi-hauteur hh, en unités du dessin — ne touche pas le trait. Une flèche
+   horizontale a son nom au-dessus (le déplacement s'écrit dessous), une
+   verticale à gauche (le déplacement s'écrit à droite). */
+function vcoGeo(l,nc,hw,hh){
+  nc=nc||VCO_NC; hw=hw||VCO_NOM[0]; hh=hh||VCO_NOM[1];
   const D=vcoDims(nc), X=function(i){ return VCO_PX+i*VCO_C; }, Y=function(j){ return VCO_PY+(D.h-j)*VCO_C; };
   const sl=vcoPlace(l), lx=l[0]-(sl%VCO_NC)*VCO_SW, ly=l[1]-(l[1]>=VCO_SH?VCO_SH:0);
   const cx=(sl%nc)*VCO_SW, cy=(8/nc-1-Math.floor(sl/nc))*VCO_SH, x0=cx+lx, y0=cy+ly;
   const A=[X(x0),Y(y0)], C=[X(x0+l[2]),Y(y0)], B=[X(x0+l[2]),Y(y0+l[3])];
-  return {A:A, C:C, B:B, N:[X(cx+1.25), Y(cy+VCO_SH/2)]};
+  const M=[(A[0]+B[0])/2,(A[1]+B[1])/2];
+  let n;
+  if(!l[3]) n=[0,-1];
+  else if(!l[2]) n=[-1,0];
+  else { const dx=B[0]-A[0], dy=B[1]-A[1], L=Math.hypot(dx,dy); n=[-dy/L, dx/L];
+    if(n[0]*(M[0]-C[0])+n[1]*(M[1]-C[1])<0) n=[-n[0],-n[1]]; }
+  const d=hw*Math.abs(n[0])+hh*Math.abs(n[1])+5;
+  return {A:A, C:C, B:B, M:M, N:[M[0]+n[0]*d, M[1]+n[1]*d]};
 }
 function vcoFlecheSvg(a,b,cls,mk){
   const dx=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dx,dy)||1;
@@ -67225,7 +67242,7 @@ function renderVca(){
   const nc=vcoNc(), Dm=vcoDims(nc), W=Dm.W, H=Dm.H;
   let cs='';
   vcaOrdre(q).forEach(function(i){
-    const n=vcoGeo(q.v[i],nc).N;
+    const n=vcoGeo(q.v[i],nc,VCA_CASE[0],VCA_CASE[1]).N;
     cs+='<span class="vca-pos" style="left:'+(100*n[0]/W).toFixed(2)+'%;top:'+(100*n[1]/H).toFixed(2)+'%"><span class="vec vco-v"><i>u</i></span>'
       +'<input class="vco-in vca-in" id="vca-'+i+'" type="text" inputmode="numeric" maxlength="1" autocomplete="off" spellcheck="false" aria-label="le numéro du vecteur qui fait '+esc(vecMots(q.v[i][2],q.v[i][3]))+'"></span>';
   });
