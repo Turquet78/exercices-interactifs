@@ -5826,3 +5826,84 @@ sous le contrôle universel des indices posés sur la ligne de leur lettre. Le
 plancher de 20 px (`min-width`, `min-height`) garde la case visable au doigt
 sur un téléphone, où la police de la scène descend à 13 px. `VCA_CASE` n'a pas
 bougé : l'étiquette a rapetissé, la distance au trait reste prudente.
+
+## {coordonnees-vecteur-calculer} — calculer les coordonnées d'un vecteur, fin − début (8.4.4, v648 — le numéro 8.4.3 et les v646, v647 pris sur main pendant les bancs, par le 8.4.3 sans décomposition et l'indice du 8.4.2)
+
+**La demande** (Turquet, novembre 2026) : « en seconde créer un exercice comme
+le pdf. Pour placer les points on fera comme dans l'exercice 8.2.5 en
+seconde. Quand on calculera les vecteurs, entourer les abscisses avec un rond
+et les ordonnées avec un carré en pointillé comme sur le pdf. À côté de fin et
+début on laissera la place à l'élève de choisir entre les noms des deux points
+dans une case. » La fiche « coord vect différence » : trois cadres (« Placer
+A(3 ; 5) et B(−5 ; 2), puis tracer le vecteur AB⃗ » ; C(−4 ; 2), D(0 ; 4),
+CD⃗ ; E(−3 ; −5), F(5 ; −2), **FE⃗** — le piège, le vecteur à l'envers de
+l'ordre d'écriture), un repère gradué de −5 à 5, puis « Calculer les
+coordonnées de AB⃗ » : les points recopiés, chaque abscisse dans un rond et
+chaque ordonnée dans un carré en pointillés, « Fin − Début » au-dessus d'une
+colonne ○ − ○ / □ − □, et le résultat en colonne. Le premier PDF n'était pas
+arrivé dans la session : rien n'a été construit avant de l'avoir lu.
+
+**Le moteur « vcd » reprend les gestes du 8.2.5**, pas son code : les
+boutons « A(3 ; 5) », « B(−5 ; 2) », « Tracer AB⃗ » sont des `pts-case` ; la
+croix et la lettre du point à poser suivent la souris (`vcdVif`), un point
+faux est rouge dès sa pose et retient son geste (`vcdSuivant`, la règle de la
+v523), l'objectif ne verdit que juste ; le vecteur suit la souris depuis son
+début, rougit s'il est faux (`vcdCoul`) et ne s'ouvre qu'avec les deux points
+justes (`vcdOuvert`, la règle de la v529). Le dessin prend les classes du
+repère du 8.2.5 (`svr-svg`, `svr-out`, `svr-pt`) : les pointes à
+`userSpaceOnUse`, le survol qui ne peint rien, le curseur sans main viennent
+avec. Le repère est celui de la fiche : nœuds de −6 à 6, graduations de −5
+à 5. Ici le vecteur se juge entre LES points (du début au bon point de
+fin) : ils sont sur la figure, c'est celui-là qu'on trace. Reprendre un point
+défait le vecteur qui n'en part plus. Au doigt, la barre « Je place »
+(`POSE_DOIGT.vcd`) : les deux points, puis départ et arrivée du vecteur.
+
+**Le calcul est la fiche** (`vcdCalcHTML`) : les deux points avec leurs
+nombres dans un rond (`.vcd-r`) et un carré (`.vcd-k`) en pointillés ; au-
+dessus de la colonne, « Fin » et « Début », chacun avec sa liste des deux
+noms (la case demandée) ; dans la colonne, deux cases rondes pointillées (les
+abscisses) et deux carrées (les ordonnées), séparées par « − » ; puis le
+résultat. La colonne est une grille de trois colonnes : le badge vert d'une
+correction se pose HORS de la grille, dans une enveloppe (`.vcd-c`), à gauche
+dans la colonne de la fin et à droite ailleurs — la première capture le
+montrait dans la grille, qui poussait les cases d'une rangée à l'autre. Sur
+téléphone, le résultat passe sous la différence (`flex-wrap`).
+
+**Onze réponses, chacune jugée seule** (`vcdJuge`) : les deux points, le
+vecteur, la fin, le début, les quatre nombres de la différence et les deux
+coordonnées. Une case se lit « −5 », « -5 », « +3 » ou « (−5) »
+(`vcdLit`). La différence se juge à sa place (l'abscisse de la fin dans le
+premier rond), pas à la cohérence avec les listes : fin et début faux sont
+déjà comptés faux. Les messages nomment la faute (`vcdPourquoi`) : point aux
+coordonnées échangées ou au signe oublié, vecteur à l'envers, « FE⃗ part de
+F… E est la fin », « on écrit fin − début » (ronds ou carrés échangés),
+abscisse dans un carré, « attention au signe », « soustraire un nombre
+négatif, c'est ajouter son opposé ». Trois questions (`VCD_NB`,
+`dmNbQuestions`), barème 33. Rien ne se juge avant « Vérifier » : « vcd »
+est dans `soutienEnDirect.sans` — son dessin rougit déjà le faux, et ses
+listes n'ont que deux noms.
+
+**Le tirage** (`vcdGen`) : la première question EST le premier cadre de la
+fiche ; les autres tirent deux points de −5 à 5, ni sur un axe ni à −1
+(leur lettre toucherait les graduations, la leçon du 8.2.5), à deux carreaux
+au moins, le vecteur en biais (deux lignes de calcul). La troisième (et toute
+question de rang 3k + 2) va du second point au premier, comme FE⃗ ; la
+deuxième dans l'ordre. On range `L`, `P`, `r` et les gestes (`pl`, `t`) ;
+les cases se rangent d'elles-mêmes (`captureBoxes`).
+
+**Le banc principal** (`coordonneesVecteurs`, `tests/verifier.js`) : la place
+8.4.4, les tables absentes, le rappel et les questions à l'IA, `vcdLit` sur
+neuf écritures ; deux cents séances (la fiche en premier, le sens des
+vecteurs, des points lisibles en biais, rien de répondu, JSON) ; les ronds,
+les carrés et la liste « Fin » ; 169 nœuds et 21 graduations ; la copie vide
+(onze `sol`, rien de rouge, deux points et le vecteur en vert, « Il te
+manquait 11 cases ») ; la copie juste aux gestes de l'élève (la croix A à la
+souris, A faux rouge qui garde son geste, le reclic qui retire, le tracé
+fermé puis ouvert, le vecteur qui suit la souris) — 11 sur 11 avec
+« (−5) » et « -8 » ; la reprise après JSON ; FE⃗ de la fiche tracé à
+l'envers, fin et début échangés, ordonnées échangées, un signe oublié —
+`ok,ok,bad,bad,bad,bad,bad,bad,bad,bad,ok`, chaque faute nommée, la bonne fin
+écrite à côté de la liste ; le contexte du modèle ; le soutien (le juste figé,
+le faux rouge, rien de vert). Éprouvé par trois sabotages (le tracé toujours
+ouvert, le faux jamais rouge, le rappel retiré) : chacun rougit le contrôle.
+Vu dans un vrai Chromium, à 1 100 et à 380 px de large.
