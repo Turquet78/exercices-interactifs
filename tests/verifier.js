@@ -14975,7 +14975,7 @@ function coordonneesVecteurs(w, P){
     nextVco();
     if(document.querySelectorAll('#vcoHost .vco-et').length!==0) vus.push('8.4.1 : la deuxième page écrit encore les déplacements');
     checkVco();
-    if(document.querySelector('#scr-vco .bad') || document.querySelectorAll('#scr-vco .vco-in.sol').length!==16) vus.push('8.4.1 : la copie vide rougit ou ne remplit pas ses seize cases');
+    if(document.querySelector('#scr-vco .vco-in.bad') || document.querySelectorAll('#scr-vco .vco-in.sol').length!==16) vus.push('8.4.1 : la copie vide rougit ou ne remplit pas ses seize cases');
 
     /* ===== 8.4.2 : retrouver le vecteur ===== */
     const d2=D.associer;
