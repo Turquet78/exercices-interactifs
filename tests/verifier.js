@@ -14933,20 +14933,33 @@ function coordonneesVecteurs(w, P){
         if(biais.length!==4 || droits.length!==4 || sg!=='-1,-1 -1,1 1,-1 1,1' || dr!=='-1,0 0,-1 0,1 1,0'){ vus.push(et+'les huit vecteurs : '+JSON.stringify(q.v)); break; }
         if(q.v.some(function(l){ return Math.abs(l[2])>4||Math.abs(l[3])>4; })){ vus.push(et+'une flèche trop longue'); break; }
         if(new Set(q.v.map(vcoPlace)).size!==8){ vus.push(et+'deux flèches dans la même case'); break; }
-        /* dans sa case : les colonnes 3 à 7 (le nom à gauche), les rangées 1 à 5 */
+        /* dans sa case : les colonnes 2 à 6 (la flèche au milieu), les rangées 1 à 5 */
         if(q.v.some(function(l){ const s=vcoPlace(l), cx=(s%4)*VCO_SW, cy=s<4?VCO_SH:0, xs=[l[0],l[0]+l[2]], ys=[l[1],l[1]+l[3]];
-            return Math.min.apply(null,xs)<cx+3||Math.max.apply(null,xs)>cx+7||Math.min.apply(null,ys)<cy+1||Math.max.apply(null,ys)>cy+5; })){ vus.push(et+'une flèche sort de sa case : '+JSON.stringify(q.v)); break; }
+            return Math.min.apply(null,xs)<cx+2||Math.max.apply(null,xs)>cx+6||Math.min.apply(null,ys)<cy+1||Math.max.apply(null,ys)>cy+5; })){ vus.push(et+'une flèche sort de sa case : '+JSON.stringify(q.v)); break; }
         if(meme){
           const ab=biais.map(function(l){ return Math.abs(l[2])+','+Math.abs(l[3]); }), dd=droits.map(function(l){ return Math.abs(l[2]+l[3]); });
           if(new Set(ab).size!==1 || new Set(dd).size!==1 || Math.abs(biais[0][2])===Math.abs(biais[0][3])){ vus.push(et+'les nombres de carreaux ne sont pas partagés : '+JSON.stringify(q.v)); break; }
         }
       }
     });
-    /* les deux mises en page tiennent leurs flèches dans le dessin, et la case d'un nom reste à gauche de sa flèche */
-    const qp=vcoGen(false,true);
-    [4,2].forEach(function(nc){ const Dm=vcoDims(nc);
-      qp.v.forEach(function(l){ const g=vcoGeo(l,nc);
-        if([g.A,g.B,g.C].some(function(p){ return p[0]<VCO_PX||p[0]>Dm.W-VCO_PX||p[1]<VCO_PY||p[1]>Dm.H-VCO_PY; }) || g.N[0]>Math.min(g.A[0],g.B[0])-40) vus.push('la figure en '+nc+' colonnes : '+JSON.stringify(l)); }); });
+    /* les deux mises en page tiennent leurs flèches dans le dessin ; le nom (et la case
+       du numéro au 8.4.2) se pose AU MILIEU de sa flèche — tout près de son milieu, sans
+       toucher son trait, hors du triangle de la décomposition, dans le dessin, et loin
+       des traits des autres flèches (demande de Turquet, novembre 2026) */
+    const dseg=function(p,a,b,hw,hh){ let m=1e9; for(let t=0;t<=1.0001;t+=0.02){ const x=a[0]+t*(b[0]-a[0]), y=a[1]+t*(b[1]-a[1]);
+        m=Math.min(m, Math.max(Math.abs(x-p[0])-hw, Math.abs(y-p[1])-hh)); } return m; };
+    for(let n=0;n<100 && vus.length<3;n++){ const qp=vcoGen(n%2===1,true);
+      [4,2].forEach(function(nc){ const Dm=vcoDims(nc);
+        [[VCO_NOM,'le nom'],[VCA_CASE,'la case du numéro']].forEach(function(t){ const hw=t[0][0], hh=t[0][1];
+          const gs=qp.v.map(function(l){ return vcoGeo(l,nc,hw,hh); });
+          gs.forEach(function(g,i){ const l=qp.v[i];
+            if([g.A,g.B,g.C].some(function(p){ return p[0]<VCO_PX||p[0]>Dm.W-VCO_PX||p[1]<VCO_PY||p[1]>Dm.H-VCO_PY; })) vus.push('la figure en '+nc+' colonnes sort du dessin : '+JSON.stringify(l));
+            if(Math.hypot(g.N[0]-g.M[0],g.N[1]-g.M[1])>hw+hh+6) vus.push(t[1]+' est loin du milieu de sa flèche : '+JSON.stringify(l));
+            if(g.N[0]-hw<0||g.N[0]+hw>Dm.W||g.N[1]-hh<0||g.N[1]+hh>Dm.H) vus.push(t[1]+' sort du dessin : '+JSON.stringify(l));
+            /* aucun trait, ni le sien (vecteur, grise, noire) ni celui d'une autre flèche, ne passe sous l'étiquette */
+            gs.forEach(function(h){ [[h.A,h.B],[h.A,h.C],[h.C,h.B]].forEach(function(sg){
+              if((sg[0][0]!==sg[1][0]||sg[0][1]!==sg[1][1]) && dseg(g.N,sg[0],sg[1],hw,hh)<2) vus.push(t[1]+' de '+JSON.stringify(l)+' touche un trait ('+nc+' colonnes)'); }); });
+          }); }); }); }
     const fixe=function(){ return {v:[[4,7,-1,3],[11,7,1,3],[19,10,1,-3],[27,10,-1,-3],[3,3,3,0],[13,1,0,3],[23,3,-3,0],[29,4,0,-3]], et:1}; };
 
     /* ===== 8.4.1 : lire les coordonnées ===== */

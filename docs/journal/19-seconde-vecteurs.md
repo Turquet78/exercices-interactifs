@@ -5770,3 +5770,20 @@ après JSON, l'erreur de signe (bad, ok), le vecteur vide (sol, sol), le
 message, le badge, le contexte ; au 8.4.2 la copie juste, u⃗₁ et u⃗₂ échangés
 (bad, bad, « pas les mêmes signes ») et la case vide remplie. Les contrôles
 universels du banc navigateur (section 9) les visitent comme les autres.
+
+**Puis les noms sont venus au milieu de leur vecteur** (v643, demande de
+Turquet, novembre 2026 : « rapproche les noms de vecteurs des vecteurs
+concernés dans les 2 exercices en les plaçant au milieu de chaque vecteur »).
+Le nom posé à gauche de la case (v642) se lisait loin de sa flèche. La flèche
+se centre maintenant dans sa case (colonnes 2 à 6), et le nom — ou la case du
+numéro au 8.4.2 — se pose à côté du MILIEU du trait (`vcoGeo`), sur la
+normale, du côté opposé au coin de la décomposition : hors du triangle, là où
+ni le déplacement gris ni le noir ne sont écrits. Il s'en tient juste assez
+loin pour que l'étiquette ne touche pas le trait — la distance se calcule
+sur la normale à partir de ses demi-dimensions (`VCO_NOM` pour le nom,
+`VCA_CASE` pour la case, plus large). Une flèche horizontale a son nom
+au-dessus, une verticale à gauche. Le banc principal relit, sur cent tirages
+et dans les deux mises en page, que chaque étiquette est près du milieu de sa
+flèche, reste dans le dessin, et qu'aucun trait — le sien ou celui d'une
+autre flèche — ne passe dessous ; trois cents tirages joués dans Chromium
+avant la poussée n'en ont trouvé aucun.
