@@ -117,3 +117,32 @@ une borne réglée trop bas est relevée plutôt que de figer le tirage. Tenu
 par « le calcul mental ne tire aucun calcul trivial » (6 000 tirages, les
 quatre opérations), rouge sur l'ancien tirage. La Première garde le sien
 (lot séparé).
+
+**L'écriture décimale d'une somme de puissances de 10 — {ecriture-decimale-somme}
+(1.10, Première, novembre 2026).** Demande de Turquet, sur sa fiche
+« puissance de 10 » : « donner l'écriture décimale de A », douze questions,
+de A = 10⁻² à A = 1 + 0,1 + 10⁻⁴ — « on respectera l'ordre de difficulté des
+questions comme sur le PDF ». Ajouté EN DERNIER au thème 1 : il ne renumérote
+rien.
+* *Le tirage* : chaque question de la fiche est devenue un GABARIT
+  (`EDS_GABARITS`, douze, dans l'ordre de la fiche) qui garde sa forme et
+  tire ses nombres là où la difficulté ne bouge pas — l'entier devant (le
+  « 1 » de la fiche) de 1 à 9, l'exposant parmi ceux de la même marche. La
+  question 9 reste 1 + 10⁻¹ + 10⁻³ (seul l'entier change) : c'est celle du
+  RANG VIDE, où il faut écrire un 0, et la changer en rangs voisins l'aurait
+  ramenée à la question 8. Un devoir qui règle un autre nombre de questions
+  prend les gabarits à intervalles réguliers (`edsGabarit`) : la progression
+  reste croissante, jamais mélangée. Le gabarit n'est PAS rangé dans la
+  question — seuls les termes le sont : `distinctes()` compare alors les
+  calculs eux-mêmes, et trois « 10⁻ᵏ » de suite ne se répètent pas.
+* *Le juge* compare des fractions (`parseDecToFrac`) : « 1,010 » vaut
+  « 1,01 » ; « 10^-2 » ou « 1/100 » ne sont pas une écriture décimale et
+  restent faux. La correction écrite traduit chaque puissance avant la somme
+  (« 10⁻¹ = 0,1 et 10⁻³ = 0,001, donc A = 1 + 0,1 + 0,001 = 1,101 »).
+* *Le moteur* est celui du 2.1.8 ({pourcentage-dix}) : une case MathLive par
+  question, la même ligne `.pct10-ligne`, les mêmes portes (soutien en
+  direct, pause, rejeu, corrections vertes en entraînement).
+* *Tenu par* trois contrôles du banc principal : les douze formes dans
+  l'ordre de la fiche (300 séances), une difficulté croissante pour toute
+  longueur de 1 à `DM_NBQ_MAX`, et des valeurs attendues exactes
+  (1 + 10⁻¹ + 10⁻³ = 1,101, pas 1,11).
