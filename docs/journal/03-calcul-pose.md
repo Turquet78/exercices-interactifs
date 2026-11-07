@@ -146,3 +146,16 @@ rien.
   l'ordre de la fiche (300 séances), une difficulté croissante pour toute
   longueur de 1 à `DM_NBQ_MAX`, et des valeurs attendues exactes
   (1 + 10⁻¹ + 10⁻³ = 1,101, pas 1,11).
+
+**Puis la SUITE de la fiche, ajoutée à la fin (novembre 2026).** « Rajouter à
+la fin des exemples comme ceux qui se trouvent sur le PDF » — la fiche
+« puissance de 10 suite » : 10², 10³, 10² + 10⁻¹, 10⁴ + 10² + 10⁻¹,
+10² + 10⁻¹ + 10⁻³. Cinq gabarits de plus, APRÈS les douze premiers (la
+séance passe à dix-sept questions, `EDS_NB` suit) ; un terme neuf,
+`{t:'q',k}` = 10ᵏ, qui s'écrit « 1 suivi de k zéros » dans la correction et
+n'entre pas dans le dénominateur du juge. Les bords tenus : 10⁴ + 10² + 10⁻¹
+garde un rang vide entre ses deux puissances positives (10100,1 — l'écart
+d'exposants vaut au moins 2), et la dernière question garde 10⁻¹ + 10⁻³, son
+rang vide des centièmes. Le contrôle des formes lit désormais dix-sept formes,
+et les valeurs exactes s'étendent aux exposants positifs (100,1 ; 10100,1 ;
+100,101).
