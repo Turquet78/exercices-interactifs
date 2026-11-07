@@ -772,7 +772,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1578,6 +1578,14 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #sdHost .f-num,#sdHost .f-den{width:auto;min-width:76px;max-width:320px;align-self:stretch;}
 #sdHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 #sdHost .pt-row{margin:10px 0;gap:8px}
+/* {valeur-approchee} : les mêmes tailles que l'écran du 1.11 — la case s'écrit
+   à la taille des nombres de la ligne. */
+#vapHost math-field.pm-mf{font-size:calc(1.7rem * var(--tab-nb,1));line-height:1.15;max-width:320px;}
+@media(max-width:900px){ #vapHost math-field.pm-mf{font-size:calc(1.4rem * var(--tab-nb,1));} }
+#vapHost .f-dec{width:auto;min-width:110px;max-width:320px;}
+#vapHost .f-num,#vapHost .f-den{width:auto;min-width:76px;max-width:320px;align-self:stretch;}
+#vapHost .f-fbar{width:auto;align-self:stretch;height:4px;}
+#vapHost .pt-row{margin:10px 0;gap:8px}
 #fpHost .f-num,#fpHost .f-den{width:auto;min-width:84px;max-width:220px;}
 #fpHost .f-dec{width:auto;min-width:96px;max-width:220px;}
 #fpHost .f-fbar{width:auto;align-self:stretch;height:4px;}
@@ -2469,6 +2477,22 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     </div>
   </section>
 
+  <!-- TEST : VALEUR APPROCHÉE ET ORDRE DE GRANDEUR -->
+  <section class="screen" id="scr-vaptest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagVap"></span><span class="q-idx" id="vapIdx">Question 1 / 16</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="vapLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="vapPrompt">Par quel nombre entier peut-on approcher ce nombre ?</p>
+      <div class="mp-stage"><div style="width:100%" id="vapHost"></div></div>
+      <div class="mp-feedback" id="vapFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center" id="vapActions">
+        <button class="btn btn-primary" onclick="checkVapAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : POURCENTAGE D'UN NOMBRE -->
   <section class="screen" id="scr-ptest">
     <div class="test-top">
@@ -3233,7 +3257,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=368;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=369;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3776,6 +3800,7 @@ const TESTS={
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
   'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() },
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
+  'valeur-approchee': { name:'Valeur approch\u00e9e et ordre de grandeur', icon:'\u2248', desc:'Approcher un nombre par un entier (8,001 ; 40 + 0,01 ; 10\u207b\u00b2 + 10), calculer avec des puissances de 10 (0,1 \u00d7 1000), puis donner un ordre de grandeur (11 \u00d7 99 \u2248 10 \u00d7 100). Seize questions, dans l\u2019ordre de la fiche.', start:()=>startVap() },
   'ecriture-decimale-fractions': { name:'\u00c9criture d\u00e9cimale d\u2019une somme de fractions', icon:'\u2795', desc:'Donne l\u2019\u00e9criture d\u00e9cimale d\u2019une fraction d\u00e9cimale, puis d\u2019un entier plus des dixi\u00e8mes, des centi\u00e8mes et des milli\u00e8mes \u2014 dans l\u2019ordre, puis dans le d\u00e9sordre, puis m\u00eal\u00e9s \u00e0 des nombres d\u00e9cimaux. Sept niveaux, du plus simple au plus difficile, comme sur la fiche.', start:()=>startSdec() },
   'lire-probabilites': { name:'Lire une probabilité dans un tableau', icon:'\ud83d\udd0e', desc:'Le tableau d’une classe, d’une entreprise, d’un club… est donné, et la probabilité demandée est écrite : P(A), P<sub>A</sub>(B)… Complète d’abord les évènements contraires, puis calcule chaque probabilité sur sa ligne, avec les lettres et les effectifs du tableau.', start:()=>startLP() },
   'tableau-probabilites': { name:'Tableau et probabilités', icon:'\ud83c\udfb2', desc:'Un tableau à double entrée qui représente une classe, une entreprise, un club… : complète d’abord les évènements contraires, puis le tableau à partir de quatre nombres, et lis-y sept probabilités demandées en phrases — « dans la classe », « parmi… », « sachant que… » : traduis-les avec des lettres, la page en écrit le nom P(…) ou P<sub>…</sub>(…), puis calcule-les avec les lettres et les effectifs du tableau.', start:()=>startPB() },
@@ -3819,7 +3844,7 @@ const THEMES=[
      pas un titre. Les références écrites ailleurs suivent d'elles-mêmes :
      elles s'écrivent {identifiant} et sont résolues à l'affichage par
      numeros(). */
-  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','fractions-decimales','mult-decimaux','mult-dec-un','somme-fractions','ecriture-decimale-somme','ecriture-decimale-fractions'] },
+  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','fractions-decimales','mult-decimaux','mult-dec-un','somme-fractions','ecriture-decimale-somme','ecriture-decimale-fractions','valeur-approchee'] },
   /* Un thème peut être découpé en sous-thèmes. Ses exercices sont alors numérotés
      sur trois niveaux — 2.2.1 = thème 2, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
@@ -3978,7 +4003,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -4223,6 +4248,7 @@ function liveCheckCurrent(){
   else if(k==='ess') checkEssAnswer(true);
   else if(k==='lc') checkLCAnswer(true);
   else if(k==='sdec') checkSdAnswer(true);
+  else if(k==='vap') checkVapAnswer(true);
   else if(k==='ck') checkCKAnswer(true);
   else if(k==='bs') checkBSAnswer(true);
   else if(k==='mp') checkMAnswer(true);
@@ -5063,7 +5089,7 @@ function afficherEcranDe(k){
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
     syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl], dbp:[dbpEcran(),renderDbp],
-    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], sdec:['sdtest',renderSdTest]
+    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap]
   };
   const e=table[k];
   if(!e) return false;
@@ -5300,7 +5326,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','rvf','mlt','spf','sdtest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
+  const testScreens=['test','tm','rvf','mlt','spf','sdtest','vaptest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0 && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ['mode','results','dmenonce','s2lvl'].indexOf(ecranQuitte)<0) ecranAvantModes=ecranQuitte;
@@ -8018,6 +8044,201 @@ async function finishSdec(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'ecriture-decimale-fractions',note,mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,note,total,percent:pct,durationSec});
+}
+
+/* ============ 1.12 {valeur-approchee} : valeur approchée et ordre de grandeur ============
+   Demande de Turquet, novembre 2026, sur sa fiche « valeur approchée » : « créer
+   un exercice en première comme le pdf en respectant l'ordre des questions du
+   pdf ». La séance suit les SEIZE lignes de la fiche, dans leur ordre, chacune
+   devenue un GABARIT (VAP_GABARITS) qui garde sa forme et tire ses nombres :
+     Partie 1 — « Par quel nombre entier peut-on approcher… ? » (une case) :
+       8,001 ; 200,1 ; 8,001 ; 200,1 (la fiche les pose deux fois : deux tirages
+       distincts) ; 40 + 0,01 ; 3000 + 0,001 ; 10⁻² + 10 ; 10² + 10⁻² ;
+     Partie 2 — « Calculer » : 100 × 1000 = … (une case), puis
+       0,1 × 1000 = …/… × 1000 = … ; 0,01 × 1000 = … ; 0,01 × 10 = … (la
+       fraction décimale, puis le résultat : trois cases) ;
+     Partie 3 — « Donner un ordre de grandeur » : 11 × 99 ≈ … × … ≈ … ;
+       101 × 999 ; 0,01 × 999 ; 0,1 × 101 (deux facteurs arrondis à la
+       puissance de 10 la plus proche, puis le produit : trois cases).
+   Un devoir qui règle un autre nombre de questions les prend à intervalles
+   réguliers dans la même progression (vapGabarit), jamais mélangées.
+   Toutes les valeurs se tiennent en MILLIÈMES entiers (VAP_D) : aucun calcul
+   flottant. Les deux facteurs arrondis s'acceptent dans les deux ordres
+   (facteursCommutesDec, a × b = b × a) ; la fraction décimale accepte toute
+   fraction égale de dénominateur 10, 100, 1000… (marqueFracDec, comme au 1.11). */
+const VAP_D=1000;
+const P10=k=>Math.pow(10,k);
+/* un nombre proche de 10ᵐ, jamais égal : 9, 11, 12 ; 98, 99, 101, 102 ; 998… */
+function vapProche(m){ return m===1 ? pick([9,11,12]) : P10(m)+pick([-2,-1,1,2]); }
+const VAP_GABARITS=[
+  /* Partie 1 : la valeur approchée entière */
+  ()=>({p:1, e:rand(2,9), k:pick([2,3])}),                                  /* 8,001 */
+  ()=>({p:1, e:100*rand(2,9), k:1}),                                        /* 200,1 */
+  ()=>({p:1, e:rand(2,9), k:pick([2,3])}),                                  /* 8,001 (bis) */
+  ()=>({p:1, e:100*rand(2,9), k:1}),                                        /* 200,1 (bis) */
+  ()=>({p:1, e:10*rand(2,9), k:pick([2,3]), plus:true}),                    /* 40 + 0,01 */
+  ()=>({p:1, e:1000*rand(2,9), k:pick([2,3]), plus:true}),                  /* 3000 + 0,001 */
+  ()=>({p:1, pw:[-pick([1,2,3]), pick([1,2,3])]}),                          /* 10⁻² + 10 */
+  ()=>({p:1, pw:[pick([2,3]), -pick([1,2,3])]}),                            /* 10² + 10⁻² */
+  /* Partie 2 : calculer */
+  ()=>{ const c=pick([[2,3],[3,2],[1,3],[3,1],[2,2],[3,3],[1,2],[2,1]]); return {p:2, a:c[0], b:c[1]}; },   /* 100 × 1000 */
+  ()=>({p:2, k:1, m:pick([2,3])}),                                          /* 0,1 × 1000 */
+  ()=>{ const c=pick([[2,3],[2,4],[3,4]]); return {p:2, k:c[0], m:c[1]}; },  /* 0,01 × 1000 */
+  ()=>{ const c=pick([[2,1],[3,1],[3,2]]); return {p:2, k:c[0], m:c[1]}; },  /* 0,01 × 10 */
+  /* Partie 3 : l'ordre de grandeur */
+  ()=>({p:3, x:vapProche(1), y:vapProche(2)}),                              /* 11 × 99 */
+  ()=>({p:3, x:vapProche(2), y:vapProche(3)}),                              /* 101 × 999 */
+  ()=>{ const m=pick([3,3,2]); return {p:3, k:2, y:vapProche(m)}; },        /* 0,01 × 999 */
+  ()=>{ const m=pick([2,2,3]); return {p:3, k:1, y:vapProche(m)}; }         /* 0,1 × 101 */
+];
+const VAP_NB=VAP_GABARITS.length;
+const VAP_TITRES={
+  1:'Par quel nombre <b>entier</b> peut-on approcher ce nombre ?',
+  2:'Calcule.',
+  3:'Donne un <b>ordre de grandeur</b> (c’est-à-dire un résultat très proche !).'
+};
+function vapGabarit(i,n){ return Math.min(VAP_NB-1, Math.floor(i*VAP_NB/Math.max(1,n))); }
+/* le gabarit n'est PAS rangé dans la question : les lignes 1 et 3 de la fiche
+   (8,001) ont la même forme, et distinctes() doit comparer les nombres seuls */
+function genVap(i,n){ return VAP_GABARITS[vapGabarit(i,n)](); }
+/* écriture d'un nombre donné en millièmes : « 100 000 », « 0,01 » */
+function vapStr(N,esp){
+  const neg=N<0; N=Math.abs(N);
+  let e=String(Math.floor(N/VAP_D)); const f=String(N%VAP_D).padStart(3,'0').replace(/0+$/,'');
+  if(esp!==false) e=e.replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  return (neg?'−':'')+e+(f?','+f:'');
+}
+function vapDecK(k){ return '0,'+'0'.repeat(k-1)+'1'; }              /* 10⁻ᵏ en décimal */
+function vapPow(k){ return '10<sup>'+(k<0?'−'+(-k):k)+'</sup>'; }
+function vapPowTxt(k){ const s='⁰¹²³⁴⁵⁶⁷⁸⁹'; return '10'+(k<0?'⁻':'')+String(Math.abs(k)).split('').map(c=>s[+c]).join(''); }
+/* les attendus, en millièmes */
+function vapAttendus(q){
+  if(q.p===1){
+    if(q.pw) return {r: q.pw.filter(k=>k>0).reduce((s,k)=>s+P10(k)*VAP_D,0)};
+    return {r: q.e*VAP_D};
+  }
+  if(q.p===2){
+    if(q.a) return {r: P10(q.a+q.b)*VAP_D};
+    return {fn:1, fd:P10(q.k), r: P10(q.m)*VAP_D/P10(q.k)};
+  }
+  const rx = q.k ? VAP_D/P10(q.k) : P10(Math.round(Math.log10(q.x)))*VAP_D;
+  const ry = P10(Math.round(Math.log10(q.y)))*VAP_D;
+  return {fx:rx, fy:ry, r: rx*ry/VAP_D};
+}
+/* le nombre de départ, en texte (compte rendu, aide) et en HTML (écran) */
+function vapTexte(q){
+  if(q.p===1){
+    if(q.pw) return q.pw.map(vapPowTxt).join(' + ');
+    return q.plus ? vapStr(q.e*VAP_D)+' + '+vapDecK(q.k) : vapStr(q.e*VAP_D+VAP_D/P10(q.k));
+  }
+  if(q.p===2) return q.a ? vapStr(P10(q.a)*VAP_D)+' × '+vapStr(P10(q.b)*VAP_D) : vapDecK(q.k)+' × '+vapStr(P10(q.m)*VAP_D);
+  return (q.k ? vapDecK(q.k) : String(q.x))+' × '+vapStr(q.y*VAP_D);
+}
+function vapHTML(q){
+  const w=s=>'<span class="f-whole">'+s+'</span>', op=s=>'<span class="f-times">'+s+'</span>';
+  if(q.p===1 && q.pw) return q.pw.map(k=>w(vapPow(k))).join(op('+'));
+  return vapTexte(q).split(/ ([+×]) /).map((s,i)=>i%2?op(s):w(esc(s))).join('');
+}
+async function startVap(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='vap';
+  const n=dmNbQuestions(VAP_NB);
+  test.questions=distinctes(dmNbQuestions(VAP_NB),function(_,i){ return genVap(i,n); });
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.maxScore=test.questions.length;
+  show('vaptest'); renderVap();
+}
+function vapCase(id,cls,lab){ return '<math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field>'; }
+/* « ≈ » et sa case : le même groupe que le « = » de fEq(), qui ne se sépare
+   jamais de la case qu'il annonce */
+function vapApprox(boite){ return '<span class="f-grp"><span class="f-eq">≈</span>'+boite+'</span>'; }
+function vapIds(q){ return q.p===1 || (q.p===2 && q.a) ? ['vapR'] : (q.p===2 ? ['vapN','vapDn','vapR'] : ['vapX','vapY','vapR']); }
+function renderVap(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('vapIdx').textContent=`Partie ${q.p} · Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagVap').innerHTML=modeTagHTML();
+  $('vapLiveScore').textContent=test.score;
+  $('vapFeedback').textContent=''; $('vapFeedback').className='mp-feedback';
+  $('vapActions').innerHTML='<button class="btn btn-primary" onclick="checkVapAnswer()">Vérifier</button>';
+  $('vapPrompt').innerHTML=VAP_TITRES[q.p];
+  const R=vapCase('vapR','f-dec','résultat'), x='<span class="f-times">×</span>';
+  let ligne;
+  if(q.p===1) ligne=vapHTML(q)+vapApprox(R);
+  else if(q.a) ligne=vapHTML(q)+fEq(R);
+  else if(q.p===2) ligne=vapHTML(q)
+    +fEq('<span class="f-frac-input">'+vapCase('vapN','f-num','numérateur')+'<span class="f-fbar"></span>'+vapCase('vapDn','f-den','dénominateur')+'</span>')
+    +x+'<span class="f-whole">'+vapStr(P10(q.m)*VAP_D)+'</span>'+fEq(R);
+  else ligne=vapHTML(q)+vapApprox(vapCase('vapX','f-dec','premier facteur arrondi'))+x+vapCase('vapY','f-dec','second facteur arrondi')+vapApprox(R);
+  $('vapHost').innerHTML='<div class="pt-row">'+ligne+'</div>';
+  const order=vapIds(q).map(id=>$(id)).filter(Boolean);
+  order.forEach((el,i)=>el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i+1<order.length) order[i+1].focus(); else checkVapAnswer(); } }));
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+const vapVal=id=>{ const el=$(id); return el ? String(el.value==null?'':el.value).trim() : ''; };
+function vapVaut(s,N){ const fr=parseDecToFrac(s); return !!fr && fr.n*VAP_D===N*fr.d; }
+/* la correction écrite, ligne de la fiche complétée */
+function vapCorrection(q){
+  const A=vapAttendus(q), r=vapStr(A.r);
+  if(q.p===1){
+    if(q.pw){ const pet=q.pw.find(k=>k<0), gr=q.pw.find(k=>k>0);
+      return vapPowTxt(pet)+' = '+vapDecK(-pet)+' est tout petit devant '+vapPowTxt(gr)+' = '+r+' : '+vapTexte(q)+' = '+vapStr(A.r+VAP_D/P10(-pet))+' ≈ '+r+'.'; }
+    return vapTexte(q)+' ≈ '+r+' : '+vapDecK(q.k)+' est tout petit, on ne garde que la partie entière.';
+  }
+  if(q.p===2){
+    if(q.a) return 'Multiplier par '+vapStr(P10(q.b)*VAP_D)+', c’est ajouter '+q.b+' zéro'+(q.b>1?'s':'')+' : '+vapTexte(q)+' = '+r+'.';
+    return vapDecK(q.k)+' = 1/'+vapStr(P10(q.k)*VAP_D)+', donc '+vapTexte(q)+' = 1/'+vapStr(P10(q.k)*VAP_D)+' × '+vapStr(P10(q.m)*VAP_D)+' = '+vapStr(P10(q.m)*VAP_D)+'/'+vapStr(P10(q.k)*VAP_D)+' = '+r+'.';
+  }
+  const fx=vapStr(A.fx), fy=vapStr(A.fy);
+  return (q.k ? '' : q.x+' ≈ '+fx+' et ')+vapStr(q.y*VAP_D)+' ≈ '+fy+', donc '+vapTexte(q)+' ≈ '+fx+' × '+fy+' = '+r+'.';
+}
+function checkVapAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx], A=vapAttendus(q), soutien=isSoutien();
+  const fr=!!(q.p===2 && !q.a), fac=q.p===3;
+  let cx=A.fx, cy=A.fy;
+  if(fac){ const c=facteursCommutesDec('vapX','vapY',A.fx,A.fy,VAP_D); cx=c[0]; cy=c[1]; }
+  if(live){
+    liveColorDec('vapR',A.r,VAP_D);
+    if(fr) fracDecLive('vapN','vapDn',A.fn,A.fd,true);
+    if(fac){ liveColorDec('vapX',cx,VAP_D); liveColorDec('vapY',cy,VAP_D); }
+    return;
+  }
+  const okR=vapVaut(vapVal('vapR'),A.r); marqueSaufVide('vapR',okR,soutien);
+  let ok=okR;
+  if(fr) ok=marqueFracDec('vapN','vapDn',A.fn,A.fd,soutien,true) && ok;
+  if(fac){
+    const okX=vapVaut(vapVal('vapX'),cx), okY=vapVaut(vapVal('vapY'),cy);
+    marqueSaufVide('vapX',okX,soutien); marqueSaufVide('vapY',okY,soutien);
+    ok=ok&&okX&&okY;
+  }
+  if(!ok && soutien){ soutienAgain('vapFeedback','vapActions','checkVapAnswer','vapHost'); return; }
+  test.locked=true;
+  if(ok){ test.score++; $('vapLiveScore').textContent=test.score;
+    $('vapFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('vapFeedback').className='mp-feedback good';
+  } else {
+    corTrainDec('vapR',vapStr(A.r,false));
+    if(fac){ corTrainDec('vapX',vapStr(cx,false)); corTrainDec('vapY',vapStr(cy,false)); }
+    $('vapFeedback').textContent='Réponse : '+vapCorrection(q); $('vapFeedback').className='mp-feedback bad';
+  }
+  const lus=vapIds(q).map(vapVal), vide=lus.every(s=>s==='');
+  const given=vide?null:(q.p===2&&!q.a ? (lus[0]||'…')+'/'+(lus[1]||'…')+' ; '+(lus[2]||'…') : (q.p===3 ? (lus[0]||'…')+' × '+(lus[1]||'…')+' ≈ '+(lus[2]||'…') : lus[0]));
+  const answer=q.p===2&&!q.a ? A.fn+'/'+A.fd+' ; '+vapStr(A.r,false) : (q.p===3 ? vapStr(A.fx,false)+' × '+vapStr(A.fy,false)+' ≈ '+vapStr(A.r,false) : vapStr(A.r,false));
+  test.answers.push({...(ptsExo()||{}),q:vapTexte(q)+(q.p===2?' =':' ≈'),answer,given,correct:ok});
+  const last=test.idx===test.questions.length-1;
+  $('vapActions').innerHTML=`<button class="btn btn-primary" id="vapNext" onclick="nextVapQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('vapNext').focus();
+}
+function nextVapQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderVap(); autoSave(); } else finishVap(); }
+async function finishVap(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'valeur-approchee',note,mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,note,total,percent:pct,durationSec});
 }
@@ -24996,6 +25217,11 @@ Une <b>fraction décimale</b> a pour dénominateur 10, 100, 1000…<br>
 Diviser par 10, 100 ou 1000, c’est décaler la virgule de 1, 2 ou 3 rangs <b>vers la gauche</b> : \\(\\frac{47}{100}=0{,}47\\).<br>
 Inversement, \\(0{,}058=\\frac{58}{1000}\\), car il y a trois chiffres après la virgule.<br>
 À retenir : les zéros finaux d’un numérateur « tombent » contre les zéros du dénominateur — \\(\\frac{300}{100}=3\\).`;
+const RAP_VAP=`<b>Valeur approchée et ordre de grandeur</b><br>
+<b>① Approcher par un entier</b> : \\(8{,}001\\) est très proche de \\(8\\) — les millièmes sont négligeables. De même \\(40+0{,}01\approx 40\\) et \\(10^{-2}+10=0{,}01+10\approx 10\\) : une puissance de 10 à exposant <b>négatif</b> est un tout petit nombre.<br>
+<b>② Multiplier par 10, 100, 1000</b> : \\(100\times 1000=100\,000\\) (on ajoute les zéros). Avec un décimal, on passe par la fraction décimale : \\(0{,}1\times 1000=\frac{1}{10}\times 1000=\frac{1000}{10}=100\\) ; \\(0{,}01\times 10=\frac{1}{100}\times 10=\frac{10}{100}=0{,}1\\).<br>
+<b>③ Un ordre de grandeur</b> : on remplace chaque facteur par la puissance de 10 la plus proche, puis on calcule : \\(11\times 99\approx 10\times 100=1000\\) ; \\(0{,}01\times 999\approx 0{,}01\times 1000=10\\).<br>
+Piège classique : \\(0{,}1\times 1000\\) ne fait pas \\(0{,}1000\\) — multiplier par 1000 décale la virgule de trois rangs vers la droite.`;
 const RAP_SDEC=`<b>L’écriture décimale d’une somme</b><br>
 Chaque fraction décimale a son <b>rang</b> : \\(\\frac{5}{10}=0{,}5\\) (dixièmes), \\(\\frac{9}{100}=0{,}09\\) (centièmes), \\(\\frac{3}{1000}=0{,}003\\) (millièmes).<br>
 Diviser par 10, 100 ou 1000, c’est décaler la virgule de 1, 2 ou 3 rangs <b>vers la gauche</b> : \\(\\frac{327}{1000}=0{,}327\\) et \\(\\frac{32}{1000}=0{,}032\\).<br>
@@ -25250,7 +25476,7 @@ const RAP_SPF=`<b>Priorités des opérations, avec des fractions</b><br>
 <b>Avec une soustraction, même chemin</b> : le produit d’abord, puis on SOUSTRAIT les numérateurs sur le dénominateur commun : \\(\\frac{3}{2}-\\frac{1}{2}\\times\\frac{3}{2}=\\frac{3}{2}-\\frac{3}{4}=\\frac{6}{4}-\\frac{3}{4}=\\frac{3}{4}\\). Dans cet exercice, la différence est toujours positive.<br>
 Piège classique : additionner \\(\\frac{1}{2}\\) et \\(\\frac{1}{2}\\) AVANT de multiplier par \\(\\frac{3}{2}\\) — la priorité s’en trouve inversée, et le résultat change.`;
 const RAPPELS={ eds:RAP_EDS, cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
-                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, sdec:RAP_SDEC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF, mlt:RAP_MLT, spf:RAP_SPF };
+                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, sdec:RAP_SDEC, vap:RAP_VAP, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF, mlt:RAP_MLT, spf:RAP_SPF };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
 Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, \\(\\frac{P}{100}\\) × valeur, exactement comme en {pourcentage}.<br>
 Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse — dans cet ordre.<br>
@@ -25332,6 +25558,7 @@ function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (tes
 
 /* ---------- Questions proposées d'un clic ---------- */
 const QIA_SUGG={
+  vap:["Pourquoi 10⁻² + 10 est-il proche de 10 ?","Comment calculer 0,01 × 1000 en passant par une fraction ?","C’est quoi, un ordre de grandeur ?","Pourquoi remplace-t-on 99 par 100 ?"],
   sdec:["Comment écrire 32/1000 sous forme décimale ?","Que faire quand les fractions sont dans le désordre ?","Pourquoi 10 + 0,1 + 1/1000 ne fait-il pas 10,11 ?","Comment passer de 3,24 à une fraction décimale ?"],
   asp:["Comment aligner les chiffres quand je pose l'opération ?","C'est quoi, une retenue, et où l'écrit-on ?","Pourquoi ajoute-t-on 1 en bas quand on ne peut pas soustraire ?","Comment vérifier mon résultat sans refaire l'opération ?"],
   pct:["C’est quoi, un pourcentage ?","Pourquoi divise-t-on par 100 ?","Comment place-t-on la virgule quand on divise par 100 ?","Comment calculer 10 % de tête ?"],
@@ -25520,6 +25747,14 @@ function conseilCtxCourant(){
       +'Méthode enseignée : on CHOISIT 100 comme valeur de départ — la baisse globale n’en dépend pas —, on calcule chaque baisse en passant par 10 % (le nombre divisé par 10, puis multiplié par le bon facteur), comme dans {diminuer-dix}, et ce qu’on a perdu « pour 100 » EST le pourcentage. '
       +'La seconde baisse porte sur la valeur DÉJÀ diminuée ('+a.v1+'), jamais sur 100 : c’est pourquoi les baisses ne s’additionnent pas, l’erreur classique étant de répondre '+(q.P1+q.P2)+' %. '
       +'C’est le même calcul qu’en {baisses-successives}, par l’autre chemin : là on multiplie deux coefficients, ici on suit une valeur.';
+  } else if(k==='vap' && q){
+    const A=vapAttendus(q);
+    att='Partie '+q.p+' sur 3 de la fiche. Calcul affiché : '+vapTexte(q)+(q.p===2?' = ':' ≈ ')+(q.p===2&&!q.a?'…/… × '+vapStr(P10(q.m)*VAP_D)+' = …':(q.p===3?'… × … ≈ …':'…'))+'. '
+      +'Réponse attendue, STRICTEMENT SECRÈTE : '+vapCorrection(q)+' '
+      +(q.p===1?'Méthode enseignée : un nombre très proche d’un entier s’approche par cet entier ; une puissance de 10 à exposant négatif (10⁻² = 0,01) est négligeable devant un entier. '
+        :q.p===2?'Méthode enseignée : multiplier par 10, 100, 1000 ajoute des zéros ; un décimal comme 0,01 s’écrit d’abord en fraction décimale (1/100, toute fraction égale de dénominateur 10, 100, 1000 convient), puis on multiplie le numérateur et on simplifie. '
+        :'Méthode enseignée : chaque facteur est remplacé par la puissance de 10 la plus proche (99 ≈ 100, 11 ≈ 10 ; 0,01 et 0,1 restent tels quels), les deux facteurs s’acceptent dans les deux ordres, puis on calcule le produit. ')
+      +'Erreurs classiques : décaler la virgule dans le mauvais sens (0,01 × 1000 = 0,00001), oublier un zéro, ou garder le nombre exact au lieu de la puissance de 10.';
   } else if(k==='sdec' && q){
     const F=sdFracDec(q.V);
     att='Niveau '+q.niv+' sur 7. Calcul affiché : '+sdTexte(q)+'. Réponse attendue, STRICTEMENT SECRÈTE : '+sdDecStr(q.V)
@@ -25814,6 +26049,11 @@ function qdmAutre(gen, cle){
 }
 function qdmFrac(n,d){ return '\\frac{'+n+'}{'+d+'}'; }
 const QIA_MODELES={
+  vap:function(){   /* la même ligne de la fiche, d'autres nombres */
+    const g=(test && test.questions) ? vapGabarit(test.idx, test.questions.length) : 0;
+    const q=qdmAutre(()=>VAP_GABARITS[g](), c=>vapTexte(c));
+    return vapCorrection(q);
+  },
   sdec:function(){   /* le même niveau, d'autres nombres */
     const act=(test && test.questions && test.questions[test.idx])||null, niv=act?act.niv:5;
     const q=qdmAutre(()=>genSdec(niv, !!(act&&act.fd)), c=>sdTexte(c)), F=sdFracDec(q.V);
@@ -26051,7 +26291,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderEds','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
