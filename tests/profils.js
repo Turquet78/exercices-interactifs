@@ -649,6 +649,8 @@ module.exports = {
         'tables-multiplication': 'un produit est su ou ne l\'est pas : aucune case à compter',
         'tables-multiplication-2': 'un produit est su ou ne l\'est pas : aucune case à compter' } },
     tableEleves: 'eleves_1ere',
+    /* « ?eleve=Prénom » dans l'adresse choisit la pastille (favori du professeur, novembre 2026) */
+    prenomDuLien: true,
     navigateur: {
       exercice: 'pourcentage', ecran: 'ptest',
       /* remplit la question courante avec la bonne réponse, dans les vrais champs */
@@ -1475,6 +1477,8 @@ module.exports = {
         'tables-multiplication': 'un produit est su ou ne l\'est pas : aucune case à compter',
         'tables-multiplication-2': 'un produit est su ou ne l\'est pas : aucune case à compter' } },
     tableEleves: 'eleves_2nde',
+    /* « ?eleve=Prénom » dans l'adresse choisit la pastille (favori du professeur, novembre 2026) */
+    prenomDuLien: true,
     navigateur: {
       exercice: 'pourcentage', ecran: 'ptest',
       /* m() rend false si le champ n'existe plus : sans cela, un renommage de
@@ -2944,6 +2948,8 @@ module.exports = {
        n'atteint, raison comprise — vide, et c'est voulu. */
     notes: { finDirecte: 'finishTest', horsAtteinte: {} },
     tableEleves: 'eleves',
+    /* pas de « ?eleve=Prénom » : demandé pour la Seconde et la Première seulement (novembre 2026) */
+    prenomDuLien: false,
     navigateur: {
       exercice: 'derivees', ecran: 'test',
       /* le moteur générique enchaîne tout seul après un court délai : pas de bouton « suivant » */
