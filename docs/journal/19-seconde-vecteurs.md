@@ -5919,7 +5919,22 @@ désormais dire « souris » au média (`matchMedia` remplacé le temps de la
 mesure). Éprouvé des deux côtés sur le 8.4.4 : 0 barre ; avec un
 `poseDoigtAd` saboté qui ignore le média, 1 barre.
 
-### Puis le soutien a rougi le faux à la sortie de la case — 8.4.1 à 8.4.4 (Seconde v649)
+**Puis « Fin » et « Début » se sont posés AU-DESSUS DE LEUR COLONNE** (v649, demande de
+Turquet, novembre 2026, capture à l'appui : « il faut que fin et début avec
+les noms des lettres soient bien alignés avec les deux colonnes affichant les
+termes des soustractions »). Deux causes, mesurées dans Chromium : l'en-tête
+était écrit à 0,72 em, et ses colonnes de 4,2 em se mesuraient dans SA police
+— la grille rétrécissait et se resserrait vers le milieu (« Fin » à −14 px de
+sa colonne, « Début » à −53 px) ; puis, la police rendue, il restait 8 px :
+la colonne héritait du `gap:4px` de `.vco-par`, que l'en-tête n'avait pas.
+L'en-tête a maintenant la police de la colonne (seul son texte est à
+0,72 em), un retrait égal au trait plus le rembourrage de la parenthèse
+(12 px), et le même écart de 4 px, écrit des deux côtés. Mesuré à 1 366, 820
+et 380 px : 0 px pour « Fin », « Début » et les trois « − ». Le banc
+navigateur le tient (« 6 quadragies quinquies bis ») : sur l'ancienne page il
+rougit.
+
+### Puis le soutien a rougi le faux à la sortie de la case — 8.4.1 à 8.4.4 (Seconde v650)
 
 Turquet, sur une copie d'écran du 8.4.4 en soutien : « pourquoi les cases
 fausses ne rougissent-elles pas ? », puis « fais-le, mais fin et début
