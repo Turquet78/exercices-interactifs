@@ -2102,7 +2102,7 @@ enlevé avant de multiplier est juste » est neuf (Seconde).
 
 ---
 
-## {ecriture-decimale-somme} (Première, 1.10) — l'écriture décimale d'une somme
+## {ecriture-decimale-fractions} (Première, 1.11) — l'écriture décimale d'une somme de fractions
 
 **La fiche « somme, écriture décimale », dans l'ordre de la fiche** (demande de
 Turquet, novembre 2026 : « on respectera l'ordre de difficultés des questions
@@ -2128,7 +2128,11 @@ tirage, ni au juge (`parseDecToFrac`, comparaison croisée exacte). Le
 désordre du niveau 6 est vérifié : un mélange qui retombe dans l'ordre
 croissant des dénominateurs est retiré.
 
-**Rangé en fin de thème 1, il ne renumérote rien.** Son identifiant ne
-contient pas « fraction » et il ne vit pas dans le thème Fractions : le
-contrôle des fractions de départ irréductibles ne le lit donc pas, et c'est
-juste — 4/100 est le sujet même, comme au {fractions-decimales}.
+**Rangé en fin de thème 1 (1.11), il ne renumérote rien.** Il devait être
+le 1.10 sous l'identifiant {ecriture-decimale-somme} ; une autre séance a
+fusionné entre-temps, sous ce même identifiant, l'exercice des puissances de
+10 (fiche « puissance de 10 ») : deux exercices ne partagent jamais leur
+identité, celui-ci a donc été renommé avant toute note enregistrée. Son
+identifiant contient « fraction » : le contrôle des fractions de départ
+irréductibles le lit, et il s'y déclare (`fractionsIrreductibles.sans`) —
+4/100 est le sujet même, comme au {fractions-decimales}.
