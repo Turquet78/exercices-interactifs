@@ -3151,7 +3151,11 @@
   .vca-scene{position:relative;width:100%;max-width:820px;margin:0 auto;container-type:inline-size}
   .vca-scene .sv-svg{width:100%;height:auto;display:block}
   .vca-pos{position:absolute;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:.1em;font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-size:clamp(12px,calc(2200cqw / var(--vca-w,1000)),22px);color:var(--ink);white-space:nowrap}
-  .vca-pos .vco-in{width:1.75em;height:1.6em;font-size:1em;border-radius:.4em;padding:0}
+  .vca-pos{gap:0}
+  /* la case du numéro est l'INDICE de u (demande de Turquet, novembre 2026) :
+     plus petite que la lettre, abaissée sous sa ligne, collée à elle */
+  .vca-pos .vca-ind{display:inline-block;position:relative;top:.42em;margin-left:.06em;font-size:.8em}
+  .vca-pos .vco-in{width:1.55em;height:1.4em;font-size:1em;border-radius:.35em;border-width:1.5px;padding:0;min-width:20px;min-height:20px}
   .vca-pos .mf-cor{position:absolute;left:100%;top:50%;transform:translate(.15em,-50%);font-size:.85em}
   @media(max-width:640px){ .vco-tab{grid-template-columns:repeat(2,auto)} .vco-cell:nth-child(4n){border-right:1.5px solid var(--ink-soft)} .vco-cell:nth-child(2n){border-right:none} .vco-cell:nth-child(n+5){border-bottom:1.5px solid var(--ink-soft)} .vco-cell:nth-child(n+7){border-bottom:none} }
   .kco-l .kco-q{white-space:nowrap}
@@ -9027,7 +9031,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=645;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=646;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -67257,7 +67261,7 @@ function renderVca(){
   vcaOrdre(q).forEach(function(i){
     const n=vcoGeo(q.v[i],nc,VCA_CASE[0],VCA_CASE[1]).N;
     cs+='<span class="vca-pos" style="left:'+(100*n[0]/W).toFixed(2)+'%;top:'+(100*n[1]/H).toFixed(2)+'%"><span class="vec vco-v"><i>u</i></span>'
-      +'<input class="vco-in vca-in" id="vca-'+i+'" type="text" inputmode="numeric" maxlength="1" autocomplete="off" spellcheck="false" aria-label="le numéro du vecteur qui fait '+esc(vecMots(q.v[i][2],q.v[i][3]))+'"></span>';
+      +'<span class="vca-ind"><input class="vco-in vca-in" id="vca-'+i+'" type="text" inputmode="numeric" maxlength="1" autocomplete="off" spellcheck="false" aria-label="le numéro du vecteur qui fait '+esc(vecMots(q.v[i][2],q.v[i][3]))+'"></span></span>';
   });
   let h='<div class="kv-figs kv-col"><div class="kv-fig kv-fig-l vco-fig"><div class="vca-scene" style="--vca-w:'+W+'">'+vcoSvg(q,false,'vcaA',nc)+cs+'</div></div></div>'
     +'<div class="vco-bas"><div class="vco-rosebox">'+vcoRoseSvg('vcaR')+'</div><div class="vco-tab">';

@@ -5797,3 +5797,14 @@ restent tirés et mélangés (u⃗₁ n'est pas toujours un biais vers le haut).
 8.4.2 les flèches restent MÉLANGÉES : rangées de 1 à 8, l'élève les
 numéroterait dans l'ordre sans lire une coordonnée. Le banc principal le tient
 sur deux cents séances (dans l'ordre au 8.4.1).
+
+**Puis la case du numéro est devenue l'INDICE de u⃗ au 8.4.2** (v646, demande
+de Turquet, novembre 2026 : « mettre les cases des numéros des vecteurs en
+indice »). La case se posait sur la ligne de la lettre, à sa taille : on lisait
+« u⃗ [ ] » et non u⃗₁. Elle est maintenant dans un `span.vca-ind` — police à
+80 % de la lettre, abaissée de 0,42 em, collée au u (`gap:0`) — pas dans un
+`<sub>` : un indice enfant direct d'un conteneur flex (`.vca-pos`) tomberait
+sous le contrôle universel des indices posés sur la ligne de leur lettre. Le
+plancher de 20 px (`min-width`, `min-height`) garde la case visable au doigt
+sur un téléphone, où la police de la scène descend à 13 px. `VCA_CASE` n'a pas
+bougé : l'étiquette a rapetissé, la distance au trait reste prudente.
