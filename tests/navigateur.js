@@ -147,6 +147,10 @@ async function ouvrir(chromium, ml, options){
      navigateur partagé */
   const poignee = { close: () => ctx.close() };
   const page = await ctx.newPage();
+  /* la boîte « Il reste des cases vides » (#confirmer-vides) est coupée par
+     défaut : bien des contrôles vérifient exprès une copie incomplète. La
+     visite de tous les exercices (section 9) la rallume et l'éprouve. */
+  await page.addInitScript(() => { window.confirmerCasesVides = false; });
   const erreurs = [];
   page.on('pageerror', e => erreurs.push(String(e.message)));
   /* Les avertissements que la page ÉCRIT EN CONSOLE sont une promesse faite à
@@ -321,6 +325,10 @@ async function parcours(page, N){
   await page.waitForTimeout(400);
   await page.click('#modeChoices [onclick*="train"]');        /* « M’entraîner » */
   await page.waitForTimeout(600);
+  /* la boîte « Il reste des cases vides » rallumée : une copie JUSTE et
+     complète ne doit jamais l'ouvrir (#confirmer-vides) */
+  await page.evaluate(() => { window.confirmerCasesVides = true; });
+  let boitesVides = 0;
 
   let tours = 0;
   while(tours++ < 40){
@@ -330,6 +338,9 @@ async function parcours(page, N){
     const pose = await page.evaluate(code => eval(code), N.repondre);
     if(!pose) break;
     await page.click(N.valider);
+    if(await page.evaluate(() => { const b = document.getElementById('confirmVides');
+        if(!b || b.hidden) return false; document.getElementById('cvQuandMeme').click(); return true; }))
+      boitesVides++;
     if(N.suivant){
       /* Un sélecteur « suivant » qui ne désigne rien ne casse pas : la boucle
          retombe sur « valider » quarante fois de suite, et le banc met vingt
@@ -345,7 +356,8 @@ async function parcours(page, N){
       await page.waitForTimeout(1800);                        /* le moteur enchaîne tout seul */
     }
   }
-  return { espace, tours };
+  await page.evaluate(() => { window.confirmerCasesVides = false; });
+  return { espace, tours, boitesVides };
 }
 
 /* ---------- déroulement ----------
@@ -1681,6 +1693,8 @@ if(require.main === module) (async () => {
     verifier('l\'exercice se déroule jusqu\'à l\'écran de résultats',
       (await ecranVisible(s.page)) === 'scr-results',
       'écran atteint : ' + (await ecranVisible(s.page)) + ' après ' + p.tours + ' question(s)');
+    verifier('une copie juste et complète vérifiée en entraînement n\'ouvre pas la boîte « Il reste des cases vides »',
+      p.tours > 1 && !p.boitesVides, p.boitesVides + ' boîte(s) ouverte(s) sur ' + p.tours + ' question(s)');
 
     /* ===== l'élève remplace le code que son professeur lui a donné ===== */
     /* Un code tiré au hasard ne se retient pas : l'élève doit pouvoir le
@@ -16367,7 +16381,8 @@ if(require.main === module) (async () => {
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], coeffsDecales = [], etroits = [], surCourbe = [];
+      const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], confirmVidesManque = [], coeffsDecales = [], etroits = [], surCourbe = [];
+      let nConfirmVides = 0;
       const indicesPlats = []; let nIndicesFlex = 0;
       const textesPetits = [], gradSurEtiquette = [], defilantsSourds = []; const casesNues = [], vecsDecales = []; let nRangeesVec = 0, nTextesSvg = 0, nDefilants = 0, nAjustables = 0;
       /* LES DÉFINITIONS S'ÉCRIVENT AVANT L'ÉNONCÉ, dans tout exercice du thème
@@ -17139,10 +17154,66 @@ if(require.main === module) (async () => {
               const b = [...on.querySelectorAll('button')].filter(visible)
                 .find(x => /^(Vérifier|Valider|Corriger)/.test(x.textContent.trim()));
               if(!b) return null;
-              b.click();
-              return true;
+              /* LA BOÎTE « Il reste des cases vides » (#confirmer-vides) :
+                 rallumée pour ce seul clic, sur une copie entièrement vide.
+                 Elle doit s'ouvrir dès qu'une réponse attendue est vide, et
+                 RETENIR la vérification — aucune case peinte tant qu'elle
+                 est ouverte ; « Vérifier quand même » vérifie ensuite. */
+              const peintes = () => on.querySelectorAll('.ok,.bad,.sol').length;
+              const avant = peintes();
+              /* un bouton DÉSACTIVÉ (« Exécute d'abord le programme ») ne vérifie
+                 rien : la boîte n'a rien à retenir */
+              const attendue = !b.disabled && /^(Rev|V)érifier|^Valider/i.test(b.textContent.trim())
+                && typeof casesVidesEcran === 'function' && casesVidesEcran().length > 0;
+              window.confirmerCasesVides = true;
+              let boite = null;
+              try {
+                b.click();
+                const bt = document.getElementById('confirmVides');
+                boite = { ouverte: !!bt && !bt.hidden, attendue, retenue: peintes() === avant };
+                /* « Compléter mes réponses » : la boîte se ferme, rien n'est
+                   corrigé, les cases oubliées s'entourent et la première
+                   prend le curseur ; un second clic rouvre la boîte */
+                if(boite.ouverte){
+                  document.getElementById('cvCompleter').click();
+                  boite.completer = bt.hidden && peintes() === avant
+                    && document.querySelectorAll('.case-oubliee').length > 0;
+                  b.setAttribute('data-banc-cv', '1');
+                }
+              } finally { window.confirmerCasesVides = false; }
+              return boite;
             });
+            /* le curseur : une case MathLive ne prend le focus qu'un instant
+               plus tard — on attend, puis on relit */
+            if(r && r.ouverte){
+              await s.page.waitForTimeout(250);
+              Object.assign(r, await s.page.evaluate(() => {
+                const b = document.querySelector('[data-banc-cv]'), bt = document.getElementById('confirmVides');
+                const l = casesVidesEcran(), a = document.activeElement, o = {};
+                o.curseur = !!l[0] && (a === l[0] || l[0].contains(a));
+                if(!b) return { curseur: o.curseur, rouverte: false };
+                b.removeAttribute('data-banc-cv');
+                window.confirmerCasesVides = true;
+                try {
+                  b.click();
+                  o.rouverte = !bt.hidden;
+                  if(o.rouverte) document.getElementById('cvQuandMeme').click();
+                } finally { window.confirmerCasesVides = false; }
+                o.oublieesLevees = !document.querySelector('.case-oubliee');
+                return o;
+              }));
+            }
             if(r){
+              const numCv = await s.page.evaluate(i => TEST_NUM[i], id);
+              if(r.attendue){
+                nConfirmVides++;
+                if(!r.ouverte) confirmVidesManque.push(numCv + ' : « Vérifier » sur une copie vide ne demande rien');
+                else if(!r.retenue) confirmVidesManque.push(numCv + ' : la boîte est ouverte, mais la copie est déjà corrigée');
+                else if(!r.completer) confirmVidesManque.push(numCv + ' : « Compléter mes réponses » ne ferme pas la boîte, n’entoure aucune case, ou corrige la copie');
+                else if(!r.curseur) confirmVidesManque.push(numCv + ' : « Compléter mes réponses » ne met pas le curseur dans la première case vide');
+                else if(!r.rouverte) confirmVidesManque.push(numCv + ' : après « Compléter », « Vérifier » ne redemande rien');
+                else if(!r.oublieesLevees) confirmVidesManque.push(numCv + ' : « Vérifier quand même » laisse le liseré des cases oubliées');
+              } else if(r.ouverte) confirmVidesManque.push(numCv + ' : la boîte s’ouvre sans case vide relevée');
               await s.page.waitForTimeout(500);
               const rouges = await s.page.evaluate(() => {
                 const on = document.querySelector('section.screen.on'); if(!on) return [];
@@ -17354,6 +17425,14 @@ if(require.main === module) (async () => {
             : coeffsDecales.length + ' exercice(s) : ' + coeffsDecales.slice(0, 4).join(' | '));
       else ignorer('un coefficient k u⃗ s\'écrit sur la ligne de son texte, la lettre sur le trait de sa fraction',
         'ce niveau n\'écrit aucun coefficient de vecteur (kvHTML)');
+      /* EN ENTRAÎNEMENT, « VÉRIFIER » AVEC DES CASES VIDES DEMANDE
+         CONFIRMATION (#confirmer-vides, novembre 2026) — mesuré sur la même
+         copie vide, exercice par exercice ; et le bord opposé : un contrôle
+         qui n'a rien mesuré le dit. */
+      verifier('en entraînement, « Vérifier » sur des cases vides demande confirmation et retient la correction',
+        nConfirmVides > 0 && confirmVidesManque.length === 0,
+        nConfirmVides === 0 ? 'aucune copie vide mesurée : le contrôle ne mesure rien'
+          : nConfirmVides + ' exercice(s) mesuré(s) ; ' + confirmVidesManque.length + ' cas — ' + confirmVidesManque.slice(0, 8).join(' | '));
       verifier('aucune case laissée vide ne rougit à la vérification',
         videsRouges.length === 0,
         videsRouges.length + ' exercice(s) : ' + videsRouges.slice(0, 6).join(' | '));

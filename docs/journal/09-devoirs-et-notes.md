@@ -1846,7 +1846,7 @@ au n°4, Anna 14 / 20 et Bob 0 / 20, moyenne du devoir 7 / 20 ; au n°7, Bob
 « — / 10 » et moyenne 5 / 10, inchangés.
 
 **Les ÉVALUATIONS sont la troisième famille de la Première — à l'aveugle,
-une tentative, la copie corrigée publiée par le professeur (v378, demande de
+une tentative, la copie corrigée publiée par le professeur (v379, demande de
 Turquet, novembre 2026).** « En première je veux pouvoir créer des
 évaluations comme des fiches de travail […] l'élève ne peut réaliser les
 exercices qu'en mode entraînement, on ne vérifiera pas les résultats à la
@@ -1906,6 +1906,13 @@ désormais, et tenu par le banc. Et `dmMoyFamille`, du moteur des moyennes
 commun aux trois niveaux, a gagné la ligne des évaluations dans les TROIS
 fichiers (inerte en Seconde et en Terminale) : le contrôle les veut
 identiques au caractère près.
+**La boîte des cases vides (`#confirmer-vides`, arrivée sur `main` le même
+jour) vaut aussi en évaluation**, puisque l'évaluation EST l'entraînement :
+« Valider » avec des cases vides demande confirmation — et la boîte y parle
+la langue de l'évaluation (« Valider quand même », « tu ne pourras plus
+revenir sur cette question »). Exécuté dans Chromium : la boîte s'ouvre, le
+geste « Valider quand même » passe à la question suivante et photographie la
+copie, rien de corrigé ne reste à l'écran.
 **Ce que la photographie ne couvre pas, et c'est nommé** : un exercice à
 niveaux (le parcours du 1.6) qui fait recommencer un niveau raté, et les
 tables de multiplication, qui reposent les produits ratés, montrent par
