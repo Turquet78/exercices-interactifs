@@ -202,7 +202,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Puis la bulle GLISSE, et se RESSERRE plutôt que de retourner au coin.**
 - **Puis la VÉRIFICATION a levé la bulle — et c'est la partie Algorithmique qui l'a montré.**
 - **Puis la bulle a SUIVI la case que l'élève regarde — et le garde a rendu la main à la VÉRIFICATION.**
-- **Puis la bulle s'est DÉPLACÉE à la main.** Saisie hors de ses boutons, elle perd sa flèche et reste où l'élève l'a posée (`bexpDeplacee`), jusqu'à une autre case.
+- **Puis la bulle s'est DÉPLACÉE à la main.** Saisie hors de ses boutons, elle perd sa flèche et reste où l'élève l'a posée (`bexpDeplacee`), jusqu'à une autre case ; une poignée ⠿ dans son coin le signale.
 - **`numeros()` ne passe que par trois entonnoirs.**
 - **La flèche → passe à la case suivante en fin de saisie — dans TOUS les exercices.**
 

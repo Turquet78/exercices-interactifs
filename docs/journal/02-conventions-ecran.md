@@ -762,6 +762,20 @@ elle est. **Un sabotage, rouge en nommant son défaut** : la garde
 `bexpDeplacee` retirée de `bexpPlacer`, la bulle revient à côté de la case au
 défilement (« reste : l 831, t 592, cote droite »).
 
+**Puis la bulle a montré sa POIGNÉE.** Demande de Turquet (novembre 2026),
+le jour même : « ajoute un petit signe pour montrer qu'on peut la déplacer ».
+La main du curseur ne se voit qu'au SURVOL, et au doigt jamais : rien ne
+disait à l'élève que la bulle se prend. Six points (⠿) dans le coin haut gauche,
+à l'encre du cadre, en miroir de la croix — un SIGNE, pas une prise : la bulle
+se saisit toujours n'importe où hors de ses boutons, donc la poignée est muette
+pour un lecteur d'écran (`aria-hidden`), et son `title` le dit à la souris. Le
+rembourrage de gauche a grandi d'autant (26 px, 18 px resserrée) pour que le
+texte ne passe pas dessous ; le choix de la place, lui, mesure la bulle telle
+qu'elle est et n'a rien à savoir.
+Le banc navigateur exige qu'elle se VOIE — un rectangle dans la bulle, aucun
+bouton recouvert, et c'est bien elle que rend `elementFromPoint` en son centre —
+et le glisser du contrôle précédent PART D'ELLE : le geste qu'elle promet.
+
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
 `conseilCtxCourant` — pas ailleurs. Un libellé posé dans un `innerHTML` par une
