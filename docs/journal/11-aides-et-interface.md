@@ -1271,3 +1271,16 @@ clavier, et la commande de la touche à l'écran). Les boutons « Fraction »
 des feuilles (`\frac{#0}{#?}`) ne sont pas touchés : ils posent une fraction
 vide, comme la touche fraction de la NumWorks sans rien devant. Les juges ne
 voient rien : `\frac{3\times4}{2}` et `3\times\frac{4}{2}` ont la même valeur.
+
+**Puis le trait a cessé de couvrir une FRACTION déjà écrite (novembre 2026).**
+Demande de Turquet, capture d'un « À toi de rédiger : calcule ¼ ÷ ½ » : l'élève
+tape `1/4`, sort du dénominateur par →, tape `×2`, puis `/` — et la règle
+NumWorks montait tout le produit, `\frac{\frac14\times2}{□}` : impossible
+d'écrire « une fraction × une autre fraction » sur une ligne. Désormais, si le
+produit qui précède « / » contient une fraction AU NIVEAU DU CURSEUR (pas dans
+une parenthèse), le trait ne prend que le DERNIER FACTEUR : tout ce qui suit
+le dernier `×` (ou `·`) placé après la dernière fraction, ou, sans signe, tout
+ce qui suit cette fraction. `¼ × 2 /` → ¼ × 2/□ ; `3 × ¼ × 2 /` → 3 × ¼ × 2/□.
+Une fraction JUSTE devant « / » (rien après elle) garde la règle générale :
+`2 × ¼ /` → (2 × ¼)/□, rien ne disant quel facteur l'élève voulait. Le banc
+« 11 terdecies » tape ces cas au vrai clavier, → compris (cinq saisies).

@@ -20107,19 +20107,31 @@ if(require.main === module) (async () => {
         await s.page.waitForTimeout(500);   /* les raccourcis (* → ×) se posent en trois temps */
         /* le raccourci « * » vaut \times ou \cdot selon la case : le banc juge le trait, pas le signe */
         const lire = () => s.page.evaluate(() => document.getElementById('bancFracMf').value
-          .replace(/\{,\}/g, ',').replace(/\\placeholder\{\}/g, '').replace(/\\cdot/g, '\\times').replace(/\s+/g, ''));
+          .replace(/\{,\}/g, ',').replace(/\\placeholder\{\}/g, '').replace(/\\cdot/g, '\\times').replace(/\s+/g, '')
+          .replace(/\\frac(\d)(\d)/g, '\\frac{$1}{$2}'));   /* MathLive écrit \frac14 pour deux chiffres seuls */
         const cas = [
           ['3*4/2',   '\\frac{3\\times4}{2}'],
           ['2+3*4/5', '2+\\frac{3\\times4}{5}'],
           ['2-3*4/5', '2-\\frac{3\\times4}{5}'],
           ['(1+2)/3', '\\frac{1+2}{3}'],
           ['2,5*3/4', '\\frac{2,5\\times3}{4}'],
-          ['5=2x/3',  '5=\\frac{2x}{3}']
+          ['5=2x/3',  '5=\\frac{2x}{3}'],
+          /* une fraction déjà écrite : le trait ne prend que le dernier facteur
+             (novembre 2026 — « → » sort du dénominateur, comme l'élève) */
+          ['1/4→*2/3',   '\\frac{1}{4}\\times\\frac{2}{3}'],
+          ['1/4→*5/6→*7/2', '\\frac{1}{4}\\times\\frac{5}{6}\\times\\frac{7}{2}'],
+          ['1/4→*3*2/5', '\\frac{1}{4}\\times3\\times\\frac{2}{5}'],
+          ['1/4→x/3',    '\\frac{1}{4}\\frac{x}{3}'],
+          ['1/4→/3',     '\\frac{\\frac{1}{4}}{3}']
         ];
         for(const [tape, attendu] of cas){
           await s.page.evaluate(() => { const m = document.getElementById('bancFracMf'); m.value = ''; m.focus(); });
           await s.page.waitForFunction(() => { const a = document.activeElement; return a && a.id === 'bancFracMf'; }, null, { timeout: 3000 }).catch(() => {});
-          await s.page.keyboard.type(tape, { delay: 25 });
+          const morceaux = tape.split('→');
+          for(let k = 0; k < morceaux.length; k++){
+            if(k) await s.page.keyboard.press('ArrowRight');
+            await s.page.keyboard.type(morceaux[k], { delay: 25 });
+          }
           const vu = await lire();
           verifier('« ' + tape + ' » tapé s\'écrit ' + attendu + ' (le trait couvre ce qui le précède, comme la NumWorks)',
             vu === attendu, 'la case contient « ' + vu + ' »');
