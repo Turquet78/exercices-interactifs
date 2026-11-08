@@ -6028,3 +6028,14 @@ des ordonnées prise (vide) ferme la bulle ; Échap la ferme ; rien en
 entraînement. Vu dans un vrai Chromium à 1 280 et 380 px : la place, le
 texte, l'écriture du résultat, la fermeture, et « Comprendre mon erreur »
 retenue pendant la bulle puis levée à sa sortie.
+
+**Puis les numéros de version se sont heurtés sur `main`** (Seconde v653,
+Première v374, Terminale v481). Pendant que les bancs de la PR 949 tournaient,
+les PR 950 (« ?page=themes ») et 951 (la bulle « Comprendre mon erreur »
+déplaçable) ont été fusionnées avec les MÊMES numéros — v652, v373, v480 :
+`test:version` compare chaque branche à `main` au moment où il tourne, et les
+trois sont passées vertes l'une après l'autre. GitHub a fusionné sans conflit
+(le bloc de la bulle, touché par 949 et 951, est resté identique dans les
+trois fichiers, garde `data-bulle-aide` compris), mais trois états différents
+du site portaient le même numéro. Une PR de suite a donc augmenté les trois
+numéros, et les bancs ont rejoué l'état réuni.
