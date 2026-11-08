@@ -1633,6 +1633,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
    (.screen[data-theme="Fractions"]) — aucune taille écrite ici */
 #rlfHost .pt-row{margin:10px 0;gap:8px}
 #rlfHost .rlf-de{margin:0 2px}
+#rlfHost .rlf-dfixe{text-align:center;line-height:var(--fx-case,42px)}
 /* la case du résultat a la hauteur des cases de fraction du thème (sans
    quoi la règle générale des .f-dec la fait de 50 px contre 42) */
 #rlfHost math-field.pm-mf.f-dec{height:auto;min-height:var(--fx-case);border-radius:9px;border-width:1.5px;padding:0 2px}
@@ -8595,7 +8596,12 @@ const RLF_TITRES={
   4:'Relie chaque pourcentage à la <b>fraction</b> qui lui est égale.',
   5:'Calcule en passant par la <b>fraction</b> : le résultat est un nombre entier.'
 };
-function rlfIds(){ return ['rlfN','rlfD','rlfN2','rlfD2','rlfR']; }
+/* le dénominateur de la PREMIÈRE fraction est écrit par la page (demande de
+   Turquet, novembre 2026 : « écrire le dénominateur 2 pour 50 %, 4 pour 25 %
+   ou 75 %, 10 pour 10 % et 5 pour 20 %, 40 %, 60 %, 80 % ») — c'est le
+   dénominateur de la fraction irréductible, q.d : l'élève n'écrit que son
+   numérateur */
+function rlfIds(){ return ['rlfN','rlfN2','rlfD2','rlfR']; }
 function renderRlf(){
   const q=test.questions[test.idx]; test.locked=false; test.rlfSel=null; rlfCor=[];
   $('rlfIdx').textContent=`Partie ${q.e} · Question ${test.idx+1} / ${test.questions.length}`;
@@ -8618,7 +8624,7 @@ function renderRlf(){
   const w=s=>'<span class="f-whole">'+s+'</span>', x='<span class="f-times">×</span>';
   const fr=(a,b,la)=>'<span class="f-frac-input">'+vapCase(a,'f-num','numérateur '+la)+'<span class="f-fbar"></span>'+vapCase(b,'f-den','dénominateur '+la)+'</span>';
   $('rlfHost').innerHTML='<div class="pt-row">'+w(q.P+'&nbsp;%')+'<span class="f-whole rlf-de">de</span>'+w(q.N)
-    +fEq(fr('rlfN','rlfD','de la fraction'))+x+w(q.N)+fEq(fr('rlfN2','rlfD2','du produit'))+fEq(vapCase('rlfR','f-dec','résultat'))+'</div>';
+    +fEq('<span class="f-frac-input">'+vapCase('rlfN','f-num','numérateur de la fraction')+'<span class="f-fbar"></span><span class="f-whole rlf-dfixe">'+q.d+'</span></span>')+x+w(q.N)+fEq(fr('rlfN2','rlfD2','du produit'))+fEq(vapCase('rlfR','f-dec','résultat'))+'</div>';
   const order=rlfIds().map(id=>$(id)).filter(Boolean);
   order.forEach((el,i)=>el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i+1<order.length) order[i+1].focus(); else checkRlfAnswer(); } }));
   setTimeout(()=>order[0]&&order[0].focus(),70);
@@ -8702,17 +8708,19 @@ function checkRlfAnswer(live){
   if(q.e<5){ if(live) return; checkRlfRelier(q, soutien); return; }
   const R=q.P*q.N/100;
   if(live){
-    liveColorFrac('rlfN','rlfD',q.n,q.d);
+    liveColorDec('rlfN',q.n,1);
     liveColorFrac('rlfN2','rlfD2',q.n*q.N,q.d);
     liveColorDec('rlfR',R,1);
     return;
   }
-  const n1=entierStrict(rlfVal('rlfN')), d1=entierStrict(rlfVal('rlfD'));
+  const n1=entierStrict(rlfVal('rlfN'));
   const n2=entierStrict(rlfVal('rlfN2')), d2=entierStrict(rlfVal('rlfD2'));
-  /* toute fraction ÉGALE est juste : 20/100 vaut 1/5, et 30/10 vaut 3 */
-  const ok1=d1>0 && n1*100===q.P*d1, ok2=d2>0 && n2===R*d2;
+  /* le dénominateur de la première fraction est donné : son numérateur est
+     celui de la fraction irréductible ; la seconde accepte toute fraction
+     ÉGALE (30/10 vaut 3) */
+  const ok1=n1===q.n, ok2=d2>0 && n2===R*d2;
   const fr=parseDecToFrac(rlfVal('rlfR')), okR=!!fr && fr.n===R*fr.d;
-  marqueFracAncre('rlfN','rlfD',ok1,q.n,q.d,soutien);
+  marqueSaufVide('rlfN',ok1,soutien);
   marqueFracAncre('rlfN2','rlfD2',ok2,q.n*q.N,q.d,soutien);
   marqueSaufVide('rlfR',okR,soutien);
   const ok=ok1&&ok2&&okR;
@@ -8721,15 +8729,27 @@ function checkRlfAnswer(live){
   if(ok){ test.score++; $('rlfLiveScore').textContent=test.score;
     $('rlfFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('rlfFeedback').className='mp-feedback good';
   } else {
-    corTrainFrac('rlfN','rlfD',q.n,q.d); corTrainFrac('rlfN2','rlfD2',q.n*q.N,q.d); corTrainDec('rlfR',String(R));
+    rlfCorNum(q); corTrainFrac('rlfN2','rlfD2',q.n*q.N,q.d); corTrainDec('rlfR',String(R));
     $('rlfFeedback').innerHTML='Réponse : '+rlfCorrectionHTML(q); $('rlfFeedback').className='mp-feedback bad';
   }
   const lus=rlfIds().map(rlfVal), vide=lus.every(s=>s==='');
   test.answers.push({...(ptsExo()||{}), q:q.P+' % de '+q.N+' =',
     answer:q.n+'/'+q.d+' × '+q.N+' = '+(q.n*q.N)+'/'+q.d+' = '+R,
-    given:vide?null:(lus[0]||'…')+'/'+(lus[1]||'…')+' × '+q.N+' = '+(lus[2]||'…')+'/'+(lus[3]||'…')+' = '+(lus[4]||'…'),
+    given:vide?null:(lus[0]||'…')+'/'+q.d+' × '+q.N+' = '+(lus[1]||'…')+'/'+(lus[2]||'…')+' = '+(lus[3]||'…'),
     correct:ok});
   rlfSuite();
+}
+/* la correction du numérateur seul (entraînement) : vide, il reçoit sa
+   valeur en vert ; faux, la fraction juste s'écrit en vert à côté de la
+   fraction — pas entre le numérateur et le trait */
+function rlfCorNum(q){
+  if(currentMode!=='train') return;
+  const el=$('rlfN'); if(!el || el.classList.contains('ok')) return;
+  el.disabled=true;
+  if(String(el.value||'').trim()===''){ el.value=String(q.n); el.classList.remove('bad'); el.classList.add('sol'); return; }
+  const wrap=el.closest('.f-frac-input'), s2=wrap&&wrap.nextElementSibling;
+  if(wrap && !(s2&&s2.classList&&s2.classList.contains('mf-cor')))
+    wrap.insertAdjacentHTML('afterend','<span class="mf-cor">'+q.n+'/'+q.d+'</span>');
 }
 function checkRlfRelier(q, soutien){
   const E=RLF_ETAPES[q.e-1], nb=E.g.length;
@@ -26578,7 +26598,8 @@ function conseilCtxCourant(){
     } else {
       att='Partie 5 sur 5. Calcul affiché : '+rlfTexte(q)+'. '
         +'Réponse attendue, STRICTEMENT SECRÈTE : '+rlfCorrection(q)+' '
-        +'Méthode enseignée : écrire le pourcentage comme une fraction simple (20 % = 1/5, toute fraction égale convient), multiplier le numérateur par le nombre, puis diviser. Le résultat est un entier. '
+        +'Le dénominateur de la première fraction est DONNÉ par la page ('+q.d+') : l’élève n’écrit que le numérateur. '
+        +'Méthode enseignée : écrire le pourcentage comme une fraction simple (20 % = 1/5), multiplier le numérateur par le nombre, puis diviser. Le résultat est un entier. '
         +'Erreurs classiques : multiplier aussi le dénominateur, ou se tromper de fraction (20 % = 1/2).';
     }
   } else if(k==='vap' && q){

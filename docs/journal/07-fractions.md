@@ -2198,6 +2198,14 @@ la partie 4 : chaque nombre a désormais sa fraction, et l'énoncé ne parle
 plus d'intrus. Le juge de l'intrus reste dans le moteur, sans liste qui s'en
 serve.
 
+**Puis : « écrire le dénominateur 2 pour 50 %, 4 pour 25 % ou 75 %, 10 pour
+10 % et 5 pour 20 %, 40 %, 60 %, 80 % ».** Dans les calculs de la partie 5,
+la PREMIÈRE fraction a son dénominateur écrit par la page — celui de la
+fraction irréductible, `q.d` — et l'élève n'écrit que le numérateur, jugé
+exact (`n1 === q.n`). La seconde fraction reste libre (toute fraction égale).
+La correction d'un numérateur faux s'écrit en vert À CÔTÉ de la fraction
+(`rlfCorNum`), jamais entre le numérateur et le trait.
+
 **Relier, pour de vrai.** On clique un nombre puis sa fraction (ou
 l'inverse) ; un trait SVG, mesuré dans la page, les relie, et se redessine
 au redimensionnement. Cliquer l'un des bouts défait le trait ; une fraction
