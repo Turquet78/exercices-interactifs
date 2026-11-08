@@ -38620,11 +38620,16 @@ document.addEventListener('focusout', function(e){
   const b=document.getElementById('bexpBulle');
   if(b && b.contains(el)) return;
   if(!isSoutien() || test.locked || !bexpCible(el) || el.classList.contains('sol')) return;
+  /* le curseur part dans une BULLE D'AIDE de l'exercice (data-bulle-aide,
+     celle du 8.4.4) : l'élève y calcule la réponse de cette case — lui
+     proposer en même temps d'expliquer son erreur poserait deux bulles */
+  const aide=function(n){ return !!n && !!n.closest && !!n.closest('[data-bulle-aide]'); };
+  if(aide(e.relatedTarget)) return;
   if(el.classList.contains('bad')){ bexpMontrer(el); return; }
   /* certaines corrections peignent APRÈS la sortie (minuteur posé sur
      focusout) : on regarde une seconde fois, un instant plus tard */
   setTimeout(function(){
-    if(document.activeElement===el || !isSoutien() || test.locked) return;
+    if(document.activeElement===el || !isSoutien() || test.locked || aide(document.activeElement)) return;
     if(el.isConnected && el.classList.contains('bad') && !el.classList.contains('sol')) bexpMontrer(el);
   }, 150);
 });
@@ -38651,6 +38656,10 @@ if(typeof MutationObserver==='function'){
        sans rien y taper n'est PAS écrire : c'est ce qu'on fait en attendant
        une vérification, et la bulle doit alors paraître comme partout. */
     if(eleveEcritDans(document.activeElement)) return;
+    /* une bulle d'aide de l'exercice est ouverte (data-bulle-aide, le 8.4.4) :
+       l'élève y calcule la case qui vient de rougir — la sortie de la bulle
+       lèvera « Comprendre mon erreur » */
+    if(document.querySelector('[data-bulle-aide]')) return;
     /* une bulle ouverte sur une case ENCORE fausse reste où elle est */
     const b=document.getElementById('bexpBulle');
     if(b && !b.hidden && bexpCase && bexpCase.isConnected
