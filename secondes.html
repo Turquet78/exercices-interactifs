@@ -9156,7 +9156,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=657;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=658;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -85872,7 +85872,9 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
    3 × 4/2, seul le 4 montait au numérateur. Ici, la touche « / » emporte tout
    ce qui la précède jusqu'au premier + ou −, =, <, ponctuation, ou parenthèse
    ouvrante : les produits (×, ·, implicite), les puissances, les racines, les
-   fractions, la virgule décimale (2,5). Et une parenthèse seule devant « / »
+   fractions, la virgule décimale (2,5) — sauf si le produit contient déjà une
+   fraction : le trait ne prend alors que le dernier facteur (« ¼ × 2 / » donne
+   ¼ × 2/□, novembre 2026). Et une parenthèse seule devant « / »
    perd ses parenthèses, comme sur la NumWorks : « (1+2)/3 » donne 1+2 sur 3.
    Une seule porte, sur le document : l'événement « beforeinput » que MathLive
    émet AVANT d'insérer \frac{#@}{#?} — le clavier physique, le clavier à
@@ -85894,14 +85896,31 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
   function numerateur(el){
     var model=el._mathfield && el._mathfield.model;
     if(!model || typeof model.at!=='function' || !model.selectionIsCollapsed) return null;
-    var pos=model.position, a=model.at(pos), atomes=[], prof=0;
+    var pos=model.position, a=model.at(pos), atomes=[], niv=[], prof=0;
     while(a && a.type!=='first'){
-      if(a.type==='mclose') prof++;
-      else if(a.type==='mopen'){ if(prof===0) break; prof--; }
+      if(a.type==='mclose'){ niv.unshift(prof); prof++; }
+      else if(a.type==='mopen'){ if(prof===0) break; prof--; niv.unshift(prof); }
       else if(prof===0 && borne(a)) break;
+      else niv.unshift(prof);
       atomes.unshift(a); a=a.leftSibling;
     }
     if(!atomes.length || prof!==0 || !a) return null;
+    /* Une FRACTION déjà écrite dans le produit : le trait ne couvre que le
+       dernier facteur, pas le produit (demande de Turquet, novembre 2026 :
+       « ¼ × 2 / » donne ¼ × 2/□, et non (¼ × 2)/□ — une fraction fois une
+       fraction s'écrit sur une ligne). Coupe après le dernier × qui suit la
+       dernière fraction, ou à défaut après cette fraction. Une fraction juste
+       devant « / » (rien après elle) : la règle générale. */
+    var kf=-1, kx=-1, i;
+    for(i=0;i<atomes.length;i++) if(niv[i]===0){
+      if(atomes[i].type==='genfrac') kf=i;
+      else if(atomes[i].type==='mbin' && (PRODUIT[atomes[i].value] || PRODUIT[atomes[i].command])) kx=i;
+    }
+    if(kf>=0 && kf<atomes.length-1){
+      var coupe=kx>kf ? kx : kf;
+      if(coupe>=atomes.length-1) return null;
+      a=atomes[coupe]; atomes=atomes.slice(coupe+1);
+    }
     var debut=model.offsetOf(a), p=atomes[0], b=p.body, latex;
     if(atomes.length===1 && p.type==='leftright' && p.leftDelim==='(' && p.rightDelim===')' && b && b.length>1)
       latex=el.getValue(model.offsetOf(b[0]), model.offsetOf(b[b.length-1]), 'latex');
