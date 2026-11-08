@@ -6039,3 +6039,32 @@ trois sont passées vertes l'une après l'autre. GitHub a fusionné sans conflit
 trois fichiers, garde `data-bulle-aide` compris), mais trois états différents
 du site portaient le même numéro. Une PR de suite a donc augmenté les trois
 numéros, et les bancs ont rejoué l'état réuni.
+
+### Puis la décomposition grise et noire paraît à la vérification — 8.4.3 et 8.4.4 (Seconde v654)
+
+Turquet, novembre 2026 : « pour les exercices 8.4.3 et 8.4.4, quand la
+vérification est faite, mettre les flèches de décomposition comme dans le
+8.4.1, grise et noire, avec leur valeur ».
+
+**Au 8.4.3**, la question vérifiée (`test.locked`) redessine sa figure dans le
+mode du 8.4.1 (`vcsDecomposer` : `vcoSvg({v, et:1})`) : chaque vecteur reçoit
+sa flèche grise, sa noire et leurs déplacements écrits — l'élève relit les
+carreaux qu'il a comptés à côté du tableau corrigé. **Au 8.4.4**, `vcdFinal`
+pose sur le repère, sous les gestes de l'élève (premier calque, `#vcdCorr`),
+la grise du début jusqu'à l'aplomb de la fin puis la noire jusqu'à la fin
+(`vcdDecomposition`), avec leurs valeurs — les deux nombres que fin − début
+devait donner, du bon début au bon point de fin, même si l'élève a tracé le
+vecteur à l'envers. Sur le repère, un nombre tombait souvent sur une
+graduation (vu à la première capture : « −3 » sur le « 5 » de l'axe) : chacun
+se pose sur une pastille cerclée de sa couleur.
+
+**Jamais avant la vérification finale** : en soutien, « Revérifier » ne montre
+rien — la décomposition EST la réponse. Une question corrigée puis mise en
+pause passe à la suite à la reprise : il n'y a rien à redessiner.
+
+**Le banc principal** (`coordonneesVecteurs`) : au 8.4.3, la copie juste
+vérifiée montre une grise par déplacement horizontal non nul, une noire par
+vertical, les nombres écrits dans l'ordre, les huit noms ; la question suivante
+revient sans décomposition. Au 8.4.4 : la copie vide puis FE⃗ à l'envers
+montrent « grise, noire, −8, −3 », la grise de A(3 ; 5) jusqu'à (−5 ; 5) ; en
+soutien, rien. Vu dans un vrai Chromium à 1 100 et 380 px.
