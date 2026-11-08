@@ -30097,7 +30097,7 @@ function fichesDeTravail(w, apres){
        famille, puis « SNT » là où elle existe, puis « Choisir un exercice par
        thème ». Les cartes qui suivent (« Reprendre… ») n'entrent pas dans la
        règle. */
-    const ordreAttendu=['openDevoirsEleve()',"openDevoirsEleve('fiche')"${P.snt?`,"openDevoirsEleve('snt')"`:''},'openThemes()'];
+    const ordreAttendu=['openDevoirsEleve()',"openDevoirsEleve('fiche')"${P.snt?`,"openDevoirsEleve('snt')"`:''}${P.evaluations?`,"openDevoirsEleve('eval')"`:''},'openThemes()'];
     const ordreLu=[].slice.call(document.querySelectorAll('#scr-space .choice'))
       .map(function(b){ return (b.getAttribute('onclick')||'').replace(/\\s+/g,'').replace(/"/g,"'"); })
       .filter(function(o){ return ordreAttendu.indexOf(o)>=0; });
@@ -30116,7 +30116,7 @@ function fichesDeTravail(w, apres){
     else {
       dmGenre='dm'; renderDmGenres();
       const onglets=[].slice.call(document.querySelectorAll('#dmGenres .dm-tab')).map(function(b){ return b.textContent.trim(); });
-      const nOnglets=${P.snt?3:2};
+      const nOnglets=2+(${P.snt?1:0})+(${P.evaluations?1:0});   /* les évaluations : la troisième famille de la Première (novembre 2026) */
       if(onglets.length!==nOnglets) vus.push('le sélecteur de famille montre '+onglets.length+' onglet(s) au lieu de '+nOnglets);
       if(onglets.indexOf('${F.titre}')<0) vus.push('le sélecteur du professeur ne nomme pas « ${F.titre} » : '+onglets.join(' / '));
     }
