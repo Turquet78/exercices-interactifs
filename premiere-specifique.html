@@ -785,7 +785,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest,#scr-rlftest{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-pqd,#scr-tsf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest,#scr-rlftest{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1667,8 +1667,8 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* La question RÉDIGÉE des 4.3 à 4.6 (octobre 2026) se pose sous la question guidée,
    sur le même écran : la même règle de rangée pour son énoncé, et un filet qui
    sépare les deux temps de l'exercice. */
-#sfrPrompt,#mltrPrompt,#spfrPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
-#sfrPrompt .sfl-suite,#mltrPrompt .sfl-suite,#spfrPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
+#sfrPrompt,#mltrPrompt,#spfrPrompt,#pqdrPrompt,#tsfrPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+#sfrPrompt .sfl-suite,#mltrPrompt .sfl-suite,#spfrPrompt .sfl-suite,#pqdrPrompt .sfl-suite,#tsfrPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
 .sfr-zone{margin-top:18px;padding-top:14px;border-top:2px dashed var(--line)}
 .sf-prod{align-items:stretch}
 .sf-prod .sf-l{display:inline-flex;align-items:center;gap:6px;justify-content:center}
@@ -1904,6 +1904,28 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #spfHost .pt-row>.f-grp>.f-frac-input{grid-column:2}
 #spfPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
 @media(max-width:520px){ #spfHost .pt-row{column-gap:8px;row-gap:10px} }
+/* {produit-difference-fractions}, {quotient-difference-fractions} (4.8, 4.9 —
+   un écran, #pqdHost) et {triple-somme-fractions} (4.10, #tsfHost) : les 5.13,
+   5.14 et 5.16 de la Seconde. La Seconde posait toute l'égalité sur UNE
+   rangée, et devait rétrécir ses cases pour qu'elle tienne ; ici, comme au
+   4.6, le calcul se lit EN LIGNES, le « = » en tête de chacune : une grille de
+   deux colonnes, le « = » (spf-eq) puis le calcul de la ligne (lg-c). Les
+   tailles sont celles du thème (bloc « UNE SEULE ENCRE »). */
+#pqdHost .f-fbar,#tsfHost .f-fbar{width:auto;align-self:stretch}
+#pqdHost .sf-case,#tsfHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
+#pqdHost .sf-case .mf-cor,#tsfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);white-space:nowrap}
+#pqdHost .pt-row,#tsfHost .pt-row{display:grid;grid-template-columns:max-content max-content;justify-content:center;align-items:center;justify-items:start;column-gap:14px;row-gap:12px}
+#pqdHost .pt-row>.spf-eq,#tsfHost .pt-row>.spf-eq{grid-column:1}
+#pqdHost .pt-row>.lg-c,#tsfHost .pt-row>.lg-c{grid-column:2;display:inline-flex;align-items:center;gap:10px}
+#pqdPrompt,#tsfPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+@media(max-width:520px){ #pqdHost .pt-row,#tsfHost .pt-row{column-gap:8px;row-gap:10px} #pqdHost .lg-c,#tsfHost .lg-c{gap:6px} }
+/* La parenthèse aussi haute que ce qu'elle contient (fParen, recopiée de la
+   Seconde) : un groupe flex, deux bords qui s'étirent et empruntent leur
+   courbe à un border-radius elliptique. Dans l'encre du thème. */
+.f-pgrp{display:inline-flex;align-items:center;gap:8px}
+.f-par{align-self:stretch;width:12px;border:3px solid transparent;border-radius:50%;box-sizing:border-box}
+.f-par-l{border-left-color:var(--fx-encre,var(--ink))}
+.f-par-r{border-right-color:var(--fx-encre,var(--ink))}
 /* La simplification par étapes : le nombre divisé RECOPIE la fraction
    d'avant, et s'écrit comme un nombre de la rangée. */
 .se-dvd{min-width:1ch;text-align:center}
@@ -3077,6 +3099,42 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     </div>
   </section>
 
+  <!-- FRACTIONS : a/b × ou ÷ UNE DIFFÉRENCE (4.8, 4.9 ; 5.13 et 5.14 de la Seconde) — porté de la Seconde, avec sa question rédigée -->
+  <section class="screen" id="scr-pqd">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPqd"></span><span class="q-idx" id="pqdIdx">Question 1 / 8</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="pqdLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="pqdPrompt">Calcule l&rsquo;expression.</p>
+      <div class="mp-stage"><div style="width:100%" id="pqdHost"></div></div>
+      <div class="mp-feedback" id="pqdFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center">
+        <span id="pqdActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkPqdAnswer()">V&eacute;rifier</button></span>
+      </div>
+      <!-- la question rédigée, posée sous la question guidée (sfrMonte) -->
+      <div class="sfr-zone" id="pqdrZone" hidden></div>
+    </div>
+  </section>
+
+  <!-- FRACTIONS : LA SOMME DE TROIS FRACTIONS (4.10 ; 5.16 de la Seconde) — porté de la Seconde, avec sa question rédigée -->
+  <section class="screen" id="scr-tsf">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagTsf"></span><span class="q-idx" id="tsfIdx">Question 1 / 8</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="tsfLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="tsfPrompt">Calcule l&rsquo;expression.</p>
+      <div class="mp-stage"><div style="width:100%" id="tsfHost"></div></div>
+      <div class="mp-feedback" id="tsfFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center">
+        <span id="tsfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkTsfAnswer()">V&eacute;rifier</button></span>
+      </div>
+      <!-- la question rédigée, posée sous la question guidée (sfrMonte) -->
+      <div class="sfr-zone" id="tsfrZone" hidden></div>
+    </div>
+  </section>
+
   <!-- FRACTIONS : RÉVISER LES QUATRE RÈGLES (4.1) — porté de la Seconde (5.11) -->
   <section class="screen" id="scr-rvf">
     <div class="test-top">
@@ -3912,6 +3970,11 @@ const TESTS={
   /* Octobre 2026 : le 5.12 de la Seconde, nombres de 1 à 5, produit borné à 6
      et simplification par étapes (voir l'en-tête de startSpf). */
   'somme-produit-fractions': { name:'Une somme avec un produit dedans', icon:'\u2795', desc:'a/b + c/d\u00d7e/f, ou a/b \u2212 c/d\u00d7e/f\u00a0: la multiplication se calcule D\u2019ABORD, puis la somme (ou la diff\u00e9rence, toujours positive) se termine en croisant les d\u00e9nominateurs, ou sur un d\u00e9nominateur commun plus petit \u2014 et on simplifie la fraction finale si elle se simplifie. Une \u00e9tape par ligne, le \u00ab\u00a0=\u00a0\u00bb en t\u00eate. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startSpf() },
+  /* Novembre 2026 : les 5.13, 5.14 et 5.16 de la Seconde, chaque question guidée
+     suivie d'une rédigée (voir l'en-tête de pqdGen). Ajoutés en fin de thème. */
+  'produit-difference-fractions': { name:'Un produit avec une diff\u00e9rence dedans', icon:'\u2716\ufe0f', desc:'a/b\u00d7(c/d\u2212e/f)\u00a0: la parenth\u00e8se se calcule D\u2019ABORD par des cases, puis le produit, comme en {multiplier-fractions}. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startPqdH() },
+  'quotient-difference-fractions': { name:'Un quotient avec une diff\u00e9rence dedans', icon:'\u2797', desc:'Comme {produit-difference-fractions}, avec un maillon de plus\u00a0: diviser, c\u2019est multiplier par l\u2019inverse \u2014 comme en {diviser-fractions}. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startPqdI() },
+  'triple-somme-fractions': { name:'La somme de trois fractions', icon:'\u2795', desc:'a/b+c/d\u2212e/f\u00a0: trois fractions \u00e0 mettre au m\u00eame d\u00e9nominateur au lieu de deux, par des cases \u2014 aucune priorit\u00e9 \u00e0 respecter ici, juste une somme plus longue. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startTsf() },
   'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
   'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() },
   'probabilites-sens': { name:'Que veut dire cette probabilité ?', icon:'\ud83d\udcac', desc:'La page écrit une probabilité — P(A), P(A∩B), P sachant B… — et tu choisis la phrase qui la dit, parmi quatre : attention au « parmi » renversé, au « et » de l’intersection. Puis tu la calcules avec les effectifs du tableau.', start:()=>startPBSens() },
@@ -3972,7 +4035,7 @@ const THEMES=[
      pris ici par le 1.9 : le 4.3 porte donc un identifiant neuf. */
   /* Puis : « reprendre le 5.12 de seconde et le mettre en première ». Ajouté
      EN DERNIER (4.6), il ne renumérote rien. */
-  { num:4, nom:'Fractions', ids:['revision-fractions','croiser-denominateurs','somme-fractions-2','multiplier-fractions','diviser-fractions','somme-produit-fractions','relier-fractions'] }
+  { num:4, nom:'Fractions', ids:['revision-fractions','croiser-denominateurs','somme-fractions-2','multiplier-fractions','diviser-fractions','somme-produit-fractions','relier-fractions','produit-difference-fractions','quotient-difference-fractions','triple-somme-fractions'] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
    fichier (côté prof, comptages, devoirs) ne connaît que celle-là et n'a pas à savoir
@@ -4132,7 +4195,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -4409,6 +4472,8 @@ function liveCheckCurrent(){
   else if(k==='rvf') checkRvfAnswer(true);
   else if(k==='mlt') checkMltAnswer(true);
   else if(k==='spf') checkSpfAnswer(true);
+  else if(k==='pqd') checkPqdAnswer(true);
+  else if(k==='tsf') checkTsfAnswer(true);
   else if(k==='evs') checkEvsAnswer(true);
   else if(k==='bsd') checkBsdAnswer(true);
 }
@@ -5238,7 +5303,7 @@ function afficherEcranDe(k){
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
     syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl], dbp:[dbpEcran(),renderDbp],
-    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap], rlf:['rlftest',renderRlf]
+    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], tsf:['tsf',renderTsfTest], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap], rlf:['rlftest',renderRlf]
   };
   const e=table[k];
   if(!e) return false;
@@ -5490,7 +5555,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','rvf','mlt','spf','sdtest','vaptest','rlftest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
+  const testScreens=['test','tm','rvf','mlt','spf','pqd','tsf','sdtest','vaptest','rlftest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* L'ÉVALUATION À L'AVEUGLE : sur l'écran d'un exercice lancé depuis une
      évaluation, et sur son écran de fin, ni verdict ni correction — voir
@@ -17471,7 +17536,10 @@ const RED_CFG={
   sf: { r:'sfr',  idx:'sfIdx',  tag:'modeTagSF',  score:'sfLiveScore',  prompt:'sfPrompt',  host:'sfHost',  fb:'sfFeedback',  act:'sfActions',  next:'nextSFQuestion' },
   mlt:{ r:'mltr', idx:'mltIdx', tag:'modeTagMlt', score:'mltLiveScore', prompt:'mltPrompt', host:'mltHost', fb:'mltFeedback', act:'mltActions', next:'nextMltQuestion' },
   spf:{ r:'spfr', idx:'spfIdx', tag:'modeTagSpf', score:'spfLiveScore', prompt:'spfPrompt', host:'spfHost', fb:'spfFeedback', act:'spfActions', next:'nextSpfQuestion' },
-  rvf:{ r:'rvfr', idx:'rvfIdx', tag:'modeTagRvf', score:'rvfLiveScore', prompt:'rvfPrompt', host:'rvfHost', fb:'rvfFeedback', act:'rvfActions', next:'nextRvfQuestion' }
+  rvf:{ r:'rvfr', idx:'rvfIdx', tag:'modeTagRvf', score:'rvfLiveScore', prompt:'rvfPrompt', host:'rvfHost', fb:'rvfFeedback', act:'rvfActions', next:'nextRvfQuestion' },
+  /* 4.8, 4.9 (un seul écran, test.inv) et 4.10 — novembre 2026 */
+  pqd:{ r:'pqdr', idx:'pqdIdx', tag:'modeTagPqd', score:'pqdLiveScore', prompt:'pqdPrompt', host:'pqdHost', fb:'pqdFeedback', act:'pqdActions', next:'nextPqdQuestion' },
+  tsf:{ r:'tsfr', idx:'tsfIdx', tag:'modeTagTsf', score:'tsfLiveScore', prompt:'tsfPrompt', host:'tsfHost', fb:'tsfFeedback', act:'tsfActions', next:'nextTsfQuestion' }
 };
 /* Les paires, pour un générateur quelconque. Le réglage « Questions » d'un
    devoir compte les questions rédigées comme les autres : k questions
@@ -17540,7 +17608,7 @@ function redVerdictIA(j, m){
   let v='\n\nVERDICT DÉJÀ CALCULÉ PAR LA PAGE. Elle a vérifié chaque égalité EN ENTIERS, sans virgule flottante : ce verdict est sûr et s’impose. « correct » vaut false.';
   v+= (j.motif==='resultat')
     ? ' Ce qui cloche : le résultat final n’est pas '+m.final+'.'
-    : ' Ce qui cloche : l’égalité « '+String(j.morceau||'').slice(0,80)+' » ne vaut ni le produit '+m.produit+' ni le résultat final'+(j.terme ? '.'+libreTermeIA(j.terme) : ' — c’est probablement une addition faite avant la multiplication.');
+    : ' Ce qui cloche : l’égalité « '+String(j.morceau||'').slice(0,80)+' » ne vaut ni '+(m.interNom||'le produit')+' '+m.produit+' ni le résultat final'+(j.terme ? '.'+libreTermeIA(j.terme) : (m.interPiege||' — c’est probablement une addition faite avant la multiplication.'));
   v+=' Ton rôle est de RÉDIGER le feedback conforme à ce verdict et aux consignes de la règle. Si ton propre calcul te dit autre chose, c’est ton calcul qui se trompe : ne conteste jamais ce verdict.';
   return v;
 }
@@ -17549,7 +17617,7 @@ function redSecours(j, m){
   if(j.motif==='egalite' && j.terme) return libreTermeSecours(j.terme);
   return (j.motif==='resultat')
     ? 'Ton calcul contient une erreur : le résultat final n’est pas correct. Revérifie tes calculs.'
-    : 'Il y a une égalité fausse dans ton calcul : « '+String(j.morceau||'').slice(0,80)+' » ne correspond ni au produit ni au résultat final. As-tu bien calculé la multiplication AVANT d’additionner ?';
+    : 'Il y a une égalité fausse dans ton calcul : « '+String(j.morceau||'').slice(0,80)+' » ne correspond ni '+(m.interAu||'au produit')+' ni au résultat final.'+(m.interPiege ? m.interPiege.replace(/^ — a/,' A') : ' As-tu bien calculé la multiplication AVANT d’additionner ?');
 }
 /* Les deux façons d'écrire, dites au modèle de la même manière partout. */
 function redFacons(texte){
@@ -17581,7 +17649,7 @@ function redNoteNonSimplifie(juge, m, rep){
   return (j2.sait && j2.motif!=='simplifier') ? j2 : {sait:false};
 }
 function redPhraseNonSimplifie(m, rep){
-  const ms=librePieces(rep), fin=ms.length ? libreFracSimple(ms[ms.length-1]) : null;
+  const ms=librePieces(rep), fin=ms.length ? redFinLu(ms[ms.length-1]) : null;   /* redFinLu : le produit du 4.8 peut être négatif */
   const g=fin ? libreGcd(fin.n,fin.d) : 1;
   return 'Ton calcul est juste, bravo ! Ton résultat'+(fin?' '+fin.n+'/'+fin.d:'')+' peut encore se simplifier'
     +(g>1 ? ' : en divisant le numérateur et le dénominateur par '+g+', on obtient '+m.final+'.' : ' : '+m.final+'.');
@@ -17657,6 +17725,8 @@ function redMath(q){
     };
   }
   if(test.kind==='rvf') return rvfrMath(q, tx, ent);
+  if(test.kind==='pqd') return pqdrMath(q, tx, ent);
+  if(test.kind==='tsf') return tsfrMath(q, tx, ent);
   /* le 4.3 : une somme ou une différence */
   const D=q.D, texte=sfrTexte(q), finale=q.Nr+'/'+q.Dr;
   return {
@@ -18877,6 +18947,523 @@ function ctxSpf(q){
    +'L’ERREUR VISÉE est celle de l’élève qui '+(moins?'soustrait '+q.c+'/'+q.d+' de '+q.a+'/'+q.b:'additionne '+q.a+'/'+q.b+' et '+q.c+'/'+q.d)+' AVANT de multiplier par '+q.e+'/'+q.f+', en oubliant la priorité des opérations.'
    +(moins ? ' La différence est positive : le tirage y veille.' : '');
   return {nombre:'', contexte:c};
+}
+
+/* ===== 4.8, 4.9, 4.10 : LE 5.13, LE 5.14 ET LE 5.16 DE LA SECONDE ===========
+   Demande de Turquet (novembre 2026) : « mets le 5.16 de seconde en première
+   et fais en sorte qu'il ait, après le modèle à compléter, une question du
+   même type avec un calcul à rédiger comme pour les autres exercices sur les
+   fractions en première » — puis, le même jour, « faire la même chose pour
+   les exercices de seconde 5.13 et 5.14 ». Ajoutés EN DERNIER dans le thème,
+   ils ne renumérotent rien.
+     {produit-difference-fractions}  (4.8, kind « pqd »)     a/b × (c/d − e/f)
+     {quotient-difference-fractions} (4.9, kind « pqd », inv) a/b ÷ (c/d − e/f)
+     {triple-somme-fractions}        (4.10, kind « tsf »)    a/b + c/d − e/f
+   LA QUESTION GUIDÉE est celle de la Seconde : même tirage, même juge, mêmes
+   messages. Deux écarts, ceux du 4.6 : le calcul se lit EN LIGNES, le « = »
+   en tête de chacune (une grille de deux colonnes, #pqdHost/#tsfHost), et les
+   tailles sont celles du thème (« UNE SEULE ENCRE ») — la Seconde, qui posait
+   toute l'égalité sur une rangée, devait rétrécir ses cases pour tenir.
+   LA QUESTION RÉDIGÉE est celle des 4.1 à 4.6 : le module commun (RED_CFG,
+   redMath, sfrRendu, sfrMonte), une paire guidée + rédigée par tirage
+   (redPaires), la feuille du 5.10 dont la première ligne porte le calcul
+   suivi de « = ». Le JUGE de la rédigée (redJugeChaine) compare des valeurs
+   en entiers exacts, comme spfrJuge : chaque morceau vaut le résultat final,
+   ou la valeur de la parenthèse pour 4.8/4.9 ; l'étape du même dénominateur
+   est exigée (dans la parenthèse pour 4.8/4.9, sur les trois fractions pour
+   4.10), et, pour 4.9, la multiplication par l'inverse. Un résultat non
+   simplifié est accepté et signalé (v379).
+   LE CROISEMENT DE LA SECONDE (pf2Croix…) est recopié sous un autre nom : la
+   Première a son propre pfCroixJuge, au dénominateur commun libre (4.6). Ici
+   les dénominateurs croisés sont premiers entre eux par construction (pqdGen
+   l'exige ; pour tsfGen, un résultat irréductible sur b×d×f l'impose), si
+   bien que le croisement EST le plus petit dénominateur commun : il n'y a pas
+   d'autre route à accepter. */
+function pfMult(a,b,attendu){
+  if(!isNaN(a) && !isNaN(b)) return a===b && a===attendu;
+  const m = isNaN(a) ? b : a;
+  return !isNaN(m) && m===attendu;
+}
+function fParen(inner){
+  return '<span class="f-pgrp"><span class="f-par f-par-l" aria-hidden="true"></span>'
+       + inner + '<span class="f-par f-par-r" aria-hidden="true"></span></span>';
+}
+function pf2CroixCases(pref, deux){ return [pref+'-a1',pref+'-b1',pref+'-a2',pref+'-b2',pref+'-n1',pref+'-n2']
+  .concat(deux ? [pref+'-d1',pref+'-d2'] : [pref+'-d']).concat([pref+'-rn',pref+'-rd']); }
+function pf2CroixJuge(pref, p,q_,r,s, op, estFinal, deux){
+  const a1=pfLu(pref+'-a1'), b1=pfLu(pref+'-b1'), a2=pfLu(pref+'-a2'), b2=pfLu(pref+'-b2');
+  const ok1=pfMult(a1,b1,s), ok2=pfMult(a2,b2,q_);
+  const N1=p*s, N2=r*q_, D=q_*s;
+  const n1=pfLu(pref+'-n1'), n2=pfLu(pref+'-n2');
+  const okN1=!isNaN(n1)&&n1===N1, okN2=!isNaN(n2)&&n2===N2;
+  let okD1,okD2;
+  if(deux){ const d1=pfLu(pref+'-d1'), d2=pfLu(pref+'-d2'); okD1=!isNaN(d1)&&d1===D; okD2=!isNaN(d2)&&d2===D; }
+  else { const d=pfLu(pref+'-d'); okD1=!isNaN(d)&&d===D; okD2=okD1; }
+  const okD=okD1&&okD2;
+  const R=(op==='+')?N1+N2:N1-N2;
+  const rn=pfLu(pref+'-rn'), rd=pfLu(pref+'-rd');
+  let okRn,okRd;
+  if(estFinal){ const j=pfFracJuge(rn,rd,R,D); okRn=j[0]; okRd=j[1]; }
+  else { okRn=!isNaN(rn)&&rn===R; okRd=!isNaN(rd)&&rd===D; }
+  return {ok1:ok1,ok2:ok2,okN1:okN1,okN2:okN2,okD:okD,okD1:okD1,okD2:okD2,okRn:okRn,okRd:okRd,N1:N1,N2:N2,D:D,R:R,
+    tousOk: ok1&&ok2&&okN1&&okN2&&okD&&okRn&&okRd};
+}
+function pf2Col(mode){
+  return function(ids,ok){
+    ids.forEach(function(id){ const el=$(id); if(!el) return; el.classList.remove('ok','bad');
+      const ecrit=String(el.value||'').trim()!=='';
+      if(mode==='live'){ if(!el.disabled && ecrit) el.classList.add(ok?'ok':'bad'); }
+      else { if(ecrit) el.classList.add(ok?'ok':'bad'); if(mode==='check') el.disabled=(ok&&ecrit)||!isSoutien(); } });
+  };
+}
+function pf2CroixPeindre(pref, r, mode, deux){
+  const col=pf2Col(mode);
+  const g1=[pref+'-a1',pref+'-b1'], g2=[pref+'-a2',pref+'-b2'];
+  if(mode==='live'){ if(!pfVide(g1)) col(g1,r.ok1); if(!pfVide(g2)) col(g2,r.ok2); }
+  else { col(g1,r.ok1); col(g2,r.ok2); }
+  col([pref+'-n1'],r.okN1); col([pref+'-n2'],r.okN2);
+  if(deux){ col([pref+'-d1'],r.okD1); col([pref+'-d2'],r.okD2); } else { col([pref+'-d'],r.okD); }
+  col([pref+'-rn'],r.okRn); col([pref+'-rd'],r.okRd);
+}
+function pf2CroixCorrection(pref, p,q_,r,s, op, estFinal, deux){
+  const N1=p*s, N2=r*q_, D=q_*s, R=(op==='+')?N1+N2:N1-N2;
+  corTrainDec(pref+'-a1',s); corTrainDec(pref+'-b1',s);
+  corTrainDec(pref+'-a2',q_); corTrainDec(pref+'-b2',q_);
+  corTrainDec(pref+'-n1',N1); corTrainDec(pref+'-n2',N2);
+  if(deux){ corTrainDec(pref+'-d1',D); corTrainDec(pref+'-d2',D); } else { corTrainDec(pref+'-d',D); }
+  if(estFinal) corTrainFrac(pref+'-rn',pref+'-rd',R,D);
+  else { corTrainDec(pref+'-rn',R); corTrainDec(pref+'-rd',D); }
+}
+/* Le produit de la Seconde, en mode « direct » (le papier ne montre que le
+   produit final), avec l'inverse quand l'opération est une division. */
+function pfProduitCases(pref, withInverse){
+  const base=[pref+'-fn',pref+'-fd'];
+  return withInverse ? [pref+'-i1',pref+'-i2'].concat(base) : base;
+}
+function pfProduitJuge(pref, withInverse, invAttendu1, invAttendu2, P,Q){
+  let okI1=true, okI2=true;
+  if(withInverse){
+    const i1=pfLu(pref+'-i1'), i2=pfLu(pref+'-i2');
+    okI1 = !isNaN(i1) && i1===invAttendu1;
+    okI2 = !isNaN(i2) && i2===invAttendu2;
+  }
+  const fn=pfLu(pref+'-fn'), fd=pfLu(pref+'-fd');
+  const fracJ=pfFracJuge(fn,fd,P,Q);
+  return {okI1:okI1,okI2:okI2,okFn:fracJ[0],okFd:fracJ[1],
+    inverse:(!withInverse || (okI1&&okI2)), fin:fracJ[0]&&fracJ[1]};
+}
+function pfProduitPeindre(pref, withInverse, r, mode){
+  const col=pf2Col(mode);
+  if(withInverse){ col([pref+'-i1'],r.okI1); col([pref+'-i2'],r.okI2); }
+  col([pref+'-fn'],r.okFn); col([pref+'-fd'],r.okFd);
+}
+/* La fraction finale montrée est irréductible ; une case déjà juste dit la
+   ROUTE de l'élève, sa voisine vide reçoit le nombre qui la complète. */
+function pfIrred(P,Q){ const g=gcd(Math.abs(P),Q)||1; return [P/g, Q/g]; }
+function pfCorFinale(idN,idD,P,Q){
+  const r=pfIrred(P,Q); let n=r[0], d=r[1];
+  const eN=$(idN), eD=$(idD);
+  const lu=el=>{ const v=String((el&&el.value)||'').trim(); return /^-?\d+$/.test(v)?parseInt(v,10):NaN; };
+  if(eN&&eD){
+    const fn=lu(eN), fd=lu(eD), videN=String(eN.value||'').trim()==='', videD=String(eD.value||'').trim()==='';
+    if(!isNaN(fn) && eN.classList.contains('ok') && videD && r[0]!==0){ n=fn; d=fn/r[0]*r[1]; }
+    else if(!isNaN(fd) && eD.classList.contains('ok') && videN){ d=fd; n=fd/r[1]*r[0]; }
+  }
+  corTrainFrac(idN,idD,n,d);
+}
+function pfFinaleTexte(P,Q){
+  const r=pfIrred(P,Q);
+  return P+' sur '+Q+(r[1]!==Q ? ', soit '+r[0]+' sur '+r[1]+' une fois simplifiée' : '');
+}
+function pfFinaleRep(P,Q){ const r=pfIrred(P,Q); return P+'/'+Q+(r[1]!==Q ? ' = '+r[0]+'/'+r[1] : ''); }
+/* Une ligne de la grille : le « = » dans la première colonne, le calcul dans
+   la seconde (la ligne de l'énoncé n'a pas de « = »). */
+function lgLigne(eq, html){ return (eq ? spfEq() : '')+'<span class="lg-c">'+html+'</span>'; }
+function lgOp(s){ return '<b class="spf-op">'+s+'</b>'; }
+function lgMF(id,cls,lab){ return '<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>'; }
+function lgFrac(idN,idD,labN,labD){ return '<span class="f-frac-input">'+lgMF(idN,'f-num',labN)+'<span class="f-fbar"></span>'+lgMF(idD,'f-den',labD)+'</span>'; }
+function lgProduit(n,d,idA,idB){
+  return '<span class="f-frac-input sf-prod">'
+      +'<span class="sf-l"><span class="f-whole">'+n+'</span><span class="f-times">×</span>'+lgMF(idA,'f-num','multiplicateur du numérateur')+'</span>'
+      +'<span class="f-fbar"></span>'
+      +'<span class="sf-l"><span class="f-whole">'+d+'</span><span class="f-times">×</span>'+lgMF(idB,'f-den','multiplicateur du dénominateur')+'</span>'
+    +'</span>';
+}
+/* Le « Entrée passe à la case suivante » de la Seconde, pour les deux écrans. */
+function lgEntree(ids, verifier){
+  const order=ids.map(function(id){ return $(id); });
+  order.forEach(function(el,i){ if(!el) return;
+    el.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault();
+      if(i<order.length-1&&order[i+1]) order[i+1].focus(); else verifier(); } }); });
+  setTimeout(function(){ if(order[0]) order[0].focus(); },70);
+}
+
+/* ---- 4.8 et 4.9 : a/b × (c/d − e/f) et a/b ÷ (c/d − e/f) ----------------
+   Le tirage de la Seconde, tel quel : six entiers de 1 à 5, trois fractions
+   de départ irréductibles, d et f premiers entre eux, une parenthèse non
+   nulle (POSITIVE pour le quotient, qui l'inverse), un résultat non nul. Le
+   résultat du produit peut être négatif, et il peut se simplifier : la case
+   finale de la guidée accepte toute fraction égale, la rédigée demande la
+   forme irréductible. */
+function pqdGen(inv){
+  for(let essai=0; essai<2000; essai++){
+    const a=rand(1,5), b=rand(2,5), c=rand(1,5), d=rand(2,5), e=rand(1,5), f=rand(2,5);
+    if(d===f) continue;
+    if(gcd(d,f)!==1) continue;
+    if(gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1) continue;
+    const N1=c*f, N2=e*d, Din=d*f, Rn=N1-N2;
+    if(Rn===0) continue;
+    if(inv && Rn<0) continue;
+    if(Math.abs(Rn)===Din) continue;
+    let P,Q;
+    if(!inv){ P=a*Rn; Q=b*Din; } else { P=a*Din; Q=b*Rn; }
+    if(Q<0){ P=-P; Q=-Q; }
+    if(P===0) continue;
+    if(Math.abs(P)===Q) continue;
+    if(Q>200 || Math.abs(P)>200) continue;
+    return {a:a,b:b,c:c,d:d,e:e,f:f,N1:N1,N2:N2,Din:Din,Rn:Rn,P:P,Q:Q};
+  }
+  return !inv
+    ? {a:5,b:2,c:2,d:3,e:4,f:5,N1:10,N2:12,Din:15,Rn:-2,P:-10,Q:30}
+    : {a:5,b:2,c:4,d:5,e:1,f:3,N1:12,N2:5,Din:15,Rn:7,P:75,Q:14};
+}
+const PQD_NB=4;
+/* des PAIRES : quatre guidées, quatre rédigées (redPaires) */
+function pqdBuildQuestions(inv){ return redPaires(PQD_NB, function(){ return pqdGen(inv); }); }
+function pqdCases(){ return pf2CroixCases('pqd-x', true).concat(pfProduitCases('pqd', !!(test&&test.inv))); }
+function pqdTexte(q, inv){ return q.a+'/'+q.b+(inv?' ÷ ':' × ')+'('+q.c+'/'+q.d+' − '+q.e+'/'+q.f+')'; }
+function pqdLignesHTML(q, inv){
+  const tete=sfTermeHTML(q.a,q.b)+lgOp(inv?'÷':'×');
+  const moins=lgOp('−');
+  let h=lgLigne(false, tete+fParen(sfTermeHTML(q.c,q.d)+moins+sfTermeHTML(q.e,q.f)));
+  h+=lgLigne(true, tete+fParen(lgProduit(q.c,q.d,'pqd-x-a1','pqd-x-b1')+moins+lgProduit(q.e,q.f,'pqd-x-a2','pqd-x-b2')));
+  h+=lgLigne(true, tete+fParen(lgFrac('pqd-x-n1','pqd-x-d1','premier numérateur','premier dénominateur')+moins
+       +lgFrac('pqd-x-n2','pqd-x-d2','second numérateur','second dénominateur')));
+  h+=lgLigne(true, tete+fParen(lgFrac('pqd-x-rn','pqd-x-rd','numérateur de la parenthèse','dénominateur de la parenthèse')));
+  if(inv) h+=lgLigne(true, sfTermeHTML(q.a,q.b)+lgOp('×')+lgFrac('pqd-i1','pqd-i2','numérateur de l’inverse','dénominateur de l’inverse'));
+  h+=lgLigne(true, lgFrac('pqd-fn','pqd-fd','numérateur du résultat','dénominateur du résultat'));
+  return h;
+}
+function renderPqdTest(){
+  /* la question rédigée se dessine sous la guidée (sfrRendu) */
+  if(test.redac && sfrRendu()) return;
+  const q=test.questions[test.idx]; test.locked=false;
+  const inv=!!(test && test.inv);
+  $('pqdIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPqd').innerHTML=modeTagHTML();
+  $('pqdLiveScore').textContent=test.score;
+  $('pqdFeedback').textContent=''; $('pqdFeedback').className='mp-feedback';
+  $('pqdActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkPqdAnswer()">Vérifier</button>';
+  $('pqdPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>'+(inv?'÷':'×')+'</b> '
+    +fParen(sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f))+'.';
+  $('pqdHost').innerHTML=
+     '<div class="pt-step"><div class="pt-lab">① la parenthèse d’abord&nbsp;: mettre au même dénominateur (le croisement)&nbsp;· ② la valeur de chaque fraction croisée&nbsp;· ③ la différence sur ce dénominateur&nbsp;· '
+     +(inv ? '④ diviser, c’est multiplier par l’INVERSE&nbsp;· ⑤ la fraction finale' : '④ la fraction finale')+'</div>'
+     +'<div class="pt-row">'+pqdLignesHTML(q, inv)+'</div></div>';
+  lgEntree(pqdCases(), checkPqdAnswer);
+}
+function pqdJuge(q){
+  const inv=!!(test && test.inv);
+  const cx=pf2CroixJuge('pqd-x', q.c,q.d,q.e,q.f,'-',false,true);
+  const pr=pfProduitJuge('pqd', inv, q.Din,q.Rn, q.P,q.Q);
+  const vide=pfVide(pqdCases());
+  return {cx:cx, pr:pr, vide:vide};
+}
+function pqdPourquoi(q,r){
+  if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en vert : compare-les à ce que tu as écrit.';
+  const inv=!!(test && test.inv);
+  if(!r.cx.ok1) return 'Pour mettre au même dénominateur, la première fraction de la parenthèse se multiplie par le dénominateur de l’AUTRE, ici '+q.f+' — en haut ET en bas.';
+  if(!r.cx.ok2) return 'Pour mettre au même dénominateur, la seconde fraction de la parenthèse se multiplie par le dénominateur de l’AUTRE, ici '+q.d+' — en haut ET en bas.';
+  if(!(r.cx.okN1&&r.cx.okN2&&r.cx.okD)) return 'Sur le dénominateur '+r.cx.D+', les numérateurs de la parenthèse deviennent '+r.cx.N1+' et '+r.cx.N2+'.';
+  if(!(r.cx.okRn&&r.cx.okRd)) return 'Il reste à calculer la parenthèse : '+r.cx.N1+' − '+r.cx.N2+' = '+q.Rn+', sur '+q.Din+'.';
+  if(inv && !r.pr.inverse) return 'Diviser par '+q.Rn+'/'+q.Din+', c’est multiplier par son inverse : '+q.Din+' sur '+q.Rn+'.';
+  return 'Il reste à écrire la fraction finale : '+pfFinaleTexte(q.P,q.Q)+'.';
+}
+function checkPqdAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const inv=!!(test&&test.inv);
+  const r=pqdJuge(q);
+  const mode=live?'live':'check';
+  pf2CroixPeindre('pqd-x', r.cx, mode, true);
+  pfProduitPeindre('pqd', inv, r.pr, mode);
+  if(live) return;
+  const allOk = r.cx.tousOk && r.pr.inverse && r.pr.fin && !r.vide;
+  if(!allOk && isSoutien()){ soutienAgain('pqdFeedback','pqdActions','checkPqdAnswer','pqdHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('pqdLiveScore').textContent=test.score;
+    $('pqdFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']);
+    $('pqdFeedback').className='mp-feedback good';
+  } else {
+    $('pqdFeedback').textContent=pqdPourquoi(q,r); $('pqdFeedback').className='mp-feedback bad';
+    pf2CroixCorrection('pqd-x', q.c,q.d,q.e,q.f,'-',false,true);
+    if(inv){ corTrainDec('pqd-i1',q.Din); corTrainDec('pqd-i2',q.Rn); }
+    pfCorFinale('pqd-fn','pqd-fd',q.P,q.Q);
+  }
+  const donne=pqdCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
+  test.answers.push({...(ptsExo()||{}),correct:allOk, q:pqdTexte(q, inv), answer:pfFinaleRep(q.P,q.Q), given:donne});
+  /* la question rédigée qui suit s'ouvre ICI, sous celle-ci */
+  if(test.redac && sfrMonte()) return;
+  const last=test.idx===test.questions.length-1;
+  $('pqdActions').innerHTML='<button class="btn btn-primary" id="pqdNext" onclick="nextPqdQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('pqdNext'); if(nb) nb.focus();
+}
+function nextPqdQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPqdTest(); autoSave(); } else finishTest(); }
+async function startPqdCommun(qId, inv){
+  if(!currentEleve){ accueil(); return; }
+  const qs=pqdBuildQuestions(inv);
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pqd', inv:inv, questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.redac=true;
+  test.qId=qId;
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pqd'); renderPqdTest();
+}
+function startPqdH(){ return startPqdCommun('produit-difference-fractions', false); }
+function startPqdI(){ return startPqdCommun('quotient-difference-fractions', true); }
+function ctxPqd(q){
+  const inv=!!(test && test.inv), r=pfIrred(q.P,q.Q);
+  const c='L’élève calcule '+pqdTexte(q, inv)+' en complétant des cases, une étape par ligne, dans l’ordre du cours : '
+   +'la parenthèse D’ABORD (priorité des opérations), par le CROISEMENT (chaque terme multiplié par le dénominateur de l’autre)'
+   +(inv?', puis diviser en multipliant par l’INVERSE de la parenthèse,':',')+' puis la '+(inv?'division':'multiplication')+', puis la fraction finale (toute fraction égale est acceptée). '
+   +'Réponses attendues, STRICTEMENT SECRÈTES : la parenthèse vaut '+q.Rn+'/'+q.Din+', le résultat final est '+q.P+'/'+q.Q
+   +(r[1]!==q.Q ? ', soit '+r[0]+'/'+r[1]+' simplifié' : '')+'. '
+   +'L’ERREUR VISÉE est celle de l’élève qui '+(inv?'multiplie sans avoir retourné la parenthèse':'multiplie '+q.a+'/'+q.b+' par '+q.c+'/'+q.d+' AVANT de calculer la parenthèse')+', en oubliant la priorité des opérations.'
+   +(inv ? '' : ' La parenthèse peut être négative, et le résultat aussi : ce n’est pas une erreur.');
+  return {nombre:'', contexte:c};
+}
+
+/* ---- 4.10 : a/b + c/d − e/f ----------------------------------------------
+   Le tirage de la Seconde, tel quel : six entiers de 1 à 9, trois fractions
+   de départ irréductibles, un résultat positif, IRRÉDUCTIBLE sur b×d×f (les
+   trois dénominateurs sont donc premiers entre eux deux à deux), différent
+   de 1, et un dénominateur commun d'au plus 200. */
+function tsfGen(){
+  for(let essai=0; essai<2000; essai++){
+    const a=rand(1,9), b=rand(2,9), c=rand(1,9), d=rand(2,9), e=rand(1,9), f=rand(2,9);
+    if(gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1) continue;
+    const N1=a*d*f, N2=c*b*f, N3=e*b*d, D=b*d*f;
+    const N=N1+N2-N3;
+    if(N<=0) continue;
+    if(gcd(N,D)!==1) continue;
+    if(N===D) continue;
+    if(D>200) continue;
+    return {a:a,b:b,c:c,d:d,e:e,f:f,N1:N1,N2:N2,N3:N3,D:D,N:N};
+  }
+  return {a:1,b:2,c:1,d:3,e:1,f:7,N1:21,N2:14,N3:6,D:42,N:29};
+}
+const TSF_NB=4;
+function tsfBuildQuestions(){ return redPaires(TSF_NB, tsfGen); }
+function tsfCases(){ return ['tsf-a1','tsf-b1','tsf-a2','tsf-b2','tsf-a3','tsf-b3','tsf-n1','tsf-n2','tsf-n3','tsf-d','tsf-fn','tsf-fd']; }
+function tsfTexte(q){ return q.a+'/'+q.b+' + '+q.c+'/'+q.d+' − '+q.e+'/'+q.f; }
+function renderTsfTest(){
+  if(test.redac && sfrRendu()) return;
+  const q=test.questions[test.idx]; test.locked=false;
+  $('tsfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagTsf').innerHTML=modeTagHTML();
+  $('tsfLiveScore').textContent=test.score;
+  $('tsfFeedback').textContent=''; $('tsfFeedback').className='mp-feedback';
+  $('tsfActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkTsfAnswer()">Vérifier</button>';
+  $('tsfPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>+</b> '+sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f)+'.';
+  $('tsfHost').innerHTML=
+    '<div class="pt-step"><div class="pt-lab">① mettre les trois fractions au même dénominateur (le croisement)&nbsp;· ② la somme sur ce dénominateur&nbsp;· ③ la fraction finale</div>'
+     +'<div class="pt-row">'
+       +lgLigne(false, sfTermeHTML(q.a,q.b)+lgOp('+')+sfTermeHTML(q.c,q.d)+lgOp('−')+sfTermeHTML(q.e,q.f))
+       +lgLigne(true, lgProduit(q.a,q.b,'tsf-a1','tsf-b1')+lgOp('+')+lgProduit(q.c,q.d,'tsf-a2','tsf-b2')+lgOp('−')+lgProduit(q.e,q.f,'tsf-a3','tsf-b3'))
+       +lgLigne(true, '<span class="f-frac-input sf-somme">'
+         +'<span class="sf-haut">'+lgMF('tsf-n1','f-num','premier numérateur')+'<span class="f-times">+</span>'+lgMF('tsf-n2','f-num','second numérateur')+'<span class="f-times">−</span>'+lgMF('tsf-n3','f-num','troisième numérateur')+'</span>'
+         +'<span class="f-fbar"></span>'
+         +lgMF('tsf-d','f-den','dénominateur commun')+'</span>')
+       +lgLigne(true, lgFrac('tsf-fn','tsf-fd','numérateur final','dénominateur final'))
+     +'</div></div>';
+  lgEntree(tsfCases(), checkTsfAnswer);
+}
+function tsfJuge(q){
+  const mult1=q.d*q.f, mult2=q.b*q.f, mult3=q.b*q.d;
+  const ok1=pfMult(pfLu('tsf-a1'),pfLu('tsf-b1'),mult1), ok2=pfMult(pfLu('tsf-a2'),pfLu('tsf-b2'),mult2), ok3=pfMult(pfLu('tsf-a3'),pfLu('tsf-b3'),mult3);
+  const n1=pfLu('tsf-n1'), n2=pfLu('tsf-n2'), n3=pfLu('tsf-n3'), d=pfLu('tsf-d');
+  const okN1=!isNaN(n1)&&n1===q.N1, okN2=!isNaN(n2)&&n2===q.N2, okN3=!isNaN(n3)&&n3===q.N3, okD=!isNaN(d)&&d===q.D;
+  const fracJ=pfFracJuge(pfLu('tsf-fn'),pfLu('tsf-fd'),q.N,q.D);
+  return {ok1:ok1,ok2:ok2,ok3:ok3,okN1:okN1,okN2:okN2,okN3:okN3,okD:okD,okFn:fracJ[0],okFd:fracJ[1],
+    croix: ok1&&ok2&&ok3, somme: okN1&&okN2&&okN3&&okD, vide:pfVide(tsfCases())};
+}
+function tsfPourquoi(q,r){
+  if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en vert : compare-les à ce que tu as écrit.';
+  if(!r.ok1) return 'Le premier terme se multiplie par le produit des deux AUTRES dénominateurs, ici '+q.d+' × '+q.f+' = '+(q.d*q.f)+' — en haut ET en bas.';
+  if(!r.ok2) return 'Le second terme se multiplie par le produit des deux AUTRES dénominateurs, ici '+q.b+' × '+q.f+' = '+(q.b*q.f)+' — en haut ET en bas.';
+  if(!r.ok3) return 'Le troisième terme se multiplie par le produit des deux AUTRES dénominateurs, ici '+q.b+' × '+q.d+' = '+(q.b*q.d)+' — en haut ET en bas.';
+  if(!r.somme) return 'Sur le dénominateur '+q.D+', les numérateurs deviennent '+q.N1+', '+q.N2+' et '+q.N3+'.';
+  return 'Il reste à écrire la fraction finale : '+pfFinaleTexte(q.N,q.D)+'.';
+}
+function checkTsfAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const r=tsfJuge(q);
+  const mode=live?'live':'check';
+  const col=pf2Col(mode);
+  const g1=['tsf-a1','tsf-b1'], g2=['tsf-a2','tsf-b2'], g3=['tsf-a3','tsf-b3'];
+  if(mode==='live'){ if(!pfVide(g1)) col(g1,r.ok1); if(!pfVide(g2)) col(g2,r.ok2); if(!pfVide(g3)) col(g3,r.ok3); }
+  else { col(g1,r.ok1); col(g2,r.ok2); col(g3,r.ok3); }
+  col(['tsf-n1'],r.okN1); col(['tsf-n2'],r.okN2); col(['tsf-n3'],r.okN3); col(['tsf-d'],r.okD);
+  col(['tsf-fn'],r.okFn); col(['tsf-fd'],r.okFd);
+  if(live) return;
+  const allOk = r.croix && r.somme && r.okFn && r.okFd && !r.vide;
+  if(!allOk && isSoutien()){ soutienAgain('tsfFeedback','tsfActions','checkTsfAnswer','tsfHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('tsfLiveScore').textContent=test.score;
+    $('tsfFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']);
+    $('tsfFeedback').className='mp-feedback good';
+  } else {
+    $('tsfFeedback').textContent=tsfPourquoi(q,r); $('tsfFeedback').className='mp-feedback bad';
+    corTrainDec('tsf-a1',q.d*q.f); corTrainDec('tsf-b1',q.d*q.f);
+    corTrainDec('tsf-a2',q.b*q.f); corTrainDec('tsf-b2',q.b*q.f);
+    corTrainDec('tsf-a3',q.b*q.d); corTrainDec('tsf-b3',q.b*q.d);
+    corTrainDec('tsf-n1',q.N1); corTrainDec('tsf-n2',q.N2); corTrainDec('tsf-n3',q.N3); corTrainDec('tsf-d',q.D);
+    pfCorFinale('tsf-fn','tsf-fd',q.N,q.D);
+  }
+  const donne=tsfCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
+  test.answers.push({...(ptsExo()||{}),correct:allOk, q:tsfTexte(q), answer:q.N+'/'+q.D, given:donne});
+  if(test.redac && sfrMonte()) return;
+  const last=test.idx===test.questions.length-1;
+  $('tsfActions').innerHTML='<button class="btn btn-primary" id="tsfNext" onclick="nextTsfQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('tsfNext'); if(nb) nb.focus();
+}
+function nextTsfQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTsfTest(); autoSave(); } else finishTest(); }
+async function startTsf(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=tsfBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'tsf', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.redac=true;
+  test.qId='triple-somme-fractions';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('tsf'); renderTsfTest();
+}
+function ctxTsf(q){
+  const c='L’élève calcule '+tsfTexte(q)+' en complétant des cases, une étape par ligne, dans l’ordre du cours : '
+   +'mettre les TROIS fractions au même dénominateur par le croisement (chaque terme multiplié par le PRODUIT des deux autres dénominateurs), '
+   +'puis la somme sur ce dénominateur, puis la fraction finale. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES : le dénominateur commun est '+q.D+', le résultat final est '+q.N+'/'+q.D+'. '
+   +'Il n’y a ici aucune priorité opératoire à respecter — seulement trois fractions à mettre au même dénominateur au lieu de deux.';
+  return {nombre:'', contexte:c};
+}
+
+/* ---- LA RÉDIGÉE DES 4.8 À 4.10 -------------------------------------------
+   Le dernier morceau, lu comme une fraction SIGNÉE : le produit de 4.8 peut
+   être négatif (« −1/3 », « -(1)/(3) »). */
+function redFinLu(morceau){
+  const t=String(morceau==null?'':morceau).replace(/\s+/g,'').replace(/−/g,'-');
+  const neg=/^-/.test(t), f=libreFracSimple(t.replace(/^[+-]/,''));
+  if(!f) return null;
+  return neg ? {n:-f.n, d:f.d} : f;
+}
+/* L'étape du même dénominateur, pour deux termes OU PLUS : tous les termes de
+   profondeur zéro sont des fractions de même dénominateur (par leur valeur). */
+function redEtapeMemeDenoN(morceau){
+  const d=libreNiv0(morceau, '+-');
+  if(!d || d.parts.length<2) return false;
+  const ds=d.parts.map(libreDeno);
+  if(ds.some(function(x){ return !x; })) return false;
+  return ds.every(function(x){ return x.p*ds[0].q===ds[0].p*x.q; });
+}
+/* … ou à l'intérieur d'une parenthèse du morceau (4.8, 4.9). */
+function redGroupes(texte){
+  const s=String(texte==null?'':texte).replace(/\s+/g,''), out=[], pile=[];
+  for(let i=0;i<s.length;i++){
+    if(s[i]==='(') pile.push(i);
+    else if(s[i]===')' && pile.length){ const j=pile.pop(); out.push(s.slice(j+1,i)); }
+  }
+  return out;
+}
+function redEtapeParen(morceau){ return redEtapeMemeDenoN(morceau) || redGroupes(morceau).some(redEtapeMemeDenoN); }
+/* Le juge : chaque morceau vaut le résultat P/Q, ou l'une des valeurs
+   intermédiaires admises (la parenthèse calculée à part) ; le DERNIER vaut le
+   résultat et est irréductible ; chaque étape exigée est écrite quelque part.
+   Une étape introuvable : le juge s'abstient, le modèle décide. */
+function redJugeChaine(rep, P, Q, inter, etapes){
+  const ms=librePieces(rep);
+  if(ms.length<2) return {sait:false};
+  const vals=[];
+  for(let i=0;i<ms.length;i++){ const v=libreEval(ms[i]); if(!v) return {sait:false}; vals.push(v); }
+  for(let i=0;i<ms.length;i++){
+    const v=vals[i];
+    const ok = v.p*Q===P*v.q || inter.some(function(w){ return v.p*w.q===w.p*v.q; });
+    if(!ok) return {sait:true, correct:false, motif:'egalite', morceau:ms[i], terme:libreTermeFaux(ms,i)};
+  }
+  const fin=redFinLu(ms[ms.length-1]);
+  if(!fin || fin.d<=0) return {sait:false};
+  if(fin.n*Q!==P*fin.d) return {sait:true, correct:false, motif:'resultat'};
+  if(libreGcd(fin.n,fin.d)!==1) return {sait:true, correct:false, motif:'simplifier'};
+  for(let k=0;k<etapes.length;k++) if(!ms.some(etapes[k])) return {sait:false};
+  return {sait:true, correct:true};
+}
+function pqdrMath(q, tx, ent){
+  const inv=!!test.inv, r=pfIrred(q.P,q.Q), Pr=r[0], Qr=r[1];
+  const signe=function(n,d){ return (n<0?'−':'')+tx(Math.abs(n),d); };
+  const finale=signe(Pr,Qr), par=signe(q.Rn,q.Din), op=inv?'÷':'×';
+  const texte=tx(q.a,q.b)+' '+op+' ('+tx(q.c,q.d)+' − '+tx(q.e,q.f)+')';
+  const etapes=[redEtapeParen];
+  if(inv) etapes.push(function(m){ return libreEtapeInverse(m, {n1:q.a, d1:q.b, n2:q.Rn, d2:q.Din}); });
+  const croix='('+q.c+'×'+q.f+')/('+q.d+'×'+q.f+') − ('+q.e+'×'+q.d+')/('+q.f+'×'+q.d+') = '+q.N1+'/'+q.Din+' − '+q.N2+'/'+q.Din;
+  return {
+    texte:texte, final:finale, produit:par, interNom:'la parenthèse', interAu:'à la parenthèse',
+    interPiege:' — as-tu bien calculé la parenthèse AVANT de '+(inv?'diviser':'multiplier')+' ?',
+    latex:'\\frac{'+q.a+'}{'+q.b+'}'+(inv?'\\div ':'\\times ')+'\\left(\\frac{'+q.c+'}{'+q.d+'}-\\frac{'+q.e+'}{'+q.f+'}\\right)',
+    html:sfTermeHTML(q.a,q.b)+' <b>'+op+'</b> '+fParen(sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f)),
+    consigne:'Calcule la parenthèse d’abord, en écrivant l’étape où ses deux fractions ont le même dénominateur'
+      +(inv?', puis écris la multiplication par l’inverse':'')+', et donne le résultat simplifié.',
+    juge:function(rep){ return redJugeChaine(rep, Pr, Qr, [{p:q.Rn, q:q.Din}], etapes); },
+    enonceIA: ent+'L’élève doit calculer '+texte+', en respectant les PRIORITÉS OPÉRATOIRES — la parenthèse d’abord —, et donner le résultat sous forme de fraction IRRÉDUCTIBLE. Il écrit son calcul LUI-MÊME dans une feuille de calcul.'
+      +' La première ligne contient déjà « '+texte+' = », qu’il complète à la suite du « = ».'+redFacons(texte),
+    attenduIA: 'RÉSULTAT ATTENDU : '+finale+', fraction irréductible. La parenthèse se met au même dénominateur par le croisement : '+croix+' = '+par+'.'
+      +(inv ? ' Diviser par '+par+', c’est multiplier par son INVERSE '+q.Din+'/'+q.Rn+' : '+tx(q.a,q.b)+' × '+q.Din+'/'+q.Rn+' = '+q.P+'/'+q.Q
+            : ' Puis le produit : '+tx(q.a,q.b)+' × '+par+' = '+signe(q.P,q.Q))
+      +(Qr!==q.Q ? ', qui se simplifie en '+finale+'.' : ', déjà irréductible.')
+      +'\n\nLA VALEUR DE LA PARENTHÈSE, si elle est calculée à part sur sa propre ligne, vaut '+par+' : une ligne qui vaut CE nombre est une étape de calcul, pas une égalité fausse.'
+      +(inv ? '' : ' La parenthèse et le résultat sont NÉGATIFS quand '+tx(q.c,q.d)+' < '+tx(q.e,q.f)+' : un signe « − » n’est pas une erreur.')
+      +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les conditions sont réunies.'
+      +'\n1. LA PRIORITÉ EST RESPECTÉE : LA PARENTHÈSE EST CALCULÉE D’ABORD. Une ligne qui ne vaut ni '+par+' ni le résultat final trahit une '+(inv?'division':'multiplication')+' faite avant la parenthèse : refuse, et dis que la parenthèse se calcule D’ABORD.'
+      +'\n2. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE dans la parenthèse — par exemple '+q.N1+'/'+q.Din+' − '+q.N2+'/'+q.Din+'. Un élève qui écrit directement la valeur de la parenthèse, sans cette étape, est REFUSÉ.'
+      +(inv ? '\n3. LA MULTIPLICATION PAR L’INVERSE EST ÉCRITE : au moins une ligne montre '+tx(q.a,q.b)+' × '+q.Din+'/'+q.Rn+'. Oublier de RETOURNER la parenthèse est la faute que l’exercice cherche.' : '')
+      +redRegleFinale(inv?4:3, finale)
+      +'\n'+(inv?5:4)+'. AUCUNE ÉGALITÉ FAUSSE : en dehors de la valeur de la parenthèse, chaque morceau vaut '+finale+'.'
+      +'\nL’ordre des facteurs, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Enlever un même facteur en haut et en bas avant de multiplier est permis.'
+      +redConsignesFeedback(finale),
+    ctx:'L’élève calcule '+texte+' en écrivant LUI-MÊME son calcul dans une feuille, sans aucune case : la première ligne porte déjà « '+texte+' = », il écrit à la suite. '
+      +'Il doit calculer la parenthèse D’ABORD, en la mettant au même dénominateur'+(inv?', puis multiplier par l’INVERSE de la parenthèse':'')+', et donner le résultat sous forme irréductible. '
+      +'Réponses attendues, STRICTEMENT SECRÈTES : la parenthèse vaut '+par+', le résultat '+finale+'. Juste au-dessus, il vient de faire la même sorte de calcul, guidé par des cases.'
+  };
+}
+function tsfrMath(q, tx, ent){
+  const finale=q.N+'/'+q.D;
+  const texte=tx(q.a,q.b)+' + '+tx(q.c,q.d)+' − '+tx(q.e,q.f);
+  const m1=q.d*q.f, m2=q.b*q.f, m3=q.b*q.d;
+  return {
+    texte:texte, final:finale, produit:null,
+    latex:'\\frac{'+q.a+'}{'+q.b+'}+\\frac{'+q.c+'}{'+q.d+'}-\\frac{'+q.e+'}{'+q.f+'}',
+    html:sfTermeHTML(q.a,q.b)+' <b>+</b> '+sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f),
+    consigne:'Écris l’étape où les trois fractions ont le même dénominateur, puis donne le résultat simplifié.',
+    juge:function(rep){ return redJugeChaine(rep, q.N, q.D, [], [redEtapeMemeDenoN]); },
+    enonceIA: ent+'L’élève doit calculer '+texte+', et donner le résultat sous forme de fraction IRRÉDUCTIBLE. Il écrit son calcul LUI-MÊME dans une feuille de calcul.'
+      +' La première ligne contient déjà « '+texte+' = », qu’il complète à la suite du « = ».'+redFacons(texte),
+    attenduIA: 'RÉSULTAT ATTENDU : '+finale+', fraction irréductible.'
+      +' Le dénominateur commun est '+q.D+' = '+q.b+'×'+q.d+'×'+q.f+' : le premier terme se multiplie par '+m1+', le second par '+m2+', le troisième par '+m3
+      +' — '+q.N1+'/'+q.D+' + '+q.N2+'/'+q.D+' − '+q.N3+'/'+q.D+' = ('+q.N1+' + '+q.N2+' − '+q.N3+')/'+q.D+' = '+finale+', déjà irréductible.'
+      +' L’élève peut AUSSI calculer en deux temps : les deux premières fractions d’abord, puis la troisième — c’est juste aussi, pourvu que chaque égalité soit vraie.'
+      +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
+      +'\n1. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE : au moins une ligne montre des fractions portant le MÊME dénominateur, ajoutées ou soustraites — par exemple '+q.N1+'/'+q.D+' + '+q.N2+'/'+q.D+' − '+q.N3+'/'+q.D+'. Tout dénominateur commun convient, pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ.'
+      +redRegleFinale(2, finale)
+      +'\n3. AUCUNE ÉGALITÉ FAUSSE : découpe tout le calcul aux « = » ; chaque morceau doit valoir '+finale+'. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE.'
+      +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance.'
+      +redConsignesFeedback(finale),
+    ctx:'L’élève calcule '+texte+' en écrivant LUI-MÊME son calcul dans une feuille, sans aucune case : la première ligne porte déjà « '+texte+' = », il écrit à la suite. '
+      +'Il doit mettre les TROIS fractions au même dénominateur (chaque terme multiplié par le produit des deux autres dénominateurs), puis additionner et soustraire les numérateurs, et donner le résultat sous forme irréductible. '
+      +'Réponse attendue, STRICTEMENT SECRÈTE : '+finale+', sur le dénominateur commun '+q.D+'. Juste au-dessus, il vient de faire la même sorte de calcul, guidé par des cases.'
+  };
 }
 
 /* corrChoix() et msgAvecVides() : les deux fonctions partagées de la Seconde,
@@ -26317,6 +26904,20 @@ const RAP_DIV=`<b>Diviser par une fraction</b><br>
 /* {somme-produit-fractions} (4.6) : le rappel de la Seconde (RAP_PF), avec
    l'exemple de la Première — nombres de 1 à 5, et la fraction finale qui se
    simplifie, comme au 4.1. */
+/* {produit-difference-fractions}/{quotient-difference-fractions} (4.8, 4.9) et
+   {triple-somme-fractions} (4.10) : les rappels de la Seconde, tels quels. */
+const RAP_PQD=`<b>La parenthèse d’abord, toujours</b><br>
+Une parenthèse se calcule TOUJOURS avant ce qui est autour d’elle — c’est même à ça qu’elle sert.<br>
+<b>① On met la parenthèse au même dénominateur</b>, par le CROISEMENT : chaque fraction multipliée par le dénominateur de l’AUTRE — \\(\\frac{2}{3}-\\frac{4}{5}=\\frac{2\\times 5}{3\\times 5}-\\frac{4\\times 3}{5\\times 3}=\\frac{10}{15}-\\frac{12}{15}\\)<br>
+<b>② On calcule la parenthèse</b> : \\(\\frac{10-12}{15}=\\frac{-2}{15}\\)<br>
+<b>③ Il ne reste qu’un produit</b> (ou une division, qui devient un produit par l’INVERSE) : \\(\\frac{5}{2}\\times\\frac{-2}{15}=\\frac{-1}{3}\\)<br>
+Le résultat d’une parenthèse peut être négatif — ce n’est pas une erreur, la soustraction peut très bien donner un nombre négatif.`;
+const RAP_TSF=`<b>Mettre TROIS fractions au même dénominateur</b><br>
+Pas de priorité ici — que des + et des − — mais trois fractions au lieu de deux : le croisement s’étend.<br>
+<b>① Chaque terme se multiplie par le PRODUIT des deux AUTRES dénominateurs.</b> Avec \\(\\frac{2}{3}+\\frac{1}{5}-\\frac{5}{6}\\) : le premier terme se multiplie par \\(5\\times 6=30\\), le second par \\(3\\times 6=18\\), le troisième par \\(3\\times 5=15\\).<br>
+<b>② Les trois tombent alors sur le MÊME dénominateur</b> — ici \\(3\\times 5\\times 6=90\\) : \\(\\frac{2\\times 30}{90}+\\frac{1\\times 18}{90}-\\frac{5\\times 15}{90}=\\frac{60}{90}+\\frac{18}{90}-\\frac{75}{90}\\)<br>
+<b>③ On additionne ou on soustrait les numérateurs</b>, jamais les dénominateurs : \\(\\frac{60+18-75}{90}=\\frac{3}{90}\\)<br>
+<b>④ On simplifie à la fin</b>, si c’est possible : ici 3 et 90 se divisent par 3, \\(\\frac{3}{90}=\\frac{1}{30}\\).`;
 const RAP_SPF=`<b>Priorités des opérations, avec des fractions</b><br>
 <b>Dans une somme, la multiplication se calcule TOUJOURS avant l’addition</b> — même sans parenthèses autour d’elle. C’est la même règle qu’avec des nombres seuls : \\(2+3\\times 4\\) fait 14, pas 20.<br>
 <b>① On calcule d’abord le produit</b>, comme dans {multiplier-fractions} : \\(\\frac{1}{2}\\times\\frac{3}{2}=\\frac{1\\times 3}{2\\times 2}=\\frac{3}{4}\\)<br>
@@ -26380,7 +26981,7 @@ const RAP_DBP=`<b>Devoir blanc : neuf questions sur les pourcentages</b><br>
 Bloqué sur une question rédigée ? Le bouton <b>Aide méthode</b> affiche les cases de l’exercice d’origine ; un autre bouton te ramène à la version rédigée.`;
 const RAP_SGL=`<b>Synthèse générale rédigée : deux familles de questions, deux rédactions</b><br>
 Une question sur <b>un pourcentage</b> — prendre, augmenter ou diminuer, comme dans {synthese-pourcentages-libre} : tu choisis la proposition, puis tu JUSTIFIES en écrivant ta vérification. Une question sur <b>deux évolutions successives</b>, comme dans {synthese-evolutions-successives-libre} : tu RÉDIGES tout le calcul, puis tu conclus en mots. Dans les deux cas, la feuille est celle de {synthese-diminutions-libre-dix} : la barre d’espace écrit une espace, la touche % est sur le clavier.<br><br>`+RAP_SPL+`<br><br>`+RAP_ESL;
-const RAPPELS_ID={ 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -26464,6 +27065,8 @@ const QIA_SUGG={
   sf:["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Pourquoi on multiplie en haut ET en bas ?","Comment écrire un entier en fraction ?"],
   'somme-fractions-2':["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Comment savoir si ma fraction se simplifie ?","Par quel nombre puis-je diviser pour simplifier ?"],
   'croiser-denominateurs':["Pourquoi multiplie-t-on par le dénominateur de l’autre fraction ?","Pourquoi faut-il multiplier en haut ET en bas ?","Le croisement donne-t-il toujours le plus petit dénominateur commun ?","Pourquoi ne peut-on pas additionner deux fractions telles quelles ?"],
+  pqd:["Pourquoi calculer la parenth\u00e8se en premier\u00a0?","Comment croiser les d\u00e9nominateurs dans la parenth\u00e8se\u00a0?","Le r\u00e9sultat de la parenth\u00e8se peut-il \u00eatre n\u00e9gatif\u00a0?","Comment diviser par une fraction\u00a0?"],
+  tsf:["Comment mettre trois fractions au m\u00eame d\u00e9nominateur\u00a0?","Par quoi je multiplie chaque terme\u00a0?","Y a-t-il une priorit\u00e9 \u00e0 respecter ici\u00a0?","Comment savoir que le d\u00e9nominateur commun est correct\u00a0?"],
   spf:["Pourquoi calculer le produit avant la somme\u00a0?","Comment croiser les d\u00e9nominateurs\u00a0?","Que faire une fois le produit calcul\u00e9\u00a0?","Comment savoir si la fraction finale se simplifie\u00a0?"],
   mlt:["Faut-il mettre au m\u00eame d\u00e9nominateur pour multiplier\u00a0?","Pourquoi multiplie-t-on les num\u00e9rateurs entre eux\u00a0?","Comment savoir si le r\u00e9sultat se simplifie\u00a0?","Est-ce que l\u2019ordre des deux fractions change le r\u00e9sultat\u00a0?"],
   'diviser-fractions':["Pourquoi diviser revient-il \u00e0 multiplier\u00a0?","Quelle fraction faut-il retourner\u00a0?","Comment trouver l\u2019inverse d\u2019une fraction\u00a0?","Comment savoir si le r\u00e9sultat se simplifie\u00a0?"],
@@ -26894,6 +27497,8 @@ function conseilCtxCourant(){
   if(k==='rvf' && q) att=q.redac ? sfrCtxTexte(q) : ctxRvf(q).contexte;
   if(k==='mlt' && q) att=q.redac ? sfrCtxTexte(q) : mltCtxTexte(q);
   if(k==='spf' && q) att=q.redac ? sfrCtxTexte(q) : ctxSpf(q).contexte;
+  if(k==='pqd' && q) att=q.redac ? sfrCtxTexte(q) : ctxPqd(q).contexte;
+  if(k==='tsf' && q) att=q.redac ? sfrCtxTexte(q) : ctxTsf(q).contexte;
   if(k==='pb' && q) att=(pbEstFiche() ? pbfCtxTexte() : pbCtxTexte(q));
   const ec=ctxEcranPremiere();
   /* numeros() en dernier : le contexte est assemblé de dix morceaux, et plusieurs
@@ -27168,7 +27773,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderEds','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderRlf','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderRlf','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPqdTest','renderTsfTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

@@ -2269,3 +2269,58 @@ Contrôles : `fractionsRedigees` (6/15 accepté, 4/8 + 2/8 = 6/8 accepté,
 6/8 sans étape refusé, plus aucun « REFUSÉ » dans la règle du modèle) ; le
 banc navigateur fait compter 5/2 × 3/5 = 15/10 et lit « 3/2 » dans la
 correction, qui n'est pas rouge.
+
+## Première — 4.8, 4.9, 4.10 : les 5.13, 5.14 et 5.16 de la Seconde, avec leur question rédigée (novembre 2026, Première v383)
+
+Demande de Turquet : « mets le 5.16 de seconde en première et fais en sorte
+qu'il ait, après le modèle à compléter, une question du même type avec un
+calcul à rédiger comme pour les autres exercices sur les fractions en
+première » — puis, le même jour, « faire la même chose pour les exercices de
+seconde 5.13 et 5.14 ». Ajoutés EN FIN de thème, ils ne renumérotent rien :
+{produit-difference-fractions} 4.8, {quotient-difference-fractions} 4.9 (un
+moteur, `pqd`, et `test.inv`, comme en Seconde), {triple-somme-fractions}
+4.10 (`tsf`). La Seconde garde ses trois exercices, inchangés.
+
+* **La guidée est celle de la Seconde** : même tirage (`pqdGen`, `tsfGen`),
+  même juge, mêmes messages, même correction. Le croisement de la Seconde
+  (`pfCroixJuge` à huit arguments) est recopié sous le nom `pf2Croix…` : la
+  Première a déjà son `pfCroixJuge`, au dénominateur commun libre (4.6), et
+  une fonction déclarée deux fois écrase la première en silence. Ici aucune
+  autre route n'existe : `pqdGen` exige d et f premiers entre eux, et un
+  résultat irréductible sur b×d×f (`tsfGen`) force les trois dénominateurs à
+  l'être deux à deux — le croisement EST le plus petit dénominateur commun.
+  Le produit ne garde que sa forme « directe » (`pfProduitCases/Juge/Peindre`,
+  l'inverse en plus pour 4.9).
+* **Le calcul se lit EN LIGNES**, le « = » en tête de chacune, comme au 4.6 :
+  une grille de deux colonnes (`#pqdHost`, `#tsfHost` : `spf-eq` puis
+  `lg-c`). La Seconde posait toute l'égalité sur une rangée et rétrécissait
+  ses cases pour la faire tenir ; ici les tailles sont celles du thème. La
+  parenthèse haute (`fParen`, `.f-pgrp`/`.f-par`) est recopiée, à l'encre du
+  thème (`--fx-encre`).
+* **La rédigée est celle des 4.1 à 4.6** : `RED_CFG` gagne `pqd` et `tsf`,
+  `redMath` deux branches (`pqdrMath`, `tsfrMath`), les questions vont par
+  paires (`redPaires`, huit par séance), la zone `pqdrZone`/`tsfrZone` s'ouvre
+  sous la guidée.
+* **Le juge de la rédigée** (`redJugeChaine`) compare des valeurs en entiers
+  exacts : chaque morceau vaut le résultat, ou — pour 4.8/4.9 — la valeur de
+  la parenthèse calculée à part (comme le produit intermédiaire du 4.6) ; le
+  dernier vaut le résultat, irréductible (sinon motif « simplifier », accepté
+  et signalé depuis la v379). Les étapes exigées : le même dénominateur DANS
+  la parenthèse (`redEtapeParen` : le morceau, ou l'un de ses groupes entre
+  parenthèses) pour 4.8/4.9, sur deux termes ou plus (`redEtapeMemeDenoN`)
+  pour 4.10 — le calcul en deux temps (les deux premières, puis la troisième)
+  passe ; et pour 4.9 la multiplication par l'inverse (`libreEtapeInverse`).
+  Une étape introuvable : le juge s'abstient, le modèle tranche.
+* **Le produit de 4.8 peut être NÉGATIF** : le dernier morceau se lit par
+  `redFinLu` (« −1/3 », « -(1)/(3) »), et `redPhraseNonSimplifie` aussi.
+  `redVerdictIA`/`redSecours` nomment « la parenthèse » au lieu du
+  « produit » quand `m.interNom` le dit.
+
+Essai dans Chromium (hors banc) : les trois exercices ouverts, la guidée
+remplie juste (aucune case rouge), la rédigée ouverte dessous, rédigée juste
+(1/5 × (3/4 − 2/3) = … = 1/60 ; 5/2 ÷ (5/4 − 1/3) = … = 5/2 × 12/11 = 30/11 ;
+7/2 + 6/5 − 2/7 = 245/70 + 84/70 − 20/70 = 309/70), le point compté, la
+question suivante referme la zone. Bords du juge : sans étape → abstention ;
+priorité non respectée (10/6 − 4/5) → égalité fausse ; parenthèse non
+retournée (5/2 × 7/15) → égalité fausse ; −10/30 → « simplifier » ; somme de
+trois en deux temps → juste.
