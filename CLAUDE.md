@@ -75,6 +75,7 @@ couvert sans rien avoir à déclarer.
 | Un **signe posé à côté d'une fraction tombe sur son trait** | le « + » monte au-dessus du trait, la ligne se lit de travers | « un signe posé à côté d'une fraction tombe sur son trait » |
 | **Une case vide ne rougit jamais** à la vérification | l'élève croit avoir faux là où il n'a rien écrit | « aucune case laissée vide ne rougit à la vérification » |
 | **Aucune figure SVG d'un exercice ne se sélectionne comme du texte** — `section.screen svg{user-select:none}`, les trois niveaux, rien à déclarer | un glisser qui manque la prise d'une flèche peint les étiquettes u, v, w, M en pavés bleus (la sélection de texte SVG de Chrome ; 8.2.15, novembre 2026) | « aucune figure SVG d'un exercice ne se sélectionne comme du texte » (section 9) ; le geste lui-même sur le 8.2.15 (« 6 quadragies decies ») |
+| En **entraînement**, « **Vérifier** » / « Revérifier » / « Valider » (ou Entrée dans la dernière case) **sur des cases vides demande confirmation** — « Compléter mes réponses » (cases oubliées entourées d'ambre, curseur dans la première) ou « Vérifier quand même » : `#confirmer-vides`, fin de fichier, les trois niveaux, en capture sur le document, rien à déclarer (retenues, pose facultative, `.hors-note`, cases déjà corrigées ne comptent pas ; une feuille libre compte pour une réponse). Les bancs la coupent (`window.confirmerCasesVides=false`) | l'élève qui a oublié une case est corrigé sans l'avoir voulu, et la question est perdue | « en entraînement, « Vérifier » sur des cases vides demande confirmation et retient la correction » (section 9), « une copie juste et complète vérifiée en entraînement n'ouvre pas la boîte » (parcours témoin) |
 | Une case juste se marque **`ok`**, jamais `good` | la note affichée ne la compte pas | « chaque exercice à cases compte ses cases justes » |
 | Chaque exercice a son **bouton d'aide IA** | l'aide est écrite, rien n'y mène | « le bouton d'aide IA est présent sur chaque exercice » |
 | Aucune référence **`{identifiant}`** ne reste affichée | l'élève lit des accolades | « aucune référence {identifiant} ne reste affichée à l'élève » |
@@ -205,6 +206,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Puis la bulle s'est DÉPLACÉE à la main.** Saisie hors de ses boutons, elle perd sa flèche et reste où l'élève l'a posée (`bexpDeplacee`), jusqu'à une autre case ; une poignée ⠿ dans son coin le signale.
 - **`numeros()` ne passe que par trois entonnoirs.**
 - **La flèche → passe à la case suivante en fin de saisie — dans TOUS les exercices.**
+- **En entraînement, « Vérifier » avec des cases vides demande confirmation — dans TOUS les exercices.** `#confirmer-vides` ; les bancs la coupent par `window.confirmerCasesVides=false`.
 
 ### Verdicts, juges locaux et relecture par l'IA
 
