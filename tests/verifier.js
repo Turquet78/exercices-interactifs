@@ -15130,7 +15130,28 @@ function coordonneesVecteurs(w, P){
     checkVcd(); clearTimeout(test.fbTimer);
     const ls=cl4();
     if(test.locked || ls!=='ok,ok,rien,ok,bad,rien,rien,rien,rien,ok,rien' || !el('vcd-rx').disabled || el('vcd-deb').disabled || document.querySelector('#scr-vcd .sol')) vus.push('8.4.4 : le soutien : '+ls);
-    currentMode='train';
+    /* la bulle « gagne / perds » (Seconde v652) : en soutien, la case du
+       résultat prise, la soustraction remplie — les deux termes en mots, la
+       réponse laissée à l'élève, qui l'écrit dans le résultat s'il le veut */
+    test.questions[test.idx]=vcdFiche(); renderVcd();
+    el('vcd-rx').focus();
+    if(el('vcdGp')) vus.push('8.4.4 : la bulle « gagne / perds » paraît sur une soustraction vide');
+    el('vcd-xf').value='-5'; el('vcd-xd').value='(−3)'; el('vcd-ry').focus(); el('vcd-rx').focus();
+    const gp=el('vcdGp'), gpt=gp?gp.textContent.replace(/\\s+/g,' '):'';
+    if(gpt.indexOf('Quand je perds 5 et que je gagne 3, alors je')<0 || /\\d/.test(gpt.replace('perds 5','').replace('gagne 3','')) || !el('vcdGpV') || el('vcdGpV').value!=='' || !el('vcdGpN') || el('vcdGpN').value!=='')
+      vus.push('8.4.4 : la bulle « gagne / perds » dit « '+gpt+' »');
+    if(gp){
+      el('vcdGpV').value='p'; el('vcdGpV').dispatchEvent(new Event('change',{bubbles:true}));
+      if(el('vcd-rx').value!=='') vus.push('8.4.4 : la bulle écrit le résultat avant d\\'avoir son nombre');
+      el('vcdGpN').value='2'; el('vcdGpN').dispatchEvent(new Event('input',{bubbles:true}));
+      if(el('vcd-rx').value!=='−2') vus.push('8.4.4 : « perds 2 » dans la bulle écrit « '+el('vcd-rx').value+' » au résultat');
+      el('vcd-ry').focus();
+      if(el('vcdGp')) vus.push('8.4.4 : la bulle ne se ferme pas quand l\\'élève prend une autre case (ordonnées vides)');
+      el('vcd-rx').focus(); document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));
+      if(el('vcdGp')) vus.push('8.4.4 : Échap ne ferme pas la bulle');
+    }
+    currentMode='train'; el('vcd-ry').focus(); el('vcd-rx').focus();
+    if(el('vcdGp')) vus.push('8.4.4 : la bulle « gagne / perds » paraît hors du soutien');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
