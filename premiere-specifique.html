@@ -2145,6 +2145,10 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
           <span class="ic">📝</span><span class="ttl">Fiches de travail en classe</span>
           <span class="ds">Les fiches d&rsquo;exercices &agrave; faire en classe, et tes r&eacute;sultats.</span>
         </button>
+        <button class="choice evaluation" onclick="openDevoirsEleve('eval')">
+          <span class="ic">🧾</span><span class="ttl">Évaluations</span>
+          <span class="ds">Les évaluations à rendre ; la note et la correction quand ton professeur les publie.</span>
+        </button>
         <button class="choice eleve" onclick="openThemes()">
           <span class="ic">📚</span><span class="ttl">Choisir un exercice par thème</span>
           <span class="ds">Tous les thèmes et les exercices, avec ton bilan de travail.</span>
@@ -2340,12 +2344,26 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
       </div>
       <p class="note" id="resultPlafond" hidden style="text-align:center;margin:0 0 6px"></p>
       <ul class="review" id="review"></ul>
-      <div class="row" style="margin-top:22px;justify-content:center">
+      <!-- La fin d'un exercice d'ÉVALUATION : ni note ni correction, seulement
+           « rendu » — evalFinExercice() l'écrit, #eval-aveugle cache le reste. -->
+      <div class="eval-fin" id="resultEval" hidden></div>
+      <div class="row res-acts" style="margin-top:22px;justify-content:center">
         <button class="btn btn-primary" onclick="restartCurrentTest()">Recommencer</button>
         <button class="btn btn-ghost" onclick="retourChoix()">Autre test</button>
         <button class="btn btn-ghost" onclick="ouvrirEspace()">Mon espace</button>
       </div>
-      <p class="note" style="text-align:center">Ce test a été ajouté à ton historique.</p>
+      <p class="note res-hist" style="text-align:center">Ce test a été ajouté à ton historique.</p>
+    </div>
+  </section>
+
+
+  <!-- LA COPIE CORRIGÉE D'UN EXERCICE D'ÉVALUATION — evalAfficherCopie() -->
+  <section class="screen" id="scr-evalcopie">
+    <div class="card">
+      <div class="copie-tete"><h2 class="title" style="margin:0" id="evalCopieTitre">Correction</h2><span class="copie-note" id="evalCopieNote"></span></div>
+      <p class="muted" style="margin:0 0 6px">En <b style="color:var(--blue)">bleu</b> ce qui est juste, en <b style="color:var(--red)">rouge</b> ce qui est faux, en <b style="color:var(--green)">vert</b> la correction.</p>
+      <div id="evalCopieCorps"></div>
+      <div class="copie-acts" id="evalCopieActs"></div>
     </div>
   </section>
 
@@ -3267,7 +3285,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=374;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=375;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3922,6 +3940,8 @@ let mesResultats=[], mesDevoirs=[];
    lecteurs de mesResultats supposent des notes terminées, seul dmBest lit
    ceux-ci, par leur note provisoire (dmNoteBrouillon) */
 let mesBrouillons=[];
+/* les notes des évaluations, rangées à part — voir chargerMesResultats() */
+let mesEvals=[];
 /* Ce que la dernière lecture des réglages a obtenu — voir loadConfig().
    Déclaré ICI, en tête, et non près de loadConfig : devoirsVideHTML() le lit
    huit cents lignes plus haut, et une déclaration posée après son premier
@@ -3930,7 +3950,7 @@ let CONFIG_LIGNE=false, CONFIG_ERREUR=null;
 const DEFAULT_DEVOIR={id:'dm_1',num:1,actif:true,titre:'Devoir à la maison',cours:'',exercices:[]};
 /* Le préfixe dit la FAMILLE : une note enregistrée porte l'identifiant dans
    details.dm, et « fc_ » suffit à savoir qu'elle vient d'une fiche de travail. */
-function newDevoirId(genre){ return ((genre==='fiche')?'fc_':'dm_')+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function newDevoirId(genre){ return ((genre==='fiche')?'fc_':(genre==='eval')?'ev_':'dm_')+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
 /* DEUX FAMILLES SUR UN SEUL MOTEUR (demande de Turquet, août 2026) : les
    devoirs à la maison et les fiches de travail en classe. Même structure, même
    écran élève, même éditeur, mêmes notes — mais deux CLÉS de stockage : le
@@ -3950,8 +3970,38 @@ const GENRE_DEVOIRS={
      impos\u00E9, la diff\u00E9rence vit ICI et nulle part ailleurs. */
   fiche:{ cle:'fiches',  titre:'Fiches de travail en classe', badge:'Fiche',  vide:'Aucune fiche de travail pour l\u2019instant.',
           defTitre:'Fiche de travail en classe', ouvrir:'Ouvrir la fiche \u2192', note:'Note de la fiche', ajouter:'\uFF0B Nouvelle fiche', familleProf:'Mes fiches de travail en classe',
-          ordre:true, sur20:true, abs:true }
+          ordre:true, sur20:true, abs:true },
+  /* LES ÉVALUATIONS (demande de Turquet, novembre 2026) : une troisième
+     famille, « comme des fiches de travail », rangée sous sa PROPRE clé — le
+     portail ne lit que valeurs.devoirs, une évaluation n'y paraît jamais.
+     « eval:true » dit tout ce qui change, et c'est ici qu'il se lit :
+       · l'entraînement SEUL, et UNE tentative par exercice ;
+       · pendant l'exercice, AUCUN verdict ni correction : « Vérifier »
+         devient « Valider », la question suivante arrive aussitôt (voir
+         #eval-aveugle, fin de fichier) ;
+       · la note et la correction restent cachées à l'élève tant que le
+         professeur ne les a pas publiées (« publie » sur l'évaluation). */
+  eval: { cle:'evaluations', titre:'Évaluations', badge:'Évaluation', vide:'Aucune évaluation pour l\u2019instant.',
+          defTitre:'Évaluation', ouvrir:'Ouvrir l\u2019évaluation \u2192', note:'Note de l\u2019évaluation', ajouter:'\uFF0B Nouvelle évaluation', familleProf:'Mes évaluations',
+          sur20:true, abs:true, eval:true }
 };
+/* Les mots d'une famille, là où les phrases disaient « fiche » ou « devoir » :
+   un seul endroit, plutôt qu'un ternaire de plus à chaque phrase. */
+function dmMots(genre){
+  if(genre==='eval')  return { le:'l\u2019évaluation', ce:'cette évaluation', un:'une', e:'e', tous:'Toutes les évaluations', recent:' · la plus récente', nouveau:'Nouvelle évaluation créée', enreg:'Évaluation enregistrée', suppr:'Évaluation supprimée' };
+  if(genre==='fiche') return { le:'la fiche', ce:'cette fiche', un:'une', e:'e', tous:'Toutes les fiches', recent:' · la plus récente', nouveau:'Nouvelle fiche créée', enreg:'Fiche enregistrée', suppr:'Fiche supprimée' };
+  return { le:'le devoir', ce:'ce devoir', un:'un', e:'', tous:'Tous les devoirs', recent:' · le plus récent', nouveau:'Nouveau devoir créé', enreg:'Devoir enregistré', suppr:'Devoir supprimé' };
+}
+function dmGenreDe(g){ return (g==='fiche'||g==='eval')?g:'dm'; }
+function dmEstEval(dev){ return !!(dev && GENRE_DEVOIRS[dev.genre||'dm'] && GENRE_DEVOIRS[dev.genre||'dm'].eval); }
+/* Une évaluation se reconnaît à son PRÉFIXE, comme une fiche : « ev_ ». La
+   séance en cours est une évaluation quand elle est lancée depuis une
+   évaluation, en entraînement, hors rejeu du professeur. */
+function idEval(id){ return typeof id==='string' && id.indexOf('ev_')===0; }
+function enEvaluation(){ let rejeu=false; try{ rejeu=!!REJEU; }catch(e){} return idEval(currentDM) && currentMode==='train' && !rejeu; }
+/* La note et la correction se montrent à l'élève quand le professeur l'a
+   décidé : « publie:true » sur l'évaluation, posé par l'éditeur. */
+function evalPubliee(dev){ return !!(dev && dev.publie); }
 /* LA NOTE AFFICH\u00C9E d'un devoir ou d'une fiche : les points bruts pour un
    devoir (\u00AB 12 / 30 \u00BB), la note RAMEN\u00C9E proportionnellement sur 20 pour une
    fiche (\u00AB 24 / 30 \u00BB devient \u00AB 16 / 20 \u00BB). Rien ne change en base \u2014 les
@@ -3967,7 +4017,7 @@ function dmNoteAff(genre, somme, totMax){
 let genreEleve='dm';
 function famillesDevoirs(cfg){
   const tag=function(arr,g){ return (arr||[]).map(function(d){ return Object.assign({},d,{genre:g}); }); };
-  return tag(cfg.devoirs,'dm').concat(tag(cfg.fiches,'fiche'));
+  return tag(cfg.devoirs,'dm').concat(tag(cfg.fiches,'fiche'), tag(cfg.evaluations,'eval'));
 }
 /* « archive » N'EST PAS ÉCRIT quand il est faux : un devoir ordinaire garde
    exactement la forme qu'il avait avant que l'archivage n'existe. Et il est
@@ -3978,8 +4028,8 @@ function ensureDevoir(d,i){ return Object.assign({ id:d.id||newDevoirId(), num:(
   /* Les notes POSÉES par le professeur, « <id élève>|<id exercice> » -> note
      sur 10 (demande de Turquet, octobre 2026). Sans cette ligne, elles
      s'effaceraient au premier rechargement, sans erreur. */
-  notes:(d.notes && typeof d.notes==='object' && !Array.isArray(d.notes)) ? d.notes : {} }, d.archive?{archive:true}:{}); }
-function normalizeCfg(cfg){ let ds=cfg.devoirs; if(!Array.isArray(ds)){ if(cfg.devoir&&typeof cfg.devoir==='object') ds=[Object.assign({id:'dm_1',num:1},cfg.devoir)]; else ds=[Object.assign({},DEFAULT_DEVOIR)]; } cfg.devoirs=ds.map((d,i)=>ensureDevoir(d,i)); cfg.fiches = Array.isArray(cfg.fiches)? cfg.fiches.map((d,i)=>ensureDevoir(d,i)) : []; cfg.cours = Array.isArray(cfg.cours)? cfg.cours.map((c,i)=>ensureCours(c,i)).filter(Boolean) : []; delete cfg.devoir; return cfg; }
+  notes:(d.notes && typeof d.notes==='object' && !Array.isArray(d.notes)) ? d.notes : {} }, d.archive?{archive:true}:{}, d.publie?{publie:true}:{}); }
+function normalizeCfg(cfg){ let ds=cfg.devoirs; if(!Array.isArray(ds)){ if(cfg.devoir&&typeof cfg.devoir==='object') ds=[Object.assign({id:'dm_1',num:1},cfg.devoir)]; else ds=[Object.assign({},DEFAULT_DEVOIR)]; } cfg.devoirs=ds.map((d,i)=>ensureDevoir(d,i)); cfg.fiches = Array.isArray(cfg.fiches)? cfg.fiches.map((d,i)=>ensureDevoir(d,i)) : []; cfg.evaluations = Array.isArray(cfg.evaluations)? cfg.evaluations.map((d,i)=>ensureDevoir(d,i)) : []; cfg.cours = Array.isArray(cfg.cours)? cfg.cours.map((c,i)=>ensureCours(c,i)).filter(Boolean) : []; delete cfg.devoir; return cfg; }
 function testNum(id){ return TEST_NUM[id]||''; }
 function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):testName(id); }
 let teacherFilter='all';
@@ -4294,6 +4344,7 @@ function liveCheckCurrent(){
 }
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
+  if(enEvaluation()) return '<span class="mode-tag eval">🧾 Évaluation</span>';
   if(currentMode==='soutien') return '<span class="mode-tag soutien">🛟 Soutien</span>';
   return '<span class="mode-tag train">✏️ Entraînement</span>';
 }
@@ -4615,6 +4666,12 @@ function sigChemin(){
 function signalementPayload(message, chemin){
   let contexte=null;
   try{ contexte=Object.assign({}, snapshotTest(), {_boxes:captureBoxes(), _dm:currentDM||null}); }catch(e){ contexte={erreur:'instantané indisponible'}; }
+  /* DEPUIS LA CORRECTION D'UNE ÉVALUATION, le signalement emporte la COPIE
+     CORRIGÉE et la note lue par l'élève : « je recevrai donc automatiquement
+     la correction et le commentaire de l'élève » (Turquet, novembre 2026).
+     Il n'y a pas d'exercice en cours à rejouer — c'est la copie qui se relit. */
+  if(typeof evalVue!=='undefined' && evalVue && evalVue.eleve && document.querySelector('#scr-evalcopie.on'))
+    contexte={ _eval:true, _dm:evalVue.dm||null, _copie:evalVue.copie||[], _misses:evalVue.misses||[], _note:evalVue.noteTxt||'' };
   return {
     eleve_id:currentEleve.id,
     exercice:currentTestId||'inconnu',
@@ -4841,7 +4898,7 @@ function sigDevoirContient(dev, exoId){
 function sigNotesCandidats(r){
   if(!sigDevoirs || !r || !r.exercice) return [];
   const tous=[];
-  ['dm','fiche'].forEach(function(g){ (sigDevoirs[g]||[]).forEach(function(d){ if(d&&d.id) tous.push({g:g, d:d}); }); });
+  ['dm','fiche','eval'].forEach(function(g){ (sigDevoirs[g]||[]).forEach(function(d){ if(d&&d.id) tous.push({g:g, d:d}); }); });
   const dmId=r.contexte && r.contexte._dm;
   if(dmId){
     const c=tous.filter(function(x){ return x.d.id===dmId; })[0];
@@ -4858,7 +4915,7 @@ function sigBoutonsNote(r){
 async function chargerSigDevoirs(){
   try{
     const cfg=await loadConfig();
-    sigDevoirs={ dm:cfg[GENRE_DEVOIRS.dm.cle]||[], fiche:cfg[GENRE_DEVOIRS.fiche.cle]||[] };
+    sigDevoirs={ dm:cfg[GENRE_DEVOIRS.dm.cle]||[], fiche:cfg[GENRE_DEVOIRS.fiche.cle]||[], eval:cfg[GENRE_DEVOIRS.eval.cle]||[] };
   }catch(e){ sigDevoirs=null; }
 }
 async function allerNoteSignalement(id, devId){
@@ -4877,7 +4934,7 @@ async function allerNoteSignalement(id, devId){
   const champ=box ? [].slice.call(box.querySelectorAll('.dm-noteinput')).filter(function(x){
     return x.getAttribute('data-cle')===cle; })[0] : null;
   if(!champ){
-    toast(r.prenom+' n’a pas cet exercice dans ce '+GENRE_DEVOIRS[c.g].badge.toLowerCase(),'err');
+    toast(r.prenom+' n’a pas cet exercice dans '+dmMots(c.g).ce,'err');
     return;
   }
   box.querySelectorAll('.dm-cible').forEach(function(x){ x.classList.remove('dm-cible'); });
@@ -4890,13 +4947,13 @@ async function allerNoteSignalement(id, devId){
 /* Ouvre le devoir dans l'onglet des devoirs, ATTEND son bilan, puis le
    détail de l'élève : en Première, les champs de note vivent dans ce détail. */
 async function sigOuvrirDevoir(g, devId, r){
-  dmGenre=(g==='fiche')?'fiche':'dm'; dmSelId=devId;
+  dmGenre=dmGenreDe(g); dmSelId=devId;
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab==='devoirs'));
   document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));
   $('pane-devoirs').classList.add('on');
   await renderDevoirsAdmin();
   if(dmSelId!==devId){
-    toast('Ce '+GENRE_DEVOIRS[dmGenre].badge.toLowerCase()+' est archivé : restaure-le pour modifier ses notes','err');
+    toast(dmMots(dmGenre).ce.charAt(0).toUpperCase()+dmMots(dmGenre).ce.slice(1)+' est archivé'+dmMots(dmGenre).e+' : restaure-l'+(dmGenre==='dm'?'e':'a')+' pour modifier ses notes','err');
     return false;
   }
   dmStudentDetail(r.eleve_id, r.prenom, true);
@@ -4949,10 +5006,12 @@ function renderSignalements(){
         <span class="sig-quand">${esc(fmtDate(r.created_at))}${esc(q)}</span>
       </div>
       <div class="sig-msg">${esc(r.message)}</div>
-      <div class="sig-meta">${esc(modeName(r.mode||'train'))} · version ${esc(String(r.version||'?'))} · ${esc(navigateurCourt(r.navigateur))}</div>
+      <div class="sig-meta">${(r.contexte&&r.contexte._eval)?'Évaluation · envoyé depuis la copie corrigée':esc(modeName(r.mode||'train'))} · version ${esc(String(r.version||'?'))} · ${esc(navigateurCourt(r.navigateur))}</div>
       ${r.reponse?`<div class="sig-rep"><span class="sig-repq">Ta réponse${r.repondu_at?' · '+esc(fmtDate(r.repondu_at)):''}</span>${esc(r.reponse)}</div>`:''}
       <div class="sig-actions">
-        <button class="btn btn-sm btn-primary" onclick="rejouerSignalement('${escJS(r.id)}')">Rejouer l\u2019écran</button>
+        ${(r.contexte&&r.contexte._eval)
+          ? `<button class="btn btn-sm btn-primary" onclick="voirCopieSignalement('${escJS(r.id)}')">Voir la copie corrigée</button>`
+          : `<button class="btn btn-sm btn-primary" onclick="rejouerSignalement('${escJS(r.id)}')">Rejouer l\u2019écran</button>`}
         ${r.capture?`<button class="btn btn-sm btn-ghost" onclick="voirCaptureSignalement('${escJS(r.id)}')">Voir la copie d\u2019\u00e9cran</button>`:''}
         ${sigBoutonsNote(r)}
         ${r.lu?'':`<button class="btn btn-sm btn-ghost" onclick="marquerSignalementLu('${escJS(r.id)}')">Marquer lu</button>`}
@@ -5121,6 +5180,15 @@ async function enregistrerResultat(payload){
   /* Verrou du rejeu : le professeur regarde l'écran d'un élève, il ne passe pas
      l'exercice. Un contrôle du banc l'exige. */
   if(REJEU){ toast('Écran rejoué : aucune note enregistrée','ok'); return false; }
+  /* UNE ÉVALUATION EMPORTE SA COPIE CORRIGÉE avec la note : c'est elle que
+     l'élève relira une fois les résultats publiés, et que le professeur reçoit
+     avec un signalement (#eval-aveugle). Posée ICI, dans l'entonnoir, et non
+     dans les quarante fins d'exercice. */
+  if(enEvaluation() && payload && payload.details && typeof payload.details==='object'){
+    payload.details.eval=true;
+    payload.details.copie=(Array.isArray(test.evalCopie)?test.evalCopie:[]).slice();
+    delete test.evalCopie;
+  }
   /* Le numéro du passage s'ajoute ICI, dans l'entonnoir, et non dans les quatorze
      fins de test : le quinzième exercice ajouté l'aurait oublié, et sa note serait
      tombée dans le mauvais passage sans que rien ne le signale. */
@@ -5165,10 +5233,16 @@ async function lireToutes(faire){
 async function chargerMesResultats(){
   try{
     const {data,error}=await lireToutes(()=>sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id));
-    if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; mesBrouillons=[]; return mesResultats; }
-    mesResultats=(data||[]).filter(r=>!isPaused(r));
+    if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; mesBrouillons=[]; mesEvals=[]; return mesResultats; }
+    /* LES NOTES D'ÉVALUATION SONT RANGÉES À PART : l'historique, le bilan des
+       thèmes et le rattrapage lisent mesResultats, et y montreraient la note
+       avant que le professeur ne l'ait publiée. Seul dmBest les lit — la page
+       de l'évaluation, qui décide de les montrer ou non. */
+    const estEval=r=>r.details&&!Array.isArray(r.details)&&idEval(r.details.dm);
+    mesResultats=(data||[]).filter(r=>!isPaused(r)&&!estEval(r));
+    mesEvals=(data||[]).filter(r=>!isPaused(r)&&estEval(r));
     mesBrouillons=(data||[]).filter(r=>isPaused(r)&&r.details&&!Array.isArray(r.details)&&r.details.dm);
-  }catch(e){ mesResultats=[]; mesBrouillons=[]; }
+  }catch(e){ mesResultats=[]; mesBrouillons=[]; mesEvals=[]; }
   return mesResultats;
 }
 async function openThemes(){
@@ -5348,6 +5422,14 @@ function show(name){
   $('scr-'+name).classList.add('on');
   const testScreens=['test','tm','rvf','mlt','spf','sdtest','vaptest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
+  /* L'ÉVALUATION À L'AVEUGLE : sur l'écran d'un exercice lancé depuis une
+     évaluation, et sur son écran de fin, ni verdict ni correction — voir
+     #eval-aveugle en fin de fichier. */
+  const aveugle=enEvaluation() && (testScreens.indexOf(name)>=0 || name==='results');
+  document.body.classList.toggle('eval-aveugle', aveugle);
+  if(typeof evalAveugleBrancher==='function') try{ evalAveugleBrancher(aveugle); }catch(e){}
+  if(aveugle && name==='results') try{ evalFinExercice(); }catch(e){}
+  else if(name==='results'){ const re=$('resultEval'); if(re) re.hidden=true; }
   if(testScreens.indexOf(name)>=0 && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ['mode','results','dmenonce','s2lvl'].indexOf(ecranQuitte)<0) ecranAvantModes=ecranQuitte;
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
@@ -5396,7 +5478,7 @@ function show(name){
   const pb=$('pauseBtn'); if(pb) pb.hidden=!canPause;
   const ab=$('abandonBtn'); if(ab) ab.hidden=!canPause;
   const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='theme'||name==='soustheme'||name==='mode'||name==='devoirs'||name==='rattrapage'||name==='results'||testScreens.indexOf(name)>=0) && currentEleve){
+  if((name==='space'||name==='choose'||name==='theme'||name==='soustheme'||name==='mode'||name==='devoirs'||name==='rattrapage'||name==='results'||(name==='evalcopie'&&evalVue&&evalVue.eleve)||testScreens.indexOf(name)>=0) && currentEleve){
     pill.hidden=false;
     pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
   }else if(name==='teacher'){
@@ -5494,7 +5576,7 @@ function dmCandidat(r, devoirId, exoId, mode){
   const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==devoirId) return null;
   return isPaused(r) ? dmNoteBrouillon(r) : r;
 }
-function dmBest(did,id,m){ let b=null; (mesResultats||[]).concat(mesBrouillons||[]).forEach(r=>{ const c=dmCandidat(r,did,id,m); if(c&&(b==null||c.percent>b.percent)) b=c; }); return b; }
+function dmBest(did,id,m){ let b=null; (mesResultats||[]).concat(mesEvals||[], mesBrouillons||[]).forEach(r=>{ const c=dmCandidat(r,did,id,m); if(c&&(b==null||c.percent>b.percent)) b=c; }); return b; }
 /* LA NOTE QUE LE PROFESSEUR A POSÉE sur un exercice d'un devoir ou d'une
    fiche, pour un élève (demande de Turquet, octobre 2026 : depuis un
    signalement, « aller directement à la note de l'élève pour cet exercice
@@ -5682,11 +5764,14 @@ function dmAppliquerNbQ(){
    contexte puis applique les réglages du devoir. */
 async function lancerDevoirExo(devoirId, testId, mode){
   currentMode=mode; currentDM=devoirId; currentTestId=testId;
+  /* la copie corrigée d'une évaluation se photographie question par question
+     (#eval-aveugle) : chaque séance commence la sienne, vide */
+  if(enEvaluation()) test.evalCopie=[]; else delete test.evalCopie;
   await TESTS[testId].start();
   dmAppliquerNbQ();
 }
 async function openDevoirsEleve(genre){
-  genreEleve=(genre==='fiche')?'fiche':'dm';
+  genreEleve=dmGenreDe(genre);
   show('devoirs');
   $('devoirsTitle').textContent=GENRE_DEVOIRS[genreEleve].titre;
   $('devoirsBody').innerHTML='<p class="muted">Chargement…</p>';
@@ -5700,10 +5785,10 @@ async function openDevoirsEleve(genre){
 function devoirsVideHTML(){
   const G=GENRE_DEVOIRS[genreEleve];
   if(CONFIG_ERREUR)
-    return '<div class="empty">'+(genreEleve==='fiche'?'Les fiches n\u2019ont':'Les devoirs n\u2019ont')+' pas pu être lus (problème de connexion). Réessaie dans un instant.</div>';
+    return '<div class="empty">'+(genreEleve==='fiche'?'Les fiches n\u2019ont':genreEleve==='eval'?'Les évaluations n\u2019ont':'Les devoirs n\u2019ont')+' pas pu être lus (problème de connexion). Réessaie dans un instant.</div>';
   if(!CONFIG_LIGNE)
     return '<div class="empty">'+G.vide+'<br>'
-         + '<span class="muted">Si ton professeur t\u2019en a donné '+(genreEleve==='fiche'?'une':'un')+', dis-le-lui : cette page ne voit aucun réglage.</span></div>';
+         + '<span class="muted">Si ton professeur t\u2019en a donné '+dmMots(genreEleve).un+', dis-le-lui : cette page ne voit aucun réglage.</span></div>';
   return '<div class="empty">'+G.vide+'</div>';
 }
 function renderDevoirsList(){
@@ -5725,9 +5810,12 @@ function renderDevoirsList(){
       return {note:nd.note, fait:nd.fait, bonus:dmEstBonus(ex)};
     }));
     const aff=dmNoteAff(dev.genre, tot.somme, tot.totMax);
-    const note=tot.fait?`<span class="dl-prog">Note : ${fmtNote(aff.note)} / ${aff.sur}</span>`
+    /* une évaluation ne montre sa note qu'une fois PUBLIÉE par le professeur */
+    const note=(dmEstEval(dev) && !evalPubliee(dev))
+                 ? (tot.fait?`<span class="ex-bilan done">Commencée · note pas encore publiée</span>`:`<span class="ex-bilan todo">À faire</span>`)
+               : tot.fait?`<span class="dl-prog">Note : ${fmtNote(aff.note)} / ${aff.sur}</span>`
                        :`<span class="ex-bilan todo">À faire</span>`;
-    const recent=isLast?((dev.genre||'dm')==='fiche'?' · la plus récente':' · le plus récent'):'';
+    const recent=isLast?dmMots(dev.genre).recent:'';
     return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${escJS(dev.id)}')">
       <div class="dl-head"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}${recent}</span>${note}</div>
       <div class="dl-title">${esc(dev.titre||'')}</div>
@@ -5740,14 +5828,57 @@ async function ouvrirDevoirDetail(devoirId){
   $('devoirsBody').innerHTML='<p class="muted">Chargement…</p>';
   try{ mesDevoirs=famillesDevoirs(await loadConfig()); }catch(e){}
   const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
-  if(dev) genreEleve=dev.genre||'dm';
+  if(dev) genreEleve=dmGenreDe(dev.genre);
   $('devoirsTitle').textContent=GENRE_DEVOIRS[genreEleve].titre;
   await chargerMesResultats();
   renderDevoirDetail(devoirId);
 }
+/* L'ÉTAT D'UN EXERCICE D'ÉVALUATION, pour l'élève : à faire, en cours (un
+   brouillon de pause), rendu. UNE tentative : un exercice rendu ne se refait
+   pas — la carte le dit, et la porte (openTestDevoir) le refuse, par cette
+   même définition. Une note posée par le professeur vaut rendu. */
+function evalEtatExo(dev, exoId){
+  const be=dmBest(dev.id, exoId, 'train');
+  const nd=noteDevoirExo(null, be, noteForcee(dev, currentEleve&&currentEleve.id, exoId), null);
+  return { be:be, nd:nd, rendu:nd.termine, enCours:!!(be&&be.enCours) };
+}
+function renderEvalDetail(dev){
+  const G=GENRE_DEVOIRS.eval, pub=evalPubliee(dev);
+  const cours=(dev.cours&&dev.cours.trim())?`<div class="dm-cours">${esc(dev.cours).replace(/\n/g,'<br>')}</div>`:'';
+  const parts=[]; let faitQqch=false;
+  const cards=exercicesDevoir(dev).map(ex=>{
+    const t=TESTS[ex.id], bonus=dmEstBonus(ex), et=evalEtatExo(dev, ex.id), nd=et.nd;
+    parts.push({note:nd.note, fait:nd.fait, bonus:bonus}); if(nd.fait) faitQqch=true;
+    const titre=(bonus?'\u2b50 ':'')+testLabel(ex.id);
+    let desc=t.desc;
+    if(bonus) desc+=' Exercice BONUS : il peut ajouter jusqu\u2019à 1 point à la note de l\u2019évaluation, sans la faire dépasser le maximum.';
+    if(ex.nbQ) desc+=' '+ex.nbQ+' question'+(ex.nbQ>1?'s':'')+'.';
+    if(et.rendu && pub){
+      const badge=`<span class="ex-bilan done">${bonus?'Bonus : '+fmtNote(nd.note/10)+' / 1':'Note : '+fmtNote(nd.note)+' / 10'}</span>`;
+      return cardHTML('🧾', titre, desc+' Clique pour voir la correction.', `voirCorrectionEval('${escJS(dev.id)}','${escJS(ex.id)}')`, '', '', badge);
+    }
+    if(et.rendu) return cardHTML('✅', titre, desc, '', 'locked',
+      'Exercice rendu. Ta note et la correction apparaîtront ici quand ton professeur les publiera.', `<span class="ex-bilan done">Rendu</span>`);
+    if(pub) return cardHTML('🔒', titre, desc, '', 'locked', 'Les résultats sont publiés : cet exercice ne peut plus être fait.', `<span class="ex-bilan todo">Non rendu</span>`);
+    const badge=et.enCours?`<span class="ex-bilan todo">En cours</span>`:`<span class="ex-bilan todo">${bonus?'Bonus · à faire':'À faire'}</span>`;
+    return cardHTML(t.icon, titre, desc, `openTestDevoir('${escJS(dev.id)}','${escJS(ex.id)}')`, '', '', badge);
+  }).join('');
+  const tot=dmTotal(parts), aff=dmNoteAff('eval', tot.somme, tot.totMax);
+  const totLbl=pub ? `${G.note} : ${faitQqch?fmtNote(aff.note):'—'} / ${aff.sur}` : `${G.note} : pas encore publiée`;
+  $('devoirsBody').innerHTML=`
+    <button class="btn-link" onclick="renderDevoirsList()">← ${dmMots('eval').tous}</button>
+    <div class="dm-head" style="margin-top:8px"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
+    <div class="dl-prog" style="margin:6px 0 2px;display:inline-block">${totLbl}</div>
+    ${cours}
+    <p class="lead" style="margin-top:14px">${pub
+      ? 'Ton professeur a publié les résultats : clique sur un exercice pour voir ta copie corrigée. Si la correction ou la note te semble poser problème, signale-le depuis la correction. La note de l\u2019évaluation est ramenée sur 20.'
+      : 'C\u2019est une <b>évaluation</b> : chaque exercice se fait <b>une seule fois</b>. Tu réponds à chaque question puis tu cliques sur <b>Valider</b> ; il n\u2019y a <b>aucune correction pendant l\u2019exercice</b>. Ta note et la correction apparaîtront ici quand ton professeur les publiera.'}</p>
+    <div class="choices">${cards}</div>`;
+}
 function renderDevoirDetail(devoirId){
   const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
   if(!dev){ renderDevoirsList(); return; }
+  if(dmEstEval(dev)){ renderEvalDetail(dev); return; }
   const cours=(dev.cours&&dev.cours.trim())?`<div class="dm-cours">${esc(dev.cours).replace(/\n/g,'<br>')}</div>`:'';
   const liste=exercicesDevoir(dev); let somme=0, faitQqch=false;
   /* L'ordre imposé : le premier exercice non fait est le PROCHAIN — il reste
@@ -5795,6 +5926,12 @@ async function openTestDevoir(devoirId, testId){
      la porte le refuse — même définition, dmVerrouille(). */
   const devO=(mesDevoirs||[]).find(d=>d.id===devoirId);
   if(dmVerrouille(devO,testId)){ toast('Termine d\u2019abord les exercices précédents de la fiche','err'); renderDevoirDetail(devoirId); return; }
+  /* UNE tentative par exercice d'évaluation : la porte refuse ce que la carte
+     ne propose plus (même définition, evalEtatExo) */
+  if(dmEstEval(devO)){
+    if(evalEtatExo(devO,testId).rendu){ toast('Exercice déjà rendu : une seule tentative en évaluation','err'); renderDevoirDetail(devoirId); return; }
+    if(evalPubliee(devO)){ toast('Les résultats de cette évaluation sont publiés','err'); renderDevoirDetail(devoirId); return; }
+  }
   currentTestId=testId; currentDM=devoirId;
   const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
   const ex=dev?dev.exercices.find(e=>e.id===testId):null;
@@ -5803,6 +5940,8 @@ async function openTestDevoir(devoirId, testId){
      exercice de rapidité : on le retire ici plutôt que de montrer à l'élève une
      carte qui ne mène nulle part. */
   if(sansSoutien(testId)) allowed=allowed.filter(m=>m!=='soutien');
+  const evalu=dmEstEval(dev);
+  if(evalu) allowed=['train'];                      /* une évaluation : l'entraînement seul */
   $('modeTitle').textContent=testLabel(testId);
   $('modeChoices').innerHTML='<p class="muted">Chargement…</p>';
   show('mode');
@@ -5821,6 +5960,12 @@ async function openTestDevoir(devoirId, testId){
     cards += pausedRows.soutien
       ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour ${plafond} points.`,`resumeTest('soutien')`,'resume')
       : cardHTML('🛟','Mode soutien',`On me dit si c\u2019est juste ou faux à chaque étape, et je corrige jusqu\u2019à réussir. Ne compte que pour ${plafond} points.`,`lancerDevoirExo('${devoirId}','${testId}','soutien')`);
+  }
+  if(evalu){
+    cards += pausedRows.train
+      ? cardHTML('▶️','Reprendre l\u2019évaluation',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue !`,`resumeTest('train')`,'resume')
+      : cardHTML('🧾','Commencer l\u2019exercice','Une seule tentative. Réponds à chaque question puis clique sur « Valider » : aucune correction pendant l\u2019exercice.',`lancerDevoirExo('${devoirId}','${testId}','train')`);
+    allowed=[];
   }
   if(allowed.includes('train')){
     cards += pausedRows.train
@@ -22174,13 +22319,15 @@ function dmCur(){ return dmAdminList.find(x=>x.id===dmSelId); }
 let dmGenre='dm';
 function dmCleGenre(){ return GENRE_DEVOIRS[dmGenre].cle; }
 function renderDmGenres(){
-  $('dmFamilleLead').innerHTML = dmGenre==='fiche'
+  $('dmFamilleLead').innerHTML = dmGenre==='eval'
+    ? 'Crée et gère les évaluations. Chaque évaluation <b>affichée</b> apparaît dans « Évaluations » de l\'espace élève : l\'élève fait chaque exercice <b>une seule fois</b>, en entraînement, <b>sans aucune correction</b> pendant l\'exercice (un bouton « Valider »). Il voit sa note et sa copie corrigée quand tu <b>publies les résultats</b>.'
+    : dmGenre==='fiche'
     ? 'Crée et gère les fiches de travail en classe. Chaque fiche <b>affichée</b> apparaît dans « Fiches de travail en classe » de l\'espace élève.'
     : 'Crée et gère les devoirs à la maison. Chaque devoir <b>affiché</b> apparaît dans « Voir les devoirs à la maison » de l\'espace élève.';
-  $('dmGenres').innerHTML=['dm','fiche'].map(g=>
+  $('dmGenres').innerHTML=['dm','fiche','eval'].map(g=>
     `<button class="dm-tab ${g===dmGenre?'on':''}" onclick="choisirGenreDevoir('${escJS(g)}')">${GENRE_DEVOIRS[g].titre}</button>`).join('');
 }
-function choisirGenreDevoir(g){ dmGenre=(g==='fiche')?'fiche':'dm'; dmSelId=null; renderDevoirsAdmin(); }
+function choisirGenreDevoir(g){ dmGenre=dmGenreDe(g); dmSelId=null; renderDevoirsAdmin(); }
 async function renderDevoirsAdmin(){
   renderDmGenres();
   $('dmTabs').innerHTML='<span class="muted">Chargement…</span>';
@@ -22218,7 +22365,7 @@ async function newDM(){
       const maj={}; maj[G.cle]=(cfg[G.cle]||[]).concat([nd]);
       const {error}=await saveConfig(Object.assign({},cfg,maj)); if(error)throw error;
     });
-    dmSelId=nd.id; toast(dmGenre==='fiche'?'Nouvelle fiche créée':'Nouveau devoir créé','ok'); renderDevoirsAdmin();
+    dmSelId=nd.id; toast(dmMots(dmGenre).nouveau,'ok'); renderDevoirsAdmin();
   }catch(e){ toast('Création impossible : '+dmRaison(e),'err'); }
 }
 /* L'ARBRE DES EXERCICES (demande de Turquet, octobre 2026 : « quand je
@@ -22248,7 +22395,9 @@ function dmArbre(rangee, choisi){
 }
 function renderDmEditor(){
   const box=$('dmEditor');
-  if(!dmSelId){ box.innerHTML='<div class="dm-empty">'+(dmGenre==='fiche'
+  if(!dmSelId){ box.innerHTML='<div class="dm-empty">'+(dmGenre==='eval'
+    ?'Aucune évaluation pour l\u2019instant.<br>Clique sur « ＋ Nouvelle évaluation » pour en créer une.'
+    :dmGenre==='fiche'
     ?'Aucune fiche pour l\u2019instant.<br>Clique sur « ＋ Nouvelle fiche » pour en créer une.'
     :'Aucun devoir pour l\u2019instant.<br>Clique sur « ＋ Nouveau devoir » pour en créer un.')+'</div>'; return; }
   const d=dmCur(); if(!d){ box.innerHTML=''; return; }
@@ -22258,6 +22407,10 @@ function renderDmEditor(){
   const groups=dmArbre(id=>{
       const modes=chosen[id]||[], picked=modes.length>0;
       const mk=(m,lbl)=>{ const on=modes.includes(m), interdit=(m==='soutien'&&sansSoutien(id));
+        /* une évaluation ne propose que l'entraînement : la case « Soutien »
+           n'y existe pas, et « Entraînement » s'appelle « Choisir » */
+        if(dmGenre==='eval'){ if(m==='soutien') return '';
+          return `<label class="dm-mode ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="dmToggleMode('${escJS(id)}','train',this.checked)"> Choisir</label>`; }
         if(interdit) return `<label class="dm-mode off" title="Exercice de rapidité : le mode soutien n\u2019y existe pas."><input type="checkbox" disabled><span>${esc(lbl)}</span></label>`;
         return `<label class="dm-mode ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="dmToggleMode('${escJS(id)}','${escJS(m)}',this.checked)"> ${lbl}</label>`; };
       /* Le nombre de calculs ne se règle que là où il a un sens : les tables de
@@ -22286,7 +22439,7 @@ function renderDmEditor(){
             Array.from({length:DM_NBQ_MAX},(_,i)=>i+1).map(n=>`<option value="${n}"${nbQs[id]===n?' selected':''}>${n}</option>`).join('')
           }</select></label>
         </span>`;
-      const soutChoix = sansSoutien(id) ? '' : `<span class="dm-nb${picked?'':' off'}">
+      const soutChoix = (sansSoutien(id)||dmGenre==='eval') ? '' : `<span class="dm-nb${picked?'':' off'}">
           <label>Soutien <select ${picked?'':'disabled'} onchange="dmSetSmax('${escJS(id)}',this.value)">${
             [5,6,7,8,9,10].map(n=>`<option value="${n}"${(smaxs[id]||5)===n?' selected':''}>${n}/10</option>`).join('')
           }</select></label>
@@ -22317,23 +22470,30 @@ function renderDmEditor(){
         <button type="button" class="dm-fleche" ${i===0?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',-1)" title="Monter">▲</button>
         <button type="button" class="dm-fleche" ${i===exOrd.length-1?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',1)" title="Descendre">▼</button>
       </span></div>`).join('') : '<p class="muted" style="font-size:.85rem">Coche d\u2019abord un mode sur les exercices de la fiche : ils apparaîtront ici, dans l\u2019ordre où tu les choisis.</p>'}</div>`;
+  /* LA PUBLICATION D'UNE ÉVALUATION : « à la fin l'élève peut voir la note et
+     la correction quand je l'aurai décidé » (Turquet, novembre 2026). Un
+     interrupteur à lui, distinct de l'affichage : une évaluation affichée se
+     fait, une évaluation publiée se lit. Il s'enregistre AUSSITÔT — c'est un
+     geste de fin, pas un réglage qu'on oublierait d'enregistrer. */
+  const publie = dmGenre!=='eval' ? '' : `
+      <label class="dm-switch" title="Les élèves voient leur note et leur copie corrigée"><input type="checkbox" id="dmPublie" ${d.publie?'checked':''} onchange="dmTogglePublie(this.checked)"><span class="track"></span><span class="sw-lbl">${d.publie?'Notes et correction publiées':'Notes et correction cachées'}</span></label>`;
   box.innerHTML=`<div class="dm-ed">
-    <div class="dm-head" style="justify-content:space-between;margin-bottom:16px">
+    <div class="dm-head" style="justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
       <span class="dm-badge">${GENRE_DEVOIRS[dmGenre].badge} n°${esc(String(d.num))}</span>
-      <label class="dm-switch"><input type="checkbox" id="dmActif" ${d.actif?'checked':''} onchange="dmToggleActif(this.checked)"><span class="track"></span><span class="sw-lbl">${d.actif?'Affiché aux élèves':'Masqué'}</span></label>
+      <label class="dm-switch"><input type="checkbox" id="dmActif" ${d.actif?'checked':''} onchange="dmToggleActif(this.checked)"><span class="track"></span><span class="sw-lbl">${d.actif?'Affiché aux élèves':'Masqué'}</span></label>${publie}
     </div>
     <div class="add-form" style="grid-template-columns:120px 1fr">
       <div class="field" style="margin:0"><label class="lab" for="dmNum">Numéro</label><input class="text-input" id="dmNum" type="number" min="1" value="${esc(String(d.num))}"></div>
       <div class="field" style="margin:0"><label class="lab" for="dmTitre">Titre</label><input class="text-input" id="dmTitre" value="${esc(d.titre||'')}" maxlength="80"></div>
     </div>
     <div class="field" style="margin-top:14px"><label class="lab" for="dmCours">Cours / consignes <span class="muted" style="font-weight:600;font-size:.85rem">(facultatif)</span></label><textarea class="dm-ta" id="dmCours" placeholder="Rappel de cours, consignes… (laisse vide pour n'afficher que les exercices)">${esc(d.cours||'')}</textarea></div>
-    <div class="dm-pick-h" style="margin-top:6px">${dmGenre==='fiche'?'Exercices de la fiche':'Exercices du devoir'}</div>
-    <p class="muted" style="font-size:.85rem;margin:0 0 12px">Coche les modes proposés pour chaque exercice. « Questions » réduit la séance pour ce devoir (vide = le format normal). « Soutien » règle la note maximale du mode soutien pour cet exercice (5/10 par défaut) ; l'entraînement vaut toujours 10/10.</p>
+    <div class="dm-pick-h" style="margin-top:6px">${dmGenre==='fiche'?'Exercices de la fiche':dmGenre==='eval'?'Exercices de l\u2019évaluation':'Exercices du devoir'}</div>
+    <p class="muted" style="font-size:.85rem;margin:0 0 12px">${dmGenre==='eval'?'Coche « Choisir » sur chaque exercice de l\u2019évaluation (il se fera en entraînement, une seule fois, sans correction). « Questions » règle la longueur de la séance (vide = le format normal). « Bonus » : 1 point en plus, sans dépasser le maximum. ':'Coche les modes proposés pour chaque exercice. « Questions » réduit la séance pour ce devoir (vide = le format normal). « Soutien » règle la note maximale du mode soutien pour cet exercice (5/10 par défaut) ; l\u2019entraînement vaut toujours 10/10.'}</p>
     ${groups}
     ${ordreStrip}
     <div class="dm-ed-acts">
-      <button class="btn btn-primary" onclick="saveDM()">${dmGenre==='fiche'?'Enregistrer cette fiche':'Enregistrer ce devoir'}</button>
-      <button class="btn btn-danger" onclick="deleteDM('${escJS(d.id)}')">${dmGenre==='fiche'?'Supprimer cette fiche':'Supprimer ce devoir'}</button>
+      <button class="btn btn-primary" onclick="saveDM()">Enregistrer ${dmMots(dmGenre).ce}</button>
+      <button class="btn btn-danger" onclick="deleteDM('${escJS(d.id)}')">Supprimer ${dmMots(dmGenre).ce}</button>
     </div>
   </div>`;
 }
@@ -22404,6 +22564,30 @@ function dmOrdreBouge(id,delta){
   const t=arr[i]; arr[i]=arr[j]; arr[j]=t;
   renderDmEditor();
 }
+/* Publier (ou cacher) les notes et la correction d'une évaluation : écrit
+   AUSSITÔT, et sur la seule évaluation montrée — relue, comme poserNoteDevoir,
+   pour ne pas publier en douce les modifications non enregistrées de
+   l'éditeur. */
+async function dmTogglePublie(coche){
+  const d=dmCur(); if(!d||dmGenre!=='eval') return;
+  try{
+    await enProfesseur(async()=>{
+      cfg=await loadConfig();
+      if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
+      const cle=dmCleGenre(); let trouve=false;
+      const arr=(cfg[cle]||[]).map(function(x){
+        if(x.id!==d.id) return x;
+        trouve=true; const y=Object.assign({},x); if(coche) y.publie=true; else delete y.publie; return y;
+      });
+      if(!trouve) throw new Error('enregistre d\u2019abord l\u2019évaluation');
+      const maj={}; maj[cle]=arr;
+      const {error}=await saveConfig(Object.assign({},cfg,maj)); if(error) throw error;
+    });
+    if(coche) d.publie=true; else delete d.publie;
+    toast(coche?'Notes et correction publiées aux élèves ✓':'Notes et correction cachées aux élèves','ok');
+  }catch(e){ toast('Publication impossible : '+dmRaison(e),'err'); }
+  renderDmEditor();
+}
 function dmToggleActif(checked){
   const d=dmCur(); if(!d) return; d.actif=checked;
   const lbl=document.querySelector('#dmEditor .dm-switch .sw-lbl'); if(lbl) lbl.textContent=checked?'Affiché aux élèves':'Masqué';
@@ -22419,8 +22603,12 @@ async function saveDM(){
      « verrou » : on les retire ici plutôt que de les traîner indéfiniment dans
      un réglage que plus rien ne lit. */
   d.exercices=(d.exercices||[]).filter(ex=>(ex.modes||[]).length)
-    .map(ex=>Object.assign({ id:ex.id, modes:ex.modes }, ex.nb?{nb:ex.nb}:{},
-      ex.nbQ?{nbQ:ex.nbQ}:{}, ex.smax?{smax:ex.smax}:{}));
+    .map(ex=>Object.assign({ id:ex.id, modes:(dmGenre==='eval')?['train']:ex.modes }, ex.nb?{nb:ex.nb}:{},
+      ex.nbQ?{nbQ:ex.nbQ}:{}, (ex.smax&&dmGenre!=='eval')?{smax:ex.smax}:{},
+      /* « bonus » recopié ICI aussi : ce nettoyage le PERDAIT — la case se
+         cochait dans l'éditeur, et l'enregistrement l'effaçait (trouvé en
+         novembre 2026, avec les évaluations) */
+      ex.bonus?{bonus:true}:{}));
   try{
     await enProfesseur(async()=>{
       cfg=await loadConfig();
@@ -22436,7 +22624,8 @@ async function saveDM(){
       /* et « notes » de même : les notes posées par le professeur vivent dans
          la définition du devoir, et un devoir réenregistré les perdrait. */
       const clean=Object.assign({ id:d.id, num:d.num, actif:d.actif, titre:d.titre, cours:d.cours, exercices:d.exercices },
-        d.archive?{archive:true}:{}, (d.notes&&Object.keys(d.notes).length)?{notes:d.notes}:{});
+        d.archive?{archive:true}:{}, (d.notes&&Object.keys(d.notes).length)?{notes:d.notes}:{},
+        (d.publie&&dmGenre==='eval')?{publie:true}:{});
       const i=arr.findIndex(x=>x.id===d.id);
       if(i>=0) arr[i]=clean; else arr.push(clean);
       const maj={}; maj[cle]=arr;
@@ -22446,8 +22635,8 @@ async function saveDM(){
     /* L'écran DIT si les élèves verront ce qu'on vient d'enregistrer : une
        fiche naît MASQUÉE, et « enregistrée ✓ » seul laissait croire qu'elle
        était donnée (signalé par Turquet, septembre 2026, en Terminale). */
-    const fiche=(dmGenre==='fiche'), visible=!!d.actif;
-    toast((fiche?'Fiche enregistrée':'Devoir enregistré')+' ✓'
+    const fiche=(dmGenre!=='dm'), visible=!!d.actif;
+    toast(dmMots(dmGenre).enreg+' ✓'
       +(visible?' — '+(fiche?'affichée':'affiché')+' aux élèves'
                :' — '+(fiche?'MASQUÉE':'MASQUÉ')+' : coche « Afficher aux élèves » pour '+(fiche?'la':'le')+' donner'),
       visible?'ok':'');
@@ -22473,7 +22662,7 @@ async function deleteDM(id){
       const {error}=await saveConfig(Object.assign({},cfg,maj)); if(error)throw error;
     });
     if(dmSelId===id) dmSelId=null;
-    toast(dmGenre==='fiche'?'Fiche supprimée':'Devoir supprimé','ok'); renderDevoirsAdmin();
+    toast(dmMots(dmGenre).suppr,'ok'); renderDevoirsAdmin();
   }catch(e){ toast('Suppression impossible : '+dmRaison(e),'err'); }
 }
 /* ══ ARCHIVER PLUTÔT QUE DÉTRUIRE ══════════════════════════════════════════
@@ -22537,7 +22726,7 @@ async function dmDecisionSuppression(dev){
 
 function dmTexteSuppression(dev, d){
   const F=dmMoyFamille();
-  const quoi=(F.singulier==='fiche'?'la fiche':'le devoir')+' n°'+dev.num;
+  const quoi=(F.singulier==='fiche'?'la fiche':F.singulier==='évaluation'?'l’évaluation':'le devoir')+' n°'+dev.num;
   if(!d.archiver)
     return 'Supprimer '+quoi+' ?\n\nAucune note n’y est rattachée : rien ne sera perdu.';
   return (d.lecture
@@ -22742,6 +22931,8 @@ function dmNnPhrase(){
 }
 
 function dmMoyFamille(){
+  if(typeof dmGenre!=='undefined' && dmGenre==='eval')
+    return { pluriel:'évaluations', singulier:'évaluation', accord:'e', fichier:'evaluations' };
   if(typeof dmGenre!=='undefined' && dmGenre==='snt')
     return { pluriel:'fiches SNT', singulier:'fiche', accord:'e', fichier:'fiches-snt' };
   return (typeof dmGenre!=='undefined' && dmGenre==='fiche')
@@ -22920,7 +23111,7 @@ async function renderDmResults(){
   if(!dmSelId){ box.innerHTML=''; box.dataset.dmCle=''; return; }
   const d=dmCur(); if(!d){ box.innerHTML=''; box.dataset.dmCle=''; return; }
   const exos=(d.exercices||[]);
-  if(!exos.length){ box.innerHTML=`<div class="panel"><h3>Résultats ${dmGenre==='fiche'?'de la fiche':'du devoir'} n°${esc(String(d.num))}</h3><p class="muted" style="margin:0">Ajoute des exercices puis enregistre pour suivre les résultats de la classe.</p></div>`; box.dataset.dmCle=''; return; }
+  if(!exos.length){ box.innerHTML=`<div class="panel"><h3>Résultats ${dmGenre==='fiche'?'de la fiche':dmGenre==='eval'?'de l\u2019évaluation':'du devoir'} n°${esc(String(d.num))}</h3><p class="muted" style="margin:0">Ajoute des exercices puis enregistre pour suivre les résultats de la classe.</p></div>`; box.dataset.dmCle=''; return; }
   /* La clé est le devoir MONTRÉ : le même devoir garde son écran — et le
      détail de l'élève ouvert —, un autre le remplace par « Chargement… ». */
   const cle='res:'+dmGenre+':'+d.id;
@@ -22965,13 +23156,13 @@ async function renderDmResults(){
       ? actif.getAttribute('data-cle') : null;
     box.innerHTML=`
       <div class="panel">
-        <h3>Bilan de la classe — devoir n°${esc(String(d.num))}</h3>
+        <h3>Bilan de la classe — ${dmGenre==='eval'?'évaluation':'devoir'} n°${esc(String(d.num))}</h3>
         <div class="stats" style="margin-bottom:12px">
           <div class="stat"><div class="k">Ont commencé</div><div class="v">${nbActifs} / ${(eleves||[]).length}</div></div>
           <div class="stat green"><div class="k">Moyenne de la classe</div><div class="v">${moy}${nbComptes?' / '+surAff:''}</div></div>
         </div>
-        ${dmEnColonnes(box,'<thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead>',bilanRows,300,6)}
-        <p class="muted" style="font-size:.85rem;margin:10px 0 0">Clique sur un élève pour le détail par exercice. La note ne prend en compte que les essais faits <b>depuis ce devoir</b>.${GENRE_DEVOIRS[dmGenre].sur20?' La note de la fiche est ramenée sur 20.':''}</p>
+        ${dmEnColonnes(box,'<thead><tr><th>Élève</th><th>'+GENRE_DEVOIRS[dmGenre].note+'</th><th>Exercices faits</th></tr></thead>',bilanRows,300,6)}
+        <p class="muted" style="font-size:.85rem;margin:10px 0 0">Clique sur un élève pour le détail par exercice${dmGenre==='eval'?' et sa copie corrigée':''}. La note ne prend en compte que les essais faits <b>depuis ${dmMots(dmGenre).ce}</b>.${GENRE_DEVOIRS[dmGenre].sur20?' La note '+(dmGenre==='eval'?'de l\u2019évaluation':'de la fiche')+' est ramenée sur 20.':''}${dmGenre==='eval'?(d.publie?' <b>Les notes et la correction sont publiées</b> aux élèves.':' Les élèves ne voient <b>ni leur note ni la correction</b> tant que tu ne les publies pas (interrupteur en haut de l\u2019évaluation).'):''}</p>
         <p class="muted" style="font-size:.85rem;margin:6px 0 0">Dans le détail d’un élève, tu peux <b>modifier la note d’un exercice</b> : écris-la sur 10 dans le champ à droite. Elle remplace la note obtenue (qui reste affichée à côté), et vider le champ la rend.</p>
       </div>
       <div id="dmStudentDetail"></div>`;
@@ -23016,7 +23207,9 @@ function dmStudentDetail(eid,prenom,sansDefiler){
       + ` data-cle="${esc(eid+'|'+px.id)}"`
       + ` onchange="poserNoteDevoir('${escJS(eid)}','${escJS(px.id)}',this.value)">`
       + `<span class="dm-sur">/10</span></span>`;
-    return `<tr class="dm-exrow"><td class="name">${bonus?'\u2b50 ':''}${esc(testLabel(px.id))}</td><td>${cells}</td><td>${nb}${obtenu}</td><td>${champ}</td></tr>`;
+    /* une évaluation garde la COPIE CORRIGÉE de l'élève : le professeur la lit */
+    const copie=(dmGenre==='eval' && be && !be.enCours) ? ` <button class="btn btn-sm btn-ghost" onclick="voirCopieProf('${escJS(eid)}','${escJS(prenom)}','${escJS(px.id)}')">Voir la copie</button>` : '';
+    return `<tr class="dm-exrow"><td class="name">${bonus?'\u2b50 ':''}${esc(testLabel(px.id))}</td><td>${cells}${copie}</td><td>${nb}${obtenu}</td><td>${champ}</td></tr>`;
   });
   const el=$('dmStudentDetail'); if(!el) return;
   el.innerHTML=`<div class="panel"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">Détail — ${esc(prenom)}</h3><button class="btn-link" onclick="dmDetailOuvert=null;$('dmStudentDetail').innerHTML=''">Fermer</button></div>
@@ -26411,7 +26604,9 @@ function iaBoutons(scr){
   /* Le soutien et l'IA restent réservés aux exercices qui ne sont pas des
      épreuves de rapidité, et disparaissent en mode évaluation. Les tables, non :
      elles ne disent rien de l'exercice en cours. */
-  const aide = currentMode!=='eval' && IA_ECRANS_SANS.indexOf(s.id)<0;
+  /* en ÉVALUATION (la famille des évaluations), aucune aide non plus : elle
+     corrigerait ce que l'exercice tait exprès */
+  const aide = currentMode!=='eval' && !enEvaluation() && IA_ECRANS_SANS.indexOf(s.id)<0;
   row.innerHTML=(aide&&isSoutien()?'<button class="btn btn-ghost" type="button" onclick="conseilCourant()">🎓 Soutien</button>':'')
     +(aide?'<button class="btn btn-ghost" type="button" onclick="ouvrirQIA()">💬 Poser une question à l’IA</button>':'')
     +'<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -27536,6 +27731,231 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
   }).observe(document.body, {attributes:true, attributeFilter:['class']});
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(tout);
 })();
+</script>
+<style id="eval-aveugle-css">
+  /* L'ÉVALUATION À L'AVEUGLE (demande de Turquet, novembre 2026) — voir le
+     script #eval-aveugle juste dessous. Ces règles sont la CEINTURE : la
+     question suivante arrive avant que le navigateur ne peigne la correction,
+     mais un exercice dont la suite part d'une minuterie (le calcul mental)
+     garde son écran un instant — rien de ce qui juge ne s'y montre. */
+  body.eval-aveugle section.screen .mp-feedback,
+  body.eval-aveugle #correction, body.eval-aveugle .mark,
+  body.eval-aveugle .tm-corr, body.eval-aveugle .tm-corr-note, body.eval-aveugle #tmFeedback,
+  body.eval-aveugle section.screen .score-tag, body.eval-aveugle #bexpBulle,
+  body.eval-aveugle section.screen .ia-row{visibility:hidden!important}
+  body.eval-aveugle #scr-test .answer-input{filter:grayscale(1)}
+  body.eval-aveugle #scr-results .score-circle, body.eval-aveugle #scr-results #review,
+  body.eval-aveugle #scr-results #resultPlafond, body.eval-aveugle #scr-results .res-acts,
+  body.eval-aveugle #scr-results .res-hist{display:none!important}
+  .eval-fin{text-align:center;margin:18px auto 4px;max-width:520px}
+  .eval-fin p{margin:0 0 14px;line-height:1.5}
+  #scr-evalcopie{padding-bottom:84px}
+  .copie-tete{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .copie-note{font-family:"Fredoka";font-weight:600;font-size:1.15rem}
+  .copie-q{border:1.5px solid var(--line,#E2E6F0);border-radius:14px;padding:10px 12px;margin:12px 0;overflow-x:auto}
+  .copie-qn{font-weight:700;margin-bottom:6px}
+  .copie-q .test-top{margin:0 0 6px}
+  .copie-q .card{box-shadow:none;border:none;padding:4px 0;margin:0}
+  .copie-q input, .copie-q math-field{pointer-events:none}
+  .copie-misses li{margin:4px 0}
+  .copie-acts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px}
+  .choice.evaluation .ic{filter:none}
+</style>
+<script id="eval-aveugle">
+/* ══ L'ÉVALUATION À L'AVEUGLE (demande de Turquet, novembre 2026) ═════════
+   « l'élève ne peut réaliser les exercices qu'en mode entraînement, on ne
+   vérifiera pas les résultats à la fin, ce sera un bouton valider, on ne
+   donnera pas les résultats au fur et à mesure, il n'y aura pas de correction
+   au fur et à mesure. »
+   Les exercices ne savent rien de l'évaluation, et c'est voulu : soixante
+   moteurs, chacun avec sa vérification, son verdict et sa correction —
+   recopier la règle dans chacun aurait laissé le soixante et unième parler.
+   L'exercice tourne donc EXACTEMENT comme en entraînement (même juge, même
+   note, mode « train » dans la ligne enregistrée), et ce script se pose
+   par-dessus, sur l'écran :
+     · « Vérifier » s'écrit « Valider » ;
+     · dès que la question est corrigée — test.locked, la définition que le
+       banc de la pause tient sur chaque exercice — et que l'écran offre sa
+       suite (suiteDeLEcran : « Question suivante », « Voir mes résultats »),
+       l'écran corrigé est PHOTOGRAPHIÉ (la copie corrigée, rangée dans
+       test.evalCopie) puis la suite est appelée aussitôt. Le tout dans le
+       relevé d'un MutationObserver, c'est-à-dire avant que le navigateur ne
+       peigne : l'élève ne voit jamais la correction ;
+     · l'écran de fin dit « rendu », sans note (evalFinExercice).
+   L'observateur n'est branché QUE pendant une évaluation (show()) : hors
+   évaluation, il ne coûte rien. La copie part avec la note
+   (enregistrerResultat), l'élève la relit quand le professeur publie, et un
+   signalement l'emporte jusqu'au professeur. */
+(function(){
+  const COPIE_MAX=120000;            /* une question démesurée n'est pas gardée : la ligne de note doit rester légère */
+  let avance=false, obs=null;
+  function renommer(scr){
+    scr.querySelectorAll('button').forEach(function(b){
+      if(/^\s*V(é|&eacute;|e)rifier\s*$/.test(b.textContent)) b.textContent='Valider';
+    });
+  }
+  /* LA PHOTOGRAPHIE de l'écran corrigé : un clone dont les cases portent leur
+     valeur en ATTRIBUT (innerHTML ne copie pas ce que l'élève a tapé), sans
+     boutons ni identifiants — elle sera posée dans une autre page, et un
+     identifiant doublé y répondrait à la place de l'original. */
+  function photographier(scr){
+    const orig=[].slice.call(scr.querySelectorAll('input,textarea,select,math-field'));
+    const clone=scr.cloneNode(true);
+    const cop=[].slice.call(clone.querySelectorAll('input,textarea,select,math-field'));
+    cop.forEach(function(el,i){
+      const o=orig[i]; if(!o) return;
+      const t=el.tagName;
+      if(t==='MATH-FIELD'){ el.textContent=String(o.value||''); el.setAttribute('read-only',''); }
+      else if(t==='TEXTAREA'){ el.textContent=o.value||''; el.setAttribute('readonly',''); }
+      else if(t==='SELECT'){ [].slice.call(el.options).forEach(function(op,k){ if(o.options[k]&&o.options[k].selected) op.setAttribute('selected',''); else op.removeAttribute('selected'); }); el.setAttribute('disabled',''); }
+      else { if(o.type==='checkbox'||o.type==='radio'){ if(o.checked) el.setAttribute('checked',''); else el.removeAttribute('checked'); } else el.setAttribute('value', o.value==null?'':String(o.value)); el.setAttribute('readonly',''); }
+    });
+    clone.querySelectorAll('button,script,style,.ia-row,.rc-jetons,.exo-title,.score-tag').forEach(function(x){ x.remove(); });
+    [clone].concat([].slice.call(clone.querySelectorAll('[id]'))).forEach(function(x){ x.removeAttribute('id'); });
+    clone.querySelectorAll('[aria-live]').forEach(function(x){ x.removeAttribute('aria-live'); });
+    clone.classList.remove('screen','on');
+    return clone.outerHTML.replace(/>\s+</g,'><').replace(/\s{2,}/g,' ');
+  }
+  function garderCopie(scr){
+    const h=photographier(scr);
+    if(!Array.isArray(test.evalCopie)) test.evalCopie=[];
+    const c={i:test.idx||0, h:(h.length<=COPIE_MAX?h:'')};
+    const k=test.evalCopie.findIndex(function(x){ return x && x.i===c.i && x.k===test.kind; });
+    c.k=test.kind;
+    if(k>=0) test.evalCopie[k]=c; else test.evalCopie.push(c);
+  }
+  function releve(){
+    if(avance || !document.body.classList.contains('eval-aveugle')) return;
+    const scr=document.querySelector('section.screen.on'); if(!scr || scr.id==='scr-results') return;
+    renommer(scr);
+    if(!test || !test.locked) return;
+    const nom=suiteDeLEcran();
+    if(!nom){
+      /* une suite partie d'une minuterie (marquerSuite) : on photographie, la
+         minuterie fera le reste — l'appeler ici avancerait deux fois */
+      if(test.suite && test.suite.idx===test.idx && !(test.evalCopie||[]).some(function(x){ return x&&x.i===test.idx&&x.k===test.kind; }))
+        try{ garderCopie(scr); }catch(e){}
+      return;
+    }
+    avance=true;
+    try{ garderCopie(scr); }catch(e){ console.warn('copie d’évaluation non gardée', e); }
+    try{ window[nom](); }catch(e){ console.warn(e); }
+    finally{ avance=false; }
+  }
+  window.evalAveugleBrancher=function(on){
+    if(on && !obs && typeof MutationObserver==='function'){
+      obs=new MutationObserver(releve);
+      obs.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','disabled']});
+    } else if(!on && obs){ obs.disconnect(); obs=null; }
+    if(on) releve();
+  };
+  window.evalReleve=releve;               /* le banc l'appelle pour ne pas attendre le relevé */
+  window.evalPhotographier=photographier;
+})();
+/* L'écran de fin d'un exercice d'évaluation : « rendu », ni note ni correction. */
+function evalFinExercice(){
+  const re=$('resultEval'); if(!re) return;
+  $('resultMsg').textContent='Exercice rendu ✓';
+  $('resultSub').textContent=(currentEleve?currentEleve.prenom+' • ':'')+'Évaluation • '+testLabel(currentTestId);
+  re.innerHTML='<p>Ta copie est enregistrée. <b>Ta note et la correction</b> apparaîtront dans « Évaluations » quand ton professeur les publiera.</p>'
+    +'<button class="btn btn-primary" onclick="retourChoix()">Retour à l’évaluation</button>';
+  re.hidden=false;
+}
+/* ══ LA COPIE CORRIGÉE, RELUE ══════════════════════════════════════════════
+   Trois lecteurs, un seul écran (#scr-evalcopie) : l'élève, quand le
+   professeur a publié ; le professeur, depuis le bilan de l'évaluation ; le
+   professeur encore, depuis un signalement — « je recevrai donc
+   automatiquement la correction et le commentaire de l'élève ».
+   LA COPIE EST UNE DONNÉE ÉCRITE PAR LE NAVIGATEUR DE L'ÉLÈVE : une ligne
+   forgée à la main pourrait y glisser un script, et c'est le professeur qui
+   l'ouvre, connecté à son compte. Elle passe donc par evalNettoyer() avant
+   d'être posée — balises actives retirées, attributs « on… » et adresses
+   « javascript: » effacés. */
+let evalVue=null;
+function evalNettoyer(html){
+  const t=document.createElement('template'); t.innerHTML=String(html||'');
+  t.content.querySelectorAll('script,iframe,object,embed,link,meta,style,form,base,frame,frameset,noscript').forEach(function(x){ x.remove(); });
+  t.content.querySelectorAll('*').forEach(function(el){
+    [].slice.call(el.attributes).forEach(function(a){
+      const n=a.name.toLowerCase(), v=String(a.value||'').replace(/\s+/g,'').toLowerCase();
+      if(n.indexOf('on')===0 || n==='id' || n==='srcdoc' || n==='formaction') el.removeAttribute(a.name);
+      else if((n==='href'||n==='src'||n==='xlink:href'||n==='action') && /^(javascript|data|vbscript):/.test(v) && !/^data:image\//.test(v)) el.removeAttribute(a.name);
+    });
+  });
+  const d=document.createElement('div'); d.appendChild(t.content); return d.innerHTML;
+}
+function evalCopieHTML(copie, misses){
+  const qs=(Array.isArray(copie)?copie:[]).filter(function(c){ return c && typeof c.h==='string' && c.h; })
+    .slice().sort(function(a,b){ return (a.i||0)-(b.i||0); });
+  if(qs.length) return qs.map(function(c){
+    return '<div class="copie-q"><div class="copie-qn">Question '+((Number(c.i)||0)+1)+'</div>'+evalNettoyer(c.h)+'</div>'; }).join('');
+  /* un exercice sans photographie (une suite à minuterie, une copie trop
+     lourde) : la liste de ses erreurs, que la note porte depuis toujours */
+  const m=(Array.isArray(misses)?misses:[]).filter(Boolean);
+  if(m.length) return '<p class="muted">Les questions fausses ou sans réponse :</p><ul class="copie-misses">'+m.map(function(x){
+    return '<li>'+esc(String(x.q==null?'':x.q))+' — ta réponse : <b>'+esc(x.donne==null?'∅':String(x.donne))+'</b> · correction : <b>'+esc(String(x.bon==null?'':x.bon))+'</b></li>'; }).join('')+'</ul>';
+  return '<p class="muted">La copie détaillée de cet exercice n’est pas disponible.</p>';
+}
+function evalAfficherCopie(){
+  const v=evalVue; if(!v) return;
+  show('evalcopie');
+  $('evalCopieTitre').textContent=v.titre||'Correction';
+  $('evalCopieNote').textContent=v.noteTxt||'';
+  $('evalCopieCorps').innerHTML=evalCopieHTML(v.copie, v.misses);
+  $('evalCopieActs').innerHTML=(v.eleve?'<button class="btn btn-ghost" onclick="ouvrirSignalement()">⚠️ Signaler un problème sur la correction ou la note</button>':'')
+    +'<button class="btn btn-primary" onclick="evalQuitterCopie()">← Retour</button>';
+}
+function evalQuitterCopie(){
+  const v=evalVue; evalVue=null;
+  const c=$('evalCopieCorps'); if(c) c.innerHTML='';
+  if(v && typeof v.retour==='function') return v.retour();
+  ouvrirEspace();
+}
+/* L'élève : depuis la page de l'évaluation, une fois les résultats publiés. */
+function voirCorrectionEval(devId, exoId){
+  const dev=(mesDevoirs||[]).find(function(d){ return d.id===devId; });
+  if(!dev || !evalPubliee(dev)){ toast('La correction n’est pas encore publiée','err'); return; }
+  const et=evalEtatExo(dev, exoId), r=et.be, dt=(r&&r.details)||{};
+  const ex=exercicesDevoir(dev).find(function(e){ return e.id===exoId; });
+  currentDM=devId; currentTestId=exoId; currentMode='train';
+  evalVue={ eleve:true, dm:devId, exo:exoId, copie:dt.copie, misses:dt.misses,
+    titre:'Correction — '+testLabel(exoId),
+    noteTxt:(dmEstBonus(ex)?'Bonus : '+fmtNote(et.nd.note/10)+' / 1':'Note : '+fmtNote(et.nd.note)+' / 10')+(et.nd.posee?' (note posée par ton professeur)':''),
+    retour:function(){ ouvrirDevoirDetail(devId); } };
+  evalAfficherCopie();
+}
+/* Le professeur, depuis le détail d'un élève dans le bilan de l'évaluation. */
+function voirCopieProf(eid, prenom, exoId){
+  const d=dmCur(); if(!d) return;
+  const x=dmNoteDevoir(d, eid, dmResRows||[]).exd.find(function(y){ return y.ex.id===exoId; });
+  const r=x&&x.be, dt=(r&&r.details)||{};
+  const y=window.scrollY||0;
+  currentTestId=exoId;
+  evalVue={ eleve:false, copie:dt.copie, misses:dt.misses,
+    titre:'Copie de '+prenom+' — '+testLabel(exoId),
+    noteTxt:x?('Note : '+fmtNote(x.nd.note)+' / 10'+(x.nd.posee?' (posée)':'')):'',
+    retour:function(){ evalRetourProf('devoirs', y); } };
+  evalAfficherCopie();
+}
+/* Le professeur, depuis un signalement envoyé de la correction. */
+function voirCopieSignalement(id){
+  const r=(mesSignalements||[]).find(function(x){ return x.id===id; });
+  const c=r&&r.contexte; if(!c||!c._eval){ toast('Ce signalement ne porte pas de copie','err'); return; }
+  retenirSignalements(id);
+  evalVue={ eleve:false, copie:c._copie, misses:c._misses,
+    titre:'Copie corrigée de '+(r.prenom||'l’élève')+' — '+testLabel(r.exercice),
+    noteTxt:(typeof c._note==='string')?c._note:'',
+    retour:function(){ retourSignalements(); } };
+  evalAfficherCopie();
+}
+function evalRetourProf(onglet, y){
+  show('teacher');
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('on',t.dataset.tab===onglet); });
+  document.querySelectorAll('.tpane').forEach(function(p){ p.classList.remove('on'); });
+  const p=$('pane-'+onglet); if(p) p.classList.add('on');
+  window.scrollTo({top:y||0,behavior:'instant'});
+  requestAnimationFrame(function(){ window.scrollTo({top:y||0,behavior:'instant'}); });
+}
 </script>
 </body>
 </html>
