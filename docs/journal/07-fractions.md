@@ -2192,6 +2192,12 @@ quand il reste seul (dès que la copie n'est pas vide), faux s'il est relié.
 Si Turquet préfère ajouter 1/10 (et 25 %), c'est `RLF_ETAPES` et rien
 d'autre.
 
+**Puis, le jour même : « ajoute 1/10 et 25 % dans les listes ».** 1/10 entre
+dans les parties 2, 3 et 4 (huit fractions en 3 et 4, `RLF_FRAC8`), 25 % dans
+la partie 4 : chaque nombre a désormais sa fraction, et l'énoncé ne parle
+plus d'intrus. Le juge de l'intrus reste dans le moteur, sans liste qui s'en
+serve.
+
 **Relier, pour de vrai.** On clique un nombre puis sa fraction (ou
 l'inverse) ; un trait SVG, mesuré dans la page, les relie, et se redessine
 au redimensionnement. Cliquer l'un des bouts défait le trait ; une fraction

@@ -3320,7 +3320,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=376;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=377;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3879,7 +3879,7 @@ const TESTS={
   /* Octobre 2026 : le 5.12 de la Seconde, nombres de 1 à 5, produit borné à 6
      et simplification par étapes (voir l'en-tête de startSpf). */
   'somme-produit-fractions': { name:'Une somme avec un produit dedans', icon:'\u2795', desc:'a/b + c/d\u00d7e/f, ou a/b \u2212 c/d\u00d7e/f\u00a0: la multiplication se calcule D\u2019ABORD, puis la somme (ou la diff\u00e9rence, toujours positive) se termine en croisant les d\u00e9nominateurs, ou sur un d\u00e9nominateur commun plus petit \u2014 et on simplifie la fraction finale si elle se simplifie. Une \u00e9tape par ligne, le \u00ab\u00a0=\u00a0\u00bb en t\u00eate. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startSpf() },
-  'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Attention, un nombre n\u2019a parfois pas sa fraction dans la liste. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
+  'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
   'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() },
   'probabilites-sens': { name:'Que veut dire cette probabilité ?', icon:'\ud83d\udcac', desc:'La page écrit une probabilité — P(A), P(A∩B), P sachant B… — et tu choisis la phrase qui la dit, parmi quatre : attention au « parmi » renversé, au « et » de l’intersection. Puis tu la calcules avec les effectifs du tableau.', start:()=>startPBSens() },
   'tableau-trois-colonnes': { name:'Un tableau à trois colonnes', icon:'\ud83d\udccb', desc:'Un tableau de trois colonnes (Seconde, Première, Terminale ; à pied, à vélo, en bus…) sur deux lignes : complète-le, puis calcule sept probabilités. Le contraire d’une colonne, c’est les deux autres.', start:()=>startPB3() },
@@ -8350,18 +8350,18 @@ async function finishVap(){
    Demande de Turquet, novembre 2026 : « relier chaque valeur décimale à la
    bonne fraction », en cinq temps, chacun une question de la séance :
      Partie 1 — 0,1 ; 0,25 ; 0,5 ; 0,75 et 1/2 ; 1/4 ; 3/4 ; 1/10 ;
-     Partie 2 — 0,1 ; 0,2 ; 0,4 ; 0,6 ; 0,8 et 1/5 ; 2/5 ; 3/5 ; 4/5 ;
-     Partie 3 — 0,1 ; 0,2 ; 0,25 ; 0,4 ; 0,5 ; 0,6 ; 0,75 ; 0,80 et les sept
-                fractions 1/2 ; 1/4 ; 3/4 ; 1/5 ; 2/5 ; 3/5 ; 4/5 ;
-     Partie 4 — 10 % ; 20 % ; 40 % ; 50 % ; 60 % ; 75 % ; 80 % et les mêmes
-                sept fractions ;
+     Partie 2 — 0,1 ; 0,2 ; 0,4 ; 0,6 ; 0,8 et 1/5 ; 2/5 ; 3/5 ; 4/5 ; 1/10 ;
+     Partie 3 — 0,1 ; 0,2 ; 0,25 ; 0,4 ; 0,5 ; 0,6 ; 0,75 ; 0,80 et les huit
+                fractions 1/2 ; 1/4 ; 3/4 ; 1/5 ; 2/5 ; 3/5 ; 4/5 ; 1/10 ;
+     Partie 4 — 10 % ; 20 % ; 25 % ; 40 % ; 50 % ; 60 % ; 75 % ; 80 % et les
+                mêmes huit fractions ;
      Partie 5 — cinq calculs « 20 % de 15 = …/… × 15 = …/… = … », dont le
                 résultat est un ENTIER de 2 à 5.
-   LES LISTES SONT CELLES DE LA DEMANDE, ET ELLES NE SE CORRESPONDENT PAS
-   TOUJOURS : en parties 2 et 3, 0,1 n'a pas sa fraction (1/10 n'est pas
-   proposé) ; en partie 4, 10 % non plus, et 1/4 reste sans pourcentage. Ce
-   n'est pas corrigé en douce : c'est un INTRUS, annoncé par l'énoncé, qu'on
-   ne relie à rien — et le relier est une faute.
+   CHAQUE NOMBRE A SA FRACTION : la première demande laissait 0,1 et 10 %
+   sans fraction (et 1/4 sans pourcentage) ; Turquet a fait ajouter 1/10 et
+   25 % aux listes. Le moteur sait encore juger un INTRUS (un nombre sans
+   fraction, juste quand il reste seul, faux s'il est relié) : une liste
+   future qui en aurait un n'a qu'à le dire dans son énoncé.
    RELIER, POUR DE VRAI : on clique un nombre, puis sa fraction (ou l'inverse),
    et un trait les relie (SVG posé sur la zone, recalculé à chaque
    changement et au redimensionnement). Cliquer un bout d'un trait le défait.
@@ -8378,12 +8378,14 @@ async function finishVap(){
    vérification. Les calculs de la partie 5, eux, se colorent en soutien.
    LA BONNE RÉPONSE N'EST PAS RANGÉE DANS LA QUESTION : rlfAttendu la
    recalcule depuis les listes. */
-const RLF_FRAC7=[[1,2],[1,4],[3,4],[1,5],[2,5],[3,5],[4,5]];
+/* les huit fractions des parties 3 et 4 : 1/10 ajouté à la demande de
+   Turquet (« ajoute 1/10 et 25 % dans les listes ») */
+const RLF_FRAC8=[[1,2],[1,4],[3,4],[1,5],[2,5],[3,5],[4,5],[1,10]];
 const RLF_ETAPES=[
   { g:['0,1','0,25','0,5','0,75'], val:[10,25,50,75], f:[[1,2],[1,4],[3,4],[1,10]] },
-  { g:['0,1','0,2','0,4','0,6','0,8'], val:[10,20,40,60,80], f:[[1,5],[2,5],[3,5],[4,5]] },
-  { g:['0,1','0,2','0,25','0,4','0,5','0,6','0,75','0,80'], val:[10,20,25,40,50,60,75,80], f:RLF_FRAC7 },
-  { g:['10 %','20 %','40 %','50 %','60 %','75 %','80 %'], val:[10,20,40,50,60,75,80], f:RLF_FRAC7, pct:true }
+  { g:['0,1','0,2','0,4','0,6','0,8'], val:[10,20,40,60,80], f:[[1,5],[2,5],[3,5],[4,5],[1,10]] },
+  { g:['0,1','0,2','0,25','0,4','0,5','0,6','0,75','0,80'], val:[10,20,25,40,50,60,75,80], f:RLF_FRAC8 },
+  { g:['10 %','20 %','25 %','40 %','50 %','60 %','75 %','80 %'], val:[10,20,25,40,50,60,75,80], f:RLF_FRAC8, pct:true }
 ];
 const RLF_NB=RLF_ETAPES.length+5;          /* quatre parties à relier, puis cinq calculs */
 const RLF_PCTS=[10,20,25,40,50,60,75,80];  /* les pourcentages des calculs : ceux des fractions reliées */
@@ -8437,9 +8439,9 @@ function rlfFrHTML(n,d){ return '<span class="fr"><span class="fn">'+n+'</span><
 function rlfFrTxt(n,d){ return '<span class="rlf-frp"><span>'+n+'</span><span>'+d+'</span></span>'; }
 const RLF_TITRES={
   1:'Relie chaque nombre décimal à la <b>fraction</b> qui lui est égale.',
-  2:'Relie chaque nombre décimal à la <b>fraction</b> qui lui est égale. Attention : un des nombres n’a pas sa fraction dans la liste — ne le relie à rien.',
-  3:'Relie chaque nombre décimal à la <b>fraction</b> qui lui est égale. Attention : un des nombres n’a pas sa fraction dans la liste — ne le relie à rien.',
-  4:'Relie chaque pourcentage à la <b>fraction</b> qui lui est égale. Attention : un des pourcentages n’a pas sa fraction dans la liste — ne le relie à rien.',
+  2:'Relie chaque nombre décimal à la <b>fraction</b> qui lui est égale.',
+  3:'Relie chaque nombre décimal à la <b>fraction</b> qui lui est égale.',
+  4:'Relie chaque pourcentage à la <b>fraction</b> qui lui est égale.',
   5:'Calcule en passant par la <b>fraction</b> : le résultat est un nombre entier.'
 };
 function rlfIds(){ return ['rlfN','rlfD','rlfN2','rlfD2','rlfR']; }
@@ -25803,7 +25805,7 @@ const RAP_RLF=`<b>Décimaux, pourcentages et fractions</b><br>
 <b>② Les cinquièmes</b> : \\(\\frac{1}{5}=\\frac{2}{10}=0{,}2\\), puis \\(\\frac{2}{5}=0{,}4\\), \\(\\frac{3}{5}=0{,}6\\), \\(\\frac{4}{5}=0{,}8\\) — on double le numérateur pour passer en dixièmes.<br>
 <b>③ Un pourcentage est une fraction sur 100</b> : \\(60\\,\\%=\\frac{60}{100}=\\frac{3}{5}\\) et \\(75\\,\\%=\\frac{75}{100}=\\frac{3}{4}\\).<br>
 <b>④ Prendre un pourcentage</b> : \\(20\\,\\%\\) de \\(15\\) : \\(\\frac{1}{5}\\times 15=\\frac{15}{5}=3\\).<br>
-Attention : \\(0{,}8\\) et \\(0{,}80\\) sont le même nombre ; et \\(0{,}1\\) n’est égal à aucun cinquième — sa fraction est \\(\\frac{1}{10}\\).`;
+Attention : \\(0{,}8\\) et \\(0{,}80\\) sont le même nombre ; et \\(0{,}1=\\frac{1}{10}\\) n’est égal à aucun cinquième.`;
 const RAP_SDEC=`<b>L’écriture décimale d’une somme</b><br>
 Chaque fraction décimale a son <b>rang</b> : \\(\\frac{5}{10}=0{,}5\\) (dixièmes), \\(\\frac{9}{100}=0{,}09\\) (centièmes), \\(\\frac{3}{1000}=0{,}003\\) (millièmes).<br>
 Diviser par 10, 100 ou 1000, c’est décaler la virgule de 1, 2 ou 3 rangs <b>vers la gauche</b> : \\(\\frac{327}{1000}=0{,}327\\) et \\(\\frac{32}{1000}=0{,}032\\).<br>
@@ -26140,7 +26142,7 @@ function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (tes
 
 /* ---------- Questions proposées d'un clic ---------- */
 const QIA_SUGG={
-  rlf:["Comment savoir quelle fraction est égale à 0,25 ?","Pourquoi 0,1 n’est-il égal à aucun cinquième ?","Comment écrire 60 % sous forme de fraction ?","Comment calculer 20 % de 15 avec une fraction ?"],
+  rlf:["Comment savoir quelle fraction est égale à 0,25 ?","Pourquoi 0,2 vaut-il un cinquième et pas un demi ?","Comment écrire 60 % sous forme de fraction ?","Comment calculer 20 % de 15 avec une fraction ?"],
   vap:["Pourquoi 10⁻² + 10 est-il proche de 10 ?","Comment calculer 0,01 × 1000 en passant par une fraction ?","C’est quoi, un ordre de grandeur ?","Pourquoi remplace-t-on 99 par 100 ?"],
   sdec:["Comment écrire 32/1000 sous forme décimale ?","Que faire quand les fractions sont dans le désordre ?","Pourquoi 10 + 0,1 + 1/1000 ne fait-il pas 10,11 ?","Comment passer de 3,24 à une fraction décimale ?"],
   asp:["Comment aligner les chiffres quand je pose l'opération ?","C'est quoi, une retenue, et où l'écrit-on ?","Pourquoi ajoute-t-on 1 en bas quand on ne peut pas soustraire ?","Comment vérifier mon résultat sans refaire l'opération ?"],
