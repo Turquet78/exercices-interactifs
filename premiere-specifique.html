@@ -785,7 +785,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest,#scr-rlftest{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1602,6 +1602,40 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* les nombres de la ligne à la taille de ses cases (la règle des cases) */
 #vapHost .f-whole{font-size:calc(1.7rem * var(--tab-nb,1));}
 @media(max-width:900px){ #vapHost .f-whole{font-size:calc(1.4rem * var(--tab-nb,1));} }
+/* {relier-fractions} (4.7) : les deux colonnes à relier, et les calculs de la
+   partie 5 aux tailles du 1.12. Les nombres et les fractions s'écrivent à la
+   même taille ; le trait prend la couleur du verdict de son nombre — juste en
+   BLEU, faux en ROUGE, la correction en VERT (pointillés). */
+.rlf-zone{position:relative;display:flex;justify-content:space-between;align-items:center;max-width:520px;margin:6px auto 12px}
+.rlf-col{position:relative;z-index:1;display:flex;flex-direction:column;align-items:stretch;gap:9px}
+.rlf-traits{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
+.rlf-item{min-width:104px;min-height:50px;padding:2px 14px;font-family:"Fredoka";font-weight:600;
+  font-size:calc(var(--fx-base,1.45rem) * var(--tab-nb,1));color:var(--fx-encre,var(--ink));background:#fff;border:2px solid var(--line);
+  border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.rlf-item .fr .fn,.rlf-item .fr .fd{font-size:calc(var(--fx-base,1.45rem) * var(--tab-nb,1));font-weight:600;color:inherit;padding:0 8px}
+.rlf-item .fr .fb{background:currentColor}
+.rlf-item .fr .fb{margin:2px 0}
+.rlf-item.rlf-lie{border-color:var(--ink-soft)}
+.rlf-item.rlf-sel{border-color:var(--blue-dark);background:#F3F7FF;box-shadow:0 0 0 4px rgba(43,80,200,.18)}
+.rlf-item.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+.rlf-item.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+.rlf-item.sol{color:var(--green);background:var(--green-soft);border-color:var(--green);border-style:dashed}
+.rlf-item:disabled{cursor:default;opacity:1}
+.rlf-trait line{stroke:var(--ink-soft);stroke-width:3;stroke-linecap:round}
+.rlf-trait circle{fill:var(--ink-soft)}
+.rlf-trait.ok line{stroke:var(--blue)} .rlf-trait.ok circle{fill:var(--blue)}
+.rlf-trait.bad line{stroke:var(--red)} .rlf-trait.bad circle{fill:var(--red)}
+.rlf-trait.sol line{stroke:var(--green);stroke-dasharray:8 6} .rlf-trait.sol circle{fill:var(--green)}
+.rlf-frp{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;font-size:.9em;margin:0 2px}
+.rlf-frp>span:first-child{border-bottom:2px solid currentColor;padding:0 3px}
+@media(max-width:520px){ .rlf-item{min-width:84px} }
+/* la rangée des calculs : police, taille et encre sont celles du thème
+   (.screen[data-theme="Fractions"]) — aucune taille écrite ici */
+#rlfHost .pt-row{margin:10px 0;gap:8px}
+#rlfHost .rlf-de{margin:0 2px}
+/* la case du résultat a la hauteur des cases de fraction du thème (sans
+   quoi la règle générale des .f-dec la fait de 50 px contre 42) */
+#rlfHost math-field.pm-mf.f-dec{height:auto;min-height:var(--fx-case);border-radius:9px;border-width:1.5px;padding:0 2px}
 #fpHost .f-num,#fpHost .f-den{width:auto;min-width:84px;max-width:220px;}
 #fpHost .f-dec{width:auto;min-width:96px;max-width:220px;}
 #fpHost .f-fbar{width:auto;align-self:stretch;height:4px;}
@@ -2526,6 +2560,23 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
       </div>
     </div>
   </section>
+
+  <!-- TEST : RELIER DÉCIMAUX, POURCENTAGES ET FRACTIONS (4.7) -->
+  <section class="screen" id="scr-rlftest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagRlf"></span><span class="q-idx" id="rlfIdx">Question 1 / 9</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="rlfLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="rlfPrompt">Relie chaque nombre décimal à la fraction qui lui est égale.</p>
+      <div class="mp-stage"><div style="width:100%" id="rlfHost"></div></div>
+      <div class="mp-feedback" id="rlfFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center" id="rlfActions">
+        <button class="btn btn-primary" onclick="checkRlfAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
 
   <!-- TEST : POURCENTAGE D'UN NOMBRE -->
   <section class="screen" id="scr-ptest">
@@ -3852,6 +3903,7 @@ const TESTS={
   /* Octobre 2026 : le 5.12 de la Seconde, nombres de 1 à 5, produit borné à 6
      et simplification par étapes (voir l'en-tête de startSpf). */
   'somme-produit-fractions': { name:'Une somme avec un produit dedans', icon:'\u2795', desc:'a/b + c/d\u00d7e/f, ou a/b \u2212 c/d\u00d7e/f\u00a0: la multiplication se calcule D\u2019ABORD, puis la somme (ou la diff\u00e9rence, toujours positive) se termine en croisant les d\u00e9nominateurs, ou sur un d\u00e9nominateur commun plus petit \u2014 et on simplifie la fraction finale si elle se simplifie. Une \u00e9tape par ligne, le \u00ab\u00a0=\u00a0\u00bb en t\u00eate. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startSpf() },
+  'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
   'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() },
   'probabilites-sens': { name:'Que veut dire cette probabilité ?', icon:'\ud83d\udcac', desc:'La page écrit une probabilité — P(A), P(A∩B), P sachant B… — et tu choisis la phrase qui la dit, parmi quatre : attention au « parmi » renversé, au « et » de l’intersection. Puis tu la calcules avec les effectifs du tableau.', start:()=>startPBSens() },
   'tableau-trois-colonnes': { name:'Un tableau à trois colonnes', icon:'\ud83d\udccb', desc:'Un tableau de trois colonnes (Seconde, Première, Terminale ; à pied, à vélo, en bus…) sur deux lignes : complète-le, puis calcule sept probabilités. Le contraire d’une colonne, c’est les deux autres.', start:()=>startPB3() },
@@ -3911,7 +3963,7 @@ const THEMES=[
      pris ici par le 1.9 : le 4.3 porte donc un identifiant neuf. */
   /* Puis : « reprendre le 5.12 de seconde et le mettre en première ». Ajouté
      EN DERNIER (4.6), il ne renumérote rien. */
-  { num:4, nom:'Fractions', ids:['revision-fractions','croiser-denominateurs','somme-fractions-2','multiplier-fractions','diviser-fractions','somme-produit-fractions'] }
+  { num:4, nom:'Fractions', ids:['revision-fractions','croiser-denominateurs','somme-fractions-2','multiplier-fractions','diviser-fractions','somme-produit-fractions','relier-fractions'] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
    fichier (côté prof, comptages, devoirs) ne connaît que celle-là et n'a pas à savoir
@@ -4071,7 +4123,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -4317,6 +4369,7 @@ function liveCheckCurrent(){
   else if(k==='lc') checkLCAnswer(true);
   else if(k==='sdec') checkSdAnswer(true);
   else if(k==='vap') checkVapAnswer(true);
+  else if(k==='rlf') checkRlfAnswer(true);
   else if(k==='ck') checkCKAnswer(true);
   else if(k==='bs') checkBSAnswer(true);
   else if(k==='mp') checkMAnswer(true);
@@ -5176,7 +5229,7 @@ function afficherEcranDe(k){
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
     syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl], dbp:[dbpEcran(),renderDbp],
-    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap]
+    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap], rlf:['rlftest',renderRlf]
   };
   const e=table[k];
   if(!e) return false;
@@ -5428,7 +5481,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','rvf','mlt','spf','sdtest','vaptest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
+  const testScreens=['test','tm','rvf','mlt','spf','sdtest','vaptest','rlftest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* L'ÉVALUATION À L'AVEUGLE : sur l'écran d'un exercice lancé depuis une
      évaluation, et sur son écran de fin, ni verdict ni correction — voir
@@ -8440,6 +8493,298 @@ async function finishVap(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'valeur-approchee',note,mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,note,total,percent:pct,durationSec});
+}
+
+/* ============ 4.7 {relier-fractions} : relier décimaux, pourcentages et fractions ============
+   Demande de Turquet, novembre 2026 : « relier chaque valeur décimale à la
+   bonne fraction », en cinq temps, chacun une question de la séance :
+     Partie 1 — 0,1 ; 0,25 ; 0,5 ; 0,75 et 1/2 ; 1/4 ; 3/4 ; 1/10 ;
+     Partie 2 — 0,1 ; 0,2 ; 0,4 ; 0,6 ; 0,8 et 1/5 ; 2/5 ; 3/5 ; 4/5 ; 1/10 ;
+     Partie 3 — 0,1 ; 0,2 ; 0,25 ; 0,4 ; 0,5 ; 0,6 ; 0,75 ; 0,80 et les huit
+                fractions 1/2 ; 1/4 ; 3/4 ; 1/5 ; 2/5 ; 3/5 ; 4/5 ; 1/10 ;
+     Partie 4 — 10 % ; 20 % ; 25 % ; 40 % ; 50 % ; 60 % ; 75 % ; 80 % et les
+                mêmes huit fractions ;
+     Partie 5 — cinq calculs « 20 % de 15 = …/… × 15 = …/… = … », dont le
+                résultat est un ENTIER de 2 à 5.
+   CHAQUE NOMBRE A SA FRACTION : la première demande laissait 0,1 et 10 %
+   sans fraction (et 1/4 sans pourcentage) ; Turquet a fait ajouter 1/10 et
+   25 % aux listes. Le moteur sait encore juger un INTRUS (un nombre sans
+   fraction, juste quand il reste seul, faux s'il est relié) : une liste
+   future qui en aurait un n'a qu'à le dire dans son énoncé.
+   RELIER, POUR DE VRAI : on clique un nombre, puis sa fraction (ou l'inverse),
+   et un trait les relie (SVG posé sur la zone, recalculé à chaque
+   changement et au redimensionnement). Cliquer un bout d'un trait le défait.
+   Une fraction ne reçoit qu'un trait : en poser un second retire le premier.
+   Les fractions sont EMPILÉES, comme dans le cahier, et rangées dans le
+   désordre (q.ordre) ; les nombres gardent l'ordre de la fiche.
+   CHAQUE NOMBRE SE JUGE SEUL : relié juste, il est bleu ; relié faux, rouge ;
+   jamais relié, rien (une case vide ne rougit pas) — et l'entraînement trace
+   alors en vert, en pointillés, le trait qu'il fallait. L'intrus non relié
+   est juste, dès que la copie n'est pas vide. La note de la question est son
+   compte de nombres justes (pts) ; le point reste la question PARFAITE.
+   AUCUNE CORRECTION AU FIL DES CLICS sur les traits, comme au 2.4.2 : colorer
+   un trait au moment où on le pose dirait s'il est juste avant la
+   vérification. Les calculs de la partie 5, eux, se colorent en soutien.
+   LA BONNE RÉPONSE N'EST PAS RANGÉE DANS LA QUESTION : rlfAttendu la
+   recalcule depuis les listes. */
+/* les huit fractions des parties 3 et 4 : 1/10 ajouté à la demande de
+   Turquet (« ajoute 1/10 et 25 % dans les listes ») */
+const RLF_FRAC8=[[1,2],[1,4],[3,4],[1,5],[2,5],[3,5],[4,5],[1,10]];
+const RLF_ETAPES=[
+  { g:['0,1','0,25','0,5','0,75'], val:[10,25,50,75], f:[[1,2],[1,4],[3,4],[1,10]] },
+  { g:['0,1','0,2','0,4','0,6','0,8'], val:[10,20,40,60,80], f:[[1,5],[2,5],[3,5],[4,5],[1,10]] },
+  { g:['0,1','0,2','0,25','0,4','0,5','0,6','0,75','0,80'], val:[10,20,25,40,50,60,75,80], f:RLF_FRAC8 },
+  { g:['10 %','20 %','25 %','40 %','50 %','60 %','75 %','80 %'], val:[10,20,25,40,50,60,75,80], f:RLF_FRAC8, pct:true }
+];
+const RLF_NB=RLF_ETAPES.length+5;          /* quatre parties à relier, puis cinq calculs */
+const RLF_PCTS=[10,20,25,40,50,60,75,80];  /* les pourcentages des calculs : ceux des fractions reliées */
+/* Les N qui font de « P % de N » un entier de 2 à 5. */
+function rlfNs(P){ const r=[]; for(let N=2;N<=60;N++){ if((P*N)%100===0){ const R=P*N/100; if(R>=2 && R<=5) r.push(N); } } return r; }
+function rlfPgcd(a,b){ while(b){ const t=a%b; a=b; b=t; } return a; }
+/* La place i d'une séance de n questions : les quatre parties à relier, puis
+   les calculs. Une séance raccourcie par un devoir les prend à intervalles
+   réguliers, dans l'ordre ; une séance allongée ajoute des calculs. */
+function rlfPartie(i,n){
+  if(n>RLF_NB) return Math.min(i, RLF_ETAPES.length);
+  return Math.min(RLF_ETAPES.length, Math.floor(i*RLF_NB/Math.max(1,n)));
+}
+/* Les calculs d'une séance : d'abord un par pourcentage, puis on reprend —
+   jamais deux fois le même couple (P, N). */
+function rlfCalculs(){
+  const reste={}; RLF_PCTS.forEach(P=>{ reste[P]=qdMelanger(rlfNs(P)); });
+  const seq=[]; let tour=qdMelanger(RLF_PCTS.slice());
+  while(RLF_PCTS.some(P=>reste[P].length)){
+    tour.forEach(P=>{ if(reste[P].length) seq.push({P, N:reste[P].shift()}); });
+    tour=qdMelanger(RLF_PCTS.slice());
+  }
+  return seq;
+}
+function genRlf(i,n,seq){
+  const e=rlfPartie(i,n);
+  if(e<RLF_ETAPES.length){
+    const E=RLF_ETAPES[e];
+    return { e:e+1, ordre:qdMelanger(E.f.map((_,j)=>j)), rep:E.g.map(()=>null) };
+  }
+  let ic=0; for(let j=0;j<i;j++) if(rlfPartie(j,n)>=RLF_ETAPES.length) ic++;   /* le rang du calcul */
+  const c=seq[ic%seq.length]||{P:20,N:15};
+  const k=rlfPgcd(c.P,100);
+  return { e:5, P:c.P, N:c.N, n:c.P/k, d:100/k };
+}
+async function startRlf(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='rlf';
+  const n=dmNbQuestions(RLF_NB), seq=rlfCalculs();
+  test.questions=distinctes(dmNbQuestions(RLF_NB),function(_,i){ return genRlf(i,n,seq); });
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.rlfSel=null;
+  test.maxScore=test.questions.length;
+  show('rlftest'); renderRlf();
+}
+/* l'indice de la fraction égale au nombre i de la partie, ou −1 (l'intrus) */
+function rlfAttendu(E,i){ return E.f.findIndex(f=>f[0]*100===E.val[i]*f[1]); }
+function rlfFrHTML(n,d){ return '<span class="fr"><span class="fn">'+n+'</span><span class="fb"></span><span class="fd">'+d+'</span></span>'; }
+/* une fraction couchée dans une phrase de correction : empilée aussi, en petit */
+function rlfFrTxt(n,d){ return '<span class="rlf-frp"><span>'+n+'</span><span>'+d+'</span></span>'; }
+const RLF_TITRES={
+  1:'Relie chaque nombre décimal à la <b>fraction</b> qui lui est égale.',
+  2:'Relie chaque nombre décimal à la <b>fraction</b> qui lui est égale.',
+  3:'Relie chaque nombre décimal à la <b>fraction</b> qui lui est égale.',
+  4:'Relie chaque pourcentage à la <b>fraction</b> qui lui est égale.',
+  5:'Calcule en passant par la <b>fraction</b> : le résultat est un nombre entier.'
+};
+function rlfIds(){ return ['rlfN','rlfD','rlfN2','rlfD2','rlfR']; }
+function renderRlf(){
+  const q=test.questions[test.idx]; test.locked=false; test.rlfSel=null; rlfCor=[];
+  $('rlfIdx').textContent=`Partie ${q.e} · Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagRlf').innerHTML=modeTagHTML();
+  $('rlfLiveScore').textContent=test.score;
+  $('rlfFeedback').textContent=''; $('rlfFeedback').className='mp-feedback';
+  $('rlfActions').innerHTML='<button class="btn btn-primary" onclick="checkRlfAnswer()">Vérifier</button>';
+  $('rlfPrompt').innerHTML=RLF_TITRES[q.e];
+  if(q.e<5){
+    const E=RLF_ETAPES[q.e-1];
+    const gauche=E.g.map((s,i)=>`<button type="button" class="rlf-item rlf-g" id="rlf-g${i}" onclick="rlfClic('g',${i})" aria-label="${esc(s)}">${esc(s)}</button>`).join('');
+    const droite=q.ordre.map(j=>`<button type="button" class="rlf-item rlf-d" id="rlf-d${j}" onclick="rlfClic('d',${j})" aria-label="${E.f[j][0]} sur ${E.f[j][1]}">${rlfFrHTML(E.f[j][0],E.f[j][1])}</button>`).join('');
+    $('rlfHost').innerHTML='<div class="rlf-zone" id="rlfZone"><div class="rlf-col">'+gauche+'</div>'
+      +'<svg class="rlf-traits" id="rlfTraits" aria-hidden="true"></svg><div class="rlf-col">'+droite+'</div></div>'
+      +'<p class="pt-aide">Clique sur un '+(E.pct?'pourcentage':'nombre')+', puis sur sa fraction : un trait les relie. Pour défaire un trait, clique sur l’un de ses bouts.</p>';
+    rlfMaj();
+    requestAnimationFrame(()=>requestAnimationFrame(rlfTraits));
+    return;
+  }
+  const w=s=>'<span class="f-whole">'+s+'</span>', x='<span class="f-times">×</span>';
+  const fr=(a,b,la)=>'<span class="f-frac-input">'+vapCase(a,'f-num','numérateur '+la)+'<span class="f-fbar"></span>'+vapCase(b,'f-den','dénominateur '+la)+'</span>';
+  $('rlfHost').innerHTML='<div class="pt-row">'+w(q.P+'&nbsp;%')+'<span class="f-whole rlf-de">de</span>'+w(q.N)
+    +fEq(fr('rlfN','rlfD','de la fraction'))+x+w(q.N)+fEq(fr('rlfN2','rlfD2','du produit'))+fEq(vapCase('rlfR','f-dec','résultat'))+'</div>';
+  const order=rlfIds().map(id=>$(id)).filter(Boolean);
+  order.forEach((el,i)=>el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i+1<order.length) order[i+1].focus(); else checkRlfAnswer(); } }));
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* les traits verts de la correction, [nombre, fraction] — l'écran seulement,
+   jamais la question : une question corrigée ne se reprend pas */
+let rlfCor=[];
+function rlfClic(c,i){
+  if(test.locked) return;
+  const q=test.questions[test.idx]; if(!q || q.e>=5) return;
+  const b=$('rlf-'+c+i); if(!b || b.disabled) return;
+  const sel=test.rlfSel;
+  const lier=(g,d)=>{ q.rep.forEach((r,x)=>{ if(r===d && x!==g){ q.rep[x]=null; rlfNeutre(x); } }); q.rep[g]=d; rlfNeutre(g); };
+  if(c==='g'){
+    if(q.rep[i]!=null){ q.rep[i]=null; rlfNeutre(i); test.rlfSel={c:'g',i}; }
+    else if(sel && sel.c==='d'){ lier(i, sel.i); test.rlfSel=null; }
+    else test.rlfSel=(sel && sel.c==='g' && sel.i===i) ? null : {c:'g',i};
+  } else {
+    const g=q.rep.indexOf(i);
+    if(g>=0){ q.rep[g]=null; rlfNeutre(g); test.rlfSel={c:'d',i}; }
+    else if(sel && sel.c==='g'){ lier(sel.i, i); test.rlfSel=null; }
+    else test.rlfSel=(sel && sel.c==='d' && sel.i===i) ? null : {c:'d',i};
+  }
+  rlfMaj(); rlfTraits(); autoSave();
+}
+/* un nombre dont l'élève change le trait perd sa couleur : le rouge d'une
+   réponse qu'il vient de reprendre ne dit plus rien */
+function rlfNeutre(g){ const b=$('rlf-g'+g); if(b) b.classList.remove('ok','bad','sol'); }
+function rlfMaj(){
+  const q=test.questions[test.idx]; if(!q || q.e>=5) return;
+  const sel=test.rlfSel;
+  q.rep.forEach((r,i)=>{ const b=$('rlf-g'+i); if(!b) return;
+    b.classList.toggle('rlf-sel', !!(sel && sel.c==='g' && sel.i===i)); b.classList.toggle('rlf-lie', r!=null); });
+  RLF_ETAPES[q.e-1].f.forEach((_,j)=>{ const b=$('rlf-d'+j); if(!b) return;
+    b.classList.toggle('rlf-sel', !!(sel && sel.c==='d' && sel.i===j)); b.classList.toggle('rlf-lie', q.rep.indexOf(j)>=0); });
+}
+/* Les traits, MESURÉS dans la page : du bord droit du nombre au bord gauche
+   de sa fraction. Le trait prend la couleur du verdict de son nombre. */
+function rlfTraits(){
+  const svg=$('rlfTraits'), zone=$('rlfZone'); if(!svg || !zone) return;
+  const q=test.questions[test.idx]; if(!q || q.e>=5){ svg.innerHTML=''; return; }
+  const z=zone.getBoundingClientRect(); if(!z.width) return;
+  svg.setAttribute('width',z.width); svg.setAttribute('height',z.height);
+  svg.setAttribute('viewBox','0 0 '+z.width+' '+z.height);
+  const bout=(g,d,cls)=>{
+    const a=$('rlf-g'+g), b=$('rlf-d'+d); if(!a || !b) return '';
+    const ra=a.getBoundingClientRect(), rb=b.getBoundingClientRect();
+    const x1=ra.right-z.left, y1=ra.top+ra.height/2-z.top, x2=rb.left-z.left, y2=rb.top+rb.height/2-z.top;
+    return `<g class="rlf-trait ${cls}"><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/><circle cx="${x1}" cy="${y1}" r="5"/><circle cx="${x2}" cy="${y2}" r="5"/></g>`;
+  };
+  let h='';
+  rlfCor.forEach(p=>{ h+=bout(p[0],p[1],'sol'); });
+  q.rep.forEach((r,g)=>{ if(r==null) return; const b=$('rlf-g'+g);
+    h+=bout(g,r, b && b.classList.contains('ok') ? 'ok' : (b && b.classList.contains('bad') ? 'bad' : '')); });
+  svg.innerHTML=h;
+}
+window.addEventListener('resize',()=>{ try{ if(test.kind==='rlf' && $('scr-rlftest') && $('scr-rlftest').classList.contains('on')) rlfTraits(); }catch(e){} });
+/* « 0,25 = 1/4 », ou « 0,1 n'a pas de fraction dans la liste (0,1 = 1/10) » */
+function rlfPhrase(E,i){
+  const a=rlfAttendu(E,i), g=E.g[i];
+  if(a>=0) return '<b>'+esc(g)+'</b> = '+rlfFrTxt(E.f[a][0],E.f[a][1]);
+  const k=rlfPgcd(E.val[i],100);
+  return '<b>'+esc(g)+'</b> n’a pas de fraction dans la liste ('+esc(g)+' = '+rlfFrTxt(E.val[i]/k,100/k)+')';
+}
+function rlfTexte(q){
+  if(q.e<5){ const E=RLF_ETAPES[q.e-1]; return E.g.join(' ; ')+' à relier à '+E.f.map(f=>f[0]+'/'+f[1]).join(' ; '); }
+  return q.P+' % de '+q.N+' = …/… × '+q.N+' = …/… = …';
+}
+function rlfCorrection(q){
+  const R=q.P*q.N/100;
+  return q.P+' % = '+q.P+'/100 = '+q.n+'/'+q.d+', donc '+q.P+' % de '+q.N+' = '+q.n+'/'+q.d+' × '+q.N+' = '+(q.n*q.N)+'/'+q.d+' = '+R+'.';
+}
+function rlfCorrectionHTML(q){
+  const R=q.P*q.N/100;
+  return q.P+'&nbsp;% = '+rlfFrTxt(q.P,100)+' = '+rlfFrTxt(q.n,q.d)+', donc '+q.P+'&nbsp;% de '+q.N+' = '+rlfFrTxt(q.n,q.d)+' × '+q.N+' = '+rlfFrTxt(q.n*q.N,q.d)+' = '+R+'.';
+}
+const rlfVal=id=>{ const el=$(id); return el ? String(el.value==null?'':el.value).trim() : ''; };
+function checkRlfAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx], soutien=isSoutien();
+  if(q.e<5){ if(live) return; checkRlfRelier(q, soutien); return; }
+  const R=q.P*q.N/100;
+  if(live){
+    liveColorFrac('rlfN','rlfD',q.n,q.d);
+    liveColorFrac('rlfN2','rlfD2',q.n*q.N,q.d);
+    liveColorDec('rlfR',R,1);
+    return;
+  }
+  const n1=entierStrict(rlfVal('rlfN')), d1=entierStrict(rlfVal('rlfD'));
+  const n2=entierStrict(rlfVal('rlfN2')), d2=entierStrict(rlfVal('rlfD2'));
+  /* toute fraction ÉGALE est juste : 20/100 vaut 1/5, et 30/10 vaut 3 */
+  const ok1=d1>0 && n1*100===q.P*d1, ok2=d2>0 && n2===R*d2;
+  const fr=parseDecToFrac(rlfVal('rlfR')), okR=!!fr && fr.n===R*fr.d;
+  marqueFracAncre('rlfN','rlfD',ok1,q.n,q.d,soutien);
+  marqueFracAncre('rlfN2','rlfD2',ok2,q.n*q.N,q.d,soutien);
+  marqueSaufVide('rlfR',okR,soutien);
+  const ok=ok1&&ok2&&okR;
+  if(!ok && soutien){ soutienAgain('rlfFeedback','rlfActions','checkRlfAnswer','rlfHost'); return; }
+  test.locked=true;
+  if(ok){ test.score++; $('rlfLiveScore').textContent=test.score;
+    $('rlfFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('rlfFeedback').className='mp-feedback good';
+  } else {
+    corTrainFrac('rlfN','rlfD',q.n,q.d); corTrainFrac('rlfN2','rlfD2',q.n*q.N,q.d); corTrainDec('rlfR',String(R));
+    $('rlfFeedback').innerHTML='Réponse : '+rlfCorrectionHTML(q); $('rlfFeedback').className='mp-feedback bad';
+  }
+  const lus=rlfIds().map(rlfVal), vide=lus.every(s=>s==='');
+  test.answers.push({...(ptsExo()||{}), q:q.P+' % de '+q.N+' =',
+    answer:q.n+'/'+q.d+' × '+q.N+' = '+(q.n*q.N)+'/'+q.d+' = '+R,
+    given:vide?null:(lus[0]||'…')+'/'+(lus[1]||'…')+' × '+q.N+' = '+(lus[2]||'…')+'/'+(lus[3]||'…')+' = '+(lus[4]||'…'),
+    correct:ok});
+  rlfSuite();
+}
+function checkRlfRelier(q, soutien){
+  const E=RLF_ETAPES[q.e-1], nb=E.g.length;
+  const copie=q.rep.some(r=>r!=null);
+  const juste=E.g.map((_,i)=>{ const a=rlfAttendu(E,i), r=q.rep[i]; return r==null ? (copie && a<0) : r===a; });
+  E.g.forEach((_,i)=>{ const b=$('rlf-g'+i); if(!b) return;
+    b.classList.remove('ok','bad','sol');
+    if(q.rep[i]!=null || juste[i]) b.classList.add(juste[i]?'ok':'bad'); });
+  const allOk=juste.every(Boolean);
+  test.rlfSel=null;
+  if(soutien){
+    /* le juste se verrouille, avec sa fraction ; le faux rougit et se reprend */
+    E.g.forEach((_,i)=>{ if(!juste[i]) return; const b=$('rlf-g'+i); if(b) b.disabled=true;
+      const d=q.rep[i]!=null ? $('rlf-d'+q.rep[i]) : null; if(d) d.disabled=true; });
+    rlfMaj(); rlfTraits();
+    if(!allOk){ soutienAgain('rlfFeedback','rlfActions','checkRlfAnswer','rlfHost'); return; }
+  }
+  test.locked=true;
+  document.querySelectorAll('#rlfHost .rlf-item').forEach(b=>{ b.disabled=true; });
+  if(!allOk && currentMode==='train'){
+    /* la correction : le trait qu'il fallait, en vert ; le nombre jamais relié
+       reçoit la couleur de la correction (il n'avait rien d'écrit à rougir) */
+    E.g.forEach((_,i)=>{ const a=rlfAttendu(E,i); if(juste[i]) return;
+      if(a>=0) rlfCor.push([i,a]);
+      if(q.rep[i]==null){ const b=$('rlf-g'+i); if(b) b.classList.add('sol'); } });
+  }
+  rlfMaj(); rlfTraits();
+  if(allOk){ test.score++; $('rlfLiveScore').textContent=test.score;
+    $('rlfFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('rlfFeedback').className='mp-feedback good';
+  } else {
+    $('rlfFeedback').innerHTML=E.g.map((_,i)=>i).filter(i=>!juste[i]).map(i=>rlfPhrase(E,i)).join(' ; ')+'.';
+    $('rlfFeedback').className='mp-feedback bad';
+  }
+  const lien=(i,j)=>E.g[i]+(j==null||j<0?' : rien':' = '+E.f[j][0]+'/'+E.f[j][1]);
+  const nj=juste.filter(Boolean).length;
+  test.answers.push({pts:nb?nj/nb:0, justes:nj, cases:nb, q:'Partie '+q.e+' : '+rlfTexte(q),
+    answer:E.g.map((_,i)=>lien(i,rlfAttendu(E,i))).join(' ; '),
+    given:copie?E.g.map((_,i)=>lien(i,q.rep[i])).join(' ; '):null,
+    correct:allOk});
+  setTimeout(afficherNoteExo,0);
+  rlfSuite();
+}
+function rlfSuite(){
+  const last=test.idx===test.questions.length-1;
+  $('rlfActions').innerHTML=`<button class="btn btn-primary" id="rlfNext" onclick="nextRlfQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('rlfNext').focus();
+}
+function nextRlfQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderRlf(); autoSave(); } else finishRlf(); }
+async function finishRlf(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'relier-fractions',note,mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,note,total,percent:pct,durationSec});
 }
@@ -25662,6 +26007,12 @@ const RAP_VAP=`<b>Valeur approchée et ordre de grandeur</b><br>
 <b>② Multiplier par 10, 100, 1000</b> : \\(100\\times 1000=100\\,000\\) (on ajoute les zéros). Avec un décimal, on passe par la fraction décimale : \\(0{,}1\\times 1000=\\frac{1}{10}\\times 1000=\\frac{1000}{10}=100\\) ; \\(0{,}01\\times 10=\\frac{1}{100}\\times 10=\\frac{10}{100}=0{,}1\\).<br>
 <b>③ Un ordre de grandeur</b> : on remplace chaque facteur par la puissance de 10 la plus proche, puis on calcule : \\(11\\times 99\\approx 10\\times 100=1000\\) ; \\(0{,}01\\times 999\\approx 0{,}01\\times 1000=10\\).<br>
 Piège classique : \\(0{,}1\\times 1000\\) ne fait pas \\(0{,}1000\\) — multiplier par 1000 décale la virgule de trois rangs vers la droite.`;
+const RAP_RLF=`<b>Décimaux, pourcentages et fractions</b><br>
+<b>① Les quarts, la moitié, le dixième</b> : \\(0{,}5=\\frac{1}{2}\\), \\(0{,}25=\\frac{1}{4}\\), \\(0{,}75=\\frac{3}{4}\\) et \\(0{,}1=\\frac{1}{10}\\).<br>
+<b>② Les cinquièmes</b> : \\(\\frac{1}{5}=\\frac{2}{10}=0{,}2\\), puis \\(\\frac{2}{5}=0{,}4\\), \\(\\frac{3}{5}=0{,}6\\), \\(\\frac{4}{5}=0{,}8\\) — on double le numérateur pour passer en dixièmes.<br>
+<b>③ Un pourcentage est une fraction sur 100</b> : \\(60\\,\\%=\\frac{60}{100}=\\frac{3}{5}\\) et \\(75\\,\\%=\\frac{75}{100}=\\frac{3}{4}\\).<br>
+<b>④ Prendre un pourcentage</b> : \\(20\\,\\%\\) de \\(15\\) : \\(\\frac{1}{5}\\times 15=\\frac{15}{5}=3\\).<br>
+Attention : \\(0{,}8\\) et \\(0{,}80\\) sont le même nombre ; et \\(0{,}1=\\frac{1}{10}\\) n’est égal à aucun cinquième.`;
 const RAP_SDEC=`<b>L’écriture décimale d’une somme</b><br>
 Chaque fraction décimale a son <b>rang</b> : \\(\\frac{5}{10}=0{,}5\\) (dixièmes), \\(\\frac{9}{100}=0{,}09\\) (centièmes), \\(\\frac{3}{1000}=0{,}003\\) (millièmes).<br>
 Diviser par 10, 100 ou 1000, c’est décaler la virgule de 1, 2 ou 3 rangs <b>vers la gauche</b> : \\(\\frac{327}{1000}=0{,}327\\) et \\(\\frac{32}{1000}=0{,}032\\).<br>
@@ -25969,7 +26320,7 @@ const RAP_DBP=`<b>Devoir blanc : neuf questions sur les pourcentages</b><br>
 Bloqué sur une question rédigée ? Le bouton <b>Aide méthode</b> affiche les cases de l’exercice d’origine ; un autre bouton te ramène à la version rédigée.`;
 const RAP_SGL=`<b>Synthèse générale rédigée : deux familles de questions, deux rédactions</b><br>
 Une question sur <b>un pourcentage</b> — prendre, augmenter ou diminuer, comme dans {synthese-pourcentages-libre} : tu choisis la proposition, puis tu JUSTIFIES en écrivant ta vérification. Une question sur <b>deux évolutions successives</b>, comme dans {synthese-evolutions-successives-libre} : tu RÉDIGES tout le calcul, puis tu conclus en mots. Dans les deux cas, la feuille est celle de {synthese-diminutions-libre-dix} : la barre d’espace écrit une espace, la touche % est sur le clavier.<br><br>`+RAP_SPL+`<br><br>`+RAP_ESL;
-const RAPPELS_ID={ 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -25998,6 +26349,7 @@ function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (tes
 
 /* ---------- Questions proposées d'un clic ---------- */
 const QIA_SUGG={
+  rlf:["Comment savoir quelle fraction est égale à 0,25 ?","Pourquoi 0,2 vaut-il un cinquième et pas un demi ?","Comment écrire 60 % sous forme de fraction ?","Comment calculer 20 % de 15 avec une fraction ?"],
   vap:["Pourquoi 10⁻² + 10 est-il proche de 10 ?","Comment calculer 0,01 × 1000 en passant par une fraction ?","C’est quoi, un ordre de grandeur ?","Pourquoi remplace-t-on 99 par 100 ?"],
   sdec:["Comment écrire 32/1000 sous forme décimale ?","Que faire quand les fractions sont dans le désordre ?","Pourquoi 10 + 0,1 + 1/1000 ne fait-il pas 10,11 ?","Comment passer de 3,24 à une fraction décimale ?"],
   asp:["Comment aligner les chiffres quand je pose l'opération ?","C'est quoi, une retenue, et où l'écrit-on ?","Pourquoi ajoute-t-on 1 en bas quand on ne peut pas soustraire ?","Comment vérifier mon résultat sans refaire l'opération ?"],
@@ -26187,6 +26539,20 @@ function conseilCtxCourant(){
       +'Méthode enseignée : on CHOISIT 100 comme valeur de départ — la baisse globale n’en dépend pas —, on calcule chaque baisse en passant par 10 % (le nombre divisé par 10, puis multiplié par le bon facteur), comme dans {diminuer-dix}, et ce qu’on a perdu « pour 100 » EST le pourcentage. '
       +'La seconde baisse porte sur la valeur DÉJÀ diminuée ('+a.v1+'), jamais sur 100 : c’est pourquoi les baisses ne s’additionnent pas, l’erreur classique étant de répondre '+(q.P1+q.P2)+' %. '
       +'C’est le même calcul qu’en {baisses-successives}, par l’autre chemin : là on multiplie deux coefficients, ici on suit une valeur.';
+  } else if(k==='rlf' && q){
+    if(q.e<5){
+      const E=RLF_ETAPES[q.e-1];
+      att='Partie '+q.e+' sur 5. L’élève relie par des traits chaque '+(E.pct?'pourcentage':'nombre décimal')+' ('+E.g.join(' ; ')+') à la fraction égale parmi '+E.f.map(f=>f[0]+'/'+f[1]).join(' ; ')+'. '
+        +'Réponses attendues, STRICTEMENT SECRÈTES : '+E.g.map((g,i)=>{ const a=rlfAttendu(E,i); return g+(a>=0?' = '+E.f[a][0]+'/'+E.f[a][1]:' : aucune fraction de la liste (intrus, à ne relier à rien)'); }).join(' ; ')+'. '
+        +'Traits posés par l’élève : '+(q.rep.some(r=>r!=null)?E.g.map((g,i)=>g+(q.rep[i]==null?' non relié':' relié à '+E.f[q.rep[i]][0]+'/'+E.f[q.rep[i]][1])).join(' ; '):'aucun')+'. '
+        +'Méthode enseignée : écrire le nombre en fraction sur 10 ou sur 100 (0,25 = 25/100, 60 % = 60/100), puis simplifier ; ou partir de la fraction et la mettre sur 10 ou 100 (1/5 = 2/10 = 0,2 ; 3/4 = 75/100 = 0,75). '
+        +'Erreurs classiques : confondre 1/5 et 0,5, ou 1/4 et 0,4 (lire le dénominateur comme les chiffres après la virgule) ; croire que 0,1 vaut 1/5.';
+    } else {
+      att='Partie 5 sur 5. Calcul affiché : '+rlfTexte(q)+'. '
+        +'Réponse attendue, STRICTEMENT SECRÈTE : '+rlfCorrection(q)+' '
+        +'Méthode enseignée : écrire le pourcentage comme une fraction simple (20 % = 1/5, toute fraction égale convient), multiplier le numérateur par le nombre, puis diviser. Le résultat est un entier. '
+        +'Erreurs classiques : multiplier aussi le dénominateur, ou se tromper de fraction (20 % = 1/2).';
+    }
   } else if(k==='vap' && q){
     const A=vapAttendus(q);
     att='Partie '+q.p+' sur 3 de la fiche. Calcul affiché : '+vapTexte(q)+(q.p===2?' = ':' ≈ ')+(q.p===2&&!q.a?'…/… × '+vapStr(P10(q.m)*VAP_D)+' = …':(q.p===3?'… × … ≈ …':'…'))+'. '
@@ -26489,6 +26855,14 @@ function qdmAutre(gen, cle){
 }
 function qdmFrac(n,d){ return '\\frac{'+n+'}{'+d+'}'; }
 const QIA_MODELES={
+  rlf:function(){   /* la même partie : d'autres nombres pour un calcul, les correspondances pour un appariement */
+    const act=(test && test.questions && test.questions[test.idx])||null;
+    if(act && act.e<5){ const E=RLF_ETAPES[act.e-1];
+      return E.g.map((g,i)=>{ const a=rlfAttendu(E,i); const k=rlfPgcd(E.val[i],100);
+        return g+' = '+E.val[i]+'/100 = '+(a>=0?E.f[a][0]+'/'+E.f[a][1]:(E.val[i]/k)+'/'+(100/k)+', qui n’est pas dans la liste : on ne le relie à rien'); }).join(' ; ')+'.'; }
+    const seq=rlfCalculs(), c=seq.find(x=>!act || x.P!==act.P || x.N!==act.N)||seq[0], k=rlfPgcd(c.P,100);
+    return rlfCorrection({P:c.P,N:c.N,n:c.P/k,d:100/k});
+  },
   vap:function(){   /* la même ligne de la fiche, d'autres nombres */
     const g=(test && test.questions) ? vapGabarit(test.idx, test.questions.length) : 0;
     const q=qdmAutre(()=>VAP_GABARITS[g](), c=>vapTexte(c));
@@ -26733,7 +27107,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderEds','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderRlf','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
