@@ -6069,7 +6069,7 @@ revient sans décomposition. Au 8.4.4 : la copie vide puis FE⃗ à l'envers
 montrent « grise, noire, −8, −3 », la grise de A(3 ; 5) jusqu'à (−5 ; 5) ; en
 soutien, rien. Vu dans un vrai Chromium à 1 100 et 380 px.
 
-## {coordonnees-vecteur-parallelogramme} — deux vecteurs égaux, un parallélogramme (8.4.5, Seconde v655 — la v654 prise sur main pendant les bancs, par la décomposition des 8.4.3 et 8.4.4)
+## {coordonnees-vecteur-parallelogramme} — deux vecteurs égaux, un parallélogramme (8.4.5, Seconde v656 — les v654 et v655 prises sur main pendant les bancs, par #957 et #956)
 
 **La demande** (Turquet, novembre 2026) : « en seconde dans vecteur et
 coordonnées créer un exercice comme le pdf ; en mode soutien on fera une bulle
