@@ -1634,6 +1634,14 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #rlfHost .pt-row{margin:10px 0;gap:8px}
 #rlfHost .rlf-de{margin:0 2px}
 #rlfHost .rlf-dfixe{text-align:center;line-height:var(--fx-case,42px)}
+/* la fraction FACULTATIVE du milieu : cases en pointillés, et le mot
+   « facultatif » dessous, en rouge comme « (retenue facultative) » ailleurs —
+   écrit par un pseudo-élément, il ne déplace rien dans la rangée */
+#rlfHost .rlf-fac{position:relative;display:inline-flex}
+#rlfHost .rlf-fac math-field.pm-mf:not(.ok):not(.bad):not(.sol){border-style:dashed}
+#rlfHost .rlf-fac::after{content:"facultatif";position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:2px;
+  font-family:"Nunito";font-weight:700;font-size:.8rem;color:var(--red);white-space:nowrap;pointer-events:none}
+#rlfHost .pt-row:has(.rlf-fac){margin-bottom:26px}
 /* la case du résultat a la hauteur des cases de fraction du thème (sans
    quoi la règle générale des .f-dec la fait de 50 px contre 42) */
 #rlfHost math-field.pm-mf.f-dec{height:auto;min-height:var(--fx-case);border-radius:9px;border-width:1.5px;padding:0 2px}
@@ -3327,7 +3335,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=380;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=381;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -8449,7 +8457,7 @@ const RLF_TITRES={
   2:'Relie chaque nombre décimal à la <b>fraction</b> qui lui est égale.',
   3:'Relie chaque nombre décimal à la <b>fraction</b> qui lui est égale.',
   4:'Relie chaque pourcentage à la <b>fraction</b> qui lui est égale.',
-  5:'Calcule en passant par la <b>fraction</b> : le résultat est un nombre entier.'
+  5:'Calcule en passant par la <b>fraction</b> : le résultat est un nombre entier. Le calcul du milieu, en pointillés, est <b>facultatif</b> : tu peux écrire directement le résultat.'
 };
 /* le dénominateur de la PREMIÈRE fraction est écrit par la page (demande de
    Turquet, novembre 2026 : « écrire le dénominateur 2 pour 50 %, 4 pour 25 %
@@ -8479,7 +8487,7 @@ function renderRlf(){
   const w=s=>'<span class="f-whole">'+s+'</span>', x='<span class="f-times">×</span>';
   const fr=(a,b,la)=>'<span class="f-frac-input">'+vapCase(a,'f-num','numérateur '+la)+'<span class="f-fbar"></span>'+vapCase(b,'f-den','dénominateur '+la)+'</span>';
   $('rlfHost').innerHTML='<div class="pt-row">'+w(q.P+'&nbsp;%')+'<span class="f-whole rlf-de">de</span>'+w(q.N)
-    +fEq('<span class="f-frac-input">'+vapCase('rlfN','f-num','numérateur de la fraction')+'<span class="f-fbar"></span><span class="f-whole rlf-dfixe">'+q.d+'</span></span>')+x+w(q.N)+fEq(fr('rlfN2','rlfD2','du produit'))+fEq(vapCase('rlfR','f-dec','résultat'))+'</div>';
+    +fEq('<span class="f-frac-input">'+vapCase('rlfN','f-num','numérateur de la fraction')+'<span class="f-fbar"></span><span class="f-whole rlf-dfixe">'+q.d+'</span></span>')+x+w(q.N)+fEq('<span class="rlf-fac" data-facultatif="1">'+fr('rlfN2','rlfD2','du produit (facultatif)')+'</span>')+fEq(vapCase('rlfR','f-dec','résultat'))+'</div>';
   const order=rlfIds().map(id=>$(id)).filter(Boolean);
   order.forEach((el,i)=>el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i+1<order.length) order[i+1].focus(); else checkRlfAnswer(); } }));
   setTimeout(()=>order[0]&&order[0].focus(),70);
@@ -8573,10 +8581,14 @@ function checkRlfAnswer(live){
   /* le dénominateur de la première fraction est donné : son numérateur est
      celui de la fraction irréductible ; la seconde accepte toute fraction
      ÉGALE (30/10 vaut 3) */
-  const ok1=n1===q.n, ok2=d2>0 && n2===R*d2;
+  /* la fraction du MILIEU est facultative (demande de Turquet, novembre 2026) :
+     laissée vide, elle ne coûte rien ; écrite, elle se juge */
+  const facVide=rlfVal('rlfN2')==='' && rlfVal('rlfD2')==='';
+  const ok1=n1===q.n, ok2=facVide || (d2>0 && n2===R*d2);
   const fr=parseDecToFrac(rlfVal('rlfR')), okR=!!fr && fr.n===R*fr.d;
   marqueSaufVide('rlfN',ok1,soutien);
-  marqueFracAncre('rlfN2','rlfD2',ok2,q.n*q.N,q.d,soutien);
+  if(!facVide) marqueFracAncre('rlfN2','rlfD2',ok2,q.n*q.N,q.d,soutien);
+  else if(!soutien) ['rlfN2','rlfD2'].forEach(id=>{ const el=$(id); if(el) el.disabled=true; });
   marqueSaufVide('rlfR',okR,soutien);
   const ok=ok1&&ok2&&okR;
   if(!ok && soutien){ soutienAgain('rlfFeedback','rlfActions','checkRlfAnswer','rlfHost'); return; }
@@ -8584,7 +8596,7 @@ function checkRlfAnswer(live){
   if(ok){ test.score++; $('rlfLiveScore').textContent=test.score;
     $('rlfFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('rlfFeedback').className='mp-feedback good';
   } else {
-    rlfCorNum(q); corTrainFrac('rlfN2','rlfD2',q.n*q.N,q.d); corTrainDec('rlfR',String(R));
+    rlfCorNum(q); if(!facVide) corTrainFrac('rlfN2','rlfD2',q.n*q.N,q.d); corTrainDec('rlfR',String(R));
     $('rlfFeedback').innerHTML='Réponse : '+rlfCorrectionHTML(q); $('rlfFeedback').className='mp-feedback bad';
   }
   const lus=rlfIds().map(rlfVal), vide=lus.every(s=>s==='');
@@ -26405,7 +26417,7 @@ function conseilCtxCourant(){
     } else {
       att='Partie 5 sur 5. Calcul affiché : '+rlfTexte(q)+'. '
         +'Réponse attendue, STRICTEMENT SECRÈTE : '+rlfCorrection(q)+' '
-        +'Le dénominateur de la première fraction est DONNÉ par la page ('+q.d+') : l’élève n’écrit que le numérateur. '
+        +'Le dénominateur de la première fraction est DONNÉ par la page ('+q.d+') : l’élève n’écrit que le numérateur. La fraction du milieu ('+(q.n*q.N)+'/'+q.d+') est FACULTATIVE : il peut écrire directement le résultat. '
         +'Méthode enseignée : écrire le pourcentage comme une fraction simple (20 % = 1/5), multiplier le numérateur par le nombre, puis diviser. Le résultat est un entier. '
         +'Erreurs classiques : multiplier aussi le dénominateur, ou se tromper de fraction (20 % = 1/2).';
     }

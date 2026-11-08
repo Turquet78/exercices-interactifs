@@ -2206,6 +2206,15 @@ exact (`n1 === q.n`). La seconde fraction reste libre (toute fraction égale).
 La correction d'un numérateur faux s'écrit en vert À CÔTÉ de la fraction
 (`rlfCorNum`), jamais entre le numérateur et le trait.
 
+**Puis : « le calcul intermédiaire d'une fraction n'est pas obligatoire,
+comment le signaler à l'élève ? »** La fraction du MILIEU (n×N / d) est
+facultative, et l'écran le dit trois fois : l'énoncé (« le calcul du milieu,
+en pointillés, est facultatif »), les cases en pointillés, et le mot
+« facultatif » en rouge dessous — la convention des « (retenue facultative) »
+du fichier. Laissée vide, elle ne coûte rien et ne reçoit aucune correction ;
+écrite, elle se juge (toute fraction égale). Son enveloppe porte
+`data-facultatif` : la boîte « Il reste des cases vides » ne la compte pas.
+
 **Relier, pour de vrai.** On clique un nombre puis sa fraction (ou
 l'inverse) ; un trait SVG, mesuré dans la page, les relie, et se redessine
 au redimensionnement. Cliquer l'un des bouts défait le trait ; une fraction
