@@ -28041,5 +28041,157 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(tout);
 })();
 </script>
+<style id="confirmer-vides-css">
+/* la boîte « Il reste des cases vides » (#confirmer-vides) — au-dessus du pavé
+   et du clavier mathématique ; les cases oubliées s'entourent d'ambre, jamais
+   de rouge : une case vide n'est pas une erreur */
+#confirmVides{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(20,32,70,.38)}
+#confirmVides[hidden]{display:none!important}
+#confirmVides .cv-boite{background:#fff;color:#1d2340;border-radius:14px;max-width:440px;width:100%;padding:18px 20px 16px;box-shadow:0 14px 44px rgba(0,0,0,.28);font-size:1rem;line-height:1.4}
+#confirmVides .cv-titre{margin:0 0 6px;font-weight:800;font-size:1.12em}
+#confirmVides .cv-texte{margin:0}
+#confirmVides .cv-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin-top:16px}
+.case-oubliee{outline:3px dashed #E8A93A!important;outline-offset:2px}
+</style>
+<script id="confirmer-vides">
+/* EN ENTRAÎNEMENT, « VÉRIFIER » AVEC DES CASES VIDES DEMANDE CONFIRMATION
+   (demande de Turquet, novembre 2026). L'élève qui a oublié une case se
+   voyait corrigé sans l'avoir voulu : la correction verte remplissait la case,
+   la question était perdue. Désormais, en mode entraînement, un clic sur un
+   bouton « Vérifier » / « Revérifier » / « Valider » — ou Entrée dans la
+   DERNIÈRE case de l'écran — alors qu'une case reste vide ouvre une boîte :
+   « Compléter mes réponses » (les cases vides s'entourent d'ambre, le curseur
+   va dans la première) ou « Vérifier quand même ».
+   Une seule porte, en capture sur le document, rien à déclarer : un exercice
+   ajouté demain est couvert. Ce qui n'est PAS une réponse attendue ne compte
+   pas : les retenues, la pose facultative, les cases hors note, les cases déjà
+   corrigées (ok, sol), ce qui est caché, désactivé ou en lecture seule. Une
+   feuille de calcul libre (ou une ardoise) compte pour UNE réponse : vide si
+   toutes ses lignes le sont — ses lignes en réserve ne sont pas des oublis.
+   Les bancs coupent la boîte (window.confirmerCasesVides=false, posé avant la
+   page) ; la visite de tous les exercices la rallume et l'éprouve partout. */
+(function(){
+  const SAISIES='input,textarea,select,math-field';
+  const TYPES_HORS=/^(hidden|checkbox|radio|button|submit|reset|file|range|color|image)$/i;
+  const FACULTATIF='.pose-fac,.hors-note,.dexp-facblock,.dq-mirror,.mp-carry,.carry1,.ret,.asp-ret,.sub-ret,.sub-retb,[data-facultatif]';
+  const GROUPES='.dexp2-sheet,.ardoise';
+  const HORS='#paveNum,#paveSup,math-keyboard,.ML__keyboard,.pave,#confirmVides';
+  let passe=false, boite=null, bouton=null, vides=[];
+  function actif(){
+    if(window.confirmerCasesVides===false) return false;
+    return typeof currentMode!=='undefined' && currentMode==='train';
+  }
+  function estVerifier(b){ return !!b && !b.disabled && /^\s*(re)?(vérifier|valider)\b/i.test(b.textContent||''); }
+  function visible(e){
+    if(!e || !e.isConnected || !e.getClientRects().length) return false;
+    return getComputedStyle(e).visibility!=='hidden';
+  }
+  function vide(e){
+    if(e.tagName==='SELECT') return !e.value;
+    let v='';
+    if(e.tagName==='MATH-FIELD'){
+      try{ v=String((typeof e.getValue==='function' ? e.getValue() : e.value)||''); }catch(x){ v=String(e.value||''); }
+      /* une case à trous : vide tant que tous ses trous le sont */
+      if(/\\placeholder/.test(v)) return !/\\placeholder(\[[^\]]*\])?\{\s*[^\s}]/.test(v);
+      return !v.replace(/\\[,;:! ]|[\s{}]/g,'').length;
+    }
+    return !String(e.value||'').trim();
+  }
+  function reponse(e){
+    if(e.disabled || e.readOnly) return false;
+    if(e.hasAttribute('readonly') || e.hasAttribute('read-only') || e.getAttribute('aria-readonly')==='true') return false;
+    if(e.tagName==='INPUT' && TYPES_HORS.test(e.type||'')) return false;
+    if(e.classList.contains('ok') || e.classList.contains('sol')) return false;
+    if(e.closest(FACULTATIF) || e.closest(HORS)) return false;
+    return visible(e);
+  }
+  function reponses(scr){ return [...scr.querySelectorAll(SAISIES)].filter(reponse); }
+  function casesVides(scr){
+    const l=[], groupes=new Map();
+    reponses(scr).forEach(function(e){
+      const g=e.closest(GROUPES);
+      if(g){ if(!groupes.has(g)){ groupes.set(g,[]); l.push(g); } groupes.get(g).push(e); }
+      else l.push(e);
+    });
+    const r=[];
+    l.forEach(function(x){
+      if(groupes.has(x)){ const c=groupes.get(x); if(c.every(vide)) r.push(c[0]); }
+      else if(vide(x)) r.push(x);
+    });
+    return r;
+  }
+  function boutonDe(scr){ return [...scr.querySelectorAll('button')].filter(visible).find(estVerifier)||null; }
+  function construire(){
+    if(boite) return boite;
+    boite=document.createElement('div'); boite.id='confirmVides'; boite.hidden=true;
+    boite.innerHTML='<div class="cv-boite" role="alertdialog" aria-modal="true" aria-labelledby="cvTitre" aria-describedby="cvTexte">'
+      +'<p class="cv-titre" id="cvTitre">Tu n’as pas tout rempli</p>'
+      +'<p class="cv-texte" id="cvTexte"></p>'
+      +'<div class="cv-actions">'
+      +'<button type="button" class="btn btn-ghost" id="cvQuandMeme">Vérifier quand même</button>'
+      +'<button type="button" class="btn btn-primary" id="cvCompleter">Compléter mes réponses</button>'
+      +'</div></div>';
+    document.body.appendChild(boite);
+    boite.addEventListener('click', function(e){
+      if(e.target===boite || (e.target.closest && e.target.closest('#cvCompleter'))) completer();
+      else if(e.target.closest && e.target.closest('#cvQuandMeme')) quandMeme();
+    });
+    boite.addEventListener('keydown', function(e){
+      if(e.key==='Escape'){ e.preventDefault(); completer(); }
+    });
+    return boite;
+  }
+  function fermer(){ if(boite) boite.hidden=true; }
+  function completer(){
+    fermer();
+    const l=vides.filter(function(e){ return e.isConnected; });
+    l.forEach(function(e){ (e.closest(GROUPES)||e).classList.add('case-oubliee'); });
+    if(l[0]){ try{ l[0].scrollIntoView({block:'center'}); }catch(x){} try{ l[0].focus(); }catch(x){} }
+  }
+  function quandMeme(){
+    fermer();
+    const b=bouton; bouton=null;
+    document.querySelectorAll('.case-oubliee').forEach(function(e){ e.classList.remove('case-oubliee'); });
+    if(b && b.isConnected){ passe=true; try{ b.click(); } finally { passe=false; } }
+  }
+  function demander(b, l){
+    bouton=b; vides=l;
+    const n=l.length;
+    construire().querySelector('#cvTexte').textContent=(n===1 ? 'Il reste une case vide.' : 'Il reste '+n+' cases vides.')
+      +' Veux-tu vérifier quand même ?';
+    boite.hidden=false;
+    try{ boite.querySelector('#cvCompleter').focus(); }catch(x){}
+  }
+  window.casesVidesEcran=function(){ const s=document.querySelector('section.screen.on'); return s ? casesVides(s) : []; };
+  document.addEventListener('click', function(e){
+    if(passe || !actif()) return;
+    const t=e.target; if(!t || !t.closest) return;
+    const b=t.closest('button'); if(!estVerifier(b)) return;
+    const scr=b.closest('section.screen'); if(!scr) return;
+    const l=casesVides(scr); if(!l.length) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    demander(b, l);
+  }, true);
+  /* Entrée dans la DERNIÈRE case de l'écran vérifie dans la plupart des
+     exercices, sans passer par le bouton : même porte. Une case de feuille
+     libre en est exclue (Entrée y ouvre une ligne), une zone de texte aussi. */
+  document.addEventListener('keydown', function(e){
+    if(passe || e.key!=='Enter' || e.shiftKey || e.isComposing || !actif()) return;
+    const t=e.target; if(!t || !t.closest || !t.matches || !t.matches('input,math-field,select')) return;
+    if(t.closest(GROUPES)) return;
+    const scr=t.closest('section.screen'); if(!scr) return;
+    const toutes=reponses(scr); if(toutes[toutes.length-1]!==t) return;
+    const b=boutonDe(scr); if(!b) return;
+    const l=casesVides(scr); if(!l.length) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    demander(b, l);
+  }, true);
+  /* une case oubliée qu'on remplit perd son liseré */
+  document.addEventListener('input', function(e){
+    const t=e.target; if(!t || !t.closest) return;
+    const c=t.closest('.case-oubliee'); if(c) c.classList.remove('case-oubliee');
+  }, true);
+})();
+</script>
 </body>
 </html>
