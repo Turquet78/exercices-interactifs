@@ -8376,7 +8376,7 @@ if(require.main === module) (async () => {
         /* SIMPLIFIER AVANT DE MULTIPLIER, tapé au clavier (demande de Turquet,
            octobre 2026) : sur 5/2 × 3/5, les 5 barrés donnent (1 × 3)/(2 × 1)
            = 3/2 — la chaîne de 15/10 disparaît, et rien ne rougit. Puis la
-           rédigée arrêtée sur 15/10 : refusée, et le message dit pourquoi. */
+           rédigée arrêtée sur 15/10 : acceptée, et le message dit qu'elle se simplifie. */
         await s.page.evaluate(() => { test.idx = 0; test.locked = false;
           test.questions[0] = {n1:5,d1:2,n2:3,d2:5,a1:5,a2:3,b1:2,b2:5,P:15,Q:10}; renderMltTest(); });
         await s.page.waitForTimeout(700);
@@ -8396,8 +8396,10 @@ if(require.main === module) (async () => {
           const fb = document.getElementById('mltrFeedback'), d = test.answers[test.answers.length - 1];
           return { texte: fb ? fb.textContent : '', rouge: !!(fb && fb.classList.contains('bad')), compte: !!(d && d.correct) };
         });
-        if(ms.compte) dits.push('produit rédigé : 15/10, non simplifié, vaut le point');
-        if(!ms.rouge || !/pas simplifi/.test(ms.texte)) dits.push('produit rédigé : 15/10 refusé sans dire qu’il n’est pas simplifié (« ' + ms.texte + ' »)');
+        /* Depuis novembre 2026 (décision de Turquet), un résultat juste mais
+           non simplifié VAUT le point en rédaction : la correction le dit. */
+        if(!ms.compte) dits.push('produit rédigé : 15/10, juste mais non simplifié, ne vaut pas le point');
+        if(ms.rouge || !/simplifier/.test(ms.texte) || !/3\/2/.test(ms.texte)) dits.push('produit rédigé : 15/10 accepté sans dire qu’il se simplifie en 3/2, ou peint en rouge (« ' + ms.texte + ' »)');
       }
       /* ③ LA SOMME AVEC UN PRODUIT DEDANS (4.6), EN COLONNES, PUIS RÉDIGÉE
          (demande de Turquet, octobre 2026 : « placer les signes "=" en début

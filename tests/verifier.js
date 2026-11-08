@@ -8937,6 +8937,17 @@ function fractionsRedigees(w, P){
     if(!/différence/.test(mm.attenduIA) || /la somme 3\\/2/.test(mm.attenduIA)) vus.push('la règle d’une soustraction parle encore de somme');
     if(!/soustraire/.test(mm.ctx)) vus.push('le contexte de l’aide d’une soustraction ne dit pas « soustraire »');
     if(!/−/.test(mm.html)) vus.push('l’énoncé affiché d’une soustraction n’écrit pas « − »');
+    /* juste mais non simplifié : accepté par la note (novembre 2026), pas une copie sans étape */
+    test.kind='mlt'; test.inv=false;
+    let ns=redNoteNonSimplifie(redMath(mq).juge('2/3×3/5=6/15'), redMath(mq), '2/3×3/5=6/15');
+    if(!(ns && ns.sait && ns.correct && ns.nonSimplifie)) vus.push('non simplifié : 2/3 × 3/5 = 6/15 n’est pas accepté par la note ('+JSON.stringify(ns)+')');
+    if(!/obtient 2\\/5/.test(redPhraseNonSimplifie(redMath(mq),'2/3×3/5=6/15'))) vus.push('non simplifié : la phrase ne donne pas la forme simplifiée');
+    test.kind='sf';
+    ns=redNoteNonSimplifie(redMath(sq).juge('1/2+1/4=4/8+2/8=6/8'), redMath(sq), '1/2+1/4=4/8+2/8=6/8');
+    if(!(ns && ns.correct)) vus.push('non simplifié : 1/2 + 1/4 = 4/8 + 2/8 = 6/8 n’est pas accepté par la note');
+    ns=redNoteNonSimplifie(redMath(sq).juge('1/2+1/4=6/8'), redMath(sq), '1/2+1/4=6/8');
+    if(ns && ns.correct) vus.push('non simplifié : 1/2 + 1/4 = 6/8, sans l’étape du même dénominateur, est accepté');
+    if(/REFUSÉ : le travail|réductible est REFUSÉ/.test(redMath(sq).attenduIA)) vus.push('la règle du modèle refuse encore un résultat non simplifié');
     /* le 4.1 rédigé (novembre 2026) : chaque règle prend le juge de son opération */
     const rv=function(q, rep){ test.kind='rvf'; test.inv=false; return redMath(Object.assign(q,{redac:true})).juge(rep); };
     j=rv({type:'meme-add',d:5,n1:2,n2:1},'2/5+1/5=3/5');

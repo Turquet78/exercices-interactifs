@@ -2172,3 +2172,31 @@ chaque famille du 4.1 ; le banc navigateur (« 6 terdecies bis », ①bis)
 ouvre la rédigée des deux sous leur guidée, y fait compter
 1/2 + 1/3 = 3/6 + 2/6 = 5/6, et vérifie que la guidée suivante referme la
 zone et rend sa consigne au 4.1.
+
+**Puis un résultat NON SIMPLIFIÉ a cessé de compter faux en rédaction
+(novembre 2026, Première v376).** Demande de Turquet : « en mode rédaction ne
+pas compter faux quand le résultat n'est pas simplifié, juste l'indiquer dans
+la correction ». Elle vaut pour les questions rédigées des 4.1 à 4.6 ; les
+questions guidées gardent leur chaîne de simplification.
+
+* **Le juge DÉTECTE toujours** la fraction réductible (`redIrreductible`,
+  motif « simplifier ») : c'est `checkSFR` qui l'accepte, par
+  `redNoteNonSimplifie`. Accepter le motif tel quel aurait ouvert un trou :
+  le juge de la somme (`libreJuge`, genre « sfl ») rend « simplifier » AVANT
+  de chercher l'étape du même dénominateur, et « 1/2 + 1/4 = 6/8 », sans
+  étape, aurait valu le point. La copie est donc REJUGÉE avec la forme
+  irréductible ajoutée en dernière ligne : juste, seule la simplification
+  manquait ; sinon le verdict rejugé reste celui de la page, ou s'abstient
+  et le modèle décide.
+* **La correction le dit avec les mots de la page**, en bleu, et donne la
+  forme simplifiée : « Ton calcul est juste, bravo ! Ton résultat 6/15 peut
+  encore se simplifier : en divisant le numérateur et le dénominateur par 3,
+  on obtient 2/5. » Le modèle n'est pas appelé : il n'a rien à trancher.
+* **La règle lue par le modèle** (`redRegleFinale`) accepte elle aussi une
+  fraction égale non simplifiée, pour les copies où le juge s'abstient.
+* La réponse enregistrée porte `nonSimplifie: true`.
+
+Contrôles : `fractionsRedigees` (6/15 accepté, 4/8 + 2/8 = 6/8 accepté,
+6/8 sans étape refusé, plus aucun « REFUSÉ » dans la règle du modèle) ; le
+banc navigateur fait compter 5/2 × 3/5 = 15/10 et lit « 3/2 » dans la
+correction, qui n'est pas rouge.
