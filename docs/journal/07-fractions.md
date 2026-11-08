@@ -2172,3 +2172,55 @@ chaque famille du 4.1 ; le banc navigateur (« 6 terdecies bis », ①bis)
 ouvre la rédigée des deux sous leur guidée, y fait compter
 1/2 + 1/3 = 3/6 + 2/6 = 5/6, et vérifie que la guidée suivante referme la
 zone et rend sa consigne au 4.1.
+
+## Première — 4.7 {relier-fractions} : relier décimaux, pourcentages et fractions (novembre 2026)
+
+Demande de Turquet : « relier chaque valeur décimale à la bonne fraction », en
+cinq temps — ① 0,1 ; 0,25 ; 0,5 ; 0,75 avec 1/2, 1/4, 3/4, 1/10 ; ② 0,1 ;
+0,2 ; 0,4 ; 0,6 ; 0,8 avec les quatre cinquièmes ; ③ les huit décimaux
+(0,80 écrit tel quel) avec les sept fractions ; ④ 10 % … 80 % avec les mêmes
+sept fractions ; ⑤ cinq calculs « 20 % de 15 = …/… × 15 = …/… = … » dont le
+résultat est un entier de 2 à 5. Chaque temps est une PARTIE ; la séance a
+neuf questions (quatre à relier, cinq calculs).
+
+**Les listes sont celles de la demande, et elles ne se correspondent pas
+toujours.** En parties 2 et 3, 0,1 n'a pas sa fraction (1/10 n'est pas
+proposé) ; en partie 4, 10 % non plus, et 1/4 reste sans pourcentage. Rien
+n'a été complété en douce : c'est un INTRUS, annoncé par l'énoncé (« un des
+nombres n'a pas sa fraction dans la liste — ne le relie à rien »), juste
+quand il reste seul (dès que la copie n'est pas vide), faux s'il est relié.
+Si Turquet préfère ajouter 1/10 (et 25 %), c'est `RLF_ETAPES` et rien
+d'autre.
+
+**Puis, le jour même : « ajoute 1/10 et 25 % dans les listes ».** 1/10 entre
+dans les parties 2, 3 et 4 (huit fractions en 3 et 4, `RLF_FRAC8`), 25 % dans
+la partie 4 : chaque nombre a désormais sa fraction, et l'énoncé ne parle
+plus d'intrus. Le juge de l'intrus reste dans le moteur, sans liste qui s'en
+serve.
+
+**Relier, pour de vrai.** On clique un nombre puis sa fraction (ou
+l'inverse) ; un trait SVG, mesuré dans la page, les relie, et se redessine
+au redimensionnement. Cliquer l'un des bouts défait le trait ; une fraction
+ne porte qu'un trait. Les fractions sont empilées et mélangées (`q.ordre`),
+les nombres gardent l'ordre de la fiche. La question ne range que ses traits
+(`q.rep`, hors de la clé de `distinctes()`), jamais la réponse :
+`rlfAttendu` la recalcule.
+
+**Le verdict, nombre par nombre** : relié juste en bleu (le trait aussi),
+relié faux en rouge, jamais relié rien du tout ; l'entraînement trace en
+vert pointillé le trait qu'il fallait, et peint en vert le nombre resté
+seul. En soutien le juste se verrouille avec sa fraction, le faux se reprend
+(un trait défait perd son rouge). Pas de correction au fil des clics, comme
+au {associer-coefficient}. Les boutons ne sont pas des cases que
+`ptsEcran()` sait lire : la réponse porte elle-même son compte
+(`pts`, `justes`, `cases` = nombre de nombres à relier).
+
+**Les calculs** reprennent la ligne du 1.12 (`vapCase`, `fEq`) : la
+fraction s'accepte sous toute forme égale (20/100 vaut 1/5), chaque case de
+la paire se juge contre la forme irréductible quand la paire est fausse
+(`marqueFracAncre`). Les couples (P, N) viennent de `rlfCalculs()` : un par
+pourcentage avant toute reprise, jamais deux fois le même — une séance
+allongée par un devoir (jusqu'à 20) ajoute des calculs, une séance
+raccourcie prend les parties à intervalles réguliers (`rlfPartie`). La
+question porte `n`/`d`, la fraction irréductible du pourcentage : le
+contrôle des fractions de départ la lit.

@@ -6068,3 +6068,67 @@ vertical, les nombres écrits dans l'ordre, les huit noms ; la question suivante
 revient sans décomposition. Au 8.4.4 : la copie vide puis FE⃗ à l'envers
 montrent « grise, noire, −8, −3 », la grise de A(3 ; 5) jusqu'à (−5 ; 5) ; en
 soutien, rien. Vu dans un vrai Chromium à 1 100 et 380 px.
+
+## {coordonnees-vecteur-parallelogramme} — deux vecteurs égaux, un parallélogramme (8.4.5, Seconde v656 — les v654 et v655 prises sur main pendant les bancs, par #957 et #956)
+
+**La demande** (Turquet, novembre 2026) : « en seconde dans vecteur et
+coordonnées créer un exercice comme le pdf ; en mode soutien on fera une bulle
+pour les calculs d'une somme de termes comme dans l'exercice 8.4.4 ». La fiche
+« vecteur coord parallélogramme » : placer A(−2 ; 3), B(4 ; −2), C(−1 ; 5),
+D(5 ; 0) dans le repère ; 1) les coordonnées de AB⃗, « Fin − Début » au-dessus
+de … − … / … − …, puis le résultat ; 2) de même pour CD⃗ ; 3) « AB⃗ … CD⃗ donc :
+le quadrilatère … est un … ».
+
+**Le moteur « vcp »** reprend les gestes du 8.4.4 sans vecteur à tracer (la
+fiche ne le demande pas) : quatre boutons de point (`pts-case`), la croix qui
+suit la souris, le point faux rouge dès sa pose, le passage au suivant sur un
+juste ; au doigt, la barre « Je place » (`POSE_DOIGT.vcp`, quatre points). Le
+repère est celui du 8.4.4 : `vcdSVG(q, pre)` a pris un préfixe d'identifiants
+(« vcd » par défaut, « vcp » ici) — rien d'autre n'a changé pour le 8.4.4.
+
+**Le calcul est la fiche** : « Fin − Début » au-dessus de la colonne, sans
+rond ni carré et sans liste des noms (la fiche n'en a pas) — les cases du
+8.4.4 (`vcdCase`). **La conclusion** : une liste « = / ≠ », une case du nom
+du quadrilatère (ABDC, ou l'un des sept autres noms du même tour, `VCP_NOMS`,
+en minuscules compris), une liste « est un / n'est pas un » devant
+« parallélogramme ». Le badge vert de la correction, posé par-dessus dans la
+colonne du 8.4.4, couvrait la liste suivante dans la phrase (vu à la capture) :
+dans `.vcp-concl`, il prend sa place à côté de la case.
+
+**Dix-neuf réponses, chacune jugée seule** (`vcpJuge`) : quatre points, six
+cases par vecteur, trois pour la conclusion — jugées sur la vérité, pas sur
+les vecteurs calculés par l'élève. Les messages nomment la faute : point aux
+coordonnées échangées ou au signe oublié, fin et début échangés, abscisses et
+ordonnées mêlées, le signe, le négatif à soustraire, « Pas ABCD : le
+quadrilatère se lit en faisant le tour — A, B, puis D, puis C ». La correction
+dessine en pointillés le quadrilatère ABDC : l'élève voit le parallélogramme,
+ou ce qui l'en écarte. Trois questions (`VCP_NB`, `dmNbQuestions`), barème 57.
+
+**Le tirage** (`vcpGen`) : la première question EST la fiche ; ensuite autant
+de « oui » que de « non », mêlés (`vcpBuildQuestions`, un plan tiré une fois
+par séance). Points de −5 à 5, ni sur un axe ni à −1, deux à deux à deux
+carreaux au moins ; AB⃗ et CD⃗ en biais ; C hors de (AB) (sinon le
+parallélogramme serait aplati). Un « non » écarte D d'un carreau : le piège se
+voit au calcul, pas à l'œil. On range `P` et `pl`.
+
+**La bulle « gagne / perds » est celle du 8.4.4, généralisée** : `vcdGpTermes`
+lit la case du résultat « …-rx » / « …-ry » et en déduit ses deux cases
+« …-xf », « …-xd » (« …-yf », « …-yd ») ; `VCD_GP_KINDS` admet « vcd » et
+« vcp » ; la bulle exige d'être dans un `.vcd-calc` (et non plus dans
+`#vcdCalc`). Elle s'ouvre à côté des quatre résultats du 8.4.5, en soutien,
+quand la soustraction est remplie. Le soutien en direct passe par
+`liveVcp()` (le 8.4.5 n'est pas dans `soutienEnDirect.sans`).
+
+**Le banc principal** (`coordonneesVecteurs`, « parallelogramme ») : la place
+8.4.5, les tables absentes, le rappel, les huit noms ; deux cents séances (la
+fiche d'abord, un « oui » et un « non » ensuite, des points lisibles et
+éloignés, C hors de (AB)) ; 169 nœuds et 21 graduations ; la copie vide
+(dix-neuf `sol`, rien de rouge, quatre points et le quadrilatère en vert,
+« Il te manquait 19 cases ») ; la copie juste aux gestes (A faux rouge qui
+garde le geste, le reclic, le passage au suivant) — 19 sur 19 avec « (−2) »,
+« +6 » et « abdc » ; la reprise après JSON ; un ABDC qui n'est pas un
+parallélogramme, fin et début échangés, un signe, « = », « ABCD », « est un »
+— chaque faute nommée, les badges verts ; le contexte du modèle ; le soutien ;
+la bulle au résultat de CD⃗ puis à celui de AB⃗, rien hors du soutien. Vu
+dans un vrai Chromium à 1 280 et 390 px : la page vide, la correction, la
+bulle à droite du résultat.
