@@ -1844,3 +1844,87 @@ vrai aux n°4 et 6, faux au 5, au 1 et pour une fiche ; le n°4 pas fait
 s'écrit « 0 / 10 »). Exécuté dans Chromium (double de Supabase, deux élèves) :
 au n°4, Anna 14 / 20 et Bob 0 / 20, moyenne du devoir 7 / 20 ; au n°7, Bob
 « — / 10 » et moyenne 5 / 10, inchangés.
+
+**Les ÉVALUATIONS sont la troisième famille de la Première — à l'aveugle,
+une tentative, la copie corrigée publiée par le professeur (v382, demande de
+Turquet, novembre 2026).** « En première je veux pouvoir créer des
+évaluations comme des fiches de travail […] l'élève ne peut réaliser les
+exercices qu'en mode entraînement, on ne vérifiera pas les résultats à la
+fin, ce sera un bouton valider, […] pas de correction au fur et à mesure. […]
+à la fin l'élève peut voir la note et la correction quand je l'aurai décidé.
+Il pourra signaler un problème […] je recevrai donc automatiquement la
+correction et le commentaire de l'élève. »
+**Le moteur des fiches, une ligne de plus dans `GENRE_DEVOIRS`** : `eval`,
+rangée sous `valeurs.evaluations` (le portail ne lit que `devoirs`), préfixe
+`ev_`, note ramenée sur 20, « abs », et `eval:true` qui dit tout ce qui
+change. Les phrases qui disaient « fiche » ou « devoir » passent par
+`dmMots(genre)` ; `dmGenreDe()` remplace les ternaires qui rabattaient tout
+genre inconnu sur « dm ».
+**Les exercices ne savent rien de l'évaluation, et c'est voulu.** Soixante
+moteurs ont chacun leur vérification, leur verdict et leur correction :
+recopier la règle dans chacun aurait laissé le soixante et unième parler.
+L'exercice tourne EXACTEMENT comme en entraînement — même juge, même note,
+`mode:'train'` dans la ligne — et le script `#eval-aveugle` (fin de fichier)
+se pose par-dessus l'écran, branché par `show()` sur les seuls écrans d'une
+évaluation (`enEvaluation()` : un `currentDM` en `ev_`, l'entraînement, hors
+rejeu) : « Vérifier » s'écrit « Valider » ; dès que la question est corrigée
+(`test.locked`, la définition que le banc de la pause tient sur chaque
+exercice) et que l'écran offre sa suite (`suiteDeLEcran()`), l'écran corrigé
+est PHOTOGRAPHIÉ puis la suite est appelée — dans le relevé d'un
+`MutationObserver`, donc avant que le navigateur ne peigne. Une suite partie
+d'une minuterie (le calcul mental) est photographiée et laissée à sa
+minuterie : l'appeler aussi avancerait deux fois ; la feuille `#eval-aveugle-css`
+cache alors les marques ✓/✗ et la réponse le temps du délai. L'écran de fin
+dit « Exercice rendu », sans note (`evalFinExercice`), et l'aide par IA
+disparaît (`iaBoutons`).
+**La copie corrigée part avec la note** (`enregistrerResultat`, l'entonnoir :
+`details.eval`, `details.copie` = une photographie par question, les valeurs
+tapées recopiées en attributs, sans boutons ni identifiants — environ 5 Ko
+par question au 2.1.3 ; une question de plus de 120 000 caractères n'est pas
+gardée, et la correction retombe alors sur `details.misses`).
+**Avant publication, rien ne se lit** : les notes d'évaluation sont rangées à
+part (`mesEvals`) — l'historique, le bilan des thèmes et le rattrapage lisent
+`mesResultats` et les y auraient montrées ; seul `dmBest` les lit. UNE
+tentative : la carte d'un exercice rendu n'a plus de clic, et la porte
+(`openTestDevoir`) refuse par la même définition (`evalEtatExo`). Le
+professeur publie par un interrupteur à lui (« Notes et correction
+publiées », `publie:true`, écrit aussitôt sur la seule évaluation montrée) ;
+une fois publiée, un exercice non rendu se ferme.
+**La copie se relit sur un écran à elle (`#scr-evalcopie`), par trois
+portes** : l'élève depuis la page de l'évaluation publiée, le professeur
+depuis le détail d'un élève (« Voir la copie »), et depuis un signalement :
+envoyé de la copie, il emporte `_eval`, `_copie`, `_misses` et la note lue,
+et la liste du professeur offre « Voir la copie corrigée » à la place de
+« Rejouer l'écran ». **La copie est une donnée écrite par le navigateur de
+l'élève**, et c'est le professeur qui l'ouvre, connecté : elle passe par
+`evalNettoyer()` (balises actives retirées, attributs `on…`, adresses
+`javascript:` effacés).
+**Un défaut d'à côté s'est vu en écrivant** : en Première, `saveDM()`
+recopiait chaque exercice sans `bonus` — la case « Bonus » se cochait, et
+l'enregistrement l'effaçait, sur les devoirs et les fiches aussi. Recopié
+désormais, et tenu par le banc. Et `dmMoyFamille`, du moteur des moyennes
+commun aux trois niveaux, a gagné la ligne des évaluations dans les TROIS
+fichiers (inerte en Seconde et en Terminale) : le contrôle les veut
+identiques au caractère près.
+**La boîte des cases vides (`#confirmer-vides`, arrivée sur `main` le même
+jour) vaut aussi en évaluation**, puisque l'évaluation EST l'entraînement :
+« Valider » avec des cases vides demande confirmation — et la boîte y parle
+la langue de l'évaluation (« Valider quand même », « tu ne pourras plus
+revenir sur cette question »). Exécuté dans Chromium : la boîte s'ouvre, le
+geste « Valider quand même » passe à la question suivante et photographie la
+copie, rien de corrigé ne reste à l'écran.
+**Ce que la photographie ne couvre pas, et c'est nommé** : un exercice à
+niveaux (le parcours du 1.6) qui fait recommencer un niveau raté, et les
+tables de multiplication, qui reposent les produits ratés, montrent par
+construction ce qui est faux — ils ne se prêtent pas à une évaluation.
+Contrôle : banc navigateur, « 6 sexies quater » (déclaré par `evaluations`
+dans `tests/profils.js`) — l'accueil, la page à part, la carte unique,
+« Valider » sans aide, la suite immédiate, **aucune correction peinte à
+aucune image** (un relevé par `requestAnimationFrame`), la fin « rendu », la
+ligne et sa copie, l'historique muet, la porte fermée, la publication, la
+copie nettoyée, le signalement, l'enregistrement qui garde bonus et
+publication, la copie lue par le professeur. Quatre sabotages, chacun
+rougissant en nommant son défaut : sans le passage automatique (35 images
+peintes avec des cases `ok`), sans `evalNettoyer`, sans `bonus` dans
+`saveDM`, sans la copie dans l'entonnoir. Banc principal : le sélecteur du
+professeur compte trois familles, et l'ordre des cartes de l'accueil.

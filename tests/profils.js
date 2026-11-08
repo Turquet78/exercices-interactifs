@@ -315,7 +315,7 @@ module.exports = {
        Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
        seul un nouvel écran de menu doit être inscrit. */
     ecransHorsExercice: ['setup','login','space','choose','theme','soustheme','rattrapage',
-                        'devoirs','mode','results','teacher-login','teacher'],
+                        'devoirs','mode','results','teacher-login','teacher','evalcopie'],
     niveau: 'Première',
     /* Les classes qui portent l'encadré « Énoncé », et les écrans qui n'en ont
        pas besoin : leur énoncé EST l'ardoise noire, où le calcul s'affiche en
@@ -766,6 +766,11 @@ module.exports = {
        mais sans devoir affiché, et devoir affiché. */
     devoirsEleve: { table: 'parametres_1ere', exercice: 'pourcentage',
                     aveu: 'ne voit aucun réglage' },
+    /* LES ÉVALUATIONS (demande de Turquet, novembre 2026) : la troisième
+       famille, à l'aveugle — banc navigateur, « 6 sexies quater ». L'exercice
+       est celui du témoin navigateur (sa réponse juste se sait écrire) ; le
+       bonus, un exercice qui n'est pas fait dans le contrôle. */
+    evaluations: { table: 'parametres_1ere', exercice: 'pourcentage', bonus: 'calcul-mental' },
     /* LA SECONDE FAMILLE DE DEVOIRS — ce que la page doit en dire, déclaré
        ICI pour que le contrôle compare DEUX sources (le profil et la page) au
        lieu de lire la page et de la comparer à elle-même : le titre de la

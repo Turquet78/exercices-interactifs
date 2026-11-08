@@ -3447,6 +3447,156 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 sexies quater. L'ÉVALUATION : À L'AVEUGLE, PUIS LA COPIE CORRIGÉE =====
+       Demande de Turquet (novembre 2026, Première) : une troisième famille de
+       devoirs, les évaluations — l'entraînement seul, une tentative, un bouton
+       « Valider », AUCUNE correction pendant l'exercice ; la note et la copie
+       corrigée quand le professeur les publie ; un signalement qui emporte la
+       copie. Seul un navigateur tient le cœur de la promesse : que la
+       correction ne soit JAMAIS PEINTE. Elle existe un instant dans le DOM —
+       l'exercice tourne exactement comme en entraînement, et c'est le script
+       #eval-aveugle qui photographie l'écran corrigé puis passe à la suite,
+       avant que le navigateur ne peigne. Un relevé posé sur CHAQUE image
+       (requestAnimationFrame) le mesure : un passage qui attendrait une image
+       de trop rougirait ici, alors que le DOM final serait parfait. */
+    titre('6 sexies quater. L\'ÉVALUATION : À L\'AVEUGLE, PUIS LA COPIE CORRIGÉE');
+    if(!P.evaluations){
+      ignorer('une évaluation se fait à l\'aveugle, et sa copie corrigée se lit une fois publiée',
+        'ce niveau n\'a pas d\'évaluations (demande faite pour la Première)');
+    } else {
+      const E = P.evaluations, N = P.navigateur;
+      s = await ouvrir(chromium, ml, {});
+      const ev = { id: 'ev_ctl', num: 3, actif: true, titre: 'Évaluation de contrôle', cours: '',
+                   exercices: [{ id: E.exercice, modes: ['train'], nbQ: 2 }, { id: E.bonus, modes: ['train'], bonus: true }] };
+      await s.page.evaluate(a => window.__faux.semer(a.t, [{ id: 1, valeurs: { evaluations: [a.ev],
+        fiches: [{ id: 'fc_ctl', num: 1, actif: true, titre: 'Fiche voisine', cours: '', exercices: [{ id: a.ev.exercices[0].id, modes: ['train'] }] }] } }]),
+        { t: E.table, ev });
+      await connecter(s.page);
+      const corps = () => s.page.evaluate(() => document.getElementById('devoirsBody').textContent.replace(/\s+/g, ' ').trim());
+      /* 1. l'accueil y mène, et l'évaluation vit dans SA page */
+      const bouton = await s.page.evaluate(() => { const b = document.querySelector('#scr-space .choice.evaluation'); return b ? b.textContent : ''; });
+      verifier('l\'accueil de l\'élève a le bouton des évaluations', /Évaluations/.test(bouton), 'aucun bouton .choice.evaluation');
+      await s.page.evaluate(() => openDevoirsEleve('fiche')); await s.page.waitForTimeout(400);
+      const fiches = await corps();
+      await s.page.evaluate(() => openDevoirsEleve('eval')); await s.page.waitForTimeout(400);
+      const evals = await corps();
+      verifier('une évaluation s\'affiche dans SA page, et nulle part ailleurs',
+        evals.indexOf('Évaluation de contrôle') >= 0 && evals.indexOf('Fiche voisine') < 0 && fiches.indexOf('Évaluation de contrôle') < 0,
+        'évaluations : « ' + evals.slice(0, 100) + ' » | fiches : « ' + fiches.slice(0, 100) + ' »');
+      /* 2. l'exercice : entraînement seul, « Valider », aucune aide */
+      await s.page.evaluate(id => ouvrirDevoirDetail(id), ev.id); await s.page.waitForTimeout(500);
+      await s.page.evaluate(a => openTestDevoir(a.d, a.x), { d: ev.id, x: E.exercice }); await s.page.waitForTimeout(500);
+      const modes = await s.page.evaluate(() => [...document.querySelectorAll('#modeChoices .choice')].map(b => b.getAttribute('onclick') || ''));
+      verifier('une évaluation ne propose que l\'entraînement, une seule carte',
+        modes.length === 1 && /'train'/.test(modes[0]), 'cartes : ' + JSON.stringify(modes));
+      /* le relevé de CHAQUE image peinte : une case jugée, ou un retour écrit
+         et visible, sur l'écran de l'exercice */
+      await s.page.evaluate(() => {
+        window.__vuCorrige = [];
+        const tour = () => {
+          const scr = document.querySelector('section.screen.on');
+          if(scr && scr.id !== 'scr-results' && document.body.classList.contains('eval-aveugle')){
+            const juge = scr.querySelector('.ok,.bad,.sol,.good');
+            const fb = [...scr.querySelectorAll('.mp-feedback')].find(f => f.textContent.trim() && getComputedStyle(f).visibility !== 'hidden');
+            if(juge || fb) window.__vuCorrige.push((juge ? 'case .' + juge.className : 'retour « ' + fb.textContent.trim().slice(0, 40) + ' »'));
+          }
+          window.__rafEval = requestAnimationFrame(tour);
+        };
+        tour();
+      });
+      await s.page.click('#modeChoices .choice'); await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(v => {
+        const scr = document.querySelector('section.screen.on');
+        const b = scr && scr.querySelector(v);
+        return { aveugle: document.body.classList.contains('eval-aveugle'), bouton: b ? b.textContent.trim() : '(aucun)',
+                 ia: !!(scr && [...scr.querySelectorAll('button')].some(x => /question à l.IA|Soutien/.test(x.textContent))),
+                 tag: scr ? scr.textContent.indexOf('Évaluation') >= 0 : false, n: test.questions.length };
+      }, N.valider);
+      verifier('pendant une évaluation, le bouton dit « Valider », l\'écran dit « Évaluation », sans aide de l\'IA',
+        avant.aveugle && avant.bouton === 'Valider' && !avant.ia && avant.tag, JSON.stringify(avant));
+      /* 3. une question juste, une laissée vide : la suite arrive aussitôt */
+      const idx0 = await s.page.evaluate(() => test.idx);
+      await s.page.evaluate(code => eval(code), N.repondre);
+      await s.page.click(N.valider); await s.page.waitForTimeout(500);
+      const idx1 = await s.page.evaluate(() => test.idx);
+      verifier('« Valider » passe aussitôt à la question suivante, sans bouton « Question suivante »',
+        idx1 === idx0 + 1, 'question ' + idx0 + ' → ' + idx1);
+      await s.page.click(N.valider); await s.page.waitForTimeout(1200);
+      const vu = await s.page.evaluate(() => { cancelAnimationFrame(window.__rafEval); return window.__vuCorrige; });
+      verifier('aucune correction n\'est jamais peinte pendant l\'évaluation (relevé à chaque image)',
+        vu.length === 0, vu.length + ' image(s) : ' + vu.slice(0, 3).join(' ; '));
+      const fin = await s.page.evaluate(() => {
+        const vis = el => !!el && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+        return { ecran: (document.querySelector('section.screen.on') || {}).id, msg: document.getElementById('resultMsg').textContent,
+                 note: vis(document.getElementById('resultScore')), revue: vis(document.getElementById('review')),
+                 rendu: vis(document.getElementById('resultEval')) };
+      });
+      verifier('la fin d\'un exercice d\'évaluation dit « rendu », sans note ni correction',
+        fin.ecran === 'scr-results' && /rendu/i.test(fin.msg) && !fin.note && !fin.revue && fin.rendu, JSON.stringify(fin));
+      /* 4. la note part en base AVEC sa copie corrigée, et reste hors de l'historique */
+      const ligne = await s.page.evaluate(a => {
+        const r = window.__faux.lignes(a.t).filter(x => x.details && x.details.dm === a.d && x.details.state !== 'paused')[0];
+        if(!r) return null;
+        const c = r.details.copie || [];
+        return { eval: r.details.eval, mode: r.details.mode, n: c.length, juge: c.every(x => /class="[^"]*\b(ok|bad|sol)\b/.test(x.h || '')),
+                 ids: c.some(x => /\sid="/.test(x.h || '')), boutons: c.some(x => /<button/.test(x.h || '')) };
+      }, { t: P.tableResultats || 'resultats_1ere', d: ev.id });
+      verifier('la note d\'une évaluation part en base avec la copie corrigée de chaque question',
+        !!ligne && ligne.eval === true && ligne.mode === 'train' && ligne.n === 2 && ligne.juge && !ligne.ids && !ligne.boutons,
+        JSON.stringify(ligne));
+      const hist = await s.page.evaluate(async () => { await chargerMesResultats(); return { res: mesResultats.length, ev: mesEvals.length }; });
+      verifier('la note d\'une évaluation n\'entre pas dans l\'historique de l\'élève (elle n\'est pas publiée)',
+        hist.res === 0 && hist.ev === 1, JSON.stringify(hist));
+      /* 5. une seule tentative, et rien à lire avant la publication */
+      await s.page.evaluate(id => ouvrirDevoirDetail(id), ev.id); await s.page.waitForTimeout(500);
+      const nonPub = await corps();
+      await s.page.evaluate(a => openTestDevoir(a.d, a.x), { d: ev.id, x: E.exercice }); await s.page.waitForTimeout(400);
+      const porte = await ecranVisible(s.page);
+      verifier('un exercice rendu ne se refait pas, et sa note reste cachée avant la publication',
+        porte === 'scr-devoirs' && /Rendu/.test(nonPub) && !/Note : \d/.test(nonPub), 'écran : ' + porte + ' | « ' + nonPub.slice(0, 160) + ' »');
+      /* 6. publiée : la note, puis la copie corrigée, NETTOYÉE */
+      await s.page.evaluate(a => { const p = window.__faux.lignes(a.t)[0]; p.valeurs.evaluations[0].publie = true;
+        const r = window.__faux.lignes(a.r).filter(x => x.details && x.details.dm === a.d)[0];
+        r.details.copie.push({ i: 9, k: 'x', h: '<div class="piege"><img src="x" onerror="window.__piege=1"><script>window.__piege=2<\/script><a href="javascript:window.__piege=3">a</a></div>' }); },
+        { t: E.table, r: P.tableResultats || 'resultats_1ere', d: ev.id });
+      await s.page.evaluate(id => ouvrirDevoirDetail(id), ev.id); await s.page.waitForTimeout(600);
+      const pub = await corps();
+      await s.page.evaluate(a => voirCorrectionEval(a.d, a.x), { d: ev.id, x: E.exercice }); await s.page.waitForTimeout(1200);
+      const copie = await s.page.evaluate(() => {
+        const c = document.getElementById('evalCopieCorps');
+        return { ecran: (document.querySelector('section.screen.on') || {}).id, q: c.querySelectorAll('.copie-q').length,
+                 juge: c.querySelectorAll('.ok,.bad,.sol').length, piege: window.__piege || 0,
+                 actif: c.querySelectorAll('script,[onerror]').length + [...c.querySelectorAll('a')].filter(a => /javascript:/i.test(a.getAttribute('href') || '')).length,
+                 note: document.getElementById('evalCopieNote').textContent };
+      });
+      verifier('publiée, l\'évaluation montre la note puis la copie corrigée de chaque question',
+        /Note : \d/.test(pub) && copie.ecran === 'scr-evalcopie' && copie.q === 3 && copie.juge > 0 && /\/ 10/.test(copie.note),
+        '« ' + pub.slice(0, 120) + ' » | ' + JSON.stringify(copie));
+      verifier('la copie relue est NETTOYÉE : ni script, ni « on… », ni adresse javascript:',
+        copie.piege === 0 && copie.actif === 0, JSON.stringify(copie));
+      /* 7. le signalement envoyé de la copie emporte la copie et la note */
+      await s.page.click('#evalCopieActs .btn-ghost'); await s.page.waitForTimeout(300);
+      await s.page.fill('#sigInput', 'la question 2 me semble juste'); await s.page.click('#sigSend'); await s.page.waitForTimeout(700);
+      const sig = await s.page.evaluate(t => window.__faux.lignes(t).map(r => ({ ex: r.exercice, ev: r.contexte && r.contexte._eval,
+        dm: r.contexte && r.contexte._dm, n: ((r.contexte && r.contexte._copie) || []).length, note: r.contexte && r.contexte._note })), P.signalement.table);
+      verifier('un signalement envoyé depuis la copie corrigée emporte la copie et la note',
+        sig.length === 1 && sig[0].ev === true && sig[0].dm === ev.id && sig[0].n >= 2 && /Note/.test(sig[0].note || ''), JSON.stringify(sig));
+      /* 8. le professeur : enregistrer GARDE le bonus et la publication */
+      await s.page.evaluate(p => sb.auth.signInWithPassword({ email: p.c, password: p.m }), { c: (fs.readFileSync(path.join(RACINE, CIBLE), 'utf8').match(/const COURRIEL_PROF\s*=\s*"([^"]+)"/) || [])[1], m: MDP_PROF });
+      await s.page.evaluate(() => { show('teacher'); teacherTab('devoirs'); }); await s.page.waitForTimeout(500);
+      await s.page.evaluate(() => choisirGenreDevoir('eval')); await s.page.waitForTimeout(900);
+      await s.page.click('#dmEditor .dm-ed-acts .btn-primary'); await s.page.waitForTimeout(700);
+      const garde = await s.page.evaluate(t => { const e = window.__faux.lignes(t)[0].valeurs.evaluations[0];
+        return { bonus: !!(e.exercices[1] && e.exercices[1].bonus), publie: e.publie === true, soutien: e.exercices.some(x => (x.modes || []).indexOf('soutien') >= 0) }; }, E.table);
+      verifier('enregistrer une évaluation garde le bonus et la publication, sans soutien',
+        garde.bonus && garde.publie && !garde.soutien, JSON.stringify(garde));
+      await s.page.evaluate(() => dmStudentDetail('eleve-controle', 'Contrôle')); await s.page.waitForTimeout(300);
+      const vuProf = await s.page.evaluate(() => { const b = [...document.querySelectorAll('#dmStudentDetail button')].find(x => /Voir la copie/.test(x.textContent)); if(!b) return 'aucun bouton'; b.click();
+        return new Promise(r => setTimeout(() => r((document.querySelector('section.screen.on') || {}).id + ' · ' + document.querySelectorAll('#evalCopieCorps .copie-q').length), 600)); });
+      verifier('le professeur lit la copie corrigée depuis le bilan de l\'évaluation', /^scr-evalcopie · [23]$/.test(vuProf), vuProf);
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quindecies. Le professeur POSE une note sur un devoir ===== */
     /* Turquet doit pouvoir corriger la note d'un exercice pour un élève. Le
        banc principal éprouve le CALCUL — la note posée remplace, elle est
