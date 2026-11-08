@@ -15069,8 +15069,14 @@ function coordonneesVecteurs(w, P){
     q3.v.forEach(function(l,i){ el('vcs-x-'+i).value=(l[2]<0?'−':'')+Math.abs(l[2]); el('vcs-y-'+i).value=(l[3]<0?'-':'+')+Math.abs(l[3]); });
     av=test.score; checkVcs();
     if(test.score-av!==16 || document.querySelectorAll('#scr-vcs .vco-in.ok').length!==16) vus.push('8.4.3 : la copie juste vaut '+(test.score-av));
+    /* vérifiée, la figure prend la décomposition du 8.4.1 : la grise, la noire et leurs déplacements écrits */
+    const et3=[].map.call(document.querySelectorAll('#vcsHost .vco-svg .vco-et'),function(t){ return t.textContent; }).join(' ');
+    const at3=[]; q3.v.forEach(function(l){ if(l[2]) at3.push(vcoSg(l[2])); if(l[3]) at3.push(vcoSg(l[3])); });
+    if(document.querySelectorAll('#vcsHost .vco-svg .vco-h').length!==q3.v.filter(function(l){ return l[2]; }).length
+      || document.querySelectorAll('#vcsHost .vco-svg .vco-b').length!==q3.v.filter(function(l){ return l[3]; }).length
+      || et3!==at3.join(' ') || document.querySelectorAll('#vcsHost .vco-svg .vco-nom').length!==8) vus.push('8.4.3 : vérifiée, la figure ne montre pas la décomposition du 8.4.1 : '+et3);
     test.questions[0]=JSON.parse(JSON.stringify(fixe())); renderVcs();
-    if(document.querySelectorAll('#vcsHost .vco-in').length!==16 || document.querySelector('#vcsHost .vco-in.ok')) vus.push('8.4.3 : le rendu après JSON');
+    if(document.querySelectorAll('#vcsHost .vco-in').length!==16 || document.querySelector('#vcsHost .vco-in.ok') || document.querySelector('#vcsHost .vco-svg .vco-et, #vcsHost .vco-svg .vco-h')) vus.push('8.4.3 : le rendu après JSON (ou la décomposition qui reste sur la question suivante)');
     q3.v.forEach(function(l,i){ if(i===4) return; el('vcs-x-'+i).value=String(i===0?1:l[2]); el('vcs-y-'+i).value=String(l[3]); });
     av=test.score; checkVcs();
     if(test.score-av!==13 || classe(el('vcs-x-0'))!=='bad' || classe(el('vcs-y-0'))!=='ok' || classe(el('vcs-x-4'))!=='sol' || classe(el('vcs-y-4'))!=='sol') vus.push('8.4.3 : erreur de signe et vecteur vide : '+(test.score-av));
@@ -15119,6 +15125,11 @@ function coordonneesVecteurs(w, P){
     if(document.querySelectorAll('#vcdCorr .svr-pt.s').length!==2 || document.querySelectorAll('#vcdCorr line.svc-s').length!==1) vus.push('8.4.4 : la correction ne dessine pas les deux points et le vecteur en vert');
     if(el('vcd-rx').value!=='−8' || el('vcd-ry').value!=='−3' || el('vcd-fin').value!=='B') vus.push('8.4.4 : la correction écrit '+el('vcd-fin').value+' '+el('vcd-rx').value+' '+el('vcd-ry').value);
     if(el('vcdFeedback').textContent.indexOf('Il te manquait 11 cases')<0) vus.push('8.4.4 : le message de la copie vide');
+    /* vérifié, le vecteur se décompose comme au 8.4.1 : la grise de A jusqu'à l'aplomb de B, puis la noire jusqu'à B */
+    const dec4=function(){ return [].map.call(document.querySelectorAll('#vcdCorr .vcd-dec line.vco-h, #vcdCorr .vcd-dec line.vco-b, #vcdCorr .vcd-dec text'),function(e){ return e.tagName==='text'?e.textContent:e.getAttribute('class'); }).join(','); };
+    if(dec4()!=='vco-h,vco-b,−8,−3') vus.push('8.4.4 : vérifié, la décomposition est « '+dec4()+' »');
+    const gh4=document.querySelector('#vcdCorr .vcd-dec line.vco-h');
+    if(!gh4 || +gh4.getAttribute('x1')!==vcdX(3) || +gh4.getAttribute('y1')!==vcdY(5) || Math.abs(+gh4.getAttribute('x2')-vcdX(-5))>5 || +gh4.getAttribute('y2')!==vcdY(5)) vus.push('8.4.4 : la flèche grise ne va pas de A(3 ; 5) à (−5 ; 5)');
     /* la copie juste, aux gestes de l'élève : A posé faux (rouge, on y reste), retiré, reposé */
     nextVcd(); test.questions[test.idx]=vcdFiche(); renderVcd();
     const q4=test.questions[test.idx];
@@ -15152,6 +15163,7 @@ function coordonneesVecteurs(w, P){
     av4=verifier4();
     const lfe=cl4();
     if(av4!==3 || lfe!=='ok,ok,bad,bad,bad,bad,bad,bad,bad,bad,ok') vus.push('8.4.4 : FE à l\\'envers : '+av4+' '+lfe);
+    if(dec4()!=='vco-h,vco-b,−8,−3') vus.push('8.4.4 : FE vérifié, la décomposition part de F : « '+dec4()+' »');
     const fb4=el('vcdFeedback').textContent;
     ['est tracé à l’envers','E est la fin, F le début','On écrit fin − début','attention au signe'].forEach(function(m){ if(fb4.indexOf(m)<0) vus.push('8.4.4 : le message ne dit pas « '+m+' » : '+fb4.slice(0,240)); });
     if(!document.querySelector('#vcd-fin + .mf-cor') || el('vcd-fin').nextElementSibling.textContent!=='E') vus.push('8.4.4 : la bonne fin ne s\\'écrit pas à côté de la liste');
@@ -15163,6 +15175,7 @@ function coordonneesVecteurs(w, P){
     checkVcd(); clearTimeout(test.fbTimer);
     const ls=cl4();
     if(test.locked || ls!=='ok,ok,rien,ok,bad,rien,rien,rien,rien,ok,rien' || !el('vcd-rx').disabled || el('vcd-deb').disabled || document.querySelector('#scr-vcd .sol')) vus.push('8.4.4 : le soutien : '+ls);
+    if(document.querySelector('#vcdGraph .vcd-dec')) vus.push('8.4.4 : en soutien, « Revérifier » montre la décomposition (la réponse)');
     /* la bulle « gagne / perds » (Seconde v652) : en soutien, la case du
        résultat prise, la soustraction remplie — les deux termes en mots, la
        réponse laissée à l'élève, qui l'écrit dans le résultat s'il le veut */
