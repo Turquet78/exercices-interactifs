@@ -932,6 +932,41 @@ if(require.main === module) (async () => {
         JSON.stringify(inconnu));
     } else console.log('  (« ?eleve=Prénom » : non demandé à ce niveau — prenomDuLien: false)');
 
+    /* « ?page=themes » DANS L'ADRESSE (favori d'un élève, novembre 2026, les
+       trois niveaux) : la connexion mène tout droit aux « Exercices par
+       thème ». Deux bords : « ← Accueil » y revient À L'ACCUEIL (la demande
+       ne vaut qu'une fois par ouverture), et une valeur inconnue laisse
+       l'accueil. L'adresse est rendue telle qu'elle était dans un finally. */
+    {
+      const ecrans = {};
+      const adresse = await s.page.evaluate(() => location.href);
+      const entrer = async (q) => {
+        await s.page.evaluate(q => { history.replaceState(null, '', location.pathname + q); window.pageDuLienFaite = false; }, q);
+        await sortir();
+        const clic = await cliquerPastille(s.page, PRENOM_CONTROLE, 3000);
+        if(!clic) return 'aucune pastille « ' + PRENOM_CONTROLE + ' »';
+        await saisirCode(s.page, CODE_CONTROLE);
+        await s.page.waitForTimeout(700);
+        return ecranVisible(s.page);
+      };
+      try{
+        ecrans.themes = await entrer('?page=themes');
+        if(ecrans.themes === 'scr-choose'){
+          await s.page.evaluate(() => ouvrirEspace());
+          await s.page.waitForTimeout(400);
+          ecrans.retour = await ecranVisible(s.page);
+        }
+        ecrans.inconnue = await entrer('?page=nimporte');
+      } finally {
+        await s.page.evaluate(u => history.replaceState(null, '', u), adresse);
+        await sortir();
+      }
+      verifier('« ?page=themes » dans l\'adresse mène, après la connexion, aux exercices par thème — et « ← Accueil » reste à l\'accueil',
+        ecrans.themes === 'scr-choose' && ecrans.retour === 'scr-space',
+        JSON.stringify(ecrans));
+      verifier('« ?page= » avec une valeur inconnue laisse l\'accueil', ecrans.inconnue === 'scr-space', JSON.stringify(ecrans));
+    }
+
     /* DEUX HOMONYMES SUR LES PASTILLES : deux « Contrôle », deux pastilles
        pareilles, et l'élève clique celle de son voisin. C'est le code qui
        départage, comme dans le repli : la page essaie la clé de la pastille

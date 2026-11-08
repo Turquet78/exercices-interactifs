@@ -9092,7 +9092,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=651;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=652;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -15223,7 +15223,17 @@ function ouvrirEspaceSuite(){
      ne doit pas patienter sur une lecture, et le panneau se pose ensuite. */
   chargerReponsesProf();
   chargerBilanAccueil();
+  /* « ?page=themes » dans l'adresse (le favori d'un élève, demande de Turquet,
+     novembre 2026) : la connexion mène tout droit aux « Exercices par
+     thème ». UNE fois par ouverture de la page — « ← Accueil » repasse par
+     ici et doit, lui, rester à l'accueil. */
+  if(!pageDuLienFaite && pageDuLien()==='themes'){ pageDuLienFaite=true; openThemes(); }
 }
+
+/* La page demandée par l'adresse (« ?page=themes »), en minuscules ; '' sans
+   demande. Une valeur inconnue ne mène nulle part : l'accueil reste. */
+var pageDuLienFaite=false;
+function pageDuLien(){ try{ return String(new URLSearchParams(location.search).get('page')||'').trim().toLowerCase(); }catch(e){ return ''; } }
 /* ======================= LE BILAN DE L'ACCUEIL =======================
    Demande de Turquet, novembre 2026 : « en seconde, faire un bilan sur la
    première page de l'élève avec toutes les notes de DM et toutes les notes
