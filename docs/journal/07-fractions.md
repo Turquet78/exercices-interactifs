@@ -2261,7 +2261,7 @@ Contrôles : `fractionsRedigees` (6/15 accepté, 4/8 + 2/8 = 6/8 accepté,
 banc navigateur fait compter 5/2 × 3/5 = 15/10 et lit « 3/2 » dans la
 correction, qui n'est pas rouge.
 
-## Première — 4.8, 4.9, 4.10 : les 5.13, 5.14 et 5.16 de la Seconde, avec leur question rédigée (novembre 2026, Première v381)
+## Première — 4.8, 4.9, 4.10 : les 5.13, 5.14 et 5.16 de la Seconde, avec leur question rédigée (novembre 2026, Première v383)
 
 Demande de Turquet : « mets le 5.16 de seconde en première et fais en sorte
 qu'il ait, après le modèle à compléter, une question du même type avec un
