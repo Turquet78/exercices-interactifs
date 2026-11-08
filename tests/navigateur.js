@@ -8394,10 +8394,12 @@ if(require.main === module) (async () => {
           document.querySelector('#mltrZone math-field').setValue(test.sfrDepart + '\\frac{15}{10}');
           await checkSFR();
           const fb = document.getElementById('mltrFeedback'), d = test.answers[test.answers.length - 1];
-          /* la correction ÉCRIT ses fractions empilées : « 3/2 » se lit dans le HTML (annotation ou barre oblique cachée), pas dans le texte à plat */
-          const h = fb ? fb.innerHTML : '';
-          return { texte: fb ? fb.textContent : '', rouge: !!(fb && fb.classList.contains('bad')), compte: !!(d && d.correct),
-                   troisDemis: /\\frac\{3\}\{2\}|\b3\/2\b|>3<[\s\S]{0,400}>2</.test(h) };
+          /* la correction ÉCRIT ses fractions empilées (MathLive) : à plat, 3/2 se
+             lit « 23 » — le dénominateur vient d'abord dans le DOM. On lit donc
+             les deux chiffres dans un ordre ou dans l'autre, et le diviseur 5. */
+          const t = fb ? fb.textContent.replace(/[\u200b\s]/g, '') : '';
+          return { texte: fb ? fb.textContent : '', rouge: !!(fb && fb.classList.contains('bad')), compte: !!(d && d.correct && d.nonSimplifie),
+                   troisDemis: /par5,onobtient(23|32)\.?$/.test(t) };
         });
         /* Depuis novembre 2026 (décision de Turquet), un résultat juste mais
            non simplifié VAUT le point en rédaction : la correction le dit. */
