@@ -1283,4 +1283,4 @@ le dernier `×` (ou `·`) placé après la dernière fraction, ou, sans signe, t
 ce qui suit cette fraction. `¼ × 2 /` → ¼ × 2/□ ; `3 × ¼ × 2 /` → 3 × ¼ × 2/□.
 Une fraction JUSTE devant « / » (rien après elle) garde la règle générale :
 `2 × ¼ /` → (2 × ¼)/□, rien ne disant quel facteur l'élève voulait. Le banc
-« 11 terdecies » tape les quatre cas au vrai clavier, → compris.
+« 11 terdecies » tape ces cas au vrai clavier, → compris (cinq saisies).
