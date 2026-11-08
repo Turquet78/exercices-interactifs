@@ -17528,10 +17528,36 @@ function redFacons(texte){
    +' Un « = » en fin de ligne suivi d’un « = » en tête de la ligne suivante n’est qu’un seul « = ».'
    +' Les fractions sont écrites en texte, sous la forme « a/b » ; un entier est une fraction de dénominateur 1.';
 }
+/* UN RÉSULTAT NON SIMPLIFIÉ NE COMPTE PLUS FAUX (décision de Turquet,
+   novembre 2026 : « en mode rédaction ne pas compter faux quand le résultat
+   n'est pas simplifié, juste l'indiquer dans la correction »). Le juge
+   continue de le DÉTECTER (motif « simplifier », redIrreductible) ; c'est
+   checkSFR qui l'accepte, après avoir vérifié que le reste de la copie tient
+   (redNoteNonSimplifie). La règle lue par le modèle dit la même chose. */
+function redRegleFinale(n, finale){
+  return '\n'+n+'. LE RÉSULTAT FINAL EST JUSTE : la DERNIÈRE expression du calcul — ce qui est écrit après le tout dernier « = » — vaut '+finale+'.'
+   +' Une fraction ÉGALE mais NON SIMPLIFIÉE est ACCEPTÉE (« correct » vaut true) : le feedback dit alors que le résultat est juste et qu’il peut encore se simplifier.';
+}
+/* Une copie arrêtée sur une fraction réductible : on la rejuge en lui
+   ajoutant la forme irréductible. Si elle devient juste, seule la
+   simplification manquait — le point est acquis. Sinon le verdict rejugé
+   (étape manquante, égalité fausse…) reste celui de la page, ou s'abstient. */
+function redNoteNonSimplifie(juge, m, rep){
+  if(!(juge && juge.sait && !juge.correct && juge.motif==='simplifier')) return null;
+  const j2=m.juge(rep+'\n='+m.final);
+  if(j2.sait && j2.correct) return {sait:true, correct:true, nonSimplifie:true};
+  return (j2.sait && j2.motif!=='simplifier') ? j2 : {sait:false};
+}
+function redPhraseNonSimplifie(m, rep){
+  const ms=librePieces(rep), fin=ms.length ? libreFracSimple(ms[ms.length-1]) : null;
+  const g=fin ? libreGcd(fin.n,fin.d) : 1;
+  return 'Ton calcul est juste, bravo ! Ton résultat'+(fin?' '+fin.n+'/'+fin.d:'')+' peut encore se simplifier'
+    +(g>1 ? ' : en divisant le numérateur et le dénominateur par '+g+', on obtient '+m.final+'.' : ' : '+m.final+'.');
+}
 function redConsignesFeedback(finale){
   return '\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
    +' Si tout est juste : félicite, et nomme ce qui est bien fait.'
-   +' Si le calcul est bon mais le résultat non simplifié : dis que c’est juste mais pas fini, et demande de chercher un nombre qui divise le numérateur ET le dénominateur — SANS donner ce nombre.'
+   +' Si le calcul est juste mais le résultat non simplifié : la réponse est ACCEPTÉE — félicite, puis signale que le résultat peut encore se simplifier, en divisant le numérateur ET le dénominateur par un même nombre.'
    +' Si une ligne est fausse : dis LAQUELLE et ce qui cloche.'
    +' NE DONNE JAMAIS la fraction '+finale+' quand la réponse est refusée : l’élève doit pouvoir réessayer.'
    + LANGUE_SIMPLE;
@@ -17561,7 +17587,7 @@ function redMath(q){
         +(inv ? '\n1. LA MULTIPLICATION PAR L’INVERSE EST ÉCRITE. Au moins une ligne montre '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+' (les deux facteurs dans un ordre ou dans l’autre). Un élève qui oublie de RETOURNER la seconde fraction se trompe : c’est la faute que l’exercice cherche.'
               : '\n1. PAS DE MISE AU MÊME DÉNOMINATEUR : elle n’est pas fausse si elle est bien menée, mais la multiplication n’en a pas besoin. Écrire l’étape (numérateurs ensemble)/(dénominateurs ensemble) est recommandé, PAS exigé.')
         +'\nSONT PERMIS ET JUSTES : donner DIRECTEMENT le résultat de la multiplication, sans étape intermédiaire, et enlever le même facteur au numérateur et au dénominateur AVANT de multiplier. Ne refuse jamais une copie pour l’un de ces raccourcis.'
-        +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ. La DERNIÈRE expression du calcul vaut '+finale+' et est écrite sous forme irréductible. S’arrêter sur une fraction égale mais réductible est REFUSÉ : le travail n’est pas terminé.'
+        +redRegleFinale(2, finale)
         +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = » : chaque morceau doit valoir '+finale+'. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE est fausse.'
         +'\nL’ordre des facteurs, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance.'
         +redConsignesFeedback(finale),
@@ -17590,7 +17616,7 @@ function redMath(q){
         +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les QUATRE conditions sont réunies.'
         +'\n1. LA PRIORITÉ EST RESPECTÉE : LE PRODUIT EST CALCULÉ AVANT LA '+somme.toUpperCase()+'. Une ligne qui ne vaut ni '+produit+' ni le résultat final trahit une '+addition+' faite avant la multiplication : refuse, et dis que la multiplication se fait D’ABORD.'
         +'\n2. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE, APRÈS le produit — par exemple ('+q.a+'×'+q.Q1+')/('+q.b+'×'+q.Q1+') '+op+' ('+q.P1+'×'+q.b+')/('+q.Q1+'×'+q.b+'). Tout dénominateur commun convient, pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ.'
-        +'\n3. LE RÉSULTAT FINAL EST SIMPLIFIÉ : la DERNIÈRE expression vaut '+finale+' et est écrite sous forme irréductible.'
+        +redRegleFinale(3, finale)
         +'\n4. AUCUNE ÉGALITÉ FAUSSE : en dehors du produit intermédiaire, chaque morceau vaut '+finale+'.'
         +redConsignesFeedback(finale),
       ctx:'L’élève calcule '+texte+' en écrivant LUI-MÊME son calcul dans une feuille, sans aucune case : la première ligne porte déjà « '+texte+' = », il écrit à la suite. '
@@ -17614,7 +17640,7 @@ function redMath(q){
       +q.N1+'/'+D+' '+q.op+' '+q.N2+'/'+D+', ce qui donne '+q.N+'/'+D+', déjà irréductible. Un élève qui prend un dénominateur commun plus grand obtient une fraction égale, qu’il doit alors simplifier.'
       +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
       +'\n1. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE. Au moins une ligne montre les DEUX fractions portant le MÊME dénominateur — par exemple '+q.N1+'/'+D+' '+q.op+' '+q.N2+'/'+D+'. Une ligne qui montre les multiplications, du genre ('+q.n1+'×k)/('+q.d1+'×k) '+q.op+' ('+q.n2+'×k2)/('+q.d2+'×k2), compte aussi. LE DÉNOMINATEUR COMMUN N’EST PAS IMPOSÉ : tout multiple commun convient — '+(2*D)+' aussi bien que '+D+' — pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ même si son résultat est juste.'
-      +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ. La DERNIÈRE expression du calcul — ce qui est écrit après le tout dernier « = » — vaut '+finale+' et est écrite sous forme irréductible. S’arrêter sur une fraction égale mais réductible est REFUSÉ : le travail n’est pas terminé.'
+      +redRegleFinale(2, finale)
       +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = », à l’intérieur d’une ligne comme d’une ligne à l’autre : chaque morceau doit valoir '+finale+'. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE est fausse.'
       +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Une ligne vide est ignorée. Répéter la somme de départ ne compte pas comme une étape, mais ne rend rien faux non plus.'
       +' S’il manque l’étape du même dénominateur : dis-le dans le feedback, et rappelle qu’on n’additionne deux fractions que lorsqu’elles ont le même dénominateur — sans écrire le calcul à sa place.'
@@ -17684,7 +17710,7 @@ function rvfrMath(q, tx, ent){
       +(g>1 ? ', qui se simplifie en '+finale+'.' : ', déjà irréductible.')
       +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
       +decision
-      +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ : la DERNIÈRE expression vaut '+finale+' et est écrite sous forme irréductible. S’arrêter sur une fraction égale mais réductible est REFUSÉ.'
+      +redRegleFinale(2, finale)
       +'\n3. AUCUNE ÉGALITÉ FAUSSE : découpe tout le calcul aux « = » ; chaque morceau doit valoir '+finale+'. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE.'
       +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance.'
       +redConsignesFeedback(finale),
@@ -17768,9 +17794,14 @@ async function checkSFR(){
   test.sfrBusy=true;
   $(r+'Boutons').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
   fb.textContent='Je lis ton calcul…'; fb.className='mp-feedback muted';
-  const juge=m.juge(rep);
+  let juge=m.juge(rep);
   let res=null;
-  try{
+  /* Juste mais non simplifié : le point est acquis, la correction le dit
+     avec les mots de la page — le modèle n'a rien à trancher. */
+  const ns=redNoteNonSimplifie(juge, m, rep);
+  if(ns) juge=ns;
+  if(juge.nonSimplifie) res={ correct:true, feedback:redPhraseNonSimplifie(m, rep) };
+  else try{
     const rr=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id,
       action:'verif', question:m.enonceIA+redVerdictIA(juge, m), attendu:m.attenduIA, reponse:rep, balises:true } });
     if(rr.error) throw rr.error; res=rr.data;
@@ -17786,11 +17817,8 @@ async function checkSFR(){
   /* Le verdict du juge PRIME, et la prose d'un modèle qui le contredit est
      remplacée par la phrase du juge (la règle du 5.5). */
   if(juge.sait && (res.correct===true)!==juge.correct) res={ correct:juge.correct, feedback:redSecours(juge, m) };
-  /* UN RÉSULTAT NON SIMPLIFIÉ SE DIT AVEC LES MOTS DE LA PAGE (octobre 2026) :
-     sur 4/5 × 1/2 = 4/10, le modèle rendait bien « correct : false » mais
-     écrivait « ton calcul est juste… Bravo ! » — en rouge, sans dire ce qui
-     manque. Le motif est sûr (redIrreductible) : la phrase l'est aussi. */
-  if(juge.sait && !juge.correct && juge.motif==='simplifier') res={ correct:false, feedback:redSecours(juge, m) };
+  /* Depuis novembre 2026, un résultat non simplifié n'arrive plus ici : il
+     est accepté plus haut (redNoteNonSimplifie). */
   const correct=juge.sait ? juge.correct : (res.correct===true);
   fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   if(isSoutien() && !correct){
@@ -17802,7 +17830,7 @@ async function checkSFR(){
   if(correct){ test.score++; $(cfg.score).textContent=test.score; }
   /* Pas de ptsExo() : l'écran porte encore les cases peintes de la guidée,
      qui ne sont pas cette réponse-ci. Une rédaction vaut tout ou rien. */
-  test.answers.push({correct:correct, q:m.texte+' (rédigé)', answer:m.final, given:rep});
+  test.answers.push({correct:correct, q:m.texte+' (rédigé)', answer:m.final, given:rep, ...(juge.nonSimplifie?{nonSimplifie:true}:{})});
   const last=test.idx===test.questions.length-1;
   $(r+'Boutons').innerHTML='<button class="btn btn-primary" id="'+r+'Next" onclick="'+cfg.next+'()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$(r+'Next'); if(nb) nb.focus();
