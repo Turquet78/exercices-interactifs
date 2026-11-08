@@ -17,6 +17,10 @@ const path = require('path');
 const { JSDOM } = require('jsdom');
 
 const SUBSTITUT = `<script>
+/* LA BOÎTE « Il reste des cases vides » (#confirmer-vides, les trois
+   niveaux) est coupée : les contrôles cliquent « Vérifier » sur des copies
+   incomplètes exprès. Le banc navigateur la rallume là où il l'éprouve. */
+window.confirmerCasesVides=false;
 /* LES RELEVÉS DES OBSERVATEURS DE MUTATIONS SE DÉLIVRENT À LA FIN DE CHAQUE
    CONTRÔLE (octobre 2026). Un MutationObserver ne reçoit ses relevés qu'au
    retour de la main (une microtâche), et chaque relevé garde en vie les nœuds
