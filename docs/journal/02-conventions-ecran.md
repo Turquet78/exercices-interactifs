@@ -761,6 +761,15 @@ banc), la flèche disparaît, et un défilement puis un `resize` la laissent où
 elle est. **Un sabotage, rouge en nommant son défaut** : la garde
 `bexpDeplacee` retirée de `bexpPlacer`, la bulle revient à côté de la case au
 défilement (« reste : l 831, t 592, cote droite »).
+**Et la version a HEURTÉ celle d'une autre branche, après les deux fusions.**
+`npm run test:version` était vert au moment de pousser, et l'action aussi : elle
+compare à `main` tel qu'il était quand elle a tourné. Entre-temps, la pull
+request de « ?page=themes » a pris v652 / v373 / v480 sur `main`, quatre minutes
+avant celle-ci, avec les MÊMES nombres — deux écritures du même nombre sur la
+même ligne ne font aucun conflit, et GitHub a fusionné sans un mot. La règle
+tranche comme d'habitude (le premier arrivé garde) : v653 / v374 / v481, par une
+pull request de suite. Relire `main` juste avant de fusionner, pas seulement
+avant de pousser.
 
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
