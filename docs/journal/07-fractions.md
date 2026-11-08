@@ -2174,7 +2174,7 @@ ouvre la rédigée des deux sous leur guidée, y fait compter
 zone et rend sa consigne au 4.1.
 
 **Puis un résultat NON SIMPLIFIÉ a cessé de compter faux en rédaction
-(novembre 2026, Première v376).** Demande de Turquet : « en mode rédaction ne
+(novembre 2026, Première v377).** Demande de Turquet : « en mode rédaction ne
 pas compter faux quand le résultat n'est pas simplifié, juste l'indiquer dans
 la correction ». Elle vaut pour les questions rédigées des 4.1 à 4.6 ; les
 questions guidées gardent leur chaîne de simplification.
