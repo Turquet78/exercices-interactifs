@@ -8394,12 +8394,15 @@ if(require.main === module) (async () => {
           document.querySelector('#mltrZone math-field').setValue(test.sfrDepart + '\\frac{15}{10}');
           await checkSFR();
           const fb = document.getElementById('mltrFeedback'), d = test.answers[test.answers.length - 1];
-          return { texte: fb ? fb.textContent : '', rouge: !!(fb && fb.classList.contains('bad')), compte: !!(d && d.correct) };
+          /* la correction ÉCRIT ses fractions empilées : « 3/2 » se lit dans le HTML (annotation ou barre oblique cachée), pas dans le texte à plat */
+          const h = fb ? fb.innerHTML : '';
+          return { texte: fb ? fb.textContent : '', rouge: !!(fb && fb.classList.contains('bad')), compte: !!(d && d.correct),
+                   troisDemis: /\\frac\{3\}\{2\}|\b3\/2\b|>3<[\s\S]{0,400}>2</.test(h) };
         });
         /* Depuis novembre 2026 (décision de Turquet), un résultat juste mais
            non simplifié VAUT le point en rédaction : la correction le dit. */
         if(!ms.compte) dits.push('produit rédigé : 15/10, juste mais non simplifié, ne vaut pas le point');
-        if(ms.rouge || !/simplifier/.test(ms.texte) || !/3\/2/.test(ms.texte)) dits.push('produit rédigé : 15/10 accepté sans dire qu’il se simplifie en 3/2, ou peint en rouge (« ' + ms.texte + ' »)');
+        if(ms.rouge || !/simplifier/.test(ms.texte) || !ms.troisDemis) dits.push('produit rédigé : 15/10 accepté sans dire qu’il se simplifie en 3/2, ou peint en rouge (« ' + ms.texte + ' »)');
       }
       /* ③ LA SOMME AVEC UN PRODUIT DEDANS (4.6), EN COLONNES, PUIS RÉDIGÉE
          (demande de Turquet, octobre 2026 : « placer les signes "=" en début
