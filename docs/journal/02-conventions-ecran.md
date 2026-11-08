@@ -813,3 +813,52 @@ rédactions, les récurrences…). Un piège de banc s'y est montré : une case 
 vient de recevoir son PREMIER focus n'écoute pas encore le clavier — à 80 ms
 d'attente, la flèche s'y perdait sur un exercice parfaitement correct
 ({fraction-pourcentage}, Seconde) ; à 250 ms, jamais.
+
+**En entraînement, « Vérifier » avec des cases vides demande confirmation —
+dans TOUS les exercices.** Demande de Turquet (novembre 2026) : « dans un
+exercice en mode entraînement, quand un élève appuie sur Vérifier et qu'il a
+oublié d'écrire des réponses, demander une confirmation ». Une case oubliée
+n'est pas une erreur — elle ne rougit pas —, mais la vérification y écrivait la
+correction en vert : la question était perdue sans que l'élève l'ait voulu.
+Une boîte s'ouvre désormais : « Tu n'as pas tout rempli — Il reste 2 cases
+vides. Veux-tu vérifier quand même ? », avec « Compléter mes réponses »
+(bouton principal, qui prend le focus : deux Entrée réflexes ne vérifient
+pas) et « Vérifier quand même ». Compléter entoure les cases oubliées d'un
+liseré AMBRE en pointillé — jamais rouge, une case vide n'est pas fausse — et
+met le curseur dans la première ; le liseré tombe dès qu'on y écrit.
+Échap et un clic hors de la boîte valent « Compléter ».
+Une seule porte, `#confirmer-vides` en fin de fichier, les trois niveaux, sur
+le modèle de `#console-attend-entree` : un `click` en capture sur le document,
+qui reconnaît le bouton à son texte (« Vérifier », « Revérifier », « Vérifier
+cette ligne », « Valider ») et l'arrête par `stopImmediatePropagation` avant
+son `onclick` ; « Vérifier quand même » rejoue `b.click()` en laissant
+passer. Et un `keydown` Entrée, parce que la plupart des exercices vérifient
+à l'Entrée de leur DERNIÈRE case sans passer par le bouton : seule la
+dernière case de l'écran y est prise (ailleurs, Entrée passe à la case
+suivante), jamais une case de feuille libre (Entrée y ouvre une ligne) ni une
+zone de texte. Sans observateur de mutations — la leçon de la console Python.
+CE QUI COMPTE COMME UNE RÉPONSE : `input` (hors cases à cocher, boutons…),
+`select`, `textarea`, `math-field` (une case à trous est vide tant que tous
+ses trous le sont), visible, ni désactivée ni en lecture seule, et pas déjà
+corrigée (`ok`, `sol`). Ne comptent pas : les retenues (`.mp-carry`,
+`.carry1`, `.ret`, `.asp-ret`, `.sub-ret`, `.sub-retb`), la pose facultative
+(`.pose-fac`), `.hors-note`, `.dexp-facblock`, `.dq-mirror`, et toute case
+marquée `data-facultatif` — l'attribut à poser sur une case facultative de
+demain. Une feuille libre (`.dexp2-sheet`) ou une ardoise compte pour UNE
+réponse, vide seulement si toutes ses lignes le sont : ses lignes en réserve
+ne sont pas des oublis.
+Les modes soutien et évaluation ne demandent rien (`currentMode==='train'`
+seulement). Ce qui ne passe ni par un bouton ni par Entrée — un juge appelé
+par une minuterie, une figure à cliquer sans case — n'est pas couvert.
+LES BANCS LA COUPENT : `window.confirmerCasesVides=false`, posé avant la page
+(`tests/harnais.js` pour jsdom, `addInitScript` dans `ouvrir()` pour
+Chromium) — bien des contrôles vérifient EXPRÈS une copie incomplète. Deux
+contrôles la rallument : la visite de la section 9 (« en entraînement,
+« Vérifier » sur des cases vides demande confirmation et retient la
+correction »), sur la copie vide qu'elle vérifie déjà pour « aucune case
+laissée vide ne rougit » — la boîte doit s'ouvrir, rien ne doit se peindre,
+« Compléter » doit ramener le curseur à la première case vide, un second
+clic rouvrir la boîte, et « Vérifier quand même » lever les liserés ; et le
+parcours témoin, où une copie juste et complète ne doit jamais l'ouvrir
+(« une copie juste et complète vérifiée en entraînement n'ouvre pas la
+boîte »).
