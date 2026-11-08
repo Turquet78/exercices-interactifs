@@ -4378,7 +4378,7 @@ if(require.main === module) (async () => {
            du bouton obtient la réponse du double (« Indice de contrôle. »),
            et la MODIFIER l'efface — y entrer, non : la page pose elle-même le
            curseur dans la première case rouge après une vérification. ----- */
-        let bulle = null, bulleClic = null, bulleEntre = null, bulleReprise = null, bulleSouci = '';
+        let bulle = null, bulleClic = null, bulleEntre = null, bulleReprise = null, bulleDeplace = null, bulleSouci = '';
         try{
           let rouge = false;
           for(const v of ['9', '4']){
@@ -4474,6 +4474,60 @@ if(require.main === module) (async () => {
               return { texte: (fb && fb.textContent) || '',
                        visible: !!fb && fb.getBoundingClientRect().height > 0 };
             });
+            /* LA BULLE SE DÉPLACE (demande de Turquet, novembre 2026) : un vrai
+               glisser à la souris, saisi hors des boutons, vers le coin de la
+               fenêtre le plus éloigné de la case — sans quoi la bulle posée
+               sur la case prendrait le clic suivant. Elle doit suivre la main,
+               perdre sa flèche (elle ne désigne plus la case), et RESTER où on
+               l'a posée quand la page défile ou que la fenêtre change de
+               taille. Le clic n'est pas un glisser : sous 5 px, rien ne bouge. */
+            bulleDeplace = await s.page.evaluate(sel => {
+              const b = document.getElementById('bexpBulle');
+              const r = b.getBoundingClientRect();
+              const k = document.querySelector(sel).getBoundingClientRect();
+              /* un point de la bulle qui n'est pas un bouton : on le cherche */
+              let px = null, py = null;
+              for(let y = r.top + 4; y < r.bottom - 2 && px === null; y += 4){
+                for(let x = r.left + 4; x < r.right - 2; x += 4){
+                  const e = document.elementFromPoint(x, y);
+                  if(e && b.contains(e) && !e.closest('button')){ px = x; py = y; break; }
+                }
+              }
+              const W = innerWidth, H = innerHeight;
+              const versX = (k.left + k.right) / 2 > W / 2 ? 12 : W - r.width - 12;
+              const versY = (k.top + k.bottom) / 2 > H / 2 ? 12 : H - r.height - 100;
+              return { px, py, l: r.left, t: r.top, dx: versX - r.left, dy: versY - r.top,
+                       cote: b.dataset.bexpCote || '' };
+            }, G.champ);
+            if(bulleDeplace && bulleDeplace.px !== null){
+              const d = bulleDeplace;
+              await s.page.mouse.move(d.px, d.py);
+              await s.page.mouse.down();
+              await s.page.mouse.move(d.px + 2, d.py + 1);
+              await s.page.waitForTimeout(50);
+              const tremble = await s.page.evaluate(() => {
+                const r = document.getElementById('bexpBulle').getBoundingClientRect();
+                return { l: r.left, t: r.top };
+              });
+              await s.page.mouse.move(d.px + d.dx, d.py + d.dy, { steps: 8 });
+              await s.page.mouse.up();
+              await s.page.waitForTimeout(100);
+              const lire = () => s.page.evaluate(() => {
+                const b = document.getElementById('bexpBulle');
+                const r = b.getBoundingClientRect();
+                return { l: Math.round(r.left), t: Math.round(r.top), h: Math.round(r.height),
+                         cote: b.dataset.bexpCote || '',
+                         fleche: getComputedStyle(b, '::before').content };
+              });
+              const apres = await lire();
+              await s.page.evaluate(() => {
+                window.dispatchEvent(new Event('resize'));
+                document.dispatchEvent(new Event('scroll'));
+              });
+              await s.page.waitForTimeout(100);
+              const reste = await lire();
+              Object.assign(d, { tremble, apres, reste });
+            }
             /* ENTRER dans la case ne l'efface plus : après une vérification,
                la page pose elle-même le curseur dans la première case rouge,
                et la bulle s'éteindrait 40 ms après être née. La MODIFIER
@@ -4495,6 +4549,19 @@ if(require.main === module) (async () => {
           !!bulle && bulle.la && bulle.l > 0 && bulle.h > 0 && bulle.bouton,
           bulleSouci || (!bulle ? 'aucune case rouge obtenue : le contrôle ne mesure rien'
                                 : 'bulle mesurée : ' + JSON.stringify(bulle)));
+        {
+          const d = bulleDeplace || {};
+          const ok = d.px != null && d.apres && d.reste && d.tremble
+            && Math.abs(d.tremble.l - d.l) < 1 && Math.abs(d.tremble.t - d.t) < 1
+            && Math.abs(d.apres.l - Math.round(d.l + d.dx)) <= 2
+            && Math.abs(d.apres.t - Math.round(d.t + d.dy)) <= 2
+            && Math.abs(d.dx) + Math.abs(d.dy) > 40
+            && d.apres.cote === '' && d.apres.fleche === 'none'
+            && d.reste.l === d.apres.l && d.reste.t === d.apres.t && d.reste.h > 0;
+          verifier('la bulle « Comprendre mon erreur » se déplace au glisser, perd sa flèche et reste où on l\'a posée',
+            ok, bulleSouci || (d.px == null ? 'aucun point de la bulle hors de ses boutons : rien à saisir'
+                                            : 'mesuré : ' + JSON.stringify(d)));
+        }
         verifier('la bulle ne recouvre pas les commandes du bas',
           !!bulle && bulle.surCommandes === false,
           (bulle && bulle.surCommandes) ? 'la bulle chevauche #testCtrls — la leçon du pavé numérique, et le clic d\'à côté part dans la bulle'

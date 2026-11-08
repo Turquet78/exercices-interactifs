@@ -731,6 +731,37 @@ libellé gagne une ligne dans l'index, la règle valant PARTOUT. Un paragraphe
 laissé dans un CLAUDE.md qui ne porte plus la chronique aurait fait regrossir le
 fichier au premier exercice ajouté.
 
+**Puis la bulle s'est DÉPLACÉE à la main.** Demande de Turquet (novembre
+2026) : « quand une bulle d'aide apparaît à l'écran il faut pouvoir la déplacer
+si on le souhaite ». La place que choisit `bexpPlacer` est la meilleure qu'une
+GÉOMÉTRIE puisse trouver — aucune case, aucun bouton recouvert — mais pas celle
+que l'élève veut : elle peut cacher l'énoncé, la figure, la ligne qu'il relit,
+qui ne sont pas des obstacles.
+**On la saisit n'importe où, SAUF sur ses boutons** (« 💡 Comprendre mon
+erreur » et la croix gardent leur clic), à la souris comme au doigt : un seul
+chemin, les événements `pointer`, posés sur le document dans le bloc de la
+bulle — le MÊME TEXTE dans les trois fichiers, donc le contrôle d'identité le
+couvre sans rien déclarer. Le geste ne commence qu'au-delà de 5 px : un clic qui
+tremble n'est pas un glisser. Au doigt, la bulle porte `touch-action:none` (la
+page ne défile pas sous elle), sa réponse `pan-y` : une explication longue
+défile toujours, et ne se saisit alors que par le cadre.
+**DÉPLACÉE, ELLE PERD SA FLÈCHE** — la règle du coin : une pointe qui ne désigne
+plus la case mentirait. **Et elle RESTE où l'élève l'a posée** : le défilement,
+la réponse du modèle qui la fait grandir (`ResizeObserver`) et un changement de
+taille de fenêtre appelaient tous `bexpPlacer`, qui l'aurait ramenée à côté de
+la case au premier tour de molette ; posée par l'élève (`bexpDeplacee`), elle
+n'est plus que GARDÉE DANS LA FENÊTRE (`bexpBorner`). La promesse tombe avec la
+case : refermée, ou rouverte sur une AUTRE case, la bulle reprend sa place à
+côté de celle-ci, flèche comprise.
+Le banc navigateur fait le VRAI GESTE à la souris, sur la case témoin du garde
+(« la bulle « Comprendre mon erreur » se déplace au glisser… ») : un
+tremblement de 2 px ne bouge rien, le glisser l'emmène au coin de la fenêtre le
+plus éloigné de la case (posée sur la case, elle prendrait le clic suivant du
+banc), la flèche disparaît, et un défilement puis un `resize` la laissent où
+elle est. **Un sabotage, rouge en nommant son défaut** : la garde
+`bexpDeplacee` retirée de `bexpPlacer`, la bulle revient à côté de la case au
+défilement (« reste : l 831, t 592, cote droite »).
+
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
 `conseilCtxCourant` — pas ailleurs. Un libellé posé dans un `innerHTML` par une

@@ -636,6 +636,13 @@
     background:var(--surface);border:1.5px solid var(--red);border-radius:14px;
     padding:10px 34px 10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
   #bexpBulle[hidden]{display:none!important}
+  /* la bulle se SAISIT n'importe où hors de ses boutons pour être déplacée
+     (novembre 2026) : la main le dit, et le doigt ne fait pas défiler la page
+     sous elle — sa réponse, elle, défile toujours */
+  #bexpBulle{cursor:grab;touch-action:none}
+  #bexpBulle.bexp-prise{cursor:grabbing;user-select:none;-webkit-user-select:none}
+  #bexpBulle button{cursor:pointer}
+  #bexpBulle [data-bexp-r]{touch-action:pan-y}
   /* Faute de place à sa taille normale, la bulle se RESSERRE plutôt que de
      retourner au coin : même texte, plus petit. Une chaîne de cases n'offre
      nulle part 288 px de libre, et une bulle au coin ne désigne rien. */
@@ -38329,6 +38336,10 @@ function bexpLancer(contexte, fb){ return lancerConseil(contexte, fb); }
    entraînement, jamais sur un écran verrouillé, jamais sur une case que la
    page a remplie elle-même (sol). */
 let bexpCase=null, bexpVal='';
+/* l'élève a DÉPLACÉ la bulle (demande de Turquet, novembre 2026) : elle reste
+   là où il l'a posée, et rien ne la ramène à côté de la case tant qu'elle
+   parle de la même — voir « LA BULLE SE DÉPLACE », plus bas */
+let bexpDeplacee=false;
 /* la cible : toute case qui se colore (le prédicat du garde), plus les listes
    déroulantes, les zones de texte et les cases À COCHER — corrChoix peint les
    premières, les programmes Python s'écrivent dans les deuxièmes, le
@@ -38377,7 +38388,7 @@ function bexpMasquer(){
     if(fb){ fb.hidden=true; fb.innerHTML=''; fb.className=''; }
     const btn=b.querySelector('[data-bexp-btn]'); if(btn) btn.hidden=false;
   }
-  bexpCase=null; bexpVal='';
+  bexpCase=null; bexpVal=''; bexpDeplacee=false;
 }
 /* Le texte d'une case à cocher, la coche elle-même RETIRÉE : elle est un
    ornement (aria-hidden) dont le contenu ne dit rien — ✓ ou rien du tout,
@@ -38538,6 +38549,10 @@ function bexpPoser(b, c, L, H, obs){
 function bexpPlacer(){
   const b=document.getElementById('bexpBulle');
   if(!b || b.hidden) return;
+  /* posée par l'élève : on la laisse où elle est, seulement gardée dans la
+     fenêtre — la réponse du modèle qui la fait grandir, un écran qui
+     rétrécit ne doivent pas la pousser hors de vue */
+  if(bexpDeplacee){ bexpBorner(b); return; }
   const el=bexpCase;
   /* on repart TOUJOURS de la taille normale : le choix ne dépend alors que de
      la case et des obstacles, jamais de l'état où la bulle se trouvait — c'est
@@ -38564,6 +38579,7 @@ function bexpPlacer(){
 function bexpMontrer(el){
   if(!el || !el.isConnected) return;
   const b=bexpElt();
+  bexpDeplacee=false;
   bexpCase=el; bexpVal=bexpValeur(el).replace(/\s+/g,' ').trim().slice(0,200);
   /* la réponse d'une demande précédente ne vaut pas pour cette case-ci */
   const fb=b.querySelector('[data-bexp-r]');
@@ -38691,6 +38707,73 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') bexpMasqu
    de sa case, flèche pointée sur du vide. On replace. */
 window.addEventListener('resize', function(){ bexpPlacer(); });
 document.addEventListener('scroll', function(){ bexpPlacer(); }, true);
+/* LA BULLE SE DÉPLACE (demande de Turquet, novembre 2026 : « quand une bulle
+   d'aide apparaît à l'écran il faut pouvoir la déplacer si on le souhaite »).
+   La place choisie par bexpPlacer est la meilleure qu'une GÉOMÉTRIE puisse
+   trouver, pas celle que l'élève veut : elle peut cacher l'énoncé, la figure,
+   la ligne qu'il relit. On la saisit donc n'importe où — sauf sur ses boutons,
+   qui gardent leur clic —, à la souris comme au doigt (événements pointer, un
+   seul chemin). Le geste ne commence qu'au-delà de 5 px : un clic qui tremble
+   n'est pas un glisser.
+   DÉPLACÉE, ELLE PERD SA FLÈCHE : la pointe ne désignerait plus la case, et une
+   flèche qui ne désigne rien mentirait — la règle du coin. Et elle RESTE où
+   l'élève l'a posée : ni le défilement, ni la réponse du modèle qui la fait
+   grandir, ni un changement de taille de fenêtre ne la ramènent à côté de la
+   case (bexpPlacer ne fait plus que la garder dans la fenêtre). La promesse
+   tombe avec la case : refermée, ou ouverte sur une AUTRE case, la bulle
+   reprend sa place à côté de celle-ci, flèche comprise. */
+function bexpBorner(b){
+  if(!b) return;
+  const r=b.getBoundingClientRect();
+  if(!r.width || !r.height) return;
+  const W=window.innerWidth, Hv=window.innerHeight;
+  const x=Math.max(BEXP_MARGE, Math.min(W-BEXP_MARGE-r.width, r.left));
+  const y=Math.max(BEXP_MARGE, Math.min(Hv-BEXP_MARGE-r.height, r.top));
+  b.style.right='auto'; b.style.bottom='auto';
+  b.style.left=Math.round(x)+'px'; b.style.top=Math.round(y)+'px';
+}
+let bexpPrise=null;
+document.addEventListener('pointerdown', function(e){
+  const b=document.getElementById('bexpBulle');
+  if(!b || b.hidden || !b.contains(e.target)) return;
+  if(e.button) return;
+  if(e.target.closest && e.target.closest('button,a,input,select,textarea,math-field')) return;
+  /* au doigt, la réponse du modèle DÉFILE quand elle est longue : le glisser
+     y appartient au défilement, la bulle se saisit par son cadre */
+  const zr=e.target.closest && e.target.closest('[data-bexp-r]');
+  if(zr && e.pointerType!=='mouse' && zr.scrollHeight>zr.clientHeight+1) return;
+  const r=b.getBoundingClientRect();
+  bexpPrise={ id:e.pointerId, x:e.clientX, y:e.clientY, l:r.left, t:r.top, w:r.width, h:r.height, bouge:false };
+});
+document.addEventListener('pointermove', function(e){
+  const p=bexpPrise;
+  if(!p || e.pointerId!==p.id) return;
+  const b=document.getElementById('bexpBulle');
+  if(!b || b.hidden){ bexpPrise=null; return; }
+  const dx=e.clientX-p.x, dy=e.clientY-p.y;
+  if(!p.bouge){
+    if(Math.abs(dx)+Math.abs(dy)<5) return;
+    p.bouge=true; bexpDeplacee=true;
+    b.removeAttribute('data-bexp-cote');
+    b.style.removeProperty('--bexp-fx');
+    b.classList.add('bexp-prise');
+    try{ b.setPointerCapture(p.id); }catch(err){}
+  }
+  e.preventDefault();
+  const W=window.innerWidth, Hv=window.innerHeight;
+  const x=Math.max(BEXP_MARGE, Math.min(W-BEXP_MARGE-p.w, p.l+dx));
+  const y=Math.max(BEXP_MARGE, Math.min(Hv-BEXP_MARGE-p.h, p.t+dy));
+  b.style.right='auto'; b.style.bottom='auto';
+  b.style.left=Math.round(x)+'px'; b.style.top=Math.round(y)+'px';
+});
+function bexpLacher(e){
+  if(!bexpPrise || (e && e.pointerId!==bexpPrise.id)) return;
+  bexpPrise=null;
+  const b=document.getElementById('bexpBulle');
+  if(b) b.classList.remove('bexp-prise');
+}
+document.addEventListener('pointerup', bexpLacher);
+document.addEventListener('pointercancel', bexpLacher);
 /* ============ FIN DE LA BULLE « COMPRENDRE MON ERREUR » ============ */
 
 /* ============ LA CASE OÙ L'ÉLÈVE ÉCRIT NE SE COLORE PAS ============
