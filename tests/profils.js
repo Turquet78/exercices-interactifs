@@ -259,6 +259,10 @@ module.exports = {
          4.1 qui ne sortent que selon le tirage — un produit à compléter, une
          simplification — sont posés à coup sûr (signalé par Turquet, octobre
          2026 : leurs cases s'étiraient sur 330 px). */
+      /* {relier-fractions} (4.7) : ses quatre premières questions se RELIENT
+         par des traits (des boutons, hors du relevé) — la rangée à cases est
+         celle des calculs de la partie 5, posée ici avant la mesure. */
+      questionCases: { 'relier-fractions': { rendu: 'renderRlf', q: { e: 5, P: 20, N: 15, n: 1, d: 5 } } },
       maillons: { 'revision-fractions': [
         { nom: 'produit à compléter', rendu: 'renderRvfTest', q: { type: 'diff-add', n1: 3, d1: 4, n2: 3, d2: 5 }, cases: ['rvf-a1', 'rvf-b1'] },
         { nom: 'simplification', rendu: 'renderRvfTest', q: { type: 'mult-frac', n1: 2, d1: 3, n2: 3, d2: 4, svu: true }, cases: ['rvf-s0-dn', 'rvf-s0-dd'] } ] } },

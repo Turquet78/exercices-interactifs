@@ -8688,6 +8688,11 @@ if(require.main === module) (async () => {
       for(const id of ids){
         const num = await s.page.evaluate(i => TEST_NUM[i], id); tousNums.push(num);
         await ouvrirExo(id);
+        /* un exercice dont la première question n'a pas de case (des traits à
+           relier) DÉCLARE la question à cases à mesurer : elle est posée ici */
+        const qc = (E.questionCases || {})[id];
+        if(qc) await s.page.evaluate(d => { test.questions[test.idx] = JSON.parse(JSON.stringify(d.q)); window[d.rendu](); }, qc);
+        if(qc) await s.page.waitForTimeout(600);
         /* un chiffre dans la première case : la police d'une case se lit sur ce
            qu'elle contient. « 97 » est faux partout (les nombres vont de 1 à 5,
            et aucune case n'attend plus de 50) : la vérification posera un badge. */
@@ -8747,6 +8752,8 @@ if(require.main === module) (async () => {
                  police: Math.max(...mfs.map(e => Math.round(parseFloat(getComputedStyle(e).fontSize) / rem * 100) / 100)),
                  hauteur: Math.max(...mfs.map(e => Math.round(e.getBoundingClientRect().height))) };
       });
+      /* une déclaration qui ne désigne plus aucun exercice du thème est morte */
+      Object.keys(E.questionCases || {}).forEach(id => { if(ids.indexOf(id) < 0) dits.push('questionCases déclare ' + id + ', qui n\'est plus dans le thème : la déclaration est morte'); });
       const numT = await s.page.evaluate(i => TEST_NUM[i], E.temoin);
       const sortes = ['énoncé', 'signe', 'rangée', 'case', 'correction', 'feuille', 'trait'];
       const manquent = sortes.filter(k => !vus[k]);
