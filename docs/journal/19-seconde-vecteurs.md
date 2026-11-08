@@ -5962,3 +5962,69 @@ les numéros du 8.4.2. Une liste n'est pas un `INPUT` : le relais commun du
 document ne la voit pas, son `change` appelle `liveCheckCurrent()` lui-même.
 Hors soutien, rien ne change. Vu dans un vrai Chromium, en soutien et en
 entraînement, sur les quatre exercices.
+
+### Puis la bulle « gagne / perds » à côté du résultat — 8.4.4, en soutien (Seconde v652)
+
+Turquet, novembre 2026 : « dans le mode soutien pour le 8.4.4, quand l'élève
+clique sur le résultat de la soustraction et que les cases de la soustraction
+sont remplies, afficher une bulle à côté de ce résultat qui affiche "quand je
+gagne / perds …. et que je gagne / perds …. alors je …… ……", avec la
+possibilité pour l'élève de remplir les deux cases réponse dans cette bulle.
+La bulle affiche les résultats pour les deux termes de cette somme algébrique
+mais ne donne pas les deux cases réponses. L'élève n'est pas obligé de
+compléter les cases réponses de cette bulle. »
+
+**La différence se lit comme une somme algébrique** : xF − xD = xF + (−xD).
+La bulle (`vcdGpOuvrir`) écrit les deux termes en mots — ceux que l'élève a
+ÉCRITS dans le rond (ou le carré) de la fin et du début, lus par `vcdLit`,
+pas ceux qu'on attend : elle l'aide à calculer SA soustraction, et la
+soustraction fausse reste rouge à part. « −5 − 3 » : « Quand je perds 5 et
+que je perds 3, alors je [… ▾] [ ]. » ; « 2 − (−4) » : « Quand je gagne 2 et
+que je gagne 4… ». La réponse reste à l'élève : une liste « gagne / perds »
+et une case du nombre, vides. Les deux remplies, le résultat s'écrit dans la
+case du calcul (« perds 8 » → « −8 ») et se juge comme une frappe (un
+`input` envoyé à la case : le garde, la correction en direct, la sauvegarde
+suivent). Rien n'oblige à s'en servir.
+
+**Quand** : en soutien seulement, écran non verrouillé, sur la prise (focus
+ou clic) de la case `vcd-rx` ou `vcd-ry`, et seulement si les deux cases de
+SA soustraction se lisent comme des nombres. Une case juste est figée
+(`disabled`) : elle ne prend plus le curseur, la bulle n'y paraît plus.
+**Fermeture** : au premier geste ailleurs (`focusin`, `pointerdown` en
+capture), à Échap, à la croix, au redessin de la question et à la
+vérification.
+
+**La bulle vit sur `<body>`, comme `#bexpBulle`** — et c'est Chromium qui l'a
+dit. Posée d'abord dans `#vcdCalc`, en `position:fixed`, elle s'affichait à
+400 px de sa case : l'écran garde de son animation d'entrée (`rise`, fill
+`both`) une transformation calculée `matrix(1,0,0,1,0,0)` — identité, mais
+une transformation, qui fait de l'écran le repère des éléments « fixed ».
+Elle se place par la géométrie de la bulle « Comprendre mon erreur »
+(`bexpPoser` : droite, gauche, dessus, dessous, le premier côté qui ne
+recouvre aucune case de l'écran) ; faute de place, sous la case, la flèche
+dessus. Mesuré : à droite du résultat à 1 280 px, dessous à 380 px.
+
+**Les deux bulles ne se posent pas l'une sur l'autre.** Le curseur qui part
+de la case du résultat vers la bulle (`data-bulle-aide`) n'ouvre pas
+« Comprendre mon erreur » (le `focusout` de `bexp` regarde `relatedTarget`,
+et son second regard l'élément actif), et l'observateur des classes ne lève
+rien tant qu'une bulle d'aide est ouverte : un « perds 2 » faux rougit la
+case sans bulle rouge par-dessus. Quand l'élève QUITTE la bulle et que le
+résultat est resté faux, « Comprendre mon erreur » paraît sur lui, comme à la
+sortie de toute case rouge (`vcdGpFermer(true)`) ; Échap et la croix, eux,
+congédient sans rien relever.
+
+**La bulle n'existe que pendant son ouverture**, hors de l'écran : les
+contrôles universels qui parcourent les cases (taille, flèche →, case vide
+qui rougit) ne la voient pas, et `captureBoxes` (la pause) ne la lit pas. Au
+doigt, sa case du nombre ouvre le clavier du système (`inputmode="numeric"`),
+pas le pavé de la page, qui sert les cases de l'écran.
+
+**Le banc principal** (`coordonneesVecteurs`) : pas de bulle sur une
+soustraction vide ; « −5 » et « (−3) » → « Quand je perds 5 et que je gagne
+3, alors je », aucun autre nombre dans la bulle, les deux cases vides ;
+« perds » seul n'écrit rien ; « perds 2 » écrit « −2 » au résultat ; la case
+des ordonnées prise (vide) ferme la bulle ; Échap la ferme ; rien en
+entraînement. Vu dans un vrai Chromium à 1 280 et 380 px : la place, le
+texte, l'écriture du résultat, la fermeture, et « Comprendre mon erreur »
+retenue pendant la bulle puis levée à sa sortie.

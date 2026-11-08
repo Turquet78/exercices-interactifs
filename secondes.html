@@ -3147,6 +3147,26 @@
   .vcd-in.vcd-carre{border-style:dotted;border-radius:5px}
   .vcd-m{text-align:center}
   .vcd-c{position:relative;display:inline-flex}
+  /* soutien : la bulle « gagne / perds » à côté du résultat (vcdGpOuvrir) ;
+     sa flèche suit le patron de #bexpBulle, à l'encre du soutien */
+  .vcd-gp{position:fixed;z-index:58;max-width:min(340px,calc(100vw - 16px));box-sizing:border-box;
+    background:var(--surface);border:1.5px solid #1f7a6b;border-radius:14px;padding:10px 30px 10px 12px;
+    box-shadow:0 8px 24px rgba(0,0,0,.18);font-family:'Nunito',sans-serif;font-weight:600;font-size:1rem;color:var(--ink)}
+  .vcd-gp p{margin:0;line-height:2.1}
+  .vcd-gp b{font-family:"Fredoka";font-weight:600;white-space:nowrap}
+  .vcd-gp-v{display:inline-block;width:auto;min-width:0;font:inherit;font-family:"Fredoka";font-size:1.05rem;height:1.9em;padding:0 2px;margin:0}
+  .vcd-gp-n{font-family:"Fredoka";font-weight:600;font-size:1.05rem;width:2.6em;height:1.75em;text-align:center;
+    border:1.5px solid var(--ink-soft);border-radius:6px;padding:0}
+  .vcd-gp-x{position:absolute;top:4px;right:6px;border:none;background:none;cursor:pointer;font-size:14px;color:inherit;padding:2px}
+  .vcd-gp[data-bexp-cote]::before,.vcd-gp[data-bexp-cote]::after{content:'';position:absolute;width:0;height:0;border:10px solid transparent}
+  .vcd-gp[data-bexp-cote="droite"]::before{left:-20px;top:calc(var(--bexp-fx) - 10px);border-right-color:#1f7a6b}
+  .vcd-gp[data-bexp-cote="droite"]::after{left:-18px;top:calc(var(--bexp-fx) - 10px);border-right-color:var(--surface)}
+  .vcd-gp[data-bexp-cote="gauche"]::before{right:-20px;top:calc(var(--bexp-fx) - 10px);border-left-color:#1f7a6b}
+  .vcd-gp[data-bexp-cote="gauche"]::after{right:-18px;top:calc(var(--bexp-fx) - 10px);border-left-color:var(--surface)}
+  .vcd-gp[data-bexp-cote="haut"]::before{bottom:-20px;left:calc(var(--bexp-fx) - 10px);border-top-color:#1f7a6b}
+  .vcd-gp[data-bexp-cote="haut"]::after{bottom:-18px;left:calc(var(--bexp-fx) - 10px);border-top-color:var(--surface)}
+  .vcd-gp[data-bexp-cote="bas"]::before{top:-20px;left:calc(var(--bexp-fx) - 10px);border-bottom-color:#1f7a6b}
+  .vcd-gp[data-bexp-cote="bas"]::after{top:-18px;left:calc(var(--bexp-fx) - 10px);border-bottom-color:var(--surface)}
   .vcd-c .mf-cor{position:absolute;top:50%;font-family:"Fredoka";font-size:.8em;white-space:nowrap;margin:0}
   .vcd-c-d .mf-cor{left:100%;transform:translate(.25em,-50%)}
   .vcd-c-g .mf-cor{right:100%;transform:translate(-.25em,-50%)}
@@ -9092,7 +9112,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=651;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=652;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -67853,6 +67873,125 @@ function liveVcd(){
     if(s.vide) s.el.classList.remove('ok','bad','sol'); else corrChoix(s.el, s.bon, s.ok);
   });
 }
+/* SOUTIEN : LA BULLE « GAGNE / PERDS » À CÔTÉ DU RÉSULTAT (demande de
+   Turquet, novembre 2026 : « quand l'élève clique sur le résultat de la
+   soustraction et que les cases de la soustraction sont remplies, afficher
+   une bulle à côté de ce résultat : quand je gagne / perds … et que je
+   gagne / perds … alors je … … »). La différence se lit comme une somme
+   algébrique : xF − xD = xF + (−xD). La bulle dit les DEUX TERMES — ceux
+   que l'élève a écrits, pas ceux qu'on attend — en mots (« je gagne 3 »,
+   « je perds 2 ») ; la réponse, elle, reste à l'élève : une liste « gagne /
+   perds » et une case du nombre, vides. Les remplir écrit le résultat dans
+   la case du calcul (« perds 8 » → −8), qui se juge comme si l'élève l'avait
+   tapé ; il n'est pas obligé de s'en servir. Soutien seulement, jamais sur
+   un écran verrouillé, et seulement quand les deux cases de la soustraction
+   se lisent comme des nombres.
+   La bulle n'existe que pendant son ouverture — les contrôles qui
+   parcourent les cases ne la voient jamais — et elle vit sur <body>, comme
+   #bexpBulle : l'écran garde de son animation d'entrée une transformation
+   (identité, mais une transformation), qui fait de lui le repère d'un
+   élément « fixed » — posée dans le calcul, la bulle se plaçait à 400 px de
+   sa case (mesuré dans Chromium). Un redessin, une vérification, un autre
+   écran la ferment, et la saisie de la pause ne la lit pas. Elle se place
+   par la géométrie de la bulle « Comprendre mon erreur » (bexpPoser : le
+   premier côté qui ne recouvre aucune case), et se ferme au premier geste
+   ailleurs, à Échap et à la croix ; le curseur qui part de la case du
+   résultat vers elle n'ouvre pas « Comprendre mon erreur » (data-bulle-aide). */
+let vcdGpAncre=null;
+/* « gagne 3 », « perds 2 » : le signe dit le verbe */
+function vcdGpMot(n){ return (n<0?'perds ':'gagne ')+Math.abs(n); }
+/* les deux termes de la somme algébrique écrite par l'élève : xF et −xD */
+function vcdGpTermes(id){
+  const d=id==='vcd-rx'?['vcd-xf','vcd-xd']:['vcd-yf','vcd-yd'];
+  const a=$(d[0]), b=$(d[1]); if(!a||!b) return null;
+  const x=vcdLit(a.value), y=vcdLit(b.value);
+  return x===null||y===null?null:[x,-y];
+}
+/* quitter : l'élève est parti ailleurs (pas Échap, pas la croix) — si la
+   case du résultat est restée fausse, « Comprendre mon erreur » paraît,
+   comme à la sortie de toute case rouge */
+function vcdGpFermer(quitter){
+  const b=$('vcdGp'), r=vcdGpAncre; if(b) b.remove();
+  vcdGpAncre=null;
+  if(quitter===true && r && r.isConnected && isSoutien() && !test.locked && document.activeElement!==r
+     && r.classList.contains('bad') && !r.classList.contains('sol') && typeof bexpMontrer==='function')
+    setTimeout(function(){ if(!vcdGpAncre && r.isConnected && r.classList.contains('bad') && !test.locked) bexpMontrer(r); }, 0);
+}
+function vcdGpOuvrir(el){
+  if(!el||!isSoutien()||test.locked||test.kind!=='vcd'||el.classList.contains('sol')) return;
+  const t=vcdGpTermes(el.id);
+  if(!t){ vcdGpFermer(); return; }
+  if(vcdGpAncre===el&&$('vcdGp')) return;
+  vcdGpFermer();
+  const hote=document.body; if(!$('vcdCalc')||!el.closest('.screen.on')) return;
+  if(typeof bexpMasquer==='function') bexpMasquer();
+  const b=document.createElement('div');
+  b.id='vcdGp'; b.className='vcd-gp'; b.setAttribute('data-bulle-aide',''); b.setAttribute('role','group');
+  b.setAttribute('aria-label','Aide : le calcul en gains et en pertes');
+  b.innerHTML='<button type="button" class="vcd-gp-x" aria-label="Fermer" onclick="vcdGpFermer()">✕</button>'
+    +'<p>Quand je <b>'+vcdGpMot(t[0])+'</b> et que je <b>'+vcdGpMot(t[1])+'</b>, alors je '
+    +'<select id="vcdGpV" class="vcd-gp-v" aria-label="je gagne ou je perds"><option value="">…</option><option value="g">gagne</option><option value="p">perds</option></select> '
+    +'<input id="vcdGpN" class="vcd-gp-n" type="text" inputmode="numeric" maxlength="3" autocomplete="off" spellcheck="false" aria-label="combien">.</p>';
+  hote.appendChild(b);
+  vcdGpAncre=el;
+  /* « Comprendre mon erreur » suit aussi la case qu'on regarde (focusin du
+     document, qui peut passer APRÈS ce focus) : la bulle du calcul l'emporte */
+  setTimeout(function(){ if(vcdGpAncre===el && typeof bexpMasquer==='function') bexpMasquer(); }, 0);
+  /* les deux cases remplies : le résultat s'écrit dans la case du calcul */
+  const ecrire=function(){
+    const v=$('vcdGpV'), n=$('vcdGpN'), r=vcdGpAncre;
+    if(!v||!n||!r||!r.isConnected||test.locked) return;
+    const k=vcoLit(n.value);
+    if(!v.value||k===null) return;
+    const val=svrNb(v.value==='p'?-Math.abs(k):Math.abs(k));
+    if(r.value===val) return;
+    r.value=val;
+    r.dispatchEvent(new Event('input',{bubbles:true}));
+  };
+  $('vcdGpV').addEventListener('change', ecrire);
+  $('vcdGpN').addEventListener('input', ecrire);
+  vcdGpPlacer();
+}
+/* ce que la bulle ne doit pas couvrir : les cases et boutons de l'écran, sa
+   case exceptée, et les commandes du bas — ceux de bexpObstacles, la bulle
+   elle-même retirée (elle est dans l'écran) */
+function vcdGpPlacer(){
+  const b=$('vcdGp'), el=vcdGpAncre;
+  if(!b) return;
+  if(!el||!el.isConnected||!el.closest('.screen.on')||test.kind!=='vcd'){ vcdGpFermer(); return; }
+  b.removeAttribute('data-bexp-cote'); b.style.left='0px'; b.style.top='0px';
+  const rb=b.getBoundingClientRect(), c=el.getBoundingClientRect();
+  if(!rb.width||!rb.height||(!c.width&&!c.height)) return;
+  const obs=[], ecr=document.querySelector('.screen.on');
+  const vus=ecr?[...ecr.querySelectorAll('input,select,textarea,math-field,[role="checkbox"],.pts-case,button')]:[];
+  const cmd=$('testCtrls'); if(cmd&&!cmd.hidden) vus.push(cmd);
+  vus.forEach(function(e){
+    if(b.contains(e)||e.contains(el)) return;
+    const r=e.getBoundingClientRect(); if(r.width>0&&r.height>0) obs.push(r);
+  });
+  if(bexpPoser(b, c, rb.width, rb.height, obs)) return;
+  /* faute de place libre : sous la case, la flèche sur elle, dans la fenêtre */
+  const W=window.innerWidth, cx=(c.left+c.right)/2;
+  const x=Math.max(BEXP_MARGE, Math.min(W-BEXP_MARGE-rb.width, cx-rb.width/2));
+  b.style.left=Math.round(x)+'px'; b.style.top=Math.round(c.bottom+BEXP_ECART)+'px';
+  b.dataset.bexpCote='bas';
+  b.style.setProperty('--bexp-fx', Math.round(Math.max(18, Math.min(rb.width-18, cx-x)))+'px');
+}
+document.addEventListener('focusin', function(e){
+  if(!vcdGpAncre) return;
+  const b=$('vcdGp');
+  if(e.target===vcdGpAncre||(b&&b.contains(e.target))) return;
+  vcdGpFermer(true);
+});
+document.addEventListener('pointerdown', function(e){
+  if(!vcdGpAncre) return;
+  const b=$('vcdGp');
+  if(e.target===vcdGpAncre||(b&&b.contains(e.target))) return;
+  vcdGpFermer(true);
+}, true);
+document.addEventListener('keydown', function(e){ if(e.key==='Escape'&&vcdGpAncre) vcdGpFermer(); });
+window.addEventListener('resize', function(){ if(vcdGpAncre) vcdGpPlacer(); });
+document.addEventListener('scroll', function(){ if(vcdGpAncre) vcdGpPlacer(); }, true);
 /* Correction finale : chaque réponse en bleu, rouge, ou verte si elle était
    vide ; ce qui manquait ou était faux se dessine en VERT. */
 function vcdFinal(q,subs){
@@ -67887,7 +68026,11 @@ function renderVcd(){
   $('vcdBody').innerHTML='<div class="svr-etapes"><div class="svr-et"><span class="svr-et-n">①</span>'
     +b_('p0',pts[0])+b_('p1',pts[1])+b_('t','Tracer '+N)+'</div></div>';
   $('vcdGraph').innerHTML=vcdSVG(q);
+  vcdGpFermer();
   $('vcdCalc').innerHTML=vcdCalcHTML(q);
+  ['vcd-rx','vcd-ry'].forEach(function(id){ const el=$(id); if(!el) return;
+    el.addEventListener('focus', function(){ vcdGpOuvrir(el); });
+    el.addEventListener('click', function(){ vcdGpOuvrir(el); }); });
   VCD_IDS.slice(3).forEach(function(id){ const el=$(id); if(el) el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ clearTimeout(test.vcdSave); test.vcdSave=setTimeout(autoSave,1000); recoveryDirty=true;
     /* une liste n'est pas une case INPUT : le relais commun du document ne la voit pas */
     if(el.tagName==='SELECT') liveCheckCurrent(); }); });
@@ -67899,6 +68042,7 @@ function renderVcd(){
 function checkVcd(){
   if(test.locked) return;
   const q=test.questions[test.idx];
+  vcdGpFermer();
   const subs=vcdJuge(q), n=subs.filter(function(s){ return s.ok; }).length;
   if(n<subs.length && isSoutien()){
     const faux=subs.some(function(s){ return !s.ok&&!s.vide; }), rien=subs.every(function(s){ return s.vide; });
@@ -83451,11 +83595,16 @@ document.addEventListener('focusout', function(e){
   const b=document.getElementById('bexpBulle');
   if(b && b.contains(el)) return;
   if(!isSoutien() || test.locked || !bexpCible(el) || el.classList.contains('sol')) return;
+  /* le curseur part dans une BULLE D'AIDE de l'exercice (data-bulle-aide,
+     celle du 8.4.4) : l'élève y calcule la réponse de cette case — lui
+     proposer en même temps d'expliquer son erreur poserait deux bulles */
+  const aide=function(n){ return !!n && !!n.closest && !!n.closest('[data-bulle-aide]'); };
+  if(aide(e.relatedTarget)) return;
   if(el.classList.contains('bad')){ bexpMontrer(el); return; }
   /* certaines corrections peignent APRÈS la sortie (minuteur posé sur
      focusout) : on regarde une seconde fois, un instant plus tard */
   setTimeout(function(){
-    if(document.activeElement===el || !isSoutien() || test.locked) return;
+    if(document.activeElement===el || !isSoutien() || test.locked || aide(document.activeElement)) return;
     if(el.isConnected && el.classList.contains('bad') && !el.classList.contains('sol')) bexpMontrer(el);
   }, 150);
 });
@@ -83482,6 +83631,10 @@ if(typeof MutationObserver==='function'){
        sans rien y taper n'est PAS écrire : c'est ce qu'on fait en attendant
        une vérification, et la bulle doit alors paraître comme partout. */
     if(eleveEcritDans(document.activeElement)) return;
+    /* une bulle d'aide de l'exercice est ouverte (data-bulle-aide, le 8.4.4) :
+       l'élève y calcule la case qui vient de rougir — la sortie de la bulle
+       lèvera « Comprendre mon erreur » */
+    if(document.querySelector('[data-bulle-aide]')) return;
     /* une bulle ouverte sur une case ENCORE fausse reste où elle est */
     const b=document.getElementById('bexpBulle');
     if(b && !b.hidden && bexpCase && bexpCase.isConnected
