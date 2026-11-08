@@ -695,7 +695,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      coin d'avant reste le repli, et alors sans flèche. */
   #bexpBulle{position:fixed;right:16px;bottom:92px;z-index:59;max-width:360px;
     background:var(--surface);border:1.5px solid var(--red);border-radius:14px;
-    padding:10px 34px 10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+    padding:10px 34px 10px 26px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
   #bexpBulle[hidden]{display:none!important}
   /* la bulle se SAISIT n'importe où hors de ses boutons pour être déplacée
      (novembre 2026) : la main le dit, et le doigt ne fait pas défiler la page
@@ -704,10 +704,16 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   #bexpBulle.bexp-prise{cursor:grabbing;user-select:none;-webkit-user-select:none}
   #bexpBulle button{cursor:pointer}
   #bexpBulle [data-bexp-r]{touch-action:pan-y}
+  /* la poignée : six points dans le coin, à l'encre du cadre — le signe
+     qu'on peut prendre la bulle et la poser ailleurs */
+  #bexpBulle [data-bexp-poignee]{position:absolute;top:6px;left:6px;font-size:19px;
+    line-height:1;color:var(--red);opacity:.9;cursor:grab;user-select:none;-webkit-user-select:none}
+  #bexpBulle.bexp-prise [data-bexp-poignee]{cursor:grabbing;opacity:1}
+  #bexpBulle.bexp-mini [data-bexp-poignee]{top:3px;left:3px;font-size:14px}
   /* Faute de place à sa taille normale, la bulle se RESSERRE plutôt que de
      retourner au coin : même texte, plus petit. Une chaîne de cases n'offre
      nulle part 288 px de libre, et une bulle au coin ne désigne rien. */
-  #bexpBulle.bexp-mini{max-width:200px;padding:6px 22px 6px 8px}
+  #bexpBulle.bexp-mini{max-width:200px;padding:6px 22px 6px 18px}
   #bexpBulle.bexp-mini [data-bexp-btn]{font-size:.74rem;padding:3px 5px;line-height:1.15}
   #bexpBulle.bexp-mini [data-bexp-x]{top:2px;right:4px;font-size:12px}
   /* la flèche : DEUX triangles — l'un à l'encre du cadre, l'autre au fond posé
@@ -23716,7 +23722,15 @@ function bexpElt(){
   btn.type='button'; btn.className='btn btn-ghost'; btn.dataset.bexpBtn='1';
   btn.textContent='💡 Comprendre mon erreur';
   btn.addEventListener('click', bexpExpliquer);
-  b.appendChild(x); b.appendChild(fb); b.appendChild(btn);
+  /* la POIGNÉE dit que la bulle se déplace (demande de Turquet, novembre
+     2026 : « ajoute un petit signe pour montrer qu'on peut la déplacer ») :
+     la main du curseur ne se voit qu'au survol, et au doigt jamais. Elle
+     n'est qu'un signe — la bulle se saisit toujours n'importe où hors de
+     ses boutons —, donc muette pour un lecteur d'écran. */
+  const pg=document.createElement('span');
+  pg.dataset.bexpPoignee='1'; pg.setAttribute('aria-hidden','true');
+  pg.title='Glisse pour déplacer la bulle'; pg.textContent='⠿';
+  b.appendChild(pg); b.appendChild(x); b.appendChild(fb); b.appendChild(btn);
   document.body.appendChild(b);
   /* la bulle GRANDIT quand la réponse du modèle arrive : sans ce regard, elle
      s'étendrait par le bas et sa flèche cesserait de désigner la case */

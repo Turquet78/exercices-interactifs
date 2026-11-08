@@ -4635,8 +4635,19 @@ if(require.main === module) (async () => {
               const b = document.getElementById('bexpBulle');
               const r = b.getBoundingClientRect();
               const k = document.querySelector(sel).getBoundingClientRect();
-              /* un point de la bulle qui n'est pas un bouton : on le cherche */
+              /* LA POIGNÉE (⠿) dit qu'on peut déplacer la bulle : elle doit se
+                 VOIR — un rectangle dans la bulle, à l'écart des boutons — et
+                 c'est d'elle que part le glisser, le geste qu'elle promet */
+              const pg = b.querySelector('[data-bexp-poignee]');
+              const rp = pg ? pg.getBoundingClientRect() : null;
+              const btns = [...b.querySelectorAll('button')].map(e => e.getBoundingClientRect());
+              const chv = (a, o) => !(a.right <= o.left || a.left >= o.right || a.bottom <= o.top || a.top >= o.bottom);
+              const poignee = !!rp && rp.width > 0 && rp.height > 0
+                && rp.left >= r.left && rp.right <= r.right && rp.top >= r.top && rp.bottom <= r.bottom
+                && !btns.some(o => chv(rp, o))
+                && document.elementFromPoint((rp.left + rp.right) / 2, (rp.top + rp.bottom) / 2) === pg;
               let px = null, py = null;
+              if(poignee){ px = (rp.left + rp.right) / 2; py = (rp.top + rp.bottom) / 2; }
               for(let y = r.top + 4; y < r.bottom - 2 && px === null; y += 4){
                 for(let x = r.left + 4; x < r.right - 2; x += 4){
                   const e = document.elementFromPoint(x, y);
@@ -4647,7 +4658,7 @@ if(require.main === module) (async () => {
               const versX = (k.left + k.right) / 2 > W / 2 ? 12 : W - r.width - 12;
               const versY = (k.top + k.bottom) / 2 > H / 2 ? 12 : H - r.height - 100;
               return { px, py, l: r.left, t: r.top, dx: versX - r.left, dy: versY - r.top,
-                       cote: b.dataset.bexpCote || '' };
+                       cote: b.dataset.bexpCote || '', poignee };
             }, G.champ);
             if(bulleDeplace && bulleDeplace.px !== null){
               const d = bulleDeplace;
@@ -4708,6 +4719,9 @@ if(require.main === module) (async () => {
             && Math.abs(d.dx) + Math.abs(d.dy) > 40
             && d.apres.cote === '' && d.apres.fleche === 'none'
             && d.reste.l === d.apres.l && d.reste.t === d.apres.t && d.reste.h > 0;
+          verifier('la bulle « Comprendre mon erreur » montre sa poignée ⠿, visible et à l\'écart de ses boutons',
+            d.poignee === true,
+            bulleSouci || ('poignée : ' + JSON.stringify(d.poignee) + ' — aucun signe ne dit que la bulle se déplace'));
           verifier('la bulle « Comprendre mon erreur » se déplace au glisser, perd sa flèche et reste où on l\'a posée',
             ok, bulleSouci || (d.px == null ? 'aucun point de la bulle hors de ses boutons : rien à saisir'
                                             : 'mesuré : ' + JSON.stringify(d)));
