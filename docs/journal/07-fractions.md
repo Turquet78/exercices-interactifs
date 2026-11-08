@@ -2137,6 +2137,42 @@ identifiant contient « fraction » : le contrôle des fractions de départ
 irréductibles le lit, et il s'y déclare (`fractionsIrreductibles.sans`) —
 4/100 est le sujet même, comme au {fractions-decimales}.
 
+**Puis le 4.1 et le 4.2 de la Première ont reçu leur question rédigée
+(novembre 2026, Première v375).** Demande de Turquet : « pour tous les
+exercices de première sur les fractions je veux qu'après un exemple avec des
+cases à remplir il y ait le même type de question avec la solution à rédiger,
+la rédaction se fera dans un champ de saisie comme le 5.10 de seconde avec en
+plus le signe = à la fin de l'expression ». Les 4.3 à 4.6 l'avaient depuis
+octobre ; il restait la révision et le croisement.
+
+* **Le module est le même** (`RED_CFG`, `redMath`, `sfrMonte`, `sfrRendu`) :
+  la feuille `mlFeuille` du 5.10, sa première ligne porte le calcul SUIVI DE
+  « = », et l'élève écrit à la suite.
+* **Le 4.2** tourne sur le moteur sf du 4.3 : `sfrBuildQuestions(mode)`
+  reçoit le mode « premiers », et la rédigée a, comme la guidée, des
+  dénominateurs premiers entre eux. Douze questions au lieu de six.
+* **Le 4.1** a gagné une entrée `rvf` dans `RED_CFG` (zone `rvfrZone`) et
+  une branche `rvfrMath` dans `redMath`. Chaque règle de l'ordre fixe est
+  posée deux fois — la guidée, puis sa rédigée, d'autres nombres : seize
+  questions. Le juge suit l'opération de la règle : somme ou différence
+  (`sfl`, étape du même dénominateur exigée — deux fractions qui l'ont déjà
+  la portent dès l'énoncé ; « 2 − 1/4 » demande d'écrire 8/4 − 1/4), produit
+  (`mll`, aucune étape exigée), quotient (`dll`, l'inverse écrit exigé) ; le
+  résultat final est irréductible partout (`redIrreductible`).
+* **La consigne de l'écran du 4.1 était statique**, sans identifiant : elle
+  en reçoit un (`rvfPrompt`), et `renderRvfTest` la rétablit à chaque guidée
+  — `sfrRendu`, à la reprise d'une pause posée sur une rédigée, la remplace.
+* **Aucun doublon** : `rvfBuildQuestions` retire une question qui recopie
+  une autre de la même règle (les deux divisions comptent pour une).
+
+Contrôles : `fractionsRedigees` (`tests/verifier.js`) lance aussi les deux
+démarreurs (16 et 12 questions, paires de même règle ou de même opération,
+dénominateurs premiers entre eux au 4.2), et juge une copie par bord de
+chaque famille du 4.1 ; le banc navigateur (« 6 terdecies bis », ①bis)
+ouvre la rédigée des deux sous leur guidée, y fait compter
+1/2 + 1/3 = 3/6 + 2/6 = 5/6, et vérifie que la guidée suivante referme la
+zone et rend sa consigne au 4.1.
+
 ## Première — 4.7 {relier-fractions} : relier décimaux, pourcentages et fractions (novembre 2026)
 
 Demande de Turquet : « relier chaque valeur décimale à la bonne fraction », en

@@ -8286,6 +8286,50 @@ if(require.main === module) (async () => {
             dits.push('rédigée : la zone reste affichée sur la question guidée suivante');
         }
       }
+      /* ①bis LES RÉDIGÉES DU 4.1 ET DU 4.2 (novembre 2026, « pour tous les
+         exercices de première sur les fractions ») : la guidée notée — ici
+         laissée vide, l'entraînement passe —, la rédigée s'ouvre SOUS elle,
+         la feuille commence par le calcul suivi de « = », une copie juste
+         vaut le point, et la guidée suivante referme la zone. Au 4.1, la
+         consigne de l'écran revient avec elle. */
+      for(const [exo, verif, zoneId, guideeId, q1, copie, suivant] of [
+        ['revision-fractions', 'checkRvfAnswer', 'rvfrZone', 'rvf-regle',
+          {type:'diff-add',d1:2,d2:3,n1:1,n2:1,redac:true}, '\\frac{3}{6}+\\frac{2}{6}=\\frac{5}{6}', 'nextRvfQuestion'],
+        ['croiser-denominateurs', 'checkSFAnswer', 'sfrZone', 'sf-a1',
+          {n1:1,d1:2,n2:1,d2:3,op:'+',D:6,k1:3,k2:2,N1:3,N2:2,N:5,Nr:5,Dr:6,redac:true}, '\\frac{3}{6}+\\frac{2}{6}=\\frac{5}{6}', 'nextSFQuestion']]){
+        if(!(await s.page.evaluate(id => !!TESTS[id], exo))) continue;
+        await s.page.evaluate(id => openTest(id), exo);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        await s.page.evaluate(([f, q]) => { if(test.questions[1] && test.questions[1].redac){
+            if(test.kind === 'rvf'){ test.questions[0] = {type:q.type, d1:3, d2:5, n1:1, n2:2}; renderRvfTest(); }
+            test.questions[1] = q; }
+          window[f](); }, [verif, q1]);
+        await s.page.waitForTimeout(800);
+        const z = await s.page.evaluate(([zid, gid]) => {
+          const zone = document.getElementById(zid), mf = zone && zone.querySelector('math-field');
+          return { vue: !!(zone && !zone.hidden && zone.offsetHeight > 0), guidee: !!document.getElementById(gid),
+                   depart: mf ? mf.getValue() : null, idx: test.idx, redac: !!(test.questions[test.idx] && test.questions[test.idx].redac) };
+        }, [zoneId, guideeId]);
+        if(!z.redac || z.idx !== 1){ dits.push(exo + ' : aucune question rédigée ne s’ouvre après la guidée'); continue; }
+        if(!z.vue) dits.push(exo + ' rédigé : la zone ne s’affiche pas après la question guidée');
+        if(!z.guidee) dits.push(exo + ' rédigé : la question guidée a disparu de l’écran');
+        if(!/^\\frac\{1\}\{2\}\+\\frac\{1\}\{3\}=\s*$/.test(z.depart || '')) dits.push(exo + ' rédigé : la feuille ne commence pas par 1/2 + 1/3 suivi de « = » (' + z.depart + ')');
+        await s.page.evaluate(([zid, c]) => { document.querySelector('#' + zid + ' math-field').setValue(test.sfrDepart + c); checkSFR(); }, [zoneId, copie]);
+        await s.page.waitForTimeout(1500);
+        const v = await s.page.evaluate(zid => { const d = test.answers[test.answers.length - 1];
+          return { juste: !!(d && d.correct && /rédigé/.test(d.q)), suite: !!document.getElementById(zid.replace('Zone', 'Next')) }; }, zoneId);
+        if(!v.juste) dits.push(exo + ' rédigé : 1/2 + 1/3 = 3/6 + 2/6 = 5/6 est compté faux');
+        if(!v.suite) dits.push(exo + ' rédigé : aucun bouton « Question suivante » après la vérification');
+        await s.page.evaluate(f => window[f](), suivant);
+        await s.page.waitForTimeout(500);
+        const apres = await s.page.evaluate(zid => { const zz = document.getElementById(zid), pr = document.getElementById('rvfPrompt');
+          return { ouverte: !!(zz && !zz.hidden), consigne: pr ? pr.textContent : null, guidee: !(test.questions[test.idx] || {}).redac }; }, zoneId);
+        if(apres.ouverte) dits.push(exo + ' rédigé : la zone reste affichée sur la question guidée suivante');
+        if(!apres.guidee) dits.push(exo + ' : la question qui suit la rédigée n’est pas une guidée');
+        if(exo === 'revision-fractions' && !/choisis d.abord la r.gle/.test(apres.consigne || '')) dits.push(exo + ' : la consigne de l’écran ne revient pas sur la guidée suivante (' + apres.consigne + ')');
+      }
       /* ② le produit */
       if(P.fractionsEtapes.exercices.indexOf('multiplier-fractions') >= 0){
         await s.page.evaluate(() => openTest('multiplier-fractions'));
