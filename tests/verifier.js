@@ -8849,7 +8849,7 @@ function sommeProduitFractions(w, P){
   })()`, v => v === '', undefined);
 }
 
-/* ---------- Les questions RÉDIGÉES des 4.3 à 4.6 de la Première -----------
+/* ---------- Les questions RÉDIGÉES des 4.1 à 4.6 de la Première -----------
    Demande de Turquet (octobre 2026) : après chaque question guidée, une
    question de mêmes critères, rédigée dans une feuille dont la première ligne
    porte le calcul suivi de « = ». Déclaré par le même profil
@@ -8865,7 +8865,7 @@ function sommeProduitFractions(w, P){
      du produit intermédiaire n'est pas une égalité fausse, mais une addition
      faite avant la multiplication l'est. */
 function fractionsRedigees(w, P){
-  const nom='les questions rédigées des 4.3 à 4.6 : des paires, et des juges qui exigent un résultat irréductible';
+  const nom='les questions rédigées des 4.1 à 4.6 : des paires, et des juges qui exigent un résultat irréductible';
   if(!P.fractionsEtapes){
     ignorer(nom, 'ce niveau ne porte pas les questions rédigées du thème Fractions');
     return;
@@ -8875,7 +8875,7 @@ function fractionsRedigees(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     if(typeof redMath!=='function' || typeof RED_CFG==='undefined') return 'redMath ou RED_CFG absent';
     /* ① les paires */
-    const ids={'somme-fractions-2':12,'multiplier-fractions':12,'diviser-fractions':12,'somme-produit-fractions':8};
+    const ids={'revision-fractions':16,'croiser-denominateurs':12,'somme-fractions-2':12,'multiplier-fractions':12,'diviser-fractions':12,'somme-produit-fractions':8};
     Object.keys(ids).forEach(function(id){
       if(!TESTS[id]){ vus.push(id+' absent'); return; }
       currentTestId=id; TESTS[id].start();
@@ -8884,7 +8884,16 @@ function fractionsRedigees(w, P){
       if(qs.length!==ids[id]) vus.push(id+' : '+qs.length+' questions au lieu de '+ids[id]);
       if(qs.some(function(q,i){ return !!q.redac!==(i%2===1); })) vus.push(id+' : les questions n’alternent pas guidée / rédigée');
       if(!RED_CFG[test.kind] || !document.getElementById(RED_CFG[test.kind].r+'Zone')) vus.push(id+' : aucune zone rédigée sur l’écran '+test.kind);
+      /* la rédigée pose la MÊME sorte de calcul que la guidée qui la précède */
+      qs.forEach(function(q,i){ if(!(i%2)) return; const g=qs[i-1];
+        if(id==='revision-fractions' && q.type!==g.type) vus.push(id+' : la rédigée '+(i+1)+' ne pose pas la règle de sa guidée ('+g.type+' puis '+q.type+')');
+        if(q.op!==undefined && q.op!==g.op) vus.push(id+' : la rédigée '+(i+1)+' change d’opération');
+        if(id==='croiser-denominateurs' && (q.d1===1 || q.d2===1 || libreGcd(q.d1,q.d2)!==1)) vus.push(id+' : la rédigée '+(i+1)+' n’a pas des dénominateurs premiers entre eux');
+      });
     });
+    /* ①bis le 4.1 : chaque règle a sa rédigée, et la consigne de l’écran revient sur la guidée suivante */
+    currentTestId='revision-fractions'; TESTS['revision-fractions'].start();
+    if(test.questions.map(function(q){ return q.type; }).join()!==RVF_ORDRE.map(function(t){ return t+','+t; }).join()) vus.push('revision-fractions : les seize questions ne suivent pas l’ordre des règles, chacune deux fois');
     /* ② les juges */
     const juge=function(kind, inv, q, rep){ test.kind=kind; test.inv=inv; return redMath(q).juge(rep); };
     const mq={n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15,redac:true};
@@ -8928,6 +8937,30 @@ function fractionsRedigees(w, P){
     if(!/différence/.test(mm.attenduIA) || /la somme 3\\/2/.test(mm.attenduIA)) vus.push('la règle d’une soustraction parle encore de somme');
     if(!/soustraire/.test(mm.ctx)) vus.push('le contexte de l’aide d’une soustraction ne dit pas « soustraire »');
     if(!/−/.test(mm.html)) vus.push('l’énoncé affiché d’une soustraction n’écrit pas « − »');
+    /* le 4.1 rédigé (novembre 2026) : chaque règle prend le juge de son opération */
+    const rv=function(q, rep){ test.kind='rvf'; test.inv=false; return redMath(Object.assign(q,{redac:true})).juge(rep); };
+    j=rv({type:'meme-add',d:5,n1:2,n2:1},'2/5+1/5=3/5');
+    if(!(j.sait && j.correct)) vus.push('4.1 même dénominateur : 2/5 + 1/5 = 3/5 n’est pas compté juste ('+JSON.stringify(j)+')');
+    j=rv({type:'meme-sub',d:3,n1:2,n2:1},'2/3-1/3=1/6');
+    if(!(j.sait && !j.correct)) vus.push('4.1 même dénominateur : 2/3 − 1/3 = 1/6 est accepté');
+    j=rv({type:'diff-add',d1:2,d2:3,n1:1,n2:1},'1/2+1/3=3/6+2/6=5/6');
+    if(!(j.sait && j.correct)) vus.push('4.1 dénominateurs différents : 1/2 + 1/3 = 3/6 + 2/6 = 5/6 n’est pas compté juste');
+    j=rv({type:'diff-add',d1:2,d2:3,n1:1,n2:1},'1/2+1/3=2/5');
+    if(!(j.sait && !j.correct)) vus.push('4.1 dénominateurs différents : 1/2 + 1/3 = 2/5 est accepté');
+    j=rv({type:'diff-sub-entier',d1:4,n1:1,k:2},'2-1/4=8/4-1/4=7/4');
+    if(!(j.sait && j.correct)) vus.push('4.1 entier moins fraction : 2 − 1/4 = 8/4 − 1/4 = 7/4 n’est pas compté juste');
+    j=rv({type:'mult-frac',d1:3,d2:4,n1:2,n2:3},'2/3×3/4=6/12');
+    if(!(j.sait && !j.correct && j.motif==='simplifier')) vus.push('4.1 produit : s’arrêter sur 6/12 n’est pas refusé pour « simplifier »');
+    j=rv({type:'mult-entier',d:3,n:2,k:3},'2/3×3=6/3=2');
+    if(!(j.sait && j.correct)) vus.push('4.1 produit par un entier : 2/3 × 3 = 6/3 = 2 n’est pas compté juste ('+JSON.stringify(j)+')');
+    j=rv({type:'div-1',d1:4,d2:5,n1:3,n2:2},'3/4÷2/5=3/4×5/2=15/8');
+    if(!(j.sait && j.correct)) vus.push('4.1 quotient : 3/4 ÷ 2/5 = 3/4 × 5/2 = 15/8 n’est pas compté juste');
+    j=rv({type:'div-2',d1:4,d2:5,n1:3,n2:2},'3/4÷2/5=3/4×2/5=6/20');
+    if(!(j.sait && !j.correct)) vus.push('4.1 quotient : multiplier sans retourner (3/4 × 2/5) est accepté');
+    test.kind='rvf';
+    const rm=redMath({type:'diff-sub-entier',d1:4,n1:1,k:2,redac:true});
+    if(rm.latex!=='2-\\\\frac{1}{4}') vus.push('4.1 : le LaTeX de 2 − 1/4 est '+rm.latex);
+    if(!/« 2 − 1\\/4 = »/.test(rm.enonceIA)) vus.push('4.1 : le modèle ne lit pas que la première ligne porte « 2 − 1/4 = »');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
   /* le réglage « Questions » d'un devoir compte les rédigées */
@@ -15036,8 +15069,14 @@ function coordonneesVecteurs(w, P){
     q3.v.forEach(function(l,i){ el('vcs-x-'+i).value=(l[2]<0?'−':'')+Math.abs(l[2]); el('vcs-y-'+i).value=(l[3]<0?'-':'+')+Math.abs(l[3]); });
     av=test.score; checkVcs();
     if(test.score-av!==16 || document.querySelectorAll('#scr-vcs .vco-in.ok').length!==16) vus.push('8.4.3 : la copie juste vaut '+(test.score-av));
+    /* vérifiée, la figure prend la décomposition du 8.4.1 : la grise, la noire et leurs déplacements écrits */
+    const et3=[].map.call(document.querySelectorAll('#vcsHost .vco-svg .vco-et'),function(t){ return t.textContent; }).join(' ');
+    const at3=[]; q3.v.forEach(function(l){ if(l[2]) at3.push(vcoSg(l[2])); if(l[3]) at3.push(vcoSg(l[3])); });
+    if(document.querySelectorAll('#vcsHost .vco-svg .vco-h').length!==q3.v.filter(function(l){ return l[2]; }).length
+      || document.querySelectorAll('#vcsHost .vco-svg .vco-b').length!==q3.v.filter(function(l){ return l[3]; }).length
+      || et3!==at3.join(' ') || document.querySelectorAll('#vcsHost .vco-svg .vco-nom').length!==8) vus.push('8.4.3 : vérifiée, la figure ne montre pas la décomposition du 8.4.1 : '+et3);
     test.questions[0]=JSON.parse(JSON.stringify(fixe())); renderVcs();
-    if(document.querySelectorAll('#vcsHost .vco-in').length!==16 || document.querySelector('#vcsHost .vco-in.ok')) vus.push('8.4.3 : le rendu après JSON');
+    if(document.querySelectorAll('#vcsHost .vco-in').length!==16 || document.querySelector('#vcsHost .vco-in.ok') || document.querySelector('#vcsHost .vco-svg .vco-et, #vcsHost .vco-svg .vco-h')) vus.push('8.4.3 : le rendu après JSON (ou la décomposition qui reste sur la question suivante)');
     q3.v.forEach(function(l,i){ if(i===4) return; el('vcs-x-'+i).value=String(i===0?1:l[2]); el('vcs-y-'+i).value=String(l[3]); });
     av=test.score; checkVcs();
     if(test.score-av!==13 || classe(el('vcs-x-0'))!=='bad' || classe(el('vcs-y-0'))!=='ok' || classe(el('vcs-x-4'))!=='sol' || classe(el('vcs-y-4'))!=='sol') vus.push('8.4.3 : erreur de signe et vecteur vide : '+(test.score-av));
@@ -15086,6 +15125,11 @@ function coordonneesVecteurs(w, P){
     if(document.querySelectorAll('#vcdCorr .svr-pt.s').length!==2 || document.querySelectorAll('#vcdCorr line.svc-s').length!==1) vus.push('8.4.4 : la correction ne dessine pas les deux points et le vecteur en vert');
     if(el('vcd-rx').value!=='−8' || el('vcd-ry').value!=='−3' || el('vcd-fin').value!=='B') vus.push('8.4.4 : la correction écrit '+el('vcd-fin').value+' '+el('vcd-rx').value+' '+el('vcd-ry').value);
     if(el('vcdFeedback').textContent.indexOf('Il te manquait 11 cases')<0) vus.push('8.4.4 : le message de la copie vide');
+    /* vérifié, le vecteur se décompose comme au 8.4.1 : la grise de A jusqu'à l'aplomb de B, puis la noire jusqu'à B */
+    const dec4=function(){ return [].map.call(document.querySelectorAll('#vcdCorr .vcd-dec line.vco-h, #vcdCorr .vcd-dec line.vco-b, #vcdCorr .vcd-dec text'),function(e){ return e.tagName==='text'?e.textContent:e.getAttribute('class'); }).join(','); };
+    if(dec4()!=='vco-h,vco-b,−8,−3') vus.push('8.4.4 : vérifié, la décomposition est « '+dec4()+' »');
+    const gh4=document.querySelector('#vcdCorr .vcd-dec line.vco-h');
+    if(!gh4 || +gh4.getAttribute('x1')!==vcdX(3) || +gh4.getAttribute('y1')!==vcdY(5) || Math.abs(+gh4.getAttribute('x2')-vcdX(-5))>5 || +gh4.getAttribute('y2')!==vcdY(5)) vus.push('8.4.4 : la flèche grise ne va pas de A(3 ; 5) à (−5 ; 5)');
     /* la copie juste, aux gestes de l'élève : A posé faux (rouge, on y reste), retiré, reposé */
     nextVcd(); test.questions[test.idx]=vcdFiche(); renderVcd();
     const q4=test.questions[test.idx];
@@ -15119,6 +15163,7 @@ function coordonneesVecteurs(w, P){
     av4=verifier4();
     const lfe=cl4();
     if(av4!==3 || lfe!=='ok,ok,bad,bad,bad,bad,bad,bad,bad,bad,ok') vus.push('8.4.4 : FE à l\\'envers : '+av4+' '+lfe);
+    if(dec4()!=='vco-h,vco-b,−8,−3') vus.push('8.4.4 : FE vérifié, la décomposition part de F : « '+dec4()+' »');
     const fb4=el('vcdFeedback').textContent;
     ['est tracé à l’envers','E est la fin, F le début','On écrit fin − début','attention au signe'].forEach(function(m){ if(fb4.indexOf(m)<0) vus.push('8.4.4 : le message ne dit pas « '+m+' » : '+fb4.slice(0,240)); });
     if(!document.querySelector('#vcd-fin + .mf-cor') || el('vcd-fin').nextElementSibling.textContent!=='E') vus.push('8.4.4 : la bonne fin ne s\\'écrit pas à côté de la liste');
@@ -15130,6 +15175,7 @@ function coordonneesVecteurs(w, P){
     checkVcd(); clearTimeout(test.fbTimer);
     const ls=cl4();
     if(test.locked || ls!=='ok,ok,rien,ok,bad,rien,rien,rien,rien,ok,rien' || !el('vcd-rx').disabled || el('vcd-deb').disabled || document.querySelector('#scr-vcd .sol')) vus.push('8.4.4 : le soutien : '+ls);
+    if(document.querySelector('#vcdGraph .vcd-dec')) vus.push('8.4.4 : en soutien, « Revérifier » montre la décomposition (la réponse)');
     /* la bulle « gagne / perds » (Seconde v652) : en soutien, la case du
        résultat prise, la soustraction remplie — les deux termes en mots, la
        réponse laissée à l'élève, qui l'écrit dans le résultat s'il le veut */
@@ -54903,7 +54949,12 @@ function revisionFractions(w, P){
 
     /* ---- 3. le rendu, le libellé d'étape, et la copie juste, par le BOUTON */
     startRvf();
-    if(test.maxScore!==${BAREME}) vus.push('barème de '+test.maxScore+' au lieu de ${BAREME} (${R.bareme === 'questions' ? 'un point par question' : '3+3+3+4+11+8+5+5'})');
+    /* La Première fait suivre chaque guidée d'une rédigée (novembre 2026) :
+       seize questions, un point chacune. Le reste de ce contrôle exerce le
+       moteur guidé seul, sur les huit questions fixes. */
+    const barRvf=${BAREME}*(test.redac ? 2 : 1);
+    if(test.maxScore!==barRvf) vus.push('barème de '+test.maxScore+' au lieu de '+barRvf+' (${R.bareme === 'questions' ? 'un point par question' : '3+3+3+4+11+8+5+5'})');
+    test.redac=false;
     test.questions=RVF_ORDRE.map(function(type){ return FIXES[type]; });
     for(let i=0;i<RVF_ORDRE.length && !vus.length;i++){
       const type=RVF_ORDRE[i], att=ATTENDU[type];

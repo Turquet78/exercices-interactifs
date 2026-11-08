@@ -3120,7 +3120,7 @@
   /* 8.4 Coordonnées de vecteurs — {coordonnees-vecteur-lire}, {coordonnees-vecteur-associer} :
      la flèche grise est le déplacement horizontal, la noire le vertical (la fiche) ; le
      vecteur en trait fin ; les coordonnées en colonne, entre deux parenthèses arrondies */
-  #scr-vco,#scr-vca,#scr-vcs{--vco-gris:#8C96A8}
+  #scr-vco,#scr-vca,#scr-vcs,#scr-vcd{--vco-gris:#8C96A8}
   /* 8.4.4 {coordonnees-vecteur-calculer} : le calcul de la fiche — abscisses dans un rond,
      ordonnées dans un carré, en pointillés ; « Fin » et « Début » avec la liste des deux noms */
   #vcdGraph .svr-vif{opacity:.75}
@@ -3186,6 +3186,12 @@
   .vco-svg .vco-o{fill:var(--ink)}
   .vco-svg .vco-et{font-family:"Fredoka";font-weight:600;font-size:18px}
   .vco-svg .vco-et-h{fill:var(--vco-gris)} .vco-svg .vco-et-b{fill:var(--ink)}
+  /* 8.4.4, une fois vérifié : la décomposition du 8.4.1 posée sur le repère, du début à la fin */
+  .vcd-svg .vco-h{stroke:var(--vco-gris);stroke-width:3.6;stroke-linecap:round}
+  .vcd-svg .vco-b{stroke:var(--ink);stroke-width:3.6;stroke-linecap:round}
+  .vcd-svg .vco-et{font-family:"Fredoka";font-weight:700;font-size:18px}
+  .vcd-svg .vcd-et-fd{fill:var(--surface);stroke-width:1.4} .vcd-svg .vcd-fd-h{stroke:var(--vco-gris)} .vcd-svg .vcd-fd-b{stroke:var(--ink)}
+  .vcd-svg .vco-et-h{fill:var(--vco-gris)} .vcd-svg .vco-et-b{fill:var(--ink)}
   .vco-svg .vco-nom{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic;font-size:24px;fill:var(--ink)}
   .vco-svg .vco-ind{font-family:"Fredoka";font-style:normal;font-size:15px}
   .vco-svg .vco-nfl{fill:none;stroke:var(--ink);stroke-width:1.3}
@@ -67432,6 +67438,7 @@ function checkVcs(live){
   if(live) return;   /* soutien, au fil de la saisie : les couleurs seules */
   if(!tout&&isSoutien()){ soutienAgain('vcsFeedback','vcsActions','checkVcs','vcsHost'); return; }
   test.locked=true; test.score+=n;
+  vcsDecomposer(q);
   if(tout){ $('vcsFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('vcsFeedback').className='mp-feedback good'; }
   else { $('vcsFeedback').innerHTML=msgAvecVides(subs, pourquoi); $('vcsFeedback').className='mp-feedback bad'; }
   test.answers.push({...(ptsExo()||{}), correct:tout,
@@ -67441,6 +67448,16 @@ function checkVcs(live){
   const last=test.idx===test.questions.length-1;
   $('vcsActions').innerHTML='<button class="btn btn-primary" id="vcsNext" type="button" onclick="nextVcs()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('vcsNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
+}
+/* UNE FOIS LA QUESTION VÉRIFIÉE, la figure du 8.4.1 remplace celle du 8.4.3
+   (demande de Turquet, novembre 2026 : « quand la vérification est faite,
+   mettre les flèches de décomposition comme dans le 8.4.1, grise et noire,
+   avec leur valeur ») : chaque vecteur reçoit sa flèche grise et sa noire,
+   et leurs déplacements écrits — l'élève relit ses carreaux. Jamais avant :
+   en soutien, « Revérifier » ne montre rien, la décomposition est la réponse. */
+function vcsDecomposer(q){
+  const f=document.querySelector('#vcsHost .vco-fig');
+  if(f) f.innerHTML=vcoSvg({v:q.v, et:1}, true, 'vcsA', vcoNc());
 }
 function nextVcs(){ if(test.idx<test.questions.length-1){ test.idx++; renderVcs(); autoSave(); } else finishTest(); }
 function startVcs(){
@@ -67686,7 +67703,7 @@ function vcdSVG(q){
   }
   const pointe=function(id,coul,u){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" ${u?'markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10"':'markerWidth="5" markerHeight="5"'} orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg svr-svg vcd-svg" role="img" aria-label="Repère gradué de −5 à 5 sur les deux axes">`
-    +'<defs>'+pointe('vcdArrAx','var(--ink)')+pointe('vcdArrE','var(--blue)',1)+pointe('vcdArrB','var(--red)',1)+pointe('vcdArrS','var(--green)',1)+'</defs>'
+    +'<defs>'+pointe('vcdArrAx','var(--ink)')+pointe('vcdArrE','var(--blue)',1)+pointe('vcdArrB','var(--red)',1)+pointe('vcdArrS','var(--green)',1)+vcoPointe('vcdArrH','var(--vco-gris)',15)+vcoPointe('vcdArrN','var(--ink)',15)+'</defs>'
     +g+'<g id="vcdCorr"></g><g id="vcdFl"></g><g id="vcdPts"></g><g id="vcdVif"></g>'+`<g class="vec-zones" aria-hidden="true">${zones}</g>${cibles}</svg>`;
 }
 function vcdNoeud(p){ return $('vcdn-'+(p[0]-VCD_X0)+'-'+(p[1]-VCD_Y0)); }
@@ -68025,7 +68042,28 @@ function vcdFinal(q,subs){
   let h='';
   for(let k=0;k<2;k++) if(!subs[k].ok) h+=vcdCroix(q, k, q.P[k], 's');
   if(!subs[2].ok) h+=vcdFleche(q.P[vcdD(q)], q.P[vcdF(q)], 'svc-s', 'vcdArrS');
-  const c=$('vcdCorr'); if(c) c.innerHTML=h;
+  const c=$('vcdCorr'); if(c) c.innerHTML=vcdDecomposition(q)+h;
+}
+/* UNE FOIS VÉRIFIÉ, LE VECTEUR SE DÉCOMPOSE COMME AU 8.4.1 (demande de
+   Turquet, novembre 2026) : du début, la flèche grise horizontale jusqu'à
+   l'aplomb de la fin, puis la noire verticale jusqu'à la fin, chacune avec
+   son déplacement écrit (+8, −3…) hors du triangle — l'élève voit sur le
+   repère les deux nombres que son calcul fin − début devait donner. Sous les
+   gestes de l'élève (#vcdCorr est le premier calque) : le vecteur reste
+   lisible par-dessus. */
+function vcdDecomposition(q){
+  const d=q.P[vcdD(q)], f=q.P[vcdF(q)], a=f[0]-d[0], b=f[1]-d[1];
+  const A=[vcdX(d[0]),vcdY(d[1])], C=[vcdX(f[0]),vcdY(d[1])], B=[vcdX(f[0]),vcdY(f[1])];
+  let h='';
+  if(a) h+=vcoFlecheSvg(A, C, 'vco-h', 'vcdArrH');
+  if(b) h+=vcoFlecheSvg(C, B, 'vco-b', 'vcdArrN');
+  /* chaque nombre sur une pastille : sur le repère, il tombe souvent sur une graduation */
+  const et=function(cls,t,cx,cy){ const w=11*t.length+8;
+    return '<rect class="vcd-et-fd '+cls.replace('vco-et-','vcd-fd-')+'" x="'+(cx-w/2)+'" y="'+(cy-12)+'" width="'+w+'" height="24" rx="7"/>'
+      +'<text class="vco-et '+cls+'" x="'+cx+'" y="'+(cy+6)+'" text-anchor="middle">'+t+'</text>'; };
+  if(a){ const t=vcoSg(a); h+=et('vco-et-h', t, (A[0]+C[0])/2, A[1]+(b>=0?16:-16)); }
+  if(b){ const t=vcoSg(b), w=11*t.length+8; h+=et('vco-et-b', t, C[0]+(a<0?-1:1)*(w/2+6), (C[1]+B[1])/2); }
+  return '<g class="vcd-dec">'+h+'</g>';
 }
 function renderVcd(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);

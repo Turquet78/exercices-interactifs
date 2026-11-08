@@ -2962,8 +2962,8 @@ module.exports = {
        n'atteint, raison comprise — vide, et c'est voulu. */
     notes: { finDirecte: 'finishTest', horsAtteinte: {} },
     tableEleves: 'eleves',
-    /* pas de « ?eleve=Prénom » : demandé pour la Seconde et la Première seulement (novembre 2026) */
-    prenomDuLien: false,
+    /* « ?eleve=Prénom » : demandé pour la Seconde et la Première, puis pour la Terminale (novembre 2026) */
+    prenomDuLien: true,
     navigateur: {
       exercice: 'derivees', ecran: 'test',
       /* le moteur générique enchaîne tout seul après un court délai : pas de bouton « suivant » */
