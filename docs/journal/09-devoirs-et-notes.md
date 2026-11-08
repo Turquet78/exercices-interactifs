@@ -1846,7 +1846,7 @@ au n°4, Anna 14 / 20 et Bob 0 / 20, moyenne du devoir 7 / 20 ; au n°7, Bob
 « — / 10 » et moyenne 5 / 10, inchangés.
 
 **Les ÉVALUATIONS sont la troisième famille de la Première — à l'aveugle,
-une tentative, la copie corrigée publiée par le professeur (v379, demande de
+une tentative, la copie corrigée publiée par le professeur (v382, demande de
 Turquet, novembre 2026).** « En première je veux pouvoir créer des
 évaluations comme des fiches de travail […] l'élève ne peut réaliser les
 exercices qu'en mode entraînement, on ne vérifiera pas les résultats à la
