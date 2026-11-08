@@ -16990,7 +16990,9 @@ if(require.main === module) (async () => {
                  est ouverte ; « Vérifier quand même » vérifie ensuite. */
               const peintes = () => on.querySelectorAll('.ok,.bad,.sol').length;
               const avant = peintes();
-              const attendue = /^(Rev|V)érifier|^Valider/i.test(b.textContent.trim())
+              /* un bouton DÉSACTIVÉ (« Exécute d'abord le programme ») ne vérifie
+                 rien : la boîte n'a rien à retenir */
+              const attendue = !b.disabled && /^(Rev|V)érifier|^Valider/i.test(b.textContent.trim())
                 && typeof casesVidesEcran === 'function' && casesVidesEcran().length > 0;
               window.confirmerCasesVides = true;
               let boite = null;
