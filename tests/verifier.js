@@ -15209,6 +15209,104 @@ function coordonneesVecteurs(w, P){
     }
     currentMode='train'; el('vcd-ry').focus(); el('vcd-rx').focus();
     if(el('vcdGp')) vus.push('8.4.4 : la bulle « gagne / perds » paraît hors du soutien');
+
+    /* ===== 8.4.5 : deux vecteurs égaux, un parallélogramme (la fiche « vecteur coord parallélogramme ») ===== */
+    const d5=D.parallelogramme;
+    if(TEST_NUM[d5.exercice]!==d5.numero) vus.push(d5.exercice+' porte le numéro '+TEST_NUM[d5.exercice]+' au lieu de '+d5.numero);
+    if(TABLES_SANS.indexOf(d5.exercice)<0) vus.push('8.4.5 : le bouton des tables est proposé');
+    if(RAPPELS.vcp!==RAP_VCP || !QIA_SUGG.vcp) vus.push('vcp n\\'a pas son rappel ou ses questions à l\\'IA');
+    if(VCP_NOMS.slice().sort().join(',')!=='ABDC,ACDB,BACD,BDCA,CABD,CDBA,DBAC,DCAB') vus.push('8.4.5 : les noms du quadrilatère : '+VCP_NOMS.join(','));
+    /* le tirage : la fiche en premier, un parallélogramme et un « non » ensuite, des points lisibles */
+    for(let n=0;n<200;n++){
+      const qs=vcpBuildQuestions();
+      if(qs.length!==d5.nb){ vus.push('8.4.5 : '+qs.length+' questions'); break; }
+      if(JSON.stringify(qs[0])!==JSON.stringify(vcpFiche()) || !vcpPar(qs[0])){ vus.push('8.4.5 : la première question n\\'est pas la fiche'); break; }
+      if(vcpPar(qs[1])===vcpPar(qs[2])){ vus.push('8.4.5 : les questions 2 et 3 sont toutes deux '+(vcpPar(qs[1])?'des':'des non-')+'parallélogrammes'); break; }
+      if(new Set(qs.map(vcpCle)).size!==qs.length){ vus.push('8.4.5 : deux questions identiques'); break; }
+      const q=qs[1+n%2];
+      if(Object.keys(q).sort().join(',')!=='P,pl' || q.pl.some(Boolean)){ vus.push('8.4.5 : range '+JSON.stringify(q)); break; }
+      if(q.P.some(function(p){ return p.some(function(c){ return c===0||c===-1||Math.abs(c)>5; }); })){ vus.push('8.4.5 : un point illisible '+JSON.stringify(q.P)); break; }
+      let proches=false; for(let a=0;a<4;a++) for(let b=a+1;b<4;b++) if(!vecLoin(q.P[a],q.P[b])) proches=true;
+      if(proches){ vus.push('8.4.5 : deux points trop proches '+JSON.stringify(q.P)); break; }
+      const A=vcpAttendu(q,VCP_V[0]), C=vcpAttendu(q,VCP_V[1]);
+      if(!A.rx||!A.ry||!C.rx||!C.ry){ vus.push('8.4.5 : un vecteur sans ses deux lignes de calcul '+JSON.stringify(q.P)); break; }
+      if(A.rx*(q.P[2][1]-q.P[0][1])-A.ry*(q.P[2][0]-q.P[0][0])===0){ vus.push('8.4.5 : C sur la droite (AB) '+JSON.stringify(q.P)); break; }
+    }
+    const verifier5=function(){ const av=test.score; checkVcp(); clearTimeout(test.fbTimer); return test.score-av; };
+    const IDS5=VCP_IDS.slice();
+    const cl5=function(){ return IDS5.map(function(i){ return classe(el(i)); }).join(','); };
+    const tous5=function(c){ return IDS5.map(function(){ return c; }).join(','); };
+    currentTestId=d5.exercice; TESTS[d5.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='vcp' || test.maxScore!==d5.bareme || test.questions.length!==d5.nb) vus.push('8.4.5 : kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
+    if(dmPoidsQuestion('vcp',test.questions[0])!==19) vus.push('8.4.5 : dmPoidsQuestion ne compte pas dix-neuf réponses');
+    if(!el('vcpInstr').classList.contains('enonce') || el('vcpInstr').textContent.indexOf('A(−2 ; 3), B(4 ; −2), C(−1 ; 5) et D(5 ; 0)')<0) vus.push('8.4.5 : l\\'énoncé : '+el('vcpInstr').textContent.slice(0,120));
+    ['vcp-p0','vcp-p1','vcp-p2','vcp-p3'].forEach(function(id){ if(!el(id)||!el(id).classList.contains('pts-case')) vus.push(id+' n\\'est pas une pts-case'); });
+    if(document.querySelectorAll('#vcpCalc .vcd-tete').length!==2 || document.querySelectorAll('#vcpCalc .vcd-in').length!==13) vus.push('8.4.5 : le calcul n\\'a pas ses deux colonnes « Fin − Début » et ses treize cases');
+    if(document.querySelectorAll('#vcpGraph .vec-t').length!==169 || document.querySelectorAll('#vcpGraph text.svr-ax').length!==21) vus.push('8.4.5 : le repère n\\'a pas ses 169 nœuds et ses 21 graduations');
+    /* la copie vide : dix-neuf sol, rien de rouge, la correction en vert */
+    if(verifier5()!==0 || cl5()!==tous5('sol')) vus.push('8.4.5 : la copie vide : '+cl5());
+    if(document.querySelector('#vcpBody .bad, #vcpCalc .bad, #vcpGraph .svr-pt.eb')) vus.push('8.4.5 : la copie vide rougit');
+    if(document.querySelectorAll('#vcpCorr .svr-pt.s').length!==4 || !document.querySelector('#vcpCorr polygon.vcp-quad')) vus.push('8.4.5 : la correction ne dessine pas les quatre points et le quadrilatère');
+    if(el('vcp-ab-rx').value!=='6' || el('vcp-ab-ry').value!=='−5' || el('vcp-cd-xd').value!=='−1' || el('vcp-eg').value!=='=' || el('vcp-nom').value!=='ABDC' || el('vcp-nat').value!=='est') vus.push('8.4.5 : la correction écrit '+['vcp-ab-rx','vcp-ab-ry','vcp-cd-xd','vcp-eg','vcp-nom','vcp-nat'].map(function(i){ return el(i).value; }).join(' '));
+    if(el('vcpFeedback').textContent.indexOf('Il te manquait 19 cases')<0) vus.push('8.4.5 : le message de la copie vide');
+    /* la copie juste, aux gestes de l'élève */
+    nextVcp(); test.questions[test.idx]=vcpFiche(); renderVcp();
+    const q5=test.questions[test.idx];
+    if(test.vcpOutil!=='p0') vus.push('8.4.5 : au départ, le geste est '+test.vcpOutil);
+    vcpVif(q5,{x:vcdX(1)+3,y:vcdY(1)-2});
+    if(((document.querySelector('#vcpVif .svr-pt')||{}).textContent||'')!=='A') vus.push('8.4.5 : aucune croix A ne suit la souris');
+    vcpPose(3,-2);
+    if(!document.querySelector('#vcpPts .svr-pt.eb') || test.vcpOutil!=='p0' || el('vcp-p0').classList.contains('fait')) vus.push('8.4.5 : A posé faux n\\'est pas rouge, ou le geste passe à la suite');
+    vcpPose(3,-2); if(q5.pl[0]!==null) vus.push('8.4.5 : le reclic ne retire pas A');
+    vcpPose(-2,3);
+    if(test.vcpOutil!=='p1' || !el('vcp-p0').classList.contains('fait')) vus.push('8.4.5 : A juste ne verdit pas ou ne passe pas à B');
+    vcpPose(4,-2); vcpPose(-1,5); vcpPose(5,0);
+    if(!['vcp-p1','vcp-p2','vcp-p3'].every(function(i){ return el(i).classList.contains('fait'); }) || document.querySelector('#vcpPts .svr-pt.eb')) vus.push('8.4.5 : les quatre points justes ne verdissent pas');
+    const ecrire5=function(v){ IDS5.slice(4).forEach(function(id,i){ el(id).value=v[i]; }); };
+    ecrire5(['4','(−2)','-2','3','6','−5','5','-1','0','5','+6','-5','=','abdc','est']);
+    let av5=verifier5();
+    if(av5!==19 || cl5()!==tous5('ok')) vus.push('8.4.5 : la copie juste vaut '+av5+' : '+cl5());
+    /* la reprise : la question revient du JSON */
+    test.questions[test.idx]=JSON.parse(JSON.stringify(q5)); renderVcp();
+    if(!el('vcp-p3').classList.contains('fait') || el('vcp-p3').classList.contains('ok') || el('vcp-ab-xf').value!=='') vus.push('8.4.5 : le rendu après JSON');
+    /* les pièges : fin et début échangés, un signe oublié, ABCD, « ≠ » — sur un quadrilatère qui N'EST PAS un parallélogramme */
+    const nq=vcpNeuve([[-2,3],[4,-2],[-1,5],[4,0]]); test.questions[test.idx]=nq; renderVcp();
+    if(vcpPar(nq)) vus.push('8.4.5 : le banc croit ABDC parallélogramme');
+    [[-2,3],[4,-2],[-1,5],[4,0]].forEach(function(p){ vcpPose(p[0],p[1]); });
+    ecrire5(['-2','4','3','-2','-6','5', '4','-1','0','5','3','-5', '=','ABCD','est']);
+    av5=verifier5();
+    const l5=cl5();
+    if(av5!==9 || l5!=='ok,ok,ok,ok,bad,bad,bad,bad,bad,bad,ok,ok,ok,ok,bad,ok,bad,bad,bad') vus.push('8.4.5 : les pièges : '+av5+' '+l5);
+    const fb5=el('vcpFeedback').textContent;
+    ['on écrit fin − début','attention au signe','ne sont pas égaux','Pas ABCD','n’est pas un parallélogramme'].forEach(function(m){ if(fb5.indexOf(m)<0) vus.push('8.4.5 : le message ne dit pas « '+m+' » : '+fb5.slice(0,300)); });
+    if(!document.querySelector('#vcp-nom + .mf-cor') || el('vcp-nom').nextElementSibling.textContent!=='ABDC') vus.push('8.4.5 : le bon nom ne s\\'écrit pas à côté de la case');
+    if(!document.querySelector('#vcp-nat + .mf-cor') || el('vcp-nat').nextElementSibling.textContent!=='n’est pas un') vus.push('8.4.5 : la bonne conclusion ne s\\'écrit pas à côté de la liste');
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0 || conseilCtxCourant().indexOf('AB (6 ; −5), CD (5 ; −5)')<0) vus.push('8.4.5 : le contexte du modèle');
+    /* le soutien : le juste se fige, le faux rougit, rien ne se révèle */
+    currentMode='soutien'; test.questions[test.idx]=vcpFiche(); renderVcp();
+    vcpPose(-2,3); vcpPose(4,-2); vcpPose(3,3);
+    ecrire5(['4','','','','6','4','','','','','','','=','','']);
+    checkVcp(); clearTimeout(test.fbTimer);
+    const ls5=cl5();
+    if(test.locked || ls5!=='ok,ok,bad,rien,ok,rien,rien,rien,ok,bad,rien,rien,rien,rien,rien,rien,ok,rien,rien' || !el('vcp-ab-rx').disabled || el('vcp-ab-ry').disabled || document.querySelector('#scr-vcp .sol')) vus.push('8.4.5 : le soutien : '+ls5);
+    /* la bulle « gagne / perds » du 8.4.4, à côté du résultat de CD⃗ */
+    test.questions[test.idx]=vcpFiche(); renderVcp();
+    el('vcp-cd-ry').focus();
+    if(el('vcdGp')) vus.push('8.4.5 : la bulle « gagne / perds » paraît sur une soustraction vide');
+    el('vcp-cd-yf').value='0'; el('vcp-cd-yd').value='5'; el('vcp-cd-rx').focus(); el('vcp-cd-ry').focus();
+    const gp5=el('vcdGp'), gpt5=gp5?gp5.textContent.replace(/\\s+/g,' '):'';
+    if(gpt5.indexOf('Quand je gagne 0 et que je perds 5, alors je')<0) vus.push('8.4.5 : la bulle « gagne / perds » dit « '+gpt5+' »');
+    if(gp5){
+      el('vcdGpV').value='p'; el('vcdGpV').dispatchEvent(new Event('change',{bubbles:true}));
+      el('vcdGpN').value='5'; el('vcdGpN').dispatchEvent(new Event('input',{bubbles:true}));
+      if(el('vcp-cd-ry').value!=='−5') vus.push('8.4.5 : « perds 5 » dans la bulle écrit « '+el('vcp-cd-ry').value+' » au résultat');
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));
+      if(el('vcdGp')) vus.push('8.4.5 : Échap ne ferme pas la bulle');
+    }
+    el('vcp-ab-xf').value='4'; el('vcp-ab-xd').value='-2'; el('vcp-ab-rx').focus();
+    if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je gagne 4 et que je gagne 2')<0) vus.push('8.4.5 : la bulle ne paraît pas au résultat de AB');
+    currentMode='train'; el('vcp-ab-ry').focus(); el('vcp-ab-rx').focus();
+    if(el('vcdGp')) vus.push('8.4.5 : la bulle « gagne / perds » paraît hors du soutien');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
