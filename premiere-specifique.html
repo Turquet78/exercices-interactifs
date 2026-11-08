@@ -1627,6 +1627,9 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
    (.screen[data-theme="Fractions"]) — aucune taille écrite ici */
 #rlfHost .pt-row{margin:10px 0;gap:8px}
 #rlfHost .rlf-de{margin:0 2px}
+/* la case du résultat a la hauteur des cases de fraction du thème (sans
+   quoi la règle générale des .f-dec la fait de 50 px contre 42) */
+#rlfHost math-field.pm-mf.f-dec{height:auto;min-height:var(--fx-case);border-radius:9px;border-width:1.5px;padding:0 2px}
 #fpHost .f-num,#fpHost .f-den{width:auto;min-width:84px;max-width:220px;}
 #fpHost .f-dec{width:auto;min-width:96px;max-width:220px;}
 #fpHost .f-fbar{width:auto;align-self:stretch;height:4px;}
