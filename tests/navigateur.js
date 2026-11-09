@@ -3623,6 +3623,24 @@ if(require.main === module) (async () => {
         return { bonus: !!(e.exercices[1] && e.exercices[1].bonus), publie: e.publie === true, soutien: e.exercices.some(x => (x.modes || []).indexOf('soutien') >= 0) }; }, E.table);
       verifier('enregistrer une évaluation garde le bonus et la publication, sans soutien',
         garde.bonus && garde.publie && !garde.soutien, JSON.stringify(garde));
+      /* L'ORDRE DES EXERCICES se règle comme sur une fiche (demande de
+         Turquet, novembre 2026) : le ruban ▲▼ de l'éditeur, l'ordre emporté
+         par l'enregistrement, l'élève qui lit les exercices numérotés dans
+         cet ordre — et AUCUN verrou : celui des fiches ne déborde pas. */
+      const ruban = await s.page.evaluate(() => { const r = document.getElementById('dmOrdre');
+        return r ? [...r.querySelectorAll('.dm-fleche')].length : -1; });
+      await s.page.evaluate(id => dmOrdreBouge(id, 1), E.exercice);
+      await s.page.click('#dmEditor .dm-ed-acts .btn-primary'); await s.page.waitForTimeout(700);
+      const ordre = await s.page.evaluate(t => window.__faux.lignes(t)[0].valeurs.evaluations[0].exercices.map(x => x.id), E.table);
+      verifier('l\'évaluation a son ruban d\'ordre ▲▼, et l\'enregistrement emporte l\'ordre réglé',
+        ruban === 4 && ordre[0] === E.bonus && ordre[1] === E.exercice, 'flèches : ' + ruban + ' · ordre : ' + JSON.stringify(ordre));
+      await s.page.evaluate(() => { currentEleve = { id: 'eleve-controle', prenom: 'Contrôle' }; });
+      await s.page.evaluate(id => ouvrirDevoirDetail(id), ev.id); await s.page.waitForTimeout(700);
+      const vueEleve = await s.page.evaluate(() => [...document.querySelectorAll('#devoirsBody .choice')].map(b => ({ t: (b.querySelector('.ttl') || b).textContent.trim(), verrou: /🔒/.test(b.textContent) && !/publiés/.test(b.textContent) })));
+      verifier('l\'élève lit les exercices de l\'évaluation numérotés dans l\'ordre réglé, sans verrou d\'ordre',
+        vueEleve.length === 2 && /^1\. /.test(vueEleve[0].t) && /^2\. /.test(vueEleve[1].t)
+          && vueEleve[0].t.indexOf('⭐') >= 0 && vueEleve[1].t.indexOf('⭐') < 0,
+        JSON.stringify(vueEleve));
       await s.page.evaluate(() => dmStudentDetail('eleve-controle', 'Contrôle')); await s.page.waitForTimeout(300);
       const vuProf = await s.page.evaluate(() => { const b = [...document.querySelectorAll('#dmStudentDetail button')].find(x => /Voir la copie/.test(x.textContent)); if(!b) return 'aucun bouton'; b.click();
         return new Promise(r => setTimeout(() => r((document.querySelector('section.screen.on') || {}).id + ' · ' + document.querySelectorAll('#evalCopieCorps .copie-q').length), 600)); });

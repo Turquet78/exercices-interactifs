@@ -1929,6 +1929,21 @@ peintes avec des cases `ok`), sans `evalNettoyer`, sans `bonus` dans
 `saveDM`, sans la copie dans l'entonnoir. Banc principal : le sélecteur du
 professeur compte trois familles, et l'ordre des cartes de l'accueil.
 
+**Puis l'ordre des exercices d'une ÉVALUATION s'est réglé, comme sur une
+fiche — l'affichage, jamais un verrou (v389, demande de Turquet, novembre
+2026 : « je voulais aussi pouvoir changer l'ordre des exercices dans une
+évaluation comme dans les fiches de travail »).** Le ruban ▲▼ de l'éditeur
+était gardé par `dmGenre!=='fiche'` : il s'ouvre aux évaluations
+(`evalOrdre`), avec sa phrase à elle. Rien d'autre n'avait à bouger :
+`saveDM()` garde le tableau `exercices` dans l'ordre rangé, et la page de
+l'élève (`renderEvalDetail`) l'itère — elle numérote désormais ses cartes
+« 1. », « 2. »… pour que l'ordre se LISE. Le verrou des fiches
+(`GENRE_DEVOIRS.fiche.ordre`) ne déborde pas : chaque exercice d'une
+évaluation reste ouvert. Contrôle : banc navigateur, « 6 sexies quater » —
+le ruban et ses flèches, l'ordre emporté par l'enregistrement, l'élève qui
+lit les exercices numérotés dans cet ordre. Éprouvé par sabotage (le ruban
+rendu aux seules fiches : « flèches : -1 »).
+
 **Puis la note d'une ÉVALUATION est devenue PROPORTIONNELLE aux cases justes
 (Première v387, demande de Turquet, novembre 2026).** Sur la copie d'un 4.1
 (3/2 + 1/2) : la règle « dénominateur » choisie juste, 3 écrit au numérateur
@@ -1956,7 +1971,7 @@ doit enregistrer `details.note` = 2/3 et 67 %. Les notes d'évaluation déjà
 enregistrées ne sont pas recalculées : le professeur les pose à la main.
 
 **Puis la copie corrigée a perdu ses décors MESURÉS — des cadres bleus en trop
-et des flèches égarées (Première v388, novembre 2026).** Turquet relit la
+et des flèches égarées (Première v390, novembre 2026).** Turquet relit la
 copie d'un 4.2 {croiser-denominateurs} : une double barre bleue sur
 l'énoncé, un trait bleu qui descend à gauche des cases, et les deux flèches
 du croisement tombées sous la figure, en bas à droite. Deux décors posés sur
