@@ -3604,6 +3604,8 @@ if(require.main === module) (async () => {
         verifier('en évaluation, la note est proportionnelle aux cases justes — la simplification que l\'élève n\'avait pas à écrire hors compte',
           !!lp && lp.total === 1 && Math.abs(lp.note - Q.note) < 0.006 && lp.percent === Math.round(Q.note * 100),
           'copie ' + JSON.stringify(prep) + ' → ' + JSON.stringify(lp));
+        /* l'évaluation témoin repart : la suite lit le bilan de la PREMIÈRE */
+        await s.page.evaluate(a => { const p = window.__faux.lignes(a.t)[0]; p.valeurs.evaluations = p.valeurs.evaluations.filter(e => e.id !== a.id); }, { t: E.table, id: ev2.id });
       } else ignorer('en évaluation, la note est proportionnelle aux cases justes', 'aucune copie témoin déclarée (evaluations.proportionnelle)');
       /* 8. le professeur : enregistrer GARDE le bonus et la publication */
       await s.page.evaluate(p => sb.auth.signInWithPassword({ email: p.c, password: p.m }), { c: (fs.readFileSync(path.join(RACINE, CIBLE), 'utf8').match(/const COURRIEL_PROF\s*=\s*"([^"]+)"/) || [])[1], m: MDP_PROF });
