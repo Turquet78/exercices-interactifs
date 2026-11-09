@@ -1930,7 +1930,7 @@ peintes avec des cases `ok`), sans `evalNettoyer`, sans `bonus` dans
 professeur compte trois familles, et l'ordre des cartes de l'accueil.
 
 **Puis la copie corrigée a perdu ses décors MESURÉS — des cadres bleus en trop
-et des flèches égarées (Première v386, novembre 2026).** Turquet relit la
+et des flèches égarées (Première v387, novembre 2026).** Turquet relit la
 copie d'un 4.2 {croiser-denominateurs} : une double barre bleue sur
 l'énoncé, un trait bleu qui descend à gauche des cases, et les deux flèches
 du croisement tombées sous la figure, en bas à droite. Deux décors posés sur
