@@ -5586,7 +5586,8 @@ function notesAttenteEcrire(a){
    sait pas le dire (réseau). */
 async function sessionDeLEleve(){
   try{
-    const {data}=await sb.auth.getSession();
+    const {data,error}=await sb.auth.getSession();
+    if(error) return null;
     const u=data&&data.session&&data.session.user;
     if(!u) return false;
     return !!(currentEleve&&currentEleve.cle) && String(u.email||'').toLowerCase()===courrielDe(currentEleve.cle).toLowerCase();
@@ -5648,8 +5649,12 @@ async function envoyerNotesEnAttente(){
     res.envoyees++;
     const d=p.details||{};
     try{
-      const {data}=await lireToutes(()=>sb.from('resultats_1ere').select('id,details').eq('eleve_id',currentEleve.id));
-      for(const r of (data||[])) if(memeBrouillon(r.details,{test:d.test, mode:d.mode, dm:d.dm})) await sb.from('resultats_1ere').delete().eq('id',r.id);
+      const {data,error}=await lireToutes(()=>sb.from('resultats_1ere').select('id,details').eq('eleve_id',currentEleve.id));
+      if(error) console.warn('Brouillons non relus :', error.message);
+      for(const r of (data||[])) if(memeBrouillon(r.details,{test:d.test, mode:d.mode, dm:d.dm})){
+        const {error:errSup}=await sb.from('resultats_1ere').delete().eq('id',r.id);
+        if(errSup) console.warn('Brouillon non supprimé :', errSup.message);
+      }
     }catch(e){}
   }
   notesAttenteEcrire(reste);
