@@ -3075,6 +3075,9 @@
   .tvx-svg .tvx-prise{fill:transparent;stroke:transparent;stroke-width:2;cursor:pointer}
   @media (hover:hover) and (pointer:fine){.tvx-svg .tvx-prise:hover{fill:rgba(124,58,237,.14);stroke:var(--crd-a)}}
   /* 8.4.6 {coordonnees-vecteur-tracer} : les trois consignes, la croix des signes à côté */
+  .tvx-svg .vco-h{stroke:var(--vco-gris);stroke-width:3.6;stroke-linecap:round} .tvx-svg .vco-b{stroke:var(--ink);stroke-width:3.6;stroke-linecap:round}
+  .tvx-svg .vco-et{font-family:"Fredoka";font-weight:700;font-size:18px} .tvx-svg .vco-et-h{fill:var(--vco-gris)} .tvx-svg .vco-et-b{fill:var(--ink)}
+  .tvx-svg .tvx-et-fd{fill:var(--surface);stroke-width:1.4} .tvx-svg .tvx-fd-h{stroke:var(--vco-gris)} .tvx-svg .tvx-fd-b{stroke:var(--ink)}
   .tvx-co-haut{display:flex;flex-wrap:wrap;align-items:center;gap:6px 22px}
   .tvx-co-cons{flex:1 1 320px;min-width:0}
   .tvx-co-haut .vco-rosebox{flex:0 0 auto;margin:0 auto}
@@ -9161,7 +9164,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=663;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=664;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -66553,7 +66556,7 @@ function tvxSVG(q){
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
   return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tvx-svg" role="img" aria-label="${q.co?'Quadrillage vide : les vecteurs u, v et w à tracer par leurs coordonnées':q.ks?'Quadrillage : le vecteur u, et les vecteurs '+[0,1,2].map(function(k){ return tvxNom(q,k); }).join(', ')+' à tracer':'Quadrillage : les vecteurs u, v et w, et les vecteurs '+(q.op?'opposés':'égaux')+' à tracer'}">`
     +'<defs>'+pointe('tvxArr0','var(--ink)')+pointe('tvxArrM','var(--crd-a)')+pointe('tvxArrE','var(--blue)')
-    +pointe('tvxArrB','var(--red)')+pointe('tvxArrS','var(--green)')+'</defs>'
+    +pointe('tvxArrB','var(--red)')+pointe('tvxArrS','var(--green)')+(q.co?vcoPointe('tvxArrH','var(--vco-gris)',15)+vcoPointe('tvxArrN','var(--ink)',15):'')+'</defs>'
     +g+`<g id="tvxDonnes">${donnes}</g><g id="tvxCorr"></g><g id="tvxFl"></g><g id="tvxVif"></g><g id="tvxPrises"></g>`
     +'<g id="tvxCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><circle r="5"/></g></svg>';
 }
@@ -66814,14 +66817,37 @@ function tvxFinal(q,subs){
   const boite=function(a,b){ return [Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.max(a[0],b[0]),Math.max(a[1],b[1])]; };
   [0,1,2].forEach(function(k){ const o=tvxOrig(q,k), w=tvxVec(q,k); if(!q.co) occupe.push(boite(o,[o[0]+w[0],o[1]+w[1]]));
     const t=tvxFl(q,k); if(t) occupe.push(boite(t.d,t.f)); });
-  let h='';
+  let h='', dec='';
   subs.forEach(function(s,k){
-    if(s.ok) return;
+    if(s.ok){ if(q.co) dec+=tvxDecomposition(tvxFl(q,k).d, tvxCible(q,k)); return; }
     const o=tvxPlace(q,k,occupe), w=tvxCible(q,k), f=[o[0]+w[0],o[1]+w[1]];
     occupe.push(boite(o,f));
+    if(q.co) dec+=tvxDecomposition(o, w);
     h+=tvxCroix(o,'tvx-sol')+tvxTrace(q, k, o, f, 'svc-s', 'tvxArrS');
   });
-  c.innerHTML=h;
+  c.innerHTML=dec+h;
+}
+/* 8.4.6 : UNE FOIS VÉRIFIÉ, CHAQUE VECTEUR SE DÉCOMPOSE COMME AU 8.4.3
+   (demande de Turquet, novembre 2026 : « ajoute les flèches de décomposition
+   à la vérification comme au 8.4.3 »). Sous la flèche juste — celle de
+   l'élève si elle est bleue, la verte de la correction sinon — la flèche
+   grise horizontale du départ jusqu'à l'aplomb de l'arrivée, puis la noire
+   verticale jusqu'à l'arrivée, chacune avec sa valeur sur une pastille (la
+   recette du 8.4.4) : l'élève relit les deux nombres de la colonne sur le
+   dessin. Jamais avant la vérification finale : en soutien, la
+   décomposition serait la réponse. */
+function tvxDecomposition(d, w){
+  const a=w[0], b=w[1];
+  const A=[tvxX(d[0]),tvxY(d[1])], C=[tvxX(d[0]+a),tvxY(d[1])], B=[tvxX(d[0]+a),tvxY(d[1]+b)];
+  let h='';
+  if(a) h+=vcoFlecheSvg(A, C, 'vco-h', 'tvxArrH');
+  if(b) h+=vcoFlecheSvg(C, B, 'vco-b', 'tvxArrN');
+  const et=function(cls,t,cx,cy){ const l=11*t.length+8;
+    return '<rect class="tvx-et-fd '+cls.replace('vco-et-','tvx-fd-')+'" x="'+(cx-l/2).toFixed(1)+'" y="'+(cy-12).toFixed(1)+'" width="'+l+'" height="24" rx="7"/>'
+      +'<text class="vco-et '+cls+'" x="'+cx.toFixed(1)+'" y="'+(cy+6).toFixed(1)+'" text-anchor="middle">'+t+'</text>'; };
+  if(a) h+=et('vco-et-h', vcoSg(a), (A[0]+C[0])/2, A[1]+(b>=0?17:-17));
+  if(b){ const t=vcoSg(b), l=11*t.length+8; h+=et('vco-et-b', t, C[0]+(a<0?-1:1)*(l/2+6), (C[1]+B[1])/2); }
+  return '<g class="tvx-dec">'+h+'</g>';
 }
 function renderTvx(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
