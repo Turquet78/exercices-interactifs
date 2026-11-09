@@ -187,3 +187,20 @@ questions du pdf ». Ajouté EN DERNIER au thème 1 : il ne renumérote rien.
   l'ordre de la fiche, jamais deux fois le même nombre aux lignes répétées
   (300 séances) ; l'ordre gardé pour toute longueur de 1 à `DM_NBQ_MAX` ;
   des attendus exacts (10⁻² + 10 ≈ 10, 0,01 × 10 = 0,1, 101 × 999 ≈ 100 000).
+
+**Le 1.12 dit ce qu'une case attend, et accepte une fraction (v396).**
+Demande de Turquet, novembre 2026 : « préciser dans l'énoncé que les cases
+seront des nombres avec un seul chiffre 1 et des 0, comme 100 ; 10 ; 0,1 ; on
+acceptera une écriture fractionnaire dans une case pour un nombre décimal, par
+exemple 1/100 pour 0,01 ». La phrase (`VAP_AIDE_P10`) s'ajoute à l'énoncé des
+parties 2 et 3 seulement : en partie 1, les réponses sont des entiers
+quelconques (8, 200, 3000), et la phrase y mentirait. Le juge des cases
+décimales (`vapVaut`) lit désormais par `vapLit` : un décimal, ou une fraction
+— telle que MathLive la rend (`(1)/(100)`, `\frac{1}{100}`, `\dfrac`), ou
+tapée `1/100` — dont numérateur et dénominateur sont des décimaux. La
+correction en direct du soutien (`vapLive`) et l'ordre des deux facteurs
+(`facteursCommutes` avec `vapVaut`) passent par le même juge : sans quoi le
+soutien rougissait une fraction que la vérification aurait comptée juste.
+Exécuté dans Chromium : « 1/10 » tapé dans la case résultat de 0,01 × 10, et
+« 1/100 » dans le premier facteur de 0,01 × 99, se peignent en bleu et donnent
+l'exercice parfait.
