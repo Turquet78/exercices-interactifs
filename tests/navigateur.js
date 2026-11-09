@@ -3539,7 +3539,8 @@ if(require.main === module) (async () => {
         if(!r) return null;
         const c = r.details.copie || [];
         return { eval: r.details.eval, mode: r.details.mode, n: c.length, juge: c.every(x => /class="[^"]*\b(ok|bad|sol)\b/.test(x.h || '')),
-                 ids: c.some(x => /\sid="/.test(x.h || '')), boutons: c.some(x => /<button/.test(x.h || '')) };
+                 ids: c.some(x => /\sid="/.test(x.h || '')), boutons: c.some(x => /<button/.test(x.h || '')),
+                 decor: c.some(x => /\bmarque\b|-fleches|background-image/.test(x.h || '')) };
       }, { t: P.tableResultats || 'resultats_1ere', d: ev.id });
       verifier('la note d\'une évaluation part en base avec la copie corrigée de chaque question',
         !!ligne && ligne.eval === true && ligne.mode === 'train' && ligne.n === 2 && ligne.juge && !ligne.ids && !ligne.boutons,
@@ -3557,6 +3558,8 @@ if(require.main === module) (async () => {
       /* 6. publiée : la note, puis la copie corrigée, NETTOYÉE */
       await s.page.evaluate(a => { const p = window.__faux.lignes(a.t)[0]; p.valeurs.evaluations[0].publie = true;
         const r = window.__faux.lignes(a.r).filter(x => x.details && x.details.dm === a.d)[0];
+        /* une copie enregistrée AVANT le correctif : cadre au marqueur en style en ligne, flèches mesurées */
+        r.details.copie.push({ i: 8, k: 'x', h: '<section><div class="card marque" data-marque="1x1" style="background-image:url(&quot;data:image/svg+xml,%3Csvg%3E%3C/svg%3E&quot;);background-position:0 0;background-size:9px 9px"><div class="enonce">É</div><div class="crd"><svg class="crd-fleches"><path d="M0 0"></path></svg><svg class="ddt-fleches"></svg></div></div></section>' });
         r.details.copie.push({ i: 9, k: 'x', h: '<div class="piege"><img src="x" onerror="window.__piege=1"><script>window.__piege=2<\/script><a href="javascript:window.__piege=3">a</a></div>' }); },
         { t: E.table, r: P.tableResultats || 'resultats_1ere', d: ev.id });
       await s.page.evaluate(id => ouvrirDevoirDetail(id), ev.id); await s.page.waitForTimeout(600);
@@ -3567,13 +3570,17 @@ if(require.main === module) (async () => {
         return { ecran: (document.querySelector('section.screen.on') || {}).id, q: c.querySelectorAll('.copie-q').length,
                  juge: c.querySelectorAll('.ok,.bad,.sol').length, piege: window.__piege || 0,
                  actif: c.querySelectorAll('script,[onerror]').length + [...c.querySelectorAll('a')].filter(a => /javascript:/i.test(a.getAttribute('href') || '')).length,
-                 note: document.getElementById('evalCopieNote').textContent };
+                 note: document.getElementById('evalCopieNote').textContent,
+                 decor: c.querySelectorAll('.marque,[data-marque],svg[class$="-fleches"]').length
+                      + [...c.querySelectorAll('[style]')].filter(x => /background-image/.test(x.getAttribute('style'))).length };
       });
       verifier('publiée, l\'évaluation montre la note puis la copie corrigée de chaque question',
-        /Note : \d/.test(pub) && copie.ecran === 'scr-evalcopie' && copie.q === 3 && copie.juge > 0 && /\/ 10/.test(copie.note),
+        /Note : \d/.test(pub) && copie.ecran === 'scr-evalcopie' && copie.q === 4 && copie.juge > 0 && /\/ 10/.test(copie.note),
         '« ' + pub.slice(0, 120) + ' » | ' + JSON.stringify(copie));
       verifier('la copie relue est NETTOYÉE : ni script, ni « on… », ni adresse javascript:',
         copie.piege === 0 && copie.actif === 0, JSON.stringify(copie));
+      verifier('la copie relue ne porte ni cadre au marqueur ni flèche mesurée sur l\'écran de l\'élève (même une copie enregistrée avant)',
+        copie.decor === 0 && ligne && ligne.decor === false, 'relue : ' + copie.decor + ' décor(s) ; photographiée : ' + JSON.stringify(ligne && ligne.decor));
       /* 7. le signalement envoyé de la copie emporte la copie et la note */
       await s.page.click('#evalCopieActs .btn-ghost'); await s.page.waitForTimeout(300);
       await s.page.fill('#sigInput', 'la question 2 me semble juste'); await s.page.click('#sigSend'); await s.page.waitForTimeout(700);
@@ -3637,7 +3644,7 @@ if(require.main === module) (async () => {
       await s.page.evaluate(() => dmStudentDetail('eleve-controle', 'Contrôle')); await s.page.waitForTimeout(300);
       const vuProf = await s.page.evaluate(() => { const b = [...document.querySelectorAll('#dmStudentDetail button')].find(x => /Voir la copie/.test(x.textContent)); if(!b) return 'aucun bouton'; b.click();
         return new Promise(r => setTimeout(() => r((document.querySelector('section.screen.on') || {}).id + ' · ' + document.querySelectorAll('#evalCopieCorps .copie-q').length), 600)); });
-      verifier('le professeur lit la copie corrigée depuis le bilan de l\'évaluation', /^scr-evalcopie · [23]$/.test(vuProf), vuProf);
+      verifier('le professeur lit la copie corrigée depuis le bilan de l\'évaluation', /^scr-evalcopie · [234]$/.test(vuProf), vuProf);
       await s.nav.close(); s = null;
     }
 
