@@ -1324,7 +1324,7 @@ lisent le même verrou.
 
 `mlFeuille` est comparée au caractère près dans les TROIS fichiers : l'option
 y entre partout, sans rien changer à la Terminale ni à la Seconde, qui ne la
-passent pas (Terminale v488, Seconde v665, pour le numéro seulement).
+passent pas (Terminale v489, Seconde v666, pour le numéro seulement).
 
 Contrôle : banc navigateur, « 6 vicies octies bis » — sur le 4.1 et le 5.2, la
 rédigée ouverte sous sa guidée notée (le contrôle exige `test.locked`, sans
