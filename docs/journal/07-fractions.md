@@ -2361,3 +2361,13 @@ Essai dans Chromium : 3 000 tirages de chaque, aucune borne franchie, aucun
 résultat entier, la moitié des 4.10 en soustraction ; les trois exercices de
 bout en bout (guidée juste, rédigée juste comptée) ; 7/8 − 1/4 − 1/2 rédigé
 juste accepté, 7/8 + 2/8 − 4/8 refusé.
+
+**Puis la parenthèse du 4.8 est positive, elle aussi (novembre 2026, Première
+v386).** Réponse de Turquet à la question laissée ouverte : « oui, la
+parenthèse doit aussi être positive ». `pqdGen` écarte toute parenthèse
+négative pour le produit comme pour le quotient (le « H » négatif de la
+fiche reste en Seconde) ; le résultat du 4.8 est donc positif. Le rappel
+(`RAP_PQD`) prend 3/2 × (4/5 − 1/2) = 9/20, et le contexte envoyé au modèle
+ne parle plus de signe « − ». `redFinLu` lit toujours une fraction signée :
+une copie qui finirait sur un nombre négatif reste jugée fausse par sa
+valeur, pas illisible.
