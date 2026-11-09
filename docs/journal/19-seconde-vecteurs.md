@@ -6184,3 +6184,27 @@ JSON ; u échangé, v au signe du haut, w absent (bad, bad, sol, chaque faute
 nommée, trois flèches vertes) ; le signe du bas nommé ; le contexte ; le 8.1.7
 inchangé. Vu dans un vrai Chromium : le tracé et la correction à 1 280 px, la mise
 en page à 390 px (la croix des signes passe sous les consignes).
+
+### Puis la décomposition grise et noire paraît à la vérification — 8.4.6 (Seconde v664)
+
+Turquet, novembre 2026 : « ajoute les flèches de décomposition à la
+vérification comme au 8.4.3 ». À la vérification finale, `tvxFinal` pose dans
+`#tvxCorr` — sous les flèches de l'élève — la décomposition de chaque vecteur
+(`tvxDecomposition`) : la grise horizontale du départ jusqu'à l'aplomb de
+l'arrivée, puis la noire verticale jusqu'à l'arrivée, chacune avec sa valeur
+sur une pastille cerclée de sa couleur (la recette du 8.4.4 : le nombre ne se
+perd pas dans le quadrillage). Elle se pose sous la flèche JUSTE : celle de
+l'élève quand elle est bleue, la verte de la correction sinon — jamais sous
+une flèche fausse, qui ferait lire un mauvais chemin. Un vecteur droit n'a
+qu'une flèche (la grise, ou la noire). Les pointes sont à taille fixe
+(`vcoPointe`, `tvxArrH`, `tvxArrN`), posées dans le dessin du 8.4.6 seulement.
+
+**Jamais avant la vérification finale** : en soutien, « Revérifier » ne montre
+rien — la décomposition est la réponse. La question suivante redessine son
+quadrillage sans elle.
+
+**Le banc principal** (`tracerCoordonnees`) : la copie juste vérifiée montre
+3 grises et 2 noires, « +3, −2, −1, +4, −4 », la grise de u partant du départ
+de l'élève ; la copie fausse, la même décomposition le long des flèches vertes ;
+en soutien, rien avant ni après « Revérifier ». Vu dans un vrai Chromium à
+1 280 px.

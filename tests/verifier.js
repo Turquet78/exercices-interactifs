@@ -15743,7 +15743,14 @@ function tracerCoordonnees(w, P){
     if(noms!=='u,v,w') vus.push('les flèches de l\\'élève ne s\\'appellent pas u, v, w : '+noms);
     test.questions[0]=JSON.parse(JSON.stringify(q0)); renderTvx();
     if(verifierIci()!==3 || classes()!=='ok,ok,ok') vus.push('la copie juste vaut '+test.score+' : '+classes());
-    if(el('tvxCorr').children.length) vus.push('la correction se montre alors que tout est juste');
+    if(el('tvxCorr').querySelectorAll('.svc-s').length) vus.push('une flèche verte se montre alors que tout est juste');
+    /* la décomposition du 8.4.3 à la vérification : une grise par horizontal
+       non nul, une noire par vertical, les valeurs écrites, sous les flèches */
+    const dec=function(){ return el('tvxCorr').querySelectorAll('line.vco-h').length+' grises, '+el('tvxCorr').querySelectorAll('line.vco-b').length+' noires : '
+      +Array.from(el('tvxCorr').querySelectorAll('text.vco-et')).map(function(t){ return t.textContent; }).join(','); };
+    if(dec()!=='3 grises, 2 noires : +3,−2,−1,+4,−4') vus.push('la décomposition de la copie juste : '+dec());
+    const gx=el('tvxCorr').querySelector('line.vco-h');
+    if(!gx || gx.getAttribute('x1')!==String(tvxX(2)) || gx.getAttribute('y1')!==String(tvxY(8))) vus.push('la grise de u ne part pas du départ de l\'élève');
 
     /* 4. les pièges : u échangé, v signe du haut, w absent */
     nextTvx(); clearTimeout(test.fbTimer);
@@ -15757,6 +15764,14 @@ function tracerCoordonnees(w, P){
     if(cs.length!==3) vus.push(cs.length+' flèches vertes au lieu de 3');
     const rep=test.answers[test.answers.length-1];
     if(!rep || rep.q.indexOf('u (3 ; −2)')<0) vus.push('la question enregistrée ne donne pas les coordonnées : '+(rep&&rep.q));
+    /* la décomposition suit la flèche verte (le bon chemin), jamais la fausse */
+    if(dec()!=='3 grises, 2 noires : +3,−2,−1,+4,−4') vus.push('la décomposition de la copie fausse : '+dec());
+    /* en soutien, rien : la décomposition serait la réponse */
+    currentMode='soutien'; test.questions[1]=fixe(); test.idx=1; renderTvx();
+    if(el('tvxCorr').children.length) vus.push('une décomposition paraît avant la vérification');
+    tracer([2,2],[0,5]); checkTvx(); clearTimeout(test.fbTimer);
+    if(el('tvxCorr').querySelectorAll('.tvx-dec').length) vus.push('en soutien, « Revérifier » montre la décomposition');
+    currentMode='train';
 
     /* 5. le signe du bas, nommé */
     test.questions[1]=fixe(); test.idx=1; renderTvx();
