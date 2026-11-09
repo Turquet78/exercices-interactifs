@@ -136,7 +136,10 @@ module.exports = {
        n'a PLUS de rédigée (retirée à la demande de Turquet, novembre 2026) :
        redige:false, ses deux pages seules, comme en Seconde. */
     calculLitteralRedige: { theme: 5, exercices: { 'reduire-produit': { num: '5.1', n: 2, redige: false },
-      'developper-distributivite': { num: '5.2', n: 12 }, 'developper-double': { num: '5.3', n: 8 } } },
+      'developper-distributivite': { num: '5.2', n: 12 }, 'developper-double': { num: '5.3', n: 8,
+        /* le tirage de la Première (novembre 2026) : (ax + b)(cx + d), a et c
+           valent 1 ou 2, b et d relatifs de −5 à 5 sauf 0, sur chaque page */
+        petitsNombres: true } } },
     /* Les tirages par familles : voir le profil de la Terminale. */
     tiragesParFamilles: {
       startReconnaitreCoef: 'aug, dim, pre : trois familles différentes',
