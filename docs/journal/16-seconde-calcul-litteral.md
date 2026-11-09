@@ -1107,3 +1107,93 @@ visible) : 7.5, 7.8 à 7.12 et 7.14 à 7.17 portaient du Times ; après, plus
 un seul. La Première et la Terminale ne déclarent pas l'option : leur contrôle
 reste celui d'avant. Le thème 8 (vecteurs : `.vtr-*`, `.tcp-sel`) garde son
 Times, qui y écrit des noms de points et de vecteurs, pas l'inconnue.
+
+## Première — 5.1, 5.2, 5.3 : les 7.8, 7.9 et 7.10 de la Seconde, avec leur question rédigée (novembre 2026, Première v391)
+
+**La demande** (Turquet) : « mets les exercices de seconde 7.8 ; 7.9 ; 7.10
+en première dans un thème calcul littérale. On proposera après la question
+avec des cases à remplir, une question avec une rédaction comme dans les
+fractions de première. » Un thème neuf, le 5 « Calcul littéral », ajouté EN
+DERNIER : il ne renumérote rien. Les identifiants sont ceux de la Seconde
+(`reduire-produit` 5.1, `developper-distributivite` 5.2, `developper-double`
+5.3) — les tables de notes des deux niveaux sont séparées. La Seconde ne
+change pas.
+
+**Les moteurs sont recopiés, pas réécrits** (rpd, dvl, dvd, avec `LIT_TOUCHES`
+/ `litPave`, les lecteurs `redEcrit`, `redLit`, `redMeme`, `redCarre` du 7.5,
+et `ensShuffle`), tout comme le CSS du thème et la police « ApfX ». Les
+branches du 7.11 et du 7.17 (`dvn`, `dvo`) y restent, lettre morte. Ce qui
+change, et seulement cela :
+
+* **Une question vaut UN point.** La note de la Première se compte sur le
+  nombre de questions (`finishTest` : `total = test.questions.length`), pas
+  sur `test.maxScore` : la guidée compte si elle est parfaite (`if(allOk)
+  test.score++`), ses cases justes vont au crédit partiel (`ptsExo`), et
+  `maxScore` vaut le nombre de questions. Recopier `test.score += nCorrect`
+  aurait donné 60 points sur 4 questions. L'en-tête dit « Exercices
+  parfaits », comme les fractions.
+* **Pas de bouton des tables en Première** : `conseilInlineBtn()` devient
+  `sfBoutonsAide()`.
+* **`test.qId` est écrit en toutes lettres** : le ternaire de la Seconde
+  (`nu ? '…-nu' : '…'`) échappe au contrôle « chaque exercice enregistre sa
+  note sous son identifiant », qui ne lit que des littéraux.
+
+**La rédigée est celle des fractions** (`RED_CFG` gagne `rpd`, `dvl`, `dvd` ;
+`redMath` renvoie `litrMath`). Les questions vont par paires (`litrPaires`) :
+la guidée, puis une rédigée de la MÊME forme, d'autres nombres — deux pages
+et deux rédigées au 5.1 (4 questions), six et six au 5.2 (12), quatre et
+quatre au 5.3 (8). Au 5.1 la rédigée est un produit de deux facteurs de la
+fiche (`rpdRedacGen`, jamais x × x). La feuille commence par l'expression
+suivie de « = » (`−3x × (−5x) =`, `(4x − 3) × (2x − 5) =`). Le module a
+gagné trois champs facultatifs dans `redMath` — `suite` et `astuce` (la
+phrase « fraction irréductible » et l'aide « / fait une fraction » ne
+valaient que pour les fractions), `verdictIA` et `secours` (les phrases du
+juge) — que `sfrAfficher` et `checkSFR` lisent s'ils existent ; les
+fractions n'en posent aucun et ne changent pas. La consigne de l'écran,
+remplacée par `sfrRendu` sur une rédigée, revient à chaque guidée
+(`litrConsigne`). L'énoncé rédigé est une rangée flex : l'expression y est
+UN `<span>`, sans quoi les espaces autour du « × » disparaissaient
+(« −6x×x », vu sur la première capture).
+
+**Le juge lit des POLYNÔMES** (`litPoly`, `litJuge`), en entiers, dans le
+texte que rend `toPlain` (« -3x*(-5x) », « x^(2) ») : produits implicites
+(« 5x », « 3(x+1) », « (x+1)(x+2) »), puissances, signes. Chaque morceau de
+la chaîne doit valoir l'expression de départ (motif `egalite`, le morceau
+nommé) ; le dernier doit être RÉDUIT au sens de `redLit` (motif `reduire`) ;
+là où la guidée fait réduire — le 5.3 et la page F du 5.2 — l'étape
+DÉVELOPPÉE est exigée (motif `etape`) : un morceau sans parenthèse qui
+contienne une somme, et pas encore réduit (`litDeveloppe`) — « (−3) × (−5) »
+y est un produit développé, « 4x(2x − 5) » non. C'est le pendant de l'étape
+du même dénominateur des fractions. Ailleurs, le résultat direct suffit. Une
+copie illisible (une fraction, un décimal, une autre lettre) rend
+`{sait:false}` : le modèle tranche, comme pour les fractions. Le verdict du
+juge s'impose au modèle ; sans modèle, les phrases de `litrSecours`, qui ne
+donnent jamais le résultat.
+
+**Les rappels** (`RAPPELS_ID`) sont ceux de la Seconde, plus une phrase sur
+la rédigée ; `QIA_SUGG` et le contexte de l'aide (`ctxRpd`, `ctxDvl`,
+`ctxDvd`, ou `sfrCtxTexte` sur une rédigée) aussi.
+
+**Les contrôles.** `calculLitteralRedige` (`tests/verifier.js`, déclaré dans
+le profil de la Première) lance les trois démarreurs réels — numéros, paires
+alternées, rédigée de même forme et jamais recopiée, zone sur l'écran,
+barème d'un point par question — puis éprouve le juge sur des copies écrites
+à la main : la copie juste, les quatre produits puis la réduction, la forme
+réduite sans l'étape (refusée), une étape qui garde ses parenthèses
+(refusée), −15 pour (−3) × (−5) (le morceau nommé), une copie non réduite,
+une copie illisible (confiée au modèle), la page F sans étape, −15x² pour
+−3x × (−5x), 15x × x non réduit ; le LaTeX de départ, ce que lit le modèle,
+et une phrase de secours qui ne donne pas le résultat. Les trois contrôles
+de la Seconde (`reduireProduit`, `developperDistributivite`,
+`developperDouble`) s'appliquaient d'eux-mêmes à la Première dès que ses
+fonctions existaient — et rougissaient (numéro 7.x, `TABLES_SANS` absent) :
+ils lisent maintenant `P.calculLitteralRedige` pour la place et le barème,
+et ne jugent que les guidées ; la Seconde n'y voit aucune différence.
+`clavierLitteral` et `casesCalculTexte` sont déclarés pour la Première,
+comme pour la Seconde.
+
+Essai dans Chromium (hors banc) : les trois exercices de bout en bout en
+entraînement, chaque guidée remplie juste (aucune case rouge, un point), la
+rédigée ouverte dessous, rédigée juste (un point), 10 / 10 à la fin. Ce que
+ce banc ne voit pas : le x en italique arrondi des cases (la police
+« ApfX » vient du CDN, que les bancs coupent).
