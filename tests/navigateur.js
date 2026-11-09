@@ -8543,6 +8543,17 @@ if(require.main === module) (async () => {
         }, [zoneId, guideeId]);
         if(!z.redac || z.idx !== 1){ dits.push(exo + ' : aucune question rédigée ne s’ouvre après la guidée'); continue; }
         if(!z.vue) dits.push(exo + ' rédigé : la zone ne s’affiche pas après la question guidée');
+        /* LE SIGNE DE L'ÉNONCÉ RÉDIGÉ TOMBE SUR LES TRAITS (Turquet, novembre
+           2026 : au 4.1, le « + » ou le « ÷ » montait au-dessus des fractions —
+           #rvfrPrompt manquait à la liste d'identifiants qui met l'énoncé en
+           rangée, devenue la classe .sfr-prompt). La visite universelle ne
+           voit que la première question : celle-ci ne s'ouvre qu'ici. */
+        const sgr = await s.page.evaluate(zid => {
+          const pr = document.querySelector('#' + zid + ' .sfr-prompt'); if(!pr) return 'pas d’énoncé .sfr-prompt';
+          const op = pr.querySelector('b'), bar = pr.querySelector('.sf-f .bar'); if(!op || !bar) return 'ni signe ni trait';
+          const mil = e => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; };
+          const d = Math.abs(mil(op) - mil(bar)); return d > 3 ? '« ' + op.textContent + ' » à ' + d.toFixed(1) + ' px du trait' : null; }, zoneId);
+        if(sgr) dits.push(exo + ' rédigé : ' + sgr);
         if(!z.guidee) dits.push(exo + ' rédigé : la question guidée a disparu de l’écran');
         if(!/^\\frac\{1\}\{2\}\+\\frac\{1\}\{3\}=\s*$/.test(z.depart || '')) dits.push(exo + ' rédigé : la feuille ne commence pas par 1/2 + 1/3 suivi de « = » (' + z.depart + ')');
         await s.page.evaluate(([zid, c]) => { document.querySelector('#' + zid + ' math-field').setValue(test.sfrDepart + c); checkSFR(); }, [zoneId, copie]);
@@ -16703,7 +16714,7 @@ if(require.main === module) (async () => {
               const bar = frac.querySelector('.bar'); if(!bar) continue;
               const rf = frac.getBoundingClientRect();
               for(const sg of [...on.querySelectorAll('.f-times, .f-eq, b')].filter(visible)){
-                if(!/^[+−=]$/.test((sg.textContent || '').trim())) continue;
+                if(!/^[+−=×÷]$/.test((sg.textContent || '').trim())) continue;   /* × et ÷ aussi : le « ÷ » du 4.1 rédigé montait au-dessus des traits (Première, novembre 2026) */
                 if(sg.closest('math-field')) continue;
                 const rs = sg.getBoundingClientRect();
                 if(Math.min(rf.bottom, rs.bottom) - Math.max(rf.top, rs.top) <= Math.min(rf.height, rs.height) * 0.5) continue;

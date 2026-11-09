@@ -1797,8 +1797,11 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* La question RÉDIGÉE des 4.3 à 4.6 (octobre 2026) se pose sous la question guidée,
    sur le même écran : la même règle de rangée pour son énoncé, et un filet qui
    sépare les deux temps de l'exercice. */
-#sfrPrompt,#mltrPrompt,#spfrPrompt,#pqdrPrompt,#tsfrPrompt,#rpdrPrompt,#dvlrPrompt,#dvdrPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
-#sfrPrompt .sfl-suite,#mltrPrompt .sfl-suite,#spfrPrompt .sfl-suite,#pqdrPrompt .sfl-suite,#tsfrPrompt .sfl-suite,#rpdrPrompt .sfl-suite,#dvlrPrompt .sfl-suite,#dvdrPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
+/* Une CLASSE, posée par sfrAfficher() : la liste d'identifiants qu'elle remplace
+   avait oublié le 4.1 (#rvfrPrompt), dont le « ÷ » montait au-dessus des traits
+   (novembre 2026). Un moteur rédigé ajouté demain la reçoit sans rien déclarer. */
+.sfr-prompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+.sfr-prompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
 .sfr-zone{margin-top:18px;padding-top:14px;border-top:2px dashed var(--line)}
 .sf-prod{align-items:stretch}
 .sf-prod .sf-l{display:inline-flex;align-items:center;gap:6px;justify-content:center}
@@ -3595,7 +3598,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=391;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=392;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -18075,7 +18078,7 @@ function sfrAfficher(q){
   z.hidden=false;
   /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
      entre deux éléments disparaît. */
-  z.innerHTML='<p class="mp-instr enonce-suite" id="'+r+'Prompt">À toi de rédiger : calcule '+m.html
+  z.innerHTML='<p class="mp-instr enonce-suite sfr-prompt" id="'+r+'Prompt">À toi de rédiger : calcule '+m.html
       +'.<span class="sfl-suite">'+(m.suite||'Donne le résultat sous forme de fraction irréductible.')+'</span></p>'
     +'<div class="dexp2-sheet" id="'+r+'Sheet"></div>'
     +'<p class="dexp-hint">Écris ton calcul à la suite du « = », une étape par ligne ou tout à la suite. '
