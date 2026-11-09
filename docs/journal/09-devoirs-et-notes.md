@@ -1930,7 +1930,7 @@ peintes avec des cases `ok`), sans `evalNettoyer`, sans `bonus` dans
 professeur compte trois familles, et l'ordre des cartes de l'accueil.
 
 **Puis l'ordre des exercices d'une ÉVALUATION s'est réglé, comme sur une
-fiche — l'affichage, jamais un verrou (v387, demande de Turquet, novembre
+fiche — l'affichage, jamais un verrou (v389, demande de Turquet, novembre
 2026 : « je voulais aussi pouvoir changer l'ordre des exercices dans une
 évaluation comme dans les fiches de travail »).** Le ruban ▲▼ de l'éditeur
 était gardé par `dmGenre!=='fiche'` : il s'ouvre aux évaluations
@@ -1943,3 +1943,29 @@ l'élève (`renderEvalDetail`) l'itère — elle numérote désormais ses cartes
 le ruban et ses flèches, l'ordre emporté par l'enregistrement, l'élève qui
 lit les exercices numérotés dans cet ordre. Éprouvé par sabotage (le ruban
 rendu aux seules fiches : « flèches : -1 »).
+
+**Puis la note d'une ÉVALUATION est devenue PROPORTIONNELLE aux cases justes
+(Première v387, demande de Turquet, novembre 2026).** Sur la copie d'un 4.1
+(3/2 + 1/2) : la règle « dénominateur » choisie juste, 3 écrit au numérateur
+(faux), 2 au dénominateur (juste), et les quatre cases de simplification
+remplies en vert par la correction — la note affichait 0 / 10, parce que la
+Première ne comptait que les questions parfaites (`CREDIT_PARTIEL_FIN`
+suspendu). « Je veux une note proportionnelle au nombre d'erreurs. » Deux
+gestes :
+* **en évaluation seulement** (`enEvaluation()`), `acquisDe` compte le crédit
+  partiel de chaque question (`creditPartielActif()`), c'est-à-dire la part de
+  ses cases justes relue par `ptsEcran()`. La règle choisie dans la liste
+  compte comme une case (choix de Turquet : « toutes les cases, règle
+  comprise ») ; une case laissée vide compte fausse (`.sol` est au
+  dénominateur). L'entraînement, les devoirs et les fiches gardent la note
+  des questions parfaites : les réserves de l'en-tête de `CREDIT_PARTIEL_FIN`
+  y restent vraies ;
+* **la simplification que l'élève n'avait pas à écrire sort du compte** :
+  sa fraction écrite ne se simplifie pas (3/2), la chaîne ne s'est jamais
+  ouverte devant lui (`rvfMajSimp`), la vérification la montre sur la bonne
+  réponse — ses cases reçoivent `.hors-note`, que `ptsEcran()` saute
+  désormais. La copie de la capture vaut donc 2 / 3, soit 6,7 / 10.
+Contrôle : banc navigateur, « 7 bis » de la section des évaluations — la
+copie de la capture rejouée (`evaluations.proportionnelle`, `tests/profils.js`)
+doit enregistrer `details.note` = 2/3 et 67 %. Les notes d'évaluation déjà
+enregistrées ne sont pas recalculées : le professeur les pose à la main.
