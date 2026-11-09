@@ -1991,7 +1991,7 @@ mesurée… », sur une copie d'avant le correctif glissée dans la ligne de not
 et sur la copie fraîchement photographiée.
 
 **Une note que la base REFUSE ne se perd plus — et l'écran de fin le dit
-(Première, v396).** Signalé par Turquet (novembre 2026) sur la fiche n°10 :
+(Première, v397).** Signalé par Turquet (novembre 2026) sur la fiche n°10 :
 « j'ai bien fait l'exercice sur la fiche, et j'ai bien vu mes résultats, mais
 cela n'a pas été pris en compte » — la carte du 4.2 disait « À faire », le 4.1
 restait verrouillé. Le parcours, rejoué dans Chromium (source et page
