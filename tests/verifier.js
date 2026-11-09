@@ -4790,6 +4790,7 @@ function exercices(suite){
     pointSommeDifference(w, P);
     tracerVecteursEgaux(w, P);
     tracerVecteursOpposes(w, P);
+    tracerCoordonnees(w, P);
     translationPavage(w, P);
     demontrerParallelogramme(w, P);
     chaslesInsererPoint(w, P);
@@ -15666,6 +15667,112 @@ function vecteursColineairesSuite(w, P){
     if(classe(el('kmi-0-0'))!=='bad' || el('kmiFeedback').textContent.indexOf('sommet A')<0) vus.push('8.3.8 : IB + BJ n\\'est pas nommé : '+el('kmiFeedback').textContent.slice(0,200));
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0) vus.push('8.3.8 : le contexte du modèle');
     return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {coordonnees-vecteur-tracer} (Seconde, 8.4.6 — demande de Turquet, novembre
+   2026 : « créer un exercice comme le 8.4.3, où l'on donne les coordonnées et
+   où on demande de tracer les vecteurs correspondants comme dans l'exercice
+   8.3.1 »). Le moteur du 8.1.7 (q.co) : aucun vecteur dessiné, les
+   coordonnées en colonne, la croix des signes ; le tirage (chemins, signes,
+   un droit parfois), la copie juste au geste, la reprise après JSON, les
+   pièges nommés (échangés, signe du haut, signe du bas), la correction verte,
+   le contexte, et les 8.1.7 / 8.3.1 qui restent eux-mêmes. */
+function tracerCoordonnees(w, P){
+  const nom = 'vecteurs à tracer par leurs coordonnées : la place, le tirage, l\'écran sans vecteur donné, la croix des signes, juste / échangé / signe, la correction, la reprise';
+  if(!P.tracerCoordonnees){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice des vecteurs à tracer par leurs coordonnées');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.tracerCoordonnees)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['coordonnees-vecteur-parallelogramme']!=='8.4.5' || TEST_NUM['construire-multiple-vecteur']!=='8.3.1') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS_ID[D.exercice]!==RAP_TVC || !QIA_SUGG_ID[D.exercice]) vus.push('le rappel ou les questions à l\\'IA ne sont pas ceux du 8.4.6');
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const classes=function(){ return ['tvx-u','tvx-v','tvx-w'].map(classe).join(','); };
+    const fixe=function(){ return {vs:[[0,0,3,-2],[0,0,-1,4],[0,0,-4,0]], d1:null, f1:null, d2:null, f2:null, d3:null, f3:null, co:1}; };
+    const verifierIci=function(){ const av=test.score; checkTvx(); clearTimeout(test.fbTimer); return test.score-av; };
+    const tracer=function(a,b){ tvxClic(a[0],a[1]); tvxClic(b[0],b[1]); };
+
+    /* 1. le tirage : deux cents séances */
+    TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='tvx') vus.push('kind « '+test.kind+' » au lieu de tvx');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    if(test.questions.length!==D.nb) vus.push(test.questions.length+' questions au lieu de '+D.nb);
+    let droits=0, memes=0;
+    for(let n=0;n<200 && vus.length<4;n++){
+      const qs=tvxBuildQuestions(false,false,true);
+      if(new Set(qs.map(function(q){ return JSON.stringify(q.vs); })).size!==qs.length){ vus.push('deux questions identiques'); break; }
+      qs.forEach(function(q){
+        if(Object.keys(q).sort().join(',')!=='co,d1,d2,d3,f1,f2,f3,vs' || q.co!==1 || q.vs.length!==3){ vus.push('la question range : '+JSON.stringify(q)); return; }
+        const ws=q.vs.map(function(v){ return [v[2],v[3]]; });
+        if(q.vs.some(function(v){ return v[0]||v[1]; })) vus.push('une origine est posée : '+JSON.stringify(q.vs));
+        if(ws.some(function(w){ return Math.abs(w[0])>4||Math.abs(w[1])>4||Math.abs(w[0])+Math.abs(w[1])<3; })) vus.push('un chemin hors bornes : '+JSON.stringify(ws));
+        if(new Set(ws.map(function(w){ return Math.sign(w[0])+','+Math.sign(w[1]); })).size!==3) vus.push('deux vecteurs ont les mêmes signes : '+JSON.stringify(ws));
+        for(let a=0;a<3;a++) for(let b=a+1;b<3;b++) if(ws[a][0]*ws[b][1]-ws[a][1]*ws[b][0]===0) vus.push('deux vecteurs parallèles : '+JSON.stringify(ws));
+        const z=ws.filter(function(w){ return !w[0]||!w[1]; }).length;
+        if(z>1) vus.push('plus d\\'un vecteur droit : '+JSON.stringify(ws));
+        droits+=z;
+        const ab=ws.filter(function(w){ return w[0]&&w[1]; }).map(function(w){ return Math.abs(w[0])+','+Math.abs(w[1]); });
+        if(new Set(ab).size<ab.length) memes++;
+      });
+    }
+    if(!droits || !memes) vus.push('le tirage ne sort jamais de droit ('+droits+') ou de biais aux mêmes carreaux ('+memes+')');
+    if(tvxBuildQuestions().some(function(q){ return 'co' in q; })) vus.push('le 8.1.7 range co : ses questions ont changé');
+
+    /* 2. l'écran : aucun vecteur dessiné, les coordonnées en colonne, la croix des signes */
+    test.questions[0]=fixe(); test.idx=0; renderTvx();
+    if(el('tvxDonnes').children.length) vus.push('un vecteur donné est dessiné');
+    const cols=Array.from(document.querySelectorAll('#tvxInstr .vco-col')).map(function(c){ return c.textContent; }).join(' ');
+    if(cols!=='3−2 −14 −40') vus.push('les coordonnées en colonne de l\\'énoncé : '+cols);
+    if(el('tvx-u').querySelectorAll('.vco-col').length!==1) vus.push('l\\'étape ① ne montre pas les coordonnées de u');
+    if(!document.querySelector('#tvxBody .vco-rose')) vus.push('la croix des signes manque');
+    if(el('tvxEtape').textContent.indexOf('Trace le vecteur u')<0) vus.push('la page ne dit pas de tracer u : '+el('tvxEtape').textContent);
+    if(/\\b\\d+ carreaux? vers/.test(el('tvxInstr').textContent+el('tvxBody').textContent)) vus.push('la page traduit les coordonnées en carreaux : la réponse est écrite');
+
+    /* 3. la copie juste, n'importe où ; la reprise après JSON */
+    const q0=test.questions[0];
+    tracer([2,8],[5,6]); tracer([10,2],[9,6]); tracer([16,3],[12,3]);
+    const noms=Array.from(document.querySelectorAll('#tvxFl text.svc-nom')).map(function(t){ return t.textContent; }).join(',');
+    if(noms!=='u,v,w') vus.push('les flèches de l\\'élève ne s\\'appellent pas u, v, w : '+noms);
+    test.questions[0]=JSON.parse(JSON.stringify(q0)); renderTvx();
+    if(verifierIci()!==3 || classes()!=='ok,ok,ok') vus.push('la copie juste vaut '+test.score+' : '+classes());
+    if(el('tvxCorr').children.length) vus.push('la correction se montre alors que tout est juste');
+
+    /* 4. les pièges : u échangé, v signe du haut, w absent */
+    nextTvx(); clearTimeout(test.fbTimer);
+    if(!test.questions[1].co) vus.push('la question suivante a perdu co');
+    test.questions[1]=fixe(); renderTvx();
+    tracer([2,2],[0,5]); tracer([10,2],[11,6]);
+    if(verifierIci()!==0 || classes()!=='bad,bad,sol') vus.push('u échangé, v signe du haut, w absent : '+classes()+' au lieu de bad,bad,sol');
+    const fb=el('tvxFeedback').textContent;
+    if(fb.indexOf('échange les deux déplacements')<0 || fb.indexOf('vers la GAUCHE')<0 || fb.indexOf('u (3 ; −2) fait 3 carreaux vers la droite puis 2 carreaux vers le bas')<0 || fb.indexOf('Il te manquait 1 case')<0) vus.push('le message ne nomme pas les fautes : '+fb.slice(0,300));
+    const cs=document.querySelectorAll('#tvxCorr line.svc-s');
+    if(cs.length!==3) vus.push(cs.length+' flèches vertes au lieu de 3');
+    const rep=test.answers[test.answers.length-1];
+    if(!rep || rep.q.indexOf('u (3 ; −2)')<0) vus.push('la question enregistrée ne donne pas les coordonnées : '+(rep&&rep.q));
+
+    /* 5. le signe du bas, nommé */
+    test.questions[1]=fixe(); test.idx=1; renderTvx();
+    tracer([2,2],[5,4]);
+    checkTvx(); clearTimeout(test.fbTimer);
+    if(el('tvxFeedback').textContent.indexOf('on va vers le BAS')<0) vus.push('le signe du bas n\\'est pas nommé : '+el('tvxFeedback').textContent.slice(0,200));
+
+    /* 6. le contexte du modèle */
+    const ctx=conseilCtxCourant();
+    if(ctx.indexOf('Aucun vecteur n’est dessiné')<0 || ctx.indexOf('u (3 ; −2)')<0 || ctx.indexOf('ne traduis pas')<0) vus.push('le contexte du modèle ne parle pas des coordonnées');
+
+    /* 7. le 8.1.7 et le 8.3.1 restent eux-mêmes */
+    currentTestId='tracer-vecteurs-egaux'; TESTS['tracer-vecteurs-egaux'].start(); clearTimeout(test.fbTimer);
+    if(el('tvxDonnes').children.length<3 || document.querySelector('#tvxBody .vco-rose')) vus.push('le 8.1.7 a changé d\\'écran');
+    currentTestId=D.exercice;
+    return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
 

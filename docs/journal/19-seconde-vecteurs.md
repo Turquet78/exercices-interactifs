@@ -6132,3 +6132,55 @@ parallélogramme, fin et début échangés, un signe, « = », « ABCD », « es
 la bulle au résultat de CD⃗ puis à celui de AB⃗, rien hors du soutien. Vu
 dans un vrai Chromium à 1 280 et 390 px : la page vide, la correction, la
 bulle à droite du résultat.
+
+## {coordonnees-vecteur-tracer} — tracer un vecteur par ses coordonnées (8.4.6, Seconde v663 — la v662 prise sur main pendant les bancs, par le 8.3.5)
+
+**La demande** (Turquet, novembre 2026) : « en seconde créer un exercice comme
+le 8.4.3, où l'on donne les coordonnées et où on demande de tracer les
+vecteurs correspondants comme dans l'exercice 8.3.1 ». Le 8.4.3 à l'envers :
+les coordonnées sont données, la flèche est à tracer.
+
+**Le moteur est celui du 8.1.7 (`tvx`)**, comme le 8.1.8 et le 8.3.1 : même
+geste (un clic pour le départ, un pour l'arrivée, les extrémités reprises,
+Échap, « Effacer mes flèches », la barre « Je place » au doigt), même juge
+(le chemin, où que la flèche soit), même écran. La question porte `q.co = 1` ;
+`q.vs` range les trois chemins avec une origine nulle — rien n'est posé sur le
+dessin, le quadrillage est vide. Trois vecteurs u⃗, v⃗, w⃗ par question (le
+moteur en trace trois), trois questions, barème 9.
+
+**L'écran** : l'énoncé et chaque consigne écrivent les coordonnées en colonne
+(`vcoColHTML`, le nombre du haut en gris comme le déplacement horizontal du
+8.4.1 — `#scr-tvx` a reçu `--vco-gris`) ; la croix des signes du 8.4.3
+(`vcoRoseSvg`) se pose à droite des consignes, dessous sur téléphone. Aucune
+phrase de la page ne traduit les coordonnées en carreaux avant la
+vérification : ce serait la réponse.
+
+**Le tirage** (`tvxGenC`) : chemins de 1 à 4 carreaux par direction, 3 au
+moins en tout, deux à deux non parallèles, chacun sa paire de signes ; une
+fois sur trois un droit (une coordonnée nulle, de 2 à 4) ; une fois sur deux,
+deux biais ont les MÊMES nombres de carreaux et seuls les signes les
+distinguent — le piège du 8.4.2.
+
+**Les pièges nommés** (`tvxPourquoi`, branche `q.co`) : l'horizontal et le
+vertical échangés (« le nombre du HAUT est le déplacement horizontal ») ; le
+signe du haut (« négatif, on va vers la GAUCHE ») ; celui du bas ; les deux
+(« à l'envers ») ; puis le chemin attendu et celui de la flèche, en carreaux.
+La correction trace en vert la flèche de chaque vecteur manqué (`tvxFinal`,
+sans place réservée à des vecteurs donnés qui n'existent pas).
+
+**Le contexte du modèle** (`ctxTvx`) donne les coordonnées et les flèches de
+l'élève ; sa contrainte : ne pas traduire lui-même les coordonnées en
+carreaux, faire dire à l'élève ce que veut dire chaque nombre et chaque signe.
+Rappel `RAP_TVC` (par identifiant), questions à l'IA par identifiant, pas de
+bouton des tables.
+
+**Le banc principal** (`tracerCoordonnees`, `tests/verifier.js`) : la place
+8.4.6 et les voisins, le rappel, les tables absentes ; deux cents séances (les
+clés rangées, aucune origine, les bornes, trois paires de signes, rien de
+parallèle, au plus un droit, des droits et des biais jumeaux au fil des
+tirages) ; l'écran (aucun vecteur dessiné, les colonnes de l'énoncé, la croix,
+aucune traduction en carreaux) ; la copie juste tracée n'importe où, après
+JSON ; u échangé, v au signe du haut, w absent (bad, bad, sol, chaque faute
+nommée, trois flèches vertes) ; le signe du bas nommé ; le contexte ; le 8.1.7
+inchangé. Vu dans un vrai Chromium : le tracé et la correction à 1 280 px, la mise
+en page à 390 px (la croix des signes passe sous les consignes).
