@@ -6133,7 +6133,7 @@ la bulle au résultat de CD⃗ puis à celui de AB⃗, rien hors du soutien. Vu
 dans un vrai Chromium à 1 280 et 390 px : la page vide, la correction, la
 bulle à droite du résultat.
 
-## {coordonnees-vecteur-tracer} — tracer un vecteur par ses coordonnées (8.4.6, Seconde v662)
+## {coordonnees-vecteur-tracer} — tracer un vecteur par ses coordonnées (8.4.6, Seconde v663 — la v662 prise sur main pendant les bancs, par le 8.3.5)
 
 **La demande** (Turquet, novembre 2026) : « en seconde créer un exercice comme
 le 8.4.3, où l'on donne les coordonnées et où on demande de tracer les
